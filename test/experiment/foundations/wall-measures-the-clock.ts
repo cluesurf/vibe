@@ -66,7 +66,10 @@ function setting(side: number, radius: number, beats: number): Setting {
   return { mesh, late, lateCells: [...late], deepSites, beats }
 }
 
-const ruleCache = new WeakMap<Setting['mesh'], ReturnType<typeof pairCollision>>()
+const ruleCache = new WeakMap<
+  Setting['mesh'],
+  ReturnType<typeof pairCollision>
+>()
 
 function ruleOf(s: Setting): ReturnType<typeof pairCollision> {
   const cached = ruleCache.get(s.mesh)
@@ -151,11 +154,26 @@ export default experiment({
     const main = setting(9, 3, 24)
 
     // 1. the exhaustive outcome census per offset
-    const census: Record<number, { quiet: number; loud: number; middle: number; legal: number; exactRoot3: number }> = {}
+    const census: Record<
+      number,
+      {
+        quiet: number
+        loud: number
+        middle: number
+        legal: number
+        exactRoot3: number
+      }
+    > = {}
 
     for (const birth of [0, 1, 2, 3]) {
       const beat = legalBeat(birth)
-      const row = { quiet: 0, loud: 0, middle: 0, legal: 0, exactRoot3: 0 }
+      const row = {
+        quiet: 0,
+        loud: 0,
+        middle: 0,
+        legal: 0,
+        exactRoot3: 0,
+      }
 
       for (const cell of main.deepSites) {
         for (const direction of [0, 6, 12]) {
@@ -172,7 +190,10 @@ export default experiment({
           if (magnitude < QUIET) {
             row.quiet++
 
-            if (Math.abs(magnitude - ROOT3) < EXACT || magnitude < EXACT) {
+            if (
+              Math.abs(magnitude - ROOT3) < EXACT ||
+              magnitude < EXACT
+            ) {
               row.exactRoot3++
             }
           } else if (magnitude > LOUD) {
@@ -191,7 +212,9 @@ export default experiment({
     const beat2 = legalBeat(2)
     const singles = shellOne
       .slice(0, 3)
-      .map(cell => response(main, 2, [{ cell, beat: beat2, direction: 0 }]))
+      .map(cell =>
+        response(main, 2, [{ cell, beat: beat2, direction: 0 }]),
+      )
 
     let worstCountLaw = 0
 
@@ -199,7 +222,9 @@ export default experiment({
       const joint = response(
         main,
         2,
-        shellOne.slice(0, n).map(cell => ({ cell, beat: beat2, direction: 0 })),
+        shellOne
+          .slice(0, n)
+          .map(cell => ({ cell, beat: beat2, direction: 0 })),
       )
       const sum = singles.slice(0, n).reduce((a, b) => a + b, 0)
 

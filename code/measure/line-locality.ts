@@ -21,29 +21,60 @@
 // number of singles, the cases where the collision's permutation carries a held slot onto another line, and how many
 // of those move a full line.
 
-import { isometricTable, LINE_FIRSTS, LINE_OF, OPPOSITE, type MomentumTable } from '@/code/rule/isometric-knit'
-import { bouncePermutation, type CollisionKind } from '@/code/rule/bounce-pair-knit'
+import {
+  isometricTable,
+  LINE_FIRSTS,
+  LINE_OF,
+  OPPOSITE,
+  type MomentumTable,
+} from '@/code/rule/isometric-knit'
+import {
+  bouncePermutation,
+  type CollisionKind,
+} from '@/code/rule/bounce-pair-knit'
 
-const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(f => OPPOSITE[f] ?? f)
+const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(
+  f => OPPOSITE[f] ?? f,
+)
 
-export type LocalityCount = { cases: number; crossing: number; fullMoved: number; singleMoved: number }
+export type LocalityCount = {
+  cases: number
+  crossing: number
+  fullMoved: number
+  singleMoved: number
+}
 
 // every occupation with exactly `singles` single lines (the rest empty or full)
-export function lineLocality(kind: CollisionKind, singles: number, table: MomentumTable = isometricTable()): LocalityCount {
+export function lineLocality(
+  kind: CollisionKind,
+  singles: number,
+  table: MomentumTable = isometricTable(),
+): LocalityCount {
   const vibe = new Int8Array(24)
   const out = new Int32Array(24)
+
   let cases = 0
   let crossing = 0
   let fullMoved = 0
   let singleMoved = 0
+
   const lines = Array.from({ length: 12 }, (_, l) => l)
-  const choose = (from: number, k: number, acc: number[], visit: (set: number[]) => void): void => {
+
+  const choose = (
+    from: number,
+    k: number,
+    acc: number[],
+    visit: (set: number[]) => void,
+  ): void => {
     if (acc.length === k) {
       visit(acc)
+
       return
     }
 
-    for (let i = from; i < 12; i++) choose(i + 1, k, [...acc, i], visit)
+    for (let i = from; i < 12; i++) {
+      choose(i + 1, k, [...acc, i], visit)
+    }
   }
 
   choose(0, singles, [], singleLines => {
@@ -53,12 +84,14 @@ export function lineLocality(kind: CollisionKind, singles: number, table: Moment
       for (let mask = 0; mask < 1 << rest.length; mask++) {
         vibe.fill(0)
         singleLines.forEach((l, i) => {
-          vibe[(sides >> i) & 1 ? (LINE_SECONDS[l] as number) : (LINE_FIRSTS[l] as number)] = 1
+          vibe[(sides >> i) & 1 ? LINE_SECONDS[l]! : LINE_FIRSTS[l]!] =
+            1
         })
+
         rest.forEach((l, i) => {
           if ((mask >> i) & 1) {
-            vibe[LINE_FIRSTS[l] as number] = 1
-            vibe[LINE_SECONDS[l] as number] = -1
+            vibe[LINE_FIRSTS[l]!] = 1
+            vibe[LINE_SECONDS[l]!] = -1
           }
         })
 
@@ -66,20 +99,27 @@ export function lineLocality(kind: CollisionKind, singles: number, table: Moment
 
         const acts = bouncePermutation(table, kind, vibe, 0, out)
 
-        if (acts === 0) continue
+        if (acts === 0) {
+          continue
+        }
 
         let crosses = false
         let full = false
         let single = false
 
         for (let d = 0; d < 24; d++) {
-          if (vibe[d] === 0) continue
+          if (vibe[d] === 0) {
+            continue
+          }
 
-          if (LINE_OF[out[d] as number] !== LINE_OF[d]) {
+          if (LINE_OF[out[d]!] !== LINE_OF[d]) {
             crosses = true
 
-            if (singleLines.includes(LINE_OF[d] as number)) single = true
-            else full = true
+            if (singleLines.includes(LINE_OF[d]!)) {
+              single = true
+            } else {
+              full = true
+            }
           }
         }
 

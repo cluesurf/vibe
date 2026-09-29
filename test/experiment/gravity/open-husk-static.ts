@@ -71,10 +71,41 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { fitPowers } from '@/code/measure/husk-coulomb'
 import { radionMesh } from '@/code/rule/trit-radion'
-import { emptyStep, newStepTally, placeLines, stepBeat, stepRule, stepScratch } from '@/code/rule/step-depth'
+import {
+  emptyStep,
+  newStepTally,
+  placeLines,
+  stepBeat,
+  stepRule,
+  stepScratch,
+} from '@/code/rule/step-depth'
 import { contentOf } from '@/code/measure/step-depth'
-import { compressOpen, duplicateOpen, emptyOpen, FLOOR, HUSK_LATERAL, openBeat, openBeatBack, openDepth, openGaussOff, openMesh, openScratch, placeOpenLines, sameOpen, VERTICAL, type OpenMesh } from '@/code/rule/open-husk'
-import { greenSolve, huskDistance, huskDock, newOpenRecord, openContent, openEnergy, openStaticRun } from '@/code/measure/open-husk'
+import {
+  compressOpen,
+  duplicateOpen,
+  emptyOpen,
+  FLOOR,
+  HUSK_LATERAL,
+  openBeat,
+  openBeatBack,
+  openDepth,
+  openGaussOff,
+  openMesh,
+  openScratch,
+  placeOpenLines,
+  sameOpen,
+  VERTICAL,
+  type OpenMesh,
+} from '@/code/rule/open-husk'
+import {
+  greenSolve,
+  huskDistance,
+  huskDock,
+  newOpenRecord,
+  openContent,
+  openEnergy,
+  openStaticRun,
+} from '@/code/measure/open-husk'
 
 const DEPTH = 16
 const LEVELS = 3
@@ -85,49 +116,111 @@ const CONTENT = 4
 const R: readonly number[] = [1, 2, 3, 4, 5, 6]
 const ENERGY_R: readonly number[] = [2, 5]
 const FIT_R: readonly number[] = [2, 3, 4, 5, 6]
-const RECORDED_0090_W: readonly number[] = [0.126582, 0.145074, 0.151892, 0.155185, 0.157028, 0.158093, 0.158656]
+const RECORDED_0090_W: readonly number[] = [
+  0.126582, 0.145074, 0.151892, 0.155185, 0.157028, 0.158093, 0.158656,
+]
 const RECORDED_0090_K = 0.0418217
 const CORE_M: readonly number[] = [100, 400, 1600]
 const CORE_RUN_M = 400
 const CORE_BEATS = 512
 const AREA_0090: readonly number[] = [1.41, 2.24, 4.69]
 
-type Core = { m: number; placed: boolean; gauss: number; rLump: number; rVolume: number; downShare: number }
+type Core = {
+  m: number
+  placed: boolean
+  gauss: number
+  rLump: number
+  rVolume: number
+  downShare: number
+}
 
-function core(mesh: OpenMesh, m: number, order: readonly number[], dist: Float64Array): Core & { content?: Int32Array; line?: Int8Array } {
+function core(
+  mesh: OpenMesh,
+  m: number,
+  order: readonly number[],
+  dist: Float64Array,
+): Core & { content?: Int32Array; line?: Int8Array } {
   try {
     const lump = compressOpen(mesh, order, m)
+
     let rLump = 0
 
-    for (let y = 0; y < mesh.huskDocks; y++) if (lump.content[y]! > 0) rLump = Math.max(rLump, dist[y]!)
+    for (let y = 0; y < mesh.huskDocks; y++) {
+      if (lump.content[y]! > 0) {
+        rLump = Math.max(rLump, dist[y]!)
+      }
+    }
 
     // the volume count: the smallest dock radius whose docks' 8 down-links plus the lateral links crossing its sphere
     // reach M
-    const radii = [...new Set(Array.from(dist).map(d => Math.round(d * 1e9) / 1e9))].sort((a, b) => a - b)
+    const radii = [
+      ...new Set(Array.from(dist).map(d => Math.round(d * 1e9) / 1e9)),
+    ].sort((a, b) => a - b)
     const rVolume =
       radii.find(r => {
         let n = 0
 
         for (let y = 0; y < mesh.huskDocks; y++) {
-          if (dist[y]! > r) continue
+          if (dist[y]! > r) {
+            continue
+          }
+
           n += 8
-          for (let h = 0; h < 9; h++) if (dist[mesh.head[y * 9 + h]!]! > r) n++
+
+          for (let h = 0; h < 9; h++) {
+            if (dist[mesh.head[y * 9 + h]!]! > r) {
+              n++
+            }
+          }
         }
+
         for (let y = 0; y < mesh.huskDocks; y++) {
-          if (dist[y]! <= r) continue
-          for (let h = 0; h < 9; h++) if (dist[mesh.head[y * 9 + h]!]! <= r) n++
+          if (dist[y]! <= r) {
+            continue
+          }
+
+          for (let h = 0; h < 9; h++) {
+            if (dist[mesh.head[y * 9 + h]!]! <= r) {
+              n++
+            }
+          }
         }
 
         return n >= m
       }) ?? Infinity
+
     // lines leaving down through the down-links of the lump's own docks
     let down = 0
 
-    for (let l = 0; l < mesh.links; l++) if (mesh.kind[l] === VERTICAL && mesh.tail[l]! < mesh.huskDocks && lump.content[mesh.tail[l]!]! > 0) down += lump.line[l]!
+    for (let l = 0; l < mesh.links; l++) {
+      if (
+        mesh.kind[l] === VERTICAL &&
+        mesh.tail[l]! < mesh.huskDocks &&
+        lump.content[mesh.tail[l]!]! > 0
+      ) {
+        down += lump.line[l]!
+      }
+    }
 
-    return { m, placed: true, gauss: openGaussOff(mesh, lump.line, lump.content), rLump, rVolume, downShare: down / m, content: lump.content, line: lump.line }
+    return {
+      m,
+      placed: true,
+      gauss: openGaussOff(mesh, lump.line, lump.content),
+      rLump,
+      rVolume,
+      downShare: down / m,
+      content: lump.content,
+      line: lump.line,
+    }
   } catch {
-    return { m, placed: false, gauss: -1, rLump: Infinity, rVolume: Infinity, downShare: 0 }
+    return {
+      m,
+      placed: false,
+      gauss: -1,
+      rLump: Infinity,
+      rVolume: Infinity,
+      downShare: 0,
+    }
   }
 }
 
@@ -142,14 +235,17 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${(Date.now() - started) / 1000}s`)
+    const log = (what: string): void =>
+      console.error(`${what} ${(Date.now() - started) / 1000}s`)
     const rule = stepRule(DEPTH, LEVELS)
 
     // B0: no bulk, no floor, against stepBeat
     const b0 = (() => {
       const rm = radionMesh([8, 8, 8])
       const om = openMesh(8, 0, 'grow', 0)
-      const rho = contentOf(rm, [{ at: [2, 2, 2], to: [6, 6, 6], units: CONTENT }])
+      const rho = contentOf(rm, [
+        { at: [2, 2, 2], to: [6, 6, 6], units: CONTENT },
+      ])
       const a = emptyStep(rm)
       const b = emptyOpen(om)
 
@@ -158,6 +254,7 @@ export default experiment({
 
       const sa = stepScratch(rm)
       const sb = openScratch(om)
+
       let same = 0
 
       for (let t = 0; t < 256; t++) {
@@ -166,9 +263,21 @@ export default experiment({
 
         let ok = true
 
-        for (let i = 0; i < a.step.length; i++) if (a.step[i] !== b.step[i]) ok = false
-        for (let i = 0; i < a.rate.length; i++) if (a.rate[i] !== b.rate[i] || a.rest[i] !== b.rest[i]) ok = false
-        if (ok) same++
+        for (let i = 0; i < a.step.length; i++) {
+          if (a.step[i] !== b.step[i]) {
+            ok = false
+          }
+        }
+
+        for (let i = 0; i < a.rate.length; i++) {
+          if (a.rate[i] !== b.rate[i] || a.rest[i] !== b.rest[i]) {
+            ok = false
+          }
+        }
+
+        if (ok) {
+          same++
+        }
       }
 
       return same
@@ -181,13 +290,19 @@ export default experiment({
     const mesh = openMesh(SIDE, LAYERS, 'grow')
     const record = newOpenRecord()
     const rhoA = openContent(mesh, [{ at: [0, 0, 0], units: CONTENT }])
+
     const floorLines = (line: Int8Array): number => {
       let n = 0
 
-      for (let l = 0; l < mesh.links; l++) if (mesh.kind[l] === FLOOR) n += line[l]!
+      for (let l = 0; l < mesh.links; l++) {
+        if (mesh.kind[l] === FLOOR) {
+          n += line[l]!
+        }
+      }
 
       return n
     }
+
     const linesA = placeOpenLines(mesh, rhoA)
     const reachGround = floorLines(linesA) === CONTENT
     const staticA = openStaticRun(mesh, rule, rhoA, BEATS, record)
@@ -195,54 +310,110 @@ export default experiment({
     log('source')
 
     const energyW = ENERGY_R.map(r => {
-      const both = openStaticRun(mesh, rule, openContent(mesh, [{ at: [0, 0, 0], units: CONTENT }, { at: [r, 0, 0], units: CONTENT }]), BEATS, record)
+      const both = openStaticRun(
+        mesh,
+        rule,
+        openContent(mesh, [
+          { at: [0, 0, 0], units: CONTENT },
+          { at: [r, 0, 0], units: CONTENT },
+        ]),
+        BEATS,
+        record,
+      )
 
       log(`pair ${r}`)
 
       return both.energy - 2 * staticA.energy
     })
-    const x = (r: number): number => staticA.depth[huskDock(mesh, [r, 0, 0])]!
+    const x = (r: number): number =>
+      staticA.depth[huskDock(mesh, [r, 0, 0])]!
     const W = R.map(r => -(Math.PI / DEPTH) * CONTENT * x(r))
-    const energyAgree = Math.max(...ENERGY_R.map((r, i) => Math.abs(energyW[i]! / W[R.indexOf(r)]! - 1)))
+    const energyAgree = Math.max(
+      ...ENERGY_R.map((r, i) =>
+        Math.abs(energyW[i]! / W[R.indexOf(r)]! - 1),
+      ),
+    )
     const green = greenSolve(mesh, rhoA)
-    const Wgreen = R.map(r => -(Math.PI / DEPTH) * CONTENT * green.x[huskDock(mesh, [r, 0, 0])]!)
-    const greenAgree = Math.max(...W.map((w, i) => Math.abs(w / Wgreen[i]! - 1)))
+    const Wgreen = R.map(
+      r =>
+        -(Math.PI / DEPTH) *
+        CONTENT *
+        green.x[huskDock(mesh, [r, 0, 0])]!,
+    )
+    const greenAgree = Math.max(
+      ...W.map((w, i) => Math.abs(w / Wgreen[i]! - 1)),
+    )
 
     // B1: no negative content anywhere (husk only), every line to the ground, Gauss and curl on every check
     const negative = rhoA.some(v => v < 0)
-    const b1 = !negative && reachGround && record.gaussOff === 0 && record.curl === 0
+    const b1 =
+      !negative &&
+      reachGround &&
+      record.gaussOff === 0 &&
+      record.curl === 0
     const wraps = record.wraps.fWraps + record.wraps.vWraps
-    const b2 = wraps === 0 && record.maxStep < 1.5 && record.maxRate < 1.5 && record.maxRest <= rule.h && record.reversed
-    const rising = W.every((w, i) => w < 0 && (i === 0 || w > W[i - 1]!))
+    const b2 =
+      wraps === 0 &&
+      record.maxStep < 1.5 &&
+      record.maxRate < 1.5 &&
+      record.maxRest <= rule.h &&
+      record.reversed
+    const rising = W.every(
+      (w, i) => w < 0 && (i === 0 || w > W[i - 1]!),
+    )
     const force = R.slice(0, -1).map((_, i) => W[i + 1]! - W[i]!)
-    const force90 = R.slice(0, -1).map((_, i) => RECORDED_0090_W[i + 1]! - RECORDED_0090_W[i]!)
+    const force90 = R.slice(0, -1).map(
+      (_, i) => RECORDED_0090_W[i + 1]! - RECORDED_0090_W[i]!,
+    )
     const ratio = force.map((f, i) => f / force90[i]!)
     const band = ratio.slice(1, 5)
     const spread = Math.max(...band) / Math.min(...band)
-    const b3 = rising && band.every(v => v > 0) && spread <= 1.25 && energyAgree <= 1e-3
-    const [c0, c1, c3] = fitPowers(FIT_R, FIT_R.map(r => W[R.indexOf(r)]!), [1, 3]) as [number, number, number]
+    const b3 =
+      rising &&
+      band.every(v => v > 0) &&
+      spread <= 1.25 &&
+      energyAgree <= 1e-3
+    const [c0, c1, c3] = fitPowers(
+      FIT_R,
+      FIT_R.map(r => W[R.indexOf(r)]!),
+      [1, 3],
+    ) as [number, number, number]
     const fitK = -c1
     const yuk = (() => {
       const xs = R.slice(0, 5)
       const ys = xs.map(r => Math.log(-r * W[R.indexOf(r)]!))
       const mx = xs.reduce((a, v) => a + v, 0) / xs.length
       const my = ys.reduce((a, v) => a + v, 0) / ys.length
-      const slope = xs.reduce((a, v, i) => a + (v - mx) * (ys[i]! - my), 0) / xs.reduce((a, v) => a + (v - mx) ** 2, 0)
+      const slope =
+        xs.reduce((a, v, i) => a + (v - mx) * (ys[i]! - my), 0) /
+        xs.reduce((a, v) => a + (v - mx) ** 2, 0)
 
       return -1 / slope
     })()
-    const predictedLength = Math.sqrt(6 / (1 / (1 / 8 + 1 / 64 + 1 / 512)))
+    const predictedLength = Math.sqrt(
+      6 / (1 / (1 / 8 + 1 / 64 + 1 / 512)),
+    )
     // depth against the steps going down: per husk dock, the Hann field's net step down its 8 vertical links
     const downCorrelation = (() => {
       const down = new Float64Array(mesh.huskDocks)
 
-      for (let l = 0; l < mesh.links; l++) if (mesh.kind[l] === VERTICAL && mesh.tail[l]! < mesh.huskDocks) down[mesh.tail[l]!]! += staticA.mean[l]!
+      for (let l = 0; l < mesh.links; l++) {
+        if (
+          mesh.kind[l] === VERTICAL &&
+          mesh.tail[l]! < mesh.huskDocks
+        ) {
+          down[mesh.tail[l]!]! += staticA.mean[l]!
+        }
+      }
 
       const xs = Array.from(down)
       const ys = Array.from(staticA.depth.subarray(0, mesh.huskDocks))
       const mx = xs.reduce((a, v) => a + v, 0) / xs.length
       const my = ys.reduce((a, v) => a + v, 0) / ys.length
-      const sxy = xs.reduce((a, v, i) => a + (v - mx) * (ys[i]! - my), 0)
+      const sxy = xs.reduce(
+        (a, v, i) => a + (v - mx) * (ys[i]! - my),
+        0,
+      )
       const sxx = xs.reduce((a, v) => a + (v - mx) ** 2, 0)
       const syy = ys.reduce((a, v) => a + (v - my) ** 2, 0)
 
@@ -254,25 +425,49 @@ export default experiment({
     // the shrinking bulk, solved outright (reported)
     const shrink = (layers: number): number[] => {
       const m = openMesh(16, layers, 'shrink')
-      const g = greenSolve(m, openContent(m, [{ at: [0, 0, 0], units: 1, to: [8, 8, 8] }]))
+      const g = greenSolve(
+        m,
+        openContent(m, [{ at: [0, 0, 0], units: 1, to: [8, 8, 8] }]),
+      )
 
-      return R.map(r => g.x[huskDock(m, [r, 0, 0])]! - g.x[huskDock(m, [r + 1, 0, 0])]!)
+      return R.map(
+        r =>
+          g.x[huskDock(m, [r, 0, 0])]! -
+          g.x[huskDock(m, [r + 1, 0, 0])]!,
+      )
     }
+
     const shrinkAlone = shrink(0)
     const shrinkTwo = shrink(2)
     const shrinkRatio = shrinkTwo.map((f, i) => f / shrinkAlone[i]!)
 
     // B4
     const center = [SIDE / 2, SIDE / 2, SIDE / 2]
-    const dist = Float64Array.from({ length: mesh.huskDocks }, (_, y) => huskDistance(mesh, y, center))
-    const order = Array.from({ length: mesh.huskDocks }, (_, y) => y).sort((p, q) => dist[p]! - dist[q]! || p - q)
+    const dist = Float64Array.from({ length: mesh.huskDocks }, (_, y) =>
+      huskDistance(mesh, y, center),
+    )
+    const order = Array.from(
+      { length: mesh.huskDocks },
+      (_, y) => y,
+    ).sort((p, q) => dist[p]! - dist[q]! || p - q)
     const cores = CORE_M.map(m => core(mesh, m, order, dist))
 
     log('cores')
 
     const lump = cores[CORE_M.indexOf(CORE_RUN_M)]!
     const lumpRun = (() => {
-      if (!lump.placed) return { wraps: -1, curl: -1, drift: Infinity, reversed: false, maxStep: 0, staticEnergy: 0, demanded: 0, energies: [] as number[] }
+      if (!lump.placed) {
+        return {
+          wraps: -1,
+          curl: -1,
+          drift: Infinity,
+          reversed: false,
+          maxStep: 0,
+          staticEnergy: 0,
+          demanded: 0,
+          energies: [] as number[],
+        }
+      }
 
       const s = emptyOpen(mesh)
 
@@ -282,42 +477,63 @@ export default experiment({
       const scratch = openScratch(mesh)
       const tally = newStepTally()
       const g = greenSolve(mesh, lump.content!)
+
       // the static energy of the lump: -(pi / D) 1/2 rho . x
       let rx = 0
 
-      for (let y = 0; y < mesh.docks; y++) rx += lump.content![y]! * g.x[y]!
+      for (let y = 0; y < mesh.docks; y++) {
+        rx += lump.content![y]! * g.x[y]!
+      }
 
       const staticEnergy = -(Math.PI / DEPTH) * 0.5 * rx
+
       let demanded = 0
 
       for (let l = 0; l < mesh.links; l++) {
         const z = mesh.head[l]!
 
-        demanded = Math.max(demanded, Math.abs(mesh.weight[l]! * (g.x[mesh.tail[l]!]! - (z >= 0 ? g.x[z]! : 0))))
+        demanded = Math.max(
+          demanded,
+          Math.abs(
+            mesh.weight[l]! *
+              (g.x[mesh.tail[l]!]! - (z >= 0 ? g.x[z]! : 0)),
+          ),
+        )
       }
 
       const energies = [openEnergy(mesh, rule, s, lump.content!).energy]
+
       let curl = 0
       let maxStep = 0
 
       for (let t = 1; t <= CORE_BEATS; t++) {
         openBeat(mesh, rule, s, scratch, tally)
+
         if (t % 64 === 0) {
           const e = openEnergy(mesh, rule, s, lump.content!)
 
           energies.push(e.energy)
           curl += openDepth(mesh, s.step).curl
 
-          for (let l = 0; l < mesh.links; l++) maxStep = Math.max(maxStep, Math.abs(s.step[l]!) / rule.unit)
+          for (let l = 0; l < mesh.links; l++) {
+            maxStep = Math.max(
+              maxStep,
+              Math.abs(s.step[l]!) / rule.unit,
+            )
+          }
         }
       }
 
-      for (let t = 0; t < CORE_BEATS; t++) openBeatBack(mesh, rule, s, scratch)
+      for (let t = 0; t < CORE_BEATS; t++) {
+        openBeatBack(mesh, rule, s, scratch)
+      }
 
       return {
         wraps: tally.fWraps + tally.vWraps,
         curl,
-        drift: Math.max(...energies.map(e => Math.abs(e - energies[0]!))) / Math.abs(staticEnergy),
+        drift:
+          Math.max(...energies.map(e => Math.abs(e - energies[0]!))) /
+          Math.abs(staticEnergy),
         reversed: sameOpen(s, start),
         maxStep,
         staticEnergy,
@@ -325,14 +541,25 @@ export default experiment({
         energies,
       }
     })()
-    const b4 = cores.every(c => c.placed && c.gauss === 0) && lumpRun.wraps === 0 && lumpRun.curl === 0 && lumpRun.drift <= 1e-4 && lumpRun.reversed
+    const b4 =
+      cores.every(c => c.placed && c.gauss === 0) &&
+      lumpRun.wraps === 0 &&
+      lumpRun.curl === 0 &&
+      lumpRun.drift <= 1e-4 &&
+      lumpRun.reversed
 
     log('B4')
 
-    const status = !control ? 'partial' : b1 && b2 && b3 && b4 ? 'pass' : 'fail'
+    const status = !control
+      ? 'partial'
+      : b1 && b2 && b3 && b4
+        ? 'pass'
+        : 'fail'
     const f = (v: number): string => v.toPrecision(6)
     const e = (v: number): string => v.toExponential(2)
-    const huskLinks = Array.from(mesh.kind).filter(k => k === HUSK_LATERAL).length
+    const huskLinks = Array.from(mesh.kind).filter(
+      k => k === HUSK_LATERAL,
+    ).length
     const metrics: Record<string, number> = {
       gate_B0: control ? 1 : 0,
       gate_B1: b1 ? 1 : 0,

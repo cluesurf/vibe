@@ -57,15 +57,26 @@
 // DETERMINISM: every start and source is placed; nothing is drawn. NOTHING MOVES: each value takes its new value by the
 // rule; a unit of content added is a scheduled event.
 
-import { HUSK_LATERAL, openRestLow, type OpenMesh, type OpenState } from '@/code/rule/open-husk'
-import { tornLink, type HorizonRule, type HorizonScratch } from '@/code/rule/horizon-husk'
+import {
+  HUSK_LATERAL,
+  openRestLow,
+  type OpenMesh,
+  type OpenState,
+} from '@/code/rule/open-husk'
+import {
+  tornLink,
+  type HorizonRule,
+  type HorizonScratch,
+} from '@/code/rule/horizon-husk'
 import type { StepTally } from '@/code/rule/step-depth'
 
 const mod = (x: number, m: number): number => ((x % m) + m) % m
 const floorDiv = (x: number, q: number): number => (x - mod(x, q)) / q
 
-const wrapTrit = (rule: HorizonRule, v: number): number => mod(v + rule.top, rule.span) - rule.top
-const wrapBulk = (rule: HorizonRule, v: number): number => mod(v + rule.bulkTop, rule.bulkSpan) - rule.bulkTop
+const wrapTrit = (rule: HorizonRule, v: number): number =>
+  mod(v + rule.top, rule.span) - rule.top
+const wrapBulk = (rule: HorizonRule, v: number): number =>
+  mod(v + rule.bulkTop, rule.bulkSpan) - rule.bulkTop
 
 export type CountShares = {
   // the count: net content lines through the horizon's husk surface (whole units)
@@ -77,22 +88,44 @@ export type CountShares = {
 }
 
 // the count found from the lines' divergence, spread over the horizon's docks by index with carry
-export function countShares(mesh: OpenMesh, rule: HorizonRule, divLine: ArrayLike<number>, horizon: Uint8Array, out = new Float64Array(mesh.huskDocks)): CountShares {
+export function countShares(
+  mesh: OpenMesh,
+  rule: HorizonRule,
+  divLine: ArrayLike<number>,
+  horizon: Uint8Array,
+  out = new Float64Array(mesh.huskDocks),
+): CountShares {
   let count = 0
   let docks = 0
 
   out.fill(0)
-  for (let y = 0; y < mesh.huskDocks; y++) if (horizon[y]) (count += divLine[y]!), docks++
-  if (docks === 0) return { count, docks, share: out }
+
+  for (let y = 0; y < mesh.huskDocks; y++) {
+    if (horizon[y]) {
+      count += divLine[y]!
+      docks++
+    }
+  }
+
+  if (docks === 0) {
+    return { count, docks, share: out }
+  }
 
   const total = rule.unit * count
   const base = floorDiv(total, docks)
+
   let extra = total - base * docks
 
   for (let y = 0; y < mesh.huskDocks; y++) {
-    if (!horizon[y]) continue
+    if (!horizon[y]) {
+      continue
+    }
+
     out[y] = base + (extra > 0 ? 1 : 0)
-    if (extra > 0) extra--
+
+    if (extra > 0) {
+      extra--
+    }
   }
 
   return { count, docks, share: out }
@@ -100,41 +133,90 @@ export function countShares(mesh: OpenMesh, rule: HorizonRule, divLine: ArrayLik
 
 export type CountScratch = HorizonScratch & { share: Float64Array }
 
-export const countScratch = (mesh: OpenMesh): CountScratch => ({ divLine: new Float64Array(mesh.docks), divStep: new Float64Array(mesh.docks), share: new Float64Array(mesh.huskDocks) })
+export const countScratch = (mesh: OpenMesh): CountScratch => ({
+  divLine: new Float64Array(mesh.docks),
+  divStep: new Float64Array(mesh.docks),
+  share: new Float64Array(mesh.huskDocks),
+})
 
-function divergence(mesh: OpenMesh, field: ArrayLike<number>, out: Float64Array): void {
+function divergence(
+  mesh: OpenMesh,
+  field: ArrayLike<number>,
+  out: Float64Array,
+): void {
   out.fill(0)
 
   for (let m = 0; m < mesh.links; m++) {
     const v = field[m]!
 
-    if (v === 0) continue
+    if (v === 0) {
+      continue
+    }
+
     out[mesh.tail[m]!] = out[mesh.tail[m]!]! + v
-    if (mesh.head[m]! >= 0) out[mesh.head[m]!] = out[mesh.head[m]!]! - v
+
+    if (mesh.head[m]! >= 0) {
+      out[mesh.head[m]!] = out[mesh.head[m]!]! - v
+    }
   }
 }
 
 // div' F: out minus in over the live links only (a torn link is read by no dock)
-function liveDivergence(mesh: OpenMesh, step: ArrayLike<number>, horizon: Uint8Array, out: Float64Array): void {
+function liveDivergence(
+  mesh: OpenMesh,
+  step: ArrayLike<number>,
+  horizon: Uint8Array,
+  out: Float64Array,
+): void {
   out.fill(0)
 
   for (let m = 0; m < mesh.links; m++) {
     const v = step[m]!
 
-    if (v === 0 || tornLink(mesh, horizon, m)) continue
+    if (v === 0 || tornLink(mesh, horizon, m)) {
+      continue
+    }
+
     out[mesh.tail[m]!] = out[mesh.tail[m]!]! + v
-    if (mesh.head[m]! >= 0) out[mesh.head[m]!] = out[mesh.head[m]!]! - v
+
+    if (mesh.head[m]! >= 0) {
+      out[mesh.head[m]!] = out[mesh.head[m]!]! - v
+    }
   }
 }
 
 // the source each dock's rate reads, in register units: the share on the horizon, Q^L div f off it
-const source = (mesh: OpenMesh, rule: HorizonRule, horizon: Uint8Array, scratch: CountScratch, y: number): number => (y < mesh.huskDocks && horizon[y] ? scratch.share[y]! : rule.unit * scratch.divLine[y]!)
+const source = (
+  mesh: OpenMesh,
+  rule: HorizonRule,
+  horizon: Uint8Array,
+  scratch: CountScratch,
+  y: number,
+): number =>
+  y < mesh.huskDocks && horizon[y]
+    ? scratch.share[y]!
+    : rule.unit * scratch.divLine[y]!
 
-const dockTrit = (mesh: OpenMesh, horizon: Uint8Array, y: number): boolean => y < mesh.huskDocks && horizon[y] === 0
+const dockTrit = (
+  mesh: OpenMesh,
+  horizon: Uint8Array,
+  y: number,
+): boolean => y < mesh.huskDocks && horizon[y] === 0
 
 // one beat, in place, for the horizon `horizon` (fixed through the beat)
-export function countBeat(mesh: OpenMesh, rule: HorizonRule, s: OpenState, horizon: Uint8Array, scratch: CountScratch, tally?: StepTally): void {
-  if (mesh.lapse) throw new Error('countBeat: the lapse in the links is not carried here')
+export function countBeat(
+  mesh: OpenMesh,
+  rule: HorizonRule,
+  s: OpenState,
+  horizon: Uint8Array,
+  scratch: CountScratch,
+  tally?: StepTally,
+): void {
+  if (mesh.lapse) {
+    throw new Error(
+      'countBeat: the lapse in the links is not carried here',
+    )
+  }
 
   const { a, q, h } = rule
   const inertia = mesh.inertia
@@ -144,41 +226,74 @@ export function countBeat(mesh: OpenMesh, rule: HorizonRule, s: OpenState, horiz
   liveDivergence(mesh, s.step, horizon, scratch.divStep)
 
   for (let y = 0; y < mesh.docks; y++) {
-    const x = a * (source(mesh, rule, horizon, scratch, y) - scratch.divStep[y]!)
+    const x =
+      a *
+      (source(mesh, rule, horizon, scratch, y) - scratch.divStep[y]!)
     const qy = inertia ? q * inertia[y]! : q
-    const w = floorDiv(x + s.rest[y]! + (inertia ? openRestLow(qy) : h), qy)
+    const w = floorDiv(
+      x + s.rest[y]! + (inertia ? openRestLow(qy) : h),
+      qy,
+    )
     const raw = s.rate[y]! + w
 
     s.rest[y] = x + s.rest[y]! - qy * w
-    s.rate[y] = dockTrit(mesh, horizon, y) ? wrapTrit(rule, raw) : wrapBulk(rule, raw)
-    if (tally && s.rate[y] !== raw) tally.vWraps++
+    s.rate[y] = dockTrit(mesh, horizon, y)
+      ? wrapTrit(rule, raw)
+      : wrapBulk(rule, raw)
+
+    if (tally && s.rate[y] !== raw) {
+      tally.vWraps++
+    }
   }
 
   const { tail, head, weight, kind } = mesh
 
   for (let m = 0; m < mesh.links; m++) {
-    if (tornLink(mesh, horizon, m)) continue
+    if (tornLink(mesh, horizon, m)) {
+      continue
+    }
 
     const z = head[m]!
-    const raw = s.step[m]! + weight[m]! * (s.rate[tail[m]!]! - (z >= 0 ? s.rate[z]! : 0))
+    const raw =
+      s.step[m]! +
+      weight[m]! * (s.rate[tail[m]!]! - (z >= 0 ? s.rate[z]! : 0))
 
-    s.step[m] = kind[m] === HUSK_LATERAL ? wrapTrit(rule, raw) : wrapBulk(rule, raw)
-    if (tally && s.step[m] !== raw) tally.fWraps++
+    s.step[m] =
+      kind[m] === HUSK_LATERAL
+        ? wrapTrit(rule, raw)
+        : wrapBulk(rule, raw)
+
+    if (tally && s.step[m] !== raw) {
+      tally.fWraps++
+    }
   }
 }
 
-export function countBeatBack(mesh: OpenMesh, rule: HorizonRule, s: OpenState, horizon: Uint8Array, scratch: CountScratch): void {
+export function countBeatBack(
+  mesh: OpenMesh,
+  rule: HorizonRule,
+  s: OpenState,
+  horizon: Uint8Array,
+  scratch: CountScratch,
+): void {
   const { a, q, h } = rule
   const { tail, head, weight, kind } = mesh
   const inertia = mesh.inertia
 
   for (let m = 0; m < mesh.links; m++) {
-    if (tornLink(mesh, horizon, m)) continue
+    if (tornLink(mesh, horizon, m)) {
+      continue
+    }
 
     const z = head[m]!
-    const raw = s.step[m]! - weight[m]! * (s.rate[tail[m]!]! - (z >= 0 ? s.rate[z]! : 0))
+    const raw =
+      s.step[m]! -
+      weight[m]! * (s.rate[tail[m]!]! - (z >= 0 ? s.rate[z]! : 0))
 
-    s.step[m] = kind[m] === HUSK_LATERAL ? wrapTrit(rule, raw) : wrapBulk(rule, raw)
+    s.step[m] =
+      kind[m] === HUSK_LATERAL
+        ? wrapTrit(rule, raw)
+        : wrapBulk(rule, raw)
   }
 
   divergence(mesh, s.line, scratch.divLine)
@@ -186,12 +301,19 @@ export function countBeatBack(mesh: OpenMesh, rule: HorizonRule, s: OpenState, h
   liveDivergence(mesh, s.step, horizon, scratch.divStep)
 
   for (let y = 0; y < mesh.docks; y++) {
-    const x = a * (source(mesh, rule, horizon, scratch, y) - scratch.divStep[y]!)
+    const x =
+      a *
+      (source(mesh, rule, horizon, scratch, y) - scratch.divStep[y]!)
     const qy = inertia ? q * inertia[y]! : q
-    const w = floorDiv(x - s.rest[y]! + (inertia ? qy - 1 - openRestLow(qy) : h), qy)
+    const w = floorDiv(
+      x - s.rest[y]! + (inertia ? qy - 1 - openRestLow(qy) : h),
+      qy,
+    )
     const raw = s.rate[y]! - w
 
     s.rest[y] = s.rest[y]! - x + qy * w
-    s.rate[y] = dockTrit(mesh, horizon, y) ? wrapTrit(rule, raw) : wrapBulk(rule, raw)
+    s.rate[y] = dockTrit(mesh, horizon, y)
+      ? wrapTrit(rule, raw)
+      : wrapBulk(rule, raw)
   }
 }

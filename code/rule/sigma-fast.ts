@@ -11,7 +11,11 @@
 // Only the forward beat is here. It covers every switch of the rule (hop, roles, loops, couple, transport,
 // priceFlux, priceField, gauss, reflect) and every move family.
 
-import type { HopListener, SigmaLinks, SigmaState } from '@/code/rule/sigma-links'
+import type {
+  HopListener,
+  SigmaLinks,
+  SigmaState,
+} from '@/code/rule/sigma-links'
 
 const DEGREE = 24
 // each move is four integers: the words i, j, k (j = -1 for one staple) and the central element
@@ -44,7 +48,9 @@ export function makeSigmaTables(rule: SigmaLinks): SigmaTables {
     const pairs = rule.staples[a] ?? []
 
     if (pairs.length !== staples) {
-      throw new Error('every direction must have the same number of staples')
+      throw new Error(
+        'every direction must have the same number of staples',
+      )
     }
 
     pairs.forEach(([b, c], i) => {
@@ -53,23 +59,49 @@ export function makeSigmaTables(rule: SigmaLinks): SigmaTables {
     })
   }
 
-  const centers = rule.moves === 'one' || rule.moves === 'staples' ? [rule.identity] : [rule.identity, rule.omega, rule.omegaInverse]
-  const patterns = rule.moves === 'words' ? [[1, 3]] : rule.moves === 'wide' ? [[1, 3], [2, 5], [1, 2], [3, 4]] : []
+  const centers =
+    rule.moves === 'one' || rule.moves === 'staples'
+      ? [rule.identity]
+      : [rule.identity, rule.omega, rule.omegaInverse]
+  const patterns =
+    rule.moves === 'words'
+      ? [[1, 3]]
+      : rule.moves === 'wide'
+        ? [
+            [1, 3],
+            [2, 5],
+            [1, 2],
+            [3, 4],
+          ]
+        : []
   // the schedule of sigma-links' linkMoves(rule, s, 0), one per s mod staples
   const schedule = Array.from({ length: staples }, (_, s) => {
     const words: number[][] =
       rule.moves === 'one'
         ? [[s % staples]]
         : [
-            ...Array.from({ length: staples }, (_, i) => [(i + s) % staples]),
-            ...patterns.flatMap(([p = 0, q = 0]) => Array.from({ length: staples }, (_, i) => [(i + s) % staples, (i + s + p) % staples, (i + s + q) % staples])),
+            ...Array.from({ length: staples }, (_, i) => [
+              (i + s) % staples,
+            ]),
+            ...patterns.flatMap(([p = 0, q = 0]) =>
+              Array.from({ length: staples }, (_, i) => [
+                (i + s) % staples,
+                (i + s + p) % staples,
+                (i + s + q) % staples,
+              ]),
+            ),
           ]
     const moveCenters = rule.moves === 'one' ? [rule.identity] : centers
     const flat: number[] = []
 
     for (const word of words) {
       for (const z of moveCenters) {
-        flat.push(word[0] ?? 0, word.length === 3 ? (word[1] ?? 0) : -1, word.length === 3 ? (word[2] ?? 0) : -1, z)
+        flat.push(
+          word[0] ?? 0,
+          word.length === 3 ? (word[1] ?? 0) : -1,
+          word.length === 3 ? (word[2] ?? 0) : -1,
+          z,
+        )
       }
     }
 
@@ -105,42 +137,60 @@ export function copySigmaState(state: SigmaState): SigmaState {
 const mod3 = (x: number): number => ((x % 3) + 3) % 3
 
 // the summed level of the triangles through (x, a) with u in its place
-function triangleEnergy(tb: SigmaTables, links: Int16Array, x: number, a: number, u: number): number {
+function triangleEnergy(
+  tb: SigmaTables,
+  links: Int16Array,
+  x: number,
+  a: number,
+  u: number,
+): number {
   const { rule, stapleB, stapleC, staples, product, level } = tb
   const order = rule.order
   const nb = rule.neighbour
-  const y = nb[x * DEGREE + a] as number
+  const y = nb[x * DEGREE + a]!
   const base = a * staples
 
   let total = 0
 
   for (let i = 0; i < staples; i++) {
-    const b = stapleB[base + i] as number
-    const c = stapleC[base + i] as number
-    const z = nb[y * DEGREE + b] as number
-    const inner = product[(links[y * DEGREE + b] as number) * order + u] as number
+    const b = stapleB[base + i]!
+    const c = stapleC[base + i]!
+    const z = nb[y * DEGREE + b]!
+    const inner = product[links[y * DEGREE + b]! * order + u]!
 
-    total += level[product[(links[z * DEGREE + c] as number) * order + inner] as number] as number
+    total += level[product[links[z * DEGREE + c]! * order + inner]!]!
   }
 
   return total
 }
 
-function linkMatter(tb: SigmaTables, state: SigmaState, x: number, d: number, u: number): number {
+function linkMatter(
+  tb: SigmaTables,
+  state: SigmaState,
+  x: number,
+  d: number,
+  u: number,
+): number {
   const rule = tb.rule
-  const y = rule.neighbour[x * DEGREE + d] as number
+  const y = rule.neighbour[x * DEGREE + d]!
 
   if (state.vibe[x] === 0 || state.vibe[y] === 0) {
     return 0
   }
 
-  const p = state.role[x] as number
-  const carried = rule.transport ? (rule.act[(rule.quotient[u] as number) * 9 + p] as number) : p
+  const p = state.role[x]!
+  const carried = rule.transport
+    ? rule.act[rule.quotient[u]! * 9 + p]!
+    : p
 
   return carried === state.role[y] ? -rule.kappa : 0
 }
 
-function cellMatter(tb: SigmaTables, state: SigmaState, x: number): number {
+function cellMatter(
+  tb: SigmaTables,
+  state: SigmaState,
+  x: number,
+): number {
   if (state.vibe[x] === 0) {
     return 0
   }
@@ -148,32 +198,50 @@ function cellMatter(tb: SigmaTables, state: SigmaState, x: number): number {
   let total = 0
 
   for (let d = 0; d < DEGREE; d++) {
-    total += linkMatter(tb, state, x, d, state.links[x * DEGREE + d] as number)
+    total += linkMatter(tb, state, x, d, state.links[x * DEGREE + d]!)
   }
 
   return total
 }
 
-function fluxAlong(tb: SigmaTables, flux: Int32Array, x: number, d: number): number {
-  const o = tb.opposite[d] as number
+function fluxAlong(
+  tb: SigmaTables,
+  flux: Int32Array,
+  x: number,
+  d: number,
+): number {
+  const o = tb.opposite[d]!
 
-  return d < o ? (flux[x * DEGREE + d] as number) : -(flux[(tb.rule.neighbour[x * DEGREE + d] as number) * DEGREE + o] as number)
+  return d < o
+    ? flux[x * DEGREE + d]!
+    : -flux[tb.rule.neighbour[x * DEGREE + d]! * DEGREE + o]!
 }
 
-function addFlux(tb: SigmaTables, flux: Int32Array, x: number, d: number, amount: number): void {
-  const o = tb.opposite[d] as number
+function addFlux(
+  tb: SigmaTables,
+  flux: Int32Array,
+  x: number,
+  d: number,
+  amount: number,
+): void {
+  const o = tb.opposite[d]!
 
   if (d < o) {
-    flux[x * DEGREE + d] = (flux[x * DEGREE + d] as number) + amount
+    flux[x * DEGREE + d] = flux[x * DEGREE + d]! + amount
   } else {
-    const slot = (tb.rule.neighbour[x * DEGREE + d] as number) * DEGREE + o
+    const slot = tb.rule.neighbour[x * DEGREE + d]! * DEGREE + o
 
-    flux[slot] = (flux[slot] as number) - amount
+    flux[slot] = flux[slot]! - amount
   }
 }
 
-function pay(tb: SigmaTables, state: SigmaState, slot: number, cost: number): boolean {
-  const next = (state.demon[slot] as number) - cost
+function pay(
+  tb: SigmaTables,
+  state: SigmaState,
+  slot: number,
+  cost: number,
+): boolean {
+  const next = state.demon[slot]! - cost
 
   if (next < 0 || next > tb.rule.capacity) {
     return false
@@ -184,71 +252,95 @@ function pay(tb: SigmaTables, state: SigmaState, slot: number, cost: number): bo
   return true
 }
 
-const tensionOf = (tb: SigmaTables, e: number): number => (mod3(e) !== 0 ? tb.rule.tension : 0)
+const tensionOf = (tb: SigmaTables, e: number): number =>
+  mod3(e) !== 0 ? tb.rule.tension : 0
 
 // scratch for one link's staples: loop[i] = the transport round the other two sides of triangle i, so that
 // triangle i's transport with u in the link is loop[i] u, and the staple word of sigma-links is loop[i]^-1
 const LOOP = new Int32Array(64)
 const WORD = new Int32Array(64)
 
-function reflectLink(tb: SigmaTables, state: SigmaState, x: number, a: number, s: number): number {
-  const { rule, product, inverse, level, stapleB, stapleC, staples } = tb
+function reflectLink(
+  tb: SigmaTables,
+  state: SigmaState,
+  x: number,
+  a: number,
+  s: number,
+): number {
+  const { rule, product, inverse, level, stapleB, stapleC, staples } =
+    tb
   const order = rule.order
   const nb = rule.neighbour
   const links = state.links
-  const moves = tb.schedule[s % staples] as Int32Array
+  const moves = tb.schedule[s % staples]!
   const slot = x * DEGREE + a
-  const y = nb[slot] as number
-  const back = y * DEGREE + (tb.opposite[a] as number)
+  const y = nb[slot]!
+  const back = y * DEGREE + tb.opposite[a]!
   const matter = state.vibe[x] !== 0 && state.vibe[y] !== 0
 
   // the staples do not change while this link makes its moves, so they are read once
   for (let i = 0; i < staples; i++) {
-    const b = stapleB[a * staples + i] as number
-    const c = stapleC[a * staples + i] as number
-    const z = nb[y * DEGREE + b] as number
-    const loop = product[(links[z * DEGREE + c] as number) * order + (links[y * DEGREE + b] as number)] as number
+    const b = stapleB[a * staples + i]!
+    const c = stapleC[a * staples + i]!
+    const z = nb[y * DEGREE + b]!
+    const loop =
+      product[links[z * DEGREE + c]! * order + links[y * DEGREE + b]!]!
 
     LOOP[i] = loop
-    WORD[i] = inverse[loop] as number
+    WORD[i] = inverse[loop]!
   }
 
   const energyOf = (u: number): number => {
     let total = 0
 
     for (let i = 0; i < staples; i++) {
-      total += level[product[(LOOP[i] as number) * order + u] as number] as number
+      total += level[product[LOOP[i]! * order + u]!]!
     }
 
     return total
   }
 
-  let u = links[slot] as number
+  let u = links[slot]!
   let energyU = energyOf(u)
   let moved = 0
 
   for (let m = 0; m < moves.length; m += MOVE_WIDTH) {
-    const i = moves[m] as number
-    const j = moves[m + 1] as number
-    const k = moves[m + 2] as number
-    const center = moves[m + 3] as number
-    const vi = WORD[i] as number
-    const v = j < 0 ? vi : (product[vi * order + (product[(inverse[WORD[j] as number] as number) * order + (WORD[k] as number)] as number)] as number)
-    const next = product[center * order + (product[v * order + (product[(inverse[u] as number) * order + v] as number)] as number)] as number
+    const i = moves[m]!
+    const j = moves[m + 1]!
+    const k = moves[m + 2]!
+    const center = moves[m + 3]!
+    const vi = WORD[i]!
+    const v =
+      j < 0
+        ? vi
+        : product[
+            vi * order + product[inverse[WORD[j]!]! * order + WORD[k]!]!
+          ]!
+    const next =
+      product[
+        center * order +
+          product[v * order + product[inverse[u]! * order + v]!]!
+      ]!
 
     if (next === u) {
       continue
     }
 
     const energyNext = energyOf(next)
-    const change = energyNext - energyU + (matter ? linkMatter(tb, state, x, a, next) - linkMatter(tb, state, x, a, u) : 0)
+    const change =
+      energyNext -
+      energyU +
+      (matter
+        ? linkMatter(tb, state, x, a, next) -
+          linkMatter(tb, state, x, a, u)
+        : 0)
 
     if (!pay(tb, state, slot, change)) {
       continue
     }
 
     links[slot] = next
-    links[back] = inverse[next] as number
+    links[back] = inverse[next]!
     u = next
     energyU = energyNext
     moved++
@@ -257,44 +349,74 @@ function reflectLink(tb: SigmaTables, state: SigmaState, x: number, a: number, s
   return moved
 }
 
-function pathLevel3(tb: SigmaTables, links: Int16Array, x: number, a: number, b: number, c: number): number {
+function pathLevel3(
+  tb: SigmaTables,
+  links: Int16Array,
+  x: number,
+  a: number,
+  b: number,
+  c: number,
+): number {
   const { rule, product } = tb
   const nb = rule.neighbour
   const order = rule.order
-  const y = nb[x * DEGREE + a] as number
-  const z = nb[y * DEGREE + b] as number
+  const y = nb[x * DEGREE + a]!
+  const z = nb[y * DEGREE + b]!
 
-  let g = product[(links[x * DEGREE + a] as number) * order + rule.identity] as number
+  let g = product[links[x * DEGREE + a]! * order + rule.identity]!
 
-  g = product[(links[y * DEGREE + b] as number) * order + g] as number
-  g = product[(links[z * DEGREE + c] as number) * order + g] as number
+  g = product[links[y * DEGREE + b]! * order + g]!
+  g = product[links[z * DEGREE + c]! * order + g]!
 
-  return tb.level[g] as number
+  return tb.level[g]!
 }
 
-function loopLocal(tb: SigmaTables, links: Int16Array, x: number, a: number, y: number, b: number, z: number, c: number): number {
+function loopLocal(
+  tb: SigmaTables,
+  links: Int16Array,
+  x: number,
+  a: number,
+  y: number,
+  b: number,
+  z: number,
+  c: number,
+): number {
   return (
-    triangleEnergy(tb, links, x, a, links[x * DEGREE + a] as number) +
-    triangleEnergy(tb, links, y, b, links[y * DEGREE + b] as number) +
-    triangleEnergy(tb, links, z, c, links[z * DEGREE + c] as number) -
+    triangleEnergy(tb, links, x, a, links[x * DEGREE + a]!) +
+    triangleEnergy(tb, links, y, b, links[y * DEGREE + b]!) +
+    triangleEnergy(tb, links, z, c, links[z * DEGREE + c]!) -
     2 * pathLevel3(tb, links, x, a, b, c)
   )
 }
 
-function multiplyLeg(tb: SigmaTables, links: Int16Array, m: number, from: number, d: number): void {
-  const g = tb.product[m * tb.rule.order + (links[from * DEGREE + d] as number)] as number
+function multiplyLeg(
+  tb: SigmaTables,
+  links: Int16Array,
+  m: number,
+  from: number,
+  d: number,
+): void {
+  const g = tb.product[m * tb.rule.order + links[from * DEGREE + d]!]!
 
   links[from * DEGREE + d] = g
-  links[(tb.rule.neighbour[from * DEGREE + d] as number) * DEGREE + (tb.opposite[d] as number)] = tb.inverse[g] as number
+  links[
+    tb.rule.neighbour[from * DEGREE + d]! * DEGREE + tb.opposite[d]!
+  ] = tb.inverse[g]!
 }
 
-function loopMove(tb: SigmaTables, state: SigmaState, x: number, a: number, type: number): boolean {
+function loopMove(
+  tb: SigmaTables,
+  state: SigmaState,
+  x: number,
+  a: number,
+  type: number,
+): boolean {
   const rule = tb.rule
   const i = type % tb.staples
-  const b = tb.stapleB[a * tb.staples + i] as number
-  const c = tb.stapleC[a * tb.staples + i] as number
-  const y = rule.neighbour[x * DEGREE + a] as number
-  const z = rule.neighbour[y * DEGREE + b] as number
+  const b = tb.stapleB[a * tb.staples + i]!
+  const c = tb.stapleC[a * tb.staples + i]!
+  const y = rule.neighbour[x * DEGREE + a]!
+  const z = rule.neighbour[y * DEGREE + b]!
   const flux = state.flux
   const links = state.links
   const step = ((fluxAlong(tb, flux, x, a) % 2) + 2) % 2 === 0 ? 1 : -1
@@ -302,7 +424,12 @@ function loopMove(tb: SigmaTables, state: SigmaState, x: number, a: number, type
   const e2 = fluxAlong(tb, flux, y, b)
   const e3 = fluxAlong(tb, flux, z, c)
   const change =
-    tensionOf(tb, e1 + step) - tensionOf(tb, e1) + tensionOf(tb, e2 + step) - tensionOf(tb, e2) + tensionOf(tb, e3 + step) - tensionOf(tb, e3)
+    tensionOf(tb, e1 + step) -
+    tensionOf(tb, e1) +
+    tensionOf(tb, e2 + step) -
+    tensionOf(tb, e2) +
+    tensionOf(tb, e3 + step) -
+    tensionOf(tb, e3)
   const factor =
     rule.couple === 'center'
       ? step > 0
@@ -311,7 +438,7 @@ function loopMove(tb: SigmaTables, state: SigmaState, x: number, a: number, type
       : rule.couple === 'fixed'
         ? step > 0
           ? rule.fixedElement
-          : (tb.inverse[rule.fixedElement] as number)
+          : tb.inverse[rule.fixedElement]!
         : rule.identity
 
   let field = 0
@@ -325,9 +452,16 @@ function loopMove(tb: SigmaTables, state: SigmaState, x: number, a: number, type
     field = loopLocal(tb, links, x, a, y, b, z, c) - before
   }
 
-  if (!pay(tb, state, x * DEGREE + a, (rule.priceFlux ? change : 0) + (rule.priceField ? field : 0))) {
+  if (
+    !pay(
+      tb,
+      state,
+      x * DEGREE + a,
+      (rule.priceFlux ? change : 0) + (rule.priceField ? field : 0),
+    )
+  ) {
     if (factor !== rule.identity) {
-      const undo = tb.inverse[factor] as number
+      const undo = tb.inverse[factor]!
 
       multiplyLeg(tb, links, undo, x, a)
       multiplyLeg(tb, links, undo, y, b)
@@ -344,18 +478,27 @@ function loopMove(tb: SigmaTables, state: SigmaState, x: number, a: number, type
   return true
 }
 
-function reflectRole(tb: SigmaTables, state: SigmaState, x: number, d: number): boolean {
+function reflectRole(
+  tb: SigmaTables,
+  state: SigmaState,
+  x: number,
+  d: number,
+): boolean {
   const rule = tb.rule
-  const y = rule.neighbour[x * DEGREE + d] as number
+  const y = rule.neighbour[x * DEGREE + d]!
 
   if (state.vibe[x] === 0 || state.vibe[y] === 0 || x === y) {
     return false
   }
 
-  const back = state.links[y * DEGREE + (tb.opposite[d] as number)] as number
-  const q = rule.transport ? (rule.act[(rule.quotient[back] as number) * 9 + (state.role[y] as number)] as number) : (state.role[y] as number)
-  const p = state.role[x] as number
-  const next = mod3(2 * (q % 3) - (p % 3)) + 3 * mod3(2 * Math.floor(q / 3) - Math.floor(p / 3))
+  const back = state.links[y * DEGREE + tb.opposite[d]!]!
+  const q = rule.transport
+    ? rule.act[rule.quotient[back]! * 9 + state.role[y]!]!
+    : state.role[y]!
+  const p = state.role[x]!
+  const next =
+    mod3(2 * (q % 3) - (p % 3)) +
+    3 * mod3(2 * Math.floor(q / 3) - Math.floor(p / 3))
 
   if (next === p) {
     return false
@@ -366,7 +509,7 @@ function reflectRole(tb: SigmaTables, state: SigmaState, x: number, d: number): 
   state.role[x] = next
 
   const after = cellMatter(tb, state, x)
-  const o = tb.opposite[d] as number
+  const o = tb.opposite[d]!
   const slot = d < o ? x * DEGREE + d : y * DEGREE + o
 
   if (!pay(tb, state, slot, after - before)) {
@@ -378,11 +521,17 @@ function reflectRole(tb: SigmaTables, state: SigmaState, x: number, d: number): 
   return true
 }
 
-function hop(tb: SigmaTables, state: SigmaState, x: number, a: number, onHop?: HopListener): boolean {
+function hop(
+  tb: SigmaTables,
+  state: SigmaState,
+  x: number,
+  a: number,
+  onHop?: HopListener,
+): boolean {
   const rule = tb.rule
-  const y = rule.neighbour[x * DEGREE + a] as number
-  const vx = state.vibe[x] as number
-  const vy = state.vibe[y] as number
+  const y = rule.neighbour[x * DEGREE + a]!
+  const vx = state.vibe[x]!
+  const vy = state.vibe[y]!
 
   if ((vx === 0) === (vy === 0) || x === y) {
     return false
@@ -390,10 +539,10 @@ function hop(tb: SigmaTables, state: SigmaState, x: number, a: number, onHop?: H
 
   const from = vx !== 0 ? x : y
   const to = vx !== 0 ? y : x
-  const d = vx !== 0 ? a : (tb.opposite[a] as number)
-  const via = state.links[from * DEGREE + d] as number
-  const v = state.vibe[from] as number
-  const p = state.role[from] as number
+  const d = vx !== 0 ? a : tb.opposite[a]!
+  const via = state.links[from * DEGREE + d]!
+  const v = state.vibe[from]!
+  const p = state.role[from]!
   const e = fluxAlong(tb, state.flux, from, d)
   const moved = rule.gauss ? e - v : e
   const before = cellMatter(tb, state, from)
@@ -401,17 +550,31 @@ function hop(tb: SigmaTables, state: SigmaState, x: number, a: number, onHop?: H
   state.vibe[from] = 0
   state.role[from] = 0
   state.vibe[to] = v
-  state.role[to] = rule.transport ? (rule.act[(rule.quotient[via] as number) * 9 + p] as number) : p
+  state.role[to] = rule.transport
+    ? rule.act[rule.quotient[via]! * 9 + p]!
+    : p
 
   const after = cellMatter(tb, state, to)
-  const tension = rule.priceFlux ? tensionOf(tb, moved) - tensionOf(tb, e) : 0
+  const tension = rule.priceFlux
+    ? tensionOf(tb, moved) - tensionOf(tb, e)
+    : 0
   const shift = mod3(moved - e)
   const twisted =
-    rule.couple === 'center' && shift !== 0 ? (tb.product[(shift === 1 ? rule.omega : rule.omegaInverse) * rule.order + via] as number) : via
+    rule.couple === 'center' && shift !== 0
+      ? tb.product[
+          (shift === 1 ? rule.omega : rule.omegaInverse) * rule.order +
+            via
+        ]!
+      : via
   const field =
-    twisted !== via && rule.priceField ? triangleEnergy(tb, state.links, from, d, twisted) - triangleEnergy(tb, state.links, from, d, via) : 0
+    twisted !== via && rule.priceField
+      ? triangleEnergy(tb, state.links, from, d, twisted) -
+        triangleEnergy(tb, state.links, from, d, via)
+      : 0
 
-  if (!pay(tb, state, x * DEGREE + a, after - before + tension + field)) {
+  if (
+    !pay(tb, state, x * DEGREE + a, after - before + tension + field)
+  ) {
     state.vibe[to] = 0
     state.role[to] = 0
     state.vibe[from] = v
@@ -422,7 +585,7 @@ function hop(tb: SigmaTables, state: SigmaState, x: number, a: number, onHop?: H
 
   addFlux(tb, state.flux, from, d, moved - e)
   state.links[from * DEGREE + d] = twisted
-  state.links[to * DEGREE + (tb.opposite[d] as number)] = tb.inverse[twisted] as number
+  state.links[to * DEGREE + tb.opposite[d]!] = tb.inverse[twisted]!
   onHop?.(from, to, d)
 
   return true
@@ -430,14 +593,19 @@ function hop(tb: SigmaTables, state: SigmaState, x: number, a: number, onHop?: H
 
 // one forward beat, IN PLACE on `state` (copy it first with copySigmaState if the old one is still wanted):
 // the same moves in the same order as sigmaBeat, so the result equals sigmaBeat's
-export function fastSigmaBeat(tb: SigmaTables, state: SigmaState, t: number, onHop?: HopListener): SigmaState {
+export function fastSigmaBeat(
+  tb: SigmaTables,
+  state: SigmaState,
+  t: number,
+  onHop?: HopListener,
+): SigmaState {
   const rule = tb.rule
   const cells = rule.cells
   const firsts = tb.firsts
 
   if (rule.reflect) {
     for (let k = 0; k < firsts.length; k++) {
-      const a = firsts[k] as number
+      const a = firsts[k]!
 
       for (let x = 0; x < cells; x++) {
         reflectLink(tb, state, x, a, t + k)
@@ -447,7 +615,7 @@ export function fastSigmaBeat(tb: SigmaTables, state: SigmaState, t: number, onH
 
   if (rule.loops) {
     for (let k = 0; k < firsts.length; k++) {
-      const a = firsts[k] as number
+      const a = firsts[k]!
 
       for (let x = 0; x < cells; x++) {
         loopMove(tb, state, x, a, t + k)
@@ -469,8 +637,8 @@ export function fastSigmaBeat(tb: SigmaTables, state: SigmaState, t: number, onH
 
   if (rule.hop) {
     for (let x = 0; x < cells; x++) {
-      for (let k = 0; k < firsts.length; k++) {
-        hop(tb, state, x, firsts[k] as number, onHop)
+      for (const a of firsts) {
+        hop(tb, state, x, a, onHop)
       }
     }
   }
@@ -480,10 +648,9 @@ export function fastSigmaBeat(tb: SigmaTables, state: SigmaState, t: number, onH
   old.set(state.demon)
 
   for (let x = 0; x < cells; x++) {
-    for (let k = 0; k < firsts.length; k++) {
-      const a = firsts[k] as number
-
-      state.demon[(rule.neighbour[x * DEGREE + a] as number) * DEGREE + a] = old[x * DEGREE + a] as number
+    for (const a of firsts) {
+      state.demon[rule.neighbour[x * DEGREE + a]! * DEGREE + a] =
+        old[x * DEGREE + a]!
     }
   }
 
@@ -491,14 +658,15 @@ export function fastSigmaBeat(tb: SigmaTables, state: SigmaState, t: number, onH
 }
 
 // the field energy, as sigmaFieldEnergy
-export function fastFieldEnergy(tb: SigmaTables, links: Int16Array): number {
+export function fastFieldEnergy(
+  tb: SigmaTables,
+  links: Int16Array,
+): number {
   let total = 0
 
   for (let x = 0; x < tb.rule.cells; x++) {
-    for (let k = 0; k < tb.firsts.length; k++) {
-      const a = tb.firsts[k] as number
-
-      total += triangleEnergy(tb, links, x, a, links[x * DEGREE + a] as number)
+    for (const a of tb.firsts) {
+      total += triangleEnergy(tb, links, x, a, links[x * DEGREE + a]!)
     }
   }
 
@@ -509,7 +677,13 @@ export function fastFieldEnergy(tb: SigmaTables, links: Int16Array): number {
 export function fastCoolSigmaLinks(
   tb: SigmaTables,
   links: Int16Array,
-  input: { drain: number; cycles: number; fill: number; beats: number; empties: number },
+  input: {
+    drain: number
+    cycles: number
+    fill: number
+    beats: number
+    empties: number
+  },
 ): { state: SigmaState; beats: number } {
   const rule = tb.rule
   const golden = (Math.sqrt(5) - 1) / 2
@@ -535,7 +709,8 @@ export function fastCoolSigmaLinks(
   for (let c = 0; c < input.cycles; c++) {
     for (let x = 0; x < rule.cells; x++) {
       rule.firsts.forEach((a, k) => {
-        s.demon[x * DEGREE + a] = ((x * 12 + k) * golden) % 1 < input.fill ? rule.capacity : 0
+        s.demon[x * DEGREE + a] =
+          ((x * 12 + k) * golden) % 1 < input.fill ? rule.capacity : 0
       })
     }
 

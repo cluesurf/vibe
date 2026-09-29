@@ -68,7 +68,17 @@ type Run = { envelope: number; delay: number; result: HongOuMandel }
 
 function sweep(coin: LineCoin, chis: readonly number[]): Run[] {
   return ENVELOPES.flatMap((envelope, e) =>
-    DELAYS.map(delay => ({ envelope: e, delay, result: hongOuMandel({ coin, envelope, distance: DISTANCE, delay, chis }) })),
+    DELAYS.map(delay => ({
+      envelope: e,
+      delay,
+      result: hongOuMandel({
+        coin,
+        envelope,
+        distance: DISTANCE,
+        delay,
+        chis,
+      }),
+    })),
   )
 }
 
@@ -91,11 +101,16 @@ export default experiment({
     const balanced = sweep(BALANCED_LINE_COIN, [-1, 1])
     const hop = sweep(HOP_LINE_COIN, [])
     const stay = sweep(STAY_LINE_COIN, [])
-    const zero = fear.find(r => r.envelope === 0 && r.delay === 0)?.result
-    const balancedZero = balanced.find(r => r.envelope === 0 && r.delay === 0)?.result
+    const zero = fear.find(
+      r => r.envelope === 0 && r.delay === 0,
+    )?.result
+    const balancedZero = balanced.find(
+      r => r.envelope === 0 && r.delay === 0,
+    )?.result
 
-    const g1 = zero !== undefined && zero.boson.num === 0n
-    const g2 = zero !== undefined && zero.fermion.num === zero.fermion.den
+    const g1 = zero?.boson.num === 0n
+    const g2 =
+      zero !== undefined && zero.fermion.num === zero.fermion.den
     const g3 = fear.every(r => closedFormHolds(r.result))
     const g4 = fear.every(r => {
       const minus = r.result.hardCore.find(h => h.chi === -1)
@@ -106,10 +121,15 @@ export default experiment({
         plus !== undefined &&
         minus.norm.num === minus.norm.den &&
         sameFraction(minus.coincidence, r.result.fermion) &&
-        sameFraction(plus.norm, { num: r.result.bosonSameSlot.den - r.result.bosonSameSlot.num, den: r.result.bosonSameSlot.den })
+        sameFraction(plus.norm, {
+          num: r.result.bosonSameSlot.den - r.result.bosonSameSlot.num,
+          den: r.result.bosonSameSlot.den,
+        })
       )
     })
-    const c1 = balancedZero !== undefined && balancedZero.boson.num === 0n && balanced.every(r => closedFormHolds(r.result))
+    const c1 =
+      balancedZero?.boson.num === 0n &&
+      balanced.every(r => closedFormHolds(r.result))
     const classicalFlat = (runs: Run[]): boolean =>
       runs.every(
         r =>
@@ -121,35 +141,84 @@ export default experiment({
 
     const rest = g2 && g3 && g4 && c1 && c2
     const status = rest ? (g1 ? 'pass' : 'partial') : 'fail'
-    const at = (runs: Run[], envelope: number, delay: number): HongOuMandel | undefined =>
-      runs.find(r => r.envelope === envelope && r.delay === delay)?.result
+    const at = (
+      runs: Run[],
+      envelope: number,
+      delay: number,
+    ): HongOuMandel | undefined =>
+      runs.find(r => r.envelope === envelope && r.delay === delay)
+        ?.result
     const metrics: Record<string, number> = {
       bosonCoincidenceZeroDelay: zero ? fractionValue(zero.boson) : -1,
-      fermionCoincidenceZeroDelay: zero ? fractionValue(zero.fermion) : -1,
-      distinguishableCoincidence: zero ? fractionValue(zero.distinguishable) : -1,
-      visibility: zero ? (fractionValue(zero.distinguishable) - fractionValue(zero.boson)) / fractionValue(zero.distinguishable) : -1,
-      closedFormExactRuns: fear.filter(r => closedFormHolds(r.result)).length,
+      fermionCoincidenceZeroDelay: zero
+        ? fractionValue(zero.fermion)
+        : -1,
+      distinguishableCoincidence: zero
+        ? fractionValue(zero.distinguishable)
+        : -1,
+      visibility: zero
+        ? (fractionValue(zero.distinguishable) -
+            fractionValue(zero.boson)) /
+          fractionValue(zero.distinguishable)
+        : -1,
+      closedFormExactRuns: fear.filter(r => closedFormHolds(r.result))
+        .length,
       runs: fear.length,
-      slotMinusOneNormZeroDelay: zero ? fractionValue(zero.hardCore.find(h => h.chi === -1)?.norm ?? { num: -1n, den: 1n }) : -1,
-      slotPlusOneNormZeroDelay: zero ? fractionValue(zero.hardCore.find(h => h.chi === 1)?.norm ?? { num: -1n, den: 1n }) : -1,
-      bosonSameSlotZeroDelay: zero ? fractionValue(zero.bosonSameSlot) : -1,
+      slotMinusOneNormZeroDelay: zero
+        ? fractionValue(
+            zero.hardCore.find(h => h.chi === -1)?.norm ?? {
+              num: -1n,
+              den: 1n,
+            },
+          )
+        : -1,
+      slotPlusOneNormZeroDelay: zero
+        ? fractionValue(
+            zero.hardCore.find(h => h.chi === 1)?.norm ?? {
+              num: -1n,
+              den: 1n,
+            },
+          )
+        : -1,
+      bosonSameSlotZeroDelay: zero
+        ? fractionValue(zero.bosonSameSlot)
+        : -1,
     }
     const single = at(fear, 2, 0)
 
     if (single) {
       metrics.oneSlotBosonCoincidence = fractionValue(single.boson)
       metrics.oneSlotBosonSameSlot = fractionValue(single.bosonSameSlot)
-      metrics.oneSlotPlusOneNorm = fractionValue(single.hardCore.find(h => h.chi === 1)?.norm ?? { num: -1n, den: 1n })
-      metrics.oneSlotMinusOneNorm = fractionValue(single.hardCore.find(h => h.chi === -1)?.norm ?? { num: -1n, den: 1n })
+      metrics.oneSlotPlusOneNorm = fractionValue(
+        single.hardCore.find(h => h.chi === 1)?.norm ?? {
+          num: -1n,
+          den: 1n,
+        },
+      )
+
+      metrics.oneSlotMinusOneNorm = fractionValue(
+        single.hardCore.find(h => h.chi === -1)?.norm ?? {
+          num: -1n,
+          den: 1n,
+        },
+      )
     }
 
     DELAYS.forEach(delay => {
       const r = at(fear, 0, delay)
 
       if (r) {
-        metrics[`bosonDelay${delay}`] = Number(fractionValue(r.boson).toFixed(6))
-        metrics[`fermionDelay${delay}`] = Number(fractionValue(r.fermion).toFixed(6))
-        metrics[`overlapDelay${delay}`] = Number(fractionValue(r.overlap).toFixed(6))
+        metrics[`bosonDelay${delay}`] = Number(
+          fractionValue(r.boson).toFixed(6),
+        )
+
+        metrics[`fermionDelay${delay}`] = Number(
+          fractionValue(r.fermion).toFixed(6),
+        )
+
+        metrics[`overlapDelay${delay}`] = Number(
+          fractionValue(r.overlap).toFixed(6),
+        )
       }
     })
 
@@ -159,10 +228,18 @@ export default experiment({
         'on the fear coin two identical vibes coincide at exactly 1/4 as bosons, 1 as fermions and 5/8 as distinguishable at zero delay, and at every delay and envelope exactly as 5/8 -+ (3/8) I^2, so the Hong-Ou-Mandel dip is present but not full (visibility 3/5); the balanced splitter gives a full dip and the classical knit none; the slot, having no configuration for two vibes in one slot, keeps its norm only with the pair phase -1, and then equals the fermions exactly',
       metrics,
       control: {
-        balancedBosonZeroDelay: balancedZero ? fractionValue(balancedZero.boson) : -1,
-        balancedFermionZeroDelay: balancedZero ? fractionValue(balancedZero.fermion) : -1,
-        hopFlatRuns: hop.filter(r => r.result.boson.num === r.result.boson.den).length,
-        stayFlatRuns: stay.filter(r => r.result.boson.num === r.result.boson.den).length,
+        balancedBosonZeroDelay: balancedZero
+          ? fractionValue(balancedZero.boson)
+          : -1,
+        balancedFermionZeroDelay: balancedZero
+          ? fractionValue(balancedZero.fermion)
+          : -1,
+        hopFlatRuns: hop.filter(
+          r => r.result.boson.num === r.result.boson.den,
+        ).length,
+        stayFlatRuns: stay.filter(
+          r => r.result.boson.num === r.result.boson.den,
+        ).length,
         g1BosonZero: g1 ? 1 : 0,
         g2FermionOne: g2 ? 1 : 0,
         g3ClosedForm: g3 ? 1 : 0,

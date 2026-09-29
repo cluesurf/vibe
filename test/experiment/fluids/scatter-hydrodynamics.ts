@@ -37,7 +37,13 @@ import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { turningWeave } from '@/code/rule/collision'
 import { colorLocalCollision } from '@/code/rule/color-local-weave'
-import { cptMirrorPhase, dressing, lineComponents, vacuumPeriod, type ScheduledRule } from '@/code/measure/weave-acceptance'
+import {
+  cptMirrorPhase,
+  dressing,
+  lineComponents,
+  vacuumPeriod,
+  type ScheduledRule,
+} from '@/code/measure/weave-acceptance'
 import { decayRateFit } from '@/code/measure/shear-mode'
 import { linearFit } from '@/code/measure/regression'
 import { slopeError } from '@/code/measure/charge-mode'
@@ -55,7 +61,11 @@ import {
   type ScatterDensity,
   type ScatterWeaveSpec,
 } from '@/code/rule/scatter-weave'
-import { momentumWaveSeries, momentumWaveStart, type WaveGeometry } from '@/code/measure/momentum-transport'
+import {
+  momentumWaveSeries,
+  momentumWaveStart,
+  type WaveGeometry,
+} from '@/code/measure/momentum-transport'
 
 const GOLDEN = (Math.sqrt(5) - 1) / 2
 const FILL = 0.2
@@ -63,7 +73,10 @@ const BIAS = 0.4
 const SALT = 7
 const BEATS = 60
 
-const SHEAR: WaveGeometry = { momentum: [1, 0, 0, 0], wave: [0, 1, 0, 0] }
+const SHEAR: WaveGeometry = {
+  momentum: [1, 0, 0, 0],
+  wave: [0, 1, 0, 0],
+}
 const ORIENTATIONS: readonly (readonly [string, WaveGeometry])[] = [
   ['axes01', SHEAR],
   ['axes23', { momentum: [0, 0, 1, 0], wave: [0, 0, 0, 1] }],
@@ -72,33 +85,101 @@ const ORIENTATIONS: readonly (readonly [string, WaveGeometry])[] = [
   ['diagonal23', { momentum: [0, 0, 1, 1], wave: [0, 0, 1, -1] }],
 ]
 
-type Member = { readonly name: string; readonly condition: ScatterCondition; readonly density: ScatterDensity }
+type Member = {
+  readonly name: string
+  readonly condition: ScatterCondition
+  readonly density: ScatterDensity
+}
 
 const MEMBERS: readonly Member[] = [
-  { name: 'lone11', condition: 'lone', density: { partitions: 1, pairs: 1 } },
-  { name: 'matched11', condition: 'matched', density: { partitions: 1, pairs: 1 } },
-  { name: 'matched12', condition: 'matched', density: { partitions: 1, pairs: 2 } },
-  { name: 'matched13', condition: 'matched', density: { partitions: 1, pairs: 3 } },
-  { name: 'matched21', condition: 'matched', density: { partitions: 2, pairs: 1 } },
-  { name: 'matched23', condition: 'matched', density: { partitions: 2, pairs: 3 } },
+  {
+    name: 'lone11',
+    condition: 'lone',
+    density: { partitions: 1, pairs: 1 },
+  },
+  {
+    name: 'matched11',
+    condition: 'matched',
+    density: { partitions: 1, pairs: 1 },
+  },
+  {
+    name: 'matched12',
+    condition: 'matched',
+    density: { partitions: 1, pairs: 2 },
+  },
+  {
+    name: 'matched13',
+    condition: 'matched',
+    density: { partitions: 1, pairs: 3 },
+  },
+  {
+    name: 'matched21',
+    condition: 'matched',
+    density: { partitions: 2, pairs: 1 },
+  },
+  {
+    name: 'matched23',
+    condition: 'matched',
+    density: { partitions: 2, pairs: 3 },
+  },
 ]
 
-function shear(spec: ScatterWeaveSpec, side: number, mode: number, geometry: WaveGeometry = SHEAR) {
+function shear(
+  spec: ScatterWeaveSpec,
+  side: number,
+  mode: number,
+  geometry: WaveGeometry = SHEAR,
+) {
   const mesh = d4Mesh({ side })
-  const will = momentumWaveStart({ mesh, side, geometry, mode, fill: FILL, bias: BIAS, salt: SALT })
+  const will = momentumWaveStart({
+    mesh,
+    side,
+    geometry,
+    mode,
+    fill: FILL,
+    bias: BIAS,
+    salt: SALT,
+  })
   const p0 = momentumOf(will.data).p
-  const { series, final } = momentumWaveSeries({ will, collision: scatterCollision({ spec, opposite: meshOpposites(mesh) }), beats: BEATS, side, geometry, mode })
+  const { series, final } = momentumWaveSeries({
+    will,
+    collision: scatterCollision({
+      spec,
+      opposite: meshOpposites(mesh),
+    }),
+    beats: BEATS,
+    side,
+    geometry,
+    mode,
+  })
   const fit = decayRateFit({ series })
   const k = (2 * Math.PI * mode * Math.hypot(...geometry.wave)) / side
 
-  return { side, mode, k, gamma: fit.gamma, r2: fit.r2, points: fit.points, nu: fit.gamma / (k * k), drift: Math.max(...momentumOf(final.data).p.map((x, i) => Math.abs(x - (p0[i] ?? 0)))) }
+  return {
+    side,
+    mode,
+    k,
+    gamma: fit.gamma,
+    r2: fit.r2,
+    points: fit.points,
+    nu: fit.gamma / (k * k),
+    drift: Math.max(
+      ...momentumOf(final.data).p.map((x, i) =>
+        Math.abs(x - (p0[i] ?? 0)),
+      ),
+    ),
+  }
 }
 
 // the exact laws with role points, side 3, 48 beats
 function laws(spec: ScatterWeaveSpec) {
   const weave = makeScatterWeave({ side: 3, spec })
   const slots = weave.mesh.cellCount * 24
-  const start: VibeState = { vibe: new Int8Array(slots), role: new Int8Array(slots), flow: new Int32Array(slots) }
+  const start: VibeState = {
+    vibe: new Int8Array(slots),
+    role: new Int8Array(slots),
+    flow: new Int32Array(slots),
+  }
 
   for (let i = 0; i < slots; i++) {
     const u = ((i + 1) * GOLDEN * 1.37) % 1
@@ -107,9 +188,13 @@ function laws(spec: ScatterWeaveSpec) {
     start.role[i] = Math.floor(((i + 3) * GOLDEN * 1.37 * 9) % 9)
   }
 
-  const charge = (s: VibeState): number => s.vibe.reduce((a, b) => a + b, 0)
+  const charge = (s: VibeState): number =>
+    s.vibe.reduce((a, b) => a + b, 0)
   const p0 = momentumOf(start.vibe).p
-  const sum0 = lineMomenta(start.vibe, weave.opposite).reduce((a, b) => a + b, 0)
+  const sum0 = lineMomenta(start.vibe, weave.opposite).reduce(
+    (a, b) => a + b,
+    0,
+  )
 
   let s = start
   let leaks = 0
@@ -121,15 +206,28 @@ function laws(spec: ScatterWeaveSpec) {
     leaks += scatterLeaks(weave, s, t)
     s = scatterBeat(weave, s, t)
     chargeKept = chargeKept && charge(s) === charge(start)
-    pDrift = Math.max(pDrift, ...momentumOf(s.vibe).p.map((x, k) => Math.abs(x - (p0[k] ?? 0))))
-    sumDrift = Math.max(sumDrift, Math.abs(lineMomenta(s.vibe, weave.opposite).reduce((a, b) => a + b, 0) - sum0))
+    pDrift = Math.max(
+      pDrift,
+      ...momentumOf(s.vibe).p.map((x, k) => Math.abs(x - (p0[k] ?? 0))),
+    )
+
+    sumDrift = Math.max(
+      sumDrift,
+      Math.abs(
+        lineMomenta(s.vibe, weave.opposite).reduce((a, b) => a + b, 0) -
+          sum0,
+      ),
+    )
   }
 
   for (let t = 47; t >= 0; t--) {
     s = scatterBeatBack(weave, s, t)
   }
 
-  const reverses = s.vibe.every((x, i) => x === start.vibe[i]) && s.role.every((x, i) => x === start.role[i]) && s.flow.every((x, i) => x === start.flow[i])
+  const reverses =
+    s.vibe.every((x, i) => x === start.vibe[i]) &&
+    s.role.every((x, i) => x === start.role[i]) &&
+    s.flow.every((x, i) => x === start.flow[i])
 
   return { leaks, chargeKept, pDrift, sumDrift, reverses }
 }
@@ -144,17 +242,34 @@ export default experiment({
   depth: 'L2',
   paper: false,
   run() {
-    const mirror = cptMirrorPhase((o, f) => colorLocalCollision({ spec: HEAD_TURN_SPEC, opposite: o, forward: f }))
-    const specOf = (m: Member): ScatterWeaveSpec => ({ base: HEAD_TURN_SPEC, mirror, sets: scatterSchedule(m.density), condition: m.condition })
-    const committedRule: ScheduledRule = (o, f) => turningWeave({ opposite: o, forward: f })
-    const committedLove = dressing(committedRule, { tone: 1 }).periodLargest
-    const committedFear = dressing(committedRule, { tone: -1 }).periodLargest
+    const mirror = cptMirrorPhase((o, f) =>
+      colorLocalCollision({
+        spec: HEAD_TURN_SPEC,
+        opposite: o,
+        forward: f,
+      }),
+    )
+    const specOf = (m: Member): ScatterWeaveSpec => ({
+      base: HEAD_TURN_SPEC,
+      mirror,
+      sets: scatterSchedule(m.density),
+      condition: m.condition,
+    })
+    const committedRule: ScheduledRule = (o, f) =>
+      turningWeave({ opposite: o, forward: f })
+    const committedLove = dressing(committedRule, {
+      tone: 1,
+    }).periodLargest
+    const committedFear = dressing(committedRule, {
+      tone: -1,
+    }).periodLargest
     const committedVacuum = lineComponents(committedRule, false)
     const committedDense = lineComponents(committedRule, true)
 
     const measured = MEMBERS.map(m => {
       const spec = specOf(m)
-      const rule: ScheduledRule = (o, f) => scatterCollision({ spec, opposite: o, forward: f })
+      const rule: ScheduledRule = (o, f) =>
+        scatterCollision({ spec, opposite: o, forward: f })
       const runs = [12, 16, 20].map(side => shear(spec, side, 1))
       const nus = runs.map(r => r.nu)
 
@@ -172,26 +287,44 @@ export default experiment({
       }
     })
 
-    const dense = measured.find(x => x.member.name === 'matched23') ?? measured[0]
-    const denseSpec = dense?.spec ?? specOf(MEMBERS[0] ?? { name: '', condition: 'lone', density: 'pair' })
+    const dense =
+      measured.find(x => x.member.name === 'matched23') ?? measured[0]
+    const denseSpec =
+      dense?.spec ??
+      specOf(
+        MEMBERS[0] ?? { name: '', condition: 'lone', density: 'pair' },
+      )
     const extra = [shear(denseSpec, 24, 1), shear(denseSpec, 20, 2)]
     const allRuns = [...(dense?.runs ?? []), ...extra]
-    const fit = linearFit({ xs: allRuns.map(r => Math.log(r.k)), ys: allRuns.map(r => Math.log(r.gamma)) })
+    const fit = linearFit({
+      xs: allRuns.map(r => Math.log(r.k)),
+      ys: allRuns.map(r => Math.log(r.gamma)),
+    })
     const exponentError = slopeError(
       allRuns.map(r => Math.log(r.k)),
       allRuns.map(r => Math.log(r.gamma)),
       fit.slope,
       fit.intercept,
     )
-    const modeOneRuns = [...(dense?.runs ?? []), extra[0]].filter(r => r !== undefined)
-    const nuSpread = Math.max(...modeOneRuns.map(r => r.nu)) / Math.min(...modeOneRuns.map(r => r.nu))
-    const oriented = ORIENTATIONS.map(([name, geometry]) => ({ name, ...shear(denseSpec, 16, 1, geometry) }))
+    const modeOneRuns = [...(dense?.runs ?? []), extra[0]].filter(
+      r => r !== undefined,
+    )
+    const nuSpread =
+      Math.max(...modeOneRuns.map(r => r.nu)) /
+      Math.min(...modeOneRuns.map(r => r.nu))
+    const oriented = ORIENTATIONS.map(([name, geometry]) => ({
+      name,
+      ...shear(denseSpec, 16, 1, geometry),
+    }))
     const orientedNus = oriented.map(o => o.nu)
-    const anisotropy = Math.max(...orientedNus) / Math.min(...orientedNus)
+    const anisotropy =
+      Math.max(...orientedNus) / Math.min(...orientedNus)
     const law = laws(denseSpec)
 
-    const loveNoMore = (x: (typeof measured)[number]): boolean => x.love.every((v, p) => v <= (committedLove[p] ?? 0))
-    const viscous = (x: (typeof measured)[number]): boolean => x.nuSpread <= 1.1
+    const loveNoMore = (x: (typeof measured)[number]): boolean =>
+      x.love.every((v, p) => v <= (committedLove[p] ?? 0))
+    const viscous = (x: (typeof measured)[number]): boolean =>
+      x.nuSpread <= 1.1
     const tradeOff = measured.every(x => !(loveNoMore(x) && viscous(x)))
 
     const ok =
@@ -217,8 +350,14 @@ export default experiment({
       metrics[`${n}_vacuumPeriod`] = x.vacuum
       metrics[`${n}_vacuumComponents`] = x.vacuumComponents
       metrics[`${n}_denseComponents`] = x.denseComponents
-      x.love.forEach((v, p) => (metrics[`${n}_loveSupportPeriod${p + 1}`] = v))
-      x.fear.forEach((v, p) => (metrics[`${n}_fearSupportPeriod${p + 1}`] = v))
+      x.love.forEach(
+        (v, p) => (metrics[`${n}_loveSupportPeriod${p + 1}`] = v),
+      )
+
+      x.fear.forEach(
+        (v, p) => (metrics[`${n}_fearSupportPeriod${p + 1}`] = v),
+      )
+
       x.runs.forEach(r => {
         metrics[`${n}_gammaL${r.side}`] = r.gamma
         metrics[`${n}_nuL${r.side}`] = r.nu
@@ -236,7 +375,9 @@ export default experiment({
     metrics.exponent = fit.slope
     metrics.exponentError = exponentError
     metrics.nuSpreadL12to24 = nuSpread
-    metrics.nuMean = modeOneRuns.reduce((s, r) => s + r.nu, 0) / modeOneRuns.length
+    metrics.nuMean =
+      modeOneRuns.reduce((s, r) => s + r.nu, 0) / modeOneRuns.length
+
     oriented.forEach(o => {
       metrics[`gamma_${o.name}`] = o.gamma
       metrics[`nu_${o.name}`] = o.nu
@@ -256,8 +397,18 @@ export default experiment({
         'on the densest matched member the exact laws hold (reversal with role points, charge, P, CPT at the base phase, the vacuum period 24, no color leak, line components within the committed ones), the shear decays cleanly at every size, nu is constant to within 10 percent from L = 12 to 24, and the exponent of Gamma against k is within 0.2 of 2. Reported: every member, its dressing, its viscosity spread, and whether any reaches both',
       metrics,
       control: {
-        ...Object.fromEntries(committedLove.map((v, p) => [`committedLoveSupportPeriod${p + 1}`, v])),
-        ...Object.fromEntries(committedFear.map((v, p) => [`committedFearSupportPeriod${p + 1}`, v])),
+        ...Object.fromEntries(
+          committedLove.map((v, p) => [
+            `committedLoveSupportPeriod${p + 1}`,
+            v,
+          ]),
+        ),
+        ...Object.fromEntries(
+          committedFear.map((v, p) => [
+            `committedFearSupportPeriod${p + 1}`,
+            v,
+          ]),
+        ),
         committedVacuumComponents: committedVacuum,
         committedDenseComponents: committedDense,
       },

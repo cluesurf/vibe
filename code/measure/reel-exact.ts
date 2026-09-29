@@ -21,23 +21,57 @@ import {
 import { reelRun } from '@/code/measure/reel-run'
 import { canonical, toComplex } from '@/code/rule/lattice-qed'
 
-export type ReelStart = { readonly x: readonly number[]; readonly j: readonly number[]; readonly r: readonly number[]; readonly amp: number }
+export type ReelStart = {
+  readonly x: readonly number[]
+  readonly j: readonly number[]
+  readonly r: readonly number[]
+  readonly amp: number
+}
 
-export type ReelExactCheck = { gap: number; norm: boolean; reverses: boolean; registersOk: boolean; merged: number; bits: number; supported: number }
+export type ReelExactCheck = {
+  gap: number
+  norm: boolean
+  reverses: boolean
+  registersOk: boolean
+  merged: number
+  bits: number
+  supported: number
+}
 
-export function reelExactCheck(s: ReelSpec, starts: readonly ReelStart[], beats: number): ReelExactCheck {
+export function reelExactCheck(
+  s: ReelSpec,
+  starts: readonly ReelStart[],
+  beats: number,
+): ReelExactCheck {
   const n = s.kinds.length
   const minAbs = Math.min(...starts.map(e => Math.abs(e.amp)))
   const st: ExactReelState = exactReelStart(
     s,
-    starts.map(e => ({ registers: placedRegisters(s, [...e.x], [...e.j], [...e.r]), weight: BigInt(Math.round(e.amp / minAbs)) })),
+    starts.map(e => ({
+      registers: placedRegisters(s, [...e.x], [...e.j], [...e.r]),
+      weight: BigInt(Math.round(e.amp / minAbs)),
+    })),
   )
   const startCopy = new Map([...st.amp].map(([i, v]) => [i, v.slice()]))
-  const fl = reelRun({ ring: s.ring, kinds: s.kinds, depth: s.depth, cost: s.cost, root: s.root })
+  const fl = reelRun({
+    ring: s.ring,
+    kinds: s.kinds,
+    depth: s.depth,
+    cost: s.cost,
+    root: s.root,
+  })
 
-  fl.place(starts.map(e => ({ x: e.x, r: e.r, j: e.j, amp: [e.amp, 0] as [number, number] })))
+  fl.place(
+    starts.map(e => ({
+      x: e.x,
+      r: e.r,
+      j: e.j,
+      amp: [e.amp, 0] as [number, number],
+    })),
+  )
 
   const R = 3 ** n
+
   let gap = 0
   let registersOk = true
   let merged = 0
@@ -52,7 +86,12 @@ export function reelExactCheck(s: ReelSpec, starts: readonly ReelStart[], beats:
     for (const [i, v] of st.amp) {
       const g = decodeRegisters(s, i)
 
-      if (!gaussHolds(s, g) || reelSum(g.r) + 2 * stringCount(g.f) !== 0) registersOk = false
+      if (
+        !gaussHolds(s, g) ||
+        reelSum(g.r) + 2 * stringCount(g.f) !== 0
+      ) {
+        registersOk = false
+      }
 
       const c = fl.indexOf(g.x, g.r)
 
@@ -65,9 +104,16 @@ export function reelExactCheck(s: ReelSpec, starts: readonly ReelStart[], beats:
       const [vr, vi] = toComplex(v, st.den, st.k)
       const prev = seen.get(at)
 
-      if (prev) merged++
+      if (prev) {
+        merged++
+      }
 
-      seen.set(at, prev ? [prev[0] + vr * minAbs, prev[1] + vi * minAbs] : [vr * minAbs, vi * minAbs])
+      seen.set(
+        at,
+        prev
+          ? [prev[0] + vr * minAbs, prev[1] + vi * minAbs]
+          : [vr * minAbs, vi * minAbs],
+      )
     }
 
     supported = Math.max(supported, st.amp.size)
@@ -75,11 +121,15 @@ export function reelExactCheck(s: ReelSpec, starts: readonly ReelStart[], beats:
     for (let at = 0; at < fl.re.length; at++) {
       const e = seen.get(at) ?? [0, 0]
 
-      gap = Math.max(gap, Math.hypot(e[0] - fl.re[at]!, e[1] - fl.im[at]!))
+      gap = Math.max(
+        gap,
+        Math.hypot(e[0] - fl.re[at]!, e[1] - fl.im[at]!),
+      )
     }
   }
 
   const k = st.k
+
   const normOf = (amp: Map<number, bigint[]>): bigint[] => {
     const acc = new Array<bigint>(k).fill(0n)
 
@@ -87,40 +137,79 @@ export function reelExactCheck(s: ReelSpec, starts: readonly ReelStart[], beats:
       const v = canonical(raw, k)
       const nz: number[] = []
 
-      for (let a = 0; a < k; a++) if (v[a] !== 0n) nz.push(a)
+      for (let a = 0; a < k; a++) {
+        if (v[a] !== 0n) {
+          nz.push(a)
+        }
+      }
 
-      for (const a of nz) for (const b of nz) acc[(((a - b) % k) + k) % k] = acc[(((a - b) % k) + k) % k]! + v[a]! * v[b]!
+      for (const a of nz) {
+        for (const b of nz) {
+          acc[(((a - b) % k) + k) % k] =
+            acc[(((a - b) % k) + k) % k]! + v[a]! * v[b]!
+        }
+      }
     }
 
     return canonical(acc, k)
   }
+
   const n0 = normOf(startCopy)
   const n1 = normOf(st.amp)
   const norm = n1.every((x, i) => x === (n0[i] ?? 0n) * st.den * st.den)
   const forward = st.den
   const bits = forward.toString(2).length
 
-  for (let t = 0; t < beats; t++) exactReelBeatBack(st)
+  for (let t = 0; t < beats; t++) {
+    exactReelBeatBack(st)
+  }
 
   let reverses = [...startCopy.keys()].every(i => st.amp.has(i))
 
   for (const [i, v] of st.amp) {
     const want = startCopy.get(i)
     const got = canonical(v, k)
-    const target = want ? canonical(want.map(x => x * forward * forward), k) : new Array<bigint>(k).fill(0n)
+    const target = want
+      ? canonical(
+          want.map(x => x * forward * forward),
+          k,
+        )
+      : new Array<bigint>(k).fill(0n)
 
-    if (!got.every((x, a) => x === (target[a] ?? 0n))) reverses = false
+    if (!got.every((x, a) => x === (target[a] ?? 0n))) {
+      reverses = false
+    }
   }
 
   return { gap, norm, reverses, registersOk, merged, bits, supported }
 }
 
 // antisymmetrize a start over the permutations of identical tokens (positions, labels and reels together)
-export function antisymmetrizedReels(input: { x: readonly number[]; j: readonly number[]; r: readonly number[] }): ReelStart[] {
+export function antisymmetrizedReels(input: {
+  x: readonly number[]
+  j: readonly number[]
+  r: readonly number[]
+}): ReelStart[] {
   const n = input.x.length
-  const perms: number[][] = n === 2 ? [[0, 1], [1, 0]] : [[0, 1, 2], [1, 0, 2], [2, 1, 0], [0, 2, 1], [1, 2, 0], [2, 0, 1]]
+  const perms: number[][] =
+    n === 2
+      ? [
+          [0, 1],
+          [1, 0],
+        ]
+      : [
+          [0, 1, 2],
+          [1, 0, 2],
+          [2, 1, 0],
+          [0, 2, 1],
+          [1, 2, 0],
+          [2, 0, 1],
+        ]
   const signs = n === 2 ? [1, -1] : [1, -1, -1, -1, 1, 1]
-  const merged = new Map<string, { x: number[]; j: number[]; r: number[]; amp: number }>()
+  const merged = new Map<
+    string,
+    { x: number[]; j: number[]; r: number[]; amp: number }
+  >()
 
   perms.forEach((p, k) => {
     const x = p.map(i => input.x[i]!)

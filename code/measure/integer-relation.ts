@@ -23,7 +23,11 @@ export const RELATION_A_MAX = 12
 export const RELATION_C_MAX = 12
 export const NULL_WINDOW = 0.1
 
-export type RelationHit = { readonly form: string; readonly complexity: number; readonly error: number }
+export type RelationHit = {
+  readonly form: string
+  readonly complexity: number
+  readonly error: number
+}
 
 export function relationHits(x: number, delta: number): RelationHit[] {
   const hits: RelationHit[] = []
@@ -37,7 +41,11 @@ export function relationHits(x: number, delta: number): RelationHit[] {
       const b0 = Math.round(plain)
 
       if (Math.abs(plain - b0) <= a * dt) {
-        hits.push({ form: `${a} ${name} = ${b0}`, complexity: a, error: (plain - b0) / a })
+        hits.push({
+          form: `${a} ${name} = ${b0}`,
+          complexity: a,
+          error: (plain - b0) / a,
+        })
       }
 
       for (const [basis, value] of RELATION_BASIS) {
@@ -50,7 +58,11 @@ export function relationHits(x: number, delta: number): RelationHit[] {
           const b = Math.round(r)
 
           if (Math.abs(r - b) <= a * dt) {
-            hits.push({ form: `${a} ${name} = ${b} + ${c} ${basis}`, complexity: a + Math.abs(c), error: (r - b) / a })
+            hits.push({
+              form: `${a} ${name} = ${b} + ${c} ${basis}`,
+              complexity: a + Math.abs(c),
+              error: (r - b) / a,
+            })
           }
         }
       }
@@ -69,7 +81,11 @@ export function weylPoint(n: number, alpha = WEYL_GOLDEN): number {
 
 // the share of `samples` numbers in x (1 +- NULL_WINDOW), placed by the golden Weyl sequence (no seed), with
 // at least one hit at the same delta
-export function nullMatchRate(x: number, delta: number, samples: number): number {
+export function nullMatchRate(
+  x: number,
+  delta: number,
+  samples: number,
+): number {
   let matched = 0
 
   for (let i = 1; i <= samples; i++) {

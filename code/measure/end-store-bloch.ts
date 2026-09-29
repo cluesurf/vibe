@@ -17,8 +17,20 @@
 import { type Vibe } from '@/code/rule/locked-token-line'
 import { unitaryEigen, type Vec } from '@/code/measure/quantum-ladder'
 import { lineString } from '@/code/measure/flux-store-bloch'
-import { type Level, type ReelBloch, type ReelBlochSpec, type Sparse, type Subspace, type Reduced, weightOf } from '@/code/measure/reel-string-bloch'
-import { placedRegisters, streamRegisters, type EndSpec } from '@/code/rule/end-store-line'
+import {
+  type Level,
+  type ReelBloch,
+  type ReelBlochSpec,
+  type Sparse,
+  type Subspace,
+  type Reduced,
+  weightOf,
+} from '@/code/measure/reel-string-bloch'
+import {
+  placedRegisters,
+  streamRegisters,
+  type EndSpec,
+} from '@/code/rule/end-store-line'
 
 type C = [number, number]
 
@@ -26,13 +38,18 @@ const SQ = Math.sqrt(3) / 2
 const OMEGA: C = [-0.5, SQ]
 const A: C = [0.25, SQ / 2]
 const B: C = [0.75, -SQ / 2]
-const cmul = (x: C, y: C): C => [x[0] * y[0] - x[1] * y[1], x[0] * y[1] + x[1] * y[0]]
+const cmul = (x: C, y: C): C => [
+  x[0] * y[0] - x[1] * y[1],
+  x[0] * y[1] + x[1] * y[0],
+]
 
 // the largest span from contact: each end pays out at most D links
 export const endSpan = (s: ReelBlochSpec): number => 2 * s.depth
 
 export function endBlochSpace(spec: ReelBlochSpec): ReelBloch {
-  if (spec.unlike !== 'knit' || spec.convention !== 'C') throw new Error('end-store-bloch: the knit meeting under C only')
+  if (spec.unlike !== 'knit' || spec.convention !== 'C') {
+    throw new Error('end-store-bloch: the knit meeting under C only')
+  }
 
   const n = spec.kinds.length
   const q = spec.labels
@@ -44,26 +61,40 @@ export function endBlochSpace(spec: ReelBlochSpec): ReelBloch {
   const reels: number[][] = []
   const strings: number[] = []
   const lookup = new Map<number, number>()
-  const keyOf = (d: readonly number[], p: readonly number[]): number => {
+
+  const keyOf = (
+    d: readonly number[],
+    p: readonly number[],
+  ): number => {
     let k = 0
 
-    for (let t = 1; t < n; t++) k = k * W + (d[t]! + S)
+    for (let t = 1; t < n; t++) {
+      k = k * W + (d[t]! + S)
+    }
 
     return (k * V + (p[0]! + D)) * V + (p[1]! + D)
   }
+
   const d = new Array<number>(n).fill(0)
+
   const walk = (t: number): void => {
     if (t === n) {
-      if (Math.max(...d) - Math.min(...d) > S) return
+      if (Math.max(...d) - Math.min(...d) > S) {
+        return
+      }
 
       const l = lineString(d, spec.kinds)
 
-      if (l > S) return
+      if (l > S) {
+        return
+      }
 
       for (let rL = -D; rL <= D; rL++) {
         const rR = -l - rL
 
-        if (rR < -D || rR > D) continue
+        if (rR < -D || rR > D) {
+          continue
+        }
 
         lookup.set(keyOf(d, [rL, rR]), positions.length)
         positions.push(d.slice())
@@ -96,7 +127,11 @@ export function endBlochSpace(spec: ReelBlochSpec): ReelBloch {
     size: positions.length * labelCount,
     index: (c, lab) => c * labelCount + lab,
     configOf: (dd, pp) => {
-      for (let t = 1; t < n; t++) if (Math.abs(dd[t]!) > S) return -1
+      for (let t = 1; t < n; t++) {
+        if (Math.abs(dd[t]!) > S) {
+          return -1
+        }
+      }
 
       return lookup.get(keyOf(dd, pp)) ?? -1
     },
@@ -105,6 +140,7 @@ export function endBlochSpace(spec: ReelBlochSpec): ReelBloch {
 
 const digitsOf = (code: number, n: number, q: number): number[] => {
   const out = new Array<number>(n)
+
   let c = code
 
   for (let t = n - 1; t >= 0; t--) {
@@ -115,27 +151,58 @@ const digitsOf = (code: number, n: number, q: number): number[] => {
   return out
 }
 
-const codeOf = (j: readonly number[], q: number): number => j.reduce((a, v) => a * q + v, 0)
+const codeOf = (j: readonly number[], q: number): number =>
+  j.reduce((a, v) => a * q + v, 0)
 
 // the rule's stream on the line: the configuration placed on a ring where nothing wraps, streamed, read back
-export function endStreamLine(spec: ReelBlochSpec, d: readonly number[], ports: readonly number[], j: readonly number[]): { y: number[]; ports: number[]; j: number[] } {
+export function endStreamLine(
+  spec: ReelBlochSpec,
+  d: readonly number[],
+  ports: readonly number[],
+  j: readonly number[],
+): { y: number[]; ports: number[]; j: number[] } {
   const S = endSpan(spec)
   const ring = 4 * S + 8
   const offset = 2 * S + 3
-  const s: EndSpec = { ring, kinds: spec.kinds as Vibe[], convention: spec.convention, depth: spec.depth, cost: 0, root: 3 }
-  const g = placedRegisters(s, d.map(v => v + offset), j, ports[0]!, ports[1]!)
+  const s: EndSpec = {
+    ring,
+    kinds: spec.kinds as Vibe[],
+    convention: spec.convention,
+    depth: spec.depth,
+    cost: 0,
+    root: 3,
+  }
+  const g = placedRegisters(
+    s,
+    d.map(v => v + offset),
+    j,
+    ports[0],
+    ports[1],
+  )
   const out = streamRegisters(s, g)
 
-  return { y: out.x.map(v => v - offset), ports: [out.rL, out.rR], j: out.j }
+  return {
+    y: out.x.map(v => v - offset),
+    ports: [out.rL, out.rR],
+    j: out.j,
+  }
 }
 
 // the image of one basis vector under one beat
-export function endBlochColumn(b: ReelBloch, K: number, col: number): Sparse {
+export function endBlochColumn(
+  b: ReelBloch,
+  K: number,
+  col: number,
+): Sparse {
   const { spec, n, q } = b
   const c = Math.floor(col / b.labelCount)
   const d = b.positions[c]!
+
   let vec = new Map<number, C>()
-  const t0 = (-2 * Math.PI * ((spec.cost * b.strings[c]!) % spec.root)) / spec.root
+
+  const t0 =
+    (-2 * Math.PI * ((spec.cost * b.strings[c]!) % spec.root)) /
+    spec.root
 
   vec.set(col % b.labelCount, [Math.cos(t0), Math.sin(t0)])
 
@@ -148,7 +215,9 @@ export function endBlochColumn(b: ReelBloch, K: number, col: number): Sparse {
   if (spec.meet !== false) {
     for (let a0 = 0; a0 < n; a0++) {
       for (let b0 = a0 + 1; b0 < n; b0++) {
-        if (d[a0] !== d[b0] || spec.kinds[a0] !== spec.kinds[b0]) continue
+        if (d[a0] !== d[b0] || spec.kinds[a0] !== spec.kinds[b0]) {
+          continue
+        }
 
         const next = new Map<number, C>()
 
@@ -159,7 +228,11 @@ export function endBlochColumn(b: ReelBloch, K: number, col: number): Sparse {
           sw[a0] = j[b0]!
           sw[b0] = j[a0]!
           addTo(next, lab, cmul([(1 + OMEGA[0]) / 2, OMEGA[1] / 2], v))
-          addTo(next, codeOf(sw, q), cmul([(1 - OMEGA[0]) / 2, -OMEGA[1] / 2], v))
+          addTo(
+            next,
+            codeOf(sw, q),
+            cmul([(1 - OMEGA[0]) / 2, -OMEGA[1] / 2], v),
+          )
         }
 
         vec = next
@@ -191,13 +264,19 @@ export function endBlochColumn(b: ReelBloch, K: number, col: number): Sparse {
   const out: Sparse = { idx: [], re: [], im: [] }
 
   for (const [lab, v] of vec) {
-    if (v[0] === 0 && v[1] === 0) continue
+    if (v[0] === 0 && v[1] === 0) {
+      continue
+    }
 
     const s = endStreamLine(spec, d, b.reels[c]!, digitsOf(lab, n, q))
     const nd = s.y.map(x => x - s.y[0]!)
     const nc = b.configOf(nd, s.ports)
 
-    if (nc < 0) throw new Error('end-store-bloch: an image left the configuration list')
+    if (nc < 0) {
+      throw new Error(
+        'end-store-bloch: an image left the configuration list',
+      )
+    }
 
     const shift = s.y[0]! - d[0]!
     const ph = cmul([Math.cos(-K * shift), Math.sin(-K * shift)], v)
@@ -240,12 +319,18 @@ export function endSubspace(b: ReelBloch, K: number): Subspace {
     return { vectors, owner, coefficient, coefficientIm }
   }
 
-  if (b.n !== 3) throw new Error('end-store-bloch: antisymmetrizer written for three identical tokens')
+  if (b.n !== 3) {
+    throw new Error(
+      'end-store-bloch: antisymmetrizer written for three identical tokens',
+    )
+  }
 
   const seen = new Uint8Array(b.size)
 
   for (let i = 0; i < b.size; i++) {
-    if (seen[i]) continue
+    if (seen[i]) {
+      continue
+    }
 
     const c = Math.floor(i / b.labelCount)
     const j = digitsOf(i % b.labelCount, b.n, b.q)
@@ -267,15 +352,21 @@ export function endSubspace(b: ReelBloch, K: number): Subspace {
 
     let norm = 0
 
-    for (const v of acc.values()) norm += v[0] * v[0] + v[1] * v[1]
+    for (const v of acc.values()) {
+      norm += v[0] * v[0] + v[1] * v[1]
+    }
 
-    if (norm < 1e-18) continue
+    if (norm < 1e-18) {
+      continue
+    }
 
     const f = 1 / Math.sqrt(norm)
     const vec: Sparse = { idx: [], re: [], im: [] }
 
     for (const [at, v] of acc) {
-      if (v[0] * v[0] + v[1] * v[1] < 1e-24) continue
+      if (v[0] * v[0] + v[1] * v[1] < 1e-24) {
+        continue
+      }
 
       vec.idx.push(at)
       vec.re.push(v[0] * f)
@@ -291,10 +382,15 @@ export function endSubspace(b: ReelBloch, K: number): Subspace {
   return { vectors, owner, coefficient, coefficientIm }
 }
 
-export function endReducedBeat(b: ReelBloch, sub: Subspace, K: number): Reduced {
+export function endReducedBeat(
+  b: ReelBloch,
+  sub: Subspace,
+  K: number,
+): Reduced {
   const dim = sub.vectors.length
   const re = new Float64Array(dim * dim)
   const im = new Float64Array(dim * dim)
+
   let leak = 0
   let unitarity = 0
 
@@ -321,7 +417,9 @@ export function endReducedBeat(b: ReelBloch, sub: Subspace, K: number): Reduced 
 
       const a = sub.owner[o]!
 
-      if (a < 0) continue
+      if (a < 0) {
+        continue
+      }
 
       const cr = sub.coefficient[o]!
       const ci = sub.coefficientIm[o]!
@@ -330,7 +428,9 @@ export function endReducedBeat(b: ReelBloch, sub: Subspace, K: number): Reduced 
       im[a * dim + col] = im[a * dim + col]! + cr * w[1] - ci * w[0]
     }
 
-    for (let a = 0; a < dim; a++) inside += re[a * dim + col]! ** 2 + im[a * dim + col]! ** 2
+    for (let a = 0; a < dim; a++) {
+      inside += re[a * dim + col]! ** 2 + im[a * dim + col]! ** 2
+    }
 
     leak = Math.max(leak, total - inside)
     unitarity = Math.max(unitarity, Math.abs(total - 1))
@@ -339,17 +439,26 @@ export function endReducedBeat(b: ReelBloch, sub: Subspace, K: number): Reduced 
   return { dim, re, im, leak, unitarity }
 }
 
-export function endLevels(b: ReelBloch, sub: Subspace, red: Reduced): { levels: Level[]; residual: number } {
+export function endLevels(
+  b: ReelBloch,
+  sub: Subspace,
+  red: Reduced,
+): { levels: Level[]; residual: number } {
   const eig = unitaryEigen(red.dim, red.re, red.im)
   const out: Level[] = eig.phases.map((ph, k) => {
     const c = eig.vectors[k]!
-    const v = { re: new Float64Array(b.size), im: new Float64Array(b.size) }
+    const v = {
+      re: new Float64Array(b.size),
+      im: new Float64Array(b.size),
+    }
 
     sub.vectors.forEach((bv, a) => {
       const cr = c.re[a]!
       const ci = c.im[a]!
 
-      if (cr === 0 && ci === 0) return
+      if (cr === 0 && ci === 0) {
+        return
+      }
 
       bv.idx.forEach((i, m) => {
         v.re[i] = v.re[i]! + cr * bv.re[m]! - ci * bv.im[m]!
@@ -359,8 +468,13 @@ export function endLevels(b: ReelBloch, sub: Subspace, red: Reduced): { levels: 
 
     let e = -ph
 
-    while (e <= -Math.PI) e += 2 * Math.PI
-    while (e > Math.PI) e -= 2 * Math.PI
+    while (e <= -Math.PI) {
+      e += 2 * Math.PI
+    }
+
+    while (e > Math.PI) {
+      e -= 2 * Math.PI
+    }
 
     return { energy: e, vector: v }
   })
@@ -368,13 +482,30 @@ export function endLevels(b: ReelBloch, sub: Subspace, red: Reduced): { levels: 
   return { levels: out, residual: eig.residual }
 }
 
-export function endSpectrumAt(spec: ReelBlochSpec, K: number): { bloch: ReelBloch; dim: number; leak: number; unitarity: number; residual: number; all: Level[] } {
+export function endSpectrumAt(
+  spec: ReelBlochSpec,
+  K: number,
+): {
+  bloch: ReelBloch
+  dim: number
+  leak: number
+  unitarity: number
+  residual: number
+  all: Level[]
+} {
   const b = endBlochSpace(spec)
   const sub = endSubspace(b, K)
   const red = endReducedBeat(b, sub, K)
   const ls = endLevels(b, sub, red)
 
-  return { bloch: b, dim: red.dim, leak: red.leak, unitarity: red.unitarity, residual: ls.residual, all: ls.levels }
+  return {
+    bloch: b,
+    dim: red.dim,
+    leak: red.leak,
+    unitarity: red.unitarity,
+    residual: ls.residual,
+    all: ls.levels,
+  }
 }
 
 // the meetings' energy (like pairs: -2 pi / 3 times the exchange-antisymmetric weight on shared docks, the exchange
@@ -382,18 +513,24 @@ export function endSpectrumAt(spec: ReelBlochSpec, K: number): { bloch: ReelBloc
 export function endContactEnergy(b: ReelBloch, v: Vec): number {
   const { n, q, spec } = b
 
-  if (spec.meet === false) return 0
+  if (spec.meet === false) {
+    return 0
+  }
 
   let e = 0
 
   for (let a = 0; a < n; a++) {
     for (let c = a + 1; c < n; c++) {
-      if (spec.kinds[a] !== spec.kinds[c]) continue
+      if (spec.kinds[a] !== spec.kinds[c]) {
+        continue
+      }
 
       for (let ci = 0; ci < b.positions.length; ci++) {
         const d = b.positions[ci]!
 
-        if (d[a] !== d[c]) continue
+        if (d[a] !== d[c]) {
+          continue
+        }
 
         for (let lab = 0; lab < b.labelCount; lab++) {
           const j = digitsOf(lab, n, q)
@@ -417,7 +554,10 @@ export function endContactEnergy(b: ReelBloch, v: Vec): number {
 }
 
 // the ends' spread in a level: the weight-mean |rL| + |rR| over 2, and the weight with a port at its edge
-export function portUse(b: ReelBloch, v: Vec): { meanAbs: number; atEdge: number } {
+export function portUse(
+  b: ReelBloch,
+  v: Vec,
+): { meanAbs: number; atEdge: number } {
   let w = 0
   let m = 0
   let edge = 0
@@ -425,14 +565,21 @@ export function portUse(b: ReelBloch, v: Vec): { meanAbs: number; atEdge: number
   for (let i = 0; i < b.size; i++) {
     const p = v.re[i]! ** 2 + v.im[i]! ** 2
 
-    if (p === 0) continue
+    if (p === 0) {
+      continue
+    }
 
     const r = b.reels[Math.floor(i / b.labelCount)]!
 
     w += p
     m += (p * (Math.abs(r[0]!) + Math.abs(r[1]!))) / 2
 
-    if (Math.abs(r[0]!) === b.spec.depth || Math.abs(r[1]!) === b.spec.depth) edge += p
+    if (
+      Math.abs(r[0]!) === b.spec.depth ||
+      Math.abs(r[1]!) === b.spec.depth
+    ) {
+      edge += p
+    }
   }
 
   return { meanAbs: m / w, atEdge: edge / w }

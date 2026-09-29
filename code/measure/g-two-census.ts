@@ -71,12 +71,17 @@ export function epsilonOf(total: number): number {
 }
 
 // |Z|^2 of the streams of one axis: n0^2 + n1^2 + n2^2 - n0 n1 - n1 n2 - n2 n0 over the frame counts
-function normOf(axis: ArrayLike<number>, beat: ArrayLike<number>, count: number, which: number): number {
+function normOf(
+  axis: ArrayLike<number>,
+  beat: ArrayLike<number>,
+  count: number,
+  which: number,
+): number {
   const n = [0, 0, 0]
 
   for (let j = 0; j < count; j++) {
     if (axis[j] === which) {
-      n[mod3(beat[j] as number)]! += 1
+      n[mod3(beat[j]!)]! += 1
     }
   }
 
@@ -86,7 +91,12 @@ function normOf(axis: ArrayLike<number>, beat: ArrayLike<number>, count: number,
 }
 
 // sum over same-axis pairs, later l, earlier j (beats increase with the index), of m(n_l - n_j)
-function sameOrdering(axis: ArrayLike<number>, beat: ArrayLike<number>, count: number, which: number): number {
+function sameOrdering(
+  axis: ArrayLike<number>,
+  beat: ArrayLike<number>,
+  count: number,
+  which: number,
+): number {
   let s = 0
 
   for (let l = 0; l < count; l++) {
@@ -96,7 +106,7 @@ function sameOrdering(axis: ArrayLike<number>, beat: ArrayLike<number>, count: n
 
     for (let j = 0; j < l; j++) {
       if (axis[j] === which) {
-        s += M[mod3((beat[l] as number) - (beat[j] as number))] as number
+        s += M[mod3(beat[l]! - beat[j]!)]!
       }
     }
   }
@@ -105,11 +115,18 @@ function sameOrdering(axis: ArrayLike<number>, beat: ArrayLike<number>, count: n
 }
 
 // The four integers of one plane. Streams are listed in time order (beat increasing); beat[j] is n_j.
-export function planeInvariants(input: { axis: ArrayLike<number>; beat: ArrayLike<number>; count: number; eps: number; plane: readonly [Axis, Axis] }): PlaneInvariants {
+export function planeInvariants(input: {
+  axis: ArrayLike<number>
+  beat: ArrayLike<number>
+  count: number
+  eps: number
+  plane: readonly [Axis, Axis]
+}): PlaneInvariants {
   const { axis, beat, count, eps, plane } = input
   const [p, q] = plane
   const sameA = sameOrdering(axis, beat, count, p)
   const sameB = sameOrdering(axis, beat, count, q)
+
   let pSum = 0
   let rr = 0
   let rab = 0
@@ -117,34 +134,34 @@ export function planeInvariants(input: { axis: ArrayLike<number>; beat: ArrayLik
   let mc = 0
 
   for (let l = 0; l < count; l++) {
-    const al = axis[l] as number
+    const al = axis[l]!
 
     if (al !== p && al !== q) {
       continue
     }
 
     for (let j = 0; j < l; j++) {
-      const aj = axis[j] as number
+      const aj = axis[j]!
 
       if (aj === al || (aj !== p && aj !== q)) {
         continue
       }
 
       // a cross pair, l later, j earlier
-      const later = mod3((beat[l] as number) - (beat[j] as number))
+      const later = mod3(beat[l]! - beat[j]!)
 
-      mc += M[later] as number
+      mc += M[later]!
 
       if (al === p) {
-        rab += R[later] as number
+        rab += R[later]!
         // j in b, l in a: m(n_a - n_b) = m(n_l - n_j)
-        pSum += M[later] as number
-        rr += R[later] as number
+        pSum += M[later]!
+        rr += R[later]!
       } else {
-        rba += R[later] as number
+        rba += R[later]!
         // j in a, l in b: m(n_a - n_b) = m(n_j - n_l)
-        pSum += M[mod3(-later)] as number
-        rr += R[mod3(-later)] as number
+        pSum += M[mod3(-later)]!
+        rr += R[mod3(-later)]!
       }
     }
   }
@@ -161,26 +178,37 @@ export function planeInvariants(input: { axis: ArrayLike<number>; beat: ArrayLik
   }
 }
 
-export const isBowl = (v: PlaneInvariants): boolean => 4 * v.a * v.b > 3 * v.c * v.c
-export const isDirac = (v: PlaneInvariants): boolean => isBowl(v) && v.z * v.z === 4 * v.a * v.b - 3 * v.c * v.c
-export const orderingVanishes = (v: PlaneInvariants): boolean => v.aT === 0 && v.bT === 0 && v.cT === 0 && v.zT === 0
+export const isBowl = (v: PlaneInvariants): boolean =>
+  4 * v.a * v.b > 3 * v.c * v.c
+export const isDirac = (v: PlaneInvariants): boolean =>
+  isBowl(v) && v.z * v.z === 4 * v.a * v.b - 3 * v.c * v.c
+export const orderingVanishes = (v: PlaneInvariants): boolean =>
+  v.aT === 0 && v.bT === 0 && v.cT === 0 && v.zT === 0
 
 // g^2 as an exact fraction [numerator, denominator], both positive, reduced; undefined when not a bowl
-export function gSquared(v: PlaneInvariants): [number, number] | undefined {
+export function gSquared(
+  v: PlaneInvariants,
+): [number, number] | undefined {
   if (!isBowl(v)) {
     return undefined
   }
 
   const num = 4 * v.z * v.z
   const den = 4 * v.a * v.b - 3 * v.c * v.c
-  const gcd = (x: number, y: number): number => (y === 0 ? Math.abs(x) : gcd(y, x % y))
+  const gcd = (x: number, y: number): number =>
+    y === 0 ? Math.abs(x) : gcd(y, x % y)
   const d = gcd(num, den) || 1
 
   return [num / d, den / d]
 }
 
 // the streams of a word, in time order: axis and n (1-indexed beat = coins applied so far)
-export function streamsOf(word: string): { axis: Int8Array; beat: Int32Array; count: number; total: number } {
+export function streamsOf(word: string): {
+  axis: Int8Array
+  beat: Int32Array
+  count: number
+  total: number
+} {
   const axis: number[] = []
   const beat: number[] = []
 
@@ -194,7 +222,12 @@ export function streamsOf(word: string): { axis: Int8Array; beat: Int32Array; co
     }
   }
 
-  return { axis: Int8Array.from(axis), beat: Int32Array.from(beat), count: axis.length, total: word.length }
+  return {
+    axis: Int8Array.from(axis),
+    beat: Int32Array.from(beat),
+    count: axis.length,
+    total: word.length,
+  }
 }
 
 export type WordReading = {
@@ -212,16 +245,41 @@ export type WordReading = {
   readonly labeledPalindrome: boolean
 }
 
-export function readStreams(input: { axis: ArrayLike<number>; beat: ArrayLike<number>; count: number; total: number }): WordReading {
+export function readStreams(input: {
+  axis: ArrayLike<number>
+  beat: ArrayLike<number>
+  count: number
+  total: number
+}): WordReading {
   const eps = epsilonOf(input.total)
-  const planes = PLANES.map(plane => planeInvariants({ ...input, eps, plane }))
-  const [xy, yz, zx] = planes as [PlaneInvariants, PlaneInvariants, PlaneInvariants]
-  const isotropic = eps !== 0 && xy.a !== 0 && xy.a === yz.a && yz.a === zx.a && xy.c === 0 && yz.c === 0 && zx.c === 0
-  const isotropicG = isotropic && Math.abs(xy.z) === Math.abs(yz.z) && Math.abs(yz.z) === Math.abs(zx.z)
+  const planes = PLANES.map(plane =>
+    planeInvariants({ ...input, eps, plane }),
+  )
+  const [xy, yz, zx] = planes as [
+    PlaneInvariants,
+    PlaneInvariants,
+    PlaneInvariants,
+  ]
+  const isotropic =
+    eps !== 0 &&
+    xy.a !== 0 &&
+    xy.a === yz.a &&
+    yz.a === zx.a &&
+    xy.c === 0 &&
+    yz.c === 0 &&
+    zx.c === 0
+  const isotropicG =
+    isotropic &&
+    Math.abs(xy.z) === Math.abs(yz.z) &&
+    Math.abs(yz.z) === Math.abs(zx.z)
+
   let labeledPalindrome = input.count > 0
 
   for (let j = 0, k = input.count - 1; j < k; j++, k--) {
-    if (input.axis[j] !== input.axis[k] || mod3(input.beat[j] as number) !== mod3(input.beat[k] as number)) {
+    if (
+      input.axis[j] !== input.axis[k] ||
+      mod3(input.beat[j]!) !== mod3(input.beat[k]!)
+    ) {
       labeledPalindrome = false
       break
     }
@@ -238,10 +296,15 @@ export function readStreams(input: { axis: ArrayLike<number>; beat: ArrayLike<nu
   }
 }
 
-export const readWord = (word: string): WordReading => readStreams(streamsOf(word))
+export const readWord = (word: string): WordReading =>
+  readStreams(streamsOf(word))
 
 // the husk's axis permutations acting on the letters (each is a turn, with the spin turned along)
-export const AXIS_PERMUTATIONS: readonly (readonly [string, string, string])[] = [
+export const AXIS_PERMUTATIONS: readonly (readonly [
+  string,
+  string,
+  string,
+])[] = [
   ['x', 'y', 'z'],
   ['y', 'z', 'x'],
   ['z', 'x', 'y'],
@@ -250,22 +313,41 @@ export const AXIS_PERMUTATIONS: readonly (readonly [string, string, string])[] =
   ['z', 'y', 'x'],
 ]
 
-export function relabel(word: string, image: readonly [string, string, string]): string {
-  return Array.from(word, ch => (ch === 'x' ? image[0] : ch === 'y' ? image[1] : ch === 'z' ? image[2] : ch)).join('')
+export function relabel(
+  word: string,
+  image: readonly [string, string, string],
+): string {
+  return Array.from(word, ch =>
+    ch === 'x'
+      ? image[0]
+      : ch === 'y'
+        ? image[1]
+        : ch === 'z'
+          ? image[2]
+          : ch,
+  ).join('')
 }
 
 export function rotations(word: string): string[] {
-  return Array.from({ length: word.length }, (_, s) => word.slice(s) + word.slice(0, s))
+  return Array.from(
+    { length: word.length },
+    (_, s) => word.slice(s) + word.slice(0, s),
+  )
 }
 
 // the least rotation of a word: its class as a period, whose origin is a choice
 export function necklace(word: string): string {
-  return rotations(word).reduce((best, w) => (w < best ? w : best), word)
+  return rotations(word).reduce(
+    (best, w) => (w < best ? w : best),
+    word,
+  )
 }
 
 // the least word over rotations and axis permutations: its class up to the husk's turns
 export function turnClass(word: string): string {
-  return AXIS_PERMUTATIONS.map(p => necklace(relabel(word, p))).reduce((best, w) => (w < best ? w : best))
+  return AXIS_PERMUTATIONS.map(p => necklace(relabel(word, p))).reduce(
+    (best, w) => (w < best ? w : best),
+  )
 }
 
 // THEOREM B, checked exhaustively. A turn of the husk acts on a word by permuting its letters (a 3-fold turn about
@@ -274,7 +356,14 @@ export function turnClass(word: string): string {
 // period, up to its origin (a rotation) and, allowing time reversal, its direction (a reflection). The rotations and
 // reflections of a period of N beats form the dihedral group D_N, in which an element of order 3 is a rotation by N/3,
 // so a schedule covariant under a 3-fold turn has N = 0 mod 3, C^N = 1, and no rest gap: it is MASSLESS.
-export type CovarianceCount = { length: number; words: number; withStreams: number; covariantThreeFold: number; covariantAllTurns: number; covariantMassive: number }
+export type CovarianceCount = {
+  length: number
+  words: number
+  withStreams: number
+  covariantThreeFold: number
+  covariantAllTurns: number
+  covariantMassive: number
+}
 
 export function covarianceCensus(maxLength: number): CovarianceCount[] {
   const out: CovarianceCount[] = []
@@ -287,12 +376,17 @@ export function covarianceCensus(maxLength: number): CovarianceCount[] {
     let covariantThreeFold = 0
     let covariantAllTurns = 0
     let covariantMassive = 0
+
     const total = 4 ** length
 
     for (let code = 0; code < total; code++) {
       let w = ''
 
-      for (let k = 0, c = code; k < length; k++, c = Math.floor(c / 4)) {
+      for (
+        let k = 0, c = code;
+        k < length;
+        k++, c = Math.floor(c / 4)
+      ) {
         w += letters[c % 4]
       }
 
@@ -305,7 +399,8 @@ export function covarianceCensus(maxLength: number): CovarianceCount[] {
       const doubled = w + w
       const reversed = [...w].reverse().join('')
       const doubledReversed = reversed + reversed
-      const inDihedral = (v: string): boolean => doubled.includes(v) || doubledReversed.includes(v)
+      const inDihedral = (v: string): boolean =>
+        doubled.includes(v) || doubledReversed.includes(v)
 
       if (inDihedral(cycle(w))) {
         covariantThreeFold++
@@ -317,7 +412,14 @@ export function covarianceCensus(maxLength: number): CovarianceCount[] {
       }
     }
 
-    out.push({ length, words: total, withStreams, covariantThreeFold, covariantAllTurns, covariantMassive })
+    out.push({
+      length,
+      words: total,
+      withStreams,
+      covariantThreeFold,
+      covariantAllTurns,
+      covariantMassive,
+    })
   }
 
   return out
@@ -328,63 +430,91 @@ export function covarianceCensus(maxLength: number): CovarianceCount[] {
 // period is a rotation and a husk-turn relabeling of one of these, so every class is reached. A word is kept when it
 // is isotropic in its kinetic term (a_x = a_y = a_z != 0, every c = 0) AND in its g (|z| equal in the three planes).
 // The kept words are reported by class, with g^2 and whether the class is time-reversal symmetric.
-export type IsotropicClass = { length: number; word: string; g2: string; timeSymmetric: boolean; labeledPalindrome: boolean; orderingFree: boolean }
+export type IsotropicClass = {
+  length: number
+  word: string
+  g2: string
+  timeSymmetric: boolean
+  labeledPalindrome: boolean
+  orderingFree: boolean
+}
 
-export type WordCensus = { maxLength: number; examined: number; massiveEven: number; isotropic: number; classes: IsotropicClass[] }
+export type WordCensus = {
+  maxLength: number
+  examined: number
+  massiveEven: number
+  isotropic: number
+  classes: IsotropicClass[]
+}
 
 export function wordCensus(maxLength: number): WordCensus {
   const letters = new Int8Array(maxLength)
-  const position = [new Int32Array(maxLength), new Int32Array(maxLength), new Int32Array(maxLength)]
+  const position = [
+    new Int32Array(maxLength),
+    new Int32Array(maxLength),
+    new Int32Array(maxLength),
+  ]
   const count = new Int32Array(3)
   const seen = new Map<string, IsotropicClass>()
+
   let examined = 0
   let massiveEven = 0
   let isotropic = 0
 
   const axisA = (p: number, eps: number): number => {
     const pos = position[p] as Int32Array
-    const k = count[p] as number
+    const k = count[p]!
     const n = [0, 0, 0]
+
     let same = 0
 
     for (let l = 0; l < k; l++) {
-      n[mod3(pos[l] as number)]! += 1
+      n[mod3(pos[l]!)]! += 1
 
       for (let j = 0; j < l; j++) {
-        same += M[mod3((pos[l] as number) - (pos[j] as number))] as number
+        same += M[mod3(pos[l]! - pos[j]!)]!
       }
     }
 
     const [n0, n1, n2] = n as [number, number, number]
 
-    return eps * (n0 * n0 + n1 * n1 + n2 * n2 - n0 * n1 - n1 * n2 - n2 * n0) + 3 * same
+    return (
+      eps *
+        (n0 * n0 + n1 * n1 + n2 * n2 - n0 * n1 - n1 * n2 - n2 * n0) +
+      3 * same
+    )
   }
 
   // c and z of the plane (p, q), p the x role
-  const cross = (p: number, q: number, eps: number): [number, number] => {
+  const cross = (
+    p: number,
+    q: number,
+    eps: number,
+  ): [number, number] => {
     const pp = position[p] as Int32Array
     const qq = position[q] as Int32Array
+
     let pSum = 0
     let rr = 0
     let rab = 0
     let rba = 0
     let mc = 0
 
-    for (let i = 0; i < (count[p] as number); i++) {
-      for (let j = 0; j < (count[q] as number); j++) {
-        const np = pp[i] as number
-        const nq = qq[j] as number
+    for (let i = 0; i < count[p]!; i++) {
+      for (let j = 0; j < count[q]!; j++) {
+        const np = pp[i]!
+        const nq = qq[j]!
         const d = mod3(np - nq)
 
-        pSum += M[d] as number
-        rr += R[d] as number
+        pSum += M[d]!
+        rr += R[d]!
 
         if (np > nq) {
-          rab += R[d] as number
-          mc += M[d] as number
+          rab += R[d]!
+          mc += M[d]!
         } else {
-          rba += R[mod3(nq - np)] as number
-          mc += M[mod3(nq - np)] as number
+          rba += R[mod3(nq - np)]!
+          mc += M[mod3(nq - np)]!
         }
       }
     }
@@ -421,11 +551,11 @@ export function wordCensus(maxLength: number): WordCensus {
       count.fill(0)
 
       for (let k = 0; k < length; k++) {
-        const a = (letters[k] as number) - 1
+        const a = letters[k]! - 1
 
         if (a >= 0) {
-          ;(position[a] as Int32Array)[count[a] as number] = k + 1
-          count[a] = (count[a] as number) + 1
+          ;(position[a] as Int32Array)[count[a]!] = k + 1
+          count[a] = count[a]! + 1
         }
       }
 
@@ -448,32 +578,52 @@ export function wordCensus(maxLength: number): WordCensus {
       const [cyz, zyz] = cross(1, 2, eps)
       const [czx, zzx] = cross(2, 0, eps)
 
-      if (cyz !== 0 || czx !== 0 || Math.abs(zxy) !== Math.abs(zyz) || Math.abs(zyz) !== Math.abs(zzx)) {
+      if (
+        cyz !== 0 ||
+        czx !== 0 ||
+        Math.abs(zxy) !== Math.abs(zyz) ||
+        Math.abs(zyz) !== Math.abs(zzx)
+      ) {
         continue
       }
 
       isotropic++
 
-      const word = Array.from(letters.subarray(0, length), v => '0xyz'[v] as string).join('')
+      const word = Array.from(
+        letters.subarray(0, length),
+        v => '0xyz'[v]!,
+      ).join('')
       const key = turnClass(word)
 
       if (!seen.has(key)) {
         const reading = readWord(word)
-        const g2 = gSquared(reading.planes[0] as PlaneInvariants)
+        const g2 = gSquared(reading.planes[0]!)
 
         seen.set(key, {
           length,
           word: key,
           g2: g2 ? `${g2[0]}/${g2[1]}` : 'saddle',
           timeSymmetric: timeSymmetric(word),
-          labeledPalindrome: rotations(word).some(w => readWord(w).labeledPalindrome),
-          orderingFree: rotations(word).some(w => readWord(w).orderingFree),
+          labeledPalindrome: rotations(word).some(
+            w => readWord(w).labeledPalindrome,
+          ),
+          orderingFree: rotations(word).some(
+            w => readWord(w).orderingFree,
+          ),
         })
       }
     }
   }
 
-  return { maxLength, examined, massiveEven, isotropic, classes: [...seen.values()].sort((p, q) => p.length - q.length || (p.word < q.word ? -1 : 1)) }
+  return {
+    maxLength,
+    examined,
+    massiveEven,
+    isotropic,
+    classes: [...seen.values()].sort(
+      (p, q) => p.length - q.length || (p.word < q.word ? -1 : 1),
+    ),
+  }
 }
 
 // THE SCHEDULE CENSUS. Every stream sequence of r streams (axis and frame each, 9^r of them, all three axes present)
@@ -481,7 +631,11 @@ export function wordCensus(maxLength: number): WordCensus {
 // by its frame difference, the period closed at the least N with the asked mass sign (N = 1 mod 3 for eps +1, 2 for
 // eps -1). The husk realization fills the non-stream beats with depth pairs, which return every column only in
 // pairs, so N - r must be even; when it is odd the period takes three more fillers (same frames, same invariants).
-export type GSquared = { value: string; count: number; shortest: number }
+export type GSquared = {
+  value: string
+  count: number
+  shortest: number
+}
 
 // one exact g^2 among the fully isotropic words: how many, the shortest even-filler period, and how many of them are
 // time-reversal symmetric (the period's reverse is the same period), labeled palindromes, or free of the ordering term,
@@ -542,13 +696,20 @@ const GAP = [3, 1, 2]
 
 // the beat word: fillers everywhere, stream j at beat[j] (moved `pad` later when j >= at, so the pad sits before
 // stream `at`; at = count puts it at the end, where the period already holds it)
-function beatWordOf(axis: Int8Array, beat: Int32Array, count: number, total: number, pad: number, at: number): string {
+function beatWordOf(
+  axis: Int8Array,
+  beat: Int32Array,
+  count: number,
+  total: number,
+  pad: number,
+  at: number,
+): string {
   const chars: string[] = Array.from({ length: total }, () => '0')
 
   for (let j = 0; j < count; j++) {
-    const position = (beat[j] as number) + (at >= 0 && j >= at ? pad : 0)
+    const position = beat[j]! + (at >= 0 && j >= at ? pad : 0)
 
-    chars[position - 1] = 'xyz'[axis[j] as number] as string
+    chars[position - 1] = 'xyz'[axis[j]!]!
   }
 
   return chars.join('')
@@ -586,11 +747,21 @@ export function scheduleCensus(maxStreams: number): ScheduleCensus {
   const gValues = new Map<string, GSquared>()
   const triples = new Map<string, GSquared>()
   const symmetricTriples = new Map<string, GSquared>()
-  const groups = new Map<string, Omit<IsotropicGroup, 'classes'> & { byLength: Map<number, Set<string>> }>()
+  const groups = new Map<
+    string,
+    Omit<IsotropicGroup, 'classes'> & {
+      byLength: Map<number, Set<string>>
+    }
+  >()
   // candidate words for the shortest classes, keyed by period
   const diracWords = new Map<number, Set<string>>()
   const palindromeWords = new Map<number, Set<string>>()
-  const remember = (store: Map<number, Set<string>>, total: number, words: string[]): void => {
+
+  const remember = (
+    store: Map<number, Set<string>>,
+    total: number,
+    words: string[],
+  ): void => {
     const set = store.get(total) ?? new Set<string>()
 
     words.forEach(w => set.add(turnClass(w)))
@@ -606,7 +777,7 @@ export function scheduleCensus(maxStreams: number): ScheduleCensus {
       for (let j = 0, c = code; j < r; j++, c = Math.floor(c / 9)) {
         axis[j] = c % 3
         frame[j] = Math.floor(c / 3) % 3
-        present |= 1 << (axis[j] as number)
+        present |= 1 << axis[j]!
       }
 
       if (present !== 7) {
@@ -614,13 +785,13 @@ export function scheduleCensus(maxStreams: number): ScheduleCensus {
       }
 
       out.sequences++
-      beat[0] = frame[0] === 0 ? 3 : (frame[0] as number)
+      beat[0] = frame[0] === 0 ? 3 : frame[0]!
 
       for (let j = 1; j < r; j++) {
-        beat[j] = (beat[j - 1] as number) + (GAP[mod3((frame[j] as number) - (frame[j - 1] as number))] as number)
+        beat[j] = beat[j - 1]! + GAP[mod3(frame[j]! - frame[j - 1]!)]!
       }
 
-      const last = beat[r - 1] as number
+      const last = beat[r - 1]!
 
       for (const residue of [1, 2]) {
         let total = last + mod3(residue - last)
@@ -637,7 +808,9 @@ export function scheduleCensus(maxStreams: number): ScheduleCensus {
 
         if (reading.labeledPalindrome) {
           out.labeledPalindromes++
-          out.palindromeOrderingViolations += reading.orderingFree ? 0 : 1
+          out.palindromeOrderingViolations += reading.orderingFree
+            ? 0
+            : 1
 
           for (const v of reading.planes) {
             if (isBowl(v)) {
@@ -663,16 +836,29 @@ export function scheduleCensus(maxStreams: number): ScheduleCensus {
           })
           .sort()
           .join(' ')
-        const tripleEntry = triples.get(triple) ?? { value: triple, count: 0, shortest: Infinity }
+        const tripleEntry = triples.get(triple) ?? {
+          value: triple,
+          count: 0,
+          shortest: Infinity,
+        }
 
         tripleEntry.count++
         tripleEntry.shortest = Math.min(tripleEntry.shortest, total)
         triples.set(triple, tripleEntry)
 
-        const words = pad === 0 ? [beatWordOf(axis, beat, r, total, 0, -1)] : Array.from({ length: r + 1 }, (_, at) => beatWordOf(axis, beat, r, total, pad, at))
+        const words =
+          pad === 0
+            ? [beatWordOf(axis, beat, r, total, 0, -1)]
+            : Array.from({ length: r + 1 }, (_, at) =>
+                beatWordOf(axis, beat, r, total, pad, at),
+              )
 
         if (words.some(timeSymmetric)) {
-          const entry = symmetricTriples.get(triple) ?? { value: triple, count: 0, shortest: Infinity }
+          const entry = symmetricTriples.get(triple) ?? {
+            value: triple,
+            count: 0,
+            shortest: Infinity,
+          }
 
           entry.count++
           entry.shortest = Math.min(entry.shortest, total)
@@ -680,10 +866,18 @@ export function scheduleCensus(maxStreams: number): ScheduleCensus {
         }
 
         if (reading.isotropicG) {
-          const g2 = gSquared(reading.planes[0] as PlaneInvariants)
+          const g2 = gSquared(reading.planes[0]!)
           const key = g2 ? `${g2[0]}/${g2[1]}` : 'saddle'
-          const group = groups.get(key) ?? { value: key, count: 0, shortest: Infinity, timeSymmetric: 0, palindromes: 0, orderingFree: 0, byLength: new Map<number, Set<string>>() }
-          const symmetric = timeSymmetric(words[0] as string)
+          const group = groups.get(key) ?? {
+            value: key,
+            count: 0,
+            shortest: Infinity,
+            timeSymmetric: 0,
+            palindromes: 0,
+            orderingFree: 0,
+            byLength: new Map<number, Set<string>>(),
+          }
+          const symmetric = timeSymmetric(words[0]!)
 
           group.count++
           group.shortest = Math.min(group.shortest, total)
@@ -693,13 +887,18 @@ export function scheduleCensus(maxStreams: number): ScheduleCensus {
 
           const set = group.byLength.get(total) ?? new Set<string>()
 
-          words.forEach(w => set.add(`${turnClass(w)}${timeSymmetric(w) ? ' T' : ''}`))
+          words.forEach(w =>
+            set.add(`${turnClass(w)}${timeSymmetric(w) ? ' T' : ''}`),
+          )
           group.byLength.set(total, set)
           groups.set(key, group)
         }
 
         if (reading.labeledPalindrome) {
-          out.shortestIsotropicPalindrome = Math.min(out.shortestIsotropicPalindrome, total)
+          out.shortestIsotropicPalindrome = Math.min(
+            out.shortestIsotropicPalindrome,
+            total,
+          )
 
           if (total <= 20) {
             remember(palindromeWords, total, words)
@@ -708,12 +907,21 @@ export function scheduleCensus(maxStreams: number): ScheduleCensus {
 
         if (reading.dirac) {
           out.isotropicDirac++
-          out.isotropicDiracOrderingNonzero += reading.orderingFree ? 0 : 1
-          out.shortestIsotropicDirac = Math.min(out.shortestIsotropicDirac, total)
+          out.isotropicDiracOrderingNonzero += reading.orderingFree
+            ? 0
+            : 1
+
+          out.shortestIsotropicDirac = Math.min(
+            out.shortestIsotropicDirac,
+            total,
+          )
 
           if (!reading.labeledPalindrome) {
             out.isotropicDiracNotPalindrome++
-            out.shortestIsotropicDiracNotPalindrome = Math.min(out.shortestIsotropicDiracNotPalindrome, total)
+            out.shortestIsotropicDiracNotPalindrome = Math.min(
+              out.shortestIsotropicDiracNotPalindrome,
+              total,
+            )
           }
 
           if (total <= 20) {
@@ -721,12 +929,19 @@ export function scheduleCensus(maxStreams: number): ScheduleCensus {
           }
         } else {
           out.isotropicNonDirac++
-          out.shortestIsotropicNonDirac = Math.min(out.shortestIsotropicNonDirac, total)
+          out.shortestIsotropicNonDirac = Math.min(
+            out.shortestIsotropicNonDirac,
+            total,
+          )
 
           for (const v of reading.planes) {
             const g2 = gSquared(v)
             const key = g2 ? `${g2[0]}/${g2[1]}` : 'saddle'
-            const entry = gValues.get(key) ?? { value: key, count: 0, shortest: Infinity }
+            const entry = gValues.get(key) ?? {
+              value: key,
+              count: 0,
+              shortest: Infinity,
+            }
 
             entry.count++
             entry.shortest = Math.min(entry.shortest, total)
@@ -737,14 +952,32 @@ export function scheduleCensus(maxStreams: number): ScheduleCensus {
     }
   }
 
-  out.isotropicGSquared = [...gValues.values()].sort((p, q) => p.shortest - q.shortest || q.count - p.count)
-  out.isotropicTriples = [...triples.values()].sort((p, q) => p.shortest - q.shortest || q.count - p.count)
-  out.timeSymmetricTriples = [...symmetricTriples.values()].sort((p, q) => p.shortest - q.shortest || q.count - p.count)
+  out.isotropicGSquared = [...gValues.values()].sort(
+    (p, q) => p.shortest - q.shortest || q.count - p.count,
+  )
+
+  out.isotropicTriples = [...triples.values()].sort(
+    (p, q) => p.shortest - q.shortest || q.count - p.count,
+  )
+
+  out.timeSymmetricTriples = [...symmetricTriples.values()].sort(
+    (p, q) => p.shortest - q.shortest || q.count - p.count,
+  )
+
   out.isotropicG = [...groups.values()]
-    .map(({ byLength, ...rest }) => ({ ...rest, classes: [...(byLength.get(rest.shortest) ?? [])].sort() }))
+    .map(({ byLength, ...rest }) => ({
+      ...rest,
+      classes: [...(byLength.get(rest.shortest) ?? [])].sort(),
+    }))
     .sort((p, q) => p.shortest - q.shortest)
-  out.shortestDiracClasses = [...(diracWords.get(out.shortestIsotropicDirac) ?? [])].sort()
-  out.shortestPalindromeClasses = [...(palindromeWords.get(out.shortestIsotropicPalindrome) ?? [])].sort()
+
+  out.shortestDiracClasses = [
+    ...(diracWords.get(out.shortestIsotropicDirac) ?? []),
+  ].sort()
+
+  out.shortestPalindromeClasses = [
+    ...(palindromeWords.get(out.shortestIsotropicPalindrome) ?? []),
+  ].sort()
 
   return out
 }

@@ -10,9 +10,17 @@
 //
 // The matrix is given as two row-major arrays (real and imaginary parts, n * n each) and is not modified.
 
-export type ComplexEigenvalues = { readonly re: number[]; readonly im: number[] }
+export type ComplexEigenvalues = {
+  readonly re: number[]
+  readonly im: number[]
+}
 
-export function complexEigenvalues(input: { re: ArrayLike<number>; im: ArrayLike<number>; n: number; maxIterations?: number }): ComplexEigenvalues {
+export function complexEigenvalues(input: {
+  re: ArrayLike<number>
+  im: ArrayLike<number>
+  n: number
+  maxIterations?: number
+}): ComplexEigenvalues {
   const n = input.n
   const ar = Float64Array.from(input.re)
   const ai = Float64Array.from(input.im)
@@ -141,8 +149,16 @@ export function complexEigenvalues(input: { re: ArrayLike<number>; im: ArrayLike
     let lo = hi
 
     while (lo > 0) {
-      const sub = Math.hypot(ar[at(lo, lo - 1)] ?? 0, ai[at(lo, lo - 1)] ?? 0)
-      const scale = Math.hypot(ar[at(lo, lo)] ?? 0, ai[at(lo, lo)] ?? 0) + Math.hypot(ar[at(lo - 1, lo - 1)] ?? 0, ai[at(lo - 1, lo - 1)] ?? 0)
+      const sub = Math.hypot(
+        ar[at(lo, lo - 1)] ?? 0,
+        ai[at(lo, lo - 1)] ?? 0,
+      )
+      const scale =
+        Math.hypot(ar[at(lo, lo)] ?? 0, ai[at(lo, lo)] ?? 0) +
+        Math.hypot(
+          ar[at(lo - 1, lo - 1)] ?? 0,
+          ai[at(lo - 1, lo - 1)] ?? 0,
+        )
 
       if (sub <= 1e-15 * (scale > 0 ? scale : 1)) {
         ar[at(lo, lo - 1)] = 0
@@ -165,7 +181,9 @@ export function complexEigenvalues(input: { re: ArrayLike<number>; im: ArrayLike
     sinceDeflation++
 
     if (iterations > maxIterations) {
-      throw new Error('complexEigenvalues: QR iteration did not converge')
+      throw new Error(
+        'complexEigenvalues: QR iteration did not converge',
+      )
     }
 
     // Wilkinson shift: the eigenvalue of the trailing 2x2 nearer its last diagonal entry
@@ -173,6 +191,7 @@ export function complexEigenvalues(input: { re: ArrayLike<number>; im: ArrayLike
     const b = [ar[at(hi - 1, hi)] ?? 0, ai[at(hi - 1, hi)] ?? 0]
     const c = [ar[at(hi, hi - 1)] ?? 0, ai[at(hi, hi - 1)] ?? 0]
     const d = [ar[at(hi, hi)] ?? 0, ai[at(hi, hi)] ?? 0]
+
     let shift: number[]
 
     if (sinceDeflation % 10 === 0) {
@@ -185,11 +204,18 @@ export function complexEigenvalues(input: { re: ArrayLike<number>; im: ArrayLike
       const hr = ((a[0] ?? 0) - (d[0] ?? 0)) / 2
       const hiP = ((a[1] ?? 0) - (d[1] ?? 0)) / 2
       // disc = h^2 + b c
-      const dr = hr * hr - hiP * hiP + ((b[0] ?? 0) * (c[0] ?? 0) - (b[1] ?? 0) * (c[1] ?? 0))
-      const di = 2 * hr * hiP + ((b[0] ?? 0) * (c[1] ?? 0) + (b[1] ?? 0) * (c[0] ?? 0))
+      const dr =
+        hr * hr -
+        hiP * hiP +
+        ((b[0] ?? 0) * (c[0] ?? 0) - (b[1] ?? 0) * (c[1] ?? 0))
+      const di =
+        2 * hr * hiP +
+        ((b[0] ?? 0) * (c[1] ?? 0) + (b[1] ?? 0) * (c[0] ?? 0))
       const mod = Math.hypot(dr, di)
+
       let sr = Math.sqrt((mod + dr) / 2)
-      let si = Math.sqrt(Math.max(0, (mod - dr) / 2)) * (di < 0 ? -1 : 1)
+      let si =
+        Math.sqrt(Math.max(0, (mod - dr) / 2)) * (di < 0 ? -1 : 1)
 
       // choose the root z = d + h - s or d + h + s nearer d, that is the sign making (h - s) small
       if (hr * sr + hiP * si > 0) {
@@ -213,6 +239,7 @@ export function complexEigenvalues(input: { re: ArrayLike<number>; im: ArrayLike
       const yi = ai[at(j + 1, j)] ?? 0
       const xa = Math.hypot(xr, xi)
       const r = Math.hypot(xa, Math.hypot(yr, yi))
+
       let cj: number
       let sr: number
       let si: number
@@ -227,6 +254,7 @@ export function complexEigenvalues(input: { re: ArrayLike<number>; im: ArrayLike
         si = 0
       } else {
         cj = xa / r
+
         // s = (x / |x|) conj(y) / r
         const ur = xr / xa
         const ui = xi / xa
@@ -300,8 +328,11 @@ export function complexShiftedSolve(input: {
 
   for (let r = 0; r < n; r++) {
     for (let c = 0; c < n; c++) {
-      mr[r * w + c] = (input.re[r * n + c] ?? 0) - (r === c ? input.shift[0] : 0)
-      mi[r * w + c] = (input.im[r * n + c] ?? 0) - (r === c ? input.shift[1] : 0)
+      mr[r * w + c] =
+        (input.re[r * n + c] ?? 0) - (r === c ? input.shift[0] : 0)
+
+      mi[r * w + c] =
+        (input.im[r * n + c] ?? 0) - (r === c ? input.shift[1] : 0)
     }
 
     mr[r * w + n] = input.b.re[r] ?? 0
@@ -312,7 +343,10 @@ export function complexShiftedSolve(input: {
     let p = c
 
     for (let r = c + 1; r < n; r++) {
-      if (Math.hypot(mr[r * w + c] ?? 0, mi[r * w + c] ?? 0) > Math.hypot(mr[p * w + c] ?? 0, mi[p * w + c] ?? 0)) {
+      if (
+        Math.hypot(mr[r * w + c] ?? 0, mi[r * w + c] ?? 0) >
+        Math.hypot(mr[p * w + c] ?? 0, mi[p * w + c] ?? 0)
+      ) {
         p = r
       }
     }
@@ -391,18 +425,36 @@ export function complexShiftedSolve(input: {
 
 // The right eigenvector of an eigenvalue, by three steps of inverse iteration from a fixed start, unit
 // norm.
-export function complexEigenvector(input: { re: ArrayLike<number>; im: ArrayLike<number>; n: number; value: readonly [number, number] }): {
+export function complexEigenvector(input: {
+  re: ArrayLike<number>
+  im: ArrayLike<number>
+  n: number
+  value: readonly [number, number]
+}): {
   re: Float64Array
   im: Float64Array
 } {
   const n = input.n
   // perturb the shift off the eigenvalue so the solve stays finite
-  const shift: [number, number] = [input.value[0] + 1e-10, input.value[1] + 1e-10]
+  const shift: [number, number] = [
+    input.value[0] + 1e-10,
+    input.value[1] + 1e-10,
+  ]
 
-  let x = { re: Float64Array.from({ length: n }, (_, i) => 1 + 0.1 * i), im: new Float64Array(n) }
+  let x = {
+    re: Float64Array.from({ length: n }, (_, i) => 1 + 0.1 * i),
+    im: new Float64Array(n),
+  }
 
   for (let step = 0; step < 3; step++) {
-    const y = complexShiftedSolve({ re: input.re, im: input.im, n, shift, b: x })
+    const y = complexShiftedSolve({
+      re: input.re,
+      im: input.im,
+      n,
+      shift,
+      b: x,
+    })
+
     let norm = 0
 
     for (let i = 0; i < n; i++) {

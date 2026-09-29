@@ -20,13 +20,44 @@
 // analog is used: 16 hashed E-FRC-0164 starts on the side-4 bulk box, member k with its hash scale 1.37 + frac(k *
 // SILVER) (member 0 is E-FRC-0164's own start), and the E-FRC-0165 hot start on side 8. Deterministic, no seeds.
 
-import { circleBeatBackInPlace, circleBeatInPlace, makeCircleRule, type CircleRule } from '@/code/rule/photon-circle'
-import { copyShapedState, curlTranspose, emptyShapedState, makeShapedRule, shapedBeatBackInPlace, shapedBeatInPlace, type ShapedRule, type ShapedState } from '@/code/rule/photon-shaped'
-import { addHashedCurl, photonGaussViolations, photonLatticeD4, photonLink, setHashedAngles, type PhotonLattice, type PhotonRule, type PhotonState } from '@/code/rule/photon-links'
-import { hotStart, K, N, Q, type Start } from '@/code/measure/photon-battery'
+import {
+  circleBeatBackInPlace,
+  circleBeatInPlace,
+  makeCircleRule,
+} from '@/code/rule/photon-circle'
+import {
+  copyShapedState,
+  curlTranspose,
+  emptyShapedState,
+  makeShapedRule,
+  shapedBeatBackInPlace,
+  shapedBeatInPlace,
+  type ShapedRule,
+  type ShapedState,
+} from '@/code/rule/photon-shaped'
+import {
+  addHashedCurl,
+  photonGaussViolations,
+  photonLatticeD4,
+  photonLink,
+  setHashedAngles,
+  type PhotonLattice,
+  type PhotonState,
+} from '@/code/rule/photon-links'
+import {
+  hotStart,
+  K,
+  N,
+  Q,
+  type Start,
+} from '@/code/measure/photon-battery'
 import { GOLDEN, SILVER } from '@/code/tool/weyl'
 
-export type Member = { readonly name: string; readonly side: number; readonly start: Start }
+export type Member = {
+  readonly name: string
+  readonly side: number
+  readonly start: Start
+}
 
 // E-FRC-0164's start with its hash scale as a parameter (the committed start is scale 1.37)
 function hashedStart(scale: number): Start {
@@ -55,12 +86,24 @@ function hashedStart(scale: number): Start {
 
 export function photonFamily(): Member[] {
   return [
-    ...Array.from({ length: 16 }, (_, k): Member => ({ name: `hashed+${k}`, side: 4, start: hashedStart(k === 0 ? 1.37 : 1.37 + ((k * SILVER) % 1)) })),
+    ...Array.from(
+      { length: 16 },
+      (_, k): Member => ({
+        name: `hashed+${k}`,
+        side: 4,
+        start: hashedStart(k === 0 ? 1.37 : 1.37 + ((k * SILVER) % 1)),
+      }),
+    ),
     { name: 'hot', side: 8, start: hotStart },
   ]
 }
 
-const viewOf = (s: ShapedState): PhotonState => ({ vibe: s.vibe, angle: s.angle, flux: s.flux, demon: new Int32Array(s.flux.length) })
+const viewOf = (s: ShapedState): PhotonState => ({
+  vibe: s.vibe,
+  angle: s.angle,
+  flux: s.flux,
+  demon: new Int32Array(s.flux.length),
+})
 
 const centered = (b: number, n: number): number => {
   const c = ((b % n) + n) % n
@@ -80,7 +123,8 @@ const centeredShaped = (b: number, n: number): number => {
 }
 
 // the Villain branch: n with b - N n in (-N/2, N/2]
-const villainBranch = (b: number, n: number): number => Math.ceil((b - n / 2) / n)
+const villainBranch = (b: number, n: number): number =>
+  Math.ceil((b - n / 2) / n)
 
 export type Kind = 'wave' | 'circle'
 
@@ -111,18 +155,27 @@ export type MemberReading = {
   seamEnergy: number
 }
 
-function makeRule(kind: Kind, lattice: PhotonLattice): ShapedRule | CircleRule {
-  return kind === 'circle' ? makeCircleRule({ lattice, n: N, k: K, q: Q }) : makeShapedRule({ lattice, n: N, k: K, q: Q, form: 'wave' })
+function makeRule(kind: Kind, lattice: PhotonLattice): ShapedRule {
+  return kind === 'circle'
+    ? makeCircleRule({ lattice, n: N, k: K, q: Q })
+    : makeShapedRule({ lattice, n: N, k: K, q: Q, form: 'wave' })
 }
 
-const beatOf = (kind: Kind): ((rule: ShapedRule, s: ShapedState) => void) => (kind === 'circle' ? circleBeatInPlace : shapedBeatInPlace)
+const beatOf = (
+  kind: Kind,
+): ((rule: ShapedRule, s: ShapedState) => void) =>
+  kind === 'circle' ? circleBeatInPlace : shapedBeatInPlace
 
 // the largest eigenvalue of M = C^T C by power iteration on a golden Weyl start (measurement)
 export function curlCurlMax(lattice: PhotonLattice): number {
   const size = lattice.plaquetteSize
-  const v = Float64Array.from({ length: lattice.links }, (_, l) => ((l + 1) * GOLDEN) % 1 - 0.5)
+  const v = Float64Array.from(
+    { length: lattice.links },
+    (_, l) => (((l + 1) * GOLDEN) % 1) - 0.5,
+  )
   const b = new Float64Array(lattice.plaquetteCount)
   const out = new Float64Array(lattice.links)
+
   let lambda = 0
 
   for (let it = 0; it < 200; it++) {
@@ -130,7 +183,9 @@ export function curlCurlMax(lattice: PhotonLattice): number {
       let s = 0
 
       for (let j = 0; j < size; j++) {
-        s += (lattice.plaquetteSigns[p * size + j] ?? 0) * (v[lattice.plaquetteLinks[p * size + j] ?? 0] ?? 0)
+        s +=
+          (lattice.plaquetteSigns[p * size + j] ?? 0) *
+          (v[lattice.plaquetteLinks[p * size + j] ?? 0] ?? 0)
       }
 
       b[p] = s
@@ -142,14 +197,16 @@ export function curlCurlMax(lattice: PhotonLattice): number {
       for (let j = 0; j < size; j++) {
         const l = lattice.plaquetteLinks[p * size + j] ?? 0
 
-        out[l] = (out[l] ?? 0) + (lattice.plaquetteSigns[p * size + j] ?? 0) * (b[p] ?? 0)
+        out[l] =
+          (out[l] ?? 0) +
+          (lattice.plaquetteSigns[p * size + j] ?? 0) * (b[p] ?? 0)
       }
     }
 
     let norm = 0
 
-    for (let l = 0; l < out.length; l++) {
-      norm += (out[l] ?? 0) ** 2
+    for (const x of out) {
+      norm += x ** 2
     }
 
     norm = Math.sqrt(norm)
@@ -164,7 +221,12 @@ export function curlCurlMax(lattice: PhotonLattice): number {
 }
 
 // One member under one rule for `beats` beats: the law, the branches, the references.
-export function readMember(input: { member: Member; kind: Kind; beats: number; lambdaMax: number }): MemberReading {
+export function readMember(input: {
+  member: Member
+  kind: Kind
+  beats: number
+  lambdaMax: number
+}): MemberReading {
   const { member, kind, beats } = input
   const lattice = photonLatticeD4({ side: member.side })
   const rule = makeRule(kind, lattice)
@@ -198,7 +260,8 @@ export function readMember(input: { member: Member; kind: Kind; beats: number; l
   const plaquettesPerLink = new Int32Array(L)
 
   for (let e = 0; e < P * size; e++) {
-    plaquettesPerLink[links[e] as number] = (plaquettesPerLink[links[e] as number] ?? 0) + 1
+    plaquettesPerLink[links[e]!] =
+      (plaquettesPerLink[links[e]!] ?? 0) + 1
   }
 
   const maxPerLink = Math.max(...plaquettesPerLink)
@@ -208,7 +271,7 @@ export function readMember(input: { member: Member; kind: Kind; beats: number; l
   let startEnergy = 0
 
   for (let l = 0; l < L; l++) {
-    startEnergy += (shadowE[l] as number) ** 2
+    startEnergy += shadowE[l]! ** 2
   }
 
   for (let pl = 0; pl < P; pl++) {
@@ -216,15 +279,16 @@ export function readMember(input: { member: Member; kind: Kind; beats: number; l
     let ce = 0
 
     for (let j = 0; j < size; j++) {
-      ca += (signs[pl * size + j] as number) * (shadowA[links[pl * size + j] as number] as number)
-      ce += (signs[pl * size + j] as number) * (shadowE[links[pl * size + j] as number] as number)
+      ca += signs[pl * size + j]! * shadowA[links[pl * size + j]!]!
+      ce += signs[pl * size + j]! * shadowE[links[pl * size + j]!]!
     }
 
     startEnergy += kappa * ca * ce + kappa * ca * ca
     villainN[pl] = villainBranch(ca, N)
   }
 
-  const seamEnergy = kappa * (1 - (kappa * input.lambdaMax) / 4) * (N / 2) ** 2
+  const seamEnergy =
+    kappa * (1 - (kappa * input.lambdaMax) / 4) * (N / 2) ** 2
 
   let lawResidual = 0
   let branchNonInteger = 0
@@ -237,16 +301,21 @@ export function readMember(input: { member: Member; kind: Kind; beats: number; l
   let shadowFromLinear = 0
   let firstDeparture = -1
 
-  const referenceBeat = (A: Float64Array, E: Float64Array, compact: boolean, count: boolean): void => {
+  const referenceBeat = (
+    A: Float64Array,
+    E: Float64Array,
+    compact: boolean,
+    count: boolean,
+  ): void => {
     for (let l = 0; l < L; l++) {
-      A[l] = (A[l] as number) + (E[l] as number)
+      A[l] = A[l]! + E[l]!
     }
 
     for (let pl = 0; pl < P; pl++) {
       let b = 0
 
       for (let j = 0; j < size; j++) {
-        b += (signs[pl * size + j] as number) * (A[links[pl * size + j] as number] as number)
+        b += signs[pl * size + j]! * A[links[pl * size + j]!]!
       }
 
       let flux = b
@@ -265,18 +334,19 @@ export function readMember(input: { member: Member; kind: Kind; beats: number; l
       const force = kappa * flux
 
       for (let j = 0; j < size; j++) {
-        const l = links[pl * size + j] as number
+        const l = links[pl * size + j]!
 
-        E[l] = (E[l] as number) - (signs[pl * size + j] as number) * force
+        E[l] = E[l]! - signs[pl * size + j]! * force
       }
     }
   }
 
   for (let t = 1; t <= beats; t++) {
     previousE.set(shadowE)
+
     // the shadow angle moves by the previous shadow flux: A~_t = A~_(t-1) + E~_(t-1)
     for (let l = 0; l < L; l++) {
-      shadowA[l] = (shadowA[l] as number) + (previousE[l] as number)
+      shadowA[l] = shadowA[l]! + previousE[l]!
     }
 
     // U_(t-1) before the beat, for S_t and w_(t-1)
@@ -285,7 +355,7 @@ export function readMember(input: { member: Member; kind: Kind; beats: number; l
     curlTranspose(lattice, s.carried[0]!, newer)
 
     for (let l = 0; l < L; l++) {
-      shadowE[l] = (s.flux[l] as number) + ((newer[l] as number) - (older[l] as number)) / q
+      shadowE[l] = s.flux[l]! + (newer[l]! - older[l]!) / q
     }
 
     // the law: E~_t - E~_(t-1) + kappa C^T (F_t + S_t / q) must be -C^T r_t
@@ -297,12 +367,12 @@ export function readMember(input: { member: Member; kind: Kind; beats: number; l
       let shadowFlux = 0
 
       for (let j = 0; j < size; j++) {
-        const l = links[o + j] as number
-        const g = signs[o + j] as number
+        const l = links[o + j]!
+        const g = signs[o + j]!
 
-        braw += g * (s.angle[l] as number)
-        spread += g * (older[l] as number)
-        shadowFlux += g * (shadowA[l] as number)
+        braw += g * s.angle[l]!
+        spread += g * older[l]!
+        shadowFlux += g * shadowA[l]!
       }
 
       let F: number
@@ -321,7 +391,10 @@ export function readMember(input: { member: Member; kind: Kind; beats: number; l
       const nt = (shadowFlux - spread / q - F) / N
       const nearest = Math.round(nt)
 
-      branchNonInteger = Math.max(branchNonInteger, Math.abs(nt - nearest))
+      branchNonInteger = Math.max(
+        branchNonInteger,
+        Math.abs(nt - nearest),
+      )
 
       if (t > 1 && nearest !== ruleN[pl]) {
         ruleStringMoves++
@@ -329,22 +402,28 @@ export function readMember(input: { member: Member; kind: Kind; beats: number; l
 
       ruleN[pl] = nearest
       branchOffLight += nearest === villainBranch(shadowFlux, N) ? 0 : 1
-      peakShadowFlux = Math.max(peakShadowFlux, Math.abs(shadowFlux - N * villainBranch(shadowFlux, N)))
+      peakShadowFlux = Math.max(
+        peakShadowFlux,
+        Math.abs(shadowFlux - N * villainBranch(shadowFlux, N)),
+      )
 
       // the Villain law's force, kappa (F + S / q): the rule paid round(p S / q) / q for kappa S / q, so the residual
       // of the law is exactly C^T of those roundings
       const force = kappa * (F + spread / q)
 
       for (let j = 0; j < size; j++) {
-        const l = links[o + j] as number
+        const l = links[o + j]!
 
-        lawForce[l] = (lawForce[l] as number) + (signs[o + j] as number) * force
+        lawForce[l] = lawForce[l]! + signs[o + j]! * force
       }
     }
 
     for (let l = 0; l < L; l++) {
       // E~_t - E~_(t-1) + C^T (kappa F + V / q) is identically 0 by the rule's algebra, and V / q = kappa S / q + r
-      lawResidual = Math.max(lawResidual, Math.abs((shadowE[l] as number) - (previousE[l] as number) + (lawForce[l] as number)))
+      lawResidual = Math.max(
+        lawResidual,
+        Math.abs(shadowE[l]! - previousE[l]! + lawForce[l]!),
+      )
     }
 
     referenceBeat(villainA, villainE, true, true)
@@ -353,8 +432,15 @@ export function readMember(input: { member: Member; kind: Kind; beats: number; l
     let worstVillain = 0
 
     for (let l = 0; l < L; l++) {
-      worstVillain = Math.max(worstVillain, Math.abs((shadowE[l] as number) - (villainE[l] as number)))
-      shadowFromLinear = Math.max(shadowFromLinear, Math.abs((shadowE[l] as number) - (linearE[l] as number)))
+      worstVillain = Math.max(
+        worstVillain,
+        Math.abs(shadowE[l]! - villainE[l]!),
+      )
+
+      shadowFromLinear = Math.max(
+        shadowFromLinear,
+        Math.abs(shadowE[l]! - linearE[l]!),
+      )
     }
 
     shadowFromVillain = Math.max(shadowFromVillain, worstVillain)
@@ -386,7 +472,11 @@ export function readMember(input: { member: Member; kind: Kind; beats: number; l
 
 // exact reversal: `beats` forward then back, every angle, flux and carried integer compared with the start, and
 // Gauss's law checked at the far end
-export function reverseMember(input: { member: Member; kind: Kind; beats: number }): { mismatches: number; gauss: number; anglesMoved: number } {
+export function reverseMember(input: {
+  member: Member
+  kind: Kind
+  beats: number
+}): { mismatches: number; gauss: number; anglesMoved: number } {
   const lattice = photonLatticeD4({ side: input.member.side })
   const rule = makeRule(input.kind, lattice)
   const s = emptyShapedState(rule, 'zero')
@@ -399,7 +489,8 @@ export function reverseMember(input: { member: Member; kind: Kind; beats: number
     beatOf(input.kind)(rule, s)
   }
 
-  const gauss = photonGaussViolations(rule.base as PhotonRule, viewOf(s))
+  const gauss = photonGaussViolations(rule.base, viewOf(s))
+
   let anglesMoved = 0
 
   for (let l = 0; l < s.angle.length; l++) {
@@ -407,7 +498,9 @@ export function reverseMember(input: { member: Member; kind: Kind; beats: number
   }
 
   for (let t = 0; t < input.beats; t++) {
-    ;(input.kind === 'circle' ? circleBeatBackInPlace : shapedBeatBackInPlace)(rule, s)
+    ;(input.kind === 'circle'
+      ? circleBeatBackInPlace
+      : shapedBeatBackInPlace)(rule, s)
   }
 
   let mismatches = 0

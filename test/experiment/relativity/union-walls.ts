@@ -59,10 +59,24 @@ import { separatedLayout } from '@/code/rule/living-pair-knit'
 import { makeBounceKernel } from '@/code/measure/bounce-pair-kernel'
 import { boxHusk } from '@/code/measure/causal-components'
 import { storeImage } from '@/code/measure/coset-walls'
-import { orientedHub, type CoinData } from '@/code/measure/varying-vacuum'
+import {
+  orientedHub,
+  type CoinData,
+} from '@/code/measure/varying-vacuum'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
-import { d4BoxCell, d4BoxCoordinates, d4Coordinates, d4Vector } from '@/code/substrate/d4-box'
-import { baseHub, coinsOnce, orientedUnion, storeOfKind, type StoreKind } from '@/code/measure/dense-hub'
+import {
+  d4BoxCell,
+  d4BoxCoordinates,
+  d4Coordinates,
+  d4Vector,
+} from '@/code/substrate/d4-box'
+import {
+  baseHub,
+  coinsOnce,
+  orientedUnion,
+  storeOfKind,
+  type StoreKind,
+} from '@/code/measure/dense-hub'
 import { readWall, type WallReading } from '@/code/measure/union-walls'
 
 const SIDE = 12
@@ -74,47 +88,120 @@ const GATED = ['C', 'g', 'gC', '2r0'] as const
 
 type CaseName = (typeof CASES)[number]
 
-const R0 = d4Coordinates(rootsD4()[LINE_FIRSTS[0] as number] as number[])
+const R0 = d4Coordinates(rootsD4()[LINE_FIRSTS[0]!]!)
 
 // g applied to a basis-coordinate point, through its doubled matrix on the standard vector
-function actBasis(coins: CoinData, g: number, basis: readonly number[]): number[] {
+function actBasis(
+  coins: CoinData,
+  g: number,
+  basis: readonly number[],
+): number[] {
   const v = d4Vector([...basis])
-  const w = (coins.doubled[g] as number[][]).map(row => row.reduce((s, x, k) => s + x * (v[k] as number), 0) / 2)
+  const w = (coins.doubled[g] as number[][]).map(
+    row => row.reduce((s, x, k) => s + x * v[k]!, 0) / 2,
+  )
 
   return d4Coordinates(w)
 }
 
-function imageOf(coins: CoinData, name: CaseName, store: Int8Array, hub: readonly number[], g: number): Int8Array {
+function imageOf(
+  coins: CoinData,
+  name: CaseName,
+  store: Int8Array,
+  hub: readonly number[],
+  g: number,
+): Int8Array {
   const identity = coins.table.identity
 
-  if (name === 'C') return storeImage(coins, SIDE, store, identity, -1, [0, 0, 0, 0])
-  if (name === '2r0') return storeImage(coins, SIDE, store, identity, 1, R0.map(v => 2 * v))
-  if (name === 'r0') return storeImage(coins, SIDE, store, identity, 1, R0)
+  if (name === 'C') {
+    return storeImage(coins, SIDE, store, identity, -1, [0, 0, 0, 0])
+  }
+
+  if (name === '2r0') {
+    return storeImage(
+      coins,
+      SIDE,
+      store,
+      identity,
+      1,
+      R0.map(v => 2 * v),
+    )
+  }
+
+  if (name === 'r0') {
+    return storeImage(coins, SIDE, store, identity, 1, R0)
+  }
 
   const gh = actBasis(coins, g, hub)
-  const t = hub.map((v, k) => v - (gh[k] as number))
+  const t = hub.map((v, k) => v - gh[k]!)
 
   return storeImage(coins, SIDE, store, g, name === 'gC' ? -1 : 1, t)
 }
 
-type Setup = { kernel: ReturnType<typeof makeBounceKernel>; layout: Int8Array; column: Int32Array; columns: number; inside: Uint8Array; hub: number[] }
+type Setup = {
+  kernel: ReturnType<typeof makeBounceKernel>
+  layout: Int8Array
+  column: Int32Array
+  columns: number
+  inside: Uint8Array
+  hub: number[]
+}
 
 function setupOf(): Setup {
   const weave = makeColorWeave({ side: SIDE, table: 'bind' })
   const husk = boxHusk(weave.mesh, SIDE)
-  const inside = Uint8Array.from({ length: weave.mesh.cellCount }, (_, x) => ((d4BoxCoordinates({ cell: x, side: SIDE })[0] ?? 0) >= SIDE / 2 ? 1 : 0))
+  const inside = Uint8Array.from(
+    { length: weave.mesh.cellCount },
+    (_, x) =>
+      (d4BoxCoordinates({ cell: x, side: SIDE })[0] ?? 0) >= SIDE / 2
+        ? 1
+        : 0,
+  )
 
-  return { kernel: makeBounceKernel(weave, 'lone'), layout: separatedLayout(weave), column: husk.column, columns: husk.columns, inside, hub: baseHub(SIDE, 0) }
+  return {
+    kernel: makeBounceKernel(weave, 'lone'),
+    layout: separatedLayout(weave),
+    column: husk.column,
+    columns: husk.columns,
+    inside,
+    hub: baseHub(SIDE, 0),
+  }
 }
 
-function readCase(coins: CoinData, s: Setup, which: StoreKind, name: CaseName, g: number, edit?: (r: { vibe: Int8Array }) => void): WallReading {
+function readCase(
+  coins: CoinData,
+  s: Setup,
+  which: StoreKind,
+  name: CaseName,
+  g: number,
+  edit?: (r: { vibe: Int8Array }) => void,
+): WallReading {
   const store = storeOfKind(which, SIDE, s.hub)
 
-  return readWall({ kernel: s.kernel, layout: s.layout, store, image: imageOf(coins, name, store, s.hub, g), inside: s.inside, column: s.column, columns: s.columns, from: FROM, to: TO, window: WINDOW, edit })
+  return readWall({
+    kernel: s.kernel,
+    layout: s.layout,
+    store,
+    image: imageOf(coins, name, store, s.hub, g),
+    inside: s.inside,
+    column: s.column,
+    columns: s.columns,
+    from: FROM,
+    to: TO,
+    window: WINDOW,
+    edit,
+  })
 }
 
-const leastOutside = (coins: CoinData, group: readonly number[]): number => {
-  for (let g = 0; g < coins.table.permutations.length; g++) if (!group.includes(g)) return g
+const leastOutside = (
+  coins: CoinData,
+  group: readonly number[],
+): number => {
+  for (let g = 0; g < coins.table.permutations.length; g++) {
+    if (!group.includes(g)) {
+      return g
+    }
+  }
 
   return -1
 }
@@ -130,7 +217,10 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const coins = coinsOnce()
     const gUnion = leastOutside(coins, orientedUnion(coins).group)
     const gHub = leastOutside(coins, orientedHub(coins).group)
@@ -138,7 +228,18 @@ export default experiment({
     // ---- W0 at integer+0 ----
     const s0 = setupOf()
     const unionStore = storeOfKind('union', SIDE, s0.hub)
-    const self = readWall({ kernel: s0.kernel, layout: s0.layout, store: unionStore, image: unionStore, inside: s0.inside, column: s0.column, columns: s0.columns, from: FROM, to: TO, window: WINDOW })
+    const self = readWall({
+      kernel: s0.kernel,
+      layout: s0.layout,
+      store: unionStore,
+      image: unionStore,
+      inside: s0.inside,
+      column: s0.column,
+      columns: s0.columns,
+      from: FROM,
+      to: TO,
+      window: WINDOW,
+    })
     const hubC = readCase(coins, s0, 'hub', 'C', gHub)
     const hub2r0 = readCase(coins, s0, 'hub', '2r0', gHub)
     const hubR0 = readCase(coins, s0, 'hub', 'r0', gHub)
@@ -146,7 +247,12 @@ export default experiment({
     const defect = readCase(coins, s0, 'union', 'C', gUnion, r => {
       r.vibe[deep * 24 + 3] = 1
     })
-    const w0 = self.departing.every(v => v === 0) && hubC.passes && hub2r0.passes && !hubR0.passes && !defect.passes
+    const w0 =
+      self.departing.every(v => v === 0) &&
+      hubC.passes &&
+      hub2r0.passes &&
+      !hubR0.passes &&
+      !defect.passes
 
     log('W0')
 
@@ -155,7 +261,12 @@ export default experiment({
     const perStart = family.map(member =>
       withStart(member, () => {
         const s = setupOf()
-        const cases = Object.fromEntries(CASES.map(name => [name, readCase(coins, s, 'union', name, gUnion)])) as Record<CaseName, WallReading>
+        const cases = Object.fromEntries(
+          CASES.map(name => [
+            name,
+            readCase(coins, s, 'union', name, gUnion),
+          ]),
+        ) as Record<CaseName, WallReading>
 
         log(`start ${member.name}`)
 
@@ -163,37 +274,72 @@ export default experiment({
       }),
     )
 
-    const passing = (name: CaseName): number => perStart.filter(p => p.cases[name].passes).length
-    const w = perStart.every(p => GATED.every(name => p.cases[name].passes))
+    const passing = (name: CaseName): number =>
+      perStart.filter(p => p.cases[name].passes).length
+    const w = perStart.every(p =>
+      GATED.every(name => p.cases[name].passes),
+    )
     const status = w0 ? (w ? 'pass' : 'fail') : 'partial'
-    const range = (xs: number[]): string => (Math.min(...xs) === Math.max(...xs) ? `${Math.min(...xs)}` : `${Math.min(...xs)} to ${Math.max(...xs)}`)
-    const over = (name: CaseName, f: (r: WallReading) => number): string => range(perStart.map(p => f(p.cases[name])))
+    const range = (xs: number[]): string =>
+      Math.min(...xs) === Math.max(...xs)
+        ? `${Math.min(...xs)}`
+        : `${Math.min(...xs)} to ${Math.max(...xs)}`
+    const over = (
+      name: CaseName,
+      f: (r: WallReading) => number,
+    ): string => range(perStart.map(p => f(p.cases[name])))
     const maxOf = (xs: number[]): number => Math.max(0, ...xs)
     const caseLine = (name: CaseName): string =>
       `${name}: passes on ${passing(name)} of ${family.length}; E ${over(name, r => r.endDocks)} docks; departing at the last window ${over(name, r => r.departing[r.departing.length - 1] ?? 0)} (other side's history ${over(name, r => r.holdsOther)}, neither ${over(name, r => r.holdsNeither)}); OUTSIDE E, husk columns (worst window) ${over(name, r => maxOf(r.outsideColumns))} of 1728, bulk docks ${over(name, r => maxOf(r.outside))} of 20736; grew ${over(name, r => maxOf(r.grew))}; frozen on ${perStart.filter(p => p.cases[name].frozen).length}`
-    const metrics: Record<string, number> = { gateW0: w0 ? 1 : 0, gateW: w ? 1 : 0, starts: family.length, gUnion, gHub }
+    const metrics: Record<string, number> = {
+      gateW0: w0 ? 1 : 0,
+      gateW: w ? 1 : 0,
+      starts: family.length,
+      gUnion,
+      gHub,
+    }
 
     for (const name of CASES) {
       metrics[`${name}_passing`] = passing(name)
-      metrics[`${name}_outsideColumnsMax`] = Math.max(...perStart.map(p => maxOf(p.cases[name].outsideColumns)))
-      metrics[`${name}_outsideDocksMax`] = Math.max(...perStart.map(p => maxOf(p.cases[name].outside)))
-      metrics[`${name}_departingLastMax`] = Math.max(...perStart.map(p => p.cases[name].departing[p.cases[name].departing.length - 1] ?? 0))
-      metrics[`${name}_endDocks`] = perStart[0]?.cases[name].endDocks ?? 0
-      metrics[`${name}_frozen`] = perStart.filter(p => p.cases[name].frozen).length
+      metrics[`${name}_outsideColumnsMax`] = Math.max(
+        ...perStart.map(p => maxOf(p.cases[name].outsideColumns)),
+      )
+
+      metrics[`${name}_outsideDocksMax`] = Math.max(
+        ...perStart.map(p => maxOf(p.cases[name].outside)),
+      )
+
+      metrics[`${name}_departingLastMax`] = Math.max(
+        ...perStart.map(
+          p =>
+            p.cases[name].departing[
+              p.cases[name].departing.length - 1
+            ] ?? 0,
+        ),
+      )
+
+      metrics[`${name}_endDocks`] =
+        perStart[0]?.cases[name].endDocks ?? 0
+
+      metrics[`${name}_frozen`] = perStart.filter(
+        p => p.cases[name].frozen,
+      ).length
     }
 
     metrics.seconds = (Date.now() - started) / 1000
 
-    const describe = (r: WallReading): string => `passes ${r.passes}, departing ${JSON.stringify(r.departing)}, outside ${JSON.stringify(r.outside)} (columns ${JSON.stringify(r.outsideColumns)}), frozen ${r.frozen}, other ${r.holdsOther}, neither ${r.holdsNeither}`
+    const describe = (r: WallReading): string =>
+      `passes ${r.passes}, departing ${JSON.stringify(r.departing)}, outside ${JSON.stringify(r.outside)} (columns ${JSON.stringify(r.outsideColumns)}), frozen ${r.frozen}, other ${r.holdsOther}, neither ${r.holdsNeither}`
 
     return verdict({
       status,
-      claim: `on the coset-union vacuum, the lattice-keeping cosets C, g, gC and 2r0 ${w ? 'freeze into walls confined to their end docks on every start' : 'do not all pass B\''} (${GATED.map(name => `${name} ${passing(name)} of ${family.length}`).join(', ')}); r0 passes on ${passing('r0')}; the reader reproduces E-RLT-0092 on the hub vacuum (C ${hubC.passes}, 2r0 ${hub2r0.passes}, r0 ${hubR0.passes})`,
+      claim: `on the coset-union vacuum, the lattice-keeping cosets C, g, gC and 2r0 ${w ? 'freeze into walls confined to their end docks on every start' : "do not all pass B'"} (${GATED.map(name => `${name} ${passing(name)} of ${family.length}`).join(', ')}); r0 passes on ${passing('r0')}; the reader reproduces E-RLT-0092 on the hub vacuum (C ${hubC.passes}, 2r0 ${hub2r0.passes}, r0 ${hubR0.passes})`,
       metrics,
       control: {
         selfDeparting: maxOf(self.departing),
         hubC: hubC.passes ? 1 : 0,
-        hubCDepartingLast: hubC.departing[hubC.departing.length - 1] ?? 0,
+        hubCDepartingLast:
+          hubC.departing[hubC.departing.length - 1] ?? 0,
         hub2r0: hub2r0.passes ? 1 : 0,
         hubR0: hubR0.passes ? 1 : 0,
         hubR0OutsideMax: maxOf(hubR0.outside),

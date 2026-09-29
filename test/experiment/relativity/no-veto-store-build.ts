@@ -82,16 +82,51 @@ import { groupTable } from '@/code/measure/color-isotropy-bound'
 import { centerOf } from '@/code/measure/wall-reading'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
 import { type CollisionKind } from '@/code/rule/bounce-pair-knit'
-import { cloneConfiguration, lockedBeat, lockedNorm, lockedState, lockedTables, newTally, type Configuration, type LockedState } from '@/code/rule/doublet-locked-knit'
-import { pairPiece, toWords, vetoBeat, vetoBeatBack, type VetoKind } from '@/code/rule/occupation-veto-knit'
-import { lockedFresh, sameOccupation, samePoints, vacuumConfiguration, THRESHOLD_BORN, THRESHOLD_EXCHANGE, THRESHOLD_KEEP, type LockedFresh } from '@/code/measure/doublet-locked-readings'
-import { collideDock, conjugateDock, contactFresh, dockKey, dockOf, likePairStart, sameDock, slotMapDock, vetoPathRunner } from '@/code/measure/occupation-veto-readings'
+import {
+  cloneConfiguration,
+  lockedBeat,
+  lockedNorm,
+  lockedState,
+  lockedTables,
+  newTally,
+  type Configuration,
+  type LockedState,
+} from '@/code/rule/doublet-locked-knit'
+import {
+  pairPiece,
+  toWords,
+  vetoBeat,
+  vetoBeatBack,
+  type VetoKind,
+} from '@/code/rule/occupation-veto-knit'
+import {
+  lockedFresh,
+  sameOccupation,
+  samePoints,
+  vacuumConfiguration,
+  THRESHOLD_BORN,
+  THRESHOLD_EXCHANGE,
+  THRESHOLD_KEEP,
+  type LockedFresh,
+} from '@/code/measure/doublet-locked-readings'
+import {
+  collideDock,
+  conjugateDock,
+  contactFresh,
+  dockKey,
+  dockOf,
+  likePairStart,
+  sameDock,
+  slotMapDock,
+  vetoPathRunner,
+} from '@/code/measure/occupation-veto-readings'
 
 const CONTACTS: readonly CollisionKind[] = ['lone', 'pass']
-const LINE_SECONDS = LINE_FIRSTS.map(f => OPPOSITE[f] as number)
+const LINE_SECONDS = LINE_FIRSTS.map(f => OPPOSITE[f]!)
 const PATHS = [THRESHOLD_KEEP, THRESHOLD_BORN, THRESHOLD_EXCHANGE]
 
-const wordVacuum = (f: LockedFresh): Configuration => toWords(vacuumConfiguration(f, 'all'))
+const wordVacuum = (f: LockedFresh): Configuration =>
+  toWords(vacuumConfiguration(f, 'all'))
 
 function seededVacuum(f: LockedFresh): Configuration {
   const c = wordVacuum(f)
@@ -104,11 +139,37 @@ function seededVacuum(f: LockedFresh): Configuration {
 }
 
 // ---- N1, N3 (b), N4: the docks of the side-4 Born histories ----
-type DockReading = { docks: number; pairTwice: number; inverse: number; refused: number; differ: number; iffOff: number; distinct: number; covariance: number; conjugation: number }
+type DockReading = {
+  docks: number
+  pairTwice: number
+  inverse: number
+  refused: number
+  differ: number
+  iffOff: number
+  distinct: number
+  covariance: number
+  conjugation: number
+}
 
-function dockChecks(f: LockedFresh, perms: readonly (readonly number[])[]): DockReading {
-  const out: DockReading = { docks: 0, pairTwice: 0, inverse: 0, refused: 0, differ: 0, iffOff: 0, distinct: 0, covariance: 0, conjugation: 0 }
-  const distinct = new Map<string, { dock: Configuration; beat: number }>()
+function dockChecks(
+  f: LockedFresh,
+  perms: readonly (readonly number[])[],
+): DockReading {
+  const out: DockReading = {
+    docks: 0,
+    pairTwice: 0,
+    inverse: 0,
+    refused: 0,
+    differ: 0,
+    iffOff: 0,
+    distinct: 0,
+    covariance: 0,
+    conjugation: 0,
+  }
+  const distinct = new Map<
+    string,
+    { dock: Configuration; beat: number }
+  >()
 
   for (const start of [wordVacuum(f), seededVacuum(f)]) {
     const run = vetoPathRunner('none', f.tables, start, THRESHOLD_BORN)
@@ -127,7 +188,12 @@ function dockChecks(f: LockedFresh, perms: readonly (readonly number[])[]): Dock
 
         const r = collideDock('none', f.tables, d, t, false)
 
-        out.inverse += sameDock(collideDock('none', f.tables, r, t, true), d) ? 0 : 1
+        out.inverse += sameDock(
+          collideDock('none', f.tables, r, t, true),
+          d,
+        )
+          ? 0
+          : 1
 
         const tally = newTally()
         const p = collideDock('point', f.tables, d, t, false, tally)
@@ -149,23 +215,67 @@ function dockChecks(f: LockedFresh, perms: readonly (readonly number[])[]): Dock
   for (const { dock, beat } of distinct.values()) {
     const r = collideDock('none', f.tables, dock, beat, false)
 
-    for (const g of perms) out.covariance += dockKey(collideDock('none', f.tables, slotMapDock(dock, g), beat, false)) === dockKey(slotMapDock(r, g)) ? 0 : 1
+    for (const g of perms) {
+      out.covariance +=
+        dockKey(
+          collideDock(
+            'none',
+            f.tables,
+            slotMapDock(dock, g),
+            beat,
+            false,
+          ),
+        ) === dockKey(slotMapDock(r, g))
+          ? 0
+          : 1
+    }
 
-    out.conjugation += dockKey(collideDock('none', f.tables, conjugateDock(dock), beat, false)) === dockKey(conjugateDock(r)) ? 0 : 1
+    out.conjugation +=
+      dockKey(
+        collideDock('none', f.tables, conjugateDock(dock), beat, false),
+      ) === dockKey(conjugateDock(r))
+        ? 0
+        : 1
   }
 
   return out
 }
 
 // ---- N2, N5 (c): the superposed run on the rule's own like pair ----
-type Superposed = { found: boolean; clean: boolean; beat: number; normExact: boolean; reversed: boolean; splits: number; branchesMax: number; occupationsMax: number }
+type Superposed = {
+  found: boolean
+  clean: boolean
+  beat: number
+  normExact: boolean
+  reversed: boolean
+  splits: number
+  branchesMax: number
+  occupationsMax: number
+}
 
 function superposed(f: LockedFresh): Superposed {
-  const pick = likePairStart('none', f.tables, toWords(vacuumConfiguration(f, 'none')), 12)
+  const pick = likePairStart(
+    'none',
+    f.tables,
+    toWords(vacuumConfiguration(f, 'none')),
+    12,
+  )
 
-  if (!pick) return { found: false, clean: false, beat: -1, normExact: false, reversed: false, splits: 0, branchesMax: 0, occupationsMax: 0 }
+  if (!pick) {
+    return {
+      found: false,
+      clean: false,
+      beat: -1,
+      normExact: false,
+      reversed: false,
+      splits: 0,
+      branchesMax: 0,
+      occupationsMax: 0,
+    }
+  }
 
   const tally = newTally()
+
   let s: LockedState = lockedState(pick.start)
   let normExact = true
   let branchesMax = 1
@@ -181,28 +291,56 @@ function superposed(f: LockedFresh): Superposed {
 
     const occupations: Configuration[] = []
 
-    for (const b of s.branches) if (!occupations.some(o => sameOccupation(o, b))) occupations.push(b)
+    for (const b of s.branches) {
+      if (!occupations.some(o => sameOccupation(o, b))) {
+        occupations.push(b)
+      }
+    }
+
     occupationsMax = Math.max(occupationsMax, occupations.length)
   }
 
   let back = s
 
-  for (let t = 47; t >= 0; t--) back = vetoBeatBack('none', f.tables, back, t)
+  for (let t = 47; t >= 0; t--) {
+    back = vetoBeatBack('none', f.tables, back, t)
+  }
 
   const b0 = back.branches[0]
-  const reversed = back.branches.length === 1 && !!b0 && b0.a === 1n && b0.b === 0n && b0.k === 0 && samePoints(b0, pick.start) && b0.sopen.every((v, i) => v === pick.start.sopen[i])
+  const reversed =
+    back.branches.length === 1 &&
+    !!b0 &&
+    b0.a === 1n &&
+    b0.b === 0n &&
+    b0.k === 0 &&
+    samePoints(b0, pick.start) &&
+    b0.sopen.every((v, i) => v === pick.start.sopen[i])
 
-  return { found: true, clean: pick.clean, beat: pick.beat, normExact, reversed, splits: tally.splitMeetings, branchesMax, occupationsMax }
+  return {
+    found: true,
+    clean: pick.clean,
+    beat: pick.beat,
+    normExact,
+    reversed,
+    splits: tally.splitMeetings,
+    branchesMax,
+    occupationsMax,
+  }
 }
 
 // ---- N3 (a): the flat sector ----
-function flatSector(contact: CollisionKind, side: number, beats: number): { mismatches: number; branchesMax: number; like: number } {
+function flatSector(
+  contact: CollisionKind,
+  side: number,
+  beats: number,
+): { mismatches: number; branchesMax: number; like: number } {
   const f = lockedFresh(side)
   const flat = new Int16Array(f.cells * 24).fill(f.weave.moves.identity)
   const tables = lockedTables(f.weave, contact, flat)
   const uniform = new Int8Array(f.cells * 12)
   const start = vacuumConfiguration(f, 'all', uniform)
   const tally = newTally()
+
   let old: LockedState = lockedState(start)
   let mine: LockedState = lockedState(toWords(start))
   let mismatches = 0
@@ -211,7 +349,11 @@ function flatSector(contact: CollisionKind, side: number, beats: number): { mism
   for (let t = 0; t < beats; t++) {
     old = lockedBeat(tables, old, t)
     mine = vetoBeat('none', tables, mine, t, tally)
-    branchesMax = Math.max(branchesMax, old.branches.length, mine.branches.length)
+    branchesMax = Math.max(
+      branchesMax,
+      old.branches.length,
+      mine.branches.length,
+    )
 
     if (old.branches.length !== 1 || mine.branches.length !== 1) {
       mismatches++
@@ -222,14 +364,26 @@ function flatSector(contact: CollisionKind, side: number, beats: number): { mism
     const m = mine.branches[0]!
 
     // uniform points: every stored word is 9 * 0 + 0 = 0 and every old stored point 0
-    mismatches += samePoints(o, m) && o.a === m.a && o.b === m.b && o.k === m.k && o.open.every((v, i) => v === m.open[i] || o.vibe[i] === 0) ? 0 : 1
+    mismatches +=
+      samePoints(o, m) &&
+      o.a === m.a &&
+      o.b === m.b &&
+      o.k === m.k &&
+      o.open.every((v, i) => v === m.open[i] || o.vibe[i] === 0)
+        ? 0
+        : 1
   }
 
   return { mismatches, branchesMax, like: tally.likeMeetings }
 }
 
 // ---- N5 (a): occupations along paths ----
-function occupations(f: LockedFresh, start: Configuration, threshold: number, beats: number): Int8Array[] {
+function occupations(
+  f: LockedFresh,
+  start: Configuration,
+  threshold: number,
+  beats: number,
+): Int8Array[] {
   const run = vetoPathRunner('none', f.tables, start, threshold)
   const out: Int8Array[] = []
 
@@ -247,11 +401,20 @@ function occupations(f: LockedFresh, start: Configuration, threshold: number, be
   return out
 }
 
-const sameBytes = (a: Int8Array, b: Int8Array): boolean => a.length === b.length && a.every((v, i) => v === b[i])
+const sameBytes = (a: Int8Array, b: Int8Array): boolean =>
+  a.length === b.length && a.every((v, i) => v === b[i])
 
 // ---- N5 (b) ----
-function sensitivity(kind: VetoKind, f: LockedFresh): { meetings: number; changed: number } {
-  const keep = vetoPathRunner(kind, f.tables, wordVacuum(f), THRESHOLD_KEEP)
+function sensitivity(
+  kind: VetoKind,
+  f: LockedFresh,
+): { meetings: number; changed: number } {
+  const keep = vetoPathRunner(
+    kind,
+    f.tables,
+    wordVacuum(f),
+    THRESHOLD_KEEP,
+  )
   const history: Configuration[] = [cloneConfiguration(keep.state())]
 
   for (let t = 0; t < 6; t++) {
@@ -263,29 +426,42 @@ function sensitivity(kind: VetoKind, f: LockedFresh): { meetings: number; change
   let changed = 0
 
   for (let t0 = 1; t0 <= 3; t0++) {
-    const s = history[t0] as Configuration
+    const s = history[t0]!
 
     for (let x = 0; x < f.cells; x++) {
       for (let l = 0; l < 12; l++) {
-        const i = x * 24 + (LINE_FIRSTS[l] as number)
-        const j = x * 24 + (LINE_SECONDS[l] as number)
+        const i = x * 24 + LINE_FIRSTS[l]!
+        const j = x * 24 + LINE_SECONDS[l]!
 
-        if (s.vibe[i] === 0 || s.vibe[i] !== s.vibe[j] || s.point[i] === s.point[j]) continue
+        if (
+          s.vibe[i] === 0 ||
+          s.vibe[i] !== s.vibe[j] ||
+          s.point[i] === s.point[j]
+        ) {
+          continue
+        }
 
         meetings++
 
         const p = cloneConfiguration(s)
-        const a = p.point[i] as number
+        const a = p.point[i]!
 
-        p.point[i] = p.point[j] as number
+        p.point[i] = p.point[j]!
         p.point[j] = a
 
-        const run = vetoPathRunner(kind, f.tables, p, THRESHOLD_KEEP, t0)
+        const run = vetoPathRunner(
+          kind,
+          f.tables,
+          p,
+          THRESHOLD_KEEP,
+          t0,
+        )
+
         let differs = false
 
         for (let k = 0; k < 2 && !differs; k++) {
           run.beat()
-          differs = !sameOccupation(run.state(), history[t0 + k + 1] as Configuration)
+          differs = !sameOccupation(run.state(), history[t0 + k + 1]!)
         }
 
         changed += differs ? 1 : 0
@@ -297,11 +473,40 @@ function sensitivity(kind: VetoKind, f: LockedFresh): { meetings: number; change
 }
 
 // ---- reported: the no-veto vacuum against the old (point-veto) vacuum, keep path ----
-function againstOld(f: LockedFresh, beats: number): { madeNone: number; unmadeNone: number; madeOld: number; unmadeOld: number; firstDiffer: number; beatsDiffer: number } {
-  const a = vetoPathRunner('none', f.tables, wordVacuum(f), THRESHOLD_KEEP)
-  const b = vetoPathRunner('point', f.tables, wordVacuum(f), THRESHOLD_KEEP)
-  const ta = { likeMeetings: 0, equalPoints: 0, exchanged: 0, unlikeMeetings: 0, made: 0, unmade: 0, vetoed: 0 }
+function againstOld(
+  f: LockedFresh,
+  beats: number,
+): {
+  madeNone: number
+  unmadeNone: number
+  madeOld: number
+  unmadeOld: number
+  firstDiffer: number
+  beatsDiffer: number
+} {
+  const a = vetoPathRunner(
+    'none',
+    f.tables,
+    wordVacuum(f),
+    THRESHOLD_KEEP,
+  )
+  const b = vetoPathRunner(
+    'point',
+    f.tables,
+    wordVacuum(f),
+    THRESHOLD_KEEP,
+  )
+  const ta = {
+    likeMeetings: 0,
+    equalPoints: 0,
+    exchanged: 0,
+    unlikeMeetings: 0,
+    made: 0,
+    unmade: 0,
+    vetoed: 0,
+  }
   const tb = { ...ta }
+
   let firstDiffer = -1
   let beatsDiffer = 0
 
@@ -311,14 +516,33 @@ function againstOld(f: LockedFresh, beats: number): { madeNone: number; unmadeNo
 
     if (!sameOccupation(a.state(), b.state())) {
       beatsDiffer++
-      if (firstDiffer < 0) firstDiffer = t
+
+      if (firstDiffer < 0) {
+        firstDiffer = t
+      }
     }
   }
 
-  return { madeNone: ta.made, unmadeNone: ta.unmade, madeOld: tb.made, unmadeOld: tb.unmade, firstDiffer, beatsDiffer }
+  return {
+    madeNone: ta.made,
+    unmadeNone: ta.unmade,
+    madeOld: tb.made,
+    unmadeOld: tb.unmade,
+    firstDiffer,
+    beatsDiffer,
+  }
 }
 
-type PerContact = { dock: DockReading; sup: Superposed; pathsAgree: boolean; seededAgree: boolean; acrossStarts: boolean; sensNone: { meetings: number; changed: number }; sensPoint: { meetings: number; changed: number }; old: ReturnType<typeof againstOld> }
+type PerContact = {
+  dock: DockReading
+  sup: Superposed
+  pathsAgree: boolean
+  seededAgree: boolean
+  acrossStarts: boolean
+  sensNone: { meetings: number; changed: number }
+  sensPoint: { meetings: number; changed: number }
+  old: ReturnType<typeof againstOld>
+}
 
 export default experiment({
   id: 'relativity/no-veto-store-build',
@@ -331,9 +555,14 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const perms = groupTable().permutations
-    const flat = Object.fromEntries(CONTACTS.map(c => [c, flatSector(c, 8, 48)])) as Record<CollisionKind, ReturnType<typeof flatSector>>
+    const flat = Object.fromEntries(
+      CONTACTS.map(c => [c, flatSector(c, 8, 48)]),
+    ) as Record<CollisionKind, ReturnType<typeof flatSector>>
 
     log('N3 (a)')
 
@@ -347,19 +576,41 @@ export default experiment({
             const f8 = contactFresh(8, contact)
             const dock = dockChecks(f4, perms)
             const sup = superposed(f4)
-            const vac = PATHS.map(th => occupations(f8, wordVacuum(f8), th, 96))
-            const seeded = PATHS.map(th => occupations(f8, seededVacuum(f8), th, 96))
-            const pathsAgree = vac.every(p => p.every((o, t) => sameBytes(o, vac[0]![t]!)))
-            const seededAgree = seeded.every(p => p.every((o, t) => sameBytes(o, seeded[0]![t]!)))
+            const vac = PATHS.map(th =>
+              occupations(f8, wordVacuum(f8), th, 96),
+            )
+            const seeded = PATHS.map(th =>
+              occupations(f8, seededVacuum(f8), th, 96),
+            )
+            const pathsAgree = vac.every(p =>
+              p.every((o, t) => sameBytes(o, vac[0]![t]!)),
+            )
+            const seededAgree = seeded.every(p =>
+              p.every((o, t) => sameBytes(o, seeded[0]![t]!)),
+            )
 
-            if (!reference[contact]) reference[contact] = vac[0]!
+            reference[contact] ??= vac[0]!
 
-            const acrossStarts = vac[0]!.every((o, t) => sameBytes(o, reference[contact]![t]!))
+            const acrossStarts = vac[0]!.every((o, t) =>
+              sameBytes(o, reference[contact]![t]!),
+            )
             const sensNone = sensitivity('none', f4)
             const sensPoint = sensitivity('point', f4)
             const old = againstOld(f8, 96)
 
-            return [contact, { dock, sup, pathsAgree, seededAgree, acrossStarts, sensNone, sensPoint, old } satisfies PerContact]
+            return [
+              contact,
+              {
+                dock,
+                sup,
+                pathsAgree,
+                seededAgree,
+                acrossStarts,
+                sensNone,
+                sensPoint,
+                old,
+              } satisfies PerContact,
+            ]
           }),
         ) as Record<CollisionKind, PerContact>
 
@@ -369,28 +620,66 @@ export default experiment({
       }),
     )
 
-    const every = (contact: CollisionKind, test: (p: PerContact) => boolean): number => perStart.filter(p => test(p[contact])).length
-    const n1 = (p: PerContact): boolean => p.dock.pairTwice === 0 && p.dock.inverse === 0
-    const n2 = (p: PerContact): boolean => p.sup.found && p.sup.clean && p.sup.normExact && p.sup.reversed && p.sup.splits > 0
+    const every = (
+      contact: CollisionKind,
+      test: (p: PerContact) => boolean,
+    ): number => perStart.filter(p => test(p[contact])).length
+    const n1 = (p: PerContact): boolean =>
+      p.dock.pairTwice === 0 && p.dock.inverse === 0
+    const n2 = (p: PerContact): boolean =>
+      p.sup.found &&
+      p.sup.clean &&
+      p.sup.normExact &&
+      p.sup.reversed &&
+      p.sup.splits > 0
     const n3b = (p: PerContact): boolean => p.dock.iffOff === 0
-    const n4 = (p: PerContact): boolean => p.dock.covariance === 0 && p.dock.conjugation === 0 && p.dock.distinct > 0
-    const n5 = (p: PerContact): boolean => p.pathsAgree && p.seededAgree && p.acrossStarts && p.sensNone.meetings > 0 && p.sensNone.changed === 0 && p.sensPoint.changed > 0 && p.sup.occupationsMax === 1
-    const n3a = (contact: CollisionKind): boolean => flat[contact].mismatches === 0 && flat[contact].branchesMax === 1 && flat[contact].like > 0
-    const gates = (contact: CollisionKind): Record<string, boolean> => ({
+    const n4 = (p: PerContact): boolean =>
+      p.dock.covariance === 0 &&
+      p.dock.conjugation === 0 &&
+      p.dock.distinct > 0
+    const n5 = (p: PerContact): boolean =>
+      p.pathsAgree &&
+      p.seededAgree &&
+      p.acrossStarts &&
+      p.sensNone.meetings > 0 &&
+      p.sensNone.changed === 0 &&
+      p.sensPoint.changed > 0 &&
+      p.sup.occupationsMax === 1
+    const n3a = (contact: CollisionKind): boolean =>
+      flat[contact].mismatches === 0 &&
+      flat[contact].branchesMax === 1 &&
+      flat[contact].like > 0
+    const gates = (
+      contact: CollisionKind,
+    ): Record<string, boolean> => ({
       N1: every(contact, n1) === family.length,
       N2: every(contact, n2) === family.length,
       N3: n3a(contact) && every(contact, n3b) === family.length,
       N4: every(contact, n4) === family.length,
       N5: every(contact, n5) === family.length,
     })
-    const byContact = Object.fromEntries(CONTACTS.map(c => [c, gates(c)])) as Record<CollisionKind, Record<string, boolean>>
-    const status = CONTACTS.every(c => Object.values(byContact[c]).every(Boolean)) ? 'pass' : 'fail'
-    const range = (xs: number[]): string => (Math.min(...xs) === Math.max(...xs) ? `${Math.min(...xs)}` : `${Math.min(...xs)} to ${Math.max(...xs)}`)
-    const over = (contact: CollisionKind, f: (p: PerContact) => number): string => range(perStart.map(p => f(p[contact])))
+    const byContact = Object.fromEntries(
+      CONTACTS.map(c => [c, gates(c)]),
+    ) as Record<CollisionKind, Record<string, boolean>>
+    const status = CONTACTS.every(c =>
+      Object.values(byContact[c]).every(Boolean),
+    )
+      ? 'pass'
+      : 'fail'
+    const range = (xs: number[]): string =>
+      Math.min(...xs) === Math.max(...xs)
+        ? `${Math.min(...xs)}`
+        : `${Math.min(...xs)} to ${Math.max(...xs)}`
+    const over = (
+      contact: CollisionKind,
+      f: (p: PerContact) => number,
+    ): string => range(perStart.map(p => f(p[contact])))
     const metrics: Record<string, number> = { starts: family.length }
 
     for (const c of CONTACTS) {
-      for (const [name, ok] of Object.entries(byContact[c])) metrics[`${c}_gate${name}`] = ok ? 1 : 0
+      for (const [name, ok] of Object.entries(byContact[c])) {
+        metrics[`${c}_gate${name}`] = ok ? 1 : 0
+      }
 
       metrics[`${c}_N1`] = every(c, n1)
       metrics[`${c}_N2`] = every(c, n2)
@@ -400,13 +689,34 @@ export default experiment({
       metrics[`${c}_flatMismatches`] = flat[c].mismatches
       metrics[`${c}_flatLikeMeetings`] = flat[c].like
       metrics[`${c}_docksPerStart`] = perStart[0]![c].dock.docks
-      metrics[`${c}_distinctDocksMin`] = Math.min(...perStart.map(p => p[c].dock.distinct))
-      metrics[`${c}_covarianceOff`] = perStart.reduce((s, p) => s + p[c].dock.covariance, 0)
-      metrics[`${c}_refusedDocksMax`] = Math.max(...perStart.map(p => p[c].dock.refused))
-      metrics[`${c}_superposedBranchesMax`] = Math.max(...perStart.map(p => p[c].sup.branchesMax))
-      metrics[`${c}_vacuumMadeNone`] = Math.max(...perStart.map(p => p[c].old.madeNone))
-      metrics[`${c}_vacuumMadeOld`] = Math.max(...perStart.map(p => p[c].old.madeOld))
-      metrics[`${c}_vacuumBeatsDiffer`] = Math.max(...perStart.map(p => p[c].old.beatsDiffer))
+      metrics[`${c}_distinctDocksMin`] = Math.min(
+        ...perStart.map(p => p[c].dock.distinct),
+      )
+
+      metrics[`${c}_covarianceOff`] = perStart.reduce(
+        (s, p) => s + p[c].dock.covariance,
+        0,
+      )
+
+      metrics[`${c}_refusedDocksMax`] = Math.max(
+        ...perStart.map(p => p[c].dock.refused),
+      )
+
+      metrics[`${c}_superposedBranchesMax`] = Math.max(
+        ...perStart.map(p => p[c].sup.branchesMax),
+      )
+
+      metrics[`${c}_vacuumMadeNone`] = Math.max(
+        ...perStart.map(p => p[c].old.madeNone),
+      )
+
+      metrics[`${c}_vacuumMadeOld`] = Math.max(
+        ...perStart.map(p => p[c].old.madeOld),
+      )
+
+      metrics[`${c}_vacuumBeatsDiffer`] = Math.max(
+        ...perStart.map(p => p[c].old.beatsDiffer),
+      )
     }
 
     metrics.seconds = (Date.now() - started) / 1000
@@ -418,7 +728,12 @@ export default experiment({
       status,
       claim: CONTACTS.map(contactLine).join('. '),
       metrics,
-      control: Object.fromEntries(CONTACTS.map(c => [`${c}_pointVetoChangedMin`, Math.min(...perStart.map(p => p[c].sensPoint.changed))])),
+      control: Object.fromEntries(
+        CONTACTS.map(c => [
+          `${c}_pointVetoChangedMin`,
+          Math.min(...perStart.map(p => p[c].sensPoint.changed)),
+        ]),
+      ),
       notes: `L2 (N3 (a), N4 exhaustive over their sets). Per start (contact: pair twice/inverse failures; refused/differ/iff off; distinct, covariance off, C off; superposed beat, splits, branches, occupations, norm, reversed; paths/seeded/across; exchanges none changed of meetings, point changed; made none/old, first differ, beats differ): ${perStart
         .map(
           p =>
@@ -428,7 +743,9 @@ export default experiment({
               return `${c} ${r.dock.pairTwice}/${r.dock.inverse}; ${r.dock.refused}/${r.dock.differ}/${r.dock.iffOff}; ${r.dock.distinct}, ${r.dock.covariance}, ${r.dock.conjugation}; ${r.sup.beat}, ${r.sup.splits}, ${r.sup.branchesMax}, ${r.sup.occupationsMax}, ${r.sup.normExact}, ${r.sup.reversed}; ${r.pathsAgree}/${r.seededAgree}/${r.acrossStarts}; ${r.sensNone.changed} of ${r.sensNone.meetings}, ${r.sensPoint.changed}; ${r.old.madeNone}/${r.old.madeOld}, ${r.old.firstDiffer}, ${r.old.beatsDiffer}`
             }).join(' ; ')}`,
         )
-        .join(' | ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+        .join(
+          ' | ',
+        )}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },
 })

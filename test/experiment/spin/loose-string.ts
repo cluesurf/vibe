@@ -74,9 +74,19 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { lineBasis, lineLevels, wholeBasis, type LineLevel, type LineSector } from '@/code/measure/coined-line-bloch'
+import {
+  lineBasis,
+  lineLevels,
+  wholeBasis,
+  type LineLevel,
+  type LineSector,
+} from '@/code/measure/coined-line-bloch'
 import { lightN } from '@/code/measure/drift-cost-bloch'
-import { bandCurvature, followLevel, type BandPoint } from '@/code/measure/moving-level'
+import {
+  bandCurvature,
+  followLevel,
+  type BandPoint,
+} from '@/code/measure/moving-level'
 
 const TAIL = 1e-3
 const HOLD = 0.99
@@ -97,15 +107,41 @@ const LIGHT: readonly { D: number; box: number }[] = [
 ]
 const INTERCEPT = 0.2
 const MIN_FIT = 3
-const RECORDED = { box: 12, energy: 0.33001851839229945, mass: 24.116350860705534, R: 4.2 }
+const RECORDED = {
+  box: 12,
+  energy: 0.33001851839229945,
+  mass: 24.116350860705534,
+  R: 4.2,
+}
 const EXACT = 1e-12
 const SAME = 1e-9
 const R_SAME = 1e-3
 const UNBOUND_BOXES: readonly number[] = [12, 14]
 const SHOWN = 6
 
-type Read = { K0: LineLevel; band: BandPoint[]; overlap: number; mass: number; eRest: number; ratio: number; R: number }
-type Point = { D: number; n: number; box: number; unit: number; dim: number; inside: LineLevel[]; least: LineLevel; candidate?: Read; family?: LineLevel; familyRead?: Read; held: boolean; seconds: number }
+type Read = {
+  K0: LineLevel
+  band: BandPoint[]
+  overlap: number
+  mass: number
+  eRest: number
+  ratio: number
+  R: number
+}
+type Point = {
+  D: number
+  n: number
+  box: number
+  unit: number
+  dim: number
+  inside: LineLevel[]
+  least: LineLevel
+  candidate?: Read
+  family?: LineLevel
+  familyRead?: Read
+  held: boolean
+  seconds: number
+}
 
 export default experiment({
   id: 'spin/loose-string',
@@ -127,53 +163,106 @@ export default experiment({
     const loneRatio = (n: number): number => Math.tan(half(n)) / half(n)
 
     // the band, m* and R of one level
-    const readLevel = (basis: ReturnType<typeof lineBasis>, sub: ReturnType<typeof wholeBasis>, level: LineLevel, n: number): Read => {
+    const readLevel = (
+      basis: ReturnType<typeof lineBasis>,
+      sub: ReturnType<typeof wholeBasis>,
+      level: LineLevel,
+      n: number,
+    ): Read => {
       const band = followLevel(basis, sub, level, HOLD_KS, STEP)
-      const mass = 1 / bandCurvature(basis, sub, band[0] as BandPoint, CURVE_D)
+      const mass = 1 / bandCurvature(basis, sub, band[0]!, CURVE_D)
       const eRest = 3 * half(n) + level.energy
       const ratio = mass / eRest
 
-      return { K0: level, band, overlap: (band[band.length - 1] as BandPoint).overlap, mass, eRest, ratio, R: ratio / loneRatio(n) }
+      return {
+        K0: level,
+        band,
+        overlap: band[band.length - 1]!.overlap,
+        mass,
+        eRest,
+        ratio,
+        R: ratio / loneRatio(n),
+      }
     }
 
-    const levelRow = (l: LineLevel): string => `E ${f6(l.energy)} tail ${e2(l.tailN)} mean ${f3(l.mean)} contact ${f3(l.contact)}`
+    const levelRow = (l: LineLevel): string =>
+      `E ${f6(l.energy)} tail ${e2(l.tailN)} mean ${f3(l.mean)} contact ${f3(l.contact)}`
 
     // `family` reads the contact family; a gate point (family true) must have its box at least 2N, the controls
     // reproduce the recorded box 12 at D 3 (N 7, so the tail beyond N still has 5 docks of room)
-    const point = (D: number, n: number, box: number, unit: number, family: boolean): Point => {
+    const point = (
+      D: number,
+      n: number,
+      box: number,
+      unit: number,
+      family: boolean,
+    ): Point => {
       const t0 = Date.now()
 
-      if (family && box < 2 * lightN(D)) throw new Error(`loose-string: box ${box} is under 2N = ${2 * lightN(D)} at D ${D}`)
+      if (family && box < 2 * lightN(D)) {
+        throw new Error(
+          `loose-string: box ${box} is under 2N = ${2 * lightN(D)} at D ${D}`,
+        )
+      }
 
-      const sector: LineSector = { flavors: [0, 0, 0], statistics: 'fermion', D, box, unit, fine: n }
+      const sector: LineSector = {
+        flavors: [0, 0, 0],
+        statistics: 'fermion',
+        D,
+        box,
+        unit,
+        fine: n,
+      }
       const basis = lineBasis(sector)
       const sub = wholeBasis(basis)
       const levels = lineLevels(basis, sub).levels
-      const inside = levels.filter(l => l.tailN <= TAIL).sort((a, b) => a.energy - b.energy)
+      const inside = levels
+        .filter(l => l.tailN <= TAIL)
+        .sort((a, b) => a.energy - b.energy)
       const least = levels.reduce((a, b) => (b.tailN < a.tailN ? b : a))
-      const out: Point = { D, n, box, unit, dim: basis.configs.length, inside, least, held: false, seconds: 0 }
+      const out: Point = {
+        D,
+        n,
+        box,
+        unit,
+        dim: basis.configs.length,
+        inside,
+        least,
+        held: false,
+        seconds: 0,
+      }
 
       if (inside.length > 0) {
-        const candidate = readLevel(basis, sub, inside[0] as LineLevel, n)
+        const candidate = readLevel(basis, sub, inside[0]!, n)
 
         out.candidate = candidate
         out.held = candidate.overlap >= HOLD
 
         if (family) {
-          const top = inside.reduce((a, b) => (b.contact > a.contact ? b : a))
+          const top = inside.reduce((a, b) =>
+            b.contact > a.contact ? b : a,
+          )
 
           out.family = top
-          if (top !== inside[0]) out.familyRead = readLevel(basis, sub, top, n)
+
+          if (top !== inside[0]) {
+            out.familyRead = readLevel(basis, sub, top, n)
+          }
         }
       }
 
       out.seconds = (Date.now() - t0) / 1000
 
       const c = out.candidate
+
       console.error(
         `D ${D} n ${n} box ${box} unit ${unit} dim ${out.dim}: inside ${inside.length}` +
-          (c === undefined ? `, least tail ${e2(least.tailN)} mean ${f3(least.mean)} contact ${f3(least.contact)}` : `, candidate ${levelRow(c.K0)} overlap ${f4(c.overlap)} m* ${f4(c.mass)} E_rest ${f4(c.eRest)} ratio ${f4(c.ratio)} R ${f4(c.R)} held ${out.held}`) +
-          (out.family === undefined ? '' : `; contact family ${out.family === inside[0] ? 'is the candidate' : `${levelRow(out.family)}${out.familyRead === undefined ? '' : ` overlap ${f4(out.familyRead.overlap)} m* ${f4(out.familyRead.mass)} R ${f4(out.familyRead.R)}`}`}`) +
+          (c === undefined
+            ? `, least tail ${e2(least.tailN)} mean ${f3(least.mean)} contact ${f3(least.contact)}`
+            : `, candidate ${levelRow(c.K0)} overlap ${f4(c.overlap)} m* ${f4(c.mass)} E_rest ${f4(c.eRest)} ratio ${f4(c.ratio)} R ${f4(c.R)} held ${out.held}`) +
+          (out.family === undefined
+            ? ''
+            : `; contact family ${out.family === inside[0] ? 'is the candidate' : `${levelRow(out.family)}${out.familyRead === undefined ? '' : ` overlap ${f4(out.familyRead.overlap)} m* ${f4(out.familyRead.mass)} R ${f4(out.familyRead.R)}`}`}`) +
           `; inside ${inside.slice(0, SHOWN).map(levelRow).join(' | ')}; ${out.seconds.toFixed(0)} s, at ${secs()} s`,
       )
 
@@ -183,7 +272,12 @@ export default experiment({
     // ---- controls first (cheap): (a) E-SPN-0105's level at box 12, (b) the unbound unit ----
     const recorded = point(3, 1, RECORDED.box, 0, false)
     const rc = recorded.candidate
-    const controlRecorded = recorded.held && rc !== undefined && Math.abs(rc.K0.energy - RECORDED.energy) <= EXACT && Math.abs(rc.mass / RECORDED.mass - 1) <= SAME && Math.abs(rc.R / RECORDED.R - 1) <= R_SAME
+    const controlRecorded =
+      recorded.held &&
+      rc !== undefined &&
+      Math.abs(rc.K0.energy - RECORDED.energy) <= EXACT &&
+      Math.abs(rc.mass / RECORDED.mass - 1) <= SAME &&
+      Math.abs(rc.R / RECORDED.R - 1) <= R_SAME
     const unbound = UNBOUND_BOXES.map(box => point(3, 1, box, 3, false))
     const controlUnbound = unbound.every(p => !p.held)
     const control = controlRecorded && controlUnbound
@@ -191,37 +285,60 @@ export default experiment({
     // ---- L1, L2, L3: n = 1 over D ----
     const loose = LOOSE.map(({ D, box }) => point(D, 1, box, 0, true))
     const second = point(SECOND_BOX.D, 1, SECOND_BOX.box, 0, true)
-    const first = loose.find(p => p.D === SECOND_BOX.D) as Point
-    const boxGap = first.candidate !== undefined && second.candidate !== undefined ? Math.abs(first.candidate.K0.energy - second.candidate.K0.energy) : Number.POSITIVE_INFINITY
+    const first = loose.find(p => p.D === SECOND_BOX.D)!
+    const boxGap =
+      first.candidate !== undefined && second.candidate !== undefined
+        ? Math.abs(
+            first.candidate.K0.energy - second.candidate.K0.energy,
+          )
+        : Number.POSITIVE_INFINITY
     const boxSame = boxGap <= BOX_SAME
     const l1 = loose.every(p => p.held) && boxSame
     const held = loose.filter(p => p.held)
-    const falls = held.length >= 2 && held.every((p, i) => i === 0 || (p.candidate as Read).R < ((held[i - 1] as Point).candidate as Read).R)
+    const falls =
+      held.length >= 2 &&
+      held.every(
+        (p, i) => i === 0 || p.candidate!.R < held[i - 1]!.candidate!.R,
+      )
     const l2 = l1 && falls
 
     // least squares of R - 1 on 1/N over the held D
-    const fit = ((): { intercept: number; slope: number; worst: number } => {
-      if (held.length < MIN_FIT) return { intercept: Number.NaN, slope: Number.NaN, worst: Number.NaN }
+    const fit = ((): {
+      intercept: number
+      slope: number
+      worst: number
+    } => {
+      if (held.length < MIN_FIT) {
+        return {
+          intercept: Number.NaN,
+          slope: Number.NaN,
+          worst: Number.NaN,
+        }
+      }
 
       const xs = held.map(p => 1 / lightN(p.D))
-      const ys = held.map(p => (p.candidate as Read).R - 1)
+      const ys = held.map(p => p.candidate!.R - 1)
       const mx = xs.reduce((a, b) => a + b, 0) / xs.length
       const my = ys.reduce((a, b) => a + b, 0) / ys.length
+
       let sxy = 0
       let sxx = 0
 
       xs.forEach((x, i) => {
-        sxy += (x - mx) * ((ys[i] as number) - my)
+        sxy += (x - mx) * (ys[i]! - my)
         sxx += (x - mx) ** 2
       })
 
       const slope = sxy / sxx
       const intercept = my - slope * mx
-      const worst = Math.max(...xs.map((x, i) => Math.abs(intercept + slope * x - (ys[i] as number))))
+      const worst = Math.max(
+        ...xs.map((x, i) => Math.abs(intercept + slope * x - ys[i]!)),
+      )
 
       return { intercept, slope, worst }
     })()
-    const l3 = held.length >= MIN_FIT && Math.abs(fit.intercept) <= INTERCEPT
+    const l3 =
+      held.length >= MIN_FIT && Math.abs(fit.intercept) <= INTERCEPT
     const largest = held[held.length - 1]
 
     // ---- L4: n = 2 ----
@@ -237,7 +354,11 @@ export default experiment({
     })
     const limit = (24 * Math.PI) / Math.sqrt(3)
 
-    const status = !control ? 'partial' : l1 && l2 && l3 && l4 ? 'pass' : 'fail'
+    const status = !control
+      ? 'partial'
+      : l1 && l2 && l3 && l4
+        ? 'pass'
+        : 'fail'
     const metrics: Record<string, number> = {
       gate_L1: l1 ? 1 : 0,
       gate_L2: l2 ? 1 : 0,
@@ -252,14 +373,22 @@ export default experiment({
       fitWorst: fit.worst,
       seconds: (Date.now() - started) / 1000,
     }
-    const tag = (p: Point): string => `D${p.D}_n${p.n}_box${p.box}${p.unit === 0 ? '' : `_unit${p.unit}`}`
+    const tag = (p: Point): string =>
+      `D${p.D}_n${p.n}_box${p.box}${p.unit === 0 ? '' : `_unit${p.unit}`}`
 
-    for (const p of [recorded, ...unbound, ...loose, second, ...light]) {
+    for (const p of [
+      recorded,
+      ...unbound,
+      ...loose,
+      second,
+      ...light,
+    ]) {
       const k = tag(p)
 
       metrics[`${k}_held`] = p.held ? 1 : 0
       metrics[`${k}_inside`] = p.inside.length
       metrics[`${k}_leastTail`] = p.least.tailN
+
       if (p.candidate !== undefined) {
         metrics[`${k}_energy`] = p.candidate.K0.energy
         metrics[`${k}_mean`] = p.candidate.K0.mean
@@ -269,7 +398,12 @@ export default experiment({
         metrics[`${k}_eRest`] = p.candidate.eRest
         metrics[`${k}_R`] = p.candidate.R
       }
-      if (p.family !== undefined) metrics[`${k}_familyIsCandidate`] = p.family === p.inside[0] ? 1 : 0
+
+      if (p.family !== undefined) {
+        metrics[`${k}_familyIsCandidate`] =
+          p.family === p.inside[0] ? 1 : 0
+      }
+
       if (p.familyRead !== undefined) {
         metrics[`${k}_familyEnergy`] = p.familyRead.K0.energy
         metrics[`${k}_familyContact`] = p.familyRead.K0.contact
@@ -278,14 +412,23 @@ export default experiment({
       }
     }
 
-    for (const r of ratios) metrics[`D${r.D}_sigmaOverAlpha`] = r.ratio
+    for (const r of ratios) {
+      metrics[`D${r.D}_sigmaOverAlpha`] = r.ratio
+    }
 
     const row = (p: Point): string => {
       const c = p.candidate
 
-      if (c === undefined) return `D ${p.D} n ${p.n} box ${p.box}: none inside (least tail ${e2(p.least.tailN)}, mean ${f3(p.least.mean)})`
+      if (c === undefined) {
+        return `D ${p.D} n ${p.n} box ${p.box}: none inside (least tail ${e2(p.least.tailN)}, mean ${f3(p.least.mean)})`
+      }
 
-      const fam = p.family === undefined ? '' : p.family === p.inside[0] ? ', the contact family' : `, not the contact family (${levelRow(p.family)}${p.familyRead === undefined ? '' : `, R ${f3(p.familyRead.R)}`})`
+      const fam =
+        p.family === undefined
+          ? ''
+          : p.family === p.inside[0]
+            ? ', the contact family'
+            : `, not the contact family (${levelRow(p.family)}${p.familyRead === undefined ? '' : `, R ${f3(p.familyRead.R)}`})`
 
       return `D ${p.D} n ${p.n} box ${p.box}: ${p.held ? 'held' : 'not held'}, E ${f6(c.K0.energy)} mean ${f3(c.K0.mean)} contact ${f3(c.K0.contact)} m* ${f3(c.mass)} E_rest ${f4(c.eRest)} R ${f3(c.R)}${fam}`
     }
@@ -294,7 +437,10 @@ export default experiment({
       status,
       claim: `n = 1: ${loose.map(row).join('; ')}; box ${SECOND_BOX.box} at D ${SECOND_BOX.D}: E gap ${e2(boxGap)}; L1 ${l1}, L2 ${l2} (falls ${falls}), L3 ${l3} (R - 1 = ${f3(fit.intercept)} + ${f3(fit.slope)}/N over ${held.length} D, R at D ${largest?.D ?? 'none'} ${largest?.candidate === undefined ? 'none' : f3(largest.candidate.R)}); n = 2: ${light.map(row).join('; ')}; L4 ${l4}; sigma/alpha ${ratios.map(r => `D ${r.D} ${f3(r.ratio)}`).join(', ')} (limit ${f3(limit)}); controls: recorded ${controlRecorded}, unbound ${controlUnbound}`,
       metrics,
-      control: { recorded: controlRecorded ? 1 : 0, unbound: controlUnbound ? 1 : 0 },
+      control: {
+        recorded: controlRecorded ? 1 : 0,
+        unbound: controlUnbound ? 1 : 0,
+      },
       notes: `L2. Points (${[recorded, ...unbound, ...loose, second, ...light].map(p => `D ${p.D} n ${p.n} box ${p.box} unit ${p.unit} dim ${p.dim} inside ${p.inside.length} [${p.inside.slice(0, SHOWN).map(levelRow).join(' | ')}]${p.candidate === undefined ? ` least tail ${e2(p.least.tailN)}` : ` overlap ${f4(p.candidate.overlap)} band ${p.candidate.band.map(b => `K ${f4(b.K)} E ${f6(b.energy)}`).join(' ')}`} ${p.seconds.toFixed(0)} s`).join('; ')}). Control (a) E ${rc === undefined ? 'none' : `${rc.K0.energy} m* ${rc.mass} R ${rc.R}`}. Fit worst residual ${e2(fit.worst)}. sigma ${ratios.map(r => `D ${r.D} ${f6(r.sigma)} alpha ${f6(r.alpha)}`).join(', ')}. ${secs()} s.`,
     })
   },

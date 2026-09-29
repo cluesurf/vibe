@@ -42,12 +42,14 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { type ComplexMatrix, complexIdentity, complexMultiply } from '@/code/algebra/linear/complex-matrix'
+import {
+  type ComplexMatrix,
+  complexIdentity,
+  complexMultiply,
+} from '@/code/algebra/linear/complex-matrix'
 import { singletPhase, swapPhase } from '@/code/rule/fear-weave'
 import {
   closeGroup,
-  conjugateMatrix,
-  daggerMatrix,
   displacementMatrix,
   gridOrder,
   kronecker,
@@ -66,8 +68,12 @@ const OMEGA_ANGLE = (2 * Math.PI) / 3
 
 type Complex = [number, number]
 
-const cmul = (a: Complex, b: Complex): Complex => [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]]
+const cmul = (a: Complex, b: Complex): Complex => [
+  a[0] * b[0] - a[1] * b[1],
+  a[0] * b[1] + a[1] * b[0],
+]
 const cconj = (a: Complex): Complex => [a[0], -a[1]]
+
 const cpow = (a: Complex, n: number): Complex => {
   let out: Complex = [1, 0]
 
@@ -85,7 +91,9 @@ function heisenberg(): ComplexMatrix[] {
   for (let c = 0; c < 3; c++) {
     for (let a = 0; a < 3; a++) {
       for (let b = 0; b < 3; b++) {
-        out.push(scaleMatrix(displacementMatrix(3, a, b), unitPhase(c / 3)))
+        out.push(
+          scaleMatrix(displacementMatrix(3, a, b), unitPhase(c / 3)),
+        )
       }
     }
   }
@@ -93,7 +101,8 @@ function heisenberg(): ComplexMatrix[] {
   return out
 }
 
-const triple = (m: ComplexMatrix): ComplexMatrix => kronecker(kronecker(m, m), m)
+const triple = (m: ComplexMatrix): ComplexMatrix =>
+  kronecker(kronecker(m, m), m)
 
 function average(list: readonly ComplexMatrix[]): ComplexMatrix {
   const n = list[0]?.n ?? 1
@@ -110,7 +119,12 @@ function average(list: readonly ComplexMatrix[]): ComplexMatrix {
   return { re, im, n }
 }
 
-const combine = (a: ComplexMatrix, s: number, b: ComplexMatrix, t: number): ComplexMatrix => ({
+const combine = (
+  a: ComplexMatrix,
+  s: number,
+  b: ComplexMatrix,
+  t: number,
+): ComplexMatrix => ({
   re: a.re.map((x, i) => s * x + t * (b.re[i] ?? 0)),
   im: a.im.map((x, i) => s * x + t * (b.im[i] ?? 0)),
   n: a.n,
@@ -162,10 +176,18 @@ function psi(k: number): number[] {
 }
 
 // a two-role operator on roles i < j of three, as a 27 x 27 matrix
-function onPair(op: ComplexMatrix, i: number, j: number): ComplexMatrix {
+function onPair(
+  op: ComplexMatrix,
+  i: number,
+  j: number,
+): ComplexMatrix {
   const re = new Float64Array(27 * 27)
   const im = new Float64Array(27 * 27)
-  const digits = (s: number): number[] => [Math.floor(s / 9), Math.floor(s / 3) % 3, s % 3]
+  const digits = (s: number): number[] => [
+    Math.floor(s / 9),
+    Math.floor(s / 3) % 3,
+    s % 3,
+  ]
 
   for (let row = 0; row < 27; row++) {
     for (let col = 0; col < 27; col++) {
@@ -177,7 +199,9 @@ function onPair(op: ComplexMatrix, i: number, j: number): ComplexMatrix {
         continue
       }
 
-      const at = (3 * (r[i] ?? 0) + (r[j] ?? 0)) * 9 + (3 * (c[i] ?? 0) + (c[j] ?? 0))
+      const at =
+        (3 * (r[i] ?? 0) + (r[j] ?? 0)) * 9 +
+        (3 * (c[i] ?? 0) + (c[j] ?? 0))
 
       re[row * 27 + col] = op.re[at] ?? 0
       im[row * 27 + col] = op.im[at] ?? 0
@@ -202,11 +226,19 @@ export default experiment({
     const minusP = scaleMatrix(parity, [-1, 0])
 
     // G1 by traces of the actual matrices: the rep is h^(x n) (x) conj(h)^(x m)
-    const counts: { n: number; m: number; rank: number; spinorial: number; predictedRank: number; predictedSpinorial: number }[] = []
+    const counts: {
+      n: number
+      m: number
+      rank: number
+      spinorial: number
+      predictedRank: number
+      predictedSpinorial: number
+    }[] = []
 
     for (let total = 1; total <= 6; total++) {
       for (let n = total; n >= 0; n--) {
         const m = total - n
+
         let rank: Complex = [0, 0]
         let sign: Complex = [0, 0]
 
@@ -216,30 +248,64 @@ export default experiment({
           const r = cmul(cpow(t, n), cpow(cconj(t), m))
           const s = cmul(cpow(ts, n), cpow(cconj(ts), m))
 
-          rank = [rank[0] + r[0] / group.length, rank[1] + r[1] / group.length]
-          sign = [sign[0] + s[0] / group.length, sign[1] + s[1] / group.length]
+          rank = [
+            rank[0] + r[0] / group.length,
+            rank[1] + r[1] / group.length,
+          ]
+
+          sign = [
+            sign[0] + s[0] / group.length,
+            sign[1] + s[1] / group.length,
+          ]
         }
 
         const predictedRank = (n - m) % 3 === 0 ? 3 ** (total - 2) : 0
-        const predictedSpinorial = predictedRank > 0 ? (predictedRank - (-1) ** total) / 2 : 0
+        const predictedSpinorial =
+          predictedRank > 0 ? (predictedRank - (-1) ** total) / 2 : 0
 
-        counts.push({ n, m, rank: rank[0], spinorial: (rank[0] - sign[0]) / 2, predictedRank, predictedSpinorial })
+        counts.push({
+          n,
+          m,
+          rank: rank[0],
+          spinorial: (rank[0] - sign[0]) / 2,
+          predictedRank,
+          predictedSpinorial,
+        })
       }
     }
 
-    const g1 = counts.every(c => Math.abs(c.rank - c.predictedRank) < LOOSE && Math.abs(c.spinorial - c.predictedSpinorial) < LOOSE)
+    const g1 = counts.every(
+      c =>
+        Math.abs(c.rank - c.predictedRank) < LOOSE &&
+        Math.abs(c.spinorial - c.predictedSpinorial) < LOOSE,
+    )
 
     // G2 the explicit triple
     const neutral = average(group.map(triple))
     const turn = triple(minusP)
     const identity27 = complexIdentity(27)
-    const spinorProjector = complexMultiply(neutral, scaleMatrix(combine(identity27, 1, turn, -1), [0.5, 0]))
-    const bosonProjector = complexMultiply(neutral, scaleMatrix(combine(identity27, 1, turn, 1), [0.5, 0]))
-    const predictedPair = spanProjector([psi(0), psi(1).map((x, i) => x + (psi(2)[i] ?? 0))])
-    const predictedBoson = spanProjector([psi(1).map((x, i) => x - (psi(2)[i] ?? 0))])
+    const spinorProjector = complexMultiply(
+      neutral,
+      scaleMatrix(combine(identity27, 1, turn, -1), [0.5, 0]),
+    )
+    const bosonProjector = complexMultiply(
+      neutral,
+      scaleMatrix(combine(identity27, 1, turn, 1), [0.5, 0]),
+    )
+    const predictedPair = spanProjector([
+      psi(0),
+      psi(1).map((x, i) => x + (psi(2)[i] ?? 0)),
+    ])
+    const predictedBoson = spanProjector([
+      psi(1).map((x, i) => x - (psi(2)[i] ?? 0)),
+    ])
     const neutralRank = traceOf(neutral)[0]
-    const pairOverlap = traceOf(complexMultiply(spinorProjector, predictedPair))[0]
-    const bosonOverlap = traceOf(complexMultiply(bosonProjector, predictedBoson))[0]
+    const pairOverlap = traceOf(
+      complexMultiply(spinorProjector, predictedPair),
+    )[0]
+    const bosonOverlap = traceOf(
+      complexMultiply(bosonProjector, predictedBoson),
+    )[0]
     const g2 =
       Math.abs(neutralRank - 3) < EXACT &&
       Math.abs(traceOf(spinorProjector)[0] - 2) < EXACT &&
@@ -250,13 +316,16 @@ export default experiment({
     const lifts = weilLifts(3)
     const characters = lifts.map(lift => {
       const byGrid = new Map<string, Complex>()
+
       let normSquared = 0
       let bosonMinusOne = 0
       let loopGap = 0
 
       for (const e of lift.elements) {
         const r = triple(e.unitary)
-        const chi = traceOf(complexMultiply(spinorProjector, r)) as Complex
+        const chi = traceOf(
+          complexMultiply(spinorProjector, r),
+        ) as Complex
 
         byGrid.set(e.grid.join(','), chi)
         normSquared += chi[0] * chi[0] + chi[1] * chi[1]
@@ -268,61 +337,119 @@ export default experiment({
         if (gridOrder(3, e.grid) === 6) {
           const cube = complexMultiply(complexMultiply(r, r), r)
 
-          loopGap = Math.max(loopGap, matrixDistance(complexMultiply(cube, spinorProjector), scaleMatrix(spinorProjector, [-1, 0])))
+          loopGap = Math.max(
+            loopGap,
+            matrixDistance(
+              complexMultiply(cube, spinorProjector),
+              scaleMatrix(spinorProjector, [-1, 0]),
+            ),
+          )
         }
       }
 
       return { byGrid, normSquared, bosonMinusOne, loopGap }
     })
-    const reference = characters[0]?.byGrid ?? new Map<string, Complex>()
+    const reference =
+      characters[0]?.byGrid ?? new Map<string, Complex>()
+
     let liftAgreement = 0
 
     for (const c of characters) {
       for (const [grid, chi] of c.byGrid) {
         const ref = reference.get(grid) ?? [99, 99]
 
-        liftAgreement = Math.max(liftAgreement, Math.hypot(chi[0] - ref[0], chi[1] - ref[1]))
+        liftAgreement = Math.max(
+          liftAgreement,
+          Math.hypot(chi[0] - ref[0], chi[1] - ref[1]),
+        )
       }
     }
 
     const chiMinusOne = reference.get('2,0,0,2') ?? [0, 0]
     // which 2T character: the natural one by element order, or a twist of it by a character of order 3
-    const SPIN_HALF: Record<number, number> = { 1: 2, 2: -2, 3: -1, 4: 0, 6: 1 }
+    const SPIN_HALF: Record<number, number> = {
+      1: 2,
+      2: -2,
+      3: -1,
+      4: 0,
+      6: 1,
+    }
     const liftZero = lifts[0]
     const natural = liftZero
       ? liftZero.elements.every(e => {
           const chi = reference.get(e.grid.join(',')) ?? [99, 99]
 
-          return Math.abs(chi[0] - (SPIN_HALF[gridOrder(3, e.grid)] ?? 99)) < LOOSE && Math.abs(chi[1]) < LOOSE
+          return (
+            Math.abs(chi[0] - (SPIN_HALF[gridOrder(3, e.grid)] ?? 99)) <
+              LOOSE && Math.abs(chi[1]) < LOOSE
+          )
         })
       : false
     const g3 =
       characters.length === 3 &&
-      characters.every(c => Math.abs(c.normSquared - 24) < LOOSE && c.loopGap < EXACT && Math.abs(c.bosonMinusOne - 1) < EXACT) &&
+      characters.every(
+        c =>
+          Math.abs(c.normSquared - 24) < LOOSE &&
+          c.loopGap < EXACT &&
+          Math.abs(c.bosonMinusOne - 1) < EXACT,
+      ) &&
       Math.abs(chiMinusOne[0] + 2) < EXACT &&
       Math.abs(chiMinusOne[1]) < EXACT &&
       liftAgreement < EXACT
 
     // G4 the full frame: Sigma(648) acting on all three roles
-    const s = liftZero ? liftOf(liftZero, [0, 2, 1, 0]) ?? complexIdentity(3) : complexIdentity(3)
-    const t = liftZero ? liftOf(liftZero, [1, 1, 0, 1]) ?? complexIdentity(3) : complexIdentity(3)
-    const sigma = closeGroup([s, t, displacementMatrix(3, 1, 0), displacementMatrix(3, 0, 1)], 5000) ?? []
+    const s = liftZero
+      ? (liftOf(liftZero, [0, 2, 1, 0]) ?? complexIdentity(3))
+      : complexIdentity(3)
+    const t = liftZero
+      ? (liftOf(liftZero, [1, 1, 0, 1]) ?? complexIdentity(3))
+      : complexIdentity(3)
+    const sigma =
+      closeGroup(
+        [
+          s,
+          t,
+          displacementMatrix(3, 1, 0),
+          displacementMatrix(3, 0, 1),
+        ],
+        5000,
+      ) ?? []
     const fullKnot = average(sigma.map(triple))
     const fullRank = traceOf(fullKnot)[0]
-    const fullOnBoson = traceOf(complexMultiply(fullKnot, predictedBoson))[0]
-    const g4 = sigma.length === 648 && Math.abs(fullRank - 1) < EXACT && Math.abs(fullOnBoson - 1) < EXACT
+    const fullOnBoson = traceOf(
+      complexMultiply(fullKnot, predictedBoson),
+    )[0]
+    const g4 =
+      sigma.length === 648 &&
+      Math.abs(fullRank - 1) < EXACT &&
+      Math.abs(fullOnBoson - 1) < EXACT
 
     // REPORTED, added after the first run (not gated): is the epsilon boson a knot in E-SPN-0051's sense, a common
     // eigenvector of every generator of Sigma(648) up to a phase, and with which phases?
-    const epsilon = psi(1).map((x, i) => (x - (psi(2)[i] ?? 0)) / Math.sqrt(6))
-    const knotPhases = [s, t, displacementMatrix(3, 1, 0), displacementMatrix(3, 0, 1)].map(g => {
+    const epsilon = psi(1).map(
+      (x, i) => (x - (psi(2)[i] ?? 0)) / Math.sqrt(6),
+    )
+    const knotPhases = [
+      s,
+      t,
+      displacementMatrix(3, 1, 0),
+      displacementMatrix(3, 0, 1),
+    ].map(g => {
       const r = triple(g)
-      const image = { re: new Float64Array(27), im: new Float64Array(27) }
+      const image = {
+        re: new Float64Array(27),
+        im: new Float64Array(27),
+      }
 
       for (let i = 0; i < 27; i++) {
         for (let j = 0; j < 27; j++) {
-          image.re[i] = (image.re[i] ?? 0) + (r.re[i * 27 + j] ?? 0) * (epsilon[j] ?? 0)
-          image.im[i] = (image.im[i] ?? 0) + (r.im[i * 27 + j] ?? 0) * (epsilon[j] ?? 0)
+          image.re[i] =
+            (image.re[i] ?? 0) +
+            (r.re[i * 27 + j] ?? 0) * (epsilon[j] ?? 0)
+
+          image.im[i] =
+            (image.im[i] ?? 0) +
+            (r.im[i * 27 + j] ?? 0) * (epsilon[j] ?? 0)
         }
       }
 
@@ -337,20 +464,37 @@ export default experiment({
       let residual = 0
 
       for (let i = 0; i < 27; i++) {
-        residual += ((image.re[i] ?? 0) - lambda[0] * (epsilon[i] ?? 0)) ** 2 + ((image.im[i] ?? 0) - lambda[1] * (epsilon[i] ?? 0)) ** 2
+        residual +=
+          ((image.re[i] ?? 0) - lambda[0] * (epsilon[i] ?? 0)) ** 2 +
+          ((image.im[i] ?? 0) - lambda[1] * (epsilon[i] ?? 0)) ** 2
       }
 
-      return { angle: Math.atan2(lambda[1], lambda[0]) / ((2 * Math.PI) / 3), residual: Math.sqrt(residual) }
+      return {
+        angle: Math.atan2(lambda[1], lambda[0]) / ((2 * Math.PI) / 3),
+        residual: Math.sqrt(residual),
+      }
     })
 
     // REPORTED, added after the first run (not gated): which SU(2) spin the doublet is a piece of. A spin j of
     // SU(2) restricted to 2T has a character fixed by each element's order (rotation angle 0, 2 pi, pi, 4 pi / 3,
     // 2 pi / 3 for orders 1, 2, 4, 3, 6); the multiplicity of the doublet in it is the inner product over 24.
     const spinCharacter = (twoJ: number, order: number): number => {
-      const half = ({ 1: 0, 2: Math.PI, 4: Math.PI / 2, 3: (2 * Math.PI) / 3, 6: Math.PI / 3 } as Record<number, number>)[order] ?? 0
+      const half =
+        (
+          {
+            1: 0,
+            2: Math.PI,
+            4: Math.PI / 2,
+            3: (2 * Math.PI) / 3,
+            6: Math.PI / 3,
+          } as Record<number, number>
+        )[order] ?? 0
 
-      return Math.abs(Math.sin(half)) < 1e-12 ? (twoJ + 1) * Math.cos(half) ** twoJ : Math.sin((twoJ + 1) * half) / Math.sin(half)
+      return Math.abs(Math.sin(half)) < 1e-12
+        ? (twoJ + 1) * Math.cos(half) ** twoJ
+        : Math.sin((twoJ + 1) * half) / Math.sin(half)
     }
+
     const spinMultiplicity = (twoJ: number): number => {
       let sum = 0
 
@@ -362,6 +506,7 @@ export default experiment({
 
       return sum / 24
     }
+
     const inSpinHalf = spinMultiplicity(1)
     const inSpinThreeHalves = spinMultiplicity(3)
     // REPORTED, added after the second run (not gated): which neutral clusters carry the NATURAL spin one half. The
@@ -380,7 +525,10 @@ export default experiment({
             const tr = traceOf(complexMultiply(h, e.unitary)) as Complex
             const term = cmul(cpow(tr, c.n), cpow(cconj(tr), c.m))
 
-            chi = [chi[0] + term[0] / group.length, chi[1] + term[1] / group.length]
+            chi = [
+              chi[0] + term[0] / group.length,
+              chi[1] + term[1] / group.length,
+            ]
           }
 
           const order = gridOrder(3, e.grid)
@@ -389,13 +537,24 @@ export default experiment({
           threeHalves += (chi[0] * spinCharacter(3, order)) / 24
         }
 
-        return { n: c.n, m: c.m, half: Math.round(half * 1e9) / 1e9 + 0, threeHalves: Math.round(threeHalves * 1e9) / 1e9 + 0 }
+        return {
+          n: c.n,
+          m: c.m,
+          half: Math.round(half * 1e9) / 1e9 + 0,
+          threeHalves: Math.round(threeHalves * 1e9) / 1e9 + 0,
+        }
       })
-    const orderSixValues =[...new Set((liftZero?.elements ?? []).filter(e => gridOrder(3, e.grid) === 6).map(e => {
-      const chi = reference.get(e.grid.join(',')) ?? [0, 0]
+    const orderSixValues = [
+      ...new Set(
+        (liftZero?.elements ?? [])
+          .filter(e => gridOrder(3, e.grid) === 6)
+          .map(e => {
+            const chi = reference.get(e.grid.join(',')) ?? [0, 0]
 
-      return `${chi[0].toFixed(3)}${chi[1] >= 0 ? '+' : '-'}${Math.abs(chi[1]).toFixed(3)}i`
-    }))]
+            return `${chi[0].toFixed(3)}${chi[1] >= 0 ? '+' : '-'}${Math.abs(chi[1]).toFixed(3)}i`
+          }),
+      ),
+    ]
 
     // G5 the fear beat
     const swap = swapPhase(OMEGA_ANGLE) as ComplexMatrix
@@ -406,6 +565,7 @@ export default experiment({
       [0, 2],
     ]
     const omega = unitPhase(1 / 3)
+
     let swapLeak = 0
     let swapOnPair = 0
     let swapOnBoson = 0
@@ -414,23 +574,58 @@ export default experiment({
       const u = onPair(swap, i, j)
       const moved = complexMultiply(u, neutral)
 
-      swapLeak = Math.max(swapLeak, matrixDistance(complexMultiply(neutral, moved), moved))
-      swapOnPair = Math.max(swapOnPair, matrixDistance(complexMultiply(u, spinorProjector), spinorProjector))
-      swapOnBoson = Math.max(swapOnBoson, matrixDistance(complexMultiply(u, bosonProjector), scaleMatrix(bosonProjector, omega)))
+      swapLeak = Math.max(
+        swapLeak,
+        matrixDistance(complexMultiply(neutral, moved), moved),
+      )
+
+      swapOnPair = Math.max(
+        swapOnPair,
+        matrixDistance(
+          complexMultiply(u, spinorProjector),
+          spinorProjector,
+        ),
+      )
+
+      swapOnBoson = Math.max(
+        swapOnBoson,
+        matrixDistance(
+          complexMultiply(u, bosonProjector),
+          scaleMatrix(bosonProjector, omega),
+        ),
+      )
     }
 
     const singletMoved = complexMultiply(onPair(singlet, 0, 1), neutral)
-    const singletLeak = matrixDistance(complexMultiply(neutral, singletMoved), singletMoved)
-    const g5 = swapLeak < EXACT && swapOnPair < EXACT && swapOnBoson < EXACT && singletLeak > 0.1
+    const singletLeak = matrixDistance(
+      complexMultiply(neutral, singletMoved),
+      singletMoved,
+    )
+    const g5 =
+      swapLeak < EXACT &&
+      swapOnPair < EXACT &&
+      swapOnBoson < EXACT &&
+      singletLeak > 0.1
 
     const ok = g1 && g2 && g3 && g4 && g5
-    const row = (c: (typeof counts)[number]): string => `(${c.n}, ${c.m}) ${c.rank.toFixed(0)}/${c.spinorial.toFixed(0)}`
+    const row = (c: (typeof counts)[number]): string =>
+      `(${c.n}, ${c.m}) ${c.rank.toFixed(0)}/${c.spinorial.toFixed(0)}`
 
     return verdict({
       status: ok ? 'pass' : 'fail',
-      claim: `translation-neutral rank / spinorial dimension on (roles, antiroles): ${counts.filter(c => c.predictedRank > 0).map(row).join(', ')}, zero elsewhere, all as predicted (${g1}); the triple's neutral space is ${neutralRank.toFixed(0)}-dimensional, its spinorial pair the totally symmetric span(psi_0, psi_1 + psi_2) (overlap ${pairOverlap.toFixed(12)}) carrying an irreducible 2T character (norm ${characters[0]?.normSquared.toFixed(6)}, chi(-I) = ${chiMinusOne[0].toFixed(6)}, ${natural ? 'the natural spin one half' : 'a twist of the natural spin one half by an order-3 character'}, alike in all 3 lifts to ${liftAgreement.toExponential(1)}), a 120 degree turn cubed -1 on it; its multiplicity in SU(2) spin 1/2 is ${inSpinHalf.toFixed(6)} and in spin 3/2 ${inSpinThreeHalves.toFixed(6)} (order-6 values ${orderSixValues.join(', ')}); natural spin 1/2 multiplicity in the neutral space of (roles, antiroles): ${naturalHalf.map(c => `(${c.n}, ${c.m}) ${c.half}`).join(', ')}; its boson the antisymmetric psi_1 - psi_2; the states strictly invariant under the full Sigma(${sigma.length}) have rank ${fullRank.toFixed(6)} (G4 predicted 1, and fails), while the boson is a common eigenvector of its generators up to phase (residual ${Math.max(...knotPhases.map(k => k.residual)).toExponential(1)}); the swap phase keeps the neutral space on all 3 pairs (leak ${swapLeak.toExponential(1)}) and is exactly 1 on the doublet (gap ${swapOnPair.toExponential(1)}) and omega on the boson (gap ${swapOnBoson.toExponential(1)}), while the singlet phase leaks ${singletLeak.toFixed(3)}`,
+      claim: `translation-neutral rank / spinorial dimension on (roles, antiroles): ${counts
+        .filter(c => c.predictedRank > 0)
+        .map(row)
+        .join(
+          ', ',
+        )}, zero elsewhere, all as predicted (${g1}); the triple's neutral space is ${neutralRank.toFixed(0)}-dimensional, its spinorial pair the totally symmetric span(psi_0, psi_1 + psi_2) (overlap ${pairOverlap.toFixed(12)}) carrying an irreducible 2T character (norm ${characters[0]?.normSquared.toFixed(6)}, chi(-I) = ${chiMinusOne[0].toFixed(6)}, ${natural ? 'the natural spin one half' : 'a twist of the natural spin one half by an order-3 character'}, alike in all 3 lifts to ${liftAgreement.toExponential(1)}), a 120 degree turn cubed -1 on it; its multiplicity in SU(2) spin 1/2 is ${inSpinHalf.toFixed(6)} and in spin 3/2 ${inSpinThreeHalves.toFixed(6)} (order-6 values ${orderSixValues.join(', ')}); natural spin 1/2 multiplicity in the neutral space of (roles, antiroles): ${naturalHalf.map(c => `(${c.n}, ${c.m}) ${c.half}`).join(', ')}; its boson the antisymmetric psi_1 - psi_2; the states strictly invariant under the full Sigma(${sigma.length}) have rank ${fullRank.toFixed(6)} (G4 predicted 1, and fails), while the boson is a common eigenvector of its generators up to phase (residual ${Math.max(...knotPhases.map(k => k.residual)).toExponential(1)}); the swap phase keeps the neutral space on all 3 pairs (leak ${swapLeak.toExponential(1)}) and is exactly 1 on the doublet (gap ${swapOnPair.toExponential(1)}) and omega on the boson (gap ${swapOnBoson.toExponential(1)}), while the singlet phase leaks ${singletLeak.toFixed(3)}`,
       metrics: {
-        ...Object.fromEntries(counts.flatMap(c => [[`rank_${c.n}_${c.m}`, Number(c.rank.toFixed(9))], [`spinorial_${c.n}_${c.m}`, Number(c.spinorial.toFixed(9))]])),
+        ...Object.fromEntries(
+          counts.flatMap(c => [
+            [`rank_${c.n}_${c.m}`, Number(c.rank.toFixed(9))],
+            [`spinorial_${c.n}_${c.m}`, Number(c.spinorial.toFixed(9))],
+          ]),
+        ),
         tripleNeutralRank: neutralRank,
         tripleSpinorialOverlapWithSymmetricPair: pairOverlap,
         tripleBosonOverlapWithEpsilon: bosonOverlap,
@@ -447,16 +642,28 @@ export default experiment({
         swapPhaseOnBosonGap: swapOnBoson,
         doubletInSpinOneHalf: Number(inSpinHalf.toFixed(9)),
         doubletInSpinThreeHalves: Number(inSpinThreeHalves.toFixed(9)),
-        ...Object.fromEntries(naturalHalf.flatMap(c => [[`spinHalfIn_${c.n}_${c.m}`, c.half], [`spinThreeHalvesIn_${c.n}_${c.m}`, c.threeHalves]])),
-        epsilonKnotResidualMax:Math.max(...knotPhases.map(k => k.residual)),
-        ...Object.fromEntries(knotPhases.map((k, i) => [`epsilonPhaseInThirds_${['S', 'T', 'X', 'Z'][i]}`, Number(k.angle.toFixed(9)) + 0])),
+        ...Object.fromEntries(
+          naturalHalf.flatMap(c => [
+            [`spinHalfIn_${c.n}_${c.m}`, c.half],
+            [`spinThreeHalvesIn_${c.n}_${c.m}`, c.threeHalves],
+          ]),
+        ),
+        epsilonKnotResidualMax: Math.max(
+          ...knotPhases.map(k => k.residual),
+        ),
+        ...Object.fromEntries(
+          knotPhases.map((k, i) => [
+            `epsilonPhaseInThirds_${['S', 'T', 'X', 'Z'][i]}`,
+            Number(k.angle.toFixed(9)) + 0,
+          ]),
+        ),
       },
       control: {
         singletPhaseLeak: singletLeak,
         fullFrameGroupOrder: sigma.length,
       },
       notes:
-        'L1, exact. A STAND-IN for the charge: three loves give love - fear = 3, Q = 1, by the E-FRC-0170 algebra, and nothing here derives that the three loves are the ones that meet. FIRST RUN, DISCLOSED: G1, G2, G3 and G5 held exactly as predicted; G4 failed because the prediction was wrong, not the algebra: averaging over all of Sigma(648) (strict invariance) leaves rank 0, since the epsilon boson carries a nontrivial one-dimensional character of the group, and E-SPN-0051\'s knot is invariance UP TO A PHASE. The reported epsilon-phase metrics, added after the run, confirm the boson is that knot. The spin 1/2 and spin 3/2 multiplicities were also added after the run, when the doublet\'s character came out twisted by an order-3 character; the title changed from "spin one half doublet" to "a piece of spin 3/2" for that reason. Gates not moved; status is fail on G4. What the file settles is the fork E-SPN-0051 left: if color is the translation frame and spin is the turn, the role alone forces the quark-model statistics (a role and an antirole: one neutral state, a boson; three roles: a spinorial doublet and a boson), with no spin put in anywhere. But the doublet is NOT spin one half. Its character is independent of the lift (the lifts differ by an order-3 character, which cubes away) and twisted, taking a cube root of unity on the order-6 turns where spin 1/2 takes 1. No automorphism of 2T carries a twisted doublet to the natural one (the natural one is the only faithful doublet with a rational character), so under any identification of the role grid\'s SL(2, 3) with the husk\'s 2T it sits inside spin 3/2 (which restricts to the two twisted doublets) and outside spin 1/2. That is exactly the quark model\'s lesson for three identical quarks: with color antisymmetric the rest is symmetric, and uuu exists only as the spin 3/2 Delta. The role algebra does not see the vibes, so this holds for EVERY translation-neutral triple of roles, three loves or not: no triple of roles is a spin one half in this reading. The natural spin one half multiplicities (reported, added after the second run) say where it first appears: 0 in (1, 1), (3, 0) and (2, 2), and 2 doublets in (4, 1). Reading a love as a role and a fear as an antirole (the singlet phase fixes Phi = sum |j j>, which is invariant under M (x) conj M, so a fear\'s role turns conjugate), neutrality n = m mod 3 is exactly the integer-charge lock Q = (love - fear) / 3 of E-FRC-0170, now forced by the Heisenberg center rather than imposed, and the smallest charged cluster that holds a natural spin one half is four loves and one fear: Q = 1, five members. That is a prediction about the electron\'s content in this reading, not an electron: it is an internal-space count, and five vibes binding into one travelling object is further from anything measured than three. The doublet is totally symmetric in the three roles, which is why the like-vibe fear beat cannot touch it: the swap phase is 1 on symmetric pairs. So inside the triple the doublet makes and spends no magic, while the antisymmetric boson takes omega at every meeting. What is missing is everything dynamical: the triple does not travel as one object on the committed knit, the triality weave or the aligned weave (E-FRC-0171, E-SPN-0052), so Gauss\'s law around it, its stability, its dispersion and its g cannot be measured on it. And the fork has a cost: the committed knit\'s links draw from all 216 grid moves, which gauges the turns too and leaves only the boson; the translation-only reading is the relational link of E-FRC-0174, where the turns are not link data.',
+        "L1, exact. A STAND-IN for the charge: three loves give love - fear = 3, Q = 1, by the E-FRC-0170 algebra, and nothing here derives that the three loves are the ones that meet. FIRST RUN, DISCLOSED: G1, G2, G3 and G5 held exactly as predicted; G4 failed because the prediction was wrong, not the algebra: averaging over all of Sigma(648) (strict invariance) leaves rank 0, since the epsilon boson carries a nontrivial one-dimensional character of the group, and E-SPN-0051's knot is invariance UP TO A PHASE. The reported epsilon-phase metrics, added after the run, confirm the boson is that knot. The spin 1/2 and spin 3/2 multiplicities were also added after the run, when the doublet's character came out twisted by an order-3 character; the title changed from \"spin one half doublet\" to \"a piece of spin 3/2\" for that reason. Gates not moved; status is fail on G4. What the file settles is the fork E-SPN-0051 left: if color is the translation frame and spin is the turn, the role alone forces the quark-model statistics (a role and an antirole: one neutral state, a boson; three roles: a spinorial doublet and a boson), with no spin put in anywhere. But the doublet is NOT spin one half. Its character is independent of the lift (the lifts differ by an order-3 character, which cubes away) and twisted, taking a cube root of unity on the order-6 turns where spin 1/2 takes 1. No automorphism of 2T carries a twisted doublet to the natural one (the natural one is the only faithful doublet with a rational character), so under any identification of the role grid's SL(2, 3) with the husk's 2T it sits inside spin 3/2 (which restricts to the two twisted doublets) and outside spin 1/2. That is exactly the quark model's lesson for three identical quarks: with color antisymmetric the rest is symmetric, and uuu exists only as the spin 3/2 Delta. The role algebra does not see the vibes, so this holds for EVERY translation-neutral triple of roles, three loves or not: no triple of roles is a spin one half in this reading. The natural spin one half multiplicities (reported, added after the second run) say where it first appears: 0 in (1, 1), (3, 0) and (2, 2), and 2 doublets in (4, 1). Reading a love as a role and a fear as an antirole (the singlet phase fixes Phi = sum |j j>, which is invariant under M (x) conj M, so a fear's role turns conjugate), neutrality n = m mod 3 is exactly the integer-charge lock Q = (love - fear) / 3 of E-FRC-0170, now forced by the Heisenberg center rather than imposed, and the smallest charged cluster that holds a natural spin one half is four loves and one fear: Q = 1, five members. That is a prediction about the electron's content in this reading, not an electron: it is an internal-space count, and five vibes binding into one travelling object is further from anything measured than three. The doublet is totally symmetric in the three roles, which is why the like-vibe fear beat cannot touch it: the swap phase is 1 on symmetric pairs. So inside the triple the doublet makes and spends no magic, while the antisymmetric boson takes omega at every meeting. What is missing is everything dynamical: the triple does not travel as one object on the committed knit, the triality weave or the aligned weave (E-FRC-0171, E-SPN-0052), so Gauss's law around it, its stability, its dispersion and its g cannot be measured on it. And the fork has a cost: the committed knit's links draw from all 216 grid moves, which gauges the turns too and leaves only the boson; the translation-only reading is the relational link of E-FRC-0174, where the turns are not link data.",
     })
   },
 })

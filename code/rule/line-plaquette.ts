@@ -53,7 +53,12 @@ export type HuskFaces = {
 }
 
 // the signed axis steps of each diagonal (h = 3 .. 8): [axis, sense] of u and of v, d = u + v
-const DIAGONAL_PARTS: readonly (readonly [number, number, number, number])[] = [
+const DIAGONAL_PARTS: readonly (readonly [
+  number,
+  number,
+  number,
+  number,
+])[] = [
   [0, 1, 1, 1],
   [0, 1, 1, -1],
   [0, 1, 2, 1],
@@ -64,22 +69,36 @@ const DIAGONAL_PARTS: readonly (readonly [number, number, number, number])[] = [
 
 export function huskFaces(mesh: RadionMesh): HuskFaces {
   const [sx, sy, sz] = mesh.sides
+
   const at = (y: number, axis: number, sense: number): number => {
-    const p = [y % sx, Math.floor(y / sx) % sy, Math.floor(y / (sx * sy))]
+    const p = [
+      y % sx,
+      Math.floor(y / sx) % sy,
+      Math.floor(y / (sx * sy)),
+    ]
 
     p[axis] = mod(p[axis]! + sense, mesh.sides[axis]!)
 
     return p[0]! + sx * (p[1]! + sy * p[2]!)
   }
+
   // the link from y one axis step along (axis, sense), with the sense it is taken in
-  const step = (y: number, axis: number, sense: number): [number, number] => (sense > 0 ? [y * 9 + axis, 1] : [at(y, axis, -1) * 9 + axis, -1])
+  const step = (
+    y: number,
+    axis: number,
+    sense: number,
+  ): [number, number] =>
+    sense > 0 ? [y * 9 + axis, 1] : [at(y, axis, -1) * 9 + axis, -1]
   const count = mesh.docks * 12
   const link = new Int32Array(count * 3)
   const sign = new Int8Array(count * 3)
   const dock = new Int32Array(count)
+
   let f = 0
 
-  if (sz === undefined) throw new Error('huskFaces: three sides')
+  if (sz === undefined) {
+    throw new Error('huskFaces: three sides')
+  }
 
   for (let y = 0; y < mesh.docks; y++) {
     for (let d = 0; d < 6; d++) {
@@ -112,7 +131,11 @@ export function huskFaces(mesh: RadionMesh): HuskFaces {
 export const lineMetric = (h: number): number => 2 / radionWeight(h)
 
 // out = C M E, the circulation of M E around every face
-export function faceCurl(faces: HuskFaces, line: ArrayLike<number>, out: Float64Array): void {
+export function faceCurl(
+  faces: HuskFaces,
+  line: ArrayLike<number>,
+  out: Float64Array,
+): void {
   for (let f = 0; f < faces.count; f++) {
     let c = 0
 
@@ -127,59 +150,139 @@ export function faceCurl(faces: HuskFaces, line: ArrayLike<number>, out: Float64
 }
 
 // out += sense C^T B: each face takes its value once around its boundary
-export function addBoundary(faces: HuskFaces, face: ArrayLike<number>, out: Float64Array, sense: 1 | -1): void {
+export function addBoundary(
+  faces: HuskFaces,
+  face: ArrayLike<number>,
+  out: Float64Array,
+  sense: 1 | -1,
+): void {
   for (let f = 0; f < faces.count; f++) {
     const b = face[f]!
 
-    if (b === 0) continue
-    for (let j = 0; j < 3; j++) out[faces.link[f * 3 + j]!]! += sense * faces.sign[f * 3 + j]! * b
+    if (b === 0) {
+      continue
+    }
+
+    for (let j = 0; j < 3; j++) {
+      out[faces.link[f * 3 + j]!]! += sense * faces.sign[f * 3 + j]! * b
+    }
   }
 }
 
-export type PlaquetteRule = { readonly a: number; readonly q: number; readonly h: number; readonly unit: number; readonly whole: number; readonly span: number; readonly top: number }
+export type PlaquetteRule = {
+  readonly a: number
+  readonly q: number
+  readonly h: number
+  readonly unit: number
+  readonly whole: number
+  readonly span: number
+  readonly top: number
+}
 
 // kappa = a / q (q odd), one whole line = q^levels register units, windows of `whole` whole lines (odd)
-export function plaquetteRule(a: number, q: number, levels: number, whole: number): PlaquetteRule {
-  if (q % 2 === 0 || whole % 2 === 0) throw new Error('plaquetteRule: q and whole are odd')
+export function plaquetteRule(
+  a: number,
+  q: number,
+  levels: number,
+  whole: number,
+): PlaquetteRule {
+  if (q % 2 === 0 || whole % 2 === 0) {
+    throw new Error('plaquetteRule: q and whole are odd')
+  }
 
   const unit = q ** levels
   const span = whole * unit
 
-  return { a, q, h: (q - 1) / 2, unit, whole, span, top: (span - 1) / 2 }
+  return {
+    a,
+    q,
+    h: (q - 1) / 2,
+    unit,
+    whole,
+    span,
+    top: (span - 1) / 2,
+  }
 }
 
-export type PlaquetteState = { readonly line: Float64Array; readonly face: Float64Array; readonly rest: Float64Array }
+export type PlaquetteState = {
+  readonly line: Float64Array
+  readonly face: Float64Array
+  readonly rest: Float64Array
+}
 
-export const emptyPlaquette = (mesh: RadionMesh, faces: HuskFaces): PlaquetteState => ({ line: new Float64Array(mesh.docks * 9), face: new Float64Array(faces.count), rest: new Float64Array(faces.count) })
+export const emptyPlaquette = (
+  mesh: RadionMesh,
+  faces: HuskFaces,
+): PlaquetteState => ({
+  line: new Float64Array(mesh.docks * 9),
+  face: new Float64Array(faces.count),
+  rest: new Float64Array(faces.count),
+})
 
-export const duplicatePlaquette = (s: PlaquetteState): PlaquetteState => ({ line: Float64Array.from(s.line), face: Float64Array.from(s.face), rest: Float64Array.from(s.rest) })
+export const duplicatePlaquette = (
+  s: PlaquetteState,
+): PlaquetteState => ({
+  line: Float64Array.from(s.line),
+  face: Float64Array.from(s.face),
+  rest: Float64Array.from(s.rest),
+})
 
-export const samePlaquette = (a: PlaquetteState, b: PlaquetteState): boolean => a.line.every((v, i) => v === b.line[i]) && a.face.every((v, i) => v === b.face[i]) && a.rest.every((v, i) => v === b.rest[i])
+export const samePlaquette = (
+  a: PlaquetteState,
+  b: PlaquetteState,
+): boolean =>
+  a.line.every((v, i) => v === b.line[i]) &&
+  a.face.every((v, i) => v === b.face[i]) &&
+  a.rest.every((v, i) => v === b.rest[i])
 
-const wrapInto = (rule: PlaquetteRule, v: number): number => mod(v + rule.top, rule.span) - rule.top
+const wrapInto = (rule: PlaquetteRule, v: number): number =>
+  mod(v + rule.top, rule.span) - rule.top
 
 export type PlaquetteTally = { lineWraps: number; faceWraps: number }
 
 export type PlaquetteScratch = { sum: Float64Array; curl: Float64Array }
 
-export const plaquetteScratch = (mesh: RadionMesh, faces: HuskFaces): PlaquetteScratch => ({ sum: new Float64Array(mesh.docks * 9), curl: new Float64Array(faces.count) })
+export const plaquetteScratch = (
+  mesh: RadionMesh,
+  faces: HuskFaces,
+): PlaquetteScratch => ({
+  sum: new Float64Array(mesh.docks * 9),
+  curl: new Float64Array(faces.count),
+})
 
 // one beat in place: the drag (whole-number register units per link) and the move, then the turns. `moving` false is
 // the control: the drag alone, no face ever turns
-export function plaquetteBeat(faces: HuskFaces, rule: PlaquetteRule, s: PlaquetteState, drag: ArrayLike<number>, scratch: PlaquetteScratch, tally: PlaquetteTally, moving = true): void {
+export function plaquetteBeat(
+  faces: HuskFaces,
+  rule: PlaquetteRule,
+  s: PlaquetteState,
+  drag: ArrayLike<number>,
+  scratch: PlaquetteScratch,
+  tally: PlaquetteTally,
+  moving = true,
+): void {
   const { sum, curl } = scratch
 
   sum.fill(0)
-  if (moving) addBoundary(faces, s.face, sum, 1)
+
+  if (moving) {
+    addBoundary(faces, s.face, sum, 1)
+  }
 
   for (let l = 0; l < s.line.length; l++) {
     const raw = s.line[l]! + drag[l]! + sum[l]!
 
     s.line[l] = wrapInto(rule, raw)
-    if (s.line[l] !== raw) tally.lineWraps++
+
+    if (s.line[l] !== raw) {
+      tally.lineWraps++
+    }
   }
 
-  if (!moving) return
+  if (!moving) {
+    return
+  }
+
   faceCurl(faces, s.line, curl)
 
   for (let f = 0; f < faces.count; f++) {
@@ -189,12 +292,22 @@ export function plaquetteBeat(faces: HuskFaces, rule: PlaquetteRule, s: Plaquett
 
     s.rest[f] = x + s.rest[f]! - rule.q * w
     s.face[f] = wrapInto(rule, raw)
-    if (s.face[f] !== raw) tally.faceWraps++
+
+    if (s.face[f] !== raw) {
+      tally.faceWraps++
+    }
   }
 }
 
 // the inverse of plaquetteBeat with the same drag
-export function plaquetteBeatBack(faces: HuskFaces, rule: PlaquetteRule, s: PlaquetteState, drag: ArrayLike<number>, scratch: PlaquetteScratch, moving = true): void {
+export function plaquetteBeatBack(
+  faces: HuskFaces,
+  rule: PlaquetteRule,
+  s: PlaquetteState,
+  drag: ArrayLike<number>,
+  scratch: PlaquetteScratch,
+  moving = true,
+): void {
   const { sum, curl } = scratch
 
   if (moving) {
@@ -210,6 +323,12 @@ export function plaquetteBeatBack(faces: HuskFaces, rule: PlaquetteRule, s: Plaq
   }
 
   sum.fill(0)
-  if (moving) addBoundary(faces, s.face, sum, 1)
-  for (let l = 0; l < s.line.length; l++) s.line[l] = wrapInto(rule, s.line[l]! - drag[l]! - sum[l]!)
+
+  if (moving) {
+    addBoundary(faces, s.face, sum, 1)
+  }
+
+  for (let l = 0; l < s.line.length; l++) {
+    s.line[l] = wrapInto(rule, s.line[l]! - drag[l]! - sum[l]!)
+  }
 }

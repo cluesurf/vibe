@@ -45,50 +45,119 @@ import { verdict } from '@/test/scaffold/verdict'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { weylF4DirectionPermutations } from '@/code/measure/coin-symmetry'
 import { d4BoxMesh } from '@/code/substrate/d4-box'
-import { firstMirrorTable, isometricTable, lineMomentumRule, type MomentumTable } from '@/code/rule/isometric-knit'
+import {
+  firstMirrorTable,
+  isometricTable,
+  lineMomentumRule,
+  type MomentumTable,
+} from '@/code/rule/isometric-knit'
 import { makePairKnit } from '@/code/rule/pair-making-knit'
-import { pairEquivarianceDefect, pairLinearization, PAIR_N, sampledPairLinearization } from '@/code/measure/pair-knit-linearization'
-import { invariantsOf, readStoreTransport, storeExponents, storeSpectrum, type Named, type Space, type StoreExponent } from '@/code/measure/store-transport'
-import { huskDirections, invariantBasis } from '@/code/measure/husk-transport-order'
+import {
+  pairEquivarianceDefect,
+  pairLinearization,
+  PAIR_N,
+  sampledPairLinearization,
+} from '@/code/measure/pair-knit-linearization'
+import {
+  invariantsOf,
+  readStoreTransport,
+  storeExponents,
+  storeSpectrum,
+  type Named,
+  type Space,
+  type StoreExponent,
+} from '@/code/measure/store-transport'
+import {
+  huskDirections,
+  invariantBasis,
+} from '@/code/measure/husk-transport-order'
 import { lineMomentumLinearization } from '@/code/measure/line-momentum-linearization'
-import { exponentsOf, readTransport, spectrumOf } from '@/code/measure/husk-transport-exponents'
+import {
+  exponentsOf,
+  readTransport,
+  spectrumOf,
+} from '@/code/measure/husk-transport-exponents'
 
 const N = PAIR_N
 const ROOTS = rootsD4()
 const LADDER = [4, 8, 16, 32, 64, 128, 256]
 const FIT = 5
 const SAMPLES = 200_000
-const SPACE: Space = { n: N, roots: Array.from({ length: N }, (_, i) => (i < 48 ? ROOTS[i >> 1] : undefined)) }
-const NAMED: Named = {
-  charge: Float64Array.from({ length: N }, (_, i) => (i < 48 ? (i % 2 === 0 ? 1 : -1) : 0)),
-  momentumAlong: u => Float64Array.from({ length: N }, (_, i) => (i < 48 ? (ROOTS[i >> 1] as number[]).reduce((s, x, k) => s + x * (u[k] ?? 0), 0) : 0)),
+const SPACE: Space = {
+  n: N,
+  roots: Array.from({ length: N }, (_, i) =>
+    i < 48 ? ROOTS[i >> 1] : undefined,
+  ),
 }
-const ENERGY = Float64Array.from({ length: N }, (_, i) => (i < 48 ? 1 : 2))
-const COUNT = Float64Array.from({ length: N }, (_, i) => (i < 48 ? 1 : 0))
+const NAMED: Named = {
+  charge: Float64Array.from({ length: N }, (_, i) =>
+    i < 48 ? (i % 2 === 0 ? 1 : -1) : 0,
+  ),
+  momentumAlong: u =>
+    Float64Array.from({ length: N }, (_, i) =>
+      i < 48
+        ? ROOTS[i >> 1]!.reduce((s, x, k) => s + x * (u[k] ?? 0), 0)
+        : 0,
+    ),
+}
+const ENERGY = Float64Array.from({ length: N }, (_, i) =>
+  i < 48 ? 1 : 2,
+)
+const COUNT = Float64Array.from({ length: N }, (_, i) =>
+  i < 48 ? 1 : 0,
+)
 
-type Reading = { husk: Record<string, StoreExponent>; invariants: Float64Array[]; unit: number; kc: number; means: Record<string, number>; axes: Record<string, number[]> }
+type Reading = {
+  husk: Record<string, StoreExponent>
+  invariants: Float64Array[]
+  unit: number
+  kc: number
+  means: Record<string, number>
+  axes: Record<string, number[]>
+}
 
 function transport(matrix: Float64Array): Reading {
   const matrices = [matrix]
   const invariants = invariantsOf(SPACE, matrices)
   const s = storeSpectrum(SPACE, NAMED, matrices, invariants)
   const kc = Math.sqrt(s.gap / s.dMax)
-  const reading = readStoreTransport({ space: SPACE, named: NAMED, matrices, invariants, ks: LADDER.map(r => kc / r), directions: huskDirections(24) })
+  const reading = readStoreTransport({
+    space: SPACE,
+    named: NAMED,
+    matrices,
+    invariants,
+    ks: LADDER.map(r => kc / r),
+    directions: huskDirections(24),
+  })
 
-  return { husk: storeExponents(reading, FIT), invariants, unit: s.unitEigenvalues, kc, means: reading.means, axes: reading.axes }
+  return {
+    husk: storeExponents(reading, FIT),
+    invariants,
+    unit: s.unitEigenvalues,
+    kc,
+    means: reading.means,
+    axes: reading.axes,
+  }
 }
 
 // the share of a vector's norm inside the span of an orthonormal list
-function inside(v: Float64Array, basis: readonly Float64Array[]): number {
+function inside(
+  v: Float64Array,
+  basis: readonly Float64Array[],
+): number {
   let norm = 0
   let projected = 0
 
-  for (let i = 0; i < v.length; i++) norm += (v[i] as number) ** 2
+  for (const x of v) {
+    norm += x ** 2
+  }
 
   for (const b of basis) {
     let s = 0
 
-    for (let i = 0; i < v.length; i++) s += (b[i] as number) * (v[i] as number)
+    for (let i = 0; i < v.length; i++) {
+      s += b[i]! * v[i]!
+    }
 
     projected += s * s
   }
@@ -107,44 +176,85 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const permutations = weylF4DirectionPermutations({ directions: ROOTS })
+    const permutations = weylF4DirectionPermutations({
+      directions: ROOTS,
+    })
     const none: MomentumTable = new Array(13 ** 4).fill(undefined)
 
     // X1
     const idle = pairLinearization({ table: none, pairs: false }).matrix
+
     let idleWorst = 0
 
-    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) idleWorst = Math.max(idleWorst, Math.abs((idle[r * N + c] as number) - (r === c ? 1 : 0)))
+    for (let r = 0; r < N; r++) {
+      for (let c = 0; c < N; c++) {
+        idleWorst = Math.max(
+          idleWorst,
+          Math.abs(idle[r * N + c]! - (r === c ? 1 : 0)),
+        )
+      }
+    }
 
-    const off = pairLinearization({ table: isometricTable(), pairs: false }).matrix
-    const base = lineMomentumLinearization({ rule: lineMomentumRule('isometric') }).matrix
+    const off = pairLinearization({
+      table: isometricTable(),
+      pairs: false,
+    }).matrix
+    const base = lineMomentumLinearization({
+      rule: lineMomentumRule('isometric'),
+    }).matrix
+
     let offWorst = 0
 
     for (let r = 0; r < N; r++) {
       for (let c = 0; c < N; c++) {
-        const expected = r < 48 && c < 48 ? (base[r * 48 + c] as number) : r === c ? 1 : 0
+        const expected =
+          r < 48 && c < 48 ? base[r * 48 + c]! : r === c ? 1 : 0
 
-        offWorst = Math.max(offWorst, Math.abs((off[r * N + c] as number) - expected))
+        offWorst = Math.max(
+          offWorst,
+          Math.abs(off[r * N + c]! - expected),
+        )
       }
     }
 
     const exact = pairLinearization({ table: isometricTable() })
     const control = pairLinearization({ table: firstMirrorTable() })
-    const sampled = sampledPairLinearization({ knit: makePairKnit({ mesh: d4BoxMesh({ side: 1 }) }), samples: SAMPLES })
+    const sampled = sampledPairLinearization({
+      knit: makePairKnit({ mesh: d4BoxMesh({ side: 1 }) }),
+      samples: SAMPLES,
+    })
+
     let sampledWorst = 0
 
-    for (let i = 0; i < N * N; i++) sampledWorst = Math.max(sampledWorst, Math.abs((sampled[i] as number) - (exact.matrix[i] as number)))
+    for (let i = 0; i < N * N; i++) {
+      sampledWorst = Math.max(
+        sampledWorst,
+        Math.abs(sampled[i]! - exact.matrix[i]!),
+      )
+    }
 
     const defect = pairEquivarianceDefect(exact.matrix, permutations)
-    const controlDefect = pairEquivarianceDefect(control.matrix, permutations)
-    const x1 = idleWorst < 1e-10 && offWorst < 1e-10 && sampledWorst < 0.02 && defect < 1e-10 && controlDefect > 1e-3
+    const controlDefect = pairEquivarianceDefect(
+      control.matrix,
+      permutations,
+    )
+    const x1 =
+      idleWorst < 1e-10 &&
+      offWorst < 1e-10 &&
+      sampledWorst < 0.02 &&
+      defect < 1e-10 &&
+      controlDefect > 1e-3
 
     // X2, X3, H
     const knit = transport(exact.matrix)
     const first = transport(control.matrix)
     const energyInside = inside(ENERGY, knit.invariants)
     const countInside = inside(COUNT, knit.invariants)
-    const x2 = knit.invariants.length === 6 && knit.unit === 6 && Math.abs(energyInside - 1) < 1e-9 && countInside < 1 - 1e-6
+    const x2 =
+      knit.invariants.length === 6 &&
+      knit.unit === 6 &&
+      Math.abs(energyInside - 1) < 1e-9 &&
+      countInside < 1 - 1e-6
     const gated: [Reading, string][] = [
       [knit, 'charge'],
       [knit, 'trace'],
@@ -153,14 +263,29 @@ export default experiment({
       [first, 'charge'],
     ]
     const x3 = gated.every(([r, q]) => (r.husk[q]?.error ?? 1) < 0.3)
-    const slope = (r: Reading, q: string): number => r.husk[q]?.slope ?? Number.NaN
-    const h = slope(knit, 'charge') >= 3.5 && slope(knit, 'trace') >= 3.5 && slope(knit, 'sound') >= 3.5 && Math.abs(slope(knit, 'shear') - 2) <= 0.5 && slope(first, 'charge') < 1
+    const slope = (r: Reading, q: string): number =>
+      r.husk[q]?.slope ?? Number.NaN
+    const h =
+      slope(knit, 'charge') >= 3.5 &&
+      slope(knit, 'trace') >= 3.5 &&
+      slope(knit, 'sound') >= 3.5 &&
+      Math.abs(slope(knit, 'shear') - 2) <= 0.5 &&
+      slope(first, 'charge') < 1
 
     // reference: the isometric knit without the move (E-RLT-0061's tools)
     const refInvariants = invariantBasis([base])
-    const refSpectrum = spectrumOf({ matrices: [base], invariants: refInvariants })
+    const refSpectrum = spectrumOf({
+      matrices: [base],
+      invariants: refInvariants,
+    })
     const refKc = Math.sqrt(refSpectrum.gap / refSpectrum.dMax)
-    const refReading = readTransport({ matrices: [base], invariants: refInvariants, ks: LADDER.map(r => refKc / r), directions: huskDirections(24), husk: true })
+    const refReading = readTransport({
+      matrices: [base],
+      invariants: refInvariants,
+      ks: LADDER.map(r => refKc / r),
+      directions: huskDirections(24),
+      husk: true,
+    })
     const reference = exponentsOf(refReading, FIT)
 
     const metrics: Record<string, number> = {
@@ -179,29 +304,57 @@ export default experiment({
       referenceKc: refKc,
     }
 
-    for (const [name, r] of Object.entries({ pair: knit, control: first })) {
+    for (const [name, r] of Object.entries({
+      pair: knit,
+      control: first,
+    })) {
       for (const [q, e] of Object.entries(r.husk)) {
-        metrics[`${name}_husk_${q}_exponent`] = Number(e.slope.toFixed(4))
+        metrics[`${name}_husk_${q}_exponent`] = Number(
+          e.slope.toFixed(4),
+        )
         metrics[`${name}_husk_${q}_error`] = Number(e.error.toFixed(4))
-        metrics[`${name}_husk_${q}_anisotropyAtSmallestK`] = e.atSmallestK
+        metrics[`${name}_husk_${q}_anisotropyAtSmallestK`] =
+          e.atSmallestK
       }
 
-      for (const [q, v] of Object.entries(r.means)) if (Number.isFinite(v)) metrics[`${name}_husk_${q}_mean`] = v
+      for (const [q, v] of Object.entries(r.means)) {
+        if (Number.isFinite(v)) {
+          metrics[`${name}_husk_${q}_mean`] = v
+        }
+      }
     }
 
-    for (const [q, e] of Object.entries(reference)) metrics[`reference_husk_${q}_exponent`] = Number(e.slope.toFixed(4))
-    for (const [q, v] of Object.entries(refReading.means)) if (Number.isFinite(v)) metrics[`reference_husk_${q}_mean`] = v
+    for (const [q, e] of Object.entries(reference)) {
+      metrics[`reference_husk_${q}_exponent`] = Number(
+        e.slope.toFixed(4),
+      )
+    }
+
+    for (const [q, v] of Object.entries(refReading.means)) {
+      if (Number.isFinite(v)) {
+        metrics[`reference_husk_${q}_mean`] = v
+      }
+    }
 
     metrics.seconds = (Date.now() - started) / 1000
 
     const status = x1 && x2 && x3 ? (h ? 'pass' : 'fail') : 'partial'
-    const list = (r: Reading): string => ['charge', 'trace', 'sound', 'shear'].map(q => `${q} ${slope(r, q).toFixed(2)} +- ${r.husk[q]?.error.toFixed(2)}`).join(', ')
+    const list = (r: Reading): string =>
+      ['charge', 'trace', 'sound', 'shear']
+        .map(
+          q =>
+            `${q} ${slope(r, q).toFixed(2)} +- ${r.husk[q]?.error.toFixed(2)}`,
+        )
+        .join(', ')
 
     return verdict({
       status,
       claim: `pair creation keeps the husk law: the pair-making knit's exact 72-index linearization commutes with all 1,152 coin maps (defect ${defect.toExponential(1)}), keeps exactly ${knit.invariants.length} invariants (charge, energy E = count + 2 sum |tau|, momentum; the count is not one, ${countInside.toFixed(3)} of it inside), and gives husk exponents ${list(knit)}; the first-mirror control with the same move gives ${list(first)}`,
       metrics,
-      control: { firstMirrorHuskChargeExponent: slope(first, 'charge'), firstMirrorDefect: controlDefect },
+      control: {
+        firstMirrorHuskChargeExponent: slope(first, 'charge'),
+        firstMirrorDefect: controlDefect,
+      },
       notes: `L2. Gates: X1 ${x1}, X2 ${x2}, X3 ${x3}, H ${h}. First run recorded as is. Magnitudes at the longest rung (per beat): husk charge D ${knit.means.charge?.toFixed(3)} with the move against ${refReading.means.charge?.toFixed(3)} without (E-RLT-0061), shear rate ${knit.means.shear?.toFixed(3)} against ${refReading.means.shear?.toFixed(3)}, sound speed ${knit.means.sound?.toFixed(3)} against ${refReading.means.sound?.toFixed(3)}; k_c ${knit.kc.toFixed(3)} against ${refKc.toFixed(3)}. Reference exponents without the move: charge ${reference.charge?.slope.toFixed(2)}, trace ${reference.trace?.slope.toFixed(2)}, sound ${reference.sound?.slope.toFixed(2)}, shear ${reference.shear?.slope.toFixed(2)}. The law is forced by the covariance (the matrix commutes with the 72-index representation of W(F4)); the measurement confirms the slow modes stay charge, energy and momentum, so the stored pairs relax and add no hydrodynamic mode. The store does not stream: its 24 indices carry phase 1 in the period map.`,
     })
   },

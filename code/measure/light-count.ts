@@ -16,15 +16,23 @@
 //     husk read sees; the most a string link's column (|e| = 1) can hide.
 
 import { bal, type Step } from '@/code/rule/lattice-qed'
-import { fullLadder, type LadderSpec } from '@/code/rule/plaquette-ladder'
+import {
+  fullLadder,
+  type LadderSpec,
+} from '@/code/rule/plaquette-ladder'
 import * as portStore from '@/code/rule/flux-store-line'
 import { type Vibe } from '@/code/rule/locked-token-line'
 
 const mod = (a: number, m: number): number => ((a % m) + m) % m
 
 // ---- (1) ----
-export function lineGaussCount(L: number, N: number, charge: readonly number[]): number {
+export function lineGaussCount(
+  L: number,
+  N: number,
+  charge: readonly number[],
+): number {
   let count = 0
+
   const f = new Array<number>(L).fill(0)
 
   for (let code = 0; code < N ** L; code++) {
@@ -37,9 +45,15 @@ export function lineGaussCount(L: number, N: number, charge: readonly number[]):
 
     let ok = true
 
-    for (let x = 0; x < L && ok; x++) if (mod(f[x]! - f[mod(x - 1, L)]! - charge[x]!, N) !== 0) ok = false
+    for (let x = 0; x < L && ok; x++) {
+      if (mod(f[x]! - f[mod(x - 1, L)]! - charge[x]!, N) !== 0) {
+        ok = false
+      }
+    }
 
-    if (ok) count++
+    if (ok) {
+      count++
+    }
   }
 
   return count
@@ -48,10 +62,13 @@ export function lineGaussCount(L: number, N: number, charge: readonly number[]):
 // every charge placement of up to three loves and fears on L docks
 export function chargePlacements(L: number): number[][] {
   const out = new Map<string, number[]>()
+
   const place = (left: number, q: number[]): void => {
     out.set(q.join(','), q.slice())
 
-    if (left === 0) return
+    if (left === 0) {
+      return
+    }
 
     for (let x = 0; x < L; x++) {
       for (const s of [1, -1]) {
@@ -72,12 +89,17 @@ type Row = { idx: number[]; re: number[]; im: number[] }
 
 function applyStep(step: Step, row: Row, m: number): Row {
   const acc = new Map<number, [number, number]>()
+
   const add = (i: number, re: number, im: number): void => {
     const o = acc.get(i)
 
     acc.set(i, o ? [o[0] + re, o[1] + im] : [re, im])
   }
-  const zeta = (e: number): [number, number] => [Math.cos((2 * Math.PI * e) / m), Math.sin((2 * Math.PI * e) / m)]
+
+  const zeta = (e: number): [number, number] => [
+    Math.cos((2 * Math.PI * e) / m),
+    Math.sin((2 * Math.PI * e) / m),
+  ]
   // g_s = (1/n) sum_B zeta^(exponents[B]) w_n^(-B s), once per step
   const g: [number, number][] = []
 
@@ -87,7 +109,9 @@ function applyStep(step: Step, row: Row, m: number): Row {
       let gi = 0
 
       for (let B = 0; B < step.n; B++) {
-        const t = (2 * Math.PI * step.exponents[B]!) / m - (2 * Math.PI * B * s) / step.n
+        const t =
+          (2 * Math.PI * step.exponents[B]!) / m -
+          (2 * Math.PI * B * s) / step.n
 
         gr += Math.cos(t)
         gi += Math.sin(t)
@@ -147,7 +171,9 @@ export function loopCoefficients(spec: LadderSpec): number[] {
     let gi = 0
 
     for (let B = 0; B < n; B++) {
-      const t = (2 * Math.PI * (-spec.force * bal(B, n) ** 2)) / spec.root - (2 * Math.PI * B * s) / n
+      const t =
+        (2 * Math.PI * (-spec.force * bal(B, n) ** 2)) / spec.root -
+        (2 * Math.PI * B * s) / n
 
       gr += Math.cos(t)
       gi += Math.sin(t)
@@ -174,7 +200,10 @@ export type LadderComponents = {
 }
 
 // the components of one beat's support on the full register space
-export function ladderComponents(spec: LadderSpec, threshold = 1e-9): LadderComponents {
+export function ladderComponents(
+  spec: LadderSpec,
+  threshold = 1e-9,
+): LadderComponents {
   const full = fullLadder(spec)
   const steps = full.steps(true)
   const size = full.size
@@ -182,12 +211,16 @@ export function ladderComponents(spec: LadderSpec, threshold = 1e-9): LadderComp
   const links = 3 * spec.plaquettes
   const parent = new Int32Array(size)
 
-  for (let i = 0; i < size; i++) parent[i] = i
+  for (let i = 0; i < size; i++) {
+    parent[i] = i
+  }
 
   const find = (i: number): number => {
     let r = i
 
-    while (parent[r] !== r) r = parent[r]!
+    while (parent[r] !== r) {
+      r = parent[r]!
+    }
 
     let c = i
 
@@ -200,6 +233,7 @@ export function ladderComponents(spec: LadderSpec, threshold = 1e-9): LadderComp
 
     return r
   }
+
   let smallestKept = Infinity
   let largestDropped = 0
   let unitarity = 0
@@ -207,7 +241,9 @@ export function ladderComponents(spec: LadderSpec, threshold = 1e-9): LadderComp
   for (let i = 0; i < size; i++) {
     let row: Row = { idx: [i], re: [1], im: [0] }
 
-    for (const st of steps) row = applyStep(st, row, spec.root)
+    for (const st of steps) {
+      row = applyStep(st, row, spec.root)
+    }
 
     let norm = 0
 
@@ -222,7 +258,9 @@ export function ladderComponents(spec: LadderSpec, threshold = 1e-9): LadderComp
         const ri = find(i)
         const rj = find(j)
 
-        if (ri !== rj) parent[ri] = rj
+        if (ri !== rj) {
+          parent[ri] = rj
+        }
       } else {
         largestDropped = Math.max(largestDropped, a)
       }
@@ -230,9 +268,12 @@ export function ladderComponents(spec: LadderSpec, threshold = 1e-9): LadderComp
     unitarity = Math.max(unitarity, Math.abs(norm - 1))
   }
 
-  const gaussCode = (i: number): number => full.gauss(i).reduce((a, v) => a * n + v, 0)
+  const gaussCode = (i: number): number =>
+    full.gauss(i).reduce((a, v) => a * n + v, 0)
+
   const lOf = (i: number): number => {
     const flux = n ** links
+
     let rest = i % flux
     let s = 0
 
@@ -243,6 +284,7 @@ export function ladderComponents(spec: LadderSpec, threshold = 1e-9): LadderComp
 
     return s
   }
+
   const compGauss = new Map<number, Set<number>>()
   const compL = new Map<number, [number, number]>()
   const compSize = new Map<number, number>()
@@ -252,7 +294,9 @@ export function ladderComponents(spec: LadderSpec, threshold = 1e-9): LadderComp
     const g = gaussCode(i)
     const l = lOf(i)
 
-    if (!compGauss.has(r)) compGauss.set(r, new Set())
+    if (!compGauss.has(r)) {
+      compGauss.set(r, new Set())
+    }
 
     compGauss.get(r)!.add(g)
 
@@ -263,17 +307,24 @@ export function ladderComponents(spec: LadderSpec, threshold = 1e-9): LadderComp
   }
 
   const perClass = new Map<number, number>()
+
   let mixed = 0
   let constantL = 0
 
   for (const [r, gs] of compGauss) {
-    if (gs.size > 1) mixed++
+    if (gs.size > 1) {
+      mixed++
+    }
 
-    for (const g of gs) perClass.set(g, (perClass.get(g) ?? 0) + 1)
+    for (const g of gs) {
+      perClass.set(g, (perClass.get(g) ?? 0) + 1)
+    }
 
     const lr = compL.get(r)!
 
-    if (lr[0] === lr[1]) constantL++
+    if (lr[0] === lr[1]) {
+      constantL++
+    }
   }
 
   const vac = find(0)
@@ -283,7 +334,9 @@ export function ladderComponents(spec: LadderSpec, threshold = 1e-9): LadderComp
     components: compGauss.size,
     gaussClasses: perClass.size,
     mixedComponents: mixed,
-    componentsPerClass: [...new Set(perClass.values())].sort((a, b) => a - b),
+    componentsPerClass: [...new Set(perClass.values())].sort(
+      (a, b) => a - b,
+    ),
     constantLComponents: constantL,
     vacuumLMax: compL.get(vac)![1],
     vacuumSize: compSize.get(vac)!,
@@ -294,12 +347,22 @@ export function ladderComponents(spec: LadderSpec, threshold = 1e-9): LadderComp
 }
 
 // ---- (3) ----
-export type CrossingSources = { states: number; offCrossing: number; lChanged: number; lChangeRange: [number, number] }
+export type CrossingSources = {
+  states: number
+  offCrossing: number
+  lChanged: number
+  lChangeRange: [number, number]
+}
 
 // locked tokens (label 0 forward, 1 back) on a ring, placed on an arc with the Gauss flux, every doublet label choice;
 // the recorded hop of every token (no store, no bounce): rho_x = [f_x != 0] changes only on crossed links
-export function crossingSources(L: number, kinds: readonly Vibe[], span: number): CrossingSources {
+export function crossingSources(
+  L: number,
+  kinds: readonly Vibe[],
+  span: number,
+): CrossingSources {
   const n = kinds.length
+
   let states = 0
   let offCrossing = 0
   let lChanged = 0
@@ -307,21 +370,35 @@ export function crossingSources(L: number, kinds: readonly Vibe[], span: number)
   let hi = 0
 
   for (let p = 0; p < L ** n; p++) {
-    const x = Array.from({ length: n }, (_, t) => Math.floor(p / L ** (n - 1 - t)) % L)
+    const x = Array.from(
+      { length: n },
+      (_, t) => Math.floor(p / L ** (n - 1 - t)) % L,
+    )
 
-    if (Math.max(...x) - Math.min(...x) > span || Math.min(...x) < 1 || Math.max(...x) > L - 2) continue
+    if (
+      Math.max(...x) - Math.min(...x) > span ||
+      Math.min(...x) < 1 ||
+      Math.max(...x) > L - 2
+    ) {
+      continue
+    }
 
     const f = new Array<number>(L).fill(0)
+
     let cum = 0
 
     for (let l = 0; l < L; l++) {
       kinds.forEach((k, t) => {
-        if (x[t] === l) cum += k === 'love' ? 1 : -1
+        if (x[t] === l) {
+          cum += k === 'love' ? 1 : -1
+        }
       })
       f[l] = mod(cum, 3)
     }
 
-    if (f[L - 1] !== 0) continue
+    if (f[L - 1] !== 0) {
+      continue
+    }
 
     for (let c = 0; c < 2 ** n; c++) {
       const g = f.slice()
@@ -345,10 +422,14 @@ export function crossingSources(L: number, kinds: readonly Vibe[], span: number)
 
         dl += d
 
-        if (d !== 0 && !crossed.has(l)) offCrossing++
+        if (d !== 0 && !crossed.has(l)) {
+          offCrossing++
+        }
       }
 
-      if (dl !== 0) lChanged++
+      if (dl !== 0) {
+        lChanged++
+      }
 
       lo = Math.min(lo, dl)
       hi = Math.max(hi, dl)
@@ -359,22 +440,52 @@ export function crossingSources(L: number, kinds: readonly Vibe[], span: number)
 }
 
 // ---- (4) ----
-export type PortFar = { states: number; witnesses: number; farthest: number; checked: number }
+export type PortFar = {
+  states: number
+  witnesses: number
+  farthest: number
+  checked: number
+}
 
-export function portFarReach(ring: number, kinds: Vibe[], depth: number): PortFar {
-  const s: portStore.FluxStoreSpec = { ring, kinds, convention: 'C', unlike: 'knit', depth, cost: 0, root: 3 }
+export function portFarReach(
+  ring: number,
+  kinds: Vibe[],
+  depth: number,
+): PortFar {
+  const s: portStore.FluxStoreSpec = {
+    ring,
+    kinds,
+    convention: 'C',
+    unlike: 'knit',
+    depth,
+    cost: 0,
+    root: 3,
+  }
   const n = kinds.length
   const x0 = Math.floor(ring / 2)
-  const start = portStore.placedRegisters(s, new Array<number>(n).fill(x0), new Array<number>(n).fill(0))
-  const key = (r: portStore.FluxRegisters): number => portStore.encodeRegisters(s, { ...r, j: new Array<number>(n).fill(0) })
-  const seen = new Map<number, portStore.FluxRegisters>([[key(start), start]])
+  const start = portStore.placedRegisters(
+    s,
+    new Array<number>(n).fill(x0),
+    new Array<number>(n).fill(0),
+  )
+  const key = (r: portStore.FluxRegisters): number =>
+    portStore.encodeRegisters(s, {
+      ...r,
+      j: new Array<number>(n).fill(0),
+    })
+  const seen = new Map<number, portStore.FluxRegisters>([
+    [key(start), start],
+  ])
   const queue = [start]
 
   while (queue.length > 0) {
     const r = queue.pop()!
 
     for (let c = 0; c < 2 ** n; c++) {
-      const out = portStore.streamRegisters(s, { ...r, j: Array.from({ length: n }, (_, t) => (c >> t) & 1) })
+      const out = portStore.streamRegisters(s, {
+        ...r,
+        j: Array.from({ length: n }, (_, t) => (c >> t) & 1),
+      })
       const k = key(out)
 
       if (!seen.has(k)) {
@@ -386,7 +497,9 @@ export function portFarReach(ring: number, kinds: Vibe[], depth: number): PortFa
     }
   }
 
-  const dist = (a: number, b: number): number => Math.min(mod(a - b, ring), mod(b - a, ring))
+  const dist = (a: number, b: number): number =>
+    Math.min(mod(a - b, ring), mod(b - a, ring))
+
   let witnesses = 0
   let farthest = 0
   let checked = 0
@@ -400,7 +513,9 @@ export function portFarReach(ring: number, kinds: Vibe[], depth: number): PortFa
         for (let u = 0; u < n; u++) {
           const d = dist(r.x[t]!, r.x[u]!)
 
-          if (u === t || d < 2) continue
+          if (u === t || d < 2) {
+            continue
+          }
 
           const j2 = j.slice()
 

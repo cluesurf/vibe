@@ -109,11 +109,19 @@ const REVERSAL_BEATS = 96
 const VACUUM_PAIR = [4, 7]
 const GROWER_PAIR = [4, 20]
 
-function basisWhole(tokens: readonly number[], digits: readonly number[]): Whole {
+function basisWhole(
+  tokens: readonly number[],
+  digits: readonly number[],
+): Whole {
   const weight = new Array<bigint>(9 ** tokens.length).fill(0n)
 
   for (let i = 0; i < weight.length; i++) {
-    const on = tokens.every((_, c) => Math.floor((Math.floor(i / 9 ** (tokens.length - 1 - c)) % 9) / 3) === digits[c])
+    const on = tokens.every(
+      (_, c) =>
+        Math.floor(
+          (Math.floor(i / 9 ** (tokens.length - 1 - c)) % 9) / 3,
+        ) === digits[c],
+    )
 
     weight[i] = on ? 1n : 0n
   }
@@ -121,14 +129,18 @@ function basisWhole(tokens: readonly number[], digits: readonly number[]): Whole
   return { tokens, weight }
 }
 
-const sameWeights = (a: readonly bigint[], b: readonly bigint[]): boolean => a.length === b.length && a.every((w, i) => w === b[i])
-const sameDeparture = (a: Departure, b: Departure): boolean => a.units === b.units && sameWeights(a.delta, b.delta)
+const sameWeights = (
+  a: readonly bigint[],
+  b: readonly bigint[],
+): boolean => a.length === b.length && a.every((w, i) => w === b[i])
+const sameDeparture = (a: Departure, b: Departure): boolean =>
+  a.units === b.units && sameWeights(a.delta, b.delta)
 
 export default experiment({
   id: 'quantum/calm-is-the-one-whole',
   code: 'E-QTM-0105',
   title:
-    'calm is the one whole, pass at the default integer link start (E-MTH-0027), and on 8 of 17 starts of E-MTH-0028\'s family: stored as its departure from the fully mixed state, every knot of the fear weave holds exactly as many loves as fears, the departure moves by the same kernel because every step fixes calm, and nothing measured changes (chances 1/4, 3/4, 1, exact reversal, purity, CHSH sqrt 7 = 2.6458 at the default start, the top rung of one meeting\'s ladder), at a grain cost of exactly 3^k units per knot of k roles; it fails its sqrt 7 gate on the 8 starts whose reading lands on the middle rung 4 / sqrt 3 (the retired golden start among them), and at integer+9 on its refusal clause alone, where the grower pair at grain 9 x 16 never refuses in 480 beats (knot and departure agree, 0 and 0), so the clause cannot fire; charge conjugation stays a symmetry but the literal swap of love and fear does not',
+    "calm is the one whole, pass at the default integer link start (E-MTH-0027), and on 8 of 17 starts of E-MTH-0028's family: stored as its departure from the fully mixed state, every knot of the fear weave holds exactly as many loves as fears, the departure moves by the same kernel because every step fixes calm, and nothing measured changes (chances 1/4, 3/4, 1, exact reversal, purity, CHSH sqrt 7 = 2.6458 at the default start, the top rung of one meeting's ladder), at a grain cost of exactly 3^k units per knot of k roles; it fails its sqrt 7 gate on the 8 starts whose reading lands on the middle rung 4 / sqrt 3 (the retired golden start among them), and at integer+9 on its refusal clause alone, where the grower pair at grain 9 x 16 never refuses in 480 beats (knot and departure agree, 0 and 0), so the clause cannot fire; charge conjugation stays a symmetry but the literal swap of love and fear does not",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
@@ -144,7 +156,10 @@ export default experiment({
     const kPi = meetingKernel(swapPhase(Math.PI)) ?? []
     // the reset rho -> |0><0| on both roles, as 9 K: every point sends its weight to the 9 points of |00>
     const zeroZero = basisWhole([0, 1], [0, 0]).weight
-    const kReset = Array.from({ length: 81 }, (_, r) => Array.from({ length: 81 }, () => Number(zeroZero[r] ?? 0n)))
+    const kReset = Array.from({ length: 81 }, (_, r) =>
+      Array.from({ length: 81 }, () => Number(zeroZero[r] ?? 0n)),
+    )
+
     const openOf = (tokens: readonly number[]): Uint8Array => {
       const open = new Uint8Array(slots)
 
@@ -154,18 +169,33 @@ export default experiment({
 
       return open
     }
-    const vacuum = { vibe: new Int8Array(slots), point: new Int8Array(slots) }
-    const matter = { vibe: new Int8Array(slots), point: new Int8Array(slots) }
+
+    const vacuum = {
+      vibe: new Int8Array(slots),
+      point: new Int8Array(slots),
+    }
+    const matter = {
+      vibe: new Int8Array(slots),
+      point: new Int8Array(slots),
+    }
 
     for (let i = 0; i < slots; i++) {
       const u = ((i + 1) * GOLDEN * MATTER_SCALE) % 1
 
       matter.vibe[i] = u < 0.3 ? -1 : u < 0.6 ? 0 : 1
-      matter.point[i] = Math.floor(((i + 3) * GOLDEN * MATTER_SCALE * 9) % 9)
+      matter.point[i] = Math.floor(
+        ((i + 3) * GOLDEN * MATTER_SCALE * 9) % 9,
+      )
     }
 
-    const run = (background: typeof vacuum, links: Int16Array, open: Uint8Array, beats: number): { records: BeatRecord[]; lattices: Lattice[] } => {
+    const run = (
+      background: typeof vacuum,
+      links: Int16Array,
+      open: Uint8Array,
+      beats: number,
+    ): { records: BeatRecord[]; lattices: Lattice[] } => {
       let lattice = makeLattice(background)
+
       const records: BeatRecord[] = []
       const lattices: Lattice[] = []
 
@@ -181,8 +211,15 @@ export default experiment({
     }
 
     // 1. U is fixed by every step
-    const kernelsUnital = [kThird, kThirdBack, kPi].every(k => k.length === 81 && kernelIsUnital(k, 4) && kernelKeepsWeight(k, 4))
-    const movesPermute = moves.act.every(p => new Set(Array.from(p)).size === 9 && p.length === 9)
+    const kernelsUnital = [kThird, kThirdBack, kPi].every(
+      k =>
+        k.length === 81 &&
+        kernelIsUnital(k, 4) &&
+        kernelKeepsWeight(k, 4),
+    )
+    const movesPermute = moves.act.every(
+      p => new Set(Array.from(p)).size === 9 && p.length === 9,
+    )
     const resetKeepsWeight = kernelKeepsWeight(kReset, 9)
     const resetUnital = kernelIsUnital(kReset, 9)
 
@@ -198,8 +235,16 @@ export default experiment({
       }
     }
 
-    const met = (a: number, b: number): number => pairMeetings.get(`${Math.min(a, b)},${Math.max(a, b)}`) ?? 0
-    const matterPair = ([...pairMeetings.entries()].sort((x, y) => y[1] - x[1] || (x[0] < y[0] ? -1 : 1))[0]?.[0] ?? '0,1').split(',').map(Number)
+    const met = (a: number, b: number): number =>
+      pairMeetings.get(`${Math.min(a, b)},${Math.max(a, b)}`) ?? 0
+    const matterPair = (
+      [...pairMeetings.entries()].sort(
+        (x, y) => y[1] - x[1] || (x[0] < y[0] ? -1 : 1),
+      )[0]?.[0] ?? '0,1'
+    )
+      .split(',')
+      .map(Number)
+
     let triple: number[] = []
     let tripleMeetings = 0
 
@@ -208,7 +253,12 @@ export default experiment({
         for (let c = b + 1; c < 24; c++) {
           const total = met(a, b) + met(a, c) + met(b, c)
 
-          if (met(a, b) > 0 && met(a, c) > 0 && met(b, c) > 0 && total > tripleMeetings) {
+          if (
+            met(a, b) > 0 &&
+            met(a, c) > 0 &&
+            met(b, c) > 0 &&
+            total > tripleMeetings
+          ) {
             triple = [a, b, c]
             tripleMeetings = total
           }
@@ -233,12 +283,24 @@ export default experiment({
       gridEqualsLattice: number
       oldEqualsLattice: number
     }
-    const study = (background: typeof vacuum, tokens: number[], digits: number[]): Study => {
+
+    const study = (
+      background: typeof vacuum,
+      tokens: number[],
+      digits: number[],
+    ): Study => {
       const k = tokens.length
       const open = openOf(tokens)
-      const { records, lattices } = run(background, liveLinks, open, BEATS)
+      const { records, lattices } = run(
+        background,
+        liveLinks,
+        open,
+        BEATS,
+      )
+
       let whole: Whole = basisWhole(tokens, digits)
       let departure: Departure = departureOf(whole)
+
       const three = 3n ** BigInt(k)
       const nine = 9n ** BigInt(k)
       const out: Study = {
@@ -258,14 +320,33 @@ export default experiment({
         oldEqualsLattice: 0,
       }
       const vibeCharge = background.vibe.reduce((a, b) => a + b, 0)
-      const sorted = (d: Departure): string => [...d.delta].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0)).join(',')
+      const sorted = (d: Departure): string =>
+        [...d.delta]
+          .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
+          .join(',')
 
       records.forEach((record, t) => {
         const inside = record.meetings.length
         const before = sorted(departure)
 
-        whole = advanceWhole({ weave, whole, record, kernel4: kThird, fixed: false, forward: true })!
-        departure = advanceDeparture({ weave, departure, record, kernel: kThird, divisor: 4, fixed: false, forward: true })!
+        whole = advanceWhole({
+          weave,
+          whole,
+          record,
+          kernel4: kThird,
+          fixed: false,
+          forward: true,
+        })!
+
+        departure = advanceDeparture({
+          weave,
+          departure,
+          record,
+          kernel: kThird,
+          divisor: 4,
+          fixed: false,
+          forward: true,
+        })!
         out.meetings += inside
 
         if (inside === 0) {
@@ -273,37 +354,83 @@ export default experiment({
           out.permuteFaults += sorted(departure) === before ? 0 : 1
         }
 
-        out.mismatches += sameWeights(wholeOfDeparture(departure).weight, reduceWhole(whole).weight) ? 0 : 1
+        out.mismatches += sameWeights(
+          wholeOfDeparture(departure).weight,
+          reduceWhole(whole).weight,
+        )
+          ? 0
+          : 1
 
         const chances = departureChances(departure)
         const total = chances.numerator.reduce((a, b) => a + b, 0n)
 
-        out.chanceFaults += total === chances.denominator && chances.numerator.every(n => n >= 0n && n <= chances.denominator) ? 0 : 1
+        out.chanceFaults +=
+          total === chances.denominator &&
+          chances.numerator.every(
+            n => n >= 0n && n <= chances.denominator,
+          )
+            ? 0
+            : 1
 
         const sum = departure.delta.reduce((a, b) => a + b, 0n)
         const squares = departure.delta.reduce((s, x) => s + x * x, 0n)
 
         out.balanced = out.balanced && sum === 0n
-        out.pure = out.pure && nine * squares === (three - 1n) * departure.units * departure.units
+        out.pure =
+          out.pure &&
+          nine * squares ===
+            (three - 1n) * departure.units * departure.units
+
         // the grain cost: departure units over knot units, or -1 when not a whole multiple
-        out.ratios.add(departure.units % wholeUnits(whole) === 0n ? departure.units / wholeUnits(whole) : -1n)
-        out.loveMaxWholes = Math.max(out.loveMaxWholes, Number(departureLovesAndFears(departure).loves) / Number(departure.units))
+        out.ratios.add(
+          departure.units % wholeUnits(whole) === 0n
+            ? departure.units / wholeUnits(whole)
+            : -1n,
+        )
+
+        out.loveMaxWholes = Math.max(
+          out.loveMaxWholes,
+          Number(departureLovesAndFears(departure).loves) /
+            Number(departure.units),
+        )
 
         // C: the departure of rho*, same role readings
-        const conjugated: Departure = { tokens, delta: departure.delta.map((_, i) => departure.delta[conjugateIndex(i, k)] ?? 0n), units: departure.units }
+        const conjugated: Departure = {
+          tokens,
+          delta: departure.delta.map(
+            (_, i) => departure.delta[conjugateIndex(i, k)] ?? 0n,
+          ),
+          units: departure.units,
+        }
         const cc = departureChances(conjugated)
 
-        out.conjugateFaults += sameWeights(cc.numerator, chances.numerator) ? 0 : 1
+        out.conjugateFaults += sameWeights(
+          cc.numerator,
+          chances.numerator,
+        )
+          ? 0
+          : 1
 
         // the literal swap, -Delta
-        const swapped = departureChances({ tokens, delta: departure.delta.map(x => -x), units: departure.units })
+        const swapped = departureChances({
+          tokens,
+          delta: departure.delta.map(x => -x),
+          units: departure.units,
+        })
 
-        out.swapMinChance = Math.min(out.swapMinChance, ...swapped.numerator.map(n => Number(n) / Number(swapped.denominator)))
+        out.swapMinChance = Math.min(
+          out.swapMinChance,
+          ...swapped.numerator.map(
+            n => Number(n) / Number(swapped.denominator),
+          ),
+        )
 
         // charge: the lattice vibe sum, and the vibe charge the knot's tokens carry
         const lattice = lattices[t]!
 
-        out.chargeKept = out.chargeKept && lattice.vibe.reduce((a, b) => a + b, 0) === vibeCharge
+        out.chargeKept =
+          out.chargeKept &&
+          lattice.vibe.reduce((a, b) => a + b, 0) === vibeCharge
 
         let knotCharge = 0
 
@@ -332,38 +459,111 @@ export default experiment({
     let resetMismatches = 0
 
     {
-      const { records } = run(vacuum, liveLinks, openOf(VACUUM_PAIR), BEATS)
+      const { records } = run(
+        vacuum,
+        liveLinks,
+        openOf(VACUUM_PAIR),
+        BEATS,
+      )
+
       let whole: Whole = basisWhole(VACUUM_PAIR, [0, 1])
       let departure: Departure = departureOf(whole)
 
       for (const record of records) {
-        whole = advanceWhole({ weave, whole, record, kernel4: kReset, fixed: false, forward: true, kernelOf: (a, b) => ({ kernel: kReset, divisor: 9, order: [a, b] }) })!
-        departure = advanceDeparture({ weave, departure, record, kernel: kReset, divisor: 9, fixed: false, forward: true })!
-        resetMismatches += sameDeparture(departure, departureOf(whole)) ? 0 : 1
+        whole = advanceWhole({
+          weave,
+          whole,
+          record,
+          kernel4: kReset,
+          fixed: false,
+          forward: true,
+          kernelOf: (a, b) => ({
+            kernel: kReset,
+            divisor: 9,
+            order: [a, b],
+          }),
+        })!
+
+        departure = advanceDeparture({
+          weave,
+          departure,
+          record,
+          kernel: kReset,
+          divisor: 9,
+          fixed: false,
+          forward: true,
+        })!
+
+        resetMismatches += sameDeparture(departure, departureOf(whole))
+          ? 0
+          : 1
       }
     }
 
     // 4. fixed units: the departure refuses at the knot's meeting
-    const growerRecords = run(matter, liveLinks, openOf(GROWER_PAIR), BEATS).records
-    const refusedAt = (m: number): { whole: number; departure: number } => {
-      let whole: Whole | null = { tokens: GROWER_PAIR, weight: basisWhole(GROWER_PAIR, [0, 1]).weight.map(w => w * 4n ** BigInt(m)) }
+    const growerRecords = run(
+      matter,
+      liveLinks,
+      openOf(GROWER_PAIR),
+      BEATS,
+    ).records
+
+    const refusedAt = (
+      m: number,
+    ): { whole: number; departure: number } => {
+      let whole: Whole | null = {
+        tokens: GROWER_PAIR,
+        weight: basisWhole(GROWER_PAIR, [0, 1]).weight.map(
+          w => w * 4n ** BigInt(m),
+        ),
+      }
+
       const d0 = departureOf(basisWhole(GROWER_PAIR, [0, 1]))
-      let departure: Departure | null = { tokens: GROWER_PAIR, delta: d0.delta.map(x => x * 4n ** BigInt(m)), units: d0.units * 4n ** BigInt(m) }
+
+      let departure: Departure | null = {
+        tokens: GROWER_PAIR,
+        delta: d0.delta.map(x => x * 4n ** BigInt(m)),
+        units: d0.units * 4n ** BigInt(m),
+      }
       let meeting = 0
+
       const at = { whole: 0, departure: 0 }
 
       for (const record of growerRecords) {
         meeting += record.meetings.length
-        whole = whole ? advanceWhole({ weave, whole, record, kernel4: kThird, fixed: true, forward: true }) : null
-        departure = departure ? advanceDeparture({ weave, departure, record, kernel: kThird, divisor: 4, fixed: true, forward: true }) : null
+        whole = whole
+          ? advanceWhole({
+              weave,
+              whole,
+              record,
+              kernel4: kThird,
+              fixed: true,
+              forward: true,
+            })
+          : null
+
+        departure = departure
+          ? advanceDeparture({
+              weave,
+              departure,
+              record,
+              kernel: kThird,
+              divisor: 4,
+              fixed: true,
+              forward: true,
+            })
+          : null
         at.whole = at.whole || (whole ? 0 : meeting)
         at.departure = at.departure || (departure ? 0 : meeting)
       }
 
       return at
     }
+
     const refusals = [1, 2].map(refusedAt)
-    const refusalsAgree = refusals.every(r => r.whole > 0 && r.whole === r.departure)
+    const refusalsAgree = refusals.every(
+      r => r.whole > 0 && r.whole === r.departure,
+    )
 
     // 9. reversal on the matter pair, fixed units
     let reverses = false
@@ -371,26 +571,65 @@ export default experiment({
 
     {
       const open = openOf(matterPair)
+
       let lattice = makeLattice(matter)
+
       const start = lattice
       const d0 = departureOf(basisWhole(matterPair, [2, 0]))
       const big = 4n ** 200n
-      const first: Departure = { tokens: matterPair, delta: d0.delta.map(x => x * big), units: d0.units * big }
+      const first: Departure = {
+        tokens: matterPair,
+        delta: d0.delta.map(x => x * big),
+        units: d0.units * big,
+      }
+
       let departure: Departure | null = first
 
       for (let t = 0; t < REVERSAL_BEATS; t++) {
-        const r = fearBeat({ weave, links: liveLinks, lattice, open, t })
+        const r = fearBeat({
+          weave,
+          links: liveLinks,
+          lattice,
+          open,
+          t,
+        })
 
         lattice = r.lattice
         reversalMeetings += r.record.meetings.length
-        departure = departure ? advanceDeparture({ weave, departure, record: r.record, kernel: kThird, divisor: 4, fixed: true, forward: true }) : null
+        departure = departure
+          ? advanceDeparture({
+              weave,
+              departure,
+              record: r.record,
+              kernel: kThird,
+              divisor: 4,
+              fixed: true,
+              forward: true,
+            })
+          : null
       }
 
       for (let t = REVERSAL_BEATS - 1; t >= 0; t--) {
-        const r = fearBeatBack({ weave, links: liveLinks, lattice, open, t })
+        const r = fearBeatBack({
+          weave,
+          links: liveLinks,
+          lattice,
+          open,
+          t,
+        })
 
         lattice = r.lattice
-        departure = departure ? advanceDeparture({ weave, departure, record: r.record, kernel: kThirdBack, divisor: 4, fixed: true, forward: false }) : null
+        departure = departure
+          ? advanceDeparture({
+              weave,
+              departure,
+              record: r.record,
+              kernel: kThirdBack,
+              divisor: 4,
+              fixed: true,
+              forward: false,
+            })
+          : null
       }
 
       reverses =
@@ -402,52 +641,117 @@ export default experiment({
     }
 
     // 11. C sends the rule at 2 pi / 3 to the rule at -2 pi / 3
-    const conjugateIsReverse = conjugateKernel(kThird).every((row, r) => row.every((x, c) => x === (kThirdBack[r]?.[c] ?? 0)))
+    const conjugateIsReverse = conjugateKernel(kThird).every((row, r) =>
+      row.every((x, c) => x === (kThirdBack[r]?.[c] ?? 0)),
+    )
 
     // 12. the measured quantum results, from departures alone
-    const flatRecords = run(vacuum, flatLinks, openOf(VACUUM_PAIR), 60).records
+    const flatRecords = run(
+      vacuum,
+      flatLinks,
+      openOf(VACUUM_PAIR),
+      60,
+    ).records
     const interference: number[] = []
 
     {
-      let departure: Departure = departureOf(basisWhole(VACUUM_PAIR, [0, 1]))
+      let departure: Departure = departureOf(
+        basisWhole(VACUUM_PAIR, [0, 1]),
+      )
 
       for (const record of flatRecords) {
-        departure = advanceDeparture({ weave, departure, record, kernel: kThird, divisor: 4, fixed: false, forward: true })!
+        departure = advanceDeparture({
+          weave,
+          departure,
+          record,
+          kernel: kThird,
+          divisor: 4,
+          fixed: false,
+          forward: true,
+        })!
 
         if (record.meetings.length > 0 && interference.length < 3) {
           const c = departureChances(departure)
 
-          interference.push(Number(c.numerator[3] ?? 0n) / Number(c.denominator))
+          interference.push(
+            Number(c.numerator[3] ?? 0n) / Number(c.denominator),
+          )
         }
       }
     }
 
-    const liveRecords = run(vacuum, liveLinks, openOf(VACUUM_PAIR), 60).records
-    const firstMeeting = liveRecords.findIndex(r => r.meetings.length > 0)
-    let bellDeparture: Departure = departureOf(basisWhole(VACUUM_PAIR, [0, 1]))
+    const liveRecords = run(
+      vacuum,
+      liveLinks,
+      openOf(VACUUM_PAIR),
+      60,
+    ).records
+    const firstMeeting = liveRecords.findIndex(
+      r => r.meetings.length > 0,
+    )
+
+    let bellDeparture: Departure = departureOf(
+      basisWhole(VACUUM_PAIR, [0, 1]),
+    )
 
     for (let t = 0; t <= firstMeeting + 1; t++) {
-      bellDeparture = advanceDeparture({ weave, departure: bellDeparture, record: liveRecords[t]!, kernel: kThird, divisor: 4, fixed: false, forward: true })!
+      bellDeparture = advanceDeparture({
+        weave,
+        departure: bellDeparture,
+        record: liveRecords[t]!,
+        kernel: kThird,
+        divisor: 4,
+        fixed: false,
+        forward: true,
+      })!
     }
 
     const bell = roleChsh(roleDensity(wholeOfDeparture(bellDeparture)))
 
     // 13. merging
-    const single = (token: number, digit: number): Departure => departureOf(basisWhole([token], [digit]))
-    const mergedPair = mergeDepartures(single(VACUUM_PAIR[0] ?? 0, 0), single(VACUUM_PAIR[1] ?? 0, 1))
-    const mergedTriple = mergeDepartures(mergeDepartures(single(triple[0] ?? 0, 0), single(triple[1] ?? 0, 1)), single(triple[2] ?? 0, 2))
+    const single = (token: number, digit: number): Departure =>
+      departureOf(basisWhole([token], [digit]))
+    const mergedPair = mergeDepartures(
+      single(VACUUM_PAIR[0] ?? 0, 0),
+      single(VACUUM_PAIR[1] ?? 0, 1),
+    )
+    const mergedTriple = mergeDepartures(
+      mergeDepartures(
+        single(triple[0] ?? 0, 0),
+        single(triple[1] ?? 0, 1),
+      ),
+      single(triple[2] ?? 0, 2),
+    )
     const mergesAgree =
-      sameDeparture(mergedPair, departureOf(basisWhole(VACUUM_PAIR, [0, 1]))) && sameDeparture(mergedTriple, departureOf(basisWhole(triple, [0, 1, 2])))
+      sameDeparture(
+        mergedPair,
+        departureOf(basisWhole(VACUUM_PAIR, [0, 1])),
+      ) &&
+      sameDeparture(
+        mergedTriple,
+        departureOf(basisWhole(triple, [0, 1, 2])),
+      )
 
-    const exact = (x: number, y: number): boolean => Math.abs(x - y) < 1e-12
-    const ratioExactly = (s: Study, k: number): boolean => s.ratios.size === 1 && s.ratios.has(3n ** BigInt(k))
+    const exact = (x: number, y: number): boolean =>
+      Math.abs(x - y) < 1e-12
+    const ratioExactly = (s: Study, k: number): boolean =>
+      s.ratios.size === 1 && s.ratios.has(3n ** BigInt(k))
 
     const ok =
       kernelsUnital &&
       movesPermute &&
       resetKeepsWeight &&
       !resetUnital &&
-      all.every(s => s.mismatches === 0 && s.chanceFaults === 0 && s.balanced && s.pure && s.permuteFaults === 0 && s.conjugateFaults === 0 && s.chargeKept) &&
+      all.every(
+        s =>
+          s.mismatches === 0 &&
+          s.chanceFaults === 0 &&
+          s.balanced &&
+          s.pure &&
+          s.permuteFaults === 0 &&
+          s.conjugateFaults === 0 &&
+          s.chargeKept,
+      ) &&
       all.every(s => s.meetings > 0) &&
       resetMismatches > 0 &&
       refusalsAgree &&
@@ -465,17 +769,29 @@ export default experiment({
       Math.abs(bell - Math.sqrt(7)) < 1e-6 &&
       mergesAgree
 
-    const ratioOf = (s: Study): number => Number([...s.ratios][0] ?? -1n)
+    const ratioOf = (s: Study): number =>
+      Number([...s.ratios][0] ?? -1n)
     // the rung and the refusals as measured (added 2026-09-26, no gate moved: the claim had printed sqrt 7 and "the
     // same refusals" whatever the start gave). One meeting's swap ladder is {2, 4 / sqrt 3, sqrt 7} (E-QTM-0140); the
     // departure's CHSH is a see-saw lower bound that meets a rung to 1e-6.
     const bellRung =
-      ([
-        ['sqrt 7 (the top rung of one meeting\'s ladder)', Math.sqrt(7)],
-        ['4 / sqrt 3 (the middle rung of one meeting\'s ladder; the gate asks for sqrt 7)', 4 / Math.sqrt(3)],
-        ['2 (the bottom rung)', 2],
-      ] as const).find(([, v]) => bell >= v - 1e-6 && bell <= v + 1e-9)?.[0] ?? `${bell.toFixed(4)} (on no rung of one meeting's ladder)`
-    const refusalText = refusals.every(r => r.whole > 0 && r.whole === r.departure)
+      (
+        [
+          [
+            "sqrt 7 (the top rung of one meeting's ladder)",
+            Math.sqrt(7),
+          ],
+          [
+            "4 / sqrt 3 (the middle rung of one meeting's ladder; the gate asks for sqrt 7)",
+            4 / Math.sqrt(3),
+          ],
+          ['2 (the bottom rung)', 2],
+        ] as const
+      ).find(([, v]) => bell >= v - 1e-6 && bell <= v + 1e-9)?.[0] ??
+      `${bell.toFixed(4)} (on no rung of one meeting's ladder)`
+    const refusalText = refusals.every(
+      r => r.whole > 0 && r.whole === r.departure,
+    )
       ? `the same refusals in fixed units (meetings ${refusals.map(r => r.whole).join(' and ')} at grains 9 x 4 and 9 x 16)`
       : `refusals in fixed units at meetings ${refusals.map(r => r.whole || 'none').join(' and ')} for the knot and ${refusals.map(r => r.departure || 'none').join(' and ')} for its departure at grains 9 x 4 and 9 x 16 (the gate needs a refusal at both grains)`
 
@@ -499,7 +815,9 @@ export default experiment({
         loveEqualsFearEveryBeat: all.every(s => s.balanced) ? 1 : 0,
         fearShare: 0.5,
         pureEveryBeat: all.every(s => s.pure) ? 1 : 0,
-        loveMaxWholesPairs: Math.max(...pairs.map(s => s.loveMaxWholes)),
+        loveMaxWholesPairs: Math.max(
+          ...pairs.map(s => s.loveMaxWholes),
+        ),
         loveBoundWholesPair: Math.sqrt(8) / 2,
         loveMaxWholesTriple: inTriple.loveMaxWholes,
         loveBoundWholesTriple: Math.sqrt(26) / 2,
@@ -507,8 +825,14 @@ export default experiment({
         grainCostGrower: ratioOf(inGrower),
         grainCostMatter: ratioOf(inMatter),
         grainCostTriple: ratioOf(inTriple),
-        grainCostDistinctValues: all.reduce((n, s) => n + s.ratios.size, 0),
-        permuteBeatsChecked: all.reduce((n, s) => n + s.permuteBeats, 0),
+        grainCostDistinctValues: all.reduce(
+          (n, s) => n + s.ratios.size,
+          0,
+        ),
+        permuteBeatsChecked: all.reduce(
+          (n, s) => n + s.permuteBeats,
+          0,
+        ),
         permuteFaults: all.reduce((n, s) => n + s.permuteFaults, 0),
         firstRefusedMeetingWhole9x4: refusals[0]?.whole ?? -1,
         firstRefusedMeetingDeparture81x4: refusals[0]?.departure ?? -1,
@@ -523,8 +847,13 @@ export default experiment({
         matterGridLedgerEqualsLatticeBeats: inMatter.gridEqualsLattice,
         tripleGridLedgerEqualsLatticeBeats: inTriple.gridEqualsLattice,
         conjugateKernelIsReversePhase: conjugateIsReverse ? 1 : 0,
-        conjugateReadingFaults: all.reduce((n, s) => n + s.conjugateFaults, 0),
-        loveFearSwapMinChance: Math.min(...all.map(s => s.swapMinChance)),
+        conjugateReadingFaults: all.reduce(
+          (n, s) => n + s.conjugateFaults,
+          0,
+        ),
+        loveFearSwapMinChance: Math.min(
+          ...all.map(s => s.swapMinChance),
+        ),
         chanceAfterMeeting1: interference[0] ?? -1,
         chanceAfterMeeting2: interference[1] ?? -1,
         chanceAfterMeeting3: interference[2] ?? -1,
@@ -537,7 +866,8 @@ export default experiment({
         resetDepartureMismatches: resetMismatches,
       },
       notes:
-        "STATUS BY START (E-MTH-0028): pass at the default integer start, pass on 8 of 17 starts; the rerun below read the retired golden start, a middle-rung start. RERUN 2026-09-26 under the adopted comoving fear beat: status fail as before; loveMaxWholesPairs 1.2372 -> 1.3128, loveMaxWholesTriple 2.0881 -> 2.0708. " + ('L2, exact BigInt weights, no random numbers (golden-ratio fills). The departure is stored over its own units M because a sum of zero no longer names them; the whole-number form is delta = 9^k n - N over 9^k N, reduced. That love = fear (and the share of fear 1/2) holds by construction; the measurements are that the rule still acts (unital kernels), that every reading and result is unchanged, and the grain cost. The ledger gate counts beats where the grid\'s love minus fear equals the vibe charge of the knot\'s tokens; the fear weave\'s storage puts one whole there. The reset control is not a step of the rule: it is the simplest weight-keeping kernel that moves calm, and there the departure alone cannot follow. The literal love-fear swap is -Delta, the Wigner function of 2/3^k - rho, which is not a state for a pure knot.'),
+        'STATUS BY START (E-MTH-0028): pass at the default integer start, pass on 8 of 17 starts; the rerun below read the retired golden start, a middle-rung start. RERUN 2026-09-26 under the adopted comoving fear beat: status fail as before; loveMaxWholesPairs 1.2372 -> 1.3128, loveMaxWholesTriple 2.0881 -> 2.0708. ' +
+        "L2, exact BigInt weights, no random numbers (golden-ratio fills). The departure is stored over its own units M because a sum of zero no longer names them; the whole-number form is delta = 9^k n - N over 9^k N, reduced. That love = fear (and the share of fear 1/2) holds by construction; the measurements are that the rule still acts (unital kernels), that every reading and result is unchanged, and the grain cost. The ledger gate counts beats where the grid's love minus fear equals the vibe charge of the knot's tokens; the fear weave's storage puts one whole there. The reset control is not a step of the rule: it is the simplest weight-keeping kernel that moves calm, and there the departure alone cannot follow. The literal love-fear swap is -Delta, the Wigner function of 2/3^k - rho, which is not a state for a pure knot.",
     })
   },
 })

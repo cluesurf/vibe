@@ -66,7 +66,12 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { FINE_LEVELS, FINE_MOMENTUM, LONG_FACTOR, spanFallSurvey } from '@/code/measure/span-fall'
+import {
+  FINE_LEVELS,
+  FINE_MOMENTUM,
+  LONG_FACTOR,
+  spanFallSurvey,
+} from '@/code/measure/span-fall'
 
 export default experiment({
   id: 'gravity/span-fall',
@@ -79,19 +84,39 @@ export default experiment({
   paper: false,
   run() {
     const s = spanFallSurvey(what => console.error(what))
-    const within = (x: number, want: number, tol: number): boolean => Math.abs(x / want - 1) <= tol
-    const at = (x: number): typeof s.fine => s.fine.filter(r => r.at === x)
+    const within = (x: number, want: number, tol: number): boolean =>
+      Math.abs(x / want - 1) <= tol
+    const at = (x: number): typeof s.fine =>
+      s.fine.filter(r => r.at === x)
     const locations = [...new Set(s.fine.map(r => r.at))]
-    const alike = (x: number): number => at(x)[0]!.run.g / at(x)[1]!.run.g
-    const f1 = s.fine.every(r => r.run.reversed && Math.abs(r.run.energyDrift) < 1e-3) && s.uniform.reversed && s.long.every(l => l.run.reversed) && s.stair.every(r => r.run.reversed)
+    const alike = (x: number): number =>
+      at(x)[0]!.run.g / at(x)[1]!.run.g
+    const f1 =
+      s.fine.every(
+        r => r.run.reversed && Math.abs(r.run.energyDrift) < 1e-3,
+      ) &&
+      s.uniform.reversed &&
+      s.long.every(l => l.run.reversed) &&
+      s.stair.every(r => r.run.reversed)
     const f2 = locations.every(x => within(alike(x), 1, 0.03))
     const f3 = s.fine.every(r => within(r.ratio, 1, 0.1))
-    const heaviestPredicted = Math.max(...s.fine.map(r => Math.abs(r.run.gPredicted)))
-    const f4 = s.fine.every(r => r.ratio > 0) && Math.sign(at(locations[0]!)[0]!.run.g) !== Math.sign(at(locations[1]!)[0]!.run.g) && Math.abs(s.uniform.g) < 1e-3 * heaviestPredicted
-    const f5 = s.long.every(l => within(l.wave, l.ray, 0.05)) && s.long[s.long.length - 1]!.wave < 0.9
+    const heaviestPredicted = Math.max(
+      ...s.fine.map(r => Math.abs(r.run.gPredicted)),
+    )
+    const f4 =
+      s.fine.every(r => r.ratio > 0) &&
+      Math.sign(at(locations[0]!)[0]!.run.g) !==
+        Math.sign(at(locations[1]!)[0]!.run.g) &&
+      Math.abs(s.uniform.g) < 1e-3 * heaviestPredicted
+    const f5 =
+      s.long.every(l => within(l.wave, l.ray, 0.05)) &&
+      s.long[s.long.length - 1]!.wave < 0.9
     const stairAlike = s.stair[0]!.run.g / s.stair[1]!.run.g
-    const f6 = !within(stairAlike, 1, 0.1) && within(s.stair[0]!.ray, s.stair[1]!.ray, 0.03)
-    const status = !f1 || !f2 || !f3 ? 'fail' : f4 && f5 && f6 ? 'pass' : 'partial'
+    const f6 =
+      !within(stairAlike, 1, 0.1) &&
+      within(s.stair[0]!.ray, s.stair[1]!.ray, 0.03)
+    const status =
+      !f1 || !f2 || !f3 ? 'fail' : f4 && f5 && f6 ? 'pass' : 'partial'
     const f = (x: number): string => x.toPrecision(5)
     const metrics: Record<string, number> = {
       gate_F1: f1 ? 1 : 0,
@@ -108,7 +133,10 @@ export default experiment({
       seconds: s.seconds,
     }
 
-    for (const x of locations) metrics[`alike_x${x}`] = alike(x)
+    for (const x of locations) {
+      metrics[`alike_x${x}`] = alike(x)
+    }
+
     for (const r of s.fine) {
       metrics[`ratio_x${r.at}_m${r.m}`] = r.ratio
       metrics[`fall_x${r.at}_m${r.m}`] = r.run.g
@@ -117,11 +145,13 @@ export default experiment({
       metrics[`compton_x${r.at}_m${r.m}`] = r.compton
       metrics[`period_x${r.at}_m${r.m}`] = r.period
     }
+
     for (const l of s.long) {
       metrics[`long_wave_m${l.m}`] = l.wave
       metrics[`long_ray_m${l.m}`] = l.ray
       metrics[`long_momentum_m${l.m}`] = l.momentum
     }
+
     for (const r of s.stair) {
       metrics[`stair_ratio_m${r.m}`] = r.ratio
       metrics[`stair_ray_m${r.m}`] = r.ray
@@ -132,7 +162,9 @@ export default experiment({
       claim: `on the slab read with ${FINE_LEVELS} levels per level, span lumps of rest terms ${s.fine
         .filter(r => r.at === locations[0])
         .map(r => r.m)
-        .join(' and ')} fall at ${s.fine.map(r => `${f(r.ratio)} (x ${r.at}, m ${r.m})`).join(', ')} of their ray law over ${s.window} beats (the heavier lump's lattice momentum reaching ${FINE_MOMENTUM}), alike to ${locations.map(x => f(alike(x))).join(' and ')}; over ${LONG_FACTOR} times that the waves read ${s.long.map(l => f(l.wave)).join(' and ')} against the lattice ray's ${s.long.map(l => f(l.ray)).join(' and ')}; on the integer staircase over ${s.stairWindow} beats they read ${s.stair.map(r => f(r.ratio)).join(' and ')} (alike ${f(stairAlike)}) where the smooth ray reads ${s.stair.map(r => f(r.ray)).join(' and ')}`,
+        .join(
+          ' and ',
+        )} fall at ${s.fine.map(r => `${f(r.ratio)} (x ${r.at}, m ${r.m})`).join(', ')} of their ray law over ${s.window} beats (the heavier lump's lattice momentum reaching ${FINE_MOMENTUM}), alike to ${locations.map(x => f(alike(x))).join(' and ')}; over ${LONG_FACTOR} times that the waves read ${s.long.map(l => f(l.wave)).join(' and ')} against the lattice ray's ${s.long.map(l => f(l.ray)).join(' and ')}; on the integer staircase over ${s.stairWindow} beats they read ${s.stair.map(r => f(r.ratio)).join(' and ')} (alike ${f(stairAlike)}) where the smooth ray reads ${s.stair.map(r => f(r.ray)).join(' and ')}`,
       metrics,
       control: { uniformFall: s.uniform.g, stairAlike },
       notes: `L2. Gates F1 ${f1}, F2 ${f2}, F3 ${f3}, F4 ${f4}, F5 ${f5}, F6 ${f6}. Compton lengths c / theta_0 in docks: ${s.fine.map(r => `m ${r.m} ${r.compton.toFixed(3)}`).join(', ')}; rest periods ${s.fine.map(r => r.period.toFixed(1)).join(', ')} beats. Long-window lattice momentum ${s.long.map(l => l.momentum.toFixed(3)).join(', ')}. Energy drift ${s.fine.map(r => r.run.energyDrift.toExponential(2)).join(', ')}. Survey ${s.seconds.toFixed(1)} s.`,

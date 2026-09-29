@@ -33,11 +33,17 @@ const LIMIT = 32000
 const EMPTY = -1
 
 // each direction's step in basis coordinates
-export const ROOT_STEPS: readonly (readonly number[])[] = rootsD4().map(d4Coordinates)
+export const ROOT_STEPS: readonly (readonly number[])[] =
+  rootsD4().map(d4Coordinates)
 
 export class DifferenceOverflow extends Error {
-  constructor(readonly docks: number, readonly beat: number) {
-    super(`difference engine: more than ${docks} docks differ from the vacuum at beat ${beat}`)
+  constructor(
+    readonly docks: number,
+    readonly beat: number,
+  ) {
+    super(
+      `difference engine: more than ${docks} docks differ from the vacuum at beat ${beat}`,
+    )
   }
 }
 
@@ -89,13 +95,18 @@ export type DifferenceEngine = {
   // the vacuum's dock state entering beat t
   readonly vacuum: (t: number) => Int8Array
   // set one dock's whole state at the current beat
-  readonly set: (coords: readonly number[], state: ArrayLike<number>) => void
+  readonly set: (
+    coords: readonly number[],
+    state: ArrayLike<number>,
+  ) => void
   // one beat forward
   readonly step: () => void
   // docks and slots differing from the vacuum now
   readonly support: () => { docks: number; slots: number }
   // every differing dock, its basis coordinates and its 24 slots (views, valid until the next step)
-  readonly forEach: (visit: (coords: readonly number[], state: Int8Array) => void) => void
+  readonly forEach: (
+    visit: (coords: readonly number[], state: Int8Array) => void,
+  ) => void
   // the state of one dock now
   readonly stateAt: (coords: readonly number[]) => Int8Array
   // the largest true distance from `center` (a D4 vector) of a differing dock, unwrapped (unbounded only)
@@ -120,6 +131,7 @@ export function makeDifferenceEngine(input: {
   const maxDocks = input.maxDocks ?? 1 << 21
   const vacua: Int8Array[] = [new Int8Array(DEGREE)]
   const rules = new Map<number, Collision>()
+
   const ruleAt = (t: number): Collision => {
     let rule = rules.get(t)
 
@@ -128,15 +140,18 @@ export function makeDifferenceEngine(input: {
       rules.set(t, rule)
 
       if (rules.size > 64) {
-        rules.delete(rules.keys().next().value as number)
+        rules.delete(rules.keys().next().value!)
       }
     }
 
     return rule
   }
+
   const vacuum = (t: number): Int8Array => {
     while (vacua.length <= t) {
-      const next = Int8Array.from(vacua[vacua.length - 1] ?? new Int8Array(DEGREE))
+      const next = Int8Array.from(
+        vacua[vacua.length - 1] ?? new Int8Array(DEGREE),
+      )
 
       ruleAt(vacua.length - 1)(next, 0, DEGREE)
       vacua.push(next)
@@ -150,9 +165,16 @@ export function makeDifferenceEngine(input: {
   let next = makeGeneration(1024)
   let peak = 0
 
-  const wrap = (x: number): number => (side === undefined ? x : ((x % side) + side) % side)
+  const wrap = (x: number): number =>
+    side === undefined ? x : ((x % side) + side) % side
 
-  const find = (g: Generation, a: number, b: number, c: number, d: number): number => {
+  const find = (
+    g: Generation,
+    a: number,
+    b: number,
+    c: number,
+    d: number,
+  ): number => {
     let i = hash4(a, b, c, d) & g.mask
 
     for (;;) {
@@ -164,7 +186,12 @@ export function makeDifferenceEngine(input: {
 
       const o = e * 4
 
-      if (g.coords[o] === a && g.coords[o + 1] === b && g.coords[o + 2] === c && g.coords[o + 3] === d) {
+      if (
+        g.coords[o] === a &&
+        g.coords[o + 1] === b &&
+        g.coords[o + 2] === c &&
+        g.coords[o + 3] === d
+      ) {
         return e
       }
 
@@ -181,7 +208,14 @@ export function makeDifferenceEngine(input: {
 
     for (let e = 0; e < g.count; e++) {
       const o = e * 4
-      let i = hash4(g.coords[o] ?? 0, g.coords[o + 1] ?? 0, g.coords[o + 2] ?? 0, g.coords[o + 3] ?? 0) & bigger.mask
+
+      let i =
+        hash4(
+          g.coords[o] ?? 0,
+          g.coords[o + 1] ?? 0,
+          g.coords[o + 2] ?? 0,
+          g.coords[o + 3] ?? 0,
+        ) & bigger.mask
 
       while ((bigger.index[i] ?? EMPTY) !== EMPTY) {
         i = (i + 1) & bigger.mask
@@ -194,8 +228,16 @@ export function makeDifferenceEngine(input: {
   }
 
   // the entry for a dock in generation g, created holding `fill` if absent; may replace g, so returns both
-  const entry = (which: 'current' | 'next', a: number, b: number, c: number, d: number, fill: Int8Array): number => {
+  const entry = (
+    which: 'current' | 'next',
+    a: number,
+    b: number,
+    c: number,
+    d: number,
+    fill: Int8Array,
+  ): number => {
     let g = which === 'current' ? current : next
+
     const found = find(g, a, b, c, d)
 
     if (found >= 0) {
@@ -233,7 +275,9 @@ export function makeDifferenceEngine(input: {
 
   const check = (x: number): number => {
     if (x > LIMIT || x < -LIMIT) {
-      throw new Error(`difference engine: coordinate ${x} outside +-${LIMIT}`)
+      throw new Error(
+        `difference engine: coordinate ${x} outside +-${LIMIT}`,
+      )
     }
 
     return x
@@ -270,10 +314,22 @@ export function makeDifferenceEngine(input: {
           continue
         }
 
-        const y0 = side === undefined ? check(a + (stepA[k] ?? 0)) : wrap(a + (stepA[k] ?? 0))
-        const y1 = side === undefined ? check(b + (stepB[k] ?? 0)) : wrap(b + (stepB[k] ?? 0))
-        const y2 = side === undefined ? check(c + (stepC[k] ?? 0)) : wrap(c + (stepC[k] ?? 0))
-        const y3 = side === undefined ? check(d + (stepD[k] ?? 0)) : wrap(d + (stepD[k] ?? 0))
+        const y0 =
+          side === undefined
+            ? check(a + (stepA[k] ?? 0))
+            : wrap(a + (stepA[k] ?? 0))
+        const y1 =
+          side === undefined
+            ? check(b + (stepB[k] ?? 0))
+            : wrap(b + (stepB[k] ?? 0))
+        const y2 =
+          side === undefined
+            ? check(c + (stepC[k] ?? 0))
+            : wrap(c + (stepC[k] ?? 0))
+        const y3 =
+          side === undefined
+            ? check(d + (stepD[k] ?? 0))
+            : wrap(d + (stepD[k] ?? 0))
         const j = entry('next', y0, y1, y2, y3, after)
 
         next.states[j * DEGREE + k] = v
@@ -288,7 +344,10 @@ export function makeDifferenceEngine(input: {
     peak = Math.max(peak, current.count)
   }
 
-  const set = (coords: readonly number[], state: ArrayLike<number>): void => {
+  const set = (
+    coords: readonly number[],
+    state: ArrayLike<number>,
+  ): void => {
     const [a = 0, b = 0, c = 0, d = 0] = coords.map(wrap)
     const e = entry('current', a, b, c, d, vacuum(beat))
 
@@ -301,6 +360,7 @@ export function makeDifferenceEngine(input: {
 
   const support = (): { docks: number; slots: number } => {
     const vac = vacuum(beat)
+
     let slots = 0
 
     for (let i = 0; i < current.count * DEGREE; i++) {
@@ -310,11 +370,21 @@ export function makeDifferenceEngine(input: {
     return { docks: current.count, slots }
   }
 
-  const forEach = (visit: (coords: readonly number[], state: Int8Array) => void): void => {
+  const forEach = (
+    visit: (coords: readonly number[], state: Int8Array) => void,
+  ): void => {
     for (let e = 0; e < current.count; e++) {
       const o = e * 4
 
-      visit([current.coords[o] ?? 0, current.coords[o + 1] ?? 0, current.coords[o + 2] ?? 0, current.coords[o + 3] ?? 0], current.states.subarray(e * DEGREE, (e + 1) * DEGREE))
+      visit(
+        [
+          current.coords[o] ?? 0,
+          current.coords[o + 1] ?? 0,
+          current.coords[o + 2] ?? 0,
+          current.coords[o + 3] ?? 0,
+        ],
+        current.states.subarray(e * DEGREE, (e + 1) * DEGREE),
+      )
     }
   }
 
@@ -322,7 +392,9 @@ export function makeDifferenceEngine(input: {
     const [a = 0, b = 0, c = 0, d = 0] = coords.map(wrap)
     const e = find(current, a, b, c, d)
 
-    return e >= 0 ? current.states.slice(e * DEGREE, (e + 1) * DEGREE) : Int8Array.from(vacuum(beat))
+    return e >= 0
+      ? current.states.slice(e * DEGREE, (e + 1) * DEGREE)
+      : Int8Array.from(vacuum(beat))
   }
 
   const reach = (center: readonly number[]): number => {
@@ -331,7 +403,10 @@ export function makeDifferenceEngine(input: {
     forEach(coords => {
       const v = d4Vector(coords)
 
-      best = Math.max(best, Math.hypot(...v.map((x, k) => x - (center[k] ?? 0))))
+      best = Math.max(
+        best,
+        Math.hypot(...v.map((x, k) => x - (center[k] ?? 0))),
+      )
     })
 
     return best
@@ -340,7 +415,12 @@ export function makeDifferenceEngine(input: {
   const signature = (): { key: string; anchor: number[] } => {
     const rows: { c: number[]; s: string }[] = []
 
-    forEach((coords, state) => rows.push({ c: [...coords], s: Array.from(state, x => x + 1).join('') }))
+    forEach((coords, state) =>
+      rows.push({
+        c: [...coords],
+        s: Array.from(state, x => x + 1).join(''),
+      }),
+    )
 
     const less = (p: number[], q: number[]): number => {
       for (let k = 0; k < 4; k++) {
@@ -357,7 +437,12 @@ export function makeDifferenceEngine(input: {
     rows.sort((p, q) => less(p.c, q.c))
 
     const anchor = rows[0]?.c ?? [0, 0, 0, 0]
-    const key = rows.map(r => `${r.c.map((x, k) => x - (anchor[k] ?? 0)).join(',')}:${r.s}`).join(';')
+    const key = rows
+      .map(
+        r =>
+          `${r.c.map((x, k) => x - (anchor[k] ?? 0)).join(',')}:${r.s}`,
+      )
+      .join(';')
 
     return { key, anchor }
   }

@@ -53,11 +53,16 @@ function projection(
   const gab = dotVec([...a], [...b])
   const gbb = dotVec([...b], [...b])
   const det = gaa * gbb - gab * gab
-  const x = (gbb * dotVec([...v], [...a]) - gab * dotVec([...v], [...b])) / det
-  const y = (gaa * dotVec([...v], [...b]) - gab * dotVec([...v], [...a])) / det
+  const x =
+    (gbb * dotVec([...v], [...a]) - gab * dotVec([...v], [...b])) / det
+  const y =
+    (gaa * dotVec([...v], [...b]) - gab * dotVec([...v], [...a])) / det
   const inPlane = v.map((_, k) => x * (a[k] ?? 0) + y * (b[k] ?? 0))
 
-  return { inPlane, rest: v.map((value, k) => value - (inPlane[k] ?? 0)) }
+  return {
+    inPlane,
+    rest: v.map((value, k) => value - (inPlane[k] ?? 0)),
+  }
 }
 
 const pointKey = (v: readonly number[]): string =>
@@ -94,8 +99,10 @@ export function copyLayout(input: {
   const isFixed = new Set(fixed)
   // the triplet weights: the in-plane shadow of the first non-gluon direction, and the shadows at 120
   // degrees from it
-  const first = [...Array(roots.length).keys()].find(d => !isFixed.has(d)) ?? 0
+  const first =
+    [...Array(roots.length).keys()].find(d => !isFixed.has(d)) ?? 0
   const w0 = projection(a, b, roots[first] ?? []).inPlane
+
   const isTriplet = (d: number): boolean => {
     const w = projection(a, b, roots[d] ?? []).inPlane
 
@@ -151,15 +158,20 @@ export function copyLayout(input: {
 
   points.push(...order)
 
-  const copy = pointOf.map(key => (key === '' ? -1 : points.indexOf(key)))
-  const color = colorKey.map(key => (key === '' ? -1 : weights.indexOf(key)))
+  const copy = pointOf.map(key =>
+    key === '' ? -1 : points.indexOf(key),
+  )
+  const color = colorKey.map(key =>
+    key === '' ? -1 : weights.indexOf(key),
+  )
   const regular =
     new Set(points).size === 3 &&
     weights.length === 3 &&
     copy.every((g, l) => (triplet[l] ?? -1) < 0 || g >= 0) &&
     [0, 1, 2].every(g =>
       [0, 1, 2].every(
-        c => copy.filter((x, l) => x === g && color[l] === c).length === 1,
+        c =>
+          copy.filter((x, l) => x === g && color[l] === c).length === 1,
       ),
     ) &&
     copy.every((g, l) => {
@@ -290,7 +302,17 @@ export function loneRun(input: {
   reachBeats: number
   start?: Int8Array
 }): LoneRun {
-  const { mesh, side, rule, vacuum, cell, direction, tone, lines, reachBeats } = input
+  const {
+    mesh,
+    side,
+    rule,
+    vacuum,
+    cell,
+    direction,
+    tone,
+    lines,
+    reachBeats,
+  } = input
   const table = streamSourceTable(mesh)
   const degree = mesh.degree
   const lineOfSlot = new Int8Array(degree)
@@ -311,7 +333,9 @@ export function loneRun(input: {
     (src.data[cell * degree + direction] ?? 0) + tone
 
   if (Math.abs(src.data[cell * degree + direction] ?? 0) > 1) {
-    throw new Error('the seed slot is already occupied by the same tone')
+    throw new Error(
+      'the seed slot is already occupied by the same tone',
+    )
   }
 
   const support: number[] = []
@@ -347,7 +371,10 @@ export function loneRun(input: {
       for (let c = 0; c < mesh.cellCount; c++) {
         for (let k = 0; k < degree; k++) {
           if (d[c * degree + k] !== v[c * degree + k]) {
-            reach = Math.max(reach, d4BoxDistance({ a: c, b: cell, side }))
+            reach = Math.max(
+              reach,
+              d4BoxDistance({ a: c, b: cell, side }),
+            )
             break
           }
         }
@@ -411,7 +438,8 @@ export function copyStatistics(input: {
 
         counts[g] = (counts[g] ?? 0) + 1
         reach[g] = (reach[g] ?? 0) + run.reach
-        finalSupport[g] = (finalSupport[g] ?? 0) + (run.support.at(-1) ?? 0)
+        finalSupport[g] =
+          (finalSupport[g] ?? 0) + (run.support.at(-1) ?? 0)
 
         const row = mixing[g] ?? []
         const last = finalMixing[g] ?? []
@@ -427,7 +455,8 @@ export function copyStatistics(input: {
           charge.forEach((value, line) => {
             const h = groupOf(line)
 
-            row[h] = (row[h] ?? 0) + (sign * value) / run.lineCharge.length
+            row[h] =
+              (row[h] ?? 0) + (sign * value) / run.lineCharge.length
 
             if (t === run.lineCharge.length - 1) {
               last[h] = (last[h] ?? 0) + sign * value
@@ -440,8 +469,12 @@ export function copyStatistics(input: {
 
   return {
     reach: reach.map((x, g) => x / Math.max(1, counts[g] ?? 0)),
-    finalSupport: finalSupport.map((x, g) => x / Math.max(1, counts[g] ?? 0)),
-    mixing: mixing.map((row, g) => row.map(x => x / Math.max(1, counts[g] ?? 0))),
+    finalSupport: finalSupport.map(
+      (x, g) => x / Math.max(1, counts[g] ?? 0),
+    ),
+    mixing: mixing.map((row, g) =>
+      row.map(x => x / Math.max(1, counts[g] ?? 0)),
+    ),
     finalMixing: finalMixing.map((row, g) =>
       row.map(x => x / Math.max(1, counts[g] ?? 0)),
     ),
@@ -492,7 +525,8 @@ export function degeneracyExceptions(input: {
           a.lineCharge.every((charge, t) =>
             charge.every(
               (value, line) =>
-                value === b.lineCharge[t]?.[copies.lineImage[line] ?? line],
+                value ===
+                b.lineCharge[t]?.[copies.lineImage[line] ?? line],
             ),
           )
 
@@ -506,7 +540,9 @@ export function degeneracyExceptions(input: {
 
 // How far a 3 x 3 block of a mixing table is from circulant, the form a symmetry that turns copy g into
 // g + 1 forces: the largest |m[g][h] - m[g + 1][h + 1]|.
-export function circulantDefect(mixing: readonly (readonly number[])[]): number {
+export function circulantDefect(
+  mixing: readonly (readonly number[])[],
+): number {
   let worst = 0
 
   for (let g = 0; g < 3; g++) {
@@ -514,7 +550,8 @@ export function circulantDefect(mixing: readonly (readonly number[])[]): number 
       worst = Math.max(
         worst,
         Math.abs(
-          (mixing[g]?.[h] ?? 0) - (mixing[(g + 1) % 3]?.[(h + 1) % 3] ?? 0),
+          (mixing[g]?.[h] ?? 0) -
+            (mixing[(g + 1) % 3]?.[(h + 1) % 3] ?? 0),
         ),
       )
     }

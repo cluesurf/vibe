@@ -43,7 +43,9 @@ export default experiment({
   run(context) {
     const scale = context.scale ?? 1
     // build the bulk far enough that shells 0..3 are complete (1 + 24 + 456 + 8376 = 8857 cells)
-    const addressing = buildAddressing({ maxCells: scaled(30000, scale) })
+    const addressing = buildAddressing({
+      maxCells: scaled(30000, scale),
+    })
     const neighbors = addressing.graph.neighbors
     const cellCount = addressing.graph.cellCount
 

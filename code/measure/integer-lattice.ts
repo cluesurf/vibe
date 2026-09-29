@@ -15,7 +15,10 @@ export type LatticeQuotient = {
   readonly free: number
 }
 
-export function latticeQuotient(rows: readonly (readonly number[])[], n: number): LatticeQuotient {
+export function latticeQuotient(
+  rows: readonly (readonly number[])[],
+  n: number,
+): LatticeQuotient {
   const seen = new Set<string>()
   const m: number[][] = []
 
@@ -41,7 +44,11 @@ export function latticeQuotient(rows: readonly (readonly number[])[], n: number)
         for (let j = col; j < n; j++) {
           const v = Math.abs(m[i]?.[j] ?? 0)
 
-          if (v !== 0 && (best === undefined || v < Math.abs(m[best[0]]?.[best[1]] ?? 0))) {
+          if (
+            v !== 0 &&
+            (best === undefined ||
+              v < Math.abs(m[best[0]]?.[best[1]] ?? 0))
+          ) {
             best = [i, j]
           }
         }
@@ -63,6 +70,7 @@ export function latticeQuotient(rows: readonly (readonly number[])[], n: number)
       }
 
       const pivot = m[top]?.[col] ?? 1
+
       let clean = true
 
       for (let i = 0; i < m.length; i++) {
@@ -74,7 +82,7 @@ export function latticeQuotient(rows: readonly (readonly number[])[], n: number)
 
         if (q !== 0) {
           for (let j = col; j < n; j++) {
-            ;(m[i] as number[])[j] = (m[i]?.[j] ?? 0) - q * (m[top]?.[j] ?? 0)
+            m[i]![j] = (m[i]?.[j] ?? 0) - q * (m[top]?.[j] ?? 0)
           }
         }
 
@@ -85,8 +93,8 @@ export function latticeQuotient(rows: readonly (readonly number[])[], n: number)
         const q = Math.trunc((m[top]?.[j] ?? 0) / pivot)
 
         if (q !== 0) {
-          for (let i = 0; i < m.length; i++) {
-            ;(m[i] as number[])[j] = (m[i]?.[j] ?? 0) - q * (m[i]?.[col] ?? 0)
+          for (const row of m) {
+            row[j] = (row[j] ?? 0) - q * (row[col] ?? 0)
           }
         }
 
@@ -111,7 +119,7 @@ export function latticeQuotient(rows: readonly (readonly number[])[], n: number)
 
       if (bad >= 0) {
         for (let j = col; j < n; j++) {
-          ;(m[top] as number[])[j] = (m[top]?.[j] ?? 0) + (m[bad]?.[j] ?? 0)
+          m[top]![j] = (m[top]?.[j] ?? 0) + (m[bad]?.[j] ?? 0)
         }
 
         continue

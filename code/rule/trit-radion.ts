@@ -49,7 +49,9 @@ export type RadionMesh = {
 // the link weight g of husk direction h: 2 on an axis, 1 on a face diagonal (G_METRIC)
 export const radionWeight = (h: number): number => (h < 3 ? 2 : 1)
 
-export function radionMesh(sides: readonly [number, number, number]): RadionMesh {
+export function radionMesh(
+  sides: readonly [number, number, number],
+): RadionMesh {
   const [sx, sy, sz] = sides
   const docks = sx * sy * sz
   const neighbour = new Int32Array(docks * 9)
@@ -62,14 +64,24 @@ export function radionMesh(sides: readonly [number, number, number]): RadionMesh
     for (let h = 0; h < 9; h++) {
       const u = TRIT_HUSK_VECTORS[h]!
 
-      neighbour[y * 9 + h] = mod(a + u[0]!, sx) + sx * mod(b + u[1]!, sy) + sx * sy * mod(c + u[2]!, sz)
+      neighbour[y * 9 + h] =
+        mod(a + u[0]!, sx) +
+        sx * mod(b + u[1]!, sy) +
+        sx * sy * mod(c + u[2]!, sz)
     }
   }
 
   return { sides, docks, neighbour }
 }
 
-export type RadionRule = { readonly depth: number; readonly a: number; readonly b: number; readonly q: number; readonly h: number; readonly levels: number }
+export type RadionRule = {
+  readonly depth: number
+  readonly a: number
+  readonly b: number
+  readonly q: number
+  readonly h: number
+  readonly levels: number
+}
 
 export function radionRule(depth: number, levels: number): RadionRule {
   const q = 9 * (2 * depth + 1)
@@ -86,7 +98,10 @@ export type RadionState = {
   readonly rest: Int32Array
 }
 
-export function emptyRadion(mesh: RadionMesh, levels: number): RadionState {
+export function emptyRadion(
+  mesh: RadionMesh,
+  levels: number,
+): RadionState {
   const n = mesh.docks
 
   return {
@@ -108,7 +123,13 @@ export function copyRadion(s: RadionState): RadionState {
   }
 }
 
-export const radionArrays = (s: RadionState): Int32Array[] => [s.phi, s.phiLag, ...s.counter, ...s.counterLag, s.rest]
+export const radionArrays = (s: RadionState): Int32Array[] => [
+  s.phi,
+  s.phiLag,
+  ...s.counter,
+  ...s.counterLag,
+  s.rest,
+]
 
 export const sameRadion = (a: RadionState, b: RadionState): boolean => {
   const x = radionArrays(a)
@@ -118,7 +139,11 @@ export const sameRadion = (a: RadionState, b: RadionState): boolean => {
 }
 
 // out = A x (integers)
-export function laplacian(mesh: RadionMesh, x: Int32Array, out: Int32Array): void {
+export function laplacian(
+  mesh: RadionMesh,
+  x: Int32Array,
+  out: Int32Array,
+): void {
   out.fill(0)
 
   for (let y = 0; y < mesh.docks; y++) {
@@ -136,23 +161,42 @@ export function laplacian(mesh: RadionMesh, x: Int32Array, out: Int32Array): voi
 
 export type RadionScratch = { lap: Int32Array; s: Int32Array[] }
 
-export function radionScratch(mesh: RadionMesh, levels: number): RadionScratch {
-  return { lap: new Int32Array(mesh.docks), s: Array.from({ length: levels }, () => new Int32Array(mesh.docks)) }
+export function radionScratch(
+  mesh: RadionMesh,
+  levels: number,
+): RadionScratch {
+  return {
+    lap: new Int32Array(mesh.docks),
+    s: Array.from({ length: levels }, () => new Int32Array(mesh.docks)),
+  }
 }
 
 // the spatial terms s_i = - a A C_i of the counters given (now forward, lag backward)
-function spatial(mesh: RadionMesh, rule: RadionRule, counters: readonly Int32Array[], scratch: RadionScratch): void {
+function spatial(
+  mesh: RadionMesh,
+  rule: RadionRule,
+  counters: readonly Int32Array[],
+  scratch: RadionScratch,
+): void {
   for (let i = 0; i < rule.levels; i++) {
     laplacian(mesh, counters[i]!, scratch.s[i]!)
 
     const s = scratch.s[i]!
 
-    for (let y = 0; y < mesh.docks; y++) s[y] = -rule.a * s[y]!
+    for (let y = 0; y < mesh.docks; y++) {
+      s[y] = -rule.a * s[y]!
+    }
   }
 }
 
 // one beat, in place; rho is the content of every dock
-export function radionBeat(mesh: RadionMesh, rule: RadionRule, s: RadionState, rho: Int32Array, scratch: RadionScratch): void {
+export function radionBeat(
+  mesh: RadionMesh,
+  rule: RadionRule,
+  s: RadionState,
+  rho: Int32Array,
+  scratch: RadionScratch,
+): void {
   const { a, b, q, h, levels } = rule
 
   spatial(mesh, rule, s.counter, scratch)
@@ -160,6 +204,7 @@ export function radionBeat(mesh: RadionMesh, rule: RadionRule, s: RadionState, r
 
   for (let y = 0; y < mesh.docks; y++) {
     const top = scratch.s[levels - 1]![y]!
+
     let w = floorDiv(top + s.rest[y]! + h, q)
 
     s.rest[y] = top + s.rest[y]! - q * w
@@ -175,7 +220,12 @@ export function radionBeat(mesh: RadionMesh, rule: RadionRule, s: RadionState, r
       w = v
     }
 
-    const rest = -a * scratch.lap[y]! + b * rho[y]! + 2 * s.counter[0]![y]! - s.counterLag[0]![y]! + w
+    const rest =
+      -a * scratch.lap[y]! +
+      b * rho[y]! +
+      2 * s.counter[0]![y]! -
+      s.counterLag[0]![y]! +
+      w
     const k = floorDiv(rest + h, q)
 
     s.counterLag[0]![y] = s.counter[0]![y]!
@@ -189,7 +239,13 @@ export function radionBeat(mesh: RadionMesh, rule: RadionRule, s: RadionState, r
 }
 
 // the inverse of radionBeat (rho as it was on that beat)
-export function radionBeatBack(mesh: RadionMesh, rule: RadionRule, s: RadionState, rho: Int32Array, scratch: RadionScratch): void {
+export function radionBeatBack(
+  mesh: RadionMesh,
+  rule: RadionRule,
+  s: RadionState,
+  rho: Int32Array,
+  scratch: RadionScratch,
+): void {
   const { a, b, q, h, levels } = rule
 
   // the forward beat read phi_t and C_i(t), which are now the lags
@@ -199,6 +255,7 @@ export function radionBeatBack(mesh: RadionMesh, rule: RadionRule, s: RadionStat
   for (let y = 0; y < mesh.docks; y++) {
     const top = scratch.s[levels - 1]![y]!
     const r = s.rest[y]! - top
+
     let w = floorDiv(h - r, q)
 
     s.rest[y] = r + q * w
@@ -216,7 +273,13 @@ export function radionBeatBack(mesh: RadionMesh, rule: RadionRule, s: RadionStat
 
     const phiNext = s.phi[y]!
     const phiNow = s.phiLag[y]!
-    const x = -a * scratch.lap[y]! + b * rho[y]! + 2 * s.counterLag[0]![y]! + w - s.counter[0]![y]! - q * (phiNext - 2 * phiNow)
+    const x =
+      -a * scratch.lap[y]! +
+      b * rho[y]! +
+      2 * s.counterLag[0]![y]! +
+      w -
+      s.counter[0]![y]! -
+      q * (phiNext - 2 * phiNow)
     const prev = floorDiv(x + h, q)
 
     s.counter[0]![y] = s.counterLag[0]![y]!

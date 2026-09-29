@@ -63,16 +63,27 @@ const BEATS = 205
 const QUARTER = 13
 const SPECTRUM_BEATS = 2048
 
-const fieldB = (quanta: number): number => (2 * Math.PI * quanta) / (SIDE * SIDE)
+const fieldB = (quanta: number): number =>
+  (2 * Math.PI * quanta) / (SIDE * SIDE)
 
 function exactCheck(charge: number): number {
   const side = 6
   const field = uniformField(side, 12)
-  const kx = Int32Array.from(field.thetaX, t => Math.round((3 * t) / (2 * Math.PI)))
-  const ky = Int32Array.from(field.thetaY, t => Math.round((3 * t) / (2 * Math.PI)))
+  const kx = Int32Array.from(field.thetaX, t =>
+    Math.round((3 * t) / (2 * Math.PI)),
+  )
+  const ky = Int32Array.from(field.thetaY, t =>
+    Math.round((3 * t) / (2 * Math.PI)),
+  )
   const n = side * side
 
-  let exact: ExactSlots = [Array.from({ length: n }, (_, i) => (i === 0 ? ([1n, 0n] as Eisenstein) : ZERO)), Array.from({ length: n }, () => ZERO)]
+  let exact: ExactSlots = [
+    Array.from({ length: n }, (_, i) =>
+      i === 0 ? ([1n, 0n] as Eisenstein) : ZERO,
+    ),
+    Array.from({ length: n }, () => ZERO),
+  ]
+
   const float = emptyWalk(side)
 
   float.re[0][0] = 1
@@ -86,6 +97,7 @@ function exactCheck(charge: number): number {
     substeps += PALINDROME.length
 
     const scale = 2 ** substeps
+
     let top = 0
     let err = 0
 
@@ -97,7 +109,13 @@ function exactCheck(charge: number): number {
         const im = (Number(k) * Math.sqrt(3)) / 2
 
         top = Math.max(top, Math.hypot(re, im))
-        err = Math.max(err, Math.hypot((float.re[s][i] ?? 0) * scale - re, (float.im[s][i] ?? 0) * scale - im))
+        err = Math.max(
+          err,
+          Math.hypot(
+            (float.re[s][i] ?? 0) * scale - re,
+            (float.im[s][i] ?? 0) * scale - im,
+          ),
+        )
       }
     }
 
@@ -108,8 +126,22 @@ function exactCheck(charge: number): number {
 }
 
 // the unwrapped angle of the centroid's velocity, beat by beat
-function turning(field: Field, charge: number, order: Order, beats: number): number[] {
-  const w = packet({ side: SIDE, x0: 0, y0: SIDE / 2, sigma: SIGMA, kx: K0, ky: 0, target: 0, order })
+function turning(
+  field: Field,
+  charge: number,
+  order: Order,
+  beats: number,
+): number[] {
+  const w = packet({
+    side: SIDE,
+    x0: 0,
+    y0: SIDE / 2,
+    sigma: SIGMA,
+    kx: K0,
+    ky: 0,
+    target: 0,
+    order,
+  })
   const angles: number[] = []
 
   let previous = centroid(w, SIDE)
@@ -119,9 +151,19 @@ function turning(field: Field, charge: number, order: Order, beats: number): num
     chargedBeat(w, field, charge, order)
 
     const now = centroid(w, SIDE)
-    const d = [0, 1].map(i => ((((now[i] ?? 0) - (previous[i] ?? 0) + SIDE * 1.5) % SIDE) - SIDE / 2))
+    const d = [0, 1].map(
+      i =>
+        (((now[i] ?? 0) - (previous[i] ?? 0) + SIDE * 1.5) % SIDE) -
+        SIDE / 2,
+    )
     const angle = Math.atan2(d[1] ?? 0, d[0] ?? 0)
-    const unwrapped = Number.isNaN(last) ? angle : last + ((((angle - last + 3 * Math.PI) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)) - Math.PI
+    const unwrapped = Number.isNaN(last)
+      ? angle
+      : last +
+        ((((angle - last + 3 * Math.PI) % (2 * Math.PI)) +
+          2 * Math.PI) %
+          (2 * Math.PI)) -
+        Math.PI
 
     angles.push(unwrapped)
     last = unwrapped
@@ -138,12 +180,24 @@ function rate(angles: readonly number[]): number {
   const mt = ts.reduce((a, b) => a + b, 0) / n
   const ma = angles.reduce((a, b) => a + b, 0) / n
 
-  return ts.reduce((s, t, i) => s + (t - mt) * ((angles[i] ?? 0) - ma), 0) / ts.reduce((s, t) => s + (t - mt) ** 2, 0)
+  return (
+    ts.reduce((s, t, i) => s + (t - mt) * ((angles[i] ?? 0) - ma), 0) /
+    ts.reduce((s, t) => s + (t - mt) ** 2, 0)
+  )
 }
 
 // peaks of |sum_t C(t) e^(i w t) hann(t)|^2 over w in [-0.6, 0.05]
 function spectrumPeaks(field: Field, charge: number): number[] {
-  const start = packet({ side: SIDE, x0: 0, y0: SIDE / 2, sigma: SIGMA, kx: K0, ky: 0, target: 0, order: PALINDROME })
+  const start = packet({
+    side: SIDE,
+    x0: 0,
+    y0: SIDE / 2,
+    sigma: SIGMA,
+    kx: K0,
+    ky: 0,
+    target: 0,
+    order: PALINDROME,
+  })
   const w = copyWalk(start)
   const series: [number, number][] = [[1, 0]]
 
@@ -160,7 +214,8 @@ function spectrumPeaks(field: Field, charge: number): number[] {
     let im = 0
 
     series.forEach(([cr, ci], t) => {
-      const hann = 0.5 - 0.5 * Math.cos((2 * Math.PI * t) / (SPECTRUM_BEATS - 1))
+      const hann =
+        0.5 - 0.5 * Math.cos((2 * Math.PI * t) / (SPECTRUM_BEATS - 1))
       // C(t) = <start | U^t start> ~ e^(i phase t); multiply by e^(-i omega t)
       const c = Math.cos(omega * t)
       const s = Math.sin(omega * t)
@@ -175,7 +230,12 @@ function spectrumPeaks(field: Field, charge: number): number[] {
 
   const top = Math.max(...power)
 
-  return grid.filter((_, i) => (power[i] ?? 0) > 0.02 * top && (power[i] ?? 0) >= (power[i - 1] ?? 0) && (power[i] ?? 0) >= (power[i + 1] ?? 0))
+  return grid.filter(
+    (_, i) =>
+      (power[i] ?? 0) > 0.02 * top &&
+      (power[i] ?? 0) >= (power[i - 1] ?? 0) &&
+      (power[i] ?? 0) >= (power[i + 1] ?? 0),
+  )
 }
 
 export default experiment({
@@ -202,7 +262,8 @@ export default experiment({
     const noneAngles = turning(none, 1, PALINDROME, BEATS)
     const twoAngles = turning(up, 2, PALINDROME, BEATS)
     const xyAngles = turning(up, 1, ALTERNATE, BEATS)
-    const quarter = (a: number[]): number => (a[QUARTER] ?? 0) - (a[0] ?? 0)
+    const quarter = (a: number[]): number =>
+      (a[QUARTER] ?? 0) - (a[0] ?? 0)
     const upRate = rate(upAngles)
     const downRate = rate(downAngles)
     const twoRate = rate(twoAngles)
@@ -214,7 +275,8 @@ export default experiment({
       exact1 < 1e-9 &&
       exact2 < 1e-9 &&
       Math.abs(quarter(upAngles)) > 0.5 &&
-      Math.abs(quarter(upAngles) + quarter(downAngles)) < 0.01 * Math.abs(quarter(upAngles)) &&
+      Math.abs(quarter(upAngles) + quarter(downAngles)) <
+        0.01 * Math.abs(quarter(upAngles)) &&
       Math.abs(quarter(noneAngles)) < 0.01 &&
       Math.abs(Math.abs(upRate) / predicted - 1) < 0.05 &&
       Math.abs(Math.abs(twoRate) / (2 * predicted) - 1) < 0.05 &&
@@ -243,7 +305,8 @@ export default experiment({
         turnRateMinusB: downRate,
         turnRateCharge2: twoRate,
         turnRateOverPredicted: Math.abs(upRate) / predicted,
-        turnRateCharge2OverPredicted: Math.abs(twoRate) / (2 * predicted),
+        turnRateCharge2OverPredicted:
+          Math.abs(twoRate) / (2 * predicted),
         turnRateNoField: rate(noneAngles),
         alternateWalkTurnRate: rate(xyAngles),
         landauPeaks: peaks.length,

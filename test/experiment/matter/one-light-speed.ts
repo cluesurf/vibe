@@ -53,7 +53,16 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { weyl, GOLDEN, SILVER } from '@/code/tool/weyl'
-import { lazyBeat, lazyBeatBack, lazyNormSum, lazyState, lazyStreamMap, portCount, type LazyPhase, type LazySpec } from '@/code/rule/lazy-root-token'
+import {
+  lazyBeat,
+  lazyBeatBack,
+  lazyNormSum,
+  lazyState,
+  lazyStreamMap,
+  portCount,
+  type LazyPhase,
+  type LazySpec,
+} from '@/code/rule/lazy-root-token'
 import {
   huskLaplacianSymbol,
   huskLightSpeed,
@@ -96,21 +105,34 @@ const isSquare = (n: number): boolean => {
   return r * r === n
 }
 
-function exactRuleCheck(depth: number, phase: LazyPhase): { reverse: number; norm: number; symbolGap: number } {
+function exactRuleCheck(
+  depth: number,
+  phase: LazyPhase,
+): { reverse: number; norm: number; symbolGap: number } {
   const spec: LazySpec = { side: 4, depth, phase }
   const Q = portCount(depth)
   const map = lazyStreamMap(spec)
   const q = BigInt(Q)
   const starts = [
     [{ dock: [1, 2, 3], port: 5, a: 1n, b: 0n }],
-    Array.from({ length: Q }, (_, p) => ({ dock: [0, 0, 0], port: p, a: 1n, b: 0n })),
+    Array.from({ length: Q }, (_, p) => ({
+      dock: [0, 0, 0],
+      port: p,
+      a: 1n,
+      b: 0n,
+    })),
     Array.from({ length: 12 }, (_, i) => ({
-      dock: [Math.floor(weyl(3 * i + 1, GOLDEN) * 4), Math.floor(weyl(3 * i + 2, GOLDEN) * 4), Math.floor(weyl(3 * i + 3, GOLDEN) * 4)],
+      dock: [
+        Math.floor(weyl(3 * i + 1, GOLDEN) * 4),
+        Math.floor(weyl(3 * i + 2, GOLDEN) * 4),
+        Math.floor(weyl(3 * i + 3, GOLDEN) * 4),
+      ],
       port: Math.floor(weyl(i + 1, SILVER) * Q),
       a: BigInt(Math.floor(weyl(i + 7, GOLDEN) * 7) - 3),
       b: BigInt(Math.floor(weyl(i + 7, SILVER) * 7) - 3),
     })),
   ]
+
   let reverse = 0
   let norm = 0
 
@@ -119,21 +141,26 @@ function exactRuleCheck(depth: number, phase: LazyPhase): { reverse: number; nor
     const a0 = s.a.slice()
     const b0 = s.b.slice()
     const n0 = lazyNormSum(s)
+
     let scale = 1n
 
     for (let t = 0; t < 6; t++) {
       lazyBeat(s, map)
       scale *= q * q
 
-      if (lazyNormSum(s) !== n0 * scale) norm++
+      if (lazyNormSum(s) !== n0 * scale) {
+        norm++
+      }
     }
 
-    for (let t = 0; t < 6; t++) lazyBeatBack(s, map)
+    for (let t = 0; t < 6; t++) {
+      lazyBeatBack(s, map)
+    }
 
     const back = q ** 12n
 
     for (let i = 0; i < a0.length; i++) {
-      if (s.a[i] !== (a0[i] as bigint) * back || s.b[i] !== (b0[i] as bigint) * back) {
+      if (s.a[i] !== a0[i]! * back || s.b[i] !== b0[i]! * back) {
         reverse++
         break
       }
@@ -148,18 +175,26 @@ function exactRuleCheck(depth: number, phase: LazyPhase): { reverse: number; nor
     [Math.PI / 2, Math.PI, -Math.PI / 2],
     [Math.PI, Math.PI / 2, Math.PI / 2],
   ]
+
   let symbolGap = 0
+
   const images: { a: bigint[]; b: bigint[] }[] = []
 
   for (let col = 0; col < Q; col++) {
-    const s = lazyState(spec, [{ dock: [0, 0, 0], port: col, a: 1n, b: 0n }])
+    const s = lazyState(spec, [
+      { dock: [0, 0, 0], port: col, a: 1n, b: 0n },
+    ])
 
     lazyBeat(s, map)
     images.push({ a: s.a, b: s.b })
   }
 
   for (const k of ks) {
-    const sym = lazySymbol(Q, phase === 'none' ? 0 : (2 * Math.PI) / 3, k)
+    const sym = lazySymbol(
+      Q,
+      phase === 'none' ? 0 : (2 * Math.PI) / 3,
+      k,
+    )
 
     for (let col = 0; col < Q; col++) {
       const img = images[col]!
@@ -172,10 +207,12 @@ function exactRuleCheck(depth: number, phase: LazyPhase): { reverse: number; nor
           for (let y = 0; y < 4; y++) {
             for (let x = 0; x < 4; x++) {
               const i = (x + 4 * (y + 4 * z)) * Q + row
-              const va = Number(img.a[i] as bigint) / Q
-              const vb = Number(img.b[i] as bigint) / Q
+              const va = Number(img.a[i]!) / Q
+              const vb = Number(img.b[i]!) / Q
 
-              if (va === 0 && vb === 0) continue
+              if (va === 0 && vb === 0) {
+                continue
+              }
 
               const vr = va + vb * w.re
               const vi = vb * w.im
@@ -191,7 +228,13 @@ function exactRuleCheck(depth: number, phase: LazyPhase): { reverse: number; nor
           }
         }
 
-        symbolGap = Math.max(symbolGap, Math.hypot(re - sym.re[row * Q + col]!, im - sym.im[row * Q + col]!))
+        symbolGap = Math.max(
+          symbolGap,
+          Math.hypot(
+            re - sym.re[row * Q + col]!,
+            im - sym.im[row * Q + col]!,
+          ),
+        )
       }
     }
   }
@@ -210,7 +253,10 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const metrics: Record<string, number> = {}
     const h = 1e-3
 
@@ -223,7 +269,10 @@ export default experiment({
       const lam = huskPhotonLambda(k)
 
       s1Two = Math.max(s1Two, Math.abs(lam / (h * h) / (2 / 3) - 1))
-      s1Nine = Math.max(s1Nine, Math.abs(lam / (huskLaplacianSymbol(k) / 9) - 1))
+      s1Nine = Math.max(
+        s1Nine,
+        Math.abs(lam / (huskLaplacianSymbol(k) / 9) - 1),
+      )
     }
 
     metrics.photonLambdaOverK2Gap = s1Two
@@ -242,20 +291,31 @@ export default experiment({
     for (let D = 1; D <= 100000; D++) {
       const N = 2 * D + 1
 
-      if ((3 * N) % 4 === 0 && isSquare((3 * N) / 4)) scheduleHits++
+      if ((3 * N) % 4 === 0 && isSquare((3 * N) / 4)) {
+        scheduleHits++
+      }
 
       const sq = isSquare(3 * N)
       const m = Math.sqrt((2 * D + 1) / 3)
       const predicted = Number.isInteger(m) && m % 2 === 1
 
-      if (sq) squareHits++
-      if (sq !== predicted) squareMismatch++
+      if (sq) {
+        squareHits++
+      }
+
+      if (sq !== predicted) {
+        squareMismatch++
+      }
 
       let r = N
 
-      while (r % 3 === 0) r /= 3
+      while (r % 3 === 0) {
+        r /= 3
+      }
 
-      if (r === 1) splitStepHits++
+      if (r === 1) {
+        splitStepHits++
+      }
     }
 
     metrics.scheduleSolutions = scheduleHits
@@ -268,18 +328,27 @@ export default experiment({
     const E0 = lockedTokenEnergy(0, true)
     const curvature = (2 * (lockedTokenEnergy(1e-3, true) - E0)) / 1e-6
     const lockedC2 = E0 * curvature
+
     let lockedMaxGroup = 0
 
     for (let j = 1; j < 2000; j++) {
       const k = (Math.PI * j) / 2000
-      const g = (lockedTokenEnergy(k + 1e-6, true) - lockedTokenEnergy(k - 1e-6, true)) / 2e-6
+      const g =
+        (lockedTokenEnergy(k + 1e-6, true) -
+          lockedTokenEnergy(k - 1e-6, true)) /
+        2e-6
 
       lockedMaxGroup = Math.max(lockedMaxGroup, g)
     }
 
     let lockedPhotonNearest = Infinity
 
-    for (let D = 1; D <= 16; D++) lockedPhotonNearest = Math.min(lockedPhotonNearest, Math.abs(Math.sqrt(lockedC2) / huskLightSpeed(D) - 1))
+    for (let D = 1; D <= 16; D++) {
+      lockedPhotonNearest = Math.min(
+        lockedPhotonNearest,
+        Math.abs(Math.sqrt(lockedC2) / huskLightSpeed(D) - 1),
+      )
+    }
 
     metrics.lockedCoinOffSlope = coinOffSlope
     metrics.lockedRestEnergy = E0
@@ -307,9 +376,15 @@ export default experiment({
       const N = 2 * D + 1
       const Q = portCount(D)
 
-      for (const phi of [0, (2 * Math.PI) / 3, (2 * Math.PI) / (2 * N * N)]) {
+      for (const phi of [
+        0,
+        (2 * Math.PI) / 3,
+        (2 * Math.PI) / (2 * N * N),
+      ]) {
         for (let s = 0; s < 32; s++) {
-          const k = [0, 1, 2].map(j => 2 * Math.PI * (weyl(3 * s + j + 1, GOLDEN) - 0.5))
+          const k = [0, 1, 2].map(
+            j => 2 * Math.PI * (weyl(3 * s + j + 1, GOLDEN) - 0.5),
+          )
           const ph = lazyPhases(Q, phi, k)
           const E = lazyEnergy(Q, phi, k)
           const want = [phi / 2 + E, phi / 2 - E]
@@ -320,9 +395,13 @@ export default experiment({
             let gap = Infinity
 
             ph.forEach((p, i) => {
-              if (used.has(i)) return
+              if (used.has(i)) {
+                return
+              }
 
-              const g = Math.abs(Math.atan2(Math.sin(p - w), Math.cos(p - w)))
+              const g = Math.abs(
+                Math.atan2(Math.sin(p - w), Math.cos(p - w)),
+              )
 
               if (g < gap) {
                 gap = g
@@ -335,7 +414,9 @@ export default experiment({
           }
 
           ph.forEach((p, i) => {
-            if (used.has(i)) return
+            if (used.has(i)) {
+              return
+            }
 
             s3Flat = Math.max(s3Flat, Math.abs(Math.sin(p)))
           })
@@ -355,17 +436,27 @@ export default experiment({
     // ---- S4: one light speed ----
     let s4Speed = 0
     let s4Group = 0
+
     const photonMaxGroup: number[] = []
     const tokenMaxGroup: number[] = []
     // the photon's lambda on a grid of |k| per direction (lambda does not depend on D)
     const grid = 120
-    const lamGrid = DIRECTIONS.map(d => Array.from({ length: grid + 1 }, (_, j) => [-1e-5, 0, 1e-5].map(dd => (j === 0 ? 0 : huskPhotonLambda(unit(d, (Math.PI * j) / grid + dd))))))
+    const lamGrid = DIRECTIONS.map(d =>
+      Array.from({ length: grid + 1 }, (_, j) =>
+        [-1e-5, 0, 1e-5].map(dd =>
+          j === 0
+            ? 0
+            : huskPhotonLambda(unit(d, (Math.PI * j) / grid + dd)),
+        ),
+      ),
+    )
 
     log('s4 grid')
 
     for (let D = 1; D <= 16; D++) {
       const Q = portCount(D)
       const kappa = kappaOf(D)
+
       let worst = 0
       let pmax = 0
       let tmax = 0
@@ -381,9 +472,15 @@ export default experiment({
 
         for (let j = 1; j <= grid; j++) {
           const s = (Math.PI * j) / grid
-          const tg = (lazyEnergy(Q, 0, unit(d, s + 1e-5)) - lazyEnergy(Q, 0, unit(d, s - 1e-5))) / 2e-5
+          const tg =
+            (lazyEnergy(Q, 0, unit(d, s + 1e-5)) -
+              lazyEnergy(Q, 0, unit(d, s - 1e-5))) /
+            2e-5
           const row = lamGrid[di]![j]!
-          const pg = (photonOmega(kappa, row[2]!) - photonOmega(kappa, row[0]!)) / 2e-5
+          const pg =
+            (photonOmega(kappa, row[2]!) -
+              photonOmega(kappa, row[0]!)) /
+            2e-5
 
           tmax = Math.max(tmax, tg)
           pmax = Math.max(pmax, pg)
@@ -408,8 +505,16 @@ export default experiment({
     log('s4')
 
     // ---- S5: the exact integer rule ----
-    const exact = [1, 2].flatMap(D => (['none', 'omega'] as LazyPhase[]).map(phase => ({ D, phase, ...exactRuleCheck(D, phase) })))
-    const s5 = exact.every(e => e.reverse === 0 && e.norm === 0 && e.symbolGap <= 1e-12)
+    const exact = [1, 2].flatMap(D =>
+      (['none', 'omega'] as LazyPhase[]).map(phase => ({
+        D,
+        phase,
+        ...exactRuleCheck(D, phase),
+      })),
+    )
+    const s5 = exact.every(
+      e => e.reverse === 0 && e.norm === 0 && e.symbolGap <= 1e-12,
+    )
 
     for (const e of exact) {
       metrics[`exactReverseMismatch_D${e.D}_${e.phase}`] = e.reverse
@@ -424,7 +529,11 @@ export default experiment({
     const bulkDepth = [1, 4, 16].map(D => {
       const Q = portCount(D)
 
-      return Math.acos(1 - rootLaplacian([0, 0, 0, h]) / Q) / h / huskLightSpeed(D)
+      return (
+        Math.acos(1 - rootLaplacian([0, 0, 0, h]) / Q) /
+        h /
+        huskLightSpeed(D)
+      )
     })
 
     metrics.bulkDepthOverHusk_D1 = bulkDepth[0]!
@@ -435,39 +544,71 @@ export default experiment({
     let flatWeight = 0
 
     for (let s = 0; s < 8; s++) {
-      const k = [0, 1, 2].map(j => 2 * Math.PI * (weyl(3 * s + j + 101, SILVER) - 0.5))
+      const k = [0, 1, 2].map(
+        j => 2 * Math.PI * (weyl(3 * s + j + 101, SILVER) - 0.5),
+      )
       const Q = portCount(2)
       const W = lazySymbol(Q, 0, k)
       // W^2 a - (2 cos E) W a + a = 0 on the dispersive span; its residual is the flat weight's witness
       const a = new Float64Array(Q).fill(1 / Math.sqrt(Q))
-      const apply = (vr: Float64Array, vi: Float64Array): [Float64Array, Float64Array] => {
+
+      const apply = (
+        vr: Float64Array,
+        vi: Float64Array,
+      ): [Float64Array, Float64Array] => {
         const or = new Float64Array(Q)
         const oi = new Float64Array(Q)
 
         for (let r = 0; r < Q; r++) {
           for (let c = 0; c < Q; c++) {
-            or[r] = or[r]! + W.re[r * Q + c]! * vr[c]! - W.im[r * Q + c]! * vi[c]!
-            oi[r] = oi[r]! + W.re[r * Q + c]! * vi[c]! + W.im[r * Q + c]! * vr[c]!
+            or[r] =
+              or[r]! +
+              W.re[r * Q + c]! * vr[c]! -
+              W.im[r * Q + c]! * vi[c]!
+
+            oi[r] =
+              oi[r]! +
+              W.re[r * Q + c]! * vi[c]! +
+              W.im[r * Q + c]! * vr[c]!
           }
         }
 
         return [or, oi]
       }
+
       const [w1r, w1i] = apply(a, new Float64Array(Q))
       const [w2r, w2i] = apply(w1r, w1i)
       const twoCos = 2 * Math.cos(lazyEnergy(Q, 0, k))
+
       let res = 0
 
-      for (let r = 0; r < Q; r++) res += (w2r[r]! - twoCos * w1r[r]! + a[r]!) ** 2 + (w2i[r]! - twoCos * w1i[r]!) ** 2
+      for (let r = 0; r < Q; r++) {
+        res +=
+          (w2r[r]! - twoCos * w1r[r]! + a[r]!) ** 2 +
+          (w2i[r]! - twoCos * w1i[r]!) ** 2
+      }
 
       flatWeight = Math.max(flatWeight, Math.sqrt(res))
     }
 
     metrics.coinStartFlatWitness = flatWeight
 
-    const status = s1 && s2 && s3 && s4 && s5 ? 'pass' : s1 && s3 && s4 ? 'partial' : 'fail'
+    const status =
+      s1 && s2 && s3 && s4 && s5
+        ? 'pass'
+        : s1 && s3 && s4
+          ? 'partial'
+          : 'fail'
 
-    for (const [g, ok] of Object.entries({ S1: s1, S2: s2, S3: s3, S4: s4, S5: s5 })) metrics[`gate${g}`] = ok ? 1 : 0
+    for (const [g, ok] of Object.entries({
+      S1: s1,
+      S2: s2,
+      S3: s3,
+      S4: s4,
+      S5: s5,
+    })) {
+      metrics[`gate${g}`] = ok ? 1 : 0
+    }
 
     metrics.seconds = (Date.now() - started) / 1000
 
@@ -480,7 +621,20 @@ export default experiment({
         photonC_D16: huskLightSpeed(16),
         splitStepRingDepths: splitStepHits,
       },
-      notes: `L2 (the lazy root token is a STAND-IN; the condition and the whole-copy theorem are L1). Gates S1 ${s1}, S2 ${s2}, S3 ${s3}, S4 ${s4}, S5 ${s5}. FIRST RUN 2026-09-26 (tmp/sr-mtr23-run1.log, 6.7 s): PASS on every gate, no gate moved; the record run differs from it only in this sentence. The photon's top group velocity at D = 1 was larger than the design probe had seen on the axis and body diagonal (1.03 to 1.05 of c there): over the 13 directions it reaches 1.11 docks per beat, faster than the stream copies, because kappa lambda approaches the leapfrog's edge 4 at kappa = 2/3. HUSK FIRST: c = sqrt(4 / (3 (2D + 1))) is ${[1, 2, 4, 16].map(D => `${huskLightSpeed(D).toFixed(5)} at D = ${D}`).join(', ')}; the token reads the same to ${s4Speed.toExponential(1)}. BULK: the token's speed along the depth is ${bulkDepth.map(x => x.toFixed(9)).join(', ')} of the husk c at D = 1, 4, 16 (the 24 roots have second moment 12 in all four directions). THE PHOTON'S OWN TOP GROUP VELOCITY (reported): ${photonMaxGroup.map((v, i) => `D ${i + 1} ${(v / huskLightSpeed(i + 1)).toFixed(4)} c`).slice(0, 6).join(', ')}, ...: at D = 1 (kappa = 2/3) the leapfrog's short waves outrun its own long-wave c (seen in tmp/sr-probe1.ts before this file, disclosed), from D = 2 its top group velocity is its long-wave c; the token's is c at every D (${tokenMaxGroup.map((v, i) => (v / huskLightSpeed(i + 1)).toFixed(6)).slice(0, 4).join(', ')}, ...). THE SPLIT-STEP ESCAPE: a whole-copy walk with a turning coin between half copies has massless slope |C_00|, and in the model's ring Z[omega][1/6] |C_00|^2 = 4 / (3 (2D + 1)) needs 2D + 1 a power of 3 (${splitStepHits} depths up to 100,000): not every D either. THE COIN'S RING: Q R has entries 2 - Q and 2 (or 1 + omega), so the rule lives in Z[omega][1/(6 (2D + 1))], the ring the light's force step already uses (its column DFT divides by 2D + 1). A coin-state start has no flat-band weight (Cayley-Hamilton witness ${flatWeight.toExponential(1)}): started in the column's zero-momentum state the token is all band. What is not here: spin. The copy direction is a root port, not the doublet (E-SPN-0066 says a covariant moving token is a spinor), so this settles the speed, not the electron; a doublet-locked lazy token is the next build.`,
+      notes: `L2 (the lazy root token is a STAND-IN; the condition and the whole-copy theorem are L1). Gates S1 ${s1}, S2 ${s2}, S3 ${s3}, S4 ${s4}, S5 ${s5}. FIRST RUN 2026-09-26 (tmp/sr-mtr23-run1.log, 6.7 s): PASS on every gate, no gate moved; the record run differs from it only in this sentence. The photon's top group velocity at D = 1 was larger than the design probe had seen on the axis and body diagonal (1.03 to 1.05 of c there): over the 13 directions it reaches 1.11 docks per beat, faster than the stream copies, because kappa lambda approaches the leapfrog's edge 4 at kappa = 2/3. HUSK FIRST: c = sqrt(4 / (3 (2D + 1))) is ${[1, 2, 4, 16].map(D => `${huskLightSpeed(D).toFixed(5)} at D = ${D}`).join(', ')}; the token reads the same to ${s4Speed.toExponential(1)}. BULK: the token's speed along the depth is ${bulkDepth.map(x => x.toFixed(9)).join(', ')} of the husk c at D = 1, 4, 16 (the 24 roots have second moment 12 in all four directions). THE PHOTON'S OWN TOP GROUP VELOCITY (reported): ${photonMaxGroup
+        .map(
+          (v, i) =>
+            `D ${i + 1} ${(v / huskLightSpeed(i + 1)).toFixed(4)} c`,
+        )
+        .slice(0, 6)
+        .join(
+          ', ',
+        )}, ...: at D = 1 (kappa = 2/3) the leapfrog's short waves outrun its own long-wave c (seen in tmp/sr-probe1.ts before this file, disclosed), from D = 2 its top group velocity is its long-wave c; the token's is c at every D (${tokenMaxGroup
+        .map((v, i) => (v / huskLightSpeed(i + 1)).toFixed(6))
+        .slice(0, 4)
+        .join(
+          ', ',
+        )}, ...). THE SPLIT-STEP ESCAPE: a whole-copy walk with a turning coin between half copies has massless slope |C_00|, and in the model's ring Z[omega][1/6] |C_00|^2 = 4 / (3 (2D + 1)) needs 2D + 1 a power of 3 (${splitStepHits} depths up to 100,000): not every D either. THE COIN'S RING: Q R has entries 2 - Q and 2 (or 1 + omega), so the rule lives in Z[omega][1/(6 (2D + 1))], the ring the light's force step already uses (its column DFT divides by 2D + 1). A coin-state start has no flat-band weight (Cayley-Hamilton witness ${flatWeight.toExponential(1)}): started in the column's zero-momentum state the token is all band. What is not here: spin. The copy direction is a root port, not the doublet (E-SPN-0066 says a covariant moving token is a spinor), so this settles the speed, not the electron; a doublet-locked lazy token is the next build.`,
     })
   },
 })

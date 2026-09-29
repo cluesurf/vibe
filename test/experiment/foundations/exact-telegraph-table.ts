@@ -59,15 +59,14 @@ export default experiment({
     for (let d = 0; d < 24; d++) {
       const to = mesh.neighbour(center, d)
 
-      roots.push(
-        [0, 1, 2, 3].map(a => wrapOf(coordinate(to, a) - mid)),
-      )
+      roots.push([0, 1, 2, 3].map(a => wrapOf(coordinate(to, a) - mid)))
     }
 
     const telegraph = (
       dir: number,
     ): { steps: number; flips: number; mass: number } => {
       const axis = roots[dir]!.map(v => v / Math.SQRT2)
+
       let vacuum: Will = makeWill(mesh)
       let seeded: Will = makeWill(mesh)
 
@@ -142,8 +141,7 @@ export default experiment({
     const ladderB = telegraph(22)
     const bandDirs = [4, 9, 11, 18, 23]
     const bandMasses = bandDirs.map(d => telegraph(d).mass)
-    const bandRatio =
-      Math.max(...bandMasses) / Math.min(...bandMasses)
+    const bandRatio = Math.max(...bandMasses) / Math.min(...bandMasses)
 
     const ok =
       masslessA.flips === 0 &&

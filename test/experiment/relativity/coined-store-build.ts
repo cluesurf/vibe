@@ -82,18 +82,56 @@ import { LINE_FIRSTS, OPPOSITE } from '@/code/rule/isometric-knit'
 import { groupTable } from '@/code/measure/color-isotropy-bound'
 import { centerOf } from '@/code/measure/wall-reading'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
-import { cloneConfiguration, lockedNorm, lockedState, mergeBranches, newTally, type Branch, type Configuration, type LockedState, type LockedTables } from '@/code/rule/doublet-locked-knit'
-import { collideVeto, toWords, vetoBeat } from '@/code/rule/occupation-veto-knit'
-import { coinBranch, coinedVetoBeat, coinedVetoBeatBack, newCoinTally } from '@/code/rule/coined-locked-knit'
-import { sameOccupation, samePoints, vacuumConfiguration, THRESHOLD_BORN, THRESHOLD_EXCHANGE, THRESHOLD_KEEP, type LockedFresh } from '@/code/measure/doublet-locked-readings'
-import { conjugateDock, contactFresh, dockKey, dockOf, likePairStart, slotMapDock, vetoPathRunner } from '@/code/measure/occupation-veto-readings'
+import {
+  cloneConfiguration,
+  lockedNorm,
+  lockedState,
+  mergeBranches,
+  newTally,
+  type Branch,
+  type Configuration,
+  type LockedState,
+  type LockedTables,
+} from '@/code/rule/doublet-locked-knit'
+import {
+  collideVeto,
+  toWords,
+  vetoBeat,
+} from '@/code/rule/occupation-veto-knit'
+import {
+  coinBranch,
+  coinedVetoBeat,
+  coinedVetoBeatBack,
+  newCoinTally,
+} from '@/code/rule/coined-locked-knit'
+import {
+  sameOccupation,
+  samePoints,
+  vacuumConfiguration,
+  THRESHOLD_BORN,
+  THRESHOLD_EXCHANGE,
+  THRESHOLD_KEEP,
+  type LockedFresh,
+} from '@/code/measure/doublet-locked-readings'
+import {
+  conjugateDock,
+  contactFresh,
+  dockKey,
+  dockOf,
+  likePairStart,
+  slotMapDock,
+  vetoPathRunner,
+} from '@/code/measure/occupation-veto-readings'
 
-const LINE_SECONDS = LINE_FIRSTS.map(f => OPPOSITE[f] as number)
+const LINE_SECONDS = LINE_FIRSTS.map(f => OPPOSITE[f]!)
 const PATHS = [THRESHOLD_KEEP, THRESHOLD_BORN, THRESHOLD_EXCHANGE]
 const LIKE_BEATS = 48
 const LONE_BEATS = 16
 
-const vacuumOf = (f: LockedFresh, open: 'all' | 'none'): Configuration => toWords(vacuumConfiguration(f, open))
+const vacuumOf = (
+  f: LockedFresh,
+  open: 'all' | 'none',
+): Configuration => toWords(vacuumConfiguration(f, open))
 
 function seeded(f: LockedFresh, open: 'all' | 'none'): Configuration {
   const c = vacuumOf(f, open)
@@ -107,11 +145,23 @@ function seeded(f: LockedFresh, open: 'all' | 'none'): Configuration {
 
 // ---- the composed step on one dock, as a set of branches ----
 
-const asBranch = (c: Configuration): Branch => ({ ...cloneConfiguration(c), a: 1n, b: 0n, k: 0 })
+const asBranch = (c: Configuration): Branch => ({
+  ...cloneConfiguration(c),
+  a: 1n,
+  b: 0n,
+  k: 0,
+})
 
-function dockStep(tables: LockedTables, d: Configuration, beat: number, coin: boolean): Branch[] {
+function dockStep(
+  tables: LockedTables,
+  d: Configuration,
+  beat: number,
+  coin: boolean,
+): Branch[] {
   const one = { ...tables, cells: 1 }
-  const coined = coin ? coinBranch(1, asBranch(d), false) : [asBranch(d)]
+  const coined = coin
+    ? coinBranch(1, asBranch(d), false)
+    : [asBranch(d)]
   const out: Branch[] = []
 
   for (const b of mergeBranches(coined)) {
@@ -122,12 +172,21 @@ function dockStep(tables: LockedTables, d: Configuration, beat: number, coin: bo
   return mergeBranches(out)
 }
 
-function dockStepBack(tables: LockedTables, list: readonly Branch[], beat: number): Branch[] {
+function dockStepBack(
+  tables: LockedTables,
+  list: readonly Branch[],
+  beat: number,
+): Branch[] {
   const one = { ...tables, cells: 1 }
   const out: Branch[] = []
 
   for (const br of list) {
-    const b: Branch = { ...cloneConfiguration(br), a: br.a, b: br.b, k: br.k }
+    const b: Branch = {
+      ...cloneConfiguration(br),
+      a: br.a,
+      b: br.b,
+      k: br.k,
+    }
 
     collideVeto('none', one, b, beat, true)
     out.push(...coinBranch(1, b, true))
@@ -137,7 +196,13 @@ function dockStepBack(tables: LockedTables, list: readonly Branch[], beat: numbe
 }
 
 // a set of branches as one key: each branch's dock key with its reduced amplitude, sorted
-const setKey = (list: readonly (Configuration & { a: bigint; b: bigint; k: number })[]): string =>
+const setKey = (
+  list: readonly (Configuration & {
+    a: bigint
+    b: bigint
+    k: number
+  })[],
+): string =>
   list
     .map(b => `${dockKey(b)}#${b.a},${b.b},${b.k}`)
     .sort()
@@ -148,26 +213,62 @@ function predictedDiffer(d: Configuration): boolean {
   let fullOpen = 0
 
   for (let l = 0; l < 12; l++) {
-    const i = LINE_FIRSTS[l] as number
-    const j = LINE_SECONDS[l] as number
+    const i = LINE_FIRSTS[l]!
+    const j = LINE_SECONDS[l]!
     const hi = d.vibe[i] !== 0
     const hj = d.vibe[j] !== 0
 
-    if (hi && hj && d.open[i] && d.open[j]) fullOpen++
-    if (hi !== hj && ((hi && d.open[i]) || (hj && d.open[j]))) return true
+    if (hi && hj && d.open[i] && d.open[j]) {
+      fullOpen++
+    }
+
+    if (hi !== hj && ((hi && d.open[i]) || (hj && d.open[j]))) {
+      return true
+    }
   }
 
   return fullOpen % 3 !== 0
 }
 
-type DockReading = { docks: number; normOff: number; inverseOff: number; differ: number; iffOff: number; distinct: number; covariance: number; conjugation: number }
+type DockReading = {
+  docks: number
+  normOff: number
+  inverseOff: number
+  differ: number
+  iffOff: number
+  distinct: number
+  covariance: number
+  conjugation: number
+}
 
-function dockChecks(f: LockedFresh, perms: readonly (readonly number[])[]): DockReading {
-  const out: DockReading = { docks: 0, normOff: 0, inverseOff: 0, differ: 0, iffOff: 0, distinct: 0, covariance: 0, conjugation: 0 }
-  const distinct = new Map<string, { dock: Configuration; beat: number }>()
+function dockChecks(
+  f: LockedFresh,
+  perms: readonly (readonly number[])[],
+): DockReading {
+  const out: DockReading = {
+    docks: 0,
+    normOff: 0,
+    inverseOff: 0,
+    differ: 0,
+    iffOff: 0,
+    distinct: 0,
+    covariance: 0,
+    conjugation: 0,
+  }
+  const distinct = new Map<
+    string,
+    { dock: Configuration; beat: number }
+  >()
 
   for (const start of [vacuumOf(f, 'all'), seeded(f, 'all')]) {
-    const run = vetoPathRunner('none', f.tables, start, THRESHOLD_BORN, 0, true)
+    const run = vetoPathRunner(
+      'none',
+      f.tables,
+      start,
+      THRESHOLD_BORN,
+      0,
+      true,
+    )
 
     for (let t = 0; t <= 48; t++) {
       const c = run.state()
@@ -181,9 +282,18 @@ function dockChecks(f: LockedFresh, perms: readonly (readonly number[])[]): Dock
 
         out.docks++
         out.normOff += n.total === n.unit ? 0 : 1
-        out.inverseOff += back.length === 1 && !!b0 && b0.a === 1n && b0.b === 0n && b0.k === 0 && dockKey(b0) === dockKey(d) ? 0 : 1
+        out.inverseOff +=
+          back.length === 1 &&
+          !!b0 &&
+          b0.a === 1n &&
+          b0.b === 0n &&
+          b0.k === 0 &&
+          dockKey(b0) === dockKey(d)
+            ? 0
+            : 1
 
-        const differs = setKey(r) !== setKey(dockStep(f.tables, d, t, false))
+        const differs =
+          setKey(r) !== setKey(dockStep(f.tables, d, t, false))
 
         out.differ += differs ? 1 : 0
         out.iffOff += differs === predictedDiffer(d) ? 0 : 1
@@ -200,22 +310,44 @@ function dockChecks(f: LockedFresh, perms: readonly (readonly number[])[]): Dock
     const r = dockStep(f.tables, dock, beat, true)
 
     for (const g of perms) {
-      const mapped = r.map(b => ({ ...slotMapDock(b, g), a: b.a, b: b.b, k: b.k }))
+      const mapped = r.map(b => ({
+        ...slotMapDock(b, g),
+        a: b.a,
+        b: b.b,
+        k: b.k,
+      }))
 
-      out.covariance += setKey(dockStep(f.tables, slotMapDock(dock, g), beat, true)) === setKey(mapped) ? 0 : 1
+      out.covariance +=
+        setKey(dockStep(f.tables, slotMapDock(dock, g), beat, true)) ===
+        setKey(mapped)
+          ? 0
+          : 1
     }
 
-    const conj = r.map(b => ({ ...conjugateDock(b), a: b.a, b: b.b, k: b.k }))
+    const conj = r.map(b => ({
+      ...conjugateDock(b),
+      a: b.a,
+      b: b.b,
+      k: b.k,
+    }))
 
-    out.conjugation += setKey(dockStep(f.tables, conjugateDock(dock), beat, true)) === setKey(conj) ? 0 : 1
+    out.conjugation +=
+      setKey(dockStep(f.tables, conjugateDock(dock), beat, true)) ===
+      setKey(conj)
+        ? 0
+        : 1
   }
 
   return out
 }
 
 // ---- C1 ----
-function closedAgree(f: LockedFresh, beats: number): { superposed: number; paths: number; crossed: number } {
+function closedAgree(
+  f: LockedFresh,
+  beats: number,
+): { superposed: number; paths: number; crossed: number } {
   const tally = newTally()
+
   let mine: LockedState = lockedState(vacuumOf(f, 'none'))
   let old: LockedState = lockedState(vacuumOf(f, 'none'))
   let superposed = 0
@@ -227,12 +359,31 @@ function closedAgree(f: LockedFresh, beats: number): { superposed: number; paths
     const m = mine.branches[0]
     const o = old.branches[0]
 
-    superposed += mine.branches.length === 1 && old.branches.length === 1 && !!m && !!o && samePoints(m, o) && m.a === o.a && m.b === o.b && m.k === o.k && m.open.every((v, i) => v === o.open[i] || o.vibe[i] === 0) && m.sopen.every((v, i) => v === o.sopen[i] || o.store[i] === 0) ? 0 : 1
+    superposed +=
+      mine.branches.length === 1 &&
+      old.branches.length === 1 &&
+      !!m &&
+      !!o &&
+      samePoints(m, o) &&
+      m.a === o.a &&
+      m.b === o.b &&
+      m.k === o.k &&
+      m.open.every((v, i) => v === o.open[i] || o.vibe[i] === 0) &&
+      m.sopen.every((v, i) => v === o.sopen[i] || o.store[i] === 0)
+        ? 0
+        : 1
   }
 
   let paths = 0
   let crossed = 0
-  const cases: [Configuration, number][] = [...PATHS.map((th): [Configuration, number] => [vacuumOf(f, 'none'), th]), [vacuumOf(f, 'all'), THRESHOLD_KEEP]]
+
+  const cases: [Configuration, number][] = [
+    ...PATHS.map((th): [Configuration, number] => [
+      vacuumOf(f, 'none'),
+      th,
+    ]),
+    [vacuumOf(f, 'all'), THRESHOLD_KEEP],
+  ]
 
   for (const [start, th] of cases) {
     const a = vetoPathRunner('none', f.tables, start, th, 0, true)
@@ -251,13 +402,39 @@ function closedAgree(f: LockedFresh, beats: number): { superposed: number; paths
 }
 
 // ---- C5 ----
-type Global = { found: boolean; clean: boolean; normExact: boolean; reversed: boolean; coinSplits: number; meetingSplits: number; branchesMax: number; occupations: number }
+type Global = {
+  found: boolean
+  clean: boolean
+  normExact: boolean
+  reversed: boolean
+  coinSplits: number
+  meetingSplits: number
+  branchesMax: number
+  occupations: number
+}
 
-function globalRun(f: LockedFresh, start: Configuration | undefined, beats: number, clean: boolean): Global {
-  if (!start) return { found: false, clean: false, normExact: false, reversed: false, coinSplits: 0, meetingSplits: 0, branchesMax: 0, occupations: 0 }
+function globalRun(
+  f: LockedFresh,
+  start: Configuration | undefined,
+  beats: number,
+  clean: boolean,
+): Global {
+  if (!start) {
+    return {
+      found: false,
+      clean: false,
+      normExact: false,
+      reversed: false,
+      coinSplits: 0,
+      meetingSplits: 0,
+      branchesMax: 0,
+      occupations: 0,
+    }
+  }
 
   const tally = newTally()
   const coins = newCoinTally()
+
   let s: LockedState = lockedState(start)
   let normExact = true
   let branchesMax = 1
@@ -273,22 +450,66 @@ function globalRun(f: LockedFresh, start: Configuration | undefined, beats: numb
 
   const occupations: Configuration[] = []
 
-  for (const b of s.branches) if (!occupations.some(o => sameOccupation(o, b))) occupations.push(b)
+  for (const b of s.branches) {
+    if (!occupations.some(o => sameOccupation(o, b))) {
+      occupations.push(b)
+    }
+  }
 
   let back = s
 
-  for (let t = beats - 1; t >= 0; t--) back = coinedVetoBeatBack('none', f.tables, back, t)
+  for (let t = beats - 1; t >= 0; t--) {
+    back = coinedVetoBeatBack('none', f.tables, back, t)
+  }
 
   const b0 = back.branches[0]
-  const reversed = back.branches.length === 1 && !!b0 && b0.a === 1n && b0.b === 0n && b0.k === 0 && samePoints(b0, start) && b0.sopen.every((v, i) => v === start.sopen[i] || start.store[i] === 0) && b0.open.every((v, i) => v === start.open[i] || start.vibe[i] === 0)
+  const reversed =
+    back.branches.length === 1 &&
+    !!b0 &&
+    b0.a === 1n &&
+    b0.b === 0n &&
+    b0.k === 0 &&
+    samePoints(b0, start) &&
+    b0.sopen.every(
+      (v, i) => v === start.sopen[i] || start.store[i] === 0,
+    ) &&
+    b0.open.every((v, i) => v === start.open[i] || start.vibe[i] === 0)
 
-  return { found: true, clean, normExact, reversed, coinSplits: coins.splits, meetingSplits: tally.splitMeetings, branchesMax, occupations: occupations.length }
+  return {
+    found: true,
+    clean,
+    normExact,
+    reversed,
+    coinSplits: coins.splits,
+    meetingSplits: tally.splitMeetings,
+    branchesMax,
+    occupations: occupations.length,
+  }
 }
 
 // ---- reported: where the coined vacuum differs on paths ----
-function pathDiffer(f: LockedFresh, threshold: number, beats: number): { crossed: number; firstDiffer: number; beatsDiffer: number } {
-  const a = vetoPathRunner('none', f.tables, vacuumOf(f, 'all'), threshold, 0, true)
-  const b = vetoPathRunner('none', f.tables, vacuumOf(f, 'all'), threshold, 0, false)
+function pathDiffer(
+  f: LockedFresh,
+  threshold: number,
+  beats: number,
+): { crossed: number; firstDiffer: number; beatsDiffer: number } {
+  const a = vetoPathRunner(
+    'none',
+    f.tables,
+    vacuumOf(f, 'all'),
+    threshold,
+    0,
+    true,
+  )
+  const b = vetoPathRunner(
+    'none',
+    f.tables,
+    vacuumOf(f, 'all'),
+    threshold,
+    0,
+    false,
+  )
+
   let firstDiffer = -1
   let beatsDiffer = 0
 
@@ -298,14 +519,25 @@ function pathDiffer(f: LockedFresh, threshold: number, beats: number): { crossed
 
     if (!sameOccupation(a.state(), b.state())) {
       beatsDiffer++
-      if (firstDiffer < 0) firstDiffer = t
+
+      if (firstDiffer < 0) {
+        firstDiffer = t
+      }
     }
   }
 
   return { crossed: a.crossed(), firstDiffer, beatsDiffer }
 }
 
-type PerStart = { name: string; closed: ReturnType<typeof closedAgree>; dock: DockReading; like: Global; lone: Global; born: ReturnType<typeof pathDiffer>; exchange: ReturnType<typeof pathDiffer> }
+type PerStart = {
+  name: string
+  closed: ReturnType<typeof closedAgree>
+  dock: DockReading
+  like: Global
+  lone: Global
+  born: ReturnType<typeof pathDiffer>
+  exchange: ReturnType<typeof pathDiffer>
+}
 
 export default experiment({
   id: 'relativity/coined-store-build',
@@ -318,7 +550,10 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const perms = groupTable().permutations
     const family = startFamily(16)
     const perStart: PerStart[] = family.map(member =>
@@ -327,28 +562,74 @@ export default experiment({
         const f8 = contactFresh(8, 'pass')
         const closed = closedAgree(f8, 96)
         const dock = dockChecks(f4, perms)
-        const pick = likePairStart('none', f4.tables, vacuumOf(f4, 'none'), 12)
-        const like = globalRun(f4, pick?.start, LIKE_BEATS, pick?.clean ?? false)
+        const pick = likePairStart(
+          'none',
+          f4.tables,
+          vacuumOf(f4, 'none'),
+          12,
+        )
+        const like = globalRun(
+          f4,
+          pick?.start,
+          LIKE_BEATS,
+          pick?.clean ?? false,
+        )
         const lone = globalRun(f4, seeded(f4, 'none'), LONE_BEATS, true)
         const born = pathDiffer(f8, THRESHOLD_BORN, 96)
         const exchange = pathDiffer(f8, THRESHOLD_EXCHANGE, 96)
 
         log(`start ${member.name}`)
 
-        return { name: member.name, closed, dock, like, lone, born, exchange }
+        return {
+          name: member.name,
+          closed,
+          dock,
+          like,
+          lone,
+          born,
+          exchange,
+        }
       }),
     )
 
-    const c1 = (p: PerStart): boolean => p.closed.superposed === 0 && p.closed.paths === 0 && p.closed.crossed === 0
-    const c2 = (p: PerStart): boolean => p.dock.normOff === 0 && p.dock.inverseOff === 0 && p.dock.docks > 0
-    const c3 = (p: PerStart): boolean => p.dock.covariance === 0 && p.dock.conjugation === 0 && p.dock.distinct > 0
-    const c4 = (p: PerStart): boolean => p.dock.iffOff === 0 && p.dock.differ > 0
-    const c5 = (p: PerStart): boolean => p.like.found && p.like.clean && p.like.normExact && p.like.reversed && p.lone.normExact && p.lone.reversed && p.lone.coinSplits > 0
+    const c1 = (p: PerStart): boolean =>
+      p.closed.superposed === 0 &&
+      p.closed.paths === 0 &&
+      p.closed.crossed === 0
+    const c2 = (p: PerStart): boolean =>
+      p.dock.normOff === 0 &&
+      p.dock.inverseOff === 0 &&
+      p.dock.docks > 0
+    const c3 = (p: PerStart): boolean =>
+      p.dock.covariance === 0 &&
+      p.dock.conjugation === 0 &&
+      p.dock.distinct > 0
+    const c4 = (p: PerStart): boolean =>
+      p.dock.iffOff === 0 && p.dock.differ > 0
+    const c5 = (p: PerStart): boolean =>
+      p.like.found &&
+      p.like.clean &&
+      p.like.normExact &&
+      p.like.reversed &&
+      p.lone.normExact &&
+      p.lone.reversed &&
+      p.lone.coinSplits > 0
     const gates = { C1: c1, C2: c2, C3: c3, C4: c4, C5: c5 }
-    const counts = Object.fromEntries(Object.entries(gates).map(([name, test]) => [name, perStart.filter(test).length])) as Record<keyof typeof gates, number>
-    const status = Object.values(counts).every(n => n === family.length) ? 'pass' : 'fail'
-    const range = (xs: number[]): string => (Math.min(...xs) === Math.max(...xs) ? `${Math.min(...xs)}` : `${Math.min(...xs)} to ${Math.max(...xs)}`)
-    const over = (f: (p: PerStart) => number): string => range(perStart.map(f))
+    const counts = Object.fromEntries(
+      Object.entries(gates).map(([name, test]) => [
+        name,
+        perStart.filter(test).length,
+      ]),
+    ) as Record<keyof typeof gates, number>
+    const status = Object.values(counts).every(n => n === family.length)
+      ? 'pass'
+      : 'fail'
+    const range = (xs: number[]): string =>
+      Math.min(...xs) === Math.max(...xs)
+        ? `${Math.min(...xs)}`
+        : `${Math.min(...xs)} to ${Math.max(...xs)}`
+    const over = (f: (p: PerStart) => number): string =>
+      range(perStart.map(f))
     const metrics: Record<string, number> = { starts: family.length }
 
     for (const [name, n] of Object.entries(counts)) {
@@ -357,17 +638,46 @@ export default experiment({
     }
 
     metrics.docksPerStart = perStart[0]!.dock.docks
-    metrics.distinctDocksMin = Math.min(...perStart.map(p => p.dock.distinct))
-    metrics.covarianceOff = perStart.reduce((s, p) => s + p.dock.covariance, 0)
+    metrics.distinctDocksMin = Math.min(
+      ...perStart.map(p => p.dock.distinct),
+    )
+
+    metrics.covarianceOff = perStart.reduce(
+      (s, p) => s + p.dock.covariance,
+      0,
+    )
     metrics.iffOff = perStart.reduce((s, p) => s + p.dock.iffOff, 0)
-    metrics.docksDifferMax = Math.max(...perStart.map(p => p.dock.differ))
-    metrics.likeCoinSplitsMax = Math.max(...perStart.map(p => p.like.coinSplits))
-    metrics.loneOccupationsMin = Math.min(...perStart.map(p => p.lone.occupations))
-    metrics.loneBranchesMax = Math.max(...perStart.map(p => p.lone.branchesMax))
-    metrics.bornCrossedMax = Math.max(...perStart.map(p => p.born.crossed))
-    metrics.bornBeatsDifferMax = Math.max(...perStart.map(p => p.born.beatsDiffer))
-    metrics.exchangeCrossedMax = Math.max(...perStart.map(p => p.exchange.crossed))
-    metrics.exchangeBeatsDifferMax = Math.max(...perStart.map(p => p.exchange.beatsDiffer))
+    metrics.docksDifferMax = Math.max(
+      ...perStart.map(p => p.dock.differ),
+    )
+
+    metrics.likeCoinSplitsMax = Math.max(
+      ...perStart.map(p => p.like.coinSplits),
+    )
+
+    metrics.loneOccupationsMin = Math.min(
+      ...perStart.map(p => p.lone.occupations),
+    )
+
+    metrics.loneBranchesMax = Math.max(
+      ...perStart.map(p => p.lone.branchesMax),
+    )
+
+    metrics.bornCrossedMax = Math.max(
+      ...perStart.map(p => p.born.crossed),
+    )
+
+    metrics.bornBeatsDifferMax = Math.max(
+      ...perStart.map(p => p.born.beatsDiffer),
+    )
+
+    metrics.exchangeCrossedMax = Math.max(
+      ...perStart.map(p => p.exchange.crossed),
+    )
+
+    metrics.exchangeBeatsDifferMax = Math.max(
+      ...perStart.map(p => p.exchange.beatsDiffer),
+    )
     metrics.seconds = (Date.now() - started) / 1000
 
     return verdict({
@@ -375,8 +685,13 @@ export default experiment({
       claim: `pass contact, no-veto store, coin on: gates ${JSON.stringify(counts)} of ${family.length}. C1 closed vacuum superposed mismatches ${over(p => p.closed.superposed)}, path mismatches ${over(p => p.closed.paths)}, coin crosses ${over(p => p.closed.crossed)}; C2 over ${perStart[0]!.dock.docks} docks a start, norm off ${over(p => p.dock.normOff)}, inverse off ${over(p => p.dock.inverseOff)}; C3 over ${over(p => p.dock.distinct)} distinct docks x 1,152 maps ${over(p => p.dock.covariance)} off, C ${over(p => p.dock.conjugation)} off; C4 docks differing ${over(p => p.dock.differ)}, against the iff ${over(p => p.dock.iffOff)}; C5 like pair norm ${perStart.filter(p => p.like.normExact).length} reversed ${perStart.filter(p => p.like.reversed).length} (coin splits ${over(p => p.like.coinSplits)}, meeting splits ${over(p => p.like.meetingSplits)}, occupations ${over(p => p.like.occupations)}), lone love norm ${perStart.filter(p => p.lone.normExact).length} reversed ${perStart.filter(p => p.lone.reversed).length} (coin splits ${over(p => p.lone.coinSplits)}, branches up to ${over(p => p.lone.branchesMax)}, occupations at beat ${LONE_BEATS} ${over(p => p.lone.occupations)}). Where the all-open vacuum differs (side 8, 96 beats): Born path ${over(p => p.born.crossed)} coin crosses, first differing beat ${over(p => p.born.firstDiffer)}, beats differing ${over(p => p.born.beatsDiffer)}; exchange path ${over(p => p.exchange.crossed)} crosses, first ${over(p => p.exchange.firstDiffer)}, beats differing ${over(p => p.exchange.beatsDiffer)}`,
       metrics,
       notes: `L2 (C3 exhaustive over its maps and docks). No fermion sign (not written for a configuration holding a store). Per start (C1 superposed/paths/crosses; C2 norm/inverse off; C4 differ/iff off; C3 distinct, off, C off; like splits coin/meeting, occupations; lone splits, branches, occupations; born crosses/first/differ; exchange crosses/first/differ): ${perStart
-        .map(p => `${p.name} ${p.closed.superposed}/${p.closed.paths}/${p.closed.crossed}; ${p.dock.normOff}/${p.dock.inverseOff}; ${p.dock.differ}/${p.dock.iffOff}; ${p.dock.distinct}, ${p.dock.covariance}, ${p.dock.conjugation}; ${p.like.coinSplits}/${p.like.meetingSplits}, ${p.like.occupations}; ${p.lone.coinSplits}, ${p.lone.branchesMax}, ${p.lone.occupations}; ${p.born.crossed}/${p.born.firstDiffer}/${p.born.beatsDiffer}; ${p.exchange.crossed}/${p.exchange.firstDiffer}/${p.exchange.beatsDiffer}`)
-        .join(' | ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+        .map(
+          p =>
+            `${p.name} ${p.closed.superposed}/${p.closed.paths}/${p.closed.crossed}; ${p.dock.normOff}/${p.dock.inverseOff}; ${p.dock.differ}/${p.dock.iffOff}; ${p.dock.distinct}, ${p.dock.covariance}, ${p.dock.conjugation}; ${p.like.coinSplits}/${p.like.meetingSplits}, ${p.like.occupations}; ${p.lone.coinSplits}, ${p.lone.branchesMax}, ${p.lone.occupations}; ${p.born.crossed}/${p.born.firstDiffer}/${p.born.beatsDiffer}; ${p.exchange.crossed}/${p.exchange.firstDiffer}/${p.exchange.beatsDiffer}`,
+        )
+        .join(
+          ' | ',
+        )}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },
 })

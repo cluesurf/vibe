@@ -26,7 +26,11 @@
 // NOTHING MOVES: each value takes its new value by the rule; no vibe is present in the medium runs.
 
 import { tailCoefficient } from '@/code/measure/husk-coulomb'
-import { coulombFlux, G_METRIC, huskGreenDifference } from '@/code/measure/trit-hop-light'
+import {
+  coulombFlux,
+  G_METRIC,
+  huskGreenDifference,
+} from '@/code/measure/trit-hop-light'
 import {
   boundaryTriangles,
   copyState,
@@ -61,9 +65,13 @@ export function fluxOf(m: Medium, s: HuskLightState): Int32Array {
   for (let t = 0; t < g.triangles; t++) {
     const u = s.potential[t]!
 
-    if (u === 0) continue
+    if (u === 0) {
+      continue
+    }
 
-    for (let j = t * 3; j < t * 3 + 3; j++) out[g.triLinks[j]!] = out[g.triLinks[j]!]! - g.triSigns[j]! * u
+    for (let j = t * 3; j < t * 3 + 3; j++) {
+      out[g.triLinks[j]!] = out[g.triLinks[j]!]! - g.triSigns[j]! * u
+    }
   }
 
   return out
@@ -83,21 +91,40 @@ export function divergence(m: Medium, s: HuskLightState): Int32Array {
 }
 
 // docks where div (S - C^T U) is not the source
-export function gaussAgainst(m: Medium, s: HuskLightState, rho: Int32Array): number {
+export function gaussAgainst(
+  m: Medium,
+  s: HuskLightState,
+  rho: Int32Array,
+): number {
   const div = divergence(m, s)
+
   let bad = 0
 
-  for (let y = 0; y < div.length; y++) if (div[y] !== rho[y]) bad++
+  for (let y = 0; y < div.length; y++) {
+    if (div[y] !== rho[y]) {
+      bad++
+    }
+  }
 
   return bad
 }
 
 // `units` of string from dock `from` to dock `to`, along +x, then +y, then +z axis links: div S gains +units at
 // `from` and -units at `to`
-export function placeString(m: Medium, s: HuskLightState, from: readonly number[], to: readonly number[], units: number): void {
+export function placeString(
+  m: Medium,
+  s: HuskLightState,
+  from: readonly number[],
+  to: readonly number[],
+  units: number,
+): void {
   const [sx, sy, sz] = m.sides
   const at = [from[0]!, from[1]!, from[2]!]
-  const counts = [mod(to[0]! - from[0]!, sx), mod(to[1]! - from[1]!, sy), mod(to[2]! - from[2]!, sz)]
+  const counts = [
+    mod(to[0]! - from[0]!, sx),
+    mod(to[1]! - from[1]!, sy),
+    mod(to[2]! - from[2]!, sz),
+  ]
 
   for (let axis = 0; axis < 3; axis++) {
     for (let i = 0; i < counts[axis]!; i++) {
@@ -112,20 +139,26 @@ export function placeString(m: Medium, s: HuskLightState, from: readonly number[
 // a gauge transform by an integer function on the docks: each link's angle gains its line integral of grad
 // lambda in the rule's own units (2 d lambda on an axis link, d lambda on a diagonal: a diagonal holds its line
 // integral, an axis twice its, as the uniform-potential check of varying-depth-light has it), wrapped by its window
-export function applyGauge(m: Medium, s: HuskLightState, lambda: Int32Array): void {
+export function applyGauge(
+  m: Medium,
+  s: HuskLightState,
+  lambda: Int32Array,
+): void {
   const g = m.geometry
 
   for (let l = 0; l < g.huskLinks; l++) {
     const d = lambda[g.huskNeighbour[l]!]! - lambda[Math.floor(l / 9)]!
     const n = m.linkWindow[l]!
 
-    s.angle[l] = mod(s.angle[l]! + (l % 9 < 3 ? 2 : 1) * d + n / 2, n) - n / 2
+    s.angle[l] =
+      mod(s.angle[l]! + (l % 9 < 3 ? 2 : 1) * d + n / 2, n) - n / 2
   }
 }
 
 // the largest weighted plaquette sum of a pure gauge angle (unwrapped): 0 when the gauge carries no field
 export function gaugePlaquette(m: Medium, lambda: Int32Array): number {
   const g = m.geometry
+
   let top = 0
 
   for (let t = 0; t < g.triangles; t++) {
@@ -133,7 +166,8 @@ export function gaugePlaquette(m: Medium, lambda: Int32Array): number {
 
     for (let j = t * 3; j < t * 3 + 3; j++) {
       const l = g.triLinks[j]!
-      const d = lambda[g.huskNeighbour[l]!]! - lambda[Math.floor(l / 9)]!
+      const d =
+        lambda[g.huskNeighbour[l]!]! - lambda[Math.floor(l / 9)]!
 
       v += g.triSigns[j]! * g.weight[l % 9]! * (l % 9 < 3 ? 2 : 1) * d
     }
@@ -150,9 +184,12 @@ export function longitudinal(m: Medium, s: HuskLightState): number {
   const g = m.geometry
   const rho = Float64Array.from(divergence(m, s))
   const el = coulombFlux(g, rho)
+
   let sum = 0
 
-  for (let l = 0; l < g.huskLinks; l++) sum += el[l]! ** 2 / (2 * G_METRIC[l % 9]!)
+  for (let l = 0; l < g.huskLinks; l++) {
+    sum += el[l]! ** 2 / (2 * G_METRIC[l % 9]!)
+  }
 
   return (Math.PI / m.dockDepth[0]!) * sum
 }
@@ -168,19 +205,33 @@ export const LUMP_COLUMN: readonly number[] = [2, 2, 2]
 export const SINK_COLUMN: readonly number[] = [6, 6, 6]
 
 // an integer gauge function, fixed polynomial in the dock index (no draw)
-export const gaugeFunction = (docks: number): Int32Array => Int32Array.from({ length: docks }, (_, y) => mod(5 * y * y + 3 * y + 1, 11) - 5)
+export const gaugeFunction = (docks: number): Int32Array =>
+  Int32Array.from(
+    { length: docks },
+    (_, y) => mod(5 * y * y + 3 * y + 1, 11) - 5,
+  )
 
-export type Placement = { at: readonly number[]; to: readonly number[]; units: number }
+export type Placement = {
+  at: readonly number[]
+  to: readonly number[]
+  units: number
+}
 
 // the state of placed strings (E starts as S, every other field 0) and the source map they give div S
-export function placedState(m: Medium, placements: readonly Placement[]): { state: HuskLightState; rho: Int32Array } {
+export function placedState(
+  m: Medium,
+  placements: readonly Placement[],
+): { state: HuskLightState; rho: Int32Array } {
   const s = emptyState(m)
   const rho = new Int32Array(m.geometry.huskDocks)
 
   for (const p of placements) {
     placeString(m, s, p.at, p.to, p.units)
-    rho[dockAt(m, p.at[0]!, p.at[1]!, p.at[2]!)] = rho[dockAt(m, p.at[0]!, p.at[1]!, p.at[2]!)]! + p.units
-    rho[dockAt(m, p.to[0]!, p.to[1]!, p.to[2]!)] = rho[dockAt(m, p.to[0]!, p.to[1]!, p.to[2]!)]! - p.units
+    rho[dockAt(m, p.at[0]!, p.at[1]!, p.at[2]!)] =
+      rho[dockAt(m, p.at[0]!, p.at[1]!, p.at[2]!)]! + p.units
+
+    rho[dockAt(m, p.to[0]!, p.to[1]!, p.to[2]!)] =
+      rho[dockAt(m, p.to[0]!, p.to[1]!, p.to[2]!)]! - p.units
   }
 
   return { state: s, rho }
@@ -196,30 +247,64 @@ export type CopyRun = {
   trace: HuskLightState[]
 }
 
-function runCopy(m: Medium, start: HuskLightState, rho: Int32Array, withEnergy: boolean, keepTrace: boolean): CopyRun {
+function runCopy(
+  m: Medium,
+  start: HuskLightState,
+  rho: Int32Array,
+  withEnergy: boolean,
+  keepTrace: boolean,
+): CopyRun {
   const s = copyState(start)
   const wraps = noWraps()
   const trace: HuskLightState[] = []
+
   let gauss = gaussAgainst(m, s, rho)
+
   const energyStart = withEnergy ? longitudinal(m, s) : 0
+
   let energyDrift = 0
 
   for (let t = 1; t <= EVEN_BEATS; t++) {
     mediumBeat(m, s, wraps)
     gauss += gaussAgainst(m, s, rho)
 
-    if (keepTrace) trace.push(copyState(s))
+    if (keepTrace) {
+      trace.push(copyState(s))
+    }
 
-    if (withEnergy && t % 8 === 0) energyDrift = Math.max(energyDrift, Math.abs(longitudinal(m, s) - energyStart))
+    if (withEnergy && t % 8 === 0) {
+      energyDrift = Math.max(
+        energyDrift,
+        Math.abs(longitudinal(m, s) - energyStart),
+      )
+    }
   }
 
-  for (let t = 0; t < EVEN_BEATS; t++) mediumBeatBack(m, s)
+  for (let t = 0; t < EVEN_BEATS; t++) {
+    mediumBeatBack(m, s)
+  }
 
-  return { gauss, reversed: sameState(s, start), wraps, energyStart, energyDrift, trace }
+  return {
+    gauss,
+    reversed: sameState(s, start),
+    wraps,
+    energyStart,
+    energyDrift,
+    trace,
+  }
 }
 
 const negated = (a: HuskLightState, b: HuskLightState): boolean =>
-  (['angle', 'potential', 'counter', 'lag', 'spatial', 'string'] as const).every(f => a[f].every((v, i) => v === -b[f][i]!))
+  (
+    [
+      'angle',
+      'potential',
+      'counter',
+      'lag',
+      'spatial',
+      'string',
+    ] as const
+  ).every(f => a[f].every((v, i) => v === -b[f][i]!))
 
 export type EvenSurvey = {
   // the lump and its flip on the even copy and on the light (the odd copy)
@@ -250,14 +335,21 @@ export type EvenSurvey = {
 let evenCache: EvenSurvey | undefined
 
 export function evenSurvey(log?: (what: string) => void): EvenSurvey {
-  if (evenCache) return evenCache
+  if (evenCache) {
+    return evenCache
+  }
 
   const started = Date.now()
-  const m = makeMedium([EVEN_SIDE, EVEN_SIDE, EVEN_SIDE], () => EVEN_DEPTH)
+  const m = makeMedium(
+    [EVEN_SIDE, EVEN_SIDE, EVEN_SIDE],
+    () => EVEN_DEPTH,
+  )
   const love = 3
   const fear = 1
   // content (even) and charge (odd) of the lump and of its flip
-  const source = (value: number): Placement[] => [{ at: LUMP_COLUMN, to: SINK_COLUMN, units: value }]
+  const source = (value: number): Placement[] => [
+    { at: LUMP_COLUMN, to: SINK_COLUMN, units: value },
+  ]
   const evenL = placedState(m, source(love + fear))
   const evenF = placedState(m, source(fear + love))
   const oddL = placedState(m, source(love - fear))
@@ -273,6 +365,7 @@ export function evenSurvey(log?: (what: string) => void): EvenSurvey {
   const lambda = gaugeFunction(m.geometry.huskDocks)
   const plain = copyState(evenL.state)
   const gauged = copyState(evenL.state)
+
   let gaugeCovariantBeats = 0
 
   applyGauge(m, gauged, lambda)
@@ -285,7 +378,9 @@ export function evenSurvey(log?: (what: string) => void): EvenSurvey {
 
     applyGauge(m, check, lambda)
 
-    if (sameState(check, gauged)) gaugeCovariantBeats++
+    if (sameState(check, gauged)) {
+      gaugeCovariantBeats++
+    }
   }
 
   // the pair energies (E-FRC-0241's six configurations, on the copy)
@@ -294,10 +389,13 @@ export function evenSurvey(log?: (what: string) => void): EvenSurvey {
   const evenLike: number[] = []
   const evenLoveFear: number[] = []
   const oddLoveFear: number[] = []
+
   let energyDrift = 0
   let pairGauss = 0
   let pairReversed = true
+
   const z1 = [0, 4, 4]
+
   const energyOf = (placements: Placement[]): number => {
     const p = placedState(m, placements)
     const run = runCopy(m, p.state, p.rho, true, false)
@@ -308,6 +406,7 @@ export function evenSurvey(log?: (what: string) => void): EvenSurvey {
 
     return run.energyStart
   }
+
   // the interaction energy of a source sa at a and sb at b, each compensated at its own Z (E-FRC-0241's six
   // configurations): W = U4 - U(a,Z1) - U(b,Z2) + sa sb (U(Z1,Z2) - U(a,Z2) - U(b,Z1)) = sa sb (pi / D)(G(r) - G(0)).
   // With sa sb = 1 this is E-FRC-0241's W_like
@@ -327,16 +426,26 @@ export function evenSurvey(log?: (what: string) => void): EvenSurvey {
 
     return u4 - aZ1 - bZ2 + sa * sb * (z1Z2 - aZ2 - bZ1)
   }
+
   // a vibe's source in each copy: the even copy counts it (+1 for love and for fear), the light charges it
   const evenSource = (_kind: 'love' | 'fear'): number => 1
-  const oddSource = (kind: 'love' | 'fear'): number => (kind === 'love' ? 1 : -1)
+  const oddSource = (kind: 'love' | 'fear'): number =>
+    kind === 'love' ? 1 : -1
 
   for (let r = 1; r <= 4; r++) {
     dipole.push(energyOf([{ at: [0, 0, 0], to: [r, 0, 0], units: 1 }]))
-    green.push((Math.PI / EVEN_DEPTH) * huskGreenDifference(EVEN_SIDE, [r, 0, 0]))
+    green.push(
+      (Math.PI / EVEN_DEPTH) *
+        huskGreenDifference(EVEN_SIDE, [r, 0, 0]),
+    )
     evenLike.push(pairEnergy(r, evenSource('love'), evenSource('love')))
-    evenLoveFear.push(pairEnergy(r, evenSource('love'), evenSource('fear')))
-    oddLoveFear.push(pairEnergy(r, oddSource('love'), oddSource('fear')))
+    evenLoveFear.push(
+      pairEnergy(r, evenSource('love'), evenSource('fear')),
+    )
+
+    oddLoveFear.push(
+      pairEnergy(r, oddSource('love'), oddSource('fear')),
+    )
     log?.(`pair r ${r} ${(Date.now() - started) / 1000}s`)
   }
 
@@ -345,9 +454,15 @@ export function evenSurvey(log?: (what: string) => void): EvenSurvey {
     evenFlip,
     oddLump,
     oddFlip,
-    evenFlipIdentical: evenLump.trace.every((s, t) => sameState(s, evenFlip.trace[t]!)),
-    oddFlipNegated: oddLump.trace.every((s, t) => negated(s, oddFlip.trace[t]!)),
-    oddFlipDiffers: oddLump.trace.some((s, t) => !sameState(s, oddFlip.trace[t]!)),
+    evenFlipIdentical: evenLump.trace.every((s, t) =>
+      sameState(s, evenFlip.trace[t]!),
+    ),
+    oddFlipNegated: oddLump.trace.every((s, t) =>
+      negated(s, oddFlip.trace[t]!),
+    ),
+    oddFlipDiffers: oddLump.trace.some(
+      (s, t) => !sameState(s, oddFlip.trace[t]!),
+    ),
     gaugeCovariant: gaugeCovariantBeats === EVEN_BEATS,
     gaugeCovariantBeats,
     gaugePlaquette: gaugePlaquette(m, lambda),
@@ -375,7 +490,9 @@ export const LENS_DEPTH = 16
 export const LENS_AMP = 12
 export const LENS_HALF_WIDTH = 16
 export const LENS_SOURCE_X = 12
-export const LENS_CENTER: readonly [number, number, number] = [32, 16, 16]
+export const LENS_CENTER: readonly [number, number, number] = [
+  32, 16, 16,
+]
 export const LENS_EXIT_X = 52
 export const LENS_WINDOW = 270
 // the radius at which the continuum potential falls to one threshold
@@ -394,21 +511,35 @@ export const HUSK_G0 = 0.0528305071922
 export const DELAY_B: readonly number[] = [0, 2, 4, 6, 8]
 export const BEND_B: readonly number[] = [3, 4, 5, 6]
 export const FAR_B: readonly number[] = [10, 12]
-export const DRIFT_R: readonly number[] = Array.from({ length: 13 }, (_, i) => i + 2)
+export const DRIFT_R: readonly number[] = Array.from(
+  { length: 13 },
+  (_, i) => i + 2,
+)
 
 // the infinite husk's Green's function at an integer offset: G0 at 0, else 1/(24 pi r) + A(r-hat) / r^5
 export function huskGreen(v: readonly number[]): number {
   const r = Math.hypot(v[0]!, v[1]!, v[2]!)
 
-  return r === 0 ? HUSK_G0 : 1 / (24 * Math.PI * r) + tailCoefficient('husk', v) / r ** 5
+  return r === 0
+    ? HUSK_G0
+    : 1 / (24 * Math.PI * r) + tailCoefficient('husk', v) / r ** 5
 }
 
-const minImage = (d: number, side: number): number => mod(d + side / 2, side) - side / 2
+const minImage = (d: number, side: number): number =>
+  mod(d + side / 2, side) - side / 2
 
 // the content of each lump column (love plus fear) and its charge (love minus fear)
-export type Lump = { columns: readonly (readonly number[])[]; love: number; fear: number }
+export type Lump = {
+  columns: readonly (readonly number[])[]
+  love: number
+  fear: number
+}
 
-export const lensLump = (flip: boolean): Lump => ({ columns: LENS_LUMP, love: flip ? 1 : 3, fear: flip ? 3 : 1 })
+export const lensLump = (flip: boolean): Lump => ({
+  columns: LENS_LUMP,
+  love: flip ? 1 : 3,
+  fear: flip ? 3 : 1,
+})
 
 // the even potential of a lump on every dock of the lens box (zero at infinity, minimum image)
 export function evenPotential(lump: Lump): Float64Array {
@@ -417,11 +548,18 @@ export function evenPotential(lump: Lump): Float64Array {
   const content = lump.love + lump.fear
 
   for (let y = 0; y < phi.length; y++) {
-    const x = [y % sx, Math.floor(y / sx) % sy, Math.floor(y / (sx * sy))]
+    const x = [
+      y % sx,
+      Math.floor(y / sx) % sy,
+      Math.floor(y / (sx * sy)),
+    ]
+
     let v = 0
 
     for (const c of lump.columns) {
-      const d = [0, 1, 2].map(i => minImage(x[i]! - LENS_CENTER[i]! - c[i]!, LENS[i]!))
+      const d = [0, 1, 2].map(i =>
+        minImage(x[i]! - LENS_CENTER[i]! - c[i]!, LENS[i]!),
+      )
 
       v += content * huskGreen(d)
     }
@@ -433,13 +571,17 @@ export function evenPotential(lump: Lump): Float64Array {
 }
 
 // the threshold: one step of depth per M / (24 pi K) of potential
-export const lensTheta = (lump: Lump): number => ((lump.love + lump.fear) * lump.columns.length) / (24 * Math.PI * LENS_K)
+export const lensTheta = (lump: Lump): number =>
+  ((lump.love + lump.fear) * lump.columns.length) /
+  (24 * Math.PI * LENS_K)
 
 // the depth offset: how many thresholds j theta (j = 1, 2, ...) the potential reaches
 export function thresholdCount(phi: number, theta: number): number {
   let j = 0
 
-  while (phi >= (j + 1) * theta) j++
+  while (phi >= (j + 1) * theta) {
+    j++
+  }
 
   return j
 }
@@ -448,24 +590,38 @@ export function lensDepth(lump: Lump | undefined): Int32Array {
   const [sx, sy, sz] = LENS
   const out = new Int32Array(sx * sy * sz).fill(LENS_DEPTH)
 
-  if (!lump) return out
+  if (!lump) {
+    return out
+  }
 
   const phi = evenPotential(lump)
   const theta = lensTheta(lump)
 
-  for (let y = 0; y < out.length; y++) out[y] = LENS_DEPTH + thresholdCount(phi[y]!, theta)
+  for (let y = 0; y < out.length; y++) {
+    out[y] = LENS_DEPTH + thresholdCount(phi[y]!, theta)
+  }
 
   return out
 }
 
-const dockIndex = (x: number, y: number, z: number): number => mod(x, LENS[0]) + LENS[0] * mod(y, LENS[1]) + LENS[0] * LENS[1] * mod(z, LENS[2])
+const dockIndex = (x: number, y: number, z: number): number =>
+  mod(x, LENS[0]) +
+  LENS[0] * mod(y, LENS[1]) +
+  LENS[0] * LENS[1] * mod(z, LENS[2])
 
 // the straight-line eikonal delay to the exit plane of the ray at (y, z): sum over x of 1/c(D) - 1/c(D0)
-export function eikonalDelay(depth: Int32Array, y: number, z: number): number {
+export function eikonalDelay(
+  depth: Int32Array,
+  y: number,
+  z: number,
+): number {
   const c0 = lightSpeed(LENS_DEPTH)
+
   let tau = 0
 
-  for (let x = LENS_SOURCE_X; x < LENS_EXIT_X; x++) tau += 1 / lightSpeed(depth[dockIndex(x, y, z)]!) - 1 / c0
+  for (let x = LENS_SOURCE_X; x < LENS_EXIT_X; x++) {
+    tau += 1 / lightSpeed(depth[dockIndex(x, y, z)]!) - 1 / c0
+  }
 
   return tau
 }
@@ -477,11 +633,18 @@ export function truncatedDeflection(b: number): number {
   const eps = k / (2 * LENS_DEPTH + 1)
   const s = Math.sqrt(k * k - b * b)
 
-  return b >= k ? 0 : 2 * eps * (1 / b - b / (k * s) + b / (s * (k + s)))
+  return b >= k
+    ? 0
+    : 2 * eps * (1 / b - b / (k * s) + b / (s * (k + s)))
 }
 
 // forward only (the control, whose reversal E-GRV-0070 already ran): every detector's arrival and raw trace
-function forwardRun(m: Medium, start: HuskLightState, detectors: readonly number[], window: number): { arrival: number[]; traces: Float64Array[]; wraps: Wraps } {
+function forwardRun(
+  m: Medium,
+  start: HuskLightState,
+  detectors: readonly number[],
+  window: number,
+): { arrival: number[]; traces: Float64Array[]; wraps: Wraps } {
   const s = copyState(start)
   const wraps = noWraps()
   const traces = detectors.map(() => new Float64Array(window + 1))
@@ -518,22 +681,34 @@ export type LensSurvey = {
 let lensCache: LensSurvey | undefined
 
 export function lensSurvey(log?: (what: string) => void): LensSurvey {
-  if (lensCache) return lensCache
+  if (lensCache) {
+    return lensCache
+  }
 
   const started = Date.now()
   const [sx, sy, sz] = LENS
   const [cx, cy, cz] = LENS_CENTER
   const depthLump = lensDepth(lensLump(false))
   const depthFlip = lensDepth(lensLump(true))
-  const medium = (depth: Int32Array): Medium => makeMedium(LENS, (x, y, z) => depth[dockIndex(x, y, z)]!)
+  const medium = (depth: Int32Array): Medium =>
+    makeMedium(LENS, (x, y, z) => depth[dockIndex(x, y, z)]!)
   const m0 = makeMedium(LENS, () => LENS_DEPTH)
   const mLump = medium(depthLump)
   const mFlip = medium(depthFlip)
   const detectors = [
-    ...Array.from({ length: sy }, (_, y) => dockAt(m0, LENS_EXIT_X, y, cz)),
-    ...Array.from({ length: sz }, (_, z) => dockAt(m0, LENS_EXIT_X, cy, z)),
+    ...Array.from({ length: sy }, (_, y) =>
+      dockAt(m0, LENS_EXIT_X, y, cz),
+    ),
+    ...Array.from({ length: sz }, (_, z) =>
+      dockAt(m0, LENS_EXIT_X, cy, z),
+    ),
   ]
-  const start = planarPacket(m0, LENS_SOURCE_X, LENS_AMP, LENS_HALF_WIDTH)
+  const start = planarPacket(
+    m0,
+    LENS_SOURCE_X,
+    LENS_AMP,
+    LENS_HALF_WIDTH,
+  )
   const u0 = forwardRun(m0, start, detectors, LENS_WINDOW)
 
   log?.(`u0 ${(Date.now() - started) / 1000}s`)
@@ -551,6 +726,7 @@ export function lensSurvey(log?: (what: string) => void): LensSurvey {
 
   // shell radii along +y: the first r at which Delta falls to each value
   const shellRadius: number[] = []
+
   let last = depthLump[dockIndex(cx, cy, cz)]! - LENS_DEPTH
 
   for (let r = 1; r <= sy / 2; r++) {
@@ -570,34 +746,57 @@ export function lensSurvey(log?: (what: string) => void): LensSurvey {
   rho[0] = rho[0]! + 1
 
   const field = coulombFlux(g, rho)
+
   const energyAt = (px: number, py: number, pz: number): number => {
     let sum = 0
 
     for (let y = 0; y < g.huskDocks; y++) {
-      const x = [y % sx, Math.floor(y / sx) % sy, Math.floor(y / (sx * sy))]
+      const x = [
+        y % sx,
+        Math.floor(y / sx) % sy,
+        Math.floor(y / (sx * sy)),
+      ]
       const shifted = dockIndex(x[0]! - px, x[1]! - py, x[2]! - pz)
       const w = Math.PI / mLump.dockDepth[y]!
 
-      for (let h = 0; h < 9; h++) sum += (w * field[shifted * 9 + h]! ** 2) / (2 * G_METRIC[h]!)
+      for (let h = 0; h < 9; h++) {
+        sum += (w * field[shifted * 9 + h]! ** 2) / (2 * G_METRIC[h]!)
+      }
     }
 
     return sum
   }
+
   const phi = evenPotential(lensLump(false))
-  const selfEnergy = DRIFT_R.map(r => (energyAt(cx, cy + r, cz) + energyAt(cx, cy, cz + r)) / 2)
-  const evenEnergy = DRIFT_R.map(r => ((Math.PI / LENS_DEPTH) * (phi[dockIndex(cx, cy + r, cz)]! + phi[dockIndex(cx, cy, cz + r)]!)) / 2)
+  const selfEnergy = DRIFT_R.map(
+    r => (energyAt(cx, cy + r, cz) + energyAt(cx, cy, cz + r)) / 2,
+  )
+  const evenEnergy = DRIFT_R.map(
+    r =>
+      ((Math.PI / LENS_DEPTH) *
+        (phi[dockIndex(cx, cy + r, cz)]! +
+          phi[dockIndex(cx, cy, cz + r)]!)) /
+      2,
+  )
 
   lensCache = {
     depthMaxLump: depthLump.reduce((a, v) => Math.max(a, v), 0),
     depthFlipIdentical: depthLump.every((v, i) => v === depthFlip[i]),
-    depthColumnsDeepened: depthLump.reduce((c, v) => c + (v > LENS_DEPTH ? 1 : 0), 0),
+    depthColumnsDeepened: depthLump.reduce(
+      (c, v) => c + (v > LENS_DEPTH ? 1 : 0),
+      0,
+    ),
     shellRadius,
     boundary: boundaryTriangles(mLump),
     u0: { arrival: u0.arrival, wraps: u0.wraps },
     lump,
     flipMediumIdentical,
-    eikonalY: Array.from({ length: sy }, (_, y) => eikonalDelay(depthLump, y, cz)),
-    eikonalZ: Array.from({ length: sz }, (_, z) => eikonalDelay(depthLump, cy, z)),
+    eikonalY: Array.from({ length: sy }, (_, y) =>
+      eikonalDelay(depthLump, y, cz),
+    ),
+    eikonalZ: Array.from({ length: sz }, (_, z) =>
+      eikonalDelay(depthLump, cy, z),
+    ),
     selfEnergy,
     evenEnergy,
     seconds: (Date.now() - started) / 1000,

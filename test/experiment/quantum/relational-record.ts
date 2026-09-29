@@ -78,7 +78,11 @@ import { verdict } from '@/test/scaffold/verdict'
 import type { Whole } from '@/code/rule/fear-weave'
 import { phaseMove } from '@/code/rule/fear-weave'
 import { gridMoves } from '@/code/rule/vibe-weave'
-import { advanceKnot, bellHistories, lineKnot } from '@/code/measure/knot-histories'
+import {
+  advanceKnot,
+  bellHistories,
+  lineKnot,
+} from '@/code/measure/knot-histories'
 import { LINE_CLASSES, physicalFrame } from '@/code/measure/sum-record'
 import {
   addPoints,
@@ -94,12 +98,19 @@ import {
 const BEATS = 480
 const SIGNS = [1, 1, -1]
 
-const directionPoint = (c: number): number => 3 * (LINE_CLASSES[c]?.direction[0] ?? 0) + (LINE_CLASSES[c]?.direction[1] ?? 0)
+const directionPoint = (c: number): number =>
+  3 * (LINE_CLASSES[c]?.direction[0] ?? 0) +
+  (LINE_CLASSES[c]?.direction[1] ?? 0)
 // LABEL[9 c + x] = [d_c, x]
-const LABEL = Int8Array.from({ length: 36 }, (_, k) => pointForm(directionPoint(Math.floor(k / 9)), k % 9))
+const LABEL = Int8Array.from({ length: 36 }, (_, k) =>
+  pointForm(directionPoint(Math.floor(k / 9)), k % 9),
+)
 // the 12 lines as (class, points)
-const LINES = LINE_CLASSES.flatMap((c, ci) => c.lines.map(points => ({ c: ci, points: [...points] })))
-const lineLabel = (l: { c: number; points: number[] }): number => LABEL[9 * l.c + (l.points[0] ?? 0)] ?? 0
+const LINES = LINE_CLASSES.flatMap((c, ci) =>
+  c.lines.map(points => ({ c: ci, points: [...points] })),
+)
+const lineLabel = (l: { c: number; points: number[] }): number =>
+  LABEL[9 * l.c + (l.points[0] ?? 0)] ?? 0
 
 // the joint table of a 3 x 3 matrix on stored points, index 81 x1 + 9 x2 + x3
 function tripleTable(a: readonly number[]): Int16Array {
@@ -107,7 +118,11 @@ function tripleTable(a: readonly number[]): Int16Array {
   const table = new Int16Array(729)
 
   for (let j = 0; j < 729; j++) {
-    applyStoredLinear(a, [Math.floor(j / 81), Math.floor(j / 9) % 9, j % 9], out)
+    applyStoredLinear(
+      a,
+      [Math.floor(j / 81), Math.floor(j / 9) % 9, j % 9],
+      out,
+    )
     table[j] = 81 * (out[0] ?? 0) + 9 * (out[1] ?? 0) + (out[2] ?? 0)
   }
 
@@ -117,8 +132,16 @@ function tripleTable(a: readonly number[]): Int16Array {
 // Does map `a` (n tokens) with the system at slot s and apparatus token k on line lines[k] measure class c?
 // Tested on all 12 system line states: the system's c-label distribution kept, the system flat along c, and
 // some apparatus token whose c-label is one bijection of the system's across all 12 states.
-function measures(a: readonly number[], n: number, s: number, lines: readonly (readonly number[])[], c: number): boolean {
-  const others = Array.from({ length: n }, (_, i) => i).filter(i => i !== s)
+function measures(
+  a: readonly number[],
+  n: number,
+  s: number,
+  lines: readonly (readonly number[])[],
+  c: number,
+): boolean {
+  const others = Array.from({ length: n }, (_, i) => i).filter(
+    i => i !== s,
+  )
   // for each other token, the map system label -> record label seen, -1 unseen, -2 conflicting
   const seen = others.map(() => [-1, -1, -1])
   const combos = others.reduce((m, k) => m * (lines[k]?.length ?? 1), 1)
@@ -130,12 +153,14 @@ function measures(a: readonly number[], n: number, s: number, lines: readonly (r
     const after = new Array<number>(9).fill(0)
 
     for (const x of state.points) {
-      before[LABEL[9 * c + x] ?? 0] = (before[LABEL[9 * c + x] ?? 0] ?? 0) + combos
+      before[LABEL[9 * c + x] ?? 0] =
+        (before[LABEL[9 * c + x] ?? 0] ?? 0) + combos
 
       for (let m = 0; m < combos; m++) {
         let rest = m
 
         points[s] = x
+
         for (const k of others) {
           const line = lines[k] ?? []
 
@@ -144,6 +169,7 @@ function measures(a: readonly number[], n: number, s: number, lines: readonly (r
         }
 
         applyStoredLinear(a, points, image)
+
         const xs = image[s] ?? 0
         const ks = LABEL[9 * c + xs] ?? 0
 
@@ -160,19 +186,26 @@ function measures(a: readonly number[], n: number, s: number, lines: readonly (r
     const labelsAfter = [0, 0, 0]
 
     after.forEach((w, x) => {
-      labelsAfter[LABEL[9 * c + x] ?? 0] = (labelsAfter[LABEL[9 * c + x] ?? 0] ?? 0) + w
+      labelsAfter[LABEL[9 * c + x] ?? 0] =
+        (labelsAfter[LABEL[9 * c + x] ?? 0] ?? 0) + w
     })
 
     if (labelsAfter.some((w, k) => w !== before[k])) {
       return false
     }
 
-    if (after.some((w, x) => 3 * w !== (labelsAfter[LABEL[9 * c + x] ?? 0] ?? 0))) {
+    if (
+      after.some(
+        (w, x) => 3 * w !== (labelsAfter[LABEL[9 * c + x] ?? 0] ?? 0),
+      )
+    ) {
       return false
     }
   }
 
-  return seen.some(map => map.every(v => v >= 0) && new Set(map).size === 3)
+  return seen.some(
+    map => map.every(v => v >= 0) && new Set(map).size === 3,
+  )
 }
 
 export default experiment({
@@ -192,12 +225,18 @@ export default experiment({
     const moves = gridMoves()
     const phaseMoves = moves.act.map(g => phaseMove(g))
     const hit = new Uint8Array(729)
+
     let meetingBad = 0
 
     for (let j = 0; j < 729; j++) {
       const image = table[j] ?? 0
       const p = [Math.floor(j / 81), Math.floor(j / 9) % 9, j % 9]
-      const q = [Math.floor(image / 81), Math.floor(image / 9) % 9, image % 9]
+      const q = [
+        Math.floor(image / 81),
+        Math.floor(image / 9) % 9,
+        image % 9,
+      ]
+
       const color = (xs: readonly number[]): number => {
         let qa = 0
         let qb = 0
@@ -216,10 +255,19 @@ export default experiment({
       meetingBad += color(p) === color(q) ? 0 : 1
 
       for (const g of phaseMoves) {
-        const moved = 81 * (g[p[0] ?? 0] ?? 0) + 9 * (g[p[1] ?? 0] ?? 0) + (g[p[2] ?? 0] ?? 0)
+        const moved =
+          81 * (g[p[0] ?? 0] ?? 0) +
+          9 * (g[p[1] ?? 0] ?? 0) +
+          (g[p[2] ?? 0] ?? 0)
         const left = table[moved] ?? 0
 
-        meetingBad += left === 81 * (g[q[0] ?? 0] ?? 0) + 9 * (g[q[1] ?? 0] ?? 0) + (g[q[2] ?? 0] ?? 0) ? 0 : 1
+        meetingBad +=
+          left ===
+          81 * (g[q[0] ?? 0] ?? 0) +
+            9 * (g[q[1] ?? 0] ?? 0) +
+            (g[q[2] ?? 0] ?? 0)
+            ? 0
+            : 1
       }
     }
 
@@ -240,7 +288,12 @@ export default experiment({
 
     // the preparation l(p, q) is covariant
     const lineThrough = (p: number, q: number): number[] =>
-      [0, 1, 2].map(s => addPoints(p, scalePoint(s, addPoints(q, scalePoint(2, p))))).sort((a, b) => a - b)
+      [0, 1, 2]
+        .map(s =>
+          addPoints(p, scalePoint(s, addPoints(q, scalePoint(2, p)))),
+        )
+        .sort((a, b) => a - b)
+
     let preparationBad = 0
 
     for (let p = 0; p < 9; p++) {
@@ -255,7 +308,9 @@ export default experiment({
           const moved = line.map(x => g[x] ?? 0).sort((a, b) => a - b)
           const direct = lineThrough(g[p] ?? 0, g[q] ?? 0)
 
-          preparationBad += moved.every((x, i) => x === direct[i]) ? 0 : 1
+          preparationBad += moved.every((x, i) => x === direct[i])
+            ? 0
+            : 1
         }
       }
     }
@@ -283,7 +338,11 @@ export default experiment({
     }
 
     for (const h of bellHistories(BEATS)) {
-      let w: Whole = lineKnot(h.tokens, [0, 1, 2].map(k => 3 * (h.start[0] ?? 0) + k), [0, 1, 2].map(k => 3 * (h.start[1] ?? 0) + k))
+      let w: Whole = lineKnot(
+        h.tokens,
+        [0, 1, 2].map(k => 3 * (h.start[0] ?? 0) + k),
+        [0, 1, 2].map(k => 3 * (h.start[1] ?? 0) + k),
+      )
 
       for (const record of h.records) {
         w = advanceKnot(h, w, record)
@@ -301,7 +360,8 @@ export default experiment({
         const margB = new Array<bigint>(9).fill(0n)
 
         for (const i of nonzero) {
-          margA[Math.floor(i / 9)] = (margA[Math.floor(i / 9)] ?? 0n) + (state.weight[i] ?? 0n)
+          margA[Math.floor(i / 9)] =
+            (margA[Math.floor(i / 9)] ?? 0n) + (state.weight[i] ?? 0n)
           margB[i % 9] = (margB[i % 9] ?? 0n) + (state.weight[i] ?? 0n)
         }
 
@@ -327,14 +387,16 @@ export default experiment({
                 const image = table[81 * xa + 9 * sr + sf] ?? 0
                 const a2 = Math.floor(image / 81)
                 const k = LABEL[9 * c + a2] ?? 0
-                const kr = LABEL[9 * c + (Math.floor(image / 9) % 9)] ?? 0
+                const kr =
+                  LABEL[9 * c + (Math.floor(image / 9) % 9)] ?? 0
                 const kf = LABEL[9 * c + (image % 9)] ?? 0
 
                 aAfter[a2] = (aAfter[a2] ?? 0n) + x
                 bAfter[i % 9] = (bAfter[i % 9] ?? 0n) + x
                 jointRec[3 * k + kr] = (jointRec[3 * k + kr] ?? 0n) + x
                 jointRef[3 * k + kf] = (jointRef[3 * k + kf] ?? 0n) + x
-                pointRec[3 * a2 + kr] = (pointRec[3 * a2 + kr] ?? 0n) + x
+                pointRec[3 * a2 + kr] =
+                  (pointRec[3 * a2 + kr] ?? 0n) + x
               }
             }
           }
@@ -345,22 +407,52 @@ export default experiment({
             const out = [0n, 0n, 0n]
 
             m.forEach((x, p) => {
-              out[LABEL[9 * c + p] ?? 0] = (out[LABEL[9 * c + p] ?? 0] ?? 0n) + x
+              out[LABEL[9 * c + p] ?? 0] =
+                (out[LABEL[9 * c + p] ?? 0] ?? 0n) + x
             })
 
             return out
           }
+
           const before = labelsOf(margA).map(x => 9n * x)
           const after = labelsOf(aAfter)
 
-          counts.copyBad += jointRec.every((x, j) => x === 0n || mod3(2 * lam - Math.floor(j / 3)) === j % 3) ? 0 : 1
-          counts.referenceCopyBad += jointRef.every((x, j) => x === 0n || mod3(-Math.floor(j / 3) - lam) === j % 3) ? 0 : 1
-          counts.unchangedBad += before.every((x, k) => x === after[k]) ? 0 : 1
-          counts.partnerBad += margB.every((x, p) => 9n * x === bAfter[p]) ? 0 : 1
-          counts.flatBad += aAfter.every((x, p) => 3n * x === (after[LABEL[9 * c + p] ?? 0] ?? 0n)) ? 0 : 1
+          counts.copyBad += jointRec.every(
+            (x, j) =>
+              x === 0n || mod3(2 * lam - Math.floor(j / 3)) === j % 3,
+          )
+            ? 0
+            : 1
+
+          counts.referenceCopyBad += jointRef.every(
+            (x, j) =>
+              x === 0n || mod3(-Math.floor(j / 3) - lam) === j % 3,
+          )
+            ? 0
+            : 1
+
+          counts.unchangedBad += before.every((x, k) => x === after[k])
+            ? 0
+            : 1
+
+          counts.partnerBad += margB.every(
+            (x, p) => 9n * x === bAfter[p],
+          )
+            ? 0
+            : 1
+
+          counts.flatBad += aAfter.every(
+            (x, p) => 3n * x === (after[LABEL[9 * c + p] ?? 0] ?? 0n),
+          )
+            ? 0
+            : 1
 
           if (line === LINES[0]) {
-            counts.statesWithNonUniformLabel += before.every(x => x === before[0]) ? 0 : 1
+            counts.statesWithNonUniformLabel += before.every(
+              x => x === before[0],
+            )
+              ? 0
+              : 1
           }
 
           // the second apparatus
@@ -376,10 +468,14 @@ export default experiment({
 
               for (const sr of line2.points) {
                 for (const sf of line2.points) {
-                  const image = table[81 * Math.floor(j / 3) + 9 * sr + sf] ?? 0
-                  const kr2 = LABEL[9 * line2.c + (Math.floor(image / 9) % 9)] ?? 0
+                  const image =
+                    table[81 * Math.floor(j / 3) + 9 * sr + sf] ?? 0
+                  const kr2 =
+                    LABEL[9 * line2.c + (Math.floor(image / 9) % 9)] ??
+                    0
 
-                  joint[3 * (j % 3) + kr2] = (joint[3 * (j % 3) + kr2] ?? 0n) + x
+                  joint[3 * (j % 3) + kr2] =
+                    (joint[3 * (j % 3) + kr2] ?? 0n) + x
                 }
               }
             }
@@ -388,14 +484,35 @@ export default experiment({
               const shift = 2 * (lineLabel(line2) - lam)
 
               counts.sameClassPairs++
-              counts.sameClassBad += joint.every((x, j) => x === 0n || mod3(Math.floor(j / 3) + shift) === j % 3) ? 0 : 1
+              counts.sameClassBad += joint.every(
+                (x, j) =>
+                  x === 0n || mod3(Math.floor(j / 3) + shift) === j % 3,
+              )
+                ? 0
+                : 1
             } else {
               const total = joint.reduce((s, x) => s + x, 0n)
-              const row = [0, 1, 2].map(a => (joint[3 * a] ?? 0n) + (joint[3 * a + 1] ?? 0n) + (joint[3 * a + 2] ?? 0n))
-              const col = [0, 1, 2].map(b => (joint[b] ?? 0n) + (joint[3 + b] ?? 0n) + (joint[6 + b] ?? 0n))
+              const row = [0, 1, 2].map(
+                a =>
+                  (joint[3 * a] ?? 0n) +
+                  (joint[3 * a + 1] ?? 0n) +
+                  (joint[3 * a + 2] ?? 0n),
+              )
+              const col = [0, 1, 2].map(
+                b =>
+                  (joint[b] ?? 0n) +
+                  (joint[3 + b] ?? 0n) +
+                  (joint[6 + b] ?? 0n),
+              )
 
               counts.otherClassPairs++
-              counts.otherClassBad += joint.every((x, j) => x * total === (row[Math.floor(j / 3)] ?? 0n) * (col[j % 3] ?? 0n)) ? 0 : 1
+              counts.otherClassBad += joint.every(
+                (x, j) =>
+                  x * total ===
+                  (row[Math.floor(j / 3)] ?? 0n) * (col[j % 3] ?? 0n),
+              )
+                ? 0
+                : 1
             }
           }
 
@@ -419,7 +536,8 @@ export default experiment({
                 for (const sf of other.points) {
                   const image = table[81 * xa + 9 * sr + sf] ?? 0
                   const k = LABEL[9 * c + Math.floor(image / 81)] ?? 0
-                  const kr = LABEL[9 * c + (Math.floor(image / 9) % 9)] ?? 0
+                  const kr =
+                    LABEL[9 * c + (Math.floor(image / 9) % 9)] ?? 0
 
                   kAfter[k] = (kAfter[k] ?? 0n) + x
                   joint[3 * k + kr] = (joint[3 * k + kr] ?? 0n) + x
@@ -427,11 +545,31 @@ export default experiment({
               }
             }
 
-            const rows = [0, 1, 2].map(k => [0, 1, 2].filter(kr => (joint[3 * k + kr] ?? 0n) !== 0n).length)
+            const rows = [0, 1, 2].map(
+              k =>
+                [0, 1, 2].filter(kr => (joint[3 * k + kr] ?? 0n) !== 0n)
+                  .length,
+            )
 
             counts.kickCases++
-            counts.kickCopyBad += rows.every(n => n <= 1) && new Set([0, 1, 2].map(k => [0, 1, 2].find(kr => (joint[3 * k + kr] ?? 0n) !== 0n) ?? -k - 10)).size === 3 ? 0 : 1
-            counts.kickChanged += before.every((x, k) => x === kAfter[k]) ? 0 : 1
+            counts.kickCopyBad +=
+              rows.every(n => n <= 1) &&
+              new Set(
+                [0, 1, 2].map(
+                  k =>
+                    [0, 1, 2].find(
+                      kr => (joint[3 * k + kr] ?? 0n) !== 0n,
+                    ) ?? -k - 10,
+                ),
+              ).size === 3
+                ? 0
+                : 1
+
+            counts.kickChanged += before.every(
+              (x, k) => x === kAfter[k],
+            )
+              ? 0
+              : 1
           }
         }
 
@@ -447,9 +585,11 @@ export default experiment({
             }
 
             for (let y = 0; y < 9; y++) {
-              const image = table[81 * xa + 9 * y + addPoints(y, v)] ?? 0
+              const image =
+                table[81 * xa + 9 * y + addPoints(y, v)] ?? 0
 
-              joint[81 * xa + (image % 81)] = (joint[81 * xa + (image % 81)] ?? 0n) + x
+              joint[81 * xa + (image % 81)] =
+                (joint[81 * xa + (image % 81)] ?? 0n) + x
             }
           }
 
@@ -459,28 +599,40 @@ export default experiment({
 
           joint.forEach((x, j) => {
             pair[j % 81] = (pair[j % 81] ?? 0n) + x
-            sys[Math.floor(j / 81)] = (sys[Math.floor(j / 81)] ?? 0n) + x
+            sys[Math.floor(j / 81)] =
+              (sys[Math.floor(j / 81)] ?? 0n) + x
           })
 
           counts.bellCases++
-          counts.bellLearned += joint.every((x, j) => x * total === (sys[Math.floor(j / 81)] ?? 0n) * (pair[j % 81] ?? 0n)) ? 0 : 1
+          counts.bellLearned += joint.every(
+            (x, j) =>
+              x * total ===
+              (sys[Math.floor(j / 81)] ?? 0n) * (pair[j % 81] ?? 0n),
+          )
+            ? 0
+            : 1
         }
       }
     }
 
     // G4 and G5: which covariant meetings measure, exhaustively
-    const patterns = Array.from({ length: 8 }, (_, k) => [0, 1, 2].map(i => ((k >> i) & 1 ? -1 : 1)))
+    const patterns = Array.from({ length: 8 }, (_, k) =>
+      [0, 1, 2].map(i => ((k >> i) & 1 ? -1 : 1)),
+    )
+
     let passes = 0
     let passesNotR = 0
     let passesTwoLines = 0
     let passesOnKnots = 0
     let knotReadingBad = 0
+
     const perPattern: Record<string, number> = {}
 
     for (const signs of patterns) {
       const name = signs.map(w => (w > 0 ? 'L' : 'F')).join('')
       const maps = covariantCliffords(signs)
       const reflection = frameReflection(signs)
+
       let count = 0
 
       for (const a of maps) {
@@ -501,10 +653,17 @@ export default experiment({
 
                 count++
                 passes++
-                passesNotR += reflection && a.every((x, k) => x === reflection[k]) ? 0 : 1
+                passesNotR +=
+                  reflection && a.every((x, k) => x === reflection[k])
+                    ? 0
+                    : 1
                 passesTwoLines += li === lj ? 0 : 1
                 passesOnKnots += chargeOf(signs) === 0 ? 1 : 0
-                knotReadingBad += chargeOf([signs[i ?? 0] ?? 0, signs[j ?? 0] ?? 0]) === 0 && chargeOf(signs) !== 0 ? 0 : 1
+                knotReadingBad +=
+                  chargeOf([signs[i ?? 0] ?? 0, signs[j ?? 0] ?? 0]) ===
+                    0 && chargeOf(signs) !== 0
+                    ? 0
+                    : 1
               }
             }
           }
@@ -524,8 +683,10 @@ export default experiment({
     ]) {
       const name = signs.map(w => (w > 0 ? 'L' : 'F')).join('')
       const maps = covariantCliffords(signs)
+
       let count = 0
       let apparatusKnots = 0
+
       const mapsThatMeasure = new Set<number>()
 
       maps.forEach((a, mi) => {
@@ -539,13 +700,15 @@ export default experiment({
               const lines: number[][] = [[], [], [], []]
 
               others.forEach((k, t) => {
-                lines[k] = classLines[Math.floor(m / 3 ** t) % 3]?.points ?? []
+                lines[k] =
+                  classLines[Math.floor(m / 3 ** t) % 3]?.points ?? []
               })
 
               if (measures(a, 4, s, lines, c)) {
                 count++
                 mapsThatMeasure.add(mi)
-                apparatusKnots += chargeOf(others.map(k => signs[k] ?? 0)) === 0 ? 1 : 0
+                apparatusKnots +=
+                  chargeOf(others.map(k => signs[k] ?? 0)) === 0 ? 1 : 0
               }
             }
           }
@@ -560,9 +723,28 @@ export default experiment({
 
     const gates = {
       G1: meetingBad === 0 && preparationBad === 0,
-      G2: counts.copyBad === 0 && counts.referenceCopyBad === 0 && counts.unchangedBad === 0 && counts.partnerBad === 0 && counts.flatBad === 0,
-      G3: counts.sameClassBad === 0 && counts.otherClassBad === 0 && counts.sameClassPairs > 0 && counts.otherClassPairs > 0,
-      G4: passes === 144 && passesNotR === 0 && passesTwoLines === 0 && passesOnKnots === 0 && patterns.every(s => perPattern[`passes_${s.map(w => (w > 0 ? 'L' : 'F')).join('')}`] === (chargeOf(s) === 0 ? 0 : 24)),
+      G2:
+        counts.copyBad === 0 &&
+        counts.referenceCopyBad === 0 &&
+        counts.unchangedBad === 0 &&
+        counts.partnerBad === 0 &&
+        counts.flatBad === 0,
+      G3:
+        counts.sameClassBad === 0 &&
+        counts.otherClassBad === 0 &&
+        counts.sameClassPairs > 0 &&
+        counts.otherClassPairs > 0,
+      G4:
+        passes === 144 &&
+        passesNotR === 0 &&
+        passesTwoLines === 0 &&
+        passesOnKnots === 0 &&
+        patterns.every(
+          s =>
+            perPattern[
+              `passes_${s.map(w => (w > 0 ? 'L' : 'F')).join('')}`
+            ] === (chargeOf(s) === 0 ? 0 : 24),
+        ),
       G5: knotReadingBad === 0 && passes > 0,
       C1: counts.bellLearned === 0,
       C2: counts.kickChanged > 0 && counts.kickCopyBad === 0,
@@ -583,10 +765,16 @@ export default experiment({
         knotReadingBad,
         ...perPattern,
         ...four,
-        ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
+        ...Object.fromEntries(
+          Object.entries(gates).map(([k, v]) => [
+            `gate_${k}`,
+            v ? 1 : 0,
+          ]),
+        ),
       },
       notes:
-        "RERUN 2026-09-26 under the adopted comoving fear beat: status pass as before; states with fear on A 1,208 -> 995. " + ('L2, exact BigInt wholes on the reached states, exact integer tables elsewhere, no random numbers. The apparatus preparation (two tokens opened on one line, the line through the pair\'s classical points) is a stand-in: the knit does not open tokens. A pass of the exhaustive search is a measurement on the 12 system line states (the label distribution kept, flat along the class, some apparatus label a bijection of the system\'s); the reached-state gates then check the one that passes on the knit\'s own states.'),
+        'RERUN 2026-09-26 under the adopted comoving fear beat: status pass as before; states with fear on A 1,208 -> 995. ' +
+        "L2, exact BigInt wholes on the reached states, exact integer tables elsewhere, no random numbers. The apparatus preparation (two tokens opened on one line, the line through the pair's classical points) is a stand-in: the knit does not open tokens. A pass of the exhaustive search is a measurement on the 12 system line states (the label distribution kept, flat along the class, some apparatus label a bijection of the system's); the reached-state gates then check the one that passes on the knit's own states.",
     })
   },
 })

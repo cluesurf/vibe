@@ -97,10 +97,39 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { centerOf } from '@/code/measure/wall-reading'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
-import { lineBasis, lineLightest, wholeBasis, type LineSector } from '@/code/measure/coined-line-bloch'
-import { axisRing, blochPacket, fitRing, levelPlacement, ringCenter, trackRun, type Relative, type Track } from '@/code/measure/held-cluster'
-import { cutDensity, pointBeatWith, type CutState, type PieceOptions } from '@/code/measure/bound-line'
-import { chargeReading, cutRelativeFramed, flatGauge, lineGauge, meetingWindow, placeCutFramed, sameAsWorking, type MeetingWindow, type Placement } from '@/code/measure/permutation-meeting'
+import {
+  lineBasis,
+  lineLightest,
+  wholeBasis,
+  type LineSector,
+} from '@/code/measure/coined-line-bloch'
+import {
+  axisRing,
+  blochPacket,
+  fitRing,
+  levelPlacement,
+  ringCenter,
+  trackRun,
+  type Relative,
+  type Track,
+} from '@/code/measure/held-cluster'
+import {
+  cutDensity,
+  pointBeatWith,
+  type CutState,
+  type PieceOptions,
+} from '@/code/measure/bound-line'
+import {
+  chargeReading,
+  cutRelativeFramed,
+  flatGauge,
+  lineGauge,
+  meetingWindow,
+  placeCutFramed,
+  sameAsWorking,
+  type MeetingWindow,
+  type Placement,
+} from '@/code/measure/permutation-meeting'
 import type { BoundOptions } from '@/code/rule/bound-line-pieces'
 
 const BOX = 12
@@ -112,7 +141,11 @@ const WINDOWS: readonly { side: number; beats: number }[] = [
   { side: 8, beats: 4 },
   { side: 12, beats: 2 },
 ]
-const RECORDED = { energy: 0.33001851839229945, share: 0.9823600683345252, speed: 0.0303 }
+const RECORDED = {
+  energy: 0.33001851839229945,
+  share: 0.9823600683345252,
+  speed: 0.0303,
+}
 const EXACT = 1e-12
 const FIDELITY = 0.9
 const SHARE_TOL = 0.02
@@ -124,30 +157,104 @@ const SAME: readonly { side: number; beats: number }[] = [
 const FRONT_SIDE = 12
 const FRONT_BEATS = 6
 const CHARGE_BEATS = 24
-const VARIANTS: readonly { name: string; options: BoundOptions; placement: Placement; replaced: boolean }[] = [
-  { name: 'Kab', options: { cost: true, sign: true, meeting: 'keep' }, placement: 'zero', replaced: true },
-  { name: 'Xab', options: { cost: true, sign: true, meeting: 'exchange' }, placement: 'zero', replaced: true },
-  { name: 'KabP', options: { cost: true, sign: true, meeting: 'keep' }, placement: 'parallel', replaced: true },
-  { name: 'XabP', options: { cost: true, sign: true, meeting: 'exchange' }, placement: 'parallel', replaced: true },
-  { name: 'WabP', options: { cost: true, sign: true }, placement: 'parallel', replaced: false },
+const VARIANTS: readonly {
+  name: string
+  options: BoundOptions
+  placement: Placement
+  replaced: boolean
+}[] = [
+  {
+    name: 'Kab',
+    options: { cost: true, sign: true, meeting: 'keep' },
+    placement: 'zero',
+    replaced: true,
+  },
+  {
+    name: 'Xab',
+    options: { cost: true, sign: true, meeting: 'exchange' },
+    placement: 'zero',
+    replaced: true,
+  },
+  {
+    name: 'KabP',
+    options: { cost: true, sign: true, meeting: 'keep' },
+    placement: 'parallel',
+    replaced: true,
+  },
+  {
+    name: 'XabP',
+    options: { cost: true, sign: true, meeting: 'exchange' },
+    placement: 'parallel',
+    replaced: true,
+  },
+  {
+    name: 'WabP',
+    options: { cost: true, sign: true },
+    placement: 'parallel',
+    replaced: false,
+  },
 ]
 
-const sector = (unit: number): LineSector => ({ flavors: [0, 0, 0], statistics: 'fermion', D: 3, box: BOX, unit })
+const sector = (unit: number): LineSector => ({
+  flavors: [0, 0, 0],
+  statistics: 'fermion',
+  D: 3,
+  box: BOX,
+  unit,
+})
 
-type Gates = { b1: boolean; b3: boolean; worstR: number; worstDrift: number; leastFidelity: number; worstShare: number; energyOff: number }
-
-function gatesOf(run: Track, reference: Track): Gates {
-  const worstR = Math.max(...run.r90.map((r, t) => r - (reference.r90[t] as number) - 1))
-  const worstDrift = Math.max(...run.drift.map((d, t) => d - 1 - RECORDED.speed * (t + 1)))
-  const leastFidelity = Math.min(...run.fidelity)
-  const worstShare = Math.max(...run.share.map(s => (Number.isNaN(s.share) ? 1 : Math.abs(s.share - RECORDED.share))))
-  const energyOff = Math.abs(run.energy - RECORDED.energy)
-
-  return { b1: worstR <= 0 && worstDrift <= 0, b3: leastFidelity >= FIDELITY && worstShare <= SHARE_TOL && energyOff <= ENERGY_TOL, worstR, worstDrift, leastFidelity, worstShare, energyOff }
+type Gates = {
+  b1: boolean
+  b3: boolean
+  worstR: number
+  worstDrift: number
+  leastFidelity: number
+  worstShare: number
+  energyOff: number
 }
 
-const windowHolds = (w: MeetingWindow): boolean => w.reversed && w.beats.every(b => b.normKept && b.physicalNormOff <= EXACT && b.leak === 0 && b.disturbed === 0 && b.pointGap <= EXACT && b.energyGap <= EXACT)
-const windowLaw = (w: MeetingWindow): boolean => w.beats.every(b => b.toneBroken === 0 && b.outsideCone === 0)
+function gatesOf(run: Track, reference: Track): Gates {
+  const worstR = Math.max(
+    ...run.r90.map((r, t) => r - reference.r90[t]! - 1),
+  )
+  const worstDrift = Math.max(
+    ...run.drift.map((d, t) => d - 1 - RECORDED.speed * (t + 1)),
+  )
+  const leastFidelity = Math.min(...run.fidelity)
+  const worstShare = Math.max(
+    ...run.share.map(s =>
+      Number.isNaN(s.share) ? 1 : Math.abs(s.share - RECORDED.share),
+    ),
+  )
+  const energyOff = Math.abs(run.energy - RECORDED.energy)
+
+  return {
+    b1: worstR <= 0 && worstDrift <= 0,
+    b3:
+      leastFidelity >= FIDELITY &&
+      worstShare <= SHARE_TOL &&
+      energyOff <= ENERGY_TOL,
+    worstR,
+    worstDrift,
+    leastFidelity,
+    worstShare,
+    energyOff,
+  }
+}
+
+const windowHolds = (w: MeetingWindow): boolean =>
+  w.reversed &&
+  w.beats.every(
+    b =>
+      b.normKept &&
+      b.physicalNormOff <= EXACT &&
+      b.leak === 0 &&
+      b.disturbed === 0 &&
+      b.pointGap <= EXACT &&
+      b.energyGap <= EXACT,
+  )
+const windowLaw = (w: MeetingWindow): boolean =>
+  w.beats.every(b => b.toneBroken === 0 && b.outsideCone === 0)
 
 export default experiment({
   id: 'spin/permutation-meeting',
@@ -160,7 +267,10 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
 
     // ---- the level ----
     const basis = lineBasis(sector(0))
@@ -168,7 +278,10 @@ export default experiment({
     const vre = level.cre
     const vim = level.cim
     const placed = levelPlacement(basis, vre, vim)
-    const levelOff = Math.max(Math.abs(level.unwrapped - RECORDED.energy), Math.abs(level.spinHalf - RECORDED.share))
+    const levelOff = Math.max(
+      Math.abs(level.unwrapped - RECORDED.energy),
+      Math.abs(level.spinHalf - RECORDED.share),
+    )
 
     log('level')
 
@@ -181,39 +294,82 @@ export default experiment({
     const fit = fitRing(placed, L)
 
     // ---- controls (b), (c) and the lone front ----
-    const same = (['keep', 'exchange'] as const).flatMap(m => SAME.map(s => ({ meeting: m, ...sameAsWorking(m, s.side, s.beats) })))
-    const fronts = (['keep', 'exchange'] as const).map(m => sameAsWorking(m, FRONT_SIDE, FRONT_BEATS))
+    const same = (['keep', 'exchange'] as const).flatMap(m =>
+      SAME.map(s => ({
+        meeting: m,
+        ...sameAsWorking(m, s.side, s.beats),
+      })),
+    )
+    const fronts = (['keep', 'exchange'] as const).map(m =>
+      sameAsWorking(m, FRONT_SIDE, FRONT_BEATS),
+    )
     const controlVacuum = same.every(s => s.vacuumSame)
     const controlLone = same.every(s => s.loneSame)
-    const frontHolds = fronts.every(s => s.loneReach === FRONT_BEATS && s.loneSame)
+    const frontHolds = fronts.every(
+      s => s.loneReach === FRONT_BEATS && s.loneSame,
+    )
 
     log('controls b, c')
 
     // ---- B2 and L: the exact windows, per variant ----
     const windows = VARIANTS.map(v =>
       WINDOWS.map(w => {
-        const r = meetingWindow(v.options, v.placement, w.side, w.beats, placed, P)
+        const r = meetingWindow(
+          v.options,
+          v.placement,
+          w.side,
+          w.beats,
+          placed,
+          P,
+        )
 
         log(`window ${v.name} side ${w.side}`)
 
         return r
       }),
     )
-    const gL = frontHolds && VARIANTS.every((v, i) => !v.replaced || (windows[i] as MeetingWindow[]).every(windowLaw))
+    const gL =
+      frontHolds &&
+      VARIANTS.every(
+        (v, i) => !v.replaced || windows[i]!.every(windowLaw),
+      )
 
     // ---- the long runs ----
     const a = blochPacket(basis, L, vre, vim, true)
     const startDensity = a.density()
     const c0 = Math.round(ringCenter(startDensity)) % L
-    const track = (step: () => void, density: () => Float64Array, relative: () => Relative): Track =>
-      trackRun({ L, beats: BEATS, window: BEATS, center: c0, startDensity, step, density, relative, basis, vre, vim, shareEvery: SHARE_EVERY })
+    const track = (
+      step: () => void,
+      density: () => Float64Array,
+      relative: () => Relative,
+    ): Track =>
+      trackRun({
+        L,
+        beats: BEATS,
+        window: BEATS,
+        center: c0,
+        startDensity,
+        step,
+        density,
+        relative,
+        basis,
+        vre,
+        vim,
+        shareEvery: SHARE_EVERY,
+      })
     const runA = track(a.step, a.density, a.relative)
 
     log('A')
 
     const largest: Record<string, number> = {}
-    const ruleRun = (name: string, options: PieceOptions, placement: Placement): Track => {
+
+    const ruleRun = (
+      name: string,
+      options: PieceOptions,
+      placement: Placement,
+    ): Track => {
       let s: CutState = placeCutFramed(gauge, fit.kept, P, placement)
+
       const read = options.flat ? flatGauge(L) : gauge
 
       largest[name] = s.size
@@ -221,7 +377,7 @@ export default experiment({
       const r = track(
         () => {
           s = pointBeatWith(options, f.tables, ring, s)
-          largest[name] = Math.max(largest[name] as number, s.size)
+          largest[name] = Math.max(largest[name]!, s.size)
         },
         () => cutDensity(L, s),
         () => cutRelativeFramed(read, s),
@@ -231,14 +387,53 @@ export default experiment({
 
       return r
     }
-    const runs = VARIANTS.map(v => ruleRun(v.name, { ...v.options, unit: 0, flat: false }, v.placement))
-    const runFab = ruleRun('Fab', { cost: true, sign: true, unit: 0, flat: true }, 'zero')
-    const runWab = ruleRun('Wab', { cost: true, sign: true, unit: 0, flat: false }, 'zero')
-    const runK00 = ruleRun('K00', { cost: false, sign: false, meeting: 'keep', unit: 0, flat: false }, 'zero')
-    const runK00P = ruleRun('K00P', { cost: false, sign: false, meeting: 'keep', unit: 0, flat: false }, 'parallel')
+
+    const runs = VARIANTS.map(v =>
+      ruleRun(
+        v.name,
+        { ...v.options, unit: 0, flat: false },
+        v.placement,
+      ),
+    )
+    const runFab = ruleRun(
+      'Fab',
+      { cost: true, sign: true, unit: 0, flat: true },
+      'zero',
+    )
+    const runWab = ruleRun(
+      'Wab',
+      { cost: true, sign: true, unit: 0, flat: false },
+      'zero',
+    )
+    const runK00 = ruleRun(
+      'K00',
+      {
+        cost: false,
+        sign: false,
+        meeting: 'keep',
+        unit: 0,
+        flat: false,
+      },
+      'zero',
+    )
+    const runK00P = ruleRun(
+      'K00P',
+      {
+        cost: false,
+        sign: false,
+        meeting: 'keep',
+        unit: 0,
+        flat: false,
+      },
+      'parallel',
+    )
 
     // ---- the confinement reading ----
-    const charges = [chargeReading(1, CHARGE_BEATS), chargeReading(2, CHARGE_BEATS), chargeReading(3, CHARGE_BEATS, true)]
+    const charges = [
+      chargeReading(1, CHARGE_BEATS),
+      chargeReading(2, CHARGE_BEATS),
+      chargeReading(3, CHARGE_BEATS, true),
+    ]
 
     log('charges')
 
@@ -249,17 +444,24 @@ export default experiment({
     const gK00P = gatesOf(runK00P, runA)
     const gV = runs.map(r => gatesOf(r, runA))
     const b2 = windows.map(ws => ws.every(windowHolds))
-    const held = VARIANTS.map((_, i) => (gV[i] as Gates).b1 && (b2[i] as boolean) && (gV[i] as Gates).b3)
-    const controlUnbound = !(gK00.b1 && gK00.b3) && !(gK00P.b1 && gK00P.b3)
+    const held = VARIANTS.map(
+      (_, i) => gV[i]!.b1 && b2[i]! && gV[i]!.b3,
+    )
+    const controlUnbound =
+      !(gK00.b1 && gK00.b3) && !(gK00P.b1 && gK00P.b3)
     const control = controlUnbound && controlVacuum && controlLone
-    const status = !control ? 'partial' : gL && held.some(Boolean) ? 'pass' : 'fail'
+    const status = !control
+      ? 'partial'
+      : gL && held.some(Boolean)
+        ? 'pass'
+        : 'fail'
     const f4 = (x: number): string => x.toFixed(4)
     const row = (name: string, r: Track, g: Gates): string =>
-      `${name}: R90 ${r.r90Start} at the start, ${[16, 32, 64, 96, 128].map(t => r.r90[t - 1]).join(', ')} at beats 16, 32, 64, 96, 128; drift ${[16, 32, 64, 128].map(t => f4(r.drift[t - 1] as number)).join(', ')}; fidelity ${[1, 4, 16, 32, 64, 128].map(t => f4(r.fidelity[t - 1] as number)).join(', ')} at beats 1, 4, 16, 32, 64, 128 (least ${f4(g.leastFidelity)}); share ${r.share.map(s => f4(s.share)).join(', ')}; energy ${f4(r.energy)}; B1 ${g.b1} (worst R90 excess ${g.worstR}, drift excess ${f4(g.worstDrift)}), B3 ${g.b3}`
+      `${name}: R90 ${r.r90Start} at the start, ${[16, 32, 64, 96, 128].map(t => r.r90[t - 1]).join(', ')} at beats 16, 32, 64, 96, 128; drift ${[16, 32, 64, 128].map(t => f4(r.drift[t - 1]!)).join(', ')}; fidelity ${[1, 4, 16, 32, 64, 128].map(t => f4(r.fidelity[t - 1]!)).join(', ')} at beats 1, 4, 16, 32, 64, 128 (least ${f4(g.leastFidelity)}); share ${r.share.map(s => f4(s.share)).join(', ')}; energy ${f4(r.energy)}; B1 ${g.b1} (worst R90 excess ${g.worstR}, drift excess ${f4(g.worstDrift)}), B3 ${g.b3}`
     const windowRow = (x: MeetingWindow): string =>
       `side ${x.side} (ring ${x.L}, ${x.lines} mesh lines, ${x.startBranches} branches): ${x.beats.map((b, t) => `beat ${t + 1} ${b.branches} branches in ${b.slices} slices, norm ${b.normKept}, physical ${b.physicalNormOff.toExponential(1)}, leak ${b.leak}, disturbed ${b.disturbed}, point gap ${b.pointGap.toExponential(1)}, energy gap ${b.energyGap.toExponential(1)}, tone broken ${b.toneBroken}, outside the cone ${b.outsideCone}`).join('; ')}; reversed ${x.reversed} (${x.seconds.toFixed(0)} s)`
     const chargeRow = (c: (typeof charges)[number]): string =>
-      `${c.n} love${c.n === 1 ? '' : 's'}${c.n === 3 ? ' (Gauss start)' : ''}: far weight ${c.farWith.toExponential(2)} with the cost against ${f4(c.farWithout)} without, costly links outside the span ${f4(c.outsideWith)} against ${f4(c.outsideWithout)}, centroid rms at beats 8, 16, 24 ${[8, 16, 24].map(t => (c.rmsWith[t - 1] as number).toFixed(3)).join(', ')} with the cost and ${[8, 16, 24].map(t => (c.rmsWithout[t - 1] as number).toFixed(3)).join(', ')} without`
+      `${c.n} love${c.n === 1 ? '' : 's'}${c.n === 3 ? ' (Gauss start)' : ''}: far weight ${c.farWith.toExponential(2)} with the cost against ${f4(c.farWithout)} without, costly links outside the span ${f4(c.outsideWith)} against ${f4(c.outsideWithout)}, centroid rms at beats 8, 16, 24 ${[8, 16, 24].map(t => c.rmsWith[t - 1]!.toFixed(3)).join(', ')} with the cost and ${[8, 16, 24].map(t => c.rmsWithout[t - 1]!.toFixed(3)).join(', ')} without`
     const metrics: Record<string, number> = {
       gate_L: gL ? 1 : 0,
       control: control ? 1 : 0,
@@ -276,23 +478,39 @@ export default experiment({
     }
 
     VARIANTS.forEach((v, i) => {
-      const g = gV[i] as Gates
+      const g = gV[i]!
 
       metrics[`${v.name}_B1`] = g.b1 ? 1 : 0
       metrics[`${v.name}_B2`] = b2[i] ? 1 : 0
       metrics[`${v.name}_B3`] = g.b3 ? 1 : 0
-      ;(windows[i] as MeetingWindow[]).forEach(x => {
-        metrics[`${v.name}_window${x.side}_reversed`] = x.reversed ? 1 : 0
-        metrics[`${v.name}_window${x.side}_worstPointGap`] = Math.max(...x.beats.map(b => b.pointGap))
-        metrics[`${v.name}_window${x.side}_worstEnergyGap`] = Math.max(...x.beats.map(b => b.energyGap))
-        metrics[`${v.name}_window${x.side}_disturbed`] = x.beats.reduce((s, b) => s + b.disturbed, 0)
-        metrics[`${v.name}_window${x.side}_toneBroken`] = x.beats.reduce((s, b) => s + b.toneBroken, 0)
-        metrics[`${v.name}_window${x.side}_outsideCone`] = x.beats.reduce((s, b) => s + b.outsideCone, 0)
+      windows[i]!.forEach(x => {
+        metrics[`${v.name}_window${x.side}_reversed`] = x.reversed
+          ? 1
+          : 0
+
+        metrics[`${v.name}_window${x.side}_worstPointGap`] = Math.max(
+          ...x.beats.map(b => b.pointGap),
+        )
+
+        metrics[`${v.name}_window${x.side}_worstEnergyGap`] = Math.max(
+          ...x.beats.map(b => b.energyGap),
+        )
+
+        metrics[`${v.name}_window${x.side}_disturbed`] = x.beats.reduce(
+          (s, b) => s + b.disturbed,
+          0,
+        )
+
+        metrics[`${v.name}_window${x.side}_toneBroken`] =
+          x.beats.reduce((s, b) => s + b.toneBroken, 0)
+
+        metrics[`${v.name}_window${x.side}_outsideCone`] =
+          x.beats.reduce((s, b) => s + b.outsideCone, 0)
       })
     })
 
     for (const [name, r, g] of [
-      ...VARIANTS.map((v, i) => [v.name, runs[i] as Track, gV[i] as Gates] as const),
+      ...VARIANTS.map((v, i) => [v.name, runs[i]!, gV[i]!] as const),
       ['A', runA, gA] as const,
       ['Fab', runFab, gFab] as const,
       ['Wab', runWab, gWab] as const,
@@ -304,23 +522,35 @@ export default experiment({
       metrics[`${name}_leastFidelity`] = g.leastFidelity
       metrics[`${name}_worstShareOff`] = g.worstShare
       metrics[`${name}_energy`] = r.energy
-      metrics[`${name}_r90_128`] = r.r90[BEATS - 1] as number
+      metrics[`${name}_r90_128`] = r.r90[BEATS - 1]!
     }
 
     for (const c of charges) {
       metrics[`charge${c.n}_farWith`] = c.farWith
       metrics[`charge${c.n}_farWithout`] = c.farWithout
       metrics[`charge${c.n}_outsideWith`] = c.outsideWith
-      metrics[`charge${c.n}_rms24With`] = c.rmsWith[CHARGE_BEATS - 1] as number
-      metrics[`charge${c.n}_rms24Without`] = c.rmsWithout[CHARGE_BEATS - 1] as number
+      metrics[`charge${c.n}_rms24With`] = c.rmsWith[CHARGE_BEATS - 1]!
+      metrics[`charge${c.n}_rms24Without`] =
+        c.rmsWithout[CHARGE_BEATS - 1]!
     }
 
     return verdict({
       status,
-      claim: `E-SPN-0093's cluster (E ${level.unwrapped.toFixed(5)}, share ${level.spinHalf.toFixed(5)}) on the side-16 working vacuum's axis line (the transport flat on ${gauge.flatLinks} of ${L} links, holonomy of order ${gauge.order}), ${BEATS} beats, both pieces: ${VARIANTS.map((v, i) => `${row(v.name, runs[i] as Track, gV[i] as Gates)}, B2 ${b2[i]}`).join(' | ')}; against ${row('A', runA, gA)}; references ${row('Fab (flat links)', runFab, gFab)}; ${row('Wab (E-SPN-0103, the split, point 0)', runWab, gWab)}; L ${gL} (lone front ${fronts.map(s => `${s.loneReach} docks in ${s.beats} beats, same ${s.loneSame}`).join(', ')}); controls: K00 B1 ${gK00.b1} B3 ${gK00.b3}, K00P B1 ${gK00P.b1} B3 ${gK00P.b3}, vacuum same ${controlVacuum}, lone love same ${controlLone}; confinement (a measurement): ${charges.map(chargeRow).join('; ')}`,
+      claim: `E-SPN-0093's cluster (E ${level.unwrapped.toFixed(5)}, share ${level.spinHalf.toFixed(5)}) on the side-16 working vacuum's axis line (the transport flat on ${gauge.flatLinks} of ${L} links, holonomy of order ${gauge.order}), ${BEATS} beats, both pieces: ${VARIANTS.map((v, i) => `${row(v.name, runs[i]!, gV[i]!)}, B2 ${b2[i]}`).join(' | ')}; against ${row('A', runA, gA)}; references ${row('Fab (flat links)', runFab, gFab)}; ${row('Wab (E-SPN-0103, the split, point 0)', runWab, gWab)}; L ${gL} (lone front ${fronts.map(s => `${s.loneReach} docks in ${s.beats} beats, same ${s.loneSame}`).join(', ')}); controls: K00 B1 ${gK00.b1} B3 ${gK00.b3}, K00P B1 ${gK00P.b1} B3 ${gK00P.b3}, vacuum same ${controlVacuum}, lone love same ${controlLone}; confinement (a measurement): ${charges.map(chargeRow).join('; ')}`,
       metrics,
-      control: { K00_b1: gK00.b1 ? 1 : 0, K00_b3: gK00.b3 ? 1 : 0, K00P_b1: gK00P.b1 ? 1 : 0, K00P_b3: gK00P.b3 ? 1 : 0, vacuum: controlVacuum ? 1 : 0, lone: controlLone ? 1 : 0 },
-      notes: `L2. Held (B1, B2, B3): ${VARIANTS.map((v, i) => `${v.name} ${held[i]}`).join(', ')}; L ${gL}, control ${control}. Level against E-SPN-0093's record: ${levelOff.toExponential(1)}. Holonomy ${gauge.holonomy.join('')}. Exact windows: ${VARIANTS.map((v, i) => `${v.name}: ${(windows[i] as MeetingWindow[]).map(windowRow).join(' | ')}`).join(' || ')}. ${row('K00 (keep, no pieces, point 0)', runK00, gK00)}. ${row('K00P (keep, no pieces, parallel)', runK00P, gK00P)}. Same as the working rule: ${same.map(s => `${s.meeting} side ${s.side} ${s.beats} beats vacuum ${s.vacuumSame} lone ${s.loneSame} (${s.loneBranches} branches)`).join('; ')}. R90 beat by beat: ${[...VARIANTS.map((v, i) => `${v.name} ${(runs[i] as Track).r90.join(' ')}`), `Fab ${runFab.r90.join(' ')}`, `A ${runA.r90.join(' ')}`].join('; ')}. Largest ring-form states: ${Object.entries(largest).map(([k, v]) => `${k} ${v}`).join(', ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+      control: {
+        K00_b1: gK00.b1 ? 1 : 0,
+        K00_b3: gK00.b3 ? 1 : 0,
+        K00P_b1: gK00P.b1 ? 1 : 0,
+        K00P_b3: gK00P.b3 ? 1 : 0,
+        vacuum: controlVacuum ? 1 : 0,
+        lone: controlLone ? 1 : 0,
+      },
+      notes: `L2. Held (B1, B2, B3): ${VARIANTS.map((v, i) => `${v.name} ${held[i]}`).join(', ')}; L ${gL}, control ${control}. Level against E-SPN-0093's record: ${levelOff.toExponential(1)}. Holonomy ${gauge.holonomy.join('')}. Exact windows: ${VARIANTS.map((v, i) => `${v.name}: ${windows[i]!.map(windowRow).join(' | ')}`).join(' || ')}. ${row('K00 (keep, no pieces, point 0)', runK00, gK00)}. ${row('K00P (keep, no pieces, parallel)', runK00P, gK00P)}. Same as the working rule: ${same.map(s => `${s.meeting} side ${s.side} ${s.beats} beats vacuum ${s.vacuumSame} lone ${s.loneSame} (${s.loneBranches} branches)`).join('; ')}. R90 beat by beat: ${[...VARIANTS.map((v, i) => `${v.name} ${runs[i]!.r90.join(' ')}`), `Fab ${runFab.r90.join(' ')}`, `A ${runA.r90.join(' ')}`].join('; ')}. Largest ring-form states: ${Object.entries(
+        largest,
+      )
+        .map(([k, v]) => `${k} ${v}`)
+        .join(', ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },
 })

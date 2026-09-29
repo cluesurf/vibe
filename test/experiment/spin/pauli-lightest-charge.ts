@@ -54,7 +54,16 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { conjugate, irrepsOf, jointContent, minimalQuanta, partitionName, ringSectorEnergies, tableOrthonormalGap, type JointEntry } from '@/code/measure/pauli-cluster'
+import {
+  conjugate,
+  irrepsOf,
+  jointContent,
+  minimalQuanta,
+  partitionName,
+  ringSectorEnergies,
+  tableOrthonormalGap,
+  type JointEntry,
+} from '@/code/measure/pauli-cluster'
 
 const COUPLINGS: readonly (readonly [number, number])[] = [
   [0, -2],
@@ -63,8 +72,26 @@ const COUPLINGS: readonly (readonly [number, number])[] = [
   [-1, 0],
 ]
 
-const QUANTA_1D: Record<string, number> = { '[3]': 0, '[2,1]': 1, '[1,1,1]': 3, '[4]': 0, '[3,1]': 1, '[2,2]': 2, '[2,1,1]': 3, '[1,1,1,1]': 6 }
-const QUANTA_3D: Record<string, number> = { '[3]': 0, '[2,1]': 1, '[1,1,1]': 2, '[4]': 0, '[3,1]': 1, '[2,2]': 2, '[2,1,1]': 2, '[1,1,1,1]': 3 }
+const QUANTA_1D: Record<string, number> = {
+  '[3]': 0,
+  '[2,1]': 1,
+  '[1,1,1]': 3,
+  '[4]': 0,
+  '[3,1]': 1,
+  '[2,2]': 2,
+  '[2,1,1]': 3,
+  '[1,1,1,1]': 6,
+}
+const QUANTA_3D: Record<string, number> = {
+  '[3]': 0,
+  '[2,1]': 1,
+  '[1,1,1]': 2,
+  '[4]': 0,
+  '[3,1]': 1,
+  '[2,2]': 2,
+  '[2,1,1]': 2,
+  '[1,1,1,1]': 3,
+}
 
 type Cluster = { roles: number; antiroles: number }
 
@@ -73,7 +100,13 @@ const CLUSTERS: readonly Cluster[] = [
   { roles: 4, antiroles: 1 },
 ]
 
-const describe = (entries: readonly JointEntry[]): string => entries.map(e => `${e.spin} (2 pi ${e.twoPiSign > 0 ? '+' : '-'}) x ${partitionName(e.partition)}${e.multiplicity > 1 ? ` x ${e.multiplicity}` : ''}`).join(', ')
+const describe = (entries: readonly JointEntry[]): string =>
+  entries
+    .map(
+      e =>
+        `${e.spin} (2 pi ${e.twoPiSign > 0 ? '+' : '-'}) x ${partitionName(e.partition)}${e.multiplicity > 1 ? ` x ${e.multiplicity}` : ''}`,
+    )
+    .join(', ')
 
 export default experiment({
   id: 'spin/pauli-lightest-charge',
@@ -86,22 +119,65 @@ export default experiment({
   paper: false,
   run() {
     // G1
-    const tableGap = Math.max(tableOrthonormalGap(3), tableOrthonormalGap(4))
+    const tableGap = Math.max(
+      tableOrthonormalGap(3),
+      tableOrthonormalGap(4),
+    )
     const contents = CLUSTERS.map(c => ({ ...c, ...jointContent(c) }))
-    const has = (entries: readonly JointEntry[], spin: string, partition: string, multiplicity: number): boolean => entries.some(e => e.spin === spin && partitionName(e.partition) === partition && e.multiplicity === multiplicity)
+    const has = (
+      entries: readonly JointEntry[],
+      spin: string,
+      partition: string,
+      multiplicity: number,
+    ): boolean =>
+      entries.some(
+        e =>
+          e.spin === spin &&
+          partitionName(e.partition) === partition &&
+          e.multiplicity === multiplicity,
+      )
     const three = contents[0]!
     const five = contents[1]!
     const content30 =
       three.entries.length === 2 &&
-      three.entries.some(e => e.spinDimension === 2 && e.twoPiSign < 0 && e.spin.startsWith('twisted') && partitionName(e.partition) === '[3]' && e.multiplicity === 1) &&
-      three.entries.some(e => e.spinDimension === 1 && partitionName(e.partition) === '[1,1,1]' && e.multiplicity === 1)
+      three.entries.some(
+        e =>
+          e.spinDimension === 2 &&
+          e.twoPiSign < 0 &&
+          e.spin.startsWith('twisted') &&
+          partitionName(e.partition) === '[3]' &&
+          e.multiplicity === 1,
+      ) &&
+      three.entries.some(
+        e =>
+          e.spinDimension === 1 &&
+          partitionName(e.partition) === '[1,1,1]' &&
+          e.multiplicity === 1,
+      )
     const content41 =
       has(five.entries, 'natural', '[2,2]', 1) &&
-      five.entries.filter(e => partitionName(e.partition) === '[2,1,1]').every(e => e.spinDimension === 1) &&
-      five.entries.some(e => partitionName(e.partition) === '[2,1,1]') &&
-      five.entries.every(e => partitionName(e.partition) !== '[1,1,1,1]')
+      five.entries
+        .filter(e => partitionName(e.partition) === '[2,1,1]')
+        .every(e => e.spinDimension === 1) &&
+      five.entries.some(
+        e => partitionName(e.partition) === '[2,1,1]',
+      ) &&
+      five.entries.every(
+        e => partitionName(e.partition) !== '[1,1,1,1]',
+      )
     const dimensionSum = (entries: readonly JointEntry[]): number =>
-      entries.reduce((s, e) => s + e.spinDimension * e.multiplicity * (irrepsOf(e.partition.reduce((a, b) => a + b, 0)).find(i => partitionName(i.partition) === partitionName(e.partition))?.dimension ?? 0), 0)
+      entries.reduce(
+        (s, e) =>
+          s +
+          e.spinDimension *
+            e.multiplicity *
+            (irrepsOf(e.partition.reduce((a, b) => a + b, 0)).find(
+              i =>
+                partitionName(i.partition) ===
+                partitionName(e.partition),
+            )?.dimension ?? 0),
+        0,
+      )
     const g1 =
       tableGap < 1e-12 &&
       contents.every(c => c.wholeGap < 1e-9) &&
@@ -113,53 +189,164 @@ export default experiment({
       content41
 
     // G2: quanta and the Pauli ground in both settings
-    const quanta = { 1: [3, 4].map(n => minimalQuanta({ n, dimension: 1, maxQuanta: 6 })), 3: [3, 4].map(n => minimalQuanta({ n, dimension: 3, maxQuanta: 3 })) }
-    const quantaMatch = (d: 1 | 3, table: Record<string, number>): boolean => quanta[d].every(q => [...q.entries()].every(([k, v]) => table[k] === v) && q.size === (q === quanta[d][0] ? 3 : 5))
+    const quanta = {
+      1: [3, 4].map(n =>
+        minimalQuanta({ n, dimension: 1, maxQuanta: 6 }),
+      ),
+      3: [3, 4].map(n =>
+        minimalQuanta({ n, dimension: 3, maxQuanta: 3 }),
+      ),
+    }
+    const quantaMatch = (
+      d: 1 | 3,
+      table: Record<string, number>,
+    ): boolean =>
+      quanta[d].every(
+        q =>
+          [...q.entries()].every(([k, v]) => table[k] === v) &&
+          q.size === (q === quanta[d][0] ? 3 : 5),
+      )
+
     // the Pauli ground: of the spatial irreps whose conjugate is present in the role content, the one of fewest quanta
-    const pauliGround = (c: (typeof contents)[number], order: Map<string, number>): { space: string; role: string; entries: JointEntry[] } => {
-      const present = new Set(c.entries.map(e => partitionName(e.partition)))
+    const pauliGround = (
+      c: (typeof contents)[number],
+      order: Map<string, number>,
+    ): { space: string; role: string; entries: JointEntry[] } => {
+      const present = new Set(
+        c.entries.map(e => partitionName(e.partition)),
+      )
       const allowed = irrepsOf(c.roles)
-        .map(i => ({ space: partitionName(i.partition), role: partitionName(conjugate(i.partition)) }))
+        .map(i => ({
+          space: partitionName(i.partition),
+          role: partitionName(conjugate(i.partition)),
+        }))
         .filter(x => present.has(x.role))
-        .sort((a, b) => (order.get(a.space) ?? 99) - (order.get(b.space) ?? 99))
+        .sort(
+          (a, b) =>
+            (order.get(a.space) ?? 99) - (order.get(b.space) ?? 99),
+        )
       const best = allowed[0] ?? { space: '', role: '' }
 
-      return { ...best, entries: c.entries.filter(e => partitionName(e.partition) === best.role) }
+      return {
+        ...best,
+        entries: c.entries.filter(
+          e => partitionName(e.partition) === best.role,
+        ),
+      }
     }
-    const grounds = ([1, 3] as const).map(d => contents.map((c, i) => pauliGround(c, quanta[d][i]!)))
+
+    const grounds = ([1, 3] as const).map(d =>
+      contents.map((c, i) => pauliGround(c, quanta[d][i]!)),
+    )
     const g2 =
       quantaMatch(1, QUANTA_1D) &&
       quantaMatch(3, QUANTA_3D) &&
-      grounds.every(g => g[0]?.space === '[3]' && g[0]?.role === '[1,1,1]' && g[1]?.space === '[3,1]' && g[1]?.role === '[2,1,1]')
+      grounds.every(
+        g =>
+          g[0]?.space === '[3]' &&
+          g[0]?.role === '[1,1,1]' &&
+          g[1]?.space === '[3,1]' &&
+          g[1]?.role === '[2,1,1]',
+      )
 
     // G3: Lieb-Mattis on the ring
-    const orderOf = (n: number): string[] => irrepsOf(n).map(i => partitionName(i.partition))
+    const orderOf = (n: number): string[] =>
+      irrepsOf(n).map(i => partitionName(i.partition))
     const rings = [
-      ...COUPLINGS.map(([like, unlike]) => ({ n: 4, like, unlike, ...ringSectorEnergies({ ring: 6, identical: 4, extra: 1, hop: 1, like, unlike }) })),
-      ...[-1, -3].map(like => ({ n: 3, like, unlike: 0, ...ringSectorEnergies({ ring: 8, identical: 3, extra: 0, hop: 1, like, unlike: 0 }) })),
+      ...COUPLINGS.map(([like, unlike]) => ({
+        n: 4,
+        like,
+        unlike,
+        ...ringSectorEnergies({
+          ring: 6,
+          identical: 4,
+          extra: 1,
+          hop: 1,
+          like,
+          unlike,
+        }),
+      })),
+      ...[-1, -3].map(like => ({
+        n: 3,
+        like,
+        unlike: 0,
+        ...ringSectorEnergies({
+          ring: 8,
+          identical: 3,
+          extra: 0,
+          hop: 1,
+          like,
+          unlike: 0,
+        }),
+      })),
     ]
-    const free = ringSectorEnergies({ ring: 6, identical: 4, extra: 1, hop: 1, like: 0, unlike: 0 })
-    const ordered = (energies: Map<string, number>, n: number, strict: number): boolean => {
+    const free = ringSectorEnergies({
+      ring: 6,
+      identical: 4,
+      extra: 1,
+      hop: 1,
+      like: 0,
+      unlike: 0,
+    })
+
+    const ordered = (
+      energies: Map<string, number>,
+      n: number,
+      strict: number,
+    ): boolean => {
       const e = orderOf(n).map(k => energies.get(k) ?? Number.NaN)
 
-      return e.every((x, i) => i === 0 || x - (e[i - 1] as number) > strict)
+      return e.every((x, i) => i === 0 || x - e[i - 1]! > strict)
     }
-    const g3 = rings.every(r => ordered(r.energies, r.n, 1e-6)) && ordered(free.energies, 4, -1e-9)
+
+    const g3 =
+      rings.every(r => ordered(r.energies, r.n, 1e-6)) &&
+      ordered(free.energies, 4, -1e-9)
 
     // G4
-    const noNatural = (entries: readonly JointEntry[]): boolean => entries.every(e => e.spin !== 'natural')
-    const allEven = (entries: readonly JointEntry[]): boolean => entries.length > 0 && entries.every(e => e.twoPiSign > 0)
-    const naturalAbove = rings.filter(r => r.n === 4).every(r => (r.energies.get('[2,2]') ?? Number.NaN) > (r.energies.get('[3,1]') ?? Number.NaN) + 1e-6)
-    const naturalQuantaAbove = ([1, 3] as const).every(d => (quanta[d][1]?.get('[2,2]') ?? 0) === (quanta[d][1]?.get('[3,1]') ?? 0) + 1)
-    const g4 = grounds.every(g => g.every(x => allEven(x.entries) && noNatural(x.entries))) && naturalAbove && naturalQuantaAbove
+    const noNatural = (entries: readonly JointEntry[]): boolean =>
+      entries.every(e => e.spin !== 'natural')
+    const allEven = (entries: readonly JointEntry[]): boolean =>
+      entries.length > 0 && entries.every(e => e.twoPiSign > 0)
+    const naturalAbove = rings
+      .filter(r => r.n === 4)
+      .every(
+        r =>
+          (r.energies.get('[2,2]') ?? Number.NaN) >
+          (r.energies.get('[3,1]') ?? Number.NaN) + 1e-6,
+      )
+    const naturalQuantaAbove = ([1, 3] as const).every(
+      d =>
+        (quanta[d][1]?.get('[2,2]') ?? 0) ===
+        (quanta[d][1]?.get('[3,1]') ?? 0) + 1,
+    )
+    const g4 =
+      grounds.every(g =>
+        g.every(x => allEven(x.entries) && noNatural(x.entries)),
+      ) &&
+      naturalAbove &&
+      naturalQuantaAbove
 
     // G5: bosons pair space [n] with role [n]
-    const bosonGround = contents.map(c => c.entries.filter(e => e.partition.length === 1))
-    const g5 = bosonGround.every(entries => entries.some(e => e.twoPiSign < 0))
+    const bosonGround = contents.map(c =>
+      c.entries.filter(e => e.partition.length === 1),
+    )
+    const g5 = bosonGround.every(entries =>
+      entries.some(e => e.twoPiSign < 0),
+    )
 
     const ok = g1 && g2 && g3 && g4 && g5
-    const gaps = rings.filter(r => r.n === 4).map(r => (r.energies.get('[2,2]') ?? 0) - (r.energies.get('[3,1]') ?? 0))
-    const fmt = (energies: Map<string, number>): string => [...energies.entries()].map(([k, v]) => `${k} ${v.toFixed(4)}`).join(', ')
+    const gaps = rings
+      .filter(r => r.n === 4)
+      .map(
+        r =>
+          (r.energies.get('[2,2]') ?? 0) -
+          (r.energies.get('[3,1]') ?? 0),
+      )
+    const fmt = (energies: Map<string, number>): string =>
+      [...energies.entries()]
+        .map(([k, v]) => `${k} ${v.toFixed(4)}`)
+        .join(', ')
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -174,16 +361,57 @@ export default experiment({
         rank30: three.rank,
         rank41: five.rank,
         wholeGap: Math.max(three.wholeGap, five.wholeGap),
-        ...Object.fromEntries(five.entries.map(e => [`content41_${e.spin}_${partitionName(e.partition)}`, e.multiplicity])),
-        ...Object.fromEntries(three.entries.map(e => [`content30_${e.spin}_${partitionName(e.partition)}`, e.multiplicity])),
-        ...Object.fromEntries(([1, 3] as const).flatMap(d => quanta[d].flatMap((q, i) => [...q.entries()].map(([k, v]) => [`quanta${d}d_n${i + 3}_${k}`, v])))),
-        ...Object.fromEntries(rings.flatMap((r, i) => [...r.energies.entries()].map(([k, v]) => [`ring${i}_n${r.n}_like${r.like}_unlike${r.unlike}_${k}`, v]))),
-        ...Object.fromEntries(gaps.map((g, i) => [`naturalAboveGround_coupling${i}`, g])),
+        ...Object.fromEntries(
+          five.entries.map(e => [
+            `content41_${e.spin}_${partitionName(e.partition)}`,
+            e.multiplicity,
+          ]),
+        ),
+        ...Object.fromEntries(
+          three.entries.map(e => [
+            `content30_${e.spin}_${partitionName(e.partition)}`,
+            e.multiplicity,
+          ]),
+        ),
+        ...Object.fromEntries(
+          ([1, 3] as const).flatMap(d =>
+            quanta[d].flatMap((q, i) =>
+              [...q.entries()].map(([k, v]) => [
+                `quanta${d}d_n${i + 3}_${k}`,
+                v,
+              ]),
+            ),
+          ),
+        ),
+        ...Object.fromEntries(
+          rings.flatMap((r, i) =>
+            [...r.energies.entries()].map(([k, v]) => [
+              `ring${i}_n${r.n}_like${r.like}_unlike${r.unlike}_${k}`,
+              v,
+            ]),
+          ),
+        ),
+        ...Object.fromEntries(
+          gaps.map((g, i) => [`naturalAboveGround_coupling${i}`, g]),
+        ),
       },
       control: {
-        ...Object.fromEntries([...free.energies.entries()].map(([k, v]) => [`free_${k}`, v])),
-        bosonGroundSpinorial30: bosonGround[0]?.some(e => e.twoPiSign < 0) ? 1 : 0,
-        bosonGroundSpinorial41: bosonGround[1]?.some(e => e.twoPiSign < 0) ? 1 : 0,
+        ...Object.fromEntries(
+          [...free.energies.entries()].map(([k, v]) => [
+            `free_${k}`,
+            v,
+          ]),
+        ),
+        bosonGroundSpinorial30: bosonGround[0]?.some(
+          e => e.twoPiSign < 0,
+        )
+          ? 1
+          : 0,
+        bosonGroundSpinorial41: bosonGround[1]?.some(
+          e => e.twoPiSign < 0,
+        )
+          ? 1
+          : 0,
       },
       notes: `L1. Gates G1 ${g1}, G2 ${g2}, G3 ${g3}, G4 ${g4}, G5 ${g5}. DISCLOSED: a probe (tmp/mb-probe-pauli.ts) printed the joint content, the quanta and the ring energies before this file was written, so P1 and G2's numbers are readings, not blind predictions; what was predicted before any probe is the argument (Pauli pairs mu with mu^T, and four qutrits have no antisymmetric state, so (4, 1) cannot sit in space [4]). The ring's free control ties [2,2] with [2,1,1] (${fmt(free.energies)}), which is why G3 allows ties there. Ring energies: ${rings.map(r => `(n ${r.n}, like ${r.like}, unlike ${r.unlike}) ${fmt(r.energies)}`).join('; ')}. MEANING: under Pauli, with the role as the loves' only internal label and a binding that does not read it, the lightest charge-one cluster is not an electron. Its role is a one-dimensional 2T character, so its 2 pi sign is +1, while its fermion number (loves minus fears, 3 or 4 - 1) is odd: exchange and rotation disagree, the E-SPN-0054 split between the exchange sign and the 2 pi sign, now at the level of the lightest charged state. The electron-like natural doublet of (4, 1) is an excited Pauli level, the first one in one dimension. What could change this: (1) a binding that reads the role strongly enough to lower role [2,2] below role [2,1,1] by more than the orbital gap; the fear beat's meetings do read the role (E-SPN-0069), so this is open; (2) the role of a MOVING love is locked into the doublet about its own point (E-SPN-0066), which removes the scalar line and changes the counting (not done here: the neutral space is defined with the full qutrit). The (3, 0) statement reaches the rishon model's spin problem from the other side: there three T rishons antisymmetric in hypercolor are spin 3/2 in an s wave; here the role is color and spin in one qutrit, so antisymmetry in the role forces the determinant, a spin singlet.`,
     })

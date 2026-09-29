@@ -55,7 +55,11 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { energyDrift, spanLensSurvey, SPAN_LENS_WINDOW } from '@/code/measure/depth-span'
+import {
+  energyDrift,
+  spanLensSurvey,
+  SPAN_LENS_WINDOW,
+} from '@/code/measure/depth-span'
 import { LENS_DETECTORS } from '@/code/measure/radion'
 
 export default experiment({
@@ -70,14 +74,32 @@ export default experiment({
   run() {
     const s = spanLensSurvey(what => console.error(what))
     const { husk, clock, metric } = s.arena
-    const closed = (r: typeof clock): number => r.measuredDelay / r.closedCountDelay
-    const wraps = [s.uniform, s.lens].reduce((a, r) => a + r.wraps.angle + r.wraps.field + r.wraps.potential, 0)
-    const instrument = s.uniform.reversed && s.lens.reversed && s.uniform.gauss === 0 && s.lens.gauss === 0 && wraps === 0 && s.fall.every(f => f.reversed) && s.arena.field.reversed
-    const within = (x: number, want: number, tol: number): boolean => Math.abs(x / want - 1) <= tol
+    const closed = (r: typeof clock): number =>
+      r.measuredDelay / r.closedCountDelay
+    const wraps = [s.uniform, s.lens].reduce(
+      (a, r) => a + r.wraps.angle + r.wraps.field + r.wraps.potential,
+      0,
+    )
+    const instrument =
+      s.uniform.reversed &&
+      s.lens.reversed &&
+      s.uniform.gauss === 0 &&
+      s.lens.gauss === 0 &&
+      wraps === 0 &&
+      s.fall.every(f => f.reversed) &&
+      s.arena.field.reversed
+    const within = (x: number, want: number, tol: number): boolean =>
+      Math.abs(x / want - 1) <= tol
     const s2 = within(s.measuredDelay, s.eikonalDelay, 0.02)
-    const s3 = within(closed(clock), clock.closedFactor, 0.05) && within(closed(metric), metric.closedFactor, 0.05)
-    const s4 = within(s.factorClosedPull, metric.closedFactor, 0.1) && Math.abs(s.factorClosedPull - closed(metric)) < Math.abs(s.factorClosedPull - closed(clock))
-    const status = !instrument || !s3 ? 'partial' : s2 && s4 ? 'pass' : 'fail'
+    const s3 =
+      within(closed(clock), clock.closedFactor, 0.05) &&
+      within(closed(metric), metric.closedFactor, 0.05)
+    const s4 =
+      within(s.factorClosedPull, metric.closedFactor, 0.1) &&
+      Math.abs(s.factorClosedPull - closed(metric)) <
+        Math.abs(s.factorClosedPull - closed(clock))
+    const status =
+      !instrument || !s3 ? 'partial' : s2 && s4 ? 'pass' : 'fail'
     const weak = (2 * s.factorClosedPull) / s.closedFactor
     const f = (x: number): string => x.toPrecision(6)
     const e = (x: number): string => x.toExponential(3)
@@ -115,7 +137,11 @@ export default experiment({
       status,
       claim: `through the radion's own slab the spanned light is delayed ${f(s.measuredDelay)} beats between x = ${LENS_DETECTORS[0]} and ${LENS_DETECTORS[LENS_DETECTORS.length - 1]} against its eikonal ${f(s.eikonalDelay)}; against the Newtonian count with the lump's closed pull (${f(s.closedCountDelay)} beats) that is a factor ${f(s.factorClosedPull)} (closed ${f(s.closedFactor)}, weak-field reading ${f(weak)}), next to the general-relativity control wave's ${f(closed(metric))} (closed ${f(metric.closedFactor)}) and far from the clock-only control's ${f(closed(clock))} (closed ${f(clock.closedFactor)}) and the unchanged husk light's ${f(closed(husk))}; with the span lumps' measured pull (${f(s.pullScale)} of the ray law) the factor is ${f(s.factor)}`,
       metrics,
-      control: { clockFactor: closed(clock), metricFactor: closed(metric), oldHuskFactor: closed(husk) },
+      control: {
+        clockFactor: closed(clock),
+        metricFactor: closed(metric),
+        oldHuskFactor: closed(husk),
+      },
       notes: `L2. Gates S2 ${s2}, S3 ${s3}, S4 ${s4}; instrument ${instrument}. Spanned arrivals uniform ${s.uniform.arrival.map(x => x.toFixed(2)).join(' ')}, lens ${s.lens.arrival.map(x => x.toFixed(2)).join(' ')} at x = ${LENS_DETECTORS.join(', ')}. Span falls (measured, predicted): ${s.fall.map(x => `m ${x.m} ${e(x.g)} ${e(x.gPredicted)}`).join('; ')}. Shadow invariant drift: uniform ${e(energyDrift(s.uniform.energy))}, lens ${e(energyDrift(s.lens.energy))}. Old husk light delay ${f(husk.measuredDelay)}, clock wave ${f(clock.measuredDelay)}, metric wave ${f(metric.measuredDelay)} (old c0 units). Runs ${s.uniform.seconds.toFixed(1)} s and ${s.lens.seconds.toFixed(1)} s; survey ${s.seconds.toFixed(1)} s.`,
     })
   },

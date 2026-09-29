@@ -59,7 +59,11 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { heldColor, storeStudy, type StoreStudy } from '@/code/measure/token-store-gates'
+import {
+  heldColor,
+  storeStudy,
+  type StoreStudy,
+} from '@/code/measure/token-store-gates'
 
 export default experiment({
   id: 'relativity/returned-neutral-pairs',
@@ -76,16 +80,27 @@ export default experiment({
     const again = storeStudy('returned-neutral')
     const flip = storeStudy('neutral')
     const returned = storeStudy('returned')
-    const deterministic = JSON.stringify(candidate.metrics) === JSON.stringify(again.metrics)
+    const deterministic =
+      JSON.stringify(candidate.metrics) ===
+      JSON.stringify(again.metrics)
     const held = heldColor('returned-neutral')
     const plain = heldColor('plain')
     const heldNeutral = heldColor('neutral')
     const heldReturned = heldColor('returned')
     const g = candidate.gates
     const gates: Record<string, boolean> = {
-      G1: !!(g.frameCovariant && g.frameTestSensitive && g.swapControlBites),
-      G2: (flip.metrics.frameMismatch ?? 0) > 0 && (flip.metrics.searchSignFlips ?? 0) > 0,
-      G3: held.heldChanges === 0 && held.made > 0 && plain.heldChanges > 0,
+      G1: !!(
+        g.frameCovariant &&
+        g.frameTestSensitive &&
+        g.swapControlBites
+      ),
+      G2:
+        (flip.metrics.frameMismatch ?? 0) > 0 &&
+        (flip.metrics.searchSignFlips ?? 0) > 0,
+      G3:
+        held.heldChanges === 0 &&
+        held.made > 0 &&
+        plain.heldChanges > 0,
       G4: !!(g.fermionKept && g.fermionControlBreaks),
       G5: !!g.wf4,
       G6: !!g.reversalAndCpt,
@@ -111,9 +126,15 @@ export default experiment({
       returnedMade: heldReturned.made,
       seconds: 0,
     }
+
     const add = (s: StoreStudy, name: string): void => {
-      for (const [k, v] of Object.entries(s.metrics)) metrics[`${name}_${k}`] = v
-      for (const [k, v] of Object.entries(s.gates)) metrics[`${name}_gate_${k}`] = v ? 1 : 0
+      for (const [k, v] of Object.entries(s.metrics)) {
+        metrics[`${name}_${k}`] = v
+      }
+
+      for (const [k, v] of Object.entries(s.gates)) {
+        metrics[`${name}_gate_${k}`] = v ? 1 : 0
+      }
     }
 
     add(candidate, 'returnedNeutral')
@@ -129,7 +150,11 @@ export default experiment({
       status: ok ? 'pass' : 'fail',
       claim: `with open tokens, the neutral pair move on own points with the store keeping the unmade pair's tokens and handing them back: frame covariance ${c.frameMismatch} whole and ${c.classicalMismatch} classical mismatches over ${c.openPairs} open pairs x 480 beats (${c.frameLoveFearMeetings} love-fear meetings, ${c.framePassages} passages, ${c.frameSignFlips} sign flips; the swap-phase control ${c.swapControlMismatch}), the held color changed on ${held.heldChanges} of ${held.dockBeats} dock-beats while ${held.made} pairs were made, the fermion number kept at ${c.fermionKept} of ${c.fermionMeetings} meetings (fixed-frame beat breaks ${c.fixedFrameBreaks}), W(F4) ${(c.coinMapFailures ?? 0) + (c.boxCoinMapFailures ?? 0)} failures over 1,152 coin maps on docks and box, reversal ${c.reverses ? 'exact' : 'broken'}, motion reversal and CPT ${(c.motionReversalFailures ?? 0) + (c.cptFailures ?? 0)} failures, ${c.nonStates} non-states of ${c.wholesRead} wholes, ${c.searchSignFlips} sign flips in ${c.searchMeetings} meetings; the neutral move with tokens left on the slots flips ${f.searchSignFlips} signs and breaks covariance (${f.frameMismatch} mismatches, ${f.frameMismatchOnFlipFreePairs} on flip-free pairs), and the store return without the veto keeps covariance (${r.frameMismatch}) but not the held color (${heldReturned.heldChanges} dock-beats; held plus stored ${heldReturned.totalChanges})`,
       metrics,
-      control: { swapPhaseMismatch: c.swapControlMismatch ?? -1, neutralOnSlotsMismatch: f.frameMismatch ?? -1, plainHeldChanges: plain.heldChanges },
+      control: {
+        swapPhaseMismatch: c.swapControlMismatch ?? -1,
+        neutralOnSlotsMismatch: f.frameMismatch ?? -1,
+        plainHeldChanges: plain.heldChanges,
+      },
       notes: `L2. Gates: ${JSON.stringify(gates)}; candidate study gates ${JSON.stringify(candidate.gates)}; neutral-on-slots ${JSON.stringify(flip.gates)}; returned without the veto ${JSON.stringify(returned.gates)}. Open pairs of the candidate: ${JSON.stringify(candidate.pairs)}. First run recorded as is (731 s, pass). DISCLOSED: a classical rate probe (tmp/vac-probe-rates.ts, no whole, no gate) ran before this file was written, to size the runs (meetings, love-fear meetings, flips and pairs per variant over 480 all-open beats). Title rewritten after the run, no logic changed. Storage: the store places hold 24 role points per dock beside the 12 store trits; in this rule a calm token never becomes held (pairs are made only from the tokens the store holds), so the calm slots' role points are inert.`,
     })
   },

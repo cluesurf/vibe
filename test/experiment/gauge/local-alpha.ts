@@ -103,7 +103,16 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { logLogSlope } from '@/code/measure/regression'
-import { CONTROL_FROM, CONTROL_TOLERANCE, EXPONENT_TOLERANCE, FLAT_TOLERANCE, LOCAL_DEPTHS, LOCAL_SEPARATIONS, localAlphaSurvey, type LightKind } from '@/code/measure/local-alpha'
+import {
+  CONTROL_FROM,
+  CONTROL_TOLERANCE,
+  EXPONENT_TOLERANCE,
+  FLAT_TOLERANCE,
+  LOCAL_DEPTHS,
+  LOCAL_SEPARATIONS,
+  localAlphaSurvey,
+  type LightKind,
+} from '@/code/measure/local-alpha'
 
 export default experiment({
   id: 'gauge/local-alpha',
@@ -119,29 +128,97 @@ export default experiment({
     const x = s.readings
     const q = (d: number): number => 2 * d + 1
     const top = LOCAL_DEPTHS[LOCAL_DEPTHS.length - 1]!
-    const of = (light: LightKind, d: number, r: number) => x.find(a => a.pair.light === light && a.pair.depth === d && a.pair.r === r)!
-    const unitsOf = (light: LightKind) => s.units.filter(u => u.light === light)
+    const of = (light: LightKind, d: number, r: number) =>
+      x.find(
+        a =>
+          a.pair.light === light &&
+          a.pair.depth === d &&
+          a.pair.r === r,
+      )!
+    const unitsOf = (light: LightKind) =>
+      s.units.filter(u => u.light === light)
     const qs = LOCAL_DEPTHS.map(q)
-    const slope = (light: LightKind, f: (u: (typeof s.units)[number]) => number): number => logLogSlope(qs, unitsOf(light).map(f))
-    const restSlope = { span: slope('span', u => u.rest), clock: slope('clock', u => u.rest) }
-    const comptonSlope = { span: slope('span', u => u.compton), clock: slope('clock', u => u.compton) }
-    const a0 = Math.abs(restSlope.span + 0.5) <= EXPONENT_TOLERANCE && Math.abs(restSlope.clock + 0.5) <= EXPONENT_TOLERANCE && Math.abs(comptonSlope.span + 0.5) <= EXPONENT_TOLERANCE && Math.abs(comptonSlope.clock) <= EXPONENT_TOLERANCE && s.units.every(u => u.reversed)
-    const flat = LOCAL_SEPARATIONS.flatMap(r => LOCAL_DEPTHS.map(d => of('span', d, r).alphaLocal / of('span', top, r).alphaLocal))
+    const slope = (
+      light: LightKind,
+      f: (u: (typeof s.units)[number]) => number,
+    ): number => logLogSlope(qs, unitsOf(light).map(f))
+    const restSlope = {
+      span: slope('span', u => u.rest),
+      clock: slope('clock', u => u.rest),
+    }
+    const comptonSlope = {
+      span: slope('span', u => u.compton),
+      clock: slope('clock', u => u.compton),
+    }
+    const a0 =
+      Math.abs(restSlope.span + 0.5) <= EXPONENT_TOLERANCE &&
+      Math.abs(restSlope.clock + 0.5) <= EXPONENT_TOLERANCE &&
+      Math.abs(comptonSlope.span + 0.5) <= EXPONENT_TOLERANCE &&
+      Math.abs(comptonSlope.clock) <= EXPONENT_TOLERANCE &&
+      s.units.every(u => u.reversed)
+    const flat = LOCAL_SEPARATIONS.flatMap(r =>
+      LOCAL_DEPTHS.map(
+        d =>
+          of('span', d, r).alphaLocal / of('span', top, r).alphaLocal,
+      ),
+    )
     const a1 = flat.every(v => Math.abs(v - 1) <= FLAT_TOLERANCE)
     const controlDepths = LOCAL_DEPTHS.filter(d => d >= CONTROL_FROM)
-    const controlOff = LOCAL_SEPARATIONS.flatMap(r => controlDepths.map(d => (of('clock', d, r).alphaLocal / of('clock', top, r).alphaLocal) / (Math.sqrt(q(d) / q(top)) * (top / d)) - 1))
-    const mediumOff = LOCAL_SEPARATIONS.flatMap(r => controlDepths.map(d => of('clock', d, r).alphaLocal / of('span', d, r).alphaLocal / Math.sqrt(q(d)) - 1))
-    const a2 = [...controlOff, ...mediumOff].every(v => Math.abs(v) <= CONTROL_TOLERANCE)
-    const a3 = x.every(a => a.pair.reversed && a.pair.gauss === 0 && (a.pair.light === 'clock' || a.pair.wraps === 0))
+    const controlOff = LOCAL_SEPARATIONS.flatMap(r =>
+      controlDepths.map(
+        d =>
+          of('clock', d, r).alphaLocal /
+            of('clock', top, r).alphaLocal /
+            (Math.sqrt(q(d) / q(top)) * (top / d)) -
+          1,
+      ),
+    )
+    const mediumOff = LOCAL_SEPARATIONS.flatMap(r =>
+      controlDepths.map(
+        d =>
+          of('clock', d, r).alphaLocal /
+            of('span', d, r).alphaLocal /
+            Math.sqrt(q(d)) -
+          1,
+      ),
+    )
+    const a2 = [...controlOff, ...mediumOff].every(
+      v => Math.abs(v) <= CONTROL_TOLERANCE,
+    )
+    const a3 = x.every(
+      a =>
+        a.pair.reversed &&
+        a.pair.gauss === 0 &&
+        (a.pair.light === 'clock' || a.pair.wraps === 0),
+    )
     const status = !a0 || !a3 ? 'partial' : a1 && a2 ? 'pass' : 'fail'
-    const mean = (light: LightKind, d: number): number => LOCAL_SEPARATIONS.reduce((acc, r) => acc + of(light, d, r).alphaLocal, 0) / LOCAL_SEPARATIONS.length
-    const alphaSlope = { span: logLogSlope(qs, LOCAL_DEPTHS.map(d => mean('span', d))) }
-    const spanDepthSlope = logLogSlope([...LOCAL_DEPTHS], LOCAL_DEPTHS.map(d => mean('span', d)))
-    const controlSlope = logLogSlope(controlDepths.map(q), controlDepths.map(d => mean('clock', d)))
+    const mean = (light: LightKind, d: number): number =>
+      LOCAL_SEPARATIONS.reduce(
+        (acc, r) => acc + of(light, d, r).alphaLocal,
+        0,
+      ) / LOCAL_SEPARATIONS.length
+    const alphaSlope = {
+      span: logLogSlope(
+        qs,
+        LOCAL_DEPTHS.map(d => mean('span', d)),
+      ),
+    }
+    const spanDepthSlope = logLogSlope(
+      [...LOCAL_DEPTHS],
+      LOCAL_DEPTHS.map(d => mean('span', d)),
+    )
+    const controlSlope = logLogSlope(
+      controlDepths.map(q),
+      controlDepths.map(d => mean('clock', d)),
+    )
     // the coupling of alpha to the potential: Phi / c^2 = ln N = -(1/2) ln q + const on matter's clock, so
     // d ln alpha / d (Phi / c^2) = -2 d ln alpha / d ln q
-    const kAlpha = { span: -2 * alphaSlope.span, clock: -2 * controlSlope }
-    const worst = (list: number[]): number => Math.max(...list.map(v => Math.abs(v)))
+    const kAlpha = {
+      span: -2 * alphaSlope.span,
+      clock: -2 * controlSlope,
+    }
+    const worst = (list: number[]): number =>
+      Math.max(...list.map(v => Math.abs(v)))
     const metrics: Record<string, number> = {
       gate_A0: a0 ? 1 : 0,
       gate_A1: a1 ? 1 : 0,
@@ -167,7 +244,8 @@ export default experiment({
 
       metrics[`alphaLocal_${tag}`] = a.alphaLocal
       metrics[`alphaOverClosed_${tag}`] = a.alphaLocal / a.alphaClosed
-      metrics[`localMinusCoordinate_${tag}`] = a.alphaLocal / a.alphaCoordinate - 1
+      metrics[`localMinusCoordinate_${tag}`] =
+        a.alphaLocal / a.alphaCoordinate - 1
       metrics[`growthOff_${tag}`] = a.pair.phi / a.pair.phiStatic - 1
       metrics[`noteProduct_${tag}`] = a.noteProduct
       metrics[`hbarInvariant_${tag}`] = a.hbarInvariant
@@ -186,15 +264,29 @@ export default experiment({
     const f = (v: number, n = 4): string => v.toFixed(n)
     const e = (v: number): string => v.toExponential(2)
     const inv = (v: number): string => `1/${(1 / v).toFixed(1)}`
-    const row = (light: LightKind, depths: readonly number[]): string => depths.map(d => `D ${d} ${inv(mean(light, d))}`).join(', ')
+    const row = (light: LightKind, depths: readonly number[]): string =>
+      depths.map(d => `D ${d} ${inv(mean(light, d))}`).join(', ')
     const hot = LOCAL_DEPTHS.filter(d => d < CONTROL_FROM)
-    const hotNote = hot.map(d => `D ${d} hot (its growth ${f(Math.min(...LOCAL_SEPARATIONS.map(r => of('clock', d, r).pair.phi / of('clock', d, r).pair.phiStatic)), 2)} to ${f(Math.max(...LOCAL_SEPARATIONS.map(r => of('clock', d, r).pair.phi / of('clock', d, r).pair.phiStatic)), 2)} of its static field, not read)`).join(', ')
+    const hotNote = hot
+      .map(
+        d =>
+          `D ${d} hot (its growth ${f(Math.min(...LOCAL_SEPARATIONS.map(r => of('clock', d, r).pair.phi / of('clock', d, r).pair.phiStatic)), 2)} to ${f(Math.max(...LOCAL_SEPARATIONS.map(r => of('clock', d, r).pair.phi / of('clock', d, r).pair.phiStatic)), 2)} of its static field, not read)`,
+      )
+      .join(', ')
 
     return verdict({
       status,
       claim: `alpha read in local units (energy as a matter frequency on the rest rate of a lump at the depth, separation on the lump's Compton length, action one radian of matter phase, c the light's speed on those) at uniform depths ${LOCAL_DEPTHS.join(', ')}: on the spanned light ${row('span', LOCAL_DEPTHS)}, ratios to D ${top} of ${LOCAL_DEPTHS.map(d => f(mean('span', d) / mean('span', top), 3)).join(', ')}, so alpha_local goes as D^${f(spanDepthSlope)} = q^${f(alphaSlope.span)}, not flat; on the unchanged light ${row('clock', controlDepths)}, q^${f(controlSlope)}, within ${e(worst(controlOff))} of the closed sqrt(q) / (4D) and ${e(worst(mediumOff))} of sqrt(q) times the spanned alpha (${hotNote}); the local units read as the roadmap assumed (rest rate q^${f(restSlope.span)} and q^${f(restSlope.clock)}, Compton length q^${f(comptonSlope.span)} spanned and q^${f(comptonSlope.clock)} unchanged, the light's local speed ${f(Math.min(...s.units.map(u => u.cLocal)))} to ${f(Math.max(...s.units.map(u => u.cLocal)))}) and cancel from alpha identically (local over coordinate within ${e(worst(x.map(a => a.alphaLocal / a.alphaCoordinate - 1)))}); the roadmap's product (energy on the local clock times separation on the local ruler) is flat on the spanned light (${LOCAL_DEPTHS.map(d => f(of('span', d, LOCAL_SEPARATIONS[0]!).noteProduct, 5)).join(', ')}) but alpha divides it by hbar, and hbar in the light's energy unit reads ${LOCAL_DEPTHS.map(d => f(of('span', d, LOCAL_SEPARATIONS[0]!).hbarInvariant, 4)).join(', ')} = D / pi, set by the Peierls root zeta_(4D); alpha's coupling to the potential d ln alpha / d (Phi / c^2) = ${f(kAlpha.span, 2)} spanned, ${f(kAlpha.clock, 2)} unchanged, against atomic-clock bounds of order 1e-6`,
       metrics,
-      control: { controlWorst: worst(controlOff), mediumWorst: worst(mediumOff), unchangedAtD4OverClosed: of('clock', LOCAL_DEPTHS[0]!, LOCAL_SEPARATIONS[0]!).alphaLocal / of('clock', LOCAL_DEPTHS[0]!, LOCAL_SEPARATIONS[0]!).alphaClosed },
+      control: {
+        controlWorst: worst(controlOff),
+        mediumWorst: worst(mediumOff),
+        unchangedAtD4OverClosed:
+          of('clock', LOCAL_DEPTHS[0]!, LOCAL_SEPARATIONS[0]!)
+            .alphaLocal /
+          of('clock', LOCAL_DEPTHS[0]!, LOCAL_SEPARATIONS[0]!)
+            .alphaClosed,
+      },
       notes: `L2. Gates A0 ${a0}, A1 ${a1}, A2 ${a2}, A3 ${a3}. Per reading (light D r: alpha_local, over closed, growth off static, turns): ${x.map(a => `${a.pair.light} ${a.pair.depth} ${a.pair.r}: ${e(a.alphaLocal)}, ${f(a.alphaLocal / a.alphaClosed, 6)}, ${e(a.pair.phi / a.pair.phiStatic - 1)}, ${a.pair.turns}`).join('; ')}. Units (light D: rest over closed, Compton, c_local): ${s.units.map(u => `${u.light} ${u.depth}: ${f(u.rest / u.restClosed, 7)}, ${f(u.compton)}, ${f(u.cLocal)}`).join('; ')}. Worst spanned flatness ${e(worst(flat.map(v => v - 1)))}, control ${e(worst(controlOff))}, medium ${e(worst(mediumOff))}. Largest relax residual ${e(Math.max(...x.map(a => a.pair.residual)))}. Survey ${s.seconds.toFixed(1)} s.`,
     })
   },

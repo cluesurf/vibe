@@ -127,7 +127,10 @@ export default experiment({
     let crossStart = centre
 
     for (let hop = 0; hop < 2; hop++) {
-      crossStart = mesh.neighbour(crossStart, opposite[CROSS_DIRECTION]!)
+      crossStart = mesh.neighbour(
+        crossStart,
+        opposite[CROSS_DIRECTION]!,
+      )
     }
 
     let loneStart = centre
@@ -169,7 +172,9 @@ export default experiment({
         c = beat(c, momentum)
         ac = beat(ac, momentum)
 
-        const union = [...occupied(a), ...occupied(b)].sort((x, y) => x - y)
+        const union = [...occupied(a), ...occupied(b)].sort(
+          (x, y) => x - y,
+        )
         const unionCross = [...occupied(a), ...occupied(c)].sort(
           (x, y) => x - y,
         )
@@ -191,7 +196,9 @@ export default experiment({
       headOnStart = mesh.neighbour(headOnStart, DIRECTION)
     }
 
-    const headOn = (sign: 1 | -1): { minOccupied: number; maxOccupied: number; charge: number } => {
+    const headOn = (
+      sign: 1 | -1,
+    ): { minOccupied: number; maxOccupied: number; charge: number } => {
       let will = makeWill(mesh)
 
       will.data[centre * degree + DIRECTION] = 1
@@ -248,7 +255,10 @@ export default experiment({
 
     addPointSeed({ walk, site: 32, chirality: 'right' })
 
-    const { cosMass, sinMass } = massProfile({ size: 64, massAt: () => 0.5 })
+    const { cosMass, sinMass } = massProfile({
+      size: 64,
+      massAt: () => 0.5,
+    })
 
     for (let t = 0; t < BEATS; t++) {
       coinedWalkStep({ walk, cosMass, sinMass, boundary: 'periodic' })
@@ -258,7 +268,9 @@ export default experiment({
 
     const vacuumQuiet = vacuumEverNonzero === 0
     const loneIsBallistic =
-      loneMaxSlots === 1 && lonePositionExact && loneRadiusAtEnd === BEATS
+      loneMaxSlots === 1 &&
+      lonePositionExact &&
+      loneRadiusAtEnd === BEATS
     const noCrossTerm = unionExactParallel && unionExactCrossing
     const signsDoNotCancel =
       oppositeSigns.minOccupied === 2 &&

@@ -50,7 +50,14 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { hotHusk, sectionA, sectionBC, sectionF, sectionL, sectionS } from '@/code/measure/photon-count-battery'
+import {
+  hotHusk,
+  sectionA,
+  sectionBC,
+  sectionF,
+  sectionL,
+  sectionS,
+} from '@/code/measure/photon-count-battery'
 
 export default experiment({
   id: 'gauge/photon-count-wave',
@@ -65,36 +72,69 @@ export default experiment({
     const metrics: Record<string, number> = {}
     const a = sectionA('wave')
     const l = sectionL()
-    const bc = sectionBC('wave', { bound: 1e-3, read: 'shadow', dither: 'zero' })
+    const bc = sectionBC('wave', {
+      bound: 1e-3,
+      read: 'shadow',
+      dither: 'zero',
+    })
     const d = hotHusk('wave', 'd', 8, 'zero')
     const d0 = hotHusk('linear', 'd0Linear', 8, 'zero')
     const f = sectionF('wave', { bound: 0.01, dither: 'zero' })
     const s = sectionS('wave', 'zero')
-    const okA4 = (a['a4FredkinMismatches'] ?? 1) === 0 && (a['a4FredkinRestored'] ?? 0) === 1 && (a['a4FredkinGaussViolations'] ?? 1) === 0
-    const okD = (d['dShadowLaggedLightBranches'] ?? 0) >= 1 && Math.abs(d['dShadowLaggedOverExact'] ?? 1) < 0.02 && Math.abs(d['dShadowDirectOverExact'] ?? 1) < 0.02
-    const gates = { A: a.ok, A4: okA4 ? 1 : 0, L: l.ok, B: bc.okB, C: bc.okC, D: okD ? 1 : 0, F: f.okF }
-    const strip = (r: Record<string, number>): Record<string, number> => Object.fromEntries(Object.entries(r).filter(([key]) => !key.startsWith('ok')))
+    const okA4 =
+      (a.a4FredkinMismatches ?? 1) === 0 &&
+      (a.a4FredkinRestored ?? 0) === 1 &&
+      (a.a4FredkinGaussViolations ?? 1) === 0
+    const okD =
+      (d.dShadowLaggedLightBranches ?? 0) >= 1 &&
+      Math.abs(d.dShadowLaggedOverExact ?? 1) < 0.02 &&
+      Math.abs(d.dShadowDirectOverExact ?? 1) < 0.02
+    const gates = {
+      A: a.ok,
+      A4: okA4 ? 1 : 0,
+      L: l.ok,
+      B: bc.okB,
+      C: bc.okC,
+      D: okD ? 1 : 0,
+      F: f.okF,
+    }
+    const strip = (r: Record<string, number>): Record<string, number> =>
+      Object.fromEntries(
+        Object.entries(r).filter(([key]) => !key.startsWith('ok')),
+      )
 
     for (const [gate, ok] of Object.entries(gates)) {
       metrics[`gate${gate}`] = ok
     }
 
-    metrics['lFilesScanned'] = l.files
-    metrics['lFindings'] = l.findings.length
+    metrics.lFilesScanned = l.files
+    metrics.lFindings = l.findings.length
 
     return verdict({
-      status: Object.values(gates).every(x => x === 1) ? 'pass' : a.ok === 1 && okA4 && l.ok === 1 ? 'partial' : 'fail',
+      status: Object.values(gates).every(x => x === 1)
+        ? 'pass'
+        : a.ok === 1 && okA4 && l.ok === 1
+          ? 'partial'
+          : 'fail',
       claim:
         'with the carried error fed back through the leapfrog operator and the spatial term paid by a second counter, the compact U(1) beat at kappa = 1/16 is an exact integer bijection with Gauss exact and no real number in the rule, Fredkin form runs the same orbit, and read in the shadow field the light battery passes: husk waves within 1e-3 of the symbol at |B| 1 to 1024, the hot husk photon within 2 percent, no heating',
-      metrics: { ...metrics, ...strip(a), ...strip(bc), ...strip(d), ...strip(d0), ...strip(f), ...strip(s) },
+      metrics: {
+        ...metrics,
+        ...strip(a),
+        ...strip(bc),
+        ...strip(d),
+        ...strip(d0),
+        ...strip(f),
+        ...strip(s),
+      },
       control: {
-        linearHuskLaggedOverExact: d0['d0LinearLaggedOverExact'] ?? -1,
-        linearHuskDirectOverExact: d0['d0LinearDirectOverExact'] ?? -1,
-        e164Drift: f['fE164Drift'] ?? -1,
-        linearDrift: f['fLinearDrift'] ?? -1,
+        linearHuskLaggedOverExact: d0.d0LinearLaggedOverExact ?? -1,
+        linearHuskDirectOverExact: d0.d0LinearDirectOverExact ?? -1,
+        e164Drift: f.fE164Drift ?? -1,
+        linearDrift: f.fLinearDrift ?? -1,
       },
       notes:
-        'L2, integers and bit operations only in the rule, deterministic (zero counter starts, golden-hashed field starts, no seeds). First run 2026-09-26 (tmp/frc0205.log, 308 s), PASS on every gate. A: the counters exhaustively, every B in -4096 .. 4095 against every D_(t-2) in 0 .. 65535 with D_(t-1) and R on integer Weyl sequences, 536,870,912 cases, 0 failures; 0 mismatches after 2,000 beats back on side 4 and 500 on side 5; 0 Gauss violations; 0 frame mismatches. A4: Fredkin second-order form 0 mismatches against the leapfrog on every beat, restored exactly, Gauss exact mod N. L: 1 file, 0 findings. B read in E~: |B| 1 to 8 within 3.7e-7 of the symbol at kappa = 1/16 (E-FRC-0185: 2.3e-6). C read in E~: every wave at |B| 16 to 1024 within 3.9e-8. D read in E~: lagged -0.312 percent with 1 light branch of 3, direct -0.008 percent, identical to 1e-6 with the floating linear control (-0.312, -0.008). F: raw energy drift -1.4e-5 against E-FRC-0164\'s 0.0160, ratio 8.7e-4 (bound 0.01). Reported, not gated: the RAW flux fails small waves as E-FRC-0185\'s did (+547 percent at |B| 1, +73 at 8, up to 52 percent in C) and its lagged estimator reads +13.8 percent with 8 branches (direct -0.08 percent): the bounded non-propagating dither -(w_t - w_(t-1)) of E-FRC-0185, unchanged by carrying the spatial term. S: the shadow tracks the floating linear leapfrog at kappa = 1/16 within 0.0016 flux units over 2,000 beats from the E-FRC-0164 start and 0.0018 from the hot start (E-FRC-0185 with its rounding: 0.0022 on the hot start), the raw flux within 6.6 flux units. SEAM: 0 crossings on either start at N = 2^13 (largest |B| 4,030 and 3,074 of the seam\'s 4,096), so the N = 2^16 run is identical. E-FRC-0185 crossed the seam on the E-FRC-0164 start at kappa 0.0614 and failed S there; at kappa 1/16 the same start stays inside it, so the compact U(1) costs nothing on these protocols. The predictions in the header held, with S better than predicted.',
+        "L2, integers and bit operations only in the rule, deterministic (zero counter starts, golden-hashed field starts, no seeds). First run 2026-09-26 (tmp/frc0205.log, 308 s), PASS on every gate. A: the counters exhaustively, every B in -4096 .. 4095 against every D_(t-2) in 0 .. 65535 with D_(t-1) and R on integer Weyl sequences, 536,870,912 cases, 0 failures; 0 mismatches after 2,000 beats back on side 4 and 500 on side 5; 0 Gauss violations; 0 frame mismatches. A4: Fredkin second-order form 0 mismatches against the leapfrog on every beat, restored exactly, Gauss exact mod N. L: 1 file, 0 findings. B read in E~: |B| 1 to 8 within 3.7e-7 of the symbol at kappa = 1/16 (E-FRC-0185: 2.3e-6). C read in E~: every wave at |B| 16 to 1024 within 3.9e-8. D read in E~: lagged -0.312 percent with 1 light branch of 3, direct -0.008 percent, identical to 1e-6 with the floating linear control (-0.312, -0.008). F: raw energy drift -1.4e-5 against E-FRC-0164's 0.0160, ratio 8.7e-4 (bound 0.01). Reported, not gated: the RAW flux fails small waves as E-FRC-0185's did (+547 percent at |B| 1, +73 at 8, up to 52 percent in C) and its lagged estimator reads +13.8 percent with 8 branches (direct -0.08 percent): the bounded non-propagating dither -(w_t - w_(t-1)) of E-FRC-0185, unchanged by carrying the spatial term. S: the shadow tracks the floating linear leapfrog at kappa = 1/16 within 0.0016 flux units over 2,000 beats from the E-FRC-0164 start and 0.0018 from the hot start (E-FRC-0185 with its rounding: 0.0022 on the hot start), the raw flux within 6.6 flux units. SEAM: 0 crossings on either start at N = 2^13 (largest |B| 4,030 and 3,074 of the seam's 4,096), so the N = 2^16 run is identical. E-FRC-0185 crossed the seam on the E-FRC-0164 start at kappa 0.0614 and failed S there; at kappa 1/16 the same start stays inside it, so the compact U(1) costs nothing on these protocols. The predictions in the header held, with S better than predicted.",
     })
   },
 })

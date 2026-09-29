@@ -38,12 +38,28 @@
 // colorLocalBeat with the scattering switched off.
 
 import { rootsD4 } from '@/code/algebra/group/integer-roots'
-import { BIND_MOVE_FORWARD, type Collision } from '@/code/rule/collision'
+import {
+  BIND_MOVE_FORWARD,
+  type Collision,
+} from '@/code/rule/collision'
 import { stream, streamInverse } from '@/code/rule/lattice-gas'
-import { type ColorLocalSpec, colorLocalSpec, invertTable, stateKey, type WireTable } from '@/code/rule/color-local-weave'
-import { COLOR_TURN, COLOR_TURN_SWAP_ORDER } from '@/code/rule/color-turn-weave'
+import {
+  type ColorLocalSpec,
+  colorLocalSpec,
+  invertTable,
+  stateKey,
+  type WireTable,
+} from '@/code/rule/color-local-weave'
+import {
+  COLOR_TURN,
+  COLOR_TURN_SWAP_ORDER,
+} from '@/code/rule/color-turn-weave'
 import { LONE_WITH_CLOCK } from '@/code/rule/momentum-weave'
-import { makeVibeWeave, type VibeState, type VibeWeave } from '@/code/rule/vibe-weave'
+import {
+  makeVibeWeave,
+  type VibeState,
+  type VibeWeave,
+} from '@/code/rule/vibe-weave'
 
 // The momentum turn weave, the base of the scatter weave: the color turn weave's schedule (its turn and its
 // swap order, out and back) with the bind table and the momentum-keeping exchange of E-FLD-0023 (a lone
@@ -51,7 +67,10 @@ import { makeVibeWeave, type VibeState, type VibeWeave } from '@/code/rule/vibe-
 export const MOMENTUM_TURN_SPEC: ColorLocalSpec = colorLocalSpec({
   tables: [BIND_MOVE_FORWARD],
   turn: COLOR_TURN,
-  swapAt: [...COLOR_TURN_SWAP_ORDER, ...[...COLOR_TURN_SWAP_ORDER].reverse()],
+  swapAt: [
+    ...COLOR_TURN_SWAP_ORDER,
+    ...[...COLOR_TURN_SWAP_ORDER].reverse(),
+  ],
   swapWhen: (line, wire) => LONE_WITH_CLOCK[line * 9 + wire] === 1,
 })
 
@@ -65,7 +84,10 @@ export const MOMENTUM_TURN_SPEC: ColorLocalSpec = colorLocalSpec({
 export const HEAD_TURN_SPEC: ColorLocalSpec = colorLocalSpec({
   tables: [BIND_MOVE_FORWARD],
   turn: COLOR_TURN,
-  swapAt: [...COLOR_TURN_SWAP_ORDER, ...[...COLOR_TURN_SWAP_ORDER].reverse()],
+  swapAt: [
+    ...COLOR_TURN_SWAP_ORDER,
+    ...[...COLOR_TURN_SWAP_ORDER].reverse(),
+  ],
   swapWhen: (line, wire) => {
     const a = Math.floor(line / 3) - 1
     const b = (line % 3) - 1
@@ -75,10 +97,12 @@ export const HEAD_TURN_SPEC: ColorLocalSpec = colorLocalSpec({
 })
 
 // the momentum weave of E-FLD-0023 in the same form (the committed schedule)
-export const MOMENTUM_WEAVE_COLOR_SPEC: ColorLocalSpec = colorLocalSpec({
-  tables: [BIND_MOVE_FORWARD],
-  swapWhen: (line, wire) => LONE_WITH_CLOCK[line * 9 + wire] === 1,
-})
+export const MOMENTUM_WEAVE_COLOR_SPEC: ColorLocalSpec = colorLocalSpec(
+  {
+    tables: [BIND_MOVE_FORWARD],
+    swapWhen: (line, wire) => LONE_WITH_CLOCK[line * 9 + wire] === 1,
+  },
+)
 
 // u, v, w, x: slot u exchanges with w and v with x
 export type Scattering = readonly [number, number, number, number]
@@ -91,7 +115,9 @@ export type ScatterQuad = {
 }
 
 const ROOTS = rootsD4()
-const OPPOSITE = ROOTS.map(r => ROOTS.findIndex(o => o.every((x, k) => x === -(r[k] ?? 0))))
+const OPPOSITE = ROOTS.map(r =>
+  ROOTS.findIndex(o => o.every((x, k) => x === -(r[k] ?? 0))),
+)
 const LINE_OF: number[] = []
 
 {
@@ -107,31 +133,46 @@ const LINE_OF: number[] = []
 }
 
 // +1 for the first slot of its line, -1 for the second
-export const SIDE: readonly number[] = ROOTS.map((_, d) => (d < (OPPOSITE[d] ?? d) ? 1 : -1))
+export const SIDE: readonly number[] = ROOTS.map((_, d) =>
+  d < (OPPOSITE[d] ?? d) ? 1 : -1,
+)
 
 export const lineOfSlot = (d: number): number => LINE_OF[d] ?? -1
 
 // every binary scattering of the dock: e_u + e_v = e_w + e_x on four distinct lines, with the flag of
 // whether a side-keeping pairing exists (then u and w, v and x share a side)
-export function allScatterings(): { scattering: Scattering; sideKept: boolean }[] {
+export function allScatterings(): {
+  scattering: Scattering
+  sideKept: boolean
+}[] {
   const out: { scattering: Scattering; sideKept: boolean }[] = []
 
   for (let u = 0; u < 24; u++) {
     for (let v = u + 1; v < 24; v++) {
       for (let w = u + 1; w < 24; w++) {
         for (let x = w + 1; x < 24; x++) {
-          if (new Set([LINE_OF[u], LINE_OF[v], LINE_OF[w], LINE_OF[x]]).size !== 4) {
+          if (
+            new Set([LINE_OF[u], LINE_OF[v], LINE_OF[w], LINE_OF[x]])
+              .size !== 4
+          ) {
             continue
           }
 
-          const sums = [0, 1, 2, 3].every(k => (ROOTS[u]?.[k] ?? 0) + (ROOTS[v]?.[k] ?? 0) === (ROOTS[w]?.[k] ?? 0) + (ROOTS[x]?.[k] ?? 0))
+          const sums = [0, 1, 2, 3].every(
+            k =>
+              (ROOTS[u]?.[k] ?? 0) + (ROOTS[v]?.[k] ?? 0) ===
+              (ROOTS[w]?.[k] ?? 0) + (ROOTS[x]?.[k] ?? 0),
+          )
 
           if (!sums) {
             continue
           }
 
-          const sideKept = (SIDE[u] ?? 0) + (SIDE[v] ?? 0) === (SIDE[w] ?? 0) + (SIDE[x] ?? 0)
-          const scattering: Scattering = SIDE[u] === SIDE[w] ? [u, v, w, x] : [u, v, x, w]
+          const sideKept =
+            (SIDE[u] ?? 0) + (SIDE[v] ?? 0) ===
+            (SIDE[w] ?? 0) + (SIDE[x] ?? 0)
+          const scattering: Scattering =
+            SIDE[u] === SIDE[w] ? [u, v, w, x] : [u, v, x, w]
 
           out.push({ scattering, sideKept })
         }
@@ -167,7 +208,9 @@ export function scatterQuads(): ScatterQuad[] {
         return
       }
 
-      const j = scatterings.findIndex((b, k) => k > i && !used.has(k) && b.every(d => !a.includes(d)))
+      const j = scatterings.findIndex(
+        (b, k) => k > i && !used.has(k) && b.every(d => !a.includes(d)),
+      )
 
       if (j >= 0) {
         used.add(i)
@@ -181,13 +224,19 @@ export function scatterQuads(): ScatterQuad[] {
 }
 
 // the partitions of the twelve lines into three hosting quadruples, as quad indices
-export function scatterPartitions(quads: readonly ScatterQuad[]): number[][] {
+export function scatterPartitions(
+  quads: readonly ScatterQuad[],
+): number[][] {
   const out: number[][] = []
 
   for (let a = 0; a < quads.length; a++) {
     for (let b = a + 1; b < quads.length; b++) {
       for (let c = b + 1; c < quads.length; c++) {
-        const lines = new Set([...(quads[a]?.lines ?? []), ...(quads[b]?.lines ?? []), ...(quads[c]?.lines ?? [])])
+        const lines = new Set([
+          ...(quads[a]?.lines ?? []),
+          ...(quads[b]?.lines ?? []),
+          ...(quads[c]?.lines ?? []),
+        ])
 
         if (lines.size === 12) {
           out.push([a, b, c])
@@ -208,19 +257,34 @@ export function scatterPartitions(quads: readonly ScatterQuad[]): number[][] {
 // run backward, which the beat does (see dockCollide).
 // - { partitions, pairs }: that many consecutive partitions from t mod 6, each with that many pair choices
 //   from floor(t / 6) mod 3 on (so 'pair' is { 1, 1 } and 'partition' is { 1, 3 })
-export type ScatterDensity = 'pair' | 'partition' | 'all' | { readonly partitions: number; readonly pairs: number }
+export type ScatterDensity =
+  | 'pair'
+  | 'partition'
+  | 'all'
+  | { readonly partitions: number; readonly pairs: number }
 
-export function scatterSchedule(density: ScatterDensity = 'pair'): Scattering[][] {
+export function scatterSchedule(
+  density: ScatterDensity = 'pair',
+): Scattering[][] {
   const quads = scatterQuads()
   const partitions = scatterPartitions(quads)
 
   if (density === 'all') {
     return Array.from({ length: 24 }, (_, t) =>
-      quads.flatMap((_, i) => (quads[(i + t) % quads.length]?.pairs ?? []).flatMap(pair => [...pair])),
+      quads.flatMap((_, i) =>
+        (quads[(i + t) % quads.length]?.pairs ?? []).flatMap(pair => [
+          ...pair,
+        ]),
+      ),
     )
   }
 
-  const shape = density === 'pair' ? { partitions: 1, pairs: 1 } : density === 'partition' ? { partitions: 1, pairs: 3 } : density
+  const shape =
+    density === 'pair'
+      ? { partitions: 1, pairs: 1 }
+      : density === 'partition'
+        ? { partitions: 1, pairs: 3 }
+        : density
 
   return Array.from({ length: 24 }, (_, t) => {
     const out: Scattering[] = []
@@ -231,7 +295,9 @@ export function scatterSchedule(density: ScatterDensity = 'pair'): Scattering[][
       for (let c = 0; c < shape.pairs; c++) {
         const choice = (Math.floor(t / partitions.length) + c) % 3
 
-        partition.forEach(q => out.push(...(quads[q]?.pairs[choice] ?? [])))
+        partition.forEach(q =>
+          out.push(...(quads[q]?.pairs[choice] ?? [])),
+        )
       }
     }
 
@@ -261,12 +327,16 @@ export type ScatterWeaveSpec = {
 
 export type ScatterCondition = 'lone' | 'matched' | 'any'
 
-const at = (list: readonly number[], t: number): number => list[((t % list.length) + list.length) % list.length] ?? 0
+const at = (list: readonly number[], t: number): number =>
+  list[((t % list.length) + list.length) % list.length] ?? 0
 const mod = (t: number, n: number): number => ((t % n) + n) % n
 
 type Built = {
   readonly lines: readonly (readonly [number, number])[]
-  readonly positions: readonly (readonly (readonly [number, number])[])[]
+  readonly positions: readonly (readonly (readonly [
+    number,
+    number,
+  ])[])[]
   readonly forwardTables: readonly WireTable[]
   readonly inverseTables: readonly WireTable[]
   readonly fires: Uint8Array
@@ -276,7 +346,10 @@ type Built = {
   readonly condition: number
 }
 
-function build(spec: ScatterWeaveSpec, opposite: readonly number[]): Built {
+function build(
+  spec: ScatterWeaveSpec,
+  opposite: readonly number[],
+): Built {
   const base = spec.base
   const lines: [number, number][] = []
 
@@ -288,21 +361,25 @@ function build(spec: ScatterWeaveSpec, opposite: readonly number[]): Built {
     }
   }
 
-  const norm = (a: number, b: number): readonly [number, number] => (a < b ? [a, b] : [b, a])
+  const norm = (a: number, b: number): readonly [number, number] =>
+    a < b ? [a, b] : [b, a]
   const positions: (readonly [number, number])[][] = []
 
   let current = base.couplesZero.map(([a, b]) => norm(a, b))
 
   for (let i = 0; i < 12; i++) {
     positions.push(current)
-    current = current.map(([a, b]) => norm(base.turn[a] ?? a, base.turn[b] ?? b))
+    current = current.map(([a, b]) =>
+      norm(base.turn[a] ?? a, base.turn[b] ?? b),
+    )
   }
 
   const fires = new Uint8Array(81)
 
   for (let l = 0; l < 9; l++) {
     for (let w = 0; w < 9; w++) {
-      fires[l * 9 + w] = base.swapWhen(l, w) || base.swapWhen(w, l) ? 1 : 0
+      fires[l * 9 + w] =
+        base.swapWhen(l, w) || base.swapWhen(w, l) ? 1 : 0
     }
   }
 
@@ -312,17 +389,35 @@ function build(spec: ScatterWeaveSpec, opposite: readonly number[]): Built {
     forwardTables: base.tables,
     inverseTables: base.tables.map(invertTable),
     fires,
-    sets: spec.sets.map(set => Int32Array.from(set.flatMap(s => [...s]))),
-    reversed: spec.sets.map(set => Int32Array.from([...set].reverse().flatMap(s => [...s]))),
-    condition: CONDITION_CODE[spec.condition ?? (spec.lone === false ? 'any' : 'lone')],
+    sets: spec.sets.map(set =>
+      Int32Array.from(set.flatMap(s => [...s])),
+    ),
+    reversed: spec.sets.map(set =>
+      Int32Array.from([...set].reverse().flatMap(s => [...s])),
+    ),
+    condition:
+      CONDITION_CODE[
+        spec.condition ?? (spec.lone === false ? 'any' : 'lone')
+      ],
   }
 }
 
-const CONDITION_CODE: Record<ScatterCondition, number> = { lone: 0, matched: 1, any: 2 }
+const CONDITION_CODE: Record<ScatterCondition, number> = {
+  lone: 0,
+  matched: 1,
+  any: 2,
+}
 
 // the scattering set, in place: two tones on u, v with w, x calm move to w, x, and back. With `lone`, only
 // lone tones scatter (the opposite slots of all four calm), so the head-on pairs of the vacuum never do
-function scatter(vibe: Int8Array, role: Int8Array | undefined, base: number, set: Int32Array, condition: number, tally?: ScatterTally): void {
+function scatter(
+  vibe: Int8Array,
+  role: Int8Array | undefined,
+  base: number,
+  set: Int32Array,
+  condition: number,
+  tally?: ScatterTally,
+): void {
   for (let k = 0; k < set.length; k += 4) {
     const u = base + (set[k] ?? 0)
     const v = base + (set[k + 1] ?? 0)
@@ -335,13 +430,17 @@ function scatter(vibe: Int8Array, role: Int8Array | undefined, base: number, set
       const ow = vibe[base + (OPPOSITE[set[k + 2] ?? 0] ?? 0)] !== 0
       const ox = vibe[base + (OPPOSITE[set[k + 3] ?? 0] ?? 0)] !== 0
 
-      if (condition === 0 ? ou || ov || ow || ox : ou !== ow || ov !== ox) {
+      if (
+        condition === 0 ? ou || ov || ow || ox : ou !== ow || ov !== ox
+      ) {
         continue
       }
     }
 
-    const here = vibe[u] !== 0 && vibe[v] !== 0 && vibe[w] === 0 && vibe[x] === 0
-    const there = vibe[w] !== 0 && vibe[x] !== 0 && vibe[u] === 0 && vibe[v] === 0
+    const here =
+      vibe[u] !== 0 && vibe[v] !== 0 && vibe[w] === 0 && vibe[x] === 0
+    const there =
+      vibe[w] !== 0 && vibe[x] !== 0 && vibe[u] === 0 && vibe[v] === 0
 
     if (!here && !there) {
       continue
@@ -370,9 +469,22 @@ function scatter(vibe: Int8Array, role: Int8Array | undefined, base: number, set
   }
 }
 
-function exchange(vibe: Int8Array, role: Int8Array | undefined, base: number, line: readonly [number, number], wire: readonly [number, number], fires: Uint8Array): void {
-  const l = stateKey(vibe[base + line[0]] ?? 0, vibe[base + line[1]] ?? 0)
-  const w = stateKey(vibe[base + wire[0]] ?? 0, vibe[base + wire[1]] ?? 0)
+function exchange(
+  vibe: Int8Array,
+  role: Int8Array | undefined,
+  base: number,
+  line: readonly [number, number],
+  wire: readonly [number, number],
+  fires: Uint8Array,
+): void {
+  const l = stateKey(
+    vibe[base + line[0]] ?? 0,
+    vibe[base + line[1]] ?? 0,
+  )
+  const w = stateKey(
+    vibe[base + wire[0]] ?? 0,
+    vibe[base + wire[1]] ?? 0,
+  )
 
   if (fires[l * 9 + w] !== 1) {
     return
@@ -402,7 +514,14 @@ function exchange(vibe: Int8Array, role: Int8Array | undefined, base: number, li
 // (wire state, counter) and the inverse table with the same rule is its inverse.
 type Demon = { readonly counters: Int32Array; readonly at: number }
 
-function clock(vibe: Int8Array, role: Int8Array | undefined, base: number, wire: readonly [number, number], table: WireTable, demon?: Demon): void {
+function clock(
+  vibe: Int8Array,
+  role: Int8Array | undefined,
+  base: number,
+  wire: readonly [number, number],
+  table: WireTable,
+  demon?: Demon,
+): void {
   const i = base + wire[0]
   const j = base + wire[1]
   const a = vibe[i] ?? 0
@@ -410,7 +529,11 @@ function clock(vibe: Int8Array, role: Int8Array | undefined, base: number, wire:
   const image = table[stateKey(a, b)] ?? [a, b]
 
   if (demon) {
-    const cost = Math.abs(image[0]) + Math.abs(image[1]) - Math.abs(a) - Math.abs(b)
+    const cost =
+      Math.abs(image[0]) +
+      Math.abs(image[1]) -
+      Math.abs(a) -
+      Math.abs(b)
     const held = demon.counters[demon.at] ?? 0
 
     if (held < cost) {
@@ -451,11 +574,18 @@ function baseCollide(
     const table =
       (k === swapIndex && spec.swapTable !== undefined
         ? tables[spec.swapTable]
-        : tables[(tableIndex + (spec.coupleTable?.[k] ?? 0)) % tables.length]) ?? []
+        : tables[
+            (tableIndex + (spec.coupleTable?.[k] ?? 0)) % tables.length
+          ]) ?? []
     const line = built.lines[couples[k]?.[0] ?? 0] ?? [0, 0]
     const wire = built.lines[couples[k]?.[1] ?? 0] ?? [0, 0]
     // the demon of this dock's wire line, 12 counters to a dock (base is the dock times 24, an exact quotient)
-    const demon = counters ? { counters, at: Math.floor(base / 24) * 12 + (couples[k]?.[1] ?? 0) } : undefined
+    const demon = counters
+      ? {
+          counters,
+          at: Math.floor(base / 24) * 12 + (couples[k]?.[1] ?? 0),
+        }
+      : undefined
 
     if (k !== swapIndex) {
       clock(vibe, role, base, wire, table, demon)
@@ -497,19 +627,59 @@ export function dockCollide(
   const condition = built.condition
 
   if (n === 0) {
-    baseCollide(spec.base, built, vibe, role, base, t, forward, counters)
+    baseCollide(
+      spec.base,
+      built,
+      vibe,
+      role,
+      base,
+      t,
+      forward,
+      counters,
+    )
   } else if (forward) {
-    scatter(vibe, role, base, built.reversed[before] ?? EMPTY, condition, tally)
+    scatter(
+      vibe,
+      role,
+      base,
+      built.reversed[before] ?? EMPTY,
+      condition,
+      tally,
+    )
     baseCollide(spec.base, built, vibe, role, base, t, true, counters)
-    scatter(vibe, role, base, built.sets[after] ?? EMPTY, condition, tally)
+    scatter(
+      vibe,
+      role,
+      base,
+      built.sets[after] ?? EMPTY,
+      condition,
+      tally,
+    )
   } else {
-    scatter(vibe, role, base, built.reversed[after] ?? EMPTY, condition, tally)
+    scatter(
+      vibe,
+      role,
+      base,
+      built.reversed[after] ?? EMPTY,
+      condition,
+      tally,
+    )
     baseCollide(spec.base, built, vibe, role, base, t, false, counters)
-    scatter(vibe, role, base, built.sets[before] ?? EMPTY, condition, tally)
+    scatter(
+      vibe,
+      role,
+      base,
+      built.sets[before] ?? EMPTY,
+      condition,
+      tally,
+    )
   }
 }
 
-export function buildScatterWeave(spec: ScatterWeaveSpec, opposite: readonly number[]): Built {
+export function buildScatterWeave(
+  spec: ScatterWeaveSpec,
+  opposite: readonly number[],
+): Built {
   return build(spec, opposite)
 }
 
@@ -531,7 +701,17 @@ export function scatterCollision(input: {
   const built = build(input.spec, input.opposite)
   const forward = input.forward ?? true
 
-  return t => (slots, base) => dockCollide(input.spec, built, slots, undefined, base, t, forward, input.tally)
+  return t => (slots, base) =>
+    dockCollide(
+      input.spec,
+      built,
+      slots,
+      undefined,
+      base,
+      t,
+      forward,
+      input.tally,
+    )
 }
 
 export type ScatterWeave = VibeWeave & {
@@ -539,14 +719,25 @@ export type ScatterWeave = VibeWeave & {
   readonly built: Built
 }
 
-export function makeScatterWeave(input: { side: number; spec: ScatterWeaveSpec }): ScatterWeave {
+export function makeScatterWeave(input: {
+  side: number
+  spec: ScatterWeaveSpec
+}): ScatterWeave {
   const weave = makeVibeWeave({ side: input.side })
 
-  return { ...weave, spec: input.spec, built: build(input.spec, weave.opposite) }
+  return {
+    ...weave,
+    spec: input.spec,
+    built: build(input.spec, weave.opposite),
+  }
 }
 
 // one beat with role points and flows, as colorLocalBeat: collide every dock, then stream
-export function scatterBeat(weave: ScatterWeave, state: VibeState, t: number): VibeState {
+export function scatterBeat(
+  weave: ScatterWeave,
+  state: VibeState,
+  t: number,
+): VibeState {
   const { mesh, moves, links } = weave
   const vibe = Int8Array.from(state.vibe)
   const role = Int8Array.from(state.role)
@@ -562,7 +753,8 @@ export function scatterBeat(weave: ScatterWeave, state: VibeState, t: number): V
     for (let d = 0; d < 24; d++) {
       const slot = x * 24 + d
 
-      moved[mesh.neighbour(x, d) * 24 + d] = moves.act[links[slot] ?? moves.identity]?.[role[slot] ?? 0] ?? 0
+      moved[mesh.neighbour(x, d) * 24 + d] =
+        moves.act[links[slot] ?? moves.identity]?.[role[slot] ?? 0] ?? 0
       flow[slot] = (flow[slot] ?? 0) + (vibe[slot] ?? 0)
     }
   }
@@ -570,9 +762,16 @@ export function scatterBeat(weave: ScatterWeave, state: VibeState, t: number): V
   return { vibe: stream({ mesh, data: vibe }).data, role: moved, flow }
 }
 
-export function scatterBeatBack(weave: ScatterWeave, state: VibeState, t: number): VibeState {
+export function scatterBeatBack(
+  weave: ScatterWeave,
+  state: VibeState,
+  t: number,
+): VibeState {
   const { mesh, moves, links, opposite } = weave
-  const vibe = streamInverse({ mesh, data: Int8Array.from(state.vibe) }).data
+  const vibe = streamInverse({
+    mesh,
+    data: Int8Array.from(state.vibe),
+  }).data
   const role = new Int8Array(state.role.length)
   const flow = Int32Array.from(state.flow)
 
@@ -581,7 +780,10 @@ export function scatterBeatBack(weave: ScatterWeave, state: VibeState, t: number
       const x = mesh.neighbour(y, opposite[d] ?? d)
       const slot = x * 24 + d
 
-      role[slot] = moves.act[moves.inverse[links[slot] ?? moves.identity] ?? moves.identity]?.[state.role[y * 24 + d] ?? 0] ?? 0
+      role[slot] =
+        moves.act[
+          moves.inverse[links[slot] ?? moves.identity] ?? moves.identity
+        ]?.[state.role[y * 24 + d] ?? 0] ?? 0
       flow[slot] = (flow[slot] ?? 0) - (vibe[slot] ?? 0)
     }
   }
@@ -596,7 +798,11 @@ export function scatterBeatBack(weave: ScatterWeave, state: VibeState, t: number
 const mod3 = (x: number): number => ((x % 3) + 3) % 3
 
 // a dock's color content [weight, x, y] mod 3, the weight of a slot its vibe or, calm, its side sign
-export function dockColor(vibe: Int8Array, role: Int8Array, x: number): string {
+export function dockColor(
+  vibe: Int8Array,
+  role: Int8Array,
+  x: number,
+): string {
   let w = 0
   let qx = 0
   let qy = 0
@@ -615,7 +821,11 @@ export function dockColor(vibe: Int8Array, role: Int8Array, x: number): string {
 }
 
 // how many docks the collision of beat t changes the color content of
-export function scatterLeaks(weave: ScatterWeave, state: VibeState, t: number): number {
+export function scatterLeaks(
+  weave: ScatterWeave,
+  state: VibeState,
+  t: number,
+): number {
   const vibe = Int8Array.from(state.vibe)
   const role = Int8Array.from(state.role)
 

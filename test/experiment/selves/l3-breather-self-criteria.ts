@@ -18,7 +18,12 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { squareMesh, shellDistances, type Mesh, meshOpposites } from '@/code/tool/mesh'
+import {
+  squareMesh,
+  shellDistances,
+  type Mesh,
+  meshOpposites,
+} from '@/code/tool/mesh'
 import { makeWill, cellTone, type Will } from '@/code/tone/will'
 import { pairCollision } from '@/code/rule/collision'
 import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'

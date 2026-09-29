@@ -76,7 +76,8 @@ const REACH_BEATS = 6
 
 const keyOf = (list: readonly number[]): string =>
   [...list].sort((a, b) => a - b).join(',')
-const split = (xs: readonly number[]): number => Math.max(...xs) - Math.min(...xs)
+const split = (xs: readonly number[]): number =>
+  Math.max(...xs) - Math.min(...xs)
 
 // 1 + 2 when exactly two of three values agree, 1 + 1 + 1 when none do, 3 when all do
 function pattern(xs: readonly number[]): string {
@@ -100,7 +101,10 @@ export default experiment({
     const box = d4BoxMesh({ side: SIDE })
     const opposite = meshOpposites(box)
     const mid = Math.floor(SIDE / 2)
-    const cell = d4BoxCell({ coordinates: [mid, mid, mid, mid], side: SIDE })
+    const cell = d4BoxCell({
+      coordinates: [mid, mid, mid, mid],
+      side: SIDE,
+    })
 
     const record = (input: {
       rule: (t: number) => Collision
@@ -110,7 +114,12 @@ export default experiment({
       const { lines, start } = input
       // the lookup form of the rule, checked equal to the rule itself in E-FRC-0140
       const rule = memoizedRule(input.rule)
-      const vacuum = vacuumSequence({ mesh: box, rule, beats: BEATS, start })
+      const vacuum = vacuumSequence({
+        mesh: box,
+        rule,
+        beats: BEATS,
+        start,
+      })
 
       return Array.from({ length: 24 }, (_, direction) =>
         ([1, -1] as const).map(tone => {
@@ -138,7 +147,9 @@ export default experiment({
     }
 
     // 1. the committed rule against all 16 planes
-    const selectors = weylF4DirectionPermutations({ directions: roots }).filter(
+    const selectors = weylF4DirectionPermutations({
+      directions: roots,
+    }).filter(
       p =>
         permutationOrder({ permutation: p }) === 3 &&
         p.filter((image, d) => image === d).length === 6,
@@ -146,21 +157,37 @@ export default experiment({
     const perPlane = new Map<string, readonly number[]>()
 
     for (const p of selectors) {
-      const key = keyOf(p.map((image, d) => (image === d ? d : -1)).filter(d => d >= 0))
+      const key = keyOf(
+        p.map((image, d) => (image === d ? d : -1)).filter(d => d >= 0),
+      )
 
       if (!perPlane.has(key)) {
         perPlane.set(key, p)
       }
     }
 
-    const anyLayout = copyLayout({ roots, opposite, triality: selectors[0] ?? [] })
-    const committedRuns = record({ rule: turningWeave({ opposite }), lines: anyLayout.lines })
+    const anyLayout = copyLayout({
+      roots,
+      opposite,
+      triality: selectors[0] ?? [],
+    })
+    const committedRuns = record({
+      rule: turningWeave({ opposite }),
+      lines: anyLayout.lines,
+    })
     const planes = [...perPlane.values()].map(sigma => {
       const copies = copyLayout({ roots, opposite, triality: sigma })
-      const stats = copyStatistics({ layout: copies, runs: committedRuns })
+      const stats = copyStatistics({
+        layout: copies,
+        runs: committedRuns,
+      })
 
       return {
-        exceptions: degeneracyExceptions({ copies, sigma, runs: committedRuns }),
+        exceptions: degeneracyExceptions({
+          copies,
+          sigma,
+          runs: committedRuns,
+        }),
         reachSplit: split(stats.reach),
         supportSplit: split(stats.finalSupport),
         circulantDefect: circulantDefect(stats.mixing),
@@ -169,14 +196,21 @@ export default experiment({
         kept: stats.mixing.map((row, g) => row[g] ?? 0),
       }
     })
-    const everyPlaneSplits = planes.length === 16 && planes.every(p => p.exceptions > 0)
-    const count = (f: (p: (typeof planes)[number]) => boolean): number => planes.filter(f).length
+    const everyPlaneSplits =
+      planes.length === 16 && planes.every(p => p.exceptions > 0)
+    const count = (
+      f: (p: (typeof planes)[number]) => boolean,
+    ): number => planes.filter(f).length
 
     // 2. the aligned triality weave with a condensate
     const sigma = colorTriality({ opposite })
     const copies = copyLayout({ roots, opposite, triality: sigma })
-    const layout = alignedLayout({ layout: trialityWeaveLayout({ opposite, triality: sigma }), copies })
+    const layout = alignedLayout({
+      layout: trialityWeaveLayout({ opposite, triality: sigma }),
+      copies,
+    })
     const rule = trialityWeave({ layout })
+
     const condensate = (onCopy: (g: number) => boolean): Int8Array => {
       const state = new Int8Array(box.cellCount * 24)
 
@@ -201,13 +235,30 @@ export default experiment({
 
     const oneCopy = condensate(g => g === 0)
     const allCopies = condensate(() => true)
-    const oneRuns = record({ rule, lines: copies.lines, start: oneCopy })
-    const allRuns = record({ rule, lines: copies.lines, start: allCopies })
+    const oneRuns = record({
+      rule,
+      lines: copies.lines,
+      start: oneCopy,
+    })
+    const allRuns = record({
+      rule,
+      lines: copies.lines,
+      start: allCopies,
+    })
     const oneStats = copyStatistics({ layout: copies, runs: oneRuns })
     const allStats = copyStatistics({ layout: copies, runs: allRuns })
     // the two empty copies: seeds on copy 1 against their triality images on copy 2
-    const oneExceptions = degeneracyExceptions({ copies, sigma, runs: oneRuns, onCopy: 1 })
-    const allExceptions = degeneracyExceptions({ copies, sigma, runs: allRuns })
+    const oneExceptions = degeneracyExceptions({
+      copies,
+      sigma,
+      runs: oneRuns,
+      onCopy: 1,
+    })
+    const allExceptions = degeneracyExceptions({
+      copies,
+      sigma,
+      runs: allRuns,
+    })
     const symmetricDegenerate =
       allExceptions === 0 &&
       split(allStats.reach) < 1e-9 &&
@@ -224,19 +275,41 @@ export default experiment({
       metrics: {
         planes: planes.length,
         committedPlanesSplit: count(p => p.exceptions > 0),
-        committedFewestExceptions: Math.min(...planes.map(p => p.exceptions)),
-        committedReachSplitSmallest: Math.min(...planes.map(p => p.reachSplit)),
-        committedReachSplitLargest: Math.max(...planes.map(p => p.reachSplit)),
-        committedSupportSplitSmallest: Math.min(...planes.map(p => p.supportSplit)),
-        committedSupportSplitLargest: Math.max(...planes.map(p => p.supportSplit)),
+        committedFewestExceptions: Math.min(
+          ...planes.map(p => p.exceptions),
+        ),
+        committedReachSplitSmallest: Math.min(
+          ...planes.map(p => p.reachSplit),
+        ),
+        committedReachSplitLargest: Math.max(
+          ...planes.map(p => p.reachSplit),
+        ),
+        committedSupportSplitSmallest: Math.min(
+          ...planes.map(p => p.supportSplit),
+        ),
+        committedSupportSplitLargest: Math.max(
+          ...planes.map(p => p.supportSplit),
+        ),
         committedReachPattern3: count(p => p.reachPattern === '3'),
-        committedReachPattern1plus2: count(p => p.reachPattern === '1+2'),
-        committedReachPattern1plus1plus1: count(p => p.reachPattern === '1+1+1'),
+        committedReachPattern1plus2: count(
+          p => p.reachPattern === '1+2',
+        ),
+        committedReachPattern1plus1plus1: count(
+          p => p.reachPattern === '1+1+1',
+        ),
         committedSupportPattern3: count(p => p.supportPattern === '3'),
-        committedSupportPattern1plus2: count(p => p.supportPattern === '1+2'),
-        committedSupportPattern1plus1plus1: count(p => p.supportPattern === '1+1+1'),
-        committedCirculantDefectSmallest: Math.min(...planes.map(p => p.circulantDefect)),
-        committedCirculantDefectLargest: Math.max(...planes.map(p => p.circulantDefect)),
+        committedSupportPattern1plus2: count(
+          p => p.supportPattern === '1+2',
+        ),
+        committedSupportPattern1plus1plus1: count(
+          p => p.supportPattern === '1+1+1',
+        ),
+        committedCirculantDefectSmallest: Math.min(
+          ...planes.map(p => p.circulantDefect),
+        ),
+        committedCirculantDefectLargest: Math.max(
+          ...planes.map(p => p.circulantDefect),
+        ),
         condensateExceptionsCopy1Against2: oneExceptions,
         condensateHoleReachCopy0: oneStats.reach[0] ?? 0,
         condensateReachCopy1: oneStats.reach[1] ?? 0,

@@ -45,7 +45,19 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { HUSK_ATOM, ROWS, bandMass, bulkBand, huskBand, hydrogenRadius, kineticShift, lowestLevels, makeAtom, quantumDefect, radial } from '@/code/measure/stand-in-atom'
+import {
+  HUSK_ATOM,
+  ROWS,
+  bandMass,
+  bulkBand,
+  huskBand,
+  hydrogenRadius,
+  kineticShift,
+  lowestLevels,
+  makeAtom,
+  quantumDefect,
+  radial,
+} from '@/code/measure/stand-in-atom'
 
 const SIDE = 64
 
@@ -85,8 +97,16 @@ export default experiment({
     const tight = makeAtom({ kind: HUSK_ATOM, side: SIDE, a: 1.5 })
     const eg = lowestLevels({ atom: tight, row: ROWS.Eg!, count: 1 })
     const t2g = lowestLevels({ atom: tight, row: ROWS.T2g!, count: 1 })
-    const sSeries = lowestLevels({ atom: tight, row: ROWS.A1g!, count: 3 })
-    const pSeries = lowestLevels({ atom: tight, row: ROWS.T1u!, count: 2 })
+    const sSeries = lowestLevels({
+      atom: tight,
+      row: ROWS.A1g!,
+      count: 3,
+    })
+    const pSeries = lowestLevels({
+      atom: tight,
+      row: ROWS.T1u!,
+      count: 2,
+    })
     const predicted3d = -1 / 9 + kineticShift(3, 2, 1.5)
     const eEg = eg.values[0]! / tight.rydberg
     const eT2g = t2g.values[0]! / tight.rydberg
@@ -111,12 +131,21 @@ export default experiment({
 
     s.forEach((v, i) => {
       metrics[`a15_E${i + 1}sOverRy`] = v
-      metrics[`a15_r${i + 1}sOverA`] = radial(SIDE, sSeries.vectors[i]!).meanR / 1.5
-      metrics[`a15_r${i + 1}sBeyondEdge`] = radial(SIDE, sSeries.vectors[i]!).beyond
+      metrics[`a15_r${i + 1}sOverA`] =
+        radial(SIDE, sSeries.vectors[i]!).meanR / 1.5
+
+      metrics[`a15_r${i + 1}sBeyondEdge`] = radial(
+        SIDE,
+        sSeries.vectors[i]!,
+      ).beyond
     })
+
     p.forEach((v, i) => {
       metrics[`a15_E${i + 2}pOverRy`] = v
-      metrics[`a15_r${i + 2}pBeyondEdge`] = radial(SIDE, pSeries.vectors[i]!).beyond
+      metrics[`a15_r${i + 2}pBeyondEdge`] = radial(
+        SIDE,
+        pSeries.vectors[i]!,
+      ).beyond
     })
     metrics.a15_delta1s = quantumDefect(1, s[0]!)
     metrics.a15_delta2s = delta2s
@@ -126,16 +155,32 @@ export default experiment({
     metrics.huskMassAxis = bandMass(huskBand, [1, 0, 0])
     metrics.huskMassBodyDiagonal = bandMass(huskBand, [1, 1, 1])
     metrics.bulkMassBesideIt = bandMass(bulkBand, [1, 0, 0, 0])
-    metrics.largestResidual = Math.max(...[p25, s25, eg, t2g, sSeries, pSeries].flatMap(l => l.residuals))
+    metrics.largestResidual = Math.max(
+      ...[p25, s25, eg, t2g, sSeries, pSeries].flatMap(
+        l => l.residuals,
+      ),
+    )
 
-    const gate1 = metrics.a25_E2pRelativeMiss <= 0.005 && Math.abs(shift2p / predictedShift2p - 1) <= 0.3
-    const gate2 = metrics.a15_E3dEgRelativeMiss <= 0.01 && metrics.a15_E3dT2gRelativeMiss <= 0.01
+    const gate1 =
+      metrics.a25_E2pRelativeMiss <= 0.005 &&
+      Math.abs(shift2p / predictedShift2p - 1) <= 0.3
+    const gate2 =
+      metrics.a15_E3dEgRelativeMiss <= 0.01 &&
+      metrics.a15_E3dT2gRelativeMiss <= 0.01
     const gate3 =
-      Math.abs(r2p.meanR / (hydrogenRadius(2, 1, 2.5)) - 1) <= 0.05 &&
+      Math.abs(r2p.meanR / hydrogenRadius(2, 1, 2.5) - 1) <= 0.05 &&
       Math.abs(rEg.meanR / hydrogenRadius(3, 2, 1.5) - 1) <= 0.05 &&
       Math.abs(rT2g.meanR / hydrogenRadius(3, 2, 1.5) - 1) <= 0.05
-    const gate4 = Math.abs(delta3s - delta2s) <= 0.1 && Math.abs(delta2p) < 0.1 * Math.abs(delta2s) && Math.abs(delta3p) < 0.1 * Math.abs(delta2s)
-    const status = gate1 && gate2 && gate3 && gate4 ? 'pass' : gate1 && gate3 ? 'partial' : 'fail'
+    const gate4 =
+      Math.abs(delta3s - delta2s) <= 0.1 &&
+      Math.abs(delta2p) < 0.1 * Math.abs(delta2s) &&
+      Math.abs(delta3p) < 0.1 * Math.abs(delta2s)
+    const status =
+      gate1 && gate2 && gate3 && gate4
+        ? 'pass'
+        : gate1 && gate3
+          ? 'partial'
+          : 'fail'
 
     return verdict({
       status,

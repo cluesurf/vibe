@@ -33,7 +33,11 @@ import {
   TURN_SWAP_ORDER,
 } from '@/code/rule/collision'
 import { stream, streamInverse } from '@/code/rule/lattice-gas'
-import { type VibeState, type VibeWeave, makeVibeWeave } from '@/code/rule/vibe-weave'
+import {
+  type VibeState,
+  type VibeWeave,
+  makeVibeWeave,
+} from '@/code/rule/vibe-weave'
 
 export type LineTable = 'bind' | 'pair'
 
@@ -42,24 +46,38 @@ export type ColorWeave = VibeWeave & {
   // +1 for the first slot of its line, -1 for the second: the sign of a calm slot's color
   readonly side: readonly number[]
   // the couples at each of the four schedule positions, as pairs of line indices
-  readonly positions: readonly (readonly (readonly [number, number])[])[]
+  readonly positions: readonly (readonly (readonly [
+    number,
+    number,
+  ])[])[]
 }
 
 const mod3 = (x: number): number => ((x % 3) + 3) % 3
 const key = (a: number, b: number): number => (a + 1) * 3 + (b + 1)
-const SWAP_MIRROR = [...TURN_SWAP_ORDER, ...[...TURN_SWAP_ORDER].reverse()]
+const SWAP_MIRROR = [
+  ...TURN_SWAP_ORDER,
+  ...[...TURN_SWAP_ORDER].reverse(),
+]
 
-export function makeColorWeave(input: { side: number; table?: LineTable }): ColorWeave {
+export function makeColorWeave(input: {
+  side: number
+  table?: LineTable
+}): ColorWeave {
   const weave = makeVibeWeave({ side: input.side })
-  const side = Array.from({ length: 24 }, (_, d) => (d < (weave.opposite[d] ?? d) ? 1 : -1))
-  const norm = (a: number, b: number): [number, number] => (a < b ? [a, b] : [b, a])
+  const side = Array.from({ length: 24 }, (_, d) =>
+    d < (weave.opposite[d] ?? d) ? 1 : -1,
+  )
+  const norm = (a: number, b: number): [number, number] =>
+    a < b ? [a, b] : [b, a]
   const positions: [number, number][][] = []
 
   let current = TURN_COUPLES_ZERO.map(([a, b]) => norm(a, b))
 
   for (let i = 0; i < 4; i++) {
     positions.push(current)
-    current = current.map(([a, b]) => norm(G_TURN[a] ?? a, G_TURN[b] ?? b))
+    current = current.map(([a, b]) =>
+      norm(G_TURN[a] ?? a, G_TURN[b] ?? b),
+    )
   }
 
   return { ...weave, table: input.table ?? 'bind', side, positions }
@@ -75,9 +93,18 @@ function collideCell(input: {
   forward: boolean
 }): void {
   const { weave, vibe, role, base, t, forward } = input
-  const table = weave.table === 'bind' ? (forward ? BIND_MOVE_FORWARD : BIND_MOVE_INVERSE) : forward ? PAIR_FORWARD : PAIR_INVERSE
-  const preimage = weave.table === 'bind' ? BIND_MOVE_INVERSE : PAIR_INVERSE
-  const couples = weave.positions[TURN_POS_MIRROR[((t % 8) + 8) % 8] ?? 0] ?? []
+  const table =
+    weave.table === 'bind'
+      ? forward
+        ? BIND_MOVE_FORWARD
+        : BIND_MOVE_INVERSE
+      : forward
+        ? PAIR_FORWARD
+        : PAIR_INVERSE
+  const preimage =
+    weave.table === 'bind' ? BIND_MOVE_INVERSE : PAIR_INVERSE
+  const couples =
+    weave.positions[TURN_POS_MIRROR[((t % 8) + 8) % 8] ?? 0] ?? []
   const swapIndex = SWAP_MIRROR[((t % 12) + 12) % 12] ?? 0
 
   for (let k = 0; k < 6; k++) {
@@ -89,10 +116,15 @@ function collideCell(input: {
       const a1 = vibe[base + line[1]] ?? 0
       const w0 = vibe[base + wire[0]] ?? 0
       const w1 = vibe[base + wire[1]] ?? 0
-      const loneAway = (a: number, b: number): boolean => a === 0 && b !== 0
-      const empty = (a: number, b: number): boolean => a === 0 && b === 0
+      const loneAway = (a: number, b: number): boolean =>
+        a === 0 && b !== 0
+      const empty = (a: number, b: number): boolean =>
+        a === 0 && b === 0
 
-      if ((loneAway(a0, a1) && empty(w0, w1)) || (loneAway(w0, w1) && empty(a0, a1))) {
+      if (
+        (loneAway(a0, a1) && empty(w0, w1)) ||
+        (loneAway(w0, w1) && empty(a0, a1))
+      ) {
         for (const s of [0, 1] as const) {
           const i = base + line[s]
           const j = base + wire[s]
@@ -137,7 +169,11 @@ function collideCell(input: {
   }
 }
 
-export function colorBeat(weave: ColorWeave, state: VibeState, t: number): VibeState {
+export function colorBeat(
+  weave: ColorWeave,
+  state: VibeState,
+  t: number,
+): VibeState {
   const { mesh, moves, links } = weave
   const vibe = Int8Array.from(state.vibe)
   const role = Int8Array.from(state.role)
@@ -153,7 +189,8 @@ export function colorBeat(weave: ColorWeave, state: VibeState, t: number): VibeS
     for (let d = 0; d < 24; d++) {
       const slot = x * 24 + d
 
-      moved[mesh.neighbour(x, d) * 24 + d] = moves.act[links[slot] ?? moves.identity]?.[role[slot] ?? 0] ?? 0
+      moved[mesh.neighbour(x, d) * 24 + d] =
+        moves.act[links[slot] ?? moves.identity]?.[role[slot] ?? 0] ?? 0
       flow[slot] = (flow[slot] ?? 0) + (vibe[slot] ?? 0)
     }
   }
@@ -161,9 +198,16 @@ export function colorBeat(weave: ColorWeave, state: VibeState, t: number): VibeS
   return { vibe: stream({ mesh, data: vibe }).data, role: moved, flow }
 }
 
-export function colorBeatBack(weave: ColorWeave, state: VibeState, t: number): VibeState {
+export function colorBeatBack(
+  weave: ColorWeave,
+  state: VibeState,
+  t: number,
+): VibeState {
   const { mesh, moves, links, opposite } = weave
-  const vibe = streamInverse({ mesh, data: Int8Array.from(state.vibe) }).data
+  const vibe = streamInverse({
+    mesh,
+    data: Int8Array.from(state.vibe),
+  }).data
   const role = new Int8Array(state.role.length)
   const flow = Int32Array.from(state.flow)
 
@@ -172,7 +216,10 @@ export function colorBeatBack(weave: ColorWeave, state: VibeState, t: number): V
       const x = mesh.neighbour(y, opposite[d] ?? d)
       const slot = x * 24 + d
 
-      role[slot] = moves.act[moves.inverse[links[slot] ?? moves.identity] ?? moves.identity]?.[state.role[y * 24 + d] ?? 0] ?? 0
+      role[slot] =
+        moves.act[
+          moves.inverse[links[slot] ?? moves.identity] ?? moves.identity
+        ]?.[state.role[y * 24 + d] ?? 0] ?? 0
       flow[slot] = (flow[slot] ?? 0) - (vibe[slot] ?? 0)
     }
   }
@@ -185,7 +232,12 @@ export function colorBeatBack(weave: ColorWeave, state: VibeState, t: number): V
 }
 
 // a cell's color content: [weight, x, y], each mod 3, with w the vibe or, on a calm slot, its side sign
-export function cellColor(weave: ColorWeave, vibe: Int8Array, role: Int8Array, x: number): [number, number, number] {
+export function cellColor(
+  weave: ColorWeave,
+  vibe: Int8Array,
+  role: Int8Array,
+  x: number,
+): [number, number, number] {
   let w = 0
   let qx = 0
   let qy = 0
@@ -204,7 +256,11 @@ export function cellColor(weave: ColorWeave, vibe: Int8Array, role: Int8Array, x
 }
 
 // how many cells the collision alone changes the color content of, at beat t
-export function colorLeaks(weave: ColorWeave, state: VibeState, t: number): number {
+export function colorLeaks(
+  weave: ColorWeave,
+  state: VibeState,
+  t: number,
+): number {
   const vibe = Int8Array.from(state.vibe)
   const role = Int8Array.from(state.role)
 

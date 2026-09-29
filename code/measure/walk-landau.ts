@@ -30,8 +30,20 @@
 
 import { eigHermitian } from '@/code/algebra/linear/eig-hermitian'
 import { makeComplexMatrix } from '@/code/algebra/linear/dense'
-import { complexInverse, complexMultiply, type ComplexMatrix } from '@/code/algebra/linear/complex-matrix'
-import { chargedBeat, copyWalk, overlapOf, symbolPhases, type Field, type FloatWalk, type Order } from '@/code/measure/charged-walk'
+import {
+  complexInverse,
+  complexMultiply,
+  type ComplexMatrix,
+} from '@/code/algebra/linear/complex-matrix'
+import {
+  chargedBeat,
+  copyWalk,
+  overlapOf,
+  symbolPhases,
+  type Field,
+  type FloatWalk,
+  type Order,
+} from '@/code/measure/charged-walk'
 
 const A: readonly [number, number] = [0.25, Math.sqrt(3) / 4] // (1 + omega) / 2
 const B: readonly [number, number] = [0.75, -Math.sqrt(3) / 4] // (1 - omega) / 2
@@ -40,14 +52,19 @@ const B: readonly [number, number] = [0.75, -Math.sqrt(3) / 4] // (1 - omega) / 
 const BULK_WEIGHT = 0.999
 
 // the strip state: slot 0 and slot 1 on docks 0 .. width - 1
-type Strip = { re0: Float64Array; im0: Float64Array; re1: Float64Array; im1: Float64Array }
+type Strip = {
+  re0: Float64Array
+  im0: Float64Array
+  re1: Float64Array
+  im1: Float64Array
+}
 
 function coin(s: Strip): void {
   for (let i = 0; i < s.re0.length; i++) {
-    const r0 = s.re0[i] as number
-    const i0 = s.im0[i] as number
-    const r1 = s.re1[i] as number
-    const i1 = s.im1[i] as number
+    const r0 = s.re0[i]!
+    const i0 = s.im0[i]!
+    const r1 = s.re1[i]!
+    const i1 = s.im1[i]!
 
     s.re0[i] = A[0] * r0 - A[1] * i0 + B[0] * r1 - B[1] * i1
     s.im0[i] = A[0] * i0 + A[1] * r0 + B[0] * i1 + B[1] * r1
@@ -66,19 +83,19 @@ function streamX(s: Strip): void {
 
   for (let x = 0; x < w; x++) {
     if (x + 1 < w) {
-      re0[x + 1] = s.re0[x] as number
-      im0[x + 1] = s.im0[x] as number
+      re0[x + 1] = s.re0[x]!
+      im0[x + 1] = s.im0[x]!
     } else {
-      re1[x] = s.re0[x] as number
-      im1[x] = s.im0[x] as number
+      re1[x] = s.re0[x]!
+      im1[x] = s.im0[x]!
     }
 
     if (x > 0) {
-      re1[x - 1] = s.re1[x] as number
-      im1[x - 1] = s.im1[x] as number
+      re1[x - 1] = s.re1[x]!
+      im1[x - 1] = s.im1[x]!
     } else {
-      re0[x] = s.re1[x] as number
-      im0[x] = s.im1[x] as number
+      re0[x] = s.re1[x]!
+      im0[x] = s.im1[x]!
     }
   }
 
@@ -91,12 +108,12 @@ function streamX(s: Strip): void {
 // the y stream at momentum k_y: slot 0 times e^(i theta_x), slot 1 times e^(-i theta_x), theta_x = q B (x - c)
 function streamY(s: Strip, theta: Float64Array): void {
   for (let x = 0; x < s.re0.length; x++) {
-    const c = Math.cos(theta[x] as number)
-    const n = Math.sin(theta[x] as number)
-    const r0 = s.re0[x] as number
-    const i0 = s.im0[x] as number
-    const r1 = s.re1[x] as number
-    const i1 = s.im1[x] as number
+    const c = Math.cos(theta[x]!)
+    const n = Math.sin(theta[x]!)
+    const r0 = s.re0[x]!
+    const i0 = s.im0[x]!
+    const r1 = s.re1[x]!
+    const i1 = s.im1[x]!
 
     s.re0[x] = r0 * c - i0 * n
     s.im0[x] = r0 * n + i0 * c
@@ -114,16 +131,30 @@ export type LandauStrip = {
 }
 
 // the strip's one-beat operator for a field of q B per plaquette with the orbit center at `center`
-export function landauStrip(input: { width: number; field: number; charge: number; center: number; order: Order }): LandauStrip {
+export function landauStrip(input: {
+  width: number
+  field: number
+  charge: number
+  center: number
+  order: Order
+}): LandauStrip {
   const { width, center, order } = input
   const qb = input.charge * input.field
-  const theta = Float64Array.from({ length: width }, (_, x) => qb * (x - center))
+  const theta = Float64Array.from(
+    { length: width },
+    (_, x) => qb * (x - center),
+  )
   const n = 2 * width
   const re = new Float64Array(n * n)
   const im = new Float64Array(n * n)
 
   for (let column = 0; column < n; column++) {
-    const s: Strip = { re0: new Float64Array(width), im0: new Float64Array(width), re1: new Float64Array(width), im1: new Float64Array(width) }
+    const s: Strip = {
+      re0: new Float64Array(width),
+      im0: new Float64Array(width),
+      re1: new Float64Array(width),
+      im1: new Float64Array(width),
+    }
 
     if (column < width) {
       s.re0[column] = 1
@@ -142,10 +173,10 @@ export function landauStrip(input: { width: number; field: number; charge: numbe
     }
 
     for (let x = 0; x < width; x++) {
-      re[x * n + column] = s.re0[x] as number
-      im[x * n + column] = s.im0[x] as number
-      re[(width + x) * n + column] = s.re1[x] as number
-      im[(width + x) * n + column] = s.im1[x] as number
+      re[x * n + column] = s.re0[x]!
+      im[x * n + column] = s.im0[x]!
+      re[(width + x) * n + column] = s.re1[x]!
+      im[(width + x) * n + column] = s.im1[x]!
     }
   }
 
@@ -155,12 +186,16 @@ export function landauStrip(input: { width: number; field: number; charge: numbe
 // the largest entry of |U U^dagger - I|
 export function unitarityError(u: ComplexMatrix): number {
   const n = u.n
-  const dagger: ComplexMatrix = { re: new Float64Array(n * n), im: new Float64Array(n * n), n }
+  const dagger: ComplexMatrix = {
+    re: new Float64Array(n * n),
+    im: new Float64Array(n * n),
+    n,
+  }
 
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
-      dagger.re[j * n + i] = u.re[i * n + j] as number
-      dagger.im[j * n + i] = -(u.im[i * n + j] as number)
+      dagger.re[j * n + i] = u.re[i * n + j]!
+      dagger.im[j * n + i] = -u.im[i * n + j]!
     }
   }
 
@@ -170,7 +205,13 @@ export function unitarityError(u: ComplexMatrix): number {
 
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
-      worst = Math.max(worst, Math.hypot((p.re[i * n + j] as number) - (i === j ? 1 : 0), p.im[i * n + j] as number))
+      worst = Math.max(
+        worst,
+        Math.hypot(
+          p.re[i * n + j]! - (i === j ? 1 : 0),
+          p.im[i * n + j]!,
+        ),
+      )
     }
   }
 
@@ -179,19 +220,32 @@ export function unitarityError(u: ComplexMatrix): number {
 
 // one eigenstate of the strip's beat: its eigenphase, the weight of its eigenvector in the middle half of the
 // strip, and the eigenvector (slot 0 on docks 0 .. width - 1, then slot 1)
-export type StripLevel = { phase: number; bulk: number; re: Float64Array; im: Float64Array }
+export type StripLevel = {
+  phase: number
+  bulk: number
+  re: Float64Array
+  im: Float64Array
+}
 
 // every eigenstate of the strip's beat, ascending in phase
 export function stripSpectrum(strip: LandauStrip): StripLevel[] {
   const { beat, width } = strip
   const n = beat.n
   // I + U and I - U
-  const plus: ComplexMatrix = { re: Float64Array.from(beat.re), im: Float64Array.from(beat.im), n }
-  const minus: ComplexMatrix = { re: Float64Array.from(beat.re, x => -x), im: Float64Array.from(beat.im, x => -x), n }
+  const plus: ComplexMatrix = {
+    re: Float64Array.from(beat.re),
+    im: Float64Array.from(beat.im),
+    n,
+  }
+  const minus: ComplexMatrix = {
+    re: Float64Array.from(beat.re, x => -x),
+    im: Float64Array.from(beat.im, x => -x),
+    n,
+  }
 
   for (let i = 0; i < n; i++) {
-    plus.re[i * n + i] = (plus.re[i * n + i] as number) + 1
-    minus.re[i * n + i] = (minus.re[i * n + i] as number) + 1
+    plus.re[i * n + i] = plus.re[i * n + i]! + 1
+    minus.re[i * n + i] = minus.re[i * n + i]! + 1
   }
 
   // H = i (I - U)(I + U)^(-1), symmetrized against rounding
@@ -201,11 +255,11 @@ export function stripSpectrum(strip: LandauStrip): StripLevel[] {
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
       // i (a + i b) = -b + i a, then (H + H^dagger) / 2
-      const hij = [-(product.im[i * n + j] as number), product.re[i * n + j] as number]
-      const hji = [-(product.im[j * n + i] as number), product.re[j * n + i] as number]
+      const hij = [-product.im[i * n + j]!, product.re[i * n + j]!]
+      const hji = [-product.im[j * n + i]!, product.re[j * n + i]!]
 
-      h.re[i * n + j] = ((hij[0] as number) + (hji[0] as number)) / 2
-      h.im[i * n + j] = ((hij[1] as number) - (hji[1] as number)) / 2
+      h.re[i * n + j] = (hij[0]! + hji[0]!) / 2
+      h.im[i * n + j] = (hij[1]! - hji[1]!) / 2
     }
   }
 
@@ -219,7 +273,8 @@ export function stripSpectrum(strip: LandauStrip): StripLevel[] {
 
     for (let a = 0; a < n; a++) {
       const x = a % width
-      const p = (eig.vectorsRe[a * n + i] as number) ** 2 + (eig.vectorsIm[a * n + i] as number) ** 2
+      const p =
+        eig.vectorsRe[a * n + i]! ** 2 + eig.vectorsIm[a * n + i]! ** 2
 
       total += p
       inside += x >= lo && x < hi ? p : 0
@@ -228,8 +283,14 @@ export function stripSpectrum(strip: LandauStrip): StripLevel[] {
     return {
       phase: 2 * Math.atan(lambda),
       bulk: inside / total,
-      re: Float64Array.from({ length: n }, (_, a) => eig.vectorsRe[a * n + i] as number),
-      im: Float64Array.from({ length: n }, (_, a) => eig.vectorsIm[a * n + i] as number),
+      re: Float64Array.from(
+        { length: n },
+        (_, a) => eig.vectorsRe[a * n + i]!,
+      ),
+      im: Float64Array.from(
+        { length: n },
+        (_, a) => eig.vectorsIm[a * n + i]!,
+      ),
     }
   })
 }
@@ -237,11 +298,18 @@ export function stripSpectrum(strip: LandauStrip): StripLevel[] {
 // the bulk eigenstates with phase in (bottom, top), highest phase first. The beat moves x by an even number
 // of docks (two x streams a beat), so the strip splits into its even and odd docks and every bulk level comes
 // twice: states within `same` of a kept one are dropped, one state per level
-export function bulkStates(strip: LandauStrip, top = 0.05, bottom = -1, same = 1e-7): StripLevel[] {
+export function bulkStates(
+  strip: LandauStrip,
+  top = 0.05,
+  bottom = -1,
+  same = 1e-7,
+): StripLevel[] {
   const kept: StripLevel[] = []
 
   for (const l of stripSpectrum(strip)
-    .filter(s => s.bulk >= BULK_WEIGHT && s.phase < top && s.phase > bottom)
+    .filter(
+      s => s.bulk >= BULK_WEIGHT && s.phase < top && s.phase > bottom,
+    )
     .sort((x, y) => y.phase - x.phase)) {
     if (!kept.some(k => Math.abs(k.phase - l.phase) < same)) {
       kept.push(l)
@@ -253,12 +321,20 @@ export function bulkStates(strip: LandauStrip, top = 0.05, bottom = -1, same = 1
 
 // the bulk Landau levels in (bottom, top), highest first (the band through 0 bends down: level n at about
 // -omega_c (n + 1/2)), one per level
-export function bulkLevels(strip: LandauStrip, top = 0.05, bottom = -1): number[] {
+export function bulkLevels(
+  strip: LandauStrip,
+  top = 0.05,
+  bottom = -1,
+): number[] {
   return bulkStates(strip, top, bottom).map(l => l.phase)
 }
 
 // the phase of the band through 0 at k = 0
-export function bandPhase(kx: number, ky: number, order: Order): number {
+export function bandPhase(
+  kx: number,
+  ky: number,
+  order: Order,
+): number {
   const [p1, p2] = symbolPhases(kx, ky, order)
 
   return Math.abs(p1) < Math.abs(p2) ? p1 : p2
@@ -266,7 +342,11 @@ export function bandPhase(kx: number, ky: number, order: Order): number {
 
 // the k-space area inside the contour bandPhase = level (level < 0), by rays from k = 0: on each of `rays`
 // directions the radius where the phase first reaches the level, by bisection, then S = (1/2) sum r^2 dtheta
-export function contourArea(level: number, order: Order, rays = 720): number {
+export function contourArea(
+  level: number,
+  order: Order,
+  rays = 720,
+): number {
   let area = 0
 
   for (let j = 0; j < rays; j++) {
@@ -299,7 +379,12 @@ export function contourArea(level: number, order: Order, rays = 720): number {
 }
 
 // Onsager's levels: the n-th solves contourArea(E) = 2 pi q B (n + 1/2), by bisection in E below 0
-export function onsagerLevels(input: { field: number; charge: number; count: number; order: Order }): number[] {
+export function onsagerLevels(input: {
+  field: number
+  charge: number
+  count: number
+  order: Order
+}): number[] {
   const qb = input.charge * input.field
 
   return Array.from({ length: input.count }, (_, n) => {
@@ -323,9 +408,14 @@ export function onsagerLevels(input: { field: number; charge: number; count: num
 }
 
 // beta of S(E) = (2 pi / w0) |E| (1 + beta |E| + ...), from the areas at two small depths (a Richardson pair)
-export function areaNonlinearity(input: { w0: number; order: Order; depth?: number }): number {
+export function areaNonlinearity(input: {
+  w0: number
+  order: Order
+  depth?: number
+}): number {
   const e = input.depth ?? 0.01
-  const ratio = (d: number): number => (contourArea(-d, input.order) * input.w0) / (2 * Math.PI * d) - 1
+  const ratio = (d: number): number =>
+    (contourArea(-d, input.order) * input.w0) / (2 * Math.PI * d) - 1
 
   // ratio(d) = beta d + gamma d^2: beta = (4 ratio(d) - ratio(2 d)) / (2 d)
   return (4 * ratio(e) - ratio(2 * e)) / (2 * e)
@@ -334,7 +424,14 @@ export function areaNonlinearity(input: { w0: number; order: Order; depth?: numb
 // Lift a strip eigenvector onto the side^2 torus of code/measure/charged-walk as e^(i k_y y) phi(x), docks
 // x0 .. x0 + width - 1 of the torus holding the strip, with k_y = q B (x0 + center): the state E-FRC-0176's
 // torus beat should turn by the strip's eigenphase, as long as phi is far from the torus seam
-export function liftToTorus(input: { state: StripLevel; strip: LandauStrip; side: number; x0: number; field: number; charge: number }): FloatWalk {
+export function liftToTorus(input: {
+  state: StripLevel
+  strip: LandauStrip
+  side: number
+  x0: number
+  field: number
+  charge: number
+}): FloatWalk {
   const { state, strip, side, x0 } = input
   const w = strip.width
   const ky = input.charge * input.field * (x0 + strip.center)
@@ -351,8 +448,8 @@ export function liftToTorus(input: { state: StripLevel; strip: LandauStrip; side
       const i = x0 + x + side * y
 
       for (const slot of [0, 1] as const) {
-        const re = state.re[slot * w + x] as number
-        const im = state.im[slot * w + x] as number
+        const re = state.re[slot * w + x]!
+        const im = state.im[slot * w + x]!
 
         walk.re[slot][i] = (re * c - im * s) / Math.sqrt(side)
         walk.im[slot][i] = (re * s + im * c) / Math.sqrt(side)
@@ -364,7 +461,13 @@ export function liftToTorus(input: { state: StripLevel; strip: LandauStrip; side
 }
 
 // the largest |U psi - e^(i phase) psi| entry after one torus beat
-export function torusResidual(input: { walk: FloatWalk; field: Field; charge: number; order: Order; phase: number }): number {
+export function torusResidual(input: {
+  walk: FloatWalk
+  field: Field
+  charge: number
+  order: Order
+  phase: number
+}): number {
   const after = copyWalk(input.walk)
   const c = Math.cos(input.phase)
   const s = Math.sin(input.phase)
@@ -375,10 +478,16 @@ export function torusResidual(input: { walk: FloatWalk; field: Field; charge: nu
 
   for (const slot of [0, 1] as const) {
     for (let i = 0; i < after.re[slot].length; i++) {
-      const re = input.walk.re[slot][i] as number
-      const im = input.walk.im[slot][i] as number
+      const re = input.walk.re[slot][i]!
+      const im = input.walk.im[slot][i]!
 
-      worst = Math.max(worst, Math.hypot((after.re[slot][i] as number) - (re * c - im * s), (after.im[slot][i] as number) - (re * s + im * c)))
+      worst = Math.max(
+        worst,
+        Math.hypot(
+          after.re[slot][i]! - (re * c - im * s),
+          after.im[slot][i]! - (re * s + im * c),
+        ),
+      )
     }
   }
 
@@ -422,7 +531,7 @@ export function returnSpectrumPeaks(input: {
     let im = 0
 
     for (let t = 0; t < series.length; t++) {
-      const [cr, ci] = series[t] as [number, number]
+      const [cr, ci] = series[t]!
       const hann = 0.5 - 0.5 * Math.cos((2 * Math.PI * t) / (beats - 1))
       const c = Math.cos(omega * t)
       const s = Math.sin(omega * t)
@@ -441,18 +550,27 @@ export function returnSpectrumPeaks(input: {
   const heights: number[] = []
 
   for (let i = 1; i + 1 < power.length; i++) {
-    const [a, b, c] = [power[i - 1] as number, power[i] as number, power[i + 1] as number]
+    const [a, b, c] = [power[i - 1]!, power[i]!, power[i + 1]!]
 
     if (b > floor * top && b >= a && b >= c) {
       const curvature = a - 2 * b + c
 
-      grid.push(phases[i] as number)
-      refined.push((phases[i] as number) + (curvature < 0 ? (step * (a - c)) / (2 * curvature) : 0))
+      grid.push(phases[i]!)
+      refined.push(
+        phases[i]! +
+          (curvature < 0 ? (step * (a - c)) / (2 * curvature) : 0),
+      )
       heights.push(b / top)
     }
   }
 
-  const order = grid.map((_, i) => i).sort((x, y) => (refined[y] as number) - (refined[x] as number))
+  const order = grid
+    .map((_, i) => i)
+    .sort((x, y) => refined[y]! - refined[x]!)
 
-  return { grid: order.map(i => grid[i] as number), refined: order.map(i => refined[i] as number), power: order.map(i => heights[i] as number) }
+  return {
+    grid: order.map(i => grid[i]!),
+    refined: order.map(i => refined[i]!),
+    power: order.map(i => heights[i]!),
+  }
 }

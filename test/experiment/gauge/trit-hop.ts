@@ -63,17 +63,45 @@ import {
   type TritLight,
   type TritState,
 } from '@/code/rule/trit-column'
-import { buildHopTable, cross, emptyHopTally, gasStep, hopStep, type HopTable } from '@/code/rule/trit-hop'
-import { fastBeat, geometryOfBulk, makeHuskEngine } from '@/code/rule/trit-husk'
+import {
+  buildHopTable,
+  cross,
+  emptyHopTally,
+  gasStep,
+  hopStep,
+  type HopTable,
+} from '@/code/rule/trit-hop'
+import {
+  fastBeat,
+  geometryOfBulk,
+  makeHuskEngine,
+} from '@/code/rule/trit-husk'
 
-const TRIT_KEYS = ['vibe', 'angle', 'string', 'potential', 'counter', 'lag', 'spatial'] as const
-const HUSK_KEYS = ['angle', 'potential', 'counter', 'lag', 'spatial', 'string'] as const
+const TRIT_KEYS = [
+  'vibe',
+  'angle',
+  'string',
+  'potential',
+  'counter',
+  'lag',
+  'spatial',
+] as const
+const HUSK_KEYS = [
+  'angle',
+  'potential',
+  'counter',
+  'lag',
+  'spatial',
+  'string',
+] as const
 
 function tritMismatches(a: TritState, b: TritState): number {
   let m = 0
 
   for (const key of TRIT_KEYS) {
-    for (let i = 0; i < a[key].length; i++) m += a[key][i] === b[key][i] ? 0 : 1
+    for (let i = 0; i < a[key].length; i++) {
+      m += a[key][i] === b[key][i] ? 0 : 1
+    }
   }
 
   return m
@@ -83,7 +111,9 @@ function outOfRange(s: TritState): number {
   let bad = 0
 
   for (const key of TRIT_KEYS) {
-    for (const v of s[key]) bad += v >= -1 && v <= 1 ? 0 : 1
+    for (const v of s[key]) {
+      bad += v >= -1 && v <= 1 ? 0 : 1
+    }
   }
 
   return bad
@@ -92,7 +122,11 @@ function outOfRange(s: TritState): number {
 // the light on a golden Weyl start (as E-FRC-0207's), then neutral pairs: a dock x is tried when weyl(x) <
 // density; the pair's root and sign come from silver Weyl points; a pair is placed only on free docks and a
 // free link, joined by a string trit (so Gauss's law holds at the start)
-function start(light: TritLight, table: HopTable, density: number): TritState {
+function start(
+  light: TritLight,
+  table: HopTable,
+  density: number,
+): TritState {
   const s = emptyTritState(light)
   const h = readHusk(light, s)
   const d = light.bulk.depth
@@ -116,18 +150,32 @@ function start(light: TritLight, table: HopTable, density: number): TritState {
   return s
 }
 
-function placePairs(light: TritLight, table: HopTable, s: TritState, density: number): void {
+function placePairs(
+  light: TritLight,
+  table: HopTable,
+  s: TritState,
+  density: number,
+): void {
   const bulk = light.bulk
 
   for (let x = 0; x < bulk.docks; x++) {
-    if (weyl(x + 1) >= density) continue
+    if (weyl(x + 1) >= density) {
+      continue
+    }
 
     const k = Math.floor(weyl(x + 1, Math.SQRT2 - 1) * 12)
     const v = weyl(x + 17, Math.SQRT2 - 1) < 0.5 ? 1 : -1
     const y = bulk.neighbour[x * 24 + (table.rootOf[k] ?? 0)] ?? 0
     const l = x * 12 + k
 
-    if (s.vibe[x] !== 0 || s.vibe[y] !== 0 || s.string[l] !== 0 || x === y) continue
+    if (
+      s.vibe[x] !== 0 ||
+      s.vibe[y] !== 0 ||
+      s.string[l] !== 0 ||
+      x === y
+    ) {
+      continue
+    }
 
     s.vibe[x] = v
     s.vibe[y] = -v
@@ -187,7 +235,20 @@ function gasRun(depth: number, beats: number): GasRun {
   const tally = emptyHopTally()
   const total0 = s.vibe.reduce((a, v) => a + v, 0)
   const charged0 = s.vibe.reduce((a, v) => a + (v === 0 ? 0 : 1), 0)
-  const out: GasRun = { bulkGauss: 0, huskGauss: 0, chargeChanges: 0, continuity: 0, engineMismatches: 0, range: 0, back: 0, crossings: 0, refused: 0, fluxDiffers: 0, largestHuskCurrent: 0, charged: charged0 }
+  const out: GasRun = {
+    bulkGauss: 0,
+    huskGauss: 0,
+    chargeChanges: 0,
+    continuity: 0,
+    engineMismatches: 0,
+    range: 0,
+    back: 0,
+    crossings: 0,
+    refused: 0,
+    fluxDiffers: 0,
+    largestHuskCurrent: 0,
+    charged: charged0,
+  }
 
   for (let t = 0; t < beats; t++) {
     const [k, phase] = gasStep(t)
@@ -197,18 +258,34 @@ function gasRun(depth: number, beats: number): GasRun {
     hopStep(table, s, k, phase, tally)
 
     const stringAfter = columnSumLinks(light, s.string)
-    const current = Int32Array.from(stringAfter, (v, l) => (stringBefore[l] ?? 0) - v)
+    const current = Int32Array.from(
+      stringAfter,
+      (v, l) => (stringBefore[l] ?? 0) - v,
+    )
     const chargeAfter = huskCharge(light, s.vibe)
     const div = divergence(light, current)
 
     for (let y = 0; y < light.bulk.huskDocks; y++) {
-      out.continuity += (chargeAfter[y] ?? 0) - (chargeBefore[y] ?? 0) + (div[y] ?? 0) === 0 ? 0 : 1
+      out.continuity +=
+        (chargeAfter[y] ?? 0) -
+          (chargeBefore[y] ?? 0) +
+          (div[y] ?? 0) ===
+        0
+          ? 0
+          : 1
     }
 
-    for (const j of current) out.largestHuskCurrent = Math.max(out.largestHuskCurrent, Math.abs(j))
+    for (const j of current) {
+      out.largestHuskCurrent = Math.max(
+        out.largestHuskCurrent,
+        Math.abs(j),
+      )
+    }
 
     // the husk engine sees only the column-summed current
-    for (let l = 0; l < light.bulk.huskLinks; l++) husk.string[l] = (husk.string[l] ?? 0) - (current[l] ?? 0)
+    for (let l = 0; l < light.bulk.huskLinks; l++) {
+      husk.string[l] = (husk.string[l] ?? 0) - (current[l] ?? 0)
+    }
 
     tritLightBeat(light, s)
     fastBeat(engine, husk)
@@ -217,17 +294,24 @@ function gasRun(depth: number, beats: number): GasRun {
     const read = readHusk(light, s)
 
     for (const key of HUSK_KEYS) {
-      for (let i = 0; i < read[key].length; i++) out.engineMismatches += read[key][i] === husk[key][i] ? 0 : 1
+      for (let i = 0; i < read[key].length; i++) {
+        out.engineMismatches += read[key][i] === husk[key][i] ? 0 : 1
+      }
     }
 
     out.bulkGauss += bulkGaussViolations(light, s)
-    out.huskGauss += huskGaussViolations(light, columnSumLinks(light, bulkFlux(light, s)), s.vibe)
+    out.huskGauss += huskGaussViolations(
+      light,
+      columnSumLinks(light, bulkFlux(light, s)),
+      s.vibe,
+    )
     out.range += outOfRange(s)
 
     const total = s.vibe.reduce((a, v) => a + v, 0)
     const charged = s.vibe.reduce((a, v) => a + (v === 0 ? 0 : 1), 0)
 
-    out.chargeChanges += total === total0 && charged === charged0 ? 0 : 1
+    out.chargeChanges +=
+      total === total0 && charged === charged0 ? 0 : 1
 
     const a = columnSumLinks(light, bulkFlux(light, s))
     const b = columnSumLinks(light, bulkFlux(light, still))
@@ -249,7 +333,12 @@ function gasRun(depth: number, beats: number): GasRun {
   return out
 }
 
-function sectionLaw(): { allowed: number; refused: number; involution: number; lawMatches: number } {
+function sectionLaw(): {
+  allowed: number
+  refused: number
+  involution: number
+  lawMatches: number
+} {
   const light = makeTritLight({ side: 4, depth: 4 })
   const table = buildHopTable(light.bulk)
   const x = 0
@@ -283,7 +372,10 @@ function sectionLaw(): { allowed: number; refused: number; involution: number; l
         lawMatches += (tally.refused === 0) === ok ? 1 : 0
 
         cross(table, s, x, k)
-        involution += s.vibe[x] === vx && s.vibe[y] === vy && s.string[l] === sl ? 1 : 0
+        involution +=
+          s.vibe[x] === vx && s.vibe[y] === vy && s.string[l] === sl
+            ? 1
+            : 0
       }
     }
   }
@@ -305,6 +397,7 @@ function binding(): Record<string, number> {
     const first = emptyHopTally()
     const last = emptyHopTally()
     const all = emptyHopTally()
+
     let saturated = 0
 
     for (let t = 0; t < 2400; t++) {
@@ -320,14 +413,25 @@ function binding(): Record<string, number> {
       }
     }
 
-    for (const v of s.string) saturated += v === 0 ? 0 : 1
+    for (const v of s.string) {
+      saturated += v === 0 ? 0 : 1
+    }
 
     const name = `density${density}`
 
-    out[`${name}_Charged`] = s.vibe.reduce((a, v) => a + (v === 0 ? 0 : 1), 0)
-    out[`${name}_RefusedShareFirst240`] = first.refused / Math.max(1, first.crossings + first.refused)
-    out[`${name}_RefusedShareLast240`] = last.refused / Math.max(1, last.crossings + last.refused)
-    out[`${name}_RefusedShareAll`] = all.refused / Math.max(1, all.crossings + all.refused)
+    out[`${name}_Charged`] = s.vibe.reduce(
+      (a, v) => a + (v === 0 ? 0 : 1),
+      0,
+    )
+
+    out[`${name}_RefusedShareFirst240`] =
+      first.refused / Math.max(1, first.crossings + first.refused)
+
+    out[`${name}_RefusedShareLast240`] =
+      last.refused / Math.max(1, last.crossings + last.refused)
+
+    out[`${name}_RefusedShareAll`] =
+      all.refused / Math.max(1, all.crossings + all.refused)
     out[`${name}_StringsFullAtEnd`] = saturated / s.string.length
   }
 
@@ -335,22 +439,33 @@ function binding(): Record<string, number> {
   const s = emptyTritState(light)
   const bulk = light.bulk
   const x0 = 0
+
   // a closed loop of first roots: r(ka) + r(kb) = r(kc)
   let lapCrossings = 0
   let firstRefusalLap = -1
+
   const roots = bulk.roots
+
   let pair: [number, number, number] | undefined
 
   for (let a = 0; a < 12 && !pair; a++) {
     for (let b = 0; b < 12 && !pair; b++) {
-      const sum = (roots[a] ?? []).map((v, i) => v + ((roots[b] ?? [])[i] ?? 0))
-      const c = roots.findIndex(r => r.every((v, i) => v === (sum[i] ?? 0)))
+      const sum = (roots[a] ?? []).map(
+        (v, i) => v + ((roots[b] ?? [])[i] ?? 0),
+      )
+      const c = roots.findIndex(r =>
+        r.every((v, i) => v === (sum[i] ?? 0)),
+      )
 
-      if (c >= 0) pair = [a, b, c]
+      if (c >= 0) {
+        pair = [a, b, c]
+      }
     }
   }
 
-  if (!pair) throw new Error('no closed first-root triangle')
+  if (!pair) {
+    throw new Error('no closed first-root triangle')
+  }
 
   const [ka, kb, kc] = pair
   const y1 = bulk.neighbour[x0 * 24 + (table.rootOf[ka] ?? 0)] ?? 0
@@ -374,10 +489,12 @@ function binding(): Record<string, number> {
     }
   }
 
-  if (y2 === x0 || y1 === x0) throw new Error('the loop is degenerate')
+  if (y2 === x0 || y1 === x0) {
+    throw new Error('the loop is degenerate')
+  }
 
-  out['loopFirstRefusedLap'] = firstRefusalLap
-  out['loopCrossingsBeforeRefusal'] = lapCrossings
+  out.loopFirstRefusedLap = firstRefusalLap
+  out.loopCrossingsBeforeRefusal = lapCrossings
 
   // a charge forth and back on one link, 1,000 periods
   const o = emptyTritState(light)
@@ -385,10 +502,12 @@ function binding(): Record<string, number> {
 
   o.vibe[x0] = 1
 
-  for (let i = 0; i < 2000; i++) cross(table, o, x0, 0, ot)
+  for (let i = 0; i < 2000; i++) {
+    cross(table, o, x0, 0, ot)
+  }
 
-  out['oscillatorCrossings'] = ot.crossings
-  out['oscillatorRefused'] = ot.refused
+  out.oscillatorCrossings = ot.crossings
+  out.oscillatorRefused = ot.refused
 
   return out
 }
@@ -397,7 +516,7 @@ export default experiment({
   id: 'gauge/trit-hop',
   code: 'E-FRC-0210',
   title:
-    'matter hops on string trits: a vibe crossing a bulk link swaps the two docks and flips the link\'s string trit by the charge carried, refused when the trit is full, and with the trit-column light Gauss\'s law holds exactly in bulk and husk at every beat, charge is kept, the run reverses trit for trit and the column-summed current obeys the continuity equation; the refusal caps the net charge through a bulk link at one unit for all time, not the rate',
+    "matter hops on string trits: a vibe crossing a bulk link swaps the two docks and flips the link's string trit by the charge carried, refused when the trit is full, and with the trit-column light Gauss's law holds exactly in bulk and husk at every beat, charge is kept, the run reverses trit for trit and the column-summed current obeys the continuity equation; the refusal caps the net charge through a bulk link at one unit for all time, not the rate",
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -409,7 +528,9 @@ export default experiment({
     const metrics: Record<string, number> = { ...bind }
 
     for (const { d, r } of runs) {
-      for (const [key, value] of Object.entries(r)) metrics[`gas_D${d}_${key}`] = value
+      for (const [key, value] of Object.entries(r)) {
+        metrics[`gas_D${d}_${key}`] = value
+      }
     }
 
     metrics.lawAllowed = law.allowed
@@ -421,19 +542,31 @@ export default experiment({
       G: runs.every(({ r }) => r.bulkGauss === 0 && r.huskGauss === 0),
       Q: runs.every(({ r }) => r.chargeChanges === 0),
       R: runs.every(({ r }) => r.back === 0),
-      C: runs.every(({ r }) => r.continuity === 0 && r.engineMismatches === 0),
+      C: runs.every(
+        ({ r }) => r.continuity === 0 && r.engineMismatches === 0,
+      ),
       T: runs.every(({ r }) => r.range === 0),
-      L: law.allowed === 19 && law.refused === 8 && law.involution === 27 && law.lawMatches === 27,
+      L:
+        law.allowed === 19 &&
+        law.refused === 8 &&
+        law.involution === 27 &&
+        law.lawMatches === 27,
       M: runs.every(({ r }) => r.crossings > 0 && r.fluxDiffers > 0),
     }
 
-    for (const [gate, ok] of Object.entries(gates)) metrics[`gate${gate}`] = ok ? 1 : 0
+    for (const [gate, ok] of Object.entries(gates)) {
+      metrics[`gate${gate}`] = ok ? 1 : 0
+    }
 
-    const status = Object.values(gates).every(x => x) ? 'pass' : gates.G && gates.Q && gates.R ? 'partial' : 'fail'
+    const status = Object.values(gates).every(x => x)
+      ? 'pass'
+      : gates.G && gates.Q && gates.R
+        ? 'partial'
+        : 'fail'
 
     return verdict({
       status,
-      claim: `matter moves on string trits: over 240 beats of a gas under the trit-column light at D = 8 and 11 (${runs.map(({ r }) => r.crossings).join(' and ')} crossings), Gauss's law is exact in bulk and husk at every beat (${runs.map(({ r }) => r.bulkGauss + r.huskGauss).join(', ')} violations), charge is kept, the run reverses to ${runs.map(({ r }) => r.back).join(', ')} trit mismatches, the column-summed current obeys dQ + div J = 0 everywhere and alone drives the husk integer rule bit for bit; a crossing is refused on exactly 8 of 27 link states, and the refusal caps the NET charge through a bulk link (a loop is refused on lap ${bind['loopFirstRefusedLap']}, an oscillator never), binding on ${((bind['density0.25_RefusedShareAll'] ?? 0) * 100).toFixed(1)} percent of tries in a quarter-filled gas`,
+      claim: `matter moves on string trits: over 240 beats of a gas under the trit-column light at D = 8 and 11 (${runs.map(({ r }) => r.crossings).join(' and ')} crossings), Gauss's law is exact in bulk and husk at every beat (${runs.map(({ r }) => r.bulkGauss + r.huskGauss).join(', ')} violations), charge is kept, the run reverses to ${runs.map(({ r }) => r.back).join(', ')} trit mismatches, the column-summed current obeys dQ + div J = 0 everywhere and alone drives the husk integer rule bit for bit; a crossing is refused on exactly 8 of 27 link states, and the refusal caps the NET charge through a bulk link (a loop is refused on lap ${bind.loopFirstRefusedLap}, an oscillator never), binding on ${((bind['density0.25_RefusedShareAll'] ?? 0) * 100).toFixed(1)} percent of tries in a quarter-filled gas`,
       metrics,
       control: { stillMatterFluxDiffers: runs[0]?.r.fluxDiffers ?? 0 },
       notes:

@@ -47,7 +47,12 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { curlCurlMax, photonFamily, readMember, type MemberReading } from '@/code/measure/photon-circle'
+import {
+  curlCurlMax,
+  photonFamily,
+  readMember,
+  type MemberReading,
+} from '@/code/measure/photon-circle'
 import { photonLatticeD4 } from '@/code/rule/photon-links'
 
 const BEATS = 2000
@@ -65,13 +70,19 @@ export default experiment({
   paper: false,
   run() {
     const lambdaMax = curlCurlMax(photonLatticeD4({ side: 4 }))
-    const readings: MemberReading[] = photonFamily().map(member => readMember({ member, kind: 'wave', beats: BEATS, lambdaMax }))
+    const readings: MemberReading[] = photonFamily().map(member =>
+      readMember({ member, kind: 'wave', beats: BEATS, lambdaMax }),
+    )
     const l1 = readings.every(r => r.lawResidual <= r.lawRoundingBound)
     const l2 = readings.every(r => r.branchNonInteger < INTEGER)
-    const l3 = readings.every(r => r.shadowFromLinear > TRACK === r.ruleStringMoves > 0)
+    const l3 = readings.every(
+      r => r.shadowFromLinear > TRACK === r.ruleStringMoves > 0,
+    )
     const offLight = readings.filter(r => r.branchOffLight > 0).length
     const l4 = offLight > 0
-    const withStrings = readings.filter(r => r.ruleStringMoves > 0).length
+    const withStrings = readings.filter(
+      r => r.ruleStringMoves > 0,
+    ).length
     const informative = withStrings > 0 && withStrings < readings.length
     const ok = l1 && l2 && l3 && l4 && informative
     const metrics: Record<string, number> = {
@@ -86,7 +97,9 @@ export default experiment({
       membersReadingOffTheLight: offLight,
       worstLawResidual: Math.max(...readings.map(r => r.lawResidual)),
       lawRoundingBound: readings[0]?.lawRoundingBound ?? NaN,
-      worstBranchNonInteger: Math.max(...readings.map(r => r.branchNonInteger)),
+      worstBranchNonInteger: Math.max(
+        ...readings.map(r => r.branchNonInteger),
+      ),
       halfTurns: readings.reduce((s, r) => s + r.halfTurns, 0),
       lambdaMaxSide4: lambdaMax,
     }
@@ -100,19 +113,24 @@ export default experiment({
       metrics[`${tag}_shadowFromLinear`] = r.shadowFromLinear
       metrics[`${tag}_shadowFromVillain`] = r.shadowFromVillain
       metrics[`${tag}_peakShadowFlux`] = r.peakShadowFlux
-      metrics[`${tag}_startOverSeamEnergy`] = r.startEnergy / r.seamEnergy
+      metrics[`${tag}_startOverSeamEnergy`] =
+        r.startEnergy / r.seamEnergy
     }
 
     return verdict({
       status: ok ? 'pass' : 'fail',
-      claim: `over ${readings.length} starts and ${BEATS} beats E-FRC-0185's shadow obeys the Villain leapfrog with residual at most ${metrics['worstLawResidual']?.toExponential(2)} against the rounding bound ${metrics['lawRoundingBound']?.toExponential(2)}, its string field integer to ${metrics['worstBranchNonInteger']?.toExponential(1)} (${metrics['halfTurns']} exact half turns); the shadow leaves the noncompact linear leapfrog by more than ${TRACK} on exactly the ${withStrings} members whose string field moves (${l3 ? 'both directions hold' : 'NOT on every member'}); on ${offLight} members the rule's branch differs from the Villain branch of its own shadow`,
+      claim: `over ${readings.length} starts and ${BEATS} beats E-FRC-0185's shadow obeys the Villain leapfrog with residual at most ${metrics.worstLawResidual?.toExponential(2)} against the rounding bound ${metrics.lawRoundingBound?.toExponential(2)}, its string field integer to ${metrics.worstBranchNonInteger?.toExponential(1)} (${metrics.halfTurns} exact half turns); the shadow leaves the noncompact linear leapfrog by more than ${TRACK} on exactly the ${withStrings} members whose string field moves (${l3 ? 'both directions hold' : 'NOT on every member'}); on ${offLight} members the rule's branch differs from the Villain branch of its own shadow`,
       metrics,
       control: {
-        noncompactDepartureMembers: readings.filter(r => r.shadowFromLinear > TRACK).length,
-        villainDepartureMembers: readings.filter(r => r.shadowFromVillain > TRACK).length,
+        noncompactDepartureMembers: readings.filter(
+          r => r.shadowFromLinear > TRACK,
+        ).length,
+        villainDepartureMembers: readings.filter(
+          r => r.shadowFromVillain > TRACK,
+        ).length,
       },
       notes:
-        'L2, exact integers in the rule and exact binary fractions in the check, deterministic (hashed and Weyl-scaled starts, zero carried start, no seeds). The law is a theorem of the rule, so L1 and L2 check the derivation and the code, not physics. What is physics: every departure of E-FRC-0185 from linear light is a Dirac string of compact U(1), which the circle Z_N forces, and the strings are counted, not errors. What is wrong with E-FRC-0185 is where it reads the branch: on the raw flux, which the carried integers offset from the light, so the seam jitters with the dither. E-FRC-0245 moves the branch onto the light and reruns the test. FIRST RUN 2026-09-26 (tmp/base-frc244.log, 76 s): FAIL on L4 alone, a wrong prediction. L1 (residual 5.66e-5 against the bound 6.10e-5), L2 (the string field integer exactly, 0 half turns) and L3 (the shadow leaves the noncompact leapfrog by more than 0.01 on exactly the 2 members whose string field moves: hashed+0 with 3 moves, 1,096 flux units off, E-FRC-0185\'s own failure; hashed+13 with 26 moves, 1,552 off; the other 15 stay within 2.2e-3) all pass, and the shadow stays within 2.2e-3 of the float Villain reference on all 17. But on 0 of 17 members does the rule\'s branch differ from the Villain branch of its own shadow: the offset S / q is a few flux units and every crossing met passed through it within one beat. So E-FRC-0185\'s S failure was not a defect of the rule at all on this family: it was a reference that took the noncompact theory for the compact one. The branch-offset flaw is real in the algebra and unmet in 34,000 beats. The starts carry 327 to 4,612 times the energy of one plaquette at the seam, so an energy bound excludes nothing here.',
+        "L2, exact integers in the rule and exact binary fractions in the check, deterministic (hashed and Weyl-scaled starts, zero carried start, no seeds). The law is a theorem of the rule, so L1 and L2 check the derivation and the code, not physics. What is physics: every departure of E-FRC-0185 from linear light is a Dirac string of compact U(1), which the circle Z_N forces, and the strings are counted, not errors. What is wrong with E-FRC-0185 is where it reads the branch: on the raw flux, which the carried integers offset from the light, so the seam jitters with the dither. E-FRC-0245 moves the branch onto the light and reruns the test. FIRST RUN 2026-09-26 (tmp/base-frc244.log, 76 s): FAIL on L4 alone, a wrong prediction. L1 (residual 5.66e-5 against the bound 6.10e-5), L2 (the string field integer exactly, 0 half turns) and L3 (the shadow leaves the noncompact leapfrog by more than 0.01 on exactly the 2 members whose string field moves: hashed+0 with 3 moves, 1,096 flux units off, E-FRC-0185's own failure; hashed+13 with 26 moves, 1,552 off; the other 15 stay within 2.2e-3) all pass, and the shadow stays within 2.2e-3 of the float Villain reference on all 17. But on 0 of 17 members does the rule's branch differ from the Villain branch of its own shadow: the offset S / q is a few flux units and every crossing met passed through it within one beat. So E-FRC-0185's S failure was not a defect of the rule at all on this family: it was a reference that took the noncompact theory for the compact one. The branch-offset flaw is real in the algebra and unmet in 34,000 beats. The starts carry 327 to 4,612 times the energy of one plaquette at the seam, so an energy bound excludes nothing here.",
     })
   },
 })

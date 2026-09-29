@@ -42,7 +42,11 @@
 //
 // Integers only: no float, no trig, no rounding. The one division is exact (a multiple of q divided by q).
 
-import { writeColumn, type TritBulk, type TritLight } from '@/code/rule/trit-column'
+import {
+  writeColumn,
+  type TritBulk,
+  type TritLight,
+} from '@/code/rule/trit-column'
 
 const mod = (x: number, m: number): number => ((x % m) + m) % m
 const floorDiv = (x: number, q: number): number => (x - mod(x, q)) / q
@@ -63,7 +67,11 @@ export function ternaryDigits(depth: number): number {
 }
 
 // the balanced ternary digits of v, least significant first; throws if v does not fit k digits
-export function encodeTernary(v: number, k: number, out: Int8Array | number[]): void {
+export function encodeTernary(
+  v: number,
+  k: number,
+  out: Int8Array | number[],
+): void {
   let x = v
 
   for (let d = 0; d < k; d++) {
@@ -73,20 +81,31 @@ export function encodeTernary(v: number, k: number, out: Int8Array | number[]): 
     x = (x - r) / 3
   }
 
-  if (x !== 0) throw new Error(`${v} does not fit ${k} balanced trits`)
+  if (x !== 0) {
+    throw new Error(`${v} does not fit ${k} balanced trits`)
+  }
 }
 
-export function decodeTernary(digits: ArrayLike<number>, k: number): number {
+export function decodeTernary(
+  digits: ArrayLike<number>,
+  k: number,
+): number {
   let v = 0
 
-  for (let d = k - 1; d >= 0; d--) v = 3 * v + (digits[d] ?? 0)
+  for (let d = k - 1; d >= 0; d--) {
+    v = 3 * v + (digits[d] ?? 0)
+  }
 
   return v
 }
 
 // Add delta to the digits in place by the carry chain; returns the trits changed (by the size of the change)
 // and the reach (the deepest digit changed, plus one)
-export function carryAdd(digits: Int8Array | number[], k: number, delta: number): { flips: number; reach: number } {
+export function carryAdd(
+  digits: Int8Array | number[],
+  k: number,
+  delta: number,
+): { flips: number; reach: number } {
   let carry = delta
   let flips = 0
   let reach = 0
@@ -104,7 +123,9 @@ export function carryAdd(digits: Int8Array | number[], k: number, delta: number)
     }
   }
 
-  if (carry !== 0) throw new Error('a counter carried out of its column')
+  if (carry !== 0) {
+    throw new Error('a counter carried out of its column')
+  }
 
   return { flips, reach }
 }
@@ -146,11 +167,29 @@ export type CompactState = {
   readonly store: Int8Array[]
 }
 
-export type CompactTally = { flips: number; reach: number; counterFlips: number; counterReach: number; potentialWraps: number; angleWraps: number }
+export type CompactTally = {
+  flips: number
+  reach: number
+  counterFlips: number
+  counterReach: number
+  potentialWraps: number
+  angleWraps: number
+}
 
-export const emptyCompactTally = (): CompactTally => ({ flips: 0, reach: 0, counterFlips: 0, counterReach: 0, potentialWraps: 0, angleWraps: 0 })
+export const emptyCompactTally = (): CompactTally => ({
+  flips: 0,
+  reach: 0,
+  counterFlips: 0,
+  counterReach: 0,
+  potentialWraps: 0,
+  angleWraps: 0,
+})
 
-export function makeCompactLight(light: TritLight, levels: number, code: CounterCode): CompactLight {
+export function makeCompactLight(
+  light: TritLight,
+  levels: number,
+  code: CounterCode,
+): CompactLight {
   const bulk = light.bulk
   const depth = bulk.depth
   const counters = 2 * levels + 1
@@ -158,7 +197,9 @@ export function makeCompactLight(light: TritLight, levels: number, code: Counter
   const stores = code === 'ternary' ? 3 : counters
 
   if (code === 'ternary' && counters * digits > 3 * depth) {
-    throw new Error(`${counters} counters of ${digits} trits do not fit the ${3 * depth} counter trits of a column`)
+    throw new Error(
+      `${counters} counters of ${digits} trits do not fit the ${3 * depth} counter trits of a column`,
+    )
   }
 
   const n = bulk.huskTriangles
@@ -216,7 +257,10 @@ export function emptyCompact(c: CompactLight): CompactState {
     angle: new Int8Array(b.links),
     string: new Int8Array(b.links),
     potential: new Int8Array(b.triangles),
-    store: Array.from({ length: c.stores }, () => new Int8Array(b.triangles)),
+    store: Array.from(
+      { length: c.stores },
+      () => new Int8Array(b.triangles),
+    ),
   }
 }
 
@@ -238,23 +282,45 @@ export function compactArrays(s: CompactState): Int8Array[] {
 // ---------------------------------------------------------------------------------------------------------
 // counters
 
-export function readCounter(c: CompactLight, s: CompactState, p: number, counter: number): number {
+export function readCounter(
+  c: CompactLight,
+  s: CompactState,
+  p: number,
+  counter: number,
+): number {
   const base = (p * c.counters + counter) * c.digits
+
   let v = 0
 
   if (c.code === 'thermometer') {
-    for (let d = 0; d < c.digits; d++) v += c.sign[base + d]! * s.store[c.store[counter * c.digits + d]!]![c.place[base + d]!]!
+    for (let d = 0; d < c.digits; d++) {
+      v +=
+        c.sign[base + d]! *
+        s.store[c.store[counter * c.digits + d]!]![c.place[base + d]!]!
+    }
 
     return v
   }
 
-  for (let d = c.digits - 1; d >= 0; d--) v = 3 * v + c.sign[base + d]! * s.store[c.store[counter * c.digits + d]!]![c.place[base + d]!]!
+  for (let d = c.digits - 1; d >= 0; d--) {
+    v =
+      3 * v +
+      c.sign[base + d]! *
+        s.store[c.store[counter * c.digits + d]!]![c.place[base + d]!]!
+  }
 
   return v
 }
 
 // write a counter's new value: a thermometer front, or a carry chain of (new - old) down the ternary digits
-export function writeCounter(c: CompactLight, s: CompactState, p: number, counter: number, v: number, tally?: CompactTally): void {
+export function writeCounter(
+  c: CompactLight,
+  s: CompactState,
+  p: number,
+  counter: number,
+  v: number,
+  tally?: CompactTally,
+): void {
   const base = (p * c.counters + counter) * c.digits
   const k = c.digits
 
@@ -263,7 +329,11 @@ export function writeCounter(c: CompactLight, s: CompactState, p: number, counte
     const want = v > 0 ? 1 : v < 0 ? -1 : 0
     const n = Math.abs(v)
 
-    if (n > k) throw new Error(`counter value ${v} does not fit a column of ${k}`)
+    if (n > k) {
+      throw new Error(
+        `counter value ${v} does not fit a column of ${k}`,
+      )
+    }
 
     for (let d = 0; d < k; d++) {
       const o = c.sign[base + d]!
@@ -285,15 +355,22 @@ export function writeCounter(c: CompactLight, s: CompactState, p: number, counte
   }
 
   const digits = c.digitScratch
+
   let old = 0
 
   for (let d = 0; d < k; d++) {
-    digits[d] = c.sign[base + d]! * s.store[c.store[counter * k + d]!]![c.place[base + d]!]!
+    digits[d] =
+      c.sign[base + d]! *
+      s.store[c.store[counter * k + d]!]![c.place[base + d]!]!
   }
 
-  for (let d = k - 1; d >= 0; d--) old = 3 * old + digits[d]!
+  for (let d = k - 1; d >= 0; d--) {
+    old = 3 * old + digits[d]!
+  }
 
-  if (old === v) return
+  if (old === v) {
+    return
+  }
 
   const r = carryAdd(digits, k, v - old)
 
@@ -303,19 +380,29 @@ export function writeCounter(c: CompactLight, s: CompactState, p: number, counte
   }
 
   for (let d = 0; d < r.reach; d++) {
-    s.store[c.store[counter * k + d]!]![c.place[base + d]!] = c.sign[base + d]! * digits[d]!
+    s.store[c.store[counter * k + d]!]![c.place[base + d]!] =
+      c.sign[base + d]! * digits[d]!
   }
 }
 
 // ---------------------------------------------------------------------------------------------------------
 // the beat
 
-const counterIndex = (level: number, lag: boolean): number => (level === 1 ? (lag ? 1 : 0) : 3 + 2 * (level - 2) + (lag ? 1 : 0))
+const counterIndex = (level: number, lag: boolean): number =>
+  level === 1 ? (lag ? 1 : 0) : 3 + 2 * (level - 2) + (lag ? 1 : 0)
 
-function columnValue(trits: Int8Array | Int32Array, entries: Int32Array, signs: Int8Array | undefined, start: number, end: number): number {
+function columnValue(
+  trits: Int8Array | Int32Array,
+  entries: Int32Array,
+  signs: Int8Array | undefined,
+  start: number,
+  end: number,
+): number {
   let v = 0
 
-  for (let k = start; k < end; k++) v += (signs ? signs[k]! : 1) * trits[entries[k]!]!
+  for (let k = start; k < end; k++) {
+    v += (signs ? signs[k]! : 1) * trits[entries[k]!]!
+  }
 
   return v
 }
@@ -325,22 +412,41 @@ export function compactFlux(c: CompactLight, s: CompactState): void {
   const b = c.bulk
   const e = c.bulkFlux
 
-  for (let l = 0; l < b.links; l++) e[l] = s.string[l]!
+  for (let l = 0; l < b.links; l++) {
+    e[l] = s.string[l]!
+  }
 
   for (let t = 0; t < b.triangles; t++) {
     const u = s.potential[t]!
 
-    if (u === 0) continue
+    if (u === 0) {
+      continue
+    }
 
     const base = t * 3
 
-    for (let j = base; j < base + 3; j++) e[b.triLinks[j]!] = e[b.triLinks[j]!]! - b.triSigns[j]! * u
+    for (let j = base; j < base + 3; j++) {
+      e[b.triLinks[j]!] = e[b.triLinks[j]!]! - b.triSigns[j]! * u
+    }
   }
 
-  for (let i = 0; i < b.huskLinks; i++) c.huskFlux[i] = columnValue(e, b.linkColumn, undefined, b.linkColumnStart[i]!, b.linkColumnStart[i + 1]!)
+  for (let i = 0; i < b.huskLinks; i++) {
+    c.huskFlux[i] = columnValue(
+      e,
+      b.linkColumn,
+      undefined,
+      b.linkColumnStart[i]!,
+      b.linkColumnStart[i + 1]!,
+    )
+  }
 }
 
-function driftTrits(c: CompactLight, s: CompactState, sign: number, tally?: CompactTally): void {
+function driftTrits(
+  c: CompactLight,
+  s: CompactState,
+  sign: number,
+  tally?: CompactTally,
+): void {
   const b = c.bulk
   const d = b.depth
 
@@ -354,10 +460,19 @@ function driftTrits(c: CompactLight, s: CompactState, sign: number, tally?: Comp
     const raw = a + sign * c.huskFlux[i]!
     const next = mod(raw + n / 2, n) - n / 2
 
-    if (tally && next !== raw) tally.angleWraps++
+    if (tally && next !== raw) {
+      tally.angleWraps++
+    }
 
     if (next !== a) {
-      const r = writeColumn(s.angle, b.linkColumn, undefined, start, end - start, next)
+      const r = writeColumn(
+        s.angle,
+        b.linkColumn,
+        undefined,
+        start,
+        end - start,
+        next,
+      )
 
       if (tally) {
         tally.flips += r.flips
@@ -375,12 +490,20 @@ function fieldsFromBulk(c: CompactLight, s: CompactState): void {
   for (let p = 0; p < b.huskTriangles; p++) {
     let v = 0
 
-    for (let k = b.triColumnStart[p]!; k < b.triColumnStart[p + 1]!; k++) {
+    for (
+      let k = b.triColumnStart[p]!;
+      k < b.triColumnStart[p + 1]!;
+      k++
+    ) {
       const t = b.triColumn[k]!
       const o = b.triColumnSign[k]!
       const base = t * 3
 
-      v += o * (b.triSigns[base]! * s.angle[b.triLinks[base]!]! + b.triSigns[base + 1]! * s.angle[b.triLinks[base + 1]!]! + b.triSigns[base + 2]! * s.angle[b.triLinks[base + 2]!]!)
+      v +=
+        o *
+        (b.triSigns[base]! * s.angle[b.triLinks[base]!]! +
+          b.triSigns[base + 1]! * s.angle[b.triLinks[base + 1]!]! +
+          b.triSigns[base + 2]! * s.angle[b.triLinks[base + 2]!]!)
     }
 
     c.field[p] = mod((2 * v) / b.multiplicity[p]! + nb / 2, nb) - nb / 2
@@ -393,11 +516,19 @@ function curlWeighted(b: TritBulk, x: Int32Array, p: number): number {
   const l1 = b.huskTriLinks[base + 1]!
   const l2 = b.huskTriLinks[base + 2]!
 
-  return b.huskTriSigns[base]! * b.weight[l0 % 9]! * x[l0]! + b.huskTriSigns[base + 1]! * b.weight[l1 % 9]! * x[l1]! + b.huskTriSigns[base + 2]! * b.weight[l2 % 9]! * x[l2]!
+  return (
+    b.huskTriSigns[base]! * b.weight[l0 % 9]! * x[l0]! +
+    b.huskTriSigns[base + 1]! * b.weight[l1 % 9]! * x[l1]! +
+    b.huskTriSigns[base + 2]! * b.weight[l2 % 9]! * x[l2]!
+  )
 }
 
 // out[p] = n_P p (C W C^T x)_P
-function spatialTerm(c: CompactLight, x: Int32Array, out: Int32Array): void {
+function spatialTerm(
+  c: CompactLight,
+  x: Int32Array,
+  out: Int32Array,
+): void {
   const b = c.bulk
   const curl = c.curl
   const pp = c.light.p
@@ -407,38 +538,70 @@ function spatialTerm(c: CompactLight, x: Int32Array, out: Int32Array): void {
   for (let p = 0; p < b.huskTriangles; p++) {
     const v = x[p]!
 
-    if (v === 0) continue
+    if (v === 0) {
+      continue
+    }
 
     const base = p * 3
 
-    for (let j = base; j < base + 3; j++) curl[b.huskTriLinks[j]!] = curl[b.huskTriLinks[j]!]! + b.huskTriSigns[j]! * v
+    for (let j = base; j < base + 3; j++) {
+      curl[b.huskTriLinks[j]!] =
+        curl[b.huskTriLinks[j]!]! + b.huskTriSigns[j]! * v
+    }
   }
 
-  for (let p = 0; p < b.huskTriangles; p++) out[p] = b.multiplicity[p]! * pp * curlWeighted(b, curl, p)
+  for (let p = 0; p < b.huskTriangles; p++) {
+    out[p] = b.multiplicity[p]! * pp * curlWeighted(b, curl, p)
+  }
 }
 
 function readAllCounters(c: CompactLight, s: CompactState): void {
   for (let k = 0; k < c.counters; k++) {
     const out = c.value[k]!
 
-    for (let p = 0; p < c.bulk.huskTriangles; p++) out[p] = readCounter(c, s, p, k)
+    for (let p = 0; p < c.bulk.huskTriangles; p++) {
+      out[p] = readCounter(c, s, p, k)
+    }
   }
 }
 
-function payPotential(c: CompactLight, s: CompactState, p: number, k: number, tally?: CompactTally): void {
-  if (k === 0) return
+function payPotential(
+  c: CompactLight,
+  s: CompactState,
+  p: number,
+  k: number,
+  tally?: CompactTally,
+): void {
+  if (k === 0) {
+    return
+  }
 
   const b = c.bulk
   const start = b.triColumnStart[p]!
   const end = b.triColumnStart[p + 1]!
-  const u = columnValue(s.potential, b.triColumn, b.triColumnSign, start, end)
+  const u = columnValue(
+    s.potential,
+    b.triColumn,
+    b.triColumnSign,
+    start,
+    end,
+  )
   const w = b.multiplicity[p]! * b.depth
   const raw = u + k
   const next = mod(raw + w, 2 * w + 1) - w
 
-  if (tally && next !== raw) tally.potentialWraps++
+  if (tally && next !== raw) {
+    tally.potentialWraps++
+  }
 
-  const r = writeColumn(s.potential, b.triColumn, b.triColumnSign, start, end - start, next)
+  const r = writeColumn(
+    s.potential,
+    b.triColumn,
+    b.triColumnSign,
+    start,
+    end - start,
+    next,
+  )
 
   if (tally) {
     tally.flips += r.flips
@@ -447,7 +610,11 @@ function payPotential(c: CompactLight, s: CompactState, p: number, k: number, ta
 }
 
 // one beat, in place
-export function compactBeat(c: CompactLight, s: CompactState, tally?: CompactTally): void {
+export function compactBeat(
+  c: CompactLight,
+  s: CompactState,
+  tally?: CompactTally,
+): void {
   const b = c.bulk
   const h = b.depth
   const q = c.light.q
@@ -458,12 +625,15 @@ export function compactBeat(c: CompactLight, s: CompactState, tally?: CompactTal
   fieldsFromBulk(c, s)
   readAllCounters(c, s)
 
-  for (let i = 1; i <= levels; i++) spatialTerm(c, c.value[counterIndex(i, false)]!, c.spatial[i - 1]!)
+  for (let i = 1; i <= levels; i++) {
+    spatialTerm(c, c.value[counterIndex(i, false)]!, c.spatial[i - 1]!)
+  }
 
   const rem = c.value[2]!
 
   for (let p = 0; p < b.huskTriangles; p++) {
     const top = c.spatial[levels - 1]![p]!
+
     let w = floorDiv(top + rem[p]! + h, q)
 
     rem[p] = top + rem[p]! - q * w
@@ -481,20 +651,26 @@ export function compactBeat(c: CompactLight, s: CompactState, tally?: CompactTal
 
     const now = c.value[0]!
     const lag = c.value[1]!
-    const rest = b.multiplicity[p]! * pp * c.field[p]! - 2 * now[p]! + lag[p]! + w
+    const rest =
+      b.multiplicity[p]! * pp * c.field[p]! - 2 * now[p]! + lag[p]! + w
     const k = floorDiv(rest + h, q)
 
     lag[p] = now[p]!
     now[p] = q * k - rest
 
-    for (let x = 0; x < c.counters; x++) writeCounter(c, s, p, x, c.value[x]![p]!, tally)
+    for (let x = 0; x < c.counters; x++) {
+      writeCounter(c, s, p, x, c.value[x]![p]!, tally)
+    }
 
     payPotential(c, s, p, k, tally)
   }
 }
 
 // the inverse of compactBeat
-export function compactBeatBack(c: CompactLight, s: CompactState): void {
+export function compactBeatBack(
+  c: CompactLight,
+  s: CompactState,
+): void {
   const b = c.bulk
   const h = b.depth
   const q = c.light.q
@@ -504,13 +680,16 @@ export function compactBeatBack(c: CompactLight, s: CompactState): void {
   fieldsFromBulk(c, s)
   readAllCounters(c, s)
 
-  for (let i = 1; i <= levels; i++) spatialTerm(c, c.value[counterIndex(i, true)]!, c.spatial[i - 1]!)
+  for (let i = 1; i <= levels; i++) {
+    spatialTerm(c, c.value[counterIndex(i, true)]!, c.spatial[i - 1]!)
+  }
 
   const rem = c.value[2]!
 
   for (let p = 0; p < b.huskTriangles; p++) {
     const top = c.spatial[levels - 1]![p]!
     const r = rem[p]!
+
     let w = floorDiv(top - r + h, q)
 
     rem[p] = r - top + q * w
@@ -528,13 +707,16 @@ export function compactBeatBack(c: CompactLight, s: CompactState): void {
 
     const now = c.value[0]!
     const lag = c.value[1]!
-    const y = now[p]! + b.multiplicity[p]! * pp * c.field[p]! - 2 * lag[p]! + w
+    const y =
+      now[p]! + b.multiplicity[p]! * pp * c.field[p]! - 2 * lag[p]! + w
     const k = floorDiv(y + h, q)
 
     now[p] = lag[p]!
     lag[p] = q * k - y
 
-    for (let x = 0; x < c.counters; x++) writeCounter(c, s, p, x, c.value[x]![p]!)
+    for (let x = 0; x < c.counters; x++) {
+      writeCounter(c, s, p, x, c.value[x]![p]!)
+    }
 
     payPotential(c, s, p, -k)
   }
@@ -552,65 +734,135 @@ export type HuskShapedValues = {
   counter: Int32Array[] // per counter index
 }
 
-export function readCompactHusk(c: CompactLight, s: CompactState): HuskShapedValues {
+export function readCompactHusk(
+  c: CompactLight,
+  s: CompactState,
+): HuskShapedValues {
   const b = c.bulk
   const angle = new Int32Array(b.huskLinks)
   const string = new Int32Array(b.huskLinks)
   const potential = new Int32Array(b.huskTriangles)
-  const counter = Array.from({ length: c.counters }, () => new Int32Array(b.huskTriangles))
+  const counter = Array.from(
+    { length: c.counters },
+    () => new Int32Array(b.huskTriangles),
+  )
 
   for (let i = 0; i < b.huskLinks; i++) {
-    angle[i] = columnValue(s.angle, b.linkColumn, undefined, b.linkColumnStart[i]!, b.linkColumnStart[i + 1]!)
-    string[i] = columnValue(s.string, b.linkColumn, undefined, b.linkColumnStart[i]!, b.linkColumnStart[i + 1]!)
+    angle[i] = columnValue(
+      s.angle,
+      b.linkColumn,
+      undefined,
+      b.linkColumnStart[i]!,
+      b.linkColumnStart[i + 1]!,
+    )
+
+    string[i] = columnValue(
+      s.string,
+      b.linkColumn,
+      undefined,
+      b.linkColumnStart[i]!,
+      b.linkColumnStart[i + 1]!,
+    )
   }
 
   for (let p = 0; p < b.huskTriangles; p++) {
-    potential[p] = columnValue(s.potential, b.triColumn, b.triColumnSign, b.triColumnStart[p]!, b.triColumnStart[p + 1]!)
+    potential[p] = columnValue(
+      s.potential,
+      b.triColumn,
+      b.triColumnSign,
+      b.triColumnStart[p]!,
+      b.triColumnStart[p + 1]!,
+    )
 
-    for (let k = 0; k < c.counters; k++) counter[k]![p] = readCounter(c, s, p, k)
+    for (let k = 0; k < c.counters; k++) {
+      counter[k]![p] = readCounter(c, s, p, k)
+    }
   }
 
   return { angle, potential, string, counter }
 }
 
 // write husk angles, potentials and counters as trits (strings are placed by the caller along bulk paths)
-export function writeCompactHusk(c: CompactLight, s: CompactState, v: { angle: ArrayLike<number>; potential: ArrayLike<number>; counter: ArrayLike<number>[] }): void {
+export function writeCompactHusk(
+  c: CompactLight,
+  s: CompactState,
+  v: {
+    angle: ArrayLike<number>
+    potential: ArrayLike<number>
+    counter: ArrayLike<number>[]
+  },
+): void {
   const b = c.bulk
 
   for (let i = 0; i < b.huskLinks; i++) {
-    writeColumn(s.angle, b.linkColumn, undefined, b.linkColumnStart[i]!, b.linkColumnStart[i + 1]! - b.linkColumnStart[i]!, v.angle[i] ?? 0)
+    writeColumn(
+      s.angle,
+      b.linkColumn,
+      undefined,
+      b.linkColumnStart[i]!,
+      b.linkColumnStart[i + 1]! - b.linkColumnStart[i]!,
+      v.angle[i] ?? 0,
+    )
   }
 
   for (let p = 0; p < b.huskTriangles; p++) {
-    writeColumn(s.potential, b.triColumn, b.triColumnSign, b.triColumnStart[p]!, b.triColumnStart[p + 1]! - b.triColumnStart[p]!, v.potential[p] ?? 0)
+    writeColumn(
+      s.potential,
+      b.triColumn,
+      b.triColumnSign,
+      b.triColumnStart[p]!,
+      b.triColumnStart[p + 1]! - b.triColumnStart[p]!,
+      v.potential[p] ?? 0,
+    )
 
-    for (let k = 0; k < c.counters; k++) writeCounter(c, s, p, k, v.counter[k]?.[p] ?? 0)
+    for (let k = 0; k < c.counters; k++) {
+      writeCounter(c, s, p, k, v.counter[k]?.[p] ?? 0)
+    }
   }
 }
 
 // the column sums of the bulk flux against S - C^T U computed from the column values: mismatched husk links.
 // With unit-weight potential columns this is 0 by construction; the callers use it as the control that a
 // positional potential column breaks the reading
-export function columnSumIdentityMismatches(c: CompactLight, s: CompactState, potentialValue: (p: number) => number): number {
+export function columnSumIdentityMismatches(
+  c: CompactLight,
+  s: CompactState,
+  potentialValue: (p: number) => number,
+): number {
   const b = c.bulk
 
   compactFlux(c, s)
 
   const expected = new Int32Array(b.huskLinks)
 
-  for (let i = 0; i < b.huskLinks; i++) expected[i] = columnValue(s.string, b.linkColumn, undefined, b.linkColumnStart[i]!, b.linkColumnStart[i + 1]!)
+  for (let i = 0; i < b.huskLinks; i++) {
+    expected[i] = columnValue(
+      s.string,
+      b.linkColumn,
+      undefined,
+      b.linkColumnStart[i]!,
+      b.linkColumnStart[i + 1]!,
+    )
+  }
 
   for (let p = 0; p < b.huskTriangles; p++) {
     const u = potentialValue(p)
 
-    if (u === 0) continue
+    if (u === 0) {
+      continue
+    }
 
-    for (let j = p * 3; j < p * 3 + 3; j++) expected[b.huskTriLinks[j]!] = expected[b.huskTriLinks[j]!]! - b.huskTriSigns[j]! * u
+    for (let j = p * 3; j < p * 3 + 3; j++) {
+      expected[b.huskTriLinks[j]!] =
+        expected[b.huskTriLinks[j]!]! - b.huskTriSigns[j]! * u
+    }
   }
 
   let bad = 0
 
-  for (let i = 0; i < b.huskLinks; i++) bad += expected[i] === c.huskFlux[i] ? 0 : 1
+  for (let i = 0; i < b.huskLinks; i++) {
+    bad += expected[i] === c.huskFlux[i] ? 0 : 1
+  }
 
   return bad
 }

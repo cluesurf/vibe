@@ -43,6 +43,7 @@ export function spinOneGenerators(slots: number): Entry[][][] {
   for (let x = 0; x < size; x++) {
     const cx: Entry[] = []
     const cy: Entry[] = []
+
     let charge = 0
 
     for (let s = 0; s < slots; s++) {
@@ -120,9 +121,11 @@ export function respectedSu2Dimension(input: {
 
     return buffer
   })
+
   const inner = (i: number, j: number): number => {
     const a = commutators[i] ?? new Float64Array(0)
     const b = commutators[j] ?? new Float64Array(0)
+
     let sum = 0
 
     for (let k = 0; k < a.length; k++) {
@@ -131,9 +134,11 @@ export function respectedSu2Dimension(input: {
 
     return sum
   }
+
   const form = [0, 1, 2].map(i => [0, 1, 2].map(j => inner(i, j)))
   // rank by Gaussian elimination with a tolerance well above rounding of sqrt 2 sums
   const m = form.map(row => row.slice())
+
   let rank = 0
 
   for (let col = 0; col < 3 && rank < 3; col++) {
@@ -159,8 +164,7 @@ export function respectedSu2Dimension(input: {
         const factor = (m[r]?.[col] ?? 0) / (m[rank]?.[col] ?? 1)
 
         for (let k = 0; k < 3; k++) {
-          ;(m[r] as number[])[k] =
-            (m[r]?.[k] ?? 0) - factor * (m[rank]?.[k] ?? 0)
+          m[r]![k] = (m[r]?.[k] ?? 0) - factor * (m[rank]?.[k] ?? 0)
         }
       }
     }

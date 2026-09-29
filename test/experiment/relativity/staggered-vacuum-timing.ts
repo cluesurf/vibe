@@ -71,13 +71,46 @@ import { groupTable } from '@/code/measure/color-isotropy-bound'
 import { LINE_FIRSTS } from '@/code/rule/isometric-knit'
 import { turningWeave } from '@/code/rule/collision'
 import { type CollisionKind } from '@/code/rule/bounce-pair-knit'
-import { bounceRunner, makeBounceKernel } from '@/code/measure/bounce-pair-kernel'
-import { tritDifference, type Reduced } from '@/code/measure/living-pair-kernel'
-import { binaryTetrahedralIndices, coinData, huskForcing, orientedHub, orientedHubStore, uniformStore } from '@/code/measure/varying-vacuum'
-import { layoutOf, weaveOf } from '@/code/measure/varying-living-battery'
-import { dressing as ruleDressing, type ScheduledRule } from '@/code/measure/weave-acceptance'
-import { d4BoxCell, d4BoxCoordinates, d4Coordinates } from '@/code/substrate/d4-box'
-import { framesCheck, history, lineOrbits, lineShareCensus, periodOf, phaseKernel, spaceTimeCheck, staggeredStart, type History } from '@/code/measure/staggered-vacuum'
+import {
+  bounceRunner,
+  makeBounceKernel,
+} from '@/code/measure/bounce-pair-kernel'
+import {
+  tritDifference,
+  type Reduced,
+} from '@/code/measure/living-pair-kernel'
+import {
+  binaryTetrahedralIndices,
+  coinData,
+  huskForcing,
+  orientedHub,
+  orientedHubStore,
+  uniformStore,
+} from '@/code/measure/varying-vacuum'
+import {
+  layoutOf,
+  weaveOf,
+} from '@/code/measure/varying-living-battery'
+import {
+  dressing as ruleDressing,
+  type ScheduledRule,
+} from '@/code/measure/weave-acceptance'
+import {
+  d4BoxCell,
+  d4BoxCoordinates,
+  d4Coordinates,
+} from '@/code/substrate/d4-box'
+import {
+  framesCheck,
+  history,
+  lineOrbits,
+  lineShareCensus,
+  periodOf,
+  phaseKernel,
+  spaceTimeCheck,
+  staggeredStart,
+  type History,
+} from '@/code/measure/staggered-vacuum'
 
 const ROOTS = rootsD4()
 const SHIFTS = [0, 4, 2]
@@ -95,68 +128,144 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const table = groupTable()
     const coins = coinData(table)
-    const r0 = d4Coordinates(ROOTS[LINE_FIRSTS[0] as number] as number[])
+    const r0 = d4Coordinates(ROOTS[LINE_FIRSTS[0]!]!)
     const hub = orientedHub(coins)
     const twoT = binaryTetrahedralIndices(table)
 
     // S1
     const frames = framesCheck()
-    const s1 = frames.frames === 3 && frames.sizes.every(s => s === 4) && frames.orthogonalEach.every(n => n === 3)
+    const s1 =
+      frames.frames === 3 &&
+      frames.sizes.every(s => s === 4) &&
+      frames.orthogonalEach.every(n => n === 3)
 
     // S2: the vacuum on sides 4 and 8, under the unchanged knit (K), unstaggered and staggered
-    const vacuumOf = (side: number, kind: CollisionKind): { kernel: ReturnType<typeof makeBounceKernel>; plain: History; staggered: History; center: number } => {
+    const vacuumOf = (
+      side: number,
+      kind: CollisionKind,
+    ): {
+      kernel: ReturnType<typeof makeBounceKernel>
+      plain: History
+      staggered: History
+      center: number
+    } => {
       const kernel = makeBounceKernel(weaveOf(side), kind)
       const cells = kernel.cells
       const mid = side / 2
-      const center = d4BoxCell({ coordinates: [mid, mid, mid, mid], side })
-      const hubAt = d4BoxCoordinates({ cell: center, side }).map((v, k) => v - (r0[k] as number))
-      const start: Reduced = { vibe: new Int8Array(cells * 24), point: new Int8Array(cells * 24), store: orientedHubStore(coins, side, hubAt), spoint: Int8Array.from(layoutOf(side)) }
+      const center = d4BoxCell({
+        coordinates: [mid, mid, mid, mid],
+        side,
+      })
+      const hubAt = d4BoxCoordinates({ cell: center, side }).map(
+        (v, k) => v - r0[k]!,
+      )
+      const start: Reduced = {
+        vibe: new Int8Array(cells * 24),
+        point: new Int8Array(cells * 24),
+        store: orientedHubStore(coins, side, hubAt),
+        spoint: Int8Array.from(layoutOf(side)),
+      }
       const plain = history(kernel, start, 24)
 
-      return { kernel, plain, staggered: history(kernel, staggeredStart(plain, SHIFTS), 24), center }
+      return {
+        kernel,
+        plain,
+        staggered: history(kernel, staggeredStart(plain, SHIFTS), 24),
+        center,
+      }
     }
-    const runs = [4, 8].map(side => ({ side, ...vacuumOf(side, 'isometric') }))
+
+    const runs = [4, 8].map(side => ({
+      side,
+      ...vacuumOf(side, 'isometric'),
+    }))
     const exactOf = (h: History, units: number): boolean =>
-      periodOf(h.states, 12) === 6 && h.momentumDocks.every(n => n === 0) && h.made.every(n => 3 * n === units) && h.unmade.every(n => 3 * n === units) && Math.max(...h.maxLines) <= 4
-    const s2 = runs.every(r => exactOf(r.staggered, r.plain.made[0] ?? 0))
+      periodOf(h.states, 12) === 6 &&
+      h.momentumDocks.every(n => n === 0) &&
+      h.made.every(n => 3 * n === units) &&
+      h.unmade.every(n => 3 * n === units) &&
+      Math.max(...h.maxLines) <= 4
+    const s2 = runs.every(r =>
+      exactOf(r.staggered, r.plain.made[0] ?? 0),
+    )
 
     log('s2')
 
     // S3: space-time symmetry on side 4 with the hub at the origin
     const k4 = makeBounceKernel(weaveOf(4), 'isometric')
-    const origin: Reduced = { vibe: new Int8Array(256 * 24), point: new Int8Array(256 * 24), store: orientedHubStore(coins, 4, [0, 0, 0, 0]), spoint: Int8Array.from(layoutOf(4)) }
+    const origin: Reduced = {
+      vibe: new Int8Array(256 * 24),
+      point: new Int8Array(256 * 24),
+      store: orientedHubStore(coins, 4, [0, 0, 0, 0]),
+      spoint: Int8Array.from(layoutOf(4)),
+    }
     const plain0 = history(k4, origin, 12)
     const staggered0 = history(k4, staggeredStart(plain0, SHIFTS), 12)
-    const orient = spaceTimeCheck({ coins, side: 4, group: hub.group, states: staggered0.states.slice(0, 6), period: 6 })
-    const all = spaceTimeCheck({ coins, side: 4, group: table.permutations.map((_, i) => i), states: staggered0.states.slice(0, 6), period: 6 })
+    const orient = spaceTimeCheck({
+      coins,
+      side: 4,
+      group: hub.group,
+      states: staggered0.states.slice(0, 6),
+      period: 6,
+    })
+    const all = spaceTimeCheck({
+      coins,
+      side: 4,
+      group: table.permutations.map((_, i) => i),
+      states: staggered0.states.slice(0, 6),
+      period: 6,
+    })
     const forcing = huskForcing(coins, hub.group)
-    const s3 = orient.derived === 576 && orient.none === 0 && forcing.husk4 && forcing.huskShear2
+    const s3 =
+      orient.derived === 576 &&
+      orient.none === 0 &&
+      forcing.husk4 &&
+      forcing.huskShear2
 
     log('s3')
 
     // S4
     const q8 = phaseKernel(table, twoT, twoT)
     const q8Orbits = lineOrbits(coins, q8)
-    const hubKernel = phaseKernel(table, hub.group, [...twoT, hub.extra])
+    const hubKernel = phaseKernel(table, hub.group, [
+      ...twoT,
+      hub.extra,
+    ])
     const census = lineShareCensus(table, coins, 4)
-    const s4 = q8.length === 8 && q8Orbits.length === 3 && q8Orbits.every(o => o.length === 4) && census.belowForcing === 0
+    const s4 =
+      q8.length === 8 &&
+      q8Orbits.length === 3 &&
+      q8Orbits.every(o => o.length === 4) &&
+      census.belowForcing === 0
 
     log('s4')
 
     // W: the lone-love wake on the staggered vacuum, side 8, against the committed dressing at side 8
     const wake = (kind: CollisionKind, stagger: boolean): number[] => {
       const v = vacuumOf(WAKE_SIDE, kind)
-      const start0 = stagger ? staggeredStart(v.plain, SHIFTS) : (v.plain.states[0] as Reduced)
+      const start0 = stagger
+        ? staggeredStart(v.plain, SHIFTS)
+        : v.plain.states[0]!
       const vac = history(v.kernel, start0, BEATS)
       const worst = [0, 0, 0, 0]
 
       for (let d = 0; d < 24; d++) {
-        const s = stagger ? staggeredStart(v.plain, SHIFTS) : ({ ...(v.plain.states[0] as Reduced), vibe: Int8Array.from((v.plain.states[0] as Reduced).vibe) } as Reduced)
+        const s = stagger
+          ? staggeredStart(v.plain, SHIFTS)
+          : ({
+              ...v.plain.states[0]!,
+              vibe: Int8Array.from(v.plain.states[0]!.vibe),
+            } as Reduced)
 
-        if (s.vibe[v.center * 24 + d] !== 0) continue
+        if (s.vibe[v.center * 24 + d] !== 0) {
+          continue
+        }
 
         s.vibe[v.center * 24 + d] = 1
 
@@ -164,19 +273,29 @@ export default experiment({
 
         for (let t = 0; t < BEATS; t++) {
           run.beat()
-          worst[Math.floor(t / 24)] = Math.max(worst[Math.floor(t / 24)] ?? 0, tritDifference(run.state(), vac.states[t + 1] as Reduced).trits)
+          worst[Math.floor(t / 24)] = Math.max(
+            worst[Math.floor(t / 24)] ?? 0,
+            tritDifference(run.state(), vac.states[t + 1]!).trits,
+          )
         }
       }
 
       return worst
     }
-    const committedRule: ScheduledRule = (opposite, forward) => turningWeave({ opposite, forward, table: 'pair' })
-    const committed = ruleDressing(committedRule, { side: WAKE_SIDE, tone: 1 })
+
+    const committedRule: ScheduledRule = (opposite, forward) =>
+      turningWeave({ opposite, forward, table: 'pair' })
+    const committed = ruleDressing(committedRule, {
+      side: WAKE_SIDE,
+      tone: 1,
+    })
     const staggeredK = wake('isometric', true)
     const plainK = wake('isometric', false)
     const staggeredLone = wake('lone', true)
     const plainLone = wake('lone', false)
-    const w = staggeredK.every((x, p) => x <= (committed.periodLargest[p] ?? 0))
+    const w = staggeredK.every(
+      (x, p) => x <= (committed.periodLargest[p] ?? 0),
+    )
 
     log('w')
 
@@ -185,12 +304,21 @@ export default experiment({
       const kernel = makeBounceKernel(weaveOf(9), 'isometric')
       const cells = kernel.cells
       const center = d4BoxCell({ coordinates: [4, 4, 4, 4], side: 9 })
-      const start: Reduced = { vibe: new Int8Array(cells * 24), point: new Int8Array(cells * 24), store: uniformStore(cells, [0]), spoint: Int8Array.from(layoutOf(9)) }
+      const start: Reduced = {
+        vibe: new Int8Array(cells * 24),
+        point: new Int8Array(cells * 24),
+        store: uniformStore(cells, [0]),
+        spoint: Int8Array.from(layoutOf(9)),
+      }
       const vac = history(kernel, start, BEATS)
+
       let worst = 0
 
       for (let d = 0; d < 24; d++) {
-        const s: Reduced = { ...start, vibe: Int8Array.from(start.vibe) }
+        const s: Reduced = {
+          ...start,
+          vibe: Int8Array.from(start.vibe),
+        }
 
         s.vibe[center * 24 + d] = 1
 
@@ -198,7 +326,10 @@ export default experiment({
 
         for (let t = 0; t < 24; t++) {
           run.beat()
-          worst = Math.max(worst, tritDifference(run.state(), vac.states[t + 1] as Reduced).trits)
+          worst = Math.max(
+            worst,
+            tritDifference(run.state(), vac.states[t + 1]!).trits,
+          )
         }
       }
 
@@ -207,7 +338,8 @@ export default experiment({
 
     log('one line')
 
-    const status = s1 && s2 && s3 && s4 ? (w ? 'pass' : 'fail') : 'partial'
+    const status =
+      s1 && s2 && s3 && s4 ? (w ? 'pass' : 'fail') : 'partial'
     const per = (xs: readonly number[]): string => xs.join(', ')
     const r4 = runs[0]!
     const r8 = runs[1]!
@@ -221,13 +353,19 @@ export default experiment({
         side4StaggeredPeriod: periodOf(r4.staggered.states, 12),
         side4PlainLines: Math.max(...r4.plain.maxLines),
         side4StaggeredLines: Math.max(...r4.staggered.maxLines),
-        side4StaggeredMomentumDocks: r4.staggered.momentumDocks.reduce((a, b) => a + b, 0),
+        side4StaggeredMomentumDocks: r4.staggered.momentumDocks.reduce(
+          (a, b) => a + b,
+          0,
+        ),
         side4MadePerBeat: r4.staggered.made[0] ?? -1,
         side4Units: r4.plain.made[0] ?? -1,
         side8StaggeredPeriod: periodOf(r8.staggered.states, 12),
         side8PlainLines: Math.max(...r8.plain.maxLines),
         side8StaggeredLines: Math.max(...r8.staggered.maxLines),
-        side8StaggeredMomentumDocks: r8.staggered.momentumDocks.reduce((a, b) => a + b, 0),
+        side8StaggeredMomentumDocks: r8.staggered.momentumDocks.reduce(
+          (a, b) => a + b,
+          0,
+        ),
         side8MadePerBeat: r8.staggered.made[0] ?? -1,
         side8Units: r8.plain.made[0] ?? -1,
         vetoesInVacuum: r8.staggered.vetoed.reduce((a, b) => a + b, 0),
@@ -242,17 +380,40 @@ export default experiment({
         q8Order: q8.length,
         q8LineOrbits: q8Orbits.length,
         hubPhaseKernelOrder: hubKernel.length,
-        hubPhaseKernelLeastOrbit: Math.min(...lineOrbits(coins, hubKernel).map(o => o.length)),
+        hubPhaseKernelLeastOrbit: Math.min(
+          ...lineOrbits(coins, hubKernel).map(o => o.length),
+        ),
         censusPairs: census.pairs,
         censusSubgroups: census.subgroups,
         censusBelow4: census.below,
         censusBelow4Forcing: census.belowForcing,
-        ...Object.fromEntries(Object.entries(census.shares).map(([k, v]) => [`censusLeastOrbit${k}`, v])),
-        ...Object.fromEntries(staggeredK.map((x, p) => [`staggeredKWakePeriod${p + 1}`, x])),
-        ...Object.fromEntries(plainK.map((x, p) => [`plainKWakePeriod${p + 1}`, x])),
-        ...Object.fromEntries(staggeredLone.map((x, p) => [`staggeredLoneWakePeriod${p + 1}`, x])),
-        ...Object.fromEntries(plainLone.map((x, p) => [`plainLoneWakePeriod${p + 1}`, x])),
-        ...Object.fromEntries(committed.periodLargest.map((x, p) => [`committedSide${WAKE_SIDE}Period${p + 1}`, x])),
+        ...Object.fromEntries(
+          Object.entries(census.shares).map(([k, v]) => [
+            `censusLeastOrbit${k}`,
+            v,
+          ]),
+        ),
+        ...Object.fromEntries(
+          staggeredK.map((x, p) => [`staggeredKWakePeriod${p + 1}`, x]),
+        ),
+        ...Object.fromEntries(
+          plainK.map((x, p) => [`plainKWakePeriod${p + 1}`, x]),
+        ),
+        ...Object.fromEntries(
+          staggeredLone.map((x, p) => [
+            `staggeredLoneWakePeriod${p + 1}`,
+            x,
+          ]),
+        ),
+        ...Object.fromEntries(
+          plainLone.map((x, p) => [`plainLoneWakePeriod${p + 1}`, x]),
+        ),
+        ...Object.fromEntries(
+          committed.periodLargest.map((x, p) => [
+            `committedSide${WAKE_SIDE}Period${p + 1}`,
+            x,
+          ]),
+        ),
         oneLineWakeSide9Period1: oneLine.worst,
         oneLineLinesPerDockBeat: oneLine.lines,
         seconds: (Date.now() - started) / 1000,

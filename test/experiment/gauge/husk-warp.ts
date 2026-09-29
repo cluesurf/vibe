@@ -30,9 +30,33 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { addHashedCurl, emptyPhotonState, makePhotonRule, photonBeatInPlace, photonLatticeD4, placePairAlong, type PhotonState } from '@/code/rule/photon-links'
-import { accumulate, accumulateCross, leapfrogOmega, makeCorrelator, modeFrequencies, modeReader, type Correlator, type ModeVector } from '@/code/measure/photon-modes'
-import { columnSum, huskEnergy, huskGaussViolations, makeHusk, projectLinksWeighted, warpWeights, type Husk } from '@/code/measure/photon-husk'
+import {
+  addHashedCurl,
+  emptyPhotonState,
+  makePhotonRule,
+  photonBeatInPlace,
+  photonLatticeD4,
+  placePairAlong,
+  type PhotonState,
+} from '@/code/rule/photon-links'
+import {
+  accumulate,
+  accumulateCross,
+  leapfrogOmega,
+  makeCorrelator,
+  modeFrequencies,
+  modeReader,
+  type ModeVector,
+} from '@/code/measure/photon-modes'
+import {
+  columnSum,
+  huskEnergy,
+  huskGaussViolations,
+  makeHusk,
+  projectLinksWeighted,
+  warpWeights,
+  type Husk,
+} from '@/code/measure/photon-husk'
 
 const SIDE = 12
 const N = 8192
@@ -52,19 +76,35 @@ const MODES = [
   [2, 1, 2],
 ]
 
-const mean = (xs: readonly number[]): number => xs.reduce((a, b) => a + b, 0) / Math.max(1, xs.length)
+const mean = (xs: readonly number[]): number =>
+  xs.reduce((a, b) => a + b, 0) / Math.max(1, xs.length)
 
 type Projection = { name: string; weight: Float64Array }
 
 function projections(husk: Husk): Projection[] {
   const sheet = Float64Array.from(husk.sheet)
 
-  return [...WARPS.map(s => ({ name: `s${s === 1 / 3 ? 'Third' : s}`, weight: warpWeights(husk, LAMBDA, s) })), { name: 'sheet', weight: sheet }]
+  return [
+    ...WARPS.map(s => ({
+      name: `s${s === 1 / 3 ? 'Third' : s}`,
+      weight: warpWeights(husk, LAMBDA, s),
+    })),
+    { name: 'sheet', weight: sheet },
+  ]
 }
 
-function thermal(husk: Husk, views: Projection[]): Record<string, number> {
+function thermal(
+  husk: Husk,
+  views: Projection[],
+): Record<string, number> {
   const bulk = husk.bulk
-  const rule = makePhotonRule({ lattice: bulk, n: N, k: K, capacity: 0, hop: false })
+  const rule = makePhotonRule({
+    lattice: bulk,
+    n: N,
+    k: K,
+    capacity: 0,
+    hop: false,
+  })
   const s: PhotonState = emptyPhotonState(rule)
   const target = (K * N) / (2 * Math.PI * 3)
 
@@ -100,10 +140,10 @@ function thermal(husk: Husk, views: Projection[]): Record<string, number> {
         const vec = r.read(field)
         const h = st.history[m] ?? []
 
-        accumulate(st.c0[m] as Correlator, vec)
+        accumulate(st.c0[m]!, vec)
 
         if (h.length >= LAG) {
-          accumulateCross(st.lag[m] as Correlator, vec, h[h.length - LAG] as ModeVector)
+          accumulateCross(st.lag[m]!, vec, h[h.length - LAG]!)
         }
 
         h.push(vec)
@@ -125,7 +165,14 @@ function thermal(husk: Husk, views: Projection[]): Record<string, number> {
       return
     }
 
-    const freq = MODES.map((_, m) => modeFrequencies({ c0: st.c0[m] as Correlator, c1: st.lag[m] as Correlator, lag: LAG, tolerance: 1e-9 }))
+    const freq = MODES.map((_, m) =>
+      modeFrequencies({
+        c0: st.c0[m]!,
+        c1: st.lag[m]!,
+        lag: LAG,
+        tolerance: 1e-9,
+      }),
+    )
     const [m1, m2] = freq
     const light = (m1?.omega ?? []).filter((w, i) => {
       const ratio = (m2?.omega[i] ?? 0) / w
@@ -133,7 +180,12 @@ function thermal(husk: Husk, views: Projection[]): Record<string, number> {
       return w < cut && ratio >= 1.6 && ratio <= 2.1
     }).length
     const below = (m1?.omega ?? []).filter(w => w < cut).length
-    const orbit = (from: number): number => mean(freq.slice(from, from + 3).map(m => mean((m?.omega ?? []).slice(0, 2))))
+    const orbit = (from: number): number =>
+      mean(
+        freq
+          .slice(from, from + 3)
+          .map(m => mean((m?.omega ?? []).slice(0, 2))),
+      )
 
     out[`${view.name}ThermalGaussViolations`] = st.gauss
     out[`${view.name}LightBranches`] = light
@@ -149,7 +201,8 @@ function thermal(husk: Husk, views: Projection[]): Record<string, number> {
 function falloff(u: readonly number[]): number {
   const [u2 = 0, u3 = 0, u4 = 0] = u
   const target = (u4 - u3) / (u3 - u2)
-  const shape = (p: number): number => (3 ** -p - 4 ** -p) / (2 ** -p - 3 ** -p)
+  const shape = (p: number): number =>
+    (3 ** -p - 4 ** -p) / (2 ** -p - 3 ** -p)
 
   let lo = 0.05
   let hi = 8
@@ -167,10 +220,21 @@ function falloff(u: readonly number[]): number {
   return (lo + hi) / 2
 }
 
-function charges(husk: Husk, views: Projection[]): Record<string, number> {
+function charges(
+  husk: Husk,
+  views: Projection[],
+): Record<string, number> {
   const bulk = husk.bulk
-  const rule = makePhotonRule({ lattice: bulk, n: N, k: K, capacity: 0, hop: false, charge: CHARGE })
-  const root = (v: number[]): number => bulk.vectors.findIndex(r => r.every((x, i) => x === v[i]))
+  const rule = makePhotonRule({
+    lattice: bulk,
+    n: N,
+    k: K,
+    capacity: 0,
+    hop: false,
+    charge: CHARGE,
+  })
+  const root = (v: number[]): number =>
+    bulk.vectors.findIndex(r => r.every((x, i) => x === v[i]))
   const up = root([1, 0, 0, 1])
   const down = root([1, 0, 0, -1])
   const energies = views.map(() => [] as number[])
@@ -179,10 +243,21 @@ function charges(husk: Husk, views: Projection[]): Record<string, number> {
   for (const r of [1, 2, 3, 4]) {
     const s = emptyPhotonState(rule)
 
-    placePairAlong(rule, s, 0, Array.from({ length: r }, (_, i) => (i % 2 === 0 ? up : down)), 1)
+    placePairAlong(
+      rule,
+      s,
+      0,
+      Array.from({ length: r }, (_, i) => (i % 2 === 0 ? up : down)),
+      1,
+    )
 
-    const charge = Float64Array.from(columnSum(husk, s.vibe), q => q * CHARGE)
-    const sums = views.map(() => new Float64Array(husk.lattice.cells * 9))
+    const charge = Float64Array.from(
+      columnSum(husk, s.vibe),
+      q => q * CHARGE,
+    )
+    const sums = views.map(
+      () => new Float64Array(husk.lattice.cells * 9),
+    )
 
     for (let t = 0; t < 4000; t++) {
       photonBeatInPlace(rule, s, t)
@@ -200,12 +275,15 @@ function charges(husk: Husk, views: Projection[]): Record<string, number> {
         }
 
         if (t % 400 === 0) {
-          gauss[v] = (gauss[v] ?? 0) + huskGaussViolations(husk, p, charge)
+          gauss[v] =
+            (gauss[v] ?? 0) + huskGaussViolations(husk, p, charge)
         }
       })
     }
 
-    views.forEach((_, v) => energies[v]?.push(huskEnergy(sums[v] as Float64Array)))
+    views.forEach((_, v) =>
+      energies[v]?.push(huskEnergy(sums[v] as Float64Array)),
+    )
   }
 
   const out: Record<string, number> = {}
@@ -244,7 +322,8 @@ export default experiment({
       g('s1ThermalGaussViolations') > 0 &&
       g('s0Falloff') < g('sThirdFalloff') &&
       g('sThirdFalloff') < g('s1Falloff') &&
-      Math.abs(g('s1Falloff') - g('sheetFalloff')) < Math.abs(g('s0Falloff') - g('sheetFalloff')) &&
+      Math.abs(g('s1Falloff') - g('sheetFalloff')) <
+        Math.abs(g('s0Falloff') - g('sheetFalloff')) &&
       g('s0LightBranches') === 2 &&
       g('s1BranchesBelowCut') > g('s0BranchesBelowCut') &&
       Math.abs(g('s0Anisotropy')) < 0.01
@@ -255,7 +334,7 @@ export default experiment({
         "on the side-12 box, the flat column sum keeps Gauss's law on the husk at every beat, 2 light branches and isotropy under 1 percent, while weighing the layers by the warp factor breaks Gauss's law, moves the love-fear falloff exponent up toward the one-sheet restriction's, and admits more branches below the massive cut",
       metrics: m,
       notes:
-        'L2. The flat box has no bottom and no shells, so the warp enters only as a weight on its depth layers, read both ways from the sheet; the true hyperbolic column, which grows the number of links with depth, is not built. Which exponent s the geometry asks for is not settled by the repo: lambda^-1 per shell is its share of the ball (E-HLG-0032), lambda^(-1/3) its linear size. First run, 2026-09-25, fail, and it stands: Gauss, the flat sum\'s light and isotropy, and the falloff ordering p(0) = 1.62 < p(1/3) = 2.30 < p(1) = 3.58 all came out as expected, but the sheet restriction falls with p = 0.67, so the warp moves the falloff away from the sheet as well as away from 1 / r, past the bulk\'s own 2.78, and the gate asking it to near the sheet fails. The reason is in the layering: s = 1 keeps every link of the layer-0 dock, both of its depth steps, where the sheet keeps one, so the two are different projections. The warped projections also lose the light (0 branches that double between the two smallest k, lowest frequency 0.31 to 0.33 against 0.108 flat), pin no direction, and read 5.4 and 7.0 percent anisotropic; the gate asking s = 1 for more branches below the cut fails at 2 against 2.',
+        "L2. The flat box has no bottom and no shells, so the warp enters only as a weight on its depth layers, read both ways from the sheet; the true hyperbolic column, which grows the number of links with depth, is not built. Which exponent s the geometry asks for is not settled by the repo: lambda^-1 per shell is its share of the ball (E-HLG-0032), lambda^(-1/3) its linear size. First run, 2026-09-25, fail, and it stands: Gauss, the flat sum's light and isotropy, and the falloff ordering p(0) = 1.62 < p(1/3) = 2.30 < p(1) = 3.58 all came out as expected, but the sheet restriction falls with p = 0.67, so the warp moves the falloff away from the sheet as well as away from 1 / r, past the bulk's own 2.78, and the gate asking it to near the sheet fails. The reason is in the layering: s = 1 keeps every link of the layer-0 dock, both of its depth steps, where the sheet keeps one, so the two are different projections. The warped projections also lose the light (0 branches that double between the two smallest k, lowest frequency 0.31 to 0.33 against 0.108 flat), pin no direction, and read 5.4 and 7.0 percent anisotropic; the gate asking s = 1 for more branches below the cut fails at 2 against 2.",
     })
   },
 })

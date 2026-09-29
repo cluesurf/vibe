@@ -37,7 +37,11 @@ const ROOT3 = Math.sqrt(3)
 const EXACT = 1e-9
 const SEED_BEAT = 3
 
-function slabRun(input: { side: number; slab: boolean; beats: number }): {
+function slabRun(input: {
+  side: number
+  slab: boolean
+  beats: number
+}): {
   supports: number[]
   phases: number[]
   eruption: number
@@ -141,9 +145,7 @@ export default experiment({
     const free13 = slabRun({ side: 13, slab: false, beats: 33 })
 
     // the old window at side 11: support never above seven through beat 25
-    const oldWindowClean = at11.supports
-      .slice(0, 26)
-      .every(s => s <= 7)
+    const oldWindowClean = at11.supports.slice(0, 26).every(s => s <= 7)
     // the artifact exposed: the same run erupts later and keeps growing
     const grows11 = at11.supports[35]! > 50
     const grows13 = at13.supports[32]! > 100

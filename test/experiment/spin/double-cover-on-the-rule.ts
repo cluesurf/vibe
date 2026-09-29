@@ -109,6 +109,7 @@ function antipodalMismatch(input: {
       beats: PERIOD,
     }),
   )
+
   let mismatch = 0
   let total = 0
   let exactPairs = 0
@@ -132,7 +133,7 @@ export default experiment({
   id: 'spin/double-cover-on-the-rule',
   code: 'E-SPN-0044',
   title:
-    'the committed rule does not carry the spinor sign: the coin directions are a 2T torsor on which the 2 pi turn of SU(2)_L is the point inversion, the rule\'s own turn lifts after four steps to that 2 pi turn in SU(2)_L alone, the palindromic schedule retraces it to a net lift of +1 where the rejected cyclic schedule nets -1, and the point inversion is no symmetry of the rule except joined to charge conjugation and time reversal, so a lone love and its 2 pi image run different histories',
+    "the committed rule does not carry the spinor sign: the coin directions are a 2T torsor on which the 2 pi turn of SU(2)_L is the point inversion, the rule's own turn lifts after four steps to that 2 pi turn in SU(2)_L alone, the palindromic schedule retraces it to a net lift of +1 where the rejected cyclic schedule nets -1, and the point inversion is no symmetry of the rule except joined to charge conjugation and time reversal, so a lone love and its 2 pi image run different histories",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
@@ -152,8 +153,9 @@ export default experiment({
     ]
     const torsorHits = roots.map(
       root =>
-        group.filter(g => quaternionsClose(quaternionMultiply(g, u), unit(root)))
-          .length,
+        group.filter(g =>
+          quaternionsClose(quaternionMultiply(g, u), unit(root)),
+        ).length,
     )
     const minusOne: Quaternion = [-1, 0, 0, 0]
     const leftAntipode = roots.filter((root, d) =>
@@ -167,7 +169,9 @@ export default experiment({
     ).length
 
     // 2. the rule's turn
-    const permutations = weylF4DirectionPermutations({ directions: roots })
+    const permutations = weylF4DirectionPermutations({
+      directions: roots,
+    })
     const lines: [number, number][] = []
 
     for (let d = 0; d < 24; d++) {
@@ -186,16 +190,21 @@ export default experiment({
     const turns = permutations.filter(p =>
       lines.every(([a], l) => lineOf[p[a] ?? 0] === G_TURN[l]),
     )
-    const factors = turns.map(p => isoclinicFactors(linearMapOf(p) ?? []))
+    const factors = turns.map(p =>
+      isoclinicFactors(linearMapOf(p) ?? []),
+    )
     const mirror = roots.map(root =>
       roots.findIndex(other =>
-        other.every((x, k) => x === (k === 2 ? -(root[k] ?? 0) : root[k])),
+        other.every(
+          (x, k) => x === (k === 2 ? -(root[k] ?? 0) : root[k]),
+        ),
       ),
     )
     const mirroredFactors = turns.map(p =>
       isoclinicFactors(
-        linearMapOf(roots.map((_, d) => mirror[p[mirror[d] ?? 0] ?? 0] ?? 0)) ??
-          [],
+        linearMapOf(
+          roots.map((_, d) => mirror[p[mirror[d] ?? 0] ?? 0] ?? 0),
+        ) ?? [],
       ),
     )
     const first = factors[0]
@@ -214,7 +223,10 @@ export default experiment({
     // 3. schedule holonomy: the unwrapped number of turns over one period. The partition at beat t is
     // G^k(t) of the beat-zero partition, and each beat's step k(t + 1) - k(t) is read mod 4 into
     // {-1, 0, 1, 2} and summed, so a walk out and back nets zero and a steady turn nets its count.
-    const netTurns = (position: (beat: number) => number, period: number): number => {
+    const netTurns = (
+      position: (beat: number) => number,
+      period: number,
+    ): number => {
       let net = 0
 
       for (let t = 0; t < period; t++) {
@@ -225,6 +237,7 @@ export default experiment({
 
       return net
     }
+
     const committedNet = netTurns(
       t => TURN_POS_MIRROR[t % TURN_POS_MIRROR.length] ?? 0,
       PERIOD,
@@ -260,10 +273,16 @@ export default experiment({
     ).length
     // a reversal with coin part the identity is, on the lattice, the inversion with time reversal
     const committedInversionWithCt = committedLedger.filter(
-      e => e.kind === 'reversal' && e.p === 0 && e.tau === CHARGE_CONJUGATION,
+      e =>
+        e.kind === 'reversal' &&
+        e.p === 0 &&
+        e.tau === CHARGE_CONJUGATION,
     ).length
     const pairInversionWithC = pairLedger.filter(
-      e => e.kind === 'forward' && e.p === 1 && e.tau === CHARGE_CONJUGATION,
+      e =>
+        e.kind === 'forward' &&
+        e.p === 1 &&
+        e.tau === CHARGE_CONJUGATION,
     ).length
     const committedAntipodal = antipodalMismatch({
       schedule: turningWeave({ opposite }),
@@ -304,7 +323,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'every direction is g u for exactly one g in 2T, the left -1 is the antipode on all 24 and conjugation by -1 fixes all 24; both elements carrying the rule\'s turn have fourth power the point inversion, lifting to (-1, +1) in SU(2)_L x SU(2)_R, and their mirror images to (+1, -1); the committed schedule nets zero turns (lift +1, +1) and the cyclic control twelve (lift -1, +1); the point inversion is no forward symmetry of the rule and appears only joined to charge conjugation and reversal, while the pair rule keeps it with charge conjugation; and the lone-love currents of antipodal launches fail to be opposite under the rule and are exactly opposite under pure streaming',
+        "every direction is g u for exactly one g in 2T, the left -1 is the antipode on all 24 and conjugation by -1 fixes all 24; both elements carrying the rule's turn have fourth power the point inversion, lifting to (-1, +1) in SU(2)_L x SU(2)_R, and their mirror images to (+1, -1); the committed schedule nets zero turns (lift +1, +1) and the cyclic control twelve (lift -1, +1); the point inversion is no forward symmetry of the rule and appears only joined to charge conjugation and reversal, while the pair rule keeps it with charge conjugation; and the lone-love currents of antipodal launches fail to be opposite under the rule and are exactly opposite under pure streaming",
       metrics: {
         directionsAsTorsor: torsorHits.filter(h => h === 1).length,
         leftMinusOneIsAntipode: leftAntipode,
@@ -320,11 +339,14 @@ export default experiment({
         cyclicLiftLeft: cyclicLift[0] ?? 0,
         cyclicLiftRight: cyclicLift[1] ?? 0,
         committedInversionSymmetries: committedInversion,
-        committedInversionWithChargeAndReversal: committedInversionWithCt,
+        committedInversionWithChargeAndReversal:
+          committedInversionWithCt,
         committedAntipodalMismatch: Number(
           committedAntipodal.mismatch.toFixed(6),
         ),
-        committedCurrentTotal: Number(committedAntipodal.total.toFixed(6)),
+        committedCurrentTotal: Number(
+          committedAntipodal.total.toFixed(6),
+        ),
         committedExactlyOppositePairs: committedAntipodal.exactPairs,
       },
       control: {
@@ -339,7 +361,7 @@ export default experiment({
         streamingExactlyOppositePairs: streamingAntipodal.exactPairs,
       },
       notes:
-        'L2. The coin carries the double cover as geometry: a direction label is acted on freely by SU(2)_L, and the 2 pi turn of that factor is the antipode. The rule does not carry it as a symmetry: the committed rule keeps no rotation at all (E-FRC-0113, E-FRC-0142), so there is no rotation group under which a lone vibe could transform as spin one half, and the one symmetry it keeps, charge conjugation with reversal, has the point inversion as its spatial part. In four Euclidean dimensions that is the familiar shape of the CRT theorem (the inversion lies in the connected rotation group), stated here as a structural match, not a derivation. The rule\'s own loop of turns lifts to the 2 pi turn of SU(2)_L alone, but the palindrome that CPT required (E-FND-0117) walks it out and back, so a label carried by the schedule returns with +1; the rejected cyclic schedule would have carried -1 every period, and it acts on unoriented lines, where the -1 is invisible anyway. Exchange: two identical lone tones are a set, so exchanging them changes nothing and has no sign; the fermion sign lives only in the signed weights (E-SPN-0045). The role grid carries SL(2, 3) = 2T faithfully (the -1 negates 8 of 9 role points) and E-FRC-0117 measured an exact local frame symmetry there, a gauge 2T rather than a rotation, not re-measured here.',
+        "L2. The coin carries the double cover as geometry: a direction label is acted on freely by SU(2)_L, and the 2 pi turn of that factor is the antipode. The rule does not carry it as a symmetry: the committed rule keeps no rotation at all (E-FRC-0113, E-FRC-0142), so there is no rotation group under which a lone vibe could transform as spin one half, and the one symmetry it keeps, charge conjugation with reversal, has the point inversion as its spatial part. In four Euclidean dimensions that is the familiar shape of the CRT theorem (the inversion lies in the connected rotation group), stated here as a structural match, not a derivation. The rule's own loop of turns lifts to the 2 pi turn of SU(2)_L alone, but the palindrome that CPT required (E-FND-0117) walks it out and back, so a label carried by the schedule returns with +1; the rejected cyclic schedule would have carried -1 every period, and it acts on unoriented lines, where the -1 is invisible anyway. Exchange: two identical lone tones are a set, so exchanging them changes nothing and has no sign; the fermion sign lives only in the signed weights (E-SPN-0045). The role grid carries SL(2, 3) = 2T faithfully (the -1 negates 8 of 9 role points) and E-FRC-0117 measured an exact local frame symmetry there, a gauge 2T rather than a rotation, not re-measured here.",
     })
   },
 })

@@ -27,19 +27,53 @@
 // split lets the loop registers spread.
 
 import { bal } from '@/code/rule/lattice-qed'
-import { ladderLoopSpec, loopBeat, loopKernel, loopSplit, type LoopSpec, type Split } from '@/code/rule/loop-ring'
+import {
+  ladderLoopSpec,
+  loopBeat,
+  loopKernel,
+  loopSplit,
+  type LoopSpec,
+  type Split,
+} from '@/code/rule/loop-ring'
 import { unitaryEigen } from '@/code/measure/quantum-ladder'
 
 // the classical light's split (drift carries the unit, force the 2/N), and the drift-carried split
-export const classicalSplit = (n: number): Split => ({ root: 2 * n * n, drift: n, force: 2, ratio: 2 / n, w: 1 })
-export const driftCarriedSplit = (n: number): Split => ({ root: 2 * n * n, drift: 2, force: n, ratio: n / 2, w: 1 })
+export const classicalSplit = (n: number): Split => ({
+  root: 2 * n * n,
+  drift: n,
+  force: 2,
+  ratio: 2 / n,
+  w: 1,
+})
+export const driftCarriedSplit = (n: number): Split => ({
+  root: 2 * n * n,
+  drift: 2,
+  force: n,
+  ratio: n / 2,
+  w: 1,
+})
 
 // the ladder's link rows: bottom rail p reads m_p, top rail p reads m_p, rung j reads m_(j-1) - m_j (+ x on rung 0)
-function ladderRows(L: number, x: number): { coef: number[]; offset: number }[] {
+function ladderRows(
+  L: number,
+  x: number,
+): { coef: number[]; offset: number }[] {
   const rows: { coef: number[]; offset: number }[] = []
 
-  for (let p = 0; p < L; p++) rows.push({ coef: Array.from({ length: L }, (_, q) => (q === p ? 1 : 0)), offset: 0 })
-  for (let p = 0; p < L; p++) rows.push({ coef: Array.from({ length: L }, (_, q) => (q === p ? 1 : 0)), offset: 0 })
+  for (let p = 0; p < L; p++) {
+    rows.push({
+      coef: Array.from({ length: L }, (_, q) => (q === p ? 1 : 0)),
+      offset: 0,
+    })
+  }
+
+  for (let p = 0; p < L; p++) {
+    rows.push({
+      coef: Array.from({ length: L }, (_, q) => (q === p ? 1 : 0)),
+      offset: 0,
+    })
+  }
+
   for (let j = 0; j < L; j++) {
     const c = new Array<number>(L).fill(0)
     const a = (j - 1 + L) % L
@@ -61,7 +95,9 @@ function solve(a: number[][], b: number[]): number[] {
     for (let i = j + 1; i < n; i++) {
       const f = m[i]![j]! / m[j]![j]!
 
-      for (let k = j; k < n; k++) m[i]![k] = m[i]![k]! - f * m[j]![k]!
+      for (let k = j; k < n; k++) {
+        m[i]![k] = m[i]![k]! - f * m[j]![k]!
+      }
 
       y[i] = y[i]! - f * y[j]!
     }
@@ -72,7 +108,9 @@ function solve(a: number[][], b: number[]): number[] {
   for (let j = n - 1; j >= 0; j--) {
     let s = y[j]!
 
-    for (let k = j + 1; k < n; k++) s -= m[j]![k]! * out[k]!
+    for (let k = j + 1; k < n; k++) {
+      s -= m[j]![k]! * out[k]!
+    }
 
     out[j] = s / m[j]![j]!
   }
@@ -81,43 +119,71 @@ function solve(a: number[][], b: number[]): number[] {
 }
 
 // the loop registers' curl-curl K = A^T A, the real minimizer m* of sum (e0 + A m)^2, and the minimum E*
-export function realMinimizer(L: number, x: number): { k: number[][]; m: number[]; value: number } {
+export function realMinimizer(
+  L: number,
+  x: number,
+): { k: number[][]; m: number[]; value: number } {
   const rows = ladderRows(L, x)
-  const k = Array.from({ length: L }, () => new Array<number>(L).fill(0))
+  const k = Array.from({ length: L }, () =>
+    new Array<number>(L).fill(0),
+  )
   const b = new Array<number>(L).fill(0)
 
   for (const r of rows) {
     for (let i = 0; i < L; i++) {
       b[i] = b[i]! - r.coef[i]! * r.offset
 
-      for (let j = 0; j < L; j++) k[i]![j] = k[i]![j]! + r.coef[i]! * r.coef[j]!
+      for (let j = 0; j < L; j++) {
+        k[i]![j] = k[i]![j]! + r.coef[i]! * r.coef[j]!
+      }
     }
   }
 
   const m = solve(k, b)
-  const value = rows.reduce((s, r) => s + (r.offset + r.coef.reduce((a, c, i) => a + c * m[i]!, 0)) ** 2, 0)
+  const value = rows.reduce(
+    (s, r) =>
+      s +
+      (r.offset + r.coef.reduce((a, c, i) => a + c * m[i]!, 0)) ** 2,
+    0,
+  )
 
   return { k, m, value }
 }
 
-export const realMinimum = (L: number, x: number): number => realMinimizer(L, x).value
+export const realMinimum = (L: number, x: number): number =>
+  realMinimizer(L, x).value
 
 // the integer minimum over m in Z^L (small L, a box search)
-export function integerMinimum(L: number, x: number, reach = 3): number {
+export function integerMinimum(
+  L: number,
+  x: number,
+  reach = 3,
+): number {
   const rows = ladderRows(L, x)
+
   let best = Infinity
+
   const m = new Array<number>(L).fill(-reach)
 
   for (;;) {
-    const s = rows.reduce((a, r) => a + (r.offset + r.coef.reduce((b, c, i) => b + c * m[i]!, 0)) ** 2, 0)
+    const s = rows.reduce(
+      (a, r) =>
+        a +
+        (r.offset + r.coef.reduce((b, c, i) => b + c * m[i]!, 0)) ** 2,
+      0,
+    )
 
     best = Math.min(best, s)
 
     let p = 0
 
-    while (p < L && m[p] === reach) m[p++] = -reach
+    while (p < L && m[p] === reach) {
+      m[p++] = -reach
+    }
 
-    if (p === L) break
+    if (p === L) {
+      break
+    }
 
     m[p] = m[p]! + 1
   }
@@ -129,21 +195,33 @@ export function integerMinimum(L: number, x: number, reach = 3): number {
 function symmetricSqrt(k: number[][]): number[][] {
   const n = k.length
   const a = k.map(r => r.slice())
-  const v: number[][] = Array.from({ length: n }, (_, i) => Array.from({ length: n }, (_, j): number => (i === j ? 1 : 0)))
+  const v: number[][] = Array.from({ length: n }, (_, i) =>
+    Array.from({ length: n }, (_, j): number => (i === j ? 1 : 0)),
+  )
 
   for (let sweep = 0; sweep < 60; sweep++) {
     let off = 0
 
-    for (let p = 0; p < n; p++) for (let q = p + 1; q < n; q++) off += a[p]![q]! ** 2
+    for (let p = 0; p < n; p++) {
+      for (let q = p + 1; q < n; q++) {
+        off += a[p]![q]! ** 2
+      }
+    }
 
-    if (off < 1e-30) break
+    if (off < 1e-30) {
+      break
+    }
 
     for (let p = 0; p < n; p++) {
       for (let q = p + 1; q < n; q++) {
-        if (Math.abs(a[p]![q]!) < 1e-300) continue
+        if (Math.abs(a[p]![q]!) < 1e-300) {
+          continue
+        }
 
         const theta = (a[q]![q]! - a[p]![p]!) / (2 * a[p]![q]!)
-        const t = Math.sign(theta || 1) / (Math.abs(theta) + Math.sqrt(theta * theta + 1))
+        const t =
+          Math.sign(theta || 1) /
+          (Math.abs(theta) + Math.sqrt(theta * theta + 1))
         const c = 1 / Math.sqrt(t * t + 1)
         const s = t * c
 
@@ -176,7 +254,11 @@ function symmetricSqrt(k: number[][]): number[][] {
 
   const root = a.map((r, i) => Math.sqrt(Math.max(0, r[i]!)))
 
-  return Array.from({ length: n }, (_, i) => Array.from({ length: n }, (_, j) => v[i]!.reduce((s, x, l) => s + x * root[l]! * v[j]![l]!, 0)))
+  return Array.from({ length: n }, (_, i) =>
+    Array.from({ length: n }, (_, j) =>
+      v[i]!.reduce((s, x, l) => s + x * root[l]! * v[j]![l]!, 0),
+    ),
+  )
 }
 
 export type StaticShift = {
@@ -203,7 +285,10 @@ export type StaticShift = {
 }
 
 // the dense beat of one sector (x fixed), as row-major re, im
-function sectorMatrix(spec: LoopSpec, x: number): { re: Float64Array; im: Float64Array; dim: number } {
+function sectorMatrix(
+  spec: LoopSpec,
+  x: number,
+): { re: Float64Array; im: Float64Array; dim: number } {
   const k = loopKernel(spec)
   const half = k.half
   const re = new Float64Array(half * half)
@@ -227,7 +312,10 @@ function sectorMatrix(spec: LoopSpec, x: number): { re: Float64Array; im: Float6
 }
 
 // the harmonic vacuum of sector x: exp(-1/2 (m - m*)^T W (m - m*)), m read balanced, normalized
-function harmonicVacuum(spec: LoopSpec, x: number): { v: Float64Array; sigma2: number } {
+function harmonicVacuum(
+  spec: LoopSpec,
+  x: number,
+): { v: Float64Array; sigma2: number } {
   const n = spec.n
   const L = spec.squares
   const { s, f } = loopSplit(spec)
@@ -238,6 +326,7 @@ function harmonicVacuum(spec: LoopSpec, x: number): { v: Float64Array; sigma2: n
   const half = n ** L
   const out = new Float64Array(half)
   const d = new Array<number>(L).fill(0)
+
   let norm = 0
 
   for (let i = 0; i < half; i++) {
@@ -250,16 +339,27 @@ function harmonicVacuum(spec: LoopSpec, x: number): { v: Float64Array; sigma2: n
 
     let q = 0
 
-    for (let a = 0; a < L; a++) for (let b = 0; b < L; b++) q += d[a]! * w[a]![b]! * d[b]!
+    for (let a = 0; a < L; a++) {
+      for (let b = 0; b < L; b++) {
+        q += d[a]! * w[a]![b]! * d[b]!
+      }
+    }
 
     out[i] = Math.exp(-q / 2)
     norm += out[i]! ** 2
   }
 
-  for (let i = 0; i < half; i++) out[i] = out[i]! / Math.sqrt(norm)
+  for (let i = 0; i < half; i++) {
+    out[i] = out[i]! / Math.sqrt(norm)
+  }
 
   // sigma^2 = diag(W^-1) / 2, averaged
-  const inv = Array.from({ length: L }, (_, j) => solve(w, Array.from({ length: L }, (__, i) => (i === j ? 1 : 0))))
+  const inv = Array.from({ length: L }, (_, j) =>
+    solve(
+      w,
+      Array.from({ length: L }, (__, i) => (i === j ? 1 : 0)),
+    ),
+  )
   const sigma2 = inv.reduce((acc, col, j) => acc + col[j]! / 2, 0) / L
 
   return { v: out, sigma2 }
@@ -268,17 +368,27 @@ function harmonicVacuum(spec: LoopSpec, x: number): { v: Float64Array; sigma2: n
 const wrap = (a: number): number => {
   let b = a
 
-  while (b > Math.PI) b -= 2 * Math.PI
-  while (b <= -Math.PI) b += 2 * Math.PI
+  while (b > Math.PI) {
+    b -= 2 * Math.PI
+  }
+
+  while (b <= -Math.PI) {
+    b += 2 * Math.PI
+  }
 
   return b
 }
 
-export function staticShift(n: number, L: number, split: Split): StaticShift {
+export function staticShift(
+  n: number,
+  L: number,
+  split: Split,
+): StaticShift {
   const started = Date.now()
   const spec = ladderLoopSpec(n, L, split, 0)
   const { s, f } = loopSplit(spec)
   const ground: { phase: number; overlap: number; next: number }[] = []
+
   let residual = 0
   let sigma2 = 0
 
@@ -288,7 +398,10 @@ export function staticShift(n: number, L: number, split: Split): StaticShift {
     const trial = harmonicVacuum(spec, x)
 
     residual = Math.max(residual, eig.residual)
-    if (x === 0) sigma2 = trial.sigma2
+
+    if (x === 0) {
+      sigma2 = trial.sigma2
+    }
 
     const overlaps = eig.vectors.map(v => {
       let r = 0
@@ -301,9 +414,15 @@ export function staticShift(n: number, L: number, split: Split): StaticShift {
 
       return r * r + i * i
     })
-    const order = overlaps.map((o, i) => [o, i] as const).sort((a, b) => b[0] - a[0])
+    const order = overlaps
+      .map((o, i) => [o, i] as const)
+      .sort((a, b) => b[0] - a[0])
 
-    ground.push({ phase: eig.phases[order[0]![1]]!, overlap: order[0]![0], next: order[1]?.[0] ?? 0 })
+    ground.push({
+      phase: eig.phases[order[0]![1]]!,
+      overlap: order[0]![0],
+      next: order[1]?.[0] ?? 0,
+    })
   }
 
   // quasi-energy = -phase per beat
@@ -335,12 +454,17 @@ export function staticShift(n: number, L: number, split: Split): StaticShift {
 // the closed forms (E-FRC-0242), N = 2D + 1, kappa = 2 / N, c = sqrt(2 kappa / 3) (E-FRC-0212, 0235)
 
 export const kappaOfDepth = (d: number): number => 2 / (2 * d + 1)
-export const huskLightSpeed = (d: number): number => Math.sqrt((2 * kappaOfDepth(d)) / 3)
+export const huskLightSpeed = (d: number): number =>
+  Math.sqrt((2 * kappaOfDepth(d)) / 3)
 
 // the Coulomb coefficient C = s kappa / 24 and alpha = C / c for a drift share s
-export const coulombOfShare = (d: number, s: number): number => (s * kappaOfDepth(d)) / 24
-export const alphaOfShare = (d: number, s: number): number => coulombOfShare(d, s) / huskLightSpeed(d)
+export const coulombOfShare = (d: number, s: number): number =>
+  (s * kappaOfDepth(d)) / 24
+export const alphaOfShare = (d: number, s: number): number =>
+  coulombOfShare(d, s) / huskLightSpeed(d)
 
 // the share of a split with f / s = rho: s = sqrt(kappa / rho); then alpha = kappa sqrt(3 / (2 rho)) / 24
-export const shareOfRatio = (d: number, rho: number): number => Math.sqrt(kappaOfDepth(d) / rho)
-export const alphaOfRatio = (d: number, rho: number): number => (kappaOfDepth(d) * Math.sqrt(3 / (2 * rho))) / 24
+export const shareOfRatio = (d: number, rho: number): number =>
+  Math.sqrt(kappaOfDepth(d) / rho)
+export const alphaOfRatio = (d: number, rho: number): number =>
+  (kappaOfDepth(d) * Math.sqrt(3 / (2 * rho))) / 24

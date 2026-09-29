@@ -30,7 +30,12 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill, Tone, Will } from '@/code/tone/will'
-import { beat, collide, growingBeat, streamInverse } from '@/code/rule/lattice-gas'
+import {
+  beat,
+  collide,
+  growingBeat,
+  streamInverse,
+} from '@/code/rule/lattice-gas'
 import {
   couplesFrom,
   linesOf,
@@ -97,7 +102,7 @@ export default experiment({
   id: 'foundations/wire-polarization-law',
   code: 'E-FND-0105',
   title:
-    "the wire-polarization law: the palindrome pairing sets which wall orientations a traveller couples to, measured on all four axes for the cross-plane knit (responses 102 and 88 at the two axes inside its wire plane, support EXACTLY one at every beat at the two axes outside it while crossing those walls repeatedly), so wake-free transmission and selective detection coexist in one knit for the first time with a perfect one-against-a-hundred orientation contrast plus offset selectivity inside the coupled orientation (160 against 102), the canonical same-plane pairing is the degenerate everything-coupled case that made the family look rigid, and the polarized knit keeps exact echo, superposition, and its CPT conjugation, leaving in-flight phase rotation as the one unsupplied ingredient",
+    'the wire-polarization law: the palindrome pairing sets which wall orientations a traveller couples to, measured on all four axes for the cross-plane knit (responses 102 and 88 at the two axes inside its wire plane, support EXACTLY one at every beat at the two axes outside it while crossing those walls repeatedly), so wake-free transmission and selective detection coexist in one knit for the first time with a perfect one-against-a-hundred orientation contrast plus offset selectivity inside the coupled orientation (160 against 102), the canonical same-plane pairing is the degenerate everything-coupled case that made the family look rigid, and the polarized knit keeps exact echo, superposition, and its CPT conjugation, leaving in-flight phase rotation as the one unsupplied ingredient',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',
@@ -183,7 +188,7 @@ export default experiment({
     const start = makeWill(mesh)
 
     for (let i = 0; i < start.data.length; i++) {
-      start.data[i] = ((((i * 5 + (i % 11)) % 3) - 1) as Tone)
+      start.data[i] = (((i * 5 + (i % 11)) % 3) - 1) as Tone
     }
 
     let echoState: Will = { mesh, data: Int8Array.from(start.data) }
@@ -226,8 +231,7 @@ export default experiment({
       const difference = makeWill(mesh)
 
       for (let i = 0; i < seeded.data.length; i++) {
-        difference.data[i] = (seeded.data[i]! -
-          vacuum.data[i]!) as Tone
+        difference.data[i] = (seeded.data[i]! - vacuum.data[i]!) as Tone
       }
 
       return difference
@@ -278,8 +282,13 @@ export default experiment({
     let cptViolation = 0
 
     {
-      const left = beat(cptTransform({ mesh, data: Int8Array.from(start.data) }), rule)
-      const right = cptTransform(flippedInverse({ mesh, data: Int8Array.from(start.data) }))
+      const left = beat(
+        cptTransform({ mesh, data: Int8Array.from(start.data) }),
+        rule,
+      )
+      const right = cptTransform(
+        flippedInverse({ mesh, data: Int8Array.from(start.data) }),
+      )
 
       for (let i = 0; i < left.data.length; i++) {
         if (left.data[i] !== right.data[i]) {

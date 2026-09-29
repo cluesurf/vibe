@@ -45,7 +45,12 @@ export type GraphState = {
 
 const mod3 = (x: number): number => ((x % 3) + 3) % 3
 
-export function makeStringGraph(input: { mesh: Mesh; mass: number; tension: number; capacity: number }): StringGraph {
+export function makeStringGraph(input: {
+  mesh: Mesh
+  mass: number
+  tension: number
+  capacity: number
+}): StringGraph {
   const { mesh } = input
   const degree = mesh.degree
   const links: [number, number, number][] = []
@@ -65,7 +70,10 @@ export function makeStringGraph(input: { mesh: Mesh; mass: number; tension: numb
   const matchings: number[][] = []
 
   links.forEach(([a, b], l) => {
-    const busy = new Set([...(used.get(a) ?? []), ...(used.get(b) ?? [])])
+    const busy = new Set([
+      ...(used.get(a) ?? []),
+      ...(used.get(b) ?? []),
+    ])
 
     let color = 0
 
@@ -91,7 +99,10 @@ export function makeStringGraph(input: { mesh: Mesh; mass: number; tension: numb
   return { ...input, links, linkAt, matchings, next, previous }
 }
 
-export function graphEnergy(graph: StringGraph, state: GraphState): number {
+export function graphEnergy(
+  graph: StringGraph,
+  state: GraphState,
+): number {
   let total = 0
 
   for (let x = 0; x < graph.mesh.cellCount; x++) {
@@ -99,14 +110,19 @@ export function graphEnergy(graph: StringGraph, state: GraphState): number {
   }
 
   for (let l = 0; l < graph.links.length; l++) {
-    total += (mod3(state.flux[l] ?? 0) !== 0 ? graph.tension : 0) + (state.demon[l] ?? 0)
+    total +=
+      (mod3(state.flux[l] ?? 0) !== 0 ? graph.tension : 0) +
+      (state.demon[l] ?? 0)
   }
 
   return total
 }
 
 // Gauss's law at every cell: flux out minus flux in equals the vibe
-export function graphGaussHolds(graph: StringGraph, state: GraphState): boolean {
+export function graphGaussHolds(
+  graph: StringGraph,
+  state: GraphState,
+): boolean {
   const divergence = new Int32Array(graph.mesh.cellCount)
 
   graph.links.forEach(([a, b], l) => {
@@ -118,7 +134,12 @@ export function graphGaussHolds(graph: StringGraph, state: GraphState): boolean 
 }
 
 // one matching's step, in place: an involution. `onHop` hears every charge that crosses
-function matchingStep(graph: StringGraph, state: GraphState, matching: readonly number[], onHop?: (from: number, to: number, link: number) => void): void {
+function matchingStep(
+  graph: StringGraph,
+  state: GraphState,
+  matching: readonly number[],
+  onHop?: (from: number, to: number, link: number) => void,
+): void {
   const { vibe, flux, demon } = state
 
   for (const l of matching) {
@@ -144,7 +165,10 @@ function matchingStep(graph: StringGraph, state: GraphState, matching: readonly 
     }
 
     const e = flux[l] ?? 0
-    const cost = (mod3(e + change) !== 0 ? graph.tension : 0) - (mod3(e) !== 0 ? graph.tension : 0) + massChange
+    const cost =
+      (mod3(e + change) !== 0 ? graph.tension : 0) -
+      (mod3(e) !== 0 ? graph.tension : 0) +
+      massChange
     const d = (demon[l] ?? 0) - cost
 
     if (d < 0 || d > graph.capacity) {
@@ -163,10 +187,18 @@ function matchingStep(graph: StringGraph, state: GraphState, matching: readonly 
 }
 
 function copy(state: GraphState): GraphState {
-  return { vibe: Int8Array.from(state.vibe), flux: Int32Array.from(state.flux), demon: Int32Array.from(state.demon) }
+  return {
+    vibe: Int8Array.from(state.vibe),
+    flux: Int32Array.from(state.flux),
+    demon: Int32Array.from(state.demon),
+  }
 }
 
-export function graphBeat(graph: StringGraph, state: GraphState, onHop?: (from: number, to: number, link: number) => void): GraphState {
+export function graphBeat(
+  graph: StringGraph,
+  state: GraphState,
+  onHop?: (from: number, to: number, link: number) => void,
+): GraphState {
   const out = copy(state)
 
   for (const matching of graph.matchings) {
@@ -182,7 +214,10 @@ export function graphBeat(graph: StringGraph, state: GraphState, onHop?: (from: 
   return out
 }
 
-export function graphBeatBack(graph: StringGraph, state: GraphState): GraphState {
+export function graphBeatBack(
+  graph: StringGraph,
+  state: GraphState,
+): GraphState {
   const out = copy(state)
   const demon = Int32Array.from(out.demon)
 

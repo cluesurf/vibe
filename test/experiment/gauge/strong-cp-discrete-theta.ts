@@ -70,7 +70,7 @@ export default experiment({
   id: 'gauge/strong-cp-discrete-theta',
   code: 'E-FRC-0079',
   title:
-    "strong CP dissolved on the clock: the Z_3 vacuum manifold is three exact points (wrapped link differences take exactly three values to machine precision and every closed-loop winding is an exact integer across five constructed sectors, while the continuous-phase control takes a continuum and fractional windings), and the committed charge knit is exactly T-reversible on generic states (re-measured, Hamming zero), so a CP-odd vacuum angle has neither a continuum to live in nor a T-violating sector to act through, theta is exactly zero rather than mysteriously small, and the vacuum-angle contribution to the neutron electric dipole moment is predicted to be exactly zero",
+    'strong CP dissolved on the clock: the Z_3 vacuum manifold is three exact points (wrapped link differences take exactly three values to machine precision and every closed-loop winding is an exact integer across five constructed sectors, while the continuous-phase control takes a continuum and fractional windings), and the committed charge knit is exactly T-reversible on generic states (re-measured, Hamming zero), so a CP-odd vacuum angle has neither a continuum to live in nor a T-violating sector to act through, theta is exactly zero rather than mysteriously small, and the vacuum-angle contribution to the neutron electric dipole moment is predicted to be exactly zero',
   category: 'gauge',
   substrates: 'any',
   depth: 'L2',
@@ -113,7 +113,8 @@ export default experiment({
 
     for (let x = 0; x < RING; x++) {
       continuous.push(
-        0.37 * Math.sin((2 * Math.PI * x) / RING) + (1.4 * x * x) / RING ** 2,
+        0.37 * Math.sin((2 * Math.PI * x) / RING) +
+          (1.4 * x * x) / RING ** 2,
       )
     }
 
@@ -122,10 +123,7 @@ export default experiment({
     const controlFractionalDensity = continuous.some((_, x) => {
       const d = wrap(continuous[(x + 1) % RING]! - continuous[x]!)
 
-      return (
-        Math.abs(d) > 1e-6 &&
-        Math.abs(d) < THIRD - 1e-6
-      )
+      return Math.abs(d) > 1e-6 && Math.abs(d) < THIRD - 1e-6
     })
 
     // 3. the measured T symmetry of the charge knit, corrected convention, two generic states
@@ -149,8 +147,8 @@ export default experiment({
     }
 
     const patterns: ((i: number) => Tone)[] = [
-      i => ((((i * 5 + (i % 11)) % 3) - 1) as Tone),
-      i => ((((i * i + 2 * i) % 3) - 1) as Tone),
+      i => (((i * 5 + (i % 11)) % 3) - 1) as Tone,
+      i => (((i * i + 2 * i) % 3) - 1) as Tone,
     ]
 
     let tViolation = 0
@@ -206,9 +204,7 @@ export default experiment({
         ).size,
         worstWindingError: Number(
           Math.max(
-            ...measuredTurns.map((t, i) =>
-              Math.abs(t - sectors[i]!),
-            ),
+            ...measuredTurns.map((t, i) => Math.abs(t - sectors[i]!)),
           ).toExponential(2),
         ),
         tViolationSlots: tViolation,

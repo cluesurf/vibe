@@ -18,7 +18,10 @@
 //                  code/measure/fear-port's step, rebuilt here from the exported knit (fear-port keeps it
 //                  private)
 
-import { makeColorWeave, type ColorWeave } from '@/code/rule/color-weave'
+import {
+  makeColorWeave,
+  type ColorWeave,
+} from '@/code/rule/color-weave'
 import { COLOR_TURN_SPEC } from '@/code/rule/color-turn-weave'
 import { HEAD_TURN_SPEC } from '@/code/rule/scatter-weave'
 import {
@@ -32,7 +35,11 @@ import {
   type FearKernels,
   type Knit,
 } from '@/code/rule/fear-weave'
-import { combinedBeat, combinedState, makeCombinedKnit } from '@/code/rule/combined-knit'
+import {
+  combinedBeat,
+  combinedState,
+  makeCombinedKnit,
+} from '@/code/rule/combined-knit'
 import {
   COLD_FIRSTS,
   COLD_OPPOSITE,
@@ -43,7 +50,10 @@ import {
   type ColdMeeting,
   type ColdQuaternionState,
 } from '@/code/rule/cold-quaternion-knit'
-import { exactFearKernels, exactQuotient } from '@/code/rule/fear-kernel-exact'
+import {
+  exactFearKernels,
+  exactQuotient,
+} from '@/code/rule/fear-kernel-exact'
 
 const SIDE = 3
 
@@ -52,14 +62,20 @@ const SIDE = 3
 // entry. The swap mode's kernel is 4 K of SWAP U(2 pi / 3), E-QTM-0100's meetingKernel, from the exchanged like
 // kernel at its own divisor
 const SWAP_KERNEL4: number[][] = (() => {
-  const { like, likeDivisor } = exactFearKernels({ like: 1, unlike: 1, likeExchanged: true })
+  const { like, likeDivisor } = exactFearKernels({
+    like: 1,
+    unlike: 1,
+    likeExchanged: true,
+  })
   const scale = exactQuotient(4, likeDivisor)
 
   return like.map(row => row.map(x => x * scale))
 })()
 
 // how a history's knot moves at a meeting: E-QTM-0100's swap kernel on the tokens, or the color mode
-export type KnotKernels = { readonly mode: 'swap'; readonly kernel4: number[][] } | { readonly mode: 'color'; readonly color: FearKernels }
+export type KnotKernels =
+  | { readonly mode: 'swap'; readonly kernel4: number[][] }
+  | { readonly mode: 'color'; readonly color: FearKernels }
 
 export type KnotHistory = {
   readonly name: string
@@ -75,7 +91,10 @@ export type KnotHistory = {
   readonly conjugated: boolean
 }
 
-const openOf = (slots: number, tokens: readonly number[]): Uint8Array => {
+const openOf = (
+  slots: number,
+  tokens: readonly number[],
+): Uint8Array => {
   const open = new Uint8Array(slots)
 
   for (const t of tokens) {
@@ -85,15 +104,33 @@ const openOf = (slots: number, tokens: readonly number[]): Uint8Array => {
   return open
 }
 
-function fearWeaveRecords(input: { weave: ColorWeave; knit?: Knit; tokens: readonly number[]; beats: number; vibe?: Int8Array }): BeatRecord[] {
+function fearWeaveRecords(input: {
+  weave: ColorWeave
+  knit?: Knit
+  tokens: readonly number[]
+  beats: number
+  vibe?: Int8Array
+}): BeatRecord[] {
   const { weave, knit, tokens, beats } = input
   const slots = weave.mesh.cellCount * 24
-  let lattice = makeLattice({ vibe: input.vibe ?? new Int8Array(slots), point: new Int8Array(slots) })
+
+  let lattice = makeLattice({
+    vibe: input.vibe ?? new Int8Array(slots),
+    point: new Int8Array(slots),
+  })
+
   const open = openOf(slots, tokens)
   const out: BeatRecord[] = []
 
   for (let t = 0; t < beats; t++) {
-    const r = fearBeat({ weave, links: weave.links, lattice, open, t, knit })
+    const r = fearBeat({
+      weave,
+      links: weave.links,
+      lattice,
+      open,
+      t,
+      knit,
+    })
 
     lattice = r.lattice
     out.push(r.record)
@@ -103,7 +140,10 @@ function fearWeaveRecords(input: { weave: ColorWeave; knit?: Knit; tokens: reado
 }
 
 // the first line of dock 0 whose two tokens meet within 24 beats, with the given records builder
-function firstMeetingLine(opposite: readonly number[], meets: (pair: number[]) => boolean): number[] {
+function firstMeetingLine(
+  opposite: readonly number[],
+  meets: (pair: number[]) => boolean,
+): number[] {
   for (let d = 0; d < 24; d++) {
     const o = opposite[d] ?? d
 
@@ -121,8 +161,29 @@ export function qtm0100Histories(beats: number): KnotHistory[] {
   const records = fearWeaveRecords({ weave, tokens, beats })
 
   return [
-    { name: 'qtm0100-swap', code: 'E-QTM-0100', weave, tokens, records, kernels: { mode: 'swap', kernel4: SWAP_KERNEL4 }, start: [0, 1], conjugated: false },
-    { name: 'qtm0100-color', code: 'E-QTM-0100', weave, tokens, records, kernels: { mode: 'color', color: exactFearKernels({ like: 1, unlike: 1 }) }, start: [0, 0], conjugated: true },
+    {
+      name: 'qtm0100-swap',
+      code: 'E-QTM-0100',
+      weave,
+      tokens,
+      records,
+      kernels: { mode: 'swap', kernel4: SWAP_KERNEL4 },
+      start: [0, 1],
+      conjugated: false,
+    },
+    {
+      name: 'qtm0100-color',
+      code: 'E-QTM-0100',
+      weave,
+      tokens,
+      records,
+      kernels: {
+        mode: 'color',
+        color: exactFearKernels({ like: 1, unlike: 1 }),
+      },
+      start: [0, 0],
+      conjugated: true,
+    },
   ]
 }
 
@@ -137,7 +198,11 @@ export function qtm0109History(beats: number): KnotHistory {
     table: COLOR_TURN_SPEC.tables[0] ?? [],
     swapWhen: COLOR_TURN_SPEC.swapWhen,
   })
-  const tokens = firstMeetingLine(weave.opposite, pair => fearWeaveRecords({ weave, knit, tokens: pair, beats: 24 }).some(r => r.meetings.length > 0))
+  const tokens = firstMeetingLine(weave.opposite, pair =>
+    fearWeaveRecords({ weave, knit, tokens: pair, beats: 24 }).some(
+      r => r.meetings.length > 0,
+    ),
+  )
 
   return {
     name: 'qtm0109',
@@ -145,18 +210,45 @@ export function qtm0109History(beats: number): KnotHistory {
     weave,
     tokens,
     records: fearWeaveRecords({ weave, knit, tokens, beats }),
-    kernels: { mode: 'color', color: exactFearKernels({ like: 1, unlike: 1, likeExchanged: false }) },
+    kernels: {
+      mode: 'color',
+      color: exactFearKernels({
+        like: 1,
+        unlike: 1,
+        likeExchanged: false,
+      }),
+    },
     start: [0, 0],
     conjugated: true,
   }
 }
 
-export function frc0159History(input: { fold: boolean; beats: number }): KnotHistory {
-  const knit = makeCombinedKnit({ side: SIDE, spec: { base: HEAD_TURN_SPEC, fold: input.fold, scatter: true, mirror: 23, steer: false } })
+export function frc0159History(input: {
+  fold: boolean
+  beats: number
+}): KnotHistory {
+  const knit = makeCombinedKnit({
+    side: SIDE,
+    spec: {
+      base: HEAD_TURN_SPEC,
+      fold: input.fold,
+      scatter: true,
+      mirror: 23,
+      steer: false,
+    },
+  })
   const slots = knit.weave.mesh.cellCount * 24
-  const vacuum = { vibe: new Int8Array(slots), point: new Int8Array(slots) }
-  const recordsOf = (tokens: readonly number[], beats: number): BeatRecord[] => {
+  const vacuum = {
+    vibe: new Int8Array(slots),
+    point: new Int8Array(slots),
+  }
+
+  const recordsOf = (
+    tokens: readonly number[],
+    beats: number,
+  ): BeatRecord[] => {
     let state = combinedState(knit, vacuum)
+
     const open = openOf(slots, tokens)
     const out: BeatRecord[] = []
 
@@ -169,7 +261,10 @@ export function frc0159History(input: { fold: boolean; beats: number }): KnotHis
 
     return out
   }
-  const tokens = firstMeetingLine(knit.weave.opposite, pair => recordsOf(pair, 24).some(r => r.meetings.length > 0))
+
+  const tokens = firstMeetingLine(knit.weave.opposite, pair =>
+    recordsOf(pair, 24).some(r => r.meetings.length > 0),
+  )
 
   return {
     name: input.fold ? 'frc0159-HF' : 'frc0159-H',
@@ -177,26 +272,43 @@ export function frc0159History(input: { fold: boolean; beats: number }): KnotHis
     weave: knit.weave,
     tokens,
     records: recordsOf(tokens, input.beats),
-    kernels: { mode: 'color', color: exactFearKernels({ like: 1, unlike: 1, likeExchanged: false }) },
+    kernels: {
+      mode: 'color',
+      color: exactFearKernels({
+        like: 1,
+        unlike: 1,
+        likeExchanged: false,
+      }),
+    },
     start: [0, 0],
     conjugated: true,
   }
 }
 
 // one beat of the cold quaternion knit with the record a knot reads (code/measure/fear-port's step)
-export function coldRecords(input: { start: ColdQuaternionState; tokens: readonly number[]; beats: number; links?: Int16Array }): { records: BeatRecord[]; states: ColdQuaternionState[] } {
+export function coldRecords(input: {
+  start: ColdQuaternionState
+  tokens: readonly number[]
+  beats: number
+  links?: Int16Array
+}): { records: BeatRecord[]; states: ColdQuaternionState[] } {
   const weave = makeColorWeave({ side: SIDE, table: 'bind' })
   const knit = makeColdQuaternionKnit()
   const lattice = makeColdQuaternionLattice(weave.mesh, knit)
   const links = input.links ?? weave.links
   const slots = weave.mesh.cellCount * 24
   const open = openOf(slots, input.tokens)
+
   let state = input.start
+
   const records: BeatRecord[] = []
   const states: ColdQuaternionState[] = [state]
 
   for (let t = 0; t < input.beats; t++) {
-    const raw = { meetings: [] as ColdMeeting[], crossings: [] as [number, number][] }
+    const raw = {
+      meetings: [] as ColdMeeting[],
+      crossings: [] as [number, number][],
+    }
 
     state = coldQuaternionBeat(lattice, state, raw)
 
@@ -204,7 +316,11 @@ export function coldRecords(input: { start: ColdQuaternionState; tokens: readonl
     const signs: [number, number][] = []
 
     for (const m of raw.meetings) {
-      if (m.kind !== 'many' && open[m.tokens[0]] === 1 && open[m.tokens[1]] === 1) {
+      if (
+        m.kind !== 'many' &&
+        open[m.tokens[0]] === 1 &&
+        open[m.tokens[1]] === 1
+      ) {
         meetings.push([m.tokens[0], m.tokens[1]])
         signs.push([m.signs[0], m.signs[1]])
       }
@@ -226,15 +342,23 @@ export function coldRecords(input: { start: ColdQuaternionState; tokens: readonl
 }
 
 // the cold quaternion knit's labelled state from vibes and role points
-export function coldStart(vibe: Int8Array, point: Int8Array): ColdQuaternionState {
+export function coldStart(
+  vibe: Int8Array,
+  point: Int8Array,
+): ColdQuaternionState {
   const weave = makeColorWeave({ side: SIDE, table: 'bind' })
 
-  return { ...emptyColdState(weave.mesh, true), vibe: Int8Array.from(vibe), role: Int8Array.from(point) }
+  return {
+    ...emptyColdState(weave.mesh, true),
+    vibe: Int8Array.from(vibe),
+    role: Int8Array.from(point),
+  }
 }
 
 export function rlt0055History(beats: number): KnotHistory {
   const weave = makeColorWeave({ side: SIDE, table: 'bind' })
   const slots = weave.mesh.cellCount * 24
+
   let tokens: number[] = []
   let start = coldStart(new Int8Array(slots), new Int8Array(slots))
 
@@ -248,7 +372,13 @@ export function rlt0055History(beats: number): KnotHistory {
 
     const candidate = coldStart(vibe, new Int8Array(slots))
 
-    if (coldRecords({ start: candidate, tokens: [d, o], beats: 24 }).records.some(r => r.meetings.length > 0)) {
+    if (
+      coldRecords({
+        start: candidate,
+        tokens: [d, o],
+        beats: 24,
+      }).records.some(r => r.meetings.length > 0)
+    ) {
       tokens = [d, o]
       start = candidate
     }
@@ -260,7 +390,14 @@ export function rlt0055History(beats: number): KnotHistory {
     weave,
     tokens,
     records: coldRecords({ start, tokens, beats }).records,
-    kernels: { mode: 'color', color: exactFearKernels({ like: 1, unlike: 1, likeExchanged: false }) },
+    kernels: {
+      mode: 'color',
+      color: exactFearKernels({
+        like: 1,
+        unlike: 1,
+        likeExchanged: false,
+      }),
+    },
     start: [0, 0],
     conjugated: true,
   }
@@ -268,16 +405,41 @@ export function rlt0055History(beats: number): KnotHistory {
 
 // every Bell history, each over `beats` beats
 export function bellHistories(beats: number): KnotHistory[] {
-  return [...qtm0100Histories(beats), qtm0109History(beats), frc0159History({ fold: false, beats }), frc0159History({ fold: true, beats }), rlt0055History(beats)]
+  return [
+    ...qtm0100Histories(beats),
+    qtm0109History(beats),
+    frc0159History({ fold: false, beats }),
+    frc0159History({ fold: true, beats }),
+    rlt0055History(beats),
+  ]
 }
 
 // one beat of a history's knot, forward, in grain mode
-export function advanceKnot(history: KnotHistory, whole: Whole, record: BeatRecord): Whole {
+export function advanceKnot(
+  history: KnotHistory,
+  whole: Whole,
+  record: BeatRecord,
+): Whole {
   const { kernels, weave } = history
 
   return kernels.mode === 'swap'
-    ? advanceWhole({ weave, whole, record, kernel4: kernels.kernel4, fixed: false, forward: true })!
-    : advanceWhole({ weave, whole, record, kernel4: [], color: kernels.color, fixed: false, forward: true })!
+    ? advanceWhole({
+        weave,
+        whole,
+        record,
+        kernel4: kernels.kernel4,
+        fixed: false,
+        forward: true,
+      })!
+    : advanceWhole({
+        weave,
+        whole,
+        record,
+        kernel4: [],
+        color: kernels.color,
+        fixed: false,
+        forward: true,
+      })!
 }
 
 // a two-token knot read in the physical convention. Since 2026-09-26 the color mode carries each
@@ -285,7 +447,10 @@ export function advanceKnot(history: KnotHistory, whole: Whole, record: BeatReco
 // back from the reflected point, one in a love's frame (+1) is read as it is, and one not yet met (0) keeps
 // the history's fixed rule, the second token reflected when the history stores it there. On a history where
 // no token changes sign this is the old reading exactly
-export function physicalKnot(history: KnotHistory, whole: Whole): Whole {
+export function physicalKnot(
+  history: KnotHistory,
+  whole: Whole,
+): Whole {
   const reflect = [0, 1].map(c => {
     const f = whole.frame?.[c] ?? 0
 
@@ -299,7 +464,9 @@ export function physicalKnot(history: KnotHistory, whole: Whole): Whole {
   return {
     tokens: whole.tokens,
     weight: whole.weight.map((_, i) => {
-      const a = reflect[0] ? (CONJUGATE_POINT[Math.floor(i / 9)] ?? 0) : Math.floor(i / 9)
+      const a = reflect[0]
+        ? (CONJUGATE_POINT[Math.floor(i / 9)] ?? 0)
+        : Math.floor(i / 9)
       const b = reflect[1] ? (CONJUGATE_POINT[i % 9] ?? 0) : i % 9
 
       return whole.weight[a * 9 + b] ?? 0n
@@ -308,7 +475,11 @@ export function physicalKnot(history: KnotHistory, whole: Whole): Whole {
 }
 
 // the product knot of two role lines (weight 1 on each of the 9 joint points of line a x line b)
-export function lineKnot(tokens: readonly number[], a: readonly number[], b: readonly number[]): Whole {
+export function lineKnot(
+  tokens: readonly number[],
+  a: readonly number[],
+  b: readonly number[],
+): Whole {
   const weight = new Array<bigint>(81).fill(0n)
 
   for (const x of a) {

@@ -34,10 +34,24 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { H, HUSK_KAPPA, goldenRule, hermitianHuskSymbol, huskSymbolizer, readHuskStencil, sphereGrid } from '@/code/measure/husk-emission'
+import {
+  H,
+  HUSK_KAPPA,
+  goldenRule,
+  hermitianHuskSymbol,
+  huskSymbolizer,
+  readHuskStencil,
+  sphereGrid,
+} from '@/code/measure/husk-emission'
 import { hermitianEigen } from '@/code/measure/photon-modes'
 import { HUSK_VECTORS, HUSK_WEIGHTS } from '@/code/measure/photon-husk'
-import { applyHuskCurl, dimerAmplitude, emit, huskPhotonModes, makeRealSpace } from '@/code/measure/stand-in-light'
+import {
+  applyHuskCurl,
+  dimerAmplitude,
+  emit,
+  huskPhotonModes,
+  makeRealSpace,
+} from '@/code/measure/stand-in-light'
 import { refineTone } from '@/code/measure/stand-in-atom'
 
 const OMEGA0 = 0.3
@@ -46,7 +60,11 @@ const SIDE = 40
 const BEATS = 100
 const OCCUPATIONS = [0, 1, 2, 4]
 
-function decayRate(times: ArrayLike<number>, values: ArrayLike<number>, from: number): number {
+function decayRate(
+  times: ArrayLike<number>,
+  values: ArrayLike<number>,
+  from: number,
+): number {
   const xs: number[] = []
   const ys: number[] = []
 
@@ -60,7 +78,10 @@ function decayRate(times: ArrayLike<number>, values: ArrayLike<number>, from: nu
   const mx = xs.reduce((s, v) => s + v, 0) / xs.length
   const my = ys.reduce((s, v) => s + v, 0) / ys.length
 
-  return -xs.reduce((s, v, i) => s + (v - mx) * (ys[i]! - my), 0) / xs.reduce((s, v) => s + (v - mx) ** 2, 0)
+  return (
+    -xs.reduce((s, v, i) => s + (v - mx) * (ys[i]! - my), 0) /
+    xs.reduce((s, v) => s + (v - mx) ** 2, 0)
+  )
 }
 
 export default experiment({
@@ -81,7 +102,9 @@ export default experiment({
     const space = makeRealSpace(stencil, side)
     const k = [(2 * Math.PI) / side, (4 * Math.PI) / side, 0]
     const e = hermitianEigen(hermitianHuskSymbol(stencil, k))
-    const order = Array.from(e.values, (_, j) => j).sort((p, q) => e.values[p]! - e.values[q]!)
+    const order = Array.from(e.values, (_, j) => j).sort(
+      (p, q) => e.values[p]! - e.values[q]!,
+    )
     const column = order[1]!
     const mu = e.values[column]!
     const predicted = 2 * Math.asin(Math.sqrt(HUSK_KAPPA * mu) / 2)
@@ -101,10 +124,16 @@ export default experiment({
               const ui = e.vectorsIm[h * H + column]!
               const u = HUSK_VECTORS[h]!
               // the link's midpoint x + u_h / 2
-              const phase = k[0]! * (x + u[0]! / 2) + k[1]! * (y + u[1]! / 2) + k[2]! * (z + u[2]! / 2)
+              const phase =
+                k[0]! * (x + u[0]! / 2) +
+                k[1]! * (y + u[1]! / 2) +
+                k[2]! * (z + u[2]! / 2)
 
               // the physical angle is G^(1/2) times the Hermitian frame's vector (an eigenvector of M_h itself)
-              a[(x + side * (y + side * z)) * H + h] = amplitude * Math.sqrt(HUSK_WEIGHTS[h]!) * (ur * Math.cos(phase) - ui * Math.sin(phase))
+              a[(x + side * (y + side * z)) * H + h] =
+                amplitude *
+                Math.sqrt(HUSK_WEIGHTS[h]!) *
+                (ur * Math.cos(phase) - ui * Math.sin(phase))
             }
           }
         }
@@ -124,54 +153,102 @@ export default experiment({
           flux[i] = flux[i]! - space.kappa * scratch[i]!
         }
 
-        projection.push(a.reduce((s, v, i) => s + v * reference[i]!, 0) / norm)
+        projection.push(
+          a.reduce((s, v, i) => s + v * reference[i]!, 0) / norm,
+        )
       }
 
       return projection
     })
-    const frequencies = series.map(p => refineTone(p, predicted * 0.98, predicted * 1.02).omega)
+    const frequencies = series.map(
+      p => refineTone(p, predicted * 0.98, predicted * 1.02).omega,
+    )
 
     metrics.ladderMu = mu
     metrics.ladderPredicted = predicted
     metrics.ladderSmallAmplitude = frequencies[0]!
     metrics.ladderLargeAmplitude = frequencies[1]!
     // the normalized motion at the two amplitudes, beat by beat: identical for a linear rule
-    metrics.ladderAmplitudeShift = Math.max(...series[0]!.map((v, t) => Math.abs(v - series[1]![t]!)))
+    metrics.ladderAmplitudeShift = Math.max(
+      ...series[0]!.map((v, t) => Math.abs(v - series[1]![t]!)),
+    )
     metrics.ladderMiss = Math.abs(frequencies[0]! / predicted - 1)
 
     // (2) the rate
     const symbol = huskSymbolizer(stencil)
     const f = (CHARGE * OMEGA0) / 4
-    const golden = goldenRule({ symbol, couplings: [[{ x: [0, 0, 0], h: 0, re: 0, im: f }]], omega: OMEGA0, grid: sphereGrid(24, 48) }).rates[0]!
-    const modes = huskPhotonModes({ stencil, side: SIDE, amplitude: dimerAmplitude(0, f) })
-    const band = Float64Array.from(modes.omega, w => (Math.abs(w - OMEGA0) < 30 * golden ? 1 : 0))
+    const golden = goldenRule({
+      symbol,
+      couplings: [[{ x: [0, 0, 0], h: 0, re: 0, im: f }]],
+      omega: OMEGA0,
+      grid: sphereGrid(24, 48),
+    }).rates[0]!
+    const modes = huskPhotonModes({
+      stencil,
+      side: SIDE,
+      amplitude: dimerAmplitude(0, f),
+    })
+    const band = Float64Array.from(modes.omega, w =>
+      Math.abs(w - OMEGA0) < 30 * golden ? 1 : 0,
+    )
     const rates = OCCUPATIONS.map(n => {
-      const run = emit({ modes, omega0: OMEGA0, beats: BEATS, dt: 0.25, every: 1, occupation: Float64Array.from(band, b => b * n) })
+      const run = emit({
+        modes,
+        omega0: OMEGA0,
+        beats: BEATS,
+        dt: 0.25,
+        every: 1,
+        occupation: Float64Array.from(band, b => b * n),
+      })
 
       return decayRate(run.times, run.excited, 5)
     })
 
     OCCUPATIONS.forEach((n, i) => {
       metrics[`n${n}_decayRate`] = rates[i]!
-      metrics[`n${n}_overSpontaneousTimesNPlusOne`] = rates[i]! / (rates[0]! * (n + 1))
+      metrics[`n${n}_overSpontaneousTimesNPlusOne`] =
+        rates[i]! / (rates[0]! * (n + 1))
     })
     metrics.goldenRuleA = golden
     metrics.spontaneousOverGolden = rates[0]! / golden
 
     // the hard-core control: coupling g sqrt(1 - n), n = 1 in the band, written as occupation -n
-    const blocked = emit({ modes, omega0: OMEGA0, beats: BEATS, dt: 0.25, every: 1, occupation: Float64Array.from(band, b => -b) })
+    const blocked = emit({
+      modes,
+      omega0: OMEGA0,
+      beats: BEATS,
+      dt: 0.25,
+      every: 1,
+      occupation: Float64Array.from(band, b => -b),
+    })
     const blockedRate = decayRate(blocked.times, blocked.excited, 5)
 
     metrics.hardCoreDecayOverSpontaneous = blockedRate / rates[0]!
 
-    const gate1 = metrics.ladderAmplitudeShift <= 1e-12 && metrics.ladderMiss <= 1e-6
-    const gate2 = OCCUPATIONS.slice(1).every((n, i) => Math.abs(rates[i + 1]! / (rates[0]! * (n + 1)) - 1) <= 0.03)
+    const gate1 =
+      metrics.ladderAmplitudeShift <= 1e-12 &&
+      metrics.ladderMiss <= 1e-6
+    const gate2 = OCCUPATIONS.slice(1).every(
+      (n, i) =>
+        Math.abs(rates[i + 1]! / (rates[0]! * (n + 1)) - 1) <= 0.03,
+    )
     const gate3 = blockedRate / rates[0]! < 0.2
-    const status = gate1 && gate2 && gate3 ? 'pass' : gate1 && gate2 ? 'partial' : 'fail'
+    const status =
+      gate1 && gate2 && gate3
+        ? 'pass'
+        : gate1 && gate2
+          ? 'partial'
+          : 'fail'
 
     return verdict({
       status,
-      claim: `a photon mode of the exactly linear husk leapfrog oscillates at ${frequencies[0]!.toFixed(10)} (the leapfrog's ${predicted.toFixed(10)}) with the same normalized motion at amplitude 1e-3 and 1e3 to ${metrics.ladderAmplitudeShift.toExponential(1)}, a harmonic ladder, and a stand-in emitter in light holding n = ${OCCUPATIONS.slice(1).join(', ')} photons per mode decays at ${OCCUPATIONS.slice(1).map((n, i) => (rates[i + 1]! / rates[0]!).toFixed(4)).join(', ')} times its spontaneous rate, while hard-core modes block it to ${(blockedRate / rates[0]!).toFixed(4)}`,
+      claim: `a photon mode of the exactly linear husk leapfrog oscillates at ${frequencies[0]!.toFixed(10)} (the leapfrog's ${predicted.toFixed(10)}) with the same normalized motion at amplitude 1e-3 and 1e3 to ${metrics.ladderAmplitudeShift.toExponential(1)}, a harmonic ladder, and a stand-in emitter in light holding n = ${OCCUPATIONS.slice(1).join(', ')} photons per mode decays at ${OCCUPATIONS.slice(
+        1,
+      )
+        .map((n, i) => (rates[i + 1]! / rates[0]!).toFixed(4))
+        .join(
+          ', ',
+        )} times its spontaneous rate, while hard-core modes block it to ${(blockedRate / rates[0]!).toFixed(4)}`,
       metrics: {
         ...metrics,
         gateLadder: gate1 ? 1 : 0,

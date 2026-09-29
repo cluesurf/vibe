@@ -24,15 +24,24 @@ const BASE = 32
 
 // a dock of the infinite lattice as one integer (coordinates between -16 and 15)
 export const packDock = (v: readonly number[]): number =>
-  (v[0] ?? 0) + OFFSET + BASE * ((v[1] ?? 0) + OFFSET) + BASE ** 2 * ((v[2] ?? 0) + OFFSET) + BASE ** 3 * ((v[3] ?? 0) + OFFSET)
+  (v[0] ?? 0) +
+  OFFSET +
+  BASE * ((v[1] ?? 0) + OFFSET) +
+  BASE ** 2 * ((v[2] ?? 0) + OFFSET) +
+  BASE ** 3 * ((v[3] ?? 0) + OFFSET)
 
-export const unpackDock = (k: number): number[] => [0, 1, 2, 3].map(i => (Math.floor(k / BASE ** i) % BASE) - OFFSET)
+export const unpackDock = (k: number): number[] =>
+  [0, 1, 2, 3].map(i => (Math.floor(k / BASE ** i) % BASE) - OFFSET)
 
 // a link as the ordered pair of its dock keys, lower first
 export type Link = readonly [number, number]
 
-const linkKey = (a: number, b: number): number => (a < b ? a * BASE ** 4 + b : b * BASE ** 4 + a)
-const linkOf = (key: number): Link => [Math.floor(key / BASE ** 4), key % BASE ** 4]
+const linkKey = (a: number, b: number): number =>
+  a < b ? a * BASE ** 4 + b : b * BASE ** 4 + a
+const linkOf = (key: number): Link => [
+  Math.floor(key / BASE ** 4),
+  key % BASE ** 4,
+]
 
 export function neighbours(dock: number): number[] {
   const v = unpackDock(dock)
@@ -106,7 +115,11 @@ export type LevelCount = {
 }
 
 // Omega(n) and distance sums for n = 1 .. maxSize
-export function singletLevels(input: { boundary: Boundary; maxSize: number; animals?: number[][][] }): LevelCount[] {
+export function singletLevels(input: {
+  boundary: Boundary
+  maxSize: number
+  animals?: number[][][]
+}): LevelCount[] {
   const { boundary, maxSize } = input
   const animals = input.animals ?? linkAnimals(maxSize)
   const origin = packDock([0, 0, 0, 0])
@@ -128,12 +141,16 @@ export function singletLevels(input: { boundary: Boundary; maxSize: number; anim
         links.forEach(([a, b], k) => {
           const value = (mask >> k) & 1 ? 2 : 1
 
-          divergence[index.get(a) ?? 0] = (divergence[index.get(a) ?? 0] ?? 0) + value
-          divergence[index.get(b) ?? 0] = (divergence[index.get(b) ?? 0] ?? 0) - value
+          divergence[index.get(a) ?? 0] =
+            (divergence[index.get(a) ?? 0] ?? 0) + value
+
+          divergence[index.get(b) ?? 0] =
+            (divergence[index.get(b) ?? 0] ?? 0) - value
         })
 
         const loves: number[] = []
         const fears: number[] = []
+
         let clean = true
 
         docks.forEach((d, i) => {
@@ -150,11 +167,17 @@ export function singletLevels(input: { boundary: Boundary; maxSize: number; anim
           clean = false
         }
 
-        if (boundary === 'meson' && !(loves.length === 1 && fears.length === 1)) {
+        if (
+          boundary === 'meson' &&
+          !(loves.length === 1 && fears.length === 1)
+        ) {
           clean = false
         }
 
-        if (boundary === 'baryon' && !(loves.length === 3 && fears.length === 0)) {
+        if (
+          boundary === 'baryon' &&
+          !(loves.length === 3 && fears.length === 0)
+        ) {
           clean = false
         }
 
@@ -180,7 +203,10 @@ export function singletLevels(input: { boundary: Boundary; maxSize: number; anim
               const d = p.map((x, i) => x - (q[i] ?? 0))
 
               spread = Math.max(spread, Math.hypot(...d))
-              huskSpread = Math.max(huskSpread, Math.hypot(d[0] ?? 0, d[1] ?? 0, d[2] ?? 0))
+              huskSpread = Math.max(
+                huskSpread,
+                Math.hypot(d[0] ?? 0, d[1] ?? 0, d[2] ?? 0),
+              )
             }
           }
 

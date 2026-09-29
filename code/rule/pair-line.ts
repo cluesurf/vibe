@@ -27,21 +27,30 @@ export type PairLineState = {
 
 const mod3 = (x: number): number => ((x % 3) + 3) % 3
 
-export function pairLineEnergy(line: PairLine, state: PairLineState): number {
+export function pairLineEnergy(
+  line: PairLine,
+  state: PairLineState,
+): number {
   let total = 0
 
   for (let i = 0; i < line.cells; i++) {
-    total += (mod3(state.flux[i] as number) !== 0 ? line.tension : 0) + (state.demon[i] as number) + (state.vibe[i] !== 0 ? line.mass : 0)
+    total +=
+      (mod3(state.flux[i]!) !== 0 ? line.tension : 0) +
+      state.demon[i]! +
+      (state.vibe[i] !== 0 ? line.mass : 0)
   }
 
   return total
 }
 
-export function pairLineGauss(line: PairLine, state: PairLineState): boolean {
+export function pairLineGauss(
+  line: PairLine,
+  state: PairLineState,
+): boolean {
   for (let i = 0; i < line.cells; i++) {
-    const left = state.flux[(i - 1 + line.cells) % line.cells] as number
+    const left = state.flux[(i - 1 + line.cells) % line.cells]!
 
-    if ((state.flux[i] as number) - left !== (state.vibe[i] as number)) {
+    if (state.flux[i]! - left !== state.vibe[i]!) {
       return false
     }
   }
@@ -51,7 +60,12 @@ export function pairLineGauss(line: PairLine, state: PairLineState): boolean {
 
 // one half-step on the links of one parity, in place, with pairs born with a charge `sign` on the left: an
 // involution. Returns the number of moves taken
-function halfStep(line: PairLine, state: PairLineState, parity: number, sign: number): number {
+function halfStep(
+  line: PairLine,
+  state: PairLineState,
+  parity: number,
+  sign: number,
+): number {
   const { vibe, flux, demon } = state
   const { cells, mass, tension, capacity } = line
 
@@ -59,8 +73,8 @@ function halfStep(line: PairLine, state: PairLineState, parity: number, sign: nu
 
   for (let i = parity; i < cells; i += 2) {
     const j = i + 1 === cells ? 0 : i + 1
-    const a = vibe[i] as number
-    const b = vibe[j] as number
+    const a = vibe[i]!
+    const b = vibe[j]!
 
     let na: number
     let nb: number
@@ -89,9 +103,12 @@ function halfStep(line: PairLine, state: PairLineState, parity: number, sign: nu
       continue
     }
 
-    const e = flux[i] as number
-    const cost = (mod3(e + change) !== 0 ? tension : 0) - (mod3(e) !== 0 ? tension : 0) + massChange
-    const d = (demon[i] as number) - cost
+    const e = flux[i]!
+    const cost =
+      (mod3(e + change) !== 0 ? tension : 0) -
+      (mod3(e) !== 0 ? tension : 0) +
+      massChange
+    const d = demon[i]! - cost
 
     if (d < 0 || d > capacity) {
       continue
@@ -107,16 +124,27 @@ function halfStep(line: PairLine, state: PairLineState, parity: number, sign: nu
   return moves
 }
 
-function streamDemons(line: PairLine, demon: Int32Array, right: boolean, scratch: Int32Array): void {
+function streamDemons(
+  line: PairLine,
+  demon: Int32Array,
+  right: boolean,
+  scratch: Int32Array,
+): void {
   scratch.set(demon)
 
   for (let i = 0; i < line.cells; i++) {
-    demon[(i + (right ? 1 : line.cells - 1)) % line.cells] = scratch[i] as number
+    demon[(i + (right ? 1 : line.cells - 1)) % line.cells] = scratch[i]!
   }
 }
 
 // the beat t, in place. `both` false is the E-FRC-0129 rule (every pair love-left), the control
-export function pairLineBeat(line: PairLine, state: PairLineState, t: number, both: boolean, scratch: Int32Array): void {
+export function pairLineBeat(
+  line: PairLine,
+  state: PairLineState,
+  t: number,
+  both: boolean,
+  scratch: Int32Array,
+): void {
   const sign = both && t % 2 !== 0 ? -1 : 1
 
   halfStep(line, state, 0, sign)
@@ -124,7 +152,13 @@ export function pairLineBeat(line: PairLine, state: PairLineState, t: number, bo
   streamDemons(line, state.demon, t % 2 === 0, scratch)
 }
 
-export function pairLineBeatBack(line: PairLine, state: PairLineState, t: number, both: boolean, scratch: Int32Array): void {
+export function pairLineBeatBack(
+  line: PairLine,
+  state: PairLineState,
+  t: number,
+  both: boolean,
+  scratch: Int32Array,
+): void {
   const sign = both && t % 2 !== 0 ? -1 : 1
 
   streamDemons(line, state.demon, t % 2 !== 0, scratch)

@@ -51,7 +51,10 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { generateGroup } from '@/code/dynamics/finite-gauge'
 import { SU3_SUBGROUPS } from '@/code/algebra/group/su3-subgroups'
-import { actionLevels, unitDemonBeta } from '@/code/dynamics/finite-kinetic'
+import {
+  actionLevels,
+  unitDemonBeta,
+} from '@/code/dynamics/finite-kinetic'
 import { jackknife } from '@/code/measure/jackknife'
 import {
   bondLevels,
@@ -126,15 +129,27 @@ function run(model: MatterModel, fill: number, matter: boolean): Run {
       const before = matterEnergy({ model, state }).matter
       const rotated: MatterState = {
         ...state,
-        lattice: { ...state.lattice, links: Int16Array.from(state.lattice.links) },
+        lattice: {
+          ...state.lattice,
+          links: Int16Array.from(state.lattice.links),
+        },
       }
 
       centerRotateSlice({ lattice: rotated.lattice, z })
-      sectorShifts.push(matterEnergy({ model, state: rotated }).matter - before)
+      sectorShifts.push(
+        matterEnergy({ model, state: rotated }).matter - before,
+      )
     }
   }
 
-  return { samples, sectorShifts, energyDrift, chargeDrift, created, final: state }
+  return {
+    samples,
+    sectorShifts,
+    energyDrift,
+    chargeDrift,
+    created,
+    final: state,
+  }
 }
 
 function reverses(model: MatterModel): boolean {
@@ -155,21 +170,32 @@ function reverses(model: MatterModel): boolean {
     matterBeat({ model, state, step: t })
   }
 
-  const moved = copy(state).some((a, k) => a.some((x, i) => x !== start[k]?.[i]))
+  const moved = copy(state).some((a, k) =>
+    a.some((x, i) => x !== start[k]?.[i]),
+  )
 
   for (let t = REVERSE_BEATS - 1; t >= 0; t--) {
     matterBeatBack({ model, state, step: t })
   }
 
-  return moved && copy(state).every((a, k) => a.every((x, i) => x === start[k]?.[i]))
+  return (
+    moved &&
+    copy(state).every((a, k) => a.every((x, i) => x === start[k]?.[i]))
+  )
 }
 
 // the total energy after a change of frame in every cell, against before, to the unit
-function frameInvariant(model: MatterModel, state: MatterState): boolean {
+function frameInvariant(
+  model: MatterModel,
+  state: MatterState,
+): boolean {
   const before = matterEnergy({ model, state }).total
   const moved: MatterState = {
     ...state,
-    lattice: { ...state.lattice, links: Int16Array.from(state.lattice.links) },
+    lattice: {
+      ...state.lattice,
+      links: Int16Array.from(state.lattice.links),
+    },
     color: Int16Array.from(state.color),
   }
   const frame = Int32Array.from(
@@ -182,7 +208,10 @@ function frameInvariant(model: MatterModel, state: MatterState): boolean {
   return matterEnergy({ model, state: moved }).total === before
 }
 
-function polyakov(samples: MatterSample[]): { value: number; error: number } {
+function polyakov(samples: MatterSample[]): {
+  value: number
+  error: number
+} {
   return jackknife({
     samples,
     estimator: s => s.reduce((a, b) => a + b.re, 0) / s.length,
@@ -203,10 +232,14 @@ export default experiment({
   depth: 'L2',
   paper: false,
   run() {
-    const group = generateGroup({ generators: [...SU3_SUBGROUPS.sigma648.generators] })
+    const group = generateGroup({
+      generators: [...SU3_SUBGROUPS.sigma648.generators],
+    })
     const triplet = tripletOrbit(group)
     const plaquetteLevels = actionLevels({ group, scale: SCALE })
-    const lowest = Math.min(...Array.from(plaquetteLevels).filter(level => level > 0))
+    const lowest = Math.min(
+      ...Array.from(plaquetteLevels).filter(level => level > 0),
+    )
     const capacity = 6 * lowest + 6
     const modelOf = (reading: BondReading): MatterModel => ({
       group,
@@ -222,30 +255,38 @@ export default experiment({
     const n = triplet.size
     const centerMoves = triplet.act[z * n] ?? 0
     const centerSameRay =
-      centerMoves !== 0 && Math.abs((triplet.overlapSquared[centerMoves] ?? 0) - 1) < 1e-9
+      centerMoves !== 0 &&
+      Math.abs((triplet.overlapSquared[centerMoves] ?? 0) - 1) < 1e-9
 
     const pure = run(fundamental, PURE_FILL, false)
     const withMatter = run(fundamental, MATTER_FILL, true)
     const blindMatter = run(blind, MATTER_FILL, true)
     const exactReversal = reverses(fundamental) && reverses(blind)
     const frame =
-      frameInvariant(fundamental, withMatter.final) && frameInvariant(blind, blindMatter.final)
+      frameInvariant(fundamental, withMatter.final) &&
+      frameInvariant(blind, blindMatter.final)
 
     const pP = polyakov(pure.samples)
     const mP = polyakov(withMatter.samples)
     const bP = polyakov(blindMatter.samples)
     const betaOf = (r: Run): number =>
-      unitDemonBeta({ meanDemon: mean(r.samples.map(s => s.meanDemon)), capacity })
+      unitDemonBeta({
+        meanDemon: mean(r.samples.map(s => s.meanDemon)),
+        capacity,
+      })
 
     const exact =
       exactReversal &&
       frame &&
-      [pure, withMatter, blindMatter].every(r => r.energyDrift === 0 && r.chargeDrift === 0) &&
+      [pure, withMatter, blindMatter].every(
+        r => r.energyDrift === 0 && r.chargeDrift === 0,
+      ) &&
       triplet.size === 216 &&
       triplet.rays === 12 &&
       centerSameRay
     const broken =
-      mP.value > 10 * mP.error && withMatter.sectorShifts.every(s => s > 0)
+      mP.value > 10 * mP.error &&
+      withMatter.sectorShifts.every(s => s > 0)
     const controls =
       Math.abs(pP.value) < 3 * pP.error &&
       Math.abs(bP.value) < 3 * bP.error &&
@@ -270,8 +311,16 @@ export default experiment({
         matterSectorShiftMean: mean(withMatter.sectorShifts),
         matterSectorShiftSmallest: Math.min(...withMatter.sectorShifts),
         sectorConfigurations: withMatter.sectorShifts.length,
-        energyDrift: Math.max(pure.energyDrift, withMatter.energyDrift, blindMatter.energyDrift),
-        chargeDrift: Math.max(pure.chargeDrift, withMatter.chargeDrift, blindMatter.chargeDrift),
+        energyDrift: Math.max(
+          pure.energyDrift,
+          withMatter.energyDrift,
+          blindMatter.energyDrift,
+        ),
+        chargeDrift: Math.max(
+          pure.chargeDrift,
+          withMatter.chargeDrift,
+          blindMatter.chargeDrift,
+        ),
       },
       control: {
         purePolyakov: pP.value,
@@ -283,7 +332,9 @@ export default experiment({
         blindBeta: betaOf(blindMatter),
         blindPlaquette: mean(blindMatter.samples.map(s => s.plaquette)),
         blindDensity: mean(blindMatter.samples.map(s => s.density)),
-        blindSectorShiftLargest: Math.max(...blindMatter.sectorShifts.map(Math.abs)),
+        blindSectorShiftLargest: Math.max(
+          ...blindMatter.sectorShifts.map(Math.abs),
+        ),
       },
       notes: `L2, known physics reproduced for a finite group with no random number. 6^3 x 4, plaquette action at scale ${SCALE}, bond scale ${BOND}, mass ${MASS}, ${SWEEPS - SKIP} measured sweeps per run, jackknife bins of ${BIN}. The matter fill is lower than the pure gauge fill because the bonds release energy into the demons: at the same fill the matter run is hotter (see E-FRC-0139). The matter is a classical color vector per site with an occupation, the gauge-Higgs form of dynamical matter, not a fermion, so no statement about chiral symmetry or the hadron spectrum is made.`,
     })

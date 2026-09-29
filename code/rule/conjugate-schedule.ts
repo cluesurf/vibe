@@ -21,7 +21,11 @@
 // visiting each coset twice.
 
 import { type GroupTable } from '@/code/measure/color-isotropy-bound'
-import { type LineMomentumRule, LINE_FIRSTS, momentumKey } from '@/code/rule/isometric-knit'
+import {
+  type LineMomentumRule,
+  LINE_FIRSTS,
+  momentumKey,
+} from '@/code/rule/isometric-knit'
 import { matrixOfPermutation } from '@/code/measure/husk-transport-symmetry'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 
@@ -34,6 +38,7 @@ export function reachableMomenta(): Map<number, Int8Array> {
 
   for (let code = 0; code < 3 ** 12; code++) {
     let rest = code
+
     const p = [0, 0, 0, 0]
 
     for (let l = 0; l < 12; l++) {
@@ -43,12 +48,16 @@ export function reachableMomenta(): Map<number, Int8Array> {
       rest = Math.floor(rest / 3)
       n[l] = value
 
-      for (let k = 0; k < 4; k++) p[k] = (p[k] ?? 0) + value * (r[k] ?? 0)
+      for (let k = 0; k < 4; k++) {
+        p[k] = (p[k] ?? 0) + value * (r[k] ?? 0)
+      }
     }
 
     const key = momentumKey(p)
 
-    if (!out.has(key)) out.set(key, Int8Array.from(n))
+    if (!out.has(key)) {
+      out.set(key, Int8Array.from(n))
+    }
   }
 
   return out
@@ -56,13 +65,20 @@ export function reachableMomenta(): Map<number, Int8Array> {
 
 // The stabilizer of a momentum-only rule (w a function of P alone): every g with w_(gP) = g w_P g^-1 at every
 // reachable momentum, exhaustively. `rule` is called with the representative line momenta of each momentum.
-export function momentumRuleStabilizer(input: { rule: LineMomentumRule; table: GroupTable }): number[] {
+export function momentumRuleStabilizer(input: {
+  rule: LineMomentumRule
+  table: GroupTable
+}): number[] {
   const { rule, table } = input
-  const reachable = [...reachableMomenta().entries()].map(([key, n]) => {
-    const p = [0, 1, 2, 3].map(k => (Math.floor(key / 13 ** k) % 13) - 6)
+  const reachable = [...reachableMomenta().entries()].map(
+    ([key, n]) => {
+      const p = [0, 1, 2, 3].map(
+        k => (Math.floor(key / 13 ** k) % 13) - 6,
+      )
 
-    return { p, w: rule(n, p) }
-  })
+      return { p, w: rule(n, p) }
+    },
+  )
   const byKey = new Map(reachable.map(r => [momentumKey(r.p), r.w]))
   const out: number[] = []
 
@@ -75,36 +91,56 @@ export function momentumRuleStabilizer(input: { rule: LineMomentumRule; table: G
     })
 
     const keeps = reachable.every(({ p, w }) => {
-      const gp = [0, 1, 2, 3].map(i => Math.round([0, 1, 2, 3].reduce((s, j) => s + (m[i * 4 + j] ?? 0) * (p[j] ?? 0), 0)))
+      const gp = [0, 1, 2, 3].map(i =>
+        Math.round(
+          [0, 1, 2, 3].reduce(
+            (s, j) => s + (m[i * 4 + j] ?? 0) * (p[j] ?? 0),
+            0,
+          ),
+        ),
+      )
       const target = byKey.get(momentumKey(gp))
 
-      if (!w || !target) return !w && !target
+      if (!w || !target) {
+        return !w && !target
+      }
 
       // g w g^-1 at slot e is g(w(g^-1 e))
       for (let e = 0; e < 24; e++) {
-        if ((g[w[inverse[e] ?? 0] ?? 0] ?? 0) !== target[e]) return false
+        if ((g[w[inverse[e] ?? 0] ?? 0] ?? 0) !== target[e]) {
+          return false
+        }
       }
 
       return true
     })
 
-    if (keeps) out.push(index)
+    if (keeps) {
+      out.push(index)
+    }
   })
 
   return out
 }
 
 // one element of each left coset g Stab, in the order of the permutation list, and the coset of every element
-export function leftTransversal(input: { table: GroupTable; stabilizer: readonly number[] }): { representatives: number[]; cosetOf: Int32Array } {
+export function leftTransversal(input: {
+  table: GroupTable
+  stabilizer: readonly number[]
+}): { representatives: number[]; cosetOf: Int32Array } {
   const { table, stabilizer } = input
   const n = table.permutations.length
   const cosetOf = new Int32Array(n).fill(-1)
   const representatives: number[] = []
 
   for (let g = 0; g < n; g++) {
-    if ((cosetOf[g] ?? -1) >= 0) continue
+    if ((cosetOf[g] ?? -1) >= 0) {
+      continue
+    }
 
-    for (const s of stabilizer) cosetOf[table.multiply[g * n + s] ?? 0] = representatives.length
+    for (const s of stabilizer) {
+      cosetOf[table.multiply[g * n + s] ?? 0] = representatives.length
+    }
 
     representatives.push(g)
   }
@@ -126,7 +162,11 @@ export type PeriodGroup = {
 }
 
 // the period group of a schedule of cosets (beat T is the coset `schedule[T]`), exhaustively
-export function cosetPeriodGroup(input: { table: GroupTable; schedule: readonly number[]; cosetOf: Int32Array }): PeriodGroup {
+export function cosetPeriodGroup(input: {
+  table: GroupTable
+  schedule: readonly number[]
+  cosetOf: Int32Array
+}): PeriodGroup {
   const { table, schedule, cosetOf } = input
   const n = table.permutations.length
   const period = schedule.length
@@ -136,9 +176,16 @@ export function cosetPeriodGroup(input: { table: GroupTable; schedule: readonly 
   const identityMirrors: number[] = []
   const repOf = new Map<number, number>()
 
-  for (let g = 0; g < n; g++) if (!repOf.has(cosetOf[g] ?? -1)) repOf.set(cosetOf[g] ?? -1, g)
+  for (let g = 0; g < n; g++) {
+    if (!repOf.has(cosetOf[g] ?? -1)) {
+      repOf.set(cosetOf[g] ?? -1, g)
+    }
+  }
 
-  const image = (h: number, T: number): number => cosetOf[table.multiply[h * n + (repOf.get(schedule[T] ?? 0) ?? 0)] ?? 0] ?? -1
+  const image = (h: number, T: number): number =>
+    cosetOf[
+      table.multiply[h * n + (repOf.get(schedule[T] ?? 0) ?? 0)] ?? 0
+    ] ?? -1
 
   for (let h = 0; h < n; h++) {
     let glide = false
@@ -147,7 +194,9 @@ export function cosetPeriodGroup(input: { table: GroupTable; schedule: readonly 
     for (let s = 0; s < period && !glide; s++) {
       let holds = true
 
-      for (let T = 0; T < period && holds; T++) holds = image(h, T) === schedule[(T + s) % period]
+      for (let T = 0; T < period && holds; T++) {
+        holds = image(h, T) === schedule[(T + s) % period]
+      }
 
       glide = holds
     }
@@ -155,18 +204,30 @@ export function cosetPeriodGroup(input: { table: GroupTable; schedule: readonly 
     for (let m = 0; m < period; m++) {
       let holds = true
 
-      for (let T = 0; T < period && holds; T++) holds = image(h, T) === schedule[(((m - T) % period) + period) % period]
+      for (let T = 0; T < period && holds; T++) {
+        holds =
+          image(h, T) ===
+          schedule[(((m - T) % period) + period) % period]
+      }
 
       if (holds) {
         reversal = true
 
-        if (h === table.identity) identityMirrors.push(m)
-        else break
+        if (h === table.identity) {
+          identityMirrors.push(m)
+        } else {
+          break
+        }
       }
     }
 
-    if (glide) glides.push(h)
-    if (reversal) reversals.push(h)
+    if (glide) {
+      glides.push(h)
+    }
+
+    if (reversal) {
+      reversals.push(h)
+    }
   }
 
   return { glides, reversals, identityMirrors }

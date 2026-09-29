@@ -25,7 +25,10 @@ import {
 import { wignerFunction } from '@/code/measure/qutrit-phase-space'
 import { GOLDEN, weyl } from '@/code/tool/weyl'
 
-export type Background = { readonly vibe: Int8Array; readonly point: Int8Array }
+export type Background = {
+  readonly vibe: Int8Array
+  readonly point: Int8Array
+}
 
 const FEAR_BELOW = 0.3
 const CALM_BELOW = 0.6
@@ -35,7 +38,10 @@ export function vacuumBackground(slots: number): Background {
 }
 
 // fears, calms and loves from frac((i + 1) GOLDEN scale), role points from frac((i + 3) GOLDEN scale)
-export function weylBackground(input: { slots: number; scale: number }): Background {
+export function weylBackground(input: {
+  slots: number
+  scale: number
+}): Background {
   const { slots, scale } = input
   const vibe = new Int8Array(slots)
   const point = new Int8Array(slots)
@@ -66,6 +72,7 @@ export function classicalRecords(input: {
   }
 
   let lattice = makeLattice(background)
+
   const out: BeatRecord[] = []
 
   for (let t = 0; t < beats; t++) {
@@ -79,9 +86,15 @@ export function classicalRecords(input: {
 }
 
 // one pair's records: its meetings (with their signs) and its crossings
-export function pairRecords(records: readonly BeatRecord[], a: number, b: number): BeatRecord[] {
+export function pairRecords(
+  records: readonly BeatRecord[],
+  a: number,
+  b: number,
+): BeatRecord[] {
   return records.map(r => {
-    const keep = r.meetings.map(([x, y]) => (x === a && y === b) || (x === b && y === a))
+    const keep = r.meetings.map(
+      ([x, y]) => (x === a && y === b) || (x === b && y === a),
+    )
 
     return {
       meetings: r.meetings.filter((_, k) => keep[k]),
@@ -92,7 +105,9 @@ export function pairRecords(records: readonly BeatRecord[], a: number, b: number
 }
 
 // every pair that meets in the records, with its number of meetings, in a fixed order
-export function meetingPairs(records: readonly BeatRecord[]): { a: number; b: number; meetings: number }[] {
+export function meetingPairs(
+  records: readonly BeatRecord[],
+): { a: number; b: number; meetings: number }[] {
   const count = new Map<string, number>()
 
   for (const r of records) {
@@ -125,11 +140,16 @@ export function roleWeights(state: RoleState): bigint[] {
 
   const j = state === 'basis0' ? 0 : 1
 
-  return Array.from({ length: 9 }, (_, q) => (Math.floor(q / 3) === j ? 1n : 0n))
+  return Array.from({ length: 9 }, (_, q) =>
+    Math.floor(q / 3) === j ? 1n : 0n,
+  )
 }
 
 // the product whole of two role states, the first token most significant
-export function productWhole(tokens: readonly [number, number], states: readonly [RoleState, RoleState]): Whole {
+export function productWhole(
+  tokens: readonly [number, number],
+  states: readonly [RoleState, RoleState],
+): Whole {
   const first = roleWeights(states[0])
   const second = roleWeights(states[1])
   const weight: bigint[] = []
@@ -161,21 +181,36 @@ export function runWhole(input: {
   comoving?: boolean
 }): WholeStep[] {
   const { weave, start, records, kernel4, color, comoving } = input
+
   let whole: Whole = start
+
   const out: WholeStep[] = []
 
   for (const record of records) {
-    const next = advanceWhole({ weave, whole, record, kernel4, color, fixed: false, forward: true, comoving })
+    const next = advanceWhole({
+      weave,
+      whole,
+      record,
+      kernel4,
+      color,
+      fixed: false,
+      forward: true,
+      comoving,
+    })
 
     if (!next) {
-      throw new Error('a grain-mode whole was refused, which advanceWhole never does')
+      throw new Error(
+        'a grain-mode whole was refused, which advanceWhole never does',
+      )
     }
 
     whole = next
     out.push({
       whole,
       meetings: record.meetings.length,
-      moves: record.crossings.filter(([, g]) => g !== weave.moves.identity).length,
+      moves: record.crossings.filter(
+        ([, g]) => g !== weave.moves.identity,
+      ).length,
     })
   }
 

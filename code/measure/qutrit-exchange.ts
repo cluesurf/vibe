@@ -18,7 +18,9 @@ export type PureState = { re: Float64Array; im: Float64Array }
 export type Mixture = { weight: number; state: PureState }[]
 
 // the 9 phase-point operators in the order (a, b) = (0,0), (0,1), ..., (2,2), point index 3 a + b
-const OPERATORS = [0, 1, 2].flatMap(a => [0, 1, 2].map(b => phasePoint(a, b)))
+const OPERATORS = [0, 1, 2].flatMap(a =>
+  [0, 1, 2].map(b => phasePoint(a, b)),
+)
 
 function digitsOf(index: number, n: number, base: number): number[] {
   return Array.from(
@@ -59,7 +61,9 @@ export function exchangeSubspace(input: {
 
   for (let index = 0; index < size; index++) {
     const tuple = digitsOf(index, n, 3)
-    const sorted = tuple.every((v, k) => k === 0 || (tuple[k - 1] ?? 0) <= v)
+    const sorted = tuple.every(
+      (v, k) => k === 0 || (tuple[k - 1] ?? 0) <= v,
+    )
 
     if (!sorted) {
       continue
@@ -71,7 +75,8 @@ export function exchangeSubspace(input: {
       const image = perm.map(k => tuple[k] ?? 0)
       const target = image.reduce((sum, v) => sum * 3 + v, 0)
 
-      re[target] = (re[target] ?? 0) + (symmetry === 'symmetric' ? 1 : sign)
+      re[target] =
+        (re[target] ?? 0) + (symmetry === 'symmetric' ? 1 : sign)
     }
 
     const norm = Math.hypot(...re)
@@ -80,7 +85,10 @@ export function exchangeSubspace(input: {
       continue
     }
 
-    states.push({ re: re.map(v => v / norm), im: new Float64Array(size) })
+    states.push({
+      re: re.map(v => v / norm),
+      im: new Float64Array(size),
+    })
   }
 
   return states.map(state => ({ weight: 1 / states.length, state }))
@@ -117,20 +125,29 @@ function applyOn(
 }
 
 // W over the 9^n phase points, point index sum_k p_k 9^(n - 1 - k) with p_k = 3 a_k + b_k
-export function wignerOfMixture(input: { n: number; mixture: Mixture }): number[] {
+export function wignerOfMixture(input: {
+  n: number
+  mixture: Mixture
+}): number[] {
   const { n, mixture } = input
   const points = 9 ** n
   const out = new Array<number>(points).fill(0)
 
   for (let x = 0; x < points; x++) {
     const p = digitsOf(x, n, 9)
+
     let value = 0
 
     for (const { weight, state } of mixture) {
       let moved = state
 
       for (let k = n - 1; k >= 0; k--) {
-        moved = applyOn(OPERATORS[p[k] ?? 0] ?? new Float64Array(18), k, n, moved)
+        moved = applyOn(
+          OPERATORS[p[k] ?? 0] ?? new Float64Array(18),
+          k,
+          n,
+          moved,
+        )
       }
 
       let inner = 0
@@ -186,7 +203,10 @@ export function allCoincide(x: number, n: number): boolean {
 
 // the qutrit (role) marginal: the probability of each basis tuple, summing W over the tilts, where the
 // basis state j sits on the phase points with first coordinate a = j (E-FRC-0120 checks this)
-export function roleMarginal(input: { n: number; wigner: readonly number[] }): number[] {
+export function roleMarginal(input: {
+  n: number
+  wigner: readonly number[]
+}): number[] {
   const { n, wigner } = input
   const out = new Array<number>(3 ** n).fill(0)
 

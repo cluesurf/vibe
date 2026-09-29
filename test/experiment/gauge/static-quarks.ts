@@ -288,6 +288,7 @@ function glueballEnsemble(): number[][][] {
       rng,
       measure: current => {
         const operators: number[][] = []
+
         let smeared = current
         let done = 0
 
@@ -591,6 +592,7 @@ experiment({
 
       return -Math.log(Math.max(...lambda))
     }
+
     const firstMass = jackknife({
       samples,
       estimator: firstBasis,
@@ -602,7 +604,8 @@ experiment({
       error: GLUEBALL_LATTICE_57_ERROR,
     }
     const latticePull =
-      (mass.value - lattice.value) / Math.hypot(mass.error, lattice.error)
+      (mass.value - lattice.value) /
+      Math.hypot(mass.error, lattice.error)
     const plateauPull =
       (mass.value - plateauMass.value) /
       Math.hypot(mass.error, plateauMass.error)
@@ -610,7 +613,8 @@ experiment({
     const gapped = mass.value > 5 * mass.error
     // the plateau: the projected correlator is resolved from t = 1 to 2 and agrees with t = 0 to 1
     const plateau =
-      plateauMass.value > 3 * plateauMass.error && Math.abs(plateauPull) < 2
+      plateauMass.value > 3 * plateauMass.error &&
+      Math.abs(plateauPull) < 2
     // a variational bound lies at or below any single operator effective mass
     const bounded =
       mass.value <= singleMass.value + 2 * singleMass.error

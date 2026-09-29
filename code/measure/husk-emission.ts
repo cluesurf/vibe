@@ -36,10 +36,26 @@
 // radius where omega_b = omega is found by bisection on the eigenvalue itself, and the delta contributes s^2
 // / |d omega / ds|. Nothing is sampled at random.
 
-import { HUSK_VECTORS, HUSK_WEIGHTS, makeHusk, projectLinks } from '@/code/measure/photon-husk'
-import { curlSymbol, huskSymbol, plaquetteShapes, readStencil } from '@/code/measure/photon-symbol'
-import { photonLatticeD4, type PhotonLattice } from '@/code/rule/photon-links'
-import { makeComplexMatrix, type ComplexMatrix } from '@/code/algebra/linear/dense'
+import {
+  HUSK_VECTORS,
+  HUSK_WEIGHTS,
+  makeHusk,
+  projectLinks,
+} from '@/code/measure/photon-husk'
+import {
+  curlSymbol,
+  huskSymbol,
+  plaquetteShapes,
+  readStencil,
+} from '@/code/measure/photon-symbol'
+import {
+  photonLatticeD4,
+  type PhotonLattice,
+} from '@/code/rule/photon-links'
+import {
+  makeComplexMatrix,
+  type ComplexMatrix,
+} from '@/code/algebra/linear/dense'
 import { hermitianEigen } from '@/code/measure/photon-modes'
 
 // the E-FRC-0164 coupling, the one the rule runs at: kappa = 2 pi K / N
@@ -56,7 +72,12 @@ const modulo = (x: number, m: number): number => ((x % m) + m) % m
 // the real-space stencil of M_h
 
 // one entry of the husk curl-curl: (M_h a)(x + shift, to) += value * a(x, from)
-export type StencilEntry = { readonly to: number; readonly from: number; readonly shift: readonly [number, number, number]; readonly value: number }
+export type StencilEntry = {
+  readonly to: number
+  readonly from: number
+  readonly shift: readonly [number, number, number]
+  readonly value: number
+}
 
 export type HuskStencil = {
   readonly entries: readonly StencilEntry[]
@@ -73,7 +94,9 @@ export function readHuskStencil(side = 8): HuskStencil {
   const f = bulk.firsts.length
 
   if (stencil.mismatches !== 0) {
-    throw new Error(`the bulk stencil disagrees with the linear symbol on ${stencil.mismatches} entries`)
+    throw new Error(
+      `the bulk stencil disagrees with the linear symbol on ${stencil.mismatches} entries`,
+    )
   }
 
   const entries: StencilEntry[] = []
@@ -106,6 +129,7 @@ export function readHuskStencil(side = 8): HuskStencil {
 
       const y = Math.floor(t / H)
       const to = t % H
+
       const centered = (c: number): number => {
         const m = modulo(c, side)
 
@@ -115,7 +139,11 @@ export function readHuskStencil(side = 8): HuskStencil {
       entries.push({
         to,
         from: h,
-        shift: [centered((y % side) - ox), centered((Math.floor(y / side) % side) - oy), centered(Math.floor(y / (side * side)) - oz)],
+        shift: [
+          centered((y % side) - ox),
+          centered((Math.floor(y / side) % side) - oy),
+          centered(Math.floor(y / (side * side)) - oz),
+        ],
         value,
       })
     }
@@ -126,32 +154,46 @@ export function readHuskStencil(side = 8): HuskStencil {
 
 // M_h(k) from the stencil: S_(to, from) = sum value e^(-i k . (shift + u_to / 2 - u_from / 2)), the matrix a
 // plane wave c_h e^(i k . (x + u_h / 2)) is multiplied by
-export function stencilHuskSymbol(stencil: HuskStencil, k: readonly number[]): ComplexMatrix {
+export function stencilHuskSymbol(
+  stencil: HuskStencil,
+  k: readonly number[],
+): ComplexMatrix {
   const m = makeComplexMatrix({ rows: H, cols: H })
 
   for (const { to, from, shift, value } of stencil.entries) {
     const ut = HUSK_VECTORS[to] ?? [0, 0, 0]
     const uf = HUSK_VECTORS[from] ?? [0, 0, 0]
+
     let phi = 0
 
     for (let i = 0; i < 3; i++) {
-      phi += (k[i] ?? 0) * ((shift[i] ?? 0) + ((ut[i] ?? 0) - (uf[i] ?? 0)) / 2)
+      phi +=
+        (k[i] ?? 0) *
+        ((shift[i] ?? 0) + ((ut[i] ?? 0) - (uf[i] ?? 0)) / 2)
     }
 
-    m.re[to * H + from] = (m.re[to * H + from] ?? 0) + value * Math.cos(phi)
-    m.im[to * H + from] = (m.im[to * H + from] ?? 0) - value * Math.sin(phi)
+    m.re[to * H + from] =
+      (m.re[to * H + from] ?? 0) + value * Math.cos(phi)
+
+    m.im[to * H + from] =
+      (m.im[to * H + from] ?? 0) - value * Math.sin(phi)
   }
 
   return m
 }
 
 // the Hermitian frame: G^(-1/2) S G^(1/2)
-export function hermitianHuskSymbol(stencil: HuskStencil, k: readonly number[]): ComplexMatrix {
+export function hermitianHuskSymbol(
+  stencil: HuskStencil,
+  k: readonly number[],
+): ComplexMatrix {
   const s = stencilHuskSymbol(stencil, k)
 
   for (let i = 0; i < H; i++) {
     for (let j = 0; j < H; j++) {
-      const r = Math.sqrt((HUSK_WEIGHTS[j] ?? 1) / (HUSK_WEIGHTS[i] ?? 1))
+      const r = Math.sqrt(
+        (HUSK_WEIGHTS[j] ?? 1) / (HUSK_WEIGHTS[i] ?? 1),
+      )
 
       s.re[i * H + j] = (s.re[i * H + j] ?? 0) * r
       s.im[i * H + j] = (s.im[i * H + j] ?? 0) * r
@@ -162,20 +204,41 @@ export function hermitianHuskSymbol(stencil: HuskStencil, k: readonly number[]):
 }
 
 // E-FRC-0179's husk symbol at the same k (k4 = 0), for the cross-check
-export function referenceHuskSymbol(k: readonly number[]): { husk: ComplexMatrix; hermitian: ComplexMatrix } {
+export function referenceHuskSymbol(k: readonly number[]): {
+  husk: ComplexMatrix
+  hermitian: ComplexMatrix
+} {
   const bulk = referenceBulk()
-  const symbol = huskSymbol(referenceHuskOf(), curlSymbol(bulk, referenceShapes(), [k[0] ?? 0, k[1] ?? 0, k[2] ?? 0, 0]))
+  const symbol = huskSymbol(
+    referenceHuskOf(),
+    curlSymbol(bulk, referenceShapes(), [
+      k[0] ?? 0,
+      k[1] ?? 0,
+      k[2] ?? 0,
+      0,
+    ]),
+  )
 
   return { husk: symbol.husk, hermitian: symbol.hermitian }
 }
 
-let REFERENCE: { bulk: PhotonLattice; husk: ReturnType<typeof makeHusk>; shapes: ReturnType<typeof plaquetteShapes> } | undefined
+let REFERENCE:
+  | {
+      bulk: PhotonLattice
+      husk: ReturnType<typeof makeHusk>
+      shapes: ReturnType<typeof plaquetteShapes>
+    }
+  | undefined
 
 function reference(): NonNullable<typeof REFERENCE> {
   if (!REFERENCE) {
     const bulk = photonLatticeD4({ side: 6 })
 
-    REFERENCE = { bulk, husk: makeHusk(bulk), shapes: plaquetteShapes(bulk) }
+    REFERENCE = {
+      bulk,
+      husk: makeHusk(bulk),
+      shapes: plaquetteShapes(bulk),
+    }
   }
 
   return REFERENCE
@@ -196,9 +259,16 @@ function referenceHuskOf(): ReturnType<typeof makeHusk> {
 // ---------------------------------------------------------------------------------------------------------
 // a small Hermitian eigensolver: cyclic complex Jacobi, eigenvalues ascending, eigenvectors as columns
 
-export type SmallEigen = { readonly values: Float64Array; readonly re: Float64Array; readonly im: Float64Array }
+export type SmallEigen = {
+  readonly values: Float64Array
+  readonly re: Float64Array
+  readonly im: Float64Array
+}
 
-export function eigenSmall(matrix: ComplexMatrix, vectors = true): SmallEigen {
+export function eigenSmall(
+  matrix: ComplexMatrix,
+  vectors = true,
+): SmallEigen {
   const n = matrix.rows
 
   // a real symmetric matrix (the husk symbol is real at every k: the rule is even under x -> -x and the
@@ -214,7 +284,11 @@ export function eigenSmall(matrix: ComplexMatrix, vectors = true): SmallEigen {
   if (imag <= 1e-14 * Math.max(norm, 1e-300)) {
     const real = eigenSymmetricSmall(matrix.re, n, vectors)
 
-    return { values: real.values, re: real.vectors, im: new Float64Array(n * n) }
+    return {
+      values: real.values,
+      re: real.vectors,
+      im: new Float64Array(n * n),
+    }
   }
 
   const ar = Float64Array.from(matrix.re)
@@ -267,7 +341,9 @@ export function eigenSmall(matrix: ComplexMatrix, vectors = true): SmallEigen {
         const app = ar[p * n + p] ?? 0
         const aqq = ar[q * n + q] ?? 0
         const tau = (aqq - app) / (2 * r)
-        const t = (tau >= 0 ? 1 : -1) / (Math.abs(tau) + Math.sqrt(1 + tau * tau))
+        const t =
+          (tau >= 0 ? 1 : -1) /
+          (Math.abs(tau) + Math.sqrt(1 + tau * tau))
         const c = 1 / Math.sqrt(1 + t * t)
         const s = t * c
         // U = D R, R = [[c, s], [-s, c]]: U_pp = c, U_pq = s, U_qp = -s e^(-i phi), U_qq = c e^(-i phi)
@@ -327,7 +403,9 @@ export function eigenSmall(matrix: ComplexMatrix, vectors = true): SmallEigen {
     }
   }
 
-  const order = Array.from({ length: n }, (_, i) => i).sort((x, y) => (ar[x * n + x] ?? 0) - (ar[y * n + y] ?? 0))
+  const order = Array.from({ length: n }, (_, i) => i).sort(
+    (x, y) => (ar[x * n + x] ?? 0) - (ar[y * n + y] ?? 0),
+  )
   const values = Float64Array.from(order, i => ar[i * n + i] ?? 0)
   const re = new Float64Array(n * n)
   const im = new Float64Array(n * n)
@@ -347,14 +425,19 @@ export function eigenSmall(matrix: ComplexMatrix, vectors = true): SmallEigen {
 // A real symmetric eigensolver: Householder tridiagonalization then implicit QL (the tred2 and tql2 of the
 // EISPACK line, as in JAMA). Eigenvalues ascending, eigenvectors as columns (vectors[row * n + column]).
 // Symmetrized from the upper and lower triangles first.
-export function eigenSymmetricSmall(input: ArrayLike<number>, n: number, wantVectors = true): { values: Float64Array; vectors: Float64Array } {
+export function eigenSymmetricSmall(
+  input: ArrayLike<number>,
+  n: number,
+  wantVectors = true,
+): { values: Float64Array; vectors: Float64Array } {
   const v = new Float64Array(n * n)
   const d = new Float64Array(n)
   const e = new Float64Array(n)
 
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
-      v[i * n + j] = ((input[i * n + j] ?? 0) + (input[j * n + i] ?? 0)) / 2
+      v[i * n + j] =
+        ((input[i * n + j] ?? 0) + (input[j * n + i] ?? 0)) / 2
     }
   }
 
@@ -488,6 +571,7 @@ export function eigenSymmetricSmall(input: ArrayLike<number>, n: number, wantVec
 
   let f = 0
   let tst1 = 0
+
   const eps = 2 ** -52
 
   for (let l = 0; l < n; l++) {
@@ -521,6 +605,7 @@ export function eigenSymmetricSmall(input: ArrayLike<number>, n: number, wantVec
         d[l + 1] = e[l]! * (p + r)
 
         const dl1 = d[l + 1]!
+
         let h = g - d[l]!
 
         for (let i = l + 2; i < n; i++) {
@@ -533,7 +618,9 @@ export function eigenSymmetricSmall(input: ArrayLike<number>, n: number, wantVec
         let c = 1
         let c2 = c
         let c3 = c
+
         const el1 = e[l + 1]!
+
         let s = 0
         let s2 = 0
 
@@ -570,7 +657,9 @@ export function eigenSymmetricSmall(input: ArrayLike<number>, n: number, wantVec
     e[l] = 0
   }
 
-  const order = Array.from({ length: n }, (_, i) => i).sort((x, y) => d[x]! - d[y]!)
+  const order = Array.from({ length: n }, (_, i) => i).sort(
+    (x, y) => d[x]! - d[y]!,
+  )
   const values = Float64Array.from(order, i => d[i]!)
   const vectors = new Float64Array(n * n)
 
@@ -603,7 +692,10 @@ export function leapfrogMu(kappa: number, omega: number): number {
 // ---------------------------------------------------------------------------------------------------------
 // Gauss-Legendre nodes on [-1, 1]
 
-export function gaussLegendre(n: number): { nodes: Float64Array; weights: Float64Array } {
+export function gaussLegendre(n: number): {
+  nodes: Float64Array
+  weights: Float64Array
+} {
   const nodes = new Float64Array(n)
   const weights = new Float64Array(n)
 
@@ -647,7 +739,12 @@ export function gaussLegendre(n: number): { nodes: Float64Array; weights: Float6
 // the golden rule on rays
 
 // a transition current: on each husk link (dock x, direction h), F = <g| dH/da |e>
-export type CouplingLink = { readonly x: readonly [number, number, number]; readonly h: number; readonly re: number; readonly im: number }
+export type CouplingLink = {
+  readonly x: readonly [number, number, number]
+  readonly h: number
+  readonly re: number
+  readonly im: number
+}
 export type Coupling = readonly CouplingLink[]
 
 // a symbol: the Hermitian matrix at k, its dimension, the directions' weights, and the link geometry
@@ -680,7 +777,14 @@ export function huskSymbolizer(stencil: HuskStencil): Symbolizer {
 }
 
 // the coupling amplitude of one mode: sum F sqrt(w) conj(u_h) e^(-i k . (x + v_h / 2)), per unit volume
-export function modeCoupling(input: { symbol: Symbolizer; coupling: Coupling; k: readonly number[]; ure: ArrayLike<number>; uim: ArrayLike<number>; column: number }): [number, number] {
+export function modeCoupling(input: {
+  symbol: Symbolizer
+  coupling: Coupling
+  k: readonly number[]
+  ure: ArrayLike<number>
+  uim: ArrayLike<number>
+  column: number
+}): [number, number] {
   const { symbol, coupling, k, ure, uim, column } = input
   const n = symbol.size
 
@@ -689,6 +793,7 @@ export function modeCoupling(input: { symbol: Symbolizer; coupling: Coupling; k:
 
   for (const link of coupling) {
     const v = symbol.vector(link.h)
+
     let phi = 0
 
     for (let i = 0; i < symbol.dimension; i++) {
@@ -711,7 +816,10 @@ export function modeCoupling(input: { symbol: Symbolizer; coupling: Coupling; k:
   return [re, im]
 }
 
-export type RayGrid = { readonly directions: readonly (readonly number[])[]; readonly weights: Float64Array }
+export type RayGrid = {
+  readonly directions: readonly (readonly number[])[]
+  readonly weights: Float64Array
+}
 
 // the 3D direction grid: Gauss-Legendre in cos theta by uniform phi, weights summing to 4 pi
 export function sphereGrid(ntheta: number, nphi: number): RayGrid {
@@ -737,7 +845,11 @@ export function sphereGrid(ntheta: number, nphi: number): RayGrid {
 
 // the 4D direction grid on S^3: r = (sin chi sin theta cos phi, sin chi sin theta sin phi, sin chi cos theta,
 // cos chi), measure sin^2 chi sin theta, weights summing to 2 pi^2
-export function hypersphereGrid(nchi: number, ntheta: number, nphi: number): RayGrid {
+export function hypersphereGrid(
+  nchi: number,
+  ntheta: number,
+  nphi: number,
+): RayGrid {
   const gc = gaussLegendre(nchi)
   const gt = gaussLegendre(ntheta)
   const directions: number[][] = []
@@ -754,8 +866,19 @@ export function hypersphereGrid(nchi: number, ntheta: number, nphi: number): Ray
       for (let j = 0; j < nphi; j++) {
         const phi = (2 * Math.PI * (j + 0.25)) / nphi
 
-        directions.push([Math.sin(chi) * st * Math.cos(phi), Math.sin(chi) * st * Math.sin(phi), Math.sin(chi) * ct, Math.cos(chi)])
-        weights.push(wc * Math.sin(chi) ** 2 * (gt.weights[i] ?? 0) * ((2 * Math.PI) / nphi))
+        directions.push([
+          Math.sin(chi) * st * Math.cos(phi),
+          Math.sin(chi) * st * Math.sin(phi),
+          Math.sin(chi) * ct,
+          Math.cos(chi),
+        ])
+
+        weights.push(
+          wc *
+            Math.sin(chi) ** 2 *
+            (gt.weights[i] ?? 0) *
+            ((2 * Math.PI) / nphi),
+        )
       }
     }
   }
@@ -776,25 +899,43 @@ export type GoldenRule = {
 // couplings at once. Each ray is scanned in `scan` steps to its zone exit (or to `cap` times omega / c0 when a
 // cap is given), every sign change of mu_b - mu* is refined by bisection, and d omega / ds comes from a central
 // difference of mu_b
-export function goldenRule(input: { symbol: Symbolizer; couplings: readonly Coupling[]; omega: number; grid: RayGrid; kappa?: number; scan?: number; cap?: { c0: number; factor: number } }): GoldenRule {
+export function goldenRule(input: {
+  symbol: Symbolizer
+  couplings: readonly Coupling[]
+  omega: number
+  grid: RayGrid
+  kappa?: number
+  scan?: number
+  cap?: { c0: number; factor: number }
+}): GoldenRule {
   const { symbol, couplings, omega, grid } = input
   const kappa = input.kappa ?? HUSK_KAPPA
   const scan = input.scan ?? 48
   const target = leapfrogMu(kappa, omega)
-  const n = symbol.size
   const d = symbol.dimension
   const rates = couplings.map(() => 0)
 
   let crossings = 0
   let multiple = 0
 
-  const muAt = (r: readonly number[], s: number, b: number): number => eigenSmall(symbol.matrix(r.map(x => x * s)), false).values[b] ?? 0
+  const muAt = (r: readonly number[], s: number, b: number): number =>
+    eigenSmall(symbol.matrix(r.map(x => x * s)), false).values[b] ?? 0
 
   grid.directions.forEach((r, ray) => {
-    const top = input.cap ? Math.min(symbol.exit(r), (input.cap.factor * omega) / input.cap.c0) : symbol.exit(r)
+    const top = input.cap
+      ? Math.min(
+          symbol.exit(r),
+          (input.cap.factor * omega) / input.cap.c0,
+        )
+      : symbol.exit(r)
     const step = top / scan
     // the whole spectrum at each scan point, shared by the branches
-    const table = Array.from({ length: scan + 1 }, (_, i) => (i === 0 ? null : eigenSmall(symbol.matrix(r.map(x => x * i * step)), false).values))
+    const table = Array.from({ length: scan + 1 }, (_, i) =>
+      i === 0
+        ? null
+        : eigenSmall(symbol.matrix(r.map(x => x * i * step)), false)
+            .values,
+    )
 
     for (let b = symbol.first; b < symbol.first + symbol.photons; b++) {
       let previous = -target
@@ -803,7 +944,7 @@ export function goldenRule(input: { symbol: Symbolizer; couplings: readonly Coup
       for (let i = 1; i <= scan; i++) {
         const value = (table[i]?.[b] ?? 0) - target
 
-        if ((previous < 0) !== (value < 0)) {
+        if (previous < 0 !== value < 0) {
           // a crossing, rising or (where the band folds back) falling, each with its own measure
           found += 1
 
@@ -815,7 +956,7 @@ export function goldenRule(input: { symbol: Symbolizer; couplings: readonly Coup
           for (let it = 0; it < 60 && hi - lo > 1e-15 * hi; it++) {
             const mid = (lo + hi) / 2
 
-            if ((muAt(r, mid, b) < target) === rising) {
+            if (muAt(r, mid, b) < target === rising) {
               lo = mid
             } else {
               hi = mid
@@ -824,19 +965,32 @@ export function goldenRule(input: { symbol: Symbolizer; couplings: readonly Coup
 
           const s = (lo + hi) / 2
           const h = 1e-6 * s
-          const slope = (muAt(r, s + h, b) - muAt(r, s - h, b)) / (2 * h)
+          const slope =
+            (muAt(r, s + h, b) - muAt(r, s - h, b)) / (2 * h)
           const domega = (kappa / (2 * Math.sin(omega))) * slope
           const k = r.map(x => x * s)
           // the photon eigenvector from hermitianEigen (the degenerate-safe solver, E-FRC-0178), its columns
           // put in ascending order of value
           const eig = hermitianEigen(symbol.matrix(k))
-          const order = Array.from(eig.values, (_, j) => j).sort((p, q) => (eig.values[p] ?? 0) - (eig.values[q] ?? 0))
-          const measure = ((grid.weights[ray] ?? 0) * s ** (d - 1)) / Math.abs(domega)
+          const order = Array.from(eig.values, (_, j) => j).sort(
+            (p, q) => (eig.values[p] ?? 0) - (eig.values[q] ?? 0),
+          )
+          const measure =
+            ((grid.weights[ray] ?? 0) * s ** (d - 1)) / Math.abs(domega)
 
           couplings.forEach((coupling, c) => {
-            const [gr, gi] = modeCoupling({ symbol, coupling, k, ure: eig.vectorsRe, uim: eig.vectorsIm, column: order[b] ?? b })
+            const [gr, gi] = modeCoupling({
+              symbol,
+              coupling,
+              k,
+              ure: eig.vectorsRe,
+              uim: eig.vectorsIm,
+              column: order[b] ?? b,
+            })
 
-            rates[c] = (rates[c] ?? 0) + (measure * (gr * gr + gi * gi)) / (2 * Math.sin(omega))
+            rates[c] =
+              (rates[c] ?? 0) +
+              (measure * (gr * gr + gi * gi)) / (2 * Math.sin(omega))
           })
           crossings += 1
         }
@@ -861,8 +1015,15 @@ export function goldenRule(input: { symbol: Symbolizer; couplings: readonly Coup
 // with eps0 = 6, that is omega^3 |d|^2 / (18 pi c^3)
 export const HUSK_EPSILON = 6
 
-export function continuumRate(input: { omega: number; dipole: number; c: number }): number {
-  return (input.omega ** 3 * input.dipole ** 2) / (3 * Math.PI * HUSK_EPSILON * input.c ** 3)
+export function continuumRate(input: {
+  omega: number
+  dipole: number
+  c: number
+}): number {
+  return (
+    (input.omega ** 3 * input.dipole ** 2) /
+    (3 * Math.PI * HUSK_EPSILON * input.c ** 3)
+  )
 }
 
 // the photon speed of the linear husk: lambda / k^2 -> 2/3 (E-FRC-0179), so c^2 = 2 kappa / 3

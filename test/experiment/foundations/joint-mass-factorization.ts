@@ -44,6 +44,7 @@ export default experiment({
   run() {
     const band = KAC_MAX / KAC_MIN
     const yukawas = MASSES.map(m => (Math.SQRT2 * m) / V_HIGGS)
+
     const spreadOf = (depths: number[]): number => {
       const prefactors = yukawas.map(
         (y, i) => y * Math.pow(LAMBDA, depths[i]! / 2),
@@ -70,6 +71,7 @@ export default experiment({
       [9, 5, 2],
       [9, 5, 4],
     ]
+
     let deviationsExcluded = 0
 
     for (const d of deviations) {
@@ -98,9 +100,7 @@ export default experiment({
         deviationsExcluded,
         worstResidual: Number(
           Math.max(
-            ...exactDepths.map((d, i) =>
-              Math.abs(d - [9, 5, 3][i]!),
-            ),
+            ...exactDepths.map((d, i) => Math.abs(d - [9, 5, 3][i]!)),
           ).toFixed(3),
         ),
       },

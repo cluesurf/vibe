@@ -28,7 +28,15 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { d4BoxMesh } from '@/code/substrate/d4-box'
-import { graphBeat, graphBeatBack, graphEnergy, graphGaussHolds, makeStringGraph, type GraphState, type StringGraph } from '@/code/rule/string-graph'
+import {
+  graphBeat,
+  graphBeatBack,
+  graphEnergy,
+  graphGaussHolds,
+  makeStringGraph,
+  type GraphState,
+  type StringGraph,
+} from '@/code/rule/string-graph'
 
 const SIDE = 7
 const BEATS = 600
@@ -46,10 +54,19 @@ type Run = {
   travel: number
 }
 
-const dist = (a: number[], b: number[]): number => Math.hypot(...a.map((x, i) => x - (b[i] ?? 0)))
-const mean = (ps: number[][]): number[] => [0, 1, 2, 3].map(i => ps.reduce((s, p) => s + (p[i] ?? 0), 0) / ps.length)
+const dist = (a: number[], b: number[]): number =>
+  Math.hypot(...a.map((x, i) => x - (b[i] ?? 0)))
+const mean = (ps: number[][]): number[] =>
+  [0, 1, 2, 3].map(
+    i => ps.reduce((s, p) => s + (p[i] ?? 0), 0) / ps.length,
+  )
 
-function run(input: { graph: StringGraph; fill: number; signs: number[]; fluxes: number[] }): Run {
+function run(input: {
+  graph: StringGraph
+  fill: number
+  signs: number[]
+  fluxes: number[]
+}): Run {
   const { graph, fill, signs, fluxes } = input
   const { mesh } = graph
   const roots = rootsD4()
@@ -64,14 +81,24 @@ function run(input: { graph: StringGraph; fill: number; signs: number[]; fluxes:
   const flux = new Int32Array(graph.links.length)
 
   cells.forEach((c, k) => (vibe[c] = signs[k] ?? 0))
-  fluxes.forEach((e, k) => (flux[graph.linkAt[(cells[k] ?? 0) * 24 + direction] ?? 0] = e))
+  fluxes.forEach(
+    (e, k) =>
+      (flux[graph.linkAt[(cells[k] ?? 0) * 24 + direction] ?? 0] = e),
+  )
 
   const start: GraphState = {
     vibe,
     flux,
-    demon: Int32Array.from({ length: graph.links.length }, (_, l) => (((l + 1) * GOLDEN) % 1 < fill ? 1 : 0)),
+    demon: Int32Array.from({ length: graph.links.length }, (_, l) =>
+      ((l + 1) * GOLDEN) % 1 < fill ? 1 : 0,
+    ),
   }
-  const charges: Charge[] = cells.map((cell, k) => ({ cell, sign: signs[k] ?? 0, at: (roots[direction] ?? []).map(x => x * k) }))
+  const charges: Charge[] = cells.map((cell, k) => ({
+    cell,
+    sign: signs[k] ?? 0,
+    at: (roots[direction] ?? []).map(x => x * k),
+  }))
+
   const onHop = (from: number, to: number, l: number): void => {
     const charge = charges.find(c => c.cell === from)
     const [a, , dir] = graph.links[l] ?? [0, 0, 0]
@@ -96,7 +123,8 @@ function run(input: { graph: StringGraph; fill: number; signs: number[]; fluxes:
 
   for (let t = 0; t < BEATS; t++) {
     s = graphBeat(graph, s, onHop)
-    exact = exact && graphGaussHolds(graph, s) && graphEnergy(graph, s) === e0
+    exact =
+      exact && graphGaussHolds(graph, s) && graphEnergy(graph, s) === e0
 
     const loves = charges.filter(c => c.sign > 0).map(c => c.at)
     const fears = charges.filter(c => c.sign < 0).map(c => c.at)
@@ -105,7 +133,9 @@ function run(input: { graph: StringGraph; fill: number; signs: number[]; fluxes:
     gapSum += gap
     gapLow = Math.min(gapLow, gap)
     gapHigh = Math.max(gapHigh, gap)
-    spreadSum += Math.max(...loves.map(p => Math.max(...loves.map(q => dist(p, q)))))
+    spreadSum += Math.max(
+      ...loves.map(p => Math.max(...loves.map(q => dist(p, q)))),
+    )
     travel = Math.max(travel, dist(mean(loves), origin))
   }
 
@@ -116,9 +146,18 @@ function run(input: { graph: StringGraph; fill: number; signs: number[]; fluxes:
   }
 
   const reverses =
-    back.vibe.every((v, i) => v === start.vibe[i]) && back.flux.every((v, i) => v === start.flux[i]) && back.demon.every((v, i) => v === start.demon[i])
+    back.vibe.every((v, i) => v === start.vibe[i]) &&
+    back.flux.every((v, i) => v === start.flux[i]) &&
+    back.demon.every((v, i) => v === start.demon[i])
 
-  return { exact, reverses, meanGap: gapSum / BEATS, gapRange: gapHigh - gapLow, meanSpread: spreadSum / BEATS, travel }
+  return {
+    exact,
+    reverses,
+    meanGap: gapSum / BEATS,
+    gapRange: gapHigh - gapLow,
+    meanSpread: spreadSum / BEATS,
+    travel,
+  }
 }
 
 export default experiment({
@@ -132,10 +171,23 @@ export default experiment({
   paper: false,
   run() {
     const mesh = d4BoxMesh({ side: SIDE })
-    const bound = makeStringGraph({ mesh, mass: 4, tension: 1, capacity: 4 })
-    const free = makeStringGraph({ mesh, mass: 4, tension: 0, capacity: 4 })
+    const bound = makeStringGraph({
+      mesh,
+      mass: 4,
+      tension: 1,
+      capacity: 4,
+    })
+    const free = makeStringGraph({
+      mesh,
+      mass: 4,
+      tension: 0,
+      capacity: 4,
+    })
     const meson = { signs: [1, -1], fluxes: [1] }
-    const baryons = { signs: [1, 1, 1, -1, -1, -1], fluxes: [1, 2, 3, 2, 1] }
+    const baryons = {
+      signs: [1, 1, 1, -1, -1, -1],
+      fluxes: [1, 2, 3, 2, 1],
+    }
 
     const scan = FILLS.map(fill => ({
       fill,
@@ -144,9 +196,21 @@ export default experiment({
     }))
     const coldest = scan[0]!
     const hottest = scan[scan.length - 1]!
-    const mesonControl = run({ graph: free, fill: coldest.fill, ...meson })
-    const baryonControl = run({ graph: free, fill: coldest.fill, ...baryons })
-    const all = [...scan.flatMap(s => [s.meson, s.baryon]), mesonControl, baryonControl]
+    const mesonControl = run({
+      graph: free,
+      fill: coldest.fill,
+      ...meson,
+    })
+    const baryonControl = run({
+      graph: free,
+      fill: coldest.fill,
+      ...baryons,
+    })
+    const all = [
+      ...scan.flatMap(s => [s.meson, s.baryon]),
+      mesonControl,
+      baryonControl,
+    ]
 
     const ok =
       all.every(r => r.exact && r.reverses) &&
@@ -163,7 +227,9 @@ export default experiment({
       claim:
         "every run keeps Gauss's law and the energy exact and reverses to the bit, at the coldest demon energy the meson's mean gap stays under 4 and under a tenth of the tensionless control's while it travels more than 10, the baryon holds together (spread under a tenth of the control's) while travelling more than 5 and moving against its antibaryon, and at the hottest the meson's mean gap exceeds ten times the coldest",
       metrics: {
-        exactAndReversible: all.every(r => r.exact && r.reverses) ? 1 : 0,
+        exactAndReversible: all.every(r => r.exact && r.reverses)
+          ? 1
+          : 0,
         ...Object.fromEntries(
           scan.flatMap(s => {
             const key = String(s.fill).replace('.', '_')
@@ -187,7 +253,7 @@ export default experiment({
         matchings: bound.matchings.length,
       },
       notes:
-        'L2, exact integers, no random numbers. Distances are in the D4 lattice\'s own units (a root has length sqrt 2), unwrapped hop by hop, so a free charge\'s distance can exceed the box. The coldest fill binds and the hottest has melted, the deconfining transition of a string with 23 ways to turn, between fills 0.05 and 0.1. The matter waits in cells, which the committed rule\'s slots do not allow (E-FRC-0130).',
+        "L2, exact integers, no random numbers. Distances are in the D4 lattice's own units (a root has length sqrt 2), unwrapped hop by hop, so a free charge's distance can exceed the box. The coldest fill binds and the hottest has melted, the deconfining transition of a string with 23 ways to turn, between fills 0.05 and 0.1. The matter waits in cells, which the committed rule's slots do not allow (E-FRC-0130).",
     })
   },
 })

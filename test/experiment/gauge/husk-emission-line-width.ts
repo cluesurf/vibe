@@ -39,8 +39,23 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { H, goldenRule, huskSymbolizer, readHuskStencil, sphereGrid } from '@/code/measure/husk-emission'
-import { dimerAmplitude, dimerBeat, emit, huskPhotonModes, linkDivergence, makeRealSpace, type DimerState, type PhotonModes } from '@/code/measure/stand-in-light'
+import {
+  H,
+  goldenRule,
+  huskSymbolizer,
+  readHuskStencil,
+  sphereGrid,
+} from '@/code/measure/husk-emission'
+import {
+  dimerAmplitude,
+  dimerBeat,
+  emit,
+  huskPhotonModes,
+  linkDivergence,
+  makeRealSpace,
+  type DimerState,
+  type PhotonModes,
+} from '@/code/measure/stand-in-light'
 
 const OMEGA0 = 0.3
 const CHARGE = 1.6
@@ -50,7 +65,12 @@ const FIT_FROM = 5
 const FIT_TO = 120
 
 // the least-squares slope of ln y against t over [from, to], negated
-function decayRate(times: ArrayLike<number>, values: ArrayLike<number>, from: number, to: number): number {
+function decayRate(
+  times: ArrayLike<number>,
+  values: ArrayLike<number>,
+  from: number,
+  to: number,
+): number {
   const xs: number[] = []
   const ys: number[] = []
 
@@ -64,12 +84,20 @@ function decayRate(times: ArrayLike<number>, values: ArrayLike<number>, from: nu
   const mx = xs.reduce((s, v) => s + v, 0) / xs.length
   const my = ys.reduce((s, v) => s + v, 0) / ys.length
 
-  return -xs.reduce((s, v, i) => s + (v - mx) * (ys[i]! - my), 0) / xs.reduce((s, v) => s + (v - mx) ** 2, 0)
+  return (
+    -xs.reduce((s, v, i) => s + (v - mx) * (ys[i]! - my), 0) /
+    xs.reduce((s, v) => s + (v - mx) ** 2, 0)
+  )
 }
 
 // a Lorentzian 1 / ((x - x0)^2 + G^2 / 4) fitted to (detuning, |b|^2 / |g|^2) by least squares on its reciprocal,
 // which is the quadratic x^2 - 2 x0 x + x0^2 + G^2 / 4 over the scale c
-function lorentzianWidth(modes: PhotonModes, bRe: Float64Array, bIm: Float64Array, window: number): { width: number; center: number } {
+function lorentzianWidth(
+  modes: PhotonModes,
+  bRe: Float64Array,
+  bIm: Float64Array,
+  window: number,
+): { width: number; center: number } {
   const rows: [number, number][] = []
 
   for (let j = 0; j < modes.omega.length; j++) {
@@ -100,9 +128,14 @@ function lorentzianWidth(modes: PhotonModes, bRe: Float64Array, bIm: Float64Arra
   }
 
   // solve the 3 x 3 system
-  const det = (q: number[][]): number => q[0]![0]! * (q[1]![1]! * q[2]![2]! - q[1]![2]! * q[2]![1]!) - q[0]![1]! * (q[1]![0]! * q[2]![2]! - q[1]![2]! * q[2]![0]!) + q[0]![2]! * (q[1]![0]! * q[2]![1]! - q[1]![1]! * q[2]![0]!)
+  const det = (q: number[][]): number =>
+    q[0]![0]! * (q[1]![1]! * q[2]![2]! - q[1]![2]! * q[2]![1]!) -
+    q[0]![1]! * (q[1]![0]! * q[2]![2]! - q[1]![2]! * q[2]![0]!) +
+    q[0]![2]! * (q[1]![0]! * q[2]![1]! - q[1]![1]! * q[2]![0]!)
   const d = det(m)
-  const solve = (col: number): number => det(m.map((row, i) => row.map((v, k) => (k === col ? r[i]! : v)))) / d
+  const solve = (col: number): number =>
+    det(m.map((row, i) => row.map((v, k) => (k === col ? r[i]! : v)))) /
+    d
   const p0 = solve(0)
   const p1 = solve(1)
   const p2 = solve(2)
@@ -127,14 +160,44 @@ export default experiment({
     const symbol = huskSymbolizer(stencil)
     const grid = sphereGrid(24, 48)
     const f = (CHARGE * OMEGA0) / 4
-    const golden = goldenRule({ symbol, couplings: [[{ x: [0, 0, 0], h: 0, re: 0, im: f }]], omega: OMEGA0, grid }).rates[0]!
-    const modes = huskPhotonModes({ stencil, side: SIDE, amplitude: dimerAmplitude(0, f) })
-    const run = emit({ modes, omega0: OMEGA0, beats: BEATS, dt: 0.25, every: 1 })
+    const golden = goldenRule({
+      symbol,
+      couplings: [[{ x: [0, 0, 0], h: 0, re: 0, im: f }]],
+      omega: OMEGA0,
+      grid,
+    }).rates[0]!
+    const modes = huskPhotonModes({
+      stencil,
+      side: SIDE,
+      amplitude: dimerAmplitude(0, f),
+    })
+    const run = emit({
+      modes,
+      omega0: OMEGA0,
+      beats: BEATS,
+      dt: 0.25,
+      every: 1,
+    })
     const decay = decayRate(run.times, run.excited, FIT_FROM, FIT_TO)
     const line = lorentzianWidth(modes, run.bRe, run.bIm, 5 * golden)
-    const halfModes = huskPhotonModes({ stencil, side: SIDE, amplitude: dimerAmplitude(0, f / Math.SQRT2) })
-    const halfRun = emit({ modes: halfModes, omega0: OMEGA0, beats: BEATS, dt: 0.25, every: 1 })
-    const halfDecay = decayRate(halfRun.times, halfRun.excited, FIT_FROM, FIT_TO)
+    const halfModes = huskPhotonModes({
+      stencil,
+      side: SIDE,
+      amplitude: dimerAmplitude(0, f / Math.SQRT2),
+    })
+    const halfRun = emit({
+      modes: halfModes,
+      omega0: OMEGA0,
+      beats: BEATS,
+      dt: 0.25,
+      every: 1,
+    })
+    const halfDecay = decayRate(
+      halfRun.times,
+      halfRun.excited,
+      FIT_FROM,
+      FIT_TO,
+    )
 
     metrics.goldenRuleA = golden
     metrics.modeCount = modes.omega.length
@@ -150,7 +213,14 @@ export default experiment({
     // the semiclassical real-space run
     const space = makeRealSpace(stencil, SIDE)
     const links = SIDE ** 3 * H
-    const dimer = { space, dock: 0, h: 0, omega0: OMEGA0, charge: CHARGE, scratch: new Float64Array(links) }
+    const dimer = {
+      space,
+      dock: 0,
+      h: 0,
+      omega0: OMEGA0,
+      charge: CHARGE,
+      scratch: new Float64Array(links),
+    }
     const chi = 0.01
     const state: DimerState = {
       a: new Float64Array(links),
@@ -162,7 +232,9 @@ export default experiment({
     }
     const times: number[] = []
     const excited: number[] = []
+
     let gauss = 0
+
     const neighbor = 1
 
     for (let t = 1; t <= FIT_TO; t++) {
@@ -170,8 +242,10 @@ export default experiment({
 
       // the excited level of the dimer in its current Peierls phase: (|0> - e^(-i theta) |1>) / sqrt 2
       const theta = (CHARGE * state.a[0]!) / 2
-      const xr = Math.cos(theta) * state.c1r - Math.sin(theta) * state.c1i
-      const xi = Math.cos(theta) * state.c1i + Math.sin(theta) * state.c1r
+      const xr =
+        Math.cos(theta) * state.c1r - Math.sin(theta) * state.c1i
+      const xi =
+        Math.cos(theta) * state.c1i + Math.sin(theta) * state.c1r
 
       times.push(t)
       excited.push(((state.c0r - xr) ** 2 + (state.c0i - xi) ** 2) / 2)
@@ -182,7 +256,12 @@ export default experiment({
         const rho1 = CHARGE * (state.c1r ** 2 + state.c1i ** 2 - 0.5)
 
         for (let i = 0; i < div.length; i++) {
-          gauss = Math.max(gauss, Math.abs(div[i]! - (i === 0 ? rho0 : i === neighbor ? rho1 : 0)))
+          gauss = Math.max(
+            gauss,
+            Math.abs(
+              div[i]! - (i === 0 ? rho0 : i === neighbor ? rho1 : 0),
+            ),
+          )
         }
       }
     }
@@ -190,7 +269,8 @@ export default experiment({
     // past the dressing transient
     const semiclassical = decayRate(times, excited, 20, FIT_TO)
 
-    metrics.semiclassicalLeftAfter4Beats = excited[3]! / Math.sin(chi) ** 2
+    metrics.semiclassicalLeftAfter4Beats =
+      excited[3]! / Math.sin(chi) ** 2
     metrics.semiclassicalDecay = semiclassical
     metrics.semiclassicalOverGolden = semiclassical / golden
     metrics.gaussWorst = gauss
@@ -199,7 +279,12 @@ export default experiment({
     const gate2 = Math.abs(line.width / decay - 1) <= 0.03
     const gate3 = Math.abs(halfDecay / decay - 0.5) <= 0.015
     const gate4 = gauss <= 1e-12
-    const status = gate1 && gate2 && gate3 && gate4 ? 'pass' : gate1 && gate2 ? 'partial' : 'fail'
+    const status =
+      gate1 && gate2 && gate3 && gate4
+        ? 'pass'
+        : gate1 && gate2
+          ? 'partial'
+          : 'fail'
 
     return verdict({
       status,
@@ -212,7 +297,7 @@ export default experiment({
         gateSemiclassical: gate4 ? 1 : 0,
       },
       notes:
-        'L2, a STAND-IN emitter (one-link dimer) in the LINEAR rule. The mode-space run is the rotating-wave single-excitation sector (every photon branch of the husk symbol kept; the massive branches are left out, the dimer line lying below them); the real-space run keeps everything the linear leapfrog carries, massive branches and near field included. Husk only. FIRST RUN (2026-09-26), status fail. The line is a Lorentzian whose width equals the emitter\'s decay rate to 1.5 percent (gate 2 passed), and Gauss\'s law held to 1.8e-14 in real space (gate 4 passed). But the decay rate is 0.0382 against the golden-rule 0.0449 (-15 percent) and halves only to 0.543 at charge / sqrt 2: the emitter was chosen too strong (A / omega0 = 0.15, so that the decay fits before the torus returns the light), outside the weak-coupling regime where Wigner-Weisskopf equals the golden rule. The semiclassical real-space decay read 0.0264 (0.59 of A), past the near-field dressing the probe found.',
+        "L2, a STAND-IN emitter (one-link dimer) in the LINEAR rule. The mode-space run is the rotating-wave single-excitation sector (every photon branch of the husk symbol kept; the massive branches are left out, the dimer line lying below them); the real-space run keeps everything the linear leapfrog carries, massive branches and near field included. Husk only. FIRST RUN (2026-09-26), status fail. The line is a Lorentzian whose width equals the emitter's decay rate to 1.5 percent (gate 2 passed), and Gauss's law held to 1.8e-14 in real space (gate 4 passed). But the decay rate is 0.0382 against the golden-rule 0.0449 (-15 percent) and halves only to 0.543 at charge / sqrt 2: the emitter was chosen too strong (A / omega0 = 0.15, so that the decay fits before the torus returns the light), outside the weak-coupling regime where Wigner-Weisskopf equals the golden rule. The semiclassical real-space decay read 0.0264 (0.59 of A), past the near-field dressing the probe found.",
     })
   },
 })

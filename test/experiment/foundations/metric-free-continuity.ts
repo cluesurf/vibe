@@ -132,7 +132,8 @@ export default experiment({
     // exact in the sum AND in the worst single region, so no cancellation between regions can hide an error
     const exactEverywhere = real.every(
       r =>
-        r.measured.absResidual === 0 && r.measured.maxRegionResidual === 0,
+        r.measured.absResidual === 0 &&
+        r.measured.maxRegionResidual === 0,
     )
 
     // the non-geometric partitions really did carry flux, so the zero is a balance and not an empty sum

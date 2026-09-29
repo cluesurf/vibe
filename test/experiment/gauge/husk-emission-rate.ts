@@ -37,15 +37,36 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { HUSK_SPEED, goldenRule, huskSymbolizer, hypersphereGrid, readHuskStencil, sphereGrid } from '@/code/measure/husk-emission'
-import { bandGradient, bulkSymbolizer, currentAmplitude, goldenRuleCurrents, transitionCurrent } from '@/code/measure/stand-in-light'
-import { HUSK_ATOM, ROWS, lowestLevels, makeAtom, positionElement } from '@/code/measure/stand-in-atom'
+import {
+  HUSK_SPEED,
+  goldenRule,
+  huskSymbolizer,
+  hypersphereGrid,
+  readHuskStencil,
+  sphereGrid,
+} from '@/code/measure/husk-emission'
+import {
+  bandGradient,
+  bulkSymbolizer,
+  currentAmplitude,
+  goldenRuleCurrents,
+  transitionCurrent,
+} from '@/code/measure/stand-in-light'
+import {
+  HUSK_ATOM,
+  ROWS,
+  lowestLevels,
+  makeAtom,
+  positionElement,
+} from '@/code/measure/stand-in-atom'
 import { HUSK_VECTORS, HUSK_WEIGHTS } from '@/code/measure/photon-husk'
 
 const DIMER_OMEGAS = [0.01, 0.02, 0.04, 0.08, 0.16, 0.3]
 
-const huskContinuum = (omega: number, d: number): number => (omega ** 3 * d * d) / (18 * Math.PI * HUSK_SPEED ** 3)
-const bulkContinuum = (omega: number, d: number): number => (omega ** 4 * d * d) / (64 * Math.PI * HUSK_SPEED ** 4)
+const huskContinuum = (omega: number, d: number): number =>
+  (omega ** 3 * d * d) / (18 * Math.PI * HUSK_SPEED ** 3)
+const bulkContinuum = (omega: number, d: number): number =>
+  (omega ** 4 * d * d) / (64 * Math.PI * HUSK_SPEED ** 4)
 
 export default experiment({
   id: 'gauge/husk-emission-rate',
@@ -61,15 +82,33 @@ export default experiment({
     const stencil = readHuskStencil(8)
     const symbol = huskSymbolizer(stencil)
     const grid = sphereGrid(24, 48)
-    const dimerRate = (h: number, omega: number): number => goldenRule({ symbol, couplings: [[{ x: [0, 0, 0], h, re: 0, im: omega / (2 * HUSK_WEIGHTS[h]!) }]], omega, grid }).rates[0]!
+    const dimerRate = (h: number, omega: number): number =>
+      goldenRule({
+        symbol,
+        couplings: [
+          [
+            {
+              x: [0, 0, 0],
+              h,
+              re: 0,
+              im: omega / (2 * HUSK_WEIGHTS[h]!),
+            },
+          ],
+        ],
+        omega,
+        grid,
+      }).rates[0]!
     const axis = DIMER_OMEGAS.map(omega => {
       const a = dimerRate(0, omega)
 
-      metrics[`axisDimer_w${omega}_ratio`] = a / huskContinuum(omega, 0.5)
+      metrics[`axisDimer_w${omega}_ratio`] =
+        a / huskContinuum(omega, 0.5)
 
       return a
     })
-    const huskSlope = Math.log(axis[2]! / axis[0]!) / Math.log(DIMER_OMEGAS[2]! / DIMER_OMEGAS[0]!)
+    const huskSlope =
+      Math.log(axis[2]! / axis[0]!) /
+      Math.log(DIMER_OMEGAS[2]! / DIMER_OMEGAS[0]!)
     const diagonal = dimerRate(3, 0.02)
     const diagonalD = Math.hypot(...HUSK_VECTORS[3]!) / 2
     const isotropy = diagonal / diagonalD ** 2 / (axis[1]! / 0.25)
@@ -86,26 +125,47 @@ export default experiment({
       const p = lowestLevels({ atom, row: ROWS.T1u!, count: 1 })
       const omega = p.values[0]! - s.values[0]!
       const d = positionElement(64, s.vectors[0]!, p.vectors[0]!, 0)
-      const current = transitionCurrent(atom, bandGradient(atom), s.vectors[0]!, p.vectors[0]!)
+      const current = transitionCurrent(
+        atom,
+        bandGradient(atom),
+        s.vectors[0]!,
+        p.vectors[0]!,
+      )
       const amplitude = currentAmplitude(64, current)
       const j0 = amplitude([0, 0, 0])
       const velocity = Math.hypot(...j0.re, ...j0.im)
-      const rate = goldenRuleCurrents({ symbol, currents: [amplitude], omega, grid, lift: 6 }).rates[0]!
+      const rate = goldenRuleCurrents({
+        symbol,
+        currents: [amplitude],
+        omega,
+        grid,
+        lift: 6,
+      }).rates[0]!
       const continuum = huskContinuum(omega, d)
 
       metrics[`atom_a${a}_omega`] = omega
       metrics[`atom_a${a}_dipole`] = d
-      metrics[`atom_a${a}_velocityOverLength`] = velocity / (omega * Math.abs(d))
+      metrics[`atom_a${a}_velocityOverLength`] =
+        velocity / (omega * Math.abs(d))
       metrics[`atom_a${a}_rate`] = rate
       metrics[`atom_a${a}_rateOverContinuum`] = rate / continuum
-      gate3 = gate3 && Math.abs(velocity / (omega * Math.abs(d)) - 1) <= 1e-4 && Math.abs(rate / continuum - 1) <= 0.05
+      gate3 =
+        gate3 &&
+        Math.abs(velocity / (omega * Math.abs(d)) - 1) <= 1e-4 &&
+        Math.abs(rate / continuum - 1) <= 0.05
     }
 
     // the bulk beside it
     const bulk = bulkSymbolizer()
     const bulkGrid = hypersphereGrid(8, 8, 16)
     const bulkRate = (omega: number): number =>
-      goldenRule({ symbol: bulk, couplings: [[{ x: [0, 0, 0], h: 0, re: 0, im: omega / 2 }]], omega, grid: bulkGrid, cap: { c0: HUSK_SPEED, factor: 3 } }).rates[0]!
+      goldenRule({
+        symbol: bulk,
+        couplings: [[{ x: [0, 0, 0], h: 0, re: 0, im: omega / 2 }]],
+        omega,
+        grid: bulkGrid,
+        cap: { c0: HUSK_SPEED, factor: 3 },
+      }).rates[0]!
     const b2 = bulkRate(0.02)
     const b4 = bulkRate(0.04)
     const bulkD = Math.hypot(...bulk.vector(0)) / 2
@@ -115,10 +175,20 @@ export default experiment({
     metrics.bulkRatioAt002 = b2 / bulkContinuum(0.02, bulkD)
     metrics.bulkRatioAt004 = b4 / bulkContinuum(0.04, bulkD)
 
-    const gate1 = Math.abs(metrics['axisDimer_w0.01_ratio']! - 1) <= 0.01 && Math.abs(metrics['axisDimer_w0.02_ratio']! - 1) <= 0.01 && Math.abs(huskSlope - 3) <= 0.02
+    const gate1 =
+      Math.abs(metrics['axisDimer_w0.01_ratio']! - 1) <= 0.01 &&
+      Math.abs(metrics['axisDimer_w0.02_ratio']! - 1) <= 0.01 &&
+      Math.abs(huskSlope - 3) <= 0.02
     const gate2 = Math.abs(isotropy - 1) <= 0.01
-    const gate4 = Math.abs(bulkSlope - 4) <= 0.05 && Math.abs(metrics.bulkRatioAt002 - 1) <= 0.03
-    const status = gate1 && gate2 && gate3 && gate4 ? 'pass' : gate1 && gate3 ? 'partial' : 'fail'
+    const gate4 =
+      Math.abs(bulkSlope - 4) <= 0.05 &&
+      Math.abs(metrics.bulkRatioAt002 - 1) <= 0.03
+    const status =
+      gate1 && gate2 && gate3 && gate4
+        ? 'pass'
+        : gate1 && gate3
+          ? 'partial'
+          : 'fail'
 
     return verdict({
       status,

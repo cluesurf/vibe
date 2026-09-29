@@ -39,7 +39,16 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { CUBIC_ATOM, HUSK_ATOM, ROWS, cubicBand, huskBand, lowestLevels, makeAtom, type AtomKind } from '@/code/measure/stand-in-atom'
+import {
+  CUBIC_ATOM,
+  HUSK_ATOM,
+  ROWS,
+  cubicBand,
+  huskBand,
+  lowestLevels,
+  makeAtom,
+  type AtomKind,
+} from '@/code/measure/stand-in-atom'
 
 const SIDE = 64
 const WALL = 31
@@ -47,9 +56,16 @@ const SPLIT_RADII = [1, 1.25, 1.5, 2]
 const SHELL_RADII = [1.5, 2, 3]
 
 // the relative anisotropy of a band between the axis and the body diagonal at |k| = q
-function anisotropy(band: (k: readonly number[]) => number, q: number): number {
+function anisotropy(
+  band: (k: readonly number[]) => number,
+  q: number,
+): number {
   const axis = band([q, 0, 0])
-  const diagonal = band([q / Math.sqrt(3), q / Math.sqrt(3), q / Math.sqrt(3)])
+  const diagonal = band([
+    q / Math.sqrt(3),
+    q / Math.sqrt(3),
+    q / Math.sqrt(3),
+  ])
 
   return Math.abs(axis - diagonal) / axis
 }
@@ -61,13 +77,23 @@ function slope(xs: number[], ys: number[]): number {
   const mx = lx.reduce((s, v) => s + v, 0) / lx.length
   const my = ly.reduce((s, v) => s + v, 0) / ly.length
 
-  return lx.reduce((s, v, i) => s + (v - mx) * (ly[i]! - my), 0) / lx.reduce((s, v) => s + (v - mx) ** 2, 0)
+  return (
+    lx.reduce((s, v, i) => s + (v - mx) * (ly[i]! - my), 0) /
+    lx.reduce((s, v) => s + (v - mx) ** 2, 0)
+  )
 }
 
-function dSplit(kind: AtomKind, a: number): { eg: number; t2g: number; split: number } {
+function dSplit(
+  kind: AtomKind,
+  a: number,
+): { eg: number; t2g: number; split: number } {
   const atom = makeAtom({ kind, side: SIDE, a, wall: WALL })
-  const eg = lowestLevels({ atom, row: ROWS.Eg!, count: 1 }).values[0]! / atom.rydberg
-  const t2g = lowestLevels({ atom, row: ROWS.T2g!, count: 1 }).values[0]! / atom.rydberg
+  const eg =
+    lowestLevels({ atom, row: ROWS.Eg!, count: 1 }).values[0]! /
+    atom.rydberg
+  const t2g =
+    lowestLevels({ atom, row: ROWS.T2g!, count: 1 }).values[0]! /
+    atom.rydberg
 
   return { eg, t2g, split: Math.abs(t2g - eg) }
 }
@@ -83,8 +109,13 @@ export default experiment({
   paper: false,
   run() {
     const metrics: Record<string, number> = {}
-    const huskSlope = Math.log(anisotropy(huskBand, 0.1) / anisotropy(huskBand, 0.05)) / Math.log(2)
-    const cubicSlope = Math.log(anisotropy(cubicBand, 0.1) / anisotropy(cubicBand, 0.05)) / Math.log(2)
+    const huskSlope =
+      Math.log(anisotropy(huskBand, 0.1) / anisotropy(huskBand, 0.05)) /
+      Math.log(2)
+    const cubicSlope =
+      Math.log(
+        anisotropy(cubicBand, 0.1) / anisotropy(cubicBand, 0.05),
+      ) / Math.log(2)
 
     metrics.bandAnisotropySlopeHusk = huskSlope
     metrics.bandAnisotropySlopeCubic = cubicSlope
@@ -93,8 +124,14 @@ export default experiment({
 
     const shell = SHELL_RADII.map(a => {
       const atom = makeAtom({ kind: HUSK_ATOM, side: SIDE, a })
-      const s = lowestLevels({ atom, row: ROWS.A1g!, count: 2 }).values.map(v => v / atom.rydberg)
-      const p = lowestLevels({ atom, row: ROWS.T1u!, count: 1 }).values[0]! / atom.rydberg
+      const s = lowestLevels({
+        atom,
+        row: ROWS.A1g!,
+        count: 2,
+      }).values.map(v => v / atom.rydberg)
+      const p =
+        lowestLevels({ atom, row: ROWS.T1u!, count: 1 }).values[0]! /
+        atom.rydberg
 
       metrics[`shell_a${a}_E2sOverRy`] = s[1]!
       metrics[`shell_a${a}_E2pOverRy`] = p
@@ -102,7 +139,9 @@ export default experiment({
 
       return p - s[1]!
     })
-    const shellExponent = -Math.log(shell[2]! / shell[1]!) / Math.log(SHELL_RADII[2]! / SHELL_RADII[1]!)
+    const shellExponent =
+      -Math.log(shell[2]! / shell[1]!) /
+      Math.log(SHELL_RADII[2]! / SHELL_RADII[1]!)
 
     metrics.shellExponent2to3 = shellExponent
 
@@ -130,10 +169,24 @@ export default experiment({
     metrics.splitSlopeHusk = huskSplitSlope
     metrics.splitSlopeCubic = cubicSplitSlope
 
-    const gate1 = Math.abs(huskSlope - 4) <= 0.1 && Math.abs(cubicSlope - 2) <= 0.1
-    const gate2 = shell[0]! > shell[1]! && shell[1]! > shell[2]! && shellExponent >= 2
-    const gate3 = huskSplitSlope >= -5.5 && huskSplitSlope <= -3 && cubicSplitSlope >= -2.8 && cubicSplitSlope <= -1.2 && husk.every((h, i) => h.split < cubic[i]!.split)
-    const status = gate1 && gate2 && gate3 ? 'pass' : gate1 && gate2 ? 'partial' : 'fail'
+    const gate1 =
+      Math.abs(huskSlope - 4) <= 0.1 && Math.abs(cubicSlope - 2) <= 0.1
+    const gate2 =
+      shell[0]! > shell[1]! &&
+      shell[1]! > shell[2]! &&
+      shellExponent >= 2
+    const gate3 =
+      huskSplitSlope >= -5.5 &&
+      huskSplitSlope <= -3 &&
+      cubicSplitSlope >= -2.8 &&
+      cubicSplitSlope <= -1.2 &&
+      husk.every((h, i) => h.split < cubic[i]!.split)
+    const status =
+      gate1 && gate2 && gate3
+        ? 'pass'
+        : gate1 && gate2
+          ? 'partial'
+          : 'fail'
 
     return verdict({
       status,

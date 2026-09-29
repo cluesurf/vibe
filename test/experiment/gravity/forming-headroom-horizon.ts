@@ -109,10 +109,28 @@ import { verdict } from '@/test/scaffold/verdict'
 import { lapseLinks, openMesh } from '@/code/rule/open-husk'
 import { stackModes } from '@/code/measure/open-husk'
 import { linearFit } from '@/code/measure/regression'
-import { boxFreeExcess, unitProfile } from '@/code/measure/horizon-temperature'
-import { profileKappa, roomSpeed, smoothPacket, stairTime } from '@/code/measure/headroom-horizon'
-import { gaussViolations, noWraps } from '@/code/measure/varying-depth-light'
-import { copySpan, makeHeadroomSpanMedium, makeSpanScratch, sameSpan, spanBeat, spanBeatBack } from '@/code/rule/depth-span-light'
+import {
+  boxFreeExcess,
+  unitProfile,
+} from '@/code/measure/horizon-temperature'
+import {
+  profileKappa,
+  roomSpeed,
+  smoothPacket,
+  stairTime,
+} from '@/code/measure/headroom-horizon'
+import {
+  gaussViolations,
+  noWraps,
+} from '@/code/measure/varying-depth-light'
+import {
+  copySpan,
+  makeHeadroomSpanMedium,
+  makeSpanScratch,
+  sameSpan,
+  spanBeat,
+  spanBeatBack,
+} from '@/code/rule/depth-span-light'
 import {
   chainBeat,
   chainBeatBack,
@@ -157,29 +175,47 @@ const REPLICA_WIDTH = 16
 const LEVELS = 3
 const K1_BEATS = 1024
 
-type Column = { omega: number; split: Split; ratio: number; conservation: number }
+type Column = {
+  omega: number
+  split: Split
+  ratio: number
+  conservation: number
+}
 
 // the least-squares Planck fit ln r = a - ln(e^(omega / T) - 1): for each T the best a is the mean, T by golden section
 // on ln T over a decade each side of the guess
-function planckFit(omegas: readonly number[], ratios: readonly number[], guess: number): { temperature: number; offset: number; residual: number } {
+function planckFit(
+  omegas: readonly number[],
+  ratios: readonly number[],
+  guess: number,
+): { temperature: number; offset: number; residual: number } {
   const ys = ratios.map(Math.log)
+
   const at = (t: number): { a: number; rms: number } => {
     const shape = omegas.map(w => -Math.log(Math.expm1(w / t)))
     const a = ys.reduce((s, y, i) => s + y - shape[i]!, 0) / ys.length
-    const rms = Math.sqrt(ys.reduce((s, y, i) => s + (y - a - shape[i]!) ** 2, 0) / ys.length)
+    const rms = Math.sqrt(
+      ys.reduce((s, y, i) => s + (y - a - shape[i]!) ** 2, 0) /
+        ys.length,
+    )
 
     return { a, rms }
   }
+
   let lo = Math.log(guess / 10)
   let hi = Math.log(guess * 10)
+
   const phi = (Math.sqrt(5) - 1) / 2
 
   for (let i = 0; i < 200; i++) {
     const m1 = hi - phi * (hi - lo)
     const m2 = lo + phi * (hi - lo)
 
-    if (at(Math.exp(m1)).rms < at(Math.exp(m2)).rms) hi = m2
-    else lo = m1
+    if (at(Math.exp(m1)).rms < at(Math.exp(m2)).rms) {
+      hi = m2
+    } else {
+      lo = m1
+    }
   }
 
   const temperature = Math.exp((lo + hi) / 2)
@@ -199,7 +235,8 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${(Date.now() - started) / 1000}s`)
+    const log = (what: string): void =>
+      console.error(`${what} ${(Date.now() - started) / 1000}s`)
     const metrics: Record<string, number> = {}
     const lines: string[] = []
 
@@ -211,16 +248,24 @@ export default experiment({
     const mFinal = CAP / profile.at(RH)
     const pk = profileKappa(profile, RH, c0)
     const T = pk.kappa / (2 * Math.PI)
-    const unit = (r: number): number => profile.at(Math.max(r, profile.first))
+    const unit = (r: number): number =>
+      profile.at(Math.max(r, profile.first))
+
     const roomAt = (m: number, r: number): number => {
       const e = m * unit(r)
 
       return e >= CAP ? 0 : C - Math.floor((C * e) / CAP)
     }
+
     const finalRoom = (r: number): number => roomAt(mFinal, r)
+
     let flatFrom = Math.ceil(RH)
 
-    for (let r = Math.ceil(RH); r < L / 2; r++) if (finalRoom(r) < C) flatFrom = r + 1
+    for (let r = Math.ceil(RH); r < L / 2; r++) {
+      if (finalRoom(r) < C) {
+        flatFrom = r + 1
+      }
+    }
 
     const inner = Math.ceil(RH)
     const tf = TG + Math.round(stairTime(finalRoom, C, c0, inner, RC))
@@ -230,23 +275,32 @@ export default experiment({
 
     // the chain and its flat modes
     const xc = L / 2
-    const dist = (x: number): number => Math.min(Math.abs(x - xc), L - Math.abs(x - xc))
+    const dist = (x: number): number =>
+      Math.min(Math.abs(x - xc), L - Math.abs(x - xc))
     const chain = makeUniformChain(L, D0, C)
     const modes = flatModes(chain)
     const lambdaTop = 2 * (1 - Math.cos(modes.top))
     const omegaC = Math.acos(1 - lambdaTop / (2 * C * C))
 
-    log(`modes: omega_top ${modes.top}, omega_C ${omegaC} = ${omegaC / T} T`)
+    log(
+      `modes: omega_top ${modes.top}, omega_C ${omegaC} = ${omegaC / T} T`,
+    )
 
     // the rooms at time t, per dock: only r < flatFrom ever changes
     const near: number[] = []
 
-    for (let x = 0; x < L; x++) if (dist(x) < flatFrom) near.push(x)
+    for (let x = 0; x < L; x++) {
+      if (dist(x) < flatFrom) {
+        near.push(x)
+      }
+    }
 
     const nearUnit = near.map(x => unit(dist(x)))
     const rooms = new Int32Array(L).fill(C)
+
     const roomsAt = (t: number): boolean => {
       const m = massAt(t)
+
       let changed = false
 
       for (let i = 0; i < near.length; i++) {
@@ -264,18 +318,31 @@ export default experiment({
     }
 
     // run a batch back from t_f to 0 under the growth, or `beats` beats through the static final lump
-    const runBack = (b: ReturnType<typeof makeBatch>, grow: boolean, beats: number): number => {
+    const runBack = (
+      b: ReturnType<typeof makeBatch>,
+      grow: boolean,
+      beats: number,
+    ): number => {
       let quenches = 0
 
       if (!grow) {
-        for (const x of near) rooms[x] = finalRoom(dist(x))
+        for (const x of near) {
+          rooms[x] = finalRoom(dist(x))
+        }
+
         setChainRooms(chain, x => rooms[x]!)
       }
 
       for (let t = beats; t >= 1; t--) {
-        if (grow && roomsAt(t)) quenches += setChainRooms(chain, x => rooms[x]!)
+        if (grow && roomsAt(t)) {
+          quenches += setChainRooms(chain, x => rooms[x]!)
+        }
+
         chainBeatBack(chain, b)
-        if (t % 5000 === 0) log(`  back at ${t}`)
+
+        if (t % 5000 === 0) {
+          log(`  back at ${t}`)
+        }
       }
 
       rooms.fill(C)
@@ -284,21 +351,57 @@ export default experiment({
       return quenches
     }
 
-    const split = (b: ReturnType<typeof makeBatch>, omegas: readonly number[]): Column[] =>
+    const split = (
+      b: ReturnType<typeof makeBatch>,
+      omegas: readonly number[],
+    ): Column[] =>
       omegas.map((omega, i) => {
         const s = splitFlat(chain, modes, b, 2 * i, 2 * i + 1)
 
-        return { omega, split: s, ratio: s.negative / s.positive, conservation: Math.abs(s.positive - s.negative - 1) }
+        return {
+          omega,
+          split: s,
+          ratio: s.negative / s.positive,
+          conservation: Math.abs(s.positive - s.negative - 1),
+        }
       })
 
     // THE GROWTH RUN
-    const omegas = [...BAND.map(w => w * T), ...PAST.map(f => f * omegaC)]
+    const omegas = [
+      ...BAND.map(w => w * T),
+      ...PAST.map(f => f * omegaC),
+    ]
     const grow = makeBatch(chain, 2 * omegas.length)
 
-    omegas.forEach((w, i) => outPacket(chain, modes, grow, 2 * i, 2 * i + 1, w, SIGMA_T * T, xc + RC))
+    omegas.forEach((w, i) =>
+      outPacket(
+        chain,
+        modes,
+        grow,
+        2 * i,
+        2 * i + 1,
+        w,
+        SIGMA_T * T,
+        xc + RC,
+      ),
+    )
 
-    const tail = Math.max(...omegas.map((_, i) => weightShare(chain, grow, 2 * i, 2 * i + 1, x => dist(x) < flatFrom)))
-    const outNorm = Math.max(...omegas.map((_, i) => Math.abs(kgNorm(chain, grow, 2 * i, 2 * i + 1) - 1)))
+    const tail = Math.max(
+      ...omegas.map((_, i) =>
+        weightShare(
+          chain,
+          grow,
+          2 * i,
+          2 * i + 1,
+          x => dist(x) < flatFrom,
+        ),
+      ),
+    )
+    const outNorm = Math.max(
+      ...omegas.map((_, i) =>
+        Math.abs(kgNorm(chain, grow, 2 * i, 2 * i + 1) - 1),
+      ),
+    )
 
     log(`growth: packets built, tail in the lump's zone ${tail}`)
 
@@ -311,20 +414,53 @@ export default experiment({
     const controlOmegas = CONTROL.map(w => w * T)
     const still = makeBatch(chain, 2 * controlOmegas.length)
 
-    controlOmegas.forEach((w, i) => outPacket(chain, modes, still, 2 * i, 2 * i + 1, w, SIGMA_T * T, xc + RC))
+    controlOmegas.forEach((w, i) =>
+      outPacket(
+        chain,
+        modes,
+        still,
+        2 * i,
+        2 * i + 1,
+        w,
+        SIGMA_T * T,
+        xc + RC,
+      ),
+    )
     runBack(still, false, tf + CONTROL_EXTRA)
 
-    const controlLeft = Math.max(...controlOmegas.map((_, i) => weightShare(chain, still, 2 * i, 2 * i + 1, x => dist(x) < flatFrom)))
+    const controlLeft = Math.max(
+      ...controlOmegas.map((_, i) =>
+        weightShare(
+          chain,
+          still,
+          2 * i,
+          2 * i + 1,
+          x => dist(x) < flatFrom,
+        ),
+      ),
+    )
     const control = split(still, controlOmegas)
 
     log('control: split')
 
     // THE REPLICA: the integer rule through the growth (P3) and the chain against the full float shadow (K1)
     const rc = REPLICA / 2
-    const rdist = (x: number): number => Math.min(Math.abs(x - rc), REPLICA - Math.abs(x - rc))
-    const repRoom = (t: number) => (x: number): number => roomAt(massAt(t), rdist(x))
-    const rep = makeHeadroomSpanMedium([REPLICA, 2, 2], D0, C, x => repRoom(0)(x))
-    const start = smoothPacket(rep, LEVELS, rc + REPLICA_AT, REPLICA_AMP, REPLICA_WIDTH)
+    const rdist = (x: number): number =>
+      Math.min(Math.abs(x - rc), REPLICA - Math.abs(x - rc))
+    const repRoom =
+      (t: number) =>
+      (x: number): number =>
+        roomAt(massAt(t), rdist(x))
+    const rep = makeHeadroomSpanMedium([REPLICA, 2, 2], D0, C, x =>
+      repRoom(0)(x),
+    )
+    const start = smoothPacket(
+      rep,
+      LEVELS,
+      rc + REPLICA_AT,
+      REPLICA_AMP,
+      REPLICA_WIDTH,
+    )
     const s = copySpan(start)
     const scratch = makeSpanScratch(rep, LEVELS)
     const wraps = noWraps()
@@ -333,13 +469,18 @@ export default experiment({
     const repBatch = makeBatch(repChain, 1)
     const startShadow = ruleShadow(rep, start)
 
-    for (let i = 0; i < repChain.links; i++) repBatch.a[i] = startShadow[i]!
+    for (let i = 0; i < repChain.links; i++) {
+      repBatch.a[i] = startShadow[i]!
+    }
 
     let gauss = 0
     let last = ''
+
     const setRep = (t: number): void => {
       const f = repRoom(t)
-      const key = Array.from({ length: REPLICA }, (_, x) => f(x)).join(',')
+      const key = Array.from({ length: REPLICA }, (_, x) => f(x)).join(
+        ',',
+      )
 
       if (key !== last) {
         setMediumRooms(rep, f)
@@ -357,6 +498,7 @@ export default experiment({
 
     // the rule against its float shadow after the whole growth
     const endShadow = ruleShadow(rep, s)
+
     let track = 0
     let trackTop = 0
 
@@ -372,18 +514,29 @@ export default experiment({
     }
 
     const reversed = sameSpan(s, start)
+
     let floatBack = 0
 
-    for (let i = 0; i < repChain.links; i++) floatBack = Math.max(floatBack, Math.abs(repBatch.a[i]! - startShadow[i]!), Math.abs(repBatch.y[i]!))
+    for (let i = 0; i < repChain.links; i++) {
+      floatBack = Math.max(
+        floatBack,
+        Math.abs(repBatch.a[i]! - startShadow[i]!),
+        Math.abs(repBatch.y[i]!),
+      )
+    }
 
-    log(`replica: reversed ${reversed}, gauss ${gauss}, wraps ${wraps.angle + wraps.field + wraps.potential}`)
+    log(
+      `replica: reversed ${reversed}, gauss ${gauss}, wraps ${wraps.angle + wraps.field + wraps.potential}`,
+    )
 
     // K1: the chain against the full float shadow over the quenches around t_g
     const A = Float64Array.from(startShadow)
     const U = new Float64Array(rep.geometry.triangles)
     const k1Batch = makeBatch(repChain, 1)
 
-    for (let i = 0; i < repChain.links; i++) k1Batch.a[i] = startShadow[i]!
+    for (let i = 0; i < repChain.links; i++) {
+      k1Batch.a[i] = startShadow[i]!
+    }
 
     let k1Worst = 0
     let k1Top = 0
@@ -393,14 +546,22 @@ export default experiment({
       const before = last
 
       setRep(t)
-      if (last !== before) k1Quenches++
+
+      if (last !== before) {
+        k1Quenches++
+      }
+
       fullShadowBeat(rep, A, U)
       chainBeat(repChain, k1Batch)
 
       const y = curlOfPotential(rep, U)
 
       for (let i = 0; i < repChain.links; i++) {
-        k1Worst = Math.max(k1Worst, Math.abs(k1Batch.a[i]! - A[i]!), C * Math.abs(k1Batch.y[i]! - y[i]!))
+        k1Worst = Math.max(
+          k1Worst,
+          Math.abs(k1Batch.a[i]! - A[i]!),
+          C * Math.abs(k1Batch.y[i]! - y[i]!),
+        )
         k1Top = Math.max(k1Top, Math.abs(A[i]!))
       }
     }
@@ -412,22 +573,37 @@ export default experiment({
       band.map(c => c.ratio),
       T,
     )
-    const bandFinite = band.every(c => c.ratio > 0 && Number.isFinite(c.ratio))
-    const p1 = bandFinite && Math.abs(fit.temperature / T - 1) <= P1_TOLERANCE && fit.residual <= P1_RESIDUAL
+    const bandFinite = band.every(
+      c => c.ratio > 0 && Number.isFinite(c.ratio),
+    )
+    const p1 =
+      bandFinite &&
+      Math.abs(fit.temperature / T - 1) <= P1_TOLERANCE &&
+      fit.residual <= P1_RESIDUAL
     const p2 = control.every(c => c.ratio <= P2_BOUND)
     const p3 = reversed && gauss === 0
     const k1 = k1Worst <= K1_BOUND * k1Top
-    const k2 = cols.every(c => c.conservation <= K2_BOUND) && control.every(c => c.conservation <= K2_BOUND)
+    const k2 =
+      cols.every(c => c.conservation <= K2_BOUND) &&
+      control.every(c => c.conservation <= K2_BOUND)
     const status = p1 && p2 && p3 && k1 && k2 ? 'pass' : 'fail'
 
     // REPORTED
-    const slope = bandFinite ? linearFit({ xs: band.map(c => c.omega), ys: band.map(c => Math.log(c.ratio)) }).slope : NaN
+    const slope = bandFinite
+      ? linearFit({
+          xs: band.map(c => c.omega),
+          ys: band.map(c => Math.log(c.ratio)),
+        }).slope
+      : NaN
     const past = cols.slice(BAND.length)
-    const extrapolate = (w: number): number => Math.exp(fit.offset - Math.log(Math.expm1(w / fit.temperature)))
+    const extrapolate = (w: number): number =>
+      Math.exp(fit.offset - Math.log(Math.expm1(w / fit.temperature)))
 
     cols.forEach(c => {
       const key = `w${(c.omega / T).toFixed(2)}`
-      const acoustic = c.split.negativeByBand.slice(0, 4).reduce((a, v) => a + v, 0)
+      const acoustic = c.split.negativeByBand
+        .slice(0, 4)
+        .reduce((a, v) => a + v, 0)
 
       metrics[`${key}_ratio`] = c.ratio
       metrics[`${key}_negative`] = c.split.negative
@@ -439,12 +615,15 @@ export default experiment({
         `omega ${(c.omega / T).toFixed(2)} T (${(c.omega / omegaC).toFixed(3)} omega_C): |beta/alpha|^2 ${c.ratio.toExponential(4)}, N- ${c.split.negative.toExponential(4)}, N+ ${c.split.positive.toFixed(6)}, negative part at ${(c.split.negativeMeanOmega / c.omega).toFixed(2)} x omega, ${(acoustic / c.split.negative).toFixed(3)} of it in the lowest four bands; Planck fit gives ${extrapolate(c.omega).toExponential(4)}; conservation ${c.conservation.toExponential(2)}`,
       )
     })
+
     control.forEach(c => {
       const key = `control_w${(c.omega / T).toFixed(2)}`
 
       metrics[`${key}_ratio`] = c.ratio
       metrics[`${key}_conservation`] = c.conservation
-      lines.push(`static control at ${(c.omega / T).toFixed(2)} T: |beta/alpha|^2 ${c.ratio.toExponential(3)}, conservation ${c.conservation.toExponential(2)}`)
+      lines.push(
+        `static control at ${(c.omega / T).toFixed(2)} T: |beta/alpha|^2 ${c.ratio.toExponential(3)}, conservation ${c.conservation.toExponential(2)}`,
+      )
     })
 
     metrics.gate_P1 = p1 ? 1 : 0
@@ -468,8 +647,11 @@ export default experiment({
     metrics.planckResidual = fit.residual
     metrics.slopeT = -1 / slope
     metrics.slopeTOverT = -1 / slope / T
-    metrics.past125OverPlanck = past[0]!.ratio / extrapolate(past[0]!.omega)
-    metrics.past160OverPlanck = past[1]!.ratio / extrapolate(past[1]!.omega)
+    metrics.past125OverPlanck =
+      past[0]!.ratio / extrapolate(past[0]!.omega)
+
+    metrics.past160OverPlanck =
+      past[1]!.ratio / extrapolate(past[1]!.omega)
     metrics.outTail = tail
     metrics.outNormError = outNorm
     metrics.controlLeftInZone = controlLeft
@@ -484,9 +666,13 @@ export default experiment({
 
     return verdict({
       status,
-      claim: `a lump grown at dM/dt = M_f / ${TG} to r_h ${RH} (C ${C}, kappa ${pk.kappa.toExponential(4)}, T ${T.toExponential(4)}), out packets at ${BAND.join(', ')} T back to the flat vacuum: |beta/alpha|^2 ${band.map(c => c.ratio.toExponential(2)).join(', ')}; Planck fit T ${(fit.temperature / T).toFixed(3)} of kappa / 2 pi, rms ${fit.residual.toFixed(3)}; past omega_C (${(omegaC / T).toFixed(2)} T) ${past.map(c => c.ratio.toExponential(2)).join(', ')}, ${metrics.past125OverPlanck!.toExponential(2)} and ${metrics.past160OverPlanck!.toExponential(2)} of the fit; static lump ${control.map(c => c.ratio.toExponential(2)).join(', ')}; the integer rule reversed ${reversed}`,
+      claim: `a lump grown at dM/dt = M_f / ${TG} to r_h ${RH} (C ${C}, kappa ${pk.kappa.toExponential(4)}, T ${T.toExponential(4)}), out packets at ${BAND.join(', ')} T back to the flat vacuum: |beta/alpha|^2 ${band.map(c => c.ratio.toExponential(2)).join(', ')}; Planck fit T ${(fit.temperature / T).toFixed(3)} of kappa / 2 pi, rms ${fit.residual.toFixed(3)}; past omega_C (${(omegaC / T).toFixed(2)} T) ${past.map(c => c.ratio.toExponential(2)).join(', ')}, ${metrics.past125OverPlanck.toExponential(2)} and ${metrics.past160OverPlanck.toExponential(2)} of the fit; static lump ${control.map(c => c.ratio.toExponential(2)).join(', ')}; the integer rule reversed ${reversed}`,
       metrics,
-      control: { p2Worst: Math.max(...control.map(c => c.ratio)), k1Worst: k1Worst / k1Top, controlLeft },
+      control: {
+        p2Worst: Math.max(...control.map(c => c.ratio)),
+        k1Worst: k1Worst / k1Top,
+        controlLeft,
+      },
       notes: `L2. P1 ${p1}, P2 ${p2}, P3 ${p3}, K1 ${k1}, K2 ${k2}. ${lines.join('. ')}.`,
     })
   },

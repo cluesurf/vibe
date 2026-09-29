@@ -15,7 +15,12 @@
 // love was followed through all four periods, and the period it passed FRONTIER times the committed
 // dressing in otherwise. E-FRC-0136 runs the first stage itself; this runs the rest at scale.
 
-import { colorLocalCollision, colorLocalSpec, PAIR_TABLE, type ColorLocalSpec } from '@/code/rule/color-local-weave'
+import {
+  colorLocalCollision,
+  colorLocalSpec,
+  PAIR_TABLE,
+  type ColorLocalSpec,
+} from '@/code/rule/color-local-weave'
 import {
   cptTableSweep,
   familySweep,
@@ -23,10 +28,22 @@ import {
   tableScheduleSweep,
   turnScheduleSweep,
 } from '@/code/rule/color-local-family'
-import { acceptance, structuralAcceptance, type ScheduledRule } from '@/code/measure/weave-acceptance'
+import {
+  acceptance,
+  structuralAcceptance,
+  type ScheduledRule,
+} from '@/code/measure/weave-acceptance'
 
-const rule = (spec: ColorLocalSpec): ScheduledRule => (opposite, forward) => colorLocalCollision({ spec, opposite, forward })
-const [sweep = 'none', sliceText = '0', slicesText = '1', listText = ''] = process.argv.slice(2)
+const rule =
+  (spec: ColorLocalSpec): ScheduledRule =>
+  (opposite, forward) =>
+    colorLocalCollision({ spec, opposite, forward })
+const [
+  sweep = 'none',
+  sliceText = '0',
+  slicesText = '1',
+  listText = '',
+] = process.argv.slice(2)
 const slice = Number(sliceText)
 const slices = Number(slicesText)
 const list = listText.split(',').filter(x => x.length > 0)
@@ -41,7 +58,9 @@ const all =
           ? cptTableSweep()
           : familySweep(sweep)
 const members = all.filter((_, i) => i % slices === slice)
-const reference = acceptance(rule(colorLocalSpec({ tables: [PAIR_TABLE] })))
+const reference = acceptance(
+  rule(colorLocalSpec({ tables: [PAIR_TABLE] })),
+)
 const started = Date.now()
 const counts = new Map<string, number>()
 
@@ -56,8 +75,12 @@ for (const member of members) {
       `Q ${member.id} ${key} love ${result.love.periodLargest.join(',')} fear ${result.fear?.periodLargest.join(',') ?? '-'} ${JSON.stringify(result.values)} ${result.love.overCapAt}`,
     )
   } else {
-    console.log(`X ${member.id} ${key} ${JSON.stringify(result.values)}`)
+    console.log(
+      `X ${member.id} ${key} ${JSON.stringify(result.values)}`,
+    )
   }
 }
 
-console.log(`DONE ${sweep} ${slice}/${slices} members ${members.length} ${JSON.stringify([...counts])} ${Date.now() - started}ms`)
+console.log(
+  `DONE ${sweep} ${slice}/${slices} members ${members.length} ${JSON.stringify([...counts])} ${Date.now() - started}ms`,
+)

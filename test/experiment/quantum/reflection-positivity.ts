@@ -81,7 +81,14 @@ export function reflectionPositivity(input?: {
   }
 
   for (let t = 0; t < 120; t++) {
-    conservingEdgeSweep({ tone: tone, eu: euA, ev: evA, moved, rng: rng, arrow: arrow })
+    conservingEdgeSweep({
+      tone: tone,
+      eu: euA,
+      ev: evA,
+      moved,
+      rng: rng,
+      arrow: arrow,
+    })
   }
   // steady state
 
@@ -123,7 +130,14 @@ export function reflectionPositivity(input?: {
       }
     }
 
-    conservingEdgeSweep({ tone: tone, eu: euA, ev: evA, moved, rng: rng, arrow: arrow })
+    conservingEdgeSweep({
+      tone: tone,
+      eu: euA,
+      ev: evA,
+      moved,
+      rng: rng,
+      arrow: arrow,
+    })
   }
 
   const c: number[] = []

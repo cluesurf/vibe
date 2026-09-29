@@ -77,8 +77,21 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { keptSpace, tokenSubsteps, type KeptSpace, type Substep, type TokenStep } from '@/code/measure/moving-exclusion'
-import { anticommutantDimension, diracGenerators, roleEndCovariance, roleEnds, weylBand, weylSubsteps } from '@/code/measure/doublet-slots'
+import {
+  keptSpace,
+  tokenSubsteps,
+  type KeptSpace,
+  type Substep,
+  type TokenStep,
+} from '@/code/measure/moving-exclusion'
+import {
+  anticommutantDimension,
+  diracGenerators,
+  roleEndCovariance,
+  roleEnds,
+  weylBand,
+  weylSubsteps,
+} from '@/code/measure/doublet-slots'
 
 const SIDE = 3
 const MASSIVE: readonly TokenStep[] = ['x', 'y', 'z', 'x']
@@ -90,13 +103,25 @@ const KRYLOV = 1e-5
 const COMMUTES = 1e-12
 const EXACT = 1e-12
 
-function blocks(side: number, n: number, substeps: readonly Substep[]): KeptSpace[] {
+function blocks(
+  side: number,
+  n: number,
+  substeps: readonly Substep[],
+): KeptSpace[] {
   const out: KeptSpace[] = []
 
   for (let a = 0; a < side; a++) {
     for (let b = 0; b < side; b++) {
       for (let c = 0; c < side; c++) {
-        out.push(keptSpace({ side, n, k: [a, b, c], substeps, tolerance: KRYLOV }))
+        out.push(
+          keptSpace({
+            side,
+            n,
+            k: [a, b, c],
+            substeps,
+            tolerance: KRYLOV,
+          }),
+        )
       }
     }
   }
@@ -104,11 +129,20 @@ function blocks(side: number, n: number, substeps: readonly Substep[]): KeptSpac
   return out
 }
 
-const total = (list: readonly KeptSpace[], f: (b: KeptSpace) => number): number => list.reduce((a, b) => a + f(b), 0)
+const total = (
+  list: readonly KeptSpace[],
+  f: (b: KeptSpace) => number,
+): number => list.reduce((a, b) => a + f(b), 0)
 // sound: the kept space closes to CLOSURE, the exchange commutes, and at least GAP between the smallest residual taken
 // as a direction and the largest dismissed as rounding (a block with nothing dismissed has no gap to read)
 const sound = (list: readonly KeptSpace[]): boolean =>
-  list.every(b => b.closureResidual < CLOSURE && b.exchangeCommutes < COMMUTES && (b.largestRejected === 0 || b.smallestAccepted / b.largestRejected > GAP))
+  list.every(
+    b =>
+      b.closureResidual < CLOSURE &&
+      b.exchangeCommutes < COMMUTES &&
+      (b.largestRejected === 0 ||
+        b.smallestAccepted / b.largestRejected > GAP),
+  )
 
 export default experiment({
   id: 'matter/doublet-link-ends',
@@ -123,20 +157,39 @@ export default experiment({
     // G1, G2: the role
     const ends = roleEnds()
     const cov = roleEndCovariance(ends)
-    const g1 = cov.carried === cov.checks && cov.checks === 216 * 9 * 6 && cov.rankOne < EXACT && cov.sumToDoublet < EXACT && cov.twoPiSign < EXACT
+    const g1 =
+      cov.carried === cov.checks &&
+      cov.checks === 216 * 9 * 6 &&
+      cov.rankOne < EXACT &&
+      cov.sumToDoublet < EXACT &&
+      cov.twoPiSign < EXACT
     const g2 = g1
 
     // G3: the four-component token, ends = directions (the slot reading), massive schedule
-    const massive = blocks(SIDE, 4, tokenSubsteps(MASSIVE, 'locked', 'slot'))
+    const massive = blocks(
+      SIDE,
+      4,
+      tokenSubsteps(MASSIVE, 'locked', 'slot'),
+    )
     const g3 = massive.every(b => b.antisymmetricRemoved === 0)
 
     // G4: the two-component token
     const weyl = blocks(SIDE, 2, weylSubsteps(XYZ))
-    const pauli = (list: readonly KeptSpace[]): boolean => list.every(b => b.antisymmetricRemoved === 0 && b.symmetricKept < b.sector.dimension - b.antisymmetric)
+    const pauli = (list: readonly KeptSpace[]): boolean =>
+      list.every(
+        b =>
+          b.antisymmetricRemoved === 0 &&
+          b.symmetricKept < b.sector.dimension - b.antisymmetric,
+      )
     const sigmas = (['x', 'y', 'z'] as const).map(a => {
-      const s = weylSubsteps([a])[0] as Substep
+      const s = weylSubsteps([a])[0]!
+
       // sigma_a = P+ - P-
-      return { n: 2, re: Float64Array.from(s.plus.re, (v, i) => v - (s.minus.re[i] as number)), im: Float64Array.from(s.plus.im, (v, i) => v - (s.minus.im[i] as number)) }
+      return {
+        n: 2,
+        re: Float64Array.from(s.plus.re, (v, i) => v - s.minus.re[i]!),
+        im: Float64Array.from(s.plus.im, (v, i) => v - s.minus.im[i]!),
+      }
     })
     const weylAnti = anticommutantDimension(sigmas)
     const gapAtZero = (() => {
@@ -160,24 +213,32 @@ export default experiment({
       }),
     )
     const conical = slopes.every(s => Math.abs(s - 2) < 1e-2)
-    const g4 = pauli(weyl) && weylAnti === 0 && gapAtZero < EXACT && conical
+    const g4 =
+      pauli(weyl) && weylAnti === 0 && gapAtZero < EXACT && conical
 
     // G5: the four-component generators leave room for a mass
     const dirac = diracGenerators()
     const diracAnti = anticommutantDimension(dirac.gammas)
     const directionRank = (() => {
-      const s = tokenSubsteps(['x'], 'locked', 'slot')[0] as Substep
+      const s = tokenSubsteps(['x'], 'locked', 'slot')[0]!
+
       let trace = 0
 
       for (let i = 0; i < 4; i++) {
-        trace += s.plus.re[5 * i] as number
+        trace += s.plus.re[5 * i]!
       }
 
       return trace
     })()
     const g5 = diracAnti === 2 && Math.abs(directionRank - 2) < EXACT
     const void_ = !sound(massive) || !sound(weyl)
-    const status = void_ ? 'fail' : g1 && g2 && g3 ? 'pass' : !g3 ? 'fail' : 'partial'
+    const status = void_
+      ? 'fail'
+      : g1 && g2 && g3
+        ? 'pass'
+        : !g3
+          ? 'fail'
+          : 'partial'
     const removed = total(massive, b => b.antisymmetricRemoved)
     const anti = total(massive, b => b.antisymmetric)
     const metrics: Record<string, number> = {
@@ -190,24 +251,47 @@ export default experiment({
       massiveDimension: total(massive, b => b.sector.dimension),
       massiveAntisymmetric: anti,
       massiveAntisymmetricRemoved: removed,
-      massiveBlocksWithRemoved: massive.filter(b => b.antisymmetricRemoved > 0).length,
-      massiveK0AntisymmetricRemoved: massive[0]?.antisymmetricRemoved ?? -1,
+      massiveBlocksWithRemoved: massive.filter(
+        b => b.antisymmetricRemoved > 0,
+      ).length,
+      massiveK0AntisymmetricRemoved:
+        massive[0]?.antisymmetricRemoved ?? -1,
       massiveSymmetricKept: total(massive, b => b.symmetricKept),
       weylDimension: total(weyl, b => b.sector.dimension),
       weylAntisymmetric: total(weyl, b => b.antisymmetric),
-      weylAntisymmetricRemoved: total(weyl, b => b.antisymmetricRemoved),
-      weylSymmetric: total(weyl, b => b.sector.dimension - b.antisymmetric),
+      weylAntisymmetricRemoved: total(
+        weyl,
+        b => b.antisymmetricRemoved,
+      ),
+      weylSymmetric: total(
+        weyl,
+        b => b.sector.dimension - b.antisymmetric,
+      ),
       weylSymmetricKept: total(weyl, b => b.symmetricKept),
       weylAnticommutant: weylAnti,
       weylGapAtZero: gapAtZero,
-      ...Object.fromEntries(slopes.map((s, i) => [`weylSplittingOverK${i}`, s])),
+      ...Object.fromEntries(
+        slopes.map((s, i) => [`weylSplittingOverK${i}`, s]),
+      ),
       diracAnticommutant: diracAnti,
       diracDirectionRank: directionRank,
-      worstClosure: Math.max(...[...massive, ...weyl].map(b => b.closureResidual)),
-      worstExchangeCommutator: Math.max(...[...massive, ...weyl].map(b => b.exchangeCommutes)),
-      smallestAcceptedResidual: Math.min(...[...massive, ...weyl].map(b => b.smallestAccepted)),
-      largestRejectedResidual: Math.max(...[...massive, ...weyl].map(b => b.largestRejected)),
-      smallestGapDecades: Math.min(...[...massive, ...weyl].filter(b => b.largestRejected > 0).map(b => Math.log10(b.smallestAccepted / b.largestRejected))),
+      worstClosure: Math.max(
+        ...[...massive, ...weyl].map(b => b.closureResidual),
+      ),
+      worstExchangeCommutator: Math.max(
+        ...[...massive, ...weyl].map(b => b.exchangeCommutes),
+      ),
+      smallestAcceptedResidual: Math.min(
+        ...[...massive, ...weyl].map(b => b.smallestAccepted),
+      ),
+      largestRejectedResidual: Math.max(
+        ...[...massive, ...weyl].map(b => b.largestRejected),
+      ),
+      smallestGapDecades: Math.min(
+        ...[...massive, ...weyl]
+          .filter(b => b.largestRejected > 0)
+          .map(b => Math.log10(b.smallestAccepted / b.largestRejected)),
+      ),
       runVoid: void_ ? 1 : 0,
       gateCovariant: g1 ? 1 : 0,
       gateFermionNumber: g2 ? 1 : 0,
@@ -221,11 +305,14 @@ export default experiment({
       claim: `the ends of a link as the doublet's components: covariant in the role (${cov.carried} of ${cov.checks} end lines carried onto the end lines about the moved point, 2 pi sign -1, the two lines of each axis summing to the doublet, so the comoving fermion number is their sum); but a link's two ends are its two directions, and the massive token (schedule x, y, z, x) holds two components per direction, so reading its ends as slots removes ${removed} of ${anti} antisymmetric directions on L = 3 (${g3 ? 'NONE' : 'as the rank-one theorem predicts'}); the only token whose components are the ends, the doublet copied along sigma_a, keeps the whole antisymmetric sector (${total(weyl, b => b.antisymmetricRemoved)} removed) but is massless (anticommutant ${weylAnti}, bands meeting at k = 0, splitting ${slopes[0]?.toFixed(6)} |k|), while a mass needs the four-component token (anticommutant ${diracAnti}, direction rank ${directionRank.toFixed(0)}): four slots per husk link, and a link has two ends`,
       metrics,
       control: {
-        weylAntisymmetricRemoved: total(weyl, b => b.antisymmetricRemoved),
+        weylAntisymmetricRemoved: total(
+          weyl,
+          b => b.antisymmetricRemoved,
+        ),
         massiveAntisymmetricRemoved: removed,
       },
       notes:
-        'L2 (G1, G2, G5 are L1 algebra). Stand-ins: the spinor token of code/rule/spinor-token and its doublet-only reduction; the role algebra is the Weil lift of SL(2, 3) (code/algebra/weil-representation), the same projectors for all three lifts since Q8 is the commutator subgroup. Exact linear algebra on every total-momentum block, floating rounding only; the exchange is read after the kept space is found, never imposed. The knit\'s stream copies one vibe per (link, direction), so it respects reading (b) and not (a): (a) needs two vibes per direction. The third reading (end set by sigma_a whatever the direction) is refused by the theorem in the header and is not a slot rule.',
+        "L2 (G1, G2, G5 are L1 algebra). Stand-ins: the spinor token of code/rule/spinor-token and its doublet-only reduction; the role algebra is the Weil lift of SL(2, 3) (code/algebra/weil-representation), the same projectors for all three lifts since Q8 is the commutator subgroup. Exact linear algebra on every total-momentum block, floating rounding only; the exchange is read after the kept space is found, never imposed. The knit's stream copies one vibe per (link, direction), so it respects reading (b) and not (a): (a) needs two vibes per direction. The third reading (end set by sigma_a whatever the direction) is refused by the theorem in the header and is not a slot rule.",
     })
   },
 })

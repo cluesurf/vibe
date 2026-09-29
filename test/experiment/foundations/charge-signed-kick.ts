@@ -61,7 +61,12 @@ export default experiment({
 
     const runTone = (
       tone: number,
-    ): { before: string; after: string; cleanBefore: boolean; supportAfter: number } => {
+    ): {
+      before: string
+      after: string
+      cleanBefore: boolean
+      supportAfter: number
+    } => {
       let vacuum: Will = makeWill(mesh)
       let seeded: Will = makeWill(mesh)
       let before = ''
@@ -74,8 +79,7 @@ export default experiment({
           const slot = cellAt([1, 0, mid, mid]) * 24 + 0
           const v = seeded.data[slot]!
 
-          seeded.data[slot] = (((v + tone + 4) % 3) -
-            1) as -1 | 0 | 1
+          seeded.data[slot] = (((v + tone + 4) % 3) - 1) as -1 | 0 | 1
         }
 
         const active = (c: number): boolean =>
@@ -92,7 +96,10 @@ export default experiment({
           }
         }
 
-        const d = pairSub(clockAmplitude(seeded), clockAmplitude(vacuum))
+        const d = pairSub(
+          clockAmplitude(seeded),
+          clockAmplitude(vacuum),
+        )
         const m = Math.hypot(d[0], d[1])
         const clean = Math.abs(m - Math.sqrt(3)) < 1e-9
         const phase = clean

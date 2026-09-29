@@ -28,7 +28,15 @@
 // which sums to zero again, so the balance survives every merge.
 
 import { type ColorWeave } from '@/code/rule/color-weave'
-import { carryCoordinate, CONJUGATE_GRID, CONJUGATE_POINT, meetWhole, translatedOf, type BeatRecord, type Whole } from '@/code/rule/fear-weave'
+import {
+  carryCoordinate,
+  CONJUGATE_GRID,
+  CONJUGATE_POINT,
+  meetWhole,
+  translatedOf,
+  type BeatRecord,
+  type Whole,
+} from '@/code/rule/fear-weave'
 
 // a knot's departure from calm: tokens (most significant coordinate first), delta on the 9^k joint points,
 // and the units M (Delta = delta / M). Like a whole, it carries each coordinate's own role point (phase index),
@@ -57,7 +65,9 @@ const POINTS = (k: number): bigint => 9n ** BigInt(k)
 export function reduceDeparture(d: Departure): Departure {
   const g = d.delta.reduce((a, b) => gcd(a, b), d.units)
 
-  return g > 1n ? { ...d, delta: d.delta.map(x => x / g), units: d.units / g } : d
+  return g > 1n
+    ? { ...d, delta: d.delta.map(x => x / g), units: d.units / g }
+    : d
 }
 
 // the departure of a knot stored the fear weave's way
@@ -65,7 +75,12 @@ export function departureOf(whole: Whole): Departure {
   const n = whole.weight.reduce((a, b) => a + b, 0n)
   const p = POINTS(whole.tokens.length)
 
-  return reduceDeparture({ tokens: whole.tokens, delta: whole.weight.map(w => p * w - n), units: p * n, ...(whole.own ? { own: whole.own } : {}) })
+  return reduceDeparture({
+    tokens: whole.tokens,
+    delta: whole.weight.map(w => p * w - n),
+    units: p * n,
+    ...(whole.own ? { own: whole.own } : {}),
+  })
 }
 
 // the knot stored the fear weave's way, reduced: n = M + 9^k delta over 9^k M
@@ -74,11 +89,18 @@ export function wholeOfDeparture(d: Departure): Whole {
   const weight = d.delta.map(x => d.units + p * x)
   const g = weight.reduce((a, b) => gcd(a, b), 0n)
 
-  return { tokens: d.tokens, weight: g > 1n ? weight.map(w => w / g) : weight, ...(d.own ? { own: d.own } : {}) }
+  return {
+    tokens: d.tokens,
+    weight: g > 1n ? weight.map(w => w / g) : weight,
+    ...(d.own ? { own: d.own } : {}),
+  }
 }
 
 // loves and fears of a departure, in its units
-export function departureLovesAndFears(d: Departure): { loves: bigint; fears: bigint } {
+export function departureLovesAndFears(d: Departure): {
+  loves: bigint
+  fears: bigint
+} {
   let loves = 0n
   let fears = 0n
 
@@ -95,7 +117,10 @@ export function departureLovesAndFears(d: Departure): { loves: bigint; fears: bi
 
 // the chance of every reading of the k roles (index sum of role_c 3^(k-1-c)), as numerators over one
 // denominator: 1 / 3^k plus the sum of Delta over the reading's 3^k points
-export function departureChances(d: Departure): { numerator: bigint[]; denominator: bigint } {
+export function departureChances(d: Departure): {
+  numerator: bigint[]
+  denominator: bigint
+} {
   const k = d.tokens.length
   const readings = 3 ** k
   const sums = new Array<bigint>(readings).fill(0n)
@@ -104,7 +129,9 @@ export function departureChances(d: Departure): { numerator: bigint[]; denominat
     let reading = 0
 
     for (let c = 0; c < k; c++) {
-      reading = reading * 3 + Math.floor((Math.floor(i / 9 ** (k - 1 - c)) % 9) / 3)
+      reading =
+        reading * 3 +
+        Math.floor((Math.floor(i / 9 ** (k - 1 - c)) % 9) / 3)
     }
 
     sums[reading] = (sums[reading] ?? 0n) + x
@@ -112,7 +139,10 @@ export function departureChances(d: Departure): { numerator: bigint[]; denominat
 
   const denominator = BigInt(readings) * d.units
 
-  return { numerator: sums.map(s => d.units + BigInt(readings) * s), denominator }
+  return {
+    numerator: sums.map(s => d.units + BigInt(readings) * s),
+    denominator,
+  }
 }
 
 // one meeting: the kernel (kernel / divisor) on coordinates a and b. fixed: keep the units and return null
@@ -127,7 +157,14 @@ export function meetDeparture(input: {
 }): Departure | null {
   const { departure, a, b, kernel, fixed } = input
   const divisor = BigInt(input.divisor)
-  const raw = meetWhole({ whole: { tokens: departure.tokens, weight: departure.delta }, a, b, kernel4: kernel, fixed: true, divisor: 1 })
+  const raw = meetWhole({
+    whole: { tokens: departure.tokens, weight: departure.delta },
+    a,
+    b,
+    kernel4: kernel,
+    fixed: true,
+    divisor: 1,
+  })
 
   if (!raw) {
     return null
@@ -141,7 +178,11 @@ export function meetDeparture(input: {
     return { ...departure, delta: raw.weight.map(x => x / divisor) }
   }
 
-  return reduceDeparture({ ...departure, delta: raw.weight, units: departure.units * divisor })
+  return reduceDeparture({
+    ...departure,
+    delta: raw.weight,
+    units: departure.units * divisor,
+  })
 }
 
 // one beat's record applied to a departure, in the order advanceWhole uses: meetings then crossings going
@@ -164,9 +205,12 @@ export function advanceDeparture(input: {
   moveOf?: (g: number) => ArrayLike<number>
   comoving?: boolean
 }): Departure | null {
-  const { weave, record, kernel, divisor, fixed, forward, moveOf } = input
+  const { weave, record, kernel, divisor, fixed, forward, moveOf } =
+    input
   const comoving = input.comoving !== false
-  const coordinate = new Map(input.departure.tokens.map((t, i) => [t, i]))
+  const coordinate = new Map(
+    input.departure.tokens.map((t, i) => [t, i]),
+  )
 
   let d: Departure | null = input.departure
 
@@ -176,9 +220,19 @@ export function advanceDeparture(input: {
       const b = coordinate.get(tb)
 
       if (d && a !== undefined && b !== undefined) {
-        const read = comoving && d.own ? translatedOf(kernel, d.own[a] ?? 0, d.own[b] ?? 0) : kernel
+        const read =
+          comoving && d.own
+            ? translatedOf(kernel, d.own[a] ?? 0, d.own[b] ?? 0)
+            : kernel
 
-        d = meetDeparture({ departure: d, a, b, kernel: read, divisor, fixed })
+        d = meetDeparture({
+          departure: d,
+          a,
+          b,
+          kernel: read,
+          divisor,
+          fixed,
+        })
       }
     }
   }
@@ -189,9 +243,21 @@ export function advanceDeparture(input: {
 
       if (d && c !== undefined && g !== weave.moves.identity) {
         // a crossing carries the own point with the weights
-        const moved = carryCoordinate({ tokens: d.tokens, weight: d.delta, ...(d.own ? { own: d.own } : {}) }, c, moveOf ? moveOf(g) : (weave.moves.act[g] ?? []))
+        const moved = carryCoordinate(
+          {
+            tokens: d.tokens,
+            weight: d.delta,
+            ...(d.own ? { own: d.own } : {}),
+          },
+          c,
+          moveOf ? moveOf(g) : (weave.moves.act[g] ?? []),
+        )
 
-        d = { ...d, delta: moved.weight, ...(moved.own ? { own: moved.own } : {}) }
+        d = {
+          ...d,
+          delta: moved.weight,
+          ...(moved.own ? { own: moved.own } : {}),
+        }
       }
     }
   }
@@ -221,23 +287,39 @@ export function mergeDepartures(a: Departure, b: Departure): Departure {
       const da = a.delta[i] ?? 0n
       const db = b.delta[j] ?? 0n
 
-      delta[i * nb + j] = da * b.units * pa + pb * a.units * db + pa * pb * da * db
+      delta[i * nb + j] =
+        da * b.units * pa + pb * a.units * db + pa * pb * da * db
     }
   }
 
-  const ownOf = (d: Departure): number[] => (d.own ? [...d.own] : new Array<number>(d.tokens.length).fill(0))
+  const ownOf = (d: Departure): number[] =>
+    d.own ? [...d.own] : new Array<number>(d.tokens.length).fill(0)
 
-  return reduceDeparture({ tokens: [...a.tokens, ...b.tokens], delta, units: a.units * b.units * pa * pb, own: [...ownOf(a), ...ownOf(b)] })
+  return reduceDeparture({
+    tokens: [...a.tokens, ...b.tokens],
+    delta,
+    units: a.units * b.units * pa * pb,
+    own: [...ownOf(a), ...ownOf(b)],
+  })
 }
 
 // does the kernel fix the uniform weighting (every row sums to the divisor), and keep the total weight
 // (every column does)
-export function kernelIsUnital(kernel: readonly (readonly number[])[], divisor: number): boolean {
+export function kernelIsUnital(
+  kernel: readonly (readonly number[])[],
+  divisor: number,
+): boolean {
   return kernel.every(row => row.reduce((s, x) => s + x, 0) === divisor)
 }
 
-export function kernelKeepsWeight(kernel: readonly (readonly number[])[], divisor: number): boolean {
-  return kernel.every((_, c) => kernel.reduce((s, row) => s + (row[c] ?? 0), 0) === divisor)
+export function kernelKeepsWeight(
+  kernel: readonly (readonly number[])[],
+  divisor: number,
+): boolean {
+  return kernel.every(
+    (_, c) =>
+      kernel.reduce((s, row) => s + (row[c] ?? 0), 0) === divisor,
+  )
 }
 
 // charge conjugation on the grid, C: (a, b) -> (a, -b) on every coordinate of k roles
@@ -245,20 +327,33 @@ export function conjugateIndex(i: number, k: number): number {
   let out = 0
 
   for (let c = 0; c < k; c++) {
-    out = out * 9 + (CONJUGATE_POINT[Math.floor(i / 9 ** (k - 1 - c)) % 9] ?? 0)
+    out =
+      out * 9 +
+      (CONJUGATE_POINT[Math.floor(i / 9 ** (k - 1 - c)) % 9] ?? 0)
   }
 
   return out
 }
 
 // a kernel on two roles seen through C on both coordinates: K^C(x, y) = K(C x, C y)
-export function conjugateKernel(kernel: readonly (readonly number[])[]): number[][] {
-  return Array.from({ length: 81 }, (_, r) => Array.from({ length: 81 }, (__, c) => kernel[conjugateIndex(r, 2)]?.[conjugateIndex(c, 2)] ?? 0))
+export function conjugateKernel(
+  kernel: readonly (readonly number[])[],
+): number[][] {
+  return Array.from({ length: 81 }, (_, r) =>
+    Array.from(
+      { length: 81 },
+      (__, c) =>
+        kernel[conjugateIndex(r, 2)]?.[conjugateIndex(c, 2)] ?? 0,
+    ),
+  )
 }
 
 // a grid move seen through C: C g C. The move is a table on the GRID index a + 3 b (weave.moves.act), so C is
 // CONJUGATE_GRID there. It read CONJUGATE_POINT, the phase-index table, until 2026-09-26, which was right only
 // while moveCoordinate applied grid tables to the phase index directly (E-QTM-0124 changed that)
 export function conjugateMove(perm: ArrayLike<number>): number[] {
-  return Array.from({ length: 9 }, (_, p) => CONJUGATE_GRID[perm[CONJUGATE_GRID[p] ?? 0] ?? 0] ?? 0)
+  return Array.from(
+    { length: 9 },
+    (_, p) => CONJUGATE_GRID[perm[CONJUGATE_GRID[p] ?? 0] ?? 0] ?? 0,
+  )
 }

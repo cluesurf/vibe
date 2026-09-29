@@ -47,7 +47,15 @@
 //
 // Integers only: no float, no trig, no rounding.
 
-import { centeredField, columnSumLinks, columnValue, huskCurlWeighted, writeColumn, type TritLight, type TritState } from '@/code/rule/trit-column'
+import {
+  centeredField,
+  columnSumLinks,
+  columnValue,
+  huskCurlWeighted,
+  writeColumn,
+  type TritLight,
+  type TritState,
+} from '@/code/rule/trit-column'
 
 export type ReconnectTable = {
   readonly light: TritLight
@@ -66,7 +74,11 @@ export function buildReconnectTable(light: TritLight): ReconnectTable {
   const orient = new Int8Array(bulk.triangles)
 
   for (let p = 0; p < bulk.huskTriangles; p++) {
-    for (let k = bulk.triColumnStart[p] ?? 0; k < (bulk.triColumnStart[p + 1] ?? 0); k++) {
+    for (
+      let k = bulk.triColumnStart[p] ?? 0;
+      k < (bulk.triColumnStart[p + 1] ?? 0);
+      k++
+    ) {
       const t = bulk.triColumn[k] ?? 0
 
       husk[t] = p
@@ -90,7 +102,14 @@ export function buildReconnectTable(light: TritLight): ReconnectTable {
     for (; c < lists.length; c++) {
       const links = usedLinks[c]!
 
-      if (!links[l0] && !links[l1] && !links[l2] && !usedColumns[c]![p]) break
+      if (
+        !links[l0] &&
+        !links[l1] &&
+        !links[l2] &&
+        !usedColumns[c]![p]
+      ) {
+        break
+      }
     }
 
     if (c === lists.length) {
@@ -108,24 +127,46 @@ export function buildReconnectTable(light: TritLight): ReconnectTable {
 
   const classStart = new Int32Array(lists.length + 1)
 
-  for (let c = 0; c < lists.length; c++) classStart[c + 1] = (classStart[c] ?? 0) + (lists[c]?.length ?? 0)
+  for (let c = 0; c < lists.length; c++) {
+    classStart[c + 1] = (classStart[c] ?? 0) + (lists[c]?.length ?? 0)
+  }
 
-  return { light, husk, orient, classStart, members: Int32Array.from(lists.flat()), classes: lists.length }
+  return {
+    light,
+    husk,
+    orient,
+    classStart,
+    members: Int32Array.from(lists.flat()),
+    classes: lists.length,
+  }
 }
 
 // B_P for every husk triangle, centered, from the angle columns (the light's own field; the move reads it)
-export function huskFields(light: TritLight, state: TritState): Int32Array {
+export function huskFields(
+  light: TritLight,
+  state: TritState,
+): Int32Array {
   const angle = columnSumLinks(light, state.angle)
   const out = new Int32Array(light.bulk.huskTriangles)
 
-  for (let p = 0; p < out.length; p++) out[p] = centeredField(light, huskCurlWeighted(light, angle, p))
+  for (let p = 0; p < out.length; p++) {
+    out[p] = centeredField(light, huskCurlWeighted(light, angle, p))
+  }
 
   return out
 }
 
-export type ReconnectTally = { moves: number; loops: number; slides: number }
+export type ReconnectTally = {
+  moves: number
+  loops: number
+  slides: number
+}
 
-export const emptyReconnectTally = (): ReconnectTally => ({ moves: 0, loops: 0, slides: 0 })
+export const emptyReconnectTally = (): ReconnectTally => ({
+  moves: 0,
+  loops: 0,
+  slides: 0,
+})
 
 // The chain of triangle t: the k interval and the translation k* the move applies (0 when nothing moves).
 // Exposed for the exhaustive involution check.
@@ -137,6 +178,7 @@ export function reconnectShift(input: {
   field: number
 }): { lo: number; hi: number; shift: number } {
   const { a, potential: u, window: w, orient: o, field: b } = input
+
   let lo = Math.max(a[0], a[1], a[2]) - 1
   let hi = Math.min(a[0], a[1], a[2]) + 1
 
@@ -151,19 +193,28 @@ export function reconnectShift(input: {
 
   const length = hi - lo + 1
 
-  if (length === 2) return { lo, hi, shift: lo + hi }
+  if (length === 2) {
+    return { lo, hi, shift: lo + hi }
+  }
 
   if (length === 3) {
     const sigma = o * (b > 0 ? 1 : b < 0 ? -1 : 0)
 
-    if (sigma === 0) return { lo, hi, shift: 0 }
+    if (sigma === 0) {
+      return { lo, hi, shift: 0 }
+    }
 
     // the loop + sits at k = lo, the empty triangle at lo + 1, the loop - at hi (a_j - k = +1, 0, -1)
     const partner = sigma > 0 ? lo : hi
     const middle = lo + 1
 
-    if (middle === 0) return { lo, hi, shift: partner }
-    if (partner === 0) return { lo, hi, shift: middle }
+    if (middle === 0) {
+      return { lo, hi, shift: partner }
+    }
+
+    if (partner === 0) {
+      return { lo, hi, shift: middle }
+    }
 
     return { lo, hi, shift: 0 }
   }
@@ -172,7 +223,13 @@ export function reconnectShift(input: {
 }
 
 // the move on one bulk triangle; returns the translation applied
-export function reconnect(table: ReconnectTable, state: TritState, t: number, fields: Int32Array, tally?: ReconnectTally): number {
+export function reconnect(
+  table: ReconnectTable,
+  state: TritState,
+  t: number,
+  fields: Int32Array,
+  tally?: ReconnectTally,
+): number {
   const light = table.light
   const bulk = light.bulk
   const l0 = bulk.triLinks[t * 3] ?? 0
@@ -187,21 +244,44 @@ export function reconnect(table: ReconnectTable, state: TritState, t: number, fi
 
   // cheap exit: the empty triangle with no field moves only if the column window clips it, which it never
   // does at U = 0; a string pattern of spread 2 has a one-state chain
-  if (Math.max(a0, a1, a2) - Math.min(a0, a1, a2) === 2) return 0
+  if (Math.max(a0, a1, a2) - Math.min(a0, a1, a2) === 2) {
+    return 0
+  }
 
   const p = table.husk[t] ?? 0
   const o = table.orient[t] ?? 1
   const start = bulk.triColumnStart[p] ?? 0
   const length = (bulk.triColumnStart[p + 1] ?? 0) - start
-  const u = columnValue(state.potential, bulk.triColumn, bulk.triColumnSign, start, length)
-  const { shift: k } = reconnectShift({ a: [a0, a1, a2], potential: u, window: light.potentialWindow[p] ?? 0, orient: o, field: fields[p] ?? 0 })
+  const u = columnValue(
+    state.potential,
+    bulk.triColumn,
+    bulk.triColumnSign,
+    start,
+    length,
+  )
+  const { shift: k } = reconnectShift({
+    a: [a0, a1, a2],
+    potential: u,
+    window: light.potentialWindow[p] ?? 0,
+    orient: o,
+    field: fields[p] ?? 0,
+  })
 
-  if (k === 0) return 0
+  if (k === 0) {
+    return 0
+  }
 
   state.string[l0] = (state.string[l0] ?? 0) - k * c0
   state.string[l1] = (state.string[l1] ?? 0) - k * c1
   state.string[l2] = (state.string[l2] ?? 0) - k * c2
-  writeColumn(state.potential, bulk.triColumn, bulk.triColumnSign, start, length, u - k * o)
+  writeColumn(
+    state.potential,
+    bulk.triColumn,
+    bulk.triColumnSign,
+    start,
+    length,
+    u - k * o,
+  )
 
   if (tally) {
     tally.moves++
@@ -217,8 +297,18 @@ export function reconnect(table: ReconnectTable, state: TritState, t: number, fi
 }
 
 // one step: every triangle of class c. Its own inverse (for the same angles)
-export function reconnectStep(table: ReconnectTable, state: TritState, c: number, fields: Int32Array, tally?: ReconnectTally): void {
-  for (let at = table.classStart[c] ?? 0; at < (table.classStart[c + 1] ?? 0); at++) {
+export function reconnectStep(
+  table: ReconnectTable,
+  state: TritState,
+  c: number,
+  fields: Int32Array,
+  tally?: ReconnectTally,
+): void {
+  for (
+    let at = table.classStart[c] ?? 0;
+    at < (table.classStart[c + 1] ?? 0);
+    at++
+  ) {
     reconnect(table, state, table.members[at] ?? 0, fields, tally)
   }
 }
@@ -227,7 +317,11 @@ export function reconnectStep(table: ReconnectTable, state: TritState, c: number
 // u_t = -sigma), as the reflection of the chain in (strings, u_t). It keeps the bulk flux exactly and is an
 // involution, but it caps each triangle at one lap per sense (u_t is one trit) and it leaves a hole in the
 // potential column's thermometer code
-export function literalReconnect(state: TritState, light: TritLight, t: number): number {
+export function literalReconnect(
+  state: TritState,
+  light: TritLight,
+  t: number,
+): number {
   const bulk = light.bulk
   const l = [0, 1, 2].map(j => bulk.triLinks[t * 3 + j] ?? 0)
   const c = [0, 1, 2].map(j => bulk.triSigns[t * 3 + j] ?? 0)
@@ -237,9 +331,14 @@ export function literalReconnect(state: TritState, light: TritLight, t: number):
   const hi = Math.min(Math.min(...a) + 1, u + 1)
   const k = lo + hi
 
-  if (k === 0 || lo > hi) return 0
+  if (k === 0 || lo > hi) {
+    return 0
+  }
 
-  l.forEach((x, j) => (state.string[x] = (state.string[x] ?? 0) - k * (c[j] ?? 0)))
+  l.forEach(
+    (x, j) =>
+      (state.string[x] = (state.string[x] ?? 0) - k * (c[j] ?? 0)),
+  )
   state.potential[t] = u - k
 
   return k

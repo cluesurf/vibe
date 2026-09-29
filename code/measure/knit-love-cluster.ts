@@ -29,13 +29,18 @@
 // NO ROUNDING, NO FLOAT in anything here except the readings marked MEASUREMENT (the spin share, the energies).
 
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { bouncePermutation, BOUNCE_TABLE } from '@/code/rule/bounce-pair-knit'
+import {
+  bouncePermutation,
+  BOUNCE_TABLE,
+} from '@/code/rule/bounce-pair-knit'
 import { LINE_OF, OPPOSITE, SIDE } from '@/code/rule/isometric-knit'
 import { HUSK_VECTORS } from '@/code/measure/photon-husk'
 
 const ROOTS = rootsD4()
 
-export const R = [0, 1, 2, 3].map(k => Int32Array.from(ROOTS, r => r[k] ?? 0))
+export const R = [0, 1, 2, 3].map(k =>
+  Int32Array.from(ROOTS, r => r[k] ?? 0),
+)
 export const OPP = Int32Array.from(OPPOSITE)
 export const LINE = Int32Array.from(LINE_OF)
 // the slot's doublet label: 0 on a line's first slot (copied forward), 1 on its second
@@ -50,7 +55,9 @@ for (let d = 0; d < 24; d++) {
   const k = HUSK_VECTORS.findIndex(v => v.every((x, i) => x === s[i]))
   const m = HUSK_VECTORS.findIndex(v => v.every((x, i) => x === -s[i]!))
 
-  if (k < 0 && m < 0) throw new Error('knit-love-cluster: a root casts no husk direction')
+  if (k < 0 && m < 0) {
+    throw new Error('knit-love-cluster: a root casts no husk direction')
+  }
 
   SHADOW_DIR[d] = k >= 0 ? k : m
   SHADOW_SIGN[d] = k >= 0 ? 1 : -1
@@ -63,16 +70,28 @@ const mod = (a: number, m: number): number => ((a % m) + m) % m
 
 export type Cluster = { n: number; x: Int32Array; d: Int8Array }
 
-export const cloneCluster = (c: Cluster): Cluster => ({ n: c.n, x: Int32Array.from(c.x), d: Int8Array.from(c.d) })
+export const cloneCluster = (c: Cluster): Cluster => ({
+  n: c.n,
+  x: Int32Array.from(c.x),
+  d: Int8Array.from(c.d),
+})
 
-export function makeCluster(pos: readonly (readonly number[])[], slots: readonly number[], depth: number): Cluster {
+export function makeCluster(
+  pos: readonly (readonly number[])[],
+  slots: readonly number[],
+  depth: number,
+): Cluster {
   const n = slots.length
   const x = new Int32Array(4 * n)
 
   for (let t = 0; t < n; t++) {
     const p = pos[t]!
 
-    if ((p[0]! + p[1]! + p[2]! + p[3]!) % 2 !== 0) throw new Error('knit-love-cluster: a position is not a D4 vector')
+    if ((p[0]! + p[1]! + p[2]! + p[3]!) % 2 !== 0) {
+      throw new Error(
+        'knit-love-cluster: a position is not a D4 vector',
+      )
+    }
 
     x[4 * t] = p[0]!
     x[4 * t + 1] = p[1]!
@@ -84,7 +103,10 @@ export function makeCluster(pos: readonly (readonly number[])[], slots: readonly
 }
 
 const sameDock = (c: Cluster, a: number, b: number): boolean =>
-  c.x[4 * a] === c.x[4 * b] && c.x[4 * a + 1] === c.x[4 * b + 1] && c.x[4 * a + 2] === c.x[4 * b + 2] && c.x[4 * a + 3] === c.x[4 * b + 3]
+  c.x[4 * a] === c.x[4 * b] &&
+  c.x[4 * a + 1] === c.x[4 * b + 1] &&
+  c.x[4 * a + 2] === c.x[4 * b + 2] &&
+  c.x[4 * a + 3] === c.x[4 * b + 3]
 
 // the flux register: husk link (column, direction k) -> trit in {1, 2} (absent = 0)
 export type Flux = Map<number, number>
@@ -92,11 +114,19 @@ export type Flux = Map<number, number>
 const OFF = 512
 const SPAN = 1024
 
-export const linkKey = (c0: number, c1: number, c2: number, k: number): number => (((c0 + OFF) * SPAN + (c1 + OFF)) * SPAN + (c2 + OFF)) * 9 + k
+export const linkKey = (
+  c0: number,
+  c1: number,
+  c2: number,
+  k: number,
+): number =>
+  (((c0 + OFF) * SPAN + (c1 + OFF)) * SPAN + (c2 + OFF)) * 9 + k
 
 export function linkOf(key: number): [number, number, number, number] {
   const k = key % 9
+
   let r = (key - k) / 9
+
   const c2 = (r % SPAN) - OFF
 
   r = (r - (r % SPAN)) / SPAN
@@ -110,8 +140,11 @@ export function linkOf(key: number): [number, number, number, number] {
 function addFlux(f: Flux, key: number, v: number): void {
   const w = mod((f.get(key) ?? 0) + v, 3)
 
-  if (w === 0) f.delete(key)
-  else f.set(key, w)
+  if (w === 0) {
+    f.delete(key)
+  } else {
+    f.set(key, w)
+  }
 }
 
 export type BeatTally = { meetings: number }
@@ -122,31 +155,52 @@ const DONE = new Uint8Array(64)
 
 // ONE BEAT of the rule on the cluster's occupation (meeting, collision, stream), the flux recorded when given.
 // Returns the number of like meetings (two loves on the two slots of one line of one dock, before the collision).
-export function clusterBeat(c: Cluster, depth: number, flux?: Flux): number {
+export function clusterBeat(
+  c: Cluster,
+  depth: number,
+  flux?: Flux,
+): number {
   const n = c.n
+
   let meetings = 0
 
-  for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) if (sameDock(c, a, b) && OPP[c.d[a]!] === c.d[b]) meetings++
+  for (let a = 0; a < n; a++) {
+    for (let b = a + 1; b < n; b++) {
+      if (sameDock(c, a, b) && OPP[c.d[a]!] === c.d[b]) {
+        meetings++
+      }
+    }
+  }
 
   // the collision, dock by dock
   DONE.fill(0, 0, n)
 
   for (let a = 0; a < n; a++) {
-    if (DONE[a]) continue
+    if (DONE[a]) {
+      continue
+    }
 
     ARR.fill(0)
     ARR[c.d[a]!] = 1
 
-    for (let b = a + 1; b < n; b++) if (!DONE[b] && sameDock(c, a, b)) ARR[c.d[b]!] = 1
+    for (let b = a + 1; b < n; b++) {
+      if (!DONE[b] && sameDock(c, a, b)) {
+        ARR[c.d[b]!] = 1
+      }
+    }
 
     const kind = bouncePermutation(BOUNCE_TABLE, 'lone', ARR, 0, PERM)
 
     for (let b = a; b < n; b++) {
-      if (DONE[b] || (b !== a && !sameDock(c, a, b))) continue
+      if (DONE[b] || (b !== a && !sameDock(c, a, b))) {
+        continue
+      }
 
       DONE[b] = 1
 
-      if (kind !== 0) c.d[b] = PERM[c.d[b]!]!
+      if (kind !== 0) {
+        c.d[b] = PERM[c.d[b]!]!
+      }
     }
   }
 
@@ -157,11 +211,25 @@ export function clusterBeat(c: Cluster, depth: number, flux?: Flux): number {
     if (flux) {
       const k = SHADOW_DIR[d]!
 
-      if (SHADOW_SIGN[d] === 1) addFlux(flux, linkKey(c.x[4 * t]!, c.x[4 * t + 1]!, c.x[4 * t + 2]!, k), -1)
-      else {
+      if (SHADOW_SIGN[d] === 1) {
+        addFlux(
+          flux,
+          linkKey(c.x[4 * t]!, c.x[4 * t + 1]!, c.x[4 * t + 2]!, k),
+          -1,
+        )
+      } else {
         const v = HUSK_VECTORS[k]!
 
-        addFlux(flux, linkKey(c.x[4 * t]! - v[0]!, c.x[4 * t + 1]! - v[1]!, c.x[4 * t + 2]! - v[2]!, k), 1)
+        addFlux(
+          flux,
+          linkKey(
+            c.x[4 * t]! - v[0]!,
+            c.x[4 * t + 1]! - v[1]!,
+            c.x[4 * t + 2]! - v[2]!,
+            k,
+          ),
+          1,
+        )
       }
     }
 
@@ -193,15 +261,22 @@ export function gaussStrings(c: Cluster): Flux {
         b[k] = a[k]! + s
 
         // outflow +1 from a to b
-        if (s === 1) addFlux(f, linkKey(a[0]!, a[1]!, a[2]!, k), 1)
-        else addFlux(f, linkKey(b[0]!, b[1]!, b[2]!, k), -1)
+        if (s === 1) {
+          addFlux(f, linkKey(a[0]!, a[1]!, a[2]!, k), 1)
+        } else {
+          addFlux(f, linkKey(b[0]!, b[1]!, b[2]!, k), -1)
+        }
 
         a[k] = b[k]!
       }
     }
   }
 
-  if (c.n % 3 !== 0) throw new Error('knit-love-cluster: the loves are not a center singlet')
+  if (c.n % 3 !== 0) {
+    throw new Error(
+      'knit-love-cluster: the loves are not a center singlet',
+    )
+  }
 
   return f
 }
@@ -210,9 +285,12 @@ export function gaussStrings(c: Cluster): Flux {
 // or the loves touch)
 export function gaussViolations(c: Cluster, f: Flux): number {
   const docks = new Map<string, [number, number, number]>()
-  const touch = (p: [number, number, number]): void => void docks.set(p.join(','), p)
+  const touch = (p: [number, number, number]): void =>
+    void docks.set(p.join(','), p)
 
-  for (let t = 0; t < c.n; t++) touch([c.x[4 * t]!, c.x[4 * t + 1]!, c.x[4 * t + 2]!])
+  for (let t = 0; t < c.n; t++) {
+    touch([c.x[4 * t]!, c.x[4 * t + 1]!, c.x[4 * t + 2]!])
+  }
 
   for (const key of f.keys()) {
     const [a, b, e, k] = linkOf(key)
@@ -236,9 +314,19 @@ export function gaussViolations(c: Cluster, f: Flux): number {
 
     let q = 0
 
-    for (let t = 0; t < c.n; t++) if (c.x[4 * t] === x && c.x[4 * t + 1] === y && c.x[4 * t + 2] === z) q++
+    for (let t = 0; t < c.n; t++) {
+      if (
+        c.x[4 * t] === x &&
+        c.x[4 * t + 1] === y &&
+        c.x[4 * t + 2] === z
+      ) {
+        q++
+      }
+    }
 
-    if (mod(div - q, 3) !== 0) bad++
+    if (mod(div - q, 3) !== 0) {
+      bad++
+    }
   }
 
   return bad
@@ -250,24 +338,39 @@ export function gaussViolations(c: Cluster, f: Flux): number {
 const W = 128
 const H = 64
 
-function relCode(c: Cluster, a: number, t: number, depth: number): number {
+function relCode(
+  c: Cluster,
+  a: number,
+  t: number,
+  depth: number,
+): number {
   const dx0 = c.x[4 * t]! - c.x[4 * a]! + H
   const dx1 = c.x[4 * t + 1]! - c.x[4 * a + 1]! + H
   const dx2 = c.x[4 * t + 2]! - c.x[4 * a + 2]! + H
   const dx3 = mod(c.x[4 * t + 3]! - c.x[4 * a + 3]!, 2 * depth)
 
-  return (((dx0 * W + dx1) * W + dx2) * (2 * depth) + dx3) * 24 + c.d[t]!
+  return (
+    (((dx0 * W + dx1) * W + dx2) * (2 * depth) + dx3) * 24 + c.d[t]!
+  )
 }
 
 const CODES = new Float64Array(8)
 
 // the sorted relative codes with love a as the anchor, written into out
-function codesFrom(c: Cluster, a: number, depth: number, out: Float64Array): void {
-  for (let t = 0; t < c.n; t++) out[t] = relCode(c, a, t, depth)
+function codesFrom(
+  c: Cluster,
+  a: number,
+  depth: number,
+  out: Float64Array,
+): void {
+  for (let t = 0; t < c.n; t++) {
+    out[t] = relCode(c, a, t, depth)
+  }
 
   // insertion sort (n <= 4)
   for (let i = 1; i < c.n; i++) {
     const v = out[i]!
+
     let j = i - 1
 
     while (j >= 0 && out[j]! > v) {
@@ -280,15 +383,23 @@ function codesFrom(c: Cluster, a: number, depth: number, out: Float64Array): voi
 }
 
 // the anchor a of c whose relative codes equal `want` (the start's, anchored at its love 0), or -1
-export function matchAnchor(c: Cluster, want: Float64Array, depth: number): number {
+export function matchAnchor(
+  c: Cluster,
+  want: Float64Array,
+  depth: number,
+): number {
   for (let a = 0; a < c.n; a++) {
     codesFrom(c, a, depth, CODES)
 
     let same = true
 
-    for (let t = 0; t < c.n && same; t++) same = CODES[t] === want[t]
+    for (let t = 0; t < c.n && same; t++) {
+      same = CODES[t] === want[t]
+    }
 
-    if (same) return a
+    if (same) {
+      return a
+    }
   }
 
   return -1
@@ -311,7 +422,9 @@ export function classKey(c: Cluster, depth: number): string {
 
     const s = Array.from(CODES.subarray(0, c.n)).join(',')
 
-    if (best === '' || s < best) best = s
+    if (best === '' || s < best) {
+      best = s
+    }
   }
 
   return best
@@ -322,7 +435,9 @@ export function huskSpan(c: Cluster): number {
 
   for (let a = 0; a < c.n; a++) {
     for (let b = a + 1; b < c.n; b++) {
-      for (let k = 0; k < 3; k++) s = Math.max(s, Math.abs(c.x[4 * a + k]! - c.x[4 * b + k]!))
+      for (let k = 0; k < 3; k++) {
+        s = Math.max(s, Math.abs(c.x[4 * a + k]! - c.x[4 * b + k]!))
+      }
     }
   }
 
@@ -345,16 +460,34 @@ export type Cycle = {
   starts: number
 }
 
-export type Census = { starts: number; escaped: number; held: number; heldExamples: Cluster[]; cycles: Cycle[]; beats: number }
+export type Census = {
+  starts: number
+  escaped: number
+  held: number
+  heldExamples: Cluster[]
+  cycles: Cycle[]
+  beats: number
+}
 
-export function threeLoveCensus(depth: number, near: number, rmax: number, tmax: number): Census {
+export function threeLoveCensus(
+  depth: number,
+  near: number,
+  rmax: number,
+  tmax: number,
+): Census {
   const cycles = new Map<string, Cycle>()
   const heldExamples: Cluster[] = []
+
   let starts = 0
   let escaped = 0
   let held = 0
   let beats = 0
-  const c: Cluster = { n: 3, x: new Int32Array(12), d: new Int8Array(3) }
+
+  const c: Cluster = {
+    n: 3,
+    x: new Int32Array(12),
+    d: new Int8Array(3),
+  }
 
   for (let d1 = 0; d1 < 24; d1++) {
     for (let d2 = d1 + 1; d2 < 24; d2++) {
@@ -362,12 +495,17 @@ export function threeLoveCensus(depth: number, near: number, rmax: number, tmax:
         for (let o1 = -near; o1 <= near; o1++) {
           for (let o2 = -near; o2 <= near; o2++) {
             for (let o3 = 0; o3 < 2 * depth; o3++) {
-              if (mod(o0 + o1 + o2 + o3, 2) !== 0) continue
+              if (mod(o0 + o1 + o2 + o3, 2) !== 0) {
+                continue
+              }
 
-              const origin = o0 === 0 && o1 === 0 && o2 === 0 && o3 === 0
+              const origin =
+                o0 === 0 && o1 === 0 && o2 === 0 && o3 === 0
 
               for (let d3 = 0; d3 < 24; d3++) {
-                if (origin && d3 <= d2) continue
+                if (origin && d3 <= d2) {
+                  continue
+                }
 
                 starts++
                 c.x.fill(0)
@@ -381,6 +519,7 @@ export function threeLoveCensus(depth: number, near: number, rmax: number, tmax:
 
                 const want = startCodes(c, depth)
                 const x0 = [c.x[0]!, c.x[1]!, c.x[2]!, c.x[3]!]
+
                 let meetings = 0
                 let maxSpan = 0
                 let outcome = 'held'
@@ -403,9 +542,23 @@ export function threeLoveCensus(depth: number, near: number, rmax: number, tmax:
                   if (a >= 0) {
                     outcome = 'cycle'
 
-                    const shift: [number, number, number, number] = [c.x[4 * a]! - x0[0]!, c.x[4 * a + 1]! - x0[1]!, c.x[4 * a + 2]! - x0[2]!, mod(c.x[4 * a + 3]! - x0[3]!, 2 * depth)]
+                    const shift: [number, number, number, number] = [
+                      c.x[4 * a]! - x0[0]!,
+                      c.x[4 * a + 1]! - x0[1]!,
+                      c.x[4 * a + 2]! - x0[2]!,
+                      mod(c.x[4 * a + 3]! - x0[3]!, 2 * depth),
+                    ]
                     // the cycle's name: the least class key along it
-                    const probe = makeCluster([[0, 0, 0, 0], [0, 0, 0, 0], [o0, o1, o2, o3]], [d1, d2, d3], depth)
+                    const probe = makeCluster(
+                      [
+                        [0, 0, 0, 0],
+                        [0, 0, 0, 0],
+                        [o0, o1, o2, o3],
+                      ],
+                      [d1, d2, d3],
+                      depth,
+                    )
+
                     let key = classKey(probe, depth)
 
                     for (let s = 1; s < t; s++) {
@@ -413,22 +566,57 @@ export function threeLoveCensus(depth: number, near: number, rmax: number, tmax:
 
                       const k = classKey(probe, depth)
 
-                      if (k < key) key = k
+                      if (k < key) {
+                        key = k
+                      }
                     }
 
                     const known = cycles.get(key)
 
-                    if (known) known.starts++
-                    else cycles.set(key, { key, start: makeCluster([[0, 0, 0, 0], [0, 0, 0, 0], [o0, o1, o2, o3]], [d1, d2, d3], depth), period: t, shift, meetings, maxSpan, starts: 1 })
+                    if (known) {
+                      known.starts++
+                    } else {
+                      cycles.set(key, {
+                        key,
+                        start: makeCluster(
+                          [
+                            [0, 0, 0, 0],
+                            [0, 0, 0, 0],
+                            [o0, o1, o2, o3],
+                          ],
+                          [d1, d2, d3],
+                          depth,
+                        ),
+                        period: t,
+                        shift,
+                        meetings,
+                        maxSpan,
+                        starts: 1,
+                      })
+                    }
 
                     break
                   }
                 }
 
-                if (outcome === 'escaped') escaped++
-                else if (outcome === 'held') {
+                if (outcome === 'escaped') {
+                  escaped++
+                } else if (outcome === 'held') {
                   held++
-                  if (heldExamples.length < 8) heldExamples.push(makeCluster([[0, 0, 0, 0], [0, 0, 0, 0], [o0, o1, o2, o3]], [d1, d2, d3], depth))
+
+                  if (heldExamples.length < 8) {
+                    heldExamples.push(
+                      makeCluster(
+                        [
+                          [0, 0, 0, 0],
+                          [0, 0, 0, 0],
+                          [o0, o1, o2, o3],
+                        ],
+                        [d1, d2, d3],
+                        depth,
+                      ),
+                    )
+                  }
                 }
               }
             }
@@ -438,7 +626,14 @@ export function threeLoveCensus(depth: number, near: number, rmax: number, tmax:
     }
   }
 
-  return { starts, escaped, held, heldExamples, cycles: [...cycles.values()], beats }
+  return {
+    starts,
+    escaped,
+    held,
+    heldExamples,
+    cycles: [...cycles.values()],
+    beats,
+  }
 }
 
 // ---------------------------------------------------------------------------------------------------------
@@ -467,16 +662,24 @@ function shiftedFlux(f: Flux, h: readonly number[]): Flux {
   return out
 }
 
-const sameFlux = (a: Flux, b: Flux): boolean => a.size === b.size && [...a].every(([k, v]) => b.get(k) === v)
+const sameFlux = (a: Flux, b: Flux): boolean =>
+  a.size === b.size && [...a].every(([k, v]) => b.get(k) === v)
 
-export function cycleCost(start: Cluster, period: number, depth: number, periods: number): CycleCost {
+export function cycleCost(
+  start: Cluster,
+  period: number,
+  depth: number,
+  periods: number,
+): CycleCost {
   const c = cloneCluster(start)
   const f = gaussStrings(c)
   const f0 = new Map(f)
   const links: number[] = []
   const closes: boolean[] = []
+
   let gaussBad = gaussViolations(c, f)
   let meetings = 0
+
   const meetingsByBeat: number[] = []
   const x0 = [c.x[0]!, c.x[1]!, c.x[2]!]
 
@@ -495,12 +698,29 @@ export function cycleCost(start: Cluster, period: number, depth: number, periods
     const want = startCodes(start, depth)
     const a = matchAnchor(c, want, depth)
 
-    if (a < 0) throw new Error('knit-love-cluster: the cycle did not return')
+    if (a < 0) {
+      throw new Error('knit-love-cluster: the cycle did not return')
+    }
 
-    closes.push(sameFlux(f, shiftedFlux(f0, [c.x[4 * a]! - x0[0]!, c.x[4 * a + 1]! - x0[1]!, c.x[4 * a + 2]! - x0[2]!])))
+    closes.push(
+      sameFlux(
+        f,
+        shiftedFlux(f0, [
+          c.x[4 * a]! - x0[0]!,
+          c.x[4 * a + 1]! - x0[1]!,
+          c.x[4 * a + 2]! - x0[2]!,
+        ]),
+      ),
+    )
   }
 
-  return { links, closes, gaussBad, meetingsPerPeriod: meetings / periods, meetingsByBeat }
+  return {
+    links,
+    closes,
+    gaussBad,
+    meetingsPerPeriod: meetings / periods,
+    meetingsByBeat,
+  }
 }
 
 // ---------------------------------------------------------------------------------------------------------
@@ -511,7 +731,12 @@ export function cycleCost(start: Cluster, period: number, depth: number, periods
 // first-quantized and antisymmetrized, then the labels are symmetrized at fixed positions (the role [3] part) and the
 // rest is role [2,1] (a love's label is two-valued, so there is no [1,1,1] part).
 
-export function spinHalfShares(start: Cluster, period: number, depth: number, phases: readonly number[]): number[] {
+export function spinHalfShares(
+  start: Cluster,
+  period: number,
+  depth: number,
+  phases: readonly number[],
+): number[] {
   const configs: Cluster[] = []
   const c = cloneCluster(start)
 
@@ -535,15 +760,30 @@ export function spinHalfShares(start: Cluster, period: number, depth: number, ph
     // lambda = e^(-i E), E T = Phi + 2 pi k
     const E = (total + 2 * Math.PI * k) / period
     const amp = new Map<string, [number, number]>()
+
     let arg = 0
 
     configs.forEach((cf, t) => {
-      if (t > 0) arg += E - phases[t - 1]!
+      if (t > 0) {
+        arg += E - phases[t - 1]!
+      }
 
       // positions relative to the translation-class anchor (the least dock code), so translates coincide
-      const docks = [0, 1, 2].map(i => [cf.x[4 * i]!, cf.x[4 * i + 1]!, cf.x[4 * i + 2]!, cf.x[4 * i + 3]!])
-      const anchorOf = docks.map(p => p.join(',')).sort()[0]!.split(',').map(Number)
-      const pos = docks.map((p, i) => `${p[0]! - anchorOf[0]!}.${p[1]! - anchorOf[1]!}.${p[2]! - anchorOf[2]!}.${mod(p[3]! - anchorOf[3]!, 2 * depth)}.${LINE[cf.d[i]!]}`)
+      const docks = [0, 1, 2].map(i => [
+        cf.x[4 * i]!,
+        cf.x[4 * i + 1]!,
+        cf.x[4 * i + 2]!,
+        cf.x[4 * i + 3]!,
+      ])
+      const anchorOf = docks
+        .map(p => p.join(','))
+        .sort()[0]!
+        .split(',')
+        .map(Number)
+      const pos = docks.map(
+        (p, i) =>
+          `${p[0]! - anchorOf[0]!}.${p[1]! - anchorOf[1]!}.${p[2]! - anchorOf[2]!}.${mod(p[3]! - anchorOf[3]!, 2 * depth)}.${LINE[cf.d[i]!]}`,
+      )
       const lab = [0, 1, 2].map(i => LABEL[cf.d[i]!]!)
       const w = 1 / Math.sqrt(6 * period)
 
@@ -551,12 +791,16 @@ export function spinHalfShares(start: Cluster, period: number, depth: number, ph
         const key = `${pos[p[0]!]}|${pos[p[1]!]}|${pos[p[2]!]}#${lab[p[0]!]}${lab[p[1]!]}${lab[p[2]!]}`
         const o = amp.get(key) ?? [0, 0]
 
-        amp.set(key, [o[0] + s * w * Math.cos(arg), o[1] + s * w * Math.sin(arg)])
+        amp.set(key, [
+          o[0] + s * w * Math.cos(arg),
+          o[1] + s * w * Math.sin(arg),
+        ])
       }
     })
 
     let norm = 0
     let sym = 0
+
     const byPos = new Map<string, Map<string, [number, number]>>()
 
     for (const [key, v] of amp) {
@@ -572,6 +816,7 @@ export function spinHalfShares(start: Cluster, period: number, depth: number, ph
     for (const m of byPos.values()) {
       for (let code = 0; code < 8; code++) {
         const j = [(code >> 2) & 1, (code >> 1) & 1, code & 1]
+
         let sr = 0
         let si = 0
 

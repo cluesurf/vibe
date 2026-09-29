@@ -79,11 +79,32 @@ import { fitPowers } from '@/code/measure/husk-coulomb'
 import { linearFit } from '@/code/measure/regression'
 import { radionMesh } from '@/code/rule/trit-radion'
 import { stepRule } from '@/code/rule/step-depth'
-import { openMesh, warpClock, type OpenMesh } from '@/code/rule/open-husk'
+import {
+  openMesh,
+  warpClock,
+  type OpenMesh,
+} from '@/code/rule/open-husk'
 import { horizonOf, horizonRule } from '@/code/rule/horizon-husk'
-import { compressLump, CROSSING_DENSITY } from '@/code/measure/step-depth'
-import { greenSolve, huskDistance, huskDock, stackModes } from '@/code/measure/open-husk'
-import { horizonStaticRun, huskWindowRadius, newHorizonRecord, realHorizonDepth, stackWindowRadius, tornMesh, verticalOf, type HorizonRecord } from '@/code/measure/horizon-husk'
+import {
+  compressLump,
+  CROSSING_DENSITY,
+} from '@/code/measure/step-depth'
+import {
+  greenSolve,
+  huskDistance,
+  huskDock,
+  stackModes,
+} from '@/code/measure/open-husk'
+import {
+  horizonStaticRun,
+  huskWindowRadius,
+  newHorizonRecord,
+  realHorizonDepth,
+  stackWindowRadius,
+  tornMesh,
+  verticalOf,
+  type HorizonRecord,
+} from '@/code/measure/horizon-husk'
 
 const DEPTH = 16
 const LEVELS = 3
@@ -117,8 +138,30 @@ const AXES: readonly (readonly number[])[] = [
 ]
 
 // the mean over the six axis docks at r of a dock field, and the force (its difference to r + 1)
-const axisMean = (mesh: OpenMesh, x: ArrayLike<number>, center: readonly number[], r: number): number => AXES.reduce((t, a) => t + x[huskDock(mesh, a.map((v, i) => center[i]! + v * r))]!, 0) / AXES.length
-const axisForce = (mesh: OpenMesh, x: ArrayLike<number>, center: readonly number[], r: number): number => axisMean(mesh, x, center, r + 1) - axisMean(mesh, x, center, r)
+const axisMean = (
+  mesh: OpenMesh,
+  x: ArrayLike<number>,
+  center: readonly number[],
+  r: number,
+): number =>
+  AXES.reduce(
+    (t, a) =>
+      t +
+      x[
+        huskDock(
+          mesh,
+          a.map((v, i) => center[i]! + v * r),
+        )
+      ]!,
+    0,
+  ) / AXES.length
+const axisForce = (
+  mesh: OpenMesh,
+  x: ArrayLike<number>,
+  center: readonly number[],
+  r: number,
+): number =>
+  axisMean(mesh, x, center, r + 1) - axisMean(mesh, x, center, r)
 
 type Lump = {
   m: number
@@ -135,8 +178,17 @@ type Lump = {
   control?: HorizonRecord
 }
 
-function runLump(mesh: OpenMesh, rule: ReturnType<typeof horizonRule>, m: number): Lump {
-  const lump = compressLump(radionMesh([SIDE, SIDE, SIDE]), CENTER, m, 1)
+function runLump(
+  mesh: OpenMesh,
+  rule: ReturnType<typeof horizonRule>,
+  m: number,
+): Lump {
+  const lump = compressLump(
+    radionMesh([SIDE, SIDE, SIDE]),
+    CENTER,
+    m,
+    1,
+  )
   const rho = new Int32Array(mesh.docks)
   const line = new Int8Array(mesh.links)
 
@@ -150,6 +202,7 @@ function runLump(mesh: OpenMesh, rule: ReturnType<typeof horizonRule>, m: number
   const torn = greenSolve(tornMesh(mesh, horizon), rho, 1e-12)
   const free = greenSolve(mesh, rho, 1e-12)
   const vertical = verticalOf(mesh)
+
   let horizonDocks = 0
   let horizonRadius = 0
   let lumpRadius = 0
@@ -159,22 +212,67 @@ function runLump(mesh: OpenMesh, rule: ReturnType<typeof horizonRule>, m: number
   let rhoX = 0
 
   for (let y = 0; y < mesh.huskDocks; y++) {
-    if (rho[y]! > 0) (lumpRadius = Math.max(lumpRadius, huskDistance(mesh, y, CENTER))), (mostContent = Math.max(mostContent, rho[y]!))
-    if (!horizon[y]) continue
-    horizonDocks++
-    horizonRadius = Math.max(horizonRadius, huskDistance(mesh, y, CENTER))
-    verticalStatic = Math.max(verticalStatic, Math.abs(run.mean[vertical[y]!]!))
-    verticalVsContent = Math.max(verticalVsContent, Math.abs(run.mean[vertical[y]!]! - rho[y]!))
-  }
-  for (let y = 0; y < mesh.docks; y++) if (rho[y] !== 0) rhoX += rho[y]! * torn.x[y]!
+    if (rho[y]! > 0) {
+      lumpRadius = Math.max(lumpRadius, huskDistance(mesh, y, CENTER))
+      mostContent = Math.max(mostContent, rho[y]!)
+    }
 
-  const ruleVsSolve = Math.max(...STATIC_R.map(r => Math.abs(axisForce(mesh, depth, CENTER, r) / axisForce(mesh, torn.x, CENTER, r) - 1)))
-  const sideRatio = STATIC_R.map(r => axisForce(mesh, torn.x, CENTER, r) / axisForce(mesh, free.x, CENTER, r))
+    if (!horizon[y]) {
+      continue
+    }
+
+    horizonDocks++
+    horizonRadius = Math.max(
+      horizonRadius,
+      huskDistance(mesh, y, CENTER),
+    )
+
+    verticalStatic = Math.max(
+      verticalStatic,
+      Math.abs(run.mean[vertical[y]!]!),
+    )
+
+    verticalVsContent = Math.max(
+      verticalVsContent,
+      Math.abs(run.mean[vertical[y]!]! - rho[y]!),
+    )
+  }
+
+  for (let y = 0; y < mesh.docks; y++) {
+    if (rho[y] !== 0) {
+      rhoX += rho[y]! * torn.x[y]!
+    }
+  }
+
+  const ruleVsSolve = Math.max(
+    ...STATIC_R.map(r =>
+      Math.abs(
+        axisForce(mesh, depth, CENTER, r) /
+          axisForce(mesh, torn.x, CENTER, r) -
+          1,
+      ),
+    ),
+  )
+  const sideRatio = STATIC_R.map(
+    r =>
+      axisForce(mesh, torn.x, CENTER, r) /
+      axisForce(mesh, free.x, CENTER, r),
+  )
+
   let control: HorizonRecord | undefined
 
   if (WRAPPED.includes(m)) {
     control = newHorizonRecord()
-    horizonStaticRun(mesh, rule, rho, line, CONTROL_BEATS, control, 64, false)
+    horizonStaticRun(
+      mesh,
+      rule,
+      rho,
+      line,
+      CONTROL_BEATS,
+      control,
+      64,
+      false,
+    )
   }
 
   return {
@@ -185,7 +283,7 @@ function runLump(mesh: OpenMesh, rule: ReturnType<typeof horizonRule>, m: number
     lumpRadius,
     mostContent,
     // the torn statics' energy (pi / D)(1/2 sum F^2 / g - rho . x) = -(pi / D) rho . x / 2 at the solution
-    energyStatic: -(Math.PI / DEPTH) * rhoX / 2,
+    energyStatic: (-(Math.PI / DEPTH) * rhoX) / 2,
     verticalStatic,
     verticalVsContent,
     ruleVsSolve,
@@ -195,10 +293,20 @@ function runLump(mesh: OpenMesh, rule: ReturnType<typeof horizonRule>, m: number
 }
 
 // the side-24 lump at the center of a larger stack, sinks the M farthest docks: the force ratio torn / free along the axes
-function farField(m: number): { ratio: number[]; kFree: number; kTorn: number; seconds: number } {
+function farField(m: number): {
+  ratio: number[]
+  kFree: number
+  kTorn: number
+  seconds: number
+} {
   const started = Date.now()
   const small = openMesh(SIDE, 0, 'shrink')
-  const lump = compressLump(radionMesh([SIDE, SIDE, SIDE]), CENTER, m, 1)
+  const lump = compressLump(
+    radionMesh([SIDE, SIDE, SIDE]),
+    CENTER,
+    m,
+    1,
+  )
   const smallLine = new Int8Array(small.links)
 
   smallLine.set(lump.line)
@@ -213,24 +321,54 @@ function farField(m: number): { ratio: number[]; kFree: number; kTorn: number; s
   for (let y = 0; y < small.huskDocks; y++) {
     const z = huskDock(
       mesh,
-      [y % SIDE, Math.floor(y / SIDE) % SIDE, Math.floor(y / (SIDE * SIDE))].map(v => v + shift),
+      [
+        y % SIDE,
+        Math.floor(y / SIDE) % SIDE,
+        Math.floor(y / (SIDE * SIDE)),
+      ].map(v => v + shift),
     )
 
-    if (lump.content[y]! > 0) rho[z] = lump.content[y]!
-    if (smallHorizon[y]) horizon[z] = 1
+    if (lump.content[y]! > 0) {
+      rho[z] = lump.content[y]!
+    }
+
+    if (smallHorizon[y]) {
+      horizon[z] = 1
+    }
   }
 
-  const dist = Float64Array.from({ length: mesh.huskDocks }, (_, y) => huskDistance(mesh, y, center))
-  const order = Array.from({ length: mesh.huskDocks }, (_, y) => y).sort((p, q) => dist[q]! - dist[p]! || p - q)
+  const dist = Float64Array.from({ length: mesh.huskDocks }, (_, y) =>
+    huskDistance(mesh, y, center),
+  )
+  const order = Array.from(
+    { length: mesh.huskDocks },
+    (_, y) => y,
+  ).sort((p, q) => dist[q]! - dist[p]! || p - q)
 
-  for (let i = 0; i < m; i++) rho[order[i]!] = rho[order[i]!]! - 1
+  for (let i = 0; i < m; i++) {
+    rho[order[i]!] = rho[order[i]!]! - 1
+  }
 
   const free = greenSolve(mesh, rho, 1e-10)
   const torn = greenSolve(tornMesh(mesh, horizon), rho, 1e-10)
   const fitR = Array.from({ length: 17 }, (_, i) => 24 + i)
-  const k = (x: Float64Array): number => fitPowers(fitR, fitR.map(r => axisMean(mesh, x, center, r)), [1, 2])[1]!
+  const k = (x: Float64Array): number =>
+    fitPowers(
+      fitR,
+      fitR.map(r => axisMean(mesh, x, center, r)),
+      [1, 2],
+    )[1]!
 
-  return { ratio: FAR_R.map(r => axisForce(mesh, torn.x, center, r) / axisForce(mesh, free.x, center, r)), kFree: k(free.x), kTorn: k(torn.x), seconds: (Date.now() - started) / 1000 }
+  return {
+    ratio: FAR_R.map(
+      r =>
+        axisForce(mesh, torn.x, center, r) /
+        axisForce(mesh, free.x, center, r),
+    ),
+    kFree: k(free.x),
+    kTorn: k(torn.x),
+    seconds: (Date.now() - started) / 1000,
+  }
 }
 
 export default experiment({
@@ -244,7 +382,8 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${(Date.now() - started) / 1000}s`)
+    const log = (what: string): void =>
+      console.error(`${what} ${(Date.now() - started) / 1000}s`)
     const mesh = warpClock(openMesh(SIDE, LAYERS, 'shrink'))
     const rule = horizonRule(stepRule(DEPTH, LEVELS), BULK)
     const lumps = MS.map(m => {
@@ -263,7 +402,8 @@ export default experiment({
     })
 
     // H1
-    const wrapsOf = (r: HorizonRecord): number => r.wraps.fWraps + r.wraps.vWraps
+    const wrapsOf = (r: HorizonRecord): number =>
+      r.wraps.fWraps + r.wraps.vWraps
     const gated = lumps.filter(l => WRAPPED.includes(l.m))
     const exact = (l: Lump): boolean =>
       l.record.gaussOff === 0 &&
@@ -271,29 +411,48 @@ export default experiment({
       l.record.curl === 0 &&
       l.record.verticalChecked > 0 &&
       l.record.restOff === 0 &&
-      l.record.energyDrift <= ENERGY_TOLERANCE * Math.abs(l.energyStatic) &&
+      l.record.energyDrift <=
+        ENERGY_TOLERANCE * Math.abs(l.energyStatic) &&
       l.record.reversed &&
       l.record.verticalStep <= VERTICAL_BOUND
     const h1 = gated.every(exact)
-    const c1 = gated.every(l => l.control !== undefined && wrapsOf(l.control) > 0)
+    const c1 = gated.every(
+      l => l.control !== undefined && wrapsOf(l.control) > 0,
+    )
 
     // H2
     const modes = stackModes(mesh.sides, 'clock')
     const predicted = MS.map(m => stackWindowRadius(modes, m, WINDOW))
     const huskAlone = MS.map(m => huskWindowRadius(m, WINDOW))
-    const lineCount = MS.map(m => Math.sqrt(m / (4 * Math.PI * CROSSING_DENSITY)))
+    const lineCount = MS.map(m =>
+      Math.sqrt(m / (4 * Math.PI * CROSSING_DENSITY)),
+    )
     const radii = lumps.map(l => l.horizonRadius)
-    const radiusOff = Math.max(...radii.map((r, i) => Math.abs(r - predicted[i]!)))
-    const slope = (ys: readonly number[]): number => linearFit({ xs: MS.map(Math.log), ys: ys.map(Math.log) }).slope
+    const radiusOff = Math.max(
+      ...radii.map((r, i) => Math.abs(r - predicted[i]!)),
+    )
+    const slope = (ys: readonly number[]): number =>
+      linearFit({ xs: MS.map(Math.log), ys: ys.map(Math.log) }).slope
     const slopeMeasured = slope(radii)
     const slopePredicted = slope(predicted)
-    const h2 = radiusOff <= RADIUS_TOLERANCE && Math.abs(slopeMeasured - slopePredicted) <= SLOPE_TOLERANCE
+    const h2 =
+      radiusOff <= RADIUS_TOLERANCE &&
+      Math.abs(slopeMeasured - slopePredicted) <= SLOPE_TOLERANCE
 
     // H3
     const ruleVsSolve = Math.max(...gated.map(l => l.ruleVsSolve))
-    const farOff = Math.max(...far.map(f => Math.max(...f.ratio.map(v => Math.abs(v - 1)))))
-    const converging = far.every(f => Math.abs(f.ratio[f.ratio.length - 1]! - 1) < Math.abs(f.ratio[0]! - 1))
-    const h3 = ruleVsSolve <= STATIC_TOLERANCE && farOff <= FAR_TOLERANCE && converging
+    const farOff = Math.max(
+      ...far.map(f => Math.max(...f.ratio.map(v => Math.abs(v - 1)))),
+    )
+    const converging = far.every(
+      f =>
+        Math.abs(f.ratio[f.ratio.length - 1]! - 1) <
+        Math.abs(f.ratio[0]! - 1),
+    )
+    const h3 =
+      ruleVsSolve <= STATIC_TOLERANCE &&
+      farOff <= FAR_TOLERANCE &&
+      converging
 
     const status = !c1 ? 'partial' : h1 && h2 && h3 ? 'pass' : 'fail'
     const f = (v: number): string => v.toPrecision(4)
@@ -328,7 +487,9 @@ export default experiment({
       metrics[`${p}energyStatic`] = l.energyStatic
       metrics[`${p}huskStep`] = l.record.huskStep
       metrics[`${p}verticalStep`] = l.record.verticalStep
-      l.record.bulkStep.forEach((v, k) => (metrics[`${p}bulkStep_layer${k}`] = v))
+      l.record.bulkStep.forEach(
+        (v, k) => (metrics[`${p}bulkStep_layer${k}`] = v),
+      )
       metrics[`${p}huskRate`] = l.record.huskRate
       metrics[`${p}bulkRate`] = l.record.bulkRate
       metrics[`${p}horizonDocks`] = l.horizonDocks
@@ -341,13 +502,22 @@ export default experiment({
       metrics[`${p}verticalStatic`] = l.verticalStatic
       metrics[`${p}verticalVsContent`] = l.verticalVsContent
       metrics[`${p}ruleVsSolve`] = l.ruleVsSolve
-      STATIC_R.forEach((r, j) => (metrics[`${p}side24Ratio_r${r}`] = l.sideRatio[j]!))
-      if (l.control) (metrics[`${p}controlWraps`] = wrapsOf(l.control)), (metrics[`${p}controlHuskStep`] = l.control.huskStep)
+      STATIC_R.forEach(
+        (r, j) => (metrics[`${p}side24Ratio_r${r}`] = l.sideRatio[j]!),
+      )
+
+      if (l.control) {
+        metrics[`${p}controlWraps`] = wrapsOf(l.control)
+        metrics[`${p}controlHuskStep`] = l.control.huskStep
+      }
     })
+
     far.forEach((fr, i) => {
       const p = `M${WRAPPED[i]}_`
 
-      FAR_R.forEach((r, j) => (metrics[`${p}farRatio_r${r}`] = fr.ratio[j]!))
+      FAR_R.forEach(
+        (r, j) => (metrics[`${p}farRatio_r${r}`] = fr.ratio[j]!),
+      )
       metrics[`${p}kFree`] = fr.kFree
       metrics[`${p}kTorn`] = fr.kTorn
     })
@@ -358,7 +528,11 @@ export default experiment({
       status,
       claim: `the bounded depth field on a side-${SIDE} husk backed by the warped shrinking stack (${LAYERS} layers), a husk dock whose 18 lateral lines are all in use tearing from the husk so its flux leaves down its vertical link: on E-GRV-0090's lumps ${WRAPPED.join(' and ')} (which wrap ${gated.map(l => wrapsOf(l.control!)).join(' and ')} times in ${CONTROL_BEATS} beats with no tear) the torn rule runs ${BEATS} beats with ${gated.map(l => wrapsOf(l.record)).join(' and ')} wraps, Gauss off ${gated.map(l => l.record.gaussOff).join(', ')}, curl ${gated.map(l => l.record.curl).join(', ')} on ${gated.map(l => l.record.liveChecked).join(', ')} live link checks (${gated.map(l => l.record.verticalChecked).join(', ')} of them vertical), energy drift ${gated.map(l => e(l.record.energyDrift / Math.abs(l.energyStatic))).join(', ')} of the statics', reversal ${gated.every(l => l.record.reversed)}; the husk's largest step ${gated.map(l => f(l.record.huskStep)).join(', ')}, the vertical's ${gated.map(l => f(l.record.verticalStep)).join(', ')} (bound ${VERTICAL_BOUND}; static ${gated.map(l => f(l.verticalStatic)).join(', ')}, the dock's content to ${e(Math.max(...gated.map(l => l.verticalVsContent)))}), the bulk's ${gated.map(l => l.record.bulkStep.map(f).join('/')).join(', ')}; the horizon's radius ${radii.map(f).join(', ')} for M = ${MS.join(', ')} against the step window's ${predicted.map(f).join(', ')} (off ${f(radiusOff)}; husk alone sqrt(M / 18 pi) ${huskAlone.map(f).join(', ')}), slope ${f(slopeMeasured)} against ${f(slopePredicted)} (sqrt(M): 0.5, Schwarzschild: 1); the rule's husk force equals the torn solve's to ${e(ruleVsSolve)}; the torn over the free force is ${at(400).sideRatio.map(f).join(', ')} (M 400) and ${at(1600).sideRatio.map(f).join(', ')} (M 1600) at r = 5 .. 11 on side ${SIDE}, and on side ${BIG} ${far.map(fr => `${f(fr.ratio[0]!)} .. ${f(fr.ratio[fr.ratio.length - 1]!)}`).join(' and ')} at r = ${FAR_R[0]} .. ${FAR_R[FAR_R.length - 1]}`,
       metrics,
-      control: { c1: c1 ? 1 : 0, controlWraps400: wrapsOf(at(400).control!), controlWraps1600: wrapsOf(at(1600).control!) },
+      control: {
+        c1: c1 ? 1 : 0,
+        controlWraps400: wrapsOf(at(400).control!),
+        controlWraps1600: wrapsOf(at(1600).control!),
+      },
       notes: `L2. Gates H1 ${h1}, H2 ${h2} (radius off ${f(radiusOff)}, slope ${f(slopeMeasured)} vs ${f(slopePredicted)}), H3 ${h3} (rule vs solve ${e(ruleVsSolve)}, far off ${e(farOff)}, converging ${converging}); control C1 ${c1}. Per M: ${lumps.map(l => `M ${l.m}: horizon ${l.horizonDocks} docks to ${f(l.horizonRadius)} (lump ${f(l.lumpRadius)}, most ${l.mostContent} a dock), wraps ${wrapsOf(l.record)}, husk ${f(l.record.huskStep)}, vertical ${f(l.record.verticalStep)}, bulk ${l.record.bulkStep.map(f).join('/')}, rates ${e(l.record.huskRate)}/${e(l.record.bulkRate)}, drift ${e(l.record.energyDrift)} of ${f(l.energyStatic)}, reversed ${l.record.reversed}`).join('; ')}. Side-${BIG} fits (1/r and 1/r^2 on r = 24 .. 40): ${far.map((fr, i) => `M ${WRAPPED[i]} free ${f(fr.kFree)} torn ${f(fr.kTorn)} (${fr.seconds.toFixed(0)} s)`).join('; ')}. Lines' count radius sqrt(M / 4 pi sigma) ${lineCount.map(f).join(', ')}.`,
     })
   },

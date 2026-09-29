@@ -89,14 +89,47 @@ import { LINE_OF } from '@/code/rule/isometric-knit'
 import { turningWeave } from '@/code/rule/collision'
 import { type CollisionKind } from '@/code/rule/bounce-pair-knit'
 import { bounceRunner } from '@/code/measure/bounce-pair-kernel'
-import { tritDifference, type KernelTally, type Reduced } from '@/code/measure/living-pair-kernel'
-import { boxHusk, causalRun, hubReplay, hubVacuum, streamTarget, type BoxHusk } from '@/code/measure/causal-components'
-import { freeStar, hubRule, referenceFrames, seedCone, type State } from '@/code/measure/dependence-cone'
-import { boxMaps, momentumFailures, patternSymmetry } from '@/code/measure/varying-vacuum'
+import {
+  tritDifference,
+  type KernelTally,
+  type Reduced,
+} from '@/code/measure/living-pair-kernel'
+import {
+  boxHusk,
+  causalRun,
+  hubReplay,
+  hubVacuum,
+  streamTarget,
+  type BoxHusk,
+} from '@/code/measure/causal-components'
+import {
+  freeStar,
+  hubRule,
+  referenceFrames,
+  seedCone,
+  type State,
+} from '@/code/measure/dependence-cone'
+import {
+  boxMaps,
+  momentumFailures,
+  patternSymmetry,
+} from '@/code/measure/varying-vacuum'
 import { centerOf } from '@/code/measure/wall-reading'
-import { dressing as ruleDressing, type ScheduledRule } from '@/code/measure/weave-acceptance'
+import {
+  dressing as ruleDressing,
+  type ScheduledRule,
+} from '@/code/measure/weave-acceptance'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
-import { classKinds, classOf, coinsOnce, denseFresh, splitByHubClass, unionHubStore, type DenseFresh, type StoreKind } from '@/code/measure/dense-hub'
+import {
+  classKinds,
+  classOf,
+  coinsOnce,
+  denseFresh,
+  splitByHubClass,
+  unionHubStore,
+  type DenseFresh,
+  type StoreKind,
+} from '@/code/measure/dense-hub'
 
 const SIDE = 8
 const BEATS = 24
@@ -105,12 +138,16 @@ const DESCENT_BOUND = 12
 
 const stateOf = (h: DenseFresh): State => {
   const v = hubVacuum(h)
-  const s: State = { v: Int8Array.from(v.vibe), a: Int16Array.from(v.point), d: new Int16Array(h.cells * 24) }
+  const s: State = {
+    v: Int8Array.from(v.vibe),
+    a: Int16Array.from(v.point),
+    d: new Int16Array(h.cells * 24),
+  }
 
   for (let x = 0; x < h.cells; x++) {
     for (let l = 0; l < 12; l++) {
-      s.d[x * 24 + l] = v.store[x * 12 + l] as number
-      s.d[x * 24 + 12 + l] = v.spoint[x * 12 + l] as number
+      s.d[x * 24 + l] = v.store[x * 12 + l]!
+      s.d[x * 24 + 12 + l] = v.spoint[x * 12 + l]!
     }
   }
 
@@ -118,9 +155,13 @@ const stateOf = (h: DenseFresh): State => {
 }
 
 // E-RLT-0089's gate: 24 center seeds, the largest husk component count, the descent and the beat it covers the husk
-function causalReading(h: DenseFresh, husk: BoxHusk): { largest: number; descentMin: number; coveredBy: number } {
+function causalReading(
+  h: DenseFresh,
+  husk: BoxHusk,
+): { largest: number; descentMin: number; coveredBy: number } {
   const target = streamTarget(h.mesh)
   const center = centerOf(h.side)
+
   let largest = 0
   let descentMin = Number.POSITIVE_INFINITY
   let coveredBy = 0
@@ -130,34 +171,80 @@ function causalReading(h: DenseFresh, husk: BoxHusk): { largest: number; descent
 
     v.vibe[center * 24 + d] = v.vibe[center * 24 + d] === 1 ? -1 : 1
 
-    const c = causalRun({ replay: hubReplay(h.kernel, v), husk, target, beats: BEATS, seedDock: center })
+    const c = causalRun({
+      replay: hubReplay(h.kernel, v),
+      husk,
+      target,
+      beats: BEATS,
+      seedDock: center,
+    })
     const first = new Int32Array(husk.columns).fill(-1)
 
     for (let x = 0; x < h.cells; x++) {
-      const at = c.log.reachedAt[x] as number
-      const col = husk.column[x] as number
+      const at = c.log.reachedAt[x]!
+      const col = husk.column[x]!
 
-      if (at >= 0 && (first[col] === -1 || at < (first[col] as number))) first[col] = at
+      if (at >= 0 && (first[col] === -1 || at < first[col]!)) {
+        first[col] = at
+      }
     }
 
     largest = Math.max(largest, c.counts.husk)
     descentMin = Math.min(descentMin, c.counts.reachedHusk)
-    coveredBy = Math.max(coveredBy, first.includes(-1) ? Number.POSITIVE_INFINITY : Math.max(...Array.from(first)))
+    coveredBy = Math.max(
+      coveredBy,
+      first.includes(-1)
+        ? Number.POSITIVE_INFINITY
+        : Math.max(...Array.from(first)),
+    )
   }
 
   return { largest, descentMin, coveredBy }
 }
 
 // E-RLT-0091's gate: the seed's cone
-function coneReading(h: DenseFresh, husk: BoxHusk): { husk: number; bulk: number; emptyBeats: number; killed: number; changes: number } {
+function coneReading(
+  h: DenseFresh,
+  husk: BoxHusk,
+): {
+  husk: number
+  bulk: number
+  emptyBeats: number
+  killed: number
+  changes: number
+} {
   const rule = hubRule(h.kernel, 'union')
-  const c = seedCone(rule, husk, referenceFrames(rule, stateOf(h), BEATS), centerOf(h.side))
+  const c = seedCone(
+    rule,
+    husk,
+    referenceFrames(rule, stateOf(h), BEATS),
+    centerOf(h.side),
+  )
 
-  return { husk: c.huskCount, bulk: c.bulkCount, emptyBeats: c.emptyBeats, killed: c.killed, changes: c.perturbations }
+  return {
+    husk: c.huskCount,
+    bulk: c.bulkCount,
+    emptyBeats: c.emptyBeats,
+    killed: c.killed,
+    changes: c.perturbations,
+  }
 }
 
 // E-RLT-0084's B6 wake, with the pair tallies
-function wakeReading(side: number, kind: CollisionKind, which: StoreKind, tone: number): { worst: number[]; offLine: number; bare: number; vacuumMade: number; vacuumUnmade: number; tallyDiffers: number; units: number } {
+function wakeReading(
+  side: number,
+  kind: CollisionKind,
+  which: StoreKind,
+  tone: number,
+): {
+  worst: number[]
+  offLine: number
+  bare: number
+  vacuumMade: number
+  vacuumUnmade: number
+  tallyDiffers: number
+  units: number
+} {
   const center = centerOf(side)
   const h = denseFresh(side, kind, which, center)
   const vac: Reduced[] = []
@@ -169,10 +256,16 @@ function wakeReading(side: number, kind: CollisionKind, which: StoreKind, tone: 
 
     const s = vr.state()
 
-    vac.push({ vibe: Int8Array.from(s.vibe), point: Int8Array.from(s.point), store: Int8Array.from(s.store), spoint: Int8Array.from(s.spoint) })
+    vac.push({
+      vibe: Int8Array.from(s.vibe),
+      point: Int8Array.from(s.point),
+      store: Int8Array.from(s.store),
+      spoint: Int8Array.from(s.spoint),
+    })
   }
 
   const worst = [0, 0, 0, 0]
+
   let offLine = 0
   let bare = 0
   let tallyDiffers = 0
@@ -184,32 +277,56 @@ function wakeReading(side: number, kind: CollisionKind, which: StoreKind, tone: 
 
     const run = bounceRunner(h.kernel, start)
     const tally: KernelTally = { made: 0, unmade: 0, vetoed: 0 }
-    const line = LINE_OF[d] as number
+    const line = LINE_OF[d]!
+
     let most = 0
 
     for (let t = 0; t < WAKE_BEATS; t++) {
       run.beat(tally)
 
       const a = run.state()
-      const b = vac[t] as Reduced
+      const b = vac[t]!
       const trits = tritDifference(a, b).trits
 
-      worst[Math.floor(t / 24)] = Math.max(worst[Math.floor(t / 24)] ?? 0, trits)
+      worst[Math.floor(t / 24)] = Math.max(
+        worst[Math.floor(t / 24)] ?? 0,
+        trits,
+      )
       most = Math.max(most, trits)
 
-      for (let i = 0; i < a.vibe.length; i++) if (a.vibe[i] !== b.vibe[i] && LINE_OF[i % 24] !== line) offLine++
-      for (let i = 0; i < a.store.length; i++) if (a.store[i] !== b.store[i] && i % 12 !== line) offLine++
+      for (let i = 0; i < a.vibe.length; i++) {
+        if (a.vibe[i] !== b.vibe[i] && LINE_OF[i % 24] !== line) {
+          offLine++
+        }
+      }
+
+      for (let i = 0; i < a.store.length; i++) {
+        if (a.store[i] !== b.store[i] && i % 12 !== line) {
+          offLine++
+        }
+      }
     }
 
-    tallyDiffers += tally.made !== vt.made || tally.unmade !== vt.unmade ? 1 : 0
+    tallyDiffers +=
+      tally.made !== vt.made || tally.unmade !== vt.unmade ? 1 : 0
     bare += most === 1 ? 1 : 0
   }
 
   let units = 0
 
-  for (let i = 0; i < h.store.length; i++) units += h.store[i] !== 0 ? 1 : 0
+  for (const x of h.store) {
+    units += x !== 0 ? 1 : 0
+  }
 
-  return { worst, offLine, bare, vacuumMade: vt.made, vacuumUnmade: vt.unmade, tallyDiffers, units }
+  return {
+    worst,
+    offLine,
+    bare,
+    vacuumMade: vt.made,
+    vacuumUnmade: vt.unmade,
+    tallyDiffers,
+    units,
+  }
 }
 
 export default experiment({
@@ -223,11 +340,22 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const coins = coinsOnce()
     const kinds = classKinds()
-    const committedRule: ScheduledRule = (opposite, forward) => turningWeave({ opposite, forward, table: 'pair' })
-    const committed = [8, 12].map(side => ({ side, love: ruleDressing(committedRule, { side, tone: 1 }).periodLargest, fear: ruleDressing(committedRule, { side, tone: -1 }).periodLargest }))
+    const committedRule: ScheduledRule = (opposite, forward) =>
+      turningWeave({ opposite, forward, table: 'pair' })
+    const committed = [8, 12].map(side => ({
+      side,
+      love: ruleDressing(committedRule, { side, tone: 1 })
+        .periodLargest,
+      fear: ruleDressing(committedRule, { side, tone: -1 })
+        .periodLargest,
+    }))
+
     const committedAt = (side: number, tone: number): number[] => {
       const c = committed.find(x => x.side === side)
 
@@ -239,6 +367,7 @@ export default experiment({
     // ---- U0 ----
     const h0 = denseFresh(SIDE, 'lone', 'union')
     const husk0 = boxHusk(h0.mesh, SIDE)
+
     let doubleStored = 0
 
     try {
@@ -252,18 +381,31 @@ export default experiment({
     for (let x = 0; x < h0.cells; x++) {
       let units = 0
 
-      for (let l = 0; l < 12; l++) units += h0.store[x * 12 + l] !== 0 ? 1 : 0
+      for (let l = 0; l < 12; l++) {
+        units += h0.store[x * 12 + l] !== 0 ? 1 : 0
+      }
 
-      frameMismatch += units === (kinds[classOf(x, SIDE, h0.hub)] === 'root' ? 4 : 0) ? 0 : 1
+      frameMismatch +=
+        units === (kinds[classOf(x, SIDE, h0.hub)] === 'root' ? 4 : 0)
+          ? 0
+          : 1
     }
 
-    const zFailures = momentumFailures(h0.store, SIDE, (x, d) => h0.mesh.neighbour(x, d))
+    const zFailures = momentumFailures(h0.store, SIDE, (x, d) =>
+      h0.mesh.neighbour(x, d),
+    )
     const parts = splitByHubClass(h0.store, SIDE, h0.hub)
-    const partRuns = parts.map(p => bounceRunner(h0.kernel, { ...hubVacuum(h0), store: Int8Array.from(p) }))
+    const partRuns = parts.map(p =>
+      bounceRunner(h0.kernel, {
+        ...hubVacuum(h0),
+        store: Int8Array.from(p),
+      }),
+    )
     const whole = bounceRunner(h0.kernel, hubVacuum(h0))
     const replay = hubReplay(h0.kernel, hubVacuum(h0))
     const target0 = streamTarget(h0.mesh)
     const heldDock = new Uint8Array(h0.cells)
+
     let superMismatch = 0
     let sharedSlots = 0
     let replayMismatch = 0
@@ -276,7 +418,7 @@ export default experiment({
         let holders = 0
 
         for (const r of partRuns) {
-          const v = r.state().vibe[i] as number
+          const v = r.state().vibe[i]!
 
           if (v !== 0) {
             holders++
@@ -286,13 +428,19 @@ export default experiment({
 
         sharedSlots += holders > 1 ? 1 : 0
         superMismatch += s.vibe[i] === sum ? 0 : 1
-        if (t < BEATS && s.vibe[i] !== 0) heldDock[(i / 24) | 0] = 1
+
+        if (t < BEATS && s.vibe[i] !== 0) {
+          heldDock[(i / 24) | 0] = 1
+        }
       }
 
       for (let i = 0; i < s.store.length; i++) {
         let sum = 0
 
-        for (const r of partRuns) sum += r.state().store[i] as number
+        for (const r of partRuns) {
+          sum += r.state().store[i]!
+        }
+
         superMismatch += s.store[i] === sum ? 0 : 1
       }
 
@@ -302,7 +450,10 @@ export default experiment({
       }
 
       whole.beat()
-      for (const r of partRuns) r.beat()
+
+      for (const r of partRuns) {
+        r.beat()
+      }
 
       if (t < BEATS) {
         const a = replay.state()
@@ -313,22 +464,39 @@ export default experiment({
     }
 
     const heldColumn = new Uint8Array(husk0.columns)
+
     let heldDocks = 0
 
     for (let x = 0; x < h0.cells; x++) {
-      if (!heldDock[x]) continue
+      if (!heldDock[x]) {
+        continue
+      }
+
       heldDocks++
-      heldColumn[husk0.column[x] as number] = 1
+      heldColumn[husk0.column[x]!] = 1
     }
 
     const heldColumns = heldColumn.reduce((a, b) => a + b, 0)
-    const u0 = doubleStored === 0 && frameMismatch === 0 && zFailures === 0 && superMismatch === 0 && sharedSlots === 0 && heldDocks === h0.cells && heldColumns === husk0.columns && replayMismatch === 0
+    const u0 =
+      doubleStored === 0 &&
+      frameMismatch === 0 &&
+      zFailures === 0 &&
+      superMismatch === 0 &&
+      sharedSlots === 0 &&
+      heldDocks === h0.cells &&
+      heldColumns === husk0.columns &&
+      replayMismatch === 0
 
     log('U0')
 
     // ---- U1: the hub vacuum through these readers ----
     const hub0 = denseFresh(SIDE, 'lone', 'hub')
-    const hubCausal = causalRun({ replay: hubReplay(hub0.kernel, hubVacuum(hub0)), husk: husk0, target: target0, beats: BEATS }).counts
+    const hubCausal = causalRun({
+      replay: hubReplay(hub0.kernel, hubVacuum(hub0)),
+      husk: husk0,
+      target: target0,
+      beats: BEATS,
+    }).counts
     const hubCone = coneReading(hub0, husk0)
     const u1 = hubCausal.husk === 65 && hubCone.husk === 61
 
@@ -336,10 +504,26 @@ export default experiment({
 
     // ---- beside at integer+0 ----
     const star = freeStar(h0.mesh, husk0, centerOf(SIDE), BEATS)
-    const others = (['isometric', 'bounce'] as const).map(kind => ({ kind, cone: coneReading(denseFresh(SIDE, kind, 'union'), husk0), wake: wakeReading(SIDE, kind, 'union', 1) }))
-    const translatesGroup = patternSymmetry(coins, boxMaps(coins, 4), unionHubStore(coins, 4, [0, 0, 0, 0])).pointGroup.length
-    const wake12 = [1, -1].map(tone => wakeReading(12, 'lone', 'union', tone))
-    const g4at12 = wake12.every((w, i) => w.offLine === 0 && w.worst.every((x, p) => x <= (committedAt(12, i === 0 ? 1 : -1)[p] ?? 0)))
+    const others = (['isometric', 'bounce'] as const).map(kind => ({
+      kind,
+      cone: coneReading(denseFresh(SIDE, kind, 'union'), husk0),
+      wake: wakeReading(SIDE, kind, 'union', 1),
+    }))
+    const translatesGroup = patternSymmetry(
+      coins,
+      boxMaps(coins, 4),
+      unionHubStore(coins, 4, [0, 0, 0, 0]),
+    ).pointGroup.length
+    const wake12 = [1, -1].map(tone =>
+      wakeReading(12, 'lone', 'union', tone),
+    )
+    const g4at12 = wake12.every(
+      (w, i) =>
+        w.offLine === 0 &&
+        w.worst.every(
+          (x, p) => x <= (committedAt(12, i === 0 ? 1 : -1)[p] ?? 0),
+        ),
+    )
     const hubWake8 = wakeReading(SIDE, 'lone', 'hub', 1)
 
     log('beside')
@@ -352,7 +536,9 @@ export default experiment({
         const husk = boxHusk(h.mesh, SIDE)
         const causal = causalReading(h, husk)
         const cone = coneReading(h, husk)
-        const wakes = [1, -1].map(tone => wakeReading(SIDE, 'lone', 'union', tone))
+        const wakes = [1, -1].map(tone =>
+          wakeReading(SIDE, 'lone', 'union', tone),
+        )
 
         log(`start ${member.name}`)
 
@@ -360,16 +546,47 @@ export default experiment({
       }),
     )
 
-    const g1a = perStart.map(p => p.causal.largest === 1 && p.causal.descentMin === 512 && p.causal.coveredBy <= DESCENT_BOUND)
+    const g1a = perStart.map(
+      p =>
+        p.causal.largest === 1 &&
+        p.causal.descentMin === 512 &&
+        p.causal.coveredBy <= DESCENT_BOUND,
+    )
     const g1b = perStart.map(p => p.cone.husk === 512)
-    const g3 = perStart.map(p => p.wakes.every(w => w.vacuumMade === w.vacuumUnmade && w.vacuumMade >= w.units) && p.wakes.some(w => w.tallyDiffers > 0))
-    const g4 = perStart.map(p => p.wakes.every((w, i) => w.offLine === 0 && w.worst.every((x, q) => x <= (committedAt(SIDE, i === 0 ? 1 : -1)[q] ?? 0)))).map(v => v && g4at12)
+    const g3 = perStart.map(
+      p =>
+        p.wakes.every(
+          w =>
+            w.vacuumMade === w.vacuumUnmade && w.vacuumMade >= w.units,
+        ) && p.wakes.some(w => w.tallyDiffers > 0),
+    )
+    const g4 = perStart
+      .map(p =>
+        p.wakes.every(
+          (w, i) =>
+            w.offLine === 0 &&
+            w.worst.every(
+              (x, q) =>
+                x <= (committedAt(SIDE, i === 0 ? 1 : -1)[q] ?? 0),
+            ),
+        ),
+      )
+      .map(v => v && g4at12)
     const all = (xs: boolean[]): boolean => xs.every(Boolean)
     const count = (xs: boolean[]): number => xs.filter(Boolean).length
-    const status = u0 && u1 && all(g1a) && all(g3) && all(g4) ? (all(g1b) ? 'pass' : 'partial') : 'fail'
-    const range = (xs: number[]): string => (Math.min(...xs) === Math.max(...xs) ? `${Math.min(...xs)}` : `${Math.min(...xs)} to ${Math.max(...xs)}`)
+    const status =
+      u0 && u1 && all(g1a) && all(g3) && all(g4)
+        ? all(g1b)
+          ? 'pass'
+          : 'partial'
+        : 'fail'
+    const range = (xs: number[]): string =>
+      Math.min(...xs) === Math.max(...xs)
+        ? `${Math.min(...xs)}`
+        : `${Math.min(...xs)} to ${Math.max(...xs)}`
     const coneHusk = range(perStart.map(p => p.cone.husk))
-    const worstWake = (i: number): string => range(perStart.map(p => Math.max(...(p.wakes[i]?.worst ?? []))))
+    const worstWake = (i: number): string =>
+      range(perStart.map(p => Math.max(...(p.wakes[i]?.worst ?? []))))
     const k = others[0]!
     const b = others[1]!
 
@@ -392,28 +609,46 @@ export default experiment({
         replayMismatches: replayMismatch,
         heldDocks,
         heldColumns,
-        causalLargestMax: Math.max(...perStart.map(p => p.causal.largest)),
+        causalLargestMax: Math.max(
+          ...perStart.map(p => p.causal.largest),
+        ),
         descentMin: Math.min(...perStart.map(p => p.causal.descentMin)),
-        coveredByMax: Math.max(...perStart.map(p => p.causal.coveredBy)),
+        coveredByMax: Math.max(
+          ...perStart.map(p => p.causal.coveredBy),
+        ),
         coneHuskMin: Math.min(...perStart.map(p => p.cone.husk)),
         coneHuskMax: Math.max(...perStart.map(p => p.cone.husk)),
         coneBulkMax: Math.max(...perStart.map(p => p.cone.bulk)),
-        coneEmptyBeats: perStart.reduce((s, p) => s + p.cone.emptyBeats, 0),
+        coneEmptyBeats: perStart.reduce(
+          (s, p) => s + p.cone.emptyBeats,
+          0,
+        ),
         coneErased: perStart.reduce((s, p) => s + p.cone.killed, 0),
         coneChanges: perStart[0]?.cone.changes ?? 0,
         freeStarHusk: star.huskCount,
-        wakeLoveWorst8: Math.max(...perStart.map(p => Math.max(...(p.wakes[0]?.worst ?? [])))),
-        wakeFearWorst8: Math.max(...perStart.map(p => Math.max(...(p.wakes[1]?.worst ?? [])))),
-        wakeOffLine8: perStart.reduce((s, p) => s + (p.wakes[0]?.offLine ?? 0) + (p.wakes[1]?.offLine ?? 0), 0),
+        wakeLoveWorst8: Math.max(
+          ...perStart.map(p => Math.max(...(p.wakes[0]?.worst ?? []))),
+        ),
+        wakeFearWorst8: Math.max(
+          ...perStart.map(p => Math.max(...(p.wakes[1]?.worst ?? []))),
+        ),
+        wakeOffLine8: perStart.reduce(
+          (s, p) =>
+            s + (p.wakes[0]?.offLine ?? 0) + (p.wakes[1]?.offLine ?? 0),
+          0,
+        ),
         wakeLoveWorst12: Math.max(...(wake12[0]?.worst ?? [])),
         wakeFearWorst12: Math.max(...(wake12[1]?.worst ?? [])),
-        wakeOffLine12: (wake12[0]?.offLine ?? 0) + (wake12[1]?.offLine ?? 0),
+        wakeOffLine12:
+          (wake12[0]?.offLine ?? 0) + (wake12[1]?.offLine ?? 0),
         committedLove8Min: Math.min(...committedAt(8, 1)),
         committedLove12Min: Math.min(...committedAt(12, 1)),
         vacuumMade: perStart[0]?.wakes[0]?.vacuumMade ?? 0,
         vacuumUnmade: perStart[0]?.wakes[0]?.vacuumUnmade ?? 0,
         units: perStart[0]?.wakes[0]?.units ?? 0,
-        tallyDiffersMin: Math.min(...perStart.map(p => p.wakes[0]?.tallyDiffers ?? 0)),
+        tallyDiffersMin: Math.min(
+          ...perStart.map(p => p.wakes[0]?.tallyDiffers ?? 0),
+        ),
         bareLove: perStart[0]?.wakes[0]?.bare ?? 0,
         seconds: (Date.now() - started) / 1000,
       },

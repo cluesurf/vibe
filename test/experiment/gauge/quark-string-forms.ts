@@ -63,7 +63,13 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { unitDemonBeta } from '@/code/dynamics/finite-kinetic'
-import { carries, fieldEnergy, fixedPoints, hashedLinks, lineTransport } from '@/code/rule/matter-links'
+import {
+  carries,
+  fieldEnergy,
+  fixedPoints,
+  hashedLinks,
+  lineTransport,
+} from '@/code/rule/matter-links'
 import {
   addFlux,
   centerBeat,
@@ -90,19 +96,40 @@ const GOLDEN = (Math.sqrt(5) - 1) / 2
 
 type Branch = { base: CenterState; start: number }
 
-type FieldRun = { level: number; beta: number; bulkN: number; correlator: number[]; vacuumStringLinks: number; vacuumSeries: number[] }
+type FieldRun = {
+  level: number
+  beta: number
+  bulkN: number
+  correlator: number[]
+  vacuumStringLinks: number
+  vacuumSeries: number[]
+}
 
-type PairRun = { exact: boolean; length: number; carry: number; lineN: number }
+type PairRun = {
+  exact: boolean
+  length: number
+  carry: number
+  lineN: number
+}
 
-type MesonRun = { exact: boolean; meanGap: number; travel: number; hops: number }
+type MesonRun = {
+  exact: boolean
+  meanGap: number
+  travel: number
+  hops: number
+}
 
-const dist = (a: number[], b: number[]): number => Math.hypot(...a.map((x, i) => x - (b[i] ?? 0)))
+const dist = (a: number[], b: number[]): number =>
+  Math.hypot(...a.map((x, i) => x - (b[i] ?? 0)))
 
 function slope(xs: number[], ys: number[]): number {
   const mx = xs.reduce((a, b) => a + b, 0) / xs.length
   const my = ys.reduce((a, b) => a + b, 0) / ys.length
 
-  return xs.reduce((a, x, k) => a + (x - mx) * ((ys[k] ?? 0) - my), 0) / xs.reduce((a, x) => a + (x - mx) ** 2, 0)
+  return (
+    xs.reduce((a, x, k) => a + (x - mx) * ((ys[k] ?? 0) - my), 0) /
+    xs.reduce((a, x) => a + (x - mx) ** 2, 0)
+  )
 }
 
 export default experiment({
@@ -118,9 +145,19 @@ export default experiment({
     const roots = rootsD4()
     const tau = roots.findIndex(r => r.join(',') === '1,-1,0,0')
     const along = roots.findIndex(r => r.join(',') === '0,0,1,1')
-    const make = (input: { kappa: number; tension: number; hop: boolean; roles: boolean }): CenterLinks =>
+    const make = (input: {
+      kappa: number
+      tension: number
+      hop: boolean
+      roles: boolean
+    }): CenterLinks =>
       makeCenterLinks({ side: SIDE, capacity: CAPACITY, ...input })
-    const plain = make({ kappa: KAPPA, tension: TENSION, hop: false, roles: true })
+    const plain = make({
+      kappa: KAPPA,
+      tension: TENSION,
+      hop: false,
+      roles: true,
+    })
     const { matter } = plain
     const { cells } = matter
     const triangles = (cells * 12 * 8) / 3
@@ -135,7 +172,8 @@ export default experiment({
       return c
     }
 
-    const line = (x: number): number[] => Array.from({ length: SIDE }, (_, t) => walk(x, tau, t))
+    const line = (x: number): number[] =>
+      Array.from({ length: SIDE }, (_, t) => walk(x, tau, t))
 
     const demonMean = (s: CenterState): number => {
       let sum = 0
@@ -164,12 +202,22 @@ export default experiment({
       drained.demon.fill(0)
     }
 
-    const branch = (input: { fill: number; settle: number }): Branch => {
-      let s: CenterState = { ...drained, links: Int16Array.from(drained.links), flux: Int32Array.from(drained.flux), demon: new Int32Array(cells * 24) }
+    const branch = (input: {
+      fill: number
+      settle: number
+    }): Branch => {
+      let s: CenterState = {
+        ...drained,
+        links: Int16Array.from(drained.links),
+        flux: Int32Array.from(drained.flux),
+        demon: new Int32Array(cells * 24),
+      }
 
       for (let x = 0; x < cells; x++) {
         for (const a of matter.firsts) {
-          s.demon[x * 24 + a] = Math.floor(2 * input.fill * (((x * 24 + a + 5) * GOLDEN) % 1) + 0.5)
+          s.demon[x * 24 + a] = Math.floor(
+            2 * input.fill * (((x * 24 + a + 5) * GOLDEN) % 1) + 0.5,
+          )
         }
       }
 
@@ -204,7 +252,10 @@ export default experiment({
         const n = new Float64Array(cells)
 
         for (let x = 0; x < cells; x++) {
-          n[x] = fixedPoints(matter, lineTransport(matter, s.links, x, tau))
+          n[x] = fixedPoints(
+            matter,
+            lineTransport(matter, s.links, x, tau),
+          )
           bulkN += (n[x] ?? 0) / cells / BEATS
         }
 
@@ -236,7 +287,12 @@ export default experiment({
 
     // `reference`, beat by beat, is the flux-carrying links of the same field run with no charge, subtracted
     // so that flux loops of the vacuum are not counted as string. Without it the start's count is used
-    const pair = (b: Branch, rule: CenterLinks, r: number, reference?: number[]): PairRun => {
+    const pair = (
+      b: Branch,
+      rule: CenterLinks,
+      r: number,
+      reference?: number[],
+    ): PairRun => {
       const s0 = fresh(b)
       const x0 = 0
       const y0 = walk(x0, along, r)
@@ -266,14 +322,30 @@ export default experiment({
 
       for (let t = 0; t < BEATS; t++) {
         s = centerBeat(rule, s, b.start + t).state
-        exact = exact && centerEnergy(rule, s) === e0 && gaussViolations(rule, s) === 0
-        length += (stringLinks(rule, s.flux) - (reference?.[t] ?? stringLinks(rule, b.base.flux))) / SIDE / BEATS
+        exact =
+          exact &&
+          centerEnergy(rule, s) === e0 &&
+          gaussViolations(rule, s) === 0
+
+        length +=
+          (stringLinks(rule, s.flux) -
+            (reference?.[t] ?? stringLinks(rule, b.base.flux))) /
+          SIDE /
+          BEATS
 
         for (const x of lines) {
-          lineN += fixedPoints(matter, lineTransport(matter, s.links, x, tau)) / lines.length / BEATS
+          lineN +=
+            fixedPoints(
+              matter,
+              lineTransport(matter, s.links, x, tau),
+            ) /
+            lines.length /
+            BEATS
 
           for (const c of line(x)) {
-            carry += carries(matter, s, c, tau) ? 1 / (SIDE * lines.length * BEATS) : 0
+            carry += carries(matter, s, c, tau)
+              ? 1 / (SIDE * lines.length * BEATS)
+              : 0
           }
         }
       }
@@ -289,7 +361,8 @@ export default experiment({
       s0.vibe[x0] = 1
       s0.vibe[y0] = -1
       s0.role[x0] = 4
-      s0.role[y0] = matter.act[(s0.links[x0 * 24 + along] ?? 0) * 9 + 4] ?? 0
+      s0.role[y0] =
+        matter.act[(s0.links[x0 * 24 + along] ?? 0) * 9 + 4] ?? 0
       addFlux(rule, s0.flux, x0, along, 1)
 
       const charges = [
@@ -319,7 +392,10 @@ export default experiment({
 
         s = next.state
         hops += next.moved.hops
-        exact = exact && centerEnergy(rule, s) === e0 && gaussViolations(rule, s) === 0
+        exact =
+          exact &&
+          centerEnergy(rule, s) === e0 &&
+          gaussViolations(rule, s) === 0
 
         const [love, fear] = charges
 
@@ -330,21 +406,54 @@ export default experiment({
       return { exact, meanGap: gap, travel, hops: hops / MESON_BEATS }
     }
 
-    const staticRule = make({ kappa: KAPPA, tension: TENSION, hop: false, roles: false })
-    const slack = make({ kappa: KAPPA, tension: 0, hop: false, roles: false })
+    const staticRule = make({
+      kappa: KAPPA,
+      tension: TENSION,
+      hop: false,
+      roles: false,
+    })
+    const slack = make({
+      kappa: KAPPA,
+      tension: 0,
+      hop: false,
+      roles: false,
+    })
     const mesons = {
-      bound: make({ kappa: KAPPA, tension: TENSION, hop: true, roles: true }),
+      bound: make({
+        kappa: KAPPA,
+        tension: TENSION,
+        hop: true,
+        roles: true,
+      }),
       free: make({ kappa: 0, tension: 0, hop: true, roles: true }),
-      tensionOnly: make({ kappa: 0, tension: TENSION, hop: true, roles: true }),
-      kappaOnly: make({ kappa: KAPPA, tension: 0, hop: true, roles: true }),
+      tensionOnly: make({
+        kappa: 0,
+        tension: TENSION,
+        hop: true,
+        roles: true,
+      }),
+      kappaOnly: make({
+        kappa: KAPPA,
+        tension: 0,
+        hop: true,
+        roles: true,
+      }),
     }
 
     const measure = (b: Branch) => {
       const field = fieldAlone(b)
-      const pairs = SEPARATIONS.map(r => pair(b, staticRule, r, field.vacuumSeries))
-      const slackPair = pair(b, slack, SEPARATIONS[SEPARATIONS.length - 1] ?? 4)
+      const pairs = SEPARATIONS.map(r =>
+        pair(b, staticRule, r, field.vacuumSeries),
+      )
+      const slackPair = pair(
+        b,
+        slack,
+        SEPARATIONS[SEPARATIONS.length - 1] ?? 4,
+      )
       const potential = pairs.map(p => TENSION * p.length)
-      const excess = pairs.map((p, k) => p.length - (SEPARATIONS[k] ?? 0))
+      const excess = pairs.map(
+        (p, k) => p.length - (SEPARATIONS[k] ?? 0),
+      )
       const moving = {
         bound: meson(b, mesons.bound),
         free: meson(b, mesons.free),
@@ -352,33 +461,57 @@ export default experiment({
         kappaOnly: meson(b, mesons.kappaOnly),
       }
 
-      return { field, pairs, slackPair, potential, excess, sigma: slope(SEPARATIONS, potential), moving }
+      return {
+        field,
+        pairs,
+        slackPair,
+        potential,
+        excess,
+        sigma: slope(SEPARATIONS, potential),
+        moving,
+      }
     }
 
     const melted = measure(branch(MELTED))
     const cold = measure(branch(COLD))
     const both = [melted, cold]
 
-    const exact = both.every(m => [...m.pairs, m.slackPair].every(p => p.exact) && Object.values(m.moving).every(r => r.exact))
+    const exact = both.every(
+      m =>
+        [...m.pairs, m.slackPair].every(p => p.exact) &&
+        Object.values(m.moving).every(r => r.exact),
+    )
 
     const ok =
       exact &&
       both.every(
         m =>
-          m.potential.every((v, k) => k === 0 || v > (m.potential[k - 1] ?? 0)) &&
+          m.potential.every(
+            (v, k) => k === 0 || v > (m.potential[k - 1] ?? 0),
+          ) &&
           m.excess.every(e => e < 1) &&
-          m.slackPair.length - (SEPARATIONS[SEPARATIONS.length - 1] ?? 4) > 1 &&
+          m.slackPair.length -
+            (SEPARATIONS[SEPARATIONS.length - 1] ?? 4) >
+            1 &&
           m.moving.bound.meanGap < m.moving.free.meanGap / 10 &&
           m.moving.bound.travel > 5,
       )
 
-    const report = (label: string, m: typeof melted): Record<string, number> => ({
+    const report = (
+      label: string,
+      m: typeof melted,
+    ): Record<string, number> => ({
       [`${label}Level`]: m.field.level,
       [`${label}DemonBeta`]: m.field.beta,
       [`${label}TensionTimesBeta`]: TENSION * m.field.beta,
       [`${label}VacuumStringLinks`]: m.field.vacuumStringLinks,
       [`${label}PolyakovCount`]: m.field.bulkN,
-      ...Object.fromEntries(SEPARATIONS.map(r => [`${label}PolyakovCorrelator${r}`, m.field.correlator[r] ?? 0])),
+      ...Object.fromEntries(
+        SEPARATIONS.map(r => [
+          `${label}PolyakovCorrelator${r}`,
+          m.field.correlator[r] ?? 0,
+        ]),
+      ),
       ...Object.fromEntries(
         m.pairs.flatMap((p, k) => {
           const r = SEPARATIONS[k]
@@ -407,7 +540,11 @@ export default experiment({
       status: ok ? 'pass' : 'fail',
       claim:
         "with the energy exact and Gauss's law at every cell on every beat, on both branches the potential between a static love line and fear line rises strictly from R = 1 to 4 with the string's excess length under 1 per slice at every R, the string wanders past that with no tension, and a meson with kappa and tension keeps a mean gap under a tenth of the free meson's while it travels more than 5",
-      metrics: { energyAndGaussExact: exact ? 1 : 0, ...report('melted', melted), ...report('cold', cold) },
+      metrics: {
+        energyAndGaussExact: exact ? 1 : 0,
+        ...report('melted', melted),
+        ...report('cold', cold),
+      },
       control: {
         tautThreshold: TAUT,
         meltedTensionZeroExcessLengthR4: melted.slackPair.length - 4,

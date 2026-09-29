@@ -42,8 +42,15 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { weylCell } from '@/code/tool/weyl'
 import { weylPoint } from '@/code/tool/weyl-point'
-import { conservingEdgeSweepHashed, hashedSweepValue } from '@/code/dynamics/conserving-sweep'
-import { THRESHOLD_GAP, fixedShiftFloor, thresholdCorrelation } from '@/code/measure/threshold-correlation'
+import {
+  conservingEdgeSweepHashed,
+  hashedSweepValue,
+} from '@/code/dynamics/conserving-sweep'
+import {
+  THRESHOLD_GAP,
+  fixedShiftFloor,
+  thresholdCorrelation,
+} from '@/code/measure/threshold-correlation'
 
 const KEYS = 2 ** 14
 const RING = 4096
@@ -51,7 +58,14 @@ const ARROW = 0.1
 const BEATS = 16
 
 // conservingEdgeSweepHashed as it was until 2026-09-26, verbatim apart from its name: the control
-function oldSweep(input: { tone: Int8Array; eu: Int32Array; ev: Int32Array; moved: Uint8Array; beat: number; arrow: number }): void {
+function oldSweep(input: {
+  tone: Int8Array
+  eu: Int32Array
+  ev: Int32Array
+  moved: Uint8Array
+  beat: number
+  arrow: number
+}): void {
   const { tone, eu, ev, moved, beat, arrow } = input
 
   moved.fill(0)
@@ -111,7 +125,8 @@ export default experiment({
   depth: 'L2',
   paper: false,
   run() {
-    const check = (read1: Read, read2: Read) => thresholdCorrelation({ read1, read2, keys: KEYS })
+    const check = (read1: Read, read2: Read) =>
+      thresholdCorrelation({ read1, read2, keys: KEYS })
 
     // G1
     const floor = fixedShiftFloor(10000)
@@ -132,17 +147,47 @@ export default experiment({
       plantedSmallestGap = Math.min(plantedSmallestGap, r.gap)
     }
 
-    const saltPair = check(k => weylCell(k, 5, 2), k => weylCell(k, 5, 3))
-    const beatPair = check(k => weylCell(k, 5, 1), k => weylCell(k, 6, 1))
-    const cleanSlots = check(k => weylPoint({ start: 26, index: k, slot: 0 }), k => weylPoint({ start: 26, index: k, slot: 1 }))
-    const cleanBeats = check(k => hashedSweepValue(k, 5, 0), k => hashedSweepValue(k, 6, 0))
+    const saltPair = check(
+      k => weylCell(k, 5, 2),
+      k => weylCell(k, 5, 3),
+    )
+    const beatPair = check(
+      k => weylCell(k, 5, 1),
+      k => weylCell(k, 6, 1),
+    )
+    const cleanSlots = check(
+      k => weylPoint({ start: 26, index: k, slot: 0 }),
+      k => weylPoint({ start: 26, index: k, slot: 1 }),
+    )
+    const cleanBeats = check(
+      k => hashedSweepValue(k, 5, 0),
+      k => hashedSweepValue(k, 6, 0),
+    )
     const g2 =
-      plantedFlagged === 1000 && saltPair.flagged && beatPair.flagged && cleanSlots.gap < 0.005 && cleanBeats.gap < 0.005
+      plantedFlagged === 1000 &&
+      saltPair.flagged &&
+      beatPair.flagged &&
+      cleanSlots.gap < 0.005 &&
+      cleanBeats.gap < 0.005
 
     // G3
-    const oldRead = (d: number, b: number): Read => k => weylCell(k, b, d + 1)
-    const newRead = (d: number, b: number): Read => k => hashedSweepValue(k, b, d)
-    const audit = (read: (d: number, b: number) => Read): { flagged: number; saltTwoThree: number; worst: number; pairs: number } => {
+    const oldRead =
+      (d: number, b: number): Read =>
+      k =>
+        weylCell(k, b, d + 1)
+    const newRead =
+      (d: number, b: number): Read =>
+      k =>
+        hashedSweepValue(k, b, d)
+
+    const audit = (
+      read: (d: number, b: number) => Read,
+    ): {
+      flagged: number
+      saltTwoThree: number
+      worst: number
+      pairs: number
+    } => {
       let flagged = 0
       let saltTwoThree = 0
       let worst = 0
@@ -154,8 +199,16 @@ export default experiment({
           [read(0, b), read(2, b), 'hop sign'],
           [read(1, b), read(2, b), 'spawn sign'],
           ...[0, 1, 2].flatMap(d => [
-            [read(d, b), read(d, b + 1), 'next'] as [Read, Read, string],
-            [read(d, b), read(d, b + 2), 'second'] as [Read, Read, string],
+            [read(d, b), read(d, b + 1), 'next'] as [
+              Read,
+              Read,
+              string,
+            ],
+            [read(d, b), read(d, b + 2), 'second'] as [
+              Read,
+              Read,
+              string,
+            ],
           ]),
         ]
 
@@ -171,14 +224,24 @@ export default experiment({
 
       return { flagged, saltTwoThree, worst, pairs }
     }
+
     const before = audit(oldRead)
     const after = audit(newRead)
-    const g3 = before.saltTwoThree === 4 && after.flagged === 0 && after.pairs === 36
+    const g3 =
+      before.saltTwoThree === 4 &&
+      after.flagged === 0 &&
+      after.pairs === 36
 
     // G4
     const eu = Int32Array.from({ length: RING }, (_, i) => i)
-    const ev = Int32Array.from({ length: RING }, (_, i) => (i + 1) % RING)
-    const spawnShare = (sweep: typeof oldSweep): { plusFirst: number; spawned: number; eligible: number } => {
+    const ev = Int32Array.from(
+      { length: RING },
+      (_, i) => (i + 1) % RING,
+    )
+
+    const spawnShare = (
+      sweep: typeof oldSweep,
+    ): { plusFirst: number; spawned: number; eligible: number } => {
       let plusFirst = 0
       let spawned = 0
       let eligible = 0
@@ -211,15 +274,25 @@ export default experiment({
 
       return { plusFirst, spawned, eligible }
     }
+
     const oldShare = spawnShare(oldSweep)
     const newShare = spawnShare(conservingEdgeSweepHashed)
-    const oldPlusShare = oldShare.plusFirst / Math.max(1, oldShare.spawned)
-    const newPlusShare = newShare.plusFirst / Math.max(1, newShare.spawned)
+    const oldPlusShare =
+      oldShare.plusFirst / Math.max(1, oldShare.spawned)
+    const newPlusShare =
+      newShare.plusFirst / Math.max(1, newShare.spawned)
     const newRate = newShare.spawned / newShare.eligible
-    const g4 = oldShare.spawned > 0 && oldPlusShare === 1 && Math.abs(newPlusShare - 0.5) <= 0.05 && Math.abs(newRate - ARROW) <= 0.02
+    const g4 =
+      oldShare.spawned > 0 &&
+      oldPlusShare === 1 &&
+      Math.abs(newPlusShare - 0.5) <= 0.05 &&
+      Math.abs(newRate - ARROW) <= 0.02
 
     // reported: the other weylCell readers in conserving-sweep (one value per edge and beat, salt 1)
-    const hopBeatPair = check(k => weylCell(k, 5, 1), k => weylCell(k, 6, 1))
+    const hopBeatPair = check(
+      k => weylCell(k, 5, 1),
+      k => weylCell(k, 6, 1),
+    )
 
     const gates = { G1: g1, G2: g2, G3: g3, G4: g4 }
     const ok = Object.values(gates).every(Boolean)
@@ -227,7 +300,7 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'every fixed shift between two reads of one key shows a threshold gap above the gate\'s 0.02 (exact floor over all shifts), 1,000 planted shifts and the two reported weylCell pairs are flagged while independent weyl-point streams pass; conservingEdgeSweepHashed\'s spawn and sign reads were such a pair and made every pair spawned at arrow 0.1 the same way round (share 1), and with a stream per beat none of its 36 decision pairs is flagged and the share is one half',
+        "every fixed shift between two reads of one key shows a threshold gap above the gate's 0.02 (exact floor over all shifts), 1,000 planted shifts and the two reported weylCell pairs are flagged while independent weyl-point streams pass; conservingEdgeSweepHashed's spawn and sign reads were such a pair and made every pair spawned at arrow 0.1 the same way round (share 1), and with a stream per beat none of its 36 decision pairs is flagged and the share is one half",
       metrics: {
         keys: KEYS,
         thresholdGap: THRESHOLD_GAP,
@@ -257,14 +330,19 @@ export default experiment({
         newSpawnRate: newRate,
         hopSweepBeatPairGap: hopBeatPair.gap,
         hopSweepBeatPairFlagged: hopBeatPair.flagged ? 1 : 0,
-        ...Object.fromEntries(Object.entries(gates).map(([k, v]) => [`gate_${k}`, v ? 1 : 0])),
+        ...Object.fromEntries(
+          Object.entries(gates).map(([k, v]) => [
+            `gate_${k}`,
+            v ? 1 : 0,
+          ]),
+        ),
       },
       control: {
         plantedShifts: 1000,
         oldSweepIsVerbatim: 1,
       },
       notes:
-        'L2. FIRST RUN (2026-09-26, 2 s): every gate passes, first time, no gate touched. The exact floor is 0.1406 (at shift 0.172), seven times the 0.02 threshold, so the gate cannot miss a fixed shift on this threshold grid, and every weylCell pair is one: all 36 of conservingEdgeSweepHashed\'s decision pairs were flagged before the fix (worst gap 0.222), the spawn and sign pair at every beat tested, with the literal constant shift 0.23607 = frac(sqrt 5); across beats the shift is 0.73205 = frac(sqrt 3). In the rule the flaw was total: at arrow 0.1 all 6,555 pairs spawned over 16 beats of an empty 4,096 ring were +1 on the edge\'s first vertex; after the fix 5,510 are, 50.02 percent of them. After the fix no pair is flagged (worst gap 0.0028) and the independent-stream controls read 7e-4 and 4e-4. STILL IN THE FILE, reported and not fixed here: conservingHopSweepHashed and conservingEdgeSweepSteeredHashed read weylCell(edge, beat, 1) once per edge and beat, so a hop at one beat and the next are the fixed-shift pair (gap 0.170, flagged); each makes one decision per edge and beat, so the within-beat flaw is absent. hashedTone reads one value per cell, no pair. WHAT THE FIX LEAVES: along the edge index the values are still one rotation per beat, a Kronecker fill, so neighboring edges are not independent; it shows in the spawn rate, 0.0918 of the edges weighed at arrow 0.1 after the fix and 0.111 before, because the edge after a spawn is skipped and a rotation correlates the two. The gate asks only about two reads of ONE key; a gate on neighboring keys would flag every Kronecker fill in the repo, including weyl-point.',
+        "L2. FIRST RUN (2026-09-26, 2 s): every gate passes, first time, no gate touched. The exact floor is 0.1406 (at shift 0.172), seven times the 0.02 threshold, so the gate cannot miss a fixed shift on this threshold grid, and every weylCell pair is one: all 36 of conservingEdgeSweepHashed's decision pairs were flagged before the fix (worst gap 0.222), the spawn and sign pair at every beat tested, with the literal constant shift 0.23607 = frac(sqrt 5); across beats the shift is 0.73205 = frac(sqrt 3). In the rule the flaw was total: at arrow 0.1 all 6,555 pairs spawned over 16 beats of an empty 4,096 ring were +1 on the edge's first vertex; after the fix 5,510 are, 50.02 percent of them. After the fix no pair is flagged (worst gap 0.0028) and the independent-stream controls read 7e-4 and 4e-4. STILL IN THE FILE, reported and not fixed here: conservingHopSweepHashed and conservingEdgeSweepSteeredHashed read weylCell(edge, beat, 1) once per edge and beat, so a hop at one beat and the next are the fixed-shift pair (gap 0.170, flagged); each makes one decision per edge and beat, so the within-beat flaw is absent. hashedTone reads one value per cell, no pair. WHAT THE FIX LEAVES: along the edge index the values are still one rotation per beat, a Kronecker fill, so neighboring edges are not independent; it shows in the spawn rate, 0.0918 of the edges weighed at arrow 0.1 after the fix and 0.111 before, because the edge after a spawn is skipped and a rotation correlates the two. The gate asks only about two reads of ONE key; a gate on neighboring keys would flag every Kronecker fill in the repo, including weyl-point.",
     })
   },
 })

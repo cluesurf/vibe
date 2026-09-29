@@ -71,14 +71,42 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { EVEN_DEPTH } from '@/code/measure/even-field'
-import { DEEP, FALL_AT, FALL_CASES, FALL_LONG, FALL_R, fallSurvey, HOP_D, LUMP_CONTENT, SIGN_SIDE, type LongRun } from '@/code/measure/even-sign'
-import { lightSpeed, type Run } from '@/code/measure/varying-depth-light'
+import {
+  DEEP,
+  FALL_AT,
+  FALL_CASES,
+  FALL_LONG,
+  FALL_R,
+  fallSurvey,
+  HOP_D,
+  LUMP_CONTENT,
+  SIGN_SIDE,
+  type LongRun,
+} from '@/code/measure/even-sign'
+import {
+  lightSpeed,
+  type Run,
+} from '@/code/measure/varying-depth-light'
 
-const wrapsOf = (w: { angle: number; field: number; potential: number }): number => w.angle + w.field + w.potential
-const drift = (run: LongRun): number => Math.max(...run.samples.map(s => Math.abs(s.longitudinal - run.samples[0]!.longitudinal)))
-const leastTransverse = (run: LongRun): number => Math.min(...run.samples.map(s => s.transverse))
-const growth = (run: LongRun): number => Math.max(...run.samples.map(s => s.transverse)) / run.samples[0]!.transverse
-const invariantGrowth = (run: LongRun): number => Math.max(...run.samples.map(s => s.invariant)) / run.samples[0]!.invariant
+const wrapsOf = (w: {
+  angle: number
+  field: number
+  potential: number
+}): number => w.angle + w.field + w.potential
+const drift = (run: LongRun): number =>
+  Math.max(
+    ...run.samples.map(s =>
+      Math.abs(s.longitudinal - run.samples[0]!.longitudinal),
+    ),
+  )
+const leastTransverse = (run: LongRun): number =>
+  Math.min(...run.samples.map(s => s.transverse))
+const growth = (run: LongRun): number =>
+  Math.max(...run.samples.map(s => s.transverse)) /
+  run.samples[0]!.transverse
+const invariantGrowth = (run: LongRun): number =>
+  Math.max(...run.samples.map(s => s.invariant)) /
+  run.samples[0]!.invariant
 
 export default experiment({
   id: 'gravity/even-fall',
@@ -91,37 +119,82 @@ export default experiment({
   paper: false,
   run() {
     const s = fallSurvey(what => console.error(what))
-    const caseOf = (name: string) => FALL_CASES.find(c => c.name === name)!
+    const caseOf = (name: string) =>
+      FALL_CASES.find(c => c.name === name)!
     // W_L at FALL_R = [3, 5]: the force at 4 by the central difference, per unit content
-    const force = (name: string, sign: number): number => (-sign * (s.pairs[name]![1]! - s.pairs[name]![0]!)) / (FALL_R[1]! - FALL_R[0]!)
+    const force = (name: string, sign: number): number =>
+      (-sign * (s.pairs[name]![1]! - s.pairs[name]![0]!)) /
+      (FALL_R[1]! - FALL_R[0]!)
+
     // the proposal's energy on the even copy is -W_L (sign -1); the light keeps +W_L
     const perContent = (name: string): number => {
       const c = caseOf(name)
 
       return force(name, c.copy === 'even' ? -1 : 1) / c.content
     }
+
     const aLight = perContent('even_light')
     const aHeavy = perContent('even_heavy')
     const aZero = perContent('zero')
     const lightLight = perContent('light_light')
     const lightHeavy = perContent('light_heavy')
     const alike = Math.abs(aLight / aHeavy - 1)
-    const g1 = aLight < 0 && aHeavy < 0 && alike < 1e-9 && Math.abs(aZero) < 1e-15 && Math.sign(lightLight) !== Math.sign(lightHeavy)
+    const g1 =
+      aLight < 0 &&
+      aHeavy < 0 &&
+      alike < 1e-9 &&
+      Math.abs(aZero) < 1e-15 &&
+      Math.sign(lightLight) !== Math.sign(lightHeavy)
     const volume = SIGN_SIDE ** 3
-    const aWant = -(LUMP_CONTENT / (24 * EVEN_DEPTH)) * (1 / FALL_R[0]! - 1 / FALL_R[1]!) / (FALL_R[1]! - FALL_R[0]!) + (LUMP_CONTENT * Math.PI * (FALL_R[1]! + FALL_R[0]!)) / (36 * volume * EVEN_DEPTH)
+    const aWant =
+      (-(LUMP_CONTENT / (24 * EVEN_DEPTH)) *
+        (1 / FALL_R[0]! - 1 / FALL_R[1]!)) /
+        (FALL_R[1]! - FALL_R[0]!) +
+      (LUMP_CONTENT * Math.PI * (FALL_R[1]! + FALL_R[0]!)) /
+        (36 * volume * EVEN_DEPTH)
 
     const c = lightSpeed(EVEN_DEPTH)
     const speedRatio = s.packetSpeed / c
-    const packetFine = s.packetEnergy.samples.every(x => x.longitudinal === 0 && x.invariant > 0 && x.signed === x.invariant)
-    const g2 = packetFine && Math.abs(speedRatio - 1) <= 0.01 && leastTransverse(s.lump) >= 0
+    const packetFine = s.packetEnergy.samples.every(
+      x =>
+        x.longitudinal === 0 &&
+        x.invariant > 0 &&
+        x.signed === x.invariant,
+    )
+    const g2 =
+      packetFine &&
+      Math.abs(speedRatio - 1) <= 0.01 &&
+      leastTransverse(s.lump) >= 0
 
-    const zeroEnergy = Math.max(...s.zero.samples.map(x => Math.abs(x.invariant) + Math.abs(x.longitudinal)))
+    const zeroEnergy = Math.max(
+      ...s.zero.samples.map(
+        x => Math.abs(x.invariant) + Math.abs(x.longitudinal),
+      ),
+    )
     const lumpGrowth = growth(s.lump)
-    const g3 = drift(s.lump) < 1e-9 && leastTransverse(s.lump) >= 0 && lumpGrowth <= 2 && zeroEnergy === 0
+    const g3 =
+      drift(s.lump) < 1e-9 &&
+      leastTransverse(s.lump) >= 0 &&
+      lumpGrowth <= 2 &&
+      zeroEnergy === 0
 
-    const runs: Pick<Run, 'gauss' | 'reversed'>[] = [s.packet, s.packetEnergy, s.lump, s.lumpDeep, s.zero, s.hop]
-    const instrument = s.tally.gauss === 0 && s.tally.reversed && runs.every(r => r.gauss === 0 && r.reversed)
-    const status = !instrument ? 'partial' : g1 && g2 && g3 ? 'pass' : 'fail'
+    const runs: Pick<Run, 'gauss' | 'reversed'>[] = [
+      s.packet,
+      s.packetEnergy,
+      s.lump,
+      s.lumpDeep,
+      s.zero,
+      s.hop,
+    ]
+    const instrument =
+      s.tally.gauss === 0 &&
+      s.tally.reversed &&
+      runs.every(r => r.gauss === 0 && r.reversed)
+    const status = !instrument
+      ? 'partial'
+      : g1 && g2 && g3
+        ? 'pass'
+        : 'fail'
     const f = (x: number): string => x.toPrecision(6)
     const last = (run: LongRun) => run.samples[run.samples.length - 1]!
 
@@ -170,7 +243,8 @@ export default experiment({
     }
 
     HOP_D.forEach((d, i) => {
-      metrics[`hopLongitudinalChange_d${d}`] = s.hop.longitudinalChange[i]!
+      metrics[`hopLongitudinalChange_d${d}`] =
+        s.hop.longitudinalChange[i]!
       metrics[`hopRuleArrival_d${d}`] = s.hop.ruleArrival[i]!
     })
 
@@ -180,7 +254,8 @@ export default experiment({
       metrics,
       control: {
         aUnmodified: -aLight,
-        lightOppositeSigns: Math.sign(lightLight) !== Math.sign(lightHeavy) ? 1 : 0,
+        lightOppositeSigns:
+          Math.sign(lightLight) !== Math.sign(lightHeavy) ? 1 : 0,
         zeroEnergy,
       },
       notes: `L2, inertia a stand-in (content). Gates F1 ${g1}, F2 ${g2}, F3 ${g3}, instrument ${instrument}. Pair energies W_L at r = ${FALL_R.join(', ')}: ${FALL_CASES.map(k => `${k.name} ${s.pairs[k.name]!.map(x => x.toExponential(6)).join(' ')}`).join('; ')}. Lump U_T by sample: ${s.lump.samples.map(x => x.transverse.toFixed(1)).join(' ')}. Deep lump U_T: ${s.lumpDeep.samples.map(x => x.transverse.toFixed(2)).join(' ')}. Wraps: packet ${JSON.stringify(s.packet.wraps)}, lump ${JSON.stringify(s.lump.wraps)}, deep ${JSON.stringify(s.lumpDeep.wraps)}. Survey ${s.seconds.toFixed(1)} s.`,

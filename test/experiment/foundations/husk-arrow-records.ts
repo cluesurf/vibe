@@ -53,7 +53,15 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { arrowBox, chargeOf, correlation, energyOf, lowEntropyStart, twoWay, type ArrowBox } from '@/code/measure/second-law-husk'
+import {
+  arrowBox,
+  chargeOf,
+  correlation,
+  energyOf,
+  lowEntropyStart,
+  twoWay,
+  type ArrowBox,
+} from '@/code/measure/second-law-husk'
 import { type Reduced } from '@/code/measure/living-pair-kernel'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
 
@@ -68,22 +76,45 @@ function farRegion(box: ArrowBox): Uint8Array {
   const per = box.side / box.blockSide
 
   return Uint8Array.from(box.block, b => {
-    const c = [b % per, Math.floor(b / per) % per, Math.floor(b / (per * per))]
+    const c = [
+      b % per,
+      Math.floor(b / per) % per,
+      Math.floor(b / (per * per)),
+    ]
 
     return c.some(v => v === 2) ? 1 : 0
   })
 }
 
-function regionEnergy(box: ArrowBox, region: Uint8Array, s: Reduced, bulkThird: boolean): number {
+function regionEnergy(
+  box: ArrowBox,
+  region: Uint8Array,
+  s: Reduced,
+  bulkThird: boolean,
+): number {
   let e = 0
 
   for (let x = 0; x < box.cells; x++) {
-    if (!region[x]) continue
-    // the lower depth half by v4 mod L (v4 mod 2L is not defined on the box: the period L (0, 0, 1, 1) shifts it by L)
-    if (bulkThird && (box.depth[x] as number) % box.side >= box.side / 2) continue
+    if (!region[x]) {
+      continue
+    }
 
-    for (let d = 0; d < 24; d++) if (s.vibe[x * 24 + d] !== 0) e++
-    for (let l = 0; l < 12; l++) if (s.store[x * 12 + l] !== 0) e += 2
+    // the lower depth half by v4 mod L (v4 mod 2L is not defined on the box: the period L (0, 0, 1, 1) shifts it by L)
+    if (bulkThird && box.depth[x]! % box.side >= box.side / 2) {
+      continue
+    }
+
+    for (let d = 0; d < 24; d++) {
+      if (s.vibe[x * 24 + d] !== 0) {
+        e++
+      }
+    }
+
+    for (let l = 0; l < 12; l++) {
+      if (s.store[x * 12 + l] !== 0) {
+        e += 2
+      }
+    }
   }
 
   return e
@@ -100,13 +131,17 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const members = startFamily(16)
     // husk[run][t + BEATS], bulk[run][t + BEATS]
     const husk: Float64Array[] = []
     const bulk: Float64Array[] = []
     const eventOf: number[] = []
     const memberOf: number[] = []
+
     let exact = true
 
     members.forEach((member, k) => {
@@ -114,7 +149,11 @@ export default experiment({
       const region = farRegion(box)
 
       for (const e of EVENTS) {
-        const start = lowEntropyStart(box, { blocks: [0], perDock: e, phase: k })
+        const start = lowEntropyStart(box, {
+          blocks: [0],
+          perDock: e,
+          phase: k,
+        })
         const h = new Float64Array(2 * BEATS + 1)
         const b = new Float64Array(2 * BEATS + 1)
         const energy = energyOf(start)
@@ -127,14 +166,34 @@ export default experiment({
           const r = twoWay(box, start)
 
           for (let t = 1; t <= BEATS; t++) {
-            if (direction > 0) r.forward()
-            else r.backward()
+            if (direction > 0) {
+              r.forward()
+            } else {
+              r.backward()
+            }
 
             const s = r.state()
 
-            if (t % 10 === 0 || t === BEATS) exact = exact && energyOf(s) === energy && chargeOf(s) === charge
-            h[BEATS + direction * t] = regionEnergy(box, region, s, false)
-            b[BEATS + direction * t] = regionEnergy(box, region, s, true)
+            if (t % 10 === 0 || t === BEATS) {
+              exact =
+                exact &&
+                energyOf(s) === energy &&
+                chargeOf(s) === charge
+            }
+
+            h[BEATS + direction * t] = regionEnergy(
+              box,
+              region,
+              s,
+              false,
+            )
+
+            b[BEATS + direction * t] = regionEnergy(
+              box,
+              region,
+              s,
+              true,
+            )
           }
         }
 
@@ -151,42 +210,71 @@ export default experiment({
     const event = Float64Array.from(eventOf)
     const eventMean = event.reduce((a, b) => a + b, 0) / runs
     const centeredEvent = Float64Array.from(event, v => v - eventMean)
+
     const recordAt = (rows: Float64Array[], t: number): number => {
-      const column = Float64Array.from(rows, r => r[BEATS + t] as number)
+      const column = Float64Array.from(rows, r => r[BEATS + t]!)
       const mean = column.reduce((a, b) => a + b, 0) / runs
 
-      return correlation(centeredEvent, Float64Array.from(column, v => v - mean))
+      return correlation(
+        centeredEvent,
+        Float64Array.from(column, v => v - mean),
+      )
     }
-    const huskR = Array.from({ length: 2 * BEATS + 1 }, (_, i) => recordAt(husk, i - BEATS))
-    const bulkR = Array.from({ length: 2 * BEATS + 1 }, (_, i) => recordAt(bulk, i - BEATS))
-    const R = (t: number): number => huskR[BEATS + t] as number
+
+    const huskR = Array.from({ length: 2 * BEATS + 1 }, (_, i) =>
+      recordAt(husk, i - BEATS),
+    )
+    const bulkR = Array.from({ length: 2 * BEATS + 1 }, (_, i) =>
+      recordAt(bulk, i - BEATS),
+    )
+    const R = (t: number): number => huskR[BEATS + t]!
 
     const r0 = husk.every(h => h[BEATS] === husk[0]![BEATS])
+
     // the cone: within one link start, every event gives the same E_F at |t| < CONE; and the first |t| where they differ
     const firstDifference = (direction: 1 | -1): number => {
       for (let t = 1; t <= BEATS; t++) {
         for (let k = 0; k < members.length; k++) {
           const rows = husk.filter((_, i) => memberOf[i] === k)
 
-          if (rows.some(h => h[BEATS + direction * t] !== rows[0]![BEATS + direction * t])) return t
+          if (
+            rows.some(
+              h =>
+                h[BEATS + direction * t] !==
+                rows[0]![BEATS + direction * t],
+            )
+          ) {
+            return t
+          }
         }
       }
 
       return BEATS + 1
     }
+
     const coneForward = firstDifference(1)
     const coneBackward = firstDifference(-1)
     const r1 = coneForward >= CONE && coneBackward >= CONE
-    const lateForward = Array.from({ length: BEATS / 2 + 1 }, (_, i) => R(BEATS / 2 + i))
-    const lateBackward = Array.from({ length: BEATS / 2 + 1 }, (_, i) => R(-(BEATS / 2 + i)))
+    const lateForward = Array.from({ length: BEATS / 2 + 1 }, (_, i) =>
+      R(BEATS / 2 + i),
+    )
+    const lateBackward = Array.from({ length: BEATS / 2 + 1 }, (_, i) =>
+      R(-(BEATS / 2 + i)),
+    )
     const r2 = lateForward.every(x => x >= 0.8)
     const r3 = lateBackward.every(x => x >= 0.8)
     const r4 = exact
+
     const firstHalf = (direction: 1 | -1): number => {
-      for (let t = 1; t <= BEATS; t++) if (R(direction * t) >= 0.5) return t
+      for (let t = 1; t <= BEATS; t++) {
+        if (R(direction * t) >= 0.5) {
+          return t
+        }
+      }
 
       return -1
     }
+
     let asymmetry = 0
     let asymmetryBeat = 0
 
@@ -197,10 +285,19 @@ export default experiment({
       }
     }
 
-    const early = Array.from({ length: 10 }, (_, i) => i + 1).map(t => `${t}:${R(t).toFixed(2)}/${R(-t).toFixed(2)}`).join(' ')
+    const early = Array.from({ length: 10 }, (_, i) => i + 1)
+      .map(t => `${t}:${R(t).toFixed(2)}/${R(-t).toFixed(2)}`)
+      .join(' ')
 
-    const status = r0 && r1 && r4 ? (r2 && r3 ? 'pass' : 'fail') : 'partial'
-    const tenth = (rows: number[]): string => Array.from({ length: 2 * (BEATS / 10) + 1 }, (_, i) => (i - BEATS / 10) * 10).map(t => `${t}:${(rows[BEATS + t] as number).toFixed(2)}`).join(' ')
+    const status =
+      r0 && r1 && r4 ? (r2 && r3 ? 'pass' : 'fail') : 'partial'
+    const tenth = (rows: number[]): string =>
+      Array.from(
+        { length: 2 * (BEATS / 10) + 1 },
+        (_, i) => (i - BEATS / 10) * 10,
+      )
+        .map(t => `${t}:${rows[BEATS + t]!.toFixed(2)}`)
+        .join(' ')
 
     return verdict({
       status,
@@ -219,8 +316,18 @@ export default experiment({
         lateForwardMin: Math.min(...lateForward),
         lateBackwardMin: Math.min(...lateBackward),
         largestDirectionDifference: asymmetry,
-        bulkLateForwardMin: Math.min(...Array.from({ length: BEATS / 2 + 1 }, (_, i) => bulkR[BEATS + BEATS / 2 + i] as number)),
-        bulkLateBackwardMin: Math.min(...Array.from({ length: BEATS / 2 + 1 }, (_, i) => bulkR[BEATS - BEATS / 2 - i] as number)),
+        bulkLateForwardMin: Math.min(
+          ...Array.from(
+            { length: BEATS / 2 + 1 },
+            (_, i) => bulkR[BEATS + BEATS / 2 + i]!,
+          ),
+        ),
+        bulkLateBackwardMin: Math.min(
+          ...Array.from(
+            { length: BEATS / 2 + 1 },
+            (_, i) => bulkR[BEATS - BEATS / 2 - i]!,
+          ),
+        ),
         seconds: (Date.now() - started) / 1000,
       },
       control: {

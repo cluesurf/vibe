@@ -34,7 +34,11 @@
 //
 // Depth L1: numerical linear algebra, with the truth fixed before the solver runs.
 
-import { makeComplexMatrix, makeDense, type ComplexMatrix } from '@/code/algebra/linear/dense'
+import {
+  makeComplexMatrix,
+  makeDense,
+  type ComplexMatrix,
+} from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 import {
   eigHermitian,
@@ -73,7 +77,11 @@ const RANK_FLOOR = 1e-8
 type Truth = {
   readonly matrix: ComplexMatrix
   readonly values: readonly number[] // ascending
-  readonly clusters: readonly { value: number; projector: ComplexMatrix; rank: number }[]
+  readonly clusters: readonly {
+    value: number
+    projector: ComplexMatrix
+    rank: number
+  }[]
   readonly sign: ComplexMatrix
 }
 
@@ -96,7 +104,11 @@ function weyl(k: number, alpha: number): number {
 // over every pair (p, q), the k-th rotation at angle 2 pi frac(k GOLDEN) and, when complex, phase
 // 2 pi frac(k SQRT2). A product of exact rotations is unitary to rounding and never ill-conditioned.
 // `stream` offsets k so each matrix gets its own stretch of the sequence.
-function weylUnitary(n: number, complex: boolean, stream: number): { re: Float64Array; im: Float64Array } {
+function weylUnitary(
+  n: number,
+  complex: boolean,
+  stream: number,
+): { re: Float64Array; im: Float64Array } {
   const re = new Float64Array(n * n)
   const im = new Float64Array(n * n)
 
@@ -138,7 +150,12 @@ function weylUnitary(n: number, complex: boolean, stream: number): { re: Float64
 }
 
 // sum over the given columns of w_c |u_c><u_c|
-function outer(u: { re: Float64Array; im: Float64Array }, n: number, columns: readonly number[], weights: readonly number[]): ComplexMatrix {
+function outer(
+  u: { re: Float64Array; im: Float64Array },
+  n: number,
+  columns: readonly number[],
+  weights: readonly number[],
+): ComplexMatrix {
   const out = makeComplexMatrix({ rows: n, cols: n })
 
   columns.forEach((c, index) => {
@@ -151,8 +168,11 @@ function outer(u: { re: Float64Array; im: Float64Array }, n: number, columns: re
         const br = u.re[b * n + c] ?? 0
         const bi = u.im[b * n + c] ?? 0
 
-        out.re[a * n + b] = (out.re[a * n + b] ?? 0) + w * (ar * br + ai * bi)
-        out.im[a * n + b] = (out.im[a * n + b] ?? 0) + w * (ai * br - ar * bi)
+        out.re[a * n + b] =
+          (out.re[a * n + b] ?? 0) + w * (ar * br + ai * bi)
+
+        out.im[a * n + b] =
+          (out.im[a * n + b] ?? 0) + w * (ai * br - ar * bi)
       }
     }
   })
@@ -160,7 +180,10 @@ function outer(u: { re: Float64Array; im: Float64Array }, n: number, columns: re
   return out
 }
 
-function truthFrom(u: { re: Float64Array; im: Float64Array }, spectrum: readonly number[]): Truth {
+function truthFrom(
+  u: { re: Float64Array; im: Float64Array },
+  spectrum: readonly number[],
+): Truth {
   const n = spectrum.length
   const all = spectrum.map((_, i) => i)
   const distinct = [...new Set(spectrum)].sort((a, b) => a - b)
@@ -171,9 +194,23 @@ function truthFrom(u: { re: Float64Array; im: Float64Array }, spectrum: readonly
     clusters: distinct.map(value => {
       const columns = all.filter(i => spectrum[i] === value)
 
-      return { value, rank: columns.length, projector: outer(u, n, columns, columns.map(() => 1)) }
+      return {
+        value,
+        rank: columns.length,
+        projector: outer(
+          u,
+          n,
+          columns,
+          columns.map(() => 1),
+        ),
+      }
     }),
-    sign: outer(u, n, all, spectrum.map(v => Math.sign(v))),
+    sign: outer(
+      u,
+      n,
+      all,
+      spectrum.map(v => Math.sign(v)),
+    ),
   }
 }
 
@@ -186,7 +223,9 @@ function auditCase(): Truth {
     [0.1, 0.45],
   ]
   const n = raw.length
-  const norm = Math.sqrt(raw.reduce((s, [a = 0, b = 0]) => s + a * a + b * b, 0))
+  const norm = Math.sqrt(
+    raw.reduce((s, [a = 0, b = 0]) => s + a * a + b * b, 0),
+  )
   const re = new Float64Array(n * n)
   const im = new Float64Array(n * n)
 
@@ -215,8 +254,13 @@ function auditCase(): Truth {
         let di = 0
 
         for (let a = 0; a < n; a++) {
-          dr += (re[a * n + p] ?? 0) * (re[a * n + c] ?? 0) + (im[a * n + p] ?? 0) * (im[a * n + c] ?? 0)
-          di += (re[a * n + p] ?? 0) * (im[a * n + c] ?? 0) - (im[a * n + p] ?? 0) * (re[a * n + c] ?? 0)
+          dr +=
+            (re[a * n + p] ?? 0) * (re[a * n + c] ?? 0) +
+            (im[a * n + p] ?? 0) * (im[a * n + c] ?? 0)
+
+          di +=
+            (re[a * n + p] ?? 0) * (im[a * n + c] ?? 0) -
+            (im[a * n + p] ?? 0) * (re[a * n + c] ?? 0)
         }
 
         for (let a = 0; a < n; a++) {
@@ -252,7 +296,8 @@ function auditCase(): Truth {
       const [ar = 0, ai = 0] = raw[i] ?? []
       const [br = 0, bi = 0] = raw[j] ?? []
 
-      matrix.re[i * n + j] = (i === j ? 1 : 0) + (ar * br + ai * bi) / (norm * norm)
+      matrix.re[i * n + j] =
+        (i === j ? 1 : 0) + (ar * br + ai * bi) / (norm * norm)
       matrix.im[i * n + j] = (ai * br - ar * bi) / (norm * norm)
     }
   }
@@ -275,7 +320,10 @@ function everySecondColumn(matrix: ComplexMatrix): HermitianEigen {
   }
 
   const eig = eigSymmetric({ matrix: m })
-  const values = Float64Array.from({ length: n }, (_, i) => eig.values[2 * i] ?? 0)
+  const values = Float64Array.from(
+    { length: n },
+    (_, i) => eig.values[2 * i] ?? 0,
+  )
   const vectorsRe = new Float64Array(n * n)
   const vectorsIm = new Float64Array(n * n)
 
@@ -293,14 +341,24 @@ function maxDifference(a: ComplexMatrix, b: ComplexMatrix): number {
   let worst = 0
 
   for (let i = 0; i < a.re.length; i++) {
-    worst = Math.max(worst, Math.hypot((a.re[i] ?? 0) - (b.re[i] ?? 0), (a.im[i] ?? 0) - (b.im[i] ?? 0)))
+    worst = Math.max(
+      worst,
+      Math.hypot(
+        (a.re[i] ?? 0) - (b.re[i] ?? 0),
+        (a.im[i] ?? 0) - (b.im[i] ?? 0),
+      ),
+    )
   }
 
   return worst
 }
 
 // the numerical rank of the given columns: pivoted elimination on their Gram matrix, pivots above RANK_FLOOR
-function numericalRank(u: { re: Float64Array; im: Float64Array }, n: number, columns: readonly number[]): number {
+function numericalRank(
+  u: { re: Float64Array; im: Float64Array },
+  n: number,
+  columns: readonly number[],
+): number {
   const k = columns.length
   const gr = new Float64Array(k * k)
   const gi = new Float64Array(k * k)
@@ -327,7 +385,10 @@ function numericalRank(u: { re: Float64Array; im: Float64Array }, n: number, col
     let p = -1
 
     for (let i = 0; i < k; i++) {
-      if (!done[i] && (p < 0 || (gr[i * k + i] ?? 0) > (gr[p * k + p] ?? 0))) {
+      if (
+        !done[i] &&
+        (p < 0 || (gr[i * k + i] ?? 0) > (gr[p * k + p] ?? 0))
+      ) {
         p = i
       }
     }
@@ -364,7 +425,9 @@ function numericalRank(u: { re: Float64Array; im: Float64Array }, n: number, col
 
 function grade(eig: HermitianEigen, truth: Truth): Grade {
   const n = truth.values.length
-  const valueError = Math.max(...truth.values.map((v, i) => Math.abs((eig.values[i] ?? 0) - v)))
+  const valueError = Math.max(
+    ...truth.values.map((v, i) => Math.abs((eig.values[i] ?? 0) - v)),
+  )
 
   let orthonormalError = 0
 
@@ -383,7 +446,10 @@ function grade(eig: HermitianEigen, truth: Truth): Grade {
         im += xr * yi - xi * yr
       }
 
-      orthonormalError = Math.max(orthonormalError, Math.hypot(re - (p === q ? 1 : 0), im))
+      orthonormalError = Math.max(
+        orthonormalError,
+        Math.hypot(re - (p === q ? 1 : 0), im),
+      )
     }
   }
 
@@ -395,21 +461,50 @@ function grade(eig: HermitianEigen, truth: Truth): Grade {
   // assign each computed vector to the true eigenvalue nearest its computed value
   for (const cluster of truth.clusters) {
     const columns = Array.from({ length: n }, (_, i) => i).filter(i => {
-      const nearest = truth.clusters.reduce((best, c) => (Math.abs(c.value - (eig.values[i] ?? 0)) < Math.abs(best.value - (eig.values[i] ?? 0)) ? c : best))
+      const nearest = truth.clusters.reduce((best, c) =>
+        Math.abs(c.value - (eig.values[i] ?? 0)) <
+        Math.abs(best.value - (eig.values[i] ?? 0))
+          ? c
+          : best,
+      )
 
       return nearest === cluster
     })
-    const p = outer(vectors, n, columns, columns.map(() => 1))
+    const p = outer(
+      vectors,
+      n,
+      columns,
+      columns.map(() => 1),
+    )
 
-    projectorError = Math.max(projectorError, maxDifference(p, cluster.projector))
-    rankError = Math.max(rankError, Math.abs(cluster.rank - numericalRank(vectors, n, columns)))
+    projectorError = Math.max(
+      projectorError,
+      maxDifference(p, cluster.projector),
+    )
+
+    rankError = Math.max(
+      rankError,
+      Math.abs(cluster.rank - numericalRank(vectors, n, columns)),
+    )
   }
 
-  const rebuilt = outer(vectors, n, Array.from({ length: n }, (_, i) => i), Array.from(eig.values))
+  const rebuilt = outer(
+    vectors,
+    n,
+    Array.from({ length: n }, (_, i) => i),
+    Array.from(eig.values),
+  )
   const scale = Math.max(1, ...truth.values.map(Math.abs))
-  const reconstructionError = maxDifference(rebuilt, truth.matrix) / scale
+  const reconstructionError =
+    maxDifference(rebuilt, truth.matrix) / scale
 
-  return { valueError, orthonormalError, projectorError, rankError, reconstructionError }
+  return {
+    valueError,
+    orthonormalError,
+    projectorError,
+    rankError,
+    reconstructionError,
+  }
 }
 
 function spans(g: Grade): boolean {
@@ -439,7 +534,9 @@ export default experiment({
   depth: 'L1',
   paper: false,
   run() {
-    const degenerate: { name: string; truth: Truth }[] = [{ name: 'audit-4x4', truth: auditCase() }]
+    const degenerate: { name: string; truth: Truth }[] = [
+      { name: 'audit-4x4', truth: auditCase() },
+    ]
     const simple: { name: string; truth: Truth }[] = []
 
     let stream = 0
@@ -448,18 +545,40 @@ export default experiment({
       for (const complex of [true, false]) {
         SPECTRA.forEach((spectrum, index) => {
           stream++
-          degenerate.push({ name: `${complex ? 'complex' : 'real'}-${index}-${pass}`, truth: truthFrom(weylUnitary(spectrum.length, complex, stream), spectrum) })
+          degenerate.push({
+            name: `${complex ? 'complex' : 'real'}-${index}-${pass}`,
+            truth: truthFrom(
+              weylUnitary(spectrum.length, complex, stream),
+              spectrum,
+            ),
+          })
         })
+
         SIMPLE_SPECTRA.forEach((spectrum, index) => {
           stream++
-          simple.push({ name: `${complex ? 'complex' : 'real'}-simple-${index}-${pass}`, truth: truthFrom(weylUnitary(spectrum.length, complex, stream), spectrum) })
+          simple.push({
+            name: `${complex ? 'complex' : 'real'}-simple-${index}-${pass}`,
+            truth: truthFrom(
+              weylUnitary(spectrum.length, complex, stream),
+              spectrum,
+            ),
+          })
         })
       }
     }
 
     const all = [...degenerate, ...simple]
     const failures: string[] = []
-    const worst = { value: 0, orthonormal: 0, projector: 0, rank: 0, reconstruction: 0, signSquare: 0, signTruth: 0, signCross: 0 }
+    const worst = {
+      value: 0,
+      orthonormal: 0,
+      projector: 0,
+      rank: 0,
+      reconstruction: 0,
+      signSquare: 0,
+      signTruth: 0,
+      signCross: 0,
+    }
 
     let iterations = 0
 
@@ -467,29 +586,52 @@ export default experiment({
       const g = grade(eigHermitian({ matrix: truth.matrix }), truth)
       const newton = hermitianMatrixSignNewton({ matrix: truth.matrix })
       const signTruth = maxDifference(newton.sign, truth.sign)
-      const signCross = maxDifference(newton.sign, hermitianMatrixSignEigen({ matrix: truth.matrix }))
+      const signCross = maxDifference(
+        newton.sign,
+        hermitianMatrixSignEigen({ matrix: truth.matrix }),
+      )
 
       worst.value = Math.max(worst.value, g.valueError)
-      worst.orthonormal = Math.max(worst.orthonormal, g.orthonormalError)
+      worst.orthonormal = Math.max(
+        worst.orthonormal,
+        g.orthonormalError,
+      )
       worst.projector = Math.max(worst.projector, g.projectorError)
       worst.rank = Math.max(worst.rank, g.rankError)
-      worst.reconstruction = Math.max(worst.reconstruction, g.reconstructionError)
+      worst.reconstruction = Math.max(
+        worst.reconstruction,
+        g.reconstructionError,
+      )
       worst.signSquare = Math.max(worst.signSquare, newton.residual)
       worst.signTruth = Math.max(worst.signTruth, signTruth)
       worst.signCross = Math.max(worst.signCross, signCross)
       iterations = Math.max(iterations, newton.iterations)
 
-      if (!sound(g) || newton.residual > SIGN_TOLERANCE || signTruth > SIGN_TOLERANCE || signCross > SIGN_TOLERANCE) {
+      if (
+        !sound(g) ||
+        newton.residual > SIGN_TOLERANCE ||
+        signTruth > SIGN_TOLERANCE ||
+        signCross > SIGN_TOLERANCE
+      ) {
         failures.push(name)
       }
     }
 
     // negative control: the pre-fix algorithm on the same matrices
-    const oldAudit = grade(everySecondColumn(degenerate[0]!.truth.matrix), degenerate[0]!.truth)
-    const oldGrades = degenerate.map(({ truth }) => grade(everySecondColumn(truth.matrix), truth))
+    const oldAudit = grade(
+      everySecondColumn(degenerate[0]!.truth.matrix),
+      degenerate[0]!.truth,
+    )
+    const oldGrades = degenerate.map(({ truth }) =>
+      grade(everySecondColumn(truth.matrix), truth),
+    )
     const oldDegenerateCaught = oldGrades.filter(defective).length
-    const oldRankDeficient = oldGrades.filter(g => g.rankError > 0).length
-    const oldSimpleSound = simple.filter(({ truth }) => sound(grade(everySecondColumn(truth.matrix), truth))).length
+    const oldRankDeficient = oldGrades.filter(
+      g => g.rankError > 0,
+    ).length
+    const oldSimpleSound = simple.filter(({ truth }) =>
+      sound(grade(everySecondColumn(truth.matrix), truth)),
+    ).length
 
     // refusal: an exactly singular matrix has no sign
     const singular = makeComplexMatrix({ rows: 2, cols: 2 })

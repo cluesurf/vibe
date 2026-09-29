@@ -72,11 +72,25 @@ import { LINE_FIRSTS, OPPOSITE } from '@/code/rule/isometric-knit'
 import { boxHusk, rootOf } from '@/code/measure/causal-components'
 import { centerOf } from '@/code/measure/wall-reading'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
-import { toWords, type VetoKind } from '@/code/rule/occupation-veto-knit'
+import {
+  toWords,
+  type VetoKind,
+} from '@/code/rule/occupation-veto-knit'
 import { type CollisionKind } from '@/code/rule/bounce-pair-knit'
-import { vacuumConfiguration, THRESHOLD_BORN, THRESHOLD_KEEP } from '@/code/measure/doublet-locked-readings'
+import {
+  vacuumConfiguration,
+  THRESHOLD_BORN,
+  THRESHOLD_KEEP,
+} from '@/code/measure/doublet-locked-readings'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
-import { componentsOf, huskSpread, relationalSweep, relationRun, type Relation, type RelationRun } from '@/code/measure/relation-graph'
+import {
+  componentsOf,
+  huskSpread,
+  relationalSweep,
+  relationRun,
+  type Relation,
+  type RelationRun,
+} from '@/code/measure/relation-graph'
 
 const SIDE = 8
 const BEATS = 96
@@ -84,11 +98,29 @@ const QUIET = 48
 const SPREAD = 3
 const GIANT = 0.9
 
-type Knit = { name: 'working' | 'old'; contact: CollisionKind; kind: VetoKind; threshold: number; coin: boolean }
+type Knit = {
+  name: 'working' | 'old'
+  contact: CollisionKind
+  kind: VetoKind
+  threshold: number
+  coin: boolean
+}
 
 const KNITS: readonly Knit[] = [
-  { name: 'working', contact: 'pass', kind: 'none', threshold: THRESHOLD_BORN, coin: true },
-  { name: 'old', contact: 'lone', kind: 'point', threshold: THRESHOLD_KEEP, coin: false },
+  {
+    name: 'working',
+    contact: 'pass',
+    kind: 'none',
+    threshold: THRESHOLD_BORN,
+    coin: true,
+  },
+  {
+    name: 'old',
+    contact: 'lone',
+    kind: 'point',
+    threshold: THRESHOLD_KEEP,
+    coin: false,
+  },
 ]
 
 type Reading = {
@@ -98,19 +130,40 @@ type Reading = {
   endComponents: number
   endLargest: number
   trivialSmall: boolean
-  candidates: { size: number; lastMerge: number; columns: number; diameter: number }[]
+  candidates: {
+    size: number
+    lastMerge: number
+    columns: number
+    diameter: number
+  }[]
   largestColumns: number
   largestDiameter: number
 }
 
-function read(r: Relation, run: RelationRun, husk: ReturnType<typeof boxHusk>): Reading {
+function read(
+  r: Relation,
+  run: RelationRun,
+  husk: ReturnType<typeof boxHusk>,
+): Reading {
   const comps = componentsOf(r, run.count)
   const giantBeat = r.largest.findIndex(x => x >= GIANT * run.count)
-  const biggest = comps.reduce((a, c) => (c.members.length > a.members.length ? c : a), comps[0]!)
+  const biggest = comps.reduce(
+    (a, c) => (c.members.length > a.members.length ? c : a),
+    comps[0]!,
+  )
   const big = huskSpread(biggest.members, run.dock, husk)
   const candidates = comps
-    .filter(c => c.members.length >= 3 && c.members.length <= run.count / 2 && c.lastMerge <= BEATS - QUIET)
-    .map(c => ({ size: c.members.length, lastMerge: c.lastMerge, ...huskSpread(c.members, run.dock, husk) }))
+    .filter(
+      c =>
+        c.members.length >= 3 &&
+        c.members.length <= run.count / 2 &&
+        c.lastMerge <= BEATS - QUIET,
+    )
+    .map(c => ({
+      size: c.members.length,
+      lastMerge: c.lastMerge,
+      ...huskSpread(c.members, run.dock, husk),
+    }))
     .filter(c => c.diameter >= SPREAD)
 
   return {
@@ -127,19 +180,35 @@ function read(r: Relation, run: RelationRun, husk: ReturnType<typeof boxHusk>): 
 }
 
 // I2: the known answer on an empty box, the knit's rule on its keep path
-function calibrate(knit: Knit): { quietEarly: boolean; joinedBroad: boolean; joinedNarrow: boolean; cAlone: boolean } {
+function calibrate(knit: Knit): {
+  quietEarly: boolean
+  joinedBroad: boolean
+  joinedNarrow: boolean
+  cAlone: boolean
+} {
   const f = contactFresh(SIDE, knit.contact)
   const mesh = f.weave.mesh
   const roots = rootsD4()
-  const first = LINE_FIRSTS[0] as number
-  const back = OPPOSITE[first] as number
-  const across = roots.findIndex(r => dotVec(r, roots[first] as number[]) === 0)
+  const first = LINE_FIRSTS[0]!
+  const back = OPPOSITE[first]!
+  const across = roots.findIndex(r => dotVec(r, roots[first]!) === 0)
   const center = centerOf(SIDE)
+
   let far = center
 
-  for (let k = 0; k < 4; k++) far = mesh.neighbour(far, first)
+  for (let k = 0; k < 4; k++) {
+    far = mesh.neighbour(far, first)
+  }
 
-  const start = vacuumConfiguration({ cells: f.cells, store: new Int8Array(f.cells * 12), layout: f.layout }, 'none')
+  const start = vacuumConfiguration(
+    {
+      cells: f.cells,
+      store: new Int8Array(f.cells * 12),
+      layout: f.layout,
+    },
+    'none',
+  )
+
   const plant = (slot: number, tone: number): void => {
     start.vibe[slot] = tone
     start.point[slot] = 0
@@ -147,21 +216,45 @@ function calibrate(knit: Knit): { quietEarly: boolean; joinedBroad: boolean; joi
   }
 
   // numbered in slot order: A, B, C are the three held slots in that order, so read their numbers by slot order
-  const slots = [center * 24 + first, far * 24 + back, mesh.neighbour(center, across) * 24 + first]
+  const slots = [
+    center * 24 + first,
+    far * 24 + back,
+    mesh.neighbour(center, across) * 24 + first,
+  ]
 
   plant(slots[0]!, 1)
   plant(slots[1]!, -1)
   plant(slots[2]!, 1)
 
   const order = [...slots].sort((a, b) => a - b)
-  const [a, b, c] = slots.map(s => order.indexOf(s)) as [number, number, number]
-  const run = relationRun({ kind: knit.kind, tables: f.tables, start: toWords(start), threshold: THRESHOLD_KEEP, coin: knit.coin, beats: 3 })
+  const [a, b, c] = slots.map(s => order.indexOf(s)) as [
+    number,
+    number,
+    number,
+  ]
+  const run = relationRun({
+    kind: knit.kind,
+    tables: f.tables,
+    start: toWords(start),
+    threshold: THRESHOLD_KEEP,
+    coin: knit.coin,
+    beats: 3,
+  })
 
   // components after each beat: 3 at beats 0 and 1 means nothing joined; after beat 2, A with B and C alone
-  const quietEarly = run.broad.components[0] === 3 && run.broad.components[1] === 3 && run.narrow.components[0] === 3 && run.narrow.components[1] === 3
-  const joinedBroad = rootOf(run.broad.parent, a) === rootOf(run.broad.parent, b)
-  const joinedNarrow = rootOf(run.narrow.parent, a) === rootOf(run.narrow.parent, b)
-  const cAlone = rootOf(run.broad.parent, c) === c && rootOf(run.broad.parent, a) !== rootOf(run.broad.parent, c) && rootOf(run.narrow.parent, a) !== rootOf(run.narrow.parent, c)
+  const quietEarly =
+    run.broad.components[0] === 3 &&
+    run.broad.components[1] === 3 &&
+    run.narrow.components[0] === 3 &&
+    run.narrow.components[1] === 3
+  const joinedBroad =
+    rootOf(run.broad.parent, a) === rootOf(run.broad.parent, b)
+  const joinedNarrow =
+    rootOf(run.narrow.parent, a) === rootOf(run.narrow.parent, b)
+  const cAlone =
+    rootOf(run.broad.parent, c) === c &&
+    rootOf(run.broad.parent, a) !== rootOf(run.broad.parent, c) &&
+    rootOf(run.narrow.parent, a) !== rootOf(run.narrow.parent, c)
 
   return { quietEarly, joinedBroad, joinedNarrow, cAlone }
 }
@@ -170,17 +263,24 @@ export default experiment({
   id: 'selves/shared-origin-components',
   code: 'E-SLF-0177',
   title:
-    'no distributed self as a bounded component of shared history, fail: with a meeting read as the rule reads it (every vibe in a slot of one dock at one collision, and a stored unit with the slot vibes of its line), the relation of which vibes met is one component holding all 24,576 vibes from beat 1, on every start of the working vacuum (the coined no-veto store under the pass) and of the old knit, spread over 384 of 512 husk columns and 4 or 5 hops across, so 0 of 17 starts hold a bounded, persistent, spread component; read narrowly (vibes meeting on one line of one dock) it is 3,072 closed components of exactly 8 vibes (four stored units) from beat 1 through beat 96, each on 4 husk columns at the box\'s largest distance, which is the rule\'s line locality, not a self; the vibe numbers are carried by the rule\'s own open bit (0 breaks on 34 runs) and the reader passes a known meeting',
+    "no distributed self as a bounded component of shared history, fail: with a meeting read as the rule reads it (every vibe in a slot of one dock at one collision, and a stored unit with the slot vibes of its line), the relation of which vibes met is one component holding all 24,576 vibes from beat 1, on every start of the working vacuum (the coined no-veto store under the pass) and of the old knit, spread over 384 of 512 husk columns and 4 or 5 hops across, so 0 of 17 starts hold a bounded, persistent, spread component; read narrowly (vibes meeting on one line of one dock) it is 3,072 closed components of exactly 8 vibes (four stored units) from beat 1 through beat 96, each on 4 husk columns at the box's largest distance, which is the rule's line locality, not a self; the vibe numbers are carried by the rule's own open bit (0 breaks on 34 runs) and the reader passes a known meeting",
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const family = startFamily(16)
-    const calibration = withStart(family[0]!, () => KNITS.map(k => ({ knit: k.name, ...calibrate(k) })))
-    const gI2 = calibration.every(c => c.quietEarly && c.joinedBroad && c.joinedNarrow && c.cAlone)
+    const calibration = withStart(family[0]!, () =>
+      KNITS.map(k => ({ knit: k.name, ...calibrate(k) })),
+    )
+    const gI2 = calibration.every(
+      c => c.quietEarly && c.joinedBroad && c.joinedNarrow && c.cAlone,
+    )
 
     log('I2')
 
@@ -190,19 +290,44 @@ export default experiment({
           const f = contactFresh(SIDE, knit.contact)
           const husk = boxHusk(f.weave.mesh, SIDE)
           const start = toWords(vacuumConfiguration(f, 'all'))
-          const run = relationRun({ kind: knit.kind, tables: f.tables, start, threshold: knit.threshold, coin: knit.coin, beats: BEATS, keepMeetings: index === 0 })
+          const run = relationRun({
+            kind: knit.kind,
+            tables: f.tables,
+            start,
+            threshold: knit.threshold,
+            coin: knit.coin,
+            beats: BEATS,
+            keepMeetings: index === 0,
+          })
           const broad = read(run.broad, run, husk)
           const narrow = read(run.narrow, run, husk)
+
           let sweep = -1
 
           if (index === 0) {
             const comps = componentsOf(run.broad, run.count)
-            const biggest = comps.reduce((a, c) => (c.members.length > a.members.length ? c : a), comps[0]!)
+            const biggest = comps.reduce(
+              (a, c) => (c.members.length > a.members.length ? c : a),
+              comps[0]!,
+            )
 
-            sweep = relationalSweep(run.broad, biggest.members, run.count)
+            sweep = relationalSweep(
+              run.broad,
+              biggest.members,
+              run.count,
+            )
           }
 
-          return { knit: knit.name, count: run.count, bits: run.bits, occupationBreaks: run.occupationBreaks, idBreaks: run.idBreaks, broad, narrow, sweep }
+          return {
+            knit: knit.name,
+            count: run.count,
+            bits: run.bits,
+            occupationBreaks: run.occupationBreaks,
+            idBreaks: run.idBreaks,
+            broad,
+            narrow,
+            sweep,
+          }
         })
 
         log(`start ${member.name}`)
@@ -212,11 +337,29 @@ export default experiment({
     )
 
     const all = perStart.flatMap(p => [p.working, p.old])
-    const gI1 = all.every(r => r.occupationBreaks === 0 && r.idBreaks === 0)
-    const g1 = perStart.filter(p => p.working.broad.candidates.length > 0).length
-    const status = !gI1 || !gI2 ? 'fail' : g1 === family.length ? 'pass' : g1 > 0 ? 'partial' : 'fail'
-    const range = (xs: number[]): string => (Math.min(...xs) === Math.max(...xs) ? `${Math.min(...xs)}` : `${Math.min(...xs)} to ${Math.max(...xs)}`)
-    const over = (which: 'working' | 'old', how: 'broad' | 'narrow', f: (r: Reading) => number): string => range(perStart.map(p => f(p[which][how])))
+    const gI1 = all.every(
+      r => r.occupationBreaks === 0 && r.idBreaks === 0,
+    )
+    const g1 = perStart.filter(
+      p => p.working.broad.candidates.length > 0,
+    ).length
+    const status =
+      !gI1 || !gI2
+        ? 'fail'
+        : g1 === family.length
+          ? 'pass'
+          : g1 > 0
+            ? 'partial'
+            : 'fail'
+    const range = (xs: number[]): string =>
+      Math.min(...xs) === Math.max(...xs)
+        ? `${Math.min(...xs)}`
+        : `${Math.min(...xs)} to ${Math.max(...xs)}`
+    const over = (
+      which: 'working' | 'old',
+      how: 'broad' | 'narrow',
+      f: (r: Reading) => number,
+    ): string => range(perStart.map(p => f(p[which][how])))
     const metrics: Record<string, number> = {
       starts: family.length,
       vibes: perStart[0]!.working.count,
@@ -229,23 +372,54 @@ export default experiment({
       for (const how of ['broad', 'narrow'] as const) {
         const rs = perStart.map(p => p[which][how])
 
-        metrics[`${which}_${how}_candidateStarts`] = rs.filter(r => r.candidates.length > 0).length
-        metrics[`${which}_${how}_candidatesMax`] = Math.max(...rs.map(r => r.candidates.length))
-        metrics[`${which}_${how}_giantBeatMax`] = Math.max(...rs.map(r => r.giantBeat))
-        metrics[`${which}_${how}_giantBeatMin`] = Math.min(...rs.map(r => r.giantBeat))
-        metrics[`${which}_${how}_endComponentsMax`] = Math.max(...rs.map(r => r.endComponents))
-        metrics[`${which}_${how}_endLargestMin`] = Math.min(...rs.map(r => r.endLargest))
-        metrics[`${which}_${how}_largestColumnsMin`] = Math.min(...rs.map(r => r.largestColumns))
-        metrics[`${which}_${how}_trivialSmallStarts`] = rs.filter(r => r.trivialSmall).length
+        metrics[`${which}_${how}_candidateStarts`] = rs.filter(
+          r => r.candidates.length > 0,
+        ).length
+
+        metrics[`${which}_${how}_candidatesMax`] = Math.max(
+          ...rs.map(r => r.candidates.length),
+        )
+
+        metrics[`${which}_${how}_giantBeatMax`] = Math.max(
+          ...rs.map(r => r.giantBeat),
+        )
+
+        metrics[`${which}_${how}_giantBeatMin`] = Math.min(
+          ...rs.map(r => r.giantBeat),
+        )
+
+        metrics[`${which}_${how}_endComponentsMax`] = Math.max(
+          ...rs.map(r => r.endComponents),
+        )
+
+        metrics[`${which}_${how}_endLargestMin`] = Math.min(
+          ...rs.map(r => r.endLargest),
+        )
+
+        metrics[`${which}_${how}_largestColumnsMin`] = Math.min(
+          ...rs.map(r => r.largestColumns),
+        )
+
+        metrics[`${which}_${how}_trivialSmallStarts`] = rs.filter(
+          r => r.trivialSmall,
+        ).length
       }
 
-      metrics[`${which}_largestSweep_integer0`] = perStart[0]![which].sweep
+      metrics[`${which}_largestSweep_integer0`] =
+        perStart[0]![which].sweep
     }
 
     metrics.seconds = (Date.now() - started) / 1000
 
-    const traj = (xs: number[]): string => [0, 1, 2, 3, 4, 5, 6, 7, 8, 11, 15, 23, 47, 95].map(t => `${t}: ${xs[t]}`).join(', ')
-    const line = (which: 'working' | 'old', how: 'broad' | 'narrow'): string => {
+    const traj = (xs: number[]): string =>
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 11, 15, 23, 47, 95]
+        .map(t => `${t}: ${xs[t]}`)
+        .join(', ')
+
+    const line = (
+      which: 'working' | 'old',
+      how: 'broad' | 'narrow',
+    ): string => {
       const r0 = perStart[0]![which][how]
 
       return `${which} ${how}: giant (90%) from beat ${over(which, how, r => r.giantBeat)}; at beat 96 components ${over(which, how, r => r.endComponents)}, largest ${over(which, how, r => r.endLargest)} of ${perStart[0]!.working.count} on ${over(which, how, r => r.largestColumns)} of 512 husk columns (husk diameter ${over(which, how, r => r.largestDiameter)}); candidates per start ${perStart.map(p => p[which][how].candidates.length).join(' ')}; integer+0 components by beat [${traj(r0.components)}], largest by beat [${traj(r0.largest)}]; integer+0 candidates ${JSON.stringify(r0.candidates.slice(0, 8))}`
@@ -255,7 +429,10 @@ export default experiment({
       status,
       claim: `instrument ${gI1} (0 occupation and id breaks on ${all.filter(r => r.occupationBreaks === 0 && r.idBreaks === 0).length} of ${all.length} runs), calibration ${gI2}; a candidate distributed self (3 to half of all vibes, no growth in the last ${QUIET} beats, husk spread ${SPREAD} or more) on ${g1} of ${family.length} starts of the working vacuum (broad reading); the broad relation holds 90% of all vibes from beat ${over('working', 'broad', r => r.giantBeat)} (working) and ${over('old', 'broad', r => r.giantBeat)} (old knit)`,
       metrics,
-      control: { oldCandidateStarts: metrics.old_broad_candidateStarts ?? 0, oldGiantBeatMax: metrics.old_broad_giantBeatMax ?? 0 },
+      control: {
+        oldCandidateStarts: metrics.old_broad_candidateStarts ?? 0,
+        oldGiantBeatMax: metrics.old_broad_giantBeatMax ?? 0,
+      },
       notes: `L2. Calibration (integer+0, keep path, empty box): ${JSON.stringify(calibration)}. Instrument per start (working bits/occupation breaks/id breaks; old): ${perStart.map(p => `${p.name} ${p.working.bits}/${p.working.occupationBreaks}/${p.working.idBreaks}; ${p.old.bits}/${p.old.occupationBreaks}/${p.old.idBreaks}`).join(' | ')}. ${line('working', 'broad')}. ${line('working', 'narrow')}. ${line('old', 'broad')}. ${line('old', 'narrow')}. Relational eccentricity of the largest broad component on integer+0 (hops through meetings, double sweep): working ${perStart[0]!.working.sweep}, old ${perStart[0]!.old.sweep}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },

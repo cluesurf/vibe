@@ -42,7 +42,11 @@
 // Index: (((p 3^n + lab) 3^L + fl) (2D + 1)^n + reels), p the positions (token 0 most significant, base L), lab the
 // labels (base 3), fl the link fluxes (link l the digit of 3^l), reels (token 0 most significant, digit r + D).
 
-import { stepTable, type Convention, type Vibe } from '@/code/rule/locked-token-line'
+import {
+  stepTable,
+  type Convention,
+  type Vibe,
+} from '@/code/rule/locked-token-line'
 
 export type ReelSpec = {
   readonly ring: number
@@ -57,21 +61,36 @@ export type ReelSpec = {
   readonly meet?: boolean
 }
 
-export type ReelRegisters = { x: number[]; j: number[]; f: number[]; r: number[] }
+export type ReelRegisters = {
+  x: number[]
+  j: number[]
+  f: number[]
+  r: number[]
+}
 
 const mod = (a: number, m: number): number => ((a % m) + m) % m
 
-export const chargeOf = (kind: Vibe): number => (kind === 'love' ? 1 : -1)
+export const chargeOf = (kind: Vibe): number =>
+  kind === 'love' ? 1 : -1
 
 export const reelLevels = (s: ReelSpec): number => 2 * s.depth + 1
 
-export const registerSize = (s: ReelSpec): number => s.ring ** s.kinds.length * 3 ** s.kinds.length * 3 ** s.ring * reelLevels(s) ** s.kinds.length
+export const registerSize = (s: ReelSpec): number =>
+  s.ring ** s.kinds.length *
+  3 ** s.kinds.length *
+  3 ** s.ring *
+  reelLevels(s) ** s.kinds.length
 
-export function decodeRegisters(s: ReelSpec, index: number): ReelRegisters {
+export function decodeRegisters(
+  s: ReelSpec,
+  index: number,
+): ReelRegisters {
   const n = s.kinds.length
   const L = s.ring
   const V = reelLevels(s)
+
   let rest = index
+
   const r = new Array<number>(n)
 
   for (let t = n - 1; t >= 0; t--) {
@@ -107,29 +126,40 @@ export function encodeRegisters(s: ReelSpec, g: ReelRegisters): number {
   const n = s.kinds.length
   const L = s.ring
   const V = reelLevels(s)
+
   let p = 0
 
-  for (let t = 0; t < n; t++) p = p * L + g.x[t]!
+  for (let t = 0; t < n; t++) {
+    p = p * L + g.x[t]!
+  }
 
   let lab = 0
 
-  for (let t = 0; t < n; t++) lab = lab * 3 + g.j[t]!
+  for (let t = 0; t < n; t++) {
+    lab = lab * 3 + g.j[t]!
+  }
 
   let fl = 0
 
-  for (let l = L - 1; l >= 0; l--) fl = fl * 3 + g.f[l]!
+  for (let l = L - 1; l >= 0; l--) {
+    fl = fl * 3 + g.f[l]!
+  }
 
   let reels = 0
 
-  for (let t = 0; t < n; t++) reels = reels * V + (g.r[t]! + s.depth)
+  for (let t = 0; t < n; t++) {
+    reels = reels * V + (g.r[t]! + s.depth)
+  }
 
   return ((p * 3 ** n + lab) * 3 ** L + fl) * V ** n + reels
 }
 
 // l: the count of links with nonzero center flux
-export const stringCount = (f: readonly number[]): number => f.reduce((a, v) => a + (v === 0 ? 0 : 1), 0)
+export const stringCount = (f: readonly number[]): number =>
+  f.reduce((a, v) => a + (v === 0 ? 0 : 1), 0)
 
-export const reelSum = (r: readonly number[]): number => r.reduce((a, v) => a + v, 0)
+export const reelSum = (r: readonly number[]): number =>
+  r.reduce((a, v) => a + v, 0)
 
 export function gaussHolds(s: ReelSpec, g: ReelRegisters): boolean {
   const L = s.ring
@@ -139,51 +169,85 @@ export function gaussHolds(s: ReelSpec, g: ReelRegisters): boolean {
     q[g.x[t]!] = q[g.x[t]!]! + chargeOf(k)
   })
 
-  for (let x = 0; x < L; x++) if (mod(g.f[x]! - g.f[mod(x - 1, L)]! - q[x]!, 3) !== 0) return false
+  for (let x = 0; x < L; x++) {
+    if (mod(g.f[x]! - g.f[mod(x - 1, L)]! - q[x]!, 3) !== 0) {
+      return false
+    }
+  }
 
   return true
 }
 
 // tokens placed on an arc that does not cross the seam (dock L - 1 to dock 0): the Gauss flux with none outside the
 // arc, and the given reels (calm when omitted, which is the contact start's value)
-export function placedRegisters(s: ReelSpec, x: readonly number[], j: readonly number[], r?: readonly number[]): ReelRegisters {
+export function placedRegisters(
+  s: ReelSpec,
+  x: readonly number[],
+  j: readonly number[],
+  r?: readonly number[],
+): ReelRegisters {
   const f = new Array<number>(s.ring).fill(0)
+
   let cum = 0
 
   for (let l = 0; l < s.ring; l++) {
     s.kinds.forEach((k, t) => {
-      if (x[t] === l) cum += chargeOf(k)
+      if (x[t] === l) {
+        cum += chargeOf(k)
+      }
     })
     f[l] = mod(cum, 3)
   }
 
-  if (f[s.ring - 1] !== 0) throw new Error('reel-string-line: the placed tokens are not a center singlet')
+  if (f[s.ring - 1] !== 0) {
+    throw new Error(
+      'reel-string-line: the placed tokens are not a center singlet',
+    )
+  }
 
-  return { x: x.slice(), j: j.slice(), f, r: r ? r.slice() : new Array<number>(s.kinds.length).fill(0) }
+  return {
+    x: x.slice(),
+    j: j.slice(),
+    f,
+    r: r ? r.slice() : new Array<number>(s.kinds.length).fill(0),
+  }
 }
 
 const FLIP = [1, 0, 2] as const
 
 // the stream with the per-link groups and their bounces, as a map of register configurations
-export function streamRegisters(s: ReelSpec, g: ReelRegisters): ReelRegisters {
+export function streamRegisters(
+  s: ReelSpec,
+  g: ReelRegisters,
+): ReelRegisters {
   const L = s.ring
   const n = s.kinds.length
   const x = g.x.slice()
   const j = g.j.slice()
   const f = g.f.slice()
   const r = g.r.slice()
-  const steps = g.j.map((lab, t) => stepTable(s.kinds[t]!, s.convention)[lab]!)
+  const steps = g.j.map(
+    (lab, t) => stepTable(s.kinds[t]!, s.convention)[lab]!,
+  )
   // the link each token would cross, or -1
-  const crossing = steps.map((st, t) => (st === 1 ? g.x[t]! : st === -1 ? mod(g.x[t]! - 1, L) : -1))
+  const crossing = steps.map((st, t) =>
+    st === 1 ? g.x[t]! : st === -1 ? mod(g.x[t]! - 1, L) : -1,
+  )
   const done = new Array<boolean>(n).fill(false)
 
   for (let t = 0; t < n; t++) {
-    if (done[t] || crossing[t]! < 0) continue
+    if (done[t] || crossing[t]! < 0) {
+      continue
+    }
 
     const link = crossing[t]!
     const group: number[] = []
 
-    for (let u = 0; u < n; u++) if (crossing[u] === link) group.push(u)
+    for (let u = 0; u < n; u++) {
+      if (crossing[u] === link) {
+        group.push(u)
+      }
+    }
 
     group.forEach(u => {
       done[u] = true
@@ -191,16 +255,24 @@ export function streamRegisters(s: ReelSpec, g: ReelRegisters): ReelRegisters {
 
     let fNew = g.f[link]!
 
-    for (const u of group) fNew = mod(fNew - steps[u]! * chargeOf(s.kinds[u]!), 3)
+    for (const u of group) {
+      fNew = mod(fNew - steps[u]! * chargeOf(s.kinds[u]!), 3)
+    }
 
     const delta = (fNew === 0 ? 0 : 1) - (g.f[link] === 0 ? 0 : 1)
     const k = group.length
     const whole = (2 * delta) % k === 0
     const share = whole ? (2 * delta) / k : 0
-    const fits = whole && group.every(u => g.r[u]! - share >= -s.depth && g.r[u]! - share <= s.depth)
+    const fits =
+      whole &&
+      group.every(
+        u => g.r[u]! - share >= -s.depth && g.r[u]! - share <= s.depth,
+      )
 
     if (!fits) {
-      for (const u of group) j[u] = FLIP[g.j[u] as 0 | 1 | 2]
+      for (const u of group) {
+        j[u] = FLIP[g.j[u] as 0 | 1 | 2]
+      }
 
       continue
     }
@@ -216,44 +288,70 @@ export function streamRegisters(s: ReelSpec, g: ReelRegisters): ReelRegisters {
   return { x, j, f, r }
 }
 
-export const streamIndex = (s: ReelSpec, index: number): number => encodeRegisters(s, streamRegisters(s, decodeRegisters(s, index)))
+export const streamIndex = (s: ReelSpec, index: number): number =>
+  encodeRegisters(s, streamRegisters(s, decodeRegisters(s, index)))
 
 // the inverse stream: flip every label, stream, flip back
 export function streamIndexBack(s: ReelSpec, index: number): number {
   const g = decodeRegisters(s, index)
-  const out = streamRegisters(s, { ...g, j: g.j.map(v => FLIP[v as 0 | 1 | 2] as number) })
+  const out = streamRegisters(s, {
+    ...g,
+    j: g.j.map(v => FLIP[v as 0 | 1 | 2] as number),
+  })
 
-  return encodeRegisters(s, { ...out, j: out.j.map(v => FLIP[v as 0 | 1 | 2] as number) })
+  return encodeRegisters(s, {
+    ...out,
+    j: out.j.map(v => FLIP[v as 0 | 1 | 2] as number),
+  })
 }
 
 // ---------------------------------------------------------------------------------------------------------
 // exact amplitudes in Z[x] / (x^K - 1)
 
-const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b))
+const gcd = (a: number, b: number): number =>
+  b === 0 ? a : gcd(b, a % b)
 
-export const exactRoot = (s: ReelSpec): number => (s.root * 3) / gcd(s.root, 3)
+export const exactRoot = (s: ReelSpec): number =>
+  (s.root * 3) / gcd(s.root, 3)
 
-export type ExactReelState = { readonly spec: ReelSpec; readonly k: number; den: bigint; amp: Map<number, bigint[]> }
+export type ExactReelState = {
+  readonly spec: ReelSpec
+  readonly k: number
+  den: bigint
+  amp: Map<number, bigint[]>
+}
 
 type Term = readonly [bigint, number]
 
-function addTerms(out: bigint[], v: readonly bigint[], terms: readonly Term[], k: number): void {
+function addTerms(
+  out: bigint[],
+  v: readonly bigint[],
+  terms: readonly Term[],
+  k: number,
+): void {
   for (const [c, a] of terms) {
-    if (c === 0n) continue
+    if (c === 0n) {
+      continue
+    }
 
     const sh = mod(a, k)
 
     for (let i = 0; i < k; i++) {
       const y = v[i]!
 
-      if (y !== 0n) out[(i + sh) % k] = out[(i + sh) % k]! + c * y
+      if (y !== 0n) {
+        out[(i + sh) % k] = out[(i + sh) % k]! + c * y
+      }
     }
   }
 }
 
 const zero = (k: number): bigint[] => new Array<bigint>(k).fill(0n)
 
-export function exactReelStart(s: ReelSpec, start: readonly { registers: ReelRegisters; weight: bigint }[]): ExactReelState {
+export function exactReelStart(
+  s: ReelSpec,
+  start: readonly { registers: ReelRegisters; weight: bigint }[],
+): ExactReelState {
   const k = exactRoot(s)
   const amp = new Map<number, bigint[]>()
 
@@ -267,7 +365,10 @@ export function exactReelStart(s: ReelSpec, start: readonly { registers: ReelReg
   return { spec: s, k, den: 1n, amp }
 }
 
-function labelPiece(st: ExactReelState, apply: (g: ReelRegisters) => { j: number[]; terms: Term[] }[]): void {
+function labelPiece(
+  st: ExactReelState,
+  apply: (g: ReelRegisters) => { j: number[]; terms: Term[] }[],
+): void {
   const out = new Map<number, bigint[]>()
 
   for (const [i, v] of st.amp) {
@@ -275,6 +376,7 @@ function labelPiece(st: ExactReelState, apply: (g: ReelRegisters) => { j: number
 
     for (const o of apply(g)) {
       const key = encodeRegisters(st.spec, { ...g, j: o.j })
+
       let target = out.get(key)
 
       if (!target) {
@@ -290,27 +392,36 @@ function labelPiece(st: ExactReelState, apply: (g: ReelRegisters) => { j: number
 }
 
 const meetingScale = (s: ReelSpec): bigint => {
-  if (s.meet === false) return 1n
+  if (s.meet === false) {
+    return 1n
+  }
 
   let scale = 1n
+
   const n = s.kinds.length
 
   for (let a = 0; a < n; a++) {
     for (let b = a + 1; b < n; b++) {
-      if (s.kinds[a] === s.kinds[b]) scale *= 2n
-      else if (s.unlike === 'dock') scale *= 3n
+      if (s.kinds[a] === s.kinds[b]) {
+        scale *= 2n
+      } else if (s.unlike === 'dock') {
+        scale *= 3n
+      }
     }
   }
 
   return scale
 }
 
-export const exactReelBeatScale = (s: ReelSpec): bigint => 2n ** BigInt(s.kinds.length) * meetingScale(s)
+export const exactReelBeatScale = (s: ReelSpec): bigint =>
+  2n ** BigInt(s.kinds.length) * meetingScale(s)
 
 function costPiece(st: ExactReelState, adjoint: boolean): void {
   const s = st.spec
 
-  if (s.cost === 0) return
+  if (s.cost === 0) {
+    return
+  }
 
   const unit = st.k / s.root
   const out = new Map<number, bigint[]>()
@@ -318,7 +429,20 @@ function costPiece(st: ExactReelState, adjoint: boolean): void {
   for (const [i, v] of st.amp) {
     const target = zero(st.k)
 
-    addTerms(target, v, [[1n, (adjoint ? 1 : -1) * s.cost * stringCount(decodeRegisters(s, i).f) * unit]], st.k)
+    addTerms(
+      target,
+      v,
+      [
+        [
+          1n,
+          (adjoint ? 1 : -1) *
+            s.cost *
+            stringCount(decodeRegisters(s, i).f) *
+            unit,
+        ],
+      ],
+      st.k,
+    )
     out.set(i, target)
   }
 
@@ -328,13 +452,22 @@ function costPiece(st: ExactReelState, adjoint: boolean): void {
 // one pair's meeting. Two like vibes on one dock: 2U = (1 + w) + (1 - w) SWAP, where SWAP exchanges the two vibes'
 // whole contents (role and reel: the reel is the vibe's own column), so on the exchange-antisymmetric states that
 // identical fermions hold it is 2 omega, as in E-SPN-0072 to 0077. A love and a fear: the knit's meeting or 3V.
-function meetOne(s: ReelSpec, a: number, b: number, g: ReelRegisters, w3: number, adjoint: boolean): { g: ReelRegisters; terms: Term[] }[] {
+function meetOne(
+  s: ReelSpec,
+  a: number,
+  b: number,
+  g: ReelRegisters,
+  w3: number,
+  adjoint: boolean,
+): { g: ReelRegisters; terms: Term[] }[] {
   const like = s.kinds[a] === s.kinds[b]
   const same = g.x[a] === g.x[b]
   const w = adjoint ? -w3 : w3
 
   if (like) {
-    if (!same) return [{ g, terms: [[2n, 0]] }]
+    if (!same) {
+      return [{ g, terms: [[2n, 0]] }]
+    }
 
     const j = g.j.slice()
     const r = g.r.slice()
@@ -345,16 +478,34 @@ function meetOne(s: ReelSpec, a: number, b: number, g: ReelRegisters, w3: number
     r[b] = g.r[a]!
 
     return [
-      { g, terms: [[1n, 0], [1n, w]] },
-      { g: { ...g, j, r }, terms: [[1n, 0], [-1n, w]] },
+      {
+        g,
+        terms: [
+          [1n, 0],
+          [1n, w],
+        ],
+      },
+      {
+        g: { ...g, j, r },
+        terms: [
+          [1n, 0],
+          [-1n, w],
+        ],
+      },
     ]
   }
 
-  if (s.unlike === 'knit') return [{ g, terms: [[1n, 0]] }]
+  if (s.unlike === 'knit') {
+    return [{ g, terms: [[1n, 0]] }]
+  }
 
-  if (!same) return [{ g, terms: [[3n, 0]] }]
+  if (!same) {
+    return [{ g, terms: [[3n, 0]] }]
+  }
 
-  const out: { g: ReelRegisters; terms: Term[] }[] = [{ g, terms: [[3n, 0]] }]
+  const out: { g: ReelRegisters; terms: Term[] }[] = [
+    { g, terms: [[3n, 0]] },
+  ]
 
   if (g.j[a] === g.j[b]) {
     for (let k = 0; k < 3; k++) {
@@ -362,19 +513,29 @@ function meetOne(s: ReelSpec, a: number, b: number, g: ReelRegisters, w3: number
 
       t[a] = k
       t[b] = k
-      out.push({ g: { ...g, j: t }, terms: [[1n, w], [-1n, 0]] })
+      out.push({
+        g: { ...g, j: t },
+        terms: [
+          [1n, w],
+          [-1n, 0],
+        ],
+      })
     }
   }
 
   return out
 }
 
-function registerPiece(st: ExactReelState, apply: (g: ReelRegisters) => { g: ReelRegisters; terms: Term[] }[]): void {
+function registerPiece(
+  st: ExactReelState,
+  apply: (g: ReelRegisters) => { g: ReelRegisters; terms: Term[] }[],
+): void {
   const out = new Map<number, bigint[]>()
 
   for (const [i, v] of st.amp) {
     for (const o of apply(decodeRegisters(st.spec, i))) {
       const key = encodeRegisters(st.spec, o.g)
+
       let target = out.get(key)
 
       if (!target) {
@@ -392,17 +553,25 @@ function registerPiece(st: ExactReelState, apply: (g: ReelRegisters) => { g: Ree
 function meetingPiece(st: ExactReelState, adjoint: boolean): void {
   const s = st.spec
 
-  if (s.meet === false) return
+  if (s.meet === false) {
+    return
+  }
 
   const n = s.kinds.length
   const w3 = st.k / 3
   const pairs: [number, number][] = []
 
-  for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) pairs.push([a, b])
+  for (let a = 0; a < n; a++) {
+    for (let b = a + 1; b < n; b++) {
+      pairs.push([a, b])
+    }
+  }
 
   const order = adjoint ? pairs.slice().reverse() : pairs
 
-  for (const [a, b] of order) registerPiece(st, g => meetOne(s, a, b, g, w3, adjoint))
+  for (const [a, b] of order) {
+    registerPiece(st, g => meetOne(s, a, b, g, w3, adjoint))
+  }
 }
 
 function coinPiece(st: ExactReelState, adjoint: boolean): void {
@@ -413,15 +582,29 @@ function coinPiece(st: ExactReelState, adjoint: boolean): void {
     labelPiece(st, g => {
       const jt = g.j[t]!
 
-      if (jt === 2) return [{ j: g.j, terms: [[2n, 0]] }]
+      if (jt === 2) {
+        return [{ j: g.j, terms: [[2n, 0]] }]
+      }
 
       const other = g.j.slice()
 
       other[t] = 1 - jt
 
       return [
-        { j: g.j.slice(), terms: [[1n, 0], [1n, w]] },
-        { j: other, terms: [[1n, 0], [-1n, w]] },
+        {
+          j: g.j.slice(),
+          terms: [
+            [1n, 0],
+            [1n, w],
+          ],
+        },
+        {
+          j: other,
+          terms: [
+            [1n, 0],
+            [-1n, w],
+          ],
+        },
       ]
     })
   }
@@ -430,9 +613,18 @@ function coinPiece(st: ExactReelState, adjoint: boolean): void {
 function streamPiece(st: ExactReelState, back: boolean): void {
   const out = new Map<number, bigint[]>()
 
-  for (const [i, v] of st.amp) out.set(back ? streamIndexBack(st.spec, i) : streamIndex(st.spec, i), v)
+  for (const [i, v] of st.amp) {
+    out.set(
+      back ? streamIndexBack(st.spec, i) : streamIndex(st.spec, i),
+      v,
+    )
+  }
 
-  if (out.size !== st.amp.size) throw new Error('reel-string-line: the stream merged two configurations')
+  if (out.size !== st.amp.size) {
+    throw new Error(
+      'reel-string-line: the stream merged two configurations',
+    )
+  }
 
   st.amp = out
 }

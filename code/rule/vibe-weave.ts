@@ -37,8 +37,15 @@ export const LINK_START_RATE = 40503
 // period with no real number. Member 0 is the committed start, exactly as above.
 export const LINK_START_OFFSET_RATE = 27145
 
-export function linkStart(slot: number, count: number, offset = 0): number {
-  const w = (Math.imul(slot + 1, LINK_START_RATE) + Math.imul(offset, LINK_START_OFFSET_RATE)) & 0xffff
+export function linkStart(
+  slot: number,
+  count: number,
+  offset = 0,
+): number {
+  const w =
+    (Math.imul(slot + 1, LINK_START_RATE) +
+      Math.imul(offset, LINK_START_OFFSET_RATE)) &
+    0xffff
 
   return (w * count) >>> 16
 }
@@ -46,7 +53,9 @@ export function linkStart(slot: number, count: number, offset = 0): number {
 // the start a weave is built with when its caller names none: one move index per link slot
 export type LinkStartOf = (slot: number, count: number) => number
 
-const COMMITTED_START: LinkStartOf = (slot, count) => linkStart(slot, count)
+const COMMITTED_START: LinkStartOf = (slot, count) =>
+  linkStart(slot, count)
+
 let defaultStart: LinkStartOf = COMMITTED_START
 
 // Replace the start every later makeVibeWeave uses when its caller names none, and return the one it replaced.
@@ -142,7 +151,10 @@ export type VibeState = {
   readonly flow: Int32Array
 }
 
-export function makeVibeWeave(input: { side: number; start?: LinkStartOf }): VibeWeave {
+export function makeVibeWeave(input: {
+  side: number
+  start?: LinkStartOf
+}): VibeWeave {
   const startOf = input.start ?? defaultStart
   const mesh = d4BoxMesh({ side: input.side })
   const opposite = Array.from({ length: 24 }, (_, d) =>

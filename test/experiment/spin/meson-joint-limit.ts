@@ -110,8 +110,26 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { lightN } from '@/code/measure/drift-cost-bloch'
-import { followPair, meson, pairCurvature, pairLevels, type Meson, type PairLevel } from '@/code/measure/string-binding'
-import { bandCurvature, carry, followBand, loneTopVelocity, nrSeed, overlapOf, pairBand, readBand, settle, type BandLevel } from '@/code/measure/meson-band'
+import {
+  followPair,
+  meson,
+  pairCurvature,
+  pairLevels,
+  type Meson,
+  type PairLevel,
+} from '@/code/measure/string-binding'
+import {
+  bandCurvature,
+  carry,
+  followBand,
+  loneTopVelocity,
+  nrSeed,
+  overlapOf,
+  pairBand,
+  readBand,
+  settle,
+  type BandLevel,
+} from '@/code/measure/meson-band'
 
 const TAIL = 1e-3
 const EVEN = 0.5
@@ -129,13 +147,67 @@ const BOX = 2
 const WIDE_BOX = 2.5
 const TOTAL_TOL = 0.05
 const V_TOP = 0.95
-const DERIVED: Record<number, number> = { 1: 3, 2: 13, 4: 50, 8: 202, 16: 806 }
-const RECORDED: readonly { n: number; D: number; energy: number; mean: number; mass: number; R: number; overlap: number }[] = [
-  { n: 1, D: 3, energy: 0.47512993741818427, mean: 0.6786578926127047, mass: 5.040263547545393, R: 1.1859554686134817, overlap: 0.9993788007935024 },
-  { n: 1, D: 12, energy: 0.20832737092606626, mean: 1.0836774434704757, mass: 3.9676664070350443, R: 1.0417452804896854, overlap: 0.9990282880527138 },
-  { n: 1, D: 30, energy: 0.1159897688219681, mean: 1.4840218032793966, mass: 3.721328317489105, R: 1.017883510434067, overlap: 0.9985204449182442 },
-  { n: 2, D: 20, energy: 0.2310647646840834, mean: 2.117435241913141, mass: 1.4229595840708447, R: 1.00955928875228, overlap: 0.9970964599804423 },
-  { n: 2, D: 30, energy: 0.17520695217737686, mean: 2.35376872716106, mass: 1.3585242869728256, R: 1.0078867024814155, overlap: 0.9965945967700558 },
+const DERIVED: Record<number, number> = {
+  1: 3,
+  2: 13,
+  4: 50,
+  8: 202,
+  16: 806,
+}
+const RECORDED: readonly {
+  n: number
+  D: number
+  energy: number
+  mean: number
+  mass: number
+  R: number
+  overlap: number
+}[] = [
+  {
+    n: 1,
+    D: 3,
+    energy: 0.47512993741818427,
+    mean: 0.6786578926127047,
+    mass: 5.040263547545393,
+    R: 1.1859554686134817,
+    overlap: 0.9993788007935024,
+  },
+  {
+    n: 1,
+    D: 12,
+    energy: 0.20832737092606626,
+    mean: 1.0836774434704757,
+    mass: 3.9676664070350443,
+    R: 1.0417452804896854,
+    overlap: 0.9990282880527138,
+  },
+  {
+    n: 1,
+    D: 30,
+    energy: 0.1159897688219681,
+    mean: 1.4840218032793966,
+    mass: 3.721328317489105,
+    R: 1.017883510434067,
+    overlap: 0.9985204449182442,
+  },
+  {
+    n: 2,
+    D: 20,
+    energy: 0.2310647646840834,
+    mean: 2.117435241913141,
+    mass: 1.4229595840708447,
+    R: 1.00955928875228,
+    overlap: 0.9970964599804423,
+  },
+  {
+    n: 2,
+    D: 30,
+    energy: 0.17520695217737686,
+    mean: 2.35376872716106,
+    mass: 1.3585242869728256,
+    R: 1.0078867024814155,
+    overlap: 0.9965945967700558,
+  },
 ]
 const EXACT = 1e-12
 const SAME = 1e-9
@@ -185,23 +257,35 @@ function derivedD(n: number): number {
 const boxOf = (D: number): number => BOX * lightN(D)
 
 // E-SPN-0112's e0 from the dense spectrum
-function denseE0(n: number, D: number, withCost = true): { m: Meson; e0: PairLevel; levels: PairLevel[] } {
+function denseE0(
+  n: number,
+  D: number,
+  withCost = true,
+): { m: Meson; e0: PairLevel; levels: PairLevel[] } {
   const m = meson(D, boxOf(D), n)
   const levels = pairLevels(m, withCost).levels
-  const e0 = levels.filter(l => l.parity === 0).sort((a, b) => a.unwrapped - b.unwrapped)[0]!
+  const e0 = levels
+    .filter(l => l.parity === 0)
+    .sort((a, b) => a.unwrapped - b.unwrapped)[0]!
 
   return { m, e0, levels }
 }
 
 // the reading of a level: held, m*, E_rest, R, total
-function readPoint(level: BandLevel, n: number, role: string, carryOverlap: number): Point {
+function readPoint(
+  level: BandLevel,
+  n: number,
+  role: string,
+  carryOverlap: number,
+): Point {
   const m = meson(level.D, level.box, n)
   const op = pairBand(m, 0, 0)
   const band = followBand(m, level, HOLD_KS, STEP)
   const mass = 1 / bandCurvature(m, band[0]!, CURVE_D)
   const eRest = 2 * half(n) + level.unwrapped
   const overlap = band[band.length - 1]!.overlap
-  const held = level.even >= EVEN && level.tailN <= TAIL && overlap >= HOLD
+  const held =
+    level.even >= EVEN && level.tailN <= TAIL && overlap >= HOLD
 
   return {
     n,
@@ -227,23 +311,30 @@ function readPoint(level: BandLevel, n: number, role: string, carryOverlap: numb
 }
 
 // the band from K = 0 to pi: the largest |dE/dK| over the held part
-function topVelocity(level: BandLevel, n: number): { top: number; at: number; heldTo: number; residual: number } {
+function topVelocity(
+  level: BandLevel,
+  n: number,
+): { top: number; at: number; heldTo: number; residual: number } {
   const m = meson(level.D, level.box, n)
   const count = Math.round(Math.PI / STEP)
   const ks = Array.from({ length: count + 1 }, (_, s) => s * STEP)
   const track = followBand(m, level, ks, STEP)
+
   let top = 0
   let at = 0
   let heldTo = 0
   let residual = 0
 
   for (let s = 1; s < count; s++) {
-    if (track[s + 1]!.overlap < HOLD) break
+    if (track[s + 1]!.overlap < HOLD) {
+      break
+    }
 
     heldTo = track[s + 1]!.K
     residual = Math.max(residual, track[s + 1]!.residual)
 
-    const v = Math.abs(track[s + 1]!.energy - track[s - 1]!.energy) / (2 * STEP)
+    const v =
+      Math.abs(track[s + 1]!.energy - track[s - 1]!.energy) / (2 * STEP)
 
     if (v > top) {
       top = v
@@ -269,7 +360,8 @@ export default experiment({
     const f3 = (x: number): string => x.toFixed(3)
     const f4 = (x: number): string => x.toFixed(4)
     const e2 = (x: number): string => x.toExponential(2)
-    const log = (s: string): void => console.error(`${s}; at ${secs()} s`)
+    const log = (s: string): void =>
+      console.error(`${s}; at ${secs()} s`)
     const show = (p: Point): string =>
       `n ${p.n} D ${p.D} (${p.role}, box ${p.box}): ${p.held ? 'held' : 'NOT held'} E ${f4(p.energy)} tail ${e2(p.tail)} span ${f3(p.mean)} contact ${f3(p.contact)} even ${f3(p.even)} overlap ${f4(p.overlap)} m* ${f4(p.mass)} E_rest ${f4(p.eRest)} m*/E_rest ${f4(p.total)} R ${f4(p.R)}${p.carryOverlap < 1 ? ` carry ${f4(p.carryOverlap)}` : ''}`
 
@@ -277,7 +369,9 @@ export default experiment({
     const derived = FINES.map(n => ({ n, D: derivedD(n) }))
     const derivedAsStated = derived.every(d => d.D === DERIVED[d.n])
 
-    log(`derived D(n): ${derived.map(d => `n ${d.n} D ${d.D} N ${lightN(d.D)}`).join(', ')}; as stated ${derivedAsStated}`)
+    log(
+      `derived D(n): ${derived.map(d => `n ${d.n} D ${d.D} N ${lightN(d.D)}`).join(', ')}; as stated ${derivedAsStated}`,
+    )
 
     // ---- the points ----
     const plan = (n: number): { role: string; D: number }[] => {
@@ -290,6 +384,7 @@ export default experiment({
         { role: 'path', D: PATH_K * Dn },
       ]
     }
+
     const points: Point[] = []
 
     for (const n of FINES) {
@@ -304,17 +399,21 @@ export default experiment({
           points.push(p)
           log(show(p))
         }
+
         continue
       }
 
       // seeded at the path's D, carried down
       const top = wanted[wanted.length - 1]!
       const mTop = meson(top.D, boxOf(top.D), n)
+
       let level = settle(mTop, nrSeed(mTop))
       let least = 1
+
       const got: Point[] = [readPoint(level, n, top.role, 1)]
 
       log(show(got[0]!))
+
       for (const w of wanted.slice(0, -1).reverse()) {
         while (level.D > w.D) {
           const D = Math.max(w.D, Math.floor(level.D / CARRY_RATIO))
@@ -333,22 +432,38 @@ export default experiment({
       points.push(...got.reverse())
     }
 
-    const at = (n: number, role: string): Point => points.find(p => p.n === n && p.role === role)!
+    const at = (n: number, role: string): Point =>
+      points.find(p => p.n === n && p.role === role)!
 
     // J1
     const j1Missing = points.filter(p => p.role !== 'below' && !p.held)
     const J1 = j1Missing.length === 0
     // J2
     const path = FINES.map(n => at(n, 'path'))
-    const falls = path.every((p, i) => i === 0 || p.total < path[i - 1]!.total)
+    const falls = path.every(
+      (p, i) => i === 0 || p.total < path[i - 1]!.total,
+    )
     const lastTotal = path[path.length - 1]!.total
-    const J2 = path.every(p => p.held) && falls && Math.abs(lastTotal - 1) <= TOTAL_TOL
+    const J2 =
+      path.every(p => p.held) &&
+      falls &&
+      Math.abs(lastTotal - 1) <= TOTAL_TOL
     // J3
-    const velocity = path.map(p => ({ n: p.n, ...topVelocity(p.level, p.n), lone: loneTopVelocity(p.n) }))
+    const velocity = path.map(p => ({
+      n: p.n,
+      ...topVelocity(p.level, p.n),
+      lone: loneTopVelocity(p.n),
+    }))
 
-    for (const v of velocity) log(`velocity n ${v.n}: top ${f4(v.top)} at K ${f3(v.at)} held to K ${f3(v.heldTo)} (lone walk ${f4(v.lone)})`)
+    for (const v of velocity) {
+      log(
+        `velocity n ${v.n}: top ${f4(v.top)} at K ${f3(v.at)} held to K ${f3(v.heldTo)} (lone walk ${f4(v.lone)})`,
+      )
+    }
 
-    const rises = velocity.every((v, i) => i === 0 || v.top > velocity[i - 1]!.top)
+    const rises = velocity.every(
+      (v, i) => i === 0 || v.top > velocity[i - 1]!.top,
+    )
     const lastV = velocity[velocity.length - 1]!.top
     const J3 = path.every(p => p.held) && rises && lastV >= V_TOP
     const below = FINES.map(n => at(n, 'below'))
@@ -357,7 +472,12 @@ export default experiment({
     // C1: E-SPN-0112
     const c1Rows = RECORDED.map(r => {
       const { m, e0 } = denseE0(r.n, r.D)
-      const p = readPoint(readBand(m, e0.block, e0.energy, 0), r.n, 'recorded', 1)
+      const p = readPoint(
+        readBand(m, e0.block, e0.energy, 0),
+        r.n,
+        'recorded',
+        1,
+      )
       const ok =
         Math.abs(p.energy - r.energy) <= EXACT &&
         Math.abs(p.mean - r.mean) <= EXACT &&
@@ -369,13 +489,19 @@ export default experiment({
     })
     const c1 = c1Rows.every(r => r.ok)
 
-    log(`C1 ${c1Rows.map(r => `n ${r.n} D ${r.D}: E ${r.got.energy} m* ${r.got.mass} R ${r.got.R} overlap ${r.got.overlap} ${r.ok}`).join('; ')}`)
+    log(
+      `C1 ${c1Rows.map(r => `n ${r.n} D ${r.D}: E ${r.got.energy} m* ${r.got.mass} R ${r.got.R} overlap ${r.got.overlap} ${r.ok}`).join('; ')}`,
+    )
 
     // C2: no cost
     const freeDense = FREE_DENSE.map(f => {
       const { levels } = denseE0(f.n, f.D, false)
 
-      return { ...f, inside: levels.filter(l => l.tailN <= TAIL).length, least: Math.min(...levels.map(l => l.tailN)) }
+      return {
+        ...f,
+        inside: levels.filter(l => l.tailN <= TAIL).length,
+        least: Math.min(...levels.map(l => l.tailN)),
+      }
     })
     const freeSeeded = path
       .filter(p => !DENSE_FINES.includes(p.n))
@@ -385,9 +511,13 @@ export default experiment({
 
         return { n: p.n, D: p.D, tail: l.tailN }
       })
-    const c2 = freeDense.every(f => f.inside === 0) && freeSeeded.every(f => f.tail > TAIL)
+    const c2 =
+      freeDense.every(f => f.inside === 0) &&
+      freeSeeded.every(f => f.tail > TAIL)
 
-    log(`C2 dense ${freeDense.map(f => `n ${f.n} D ${f.D} inside ${f.inside} least ${e2(f.least)}`).join(', ')}; seeded ${freeSeeded.map(f => `n ${f.n} D ${f.D} tail ${e2(f.tail)}`).join(', ')}: ${c2}`)
+    log(
+      `C2 dense ${freeDense.map(f => `n ${f.n} D ${f.D} inside ${f.inside} least ${e2(f.least)}`).join(', ')}; seeded ${freeSeeded.map(f => `n ${f.n} D ${f.D} tail ${e2(f.tail)}`).join(', ')}: ${c2}`,
+    )
 
     // C3: instruments
     const leak = Math.max(...points.map(p => p.leak))
@@ -396,7 +526,12 @@ export default experiment({
     const denseBand = followPair(d3.m, d3.e0, HOLD_KS, STEP)
     const denseMass = 1 / pairCurvature(d3.m, 0, denseBand[0]!, CURVE_D)
     const p13 = at(1, 'D(n)')
-    const bandGap = Math.max(Math.abs(p13.mass / denseMass - 1), Math.abs(p13.overlap / denseBand[denseBand.length - 1]!.overlap - 1))
+    const bandGap = Math.max(
+      Math.abs(p13.mass / denseMass - 1),
+      Math.abs(
+        p13.overlap / denseBand[denseBand.length - 1]!.overlap - 1,
+      ),
+    )
     const seedDense = denseE0(SEED_CHECK.n, SEED_CHECK.D)
     const seeded = settle(seedDense.m, nrSeed(seedDense.m))
     const seedOverlap = overlapOf(seeded.block, seedDense.e0.block)
@@ -404,21 +539,42 @@ export default experiment({
     const carryDense = denseE0(CARRY_CHECK.n, CARRY_CHECK.D)
     const carried = at(CARRY_CHECK.n, 'D(n)').level
     const carryOverlap = overlapOf(carried.block, carryDense.e0.block)
-    const carryGap = Math.abs(carried.unwrapped - carryDense.e0.unwrapped)
-    const c3 = leak === 0 && unitarity <= UNITARY && bandGap <= SAME && seedOverlap >= 1 - SAME && seedGap <= SAME && carryOverlap >= 1 - SAME && carryGap <= SAME
+    const carryGap = Math.abs(
+      carried.unwrapped - carryDense.e0.unwrapped,
+    )
+    const c3 =
+      leak === 0 &&
+      unitarity <= UNITARY &&
+      bandGap <= SAME &&
+      seedOverlap >= 1 - SAME &&
+      seedGap <= SAME &&
+      carryOverlap >= 1 - SAME &&
+      carryGap <= SAME
 
-    log(`C3 leak ${e2(leak)} unitarity ${e2(unitarity)} band gap ${e2(bandGap)} seed overlap ${1 - seedOverlap} gap ${e2(seedGap)} carry overlap ${1 - carryOverlap} gap ${e2(carryGap)} (dense e0 at n 4 D 50: E ${carryDense.e0.unwrapped} tail ${e2(carryDense.e0.tailN)} span ${f3(carryDense.e0.mean)}): ${c3}`)
+    log(
+      `C3 leak ${e2(leak)} unitarity ${e2(unitarity)} band gap ${e2(bandGap)} seed overlap ${1 - seedOverlap} gap ${e2(seedGap)} carry overlap ${1 - carryOverlap} gap ${e2(carryGap)} (dense e0 at n 4 D 50: E ${carryDense.e0.unwrapped} tail ${e2(carryDense.e0.tailN)} span ${f3(carryDense.e0.mean)}): ${c3}`,
+    )
 
     // C4: box
     const boxLevel = at(BOX_CHECK.n, 'D(n)').level
-    const wide = carry(boxLevel, BOX_CHECK.D, Math.round(WIDE_BOX * lightN(BOX_CHECK.D)))
+    const wide = carry(
+      boxLevel,
+      BOX_CHECK.D,
+      Math.round(WIDE_BOX * lightN(BOX_CHECK.D)),
+    )
     const boxGap = Math.abs(wide.level.unwrapped - boxLevel.unwrapped)
     const c4 = boxGap <= SAME
 
-    log(`C4 box ${boxLevel.box} vs ${wide.level.box}: gap ${e2(boxGap)}: ${c4}`)
+    log(
+      `C4 box ${boxLevel.box} vs ${wide.level.box}: gap ${e2(boxGap)}: ${c4}`,
+    )
 
     const control = c1 && c2 && c3 && c4 && derivedAsStated
-    const status = !control ? 'partial' : J1 && J2 && J3 ? 'pass' : 'fail'
+    const status = !control
+      ? 'partial'
+      : J1 && J2 && J3
+        ? 'pass'
+        : 'fail'
     const metrics: Record<string, number> = {
       J1: J1 ? 1 : 0,
       J2: J2 ? 1 : 0,
@@ -442,7 +598,10 @@ export default experiment({
       seconds: (Date.now() - started) / 1000,
     }
 
-    for (const d of derived) metrics[`derived_n${d.n}`] = d.D
+    for (const d of derived) {
+      metrics[`derived_n${d.n}`] = d.D
+    }
+
     for (const p of points) {
       const k = `n${p.n}_D${p.D}`
 
@@ -458,13 +617,20 @@ export default experiment({
       metrics[`${k}_R`] = p.R
       metrics[`${k}_carry`] = p.carryOverlap
     }
+
     for (const v of velocity) {
       metrics[`velocity_n${v.n}`] = v.top
       metrics[`velocity_n${v.n}_heldTo`] = v.heldTo
       metrics[`velocity_n${v.n}_lone`] = v.lone
     }
-    for (const f of freeDense) metrics[`free_n${f.n}_D${f.D}_inside`] = f.inside
-    for (const f of freeSeeded) metrics[`free_n${f.n}_D${f.D}_tail`] = f.tail
+
+    for (const f of freeDense) {
+      metrics[`free_n${f.n}_D${f.D}_inside`] = f.inside
+    }
+
+    for (const f of freeSeeded) {
+      metrics[`free_n${f.n}_D${f.D}_tail`] = f.tail
+    }
 
     const g = (x: boolean): string => (x ? 'holds' : 'fails')
 
@@ -472,7 +638,12 @@ export default experiment({
       status,
       claim: `Derived D(n) (leak exp(-pi m^2/sigma) <= ${TAIL}): ${derived.map(d => `${d.n}: ${d.D}`).join(', ')}. ${points.map(show).join('; ')}. J1 ${g(J1)}${J1 ? '' : ` (not held: ${j1Missing.map(p => `n ${p.n} D ${p.D}`).join(', ')})`}; J2 ${g(J2)} (total ${path.map(p => f4(p.total)).join(', ')}); J3 ${g(J3)} (top velocity ${velocity.map(v => f4(v.top)).join(', ')}, lone ${velocity.map(v => f4(v.lone)).join(', ')}); below D(n) held: ${below.map(p => `n ${p.n} ${p.held}`).join(', ')}. Controls: C1 ${c1}, C2 ${c2}, C3 ${c3}, C4 ${c4}`,
       metrics,
-      control: { C1: c1 ? 1 : 0, C2: c2 ? 1 : 0, C3: c3 ? 1 : 0, C4: c4 ? 1 : 0 },
+      control: {
+        C1: c1 ? 1 : 0,
+        C2: c2 ? 1 : 0,
+        C3: c3 ? 1 : 0,
+        C4: c4 ? 1 : 0,
+      },
       notes: `L2. Velocity: ${velocity.map(v => `n ${v.n} top ${f4(v.top)} at K ${f3(v.at)}, held to K ${f3(v.heldTo)}`).join('; ')}. C1 ${c1Rows.map(r => `n ${r.n} D ${r.D} ${r.ok}`).join(', ')}. ${secs()} s.`,
     })
   },

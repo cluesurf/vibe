@@ -18,13 +18,21 @@
 
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { BOUNCE_TABLE } from '@/code/rule/bounce-pair-knit'
-import { type Configuration, type LockedTables } from '@/code/rule/doublet-locked-knit'
-import { LINE_FIRSTS, LINE_OF, momentumKey, OPPOSITE } from '@/code/rule/isometric-knit'
+import {
+  type Configuration,
+  type LockedTables,
+} from '@/code/rule/doublet-locked-knit'
+import {
+  LINE_FIRSTS,
+  LINE_OF,
+  momentumKey,
+  OPPOSITE,
+} from '@/code/rule/isometric-knit'
 import { collisionOrder } from '@/code/rule/living-pair-knit'
 import { pairPiece } from '@/code/rule/occupation-veto-knit'
 
 const ROOTS = rootsD4()
-const SECONDS: readonly number[] = LINE_FIRSTS.map(f => OPPOSITE[f] as number)
+const SECONDS: readonly number[] = LINE_FIRSTS.map(f => OPPOSITE[f]!)
 const PERM = new Int32Array(24)
 const SV = new Int8Array(24)
 const SP = new Int8Array(24)
@@ -32,74 +40,122 @@ const SO = new Uint8Array(24)
 
 export type PartialTally = { scatters: number; momentumBreaks: number }
 
-export const newPartialTally = (): PartialTally => ({ scatters: 0, momentumBreaks: 0 })
+export const newPartialTally = (): PartialTally => ({
+  scatters: 0,
+  momentumBreaks: 0,
+})
 
 // the partial piece at one dock
-export function partialPiece(c: Configuration, x: number, tally?: PartialTally): void {
+export function partialPiece(
+  c: Configuration,
+  x: number,
+  tally?: PartialTally,
+): void {
   const base = x * 24
+
   let full = 0
   let single = 0
+
   const p = [0, 0, 0, 0]
 
   for (let l = 0; l < 12; l++) {
-    const a = c.vibe[base + (LINE_FIRSTS[l] as number)] !== 0
-    const b = c.vibe[base + (SECONDS[l] as number)] !== 0
+    const a = c.vibe[base + LINE_FIRSTS[l]!] !== 0
+    const b = c.vibe[base + SECONDS[l]!] !== 0
 
-    if (a && b) full |= 1 << l
-    else if (a || b) {
+    if (a && b) {
+      full |= 1 << l
+    } else if (a || b) {
       single |= 1 << l
 
-      const r = ROOTS[a ? (LINE_FIRSTS[l] as number) : (SECONDS[l] as number)] as number[]
+      const r = ROOTS[a ? LINE_FIRSTS[l]! : SECONDS[l]!]!
 
-      for (let k = 0; k < 4; k++) p[k]! += r[k] as number
+      for (let k = 0; k < 4; k++) {
+        p[k]! += r[k]!
+      }
     }
   }
 
-  if (full === 0 && single === 0) return
+  if (full === 0 && single === 0) {
+    return
+  }
 
   const w = BOUNCE_TABLE[momentumKey(p)]
+
   let moved = false
 
   for (let d = 0; d < 24; d++) {
-    const l = LINE_OF[d] as number
+    const l = LINE_OF[d]!
 
-    if ((full >> l) & 1) PERM[d] = c.vibe[base + d] === c.vibe[base + (OPPOSITE[d] as number)] ? d : (OPPOSITE[d] as number)
-    else if (w && !((full >> (LINE_OF[w[d] as number] as number)) & 1)) {
-      PERM[d] = w[d] as number
-      if (w[d] !== d && c.vibe[base + d] !== 0) moved = true
-    } else PERM[d] = d
+    if ((full >> l) & 1) {
+      PERM[d] =
+        c.vibe[base + d] === c.vibe[base + OPPOSITE[d]!]
+          ? d
+          : OPPOSITE[d]!
+    } else if (w && !((full >> LINE_OF[w[d]!]!) & 1)) {
+      PERM[d] = w[d]!
+
+      if (w[d] !== d && c.vibe[base + d] !== 0) {
+        moved = true
+      }
+    } else {
+      PERM[d] = d
+    }
   }
 
   const before = [0, 0, 0, 0]
   const after = [0, 0, 0, 0]
 
   for (let d = 0; d < 24; d++) {
-    SV[PERM[d] as number] = c.vibe[base + d] as number
-    SP[PERM[d] as number] = c.point[base + d] as number
-    SO[PERM[d] as number] = c.open[base + d] as number
+    SV[PERM[d]!] = c.vibe[base + d]!
+    SP[PERM[d]!] = c.point[base + d]!
+    SO[PERM[d]!] = c.open[base + d]!
   }
 
   for (let d = 0; d < 24; d++) {
-    if (c.vibe[base + d] !== 0 && !((full >> (LINE_OF[d] as number)) & 1)) for (let k = 0; k < 4; k++) before[k]! += (ROOTS[d] as number[])[k] as number
-    c.vibe[base + d] = SV[d] as number
-    c.point[base + d] = SP[d] as number
-    c.open[base + d] = SO[d] as number
+    if (c.vibe[base + d] !== 0 && !((full >> LINE_OF[d]!) & 1)) {
+      for (let k = 0; k < 4; k++) {
+        before[k]! += ROOTS[d]![k]!
+      }
+    }
+
+    c.vibe[base + d] = SV[d]!
+    c.point[base + d] = SP[d]!
+    c.open[base + d] = SO[d]!
   }
 
-  for (let d = 0; d < 24; d++) if (c.vibe[base + d] !== 0 && !((full >> (LINE_OF[d] as number)) & 1)) for (let k = 0; k < 4; k++) after[k]! += (ROOTS[d] as number[])[k] as number
+  for (let d = 0; d < 24; d++) {
+    if (c.vibe[base + d] !== 0 && !((full >> LINE_OF[d]!) & 1)) {
+      for (let k = 0; k < 4; k++) {
+        after[k]! += ROOTS[d]![k]!
+      }
+    }
+  }
 
   if (tally) {
-    if (moved) tally.scatters++
-    if (before.some((v, k) => v !== after[k])) tally.momentumBreaks++
+    if (moved) {
+      tally.scatters++
+    }
+
+    if (before.some((v, k) => v !== after[k])) {
+      tally.momentumBreaks++
+    }
   }
 }
 
 // the beat's collision with the partial piece: the no-veto pair move and the partial piece, alternating by beat
-export function collidePartial(tables: LockedTables, c: Configuration, beat: number, tally?: PartialTally): void {
+export function collidePartial(
+  tables: LockedTables,
+  c: Configuration,
+  beat: number,
+  tally?: PartialTally,
+): void {
   for (let x = 0; x < tables.cells; x++) {
     for (const piece of collisionOrder('alternate', beat)) {
-      if (piece === 'P') pairPiece('none', c, x)
-      else partialPiece(c, x, tally)
+      if (piece === 'P') {
+        pairPiece('none', c, x)
+      } else {
+        partialPiece(c, x, tally)
+      }
     }
   }
 }

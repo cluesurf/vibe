@@ -28,13 +28,27 @@
 //
 // NOTHING MOVES: a phase and, for 'exchange', the two points each vibe carries swapped in place.
 
-import { cloneConfiguration, mergeBranches, streamConfiguration, times, type Branch, type LockedState, type LockedTables, type LockedTally } from '@/code/rule/doublet-locked-knit'
-import { collideVeto, type VetoKind } from '@/code/rule/occupation-veto-knit'
+import {
+  cloneConfiguration,
+  mergeBranches,
+  streamConfiguration,
+  times,
+  type Branch,
+  type LockedState,
+  type LockedTables,
+  type LockedTally,
+} from '@/code/rule/doublet-locked-knit'
+import {
+  collideVeto,
+  type VetoKind,
+} from '@/code/rule/occupation-veto-knit'
 import { LINE_FIRSTS, OPPOSITE } from '@/code/rule/isometric-knit'
 
 export type Meeting = 'split' | 'keep' | 'exchange'
 
-const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(f => OPPOSITE[f] ?? f)
+const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(
+  f => OPPOSITE[f] ?? f,
+)
 
 // the phase w, and its conjugate w^2 = -1 - w for the inverse beat
 const PHASE: readonly [bigint, bigint][] = [
@@ -42,36 +56,57 @@ const PHASE: readonly [bigint, bigint][] = [
   [-1n, -1n],
 ]
 
-const cloneBranch = (b: Branch): Branch => ({ ...cloneConfiguration(b), a: b.a, b: b.b, k: b.k })
+const cloneBranch = (b: Branch): Branch => ({
+  ...cloneConfiguration(b),
+  a: b.a,
+  b: b.b,
+  k: b.k,
+})
 
 // the like meetings of one term, as a permutation times a phase (in place: one branch in, one out)
-export function permutationMeet(meeting: 'keep' | 'exchange', br: Branch, cells: number, adjoint: boolean, tally?: LockedTally): Branch {
-  const [u, v] = PHASE[adjoint ? 1 : 0] as [bigint, bigint]
+export function permutationMeet(
+  meeting: 'keep' | 'exchange',
+  br: Branch,
+  cells: number,
+  adjoint: boolean,
+  tally?: LockedTally,
+): Branch {
+  const [u, v] = PHASE[adjoint ? 1 : 0]!
 
   for (let x = 0; x < cells; x++) {
     for (let l = 0; l < 12; l++) {
-      const i = x * 24 + (LINE_FIRSTS[l] as number)
-      const j = x * 24 + (LINE_SECONDS[l] as number)
-      const vi = br.vibe[i] as number
+      const i = x * 24 + LINE_FIRSTS[l]!
+      const j = x * 24 + LINE_SECONDS[l]!
+      const vi = br.vibe[i]!
 
-      if (vi === 0 || br.vibe[j] === 0 || !br.open[i] || !br.open[j]) continue
-
-      if (vi !== br.vibe[j]) {
-        if (tally) tally.unlikeMeetings++
+      if (vi === 0 || br.vibe[j] === 0 || !br.open[i] || !br.open[j]) {
         continue
       }
 
-      if (tally) tally.likeMeetings++
+      if (vi !== br.vibe[j]) {
+        if (tally) {
+          tally.unlikeMeetings++
+        }
+
+        continue
+      }
+
+      if (tally) {
+        tally.likeMeetings++
+      }
 
       if (br.point[i] !== br.point[j] && meeting === 'exchange') {
-        const p = br.point[i] as number
+        const p = br.point[i]!
 
-        br.point[i] = br.point[j] as number
+        br.point[i] = br.point[j]!
         br.point[j] = p
       }
 
       times(br, u, v)
-      if (tally) tally.phaseMeetings++
+
+      if (tally) {
+        tally.phaseMeetings++
+      }
     }
   }
 
@@ -79,11 +114,24 @@ export function permutationMeet(meeting: 'keep' | 'exchange', br: Branch, cells:
 }
 
 // one beat of the superposed state with the permutation meeting (the working rule's beat with meetBranch replaced)
-export function meetingBeat(meeting: 'keep' | 'exchange', kind: VetoKind, t: LockedTables, s: LockedState, beat: number, tally?: LockedTally): LockedState {
+export function meetingBeat(
+  meeting: 'keep' | 'exchange',
+  kind: VetoKind,
+  t: LockedTables,
+  s: LockedState,
+  beat: number,
+  tally?: LockedTally,
+): LockedState {
   const next: Branch[] = []
 
   for (const br of s.branches) {
-    const b = permutationMeet(meeting, cloneBranch(br), t.cells, false, tally)
+    const b = permutationMeet(
+      meeting,
+      cloneBranch(br),
+      t.cells,
+      false,
+      tally,
+    )
 
     collideVeto(kind, t, b, beat, false, tally)
     streamConfiguration(t, b, false)
@@ -93,7 +141,13 @@ export function meetingBeat(meeting: 'keep' | 'exchange', kind: VetoKind, t: Loc
   return { branches: mergeBranches(next, tally) }
 }
 
-export function meetingBeatBack(meeting: 'keep' | 'exchange', kind: VetoKind, t: LockedTables, s: LockedState, beat: number): LockedState {
+export function meetingBeatBack(
+  meeting: 'keep' | 'exchange',
+  kind: VetoKind,
+  t: LockedTables,
+  s: LockedState,
+  beat: number,
+): LockedState {
   const next: Branch[] = []
 
   for (const br of s.branches) {

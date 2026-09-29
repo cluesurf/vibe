@@ -63,12 +63,46 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeColorWeave } from '@/code/rule/color-weave'
-import { dockMatrices, periodicMedium } from '@/code/measure/bounce-transport'
-import { binaryTetrahedralIndices, boxMaps, huskForcing, orientedHub, orientedHubStore, pointGenerator } from '@/code/measure/varying-vacuum'
-import { cellOps, leftInvariants, leftResidual, namedDockInvariants, readSymmetricTransport, rightInvariants, type SymmetricReading } from '@/code/measure/symmetry-transport'
+import {
+  dockMatrices,
+  periodicMedium,
+} from '@/code/measure/bounce-transport'
+import {
+  binaryTetrahedralIndices,
+  boxMaps,
+  huskForcing,
+  orientedHub,
+  orientedHubStore,
+  pointGenerator,
+} from '@/code/measure/varying-vacuum'
+import {
+  cellOps,
+  leftInvariants,
+  leftResidual,
+  namedDockInvariants,
+  readSymmetricTransport,
+  rightInvariants,
+  type SymmetricReading,
+} from '@/code/measure/symmetry-transport'
 import { huskDirections } from '@/code/measure/husk-transport-order'
-import { classKinds, classOf, coinsOnce, heldOf, multiLineDockMatrices, orientedUnion, orientedUnionStore, orientUnits, unionHubStore } from '@/code/measure/dense-hub'
-import { coveringPattern, forcingCensus, insideSubgroups, NORM4_KEYS, orientingLiftPairs } from '@/code/measure/union-orientation'
+import {
+  classKinds,
+  classOf,
+  coinsOnce,
+  heldOf,
+  multiLineDockMatrices,
+  orientedUnion,
+  orientedUnionStore,
+  orientUnits,
+  unionHubStore,
+} from '@/code/measure/dense-hub'
+import {
+  coveringPattern,
+  forcingCensus,
+  insideSubgroups,
+  NORM4_KEYS,
+  orientingLiftPairs,
+} from '@/code/measure/union-orientation'
 
 const KC = 0.2793069366894861
 const RUNGS = [KC / 4, KC / 16]
@@ -84,29 +118,54 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const coins = coinsOnce()
     const table = coins.table
     const box = boxMaps(coins, 4)
     const hub = orientedHub(coins)
     const hubForcing = huskForcing(coins, hub.group)
     const hubHeld = heldOf(orientedHubStore(coins, 4, [0, 0, 0, 0]))
-    const hubOriented = orientUnits(hubHeld, [...hub.twoT, hub.extra].map(g => pointGenerator(coins, box, g, [0, 0, 0, 0], 1)))
+    const hubOriented = orientUnits(
+      hubHeld,
+      [...hub.twoT, hub.extra].map(g =>
+        pointGenerator(coins, box, g, [0, 0, 0, 0], 1),
+      ),
+    )
     const hubStore = orientedHubStore(coins, 4, [0, 0, 0, 0])
     const mine = multiLineDockMatrices('lone', hubStore, 256, coins)
-    const theirs = dockMatrices({ kind: 'lone', store: hubStore, cells: 256, permutations: table.permutations })
+    const theirs = dockMatrices({
+      kind: 'lone',
+      store: hubStore,
+      cells: 256,
+      permutations: table.permutations,
+    })
+
     let carrierError = 0
 
     for (let x = 0; x < 256; x++) {
-      const a = mine.even[x] as Float64Array
-      const b = theirs.even[x] as Float64Array
-      const c = mine.odd[x] as Float64Array
-      const d = theirs.odd[x] as Float64Array
+      const a = mine.even[x]!
+      const b = theirs.even[x]!
+      const c = mine.odd[x]!
+      const d = theirs.odd[x]!
 
-      for (let i = 0; i < a.length; i++) carrierError = Math.max(carrierError, Math.abs((a[i] as number) - (b[i] as number)), Math.abs((c[i] as number) - (d[i] as number)))
+      for (let i = 0; i < a.length; i++) {
+        carrierError = Math.max(
+          carrierError,
+          Math.abs(a[i]! - b[i]!),
+          Math.abs(c[i]! - d[i]!),
+        )
+      }
     }
 
-    const s0 = hubForcing.husk2 && hubForcing.husk4 && hubForcing.huskShear2 && hubOriented.ok && carrierError < 1e-12
+    const s0 =
+      hubForcing.husk2 &&
+      hubForcing.husk4 &&
+      hubForcing.huskShear2 &&
+      hubOriented.ok &&
+      carrierError < 1e-12
 
     log('S0')
 
@@ -119,26 +178,42 @@ export default experiment({
     const kinds = classKinds()
     const shifts: number[][] = []
 
-    for (let x = 0; x < box.cells; x++) if (kinds[classOf(x, 4, [0, 0, 0, 0])] !== 'root') shifts.push([...(box.coords[x] as number[])])
+    for (let x = 0; x < box.cells; x++) {
+      if (kinds[classOf(x, 4, [0, 0, 0, 0])] !== 'root') {
+        shifts.push([...(box.coords[x] as number[])])
+      }
+    }
 
-    const lifts = census.minimal.map(G => ({ order: G.members.length, ...orientingLiftPairs(coins, box, unionHeld, G, shifts) }))
+    const lifts = census.minimal.map(G => ({
+      order: G.members.length,
+      ...orientingLiftPairs(coins, box, unionHeld, G, shifts),
+    }))
 
     log('lifts')
 
     const twoT = binaryTetrahedralIndices(table)
     const n4 = NORM4_KEYS()
     const patterns = [
-      ...n4.map((c, i) => ({ name: `two lines (hub and norm-4 class ${i})`, start: [0, c] })),
-      ...n4.map((c, i) => ({ name: `three lines (hub and the norm-4 classes but ${i})`, start: [0, ...n4.filter(d => d !== c)] })),
+      ...n4.map((c, i) => ({
+        name: `two lines (hub and norm-4 class ${i})`,
+        start: [0, c],
+      })),
+      ...n4.map((c, i) => ({
+        name: `three lines (hub and the norm-4 classes but ${i})`,
+        start: [0, ...n4.filter(d => d !== c)],
+      })),
     ].map(p => {
       const held = coveringPattern(coins, box, twoT, p.start)
       const inside = insideSubgroups(coins, box, held, shifts, 600)
+
       let scalars = 0
       let shear = 0
       let largestScalar = 0
 
       for (const H of inside.subgroups) {
-        if (H.members.length < 12) continue
+        if (H.members.length < 12) {
+          continue
+        }
 
         const f = huskForcing(coins, H.members)
 
@@ -150,14 +225,26 @@ export default experiment({
         shear += f.husk2 && f.husk4 && f.huskShear2 ? 1 : 0
       }
 
-      return { name: p.name, O: inside.O.length, subgroups: inside.subgroups.length, complete: inside.complete, scalars, largestScalar, shear }
+      return {
+        name: p.name,
+        O: inside.O.length,
+        subgroups: inside.subgroups.length,
+        complete: inside.complete,
+        scalars,
+        largestScalar,
+        shear,
+      }
     })
 
     log('patterns')
 
     const s1 =
       census.minimal.length === 1 &&
-      census.forcingTwo.every(G => (census.minimal[0] as { members: number[] }).members.every(m => G.members.includes(m))) &&
+      census.forcingTwo.every(G =>
+        (census.minimal[0] as { members: number[] }).members.every(m =>
+          G.members.includes(m),
+        ),
+      ) &&
       census.threeWithoutTwo === 0 &&
       lifts.every(l => l.orienting === 0) &&
       patterns.every(p => p.complete && p.shear === 0)
@@ -166,20 +253,53 @@ export default experiment({
     const o = orientedUnion(coins)
     const unionForcing = huskForcing(coins, o.group)
     const mesh = makeColorWeave({ side: 4, table: 'bind' }).mesh
-    const docks = multiLineDockMatrices('lone', orientedUnionStore(coins, 4, [0, 0, 0, 0]), 256, coins)
+    const docks = multiLineDockMatrices(
+      'lone',
+      orientedUnionStore(coins, 4, [0, 0, 0, 0]),
+      256,
+      coins,
+    )
     const medium = periodicMedium(mesh, docks.even, docks.odd)
     const ops = cellOps(medium)
-    const { vectors: left, consistent } = leftInvariants(medium, namedDockInvariants())
+    const { vectors: left, consistent } = leftInvariants(
+      medium,
+      namedDockInvariants(),
+    )
     const residual = leftResidual(ops, left)
     const right = rightInvariants(ops, left)
 
     log('medium')
 
-    const reading: SymmetricReading = readSymmetricTransport({ medium, left, right: right.vectors, directions: huskDirections(3), rungs: RUNGS, log: what => log(what) })
+    const reading: SymmetricReading = readSymmetricTransport({
+      medium,
+      left,
+      right: right.vectors,
+      directions: huskDirections(3),
+      rungs: RUNGS,
+      log: what => log(what),
+    })
     const e = reading.exponent
-    const t = residual < 1e-9 && consistent && (e.charge ?? 0) >= 3.5 && (e.trace ?? 0) >= 3.5 && (e.sound ?? 0) >= 3.5 && Math.abs((e.shear ?? 0) - 2) <= 0.5 && reading.sectorsClean
+    const t =
+      residual < 1e-9 &&
+      consistent &&
+      (e.charge ?? 0) >= 3.5 &&
+      (e.trace ?? 0) >= 3.5 &&
+      (e.sound ?? 0) >= 3.5 &&
+      Math.abs((e.shear ?? 0) - 2) <= 0.5 &&
+      reading.sectorsClean
     const status = s0 && s1 ? (t ? 'pass' : 'fail') : 'partial'
-    const fmt = (r: SymmetricReading): string => ['charge', 'trace', 'sound', 'shear', 'depth', 'slowTrace', 'mixedShear'].map(q => `${q} ${(r.exponent[q] ?? Number.NaN).toFixed(2)}`).join(', ')
+    const fmt = (r: SymmetricReading): string =>
+      [
+        'charge',
+        'trace',
+        'sound',
+        'shear',
+        'depth',
+        'slowTrace',
+        'mixedShear',
+      ]
+        .map(q => `${q} ${(r.exponent[q] ?? Number.NaN).toFixed(2)}`)
+        .join(', ')
 
     return verdict({
       status,
@@ -203,17 +323,33 @@ export default experiment({
         liftPairsTried: lifts.reduce((s, l) => s + l.tried, 0),
         liftPairsOrienting: lifts.reduce((s, l) => s + l.orienting, 0),
         unionGroup: o.group.length,
-        unionForcesScalars: unionForcing.husk2 && unionForcing.husk4 ? 1 : 0,
+        unionForcesScalars:
+          unionForcing.husk2 && unionForcing.husk4 ? 1 : 0,
         unionForcesShear: unionForcing.huskShear2 ? 1 : 0,
         rowOrbits: docks.orbits,
         distinctRows: docks.distinct,
         leftResidual: residual,
-        ...Object.fromEntries(Object.entries(e).map(([q, v]) => [`${q}_exponent`, v])),
-        ...Object.fromEntries(Object.entries(reading.means).map(([q, v]) => [`${q}_mean`, v])),
+        ...Object.fromEntries(
+          Object.entries(e).map(([q, v]) => [`${q}_exponent`, v]),
+        ),
+        ...Object.fromEntries(
+          Object.entries(reading.means).map(([q, v]) => [
+            `${q}_mean`,
+            v,
+          ]),
+        ),
         couplingPS: reading.couplingPS,
         seconds: (Date.now() - started) / 1000,
       },
-      control: Object.fromEntries(patterns.flatMap((p, i) => [[`pattern${i}_O`, p.O], [`pattern${i}_subgroups`, p.subgroups], [`pattern${i}_scalarForcing`, p.scalars], [`pattern${i}_largestScalar`, p.largestScalar], [`pattern${i}_shearForcing`, p.shear]])),
+      control: Object.fromEntries(
+        patterns.flatMap((p, i) => [
+          [`pattern${i}_O`, p.O],
+          [`pattern${i}_subgroups`, p.subgroups],
+          [`pattern${i}_scalarForcing`, p.scalars],
+          [`pattern${i}_largestScalar`, p.largestScalar],
+          [`pattern${i}_shearForcing`, p.shear],
+        ]),
+      ),
       notes: `L2. Gates: S0 ${s0} (hub forcing ${JSON.stringify(hubForcing)}, hub orientation conflicts ${hubOriented.conflicts}, carrier error ${carrierError.toExponential(2)}), S1 ${s1}, T ${t}. Census: ${census.classes} classes, ${census.twoGenerated} two-generated subgroups, ${census.forcingTwo.length} force (orders ${census.forcingTwo.map(G => G.members.length).join(', ')}), minimal ${census.minimal.map(G => G.members.length).join(', ')}, ${census.conjugates} conjugates in all; three-generated ${census.threeClosures} closures, ${census.threeDistinct} distinct, ${census.threeForcing} forcing, ${census.threeWithoutTwo} without a forcing two-generated subgroup. Union lifts: ${lifts.map(l => `order ${l.order}: ${l.orienting} of ${l.tried}`).join('; ')}. Covering patterns: ${patterns.map(p => `${p.name}: O ${p.O}, ${p.subgroups} subgroups inside, ${p.scalars} force the scalars (largest ${p.largestScalar}), ${p.shear} the shear`).join('; ')}. Oriented union: ${o.group.length} kept, forcing ${JSON.stringify(unionForcing)}; ${docks.distinct} distinct rows in ${docks.orbits} orbits; left residual ${residual.toExponential(2)}, consistent ${consistent}; reading ${fmt(reading)}, anisotropy ${JSON.stringify(reading.anisotropy)}, means ${JSON.stringify(reading.means)}, coupling PS ${reading.couplingPS.toExponential(3)} SP ${reading.couplingSP.toExponential(3)}, sectors clean ${reading.sectorsClean}, iterations ${reading.iterations}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },

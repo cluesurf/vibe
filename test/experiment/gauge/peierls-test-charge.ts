@@ -71,14 +71,44 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { addCurrent, huskGeometry, makeHuskEngine } from '@/code/rule/trit-husk'
-import { copyShaped, emptyShaped, makeShapedScratch, shapedArrays, shapedBeat, shapedBeatBack } from '@/code/rule/trit-husk-shaped'
-import { huskGaussFailures, relaxStart } from '@/code/measure/trit-kinetic-light'
-import { fieldNumerators, makeFieldScratch, makeMatter } from '@/code/rule/trit-kinetic'
+import {
+  addCurrent,
+  huskGeometry,
+  makeHuskEngine,
+} from '@/code/rule/trit-husk'
+import {
+  copyShaped,
+  emptyShaped,
+  makeShapedScratch,
+  shapedArrays,
+  shapedBeat,
+  shapedBeatBack,
+} from '@/code/rule/trit-husk-shaped'
+import {
+  huskGaussFailures,
+  relaxStart,
+} from '@/code/measure/trit-kinetic-light'
+import {
+  fieldNumerators,
+  makeFieldScratch,
+  makeMatter,
+} from '@/code/rule/trit-kinetic'
 import { dockAt } from '@/code/measure/trit-hop-light'
 import { TRIT_HUSK_VECTORS } from '@/code/rule/trit-column'
-import { copyWalk, gaugeWalk, makeWalk, sameWalk, walkBeat, type PeierlsWalk } from '@/code/rule/husk-peierls-walk'
-import { exactWalkRun, floatWalkRun, packetAt, type PeierlsSetting } from '@/code/measure/peierls-reading'
+import {
+  copyWalk,
+  gaugeWalk,
+  makeWalk,
+  sameWalk,
+  walkBeat,
+  type PeierlsWalk,
+} from '@/code/rule/husk-peierls-walk'
+import {
+  exactWalkRun,
+  floatWalkRun,
+  packetAt,
+  type PeierlsSetting,
+} from '@/code/measure/peierls-reading'
 
 const SIDE = 24
 const DEPTH = 32
@@ -104,21 +134,28 @@ type LightRecord = {
   seconds: number
 }
 
-const eta = (a: number, b: number, c: number): number => mod(3 * a + 5 * b + 7 * c + a * b, 64)
+const eta = (a: number, b: number, c: number): number =>
+  mod(3 * a + 5 * b + 7 * c + a * b, 64)
 
 function runLight(): LightRecord {
   const started = Date.now()
   const g = huskGeometry(SIDE)
   const e = makeHuskEngine(g, DEPTH)
   const s = emptyShaped(g, LEVELS)
+
   const strung = (dir: number, units: number): void => {
     const at = [0, 0, 0]
 
     for (let axis = 0; axis < 3; axis++) {
       for (let i = 0; i < SIDE / 2; i++) {
-        const tail = dir > 0 ? [...at] : at.map((v, k) => (k === axis ? v - 1 : v))
+        const tail =
+          dir > 0 ? [...at] : at.map((v, k) => (k === axis ? v - 1 : v))
 
-        addCurrent(s, dockAt(SIDE, tail[0]!, tail[1]!, tail[2]!) * 9 + axis, -dir * units)
+        addCurrent(
+          s,
+          dockAt(SIDE, tail[0]!, tail[1]!, tail[2]!) * 9 + axis,
+          -dir * units,
+        )
         at[axis] = mod(at[axis]! + dir, SIDE)
       }
     }
@@ -131,12 +168,23 @@ function runLight(): LightRecord {
   const m = makeMatter({
     mass: 1,
     charges: [
-      ...Array.from({ length: SOURCE }, () => ({ charge: 1, moving: false, dock: [0, 0, 0] })),
-      ...Array.from({ length: SOURCE }, () => ({ charge: -1, moving: false, dock: [far, far, far] })),
+      ...Array.from({ length: SOURCE }, () => ({
+        charge: 1,
+        moving: false,
+        dock: [0, 0, 0],
+      })),
+      ...Array.from({ length: SOURCE }, () => ({
+        charge: -1,
+        moving: false,
+        dock: [far, far, far],
+      })),
     ],
   })
   const { field } = relaxStart(e, s, m)
-  const lineLinks = Array.from({ length: SIDE }, (_, x) => dockAt(SIDE, x, 0, 0) * 9)
+  const lineLinks = Array.from(
+    { length: SIDE },
+    (_, x) => dockAt(SIDE, x, 0, 0) * 9,
+  )
   const staticLine = Float64Array.from(lineLinks, l => field[l]!)
 
   // the gauge map on every link
@@ -149,7 +197,12 @@ function runLight(): LightRecord {
 
     for (let h = 0; h < 9; h++) {
       const u = TRIT_HUSK_VECTORS[h]!
-      const d = eta(mod(a + u[0]!, SIDE), mod(b + u[1]!, SIDE), mod(c + u[2]!, SIDE)) - eta(a, b, c)
+      const d =
+        eta(
+          mod(a + u[0]!, SIDE),
+          mod(b + u[1]!, SIDE),
+          mod(c + u[2]!, SIDE),
+        ) - eta(a, b, c)
 
       gauge[y * 9 + h] = h < 3 ? 2 * d : d
     }
@@ -160,10 +213,13 @@ function runLight(): LightRecord {
 
     return mod(v + n / 2, n) - n / 2
   }
+
   const start = copyShaped(s)
   const gs = copyShaped(s)
 
-  for (let l = 0; l < g.huskLinks; l++) gs.angle[l] = wrap(gs.angle[l]! + gauge[l]!, l % 9)
+  for (let l = 0; l < g.huskLinks; l++) {
+    gs.angle[l] = wrap(gs.angle[l]! + gauge[l]!, l % 9)
+  }
 
   const scratch = makeShapedScratch(g, LEVELS)
   const scratch2 = makeShapedScratch(g, LEVELS)
@@ -173,6 +229,7 @@ function runLight(): LightRecord {
   const line: Int32Array[] = []
   const shadow: Float64Array[] = []
   const gaugedLine: Int32Array[] = []
+
   let gaussFailures = huskGaussFailures(e, s, m, true, flux)
   let gaugeLinkOff = 0
   let gaugeOtherOff = 0
@@ -183,10 +240,19 @@ function runLight(): LightRecord {
     gaussFailures += huskGaussFailures(e, s, m, true, flux)
     fieldNumerators(e, s, OPTIONS, f)
     line.push(Int32Array.from(lineLinks, l => s.angle[l]!))
-    shadow.push(Float64Array.from(lineLinks, l => s.angle[l]! + f.aShift[l]! / scale))
+    shadow.push(
+      Float64Array.from(
+        lineLinks,
+        l => s.angle[l]! + f.aShift[l]! / scale,
+      ),
+    )
     gaugedLine.push(Int32Array.from(lineLinks, l => gs.angle[l]!))
 
-    for (let l = 0; l < g.huskLinks; l++) if (gs.angle[l] !== wrap(s.angle[l]! + gauge[l]!, l % 9)) gaugeLinkOff++
+    for (let l = 0; l < g.huskLinks; l++) {
+      if (gs.angle[l] !== wrap(s.angle[l]! + gauge[l]!, l % 9)) {
+        gaugeLinkOff++
+      }
+    }
 
     const a = shapedArrays(s)
     const b = shapedArrays(gs)
@@ -195,23 +261,54 @@ function runLight(): LightRecord {
       const x = a[k]!
       const y = b[k]!
 
-      for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) gaugeOtherOff++
+      for (let i = 0; i < x.length; i++) {
+        if (x[i] !== y[i]) {
+          gaugeOtherOff++
+        }
+      }
     }
   }
 
-  for (let t = 0; t < BEATS; t++) shapedBeatBack(e, s, scratch, OPTIONS)
+  for (let t = 0; t < BEATS; t++) {
+    shapedBeatBack(e, s, scratch, OPTIONS)
+  }
 
   const a = shapedArrays(s)
   const b = shapedArrays(start)
   const reversed = a.every((x, k) => x.every((v, i) => v === b[k]![i]))
 
-  return { line, shadow, gaugedLine, staticLine, gaussFailures, reversed, gaugeLinkOff, gaugeOtherOff, seconds: (Date.now() - started) / 1000 }
+  return {
+    line,
+    shadow,
+    gaugedLine,
+    staticLine,
+    gaussFailures,
+    reversed,
+    gaugeLinkOff,
+    gaugeOtherOff,
+    seconds: (Date.now() - started) / 1000,
+  }
 }
 
-const SETTING: PeierlsSetting = { side: SIDE, depth: DEPTH, order: ORDER, pack: PACK }
+const SETTING: PeierlsSetting = {
+  side: SIDE,
+  depth: DEPTH,
+  order: ORDER,
+  pack: PACK,
+}
 const startOf = (r: number): number[] => packetAt(SETTING, r)
-const exactRun = (r: number, q: number, angles: Int32Array[], back = false): { move: number; normOk: boolean; backOk: boolean } => exactWalkRun(SETTING, r, q, angles, back)
-const floatRun = (r: number, q: number, angle: (t: number, x: number) => number): number => floatWalkRun(SETTING, r, q, BEATS, angle)
+const exactRun = (
+  r: number,
+  q: number,
+  angles: Int32Array[],
+  back = false,
+): { move: number; normOk: boolean; backOk: boolean } =>
+  exactWalkRun(SETTING, r, q, angles, back)
+const floatRun = (
+  r: number,
+  q: number,
+  angle: (t: number, x: number) => number,
+): number => floatWalkRun(SETTING, r, q, BEATS, angle)
 
 export default experiment({
   id: 'gauge/peierls-test-charge',
@@ -226,6 +323,7 @@ export default experiment({
     const started = Date.now()
     const light = runLight()
     const moves = new Map<string, number>()
+
     let normOk = true
     let backOk = true
 
@@ -242,10 +340,16 @@ export default experiment({
 
     // gauge: the walkers reading the gauged angles end at zeta_128^(-2 q eta) psi
     let gaugeWalkOk = true
+
     const c = Array.from({ length: SIDE }, (_, x) => 2 * eta(x, 0, 0))
 
     for (const q of [1, -1]) {
-      const a: PeierlsWalk = makeWalk({ order: ORDER, depth: DEPTH, sites: SIDE, start: startOf(6) })
+      const a: PeierlsWalk = makeWalk({
+        order: ORDER,
+        depth: DEPTH,
+        sites: SIDE,
+        start: startOf(6),
+      })
       const b: PeierlsWalk = copyWalk(a)
 
       gaugeWalk(b, c, q)
@@ -259,32 +363,58 @@ export default experiment({
       gaugeWalkOk &&= sameWalk(b, a)
     }
 
-    const g1 = light.gaussFailures === 0 && light.reversed && normOk && backOk
-    const g2 = light.gaugeLinkOff === 0 && light.gaugeOtherOff === 0 && gaugeWalkOk
-    const move = (q: number, r: number): number => moves.get(`${q},${r}`)!
-    const electric = (r: number): number => (move(1, r) - move(-1, r)) / 2
-    const blind = (r: number): number => (move(1, r) + move(-1, r)) / 2 - move(0, r)
+    const g1 =
+      light.gaussFailures === 0 && light.reversed && normOk && backOk
+    const g2 =
+      light.gaugeLinkOff === 0 &&
+      light.gaugeOtherOff === 0 &&
+      gaugeWalkOk
+    const move = (q: number, r: number): number =>
+      moves.get(`${q},${r}`)!
+    const electric = (r: number): number =>
+      (move(1, r) - move(-1, r)) / 2
+    const blind = (r: number): number =>
+      (move(1, r) + move(-1, r)) / 2 - move(0, r)
     const staticRef = new Map<number, number>()
     const shadowRef = new Map<number, number>()
 
     for (const r of RS) {
-      const st = (q: number): number => floatRun(r, q, (t, x) => (t + 1) * light.staticLine[x]!)
-      const sh = (q: number): number => floatRun(r, q, (t, x) => light.shadow[t]![x]!)
+      const st = (q: number): number =>
+        floatRun(r, q, (t, x) => (t + 1) * light.staticLine[x]!)
+      const sh = (q: number): number =>
+        floatRun(r, q, (t, x) => light.shadow[t]![x]!)
 
       staticRef.set(r, (st(1) - st(-1)) / 2)
       shadowRef.set(r, (sh(1) - sh(-1)) / 2)
     }
 
     const ratio = (r: number): number => electric(r) / staticRef.get(r)!
-    const g3 = RS.every(r => move(1, r) - move(0, r) > 0 && move(-1, r) - move(0, r) < 0 && ratio(r) >= 0.8 && ratio(r) <= 1.25)
+    const g3 = RS.every(
+      r =>
+        move(1, r) - move(0, r) > 0 &&
+        move(-1, r) - move(0, r) < 0 &&
+        ratio(r) >= 0.8 &&
+        ratio(r) <= 1.25,
+    )
     const status = !(g1 && g2) ? 'partial' : g3 ? 'pass' : 'fail'
     const mass = 1 / (2 * ((2 * Math.PI) / ORDER))
-    const newton = (r: number): number => ((2 * Math.PI) / (4 * DEPTH)) * light.staticLine[r]! * BEATS ** 2 / (2 * mass)
+    const newton = (r: number): number =>
+      (((2 * Math.PI) / (4 * DEPTH)) *
+        light.staticLine[r]! *
+        BEATS ** 2) /
+      (2 * mass)
+
     let lag = 0
 
-    light.line.forEach((row, t) => row.forEach((v, x) => (lag = Math.max(lag, Math.abs(v - light.shadow[t]![x]!)))))
+    light.line.forEach((row, t) =>
+      row.forEach(
+        (v, x) =>
+          (lag = Math.max(lag, Math.abs(v - light.shadow[t]![x]!))),
+      ),
+    )
 
-    const list = (f: (r: number) => number, d = 3): string => RS.map(r => f(r).toExponential(d)).join(', ')
+    const list = (f: (r: number) => number, d = 3): string =>
+      RS.map(r => f(r).toExponential(d)).join(', ')
     const metrics: Record<string, number> = {
       gate_P1: g1 ? 1 : 0,
       gate_P2: g2 ? 1 : 0,
@@ -320,7 +450,9 @@ export default experiment({
       status,
       claim: `a test vibe hopping on the husk line with the Peierls phase zeta_128^(-q A) of the shaped light's integer angle (D 32, side 24, 512 beats, a +4 source at r = 4 .. 8): electric move ${list(electric)} docks against the static-field reference ${list(r => staticRef.get(r)!)} (ratio ${RS.map(r => ratio(r).toFixed(3)).join(', ')}) and the shadow reference ${list(r => shadowRef.get(r)!)}; exact: Gauss ${light.gaussFailures} failures, light and walks reversed ${light.reversed && backOk}, norms ${normOk}, gauge ${g2}`,
       metrics,
-      control: { neutralMoves: RS.reduce((a, r) => a + Math.abs(move(0, r)), 0) },
+      control: {
+        neutralMoves: RS.reduce((a, r) => a + Math.abs(move(0, r)), 0),
+      },
       notes: `L2 (P3), L1 (P1, P2). Gates P1 ${g1}, P2 ${g2}, P3 ${g3}. Per r = 4 .. 8: love move ${list(r => move(1, r) - move(0, r))}; fear move ${list(r => move(-1, r) - move(0, r))}; charge-blind ${list(blind)}; Newton q (2 pi / 128) E_static T^2 / (2 m) ${list(newton)}; r^2 times electric ${RS.map(r => (r * r * electric(r)).toFixed(3)).join(', ')}; E_static ${list(r => light.staticLine[r]!)}; integer angle at beat 512 ${RS.map(r => light.line[BEATS - 1]![r]).join(', ')} against the shadow ${RS.map(r => light.shadow[BEATS - 1]![r]!.toFixed(3)).join(', ')}; largest integer lag behind the shadow on the line ${lag.toFixed(3)}. Light ${light.seconds.toFixed(0)} s, total ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },

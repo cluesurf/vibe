@@ -17,10 +17,12 @@ import { join, relative } from 'node:path'
 const root = process.cwd()
 
 // a typed literal that could stand in for a measurement
-const TYPED = /^\s*const ([A-Za-z0-9_]+)\s*=\s*(true|false|-1|\+1|1|0)\s*(\/\/.*)?$/
+const TYPED =
+  /^\s*const ([A-Za-z0-9_]+)\s*=\s*(true|false|-1|\+1|1|0)\s*(\/\/.*)?$/
 
 // names that are plainly loop or index choices, never a claim
-const HARMLESS = /^(dir|direction|axis|index|i|j|k|n|seed|slot|start|offset|step|count|depth|zero|one)$/
+const HARMLESS =
+  /^(dir|direction|axis|index|i|j|k|n|seed|slot|start|offset|step|count|depth|zero|one)$/
 
 function walk(dir: string, found: string[] = []): string[] {
   for (const name of readdirSync(dir)) {

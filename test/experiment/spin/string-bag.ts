@@ -110,12 +110,48 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { lineBasis, lineLevels, wholeBasis, type LineLevel, type LineSector } from '@/code/measure/coined-line-bloch'
-import { cutDensity, fluxBeat, fluxDensity, fluxStart, pointBeatWith, type CutState, type PieceOptions } from '@/code/measure/bound-line'
-import { runWindow, windowContext } from '@/code/measure/permutation-meeting'
-import { bandCurvature, bandSlope, blochEntries, boostedRun, cutStart as cutOf, exactStart, followLevel, overlap, pointOrbit, type BandPoint, type BoostedRun, type Entry } from '@/code/measure/moving-level'
-import { heaviestEntries, sameBoundState } from '@/code/measure/fine-coin'
-import { boundBeat, type BoundOptions } from '@/code/rule/bound-line-pieces'
+import {
+  lineBasis,
+  lineLevels,
+  wholeBasis,
+  type LineLevel,
+  type LineSector,
+} from '@/code/measure/coined-line-bloch'
+import {
+  cutDensity,
+  fluxBeat,
+  fluxDensity,
+  fluxStart,
+  pointBeatWith,
+  type CutState,
+  type PieceOptions,
+} from '@/code/measure/bound-line'
+import {
+  runWindow,
+  windowContext,
+} from '@/code/measure/permutation-meeting'
+import {
+  bandCurvature,
+  bandSlope,
+  blochEntries,
+  boostedRun,
+  cutStart as cutOf,
+  exactStart,
+  followLevel,
+  overlap,
+  pointOrbit,
+  type BandPoint,
+  type BoostedRun,
+  type Entry,
+} from '@/code/measure/moving-level'
+import {
+  heaviestEntries,
+  sameBoundState,
+} from '@/code/measure/fine-coin'
+import {
+  boundBeat,
+  type BoundOptions,
+} from '@/code/rule/bound-line-pieces'
 import { type Bag } from '@/code/rule/fine-coin'
 
 const NS: readonly number[] = [1, 2, 4, 8]
@@ -131,7 +167,9 @@ const SLOPE_D = 1e-3
 const TAIL = 1e-3
 const HOLD = 0.99
 const HOLD_KS: readonly number[] = [0, (2 * Math.PI) / 32]
-const BAND_KS: readonly number[] = [0, 1, 2, 4, 6, 8].map(s => (2 * Math.PI * s) / 32)
+const BAND_KS: readonly number[] = [0, 1, 2, 4, 6, 8].map(
+  s => (2 * Math.PI * s) / 32,
+)
 const EXACT = 1e-12
 const SAME = 1e-9
 const EXERCISED = 1e-3
@@ -154,7 +192,12 @@ const PIECE = 8
 const LONE_REGISTER = { beats: 64 }
 const LONE_WINDOW = { side: 8 }
 
-type Level = { basis: ReturnType<typeof lineBasis>; inside: LineLevel[]; candidate: LineLevel; least: LineLevel }
+type Level = {
+  basis: ReturnType<typeof lineBasis>
+  inside: LineLevel[]
+  candidate: LineLevel
+  least: LineLevel
+}
 
 export default experiment({
   id: 'spin/string-bag',
@@ -167,28 +210,56 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const f4 = (x: number): string => x.toFixed(4)
     const f6 = (x: number): string => x.toFixed(6)
     const e2 = (x: number): string => x.toExponential(2)
     const rest = (n: number): number => Math.PI / (3 * n)
 
-    const standIn = (n: number, bag: Bag | undefined, fullDock: boolean, unit: number): Level => {
-      const sector: LineSector = { flavors: [0, 0, 0], statistics: 'fermion', D: 3, box: BOX, unit, fine: n, ...(fullDock ? { fullDock } : {}), ...(bag === undefined ? {} : { bag }) }
+    const standIn = (
+      n: number,
+      bag: Bag | undefined,
+      fullDock: boolean,
+      unit: number,
+    ): Level => {
+      const sector: LineSector = {
+        flavors: [0, 0, 0],
+        statistics: 'fermion',
+        D: 3,
+        box: BOX,
+        unit,
+        fine: n,
+        ...(fullDock ? { fullDock } : {}),
+        ...(bag === undefined ? {} : { bag }),
+      }
       const basis = lineBasis(sector)
       const levels = lineLevels(basis, wholeBasis(basis)).levels
       const inside = levels.filter(l => l.tailN <= TAIL)
       const least = levels.reduce((a, b) => (b.tailN < a.tailN ? b : a))
-      const candidate = inside.length > 0 ? inside.reduce((a, b) => (b.energy < a.energy ? b : a)) : least
+      const candidate =
+        inside.length > 0
+          ? inside.reduce((a, b) => (b.energy < a.energy ? b : a))
+          : least
 
       return { basis, inside, candidate, least }
     }
 
     const ctx = windowContext(SIDE)
 
-    if (pointOrbit(ctx.gauge).length * ctx.L !== 32) throw new Error('string-bag: the cover is not 32, the momenta were fixed for 32')
+    if (pointOrbit(ctx.gauge).length * ctx.L !== 32) {
+      throw new Error(
+        'string-bag: the cover is not 32, the momenta were fixed for 32',
+      )
+    }
 
-    const runOn = (options: PieceOptions, s0: CutState, K: number): BoostedRun =>
+    const runOn = (
+      options: PieceOptions,
+      s0: CutState,
+      K: number,
+    ): BoostedRun =>
       boostedRun(
         s => pointBeatWith(options, ctx.f.tables, ctx.ring, s),
         s0,
@@ -198,16 +269,50 @@ export default experiment({
       )
 
     // B1 at one n for one reading and unit: the candidate, its band, the ring run at K = 0
-    const trioAt = (n: number, bag: Bag, unit: number, full: boolean) => {
+    const trioAt = (
+      n: number,
+      bag: Bag,
+      unit: number,
+      full: boolean,
+    ) => {
       const s = standIn(n, bag, false, unit)
       const sub = wholeBasis(s.basis)
 
-      if (s.inside.length === 0) return { n, s, band: [] as BandPoint[], rest0: undefined as BoostedRun | undefined, held: false }
+      if (s.inside.length === 0) {
+        return {
+          n,
+          s,
+          band: [] as BandPoint[],
+          rest0: undefined as BoostedRun | undefined,
+          held: false,
+        }
+      }
 
-      const band = followLevel(s.basis, sub, s.candidate, full ? BAND_KS : HOLD_KS, STEP)
-      const options: PieceOptions = { cost: true, sign: true, unit: unit === 3 ? 3 : 0, flat: false, fine: n, bag }
-      const rest0 = runOn(options, cutOf(blochEntries(ctx.gauge, s.basis, (band[0] as BandPoint).vector, 0, P).entries, P), 0)
-      const held = (band[1] as BandPoint).overlap >= HOLD && rest0.least >= HOLD
+      const band = followLevel(
+        s.basis,
+        sub,
+        s.candidate,
+        full ? BAND_KS : HOLD_KS,
+        STEP,
+      )
+      const options: PieceOptions = {
+        cost: true,
+        sign: true,
+        unit: unit === 3 ? 3 : 0,
+        flat: false,
+        fine: n,
+        bag,
+      }
+      const rest0 = runOn(
+        options,
+        cutOf(
+          blochEntries(ctx.gauge, s.basis, band[0]!.vector, 0, P)
+            .entries,
+          P,
+        ),
+        0,
+      )
+      const held = band[1]!.overlap >= HOLD && rest0.least >= HOLD
 
       return { n, s, band, rest0, held }
     }
@@ -217,29 +322,79 @@ export default experiment({
 
       log(`${bag} n ${n}`)
 
-      if (!t.held) return { ...t, mass: Number.NaN, eRest: Number.NaN, eHeavy: Number.NaN, ratio: Number.NaN, slopes: [] as number[], runs: [] as BoostedRun[], top: Number.NaN, topBand: Number.NaN }
+      if (!t.held) {
+        return {
+          ...t,
+          mass: Number.NaN,
+          eRest: Number.NaN,
+          eHeavy: Number.NaN,
+          ratio: Number.NaN,
+          slopes: [] as number[],
+          runs: [] as BoostedRun[],
+          top: Number.NaN,
+          topBand: Number.NaN,
+        }
+      }
 
       const sub = wholeBasis(t.s.basis)
-      const mass = 1 / bandCurvature(t.s.basis, sub, t.band[0] as BandPoint, CURVE_D)
-      const e0 = (t.rest0 as BoostedRun).energy
+      const mass =
+        1 / bandCurvature(t.s.basis, sub, t.band[0]!, CURVE_D)
+      const e0 = t.rest0!.energy
       const eRest = 3 * rest(n) + e0
-      const slopes = t.band.map(b => bandSlope(t.s.basis, sub, b, SLOPE_D))
-      const options: PieceOptions = { cost: true, sign: true, unit: 0, flat: false, fine: n, bag }
-      const runs = t.band.map((b, i) => (i === 0 ? (t.rest0 as BoostedRun) : runOn(options, cutOf(blochEntries(ctx.gauge, t.s.basis, b.vector, b.K, P).entries, P), b.K)))
+      const slopes = t.band.map(b =>
+        bandSlope(t.s.basis, sub, b, SLOPE_D),
+      )
+      const options: PieceOptions = {
+        cost: true,
+        sign: true,
+        unit: 0,
+        flat: false,
+        fine: n,
+        bag,
+      }
+      const runs = t.band.map((b, i) =>
+        i === 0
+          ? t.rest0!
+          : runOn(
+              options,
+              cutOf(
+                blochEntries(ctx.gauge, t.s.basis, b.vector, b.K, P)
+                  .entries,
+                P,
+              ),
+              b.K,
+            ),
+      )
 
       log(`${bag} n ${n} band`)
 
-      return { ...t, mass, eRest, eHeavy: Math.PI + e0, ratio: mass / eRest, slopes, runs, top: Math.max(...runs.map(r => Math.abs(r.velocity))), topBand: Math.max(...slopes.map(Math.abs)) }
+      return {
+        ...t,
+        mass,
+        eRest,
+        eHeavy: Math.PI + e0,
+        ratio: mass / eRest,
+        slopes,
+        runs,
+        top: Math.max(...runs.map(r => Math.abs(r.velocity))),
+        topBand: Math.max(...slopes.map(Math.abs)),
+      }
     }
 
     type Trio = ReturnType<typeof readTrio>
 
-    const trios = new Map<Bag, Trio[]>(READINGS.map(bag => [bag, NS.map(n => readTrio(bag, n))]))
+    const trios = new Map<Bag, Trio[]>(
+      READINGS.map(bag => [bag, NS.map(n => readTrio(bag, n))]),
+    )
     const gates = READINGS.map(bag => {
-      const ts = trios.get(bag) as Trio[]
+      const ts = trios.get(bag)!
       const b1 = ts.every(t => t.held)
-      const falls = ts.every((t, i) => i === 0 || t.ratio < (ts[i - 1] as Trio).ratio)
-      const rises = ts.every((t, i) => i === 0 || t.top > (ts[i - 1] as Trio).top)
+      const falls = ts.every(
+        (t, i) => i === 0 || t.ratio < ts[i - 1]!.ratio,
+      )
+      const rises = ts.every(
+        (t, i) => i === 0 || t.top > ts[i - 1]!.top,
+      )
 
       return { bag, b1, b2: b1 && falls, b3: b1 && rises }
     })
@@ -249,12 +404,22 @@ export default experiment({
     const mid = Math.floor(lctx.L / 2)
     const loneBeats = mid - 1
 
-    if (loneBeats < 3) throw new Error('string-bag: the lone window is too short')
+    if (loneBeats < 3) {
+      throw new Error('string-bag: the lone window is too short')
+    }
 
-    const loneAt: Entry[] = [{ ts: [{ x: mid, j: 0, p: (lctx.gauge.to[mid] as number[])[0] as number }], c: 0, a: 1n, b: 0n }]
+    const loneAt: Entry[] = [
+      {
+        ts: [{ x: mid, j: 0, p: lctx.gauge.to[mid]![0]! }],
+        c: 0,
+        a: 1n,
+        b: 0n,
+      },
+    ]
     const premise = (bag: Bag) =>
       LIGHT.map(n => {
         const L = 2 * LONE_REGISTER.beats + 4
+
         let a = fluxStart(L, [{ ts: [[0, 0]], amp: [1, 0] }], false)
         let b = a
         let registerOff = 0
@@ -266,7 +431,12 @@ export default experiment({
           const da = fluxDensity(L, a)
           const db = fluxDensity(L, b)
 
-          for (let x = 0; x < L; x++) registerOff = Math.max(registerOff, Math.abs((da[x] as number) - (db[x] as number)))
+          for (let x = 0; x < L; x++) {
+            registerOff = Math.max(
+              registerOff,
+              Math.abs(da[x]! - db[x]!),
+            )
+          }
         }
 
         let u = exactStart(lctx.vac, lctx.ring, loneAt, 0)
@@ -274,23 +444,69 @@ export default experiment({
         let exactSame = true
 
         for (let t = 0; t < loneBeats; t++) {
-          u = boundBeat({ cost: false, sign: false, fine: n, bag }, lctx.f.tables, lctx.ring, u, t)
-          v = boundBeat({ cost: false, sign: false, fine: n }, lctx.f.tables, lctx.ring, v, t)
+          u = boundBeat(
+            { cost: false, sign: false, fine: n, bag },
+            lctx.f.tables,
+            lctx.ring,
+            u,
+            t,
+          )
+
+          v = boundBeat(
+            { cost: false, sign: false, fine: n },
+            lctx.f.tables,
+            lctx.ring,
+            v,
+            t,
+          )
           exactSame &&= sameBoundState(u, v)
         }
 
-        const w = runWindow({ cost: false, sign: false, fine: n, bag }, lctx, exactStart(lctx.vac, lctx.ring, loneAt, 0), cutOf(loneAt, 0), loneBeats)
-        const windowOk = w.reversed && w.beats.every((x, t) => x.normKept && x.disturbed === 0 && x.leak === 0 && x.outsideCone === 0 && x.reach === t + 1)
+        const w = runWindow(
+          { cost: false, sign: false, fine: n, bag },
+          lctx,
+          exactStart(lctx.vac, lctx.ring, loneAt, 0),
+          cutOf(loneAt, 0),
+          loneBeats,
+        )
+        const windowOk =
+          w.reversed &&
+          w.beats.every(
+            (x, t) =>
+              x.normKept &&
+              x.disturbed === 0 &&
+              x.leak === 0 &&
+              x.outsideCone === 0 &&
+              x.reach === t + 1,
+          )
 
         log(`lone ${bag} n ${n}`)
 
-        return { n, registerOff, exactSame, windowOk, same: registerOff <= EXACT && exactSame }
+        return {
+          n,
+          registerOff,
+          exactSame,
+          windowOk,
+          same: registerOff <= EXACT && exactSame,
+        }
       })
-    const premises = new Map<Bag, ReturnType<typeof premise>>((['touch', 'inside', 'rim'] as const).map(bag => [bag, premise(bag)]))
-    const premiseHolds = (bag: Bag): boolean => (premises.get(bag) as ReturnType<typeof premise>).every(x => x.same)
-    const loneWindows = [...premises.values()].every(list => list.every(x => x.windowOk))
+    const premises = new Map<Bag, ReturnType<typeof premise>>(
+      (['touch', 'inside', 'rim'] as const).map(bag => [
+        bag,
+        premise(bag),
+      ]),
+    )
+    const premiseHolds = (bag: Bag): boolean =>
+      premises.get(bag)!.every(x => x.same)
+    const loneWindows = [...premises.values()].every(list =>
+      list.every(x => x.windowOk),
+    )
 
-    const passes = gates.map(g => ({ ...g, p: premiseHolds(g.bag), pass: premiseHolds(g.bag) && g.b1 && g.b2 && g.b3 }))
+    const passes = gates.map(g => ({
+      ...g,
+      p: premiseHolds(g.bag),
+      pass: premiseHolds(g.bag) && g.b1 && g.b2 && g.b3,
+    }))
 
     // ---- M: the rim reading in the stand-in ----
     const rim = NS.map(n => {
@@ -299,25 +515,54 @@ export default experiment({
 
       log(`rim n ${n}`)
 
-      if (s.inside.length === 0) return { n, s, inBox: false, overlap: Number.NaN, mass: Number.NaN, ratio: Number.NaN, top: Number.NaN }
+      if (s.inside.length === 0) {
+        return {
+          n,
+          s,
+          inBox: false,
+          overlap: Number.NaN,
+          mass: Number.NaN,
+          ratio: Number.NaN,
+          top: Number.NaN,
+        }
+      }
 
       const band = followLevel(s.basis, sub, s.candidate, BAND_KS, STEP)
-      const mass = 1 / bandCurvature(s.basis, sub, band[0] as BandPoint, CURVE_D)
+      const mass = 1 / bandCurvature(s.basis, sub, band[0]!, CURVE_D)
 
-      return { n, s, inBox: true, overlap: Math.min(...band.slice(1).map(b => b.overlap)), mass, ratio: mass / (3 * rest(n) + s.candidate.energy), top: Math.max(...band.map(b => Math.abs(bandSlope(s.basis, sub, b, SLOPE_D)))) }
+      return {
+        n,
+        s,
+        inBox: true,
+        overlap: Math.min(...band.slice(1).map(b => b.overlap)),
+        mass,
+        ratio: mass / (3 * rest(n) + s.candidate.energy),
+        top: Math.max(
+          ...band.map(b =>
+            Math.abs(bandSlope(s.basis, sub, b, SLOPE_D)),
+          ),
+        ),
+      }
     })
 
     // ---- control (a): n = 1 is E-SPN-0105 under both readings ----
     const wctx = windowContext(TRIO_WINDOW.side)
-    const one = (trios.get('touch') as Trio[])[0] as Trio
+    const one = trios.get('touch')![0]!
     const piece: Entry[] = ((): Entry[] => {
-      if (!one.held) return []
+      if (!one.held) {
+        return []
+      }
 
-      const b = one.band[one.band.length - 1] as BandPoint
+      const b = one.band[one.band.length - 1]!
 
-      return heaviestEntries(blochEntries(wctx.gauge, one.s.basis, b.vector, b.K, P, [wctx.L - 1]).entries, PIECE)
+      return heaviestEntries(
+        blochEntries(wctx.gauge, one.s.basis, b.vector, b.K, P, [
+          wctx.L - 1,
+        ]).entries,
+        PIECE,
+      )
     })()
-    const pointAt = (x: number): number => (wctx.gauge.to[x] as number[])[0] as number
+    const pointAt = (x: number): number => wctx.gauge.to[x]![0]!
     // one spread trio at positions 1, 2, 3 (three docks, so the middle one is inside the string), amplitude 1/8
     const spread: Entry = {
       ts: [
@@ -330,8 +575,15 @@ export default experiment({
       b: 0n,
     }
     const windowStart = piece.length === 0 ? [] : [...piece, spread]
-    const sameAs = (a: BoundOptions, b: BoundOptions, beats: number): boolean => {
-      if (windowStart.length === 0) return false
+
+    const sameAs = (
+      a: BoundOptions,
+      b: BoundOptions,
+      beats: number,
+    ): boolean => {
+      if (windowStart.length === 0) {
+        return false
+      }
 
       let x = exactStart(wctx.vac, wctx.ring, windowStart, P)
       let y = x
@@ -345,20 +597,37 @@ export default experiment({
 
       return same
     }
+
     const working: BoundOptions = { cost: true, sign: true }
     const ones = READINGS.map(bag => {
-      const t = (trios.get(bag) as Trio[])[0] as Trio
-      const bitForBit = sameAs(working, { cost: true, sign: true, fine: 1, bag }, TRIO_WINDOW.same)
+      const t = trios.get(bag)![0]!
+      const bitForBit = sameAs(
+        working,
+        { cost: true, sign: true, fine: 1, bag },
+        TRIO_WINDOW.same,
+      )
 
       log(`control a ${bag}`)
 
-      return { bag, bitForBit, ok: t.held && Math.abs(t.s.candidate.energy - RECORDED.energy) <= EXACT && Math.abs(t.mass / RECORDED.mass - 1) <= SAME && bitForBit }
+      return {
+        bag,
+        bitForBit,
+        ok:
+          t.held &&
+          Math.abs(t.s.candidate.energy - RECORDED.energy) <= EXACT &&
+          Math.abs(t.mass / RECORDED.mass - 1) <= SAME &&
+          bitForBit,
+      }
     })
     const controlOne = ones.every(x => x.ok)
 
     // the derived identity: touch is the working rule at every n
     const touchWorking = LIGHT.map(n => {
-      const same = sameAs(working, { cost: true, sign: true, fine: n, bag: 'touch' }, TRIO_WINDOW.same)
+      const same = sameAs(
+        working,
+        { cost: true, sign: true, fine: n, bag: 'touch' },
+        TRIO_WINDOW.same,
+      )
 
       log(`touch is working n ${n}`)
 
@@ -372,9 +641,21 @@ export default experiment({
 
       log(`drift cost only n ${n}`)
 
-      return { n, bareInside: a.inside.length, bareTail: a.least.tailN, fullInside: b.inside.length, fullTail: b.least.tailN }
+      return {
+        n,
+        bareInside: a.inside.length,
+        bareTail: a.least.tailN,
+        fullInside: b.inside.length,
+        fullTail: b.least.tailN,
+      }
     })
-    const controlBare = bare.every(x => x.bareInside === 0 && x.fullInside === 0 && Math.abs(x.bareTail - (RECORDED.bare.get(x.n) as number)) <= SAME && Math.abs(x.fullTail - (RECORDED.fullDock.get(x.n) as number)) <= SAME)
+    const controlBare = bare.every(
+      x =>
+        x.bareInside === 0 &&
+        x.fullInside === 0 &&
+        Math.abs(x.bareTail - RECORDED.bare.get(x.n)!) <= SAME &&
+        Math.abs(x.fullTail - RECORDED.fullDock.get(x.n)!) <= SAME,
+    )
 
     // ---- control (c): the unbound unit fails B1 ----
     const unbound = READINGS.flatMap(bag =>
@@ -383,7 +664,13 @@ export default experiment({
 
         log(`unbound ${bag} n ${n}`)
 
-        return { bag, n, held: t.held, inside: t.s.inside.length, tail: t.s.least.tailN }
+        return {
+          bag,
+          n,
+          held: t.held,
+          inside: t.s.inside.length,
+          tail: t.s.least.tailN,
+        }
       }),
     )
     const controlUnbound = unbound.every(t => !t.held)
@@ -391,32 +678,72 @@ export default experiment({
     // ---- control (d): the exact window ----
     const windows = READINGS.flatMap(bag =>
       LIGHT.map(n => {
-        if (windowStart.length === 0) return { bag, n, ok: false, exercised: 0, w: undefined }
+        if (windowStart.length === 0) {
+          return { bag, n, ok: false, exercised: 0, w: undefined }
+        }
 
-        const options: BoundOptions = { cost: true, sign: true, fine: n, bag }
-        const w = runWindow(options, wctx, exactStart(wctx.vac, wctx.ring, windowStart, P), cutOf(windowStart, P), TRIO_WINDOW.beats)
+        const options: BoundOptions = {
+          cost: true,
+          sign: true,
+          fine: n,
+          bag,
+        }
+        const w = runWindow(
+          options,
+          wctx,
+          exactStart(wctx.vac, wctx.ring, windowStart, P),
+          cutOf(windowStart, P),
+          TRIO_WINDOW.beats,
+        )
+
         let a = cutOf(windowStart, P)
         let b = a
 
         for (let t = 0; t < TRIO_WINDOW.beats; t++) {
-          a = pointBeatWith({ ...options, unit: 0, flat: false }, wctx.f.tables, wctx.ring, a)
-          b = pointBeatWith({ cost: true, sign: true, unit: 0, flat: false, fine: n }, wctx.f.tables, wctx.ring, b)
+          a = pointBeatWith(
+            { ...options, unit: 0, flat: false },
+            wctx.f.tables,
+            wctx.ring,
+            a,
+          )
+
+          b = pointBeatWith(
+            { cost: true, sign: true, unit: 0, flat: false, fine: n },
+            wctx.f.tables,
+            wctx.ring,
+            b,
+          )
         }
 
         const ab = overlap(a, b)
         const aa = overlap(a, a)[0]
         const bb = overlap(b, b)[0]
         const exercised = 1 - (ab[0] ** 2 + ab[1] ** 2) / (aa * bb)
-        const ok = w.reversed && w.beats.every(x => x.normKept && x.physicalNormOff <= EXACT && x.leak === 0 && x.disturbed === 0 && x.pointGap <= EXACT && x.energyGap <= EXACT && x.toneBroken === 0 && x.outsideCone === 0)
+        const ok =
+          w.reversed &&
+          w.beats.every(
+            x =>
+              x.normKept &&
+              x.physicalNormOff <= EXACT &&
+              x.leak === 0 &&
+              x.disturbed === 0 &&
+              x.pointGap <= EXACT &&
+              x.energyGap <= EXACT &&
+              x.toneBroken === 0 &&
+              x.outsideCone === 0,
+          )
 
         log(`window ${bag} n ${n}`)
 
         return { bag, n, ok, exercised, w }
       }),
     )
-    const controlWindow = windows.every(x => x.ok && x.exercised >= EXERCISED)
+    const controlWindow = windows.every(
+      x => x.ok && x.exercised >= EXERCISED,
+    )
 
-    const control = controlOne && controlBare && controlUnbound && controlWindow
+    const control =
+      controlOne && controlBare && controlUnbound && controlWindow
     const anyPass = passes.some(p => p.pass)
     const status = !control ? 'partial' : anyPass ? 'pass' : 'fail'
     const metrics: Record<string, number> = {
@@ -453,15 +780,24 @@ export default experiment({
         metrics[`${k}_ratioHeavyZero`] = t.mass / t.eHeavy
         metrics[`${k}_top`] = t.top
         metrics[`${k}_topBand`] = t.topBand
-        if (t.band[1] !== undefined) metrics[`${k}_overlap`] = (t.band[1] as BandPoint).overlap
-        if (t.rest0 !== undefined) metrics[`${k}_ringLeast`] = t.rest0.least
+
+        if (t.band[1] !== undefined) {
+          metrics[`${k}_overlap`] = t.band[1].overlap
+        }
+
+        if (t.rest0 !== undefined) {
+          metrics[`${k}_ringLeast`] = t.rest0.least
+        }
       }
     }
 
-    for (const [bag, list] of premises) for (const x of list) {
-      metrics[`lone_${bag}${x.n}_registerOff`] = x.registerOff
-      metrics[`lone_${bag}${x.n}_exactSame`] = x.exactSame ? 1 : 0
+    for (const [bag, list] of premises) {
+      for (const x of list) {
+        metrics[`lone_${bag}${x.n}_registerOff`] = x.registerOff
+        metrics[`lone_${bag}${x.n}_exactSame`] = x.exactSame ? 1 : 0
+      }
     }
+
     for (const r of rim) {
       metrics[`rim${r.n}_inBox`] = r.inBox ? 1 : 0
       metrics[`rim${r.n}_energy`] = r.s.candidate.energy
@@ -470,27 +806,42 @@ export default experiment({
       metrics[`rim${r.n}_ratio`] = r.ratio
       metrics[`rim${r.n}_top`] = r.top
     }
-    for (const x of touchWorking) metrics[`touchIsWorking${x.n}`] = x.same ? 1 : 0
+
+    for (const x of touchWorking) {
+      metrics[`touchIsWorking${x.n}`] = x.same ? 1 : 0
+    }
+
     for (const x of bare) {
       metrics[`bare${x.n}_leastTail`] = x.bareTail
       metrics[`fullDock${x.n}_leastTail`] = x.fullTail
     }
-    for (const t of unbound) metrics[`unbound_${t.bag}${t.n}_held`] = t.held ? 1 : 0
-    for (const x of windows) metrics[`window_${x.bag}${x.n}_exercised`] = x.exercised
+
+    for (const t of unbound) {
+      metrics[`unbound_${t.bag}${t.n}_held`] = t.held ? 1 : 0
+    }
+
+    for (const x of windows) {
+      metrics[`window_${x.bag}${x.n}_exercised`] = x.exercised
+    }
 
     const trioRow = (t: Trio): string =>
       t.s.inside.length === 0
         ? `n ${t.n} no level inside (least tail ${f4(t.s.least.tailN)}, mean string ${f4(t.s.least.mean)}, contact ${f4(t.s.least.contact)})`
         : !t.held
-          ? `n ${t.n} candidate E ${f6(t.s.candidate.energy)} not held (overlap ${f4((t.band[1] as BandPoint).overlap)}, ring least ${f4((t.rest0 as BoostedRun).least)})`
-          : `n ${t.n} E(0) ${f6(t.s.candidate.energy)}, m* ${f4(t.mass)}, E_rest ${f4(t.eRest)}, m*/E_rest ${f4(t.ratio)} (heavy zero ${f4(t.mass / t.eHeavy)}), top ${f4(t.top)} (band ${f4(t.topBand)}), ring least ${f4((t.rest0 as BoostedRun).least)}`
+          ? `n ${t.n} candidate E ${f6(t.s.candidate.energy)} not held (overlap ${f4(t.band[1]!.overlap)}, ring least ${f4(t.rest0!.least)})`
+          : `n ${t.n} E(0) ${f6(t.s.candidate.energy)}, m* ${f4(t.mass)}, E_rest ${f4(t.eRest)}, m*/E_rest ${f4(t.ratio)} (heavy zero ${f4(t.mass / t.eHeavy)}), top ${f4(t.top)} (band ${f4(t.topBand)}), ring least ${f4(t.rest0!.least)}`
 
     return verdict({
       status,
-      claim: `${READINGS.map(bag => `${bag}: ${(trios.get(bag) as Trio[]).map(trioRow).join('; ')}`).join(' | ')}; gates ${passes.map(p => `${p.bag} P ${p.p} B1 ${p.b1} B2 ${p.b2} B3 ${p.b3}`).join(', ')}; rim (measured): ${rim.map(r => (r.inBox ? `n ${r.n} E ${f6(r.s.candidate.energy)} overlap ${f4(r.overlap)} m* ${f4(r.mass)} ratio ${f4(r.ratio)} top ${f4(r.top)}` : `n ${r.n} none (least tail ${f4(r.s.least.tailN)})`)).join('; ')}, P ${premiseHolds('rim')}; touch is the working rule ${touchWorking.map(x => `n ${x.n} ${x.same}`).join(', ')}; controls: n = 1 ${controlOne}, drift cost only ${controlBare}, unbound ${controlUnbound}, window ${controlWindow}`,
+      claim: `${READINGS.map(bag => `${bag}: ${trios.get(bag)!.map(trioRow).join('; ')}`).join(' | ')}; gates ${passes.map(p => `${p.bag} P ${p.p} B1 ${p.b1} B2 ${p.b2} B3 ${p.b3}`).join(', ')}; rim (measured): ${rim.map(r => (r.inBox ? `n ${r.n} E ${f6(r.s.candidate.energy)} overlap ${f4(r.overlap)} m* ${f4(r.mass)} ratio ${f4(r.ratio)} top ${f4(r.top)}` : `n ${r.n} none (least tail ${f4(r.s.least.tailN)})`)).join('; ')}, P ${premiseHolds('rim')}; touch is the working rule ${touchWorking.map(x => `n ${x.n} ${x.same}`).join(', ')}; controls: n = 1 ${controlOne}, drift cost only ${controlBare}, unbound ${controlUnbound}, window ${controlWindow}`,
       metrics,
-      control: { one: controlOne ? 1 : 0, bare: controlBare ? 1 : 0, unbound: controlUnbound ? 1 : 0, window: controlWindow ? 1 : 0 },
-      notes: `L2. Lone love: ${[...premises].map(([bag, list]) => `${bag} ${list.map(x => `n ${x.n} register off ${e2(x.registerOff)} exact same ${x.exactSame} window ${x.windowOk}`).join(', ')}`).join('; ')}. Bands: ${[...trios].map(([bag, ts]) => `${bag} ${ts.map(t => `n ${t.n} dim ${t.s.basis.configs.length} inside ${t.s.inside.length} [${t.band.map((b, i) => `K ${f4(b.K)} E ${f6(b.energy)} ov ${f4(b.overlap)}${t.slopes[i] === undefined ? '' : ` dE/dK ${(t.slopes[i] as number).toExponential(3)}`}`).join(' ')}] ring ${t.runs.map(r => `K ${f4(r.K)} least ${f6(r.least)} v ${r.velocity.toExponential(3)}`).join(' ')}`).join('; ')}`).join(' | ')}. Drift cost only: ${bare.map(x => `n ${x.n} bare ${x.bareInside} inside tail ${x.bareTail}, full dock ${x.fullInside} inside tail ${x.fullTail}`).join('; ')}. Unbound: ${unbound.map(t => `${t.bag} n ${t.n} held ${t.held} inside ${t.inside} tail ${e2(t.tail)}`).join('; ')}. Rim: ${rim.map(r => `n ${r.n} inside ${r.s.inside.length} least tail ${e2(r.s.least.tailN)} mean ${f4(r.s.candidate.mean)} contact ${f4(r.s.candidate.contact)}`).join('; ')}. n = 1: ${ones.map(x => `${x.bag} bit for bit ${x.bitForBit} ok ${x.ok}`).join(', ')}. Windows (side ${TRIO_WINDOW.side}, ${TRIO_WINDOW.beats} beat, ${windowStart.length} placed entries): ${windows.map(x => `${x.bag} n ${x.n} ok ${x.ok} exercised ${e2(x.exercised)}${x.w === undefined ? '' : ` ${x.w.beats.map(b => `${b.branches} branches, point gap ${e2(b.pointGap)}, energy gap ${e2(b.energyGap)}`).join('; ')}, reversed ${x.w.reversed}`}`).join(' | ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+      control: {
+        one: controlOne ? 1 : 0,
+        bare: controlBare ? 1 : 0,
+        unbound: controlUnbound ? 1 : 0,
+        window: controlWindow ? 1 : 0,
+      },
+      notes: `L2. Lone love: ${[...premises].map(([bag, list]) => `${bag} ${list.map(x => `n ${x.n} register off ${e2(x.registerOff)} exact same ${x.exactSame} window ${x.windowOk}`).join(', ')}`).join('; ')}. Bands: ${[...trios].map(([bag, ts]) => `${bag} ${ts.map(t => `n ${t.n} dim ${t.s.basis.configs.length} inside ${t.s.inside.length} [${t.band.map((b, i) => `K ${f4(b.K)} E ${f6(b.energy)} ov ${f4(b.overlap)}${t.slopes[i] === undefined ? '' : ` dE/dK ${t.slopes[i].toExponential(3)}`}`).join(' ')}] ring ${t.runs.map(r => `K ${f4(r.K)} least ${f6(r.least)} v ${r.velocity.toExponential(3)}`).join(' ')}`).join('; ')}`).join(' | ')}. Drift cost only: ${bare.map(x => `n ${x.n} bare ${x.bareInside} inside tail ${x.bareTail}, full dock ${x.fullInside} inside tail ${x.fullTail}`).join('; ')}. Unbound: ${unbound.map(t => `${t.bag} n ${t.n} held ${t.held} inside ${t.inside} tail ${e2(t.tail)}`).join('; ')}. Rim: ${rim.map(r => `n ${r.n} inside ${r.s.inside.length} least tail ${e2(r.s.least.tailN)} mean ${f4(r.s.candidate.mean)} contact ${f4(r.s.candidate.contact)}`).join('; ')}. n = 1: ${ones.map(x => `${x.bag} bit for bit ${x.bitForBit} ok ${x.ok}`).join(', ')}. Windows (side ${TRIO_WINDOW.side}, ${TRIO_WINDOW.beats} beat, ${windowStart.length} placed entries): ${windows.map(x => `${x.bag} n ${x.n} ok ${x.ok} exercised ${e2(x.exercised)}${x.w === undefined ? '' : ` ${x.w.beats.map(b => `${b.branches} branches, point gap ${e2(b.pointGap)}, energy gap ${e2(b.energyGap)}`).join('; ')}, reversed ${x.w.reversed}`}`).join(' | ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },
 })

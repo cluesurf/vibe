@@ -33,17 +33,33 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { correlationShells, pairVacuumPair, PAIR_VACUUM, type PairVacuum } from '@/code/measure/pair-string'
+import {
+  correlationShells,
+  pairVacuumPair,
+  PAIR_VACUUM,
+  type PairVacuum,
+} from '@/code/measure/pair-string'
 
 const CONTACT = 2
 const SIGMAS = 3
 
-function contact(run: PairVacuum, which: 'bulk' | 'husk'): { pooled: number; error: number; shells: { r: number; g: number; sigma: number }[] } {
-  const shells = correlationShells(run.mesonPairs, which).filter(s => s.r < CONTACT - 1e-9)
+function contact(
+  run: PairVacuum,
+  which: 'bulk' | 'husk',
+): {
+  pooled: number
+  error: number
+  shells: { r: number; g: number; sigma: number }[]
+} {
+  const shells = correlationShells(run.mesonPairs, which).filter(
+    s => s.r < CONTACT - 1e-9,
+  )
   const weight = shells.reduce((a, s) => a + 1 / s.sigma ** 2, 0)
 
   return {
-    pooled: shells.reduce((a, s) => a + (s.g - 1) / s.sigma ** 2, 0) / Math.max(1e-300, weight),
+    pooled:
+      shells.reduce((a, s) => a + (s.g - 1) / s.sigma ** 2, 0) /
+      Math.max(1e-300, weight),
     error: 1 / Math.sqrt(Math.max(1e-300, weight)),
     shells,
   }
@@ -66,9 +82,17 @@ export default experiment({
     const controlBulk = contact(control, 'bulk')
     const controlHusk = contact(control, 'husk')
     const g0 =
-      paired.exact && paired.agrees && control.exact && control.agrees && paired.fewestCharges !== paired.mostCharges && control.fewestCharges === seeded && control.mostCharges === seeded
+      paired.exact &&
+      paired.agrees &&
+      control.exact &&
+      control.agrees &&
+      paired.fewestCharges !== paired.mostCharges &&
+      control.fewestCharges === seeded &&
+      control.mostCharges === seeded
     const g1 = bulk.pooled > SIGMAS * bulk.error
-    const g2 = bulk.pooled - controlBulk.pooled > SIGMAS * Math.hypot(bulk.error, controlBulk.error)
+    const g2 =
+      bulk.pooled - controlBulk.pooled >
+      SIGMAS * Math.hypot(bulk.error, controlBulk.error)
     const status = g0 && g1 && g2 ? 'pass' : 'fail'
     const metrics: Record<string, number> = {
       beta: paired.beta,
@@ -92,16 +116,24 @@ export default experiment({
       gateSetByPairs: g2 ? 1 : 0,
     }
 
-    bulk.shells.forEach(s => (metrics[`pairedContactGR${s.r.toFixed(3)}`] = s.g))
-    controlBulk.shells.forEach(s => (metrics[`controlContactGR${s.r.toFixed(3)}`] = s.g))
+    bulk.shells.forEach(
+      s => (metrics[`pairedContactGR${s.r.toFixed(3)}`] = s.g),
+    )
+
+    controlBulk.shells.forEach(
+      s => (metrics[`controlContactGR${s.r.toFixed(3)}`] = s.g),
+    )
 
     return verdict({
       status,
       claim: `two compact singlets at contact (bulk midpoint shells below R = 2) are ${(1 + bulk.pooled).toFixed(4)} +- ${bulk.error.toFixed(4)} times as frequent as mixed events with the vacuum making pairs, and ${(1 + controlBulk.pooled).toFixed(4)} +- ${controlBulk.error.toFixed(4)} without (E-FRC-0198: 1.013); the husk contact reads ${(1 + husk.pooled).toFixed(4)} and ${(1 + controlHusk.pooled).toFixed(4)}; ${paired.twoTwoPerRead.toFixed(3)} joined two-meson pieces per read with pairs, ${control.twoTwoPerRead.toFixed(3)} without`,
       metrics,
-      control: { controlCapacity: PAIR_VACUUM.controlCapacity, seededCharges: seeded },
+      control: {
+        controlCapacity: PAIR_VACUUM.controlCapacity,
+        seededCharges: seeded,
+      },
       notes:
-        'L2, stand-ins (color singlets for nucleons). Exact integers and Weyl starts, no random numbers. The contact window holds every bulk midpoint shell below R = 2 that two compact mesons sharing no dock can occupy; the reference is mixed events, which carry the box\'s geometry exactly. Zero-temperature binding is 0 with or without pairs (E-FRC-0195\'s bounds, and a pair adds 2 mass), so a contact excess is a free-energy attraction.',
+        "L2, stand-ins (color singlets for nucleons). Exact integers and Weyl starts, no random numbers. The contact window holds every bulk midpoint shell below R = 2 that two compact mesons sharing no dock can occupy; the reference is mixed events, which carry the box's geometry exactly. Zero-temperature binding is 0 with or without pairs (E-FRC-0195's bounds, and a pair adds 2 mass), so a contact excess is a free-energy attraction.",
     })
   },
 })

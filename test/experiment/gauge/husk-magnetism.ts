@@ -69,9 +69,26 @@ import {
   type PhotonRule,
   type PhotonState,
 } from '@/code/rule/photon-links'
-import { HUSK_VECTORS, makeHusk, projectAngles, projectLinks, type Husk } from '@/code/measure/photon-husk'
-import { bulkMonopoles, d4Tetrahedra, huskMonopoles, huskSquare, loopWalk, magnetostaticAngles } from '@/code/measure/photon-magnetism'
-import { FEAR_COIN, walkChances, type WalkState } from '@/code/rule/fear-walk'
+import {
+  HUSK_VECTORS,
+  makeHusk,
+  projectAngles,
+  projectLinks,
+  type Husk,
+} from '@/code/measure/photon-husk'
+import {
+  bulkMonopoles,
+  d4Tetrahedra,
+  huskMonopoles,
+  huskSquare,
+  loopWalk,
+  magnetostaticAngles,
+} from '@/code/measure/photon-magnetism'
+import {
+  FEAR_COIN,
+  walkChances,
+  type WalkState,
+} from '@/code/rule/fear-walk'
 
 const N = 8192
 const AB_N = 8190
@@ -79,13 +96,21 @@ const K = 80
 const CURRENT = 8
 const LOOP = 4
 const GOLDEN = (Math.sqrt(5) - 1) / 2
-const mean = (xs: readonly number[]): number => xs.reduce((a, b) => a + b, 0) / Math.max(1, xs.length)
+const mean = (xs: readonly number[]): number =>
+  xs.reduce((a, b) => a + b, 0) / Math.max(1, xs.length)
 const modulo = (x: number, m: number): number => ((x % m) + m) % m
 
-const rootOf = (lattice: PhotonLattice, v: number[]): number => lattice.vectors.findIndex(r => r.every((x, i) => x === v[i]))
+const rootOf = (lattice: PhotonLattice, v: number[]): number =>
+  lattice.vectors.findIndex(r => r.every((x, i) => x === v[i]))
 
 // the bulk path of `steps` husk steps along husk axis u (0 or 1), sign s, alternating depth up and down
-function huskAxisPath(lattice: PhotonLattice, u: number, s: number, steps: number, startUp: boolean): number[] {
+function huskAxisPath(
+  lattice: PhotonLattice,
+  u: number,
+  s: number,
+  steps: number,
+  startUp: boolean,
+): number[] {
   return Array.from({ length: steps }, (_, i) => {
     const v = [0, 0, 0, 0]
 
@@ -97,13 +122,26 @@ function huskAxisPath(lattice: PhotonLattice, u: number, s: number, steps: numbe
 }
 
 // the husk dock at husk coordinates
-const huskDock = (husk: Husk, x: number, y: number, z: number): number =>
-  modulo(x, husk.side) + husk.side * modulo(y, husk.side) + husk.side * husk.side * modulo(z, husk.side)
+const huskDock = (
+  husk: Husk,
+  x: number,
+  y: number,
+  z: number,
+): number =>
+  modulo(x, husk.side) +
+  husk.side * modulo(y, husk.side) +
+  husk.side * husk.side * modulo(z, husk.side)
 
 function biotSavart(): Record<string, number> & { ok: number } {
   const lattice = photonLatticeD4({ side: 12 })
   const husk = makeHusk(lattice)
-  const rule = makePhotonRule({ lattice, n: N, k: K, capacity: 0, hop: false })
+  const rule = makePhotonRule({
+    lattice,
+    n: N,
+    k: K,
+    capacity: 0,
+    hop: false,
+  })
   // the loop from bulk dock 0 (husk (0,0,0), depth 0): +x, +y, -x, -y, 4 steps each, depth 0, 1, 0, 1, 0
   const dirs = [
     ...huskAxisPath(lattice, 0, 1, LOOP, true),
@@ -118,7 +156,10 @@ function biotSavart(): Record<string, number> & { ok: number } {
     current[l] = (current[l] ?? 0) + s * CURRENT
   }
 
-  const predicted = projectLinks(husk, magnetostaticAngles(rule, current))
+  const predicted = projectLinks(
+    husk,
+    magnetostaticAngles(rule, current),
+  )
   // the 4 husk xy squares round the loop's center (2, 2) at height z: corners at (1..2, 1..2)
   const squares = (z: number): number[] => [
     huskDock(husk, 1, 1, z),
@@ -127,7 +168,9 @@ function biotSavart(): Record<string, number> & { ok: number } {
     huskDock(husk, 2, 2, z),
   ]
   const heights = [0, 1, 2, 3, 4, 5]
-  const law = heights.map(z => mean(squares(z).map(y => huskSquare(husk, predicted, y, 0, 1))))
+  const law = heights.map(z =>
+    mean(squares(z).map(y => huskSquare(husk, predicted, y, 0, 1))),
+  )
   const s = emptyPhotonState(rule)
   const sums = heights.map(() => 0)
   const settle = 600
@@ -144,28 +187,39 @@ function biotSavart(): Record<string, number> & { ok: number } {
       const angle = projectAngles(husk, s.angle, N)
 
       heights.forEach((z, i) => {
-        sums[i] = (sums[i] ?? 0) + mean(squares(z).map(y => huskSquare(husk, angle, y, 0, 1, N)))
+        sums[i] =
+          (sums[i] ?? 0) +
+          mean(squares(z).map(y => huskSquare(husk, angle, y, 0, 1, N)))
       })
     }
   }
 
   const measured = sums.map(v => v / (beats - settle))
   const ratios = measured.map((b, i) => b / (law[i] ?? 1))
+
   const continuum = (z: number): number => {
     const a = LOOP
 
     return 1 / ((z * z + (a * a) / 4) * Math.sqrt(z * z + (a * a) / 2))
   }
-  const monotone = measured.every((b, i) => i === 0 || Math.abs(b) < Math.abs(measured[i - 1] ?? 0))
-  const ok = [0, 1, 2, 3].every(i => Math.abs((ratios[i] ?? 0) - 1) < 0.1) && monotone
+
+  const monotone = measured.every(
+    (b, i) => i === 0 || Math.abs(b) < Math.abs(measured[i - 1] ?? 0),
+  )
+  const ok =
+    [0, 1, 2, 3].every(i => Math.abs((ratios[i] ?? 0) - 1) < 0.1) &&
+    monotone
   const metrics: Record<string, number> = {}
 
   heights.forEach((z, i) => {
     metrics[`biotSavartZ${z}Measured`] = measured[i] ?? 0
     metrics[`biotSavartZ${z}Law`] = law[i] ?? 0
     metrics[`biotSavartZ${z}Ratio`] = ratios[i] ?? 0
-    metrics[`biotSavartZ${z}ShapeMeasured`] = (measured[i] ?? 0) / (measured[0] ?? 1)
-    metrics[`biotSavartZ${z}ShapeContinuum`] = continuum(z) / continuum(0)
+    metrics[`biotSavartZ${z}ShapeMeasured`] =
+      (measured[i] ?? 0) / (measured[0] ?? 1)
+
+    metrics[`biotSavartZ${z}ShapeContinuum`] =
+      continuum(z) / continuum(0)
   })
 
   return { ...metrics, ok: ok ? 1 : 0 }
@@ -178,7 +232,13 @@ function lorentz(): Record<string, number> & { ok: number } {
   const on = lorentzRun(lattice, husk, K)
 
   return {
-    ok: off.vibes === 0 && off.flux === 0 && off.demons === 0 && off.huskB !== 0 ? 1 : 0,
+    ok:
+      off.vibes === 0 &&
+      off.flux === 0 &&
+      off.demons === 0 &&
+      off.huskB !== 0
+        ? 1
+        : 0,
     lorentzHuskField: off.huskB,
     lorentzKickOffVibeDifferences: off.vibes,
     lorentzKickOffFluxDifferences: off.flux,
@@ -188,8 +248,13 @@ function lorentz(): Record<string, number> & { ok: number } {
   }
 }
 
-function lorentzRun(lattice: PhotonLattice, husk: Husk, k: number): { vibes: number; flux: number; demons: number; huskB: number } {
+function lorentzRun(
+  lattice: PhotonLattice,
+  husk: Husk,
+  k: number,
+): { vibes: number; flux: number; demons: number; huskB: number } {
   const rule = makePhotonRule({ lattice, n: N, k, capacity: 4096 })
+
   const start = (): PhotonState => {
     const s = emptyPhotonState(rule)
 
@@ -212,6 +277,7 @@ function lorentzRun(lattice: PhotonLattice, husk: Husk, k: number): { vibes: num
 
     return s
   }
+
   const plain = start()
   const field = start()
   const b0 = N / 8
@@ -226,7 +292,14 @@ function lorentzRun(lattice: PhotonLattice, husk: Husk, k: number): { vibes: num
     }
   }
 
-  const huskB = huskSquare(husk, projectAngles(husk, field.angle, N), huskDock(husk, 2, 3, 1), 0, 1, N)
+  const huskB = huskSquare(
+    husk,
+    projectAngles(husk, field.angle, N),
+    huskDock(husk, 2, 3, 1),
+    0,
+    1,
+    N,
+  )
 
   let vibes = 0
   let flux = 0
@@ -251,16 +324,45 @@ function lorentzRun(lattice: PhotonLattice, husk: Husk, k: number): { vibes: num
 
 // the steps of a husk loop in the plane z = 0 from corner (x0, y0), w wide and h high, counterclockwise,
 // as (husk link, orientation)
-function huskLoop(husk: Husk, x0: number, y0: number, w: number, h: number): [number, number][] {
+function huskLoop(
+  husk: Husk,
+  x0: number,
+  y0: number,
+  w: number,
+  h: number,
+): [number, number][] {
   const hv = HUSK_VECTORS.length
   const out: [number, number][] = []
-  const step = (x: number, y: number, u: number, s: number): [number, number] =>
-    s > 0 ? [huskDock(husk, x, y, 0) * hv + u, 1] : [huskDock(husk, u === 0 ? x - 1 : x, u === 1 ? y - 1 : y, 0) * hv + u, -1]
+  const step = (
+    x: number,
+    y: number,
+    u: number,
+    s: number,
+  ): [number, number] =>
+    s > 0
+      ? [huskDock(husk, x, y, 0) * hv + u, 1]
+      : [
+          huskDock(husk, u === 0 ? x - 1 : x, u === 1 ? y - 1 : y, 0) *
+            hv +
+            u,
+          -1,
+        ]
 
-  for (let i = 0; i < w; i++) out.push(step(x0 + i, y0, 0, 1))
-  for (let i = 0; i < h; i++) out.push(step(x0 + w, y0 + i, 1, 1))
-  for (let i = 0; i < w; i++) out.push(step(x0 + w - i, y0 + h, 0, -1))
-  for (let i = 0; i < h; i++) out.push(step(x0, y0 + h - i, 1, -1))
+  for (let i = 0; i < w; i++) {
+    out.push(step(x0 + i, y0, 0, 1))
+  }
+
+  for (let i = 0; i < h; i++) {
+    out.push(step(x0 + w, y0 + i, 1, 1))
+  }
+
+  for (let i = 0; i < w; i++) {
+    out.push(step(x0 + w - i, y0 + h, 0, -1))
+  }
+
+  for (let i = 0; i < h; i++) {
+    out.push(step(x0, y0 + h - i, 1, -1))
+  }
 
   return out
 }
@@ -270,7 +372,9 @@ function aharonovBohm(): Record<string, number> & { ok: number } {
   const husk = makeHusk(lattice)
   const flux = AB_N / 3
   const f = lattice.firsts.length
-  const tube: PhotonState = emptyPhotonState(makePhotonRule({ lattice, n: AB_N, k: K, capacity: 0, hop: false }))
+  const tube: PhotonState = emptyPhotonState(
+    makePhotonRule({ lattice, n: AB_N, k: K, capacity: 0, hop: false }),
+  )
 
   // the Dirac cut: the sheet bulk link of each husk y-link at y = 0, x = 1..6, every z
   for (let l = 0; l < lattice.links; l++) {
@@ -292,8 +396,22 @@ function aharonovBohm(): Record<string, number> & { ok: number } {
   const beside = huskLoop(husk, 2, -1, 3, 3)
   const beats = around.length + 1
   const chances = (w: WalkState): bigint[] => walkChances(w)
-  const walk = (steps: [number, number][], field: ArrayLike<number>, charge: number): bigint[] =>
-    chances(loopWalk({ steps, angle: field, n: AB_N, charge, splitter: FEAR_COIN, beats }))
+  const walk = (
+    steps: [number, number][],
+    field: ArrayLike<number>,
+    charge: number,
+  ): bigint[] =>
+    chances(
+      loopWalk({
+        steps,
+        angle: field,
+        n: AB_N,
+        charge,
+        splitter: FEAR_COIN,
+        beats,
+      }),
+    )
+
   const plate = (k: number): bigint[] => {
     const field = new Int32Array(angle.length)
     const [l, s] = around[5] ?? [0, 1]
@@ -302,14 +420,35 @@ function aharonovBohm(): Record<string, number> & { ok: number } {
 
     return walk(around, field, 1)
   }
-  const same = (a: bigint[], b: bigint[]): boolean => a.length === b.length && a.every((v, i) => v === b[i])
+
+  const same = (a: bigint[], b: bigint[]): boolean =>
+    a.length === b.length && a.every((v, i) => v === b[i])
   const withTube = walk(around, angle, 1)
   const charge2 = walk(around, angle, 2)
   const besideTube = walk(beside, angle, 1)
-  const chi = Array.from({ length: lattice.cells }, (_, x) => Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * 3) * flux)
-  const gauged = projectAngles(husk, changePhotonFrame(makePhotonRule({ lattice, n: AB_N, k: K, capacity: 0, hop: false }), copyPhotonState(tube), chi).angle, AB_N)
+  const chi = Array.from(
+    { length: lattice.cells },
+    (_, x) => Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * 3) * flux,
+  )
+  const gauged = projectAngles(
+    husk,
+    changePhotonFrame(
+      makePhotonRule({
+        lattice,
+        n: AB_N,
+        k: K,
+        capacity: 0,
+        hop: false,
+      }),
+      copyPhotonState(tube),
+      chi,
+    ).angle,
+    AB_N,
+  )
   const withGauge = walk(around, gauged, 1)
-  const phasesChanged = around.filter(([l]) => angle[l] !== gauged[l]).length
+  const phasesChanged = around.filter(
+    ([l]) => angle[l] !== gauged[l],
+  ).length
 
   // B = 0 on the path: every husk square with a loop link on its edge, in all three planes
   const hv = HUSK_VECTORS.length
@@ -321,7 +460,13 @@ function aharonovBohm(): Record<string, number> & { ok: number } {
 
     for (const v of [0, 1, 2].filter(a => a !== u)) {
       touched.add(y * 9 + u * 3 + v)
-      touched.add((husk.lattice.neighbour[y * husk.lattice.degree + 2 * v + 1] ?? 0) * 9 + u * 3 + v)
+      touched.add(
+        (husk.lattice.neighbour[y * husk.lattice.degree + 2 * v + 1] ??
+          0) *
+          9 +
+          u * 3 +
+          v,
+      )
     }
   }
 
@@ -335,12 +480,28 @@ function aharonovBohm(): Record<string, number> & { ok: number } {
     pathField += Math.abs(huskSquare(husk, angle, y, u, v, AB_N))
   }
 
-  const tubeField = huskSquare(husk, angle, huskDock(husk, 0, 0, 0), 0, 1, AB_N)
-  const fringe = (c: bigint[]): number => Number(((c[1] ?? 0n) * 1000000n) / c.reduce((a, b) => a + b, 0n)) / 1e6
+  const tubeField = huskSquare(
+    husk,
+    angle,
+    huskDock(husk, 0, 0, 0),
+    0,
+    1,
+    AB_N,
+  )
+  const fringe = (c: bigint[]): number =>
+    Number(((c[1] ?? 0n) * 1000000n) / c.reduce((a, b) => a + b, 0n)) /
+    1e6
   const p0 = plate(0)
   const p1 = plate(1)
   const p2 = plate(2)
-  const ok = pathField === 0 && same(withTube, p1) && !same(withTube, p0) && same(charge2, p2) && same(besideTube, p0) && same(withGauge, withTube) && phasesChanged > 0
+  const ok =
+    pathField === 0 &&
+    same(withTube, p1) &&
+    !same(withTube, p0) &&
+    same(charge2, p2) &&
+    same(besideTube, p0) &&
+    same(withGauge, withTube) &&
+    phasesChanged > 0
 
   return {
     ok: ok ? 1 : 0,
@@ -358,12 +519,24 @@ function aharonovBohm(): Record<string, number> & { ok: number } {
   }
 }
 
-type Point = { beta: number; cos: number; bulk: number; husk: number; start: string }
+type Point = {
+  beta: number
+  cos: number
+  bulk: number
+  husk: number
+  start: string
+}
 
 function monopoles(): Record<string, number> & { ok: number } {
   const lattice = photonLatticeD4({ side: 6 })
   const husk = makeHusk(lattice)
-  const rule: PhotonRule = makePhotonRule({ lattice, n: N, k: K, capacity: 0, hop: false })
+  const rule: PhotonRule = makePhotonRule({
+    lattice,
+    n: N,
+    k: K,
+    capacity: 0,
+    hop: false,
+  })
   const tetrahedra = d4Tetrahedra(lattice)
   const runs: [number, 'ordered' | 'disordered'][] = [
     [1.0, 'ordered'],
@@ -381,7 +554,15 @@ function monopoles(): Record<string, number> & { ok: number } {
     const s = emptyPhotonState(rule)
     const t0 = (K * N) / (2 * Math.PI * target)
 
-    addHashedCurl(rule, s, Math.max(1, Math.round(Math.sqrt((3 * t0) / (start === 'ordered' ? 4 : 8)))), 5.3)
+    addHashedCurl(
+      rule,
+      s,
+      Math.max(
+        1,
+        Math.round(Math.sqrt((3 * t0) / (start === 'ordered' ? 4 : 8))),
+      ),
+      5.3,
+    )
 
     if (start === 'disordered') {
       setHashedAngles(rule, s, N / 2, 3.7)
@@ -399,16 +580,27 @@ function monopoles(): Record<string, number> & { ok: number } {
         continue
       }
 
-      temps.push(s.flux.reduce((a, b) => a + b * b, 0) / (lattice.links - lattice.cells + 1))
+      temps.push(
+        s.flux.reduce((a, b) => a + b * b, 0) /
+          (lattice.links - lattice.cells + 1),
+      )
       cos.push(magneticSum(rule, s.angle).meanCos)
-      bulk.push(bulkMonopoles(tetrahedra, s.angle, N) / tetrahedra.count)
+      bulk.push(
+        bulkMonopoles(tetrahedra, s.angle, N) / tetrahedra.count,
+      )
 
       const m = huskMonopoles(husk, projectAngles(husk, s.angle, N), N)
 
       huskCounts.push(m.total / m.cubes)
     }
 
-    return { beta: (K * N) / (2 * Math.PI * mean(temps)), cos: mean(cos), bulk: mean(bulk), husk: mean(huskCounts), start }
+    return {
+      beta: (K * N) / (2 * Math.PI * mean(temps)),
+      cos: mean(cos),
+      bulk: mean(bulk),
+      husk: mean(huskCounts),
+      start,
+    }
   })
   const coulomb = points.filter(p => p.beta >= 0.65)
   const confined = points.filter(p => p.beta <= 0.45)
@@ -417,8 +609,12 @@ function monopoles(): Record<string, number> & { ok: number } {
     confined.length > 0 &&
     coulomb.every(p => p.bulk < 0.01) &&
     confined.every(p => p.bulk > 0.05) &&
-    Math.min(...confined.map(p => p.husk)) > Math.max(...coulomb.map(p => p.husk))
-  const metrics: Record<string, number> = { monopoleTetrahedra: tetrahedra.count, monopoleTetrahedraPerDock: tetrahedra.count / lattice.cells }
+    Math.min(...confined.map(p => p.husk)) >
+      Math.max(...coulomb.map(p => p.husk))
+  const metrics: Record<string, number> = {
+    monopoleTetrahedra: tetrahedra.count,
+    monopoleTetrahedraPerDock: tetrahedra.count / lattice.cells,
+  }
 
   points.forEach((p, i) => {
     const tag = `monopole${i}${p.start === 'ordered' ? 'Ordered' : 'Disordered'}`
@@ -442,12 +638,24 @@ export default experiment({
   depth: 'L2',
   paper: false,
   run() {
-    const sections = { biotSavart: biotSavart(), lorentz: lorentz(), aharonovBohm: aharonovBohm(), monopoles: monopoles() }
+    const sections = {
+      biotSavart: biotSavart(),
+      lorentz: lorentz(),
+      aharonovBohm: aharonovBohm(),
+      monopoles: monopoles(),
+    }
     const oks = Object.values(sections).map(s => s.ok)
-    const strip = (r: Record<string, number>): Record<string, number> => Object.fromEntries(Object.entries(r).filter(([key]) => key !== 'ok'))
+    const strip = (r: Record<string, number>): Record<string, number> =>
+      Object.fromEntries(
+        Object.entries(r).filter(([key]) => key !== 'ok'),
+      )
 
     return verdict({
-      status: oks.every(x => x === 1) ? 'pass' : oks.some(x => x === 1) ? 'partial' : 'fail',
+      status: oks.every(x => x === 1)
+        ? 'pass'
+        : oks.some(x => x === 1)
+          ? 'partial'
+          : 'fail',
       claim:
         "on the husk projection, the averaged field of a steady current loop follows the lattice Biot-Savart law within 10 percent up to three squares above it and falls monotonically, a uniform field leaves the knit's hopping vibes exactly where they were (they carry no phase), the fear walk round a thin flux tube shifts its fringe exactly as a phase plate of charge times flux would while the husk field on its path is zero, beside the tube and under a frame change nothing moves, and monopoles stay under 0.01 per tetrahedron in the Coulomb phase and pass 0.05 past the transition, with the husk ordered the same way",
       metrics: {

@@ -14,9 +14,16 @@
 // A 'sum' rule is the control: SUM on the first two of the triple (the first the control), which reads the
 // role by a preferred axis.
 
-import { colorBeat, colorBeatBack, type ColorWeave } from '@/code/rule/color-weave'
+import {
+  colorBeat,
+  colorBeatBack,
+  type ColorWeave,
+} from '@/code/rule/color-weave'
 import { type VibeState } from '@/code/rule/vibe-weave'
-import { applyStoredLinear, frameReflection } from '@/code/measure/frame-covariant-meeting'
+import {
+  applyStoredLinear,
+  frameReflection,
+} from '@/code/measure/frame-covariant-meeting'
 import { sumPermutation } from '@/code/measure/sum-record'
 
 export type TripleRule = 'reflection' | 'sum'
@@ -30,12 +37,19 @@ export type TripleStats = {
   axis: number
 }
 
-export const emptyStats = (): TripleStats => ({ fired: 0, knots: 0, short: 0, changed: 0, axis: 0 })
+export const emptyStats = (): TripleStats => ({
+  fired: 0,
+  knots: 0,
+  short: 0,
+  changed: 0,
+  axis: 0,
+})
 
 const REFLECTIONS = new Map<string, number[]>()
 
 function reflectionOf(signs: readonly number[]): number[] {
   const key = signs.join(',')
+
   let r = REFLECTIONS.get(key)
 
   if (!r) {
@@ -47,10 +61,17 @@ function reflectionOf(signs: readonly number[]): number[] {
 }
 
 // grid index x + 3 y to phase index 3 x + y and back (the same swap of digits)
-const swapDigits = (p: number): number => 3 * (p % 3) + Math.floor(p / 3)
+const swapDigits = (p: number): number =>
+  3 * (p % 3) + Math.floor(p / 3)
 
 // the triple step on a copy of the role points; vibes and flow are shared, never changed
-export function tripleStep(input: { weave: ColorWeave; state: VibeState; t: number; rule: TripleRule; stats?: TripleStats }): VibeState {
+export function tripleStep(input: {
+  weave: ColorWeave
+  state: VibeState
+  t: number
+  rule: TripleRule
+  stats?: TripleStats
+}): VibeState {
   const { weave, state, t, rule, stats } = input
   const role = Int8Array.from(state.role)
   const points = [0, 0, 0]
@@ -94,7 +115,10 @@ export function tripleStep(input: { weave: ColorWeave; state: VibeState; t: numb
     }
 
     if (sum) {
-      const image = sum[9 * swapDigits(points[0] ?? 0) + swapDigits(points[1] ?? 0)] ?? 0
+      const image =
+        sum[
+          9 * swapDigits(points[0] ?? 0) + swapDigits(points[1] ?? 0)
+        ] ?? 0
 
       out[0] = swapDigits(Math.floor(image / 9))
       out[1] = swapDigits(image % 9)
@@ -104,11 +128,17 @@ export function tripleStep(input: { weave: ColorWeave; state: VibeState; t: numb
     }
 
     if (stats) {
-      const odd = signs.findIndex(w => signs.filter(s => s === w).length === 1)
+      const odd = signs.findIndex(
+        w => signs.filter(s => s === w).length === 1,
+      )
 
       stats.fired++
       stats.changed += out.some((p, i) => p !== points[i]) ? 1 : 0
-      stats.axis += [0, 1, 2].every(i => i === odd || points[i] !== points[odd]) ? 1 : 0
+      stats.axis += [0, 1, 2].every(
+        i => i === odd || points[i] !== points[odd],
+      )
+        ? 1
+        : 0
     }
 
     for (let i = 0; i < 3; i++) {
@@ -120,11 +150,29 @@ export function tripleStep(input: { weave: ColorWeave; state: VibeState; t: numb
 }
 
 // one beat: the triple step, then the color weave's beat
-export function tripleBeat(weave: ColorWeave, state: VibeState, t: number, stats?: TripleStats): VibeState {
-  return colorBeat(weave, tripleStep({ weave, state, t, rule: 'reflection', stats }), t)
+export function tripleBeat(
+  weave: ColorWeave,
+  state: VibeState,
+  t: number,
+  stats?: TripleStats,
+): VibeState {
+  return colorBeat(
+    weave,
+    tripleStep({ weave, state, t, rule: 'reflection', stats }),
+    t,
+  )
 }
 
 // its exact inverse: the backward color beat, then the triple step again (an involution)
-export function tripleBeatBack(weave: ColorWeave, state: VibeState, t: number): VibeState {
-  return tripleStep({ weave, state: colorBeatBack(weave, state, t), t, rule: 'reflection' })
+export function tripleBeatBack(
+  weave: ColorWeave,
+  state: VibeState,
+  t: number,
+): VibeState {
+  return tripleStep({
+    weave,
+    state: colorBeatBack(weave, state, t),
+    t,
+    rule: 'reflection',
+  })
 }

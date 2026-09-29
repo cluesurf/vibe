@@ -47,8 +47,16 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { antisymmetrized, lockedRun, type LockedStart } from '@/code/measure/locked-run'
-import { symmetrizedStart, tripleRun, type Complex } from '@/code/measure/token-triple-run'
+import {
+  antisymmetrized,
+  lockedRun,
+  type LockedStart,
+} from '@/code/measure/locked-run'
+import {
+  symmetrizedStart,
+  tripleRun,
+  type Complex,
+} from '@/code/measure/token-triple-run'
 import { cliffordTable } from '@/code/measure/clifford-words'
 import { eisValue } from '@/code/measure/eisenstein-words'
 import { phaseMove } from '@/code/rule/fear-weave'
@@ -70,24 +78,36 @@ const SPIN_RING = 16
 function unitaryOf(k: number): M3 {
   const g = cliffordTable().group[k]!
   const vals = g.num.map(x => eisValue(x, 3 ** g.den3))
+
   let n2 = 0
 
-  for (let c = 0; c < 3; c++) n2 += (vals[3 * c]![0] ?? 0) ** 2 + (vals[3 * c]![1] ?? 0) ** 2
+  for (let c = 0; c < 3; c++) {
+    n2 += (vals[3 * c]![0] ?? 0) ** 2 + (vals[3 * c]![1] ?? 0) ** 2
+  }
 
   const f = 1 / Math.sqrt(n2)
 
-  return { re: Float64Array.from(vals, v => v[0] * f), im: Float64Array.from(vals, v => v[1] * f) }
+  return {
+    re: Float64Array.from(vals, v => v[0] * f),
+    im: Float64Array.from(vals, v => v[1] * f),
+  }
 }
 
 // full position distribution of a tripleRun (index (x1 L + x2) L + x3), summed over slots
-function triplePositions(run: ReturnType<typeof tripleRun>): Float64Array {
+function triplePositions(
+  run: ReturnType<typeof tripleRun>,
+): Float64Array {
   const L = run.ring
   const out = new Float64Array(L * L * L)
 
   for (let p = 0; p < L * L * L; p++) {
     let s = 0
 
-    for (let k = 0; k < 8 * run.roles; k++) s += (run.re[p * 8 * run.roles + k] as number) ** 2 + (run.im[p * 8 * run.roles + k] as number) ** 2
+    for (let k = 0; k < 8 * run.roles; k++) {
+      s +=
+        run.re[p * 8 * run.roles + k]! ** 2 +
+        run.im[p * 8 * run.roles + k]! ** 2
+    }
 
     out[p] = s
   }
@@ -96,7 +116,11 @@ function triplePositions(run: ReturnType<typeof tripleRun>): Float64Array {
 }
 
 // a + b / L on the two largest rings, checked on the smallest
-function fit(values: readonly number[]): { a: number; b: number; check: number } {
+function fit(values: readonly number[]): {
+  a: number
+  b: number
+  check: number
+} {
   const [v16, v24, v32] = values as [number, number, number]
   const b = (v24 - v32) / (1 / 24 - 1 / 32)
   const a = v32 - b / 32
@@ -105,9 +129,25 @@ function fit(values: readonly number[]): { a: number; b: number; check: number }
 }
 
 // the scalar run's compact chance averaged over beats 2L to 4L
-function compactScalar(input: { ring: number; phase: Complex; x: [number, number, number]; c: [number, number, number]; sign: 1 | -1 }): number {
-  const run = tripleRun({ ring: input.ring, roles: 1, phase: input.phase, start: symmetrizedStart({ x: input.x, c: input.c, sign: input.sign }) })
+function compactScalar(input: {
+  ring: number
+  phase: Complex
+  x: [number, number, number]
+  c: [number, number, number]
+  sign: 1 | -1
+}): number {
+  const run = tripleRun({
+    ring: input.ring,
+    roles: 1,
+    phase: input.phase,
+    start: symmetrizedStart({
+      x: input.x,
+      c: input.c,
+      sign: input.sign,
+    }),
+  })
   const T = 4 * input.ring
+
   let sum = 0
   let n = 0
 
@@ -123,7 +163,11 @@ function compactScalar(input: { ring: number; phase: Complex; x: [number, number
   return sum / n
 }
 
-const STARTS: readonly { name: string; x: [number, number, number]; c: [number, number, number] }[] = [
+const STARTS: readonly {
+  name: string
+  x: [number, number, number]
+  c: [number, number, number]
+}[] = [
   { name: 'pair+adjacent', x: [0, 0, 1], c: [0, 1, 0] },
   { name: 'pair+adjacent back', x: [0, 0, 1], c: [0, 1, 1] },
   { name: 'three docks', x: [0, 1, 2], c: [0, 1, 0] },
@@ -132,14 +176,18 @@ const STARTS: readonly { name: string; x: [number, number, number]; c: [number, 
 export default experiment({
   id: 'spin/locked-charge-one',
   code: 'E-SPN-0073',
-  title: 'three locked loves do not bind as three, a STAND-IN: the lock makes the loves two-component fermions (the doublet is the slot), so the fear beat is exactly a contact phase omega on antisymmetric pairs, it holds a diquark and a free love and nothing larger (the two-component Gaudin-Yang result), and a fear is exactly free under the knit\'s meeting; every Q = 1 state is spinorial with fermion number 3, but the fear beat binds no Q = 1 state',
+  title:
+    "three locked loves do not bind as three, a STAND-IN: the lock makes the loves two-component fermions (the doublet is the slot), so the fear beat is exactly a contact phase omega on antisymmetric pairs, it holds a diquark and a free love and nothing larger (the two-component Gaudin-Yang result), and a fear is exactly free under the knit's meeting; every Q = 1 state is spinorial with fermion number 3, but the fear beat binds no Q = 1 state",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
 
     // ---- T1 ----
     const reduction = (sign: 1 | -1): { gap: number; line: number } => {
@@ -148,9 +196,25 @@ export default experiment({
       const lockedStart: LockedStart[] =
         sign === -1
           ? antisymmetrized({ x, j: c })
-          : symmetrizedStart({ x, c, sign: 1 }).map(s => ({ x: [...s.x], j: [...s.c], amp: s.amp }))
-      const locked = lockedRun({ ring: REDUCTION_RING, kinds: ['love', 'love', 'love'], convention: 'C', unlike: 'knit', start: lockedStart })
-      const scalar = tripleRun({ ring: REDUCTION_RING, roles: 1, phase: OMEGA, start: symmetrizedStart({ x, c, sign }) })
+          : symmetrizedStart({ x, c, sign: 1 }).map(s => ({
+              x: [...s.x],
+              j: [...s.c],
+              amp: s.amp,
+            }))
+      const locked = lockedRun({
+        ring: REDUCTION_RING,
+        kinds: ['love', 'love', 'love'],
+        convention: 'C',
+        unlike: 'knit',
+        start: lockedStart,
+      })
+      const scalar = tripleRun({
+        ring: REDUCTION_RING,
+        roles: 1,
+        phase: OMEGA,
+        start: symmetrizedStart({ x, c, sign }),
+      })
+
       let gap = 0
       let line = 0
 
@@ -161,22 +225,40 @@ export default experiment({
         const a = locked.positions()
         const b = triplePositions(scalar)
 
-        gap = Math.max(gap, ...a.map((v, i) => Math.abs(v - (b[i] as number))))
+        gap = Math.max(gap, ...a.map((v, i) => Math.abs(v - b[i]!)))
         line = Math.max(line, locked.lineWeight())
       }
 
       return { gap, line }
     }
+
     const fermion = reduction(-1)
     const boson = reduction(1)
-    const t1 = fermion.gap < 1e-12 && fermion.line === 0 && boson.gap > 1e-6
+    const t1 =
+      fermion.gap < 1e-12 && fermion.line === 0 && boson.gap > 1e-6
 
     log('t1')
 
     // ---- T2: no trimer ----
     const trimer = STARTS.map(s => {
-      const values = SIZES.map(L => compactScalar({ ring: L, phase: OMEGA, x: s.x, c: s.c, sign: -1 }))
-      const free = SIZES.map(L => compactScalar({ ring: L, phase: [1, 0], x: s.x, c: s.c, sign: -1 }))
+      const values = SIZES.map(L =>
+        compactScalar({
+          ring: L,
+          phase: OMEGA,
+          x: s.x,
+          c: s.c,
+          sign: -1,
+        }),
+      )
+      const free = SIZES.map(L =>
+        compactScalar({
+          ring: L,
+          phase: [1, 0],
+          x: s.x,
+          c: s.c,
+          sign: -1,
+        }),
+      )
 
       return { name: s.name, values, free, ...fit(values) }
     })
@@ -185,7 +267,15 @@ export default experiment({
     log('t2')
 
     // ---- T3: the instrument sees E-SPN-0070's three-role trimer ----
-    const controlValues = SIZES.map(L => compactScalar({ ring: L, phase: OMEGA, x: [0, 0, 0], c: [0, 1, 1], sign: 1 }))
+    const controlValues = SIZES.map(L =>
+      compactScalar({
+        ring: L,
+        phase: OMEGA,
+        x: [0, 0, 0],
+        c: [0, 1, 1],
+        sign: 1,
+      }),
+    )
     const control = { values: controlValues, ...fit(controlValues) }
     const t3 = control.a >= 0.1
 
@@ -193,9 +283,32 @@ export default experiment({
 
     // ---- T4: the fear is free ----
     const x0 = FREE_RING / 2
-    const three = lockedRun({ ring: FREE_RING, kinds: ['love', 'love', 'fear'], convention: 'C', unlike: 'knit', start: antisymmetrized({ x: [x0, x0], j: [0, 1] }).map(s => ({ x: [...s.x, x0], j: [...s.j, 0], amp: s.amp })) })
-    const pair = lockedRun({ ring: FREE_RING, kinds: ['love', 'love'], convention: 'C', unlike: 'knit', start: antisymmetrized({ x: [x0, x0], j: [0, 1] }) })
-    const lone = lockedRun({ ring: FREE_RING, kinds: ['fear'], convention: 'C', unlike: 'knit', start: [{ x: [x0], j: [0], amp: [1, 0] }] })
+    const three = lockedRun({
+      ring: FREE_RING,
+      kinds: ['love', 'love', 'fear'],
+      convention: 'C',
+      unlike: 'knit',
+      start: antisymmetrized({ x: [x0, x0], j: [0, 1] }).map(s => ({
+        x: [...s.x, x0],
+        j: [...s.j, 0],
+        amp: s.amp,
+      })),
+    })
+    const pair = lockedRun({
+      ring: FREE_RING,
+      kinds: ['love', 'love'],
+      convention: 'C',
+      unlike: 'knit',
+      start: antisymmetrized({ x: [x0, x0], j: [0, 1] }),
+    })
+    const lone = lockedRun({
+      ring: FREE_RING,
+      kinds: ['fear'],
+      convention: 'C',
+      unlike: 'knit',
+      start: [{ x: [x0], j: [0], amp: [1, 0] }],
+    })
+
     let fearGap = 0
     let pairGap = 0
 
@@ -209,15 +322,25 @@ export default experiment({
       const pairMarginal = new Float64Array(FREE_RING * FREE_RING)
 
       for (let p = 0; p < full.length; p++) {
-        fearMarginal[p % FREE_RING] = (fearMarginal[p % FREE_RING] as number) + (full[p] as number)
-        pairMarginal[Math.floor(p / FREE_RING)] = (pairMarginal[Math.floor(p / FREE_RING)] as number) + (full[p] as number)
+        fearMarginal[p % FREE_RING] =
+          fearMarginal[p % FREE_RING]! + full[p]!
+
+        pairMarginal[Math.floor(p / FREE_RING)] =
+          pairMarginal[Math.floor(p / FREE_RING)]! + full[p]!
       }
 
       const lonePos = lone.positions()
       const pairPos = pair.positions()
 
-      fearGap = Math.max(fearGap, ...fearMarginal.map((v, i) => Math.abs(v - (lonePos[i] as number))))
-      pairGap = Math.max(pairGap, ...pairMarginal.map((v, i) => Math.abs(v - (pairPos[i] as number))))
+      fearGap = Math.max(
+        fearGap,
+        ...fearMarginal.map((v, i) => Math.abs(v - lonePos[i]!)),
+      )
+
+      pairGap = Math.max(
+        pairGap,
+        ...pairMarginal.map((v, i) => Math.abs(v - pairPos[i]!)),
+      )
     }
 
     const t4 = fearGap < 1e-12 && pairGap < 1e-12
@@ -227,12 +350,38 @@ export default experiment({
     // ---- T5: the start ensemble ----
     const moves = gridMoves()
     const table = cliffordTable()
-    const unitaries = Array.from({ length: 216 }, (_, k) => unitaryOf(k))
+    const unitaries = Array.from({ length: 216 }, (_, k) =>
+      unitaryOf(k),
+    )
     const ensemble = startFamily(16).map(member => {
-      const links = Array.from({ length: ENSEMBLE_RING }, (_, x) => unitaries[table.indexOf(phaseMove(moves.act[member.start(x, moves.act.length)] ?? []))] as M3)
+      const links = Array.from(
+        { length: ENSEMBLE_RING },
+        (_, x) =>
+          unitaries[
+            table.indexOf(
+              phaseMove(
+                moves.act[member.start(x, moves.act.length)] ?? [],
+              ),
+            )
+          ]!,
+      )
       const start = antisymmetrized({ x: [5, 5, 6], j: [0, 1, 0] })
-      const field = lockedRun({ ring: ENSEMBLE_RING, kinds: ['love', 'love', 'love'], convention: 'C', unlike: 'knit', links, start })
-      const plain = lockedRun({ ring: ENSEMBLE_RING, kinds: ['love', 'love', 'love'], convention: 'C', unlike: 'knit', start })
+      const field = lockedRun({
+        ring: ENSEMBLE_RING,
+        kinds: ['love', 'love', 'love'],
+        convention: 'C',
+        unlike: 'knit',
+        links,
+        start,
+      })
+      const plain = lockedRun({
+        ring: ENSEMBLE_RING,
+        kinds: ['love', 'love', 'love'],
+        convention: 'C',
+        unlike: 'knit',
+        start,
+      })
+
       let gap = 0
 
       for (let t = 0; t < ENSEMBLE_BEATS; t++) {
@@ -242,7 +391,7 @@ export default experiment({
         const a = field.positions()
         const b = plain.positions()
 
-        gap = Math.max(gap, ...a.map((v, i) => Math.abs(v - (b[i] as number))))
+        gap = Math.max(gap, ...a.map((v, i) => Math.abs(v - b[i]!)))
       }
 
       return { member: member.name, gap }
@@ -253,9 +402,17 @@ export default experiment({
 
     // REPORTED: the spin-3/2 share of the locked run's late state (role irrep [3] of the three doublets)
     const spin = (() => {
-      const run = lockedRun({ ring: SPIN_RING, kinds: ['love', 'love', 'love'], convention: 'C', unlike: 'knit', start: antisymmetrized({ x: [0, 0, 1], j: [0, 1, 0] }) })
+      const run = lockedRun({
+        ring: SPIN_RING,
+        kinds: ['love', 'love', 'love'],
+        convention: 'C',
+        unlike: 'knit',
+        start: antisymmetrized({ x: [0, 0, 1], j: [0, 1, 0] }),
+      })
 
-      for (let t = 0; t < 4 * SPIN_RING; t++) run.beat()
+      for (let t = 0; t < 4 * SPIN_RING; t++) {
+        run.beat()
+      }
 
       const perms = [
         [0, 1, 2],
@@ -265,24 +422,33 @@ export default experiment({
         [1, 2, 0],
         [2, 0, 1],
       ]
+
       let quartet = 0
       let total = 0
 
       for (let p = 0; p < SPIN_RING ** 3; p++) {
         for (let r = 0; r < 27; r++) {
-          const digits = [Math.floor(r / 9), Math.floor(r / 3) % 3, r % 3]
+          const digits = [
+            Math.floor(r / 9),
+            Math.floor(r / 3) % 3,
+            r % 3,
+          ]
+
           let sr = 0
           let si = 0
 
           for (const perm of perms) {
-            const q = 9 * (digits[perm[0] as number] as number) + 3 * (digits[perm[1] as number] as number) + (digits[perm[2] as number] as number)
+            const q =
+              9 * digits[perm[0]!]! +
+              3 * digits[perm[1]!]! +
+              digits[perm[2]!]!
 
-            sr += (run.re[p * 27 + q] as number) / 6
-            si += (run.im[p * 27 + q] as number) / 6
+            sr += run.re[p * 27 + q]! / 6
+            si += run.im[p * 27 + q]! / 6
           }
 
           quartet += sr * sr + si * si
-          total += (run.re[p * 27 + r] as number) ** 2 + (run.im[p * 27 + r] as number) ** 2
+          total += run.re[p * 27 + r]! ** 2 + run.im[p * 27 + r]! ** 2
         }
       }
 
@@ -305,7 +471,21 @@ export default experiment({
         reductionGapFermion: fermion.gap,
         reductionLineWeight: fermion.line,
         reductionGapBoson: boson.gap,
-        ...Object.fromEntries(trimer.flatMap((s, i) => [...s.values.map((v, k) => [`start${i}_compactRing${SIZES[k]}`, v]), ...s.free.map((v, k) => [`start${i}_compactNoMeetingRing${SIZES[k]}`, v]), [`start${i}_fitA`, s.a], [`start${i}_fitB`, s.b], [`start${i}_fitCheck16`, s.check]])),
+        ...Object.fromEntries(
+          trimer.flatMap((s, i): [string, number][] => [
+            ...s.values.map((v, k): [string, number] => [
+              `start${i}_compactRing${SIZES[k]}`,
+              v,
+            ]),
+            ...s.free.map((v, k): [string, number] => [
+              `start${i}_compactNoMeetingRing${SIZES[k]}`,
+              v,
+            ]),
+            [`start${i}_fitA`, s.a],
+            [`start${i}_fitB`, s.b],
+            [`start${i}_fitCheck16`, s.check],
+          ]),
+        ),
         fearMarginalGap: fearGap,
         pairMarginalGap: pairGap,
         ensembleWorstGap: Math.max(...ensemble.map(e => e.gap)),
@@ -314,7 +494,12 @@ export default experiment({
         seconds: (Date.now() - started) / 1000,
       },
       control: {
-        ...Object.fromEntries(control.values.map((v, k) => [`threeRoleOneDockCompactRing${SIZES[k]}`, v])),
+        ...Object.fromEntries(
+          control.values.map((v, k) => [
+            `threeRoleOneDockCompactRing${SIZES[k]}`,
+            v,
+          ]),
+        ),
         threeRoleOneDockFitA: control.a,
         threeRoleOneDockFitCheck16: control.check,
       },

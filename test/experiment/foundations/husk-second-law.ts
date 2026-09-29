@@ -57,8 +57,21 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { arrowBox, blockEnergy, chargeOf, energyOf, fingerprint, lowEntropyStart, shannon, twoWay, type ArrowBox } from '@/code/measure/second-law-husk'
-import { sameReduced, type Reduced } from '@/code/measure/living-pair-kernel'
+import {
+  arrowBox,
+  blockEnergy,
+  chargeOf,
+  energyOf,
+  fingerprint,
+  lowEntropyStart,
+  shannon,
+  twoWay,
+  type ArrowBox,
+} from '@/code/measure/second-law-husk'
+import {
+  sameReduced,
+  type Reduced,
+} from '@/code/measure/living-pair-kernel'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
 
 const SIDE = 12
@@ -70,28 +83,60 @@ const FINE = 32
 const CAP = 2 ** 19
 const COUNTS = [0, 1, 2, 3, 4, 6, 8]
 
-type Branch = { d0: number; late: number; t10: number; rises: number; at: number[]; bulkLate: number; bulk0: number; exact: boolean; returns: boolean }
+type Branch = {
+  d0: number
+  late: number
+  t10: number
+  rises: number
+  at: number[]
+  bulkLate: number
+  bulk0: number
+  exact: boolean
+  returns: boolean
+}
 
 // the bulk blocks: each husk block split in two along the depth by v4 mod L (well defined on the box, unlike v4 mod 2L,
 // which the period L (0, 0, 1, 1) shifts by L), each half holding L / 2 docks of every column
 function bulkBlocks(box: ArrowBox): Int32Array {
-  return Int32Array.from(box.block, (b, x) => b * 2 + ((box.depth[x] as number) % box.side < box.side / 2 ? 0 : 1))
+  return Int32Array.from(
+    box.block,
+    (b, x) => b * 2 + (box.depth[x]! % box.side < box.side / 2 ? 0 : 1),
+  )
 }
 
-function bulkEnergy(box: ArrowBox, bulk: Int32Array, s: Reduced, out: Float64Array): void {
+function bulkEnergy(
+  box: ArrowBox,
+  bulk: Int32Array,
+  s: Reduced,
+  out: Float64Array,
+): void {
   out.fill(0)
 
   for (let x = 0; x < box.cells; x++) {
     let e = 0
 
-    for (let d = 0; d < 24; d++) if (s.vibe[x * 24 + d] !== 0) e++
-    for (let l = 0; l < 12; l++) if (s.store[x * 12 + l] !== 0) e += 2
+    for (let d = 0; d < 24; d++) {
+      if (s.vibe[x * 24 + d] !== 0) {
+        e++
+      }
+    }
 
-    out[bulk[x] as number] = (out[bulk[x] as number] as number) + e
+    for (let l = 0; l < 12; l++) {
+      if (s.store[x * 12 + l] !== 0) {
+        e += 2
+      }
+    }
+
+    out[bulk[x]!] = out[bulk[x]!]! + e
   }
 }
 
-function branch(box: ArrowBox, bulk: Int32Array, start: Reduced, direction: 1 | -1): Branch {
+function branch(
+  box: ArrowBox,
+  bulk: Int32Array,
+  start: Reduced,
+  direction: 1 | -1,
+): Branch {
   const r = twoWay(box, start)
   const e = new Float64Array(box.blocks)
   const eb = new Float64Array(box.blocks * 2)
@@ -100,6 +145,7 @@ function branch(box: ArrowBox, bulk: Int32Array, start: Reduced, direction: 1 | 
   const energy = energyOf(start)
   const charge = chargeOf(start)
   const deficit: number[] = []
+
   let bulk0 = 0
   let bulkLate = 0
   let exact = true
@@ -110,8 +156,11 @@ function branch(box: ArrowBox, bulk: Int32Array, start: Reduced, direction: 1 | 
   bulk0 = lnBulk - shannon(eb)
 
   for (let t = 1; t <= BEATS; t++) {
-    if (direction > 0) r.forward()
-    else r.backward()
+    if (direction > 0) {
+      r.forward()
+    } else {
+      r.backward()
+    }
 
     const s = r.state()
 
@@ -126,22 +175,31 @@ function branch(box: ArrowBox, bulk: Int32Array, start: Reduced, direction: 1 | 
   }
 
   for (let t = 0; t < BEATS; t++) {
-    if (direction > 0) r.backward()
-    else r.forward()
+    if (direction > 0) {
+      r.backward()
+    } else {
+      r.forward()
+    }
   }
 
-  const d0 = deficit[0] as number
-  const late = deficit.slice(BEATS - LATE + 1).reduce((a, b) => a + b, 0) / LATE
+  const d0 = deficit[0]!
+  const late =
+    deficit.slice(BEATS - LATE + 1).reduce((a, b) => a + b, 0) / LATE
+
   let rises = 0
 
-  for (let t = 1; t <= BEATS; t++) if ((deficit[t] as number) > (deficit[t - 1] as number) + 1e-12) rises++
+  for (let t = 1; t <= BEATS; t++) {
+    if (deficit[t]! > deficit[t - 1]! + 1e-12) {
+      rises++
+    }
+  }
 
   return {
     d0,
     late,
     t10: deficit.findIndex(x => x <= d0 / 10),
     rises,
-    at: [12, 24, 36].map(t => deficit[t] as number),
+    at: [12, 24, 36].map(t => deficit[t]!),
     bulkLate,
     bulk0,
     exact,
@@ -153,35 +211,62 @@ export default experiment({
   id: 'foundations/husk-second-law',
   code: 'E-FND-0146',
   title:
-    'the second law on the adopted knit, read on the husk, pass: on the coset-union vacuum under the lone bounce collision (side 12, 27 husk blocks, 17 starts) a start with 12,288 extra vibes in one husk block (deficit ln 27 - H = 0.0664) relaxes to 0.0010 to 0.0012 of that deficit over the last 60 of 240 beats, a tenth of it by beat 4, and the rule\'s exact inverse from the same start does the same (0.0010 to 0.0012, beat 4): the arrow is the start, not the rule; energy and charge exact, both runs return the start bit for bit, the deficit rises on 105 to 121 of 240 beats (fluctuations); 32 starts under one rule stay 32 distinct states at every beat (fine-grained entropy ln 32 exactly) while their mean deficit falls 860-fold; bulk halves beside 0.0021 to 0.0024; exact recurrence on the side-4 box: 6 beats (vacuum), 360 (one vibe), 18,000 (two to four), over 524,288 (six and eight)',
+    "the second law on the adopted knit, read on the husk, pass: on the coset-union vacuum under the lone bounce collision (side 12, 27 husk blocks, 17 starts) a start with 12,288 extra vibes in one husk block (deficit ln 27 - H = 0.0664) relaxes to 0.0010 to 0.0012 of that deficit over the last 60 of 240 beats, a tenth of it by beat 4, and the rule's exact inverse from the same start does the same (0.0010 to 0.0012, beat 4): the arrow is the start, not the rule; energy and charge exact, both runs return the start bit for bit, the deficit rises on 105 to 121 of 240 beats (fluctuations); 32 starts under one rule stay 32 distinct states at every beat (fine-grained entropy ln 32 exactly) while their mean deficit falls 860-fold; bulk halves beside 0.0021 to 0.0024; exact recurrence on the side-4 box: 6 beats (vacuum), 360 (one vibe), 18,000 (two to four), over 524,288 (six and eight)",
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const members = startFamily(16)
 
     // ---- G1 to G3: the 17 members, forward and backward ----
     const perMember = members.map((member, k) => {
       const box = withStart(member, () => arrowBox(SIDE, BLOCK))
       const bulk = bulkBlocks(box)
-      const start = lowEntropyStart(box, { blocks: [0], perDock: PER_DOCK, phase: k })
+      const start = lowEntropyStart(box, {
+        blocks: [0],
+        perDock: PER_DOCK,
+        phase: k,
+      })
 
-      return { name: member.name, forward: branch(box, bulk, start, 1), backward: branch(box, bulk, start, -1) }
+      return {
+        name: member.name,
+        forward: branch(box, bulk, start, 1),
+        backward: branch(box, bulk, start, -1),
+      }
     })
 
     log('members')
 
-    const g1 = perMember.every(m => m.forward.exact && m.backward.exact && m.forward.returns && m.backward.returns)
-    const rose = (b: Branch): boolean => b.d0 >= 0.05 && b.late <= 0.02 * b.d0
+    const g1 = perMember.every(
+      m =>
+        m.forward.exact &&
+        m.backward.exact &&
+        m.forward.returns &&
+        m.backward.returns,
+    )
+    const rose = (b: Branch): boolean =>
+      b.d0 >= 0.05 && b.late <= 0.02 * b.d0
     const g2 = perMember.every(m => rose(m.forward))
     const g3 = perMember.every(m => rose(m.backward))
 
     // ---- G4: fine-grained entropy of a 32-state ensemble under one rule ----
     const fineBox = withStart(members[0]!, () => arrowBox(SIDE, BLOCK))
-    const runners = Array.from({ length: FINE }, (_, k) => twoWay(fineBox, lowEntropyStart(fineBox, { blocks: [0], perDock: PER_DOCK, phase: k })))
+    const runners = Array.from({ length: FINE }, (_, k) =>
+      twoWay(
+        fineBox,
+        lowEntropyStart(fineBox, {
+          blocks: [0],
+          perDock: PER_DOCK,
+          phase: k,
+        }),
+      ),
+    )
     const e = new Float64Array(fineBox.blocks)
     const lnB = Math.log(fineBox.blocks)
     const meanDeficit = (): number =>
@@ -191,11 +276,14 @@ export default experiment({
         return acc + (lnB - shannon(e)) / FINE
       }, 0)
     const fineStart = meanDeficit()
+
     let fewestDistinct = FINE
     let fullTies = 0
 
     for (let t = 1; t <= BEATS; t++) {
-      for (const r of runners) r.forward()
+      for (const r of runners) {
+        r.forward()
+      }
 
       const seen = new Map<string, number[]>()
 
@@ -212,8 +300,17 @@ export default experiment({
         const reps: number[] = []
 
         for (const i of group) {
-          if (group.length > 1) fullTies++
-          if (!reps.some(j => sameReduced(runners[i]!.state(), runners[j]!.state()))) reps.push(i)
+          if (group.length > 1) {
+            fullTies++
+          }
+
+          if (
+            !reps.some(j =>
+              sameReduced(runners[i]!.state(), runners[j]!.state()),
+            )
+          ) {
+            reps.push(i)
+          }
         }
 
         distinct += reps.length
@@ -230,13 +327,19 @@ export default experiment({
     // ---- G5: exact recurrence on the side-4 box ----
     const tiny = arrowBox(4, 4)
     const recurrence = COUNTS.map(n => {
-      const start = lowEntropyStart(tiny, { blocks: [0], perDock: n / tiny.cells, phase: 0 })
+      const start = lowEntropyStart(tiny, {
+        blocks: [0],
+        perDock: n / tiny.cells,
+        phase: 0,
+      })
       const r = twoWay(tiny, start)
 
       for (let t = 1; t <= CAP; t++) {
         r.forward()
 
-        if (t % 2 === 0 && sameReduced(r.state(), start)) return { n, beats: t, found: true }
+        if (t % 2 === 0 && sameReduced(r.state(), start)) {
+          return { n, beats: t, found: true }
+        }
       }
 
       return { n, beats: CAP, found: false }
@@ -245,11 +348,18 @@ export default experiment({
 
     log('recurrence')
 
-    const status = !g1 ? 'partial' : g2 && g3 && g4 && g5 ? 'pass' : 'fail'
-    const range = (xs: number[], digits = 4): string => `${Math.min(...xs).toFixed(digits)} to ${Math.max(...xs).toFixed(digits)}`
+    const status = !g1
+      ? 'partial'
+      : g2 && g3 && g4 && g5
+        ? 'pass'
+        : 'fail'
+    const range = (xs: number[], digits = 4): string =>
+      `${Math.min(...xs).toFixed(digits)} to ${Math.max(...xs).toFixed(digits)}`
     const fw = perMember.map(m => m.forward)
     const bw = perMember.map(m => m.backward)
-    const recurrenceText = recurrence.map(r => `N ${r.n}: ${r.found ? '' : '> '}${r.beats}`).join(', ')
+    const recurrenceText = recurrence
+      .map(r => `N ${r.n}: ${r.found ? '' : '> '}${r.beats}`)
+      .join(', ')
 
     return verdict({
       status,
@@ -268,13 +378,22 @@ export default experiment({
         forwardRisesMin: Math.min(...fw.map(b => b.rises)),
         forwardRisesMax: Math.max(...fw.map(b => b.rises)),
         bulkDeficitStartMin: Math.min(...fw.map(b => b.bulk0)),
-        bulkForwardLateRatioMax: Math.max(...fw.map(b => b.bulkLate / b.bulk0)),
-        bulkBackwardLateRatioMax: Math.max(...bw.map(b => b.bulkLate / b.bulk0)),
+        bulkForwardLateRatioMax: Math.max(
+          ...fw.map(b => b.bulkLate / b.bulk0),
+        ),
+        bulkBackwardLateRatioMax: Math.max(
+          ...bw.map(b => b.bulkLate / b.bulk0),
+        ),
         fineDistinctFewest: fewestDistinct,
         fineFingerprintTies: fullTies,
         fineMeanDeficitStart: fineStart,
         fineMeanDeficitEnd: fineEnd,
-        ...Object.fromEntries(recurrence.map(r => [`recurrenceN${r.n}`, r.found ? r.beats : -r.beats])),
+        ...Object.fromEntries(
+          recurrence.map(r => [
+            `recurrenceN${r.n}`,
+            r.found ? r.beats : -r.beats,
+          ]),
+        ),
         seconds: (Date.now() - started) / 1000,
       },
       control: {

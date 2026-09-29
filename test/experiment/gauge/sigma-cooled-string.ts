@@ -82,7 +82,13 @@ const SCALE = 12
 const RATIO = -1.67 / 12
 const KAPPA = 12
 const CAPACITY = 48
-const COOL = { drain: 100, cycles: 30, fill: 0.003, beats: 30, empties: 10 }
+const COOL = {
+  drain: 100,
+  cycles: 30,
+  fill: 0.003,
+  beats: 30,
+  empties: 10,
+}
 const FILL = 0.008
 const SETTLE = 300
 const MEASURE = 300
@@ -92,21 +98,34 @@ const MESON_BEATS = 600
 const SEPARATIONS = [1, 2, 3]
 const GOLDEN = (Math.sqrt(5) - 1) / 2
 
-type Loops = { w11: number; w12: number; w22: number; w23: number; w33: number }
+type Loops = {
+  w11: number
+  w12: number
+  w22: number
+  w23: number
+  w33: number
+}
 
-const creutz = (a: number, b: number, c: number): number => -Math.log((c * a) / (b * b))
-const dist = (a: number[], b: number[]): number => Math.hypot(...a.map((x, i) => x - (b[i] ?? 0)))
+const creutz = (a: number, b: number, c: number): number =>
+  -Math.log((c * a) / (b * b))
+const dist = (a: number[], b: number[]): number =>
+  Math.hypot(...a.map((x, i) => x - (b[i] ?? 0)))
 
 function slope(xs: number[], ys: number[]): number {
   const mx = xs.reduce((a, b) => a + b, 0) / xs.length
   const my = ys.reduce((a, b) => a + b, 0) / ys.length
 
-  return xs.reduce((a, x, k) => a + (x - mx) * ((ys[k] ?? 0) - my), 0) / xs.reduce((a, x) => a + (x - mx) ** 2, 0)
+  return (
+    xs.reduce((a, x, k) => a + (x - mx) * ((ys[k] ?? 0) - my), 0) /
+    xs.reduce((a, x) => a + (x - mx) ** 2, 0)
+  )
 }
 
 function stats(xs: number[]): { mean: number; error: number } {
   const m = xs.reduce((a, b) => a + b, 0) / xs.length
-  const sd = Math.sqrt(xs.reduce((a, b) => a + (b - m) ** 2, 0) / (xs.length - 1))
+  const sd = Math.sqrt(
+    xs.reduce((a, b) => a + (b - m) ** 2, 0) / (xs.length - 1),
+  )
 
   return { mean: m, error: sd / Math.sqrt(xs.length) }
 }
@@ -124,10 +143,31 @@ export default experiment({
     const roots = rootsD4()
     const tau = roots.findIndex(r => r.join(',') === '1,-1,0,0')
     const along = roots.findIndex(r => r.join(',') === '0,0,1,1')
-    const back = (d: number): number => roots.findIndex(r => r.every((x, k) => x === -(roots[d]?.[k] ?? 0)))
-    const make = (input: { hop: boolean; roles: boolean; kappa: number; couple: 'none' | 'center' }): SigmaLinks =>
-      makeSigmaLinks({ side: SIDE, tension: 0, capacity: CAPACITY, scale: SCALE, ratio: RATIO, moves: 'wide', ...input })
-    const rule = make({ hop: false, roles: false, kappa: KAPPA, couple: 'center' })
+    const back = (d: number): number =>
+      roots.findIndex(r =>
+        r.every((x, k) => x === -(roots[d]?.[k] ?? 0)),
+      )
+    const make = (input: {
+      hop: boolean
+      roles: boolean
+      kappa: number
+      couple: 'none' | 'center'
+    }): SigmaLinks =>
+      makeSigmaLinks({
+        side: SIDE,
+        tension: 0,
+        capacity: CAPACITY,
+        scale: SCALE,
+        ratio: RATIO,
+        moves: 'wide',
+        ...input,
+      })
+    const rule = make({
+      hop: false,
+      roles: false,
+      kappa: KAPPA,
+      couple: 'center',
+    })
     const { cells, group } = rule
     const triangles = (cells * 12 * 8) / 3
 
@@ -141,7 +181,8 @@ export default experiment({
       return c
     }
 
-    const line = (x: number): number[] => Array.from({ length: SIDE }, (_, t) => walk(x, tau, t))
+    const line = (x: number): number[] =>
+      Array.from({ length: SIDE }, (_, t) => walk(x, tau, t))
 
     const rectangle = (r: number, h: number): number[] => [
       ...new Array<number>(r).fill(along),
@@ -157,7 +198,9 @@ export default experiment({
       ['w33', 3, 3],
     ]
     const paths = sizes.map(([, r, h]) => rectangle(r, h))
-    const starts = Array.from({ length: cells }, (_, x) => x).filter(x => x % SIDE === 0)
+    const starts = Array.from({ length: cells }, (_, x) => x).filter(
+      x => x % SIDE === 0,
+    )
 
     const demonMean = (s: SigmaState): number => {
       let sum = 0
@@ -180,8 +223,13 @@ export default experiment({
     })
 
     const point = (hash: number) => {
-      const cooled = coolSigmaLinks(rule, defectSigmaLinks(rule, 0.1, hash), COOL)
-      const cooledLevel = sigmaFieldEnergy(rule, cooled.state.links) / triangles
+      const cooled = coolSigmaLinks(
+        rule,
+        defectSigmaLinks(rule, 0.1, hash),
+        COOL,
+      )
+      const cooledLevel =
+        sigmaFieldEnergy(rule, cooled.state.links) / triangles
 
       let s = cooled.state
 
@@ -209,7 +257,16 @@ export default experiment({
         exact = exact && sigmaEnergy(rule, s) === e0
 
         for (let x = 0; x < cells; x++) {
-          sizes.forEach(([key], j) => (loops[key] += (group.trace[pathTransport(rule, s.links, x, paths[j] ?? [])] ?? 0) / 3 / cells / MEASURE))
+          sizes.forEach(
+            ([key], j) =>
+              (loops[key] +=
+                (group.trace[
+                  pathTransport(rule, s.links, x, paths[j] ?? [])
+                ] ?? 0) /
+                3 /
+                cells /
+                MEASURE),
+          )
         }
 
         let sr = 0
@@ -228,15 +285,22 @@ export default experiment({
 
         const half = k < MEASURE / 2 ? 0 : 1
 
-        halves[half] = (halves[half] ?? 0) + demonMean(s) / (MEASURE / 2)
+        halves[half] =
+          (halves[half] ?? 0) + demonMean(s) / (MEASURE / 2)
       }
 
       return {
         exact,
         cooledLevel,
         level,
-        beta0: halves.map(m => SCALE * unitDemonBeta({ meanDemon: m, capacity: CAPACITY })),
-        beta: unitDemonBeta({ meanDemon: ((halves[0] ?? 0) + (halves[1] ?? 0)) / 2, capacity: CAPACITY }),
+        beta0: halves.map(
+          m =>
+            SCALE * unitDemonBeta({ meanDemon: m, capacity: CAPACITY }),
+        ),
+        beta: unitDemonBeta({
+          meanDemon: ((halves[0] ?? 0) + (halves[1] ?? 0)) / 2,
+          capacity: CAPACITY,
+        }),
         polyakov: Math.hypot(pre, pim),
         loops,
         chi22: creutz(loops.w11, loops.w12, loops.w22),
@@ -253,10 +317,15 @@ export default experiment({
 
     // the field-borne string on the first run's settled field
     const twist = (st: SigmaState, x: number, d: number): void => {
-      const g = group.product[rule.omega * group.order + (st.links[x * 24 + d] ?? 0)] ?? 0
+      const g =
+        group.product[
+          rule.omega * group.order + (st.links[x * 24 + d] ?? 0)
+        ] ?? 0
 
       st.links[x * 24 + d] = g
-      st.links[(rule.neighbour[x * 24 + d] ?? 0) * 24 + (rule.opposite[d] ?? d)] = group.inverse[g] ?? 0
+      st.links[
+        (rule.neighbour[x * 24 + d] ?? 0) * 24 + (rule.opposite[d] ?? d)
+      ] = group.inverse[g] ?? 0
       addSigmaFlux(rule, st.flux, x, d, 1)
     }
 
@@ -289,7 +358,10 @@ export default experiment({
 
       for (let k = 0; k < BEATS; k++) {
         s = sigmaBeat(rule, s, first.start + k).state
-        exact = exact && sigmaEnergy(rule, s) === e0 && sigmaGaussViolations(rule, s) === 0
+        exact =
+          exact &&
+          sigmaEnergy(rule, s) === e0 &&
+          sigmaGaussViolations(rule, s) === 0
         field += sigmaFieldEnergy(rule, s.links) / BEATS
       }
 
@@ -310,7 +382,10 @@ export default experiment({
       st.vibe[x0] = 1
       st.vibe[y0] = -1
       st.role[x0] = 4
-      st.role[y0] = mover.act[(mover.quotient[st.links[x0 * 24 + along] ?? 0] ?? 0) * 9 + 4] ?? 0
+      st.role[y0] =
+        mover.act[
+          (mover.quotient[st.links[x0 * 24 + along] ?? 0] ?? 0) * 9 + 4
+        ] ?? 0
 
       if (mover.couple === 'center') {
         twist(st, x0, along)
@@ -341,7 +416,10 @@ export default experiment({
 
       for (let k = 0; k < MESON_BEATS; k++) {
         s = sigmaBeat(mover, s, first.start + k, onHop).state
-        exact = exact && sigmaEnergy(mover, s) === e0 && sigmaGaussViolations(mover, s) === 0
+        exact =
+          exact &&
+          sigmaEnergy(mover, s) === e0 &&
+          sigmaGaussViolations(mover, s) === 0
 
         const [love, fear] = charges
 
@@ -352,17 +430,30 @@ export default experiment({
       return { exact, meanGap: gap, travel }
     }
 
-    const bound = meson(make({ hop: true, roles: true, kappa: KAPPA, couple: 'center' }))
-    const free = meson(make({ hop: true, roles: true, kappa: 0, couple: 'none' }))
+    const bound = meson(
+      make({ hop: true, roles: true, kappa: KAPPA, couple: 'center' }),
+    )
+    const free = meson(
+      make({ hop: true, roles: true, kappa: 0, couple: 'none' }),
+    )
 
-    const exact = runs.every(r => r.exact) && reference.exact && pairs.every(p => p.exact) && bound.exact && free.exact
-    const held = runs.every(r => r.beta0.every(b => b >= 11 && b <= 13) && r.polyakov < 0.05)
+    const exact =
+      runs.every(r => r.exact) &&
+      reference.exact &&
+      pairs.every(p => p.exact) &&
+      bound.exact &&
+      free.exact
+    const held = runs.every(
+      r => r.beta0.every(b => b >= 11 && b <= 13) && r.polyakov < 0.05,
+    )
 
     const ok =
       exact &&
       held &&
       chi22.mean > 3 * chi22.error &&
-      potential.every((v, k) => k === 0 || v > (potential[k - 1] ?? 0)) &&
+      potential.every(
+        (v, k) => k === 0 || v > (potential[k - 1] ?? 0),
+      ) &&
       Math.abs(tension - chi22.mean) < 0.3 * Math.abs(chi22.mean) &&
       bound.meanGap < free.meanGap / 10 &&
       bound.travel > 5
@@ -391,7 +482,10 @@ export default experiment({
           [`run${k + 1}Creutz22`, r.chi22],
           [`run${k + 1}Creutz33`, r.chi33],
         ]),
-        ...SEPARATIONS.map((r, k): [string, number] => [`fieldEnergyAboveVacuumPerSliceR${r}`, potential[k] ?? 0]),
+        ...SEPARATIONS.map((r, k): [string, number] => [
+          `fieldEnergyAboveVacuumPerSliceR${r}`,
+          potential[k] ?? 0,
+        ]),
         ['fieldSlope', sigma],
         ['fieldSlopeTimesBeta', tension],
         ['mesonMeanGap', bound.meanGap],

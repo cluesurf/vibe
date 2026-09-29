@@ -34,7 +34,10 @@
 
 export type Link = { readonly from: number; readonly to: number }
 
-export type Plaquette = { readonly links: readonly number[]; readonly signs: readonly number[] }
+export type Plaquette = {
+  readonly links: readonly number[]
+  readonly signs: readonly number[]
+}
 
 export type Lattice = {
   readonly docks: number
@@ -59,10 +62,16 @@ export function squareLattice(count: 1 | 2): Lattice {
     { from: 2, to: 3 },
     { from: 3, to: 0 },
   ]
-  const plaquettes: Plaquette[] = [{ links: [0, 1, 2, 3], signs: [1, 1, 1, 1] }]
+  const plaquettes: Plaquette[] = [
+    { links: [0, 1, 2, 3], signs: [1, 1, 1, 1] },
+  ]
 
   if (count === 2) {
-    links.push({ from: 1, to: 4 }, { from: 4, to: 5 }, { from: 5, to: 2 })
+    links.push(
+      { from: 1, to: 4 },
+      { from: 4, to: 5 },
+      { from: 5, to: 2 },
+    )
     plaquettes.push({ links: [4, 5, 6, 1], signs: [1, 1, 1, -1] })
   }
 
@@ -79,9 +88,19 @@ export function squareLattice(count: 1 | 2): Lattice {
 
   const strings: (number[] | null)[] = [s0, s1, s2, s3]
 
-  if (count === 2) strings.push(null, null)
+  if (count === 2) {
+    strings.push(null, null)
+  }
 
-  return { docks: count === 2 ? 6 : 4, links, plaquettes, nucleus: 0, hops: [0, 1, 2, 3], strings, own: count === 2 ? [0, 4] : [0] }
+  return {
+    docks: count === 2 ? 6 : 4,
+    links,
+    plaquettes,
+    nucleus: 0,
+    hops: [0, 1, 2, 3],
+    strings,
+    own: count === 2 ? [0, 4] : [0],
+  }
 }
 
 export const mod = (x: number, m: number): number => ((x % m) + m) % m
@@ -106,7 +125,12 @@ export type Sector = {
   indexOf(dock: number, flux: ArrayLike<number>): number
 }
 
-export function gaussOf(lattice: Lattice, n: number, charge: ArrayLike<number>, flux: ArrayLike<number>): number[] {
+export function gaussOf(
+  lattice: Lattice,
+  n: number,
+  charge: ArrayLike<number>,
+  flux: ArrayLike<number>,
+): number[] {
   const g = Array.from({ length: lattice.docks }, (_, x) => charge[x]!)
 
   lattice.links.forEach((l, k) => {
@@ -120,7 +144,9 @@ export function gaussOf(lattice: Lattice, n: number, charge: ArrayLike<number>, 
 export function buildSector(lattice: Lattice, n: number): Sector {
   const L = lattice.links.length
   const P = lattice.plaquettes.length
-  const docks = lattice.strings.map((s, x) => (s ? x : -1)).filter(x => x >= 0)
+  const docks = lattice.strings
+    .map((s, x) => (s ? x : -1))
+    .filter(x => x >= 0)
   const loopsPer = n ** P
   const size = docks.length * loopsPer
   const dock = new Int32Array(size)
@@ -141,12 +167,16 @@ export function buildSector(lattice: Lattice, n: number): Sector {
 
       dock[i] = x
 
-      for (let p = 0; p < P; p++) loops[i * P + p] = Math.floor(c / n ** (P - 1 - p)) % n
+      for (let p = 0; p < P; p++) {
+        loops[i * P + p] = Math.floor(c / n ** (P - 1 - p)) % n
+      }
 
       for (let l = 0; l < L; l++) {
         let e = lattice.strings[x]![l]!
 
-        for (let p = 0; p < P; p++) e += loops[i * P + p]! * loopVectors[p]![l]!
+        for (let p = 0; p < P; p++) {
+          e += loops[i * P + p]! * loopVectors[p]![l]!
+        }
 
         flux[i * L + l] = mod(e, n)
       }
@@ -160,7 +190,9 @@ export function buildSector(lattice: Lattice, n: number): Sector {
   const indexOf = (x: number, e: ArrayLike<number>): number => {
     const d = docksIndex[x]!
 
-    if (d < 0) return -1
+    if (d < 0) {
+      return -1
+    }
 
     let c = 0
 
@@ -174,7 +206,11 @@ export function buildSector(lattice: Lattice, n: number): Sector {
 
     const i = d * loopsPer + c
 
-    for (let l = 0; l < L; l++) if (mod(e[l]!, n) !== flux[i * L + l]) return -1
+    for (let l = 0; l < L; l++) {
+      if (mod(e[l]!, n) !== flux[i * L + l]) {
+        return -1
+      }
+    }
 
     return i
   }
@@ -187,11 +223,20 @@ export function buildSector(lattice: Lattice, n: number): Sector {
 
 export type Step =
   // (1 + zeta^z)/2 |i> + (1 - zeta^z)/2 |move(i)>, move an involution
-  | { readonly kind: 'hop'; readonly move: (i: number) => number; readonly z: number }
+  | {
+      readonly kind: 'hop'
+      readonly move: (i: number) => number
+      readonly z: number
+    }
   // zeta^exponent(i)
   | { readonly kind: 'phase'; readonly exponent: (i: number) => number }
   // f(U) |i> = (1/n) sum_k g_k |shift^k(i)>, g_k = sum_B zeta^(exponents[B]) w_n^(-B k), shift of order n
-  | { readonly kind: 'loop'; readonly shift: (i: number) => number; readonly exponents: readonly number[]; readonly n: number }
+  | {
+      readonly kind: 'loop'
+      readonly shift: (i: number) => number
+      readonly exponents: readonly number[]
+      readonly n: number
+    }
   // float only (measurement): e^(2 pi i turns(i))
   | { readonly kind: 'turns'; readonly turns: (i: number) => number }
 
@@ -210,16 +255,33 @@ export type BeatSpec = {
 
 export function inverseSteps(steps: readonly Step[]): Step[] {
   return [...steps].reverse().map(s => {
-    if (s.kind === 'hop') return { kind: 'hop', move: s.move, z: -s.z }
-    if (s.kind === 'phase') return { kind: 'phase', exponent: (i: number) => -s.exponent(i) }
-    if (s.kind === 'loop') return { kind: 'loop', shift: s.shift, exponents: s.exponents.map(e => -e), n: s.n }
+    if (s.kind === 'hop') {
+      return { kind: 'hop', move: s.move, z: -s.z }
+    }
+
+    if (s.kind === 'phase') {
+      return { kind: 'phase', exponent: (i: number) => -s.exponent(i) }
+    }
+
+    if (s.kind === 'loop') {
+      return {
+        kind: 'loop',
+        shift: s.shift,
+        exponents: s.exponents.map(e => -e),
+        n: s.n,
+      }
+    }
 
     return { kind: 'turns', turns: (i: number) => -s.turns(i) }
   })
 }
 
 // the sector's recorded hop across link l, as a move on indices (-1 if the image leaves the sector)
-export function sectorHop(sector: Sector, l: number, recorded = true): Int32Array {
+export function sectorHop(
+  sector: Sector,
+  l: number,
+  recorded = true,
+): Int32Array {
   const { lattice, n } = sector
   const L = lattice.links.length
   const link = lattice.links[l]!
@@ -234,9 +296,13 @@ export function sectorHop(sector: Sector, l: number, recorded = true): Int32Arra
       continue
     }
 
-    for (let k = 0; k < L; k++) e[k] = sector.flux[i * L + k]!
+    for (let k = 0; k < L; k++) {
+      e[k] = sector.flux[i * L + k]!
+    }
 
-    if (recorded) e[l] = mod(e[l]! + (x === link.from ? 1 : -1), n)
+    if (recorded) {
+      e[l] = mod(e[l]! + (x === link.from ? 1 : -1), n)
+    }
 
     out[i] = sector.indexOf(x === link.from ? link.to : link.from, e)
   }
@@ -245,14 +311,21 @@ export function sectorHop(sector: Sector, l: number, recorded = true): Int32Arra
 }
 
 // sum over links of bal(e)^2, per sector index
-export function sectorElectric(sector: Sector, skipLinks: readonly number[] = []): Int32Array {
+export function sectorElectric(
+  sector: Sector,
+  skipLinks: readonly number[] = [],
+): Int32Array {
   const L = sector.lattice.links.length
   const out = new Int32Array(sector.size)
 
   for (let i = 0; i < sector.size; i++) {
     let s = 0
 
-    for (let l = 0; l < L; l++) if (!skipLinks.includes(l)) s += bal(sector.flux[i * L + l]!, sector.n) ** 2
+    for (let l = 0; l < L; l++) {
+      if (!skipLinks.includes(l)) {
+        s += bal(sector.flux[i * L + l]!, sector.n) ** 2
+      }
+    }
 
     out[i] = s
   }
@@ -275,32 +348,51 @@ export function sectorLoopShift(sector: Sector, p: number): Int32Array {
   return out
 }
 
-export const magneticExponents = (n: number, r: number): number[] => Array.from({ length: n }, (_, B) => -r * bal(B, n) ** 2)
+export const magneticExponents = (n: number, r: number): number[] =>
+  Array.from({ length: n }, (_, B) => -r * bal(B, n) ** 2)
 
 export function sectorBeat(sector: Sector, spec: BeatSpec): Step[] {
   const steps: Step[] = []
 
   for (const l of sector.lattice.hops) {
-    if (spec.skipHops?.includes(l)) continue
+    if (spec.skipHops?.includes(l)) {
+      continue
+    }
 
     const move = sectorHop(sector, l)
 
-    for (let i = 0; i < move.length; i++) if (move[i]! < 0) throw new Error('lattice-qed: a recorded hop left the Gauss sector')
+    for (const to of move) {
+      if (to < 0) {
+        throw new Error(
+          'lattice-qed: a recorded hop left the Gauss sector',
+        )
+      }
+    }
 
     steps.push({ kind: 'hop', move: i => move[i]!, z: spec.hop })
   }
 
   const electric = sectorElectric(sector)
-  const half: Step = { kind: 'phase', exponent: i => -spec.electric * electric[i]! }
+  const half: Step = {
+    kind: 'phase',
+    exponent: i => -spec.electric * electric[i]!,
+  }
 
   steps.push(half)
 
   sector.lattice.plaquettes.forEach((_, p) => {
-    if (spec.skipPlaquettes?.includes(p)) return
+    if (spec.skipPlaquettes?.includes(p)) {
+      return
+    }
 
     const shift = sectorLoopShift(sector, p)
 
-    steps.push({ kind: 'loop', shift: i => shift[i]!, exponents: magneticExponents(sector.n, spec.magnetic), n: sector.n })
+    steps.push({
+      kind: 'loop',
+      shift: i => shift[i]!,
+      exponents: magneticExponents(sector.n, spec.magnetic),
+      n: sector.n,
+    })
   })
 
   steps.push(half)
@@ -315,7 +407,14 @@ export function sectorBeat(sector: Sector, spec: BeatSpec): Step[] {
 // conjugates are kicked by the link's angle; electric: the angle advances by -2 k e; magnetic: the flow turns by
 // 2 k sigma B_p with B_p = sum sigma b; electric again. `magnetic` false leaves the plaquette step out (a light
 // whose flows change only by crossings).
-export function classicalLightBeat(lattice: Lattice, n: number, k: number, a: number[], b: number[], magnetic = true): void {
+export function classicalLightBeat(
+  lattice: Lattice,
+  n: number,
+  k: number,
+  a: number[],
+  b: number[],
+  magnetic = true,
+): void {
   const V = lattice.docks
 
   for (const l of lattice.hops) {
@@ -330,7 +429,9 @@ export function classicalLightBeat(lattice: Lattice, n: number, k: number, a: nu
   }
 
   const electric = (): void => {
-    for (let l = 0; l < lattice.links.length; l++) b[V + l] = mod(b[V + l]! - 2 * k * a[V + l]!, n)
+    for (let l = 0; l < lattice.links.length; l++) {
+      b[V + l] = mod(b[V + l]! - 2 * k * a[V + l]!, n)
+    }
   }
 
   electric()
@@ -340,7 +441,10 @@ export function classicalLightBeat(lattice: Lattice, n: number, k: number, a: nu
       let B = 0
 
       p.links.forEach((l, j) => (B += p.signs[j]! * b[V + l]!))
-      p.links.forEach((l, j) => (a[V + l] = mod(a[V + l]! + 2 * k * p.signs[j]! * B, n)))
+      p.links.forEach(
+        (l, j) =>
+          (a[V + l] = mod(a[V + l]! + 2 * k * p.signs[j]! * B, n)),
+      )
     }
   }
 
@@ -379,7 +483,9 @@ export function fullSpace(lattice: Lattice, n: number): Full {
     index(d) {
       let i = 0
 
-      for (let q = 0; q < registers; q++) i = i * n + mod(d[q]!, n)
+      for (let q = 0; q < registers; q++) {
+        i = i * n + mod(d[q]!, n)
+      }
 
       return i
     },
@@ -388,7 +494,11 @@ export function fullSpace(lattice: Lattice, n: number): Full {
 
 // the recorded hop T_l on full indices (the linear map (n_x, n_y, e_l) -> (n_y, n_x, e_l + n_x - n_y)); with
 // `recorded` false the charges swap and the flow stays (the control that breaks Gauss)
-export function fullHop(full: Full, l: number, recorded = true): (i: number) => number {
+export function fullHop(
+  full: Full,
+  l: number,
+  recorded = true,
+): (i: number) => number {
   const link = full.lattice.links[l]!
   const d = new Int32Array(full.registers)
   const at = full.lattice.docks + l
@@ -402,19 +512,28 @@ export function fullHop(full: Full, l: number, recorded = true): (i: number) => 
     d[link.from] = ny
     d[link.to] = nx
 
-    if (recorded) d[at] = d[at]! + nx - ny
+    if (recorded) {
+      d[at] = d[at]! + nx - ny
+    }
 
     return full.index(d)
   }
 }
 
-export function fullLoopShift(full: Full, p: number): (i: number) => number {
+export function fullLoopShift(
+  full: Full,
+  p: number,
+): (i: number) => number {
   const plaquette = full.lattice.plaquettes[p]!
   const d = new Int32Array(full.registers)
 
   return i => {
     full.digits(i, d)
-    plaquette.links.forEach((l, k) => (d[full.lattice.docks + l] = d[full.lattice.docks + l]! + plaquette.signs[k]!))
+    plaquette.links.forEach(
+      (l, k) =>
+        (d[full.lattice.docks + l] =
+          d[full.lattice.docks + l]! + plaquette.signs[k]!),
+    )
 
     return full.index(d)
   }
@@ -428,7 +547,9 @@ export function fullElectric(full: Full): (i: number) => number {
 
     let s = 0
 
-    for (let l = 0; l < full.lattice.links.length; l++) s += bal(d[full.lattice.docks + l]!, full.n) ** 2
+    for (let l = 0; l < full.lattice.links.length; l++) {
+      s += bal(d[full.lattice.docks + l]!, full.n) ** 2
+    }
 
     return s
   }
@@ -437,14 +558,24 @@ export function fullElectric(full: Full): (i: number) => number {
 export function fullBeat(full: Full, spec: BeatSpec): Step[] {
   const steps: Step[] = []
 
-  for (const l of full.lattice.hops) steps.push({ kind: 'hop', move: fullHop(full, l), z: spec.hop })
+  for (const l of full.lattice.hops) {
+    steps.push({ kind: 'hop', move: fullHop(full, l), z: spec.hop })
+  }
 
   const electric = fullElectric(full)
-  const half: Step = { kind: 'phase', exponent: i => -spec.electric * electric(i) }
+  const half: Step = {
+    kind: 'phase',
+    exponent: i => -spec.electric * electric(i),
+  }
 
   steps.push(half)
   full.lattice.plaquettes.forEach((_, p) =>
-    steps.push({ kind: 'loop', shift: fullLoopShift(full, p), exponents: magneticExponents(full.n, spec.magnetic), n: full.n }),
+    steps.push({
+      kind: 'loop',
+      shift: fullLoopShift(full, p),
+      exponents: magneticExponents(full.n, spec.magnetic),
+      n: full.n,
+    }),
   )
   steps.push(half)
 
@@ -455,7 +586,11 @@ export function fullBeat(full: Full, spec: BeatSpec): Step[] {
 // exact vectors over Z[zeta_M]: each entry a length-M BigInt array (coefficients of zeta^0 .. zeta^(M-1)),
 // one common denominator
 
-export type Exact = { readonly m: number; den: bigint; entries: Map<number, bigint[]> }
+export type Exact = {
+  readonly m: number
+  den: bigint
+  entries: Map<number, bigint[]>
+}
 
 const PHI = new Map<number, bigint[]>()
 
@@ -463,7 +598,9 @@ const PHI = new Map<number, bigint[]>()
 export function cyclotomic(m: number): bigint[] {
   const found = PHI.get(m)
 
-  if (found) return found
+  if (found) {
+    return found
+  }
 
   // x^m - 1 divided by Phi_d for every proper divisor d
   let poly: bigint[] = new Array<bigint>(m + 1).fill(0n)
@@ -472,7 +609,9 @@ export function cyclotomic(m: number): bigint[] {
   poly[m] = 1n
 
   for (let d = 1; d < m; d++) {
-    if (m % d !== 0) continue
+    if (m % d !== 0) {
+      continue
+    }
 
     const phi = cyclotomic(d)
     const deg = phi.length - 1
@@ -482,14 +621,24 @@ export function cyclotomic(m: number): bigint[] {
     for (let k = rest.length - 1; k >= deg; k--) {
       const c = rest[k]!
 
-      if (c === 0n) continue
+      if (c === 0n) {
+        continue
+      }
 
       quotient[k - deg] = c
 
-      for (let t = 0; t <= deg; t++) rest[k - deg + t] = rest[k - deg + t]! - c * phi[t]!
+      for (let t = 0; t <= deg; t++) {
+        rest[k - deg + t] = rest[k - deg + t]! - c * phi[t]!
+      }
     }
 
-    for (let k = 0; k < deg; k++) if (rest[k] !== 0n) throw new Error('lattice-qed: cyclotomic division left a remainder')
+    for (let k = 0; k < deg; k++) {
+      if (rest[k] !== 0n) {
+        throw new Error(
+          'lattice-qed: cyclotomic division left a remainder',
+        )
+      }
+    }
 
     poly = quotient
   }
@@ -508,9 +657,13 @@ export function canonical(a: readonly bigint[], m: number): bigint[] {
   for (let k = m - 1; k >= deg; k--) {
     const c = r[k]!
 
-    if (c === 0n) continue
+    if (c === 0n) {
+      continue
+    }
 
-    for (let t = 0; t <= deg; t++) r[k - deg + t] = r[k - deg + t]! - c * phi[t]!
+    for (let t = 0; t <= deg; t++) {
+      r[k - deg + t] = r[k - deg + t]! - c * phi[t]!
+    }
   }
 
   return r
@@ -518,17 +671,29 @@ export function canonical(a: readonly bigint[], m: number): bigint[] {
 
 const zeroPoly = (m: number): bigint[] => new Array<bigint>(m).fill(0n)
 
-const addShifted = (target: bigint[], source: readonly bigint[], shift: number, sign: bigint, m: number): void => {
+const addShifted = (
+  target: bigint[],
+  source: readonly bigint[],
+  shift: number,
+  sign: bigint,
+  m: number,
+): void => {
   const s = mod(shift, m)
 
   for (let j = 0; j < m; j++) {
     const c = source[j]!
 
-    if (c !== 0n) target[(j + s) % m] = target[(j + s) % m]! + sign * c
+    if (c !== 0n) {
+      target[(j + s) % m] = target[(j + s) % m]! + sign * c
+    }
   }
 }
 
-const entryOf = (map: Map<number, bigint[]>, i: number, m: number): bigint[] => {
+const entryOf = (
+  map: Map<number, bigint[]>,
+  i: number,
+  m: number,
+): bigint[] => {
   let e = map.get(i)
 
   if (!e) {
@@ -547,10 +712,15 @@ export function exactBasis(m: number, i: number, weight = 1n): Exact {
   return { m, den: 1n, entries: new Map([[i, e]]) }
 }
 
-export function exactFrom(m: number, entries: readonly [number, bigint][]): Exact {
+export function exactFrom(
+  m: number,
+  entries: readonly [number, bigint][],
+): Exact {
   const map = new Map<number, bigint[]>()
 
-  for (const [i, w] of entries) entryOf(map, i, m)[0] = w
+  for (const [i, w] of entries) {
+    entryOf(map, i, m)[0] = w
+  }
 
   return { m, den: 1n, entries: map }
 }
@@ -559,7 +729,9 @@ const gcd = (x: bigint, y: bigint): bigint => {
   let p = x < 0n ? -x : x
   let q = y < 0n ? -y : y
 
-  while (q !== 0n) [p, q] = [q, p % q]
+  while (q !== 0n) {
+    ;[p, q] = [q, p % q]
+  }
 
   return p
 }
@@ -567,23 +739,38 @@ const gcd = (x: bigint, y: bigint): bigint => {
 // canonical form, zero entries dropped, the common factor of every coefficient and the denominator removed
 export function reduce(v: Exact): Exact {
   const entries = new Map<number, bigint[]>()
+
   let g = v.den
 
   for (const [i, e] of v.entries) {
     const c = canonical(e, v.m)
 
-    if (c.every(x => x === 0n)) continue
+    if (c.every(x => x === 0n)) {
+      continue
+    }
 
     entries.set(i, c)
 
-    for (const x of c) if (x !== 0n) g = gcd(g, x)
+    for (const x of c) {
+      if (x !== 0n) {
+        g = gcd(g, x)
+      }
+    }
   }
 
-  if (g === 0n) g = 1n
+  if (g === 0n) {
+    g = 1n
+  }
 
-  if (v.den < 0n) g = -g
+  if (v.den < 0n) {
+    g = -g
+  }
 
-  for (const e of entries.values()) for (let j = 0; j < e.length; j++) e[j] = e[j]! / g
+  for (const e of entries.values()) {
+    for (let j = 0; j < e.length; j++) {
+      e[j] = e[j]! / g
+    }
+  }
 
   return { m: v.m, den: v.den / g, entries }
 }
@@ -610,7 +797,9 @@ export function applyExact(step: Step, v: Exact): Exact {
   }
 
   if (step.kind === 'phase') {
-    for (const [i, s] of v.entries) addShifted(entryOf(out, i, m), s, step.exponent(i), 1n, m)
+    for (const [i, s] of v.entries) {
+      addShifted(entryOf(out, i, m), s, step.exponent(i), 1n, m)
+    }
 
     return { m, den: v.den, entries: out }
   }
@@ -619,7 +808,9 @@ export function applyExact(step: Step, v: Exact): Exact {
     const n = step.n
     const unit = m / n
 
-    if (!Number.isInteger(unit)) throw new Error('lattice-qed: the loop step needs N | M')
+    if (!Number.isInteger(unit)) {
+      throw new Error('lattice-qed: the loop step needs N | M')
+    }
 
     for (const [i, s] of v.entries) {
       let at = i
@@ -628,7 +819,15 @@ export function applyExact(step: Step, v: Exact): Exact {
         const target = entryOf(out, at, m)
 
         // g_k = sum_B zeta^(exponents[B] - unit B k)
-        for (let B = 0; B < n; B++) addShifted(target, s, step.exponents[B]! - unit * B * k, 1n, m)
+        for (let B = 0; B < n; B++) {
+          addShifted(
+            target,
+            s,
+            step.exponents[B]! - unit * B * k,
+            1n,
+            m,
+          )
+        }
 
         at = step.shift(at)
       }
@@ -640,11 +839,17 @@ export function applyExact(step: Step, v: Exact): Exact {
   throw new Error('lattice-qed: a float-only step met an exact vector')
 }
 
-export function runExact(steps: readonly Step[], v: Exact, beats = 1): Exact {
+export function runExact(
+  steps: readonly Step[],
+  v: Exact,
+  beats = 1,
+): Exact {
   let w = v
 
   for (let t = 0; t < beats; t++) {
-    for (const s of steps) w = applyExact(s, w)
+    for (const s of steps) {
+      w = applyExact(s, w)
+    }
 
     w = reduce(w)
   }
@@ -662,26 +867,41 @@ export function exactEqual(a: Exact, b: Exact): boolean {
     const x = ra.entries.get(k) ?? zeroPoly(a.m)
     const y = rb.entries.get(k) ?? zeroPoly(a.m)
 
-    for (let j = 0; j < a.m; j++) if (x[j]! * rb.den !== y[j]! * ra.den) return false
+    for (let j = 0; j < a.m; j++) {
+      if (x[j]! * rb.den !== y[j]! * ra.den) {
+        return false
+      }
+    }
   }
 
   return true
 }
 
 // a reduced value as a float complex number (measurement)
-export function toComplex(c: readonly bigint[], den: bigint, m: number): [number, number] {
-  const bits = (x: bigint): number => (x < 0n ? -x : x).toString(2).length
+export function toComplex(
+  c: readonly bigint[],
+  den: bigint,
+  m: number,
+): [number, number] {
+  const bits = (x: bigint): number =>
+    (x < 0n ? -x : x).toString(2).length
+
   let top = bits(den)
 
-  for (const x of c) top = Math.max(top, bits(x))
+  for (const x of c) {
+    top = Math.max(top, bits(x))
+  }
 
   const drop = BigInt(Math.max(0, top - 900))
   const d = Number(den >> drop)
+
   let re = 0
   let im = 0
 
   for (let j = 0; j < m; j++) {
-    if (c[j] === 0n) continue
+    if (c[j] === 0n) {
+      continue
+    }
 
     const x = Number(c[j]! >> drop) / d
 
@@ -715,7 +935,9 @@ export function applyFloat(step: Step, v: Complex, m: number): Complex {
       const xr = v.re[i]!
       const xi = v.im[i]!
 
-      if (xr === 0 && xi === 0) continue
+      if (xr === 0 && xi === 0) {
+        continue
+      }
 
       const j = step.move(i)
 
@@ -730,7 +952,10 @@ export function applyFloat(step: Step, v: Complex, m: number): Complex {
 
   if (step.kind === 'phase' || step.kind === 'turns') {
     for (let i = 0; i < size; i++) {
-      const t = step.kind === 'phase' ? (2 * Math.PI * step.exponent(i)) / m : 2 * Math.PI * step.turns(i)
+      const t =
+        step.kind === 'phase'
+          ? (2 * Math.PI * step.exponent(i)) / m
+          : 2 * Math.PI * step.turns(i)
       const c = Math.cos(t)
       const s = Math.sin(t)
 
@@ -747,7 +972,9 @@ export function applyFloat(step: Step, v: Complex, m: number): Complex {
 
   for (let k = 0; k < n; k++) {
     for (let B = 0; B < n; B++) {
-      const t = (2 * Math.PI * step.exponents[B]!) / m - (2 * Math.PI * B * k) / n
+      const t =
+        (2 * Math.PI * step.exponents[B]!) / m -
+        (2 * Math.PI * B * k) / n
 
       gr[k] = gr[k]! + Math.cos(t) / n
       gi[k] = gi[k]! + Math.sin(t) / n
@@ -758,7 +985,9 @@ export function applyFloat(step: Step, v: Complex, m: number): Complex {
     const xr = v.re[i]!
     const xi = v.im[i]!
 
-    if (xr === 0 && xi === 0) continue
+    if (xr === 0 && xi === 0) {
+      continue
+    }
 
     let at = i
 
@@ -772,10 +1001,19 @@ export function applyFloat(step: Step, v: Complex, m: number): Complex {
   return { re, im }
 }
 
-export function runFloat(steps: readonly Step[], v: Complex, m: number, beats = 1): Complex {
+export function runFloat(
+  steps: readonly Step[],
+  v: Complex,
+  m: number,
+  beats = 1,
+): Complex {
   let w = v
 
-  for (let t = 0; t < beats; t++) for (const s of steps) w = applyFloat(s, w, m)
+  for (let t = 0; t < beats; t++) {
+    for (const s of steps) {
+      w = applyFloat(s, w, m)
+    }
+  }
 
   return w
 }

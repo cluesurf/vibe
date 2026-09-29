@@ -35,11 +35,27 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { centerOf } from '@/code/measure/wall-reading'
-import { samePoints, THRESHOLD_BORN, tritsApart } from '@/code/measure/doublet-locked-readings'
-import { contactFresh, vetoPathRunner } from '@/code/measure/occupation-veto-readings'
+import {
+  samePoints,
+  THRESHOLD_BORN,
+  tritsApart,
+} from '@/code/measure/doublet-locked-readings'
+import {
+  contactFresh,
+  vetoPathRunner,
+} from '@/code/measure/occupation-veto-readings'
 import { wordVacuum } from '@/code/measure/mixed-vacuum-readings'
-import { cloneConfiguration, type Configuration } from '@/code/rule/doublet-locked-knit'
-import { fullPathKey, keyedRunner, oldPathKey, weylDocks, type PathKey } from '@/code/measure/full-key-paths'
+import {
+  cloneConfiguration,
+  type Configuration,
+} from '@/code/rule/doublet-locked-knit'
+import {
+  fullPathKey,
+  keyedRunner,
+  oldPathKey,
+  weylDocks,
+  type PathKey,
+} from '@/code/measure/full-key-paths'
 import { d4BoxMesh } from '@/code/substrate/d4-box-integer'
 
 const BEATS = 64
@@ -50,8 +66,13 @@ const QUIET_LONE = 100
 const QUIET_PER_PAIR = 200
 
 // distinct values of key(t, slot) over beats 0..BEATS-1, least and most over every slot
-function distinctPerSlot(cells: number, slots: number, key: (t: number, x: number, s: number) => number): { least: number; most: number } {
+function distinctPerSlot(
+  cells: number,
+  slots: number,
+  key: (t: number, x: number, s: number) => number,
+): { least: number; most: number } {
   const stamp = new Int32Array(65536)
+
   let least = Infinity
   let most = 0
   let mark = 0
@@ -79,7 +100,13 @@ function distinctPerSlot(cells: number, slots: number, key: (t: number, x: numbe
   return { least, most }
 }
 
-type Case = { name: string; mix: number; place: (s: Configuration, cells: number, center: number) => void; gate: 'quiet' | 'scrambled' | 'report'; pairs: number }
+type Case = {
+  name: string
+  mix: number
+  place: (s: Configuration, cells: number, center: number) => void
+  gate: 'quiet' | 'scrambled' | 'report'
+  pairs: number
+}
 
 const pairsAt = (s: Configuration, docks: number[]): void => {
   for (const x of docks) {
@@ -91,11 +118,41 @@ const pairsAt = (s: Configuration, docks: number[]): void => {
 }
 
 const CASES: Case[] = [
-  { name: 'lone', mix: 0, place: (s, _c, x) => ((s.vibe[x * 24] = 1), (s.open[x * 24] = 1)), gate: 'quiet', pairs: 0 },
-  { name: 'loneG', mix: 4, place: (s, _c, x) => ((s.vibe[x * 24] = 1), (s.open[x * 24] = 1)), gate: 'scrambled', pairs: 0 },
-  { name: 'pairs8', mix: 0, place: (s, c) => pairsAt(s, weylDocks(c, 8)), gate: 'quiet', pairs: 8 },
-  { name: 'pairs16', mix: 0, place: (s, c) => pairsAt(s, weylDocks(c, 16)), gate: 'report', pairs: 16 },
-  { name: 'pairs32', mix: 0, place: (s, c) => pairsAt(s, weylDocks(c, 32)), gate: 'scrambled', pairs: 32 },
+  {
+    name: 'lone',
+    mix: 0,
+    place: (s, _c, x) => ((s.vibe[x * 24] = 1), (s.open[x * 24] = 1)),
+    gate: 'quiet',
+    pairs: 0,
+  },
+  {
+    name: 'loneG',
+    mix: 4,
+    place: (s, _c, x) => ((s.vibe[x * 24] = 1), (s.open[x * 24] = 1)),
+    gate: 'scrambled',
+    pairs: 0,
+  },
+  {
+    name: 'pairs8',
+    mix: 0,
+    place: (s, c) => pairsAt(s, weylDocks(c, 8)),
+    gate: 'quiet',
+    pairs: 8,
+  },
+  {
+    name: 'pairs16',
+    mix: 0,
+    place: (s, c) => pairsAt(s, weylDocks(c, 16)),
+    gate: 'report',
+    pairs: 16,
+  },
+  {
+    name: 'pairs32',
+    mix: 0,
+    place: (s, c) => pairsAt(s, weylDocks(c, 32)),
+    gate: 'scrambled',
+    pairs: 32,
+  },
 ]
 
 export default experiment({
@@ -111,6 +168,7 @@ export default experiment({
     const t0 = Date.now()
     const metrics: Record<string, number> = {}
     const counts: string[] = []
+
     let k1 = true
     let k2 = true
 
@@ -126,14 +184,18 @@ export default experiment({
       const want = side === 16 ? 1 : 4
 
       k1 &&= oldLine.least === want && oldLine.most === want
-      k2 &&= [fullLine, fullFrame, fullStore].every(r => r.least === BEATS && r.most === BEATS)
+      k2 &&= [fullLine, fullFrame, fullStore].every(
+        r => r.least === BEATS && r.most === BEATS,
+      )
       metrics[`side${side}_oldLineDistinct`] = oldLine.most
       metrics[`side${side}_oldLineDistinctLeast`] = oldLine.least
       metrics[`side${side}_oldFrameDistinct`] = oldFrame.most
       metrics[`side${side}_fullLineDistinctLeast`] = fullLine.least
       metrics[`side${side}_fullFrameDistinctLeast`] = fullFrame.least
       metrics[`side${side}_fullStoreDistinctLeast`] = fullStore.least
-      counts.push(`side ${side} (${cells} docks): old line key ${oldLine.least} to ${oldLine.most} distinct a slot, old frame key ${oldFrame.least} to ${oldFrame.most}; full key lines ${fullLine.least} to ${fullLine.most}, frames ${fullFrame.least} to ${fullFrame.most}, stores ${fullStore.least} to ${fullStore.most}`)
+      counts.push(
+        `side ${side} (${cells} docks): old line key ${oldLine.least} to ${oldLine.most} distinct a slot, old frame key ${oldFrame.least} to ${oldFrame.most}; full key lines ${fullLine.least} to ${fullLine.most}, frames ${fullFrame.least} to ${fullFrame.most}, stores ${fullStore.least} to ${fullStore.most}`,
+      )
     }
 
     // ---- the rerun ----
@@ -144,6 +206,7 @@ export default experiment({
     const scrambled = (f.cells * 24) / 20
     const keys: PathKey[] = [oldPathKey(f.cells), fullPathKey(0)]
     const rows: string[] = []
+
     let k3 = true
     let control = true
 
@@ -156,26 +219,60 @@ export default experiment({
         const a = keyedRunner(f.tables, vacuum, { key, mix: c.mix })
         const b = keyedRunner(f.tables, start, { key, mix: c.mix })
         // the control: the old key reproduces vetoPathRunner bit for bit on the lone cases
-        const check = key.name === 'old' && c.pairs === 0 ? vetoPathRunner('none', f.tables, start, THRESHOLD_BORN, 0, true, c.mix === 4) : undefined
+        const check =
+          key.name === 'old' && c.pairs === 0
+            ? vetoPathRunner(
+                'none',
+                f.tables,
+                start,
+                THRESHOLD_BORN,
+                0,
+                true,
+                c.mix === 4,
+              )
+            : undefined
         const wake: number[] = []
 
         for (let t = 0; t < BEATS; t++) {
           a.beat()
           b.beat()
+
           if (check) {
             check.beat()
             control &&= samePoints(check.state(), b.state())
           }
-          if (t % EVERY === EVERY - 1) wake.push(tritsApart(b.state(), a.state()))
+
+          if (t % EVERY === EVERY - 1) {
+            wake.push(tritsApart(b.state(), a.state()))
+          }
         }
 
-        const last = wake[wake.length - 1] as number
-        const ok = c.gate === 'report' ? true : c.gate === 'scrambled' ? last > scrambled : wake.every(w => w <= (c.pairs === 0 ? QUIET_LONE : QUIET_PER_PAIR * c.pairs))
+        const last = wake[wake.length - 1]!
+        const ok =
+          c.gate === 'report'
+            ? true
+            : c.gate === 'scrambled'
+              ? last > scrambled
+              : wake.every(
+                  w =>
+                    w <=
+                    (c.pairs === 0
+                      ? QUIET_LONE
+                      : QUIET_PER_PAIR * c.pairs),
+                )
 
         k3 &&= ok
-        metrics[`${c.name}_${key.name === 'old' ? 'old' : 'full'}_wake64`] = last
-        metrics[`${c.name}_${key.name === 'old' ? 'old' : 'full'}_wake32`] = wake[3] as number
-        rows.push(`${c.name} ${key.name}: ${wake.join(' ')}${c.gate === 'report' ? '' : ` (${c.gate} ${ok})`}`)
+        metrics[
+          `${c.name}_${key.name === 'old' ? 'old' : 'full'}_wake64`
+        ] = last
+
+        metrics[
+          `${c.name}_${key.name === 'old' ? 'old' : 'full'}_wake32`
+        ] = wake[3]!
+
+        rows.push(
+          `${c.name} ${key.name}: ${wake.join(' ')}${c.gate === 'report' ? '' : ` (${c.gate} ${ok})`}`,
+        )
       }
     }
 

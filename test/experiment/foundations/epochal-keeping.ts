@@ -50,6 +50,7 @@ export default experiment({
     const classify = (dir: number, seedBeat: number): 'K' | 'l' => {
       let vacuum: Will = makeWill(mesh)
       let seeded: Will = makeWill(mesh)
+
       const acc = new Set<number>()
       const readStart = seedBeat + 8
 
@@ -110,8 +111,10 @@ export default experiment({
       claim:
         'the intrinsic leavers read leave at all three birth beats, the intrinsic keepers keep at all three, the four split directions carry their pinned flip patterns, and both split CPT pairs have mutually reversed patterns',
       metrics: {
-        intrinsicLeavers: leaverA === 'lll' && leaverB === 'lll' ? 2 : 0,
-        intrinsicKeepers: keeperA === 'KKK' && keeperB === 'KKK' ? 2 : 0,
+        intrinsicLeavers:
+          leaverA === 'lll' && leaverB === 'lll' ? 2 : 0,
+        intrinsicKeepers:
+          keeperA === 'KKK' && keeperB === 'KKK' ? 2 : 0,
         pairReversed21_22: flip22 === reverse(flip21) ? 1 : 0,
         pairReversed8_11: flip11 === reverse(flip8) ? 1 : 0,
       },

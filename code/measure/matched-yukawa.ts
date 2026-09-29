@@ -31,47 +31,103 @@
 // both drop pairs that share a dock. Nothing moves: a pattern is read afresh from each snapshot.
 
 import { d4BoxMesh } from '@/code/substrate/d4-box'
-import { graphBeat, graphEnergy, graphGaussHolds, makeStringGraph, type GraphState, type StringGraph } from '@/code/rule/string-graph'
-import { boxDisplacement, bulkLength, huskLength, lengthKey, makeBoxGeometry, makeFastGraph, seedGas, singletPieces, type BoxGeometry, type FastGraph, type LengthHistogram, addTo } from '@/code/measure/nucleon-gas'
-import { linkTable, midpointKeys, type LinkTable } from '@/code/measure/pair-string'
+import {
+  graphBeat,
+  graphEnergy,
+  graphGaussHolds,
+  makeStringGraph,
+  type GraphState,
+  type StringGraph,
+} from '@/code/rule/string-graph'
+import {
+  boxDisplacement,
+  bulkLength,
+  huskLength,
+  lengthKey,
+  makeBoxGeometry,
+  makeFastGraph,
+  seedGas,
+  singletPieces,
+  type BoxGeometry,
+  type FastGraph,
+  type LengthHistogram,
+  addTo,
+} from '@/code/measure/nucleon-gas'
+import {
+  linkTable,
+  midpointKeys,
+  type LinkTable,
+} from '@/code/measure/pair-string'
 import { unitDemonBeta } from '@/code/dynamics/finite-kinetic'
 import { SILVER } from '@/code/tool/weyl'
 
 export const KEYS = 4096
 
 // one beat of the rule in place, with the pair move on or off
-export function switchBeat(fast: FastGraph, state: GraphState, pairs: boolean): void {
-  const { from, to, order, next, mass, tension, capacity, scratch } = fast
-  const vibe = state.vibe as Int8Array
-  const flux = state.flux as Int32Array
-  const demon = state.demon as Int32Array
+export function switchBeat(
+  fast: FastGraph,
+  state: GraphState,
+  pairs: boolean,
+): void {
+  const { from, to, order, next, mass, tension, capacity, scratch } =
+    fast
+  const vibe = state.vibe
+  const flux = state.flux
+  const demon = state.demon
 
-  for (let k = 0; k < order.length; k++) {
-    step(from, to, vibe, flux, demon, order[k] as number, mass, tension, capacity, pairs)
+  for (const link of order) {
+    step(
+      from,
+      to,
+      vibe,
+      flux,
+      demon,
+      link,
+      mass,
+      tension,
+      capacity,
+      pairs,
+    )
   }
 
   scratch.set(demon)
 
   for (let l = 0; l < scratch.length; l++) {
-    demon[next[l] as number] = scratch[l] as number
+    demon[next[l]!] = scratch[l]!
   }
 }
 
 // the inverse beat: un-stream the demons, then every link's step (an involution) in the opposite order
-export function switchBeatBack(fast: FastGraph, state: GraphState, pairs: boolean): void {
-  const { from, to, order, next, mass, tension, capacity, scratch } = fast
-  const vibe = state.vibe as Int8Array
-  const flux = state.flux as Int32Array
-  const demon = state.demon as Int32Array
+export function switchBeatBack(
+  fast: FastGraph,
+  state: GraphState,
+  pairs: boolean,
+): void {
+  const { from, to, order, next, mass, tension, capacity, scratch } =
+    fast
+  const vibe = state.vibe
+  const flux = state.flux
+  const demon = state.demon
 
   scratch.set(demon)
 
   for (let l = 0; l < scratch.length; l++) {
-    demon[l] = scratch[next[l] as number] as number
+    demon[l] = scratch[next[l]!]!
   }
 
   for (let k = order.length - 1; k >= 0; k--) {
-    step(from, to, vibe, flux, demon, order[k] as number, mass, tension, capacity, pairs)
+    step(
+      from,
+      to,
+      vibe,
+      flux,
+      demon,
+      order[k]!,
+      mass,
+      tension,
+      capacity,
+      pairs,
+    )
   }
 }
 
@@ -87,10 +143,10 @@ function step(
   capacity: number,
   pairs: boolean,
 ): void {
-  const i = from[l] as number
-  const j = to[l] as number
-  const a = vibe[i] as number
-  const b = vibe[j] as number
+  const i = from[l]!
+  const j = to[l]!
+  const a = vibe[i]!
+  const b = vibe[j]!
 
   let na: number
   let nb: number
@@ -119,10 +175,10 @@ function step(
     return
   }
 
-  const e = flux[l] as number
+  const e = flux[l]!
   const before = ((e % 3) + 3) % 3 !== 0 ? tension : 0
   const after = (((e + change) % 3) + 3) % 3 !== 0 ? tension : 0
-  const d = (demon[l] as number) - (after - before + massChange)
+  const d = demon[l]! - (after - before + massChange)
 
   if (d < 0 || d > capacity) {
     return
@@ -136,11 +192,21 @@ function step(
 
 // does switchBeat with pairs on reproduce graphBeat bit for bit, and does switchBeatBack undo switchBeat (both
 // switches), over this many beats from this start
-export function switchChecks(graph: StringGraph, start: GraphState, beats: number): { agrees: boolean; reverses: boolean; reversesOff: boolean } {
+export function switchChecks(
+  graph: StringGraph,
+  start: GraphState,
+  beats: number,
+): { agrees: boolean; reverses: boolean; reversesOff: boolean } {
   const fast = makeFastGraph(graph)
   const same = (p: GraphState, q: GraphState): boolean =>
-    p.vibe.every((v, i) => v === q.vibe[i]) && p.flux.every((v, i) => v === q.flux[i]) && p.demon.every((v, i) => v === q.demon[i])
-  const copy = (s: GraphState): GraphState => ({ vibe: Int8Array.from(s.vibe), flux: Int32Array.from(s.flux), demon: Int32Array.from(s.demon) })
+    p.vibe.every((v, i) => v === q.vibe[i]) &&
+    p.flux.every((v, i) => v === q.flux[i]) &&
+    p.demon.every((v, i) => v === q.demon[i])
+  const copy = (s: GraphState): GraphState => ({
+    vibe: Int8Array.from(s.vibe),
+    flux: Int32Array.from(s.flux),
+    demon: Int32Array.from(s.demon),
+  })
   const mine = copy(start)
 
   let reference = start
@@ -166,15 +232,26 @@ export function switchChecks(graph: StringGraph, start: GraphState, beats: numbe
     return same(s, start)
   }
 
-  return { agrees, reverses: reversal(true), reversesOff: reversal(false) }
+  return {
+    agrees,
+    reverses: reversal(true),
+    reversesOff: reversal(false),
+  }
 }
 
 // the demons' start: whole values from 0 to the capacity, drawn by the silver Weyl sequence from the truncated
 // geometric law q^d (code/measure/pair-string runPairGas, the same start)
-export function demonStart(links: number, capacity: number, q: number): Int32Array {
+export function demonStart(
+  links: number,
+  capacity: number,
+  q: number,
+): Int32Array {
   const weights = Array.from({ length: capacity + 1 }, (_, d) => q ** d)
   const total = weights.reduce((a, b) => a + b, 0)
-  const cumulative = weights.map((_, d) => weights.slice(0, d + 1).reduce((a, b) => a + b, 0) / total)
+  const cumulative = weights.map(
+    (_, d) =>
+      weights.slice(0, d + 1).reduce((a, b) => a + b, 0) / total,
+  )
 
   return Int32Array.from({ length: links }, (_, l) => {
     const u = ((l + 1) * SILVER) % 1
@@ -195,22 +272,37 @@ export type ClassTable = {
   readonly classes: number
 }
 
-export function classTable(graph: StringGraph, geometry: BoxGeometry, table: LinkTable): ClassTable {
-  const directions = [...new Set(graph.links.map(l => l[2]))].sort((a, b) => a - b)
+export function classTable(
+  graph: StringGraph,
+  geometry: BoxGeometry,
+  table: LinkTable,
+): ClassTable {
+  const directions = [...new Set(graph.links.map(l => l[2]))].sort(
+    (a, b) => a - b,
+  )
   const classes = directions.length
   const classOf = new Map(directions.map((d, c) => [d, c]))
-  const linkClass = Int8Array.from(graph.links, l => classOf.get(l[2]) ?? -1)
-  const bulk = Array.from({ length: classes * classes }, () => new Float64Array(KEYS))
-  const husk = Array.from({ length: classes * classes }, () => new Float64Array(KEYS))
+  const linkClass = Int8Array.from(
+    graph.links,
+    l => classOf.get(l[2]) ?? -1,
+  )
+  const bulk = Array.from(
+    { length: classes * classes },
+    () => new Float64Array(KEYS),
+  )
+  const husk = Array.from(
+    { length: classes * classes },
+    () => new Float64Array(KEYS),
+  )
   const keys = new Int32Array(2)
   // the link of each class at dock 0
-  const firsts = directions.map(d => graph.linkAt[d] as number)
+  const firsts = directions.map(d => graph.linkAt[d]!)
 
   firsts.forEach((first, c1) => {
-    const [a1, b1] = graph.links[first] as readonly [number, number, number]
+    const [a1, b1] = graph.links[first]!
 
     for (let l = 0; l < graph.links.length; l++) {
-      const [a2, b2] = graph.links[l] as readonly [number, number, number]
+      const [a2, b2] = graph.links[l]!
 
       if (a2 === a1 || a2 === b1 || b2 === a1 || b2 === b1) {
         continue
@@ -218,12 +310,12 @@ export function classTable(graph: StringGraph, geometry: BoxGeometry, table: Lin
 
       midpointKeys({ table, geometry, first, second: l, out: keys })
 
-      const c2 = linkClass[l] as number
+      const c2 = linkClass[l]!
       const bh = bulk[c1 * classes + c2] as Float64Array
       const hh = husk[c1 * classes + c2] as Float64Array
 
-      bh[keys[0] as number] = (bh[keys[0] as number] as number) + 1
-      hh[keys[1] as number] = (hh[keys[1] as number] as number) + 1
+      bh[keys[0]!] = bh[keys[0]!]! + 1
+      hh[keys[1]!] = hh[keys[1]!]! + 1
     }
   })
 
@@ -255,7 +347,11 @@ export type YukawaRun = {
   readonly patternsPerRead: number
   readonly batches: Batch[]
   // the love-fear displacement of every piece holding exactly one love and one fear (the meson profile)
-  readonly profile: { bulk: LengthHistogram; husk: LengthHistogram; pieces: number }
+  readonly profile: {
+    bulk: LengthHistogram
+    husk: LengthHistogram
+    pieces: number
+  }
   readonly final: GraphState
 }
 
@@ -281,25 +377,55 @@ export type YukawaBox = {
 }
 
 export function yukawaBox(setup: YukawaSetup): YukawaBox {
-  const graph = makeStringGraph({ mesh: d4BoxMesh({ side: setup.side }), mass: setup.mass, tension: setup.tension, capacity: setup.capacity })
+  const graph = makeStringGraph({
+    mesh: d4BoxMesh({ side: setup.side }),
+    mass: setup.mass,
+    tension: setup.tension,
+    capacity: setup.capacity,
+  })
   const geometry = makeBoxGeometry(setup.side)
   const table = linkTable(graph, geometry)
 
-  return { graph, geometry, table, classes: classTable(graph, geometry, table) }
+  return {
+    graph,
+    geometry,
+    table,
+    classes: classTable(graph, geometry, table),
+  }
 }
 
 // the seeded start of every run: code/measure/nucleon-gas seedGas and the demon start above
-export function seededStart(box: YukawaBox, setup: YukawaSetup): GraphState {
-  const seeded = seedGas({ graph: box.graph, mesons: setup.mesons, baryons: setup.baryons })
+export function seededStart(
+  box: YukawaBox,
+  setup: YukawaSetup,
+): GraphState {
+  const seeded = seedGas({
+    graph: box.graph,
+    mesons: setup.mesons,
+    baryons: setup.baryons,
+  })
 
-  return { ...seeded, demon: demonStart(box.graph.links.length, setup.capacity, setup.q) }
+  return {
+    ...seeded,
+    demon: demonStart(box.graph.links.length, setup.capacity, setup.q),
+  }
 }
 
-export function yukawaRun(input: { box: YukawaBox; setup: YukawaSetup; start: GraphState; pairs: boolean; profileEvery?: number }): YukawaRun {
+export function yukawaRun(input: {
+  box: YukawaBox
+  setup: YukawaSetup
+  start: GraphState
+  pairs: boolean
+  profileEvery?: number
+}): YukawaRun {
   const { box, setup, pairs } = input
   const { graph, geometry, table, classes } = box
   const fast = makeFastGraph(graph)
-  const s: GraphState = { vibe: Int8Array.from(input.start.vibe), flux: Int32Array.from(input.start.flux), demon: Int32Array.from(input.start.demon) }
+  const s: GraphState = {
+    vibe: Int8Array.from(input.start.vibe),
+    flux: Int32Array.from(input.start.flux),
+    demon: Int32Array.from(input.start.demon),
+  }
   const e0 = graphEnergy(graph, s)
   const from = Int32Array.from(graph.links, l => l[0])
   const to = Int32Array.from(graph.links, l => l[1])
@@ -310,14 +436,21 @@ export function yukawaRun(input: { box: YukawaBox; setup: YukawaSetup; start: Gr
   const keys = new Int32Array(2)
   const readsTotal = Math.floor(setup.beats / setup.every)
   const perBatch = Math.ceil(readsTotal / setup.batches)
-  const batches: Batch[] = Array.from({ length: setup.batches }, () => ({
-    realBulk: new Float64Array(KEYS),
-    realHusk: new Float64Array(KEYS),
-    products: new Float64Array(nClasses * nClasses),
-    reads: 0,
-    patterns: 0,
-  }))
-  const profile = { bulk: new Map() as LengthHistogram, husk: new Map() as LengthHistogram, pieces: 0 }
+  const batches: Batch[] = Array.from(
+    { length: setup.batches },
+    () => ({
+      realBulk: new Float64Array(KEYS),
+      realHusk: new Float64Array(KEYS),
+      products: new Float64Array(nClasses * nClasses),
+      reads: 0,
+      patterns: 0,
+    }),
+  )
+  const profile = {
+    bulk: new Map() as LengthHistogram,
+    husk: new Map() as LengthHistogram,
+    pieces: 0,
+  }
   const profileEvery = input.profileEvery ?? 1
 
   let exact = graphGaussHolds(graph, s)
@@ -334,24 +467,30 @@ export function yukawaRun(input: { box: YukawaBox; setup: YukawaSetup; start: Gr
       continue
     }
 
-    const batch = batches[Math.min(setup.batches - 1, Math.floor(reads / perBatch))] as Batch
+    const batch =
+      batches[
+        Math.min(setup.batches - 1, Math.floor(reads / perBatch))
+      ]!
 
     if (reads % 50 === 0) {
-      exact = exact && graphEnergy(graph, s) === e0 && graphGaussHolds(graph, s)
+      exact =
+        exact &&
+        graphEnergy(graph, s) === e0 &&
+        graphGaussHolds(graph, s)
     }
 
     let d = 0
 
     for (let l = 0; l < graph.links.length; l++) {
-      d += s.demon[l] as number
+      d += s.demon[l]!
     }
 
     demonSum += d / graph.links.length
 
     let here = 0
 
-    for (let x = 0; x < s.vibe.length; x++) {
-      here += s.vibe[x] !== 0 ? 1 : 0
+    for (const v of s.vibe) {
+      here += v !== 0 ? 1 : 0
     }
 
     charges += here
@@ -364,11 +503,11 @@ export function yukawaRun(input: { box: YukawaBox; setup: YukawaSetup; start: Gr
     let n = 0
 
     for (let l = 0; l < graph.links.length; l++) {
-      const a = s.vibe[from[l] as number] as number
+      const a = s.vibe[from[l]!]!
 
-      if (a !== 0 && a === -(s.vibe[to[l] as number] as number)) {
+      if (a !== 0 && a === -s.vibe[to[l]!]!) {
         found[n++] = l
-        counts[linkClass[l] as number] = (counts[linkClass[l] as number] as number) + 1
+        counts[linkClass[l]!] = counts[linkClass[l]!]! + 1
       }
     }
 
@@ -376,9 +515,10 @@ export function yukawaRun(input: { box: YukawaBox; setup: YukawaSetup; start: Gr
 
     for (let c1 = 0; c1 < nClasses; c1++) {
       for (let c2 = 0; c2 < nClasses; c2++) {
-        const p = (counts[c1] as number) * ((counts[c2] as number) - (c1 === c2 ? 1 : 0))
+        const p = counts[c1]! * (counts[c2]! - (c1 === c2 ? 1 : 0))
 
-        batch.products[c1 * nClasses + c2] = (batch.products[c1 * nClasses + c2] as number) + p
+        batch.products[c1 * nClasses + c2] =
+          batch.products[c1 * nClasses + c2]! + p
       }
     }
 
@@ -389,32 +529,44 @@ export function yukawaRun(input: { box: YukawaBox; setup: YukawaSetup; start: Gr
     // counted each pair twice at the key of its lower link index, which the reference does not (disclosed in
     // E-FRC-0217's header)
     for (let i = 0; i < n; i++) {
-      const li = found[i] as number
-      const ai = from[li] as number
-      const bi = to[li] as number
+      const li = found[i]!
+      const ai = from[li]!
+      const bi = to[li]!
 
       for (let j = i + 1; j < n; j++) {
-        const lj = found[j] as number
-        const aj = from[lj] as number
-        const bj = to[lj] as number
+        const lj = found[j]!
+        const aj = from[lj]!
+        const bj = to[lj]!
 
         if (aj === ai || aj === bi || bj === ai || bj === bi) {
           continue
         }
 
-        midpointKeys({ table, geometry, first: li, second: lj, out: keys })
-        batch.realBulk[keys[0] as number] = (batch.realBulk[keys[0] as number] as number) + 1
-        batch.realHusk[keys[1] as number] = (batch.realHusk[keys[1] as number] as number) + 1
-        midpointKeys({ table, geometry, first: lj, second: li, out: keys })
-        batch.realBulk[keys[0] as number] = (batch.realBulk[keys[0] as number] as number) + 1
-        batch.realHusk[keys[1] as number] = (batch.realHusk[keys[1] as number] as number) + 1
+        midpointKeys({
+          table,
+          geometry,
+          first: li,
+          second: lj,
+          out: keys,
+        })
+        batch.realBulk[keys[0]!] = batch.realBulk[keys[0]!]! + 1
+        batch.realHusk[keys[1]!] = batch.realHusk[keys[1]!]! + 1
+        midpointKeys({
+          table,
+          geometry,
+          first: lj,
+          second: li,
+          out: keys,
+        })
+        batch.realBulk[keys[0]!] = batch.realBulk[keys[0]!]! + 1
+        batch.realHusk[keys[1]!] = batch.realHusk[keys[1]!]! + 1
       }
     }
 
     if (reads % profileEvery === 0) {
       for (const p of singletPieces(graph, s)) {
         if (p.loves.length === 1 && p.fears.length === 1) {
-          const v = boxDisplacement(geometry, p.fears[0] as number, p.loves[0] as number)
+          const v = boxDisplacement(geometry, p.fears[0]!, p.loves[0]!)
 
           addTo(profile.bulk, lengthKey(bulkLength(v) ** 2))
           addTo(profile.husk, lengthKey(huskLength(v) ** 2))
@@ -427,7 +579,8 @@ export function yukawaRun(input: { box: YukawaBox; setup: YukawaSetup; start: Gr
     reads++
   }
 
-  exact = exact && graphEnergy(graph, s) === e0 && graphGaussHolds(graph, s)
+  exact =
+    exact && graphEnergy(graph, s) === e0 && graphGaussHolds(graph, s)
 
   const meanDemon = demonSum / Math.max(1, reads)
   const beta = unitDemonBeta({ meanDemon, capacity: setup.capacity })
@@ -442,7 +595,8 @@ export function yukawaRun(input: { box: YukawaBox; setup: YukawaSetup; start: Gr
     chargesPerDock: charges / (reads * graph.mesh.cellCount),
     fewestCharges: fewest,
     mostCharges: most,
-    patternsPerRead: batches.reduce((a, b) => a + b.patterns, 0) / reads,
+    patternsPerRead:
+      batches.reduce((a, b) => a + b.patterns, 0) / reads,
     batches,
     profile,
     final: s,
@@ -451,9 +605,20 @@ export function yukawaRun(input: { box: YukawaBox; setup: YukawaSetup; start: Gr
 
 // g - 1 per shell from the batches: the pooled ratio of real to reference counts, with the spread of the batch
 // ratios over the square root of the batch count as its error
-export type YukawaShell = { readonly key: number; readonly r: number; readonly g: number; readonly sigma: number; readonly real: number; readonly reference: number }
+export type YukawaShell = {
+  readonly key: number
+  readonly r: number
+  readonly g: number
+  readonly sigma: number
+  readonly real: number
+  readonly reference: number
+}
 
-export function yukawaShells(input: { run: YukawaRun; box: YukawaBox; which: 'bulk' | 'husk' }): YukawaShell[] {
+export function yukawaShells(input: {
+  run: YukawaRun
+  box: YukawaBox
+  which: 'bulk' | 'husk'
+}): YukawaShell[] {
   const { run, box, which } = input
   const nClasses = box.classes.classes
   const volume = box.graph.mesh.cellCount
@@ -462,42 +627,59 @@ export function yukawaShells(input: { run: YukawaRun; box: YukawaBox; which: 'bu
 
     for (let c1 = 0; c1 < nClasses; c1++) {
       for (let c2 = 0; c2 < nClasses; c2++) {
-        const p = b.products[c1 * nClasses + c2] as number
+        const p = b.products[c1 * nClasses + c2]!
 
         if (p === 0) {
           continue
         }
 
-        const h = (which === 'bulk' ? box.classes.bulk : box.classes.husk)[c1 * nClasses + c2] as Float64Array
+        const h = (
+          which === 'bulk' ? box.classes.bulk : box.classes.husk
+        )[c1 * nClasses + c2]!
         const scale = p / (c1 === c2 ? volume - 1 : volume)
 
         for (let k = 0; k < KEYS; k++) {
-          const v = h[k] as number
+          const v = h[k]!
 
           if (v !== 0) {
-            reference[k] = (reference[k] as number) + scale * v
+            reference[k] = reference[k]! + scale * v
           }
         }
       }
     }
 
-    return { real: which === 'bulk' ? b.realBulk : b.realHusk, reference }
+    return {
+      real: which === 'bulk' ? b.realBulk : b.realHusk,
+      reference,
+    }
   })
   const out: YukawaShell[] = []
 
   for (let k = 1; k < KEYS; k++) {
-    const real = per.reduce((a, b) => a + (b.real[k] as number), 0)
-    const reference = per.reduce((a, b) => a + (b.reference[k] as number), 0)
+    const real = per.reduce((a, b) => a + b.real[k]!, 0)
+    const reference = per.reduce((a, b) => a + b.reference[k]!, 0)
 
     if (reference <= 0) {
       continue
     }
 
-    const ratios = per.filter(b => (b.reference[k] as number) > 0).map(b => (b.real[k] as number) / (b.reference[k] as number))
+    const ratios = per
+      .filter(b => b.reference[k]! > 0)
+      .map(b => b.real[k]! / b.reference[k]!)
     const mean = ratios.reduce((a, v) => a + v, 0) / ratios.length
-    const spread = Math.sqrt(ratios.reduce((a, v) => a + (v - mean) ** 2, 0) / Math.max(1, ratios.length - 1))
+    const spread = Math.sqrt(
+      ratios.reduce((a, v) => a + (v - mean) ** 2, 0) /
+        Math.max(1, ratios.length - 1),
+    )
 
-    out.push({ key: k, r: Math.sqrt(k / 4), g: real / reference, sigma: spread / Math.sqrt(ratios.length), real, reference })
+    out.push({
+      key: k,
+      r: Math.sqrt(k / 4),
+      g: real / reference,
+      sigma: spread / Math.sqrt(ratios.length),
+      real,
+      reference,
+    })
   }
 
   return out

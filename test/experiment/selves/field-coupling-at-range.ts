@@ -204,8 +204,7 @@ export default experiment({
     const seam = L >> 1
     const intact = squareMesh({ side: L })
     const severed = severedMesh(intact, seam)
-    const oppositeOf = (mesh: Mesh): number[] =>
-      meshOpposites(mesh)
+    const oppositeOf = (mesh: Mesh): number[] => meshOpposites(mesh)
 
     // the radiating rule candidate carries influence, the sealing rule does not
     const rotate = headOnRotate({ opposite: oppositeOf(intact) })

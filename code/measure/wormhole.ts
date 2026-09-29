@@ -6,7 +6,12 @@
 // and the traversal capacity that is its throat width.
 
 // The binary entropy of a probability p.
-import { ComplexPair as Complex, pairAdd as add, pairMul as mul, pairAbs2 as abs2 } from '@/code/algebra/linear/complex-pair'
+import {
+  ComplexPair as Complex,
+  pairAdd as add,
+  pairMul as mul,
+  pairAbs2 as abs2,
+} from '@/code/algebra/linear/complex-pair'
 
 function binaryEntropy(p: number): number {
   if (p <= 0 || p >= 1) {

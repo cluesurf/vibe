@@ -84,7 +84,16 @@ import {
 const PERIOD = 24
 const GOLDEN = (Math.sqrt(5) - 1) / 2
 
-const GATES = ['cpt', 'vacuumPeriod', 'vacuumComponents', 'denseComponents', 'travel', 'superposition', 'reversal', 'walls'] as const
+const GATES = [
+  'cpt',
+  'vacuumPeriod',
+  'vacuumComponents',
+  'denseComponents',
+  'travel',
+  'superposition',
+  'reversal',
+  'walls',
+] as const
 
 type Gate = (typeof GATES)[number]
 
@@ -94,10 +103,17 @@ const ruleOf =
     momentumWeave({ spec, opposite, forward })
 
 // the committed rule's own values on the gates that compare counts, measured by the same functions
-type Reference = { vacuumComponents: number; denseComponents: number; travellers: number }
+type Reference = {
+  vacuumComponents: number
+  denseComponents: number
+  travellers: number
+}
 
 // the first gate a member fails, in increasing cost, or undefined
-function firstFailure(spec: MomentumWeaveSpec, reference: Reference): { failed: Gate | undefined; values: Record<string, number> } {
+function firstFailure(
+  spec: MomentumWeaveSpec,
+  reference: Reference,
+): { failed: Gate | undefined; values: Record<string, number> } {
   const rule = ruleOf(spec)
   const values: Record<string, number> = {}
   const done = (failed: Gate | undefined) => ({ failed, values })
@@ -161,24 +177,31 @@ function firstFailure(spec: MomentumWeaveSpec, reference: Reference): { failed: 
 // fires(T'(x)) -> fires(x) (T' the table on the wire, X the exchange). The count is the closed sets of
 // that implication graph times 2^(orbits whose exchange keeps the pair). Swap then table: no orbit that
 // changes the pair may fire.
-function conditionCount(table: LineTable, crossed: boolean): { changing: number; keeping: number; closedSets: number } {
+function conditionCount(
+  table: LineTable,
+  crossed: boolean,
+): { changing: number; keeping: number; closedSets: number } {
   const reverse = (k: number): number => {
     const [a, b] = keyTones(k)
 
     return lineKey(b, a)
   }
+
   const exchange = (x: number): number => {
     const l = Math.floor(x / 9)
     const w = x % 9
 
     return crossed ? reverse(w) * 9 + reverse(l) : w * 9 + l
   }
+
   const onWire = (x: number): number => {
     const image = table[x % 9] ?? [0, 0]
 
     return Math.floor(x / 9) * 9 + lineKey(image[0], image[1])
   }
-  const pair = (x: number): string => `${lineMomentum(Math.floor(x / 9))},${lineMomentum(x % 9)}`
+
+  const pair = (x: number): string =>
+    `${lineMomentum(Math.floor(x / 9))},${lineMomentum(x % 9)}`
   const changes = (x: number): boolean => pair(exchange(x)) !== pair(x)
   const index = new Map<number, number>()
 
@@ -202,7 +225,8 @@ function conditionCount(table: LineTable, crossed: boolean): { changing: number;
   }
 
   const changing = [...index.values()].filter(v => v >= 0).length
-  const variable = (x: number): number => index.get(Math.min(x, exchange(x))) ?? -1
+  const variable = (x: number): number =>
+    index.get(Math.min(x, exchange(x))) ?? -1
   const needs = new Array<number>(changing).fill(0)
 
   for (let x = 0; x < 81; x++) {
@@ -224,7 +248,8 @@ function conditionCount(table: LineTable, crossed: boolean): { changing: number;
     let closed = true
 
     for (let i = 0; i < changing && closed; i++) {
-      closed = ((mask >> i) & 1) === 0 || ((needs[i] ?? 0) & ~mask) === 0
+      closed =
+        ((mask >> i) & 1) === 0 || ((needs[i] ?? 0) & ~mask) === 0
     }
 
     closedSets += closed ? 1 : 0
@@ -236,7 +261,8 @@ function conditionCount(table: LineTable, crossed: boolean): { changing: number;
 // The same count by a second method, for the straight orientation with the pair-keeping orbits off: every
 // subset of the pair-changing orbits, the swap couple composed directly and tested on all 81 states
 function bruteForceCount(table: LineTable): number {
-  const exchange = (x: number): number => (x % 9) * 9 + Math.floor(x / 9)
+  const exchange = (x: number): number =>
+    (x % 9) * 9 + Math.floor(x / 9)
   const n = Array.from({ length: 9 }, (_, k) => lineMomentum(k))
   const onWire = Array.from({ length: 81 }, (_, x) => {
     const image = table[x % 9] ?? [0, 0]
@@ -267,7 +293,9 @@ function bruteForceCount(table: LineTable): number {
       const j = orbit[z] ?? -1
       const f = j >= 0 && (mask >> j) & 1 ? exchange(z) : z
 
-      keeps = n[Math.floor(f / 9)] === n[Math.floor(x / 9)] && n[f % 9] === n[x % 9]
+      keeps =
+        n[Math.floor(f / 9)] === n[Math.floor(x / 9)] &&
+        n[f % 9] === n[x % 9]
     }
 
     count += keeps ? 1 : 0
@@ -288,10 +316,18 @@ export default experiment({
   run() {
     // 1. tables
     const tables = sumKeepingTables()
-    const keepsOnWire = (table: LineTable, share: (k: number) => number): boolean =>
+    const keepsOnWire = (
+      table: LineTable,
+      share: (k: number) => number,
+    ): boolean =>
       table.every(([a, b], k) => share(lineKey(a, b)) === share(k))
     const hopFree = (table: LineTable): boolean =>
-      [lineKey(1, 0), lineKey(-1, 0), lineKey(0, 1), lineKey(0, -1)].every(k => {
+      [
+        lineKey(1, 0),
+        lineKey(-1, 0),
+        lineKey(0, 1),
+        lineKey(0, -1),
+      ].every(k => {
         const [a, b] = table[k] ?? [0, 0]
 
         return lineKey(a, b) === k
@@ -307,13 +343,26 @@ export default experiment({
 
     // 2. conditions, exact counts, and the argument's two halves
     const counts = pTables.flatMap((table, i) =>
-      [false, true].map(crossed => ({ table: i, crossed, ...conditionCount(table, crossed) })),
+      [false, true].map(crossed => ({
+        table: i,
+        crossed,
+        ...conditionCount(table, crossed),
+      })),
     )
     // the second method on the flip table and the bind table
     const bruteChecks = [FLIP_TABLE, BIND_MOVE_FORWARD].map(table => {
-      const i = pTables.findIndex(t => t.every(([a, b], k) => a === table[k]?.[0] && b === table[k]?.[1]))
+      const i = pTables.findIndex(t =>
+        t.every(
+          ([a, b], k) => a === table[k]?.[0] && b === table[k]?.[1],
+        ),
+      )
 
-      return { brute: bruteForceCount(table), closed: counts.find(c => c.table === i && !c.crossed)?.closedSets ?? -1 }
+      return {
+        brute: bruteForceCount(table),
+        closed:
+          counts.find(c => c.table === i && !c.crossed)?.closedSets ??
+          -1,
+      }
     })
     const roots = rootsD4()
     const opposite = meshOpposites(d4BoxMesh({ side: 5 }))
@@ -325,8 +374,14 @@ export default experiment({
         return i === j || Math.abs(dot) < 2
       }),
     )
-    const selectedLine = latticeQuotient(coupleChanges(MOMENTUM_WEAVE, lineMomentum), 12)
-    const committedLine = latticeQuotient(coupleChanges(COMMITTED_SPEC, lineMomentum), 12)
+    const selectedLine = latticeQuotient(
+      coupleChanges(MOMENTUM_WEAVE, lineMomentum),
+      12,
+    )
+    const committedLine = latticeQuotient(
+      coupleChanges(COMMITTED_SPEC, lineMomentum),
+      12,
+    )
     const mesh = d4BoxMesh({ side: 5 })
     const start: Will = makeWill(mesh)
 
@@ -344,7 +399,12 @@ export default experiment({
 
     for (let t = 0; t < 2 * PERIOD; t++) {
       will = beat(will, run(t))
-      lineDrift = Math.max(lineDrift, ...lineMomenta(will.data, opposite).map((x, L) => Math.abs(x - (first[L] ?? 0))))
+      lineDrift = Math.max(
+        lineDrift,
+        ...lineMomenta(will.data, opposite).map((x, L) =>
+          Math.abs(x - (first[L] ?? 0)),
+        ),
+      )
     }
 
     // 3. gates on every distinct negation-symmetric momentum-keeping member
@@ -354,8 +414,14 @@ export default experiment({
       ['flip', FLIP_TABLE],
       ['identity', IDENTITY_TABLE],
     ])
-    const failures: Record<string, number> = Object.fromEntries([...GATES, 'none'].map(g => [g, 0]))
-    const deepest: { id: string; stage: number; values: Record<string, number> }[] = []
+    const failures: Record<string, number> = Object.fromEntries(
+      [...GATES, 'none'].map(g => [g, 0]),
+    )
+    const deepest: {
+      id: string
+      stage: number
+      values: Record<string, number>
+    }[] = []
     const committedRule = ruleOf(COMMITTED_SPEC)
     const thresholds: Reference = {
       vacuumComponents: lineComponents(committedRule, false),
@@ -366,7 +432,8 @@ export default experiment({
 
     for (const { id, spec } of members) {
       const { failed, values } = firstFailure(spec, thresholds)
-      const stage = failed === undefined ? GATES.length : GATES.indexOf(failed)
+      const stage =
+        failed === undefined ? GATES.length : GATES.indexOf(failed)
 
       failures[failed ?? 'none'] = (failures[failed ?? 'none'] ?? 0) + 1
       deepest.push({ id, stage, values })
@@ -377,33 +444,58 @@ export default experiment({
     const furthest = deepest[0]
     const passing = failures.none ?? 0
     const passers = deepest.filter(d => d.stage === GATES.length)
-    const passersOn = (prefix: string): number => passers.filter(d => d.id.startsWith(prefix)).length
+    const passersOn = (prefix: string): number =>
+      passers.filter(d => d.id.startsWith(prefix)).length
     const selectedComposite = coupleComposite(MOMENTUM_WEAVE).join(',')
     const selectedPasses = passers.some(d => {
       const member = members.find(m => m.id === d.id)
 
-      return member !== undefined && coupleComposite(member.spec).join(',') === selectedComposite && member.spec.table === MOMENTUM_WEAVE.table
+      return (
+        member !== undefined &&
+        coupleComposite(member.spec).join(',') === selectedComposite &&
+        member.spec.table === MOMENTUM_WEAVE.table
+      )
     })
     // the dressing of a lone love on every passer and on the committed rule (reported, not a gate here)
-    const dressingOf = (spec: MomentumWeaveSpec): number[] => dressing(ruleOf(spec), { tone: 1 }).periodLargest
+    const dressingOf = (spec: MomentumWeaveSpec): number[] =>
+      dressing(ruleOf(spec), { tone: 1 }).periodLargest
     const committedDressing = dressingOf(COMMITTED_SPEC)
     const passerDressing = passers.map(d => {
       const member = members.find(m => m.id === d.id)
 
-      return { id: d.id, largest: member ? dressingOf(member.spec) : [] }
+      return {
+        id: d.id,
+        largest: member ? dressingOf(member.spec) : [],
+      }
     })
 
-    passerDressing.sort((a, b) => (a.largest[3] ?? 0) - (b.largest[3] ?? 0))
+    passerDressing.sort(
+      (a, b) => (a.largest[3] ?? 0) - (b.largest[3] ?? 0),
+    )
 
     const leastDressed = passerDressing[0]
-    const dressedMoreEverywhere = passerDressing.every(p => p.largest.some((x, i) => x > (committedDressing[i] ?? 0)))
-    const selectedTravellers = passers.find(d => {
-      const member = members.find(m => m.id === d.id)
+    const dressedMoreEverywhere = passerDressing.every(p =>
+      p.largest.some((x, i) => x > (committedDressing[i] ?? 0)),
+    )
+    const selectedTravellers =
+      passers.find(d => {
+        const member = members.find(m => m.id === d.id)
 
-      return member !== undefined && coupleComposite(member.spec).join(',') === selectedComposite && member.spec.table === MOMENTUM_WEAVE.table
-    })?.values.travellers ?? -1
-    const densePassers = deepest.filter(d => d.stage > GATES.indexOf('denseComponents'))
-    const smallestDense = Math.min(...deepest.filter(d => d.values.denseComponents !== undefined).map(d => d.values.denseComponents ?? 12))
+        return (
+          member !== undefined &&
+          coupleComposite(member.spec).join(',') ===
+            selectedComposite &&
+          member.spec.table === MOMENTUM_WEAVE.table
+        )
+      })?.values.travellers ?? -1
+    const densePassers = deepest.filter(
+      d => d.stage > GATES.indexOf('denseComponents'),
+    )
+    const smallestDense = Math.min(
+      ...deepest
+        .filter(d => d.values.denseComponents !== undefined)
+        .map(d => d.values.denseComponents ?? 12),
+    )
 
     // 4. the smallest change
     const lineIndex = new Array<number>(24).fill(-1)
@@ -420,7 +512,13 @@ export default experiment({
     const lineOf = (d: number): number => lineIndex[d] ?? -1
     const firstSlot = (d: number): boolean => d < (opposite[d] ?? d)
     const sumZero = (ds: number[], signs: number[]): boolean =>
-      [0, 1, 2, 3].every(k => ds.reduce((s, d, i) => s + (signs[i] ?? 1) * (roots[d]?.[k] ?? 0), 0) === 0)
+      [0, 1, 2, 3].every(
+        k =>
+          ds.reduce(
+            (s, d, i) => s + (signs[i] ?? 1) * (roots[d]?.[k] ?? 0),
+            0,
+          ) === 0,
+      )
     const triples: number[][] = []
     const planes = new Set<string>()
 
@@ -433,7 +531,9 @@ export default experiment({
             const row = new Array<number>(12).fill(0)
 
             // the triple reverses: each tone's line momentum changes by -2 n
-            ;[a, b, c].forEach(d => (row[lineOf(d)] = firstSlot(d) ? -2 : 2))
+            ;[a, b, c].forEach(
+              d => (row[lineOf(d)] = firstSlot(d) ? -2 : 2),
+            )
             triples.push(row)
             planes.add([...ls].sort((x, y) => x - y).join(','))
           }
@@ -447,9 +547,17 @@ export default experiment({
       for (let d2 = d1 + 1; d2 < 24; d2++) {
         for (let d3 = 0; d3 < 24; d3++) {
           for (let d4 = d3 + 1; d4 < 24; d4++) {
-            const ls = new Set([lineOf(d1), lineOf(d2), lineOf(d3), lineOf(d4)])
+            const ls = new Set([
+              lineOf(d1),
+              lineOf(d2),
+              lineOf(d3),
+              lineOf(d4),
+            ])
 
-            if (ls.size === 4 && sumZero([d1, d2, d3, d4], [1, 1, -1, -1])) {
+            if (
+              ls.size === 4 &&
+              sumZero([d1, d2, d3, d4], [1, 1, -1, -1])
+            ) {
               const row = new Array<number>(12).fill(0)
               const n = (d: number): number => (firstSlot(d) ? 1 : -1)
 
@@ -464,14 +572,23 @@ export default experiment({
       }
     }
 
-    const toVector = (row: number[]): number[] => [0, 1, 2, 3].map(k => row.reduce((s, n, L) => s + n * (lineRoots[L]?.[k] ?? 0), 0))
-    const keepsVector = (rows: number[][]): boolean => rows.every(r => toVector(r).every(x => x === 0))
+    const toVector = (row: number[]): number[] =>
+      [0, 1, 2, 3].map(k =>
+        row.reduce((s, n, L) => s + n * (lineRoots[L]?.[k] ?? 0), 0),
+      )
+    const keepsVector = (rows: number[][]): boolean =>
+      rows.every(r => toVector(r).every(x => x === 0))
     const tripleQ = latticeQuotient(triples, 12)
     const binaryQ = latticeQuotient(binary, 12)
-    const lineOfWorks = roots.every((_, d) => lineOf(d) >= 0 && lineOf(d) === lineOf(opposite[d] ?? d))
+    const lineOfWorks = roots.every(
+      (_, d) =>
+        lineOf(d) >= 0 && lineOf(d) === lineOf(opposite[d] ?? d),
+    )
 
     const countsExact =
-      counts.every(c => c.changing + c.keeping === 36 && c.closedSets > 1) && bruteChecks.every(c => c.brute === c.closed)
+      counts.every(
+        c => c.changing + c.keeping === 36 && c.closedSets > 1,
+      ) && bruteChecks.every(c => c.brute === c.closed)
 
     const ok =
       tablesExact &&
@@ -502,7 +619,8 @@ export default experiment({
       countMetrics[`${tag}ChangingOrbits`] = c.changing
       countMetrics[`${tag}KeepingOrbits`] = c.keeping
       countMetrics[`${tag}ClosedSets`] = c.closedSets
-      countMetrics[`${tag}Log2Conditions`] = Math.log2(c.closedSets) + c.keeping
+      countMetrics[`${tag}Log2Conditions`] =
+        Math.log2(c.closedSets) + c.keeping
     })
 
     return verdict({
@@ -521,19 +639,40 @@ export default experiment({
         committedFreeLineInvariants: committedLine.free,
         selectedLineMomentumDrift: lineDrift,
         membersGated: members.length,
-        ...Object.fromEntries(Object.entries(failures).map(([g, n]) => [`firstFailure_${g}`, n])),
+        ...Object.fromEntries(
+          Object.entries(failures).map(([g, n]) => [
+            `firstFailure_${g}`,
+            n,
+          ]),
+        ),
         membersPassingEveryGate: passing,
         passersOnBind: passersOn('bind:'),
         passersOnBindReverse: passersOn('bind-reverse:'),
         passersOnFlip: passersOn('flip:'),
         passersOnIdentity: passersOn('identity:'),
-        passersSwapThenClock: passers.filter(d => d.id.includes(':once:')).length,
+        passersSwapThenClock: passers.filter(d =>
+          d.id.includes(':once:'),
+        ).length,
         selectedPasses: selectedPasses ? 1 : 0,
         selectedTravellers,
-        largestTravellersAmongPassers: Math.max(...passers.map(d => d.values.travellers ?? 0)),
-        smallestTravellersAmongPassers: Math.min(...passers.map(d => d.values.travellers ?? 0)),
-        ...Object.fromEntries((leastDressed?.largest ?? []).map((x, p) => [`leastDressedPasserLoveSupportPeriod${p + 1}`, x])),
-        ...Object.fromEntries(committedDressing.map((x, p) => [`committedLoveSupportPeriod${p + 1}`, x])),
+        largestTravellersAmongPassers: Math.max(
+          ...passers.map(d => d.values.travellers ?? 0),
+        ),
+        smallestTravellersAmongPassers: Math.min(
+          ...passers.map(d => d.values.travellers ?? 0),
+        ),
+        ...Object.fromEntries(
+          (leastDressed?.largest ?? []).map((x, p) => [
+            `leastDressedPasserLoveSupportPeriod${p + 1}`,
+            x,
+          ]),
+        ),
+        ...Object.fromEntries(
+          committedDressing.map((x, p) => [
+            `committedLoveSupportPeriod${p + 1}`,
+            x,
+          ]),
+        ),
         everyPasserDressesMore: dressedMoreEverywhere ? 1 : 0,
         membersPastDenseComponents: densePassers.length,
         smallestDenseComponents: smallestDense,
@@ -548,9 +687,12 @@ export default experiment({
         binaryTorsionOrder: binaryQ.torsion.reduce((s, x) => s * x, 1),
       },
       control: {
-        committedPassesEveryGate: reference.failed === undefined ? 1 : 0,
-        committedVacuumComponents: reference.values.vacuumComponents ?? -1,
-        committedDenseComponents: reference.values.denseComponents ?? -1,
+        committedPassesEveryGate:
+          reference.failed === undefined ? 1 : 0,
+        committedVacuumComponents:
+          reference.values.vacuumComponents ?? -1,
+        committedDenseComponents:
+          reference.values.denseComponents ?? -1,
         committedTravellers: reference.values.travellers ?? -1,
         committedCptPhase: reference.values.cpt ?? -1,
       },

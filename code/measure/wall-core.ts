@@ -35,12 +35,30 @@ import { LINE_FIRSTS } from '@/code/rule/isometric-knit'
 import { makeColorWeave } from '@/code/rule/color-weave'
 import { separatedLayout } from '@/code/rule/living-pair-knit'
 import { type CollisionKind } from '@/code/rule/bounce-pair-knit'
-import { bounceRunner, collideBounce, makeBounceKernel, type BounceKernel } from '@/code/measure/bounce-pair-kernel'
-import { cloneReduced, type Reduced } from '@/code/measure/living-pair-kernel'
-import { d4BoxCell, d4BoxCoordinates, d4Coordinates } from '@/code/substrate/d4-box'
-import { orientedHubStore, type CoinData } from '@/code/measure/varying-vacuum'
+import {
+  bounceRunner,
+  collideBounce,
+  makeBounceKernel,
+  type BounceKernel,
+} from '@/code/measure/bounce-pair-kernel'
+import {
+  cloneReduced,
+  type Reduced,
+} from '@/code/measure/living-pair-kernel'
+import {
+  d4BoxCell,
+  d4BoxCoordinates,
+  d4Coordinates,
+} from '@/code/substrate/d4-box'
+import {
+  orientedHubStore,
+  type CoinData,
+} from '@/code/measure/varying-vacuum'
 import { boxHusk } from '@/code/measure/causal-components'
-import { withStart, type StartMember } from '@/code/measure/start-ensemble'
+import {
+  withStart,
+  type StartMember,
+} from '@/code/measure/start-ensemble'
 import {
   boxGeometry,
   distanceToInterface,
@@ -66,11 +84,16 @@ export const W = 6
 export const FROM = 72
 export const TO = 192
 export const CASES = ['time', 'C', 'g', 'gC', 'r0', '2r0'] as const
-export const LATTICE_KEEPING: readonly CaseName[] = ['C', 'g', 'gC', '2r0']
+export const LATTICE_KEEPING: readonly CaseName[] = [
+  'C',
+  'g',
+  'gC',
+  '2r0',
+]
 
 export type CaseName = (typeof CASES)[number]
 
-const R0 = d4Coordinates(rootsD4()[LINE_FIRSTS[0] as number] as number[])
+const R0 = d4Coordinates(rootsD4()[LINE_FIRSTS[0]!]!)
 
 // ---- E-RLT-0090's setup, copied ----
 
@@ -87,8 +110,10 @@ export type Machine = {
   readonly adjacent: Int32Array
 }
 
-const hubOf = (side: number): number[] => d4BoxCoordinates({ cell: 0, side }).map((v, k) => v - (R0[k] as number))
-const cellOfVector = (v: readonly number[]): number => d4BoxCell({ coordinates: v.map(x => ((x % 4) + 4) % 4), side: 4 })
+const hubOf = (side: number): number[] =>
+  d4BoxCoordinates({ cell: 0, side }).map((v, k) => v - R0[k]!)
+const cellOfVector = (v: readonly number[]): number =>
+  d4BoxCell({ coordinates: v.map(x => ((x % 4) + 4) % 4), side: 4 })
 
 export function machine(side: number, kind: CollisionKind): Machine {
   const weave = makeColorWeave({ side, table: 'bind' })
@@ -99,14 +124,23 @@ export function machine(side: number, kind: CollisionKind): Machine {
 
   for (let x = 0; x < box.cells; x++) {
     for (let l = 0; l < 12; l++) {
-      const y = box.neighbour[x * 12 + l] as number
+      const y = box.neighbour[x * 12 + l]!
 
       adjacent[x * 24 + l] = y
       adjacent[y * 24 + 12 + l] = x
     }
   }
 
-  return { kernel, layout: separatedLayout(weave), box, links: Int16Array.from(weave.links), column: husk.column, columns: husk.columns, stepErrors: husk.stepErrors, adjacent }
+  return {
+    kernel,
+    layout: separatedLayout(weave),
+    box,
+    links: Int16Array.from(weave.links),
+    column: husk.column,
+    columns: husk.columns,
+    stepErrors: husk.stepErrors,
+    adjacent,
+  }
 }
 
 const emptyState = (mc: Machine, store: Int8Array): Reduced => ({
@@ -129,14 +163,20 @@ function frames(mc: Machine, store: Int8Array, beats: number): Frame[] {
 }
 
 function periodOf(h: readonly Frame[], from: number): number {
-  const same = (a: Frame, b: Frame): boolean => a.vibe.every((v, i) => v === b.vibe[i]) && a.store.every((v, i) => v === b.store[i])
+  const same = (a: Frame, b: Frame): boolean =>
+    a.vibe.every((v, i) => v === b.vibe[i]) &&
+    a.store.every((v, i) => v === b.store[i])
 
   for (let p = 1; p <= 24; p++) {
     let ok = true
 
-    for (let t = from; t + p < h.length && ok; t++) ok = same(h[t] as Frame, h[t + p] as Frame)
+    for (let t = from; t + p < h.length && ok; t++) {
+      ok = same(h[t]!, h[t + p]!)
+    }
 
-    if (ok) return p
+    if (ok) {
+      return p
+    }
   }
 
   return 0
@@ -145,139 +185,259 @@ function periodOf(h: readonly Frame[], from: number): number {
 type Runner = ReturnType<typeof bounceRunner>
 
 // the half-late start: beat 0's collision on the early docks only, streamed; run from phase 1 (E-RLT-0082's walls)
-function halfLate(mc: Machine, store: Int8Array, late: (x: number) => boolean): Runner {
+function halfLate(
+  mc: Machine,
+  store: Int8Array,
+  late: (x: number) => boolean,
+): Runner {
   const a = emptyState(mc, store)
 
-  for (let x = 0; x < mc.box.cells; x++) if (!late(x)) collideBounce(mc.kernel, a, x, 0)
+  for (let x = 0; x < mc.box.cells; x++) {
+    if (!late(x)) {
+      collideBounce(mc.kernel, a, x, 0)
+    }
+  }
 
   const b = cloneReduced(a)
 
   b.vibe.fill(0)
 
   for (let slot = 0; slot < a.vibe.length; slot++) {
-    const v = a.vibe[slot] as number
+    const v = a.vibe[slot]!
 
-    if (v === 0) continue
+    if (v === 0) {
+      continue
+    }
 
-    b.vibe[mc.kernel.target[slot] as number] = v
-    b.point[mc.kernel.target[slot] as number] = (mc.kernel.move[slot] as Int8Array)[a.point[slot] as number] as number
+    b.vibe[mc.kernel.target[slot]!] = v
+    b.point[mc.kernel.target[slot]!] =
+      mc.kernel.move[slot]![a.point[slot]!]!
   }
 
   return bounceRunner(mc.kernel, b, 1)
 }
 
-export type Manifold = { m: GroundManifold; periodV: number; lateIsAhead2: boolean; timeRep: { rep: number; tau: number } }
+export type Manifold = {
+  m: GroundManifold
+  periodV: number
+  lateIsAhead2: boolean
+  timeRep: { rep: number; tau: number }
+}
 
-function manifoldOf(coins: CoinData, cell: Cell4, store8: Int8Array, mc8: Machine): Manifold {
+function manifoldOf(
+  coins: CoinData,
+  cell: Cell4,
+  store8: Int8Array,
+  mc8: Machine,
+): Manifold {
   const h = frames(mc8, store8, 72)
   const periodV = periodOf(h, 24)
   const book = new TypeBook(W)
   const early = restrictToCell(h.slice(48, 48 + W), SMALL)
   const late = restrictToCell(h.slice(50, 50 + W), SMALL)
 
-  if (!early.periodic || !late.periodic) throw new Error('the vacuum is not 4 D4 periodic')
+  if (!early.periodic || !late.periodic) {
+    throw new Error('the vacuum is not 4 D4 periodic')
+  }
 
   const tV = dockTypes(book, early.frames, 256, true)
   const tU = dockTypes(book, late.frames, 256, true)
   const m = groundManifold(coins, cell, book, [tV, tU], [0, 2, 4])
   const U = halfLate(mc8, store8, () => true)
+
   let lateIsAhead2 = true
 
   while (U.time() < 60) {
     const t = U.time()
-    const v = h[t + 2] as Frame
+    const v = h[t + 2]!
     const u = U.state()
 
-    lateIsAhead2 = lateIsAhead2 && v.vibe.every((x, i) => x === u.vibe[i]) && v.store.every((x, i) => x === u.store[i])
+    lateIsAhead2 =
+      lateIsAhead2 &&
+      v.vibe.every((x, i) => x === u.vibe[i]) &&
+      v.store.every((x, i) => x === u.store[i])
     U.beat()
   }
 
-  return { m, periodV, lateIsAhead2, timeRep: m.baseRep[1] as { rep: number; tau: number } }
+  return {
+    m,
+    periodV,
+    lateIsAhead2,
+    timeRep: m.baseRep[1] as { rep: number; tau: number },
+  }
 }
 
-type Planted = { name: CaseName; rep: number; tau: number; store?: Int8Array }
+type Planted = {
+  name: CaseName
+  rep: number
+  tau: number
+  store?: Int8Array
+}
 
-function plantedCases(coins: CoinData, man: Manifold, store12: Int8Array, inside: (x: number) => boolean): Planted[] {
+function plantedCases(
+  coins: CoinData,
+  man: Manifold,
+  store12: Int8Array,
+  inside: (x: number) => boolean,
+): Planted[] {
   const { m } = man
   const identity = coins.table.identity
-  const spatial = m.reps.map((r, j) => ({ r, j })).filter(({ r, j }) => j > 0 && r.base === 0 && r.element.s === 0)
-  const find = (pred: (g: number, c: number) => boolean): number => spatial.find(({ r }) => pred(r.element.g, r.element.c))?.j ?? -1
+  const spatial = m.reps
+    .map((r, j) => ({ r, j }))
+    .filter(({ r, j }) => j > 0 && r.base === 0 && r.element.s === 0)
+  const find = (pred: (g: number, c: number) => boolean): number =>
+    spatial.find(({ r }) => pred(r.element.g, r.element.c))?.j ?? -1
   const jC = find((g, c) => g === identity && c === -1)
   const jg = find((g, c) => g !== identity && c === 1)
   const jgC = find((g, c) => g !== identity && c === -1)
+
   const patch = (image: Int8Array): Int8Array => {
     const out = Int8Array.from(store12)
 
-    for (let x = 0; x < store12.length / 12; x++) if (inside(x)) out.set(image.subarray(x * 12, x * 12 + 12), x * 12)
+    for (let x = 0; x < store12.length / 12; x++) {
+      if (inside(x)) {
+        out.set(image.subarray(x * 12, x * 12 + 12), x * 12)
+      }
+    }
 
     return out
   }
-  const spatialCase = (name: CaseName, j: number): Planted => {
-    const e = (m.reps[j] as { element: { g: number; c: number } }).element
 
-    return { name, rep: j, tau: 0, store: patch(storeImage(coins, SIDE, store12, e.g, e.c, [0, 0, 0, 0])) }
+  const spatialCase = (name: CaseName, j: number): Planted => {
+    const e = (m.reps[j] as { element: { g: number; c: number } })
+      .element
+
+    return {
+      name,
+      rep: j,
+      tau: 0,
+      store: patch(
+        storeImage(coins, SIDE, store12, e.g, e.c, [0, 0, 0, 0]),
+      ),
+    }
   }
 
-  if (jC < 0 || jg < 0 || jgC < 0 || spatial.length !== 3) throw new Error(`expected 3 spatial point cosets, found ${spatial.length}`)
+  if (jC < 0 || jg < 0 || jgC < 0 || spatial.length !== 3) {
+    throw new Error(
+      `expected 3 spatial point cosets, found ${spatial.length}`,
+    )
+  }
 
   return [
     { name: 'time', rep: man.timeRep.rep, tau: man.timeRep.tau },
     spatialCase('C', jC),
     spatialCase('g', jg),
     spatialCase('gC', jgC),
-    { name: 'r0', rep: 0, tau: cellOfVector(R0), store: patch(storeImage(coins, SIDE, store12, identity, 1, R0)) },
-    { name: '2r0', rep: 0, tau: cellOfVector(R0.map(v => 2 * v)), store: patch(storeImage(coins, SIDE, store12, identity, 1, R0.map(v => 2 * v))) },
+    {
+      name: 'r0',
+      rep: 0,
+      tau: cellOfVector(R0),
+      store: patch(storeImage(coins, SIDE, store12, identity, 1, R0)),
+    },
+    {
+      name: '2r0',
+      rep: 0,
+      tau: cellOfVector(R0.map(v => 2 * v)),
+      store: patch(
+        storeImage(
+          coins,
+          SIDE,
+          store12,
+          identity,
+          1,
+          R0.map(v => 2 * v),
+        ),
+      ),
+    },
   ]
 }
 
 // ---- B': the departing set, the end docks, the growth ----
 
 // both ends of every edge the reading marks
-export function endDocksOf(box: BoxGeometry, edges: Uint8Array): Uint8Array {
+export function endDocksOf(
+  box: BoxGeometry,
+  edges: Uint8Array,
+): Uint8Array {
   const out = new Uint8Array(box.cells)
 
   for (let e = 0; e < edges.length; e++) {
-    if (edges[e] !== 1) continue
+    if (edges[e] !== 1) {
+      continue
+    }
 
     out[Math.floor(e / 12)] = 1
-    out[box.neighbour[e] as number] = 1
+    out[box.neighbour[e]!] = 1
   }
 
   return out
 }
 
 // D(x) not in S(x), plus both ends of every edge where the run's walls and the ideal's differ
-export function departingOf(box: BoxGeometry, r: Reading, ideal: Reading): Uint8Array {
+export function departingOf(
+  box: BoxGeometry,
+  r: Reading,
+  ideal: Reading,
+): Uint8Array {
   const out = new Uint8Array(box.cells)
-  const holds = r.holds as Uint8Array
+  const holds = r.holds!
 
-  for (let x = 0; x < box.cells; x++) out[x] = holds[x] === 1 ? 0 : 1
+  for (let x = 0; x < box.cells; x++) {
+    out[x] = holds[x] === 1 ? 0 : 1
+  }
 
   for (let e = 0; e < r.wallEdges.length; e++) {
-    if (r.wallEdges[e] === ideal.wallEdges[e]) continue
+    if (r.wallEdges[e] === ideal.wallEdges[e]) {
+      continue
+    }
 
     out[Math.floor(e / 12)] = 1
-    out[box.neighbour[e] as number] = 1
+    out[box.neighbour[e]!] = 1
   }
 
   return out
 }
 
-export type Grade = { outside: number[]; grew: number[]; departing: number[]; passes: boolean }
+export type Grade = {
+  outside: number[]
+  grew: number[]
+  departing: number[]
+  passes: boolean
+}
 
 // B' over a list of windows, each given as its dock types
-export function gradeTypes(m: GroundManifold, box: BoxGeometry, assigned: Int32Array, ideal: Reading, end: Uint8Array, windows: readonly Int32Array[]): Grade {
-  const out: Grade = { outside: [], grew: [], departing: [], passes: true }
+export function gradeTypes(
+  m: GroundManifold,
+  box: BoxGeometry,
+  assigned: Int32Array,
+  ideal: Reading,
+  end: Uint8Array,
+  windows: readonly Int32Array[],
+): Grade {
+  const out: Grade = {
+    outside: [],
+    grew: [],
+    departing: [],
+    passes: true,
+  }
+
   let previous: Uint8Array | undefined
 
   for (const types of windows) {
-    const dep = departingOf(box, readWindow(m, box, types, assigned), ideal)
+    const dep = departingOf(
+      box,
+      readWindow(m, box, types, assigned),
+      ideal,
+    )
+
     let n = 0
     let outside = 0
     let grew = 0
 
     for (let x = 0; x < box.cells; x++) {
-      if (dep[x] !== 1) continue
+      if (dep[x] !== 1) {
+        continue
+      }
 
       n++
       outside += end[x] === 1 ? 0 : 1
@@ -286,40 +446,58 @@ export function gradeTypes(m: GroundManifold, box: BoxGeometry, assigned: Int32A
 
     out.departing.push(n)
     out.outside.push(outside)
-    if (previous) out.grew.push(grew)
+
+    if (previous) {
+      out.grew.push(grew)
+    }
+
     previous = dep
   }
 
-  out.passes = out.outside.every(v => v === 0) && out.grew.every(v => v === 0)
+  out.passes =
+    out.outside.every(v => v === 0) && out.grew.every(v => v === 0)
 
   return out
 }
 
 // the dock types with each marked dock's history made one trit different, to a history no ground state holds
-export function plantDefects(book: TypeBook, types: Int32Array, mask: Uint8Array): { types: Int32Array; planted: number; unplantable: number } {
+export function plantDefects(
+  book: TypeBook,
+  types: Int32Array,
+  mask: Uint8Array,
+): { types: Int32Array; planted: number; unplantable: number } {
   const out = Int32Array.from(types)
+
   let planted = 0
   let unplantable = 0
 
   for (let x = 0; x < types.length; x++) {
-    if (mask[x] !== 1) continue
+    if (mask[x] !== 1) {
+      continue
+    }
 
-    const content = Int8Array.from(book.contents[types[x] as number] as Int8Array)
+    const content = Int8Array.from(book.contents[types[x]!]!)
+
     let done = false
 
     for (let i = 0; i < content.length && !done; i++) {
-      const was = content[i] as number
+      const was = content[i]!
 
       content[i] = was === 0 ? 1 : -was
 
-      if (book.lookup(content) === -1) done = true
-      else content[i] = was
+      if (book.lookup(content) === -1) {
+        done = true
+      } else {
+        content[i] = was
+      }
     }
 
     if (done) {
       out[x] = -1
       planted++
-    } else unplantable++
+    } else {
+      unplantable++
+    }
   }
 
   return { types: out, planted, unplantable }
@@ -344,9 +522,16 @@ export type Controls = {
 // The controls of B', on one case's ideal patchwork, fixed before the first run: the clean ideal and a full one-dock
 // core (every end dock a defect) pass; a defect one dock from the core, a defect deep in a domain and a core two docks
 // thick fail; a core that grows between windows fails and one that shrinks passes.
-export function controlsOf(m: GroundManifold, mc: Machine, rep: Int32Array, tau: Int32Array): Controls {
+export function controlsOf(
+  m: GroundManifold,
+  mc: Machine,
+  rep: Int32Array,
+  tau: Int32Array,
+): Controls {
   const box = mc.box
-  const assigned = Int32Array.from({ length: box.cells }, (_, x) => stateId(m, rep[x] as number, tau[x] as number))
+  const assigned = Int32Array.from({ length: box.cells }, (_, x) =>
+    stateId(m, rep[x]!, tau[x]!),
+  )
   const types = idealTypes(m, box, rep, tau)
   const ideal = readWindow(m, box, types, assigned)
   const end = endDocksOf(box, ideal.wallEdges)
@@ -354,51 +539,74 @@ export function controlsOf(m: GroundManifold, mc: Machine, rep: Int32Array, tau:
   const ring = new Uint8Array(box.cells)
 
   for (let x = 0; x < box.cells; x++) {
-    if (end[x] !== 1) continue
+    if (end[x] !== 1) {
+      continue
+    }
 
     for (let k = 0; k < 24; k++) {
-      const y = mc.adjacent[x * 24 + k] as number
+      const y = mc.adjacent[x * 24 + k]!
 
-      if (end[y] !== 1) ring[y] = 1
+      if (end[y] !== 1) {
+        ring[y] = 1
+      }
     }
   }
 
   const oneAway = new Uint8Array(box.cells)
   const firstRing = ring.indexOf(1)
 
-  if (firstRing >= 0) oneAway[firstRing] = 1
+  if (firstRing >= 0) {
+    oneAway[firstRing] = 1
+  }
 
   let deepest = 0
 
-  for (let x = 0; x < box.cells; x++) deepest = Math.max(deepest, dist[x] as number)
+  for (let x = 0; x < box.cells; x++) {
+    deepest = Math.max(deepest, dist[x]!)
+  }
 
   const deep = new Uint8Array(box.cells)
   const deepAt = (() => {
-    for (let x = 0; x < box.cells; x++) if ((dist[x] as number) === deepest && end[x] !== 1) return x
+    for (let x = 0; x < box.cells; x++) {
+      if (dist[x] === deepest && end[x] !== 1) {
+        return x
+      }
+    }
 
     return -1
   })()
 
-  if (deepAt >= 0) deep[deepAt] = 1
+  if (deepAt >= 0) {
+    deep[deepAt] = 1
+  }
 
-  const thick = Uint8Array.from(end, (v, x) => (v === 1 || ring[x] === 1 ? 1 : 0))
+  const thick = Uint8Array.from(end, (v, x) =>
+    v === 1 || ring[x] === 1 ? 1 : 0,
+  )
   const half = new Uint8Array(box.cells)
+
   let alternate = 0
 
   for (let x = 0; x < box.cells; x++) {
-    if (end[x] !== 1) continue
+    if (end[x] !== 1) {
+      continue
+    }
 
     half[x] = alternate % 2 === 0 ? 1 : 0
     alternate++
   }
 
-  const plant = (mask: Uint8Array): { types: Int32Array; unplantable: number } => plantDefects(m.book, types, mask)
+  const plant = (
+    mask: Uint8Array,
+  ): { types: Int32Array; unplantable: number } =>
+    plantDefects(m.book, types, mask)
   const full = plant(end)
   const halfCore = plant(half)
   const one = plant(oneAway)
   const deepP = plant(deep)
   const thickP = plant(thick)
-  const grade = (ws: Int32Array[]): Grade => gradeTypes(m, box, assigned, ideal, end, ws)
+  const grade = (ws: Int32Array[]): Grade =>
+    gradeTypes(m, box, assigned, ideal, end, ws)
   const clean = grade([types, types])
   const fullCore = grade([full.types, full.types])
   const oneG = grade([one.types])
@@ -410,19 +618,53 @@ export function controlsOf(m: GroundManifold, mc: Machine, rep: Int32Array, tau:
   // the end of an ideal wall edge to a planted dock), so it is kept as a reported reading and no longer gated
   const growingFromClean = grade([types, full.types])
   const shrinking = grade([full.types, halfCore.types])
-  const unplantable = full.unplantable + halfCore.unplantable + one.unplantable + deepP.unplantable + thickP.unplantable
+  const unplantable =
+    full.unplantable +
+    halfCore.unplantable +
+    one.unplantable +
+    deepP.unplantable +
+    thickP.unplantable
+
   let thickExtra = 0
 
-  for (let x = 0; x < box.cells; x++) thickExtra += ring[x] as number
+  for (let x = 0; x < box.cells; x++) {
+    thickExtra += ring[x]!
+  }
 
   const informative =
-    clean.passes && fullCore.passes && !oneG.passes && !deepG.passes && !thickG.passes && !growingFromClean.passes && shrinking.passes && firstRing >= 0 && deepAt >= 0 && deepest >= 3 && unplantable === 0
+    clean.passes &&
+    fullCore.passes &&
+    !oneG.passes &&
+    !deepG.passes &&
+    !thickG.passes &&
+    !growingFromClean.passes &&
+    shrinking.passes &&
+    firstRing >= 0 &&
+    deepAt >= 0 &&
+    deepest >= 3 &&
+    unplantable === 0
 
   let endDocks = 0
 
-  for (let x = 0; x < box.cells; x++) endDocks += end[x] as number
+  for (let x = 0; x < box.cells; x++) {
+    endDocks += end[x]!
+  }
 
-  return { endDocks, clean, fullCore, oneAway: oneG, deep: deepG, thick: thickG, growing, growingFromClean, shrinking, thickExtra, deepDistance: deepest, unplantable, informative }
+  return {
+    endDocks,
+    clean,
+    fullCore,
+    oneAway: oneG,
+    deep: deepG,
+    thick: thickG,
+    growing,
+    growingFromClean,
+    shrinking,
+    thickExtra,
+    deepDistance: deepest,
+    unplantable,
+    informative,
+  }
 }
 
 // ---- one run graded under B', with its core described ----
@@ -490,43 +732,74 @@ export type CoreReading = {
 
 type Side = { rep: number; tau: number }
 
-function contentAt(frames: readonly Frame[], x: number, into: Int8Array): void {
+function contentAt(
+  frames: readonly Frame[],
+  x: number,
+  into: Int8Array,
+): void {
   for (let b = 0; b < frames.length; b++) {
-    const f = frames[b] as Frame
+    const f = frames[b]!
 
-    for (let d = 0; d < 24; d++) into[b * 36 + d] = f.vibe[x * 24 + d] as number
-    for (let l = 0; l < 12; l++) into[b * 36 + 24 + l] = f.store[x * 12 + l] as number
+    for (let d = 0; d < 24; d++) {
+      into[b * 36 + d] = f.vibe[x * 24 + d]!
+    }
+
+    for (let l = 0; l < 12; l++) {
+      into[b * 36 + 24 + l] = f.store[x * 12 + l]!
+    }
   }
 }
 
-export function readCore(input: { m: GroundManifold; mc: Machine; run: Runner; inside: Uint8Array; outer: Side; inner: Side; from: number; to: number }): CoreReading {
+export function readCore(input: {
+  m: GroundManifold
+  mc: Machine
+  run: Runner
+  inside: Uint8Array
+  outer: Side
+  inner: Side
+  from: number
+  to: number
+}): CoreReading {
   const { m, mc, run, inside, outer, inner, from, to } = input
   const box = mc.box
-  const rep = Int32Array.from({ length: box.cells }, (_, x) => (inside[x] === 1 ? inner.rep : outer.rep))
-  const tau = Int32Array.from({ length: box.cells }, (_, x) => (inside[x] === 1 ? inner.tau : outer.tau))
-  const assigned = Int32Array.from({ length: box.cells }, (_, x) => stateId(m, rep[x] as number, tau[x] as number))
+  const rep = Int32Array.from({ length: box.cells }, (_, x) =>
+    inside[x] === 1 ? inner.rep : outer.rep,
+  )
+  const tau = Int32Array.from({ length: box.cells }, (_, x) =>
+    inside[x] === 1 ? inner.tau : outer.tau,
+  )
+  const assigned = Int32Array.from({ length: box.cells }, (_, x) =>
+    stateId(m, rep[x]!, tau[x]!),
+  )
   const ownTypes = idealTypes(m, box, rep, tau)
   const otherTypes = idealTypes(
     m,
     box,
-    Int32Array.from({ length: box.cells }, (_, x) => (inside[x] === 1 ? outer.rep : inner.rep)),
-    Int32Array.from({ length: box.cells }, (_, x) => (inside[x] === 1 ? outer.tau : inner.tau)),
+    Int32Array.from({ length: box.cells }, (_, x) =>
+      inside[x] === 1 ? outer.rep : inner.rep,
+    ),
+    Int32Array.from({ length: box.cells }, (_, x) =>
+      inside[x] === 1 ? outer.tau : inner.tau,
+    ),
   )
   const ideal = readWindow(m, box, ownTypes, assigned)
   const end = endDocksOf(box, ideal.wallEdges)
   const dist = distanceToInterface(box, assigned)
-  const isBulk = (x: number): boolean => (dist[x] as number) === -1 || (dist[x] as number) >= 3
+  const isBulk = (x: number): boolean => dist[x] === -1 || dist[x]! >= 3
   const endColumn = new Uint8Array(mc.columns)
+
   let endDocks = 0
   let bulkDocks = 0
 
   for (let x = 0; x < box.cells; x++) {
     bulkDocks += isBulk(x) ? 1 : 0
 
-    if (end[x] !== 1) continue
+    if (end[x] !== 1) {
+      continue
+    }
 
     endDocks++
-    endColumn[mc.column[x] as number] = 1
+    endColumn[mc.column[x]!] = 1
   }
 
   const series = {
@@ -543,6 +816,7 @@ export function readCore(input: { m: GroundManifold; mc: Machine; run: Runner; i
   }
   const scratchA = new Uint8Array(mc.columns)
   const scratchB = new Uint8Array(mc.columns)
+
   let window: Frame[] = []
   let first: Frame[] | undefined
   let last: Frame[] = []
@@ -550,14 +824,21 @@ export function readCore(input: { m: GroundManifold; mc: Machine; run: Runner; i
   let dep = new Uint8Array(box.cells)
   let lastHolds = new Uint8Array(box.cells)
 
-  if (from % W !== 0) throw new Error('windows must start at a multiple of W')
+  if (from % W !== 0) {
+    throw new Error('windows must start at a multiple of W')
+  }
 
   while (run.time() < to) {
     if (run.time() >= from) {
       window.push(frameOf(run.state()))
 
       if (window.length === W) {
-        const r = readWindow(m, box, dockTypes(m.book, window, box.cells, false), assigned)
+        const r = readWindow(
+          m,
+          box,
+          dockTypes(m.book, window, box.cells, false),
+          assigned,
+        )
 
         dep = departingOf(box, r, ideal)
         scratchA.fill(0)
@@ -572,32 +853,40 @@ export function readCore(input: { m: GroundManifold; mc: Machine; run: Runner; i
         let bulkEdge = 0
 
         for (let x = 0; x < box.cells; x++) {
-          const holds = (r.holds as Uint8Array)[x] === 1
+          const holds = r.holds![x] === 1
 
           strict += holds ? 0 : 1
           bulkC += !holds && isBulk(x) ? 1 : 0
 
-          if (previous && previous[x] === 1 && dep[x] !== 1) shrank++
+          if (previous?.[x] === 1 && dep[x] !== 1) {
+            shrank++
+          }
 
-          if (dep[x] !== 1) continue
+          if (dep[x] !== 1) {
+            continue
+          }
 
           n++
           bulkEdge += isBulk(x) ? 1 : 0
           grew += previous && previous[x] !== 1 ? 1 : 0
 
-          const c = mc.column[x] as number
+          const c = mc.column[x]!
 
           if (end[x] !== 1) {
             outside++
             scratchA[c] = 1
           }
 
-          if (endColumn[c] !== 1) scratchB[c] = 1
+          if (endColumn[c] !== 1) {
+            scratchB[c] = 1
+          }
         }
 
         let edgeDiff = 0
 
-        for (let e = 0; e < r.wallEdges.length; e++) edgeDiff += r.wallEdges[e] !== ideal.wallEdges[e] ? 1 : 0
+        for (let e = 0; e < r.wallEdges.length; e++) {
+          edgeDiff += r.wallEdges[e] !== ideal.wallEdges[e] ? 1 : 0
+        }
 
         series.strictDocks.push(strict)
         series.edgeDifference.push(edgeDiff)
@@ -605,7 +894,9 @@ export function readCore(input: { m: GroundManifold; mc: Machine; run: Runner; i
         series.departing.push(n)
         series.outside.push(outside)
         series.outsideColumns.push(scratchA.reduce((s, v) => s + v, 0))
-        series.departingColumnsOutsideEnd.push(scratchB.reduce((s, v) => s + v, 0))
+        series.departingColumnsOutsideEnd.push(
+          scratchB.reduce((s, v) => s + v, 0),
+        )
         series.bulkDepartingEdge.push(bulkEdge)
 
         if (previous) {
@@ -614,7 +905,7 @@ export function readCore(input: { m: GroundManifold; mc: Machine; run: Runner; i
         }
 
         previous = dep
-        lastHolds = r.holds as Uint8Array
+        lastHolds = r.holds!
         first ??= window
         last = window
         window = []
@@ -659,28 +950,34 @@ export function readCore(input: { m: GroundManifold; mc: Machine; run: Runner; i
   let edgeOnlyExact = 0
 
   for (let x = 0; x < box.cells; x++) {
-    if (dep[x] !== 1 || end[x] !== 1) continue
+    if (dep[x] !== 1 || end[x] !== 1) {
+      continue
+    }
 
     contentAt(last, x, runC)
 
     // a dock that departs only as the end of a changed edge holds its own ground state (D(x) in S(x)): counted and
     // checked, not described
     if (lastHolds[x] === 1) {
-      const own = m.book.contents[ownTypes[x] as number] as Int8Array
+      const own = m.book.contents[ownTypes[x]!]!
+
       let same = true
 
-      for (let i = 0; i < len && same; i++) same = runC[i] === own[i]
+      for (let i = 0; i < len && same; i++) {
+        same = runC[i] === own[i]
+      }
 
       edgeOnly++
       edgeOnlyExact += same ? 1 : 0
       continue
     }
 
-    contentAt(first as Frame[], x, firstC)
+    contentAt(first!, x, firstC)
     coreBook.intern(runC)
 
-    const own = m.book.contents[ownTypes[x] as number] as Int8Array
-    const other = m.book.contents[otherTypes[x] as number] as Int8Array
+    const own = m.book.contents[ownTypes[x]!]!
+    const other = m.book.contents[otherTypes[x]!]!
+
     let ownDiff = 0
     let otherDiff = 0
     let storeOwn = 0
@@ -690,30 +987,44 @@ export function readCore(input: { m: GroundManifold; mc: Machine; run: Runner; i
     let changed = false
 
     for (let i = 0; i < len; i++) {
-      const v = runC[i] as number
-      const a = own[i] as number
-      const b = other[i] as number
+      const v = runC[i]!
+      const a = own[i]!
+      const b = other[i]!
       const isVibe = i % 36 < 24
 
       changed = changed || v !== firstC[i]
       vibes += isVibe && v !== 0 ? 1 : 0
 
       if (a === b) {
-        if (v === a) core.quiet++
-        else core.novel++
-      } else if (v === a) core.own++
-      else if (v === b) core.other++
-      else core.neither++
+        if (v === a) {
+          core.quiet++
+        } else {
+          core.novel++
+        }
+      } else if (v === a) {
+        core.own++
+      } else if (v === b) {
+        core.other++
+      } else {
+        core.neither++
+      }
 
       if (v !== a) {
         ownDiff++
-        if (isVibe) vibeOwn++
-        else storeOwn++
+
+        if (isVibe) {
+          vibeOwn++
+        } else {
+          storeOwn++
+        }
       }
 
       if (v !== b) {
         otherDiff++
-        if (isVibe) vibeOther++
+
+        if (isVibe) {
+          vibeOther++
+        }
       }
     }
 
@@ -734,15 +1045,15 @@ export function readCore(input: { m: GroundManifold; mc: Machine; run: Runner; i
     core.vibeEqualsOther += vibeOther === 0 ? 1 : 0
     core.silent += vibes === 0 ? 1 : 0
     core.changed += changed ? 1 : 0
-    coreColumn[mc.column[x] as number] = (coreColumn[mc.column[x] as number] as number) + 1
+    coreColumn[mc.column[x]!] = coreColumn[mc.column[x]!]! + 1
   }
 
   let columns = 0
   let columnMax = 0
 
   for (let c = 0; c < mc.columns; c++) {
-    columns += (coreColumn[c] as number) > 0 ? 1 : 0
-    columnMax = Math.max(columnMax, coreColumn[c] as number)
+    columns += coreColumn[c]! > 0 ? 1 : 0
+    columnMax = Math.max(columnMax, coreColumn[c]!)
   }
 
   if (core.docks === 0) {
@@ -752,7 +1063,9 @@ export function readCore(input: { m: GroundManifold; mc: Machine; run: Runner; i
 
   let endColumns = 0
 
-  for (let c = 0; c < mc.columns; c++) endColumns += endColumn[c] as number
+  for (let c = 0; c < mc.columns; c++) {
+    endColumns += endColumn[c]!
+  }
 
   return {
     windows: series.departing.length,
@@ -761,7 +1074,14 @@ export function readCore(input: { m: GroundManifold; mc: Machine; run: Runner; i
     endColumns,
     bulkDocks,
     ...series,
-    core: { ...core, columns, columnMax, histories: coreBook.size, edgeOnly, edgeOnlyExact },
+    core: {
+      ...core,
+      columns,
+      columnMax,
+      histories: coreBook.size,
+      edgeOnly,
+      edgeOnlyExact,
+    },
   }
 }
 
@@ -782,26 +1102,66 @@ export type MemberReading = {
   readonly layout: Int8Array
 }
 
-export function readMember(coins: CoinData, cell: Cell4, member: StartMember, withControls: boolean, only?: readonly CaseName[]): MemberReading {
+export function readMember(
+  coins: CoinData,
+  cell: Cell4,
+  member: StartMember,
+  withControls: boolean,
+  only?: readonly CaseName[],
+): MemberReading {
   return withStart(member, () => {
     const mc8 = machine(SMALL, 'lone')
     const mc = machine(SIDE, 'lone')
-    const man = manifoldOf(coins, cell, orientedHubStore(coins, SMALL, hubOf(SMALL)), mc8)
+    const man = manifoldOf(
+      coins,
+      cell,
+      orientedHubStore(coins, SMALL, hubOf(SMALL)),
+      mc8,
+    )
     const store12 = orientedHubStore(coins, SIDE, hubOf(SIDE))
-    const layer = Int32Array.from({ length: mc.box.cells }, (_, x) => d4BoxCoordinates({ cell: x, side: SIDE })[0] ?? 0)
-    const isInside = (x: number): boolean => (layer[x] as number) >= Math.ceil(SIDE / 2)
-    const inside = Uint8Array.from({ length: mc.box.cells }, (_, x) => (isInside(x) ? 1 : 0))
+    const layer = Int32Array.from(
+      { length: mc.box.cells },
+      (_, x) => d4BoxCoordinates({ cell: x, side: SIDE })[0] ?? 0,
+    )
+    const isInside = (x: number): boolean =>
+      layer[x]! >= Math.ceil(SIDE / 2)
+    const inside = Uint8Array.from({ length: mc.box.cells }, (_, x) =>
+      isInside(x) ? 1 : 0,
+    )
     const none = new Uint8Array(mc.box.cells)
     const vacuum = { rep: 0, tau: 0 }
-    const alone = readCore({ m: man.m, mc, run: bounceRunner(mc.kernel, emptyState(mc, store12)), inside: none, outer: vacuum, inner: vacuum, from: FROM, to: TO })
-    const planted = plantedCases(coins, man, store12, isInside).filter(c => !only || only.includes(c.name))
+    const alone = readCore({
+      m: man.m,
+      mc,
+      run: bounceRunner(mc.kernel, emptyState(mc, store12)),
+      inside: none,
+      outer: vacuum,
+      inner: vacuum,
+      from: FROM,
+      to: TO,
+    })
+    const planted = plantedCases(coins, man, store12, isInside).filter(
+      c => !only || only.includes(c.name),
+    )
     const cases = {} as Record<CaseName, CoreReading>
     const controls = {} as Record<CaseName, Controls>
 
     for (const c of planted) {
-      const run = c.name === 'time' ? halfLate(mc, store12, isInside) : bounceRunner(mc.kernel, emptyState(mc, c.store as Int8Array))
+      const run =
+        c.name === 'time'
+          ? halfLate(mc, store12, isInside)
+          : bounceRunner(mc.kernel, emptyState(mc, c.store!))
 
-      cases[c.name] = readCore({ m: man.m, mc, run, inside, outer: vacuum, inner: { rep: c.rep, tau: c.tau }, from: FROM, to: TO })
+      cases[c.name] = readCore({
+        m: man.m,
+        mc,
+        run,
+        inside,
+        outer: vacuum,
+        inner: { rep: c.rep, tau: c.tau },
+        from: FROM,
+        to: TO,
+      })
 
       if (withControls) {
         const rep = Int32Array.from(inside, v => (v === 1 ? c.rep : 0))

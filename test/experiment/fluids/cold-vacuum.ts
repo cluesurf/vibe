@@ -49,9 +49,27 @@ import { linearFit } from '@/code/measure/regression'
 import { slopeError } from '@/code/measure/charge-mode'
 import { decayRateFit } from '@/code/measure/shear-mode'
 import { FLIP_TABLE } from '@/code/rule/momentum-weave'
-import { dockColor, HEAD_TURN_SPEC, scatterSchedule, type ScatterWeaveSpec } from '@/code/rule/scatter-weave'
-import { coldBeat, coldBeatBack, coldDockCollide, coldEnergy, coldMomenta, makeColdWeave, type ColdState } from '@/code/rule/cold-weave'
-import { dampedCosineFit, momentumWaveAmplitude, momentumWaveStart, type WaveGeometry } from '@/code/measure/momentum-transport'
+import {
+  dockColor,
+  HEAD_TURN_SPEC,
+  scatterSchedule,
+  type ScatterWeaveSpec,
+} from '@/code/rule/scatter-weave'
+import {
+  coldBeat,
+  coldBeatBack,
+  coldDockCollide,
+  coldEnergy,
+  coldMomenta,
+  makeColdWeave,
+  type ColdState,
+} from '@/code/rule/cold-weave'
+import {
+  dampedCosineFit,
+  momentumWaveAmplitude,
+  momentumWaveStart,
+  type WaveGeometry,
+} from '@/code/measure/momentum-transport'
 
 const GOLDEN = (Math.sqrt(5) - 1) / 2
 
@@ -64,9 +82,16 @@ const ORIENTATIONS: readonly (readonly [string, WaveGeometry])[] = [
 ]
 
 function specFor(base: ScatterWeaveSpec['base']): ScatterWeaveSpec {
-  const mirror = cptMirrorPhase((o, f) => colorLocalCollision({ spec: base, opposite: o, forward: f }))
+  const mirror = cptMirrorPhase((o, f) =>
+    colorLocalCollision({ spec: base, opposite: o, forward: f }),
+  )
 
-  return { base, mirror, sets: scatterSchedule({ partitions: 2, pairs: 3 }), condition: 'matched' }
+  return {
+    base,
+    mirror,
+    sets: scatterSchedule({ partitions: 2, pairs: 3 }),
+    condition: 'matched',
+  }
 }
 
 function laws(spec: ScatterWeaveSpec) {
@@ -79,9 +104,15 @@ function laws(spec: ScatterWeaveSpec) {
   })
   const start: ColdState = {
     vibe,
-    store: Int32Array.from({ length: n }, (_, i) => (vibe[i] === 0 ? 0 : Math.floor((((i + 7) * GOLDEN * 2.3) % 1) * 3))),
+    store: Int32Array.from({ length: n }, (_, i) =>
+      vibe[i] === 0
+        ? 0
+        : Math.floor((((i + 7) * GOLDEN * 2.3) % 1) * 3),
+    ),
     demon: new Int32Array(weave.mesh.cellCount * 12),
-    role: Int8Array.from({ length: n }, (_, i) => Math.floor(((i + 3) * GOLDEN * 1.37 * 9) % 9)),
+    role: Int8Array.from({ length: n }, (_, i) =>
+      Math.floor(((i + 3) * GOLDEN * 1.37 * 9) % 9),
+    ),
     flow: new Int32Array(n),
   }
   const e0 = coldEnergy(start)
@@ -95,7 +126,12 @@ function laws(spec: ScatterWeaveSpec) {
   let made = 0
 
   for (let t = 0; t < 48; t++) {
-    const a = { vibe: Int8Array.from(s.vibe), store: Int32Array.from(s.store), demon: Int32Array.from(s.demon), role: Int8Array.from(s.role ?? []) }
+    const a = {
+      vibe: Int8Array.from(s.vibe),
+      store: Int32Array.from(s.store),
+      demon: Int32Array.from(s.demon),
+      role: Int8Array.from(s.role ?? []),
+    }
 
     for (let x = 0; x < weave.mesh.cellCount; x++) {
       const before = dockColor(a.vibe, a.role, x)
@@ -107,7 +143,10 @@ function laws(spec: ScatterWeaveSpec) {
     const n0 = s.vibe.reduce((c, v) => c + Math.abs(v), 0)
 
     s = coldBeat(weave, s, t)
-    made += Math.max(0, s.vibe.reduce((c, v) => c + Math.abs(v), 0) - n0)
+    made += Math.max(
+      0,
+      s.vibe.reduce((c, v) => c + Math.abs(v), 0) - n0,
+    )
 
     const m = coldMomenta(s)
 
@@ -124,9 +163,19 @@ function laws(spec: ScatterWeaveSpec) {
     s = coldBeatBack(weave, s, t)
   }
 
-  const same = (x: ArrayLike<number> | undefined, y: ArrayLike<number> | undefined): boolean =>
-    x !== undefined && y !== undefined && Array.from(x).every((v, i) => v === y[i])
-  const reverses = same(s.vibe, start.vibe) && same(s.store, start.store) && same(s.demon, start.demon) && same(s.role, start.role) && same(s.flow, start.flow)
+  const same = (
+    x: ArrayLike<number> | undefined,
+    y: ArrayLike<number> | undefined,
+  ): boolean =>
+    x !== undefined &&
+    y !== undefined &&
+    Array.from(x).every((v, i) => v === y[i])
+  const reverses =
+    same(s.vibe, start.vibe) &&
+    same(s.store, start.store) &&
+    same(s.demon, start.demon) &&
+    same(s.role, start.role) &&
+    same(s.flow, start.flow)
 
   return { exact, leaks, lowest, made, reverses }
 }
@@ -139,15 +188,36 @@ function cptPhase(spec: ScatterWeaveSpec): number {
 
     for (let t = 0; t < 24 && holds; t++) {
       for (let k = 0; k < 150 && holds; k++) {
-        const v = Int8Array.from({ length: 24 }, (_, i) => ((k * 31 + i * 7 + ((k * i) % 5)) % 3) - 1)
-        const store = Int32Array.from({ length: 24 }, (_, i) => (v[i] === 0 ? 0 : (k + i) % 3))
-        const demon = Int32Array.from({ length: 12 }, (_, i) => (k + i) % 4)
-        const a = { vibe: Int8Array.from(v), store: Int32Array.from(store), demon: Int32Array.from(demon), role: undefined }
-        const b = { vibe: Int8Array.from(v, x => -x), store: Int32Array.from(store), demon: Int32Array.from(demon), role: undefined }
+        const v = Int8Array.from(
+          { length: 24 },
+          (_, i) => ((k * 31 + i * 7 + ((k * i) % 5)) % 3) - 1,
+        )
+        const store = Int32Array.from({ length: 24 }, (_, i) =>
+          v[i] === 0 ? 0 : (k + i) % 3,
+        )
+        const demon = Int32Array.from(
+          { length: 12 },
+          (_, i) => (k + i) % 4,
+        )
+        const a = {
+          vibe: Int8Array.from(v),
+          store: Int32Array.from(store),
+          demon: Int32Array.from(demon),
+          role: undefined,
+        }
+        const b = {
+          vibe: Int8Array.from(v, x => -x),
+          store: Int32Array.from(store),
+          demon: Int32Array.from(demon),
+          role: undefined,
+        }
 
         coldDockCollide(weave, a, 0, t, true)
         coldDockCollide(weave, b, 0, (((c - t) % 24) + 24) % 24, false)
-        holds = b.vibe.every((x, i) => -x === a.vibe[i]) && b.store.every((x, i) => x === a.store[i]) && b.demon.every((x, i) => x === a.demon[i])
+        holds =
+          b.vibe.every((x, i) => -x === a.vibe[i]) &&
+          b.store.every((x, i) => x === a.store[i]) &&
+          b.demon.every((x, i) => x === a.demon[i])
       }
     }
 
@@ -159,7 +229,10 @@ function cptPhase(spec: ScatterWeaveSpec): number {
   return -1
 }
 
-function thresholdRuns(spec: ScatterWeaveSpec, stores: readonly [number, number]): { pairs: number; collisions: number; energyExact: boolean } {
+function thresholdRuns(
+  spec: ScatterWeaveSpec,
+  stores: readonly [number, number],
+): { pairs: number; collisions: number; energyExact: boolean } {
   const side = 7
   const mesh = d4BoxMesh({ side })
   const weave = makeColdWeave({ mesh, spec })
@@ -171,10 +244,16 @@ function thresholdRuns(spec: ScatterWeaveSpec, stores: readonly [number, number]
   let energyExact = true
 
   for (let d = 0; d < 24; d++) {
-    const o = roots.findIndex(r => r.every((x, k) => x === -(roots[d]?.[k] ?? 0)))
+    const o = roots.findIndex(r =>
+      r.every((x, k) => x === -(roots[d]?.[k] ?? 0)),
+    )
 
     for (let phase = 0; phase < 24; phase++) {
-      let s: ColdState = { vibe: new Int8Array(mesh.cellCount * 24), store: new Int32Array(mesh.cellCount * 24), demon: new Int32Array(mesh.cellCount * 12) }
+      let s: ColdState = {
+        vibe: new Int8Array(mesh.cellCount * 24),
+        store: new Int32Array(mesh.cellCount * 24),
+        demon: new Int32Array(mesh.cellCount * 12),
+      }
 
       s.vibe[mesh.neighbour(m, o) * 24 + d] = 1
       s.store[mesh.neighbour(m, o) * 24 + d] = stores[0]
@@ -182,11 +261,15 @@ function thresholdRuns(spec: ScatterWeaveSpec, stores: readonly [number, number]
       s.store[mesh.neighbour(m, d) * 24 + o] = stores[1]
 
       const e0 = coldEnergy(s)
+
       let tones = 0
 
       for (let t = 0; t < 4; t++) {
         s = coldBeat(weave, s, phase + t)
-        tones = Math.max(tones, s.vibe.reduce((c, v) => c + Math.abs(v), 0))
+        tones = Math.max(
+          tones,
+          s.vibe.reduce((c, v) => c + Math.abs(v), 0),
+        )
       }
 
       collisions++
@@ -198,16 +281,24 @@ function thresholdRuns(spec: ScatterWeaveSpec, stores: readonly [number, number]
   return { pairs, collisions, energyExact }
 }
 
-function coldVacuum(spec: ScatterWeaveSpec): { still: boolean; loneLargest: number } {
+function coldVacuum(spec: ScatterWeaveSpec): {
+  still: boolean
+  loneLargest: number
+} {
   const small = d4BoxMesh({ side: 5 })
   const smallWeave = makeColdWeave({ mesh: small, spec })
 
-  let v: ColdState = { vibe: new Int8Array(small.cellCount * 24), store: new Int32Array(small.cellCount * 24), demon: new Int32Array(small.cellCount * 12) }
+  let v: ColdState = {
+    vibe: new Int8Array(small.cellCount * 24),
+    store: new Int32Array(small.cellCount * 24),
+    demon: new Int32Array(small.cellCount * 12),
+  }
   let still = true
 
   for (let t = 0; t < 48; t++) {
     v = coldBeat(smallWeave, v, t)
-    still = still && v.vibe.every(x => x === 0) && v.demon.every(x => x === 0)
+    still =
+      still && v.vibe.every(x => x === 0) && v.demon.every(x => x === 0)
   }
 
   const mesh = d4BoxMesh({ side: 9 })
@@ -218,14 +309,21 @@ function coldVacuum(spec: ScatterWeaveSpec): { still: boolean; loneLargest: numb
 
   for (const store of [0, 5]) {
     for (let d = 0; d < 24; d++) {
-      let s: ColdState = { vibe: new Int8Array(mesh.cellCount * 24), store: new Int32Array(mesh.cellCount * 24), demon: new Int32Array(mesh.cellCount * 12) }
+      let s: ColdState = {
+        vibe: new Int8Array(mesh.cellCount * 24),
+        store: new Int32Array(mesh.cellCount * 24),
+        demon: new Int32Array(mesh.cellCount * 12),
+      }
 
       s.vibe[center * 24 + d] = 1
       s.store[center * 24 + d] = store
 
       for (let t = 0; t < 96; t++) {
         s = coldBeat(weave, s, t)
-        loneLargest = Math.max(loneLargest, s.vibe.reduce((c, x) => c + Math.abs(x), 0))
+        loneLargest = Math.max(
+          loneLargest,
+          s.vibe.reduce((c, x) => c + Math.abs(x), 0),
+        )
       }
     }
   }
@@ -233,41 +331,110 @@ function coldVacuum(spec: ScatterWeaveSpec): { still: boolean; loneLargest: numb
   return { still, loneLargest }
 }
 
-function wave(spec: ScatterWeaveSpec, side: number, geometry: WaveGeometry, beats: number, mode = 1) {
+function wave(
+  spec: ScatterWeaveSpec,
+  side: number,
+  geometry: WaveGeometry,
+  beats: number,
+  mode = 1,
+) {
   const mesh = d4Mesh({ side })
   const weave = makeColdWeave({ mesh, spec })
-  const will = momentumWaveStart({ mesh, side, geometry, mode, fill: 0.2, bias: 0.4, salt: 7 })
+  const will = momentumWaveStart({
+    mesh,
+    side,
+    geometry,
+    mode,
+    fill: 0.2,
+    bias: 0.4,
+    salt: 7,
+  })
 
-  let s: ColdState = { vibe: will.data, store: new Int32Array(will.data.length), demon: new Int32Array(mesh.cellCount * 12) }
+  let s: ColdState = {
+    vibe: will.data,
+    store: new Int32Array(will.data.length),
+    demon: new Int32Array(mesh.cellCount * 12),
+  }
 
   const e0 = coldEnergy(s)
-  const series = [momentumWaveAmplitude({ will: { mesh, data: s.vibe }, side, geometry, mode })]
+  const series = [
+    momentumWaveAmplitude({
+      will: { mesh, data: s.vibe },
+      side,
+      geometry,
+      mode,
+    }),
+  ]
 
   for (let t = 0; t < beats; t++) {
     s = coldBeat(weave, s, t)
-    series.push(momentumWaveAmplitude({ will: { mesh, data: s.vibe }, side, geometry, mode }))
+    series.push(
+      momentumWaveAmplitude({
+        will: { mesh, data: s.vibe },
+        side,
+        geometry,
+        mode,
+      }),
+    )
   }
 
   const k = (2 * Math.PI * mode * Math.hypot(...geometry.wave)) / side
   const counters = s.demon.reduce((a, b) => a + b, 0)
-  const stores = s.vibe.reduce((a, v, i) => a + (v === 0 ? 0 : (s.store[i] ?? 0)), 0)
+  const stores = s.vibe.reduce(
+    (a, v, i) => a + (v === 0 ? 0 : (s.store[i] ?? 0)),
+    0,
+  )
 
-  return { side, k, series, energyExact: coldEnergy(s) === e0, counterShare: counters / e0, storeShare: stores / e0 }
+  return {
+    side,
+    k,
+    series,
+    energyExact: coldEnergy(s) === e0,
+    counterShare: counters / e0,
+    storeShare: stores / e0,
+  }
 }
 
-function sound(spec: ScatterWeaveSpec, side: number, geometry: WaveGeometry = { momentum: [1, 0, 0, 0], wave: [1, 0, 0, 0] }) {
+function sound(
+  spec: ScatterWeaveSpec,
+  side: number,
+  geometry: WaveGeometry = {
+    momentum: [1, 0, 0, 0],
+    wave: [1, 0, 0, 0],
+  },
+) {
   const w = wave(spec, side, geometry, 144)
   const s0 = w.series[0] ?? 1
   const fit = dampedCosineFit({ series: w.series.map(x => x / s0) })
 
-  return { ...w, speed: fit.omega / w.k, gamma: fit.gamma, r2: fit.r2, oscillates: fit.omega > fit.gamma && fit.r2 > 0.9 }
+  return {
+    ...w,
+    speed: fit.omega / w.k,
+    gamma: fit.gamma,
+    r2: fit.r2,
+    oscillates: fit.omega > fit.gamma && fit.r2 > 0.9,
+  }
 }
 
-function shear(spec: ScatterWeaveSpec, side: number, geometry: WaveGeometry = { momentum: [1, 0, 0, 0], wave: [0, 1, 0, 0] }, mode = 1) {
+function shear(
+  spec: ScatterWeaveSpec,
+  side: number,
+  geometry: WaveGeometry = {
+    momentum: [1, 0, 0, 0],
+    wave: [0, 1, 0, 0],
+  },
+  mode = 1,
+) {
   const w = wave(spec, side, geometry, 60, mode)
   const fit = decayRateFit({ series: w.series })
 
-  return { ...w, mode, gamma: fit.gamma, r2: fit.r2, nu: fit.gamma / (w.k * w.k) }
+  return {
+    ...w,
+    mode,
+    gamma: fit.gamma,
+    r2: fit.r2,
+    nu: fit.gamma / (w.k * w.k),
+  }
 }
 
 export default experiment({
@@ -285,23 +452,42 @@ export default experiment({
 
     const law = laws(spec)
     const cpt = cptPhase(spec)
-    const thresholds = ([
-      [0, 0],
-      [0, 2],
-      [1, 1],
-      [2, 2],
-      [1, 3],
-    ] as const).map(stores => ({ stores, ...thresholdRuns(spec, stores) }))
+    const thresholds = (
+      [
+        [0, 0],
+        [0, 2],
+        [1, 1],
+        [2, 2],
+        [1, 3],
+      ] as const
+    ).map(stores => ({ stores, ...thresholdRuns(spec, stores) }))
     const vacuum = coldVacuum(spec)
 
     const sounds = [12, 16, 20, 24].map(side => sound(spec, side))
-    const extrapolation = linearFit({ xs: sounds.map(s => s.k * s.k), ys: sounds.map(s => s.speed) })
+    const extrapolation = linearFit({
+      xs: sounds.map(s => s.k * s.k),
+      ys: sounds.map(s => s.speed),
+    })
     const soundDirections = [
       { name: 'axis0', ...(sounds[1] ?? sound(spec, 16)) },
-      { name: 'axis2', ...sound(spec, 16, { momentum: [0, 0, 1, 0], wave: [0, 0, 1, 0] }) },
-      { name: 'diagonal01', ...sound(spec, 22, { momentum: [1, 1, 0, 0], wave: [1, 1, 0, 0] }) },
+      {
+        name: 'axis2',
+        ...sound(spec, 16, {
+          momentum: [0, 0, 1, 0],
+          wave: [0, 0, 1, 0],
+        }),
+      },
+      {
+        name: 'diagonal01',
+        ...sound(spec, 22, {
+          momentum: [1, 1, 0, 0],
+          wave: [1, 1, 0, 0],
+        }),
+      },
     ]
-    const speedSpread = Math.max(...soundDirections.map(s => s.speed)) / Math.min(...soundDirections.map(s => s.speed))
+    const speedSpread =
+      Math.max(...soundDirections.map(s => s.speed)) /
+      Math.min(...soundDirections.map(s => s.speed))
 
     const shears = [12, 16, 20, 24].map(side => shear(spec, side))
     const modeTwo = shear(spec, 20, undefined, 2)
@@ -309,20 +495,43 @@ export default experiment({
     const xs = allShears.map(r => Math.log(r.k))
     const ys = allShears.map(r => Math.log(r.gamma))
     const exponentFit = linearFit({ xs, ys })
-    const exponentError = slopeError(xs, ys, exponentFit.slope, exponentFit.intercept)
+    const exponentError = slopeError(
+      xs,
+      ys,
+      exponentFit.slope,
+      exponentFit.intercept,
+    )
     const nus = shears.map(r => r.nu)
     const nuSpread = Math.max(...nus) / Math.min(...nus)
-    const oriented = ORIENTATIONS.map(([name, geometry]) => ({ name, ...(name === 'axes01' ? (shears[1] ?? shear(spec, 16)) : shear(spec, 16, geometry)) }))
-    const anisotropy = Math.max(...oriented.map(o => o.nu)) / Math.min(...oriented.map(o => o.nu))
+    const oriented = ORIENTATIONS.map(([name, geometry]) => ({
+      name,
+      ...(name === 'axes01'
+        ? (shears[1] ?? shear(spec, 16))
+        : shear(spec, 16, geometry)),
+    }))
+    const anisotropy =
+      Math.max(...oriented.map(o => o.nu)) /
+      Math.min(...oriented.map(o => o.nu))
 
     const flipSounds = [12, 16, 20].map(side => sound(flip, side))
     const flipShears = [12, 16, 20].map(side => shear(flip, side))
 
     const thresholdGate =
       thresholds.every(r => r.energyExact) &&
-      thresholds.filter(r => r.stores[0] < 1 || r.stores[1] < 1).every(r => r.pairs === 0) &&
-      thresholds.filter(r => r.stores[0] >= 1 && r.stores[1] >= 1).every(r => r.pairs > 0)
-    const everyRun = [...sounds, ...soundDirections, ...allShears, ...oriented, ...flipSounds, ...flipShears]
+      thresholds
+        .filter(r => r.stores[0] < 1 || r.stores[1] < 1)
+        .every(r => r.pairs === 0) &&
+      thresholds
+        .filter(r => r.stores[0] >= 1 && r.stores[1] >= 1)
+        .every(r => r.pairs > 0)
+    const everyRun = [
+      ...sounds,
+      ...soundDirections,
+      ...allShears,
+      ...oriented,
+      ...flipSounds,
+      ...flipShears,
+    ]
 
     const ok =
       law.exact &&
@@ -361,8 +570,10 @@ export default experiment({
 
     thresholds.forEach(r => {
       metrics[`pairsFromStores${r.stores[0]}${r.stores[1]}`] = r.pairs
-      metrics[`collisionsStores${r.stores[0]}${r.stores[1]}`] = r.collisions
+      metrics[`collisionsStores${r.stores[0]}${r.stores[1]}`] =
+        r.collisions
     })
+
     sounds.forEach(s => {
       metrics[`soundSpeedL${s.side}`] = s.speed
       metrics[`soundGammaL${s.side}`] = s.gamma
@@ -370,7 +581,11 @@ export default experiment({
       metrics[`counterShareSoundL${s.side}`] = s.counterShare
       metrics[`storeShareSoundL${s.side}`] = s.storeShare
     })
-    soundDirections.forEach(s => (metrics[`soundSpeed_${s.name}`] = s.speed))
+
+    soundDirections.forEach(
+      s => (metrics[`soundSpeed_${s.name}`] = s.speed),
+    )
+
     allShears.forEach(r => {
       metrics[`nuL${r.side}M${r.mode}`] = r.nu
       metrics[`gammaL${r.side}M${r.mode}`] = r.gamma

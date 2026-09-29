@@ -21,37 +21,63 @@ const T = 48
 for (const dir of [20, 21, 22, 23]) {
   let vacuum: Will = makeWill(mesh)
   let seeded: Will = makeWill(mesh)
+
   seeded.data[center * 24 + dir] = 1
+
   const series = new Map<number, { re: number[]; im: number[] }>()
+
   for (let t = 0; t < T; t++) {
     vacuum = beat(vacuum, rule(t % 24))
     seeded = beat(seeded, rule(t % 24))
+
     for (let i = 0; i < seeded.data.length; i++) {
       const dv = seeded.data[i]! - vacuum.data[i]!
+
       if (dv !== 0 || series.has(i)) {
-        if (!series.has(i)) series.set(i, { re: new Array(T).fill(0), im: new Array(T).fill(0) })
+        if (!series.has(i)) {
+          series.set(i, {
+            re: new Array(T).fill(0),
+            im: new Array(T).fill(0),
+          })
+        }
+
         const s = series.get(i)!
         const angle = (2 * Math.PI * (((dv % 3) + 3) % 3)) / 3
+
         s.re[t] = Math.cos(angle) - 1
         s.im[t] = Math.sin(angle)
       }
     }
   }
+
   const powers: string[] = []
+
   for (let m = 0; m <= 12; m++) {
     const f = m / 24
+
     let power = 0
+
     for (const s of series.values()) {
-      let re = 0, im = 0
+      let re = 0,
+        im = 0
+
       for (let t = 0; t < T; t++) {
         const c = Math.cos(2 * Math.PI * f * t)
         const w = -Math.sin(2 * Math.PI * f * t)
+
         re += s.re[t]! * c - s.im[t]! * w
         im += s.re[t]! * w + s.im[t]! * c
       }
+
       power += (re * re + im * im) / (T * T)
     }
-    if (power > 1e-6) powers.push(`f=${m}/24(E=${(m / 24 * 3).toFixed(2)}):${power.toFixed(3)}`)
+
+    if (power > 1e-6) {
+      powers.push(
+        `f=${m}/24(E=${((m / 24) * 3).toFixed(2)}):${power.toFixed(3)}`,
+      )
+    }
   }
+
   console.log(`dir ${dir} rest spectrum: ${powers.join(' ')}`)
 }

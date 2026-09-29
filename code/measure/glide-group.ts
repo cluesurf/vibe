@@ -59,12 +59,14 @@ export function irreducibleGlideCandidates(input: {
   const { matrices, permutations, admissible, forcedSpread } = input
   const maxOrder = input.maxOrder ?? 64
   const index = new Map(permutations.map((p, i) => [p.join(','), i]))
+
   const composeIndex = (a: number, b: number): number => {
     const pa = permutations[a] ?? []
     const pb = permutations[b] ?? []
 
     return index.get(pb.map(x => pa[x] ?? 0).join(',')) ?? -1
   }
+
   const inverseIndex = (a: number): number => {
     const p = permutations[a] ?? []
     const q = new Array<number>(p.length).fill(0)
@@ -75,7 +77,10 @@ export function irreducibleGlideCandidates(input: {
 
     return index.get(q.join(',')) ?? -1
   }
-  const identity = permutations.findIndex(p => p.every((x, i) => x === i))
+
+  const identity = permutations.findIndex(p =>
+    p.every((x, i) => x === i),
+  )
   const seenGroups = new Set<string>()
   const out: GlideCandidate[] = []
 
@@ -92,13 +97,19 @@ export function irreducibleGlideCandidates(input: {
     }
 
     for (let g = 0; g < permutations.length; g++) {
-      const conjugate = composeIndex(composeIndex(g, k), inverseIndex(g))
+      const conjugate = composeIndex(
+        composeIndex(g, k),
+        inverseIndex(g),
+      )
 
       if (!cyclic.has(conjugate)) {
         continue
       }
 
-      const group = matrixGroupClosure([matrices[k] ?? [], matrices[g] ?? []])
+      const group = matrixGroupClosure([
+        matrices[k] ?? [],
+        matrices[g] ?? [],
+      ])
 
       if (group.length > maxOrder) {
         continue
@@ -133,15 +144,22 @@ const keyOf = (m: Matrix4): string =>
 function multiply(a: Matrix4, b: Matrix4): Matrix4 {
   return [0, 1, 2, 3].map(i =>
     [0, 1, 2, 3].map(j =>
-      [0, 1, 2, 3].reduce((s, k) => s + (a[i]?.[k] ?? 0) * (b[k]?.[j] ?? 0), 0),
+      [0, 1, 2, 3].reduce(
+        (s, k) => s + (a[i]?.[k] ?? 0) * (b[k]?.[j] ?? 0),
+        0,
+      ),
     ),
   )
 }
 
 // the finite group the matrices generate (entries are multiples of one half here, so a rounded key is
 // exact)
-export function matrixGroupClosure(generators: readonly Matrix4[]): Matrix4[] {
-  const identity = [0, 1, 2, 3].map(i => [0, 1, 2, 3].map(j => (i === j ? 1 : 0)))
+export function matrixGroupClosure(
+  generators: readonly Matrix4[],
+): Matrix4[] {
+  const identity = [0, 1, 2, 3].map(i =>
+    [0, 1, 2, 3].map(j => (i === j ? 1 : 0)),
+  )
   const seen = new Map<string, Matrix4>([[keyOf(identity), identity]])
   const queue: Matrix4[] = [identity]
 
@@ -189,12 +207,30 @@ export function commutantDimension(group: readonly Matrix4[]): number {
 // the self-dual and anti-self-dual bases of two-forms (epsilon_0123 = +1), matching kernelParts in
 // code/measure/coarse-modes
 const TWO_FORMS: readonly (readonly [number, number, number][])[] = [
-  [[0, 1, 1], [2, 3, 1]],
-  [[0, 2, 1], [1, 3, -1]],
-  [[0, 3, 1], [1, 2, 1]],
-  [[0, 1, 1], [2, 3, -1]],
-  [[0, 2, 1], [1, 3, 1]],
-  [[0, 3, 1], [1, 2, -1]],
+  [
+    [0, 1, 1],
+    [2, 3, 1],
+  ],
+  [
+    [0, 2, 1],
+    [1, 3, -1],
+  ],
+  [
+    [0, 3, 1],
+    [1, 2, 1],
+  ],
+  [
+    [0, 1, 1],
+    [2, 3, -1],
+  ],
+  [
+    [0, 2, 1],
+    [1, 3, 1],
+  ],
+  [
+    [0, 3, 1],
+    [1, 2, -1],
+  ],
 ]
 
 function formMatrix(coefficients: readonly number[]): Matrix4 {
@@ -202,8 +238,8 @@ function formMatrix(coefficients: readonly number[]): Matrix4 {
 
   TWO_FORMS.forEach((form, b) => {
     for (const [i, j, s] of form) {
-      ;(m[i] as number[])[j] = (m[i]?.[j] ?? 0) + s * (coefficients[b] ?? 0)
-      ;(m[j] as number[])[i] = (m[j]?.[i] ?? 0) - s * (coefficients[b] ?? 0)
+      m[i]![j] = (m[i]?.[j] ?? 0) + s * (coefficients[b] ?? 0)
+      m[j]![i] = (m[j]?.[i] ?? 0) - s * (coefficients[b] ?? 0)
     }
   })
 
@@ -227,7 +263,9 @@ export function invariantTwoForms(group: readonly Matrix4[]): {
         coefficients[b] = 1
 
         const f = formMatrix(coefficients)
-        const gt = [0, 1, 2, 3].map(i => [0, 1, 2, 3].map(j => g[j]?.[i] ?? 0))
+        const gt = [0, 1, 2, 3].map(i =>
+          [0, 1, 2, 3].map(j => g[j]?.[i] ?? 0),
+        )
 
         return multiply(multiply(g, f), gt).map((row, i) =>
           row.map((x, j) => x - (f[i]?.[j] ?? 0)),
@@ -243,6 +281,7 @@ export function invariantTwoForms(group: readonly Matrix4[]): {
 
     return rows
   }
+
   const nullity = (basis: readonly number[]): number =>
     basis.length - realMatrixRank(conditions(basis))
 
@@ -260,7 +299,12 @@ export function invariantTwoForms(group: readonly Matrix4[]): {
 // condition (a like pair against a calm line), which reads the same whichever way the lines face, so the
 // swap's matter line needs no orientation (the base of the scatter weave); 'headOnOrbit' is 'orbit'
 // with that condition
-export type Relaxation = 'index' | 'free' | 'orbit' | 'headOn' | 'headOnOrbit'
+export type Relaxation =
+  | 'index'
+  | 'free'
+  | 'orbit'
+  | 'headOn'
+  | 'headOnOrbit'
 
 // The part of a 4 x 4 response a group allows: its average (1 / |H|) sum h M h^T, the projection onto the
 // invariants, and what is left, the part the symmetry forbids. For an irreducible group the allowed
@@ -283,13 +327,16 @@ export function allowedAndForbidden(input: {
 
   for (const h of group) {
     const moved = multiply(
-      multiply(h, response.map(row => [...row])),
+      multiply(
+        h,
+        response.map(row => [...row]),
+      ),
       [0, 1, 2, 3].map(i => [0, 1, 2, 3].map(j => h[j]?.[i] ?? 0)),
     )
 
     moved.forEach((row, i) =>
       row.forEach((x, j) => {
-        ;(average[i] as number[])[j] = (average[i]?.[j] ?? 0) + x / group.length
+        average[i]![j] = (average[i]?.[j] ?? 0) + x / group.length
       }),
     )
   }
@@ -305,17 +352,30 @@ export function allowedAndForbidden(input: {
 
     return Math.sqrt(s)
   }
-  const sym = (m: readonly (readonly number[])[], i: number, j: number): number =>
-    ((m[i]?.[j] ?? 0) + (m[j]?.[i] ?? 0)) / 2
-  const anti = (m: readonly (readonly number[])[], i: number, j: number): number =>
-    ((m[i]?.[j] ?? 0) - (m[j]?.[i] ?? 0)) / 2
+
+  const sym = (
+    m: readonly (readonly number[])[],
+    i: number,
+    j: number,
+  ): number => ((m[i]?.[j] ?? 0) + (m[j]?.[i] ?? 0)) / 2
+  const anti = (
+    m: readonly (readonly number[])[],
+    i: number,
+    j: number,
+  ): number => ((m[i]?.[j] ?? 0) - (m[j]?.[i] ?? 0)) / 2
   const f = (i: number, j: number): number => anti(average, i, j)
   const plus = [f(0, 1) + f(2, 3), f(0, 2) - f(1, 3), f(0, 3) + f(1, 2)]
-  const minus = [f(0, 1) - f(2, 3), f(0, 2) + f(1, 3), f(0, 3) - f(1, 2)]
+  const minus = [
+    f(0, 1) - f(2, 3),
+    f(0, 2) + f(1, 3),
+    f(0, 3) - f(1, 2),
+  ]
 
   return {
     symmetricAllowed: norm((i, j) => sym(average, i, j)),
-    symmetricForbidden: norm((i, j) => sym(response, i, j) - sym(average, i, j)),
+    symmetricForbidden: norm(
+      (i, j) => sym(response, i, j) - sym(average, i, j),
+    ),
     antisymmetricAllowed: norm((i, j) => anti(average, i, j)),
     antisymmetricForbidden: norm(
       (i, j) => anti(response, i, j) - anti(average, i, j),
@@ -336,8 +396,11 @@ export function reversalPartners(input: {
   g: readonly number[]
 }): number {
   const { permutations, k, g } = input
-  const compose = (a: readonly number[], b: readonly number[]): number[] =>
-    b.map(x => a[x] ?? x)
+  const compose = (
+    a: readonly number[],
+    b: readonly number[],
+  ): number[] => b.map(x => a[x] ?? x)
+
   const inverse = (p: readonly number[]): number[] => {
     const q = new Array<number>(p.length).fill(0)
 
@@ -347,6 +410,7 @@ export function reversalPartners(input: {
 
     return q
   }
+
   const same = (a: readonly number[], b: readonly number[]): boolean =>
     a.every((x, i) => x === b[i])
   const identity = k.map((_, i) => i)
@@ -372,7 +436,9 @@ export function reversalPartners(input: {
 
 // the conjugacy class of every permutation in the list (the list a group), numbered in order of first
 // appearance, and the first member of each class
-export function conjugacyClasses(permutations: readonly (readonly number[])[]): {
+export function conjugacyClasses(
+  permutations: readonly (readonly number[])[],
+): {
   classOf: Int32Array
   representatives: number[]
 } {
@@ -423,15 +489,23 @@ export function reversalGroupCandidates(input: {
   permutations: readonly (readonly number[])[]
   admissibleEta: (index: number) => readonly number[]
   forcedSpread: (group: readonly Matrix4[]) => number
-}): { k: number; q: number; eta: number; order: number; commutant: number }[] {
+}): {
+  k: number
+  q: number
+  eta: number
+  order: number
+  commutant: number
+}[] {
   const { matrices, permutations, admissibleEta, forcedSpread } = input
   const index = new Map(permutations.map((p, i) => [p.join(','), i]))
+
   const compose = (a: number, b: number): number => {
     const pa = permutations[a] ?? []
     const pb = permutations[b] ?? []
 
     return index.get(pb.map(x => pa[x] ?? 0).join(',')) ?? -1
   }
+
   const inverseOf = (a: number): number => {
     const p = permutations[a] ?? []
     const q = new Array<number>(p.length).fill(0)
@@ -442,16 +516,31 @@ export function reversalGroupCandidates(input: {
 
     return index.get(q.join(',')) ?? -1
   }
-  const identity = permutations.findIndex(p => p.every((x, i) => x === i))
-  const out: { k: number; q: number; eta: number; order: number; commutant: number }[] = []
+
+  const identity = permutations.findIndex(p =>
+    p.every((x, i) => x === i),
+  )
+  const out: {
+    k: number
+    q: number
+    eta: number
+    order: number
+    commutant: number
+  }[] = []
   const seen = new Set<string>()
 
   for (let k = 0; k < permutations.length; k++) {
     for (const eta of admissibleEta(k)) {
       // the powers of k with their sign
-      const powers: { element: number; sign: number }[] = [{ element: identity, sign: 1 }]
+      const powers: { element: number; sign: number }[] = [
+        { element: identity, sign: 1 },
+      ]
 
-      for (let p = k, s = eta; p !== identity; p = compose(k, p), s *= eta) {
+      for (
+        let p = k, s = eta;
+        p !== identity;
+        p = compose(k, p), s *= eta
+      ) {
         powers.push({ element: p, sign: s })
       }
 
@@ -465,19 +554,31 @@ export function reversalGroupCandidates(input: {
         const square = compose(q, q)
         const power = powers.find(x => x.element === square)
 
-        if (!power || power.sign !== 1) {
+        if (power?.sign !== 1) {
           continue
         }
 
-        const group = matrixGroupClosure([matrices[k] ?? [], matrices[q] ?? []])
-        const key = group.map(m => keyOf(m)).sort().join('|')
+        const group = matrixGroupClosure([
+          matrices[k] ?? [],
+          matrices[q] ?? [],
+        ])
+        const key = group
+          .map(m => keyOf(m))
+          .sort()
+          .join('|')
 
         if (seen.has(key) || forcedSpread(group) > 1e-9) {
           continue
         }
 
         seen.add(key)
-        out.push({ k, q, eta, order: group.length, commutant: commutantDimension(group) })
+        out.push({
+          k,
+          q,
+          eta,
+          order: group.length,
+          commutant: commutantDimension(group),
+        })
       }
     }
   }
@@ -506,16 +607,25 @@ export function periodGroupCandidates(input: {
   withGlide?: boolean
   // whole beat-stabilizer groups to try as K besides the cyclic ones, as [permutation index, sign] lists
   stabilizers?: readonly (readonly (readonly [number, number])[])[]
-}): { k: number; eta: number; g: number; q: number; order: number; commutant: number }[] {
+}): {
+  k: number
+  eta: number
+  g: number
+  q: number
+  order: number
+  commutant: number
+}[] {
   const { matrices, permutations, forcedSpread } = input
   const withGlide = input.withGlide ?? true
   const index = new Map(permutations.map((p, i) => [p.join(','), i]))
+
   const compose = (a: number, b: number): number => {
     const pa = permutations[a] ?? []
     const pb = permutations[b] ?? []
 
     return index.get(pb.map(x => pa[x] ?? 0).join(',')) ?? -1
   }
+
   const inverseOf = (a: number): number => {
     const p = permutations[a] ?? []
     const q = new Array<number>(p.length).fill(0)
@@ -526,19 +636,32 @@ export function periodGroupCandidates(input: {
 
     return index.get(q.join(',')) ?? -1
   }
-  const identity = permutations.findIndex(p => p.every((x, i) => x === i))
+
+  const identity = permutations.findIndex(p =>
+    p.every((x, i) => x === i),
+  )
   const { representatives } = conjugacyClasses(permutations)
+
   // every K to try, as its members with their signs, and one member to report it by
   const cyclic = (k: number, eta: number): [number, number][] => {
     const powers: [number, number][] = [[identity, 1]]
 
-    for (let p = k, s = eta; p !== identity; p = compose(k, p), s *= eta) {
+    for (
+      let p = k, s = eta;
+      p !== identity;
+      p = compose(k, p), s *= eta
+    ) {
       powers.push([p, s])
     }
 
     return powers
   }
-  const options: { k: number; eta: number; members: readonly (readonly [number, number])[] }[] = [
+
+  const options: {
+    k: number
+    eta: number
+    members: readonly (readonly [number, number])[]
+  }[] = [
     { k: identity, eta: 1, members: [[identity, 1]] },
     ...input.admissible.map(a => ({
       k: a.representative,
@@ -551,12 +674,21 @@ export function periodGroupCandidates(input: {
       members,
     })),
   ]
-  const out: { k: number; eta: number; g: number; q: number; order: number; commutant: number }[] = []
+  const out: {
+    k: number
+    eta: number
+    g: number
+    q: number
+    order: number
+    commutant: number
+  }[] = []
   const seen = new Set<string>()
 
   for (const { k, eta, members: list } of options) {
     const members = new Set(list.map(([e]) => e))
-    const plain = new Set(list.filter(([, s]) => s === 1).map(([e]) => e))
+    const plain = new Set(
+      list.filter(([, s]) => s === 1).map(([e]) => e),
+    )
     const signOf = new Map(list.map(([e, s]) => [e, s]))
     // a glide or reversal must carry K onto itself AND keep each member's sign: the member it lands on
     // fixes the carried beat the way the original fixes the beat it came from
@@ -579,7 +711,11 @@ export function periodGroupCandidates(input: {
         return hp.every((x, i) => x === ph[i])
       })
     })
-    const glides = !withGlide ? [identity] : central ? representatives : normalizer
+    const glides = !withGlide
+      ? [identity]
+      : central
+        ? representatives
+        : normalizer
 
     for (const g of glides) {
       const gInverse = inverseOf(g)
@@ -602,14 +738,24 @@ export function periodGroupCandidates(input: {
           matrices[g] ?? [],
           matrices[q] ?? [],
         ])
-        const key = group.map(m => keyOf(m)).sort().join('|')
+        const key = group
+          .map(m => keyOf(m))
+          .sort()
+          .join('|')
 
         if (seen.has(key) || forcedSpread(group) > 1e-9) {
           continue
         }
 
         seen.add(key)
-        out.push({ k, eta, g, q, order: group.length, commutant: commutantDimension(group) })
+        out.push({
+          k,
+          eta,
+          g,
+          q,
+          order: group.length,
+          commutant: commutantDimension(group),
+        })
       }
     }
   }
@@ -627,19 +773,27 @@ export function signedSubgroups(input: {
 }): [number, number][][] {
   const { groups, permutations } = input
   const index = new Map(permutations.map((p, i) => [p.join(','), i]))
+
   const compose = (a: number, b: number): number => {
     const pa = permutations[a] ?? []
     const pb = permutations[b] ?? []
 
     return index.get(pb.map(x => pa[x] ?? 0).join(',')) ?? -1
   }
-  const identity = permutations.findIndex(p => p.every((x, i) => x === i))
+
+  const identity = permutations.findIndex(p =>
+    p.every((x, i) => x === i),
+  )
   const out = new Map<string, [number, number][]>()
 
   for (const group of groups) {
     const members = group.filter(([e]) => e !== identity)
     const subsets: (readonly (readonly [number, number])[])[] = []
-    const pick = (start: number, chosen: (readonly [number, number])[]): void => {
+
+    const pick = (
+      start: number,
+      chosen: (readonly [number, number])[],
+    ): void => {
       if (chosen.length > 0) {
         subsets.push(chosen)
       }
@@ -674,7 +828,13 @@ export function signedSubgroups(input: {
 
       const list = [...sign.entries()]
 
-      out.set(list.map(([e, s]) => `${e}:${s}`).sort().join(','), list)
+      out.set(
+        list
+          .map(([e, s]) => `${e}:${s}`)
+          .sort()
+          .join(','),
+        list,
+      )
     }
   }
 
@@ -684,13 +844,33 @@ export function signedSubgroups(input: {
 // the beat shape each relaxation of the census stands for, as code/rule/orbit-knit enumerates it
 export const RELAXATION_SHAPE: Record<
   Relaxation,
-  { orientation: 'index' | 'all'; fixedSwap: boolean; condition: 'loneAway' | 'headOn' }
+  {
+    orientation: 'index' | 'all'
+    fixedSwap: boolean
+    condition: 'loneAway' | 'headOn'
+  }
 > = {
-  index: { orientation: 'index', fixedSwap: true, condition: 'loneAway' },
-  headOn: { orientation: 'index', fixedSwap: true, condition: 'headOn' },
+  index: {
+    orientation: 'index',
+    fixedSwap: true,
+    condition: 'loneAway',
+  },
+  headOn: {
+    orientation: 'index',
+    fixedSwap: true,
+    condition: 'headOn',
+  },
   free: { orientation: 'all', fixedSwap: true, condition: 'loneAway' },
-  orbit: { orientation: 'all', fixedSwap: false, condition: 'loneAway' },
-  headOnOrbit: { orientation: 'all', fixedSwap: false, condition: 'headOn' },
+  orbit: {
+    orientation: 'all',
+    fixedSwap: false,
+    condition: 'loneAway',
+  },
+  headOnOrbit: {
+    orientation: 'all',
+    fixedSwap: false,
+    condition: 'headOn',
+  },
 }
 
 // The whole period-group search for one relaxation: the census's admissible classes, every beat their
@@ -714,7 +894,8 @@ export function periodGroupSearch(input: {
   palindromeGroups: number
   glideGroups: number
 } {
-  const { relaxation, permutations, matrices, opposite, forcedSpread } = input
+  const { relaxation, permutations, matrices, opposite, forcedSpread } =
+    input
   const { representatives } = conjugacyClasses(permutations)
   const rows = beatStabilizerCensus({
     permutations,
@@ -730,8 +911,14 @@ export function periodGroupSearch(input: {
     opposite,
     shape: RELAXATION_SHAPE[relaxation],
   })
-  const subgroups = signedSubgroups({ groups: stabilizers, permutations })
-  const cyclic = rows.map(r => ({ representative: representatives[r.classIndex] ?? 0, eta: r.eta }))
+  const subgroups = signedSubgroups({
+    groups: stabilizers,
+    permutations,
+  })
+  const cyclic = rows.map(r => ({
+    representative: representatives[r.classIndex] ?? 0,
+    eta: r.eta,
+  }))
   const count = (withGlide: boolean): number =>
     periodGroupCandidates({
       matrices,
@@ -758,9 +945,15 @@ export function periodGroupSearch(input: {
 // carried to itself when every scattering's image is in the set. Returns the indices of the invariant sets.
 export function invariantScatterSets(input: {
   permutation: readonly number[]
-  sets: readonly (readonly (readonly [number, number, number, number])[])[]
+  sets: readonly (readonly (readonly [
+    number,
+    number,
+    number,
+    number,
+  ])[])[]
 }): number[] {
   const { permutation, sets } = input
+
   const keyOf4 = (s: readonly number[]): string => {
     const a = [s[0] ?? 0, s[2] ?? 0].sort((x, y) => x - y).join('-')
     const b = [s[1] ?? 0, s[3] ?? 0].sort((x, y) => x - y).join('-')
@@ -825,7 +1018,11 @@ export function beatStabilizerCensus(input: {
 
   // every perfect matching of the 12 lines
   const matchings: [number, number][][] = []
-  const build = (rest: readonly number[], acc: [number, number][]): void => {
+
+  const build = (
+    rest: readonly number[],
+    acc: [number, number][],
+  ): void => {
     if (rest.length === 0) {
       matchings.push(acc)
 
@@ -882,6 +1079,7 @@ export function beatStabilizerCensus(input: {
 
         return sign === eta ** length
       })
+
       let invariantBeats = 0
 
       for (const m of matchings) {
@@ -902,7 +1100,9 @@ export function beatStabilizerCensus(input: {
 
         for (let mask = 0; mask < 1 << m.length; mask++) {
           const wires = m.map(([a, b], k) => ((mask >> k) & 1 ? b : a))
-          const matters = m.map(([a, b], k) => ((mask >> k) & 1 ? a : b))
+          const matters = m.map(([a, b], k) =>
+            (mask >> k) & 1 ? a : b,
+          )
           const isWire = new Array<boolean>(lines.length).fill(false)
 
           wires.forEach(w => {
@@ -918,8 +1118,11 @@ export function beatStabilizerCensus(input: {
           }
 
           const orientedSwap =
-            relaxation === 'index' || relaxation === 'free' || relaxation === 'orbit'
-          const orbitSwap = relaxation === 'orbit' || relaxation === 'headOnOrbit'
+            relaxation === 'index' ||
+            relaxation === 'free' ||
+            relaxation === 'orbit'
+          const orbitSwap =
+            relaxation === 'orbit' || relaxation === 'headOnOrbit'
           const swapOk = m.some(
             (_, k) =>
               (!orientedSwap || compatible[matters[k] ?? 0]) &&

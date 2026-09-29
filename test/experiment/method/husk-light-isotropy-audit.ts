@@ -28,10 +28,38 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { addHashedCurl, emptyPhotonState, magneticSum, makePhotonRule, photonBeatInPlace, photonLatticeD4, type PhotonRule, type PhotonState } from '@/code/rule/photon-links'
-import { accumulate, accumulateCross, leapfrogOmega, makeCorrelator, modeFrequencies, modeReader, type ModeVector } from '@/code/measure/photon-modes'
-import { makeHusk, projectLinks, type Husk } from '@/code/measure/photon-husk'
-import { centered, curlSymbol, eigenvalues, huskSymbol, makeLinearLeapfrog, plaquetteShapes } from '@/code/measure/photon-symbol'
+import {
+  addHashedCurl,
+  emptyPhotonState,
+  magneticSum,
+  makePhotonRule,
+  photonBeatInPlace,
+  photonLatticeD4,
+  type PhotonRule,
+  type PhotonState,
+} from '@/code/rule/photon-links'
+import {
+  accumulate,
+  accumulateCross,
+  leapfrogOmega,
+  makeCorrelator,
+  modeFrequencies,
+  modeReader,
+  type ModeVector,
+} from '@/code/measure/photon-modes'
+import {
+  makeHusk,
+  projectLinks,
+  type Husk,
+} from '@/code/measure/photon-husk'
+import {
+  centered,
+  curlSymbol,
+  eigenvalues,
+  huskSymbol,
+  makeLinearLeapfrog,
+  plaquetteShapes,
+} from '@/code/measure/photon-symbol'
 
 const SIDE = 12
 const N = 8192
@@ -55,22 +83,40 @@ const MODES = [...ORBIT_A, ...ORBIT_B]
 const KAPPA = (2 * Math.PI * K) / N
 const PHOTON_BAND = 0.5
 
-const mean = (xs: readonly number[]): number => xs.reduce((a, b) => a + b, 0) / xs.length
-const sd = (xs: readonly number[]): number => Math.sqrt(xs.reduce((a, x) => a + (x - mean(xs)) ** 2, 0) / (xs.length - 1))
+const mean = (xs: readonly number[]): number =>
+  xs.reduce((a, b) => a + b, 0) / xs.length
+const sd = (xs: readonly number[]): number =>
+  Math.sqrt(
+    xs.reduce((a, x) => a + (x - mean(xs)) ** 2, 0) / (xs.length - 1),
+  )
 
 function thermalStart(rule: PhotonRule, hash: number): PhotonState {
   const s = emptyPhotonState(rule)
   const target = (rule.k * rule.n) / (2 * Math.PI * BETA)
 
-  addHashedCurl(rule, s, Math.max(1, Math.round(Math.sqrt((3 * target) / 4))), hash)
+  addHashedCurl(
+    rule,
+    s,
+    Math.max(1, Math.round(Math.sqrt((3 * target) / 4))),
+    hash,
+  )
 
   return s
 }
 
 // read the two lowest frequencies of each mode of the husk projection of the flux, over BEATS beats after SETTLE
-function read(husk: Husk, step: (t: number) => ArrayLike<number>, onBeat?: (t: number) => void): number[][] {
+function read(
+  husk: Husk,
+  step: (t: number) => ArrayLike<number>,
+  onBeat?: (t: number) => void,
+): number[][] {
   const f = husk.lattice.firsts.length
-  const probes = MODES.map(n => ({ reader: modeReader(husk.lattice, n), c0: makeCorrelator(f), c1: makeCorrelator(f), history: [] as ModeVector[] }))
+  const probes = MODES.map(n => ({
+    reader: modeReader(husk.lattice, n),
+    c0: makeCorrelator(f),
+    c1: makeCorrelator(f),
+    history: [] as ModeVector[],
+  }))
 
   for (let t = 0; t < SETTLE + BEATS; t++) {
     const flux = step(t)
@@ -105,14 +151,21 @@ function read(husk: Husk, step: (t: number) => ArrayLike<number>, onBeat?: (t: n
   // the light band: every read frequency below PHOTON_BAND (the massive husk branches start near 0.80 at these
   // wave vectors, the photons sit near 0.30). A start excites one vector per degenerate eigenspace, so the two
   // lowest read frequencies can be one photon and one massive branch: the band, not the slice, is the light
-  return probes.map(p => modeFrequencies({ c0: p.c0, c1: p.c1, lag: LAG, tolerance: 1e-9 }).omega.filter(w => w < PHOTON_BAND))
+  return probes.map(p =>
+    modeFrequencies({
+      c0: p.c0,
+      c1: p.c1,
+      lag: LAG,
+      tolerance: 1e-9,
+    }).omega.filter(w => w < PHOTON_BAND),
+  )
 }
 
 export default experiment({
   id: 'method/husk-light-isotropy-audit',
   code: 'E-MTH-0014',
   title:
-    'an audit of E-FRC-0169\'s 0.005 percent husk light isotropy: the exact linear symbol puts the (3,0,0) and (2,2,1) orbits apart by its own amount, the lagged estimator on the exactly linear leapfrog reproduces it, and four deterministic thermal starts give the corrected thermal ratio with a noise floor from the symmetry-equivalent modes',
+    "an audit of E-FRC-0169's 0.005 percent husk light isotropy: the exact linear symbol puts the (3,0,0) and (2,2,1) orbits apart by its own amount, the lagged estimator on the exactly linear leapfrog reproduces it, and four deterministic thermal starts give the corrected thermal ratio with a noise floor from the symmetry-equivalent modes",
   category: 'method',
   substrates: ['3434'],
   depth: 'L2',
@@ -121,21 +174,48 @@ export default experiment({
     const bulk = photonLatticeD4({ side: SIDE })
     const husk = makeHusk(bulk)
     const shapes = plaquetteShapes(bulk)
-    const rule = makePhotonRule({ lattice: bulk, n: N, k: K, capacity: 0, hop: false })
+    const rule = makePhotonRule({
+      lattice: bulk,
+      n: N,
+      k: K,
+      capacity: 0,
+      hop: false,
+    })
     const lambdas = MODES.map(m => {
       const k = m.map(x => (2 * Math.PI * x) / SIDE)
-      const h = eigenvalues(huskSymbol(husk, curlSymbol(bulk, shapes, [k[0]!, k[1]!, k[2]!, 0])).hermitian)
+      const h = eigenvalues(
+        huskSymbol(
+          husk,
+          curlSymbol(bulk, shapes, [k[0]!, k[1]!, k[2]!, 0]),
+        ).hermitian,
+      )
 
       return [h[1]!, h[2]!]
     })
-    const orbitRatio = (omegas: readonly number[][]): number => mean(omegas.slice(3).map(mean)) / mean(omegas.slice(0, 3).map(mean)) - 1
+    const orbitRatio = (omegas: readonly number[][]): number =>
+      mean(omegas.slice(3).map(mean)) /
+        mean(omegas.slice(0, 3).map(mean)) -
+      1
+
     const withinSd = (omegas: readonly number[][]): number => {
       const a = omegas.slice(0, 3).map(mean)
       const b = omegas.slice(3).map(mean)
 
-      return Math.sqrt((sd(a) ** 2 / mean(a) ** 2 + sd(b) ** 2 / mean(b) ** 2) / 2)
+      return Math.sqrt(
+        (sd(a) ** 2 / mean(a) ** 2 + sd(b) ** 2 / mean(b) ** 2) / 2,
+      )
     }
-    const runs: { hash: number; meanCos: number; ratio: number; noise: number; linearRatio: number; predictedRatio: number; linearGap: number; omegas: number[][] }[] = []
+
+    const runs: {
+      hash: number
+      meanCos: number
+      ratio: number
+      noise: number
+      linearRatio: number
+      predictedRatio: number
+      linearGap: number
+      omegas: number[][]
+    }[] = []
 
     for (const hash of HASHES) {
       // thermal
@@ -156,7 +236,9 @@ export default experiment({
       )
       const meanCos = mean(cosines)
       const kappa = KAPPA * meanCos
-      const predicted = lambdas.map(pair => pair.map(l => leapfrogOmega(kappa, l)))
+      const predicted = lambdas.map(pair =>
+        pair.map(l => leapfrogOmega(kappa, l)),
+      )
 
       // the exactly linear leapfrog from the same start at the renormalized coupling
       const start = thermalStart(rule, hash)
@@ -170,13 +252,27 @@ export default experiment({
       })
       // each mode's light-band mean against the mean of its two predicted photons: two branches 0.07 percent
       // apart dephase by under a radian in 2,000 beats, so only their mean is resolvable
-      const linearGap = Math.max(...linearOmegas.map((band, i) => Math.abs(mean(band) / mean(predicted[i]!) - 1)))
+      const linearGap = Math.max(
+        ...linearOmegas.map((band, i) =>
+          Math.abs(mean(band) / mean(predicted[i]!) - 1),
+        ),
+      )
 
-      runs.push({ hash, meanCos, ratio: orbitRatio(thermal), noise: withinSd(thermal) * Math.sqrt(2 / 3), linearRatio: orbitRatio(linearOmegas), predictedRatio: orbitRatio(predicted), linearGap, omegas: thermal })
+      runs.push({
+        hash,
+        meanCos,
+        ratio: orbitRatio(thermal),
+        noise: withinSd(thermal) * Math.sqrt(2 / 3),
+        linearRatio: orbitRatio(linearOmegas),
+        predictedRatio: orbitRatio(predicted),
+        linearGap,
+        omegas: thermal,
+      })
     }
 
     const corrected = mean(runs.map(r => r.ratio))
-    const correctedError = sd(runs.map(r => r.ratio)) / Math.sqrt(runs.length)
+    const correctedError =
+      sd(runs.map(r => r.ratio)) / Math.sqrt(runs.length)
     const noiseFloor = mean(runs.map(r => r.noise))
     const predictedRatio = mean(runs.map(r => r.predictedRatio))
     const estimatorExact = runs.every(r => r.linearGap < 2e-3)
@@ -184,7 +280,8 @@ export default experiment({
     // thermal minus linear, start by start: the part of the orbit gap the nonlinear dynamics moves
     const shifts = runs.map(r => r.ratio - r.linearRatio)
     const thermalShift = mean(shifts)
-    const shiftSameSign = shifts.every(s => s < 0) || shifts.every(s => s > 0)
+    const shiftSameSign =
+      shifts.every(s => s < 0) || shifts.every(s => s > 0)
 
     const metrics: Record<string, number> = {
       predictedOrbitRatio: predictedRatio,
@@ -196,7 +293,8 @@ export default experiment({
       linearRunOrbitRatioMean: mean(runs.map(r => r.linearRatio)),
       originalStartRatio: original.ratio,
       axisLambda: lambdas[0]![0]!,
-      axisLambdaMinusSixMinusTwoRootFive: lambdas[0]![0]! - (6 - 2 * Math.sqrt(5)),
+      axisLambdaMinusSixMinusTwoRootFive:
+        lambdas[0]![0]! - (6 - 2 * Math.sqrt(5)),
     }
 
     runs.forEach(r => {
@@ -216,7 +314,7 @@ export default experiment({
         estimatorExact: estimatorExact ? 1 : 0,
       },
       notes:
-        'L2. Reading: the linear leapfrog from each start reads the orbit gap at 0.21 to 0.31 percent (the symbol 0.18, the rest the finite run), the thermal run from the same start 0.3 to 0.6 percent lower, with the largest shift at the hottest start (mean cos 0.83). So the thermal renormalization is NOT direction-blind: it lowers the (2,2,1) orbit against the axes, and the E-FRC-0169 reading of 0.005 percent is a cancellation at one start. The within-orbit spread (0.45 to 0.80 percent) is larger than the scatter of the orbit ratio across starts (0.19 percent), so the three axis-permuted modes differ by more than noise within a start: a hashed start is not permutation symmetric and each mode\'s frequency moves with its own amplitude. The corrected number is -0.13 +- 0.09 percent (four starts, standard error), resolvable from 0 only at 1.4 sigma. The noise floor is the spread of the three axis-permuted modes of each orbit, which an exact symmetry of the box and the start ensemble makes equal in expectation, times sqrt(2/3) for a difference of two three-mode means. The starts differ only in the hash of addHashedCurl, as E-FRC-0169\'s did, so the whole audit is deterministic. The axis light eigenvalue at |k| = pi / 2 is reported against 6 - 2 sqrt 5, an observation from the symbol with no proof here (it matches to 9e-16). Rerun 2026-09-26 on the fixed eigensolver (358 s): pass, every number as recorded above; the gate is the second one, changed after the first run as disclosed in the header.',
+        "L2. Reading: the linear leapfrog from each start reads the orbit gap at 0.21 to 0.31 percent (the symbol 0.18, the rest the finite run), the thermal run from the same start 0.3 to 0.6 percent lower, with the largest shift at the hottest start (mean cos 0.83). So the thermal renormalization is NOT direction-blind: it lowers the (2,2,1) orbit against the axes, and the E-FRC-0169 reading of 0.005 percent is a cancellation at one start. The within-orbit spread (0.45 to 0.80 percent) is larger than the scatter of the orbit ratio across starts (0.19 percent), so the three axis-permuted modes differ by more than noise within a start: a hashed start is not permutation symmetric and each mode's frequency moves with its own amplitude. The corrected number is -0.13 +- 0.09 percent (four starts, standard error), resolvable from 0 only at 1.4 sigma. The noise floor is the spread of the three axis-permuted modes of each orbit, which an exact symmetry of the box and the start ensemble makes equal in expectation, times sqrt(2/3) for a difference of two three-mode means. The starts differ only in the hash of addHashedCurl, as E-FRC-0169's did, so the whole audit is deterministic. The axis light eigenvalue at |k| = pi / 2 is reported against 6 - 2 sqrt 5, an observation from the symbol with no proof here (it matches to 9e-16). Rerun 2026-09-26 on the fixed eigensolver (358 s): pass, every number as recorded above; the gate is the second one, changed after the first run as disclosed in the header.",
     })
   },
 })

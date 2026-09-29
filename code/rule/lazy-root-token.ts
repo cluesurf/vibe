@@ -30,9 +30,18 @@
 
 export type LazyPhase = 'none' | 'omega'
 
-export type LazySpec = { readonly side: number; readonly depth: number; readonly phase: LazyPhase }
+export type LazySpec = {
+  readonly side: number
+  readonly depth: number
+  readonly phase: LazyPhase
+}
 
-export type LazyState = { readonly spec: LazySpec; a: bigint[]; b: bigint[]; denominator: bigint }
+export type LazyState = {
+  readonly spec: LazySpec
+  a: bigint[]
+  b: bigint[]
+  denominator: bigint
+}
 
 // the 24 D4 roots +-e_i +-e_j (i < j) in integers
 export const ROOTS: readonly (readonly number[])[] = (() => {
@@ -55,32 +64,53 @@ export const ROOTS: readonly (readonly number[])[] = (() => {
   return out
 })()
 
-export const OPPOSITE: readonly number[] = ROOTS.map(r => ROOTS.findIndex(s => s.every((x, i) => x === -(r[i] ?? 0))))
+export const OPPOSITE: readonly number[] = ROOTS.map(r =>
+  ROOTS.findIndex(s => s.every((x, i) => x === -(r[i] ?? 0))),
+)
 
 export const portCount = (depth: number): number => 9 * (2 * depth + 1)
 
 const mod = (a: number, m: number): number => ((a % m) + m) % m
 
 // (x + y omega)(u + v omega) with omega^2 = -1 - omega
-const mulA = (x: bigint, y: bigint, u: bigint, v: bigint): bigint => x * u - y * v
-const mulB = (x: bigint, y: bigint, u: bigint, v: bigint): bigint => x * v + y * u - y * v
+const mulA = (x: bigint, y: bigint, u: bigint, v: bigint): bigint =>
+  x * u - y * v
+const mulB = (x: bigint, y: bigint, u: bigint, v: bigint): bigint =>
+  x * v + y * u - y * v
 
 // 1 + e^(i phi) as an Eisenstein integer, and its conjugate
-function coinWeight(phase: LazyPhase, adjoint: boolean): [bigint, bigint] {
-  if (phase === 'none') return [2n, 0n]
+function coinWeight(
+  phase: LazyPhase,
+  adjoint: boolean,
+): [bigint, bigint] {
+  if (phase === 'none') {
+    return [2n, 0n]
+  }
 
   // 1 + omega; its conjugate 1 + omega^2 = -omega
   return adjoint ? [0n, -1n] : [1n, 1n]
 }
 
-export function lazyState(spec: LazySpec, start: readonly { dock: readonly number[]; port: number; a: bigint; b: bigint }[]): LazyState {
+export function lazyState(
+  spec: LazySpec,
+  start: readonly {
+    dock: readonly number[]
+    port: number
+    a: bigint
+    b: bigint
+  }[],
+): LazyState {
   const Q = portCount(spec.depth)
   const size = spec.side ** 3 * Q
   const a = new Array<bigint>(size).fill(0n)
   const b = new Array<bigint>(size).fill(0n)
 
   for (const s of start) {
-    const d = mod(s.dock[0] ?? 0, spec.side) + spec.side * (mod(s.dock[1] ?? 0, spec.side) + spec.side * mod(s.dock[2] ?? 0, spec.side))
+    const d =
+      mod(s.dock[0] ?? 0, spec.side) +
+      spec.side *
+        (mod(s.dock[1] ?? 0, spec.side) +
+          spec.side * mod(s.dock[2] ?? 0, spec.side))
 
     a[d * Q + s.port] = (a[d * Q + s.port] ?? 0n) + s.a
     b[d * Q + s.port] = (b[d * Q + s.port] ?? 0n) + s.b
@@ -100,16 +130,16 @@ function coin(s: LazyState, adjoint: boolean): void {
     let sb = 0n
 
     for (let p = 0; p < Q; p++) {
-      sa += s.a[d * Q + p] as bigint
-      sb += s.b[d * Q + p] as bigint
+      sa += s.a[d * Q + p]!
+      sb += s.b[d * Q + p]!
     }
 
     const ta = mulA(cu, cv, sa, sb)
     const tb = mulB(cu, cv, sa, sb)
 
     for (let p = 0; p < Q; p++) {
-      s.a[d * Q + p] = ta - q * (s.a[d * Q + p] as bigint)
-      s.b[d * Q + p] = tb - q * (s.b[d * Q + p] as bigint)
+      s.a[d * Q + p] = ta - q * s.a[d * Q + p]!
+      s.b[d * Q + p] = tb - q * s.b[d * Q + p]!
     }
   }
 }
@@ -132,7 +162,9 @@ export function lazyStreamMap(spec: LazySpec): Int32Array {
           }
 
           const r = ROOTS[p]!
-          const e = mod(x + r[0]!, L) + L * (mod(y + r[1]!, L) + L * mod(z + r[2]!, L))
+          const e =
+            mod(x + r[0]!, L) +
+            L * (mod(y + r[1]!, L) + L * mod(z + r[2]!, L))
 
           to[d * Q + p] = e * Q + OPPOSITE[p]!
         }
@@ -148,8 +180,8 @@ function stream(s: LazyState, map: Int32Array): void {
   const nb = new Array<bigint>(s.b.length)
 
   for (let i = 0; i < map.length; i++) {
-    na[map[i]!] = s.a[i] as bigint
-    nb[map[i]!] = s.b[i] as bigint
+    na[map[i]!] = s.a[i]!
+    nb[map[i]!] = s.b[i]!
   }
 
   s.a = na
@@ -173,8 +205,8 @@ export function lazyNormSum(s: LazyState): bigint {
   let t = 0n
 
   for (let i = 0; i < s.a.length; i++) {
-    const x = s.a[i] as bigint
-    const y = s.b[i] as bigint
+    const x = s.a[i]!
+    const y = s.b[i]!
 
     t += x * x - x * y + y * y
   }

@@ -56,7 +56,11 @@ const CAPACITY = 24
 const BEATS = 24
 const GOLDEN = (Math.sqrt(5) - 1) / 2
 
-type Extra = { couple?: 'none' | 'center' | 'fixed'; priceField?: boolean; reflect?: boolean }
+type Extra = {
+  couple?: 'none' | 'center' | 'fixed'
+  priceField?: boolean
+  reflect?: boolean
+}
 
 function start(rule: SigmaLinks, scale: number): SigmaState {
   const vibe = new Int8Array(rule.cells)
@@ -83,22 +87,35 @@ function start(rule: SigmaLinks, scale: number): SigmaState {
 
   for (let x = 0; x < rule.cells; x++) {
     for (const a of rule.firsts) {
-      demon[x * 24 + a] = Math.floor((((x * 24 + a + 5) * GOLDEN * scale) % 1) * (CAPACITY + 1))
+      demon[x * 24 + a] = Math.floor(
+        (((x * 24 + a + 5) * GOLDEN * scale) % 1) * (CAPACITY + 1),
+      )
     }
   }
 
   return { vibe, role, links: hashedSigmaLinks(rule), demon, flux }
 }
 
-const fields = (s: SigmaState): ArrayLike<number>[] => [s.vibe, s.role, s.links, s.demon, s.flux]
+const fields = (s: SigmaState): ArrayLike<number>[] => [
+  s.vibe,
+  s.role,
+  s.links,
+  s.demon,
+  s.flux,
+]
 
 const mismatches = (a: SigmaState, b: SigmaState): number => {
   const right = fields(b)
 
-  return fields(a).reduce((n, f, k) => n + Array.from(f).filter((v, i) => v !== right[k]?.[i]).length, 0)
+  return fields(a).reduce(
+    (n, f, k) =>
+      n + Array.from(f).filter((v, i) => v !== right[k]?.[i]).length,
+    0,
+  )
 }
 
-const differ = (a: ArrayLike<number>, b: ArrayLike<number>): number => Array.from(a).filter((v, i) => v !== b[i]).length
+const differ = (a: ArrayLike<number>, b: ArrayLike<number>): number =>
+  Array.from(a).filter((v, i) => v !== b[i]).length
 
 type Run = {
   reverses: boolean
@@ -119,7 +136,8 @@ function run(rule: SigmaLinks, scale: number): Run {
   const s0 = start(rule, scale)
   const e0 = sigmaEnergy(rule, s0)
   const u0 = untwistedLinks(rule, s0)
-  const count = (s: SigmaState, v: number): number => s.vibe.filter(x => x === v).length
+  const count = (s: SigmaState, v: number): number =>
+    s.vibe.filter(x => x === v).length
   const moves = { links: 0, loops: 0, roles: 0, hops: 0 }
 
   let s = s0
@@ -142,7 +160,10 @@ function run(rule: SigmaLinks, scale: number): Run {
 
     energyExact = energyExact && e === e0
     drift = Math.max(drift, Math.abs(e - e0))
-    loveFearExact = loveFearExact && count(s, 1) === count(s0, 1) && count(s, -1) === count(s0, -1)
+    loveFearExact =
+      loveFearExact &&
+      count(s, 1) === count(s0, 1) &&
+      count(s, -1) === count(s0, -1)
     violations += sigmaGaussViolations(rule, s)
     untwistedChanged += differ(untwistedLinks(rule, s), u0)
   }
@@ -157,8 +178,15 @@ function run(rule: SigmaLinks, scale: number): Run {
   const reverses = mismatches(s, s0) === 0
   const centers = centerElements(rule)
   const frames = [
-    Array.from({ length: rule.cells }, (_, x) => Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * rule.order)),
-    Array.from({ length: rule.cells }, (_, x) => centers[Math.floor((((x + 13) * GOLDEN * 4.3) % 1) * 3)] ?? rule.identity),
+    Array.from({ length: rule.cells }, (_, x) =>
+      Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * rule.order),
+    ),
+    Array.from(
+      { length: rule.cells },
+      (_, x) =>
+        centers[Math.floor((((x + 13) * GOLDEN * 4.3) % 1) * 3)] ??
+        rule.identity,
+    ),
   ]
   const frameCounts = frames.map(frame => {
     let a = start(rule, scale * 1.7)
@@ -202,21 +230,50 @@ export default experiment({
   paper: false,
   run() {
     const make = (side: number, extra: Extra = {}): SigmaLinks =>
-      makeSigmaLinks({ side, kappa: KAPPA, tension: TENSION, capacity: CAPACITY, couple: 'center', ...extra })
+      makeSigmaLinks({
+        side,
+        kappa: KAPPA,
+        tension: TENSION,
+        capacity: CAPACITY,
+        couple: 'center',
+        ...extra,
+      })
     const first = SIDES[0] ?? 4
 
     const runs = SIDES.map(side => run(make(side), 1.37))
-    const locked = SIDES.map(side => run(make(side, { reflect: false }), 1.37))
-    const unlocked = run(make(first, { couple: 'none', reflect: false }), 1.37)
+    const locked = SIDES.map(side =>
+      run(make(side, { reflect: false }), 1.37),
+    )
+    const unlocked = run(
+      make(first, { couple: 'none', reflect: false }),
+      1.37,
+    )
     const fixed = run(make(first, { couple: 'fixed' }), 1.37)
     const unpaid = run(make(first, { priceField: false }), 1.37)
 
     const exact = (r: Run): boolean =>
-      r.reverses && r.energyExact && r.loveFearExact && r.gaussViolations === 0 && r.frameMismatches === 0 && r.centerFrameMismatches === 0
+      r.reverses &&
+      r.energyExact &&
+      r.loveFearExact &&
+      r.gaussViolations === 0 &&
+      r.frameMismatches === 0 &&
+      r.centerFrameMismatches === 0
 
     const ok =
-      runs.every(r => exact(r) && r.linksChanged > r.links / 2 && r.moves.loops > 0 && r.moves.hops > 0) &&
-      locked.every(r => exact(r) && r.untwistedChanged === 0 && r.linksChanged > 0 && r.fluxChanged > 0) &&
+      runs.every(
+        r =>
+          exact(r) &&
+          r.linksChanged > r.links / 2 &&
+          r.moves.loops > 0 &&
+          r.moves.hops > 0,
+      ) &&
+      locked.every(
+        r =>
+          exact(r) &&
+          r.untwistedChanged === 0 &&
+          r.linksChanged > 0 &&
+          r.fluxChanged > 0,
+      ) &&
       unlocked.untwistedChanged > 0 &&
       fixed.frameMismatches > 0 &&
       unpaid.reverses &&
@@ -243,10 +300,13 @@ export default experiment({
         "with every flux change twisting its link by the center element to that change, on the side-4 and side-5 boxes 24 beats forward and back restore everything exactly, the energy is conserved to the unit, love and fear and Gauss's law hold every beat, frame changes by all 648 elements and by the center alone commute with the rule, the links move and flux loops and hops happen, and with reflections stopped the untwisted part of every link never changes while the links and the flux do, where the uncoupled rule changes it, a non-central twist breaks the frame change and an unpaid twist leaks energy",
       metrics: Object.fromEntries([
         ...runs.flatMap((r, k) => report(`side${SIDES[k]}`, r)),
-        ...locked.flatMap((r, k) => report(`side${SIDES[k]}NoReflection`, r)),
+        ...locked.flatMap((r, k) =>
+          report(`side${SIDES[k]}NoReflection`, r),
+        ),
       ]),
       control: {
-        uncoupledNoReflectionUntwistedChanges: unlocked.untwistedChanged,
+        uncoupledNoReflectionUntwistedChanges:
+          unlocked.untwistedChanged,
         uncoupledNoReflectionFluxChanged: unlocked.fluxChanged,
         fixedTwistFrameMismatches: fixed.frameMismatches,
         unpaidTwistReverses: unpaid.reverses ? 1 : 0,

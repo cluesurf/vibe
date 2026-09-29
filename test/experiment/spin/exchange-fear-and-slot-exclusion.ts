@@ -26,7 +26,11 @@ import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill, Will } from '@/code/tone/will'
 import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
-import { Collision, passThrough, turningWeave } from '@/code/rule/collision'
+import {
+  Collision,
+  passThrough,
+  turningWeave,
+} from '@/code/rule/collision'
 import {
   allCoincide,
   exchangeSubspace,
@@ -63,6 +67,7 @@ function slotRun(input: {
 }): SlotRun {
   const mesh = d4Mesh({ side: input.side })
   const table = streamSourceTable(mesh)
+
   let src: Will = makeWill(mesh)
   let dst: Will = makeWill(mesh)
 
@@ -89,7 +94,7 @@ function slotRun(input: {
 
       if (t >= BEATS / 2) {
         row.forEach((c, k) => {
-          ;(sums[d] as number[])[k] = (sums[d]?.[k] ?? 0) + c
+          sums[d]![k] = (sums[d]?.[k] ?? 0) + c
         })
       }
     })
@@ -105,7 +110,9 @@ function slotRun(input: {
 
   return {
     initialRatio: massActionRatio(
-      [0, 1, 2].map(k => initial.reduce((s, row) => s + (row[k] ?? 0), 0)),
+      [0, 1, 2].map(k =>
+        initial.reduce((s, row) => s + (row[k] ?? 0), 0),
+      ),
     ),
     frozen,
     pooledInteracting: massActionRatio(pooled),
@@ -135,6 +142,7 @@ export default experiment({
           .map((w, x) => (w < -1e-12 ? x : -1))
           .filter(x => x >= 0)
         const marginal = roleMarginal({ n, wigner })
+
         // the probability that some two particles hold the same role
         let sameRole = 0
 
@@ -158,7 +166,8 @@ export default experiment({
           negative: negative.length,
           negativeCoincident: negative.filter(x => hasCoincidence(x, n))
             .length,
-          negativeAllCoincide: negative.filter(x => allCoincide(x, n)).length,
+          negativeAllCoincide: negative.filter(x => allCoincide(x, n))
+            .length,
           sameRole,
         }
       }),
@@ -200,8 +209,7 @@ export default experiment({
           r.frozen.length === 2 &&
           Math.abs(r.pooledInteracting - 1) < 0.1 &&
           Math.abs(r.initialRatio - 1) > 0.3,
-      ) &&
-      controls.every(c => c.frozen.length === 24)
+      ) && controls.every(c => c.frozen.length === 24)
 
     const ok = exchangeOk && slotOk
 
@@ -216,9 +224,14 @@ export default experiment({
         fermionPairLoves: fermionPair?.loves ?? -1,
         fermionPairFears: fermionPair?.fears ?? -1,
         fermionPairNegativePoints: fermionPair?.negative ?? -1,
-        fermionPairNegativeCoincident: fermionPair?.negativeCoincident ?? -1,
-        fermionPairSameRole: Number((fermionPair?.sameRole ?? -1).toFixed(12)),
-        bosonPairSameRole: Number((bosonPair?.sameRole ?? -1).toFixed(6)),
+        fermionPairNegativeCoincident:
+          fermionPair?.negativeCoincident ?? -1,
+        fermionPairSameRole: Number(
+          (fermionPair?.sameRole ?? -1).toFixed(12),
+        ),
+        bosonPairSameRole: Number(
+          (bosonPair?.sameRole ?? -1).toFixed(6),
+        ),
         bosonTripleUnits: bosonTriple?.units ?? -1,
         bosonTripleFears: bosonTriple?.fears ?? -1,
         singletUnits: singlet?.units ?? -1,
@@ -228,10 +241,19 @@ export default experiment({
         singletNegativeAllCoincide: singlet?.negativeAllCoincide ?? -1,
         ...Object.fromEntries(
           runs.flatMap((r, k) => [
-            [`fill${k + 1}InitialRatio`, Number(r.initialRatio.toFixed(4))],
-            [`fill${k + 1}PooledRatio`, Number(r.pooledInteracting.toFixed(4))],
+            [
+              `fill${k + 1}InitialRatio`,
+              Number(r.initialRatio.toFixed(4)),
+            ],
+            [
+              `fill${k + 1}PooledRatio`,
+              Number(r.pooledInteracting.toFixed(4)),
+            ],
             [`fill${k + 1}FrozenDirections`, r.frozen.length],
-            [`fill${k + 1}InteractingWithinTwoPercent`, r.withinTwoPercent],
+            [
+              `fill${k + 1}InteractingWithinTwoPercent`,
+              r.withinTwoPercent,
+            ],
             [`fill${k + 1}Interacting`, r.interacting],
           ]),
         ),
@@ -240,7 +262,10 @@ export default experiment({
         ...Object.fromEntries(
           controls.flatMap((c, k) => [
             [`streamingFill${k + 1}FrozenDirections`, c.frozen.length],
-            [`streamingFill${k + 1}Ratio`, Number(c.initialRatio.toFixed(4))],
+            [
+              `streamingFill${k + 1}Ratio`,
+              Number(c.initialRatio.toFixed(4)),
+            ],
           ]),
         ),
       },

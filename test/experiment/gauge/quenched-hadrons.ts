@@ -529,7 +529,10 @@ function edinburghOf(subset: readonly HadronCorrelators[]): {
   nucleon: number[]
   nucleonLate: number[]
 } {
-  const mean = (kind: 'pion' | 'rho' | 'nucleon', i: number): number[] =>
+  const mean = (
+    kind: 'pion' | 'rho' | 'nucleon',
+    i: number,
+  ): number[] =>
     averageSeries({ series: subset.map(s => s[kind][i] ?? []) })
   const points = SOLVED_MASSES.map((_, i) => {
     const pion = pionMass(mean('pion', i))
@@ -575,7 +578,8 @@ function edinburghLine(input: {
   })
 
   return {
-    atPhysical: fit.intercept + fit.slope * PHYSICAL_PION_OVER_RHO_SQUARED,
+    atPhysical:
+      fit.intercept + fit.slope * PHYSICAL_PION_OVER_RHO_SQUARED,
     slope: fit.slope,
   }
 }
@@ -670,13 +674,19 @@ experiment({
         estimator: subset => {
           const e = edinburghOf(subset)
 
-          return edinburghLine({ x: e.x, y: pick(e), use: chosen })[part]
+          return edinburghLine({ x: e.x, y: pick(e), use: chosen })[
+            part
+          ]
         },
       })
     const edinburgh = line(e => e.y, onPlateau, 'atPhysical')
     const edinburghSlope = line(e => e.y, onPlateau, 'slope')
     // the lightest three plateau masses alone, the shortest extrapolation
-    const lightestThree = line(e => e.y, onPlateau.slice(0, 3), 'atPhysical')
+    const lightestThree = line(
+      e => e.y,
+      onPlateau.slice(0, 3),
+      'atPhysical',
+    )
     // the nucleon read late, t = 5 to 7, through the same plateau points, so the two lines differ only
     // in when the nucleon is read. The masses off the plateau stay out, as in E-FRC-0085: there the
     // late nucleon collapses (to 0.71 at m_q = 0.025), and letting them in carries the late line to
@@ -688,8 +698,12 @@ experiment({
       Math.abs(lightestThree.value - edinburgh.value),
       Math.abs(ratio.value - edinburgh.value),
     )
-    const edinburghTotalError = Math.hypot(edinburgh.error, fitRangeSpread)
-    const label = (mass: number): string => String(mass).replace('.', '')
+    const edinburghTotalError = Math.hypot(
+      edinburgh.error,
+      fitRangeSpread,
+    )
+    const label = (mass: number): string =>
+      String(mass).replace('.', '')
     const edinburghMetrics = Object.fromEntries(
       points.flatMap(p => [
         [`edinburghXAt${label(p.mass)}`, p.x.value],
@@ -760,14 +774,19 @@ experiment({
         cpPacsQuenchedContinuumError: CP_PACS_NUCLEON_OVER_RHO_ERROR,
         cpPacsPull:
           (edinburgh.value - CP_PACS_NUCLEON_OVER_RHO) /
-          Math.hypot(edinburghTotalError, CP_PACS_NUCLEON_OVER_RHO_ERROR),
+          Math.hypot(
+            edinburghTotalError,
+            CP_PACS_NUCLEON_OVER_RHO_ERROR,
+          ),
         milcStaggeredQuenchedContinuum: MILC_NUCLEON_OVER_RHO,
-        milcStaggeredQuenchedContinuumError: MILC_NUCLEON_OVER_RHO_ERROR,
+        milcStaggeredQuenchedContinuumError:
+          MILC_NUCLEON_OVER_RHO_ERROR,
         milcPull:
           (edinburgh.value - MILC_NUCLEON_OVER_RHO) /
           Math.hypot(edinburghTotalError, MILC_NUCLEON_OVER_RHO_ERROR),
         edinburghPhysicalPull:
-          (edinburgh.value - PHYSICAL_NUCLEON_OVER_RHO) / edinburghTotalError,
+          (edinburgh.value - PHYSICAL_NUCLEON_OVER_RHO) /
+          edinburghTotalError,
       },
       notes:
         'L2, known physics. The local staggered rho is one taste of the vector meson with an oscillating parity partner, read on even t. m_N / m_rho is carried to the physical point by a straight line in (m_pi / m_rho)^2 through the heavy quark masses the ensemble resolves, a long extrapolation, and quenched QCD is not expected to hit 1.21. J is interpolated at m_V / m_PS = 1.8 from a straight line m_V against m_PS^2. The two comparisons are printed with their pulls against the published quenched world value and experiment, and are not gated, because 12 configurations at one coarse spacing do not pin them tightly enough to decide between the two. The Edinburgh plot adds three quark masses (0.075, 0.15, 0.3) to the same multi-shift solve, eight points from (m_pi / m_rho)^2 = 0.75 down to about 0.3, and fits a line through every point whose nucleon is on its plateau. Its error adds the jackknife error to the spread over the choice of points (the lightest three alone, and the three original heavy masses). Nature is 1.21, and the quenched continuum is 1.143 +- 0.033 with Wilson quarks (CP-PACS 2003) and 1.255 +- 0.046 with staggered quarks (MILC, 964 +- 35 MeV over 768.4). What the plot shows is that the trend does NOT move toward the physical point here: with the nucleon read at t = 3 to 5 the ratio rises as the quarks get lighter (the slope in x is negative). The nucleon read at t = 5 to 7 lies lower at every light mass and flattens or reverses that slope, so the rise is the t = 3 to 5 nucleon still holding excited states, most at the lightest quarks, in one box at one coarse spacing. A larger version was measured outside the suite: the same ensemble to 36 configurations (2,660 s under load, against about 836 s for 12) puts every mass on the plateau and gives 1.95 +- 0.21 with slope -0.42 +- 0.37 from the early nucleon, and 1.46 +- 0.35 with slope +0.35 +- 0.60 from the late one, so more configurations sharpen the points but do not by themselves turn the early trend.',

@@ -15,21 +15,45 @@
 // 8. Travel: how far a lone tone's disturbance reaches in 6 beats (side 13).
 
 import { type Collision } from '@/code/rule/collision'
-import { collide, growingBeat, inverseBeat, streamSourceTable } from '@/code/rule/lattice-gas'
-import { backgroundRun, loneDressing, neighbourTable, perturbationOn, vacuumCells } from '@/code/measure/lone-dressing'
+import {
+  collide,
+  growingBeat,
+  inverseBeat,
+  streamSourceTable,
+} from '@/code/rule/lattice-gas'
+import {
+  backgroundRun,
+  loneDressing,
+  neighbourTable,
+  perturbationOn,
+  vacuumCells,
+} from '@/code/measure/lone-dressing'
 import { clockAmplitude } from '@/code/measure/clock-amplitude'
 import { makeWill, type Will } from '@/code/tone/will'
-import { d4BoxCell, d4BoxCoordinates, d4BoxDistance, d4BoxMesh } from '@/code/substrate/d4-box'
+import {
+  d4BoxCell,
+  d4BoxCoordinates,
+  d4BoxDistance,
+  d4BoxMesh,
+} from '@/code/substrate/d4-box'
 import { meshOpposites, type Mesh } from '@/code/tool/mesh'
 
-export type ScheduledRule = (opposite: number[], forward: boolean) => (t: number) => Collision
+export type ScheduledRule = (
+  opposite: number[],
+  forward: boolean,
+) => (t: number) => Collision
 
 export const ACCEPTANCE_PERIOD = 24
+
 const GOLDEN = (Math.sqrt(5) - 1) / 2
 const LATE_BY = 1
 const TRAVEL_BEATS = 6
 
-type Built = { mesh: Mesh; forward: (t: number) => Collision; backward: (t: number) => Collision }
+type Built = {
+  mesh: Mesh
+  forward: (t: number) => Collision
+  backward: (t: number) => Collision
+}
 
 const MESHES = new Map<number, Mesh>()
 
@@ -67,7 +91,11 @@ function build(rule: ScheduledRule, side: number): Built {
   const mesh = meshOf(side)
   const opposite = meshOpposites(mesh)
 
-  return { mesh, forward: rule(opposite, true), backward: rule(opposite, false) }
+  return {
+    mesh,
+    forward: rule(opposite, true),
+    backward: rule(opposite, false),
+  }
 }
 
 // beat of code/rule/lattice-gas (collide, then stream), streaming through the mesh's cached gather table
@@ -106,7 +134,10 @@ function dense(mesh: Mesh): Will {
   return will
 }
 
-export function reversalAndCharge(rule: ScheduledRule): { reverses: boolean; chargeKept: boolean } {
+export function reversalAndCharge(rule: ScheduledRule): {
+  reverses: boolean
+  chargeKept: boolean
+} {
   const five = build(rule, 5)
   const start = dense(five.mesh)
   const charge = (w: Will): number => w.data.reduce((a, b) => a + b, 0)
@@ -123,11 +154,15 @@ export function reversalAndCharge(rule: ScheduledRule): { reverses: boolean; cha
     s = inverseBeat(s, five.backward(t))
   }
 
-  return { reverses: s.data.every((x, i) => x === start.data[i]), chargeKept }
+  return {
+    reverses: s.data.every((x, i) => x === start.data[i]),
+    chargeKept,
+  }
 }
 
 export function cptMirrorPhase(rule: ScheduledRule): number {
   const five = build(rule, 5)
+
   const applyCell = (collision: Collision, v: Int8Array): Int8Array => {
     const out = Int8Array.from(v)
 
@@ -140,7 +175,9 @@ export function cptMirrorPhase(rule: ScheduledRule): number {
     let holds = true
 
     for (let t = 0; t < ACCEPTANCE_PERIOD && holds; t++) {
-      const mirror = (((c - t) % ACCEPTANCE_PERIOD) + ACCEPTANCE_PERIOD) % ACCEPTANCE_PERIOD
+      const mirror =
+        (((c - t) % ACCEPTANCE_PERIOD) + ACCEPTANCE_PERIOD) %
+        ACCEPTANCE_PERIOD
 
       for (let n = 0; n < 400 && holds; n++) {
         const v = new Int8Array(24)
@@ -154,7 +191,10 @@ export function cptMirrorPhase(rule: ScheduledRule): number {
         }
 
         const rhs = applyCell(five.forward(t), v)
-        const lhs = applyCell(five.backward(mirror), Int8Array.from(v, x => -x))
+        const lhs = applyCell(
+          five.backward(mirror),
+          Int8Array.from(v, x => -x),
+        )
 
         holds = lhs.every((x, k) => -x === rhs[k])
       }
@@ -172,11 +212,21 @@ export function cptMirrorPhase(rule: ScheduledRule): number {
 // the same in every cell, so this is the dense count of E-FRC-0125 read on one cell (checked equal there)
 export function vacuumPeriod(rule: ScheduledRule): number {
   const seven = build(rule, 7)
-  const cells = vacuumCells({ forward: seven.forward, beats: 3 * ACCEPTANCE_PERIOD })
-  const states = ['1'.repeat(24), ...cells.map(c => Array.from(c, x => x + 1).join(''))]
+  const cells = vacuumCells({
+    forward: seven.forward,
+    beats: 3 * ACCEPTANCE_PERIOD,
+  })
+  const states = [
+    '1'.repeat(24),
+    ...cells.map(c => Array.from(c, x => x + 1).join('')),
+  ]
 
   for (let p = 1; p <= ACCEPTANCE_PERIOD; p++) {
-    if (states.every((x, t) => t + p >= states.length || x === states[t + p])) {
+    if (
+      states.every(
+        (x, t) => t + p >= states.length || x === states[t + p],
+      )
+    ) {
       return p
     }
   }
@@ -187,7 +237,11 @@ export function vacuumPeriod(rule: ScheduledRule): number {
 // Line-graph components. The background runs once and each direction's flip is followed only where it
 // differs from it (code/measure/lone-dressing, perturbationOn), which gives the dense count exactly;
 // `dense: true` runs both states in full for every direction, as E-FRC-0125 does, for checking that
-export function lineComponents(rule: ScheduledRule, withDense: boolean, input: { dense?: boolean } = {}): number {
+export function lineComponents(
+  rule: ScheduledRule,
+  withDense: boolean,
+  input: { dense?: boolean } = {},
+): number {
   if (!input.dense) {
     return sparseComponents(rule, withDense)
   }
@@ -202,14 +256,19 @@ export function lineComponents(rule: ScheduledRule, withDense: boolean, input: {
     }
   }
 
-  const lineOf = (d: number): number => lines.findIndex(([a, b]) => a === d || b === d)
+  const lineOf = (d: number): number =>
+    lines.findIndex(([a, b]) => a === d || b === d)
   const center5 = 2 * (1 + 5 + 25 + 125)
   const parent = Array.from({ length: 12 }, (_, i) => i)
-  const find = (x: number): number => (parent[x] === x ? x : (parent[x] = find(parent[x] ?? x)))
+  const find = (x: number): number =>
+    parent[x] === x ? x : (parent[x] = find(parent[x] ?? x))
 
   for (let direction = 0; direction < 24; direction++) {
     let vac: Will = withDense ? dense(five.mesh) : makeWill(five.mesh)
-    let seeded: Will = withDense ? dense(five.mesh) : makeWill(five.mesh)
+    let seeded: Will = withDense
+      ? dense(five.mesh)
+      : makeWill(five.mesh)
+
     const slot = center5 * 24 + direction
     const touched = new Set<number>()
 
@@ -234,13 +293,19 @@ export function lineComponents(rule: ScheduledRule, withDense: boolean, input: {
   return new Set(Array.from({ length: 12 }, (_, i) => find(i))).size
 }
 
-function sparseComponents(rule: ScheduledRule, withDense: boolean): number {
+function sparseComponents(
+  rule: ScheduledRule,
+  withDense: boolean,
+): number {
   return lineSectors(rule, withDense).length
 }
 
 // The line graph's components themselves, the sectors: each a sorted list of line indices (lines in the
 // order of direction d paired with its opposite, d < opposite), sectors sorted by their first line
-export function lineSectors(rule: ScheduledRule, withDense: boolean): number[][] {
+export function lineSectors(
+  rule: ScheduledRule,
+  withDense: boolean,
+): number[][] {
   const five = build(rule, 5)
   const opposite5 = meshOpposites(five.mesh)
   const lineOf: number[] = []
@@ -257,10 +322,18 @@ export function lineSectors(rule: ScheduledRule, withDense: boolean): number[][]
   }
 
   const center5 = 2 * (1 + 5 + 25 + 125)
-  const start = withDense ? dense(five.mesh).data : new Int8Array(five.mesh.cellCount * 24)
-  const background = backgroundRun({ neighbours: neighboursOf(5), forward: five.forward, start, beats: ACCEPTANCE_PERIOD })
+  const start = withDense
+    ? dense(five.mesh).data
+    : new Int8Array(five.mesh.cellCount * 24)
+  const background = backgroundRun({
+    neighbours: neighboursOf(5),
+    forward: five.forward,
+    start,
+    beats: ACCEPTANCE_PERIOD,
+  })
   const parent = Array.from({ length: 12 }, (_, i) => i)
-  const find = (x: number): number => (parent[x] === x ? x : (parent[x] = find(parent[x] ?? x)))
+  const find = (x: number): number =>
+    parent[x] === x ? x : (parent[x] = find(parent[x] ?? x))
 
   for (let direction = 0; direction < 24; direction++) {
     const touched = new Set<number>()
@@ -303,9 +376,11 @@ export function additivityWorst(rule: ScheduledRule): number {
   const eleven = build(rule, 11)
   const seedA = d4BoxCell({ coordinates: [1, 1, 1, 1], side: 11 })
   const seedB = d4BoxCell({ coordinates: [6, 6, 6, 6], side: 11 })
+
   const branch = (seeds: number[]): [number, number][] => {
     let vac: Will = makeWill(eleven.mesh)
     let seeded: Will = makeWill(eleven.mesh)
+
     const out: [number, number][] = []
 
     for (const cell of seeds) {
@@ -324,16 +399,28 @@ export function additivityWorst(rule: ScheduledRule): number {
 
     return out
   }
+
   const a = branch([seedA])
   const b = branch([seedB])
   const joint = branch([seedA, seedB])
 
-  return Math.max(...joint.map((j, t) => Math.hypot(j[0] - (a[t]?.[0] ?? 0) - (b[t]?.[0] ?? 0), j[1] - (a[t]?.[1] ?? 0) - (b[t]?.[1] ?? 0))))
+  return Math.max(
+    ...joint.map((j, t) =>
+      Math.hypot(
+        j[0] - (a[t]?.[0] ?? 0) - (b[t]?.[0] ?? 0),
+        j[1] - (a[t]?.[1] ?? 0) - (b[t]?.[1] ?? 0),
+      ),
+    ),
+  )
 }
 
-export function walls(rule: ScheduledRule): { quantized: boolean; settledMax: number } {
+export function walls(rule: ScheduledRule): {
+  quantized: boolean
+  settledMax: number
+} {
   const nine = build(rule, 9)
-  const late = (cell: number): boolean => (d4BoxCoordinates({ cell, side: 9 })[0] ?? 0) >= 5
+  const late = (cell: number): boolean =>
+    (d4BoxCoordinates({ cell, side: 9 })[0] ?? 0) >= 5
 
   let staggered: Will = makeWill(nine.mesh)
   let uniform: Will = makeWill(nine.mesh)
@@ -342,7 +429,10 @@ export function walls(rule: ScheduledRule): { quantized: boolean; settledMax: nu
 
   // once every cell is born, growingBeat is the plain beat, so the plain one runs from then on
   for (let t = 0; t < 8 * ACCEPTANCE_PERIOD; t++) {
-    staggered = t < LATE_BY ? growingBeat(staggered, nine.forward(t), cell => !late(cell)) : beat(staggered, nine.forward(t))
+    staggered =
+      t < LATE_BY
+        ? growingBeat(staggered, nine.forward(t), cell => !late(cell))
+        : beat(staggered, nine.forward(t))
     uniform = beat(uniform, nine.forward(t))
     wall.push(difference(staggered, uniform))
   }
@@ -350,7 +440,10 @@ export function walls(rule: ScheduledRule): { quantized: boolean; settledMax: nu
   const sheet = 9 ** 3
   const settled = wall.slice(3 * ACCEPTANCE_PERIOD)
 
-  return { quantized: settled.every(x => x % sheet === 0), settledMax: Math.max(...settled) }
+  return {
+    quantized: settled.every(x => x % sheet === 0),
+    settledMax: Math.max(...settled),
+  }
 }
 
 export type Dressing = {
@@ -371,15 +464,26 @@ export type Dressing = {
 // the support in period p exceeds caps[p], so a search can reject a rule after the period it fails in.
 export function dressing(
   rule: ScheduledRule,
-  input: { tone?: number; periods?: number; caps?: readonly number[]; side?: number } = {},
+  input: {
+    tone?: number
+    periods?: number
+    caps?: readonly number[]
+    side?: number
+  } = {},
 ): Dressing {
   const periods = input.periods ?? 4
   const side = input.side ?? 9
   const middle = Math.floor(side / 2)
   const nine = build(rule, side)
   const neighbours = neighboursOf(side)
-  const vacuum = vacuumCells({ forward: nine.forward, beats: periods * ACCEPTANCE_PERIOD })
-  const center9 = d4BoxCell({ coordinates: [middle, middle, middle, middle], side })
+  const vacuum = vacuumCells({
+    forward: nine.forward,
+    beats: periods * ACCEPTANCE_PERIOD,
+  })
+  const center9 = d4BoxCell({
+    coordinates: [middle, middle, middle, middle],
+    side,
+  })
   const periodLargest = Array.from({ length: periods }, () => 0)
   const perDirection: number[] = []
 
@@ -389,7 +493,11 @@ export function dressing(
   let worstGrowth = 0
   let overCapAt = -1
 
-  for (let direction = 0; direction < 24 && overCapAt < 0; direction++) {
+  for (
+    let direction = 0;
+    direction < 24 && overCapAt < 0;
+    direction++
+  ) {
     const run = loneDressing({
       neighbours,
       forward: nine.forward,
@@ -398,14 +506,26 @@ export function dressing(
       direction,
       beats: periods * ACCEPTANCE_PERIOD,
       tone: input.tone ?? 1,
-      stop: caps ? (t, support) => support > (caps[Math.floor(t / ACCEPTANCE_PERIOD)] ?? Number.POSITIVE_INFINITY) : undefined,
+      stop: caps
+        ? (t, support) =>
+            support >
+            (caps[Math.floor(t / ACCEPTANCE_PERIOD)] ??
+              Number.POSITIVE_INFINITY)
+        : undefined,
     })
     const support = run.map(b => b.support)
 
-    protectedSpecies += support.slice(0, ACCEPTANCE_PERIOD).every(x => x === 1) ? 1 : 0
+    protectedSpecies += support
+      .slice(0, ACCEPTANCE_PERIOD)
+      .every(x => x === 1)
+      ? 1
+      : 0
 
     for (let p = 0; p < periods; p++) {
-      const window = support.slice(p * ACCEPTANCE_PERIOD, (p + 1) * ACCEPTANCE_PERIOD)
+      const window = support.slice(
+        p * ACCEPTANCE_PERIOD,
+        (p + 1) * ACCEPTANCE_PERIOD,
+      )
 
       periodLargest[p] = Math.max(periodLargest[p] ?? 0, ...window, 0)
     }
@@ -417,19 +537,32 @@ export function dressing(
     } else {
       worstGrowth = Math.max(
         worstGrowth,
-        Math.max(...support.slice(-ACCEPTANCE_PERIOD)) / Math.max(1, Math.max(...support.slice(0, ACCEPTANCE_PERIOD))),
+        Math.max(...support.slice(-ACCEPTANCE_PERIOD)) /
+          Math.max(1, Math.max(...support.slice(0, ACCEPTANCE_PERIOD))),
       )
     }
   }
 
-  return { periodLargest, perDirection, protectedSpecies, worstGrowth, overCapAt }
+  return {
+    periodLargest,
+    perDirection,
+    protectedSpecies,
+    worstGrowth,
+    overCapAt,
+  }
 }
 
-export function travel(rule: ScheduledRule): { travellers: number; meanReach: number } {
+export function travel(rule: ScheduledRule): {
+  travellers: number
+  meanReach: number
+} {
   const reaches = travelReaches(rule)
   const free = Math.SQRT2 * TRAVEL_BEATS
 
-  return { travellers: reaches.filter(r => r >= free / 2).length, meanReach: reaches.reduce((x, y) => x + y, 0) / reaches.length }
+  return {
+    travellers: reaches.filter(r => r >= free / 2).length,
+    meanReach: reaches.reduce((x, y) => x + y, 0) / reaches.length,
+  }
 }
 
 // per direction, the farthest true distance a lone love's disturbance reaches in 6 beats (side 13); a free
@@ -454,7 +587,10 @@ export function travelReaches(rule: ScheduledRule): number[] {
     for (let i = 0; i < seeded.data.length; i += 24) {
       for (let d = 0; d < 24; d++) {
         if (seeded.data[i + d] !== vac.data[i + d]) {
-          farthest = Math.max(farthest, d4BoxDistance({ a: i / 24, b: center13, side: 13 }))
+          farthest = Math.max(
+            farthest,
+            d4BoxDistance({ a: i / 24, b: center13, side: 13 }),
+          )
           break
         }
       }
@@ -527,10 +663,17 @@ export type Staged = {
 // The gates of passesAgainst in increasing cost, stopping at the first that fails, so a search pays for
 // the expensive items only on the members that clear the cheap ones. The reference is passed as its
 // measured numbers, so every gate here is the same comparison passesAgainst makes.
-export function stagedAcceptance(rule: ScheduledRule, reference: Acceptance): Staged {
+export function stagedAcceptance(
+  rule: ScheduledRule,
+  reference: Acceptance,
+): Staged {
   const values: Record<string, number> = {}
   const love = dressing(rule, { caps: reference.love.periodLargest })
-  const done = (failed: StagedGate | undefined): Staged => ({ failed, love, values })
+  const done = (failed: StagedGate | undefined): Staged => ({
+    failed,
+    love,
+    values,
+  })
 
   if (love.overCapAt >= 0) {
     return done('dressing')
@@ -562,7 +705,10 @@ export function stagedAcceptance(rule: ScheduledRule, reference: Acceptance): St
 
   values.additivityWorst = additivityWorst(rule)
 
-  if (values.additivityWorst >= 1e-9 && reference.additivityWorst < 1e-9) {
+  if (
+    values.additivityWorst >= 1e-9 &&
+    reference.additivityWorst < 1e-9
+  ) {
     return done('superposition')
   }
 
@@ -571,7 +717,10 @@ export function stagedAcceptance(rule: ScheduledRule, reference: Acceptance): St
   values.reverses = reversal.reverses ? 1 : 0
   values.chargeKept = reversal.chargeKept ? 1 : 0
 
-  if ((!reversal.reverses && reference.reverses) || (!reversal.chargeKept && reference.chargeKept)) {
+  if (
+    (!reversal.reverses && reference.reverses) ||
+    (!reversal.chargeKept && reference.chargeKept)
+  ) {
     return done('reversal')
   }
 
@@ -580,7 +729,11 @@ export function stagedAcceptance(rule: ScheduledRule, reference: Acceptance): St
   values.wallQuantized = wall.quantized ? 1 : 0
   values.wallMax = wall.settledMax
 
-  if (!(wall.quantized && wall.settledMax > 0) && reference.wallQuantized && reference.wallMax > 0) {
+  if (
+    !(wall.quantized && wall.settledMax > 0) &&
+    reference.wallQuantized &&
+    reference.wallMax > 0
+  ) {
     return done('walls')
   }
 
@@ -605,13 +758,24 @@ export type Structural = {
 // the members whose love dresses no more than the reference. It answers what the smallest dressing is
 // among the rules whose interaction structure is acceptable, and pays for the costly wall item only
 // where it could decide the outcome.
-export function structuralAcceptance(rule: ScheduledRule, reference: Acceptance): Structural {
+export function structuralAcceptance(
+  rule: ScheduledRule,
+  reference: Acceptance,
+): Structural {
   const values: Record<string, number> = {}
 
+  // written once each below, after `done` has closed over them, so neither can be a const
+  // eslint-disable-next-line prefer-const -- assigned at the dressing gate, read through `done`
   let love: Dressing | undefined
+  // eslint-disable-next-line prefer-const -- assigned after the dressing gate, read through `done`
   let fear: Dressing | undefined
 
-  const done = (failed: StagedGate | undefined): Structural => ({ failed, values, love, fear })
+  const done = (failed: StagedGate | undefined): Structural => ({
+    failed,
+    values,
+    love,
+    fear,
+  })
 
   values.cptPhase = cptMirrorPhase(rule)
 
@@ -639,9 +803,17 @@ export function structuralAcceptance(rule: ScheduledRule, reference: Acceptance)
 
   // followed in full up to FRONTIER times the reference in every period, so the members near the gate
   // are measured exactly and a member far past it stops early (overCapAt says where)
-  love = dressing(rule, { tone: 1, caps: reference.love.periodLargest.map(x => x * FRONTIER) })
+  love = dressing(rule, {
+    tone: 1,
+    caps: reference.love.periodLargest.map(x => x * FRONTIER),
+  })
 
-  if (love.overCapAt >= 0 || !love.periodLargest.every((x, p) => x <= (reference.love.periodLargest[p] ?? 0))) {
+  if (
+    love.overCapAt >= 0 ||
+    !love.periodLargest.every(
+      (x, p) => x <= (reference.love.periodLargest[p] ?? 0),
+    )
+  ) {
     return done('dressing')
   }
 
@@ -649,13 +821,19 @@ export function structuralAcceptance(rule: ScheduledRule, reference: Acceptance)
 
   values.additivityWorst = additivityWorst(rule)
 
-  if (values.additivityWorst >= 1e-9 && reference.additivityWorst < 1e-9) {
+  if (
+    values.additivityWorst >= 1e-9 &&
+    reference.additivityWorst < 1e-9
+  ) {
     return done('superposition')
   }
 
   const reversal = reversalAndCharge(rule)
 
-  if ((!reversal.reverses && reference.reverses) || (!reversal.chargeKept && reference.chargeKept)) {
+  if (
+    (!reversal.reverses && reference.reverses) ||
+    (!reversal.chargeKept && reference.chargeKept)
+  ) {
     return done('reversal')
   }
 
@@ -663,7 +841,11 @@ export function structuralAcceptance(rule: ScheduledRule, reference: Acceptance)
 
   values.wallMax = wall.settledMax
 
-  if (!(wall.quantized && wall.settledMax > 0) && reference.wallQuantized && reference.wallMax > 0) {
+  if (
+    !(wall.quantized && wall.settledMax > 0) &&
+    reference.wallQuantized &&
+    reference.wallMax > 0
+  ) {
     return done('walls')
   }
 
@@ -673,9 +855,14 @@ export function structuralAcceptance(rule: ScheduledRule, reference: Acceptance)
 // every gate of E-FRC-0125, the candidate against the reference: at least as good wherever the reference
 // passes, fewer or as many line components, and a love's dressing no larger in any period. `bothSigns`
 // also asks it of a fear, which E-FRC-0125 did not
-export function passesAgainst(candidate: Acceptance, reference: Acceptance, input: { bothSigns?: boolean } = {}): boolean {
+export function passesAgainst(
+  candidate: Acceptance,
+  reference: Acceptance,
+  input: { bothSigns?: boolean } = {},
+): boolean {
   const atLeast = (ok: boolean, ref: boolean): boolean => ok || !ref
-  const dressedNoMore = (a: Dressing, b: Dressing): boolean => a.periodLargest.every((x, p) => x <= (b.periodLargest[p] ?? 0))
+  const dressedNoMore = (a: Dressing, b: Dressing): boolean =>
+    a.periodLargest.every((x, p) => x <= (b.periodLargest[p] ?? 0))
 
   return (
     atLeast(candidate.reverses, reference.reverses) &&
@@ -684,8 +871,14 @@ export function passesAgainst(candidate: Acceptance, reference: Acceptance, inpu
     atLeast(candidate.vacuumPeriod > 0, reference.vacuumPeriod > 0) &&
     candidate.vacuumComponents <= reference.vacuumComponents &&
     candidate.denseComponents <= reference.denseComponents &&
-    atLeast(candidate.additivityWorst < 1e-9, reference.additivityWorst < 1e-9) &&
-    atLeast(candidate.wallQuantized && candidate.wallMax > 0, reference.wallQuantized && reference.wallMax > 0) &&
+    atLeast(
+      candidate.additivityWorst < 1e-9,
+      reference.additivityWorst < 1e-9,
+    ) &&
+    atLeast(
+      candidate.wallQuantized && candidate.wallMax > 0,
+      reference.wallQuantized && reference.wallMax > 0,
+    ) &&
     dressedNoMore(candidate.love, reference.love) &&
     (!input.bothSigns || dressedNoMore(candidate.fear, reference.fear))
   )

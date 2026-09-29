@@ -18,7 +18,12 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { d4Mesh, d4MeshWithRest, type Mesh, meshOpposites } from '@/code/tool/mesh'
+import {
+  d4Mesh,
+  d4MeshWithRest,
+  type Mesh,
+  meshOpposites,
+} from '@/code/tool/mesh'
 import { makeWill, cloneWill, type Will } from '@/code/tone/will'
 import { headOnRotate } from '@/code/rule/collision'
 import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'

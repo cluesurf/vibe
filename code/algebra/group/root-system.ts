@@ -8,7 +8,12 @@
 // here in doubled integer coordinates with an exact integer reflection. The committed knit imports that
 // file, not this one (E-MTH-0027).
 
-import { rootsAn, rootsB4, rootsD4, rootsDn } from '@/code/algebra/group/integer-roots'
+import {
+  rootsAn,
+  rootsB4,
+  rootsD4,
+  rootsDn,
+} from '@/code/algebra/group/integer-roots'
 
 // The general D_n root system (+-1, +-1, 0, ..., 0), the A_{n-1} roots e_i - e_j, the 24 D4 roots and the
 // 32 B4 roots, all integer, defined in code/algebra/group/integer-roots.
@@ -291,7 +296,10 @@ export function vectorKey(vector: number[]): string {
 }
 
 // Whether two vector lists hold the same set of vectors under `vectorKey`, ignoring order and repeats.
-export function sameVectorSet(left: number[][], right: number[][]): boolean {
+export function sameVectorSet(
+  left: number[][],
+  right: number[][],
+): boolean {
   const a = new Set(left.map(vectorKey))
   const b = new Set(right.map(vectorKey))
 

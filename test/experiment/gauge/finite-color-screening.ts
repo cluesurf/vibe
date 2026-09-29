@@ -89,32 +89,58 @@ function run(model: MatterModel, fill: number, matter: boolean): Run {
 
   fillDemons({ model, state, fill })
 
-  return matterEnsemble({ model, state, sweeps: SWEEPS, skip: SKIP, matter, correlatorMax: R_MAX })
+  return matterEnsemble({
+    model,
+    state,
+    sweeps: SWEEPS,
+    skip: SKIP,
+    matter,
+    correlatorMax: R_MAX,
+  })
 }
 
 const mean = (xs: readonly number[]): number =>
   xs.reduce((a, b) => a + b, 0) / Math.max(1, xs.length)
 
-function correlator(samples: MatterSample[], r: number): { value: number; error: number } {
-  return jackknife({ samples, estimator: s => mean(s.map(x => x.correlator[r] ?? 0)), binSize: BIN })
+function correlator(
+  samples: MatterSample[],
+  r: number,
+): { value: number; error: number } {
+  return jackknife({
+    samples,
+    estimator: s => mean(s.map(x => x.correlator[r] ?? 0)),
+    binSize: BIN,
+  })
 }
 
 // C(R) - |<P>|^2, the part that decays when the static charges are screened
-function connected(samples: MatterSample[], r: number): { value: number; error: number } {
+function connected(
+  samples: MatterSample[],
+  r: number,
+): { value: number; error: number } {
   return jackknife({
     samples,
     estimator: s => {
       const re = mean(s.map(x => x.re))
       const im = mean(s.map(x => x.im))
 
-      return mean(s.map(x => x.correlator[r] ?? 0)) - (re * re + im * im)
+      return (
+        mean(s.map(x => x.correlator[r] ?? 0)) - (re * re + im * im)
+      )
     },
     binSize: BIN,
   })
 }
 
-function plaquette(samples: MatterSample[]): { value: number; error: number } {
-  return jackknife({ samples, estimator: s => mean(s.map(x => x.plaquette)), binSize: BIN })
+function plaquette(samples: MatterSample[]): {
+  value: number
+  error: number
+} {
+  return jackknife({
+    samples,
+    estimator: s => mean(s.map(x => x.plaquette)),
+    binSize: BIN,
+  })
 }
 
 export default experiment({
@@ -127,13 +153,28 @@ export default experiment({
   depth: 'L2',
   paper: false,
   run() {
-    const group = generateGroup({ generators: [...SU3_SUBGROUPS.sigma648.generators] })
+    const group = generateGroup({
+      generators: [...SU3_SUBGROUPS.sigma648.generators],
+    })
     const triplet = tripletOrbit(group)
     const plaquetteLevels = actionLevels({ group, scale: SCALE })
-    const lowest = Math.min(...Array.from(plaquetteLevels).filter(level => level > 0))
+    const lowest = Math.min(
+      ...Array.from(plaquetteLevels).filter(level => level > 0),
+    )
     const capacity = 6 * lowest + 6
-    const bond = bondLevels({ triplet, scale: BOND, reading: 'fundamental' })
-    const light: MatterModel = { group, triplet, plaquetteLevels, bond, mass: MASS, capacity }
+    const bond = bondLevels({
+      triplet,
+      scale: BOND,
+      reading: 'fundamental',
+    })
+    const light: MatterModel = {
+      group,
+      triplet,
+      plaquetteLevels,
+      bond,
+      mass: MASS,
+      capacity,
+    }
     const heavy: MatterModel = { ...light, mass: HEAVY_MASS }
 
     const pure = run(light, PURE_FILL, false)
@@ -141,7 +182,10 @@ export default experiment({
     const quenched = run(heavy, PURE_FILL, true)
     const sameEnergy = run(light, PURE_FILL, true)
     const betaOf = (r: Run): number =>
-      unitDemonBeta({ meanDemon: mean(r.samples.map(s => s.meanDemon)), capacity })
+      unitDemonBeta({
+        meanDemon: mean(r.samples.map(s => s.meanDemon)),
+        capacity,
+      })
     const matterBeta = betaOf(matter)
 
     // the canonical pure gauge reference at the coupling the matter run's demons read. A heatbath on a
@@ -149,37 +193,60 @@ export default experiment({
     // not a Markov chain. The kinetic demon dynamics of E-FRC-0110 cannot stand in here, because a demon
     // run reads its coupling off its energy and this reference must sit at a coupling given in advance
     const rng = makeWeyl({ start: 139 })
-    const lattice = makeFiniteGaugeLattice({ group, lengths: LENGTHS, start: 'hot', rng })
+    const lattice = makeFiniteGaugeLattice({
+      group,
+      lengths: LENGTHS,
+      start: 'hot',
+      rng,
+    })
     const reference: number[] = []
 
     for (let sweep = 0; sweep < SWEEPS; sweep++) {
-      quantizedHeatbathSweep({ lattice, levels: plaquetteLevels, beta: matterBeta, rng })
+      quantizedHeatbathSweep({
+        lattice,
+        levels: plaquetteLevels,
+        beta: matterBeta,
+        rng,
+      })
 
       if (sweep >= SKIP) {
         reference.push(finitePlaquette({ lattice }))
       }
     }
 
-    const referencePlaquette = jackknife({ samples: reference, estimator: mean, binSize: BIN })
+    const referencePlaquette = jackknife({
+      samples: reference,
+      estimator: mean,
+      binSize: BIN,
+    })
     const matterPlaquette = plaquette(matter.samples)
     const shift = matterPlaquette.value - referencePlaquette.value
-    const shiftError = Math.hypot(matterPlaquette.error, referencePlaquette.error)
+    const shiftError = Math.hypot(
+      matterPlaquette.error,
+      referencePlaquette.error,
+    )
 
     const radii = [...Array(R_MAX + 1).keys()]
     const mC = radii.map(r => correlator(matter.samples, r))
     const mConnected = radii.map(r => connected(matter.samples, r))
     const pC = radii.map(r => correlator(pure.samples, r))
     const qC = radii.map(r => correlator(quenched.samples, r))
-    const free = (c: { value: number }): number => (c.value > 0 ? -Math.log(c.value) : Number.POSITIVE_INFINITY)
-    const last = (list: { value: number; error: number }[]): { value: number; error: number } =>
+    const free = (c: { value: number }): number =>
+      c.value > 0 ? -Math.log(c.value) : Number.POSITIVE_INFINITY
+    const last = (
+      list: { value: number; error: number }[],
+    ): { value: number; error: number } =>
       list[R_MAX] ?? { value: 0, error: 0 }
 
-    const exact = [pure, matter, quenched, sameEnergy].every(r => r.energyDrift === 0 && r.chargeDrift === 0)
+    const exact = [pure, matter, quenched, sameEnergy].every(
+      r => r.energyDrift === 0 && r.chargeDrift === 0,
+    )
     const screened =
       last(mC).value > 10 * last(mC).error &&
       Math.abs(last(mConnected).value) < 3 * last(mConnected).error
     const confinedControls =
-      Math.abs(last(pC).value) < 3 * last(pC).error && Math.abs(last(qC).value) < 3 * last(qC).error
+      Math.abs(last(pC).value) < 3 * last(pC).error &&
+      Math.abs(last(qC).value) < 3 * last(qC).error
     const ordered = shift > 5 * shiftError
     const ok = exact && screened && confinedControls && ordered
 
@@ -197,20 +264,33 @@ export default experiment({
             [`matterFreeEnergy${r}`, free(mC[r] ?? { value: 0 })],
           ]),
         ),
-        matterPolyakovSquared: mean(matter.samples.map(s => s.re)) ** 2 + mean(matter.samples.map(s => s.im)) ** 2,
+        matterPolyakovSquared:
+          mean(matter.samples.map(s => s.re)) ** 2 +
+          mean(matter.samples.map(s => s.im)) ** 2,
         matterBeta,
         matterDensity: mean(matter.samples.map(s => s.density)),
         matterPlaquette: matterPlaquette.value,
         matterPlaquetteError: matterPlaquette.error,
         plaquetteShiftSameBeta: shift,
         plaquetteShiftSameBetaError: shiftError,
-        sameEnergyPlaquette: mean(sameEnergy.samples.map(s => s.plaquette)),
+        sameEnergyPlaquette: mean(
+          sameEnergy.samples.map(s => s.plaquette),
+        ),
         sameEnergyBeta: betaOf(sameEnergy),
         sameEnergyDensity: mean(sameEnergy.samples.map(s => s.density)),
         plaquetteShiftSameEnergy:
-          mean(sameEnergy.samples.map(s => s.plaquette)) - mean(pure.samples.map(s => s.plaquette)),
-        energyDrift: Math.max(...[pure, matter, quenched, sameEnergy].map(r => r.energyDrift)),
-        chargeDrift: Math.max(...[pure, matter, quenched, sameEnergy].map(r => r.chargeDrift)),
+          mean(sameEnergy.samples.map(s => s.plaquette)) -
+          mean(pure.samples.map(s => s.plaquette)),
+        energyDrift: Math.max(
+          ...[pure, matter, quenched, sameEnergy].map(
+            r => r.energyDrift,
+          ),
+        ),
+        chargeDrift: Math.max(
+          ...[pure, matter, quenched, sameEnergy].map(
+            r => r.chargeDrift,
+          ),
+        ),
       },
       control: {
         ...Object.fromEntries(

@@ -16,43 +16,94 @@
 //
 // Measurement code: it uses reals (characters, eigenvalues). It holds no rule of the model.
 
-import { type ComplexMatrix } from '@/code/algebra/linear/complex-matrix'
 import { makeDense, denseSet } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
-import { binaryTetrahedralCharacters, cycleType, heisenbergGroup, neutralCharacter, permutations, spinTurns, type Complex } from '@/code/algebra/role-cluster'
+import {
+  binaryTetrahedralCharacters,
+  cycleType,
+  heisenbergGroup,
+  neutralCharacter,
+  permutations,
+  spinTurns,
+  type Complex,
+} from '@/code/algebra/role-cluster'
 import { makeWeyl } from '@/code/tool/weyl'
 
-export type SymmetricIrrep = { readonly partition: readonly number[]; readonly dimension: number; readonly values: Readonly<Record<string, number>> }
+export type SymmetricIrrep = {
+  readonly partition: readonly number[]
+  readonly dimension: number
+  readonly values: Readonly<Record<string, number>>
+}
 
 // the character tables, by cycle type (sorted descending, joined by commas)
 export const S3_IRREPS: readonly SymmetricIrrep[] = [
-  { partition: [3], dimension: 1, values: { '1,1,1': 1, '2,1': 1, '3': 1 } },
-  { partition: [2, 1], dimension: 2, values: { '1,1,1': 2, '2,1': 0, '3': -1 } },
-  { partition: [1, 1, 1], dimension: 1, values: { '1,1,1': 1, '2,1': -1, '3': 1 } },
+  {
+    partition: [3],
+    dimension: 1,
+    values: { '1,1,1': 1, '2,1': 1, '3': 1 },
+  },
+  {
+    partition: [2, 1],
+    dimension: 2,
+    values: { '1,1,1': 2, '2,1': 0, '3': -1 },
+  },
+  {
+    partition: [1, 1, 1],
+    dimension: 1,
+    values: { '1,1,1': 1, '2,1': -1, '3': 1 },
+  },
 ]
 
 export const S4_IRREPS: readonly SymmetricIrrep[] = [
-  { partition: [4], dimension: 1, values: { '1,1,1,1': 1, '2,1,1': 1, '2,2': 1, '3,1': 1, '4': 1 } },
-  { partition: [3, 1], dimension: 3, values: { '1,1,1,1': 3, '2,1,1': 1, '2,2': -1, '3,1': 0, '4': -1 } },
-  { partition: [2, 2], dimension: 2, values: { '1,1,1,1': 2, '2,1,1': 0, '2,2': 2, '3,1': -1, '4': 0 } },
-  { partition: [2, 1, 1], dimension: 3, values: { '1,1,1,1': 3, '2,1,1': -1, '2,2': -1, '3,1': 0, '4': 1 } },
-  { partition: [1, 1, 1, 1], dimension: 1, values: { '1,1,1,1': 1, '2,1,1': -1, '2,2': 1, '3,1': 1, '4': -1 } },
+  {
+    partition: [4],
+    dimension: 1,
+    values: { '1,1,1,1': 1, '2,1,1': 1, '2,2': 1, '3,1': 1, '4': 1 },
+  },
+  {
+    partition: [3, 1],
+    dimension: 3,
+    values: { '1,1,1,1': 3, '2,1,1': 1, '2,2': -1, '3,1': 0, '4': -1 },
+  },
+  {
+    partition: [2, 2],
+    dimension: 2,
+    values: { '1,1,1,1': 2, '2,1,1': 0, '2,2': 2, '3,1': -1, '4': 0 },
+  },
+  {
+    partition: [2, 1, 1],
+    dimension: 3,
+    values: { '1,1,1,1': 3, '2,1,1': -1, '2,2': -1, '3,1': 0, '4': 1 },
+  },
+  {
+    partition: [1, 1, 1, 1],
+    dimension: 1,
+    values: { '1,1,1,1': 1, '2,1,1': -1, '2,2': 1, '3,1': 1, '4': -1 },
+  },
 ]
 
 export function irrepsOf(n: number): readonly SymmetricIrrep[] {
-  if (n === 3) return S3_IRREPS
-  if (n === 4) return S4_IRREPS
+  if (n === 3) {
+    return S3_IRREPS
+  }
+
+  if (n === 4) {
+    return S4_IRREPS
+  }
 
   throw new Error(`no symmetric group table for n = ${n}`)
 }
 
-export const partitionName = (p: readonly number[]): string => `[${p.join(',')}]`
+export const partitionName = (p: readonly number[]): string =>
+  `[${p.join(',')}]`
 
 // the conjugate partition (rows and columns of the Young diagram exchanged)
 export function conjugate(p: readonly number[]): number[] {
   const out: number[] = []
 
-  for (let c = 0; c < (p[0] ?? 0); c++) out.push(p.filter(r => r > c).length)
+  for (let c = 0; c < (p[0] ?? 0); c++) {
+    out.push(p.filter(r => r > c).length)
+  }
 
   return out
 }
@@ -61,6 +112,7 @@ export function conjugate(p: readonly number[]): number[] {
 export function tableOrthonormalGap(n: number): number {
   const irreps = irrepsOf(n)
   const perms = permutations(n)
+
   let gap = 0
 
   for (const a of irreps) {
@@ -73,7 +125,10 @@ export function tableOrthonormalGap(n: number): number {
         s += (a.values[key] ?? 0) * (b.values[key] ?? 0)
       }
 
-      gap = Math.max(gap, Math.abs(s / perms.length - (a === b ? 1 : 0)))
+      gap = Math.max(
+        gap,
+        Math.abs(s / perms.length - (a === b ? 1 : 0)),
+      )
     }
   }
 
@@ -82,9 +137,18 @@ export function tableOrthonormalGap(n: number): number {
 
 // the joint content of the neutral space of n roles and m antiroles under 2T x S_n: multiplicity of every
 // (2T irrep, S_n irrep) pair, with the 2T irrep's sign at the 2 pi turn
-export type JointEntry = { readonly spin: string; readonly spinDimension: number; readonly twoPiSign: number; readonly partition: readonly number[]; readonly multiplicity: number }
+export type JointEntry = {
+  readonly spin: string
+  readonly spinDimension: number
+  readonly twoPiSign: number
+  readonly partition: readonly number[]
+  readonly multiplicity: number
+}
 
-export function jointContent(input: { roles: number; antiroles: number }): { entries: JointEntry[]; rank: number; wholeGap: number } {
+export function jointContent(input: {
+  roles: number
+  antiroles: number
+}): { entries: JointEntry[]; rank: number; wholeGap: number } {
   const { roles, antiroles } = input
   const group = heisenbergGroup()
   const { turns, lambda } = spinTurns()
@@ -95,12 +159,25 @@ export function jointContent(input: { roles: number; antiroles: number }): { ent
   for (const p of perms) {
     const key = cycleType(p).join(',')
 
-    if (!table.has(key)) table.set(key, turns.map(t => neutralCharacter({ group, turn: t.unitary as ComplexMatrix, cycles: key.split(',').map(Number), antiroles })))
+    if (!table.has(key)) {
+      table.set(
+        key,
+        turns.map(t =>
+          neutralCharacter({
+            group,
+            turn: t.unitary,
+            cycles: key.split(',').map(Number),
+            antiroles,
+          }),
+        ),
+      )
+    }
   }
 
   const identity = turns.findIndex(t => t.order === 1)
   const central = turns.findIndex(t => t.order === 2)
   const entries: JointEntry[] = []
+
   let wholeGap = 0
 
   for (const c of characters) {
@@ -125,7 +202,11 @@ export function jointContent(input: { roles: number; antiroles: number }): { ent
 
       re /= perms.length * turns.length
       im /= perms.length * turns.length
-      wholeGap = Math.max(wholeGap, Math.abs(re - Math.round(re)), Math.abs(im))
+      wholeGap = Math.max(
+        wholeGap,
+        Math.abs(re - Math.round(re)),
+        Math.abs(im),
+      )
 
       const m = Math.round(re)
 
@@ -133,26 +214,41 @@ export function jointContent(input: { roles: number; antiroles: number }): { ent
         const at1 = c.values[identity]?.[0] ?? 1
         const at2 = c.values[central]?.[0] ?? 1
 
-        entries.push({ spin: c.name, spinDimension: c.dimension, twoPiSign: Math.sign(at2 / at1), partition: s.partition, multiplicity: m })
+        entries.push({
+          spin: c.name,
+          spinDimension: c.dimension,
+          twoPiSign: Math.sign(at2 / at1),
+          partition: s.partition,
+          multiplicity: m,
+        })
       }
     }
   }
 
-  const rank = table.get(new Array<number>(roles).fill(1).join(','))?.[identity]?.[0] ?? Number.NaN
+  const rank =
+    table.get(new Array<number>(roles).fill(1).join(','))?.[
+      identity
+    ]?.[0] ?? Number.NaN
 
   return { entries, rank, wholeGap }
 }
 
 // the fewest oscillator quanta at which spatial irrep p of n particles first appears, for single-particle levels
 // of degeneracy 1 (one dimension) or (N + 1)(N + 2)/2 (three dimensions), by enumerating product states
-export function minimalQuanta(input: { n: number; dimension: 1 | 3; maxQuanta: number }): Map<string, number> {
+export function minimalQuanta(input: {
+  n: number
+  dimension: 1 | 3
+  maxQuanta: number
+}): Map<string, number> {
   const { n, dimension, maxQuanta } = input
   const orbitals: number[] = []
 
   for (let level = 0; level <= maxQuanta; level++) {
     const g = dimension === 1 ? 1 : ((level + 1) * (level + 2)) / 2
 
-    for (let k = 0; k < g; k++) orbitals.push(level)
+    for (let k = 0; k < g; k++) {
+      orbitals.push(level)
+    }
   }
 
   const perms = permutations(n)
@@ -172,13 +268,15 @@ export function minimalQuanta(input: { n: number; dimension: 1 | 3; maxQuanta: n
       for (let i = 0; i < n; i++) {
         tuple[i] = c % orbitals.length
         c = Math.floor(c / orbitals.length)
-        sum += orbitals[tuple[i] as number] as number
+        sum += orbitals[tuple[i]!]!
       }
 
-      if (sum !== total) continue
+      if (sum !== total) {
+        continue
+      }
 
       for (const p of perms) {
-        if (tuple.every((o, i) => tuple[p[i] as number] === o)) {
+        if (tuple.every((o, i) => tuple[p[i]!] === o)) {
           const key = p.join(',')
 
           fixed.set(key, (fixed.get(key) ?? 0) + 1)
@@ -189,13 +287,21 @@ export function minimalQuanta(input: { n: number; dimension: 1 | 3; maxQuanta: n
     for (const s of irreps) {
       const name = partitionName(s.partition)
 
-      if (found.has(name)) continue
+      if (found.has(name)) {
+        continue
+      }
 
       let m = 0
 
-      for (const p of perms) m += (s.values[cycleType(p).join(',')] ?? 0) * (fixed.get(p.join(',')) ?? 0)
+      for (const p of perms) {
+        m +=
+          (s.values[cycleType(p).join(',')] ?? 0) *
+          (fixed.get(p.join(',')) ?? 0)
+      }
 
-      if (m / perms.length > 0.5) found.set(name, total)
+      if (m / perms.length > 0.5) {
+        found.set(name, total)
+      }
     }
   }
 
@@ -207,12 +313,24 @@ export function minimalQuanta(input: { n: number; dimension: 1 | 3; maxQuanta: n
 // pairs sharing a dock) + unlike (sum over identical-extra pairs sharing a dock). The Hamiltonian never reads a
 // label, so it commutes with the permutations of the identical particles, and a Lanczos run started inside an
 // irrep's isotypic part stays there (re-projected every step against rounding).
-export type RingSectors = { readonly energies: Map<string, number>; readonly dimension: number }
+export type RingSectors = {
+  readonly energies: Map<string, number>
+  readonly dimension: number
+}
 
-export function ringSectorEnergies(input: { ring: number; identical: number; extra: 0 | 1; hop: number; like: number; unlike: number; steps?: number }): RingSectors {
+export function ringSectorEnergies(input: {
+  ring: number
+  identical: number
+  extra: 0 | 1
+  hop: number
+  like: number
+  unlike: number
+  steps?: number
+}): RingSectors {
   const { ring, identical, extra, hop, like, unlike } = input
   const particles = identical + extra
   const dimension = ring ** particles
+
   const decode = (index: number, out: Int32Array): void => {
     let c = index
 
@@ -221,13 +339,17 @@ export function ringSectorEnergies(input: { ring: number; identical: number; ext
       c = Math.floor(c / ring)
     }
   }
+
   const encode = (pos: Int32Array): number => {
     let index = 0
 
-    for (let i = particles - 1; i >= 0; i--) index = index * ring + (pos[i] as number)
+    for (let i = particles - 1; i >= 0; i--) {
+      index = index * ring + pos[i]!
+    }
 
     return index
   }
+
   const diagonal = new Float64Array(dimension)
   const neighbors = new Int32Array(dimension * particles * 2)
   const pos = new Int32Array(particles)
@@ -238,14 +360,21 @@ export function ringSectorEnergies(input: { ring: number; identical: number; ext
     let e = 0
 
     for (let i = 0; i < identical; i++) {
-      for (let j = i + 1; j < identical; j++) if (pos[i] === pos[j]) e += like
-      if (extra === 1 && pos[i] === pos[identical]) e += unlike
+      for (let j = i + 1; j < identical; j++) {
+        if (pos[i] === pos[j]) {
+          e += like
+        }
+      }
+
+      if (extra === 1 && pos[i] === pos[identical]) {
+        e += unlike
+      }
     }
 
     diagonal[index] = e
 
     for (let i = 0; i < particles; i++) {
-      const at = pos[i] as number
+      const at = pos[i]!
 
       pos[i] = (at + 1) % ring
       neighbors[(index * particles + i) * 2] = encode(pos)
@@ -257,10 +386,13 @@ export function ringSectorEnergies(input: { ring: number; identical: number; ext
 
   const apply = (v: Float64Array, out: Float64Array): void => {
     for (let index = 0; index < dimension; index++) {
-      let s = (diagonal[index] as number) * (v[index] as number)
+      let s = diagonal[index]! * v[index]!
+
       const base = index * particles * 2
 
-      for (let k = 0; k < particles * 2; k++) s -= hop * (v[neighbors[base + k] as number] as number)
+      for (let k = 0; k < particles * 2; k++) {
+        s -= hop * v[neighbors[base + k]!]!
+      }
 
       out[index] = s
     }
@@ -275,34 +407,52 @@ export function ringSectorEnergies(input: { ring: number; identical: number; ext
     for (let index = 0; index < dimension; index++) {
       decode(index, pos)
 
-      for (let i = 0; i < identical; i++) moved[p[i] as number] = pos[i] as number
-      if (extra === 1) moved[identical] = pos[identical] as number
+      for (let i = 0; i < identical; i++) {
+        moved[p[i]!] = pos[i]!
+      }
+
+      if (extra === 1) {
+        moved[identical] = pos[identical]!
+      }
 
       map[index] = encode(moved)
     }
 
     return { key: cycleType(p).join(','), map }
   })
-  const project = (irrep: SymmetricIrrep, v: Float64Array): Float64Array => {
+
+  const project = (
+    irrep: SymmetricIrrep,
+    v: Float64Array,
+  ): Float64Array => {
     const out = new Float64Array(dimension)
 
     for (const { key, map } of maps) {
-      const c = ((irrep.values[key] ?? 0) * irrep.dimension) / perms.length
+      const c =
+        ((irrep.values[key] ?? 0) * irrep.dimension) / perms.length
 
-      if (c === 0) continue
+      if (c === 0) {
+        continue
+      }
 
-      for (let index = 0; index < dimension; index++) out[map[index] as number] = (out[map[index] as number] as number) + c * (v[index] as number)
+      for (let index = 0; index < dimension; index++) {
+        out[map[index]!] = out[map[index]!]! + c * v[index]!
+      }
     }
 
     return out
   }
+
   const dot = (a: Float64Array, b: Float64Array): number => {
     let s = 0
 
-    for (let i = 0; i < a.length; i++) s += (a[i] as number) * (b[i] as number)
+    for (let i = 0; i < a.length; i++) {
+      s += a[i]! * b[i]!
+    }
 
     return s
   }
+
   const steps = input.steps ?? 90
   const energies = new Map<string, number>()
 
@@ -310,7 +460,9 @@ export function ringSectorEnergies(input: { ring: number; identical: number; ext
     const stream = makeWeyl({ start: 0 })
     const w = new Float64Array(dimension)
 
-    for (let i = 0; i < dimension; i++) w[i] = stream.next() - 0.5
+    for (let i = 0; i < dimension; i++) {
+      w[i] = stream.next() - 0.5
+    }
 
     let v = project(irrep, w)
     let norm = Math.sqrt(dot(v, v))
@@ -328,22 +480,27 @@ export function ringSectorEnergies(input: { ring: number; identical: number; ext
     const hv = new Float64Array(dimension)
 
     for (let k = 0; k < steps; k++) {
-      apply(basis[k] as Float64Array, hv)
+      apply(basis[k]!, hv)
 
       let r = project(irrep, hv)
-      const a = dot(r, basis[k] as Float64Array)
+
+      const a = dot(r, basis[k]!)
 
       alpha.push(a)
 
       for (const b of basis) {
         const c = dot(r, b)
 
-        for (let i = 0; i < dimension; i++) r[i] = (r[i] as number) - c * (b[i] as number)
+        for (let i = 0; i < dimension; i++) {
+          r[i] = r[i]! - c * b[i]!
+        }
       }
 
       norm = Math.sqrt(dot(r, r))
 
-      if (norm < 1e-10 || k === steps - 1) break
+      if (norm < 1e-10 || k === steps - 1) {
+        break
+      }
 
       beta.push(norm)
       r = r.map(x => x / norm)
@@ -354,15 +511,18 @@ export function ringSectorEnergies(input: { ring: number; identical: number; ext
     const t = makeDense({ rows: m, cols: m })
 
     for (let i = 0; i < m; i++) {
-      denseSet(t, { row: i, col: i, value: alpha[i] as number })
+      denseSet(t, { row: i, col: i, value: alpha[i]! })
 
       if (i + 1 < m) {
-        denseSet(t, { row: i, col: i + 1, value: beta[i] as number })
-        denseSet(t, { row: i + 1, col: i, value: beta[i] as number })
+        denseSet(t, { row: i, col: i + 1, value: beta[i]! })
+        denseSet(t, { row: i + 1, col: i, value: beta[i]! })
       }
     }
 
-    energies.set(partitionName(irrep.partition), Math.min(...eigSymmetric({ matrix: t }).values))
+    energies.set(
+      partitionName(irrep.partition),
+      Math.min(...eigSymmetric({ matrix: t }).values),
+    )
   }
 
   return { energies, dimension }

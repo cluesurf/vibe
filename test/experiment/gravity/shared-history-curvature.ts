@@ -70,7 +70,11 @@ import { LINE_FIRSTS } from '@/code/rule/isometric-knit'
 import { toWords } from '@/code/rule/occupation-veto-knit'
 import { type Configuration } from '@/code/rule/doublet-locked-knit'
 import { jackknife, meshDistance } from '@/code/measure/shared-distance'
-import { historyRun, torus, type HistoryRun } from '@/code/measure/shared-history'
+import {
+  historyRun,
+  torus,
+  type HistoryRun,
+} from '@/code/measure/shared-history'
 
 const SIDE = 16
 const READS = [12, 24, 36, 48]
@@ -82,18 +86,36 @@ const STATES = ['control', 'love', 'fear'] as const
 
 type State = (typeof STATES)[number]
 
-function place(start: Configuration, column: Int32Array, center: number, t: ReturnType<typeof torus>, sign: number): number {
+function place(
+  start: Configuration,
+  column: Int32Array,
+  center: number,
+  t: ReturnType<typeof torus>,
+  sign: number,
+): number {
   let placed = 0
 
   for (let x = 0; x < column.length; x++) {
-    if (meshDistance(Array.from(t.vector[t.delta(center, column[x] as number)] as Int32Array)) > 1) continue
+    if (
+      meshDistance(Array.from(t.vector[t.delta(center, column[x]!)]!)) >
+      1
+    ) {
+      continue
+    }
 
     for (let l = 0; l < 12; l++) {
-      if (start.store[x * 12 + l] !== 0) continue
+      if (start.store[x * 12 + l] !== 0) {
+        continue
+      }
 
-      const s = x * 24 + (LINE_FIRSTS[l] as number)
+      const s = x * 24 + LINE_FIRSTS[l]!
 
-      if (start.vibe[s] !== 0) throw new Error('shared-history-curvature: a slot is not empty at beat 0')
+      if (start.vibe[s] !== 0) {
+        throw new Error(
+          'shared-history-curvature: a slot is not empty at beat 0',
+        )
+      }
+
       start.vibe[s] = sign
       placed++
     }
@@ -106,7 +128,7 @@ export default experiment({
   id: 'gravity/shared-history-curvature',
   code: 'E-GRV-0073',
   title:
-    'no curvature from shared history around a cluster on the working vacuum, fail on K2 and K3, with the wrong sign: 2,816 loves placed in the 19 center columns (side 16, 5 starts that agree bit for bit, the labeled beat the rule\'s on all 15 runs) LOWER the count of recent meetings between neighboring columns near them (21.8 at the center against the vacuum\'s 88.0, and 28.0, 37.4, 47.5 at r = 2 to 4 against 69.2, 64.4, 67.0), so relational distance grows toward the cluster, a deficit of -0.57, -0.31, -0.19, -0.07, -0.03 at r = 2 to 6 that is a front, not a 1/r well; the surplus breaks the vacuum\'s 12-beat cycle and by T = 24 halves the neighbor count everywhere (about 30 at every r); the placed vibes disperse (68 of 2,816 within 2 of the center at T = 48); love and fear agree to 2.5e-3 far out but differ by 0.10 at the center, so the reading is not exactly charge-blind',
+    "no curvature from shared history around a cluster on the working vacuum, fail on K2 and K3, with the wrong sign: 2,816 loves placed in the 19 center columns (side 16, 5 starts that agree bit for bit, the labeled beat the rule's on all 15 runs) LOWER the count of recent meetings between neighboring columns near them (21.8 at the center against the vacuum's 88.0, and 28.0, 37.4, 47.5 at r = 2 to 4 against 69.2, 64.4, 67.0), so relational distance grows toward the cluster, a deficit of -0.57, -0.31, -0.19, -0.07, -0.03 at r = 2 to 6 that is a front, not a 1/r well; the surplus breaks the vacuum's 12-beat cycle and by T = 24 halves the neighbor count everywhere (about 30 at every r); the placed vibes disperse (68 of 2,816 within 2 of the center at T = 48); love and fear agree to 2.5e-3 far out but differ by 0.10 at the center, so the reading is not exactly charge-blind",
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',
@@ -116,15 +138,23 @@ export default experiment({
     const t = torus(SIDE)
     const steps: number[] = []
 
-    for (let d = 1; d < t.columns; d++) if (meshDistance(Array.from(t.vector[d] as Int32Array)) === 1) steps.push(d)
+    for (let d = 1; d < t.columns; d++) {
+      if (meshDistance(Array.from(t.vector[d]!)) === 1) {
+        steps.push(d)
+      }
+    }
 
     const isStep = new Uint8Array(t.columns)
 
-    for (const d of steps) isStep[d] = 1
+    for (const d of steps) {
+      isStep[d] = 1
+    }
 
     let center = -1
     let rOf: Int32Array | undefined
+
     const shellPairs = new Float64Array(RMAX + 1)
+
     let placedCount = 0
 
     // per member: [state][read][r] shell sums, flattened, plus the member count
@@ -134,23 +164,46 @@ export default experiment({
         const column = boxHusk(f.weave.mesh, SIDE).column
 
         if (!rOf) {
-          center = column[centerOf(SIDE)] as number
-          rOf = Int32Array.from({ length: t.columns }, (_, a) => meshDistance(Array.from(t.vector[t.delta(center, a)] as Int32Array)))
-          for (let a = 0; a < t.columns; a++) if ((rOf[a] as number) <= RMAX) shellPairs[rOf[a] as number]! += steps.length
+          center = column[centerOf(SIDE)]!
+          rOf = Int32Array.from({ length: t.columns }, (_, a) =>
+            meshDistance(Array.from(t.vector[t.delta(center, a)]!)),
+          )
+
+          for (let a = 0; a < t.columns; a++) {
+            if (rOf[a]! <= RMAX) {
+              shellPairs[rOf[a]!]! += steps.length
+            }
+          }
         }
 
         const r = rOf
-        const sums = new Float64Array(STATES.length * READS.length * (RMAX + 1) + 1)
+        const sums = new Float64Array(
+          STATES.length * READS.length * (RMAX + 1) + 1,
+        )
         const runs: HistoryRun[] = []
         const near: number[][] = []
 
         sums[sums.length - 1] = 1
         STATES.forEach((state: State, si) => {
           const start = toWords(vacuumConfiguration(f, 'none'))
-          const vacuumLabels = start.store.reduce((a, s) => a + (s !== 0 ? 2 : 0), 0)
-          const placed = state === 'control' ? 0 : place(start, column, center, t, state === 'love' ? 1 : -1)
+          const vacuumLabels = start.store.reduce(
+            (a, s) => a + (s !== 0 ? 2 : 0),
+            0,
+          )
+          const placed =
+            state === 'control'
+              ? 0
+              : place(
+                  start,
+                  column,
+                  center,
+                  t,
+                  state === 'love' ? 1 : -1,
+                )
 
-          if (state === 'love') placedCount = placed
+          if (state === 'love') {
+            placedCount = placed
+          }
 
           const nearBy: number[] = []
           const run = historyRun({
@@ -161,23 +214,34 @@ export default experiment({
             reads: READS,
             window: WINDOW,
             visit: (k, a, b) => {
-              if (!isStep[t.delta(a, b)]) return
+              if (!isStep[t.delta(a, b)]) {
+                return
+              }
 
-              const ra = r[a] as number
+              const ra = r[a]!
 
-              if (ra <= RMAX) sums[(si * READS.length + k) * (RMAX + 1) + ra]! += 1
+              if (ra <= RMAX) {
+                sums[(si * READS.length + k) * (RMAX + 1) + ra]! += 1
+              }
             },
             onRead: (k, columns) => {
               let n = 0
 
-              for (let u = vacuumLabels; u < columns.length; u++) if ((r[columns[u] as number] as number) <= 2) n++
+              for (let u = vacuumLabels; u < columns.length; u++) {
+                if (r[columns[u]!]! <= 2) {
+                  n++
+                }
+              }
+
               nearBy[k] = n
             },
           })
 
           runs.push(run)
           near.push(nearBy)
-          console.error(`${member.name} ${state}: placed ${placed}, ${JSON.stringify(run)}, placed labels within 2 of the center by read ${JSON.stringify(nearBy)} ${Math.round((Date.now() - started) / 1000)}s`)
+          console.error(
+            `${member.name} ${state}: placed ${placed}, ${JSON.stringify(run)}, placed labels within 2 of the center by read ${JSON.stringify(nearBy)} ${Math.round((Date.now() - started) / 1000)}s`,
+          )
         })
 
         return { sums, runs, near }
@@ -185,34 +249,83 @@ export default experiment({
     )
 
     const sums = perMember.map(p => p.sums)
-    const at = (si: number, k: number, rr: number): number => (si * READS.length + k) * (RMAX + 1) + rr
-    const n1 = (total: Float64Array, si: number, k: number, rr: number): number => (total[at(si, k, rr)] as number) / ((shellPairs[rr] as number) * (total[total.length - 1] as number))
-    const deficitOf = (total: Float64Array, si: number, k: number, rr: number): number => 1 - Math.sqrt(n1(total, 0, k, rr) / n1(total, si, k, rr))
+    const at = (si: number, k: number, rr: number): number =>
+      (si * READS.length + k) * (RMAX + 1) + rr
+    const n1 = (
+      total: Float64Array,
+      si: number,
+      k: number,
+      rr: number,
+    ): number =>
+      total[at(si, k, rr)]! /
+      (shellPairs[rr]! * total[total.length - 1]!)
+    const deficitOf = (
+      total: Float64Array,
+      si: number,
+      k: number,
+      rr: number,
+    ): number =>
+      1 - Math.sqrt(n1(total, 0, k, rr) / n1(total, si, k, rr))
     const rs = Array.from({ length: RMAX + 1 }, (_, i) => i)
     const outside = [2, 3, 4, 5, 6]
 
-    const k0 = perMember.every(p => p.runs.every(x => x.matchesRule && x.sound && x.repeatable))
-    const control = rs.map(rr => jackknife(sums, total => n1(total, 0, PRIMARY, rr)))
+    const k0 = perMember.every(p =>
+      p.runs.every(x => x.matchesRule && x.sound && x.repeatable),
+    )
+    const control = rs.map(rr =>
+      jackknife(sums, total => n1(total, 0, PRIMARY, rr)),
+    )
     const k1 = control.every(x => x.value > 0)
-    const love = rs.map(rr => jackknife(sums, total => deficitOf(total, 1, PRIMARY, rr)))
-    const fear = rs.map(rr => jackknife(sums, total => deficitOf(total, 2, PRIMARY, rr)))
-    const flip = rs.map(rr => jackknife(sums, total => deficitOf(total, 1, PRIMARY, rr) - deficitOf(total, 2, PRIMARY, rr)))
-    const positive = outside.every(rr => love[rr]!.value > 3 * love[rr]!.error && love[rr]!.value > 0)
+    const love = rs.map(rr =>
+      jackknife(sums, total => deficitOf(total, 1, PRIMARY, rr)),
+    )
+    const fear = rs.map(rr =>
+      jackknife(sums, total => deficitOf(total, 2, PRIMARY, rr)),
+    )
+    const flip = rs.map(rr =>
+      jackknife(
+        sums,
+        total =>
+          deficitOf(total, 1, PRIMARY, rr) -
+          deficitOf(total, 2, PRIMARY, rr),
+      ),
+    )
+    const positive = outside.every(
+      rr =>
+        love[rr]!.value > 3 * love[rr]!.error && love[rr]!.value > 0,
+    )
     const xs = outside.map(rr => Math.log(rr))
-    const ys = outside.map(rr => (love[rr]!.value > 0 ? Math.log(love[rr]!.value) : NaN))
+    const ys = outside.map(rr =>
+      love[rr]!.value > 0 ? Math.log(love[rr]!.value) : NaN,
+    )
     const mx = xs.reduce((a, b) => a + b, 0) / xs.length
     const my = ys.reduce((a, b) => a + b, 0) / ys.length
-    const slope = ys.every(Number.isFinite) ? xs.reduce((a, x, i) => a + (x - mx) * ((ys[i] as number) - my), 0) / xs.reduce((a, x) => a + (x - mx) ** 2, 0) : NaN
-    const k2 = positive && Number.isFinite(slope) && slope >= -1.25 && slope <= -0.75
+    const slope = ys.every(Number.isFinite)
+      ? xs.reduce((a, x, i) => a + (x - mx) * (ys[i]! - my), 0) /
+        xs.reduce((a, x) => a + (x - mx) ** 2, 0)
+      : NaN
+    const k2 =
+      positive &&
+      Number.isFinite(slope) &&
+      slope >= -1.25 &&
+      slope <= -0.75
     const k3 = flip.every(x => Math.abs(x.value) <= 3 * x.error + 1e-9)
     const status = !k0 ? 'partial' : k1 && k2 && k3 ? 'pass' : 'fail'
 
-    const e = (v: number): string => (Number.isFinite(v) ? v.toPrecision(4) : String(v))
+    const e = (v: number): string =>
+      Number.isFinite(v) ? v.toPrecision(4) : String(v)
     const pooled = new Float64Array(sums[0]!.length)
 
-    for (const s of sums) for (let i = 0; i < pooled.length; i++) pooled[i]! += s[i] as number
+    for (const s of sums) {
+      for (let i = 0; i < pooled.length; i++) {
+        pooled[i]! += s[i]!
+      }
+    }
 
-    const profile = READS.map((T, k) => `T ${T}: ${STATES.map((s, si) => `${s} N1 [${rs.map(rr => e(n1(pooled, si, k, rr))).join(', ')}]`).join('; ')}; deficit love [${rs.map(rr => e(deficitOf(pooled, 1, k, rr))).join(', ')}], fear [${rs.map(rr => e(deficitOf(pooled, 2, k, rr))).join(', ')}]`).join('. ')
+    const profile = READS.map(
+      (T, k) =>
+        `T ${T}: ${STATES.map((s, si) => `${s} N1 [${rs.map(rr => e(n1(pooled, si, k, rr))).join(', ')}]`).join('; ')}; deficit love [${rs.map(rr => e(deficitOf(pooled, 1, k, rr))).join(', ')}], fear [${rs.map(rr => e(deficitOf(pooled, 2, k, rr))).join(', ')}]`,
+    ).join('. ')
 
     return verdict({
       status,
@@ -224,12 +337,21 @@ export default experiment({
         gate_K3: k3 ? 1 : 0,
         placed: placedCount,
         slope: Number.isFinite(slope) ? slope : -999,
-        ...Object.fromEntries(rs.map(rr => [`deficitLove_r${rr}`, love[rr]!.value])),
-        ...Object.fromEntries(rs.map(rr => [`deficitFear_r${rr}`, fear[rr]!.value])),
-        ...Object.fromEntries(rs.map(rr => [`controlN1_r${rr}`, control[rr]!.value])),
+        ...Object.fromEntries(
+          rs.map(rr => [`deficitLove_r${rr}`, love[rr]!.value]),
+        ),
+        ...Object.fromEntries(
+          rs.map(rr => [`deficitFear_r${rr}`, fear[rr]!.value]),
+        ),
+        ...Object.fromEntries(
+          rs.map(rr => [`controlN1_r${rr}`, control[rr]!.value]),
+        ),
         seconds: (Date.now() - started) / 1000,
       },
-      control: { controlN1Min: Math.min(...control.map(x => x.value)), controlN1Max: Math.max(...control.map(x => x.value)) },
+      control: {
+        controlN1Min: Math.min(...control.map(x => x.value)),
+        controlN1Max: Math.max(...control.map(x => x.value)),
+      },
       notes: `L2. Center column ${center}. Shell pair counts [${Array.from(shellPairs).join(', ')}]. Placed labels within mesh 2 of the center at each read (love, fear) per member: ${perMember.map(p => JSON.stringify([p.near[1], p.near[2]])).join('; ')}. Errors at T = ${READS[PRIMARY]}: love [${love.map(x => e(x.error)).join(', ')}], difference [${flip.map(x => e(x.error)).join(', ')}]. Profiles: ${profile}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },

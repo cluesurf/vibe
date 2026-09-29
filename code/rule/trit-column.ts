@@ -114,22 +114,36 @@ export type TritBulk = {
 }
 
 // the bulk dock of (a, b, c, x4) with x4 of the parity of a + b + c
-function dockIndex(side: number, depth: number, a: number, b: number, c: number, x4: number): number {
-  const y = mod(a, side) + side * mod(b, side) + side * side * mod(c, side)
+function dockIndex(
+  side: number,
+  depth: number,
+  a: number,
+  b: number,
+  c: number,
+  x4: number,
+): number {
+  const y =
+    mod(a, side) + side * mod(b, side) + side * side * mod(c, side)
   const m = mod(x4, 2 * depth)
 
   return y * depth + Math.floor(m / 2)
 }
 
-export function buildTritBulk(input: { side: number; depth: number }): TritBulk {
+export function buildTritBulk(input: {
+  side: number
+  depth: number
+}): TritBulk {
   const { side, depth } = input
 
   if (side % 2 !== 0) {
-    throw new Error('the husk side must be even so the depth parity is well defined')
+    throw new Error(
+      'the husk side must be even so the depth parity is well defined',
+    )
   }
 
   const roots = rootsD4()
-  const index = (v: readonly number[]): number => roots.findIndex(r => r.every((x, k) => x === (v[k] ?? 0)))
+  const index = (v: readonly number[]): number =>
+    roots.findIndex(r => r.every((x, k) => x === (v[k] ?? 0)))
   const opposite = roots.map(r => index(r.map(x => -x)))
   const huskDocks = side ** 3
   const docks = huskDocks * depth
@@ -197,7 +211,11 @@ export function buildTritBulk(input: { side: number; depth: number }): TritBulk 
       return [x * 12 + k, 1]
     }
 
-    return [(neighbour[x * 24 + d] ?? 0) * 12 + (firstOf[opposite[d] ?? 0] ?? 0), -1]
+    return [
+      (neighbour[x * 24 + d] ?? 0) * 12 +
+        (firstOf[opposite[d] ?? 0] ?? 0),
+      -1,
+    ]
   }
 
   // triangles: roots (a, b, c), a + b + c = 0, kept from the representation whose first root index is the
@@ -209,9 +227,23 @@ export function buildTritBulk(input: { side: number; depth: number }): TritBulk 
   for (let x = 0; x < docks; x++) {
     for (let a = 0; a < 24; a++) {
       for (let b = 0; b < 24; b++) {
-        const c = index((roots[a] ?? []).map((v, k) => -v - ((roots[b] ?? [])[k] ?? 0)))
+        const c = index(
+          (roots[a] ?? []).map(
+            (v, k) => -v - ((roots[b] ?? [])[k] ?? 0),
+          ),
+        )
 
-        if (c < 0 || a >= Math.min(b, c, opposite[a] ?? 0, opposite[b] ?? 0, opposite[c] ?? 0)) {
+        if (
+          c < 0 ||
+          a >=
+            Math.min(
+              b,
+              c,
+              opposite[a] ?? 0,
+              opposite[b] ?? 0,
+              opposite[c] ?? 0,
+            )
+        ) {
           continue
         }
 
@@ -236,7 +268,8 @@ export function buildTritBulk(input: { side: number; depth: number }): TritBulk 
 
   const triangles = triStart.length
   const firstHusk = Int32Array.from(firstHuskList)
-  const huskOf = (l: number): number => (column[Math.floor(l / 12)] ?? 0) * 9 + (firstHusk[l % 12] ?? 0)
+  const huskOf = (l: number): number =>
+    (column[Math.floor(l / 12)] ?? 0) * 9 + (firstHusk[l % 12] ?? 0)
   const huskLinks = huskDocks * 9
   const huskNeighbour = new Int32Array(huskLinks)
 
@@ -248,7 +281,10 @@ export function buildTritBulk(input: { side: number; depth: number }): TritBulk 
     for (let h = 0; h < 9; h++) {
       const u = TRIT_HUSK_VECTORS[h] ?? []
 
-      huskNeighbour[y * 9 + h] = mod(a + (u[0] ?? 0), side) + side * mod(b + (u[1] ?? 0), side) + side * side * mod(c + (u[2] ?? 0), side)
+      huskNeighbour[y * 9 + h] =
+        mod(a + (u[0] ?? 0), side) +
+        side * mod(b + (u[1] ?? 0), side) +
+        side * side * mod(c + (u[2] ?? 0), side)
     }
   }
 
@@ -261,10 +297,19 @@ export function buildTritBulk(input: { side: number; depth: number }): TritBulk 
 
   for (let t = 0; t < triangles; t++) {
     const entries = [0, 1, 2]
-      .map(j => [huskOf(triLinks[t * 3 + j] ?? 0), triSigns[t * 3 + j] ?? 0] as const)
+      .map(
+        j =>
+          [
+            huskOf(triLinks[t * 3 + j] ?? 0),
+            triSigns[t * 3 + j] ?? 0,
+          ] as const,
+      )
       .sort((p, q) => p[0] - q[0])
 
-    if (entries[0]![0] === entries[1]![0] || entries[1]![0] === entries[2]![0]) {
+    if (
+      entries[0]![0] === entries[1]![0] ||
+      entries[1]![0] === entries[2]![0]
+    ) {
       throw new Error(`bulk triangle ${t} casts a husk link twice`)
     }
 
@@ -297,7 +342,9 @@ export function buildTritBulk(input: { side: number; depth: number }): TritBulk 
   const multiplicity = Int32Array.from(counts, c => c / depth)
 
   if (Array.from(counts).some(c => c % depth !== 0)) {
-    throw new Error('a husk triangle has a bulk column that is not a whole number per column dock')
+    throw new Error(
+      'a husk triangle has a bulk column that is not a whole number per column dock',
+    )
   }
 
   // columns, depth order: bulk links by (level, direction); bulk triangles by (level of start, index)
@@ -309,7 +356,8 @@ export function buildTritBulk(input: { side: number; depth: number }): TritBulk 
   }
 
   for (let i = 0; i < huskLinks; i++) {
-    linkColumnStart[i + 1] = (linkColumnStart[i] ?? 0) + (linkCount[i] ?? 0)
+    linkColumnStart[i + 1] =
+      (linkColumnStart[i] ?? 0) + (linkCount[i] ?? 0)
   }
 
   const linkColumn = new Int32Array(docks * 12)
@@ -329,7 +377,11 @@ export function buildTritBulk(input: { side: number; depth: number }): TritBulk 
     triColumnStart[p + 1] = (triColumnStart[p] ?? 0) + (counts[p] ?? 0)
   }
 
-  const order = Array.from({ length: triangles }, (_, t) => t).sort((s, t) => (level[triStart[s] ?? 0] ?? 0) - (level[triStart[t] ?? 0] ?? 0) || s - t)
+  const order = Array.from({ length: triangles }, (_, t) => t).sort(
+    (s, t) =>
+      (level[triStart[s] ?? 0] ?? 0) - (level[triStart[t] ?? 0] ?? 0) ||
+      s - t,
+  )
   const triColumn = new Int32Array(triangles)
   const triColumnSign = new Int8Array(triangles)
   const triFill = Int32Array.from(triColumnStart)
@@ -360,7 +412,9 @@ export function buildTritBulk(input: { side: number; depth: number }): TritBulk 
   }
 
   if (Array.from(counterFill).some(c => c !== depth)) {
-    throw new Error('a counter column does not have one triangle per column dock')
+    throw new Error(
+      'a counter column does not have one triangle per column dock',
+    )
   }
 
   return {
@@ -398,11 +452,19 @@ export function buildTritBulk(input: { side: number; depth: number }): TritBulk 
 // The column code
 
 // the value of a column: the signed sum of its trits
-export function columnValue(trits: Int8Array, entries: Int32Array, signs: Int8Array | undefined, start: number, length: number): number {
+export function columnValue(
+  trits: Int8Array,
+  entries: Int32Array,
+  signs: Int8Array | undefined,
+  start: number,
+  length: number,
+): number {
   let v = 0
 
   for (let i = 0; i < length; i++) {
-    v += (signs ? (signs[start + i] ?? 1) : 1) * (trits[entries[start + i] ?? 0] ?? 0)
+    v +=
+      (signs ? (signs[start + i] ?? 1) : 1) *
+      (trits[entries[start + i] ?? 0] ?? 0)
   }
 
   return v
@@ -410,9 +472,17 @@ export function columnValue(trits: Int8Array, entries: Int32Array, signs: Int8Ar
 
 // write the thermometer code of v into a column; returns the number of trits changed (each counted by the
 // size of its change, 1 or 2) and the deepest position changed plus one (the reach)
-export function writeColumn(trits: Int8Array, entries: Int32Array, signs: Int8Array | undefined, start: number, length: number, v: number): { flips: number; reach: number } {
+export function writeColumn(
+  trits: Int8Array,
+  entries: Int32Array,
+  signs: Int8Array | undefined,
+  start: number,
+  length: number,
+  v: number,
+): { flips: number; reach: number } {
   let flips = 0
   let reach = 0
+
   const s = v > 0 ? 1 : v < 0 ? -1 : 0
   const n = Math.abs(v)
 
@@ -465,7 +535,12 @@ export type TritLight = {
   readonly potentialWindow: Int32Array
 }
 
-export function makeTritLight(input: { side: number; depth: number; p?: number; form?: TritForm }): TritLight {
+export function makeTritLight(input: {
+  side: number
+  depth: number
+  p?: number
+  form?: TritForm
+}): TritLight {
   const bulk = buildTritBulk(input)
   const d = input.depth
 
@@ -475,7 +550,9 @@ export function makeTritLight(input: { side: number; depth: number; p?: number; 
     p: input.p ?? 1,
     q: 2 * d + 1,
     nb: 4 * d,
-    window: Int32Array.from({ length: 9 }, (_, h) => (h < 3 ? 4 * d : 2 * d)),
+    window: Int32Array.from({ length: 9 }, (_, h) =>
+      h < 3 ? 4 * d : 2 * d,
+    ),
     potentialWindow: Int32Array.from(bulk.multiplicity, n => n * d),
   }
 }
@@ -492,9 +569,19 @@ export type HuskLightState = {
   readonly string: Int32Array
 }
 
-export type Tally = { wraps: number; potentialWraps: number; flips: number; reach: number }
+export type Tally = {
+  wraps: number
+  potentialWraps: number
+  flips: number
+  reach: number
+}
 
-export const emptyTally = (): Tally => ({ wraps: 0, potentialWraps: 0, flips: 0, reach: 0 })
+export const emptyTally = (): Tally => ({
+  wraps: 0,
+  potentialWraps: 0,
+  flips: 0,
+  reach: 0,
+})
 
 // A in its window: the axis in -2D .. 2D - 1, the diagonal in -D .. D - 1
 function wrapAngle(light: TritLight, h: number, v: number): number {
@@ -515,14 +602,19 @@ export function centeredField(light: TritLight, b: number): number {
 }
 
 // sum over P of C(P, l) x_P on every husk link: the husk curl's transpose
-export function huskCurlT(light: TritLight, x: ArrayLike<number>): Int32Array {
+export function huskCurlT(
+  light: TritLight,
+  x: ArrayLike<number>,
+): Int32Array {
   const { bulk } = light
   const out = new Int32Array(bulk.huskLinks)
 
   for (let p = 0; p < bulk.huskTriangles; p++) {
     const v = x[p] ?? 0
 
-    if (v === 0) continue
+    if (v === 0) {
+      continue
+    }
 
     for (let j = 0; j < 3; j++) {
       const l = bulk.huskTriLinks[p * 3 + j] ?? 0
@@ -535,14 +627,21 @@ export function huskCurlT(light: TritLight, x: ArrayLike<number>): Int32Array {
 }
 
 // the husk flux of every husk link from the husk integers: S - C^T U
-export function huskFlux(light: TritLight, state: HuskLightState): Int32Array {
+export function huskFlux(
+  light: TritLight,
+  state: HuskLightState,
+): Int32Array {
   const curl = huskCurlT(light, state.potential)
 
   return Int32Array.from(state.string, (s, l) => s - (curl[l] ?? 0))
 }
 
 // the raw plaquette sum C W x (not centered)
-export function huskCurlWeighted(light: TritLight, x: ArrayLike<number>, p: number): number {
+export function huskCurlWeighted(
+  light: TritLight,
+  x: ArrayLike<number>,
+  p: number,
+): number {
   const { bulk } = light
 
   let b = 0
@@ -550,30 +649,47 @@ export function huskCurlWeighted(light: TritLight, x: ArrayLike<number>, p: numb
   for (let j = 0; j < 3; j++) {
     const l = bulk.huskTriLinks[p * 3 + j] ?? 0
 
-    b += (bulk.huskTriSigns[p * 3 + j] ?? 0) * (bulk.weight[l % 9] ?? 0) * (x[l] ?? 0)
+    b +=
+      (bulk.huskTriSigns[p * 3 + j] ?? 0) *
+      (bulk.weight[l % 9] ?? 0) *
+      (x[l] ?? 0)
   }
 
   return b
 }
 
-export function huskField(light: TritLight, angle: ArrayLike<number>, p: number): number {
+export function huskField(
+  light: TritLight,
+  angle: ArrayLike<number>,
+  p: number,
+): number {
   return centeredField(light, huskCurlWeighted(light, angle, p))
 }
 
-type Counters = { counter: Int32Array; lag: Int32Array; spatial: Int32Array }
+type Counters = {
+  counter: Int32Array
+  lag: Int32Array
+  spatial: Int32Array
+}
 
 // The force of every husk triangle from its field b (centered) and its counters, updating the counters in
 // place: the one non-additive step. Every counter is centered, in -D .. D, which is exactly the range of a
 // column of D trits, so a counter IS its column's value. The multiple of q in the window [x - D, x + D] is
 // unique because the window holds q = 2D + 1 integers.
-function force(light: TritLight, b: Int32Array, c: Counters): Int32Array {
+function force(
+  light: TritLight,
+  b: Int32Array,
+  c: Counters,
+): Int32Array {
   const { bulk, p: pp, q } = light
   const h = bulk.depth
   const f = new Int32Array(bulk.huskTriangles)
 
   if (light.form === 'first') {
     for (let p = 0; p < bulk.huskTriangles; p++) {
-      const x = (bulk.multiplicity[p] ?? 0) * pp * (b[p] ?? 0) + (c.counter[p] ?? 0)
+      const x =
+        (bulk.multiplicity[p] ?? 0) * pp * (b[p] ?? 0) +
+        (c.counter[p] ?? 0)
       const k = floorDiv(x + h, q)
 
       c.counter[p] = x - q * k
@@ -593,7 +709,11 @@ function force(light: TritLight, b: Int32Array, c: Counters): Int32Array {
 
     c.spatial[p] = s + (c.spatial[p] ?? 0) - q * v
 
-    const rest = n * pp * (b[p] ?? 0) - 2 * (c.counter[p] ?? 0) + (c.lag[p] ?? 0) + v
+    const rest =
+      n * pp * (b[p] ?? 0) -
+      2 * (c.counter[p] ?? 0) +
+      (c.lag[p] ?? 0) +
+      v
     const k = floorDiv(rest + h, q)
 
     c.lag[p] = c.counter[p] ?? 0
@@ -605,7 +725,11 @@ function force(light: TritLight, b: Int32Array, c: Counters): Int32Array {
 }
 
 // the inverse of force, given the same b: returns the force the forward step paid
-function forceBack(light: TritLight, b: Int32Array, c: Counters): Int32Array {
+function forceBack(
+  light: TritLight,
+  b: Int32Array,
+  c: Counters,
+): Int32Array {
   const { bulk, p: pp, q } = light
   const h = bulk.depth
   const f = new Int32Array(bulk.huskTriangles)
@@ -648,7 +772,11 @@ function forceBack(light: TritLight, b: Int32Array, c: Counters): Int32Array {
 }
 
 // one beat of the husk integer rule, in place
-export function huskLightBeat(light: TritLight, state: HuskLightState, tally?: Tally): void {
+export function huskLightBeat(
+  light: TritLight,
+  state: HuskLightState,
+  tally?: Tally,
+): void {
   const { bulk } = light
   const e = huskFlux(light, state)
 
@@ -656,35 +784,56 @@ export function huskLightBeat(light: TritLight, state: HuskLightState, tally?: T
     const raw = (state.angle[l] ?? 0) + (e[l] ?? 0)
     const next = wrapAngle(light, l % 9, raw)
 
-    if (tally && next !== raw) tally.wraps++
+    if (tally && next !== raw) {
+      tally.wraps++
+    }
+
     state.angle[l] = next
   }
 
-  const b = Int32Array.from({ length: bulk.huskTriangles }, (_, p) => huskField(light, state.angle, p))
+  const b = Int32Array.from({ length: bulk.huskTriangles }, (_, p) =>
+    huskField(light, state.angle, p),
+  )
   const f = force(light, b, state)
 
   for (let p = 0; p < bulk.huskTriangles; p++) {
     const raw = (state.potential[p] ?? 0) + (f[p] ?? 0)
     const next = wrapPotential(light, p, raw)
 
-    if (tally && next !== raw) tally.potentialWraps++
+    if (tally && next !== raw) {
+      tally.potentialWraps++
+    }
+
     state.potential[p] = next
   }
 }
 
-export function huskLightBeatBack(light: TritLight, state: HuskLightState): void {
+export function huskLightBeatBack(
+  light: TritLight,
+  state: HuskLightState,
+): void {
   const { bulk } = light
-  const b = Int32Array.from({ length: bulk.huskTriangles }, (_, p) => huskField(light, state.angle, p))
+  const b = Int32Array.from({ length: bulk.huskTriangles }, (_, p) =>
+    huskField(light, state.angle, p),
+  )
   const f = forceBack(light, b, state)
 
   for (let p = 0; p < bulk.huskTriangles; p++) {
-    state.potential[p] = wrapPotential(light, p, (state.potential[p] ?? 0) - (f[p] ?? 0))
+    state.potential[p] = wrapPotential(
+      light,
+      p,
+      (state.potential[p] ?? 0) - (f[p] ?? 0),
+    )
   }
 
   const e = huskFlux(light, state)
 
   for (let l = 0; l < bulk.huskLinks; l++) {
-    state.angle[l] = wrapAngle(light, l % 9, (state.angle[l] ?? 0) - (e[l] ?? 0))
+    state.angle[l] = wrapAngle(
+      light,
+      l % 9,
+      (state.angle[l] ?? 0) - (e[l] ?? 0),
+    )
   }
 }
 
@@ -751,14 +900,19 @@ export function copyTritState(s: TritState): TritState {
 }
 
 // the bulk flux of every bulk link: s - C^T u, a relation of the link's string and its triangles
-export function bulkFlux(light: TritLight, state: TritState): Int32Array {
+export function bulkFlux(
+  light: TritLight,
+  state: TritState,
+): Int32Array {
   const { bulk } = light
   const e = Int32Array.from(state.string)
 
   for (let t = 0; t < bulk.triangles; t++) {
     const u = state.potential[t] ?? 0
 
-    if (u === 0) continue
+    if (u === 0) {
+      continue
+    }
 
     for (let j = 0; j < 3; j++) {
       const l = bulk.triLinks[t * 3 + j] ?? 0
@@ -771,14 +925,21 @@ export function bulkFlux(light: TritLight, state: TritState): Int32Array {
 }
 
 // the column sums of a bulk link field onto the husk links
-export function columnSumLinks(light: TritLight, field: ArrayLike<number>): Int32Array {
+export function columnSumLinks(
+  light: TritLight,
+  field: ArrayLike<number>,
+): Int32Array {
   const { bulk } = light
   const out = new Int32Array(bulk.huskLinks)
 
   for (let i = 0; i < bulk.huskLinks; i++) {
     let v = 0
 
-    for (let k = bulk.linkColumnStart[i] ?? 0; k < (bulk.linkColumnStart[i + 1] ?? 0); k++) {
+    for (
+      let k = bulk.linkColumnStart[i] ?? 0;
+      k < (bulk.linkColumnStart[i + 1] ?? 0);
+      k++
+    ) {
       v += field[bulk.linkColumn[k] ?? 0] ?? 0
     }
 
@@ -791,19 +952,29 @@ export function columnSumLinks(light: TritLight, field: ArrayLike<number>): Int3
 // the plaquette fields read from the bulk: each bulk triangle's angle sum b, summed down the column of its
 // husk triangle, is (n_P / 2) B_P exactly (every bulk link over a husk link lies in the same number of the
 // column's triangles); returned as 2 sum b, which the caller divides by n_P
-export function columnTriangleAngles(light: TritLight, state: TritState): Int32Array {
+export function columnTriangleAngles(
+  light: TritLight,
+  state: TritState,
+): Int32Array {
   const { bulk } = light
   const out = new Int32Array(bulk.huskTriangles)
 
   for (let p = 0; p < bulk.huskTriangles; p++) {
     let v = 0
 
-    for (let k = bulk.triColumnStart[p] ?? 0; k < (bulk.triColumnStart[p + 1] ?? 0); k++) {
+    for (
+      let k = bulk.triColumnStart[p] ?? 0;
+      k < (bulk.triColumnStart[p + 1] ?? 0);
+      k++
+    ) {
       const t = bulk.triColumn[k] ?? 0
       const o = bulk.triColumnSign[k] ?? 1
 
       for (let j = 0; j < 3; j++) {
-        v += o * (bulk.triSigns[t * 3 + j] ?? 0) * (state.angle[bulk.triLinks[t * 3 + j] ?? 0] ?? 0)
+        v +=
+          o *
+          (bulk.triSigns[t * 3 + j] ?? 0) *
+          (state.angle[bulk.triLinks[t * 3 + j] ?? 0] ?? 0)
       }
     }
 
@@ -813,14 +984,39 @@ export function columnTriangleAngles(light: TritLight, state: TritState): Int32A
   return out
 }
 
-const counterRead = (light: TritLight, trits: Int8Array, p: number): number =>
-  columnValue(trits, light.bulk.counterColumn, light.bulk.counterColumnSign, p * light.bulk.depth, light.bulk.depth)
+const counterRead = (
+  light: TritLight,
+  trits: Int8Array,
+  p: number,
+): number =>
+  columnValue(
+    trits,
+    light.bulk.counterColumn,
+    light.bulk.counterColumnSign,
+    p * light.bulk.depth,
+    light.bulk.depth,
+  )
 
-const counterWrite = (light: TritLight, trits: Int8Array, p: number, v: number): { flips: number; reach: number } =>
-  writeColumn(trits, light.bulk.counterColumn, light.bulk.counterColumnSign, p * light.bulk.depth, light.bulk.depth, v)
+const counterWrite = (
+  light: TritLight,
+  trits: Int8Array,
+  p: number,
+  v: number,
+): { flips: number; reach: number } =>
+  writeColumn(
+    trits,
+    light.bulk.counterColumn,
+    light.bulk.counterColumnSign,
+    p * light.bulk.depth,
+    light.bulk.depth,
+    v,
+  )
 
 // decode the husk integers from the trits
-export function readHusk(light: TritLight, state: TritState): HuskLightState {
+export function readHusk(
+  light: TritLight,
+  state: TritState,
+): HuskLightState {
   const { bulk } = light
   const angle = columnSumLinks(light, state.angle)
   const string = columnSumLinks(light, state.string)
@@ -832,7 +1028,13 @@ export function readHusk(light: TritLight, state: TritState): HuskLightState {
   for (let p = 0; p < bulk.huskTriangles; p++) {
     const start = bulk.triColumnStart[p] ?? 0
 
-    potential[p] = columnValue(state.potential, bulk.triColumn, bulk.triColumnSign, start, (bulk.triColumnStart[p + 1] ?? 0) - start)
+    potential[p] = columnValue(
+      state.potential,
+      bulk.triColumn,
+      bulk.triColumnSign,
+      start,
+      (bulk.triColumnStart[p + 1] ?? 0) - start,
+    )
     counter[p] = counterRead(light, state.counter, p)
     lag[p] = counterRead(light, state.lag, p)
     spatial[p] = counterRead(light, state.spatial, p)
@@ -843,9 +1045,14 @@ export function readHusk(light: TritLight, state: TritState): HuskLightState {
 
 // encode husk integers as thermometer columns (angles, potentials, counters). The strings are placed by the
 // caller along bulk paths and are left alone
-export function writeHusk(light: TritLight, state: TritState, husk: HuskLightState): Tally {
+export function writeHusk(
+  light: TritLight,
+  state: TritState,
+  husk: HuskLightState,
+): Tally {
   const { bulk } = light
   const tally = emptyTally()
+
   const add = (r: { flips: number; reach: number }): void => {
     tally.flips += r.flips
     tally.reach = Math.max(tally.reach, r.reach)
@@ -854,13 +1061,31 @@ export function writeHusk(light: TritLight, state: TritState, husk: HuskLightSta
   for (let i = 0; i < bulk.huskLinks; i++) {
     const start = bulk.linkColumnStart[i] ?? 0
 
-    add(writeColumn(state.angle, bulk.linkColumn, undefined, start, (bulk.linkColumnStart[i + 1] ?? 0) - start, husk.angle[i] ?? 0))
+    add(
+      writeColumn(
+        state.angle,
+        bulk.linkColumn,
+        undefined,
+        start,
+        (bulk.linkColumnStart[i + 1] ?? 0) - start,
+        husk.angle[i] ?? 0,
+      ),
+    )
   }
 
   for (let p = 0; p < bulk.huskTriangles; p++) {
     const start = bulk.triColumnStart[p] ?? 0
 
-    add(writeColumn(state.potential, bulk.triColumn, bulk.triColumnSign, start, (bulk.triColumnStart[p + 1] ?? 0) - start, husk.potential[p] ?? 0))
+    add(
+      writeColumn(
+        state.potential,
+        bulk.triColumn,
+        bulk.triColumnSign,
+        start,
+        (bulk.triColumnStart[p + 1] ?? 0) - start,
+        husk.potential[p] ?? 0,
+      ),
+    )
     add(counterWrite(light, state.counter, p, husk.counter[p] ?? 0))
     add(counterWrite(light, state.lag, p, husk.lag[p] ?? 0))
     add(counterWrite(light, state.spatial, p, husk.spatial[p] ?? 0))
@@ -874,13 +1099,24 @@ function readCounters(light: TritLight, state: TritState): Counters {
   const n = light.bulk.huskTriangles
 
   return {
-    counter: Int32Array.from({ length: n }, (_, p) => counterRead(light, state.counter, p)),
-    lag: Int32Array.from({ length: n }, (_, p) => counterRead(light, state.lag, p)),
-    spatial: Int32Array.from({ length: n }, (_, p) => counterRead(light, state.spatial, p)),
+    counter: Int32Array.from({ length: n }, (_, p) =>
+      counterRead(light, state.counter, p),
+    ),
+    lag: Int32Array.from({ length: n }, (_, p) =>
+      counterRead(light, state.lag, p),
+    ),
+    spatial: Int32Array.from({ length: n }, (_, p) =>
+      counterRead(light, state.spatial, p),
+    ),
   }
 }
 
-function payCounters(light: TritLight, state: TritState, c: Counters, add: (r: { flips: number; reach: number }) => void): void {
+function payCounters(
+  light: TritLight,
+  state: TritState,
+  c: Counters,
+  add: (r: { flips: number; reach: number }) => void,
+): void {
   for (let p = 0; p < light.bulk.huskTriangles; p++) {
     add(counterWrite(light, state.counter, p, c.counter[p] ?? 0))
 
@@ -891,43 +1127,99 @@ function payCounters(light: TritLight, state: TritState, c: Counters, add: (r: {
   }
 }
 
-function fieldsFromBulk(light: TritLight, state: TritState): Int32Array {
+function fieldsFromBulk(
+  light: TritLight,
+  state: TritState,
+): Int32Array {
   const twice = columnTriangleAngles(light, state)
 
-  return Int32Array.from(twice, (v, p) => centeredField(light, v / (light.bulk.multiplicity[p] ?? 1)))
+  return Int32Array.from(twice, (v, p) =>
+    centeredField(light, v / (light.bulk.multiplicity[p] ?? 1)),
+  )
 }
 
-function payPotentials(light: TritLight, state: TritState, f: Int32Array, sign: number, t: Tally | undefined, add: (r: { flips: number; reach: number }) => void): void {
+function payPotentials(
+  light: TritLight,
+  state: TritState,
+  f: Int32Array,
+  sign: number,
+  t: Tally | undefined,
+  add: (r: { flips: number; reach: number }) => void,
+): void {
   const { bulk } = light
 
   for (let p = 0; p < bulk.huskTriangles; p++) {
     const k = sign * (f[p] ?? 0)
 
-    if (k === 0) continue
+    if (k === 0) {
+      continue
+    }
 
     const start = bulk.triColumnStart[p] ?? 0
     const length = (bulk.triColumnStart[p + 1] ?? 0) - start
-    const u = columnValue(state.potential, bulk.triColumn, bulk.triColumnSign, start, length)
+    const u = columnValue(
+      state.potential,
+      bulk.triColumn,
+      bulk.triColumnSign,
+      start,
+      length,
+    )
     const next = wrapPotential(light, p, u + k)
 
-    if (t && next !== u + k) t.potentialWraps++
-    add(writeColumn(state.potential, bulk.triColumn, bulk.triColumnSign, start, length, next))
+    if (t && next !== u + k) {
+      t.potentialWraps++
+    }
+
+    add(
+      writeColumn(
+        state.potential,
+        bulk.triColumn,
+        bulk.triColumnSign,
+        start,
+        length,
+        next,
+      ),
+    )
   }
 }
 
-function driftTrits(light: TritLight, state: TritState, sign: number, t: Tally | undefined, add: (r: { flips: number; reach: number }) => void): void {
+function driftTrits(
+  light: TritLight,
+  state: TritState,
+  sign: number,
+  t: Tally | undefined,
+  add: (r: { flips: number; reach: number }) => void,
+): void {
   const { bulk } = light
   const flux = columnSumLinks(light, bulkFlux(light, state))
 
   for (let i = 0; i < bulk.huskLinks; i++) {
     const start = bulk.linkColumnStart[i] ?? 0
     const length = (bulk.linkColumnStart[i + 1] ?? 0) - start
-    const a = columnValue(state.angle, bulk.linkColumn, undefined, start, length)
+    const a = columnValue(
+      state.angle,
+      bulk.linkColumn,
+      undefined,
+      start,
+      length,
+    )
     const raw = a + sign * (flux[i] ?? 0)
     const next = wrapAngle(light, i % 9, raw)
 
-    if (t && next !== raw) t.wraps++
-    add(writeColumn(state.angle, bulk.linkColumn, undefined, start, length, next))
+    if (t && next !== raw) {
+      t.wraps++
+    }
+
+    add(
+      writeColumn(
+        state.angle,
+        bulk.linkColumn,
+        undefined,
+        start,
+        length,
+        next,
+      ),
+    )
   }
 }
 
@@ -935,7 +1227,11 @@ function driftTrits(light: TritLight, state: TritState, sign: number, t: Tally |
 // strings and the triangles' potentials) and pays each angle column; the kick reads the column sums of the
 // bulk triangles' angle sums and the counter columns, takes the counters' floors, and pays the potential and
 // counter columns
-export function tritLightBeat(light: TritLight, state: TritState, tally?: Tally): void {
+export function tritLightBeat(
+  light: TritLight,
+  state: TritState,
+  tally?: Tally,
+): void {
   const add = (r: { flips: number; reach: number }): void => {
     if (tally) {
       tally.flips += r.flips
@@ -952,7 +1248,10 @@ export function tritLightBeat(light: TritLight, state: TritState, tally?: Tally)
   payPotentials(light, state, f, 1, tally, add)
 }
 
-export function tritLightBeatBack(light: TritLight, state: TritState): void {
+export function tritLightBeatBack(
+  light: TritLight,
+  state: TritState,
+): void {
   const none = (): void => undefined
   const c = readCounters(light, state)
   const f = forceBack(light, fieldsFromBulk(light, state), c)
@@ -963,7 +1262,10 @@ export function tritLightBeatBack(light: TritLight, state: TritState): void {
 }
 
 // bulk docks where the divergence of the bulk flux is not the vibe
-export function bulkGaussViolations(light: TritLight, state: TritState): number {
+export function bulkGaussViolations(
+  light: TritLight,
+  state: TritState,
+): number {
   const { bulk } = light
   const e = bulkFlux(light, state)
   const div = new Int32Array(bulk.docks)
@@ -995,13 +1297,18 @@ function rootsIndex(r: readonly number[]): number {
 }
 
 // husk docks where the divergence of the husk flux is not the column charge
-export function huskGaussViolations(light: TritLight, flux: ArrayLike<number>, vibe: Int8Array): number {
+export function huskGaussViolations(
+  light: TritLight,
+  flux: ArrayLike<number>,
+  vibe: Int8Array,
+): number {
   const { bulk } = light
   const div = new Int32Array(bulk.huskDocks)
   const charge = new Int32Array(bulk.huskDocks)
 
   for (let x = 0; x < bulk.docks; x++) {
-    charge[bulk.column[x] ?? 0] = (charge[bulk.column[x] ?? 0] ?? 0) + (vibe[x] ?? 0)
+    charge[bulk.column[x] ?? 0] =
+      (charge[bulk.column[x] ?? 0] ?? 0) + (vibe[x] ?? 0)
   }
 
   for (let l = 0; l < bulk.huskLinks; l++) {
@@ -1023,7 +1330,13 @@ export function huskGaussViolations(light: TritLight, flux: ArrayLike<number>, v
 
 // place a vibe v at bulk dock x and -v at the end of a path of first-root steps, joined by a string of trits;
 // each link of the path must be free. Returns the far dock
-export function placeTritPair(light: TritLight, state: TritState, x: number, steps: readonly number[], v: number): number {
+export function placeTritPair(
+  light: TritLight,
+  state: TritState,
+  x: number,
+  steps: readonly number[],
+  v: number,
+): number {
   const { bulk } = light
 
   let c = x

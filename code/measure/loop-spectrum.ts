@@ -5,8 +5,16 @@
 // code/rule/loop-ring (and code/rule/plaquette-ladder for the ladder).
 
 import { bal } from '@/code/rule/lattice-qed'
-import { fluxesOf, toAngleBasis, type LadderKernel } from '@/code/rule/plaquette-ladder'
-import { inner, unitaryEigen, type Vec } from '@/code/measure/quantum-ladder'
+import {
+  fluxesOf,
+  toAngleBasis,
+  type LadderKernel,
+} from '@/code/rule/plaquette-ladder'
+import {
+  inner,
+  unitaryEigen,
+  type Vec,
+} from '@/code/measure/quantum-ladder'
 import {
   loopBeat,
   loopFluxes,
@@ -30,20 +38,35 @@ export type Field = { re: Float64Array; im: Float64Array }
 // s sum <e^2> = f sum <B^2> exactly, mode by mode (the leapfrog's invariant ellipse has covariance
 // proportional to its inverse form), so the ratio of the two fills is fixed by the split alone
 
-export type Fills = { links: number; edge: number; shared: number; squares: number; ratio: number }
+export type Fills = {
+  links: number
+  edge: number
+  shared: number
+  squares: number
+  ratio: number
+}
 
-export function ladderFillTables(kernel: LadderKernel): { edge: Float64Array; shared: Float64Array } {
+export function ladderFillTables(kernel: LadderKernel): {
+  edge: Float64Array
+  shared: Float64Array
+} {
   const { n, plaquettes: L } = kernel.spec
   const edge = new Float64Array(kernel.size)
   const shared = new Float64Array(kernel.size)
 
   for (let i = 0; i < kernel.size; i++) {
     const e = fluxesOf(kernel.spec, i)
+
     let a = 0
     let b = 0
 
-    for (let l = 0; l < 2 * L; l++) a += bal(e[l]!, n) ** 2
-    for (let l = 2 * L; l < 3 * L; l++) b += bal(e[l]!, n) ** 2
+    for (let l = 0; l < 2 * L; l++) {
+      a += bal(e[l]!, n) ** 2
+    }
+
+    for (let l = 2 * L; l < 3 * L; l++) {
+      b += bal(e[l]!, n) ** 2
+    }
 
     edge[i] = a
     shared[i] = b
@@ -52,9 +75,14 @@ export function ladderFillTables(kernel: LadderKernel): { edge: Float64Array; sh
   return { edge, shared }
 }
 
-export function ladderFills(kernel: LadderKernel, tables: { edge: Float64Array; shared: Float64Array }, v: Field): Fills {
+export function ladderFills(
+  kernel: LadderKernel,
+  tables: { edge: Float64Array; shared: Float64Array },
+  v: Field,
+): Fills {
   const { n, plaquettes: L, drift, force } = kernel.spec
   const half = n ** L
+
   let edge = 0
   let shared = 0
 
@@ -66,12 +94,15 @@ export function ladderFills(kernel: LadderKernel, tables: { edge: Float64Array; 
   }
 
   const angle = toAngleBasis(kernel, v.re, v.im)
+
   let squares = 0
 
   for (let i = 0; i < kernel.size; i++) {
     const w = angle.re[i]! ** 2 + angle.im[i]! ** 2
 
-    if (w === 0) continue
+    if (w === 0) {
+      continue
+    }
 
     let rest = i % half
 
@@ -82,25 +113,37 @@ export function ladderFills(kernel: LadderKernel, tables: { edge: Float64Array; 
   }
 
   // s / f = drift / force
-  return { links: edge + shared, edge, shared, squares, ratio: (drift * (edge + shared)) / (force * squares) }
+  return {
+    links: edge + shared,
+    edge,
+    shared,
+    squares,
+    ratio: (drift * (edge + shared)) / (force * squares),
+  }
 }
 
 export function loopFills(kernel: LoopKernel, v: Field): Fills {
   const spec = kernel.spec
   const { n, squares: P } = spec
   const flux = new Int32Array(spec.links.length)
+
   let edge = 0
   let shared = 0
 
   for (let i = 0; i < kernel.size; i++) {
     const w = v.re[i]! ** 2 + v.im[i]! ** 2
 
-    if (w === 0) continue
+    if (w === 0) {
+      continue
+    }
 
     loopFluxes(spec, i, flux)
     spec.links.forEach(([, b], l) => {
-      if (b < 0) edge += w * flux[l]! ** 2
-      else shared += w * flux[l]! ** 2
+      if (b < 0) {
+        edge += w * flux[l]! ** 2
+      } else {
+        shared += w * flux[l]! ** 2
+      }
     })
   }
 
@@ -114,7 +157,9 @@ export function loopFills(kernel: LoopKernel, v: Field): Fills {
   for (let i = 0; i < kernel.size; i++) {
     const w = re[i]! ** 2 + im[i]! ** 2
 
-    if (w === 0) continue
+    if (w === 0) {
+      continue
+    }
 
     let rest = i % kernel.half
 
@@ -124,7 +169,13 @@ export function loopFills(kernel: LoopKernel, v: Field): Fills {
     }
   }
 
-  return { links: edge + shared, edge, shared, squares, ratio: (spec.drift * (edge + shared)) / (spec.force * squares) }
+  return {
+    links: edge + shared,
+    edge,
+    shared,
+    squares,
+    ratio: (spec.drift * (edge + shared)) / (spec.force * squares),
+  }
 }
 
 // ---------------------------------------------------------------------------------------------------------
@@ -144,15 +195,21 @@ export type RingSector = {
   readonly members: Int32Array[]
 }
 
-export function ringOrbits(spec: LoopSpec): { rep: Int32Array; orbitOf: Int32Array[] } {
+export function ringOrbits(spec: LoopSpec): {
+  rep: Int32Array
+  orbitOf: Int32Array[]
+} {
   const size = loopHalf(spec)
   const rep = new Int32Array(size).fill(-1)
   const orbitOf: Int32Array[] = []
 
   for (let i = 0; i < size; i++) {
-    if (rep[i] !== -1) continue
+    if (rep[i] !== -1) {
+      continue
+    }
 
     const members: number[] = []
+
     let t = i
 
     for (let a = 0; a < spec.squares; a++) {
@@ -176,7 +233,11 @@ export function ringOrbits(spec: LoopSpec): { rep: Int32Array; orbitOf: Int32Arr
   return { rep, orbitOf }
 }
 
-export function ringSector(spec: LoopSpec, orbits: { rep: Int32Array; orbitOf: Int32Array[] }, q: number): RingSector {
+export function ringSector(
+  spec: LoopSpec,
+  orbits: { rep: Int32Array; orbitOf: Int32Array[] },
+  q: number,
+): RingSector {
   const size = loopHalf(spec)
   const L = spec.squares
   const k = (2 * Math.PI * q) / L
@@ -188,7 +249,9 @@ export function ringSector(spec: LoopSpec, orbits: { rep: Int32Array; orbitOf: I
   const accIm = new Map<number, number>()
 
   for (let r = 0; r < size; r++) {
-    if (orbits.rep[r] !== r) continue
+    if (orbits.rep[r] !== r) {
+      continue
+    }
 
     accRe.clear()
     accIm.clear()
@@ -209,9 +272,13 @@ export function ringSector(spec: LoopSpec, orbits: { rep: Int32Array; orbitOf: I
 
     let norm = 0
 
-    for (const [u, x] of accRe) norm += x * x + accIm.get(u)! ** 2
+    for (const [u, x] of accRe) {
+      norm += x * x + accIm.get(u)! ** 2
+    }
 
-    if (norm < 1e-9) continue
+    if (norm < 1e-9) {
+      continue
+    }
 
     const scale = 1 / Math.sqrt(norm)
     const at = members.length
@@ -232,12 +299,17 @@ export function ringSector(spec: LoopSpec, orbits: { rep: Int32Array; orbitOf: I
 
 // sector coefficients of a full vector: <b_a|v> = sum conj(co) v over the orbit
 export function ringProject(sector: RingSector, v: Field): Vec {
-  const out = { re: new Float64Array(sector.dimension), im: new Float64Array(sector.dimension) }
+  const out = {
+    re: new Float64Array(sector.dimension),
+    im: new Float64Array(sector.dimension),
+  }
 
   for (let i = 0; i < sector.position.length; i++) {
     const a = sector.position[i]!
 
-    if (a < 0) continue
+    if (a < 0) {
+      continue
+    }
 
     const cr = sector.coRe[i]!
     const ci = sector.coIm[i]!
@@ -256,7 +328,9 @@ export function ringToFull(sector: RingSector, c: Vec): Field {
   for (let i = 0; i < size; i++) {
     const a = sector.position[i]!
 
-    if (a < 0) continue
+    if (a < 0) {
+      continue
+    }
 
     const cr = sector.coRe[i]!
     const ci = sector.coIm[i]!
@@ -269,7 +343,10 @@ export function ringToFull(sector: RingSector, c: Vec): Field {
 }
 
 // the beat's block in a sector, dense row-major
-export function ringBlock(kernel: LoopKernel, sector: RingSector): { re: Float64Array; im: Float64Array } {
+export function ringBlock(
+  kernel: LoopKernel,
+  sector: RingSector,
+): { re: Float64Array; im: Float64Array } {
   const d = sector.dimension
   const re = new Float64Array(d * d)
   const im = new Float64Array(d * d)
@@ -310,11 +387,17 @@ export function loopEnergy(kernel: LoopKernel, v: Field): number {
 export type RingLevel = { q: number; phase: number; vector: Vec }
 
 // every level of the ring's light: phases by sector
-export function ringSpectrum(spec: LoopSpec): { levels: RingLevel[]; sectors: RingSector[]; residual: number; kernel: LoopKernel } {
+export function ringSpectrum(spec: LoopSpec): {
+  levels: RingLevel[]
+  sectors: RingSector[]
+  residual: number
+  kernel: LoopKernel
+} {
   const kernel = loopKernel(spec)
   const orbits = ringOrbits(spec)
   const levels: RingLevel[] = []
   const sectors: RingSector[] = []
+
   let residual = 0
 
   for (let q = 0; q < spec.squares; q++) {
@@ -324,7 +407,9 @@ export function ringSpectrum(spec: LoopSpec): { levels: RingLevel[]; sectors: Ri
 
     residual = Math.max(residual, eig.residual)
     sectors.push(sector)
-    eig.vectors.forEach((v, j) => levels.push({ q, phase: eig.phases[j]!, vector: v }))
+    eig.vectors.forEach((v, j) =>
+      levels.push({ q, phase: eig.phases[j]!, vector: v }),
+    )
   }
 
   return { levels, sectors, residual, kernel }
@@ -337,7 +422,9 @@ export function ringTrial(spec: LoopSpec): Field {
   const { s, f } = loopSplit(spec)
   // f B^2 + 2 s m^2 in the harmonic reading: <m^2> = (N / 2 pi)(1/2) sqrt(f / 2 s)
   const width = (n / (2 * Math.PI)) * 0.5 * Math.sqrt(f / (2 * s))
-  const g = Array.from({ length: n }, (_, d) => Math.exp(-(bal(d, n) ** 2) / (4 * width)))
+  const g = Array.from({ length: n }, (_, d) =>
+    Math.exp(-(bal(d, n) ** 2) / (4 * width)),
+  )
   const size = loopHalf(spec)
   const light: LoopSpec = { ...spec, hop: undefined }
   const sum = { re: new Float64Array(size), im: new Float64Array(size) }
@@ -367,18 +454,35 @@ export function ringTrial(spec: LoopSpec): Field {
 // the one-quantum band: the vacuum is the zero-momentum level of largest overlap with the product trial; in each sector
 // q != 0 the one-quantum level is the one of largest overlap with E_k |vac>, E_k = L^-1/2 sum_p e^(-i k p) e_p
 // (the rung fluxes, the ring's physical field; a register m_p alone is not invariant under the uniform shift)
-export type RingBandPoint = { q: number; k: number; omega: number; classical: number; overlap: number }
+export type RingBandPoint = {
+  q: number
+  k: number
+  omega: number
+  classical: number
+  overlap: number
+}
 
-export function ringBand(spec: LoopSpec): { band: RingBandPoint[]; levels: RingLevel[]; vacuum: number; vacuumOverlap: number; residual: number; vacuumFull: Field; kernel: LoopKernel } {
+export function ringBand(spec: LoopSpec): {
+  band: RingBandPoint[]
+  levels: RingLevel[]
+  vacuum: number
+  vacuumOverlap: number
+  residual: number
+  vacuumFull: Field
+  kernel: LoopKernel
+} {
   const { levels, sectors, residual, kernel } = ringSpectrum(spec)
   const { kappa } = loopSplit(spec)
   const L = spec.squares
   const trial = ringProject(sectors[0]!, ringTrial(spec))
+
   let vacuum = -1
   let vacuumOverlap = 0
 
   levels.forEach((l, i) => {
-    if (l.q !== 0) return
+    if (l.q !== 0) {
+      return
+    }
 
     const [r, s] = inner(l.vector, trial)
 
@@ -398,7 +502,9 @@ export function ringBand(spec: LoopSpec): { band: RingBandPoint[]; levels: RingL
     const ti = new Float64Array(kernel.half)
 
     for (let i = 0; i < kernel.half; i++) {
-      if (vfull.re[i] === 0 && vfull.im[i] === 0) continue
+      if (vfull.re[i] === 0 && vfull.im[i] === 0) {
+        continue
+      }
 
       loopFluxes(spec, i, flux)
 
@@ -415,15 +521,20 @@ export function ringBand(spec: LoopSpec): { band: RingBandPoint[]; levels: RingL
     }
 
     const t = ringProject(sectors[q]!, { re: tr, im: ti })
+
     let norm = 0
 
-    for (let a = 0; a < t.re.length; a++) norm += t.re[a]! ** 2 + t.im[a]! ** 2
+    for (let a = 0; a < t.re.length; a++) {
+      norm += t.re[a]! ** 2 + t.im[a]! ** 2
+    }
 
     let best = -1
     let bestWeight = 0
 
     levels.forEach((l, i) => {
-      if (l.q !== q) return
+      if (l.q !== q) {
+        return
+      }
 
       const [r, s] = inner(l.vector, t)
       const w = (r * r + s * s) / norm
@@ -434,19 +545,42 @@ export function ringBand(spec: LoopSpec): { band: RingBandPoint[]; levels: RingL
       }
     })
 
-    const omega = best < 0 ? Number.NaN : (((levels[vacuum]!.phase - levels[best]!.phase) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)
+    const omega =
+      best < 0
+        ? Number.NaN
+        : (((levels[vacuum]!.phase - levels[best]!.phase) %
+            (2 * Math.PI)) +
+            2 * Math.PI) %
+          (2 * Math.PI)
 
-    band.push({ q, k, omega, classical: ringOmega(kappa, k), overlap: bestWeight })
+    band.push({
+      q,
+      k,
+      omega,
+      classical: ringOmega(kappa, k),
+      overlap: bestWeight,
+    })
   }
 
-  return { band, levels, vacuum, vacuumOverlap, residual, vacuumFull: vfull, kernel }
+  return {
+    band,
+    levels,
+    vacuum,
+    vacuumOverlap,
+    residual,
+    vacuumFull: vfull,
+    kernel,
+  }
 }
 
 // ---------------------------------------------------------------------------------------------------------
 // large boxes: a spectral filter on any beat (two-sided Fourier sum of the indicator of [a, b], Gaussian
 // smoothed), the phase of <v|U|v> and its residual
 
-export type Beat = { forward(re: Float64Array, im: Float64Array): void; backward(re: Float64Array, im: Float64Array): void }
+export type Beat = {
+  forward(re: Float64Array, im: Float64Array): void
+  backward(re: Float64Array, im: Float64Array): void
+}
 
 export const loopBeats = (kernel: LoopKernel): Beat => ({
   forward: (re, im) => loopBeat(kernel, re, im),
@@ -456,7 +590,9 @@ export const loopBeats = (kernel: LoopKernel): Beat => ({
 export function normalizeField(v: Field): number {
   let s = 0
 
-  for (let i = 0; i < v.re.length; i++) s += v.re[i]! ** 2 + v.im[i]! ** 2
+  for (let i = 0; i < v.re.length; i++) {
+    s += v.re[i]! ** 2 + v.im[i]! ** 2
+  }
 
   const norm = Math.sqrt(s)
 
@@ -468,7 +604,10 @@ export function normalizeField(v: Field): number {
   return norm
 }
 
-export function phaseOf(beat: Beat, v: Field): { phase: number; residual: number } {
+export function phaseOf(
+  beat: Beat,
+  v: Field,
+): { phase: number; residual: number } {
   const w = { re: Float64Array.from(v.re), im: Float64Array.from(v.im) }
 
   beat.forward(w.re, w.im)
@@ -477,26 +616,49 @@ export function phaseOf(beat: Beat, v: Field): { phase: number; residual: number
   const phase = Math.atan2(i, r)
   const c = Math.cos(phase)
   const s = Math.sin(phase)
+
   let res = 0
 
-  for (let k = 0; k < v.re.length; k++) res += (w.re[k]! - (c * v.re[k]! - s * v.im[k]!)) ** 2 + (w.im[k]! - (c * v.im[k]! + s * v.re[k]!)) ** 2
+  for (let k = 0; k < v.re.length; k++) {
+    res +=
+      (w.re[k]! - (c * v.re[k]! - s * v.im[k]!)) ** 2 +
+      (w.im[k]! - (c * v.im[k]! + s * v.re[k]!)) ** 2
+  }
 
   return { phase, residual: Math.sqrt(res) }
 }
 
-export function filterField(beat: Beat, v: Field, e0: number, a: number, b: number, sigma: number): Field {
+export function filterField(
+  beat: Beat,
+  v: Field,
+  e0: number,
+  a: number,
+  b: number,
+  sigma: number,
+): Field {
   const T = Math.ceil(Math.sqrt(2 * 30) / sigma)
+
   const coefficient = (j: number): [number, number] => {
     const damp = Math.exp(-(sigma * sigma * j * j) / 2)
 
-    if (j === 0) return [((b - a) / (2 * Math.PI)) * damp, 0]
+    if (j === 0) {
+      return [((b - a) / (2 * Math.PI)) * damp, 0]
+    }
 
     const xr = Math.cos(j * a) - Math.cos(j * b)
     const xi = -Math.sin(j * a) + Math.sin(j * b)
 
-    return [(xi / (2 * Math.PI * j)) * damp, (-xr / (2 * Math.PI * j)) * damp]
+    return [
+      (xi / (2 * Math.PI * j)) * damp,
+      (-xr / (2 * Math.PI * j)) * damp,
+    ]
   }
-  const acc = { re: new Float64Array(v.re.length), im: new Float64Array(v.re.length) }
+
+  const acc = {
+    re: new Float64Array(v.re.length),
+    im: new Float64Array(v.re.length),
+  }
+
   const add = (w: Field, cr: number, ci: number): void => {
     for (let k = 0; k < w.re.length; k++) {
       acc.re[k] = acc.re[k]! + cr * w.re[k]! - ci * w.im[k]!
@@ -507,11 +669,17 @@ export function filterField(beat: Beat, v: Field, e0: number, a: number, b: numb
   add(v, ...coefficient(0))
 
   for (const direction of [1, -1]) {
-    const w = { re: Float64Array.from(v.re), im: Float64Array.from(v.im) }
+    const w = {
+      re: Float64Array.from(v.re),
+      im: Float64Array.from(v.im),
+    }
 
     for (let j = 1; j <= T; j++) {
-      if (direction === 1) beat.backward(w.re, w.im)
-      else beat.forward(w.re, w.im)
+      if (direction === 1) {
+        beat.backward(w.re, w.im)
+      } else {
+        beat.forward(w.re, w.im)
+      }
 
       const [hr, hi] = coefficient(direction * j)
       const t = -direction * j * e0
@@ -528,13 +696,17 @@ export function filterField(beat: Beat, v: Field, e0: number, a: number, b: numb
 // the ring's light vacuum on a box too large to diagonalize: the product of one register's ground state (a
 // square with its two rungs, stiffness 2), summed over the uniform shifts (so it lies in the physical sector),
 // filtered twice to relative energies within half the lowest photon energy
-export function ringVacuum(spec: LoopSpec, passes = 2): { vacuum: Field; phase: number; residual: number } {
+export function ringVacuum(
+  spec: LoopSpec,
+  passes = 2,
+): { vacuum: Field; phase: number; residual: number } {
   const light: LoopSpec = { ...spec, hop: undefined }
   const kernel = loopKernel(light)
   const beat = loopBeats(kernel)
   const { kappa } = loopSplit(spec)
   const omegaMin = ringOmega(kappa, (2 * Math.PI) / spec.squares)
   const sigma = omegaMin / 8
+
   let w: Field = ringTrial(light)
   let phase = phaseOf(beat, w).phase
 

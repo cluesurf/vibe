@@ -27,13 +27,25 @@
 // which changes the divergence of E and breaks Gauss's law. The noise that costs nothing is instead noise in
 // the image of the dynamics' own operator, which the wave form produces.
 
-import { hermitianEigen, leapfrogOmega, plaquetteWaveMatrix } from '@/code/measure/photon-modes'
-import { applyNorm, gradientVector, huskSymbol } from '@/code/measure/photon-symbol'
+import {
+  hermitianEigen,
+  leapfrogOmega,
+  plaquetteWaveMatrix,
+} from '@/code/measure/photon-modes'
+import {
+  applyNorm,
+  gradientVector,
+  huskSymbol,
+} from '@/code/measure/photon-symbol'
 import { bulkModeOfHusk, type Husk } from '@/code/measure/photon-husk'
 import { waveVector } from '@/code/measure/photon-modes'
 import { type PhotonLattice } from '@/code/rule/photon-links'
 
-export type NoiseForm = { readonly name: string; readonly taps: readonly number[]; readonly spread: boolean }
+export type NoiseForm = {
+  readonly name: string
+  readonly taps: readonly number[]
+  readonly spread: boolean
+}
 
 export const NOISE_FORMS: readonly NoiseForm[] = [
   { name: 'white', taps: [], spread: false },
@@ -45,7 +57,12 @@ export const NOISE_FORMS: readonly NoiseForm[] = [
 
 // |NTF(e^(i omega))|^2 for a form on a branch of eigenvalue lambda: 1 + sum_j h_j z^j, and for the wave form
 // the spatial term kappa lambda z added to the first tap
-export function ntfPower(form: { taps: readonly number[]; spread: boolean }, omega: number, lambda: number, kappa: number): number {
+export function ntfPower(
+  form: { taps: readonly number[]; spread: boolean },
+  omega: number,
+  lambda: number,
+  kappa: number,
+): number {
   let re = 1
   let im = 0
 
@@ -80,9 +97,14 @@ export function bulkSpectrum(bulk: PhotonLattice): BranchSpectrum {
   let gaugeLeak = 0
 
   for (let i = 0; i < modes; i++) {
-    const n = Array.from({ length: bulk.dimension }, (_, j) => Math.floor(i / bulk.side ** j) % bulk.side)
+    const n = Array.from(
+      { length: bulk.dimension },
+      (_, j) => Math.floor(i / bulk.side ** j) % bulk.side,
+    )
     const m = plaquetteWaveMatrix(bulk, n)
-    const values = Array.from(hermitianEigen(m).values).sort((a, b) => a - b)
+    const values = Array.from(hermitianEigen(m).values).sort(
+      (a, b) => a - b,
+    )
 
     values.forEach((v, b) => {
       lambda[i * f + b] = Math.max(0, v)
@@ -109,8 +131,19 @@ export function huskSpectrum(husk: Husk): BranchSpectrum {
   const rank = new Int32Array(modes * h)
 
   for (let i = 0; i < modes; i++) {
-    const m = [i % side, Math.floor(i / side) % side, Math.floor(i / (side * side))]
-    const values = Array.from(hermitianEigen(huskSymbol(husk, plaquetteWaveMatrix(husk.bulk, bulkModeOfHusk(m))).hermitian).values).sort((a, b) => a - b)
+    const m = [
+      i % side,
+      Math.floor(i / side) % side,
+      Math.floor(i / (side * side)),
+    ]
+    const values = Array.from(
+      hermitianEigen(
+        huskSymbol(
+          husk,
+          plaquetteWaveMatrix(husk.bulk, bulkModeOfHusk(m)),
+        ).hermitian,
+      ).values,
+    ).sort((a, b) => a - b)
 
     values.forEach((v, b) => {
       lambda[i * h + b] = Math.max(0, v)
@@ -132,43 +165,60 @@ export type Heating = {
 
 // the predicted heating per beat of a form over a spectrum. `lightRanks` are the ranks counted as light (the
 // photons: 1..3 on the bulk, 1..2 on the husk), everything above them massive, rank 0 the gauge branch
-export function heating(spectrum: BranchSpectrum, form: { taps: readonly number[]; spread: boolean }, kappa: number, sigma2: number, lightRanks: readonly number[]): Heating {
+export function heating(
+  spectrum: BranchSpectrum,
+  form: { taps: readonly number[]; spread: boolean },
+  kappa: number,
+  sigma2: number,
+  lightRanks: readonly number[],
+): Heating {
   let light = 0
   let massive = 0
   let largest = 0
 
   for (let i = 0; i < spectrum.lambda.length; i++) {
-    const lambda = spectrum.lambda[i] as number
+    const lambda = spectrum.lambda[i]!
 
     if (lambda < 1e-9) {
       continue
     }
 
-    const power = ntfPower(form, leapfrogOmega(kappa, lambda), lambda, kappa)
+    const power = ntfPower(
+      form,
+      leapfrogOmega(kappa, lambda),
+      lambda,
+      kappa,
+    )
     const h = 0.5 * sigma2 * lambda * power
 
     largest = Math.max(largest, Math.sqrt(power))
 
-    if (lightRanks.includes(spectrum.rank[i] as number)) {
+    if (lightRanks.includes(spectrum.rank[i]!)) {
       light += h
     } else {
       massive += h
     }
   }
 
-  return { total: light + massive, light, massive, largestOnShell: largest }
+  return {
+    total: light + massive,
+    light,
+    massive,
+    largestOnShell: largest,
+  }
 }
 
 // the best reversible second-order notch, NTF 1 - c z + z^2 (its last tap is 1, so the kick still runs
 // backward): sum lambda |1 - c z + z^2|^2 = sum lambda (2 cos omega - c)^2 on the unit circle, least at
 // c = sum lambda 2 cos omega / sum lambda, the lambda-weighted mean of 2 cos omega over the band
-export function notchCoefficient(spectrum: BranchSpectrum, kappa: number): number {
+export function notchCoefficient(
+  spectrum: BranchSpectrum,
+  kappa: number,
+): number {
   let num = 0
   let den = 0
 
-  for (let i = 0; i < spectrum.lambda.length; i++) {
-    const lambda = spectrum.lambda[i] as number
-
+  for (const lambda of spectrum.lambda) {
     if (lambda < 1e-9) {
       continue
     }
@@ -183,12 +233,14 @@ export function notchCoefficient(spectrum: BranchSpectrum, kappa: number): numbe
 // the monic FIR NTF of order L, 1 + h_1 z + ... + h_L z^L, that minimizes sum lambda |NTF(e^(i omega))|^2 over
 // the spectrum: the Toeplitz normal equations R h = -r, R_ij = sum lambda cos((i - j) omega), r_j = sum
 // lambda cos(j omega). The best any shaping in time alone can do on this band, in the white-noise model
-export function optimalTaps(spectrum: BranchSpectrum, kappa: number, order: number): number[] {
+export function optimalTaps(
+  spectrum: BranchSpectrum,
+  kappa: number,
+  order: number,
+): number[] {
   const r = new Float64Array(order + 1)
 
-  for (let i = 0; i < spectrum.lambda.length; i++) {
-    const lambda = spectrum.lambda[i] as number
-
+  for (const lambda of spectrum.lambda) {
     if (lambda < 1e-9) {
       continue
     }
@@ -196,12 +248,16 @@ export function optimalTaps(spectrum: BranchSpectrum, kappa: number, order: numb
     const omega = leapfrogOmega(kappa, lambda)
 
     for (let j = 0; j <= order; j++) {
-      r[j] = (r[j] as number) + lambda * Math.cos(j * omega)
+      r[j] = r[j]! + lambda * Math.cos(j * omega)
     }
   }
 
   // R h = -r(1..L), R_ij = r(|i - j|)
-  const a = Array.from({ length: order }, (_, i) => Array.from({ length: order + 1 }, (_, j) => (j < order ? (r[Math.abs(i - j)] as number) : -(r[i + 1] as number))))
+  const a = Array.from({ length: order }, (_, i) =>
+    Array.from({ length: order + 1 }, (_, j) =>
+      j < order ? r[Math.abs(i - j)]! : -r[i + 1]!,
+    ),
+  )
 
   for (let c = 0; c < order; c++) {
     let pivot = c

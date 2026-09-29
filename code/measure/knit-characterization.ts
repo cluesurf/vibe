@@ -36,14 +36,38 @@
 
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { type Collision, turningWeave } from '@/code/rule/collision'
-import { colorLocalCollision, colorLocalSpec, HOP_FREE_TABLES, PAIR_TABLE, type ColorLocalSpec } from '@/code/rule/color-local-weave'
+import {
+  colorLocalCollision,
+  colorLocalSpec,
+  HOP_FREE_TABLES,
+  PAIR_TABLE,
+  type ColorLocalSpec,
+} from '@/code/rule/color-local-weave'
 import { COLOR_TURN_SPEC } from '@/code/rule/color-turn-weave'
 import { turnElements } from '@/code/rule/color-local-family'
 import { partitionAt } from '@/code/rule/steered-knit'
-import { lineSectors, reversalAndCharge, travelReaches, vacuumPeriod, type ScheduledRule } from '@/code/measure/weave-acceptance'
-import { loneDressing, neighbourTable, vacuumCells } from '@/code/measure/lone-dressing'
-import { permutationOrder, weylF4DirectionPermutations } from '@/code/measure/coin-symmetry'
-import { CHARGE_CONJUGATION, conjugateCollision, orientationOf, symmetryLedger } from '@/code/measure/rule-symmetry-ledger'
+import {
+  lineSectors,
+  reversalAndCharge,
+  travelReaches,
+  vacuumPeriod,
+  type ScheduledRule,
+} from '@/code/measure/weave-acceptance'
+import {
+  loneDressing,
+  neighbourTable,
+  vacuumCells,
+} from '@/code/measure/lone-dressing'
+import {
+  permutationOrder,
+  weylF4DirectionPermutations,
+} from '@/code/measure/coin-symmetry'
+import {
+  CHARGE_CONJUGATION,
+  conjugateCollision,
+  orientationOf,
+  symmetryLedger,
+} from '@/code/measure/rule-symmetry-ledger'
 import {
   isoclinicFactors,
   loneChargeCurrent,
@@ -52,8 +76,15 @@ import {
   so3AngleDegrees,
   vacuumCellTrajectory,
 } from '@/code/measure/chiral-response'
-import { quaternionMultiply, quaternionsClose, type Quaternion } from '@/code/algebra/binary-tetrahedral'
-import { clockAmplitude, phaseDegrees } from '@/code/measure/clock-amplitude'
+import {
+  quaternionMultiply,
+  quaternionsClose,
+  type Quaternion,
+} from '@/code/algebra/binary-tetrahedral'
+import {
+  clockAmplitude,
+  phaseDegrees,
+} from '@/code/measure/clock-amplitude'
 import { pairSub } from '@/code/algebra/linear/complex-pair'
 import {
   copyLayout,
@@ -66,7 +97,11 @@ import {
 } from '@/code/measure/generation-copies'
 import { beat, growingBeat } from '@/code/rule/lattice-gas'
 import { makeWill, type Will } from '@/code/tone/will'
-import { d4BoxCell, d4BoxMesh, linearMapOf } from '@/code/substrate/d4-box'
+import {
+  d4BoxCell,
+  d4BoxMesh,
+  linearMapOf,
+} from '@/code/substrate/d4-box'
 import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 
 const PERIOD = 24
@@ -98,8 +133,14 @@ export type KnitUnderTest = {
   readonly rule: ScheduledRule
 }
 
-const mirrored = (order: readonly number[]): number[] => [...order, ...[...order].reverse()]
-const specRule = (spec: ColorLocalSpec): ScheduledRule => (opposite, forward) => colorLocalCollision({ spec, opposite, forward })
+const mirrored = (order: readonly number[]): number[] => [
+  ...order,
+  ...[...order].reverse(),
+]
+const specRule =
+  (spec: ColorLocalSpec): ScheduledRule =>
+  (opposite, forward) =>
+    colorLocalCollision({ spec, opposite, forward })
 
 // the three knits of E-FRC-0149: the committed turning weave written as a color-local spec, the color turn
 // weave (E-FRC-0136, chosen by E-FRC-0148) and the runner-up of E-FRC-0148
@@ -111,9 +152,21 @@ const RUNNER_UP_SPEC = colorLocalSpec({
 })
 
 export const REFERENCE_KNITS: readonly KnitUnderTest[] = [
-  { name: 'committed', schedule: COMMITTED_SPEC, rule: specRule(COMMITTED_SPEC) },
-  { name: 'chosen', schedule: COLOR_TURN_SPEC, rule: specRule(COLOR_TURN_SPEC) },
-  { name: 'runnerUp', schedule: RUNNER_UP_SPEC, rule: specRule(RUNNER_UP_SPEC) },
+  {
+    name: 'committed',
+    schedule: COMMITTED_SPEC,
+    rule: specRule(COMMITTED_SPEC),
+  },
+  {
+    name: 'chosen',
+    schedule: COLOR_TURN_SPEC,
+    rule: specRule(COLOR_TURN_SPEC),
+  },
+  {
+    name: 'runnerUp',
+    schedule: RUNNER_UP_SPEC,
+    rule: specRule(RUNNER_UP_SPEC),
+  },
 ]
 
 // the sample states of E-FND-0117
@@ -141,11 +194,29 @@ function torusGroup(): number[][] {
   const index = new Map(roots.map((r, i) => [r.join(','), i]))
   const out: number[][] = []
   const perms = (xs: number[]): number[][] =>
-    xs.length <= 1 ? [xs] : xs.flatMap((x, i) => perms([...xs.slice(0, i), ...xs.slice(i + 1)]).map(r => [x, ...r]))
+    xs.length <= 1
+      ? [xs]
+      : xs.flatMap((x, i) =>
+          perms([...xs.slice(0, i), ...xs.slice(i + 1)]).map(r => [
+            x,
+            ...r,
+          ]),
+        )
 
   for (const axes of perms([0, 1, 2, 3])) {
     for (let m = 0; m < 16; m++) {
-      out.push(roots.map(r => index.get([0, 1, 2, 3].map(i => ((m >> i) & 1 ? -1 : 1) * (r[axes[i] ?? 0] ?? 0)).join(',')) ?? 0))
+      out.push(
+        roots.map(
+          r =>
+            index.get(
+              [0, 1, 2, 3]
+                .map(
+                  i => ((m >> i) & 1 ? -1 : 1) * (r[axes[i] ?? 0] ?? 0),
+                )
+                .join(','),
+            ) ?? 0,
+        ),
+      )
     }
   }
 
@@ -189,7 +260,10 @@ function cptAndConnectivity(c: KnitUnderTest): {
         for (let n = 0; n < 12 && ok; n++) {
           const v = sampleVector(n * 12 + t)
           const rhs = applyCell(forward(t), v)
-          const w = Int8Array.from({ length: 24 }, (_, d) => -(v[p[d] ?? 0] ?? 0))
+          const w = Int8Array.from(
+            { length: 24 },
+            (_, d) => -(v[p[d] ?? 0] ?? 0),
+          )
           const m2 = applyCell(backward(sigma), w)
 
           for (let d = 0; d < 24; d++) {
@@ -224,7 +298,10 @@ function cptAndConnectivity(c: KnitUnderTest): {
     for (let n = 0; n < 2000; n++) {
       const v = sampleVector(n * 17 + t * 3 + 2)
       const rhs = applyCell(forward(t), v)
-      const m2 = applyCell(backward(sigma), Int8Array.from(v, x => -x))
+      const m2 = applyCell(
+        backward(sigma),
+        Int8Array.from(v, x => -x),
+      )
 
       denseBad += m2.every((x, d) => -x === rhs[d]) ? 0 : 1
     }
@@ -235,7 +312,9 @@ function cptAndConnectivity(c: KnitUnderTest): {
 
   for (let t = 0; t < PERIOD; t++) {
     const swapAt = c.schedule.swapAt
-    const couple = partitionAt(c.schedule, t)[swapAt[((t % swapAt.length) + swapAt.length) % swapAt.length] ?? 0]
+    const couple = partitionAt(c.schedule, t)[
+      swapAt[((t % swapAt.length) + swapAt.length) % swapAt.length] ?? 0
+    ]
 
     if (couple) {
       edges.add(couple.join('-'))
@@ -243,7 +322,8 @@ function cptAndConnectivity(c: KnitUnderTest): {
   }
 
   const parent = Array.from({ length: 12 }, (_, i) => i)
-  const find = (x: number): number => (parent[x] === x ? x : (parent[x] = find(parent[x] ?? x)))
+  const find = (x: number): number =>
+    parent[x] === x ? x : (parent[x] = find(parent[x] ?? x))
   const nodes = new Set<number>()
 
   for (const e of edges) {
@@ -253,7 +333,9 @@ function cptAndConnectivity(c: KnitUnderTest): {
     parent[find(a)] = find(b)
   }
 
-  const connected = nodes.size === 12 && new Set(Array.from({ length: 12 }, (_, i) => find(i))).size === 1
+  const connected =
+    nodes.size === 12 &&
+    new Set(Array.from({ length: 12 }, (_, i) => find(i))).size === 1
 
   // interacting directions, side 9
   const mesh9 = d4Mesh({ side: 9 })
@@ -265,12 +347,28 @@ function cptAndConnectivity(c: KnitUnderTest): {
   let interacting = 0
 
   for (let d = 0; d < 24; d++) {
-    const run = loneDressing({ neighbours: nb9, forward: forward9, vacuum: vacuum9, cell: center9, direction: d, beats: PERIOD })
+    const run = loneDressing({
+      neighbours: nb9,
+      forward: forward9,
+      vacuum: vacuum9,
+      cell: center9,
+      direction: d,
+      beats: PERIOD,
+    })
 
     interacting += run.some(b => b.support > 1) ? 1 : 0
   }
 
-  return { survivors, survivorsIdentity, survivorsReflecting, identityPhases, denseBad, swapEdges: edges.size, connected, interacting }
+  return {
+    survivors,
+    survivorsIdentity,
+    survivorsReflecting,
+    identityPhases,
+    denseBad,
+    swapEdges: edges.size,
+    connected,
+    interacting,
+  }
 }
 
 // 2. E-FND-0118, generalized
@@ -286,7 +384,11 @@ function kickLaw(c: KnitUnderTest): {
   wallQuantized: boolean
   wallPeriodicAt24: boolean
   profile8: { totalMax: number; coreMax: number; coreLate: number }
-  profileProtected: { totalMax: number; coreMax: number; coreLate: number }
+  profileProtected: {
+    totalMax: number
+    coreMax: number
+    coreLate: number
+  }
 } {
   const roots = rootsD4()
   const mesh = d4Mesh({ side: KICK_SIDE })
@@ -295,28 +397,56 @@ function kickLaw(c: KnitUnderTest): {
   // hold a vacuum state
   const rule = memoizedRule(c.rule(opposite, true))
   const side = KICK_SIDE
-  const coordinate = (cell: number, a: number): number => Math.floor(cell / side ** a) % side
-  const cellAt = (v: readonly number[]): number => v.reduce((s, x, a) => s + (((x % side) + side) % side) * side ** a, 0)
+  const coordinate = (cell: number, a: number): number =>
+    Math.floor(cell / side ** a) % side
+  const cellAt = (v: readonly number[]): number =>
+    v.reduce(
+      (s, x, a) => s + (((x % side) + side) % side) * side ** a,
+      0,
+    )
 
   // protected species: support exactly 1 for PROTECTED_BEATS beats
   const nb = neighbourTable(mesh)
   const vacuum = vacuumCells({ forward: rule, beats: PROTECTED_BEATS })
   const center = cellAt([6, 6, 6, 6])
-  const protectedDirections = Array.from({ length: 24 }, (_, d) => d).filter(d =>
-    loneDressing({ neighbours: nb, forward: rule, vacuum, cell: center, direction: d, beats: PROTECTED_BEATS }).every(b => b.support === 1),
+  const protectedDirections = Array.from(
+    { length: 24 },
+    (_, d) => d,
+  ).filter(d =>
+    loneDressing({
+      neighbours: nb,
+      forward: rule,
+      vacuum,
+      cell: center,
+      direction: d,
+      beats: PROTECTED_BEATS,
+    }).every(b => b.support === 1),
   )
 
-  const axisOf = (d: number): number => (roots[d] ?? []).findIndex(x => x !== 0)
+  const axisOf = (d: number): number =>
+    (roots[d] ?? []).findIndex(x => x !== 0)
+
   const seedFor = (d: number): number => {
     const a = axisOf(d)
     const step = roots[d]?.[a] ?? 1
 
-    return cellAt([6, 6, 6, 6].map((x, k) => (k === a ? SLAB - SEED_BEAT * step : x)))
+    return cellAt(
+      [6, 6, 6, 6].map((x, k) =>
+        k === a ? SLAB - SEED_BEAT * step : x,
+      ),
+    )
   }
-  const branch = (d: number, offset: number, seeds: readonly { cell: number; dir: number }[]): { re: number[]; im: number[]; support: number[] } => {
+
+  const branch = (
+    d: number,
+    offset: number,
+    seeds: readonly { cell: number; dir: number }[],
+  ): { re: number[]; im: number[]; support: number[] } => {
     const a = axisOf(d)
+
     let vac: Will = makeWill(mesh)
     let seeded: Will = makeWill(mesh)
+
     const re: number[] = []
     const im: number[] = []
     const support: number[] = []
@@ -328,7 +458,8 @@ function kickLaw(c: KnitUnderTest): {
         }
       }
 
-      const active = (cell: number): boolean => (coordinate(cell, a) === SLAB ? t >= offset : true)
+      const active = (cell: number): boolean =>
+        coordinate(cell, a) === SLAB ? t >= offset : true
 
       vac = growingBeat(vac, rule(t), active)
       seeded = growingBeat(seeded, rule(t), active)
@@ -349,9 +480,14 @@ function kickLaw(c: KnitUnderTest): {
 
     return { re, im, support }
   }
-  const phaseAt = (r: { re: number[]; im: number[] }, t: number): number => Math.round(phaseDegrees([r.re[t] ?? 0, r.im[t] ?? 0]))
+
+  const phaseAt = (
+    r: { re: number[]; im: number[] },
+    t: number,
+  ): number => Math.round(phaseDegrees([r.re[t] ?? 0, r.im[t] ?? 0]))
   const freeRuns = new Map<number, ReturnType<typeof branch>>()
   const regimeOf = new Map<string, KickRegime>()
+
   const classify = (d: number, offset: number): KickRegime => {
     const known = regimeOf.get(`${d}:${offset}`)
 
@@ -365,19 +501,25 @@ function kickLaw(c: KnitUnderTest): {
 
     return regime
   }
+
   const classifyOnce = (d: number, offset: number): KickRegime => {
-    const free = freeRuns.get(d) ?? branch(d, 0, [{ cell: seedFor(d), dir: d }])
+    const free =
+      freeRuns.get(d) ?? branch(d, 0, [{ cell: seedFor(d), dir: d }])
 
     freeRuns.set(d, free)
 
     const slab = branch(d, offset, [{ cell: seedFor(d), dir: d }])
-    const beats = Array.from({ length: KICK_BEATS - SEED_BEAT }, (_, k) => k + SEED_BEAT)
+    const beats = Array.from(
+      { length: KICK_BEATS - SEED_BEAT },
+      (_, k) => k + SEED_BEAT,
+    )
 
     if (beats.some(t => slab.support[t] !== 1)) {
       return 'absorbing'
     }
 
-    const shift = (t: number): number => (((phaseAt(slab, t) - phaseAt(free, t)) % 360) + 360) % 360
+    const shift = (t: number): number =>
+      (((phaseAt(slab, t) - phaseAt(free, t)) % 360) + 360) % 360
 
     if (beats.every(t => shift(t) === 0)) {
       return 'blind'
@@ -386,10 +528,18 @@ function kickLaw(c: KnitUnderTest): {
     const settled = beats.filter(t => t >= KICK_SETTLED)
     const unit = shift(KICK_SETTLED)
 
-    return (unit === 120 || unit === 240) && settled.every(t => shift(t) === unit) ? 'kick' : 'other'
+    return (unit === 120 || unit === 240) &&
+      settled.every(t => shift(t) === unit)
+      ? 'kick'
+      : 'other'
   }
 
-  const regimes: Record<KickRegime, number> = { blind: 0, kick: 0, absorbing: 0, other: 0 }
+  const regimes: Record<KickRegime, number> = {
+    blind: 0,
+    kick: 0,
+    absorbing: 0,
+    other: 0,
+  }
 
   for (const d of protectedDirections) {
     for (const offset of OFFSETS) {
@@ -397,21 +547,32 @@ function kickLaw(c: KnitUnderTest): {
     }
   }
 
-  const direction0 = [1, 2, 3, 5, 7, 11].map(offset => classify(0, offset))
+  const direction0 = [1, 2, 3, 5, 7, 11].map(offset =>
+    classify(0, offset),
+  )
 
   // interference at the first kicking offset of the first protected species that has one
   let interferenceAdditivity = -1
   let aligned = 0
   let crossed = 0
 
-  const kicked = protectedDirections.flatMap(d => OFFSETS.map(offset => ({ d, offset }))).find(({ d, offset }) => classify(d, offset) === 'kick')
+  const kicked = protectedDirections
+    .flatMap(d => OFFSETS.map(offset => ({ d, offset })))
+    .find(({ d, offset }) => classify(d, offset) === 'kick')
 
   if (kicked) {
     const { d, offset } = kicked
     const a = axisOf(d)
     const step = roots[d]?.[a] ?? 1
     // a second seed of the same species moving away from the slab, so it stays free
-    const away = { cell: cellAt([6, 6, 6, 6].map((x, k) => (k === a ? SLAB + 2 * step : x)).map((x, k) => (k === (a + 1) % 4 ? x + 4 : x))), dir: d }
+    const away = {
+      cell: cellAt(
+        [6, 6, 6, 6]
+          .map((x, k) => (k === a ? SLAB + 2 * step : x))
+          .map((x, k) => (k === (a + 1) % 4 ? x + 4 : x)),
+      ),
+      dir: d,
+    }
     const near = { cell: seedFor(d), dir: d }
     const A = branch(d, offset, [away])
     const B = branch(d, offset, [near])
@@ -422,13 +583,19 @@ function kickLaw(c: KnitUnderTest): {
     for (let t = SEED_BEAT; t < KICK_BEATS; t++) {
       interferenceAdditivity = Math.max(
         interferenceAdditivity,
-        Math.hypot((J.re[t] ?? 0) - (A.re[t] ?? 0) - (B.re[t] ?? 0), (J.im[t] ?? 0) - (A.im[t] ?? 0) - (B.im[t] ?? 0)),
+        Math.hypot(
+          (J.re[t] ?? 0) - (A.re[t] ?? 0) - (B.re[t] ?? 0),
+          (J.im[t] ?? 0) - (A.im[t] ?? 0) - (B.im[t] ?? 0),
+        ),
       )
 
       const mJ = Math.hypot(J.re[t] ?? 0, J.im[t] ?? 0)
 
       aligned += Math.abs(mJ - 2 * ROOT3) < 1e-9 ? 1 : 0
-      crossed += Math.abs(mJ - ROOT3) < 1e-9 && phaseAt(A, t) !== phaseAt(B, t) ? 1 : 0
+      crossed +=
+        Math.abs(mJ - ROOT3) < 1e-9 && phaseAt(A, t) !== phaseAt(B, t)
+          ? 1
+          : 0
     }
   }
 
@@ -442,7 +609,9 @@ function kickLaw(c: KnitUnderTest): {
   const wall: number[] = []
 
   for (let t = 0; t < WALL_BEATS; t++) {
-    staggered = growingBeat(staggered, wallRule(t), cell => (coordinate(cell, 0) < 7 ? true : t >= WALL_OFFSET))
+    staggered = growingBeat(staggered, wallRule(t), cell =>
+      coordinate(cell, 0) < 7 ? true : t >= WALL_OFFSET,
+    )
     uniform = beat(uniform, wallRule(t))
 
     let w = 0
@@ -455,18 +624,34 @@ function kickLaw(c: KnitUnderTest): {
   }
 
   const sheet = WALL_SIDE ** 3
-  const wallQuantized = wall.slice(WALL_SETTLED).every(x => x % sheet === 0)
-  const wallPeriodicAt24 = wall.slice(PERIOD, WALL_BEATS - PERIOD).every((x, k) => x === wall[k + 2 * PERIOD])
+  const wallQuantized = wall
+    .slice(WALL_SETTLED)
+    .every(x => x % sheet === 0)
+  const wallPeriodicAt24 = wall
+    .slice(PERIOD, WALL_BEATS - PERIOD)
+    .every((x, k) => x === wall[k + 2 * PERIOD])
 
   // the dressed profile, side 21
   const bigMesh = d4Mesh({ side: PROFILE_SIDE })
   const bigRule = c.rule(meshOpposites(bigMesh), true)
   const bigNb = neighbourTable(bigMesh)
-  const bigVacuum = vacuumCells({ forward: bigRule, beats: PROFILE_BEATS })
+  const bigVacuum = vacuumCells({
+    forward: bigRule,
+    beats: PROFILE_BEATS,
+  })
   const mid = Math.floor(PROFILE_SIDE / 2)
-  const bigCenter = mid * (1 + PROFILE_SIDE + PROFILE_SIDE ** 2 + PROFILE_SIDE ** 3)
-  const wrap = (x: number): number => (x > PROFILE_SIDE / 2 ? x - PROFILE_SIDE : x < -PROFILE_SIDE / 2 ? x + PROFILE_SIDE : x)
-  const profile = (d: number): { totalMax: number; coreMax: number; coreLate: number } => {
+  const bigCenter =
+    mid * (1 + PROFILE_SIDE + PROFILE_SIDE ** 2 + PROFILE_SIDE ** 3)
+  const wrap = (x: number): number =>
+    x > PROFILE_SIDE / 2
+      ? x - PROFILE_SIDE
+      : x < -PROFILE_SIDE / 2
+        ? x + PROFILE_SIDE
+        : x
+
+  const profile = (
+    d: number,
+  ): { totalMax: number; coreMax: number; coreLate: number } => {
     let totalMax = 0
     let coreMax = 0
     let coreLate = 0
@@ -479,7 +664,12 @@ function kickLaw(c: KnitUnderTest): {
       direction: d,
       beats: PROFILE_BEATS,
       watch: (t, live, vac) => {
-        const p = [0, 1, 2, 3].map(a => (((mid + (t + 1) * (roots[d]?.[a] ?? 0)) % PROFILE_SIDE) + PROFILE_SIDE) % PROFILE_SIDE)
+        const p = [0, 1, 2, 3].map(
+          a =>
+            (((mid + (t + 1) * (roots[d]?.[a] ?? 0)) % PROFILE_SIDE) +
+              PROFILE_SIDE) %
+            PROFILE_SIDE,
+        )
 
         let total = 0
         let core = 0
@@ -494,7 +684,15 @@ function kickLaw(c: KnitUnderTest): {
           let cheb = 0
 
           for (let a = 0; a < 4; a++) {
-            cheb = Math.max(cheb, Math.abs(wrap((Math.floor(x / PROFILE_SIDE ** a) % PROFILE_SIDE) - (p[a] ?? 0))))
+            cheb = Math.max(
+              cheb,
+              Math.abs(
+                wrap(
+                  (Math.floor(x / PROFILE_SIDE ** a) % PROFILE_SIDE) -
+                    (p[a] ?? 0),
+                ),
+              ),
+            )
           }
 
           total += differing
@@ -523,7 +721,10 @@ function kickLaw(c: KnitUnderTest): {
     wallQuantized,
     wallPeriodicAt24,
     profile8: profile(8),
-    profileProtected: protectedDirections.length > 0 ? profile(protectedDirections[0] ?? 0) : { totalMax: -1, coreMax: -1, coreLate: -1 },
+    profileProtected:
+      protectedDirections.length > 0
+        ? profile(protectedDirections[0] ?? 0)
+        : { totalMax: -1, coreMax: -1, coreLate: -1 },
   }
 }
 
@@ -555,11 +756,21 @@ function symmetryAndChirality(c: KnitUnderTest): {
 } {
   const roots = rootsD4()
   const opposite = meshOpposites(d4Mesh({ side: 5 }))
-  const permutations = weylF4DirectionPermutations({ directions: roots })
-  const identity = permutations.findIndex(p => p.every((x, d) => x === d))
+  const permutations = weylF4DirectionPermutations({
+    directions: roots,
+  })
+  const identity = permutations.findIndex(p =>
+    p.every((x, d) => x === d),
+  )
   const schedule = c.rule(opposite, true)
   const inverse = c.rule(opposite, false)
-  const ledger = symmetryLedger({ forward: schedule, inverse, period: PERIOD, permutations, degree: 24 })
+  const ledger = symmetryLedger({
+    forward: schedule,
+    inverse,
+    period: PERIOD,
+    permutations,
+    degree: 24,
+  })
 
   const lines: [number, number][] = []
 
@@ -576,12 +787,25 @@ function symmetryAndChirality(c: KnitUnderTest): {
     lineOf[b] = l
   })
 
-  const turns = permutations.filter(p => lines.every(([a], l) => lineOf[p[a] ?? 0] === c.schedule.turn[l]))
+  const turns = permutations.filter(p =>
+    lines.every(([a], l) => lineOf[p[a] ?? 0] === c.schedule.turn[l]),
+  )
   const first = turns[0] ?? []
   // a turn no coin element carries has no factors: its angles read -1 and its lifts 0
-  const factors = turns.length > 0 ? isoclinicFactors(linearMapOf(first) ?? []) : undefined
-  const turnOrderOnLines = permutationOrder({ permutation: c.schedule.turn })
-  const mirror = roots.map(root => roots.findIndex(other => other.every((x, k) => x === (k === 2 ? -(root[k] ?? 0) : root[k]))))
+  const factors =
+    turns.length > 0
+      ? isoclinicFactors(linearMapOf(first) ?? [])
+      : undefined
+  const turnOrderOnLines = permutationOrder({
+    permutation: c.schedule.turn,
+  })
+  const mirror = roots.map(root =>
+    roots.findIndex(other =>
+      other.every(
+        (x, k) => x === (k === 2 ? -(root[k] ?? 0) : root[k]),
+      ),
+    ),
+  )
 
   // the lift of a closed loop of turns: the power that returns the lines
   const power = (q: Quaternion, n: number): Quaternion => {
@@ -593,9 +817,15 @@ function symmetryAndChirality(c: KnitUnderTest): {
 
     return out
   }
-  const sign = (q: Quaternion): number => (quaternionsClose(q, [1, 0, 0, 0]) ? 1 : quaternionsClose(q, [-1, 0, 0, 0]) ? -1 : 0)
-  const left = (factors?.left ?? [0, 0, 0, 0]) as Quaternion
-  const right = (factors?.right ?? [0, 0, 0, 0]) as Quaternion
+
+  const sign = (q: Quaternion): number =>
+    quaternionsClose(q, [1, 0, 0, 0])
+      ? 1
+      : quaternionsClose(q, [-1, 0, 0, 0])
+        ? -1
+        : 0
+  const left = factors?.left ?? [0, 0, 0, 0]
+  const right = factors?.right ?? [0, 0, 0, 0]
 
   let loop = roots.map((_, d) => d)
 
@@ -614,31 +844,64 @@ function symmetryAndChirality(c: KnitUnderTest): {
 
   for (let t = 0; t < PERIOD; t++) {
     const walk = c.schedule.positionAt
-    const step = (walk[(t + 1) % walk.length] ?? 0) - (walk[t % walk.length] ?? 0)
+    const step =
+      (walk[(t + 1) % walk.length] ?? 0) - (walk[t % walk.length] ?? 0)
 
     netTurns += step
     steps += step !== 0 ? 1 : 0
   }
 
   // the response and the antipodal currents
-  const currentsAt = (side: number, sched: (t: number) => Collision): number[][] => {
+  const currentsAt = (
+    side: number,
+    sched: (t: number) => Collision,
+  ): number[][] => {
     const mesh = d4Mesh({ side })
-    const vacuum = vacuumCellTrajectory({ schedule: sched, beats: PERIOD, degree: 24 })
+    const vacuum = vacuumCellTrajectory({
+      schedule: sched,
+      beats: PERIOD,
+      degree: 24,
+    })
     const mid = Math.floor(side / 2)
     const cell = mid * (1 + side + side ** 2 + side ** 3)
 
     return roots.map((_, direction) =>
-      loneChargeCurrent({ mesh, schedule: sched, directions: roots, vacuum, cell, direction, tone: 1, beats: PERIOD }),
+      loneChargeCurrent({
+        mesh,
+        schedule: sched,
+        directions: roots,
+        vacuum,
+        cell,
+        direction,
+        tone: 1,
+        beats: PERIOD,
+      }),
     )
   }
-  const split = (currents: number[][]): { selfDual: number; antiSelfDual: number } => {
-    const s = selfDualSplit(responseMatrix({ currents, directions: roots }))
 
-    return { selfDual: Math.hypot(...s.selfDual), antiSelfDual: Math.hypot(...s.antiSelfDual) }
+  const split = (
+    currents: number[][],
+  ): { selfDual: number; antiSelfDual: number } => {
+    const s = selfDualSplit(
+      responseMatrix({ currents, directions: roots }),
+    )
+
+    return {
+      selfDual: Math.hypot(...s.selfDual),
+      antiSelfDual: Math.hypot(...s.antiSelfDual),
+    }
   }
+
   const byside = RESPONSE_SIDES.map(side => currentsAt(side, schedule))
   const splits = byside.map(split)
-  const mirroredSplit = split(currentsAt(RESPONSE_SIDES[0] ?? 9, t => conjugateCollision({ collision: schedule(t), permutation: mirror })))
+  const mirroredSplit = split(
+    currentsAt(RESPONSE_SIDES[0] ?? 9, t =>
+      conjugateCollision({
+        collision: schedule(t),
+        permutation: mirror,
+      }),
+    ),
+  )
   const small = splits[0] ?? { selfDual: 0, antiSelfDual: 0 }
   const currents9 = byside[0] ?? []
 
@@ -655,16 +918,34 @@ function symmetryAndChirality(c: KnitUnderTest): {
   return {
     forwardEntries: ledger.filter(e => e.kind === 'forward').length,
     reversalEntries: ledger.filter(e => e.kind === 'reversal').length,
-    reflections: ledger.filter(e => orientationOf(permutations[e.p] ?? []) === -1).length,
-    identityForward: ledger.some(e => e.kind === 'forward' && e.p === identity && e.tau === 0 && e.phase === 0),
-    cptReversalPhases: ledger.filter(e => e.kind === 'reversal' && e.p === identity && e.tau === CHARGE_CONJUGATION).map(e => e.phase),
+    reflections: ledger.filter(
+      e => orientationOf(permutations[e.p] ?? []) === -1,
+    ).length,
+    identityForward: ledger.some(
+      e =>
+        e.kind === 'forward' &&
+        e.p === identity &&
+        e.tau === 0 &&
+        e.phase === 0,
+    ),
+    cptReversalPhases: ledger
+      .filter(
+        e =>
+          e.kind === 'reversal' &&
+          e.p === identity &&
+          e.tau === CHARGE_CONJUGATION,
+      )
+      .map(e => e.phase),
     turnElements: turns.length,
-    turnOrderOnDirections: turns.length > 0 ? permutationOrder({ permutation: first }) : -1,
+    turnOrderOnDirections:
+      turns.length > 0 ? permutationOrder({ permutation: first }) : -1,
     turnOrderOnLines,
     leftAngle: factors ? so3AngleDegrees(factors.left) : -1,
     rightAngle: factors ? so3AngleDegrees(factors.right) : -1,
     ratios: splits.map(s => s.selfDual / s.antiSelfDual),
-    mirroredSwaps: Math.abs(mirroredSplit.selfDual - small.antiSelfDual) < 1e-9 && Math.abs(mirroredSplit.antiSelfDual - small.selfDual) < 1e-9,
+    mirroredSwaps:
+      Math.abs(mirroredSplit.selfDual - small.antiSelfDual) < 1e-9 &&
+      Math.abs(mirroredSplit.antiSelfDual - small.selfDual) < 1e-9,
     loopLiftLeft: sign(power(left, turnOrderOnLines)),
     loopLiftRight: sign(power(right, turnOrderOnLines)),
     loopIsInversion: loop.every((d, k) => d === opposite[k]),
@@ -680,14 +961,28 @@ function symmetryAndChirality(c: KnitUnderTest): {
 }
 
 // 8. E-FRC-0141's copies, the rule's part
-function generationCopies(c: KnitUnderTest): { planes: number; split: number; reachPattern111: number; reachPattern12: number; reachSplitLow: number; reachSplitHigh: number } {
+function generationCopies(c: KnitUnderTest): {
+  planes: number
+  split: number
+  reachPattern111: number
+  reachPattern12: number
+  reachSplitLow: number
+  reachSplitHigh: number
+} {
   const roots = rootsD4()
   const box = d4BoxMesh({ side: GENERATION_SIDE })
   const opposite = meshOpposites(box)
   const mid = Math.floor(GENERATION_SIDE / 2)
-  const cell = d4BoxCell({ coordinates: [mid, mid, mid, mid], side: GENERATION_SIDE })
-  const selectors = weylF4DirectionPermutations({ directions: roots }).filter(
-    p => permutationOrder({ permutation: p }) === 3 && p.filter((image, d) => image === d).length === 6,
+  const cell = d4BoxCell({
+    coordinates: [mid, mid, mid, mid],
+    side: GENERATION_SIDE,
+  })
+  const selectors = weylF4DirectionPermutations({
+    directions: roots,
+  }).filter(
+    p =>
+      permutationOrder({ permutation: p }) === 3 &&
+      p.filter((image, d) => image === d).length === 6,
   )
   const perPlane = new Map<string, readonly number[]>()
 
@@ -702,32 +997,56 @@ function generationCopies(c: KnitUnderTest): { planes: number; split: number; re
     }
   }
 
-  const anyLayout = copyLayout({ roots, opposite, triality: selectors[0] ?? [] })
+  const anyLayout = copyLayout({
+    roots,
+    opposite,
+    triality: selectors[0] ?? [],
+  })
   const rule = memoizedRule(c.rule(opposite, true))
   const vacuum = vacuumSequence({ mesh: box, rule, beats: PERIOD })
-  const runs: (LoneRun | undefined)[][] = Array.from({ length: 24 }, (_, direction) =>
-    ([1, -1] as const).map(tone =>
-      loneRun({ mesh: box, side: GENERATION_SIDE, rule, vacuum, cell, direction, tone, lines: anyLayout.lines, reachBeats: GENERATION_REACH_BEATS }),
-    ),
+  const runs: (LoneRun | undefined)[][] = Array.from(
+    { length: 24 },
+    (_, direction) =>
+      ([1, -1] as const).map(tone =>
+        loneRun({
+          mesh: box,
+          side: GENERATION_SIDE,
+          rule,
+          vacuum,
+          cell,
+          direction,
+          tone,
+          lines: anyLayout.lines,
+          reachBeats: GENERATION_REACH_BEATS,
+        }),
+      ),
   )
-  const spread = (xs: readonly number[]): number => Math.max(...xs) - Math.min(...xs)
+  const spread = (xs: readonly number[]): number =>
+    Math.max(...xs) - Math.min(...xs)
+
   const pattern = (xs: readonly number[]): string => {
     const [a = 0, b = 0, d = 0] = xs
     const equal = [a === b, b === d, a === d].filter(Boolean).length
 
     return equal === 3 ? '3' : equal === 1 ? '1+2' : '1+1+1'
   }
+
   const planes = [...perPlane.values()].map(sigma => {
     const copies = copyLayout({ roots, opposite, triality: sigma })
     const stats = copyStatistics({ layout: copies, runs })
 
-    return { exceptions: degeneracyExceptions({ copies, sigma, runs }), reachSplit: spread(stats.reach), reachPattern: pattern(stats.reach) }
+    return {
+      exceptions: degeneracyExceptions({ copies, sigma, runs }),
+      reachSplit: spread(stats.reach),
+      reachPattern: pattern(stats.reach),
+    }
   })
 
   return {
     planes: planes.length,
     split: planes.filter(p => p.exceptions > 0).length,
-    reachPattern111: planes.filter(p => p.reachPattern === '1+1+1').length,
+    reachPattern111: planes.filter(p => p.reachPattern === '1+1+1')
+      .length,
     reachPattern12: planes.filter(p => p.reachPattern === '1+2').length,
     reachSplitLow: Math.min(...planes.map(p => p.reachSplit)),
     reachSplitHigh: Math.max(...planes.map(p => p.reachSplit)),
@@ -739,14 +1058,18 @@ export type Profile = Record<string, number>
 export function characterizeKnit(c: KnitUnderTest): Profile {
   const rule = c.rule
   const started = Date.now()
+
   // progress on stderr, so a long run can be followed
   const stage = <T>(name: string, f: () => T): T => {
     const value = f()
 
-    console.error(`${c.name} ${name} ${Math.round((Date.now() - started) / 1000)}s`)
+    console.error(
+      `${c.name} ${name} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
 
     return value
   }
+
   const cpt = stage('cpt', () => cptAndConnectivity(c))
   const kick = stage('kick', () => kickLaw(c))
   const reaches = stage('travel', () => travelReaches(rule))
@@ -756,8 +1079,15 @@ export function characterizeKnit(c: KnitUnderTest): Profile {
   const sym = stage('symmetry', () => symmetryAndChirality(c))
   const gen = stage('generation', () => generationCopies(c))
   const { reverses, chargeKept } = reversalAndCharge(rule)
-  const regimeCode = (r: KickRegime): number => ({ blind: 0, kick: 1, absorbing: 2, other: 3 })[r]
-  const sectorSizes = (s: number[][]): number => Number(s.map(x => x.length).sort((a, b) => b - a).join(''))
+  const regimeCode = (r: KickRegime): number =>
+    ({ blind: 0, kick: 1, absorbing: 2, other: 3 })[r]
+  const sectorSizes = (s: number[][]): number =>
+    Number(
+      s
+        .map(x => x.length)
+        .sort((a, b) => b - a)
+        .join(''),
+    )
 
   return {
     cptTorusSurvivors: cpt.survivors,
@@ -776,7 +1106,12 @@ export function characterizeKnit(c: KnitUnderTest): Profile {
     kickUnit: kick.regimes.kick,
     kickAbsorbing: kick.regimes.absorbing,
     kickOther: kick.regimes.other,
-    ...Object.fromEntries([1, 2, 3, 5, 7, 11].map((offset, k) => [`direction0Offset${offset}`, regimeCode(kick.direction0[k] ?? 'other')])),
+    ...Object.fromEntries(
+      [1, 2, 3, 5, 7, 11].map((offset, k) => [
+        `direction0Offset${offset}`,
+        regimeCode(kick.direction0[k] ?? 'other'),
+      ]),
+    ),
     interferenceAdditivity: kick.interferenceAdditivity,
     interferenceAlignedBeats: kick.aligned,
     interferenceCrossedBeats: kick.crossed,
@@ -788,7 +1123,8 @@ export function characterizeKnit(c: KnitUnderTest): Profile {
     profileProtectedTotalMax: kick.profileProtected.totalMax,
     travelFullSpeed: reaches.filter(r => r >= free - 1e-9).length,
     travelHalfOrMore: reaches.filter(r => r >= free / 2).length,
-    travelMeanReach: reaches.reduce((a, b) => a + b, 0) / reaches.length,
+    travelMeanReach:
+      reaches.reduce((a, b) => a + b, 0) / reaches.length,
     vacuumSectors: vacuumSectors.length,
     vacuumSectorSizes: sectorSizes(vacuumSectors),
     denseSectors: denseSectors.length,
@@ -825,7 +1161,6 @@ export function characterizeKnit(c: KnitUnderTest): Profile {
   }
 }
 
-
 // the committed rule written as a color-local spec is turningWeave, cell by cell
 export function committedSpecIsTurningWeave(): boolean {
   const opposite = meshOpposites(d4Mesh({ side: 5 }))
@@ -836,7 +1171,11 @@ export function committedSpecIsTurningWeave(): boolean {
     for (let n = 0; n < 400; n++) {
       const v = sampleVector(n * 7 + t)
 
-      if (!applyCell(spec(t), v).every((x, d) => x === applyCell(reference(t), v)[d])) {
+      if (
+        !applyCell(spec(t), v).every(
+          (x, d) => x === applyCell(reference(t), v)[d],
+        )
+      ) {
         return false
       }
     }
@@ -846,7 +1185,9 @@ export function committedSpecIsTurningWeave(): boolean {
 }
 
 // the committed rule's own numbers, as E-FRC-0149 gates them: the generalized instruments give them back
-export function committedNumbersReproduced(committed: Profile): boolean {
+export function committedNumbersReproduced(
+  committed: Profile,
+): boolean {
   return (
     committed.cptIdentityPhase === 23 &&
     committed.cptDenseMismatches === 0 &&
@@ -859,7 +1200,9 @@ export function committedNumbersReproduced(committed: Profile): boolean {
     committed.travelHalfOrMore === 12 &&
     committed.ledgerForward === 1 &&
     committed.ledgerIdentityForward === 1 &&
-    Math.abs((committed.turnLeftAngle ?? 0) - 90) + Math.abs((committed.turnRightAngle ?? 0) - 180) < 1e-6 &&
+    Math.abs((committed.turnLeftAngle ?? 0) - 90) +
+      Math.abs((committed.turnRightAngle ?? 0) - 180) <
+      1e-6 &&
     (committed.chiralRatioSide9 ?? 0) > 2 &&
     (committed.chiralRatioSide13 ?? 0) > 2 &&
     committed.loopLiftLeft === -1 &&

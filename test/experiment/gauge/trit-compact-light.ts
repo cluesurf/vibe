@@ -34,7 +34,11 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { budget, bulkHopRadiation, staticStringWraps } from '@/code/measure/trit-compact-light'
+import {
+  budget,
+  bulkHopRadiation,
+  staticStringWraps,
+} from '@/code/measure/trit-compact-light'
 import { makeTritLight } from '@/code/rule/trit-column'
 
 const DEPTHS = [11, 16]
@@ -43,13 +47,14 @@ export default experiment({
   id: 'gauge/trit-compact-light',
   code: 'E-FRC-0220',
   title:
-    'the three-level shaped light in bulk trits: with compact counters the whole light fits the bulk, decodes to the husk shaped rule bit for bit, and a love-fear swap across one bulk link (a real crossing that flips one string trit) radiates the linear light\'s field, reversibly and with Gauss exact',
+    "the three-level shaped light in bulk trits: with compact counters the whole light fits the bulk, decodes to the husk shaped rule bit for bit, and a love-fear swap across one bulk link (a real crossing that flips one string trit) radiates the linear light's field, reversibly and with Gauss exact",
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     const metrics: Record<string, number> = {}
+
     let okX = true
     let okM = true
     let okG = true
@@ -59,7 +64,13 @@ export default experiment({
       const light = makeTritLight({ side: 16, depth })
 
       for (const levels of [3, 1]) {
-        const r = bulkHopRadiation({ light, levels, beats: 120, half: 12, radius: 5 })
+        const r = bulkHopRadiation({
+          light,
+          levels,
+          beats: 120,
+          half: 12,
+          radius: 5,
+        })
         const key = `m_D${depth}_L${levels}`
 
         metrics[`${key}_gain`] = r.gain
@@ -76,7 +87,10 @@ export default experiment({
 
         if (levels === 3) {
           okX = okX && r.huskMismatches === 0
-          okM = okM && Math.abs(r.gain - 1) <= 0.02 && Math.abs(r.energyRatio - 1) <= 0.02
+          okM =
+            okM &&
+            Math.abs(r.gain - 1) <= 0.02 &&
+            Math.abs(r.energyRatio - 1) <= 0.02
         }
 
         okG = okG && r.bulkGauss === 0 && r.huskGauss === 0
@@ -91,8 +105,18 @@ export default experiment({
     }
 
     const light8 = makeTritLight({ side: 8, depth: 8 })
-    const three = staticStringWraps({ light: light8, levels: 3, beats: 2000, length: 3 })
-    const one = staticStringWraps({ light: light8, levels: 1, beats: 2000, length: 3 })
+    const three = staticStringWraps({
+      light: light8,
+      levels: 3,
+      beats: 2000,
+      length: 3,
+    })
+    const one = staticStringWraps({
+      light: light8,
+      levels: 1,
+      beats: 2000,
+      length: 3,
+    })
 
     metrics.w_L3_potentialWraps = three.potentialWraps
     metrics.w_L1_potentialWraps = one.potentialWraps
@@ -101,18 +125,29 @@ export default experiment({
     const okW = three.potentialWraps === 0 && one.potentialWraps > 0
     const gates = { X: okX, M: okM, W: okW, G: okG, R: okR }
 
-    for (const [gate, ok] of Object.entries(gates)) metrics[`gate${gate}`] = ok ? 1 : 0
+    for (const [gate, ok] of Object.entries(gates)) {
+      metrics[`gate${gate}`] = ok ? 1 : 0
+    }
 
-    const status = Object.values(gates).every(v => v) ? 'pass' : gates.X && gates.G && gates.R ? 'partial' : 'fail'
-    const f = (x: number | undefined, n = 4): string => (x ?? 0).toFixed(n)
+    const status = Object.values(gates).every(v => v)
+      ? 'pass'
+      : gates.X && gates.G && gates.R
+        ? 'partial'
+        : 'fail'
+    const f = (x: number | undefined, n = 4): string =>
+      (x ?? 0).toFixed(n)
 
     return verdict({
       status,
       claim: `in the three-level light on bulk trits (side 16), a love-fear swap across one bulk axis link radiates with coherent gain ${DEPTHS.map(d => f(metrics[`m_D${d}_L3_gain`])).join(', ')} and energy ${DEPTHS.map(d => f(metrics[`m_D${d}_L3_energyRatio`])).join(', ')} times the linear light's at D = ${DEPTHS.join(', ')} (one level: gain ${DEPTHS.map(d => f(metrics[`m_D${d}_L1_gain`])).join(', ')}, energy ${DEPTHS.map(d => f(metrics[`m_D${d}_L1_energyRatio`])).join(', ')}), decoding to the husk shaped rule with ${DEPTHS.map(d => metrics[`m_D${d}_L3_huskMismatches`]).join(', ')} mismatches, Gauss exact and reversal exact; a static string at D = 8 wraps ${three.potentialWraps} potentials in 2,000 beats against ${one.potentialWraps} at one level; the counters use ${metrics.b_D16_counterTritsNeed} of the ${metrics.b_D16_counterTritsHave} counter trits per husk triangle at D = 16`,
       metrics,
-      control: { oneLevelGainD16: metrics.m_D16_L1_gain ?? 0, oneLevelEnergyD16: metrics.m_D16_L1_energyRatio ?? 0, oneLevelStaticWraps: one.potentialWraps },
+      control: {
+        oneLevelGainD16: metrics.m_D16_L1_gain ?? 0,
+        oneLevelEnergyD16: metrics.m_D16_L1_energyRatio ?? 0,
+        oneLevelStaticWraps: one.potentialWraps,
+      },
       notes:
-        'L2, exact integers in the rule, deterministic. FIRST RUN 2026-09-26 (tmp/frc0220.log, 74.4 s), PASS on every gate, no gate moved. X: the bulk trits decode to the husk shaped rule on every angle and potential at every beat (0 mismatches at D = 11 and 16). M: a love-fear swap across one bulk axis link every 12 beats (9 crossings of two units each in 120 beats) radiates beyond radius 5 with coherent gain 0.9996 and 0.9999, incoherent remainder 2.8e-3 and 7.7e-5, energy 1.0008 and 1.0000 times the linear light at D = 11 and 16; the one-level control on the same bulk reads gain 1.079 and 0.334, remainder 347 and 19, energy 254 and 13.4. W: a static string of 3 bulk links at D = 8 wraps 0 potentials in 2,000 beats in the three-level light and 483,151 in the one-level light (E-FRC-0214\'s husk probe: 514,610). G: Gauss exact in bulk and husk at every beat (0). R: every hop run returns to every trit (0). B: the counters use 21 of 33 counter trits per husk triangle at D = 11 and 28 of 48 at D = 16 (0.548 and 0.523 of the bulk\'s trits in all). The counters churn: about 7.7e5 counter trit flips per beat at D = 16 on side 16 (9 per husk triangle), against 8.8e4 at one level.',
+        "L2, exact integers in the rule, deterministic. FIRST RUN 2026-09-26 (tmp/frc0220.log, 74.4 s), PASS on every gate, no gate moved. X: the bulk trits decode to the husk shaped rule on every angle and potential at every beat (0 mismatches at D = 11 and 16). M: a love-fear swap across one bulk axis link every 12 beats (9 crossings of two units each in 120 beats) radiates beyond radius 5 with coherent gain 0.9996 and 0.9999, incoherent remainder 2.8e-3 and 7.7e-5, energy 1.0008 and 1.0000 times the linear light at D = 11 and 16; the one-level control on the same bulk reads gain 1.079 and 0.334, remainder 347 and 19, energy 254 and 13.4. W: a static string of 3 bulk links at D = 8 wraps 0 potentials in 2,000 beats in the three-level light and 483,151 in the one-level light (E-FRC-0214's husk probe: 514,610). G: Gauss exact in bulk and husk at every beat (0). R: every hop run returns to every trit (0). B: the counters use 21 of 33 counter trits per husk triangle at D = 11 and 28 of 48 at D = 16 (0.548 and 0.523 of the bulk's trits in all). The counters churn: about 7.7e5 counter trit flips per beat at D = 16 on side 16 (9 per husk triangle), against 8.8e4 at one level.",
     })
   },
 })

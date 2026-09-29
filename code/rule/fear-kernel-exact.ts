@@ -45,20 +45,21 @@ function multiply(x: Eisenstein, y: Eisenstein): Eisenstein {
 
   for (let i = 0; i < n; i++) {
     for (let k = 0; k < n; k++) {
-      const xa = x.a[i * n + k] as number
-      const xb = x.b[i * n + k] as number
+      const xa = x.a[i * n + k]!
+      const xb = x.b[i * n + k]!
 
       if (xa === 0 && xb === 0) {
         continue
       }
 
       for (let j = 0; j < n; j++) {
-        const ya = y.a[k * n + j] as number
-        const yb = y.b[k * n + j] as number
+        const ya = y.a[k * n + j]!
+        const yb = y.b[k * n + j]!
 
         // (xa + xb w)(ya + yb w) = xa ya - xb yb + (xa yb + xb ya - xb yb) w
-        out.a[i * n + j] = (out.a[i * n + j] as number) + xa * ya - xb * yb
-        out.b[i * n + j] = (out.b[i * n + j] as number) + xa * yb + xb * ya - xb * yb
+        out.a[i * n + j] = out.a[i * n + j]! + xa * ya - xb * yb
+        out.b[i * n + j] =
+          out.b[i * n + j]! + xa * yb + xb * ya - xb * yb
       }
     }
   }
@@ -73,8 +74,8 @@ function adjoint(x: Eisenstein): Eisenstein {
 
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
-      const a = x.a[j * n + i] as number
-      const b = x.b[j * n + i] as number
+      const a = x.a[j * n + i]!
+      const b = x.b[j * n + i]!
 
       out.a[i * n + j] = a - b
       out.b[i * n + j] = -b
@@ -90,13 +91,13 @@ function tensor(x: Eisenstein, y: Eisenstein): Eisenstein {
 
   for (let i = 0; i < x.n; i++) {
     for (let j = 0; j < x.n; j++) {
-      const xa = x.a[i * x.n + j] as number
-      const xb = x.b[i * x.n + j] as number
+      const xa = x.a[i * x.n + j]!
+      const xb = x.b[i * x.n + j]!
 
       for (let k = 0; k < y.n; k++) {
         for (let l = 0; l < y.n; l++) {
-          const ya = y.a[k * y.n + l] as number
-          const yb = y.b[k * y.n + l] as number
+          const ya = y.a[k * y.n + l]!
+          const yb = y.b[k * y.n + l]!
           const at = (i * y.n + k) * n + (j * y.n + l)
 
           out.a[at] = xa * ya - xb * yb
@@ -167,10 +168,10 @@ export function doubledSwapPhase(k: number): Eisenstein {
       const row = 3 * i + j
       const swapped = 3 * j + i
 
-      u.a[row * 9 + row] = (u.a[row * 9 + row] as number) + 1 + wa
-      u.b[row * 9 + row] = (u.b[row * 9 + row] as number) + wb
-      u.a[row * 9 + swapped] = (u.a[row * 9 + swapped] as number) + 1 - wa
-      u.b[row * 9 + swapped] = (u.b[row * 9 + swapped] as number) - wb
+      u.a[row * 9 + row] = u.a[row * 9 + row]! + 1 + wa
+      u.b[row * 9 + row] = u.b[row * 9 + row]! + wb
+      u.a[row * 9 + swapped] = u.a[row * 9 + swapped]! + 1 - wa
+      u.b[row * 9 + swapped] = u.b[row * 9 + swapped]! - wb
     }
   }
 
@@ -190,8 +191,8 @@ export function tripledSingletPhase(k: number): Eisenstein {
     for (let m = 0; m < 3; m++) {
       const at = (3 * j + j) * 9 + (3 * m + m)
 
-      v.a[at] = (v.a[at] as number) + wa - 1
-      v.b[at] = (v.b[at] as number) + wb
+      v.a[at] = v.a[at]! + wa - 1
+      v.b[at] = v.b[at]! + wb
     }
   }
 
@@ -227,6 +228,7 @@ const gcd = (x: number, y: number): number => {
 // x over y for y > 0 dividing x, by binary long division; throws if y does not divide x
 export function exactQuotient(x: number, y: number): number {
   const negative = x < 0
+
   let rest = negative ? -x : x
   let shift = 0
   let quotient = 0
@@ -264,10 +266,10 @@ function traceKernel(u: Eisenstein): number[][] {
 
       for (let i = 0; i < 9; i++) {
         for (let k = 0; k < 9; k++) {
-          const xa = ax.a[i * 9 + k] as number
-          const xb = ax.b[i * 9 + k] as number
-          const ya = m.a[k * 9 + i] as number
-          const yb = m.b[k * 9 + i] as number
+          const xa = ax.a[i * 9 + k]!
+          const xb = ax.b[i * 9 + k]!
+          const ya = m.a[k * 9 + i]!
+          const yb = m.b[k * 9 + i]!
 
           a += xa * ya - xb * yb
           b += xa * yb + xb * ya - xb * yb
@@ -275,7 +277,9 @@ function traceKernel(u: Eisenstein): number[][] {
       }
 
       if (b !== 0) {
-        throw new Error('fear-kernel-exact: a Wigner kernel entry is not real')
+        throw new Error(
+          'fear-kernel-exact: a Wigner kernel entry is not real',
+        )
       }
 
       return a
@@ -284,25 +288,54 @@ function traceKernel(u: Eisenstein): number[][] {
 }
 
 // D K in whole numbers with the smallest D, from U' = c U: K = T / (9 c^2)
-export function exactWholeKernel(u: Eisenstein, c: number): { divisor: number; kernel: number[][] } {
+export function exactWholeKernel(
+  u: Eisenstein,
+  c: number,
+): { divisor: number; kernel: number[][] } {
   const t = traceKernel(u)
   const whole = 9 * c * c
-  const common = t.reduce((g, row) => row.reduce((h, x) => gcd(h, x), g), whole)
+  const common = t.reduce(
+    (g, row) => row.reduce((h, x) => gcd(h, x), g),
+    whole,
+  )
 
-  return { divisor: exactQuotient(whole, common), kernel: t.map(row => row.map(x => exactQuotient(x, common))) }
+  return {
+    divisor: exactQuotient(whole, common),
+    kernel: t.map(row => row.map(x => exactQuotient(x, common))),
+  }
 }
 
 // the reflection (a, b) -> (a, -b) of a point 3 a + b, and of a two-point index 9 x1 + x2 on its second point
-const conjugatePoint = (p: number): number => p - (p % 3) + ((3 - (p % 3)) % 3)
-const conjugateIndex = (i: number): number => i - (i % 9) + conjugatePoint(i % 9)
+const conjugatePoint = (p: number): number =>
+  p - (p % 3) + ((3 - (p % 3)) % 3)
+const conjugateIndex = (i: number): number =>
+  i - (i % 9) + conjugatePoint(i % 9)
 
 // The fear beat's kernels with the like and unlike phases given as trits: omega^like, omega^unlike. The fear
 // beat is (1, 1), its backward beat (2, 2), the color weave with the fear beat off (0, 0).
-export function exactFearKernels(input: { like: number; unlike: number; likeExchanged?: boolean }): ExactFearKernels {
+export function exactFearKernels(input: {
+  like: number
+  unlike: number
+  likeExchanged?: boolean
+}): ExactFearKernels {
   const swap = doubledSwapPhase(input.like)
-  const like = exactWholeKernel((input.likeExchanged ?? true) ? multiply(exchange(), swap) : swap, 2)
+  const like = exactWholeKernel(
+    (input.likeExchanged ?? true) ? multiply(exchange(), swap) : swap,
+    2,
+  )
   const unlike = exactWholeKernel(tripledSingletPhase(input.unlike), 3)
-  const reflected = Array.from({ length: 81 }, (_, r) => Array.from({ length: 81 }, (__, c) => unlike.kernel[conjugateIndex(r)]?.[conjugateIndex(c)] ?? 0))
+  const reflected = Array.from({ length: 81 }, (_, r) =>
+    Array.from(
+      { length: 81 },
+      (__, c) =>
+        unlike.kernel[conjugateIndex(r)]?.[conjugateIndex(c)] ?? 0,
+    ),
+  )
 
-  return { like: like.kernel, likeDivisor: like.divisor, unlike: reflected, unlikeDivisor: unlike.divisor }
+  return {
+    like: like.kernel,
+    likeDivisor: like.divisor,
+    unlike: reflected,
+    unlikeDivisor: unlike.divisor,
+  }
 }

@@ -64,7 +64,13 @@ export type ClockWaveRule = {
 }
 
 // the rule on a depth map, with rest parameter m and reference depth d0
-export function clockWaveRule(mesh: RadionMesh, depth: (dock: number) => number, m: number, form: WaveForm, d0: number): ClockWaveRule {
+export function clockWaveRule(
+  mesh: RadionMesh,
+  depth: (dock: number) => number,
+  m: number,
+  form: WaveForm,
+  d0: number,
+): ClockWaveRule {
   const inertia = new Int32Array(mesh.docks)
   const half = new Int32Array(mesh.docks)
   const rest = new Int32Array(mesh.docks)
@@ -79,24 +85,54 @@ export function clockWaveRule(mesh: RadionMesh, depth: (dock: number) => number,
     rest[y] = form === 'clock' ? m : m * q
   }
 
-  return { form, inertia, half, rest, a: form === 'metric' ? 2 * q0 : 2 }
+  return {
+    form,
+    inertia,
+    half,
+    rest,
+    a: form === 'metric' ? 2 * q0 : 2,
+  }
 }
 
-export type ClockWaveState = { readonly now: Int32Array; readonly lag: Int32Array; readonly rest: Int32Array }
+export type ClockWaveState = {
+  readonly now: Int32Array
+  readonly lag: Int32Array
+  readonly rest: Int32Array
+}
 
-export const emptyClockWave = (mesh: RadionMesh): ClockWaveState => ({ now: new Int32Array(mesh.docks), lag: new Int32Array(mesh.docks), rest: new Int32Array(mesh.docks) })
+export const emptyClockWave = (mesh: RadionMesh): ClockWaveState => ({
+  now: new Int32Array(mesh.docks),
+  lag: new Int32Array(mesh.docks),
+  rest: new Int32Array(mesh.docks),
+})
 
-export const sameClockWave = (u: ClockWaveState, v: ClockWaveState): boolean => u.now.every((x, i) => x === v.now[i]) && u.lag.every((x, i) => x === v.lag[i]) && u.rest.every((x, i) => x === v.rest[i])
+export const sameClockWave = (
+  u: ClockWaveState,
+  v: ClockWaveState,
+): boolean =>
+  u.now.every((x, i) => x === v.now[i]) &&
+  u.lag.every((x, i) => x === v.lag[i]) &&
+  u.rest.every((x, i) => x === v.rest[i])
 
-export const clockWaveFrom = (s: ClockWaveState): ClockWaveState => ({ now: Int32Array.from(s.now), lag: Int32Array.from(s.lag), rest: Int32Array.from(s.rest) })
+export const clockWaveFrom = (s: ClockWaveState): ClockWaveState => ({
+  now: Int32Array.from(s.now),
+  lag: Int32Array.from(s.lag),
+  rest: Int32Array.from(s.rest),
+})
 
 // one beat, in place
-export function clockWaveBeat(mesh: RadionMesh, rule: ClockWaveRule, s: ClockWaveState, lap: Int32Array): void {
+export function clockWaveBeat(
+  mesh: RadionMesh,
+  rule: ClockWaveRule,
+  s: ClockWaveState,
+  lap: Int32Array,
+): void {
   laplacian(mesh, s.now, lap)
 
   for (let y = 0; y < mesh.docks; y++) {
     const q = rule.inertia[y]!
-    const sum = -rule.a * lap[y]! - rule.rest[y]! * s.now[y]! + s.rest[y]!
+    const sum =
+      -rule.a * lap[y]! - rule.rest[y]! * s.now[y]! + s.rest[y]!
     const k = floorDiv(sum + rule.half[y]!, q)
 
     s.rest[y] = sum - q * k
@@ -109,12 +145,21 @@ export function clockWaveBeat(mesh: RadionMesh, rule: ClockWaveRule, s: ClockWav
 }
 
 // the inverse beat
-export function clockWaveBeatBack(mesh: RadionMesh, rule: ClockWaveRule, s: ClockWaveState, lap: Int32Array): void {
+export function clockWaveBeatBack(
+  mesh: RadionMesh,
+  rule: ClockWaveRule,
+  s: ClockWaveState,
+  lap: Int32Array,
+): void {
   laplacian(mesh, s.lag, lap)
 
   for (let y = 0; y < mesh.docks; y++) {
     const q = rule.inertia[y]!
-    const known = -rule.a * lap[y]! - rule.rest[y]! * s.lag[y]! - s.rest[y]! - q * (s.now[y]! - 2 * s.lag[y]!)
+    const known =
+      -rule.a * lap[y]! -
+      rule.rest[y]! * s.lag[y]! -
+      s.rest[y]! -
+      q * (s.now[y]! - 2 * s.lag[y]!)
     const prev = floorDiv(known + rule.half[y]!, q)
 
     s.rest[y] = q * prev - known

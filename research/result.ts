@@ -700,13 +700,13 @@ export const RESULTS: Result[] = [
       'Color on the knit: none before the three-trit model, the classical color group Σ(648) after it',
     subject: 'symmetry',
     sentence:
-      'The knit before 2026-09-25 kept 2 of the 9 generators of U(3) and no symmetry of order three. The three-trit knit adopted that day carries the classical color group $\\Sigma(648)$ on its links and keeps every dock\'s color exact while it makes pairs. Its one gate outside that group is the fear beat.',
+      "The knit before 2026-09-25 kept 2 of the 9 generators of U(3) and no symmetry of order three. The three-trit knit adopted that day carries the classical color group $\\Sigma(648)$ on its links and keeps every dock's color exact while it makes pairs. Its one gate outside that group is the fear beat.",
     claim:
-      'The deterministic reversible lattice gas on the {3,4,3,4} honeycomb that ran before 2026-09-25, with ternary values per direction and a fixed pair-collision table, keeps exactly 2 of the 9 generators of U(3) (the charge and the overall phase), keeps no element of order three among 995,328 candidate symmetries, has no collision block joining three lines, and recovers none of it under coarse-graining. The three-trit knit adopted on 2026-09-25 gives every slot a point of $\\mathbb{Z}_3^2$, the phase space of one qutrit, and every link one of the 216 grid moves. All 648 elements of the Hessian group $\\Sigma(648) \\subset SU(3)$ act on that grid classically, and their quotient by the 3 central scalars is exactly the 216 grid moves, $\\mathrm{ASL}(2, 3)$, so $\\Sigma(648)$ is the determinant-1 lift of the qutrit Clifford group. An independent change of frame in every dock commutes exactly with the rule. With a neutral pair move and a store that hands an unmade pair its own tokens back, the knit makes pairs from calm and changes no dock\'s held color and no token\'s sign. The one gate outside the Clifford group is the fear beat, where two roles meet: with $\\Sigma(648)$ on each role it generates a group whose Lie algebra is all of $\\mathfrak{su}(9)$. The links hold a finite group, not the continuous SU(3).',
+      "The deterministic reversible lattice gas on the {3,4,3,4} honeycomb that ran before 2026-09-25, with ternary values per direction and a fixed pair-collision table, keeps exactly 2 of the 9 generators of U(3) (the charge and the overall phase), keeps no element of order three among 995,328 candidate symmetries, has no collision block joining three lines, and recovers none of it under coarse-graining. The three-trit knit adopted on 2026-09-25 gives every slot a point of $\\mathbb{Z}_3^2$, the phase space of one qutrit, and every link one of the 216 grid moves. All 648 elements of the Hessian group $\\Sigma(648) \\subset SU(3)$ act on that grid classically, and their quotient by the 3 central scalars is exactly the 216 grid moves, $\\mathrm{ASL}(2, 3)$, so $\\Sigma(648)$ is the determinant-1 lift of the qutrit Clifford group. An independent change of frame in every dock commutes exactly with the rule. With a neutral pair move and a store that hands an unmade pair its own tokens back, the knit makes pairs from calm and changes no dock's held color and no token's sign. The one gate outside the Clifford group is the fear beat, where two roles meet: with $\\Sigma(648)$ on each role it generates a group whose Lie algebra is all of $\\mathfrak{su}(9)$. The links hold a finite group, not the continuous SU(3).",
     headline: {
       value: '0 of 3,888',
       label:
-        'dock-beats where the three-trit knit changes a dock\'s held color while it makes 1,994 pairs, against 1,286 of 3,888 without the neutral veto',
+        "dock-beats where the three-trit knit changes a dock's held color while it makes 1,994 pairs, against 1,286 of 3,888 without the neutral veto",
     },
     category: 'measurement',
     status: ['derived', 'negative'],
@@ -753,7 +753,8 @@ export const RESULTS: Result[] = [
         quantity:
           'the knit before 2026-09-25: zero-sum triangles inside one interaction block',
         measured: '0 of 32',
-        reference: 'a collision joining every slot of a dock puts 32 of 32 inside (run)',
+        reference:
+          'a collision joining every slot of a dock puts 32 of 32 inside (run)',
         code: 'E-FRC-0094',
       },
       {
@@ -782,7 +783,8 @@ export const RESULTS: Result[] = [
       {
         quantity:
           'elements of $\\Sigma(648)$ that act on the role grid as grid moves',
-        measured: '648 of 648, 3 per move, image exactly the 216 grid moves',
+        measured:
+          '648 of 648, 3 per move, image exactly the 216 grid moves',
         reference: '$\\Sigma(1080)$: 18 of 1,080 (run)',
         code: 'E-QTM-0117',
       },
@@ -790,7 +792,8 @@ export const RESULTS: Result[] = [
         quantity:
           'mismatches under an independent change of frame in every dock, 24 beats',
         measured: '0 with links holding grid moves',
-        reference: '27,749 without links, 40,015 with a fixed move per direction (run)',
+        reference:
+          '27,749 without links, 40,015 with a fixed move per direction (run)',
         code: 'E-FRC-0117',
       },
       {
@@ -803,7 +806,7 @@ export const RESULTS: Result[] = [
       },
       {
         quantity:
-          'dock-beats where the collision changes a dock\'s held color, 48 beats on the side-3 box, open tokens',
+          "dock-beats where the collision changes a dock's held color, 48 beats on the side-3 box, open tokens",
         measured: '0 of 3,888, with 1,994 pairs made',
         reference:
           'the store return without the neutral veto moves the held color into the store, 1,436 dock-beats (run)',
@@ -827,7 +830,8 @@ export const RESULTS: Result[] = [
       {
         quantity:
           'dimension of the Lie algebra generated by $\\Sigma(648)$ on each role and the fear beat',
-        measured: '80, all of $\\mathfrak{su}(9)$, for each form of the beat',
+        measured:
+          '80, all of $\\mathfrak{su}(9)$, for each form of the beat',
         reference:
           'SWAP, and the full two-qutrit Clifford group, stay finite (rank 0). $\\Sigma(648)$ with the qutrit T gate gives $\\mathfrak{su}(3)$, rank 8 (run)',
         code: 'E-QTM-0118',
@@ -839,8 +843,7 @@ export const RESULTS: Result[] = [
         code: 'E-QTM-0119',
       },
       {
-        quantity:
-          'knots contextual for the model\'s own readings',
+        quantity: "knots contextual for the model's own readings",
         measured:
           'exactly those holding a fear: $S_u = 36 W(u) + 4$ on all 202,756 wholes',
         reference:
@@ -870,7 +873,8 @@ export const RESULTS: Result[] = [
       control: 'the control named in the row',
       rows: [
         {
-          label: '𝔲(3) generators kept, knit before 2026-09-25, against streaming',
+          label:
+            '𝔲(3) generators kept, knit before 2026-09-25, against streaming',
           measured: 2,
           control: 9,
         },
@@ -880,12 +884,14 @@ export const RESULTS: Result[] = [
           control: 27749,
         },
         {
-          label: 'held-color changes, with the neutral veto against without',
+          label:
+            'held-color changes, with the neutral veto against without',
           measured: 0,
           control: 1286,
         },
         {
-          label: 'elements acting as grid moves, Σ(648) against Σ(1080)',
+          label:
+            'elements acting as grid moves, Σ(648) against Σ(1080)',
           measured: 648,
           control: 18,
         },
@@ -909,7 +915,8 @@ export const RESULTS: Result[] = [
         work: 'Fairbairn, Fulton and Klink 1964. Grimus and Ludl 2012',
         established:
           'the finite subgroups of SU(3), the Hessian group $\\Sigma(648)$ among the primitive ones',
-        difference: 'the classification is theirs. Here $\\Sigma(648)$ is the group a link holds',
+        difference:
+          'the classification is theirs. Here $\\Sigma(648)$ is the group a link holds',
       },
       {
         work: 'Gottesman 1998. Howard and Vala 2012, Qudit versions of the qubit pi/8 gate',
@@ -953,7 +960,7 @@ export const RESULTS: Result[] = [
         version: '2.0.0',
         date: '2026-09-26',
         change:
-          'rewritten for the three-trit knit adopted on 2026-09-25: the old knit\'s negative kept as the first half, and the classical color group on the links, the held color while pairs are made, and the fear beat as the one non-Clifford gate added',
+          "rewritten for the three-trit knit adopted on 2026-09-25: the old knit's negative kept as the first half, and the classical color group on the links, the held color while pairs are made, and the fear beat as the one non-Clifford gate added",
       },
     ],
     depends: ['R-FND-0001', 'L1', 'L5'],
@@ -1246,9 +1253,9 @@ export const RESULTS: Result[] = [
     problem: 'OP-02',
     candidate: null,
     paper:
-      'the framework paper, as the color result: the old knit\'s negative and what the three-trit knit carries in its place',
+      "the framework paper, as the color result: the old knit's negative and what the three-trit knit carries in its place",
     program:
-      'The turning weave, the knit before 2026-09-25, did not carry color. The sixth thing it took is the three-trit model, adopted on 2026-09-25: each vibe carries a role and a tilt, one point of the 3 x 3 grid, and each link a grid move, so a link holds an element of $\\Sigma(648)$ (R-FRC-0005, R-FRC-0006). The adopted knit is built on it: the color fork of pair creation closed with a store that returns an unmade pair\'s tokens and a neutral veto (E-RLT-0067, E-RLT-0068). The turns, the links and the magic are one ladder: SL(2, 3) the turns, ASL(2, 3) the 216 grid moves, $\\Sigma(648)$ what a link holds, and with the fear beat all of $\\mathfrak{su}(9)$ (E-QTM-0117, E-QTM-0118). A fear is a negative Wigner weight, magic, and it changes only at a fear beat (E-QTM-0119, E-QTM-0121), and a knot is contextual exactly when it holds one (E-QTM-0149).',
+      "The turning weave, the knit before 2026-09-25, did not carry color. The sixth thing it took is the three-trit model, adopted on 2026-09-25: each vibe carries a role and a tilt, one point of the 3 x 3 grid, and each link a grid move, so a link holds an element of $\\Sigma(648)$ (R-FRC-0005, R-FRC-0006). The adopted knit is built on it: the color fork of pair creation closed with a store that returns an unmade pair's tokens and a neutral veto (E-RLT-0067, E-RLT-0068). The turns, the links and the magic are one ladder: SL(2, 3) the turns, ASL(2, 3) the 216 grid moves, $\\Sigma(648)$ what a link holds, and with the fear beat all of $\\mathfrak{su}(9)$ (E-QTM-0117, E-QTM-0118). A fear is a negative Wigner weight, magic, and it changes only at a fear beat (E-QTM-0119, E-QTM-0121), and a knot is contextual exactly when it holds one (E-QTM-0149).",
     outputs: NO_OUTPUTS,
   },
   {
@@ -1274,10 +1281,10 @@ export const RESULTS: Result[] = [
     answer:
       "No. Its values are integers that add as sets. Thirteen quantum results that were cited as the knit's own dynamics ran a hand-written walk instead.",
     importance:
-      'This is the measurement that regraded the quantum arena. Until a layer carrying amplitudes runs on the knit, every walk result is a result about the walk. The candidate layer is the signed weight on the role grid: the singlet is written by 72 loves and 18 fears on 54 units (E-FRC-0120), 8 rounds of the cube-root swap phase stay exact with a fear share near 0.3, under the bound of a third (E-FRC-0122), and the swap phase is an exact reversible beat whose gate set closes to su(9) (E-FRC-0127). That layer is the fear beat, adopted into the knit on 2026-09-25 once no gate failed only with it on (E-FRC-0158, E-FRC-0159), and in its comoving form on 2026-09-26 (E-SPN-0063, 0 added failures on 17 of 17 link starts, E-MTH-0028). It gives the roles amplitudes, not the positions: the knit\'s stream reads slots and never writes back (E-SPN-0081). Inside the lattice, the fear weave carries it exactly: quantum in the roles, with chances 1/4, 3/4, 1 over three meetings against 1/4, 3/8, 7/16 for the phase-free stand-in, and CHSH above 2 from different docks where both classical rules stay at 2 (E-QTM-0100). One meeting on a product start gives a three-rung ladder set by the overlap of the two roles, $2$, $4 / \\sqrt 3$ and $\\sqrt 7$ for like vibes and $2$, a quartic $2.3613$ and $(2 + 4 \\sqrt 2) / 3$ for a love and a fear (E-QTM-0140, E-QTM-0141). The quartic is exact as a knot but only a lower bound on that knot\'s CHSH maximum, which is open, and the knit\'s own histories read up to $2.5298$ as a signed count at the model\'s own settings (E-RLT-0055 under the comoving fear beat, E-QTM-0111, E-QTM-0143). A lone vibe under the one-third turn spreads as $t$ (exponent 0.997) against $\\sqrt t$ (0.497), with $\\langle x^2 \\rangle / t^2 = 0.13398 = 1 - \\sqrt 3 / 2$ (E-QTM-0103).',
+      "This is the measurement that regraded the quantum arena. Until a layer carrying amplitudes runs on the knit, every walk result is a result about the walk. The candidate layer is the signed weight on the role grid: the singlet is written by 72 loves and 18 fears on 54 units (E-FRC-0120), 8 rounds of the cube-root swap phase stay exact with a fear share near 0.3, under the bound of a third (E-FRC-0122), and the swap phase is an exact reversible beat whose gate set closes to su(9) (E-FRC-0127). That layer is the fear beat, adopted into the knit on 2026-09-25 once no gate failed only with it on (E-FRC-0158, E-FRC-0159), and in its comoving form on 2026-09-26 (E-SPN-0063, 0 added failures on 17 of 17 link starts, E-MTH-0028). It gives the roles amplitudes, not the positions: the knit's stream reads slots and never writes back (E-SPN-0081). Inside the lattice, the fear weave carries it exactly: quantum in the roles, with chances 1/4, 3/4, 1 over three meetings against 1/4, 3/8, 7/16 for the phase-free stand-in, and CHSH above 2 from different docks where both classical rules stay at 2 (E-QTM-0100). One meeting on a product start gives a three-rung ladder set by the overlap of the two roles, $2$, $4 / \\sqrt 3$ and $\\sqrt 7$ for like vibes and $2$, a quartic $2.3613$ and $(2 + 4 \\sqrt 2) / 3$ for a love and a fear (E-QTM-0140, E-QTM-0141). The quartic is exact as a knot but only a lower bound on that knot's CHSH maximum, which is open, and the knit's own histories read up to $2.5298$ as a signed count at the model's own settings (E-RLT-0055 under the comoving fear beat, E-QTM-0111, E-QTM-0143). A lone vibe under the one-third turn spreads as $t$ (exponent 0.997) against $\\sqrt t$ (0.497), with $\\langle x^2 \\rangle / t^2 = 0.13398 = 1 - \\sqrt 3 / 2$ (E-QTM-0103).",
     limits: [
       'the bare knit only. A middle layer carrying amplitudes is not excluded. The signed weight on the role grid is that layer, adopted into the knit as the fear beat (E-FRC-0159, E-SPN-0063). It gives the roles amplitudes and leaves the positions classical (E-SPN-0081)',
-      'measured with the pair table on every line (pairCollision), the committed knit until 2026-09-02 and the clock sector of the turning weave since. The period 3 is that pair clock. The committed turning weave\'s vacuum recurs at beat 24, not before (E-FND-0118)',
+      "measured with the pair table on every line (pairCollision), the committed knit until 2026-09-02 and the clock sector of the turning weave since. The period 3 is that pair clock. The committed turning weave's vacuum recurs at beat 24, not before (E-FND-0118)",
       'side 8 is even, so the mesh is two disconnected lattices and the run covers one component of 2,048 docks',
     ],
     equations: [
@@ -1421,7 +1428,7 @@ export const RESULTS: Result[] = [
     candidate: null,
     paper: 'the framework paper, in place of its quantum section',
     program:
-      'A vibe is a classical defect riding on a vacuum clock: the pair table flashes with period 3 (E-FND-0080), and the committed turning weave\'s vacuum recurs at beat 24 (E-FND-0118). Fear, the signed weight on the role grid, is the layer between the vibes and amplitudes, and it runs in the adopted knit as the fear beat, the one gate outside the Clifford group (E-QTM-0118). It gives amplitudes to roles, not to positions, so every walk result about positions is still a result about the walk.',
+      "A vibe is a classical defect riding on a vacuum clock: the pair table flashes with period 3 (E-FND-0080), and the committed turning weave's vacuum recurs at beat 24 (E-FND-0118). Fear, the signed weight on the role grid, is the layer between the vibes and amplitudes, and it runs in the adopted knit as the fear beat, the one gate outside the Clifford group (E-QTM-0118). It gives amplitudes to roles, not to positions, so every walk result about positions is still a result about the walk.",
     outputs: NO_OUTPUTS,
   },
   {
@@ -2103,10 +2110,7 @@ export const RESULTS: Result[] = [
       'From the gluons: two representations rise at the same rate, and the source-charge alternative is excluded.',
     importance:
       'Separating $C_A$ from $C_F$ needs two representations. It is a clean check that the running comes from the gluons.',
-    limits: [
-      'nothing about the knit',
-      'one coupling per group',
-    ],
+    limits: ['nothing about the knit', 'one coupling per group'],
     equations: [
       'the force ratio $\\chi(2,2)/\\chi(1,1)$ rises with $g^2$ at $\\alpha + \\kappa C_A$, with $\\alpha$ the color-blind lattice artifact of the compact action',
       'the Casimirs: $C_A = N$ for the adjoint, $C_F = \\dfrac{N^2 - 1}{2N}$ for the fundamental, so a source-charge running would give an adjoint over fundamental ratio of $C_A/C_F = \\dfrac{2N^2}{N^2 - 1}$, which is $8/3$, $9/4$ and $32/15$ for $N = 2, 3, 4$',
@@ -2259,7 +2263,7 @@ export const RESULTS: Result[] = [
       'measured here on constructed rules. Adopted for the base on 2026-09-25 as the three-trit model, and the adopted knit carries it: frame covariance and the held color with pairs made (R-FRC-0003, E-RLT-0067). The turning weave before it carries none',
       'the links are a fixed background field in the gauge test. Moving links, color kept local and binding are R-FRC-0006',
       'no rule here binds a knot: flux on the links obeys Gauss exactly and costs nothing. A knot alone is not bound: under the turning weave a color-neutral triple reaches as far in 6 beats as one of its members alone, 8.5 against 8.5 (E-FRC-0111). Only a paid string binds (E-FRC-0129, E-FRC-0131, R-FRC-0006), and in discrete time only a counted one (E-SPN-0074, on stand-in tokens)',
-      'pair creation from the vacuum makes color from nothing in 3,550 of 3,888 cases on the rule here (E-FRC-0123). The adopted knit closes it with a neutral pair move and a store that returns an unmade pair\'s tokens: 0 of 3,888 dock-beats change held color while 1,994 pairs are made (E-RLT-0067)',
+      "pair creation from the vacuum makes color from nothing in 3,550 of 3,888 cases on the rule here (E-FRC-0123). The adopted knit closes it with a neutral pair move and a store that returns an unmade pair's tokens: 0 of 3,888 dock-beats change held color while 1,994 pairs are made (E-RLT-0067)",
       'carrying non-classical steps exactly needs a unit count that grows four times per step',
     ],
     equations: [
@@ -2269,37 +2273,47 @@ export const RESULTS: Result[] = [
     ],
     measurements: [
       {
-        quantity: 'charge mixes, up to six, where the classical knot is frame-free exactly when the quantum singlet exists',
+        quantity:
+          'charge mixes, up to six, where the classical knot is frame-free exactly when the quantum singlet exists',
         measured: '27 of 27',
-        reference: 'the SU(3) singlet counts of E-FRC-0101 and the characters of $\\Sigma(648)$ (run)',
+        reference:
+          'the SU(3) singlet counts of E-FRC-0101 and the characters of $\\Sigma(648)$ (run)',
         code: 'E-FRC-0118',
       },
       {
-        quantity: 'three equal-sign points of $\\mathbb{Z}_3^2$ with zero sum, distinct',
+        quantity:
+          'three equal-sign points of $\\mathbb{Z}_3^2$ with zero sum, distinct',
         measured: '72, the 12 lines in 6 orders',
         reference: 'the affine plane of order 3 (run)',
         code: 'E-FRC-0118',
       },
       {
-        quantity: 'mismatches under an independent change of frame in every dock, 24 beats',
+        quantity:
+          'mismatches under an independent change of frame in every dock, 24 beats',
         measured: '0 with links',
-        reference: '27,749 without links, 40,015 with a fixed map per direction (run)',
+        reference:
+          '27,749 without links, 40,015 with a fixed map per direction (run)',
         code: 'E-FRC-0117',
       },
       {
-        quantity: 'survival of a point round a loop against the adjoint Wilson loop',
+        quantity:
+          'survival of a point round a loop against the adjoint Wilson loop',
         measured: 'equal to $10^{-12}$ in both phases',
-        reference: 'fixed points $= |\\operatorname{Tr} U|^2$ on all 648 elements (run)',
+        reference:
+          'fixed points $= |\\operatorname{Tr} U|^2$ on all 648 elements (run)',
         code: 'E-FRC-0119',
       },
       {
-        quantity: 'negative weight in the singlet, positive in the symmetric knot',
-        measured: '72 positive and 18 negative on 54 units, against 27 positive and 0 negative',
+        quantity:
+          'negative weight in the singlet, positive in the symmetric knot',
+        measured:
+          '72 positive and 18 negative on 54 units, against 27 positive and 0 negative',
         reference: 'a product state, 27 positive and 0 negative (run)',
         code: 'E-FRC-0120',
       },
       {
-        quantity: 'units needed after 8 rounds of the $2\\pi/3$ swap phase and a Clifford move',
+        quantity:
+          'units needed after 8 rounds of the $2\\pi/3$ swap phase and a Clifford move',
         measured: '2,304, negative share near 0.29',
         reference: '9 at the start, weight exactly 1 every round (run)',
         code: 'E-FRC-0122',
@@ -2312,7 +2326,11 @@ export const RESULTS: Result[] = [
       measured: 'with links, or the symmetric knot',
       control: 'without links, or the singlet',
       rows: [
-        { label: 'frame-change mismatches', measured: 0, control: 27749 },
+        {
+          label: 'frame-change mismatches',
+          measured: 0,
+          control: 27749,
+        },
         { label: 'negative weight units', measured: 0, control: 18 },
       ],
     },
@@ -2334,7 +2352,8 @@ export const RESULTS: Result[] = [
       {
         work: 'Veitch, Ferrie, Gross and Emerson 2012, negative quasi-probability as a resource',
         established: 'negativity is what a Clifford circuit lacks',
-        difference: 'applied here to color singlets and the swap phase of a lattice rule',
+        difference:
+          'applied here to color singlets and the swap phase of a lattice rule',
       },
     ],
     literature: null,
@@ -2348,12 +2367,16 @@ export const RESULTS: Result[] = [
       derived: {
         mark: 'fail',
         reason:
-          'run on constructed rules. The adopted knit\'s own color readings are R-FRC-0003',
+          "run on constructed rules. The adopted knit's own color readings are R-FRC-0003",
       },
-      quantitative: { mark: 'pass', reason: 'exact integers and exact kernels' },
+      quantitative: {
+        mark: 'pass',
+        reason: 'exact integers and exact kernels',
+      },
       differentiating: {
         mark: 'fail',
-        reason: 'it agrees with standard color physics wherever they overlap',
+        reason:
+          'it agrees with standard color physics wherever they overlap',
       },
       falsifiable: {
         mark: 'fail',
@@ -2361,7 +2384,10 @@ export const RESULTS: Result[] = [
       },
       auditable: { mark: 'pass', reason: PUBLIC },
       skeptic_reviewed: { mark: 'fail', reason: NO_SKEPTIC },
-      independently_reproduced: { mark: 'fail', reason: NOT_REPRODUCED },
+      independently_reproduced: {
+        mark: 'fail',
+        reason: NOT_REPRODUCED,
+      },
       interesting: {
         mark: 'unknown',
         reason: 'not yet asked of anyone in the field',
@@ -2501,25 +2527,28 @@ export const RESULTS: Result[] = [
     sentence:
       'Color is an exact local law in the three-trit model exactly when the line table has no hop, links can move while every frame change stays a symmetry, the classical color group confines under a rule with no random number, and a part is bound while a knot is free once a hop pays for its string, though not in the committed orientation.',
     claim:
-      'Counting a calm slot\'s role point as color signed by its side of the line, color content is conserved dock by dock exactly when the sum-keeping line table has no hop (4 of the 16 tables that make pairs from calm, none with a hop). The color weave built on one leaks no color, keeps charge, Gauss\'s law, reversal and frame change exact, and passes the acceptance battery except that a lone disturbance spreads about twice as wide. Links moved by reflection through a triangle\'s staple keep energy to the unit and frame change exact. The kinetic automaton of $\\Sigma(648)$ gives Creutz ratios matching the heatbath and a vanishing Polyakov loop with no random number. With the triality flux as an energy that a hop must pay, a meson stays bound while it travels and a baryon holds together while moving freely against its antibaryon, on a line and, when cold, on the D4 lattice. Under the committed orientation of the lines a lone vibe\'s directions form an open half-space, so it can never come back, which rules moving binding out for any color-local rule in that orientation.',
+      "Counting a calm slot's role point as color signed by its side of the line, color content is conserved dock by dock exactly when the sum-keeping line table has no hop (4 of the 16 tables that make pairs from calm, none with a hop). The color weave built on one leaks no color, keeps charge, Gauss's law, reversal and frame change exact, and passes the acceptance battery except that a lone disturbance spreads about twice as wide. Links moved by reflection through a triangle's staple keep energy to the unit and frame change exact. The kinetic automaton of $\\Sigma(648)$ gives Creutz ratios matching the heatbath and a vanishing Polyakov loop with no random number. With the triality flux as an energy that a hop must pay, a meson stays bound while it travels and a baryon holds together while moving freely against its antibaryon, on a line and, when cold, on the D4 lattice. Under the committed orientation of the lines a lone vibe's directions form an open half-space, so it can never come back, which rules moving binding out for any color-local rule in that orientation.",
     headline: {
       value: '0 of 3,888',
-      label: 'dock-beats where the color weave leaks color, against 3,641 for the committed table',
+      label:
+        'dock-beats where the color weave leaks color, against 3,641 for the committed table',
     },
     category: 'explanation',
     status: ['simulated'],
     depth: 'L1 and L2',
-    audience: 'lattice gauge theory, reversible and cellular automata, anyone building color into a deterministic rule',
-    question: 'Can a deterministic reversible rule keep color local, move its links, and bind a part while leaving a knot free?',
+    audience:
+      'lattice gauge theory, reversible and cellular automata, anyone building color into a deterministic rule',
+    question:
+      'Can a deterministic reversible rule keep color local, move its links, and bind a part while leaving a knot free?',
     answer:
-      'Yes, each exactly, with one table change (no hop) for local color and a paid hop for binding. The committed knit\'s own architecture cannot bind a moving part: its orientation makes a lone vibe drift one way, and every slot must stream.',
+      "Yes, each exactly, with one table change (no hop) for local color and a paid hop for binding. The committed knit's own architecture cannot bind a moving part: its orientation makes a lone vibe drift one way, and every slot must stream.",
     importance:
       'It closes the classical side of color: locality, gauge dynamics, confinement and binding are all carried without amplitudes, and it names exactly which base changes they need.',
     limits: [
-      'run on variant rules on the way to the adopted knit, not on it. The three-trit model they belong to was adopted for the base on 2026-09-25, and the adopted knit took another route to local color: the isometric knit, whose collision keeps every dock\'s held color, with a neutral pair move and a store that returns an unmade pair\'s tokens (E-RLT-0066, E-RLT-0067, R-FRC-0003). A rule written before the numbers chose the color turn weave for its table, on a tie-break of travelers, 16 against 15 (E-FRC-0148). The unit phase kick is lost on every color-local base, and the loop of turns lifts to (-1, -1) instead of (-1, +1) (E-FRC-0149)',
-      'dropping the hop spreads a lone disturbance about 1.7 to 2.3 times wider on the color weave (E-FRC-0125). Answered by a different color-local table: the color turn weave, the hop-free table with another turn of the couples and swap order, keeps color exact dock by dock and dresses no more than the committed knit in every period at sides 7, 9 and 11 (E-FRC-0136). A lone vibe\'s dressing is pair creation from calm, 1 + 2 x the pairs left, and the committed table keeps it low only through its line reflection, the move that breaks color (E-FRC-0137). Its full battery passes for both signs at sides 7, 9 and 11 (E-FRC-0148). This answer is a comparison in a side-9 box, and the box is what bounded it: on an unbounded lattice most lone vibes dress without bound, growing about as t^5, under the committed knit as under the color-local ones, and only 7 of 24 directions on the committed knit and 8 of 24 on the combined knit travel as exactly recurring particles (E-CMP-0015)',
-      'moving binding in the committed slot architecture: waiting slots are exact, but a charge that cannot pay cannot wait, since 12 of the 13 places of a lone charge cross unpaid (E-FRC-0132). A crossing that bounces when unpaid binds a meson (mean gap 0.17 against 441) and a baryon when cold and melts when warm, but the pair is stuck: 0.7 docks in 600 beats against 34 (E-FRC-0133). Steering a charge onto its string frees it: a cold meson keeps a mean gap of 1.87 while traveling 13, against 409 with no tension, and 510 of 576 starting headings give a bound pair that travels (E-FRC-0146, E-FRC-0147). The steering runs on a round robin of all 11 line matchings, a new schedule. The committed turning weave\'s couples reach 5 of 12 lines, and 88 of 576 headings walk. Folded into the 24-beat palindrome the round robin reaches all 66 pairs of lines and keeps CPT (E-FRC-0152), and on it a cold meson keeps a mean gap of 1.27 while traveling 20, against 252 with no tension (E-FRC-0153). But the fold fails the acceptance battery: a lone vibe\'s disturbance grows about tenfold each period, 119 to 75,050 at side 11 against the committed knit\'s 33 to 2,241 (E-FRC-0156). And no steering closes the baryon gap while the meson\'s pattern is carried: line steering holds the baryon at 2.6 and the meson\'s pattern stops, travel 1.8 (E-FRC-0157). The combined knit, the head-on turn base with the scatter block, the fold with lone steering and the fear beat, reverses exactly and reproduces each piece bit for bit (E-FRC-0158), and its failures are the fold and lone steering, not the fear beat (E-FRC-0159). Moving binding in the slot architecture is not shown. Matter that waits in docks with paid hops binds, and the stream carries its bound pattern (E-FRC-0131)',
-      'links priced with a hopping term are exact and local, and static matter makes its links carry its color 0.81 of the time on a melted field against 1/9 by chance, but they form no string (E-FRC-0134, E-FRC-0135). The full three-trit link, grid move and center flux, forms a quark string on the melted field: excess under 0.8 per slice at R = 1 to 4, and a meson keeps a mean gap of 1.48 against 65.6 while it travels (E-FRC-0144, E-FRC-0145). On the cold field the string gates fail. One Sigma(648) element per link keeps the string taut on both branches, but no Creutz ratio can be read and the cold meson is frozen (E-FRC-0150, E-FRC-0151). Coupling the center phase to the flux as a conjugate pair is exact, with the lock built in rather than derived (E-FRC-0154), and holds a flux string near taut with no put-in tension, but at a deconfined point, and a cold meson\'s pattern is carried 4.2 docks in 600 beats (E-FRC-0155). The coupled rule cannot hold the confined point (E-FRC-0160, E-FRC-0161). Covariant cooling moves hold beta0 near 13, which is deconfined on D4 (Polyakov 0.20 to 0.26), with no area law and a frozen meson (E-FRC-0162, E-FRC-0163). The confined side between beta0 3.8 and 13 is not scanned',
+      "run on variant rules on the way to the adopted knit, not on it. The three-trit model they belong to was adopted for the base on 2026-09-25, and the adopted knit took another route to local color: the isometric knit, whose collision keeps every dock's held color, with a neutral pair move and a store that returns an unmade pair's tokens (E-RLT-0066, E-RLT-0067, R-FRC-0003). A rule written before the numbers chose the color turn weave for its table, on a tie-break of travelers, 16 against 15 (E-FRC-0148). The unit phase kick is lost on every color-local base, and the loop of turns lifts to (-1, -1) instead of (-1, +1) (E-FRC-0149)",
+      "dropping the hop spreads a lone disturbance about 1.7 to 2.3 times wider on the color weave (E-FRC-0125). Answered by a different color-local table: the color turn weave, the hop-free table with another turn of the couples and swap order, keeps color exact dock by dock and dresses no more than the committed knit in every period at sides 7, 9 and 11 (E-FRC-0136). A lone vibe's dressing is pair creation from calm, 1 + 2 x the pairs left, and the committed table keeps it low only through its line reflection, the move that breaks color (E-FRC-0137). Its full battery passes for both signs at sides 7, 9 and 11 (E-FRC-0148). This answer is a comparison in a side-9 box, and the box is what bounded it: on an unbounded lattice most lone vibes dress without bound, growing about as t^5, under the committed knit as under the color-local ones, and only 7 of 24 directions on the committed knit and 8 of 24 on the combined knit travel as exactly recurring particles (E-CMP-0015)",
+      "moving binding in the committed slot architecture: waiting slots are exact, but a charge that cannot pay cannot wait, since 12 of the 13 places of a lone charge cross unpaid (E-FRC-0132). A crossing that bounces when unpaid binds a meson (mean gap 0.17 against 441) and a baryon when cold and melts when warm, but the pair is stuck: 0.7 docks in 600 beats against 34 (E-FRC-0133). Steering a charge onto its string frees it: a cold meson keeps a mean gap of 1.87 while traveling 13, against 409 with no tension, and 510 of 576 starting headings give a bound pair that travels (E-FRC-0146, E-FRC-0147). The steering runs on a round robin of all 11 line matchings, a new schedule. The committed turning weave's couples reach 5 of 12 lines, and 88 of 576 headings walk. Folded into the 24-beat palindrome the round robin reaches all 66 pairs of lines and keeps CPT (E-FRC-0152), and on it a cold meson keeps a mean gap of 1.27 while traveling 20, against 252 with no tension (E-FRC-0153). But the fold fails the acceptance battery: a lone vibe's disturbance grows about tenfold each period, 119 to 75,050 at side 11 against the committed knit's 33 to 2,241 (E-FRC-0156). And no steering closes the baryon gap while the meson's pattern is carried: line steering holds the baryon at 2.6 and the meson's pattern stops, travel 1.8 (E-FRC-0157). The combined knit, the head-on turn base with the scatter block, the fold with lone steering and the fear beat, reverses exactly and reproduces each piece bit for bit (E-FRC-0158), and its failures are the fold and lone steering, not the fear beat (E-FRC-0159). Moving binding in the slot architecture is not shown. Matter that waits in docks with paid hops binds, and the stream carries its bound pattern (E-FRC-0131)",
+      "links priced with a hopping term are exact and local, and static matter makes its links carry its color 0.81 of the time on a melted field against 1/9 by chance, but they form no string (E-FRC-0134, E-FRC-0135). The full three-trit link, grid move and center flux, forms a quark string on the melted field: excess under 0.8 per slice at R = 1 to 4, and a meson keeps a mean gap of 1.48 against 65.6 while it travels (E-FRC-0144, E-FRC-0145). On the cold field the string gates fail. One Sigma(648) element per link keeps the string taut on both branches, but no Creutz ratio can be read and the cold meson is frozen (E-FRC-0150, E-FRC-0151). Coupling the center phase to the flux as a conjugate pair is exact, with the lock built in rather than derived (E-FRC-0154), and holds a flux string near taut with no put-in tension, but at a deconfined point, and a cold meson's pattern is carried 4.2 docks in 600 beats (E-FRC-0155). The coupled rule cannot hold the confined point (E-FRC-0160, E-FRC-0161). Covariant cooling moves hold beta0 near 13, which is deconfined on D4 (Polyakov 0.20 to 0.26), with no area law and a frozen meson (E-FRC-0162, E-FRC-0163). The confined side between beta0 3.8 and 13 is not scanned",
       'confinement is at one spacing on a 6^3 x 4 lattice. Under the Wilson action with a Re Tr U^2 term the classical group $\\Sigma(648)$ matches SU(3) at the N_t = 4 transition (chi(2, 2) 0.375 against 0.378, E-FRC-0103), and on the trajectories measured its spacing stops shrinking there. Two cube-root swap phases give the first finer step, $\\sqrt{1/6}$ (E-QTM-0101), and the first word closer to T than any classical element needs 4 swap phases, 0.362 at $2^8$ of grain (E-QTM-0104)',
     ],
     equations: [
@@ -2529,125 +2558,160 @@ export const RESULTS: Result[] = [
     ],
     measurements: [
       {
-        quantity: 'pair-making line tables that admit local color, and how many have a hop',
+        quantity:
+          'pair-making line tables that admit local color, and how many have a hop',
         measured: '4 of 16, none with a hop',
         reference: 'the committed table admits none (run)',
         code: 'E-FRC-0124',
       },
       {
-        quantity: 'dock-beats where color leaks, 48 beats on the side-3 box',
+        quantity:
+          'dock-beats where color leaks, 48 beats on the side-3 box',
         measured: '0 of 3,888',
-        reference: '3,641 for the committed table through the same code (run)',
+        reference:
+          '3,641 for the committed table through the same code (run)',
         code: 'E-FRC-0124',
       },
       {
-        quantity: 'Creutz ratio chi(2, 2) at a Wilson coupling of 4.30, no random number',
+        quantity:
+          'Creutz ratio chi(2, 2) at a Wilson coupling of 4.30, no random number',
         measured: '1.153 +- 0.018',
-        reference: 'the heatbath at the same coupling, 1.172 +- 0.017 (run)',
+        reference:
+          'the heatbath at the same coupling, 1.172 +- 0.017 (run)',
         code: 'E-FRC-0126',
       },
       {
-        quantity: 'links moved in 24 beats, with energy and frame change exact',
+        quantity:
+          'links moved in 24 beats, with energy and frame change exact',
         measured: '1,814 of 1,944',
-        reference: 'the index-order step breaks the frame change on 11,370 link values (run)',
+        reference:
+          'the index-order step breaks the frame change on 11,370 link values (run)',
         code: 'E-FRC-0128',
       },
       {
-        quantity: 'a meson\'s mean gap on a line, with tension',
+        quantity: "a meson's mean gap on a line, with tension",
         measured: '1.9 docks, traveling 486',
         reference: '64.1 docks with no tension (run)',
         code: 'E-FRC-0129',
       },
       {
-        quantity: 'line orientations whose sign class is an open half-space',
+        quantity:
+          'line orientations whose sign class is an open half-space',
         measured: '192 of 4,096, the committed one among them',
         reference: 'the 3,904 others hold a zero-sum triangle (run)',
         code: 'E-FRC-0130',
       },
       {
-        quantity: 'a meson\'s mean gap on the D4 lattice, coldest demons',
+        quantity:
+          "a meson's mean gap on the D4 lattice, coldest demons",
         measured: '1.72, traveling 34',
         reference: '121.6 with no tension, 89.5 at the hottest (run)',
         code: 'E-FRC-0131',
       },
       {
-        quantity: 'a meson\'s mean gap in the slots with a bouncing crossing, coldest demons, and its travel in 600 beats',
+        quantity:
+          "a meson's mean gap in the slots with a bouncing crossing, coldest demons, and its travel in 600 beats",
         measured: '0.17, traveling 0.7',
-        reference: '441 with no tension, and 34 traveled with matter that waits (E-FRC-0131) (run)',
+        reference:
+          '441 with no tension, and 34 traveled with matter that waits (E-FRC-0131) (run)',
         code: 'E-FRC-0133',
       },
       {
-        quantity: 'color leaks under the color turn weave, and a lone love\'s largest support at side 9 in the first four periods',
+        quantity:
+          "color leaks under the color turn weave, and a lone love's largest support at side 9 in the first four periods",
         measured: '0 leaks, 31, 115, 265, 507 slots',
         reference: '33, 160, 565, 1,508 under the committed knit (run)',
         code: 'E-FRC-0136',
       },
       {
-        quantity: 'a meson\'s mean gap with the full three-trit link on the melted field, while it travels',
+        quantity:
+          "a meson's mean gap with the full three-trit link on the melted field, while it travels",
         measured: '1.48',
         reference: '65.6 free (run)',
         code: 'E-FRC-0145',
       },
       {
-        quantity: 'starting headings that give a bound pair that travels, steered on a round robin of all line matchings',
+        quantity:
+          'starting headings that give a bound pair that travels, steered on a round robin of all line matchings',
         measured: '510 of 576',
-        reference: '88 of 576 walk on the committed turning weave\'s couples (run)',
+        reference:
+          "88 of 576 walk on the committed turning weave's couples (run)",
         code: 'E-FRC-0147',
       },
       {
-        quantity: 'travelers among the 24 directions, the third step of the pre-registered knit choice',
+        quantity:
+          'travelers among the 24 directions, the third step of the pre-registered knit choice',
         measured: '16 for the color turn weave',
-        reference: '15 for the runner-up, after exact ties on dressing ratio (1) and vacuum components (2) (run)',
+        reference:
+          '15 for the runner-up, after exact ties on dressing ratio (1) and vacuum components (2) (run)',
         code: 'E-FRC-0148',
       },
       {
-        quantity: 'a lone vibe\'s disturbance on the folded round robin at side 11, first to fourth period',
+        quantity:
+          "a lone vibe's disturbance on the folded round robin at side 11, first to fourth period",
         measured: '119 to 75,050 slots',
         reference: '33 to 2,241 under the committed knit (run)',
         code: 'E-FRC-0156',
       },
       {
-        quantity: 'CHSH on the combined knit with the fear beat on, unfolded and folded',
-        measured: '2.55 and 2.36 at the retired golden start, 2.55 on H, HF and HFL at the default integer start',
+        quantity:
+          'CHSH on the combined knit with the fear beat on, unfolded and folded',
+        measured:
+          '2.55 and 2.36 at the retired golden start, 2.55 on H, HF and HFL at the default integer start',
         reference:
-          '2.00 for the phase-free stand-in (run). The value is a rung of one meeting\'s ladder and moves with the link start: the battery passes on 5 of 9 starts, each failing start one where the frame control reads 0 on both sides (E-MTH-0028)',
+          "2.00 for the phase-free stand-in (run). The value is a rung of one meeting's ladder and moves with the link start: the battery passes on 5 of 9 starts, each failing start one where the frame control reads 0 on both sides (E-MTH-0028)",
         code: 'E-FRC-0159',
       },
       {
-        quantity: 'lone-vibe directions whose pattern recurs exactly, shifted, on an unbounded lattice (travelers)',
-        measured: '7 of 24 on the committed knit, 8 of 24 on the combined knit',
-        reference: 'the rest dress without bound, where a side-9 box caps them at its volume (run)',
+        quantity:
+          'lone-vibe directions whose pattern recurs exactly, shifted, on an unbounded lattice (travelers)',
+        measured:
+          '7 of 24 on the committed knit, 8 of 24 on the combined knit',
+        reference:
+          'the rest dress without bound, where a side-9 box caps them at its volume (run)',
         code: 'E-CMP-0015',
       },
     ],
     figure: {
       form: 'pairs',
       caption:
-        'Explanation. Each row against its control: color leaks with the hop-free table against the committed one, and a meson\'s mean gap with tension against without, on a line and on the D4 lattice.',
+        "Explanation. Each row against its control: color leaks with the hop-free table against the committed one, and a meson's mean gap with tension against without, on a line and on the D4 lattice.",
       measured: 'the rule',
       control: 'its control',
       rows: [
-        { label: 'color leaks, dock-beats', measured: 0, control: 3641 },
+        {
+          label: 'color leaks, dock-beats',
+          measured: 0,
+          control: 3641,
+        },
         { label: 'meson gap on a line', measured: 1.9, control: 64.1 },
-        { label: 'meson gap on D4, cold', measured: 1.72, control: 121.6 },
+        {
+          label: 'meson gap on D4, cold',
+          measured: 1.72,
+          control: 121.6,
+        },
       ],
     },
     comparison: {
       standard:
-        'color charge is locally conserved with Gauss\'s law, lattice gauge theory confines at strong coupling, and a string with many ways to turn deconfines when hot',
+        "color charge is locally conserved with Gauss's law, lattice gauge theory confines at strong coupling, and a string with many ways to turn deconfines when hot",
       vibe: 'the same, carried by a deterministic reversible rule on whole numbers, with the table change and the paid hop it takes',
-      difference: 'a construction of the standard picture without dice, and the exact base changes it requires, not a disagreement',
+      difference:
+        'a construction of the standard picture without dice, and the exact base changes it requires, not a disagreement',
     },
     closest: [
       {
         work: 'Creutz 1983, microcanonical Monte Carlo simulation',
         established: 'demons sample the gauge ensemble at fixed energy',
-        difference: 'here the demon rules are reversible and frame-covariant, and the matter pays the demons for its string',
+        difference:
+          'here the demon rules are reversible and frame-covariant, and the matter pays the demons for its string',
       },
       {
         work: 'Kogut and Susskind 1975, Hamiltonian lattice gauge theory',
-        established: 'at strong coupling electric flux strings bind charges, with energy proportional to length',
-        difference: 'realized as a deterministic cellular automaton with an exact integer energy',
+        established:
+          'at strong coupling electric flux strings bind charges, with energy proportional to length',
+        difference:
+          'realized as a deterministic cellular automaton with an exact integer energy',
       },
     ],
     literature: null,
@@ -2655,16 +2719,23 @@ export const RESULTS: Result[] = [
       prior_art_reviewed: { mark: 'fail', reason: NOT_RUN },
       novel: {
         mark: 'unknown',
-        reason: 'reversible gauge automata exist, and whether this combination is known has not been checked. The literature pass has not been run',
+        reason:
+          'reversible gauge automata exist, and whether this combination is known has not been checked. The literature pass has not been run',
       },
       derived: {
         mark: 'fail',
-        reason: 'variant rules on the way to the adopted three-trit knit, not the adopted knit itself',
+        reason:
+          'variant rules on the way to the adopted three-trit knit, not the adopted knit itself',
       },
-      quantitative: { mark: 'pass', reason: 'exact integers, exhaustive searches and measured controls' },
+      quantitative: {
+        mark: 'pass',
+        reason:
+          'exact integers, exhaustive searches and measured controls',
+      },
       differentiating: {
         mark: 'fail',
-        reason: 'it agrees with standard color physics wherever they overlap',
+        reason:
+          'it agrees with standard color physics wherever they overlap',
       },
       falsifiable: {
         mark: 'fail',
@@ -2672,7 +2743,10 @@ export const RESULTS: Result[] = [
       },
       auditable: { mark: 'pass', reason: PUBLIC },
       skeptic_reviewed: { mark: 'fail', reason: NO_SKEPTIC },
-      independently_reproduced: { mark: 'fail', reason: NOT_REPRODUCED },
+      independently_reproduced: {
+        mark: 'fail',
+        reason: NOT_REPRODUCED,
+      },
       interesting: {
         mark: 'unknown',
         reason: 'not yet asked of anyone in the field',
@@ -2687,65 +2761,302 @@ export const RESULTS: Result[] = [
     free_parameters: 0,
     fitted: false,
     known_before: false,
-    falsified_by: 'a counterexample in any of the exhaustive checks, or a failed gate on rerun',
+    falsified_by:
+      'a counterexample in any of the exhaustive checks, or a failed gate on rerun',
     version: '1.0.0',
     audited: '2026-09-25',
     history: [FIRST],
     depends: ['R-FRC-0005'],
     experiments: [
-      { code: 'E-FRC-0124', file: 'test/experiment/gauge/color-is-local.ts', depends: ['A1', 'A2', 'A3', 'A4'] },
-      { code: 'E-FRC-0125', file: 'test/experiment/gauge/color-weave-acceptance.ts', depends: ['A1', 'A2', 'A3', 'A4'] },
-      { code: 'E-FRC-0126', file: 'test/experiment/gauge/deterministic-confinement.ts', depends: [] },
-      { code: 'E-FRC-0127', file: 'test/experiment/gauge/fear-beat.ts', depends: [] },
-      { code: 'E-FRC-0128', file: 'test/experiment/gauge/roles-on-moving-links.ts', depends: ['A1', 'A2', 'A3', 'A4'] },
-      { code: 'E-FRC-0129', file: 'test/experiment/gauge/string-binds.ts', depends: [] },
-      { code: 'E-FRC-0130', file: 'test/experiment/gauge/sign-class-drift.ts', depends: ['A1'] },
-      { code: 'E-FRC-0131', file: 'test/experiment/gauge/d4-string-binds.ts', depends: ['A1'] },
-      { code: 'E-FRC-0132', file: 'test/experiment/gauge/waiting-slots.ts', depends: ['A1'] },
-      { code: 'E-FRC-0133', file: 'test/experiment/gauge/slot-binding.ts', depends: ['A1'] },
-      { code: 'E-FRC-0134', file: 'test/experiment/gauge/links-feel-matter.ts', depends: ['A1'] },
-      { code: 'E-FRC-0135', file: 'test/experiment/gauge/matter-shapes-the-field.ts', depends: ['A1'] },
-      { code: 'E-FRC-0136', file: 'test/experiment/gauge/color-turn-weave-acceptance.ts', depends: ['A1'] },
-      { code: 'E-FRC-0137', file: 'test/experiment/gauge/color-local-dressing-search.ts', depends: ['A1'] },
-      { code: 'E-FRC-0144', file: 'test/experiment/gauge/center-flux-links.ts', depends: ['A1'] },
-      { code: 'E-FRC-0145', file: 'test/experiment/gauge/quark-string-forms.ts', depends: ['A1'] },
-      { code: 'E-FRC-0146', file: 'test/experiment/gauge/steered-slots.ts', depends: ['A1'] },
-      { code: 'E-FRC-0147', file: 'test/experiment/gauge/steered-binding.ts', depends: ['A1'] },
-      { code: 'E-FRC-0150', file: 'test/experiment/gauge/sigma-flux-links.ts', depends: ['A1'] },
-      { code: 'E-FRC-0151', file: 'test/experiment/gauge/sigma-quark-string.ts', depends: ['A1'] },
-      { code: 'E-FRC-0152', file: 'test/experiment/gauge/steering-schedule.ts', depends: ['A1'] },
-      { code: 'E-FRC-0153', file: 'test/experiment/gauge/knit-binding.ts', depends: ['A1'] },
-      { code: 'E-FRC-0148', file: 'test/experiment/gauge/color-knit-choice.ts', depends: ['A1'] },
-      { code: 'E-FRC-0149', file: 'test/experiment/gauge/color-knit-characterization.ts', depends: ['A1'] },
-      { code: 'E-FRC-0154', file: 'test/experiment/gauge/sigma-conjugate-pair.ts', depends: ['A1'] },
-      { code: 'E-FRC-0155', file: 'test/experiment/gauge/sigma-string-tension.ts', depends: ['A1'] },
-      { code: 'E-FRC-0156', file: 'test/experiment/gauge/folded-acceptance.ts', depends: ['A1'] },
-      { code: 'E-FRC-0157', file: 'test/experiment/gauge/baryon-steering.ts', depends: ['A1'] },
-      { code: 'E-FRC-0158', file: 'test/experiment/gauge/combined-knit.ts', depends: ['A1'] },
-      { code: 'E-FRC-0159', file: 'test/experiment/gauge/combined-knit-battery.ts', depends: ['A1'] },
-      { code: 'E-FRC-0160', file: 'test/experiment/gauge/sigma-confined-point.ts', depends: ['A1'] },
-      { code: 'E-FRC-0161', file: 'test/experiment/gauge/sigma-field-string.ts', depends: ['A1'] },
-      { code: 'E-FRC-0162', file: 'test/experiment/gauge/sigma-cooling-moves.ts', depends: ['A1'] },
-      { code: 'E-FRC-0163', file: 'test/experiment/gauge/sigma-cooled-string.ts', depends: ['A1'] },
-      { code: 'E-CMP-0015', file: 'test/experiment/computation/difference-engine.ts', depends: ['A1'] },
+      {
+        code: 'E-FRC-0124',
+        file: 'test/experiment/gauge/color-is-local.ts',
+        depends: ['A1', 'A2', 'A3', 'A4'],
+      },
+      {
+        code: 'E-FRC-0125',
+        file: 'test/experiment/gauge/color-weave-acceptance.ts',
+        depends: ['A1', 'A2', 'A3', 'A4'],
+      },
+      {
+        code: 'E-FRC-0126',
+        file: 'test/experiment/gauge/deterministic-confinement.ts',
+        depends: [],
+      },
+      {
+        code: 'E-FRC-0127',
+        file: 'test/experiment/gauge/fear-beat.ts',
+        depends: [],
+      },
+      {
+        code: 'E-FRC-0128',
+        file: 'test/experiment/gauge/roles-on-moving-links.ts',
+        depends: ['A1', 'A2', 'A3', 'A4'],
+      },
+      {
+        code: 'E-FRC-0129',
+        file: 'test/experiment/gauge/string-binds.ts',
+        depends: [],
+      },
+      {
+        code: 'E-FRC-0130',
+        file: 'test/experiment/gauge/sign-class-drift.ts',
+        depends: ['A1'],
+      },
+      {
+        code: 'E-FRC-0131',
+        file: 'test/experiment/gauge/d4-string-binds.ts',
+        depends: ['A1'],
+      },
+      {
+        code: 'E-FRC-0132',
+        file: 'test/experiment/gauge/waiting-slots.ts',
+        depends: ['A1'],
+      },
+      {
+        code: 'E-FRC-0133',
+        file: 'test/experiment/gauge/slot-binding.ts',
+        depends: ['A1'],
+      },
+      {
+        code: 'E-FRC-0134',
+        file: 'test/experiment/gauge/links-feel-matter.ts',
+        depends: ['A1'],
+      },
+      {
+        code: 'E-FRC-0135',
+        file: 'test/experiment/gauge/matter-shapes-the-field.ts',
+        depends: ['A1'],
+      },
+      {
+        code: 'E-FRC-0136',
+        file: 'test/experiment/gauge/color-turn-weave-acceptance.ts',
+        depends: ['A1'],
+      },
+      {
+        code: 'E-FRC-0137',
+        file: 'test/experiment/gauge/color-local-dressing-search.ts',
+        depends: ['A1'],
+      },
+      {
+        code: 'E-FRC-0144',
+        file: 'test/experiment/gauge/center-flux-links.ts',
+        depends: ['A1'],
+      },
+      {
+        code: 'E-FRC-0145',
+        file: 'test/experiment/gauge/quark-string-forms.ts',
+        depends: ['A1'],
+      },
+      {
+        code: 'E-FRC-0146',
+        file: 'test/experiment/gauge/steered-slots.ts',
+        depends: ['A1'],
+      },
+      {
+        code: 'E-FRC-0147',
+        file: 'test/experiment/gauge/steered-binding.ts',
+        depends: ['A1'],
+      },
+      {
+        code: 'E-FRC-0150',
+        file: 'test/experiment/gauge/sigma-flux-links.ts',
+        depends: ['A1'],
+      },
+      {
+        code: 'E-FRC-0151',
+        file: 'test/experiment/gauge/sigma-quark-string.ts',
+        depends: ['A1'],
+      },
+      {
+        code: 'E-FRC-0152',
+        file: 'test/experiment/gauge/steering-schedule.ts',
+        depends: ['A1'],
+      },
+      {
+        code: 'E-FRC-0153',
+        file: 'test/experiment/gauge/knit-binding.ts',
+        depends: ['A1'],
+      },
+      {
+        code: 'E-FRC-0148',
+        file: 'test/experiment/gauge/color-knit-choice.ts',
+        depends: ['A1'],
+      },
+      {
+        code: 'E-FRC-0149',
+        file: 'test/experiment/gauge/color-knit-characterization.ts',
+        depends: ['A1'],
+      },
+      {
+        code: 'E-FRC-0154',
+        file: 'test/experiment/gauge/sigma-conjugate-pair.ts',
+        depends: ['A1'],
+      },
+      {
+        code: 'E-FRC-0155',
+        file: 'test/experiment/gauge/sigma-string-tension.ts',
+        depends: ['A1'],
+      },
+      {
+        code: 'E-FRC-0156',
+        file: 'test/experiment/gauge/folded-acceptance.ts',
+        depends: ['A1'],
+      },
+      {
+        code: 'E-FRC-0157',
+        file: 'test/experiment/gauge/baryon-steering.ts',
+        depends: ['A1'],
+      },
+      {
+        code: 'E-FRC-0158',
+        file: 'test/experiment/gauge/combined-knit.ts',
+        depends: ['A1'],
+      },
+      {
+        code: 'E-FRC-0159',
+        file: 'test/experiment/gauge/combined-knit-battery.ts',
+        depends: ['A1'],
+      },
+      {
+        code: 'E-FRC-0160',
+        file: 'test/experiment/gauge/sigma-confined-point.ts',
+        depends: ['A1'],
+      },
+      {
+        code: 'E-FRC-0161',
+        file: 'test/experiment/gauge/sigma-field-string.ts',
+        depends: ['A1'],
+      },
+      {
+        code: 'E-FRC-0162',
+        file: 'test/experiment/gauge/sigma-cooling-moves.ts',
+        depends: ['A1'],
+      },
+      {
+        code: 'E-FRC-0163',
+        file: 'test/experiment/gauge/sigma-cooled-string.ts',
+        depends: ['A1'],
+      },
+      {
+        code: 'E-CMP-0015',
+        file: 'test/experiment/computation/difference-engine.ts',
+        depends: ['A1'],
+      },
     ],
     checks: [
-      { code: 'E-FRC-0124', metric: 'creatingWithLocalColor', from: 'metrics', expected: 4, tolerance: 0 },
-      { code: 'E-FRC-0124', metric: 'localColorWithHop', from: 'metrics', expected: 0, tolerance: 0 },
-      { code: 'E-FRC-0124', metric: 'colorLeaks', from: 'metrics', expected: 0, tolerance: 0 },
-      { code: 'E-FRC-0124', metric: 'committedTableColorLeaks', from: 'control', expected: 3641, tolerance: 0 },
-      { code: 'E-FRC-0126', metric: 'energyDrift', from: 'metrics', expected: 0, tolerance: 0 },
-      { code: 'E-FRC-0127', metric: 'liealgebraDimension', from: 'metrics', expected: 80, tolerance: 0 },
-      { code: 'E-FRC-0128', metric: 'frameFree', from: 'metrics', expected: 1, tolerance: 0 },
-      { code: 'E-FRC-0128', metric: 'linkEnergyConserved', from: 'metrics', expected: 1, tolerance: 0 },
-      { code: 'E-FRC-0129', metric: 'exactAndReversible', from: 'metrics', expected: 1, tolerance: 0 },
-      { code: 'E-FRC-0130', metric: 'halfSpaceOrientations', from: 'metrics', expected: 192, tolerance: 0 },
-      { code: 'E-FRC-0131', metric: 'exactAndReversible', from: 'metrics', expected: 1, tolerance: 0 },
-      { code: 'E-FRC-0133', metric: 'exactAndReversible', from: 'metrics', expected: 1, tolerance: 0 },
-      { code: 'E-FRC-0133', metric: 'reflectColorLeaks', from: 'metrics', expected: 0, tolerance: 0 },
-      { code: 'E-FRC-0136', metric: 'colorLeaks', from: 'metrics', expected: 0, tolerance: 0 },
-      { code: 'E-FRC-0136', metric: 'reverses', from: 'metrics', expected: 1, tolerance: 0 },
-      { code: 'E-FRC-0145', metric: 'energyAndGaussExact', from: 'metrics', expected: 1, tolerance: 0 },
+      {
+        code: 'E-FRC-0124',
+        metric: 'creatingWithLocalColor',
+        from: 'metrics',
+        expected: 4,
+        tolerance: 0,
+      },
+      {
+        code: 'E-FRC-0124',
+        metric: 'localColorWithHop',
+        from: 'metrics',
+        expected: 0,
+        tolerance: 0,
+      },
+      {
+        code: 'E-FRC-0124',
+        metric: 'colorLeaks',
+        from: 'metrics',
+        expected: 0,
+        tolerance: 0,
+      },
+      {
+        code: 'E-FRC-0124',
+        metric: 'committedTableColorLeaks',
+        from: 'control',
+        expected: 3641,
+        tolerance: 0,
+      },
+      {
+        code: 'E-FRC-0126',
+        metric: 'energyDrift',
+        from: 'metrics',
+        expected: 0,
+        tolerance: 0,
+      },
+      {
+        code: 'E-FRC-0127',
+        metric: 'liealgebraDimension',
+        from: 'metrics',
+        expected: 80,
+        tolerance: 0,
+      },
+      {
+        code: 'E-FRC-0128',
+        metric: 'frameFree',
+        from: 'metrics',
+        expected: 1,
+        tolerance: 0,
+      },
+      {
+        code: 'E-FRC-0128',
+        metric: 'linkEnergyConserved',
+        from: 'metrics',
+        expected: 1,
+        tolerance: 0,
+      },
+      {
+        code: 'E-FRC-0129',
+        metric: 'exactAndReversible',
+        from: 'metrics',
+        expected: 1,
+        tolerance: 0,
+      },
+      {
+        code: 'E-FRC-0130',
+        metric: 'halfSpaceOrientations',
+        from: 'metrics',
+        expected: 192,
+        tolerance: 0,
+      },
+      {
+        code: 'E-FRC-0131',
+        metric: 'exactAndReversible',
+        from: 'metrics',
+        expected: 1,
+        tolerance: 0,
+      },
+      {
+        code: 'E-FRC-0133',
+        metric: 'exactAndReversible',
+        from: 'metrics',
+        expected: 1,
+        tolerance: 0,
+      },
+      {
+        code: 'E-FRC-0133',
+        metric: 'reflectColorLeaks',
+        from: 'metrics',
+        expected: 0,
+        tolerance: 0,
+      },
+      {
+        code: 'E-FRC-0136',
+        metric: 'colorLeaks',
+        from: 'metrics',
+        expected: 0,
+        tolerance: 0,
+      },
+      {
+        code: 'E-FRC-0136',
+        metric: 'reverses',
+        from: 'metrics',
+        expected: 1,
+        tolerance: 0,
+      },
+      {
+        code: 'E-FRC-0145',
+        metric: 'energyAndGaussExact',
+        from: 'metrics',
+        expected: 1,
+        tolerance: 0,
+      },
     ],
     notes: ['note/experiment/gauge/what-the-base-needs.md'],
     problem: 'OP-02',
@@ -2782,7 +3093,7 @@ export const RESULTS: Result[] = [
       'E-HLG-0004 is on {5,3,4}, and its control repeats its own measurement',
       'E-HLG-0033 evaluates a formula for a branching tree. It is not a simulation',
       'no correlation is measured at all, only path lengths',
-      'a common cause cannot reach Bell-violating correlations. The account has to meet that and does not yet. The fear weave\'s tokens from different docks pass CHSH 2 where both classical rules stay at 2 (E-QTM-0100): one meeting reaches the rungs $4 / \\sqrt 3$ or $\\sqrt 7$ for like vibes and $2.3613$ (a lower bound on that knot\'s maximum) or $(2 + 4 \\sqrt 2) / 3$ for a love and a fear, by the overlap of the two roles (E-QTM-0140, E-QTM-0141), and the knit\'s own histories reach $2.5298$ as a signed count with no signaling (E-RLT-0055 under the comoving fear beat, E-QTM-0111, E-QTM-0143). That is quantum weight in the roles, not a common cause, and it is not run on {3,4,3,4}',
+      "a common cause cannot reach Bell-violating correlations. The account has to meet that and does not yet. The fear weave's tokens from different docks pass CHSH 2 where both classical rules stay at 2 (E-QTM-0100): one meeting reaches the rungs $4 / \\sqrt 3$ or $\\sqrt 7$ for like vibes and $2.3613$ (a lower bound on that knot's maximum) or $(2 + 4 \\sqrt 2) / 3$ for a love and a fear, by the overlap of the two roles (E-QTM-0140, E-QTM-0141), and the knit's own histories reach $2.5298$ as a signed count with no signaling (E-RLT-0055 under the comoving fear beat, E-QTM-0111, E-QTM-0143). That is quantum weight in the roles, not a common cause, and it is not run on {3,4,3,4}",
     ],
     equations: [
       'interior steps between boundary points $s$ apart (I8): $d_{\\text{interior}}(s) = 2\\lceil \\log_3 s \\rceil + 1$, against $d_{\\text{boundary}}(s) = s$',

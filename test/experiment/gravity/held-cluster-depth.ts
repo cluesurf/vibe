@@ -59,8 +59,26 @@ import { centerOf } from '@/code/measure/wall-reading'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
 import { boxHusk } from '@/code/measure/causal-components'
 import { shellMeans, staticDepth } from '@/code/measure/energy-lines'
-import { lineBasis, lineLightest, wholeBasis, type LineSector } from '@/code/measure/coined-line-bloch'
-import { axisRing, blochPacket, exactWindow, fitRing, levelPlacement, placePoints, pointBeat, pointDensity, ringCenter, ringColumns, ringRadius, type PointState } from '@/code/measure/held-cluster'
+import {
+  lineBasis,
+  lineLightest,
+  wholeBasis,
+  type LineSector,
+} from '@/code/measure/coined-line-bloch'
+import {
+  axisRing,
+  blochPacket,
+  exactWindow,
+  fitRing,
+  levelPlacement,
+  placePoints,
+  pointBeat,
+  pointDensity,
+  ringCenter,
+  ringColumns,
+  ringRadius,
+  type PointState,
+} from '@/code/measure/held-cluster'
 
 const BOX = 12
 const P = 40
@@ -73,11 +91,16 @@ const MOVE = 4
 const EXACT = 1e-12
 
 // least squares of y = a + k / r
-function inverseFit(rs: readonly number[], ys: readonly number[]): { a: number; k: number } {
+function inverseFit(
+  rs: readonly number[],
+  ys: readonly number[],
+): { a: number; k: number } {
   const xs = rs.map(r => 1 / r)
   const mx = xs.reduce((s, v) => s + v, 0) / xs.length
   const my = ys.reduce((s, v) => s + v, 0) / ys.length
-  const k = xs.reduce((s, v, i) => s + (v - mx) * ((ys[i] as number) - my), 0) / xs.reduce((s, v) => s + (v - mx) ** 2, 0)
+  const k =
+    xs.reduce((s, v, i) => s + (v - mx) * (ys[i]! - my), 0) /
+    xs.reduce((s, v) => s + (v - mx) ** 2, 0)
 
   return { a: my - k * mx, k }
 }
@@ -93,14 +116,26 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const sector: LineSector = { flavors: [0, 0, 0], statistics: 'fermion', D: 3, box: BOX, unit: 0 }
+    const sector: LineSector = {
+      flavors: [0, 0, 0],
+      statistics: 'fermion',
+      D: 3,
+      box: BOX,
+      unit: 0,
+    }
     const basis = lineBasis(sector)
     const level = lineLightest(basis, wholeBasis(basis)).lightest
     const placed = levelPlacement(basis, level.cre, level.cim)
 
     // ---- E0 ----
     const win = exactWindow(8, 2, placed, P)
-    const gE0 = win.beats.every(b => b.normKept && b.disturbed === 0 && b.leak === 0 && b.energyGap <= EXACT)
+    const gE0 = win.beats.every(
+      b =>
+        b.normKept &&
+        b.disturbed === 0 &&
+        b.leak === 0 &&
+        b.energyGap <= EXACT,
+    )
 
     // ---- the two sources on the side-16 line ----
     const center = centerOf(SIDE)
@@ -112,9 +147,10 @@ export default experiment({
     const a = blochPacket(basis, L, level.cre, level.cim, true)
     const startDensity = a.density()
     const c0 = Math.round(ringCenter(startDensity)) % L
-    const col = husk.column[ring.docks[c0] as number] as number
+    const col = husk.column[ring.docks[c0]!]!
     const sumW = new Float64Array(L)
     const sumA = new Float64Array(L)
+
     let w: PointState = placePoints(L, fit.kept, 0, P)
 
     for (let t = 1; t <= WINDOW; t++) {
@@ -125,19 +161,21 @@ export default experiment({
       const da = a.density()
 
       for (let x = 0; x < L; x++) {
-        sumW[x]! += dw[x] as number
-        sumA[x]! += da[x] as number
+        sumW[x]! += dw[x]!
+        sumA[x]! += da[x]!
       }
     }
 
     const avgW = Float64Array.from(sumW, v => v / WINDOW)
     const avgA = Float64Array.from(sumA, v => v / WINDOW)
     const total = avgW.reduce((s, v) => s + v, 0)
+
     const profile = (rho: Float64Array): number[] => {
       const m = shellMeans(SIDE, col, staticDepth(SIDE, rho).depth)
 
-      return m.map(v => v - (m[REF] as number))
+      return m.map(v => v - m[REF]!)
     }
+
     const pointAt = (c: number): Float64Array => {
       const rho = new Float64Array(husk.columns)
 
@@ -145,16 +183,31 @@ export default experiment({
 
       return rho
     }
+
     const pp = profile(pointAt(col))
-    const pointFit = inverseFit(PROFILE_R, PROFILE_R.map(r => pp[r] as number))
+    const pointFit = inverseFit(
+      PROFILE_R,
+      PROFILE_R.map(r => pp[r]!),
+    )
+
     const read = (pr: number[], source: Float64Array) => {
-      const ratio = [1, 2, 3, 4, 5, 6, 7].map(r => (pr[r] as number) / (pp[r] as number))
-      const k = inverseFit(PROFILE_R, PROFILE_R.map(r => pr[r] as number)).k
-      const d1 = PROFILE_R.every(r => Math.abs((ratio[r - 1] as number) - 1) <= TOLERANCE) && Math.abs(k / pointFit.k - 1) <= TOLERANCE
+      const ratio = [1, 2, 3, 4, 5, 6, 7].map(r => pr[r]! / pp[r]!)
+      const k = inverseFit(
+        PROFILE_R,
+        PROFILE_R.map(r => pr[r]!),
+      ).k
+      const d1 =
+        PROFILE_R.every(
+          r => Math.abs(ratio[r - 1]! - 1) <= TOLERANCE,
+        ) && Math.abs(k / pointFit.k - 1) <= TOLERANCE
+
       let core = 7
 
       for (let r = 7; r >= 1; r--) {
-        if (Math.abs((ratio[r - 1] as number) - 1) > TOLERANCE) break
+        if (Math.abs(ratio[r - 1]! - 1) > TOLERANCE) {
+          break
+        }
+
         core = r
       }
 
@@ -162,15 +215,22 @@ export default experiment({
 
       return { ratio, k, d1, core, r90, d2: core <= r90 + 1 }
     }
+
     const pW = profile(ringColumns(husk, ring, avgW))
     const pA = profile(ringColumns(husk, ring, avgA))
-    const pM = profile(pointAt(husk.column[ring.docks[(c0 + MOVE) % L] as number] as number))
+    const pM = profile(
+      pointAt(husk.column[ring.docks[(c0 + MOVE) % L]!]!),
+    )
     const rW = read(pW, avgW)
     const rA = read(pA, avgA)
     const rM = read(pM, avgW)
     const controlPlus = rA.d1 && rA.d2
     const controlMinus = !rM.d1
-    const status = !(controlPlus && controlMinus) ? 'partial' : gE0 && rW.d1 && rW.d2 ? 'pass' : 'fail'
+    const status = !(controlPlus && controlMinus)
+      ? 'partial'
+      : gE0 && rW.d1 && rW.d2
+        ? 'pass'
+        : 'fail'
     const f4 = (x: number): string => x.toFixed(4)
     const f3 = (x: number): string => x.toFixed(3)
     const metrics: Record<string, number> = {
@@ -187,21 +247,26 @@ export default experiment({
       clusterR90: rW.r90,
       standInCore: rA.core,
       standInR90: rA.r90,
-      windowWorstEnergyGap: Math.max(...win.beats.map(b => b.energyGap)),
+      windowWorstEnergyGap: Math.max(
+        ...win.beats.map(b => b.energyGap),
+      ),
       seconds: (Date.now() - started) / 1000,
     }
 
     for (let r = 0; r <= REF; r++) {
-      metrics[`cluster_r${r}`] = pW[r] as number
-      metrics[`point_r${r}`] = pp[r] as number
-      metrics[`standIn_r${r}`] = pA[r] as number
+      metrics[`cluster_r${r}`] = pW[r]!
+      metrics[`point_r${r}`] = pp[r]!
+      metrics[`standIn_r${r}`] = pA[r]!
     }
 
     return verdict({
       status,
       claim: `the working vacuum's cluster, energy ${total.toFixed(5)} averaged over ${WINDOW} beats along its husk line (${[...avgW].map(v => v.toFixed(3)).join(' ')}, R90 ${rW.r90}), sources a depth x(r) - x(8) of ${pW.slice(0, REF).map(f4).join(', ')} at r = 0 .. 7 against the point lump's ${pp.slice(0, REF).map(f4).join(', ')}: ratio ${rW.ratio.map(f3).join(', ')} at r = 1 .. 7, k ${rW.k.toExponential(4)} against ${pointFit.k.toExponential(4)}, core ${rW.core}; the stand-in's packet (R90 ${rA.r90}) reads ratio ${rA.ratio.map(f3).join(', ')}, k ${rA.k.toExponential(4)}, core ${rA.core}; the lump moved ${MOVE} columns reads ${rM.ratio.map(f3).join(', ')}; energy identity on the exact side-8 window ${Math.max(...win.beats.map(b => b.energyGap)).toExponential(1)}`,
       metrics,
-      control: { plus: controlPlus ? 1 : 0, minus: controlMinus ? 1 : 0 },
+      control: {
+        plus: controlPlus ? 1 : 0,
+        minus: controlMinus ? 1 : 0,
+      },
       notes: `L2. Gates E0 ${gE0}, D1 ${rW.d1}, D2 ${rW.d2}; control+ ${controlPlus} (D1 ${rA.d1}, D2 ${rA.d2}), control- ${controlMinus}. Fits a + k/r on r = 2 .. 6: point a ${pointFit.a.toExponential(3)} k ${pointFit.k.toExponential(4)}. Stand-in's averaged source along the line: ${[...avgA].map(v => v.toFixed(3)).join(' ')}. Exact window (side 8, 2 beats): ${win.beats.map(b => `${b.branches} branches, energy gap ${b.energyGap.toExponential(1)}, disturbed ${b.disturbed}`).join('; ')}, reversed ${win.reversed}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },

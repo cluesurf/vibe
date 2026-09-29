@@ -55,9 +55,11 @@ import { tritKappa, tritWave } from '@/code/measure/trit-column-light'
 
 const beta = (d: number): number => (36 * d) / (2 * d + 1)
 const kappaOf = (d: number, p = 1): number => (2 * p) / (2 * d + 1)
-const cOf = (d: number, p = 1): number => Math.sqrt((2 * kappaOf(d, p)) / 3)
+const cOf = (d: number, p = 1): number =>
+  Math.sqrt((2 * kappaOf(d, p)) / 3)
 const alphaOf = (d: number, p = 1): number => 1 / (24 * d * cOf(d, p))
-const safe = (d: number, peak: number): boolean => peak + 2.5 + beta(d) < 2 * d
+const safe = (d: number, peak: number): boolean =>
+  peak + 2.5 + beta(d) < 2 * d
 
 function sectionD1(): Record<string, number> {
   const out: Record<string, number> = {}
@@ -67,12 +69,18 @@ function sectionD1(): Record<string, number> {
   }
 
   // the exact threshold for p = 1: the smallest D with 2D + 1 >= 8
-  out['d1SmallestStableDepth'] = [1, 2, 3, 4, 5].find(d => 2 * d + 1 >= 8) ?? -1
+  out.d1SmallestStableDepth =
+    [1, 2, 3, 4, 5].find(d => 2 * d + 1 >= 8) ?? -1
 
   return out
 }
 
-function sectionGrid(): { metrics: Record<string, number>; okD2: boolean; okD3: boolean; okD4: boolean } {
+function sectionGrid(): {
+  metrics: Record<string, number>
+  okD2: boolean
+  okD3: boolean
+  okD4: boolean
+} {
   const out: Record<string, number> = {}
   const tau = (2 * Math.PI) / 8
 
@@ -114,24 +122,32 @@ function sectionGrid(): { metrics: Record<string, number>; okD2: boolean; okD3: 
   const two = makeTritLight({ side: 8, depth: 32, form: 'wave', p: 2 })
   const w2 = tritWave(two, [tau, 0, 0], 1, 16, 600, 'husk')
 
-  out['d4P2Kappa'] = tritKappa(two)
-  out['d4P2Relative'] = w2.relative
-  out['gridSafeRuns'] = safeRuns
-  out['gridUnsafeRuns'] = unsafeRuns
-  out['gridUnsafeTouchedSeam'] = unsafeTouched
-  out['gridLargestPotentialOverDepth'] = potentialUse
+  out.d4P2Kappa = tritKappa(two)
+  out.d4P2Relative = w2.relative
+  out.gridSafeRuns = safeRuns
+  out.gridUnsafeRuns = unsafeRuns
+  out.gridUnsafeTouchedSeam = unsafeTouched
+  out.gridLargestPotentialOverDepth = potentialUse
 
-  return { metrics: out, okD2, okD3, okD4: okD3 && Math.abs(w2.relative) < 1e-4 }
+  return {
+    metrics: out,
+    okD2,
+    okD3,
+    okD4: okD3 && Math.abs(w2.relative) < 1e-4,
+  }
 }
 
 function sectionD5(): { metrics: Record<string, number>; ok: boolean } {
   const out: Record<string, number> = {}
-  const dMin = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].find(d => d >= 4 && safe(d, 1)) ?? -1
+  const dMin =
+    [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].find(
+      d => d >= 4 && safe(d, 1),
+    ) ?? -1
 
-  out['d5SmallestDepth'] = dMin
-  out['d5Alpha'] = alphaOf(dMin)
-  out['d5LightSpeed'] = cOf(dMin)
-  out['d5OrbitSpeedOverLight'] = alphaOf(dMin)
+  out.d5SmallestDepth = dMin
+  out.d5Alpha = alphaOf(dMin)
+  out.d5LightSpeed = cOf(dMin)
+  out.d5OrbitSpeedOverLight = alphaOf(dMin)
 
   for (const d of [4, 8, 16, 32, 64, 128, 256]) {
     out[`alpha_D${d}`] = alphaOf(d)
@@ -141,9 +157,16 @@ function sectionD5(): { metrics: Record<string, number>; ok: boolean } {
   }
 
   // the committed bulk rule's coupling, kappa = 2 pi 80 / 8192, for comparison: the D with the same kappa
-  out['depthMatchingCommittedKappa'] = (2 / ((2 * Math.PI * 80) / 8192) - 1) / 2
+  out.depthMatchingCommittedKappa =
+    (2 / ((2 * Math.PI * 80) / 8192) - 1) / 2
 
-  return { metrics: out, ok: dMin > 0 && alphaOf(dMin) < 0.1 && alphaOf(dMin) * cOf(dMin) < cOf(dMin) / 10 }
+  return {
+    metrics: out,
+    ok:
+      dMin > 0 &&
+      alphaOf(dMin) < 0.1 &&
+      alphaOf(dMin) * cOf(dMin) < cOf(dMin) / 10,
+  }
 }
 
 function sectionD6(): Record<string, number> {
@@ -160,7 +183,14 @@ function sectionD6(): Record<string, number> {
       const wrap = new Int8Array(m)
       const cap = new Int8Array(m)
 
-      writeColumn(wrap, entries, undefined, 0, m, ((((v + 1 + m) % values) + values) % values) - m)
+      writeColumn(
+        wrap,
+        entries,
+        undefined,
+        0,
+        m,
+        ((((v + 1 + m) % values) + values) % values) - m,
+      )
       writeColumn(cap, entries, undefined, 0, m, Math.min(v + 1, m))
       wrapImage.add(Array.from(wrap).join(','))
       capImage.add(Array.from(cap).join(','))
@@ -170,7 +200,10 @@ function sectionD6(): Record<string, number> {
     capCollisions += values - capImage.size
   }
 
-  return { d6WrapCollisions: wrapCollisions, d6CapCollisions: capCollisions }
+  return {
+    d6WrapCollisions: wrapCollisions,
+    d6CapCollisions: capCollisions,
+  }
 }
 
 function firstForm(): Record<string, number> {
@@ -203,21 +236,44 @@ export default experiment({
     const d5 = sectionD5()
     const d6 = sectionD6()
     const first = firstForm()
-    const okD1 = (d1['d1Growth_D3'] ?? 1) > 1 && d1['d1Growth_D4'] === 1 && d1['d1SmallestStableDepth'] === 4
-    const okD6 = d6['d6WrapCollisions'] === 0 && d6['d6CapCollisions'] === 6
-    const gates = { D1: okD1, D2: grid.okD2, D3: grid.okD3, D4: grid.okD4, D5: d5.ok, D6: okD6 }
-    const metrics: Record<string, number> = { ...d1, ...grid.metrics, ...d5.metrics, ...d6, ...first }
+    const okD1 =
+      (d1.d1Growth_D3 ?? 1) > 1 &&
+      d1.d1Growth_D4 === 1 &&
+      d1.d1SmallestStableDepth === 4
+    const okD6 = d6.d6WrapCollisions === 0 && d6.d6CapCollisions === 6
+    const gates = {
+      D1: okD1,
+      D2: grid.okD2,
+      D3: grid.okD3,
+      D4: grid.okD4,
+      D5: d5.ok,
+      D6: okD6,
+    }
+    const metrics: Record<string, number> = {
+      ...d1,
+      ...grid.metrics,
+      ...d5.metrics,
+      ...d6,
+      ...first,
+    }
 
     for (const [gate, ok] of Object.entries(gates)) {
       metrics[`gate${gate}`] = ok ? 1 : 0
     }
 
     return verdict({
-      status: Object.values(gates).every(x => x) ? 'pass' : okD1 && grid.okD2 && okD6 ? 'partial' : 'fail',
+      status: Object.values(gates).every(x => x)
+        ? 'pass'
+        : okD1 && grid.okD2 && okD6
+          ? 'partial'
+          : 'fail',
       claim:
         'a trit column of depth D holds light stably from D = 4, reads it within 1e-4 whenever 2D clears the peak field plus a dither under 18, saturates only by a wrap (the compact U(1)), and sets kappa = 2 / (2D + 1), c = sqrt(2 kappa / 3) and alpha = 1 / (24 D c) together',
       metrics,
-      control: { firstFormD16: first['first_D16_Relative'] ?? -1, firstFormD256: first['first_D256_Relative'] ?? -1 },
+      control: {
+        firstFormD16: first.first_D16_Relative ?? -1,
+        firstFormD256: first.first_D256_Relative ?? -1,
+      },
       notes:
         "L2, exact integers, deterministic. First run 2026-09-26 (tmp/frc0208.log, 98 s), PASS on every gate. D1: the top branch grows by 2.094 per beat at D = 3 (kappa 2/7, kappa lambda_max 4.57) and not at D = 4 (kappa 2/9, 3.56): stable from D = 4 at p = 1, exactly 2D + 1 >= 8p. D2: the largest measured |B - B~| is 13.4 (D 32) against the bound 36 D / (2D + 1), which is 16.9 to 17.9; it does not grow with D (11.6 to 13.4 at every D). D3: all 11 runs the seam law calls safe read the symbol within 2.4e-6 (worst D 32, peak 16) on the shadow, 2e-5 to 4e-4 on the raw field, and never touch the seam. The law is sufficient, not necessary: of the 10 runs it calls unsafe, 4 still read within 5.1e-5 (D 12 peaks 6 and 12, D 16 peak 16, D 24 peak 36, D 32 peak 48), and 6 reached the seam and failed (all three at D 8, 10 to 73 percent; D 12 peak 18, 42 percent; D 16 peak 24, 30 percent). D4: the p = 2 run at D 32 (kappa 4/65) reads within 6.5e-8. In the safe runs the largest potential is 20 (D 128) against windows of 128 or 256, 0.16 D (only the seam-crossing D 8 runs filled theirs, 2 D): the potential column is nearly empty for light; the field range is set by the ANGLE column's seam, not the potential's. D5: the smallest depth whose seam holds a unit wave is D = 11, where alpha = 0.0157 and c = 0.241, so an orbit moves at 1.6 percent of light: the dipole regime. alpha(D) = 1 / (24 D c(D)): 0.0271 (D 4), 0.0186 (8), 0.0130 (16), 0.0091 (32), 0.0064 (64), 0.0045 (128), 0.0032 (256); c = 0.385, 0.280, 0.201, 0.143, 0.102, 0.072, 0.051. The committed kappa = 2 pi 80 / 8192 is D = 15.8 at p = 1: the column depth 16 reproduces the committed light (c 0.2010 against 0.2023). D6: the wrap maps each column's 2m + 1 values one to one (0 collisions over m = 1 to 6), the cap merges one pair per column (6). CONTROL, the first form (E-FRC-0181's carried remainder) at peak D / 2: 226 percent off at D 16 (it heats to the seam), 1.6e-4 at D 64, 3.1e-5 at D 256: depth cures the first form's heating too (its one-unit error shrinks against a wave of flux growing with D), but the wave form is exact at every D the seam allows. THE ANSWER TO THE DEPTH QUESTION: D >= 4 for stability; D > (P + 20.5) / 2 for a field range of peak |B| = P (about P / 2 + 10), with accuracy about 1e-5 on the shadow independent of D; the saturation law is the wrap, which is compact U(1) with N_B = 4D. ALPHA IS CARRIED OVER from E-MTH-0020 (alpha = e^2 / (12 N D c) with N = 2 and e = 1 in the column rule), not measured here. alpha is a free function of D and p (about 0.051 / sqrt(p D)): 1 / 137 would need D near 49 at p = 1, which is a choice and not a prediction.",
     })

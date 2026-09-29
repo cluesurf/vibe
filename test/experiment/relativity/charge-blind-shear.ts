@@ -60,12 +60,38 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeColorWeave } from '@/code/rule/color-weave'
-import { bounceLawMatrices, periodicMedium } from '@/code/measure/bounce-transport'
+import {
+  bounceLawMatrices,
+  periodicMedium,
+} from '@/code/measure/bounce-transport'
 import { boxMaps, huskForcing } from '@/code/measure/varying-vacuum'
-import { cellOps, leftInvariants, leftResidual, namedDockInvariants, readSymmetricTransport, rightInvariants, type SymmetricReading } from '@/code/measure/symmetry-transport'
+import {
+  cellOps,
+  leftInvariants,
+  leftResidual,
+  namedDockInvariants,
+  readSymmetricTransport,
+  rightInvariants,
+  type SymmetricReading,
+} from '@/code/measure/symmetry-transport'
 import { huskDirections } from '@/code/measure/husk-transport-order'
-import { classKinds, classOf, coinsOnce, multiLineDockMatrices, orientedUnion, orientedUnionStore, splitByHubClass, unionHubStore } from '@/code/measure/dense-hub'
-import { affineGroup, affineSymmetry, evenCommutationDefect, evenOddSplit, fullCommutationDefect } from '@/code/measure/charge-blind-transport'
+import {
+  classKinds,
+  classOf,
+  coinsOnce,
+  multiLineDockMatrices,
+  orientedUnion,
+  orientedUnionStore,
+  splitByHubClass,
+  unionHubStore,
+} from '@/code/measure/dense-hub'
+import {
+  affineGroup,
+  affineSymmetry,
+  evenCommutationDefect,
+  evenOddSplit,
+  fullCommutationDefect,
+} from '@/code/measure/charge-blind-transport'
 import { weyl } from '@/code/tool/weyl'
 
 const KC = 0.2793069366894861
@@ -83,21 +109,37 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const coins = coinsOnce()
     const box = boxMaps(coins, 4)
     const mesh = makeColorWeave({ side: 4, table: 'bind' }).mesh
     const hub = [0, 0, 0, 0]
     const oriented = orientedUnionStore(coins, 4, hub)
     const K = orientedUnion(coins).group
-    const buildMedium = (store: Int8Array): { docks: ReturnType<typeof multiLineDockMatrices>; ops: ReturnType<typeof cellOps>; medium: ReturnType<typeof periodicMedium> } => {
+
+    const buildMedium = (
+      store: Int8Array,
+    ): {
+      docks: ReturnType<typeof multiLineDockMatrices>
+      ops: ReturnType<typeof cellOps>
+      medium: ReturnType<typeof periodicMedium>
+    } => {
       const docks = multiLineDockMatrices('lone', store, 256, coins)
       const medium = periodicMedium(mesh, docks.even, docks.odd)
 
       return { docks, medium, ops: cellOps(medium) }
     }
+
     const union = buildMedium(oriented)
-    const probes = [0, 1].map(b => Float64Array.from({ length: 256 * 72 }, (_, i) => weyl(i + 1 + 7919 * b) - 0.5))
+    const probes = [0, 1].map(b =>
+      Float64Array.from(
+        { length: 256 * 72 },
+        (_, i) => weyl(i + 1 + 7919 * b) - 0.5,
+      ),
+    )
 
     log('medium')
 
@@ -108,27 +150,49 @@ export default experiment({
     for (const g of K) {
       const sym = affineSymmetry(coins, box, g, 0, 1)
 
-      s0Full = Math.max(s0Full, fullCommutationDefect(union.ops, sym, probes))
-      s0Even = Math.max(s0Even, evenCommutationDefect(union.ops, sym, probes))
+      s0Full = Math.max(
+        s0Full,
+        fullCommutationDefect(union.ops, sym, probes),
+      )
+
+      s0Even = Math.max(
+        s0Even,
+        evenCommutationDefect(union.ops, sym, probes),
+      )
     }
 
-    const { vectors: left, consistent } = leftInvariants(union.medium, namedDockInvariants())
+    const { vectors: left, consistent } = leftInvariants(
+      union.medium,
+      namedDockInvariants(),
+    )
     const residual = leftResidual(union.ops, left)
-    const s0 = s0Full < 1e-10 && s0Even < 1e-10 && residual < 1e-9 && consistent
+    const s0 =
+      s0Full < 1e-10 && s0Even < 1e-10 && residual < 1e-9 && consistent
 
     log('S0')
 
     // ---- A: the full medium's affine group ----
-    const full = affineGroup({ coins, box, K, defect: g => fullCommutationDefect(union.ops, g, probes), charges: [1, -1], tolerance: TOLERANCE, log })
+    const full = affineGroup({
+      coins,
+      box,
+      K,
+      defect: g => fullCommutationDefect(union.ops, g, probes),
+      charges: [1, -1],
+      tolerance: TOLERANCE,
+      log,
+    })
     const fullForcing = huskForcing(coins, full.linear)
-    const a = fullForcing.husk2 && fullForcing.husk4 && fullForcing.huskShear2
+    const a =
+      fullForcing.husk2 && fullForcing.husk4 && fullForcing.huskShear2
 
     log('A')
 
     // ---- C1, C2 ----
     let c1Union = 0
 
-    for (const m of [...union.docks.even, ...union.docks.odd]) c1Union = Math.max(c1Union, evenOddSplit(m).evenOutOddIn)
+    for (const m of [...union.docks.even, ...union.docks.odd]) {
+      c1Union = Math.max(c1Union, evenOddSplit(m).evenOutOddIn)
+    }
 
     let frame: number[] = []
 
@@ -141,8 +205,13 @@ export default experiment({
       }
     }
 
-    const stored = frame.map((v, l) => (v !== 0 ? l : -1)).filter(l => l >= 0)
-    const reference = bounceLawMatrices('lone', frame).map(m => evenOddSplit(m))
+    const stored = frame
+      .map((v, l) => (v !== 0 ? l : -1))
+      .filter(l => l >= 0)
+    const reference = bounceLawMatrices('lone', frame).map(m =>
+      evenOddSplit(m),
+    )
+
     let c1Signs = Math.max(...reference.map(r => r.evenOutOddIn))
     let c2 = 0
 
@@ -152,24 +221,34 @@ export default experiment({
 
         return k >= 0 && (mask >> k) & 1 ? -v : v
       })
-      const split = bounceLawMatrices('lone', signs).map(m => evenOddSplit(m))
+      const split = bounceLawMatrices('lone', signs).map(m =>
+        evenOddSplit(m),
+      )
 
       split.forEach((s, beat) => {
         c1Signs = Math.max(c1Signs, s.evenOutOddIn)
 
-        const r = (reference[beat] as ReturnType<typeof evenOddSplit>).evenBlock
+        const r = reference[beat]!.evenBlock
 
-        for (let i = 0; i < r.length; i++) c2 = Math.max(c2, Math.abs((s.evenBlock[i] as number) - (r[i] as number)))
+        for (let i = 0; i < r.length; i++) {
+          c2 = Math.max(c2, Math.abs(s.evenBlock[i]! - r[i]!))
+        }
       })
     }
 
-    const emptied = bounceLawMatrices('lone', frame.map((v, l) => (l === stored[0] ? 0 : v))).map(m => evenOddSplit(m))
+    const emptied = bounceLawMatrices(
+      'lone',
+      frame.map((v, l) => (l === stored[0] ? 0 : v)),
+    ).map(m => evenOddSplit(m))
+
     let control = 0
 
     emptied.forEach((s, beat) => {
-      const r = (reference[beat] as ReturnType<typeof evenOddSplit>).evenBlock
+      const r = reference[beat]!.evenBlock
 
-      for (let i = 0; i < r.length; i++) control = Math.max(control, Math.abs((s.evenBlock[i] as number) - (r[i] as number)))
+      for (let i = 0; i < r.length; i++) {
+        control = Math.max(control, Math.abs(s.evenBlock[i]! - r[i]!))
+      }
     })
 
     const c1 = c1Union < 1e-13 && c1Signs < 1e-13
@@ -178,39 +257,91 @@ export default experiment({
     log('C1 C2')
 
     // ---- C3: the C-even quotient's affine group ----
-    const even = affineGroup({ coins, box, K, defect: g => evenCommutationDefect(union.ops, g, probes), charges: [1], tolerance: TOLERANCE, log })
+    const even = affineGroup({
+      coins,
+      box,
+      K,
+      defect: g => evenCommutationDefect(union.ops, g, probes),
+      charges: [1],
+      tolerance: TOLERANCE,
+      log,
+    })
     const kinds = classKinds()
-    const lPrime = Array.from({ length: 256 }, (_, t) => t).filter(t => kinds[classOf(t, 4, hub)] !== 'root')
+    const lPrime = Array.from({ length: 256 }, (_, t) => t).filter(
+      t => kinds[classOf(t, 4, hub)] !== 'root',
+    )
     const evenForcing = huskForcing(coins, even.linear)
-    const sameTranslations = even.translations.length === lPrime.length && lPrime.every(t => even.translations.includes(t))
+    const sameTranslations =
+      even.translations.length === lPrime.length &&
+      lPrime.every(t => even.translations.includes(t))
     const evenElements = even.passing.length * K.length
-    const c3 = even.linear.length === coins.table.permutations.length && sameTranslations && evenForcing.husk2 && evenForcing.husk4 && evenForcing.huskShear2
+    const c3 =
+      even.linear.length === coins.table.permutations.length &&
+      sameTranslations &&
+      evenForcing.husk2 &&
+      evenForcing.husk4 &&
+      evenForcing.huskShear2
 
     log('C3')
 
     // ---- C4: three orientations of one unoriented union ----
     const parts = splitByHubClass(oriented, 4, hub)
-    const flipped = Int8Array.from(oriented, (v, i) => ((parts[1] as Int8Array)[i] !== 0 ? -v : v))
+    const flipped = Int8Array.from(oriented, (v, i) =>
+      parts[1]![i] !== 0 ? -v : v,
+    )
     const directions = huskDirections(3).slice(0, 3)
-    const readOf = (m: { medium: ReturnType<typeof periodicMedium>; ops: ReturnType<typeof cellOps> }): SymmetricReading => {
+
+    const readOf = (m: {
+      medium: ReturnType<typeof periodicMedium>
+      ops: ReturnType<typeof cellOps>
+    }): SymmetricReading => {
       const l = leftInvariants(m.medium, namedDockInvariants()).vectors
       const r = rightInvariants(m.ops, l).vectors
 
-      return readSymmetricTransport({ medium: m.medium, left: l, right: r, directions, rungs: RUNGS, log: what => log(what) })
+      return readSymmetricTransport({
+        medium: m.medium,
+        left: l,
+        right: r,
+        directions,
+        rungs: RUNGS,
+        log: what => log(what),
+      })
     }
-    const readings: { name: string; reading: SymmetricReading; rows: number }[] = [{ name: 'oriented union (72)', reading: readOf(union), rows: union.docks.distinct }]
+
+    const readings: {
+      name: string
+      reading: SymmetricReading
+      rows: number
+    }[] = [
+      {
+        name: 'oriented union (72)',
+        reading: readOf(union),
+        rows: union.docks.distinct,
+      },
+    ]
 
     for (const [name, store] of [
-      ['four translated orientations (24)', unionHubStore(coins, 4, hub)],
+      [
+        'four translated orientations (24)',
+        unionHubStore(coins, 4, hub),
+      ],
       ['oriented union, part 1 reversed', flipped],
     ] as const) {
       const m = buildMedium(store)
 
-      readings.push({ name, reading: readOf(m), rows: m.docks.distinct })
+      readings.push({
+        name,
+        reading: readOf(m),
+        rows: m.docks.distinct,
+      })
     }
 
     const relative = (q: string): number => {
-      const base = (readings[0] as { reading: SymmetricReading }).reading.values[q] ?? []
+      const base =
+        (readings[0] as { reading: SymmetricReading }).reading.values[
+          q
+        ] ?? []
+
       let worst = 0
 
       for (const r of readings.slice(1)) {
@@ -218,7 +349,7 @@ export default experiment({
 
         vs.forEach((rung, i) =>
           rung.forEach((v, j) => {
-            const b = (base[i] as number[])[j] as number
+            const b = base[i]![j]!
 
             worst = Math.max(worst, Math.abs(v - b) / Math.abs(b))
           }),
@@ -227,6 +358,7 @@ export default experiment({
 
       return worst
     }
+
     const c4Shear = relative('shear')
     const c4Sound = relative('sound')
     const c4Depth = relative('depth')
@@ -235,8 +367,13 @@ export default experiment({
 
     log('C4')
 
-    const status = s0 ? (c1 && c2ok && c3 && c4 ? 'pass' : 'fail') : 'partial'
-    const cellsName = (ts: number[]): string => ts.map(t => (box.coords[t] as number[]).join('')).join(' ')
+    const status = s0
+      ? c1 && c2ok && c3 && c4
+        ? 'pass'
+        : 'fail'
+      : 'partial'
+    const cellsName = (ts: number[]): string =>
+      ts.map(t => (box.coords[t] as number[]).join('')).join(' ')
 
     return verdict({
       status,
@@ -270,7 +407,8 @@ export default experiment({
         evenTranslations: even.translations.length,
         evenWorstPassing: even.worstPassing,
         evenLeastFailing: even.leastFailing,
-        evenForcesScalars: evenForcing.husk2 && evenForcing.husk4 ? 1 : 0,
+        evenForcesScalars:
+          evenForcing.husk2 && evenForcing.husk4 ? 1 : 0,
         evenForcesShear: evenForcing.huskShear2 ? 1 : 0,
         c4Shear,
         c4Sound,
@@ -278,8 +416,14 @@ export default experiment({
         c4Charge,
         seconds: (Date.now() - started) / 1000,
       },
-      control: Object.fromEntries(readings.flatMap((r, i) => [[`orientation${i}_rows`, r.rows], [`orientation${i}_shearMean`, r.reading.means['shear'] ?? NaN], [`orientation${i}_chargeMean`, r.reading.means['charge'] ?? NaN]])),
-      notes: `L2. Gates: S0 ${s0} (72 defects full ${s0Full.toExponential(2)}, even ${s0Even.toExponential(2)}; left residual ${residual.toExponential(2)}), A ${a} (as predicted false), C1 ${c1}, C2 ${c2ok}, C3 ${c3}, C4 ${c4}. A: ${full.tested} tests on coset representatives, passing ${JSON.stringify(full.passing.map(p => [p.g, (box.coords[p.t] as number[]).join(''), p.c]))}, worst passing ${full.worstPassing.toExponential(2)}, least failing ${full.leastFailing.toExponential(2)}, forcing ${JSON.stringify(fullForcing)}. C3: ${even.tested} tests, ${even.passing.length} passing representative-translation pairs, linear parts ${even.linear.length}, translations ${even.translations.length} (L' mod 4 D4 has ${lPrime.length}, equal ${sameTranslations}), worst passing ${even.worstPassing.toExponential(2)}, least failing ${even.leastFailing.toExponential(2)}, forcing ${JSON.stringify(evenForcing)}. C4 (${directions.length} directions, rungs kc/4 and kc/16): ${readings.map(r => `${r.name}: ${r.rows} distinct rows, shear ${JSON.stringify(r.reading.values['shear'])}, charge ${JSON.stringify(r.reading.values['charge'])}`).join('; ')}. Largest relative differences: shear ${c4Shear.toExponential(2)}, sound ${c4Sound.toExponential(2)}, depth ${c4Depth.toExponential(2)}, charge ${c4Charge.toExponential(2)}. The start family does not enter (the singlet linearization reads no link). ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+      control: Object.fromEntries(
+        readings.flatMap((r, i) => [
+          [`orientation${i}_rows`, r.rows],
+          [`orientation${i}_shearMean`, r.reading.means.shear ?? NaN],
+          [`orientation${i}_chargeMean`, r.reading.means.charge ?? NaN],
+        ]),
+      ),
+      notes: `L2. Gates: S0 ${s0} (72 defects full ${s0Full.toExponential(2)}, even ${s0Even.toExponential(2)}; left residual ${residual.toExponential(2)}), A ${a} (as predicted false), C1 ${c1}, C2 ${c2ok}, C3 ${c3}, C4 ${c4}. A: ${full.tested} tests on coset representatives, passing ${JSON.stringify(full.passing.map(p => [p.g, (box.coords[p.t] as number[]).join(''), p.c]))}, worst passing ${full.worstPassing.toExponential(2)}, least failing ${full.leastFailing.toExponential(2)}, forcing ${JSON.stringify(fullForcing)}. C3: ${even.tested} tests, ${even.passing.length} passing representative-translation pairs, linear parts ${even.linear.length}, translations ${even.translations.length} (L' mod 4 D4 has ${lPrime.length}, equal ${sameTranslations}), worst passing ${even.worstPassing.toExponential(2)}, least failing ${even.leastFailing.toExponential(2)}, forcing ${JSON.stringify(evenForcing)}. C4 (${directions.length} directions, rungs kc/4 and kc/16): ${readings.map(r => `${r.name}: ${r.rows} distinct rows, shear ${JSON.stringify(r.reading.values.shear)}, charge ${JSON.stringify(r.reading.values.charge)}`).join('; ')}. Largest relative differences: shear ${c4Shear.toExponential(2)}, sound ${c4Sound.toExponential(2)}, depth ${c4Depth.toExponential(2)}, charge ${c4Charge.toExponential(2)}. The start family does not enter (the singlet linearization reads no link). ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },
 })

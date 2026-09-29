@@ -38,12 +38,27 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { coldGas, shearRun, soundRun, toneGas, type GasSystem } from '@/code/measure/husk-hydro'
+import {
+  coldGas,
+  shearRun,
+  soundRun,
+  toneGas,
+  type GasSystem,
+} from '@/code/measure/husk-hydro'
 import { type WaveGeometry } from '@/code/measure/momentum-transport'
 import { logSlope, spread } from '@/code/measure/husk-transport-order'
 import { makeColdQuaternionKnit } from '@/code/rule/cold-quaternion-knit'
-import { coldBeat, coldEnergy, makeColdWeave, type ColdState } from '@/code/rule/cold-weave'
-import { HEAD_TURN_SPEC, scatterSchedule, type ScatterWeaveSpec } from '@/code/rule/scatter-weave'
+import {
+  coldBeat,
+  coldEnergy,
+  makeColdWeave,
+  type ColdState,
+} from '@/code/rule/cold-weave'
+import {
+  HEAD_TURN_SPEC,
+  scatterSchedule,
+  type ScatterWeaveSpec,
+} from '@/code/rule/scatter-weave'
 import { colorLocalCollision } from '@/code/rule/color-local-weave'
 import { cptMirrorPhase } from '@/code/measure/weave-acceptance'
 import { passThrough } from '@/code/rule/collision'
@@ -51,7 +66,8 @@ import { d4Mesh } from '@/code/tool/mesh'
 
 const SIDES = [8, 10, 12, 14, 16, 20]
 
-const axis = (i: number): number[] => [0, 1, 2, 3].map(k => (k === i ? 1 : 0))
+const axis = (i: number): number[] =>
+  [0, 1, 2, 3].map(k => (k === i ? 1 : 0))
 
 const HUSK_SHEARS: WaveGeometry[] = [
   [0, 1],
@@ -69,12 +85,26 @@ const DEPTH_SHEARS: WaveGeometry[] = [
   [2, 3],
   [3, 2],
 ].map(([m, w]) => ({ momentum: axis(m!), wave: axis(w!) }))
-const HUSK_SOUNDS: WaveGeometry[] = [0, 1, 2].map(i => ({ momentum: axis(i), wave: axis(i) }))
+const HUSK_SOUNDS: WaveGeometry[] = [0, 1, 2].map(i => ({
+  momentum: axis(i),
+  wave: axis(i),
+}))
 const DEPTH_SOUND: WaveGeometry = { momentum: axis(3), wave: axis(3) }
 
 function coldWeaveGas(): GasSystem<ColdState> {
-  const mirror = cptMirrorPhase((o, f) => colorLocalCollision({ spec: HEAD_TURN_SPEC, opposite: o, forward: f }))
-  const spec: ScatterWeaveSpec = { base: HEAD_TURN_SPEC, mirror, sets: scatterSchedule({ partitions: 2, pairs: 3 }), condition: 'matched' }
+  const mirror = cptMirrorPhase((o, f) =>
+    colorLocalCollision({
+      spec: HEAD_TURN_SPEC,
+      opposite: o,
+      forward: f,
+    }),
+  )
+  const spec: ScatterWeaveSpec = {
+    base: HEAD_TURN_SPEC,
+    mirror,
+    sets: scatterSchedule({ partitions: 2, pairs: 3 }),
+    condition: 'matched',
+  }
 
   return {
     name: 'cold weave',
@@ -84,7 +114,11 @@ function coldWeaveGas(): GasSystem<ColdState> {
 
       return {
         mesh,
-        start: vibe => ({ vibe, store: new Int32Array(vibe.length), demon: new Int32Array(mesh.cellCount * 12) }),
+        start: vibe => ({
+          vibe,
+          store: new Int32Array(vibe.length),
+          demon: new Int32Array(mesh.cellCount * 12),
+        }),
         step: (s, t) => coldBeat(weave, s, t),
         vibe: s => s.vibe,
         energy: s => coldEnergy(s),
@@ -120,7 +154,9 @@ function readSide<S>(system: GasSystem<S>, side: number): SideReading {
     huskGamma: husk.map(r => r.gamma),
     huskSound: sounds.map(r => r.speed),
     depthSound: depthSound.speed,
-    energyExact: [...husk, ...depth, ...sounds, depthSound].every(r => r.energyExact),
+    energyExact: [...husk, ...depth, ...sounds, depthSound].every(
+      r => r.energyExact,
+    ),
     huskEqualsBulk: [...husk, ...sounds].every(r => r.huskEqualsBulk),
     r2: husk.map(r => r.r2),
   }
@@ -128,7 +164,10 @@ function readSide<S>(system: GasSystem<S>, side: number): SideReading {
 
 type Family = { series: number[]; exponent: number; error: number }
 
-function family(ks: readonly number[], values: readonly number[][]): Family {
+function family(
+  ks: readonly number[],
+  values: readonly number[][],
+): Family {
   const series = values.map(v => spread(v))
   const fit = logSlope(ks, series)
 
@@ -147,9 +186,20 @@ export default experiment({
   run() {
     const started = Date.now()
     const systems: [string, GasSystem<unknown>][] = [
-      ['streaming', toneGas('streaming', () => () => passThrough) as GasSystem<unknown>],
+      [
+        'streaming',
+        toneGas(
+          'streaming',
+          () => () => passThrough,
+        ) as GasSystem<unknown>,
+      ],
       ['coldWeave', coldWeaveGas() as GasSystem<unknown>],
-      ['coldQuaternion', coldGas('cold quaternion', () => makeColdQuaternionKnit()) as GasSystem<unknown>],
+      [
+        'coldQuaternion',
+        coldGas('cold quaternion', () =>
+          makeColdQuaternionKnit(),
+        ) as GasSystem<unknown>,
+      ],
     ]
     const metrics: Record<string, number> = {}
     const readings: Record<string, SideReading[]> = {}
@@ -183,7 +233,7 @@ export default experiment({
         ),
       }
 
-      for (const [q, f] of Object.entries(families[name]!)) {
+      for (const [q, f] of Object.entries(families[name])) {
         metrics[`${name}_${q}_exponent`] = Number(f.exponent.toFixed(4))
         metrics[`${name}_${q}_error`] = Number(f.error.toFixed(4))
         f.series.forEach((v, i) => {
@@ -195,6 +245,7 @@ export default experiment({
         x.huskShear.forEach((v, i) => {
           metrics[`${name}_nu_L${x.side}_husk${i}`] = v
         })
+
         x.huskSound.forEach((v, i) => {
           metrics[`${name}_speed_L${x.side}_axis${i}`] = v
         })
@@ -202,26 +253,49 @@ export default experiment({
         metrics[`${name}_minR2_L${x.side}`] = Math.min(...x.r2)
       })
 
-      const meanGamma = r.map(x => x.huskGamma.reduce((s, v) => s + v, 0) / x.huskGamma.length)
+      const meanGamma = r.map(
+        x =>
+          x.huskGamma.reduce((s, v) => s + v, 0) / x.huskGamma.length,
+      )
 
-      metrics[`${name}_huskGammaExponent`] = Number(logSlope(ks, meanGamma).slope.toFixed(4))
-      metrics[`${name}_energyExact`] = r.every(x => x.energyExact) ? 1 : 0
-      metrics[`${name}_huskEqualsBulk`] = r.every(x => x.huskEqualsBulk) ? 1 : 0
+      metrics[`${name}_huskGammaExponent`] = Number(
+        logSlope(ks, meanGamma).slope.toFixed(4),
+      )
+
+      metrics[`${name}_energyExact`] = r.every(x => x.energyExact)
+        ? 1
+        : 0
+
+      metrics[`${name}_huskEqualsBulk`] = r.every(x => x.huskEqualsBulk)
+        ? 1
+        : 0
     }
 
     const knits = ['coldWeave', 'coldQuaternion']
     const s1 = knits.every(n => metrics[`${n}_energyExact`] === 1)
     const control = families.streaming!
     const s2 = knits.every(n =>
-      (['huskShear', 'huskSound'] as const).every(q => families[n]![q]!.series.every((v, i) => v > 2 * (control[q]!.series[i] ?? Number.POSITIVE_INFINITY))),
+      (['huskShear', 'huskSound'] as const).every(q =>
+        families[n]![q]!.series.every(
+          (v, i) =>
+            v > 2 * (control[q]!.series[i] ?? Number.POSITIVE_INFINITY),
+        ),
+      ),
     )
-    const huskFits = knits.flatMap(n => (['huskShear', 'huskSound'] as const).map(q => ({ knit: n, q, ...families[n]![q]! })))
+    const huskFits = knits.flatMap(n =>
+      (['huskShear', 'huskSound'] as const).map(q => ({
+        knit: n,
+        q,
+        ...families[n]![q]!,
+      })),
+    )
     const s3 = huskFits.every(f => f.error < 0.5)
     const closes = huskFits.every(f => f.exponent >= 3)
 
     metrics.seconds = (Date.now() - started) / 1000
 
-    const status = s1 && s2 && s3 ? (closes ? 'pass' : 'fail') : 'partial'
+    const status =
+      s1 && s2 && s3 ? (closes ? 'pass' : 'fail') : 'partial'
 
     return verdict({
       status,
@@ -229,8 +303,10 @@ export default experiment({
       metrics,
       control: {
         streamingHuskShearExponent: control.huskShear!.exponent,
-        streamingHuskShearAnisotropyL20: control.huskShear!.series[SIDES.length - 1] ?? Number.NaN,
-        streamingHuskSoundAnisotropyL20: control.huskSound!.series[SIDES.length - 1] ?? Number.NaN,
+        streamingHuskShearAnisotropyL20:
+          control.huskShear!.series[SIDES.length - 1] ?? Number.NaN,
+        streamingHuskSoundAnisotropyL20:
+          control.huskSound!.series[SIDES.length - 1] ?? Number.NaN,
       },
       notes: `L2. Gates: S1 energy exact ${s1}, S2 above the control ${s2}, S3 resolved ${s3}, H closes ${closes}. First run recorded as is, nothing moved. WHY PARTIAL: (1) the control was designed badly for the shear: a free-streaming gas has no exponential decay, its fitted rates are near zero with r2 under 0.01, so its spread (0.008 to 9) is not a noise floor, and S2 fails on it; for the sound the control is exactly isotropic (spread 0) and both knits pass. (2) The sound anisotropy among the three husk axes is 0.1 to 6 percent at every side with no trend, so its exponents (-0.27 +- 0.41, 0.81 +- 0.86) are unresolved. (3) Neither knit is hydrodynamic here: the cold weave's mean husk Gamma goes as k^1.62 with fit r2 0.23 to 0.79, and the cold quaternion knit's as k^-0.32 with r2 near 0.02 (its exchange almost never fires, E-RLT-0054), so the numbers read the pre-hydrodynamic and ballistic regimes, not the k -> 0 limit. What stands anyway: at every side both knits' husk shear rates differ by a factor of order one among orientations the husk cubic group makes equivalent, the anisotropy E-RLT-0058 allows at leading order ({I, -I} for the cold weave, Q8 for the cold quaternion knit, neither forcing the shear). The axis family cannot see the axis against diagonal sound anisotropy E-RLT-0054 found (0.94 against 0.63 for the cold quaternion knit). Since their stores and counters rule out E-RLT-0059's exact count, a k -> 0 exponent for these two knits needs a linearization that handles the store and counter levels.`,
     })

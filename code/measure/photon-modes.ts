@@ -16,7 +16,10 @@
 // The linear wave operator, the curl-curl matrix M(k) of the plaquettes, is here too: the prediction a
 // measured frequency is compared with, 4 sin^2(omega / 2) = kappa lambda(k), kappa = 2 pi K / N.
 
-import { makeComplexMatrix, type ComplexMatrix } from '@/code/algebra/linear/dense'
+import {
+  makeComplexMatrix,
+  type ComplexMatrix,
+} from '@/code/algebra/linear/dense'
 import { eigHermitian } from '@/code/algebra/linear/eig-hermitian'
 import { type PhotonLattice } from '@/code/rule/photon-links'
 
@@ -26,18 +29,35 @@ import { type PhotonLattice } from '@/code/rule/photon-links'
 // eigenspace itself (code/algebra/linear/eig-hermitian, witness E-MTH-0011), so this is that one solver. On
 // all 320 curl-curl matrices of the side-4 D4 and cubic boxes the two agree to 2e-14 in the eigenvalues
 // and 1.2e-12 in each eigenspace's projector (tmp/probe-photon-eigen.ts, 2026-09-25).
-export function hermitianEigen(matrix: ComplexMatrix): { values: Float64Array; vectorsRe: Float64Array; vectorsIm: Float64Array } {
+export function hermitianEigen(matrix: ComplexMatrix): {
+  values: Float64Array
+  vectorsRe: Float64Array
+  vectorsIm: Float64Array
+} {
   return eigHermitian({ matrix })
 }
 
-export type ModeVector ={ readonly re: Float64Array; readonly im: Float64Array }
+export type ModeVector = {
+  readonly re: Float64Array
+  readonly im: Float64Array
+}
 
-export function waveVector(lattice: PhotonLattice, n: readonly number[]): number[] {
-  return lattice.wave.map(row => ((2 * Math.PI) / lattice.side) * row.reduce((s, w, j) => s + w * (n[j] ?? 0), 0))
+export function waveVector(
+  lattice: PhotonLattice,
+  n: readonly number[],
+): number[] {
+  return lattice.wave.map(
+    row =>
+      ((2 * Math.PI) / lattice.side) *
+      row.reduce((s, w, j) => s + w * (n[j] ?? 0), 0),
+  )
 }
 
 // the phase 2 pi n . c(x) / side of every dock, and k . e_a / 2 for every link direction
-function phases(lattice: PhotonLattice, n: readonly number[]): { dock: Float64Array; half: Float64Array } {
+function phases(
+  lattice: PhotonLattice,
+  n: readonly number[],
+): { dock: Float64Array; half: Float64Array } {
   const dock = new Float64Array(lattice.cells)
   const k = waveVector(lattice, n)
 
@@ -45,21 +65,36 @@ function phases(lattice: PhotonLattice, n: readonly number[]): { dock: Float64Ar
     let s = 0
 
     for (let i = 0; i < lattice.dimension; i++) {
-      s += (n[i] ?? 0) * (lattice.coordinates[x * lattice.dimension + i] ?? 0)
+      s +=
+        (n[i] ?? 0) *
+        (lattice.coordinates[x * lattice.dimension + i] ?? 0)
     }
 
     dock[x] = (2 * Math.PI * s) / lattice.side
   }
 
-  const half = Float64Array.from(lattice.firsts, d => (lattice.vectors[d] ?? []).reduce((s, e, i) => s + e * (k[i] ?? 0), 0) / 2)
+  const half = Float64Array.from(
+    lattice.firsts,
+    d =>
+      (lattice.vectors[d] ?? []).reduce(
+        (s, e, i) => s + e * (k[i] ?? 0),
+        0,
+      ) / 2,
+  )
 
   return { dock, half }
 }
 
-export type ModeReader = { readonly n: readonly number[]; read(field: ArrayLike<number>): ModeVector }
+export type ModeReader = {
+  readonly n: readonly number[]
+  read(field: ArrayLike<number>): ModeVector
+}
 
 // a reader of mode n: sum over links of field e^{-i (k . (x + e_a / 2))}, per link direction
-export function modeReader(lattice: PhotonLattice, n: readonly number[]): ModeReader {
+export function modeReader(
+  lattice: PhotonLattice,
+  n: readonly number[],
+): ModeReader {
   const f = lattice.firsts.length
   const { dock, half } = phases(lattice, n)
   const cos = new Float64Array(lattice.links)
@@ -94,10 +129,20 @@ export function modeReader(lattice: PhotonLattice, n: readonly number[]): ModeRe
 }
 
 // a running sum of v v^dagger
-export type Correlator = { readonly size: number; readonly re: Float64Array; readonly im: Float64Array; count: number }
+export type Correlator = {
+  readonly size: number
+  readonly re: Float64Array
+  readonly im: Float64Array
+  count: number
+}
 
 export function makeCorrelator(size: number): Correlator {
-  return { size, re: new Float64Array(size * size), im: new Float64Array(size * size), count: 0 }
+  return {
+    size,
+    re: new Float64Array(size * size),
+    im: new Float64Array(size * size),
+    count: 0,
+  }
 }
 
 export function accumulate(c: Correlator, v: ModeVector): void {
@@ -106,8 +151,15 @@ export function accumulate(c: Correlator, v: ModeVector): void {
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
       // v_i conj(v_j)
-      c.re[i * n + j] = (c.re[i * n + j] ?? 0) + (v.re[i] ?? 0) * (v.re[j] ?? 0) + (v.im[i] ?? 0) * (v.im[j] ?? 0)
-      c.im[i * n + j] = (c.im[i * n + j] ?? 0) + (v.im[i] ?? 0) * (v.re[j] ?? 0) - (v.re[i] ?? 0) * (v.im[j] ?? 0)
+      c.re[i * n + j] =
+        (c.re[i * n + j] ?? 0) +
+        (v.re[i] ?? 0) * (v.re[j] ?? 0) +
+        (v.im[i] ?? 0) * (v.im[j] ?? 0)
+
+      c.im[i * n + j] =
+        (c.im[i * n + j] ?? 0) +
+        (v.im[i] ?? 0) * (v.re[j] ?? 0) -
+        (v.re[i] ?? 0) * (v.im[j] ?? 0)
     }
   }
 
@@ -115,13 +167,24 @@ export function accumulate(c: Correlator, v: ModeVector): void {
 }
 
 // a running sum of a b^dagger, for lagged correlators
-export function accumulateCross(c: Correlator, a: ModeVector, b: ModeVector): void {
+export function accumulateCross(
+  c: Correlator,
+  a: ModeVector,
+  b: ModeVector,
+): void {
   const n = c.size
 
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
-      c.re[i * n + j] = (c.re[i * n + j] ?? 0) + (a.re[i] ?? 0) * (b.re[j] ?? 0) + (a.im[i] ?? 0) * (b.im[j] ?? 0)
-      c.im[i * n + j] = (c.im[i * n + j] ?? 0) + (a.im[i] ?? 0) * (b.re[j] ?? 0) - (a.re[i] ?? 0) * (b.im[j] ?? 0)
+      c.re[i * n + j] =
+        (c.re[i * n + j] ?? 0) +
+        (a.re[i] ?? 0) * (b.re[j] ?? 0) +
+        (a.im[i] ?? 0) * (b.im[j] ?? 0)
+
+      c.im[i * n + j] =
+        (c.im[i * n + j] ?? 0) +
+        (a.im[i] ?? 0) * (b.re[j] ?? 0) -
+        (a.re[i] ?? 0) * (b.im[j] ?? 0)
     }
   }
 
@@ -129,7 +192,10 @@ export function accumulateCross(c: Correlator, a: ModeVector, b: ModeVector): vo
 }
 
 export function difference(a: ModeVector, b: ModeVector): ModeVector {
-  return { re: Float64Array.from(a.re, (x, i) => x - (b.re[i] ?? 0)), im: Float64Array.from(a.im, (x, i) => x - (b.im[i] ?? 0)) }
+  return {
+    re: Float64Array.from(a.re, (x, i) => x - (b.re[i] ?? 0)),
+    im: Float64Array.from(a.im, (x, i) => x - (b.im[i] ?? 0)),
+  }
 }
 
 function asMatrix(c: Correlator): ComplexMatrix {
@@ -158,12 +224,19 @@ export type ModeFrequencies = {
 // cos(omega tau) C0 on each motion, so the eigenvalues are cos(omega tau). This reads the frequency from the
 // field itself rather than from its beat-to-beat change, which a broadband part of the force inflates
 // (E-FRC-0165), and needs omega tau < pi for every branch
-export function modeFrequencies(input: { c0: Correlator; c1: Correlator; tolerance?: number; lag?: number }): ModeFrequencies {
+export function modeFrequencies(input: {
+  c0: Correlator
+  c1: Correlator
+  tolerance?: number
+  lag?: number
+}): ModeFrequencies {
   const tolerance = input.tolerance ?? 1e-9
   const size = input.c0.size
   const e0 = hermitianEigen(asMatrix(input.c0))
   const top = Math.max(...Array.from(e0.values).map(Math.abs), 1e-300)
-  const keep = Array.from(e0.values, (v, i) => [v, i] as const).filter(([v]) => v > tolerance * top)
+  const keep = Array.from(e0.values, (v, i) => [v, i] as const).filter(
+    ([v]) => v > tolerance * top,
+  )
   const r = keep.length
   // W = V_r diag(1 / sqrt(lambda)), size x r
   const wRe = new Float64Array(size * r)
@@ -171,8 +244,11 @@ export function modeFrequencies(input: { c0: Correlator; c1: Correlator; toleran
 
   keep.forEach(([v, i], col) => {
     for (let a = 0; a < size; a++) {
-      wRe[a * r + col] = (e0.vectorsRe[a * size + i] ?? 0) / Math.sqrt(v)
-      wIm[a * r + col] = (e0.vectorsIm[a * size + i] ?? 0) / Math.sqrt(v)
+      wRe[a * r + col] =
+        (e0.vectorsRe[a * size + i] ?? 0) / Math.sqrt(v)
+
+      wIm[a * r + col] =
+        (e0.vectorsIm[a * size + i] ?? 0) / Math.sqrt(v)
     }
   })
 
@@ -255,7 +331,10 @@ export function modeFrequencies(input: { c0: Correlator; c1: Correlator; toleran
 
 // the curl-curl matrix M(k) of the plaquettes on mode n: M_ba = (curl^T curl A)_b at dock 0, for the plane
 // wave A on direction a, both read at link midpoints
-export function linearWaveMatrix(lattice: PhotonLattice, n: readonly number[]): ComplexMatrix {
+export function linearWaveMatrix(
+  lattice: PhotonLattice,
+  n: readonly number[],
+): ComplexMatrix {
   const f = lattice.firsts.length
   const size = lattice.plaquetteSize
   const { dock, half } = phases(lattice, n)
@@ -264,6 +343,7 @@ export function linearWaveMatrix(lattice: PhotonLattice, n: readonly number[]): 
   const bIm = new Float64Array(lattice.plaquetteCount)
   const outRe = new Float64Array(lattice.links)
   const outIm = new Float64Array(lattice.links)
+
   const at = (l: number): [number, number] => {
     const phi = (dock[Math.floor(l / f)] ?? 0) + (half[l % f] ?? 0)
 
@@ -323,12 +403,21 @@ export function linearWaveMatrix(lattice: PhotonLattice, n: readonly number[]): 
 
 // the same M(k) from the plaquettes of dock 0 alone, which every lattice here lists first: each gives a row
 // c(k), c_a = sum over its links on direction a of orientation * e^{i phase}, and M = sum of c^dagger c
-export function plaquetteWaveMatrix(lattice: PhotonLattice, n: readonly number[]): ComplexMatrix {
+export function plaquetteWaveMatrix(
+  lattice: PhotonLattice,
+  n: readonly number[],
+): ComplexMatrix {
   const f = lattice.firsts.length
   const size = lattice.plaquetteSize
   const perDock = lattice.plaquetteCount / lattice.cells
   const k = waveVector(lattice, n)
-  const half = lattice.firsts.map(d => (lattice.vectors[d] ?? []).reduce((s, e, i) => s + e * (k[i] ?? 0), 0) / 2)
+  const half = lattice.firsts.map(
+    d =>
+      (lattice.vectors[d] ?? []).reduce(
+        (s, e, i) => s + e * (k[i] ?? 0),
+        0,
+      ) / 2,
+  )
   const m = makeComplexMatrix({ rows: f, cols: f })
 
   for (let p = 0; p < perDock; p++) {
@@ -343,7 +432,9 @@ export function plaquetteWaveMatrix(lattice: PhotonLattice, n: readonly number[]
       let s = 0
 
       for (let i = 0; i < lattice.dimension; i++) {
-        s += (n[i] ?? 0) * (lattice.coordinates[x * lattice.dimension + i] ?? 0)
+        s +=
+          (n[i] ?? 0) *
+          (lattice.coordinates[x * lattice.dimension + i] ?? 0)
       }
 
       const phi = (2 * Math.PI * s) / lattice.side + (half[a] ?? 0)
@@ -356,8 +447,15 @@ export function plaquetteWaveMatrix(lattice: PhotonLattice, n: readonly number[]
     for (let b = 0; b < f; b++) {
       for (let a = 0; a < f; a++) {
         // conj(c_b) c_a
-        m.re[b * f + a] = (m.re[b * f + a] ?? 0) + (re[b] ?? 0) * (re[a] ?? 0) + (im[b] ?? 0) * (im[a] ?? 0)
-        m.im[b * f + a] = (m.im[b * f + a] ?? 0) + (re[b] ?? 0) * (im[a] ?? 0) - (im[b] ?? 0) * (re[a] ?? 0)
+        m.re[b * f + a] =
+          (m.re[b * f + a] ?? 0) +
+          (re[b] ?? 0) * (re[a] ?? 0) +
+          (im[b] ?? 0) * (im[a] ?? 0)
+
+        m.im[b * f + a] =
+          (m.im[b * f + a] ?? 0) +
+          (re[b] ?? 0) * (im[a] ?? 0) -
+          (im[b] ?? 0) * (re[a] ?? 0)
       }
     }
   }
@@ -369,7 +467,10 @@ export function plaquetteWaveMatrix(lattice: PhotonLattice, n: readonly number[]
 // the curl-curl operator: summed over every mode, (1 / volume) sum_n J(n)^dagger M(n)^+ J(n). A free
 // massless photon at inverse temperature beta gives a Wilson loop <cos(sum of angles)> = exp(-S / (2 beta)),
 // in radians, which is the Coulomb shape a measured loop is compared with
-export function loopAction(lattice: PhotonLattice, path: readonly (readonly [number, number])[]): number {
+export function loopAction(
+  lattice: PhotonLattice,
+  path: readonly (readonly [number, number])[],
+): number {
   const f = lattice.firsts.length
   const volume = lattice.cells
   const dim = lattice.dimension
@@ -377,9 +478,18 @@ export function loopAction(lattice: PhotonLattice, path: readonly (readonly [num
   let total = 0
 
   for (let i = 0; i < volume; i++) {
-    const n = Array.from({ length: dim }, (_, j) => Math.floor(i / lattice.side ** j) % lattice.side)
+    const n = Array.from(
+      { length: dim },
+      (_, j) => Math.floor(i / lattice.side ** j) % lattice.side,
+    )
     const k = waveVector(lattice, n)
-    const half = lattice.firsts.map(d => (lattice.vectors[d] ?? []).reduce((s, e, j) => s + e * (k[j] ?? 0), 0) / 2)
+    const half = lattice.firsts.map(
+      d =>
+        (lattice.vectors[d] ?? []).reduce(
+          (s, e, j) => s + e * (k[j] ?? 0),
+          0,
+        ) / 2,
+    )
     const jRe = new Float64Array(f)
     const jIm = new Float64Array(f)
 
@@ -428,8 +538,13 @@ export function loopAction(lattice: PhotonLattice, path: readonly (readonly [num
 }
 
 // the eigenvalues of M(k), ascending
-export function linearWaveEigenvalues(lattice: PhotonLattice, n: readonly number[]): number[] {
-  return Array.from(hermitianEigen(plaquetteWaveMatrix(lattice, n)).values).sort((a, b) => a - b)
+export function linearWaveEigenvalues(
+  lattice: PhotonLattice,
+  n: readonly number[],
+): number[] {
+  return Array.from(
+    hermitianEigen(plaquetteWaveMatrix(lattice, n)).values,
+  ).sort((a, b) => a - b)
 }
 
 // the leapfrog frequency of a curl-curl eigenvalue: 4 sin^2(omega / 2) = kappa lambda, NaN past stability

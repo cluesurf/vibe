@@ -44,8 +44,23 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
 import { exactFearKernels } from '@/code/rule/fear-kernel-exact'
-import { applyMap, GRID_LINES, meetingMap, onPoints, UNIFORM, unitsOf } from '@/code/measure/pointer-basis'
-import { marginalSingle, movedClass, recordKnot, runWhole, startWhole, vacuumSchedule, type VacuumSchedule } from '@/code/measure/vacuum-records'
+import {
+  applyMap,
+  GRID_LINES,
+  meetingMap,
+  onPoints,
+  UNIFORM,
+  unitsOf,
+} from '@/code/measure/pointer-basis'
+import {
+  marginalSingle,
+  movedClass,
+  recordKnot,
+  runWhole,
+  startWhole,
+  vacuumSchedule,
+  type VacuumSchedule,
+} from '@/code/measure/vacuum-records'
 import { type Whole } from '@/code/rule/fear-weave'
 
 const SIDE = 4
@@ -56,7 +71,11 @@ const STARTS = GRID_LINES.filter(l => l.points.includes(0))
 const dephase = (w: readonly bigint[], cls: number): bigint[] => {
   const lines = GRID_LINES.filter(l => l.cls === cls)
 
-  return Array.from({ length: 9 }, (_, p) => (lines.find(l => l.points.includes(p)) as (typeof lines)[number]).points.reduce((s, x) => s + (w[x] as bigint), 0n))
+  return Array.from({ length: 9 }, (_, p) =>
+    lines
+      .find(l => l.points.includes(p))!
+      .points.reduce((s, x) => s + w[x]!, 0n),
+  )
 }
 
 // the map composed both ways on every point member, compared as ratios
@@ -68,32 +87,47 @@ function commutes(map: { columns: bigint[][] }, cls: number): boolean {
     const ua = unitsOf(a)
     const ub = unitsOf(b)
 
-    if (!a.every((v, i) => v * ub === (b[i] as bigint) * ua)) return false
+    if (!a.every((v, i) => v * ub === b[i]! * ua)) {
+      return false
+    }
   }
 
   return true
 }
 
-function retained(s: VacuumSchedule, w: Whole, startCls: number, t: number): [bigint, bigint] {
-  const line = (STARTS.find(l => l.cls === startCls) as (typeof STARTS)[number]).points.map(p => (s.knotMove[t] as readonly number[])[p] as number)
+function retained(
+  s: VacuumSchedule,
+  w: Whole,
+  startCls: number,
+  t: number,
+): [bigint, bigint] {
+  const line = STARTS.find(l => l.cls === startCls)!.points.map(
+    p => s.knotMove[t]![p]!,
+  )
   const m = marginalSingle(w, 0)
 
-  return [line.reduce((a, p) => a + (m[p] as bigint), 0n), unitsOf(m)]
+  return [line.reduce((a, p) => a + m[p]!, 0n), unitsOf(m)]
 }
 
-const survivalOf = ([on, u]: [bigint, bigint]): number => ((3 * Number(on)) / Number(u) - 1) / 2
+const survivalOf = ([on, u]: [bigint, bigint]): number =>
+  ((3 * Number(on)) / Number(u) - 1) / 2
 
 export default experiment({
   id: 'quantum/record-zeno',
   code: 'E-QTM-0156',
-  title: 'no Zeno from repeated copying: a record commutes with every meeting against the frame-invariant environment, so a knot recorded every beat in the coset-union vacuum still loses exactly 3/4 (like) or 1/3 (love-fear) of its class label at its first meeting',
+  title:
+    'no Zeno from repeated copying: a record commutes with every meeting against the frame-invariant environment, so a knot recorded every beat in the coset-union vacuum still loses exactly 3/4 (like) or 1/3 (love-fear) of its class label at its first meeting',
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     const started = Date.now()
-    const kernels = exactFearKernels({ like: 1, unlike: 1, likeExchanged: false })
+    const kernels = exactFearKernels({
+      like: 1,
+      unlike: 1,
+      likeExchanged: false,
+    })
     const kinds = [
       { kernel: kernels.like, divisor: kernels.likeDivisor },
       { kernel: kernels.unlike, divisor: kernels.unlikeDivisor },
@@ -107,8 +141,18 @@ export default experiment({
     for (const k of kinds) {
       for (let q = 0; q < 9; q++) {
         for (let p = 0; p < 9; p++) {
-          const ensemble = meetingMap({ kernel: k.kernel, divisor: k.divisor, env: UNIFORM, own: [q, p] })
-          const member = meetingMap({ kernel: k.kernel, divisor: k.divisor, env: onPoints([p]), own: [q, p] })
+          const ensemble = meetingMap({
+            kernel: k.kernel,
+            divisor: k.divisor,
+            env: UNIFORM,
+            own: [q, p],
+          })
+          const member = meetingMap({
+            kernel: k.kernel,
+            divisor: k.divisor,
+            env: onPoints([p]),
+            own: [q, p],
+          })
 
           for (let c = 0; c < 4; c++) {
             z1 += commutes(ensemble, c) ? 1 : 0
@@ -120,44 +164,77 @@ export default experiment({
     }
 
     // Z2 and the readings on the vacuum
-    const perStart: { name: string; z2: boolean; cases: number; firstSurvival: Set<string>; differ: number; end: string[]; maxEndWithRecords: number }[] = []
+    const perStart: {
+      name: string
+      z2: boolean
+      cases: number
+      firstSurvival: Set<string>
+      differ: number
+      end: string[]
+      maxEndWithRecords: number
+    }[] = []
 
     for (const member of startFamily(16)) {
-      const row = { name: member.name, z2: true, cases: 0, firstSurvival: new Set<string>(), differ: 0, end: [] as string[], maxEndWithRecords: -1 }
+      const row = {
+        name: member.name,
+        z2: true,
+        cases: 0,
+        firstSurvival: new Set<string>(),
+        differ: 0,
+        end: [] as string[],
+        maxEndWithRecords: -1,
+      }
 
       withStart(member, () => {
         for (let d = 0; d < 24; d++) {
           const s = vacuumSchedule(SIDE, d, BEATS)
           const first = s.knotMeetings.findIndex(n => n > 0)
 
-          if (first < 0) continue
+          if (first < 0) {
+            continue
+          }
 
           row.cases++
 
           const firstRecord = s.records[first]
-          const at = firstRecord?.meetings.findIndex(([a, b]) => a === s.knot || b === s.knot) ?? -1
+          const at =
+            firstRecord?.meetings.findIndex(
+              ([a, b]) => a === s.knot || b === s.knot,
+            ) ?? -1
           const [sa, sb] = firstRecord?.signs?.[at] ?? [1, 1]
           const lambda = sa === sb ? 0.25 : 2 / 3
           const ends: string[] = []
 
           for (const start of STARTS) {
             const w0 = startWhole(s, start.points, () => UNIFORM)
+
             let wr = w0
             let wn = w0
 
             for (let t = 0; t < BEATS; t++) {
-              wr = recordKnot(runWhole(s, wr, t, t + 1), movedClass(s.knotMove[t] as readonly number[], start.cls))
+              wr = recordKnot(
+                runWhole(s, wr, t, t + 1),
+                movedClass(s.knotMove[t]!, start.cls),
+              )
               wn = runWhole(s, wn, t, t + 1)
 
               if (t === first) {
                 const [on, u] = retained(s, wr, start.cls, t)
                 const [onN, uN] = retained(s, wn, start.cls, t)
                 // survival (3 r - 1) / 2 = lambda exactly: 3 on - u = 2 lambda u
-                const target = sa === sb ? [1n, 4n] : [2n, 3n]
-                const exact = (3n * on - u) * (target[1] as bigint) === 2n * (target[0] as bigint) * u && (3n * onN - uN) * (target[1] as bigint) === 2n * (target[0] as bigint) * uN
+                const target: [bigint, bigint] =
+                  sa === sb ? [1n, 4n] : [2n, 3n]
+                const exact =
+                  (3n * on - u) * target[1] === 2n * target[0] * u &&
+                  (3n * onN - uN) * target[1] === 2n * target[0] * uN
 
-                if (!exact) row.z2 = false
-                row.firstSurvival.add(`${survivalOf([on, u]).toFixed(6)}(${lambda.toFixed(4)})`)
+                if (!exact) {
+                  row.z2 = false
+                }
+
+                row.firstSurvival.add(
+                  `${survivalOf([on, u]).toFixed(6)}(${lambda.toFixed(4)})`,
+                )
               }
             }
 

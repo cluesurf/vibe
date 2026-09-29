@@ -38,9 +38,26 @@ import { centerOf } from '@/code/measure/wall-reading'
 import { tritsApart } from '@/code/measure/doublet-locked-readings'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
 import { wordVacuum } from '@/code/measure/mixed-vacuum-readings'
-import { cloneConfiguration, type Configuration, type LockedTables } from '@/code/rule/doublet-locked-knit'
-import { collidePartial, newPartialTally, type PartialTally } from '@/code/rule/partial-contact-knit'
-import { fullPathKey, keyedRunner, meshLines, oldPathKey, pathOffset, vibesApart, weylDocks, type PathKey } from '@/code/measure/full-key-paths'
+import {
+  cloneConfiguration,
+  type Configuration,
+  type LockedTables,
+} from '@/code/rule/doublet-locked-knit'
+import {
+  collidePartial,
+  newPartialTally,
+  type PartialTally,
+} from '@/code/rule/partial-contact-knit'
+import {
+  fullPathKey,
+  keyedRunner,
+  meshLines,
+  oldPathKey,
+  pathOffset,
+  vibesApart,
+  weylDocks,
+  type PathKey,
+} from '@/code/measure/full-key-paths'
 
 const SIDE = 16
 const BEATS = 64
@@ -52,8 +69,17 @@ const QUIET_LONE = 100
 const QUIET_PER_PAIR = 50
 const PROBE = { pairs64: 717, pair68: 2, pass32: 486238 }
 
-type Seed = { name: string; pairs: number; place: (s: Configuration) => void }
-type Run = { wake: number[]; off: number; momentumBreaks: number; scatters: number }
+type Seed = {
+  name: string
+  pairs: number
+  place: (s: Configuration) => void
+}
+type Run = {
+  wake: number[]
+  off: number
+  momentumBreaks: number
+  scatters: number
+}
 
 export default experiment({
   id: 'spin/partial-contact',
@@ -72,23 +98,46 @@ export default experiment({
     const lines = meshLines(tables)
     const vacuum = wordVacuum(f, f.store)
     const scrambled = (f.cells * 24) / 20
+
     const pairAt = (s: Configuration, x: number): void => {
       s.vibe[x * 24 + 6] = 1
       s.open[x * 24 + 6] = 1
       s.vibe[x * 24 + 8] = -1
       s.open[x * 24 + 8] = 1
     }
-    const seeds: Seed[] = [
-      { name: 'lone', pairs: 0, place: s => ((s.vibe[center * 24] = 1), (s.open[center * 24] = 1)) },
-      { name: 'pair68', pairs: 1, place: s => pairAt(s, center) },
-      ...DENSITIES.map(n => ({ name: `pairs${n}`, pairs: n, place: (s: Configuration) => weylDocks(f.cells, n).forEach(x => pairAt(s, x)) })),
-    ]
-    const partialOf = (tally: PartialTally) => (t: LockedTables, c: Configuration, beat: number) => collidePartial(t, c, beat, tally)
 
-    const history = (key: PathKey): { apart: number; breaks: number } => {
+    const seeds: Seed[] = [
+      {
+        name: 'lone',
+        pairs: 0,
+        place: s => (
+          (s.vibe[center * 24] = 1),
+          (s.open[center * 24] = 1)
+        ),
+      },
+      { name: 'pair68', pairs: 1, place: s => pairAt(s, center) },
+      ...DENSITIES.map(n => ({
+        name: `pairs${n}`,
+        pairs: n,
+        place: (s: Configuration) =>
+          weylDocks(f.cells, n).forEach(x => pairAt(s, x)),
+      })),
+    ]
+    const partialOf =
+      (tally: PartialTally) =>
+      (t: LockedTables, c: Configuration, beat: number) =>
+        collidePartial(t, c, beat, tally)
+
+    const history = (
+      key: PathKey,
+    ): { apart: number; breaks: number } => {
       const tally = newPartialTally()
-      const p = keyedRunner(tables, vacuum, { key, collide: partialOf(tally) })
+      const p = keyedRunner(tables, vacuum, {
+        key,
+        collide: partialOf(tally),
+      })
       const q = keyedRunner(tables, vacuum, { key })
+
       let apart = 0
 
       for (let t = 0; t < HISTORY_BEATS; t++) {
@@ -109,10 +158,17 @@ export default experiment({
 
       const seedLines = new Set<number>()
 
-      for (let i = 0; i < start.vibe.length; i++) if (start.vibe[i] !== vacuum.vibe[i]) seedLines.add(lines.lineOf[i] as number)
+      for (let i = 0; i < start.vibe.length; i++) {
+        if (start.vibe[i] !== vacuum.vibe[i]) {
+          seedLines.add(lines.lineOf[i]!)
+        }
+      }
 
       // the unseeded run takes its own tally, so the seeded tally counts the seeded run alone
-      const a = keyedRunner(tables, vacuum, { key, collide: partial ? partialOf(newPartialTally()) : undefined })
+      const a = keyedRunner(tables, vacuum, {
+        key,
+        collide: partial ? partialOf(newPartialTally()) : undefined,
+      })
       const b = keyedRunner(tables, start, { key, collide })
       const wake: number[] = []
       const off = new Set<number>()
@@ -124,37 +180,95 @@ export default experiment({
         const p = a.state()
         const q = b.state()
 
-        for (let i = 0; i < p.vibe.length; i++) if (p.vibe[i] !== q.vibe[i] && !seedLines.has(lines.lineOf[i] as number)) off.add(lines.lineOf[i] as number)
-        if (t % EVERY === EVERY - 1) wake.push(vibesApart(p, q))
+        for (let i = 0; i < p.vibe.length; i++) {
+          if (
+            p.vibe[i] !== q.vibe[i] &&
+            !seedLines.has(lines.lineOf[i]!)
+          ) {
+            off.add(lines.lineOf[i]!)
+          }
+        }
+
+        if (t % EVERY === EVERY - 1) {
+          wake.push(vibesApart(p, q))
+        }
       }
 
-      return { wake, off: off.size, momentumBreaks: tally.momentumBreaks, scatters: tally.scatters }
+      return {
+        wake,
+        off: off.size,
+        momentumBreaks: tally.momentumBreaks,
+        scatters: tally.scatters,
+      }
     }
 
-    const keys = Array.from({ length: PATHS }, (_, k) => fullPathKey(pathOffset(k)))
+    const keys = Array.from({ length: PATHS }, (_, k) =>
+      fullPathKey(pathOffset(k)),
+    )
     const histories = keys.map(history)
-    const partial = keys.map(key => seeds.map(seed => ({ seed, run: run(seed, key, true) })))
-    const pass = keys.map(key => seeds.filter(s => s.name === 'pair68' || s.name === 'pairs32').map(seed => ({ seed, run: run(seed, key, false) })))
+    const partial = keys.map(key =>
+      seeds.map(seed => ({ seed, run: run(seed, key, true) })),
+    )
+    const pass = keys.map(key =>
+      seeds
+        .filter(s => s.name === 'pair68' || s.name === 'pairs32')
+        .map(seed => ({ seed, run: run(seed, key, false) })),
+    )
     const oldKey = oldPathKey(f.cells)
-    const oldPartial = seeds.filter(s => s.name === 'pair68' || s.name === 'pairs64').map(seed => ({ seed, run: run(seed, oldKey, true) }))
-    const oldPass32 = run(seeds.find(s => s.name === 'pairs32')!, oldKey, false)
+    const oldPartial = seeds
+      .filter(s => s.name === 'pair68' || s.name === 'pairs64')
+      .map(seed => ({ seed, run: run(seed, oldKey, true) }))
+    const oldPass32 = run(
+      seeds.find(s => s.name === 'pairs32')!,
+      oldKey,
+      false,
+    )
 
-    const last = (r: Run): number => r.wake[r.wake.length - 1] as number
+    const last = (r: Run): number => r.wake[r.wake.length - 1]!
     const gP1 = histories.every(h => h.apart === 0)
-    const gP2 = histories.every(h => h.breaks === 0) && partial.flat().every(x => x.run.momentumBreaks === 0)
-    const quiet = partial.flat().every(({ seed, run: r }) => r.wake.every(w => w <= (seed.pairs === 0 ? QUIET_LONE : QUIET_PER_PAIR * seed.pairs)))
-    const contrastScramble = pass.every(ps => last(ps.find(x => x.seed.name === 'pairs32')!.run) > scrambled)
+    const gP2 =
+      histories.every(h => h.breaks === 0) &&
+      partial.flat().every(x => x.run.momentumBreaks === 0)
+    const quiet = partial
+      .flat()
+      .every(({ seed, run: r }) =>
+        r.wake.every(
+          w =>
+            w <=
+            (seed.pairs === 0
+              ? QUIET_LONE
+              : QUIET_PER_PAIR * seed.pairs),
+        ),
+      )
+    const contrastScramble = pass.every(
+      ps =>
+        last(ps.find(x => x.seed.name === 'pairs32')!.run) > scrambled,
+    )
     const gP3 = quiet && contrastScramble
     const noReach = partial.flat().every(x => x.run.off === 0)
-    const contrastReach = pass.every(ps => ps.find(x => x.seed.name === 'pair68')!.run.off > 0)
+    const contrastReach = pass.every(
+      ps => ps.find(x => x.seed.name === 'pair68')!.run.off > 0,
+    )
     const gP4 = noReach && contrastReach
-    const control = last(oldPartial.find(x => x.seed.name === 'pairs64')!.run) === PROBE.pairs64 && last(oldPartial.find(x => x.seed.name === 'pair68')!.run) === PROBE.pair68 && last(oldPass32) === PROBE.pass32
+    const control =
+      last(oldPartial.find(x => x.seed.name === 'pairs64')!.run) ===
+        PROBE.pairs64 &&
+      last(oldPartial.find(x => x.seed.name === 'pair68')!.run) ===
+        PROBE.pair68 &&
+      last(oldPass32) === PROBE.pass32
     const gates = [gP1, gP2, gP3, gP4]
-    const status = !gates.every(Boolean) ? 'fail' : control ? 'pass' : 'partial'
+    const status = !gates.every(Boolean)
+      ? 'fail'
+      : control
+        ? 'pass'
+        : 'partial'
     const metrics: Record<string, number> = {}
 
     gates.forEach((g, i) => (metrics[`gate_P${i + 1}`] = g ? 1 : 0))
-    histories.forEach((h, k) => (metrics[`path${k}_historyApart`] = h.apart))
+    histories.forEach(
+      (h, k) => (metrics[`path${k}_historyApart`] = h.apart),
+    )
+
     partial.forEach((rs, k) =>
       rs.forEach(({ seed, run: r }) => {
         metrics[`path${k}_${seed.name}_wake64`] = last(r)
@@ -163,6 +277,7 @@ export default experiment({
         metrics[`path${k}_${seed.name}_scatters`] = r.scatters
       }),
     )
+
     pass.forEach((rs, k) =>
       rs.forEach(({ seed, run: r }) => {
         metrics[`path${k}_pass_${seed.name}_wake64`] = last(r)
@@ -172,13 +287,22 @@ export default experiment({
     metrics.control = control ? 1 : 0
     metrics.seconds = (Date.now() - t0) / 1000
 
-    const row = ({ seed, run: r }: { seed: Seed; run: Run }): string => `${seed.name} ${r.wake.join(' ')} (off ${r.off}, scatters ${r.scatters}, momentum breaks ${r.momentumBreaks})`
+    const row = ({ seed, run: r }: { seed: Seed; run: Run }): string =>
+      `${seed.name} ${r.wake.join(' ')} (off ${r.off}, scatters ${r.scatters}, momentum breaks ${r.momentumBreaks})`
 
     return verdict({
       status,
       claim: `the partial contact on two full-key paths (side ${SIDE}, ${BEATS} beats): the vacuum's history off 'pass''s by ${histories.map(h => h.apart).join('/')} trits over ${HISTORY_BEATS} beats; momentum breaks ${Math.max(...histories.map(h => h.breaks), ...partial.flat().map(x => x.run.momentumBreaks))}; at 8, 16, 32 and 64 pairs the wake at beat 64 is ${partial.map(rs => DENSITIES.map(n => last(rs.find(x => x.seed.name === `pairs${n}`)!.run)).join('/')).join(' and ')} (quiet at every density: ${quiet}), against 'pass''s ${pass.map(ps => last(ps.find(x => x.seed.name === 'pairs32')!.run)).join('/')} at 32 pairs; lines off the seeds under the partial contact ${Math.max(...partial.flat().map(x => x.run.off))} for every seed, against 'pass''s ${pass.map(ps => ps.find(x => x.seed.name === 'pair68')!.run.off).join('/')} for the 6+8 pair`,
       metrics,
-      control: { oldPairs64: last(oldPartial.find(x => x.seed.name === 'pairs64')!.run), oldPair68: last(oldPartial.find(x => x.seed.name === 'pair68')!.run), oldPass32: last(oldPass32) },
+      control: {
+        oldPairs64: last(
+          oldPartial.find(x => x.seed.name === 'pairs64')!.run,
+        ),
+        oldPair68: last(
+          oldPartial.find(x => x.seed.name === 'pair68')!.run,
+        ),
+        oldPass32: last(oldPass32),
+      },
       notes: `L2. Gates ${gates.map((g, i) => `P${i + 1} ${g}`).join(', ')}; control ${control}. Wake every ${EVERY} beats, partial contact, per path: ${partial.map((rs, k) => `path ${k}: ${rs.map(row).join('; ')}`).join(' | ')}. 'pass': ${pass.map((rs, k) => `path ${k}: ${rs.map(row).join('; ')}`).join(' | ')}. ${((Date.now() - t0) / 1000).toFixed(0)} s.`,
     })
   },

@@ -95,14 +95,35 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { lapseLinks, openMesh, warpClock, HUSK_LATERAL } from '@/code/rule/open-husk'
+import {
+  lapseLinks,
+  openMesh,
+  warpClock,
+  HUSK_LATERAL,
+} from '@/code/rule/open-husk'
 import { horizonRule } from '@/code/rule/horizon-husk'
 import { stepRule } from '@/code/rule/step-depth'
 import { stackModes } from '@/code/measure/open-husk'
 import { logLogSlope, proportionalFit } from '@/code/measure/regression'
-import { boxFreeExcess, unitProfile } from '@/code/measure/horizon-temperature'
+import {
+  boxFreeExcess,
+  unitProfile,
+} from '@/code/measure/horizon-temperature'
 import { roomOf } from '@/code/measure/headroom-horizon'
-import { ask, ballCount, ballDocks, cycleLine, genericStart, hiddenCount, noSkip, reverses, roomHorizon, shiftStep, tornSets, type Skip } from '@/code/measure/horizon-entropy'
+import {
+  ask,
+  ballCount,
+  ballDocks,
+  cycleLine,
+  genericStart,
+  hiddenCount,
+  noSkip,
+  reverses,
+  roomHorizon,
+  shiftStep,
+  tornSets,
+  type Skip,
+} from '@/code/measure/horizon-entropy'
 
 const DEPTH = 16
 const LEVELS = 3
@@ -112,11 +133,14 @@ const BASE = 243
 const SIDE = 48
 const LAYERS = 2
 const BEATS = 48
-const R_H: readonly number[] = [3.5, 4.5, 5.5, 6.5, 8.5, 10.5, 12.5, 16.5, 20.5]
+const R_H: readonly number[] = [
+  3.5, 4.5, 5.5, 6.5, 8.5, 10.5, 12.5, 16.5, 20.5,
+]
 const R2_GATE = 0.99
 const AREA_SPREAD = 0.1
 
-const spreadOf = (xs: readonly number[]): number => Math.max(...xs) / Math.min(...xs) - 1
+const spreadOf = (xs: readonly number[]): number =>
+  Math.max(...xs) / Math.min(...xs) - 1
 
 export default experiment({
   id: 'gravity/headroom-horizon-entropy',
@@ -129,7 +153,8 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${(Date.now() - started) / 1000}s`)
+    const log = (what: string): void =>
+      console.error(`${what} ${(Date.now() - started) / 1000}s`)
     const metrics: Record<string, number> = {}
     const lines: string[] = []
 
@@ -149,39 +174,115 @@ export default experiment({
     const rows = R_H.map(rh => {
       const m = CAP / profile.at(rh)
       const ku = rh * profile.at(rh)
-      const horizon = roomHorizon(mesh, center, roomOf(profile, m, CAP, BASE))
+      const horizon = roomHorizon(
+        mesh,
+        center,
+        roomOf(profile, m, CAP, BASE),
+      )
       const ball = ballDocks(mesh, center, rh)
       const sameAsBall = horizon.every((v, y) => v === ball[y])
       const sets = tornSets(mesh, horizon)
       const count = hiddenCount(rule, sets)
       const skip: Skip = noSkip(mesh)
 
-      for (const l of [...sets.interior, ...sets.cut]) skip.step[l] = 1
-      for (const l of sets.interior) skip.line[l] = 1
-
-      const hideAll = (s: { step: Float64Array; line: Int8Array }): void => {
-        for (const l of [...sets.interior, ...sets.cut]) s.step[l] = shiftStep(rule, s.step[l]!)
-        for (const l of sets.interior) s.line[l] = cycleLine(s.line[l]!)
+      for (const l of [...sets.interior, ...sets.cut]) {
+        skip.step[l] = 1
       }
-      const hidden = ask(mesh, rule, horizon, start, hideAll, skip, BEATS)
+
+      for (const l of sets.interior) {
+        skip.line[l] = 1
+      }
+
+      const hideAll = (s: {
+        step: Float64Array
+        line: Int8Array
+      }): void => {
+        for (const l of [...sets.interior, ...sets.cut]) {
+          s.step[l] = shiftStep(rule, s.step[l]!)
+        }
+
+        for (const l of sets.interior) {
+          s.line[l] = cycleLine(s.line[l]!)
+        }
+      }
+
+      const hidden = ask(
+        mesh,
+        rule,
+        horizon,
+        start,
+        hideAll,
+        skip,
+        BEATS,
+      )
 
       // V1: a line crossing the surface; V2: a live husk step one dock outside; V3: a horizon dock's rate
       const cut = sets.cut[0]!
-      const v1Skip: Skip = { ...skip, line: Uint8Array.from(skip.line, (v, l) => (l === cut ? 1 : v)) }
-      const v1 = ask(mesh, rule, horizon, start, s => void (s.line[cut] = cycleLine(s.line[cut]!)), v1Skip, BEATS)
-      const outsideDock = horizon[mesh.tail[cut]!] ? mesh.head[cut]! : mesh.tail[cut]!
+      const v1Skip: Skip = {
+        ...skip,
+        line: Uint8Array.from(skip.line, (v, l) => (l === cut ? 1 : v)),
+      }
+      const v1 = ask(
+        mesh,
+        rule,
+        horizon,
+        start,
+        s => void (s.line[cut] = cycleLine(s.line[cut]!)),
+        v1Skip,
+        BEATS,
+      )
+      const outsideDock = horizon[mesh.tail[cut]!]
+        ? mesh.head[cut]!
+        : mesh.tail[cut]!
+
       let live = -1
 
-      for (let l = 0; l < mesh.links && live < 0; l++) if (mesh.kind[l] === HUSK_LATERAL && !skip.step[l] && (mesh.tail[l] === outsideDock || mesh.head[l] === outsideDock)) live = l
+      for (let l = 0; l < mesh.links && live < 0; l++) {
+        if (
+          mesh.kind[l] === HUSK_LATERAL &&
+          !skip.step[l] &&
+          (mesh.tail[l] === outsideDock || mesh.head[l] === outsideDock)
+        ) {
+          live = l
+        }
+      }
 
-      const v2Skip: Skip = { ...skip, step: Uint8Array.from(skip.step, (v, l) => (l === live ? 1 : v)) }
-      const v2 = ask(mesh, rule, horizon, start, s => void (s.step[live] = shiftStep(rule, s.step[live]!)), v2Skip, BEATS)
+      const v2Skip: Skip = {
+        ...skip,
+        step: Uint8Array.from(skip.step, (v, l) =>
+          l === live ? 1 : v,
+        ),
+      }
+      const v2 = ask(
+        mesh,
+        rule,
+        horizon,
+        start,
+        s => void (s.step[live] = shiftStep(rule, s.step[live]!)),
+        v2Skip,
+        BEATS,
+      )
       const inside = horizon.indexOf(1)
-      const v3Skip: Skip = { ...skip, dock: Uint8Array.from(skip.dock, (v, y) => (y === inside ? 1 : v)) }
-      const v3 = ask(mesh, rule, horizon, start, s => void (s.rate[inside] = s.rate[inside]! + 1), v3Skip, BEATS)
+      const v3Skip: Skip = {
+        ...skip,
+        dock: Uint8Array.from(skip.dock, (v, y) =>
+          y === inside ? 1 : v,
+        ),
+      }
+      const v3 = ask(
+        mesh,
+        rule,
+        horizon,
+        start,
+        s => void (s.rate[inside] = s.rate[inside]! + 1),
+        v3Skip,
+        BEATS,
+      )
       const k2 = ask(mesh, rule, empty, start, hideAll, skip, BEATS)
       const reversed = reverses(mesh, rule, horizon, start, BEATS)
-      const formula = 9 * sets.docks * Math.log(3 * rule.span) + (sets.cut.length * (Math.log(rule.span) - Math.log(3))) / 2
+      const formula =
+        9 * sets.docks * Math.log(3 * rule.span) +
+        (sets.cut.length * (Math.log(rule.span) - Math.log(3))) / 2
       const area = 4 * Math.PI * rh * rh
       const inverse4G = CAP / (2 * ku)
 
@@ -209,16 +310,28 @@ export default experiment({
     })
 
     const seen = (a: { first: number }): boolean => a.first !== 0
-    const x = rows.every(r => r.hidden.first === 0 && r.hidden.kept && seen(r.v1) && seen(r.v2) && seen(r.v3) && r.reversed)
+    const x = rows.every(
+      r =>
+        r.hidden.first === 0 &&
+        r.hidden.kept &&
+        seen(r.v1) &&
+        seen(r.v2) &&
+        seen(r.v3) &&
+        r.reversed,
+    )
     const docks = rows.map(r => r.sets.docks)
     const totals = rows.map(r => r.count.total)
     const e1Fit = proportionalFit({ xs: docks, ys: totals })
     const e1 = e1Fit.r2 >= R2_GATE
     const perCut = rows.map(r => r.count.total / r.sets.cut.length)
     const e1b = spreadOf(perCut) <= AREA_SPREAD
-    const ballFit = proportionalFit({ xs: docks, ys: rows.map(r => r.ball) })
+    const ballFit = proportionalFit({
+      xs: docks,
+      ys: rows.map(r => r.ball),
+    })
     const ballPerCut = rows.map(r => r.ball / r.sets.cut.length)
-    const k1 = ballFit.r2 >= R2_GATE && spreadOf(ballPerCut) > AREA_SPREAD
+    const k1 =
+      ballFit.r2 >= R2_GATE && spreadOf(ballPerCut) > AREA_SPREAD
     const k2 = rows.every(r => seen(r.k2))
     const status = x && e1 && e1b && k1 && k2 ? 'pass' : 'fail'
     const rhs = rows.map(r => r.rh)
@@ -286,7 +399,12 @@ export default experiment({
       status,
       claim: `hidden state behind the headroom horizon (torn steps over the trit window of ${rule.span} values, interior lines a trit each; a full register holds 1 value) at r_h = ${R_H.join(', ')}: S against |H| R^2 ${e1Fit.r2.toFixed(5)} (slope ${e1Fit.slope.toFixed(2)} nats a dock, limit ${perDockLimit.toFixed(2)}); S per cut link spreads ${spreadOf(perCut).toFixed(3)} (gate ${AREA_SPREAD}); exponents in r_h: S ${sExp.toFixed(3)}, |H| ${hExp.toFixed(3)}, T_cut ${cutExp.toFixed(3)}; hidden set confirmed by the rule ${x}; no-horizon control seen ${k2}; volume control R^2 ${ballFit.r2.toFixed(5)}, spread ${spreadOf(ballPerCut).toFixed(3)}`,
       metrics,
-      control: { k1: k1 ? 1 : 0, k2: k2 ? 1 : 0, ballR2: ballFit.r2, ballSpread: spreadOf(ballPerCut) },
+      control: {
+        k1: k1 ? 1 : 0,
+        k2: k2 ? 1 : 0,
+        ballR2: ballFit.r2,
+        ballSpread: spreadOf(ballPerCut),
+      },
       notes: `L2. X ${x}, E1 ${e1}, E1b ${e1b}, K1 ${k1}, K2 ${k2}. ${lines.join('. ')}.`,
     })
   },

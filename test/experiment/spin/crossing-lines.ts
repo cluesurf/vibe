@@ -158,8 +158,13 @@ const wrap = (x: number): number => Math.atan2(Math.sin(x), Math.cos(x))
 const f4 = (x: number): string => x.toFixed(4)
 const f6 = (x: number): string => x.toFixed(6)
 const e2 = (x: number): string => x.toExponential(2)
-const spinor = (k: number): [Amp, Amp] => loneBand(k).vector.map(c => [c[0], c[1]] as Amp) as [Amp, Amp]
-const predicted = (kA: number, kB: number): number => loneBand(kA).energy - loneBand(0).energy + loneBand(kB).energy - loneBand(0).energy
+const spinor = (k: number): [Amp, Amp] =>
+  loneBand(k).vector.map(c => [c[0], c[1]] as Amp) as [Amp, Amp]
+const predicted = (kA: number, kB: number): number =>
+  loneBand(kA).energy -
+  loneBand(0).energy +
+  loneBand(kB).energy -
+  loneBand(0).energy
 
 export default experiment({
   id: 'spin/crossing-lines',
@@ -172,14 +177,34 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const A = rootIndex([1, 1, 0, 0])
 
     // ---- checks that need no run ----
     const census = [crossingCensus([1, -1]), crossingCensus([1, 1])]
-    const censusText = census.map(c => [...c.entries()].sort().map(([k, v]) => `${k} ${v}`).join(', '))
-    const censusHolds = census.every(c => c.size === 3 && c.get('1:keep') === 192 && c.get('0:swap') === 144 && c.get('-1:swap') === 192)
-    const small: CrossSpec = { L: 3, roots: [A, rootIndex([1, 0, 1, 0])], charges: [1, 1], cost: true, contact: 'rule' }
+    const censusText = census.map(c =>
+      [...c.entries()]
+        .sort()
+        .map(([k, v]) => `${k} ${v}`)
+        .join(', '),
+    )
+    const censusHolds = census.every(
+      c =>
+        c.size === 3 &&
+        c.get('1:keep') === 192 &&
+        c.get('0:swap') === 144 &&
+        c.get('-1:swap') === 192,
+    )
+    const small: CrossSpec = {
+      L: 3,
+      roots: [A, rootIndex([1, 0, 1, 0])],
+      charges: [1, 1],
+      cost: true,
+      contact: 'rule',
+    }
     const twoLoves = gaussCount(small, [
       { line: 0, p: 1, j: 0 },
       { line: 1, p: 2, j: 0 },
@@ -191,39 +216,88 @@ export default experiment({
     const z3Holds = twoLoves === 0 && loveFear === 9
 
     // ---- 3b: the class average ----
-    const dirs = { axis: [1, 0, 0, 0], face: [Math.SQRT1_2, Math.SQRT1_2, 0, 0], body: [1 / Math.sqrt(3), 1 / Math.sqrt(3), 1 / Math.sqrt(3), 0] }
-    const moments = Object.fromEntries(Object.entries(dirs).map(([k, n]) => [k, [2, 4, 6].map(m => designSum(n, m))]))
-    const averages = Object.fromEntries(Object.entries(dirs).map(([k, n]) => [k, [Math.PI / 8, Math.PI / 4, Math.PI / 2].map(K => classAverage(n, K, loneBand))]))
+    const dirs = {
+      axis: [1, 0, 0, 0],
+      face: [Math.SQRT1_2, Math.SQRT1_2, 0, 0],
+      body: [1 / Math.sqrt(3), 1 / Math.sqrt(3), 1 / Math.sqrt(3), 0],
+    }
+    const moments = Object.fromEntries(
+      Object.entries(dirs).map(([k, n]) => [
+        k,
+        [2, 4, 6].map(m => designSum(n, m)),
+      ]),
+    )
+    const averages = Object.fromEntries(
+      Object.entries(dirs).map(([k, n]) => [
+        k,
+        [Math.PI / 8, Math.PI / 4, Math.PI / 2].map(K =>
+          classAverage(n, K, loneBand),
+        ),
+      ]),
+    )
     const averageSpread = [0, 1, 2].map(i => {
-      const es = Object.values(averages).map(a => (a[i] as ReturnType<typeof classAverage>).energy - loneBand(0).energy)
+      const es = Object.values(averages).map(
+        a => a[i]!.energy - loneBand(0).energy,
+      )
 
       return Math.max(...es) - Math.min(...es)
     })
-    const drift = Object.values(averages).map(a => a[0] as ReturnType<typeof classAverage>)
-    const driftRatio = drift.map(d => d.spread / Math.hypot(...d.velocity))
+    const drift = Object.values(averages).map(a => a[0]!)
+    const driftRatio = drift.map(
+      d => d.spread / Math.hypot(...d.velocity),
+    )
 
     // ---- the geometries ----
     const results = GEOMETRIES.map(g => {
       const B = rootIndex(g.second)
-      const spec: CrossSpec = { L, roots: [A, B], charges: [1, -1], cost: true, contact: 'rule' }
-      const cosTheta = [1, 1, 0, 0].reduce((s, x, c) => s + x * (g.second[c] as number), 0) / 2
+      const spec: CrossSpec = {
+        L,
+        roots: [A, B],
+        charges: [1, -1],
+        cost: true,
+        contact: 'rule',
+      }
+      const cosTheta =
+        [1, 1, 0, 0].reduce(
+          (s, x, c) => s + x * (g.second[c] as number),
+          0,
+        ) / 2
       const cosHalf = Math.sqrt((1 + cosTheta) / 2)
 
       // the one-vibe level nearest X, and its box check
       const levelOf = (ring: number) => {
-        const o = oneBody({ ...spec, L: ring, charges: [1], anchor: -1 }, 0)
+        const o = oneBody(
+          { ...spec, L: ring, charges: [1], anchor: -1 },
+          0,
+        )
         const { levels, residual } = oneLevels(o, N)
-        const sorted = levels.slice().sort((a, b) => a.meanString - b.meanString)
+        const sorted = levels
+          .slice()
+          .sort((a, b) => a.meanString - b.meanString)
 
-        return { o, level: sorted[0] as (typeof levels)[number], held: levels.filter(l => l.tail <= TAIL).length, residual }
+        return {
+          o,
+          level: sorted[0]!,
+          held: levels.filter(l => l.tail <= TAIL).length,
+          residual,
+        }
       }
+
       const one = levelOf(L)
       const big = levelOf(L_CHECK)
       const boxOff = Math.abs(wrap(one.level.energy - big.level.energy))
       const loveState = levelState(one.o, one.level.vector)
-      const product = productState(loveState, conjugateOther(spec, loveState))
+      const product = productState(
+        loveState,
+        conjugateOther(spec, loveState),
+      )
       const level = sumStates(product, exchangeLines(spec, product), 1)
-      const antisymmetric = sumStates(product, exchangeLines(spec, product), -1)
+      const antisymmetric = sumStates(
+        product,
+        exchangeLines(spec, product),
+        -1,
+      )
+
       let gauss = true
 
       for (const k of level.keys()) {
@@ -235,11 +309,23 @@ export default experiment({
       log(`${g.name}: levels`)
 
       // separability, the exact level (M1), the antisymmetric sum, the control
-      const separable = runCross({ ...spec, contact: 'off' }, product, SEPARABLE, N, FLOOR)
+      const separable = runCross(
+        { ...spec, contact: 'off' },
+        product,
+        SEPARABLE,
+        N,
+        FLOOR,
+      )
       const plain = runCross(spec, product, SEPARABLE, N, FLOOR)
       const held = runCross(spec, level, LONG, N, FLOOR)
       const anti = runCross(spec, antisymmetric, SEPARABLE, N, FLOOR)
-      const control = runCross({ ...spec, cost: false }, level, SHORT, N, FLOOR)
+      const control = runCross(
+        { ...spec, cost: false },
+        level,
+        SHORT,
+        N,
+        FLOOR,
+      )
       const e0 = spectralPeak(held.overlap)
 
       log(`${g.name}: M1`)
@@ -247,12 +333,29 @@ export default experiment({
       // the bisector (M2 at pi/2, M3 at every K)
       const bisector = KS.map(K => {
         const k = (K * cosHalf) / 2
-        const r = runCross(spec, boost(spec, level, [k, k]), K === Math.PI / 2 ? LONG : SHORT, N, FLOOR)
+        const r = runCross(
+          spec,
+          boost(spec, level, [k, k]),
+          K === Math.PI / 2 ? LONG : SHORT,
+          N,
+          FLOOR,
+        )
         const peak = spectralPeak(r.overlap)
         const dE = wrap(peak.energy - e0.energy)
         const pred = predicted(k, k)
 
-        return { K, k, dE, pred, share: peak.share, velocity: trackVelocity(spec, r.centroid), least: Math.min(...r.fidelity), tail: Math.max(...r.tail), beats: r.fidelity.length, vPred: loneBand(k).slope / 2 }
+        return {
+          K,
+          k,
+          dE,
+          pred,
+          share: peak.share,
+          velocity: trackVelocity(spec, r.centroid),
+          least: Math.min(...r.fidelity),
+          tail: Math.max(...r.tail),
+          beats: r.fidelity.length,
+          vPred: loneBand(k).slope / 2,
+        }
       })
 
       log(`${g.name}: bisector`)
@@ -262,10 +365,25 @@ export default experiment({
         LINE_KS.map(K => {
           const kA = line === 0 ? K / 2 : (K * cosTheta) / 2
           const kB = line === 0 ? (K * cosTheta) / 2 : K / 2
-          const r = runCross(spec, boost(spec, level, [kA, kB]), SHORT, N, FLOOR)
+          const r = runCross(
+            spec,
+            boost(spec, level, [kA, kB]),
+            SHORT,
+            N,
+            FLOOR,
+          )
           const peak = spectralPeak(r.overlap)
 
-          return { line, K, kA, kB, dE: wrap(peak.energy - e0.energy), pred: predicted(kA, kB), share: peak.share, velocity: trackVelocity(spec, r.centroid) }
+          return {
+            line,
+            K,
+            kA,
+            kB,
+            dE: wrap(peak.energy - e0.energy),
+            pred: predicted(kA, kB),
+            share: peak.share,
+            velocity: trackVelocity(spec, r.centroid),
+          }
         }),
       )
 
@@ -273,20 +391,63 @@ export default experiment({
 
       // calibration (a): the same kind of pair on one line
       const onLine: CrossSpec = { ...spec, contact: 'off' }
-      const pairPacket = placedPacket(onLine, [0, 0], PAIR.radius, x => Math.exp(-(x * x) / 8), [PAIR.k, PAIR.k], [spinor(PAIR.k), spinor(PAIR.k)])
+      const pairPacket = placedPacket(
+        onLine,
+        [0, 0],
+        PAIR.radius,
+        x => Math.exp(-(x * x) / 8),
+        [PAIR.k, PAIR.k],
+        [spinor(PAIR.k), spinor(PAIR.k)],
+      )
       const pairRun = runCross(onLine, pairPacket, LONG, N, FLOOR)
       const pairVelocity = trackVelocity(onLine, pairRun.centroid)
 
       // calibration (b): two free vibes on the bisector, read by the same spectral reading
-      const free: CrossSpec = { L: CAL.ring, roots: [A, B], charges: [1], cost: false, contact: 'off', anchor: -1 }
+      const free: CrossSpec = {
+        L: CAL.ring,
+        roots: [A, B],
+        charges: [1],
+        cost: false,
+        contact: 'off',
+        anchor: -1,
+      }
       const freeReadings = KS.map((K, i) => {
         const k = (K * cosHalf) / 2
-        const packet: CrossState = placedPacket(free, [0], CAL.radius, x => Math.exp(-(x * x) / (2 * CAL.width * CAL.width)), [k], [spinor(k)])
-        const r = runCross(free, packet, (bisector[i] as (typeof bisector)[number]).beats, N, FLOOR)
-        const squared: Amp[] = r.overlap.map(a => [a[0] * a[0] - a[1] * a[1], 2 * a[0] * a[1]])
-        const rest = runCross(free, placedPacket(free, [0], CAL.radius, x => Math.exp(-(x * x) / (2 * CAL.width * CAL.width)), [0], [spinor(0)]), r.fidelity.length, N, FLOOR)
-        const squaredRest: Amp[] = rest.overlap.map(a => [a[0] * a[0] - a[1] * a[1], 2 * a[0] * a[1]])
-        const dE = wrap(spectralPeak(squared).energy - spectralPeak(squaredRest).energy)
+        const packet: CrossState = placedPacket(
+          free,
+          [0],
+          CAL.radius,
+          x => Math.exp(-(x * x) / (2 * CAL.width * CAL.width)),
+          [k],
+          [spinor(k)],
+        )
+        const r = runCross(free, packet, bisector[i]!.beats, N, FLOOR)
+        const squared: Amp[] = r.overlap.map(a => [
+          a[0] * a[0] - a[1] * a[1],
+          2 * a[0] * a[1],
+        ])
+        const rest = runCross(
+          free,
+          placedPacket(
+            free,
+            [0],
+            CAL.radius,
+            x => Math.exp(-(x * x) / (2 * CAL.width * CAL.width)),
+            [0],
+            [spinor(0)],
+          ),
+          r.fidelity.length,
+          N,
+          FLOOR,
+        )
+        const squaredRest: Amp[] = rest.overlap.map(a => [
+          a[0] * a[0] - a[1] * a[1],
+          2 * a[0] * a[1],
+        ])
+        const dE = wrap(
+          spectralPeak(squared).energy -
+            spectralPeak(squaredRest).energy,
+        )
 
         return { K, dE, pred: predicted(k, k) }
       })
@@ -294,15 +455,50 @@ export default experiment({
       log(`${g.name}: calibrations`)
 
       const m1 = Math.max(...held.tail) <= TAIL
-      const top = bisector[bisector.length - 1] as (typeof bisector)[number]
-      const m2 = Math.abs(top.velocity.alpha) * LONG >= REACH && Math.abs(top.velocity.beta) * LONG >= REACH
-      const m3 = bisector.every(b => Math.abs(b.dE - b.pred) <= TOL * Math.abs(b.pred))
+      const top = bisector[bisector.length - 1]!
+      const m2 =
+        Math.abs(top.velocity.alpha) * LONG >= REACH &&
+        Math.abs(top.velocity.beta) * LONG >= REACH
+      const m3 = bisector.every(
+        b => Math.abs(b.dE - b.pred) <= TOL * Math.abs(b.pred),
+      )
       const controlHolds = Math.max(...control.tail) > TAIL
       const calA = Math.abs(pairVelocity.alpha) * LONG >= REACH
-      const calB = freeReadings.every(f => Math.abs(f.dE - f.pred) <= TOL * Math.abs(f.pred))
-      const checks = gauss && boxOff <= EXACT && one.residual < 1e-8 && Math.min(...separable.fidelity) >= 1 - EXACT && Math.min(...held.fidelity) >= 1 - EXACT
+      const calB = freeReadings.every(
+        f => Math.abs(f.dE - f.pred) <= TOL * Math.abs(f.pred),
+      )
+      const checks =
+        gauss &&
+        boxOff <= EXACT &&
+        one.residual < 1e-8 &&
+        Math.min(...separable.fidelity) >= 1 - EXACT &&
+        Math.min(...held.fidelity) >= 1 - EXACT
 
-      return { g, cosTheta, one, boxOff, gauss, separable, plain, held, anti, control, e0, bisector, along, pairVelocity, pairRun, freeReadings, m1, m2, m3, controlHolds, calA, calB, checks }
+      return {
+        g,
+        cosTheta,
+        one,
+        boxOff,
+        gauss,
+        separable,
+        plain,
+        held,
+        anti,
+        control,
+        e0,
+        bisector,
+        along,
+        pairVelocity,
+        pairRun,
+        freeReadings,
+        m1,
+        m2,
+        m3,
+        controlHolds,
+        calA,
+        calB,
+        checks,
+      }
     })
 
     const M1 = results.every(r => r.m1)
@@ -310,8 +506,14 @@ export default experiment({
     const M3 = results.every(r => r.m3)
     const controls = results.every(r => r.controlHolds)
     const calibrated = results.every(r => r.calA && r.calB)
-    const checked = censusHolds && z3Holds && results.every(r => r.checks)
-    const status = !checked || !calibrated || !controls ? 'partial' : M1 && M2 && M3 ? 'pass' : 'fail'
+    const checked =
+      censusHolds && z3Holds && results.every(r => r.checks)
+    const status =
+      !checked || !calibrated || !controls
+        ? 'partial'
+        : M1 && M2 && M3
+          ? 'pass'
+          : 'fail'
 
     const metrics: Record<string, number> = {
       M1: M1 ? 1 : 0,
@@ -319,18 +521,23 @@ export default experiment({
       M3: M3 ? 1 : 0,
       twoLovesAssignments: twoLoves,
       loveFearAssignments: loveFear,
-      averageSpreadK8: averageSpread[0] as number,
-      averageSpreadK4: averageSpread[1] as number,
-      averageSpreadK2: averageSpread[2] as number,
+      averageSpreadK8: averageSpread[0]!,
+      averageSpreadK4: averageSpread[1]!,
+      averageSpreadK2: averageSpread[2]!,
       seconds: (Date.now() - started) / 1000,
     }
 
-    for (const [k, m] of Object.entries(moments)) m.forEach((x, i) => (metrics[`${k}Moment${2 * i + 2}`] = x))
-    driftRatio.forEach((x, i) => (metrics[`classSpreadOverDrift${i}`] = x))
+    for (const [k, m] of Object.entries(moments)) {
+      m.forEach((x, i) => (metrics[`${k}Moment${2 * i + 2}`] = x))
+    }
+
+    driftRatio.forEach(
+      (x, i) => (metrics[`classSpreadOverDrift${i}`] = x),
+    )
 
     for (const r of results) {
       const p = r.g.name
-      const top = r.bisector[r.bisector.length - 1] as (typeof r.bisector)[number]
+      const top = r.bisector[r.bisector.length - 1]!
 
       metrics[`${p}_levelEnergy`] = r.one.level.energy
       metrics[`${p}_levelMeanString`] = r.one.level.meanString
@@ -339,10 +546,14 @@ export default experiment({
       metrics[`${p}_pairEnergy`] = r.e0.energy
       metrics[`${p}_heldMaxTail`] = Math.max(...r.held.tail)
       metrics[`${p}_heldLeastFidelity`] = Math.min(...r.held.fidelity)
-      metrics[`${p}_separableLeastFidelity`] = Math.min(...r.separable.fidelity)
+      metrics[`${p}_separableLeastFidelity`] = Math.min(
+        ...r.separable.fidelity,
+      )
       metrics[`${p}_plainLeastFidelity`] = Math.min(...r.plain.fidelity)
       metrics[`${p}_plainMaxTail`] = Math.max(...r.plain.tail)
-      metrics[`${p}_antisymmetricLeastFidelity`] = Math.min(...r.anti.fidelity)
+      metrics[`${p}_antisymmetricLeastFidelity`] = Math.min(
+        ...r.anti.fidelity,
+      )
       metrics[`${p}_controlMaxTail`] = Math.max(...r.control.tail)
       metrics[`${p}_alphaPi2`] = top.velocity.alpha
       metrics[`${p}_betaPi2`] = top.velocity.beta
@@ -356,6 +567,7 @@ export default experiment({
         metrics[`${p}_bisector${i}_share`] = b.share
         metrics[`${p}_bisector${i}_leastFidelity`] = b.least
       })
+
       r.freeReadings.forEach((f, i) => {
         metrics[`${p}_free${i}_dE`] = f.dE
         metrics[`${p}_free${i}_predicted`] = f.pred
@@ -363,7 +575,7 @@ export default experiment({
     }
 
     const geoText = results.map(r => {
-      const top = r.bisector[r.bisector.length - 1] as (typeof r.bisector)[number]
+      const top = r.bisector[r.bisector.length - 1]!
 
       return `${r.g.name} (cos ${f4(r.cosTheta)}): level E ${f6(r.e0.energy)}, tail at most ${e2(Math.max(...r.held.tail))} over ${LONG} beats (M1 ${r.m1}), fidelity ${f6(Math.min(...r.held.fidelity))}; at K = pi/2 on the bisector v = ${e2(top.velocity.alpha)} u_A + ${e2(top.velocity.beta)} u_B, reach ${f4(top.velocity.reach)} docks, against ${f4(top.vPred)} each predicted (M2 ${r.m2}); dE ${r.bisector.map(b => `${f4(b.dE)} (${f4(b.pred)})`).join(', ')} (M3 ${r.m3}); control tail ${e2(Math.max(...r.control.tail))}; one-line pair ${e2(r.pairVelocity.alpha)} a beat, free pair dE ${r.freeReadings.map(f => `${f4(f.dE)} (${f4(f.pred)})`).join(', ')}`
     })
@@ -372,8 +584,17 @@ export default experiment({
       status,
       claim: `${geoText.join('; ')}; crossing census ${censusHolds}, two loves admit ${twoLoves} flux assignments on L = 3 and a love and a fear ${loveFear}; the class average's energy spread over axis, face and body ${averageSpread.map(e2).join(', ')} at K = pi/8, pi/4, pi/2, branch spread over mean drift ${driftRatio.map(f4).join(', ')}`,
       metrics,
-      control: Object.fromEntries(results.flatMap(r => [[`${r.g.name}_costOffMaxTail`, Math.max(...r.control.tail)], [`${r.g.name}_calibrationPairAlpha`, r.pairVelocity.alpha]])),
-      notes: `L2. M1 ${M1}, M2 ${M2}, M3 ${M3}; controls ${controls}, calibrations ${calibrated}, checks ${checked}. Census love+fear: ${censusText[0]}; love+love: ${censusText[1]}. Moments sum (n.u)^m, m = 2, 4, 6: ${Object.entries(moments).map(([k, m]) => `${k} ${m.map(f4).join(' ')}`).join('; ')}. ${results
+      control: Object.fromEntries(
+        results.flatMap(r => [
+          [`${r.g.name}_costOffMaxTail`, Math.max(...r.control.tail)],
+          [`${r.g.name}_calibrationPairAlpha`, r.pairVelocity.alpha],
+        ]),
+      ),
+      notes: `L2. M1 ${M1}, M2 ${M2}, M3 ${M3}; controls ${controls}, calibrations ${calibrated}, checks ${checked}. Census love+fear: ${censusText[0]}; love+love: ${censusText[1]}. Moments sum (n.u)^m, m = 2, 4, 6: ${Object.entries(
+        moments,
+      )
+        .map(([k, m]) => `${k} ${m.map(f4).join(' ')}`)
+        .join('; ')}. ${results
         .map(
           r =>
             `${r.g.name}: one-vibe level E ${r.one.level.energy} mean string ${f4(r.one.level.meanString)} tail ${e2(r.one.level.tail)}, ${r.one.held} one-vibe levels held within N, box ${e2(r.boxOff)}, residual ${e2(r.one.residual)}, Gauss ${r.gauss}; separable least fidelity ${r.separable.fidelity.reduce((a, b) => Math.min(a, b), 1)}; plain product under the contact least fidelity ${f4(Math.min(...r.plain.fidelity))} tail ${e2(Math.max(...r.plain.tail))} over ${SEPARABLE} beats; antisymmetric ${f4(Math.min(...r.anti.fidelity))}; held dropped ${e2(r.held.dropped)} size ${r.held.size}; bisector ${r.bisector.map(b => `K ${f4(b.K)} k ${f4(b.k)} dE ${f6(b.dE)} pred ${f6(b.pred)} share ${f4(b.share)} least fidelity ${f4(b.least)} tail ${e2(b.tail)} v ${e2(b.velocity.alpha)} ${e2(b.velocity.beta)} reach ${f4(b.velocity.reach)}`).join('; ')}; along ${r.along.map(a => `line ${a.line} K ${f4(a.K)} (k ${f4(a.kA)}, ${f4(a.kB)}) dE ${f6(a.dE)} pred ${f6(a.pred)} share ${f4(a.share)} v ${e2(a.velocity.alpha)} ${e2(a.velocity.beta)}`).join('; ')}; one-line pair reach ${f4(r.pairVelocity.reach)} tail ${e2(Math.max(...r.pairRun.tail))}`,

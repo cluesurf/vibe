@@ -125,7 +125,7 @@ export default experiment({
       },
       notes:
         'AUDIT 2026-08-31: this experiment runs a hand-written 1D coined quantum walk from code/dynamics, not the lattice-gas rule, which is a classical permutation on ternary slots with no amplitudes (foundations/rule-has-no-amplitudes). Known quantum-walk physics reproduced correctly, so the honest depth is L2, and the former substrates label [3434] was false, nothing {3,4,3,4}-related is in the import graph. Prior art: Strauch 2006. ' +
-        "Zitterbewegung measured on the coined Dirac walk model (code/measure/zitterbewegung -> diracQuantumWalk): trembling frequency = 2 * mass to ~1 percent, massless control shows none. L3, on the coined walk model, not the rule, a quantitative could-be-wrong prediction.",
+        'Zitterbewegung measured on the coined Dirac walk model (code/measure/zitterbewegung -> diracQuantumWalk): trembling frequency = 2 * mass to ~1 percent, massless control shows none. L3, on the coined walk model, not the rule, a quantitative could-be-wrong prediction.',
     })
   },
 })

@@ -67,7 +67,12 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { weyl } from '@/code/tool/weyl'
-import { exactBasis, exactToFloat, runExact, type BeatSpec } from '@/code/rule/lattice-qed'
+import {
+  exactBasis,
+  exactToFloat,
+  runExact,
+  type BeatSpec,
+} from '@/code/rule/lattice-qed'
 import {
   applyChannel,
   bornTransfer,
@@ -91,9 +96,17 @@ const COLLISIONS = 40
 const LONG = 32
 const SHORT = 4
 
-const specOf = (n: number, s: number): BeatSpec => ({ m: 6 * n * s, hop: 2 * n, electric: 1, magnetic: 1 })
+const specOf = (n: number, s: number): BeatSpec => ({
+  m: 6 * n * s,
+  hop: 2 * n,
+  electric: 1,
+  magnetic: 1,
+})
 
-function reducedRegister(joint: { re: Float64Array; im: Float64Array }, n: number): Matrix {
+function reducedRegister(
+  joint: { re: Float64Array; im: Float64Array },
+  n: number,
+): Matrix {
   const d = joint.re.length / n
   const rho = zeroMatrix(n)
 
@@ -134,6 +147,7 @@ export default experiment({
 
     // E0
     let e0Deviation = 0
+
     {
       const n = 3
       const spec = specOf(n, 8)
@@ -142,16 +156,31 @@ export default experiment({
 
       for (let k = 1; k <= 3; k++) {
         const i = Math.floor(weyl(k) * set.sector.size)
-        const exact = exactToFloat(runExact(steps, exactBasis(spec.m, i), SHORT), set.sector.size)
-        const atom: Vector = { re: new Float64Array(set.atomSector.size), im: new Float64Array(set.atomSector.size) }
-        const register: Vector = { re: new Float64Array(n), im: new Float64Array(n) }
+        const exact = exactToFloat(
+          runExact(steps, exactBasis(spec.m, i), SHORT),
+          set.sector.size,
+        )
+        const atom: Vector = {
+          re: new Float64Array(set.atomSector.size),
+          im: new Float64Array(set.atomSector.size),
+        }
+        const register: Vector = {
+          re: new Float64Array(n),
+          im: new Float64Array(n),
+        }
 
         atom.re[Math.floor(i / n)] = 1
         register.re[i % n] = 1
 
         const float = collide(steps, spec, SHORT, atom, register)
 
-        for (let j = 0; j < float.re.length; j++) e0Deviation = Math.max(e0Deviation, Math.abs(float.re[j]! - exact.re[j]!), Math.abs(float.im[j]! - exact.im[j]!))
+        for (let j = 0; j < float.re.length; j++) {
+          e0Deviation = Math.max(
+            e0Deviation,
+            Math.abs(float.re[j]! - exact.re[j]!),
+            Math.abs(float.im[j]! - exact.im[j]!),
+          )
+        }
       }
     }
 
@@ -170,18 +199,24 @@ export default experiment({
       const e = set.atom.vectors[1]!
       const vacuum = set.register.vectors[0]!
       const flow = collisionBeat(set.sector, spec)
-      const record = collisionBeat(set.sector, spec, { registerMagnetic: false })
+      const record = collisionBeat(set.sector, spec, {
+        registerMagnetic: false,
+      })
       const flowKraus = collisionKraus(flow, spec, LONG, d, vacuum)
       const recordKraus = collisionKraus(record, spec, LONG, d, vacuum)
       const mixed = zeroMatrix(d)
 
-      for (let i = 0; i < d; i++) mixed.re[i * d + i] = 1 / d
+      for (let i = 0; i < d; i++) {
+        mixed.re[i * d + i] = 1 / d
+      }
 
       let fromE = projector(e)
       let fromERecord = projector(e)
       let fromMixed = mixed
       let fromMixedRecord = mixed
-      const lossFirst = 1 - population(applyChannel(flowKraus, fromE), e)
+
+      const lossFirst =
+        1 - population(applyChannel(flowKraus, fromE), e)
 
       for (let c = 0; c < COLLISIONS; c++) {
         fromE = applyChannel(flowKraus, fromE)
@@ -198,7 +233,9 @@ export default experiment({
       const coolRecord = hot - expectation(fromMixedRecord, set.atomH)
       // the register's energy after the first collision from e
       const joint = collide(flow, spec, LONG, e, vacuum)
-      const registerGain = expectation(reducedRegister(joint, n), set.registerH) - set.register.values[0]!
+      const registerGain =
+        expectation(reducedRegister(joint, n), set.registerH) -
+        set.register.values[0]!
 
       // E2: mean field
       let atom = e
@@ -224,27 +261,62 @@ export default experiment({
         const eS = setS.atom.vectors[1]!
         const gS = setS.atom.vectors[0]!
         const vacS = setS.register.vectors[0]!
-        const kraus = collisionKraus(collisionBeat(setS.sector, specS), specS, SHORT, d, vacS)
+        const kraus = collisionKraus(
+          collisionBeat(setS.sector, specS),
+          specS,
+          SHORT,
+          d,
+          vacS,
+        )
         const exact = population(applyChannel(kraus, projector(eS)), gS)
-        const born = bornTransfer(setS.sector, specS, SHORT, eS, vacS, gS, setS.mean)
+        const born = bornTransfer(
+          setS.sector,
+          specS,
+          SHORT,
+          eS,
+          vacS,
+          gS,
+          setS.mean,
+        )
 
         ratios.push(exact / born)
         metrics[`goldenRuleExactN${n}S${s}`] = exact
         metrics[`goldenRuleBornN${n}S${s}`] = born
       }
 
-      const longExact = population(applyChannel(flowKraus, projector(e)), g)
-      const longBorn = bornTransfer(set.sector, spec, LONG, e, vacuum, g, set.mean)
+      const longExact = population(
+        applyChannel(flowKraus, projector(e)),
+        g,
+      )
+      const longBorn = bornTransfer(
+        set.sector,
+        spec,
+        LONG,
+        e,
+        vacuum,
+        g,
+        set.mean,
+      )
 
       // E4
-      const defects = [SHORT, LONG].map(K => [unitalDefect(collisionKraus(record, spec, K, d, vacuum)), unitalDefect(collisionKraus(flow, spec, K, d, vacuum))])
+      const defects = [SHORT, LONG].map(K => [
+        unitalDefect(collisionKraus(record, spec, K, d, vacuum)),
+        unitalDefect(collisionKraus(flow, spec, K, d, vacuum)),
+      ])
 
       // reading: the zero-field register
-      const zero: Vector = { re: new Float64Array(n).fill(1 / Math.sqrt(n)), im: new Float64Array(n) }
+      const zero: Vector = {
+        re: new Float64Array(n).fill(1 / Math.sqrt(n)),
+        im: new Float64Array(n),
+      }
+
       let zeroMixed = mixed
+
       const zeroKraus = collisionKraus(flow, spec, LONG, d, zero)
 
-      for (let c = 0; c < COLLISIONS; c++) zeroMixed = applyChannel(zeroKraus, zeroMixed)
+      for (let c = 0; c < COLLISIONS; c++) {
+        zeroMixed = applyChannel(zeroKraus, zeroMixed)
+      }
 
       Object.assign(metrics, {
         [`groundFromExcitedFlowN${n}`]: groundFlow,
@@ -261,29 +333,56 @@ export default experiment({
         [`goldenRuleRatioN${n}S32`]: ratios[2]!,
         [`goldenRuleRatioN${n}S64`]: ratios[3]!,
         [`longCollisionRatioN${n}`]: longExact / longBorn,
-        [`recordUnitalDefectN${n}`]: Math.max(defects[0]![0]!, defects[1]![0]!),
-        [`flowUnitalDefectN${n}`]: Math.min(defects[0]![1]!, defects[1]![1]!),
-        [`zeroFieldCoolingN${n}`]: hot - expectation(zeroMixed, set.atomH),
+        [`recordUnitalDefectN${n}`]: Math.max(
+          defects[0]![0]!,
+          defects[1]![0]!,
+        ),
+        [`flowUnitalDefectN${n}`]: Math.min(
+          defects[0]![1]!,
+          defects[1]![1]!,
+        ),
+        [`zeroFieldCoolingN${n}`]:
+          hot - expectation(zeroMixed, set.atomH),
         [`atomGapN${n}`]: set.atom.values[1]! - ground,
       })
 
       if (n !== 3) {
-        e1 &&= groundFlow >= 0.3 && groundFlow >= 2 * groundRecord && coolFlow >= 0.25 * (hot - ground) && Math.abs(coolRecord) <= 1e-9
+        e1 &&=
+          groundFlow >= 0.3 &&
+          groundFlow >= 2 * groundRecord &&
+          coolFlow >= 0.25 * (hot - ground) &&
+          Math.abs(coolRecord) <= 1e-9
         e2 &&= maxGround <= 0.1
       }
 
       e1 &&= registerGain > 0
       e2 &&= minPurity >= 1 - 1e-9
-      e3 &&= ratios[1]! >= 0.95 && ratios[1]! <= 1.05 && Math.abs(ratios[1]! - 1) <= Math.abs(ratios[0]! - 1)
+      e3 &&=
+        ratios[1]! >= 0.95 &&
+        ratios[1]! <= 1.05 &&
+        Math.abs(ratios[1]! - 1) <= Math.abs(ratios[0]! - 1)
       e4 &&= defects.every(([r, f]) => r! <= 1e-12 && f! > 1e-6)
     }
 
-    const gates = { E0: e0Deviation <= 1e-12, E1: e1, E2: e2, E3: e3, E4: e4 }
+    const gates = {
+      E0: e0Deviation <= 1e-12,
+      E1: e1,
+      E2: e2,
+      E3: e3,
+      E4: e4,
+    }
 
-    for (const [gate, ok] of Object.entries(gates)) metrics[`gate${gate}`] = ok ? 1 : 0
+    for (const [gate, ok] of Object.entries(gates)) {
+      metrics[`gate${gate}`] = ok ? 1 : 0
+    }
 
-    const status = Object.values(gates).every(v => v) ? 'pass' : gates.E0 && gates.E3 && gates.E4 ? 'partial' : 'fail'
-    const f = (x: number | undefined, k = 3): string => (x ?? NaN).toFixed(k)
+    const status = Object.values(gates).every(v => v)
+      ? 'pass'
+      : gates.E0 && gates.E3 && gates.E4
+        ? 'partial'
+        : 'fail'
+    const f = (x: number | undefined, k = 3): string =>
+      (x ?? NaN).toFixed(k)
 
     return verdict({
       status,
@@ -295,7 +394,7 @@ export default experiment({
         recordUnitalDefectN7: metrics.recordUnitalDefectN7!,
       },
       notes:
-        'L2. FIRST RUN 2026-09-26 (tmp/frc0228.log), FAIL on E3 only, 0.6 s; FINAL RUN (tmp/frc0228-final.log) reproduces every number. SECOND RUN (tmp/frc0228-second.log), same verdict, with golden-rule readings at s = 32 and 64 ADDED AFTER THE FIRST RUN (no gate changed; the claim text rewritten to state the failure). Probes before the file are disclosed in the header; the dressing of the atom by the register vacuum\'s static field was chosen after the undressed probe, and E3\'s band was set from undressed probe numbers (0.978 to 1.001 at s = 16), which the dressed split does not reproduce: that band is the gate that failed. E0: the float collision equals the exact Z[zeta_M] rule to 7.8e-16. E1 (N = 5, 7): from the first excited state the ground population after 40 collisions is 0.575 and 0.828 with the flow light against 0.153 and 0.159 for the record light (plaquette step off); from the maximally mixed atom the flow light removes 13.13 and 21.63 of energy (of 24.09 and 44.88 above ground), the record light 7.9e-12 and 1.6e-11 (unital); the register leaving the first collision carries 0.003, 0.21, 0.86 more energy than it came with at N = 3, 5, 7. E2: the mean-field atom stays pure to 2e-12 and its ground population never exceeds 0.006, 0.010, 0.087. E3: exact / Born for a 4-beat collision 28.67, 6.56, 2.32, 1.33 at N = 3; 1.49, 1.12, 1.031, 1.008 at N = 5; 1.19, 1.050, 1.013, 1.003 at N = 7 for s = 8, 16, 32, 64: the first-order golden rule is reached as 1/s^2 (the second-order correction per collision falls as the square of the per-collision coupling), slowly at N = 3, where the dressed e -> g element nearly vanishes and two-step transfer dominates. E4: the record light is unital to 2.4e-14, the flow light misses by 1.4e-4 to 3.0e-3. Readings: the long collision transfers at 14.5, 0.556, 0.707 of first order (strong coupling); the zero-field register |B = 0> also cools the mixed atom (1.93, 3.71, 6.60) but the probes before this file found it dephasing-dominated at short contact; at N = 3 the Z_3 light does not cool the excited atom (ground 0.015 against 0.041 for the record light), because its register is too coarse. KEY: SPONTANEOUS EMISSION INTO THE FLOW LIGHT EXISTS in exact Gauss-safe lattice QED: a STAND-IN excited atom relaxes toward its ground state and the maximally mixed atom cools, only when the light register has its plaquette step (memory); a record light is exactly unital and cannot; the mean-field rule keeps the atom pure and nearly still. E-FRC-0226\'s unital obstruction is lifted by exactly its predicted route (c), the plaquette term. The escape of the light is a STAND-IN (fresh registers), and the golden-rule band gate failed on the dressed split.',
+        "L2. FIRST RUN 2026-09-26 (tmp/frc0228.log), FAIL on E3 only, 0.6 s; FINAL RUN (tmp/frc0228-final.log) reproduces every number. SECOND RUN (tmp/frc0228-second.log), same verdict, with golden-rule readings at s = 32 and 64 ADDED AFTER THE FIRST RUN (no gate changed; the claim text rewritten to state the failure). Probes before the file are disclosed in the header; the dressing of the atom by the register vacuum's static field was chosen after the undressed probe, and E3's band was set from undressed probe numbers (0.978 to 1.001 at s = 16), which the dressed split does not reproduce: that band is the gate that failed. E0: the float collision equals the exact Z[zeta_M] rule to 7.8e-16. E1 (N = 5, 7): from the first excited state the ground population after 40 collisions is 0.575 and 0.828 with the flow light against 0.153 and 0.159 for the record light (plaquette step off); from the maximally mixed atom the flow light removes 13.13 and 21.63 of energy (of 24.09 and 44.88 above ground), the record light 7.9e-12 and 1.6e-11 (unital); the register leaving the first collision carries 0.003, 0.21, 0.86 more energy than it came with at N = 3, 5, 7. E2: the mean-field atom stays pure to 2e-12 and its ground population never exceeds 0.006, 0.010, 0.087. E3: exact / Born for a 4-beat collision 28.67, 6.56, 2.32, 1.33 at N = 3; 1.49, 1.12, 1.031, 1.008 at N = 5; 1.19, 1.050, 1.013, 1.003 at N = 7 for s = 8, 16, 32, 64: the first-order golden rule is reached as 1/s^2 (the second-order correction per collision falls as the square of the per-collision coupling), slowly at N = 3, where the dressed e -> g element nearly vanishes and two-step transfer dominates. E4: the record light is unital to 2.4e-14, the flow light misses by 1.4e-4 to 3.0e-3. Readings: the long collision transfers at 14.5, 0.556, 0.707 of first order (strong coupling); the zero-field register |B = 0> also cools the mixed atom (1.93, 3.71, 6.60) but the probes before this file found it dephasing-dominated at short contact; at N = 3 the Z_3 light does not cool the excited atom (ground 0.015 against 0.041 for the record light), because its register is too coarse. KEY: SPONTANEOUS EMISSION INTO THE FLOW LIGHT EXISTS in exact Gauss-safe lattice QED: a STAND-IN excited atom relaxes toward its ground state and the maximally mixed atom cools, only when the light register has its plaquette step (memory); a record light is exactly unital and cannot; the mean-field rule keeps the atom pure and nearly still. E-FRC-0226's unital obstruction is lifted by exactly its predicted route (c), the plaquette term. The escape of the light is a STAND-IN (fresh registers), and the golden-rule band gate failed on the dressed split.",
     })
   },
 })

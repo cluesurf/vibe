@@ -149,15 +149,23 @@ export function symmetryLedger(input: {
   const quick = [
     ...loneCellStates(degree),
     ...(input.extraStates ?? []),
-    ...denseCellStates({ count: input.quickDense ?? 64, offset: 0, degree }),
+    ...denseCellStates({
+      count: input.quickDense ?? 64,
+      offset: 0,
+      degree,
+    }),
   ]
   const thorough = denseCellStates({
     count: input.thoroughDense ?? 2048,
     offset: 5000,
     degree,
   })
-  const forward = Array.from({ length: period }, (_, t) => input.forward(t))
-  const inverse = Array.from({ length: period }, (_, t) => input.inverse(t))
+  const forward = Array.from({ length: period }, (_, t) =>
+    input.forward(t),
+  )
+  const inverse = Array.from({ length: period }, (_, t) =>
+    input.inverse(t),
+  )
   const a = new Int8Array(degree)
   const b = new Int8Array(degree)
 

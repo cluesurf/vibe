@@ -104,13 +104,49 @@ import { fitPowers } from '@/code/measure/husk-coulomb'
 import { linearFit } from '@/code/measure/regression'
 import { radionMesh } from '@/code/rule/trit-radion'
 import { stepRule } from '@/code/rule/step-depth'
-import { emptyOpen, HUSK_LATERAL, huskOnly, openMesh, placeOpenLines, warpClock, type OpenMesh } from '@/code/rule/open-husk'
-import { horizonOf, horizonRule, tornLink } from '@/code/rule/horizon-husk'
-import { clockHorizonRule, clockJoin, foundExcess, type ClockHorizonRule } from '@/code/rule/clock-horizon'
+import {
+  emptyOpen,
+  HUSK_LATERAL,
+  huskOnly,
+  openMesh,
+  placeOpenLines,
+  warpClock,
+  type OpenMesh,
+} from '@/code/rule/open-husk'
+import {
+  horizonOf,
+  horizonRule,
+  tornLink,
+} from '@/code/rule/horizon-husk'
+import {
+  clockHorizonRule,
+  clockJoin,
+  foundExcess,
+  type ClockHorizonRule,
+} from '@/code/rule/clock-horizon'
 import { compressLump } from '@/code/measure/step-depth'
-import { greenSolve, huskDistance, stackModes } from '@/code/measure/open-husk'
-import { horizonStaticRun, newHorizonRecord, realHorizonDepth, tornMesh, type HorizonRecord } from '@/code/measure/horizon-husk'
-import { axisForce, axisMean, carryLump, clockStatics, placeStatics, spreadLump, spreadSinks, stackDepthRadius } from '@/code/measure/clock-horizon'
+import {
+  greenSolve,
+  huskDistance,
+  stackModes,
+} from '@/code/measure/open-husk'
+import {
+  horizonStaticRun,
+  newHorizonRecord,
+  realHorizonDepth,
+  tornMesh,
+  type HorizonRecord,
+} from '@/code/measure/horizon-husk'
+import {
+  axisForce,
+  axisMean,
+  carryLump,
+  clockStatics,
+  placeStatics,
+  spreadLump,
+  spreadSinks,
+  stackDepthRadius,
+} from '@/code/measure/clock-horizon'
 
 const DEPTH = 16
 const LEVELS = 3
@@ -158,13 +194,23 @@ type Lump = {
   held: Float64Array
 }
 
-function buildLump(mesh: OpenMesh, family: Family, m: number): { rho: Int32Array; line: Int8Array } {
+function buildLump(
+  mesh: OpenMesh,
+  family: Family,
+  m: number,
+): { rho: Int32Array; line: Int8Array } {
   const sinks = spreadSinks(mesh, CENTER, m, SINKS_FROM)
   const rho = new Int32Array(mesh.docks)
   const line = new Int8Array(mesh.links)
 
   if (family === 'compressed') {
-    const lump = compressLump(radionMesh([SIDE, SIDE, SIDE]), CENTER, m, 1, sinks)
+    const lump = compressLump(
+      radionMesh([SIDE, SIDE, SIDE]),
+      CENTER,
+      m,
+      1,
+      sinks,
+    )
 
     rho.set(lump.content)
     line.set(lump.line)
@@ -176,28 +222,69 @@ function buildLump(mesh: OpenMesh, family: Family, m: number): { rho: Int32Array
   return { rho, line }
 }
 
-function runLump(mesh: OpenMesh, rule: ClockHorizonRule, family: Family, m: number): Lump {
+function runLump(
+  mesh: OpenMesh,
+  rule: ClockHorizonRule,
+  family: Family,
+  m: number,
+): Lump {
   const { rho, line } = buildLump(mesh, family, m)
   const statics = clockStatics(mesh, rule, rho)
   const s = emptyOpen(mesh)
 
   s.line.set(line)
 
-  const placed = placeStatics(mesh, rule, s, statics.torn, statics.horizon)
+  const placed = placeStatics(
+    mesh,
+    rule,
+    s,
+    statics.torn,
+    statics.horizon,
+  )
   // the rule's own read at placement: docks off the solve's horizon whose found excess reaches the cap
   const excess = foundExcess(mesh, rule, s.step, statics.horizon)
+
   let placementJoins = 0
 
-  for (let y = 0; y < mesh.huskDocks; y++) if (!statics.horizon[y] && y !== rule.reference && excess[y]! >= rule.capTwice) placementJoins++
+  for (let y = 0; y < mesh.huskDocks; y++) {
+    if (
+      !statics.horizon[y] &&
+      y !== rule.reference &&
+      excess[y]! >= rule.capTwice
+    ) {
+      placementJoins++
+    }
+  }
 
   const record = newHorizonRecord()
-  const run = horizonStaticRun(mesh, rule, rho, line, BEATS, record, 64, false, { state: s, horizon: statics.horizon, afterBeat: (st, h) => clockJoin(mesh, rule, st, h) })
+  const run = horizonStaticRun(
+    mesh,
+    rule,
+    rho,
+    line,
+    BEATS,
+    record,
+    64,
+    false,
+    {
+      state: s,
+      horizon: statics.horizon,
+      afterBeat: (st, h) => clockJoin(mesh, rule, st, h),
+    },
+  )
   const horizon = run.horizon
   // the held steps (0 unless the rule joined docks during the run: then the value each torn link held) as sources
   const held = new Float64Array(mesh.docks)
 
   for (let l = 0; l < mesh.links; l++) {
-    if (!tornLink(mesh, horizon, l) || statics.horizon[mesh.tail[l]!] || statics.horizon[mesh.head[l]!]) continue
+    if (
+      !tornLink(mesh, horizon, l) ||
+      statics.horizon[mesh.tail[l]!] ||
+      statics.horizon[mesh.head[l]!]
+    ) {
+      continue
+    }
+
     // a link torn during the run holds the value it had at its join, which is its value at the end
     const v = run.finalStep[l]! / rule.unit
 
@@ -208,6 +295,7 @@ function runLump(mesh: OpenMesh, rule: ClockHorizonRule, family: Family, m: numb
   const source = Float64Array.from(rho, (v, y) => v + held[y]!)
   const torn = greenSolve(tornMesh(mesh, horizon), source, 1e-12)
   const depth = realHorizonDepth(mesh, run.mean, horizon)
+
   let horizonDocks = 0
   let horizonRadius = 0
   let lumpRadius = 0
@@ -217,19 +305,48 @@ function runLump(mesh: OpenMesh, rule: ClockHorizonRule, family: Family, m: numb
   let rhoX = 0
 
   for (let y = 0; y < mesh.huskDocks; y++) {
-    if (rho[y]! > 0) lumpRadius = Math.max(lumpRadius, huskDistance(mesh, y, CENTER))
-    if (statics.horizon[y]) placedHorizon++
-    if (horizon[y]) (horizonDocks++, (horizonRadius = Math.max(horizonRadius, huskDistance(mesh, y, CENTER))))
-    else if (rho[y]! > 0) contentOutside = Math.max(contentOutside, rho[y]!)
+    if (rho[y]! > 0) {
+      lumpRadius = Math.max(lumpRadius, huskDistance(mesh, y, CENTER))
+    }
+
+    if (statics.horizon[y]) {
+      placedHorizon++
+    }
+
+    if (horizon[y]) {
+      horizonDocks++
+      horizonRadius = Math.max(
+        horizonRadius,
+        huskDistance(mesh, y, CENTER),
+      )
+    } else if (rho[y]! > 0) {
+      contentOutside = Math.max(contentOutside, rho[y]!)
+    }
   }
-  for (let l = 0; l < mesh.links; l++) if (mesh.kind[l] === HUSK_LATERAL && !tornLink(mesh, horizon, l)) edgeStep = Math.max(edgeStep, Math.abs(run.mean[l]!))
-  for (let y = 0; y < mesh.docks; y++) if (source[y] !== 0) rhoX += source[y]! * torn.x[y]!
+
+  for (let l = 0; l < mesh.links; l++) {
+    if (mesh.kind[l] === HUSK_LATERAL && !tornLink(mesh, horizon, l)) {
+      edgeStep = Math.max(edgeStep, Math.abs(run.mean[l]!))
+    }
+  }
+
+  for (let y = 0; y < mesh.docks; y++) {
+    if (source[y] !== 0) {
+      rhoX += source[y]! * torn.x[y]!
+    }
+  }
 
   const field = horizonOf(mesh, line)
+
   let fieldDocks = 0
   let fieldRadius = 0
 
-  for (let y = 0; y < mesh.huskDocks; y++) if (field[y]) (fieldDocks++, (fieldRadius = Math.max(fieldRadius, huskDistance(mesh, y, CENTER))))
+  for (let y = 0; y < mesh.huskDocks; y++) {
+    if (field[y]) {
+      fieldDocks++
+      fieldRadius = Math.max(fieldRadius, huskDistance(mesh, y, CENTER))
+    }
+  }
 
   return {
     family,
@@ -248,14 +365,26 @@ function runLump(mesh: OpenMesh, rule: ClockHorizonRule, family: Family, m: numb
     placedLargest: placed.largest,
     fieldDocks,
     fieldRadius,
-    energyStatic: -(Math.PI / DEPTH) * rhoX / 2,
-    ruleVsSolve: Math.max(...STATIC_R.map(r => Math.abs(axisForce(mesh, depth, CENTER, r) / axisForce(mesh, torn.x, CENTER, r) - 1))),
+    energyStatic: (-(Math.PI / DEPTH) * rhoX) / 2,
+    ruleVsSolve: Math.max(
+      ...STATIC_R.map(r =>
+        Math.abs(
+          axisForce(mesh, depth, CENTER, r) /
+            axisForce(mesh, torn.x, CENTER, r) -
+            1,
+        ),
+      ),
+    ),
     horizon,
     held,
   }
 }
 
-const slopeOf = (ms: readonly number[], rs: readonly number[]): number => linearFit({ xs: ms.map(Math.log), ys: rs.map(Math.log) }).slope
+const slopeOf = (
+  ms: readonly number[],
+  rs: readonly number[],
+): number =>
+  linearFit({ xs: ms.map(Math.log), ys: rs.map(Math.log) }).slope
 
 export default experiment({
   id: 'gravity/clock-horizon-static',
@@ -268,32 +397,63 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${(Date.now() - started) / 1000}s`)
+    const log = (what: string): void =>
+      console.error(`${what} ${(Date.now() - started) / 1000}s`)
     const mesh = warpClock(openMesh(SIDE, LAYERS, 'shrink'))
-    const rule = clockHorizonRule(horizonRule(stepRule(DEPTH, LEVELS), BULK), CAP)
+    const rule = clockHorizonRule(
+      horizonRule(stepRule(DEPTH, LEVELS), BULK),
+      CAP,
+    )
     const lumps: Lump[] = []
 
-    for (const m of COMPRESSED) (lumps.push(runLump(mesh, rule, 'compressed', m)), log(`compressed ${m}`))
-    for (const m of SPREAD) (lumps.push(runLump(mesh, rule, 'spread', m)), log(`spread ${m}`))
+    for (const m of COMPRESSED) {
+      lumps.push(runLump(mesh, rule, 'compressed', m))
+      log(`compressed ${m}`)
+    }
 
-    const family = (f: Family): Lump[] => lumps.filter(l => l.family === f)
+    for (const m of SPREAD) {
+      lumps.push(runLump(mesh, rule, 'spread', m))
+      log(`spread ${m}`)
+    }
+
+    const family = (f: Family): Lump[] =>
+      lumps.filter(l => l.family === f)
 
     // C1 and K1
-    const slopeCompressed = slopeOf(COMPRESSED, family('compressed').map(l => l.horizonRadius))
-    const slopeSpread = slopeOf(SPREAD, family('spread').map(l => l.horizonRadius))
-    const c1 = Math.abs(slopeCompressed - 1) <= SLOPE_TOLERANCE && Math.abs(slopeSpread - 1) <= SLOPE_TOLERANCE
-    const fieldSlope = family('compressed').every(l => l.fieldRadius > 0) ? slopeOf(COMPRESSED, family('compressed').map(l => l.fieldRadius)) : NaN
-    const k1 = Math.abs(fieldSlope - 1) > SLOPE_TOLERANCE && family('spread').every(l => l.fieldDocks === 0)
+    const slopeCompressed = slopeOf(
+      COMPRESSED,
+      family('compressed').map(l => l.horizonRadius),
+    )
+    const slopeSpread = slopeOf(
+      SPREAD,
+      family('spread').map(l => l.horizonRadius),
+    )
+    const c1 =
+      Math.abs(slopeCompressed - 1) <= SLOPE_TOLERANCE &&
+      Math.abs(slopeSpread - 1) <= SLOPE_TOLERANCE
+    const fieldSlope = family('compressed').every(
+      l => l.fieldRadius > 0,
+    )
+      ? slopeOf(
+          COMPRESSED,
+          family('compressed').map(l => l.fieldRadius),
+        )
+      : NaN
+    const k1 =
+      Math.abs(fieldSlope - 1) > SLOPE_TOLERANCE &&
+      family('spread').every(l => l.fieldDocks === 0)
 
     // C2
-    const wrapsOf = (r: HorizonRecord): number => r.wraps.fWraps + r.wraps.vWraps
+    const wrapsOf = (r: HorizonRecord): number =>
+      r.wraps.fWraps + r.wraps.vWraps
     const exact = (l: Lump): boolean =>
       l.record.gaussOff === 0 &&
       wrapsOf(l.record) === 0 &&
       l.record.curl === 0 &&
       l.record.verticalChecked > 0 &&
       l.record.restOff === 0 &&
-      l.record.energyDrift <= ENERGY_TOLERANCE * Math.abs(l.energyStatic) &&
+      l.record.energyDrift <=
+        ENERGY_TOLERANCE * Math.abs(l.energyStatic) &&
       l.record.reversed
     const c2 = lumps.every(exact)
 
@@ -302,41 +462,108 @@ export default experiment({
     const far = (['compressed', 'spread'] as const).map(f => {
       // each family's largest lump
       const l = family(f)[family(f).length - 1]!
-      const source = Float64Array.from({ length: mesh.huskDocks }, (_, y) => Math.max(l.rho[y]!, 0) + l.held[y]!)
-      const carried = carryLump(mesh, big, source, l.horizon, CENTER, l.m, 'far')
+      const source = Float64Array.from(
+        { length: mesh.huskDocks },
+        (_, y) => Math.max(l.rho[y]!, 0) + l.held[y]!,
+      )
+      const carried = carryLump(
+        mesh,
+        big,
+        source,
+        l.horizon,
+        CENTER,
+        l.m,
+        'far',
+      )
       const free = greenSolve(big, carried.rho, 1e-10)
-      const torn = greenSolve(tornMesh(big, carried.horizon), carried.rho, 1e-10)
+      const torn = greenSolve(
+        tornMesh(big, carried.horizon),
+        carried.rho,
+        1e-10,
+      )
       const fitR = Array.from({ length: 17 }, (_, i) => 24 + i)
-      const k = (x: Float64Array): number => fitPowers(fitR, fitR.map(r => axisMean(big, x, carried.center, r)), [1, 2])[1]!
+      const k = (x: Float64Array): number =>
+        fitPowers(
+          fitR,
+          fitR.map(r => axisMean(big, x, carried.center, r)),
+          [1, 2],
+        )[1]!
 
       log(`far ${f}`)
 
-      return { family: f, m: l.m, ratio: FAR_R.map(r => axisForce(big, torn.x, carried.center, r) / axisForce(big, free.x, carried.center, r)), kFree: k(free.x), kTorn: k(torn.x) }
+      return {
+        family: f,
+        m: l.m,
+        ratio: FAR_R.map(
+          r =>
+            axisForce(big, torn.x, carried.center, r) /
+            axisForce(big, free.x, carried.center, r),
+        ),
+        kFree: k(free.x),
+        kTorn: k(torn.x),
+      }
     })
     const ruleVsSolve = Math.max(...lumps.map(l => l.ruleVsSolve))
-    const farOff = Math.max(...far.map(f => Math.max(...f.ratio.map(v => Math.abs(v - 1)))))
-    const converging = far.every(f => Math.abs(f.ratio[f.ratio.length - 1]! - 1) < Math.abs(f.ratio[0]! - 1))
-    const c3 = ruleVsSolve <= STATIC_TOLERANCE && farOff <= FAR_TOLERANCE && converging
+    const farOff = Math.max(
+      ...far.map(f => Math.max(...f.ratio.map(v => Math.abs(v - 1)))),
+    )
+    const converging = far.every(
+      f =>
+        Math.abs(f.ratio[f.ratio.length - 1]! - 1) <
+        Math.abs(f.ratio[0]! - 1),
+    )
+    const c3 =
+      ruleVsSolve <= STATIC_TOLERANCE &&
+      farOff <= FAR_TOLERANCE &&
+      converging
 
     // REPORTED: the infinite stack's radius, and the same criterion read on the statics of a side-96 stack
     const modes = stackModes(mesh.sides, 'clock')
-    const infinite = (ms: readonly number[]): number[] => ms.map(m => stackDepthRadius(modes, m, CAP))
+    const infinite = (ms: readonly number[]): number[] =>
+      ms.map(m => stackDepthRadius(modes, m, CAP))
     const infiniteCompressed = infinite(COMPRESSED)
     const infiniteSpread = infinite(SPREAD)
-    const bigRule = clockHorizonRule(horizonRule(stepRule(DEPTH, LEVELS), BULK), CAP)
+    const bigRule = clockHorizonRule(
+      horizonRule(stepRule(DEPTH, LEVELS), BULK),
+      CAP,
+    )
     const bigRadius = lumps.map(l => {
-      const source = Float64Array.from({ length: mesh.huskDocks }, (_, y) => Math.max(l.rho[y]!, 0))
-      const carried = carryLump(mesh, big, source, new Uint8Array(mesh.huskDocks), CENTER, l.m, 'spread', SINKS_FROM)
+      const source = Float64Array.from(
+        { length: mesh.huskDocks },
+        (_, y) => Math.max(l.rho[y]!, 0),
+      )
+      const carried = carryLump(
+        mesh,
+        big,
+        source,
+        new Uint8Array(mesh.huskDocks),
+        CENTER,
+        l.m,
+        'spread',
+        SINKS_FROM,
+      )
       const statics = clockStatics(big, bigRule, carried.rho, 1e-10)
+
       let r = 0
 
-      for (let y = 0; y < big.huskDocks; y++) if (statics.horizon[y]) r = Math.max(r, huskDistance(big, y, carried.center))
+      for (let y = 0; y < big.huskDocks; y++) {
+        if (statics.horizon[y]) {
+          r = Math.max(r, huskDistance(big, y, carried.center))
+        }
+      }
+
       log(`big statics ${l.family} ${l.m}`)
 
       return r
     })
-    const bigSlopeCompressed = slopeOf(COMPRESSED, bigRadius.slice(0, COMPRESSED.length))
-    const bigSlopeSpread = slopeOf(SPREAD, bigRadius.slice(COMPRESSED.length))
+    const bigSlopeCompressed = slopeOf(
+      COMPRESSED,
+      bigRadius.slice(0, COMPRESSED.length),
+    )
+    const bigSlopeSpread = slopeOf(
+      SPREAD,
+      bigRadius.slice(COMPRESSED.length),
+    )
 
     const status = !k1 ? 'partial' : c1 && c2 && c3 ? 'pass' : 'fail'
     const f = (v: number): string => v.toPrecision(4)
@@ -376,7 +603,9 @@ export default experiment({
       metrics[`${p}energyStatic`] = l.energyStatic
       metrics[`${p}huskStep`] = l.record.huskStep
       metrics[`${p}verticalStep`] = l.record.verticalStep
-      l.record.bulkStep.forEach((v, k) => (metrics[`${p}bulkStep_layer${k}`] = v))
+      l.record.bulkStep.forEach(
+        (v, k) => (metrics[`${p}bulkStep_layer${k}`] = v),
+      )
       metrics[`${p}horizonDocks`] = l.horizonDocks
       metrics[`${p}horizonRadius`] = l.horizonRadius
       metrics[`${p}placedHorizonDocks`] = l.placedHorizon
@@ -392,21 +621,45 @@ export default experiment({
       metrics[`${p}fieldRadius`] = l.fieldRadius
       metrics[`${p}ruleVsSolve`] = l.ruleVsSolve
       metrics[`${p}bigRadius`] = bigRadius[i]!
-      metrics[`${p}infiniteRadius`] = l.family === 'compressed' ? infiniteCompressed[COMPRESSED.indexOf(l.m)]! : infiniteSpread[SPREAD.indexOf(l.m)]!
+      metrics[`${p}infiniteRadius`] =
+        l.family === 'compressed'
+          ? infiniteCompressed[COMPRESSED.indexOf(l.m)]!
+          : infiniteSpread[SPREAD.indexOf(l.m)]!
     })
+
     far.forEach(fr => {
-      FAR_R.forEach((r, j) => (metrics[`${fr.family}${fr.m}_farRatio_r${r}`] = fr.ratio[j]!))
+      FAR_R.forEach(
+        (r, j) =>
+          (metrics[`${fr.family}${fr.m}_farRatio_r${r}`] =
+            fr.ratio[j]!),
+      )
       metrics[`${fr.family}${fr.m}_kFree`] = fr.kFree
       metrics[`${fr.family}${fr.m}_kTorn`] = fr.kTorn
     })
 
-    const radiiOf = (fam: Family): string => family(fam).map(l => f(l.horizonRadius)).join(', ')
+    const radiiOf = (fam: Family): string =>
+      family(fam)
+        .map(l => f(l.horizonRadius))
+        .join(', ')
 
     return verdict({
       status,
-      claim: `a husk dock joining the horizon where its found depth exceeds dock 0's by the metric register's cap ${CAP} (side ${SIDE}, the warped shrinking stack of ${LAYERS} layers, sinks spread from ${SINKS_FROM}), each lump placed at its statics: the horizon's radius ${radiiOf('compressed')} for the compressed M = ${COMPRESSED.join(', ')} (slope ${f(slopeCompressed)}) and ${radiiOf('spread')} for the spread M = ${SPREAD.join(', ')} (slope ${f(slopeSpread)}), against the field criterion's slope ${f(fieldSlope)} on the same compressed lumps and ${family('spread').map(l => l.fieldDocks).join(', ')} docks on the spread ones; the same criterion on a side-${BIG} stack's statics gives slopes ${f(bigSlopeCompressed)} and ${f(bigSlopeSpread)}, the infinite stack's ${f(metrics.infiniteSlopeCompressed!)} and ${f(metrics.infiniteSlopeSpread!)}; ${BEATS} beats with ${lumps.map(l => wrapsOf(l.record)).join(', ')} wraps, Gauss off ${lumps.map(l => l.record.gaussOff).join(', ')}, curl ${lumps.map(l => l.record.curl).join(', ')}, energy drift ${lumps.map(l => e(l.record.energyDrift / Math.abs(l.energyStatic))).join(', ')} of the statics, reversal ${lumps.every(l => l.record.reversed)}, ${lumps.map(l => l.ruleJoins).join(', ')} docks joined by the rule after placement; the husk step at the edge ${lumps.map(l => f(l.edgeStep)).join(', ')} against 3 / r_h ${lumps.map(l => f((2 * CAP) / l.horizonRadius)).join(', ')}; the rule's force equals its statics to ${e(ruleVsSolve)} at r = 7 .. 11, and on side ${BIG} the torn over the free force is ${far.map(fr => `${f(fr.ratio[0]!)} .. ${f(fr.ratio[fr.ratio.length - 1]!)}`).join(' and ')} at r = ${FAR_R[0]} .. ${FAR_R[FAR_R.length - 1]} (k ${far.map(fr => `${f(fr.kTorn)} / ${f(fr.kFree)}`).join(', ')})`,
+      claim: `a husk dock joining the horizon where its found depth exceeds dock 0's by the metric register's cap ${CAP} (side ${SIDE}, the warped shrinking stack of ${LAYERS} layers, sinks spread from ${SINKS_FROM}), each lump placed at its statics: the horizon's radius ${radiiOf('compressed')} for the compressed M = ${COMPRESSED.join(', ')} (slope ${f(slopeCompressed)}) and ${radiiOf('spread')} for the spread M = ${SPREAD.join(', ')} (slope ${f(slopeSpread)}), against the field criterion's slope ${f(fieldSlope)} on the same compressed lumps and ${family(
+        'spread',
+      )
+        .map(l => l.fieldDocks)
+        .join(
+          ', ',
+        )} docks on the spread ones; the same criterion on a side-${BIG} stack's statics gives slopes ${f(bigSlopeCompressed)} and ${f(bigSlopeSpread)}, the infinite stack's ${f(metrics.infiniteSlopeCompressed!)} and ${f(metrics.infiniteSlopeSpread!)}; ${BEATS} beats with ${lumps.map(l => wrapsOf(l.record)).join(', ')} wraps, Gauss off ${lumps.map(l => l.record.gaussOff).join(', ')}, curl ${lumps.map(l => l.record.curl).join(', ')}, energy drift ${lumps.map(l => e(l.record.energyDrift / Math.abs(l.energyStatic))).join(', ')} of the statics, reversal ${lumps.every(l => l.record.reversed)}, ${lumps.map(l => l.ruleJoins).join(', ')} docks joined by the rule after placement; the husk step at the edge ${lumps.map(l => f(l.edgeStep)).join(', ')} against 3 / r_h ${lumps.map(l => f((2 * CAP) / l.horizonRadius)).join(', ')}; the rule's force equals its statics to ${e(ruleVsSolve)} at r = 7 .. 11, and on side ${BIG} the torn over the free force is ${far.map(fr => `${f(fr.ratio[0]!)} .. ${f(fr.ratio[fr.ratio.length - 1]!)}`).join(' and ')} at r = ${FAR_R[0]} .. ${FAR_R[FAR_R.length - 1]} (k ${far.map(fr => `${f(fr.kTorn)} / ${f(fr.kFree)}`).join(', ')})`,
       metrics,
-      control: { k1: k1 ? 1 : 0, fieldSlope, spreadFieldDocks: family('spread').reduce((t, l) => t + l.fieldDocks, 0) },
+      control: {
+        k1: k1 ? 1 : 0,
+        fieldSlope,
+        spreadFieldDocks: family('spread').reduce(
+          (t, l) => t + l.fieldDocks,
+          0,
+        ),
+      },
       notes: `L1 for C1 (the criterion's law on linear statics), L2 for C2 and C3. Gates C1 ${c1} (slopes ${f(slopeCompressed)}, ${f(slopeSpread)}), C2 ${c2}, C3 ${c3} (statics ${e(ruleVsSolve)}, far off ${e(farOff)}, converging ${converging}); control K1 ${k1} (field slope ${f(fieldSlope)}). Per lump: ${lumps.map((l, i) => `${l.family} ${l.m}: horizon ${l.horizonDocks} docks to ${f(l.horizonRadius)} (placed ${l.placedHorizon}, ${l.staticsRounds} solve rounds, placement read ${l.placementJoins}, rule joins ${l.ruleJoins}), lump ${f(l.lumpRadius)}, content outside ${l.contentOutside}, field criterion ${l.fieldDocks} docks to ${f(l.fieldRadius)}, side ${BIG} ${f(bigRadius[i]!)}, wraps ${wrapsOf(l.record)}, husk ${f(l.record.huskStep)} (placed ${f(l.placedLargest)}), vertical ${f(l.record.verticalStep)}, bulk ${l.record.bulkStep.map(f).join('/')}, drift ${e(l.record.energyDrift)} of ${f(l.energyStatic)}`).join('; ')}. Infinite stack radius: compressed ${infiniteCompressed.map(f).join(', ')}, spread ${infiniteSpread.map(f).join(', ')}.`,
     })
   },

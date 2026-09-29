@@ -90,7 +90,10 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { ruleCensus, driftExactCheck } from '@/code/measure/drift-cost-exact'
+import {
+  ruleCensus,
+  driftExactCheck,
+} from '@/code/measure/drift-cost-exact'
 import {
   boxSpec,
   brokenBands,
@@ -106,57 +109,136 @@ import {
   tailWeight,
   type Lightest,
 } from '@/code/measure/drift-cost-bloch'
-import { stringMoments, type Bloch } from '@/code/measure/flux-store-bloch'
+import {
+  stringMoments,
+  type Bloch,
+} from '@/code/measure/flux-store-bloch'
 import { antisymmetrized } from '@/code/measure/locked-run'
 import { type DriftCostSpec } from '@/code/rule/drift-cost-line'
 
 const PAIR = ['love', 'fear'] as const
 const DEPTHS = [1, 2, 3, 4, 6, 8] as const
 
-type PairRow = { D: number; S: number; bloch: Bloch; lp: Lightest; mean: number; tail: number }
+type PairRow = {
+  D: number
+  S: number
+  bloch: Bloch
+  lp: Lightest
+  mean: number
+  tail: number
+}
 
 function pairLightest(D: number, S: number): PairRow {
   const bu = build(boxSpec(PAIR, D, S), 0)
   const lp = lightestStreaming(bu, 2 * S + 6)
 
-  return { D, S, bloch: bu.bloch, lp, mean: stringMoments(bu.bloch, lp.level.vector).mean, tail: tailWeight(bu.bloch, lp.level.vector, lightN(D)) }
+  return {
+    D,
+    S,
+    bloch: bu.bloch,
+    lp,
+    mean: stringMoments(bu.bloch, lp.level.vector).mean,
+    tail: tailWeight(bu.bloch, lp.level.vector, lightN(D)),
+  }
 }
 
 export default experiment({
   id: 'spin/drift-cost-binding',
   code: 'E-SPN-0086',
-  title: "the string paid by the light's drift alone, with no store, a STAND-IN on locked tokens: husk-local, reversible, exact over Z[zeta_K] and Gauss exact by construction; the cost keeps K and reads only relative positions, so nothing is pinned; its phase returns at l = 2N, so past contact the pair's relative beat is 2N-periodic and the far pair carries narrow bands (the broken string); a linear phase ramp freezes a string's length (Bloch oscillation), binds the pair at contact in a compact level that no box past the wrap moves, and lets it travel",
+  title:
+    "the string paid by the light's drift alone, with no store, a STAND-IN on locked tokens: husk-local, reversible, exact over Z[zeta_K] and Gauss exact by construction; the cost keeps K and reads only relative positions, so nothing is pinned; its phase returns at l = 2N, so past contact the pair's relative beat is 2N-periodic and the far pair carries narrow bands (the broken string); a linear phase ramp freezes a string's length (Bloch oscillation), binds the pair at contact in a compact level that no box past the wrap moves, and lets it travel",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
 
     // ---- G1: the rule ----
-    const pairRule: DriftCostSpec = { ring: 8, kinds: [...PAIR], convention: 'C', unlike: 'knit', cost: 5, root: 50 }
-    const threeRule: DriftCostSpec = { ring: 6, kinds: ['love', 'love', 'love'], convention: 'C', unlike: 'knit', cost: 3, root: 18 }
+    const pairRule: DriftCostSpec = {
+      ring: 8,
+      kinds: [...PAIR],
+      convention: 'C',
+      unlike: 'knit',
+      cost: 5,
+      root: 50,
+    }
+    const threeRule: DriftCostSpec = {
+      ring: 6,
+      kinds: ['love', 'love', 'love'],
+      convention: 'C',
+      unlike: 'knit',
+      cost: 3,
+      root: 18,
+    }
     const censuses = [ruleCensus(pairRule), ruleCensus(threeRule)]
-    const censusOk = censuses.every(c => c.collisions === 0 && c.inverseFailures === 0 && c.gaussBreaks === 0 && c.gaussStates > 0 && c.linkConflicts === 0 && c.translationBreaks === 0)
-    const e1 = driftExactCheck({ ring: 16, kinds: [...PAIR], convention: 'C', unlike: 'knit', cost: 5, root: 50 }, [{ x: [8, 8], j: [0, 1], amp: [1, 0] }], 4, 12)
-    const e2 = driftExactCheck({ ring: 11, kinds: ['love', 'love', 'love'], convention: 'C', unlike: 'knit', cost: 3, root: 18 }, antisymmetrized({ x: [5, 5, 6], j: [0, 1, 0] }), 2, 8)
-    const exactOk = [e1, e2].every(e => e.gap < 1e-12 && e.norm && e.reverses && e.gauss)
+    const censusOk = censuses.every(
+      c =>
+        c.collisions === 0 &&
+        c.inverseFailures === 0 &&
+        c.gaussBreaks === 0 &&
+        c.gaussStates > 0 &&
+        c.linkConflicts === 0 &&
+        c.translationBreaks === 0,
+    )
+    const e1 = driftExactCheck(
+      {
+        ring: 16,
+        kinds: [...PAIR],
+        convention: 'C',
+        unlike: 'knit',
+        cost: 5,
+        root: 50,
+      },
+      [{ x: [8, 8], j: [0, 1], amp: [1, 0] }],
+      4,
+      12,
+    )
+    const e2 = driftExactCheck(
+      {
+        ring: 11,
+        kinds: ['love', 'love', 'love'],
+        convention: 'C',
+        unlike: 'knit',
+        cost: 3,
+        root: 18,
+      },
+      antisymmetrized({ x: [5, 5, 6], j: [0, 1, 0] }),
+      2,
+      8,
+    )
+    const exactOk = [e1, e2].every(
+      e => e.gap < 1e-12 && e.norm && e.reverses && e.gauss,
+    )
     const g1 = censusOk && exactOk
 
     log('g1')
 
     // ---- G2: the wrap ----
-    const periodGaps = [1, 2, 3, 4, 5, 6, 7, 8].flatMap(D => [0, 0.7].map(K => pairPeriodGap(D, K, 0, 2 * lightN(D) - 1)))
+    const periodGaps = [1, 2, 3, 4, 5, 6, 7, 8].flatMap(D =>
+      [0, 0.7].map(K => pairPeriodGap(D, K, 0, 2 * lightN(D) - 1)),
+    )
     const g2 = periodGaps.every(g => g < 1e-12)
 
     log('g2')
 
     // ---- G3: the broken string ----
-    const broken = [1, 2, 3, 4, 5, 6, 7, 8].map(D => ({ D, ...brokenBands(D, 0, 16) }))
+    const broken = [1, 2, 3, 4, 5, 6, 7, 8].map(D => ({
+      D,
+      ...brokenBands(D, 0, 16),
+    }))
+
     let g3 = broken.find(b => b.D === 8)!.largest < 1e-3
 
-    for (let D = 3; D <= 8; D++) if (!(broken[D - 1]!.largest < broken[D - 2]!.largest)) g3 = false
+    for (let D = 3; D <= 8; D++) {
+      if (!(broken[D - 1]!.largest < broken[D - 2]!.largest)) {
+        g3 = false
+      }
+    }
 
     log('g3')
 
@@ -169,20 +251,59 @@ export default experiment({
 
       log(`g4 D ${D}`)
 
-      return { D, a, b, store, dE: Math.abs(a.lp.unwrapped - b.lp.unwrapped), ov: crossBoxOverlap(a.bloch, a.lp.level.vector, b.bloch, b.lp.level.vector), dStore: Math.abs(a.lp.unwrapped - store.lp.unwrapped) }
+      return {
+        D,
+        a,
+        b,
+        store,
+        dE: Math.abs(a.lp.unwrapped - b.lp.unwrapped),
+        ov: crossBoxOverlap(
+          a.bloch,
+          a.lp.level.vector,
+          b.bloch,
+          b.lp.level.vector,
+        ),
+        dStore: Math.abs(a.lp.unwrapped - store.lp.unwrapped),
+      }
     })
     const gated = rows.filter(r => r.D >= 2)
-    const g4 = gated.every(r => r.dE <= 1e-9 && r.ov >= 1 - 1e-9) && rows.filter(r => r.D >= 3).every(r => r.a.tail <= 1e-4) && rows.filter(r => r.D >= 4).every(r => r.dStore <= 1e-4)
+    const g4 =
+      gated.every(r => r.dE <= 1e-9 && r.ov >= 1 - 1e-9) &&
+      rows.filter(r => r.D >= 3).every(r => r.a.tail <= 1e-4) &&
+      rows.filter(r => r.D >= 4).every(r => r.dStore <= 1e-4)
 
     // ---- G5: frozen strings ----
     const frozen = [4, 6, 8].map(D => {
       const N = lightN(D)
-      const fromContact = pairInTime(D, 4 * N, 0, 0, [0, 1], 1000, 0, (4 * N) / 3)
-      const fromFar = pairInTime(D, 4 * N, 0, 2 * N, [0, 1], 1000, (2 * N) / 3, 4 * N)
+      const fromContact = pairInTime(
+        D,
+        4 * N,
+        0,
+        0,
+        [0, 1],
+        1000,
+        0,
+        (4 * N) / 3,
+      )
+      const fromFar = pairInTime(
+        D,
+        4 * N,
+        0,
+        2 * N,
+        [0, 1],
+        1000,
+        (2 * N) / 3,
+        4 * N,
+      )
 
       return { D, N, fromContact, fromFar }
     })
-    const g5 = frozen.every(f => f.fromContact.maxMean <= (2 * f.N) / 3 + 1 && f.fromContact.farWeight <= 1e-6 && f.fromFar.nearWeight <= 1e-6)
+    const g5 = frozen.every(
+      f =>
+        f.fromContact.maxMean <= (2 * f.N) / 3 + 1 &&
+        f.fromContact.farWeight <= 1e-6 &&
+        f.fromFar.nearWeight <= 1e-6,
+    )
 
     log('g5')
 
@@ -191,14 +312,25 @@ export default experiment({
       const N = lightN(D)
       const start = rows.find(r => r.D === D)!.a
 
-      return { D, ...followBand(boxSpec(PAIR, D, 3 * N), start.lp.level, 12) }
+      return {
+        D,
+        ...followBand(boxSpec(PAIR, D, 3 * N), start.lp.level, 12),
+      }
     })
-    const g6 = bands.every(b => b.bandwidth >= 0.01 && b.velocity >= 0.02 && b.minOverlap >= 0.5)
+    const g6 = bands.every(
+      b =>
+        b.bandwidth >= 0.01 &&
+        b.velocity >= 0.02 &&
+        b.minOverlap >= 0.5,
+    )
 
     log('g6')
 
     // ---- G7: the instruments ----
-    const refPair = lightestReference(build(boxSpec(PAIR, 2, 15), 0), 36)
+    const refPair = lightestReference(
+      build(boxSpec(PAIR, 2, 15), 0),
+      36,
+    )
     const streamPair = rows.find(r => r.D === 2)!.a.lp
     const threeBu = build(boxSpec(['love', 'love', 'love'], 1, 8), 0)
     const refThree = lightestReference(threeBu, 22)
@@ -206,8 +338,13 @@ export default experiment({
     const trackerStart = rows.find(r => r.D === 3)!.a.lp.level
     const fast = followBand(boxSpec(PAIR, 3, 21), trackerStart, 12)
     const full = followBandFull(boxSpec(PAIR, 3, 21), trackerStart, 12)
-    const trackerGap = Math.max(...fast.energies.map((e, k) => Math.abs(e - full.energies[k]!)))
-    const instrumentGap = Math.max(Math.abs(refPair.unwrapped - streamPair.unwrapped), Math.abs(refThree.unwrapped - streamThree.unwrapped))
+    const trackerGap = Math.max(
+      ...fast.energies.map((e, k) => Math.abs(e - full.energies[k]!)),
+    )
+    const instrumentGap = Math.max(
+      Math.abs(refPair.unwrapped - streamPair.unwrapped),
+      Math.abs(refThree.unwrapped - streamThree.unwrapped),
+    )
     const g7 = instrumentGap <= 1e-12 && trackerGap <= 1e-8
 
     log('g7')
@@ -218,7 +355,12 @@ export default experiment({
 
     return verdict({
       status: ok ? 'pass' : 'fail',
-      claim: `with no store the drift's cost alone is a rule: over every register configuration (${censuses.map(c => c.states.toLocaleString('en-US')).join(' and ')}) the stream is a permutation with its inverse, Gauss kept, each link's new flux read from its own window and the beat translation covariant (0 exceptions each); exact over Z[zeta_K] (${e1.gap.toExponential(1)}, ${e2.gap.toExponential(1)}, norm, reversal); the pair's beat past contact is 2N-periodic (${Math.max(...periodGaps).toExponential(1)}), so the far pair carries bands, largest width ${broken.map(b => b.largest.toExponential(1)).join(', ')} at D = 1 to 8; a string's length is frozen (from contact the mean never passes ${frozen.map(f => f.fromContact.maxMean.toFixed(2)).join(', ')} at D = 4, 6, 8, from 2N the weight under 2N/3 stays ${frozen.map(f => f.fromFar.nearWeight.toExponential(1)).join(', ')}); the pair's lightest level is the same on boxes 3N and 4N (dE ${gated.map(r => r.dE.toExponential(1)).join(', ')} at D = 2 to 8), <l> ${rows.map(r => r.a.mean.toFixed(2)).join(', ')} at D = 1 to 8, equal to the store's level at D >= 4 (${rows.filter(r => r.D >= 4).map(r => r.dStore.toExponential(1)).join(', ')}), and travels (band ${bands.map(b => b.bandwidth.toFixed(3)).join(', ')}, velocity ${bands.map(b => b.velocity.toFixed(3)).join(', ')} at D = 2, 3, 4)`,
+      claim: `with no store the drift's cost alone is a rule: over every register configuration (${censuses.map(c => c.states.toLocaleString('en-US')).join(' and ')}) the stream is a permutation with its inverse, Gauss kept, each link's new flux read from its own window and the beat translation covariant (0 exceptions each); exact over Z[zeta_K] (${e1.gap.toExponential(1)}, ${e2.gap.toExponential(1)}, norm, reversal); the pair's beat past contact is 2N-periodic (${Math.max(...periodGaps).toExponential(1)}), so the far pair carries bands, largest width ${broken.map(b => b.largest.toExponential(1)).join(', ')} at D = 1 to 8; a string's length is frozen (from contact the mean never passes ${frozen.map(f => f.fromContact.maxMean.toFixed(2)).join(', ')} at D = 4, 6, 8, from 2N the weight under 2N/3 stays ${frozen.map(f => f.fromFar.nearWeight.toExponential(1)).join(', ')}); the pair's lightest level is the same on boxes 3N and 4N (dE ${gated.map(r => r.dE.toExponential(1)).join(', ')} at D = 2 to 8), <l> ${rows.map(r => r.a.mean.toFixed(2)).join(', ')} at D = 1 to 8, equal to the store's level at D >= 4 (${rows
+        .filter(r => r.D >= 4)
+        .map(r => r.dStore.toExponential(1))
+        .join(
+          ', ',
+        )}), and travels (band ${bands.map(b => b.bandwidth.toFixed(3)).join(', ')}, velocity ${bands.map(b => b.velocity.toFixed(3)).join(', ')} at D = 2, 3, 4)`,
       metrics: {
         gate_G1: g1 ? 1 : 0,
         gate_G2: g2 ? 1 : 0,
@@ -227,7 +369,17 @@ export default experiment({
         gate_G5: g5 ? 1 : 0,
         gate_G6: g6 ? 1 : 0,
         gate_G7: g7 ? 1 : 0,
-        ...Object.fromEntries(censuses.flatMap((c, k) => [[`census${k}_states`, c.states], [`census${k}_collisions`, c.collisions], [`census${k}_inverseFailures`, c.inverseFailures], [`census${k}_gaussBreaks`, c.gaussBreaks], [`census${k}_gaussStates`, c.gaussStates], [`census${k}_linkConflicts`, c.linkConflicts], [`census${k}_translationBreaks`, c.translationBreaks]])),
+        ...Object.fromEntries(
+          censuses.flatMap((c, k) => [
+            [`census${k}_states`, c.states],
+            [`census${k}_collisions`, c.collisions],
+            [`census${k}_inverseFailures`, c.inverseFailures],
+            [`census${k}_gaussBreaks`, c.gaussBreaks],
+            [`census${k}_gaussStates`, c.gaussStates],
+            [`census${k}_linkConflicts`, c.linkConflicts],
+            [`census${k}_translationBreaks`, c.translationBreaks],
+          ]),
+        ),
         exactPairGap: e1.gap,
         exactPairNorm: e1.norm ? 1 : 0,
         exactPairReverses: e1.reverses ? 1 : 0,
@@ -237,7 +389,13 @@ export default experiment({
         exactThreeReverses: e2.reverses ? 1 : 0,
         exactThreeGauss: e2.gauss ? 1 : 0,
         periodGapWorst: Math.max(...periodGaps),
-        ...Object.fromEntries(broken.flatMap(b => [[`broken_D${b.D}_largestWidth`, b.largest], [`broken_D${b.D}_flatBands`, b.flatBands], [`broken_D${b.D}_bands`, b.widths.length]])),
+        ...Object.fromEntries(
+          broken.flatMap(b => [
+            [`broken_D${b.D}_largestWidth`, b.largest],
+            [`broken_D${b.D}_flatBands`, b.flatBands],
+            [`broken_D${b.D}_bands`, b.widths.length],
+          ]),
+        ),
         ...Object.fromEntries(
           rows.flatMap(r => [
             [`pair_D${r.D}_energy`, r.a.lp.unwrapped],
@@ -246,7 +404,10 @@ export default experiment({
             [`pair_D${r.D}_boxOverlap`, r.ov],
             [`pair_D${r.D}_meanString`, r.a.mean],
             [`pair_D${r.D}_tailAtN`, r.a.tail],
-            [`pair_D${r.D}_gapNext`, r.a.lp.nextUnwrapped - r.a.lp.unwrapped],
+            [
+              `pair_D${r.D}_gapNext`,
+              r.a.lp.nextUnwrapped - r.a.lp.unwrapped,
+            ],
             [`pair_D${r.D}_evenShare`, r.a.lp.reading.even],
             [`pair_D${r.D}_dim`, r.a.lp.dim],
             [`pair_D${r.D}_eigenResidual`, r.a.lp.residual],
@@ -255,8 +416,25 @@ export default experiment({
             [`pair_D${r.D}_storeGap`, r.dStore],
           ]),
         ),
-        ...Object.fromEntries(frozen.flatMap(f => [[`frozen_D${f.D}_contactMaxMean`, f.fromContact.maxMean], [`frozen_D${f.D}_contactFarWeight`, f.fromContact.farWeight], [`frozen_D${f.D}_farNearWeight`, f.fromFar.nearWeight], [`frozen_D${f.D}_farMinMean`, f.fromFar.minMean], [`frozen_D${f.D}_farMaxMean`, f.fromFar.maxMean]])),
-        ...Object.fromEntries(bands.flatMap(b => [[`band_D${b.D}_width`, b.bandwidth], [`band_D${b.D}_velocity`, b.velocity], [`band_D${b.D}_minOverlap`, b.minOverlap]])),
+        ...Object.fromEntries(
+          frozen.flatMap(f => [
+            [`frozen_D${f.D}_contactMaxMean`, f.fromContact.maxMean],
+            [
+              `frozen_D${f.D}_contactFarWeight`,
+              f.fromContact.farWeight,
+            ],
+            [`frozen_D${f.D}_farNearWeight`, f.fromFar.nearWeight],
+            [`frozen_D${f.D}_farMinMean`, f.fromFar.minMean],
+            [`frozen_D${f.D}_farMaxMean`, f.fromFar.maxMean],
+          ]),
+        ),
+        ...Object.fromEntries(
+          bands.flatMap(b => [
+            [`band_D${b.D}_width`, b.bandwidth],
+            [`band_D${b.D}_velocity`, b.velocity],
+            [`band_D${b.D}_minOverlap`, b.minOverlap],
+          ]),
+        ),
         instrumentGap,
         trackerGap,
         seconds: (Date.now() - started) / 1000,

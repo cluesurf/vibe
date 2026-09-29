@@ -87,8 +87,29 @@ import { horizonRule } from '@/code/rule/horizon-husk'
 import { clockHorizonRule } from '@/code/rule/clock-horizon'
 import { compressLump } from '@/code/measure/step-depth'
 import { stackModes } from '@/code/measure/open-husk'
-import { axisMean, clockStatics, spreadSinks } from '@/code/measure/clock-horizon'
-import { boxFreeExcess, fieldRadius, flatMeanSpeed, intervals, lapseOf, lightChain, lightGravity, lineCount, lineSpeed, radiusAt, surfaceGravity, unitProfile, type LightChain, type RadialLine, type SurfaceGravity, type UnitProfile } from '@/code/measure/horizon-temperature'
+import {
+  axisMean,
+  clockStatics,
+  spreadSinks,
+} from '@/code/measure/clock-horizon'
+import {
+  boxFreeExcess,
+  fieldRadius,
+  flatMeanSpeed,
+  intervals,
+  lapseOf,
+  lightChain,
+  lightGravity,
+  lineCount,
+  lineSpeed,
+  radiusAt,
+  surfaceGravity,
+  unitProfile,
+  type LightChain,
+  type RadialLine,
+  type SurfaceGravity,
+  type UnitProfile,
+} from '@/code/measure/horizon-temperature'
 
 const D0 = 16
 const CAP = 1.5
@@ -118,10 +139,32 @@ const OLD_MASSES: readonly number[] = [600, 800, 1200, 1600]
 const OLD_CENTER = [12, 12, 12]
 const OLD_SINKS_FROM = 9
 
-type Horizon = { m: number; kind: 'clock' | 'field'; radius: number; inner: number; predicted: SurfaceGravity; chain: LightChain; light: ReturnType<typeof lightGravity>; worstLapse: number; interior: number }
+type Horizon = {
+  m: number
+  kind: 'clock' | 'field'
+  radius: number
+  inner: number
+  predicted: SurfaceGravity
+  chain: LightChain
+  light: ReturnType<typeof lightGravity>
+  worstLapse: number
+  interior: number
+}
 
-function lineFor(profile: UnitProfile, m: number, radius: number, inner: number): RadialLine {
-  return { length: LENGTH, center: CENTER, scale: SCALE, resolution: D0, excessAt: r => (r < radius ? inner : Math.min(inner, m * profile.at(r))) }
+function lineFor(
+  profile: UnitProfile,
+  m: number,
+  radius: number,
+  inner: number,
+): RadialLine {
+  return {
+    length: LENGTH,
+    center: CENTER,
+    scale: SCALE,
+    resolution: D0,
+    excessAt: r =>
+      r < radius ? inner : Math.min(inner, m * profile.at(r)),
+  }
 }
 
 export default experiment({
@@ -135,7 +178,8 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${(Date.now() - started) / 1000}s`)
+    const log = (what: string): void =>
+      console.error(`${what} ${(Date.now() - started) / 1000}s`)
     const metrics: Record<string, number> = {}
     const lines: string[] = []
 
@@ -146,11 +190,25 @@ export default experiment({
 
     log('profile')
 
-    const flatLine: RadialLine = { length: LENGTH, center: CENTER, scale: SCALE, resolution: D0, excessAt: () => 0 }
+    const flatLine: RadialLine = {
+      length: LENGTH,
+      center: CENTER,
+      scale: SCALE,
+      resolution: D0,
+      excessAt: () => 0,
+    }
     const c0 = lineSpeed(flatLine)
     const q0 = lineCount(flatLine)
     const window = Math.ceil((SLACK * PATH) / c0)
-    const flat = lightChain(flatLine, START, REACH, window, LEVELS, AMP, WIDTH)
+    const flat = lightChain(
+      flatLine,
+      START,
+      REACH,
+      window,
+      LEVELS,
+      AMP,
+      WIDTH,
+    )
     const cFlat = flatMeanSpeed(flat, FLAT_FROM)
     const flatIvs = intervals(flat, cFlat, FLAT_FROM)
 
@@ -160,25 +218,64 @@ export default experiment({
 
     for (const kind of ['clock', 'field'] as const) {
       for (const m of MASSES) {
-        const radius = kind === 'clock' ? radiusAt(profile, m, CAP) : fieldRadius(profile, m, WINDOW_STEP)
+        const radius =
+          kind === 'clock'
+            ? radiusAt(profile, m, CAP)
+            : fieldRadius(profile, m, WINDOW_STEP)
         const inner = kind === 'clock' ? CAP : m * profile.at(radius)
-        const predicted = surfaceGravity(profile, m * SCALE, radius, q0, c0)
+        const predicted = surfaceGravity(
+          profile,
+          m * SCALE,
+          radius,
+          q0,
+          c0,
+        )
         const line = lineFor(profile, m, radius, inner)
-        const chain = lightChain(line, START, REACH, window, LEVELS, AMP, WIDTH)
+        const chain = lightChain(
+          line,
+          START,
+          REACH,
+          window,
+          LEVELS,
+          AMP,
+          WIDTH,
+        )
         const ivs = intervals(chain, cFlat, 0)
         const light = lightGravity(ivs, radius, NEAR, cFlat)
         const outside = ivs.filter(iv => iv.mid > radius + 1)
-        const worstLapse = Math.max(...outside.map(iv => Math.abs((1 - iv.lapse) / (1 - lapseOf(SCALE * m * profile.at(iv.mid), q0)) - 1)))
+        const worstLapse = Math.max(
+          ...outside.map(iv =>
+            Math.abs(
+              (1 - iv.lapse) /
+                (1 - lapseOf(SCALE * m * profile.at(iv.mid), q0)) -
+                1,
+            ),
+          ),
+        )
         const deep = ivs.filter(iv => iv.mid < radius - 3)
-        const interior = deep.length > 0 ? deep.reduce((t, iv) => t + iv.f, 0) / deep.length : NaN
+        const interior =
+          deep.length > 0
+            ? deep.reduce((t, iv) => t + iv.f, 0) / deep.length
+            : NaN
 
-        horizons.push({ m, kind, radius, inner, predicted, chain, light, worstLapse, interior })
+        horizons.push({
+          m,
+          kind,
+          radius,
+          inner,
+          predicted,
+          chain,
+          light,
+          worstLapse,
+          interior,
+        })
         log(`${kind} ${m}`)
       }
     }
 
     const clock = horizons.filter(h => h.kind === 'clock')
     const field = horizons.filter(h => h.kind === 'field')
+
     const spread = (hs: readonly Horizon[]): number => {
       const tm = hs.map(h => h.light.temperature * h.m)
 
@@ -187,11 +284,25 @@ export default experiment({
 
     // THE GATES
     const runs = [flat, ...horizons.map(h => h.chain)]
-    const e = runs.every(c => c.run.reversed && c.run.gauss === 0 && c.run.wraps.angle + c.run.wraps.field + c.run.wraps.potential === 0)
-    const t1 = clock.every(h => Math.abs(h.light.temperature / h.predicted.temperature - 1) <= T1_TOLERANCE)
+    const e = runs.every(
+      c =>
+        c.run.reversed &&
+        c.run.gauss === 0 &&
+        c.run.wraps.angle +
+          c.run.wraps.field +
+          c.run.wraps.potential ===
+          0,
+    )
+    const t1 = clock.every(
+      h =>
+        Math.abs(h.light.temperature / h.predicted.temperature - 1) <=
+        T1_TOLERANCE,
+    )
     const t2 = spread(clock) <= T2_TOLERANCE
     const t3 = clock.every(h => h.light.efolds >= WINDOW_GATE)
-    const flatWorst = Math.max(...flatIvs.map(iv => Math.abs(Math.log(iv.lapse))))
+    const flatWorst = Math.max(
+      ...flatIvs.map(iv => Math.abs(Math.log(iv.lapse))),
+    )
     const smallestW = Math.min(...clock.map(h => h.predicted.efolds))
     const k1 = flatWorst <= FLAT_SHARE * smallestW
     const k2 = spread(field) > T2_TOLERANCE
@@ -199,19 +310,32 @@ export default experiment({
 
     // REPORTED: E-GRV-0111's placed horizons, kappa on their torn statics (the box included)
     const old = warpClock(openMesh(OLD_SIDE, OLD_LAYERS, 'shrink'))
-    const oldRule = clockHorizonRule(horizonRule(stepRule(D0, LEVELS), 81), CAP)
+    const oldRule = clockHorizonRule(
+      horizonRule(stepRule(D0, LEVELS), 81),
+      CAP,
+    )
     const q0Model = 2 * D0 + 1
     const oldRows = OLD_MASSES.map(m => {
-      const lump = compressLump(radionMesh([OLD_SIDE, OLD_SIDE, OLD_SIDE]), OLD_CENTER, m, 1, spreadSinks(old, OLD_CENTER, m, OLD_SINKS_FROM))
+      const lump = compressLump(
+        radionMesh([OLD_SIDE, OLD_SIDE, OLD_SIDE]),
+        OLD_CENTER,
+        m,
+        1,
+        spreadSinks(old, OLD_CENTER, m, OLD_SINKS_FROM),
+      )
       const rho = new Int32Array(old.docks)
 
       rho.set(lump.content)
 
       const statics = clockStatics(old, oldRule, rho)
-      const ex = (r: number): number => axisMean(old, statics.torn, OLD_CENTER, r) - statics.torn[0]!
+      const ex = (r: number): number =>
+        axisMean(old, statics.torn, OLD_CENTER, r) - statics.torn[0]!
+
       let r = 1
 
-      while (ex(r) >= CAP) r++
+      while (ex(r) >= CAP) {
+        r++
+      }
 
       const a = ex(r - 1)
       const b = ex(r)
@@ -229,7 +353,10 @@ export default experiment({
       metrics[`old_M${o.m}_dLapse`] = o.dLapse
       metrics[`old_M${o.m}_kappaM`] = o.kappaM
     })
-    lines.push(`E-GRV-0111's placed horizons (side 24, box included), axis radius / dN/dr per dock / N dN/dr M (c_0 = 1): ${oldRows.map(o => `M ${o.m}: ${o.radius.toFixed(2)} / ${o.dLapse.toExponential(3)} / ${o.kappaM.toFixed(3)}`).join(', ')}`)
+
+    lines.push(
+      `E-GRV-0111's placed horizons (side 24, box included), axis radius / dN/dr per dock / N dN/dr M (c_0 = 1): ${oldRows.map(o => `M ${o.m}: ${o.radius.toFixed(2)} / ${o.dLapse.toExponential(3)} / ${o.kappaM.toFixed(3)}`).join(', ')}`,
+    )
 
     horizons.forEach(h => {
       const key = `${h.kind}_M${h.m}`
@@ -243,7 +370,8 @@ export default experiment({
       metrics[`${key}_dLapseLight`] = h.light.dLapse
       metrics[`${key}_TProfile`] = h.predicted.temperature
       metrics[`${key}_TLight`] = h.light.temperature
-      metrics[`${key}_TLightOverProfile`] = h.light.temperature / h.predicted.temperature
+      metrics[`${key}_TLightOverProfile`] =
+        h.light.temperature / h.predicted.temperature
       metrics[`${key}_TLightM`] = h.light.temperature * h.m
       metrics[`${key}_efoldsProfile`] = h.predicted.efolds
       metrics[`${key}_efoldsLight`] = h.light.efolds
@@ -255,7 +383,10 @@ export default experiment({
       // a would-be Killing horizon of the same r_h and kappa: the dock scale leaves ln(r_h) e-folds of peeling from one dock
       // out, and a mode at omega ~ kappa blueshifts to the mesh's top (pi c_0 per dock) after ln(pi c_0 / kappa) e-folds
       metrics[`${key}_killingDockEfolds`] = Math.log(h.radius)
-      metrics[`${key}_transPlanckEfolds`] = Math.log((Math.PI * c0) / h.predicted.kappa)
+      metrics[`${key}_transPlanckEfolds`] = Math.log(
+        (Math.PI * c0) / h.predicted.kappa,
+      )
+
       lines.push(
         `${h.kind} M ${h.m}: r_h ${h.radius.toFixed(3)}, inner e ${h.inner.toFixed(3)}; N_h profile ${h.predicted.lapse.toFixed(5)} light ${h.light.lapse.toFixed(5)}; dN/dr profile ${h.predicted.dLapse.toExponential(4)} light ${h.light.dLapse.toExponential(4)} (fit power ${h.light.power.toFixed(3)}); T profile ${h.predicted.temperature.toExponential(4)} light ${h.light.temperature.toExponential(4)} (ratio ${(h.light.temperature / h.predicted.temperature).toFixed(4)}), T M ${(h.light.temperature * h.m).toExponential(4)}; window ${h.light.efolds.toFixed(4)} e-folds (profile ${h.predicted.efolds.toFixed(4)}), ${dt.toFixed(0)} beats = ${(dt / h.m).toFixed(2)} M; light's 1 - N off the profile's by at most ${(100 * h.worstLapse).toFixed(2)} percent outside r_h + 1; interior f ${h.interior.toFixed(5)} against q_0 / q_in ${(q0 / (q0 + 2 * Math.round(SCALE * h.inner))).toFixed(5)}`,
       )
@@ -278,13 +409,22 @@ export default experiment({
     metrics.window = window
     metrics.seconds = (Date.now() - started) / 1000
 
-    const worstT1 = Math.max(...clock.map(h => Math.abs(h.light.temperature / h.predicted.temperature - 1)))
+    const worstT1 = Math.max(
+      ...clock.map(h =>
+        Math.abs(h.light.temperature / h.predicted.temperature - 1),
+      ),
+    )
 
     return verdict({
       status,
       claim: `the spanned light on the clock horizon's radial profile (lapse stack side 64, box free, CAP ${CAP}, register in 1/${SCALE} step, M = ${MASSES.join(', ')}): N at the horizon ${clock.map(h => h.light.lapse.toFixed(4)).join(', ')} (derived ${clock[0]!.predicted.lapse.toFixed(4)}, not 0); T_light over kappa / 2 pi ${clock.map(h => (h.light.temperature / h.predicted.temperature).toFixed(3)).join(', ')} (worst ${worstT1.toFixed(3)}, gate ${T1_TOLERANCE}); T M spread ${spread(clock).toFixed(3)} (gate ${T2_TOLERANCE}); window ${clock.map(h => h.light.efolds.toFixed(4)).join(', ')} e-folds (gate ${WINDOW_GATE}); flat ${flatWorst.toExponential(2)} (gate ${(FLAT_SHARE * smallestW).toExponential(2)}); field criterion T M spread ${spread(field).toFixed(3)}; exact ${e}`,
       metrics,
-      control: { k1: k1 ? 1 : 0, k2: k2 ? 1 : 0, flatWorst, fieldSpread: spread(field) },
+      control: {
+        k1: k1 ? 1 : 0,
+        k2: k2 ? 1 : 0,
+        flatWorst,
+        fieldSpread: spread(field),
+      },
       notes: `L2. E ${e}, T1 ${t1}, T2 ${t2}, T3 ${t3}, K1 ${k1}, K2 ${k2}. ${lines.join('. ')}.`,
     })
   },

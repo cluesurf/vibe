@@ -47,6 +47,7 @@ export default experiment({
     let atRest = 0
     let interior = 0
     let bandViolations = 0
+
     const speeds: number[] = []
 
     for (let dir = 0; dir < 24; dir++) {

@@ -26,12 +26,40 @@
 // NO ROUNDING in the rule. Reals and hashes only in the readers. DETERMINISM: link starts and Weyl fills; nothing is
 // drawn. NOTHING MOVES: a slot takes its neighbor's value; a turned-back vibe takes the opposite slot of its own dock.
 
-import { arrowBox, chargeOf, energyOf, twoWay, vacuumState, type ArrowBox } from '@/code/measure/second-law-husk'
-import { sameReduced, type Reduced } from '@/code/measure/living-pair-kernel'
-import { columnEnergy, columnPosition, ring, towardKnot } from '@/code/measure/held-knot'
+import {
+  arrowBox,
+  chargeOf,
+  energyOf,
+  twoWay,
+  vacuumState,
+  type ArrowBox,
+} from '@/code/measure/second-law-husk'
+import {
+  sameReduced,
+  type Reduced,
+} from '@/code/measure/living-pair-kernel'
+import {
+  columnEnergy,
+  columnPosition,
+  ring,
+  towardKnot,
+} from '@/code/measure/held-knot'
 import { twinStart } from '@/code/measure/knot-time'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
-import { ballDocks, cloneGated, contentHashes, crowdStart, dockEnergy, gasFill, gatedRunner, gatedTake, occupancyLaw, restState, type BeatTally, type GatedState } from '@/code/measure/gated-take'
+import {
+  ballDocks,
+  cloneGated,
+  contentHashes,
+  crowdStart,
+  dockEnergy,
+  gasFill,
+  gatedRunner,
+  gatedTake,
+  occupancyLaw,
+  restState,
+  type BeatTally,
+  type GatedState,
+} from '@/code/measure/gated-take'
 
 export type CrowdSettings = {
   readonly side: number
@@ -67,9 +95,18 @@ export const CROWD: CrowdSettings = {
 }
 
 export type CrowdConfig = 'none' | 'crowd' | 'flip' | 'old'
-export const CROWD_CONFIGS: readonly CrowdConfig[] = ['none', 'crowd', 'flip', 'old']
+export const CROWD_CONFIGS: readonly CrowdConfig[] = [
+  'none',
+  'crowd',
+  'flip',
+  'old',
+]
 export type DriftConfig = 'none' | 'crowd' | 'flip'
-export const DRIFT_CONFIGS: readonly DriftConfig[] = ['none', 'crowd', 'flip']
+export const DRIFT_CONFIGS: readonly DriftConfig[] = [
+  'none',
+  'crowd',
+  'flip',
+]
 
 export type CrowdMember = {
   name: string
@@ -99,10 +136,14 @@ type Run = { forward: () => void; content: () => Reduced }
 const columnIndex = (side: number, p: readonly number[]): number => {
   const m = (v: number): number => ((v % side) + side) % side
 
-  return m(p[0] as number) + side * m(p[1] as number) + side * side * m(p[2] as number)
+  return m(p[0]!) + side * m(p[1]!) + side * side * m(p[2]!)
 }
 
-function crowdMember(member: ReturnType<typeof startFamily>[number], k: number, S: CrowdSettings): CrowdMember {
+function crowdMember(
+  member: ReturnType<typeof startFamily>[number],
+  k: number,
+  S: CrowdSettings,
+): CrowdMember {
   const started = Date.now()
   const box: ArrowBox = withStart(member, () => arrowBox(S.side, 4))
   const law = occupancyLaw(S.threshold)
@@ -112,13 +153,31 @@ function crowdMember(member: ReturnType<typeof startFamily>[number], k: number, 
   const vacuum = restState(vacuumState(box), box.cells)
   const starts: Record<CrowdConfig, GatedState> = {
     none: vacuum,
-    crowd: crowdStart(box, vacuum, { docks: ball, phase: k, sign: 1, counter: S.crowdCounter }),
-    flip: crowdStart(box, vacuum, { docks: ball, phase: k, sign: -1, counter: S.crowdCounter }),
-    old: crowdStart(box, vacuum, { docks: ball, phase: k, sign: 1, counter: S.crowdCounter }),
+    crowd: crowdStart(box, vacuum, {
+      docks: ball,
+      phase: k,
+      sign: 1,
+      counter: S.crowdCounter,
+    }),
+    flip: crowdStart(box, vacuum, {
+      docks: ball,
+      phase: k,
+      sign: -1,
+      counter: S.crowdCounter,
+    }),
+    old: crowdStart(box, vacuum, {
+      docks: ball,
+      phase: k,
+      sign: 1,
+      counter: S.crowdCounter,
+    }),
   }
+
   let exact = true
   let turned = 0
+
   const tally: BeatTally = { active: 0, turned: 0, upper: 0 }
+
   const runOf = (c: CrowdConfig, s: GatedState): Run => {
     if (c === 'old') {
       const r = twoWay(box, s.s)
@@ -139,28 +198,56 @@ function crowdMember(member: ReturnType<typeof startFamily>[number], k: number, 
   }
 
   // THE BASE RUNS: per beat content hashes, and the column energies at the drift reads; the crowd run's own readings
-  const baseA: Record<CrowdConfig, Int32Array[]> = { none: [], crowd: [], flip: [], old: [] }
-  const baseB: Record<CrowdConfig, Int32Array[]> = { none: [], crowd: [], flip: [], old: [] }
-  const baseEnergy: Record<DriftConfig, Map<number, Float64Array>> = { none: new Map(), crowd: new Map(), flip: new Map() }
+  const baseA: Record<CrowdConfig, Int32Array[]> = {
+    none: [],
+    crowd: [],
+    flip: [],
+    old: [],
+  }
+  const baseB: Record<CrowdConfig, Int32Array[]> = {
+    none: [],
+    crowd: [],
+    flip: [],
+    old: [],
+  }
+  const baseEnergy: Record<DriftConfig, Map<number, Float64Array>> = {
+    none: new Map(),
+    crowd: new Map(),
+    flip: new Map(),
+  }
+
   let noneIsOld = true
   let crowdTakes = 0
   let crowdDockBeats = 0
   let outsidePaused = 0
   let maxOutsideEnergy = 0
   let returns = true
+
   const ballEnergy = (s: Reduced): number => {
     let e = 0
 
-    for (let x = 0; x < box.cells; x++) if (ball[x]) e += dockEnergy(s, x)
+    for (let x = 0; x < box.cells; x++) {
+      if (ball[x]) {
+        e += dockEnergy(s, x)
+      }
+    }
 
     return e
   }
+
   const retained0 = ballEnergy(starts.crowd.s)
+
   let retained = 0
 
   for (const c of CROWD_CONFIGS) {
-    const gatedCrowd = c === 'crowd' ? gatedRunner(g, starts.crowd) : undefined
-    const r = gatedCrowd ? { forward: () => gatedCrowd.forward(), content: () => gatedCrowd.state().s } : runOf(c, starts[c])
+    const gatedCrowd =
+      c === 'crowd' ? gatedRunner(g, starts.crowd) : undefined
+    const r = gatedCrowd
+      ? {
+          forward: () => gatedCrowd.forward(),
+          content: () => gatedCrowd.state().s,
+        }
+      : runOf(c, starts[c])
     const plain = c === 'none' ? twoWay(box, vacuum.s) : undefined
     const e0 = energyOf(starts[c].s)
     const q0 = chargeOf(starts[c].s)
@@ -172,7 +259,10 @@ function crowdMember(member: ReturnType<typeof startFamily>[number], k: number, 
         for (let x = 0; x < box.cells; x++) {
           if (ball[x]) {
             crowdDockBeats++
-            if (before.counter[x] === 0) crowdTakes++
+
+            if (before.counter[x] === 0) {
+              crowdTakes++
+            }
           } else if (before.counter[x] !== 0) {
             outsidePaused++
           }
@@ -183,14 +273,28 @@ function crowdMember(member: ReturnType<typeof startFamily>[number], k: number, 
 
       const s = r.content()
 
-      if (energyOf(s) !== e0 || chargeOf(s) !== q0) exact = false
+      if (energyOf(s) !== e0 || chargeOf(s) !== q0) {
+        exact = false
+      }
 
       if (plain) {
         plain.forward()
-        if (!sameReduced(s, plain.state())) noneIsOld = false
+
+        if (!sameReduced(s, plain.state())) {
+          noneIsOld = false
+        }
       }
 
-      if (c === 'crowd') for (let x = 0; x < box.cells; x++) if (!ball[x]) maxOutsideEnergy = Math.max(maxOutsideEnergy, dockEnergy(s, x))
+      if (c === 'crowd') {
+        for (let x = 0; x < box.cells; x++) {
+          if (!ball[x]) {
+            maxOutsideEnergy = Math.max(
+              maxOutsideEnergy,
+              dockEnergy(s, x),
+            )
+          }
+        }
+      }
 
       const a = new Int32Array(columns)
       const b = new Int32Array(columns)
@@ -209,9 +313,20 @@ function crowdMember(member: ReturnType<typeof startFamily>[number], k: number, 
 
     if (gatedCrowd) {
       retained = ballEnergy(gatedCrowd.state().s) / retained0
-      for (let t = 0; t < S.beats; t++) gatedCrowd.backward()
-      returns = sameReduced(gatedCrowd.state().s, starts.crowd.s) && gatedCrowd.time() === 0
-      for (let x = 0; x < box.cells; x++) if (gatedCrowd.state().counter[x] !== starts.crowd.counter[x]) returns = false
+
+      for (let t = 0; t < S.beats; t++) {
+        gatedCrowd.backward()
+      }
+
+      returns =
+        sameReduced(gatedCrowd.state().s, starts.crowd.s) &&
+        gatedCrowd.time() === 0
+
+      for (let x = 0; x < box.cells; x++) {
+        if (gatedCrowd.state().counter[x] !== starts.crowd.counter[x]) {
+          returns = false
+        }
+      }
     }
   }
 
@@ -222,7 +337,9 @@ function crowdMember(member: ReturnType<typeof startFamily>[number], k: number, 
   const back = {} as Record<CrowdConfig, number[]>
   const planeBeat = {} as Record<CrowdConfig, number[]>
   const planeY = {} as Record<CrowdConfig, number[]>
-  const plane = Array.from({ length: columns }, (_, c) => c).filter(c => columnPosition(c, S.side)[0] === S.reach)
+  const plane = Array.from({ length: columns }, (_, c) => c).filter(
+    c => columnPosition(c, S.side)[0] === S.reach,
+  )
   const ha = new Int32Array(columns)
   const hb = new Int32Array(columns)
 
@@ -242,6 +359,7 @@ function crowdMember(member: ReturnType<typeof startFamily>[number], k: number, 
       const det = columnIndex(S.side, [S.reach, b, 0])
       const beh = columnIndex(S.side, [S.reach + 2, b, 0])
       const bak = columnIndex(S.side, [-S.reach - 2, b, 0])
+
       let fa = never
       let fb = never
       let fk = never
@@ -252,20 +370,31 @@ function crowdMember(member: ReturnType<typeof startFamily>[number], k: number, 
         r.forward()
         contentHashes(box, r.content(), ha, hb)
 
-        const A = baseA[c][t - 1] as Int32Array
-        const B = baseB[c][t - 1] as Int32Array
-        const differs = (col: number): boolean => ha[col] !== A[col] || hb[col] !== B[col]
+        const A = baseA[c][t - 1]!
+        const B = baseB[c][t - 1]!
+        const differs = (col: number): boolean =>
+          ha[col] !== A[col] || hb[col] !== B[col]
 
-        if (fa === never && differs(det)) fa = t
-        if (fb === never && differs(beh)) fb = t
-        if (fk === never && differs(bak)) fk = t
+        if (fa === never && differs(det)) {
+          fa = t
+        }
+
+        if (fb === never && differs(beh)) {
+          fb = t
+        }
+
+        if (fk === never && differs(bak)) {
+          fk = t
+        }
 
         if (fp === never) {
           let n = 0
           let y = 0
 
           for (const col of plane) {
-            if (!differs(col)) continue
+            if (!differs(col)) {
+              continue
+            }
 
             n++
             y += ring(columnPosition(col, S.side)[1], S.side)
@@ -281,7 +410,12 @@ function crowdMember(member: ReturnType<typeof startFamily>[number], k: number, 
       if (c !== 'old') {
         const s = r.content()
 
-        if (energyOf(s) !== energyOf(twin.s) || chargeOf(s) !== chargeOf(twin.s)) exact = false
+        if (
+          energyOf(s) !== energyOf(twin.s) ||
+          chargeOf(s) !== chargeOf(twin.s)
+        ) {
+          exact = false
+        }
       }
 
       arrival[c].push(fa)
@@ -298,13 +432,23 @@ function crowdMember(member: ReturnType<typeof startFamily>[number], k: number, 
   const col = new Float64Array(columns)
 
   for (const c of DRIFT_CONFIGS) {
-    drift[c] = S.driftReads.map(() => S.distances.map(() => S.axes.map(() => 0)))
+    drift[c] = S.driftReads.map(() =>
+      S.distances.map(() => S.axes.map(() => 0)),
+    )
 
     S.distances.forEach((r0, i) => {
       S.axes.forEach((axis, j) => {
         const at = axis.map(a => a * r0)
-        const toward = axis.map(a => -a) as unknown as [number, number, number]
-        const blob = gasFill(box, starts[c], { perDock: 1, phase: k, only: ballDocks(box, 1, at) })
+        const toward = axis.map(a => -a) as unknown as [
+          number,
+          number,
+          number,
+        ]
+        const blob = gasFill(box, starts[c], {
+          perDock: 1,
+          phase: k,
+          only: ballDocks(box, 1, at),
+        })
         const r = runOf(c, blob)
 
         for (let t = 1; t <= S.beats; t++) {
@@ -312,23 +456,54 @@ function crowdMember(member: ReturnType<typeof startFamily>[number], k: number, 
 
           const read = S.driftReads.indexOf(t)
 
-          if (read < 0) continue
+          if (read < 0) {
+            continue
+          }
 
           columnEnergy(box, r.content(), col)
 
-          const base = baseEnergy[c].get(t) as Float64Array
+          const base = baseEnergy[c].get(t)!
 
-          for (let x = 0; x < columns; x++) excess[x] = (col[x] as number) - (base[x] as number)
-          drift[c]![read]![i]![j] = towardKnot(excess, S.side, at as unknown as [number, number, number], toward).shift
+          for (let x = 0; x < columns; x++) {
+            excess[x] = col[x]! - base[x]!
+          }
+
+          drift[c][read]![i]![j] = towardKnot(
+            excess,
+            S.side,
+            at as unknown as [number, number, number],
+            toward,
+          ).shift
         }
       })
     })
   }
 
-  return { name: member.name, arrival, behind, back, planeBeat, planeY, drift, exact, noneIsOld, returns, retained, crowdTakes, crowdDockBeats, outsidePaused, maxOutsideEnergy, turned, seconds: (Date.now() - started) / 1000 }
+  return {
+    name: member.name,
+    arrival,
+    behind,
+    back,
+    planeBeat,
+    planeY,
+    drift,
+    exact,
+    noneIsOld,
+    returns,
+    retained,
+    crowdTakes,
+    crowdDockBeats,
+    outsidePaused,
+    maxOutsideEnergy,
+    turned,
+    seconds: (Date.now() - started) / 1000,
+  }
 }
 
-export function crowdSurvey(log?: (what: string) => void, settings: CrowdSettings = CROWD): CrowdMember[] {
+export function crowdSurvey(
+  log?: (what: string) => void,
+  settings: CrowdSettings = CROWD,
+): CrowdMember[] {
   return startFamily(settings.offsets).map((member, k) => {
     const m = crowdMember(member, k, settings)
 

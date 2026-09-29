@@ -45,14 +45,42 @@
 //
 // DETERMINISM: every start is placed; nothing is drawn. NOTHING MOVES: each value takes its new value by the rule.
 
-import { fastBeat, geometryOfBulk, huskGeometryBox, makeHuskEngine, type HuskGeometry } from '@/code/rule/trit-husk'
-import { bulkFlux, bulkGaussViolations, columnSumLinks, emptyTritState, huskGaussViolations, makeTritLight, readHusk, tritLightBeat, type HuskLightState } from '@/code/rule/trit-column'
-import { BEATS, CONFIGS, DEPTH, PULSE, REACH, SIDE, huskDock, kick, placeLump, type LumpConfig } from '@/code/measure/depth-lump'
+import {
+  fastBeat,
+  geometryOfBulk,
+  huskGeometryBox,
+  makeHuskEngine,
+  type HuskGeometry,
+} from '@/code/rule/trit-husk'
+import {
+  bulkFlux,
+  bulkGaussViolations,
+  columnSumLinks,
+  emptyTritState,
+  huskGaussViolations,
+  makeTritLight,
+  readHusk,
+  tritLightBeat,
+  type HuskLightState,
+} from '@/code/rule/trit-column'
+import {
+  BEATS,
+  CONFIGS,
+  DEPTH,
+  PULSE,
+  REACH,
+  SIDE,
+  huskDock,
+  kick,
+  placeLump,
+  type LumpConfig,
+} from '@/code/measure/depth-lump'
 
 const mod = (x: number, m: number): number => ((x % m) + m) % m
 const floorDiv = (x: number, q: number): number => (x - mod(x, q)) / q
 
-export const lightSpeed = (d: number): number => 2 / Math.sqrt(3 * (2 * d + 1))
+export const lightSpeed = (d: number): number =>
+  2 / Math.sqrt(3 * (2 * d + 1))
 
 export type Medium = {
   readonly geometry: HuskGeometry
@@ -68,19 +96,38 @@ export type Medium = {
 
 export type Wraps = { angle: number; field: number; potential: number }
 
-export const noWraps = (): Wraps => ({ angle: 0, field: 0, potential: 0 })
+export const noWraps = (): Wraps => ({
+  angle: 0,
+  field: 0,
+  potential: 0,
+})
 
-export function makeMedium(sides: readonly [number, number, number], depthAt: (x: number, y: number, z: number) => number, p = 1, given?: HuskGeometry): Medium {
+export function makeMedium(
+  sides: readonly [number, number, number],
+  depthAt: (x: number, y: number, z: number) => number,
+  p = 1,
+  given?: HuskGeometry,
+): Medium {
   const [sx, sy, sz] = sides
   const geometry = given ?? huskGeometryBox(sx, sy, sz)
   const dockDepth = new Int32Array(geometry.huskDocks)
 
   for (let y = 0; y < geometry.huskDocks; y++) {
-    dockDepth[y] = depthAt(y % sx, Math.floor(y / sx) % sy, Math.floor(y / (sx * sy)))
+    dockDepth[y] = depthAt(
+      y % sx,
+      Math.floor(y / sx) % sy,
+      Math.floor(y / (sx * sy)),
+    )
   }
 
-  const linkWindow = Int32Array.from({ length: geometry.huskLinks }, (_, l) => (l % 9 < 3 ? 4 : 2) * dockDepth[Math.floor(l / 9)]!)
-  const triDepth = Int32Array.from({ length: geometry.triangles }, (_, t) => dockDepth[Math.floor(geometry.triLinks[t * 3]! / 9)]!)
+  const linkWindow = Int32Array.from(
+    { length: geometry.huskLinks },
+    (_, l) => (l % 9 < 3 ? 4 : 2) * dockDepth[Math.floor(l / 9)]!,
+  )
+  const triDepth = Int32Array.from(
+    { length: geometry.triangles },
+    (_, t) => dockDepth[Math.floor(geometry.triLinks[t * 3]! / 9)]!,
+  )
 
   return {
     geometry,
@@ -119,9 +166,19 @@ export function copyState(s: HuskLightState): HuskLightState {
   }
 }
 
-const FIELDS = ['angle', 'potential', 'counter', 'lag', 'spatial', 'string'] as const
+const FIELDS = [
+  'angle',
+  'potential',
+  'counter',
+  'lag',
+  'spatial',
+  'string',
+] as const
 
-export const sameState = (a: HuskLightState, b: HuskLightState): boolean => FIELDS.every(f => a[f].every((v, i) => v === b[f][i]))
+export const sameState = (
+  a: HuskLightState,
+  b: HuskLightState,
+): boolean => FIELDS.every(f => a[f].every((v, i) => v === b[f][i]))
 
 // out = S - C^T U
 function flux(m: Medium, s: HuskLightState): void {
@@ -133,7 +190,9 @@ function flux(m: Medium, s: HuskLightState): void {
   for (let t = 0; t < g.triangles; t++) {
     const u = s.potential[t]!
 
-    if (u === 0) continue
+    if (u === 0) {
+      continue
+    }
 
     for (let j = t * 3; j < t * 3 + 3; j++) {
       out[g.triLinks[j]!] = out[g.triLinks[j]!]! - g.triSigns[j]! * u
@@ -141,13 +200,21 @@ function flux(m: Medium, s: HuskLightState): void {
   }
 }
 
-function curlWeighted(g: HuskGeometry, x: Int32Array, t: number): number {
+function curlWeighted(
+  g: HuskGeometry,
+  x: Int32Array,
+  t: number,
+): number {
   const b = t * 3
   const l0 = g.triLinks[b]!
   const l1 = g.triLinks[b + 1]!
   const l2 = g.triLinks[b + 2]!
 
-  return g.triSigns[b]! * g.weight[l0 % 9]! * x[l0]! + g.triSigns[b + 1]! * g.weight[l1 % 9]! * x[l1]! + g.triSigns[b + 2]! * g.weight[l2 % 9]! * x[l2]!
+  return (
+    g.triSigns[b]! * g.weight[l0 % 9]! * x[l0]! +
+    g.triSigns[b + 1]! * g.weight[l1 % 9]! * x[l1]! +
+    g.triSigns[b + 2]! * g.weight[l2 % 9]! * x[l2]!
+  )
 }
 
 function curlT(m: Medium, x: Int32Array): void {
@@ -158,10 +225,13 @@ function curlT(m: Medium, x: Int32Array): void {
   for (let t = 0; t < g.triangles; t++) {
     const v = x[t]!
 
-    if (v === 0) continue
+    if (v === 0) {
+      continue
+    }
 
     for (let j = t * 3; j < t * 3 + 3; j++) {
-      m.curl[g.triLinks[j]!] = m.curl[g.triLinks[j]!]! + g.triSigns[j]! * v
+      m.curl[g.triLinks[j]!] =
+        m.curl[g.triLinks[j]!]! + g.triSigns[j]! * v
     }
   }
 }
@@ -174,13 +244,20 @@ function fields(m: Medium, s: HuskLightState, wraps?: Wraps): void {
     const raw = curlWeighted(g, s.angle, t)
     const v = mod(raw + nb / 2, nb) - nb / 2
 
-    if (wraps && v !== raw) wraps.field++
+    if (wraps && v !== raw) {
+      wraps.field++
+    }
+
     m.field[t] = v
   }
 }
 
 // one beat of the wave form with per-column depth, in place
-export function mediumBeat(m: Medium, s: HuskLightState, wraps?: Wraps): void {
+export function mediumBeat(
+  m: Medium,
+  s: HuskLightState,
+  wraps?: Wraps,
+): void {
   const g = m.geometry
   const pp = m.p
 
@@ -191,7 +268,10 @@ export function mediumBeat(m: Medium, s: HuskLightState, wraps?: Wraps): void {
     const raw = s.angle[l]! + m.flux[l]!
     const v = mod(raw + n / 2, n) - n / 2
 
-    if (wraps && v !== raw) wraps.angle++
+    if (wraps && v !== raw) {
+      wraps.angle++
+    }
+
     s.angle[l] = v
   }
 
@@ -207,7 +287,8 @@ export function mediumBeat(m: Medium, s: HuskLightState, wraps?: Wraps): void {
 
     s.spatial[t] = sp + s.spatial[t]! - q * v
 
-    const rest = n * pp * m.field[t]! - 2 * s.counter[t]! + s.lag[t]! + v
+    const rest =
+      n * pp * m.field[t]! - 2 * s.counter[t]! + s.lag[t]! + v
     const k = floorDiv(rest + h, q)
 
     s.lag[t] = s.counter[t]!
@@ -217,7 +298,10 @@ export function mediumBeat(m: Medium, s: HuskLightState, wraps?: Wraps): void {
     const raw = s.potential[t]! + k
     const u = mod(raw + w, 2 * w + 1) - w
 
-    if (wraps && u !== raw) wraps.potential++
+    if (wraps && u !== raw) {
+      wraps.potential++
+    }
+
     s.potential[t] = u
   }
 }
@@ -299,22 +383,36 @@ export function uniformCurl(m: Medium, a: number): number {
 
   let top = 0
 
-  for (let t = 0; t < g.triangles; t++) top = Math.max(top, Math.abs(curlWeighted(g, s.angle, t)))
+  for (let t = 0; t < g.triangles; t++) {
+    top = Math.max(top, Math.abs(curlWeighted(g, s.angle, t)))
+  }
 
   return top
 }
 
 // G(u) on the half grid, integers only
-export function profile(u: number, u0: number, amp: number, w: number): number {
+export function profile(
+  u: number,
+  u0: number,
+  amp: number,
+  w: number,
+): number {
   const d = u - u0
 
-  if (Math.abs(d) >= w) return 0
+  if (Math.abs(d) >= w) {
+    return 0
+  }
 
   return floorDiv(amp * (w * w - d * d) ** 2, w ** 4)
 }
 
 // the plane packet centered at x0 (half grid u0 = 2 x0)
-export function planarPacket(m: Medium, x0: number, amp: number, w: number): HuskLightState {
+export function planarPacket(
+  m: Medium,
+  x0: number,
+  amp: number,
+  w: number,
+): HuskLightState {
   const s = emptyState(m)
   const [sx] = m.sides
   const g = m.geometry
@@ -335,7 +433,12 @@ export function planarPacket(m: Medium, x0: number, amp: number, w: number): Hus
   return s
 }
 
-export const dockAt = (m: Medium, x: number, y: number, z: number): number => {
+export const dockAt = (
+  m: Medium,
+  x: number,
+  y: number,
+  z: number,
+): number => {
   const [sx, sy, sz] = m.sides
 
   return mod(x, sx) + sx * mod(y, sy) + sx * sy * mod(z, sz)
@@ -344,7 +447,9 @@ export const dockAt = (m: Medium, x: number, y: number, z: number): number => {
 export function dockWeight(s: HuskLightState, dock: number): number {
   let v = 0
 
-  for (let h = 0; h < 9; h++) v += s.angle[dock * 9 + h]! ** 2
+  for (let h = 0; h < 9; h++) {
+    v += s.angle[dock * 9 + h]! ** 2
+  }
 
   return v
 }
@@ -352,6 +457,7 @@ export function dockWeight(s: HuskLightState, dock: number): number {
 // the centroid in time over the beats where r is at least half its largest value (NaN if r is never above 0)
 export function halfMaxCentroid(r: Float64Array): number {
   const top = r.reduce((a, v) => Math.max(a, v), 0)
+
   let st = 0
   let s = 0
 
@@ -371,13 +477,19 @@ export function halfMaxCentroid(r: Float64Array): number {
 // passage, so jitter at the half level does not cut it short
 export function firstLobeCentroid(r: Float64Array): number {
   const top = r.reduce((a, v) => Math.max(a, v), 0)
+
   let st = 0
   let s = 0
 
-  if (top <= 0) return Number.NaN
+  if (top <= 0) {
+    return Number.NaN
+  }
 
   for (let t = 0; t < r.length; t++) {
-    if (s > 0 && r[t]! < top / 5) break
+    if (s > 0 && r[t]! < top / 5) {
+      break
+    }
+
     if (r[t]! >= top / 2) {
       st += t * r[t]!
       s += r[t]!
@@ -401,11 +513,18 @@ export type Run = {
 
 // run a planar packet forward `window` beats, reading every detector dock after each beat, then run it back to
 // the start and compare bit for bit; Gauss is counted every `gaussEvery` beats
-export function runPacket(m: Medium, start: HuskLightState, detectors: readonly number[], window: number, gaussEvery = 1): Run {
+export function runPacket(
+  m: Medium,
+  start: HuskLightState,
+  detectors: readonly number[],
+  window: number,
+  gaussEvery = 1,
+): Run {
   const t0 = Date.now()
   const s = copyState(start)
   const wraps = noWraps()
   const trace = detectors.map(() => new Float64Array(window + 1))
+
   let gauss = gaussViolations(m, s)
 
   for (let t = 1; t <= window; t++) {
@@ -415,10 +534,14 @@ export function runPacket(m: Medium, start: HuskLightState, detectors: readonly 
       trace[i]![t] = dockWeight(s, d)
     })
 
-    if (t % gaussEvery === 0) gauss += gaussViolations(m, s)
+    if (t % gaussEvery === 0) {
+      gauss += gaussViolations(m, s)
+    }
   }
 
-  for (let t = 0; t < window; t++) mediumBeatBack(m, s)
+  for (let t = 0; t < window; t++) {
+    mediumBeatBack(m, s)
+  }
 
   return {
     arrival: trace.map(halfMaxCentroid),
@@ -454,10 +577,14 @@ export function boundaryTriangles(m: Medium): number {
     for (let j = t * 3; j < t * 3 + 3; j++) {
       const set = linkDepths.get(g.triLinks[j]!)
 
-      if (set && (set.size > 1 || !set.has(m.triDepth[t]!))) mixed = true
+      if (set && (set.size > 1 || !set.has(m.triDepth[t]!))) {
+        mixed = true
+      }
     }
 
-    if (mixed) count++
+    if (mixed) {
+      count++
+    }
   }
 
   return count
@@ -468,8 +595,16 @@ export function boundaryTriangles(m: Medium): number {
 // refracts twice by Snell's law, and reaches the plane x = X (from the center). Returns the exit y, the extra time
 // over the straight run at speed c0 (in beats), and the deflection angle (negative: toward the center for b > 0)
 
-export function diskRay(b: number, r: number, n: number, x: number, c0: number): { y: number; delay: number; angle: number } {
-  if (Math.abs(b) >= r) return { y: b, delay: 0, angle: 0 }
+export function diskRay(
+  b: number,
+  r: number,
+  n: number,
+  x: number,
+  c0: number,
+): { y: number; delay: number; angle: number } {
+  if (Math.abs(b) >= r) {
+    return { y: b, delay: 0, angle: 0 }
+  }
 
   const sign = Math.sign(b)
   const a = Math.abs(b)
@@ -487,17 +622,28 @@ export function diskRay(b: number, r: number, n: number, x: number, c0: number):
   const path = chord * n + rest
   const straight = x - x1
 
-  return { y: sign * yOut, delay: (path - straight) / c0, angle: -sign * delta }
+  return {
+    y: sign * yOut,
+    delay: (path - straight) / c0,
+    angle: -sign * delta,
+  }
 }
 
 // the ray-optics delay and angle at exit height y, by scanning impacts (the map b -> y is monotone before the focus)
-export function diskEikonal(y: number, r: number, n: number, x: number, c0: number): { delay: number; angle: number; impact: number } {
+export function diskEikonal(
+  y: number,
+  r: number,
+  n: number,
+  x: number,
+  c0: number,
+): { delay: number; angle: number; impact: number } {
   if (Math.abs(y) >= r) {
     // rays beside the disk are straight; the refracted fan stays inside |y| < r before the focus
     return { delay: 0, angle: 0, impact: y }
   }
 
   const steps = 20000
+
   let best = { delay: 0, angle: 0, impact: 0, gap: Infinity }
 
   for (let i = -steps + 1; i < steps; i++) {
@@ -505,7 +651,9 @@ export function diskEikonal(y: number, r: number, n: number, x: number, c0: numb
     const ray = diskRay(b, r, n, x, c0)
     const gap = Math.abs(ray.y - y)
 
-    if (gap < best.gap) best = { delay: ray.delay, angle: ray.angle, impact: b, gap }
+    if (gap < best.gap) {
+      best = { delay: ray.delay, angle: ray.angle, impact: b, gap }
+    }
   }
 
   return { delay: best.delay, angle: best.angle, impact: best.impact }
@@ -525,7 +673,9 @@ export const SOURCE_X = 40
 export const LINE: readonly [number, number, number] = [192, 2, 2]
 export const LINE_WINDOW = 490
 export const SLAB: readonly [number, number] = [64, 88]
-export const LINE_DETECTORS: readonly number[] = [60, 68, 84, 96, 100, 120]
+export const LINE_DETECTORS: readonly number[] = [
+  60, 68, 84, 96, 100, 120,
+]
 // the disk: a cylinder along z of depth D1, radius R, in a D0 box
 export const PLANE: readonly [number, number, number] = [192, 96, 2]
 export const DISK_CENTER: readonly [number, number] = [76, 48]
@@ -538,7 +688,9 @@ export const BESIDE: readonly number[] = [20, 24, 28]
 export const EDGE: readonly [number, number] = [4, 8]
 export const EDGE_AMP = 3
 
-const inDisk = (x: number, y: number): boolean => (x - DISK_CENTER[0]) ** 2 + (y - DISK_CENTER[1]) ** 2 <= DISK_RADIUS ** 2
+const inDisk = (x: number, y: number): boolean =>
+  (x - DISK_CENTER[0]) ** 2 + (y - DISK_CENTER[1]) ** 2 <=
+  DISK_RADIUS ** 2
 
 export type MediumSurvey = {
   // mediumBeat against fastBeat at one depth, 64 beats, D0 and D1
@@ -557,8 +709,12 @@ export type MediumSurvey = {
 
 let mediumCache: MediumSurvey | undefined
 
-export function mediumSurvey(log?: (what: string) => void): MediumSurvey {
-  if (mediumCache) return mediumCache
+export function mediumSurvey(
+  log?: (what: string) => void,
+): MediumSurvey {
+  if (mediumCache) {
+    return mediumCache
+  }
 
   const started = Date.now()
   const uniformEqualsFast = [D0, D1].map(d => {
@@ -566,6 +722,7 @@ export function mediumSurvey(log?: (what: string) => void): MediumSurvey {
     const a = planarPacket(m, 8, AMP, HALF_WIDTH)
     const b = copyState(a)
     const e = makeHuskEngine(m.geometry, d)
+
     let same = true
 
     for (let t = 0; t < 64; t++) {
@@ -576,7 +733,12 @@ export function mediumSurvey(log?: (what: string) => void): MediumSurvey {
 
     return same
   })
-  const lineRun = (depthAt: (x: number) => number, amp: number, window: number): { run: Run; medium: Medium } => {
+
+  const lineRun = (
+    depthAt: (x: number) => number,
+    amp: number,
+    window: number,
+  ): { run: Run; medium: Medium } => {
     const m = makeMedium(LINE, x => depthAt(x))
     const run = runPacket(
       m,
@@ -587,12 +749,17 @@ export function mediumSurvey(log?: (what: string) => void): MediumSurvey {
 
     return { run, medium: m }
   }
+
   const u0 = lineRun(() => D0, AMP, LINE_WINDOW).run
 
   log?.(`u0 ${u0.seconds}s`)
 
   const u1 = lineRun(() => D1, AMP, LINE_WINDOW).run
-  const slabRun = lineRun(x => (x >= SLAB[0] && x < SLAB[1] ? D1 : D0), AMP, LINE_WINDOW)
+  const slabRun = lineRun(
+    x => (x >= SLAB[0] && x < SLAB[1] ? D1 : D0),
+    AMP,
+    LINE_WINDOW,
+  )
 
   log?.(`slab ${slabRun.run.seconds}s`)
 
@@ -600,18 +767,27 @@ export function mediumSurvey(log?: (what: string) => void): MediumSurvey {
   const disk = runPacket(
     plane,
     planarPacket(plane, SOURCE_X, AMP, HALF_WIDTH),
-    Array.from({ length: PLANE[1] }, (_, y) => dockAt(plane, EXIT_X, y, 0)),
+    Array.from({ length: PLANE[1] }, (_, y) =>
+      dockAt(plane, EXIT_X, y, 0),
+    ),
     PLANE_WINDOW,
   )
 
   log?.(`disk ${disk.seconds}s`)
 
   const edgeUniform = lineRun(() => EDGE[0], EDGE_AMP, 233).run
-  const edgeSlab = lineRun(x => (x >= SLAB[0] && x < SLAB[1] ? EDGE[1] : EDGE[0]), EDGE_AMP, 233).run
+  const edgeSlab = lineRun(
+    x => (x >= SLAB[0] && x < SLAB[1] ? EDGE[1] : EDGE[0]),
+    EDGE_AMP,
+    233,
+  ).run
 
   mediumCache = {
     uniformEqualsFast,
-    uniformCurl: uniformCurl(makeMedium([16, 8, 2], () => D0), AMP),
+    uniformCurl: uniformCurl(
+      makeMedium([16, 8, 2], () => D0),
+      AMP,
+    ),
     u0,
     u1,
     slab: slabRun.run,
@@ -627,7 +803,8 @@ export function mediumSurvey(log?: (what: string) => void): MediumSurvey {
 }
 
 // the arrival at line detector x of a line run
-export const lineArrival = (run: Run, x: number): number => run.arrival[LINE_DETECTORS.indexOf(x)] ?? Number.NaN
+export const lineArrival = (run: Run, x: number): number =>
+  run.arrival[LINE_DETECTORS.indexOf(x)] ?? Number.NaN
 
 // ---------------------------------------------------------------------------------------------------------
 // E-GRV-0071: does content set its column's depth? On the trit light (E-GRV-0062's light, lumps, pulse and beats:
@@ -655,15 +832,26 @@ export type SourceReading = {
   sameAsUnflipped: boolean | undefined
 }
 
-export type SourceSurvey = { readings: SourceReading[]; seconds: number }
+export type SourceSurvey = {
+  readings: SourceReading[]
+  seconds: number
+}
 
 let sourceCache: SourceSurvey | undefined
 
-export function sourceSurvey(log?: (what: string) => void): SourceSurvey {
-  if (sourceCache) return sourceCache
+export function sourceSurvey(
+  log?: (what: string) => void,
+): SourceSurvey {
+  if (sourceCache) {
+    return sourceCache
+  }
 
   const started = Date.now()
-  const light = makeTritLight({ side: SIDE, depth: DEPTH, form: 'wave' })
+  const light = makeTritLight({
+    side: SIDE,
+    depth: DEPTH,
+    form: 'wave',
+  })
   const bulk = light.bulk
   const configs = CONFIGS.filter(c => c.form !== 'split')
   const traces = new Map<string, Int32Array[]>()
@@ -678,14 +866,29 @@ export function sourceSurvey(log?: (what: string) => void): SourceSurvey {
     const vibe = Int8Array.from(s.vibe)
     const content = new Int32Array(bulk.huskDocks)
 
-    for (let x = 0; x < bulk.docks; x++) if (vibe[x] !== 0) content[bulk.column[x]!] = content[bulk.column[x]!]! + 1
+    for (let x = 0; x < bulk.docks; x++) {
+      if (vibe[x] !== 0) {
+        content[bulk.column[x]!] = content[bulk.column[x]!]! + 1
+      }
+    }
 
     // on the bulk's OWN husk geometry (triangle orientations as the trit rule has them): the tiled geometry of
     // code/rule/trit-husk orients some triangles the other way, which the field's seam at -N_B / 2 does not forgive
     // at D = 4 with a pulse of 7 (first run of E-GRV-0071, tmp/grv71-diag.ts)
-    const fixed = makeMedium([SIDE, SIDE, SIDE], () => DEPTH, 1, geometryOfBulk(bulk))
-    const candidate = makeMedium([SIDE, SIDE, SIDE], (x, y, z) => DEPTH + content[x + SIDE * y + SIDE * SIDE * z]!, 1, geometryOfBulk(bulk))
+    const fixed = makeMedium(
+      [SIDE, SIDE, SIDE],
+      () => DEPTH,
+      1,
+      geometryOfBulk(bulk),
+    )
+    const candidate = makeMedium(
+      [SIDE, SIDE, SIDE],
+      (x, y, z) => DEPTH + content[x + SIDE * y + SIDE * SIDE * z]!,
+      1,
+      geometryOfBulk(bulk),
+    )
     const husk = readHusk(light, s)
+
     const startOf = (m: Medium): HuskLightState => {
       const h = emptyState(m)
 
@@ -694,9 +897,11 @@ export function sourceSurvey(log?: (what: string) => void): SourceSurvey {
 
       return h
     }
+
     const a = startOf(fixed)
     const b = startOf(candidate)
     const trace: Int32Array[] = []
+
     let gauss = 0
     let followsFixed = true
     let followsCandidate = true
@@ -704,23 +909,39 @@ export function sourceSurvey(log?: (what: string) => void): SourceSurvey {
 
     for (let t = 1; t <= BEATS; t++) {
       tritLightBeat(light, s)
-      gauss += bulkGaussViolations(light, s) + huskGaussViolations(light, columnSumLinks(light, bulkFlux(light, s)), s.vibe)
+      gauss +=
+        bulkGaussViolations(light, s) +
+        huskGaussViolations(
+          light,
+          columnSumLinks(light, bulkFlux(light, s)),
+          s.vibe,
+        )
       mediumBeat(fixed, a)
       mediumBeat(candidate, b)
 
       const angle = readHusk(light, s).angle
 
       trace.push(angle)
-      followsFixed = followsFixed && angle.every((v, i) => v === a.angle[i])
-      followsCandidate = followsCandidate && angle.every((v, i) => v === b.angle[i])
+      followsFixed =
+        followsFixed && angle.every((v, i) => v === a.angle[i])
 
-      if (candidateSeenAt > BEATS && !a.angle.every((v, i) => v === b.angle[i])) candidateSeenAt = t
+      followsCandidate =
+        followsCandidate && angle.every((v, i) => v === b.angle[i])
+
+      if (
+        candidateSeenAt > BEATS &&
+        !a.angle.every((v, i) => v === b.angle[i])
+      ) {
+        candidateSeenAt = t
+      }
     }
 
     traces.set(config.name, trace)
 
     const empty = traces.get('empty')
-    const unflipped = config.flip ? traces.get(config.name.replace('-flipped', '')) : undefined
+    const unflipped = config.flip
+      ? traces.get(config.name.replace('-flipped', ''))
+      : undefined
 
     readings.push({
       config,
@@ -730,11 +951,28 @@ export function sourceSurvey(log?: (what: string) => void): SourceSurvey {
       followsCandidate,
       candidateSeenAt,
       contentColumns: content.reduce((c, v) => c + (v > 0 ? 1 : 0), 0),
-      candidateDepth: candidate.dockDepth.reduce((m, v) => Math.max(m, v), 0),
-      mismatch: trace.map((angle, t) => (empty ? angle.reduce((c, v, i) => c + (v === empty[t]![i] ? 0 : 1), 0) : 0)),
-      sameAsUnflipped: unflipped ? trace.every((angle, t) => angle.every((v, i) => v === unflipped[t]![i])) : undefined,
+      candidateDepth: candidate.dockDepth.reduce(
+        (m, v) => Math.max(m, v),
+        0,
+      ),
+      mismatch: trace.map((angle, t) =>
+        empty
+          ? angle.reduce(
+              (c, v, i) => c + (v === empty[t]![i] ? 0 : 1),
+              0,
+            )
+          : 0,
+      ),
+      sameAsUnflipped: unflipped
+        ? trace.every((angle, t) =>
+            angle.every((v, i) => v === unflipped[t]![i]),
+          )
+        : undefined,
     })
-    log?.(`${config.name} ${Math.round((Date.now() - started) / 1000)}s`)
+
+    log?.(
+      `${config.name} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
   }
 
   sourceCache = { readings, seconds: (Date.now() - started) / 1000 }

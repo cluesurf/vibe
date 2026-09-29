@@ -81,14 +81,33 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { LINE_FIRSTS, LINE_OF, OPPOSITE } from '@/code/rule/isometric-knit'
-import { bouncePermutation, BOUNCE_TABLE } from '@/code/rule/bounce-pair-knit'
+import {
+  LINE_FIRSTS,
+  LINE_OF,
+  OPPOSITE,
+} from '@/code/rule/isometric-knit'
+import {
+  bouncePermutation,
+  BOUNCE_TABLE,
+} from '@/code/rule/bounce-pair-knit'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { d4BoxCell, d4BoxCoordinates, d4Coordinates } from '@/code/substrate/d4-box'
-import { bounceRunner, makeBounceKernel } from '@/code/measure/bounce-pair-kernel'
+import {
+  d4BoxCell,
+  d4BoxCoordinates,
+  d4Coordinates,
+} from '@/code/substrate/d4-box'
+import {
+  bounceRunner,
+  makeBounceKernel,
+} from '@/code/measure/bounce-pair-kernel'
 import { hubVacuum } from '@/code/measure/causal-components'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
-import { lockedMeetingOnly, lockedPairState, lockedIndex, stepTable } from '@/code/rule/locked-token-line'
+import {
+  lockedMeetingOnly,
+  lockedPairState,
+  lockedIndex,
+  stepTable,
+} from '@/code/rule/locked-token-line'
 import {
   LINE_STEP,
   lineMeeting,
@@ -116,28 +135,42 @@ import {
   SILVER_RATE,
 } from '@/code/measure/doublet-locked-readings'
 
-const LINE_SECONDS = LINE_FIRSTS.map(f => OPPOSITE[f] as number)
+const LINE_SECONDS = LINE_FIRSTS.map(f => OPPOSITE[f]!)
 const ROOTS = rootsD4()
 
 // Eisenstein product
-const mul = (x: bigint, y: bigint, u: bigint, v: bigint): [bigint, bigint] => [x * u - y * v, x * v + y * u - y * v]
+const mul = (
+  x: bigint,
+  y: bigint,
+  u: bigint,
+  v: bigint,
+): [bigint, bigint] => [x * u - y * v, x * v + y * u - y * v]
 
 // ---- L1 ----
-function lockIsStream(side: number): { slots: number; mismatches: number } {
+function lockIsStream(side: number): {
+  slots: number
+  mismatches: number
+} {
   const f = lockedFresh(side)
+
   let mismatches = 0
 
   for (let x = 0; x < f.cells; x++) {
     const c = d4BoxCoordinates({ cell: x, side })
 
     for (let l = 0; l < 12; l++) {
-      const r = d4Coordinates([...(ROOTS[LINE_FIRSTS[l] as number] as number[])])
+      const r = d4Coordinates([...ROOTS[LINE_FIRSTS[l]!]!])
 
       for (const label of [0, 1]) {
-        const step = LINE_STEP[label] as number
-        const to = d4BoxCell({ coordinates: c.map((v, k) => v + step * (r[k] as number)), side })
-        const slot = x * 24 + (label === 0 ? (LINE_FIRSTS[l] as number) : (LINE_SECONDS[l] as number))
-        const expected = to * 24 + (label === 0 ? (LINE_FIRSTS[l] as number) : (LINE_SECONDS[l] as number))
+        const step = LINE_STEP[label]!
+        const to = d4BoxCell({
+          coordinates: c.map((v, k) => v + step * r[k]!),
+          side,
+        })
+        const slot =
+          x * 24 + (label === 0 ? LINE_FIRSTS[l]! : LINE_SECONDS[l]!)
+        const expected =
+          to * 24 + (label === 0 ? LINE_FIRSTS[l]! : LINE_SECONDS[l]!)
 
         mismatches += f.tables.target[slot] === expected ? 0 : 1
       }
@@ -148,7 +181,10 @@ function lockIsStream(side: number): { slots: number; mismatches: number } {
 }
 
 // ---- L2: the per-line copies in three orders ----
-function orderFree(side: number): { orders: number; mismatches: number } {
+function orderFree(side: number): {
+  orders: number
+  mismatches: number
+} {
   const f = lockedFresh(side)
   const slots = f.cells * 24
   const fill: Configuration = vacuumConfiguration(f, 'none')
@@ -167,52 +203,94 @@ function orderFree(side: number): { orders: number; mismatches: number } {
   const byLine = (order: number[]): Configuration => {
     // each line's copy moves only that line's slots; the others are left for their own copy
     let c = cloneConfiguration(fill)
+
     const moved = new Uint8Array(slots)
 
     for (const l of order) {
       const next = cloneConfiguration(c)
 
       for (let i = 0; i < slots; i++) {
-        if (LINE_OF[i % 24] !== l || moved[i]) continue
+        if (LINE_OF[i % 24] !== l || moved[i]) {
+          continue
+        }
+
         next.vibe[i] = 0
       }
 
       for (let i = 0; i < slots; i++) {
-        if (LINE_OF[i % 24] !== l || moved[i]) continue
+        if (LINE_OF[i % 24] !== l || moved[i]) {
+          continue
+        }
 
-        const v = c.vibe[i] as number
+        const v = c.vibe[i]!
 
-        if (v === 0) continue
+        if (v === 0) {
+          continue
+        }
 
-        const to = f.tables.target[i] as number
+        const to = f.tables.target[i]!
 
         next.vibe[to] = v
-        next.point[to] = f.tables.move[i * 9 + (c.point[i] as number)] as number
+        next.point[to] = f.tables.move[i * 9 + c.point[i]!]!
       }
 
-      for (let i = 0; i < slots; i++) if (LINE_OF[i % 24] === l) moved[i] = 1
+      for (let i = 0; i < slots; i++) {
+        if (LINE_OF[i % 24] === l) {
+          moved[i] = 1
+        }
+      }
+
       c = next
     }
 
     return c
   }
-  const orders = [Array.from({ length: 12 }, (_, l) => l), Array.from({ length: 12 }, (_, l) => 11 - l), Array.from({ length: 12 }, (_, l) => l).sort((a, b) => ((a + 1) * SILVER_RATE) % 65536 - ((b + 1) * SILVER_RATE) % 65536)]
+
+  const orders = [
+    Array.from({ length: 12 }, (_, l) => l),
+    Array.from({ length: 12 }, (_, l) => 11 - l),
+    Array.from({ length: 12 }, (_, l) => l).sort(
+      (a, b) =>
+        (((a + 1) * SILVER_RATE) % 65536) -
+        (((b + 1) * SILVER_RATE) % 65536),
+    ),
+  ]
+
   let mismatches = 0
 
   for (const order of orders) {
     const c = byLine(order)
 
-    for (let i = 0; i < slots; i++) if (c.vibe[i] !== whole.vibe[i] || (c.vibe[i] !== 0 && c.point[i] !== whole.point[i])) mismatches++
+    for (let i = 0; i < slots; i++) {
+      if (
+        c.vibe[i] !== whole.vibe[i] ||
+        (c.vibe[i] !== 0 && c.point[i] !== whole.point[i])
+      ) {
+        mismatches++
+      }
+    }
   }
 
   return { orders: orders.length, mismatches }
 }
 
 // ---- L3, L4: the meeting in integers ----
-function meetingChecks(): { unlikeIdentityC: boolean; unlikeActsCprime: boolean; likeTerms: boolean; unitary: boolean; symmetric: boolean; chargeBlind: boolean } {
+function meetingChecks(): {
+  unlikeIdentityC: boolean
+  unlikeActsCprime: boolean
+  likeTerms: boolean
+  unitary: boolean
+  symmetric: boolean
+  chargeBlind: boolean
+} {
   // 3V |ij> = 3|ij> + (w - 1) [i = j] sum_k |kk>, labels of (love, fear) on the first and second slots
-  const threeV = (i: number, j: number): Map<string, [bigint, bigint]> => {
-    const out = new Map<string, [bigint, bigint]>([[`${i}${j}`, [3n, 0n]]])
+  const threeV = (
+    i: number,
+    j: number,
+  ): Map<string, [bigint, bigint]> => {
+    const out = new Map<string, [bigint, bigint]>([
+      [`${i}${j}`, [3n, 0n]],
+    ])
 
     if (i === j) {
       for (let k = 0; k < 3; k++) {
@@ -225,7 +303,15 @@ function meetingChecks(): { unlikeIdentityC: boolean; unlikeActsCprime: boolean;
 
     return out
   }
-  const isIdentity = (m: Map<string, [bigint, bigint]>, i: number, j: number): boolean => [...m.entries()].every(([key, [a, b]]) => (key === `${i}${j}` ? a === 3n && b === 0n : a === 0n && b === 0n))
+
+  const isIdentity = (
+    m: Map<string, [bigint, bigint]>,
+    i: number,
+    j: number,
+  ): boolean =>
+    [...m.entries()].every(([key, [a, b]]) =>
+      key === `${i}${j}` ? a === 3n && b === 0n : a === 0n && b === 0n,
+    )
   // under C a love on the first slot holds label 0 and a fear on the second label 1 (and the other way round)
   const cPairs: [number, number][] = [
     [0, 1],
@@ -236,15 +322,30 @@ function meetingChecks(): { unlikeIdentityC: boolean; unlikeActsCprime: boolean;
     [0, 0],
     [1, 1],
   ]
-  const unlikeIdentityC = cPairs.every(([i, j]) => isIdentity(threeV(i, j), i, j))
-  const unlikeActsCprime = cprimePairs.every(([i, j]) => !isIdentity(threeV(i, j), i, j))
+  const unlikeIdentityC = cPairs.every(([i, j]) =>
+    isIdentity(threeV(i, j), i, j),
+  )
+  const unlikeActsCprime = cprimePairs.every(
+    ([i, j]) => !isIdentity(threeV(i, j), i, j),
+  )
+
   let likeTerms = true
 
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 3; j++) {
       const t = lineMeeting(true, i, j)
 
-      likeTerms = likeTerms && (i === j ? t.length === 1 && t[0]![2] === 2n && t[0]![3] === 0n : t.length === 2 && t[0]![0] === i && t[0]![2] === 1n && t[0]![3] === 1n && t[1]![0] === j && t[1]![2] === 1n && t[1]![3] === -1n)
+      likeTerms =
+        likeTerms &&
+        (i === j
+          ? t.length === 1 && t[0]![2] === 2n && t[0]![3] === 0n
+          : t.length === 2 &&
+            t[0]![0] === i &&
+            t[0]![2] === 1n &&
+            t[0]![3] === 1n &&
+            t[1]![0] === j &&
+            t[1]![2] === 1n &&
+            t[1]![3] === -1n)
     }
   }
 
@@ -254,22 +355,48 @@ function meetingChecks(): { unlikeIdentityC: boolean; unlikeActsCprime: boolean;
   // entrywise conjugate, conj(a + b w) = (a - b) - b w, and M M^dagger = 4 exactly
   const keep: [bigint, bigint] = [1n, 1n]
   const exch: [bigint, bigint] = [-1n, 1n]
-  const conj = (z: [bigint, bigint]): [bigint, bigint] => [z[0] - z[1], -z[1]]
-  const add = (p: [bigint, bigint], q: [bigint, bigint]): [bigint, bigint] => [p[0] + q[0], p[1] + q[1]]
-  const d = add(mul(...keep, ...conj(keep)), mul(...exch, ...conj(exch)))
-  const off = add(mul(...keep, ...conj(exch)), mul(...exch, ...conj(keep)))
-  const symmetric = d[0] === 4n && d[1] === 0n && off[0] === 0n && off[1] === 0n
+  const conj = (z: [bigint, bigint]): [bigint, bigint] => [
+    z[0] - z[1],
+    -z[1],
+  ]
+  const add = (
+    p: [bigint, bigint],
+    q: [bigint, bigint],
+  ): [bigint, bigint] => [p[0] + q[0], p[1] + q[1]]
+  const d = add(
+    mul(...keep, ...conj(keep)),
+    mul(...exch, ...conj(exch)),
+  )
+  const off = add(
+    mul(...keep, ...conj(exch)),
+    mul(...exch, ...conj(keep)),
+  )
+  const symmetric =
+    d[0] === 4n && d[1] === 0n && off[0] === 0n && off[1] === 0n
   // charge blindness: the meeting reads only whether the vibes are like; lineMeeting takes no sign
-  const chargeBlind = lineMeeting(true, 0, 1).length === 2 && lineMeeting(false, 0, 1).length === 1
+  const chargeBlind =
+    lineMeeting(true, 0, 1).length === 2 &&
+    lineMeeting(false, 0, 1).length === 1
 
-  return { unlikeIdentityC, unlikeActsCprime, likeTerms, unitary, symmetric, chargeBlind }
+  return {
+    unlikeIdentityC,
+    unlikeActsCprime,
+    likeTerms,
+    unitary,
+    symmetric,
+    chargeBlind,
+  }
 }
 
 // ---- L5 ----
 function bookkeepingReduction(side: number, beats: number): number {
   const f = lockedFresh(side)
   const kernel = makeBounceKernel(f.weave, 'lone')
-  const old = bounceRunner(kernel, hubVacuum({ cells: f.cells, store: f.store, layout: f.layout }))
+  const old = bounceRunner(
+    kernel,
+    hubVacuum({ cells: f.cells, store: f.store, layout: f.layout }),
+  )
+
   let s = lockedState(vacuumConfiguration(f, 'none'))
   let mismatches = 0
 
@@ -280,24 +407,56 @@ function bookkeepingReduction(side: number, beats: number): number {
     const a = old.state()
     const b = s.branches[0] as Configuration
 
-    if (s.branches.length !== 1) mismatches++
+    if (s.branches.length !== 1) {
+      mismatches++
+    }
 
-    for (let i = 0; i < a.vibe.length; i++) if (a.vibe[i] !== b.vibe[i] || (a.vibe[i] !== 0 && a.point[i] !== b.point[i])) mismatches++
-    for (let i = 0; i < a.store.length; i++) if (a.store[i] !== b.store[i] || (a.store[i] !== 0 && a.spoint[i] !== b.spoint[i])) mismatches++
+    for (let i = 0; i < a.vibe.length; i++) {
+      if (
+        a.vibe[i] !== b.vibe[i] ||
+        (a.vibe[i] !== 0 && a.point[i] !== b.point[i])
+      ) {
+        mismatches++
+      }
+    }
+
+    for (let i = 0; i < a.store.length; i++) {
+      if (
+        a.store[i] !== b.store[i] ||
+        (a.store[i] !== 0 && a.spoint[i] !== b.spoint[i])
+      ) {
+        mismatches++
+      }
+    }
   }
 
   return mismatches
 }
 
 // ---- L6 ----
-function classicalSector(side: number, beats: number): { branchesMax: number; mismatches: number; like: number; phase: number; split: number; amplitude: string; expected: string } {
+function classicalSector(
+  side: number,
+  beats: number,
+): {
+  branchesMax: number
+  mismatches: number
+  like: number
+  phase: number
+  split: number
+  amplitude: string
+  expected: string
+} {
   const f = lockedFresh(side)
   const flat = new Int16Array(f.cells * 24).fill(f.weave.moves.identity)
   const tables = lockedTables(f.weave, 'lone', flat)
   const uniform = new Int8Array(f.cells * 12)
   const kernel = makeBounceKernel(f.weave, 'lone', 'alternate', flat)
-  const old = bounceRunner(kernel, hubVacuum({ cells: f.cells, store: f.store, layout: uniform }))
+  const old = bounceRunner(
+    kernel,
+    hubVacuum({ cells: f.cells, store: f.store, layout: uniform }),
+  )
   const tally = newTally()
+
   let s = lockedState(vacuumConfiguration(f, 'all', uniform))
   let branchesMax = 1
   let mismatches = 0
@@ -310,8 +469,20 @@ function classicalSector(side: number, beats: number): { branchesMax: number; mi
     const a = old.state()
     const b = s.branches[0] as Configuration
 
-    for (let i = 0; i < a.vibe.length; i++) if (a.vibe[i] !== b.vibe[i] || (a.vibe[i] !== 0 && a.point[i] !== b.point[i])) mismatches++
-    for (let i = 0; i < a.store.length; i++) if (a.store[i] !== b.store[i]) mismatches++
+    for (let i = 0; i < a.vibe.length; i++) {
+      if (
+        a.vibe[i] !== b.vibe[i] ||
+        (a.vibe[i] !== 0 && a.point[i] !== b.point[i])
+      ) {
+        mismatches++
+      }
+    }
+
+    for (let i = 0; i < a.store.length; i++) {
+      if (a.store[i] !== b.store[i]) {
+        mismatches++
+      }
+    }
   }
 
   const b = s.branches[0]!
@@ -319,12 +490,29 @@ function classicalSector(side: number, beats: number): { branchesMax: number; mi
   const m = tally.phaseMeetings % 3
   const expected = m === 0 ? '1,0,0' : m === 1 ? '0,1,0' : '-1,-1,0'
 
-  return { branchesMax, mismatches, like: tally.likeMeetings, phase: tally.phaseMeetings, split: tally.splitMeetings, amplitude: `${b.a},${b.b},${b.k}`, expected }
+  return {
+    branchesMax,
+    mismatches,
+    like: tally.likeMeetings,
+    phase: tally.phaseMeetings,
+    split: tally.splitMeetings,
+    amplitude: `${b.a},${b.b},${b.k}`,
+    expected,
+  }
 }
 
 // ---- L7: one line ----
-function oneLine(): { stepsMatch: boolean; meetingStates: number; meetingMismatches: number; loneKeeps: number; fullFlips: number } {
-  const stepsMatch = (['love', 'fear'] as const).every(kind => stepTable(kind, 'C').every((s, j) => s === LINE_STEP[j]))
+function oneLine(): {
+  stepsMatch: boolean
+  meetingStates: number
+  meetingMismatches: number
+  loneKeeps: number
+  fullFlips: number
+} {
+  const stepsMatch = (['love', 'fear'] as const).every(kind =>
+    stepTable(kind, 'C').every((s, j) => s === LINE_STEP[j]),
+  )
+
   let meetingStates = 0
   let meetingMismatches = 0
 
@@ -336,13 +524,25 @@ function oneLine(): { stepsMatch: boolean; meetingStates: number; meetingMismatc
     for (let j1 = 0; j1 < 3; j1++) {
       for (let j2 = 0; j2 < 3; j2++) {
         const ring = 3
-        const s = lockedPairState({ ring, kinds: [kinds[0], kinds[1]], convention: 'C', unlike: 'knit' }, [{ index: lockedIndex(ring, 0, 0, j1, j2), a: 1n, b: 0n }])
+        const s = lockedPairState(
+          {
+            ring,
+            kinds: [kinds[0], kinds[1]],
+            convention: 'C',
+            unlike: 'knit',
+          },
+          [{ index: lockedIndex(ring, 0, 0, j1, j2), a: 1n, b: 0n }],
+        )
 
         lockedMeetingOnly(s)
 
         const expected = new Map<number, [bigint, bigint]>()
 
-        for (const [k1, k2, a, b] of lineMeeting(kinds[0] === kinds[1], j1, j2)) {
+        for (const [k1, k2, a, b] of lineMeeting(
+          kinds[0] === kinds[1],
+          j1,
+          j2,
+        )) {
           const idx = lockedIndex(ring, 0, 0, k1, k2)
           const [pa, pb] = expected.get(idx) ?? [0n, 0n]
 
@@ -364,6 +564,7 @@ function oneLine(): { stepsMatch: boolean; meetingStates: number; meetingMismatc
   }
 
   const perm = new Int32Array(24)
+
   let loneKeeps = 0
   let fullFlips = 0
 
@@ -372,6 +573,7 @@ function oneLine(): { stepsMatch: boolean; meetingStates: number; meetingMismatc
 
     vibe[d] = 1
     bouncePermutation(BOUNCE_TABLE, 'lone', vibe, 0, perm)
+
     // a zero return leaves perm stale: read the identity then
     const kind = bouncePermutation(BOUNCE_TABLE, 'lone', vibe, 0, perm)
 
@@ -380,8 +582,8 @@ function oneLine(): { stepsMatch: boolean; meetingStates: number; meetingMismatc
 
   for (let l = 0; l < 12; l++) {
     const vibe = new Int8Array(24)
-    const i = LINE_FIRSTS[l] as number
-    const j = LINE_SECONDS[l] as number
+    const i = LINE_FIRSTS[l]!
+    const j = LINE_SECONDS[l]!
 
     vibe[i] = 1
     vibe[j] = 1
@@ -391,19 +593,42 @@ function oneLine(): { stepsMatch: boolean; meetingStates: number; meetingMismatc
     fullFlips += kind !== 0 && perm[i] === j && perm[j] === i ? 1 : 0
   }
 
-  return { stepsMatch, meetingStates, meetingMismatches, loneKeeps, fullFlips }
+  return {
+    stepsMatch,
+    meetingStates,
+    meetingMismatches,
+    loneKeeps,
+    fullFlips,
+  }
 }
 
 // ---- L8: a superposing run ----
-type Superposition = { found: boolean; normExact: boolean; reversed: boolean; branchesMax: number; splits: number; occupations: number }
+type Superposition = {
+  found: boolean
+  normExact: boolean
+  reversed: boolean
+  branchesMax: number
+  splits: number
+  occupations: number
+}
 
 function superposing(beats: number): Superposition {
   const f = lockedFresh(4)
   const all = new Map<number, [number, number]>()
 
-  for (let line = 0; line < f.store.length; line++) if (f.store[line] !== 0) all.set(line, [2 * line, 2 * line + 1])
+  for (let line = 0; line < f.store.length; line++) {
+    if (f.store[line] !== 0) {
+      all.set(line, [2 * line, 2 * line + 1])
+    }
+  }
 
-  const r = idRun(f.tables, f.weave, vacuumConfiguration(f, 'none'), all)
+  const r = idRun(
+    f.tables,
+    f.weave,
+    vacuumConfiguration(f, 'none'),
+    all,
+  )
+
   let pick: [number, number] | undefined
 
   for (let t = 0; t < 12 && !pick; t++) {
@@ -412,24 +637,45 @@ function superposing(beats: number): Superposition {
 
     for (let x = 0; x < f.cells && !pick; x++) {
       for (let l = 0; l < 12 && !pick; l++) {
-        const i = x * 24 + (LINE_FIRSTS[l] as number)
-        const j = x * 24 + (LINE_SECONDS[l] as number)
+        const i = x * 24 + LINE_FIRSTS[l]!
+        const j = x * 24 + LINE_SECONDS[l]!
 
-        if (c.vibe[i] !== 0 && c.vibe[i] === c.vibe[j] && c.point[i] !== c.point[j] && (ids[i] as number) >= 0 && (ids[j] as number) >= 0) pick = [ids[i] as number, ids[j] as number]
+        if (
+          c.vibe[i] !== 0 &&
+          c.vibe[i] === c.vibe[j] &&
+          c.point[i] !== c.point[j] &&
+          ids[i]! >= 0 &&
+          ids[j]! >= 0
+        ) {
+          pick = [ids[i]!, ids[j]!]
+        }
       }
     }
 
     r.beat()
   }
 
-  if (!pick) return { found: false, normExact: false, reversed: false, branchesMax: 0, splits: 0, occupations: 0 }
+  if (!pick) {
+    return {
+      found: false,
+      normExact: false,
+      reversed: false,
+      branchesMax: 0,
+      splits: 0,
+      occupations: 0,
+    }
+  }
 
   const start = vacuumConfiguration(f, 'none')
 
-  for (const id of pick) start.sopen[id >> 1] = (start.sopen[id >> 1] as number) | (1 << (id & 1))
+  for (const id of pick) {
+    start.sopen[id >> 1] = start.sopen[id >> 1]! | (1 << (id & 1))
+  }
 
   let s: LockedState = lockedState(start)
+
   const tally = newTally()
+
   let normExact = true
   let branchesMax = 1
 
@@ -444,20 +690,44 @@ function superposing(beats: number): Superposition {
 
   const occupations: Configuration[] = []
 
-  for (const b of s.branches) if (!occupations.some(o => sameOccupation(o, b))) occupations.push(b)
+  for (const b of s.branches) {
+    if (!occupations.some(o => sameOccupation(o, b))) {
+      occupations.push(b)
+    }
+  }
 
   let back = s
 
-  for (let t = beats - 1; t >= 0; t--) back = lockedBeatBack(f.tables, back, t)
+  for (let t = beats - 1; t >= 0; t--) {
+    back = lockedBeatBack(f.tables, back, t)
+  }
 
   const b0 = back.branches[0]
-  const reversed = back.branches.length === 1 && !!b0 && b0.a === 1n && b0.b === 0n && b0.k === 0 && sameOccupation(b0, start)
+  const reversed =
+    back.branches.length === 1 &&
+    !!b0 &&
+    b0.a === 1n &&
+    b0.b === 0n &&
+    b0.k === 0 &&
+    sameOccupation(b0, start)
 
-  return { found: true, normExact, reversed, branchesMax, splits: tally.splitMeetings, occupations: occupations.length }
+  return {
+    found: true,
+    normExact,
+    reversed,
+    branchesMax,
+    splits: tally.splitMeetings,
+    occupations: occupations.length,
+  }
 }
 
 // ---- L9, L10 ----
-function lazyAndSpin(): { qrNonzero: boolean; schurWorst: number; anticommuteWorst: number; lineWorst: number } {
+function lazyAndSpin(): {
+  qrNonzero: boolean
+  schurWorst: number
+  anticommuteWorst: number
+  lineWorst: number
+} {
   let qrNonzero = true
 
   for (let D = 1; D <= 16; D++) {
@@ -474,23 +744,39 @@ function lazyAndSpin(): { qrNonzero: boolean; schurWorst: number; anticommuteWor
       for (const imaginary of [false, true]) {
         const y = axisTwirl(axis, false, basisOperator(e, imaginary))
 
-        for (const k of [2, 5, 6, 7]) schurWorst = Math.max(schurWorst, Math.hypot(y.re[k] as number, y.im[k] as number))
+        for (const k of [2, 5, 6, 7]) {
+          schurWorst = Math.max(
+            schurWorst,
+            Math.hypot(y.re[k]!, y.im[k]!),
+          )
+        }
       }
     }
   }
 
   const g = [0, 1, 2].map(a => axisGenerator(a))
+
   let anticommuteWorst = 0
   let lineWorst = 0
 
   for (let a = 0; a < 3; a++) {
-    for (const k of [2, 5, 6, 7, 8]) lineWorst = Math.max(lineWorst, Math.hypot(g[a]!.re[k] as number, g[a]!.im[k] as number))
+    for (const k of [2, 5, 6, 7, 8]) {
+      lineWorst = Math.max(
+        lineWorst,
+        Math.hypot(g[a]!.re[k]!, g[a]!.im[k]!),
+      )
+    }
 
     for (let b = a + 1; b < 3; b++) {
       const p = multiply3(g[a]!, g[b]!)
       const q = multiply3(g[b]!, g[a]!)
 
-      for (let i = 0; i < 9; i++) anticommuteWorst = Math.max(anticommuteWorst, Math.hypot((p.re[i] as number) + (q.re[i] as number), (p.im[i] as number) + (q.im[i] as number)))
+      for (let i = 0; i < 9; i++) {
+        anticommuteWorst = Math.max(
+          anticommuteWorst,
+          Math.hypot(p.re[i]! + q.re[i]!, p.im[i]! + q.im[i]!),
+        )
+      }
     }
   }
 
@@ -498,7 +784,11 @@ function lazyAndSpin(): { qrNonzero: boolean; schurWorst: number; anticommuteWor
 }
 
 // ---- P1: the all-open vacuum is not in the classical sector ----
-function sensitivity(): { meetings: number; equal: number; changed: number } {
+function sensitivity(): {
+  meetings: number
+  equal: number
+  changed: number
+} {
   const f = lockedFresh(4)
   const keep = pathRunner(f.tables, vacuumConfiguration(f, 'all'), 0)
   const history: Configuration[] = [cloneConfiguration(keep.state())]
@@ -513,14 +803,16 @@ function sensitivity(): { meetings: number; equal: number; changed: number } {
   let changed = 0
 
   for (let t0 = 1; t0 <= 3; t0++) {
-    const s = history[t0] as Configuration
+    const s = history[t0]!
 
     for (let x = 0; x < f.cells; x++) {
       for (let l = 0; l < 12; l++) {
-        const i = x * 24 + (LINE_FIRSTS[l] as number)
-        const j = x * 24 + (LINE_SECONDS[l] as number)
+        const i = x * 24 + LINE_FIRSTS[l]!
+        const j = x * 24 + LINE_SECONDS[l]!
 
-        if (s.vibe[i] === 0 || s.vibe[i] !== s.vibe[j]) continue
+        if (s.vibe[i] === 0 || s.vibe[i] !== s.vibe[j]) {
+          continue
+        }
 
         if (s.point[i] === s.point[j]) {
           equal++
@@ -530,17 +822,18 @@ function sensitivity(): { meetings: number; equal: number; changed: number } {
         meetings++
 
         const p = cloneConfiguration(s)
-        const a = p.point[i] as number
+        const a = p.point[i]!
 
-        p.point[i] = p.point[j] as number
+        p.point[i] = p.point[j]!
         p.point[j] = a
 
         const run = pathRunner(f.tables, p, 0, t0)
+
         let differs = false
 
         for (let k = 0; k < 2 && !differs; k++) {
           run.beat()
-          differs = !sameOccupation(run.state(), history[t0 + k + 1] as Configuration)
+          differs = !sameOccupation(run.state(), history[t0 + k + 1]!)
         }
 
         changed += differs ? 1 : 0
@@ -562,7 +855,10 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const l1 = lockIsStream(8)
     const l2 = orderFree(8)
     const l34 = meetingChecks()
@@ -591,16 +887,53 @@ export default experiment({
     const gL1 = l1.mismatches === 0
     const gL2 = l2.mismatches === 0
     const gL3 = l34.unlikeIdentityC && l34.unlikeActsCprime
-    const gL4 = l34.likeTerms && l34.unitary && l34.symmetric && l34.chargeBlind
+    const gL4 =
+      l34.likeTerms && l34.unitary && l34.symmetric && l34.chargeBlind
     const gL5 = perStart.every(p => p.l5 === 0)
-    const gL6 = l6.every(r => r.branchesMax === 1 && r.mismatches === 0 && r.split === 0 && r.amplitude === r.expected && r.phase === r.like && r.like > 0)
-    const gL7 = l7.stepsMatch && l7.meetingMismatches === 0 && l7.loneKeeps === 24 && l7.fullFlips === 12
-    const gL8 = perStart.every(p => p.l8.found && p.l8.normExact && p.l8.reversed && p.l8.splits > 0)
+    const gL6 = l6.every(
+      r =>
+        r.branchesMax === 1 &&
+        r.mismatches === 0 &&
+        r.split === 0 &&
+        r.amplitude === r.expected &&
+        r.phase === r.like &&
+        r.like > 0,
+    )
+    const gL7 =
+      l7.stepsMatch &&
+      l7.meetingMismatches === 0 &&
+      l7.loneKeeps === 24 &&
+      l7.fullFlips === 12
+    const gL8 = perStart.every(
+      p =>
+        p.l8.found &&
+        p.l8.normExact &&
+        p.l8.reversed &&
+        p.l8.splits > 0,
+    )
     const gL9 = l910.qrNonzero && l910.schurWorst < 1e-12
     const gL10 = l910.anticommuteWorst < 1e-12 && l910.lineWorst < 1e-12
-    const gP1 = perStart.every(p => p.p1.meetings > 0 && p.p1.changed === p.p1.meetings)
-    const status = gL1 && gL2 && gL3 && gL4 && gL5 && gL6 && gL7 && gL8 && gL9 && gL10 && gP1 ? 'pass' : 'fail'
-    const range = (xs: number[]): string => (Math.min(...xs) === Math.max(...xs) ? `${Math.min(...xs)}` : `${Math.min(...xs)} to ${Math.max(...xs)}`)
+    const gP1 = perStart.every(
+      p => p.p1.meetings > 0 && p.p1.changed === p.p1.meetings,
+    )
+    const status =
+      gL1 &&
+      gL2 &&
+      gL3 &&
+      gL4 &&
+      gL5 &&
+      gL6 &&
+      gL7 &&
+      gL8 &&
+      gL9 &&
+      gL10 &&
+      gP1
+        ? 'pass'
+        : 'fail'
+    const range = (xs: number[]): string =>
+      Math.min(...xs) === Math.max(...xs)
+        ? `${Math.min(...xs)}`
+        : `${Math.min(...xs)} to ${Math.max(...xs)}`
 
     return verdict({
       status,
@@ -613,10 +946,18 @@ export default experiment({
         gateL5: perStart.filter(p => p.l5 === 0).length,
         gateL6: gL6 ? 1 : 0,
         gateL7: gL7 ? 1 : 0,
-        gateL8: perStart.filter(p => p.l8.found && p.l8.normExact && p.l8.reversed && p.l8.splits > 0).length,
+        gateL8: perStart.filter(
+          p =>
+            p.l8.found &&
+            p.l8.normExact &&
+            p.l8.reversed &&
+            p.l8.splits > 0,
+        ).length,
         gateL9: gL9 ? 1 : 0,
         gateL10: gL10 ? 1 : 0,
-        gateP1: perStart.filter(p => p.p1.meetings > 0 && p.p1.changed === p.p1.meetings).length,
+        gateP1: perStart.filter(
+          p => p.p1.meetings > 0 && p.p1.changed === p.p1.meetings,
+        ).length,
         starts: family.length,
         lockSlots: l1.slots,
         lockMismatches: l1.mismatches,
@@ -630,19 +971,28 @@ export default experiment({
         loneKeeps: l7.loneKeeps,
         fullFlips: l7.fullFlips,
         superposeSplitsMin: Math.min(...perStart.map(p => p.l8.splits)),
-        superposeBranchesMax: Math.max(...perStart.map(p => p.l8.branchesMax)),
-        superposeOccupationsMax: Math.max(...perStart.map(p => p.l8.occupations)),
+        superposeBranchesMax: Math.max(
+          ...perStart.map(p => p.l8.branchesMax),
+        ),
+        superposeOccupationsMax: Math.max(
+          ...perStart.map(p => p.l8.occupations),
+        ),
         schurWorst: l910.schurWorst,
         anticommuteWorst: l910.anticommuteWorst,
         generatorLineWorst: l910.lineWorst,
-        vacuumUnequalLikeMin: Math.min(...perStart.map(p => p.p1.meetings)),
+        vacuumUnequalLikeMin: Math.min(
+          ...perStart.map(p => p.p1.meetings),
+        ),
         vacuumEqualLikeMax: Math.max(...perStart.map(p => p.p1.equal)),
         vacuumChangedMin: Math.min(...perStart.map(p => p.p1.changed)),
         seconds: (Date.now() - started) / 1000,
       },
       control: {
         unlikeActsUnderCprime: l34.unlikeActsCprime ? 1 : 0,
-        bookkeepingMismatchesTotal: perStart.reduce((s, p) => s + p.l5, 0),
+        bookkeepingMismatchesTotal: perStart.reduce(
+          (s, p) => s + p.l5,
+          0,
+        ),
       },
       notes: `L2 (L1 for the theorems). Gates: L1 ${gL1}, L2 ${gL2}, L3 ${gL3} (identity under C ${l34.unlikeIdentityC}, acts under C' ${l34.unlikeActsCprime}), L4 ${gL4} (${JSON.stringify(l34)}), L5 ${perStart.filter(p => p.l5 === 0).length} of ${family.length}, L6 ${gL6} (${JSON.stringify(l6)}), L7 ${gL7} (${JSON.stringify(l7)}), L8 ${perStart.filter(p => p.l8.normExact && p.l8.reversed).length} of ${family.length}, L9 ${gL9}, L10 ${gL10} (${JSON.stringify(l910)}), P1 ${perStart.filter(p => p.p1.changed === p.p1.meetings && p.p1.meetings > 0).length} of ${family.length}. Per start (L5 mismatches; L8 splits, branches max, occupations at beat 48, norm, reversal; P1 unequal-point like meetings, equal-point, changed): ${perStart.map(p => `${p.name} ${p.l5}; ${p.l8.splits}, ${p.l8.branchesMax}, ${p.l8.occupations}, ${p.l8.normExact}, ${p.l8.reversed}; ${p.p1.meetings}, ${p.p1.equal}, ${p.p1.changed}`).join(' | ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })

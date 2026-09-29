@@ -68,7 +68,17 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { bulkGaussViolations, bulkFlux, columnSumLinks, emptyTritState, huskGaussViolations, makeTritLight, tritLightBeat, type TritLight, type TritState } from '@/code/rule/trit-column'
+import {
+  bulkGaussViolations,
+  bulkFlux,
+  columnSumLinks,
+  emptyTritState,
+  huskGaussViolations,
+  makeTritLight,
+  tritLightBeat,
+  type TritLight,
+  type TritState,
+} from '@/code/rule/trit-column'
 import { huskGreenDifference } from '@/code/measure/trit-hop-light'
 import { weyl, GOLDEN, SILVER } from '@/code/tool/weyl'
 import {
@@ -94,18 +104,37 @@ const DIRECTIONS: { name: string; unit: number[]; count: number }[] = [
   { name: 'body', unit: [1, 1, 1], count: 8 },
 ]
 
-type Fit = { g0: number; tail: number; tailShort: number; predicted: number; ratio: number; worstUnity: number; unity: number[]; rs: number[]; scaled: number[] }
+type Fit = {
+  g0: number
+  tail: number
+  tailShort: number
+  predicted: number
+  ratio: number
+  worstUnity: number
+  unity: number[]
+  rs: number[]
+  scaled: number[]
+}
 
-function greenStudy(kind: SymbolKind): { fits: Record<string, Fit>; g0: number; imageChange: number } {
+function greenStudy(kind: SymbolKind): {
+  fits: Record<string, Fit>
+  g0: number
+  imageChange: number
+} {
   const points: number[][] = []
 
-  for (const dir of DIRECTIONS) for (let n = 1; n <= dir.count; n++) points.push(dir.unit.map(x => x * n))
+  for (const dir of DIRECTIONS) {
+    for (let n = 1; n <= dir.count; n++) {
+      points.push(dir.unit.map(x => x * n))
+    }
+  }
 
   const green = infiniteGreenThree(kind, SIDE, points)
   const g0 = infiniteGreenZero(kind, SIDE).value
   const c = continuumCoefficient(kind)
   const p = tailPower(kind)
   const fits: Record<string, Fit> = {}
+
   let at = 0
 
   for (const dir of DIRECTIONS) {
@@ -124,7 +153,10 @@ function greenStudy(kind: SymbolKind): { fits: Record<string, Fit>; g0: number; 
 
     const tail = richardsonTail(rs, scaled)
     // the same two radii earlier: how settled the reading is
-    const tailShort = richardsonTail(rs.slice(0, -2), scaled.slice(0, -2))
+    const tailShort = richardsonTail(
+      rs.slice(0, -2),
+      scaled.slice(0, -2),
+    )
     const predicted = tailCoefficient(kind, dir.unit)
     // 24 pi r (G0 - V) for the husk, 4 pi r (G0 - V) for the cubic: r (G0 - V) / c
     const unity = rs.map((r, i) => (r * (g0 - v[i]!)) / c)
@@ -135,7 +167,9 @@ function greenStudy(kind: SymbolKind): { fits: Record<string, Fit>; g0: number; 
       tailShort,
       predicted,
       ratio: tail / predicted,
-      worstUnity: Math.max(...unity.map((x, i) => (rs[i]! >= 6 ? Math.abs(x - 1) : 0))),
+      worstUnity: Math.max(
+        ...unity.map((x, i) => (rs[i]! >= 6 ? Math.abs(x - 1) : 0)),
+      ),
       unity,
       rs,
       scaled,
@@ -147,38 +181,70 @@ function greenStudy(kind: SymbolKind): { fits: Record<string, Fit>; g0: number; 
 
 // the bulk symbol sum over the 24 roots of (1 - cos k . rho)
 function bulkSymbol(k: readonly number[]): number {
-  return rootsD4().reduce((s, r) => s + 1 - Math.cos(r.reduce((a, x, i) => a + x * (k[i] ?? 0), 0)), 0)
+  return rootsD4().reduce(
+    (s, r) =>
+      s + 1 - Math.cos(r.reduce((a, x, i) => a + x * (k[i] ?? 0), 0)),
+    0,
+  )
 }
 
-function runConfiguration(light: TritLight, place: (s: TritState) => void, beats: number): { energy: number; drift: number; bulkGauss: number; huskGauss: number } {
+function runConfiguration(
+  light: TritLight,
+  place: (s: TritState) => void,
+  beats: number,
+): {
+  energy: number
+  drift: number
+  bulkGauss: number
+  huskGauss: number
+} {
   const s = emptyTritState(light)
 
   place(s)
 
   const first = longitudinalEnergy(light, s).longitudinal
+
   let drift = 0
   let bulkGauss = bulkGaussViolations(light, s)
-  let huskGauss = huskGaussViolations(light, columnSumLinks(light, bulkFlux(light, s)), s.vibe)
+  let huskGauss = huskGaussViolations(
+    light,
+    columnSumLinks(light, bulkFlux(light, s)),
+    s.vibe,
+  )
 
   for (let t = 0; t < beats; t++) {
     tritLightBeat(light, s)
     bulkGauss += bulkGaussViolations(light, s)
-    huskGauss += huskGaussViolations(light, columnSumLinks(light, bulkFlux(light, s)), s.vibe)
-    drift = Math.max(drift, Math.abs(longitudinalEnergy(light, s).longitudinal - first))
+    huskGauss += huskGaussViolations(
+      light,
+      columnSumLinks(light, bulkFlux(light, s)),
+      s.vibe,
+    )
+
+    drift = Math.max(
+      drift,
+      Math.abs(longitudinalEnergy(light, s).longitudinal - first),
+    )
   }
 
   return { energy: first, drift, bulkGauss, huskGauss }
 }
 
-function ruleStudy(): { metrics: Record<string, number>; g3: boolean; g4: boolean } {
+function ruleStudy(): {
+  metrics: Record<string, number>
+  g3: boolean
+  g4: boolean
+} {
   const depth = 4
   const side = 8
   const beats = 48
   const light = makeTritLight({ side, depth, form: 'wave' })
   const metrics: Record<string, number> = {}
   const scale = Math.PI / depth
+
   let g3 = true
   let g4 = true
+
   const unlike: number[] = []
   const like: number[] = []
 
@@ -187,18 +253,52 @@ function ruleStudy(): { metrics: Record<string, number>; g3: boolean; g4: boolea
     const b = dockOfColumn(light, [r, 0, 0], 0)
     const z1 = dockOfColumn(light, [0, 4, 4], 0)
     const runs = {
-      four: runConfiguration(light, s => {
-        placeStrung(light, s, a, [0, 4, 4], 1)
-        placeStrung(light, s, b, [0, 4, 4], 1)
-      }, beats),
-      aZ1: runConfiguration(light, s => void placeStrung(light, s, a, [0, 4, 4], 1), beats),
-      bZ2: runConfiguration(light, s => void placeStrung(light, s, b, [0, 4, 4], 1), beats),
-      aZ2: runConfiguration(light, s => void placeStrung(light, s, a, [r, 4, 4], 1), beats),
-      bZ1: runConfiguration(light, s => void placeStrung(light, s, b, [side - r, 4, 4], 1), beats),
-      z1Z2: runConfiguration(light, s => void placeStrung(light, s, z1, [r, 0, 0], 1), beats),
-      ab: runConfiguration(light, s => void placeStrung(light, s, a, [r, 0, 0], 1), beats),
+      four: runConfiguration(
+        light,
+        s => {
+          placeStrung(light, s, a, [0, 4, 4], 1)
+          placeStrung(light, s, b, [0, 4, 4], 1)
+        },
+        beats,
+      ),
+      aZ1: runConfiguration(
+        light,
+        s => void placeStrung(light, s, a, [0, 4, 4], 1),
+        beats,
+      ),
+      bZ2: runConfiguration(
+        light,
+        s => void placeStrung(light, s, b, [0, 4, 4], 1),
+        beats,
+      ),
+      aZ2: runConfiguration(
+        light,
+        s => void placeStrung(light, s, a, [r, 4, 4], 1),
+        beats,
+      ),
+      bZ1: runConfiguration(
+        light,
+        s => void placeStrung(light, s, b, [side - r, 4, 4], 1),
+        beats,
+      ),
+      z1Z2: runConfiguration(
+        light,
+        s => void placeStrung(light, s, z1, [r, 0, 0], 1),
+        beats,
+      ),
+      ab: runConfiguration(
+        light,
+        s => void placeStrung(light, s, a, [r, 0, 0], 1),
+        beats,
+      ),
     }
-    const w = runs.four.energy - runs.aZ1.energy - runs.bZ2.energy - runs.aZ2.energy - runs.bZ1.energy + runs.z1Z2.energy
+    const w =
+      runs.four.energy -
+      runs.aZ1.energy -
+      runs.bZ2.energy -
+      runs.aZ2.energy -
+      runs.bZ1.energy +
+      runs.z1Z2.energy
     const u = runs.ab.energy
     const green = scale * huskGreenDifference(side, [r, 0, 0])
     const greenFar = scale * huskGreenDifference(side, [0, 4, 4])
@@ -207,13 +307,21 @@ function ruleStudy(): { metrics: Record<string, number>; g3: boolean; g4: boolea
     like.push(w)
 
     for (const [name, run] of Object.entries(runs)) {
-      g3 = g3 && run.bulkGauss === 0 && run.huskGauss === 0 && run.drift < 1e-9
+      g3 =
+        g3 &&
+        run.bulkGauss === 0 &&
+        run.huskGauss === 0 &&
+        run.drift < 1e-9
       metrics[`rule_r${r}_${name}_energy`] = run.energy
       metrics[`rule_r${r}_${name}_drift`] = run.drift
-      metrics[`rule_r${r}_${name}_gauss`] = run.bulkGauss + run.huskGauss
+      metrics[`rule_r${r}_${name}_gauss`] =
+        run.bulkGauss + run.huskGauss
     }
 
-    g3 = g3 && Math.abs(u - green) < 1e-9 && Math.abs(runs.aZ1.energy - greenFar) < 1e-9
+    g3 =
+      g3 &&
+      Math.abs(u - green) < 1e-9 &&
+      Math.abs(runs.aZ1.energy - greenFar) < 1e-9
     metrics[`rule_r${r}_unlike`] = u
     metrics[`rule_r${r}_like`] = w
     metrics[`rule_r${r}_sum`] = w + u
@@ -224,8 +332,13 @@ function ruleStudy(): { metrics: Record<string, number>; g3: boolean; g4: boolea
   for (let i = 1; i < unlike.length; i++) {
     g4 = g4 && unlike[i]! > unlike[i - 1]! && like[i]! < like[i - 1]!
     // the force per crossing: minus the energy's step (like: positive = pushes apart)
-    metrics[`rule_forceLike_${i}to${i + 1}`] = -(like[i]! - like[i - 1]!)
-    metrics[`rule_forceUnlike_${i}to${i + 1}`] = -(unlike[i]! - unlike[i - 1]!)
+    metrics[`rule_forceLike_${i}to${i + 1}`] = -(
+      like[i]! - like[i - 1]!
+    )
+
+    metrics[`rule_forceUnlike_${i}to${i + 1}`] = -(
+      unlike[i]! - unlike[i - 1]!
+    )
   }
 
   return { metrics, g3, g4 }
@@ -247,37 +360,60 @@ export default experiment({
     // S: moments and series
     const husk = momentIdentityFailures('husk', 4)
     const cubic = momentIdentityFailures('cubic', 4)
+
     // the cubic's quartic against the isotropic form: count vectors where p4 != (p2)^2 (always, off the axes)
     let cubicQuarticAniso = 0
 
-    for (let a = -4; a <= 4; a++) for (let b = -4; b <= 4; b++) for (let c = -4; c <= 4; c++) cubicQuarticAniso += a ** 4 + b ** 4 + c ** 4 === (a * a + b * b + c * c) ** 2 ? 0 : 1
+    for (let a = -4; a <= 4; a++) {
+      for (let b = -4; b <= 4; b++) {
+        for (let c = -4; c <= 4; c++) {
+          cubicQuarticAniso +=
+            a ** 4 + b ** 4 + c ** 4 === (a * a + b * b + c * c) ** 2
+              ? 0
+              : 1
+        }
+      }
+    }
 
     let seriesOk = true
 
     for (let j = 1; j <= 3; j++) {
-      const dir = [weyl(j, GOLDEN) - 0.5, weyl(j, SILVER) - 0.5, weyl(j + 7, GOLDEN) - 0.5]
+      const dir = [
+        weyl(j, GOLDEN) - 0.5,
+        weyl(j, SILVER) - 0.5,
+        weyl(j + 7, GOLDEN) - 0.5,
+      ]
       const norm = Math.hypot(...dir)
+
       const at = (s: number): number => {
         const k = dir.map(x => (s * x) / norm)
 
         return Math.abs(symbolAt('husk', k) - symbolSeries('husk', k))
       }
+
       const ratio = at(0.2) / at(0.1)
 
       metrics[`seriesRatio${j}`] = ratio
       seriesOk = seriesOk && ratio >= 200 && ratio <= 312
     }
 
-    metrics.huskMomentFailures = husk.quadratic + husk.quartic + husk.sextic
+    metrics.huskMomentFailures =
+      husk.quadratic + husk.quartic + husk.sextic
     metrics.momentVectors = husk.checked
-    metrics.cubicMomentFailures = cubic.quadratic + cubic.quartic + cubic.sextic
+    metrics.cubicMomentFailures =
+      cubic.quadratic + cubic.quartic + cubic.sextic
     metrics.cubicQuarticAnisotropic = cubicQuarticAniso
 
-    const gateS = husk.quadratic + husk.quartic + husk.sextic === 0 && cubic.quadratic + cubic.quartic + cubic.sextic === 0 && cubicQuarticAniso > 0 && seriesOk
+    const gateS =
+      husk.quadratic + husk.quartic + husk.sextic === 0 &&
+      cubic.quadratic + cubic.quartic + cubic.sextic === 0 &&
+      cubicQuarticAniso > 0 &&
+      seriesOk
 
     // G1, G2: the Green's functions
     const hs = greenStudy('husk')
     const cs = greenStudy('cubic')
+
     let gate1 = true
 
     for (const dir of DIRECTIONS) {
@@ -287,17 +423,25 @@ export default experiment({
       metrics[`husk_${dir.name}_tail`] = h.tail
       metrics[`husk_${dir.name}_tailPredicted`] = h.predicted
       metrics[`husk_${dir.name}_tailRatio`] = h.ratio
-      metrics[`husk_${dir.name}_tailRatioTwoRadiiEarlier`] = h.tailShort / h.predicted
+      metrics[`husk_${dir.name}_tailRatioTwoRadiiEarlier`] =
+        h.tailShort / h.predicted
       metrics[`husk_${dir.name}_worstUnityAtLeast6`] = h.worstUnity
       metrics[`cubic_${dir.name}_tail`] = c.tail
       metrics[`cubic_${dir.name}_tailPredicted`] = c.predicted
       metrics[`cubic_${dir.name}_tailRatio`] = c.ratio
-      metrics[`cubic_${dir.name}_tailRatioTwoRadiiEarlier`] = c.tailShort / c.predicted
+      metrics[`cubic_${dir.name}_tailRatioTwoRadiiEarlier`] =
+        c.tailShort / c.predicted
+
       h.rs.forEach((r, i) => {
         metrics[`husk_${dir.name}_unity_r${r.toFixed(3)}`] = h.unity[i]!
-        metrics[`husk_${dir.name}_scaledTail_r${r.toFixed(3)}`] = h.scaled[i]!
+        metrics[`husk_${dir.name}_scaledTail_r${r.toFixed(3)}`] =
+          h.scaled[i]!
       })
-      gate1 = gate1 && Math.abs(h.ratio - 1) < 0.02 && Math.abs(c.ratio - 1) < 0.02
+
+      gate1 =
+        gate1 &&
+        Math.abs(h.ratio - 1) < 0.02 &&
+        Math.abs(c.ratio - 1) < 0.02
     }
 
     const watson = 0.252731009858933
@@ -309,7 +453,9 @@ export default experiment({
     metrics.cubicImageChange = cs.imageChange
 
     const g0Spread = Math.abs(cs.g0 - watson)
-    const gate2 = g0Spread < 1e-9 && DIRECTIONS.every(d => hs.fits[d.name]!.worstUnity < 2e-4)
+    const gate2 =
+      g0Spread < 1e-9 &&
+      DIRECTIONS.every(d => hs.fits[d.name]!.worstUnity < 2e-4)
 
     // G3, G4: the trit rule
     const rule = ruleStudy()
@@ -321,15 +467,25 @@ export default experiment({
     let bulkGap = 0
 
     for (let i = 1; i <= 64; i++) {
-      const k = [2 * Math.PI * weyl(i, GOLDEN), 2 * Math.PI * weyl(i, SILVER), 2 * Math.PI * weyl(i + 101, GOLDEN)]
+      const k = [
+        2 * Math.PI * weyl(i, GOLDEN),
+        2 * Math.PI * weyl(i, SILVER),
+        2 * Math.PI * weyl(i + 101, GOLDEN),
+      ]
 
-      bulkHusk = Math.max(bulkHusk, Math.abs(bulkSymbol([...k, 0]) - symbolAt('husk', k)))
+      bulkHusk = Math.max(
+        bulkHusk,
+        Math.abs(bulkSymbol([...k, 0]) - symbolAt('husk', k)),
+      )
     }
 
     for (let i = 1; i <= 16; i++) {
       const k4 = 2 * Math.PI * weyl(i, SILVER)
 
-      bulkGap = Math.max(bulkGap, Math.abs(bulkSymbol([0, 0, 0, k4]) - 12 * (1 - Math.cos(k4))))
+      bulkGap = Math.max(
+        bulkGap,
+        Math.abs(bulkSymbol([0, 0, 0, k4]) - 12 * (1 - Math.cos(k4))),
+      )
     }
 
     metrics.bulkHuskSymbolDifference = bulkHusk
@@ -344,13 +500,26 @@ export default experiment({
     }
 
     const gate5 = bulkHusk < 1e-12 && bulkGap < 1e-12
-    const gates = { S: gateS, G1: gate1, G2: gate2, G3: rule.g3, G4: rule.g4, G5: gate5 }
+    const gates = {
+      S: gateS,
+      G1: gate1,
+      G2: gate2,
+      G3: rule.g3,
+      G4: rule.g4,
+      G5: gate5,
+    }
 
-    for (const [k, v] of Object.entries(gates)) metrics[`gate${k}`] = v ? 1 : 0
+    for (const [k, v] of Object.entries(gates)) {
+      metrics[`gate${k}`] = v ? 1 : 0
+    }
 
     metrics.seconds = (Date.now() - started) / 1000
 
-    const status = Object.values(gates).every(Boolean) ? 'pass' : gateS && rule.g3 && rule.g4 ? 'partial' : 'fail'
+    const status = Object.values(gates).every(Boolean)
+      ? 'pass'
+      : gateS && rule.g3 && rule.g4
+        ? 'partial'
+        : 'fail'
     const f = (x: number): string => x.toPrecision(5)
 
     return verdict({

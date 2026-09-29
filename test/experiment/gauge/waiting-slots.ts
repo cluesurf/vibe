@@ -94,9 +94,15 @@ function structure(rule: WaitingSlots): {
   log: BeatLog
 } {
   const start = dense(rule, 1.37)
-  const charge = (s: WaitingState): number => s.vibe.reduce((a, b) => a + b, 0)
+  const charge = (s: WaitingState): number =>
+    s.vibe.reduce((a, b) => a + b, 0)
   const e0 = waitingEnergy(rule, start)
-  const log: BeatLog = { paid: 0, unpaid: 0, created: 0, annihilated: 0 }
+  const log: BeatLog = {
+    paid: 0,
+    unpaid: 0,
+    created: 0,
+    annihilated: 0,
+  }
 
   let s = start
   let leaks = 0
@@ -118,13 +124,18 @@ function structure(rule: WaitingSlots): {
 
   // a change of role frame in every cell, links changed to match
   const { moves, mesh, neighbour } = rule
-  const frame = Array.from({ length: mesh.cellCount }, (_, x) => Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * moves.act.length))
+  const frame = Array.from({ length: mesh.cellCount }, (_, x) =>
+    Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * moves.act.length),
+  )
   const links = new Int16Array(rule.links.length)
 
   for (let x = 0; x < mesh.cellCount; x++) {
     for (let d = 0; d < 24; d++) {
       links[x * 24 + d] = moves.compose(
-        moves.compose(frame[neighbour[x * 24 + d] ?? 0] ?? moves.identity, rule.links[x * 24 + d] ?? moves.identity),
+        moves.compose(
+          frame[neighbour[x * 24 + d] ?? 0] ?? moves.identity,
+          rule.links[x * 24 + d] ?? moves.identity,
+        ),
         moves.inverse[frame[x] ?? moves.identity] ?? moves.identity,
       )
     }
@@ -133,7 +144,13 @@ function structure(rule: WaitingSlots): {
   const gauged: WaitingSlots = { ...rule, links }
   const gauge = (state: WaitingState): WaitingState => ({
     ...state,
-    role: Int8Array.from(state.role, (p, i) => moves.act[frame[Math.floor(i / SLOTS)] ?? moves.identity]?.[p] ?? 0),
+    role: Int8Array.from(
+      state.role,
+      (p, i) =>
+        moves.act[frame[Math.floor(i / SLOTS)] ?? moves.identity]?.[
+          p
+        ] ?? 0,
+    ),
   })
 
   let a = dense(rule, 2.11)
@@ -146,16 +163,39 @@ function structure(rule: WaitingSlots): {
     frameFree = frameFree && same(gauge(a), b)
   }
 
-  return { reverses: same(s, start), chargeKept, energyKept, gauss, leaks, cellBeats: BEATS * mesh.cellCount, frameFree, log }
+  return {
+    reverses: same(s, start),
+    chargeKept,
+    energyKept,
+    gauss,
+    leaks,
+    cellBeats: BEATS * mesh.cellCount,
+    frameFree,
+    log,
+  }
 }
 
 // the cell where nothing can be paid: how many of the 13 places of a lone charge end in a moving slot it
 // cannot pay for, and whether the 13 end in 13 different places
-function blocked(input: { orientation: number; order: PassOrder; tension: number; sign: number }): { places: number; unpaid: number; distinct: number } {
+function blocked(input: {
+  orientation: number
+  order: PassOrder
+  tension: number
+  sign: number
+}): { places: number; unpaid: number; distinct: number } {
   const { orientation, order, tension, sign } = input
-  const rule = makeWaitingSlots({ side: 3, orientation, mass: 4, tension, order })
+  const rule = makeWaitingSlots({
+    side: 3,
+    orientation,
+    mass: 4,
+    tension,
+    order,
+  })
   const x = Math.floor(rule.mesh.cellCount / 2)
-  const places = [...(rule.classes[sign > 0 ? 0 : 1] ?? []), sign > 0 ? WAIT_PLUS : WAIT_MINUS]
+  const places = [
+    ...(rule.classes[sign > 0 ? 0 : 1] ?? []),
+    sign > 0 ? WAIT_PLUS : WAIT_MINUS,
+  ]
   const ends = places.map(p => {
     const s = emptyWaitingState(rule)
 
@@ -164,17 +204,34 @@ function blocked(input: { orientation: number; order: PassOrder; tension: number
 
     const at = s.vibe.findIndex(v => v !== 0)
 
-    return { slot: at - x * SLOTS, unpaid: at - x * SLOTS < 24 && !canPay(rule, s, x, at - x * SLOTS, sign) }
+    return {
+      slot: at - x * SLOTS,
+      unpaid:
+        at - x * SLOTS < 24 &&
+        !canPay(rule, s, x, at - x * SLOTS, sign),
+    }
   })
 
-  return { places: places.length, unpaid: ends.filter(e => e.unpaid).length, distinct: new Set(ends.map(e => e.slot)).size }
+  return {
+    places: places.length,
+    unpaid: ends.filter(e => e.unpaid).length,
+    distinct: new Set(ends.map(e => e.slot)).size,
+  }
 }
 
 // a lone love with no tension from each of its directions: how many come back to their start, and how far
 // they are after the run
-function lone(orientation: number): { returning: number; meanDistance: number } {
+function lone(orientation: number): {
+  returning: number
+  meanDistance: number
+} {
   const roots = rootsD4()
-  const rule = makeWaitingSlots({ side: 5, orientation, mass: 4, tension: 0 })
+  const rule = makeWaitingSlots({
+    side: 5,
+    orientation,
+    mass: 4,
+    tension: 0,
+  })
   const x = Math.floor(rule.mesh.cellCount / 2)
   const runs = (rule.classes[0] ?? []).map(h => {
     let s = emptyWaitingState(rule)
@@ -193,7 +250,10 @@ function lone(orientation: number): { returning: number; meanDistance: number } 
       const now = Math.floor(s.tag.indexOf(1) / SLOTS)
 
       if (now !== cell) {
-        const d = Array.from({ length: 24 }, (_, i) => i).find(i => rule.neighbour[cell * 24 + i] === now) ?? -1
+        const d =
+          Array.from({ length: 24 }, (_, i) => i).find(
+            i => rule.neighbour[cell * 24 + i] === now,
+          ) ?? -1
 
         at = at.map((v, i) => v + (roots[d]?.[i] ?? Number.NaN))
         cell = now
@@ -206,14 +266,18 @@ function lone(orientation: number): { returning: number; meanDistance: number } 
     return { returned, distance: Math.hypot(...at) }
   })
 
-  return { returning: runs.filter(r => r.returned).length, meanDistance: runs.reduce((a, r) => a + r.distance, 0) / runs.length }
+  return {
+    returning: runs.filter(r => r.returned).length,
+    meanDistance:
+      runs.reduce((a, r) => a + r.distance, 0) / runs.length,
+  }
 }
 
 export default experiment({
   id: 'gauge/waiting-slots',
   code: 'E-FRC-0132',
   title:
-    "the waiting-slot rule built as the path argued it (two waiting slots per cell, a returning orientation, local color, a paid clock and a paid move) is exact in every structural gate, but a charge that cannot pay cannot wait: in a cell where no direction can be paid, 12 of the 13 places a lone charge can be in must cross unpaid, for any number of waiting slots, so its demons go into debt",
+    'the waiting-slot rule built as the path argued it (two waiting slots per cell, a returning orientation, local color, a paid clock and a paid move) is exact in every structural gate, but a charge that cannot pay cannot wait: in a cell where no direction can be paid, 12 of the 13 places a lone charge can be in must cross unpaid, for any number of waiting slots, so its demons go into debt',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -223,13 +287,31 @@ export default experiment({
     const triangles = plusTriangles(orientation).length
     const committedTriangles = plusTriangles(0).length
 
-    const rule = makeWaitingSlots({ side: 3, orientation, mass: 4, tension: 1 })
-    const crossed = makeWaitingSlots({ side: 3, orientation, mass: 4, tension: 1, pairing: 'crossed' })
+    const rule = makeWaitingSlots({
+      side: 3,
+      orientation,
+      mass: 4,
+      tension: 1,
+    })
+    const crossed = makeWaitingSlots({
+      side: 3,
+      orientation,
+      mass: 4,
+      tension: 1,
+      pairing: 'crossed',
+    })
     const main = structure(rule)
     const control = structure(crossed)
 
-    const cases = (['leave-first', 'wait-first'] as PassOrder[]).flatMap(order =>
-      [1, -1].map(sign => ({ order, sign, paid: blocked({ orientation, order, tension: 1, sign }), free: blocked({ orientation, order, tension: 0, sign }) })),
+    const cases = (
+      ['leave-first', 'wait-first'] as PassOrder[]
+    ).flatMap(order =>
+      [1, -1].map(sign => ({
+        order,
+        sign,
+        paid: blocked({ orientation, order, tension: 1, sign }),
+        free: blocked({ orientation, order, tension: 0, sign }),
+      })),
     )
     const places = cases.map(c => c.paid.places)
     const blockedUnpaid = cases.map(c => c.paid.unpaid)

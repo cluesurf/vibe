@@ -122,8 +122,7 @@ export default experiment({
     const speeds = omegas.map(
       (w, i) => w / ((2 * Math.PI * modes[i]!) / SIDE),
     )
-    const meanSpeed =
-      speeds.reduce((a, b) => a + b, 0) / speeds.length
+    const meanSpeed = speeds.reduce((a, b) => a + b, 0) / speeds.length
     const harmonic = speeds.every(
       s => Math.abs(s - meanSpeed) / meanSpeed < 0.2,
     )
@@ -205,18 +204,14 @@ export default experiment({
         worstPlanckErrorPercent: Number(
           (100 * worstPlanckError).toFixed(2),
         ),
-        classicalTailOvershoot: Number(
-          worstClassicalRatio.toFixed(2),
-        ),
+        classicalTailOvershoot: Number(worstClassicalRatio.toFixed(2)),
         temperatureAt400: Number(temperatures[0]!.toFixed(3)),
         temperatureAt800: Number(temperatures[1]!.toFixed(3)),
       },
       // CONTROL: the classical equipartition branch, which the coarse gas actually has, fails the
       // tail by the measured overshoot, the ultraviolet catastrophe the counting cures
       control: {
-        classicalTailOvershoot: Number(
-          worstClassicalRatio.toFixed(2),
-        ),
+        classicalTailOvershoot: Number(worstClassicalRatio.toFixed(2)),
       },
       notes:
         'the counting treats a microstate as an occupancy vector, which on this substrate is not a postulate: a mode amplitude is one number, so quanta carry no labels and Bose statistics is automatic. The degeneracy g = omega is the two-dimensional density of states matching the gas the dispersion was measured on. What remains input is the absolute unit of omega (the lattice scale), the same free scale as everywhere in the model.',

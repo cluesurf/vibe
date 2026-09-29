@@ -60,45 +60,77 @@ import { LINE_FIRSTS } from '@/code/rule/isometric-knit'
 import { boxHusk } from '@/code/measure/causal-components'
 import { centerOf } from '@/code/measure/wall-reading'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
-import { lockedNorm, lockedState, newTally, type LockedState } from '@/code/rule/doublet-locked-knit'
+import {
+  lockedNorm,
+  lockedState,
+  newTally,
+  type LockedState,
+} from '@/code/rule/doublet-locked-knit'
 import { toWords } from '@/code/rule/occupation-veto-knit'
-import { coinedVetoBeat, newCoinTally } from '@/code/rule/coined-locked-knit'
+import {
+  coinedVetoBeat,
+  newCoinTally,
+} from '@/code/rule/coined-locked-knit'
 import { vacuumConfiguration } from '@/code/measure/doublet-locked-readings'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
 import { jackknife, meshDistance } from '@/code/measure/shared-distance'
-import { displacement, huskGeometry, quantumReader, type HuskGeometry } from '@/code/measure/quantum-shared-distance'
+import {
+  displacement,
+  huskGeometry,
+  quantumReader,
+  type HuskGeometry,
+} from '@/code/measure/quantum-shared-distance'
 
 const SIDE = 8
 const BEATS = 16
 const R_MAX = 6
 const R_GATE = 4
 
-type Profile = { near: Float64Array; source: Float64Array; pooled: number; terms: number; normExact: boolean }
+type Profile = {
+  near: Float64Array
+  source: Float64Array
+  pooled: number
+  terms: number
+  normExact: boolean
+}
 
 // the sums of one state: I1 summed per r (R_MAX + 1 entries), Isrc per r, the pooled neighbor sum
-function profileOf(branches: LockedState['branches'], g: HuskGeometry, src: number, normExact: boolean): Profile {
+function profileOf(
+  branches: LockedState['branches'],
+  g: HuskGeometry,
+  src: number,
+  normExact: boolean,
+): Profile {
   const reader = quantumReader(branches, g)
   const near = new Float64Array(R_MAX + 1)
   const source = new Float64Array(R_MAX + 1)
+
   let pooled = 0
 
   for (const a of reader.active) {
     for (const b of reader.active) {
-      if (a === b) continue
+      if (a === b) {
+        continue
+      }
 
       const i = reader.information(a, b)
 
       if (meshDistance(displacement(g, a, b)) === 1) {
         const r = meshDistance(displacement(g, src, a))
 
-        if (r <= R_MAX) near[r]! += i
+        if (r <= R_MAX) {
+          near[r]! += i
+        }
+
         pooled += i
       }
 
       if (a === src) {
         const r = meshDistance(displacement(g, src, b))
 
-        if (r <= R_MAX) source[r]! += i
+        if (r <= R_MAX) {
+          source[r]! += i
+        }
       }
     }
   }
@@ -111,10 +143,21 @@ function slopeOf(pts: readonly (readonly [number, number])[]): number {
   const mx = pts.reduce((a, p) => a + p[0], 0) / pts.length
   const my = pts.reduce((a, p) => a + p[1], 0) / pts.length
 
-  return pts.reduce((a, p) => a + (p[0] - mx) * (p[1] - my), 0) / pts.reduce((a, p) => a + (p[0] - mx) ** 2, 0)
+  return (
+    pts.reduce((a, p) => a + (p[0] - mx) * (p[1] - my), 0) /
+    pts.reduce((a, p) => a + (p[0] - mx) ** 2, 0)
+  )
 }
 
-function runOf(f: ReturnType<typeof contactFresh>, tone: number, slot: number): { branches: LockedState['branches']; normExact: boolean; most: number } {
+function runOf(
+  f: ReturnType<typeof contactFresh>,
+  tone: number,
+  slot: number,
+): {
+  branches: LockedState['branches']
+  normExact: boolean
+  most: number
+} {
   const start = toWords(vacuumConfiguration(f, 'none'))
 
   if (tone !== 0) {
@@ -127,7 +170,14 @@ function runOf(f: ReturnType<typeof contactFresh>, tone: number, slot: number): 
   let most = 1
 
   for (let t = 0; t < BEATS; t++) {
-    s = coinedVetoBeat('none', f.tables, s, t, newTally(), newCoinTally())
+    s = coinedVetoBeat(
+      'none',
+      f.tables,
+      s,
+      t,
+      newTally(),
+      newCoinTally(),
+    )
 
     const n = lockedNorm(s)
 
@@ -149,8 +199,12 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const family = startFamily(16)
+
     let geometry: HuskGeometry | undefined
     let src = 0
 
@@ -158,12 +212,15 @@ export default experiment({
       withStart(member, () => {
         const f = contactFresh(SIDE, 'pass')
 
-        geometry = huskGeometry(SIDE, boxHusk(f.weave.mesh, SIDE).column)
+        geometry = huskGeometry(
+          SIDE,
+          boxHusk(f.weave.mesh, SIDE).column,
+        )
 
         const center = centerOf(SIDE)
-        const slot = center * 24 + (LINE_FIRSTS[index % 12] as number)
+        const slot = center * 24 + LINE_FIRSTS[index % 12]!
 
-        src = geometry.column[center] as number
+        src = geometry.column[center]!
 
         const control = runOf(f, 0, slot)
         const love = runOf(f, 1, slot)
@@ -171,12 +228,19 @@ export default experiment({
         const out = {
           name: member.name,
           controlMost: control.most,
-          control: profileOf(control.branches, geometry, src, control.normExact),
+          control: profileOf(
+            control.branches,
+            geometry,
+            src,
+            control.normExact,
+          ),
           love: profileOf(love.branches, geometry, src, love.normExact),
           fear: profileOf(fear.branches, geometry, src, fear.normExact),
         }
 
-        log(`start ${member.name}: control ${control.most}, love ${love.branches.length}, fear ${fear.branches.length} terms`)
+        log(
+          `start ${member.name}: control ${control.most}, love ${love.branches.length}, fear ${fear.branches.length} terms`,
+        )
 
         return out
       }),
@@ -186,53 +250,103 @@ export default experiment({
     // the number of ordered neighbor pairs whose first column is at distance r, and of columns at distance r
     const nearCount = new Float64Array(R_MAX + 1)
     const sourceCount = new Float64Array(R_MAX + 1)
+
     let pooledCount = 0
 
     for (let a = 0; a < g.columns; a++) {
       const r = meshDistance(displacement(g, src, a))
 
-      if (a !== src && r <= R_MAX) sourceCount[r]!++
+      if (a !== src && r <= R_MAX) {
+        sourceCount[r]!++
+      }
 
       for (let b = 0; b < g.columns; b++) {
-        if (a === b || meshDistance(displacement(g, a, b)) !== 1) continue
+        if (a === b || meshDistance(displacement(g, a, b)) !== 1) {
+          continue
+        }
 
         pooledCount++
-        if (r <= R_MAX) nearCount[r]!++
+
+        if (r <= R_MAX) {
+          nearCount[r]!++
+        }
       }
     }
 
-    const sums = (pick: (p: (typeof perStart)[number]) => Profile) => perStart.map(p => Float64Array.from([...pick(p).near, ...pick(p).source, pick(p).pooled, 1]))
-    const at = (r: number) => (total: Float64Array) => (total[r] as number) / ((nearCount[r] as number) * (total[2 * (R_MAX + 1) + 1] as number))
-    const fromSource = (r: number) => (total: Float64Array) => (total[R_MAX + 1 + r] as number) / (Math.max(1, sourceCount[r] as number) * (total[2 * (R_MAX + 1) + 1] as number))
-    const pooledOf = (total: Float64Array) => (total[2 * (R_MAX + 1)] as number) / (pooledCount * (total[2 * (R_MAX + 1) + 1] as number))
+    const sums = (pick: (p: (typeof perStart)[number]) => Profile) =>
+      perStart.map(p =>
+        Float64Array.from([
+          ...pick(p).near,
+          ...pick(p).source,
+          pick(p).pooled,
+          1,
+        ]),
+      )
+    const at = (r: number) => (total: Float64Array) =>
+      total[r]! / (nearCount[r]! * total[2 * (R_MAX + 1) + 1]!)
+    const fromSource = (r: number) => (total: Float64Array) =>
+      total[R_MAX + 1 + r]! /
+      (Math.max(1, sourceCount[r]!) * total[2 * (R_MAX + 1) + 1]!)
+    const pooledOf = (total: Float64Array) =>
+      total[2 * (R_MAX + 1)]! /
+      (pooledCount * total[2 * (R_MAX + 1) + 1]!)
     const loveSums = sums(p => p.love)
     const fearSums = sums(p => p.fear)
     const controlSums = sums(p => p.control)
-    const above = (x: { value: number; error: number }): boolean => x.value > 3 * x.error && x.value > 1e-12
+    const above = (x: { value: number; error: number }): boolean =>
+      x.value > 3 * x.error && x.value > 1e-12
     const rs = Array.from({ length: R_MAX + 1 }, (_, r) => r)
     const love = rs.map(r => jackknife(loveSums, at(r)))
     const fear = rs.map(r => jackknife(fearSums, at(r)))
     const loveSrc = rs.map(r => jackknife(loveSums, fromSource(r)))
     const fearSrc = rs.map(r => jackknife(fearSums, fromSource(r)))
     const background = jackknife(controlSums, pooledOf)
-    const flipGap = rs.map(r => jackknife(loveSums.map((s, m) => Float64Array.from(s, (v, i) => (i === s.length - 1 ? v : v - (fearSums[m]![i] as number)))), total => (total[r] as number) / ((nearCount[r] as number) * (total[total.length - 1] as number))))
+    const flipGap = rs.map(r =>
+      jackknife(
+        loveSums.map((s, m) =>
+          Float64Array.from(s, (v, i) =>
+            i === s.length - 1 ? v : v - fearSums[m]![i]!,
+          ),
+        ),
+        total => total[r]! / (nearCount[r]! * total[total.length - 1]!),
+      ),
+    )
 
-    const k0 = perStart.every(p => p.controlMost === 1 && p.love.normExact && p.fear.normExact)
+    const k0 = perStart.every(
+      p => p.controlMost === 1 && p.love.normExact && p.fear.normExact,
+    )
     const k1 = above(background)
     const gateRs = rs.filter(r => r >= 1 && r <= R_GATE)
     const positive = gateRs.every(r => above(love[r]!))
-    const pts = gateRs.filter(r => love[r]!.value > 0).map(r => [Math.log(r), Math.log(love[r]!.value)] as const)
+    const pts = gateRs
+      .filter(r => love[r]!.value > 0)
+      .map(r => [Math.log(r), Math.log(love[r]!.value)] as const)
     const slope = pts.length >= 2 ? slopeOf(pts) : Number.NaN
-    const k2 = positive && pts.length === gateRs.length && slope >= -1.25 && slope <= -0.75
-    const k3 = rs.filter(r => r <= R_GATE).every(r => {
-      const d = flipGap[r]!
+    const k2 =
+      positive &&
+      pts.length === gateRs.length &&
+      slope >= -1.25 &&
+      slope <= -0.75
+    const k3 = rs
+      .filter(r => r <= R_GATE)
+      .every(r => {
+        const d = flipGap[r]!
 
-      return d.error > 0 ? Math.abs(d.value) <= 3 * d.error : Math.abs(d.value) <= 1e-12
-    })
+        return d.error > 0
+          ? Math.abs(d.value) <= 3 * d.error
+          : Math.abs(d.value) <= 1e-12
+      })
     const status = !k0 ? 'partial' : k1 && k2 && k3 ? 'pass' : 'fail'
-    const e = (v: number): string => (Number.isFinite(v) ? v.toExponential(3) : 'nan')
-    const line = (xs: { value: number; error: number }[]): string => xs.map((x, r) => `r${r} ${e(x.value)} +- ${e(x.error)}`).join(', ')
-    const range = (xs: number[]): string => (Math.min(...xs) === Math.max(...xs) ? `${Math.min(...xs)}` : `${Math.min(...xs)} to ${Math.max(...xs)}`)
+    const e = (v: number): string =>
+      Number.isFinite(v) ? v.toExponential(3) : 'nan'
+    const line = (xs: { value: number; error: number }[]): string =>
+      xs
+        .map((x, r) => `r${r} ${e(x.value)} +- ${e(x.error)}`)
+        .join(', ')
+    const range = (xs: number[]): string =>
+      Math.min(...xs) === Math.max(...xs)
+        ? `${Math.min(...xs)}`
+        : `${Math.min(...xs)} to ${Math.max(...xs)}`
 
     return verdict({
       status,
@@ -244,14 +358,23 @@ export default experiment({
         gate_K3: k3 ? 1 : 0,
         background: background.value,
         slope,
-        ...Object.fromEntries(rs.map(r => [`love_I1_r${r}`, love[r]!.value])),
-        ...Object.fromEntries(rs.map(r => [`fear_I1_r${r}`, fear[r]!.value])),
-        ...Object.fromEntries(rs.map(r => [`love_Isrc_r${r}`, loveSrc[r]!.value])),
+        ...Object.fromEntries(
+          rs.map(r => [`love_I1_r${r}`, love[r]!.value]),
+        ),
+        ...Object.fromEntries(
+          rs.map(r => [`fear_I1_r${r}`, fear[r]!.value]),
+        ),
+        ...Object.fromEntries(
+          rs.map(r => [`love_Isrc_r${r}`, loveSrc[r]!.value]),
+        ),
         loveTermsMax: Math.max(...perStart.map(p => p.love.terms)),
         fearTermsMax: Math.max(...perStart.map(p => p.fear.terms)),
         seconds: (Date.now() - started) / 1000,
       },
-      control: { controlTermsMax: Math.max(...perStart.map(p => p.controlMost)), background: background.value },
+      control: {
+        controlTermsMax: Math.max(...perStart.map(p => p.controlMost)),
+        background: background.value,
+      },
       notes: `L2. K0 ${k0}, K1 ${k1}, K2 ${k2} (positive ${positive}, slope ${e(slope)}), K3 ${k3}. I1 love: ${line(love)}. I1 fear: ${line(fear)}. love - fear: ${line(flipGap)}. Isrc love: ${line(loveSrc)}. Isrc fear: ${line(fearSrc)}. Pairs per r (neighbor pairs, columns): ${rs.map(r => `${nearCount[r]}, ${sourceCount[r]}`).join('; ')}. Terms per start (control, love, fear): ${perStart.map(p => `${p.name} ${p.controlMost}, ${p.love.terms}, ${p.fear.terms}`).join('; ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },

@@ -44,12 +44,34 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { a2Planes, coldSpec, cyclingElements, KIND_ORDER, OPPOSITE, ROOTS, SIDE, TRIPLES, tripleDock } from '@/code/measure/rishon-triples'
+import {
+  a2Planes,
+  coldSpec,
+  cyclingElements,
+  KIND_ORDER,
+  OPPOSITE,
+  ROOTS,
+  SIDE,
+  TRIPLES,
+  tripleDock,
+} from '@/code/measure/rishon-triples'
 import { weylF4DirectionPermutations } from '@/code/measure/coin-symmetry'
-import { binaryTetrahedralGroup, quaternionMultiply, quaternionsClose, vectorAction, type Quaternion } from '@/code/algebra/binary-tetrahedral'
+import {
+  binaryTetrahedralGroup,
+  quaternionMultiply,
+  quaternionsClose,
+  vectorAction,
+  type Quaternion,
+} from '@/code/algebra/binary-tetrahedral'
 import { generateGroup } from '@/code/dynamics/finite-gauge'
 import { SU3_SUBGROUPS } from '@/code/algebra/group/su3-subgroups'
-import { combinedBeat, combinedCollision, combinedState, COMBINED_DEFAULT, makeCombinedKnit } from '@/code/rule/combined-knit'
+import {
+  combinedBeat,
+  combinedCollision,
+  combinedState,
+  COMBINED_DEFAULT,
+  makeCombinedKnit,
+} from '@/code/rule/combined-knit'
 import { turningWeave, type Collision } from '@/code/rule/collision'
 import { symmetryLedger } from '@/code/measure/rule-symmetry-ledger'
 import { coldDockCollide, makeColdWeave } from '@/code/rule/cold-weave'
@@ -60,10 +82,18 @@ const mod3 = (x: number): number => ((x % 3) + 3) % 3
 // the cold weave's dock collision on vibes alone, stores and counters empty at every call (a stand-in for
 // the symmetry ledger only: the counters a clock would fill are dropped)
 function coldVibeCollision(forward: boolean): (t: number) => Collision {
-  const weave = makeColdWeave({ mesh: d4BoxMesh({ side: 3 }), spec: coldSpec() })
+  const weave = makeColdWeave({
+    mesh: d4BoxMesh({ side: 3 }),
+    spec: coldSpec(),
+  })
 
   return t => (slots, base) => {
-    const a = { vibe: Int8Array.from(slots.subarray(base, base + 24)), store: new Int32Array(24), demon: new Int32Array(12), role: undefined }
+    const a = {
+      vibe: Int8Array.from(slots.subarray(base, base + 24)),
+      store: new Int32Array(24),
+      demon: new Int32Array(12),
+      role: undefined,
+    }
 
     coldDockCollide(weave, a, 0, t, forward)
     slots.set(a.vibe, base)
@@ -95,7 +125,15 @@ export default experiment({
         [[1, 0, 2], -1],
       ] as const
       const signMultiplicity =
-        perms.reduce((s, [p, sign]) => s + sign * members.filter(m => p.every((i, k) => m.vibes[i] === m.vibes[k])).length, 0) / 6
+        perms.reduce(
+          (s, [p, sign]) =>
+            s +
+            sign *
+              members.filter(m =>
+                p.every((i, k) => m.vibes[i] === m.vibes[k]),
+              ).length,
+          0,
+        ) / 6
 
       return {
         kind,
@@ -116,14 +154,23 @@ export default experiment({
       ['calm-calm-fear', -1, 3],
       ['fear-fear-fear', -3, 1],
     ]
-    const g1 = TRIPLES.length === 27 && kinds.length === 10 && hypothesisTable.every(([k, q, n]) => row(k).charge3 === q && row(k).arrangements === n)
+    const g1 =
+      TRIPLES.length === 27 &&
+      kinds.length === 10 &&
+      hypothesisTable.every(
+        ([k, q, n]) =>
+          row(k).charge3 === q && row(k).arrangements === n,
+      )
 
     // 2. the lock
     const unmixed = TRIPLES.filter(t => t.loves === 0 || t.fears === 0)
-    const lockHolds = (t: (typeof TRIPLES)[number]): boolean => (t.arrangements === 1) === (mod3(t.charge3) === 0)
+    const lockHolds = (t: (typeof TRIPLES)[number]): boolean =>
+      (t.arrangements === 1) === (mod3(t.charge3) === 0)
     const g2Count = unmixed.filter(lockHolds).length
     const g3Count = TRIPLES.filter(lockHolds).length
-    const lockBreakers = [...new Set(TRIPLES.filter(t => !lockHolds(t)).map(t => t.kind))]
+    const lockBreakers = [
+      ...new Set(TRIPLES.filter(t => !lockHolds(t)).map(t => t.kind)),
+    ]
     const g2 = unmixed.length === 15 && g2Count === 15
     const g3 = g3Count === 27
 
@@ -136,27 +183,46 @@ export default experiment({
         const b = n - a
 
         mixes += 1
-        wholeIsInteger += (mod3(a - b) === 0) === Number.isInteger((a - b) / 3) ? 1 : 0
+        wholeIsInteger +=
+          (mod3(a - b) === 0) === Number.isInteger((a - b) / 3) ? 1 : 0
       }
     }
 
     const g4 = wholeIsInteger === mixes
     // the vibe-level wholes of 2 and 3 vibes, and their charges
     const smallWholes = [2, 3].flatMap(n =>
-      Array.from({ length: n + 1 }, (_, a) => ({ loves: a, fears: n - a })).filter(m => mod3(m.loves - m.fears) === 0),
+      Array.from({ length: n + 1 }, (_, a) => ({
+        loves: a,
+        fears: n - a,
+      })).filter(m => mod3(m.loves - m.fears) === 0),
     )
-    const hadron = (parts: string[]): number => parts.reduce((s, k) => s + row(k).charge3, 0)
-    const proton3 = hadron(['love-love-calm', 'love-love-calm', 'calm-calm-fear'])
-    const neutron3 = hadron(['love-love-calm', 'calm-calm-fear', 'calm-calm-fear'])
+    const hadron = (parts: string[]): number =>
+      parts.reduce((s, k) => s + row(k).charge3, 0)
+    const proton3 = hadron([
+      'love-love-calm',
+      'love-love-calm',
+      'calm-calm-fear',
+    ])
+    const neutron3 = hadron([
+      'love-love-calm',
+      'calm-calm-fear',
+      'calm-calm-fear',
+    ])
     const pionPlus3 = hadron(['love-love-calm', 'love-calm-calm'])
 
     // 3a. the groups. The triangle's stabilizer in W(F4) and the permutations it induces on the places
     const planes = a2Planes()
     const triangles = planes.flatMap(p => [p.triangle, p.anti])
-    const permutations = weylF4DirectionPermutations({ directions: ROOTS.map(r => [...r]) })
+    const permutations = weylF4DirectionPermutations({
+      directions: ROOTS.map(r => [...r]),
+    })
     const induced = triangles.map(t => {
-      const stabilizer = permutations.filter(p => t.every(d => t.includes(p[d] ?? -1)))
-      const onPlaces = new Set(stabilizer.map(p => t.map(d => t.indexOf(p[d] ?? -1)).join('')))
+      const stabilizer = permutations.filter(p =>
+        t.every(d => t.includes(p[d] ?? -1)),
+      )
+      const onPlaces = new Set(
+        stabilizer.map(p => t.map(d => t.indexOf(p[d] ?? -1)).join('')),
+      )
 
       return { stabilizer: stabilizer.length, onPlaces: onPlaces.size }
     })
@@ -165,15 +231,29 @@ export default experiment({
     // conjugation
     const group = binaryTetrahedralGroup()
     const u: Quaternion = [Math.SQRT1_2, Math.SQRT1_2, 0, 0]
-    const unit = (d: number): Quaternion => (ROOTS[d] ?? []).map(x => x * Math.SQRT1_2) as Quaternion
-    const indexOf = (q: Quaternion): number => ROOTS.findIndex((_, d) => quaternionsClose(unit(d), q))
-    const left = group.map(g => ROOTS.map((_, d) => indexOf(quaternionMultiply(g, unit(d)))))
-    const conjugate = group.map(g => ROOTS.map((_, d) => indexOf(vectorAction(g, unit(d)))))
-    const torsor = ROOTS.every((_, d) => group.filter(g => quaternionsClose(quaternionMultiply(g, u), unit(d))).length === 1)
-    const setOf = (t: readonly number[]): string => [...t].sort((a, b) => a - b).join(',')
+    const unit = (d: number): Quaternion =>
+      (ROOTS[d] ?? []).map(x => x * Math.SQRT1_2) as Quaternion
+    const indexOf = (q: Quaternion): number =>
+      ROOTS.findIndex((_, d) => quaternionsClose(unit(d), q))
+    const left = group.map(g =>
+      ROOTS.map((_, d) => indexOf(quaternionMultiply(g, unit(d)))),
+    )
+    const conjugate = group.map(g =>
+      ROOTS.map((_, d) => indexOf(vectorAction(g, unit(d)))),
+    )
+    const torsor = ROOTS.every(
+      (_, d) =>
+        group.filter(g =>
+          quaternionsClose(quaternionMultiply(g, u), unit(d)),
+        ).length === 1,
+    )
+    const setOf = (t: readonly number[]): string =>
+      [...t].sort((a, b) => a - b).join(',')
     const turnStabilizers = (action: number[][]) =>
       triangles.map(t => {
-        const keep = action.filter(p => setOf(t.map(d => p[d] ?? -1)) === setOf(t))
+        const keep = action.filter(
+          p => setOf(t.map(d => p[d] ?? -1)) === setOf(t),
+        )
         const cycle = keep.filter(p => t.every(d => p[d] !== d)).length
 
         return { keep: keep.length, cycle }
@@ -181,19 +261,47 @@ export default experiment({
     const leftStab = turnStabilizers(left)
     const conjStab = turnStabilizers(conjugate)
     // the -1 of 2T by left multiplication sends each triangle to its antitriangle, on the same three lines
-    const minusOne = group.findIndex(g => quaternionsClose(g, [-1, 0, 0, 0]))
-    const minusToAnti = planes.every(p => setOf(p.triangle.map(d => left[minusOne]?.[d] ?? -1)) === setOf(p.anti))
-    const leftOrbit = new Set(left.map(p => setOf((triangles[0] ?? []).map(d => p[d] ?? -1)))).size
+    const minusOne = group.findIndex(g =>
+      quaternionsClose(g, [-1, 0, 0, 0]),
+    )
+    const minusToAnti = planes.every(
+      p =>
+        setOf(p.triangle.map(d => left[minusOne]?.[d] ?? -1)) ===
+        setOf(p.anti),
+    )
+    const leftOrbit = new Set(
+      left.map(p =>
+        setOf((triangles[0] ?? []).map((d: number) => p[d] ?? -1)),
+      ),
+    ).size
 
     // Sigma(648): order, center, and the triplet character's norm and invariant count
-    const sigma = generateGroup({ generators: [...SU3_SUBGROUPS.sigma648.generators] })
-    const chi = sigma.matrices.map(m => [(m[0] ?? 0) + (m[8] ?? 0) + (m[16] ?? 0), (m[1] ?? 0) + (m[9] ?? 0) + (m[17] ?? 0)])
-    const tripletNorm = Math.round(chi.reduce((s, [x = 0, y = 0]) => s + x * x + y * y, 0) / sigma.order)
-    const tripletInvariants = Math.round(chi.reduce((s, [x = 0]) => s + x, 0) / sigma.order)
+    const sigma = generateGroup({
+      generators: [...SU3_SUBGROUPS.sigma648.generators],
+    })
+    const chi = sigma.matrices.map(m => [
+      (m[0] ?? 0) + (m[8] ?? 0) + (m[16] ?? 0),
+      (m[1] ?? 0) + (m[9] ?? 0) + (m[17] ?? 0),
+    ])
+    const tripletNorm = Math.round(
+      chi.reduce((s, [x = 0, y = 0]) => s + x * x + y * y, 0) /
+        sigma.order,
+    )
+    const tripletInvariants = Math.round(
+      chi.reduce((s, [x = 0]) => s + x, 0) / sigma.order,
+    )
     const center = sigma.matrices.filter(m => {
-      const off = [2, 3, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15].every(i => Math.abs(m[i] ?? 0) < 1e-9)
+      const off = [2, 3, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15].every(
+        i => Math.abs(m[i] ?? 0) < 1e-9,
+      )
 
-      return off && Math.abs((m[0] ?? 0) - (m[8] ?? 0)) < 1e-9 && Math.abs((m[1] ?? 0) - (m[9] ?? 0)) < 1e-9 && Math.abs((m[0] ?? 0) - (m[16] ?? 0)) < 1e-9 && Math.abs((m[1] ?? 0) - (m[17] ?? 0)) < 1e-9
+      return (
+        off &&
+        Math.abs((m[0] ?? 0) - (m[8] ?? 0)) < 1e-9 &&
+        Math.abs((m[1] ?? 0) - (m[9] ?? 0)) < 1e-9 &&
+        Math.abs((m[0] ?? 0) - (m[16] ?? 0)) < 1e-9 &&
+        Math.abs((m[1] ?? 0) - (m[17] ?? 0)) < 1e-9
+      )
     }).length
     // 3b. the arrangement representation of S3 on three places: characters 3, 1 (transpositions), 0
     // (3-cycles); its invariant count is (3 + 3 * 1 + 2 * 0) / 6
@@ -211,10 +319,14 @@ export default experiment({
 
     vibe.set(dock, center5 * 24)
 
-    const basePoints = Int8Array.from({ length: vibe.length }, (_, i) => Math.floor((((i + 3) * 0.6180339887 * 1.37 * 9) % 9 + 9) % 9))
+    const basePoints = Int8Array.from({ length: vibe.length }, (_, i) =>
+      Math.floor(((((i + 3) * 0.6180339887 * 1.37 * 9) % 9) + 9) % 9),
+    )
     const open = new Uint8Array(vibe.length)
+
     const history = (points: Int8Array): Int8Array[] => {
       let state = combinedState(knit, { vibe, point: points })
+
       const out: Int8Array[] = []
 
       for (let t = 0; t < 24; t++) {
@@ -224,12 +336,14 @@ export default experiment({
 
       return out
     }
+
     const reference = history(basePoints)
+
     let roleMismatches = 0
     let roleRuns = 0
 
-    for (let g = 0; g < knit.weave.moves.act.length; g++) {
-      const moved = Int8Array.from(basePoints, p => knit.weave.moves.act[g]?.[p] ?? p)
+    for (const act of knit.weave.moves.act) {
+      const moved = Int8Array.from(basePoints, p => act[p] ?? p)
       const h = history(moved)
 
       roleRuns += 1
@@ -245,9 +359,27 @@ export default experiment({
     // 3d. the knit's color weight W over the triangle's three lines, relative to the empty lines: a vibe v
     // on a slot of side s changes the weight by v - s. Per triangle and colored unmixed kind: do the
     // three arrangements carry one weight mod 3?
-    const weightOf = (t: readonly number[], vibes: readonly number[]): number =>
-      mod3(t.reduce((s, d, k) => s + ((vibes[k] ?? 0) !== 0 ? (vibes[k] ?? 0) - (SIDE[d] ?? 0) : 0), 0))
-    const colored = ['love-love-calm', 'love-calm-calm', 'calm-calm-fear', 'calm-fear-fear']
+    const weightOf = (
+      t: readonly number[],
+      vibes: readonly number[],
+    ): number =>
+      mod3(
+        t.reduce(
+          (s, d, k) =>
+            s +
+            ((vibes[k] ?? 0) !== 0
+              ? (vibes[k] ?? 0) - (SIDE[d] ?? 0)
+              : 0),
+          0,
+        ),
+      )
+    const colored = [
+      'love-love-calm',
+      'love-calm-calm',
+      'calm-calm-fear',
+      'calm-fear-fear',
+    ]
+
     let weightAlike = 0
     let weightSplit = 0
     let weightEqualsCharge = 0
@@ -255,36 +387,75 @@ export default experiment({
 
     for (const t of triangles) {
       for (const kind of colored) {
-        const weights = new Set(TRIPLES.filter(x => x.kind === kind).map(x => weightOf(t, x.vibes)))
+        const weights = new Set(
+          TRIPLES.filter(x => x.kind === kind).map(x =>
+            weightOf(t, x.vibes),
+          ),
+        )
 
-        if (weights.size === 1) weightAlike += 1
-        else weightSplit += 1
+        if (weights.size === 1) {
+          weightAlike += 1
+        } else {
+          weightSplit += 1
+        }
       }
 
       for (const x of TRIPLES) {
         weightCases += 1
-        weightEqualsCharge += weightOf(t, x.vibes) === mod3(x.charge3) ? 1 : 0
+        weightEqualsCharge +=
+          weightOf(t, x.vibes) === mod3(x.charge3) ? 1 : 0
       }
     }
 
-    const sideSums = new Set(triangles.map(t => t.reduce((s, d) => s + (SIDE[d] ?? 0), 0)))
+    const sideSums = new Set(
+      triangles.map(t => t.reduce((s, d) => s + (SIDE[d] ?? 0), 0)),
+    )
 
     // 3e. which knits keep a coin symmetry cycling a triangle's lines
     const cycling = cyclingElements()
-    const unique = [...new Map(cycling.map(c => [c.permutation.join(','), c.permutation])).values()]
-    const ledgerOf = (forward: (t: number) => Collision, inverse: (t: number) => Collision, forwardOnly: boolean): number =>
-      symmetryLedger({ forward, inverse, period: 24, permutations: unique, degree: 24 }).filter(e => !forwardOnly || e.kind === 'forward').length
+    const unique = [
+      ...new Map(
+        cycling.map(c => [c.permutation.join(','), c.permutation]),
+      ).values(),
+    ]
+    const ledgerOf = (
+      forward: (t: number) => Collision,
+      inverse: (t: number) => Collision,
+      forwardOnly: boolean,
+    ): number =>
+      symmetryLedger({
+        forward,
+        inverse,
+        period: 24,
+        permutations: unique,
+        degree: 24,
+      }).filter(e => !forwardOnly || e.kind === 'forward').length
     const opposite = [...OPPOSITE]
-    const committedCycling = ledgerOf(turningWeave({ opposite }), turningWeave({ opposite, forward: false }), false)
-    const combinedCycling = ledgerOf(
-      combinedCollision({ spec: COMBINED_DEFAULT, opposite }),
-      combinedCollision({ spec: COMBINED_DEFAULT, opposite, forward: false }),
+    const committedCycling = ledgerOf(
+      turningWeave({ opposite }),
+      turningWeave({ opposite, forward: false }),
       false,
     )
-    const coldCycling = ledgerOf(coldVibeCollision(true), coldVibeCollision(false), true)
+    const combinedCycling = ledgerOf(
+      combinedCollision({ spec: COMBINED_DEFAULT, opposite }),
+      combinedCollision({
+        spec: COMBINED_DEFAULT,
+        opposite,
+        forward: false,
+      }),
+      false,
+    )
+    const coldCycling = ledgerOf(
+      coldVibeCollision(true),
+      coldVibeCollision(false),
+      true,
+    )
 
     const blind = roleMismatches === 0 && roleRuns === 216
-    const differentReps = tripletNorm === 1 && tripletInvariants === 0 && arrangementInvariants === 1
+    const differentReps =
+      tripletNorm === 1 &&
+      tripletInvariants === 0 &&
+      arrangementInvariants === 1
     const g5SameThree = !(blind && differentReps)
     const ok = g1 && g2 && g3 && g4
 
@@ -302,16 +473,28 @@ export default experiment({
       pionPlus3Q: pionPlus3,
       a2Planes: planes.length,
       triangleStabilizerInWF4: induced[0]?.stabilizer ?? 0,
-      triangleStabilizerSizesDistinct: new Set(induced.map(i => i.stabilizer)).size,
-      permutationsInducedOnPlaces: Math.min(...induced.map(i => i.onPlaces)),
+      triangleStabilizerSizesDistinct: new Set(
+        induced.map(i => i.stabilizer),
+      ).size,
+      permutationsInducedOnPlaces: Math.min(
+        ...induced.map(i => i.onPlaces),
+      ),
       coinIsTorsor: torsor ? 1 : 0,
       leftTurnsKeepingATriangle: Math.min(...leftStab.map(s => s.keep)),
-      leftTurnsCyclingATriangle: Math.min(...leftStab.map(s => s.cycle)),
+      leftTurnsCyclingATriangle: Math.min(
+        ...leftStab.map(s => s.cycle),
+      ),
       leftMinusOneSendsTriangleToAnti: minusToAnti ? 1 : 0,
       leftOrbitOfATriangle: leftOrbit,
-      conjugationTurnsKeepingATriangleMin: Math.min(...conjStab.map(s => s.keep)),
-      conjugationTurnsKeepingATriangleMax: Math.max(...conjStab.map(s => s.keep)),
-      conjugationTurnsCyclingATriangleMax: Math.max(...conjStab.map(s => s.cycle)),
+      conjugationTurnsKeepingATriangleMin: Math.min(
+        ...conjStab.map(s => s.keep),
+      ),
+      conjugationTurnsKeepingATriangleMax: Math.max(
+        ...conjStab.map(s => s.keep),
+      ),
+      conjugationTurnsCyclingATriangleMax: Math.max(
+        ...conjStab.map(s => s.cycle),
+      ),
       sigma648Order: sigma.order,
       sigma648Center: center,
       roleTripletCharacterNorm: tripletNorm,
@@ -333,7 +516,9 @@ export default experiment({
     }
 
     for (const k of kinds) {
-      const name = k.kind.replace(/-(\w)/g, (_, c: string) => c.toUpperCase())
+      const name = k.kind.replace(/-(\w)/g, (_, c: string) =>
+        c.toUpperCase(),
+      )
 
       metrics[`${name}Charge3`] = k.charge3
       metrics[`${name}Arrangements`] = k.arrangements

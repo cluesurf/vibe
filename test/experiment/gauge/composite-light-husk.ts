@@ -55,7 +55,17 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { GOLDEN, SILVER, weyl } from '@/code/tool/weyl'
-import { commonRestSpectrum, directionalEdge, directionalVmax, huskIdentities, huskSeaSpread, lineSeaSpread, pairEdge, photonC, seaWidth } from '@/code/measure/composite-locked-light'
+import {
+  commonRestSpectrum,
+  directionalEdge,
+  directionalVmax,
+  huskIdentities,
+  huskSeaSpread,
+  lineSeaSpread,
+  pairEdge,
+  photonC,
+  seaWidth,
+} from '@/code/measure/composite-locked-light'
 
 const DIRECTIONS: readonly (readonly number[])[] = [
   [1, 0, 0],
@@ -84,12 +94,18 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const metrics: Record<string, number> = {}
 
     // ---- S1 ----
     const id = huskIdentities(16)
-    const s1 = id.detGap <= 1e-12 && id.parityGap <= 1e-12 && id.comovingGap <= 1e-12
+    const s1 =
+      id.detGap <= 1e-12 &&
+      id.parityGap <= 1e-12 &&
+      id.comovingGap <= 1e-12
 
     metrics.s1DetGap = id.detGap
     metrics.s1ParityGap = id.parityGap
@@ -97,20 +113,36 @@ export default experiment({
     log('s1')
 
     // ---- S2 ----
-    const husk = Array.from({ length: 64 }, (_, s) => [0, 1, 2].map(j => 2 * Math.PI * (weyl(3 * s + j + 1, GOLDEN) - 0.5)))
-    const line = Array.from({ length: 64 }, (_, s) => [2 * Math.PI * (weyl(s + 1, SILVER) - 0.5), 0, 0])
+    const husk = Array.from({ length: 64 }, (_, s) =>
+      [0, 1, 2].map(
+        j => 2 * Math.PI * (weyl(3 * s + j + 1, GOLDEN) - 0.5),
+      ),
+    )
+    const line = Array.from({ length: 64 }, (_, s) => [
+      2 * Math.PI * (weyl(s + 1, SILVER) - 0.5),
+      0,
+      0,
+    ])
     const huskSpec = commonRestSpectrum(husk)
     const lineSpec = commonRestSpectrum(line, [0])
-    const s2 = [huskSpec, lineSpec].every(v => Math.abs(v[0]!) <= 1e-12 && v[1]! >= 1e-3)
+    const s2 = [huskSpec, lineSpec].every(
+      v => Math.abs(v[0]!) <= 1e-12 && v[1]! >= 1e-3,
+    )
 
     huskSpec.forEach((v, i) => (metrics[`s2HuskEigen${i}`] = v))
     lineSpec.forEach((v, i) => (metrics[`s2LineEigen${i}`] = v))
     log('s2')
 
     // ---- S3 ----
-    const dirs = DIRECTIONS.map(d => ({ d, vmax: directionalVmax(d, 24), edge: directionalEdge(d, 2e-3, 24) }))
+    const dirs = DIRECTIONS.map(d => ({
+      d,
+      vmax: directionalVmax(d, 24),
+      edge: directionalEdge(d, 2e-3, 24),
+    }))
     const s3Gap = Math.max(...dirs.map(x => Math.abs(x.edge - x.vmax)))
-    const anisotropy = Math.max(...dirs.map(x => x.vmax)) / Math.min(...dirs.map(x => x.vmax))
+    const anisotropy =
+      Math.max(...dirs.map(x => x.vmax)) /
+      Math.min(...dirs.map(x => x.vmax))
     const s3 = s3Gap <= 1e-5 && anisotropy >= 1.1
 
     dirs.forEach(x => {
@@ -124,11 +156,22 @@ export default experiment({
     // ---- S4 ----
     const seaKs = [0.01, 0.05, 0.1]
     const seas = seaKs.map(K => ({ K, ...lineSeaSpread(K, 200000) }))
-    const s4Closed = Math.max(...seas.map(s => Math.max(Math.abs(s.top - pairEdge(s.K)), Math.abs(s.bottom - Math.asin(Math.sin(s.K) / 2)))))
+    const s4Closed = Math.max(
+      ...seas.map(s =>
+        Math.max(
+          Math.abs(s.top - pairEdge(s.K)),
+          Math.abs(s.bottom - Math.asin(Math.sin(s.K) / 2)),
+        ),
+      ),
+    )
     const cubic = seaWidth(0.01) / 0.01 ** 3
     const sharp = seaWidth(0.05) / pairEdge(0.05)
     const slope = pairEdge(0.01) / 0.01
-    const s4 = s4Closed <= 1e-9 && Math.abs(cubic / (3 / 64) - 1) <= 0.01 && sharp <= 1e-3 && Math.abs(slope - 0.5) <= 1e-4
+    const s4 =
+      s4Closed <= 1e-9 &&
+      Math.abs(cubic / (3 / 64) - 1) <= 0.01 &&
+      sharp <= 1e-3 &&
+      Math.abs(slope - 0.5) <= 1e-4
 
     metrics.s4ClosedGap = s4Closed
     metrics.s4WidthOverK3 = cubic
@@ -151,7 +194,15 @@ export default experiment({
     metrics.s5K = hs.K
     log('s5')
 
-    for (const [name, ok] of Object.entries({ S1: s1, S2: s2, S3: s3, S4: s4, S5: s5 })) metrics[`gate${name}`] = ok ? 1 : 0
+    for (const [name, ok] of Object.entries({
+      S1: s1,
+      S2: s2,
+      S3: s3,
+      S4: s4,
+      S5: s5,
+    })) {
+      metrics[`gate${name}`] = ok ? 1 : 0
+    }
 
     metrics.seconds = (Date.now() - started) / 1000
 

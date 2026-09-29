@@ -67,13 +67,27 @@ export function unifiedWave(input?: {
   const T = 30
 
   for (let t = 0; t < T; t++) {
-    perceptionEdgeColoringSweep({ tone: tone, eu: ec.eu, ev: ec.ev, byColor: ec.byColor, table: FWD, reverse: false })
+    perceptionEdgeColoringSweep({
+      tone: tone,
+      eu: ec.eu,
+      ev: ec.ev,
+      byColor: ec.byColor,
+      table: FWD,
+      reverse: false,
+    })
   }
 
   const chargeConserved = tone.reduce((s, x) => s + x, 0) === q0
 
   for (let t = 0; t < T; t++) {
-    perceptionEdgeColoringSweep({ tone: tone, eu: ec.eu, ev: ec.ev, byColor: ec.byColor, table: INV, reverse: true })
+    perceptionEdgeColoringSweep({
+      tone: tone,
+      eu: ec.eu,
+      ev: ec.ev,
+      byColor: ec.byColor,
+      table: INV,
+      reverse: true,
+    })
   }
 
   let reversible = true
@@ -133,8 +147,23 @@ export function unifiedWave(input?: {
     }
 
     fronts.push(front)
-    perceptionEdgeColoringSweep({ tone: baseS, eu: sec.eu, ev: sec.ev, byColor: sec.byColor, table: FWD, reverse: false })
-    perceptionEdgeColoringSweep({ tone: pertS, eu: sec.eu, ev: sec.ev, byColor: sec.byColor, table: FWD, reverse: false })
+    perceptionEdgeColoringSweep({
+      tone: baseS,
+      eu: sec.eu,
+      ev: sec.ev,
+      byColor: sec.byColor,
+      table: FWD,
+      reverse: false,
+    })
+
+    perceptionEdgeColoringSweep({
+      tone: pertS,
+      eu: sec.eu,
+      ev: sec.ev,
+      byColor: sec.byColor,
+      table: FWD,
+      reverse: false,
+    })
   }
 
   // LINEAR fit front = v*t + b over the growth phase (skip noisy start, stop before saturation)

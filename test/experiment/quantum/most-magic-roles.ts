@@ -30,8 +30,16 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { gridWeights, operator, phasePointOperators, type Operator } from '@/code/measure/grid-weights'
-import { hermitianSpectrum, topEigenvector } from '@/code/measure/qutrit-clifford'
+import {
+  gridWeights,
+  operator,
+  phasePointOperators,
+  type Operator,
+} from '@/code/measure/grid-weights'
+import {
+  hermitianSpectrum,
+  topEigenvector,
+} from '@/code/measure/qutrit-clifford'
 import { weylUnitVector } from '@/code/tool/weyl'
 
 const TWO_STARTS = 20000
@@ -40,7 +48,10 @@ const MAX_STEPS = 400
 
 type State = { re: number[]; im: number[] }
 
-function signOperator(signs: readonly number[], points: readonly Operator[]): Operator {
+function signOperator(
+  signs: readonly number[],
+  points: readonly Operator[],
+): Operator {
   const n = points[0]?.n ?? 1
   const out = operator(n)
 
@@ -57,8 +68,17 @@ function signOperator(signs: readonly number[], points: readonly Operator[]): Op
 }
 
 function ascend(start: State, points: readonly Operator[]): number {
-  const size = Math.sqrt(start.re.reduce((s, x, i) => s + x * x + (start.im[i] ?? 0) ** 2, 0))
-  let state: State = { re: start.re.map(x => x / size), im: start.im.map(x => x / size) }
+  const size = Math.sqrt(
+    start.re.reduce(
+      (s, x, i) => s + x * x + (start.im[i] ?? 0) ** 2,
+      0,
+    ),
+  )
+
+  let state: State = {
+    re: start.re.map(x => x / size),
+    im: start.im.map(x => x / size),
+  }
   let value = 0
 
   for (let step = 0; step < MAX_STEPS; step++) {
@@ -71,7 +91,12 @@ function ascend(start: State, points: readonly Operator[]): number {
 
     value = current
 
-    const top = topEigenvector(signOperator(w.map(x => (x >= 0 ? 1 : -1)), points))
+    const top = topEigenvector(
+      signOperator(
+        w.map(x => (x >= 0 ? 1 : -1)),
+        points,
+      ),
+    )
 
     state = { re: top.re, im: top.im }
   }
@@ -93,12 +118,25 @@ function oneRoleStates(): bigint[][] {
     const seen = new Set<string>()
 
     for (let p = 0; p < 9; p++) {
-      const line = [0, 1, 2].map(t => 3 * ((Math.floor(p / 3) + t * da) % 3) + ((p % 3) + t * db) % 3).sort((x, y) => x - y)
+      const line = [0, 1, 2]
+        .map(
+          t =>
+            3 * ((Math.floor(p / 3) + t * da) % 3) +
+            (((p % 3) + t * db) % 3),
+        )
+        .sort((x, y) => x - y)
       const key = line.join(',')
 
-      if (seen.has(key)) continue
+      if (seen.has(key)) {
+        continue
+      }
+
       seen.add(key)
-      out.push(Array.from({ length: 9 }, (_, q) => (line.includes(q) ? 1n : 0n)))
+      out.push(
+        Array.from({ length: 9 }, (_, q) =>
+          line.includes(q) ? 1n : 0n,
+        ),
+      )
     }
   }
 
@@ -110,8 +148,10 @@ function oneRoleStates(): bigint[][] {
   return out
 }
 
-const absSum = (w: readonly bigint[]): bigint => w.reduce((s, x) => s + (x < 0n ? -x : x), 0n)
-const sum = (w: readonly bigint[]): bigint => w.reduce((s, x) => s + x, 0n)
+const absSum = (w: readonly bigint[]): bigint =>
+  w.reduce((s, x) => s + (x < 0n ? -x : x), 0n)
+const sum = (w: readonly bigint[]): bigint =>
+  w.reduce((s, x) => s + x, 0n)
 
 export default experiment({
   id: 'quantum/most-magic-roles',
@@ -125,13 +165,19 @@ export default experiment({
   run() {
     // 1. one role
     const points1 = phasePointOperators(1)
+
     let exhaustive = 0
 
     for (let mask = 0; mask < 512; mask++) {
-      const signs = Array.from({ length: 9 }, (_, p) => ((mask >> p) & 1 ? -1 : 1))
+      const signs = Array.from({ length: 9 }, (_, p) =>
+        (mask >> p) & 1 ? -1 : 1,
+      )
       const spectrum = hermitianSpectrum(signOperator(signs, points1))
 
-      exhaustive = Math.max(exhaustive, spectrum[spectrum.length - 1] ?? 0)
+      exhaustive = Math.max(
+        exhaustive,
+        spectrum[spectrum.length - 1] ?? 0,
+      )
     }
 
     // 2. two roles
@@ -139,17 +185,35 @@ export default experiment({
     const s = Math.SQRT1_2
     const strange = [0, s, -s]
     const strangeStrange: State = {
-      re: Array.from({ length: 9 }, (_, i) => (strange[Math.floor(i / 3)] ?? 0) * (strange[i % 3] ?? 0)),
+      re: Array.from(
+        { length: 9 },
+        (_, i) =>
+          (strange[Math.floor(i / 3)] ?? 0) * (strange[i % 3] ?? 0),
+      ),
       im: new Array<number>(9).fill(0),
     }
-    const antisymmetric: State = { re: [0, s, 0, -s, 0, 0, 0, 0, 0], im: new Array<number>(9).fill(0) }
-    const structured = [ascend(strangeStrange, points2), ascend(antisymmetric, points2)]
+    const antisymmetric: State = {
+      re: [0, s, 0, -s, 0, 0, 0, 0, 0],
+      im: new Array<number>(9).fill(0),
+    }
+    const structured = [
+      ascend(strangeStrange, points2),
+      ascend(antisymmetric, points2),
+    ]
     const found: number[] = []
 
     for (let k = 0; k < TWO_STARTS; k++) {
       const v = weylUnitVector({ dimension: 18, start: 50000 + k })
 
-      found.push(ascend({ re: Array.from(v.slice(0, 9)), im: Array.from(v.slice(9, 18)) }, points2))
+      found.push(
+        ascend(
+          {
+            re: Array.from(v.slice(0, 9)),
+            im: Array.from(v.slice(9, 18)),
+          },
+          points2,
+        ),
+      )
     }
 
     const best2 = Math.max(...found, ...structured)
@@ -159,6 +223,7 @@ export default experiment({
 
     // 3. multiplicativity on products, exact
     const ones = oneRoleStates()
+
     let products = 0
     let multiplicative = 0
 
@@ -167,7 +232,11 @@ export default experiment({
         const product = u.flatMap(x => v.map(y => x * y))
 
         products++
-        multiplicative += absSum(product) * sum(u) * sum(v) === absSum(u) * absSum(v) * sum(product) ? 1 : 0
+        multiplicative +=
+          absSum(product) * sum(u) * sum(v) ===
+          absSum(u) * absSum(v) * sum(product)
+            ? 1
+            : 0
       }
     }
 
@@ -178,13 +247,25 @@ export default experiment({
     for (let k = 0; k < THREE_STARTS; k++) {
       const v = weylUnitVector({ dimension: 54, start: 70000 + k })
 
-      found3.push(ascend({ re: Array.from(v.slice(0, 27)), im: Array.from(v.slice(27, 54)) }, points3))
+      found3.push(
+        ascend(
+          {
+            re: Array.from(v.slice(0, 27)),
+            im: Array.from(v.slice(27, 54)),
+          },
+          points3,
+        ),
+      )
     }
 
     const best3 = Math.max(...found3)
     const at3 = found3.filter(x => Math.abs(x - best3) < 1e-9).length
     const above125 = found3.filter(x => x > 125 / 27 + 1e-9).length
-    const rateLower = Math.max(5 / 3, Math.sqrt(best2), Math.cbrt(best3))
+    const rateLower = Math.max(
+      5 / 3,
+      Math.sqrt(best2),
+      Math.cbrt(best3),
+    )
     const share = (x: number): number => (1 - 1 / x) / 2
 
     const g1 = Math.abs(exhaustive - 5 / 3) < 1e-12

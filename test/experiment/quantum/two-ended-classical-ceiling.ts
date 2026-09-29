@@ -25,7 +25,11 @@
 // causal control (disconnected region gives zero) and the size control (a larger
 // connected region does not strengthen it). Deterministic ensemble, no random.
 
-import { squareMesh, meshNeighbors, meshOpposites } from '@/code/tool/mesh'
+import {
+  squareMesh,
+  meshNeighbors,
+  meshOpposites,
+} from '@/code/tool/mesh'
 import { makeWill, cellTone, Will } from '@/code/tone/will'
 import { beat } from '@/code/rule/lattice-gas'
 import { pairCollision } from '@/code/rule/collision'

@@ -34,7 +34,14 @@ import { contactFresh } from '@/code/measure/occupation-veto-readings'
 import { wordVacuum } from '@/code/measure/mixed-vacuum-readings'
 import { boxHusk } from '@/code/measure/causal-components'
 import { cloneConfiguration } from '@/code/rule/doublet-locked-knit'
-import { fullPathKey, keyedRunner, offsetAsBeats, oldPathKey, pathOffset, type PathKey } from '@/code/measure/full-key-paths'
+import {
+  fullPathKey,
+  keyedRunner,
+  offsetAsBeats,
+  oldPathKey,
+  pathOffset,
+  type PathKey,
+} from '@/code/measure/full-key-paths'
 
 const SIDE = 16
 const BEATS = 64
@@ -49,22 +56,36 @@ const TAIL_TO = 11
 type Shell = { r: number; v: number }
 
 // least squares of y = a + k g(r) over the given shells
-function fit(rows: Shell[], g: (r: number) => number, constant: boolean): { a: number; k: number; rms: number } {
+function fit(
+  rows: Shell[],
+  g: (r: number) => number,
+  constant: boolean,
+): { a: number; k: number; rms: number } {
   const gx = rows.map(x => g(x.r))
   const mx = constant ? gx.reduce((s, v) => s + v, 0) / rows.length : 0
-  const my = constant ? rows.reduce((s, x) => s + x.v, 0) / rows.length : 0
+  const my = constant
+    ? rows.reduce((s, x) => s + x.v, 0) / rows.length
+    : 0
+
   let num = 0
   let den = 0
 
   rows.forEach((x, i) => {
-    num += ((gx[i] as number) - mx) * (x.v - my)
-    den += ((gx[i] as number) - mx) ** 2
+    num += (gx[i]! - mx) * (x.v - my)
+    den += (gx[i]! - mx) ** 2
   })
 
   const k = num / den
   const a = my - k * mx
 
-  return { a, k, rms: Math.sqrt(rows.reduce((s, x, i) => s + (x.v - a - k * (gx[i] as number)) ** 2, 0) / rows.length) }
+  return {
+    a,
+    k,
+    rms: Math.sqrt(
+      rows.reduce((s, x, i) => s + (x.v - a - k * gx[i]!) ** 2, 0) /
+        rows.length,
+    ),
+  }
 }
 
 export default experiment({
@@ -90,23 +111,33 @@ export default experiment({
     seeded.open[center * 24 + 8] = 1
 
     // one path: per husk column, the disturbed vibe slot-beats over beats FROM..BEATS-1, and their total
-    const pathOf = (key: PathKey, phase: number): { columns: Float64Array; total: number } => {
+    const pathOf = (
+      key: PathKey,
+      phase: number,
+    ): { columns: Float64Array; total: number } => {
       const a = keyedRunner(f.tables, vacuum, { key, phase })
       const b = keyedRunner(f.tables, seeded, { key, phase })
       const columns = new Float64Array(husk.columns)
+
       let total = 0
 
       for (let t = 0; t < BEATS; t++) {
         a.beat()
         b.beat()
-        if (t < FROM) continue
+
+        if (t < FROM) {
+          continue
+        }
 
         const p = a.state().vibe
         const q = b.state().vibe
 
         for (let i = 0; i < p.length; i++) {
-          if (p[i] === q[i]) continue
-          columns[husk.column[Math.floor(i / 24)] as number]! += 1
+          if (p[i] === q[i]) {
+            continue
+          }
+
+          columns[husk.column[Math.floor(i / 24)]!]! += 1
           total++
         }
       }
@@ -114,27 +145,55 @@ export default experiment({
       return { columns, total }
     }
 
-    const offsets = Array.from({ length: PATHS }, (_, k) => pathOffset(k))
+    const offsets = Array.from({ length: PATHS }, (_, k) =>
+      pathOffset(k),
+    )
     const paths = offsets.map(o => pathOf(fullPathKey(o), 0))
-    const oldTotals = Array.from({ length: OLD_PHASES }, (_, k) => pathOf(oldPathKey(f.cells), k * OLD_PHASE_STEP).total)
+    const oldTotals = Array.from(
+      { length: OLD_PHASES },
+      (_, k) => pathOf(oldPathKey(f.cells), k * OLD_PHASE_STEP).total,
+    )
     const mean = new Float64Array(husk.columns)
 
-    for (const p of paths) for (let c = 0; c < husk.columns; c++) mean[c]! += (p.columns[c] as number) / PATHS
+    for (const p of paths) {
+      for (let c = 0; c < husk.columns; c++) {
+        mean[c]! += p.columns[c]! / PATHS
+      }
+    }
 
-    const at = (c: number): number[] => [c % SIDE, Math.floor(c / SIDE) % SIDE, Math.floor(c / (SIDE * SIDE))]
-    const p0 = at(husk.column[center] as number)
+    const at = (c: number): number[] => [
+      c % SIDE,
+      Math.floor(c / SIDE) % SIDE,
+      Math.floor(c / (SIDE * SIDE)),
+    ]
+    const p0 = at(husk.column[center]!)
     const shells = new Map<number, { sum: number; n: number }>()
 
     for (let c = 0; c < husk.columns; c++) {
-      const r = Math.round(Math.sqrt(at(c).reduce((s, v, j) => s + Math.min(Math.abs(v - (p0[j] as number)), SIDE - Math.abs(v - (p0[j] as number))) ** 2, 0)))
+      const r = Math.round(
+        Math.sqrt(
+          at(c).reduce(
+            (s, v, j) =>
+              s +
+              Math.min(
+                Math.abs(v - p0[j]!),
+                SIDE - Math.abs(v - p0[j]!),
+              ) **
+                2,
+            0,
+          ),
+        ),
+      )
       const e = shells.get(r) ?? { sum: 0, n: 0 }
 
-      e.sum += mean[c] as number
+      e.sum += mean[c]!
       e.n++
       shells.set(r, e)
     }
 
-    const rows: Shell[] = [...shells.entries()].sort((x, y) => x[0] - y[0]).map(([r, e]) => ({ r, v: e.sum / e.n }))
+    const rows: Shell[] = [...shells.entries()]
+      .sort((x, y) => x[0] - y[0])
+      .map(([r, e]) => ({ r, v: e.sum / e.n }))
     const outer = rows.filter(x => x.r >= 1)
     const tail = rows.filter(x => x.r >= TAIL_FROM && x.r <= TAIL_TO)
     const inverse = fit(outer, r => 1 / r, true)
@@ -155,7 +214,9 @@ export default experiment({
     const control = oldDistinct <= 2
     const status = gE1 && gE2 && gE3 && control ? 'pass' : 'fail'
     const beats = offsets.map(offsetAsBeats).sort((x, y) => x - y)
-    const gaps = beats.map((b, i) => (i + 1 < beats.length ? (beats[i + 1] as number) - b : 65536 - b + (beats[0] as number)))
+    const gaps = beats.map((b, i) =>
+      i + 1 < beats.length ? beats[i + 1]! - b : 65536 - b + beats[0]!,
+    )
     const metrics: Record<string, number> = {
       gate_E1: gE1 ? 1 : 0,
       gate_E2: gE2 ? 1 : 0,
@@ -173,13 +234,19 @@ export default experiment({
       seconds: (Date.now() - t0) / 1000,
     }
 
-    for (const x of rows) metrics[`shell${x.r}`] = x.v
+    for (const x of rows) {
+      metrics[`shell${x.r}`] = x.v
+    }
 
     return verdict({
       status,
       claim: `one love+fear pair's disturbance per husk column averaged over ${PATHS} full-key paths (${distinct} distinct; side ${SIDE}, beats ${FROM} to ${BEATS - 1}): ${rows.map(x => `${x.r}: ${x.v.toFixed(3)}`).join(', ')}; the core fits a + k e^(-r/${CORE_RANGE}) with rms ${core.rms.toFixed(3)} against ${inverse.rms.toFixed(3)} for a + k/r; the tail r = ${TAIL_FROM} to ${TAIL_TO} fits k/r^2 with rms ${tailSquare.rms.toFixed(3)} against ${tailInverse.rms.toFixed(3)} for k/r (log-log slope ${logSlope.toFixed(2)} on its nonzero shells); the registered key gives ${oldDistinct} distinct totals over ${OLD_PHASES} start phases`,
       metrics,
-      control: { oldDistinctTotals: oldDistinct, oldTotal0: oldTotals[0]!, oldTotal1: oldTotals[1]! },
+      control: {
+        oldDistinctTotals: oldDistinct,
+        oldTotal0: oldTotals[0]!,
+        oldTotal1: oldTotals[1]!,
+      },
       notes: `L2. E1 ${gE1}, E2 ${gE2}, E3 ${gE3}, control ${control}. Path totals: ${paths.map(p => p.total).join(' ')}; old-key totals by phase: ${oldTotals.join(' ')}. The offsets read the one full-period record ${Math.min(...gaps)} or more beats apart (64 are run), so no two paths share a stretch of it. Fits over r >= 1: a + k/r a ${inverse.a.toFixed(3)} k ${inverse.k.toFixed(3)}; a + k e^(-r/${CORE_RANGE}) a ${core.a.toFixed(3)} k ${core.k.toFixed(3)}; tail k/r k ${tailInverse.k.toFixed(3)}, k/r^2 k ${tailSquare.k.toFixed(3)}. ${((Date.now() - t0) / 1000).toFixed(0)} s.`,
     })
   },

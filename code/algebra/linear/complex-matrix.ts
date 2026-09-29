@@ -5,7 +5,11 @@
 // Jordan for the inverse, scaling and squaring with a Taylor series for the exponential, and the series of
 // log(I + E) for a matrix within a small distance of the identity.
 
-export type ComplexMatrix = { readonly re: Float64Array; readonly im: Float64Array; readonly n: number }
+export type ComplexMatrix = {
+  readonly re: Float64Array
+  readonly im: Float64Array
+  readonly n: number
+}
 
 export function complexIdentity(n: number): ComplexMatrix {
   const re = new Float64Array(n * n)
@@ -17,7 +21,10 @@ export function complexIdentity(n: number): ComplexMatrix {
   return { re, im: new Float64Array(n * n), n }
 }
 
-export function complexMultiply(a: ComplexMatrix, b: ComplexMatrix): ComplexMatrix {
+export function complexMultiply(
+  a: ComplexMatrix,
+  b: ComplexMatrix,
+): ComplexMatrix {
   const n = a.n
   const re = new Float64Array(n * n)
   const im = new Float64Array(n * n)
@@ -45,7 +52,12 @@ export function complexMultiply(a: ComplexMatrix, b: ComplexMatrix): ComplexMatr
 }
 
 // a * s + b * t for complex scalars s = [sr, si] and t = [tr, ti]
-export function complexCombine(a: ComplexMatrix, s: readonly [number, number], b: ComplexMatrix, t: readonly [number, number]): ComplexMatrix {
+export function complexCombine(
+  a: ComplexMatrix,
+  s: readonly [number, number],
+  b: ComplexMatrix,
+  t: readonly [number, number],
+): ComplexMatrix {
   const n = a.n
   const re = new Float64Array(n * n)
   const im = new Float64Array(n * n)
@@ -82,7 +94,10 @@ export function complexInverse(a: ComplexMatrix): ComplexMatrix {
     let p = c
 
     for (let r = c + 1; r < n; r++) {
-      if (Math.hypot(mr[r * w + c] ?? 0, mi[r * w + c] ?? 0) > Math.hypot(mr[p * w + c] ?? 0, mi[p * w + c] ?? 0)) {
+      if (
+        Math.hypot(mr[r * w + c] ?? 0, mi[r * w + c] ?? 0) >
+        Math.hypot(mr[p * w + c] ?? 0, mi[p * w + c] ?? 0)
+      ) {
         p = r
       }
     }
@@ -191,12 +206,16 @@ export function complexExp(a: ComplexMatrix): ComplexMatrix {
 
 // log(A) for A near the identity: the series of log(I + E), E = A - I, to 60 terms; throws when |E| is
 // not below 1 / 2
-export function complexLogNearIdentity(a: ComplexMatrix): ComplexMatrix {
+export function complexLogNearIdentity(
+  a: ComplexMatrix,
+): ComplexMatrix {
   const n = a.n
   const e = complexCombine(a, [1, 0], complexIdentity(n), [-1, 0])
 
   if (norm1(e) >= 0.5) {
-    throw new Error('complexLogNearIdentity: matrix is not near the identity')
+    throw new Error(
+      'complexLogNearIdentity: matrix is not near the identity',
+    )
   }
 
   let sum = complexCombine(e, [0, 0], e, [0, 0])
@@ -204,14 +223,20 @@ export function complexLogNearIdentity(a: ComplexMatrix): ComplexMatrix {
 
   for (let j = 1; j <= 60; j++) {
     power = complexMultiply(power, e)
-    sum = complexCombine(sum, [1, 0], power, [(j % 2 === 1 ? 1 : -1) / j, 0])
+    sum = complexCombine(sum, [1, 0], power, [
+      (j % 2 === 1 ? 1 : -1) / j,
+      0,
+    ])
   }
 
   return sum
 }
 
 // A x for a complex vector
-export function complexApply(a: ComplexMatrix, x: { re: ArrayLike<number>; im: ArrayLike<number> }): { re: Float64Array; im: Float64Array } {
+export function complexApply(
+  a: ComplexMatrix,
+  x: { re: ArrayLike<number>; im: ArrayLike<number> },
+): { re: Float64Array; im: Float64Array } {
   const n = a.n
   const re = new Float64Array(n)
   const im = new Float64Array(n)

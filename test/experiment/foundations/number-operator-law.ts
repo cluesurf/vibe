@@ -104,9 +104,11 @@ export default experiment({
 
     const solo = respond([[lanes[0]!, 0, 1]])
     const ROOT3 = Math.sqrt(3)
+
     let linearExact = true
     let phaseBlind = true
     let amplitudesVerified = true
+
     const responses: number[] = []
 
     for (const N of [2, 4, 6, 8, 10]) {

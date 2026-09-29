@@ -81,19 +81,44 @@ import {
   type LivingDressing,
   type QuantumRun,
 } from '@/code/measure/sparse-living-battery'
-import { coinMapLedger, cptAtCollision, generationCopies, loneResponse } from '@/code/measure/living-pair-battery'
+import {
+  coinMapLedger,
+  cptAtCollision,
+  generationCopies,
+  loneResponse,
+} from '@/code/measure/living-pair-battery'
 import { goldenFill } from '@/code/measure/candidate-kernel'
 import { livingKernelAgreement } from '@/code/measure/living-pair-kernel'
 import { makeLivingKnit } from '@/code/rule/living-pair-knit'
 import { storeStart } from '@/code/measure/token-store-gates'
 import { isometricTable, LINE_FIRSTS } from '@/code/rule/isometric-knit'
-import { STORE_N, UNIFORM, type Background } from '@/code/measure/token-store-linearization'
+import {
+  STORE_N,
+  UNIFORM,
+  type Background,
+} from '@/code/measure/token-store-linearization'
 import { livingLinearization } from '@/code/measure/living-pair-linearization'
 import { pairEquivarianceDefect } from '@/code/measure/pair-knit-linearization'
 import { weylF4DirectionPermutations } from '@/code/measure/coin-symmetry'
-import { invariantsOf, readStoreTransport, storeExponents, storeSpectrum, type Named, type Space } from '@/code/measure/store-transport'
+import {
+  invariantsOf,
+  readStoreTransport,
+  storeExponents,
+  storeSpectrum,
+  type Named,
+  type Space,
+} from '@/code/measure/store-transport'
 import { huskDirections } from '@/code/measure/husk-transport-order'
-import { ALL_LINES, boxStore, ONE_LINE, orientedLinearization, sampledOrientedLinearization, sparseLivingState, type Law, type StorePattern } from '@/code/measure/sparse-living-vacuum'
+import {
+  ALL_LINES,
+  boxStore,
+  ONE_LINE,
+  orientedLinearization,
+  sampledOrientedLinearization,
+  sparseLivingState,
+  type Law,
+  type StorePattern,
+} from '@/code/measure/sparse-living-vacuum'
 
 // ---- the reference: E-FRC-0159 rerun 2026-09-26 (comoving beat, exact kernels), copied from E-RLT-0075 ----
 
@@ -145,8 +170,14 @@ const QUANTUM_GATES = [
   'interferenceBeyondStandIn',
   'chshAbove2',
 ] as const
-const passAll = (names: readonly string[]): Record<string, boolean> => Object.fromEntries(names.map(n => [n, true]))
-const H_GATES: Record<string, boolean> = { ...passAll(CLASSICAL_GATES), fearDressingSide9: false, fearDressingSide11: false, ...passAll(QUANTUM_GATES) }
+const passAll = (names: readonly string[]): Record<string, boolean> =>
+  Object.fromEntries(names.map(n => [n, true]))
+const H_GATES: Record<string, boolean> = {
+  ...passAll(CLASSICAL_GATES),
+  fearDressingSide9: false,
+  fearDressingSide11: false,
+  ...passAll(QUANTUM_GATES),
+}
 // E-RLT-0070's candidate: the gates it newly failed against H
 const CANDIDATE_NEWLY_FAILING = [
   'loveDressingSide9',
@@ -161,13 +192,31 @@ const CANDIDATE_NEWLY_FAILING = [
   'chshAbove2',
 ]
 // E-RLT-0075's full living vacuum: the gates it newly failed against H (its log, tmp/live-living-pair-battery.log)
-const LIVING_NEWLY_FAILING = ['superposition', 'wallsQuantized', 'loveDressingSide9', 'loveDressingSide7', 'fearDressingSide7', 'loveDressingSide11']
+const LIVING_NEWLY_FAILING = [
+  'superposition',
+  'wallsQuantized',
+  'loveDressingSide9',
+  'loveDressingSide7',
+  'fearDressingSide7',
+  'loveDressingSide11',
+]
 
-const noMore = (xs: readonly number[], ref: readonly number[]): boolean => xs.every((x, p) => x <= (ref[p] ?? 0))
+const noMore = (
+  xs: readonly number[],
+  ref: readonly number[],
+): boolean => xs.every((x, p) => x <= (ref[p] ?? 0))
 
-type Classical = { gates: Record<string, boolean>; numbers: Record<string, number>; love9: LivingDressing; fear9: LivingDressing }
+type Classical = {
+  gates: Record<string, boolean>
+  numbers: Record<string, number>
+  love9: LivingDressing
+  fear9: LivingDressing
+}
 
-function classicalOn(pattern: StorePattern, log: (what: string) => void): Classical {
+function classicalOn(
+  pattern: StorePattern,
+  log: (what: string) => void,
+): Classical {
   const rc = reversalAndCharge(pattern)
   const cpt = cptAtCollision()
   const period = vacuumPeriod(pattern)
@@ -208,8 +257,14 @@ function classicalOn(pattern: StorePattern, log: (what: string) => void): Classi
     fearDressingSide9: noMore(fear9.periodLargest, COMMITTED.side9Fear),
     loveDressingSide7: noMore(love7.periodLargest, COMMITTED.side7Love),
     fearDressingSide7: noMore(fear7.periodLargest, COMMITTED.side7Fear),
-    loveDressingSide11: noMore(love11.periodLargest, COMMITTED.side11Love),
-    fearDressingSide11: noMore(fear11.periodLargest, COMMITTED.side11Fear),
+    loveDressingSide11: noMore(
+      love11.periodLargest,
+      COMMITTED.side11Love,
+    ),
+    fearDressingSide11: noMore(
+      fear11.periodLargest,
+      COMMITTED.side11Fear,
+    ),
     boxReverses: box.boxReverses === 1,
     boxChargeKept: box.boxChargeKept === 1,
     noColorLeak: box.boxColorLeaks === 0,
@@ -217,7 +272,11 @@ function classicalOn(pattern: StorePattern, log: (what: string) => void): Classi
     momentumKept: box.pDrift === 0,
     lineMomentaExchanged: (box.lineMomentumDrift ?? 0) > 0,
   }
-  const periods = (prefix: string, xs: readonly number[]): Record<string, number> => Object.fromEntries(xs.map((x, p) => [`${prefix}Period${p + 1}`, x]))
+  const periods = (
+    prefix: string,
+    xs: readonly number[],
+  ): Record<string, number> =>
+    Object.fromEntries(xs.map((x, p) => [`${prefix}Period${p + 1}`, x]))
 
   return {
     gates,
@@ -259,40 +318,76 @@ function classicalOn(pattern: StorePattern, log: (what: string) => void): Classi
 const ROOTS = rootsD4()
 const N = STORE_N
 const LADDER = [4, 8, 16, 32, 64, 128, 256]
-const SPACE: Space = { n: N, roots: Array.from({ length: N }, (_, i) => (i < 48 ? ROOTS[i >> 1] : undefined)) }
+const SPACE: Space = {
+  n: N,
+  roots: Array.from({ length: N }, (_, i) =>
+    i < 48 ? ROOTS[i >> 1] : undefined,
+  ),
+}
 const NAMED: Named = {
-  charge: Float64Array.from({ length: N }, (_, i) => (i < 48 ? (i % 2 === 0 ? 1 : -1) : 0)),
-  momentumAlong: u => Float64Array.from({ length: N }, (_, i) => (i < 48 ? (ROOTS[i >> 1] as number[]).reduce((s, x, k) => s + x * (u[k] ?? 0), 0) : 0)),
+  charge: Float64Array.from({ length: N }, (_, i) =>
+    i < 48 ? (i % 2 === 0 ? 1 : -1) : 0,
+  ),
+  momentumAlong: u =>
+    Float64Array.from({ length: N }, (_, i) =>
+      i < 48
+        ? ROOTS[i >> 1]!.reduce((s, x, k) => s + x * (u[k] ?? 0), 0)
+        : 0,
+    ),
 }
 const STORED_LAW: Law = [2 / 3, 1 / 6, 1 / 6]
 const EMPTY_LAW: Law = [1 / 6, 1 / 6, 2 / 3]
-const ORIENTED: Background = { rho: 2 / 3, store: [1 / 3, 1 / 3, 1 / 3], equal: 1 / 9 }
+const ORIENTED: Background = {
+  rho: 2 / 3,
+  store: [1 / 3, 1 / 3, 1 / 3],
+  equal: 1 / 9,
+}
 
 const worstOf = (a: Float64Array, b: Float64Array): number => {
   let w = 0
 
-  for (let i = 0; i < a.length; i++) w = Math.max(w, Math.abs((a[i] as number) - (b[i] as number)))
+  for (let i = 0; i < a.length; i++) {
+    w = Math.max(w, Math.abs(a[i]! - b[i]!))
+  }
 
   return w
 }
 
-type TransportRead = { metrics: Record<string, number>; three: Record<string, number>; invariants: number }
+type TransportRead = {
+  metrics: Record<string, number>
+  three: Record<string, number>
+  invariants: number
+}
 
-function readTransport(matrices: Float64Array[], prefix: string): TransportRead {
+function readTransport(
+  matrices: Float64Array[],
+  prefix: string,
+): TransportRead {
   const invariants = invariantsOf(SPACE, matrices)
   const s = storeSpectrum(SPACE, NAMED, matrices, invariants)
   const kc = Math.sqrt(s.gap / s.dMax)
-  const reading = readStoreTransport({ space: SPACE, named: NAMED, matrices, invariants, ks: LADDER.map(r => kc / r), directions: huskDirections(24) })
+  const reading = readStoreTransport({
+    space: SPACE,
+    named: NAMED,
+    matrices,
+    invariants,
+    ks: LADDER.map(r => kc / r),
+    directions: huskDirections(24),
+  })
   const five = storeExponents(reading, 5)
   const three: Record<string, number> = {}
-  const metrics: Record<string, number> = { [`${prefix}_invariants`]: invariants.length, [`${prefix}_kc`]: kc }
+  const metrics: Record<string, number> = {
+    [`${prefix}_invariants`]: invariants.length,
+    [`${prefix}_kc`]: kc,
+  }
 
   for (const q of ['charge', 'trace', 'sound', 'shear']) {
     const c = reading.series[q] ?? []
 
     three[q] = Math.log((c[0] ?? 1) / (c[2] ?? 1)) / Math.log(4)
-    metrics[`${prefix}_husk_${q}_exponent3`] = three[q] as number
-    metrics[`${prefix}_husk_${q}_exponent5`] = five[q]?.slope ?? Number.NaN
+    metrics[`${prefix}_husk_${q}_exponent3`] = three[q]
+    metrics[`${prefix}_husk_${q}_exponent5`] =
+      five[q]?.slope ?? Number.NaN
     metrics[`${prefix}_husk_${q}_mean`] = reading.means[q] ?? Number.NaN
     c.forEach((a, rung) => {
       metrics[`${prefix}_husk_${q}_anisotropy_rung${LADDER[rung]}`] = a
@@ -302,26 +397,85 @@ function readTransport(matrices: Float64Array[], prefix: string): TransportRead 
   return { metrics, three, invariants: invariants.length }
 }
 
-function transport(): { metrics: Record<string, number>; xt: boolean; ht: boolean; list: string; symmetricList: string } {
+function transport(): {
+  metrics: Record<string, number>
+  xt: boolean
+  ht: boolean
+  list: string
+  symmetricList: string
+} {
   const table = isometricTable()
-  const permutations = weylF4DirectionPermutations({ directions: ROOTS })
-  const f0 = LINE_FIRSTS[0] as number
+  const permutations = weylF4DirectionPermutations({
+    directions: ROOTS,
+  })
+  const f0 = LINE_FIRSTS[0]!
   const stabilizer = permutations.filter(g => g[f0] === f0)
   const uniformLaws: Law[] = LINE_FIRSTS.map(() => UNIFORM.store)
-  const laws: Law[] = LINE_FIRSTS.map((_, l) => (ONE_LINE[l] === 1 ? STORED_LAW : EMPTY_LAW))
-  const even = livingLinearization({ table, background: UNIFORM, mode: 'PK' })
-  const odd = livingLinearization({ table, background: UNIFORM, mode: 'KP' })
-  const evenCheck = orientedLinearization({ table, background: UNIFORM, mode: 'PK', laws: uniformLaws })
-  const oddCheck = orientedLinearization({ table, background: UNIFORM, mode: 'KP', laws: uniformLaws })
-  const orientedEven = orientedLinearization({ table, background: ORIENTED, mode: 'PK', laws })
-  const orientedOdd = orientedLinearization({ table, background: ORIENTED, mode: 'KP', laws })
+  const laws: Law[] = LINE_FIRSTS.map((_, l) =>
+    ONE_LINE[l] === 1 ? STORED_LAW : EMPTY_LAW,
+  )
+  const even = livingLinearization({
+    table,
+    background: UNIFORM,
+    mode: 'PK',
+  })
+  const odd = livingLinearization({
+    table,
+    background: UNIFORM,
+    mode: 'KP',
+  })
+  const evenCheck = orientedLinearization({
+    table,
+    background: UNIFORM,
+    mode: 'PK',
+    laws: uniformLaws,
+  })
+  const oddCheck = orientedLinearization({
+    table,
+    background: UNIFORM,
+    mode: 'KP',
+    laws: uniformLaws,
+  })
+  const orientedEven = orientedLinearization({
+    table,
+    background: ORIENTED,
+    mode: 'PK',
+    laws,
+  })
+  const orientedOdd = orientedLinearization({
+    table,
+    background: ORIENTED,
+    mode: 'KP',
+    laws,
+  })
   const knit = makeLivingKnit(weaveOf(3))
-  const sampledEven = sampledOrientedLinearization({ knit, background: ORIENTED, laws, samples: 200_000, t: 0 })
-  const sampledOdd = sampledOrientedLinearization({ knit, background: ORIENTED, laws, samples: 200_000, t: 1 })
+  const sampledEven = sampledOrientedLinearization({
+    knit,
+    background: ORIENTED,
+    laws,
+    samples: 200_000,
+    t: 0,
+  })
+  const sampledOdd = sampledOrientedLinearization({
+    knit,
+    background: ORIENTED,
+    laws,
+    samples: 200_000,
+    t: 1,
+  })
   const symmetric = readTransport([even, odd], 'symmetric')
-  const oriented = readTransport([orientedEven, orientedOdd], 'oriented')
-  const stabilizerDefect = Math.max(pairEquivarianceDefect(orientedEven, stabilizer), pairEquivarianceDefect(orientedOdd, stabilizer))
-  const fullDefect = Math.max(pairEquivarianceDefect(orientedEven, permutations), pairEquivarianceDefect(orientedOdd, permutations))
+  const oriented = readTransport(
+    [orientedEven, orientedOdd],
+    'oriented',
+  )
+  const stabilizerDefect = Math.max(
+    pairEquivarianceDefect(orientedEven, stabilizer),
+    pairEquivarianceDefect(orientedOdd, stabilizer),
+  )
+  const fullDefect = Math.max(
+    pairEquivarianceDefect(orientedEven, permutations),
+    pairEquivarianceDefect(orientedOdd, permutations),
+  )
   const metrics: Record<string, number> = {
     reproduceEven: worstOf(evenCheck, even),
     reproduceOdd: worstOf(oddCheck, odd),
@@ -344,10 +498,23 @@ function transport(): { metrics: Record<string, number>; xt: boolean; ht: boolea
     symmetric.invariants === 6 &&
     oriented.invariants === 6
   const t = oriented.three
-  const ht = (t.charge ?? 0) >= 3.5 && (t.trace ?? 0) >= 3.5 && (t.sound ?? 0) >= 3.5 && Math.abs((t.shear ?? 0) - 2) <= 0.5
-  const fmt = (r: Record<string, number>): string => ['charge', 'trace', 'sound', 'shear'].map(q => `${q} ${(r[q] ?? Number.NaN).toFixed(2)}`).join(', ')
+  const ht =
+    (t.charge ?? 0) >= 3.5 &&
+    (t.trace ?? 0) >= 3.5 &&
+    (t.sound ?? 0) >= 3.5 &&
+    Math.abs((t.shear ?? 0) - 2) <= 0.5
+  const fmt = (r: Record<string, number>): string =>
+    ['charge', 'trace', 'sound', 'shear']
+      .map(q => `${q} ${(r[q] ?? Number.NaN).toFixed(2)}`)
+      .join(', ')
 
-  return { metrics, xt, ht, list: fmt(oriented.three), symmetricList: fmt(symmetric.three) }
+  return {
+    metrics,
+    xt,
+    ht,
+    list: fmt(oriented.three),
+    symmetricList: fmt(symmetric.three),
+  }
 }
 
 export default experiment({
@@ -361,7 +528,10 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
 
     // X0
     const w3 = weaveOf(3)
@@ -370,11 +540,25 @@ export default experiment({
     const knit3 = makeLivingKnit(w3)
     const agreements = [
       ...[ONE_LINE, ALL_LINES, ALL_LINES.map(() => 0)].map(pattern =>
-        livingKernelAgreement({ knit: knit3, start: sparseLivingState({ ...goldenFill(slots3, 1.37), store: boxStore(cells3, pattern), layout: layoutOf(3) }), beats: 48 }),
+        livingKernelAgreement({
+          knit: knit3,
+          start: sparseLivingState({
+            ...goldenFill(slots3, 1.37),
+            store: boxStore(cells3, pattern),
+            layout: layoutOf(3),
+          }),
+          beats: 48,
+        }),
       ),
-      livingKernelAgreement({ knit: knit3, start: storeStart(cells3, 11), beats: 48 }),
+      livingKernelAgreement({
+        knit: knit3,
+        start: storeStart(cells3, 11),
+        beats: 48,
+      }),
     ]
-    const x0 = agreements.every(a => a.mismatches === 0) && agreements.every(a => a.vetoed > 0)
+    const x0 =
+      agreements.every(a => a.mismatches === 0) &&
+      agreements.every(a => a.vetoed > 0)
 
     log('x0')
 
@@ -382,11 +566,17 @@ export default experiment({
 
     log('classical one-line')
 
-    const cold = classicalOn(ALL_LINES.map(() => 0), log)
+    const cold = classicalOn(
+      ALL_LINES.map(() => 0),
+      log,
+    )
 
     log('classical cold')
 
-    const runs: Record<string, QuantumRun> = { on: quantum(ONE_LINE, 'on'), off: quantum(ONE_LINE, 'off') }
+    const runs: Record<string, QuantumRun> = {
+      on: quantum(ONE_LINE, 'on'),
+      off: quantum(ONE_LINE, 'off'),
+    }
 
     log('quantum')
 
@@ -400,21 +590,54 @@ export default experiment({
 
     log('transport')
 
-    const x1 = (runs.on?.metrics.controlsHold ?? 0) === 1 && (runs.off?.metrics.controlsHold ?? 0) === 1
-    const gatesHere: Record<string, boolean> = { ...hot.gates, ...(runs.on?.gates ?? {}) }
-    const newlyFailing = Object.keys(H_GATES).filter(g => H_GATES[g] && !gatesHere[g])
-    const newlyPassing = Object.keys(H_GATES).filter(g => !H_GATES[g] && gatesHere[g])
-    const quantumFailing = QUANTUM_GATES.filter(g => !(runs.on?.gates[g] ?? false))
-    const failsOnlyOn = QUANTUM_GATES.filter(g => (runs.off?.gates[g] ?? false) && !(runs.on?.gates[g] ?? false))
-    const fixedFromCandidate = CANDIDATE_NEWLY_FAILING.filter(g => gatesHere[g])
-    const fixedFromLiving = LIVING_NEWLY_FAILING.filter(g => gatesHere[g])
-    const brokenAgainstLiving = newlyFailing.filter(g => !LIVING_NEWLY_FAILING.includes(g))
+    const x1 =
+      (runs.on?.metrics.controlsHold ?? 0) === 1 &&
+      (runs.off?.metrics.controlsHold ?? 0) === 1
+    const gatesHere: Record<string, boolean> = {
+      ...hot.gates,
+      ...(runs.on?.gates ?? {}),
+    }
+    const newlyFailing = Object.keys(H_GATES).filter(
+      g => H_GATES[g] && !gatesHere[g],
+    )
+    const newlyPassing = Object.keys(H_GATES).filter(
+      g => !H_GATES[g] && gatesHere[g],
+    )
+    const quantumFailing = QUANTUM_GATES.filter(
+      g => !(runs.on?.gates[g] ?? false),
+    )
+    const failsOnlyOn = QUANTUM_GATES.filter(
+      g =>
+        (runs.off?.gates[g] ?? false) && !(runs.on?.gates[g] ?? false),
+    )
+    const fixedFromCandidate = CANDIDATE_NEWLY_FAILING.filter(
+      g => gatesHere[g],
+    )
+    const fixedFromLiving = LIVING_NEWLY_FAILING.filter(
+      g => gatesHere[g],
+    )
+    const brokenAgainstLiving = newlyFailing.filter(
+      g => !LIVING_NEWLY_FAILING.includes(g),
+    )
     const unevaluable = runs.on?.unevaluable ?? []
-    const condition = newlyFailing.length === 0 && quantumFailing.length === 0
+    const condition =
+      newlyFailing.length === 0 && quantumFailing.length === 0
     const instruments = x0 && x1 && tr.xt
-    const status = instruments ? (condition && tr.ht ? 'pass' : 'fail') : 'partial'
-    const flatten = (prefix: string, record: Record<string, number | boolean>): Record<string, number> =>
-      Object.fromEntries(Object.entries(record).map(([k, v]) => [`${prefix}_${k}`, typeof v === 'boolean' ? (v ? 1 : 0) : v]))
+    const status = instruments
+      ? condition && tr.ht
+        ? 'pass'
+        : 'fail'
+      : 'partial'
+    const flatten = (
+      prefix: string,
+      record: Record<string, number | boolean>,
+    ): Record<string, number> =>
+      Object.fromEntries(
+        Object.entries(record).map(([k, v]) => [
+          `${prefix}_${k}`,
+          typeof v === 'boolean' ? (v ? 1 : 0) : v,
+        ]),
+      )
     const metrics: Record<string, number> = {
       worksWithEverything: condition ? 1 : 0,
       newlyFailingVsH: newlyFailing.length,
@@ -425,7 +648,10 @@ export default experiment({
       quantumGatesFailingOn: quantumFailing.length,
       quantumUnevaluable: unevaluable.length,
       failsOnlyWithFearOn: failsOnlyOn.length,
-      kernelMismatchBeats: agreements.reduce((s, a) => s + a.mismatches, 0),
+      kernelMismatchBeats: agreements.reduce(
+        (s, a) => s + a.mismatches,
+        0,
+      ),
       kernelVetoes: agreements.reduce((s, a) => s + a.vetoed, 0),
       ...flatten('sparse_gate', hot.gates),
       ...flatten('sparse', hot.numbers),
@@ -447,14 +673,21 @@ export default experiment({
       seconds: (Date.now() - started) / 1000,
     }
     const m = metrics
-    const list = (xs: readonly string[]): string => (xs.length > 0 ? xs.join(', ') : 'none')
-    const per = (prefix: string): string => [1, 2, 3, 4].map(p => m[`${prefix}Period${p}`]).join(', ')
-    const trade = CLASSICAL_GATES.concat(QUANTUM_GATES as unknown as typeof CLASSICAL_GATES)
-      .map(g => `${g} H ${H_GATES[g] ? 'pass' : 'fail'} / 0070 ${CANDIDATE_NEWLY_FAILING.includes(g) ? 'fail' : H_GATES[g] ? 'pass' : 'fail'} / 0075 ${LIVING_NEWLY_FAILING.includes(g) ? 'fail' : H_GATES[g] ? 'pass' : 'fail'} / here ${gatesHere[g] ? 'pass' : 'fail'}`)
+    const list = (xs: readonly string[]): string =>
+      xs.length > 0 ? xs.join(', ') : 'none'
+    const per = (prefix: string): string =>
+      [1, 2, 3, 4].map(p => m[`${prefix}Period${p}`]).join(', ')
+    const trade = CLASSICAL_GATES.concat(
+      QUANTUM_GATES as unknown as typeof CLASSICAL_GATES,
+    )
+      .map(
+        g =>
+          `${g} H ${H_GATES[g] ? 'pass' : 'fail'} / 0070 ${CANDIDATE_NEWLY_FAILING.includes(g) ? 'fail' : H_GATES[g] ? 'pass' : 'fail'} / 0075 ${LIVING_NEWLY_FAILING.includes(g) ? 'fail' : H_GATES[g] ? 'pass' : 'fail'} / here ${gatesHere[g] ? 'pass' : 'fail'}`,
+      )
       .join('; ')
 
     return verdict({
-      status: status as 'pass' | 'fail' | 'partial',
+      status: status,
       claim: `the living-pair knit on the one-line living vacuum ${condition ? 'works' : 'does not work'} with everything by E-FRC-0159's rule: against the combined knit H ${newlyFailing.length} gates newly fail (${list(newlyFailing)}) and ${newlyPassing.length} newly pass; of E-RLT-0075's 6 it clears ${fixedFromLiving.length} (${list(fixedFromLiving)}); ${quantumFailing.length} of 14 quantum gates fail with the fear beat on; the vacuum pair is ${m.on_vacuumPairKind === 1 ? 'a line of place tokens' : m.on_vacuumPairKind === 0 ? 'a line of slot tokens' : 'absent'}, CHSH ${m.on_chsh?.toFixed(3)}; the lone-love wake per period on side 9 is ${per('sparse_side9Love')} trits (committed 33, 160, 565, 1,508); husk transport at the symmetric background ${tr.symmetricList}, at the oriented background ${tr.list}`,
       metrics,
       control: {

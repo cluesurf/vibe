@@ -83,9 +83,25 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { momentumKey } from '@/code/rule/isometric-knit'
-import { bouncePermutation, BOUNCE_TABLE } from '@/code/rule/bounce-pair-knit'
-import { lockedBeat, lockedBeatBack, lockedState, lockedTables, type Configuration, type LockedState, type LockedTables } from '@/code/rule/doublet-locked-knit'
-import { lockedFresh, vacuumConfiguration, SILVER_RATE, type LockedFresh } from '@/code/measure/doublet-locked-readings'
+import {
+  bouncePermutation,
+  BOUNCE_TABLE,
+} from '@/code/rule/bounce-pair-knit'
+import {
+  lockedBeat,
+  lockedBeatBack,
+  lockedState,
+  lockedTables,
+  type Configuration,
+  type LockedState,
+  type LockedTables,
+} from '@/code/rule/doublet-locked-knit'
+import {
+  lockedFresh,
+  vacuumConfiguration,
+  SILVER_RATE,
+  type LockedFresh,
+} from '@/code/measure/doublet-locked-readings'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
 import {
   axialAlongMotion,
@@ -119,8 +135,15 @@ const SHORT = 24
 const SAMPLES = 4096
 
 // ---- L1, L2 ----
-function groupFacts(maps: HuskMap[]): { lifts: number; automorphisms: number; parities: number; bulkReflections: number; bulkRotations: number } {
+function groupFacts(maps: HuskMap[]): {
+  lifts: number
+  automorphisms: number
+  parities: number
+  bulkReflections: number
+  bulkRotations: number
+} {
   const parities = maps.filter(m => m.huskDet === -1)
+
   let automorphisms = 0
 
   for (const m of maps) {
@@ -132,68 +155,113 @@ function groupFacts(maps: HuskMap[]): { lifts: number; automorphisms: number; pa
     }
   }
 
-  return { lifts: maps.length, automorphisms, parities: parities.length, bulkReflections: parities.filter(m => m.bulkDet === -1).length, bulkRotations: parities.filter(m => m.bulkDet === 1).length }
+  return {
+    lifts: maps.length,
+    automorphisms,
+    parities: parities.length,
+    bulkReflections: parities.filter(m => m.bulkDet === -1).length,
+    bulkRotations: parities.filter(m => m.bulkDet === 1).length,
+  }
 }
 
-function tableCovariance(maps: HuskMap[]): { keys: number; mismatches: number } {
+function tableCovariance(maps: HuskMap[]): {
+  keys: number
+  mismatches: number
+} {
   let keys = 0
   let mismatches = 0
 
   for (let key = 0; key < 13 ** 4; key++) {
-    const p = [0, 1, 2, 3].map(k => (Math.floor(key / 13 ** k) % 13) - 6)
+    const p = [0, 1, 2, 3].map(
+      k => (Math.floor(key / 13 ** k) % 13) - 6,
+    )
 
-    if ((p[0]! + p[1]! + p[2]! + p[3]!) % 2 !== 0) continue
+    if ((p[0]! + p[1]! + p[2]! + p[3]!) % 2 !== 0) {
+      continue
+    }
+
     keys++
 
     const w = BOUNCE_TABLE[key]
 
     for (const m of maps) {
-      const gp = m.matrix.map(row => row.reduce((s, v, k) => s + v * (p[k] as number), 0))
+      const gp = m.matrix.map(row =>
+        row.reduce((s, v, k) => s + v * p[k]!, 0),
+      )
       const wg = BOUNCE_TABLE[momentumKey(gp)]
 
       if (!w || !wg) {
-        if (!w !== !wg) mismatches++
+        if (!w !== !wg) {
+          mismatches++
+        }
+
         continue
       }
 
       // w_(gP)(g d) = g w_P(d)
-      for (let d = 0; d < 24; d++) if (wg[m.slots[d] as number] !== m.slots[w[d] as number]) mismatches++
+      for (let d = 0; d < 24; d++) {
+        if (wg[m.slots[d]!] !== m.slots[w[d]!]) {
+          mismatches++
+        }
+      }
     }
   }
 
   return { keys, mismatches }
 }
 
-function loneCovariance(maps: HuskMap[]): { checks: number; mismatches: number } {
+function loneCovariance(maps: HuskMap[]): {
+  checks: number
+  mismatches: number
+} {
   const a = new Int32Array(24)
   const b = new Int32Array(24)
   const occ = new Int8Array(24)
   const img = new Int8Array(24)
+
   let checks = 0
   let mismatches = 0
 
   for (let n = 0; n < SAMPLES; n++) {
     const threshold = ((n % 4) + 1) * 13107
 
-    for (let d = 0; d < 24; d++) occ[d] = ((n * 24 + d + 1) * SILVER_RATE) % 65536 < threshold ? 1 : 0
+    for (let d = 0; d < 24; d++) {
+      occ[d] =
+        ((n * 24 + d + 1) * SILVER_RATE) % 65536 < threshold ? 1 : 0
+    }
 
     const ka = bouncePermutation(BOUNCE_TABLE, 'lone', occ, 0, a)
 
-    if (ka === 0) for (let d = 0; d < 24; d++) a[d] = d
+    if (ka === 0) {
+      for (let d = 0; d < 24; d++) {
+        a[d] = d
+      }
+    }
 
     for (const m of maps) {
-      for (let d = 0; d < 24; d++) img[m.slots[d] as number] = occ[d] as number
+      for (let d = 0; d < 24; d++) {
+        img[m.slots[d]!] = occ[d]!
+      }
 
       const kb = bouncePermutation(BOUNCE_TABLE, 'lone', img, 0, b)
 
-      if (kb === 0) for (let d = 0; d < 24; d++) b[d] = d
+      if (kb === 0) {
+        for (let d = 0; d < 24; d++) {
+          b[d] = d
+        }
+      }
 
       checks++
 
       let off = kb !== ka
 
-      for (let d = 0; d < 24 && !off; d++) off = b[m.slots[d] as number] !== m.slots[a[d] as number]
-      if (off) mismatches++
+      for (let d = 0; d < 24 && !off; d++) {
+        off = b[m.slots[d]!] !== m.slots[a[d]!]
+      }
+
+      if (off) {
+        mismatches++
+      }
     }
   }
 
@@ -201,63 +269,143 @@ function loneCovariance(maps: HuskMap[]): { checks: number; mismatches: number }
 }
 
 // ---- L3 ----
-function labelFacts(maps: HuskMap[]): { labelPlus: number; imagePlus: number; images: number; axialLove: number; axialFearC: number; axialFearCprime: number } {
-  const sign = (kind: 'love' | 'fear'): number => (kind === 'love' ? 1 : -1)
-  const along = (kind: 'love' | 'fear', convention: 'C' | 'Cprime', d: number): number => labelAlongMotion(sign(kind), d, convention)
+function labelFacts(maps: HuskMap[]): {
+  labelPlus: number
+  imagePlus: number
+  images: number
+  axialLove: number
+  axialFearC: number
+  axialFearCprime: number
+} {
+  const sign = (kind: 'love' | 'fear'): number =>
+    kind === 'love' ? 1 : -1
+  const along = (
+    kind: 'love' | 'fear',
+    convention: 'C' | 'Cprime',
+    d: number,
+  ): number => labelAlongMotion(sign(kind), d, convention)
+
   let labelPlus = 0
   let imagePlus = 0
 
-  for (let d = 0; d < 24; d++) labelPlus += along('love', 'C', d) === 1 && along('fear', 'C', d) === 1 ? 1 : 0
-
-  for (const m of maps) for (let d = 0; d < 24; d++) imagePlus += along('love', 'C', m.slots[d] as number) === along('love', 'C', d) && along('fear', 'C', m.slots[d] as number) === along('fear', 'C', d) ? 1 : 0
-
-  const axial = (kind: 'love' | 'fear', convention: 'C' | 'Cprime', d: number): number => axialAlongMotion(sign(kind), d, convention)
-  const constant = (kind: 'love' | 'fear', convention: 'C' | 'Cprime'): number => {
-    const v = axial(kind, convention, 0)
-
-    return Array.from({ length: 24 }, (_, d) => axial(kind, convention, d)).every(x => x === v) ? v : 0
+  for (let d = 0; d < 24; d++) {
+    labelPlus +=
+      along('love', 'C', d) === 1 && along('fear', 'C', d) === 1 ? 1 : 0
   }
 
-  return { labelPlus, imagePlus, images: maps.length * 24, axialLove: constant('love', 'C'), axialFearC: constant('fear', 'C'), axialFearCprime: constant('fear', 'Cprime') }
+  for (const m of maps) {
+    for (let d = 0; d < 24; d++) {
+      imagePlus +=
+        along('love', 'C', m.slots[d]!) === along('love', 'C', d) &&
+        along('fear', 'C', m.slots[d]!) === along('fear', 'C', d)
+          ? 1
+          : 0
+    }
+  }
+
+  const axial = (
+    kind: 'love' | 'fear',
+    convention: 'C' | 'Cprime',
+    d: number,
+  ): number => axialAlongMotion(sign(kind), d, convention)
+
+  const constant = (
+    kind: 'love' | 'fear',
+    convention: 'C' | 'Cprime',
+  ): number => {
+    const v = axial(kind, convention, 0)
+
+    return Array.from({ length: 24 }, (_, d) =>
+      axial(kind, convention, d),
+    ).every(x => x === v)
+      ? v
+      : 0
+  }
+
+  return {
+    labelPlus,
+    imagePlus,
+    images: maps.length * 24,
+    axialLove: constant('love', 'C'),
+    axialFearC: constant('fear', 'C'),
+    axialFearCprime: constant('fear', 'Cprime'),
+  }
 }
 
 // ---- runs ----
 type Run = { tables: LockedTables; states: LockedState[] }
 
-function trajectory(tables: LockedTables, start: Configuration, beats: number, turn?: DockTurn): Run {
+function trajectory(
+  tables: LockedTables,
+  start: Configuration,
+  beats: number,
+  turn?: DockTurn,
+): Run {
   const states: LockedState[] = [lockedState(start)]
 
   for (let t = 0; t < beats; t++) {
-    const s = states[t] as LockedState
+    const s = states[t]!
 
-    states.push(turn ? toyBeat(tables, s, t, turn) : lockedBeat(tables, s, t))
+    states.push(
+      turn ? toyBeat(tables, s, t, turn) : lockedBeat(tables, s, t),
+    )
   }
 
   return { tables, states }
 }
 
 // beats (1 .. beats) at which the image of run a differs from run b
-function offBeats(a: Run, b: Run, image: (s: LockedState) => LockedState, beats: number): number {
+function offBeats(
+  a: Run,
+  b: Run,
+  image: (s: LockedState) => LockedState,
+  beats: number,
+): number {
   let off = 0
 
-  for (let t = 1; t <= beats; t++) if (!sameState(image(a.states[t] as LockedState), b.states[t] as LockedState)) off++
+  for (let t = 1; t <= beats; t++) {
+    if (!sameState(image(a.states[t]!), b.states[t]!)) {
+      off++
+    }
+  }
 
   return off
 }
 
-function mirrored(f: LockedFresh, m: Mirror, start: Configuration, beats: number, turn?: DockTurn): Run {
-  return trajectory(lockedTables(f.weave, 'lone', mirrorLinks(m, f.weave.links, f.weave.moves)), mirrorConfiguration(m, start), beats, turn)
+function mirrored(
+  f: LockedFresh,
+  m: Mirror,
+  start: Configuration,
+  beats: number,
+  turn?: DockTurn,
+): Run {
+  return trajectory(
+    lockedTables(
+      f.weave,
+      'lone',
+      mirrorLinks(m, f.weave.links, f.weave.moves),
+    ),
+    mirrorConfiguration(m, start),
+    beats,
+    turn,
+  )
 }
 
 // T-type check: theta(psi_(t+1)) = U'_(t+1)^-1 theta(psi_t), U' the beat of `back`'s tables
-function reversalOff(run: Run, theta: (s: LockedState) => LockedState, back: LockedTables): number {
+function reversalOff(
+  run: Run,
+  theta: (s: LockedState) => LockedState,
+  back: LockedTables,
+): number {
   let off = 0
 
   for (let t = 0; t + 1 < run.states.length; t++) {
-    const lhs = theta(run.states[t + 1] as LockedState)
-    const rhs = lockedBeatBack(back, theta(run.states[t] as LockedState), t + 1)
+    const lhs = theta(run.states[t + 1]!)
+    const rhs = lockedBeatBack(back, theta(run.states[t]!), t + 1)
 
-    if (!sameState(lhs, rhs)) off++
+    if (!sameState(lhs, rhs)) {
+      off++
+    }
   }
 
   return off
@@ -288,12 +436,17 @@ function perStart(name: string, parities: HuskMap[]): StartReading {
   const vac = vacuumConfiguration(f, 'none')
   const sup = superposingStart(f.tables, f.weave, vac)
 
-  if (!sup) throw new Error(`no superposing start on ${name}`)
+  if (!sup) {
+    throw new Error(`no superposing start on ${name}`)
+  }
 
   const base = trajectory(f.tables, sup, BEATS)
   const splits = Math.max(...base.states.map(s => s.branches.length))
-  const inversions = [false, true].map(depth => mirrorOf(huskInversion(depth), BOX))
-  const image = (m: Mirror) => (s: LockedState) => mapState(s, c => mirrorConfiguration(m, c))
+  const inversions = [false, true].map(depth =>
+    mirrorOf(huskInversion(depth), BOX),
+  )
+  const image = (m: Mirror) => (s: LockedState) =>
+    mapState(s, c => mirrorConfiguration(m, c))
 
   // L4: all 48 parities over SHORT beats, the inversions over all BEATS
   let pAll = 0
@@ -304,7 +457,9 @@ function perStart(name: string, parities: HuskMap[]): StartReading {
     pAll += offBeats(base, mirrored(f, m, sup, SHORT), image(m), SHORT)
   }
 
-  const pInversion = inversions.map(m => offBeats(base, mirrored(f, m, sup, BEATS), image(m), BEATS))
+  const pInversion = inversions.map(m =>
+    offBeats(base, mirrored(f, m, sup, BEATS), image(m), BEATS),
+  )
 
   // L5: the anti-symplectic point lift
   const pFlip = [false, true].map(depth => {
@@ -315,53 +470,127 @@ function perStart(name: string, parities: HuskMap[]): StartReading {
 
   // L6: C
   const cRun = trajectory(f.tables, chargeConjugate(sup), BEATS)
-  const c = offBeats(base, cRun, s => mapState(s, chargeConjugate), BEATS)
+  const c = offBeats(
+    base,
+    cRun,
+    s => mapState(s, chargeConjugate),
+    BEATS,
+  )
 
   // L7: T
-  const theta = (s: LockedState): LockedState => motionReversal(f.tables, s)
+  const theta = (s: LockedState): LockedState =>
+    motionReversal(f.tables, s)
+
   let tSquare = 0
 
-  for (const s of base.states) if (!sameState(theta(theta(s)), s)) tSquare++
+  for (const s of base.states) {
+    if (!sameState(theta(theta(s)), s)) {
+      tSquare++
+    }
+  }
 
   const t = reversalOff(base, theta, f.tables)
 
   // L8: CP and CPT (inversion with the depth kept)
-  const inv = inversions[0] as Mirror
-  const cpImage = (s: LockedState): LockedState => mapState(s, cfg => chargeConjugate(mirrorConfiguration(inv, cfg)))
-  const cpRun = trajectory(lockedTables(f.weave, 'lone', mirrorLinks(inv, f.weave.links, f.weave.moves)), chargeConjugate(mirrorConfiguration(inv, sup)), BEATS)
+  const inv = inversions[0]!
+  const cpImage = (s: LockedState): LockedState =>
+    mapState(s, cfg => chargeConjugate(mirrorConfiguration(inv, cfg)))
+  const cpRun = trajectory(
+    lockedTables(
+      f.weave,
+      'lone',
+      mirrorLinks(inv, f.weave.links, f.weave.moves),
+    ),
+    chargeConjugate(mirrorConfiguration(inv, sup)),
+    BEATS,
+  )
   const cp = offBeats(base, cpRun, cpImage, BEATS)
-  const invTables = lockedTables(f.weave, 'lone', mirrorLinks(inv, f.weave.links, f.weave.moves))
+  const invTables = lockedTables(
+    f.weave,
+    'lone',
+    mirrorLinks(inv, f.weave.links, f.weave.moves),
+  )
   const cpt = reversalOff(base, s => cpImage(theta(s)), invTables)
 
   // C1: the antilinear P; C2: the linear T
-  const antilinearP = offBeats(base, mirrored(f, inv, sup, BEATS), s => conjugateState(image(inv)(s)), BEATS)
-  const linearT = reversalOff(base, s => linearMotionReversal(f.tables, s), f.tables)
+  const antilinearP = offBeats(
+    base,
+    mirrored(f, inv, sup, BEATS),
+    s => conjugateState(image(inv)(s)),
+    BEATS,
+  )
+  const linearT = reversalOff(
+    base,
+    s => linearMotionReversal(f.tables, s),
+    f.tables,
+  )
 
   // C3: the chiral twist toy on a lone love
-  const lone: Configuration = { ...vac, vibe: Int8Array.from(vac.vibe), point: Int8Array.from(vac.point) }
+  const lone: Configuration = {
+    ...vac,
+    vibe: Int8Array.from(vac.vibe),
+    point: Int8Array.from(vac.point),
+  }
 
   lone.vibe[axisSlot()] = 1
 
   const right = chiralTwist(1)
   const left = chiralTwist(-1)
   const toy = trajectory(f.tables, lone, BEATS, right)
-  let back = toy.states[BEATS] as LockedState
 
-  for (let k = BEATS - 1; k >= 0; k--) back = toyBeatBack(f.tables, back, k, left)
+  let back = toy.states[BEATS]!
+
+  for (let k = BEATS - 1; k >= 0; k--) {
+    back = toyBeatBack(f.tables, back, k, left)
+  }
 
   const twistBack = sameState(back, lockedState(lone))
-  const twistOff = inversions.map(m => offBeats(toy, mirrored(f, m, lone, BEATS, right), image(m), BEATS))
-  const twistToLeft = inversions.map(m => offBeats(toy, mirrored(f, m, lone, BEATS, left), image(m), BEATS))
+  const twistOff = inversions.map(m =>
+    offBeats(toy, mirrored(f, m, lone, BEATS, right), image(m), BEATS),
+  )
+  const twistToLeft = inversions.map(m =>
+    offBeats(toy, mirrored(f, m, lone, BEATS, left), image(m), BEATS),
+  )
 
   // C4: the fixed turn
   const fixed = fixedTurn(1)
   const fixedRun = trajectory(f.tables, lone, BEATS, fixed)
-  const fixedInversion = inversions.map(m => offBeats(fixedRun, mirrored(f, m, lone, BEATS, fixed), image(m), BEATS))
-  const x1 = huskMaps().find(g => g.name === '[-x1,+x2,+x3,+x4]') as HuskMap
+  const fixedInversion = inversions.map(m =>
+    offBeats(
+      fixedRun,
+      mirrored(f, m, lone, BEATS, fixed),
+      image(m),
+      BEATS,
+    ),
+  )
+  const x1 = huskMaps().find(g => g.name === '[-x1,+x2,+x3,+x4]')!
   const mx1 = mirrorOf(x1, BOX)
-  const fixedMirrorX1 = offBeats(fixedRun, mirrored(f, mx1, lone, BEATS, fixed), image(mx1), BEATS)
+  const fixedMirrorX1 = offBeats(
+    fixedRun,
+    mirrored(f, mx1, lone, BEATS, fixed),
+    image(mx1),
+    BEATS,
+  )
 
-  return { name, splits, pAll, pInversion, pFlip, c, tSquare, t, cp, cpt, antilinearP, linearT, twistBack, twistOff, twistToLeft, fixedInversion, fixedMirrorX1 }
+  return {
+    name,
+    splits,
+    pAll,
+    pInversion,
+    pFlip,
+    c,
+    tSquare,
+    t,
+    cp,
+    cpt,
+    antilinearP,
+    linearT,
+    twistBack,
+    twistOff,
+    twistToLeft,
+    fixedInversion,
+    fixedMirrorX1,
+  }
 }
 
 export default experiment({
@@ -382,25 +611,43 @@ export default experiment({
     const lone = loneCovariance(maps)
     const l3 = labelFacts(parities)
 
-    console.error(`L1 to L3 ${Math.round((Date.now() - started) / 1000)}s`)
+    console.error(
+      `L1 to L3 ${Math.round((Date.now() - started) / 1000)}s`,
+    )
 
     const family = startFamily(16)
     const runs = family.map(member =>
       withStart(member, () => {
         const r = perStart(member.name, parities)
 
-        console.error(`start ${member.name} ${Math.round((Date.now() - started) / 1000)}s`)
+        console.error(
+          `start ${member.name} ${Math.round((Date.now() - started) / 1000)}s`,
+        )
 
         return r
       }),
     )
-    const all = (p: (r: StartReading) => boolean): number => runs.filter(p).length
+    const all = (p: (r: StartReading) => boolean): number =>
+      runs.filter(p).length
     const n = family.length
     const zero = (xs: number[]): boolean => xs.every(x => x === 0)
 
-    const gL1 = l1.lifts === 96 && l1.automorphisms === 96 && l1.parities === 48 && l1.bulkReflections === 24 && l1.bulkRotations === 24
-    const gL2 = table.mismatches === 0 && lone.mismatches === 0 && lone.checks === SAMPLES * 96
-    const gL3 = l3.labelPlus === 24 && l3.imagePlus === l3.images && l3.axialLove === 1 && l3.axialFearC === -1 && l3.axialFearCprime === 1
+    const gL1 =
+      l1.lifts === 96 &&
+      l1.automorphisms === 96 &&
+      l1.parities === 48 &&
+      l1.bulkReflections === 24 &&
+      l1.bulkRotations === 24
+    const gL2 =
+      table.mismatches === 0 &&
+      lone.mismatches === 0 &&
+      lone.checks === SAMPLES * 96
+    const gL3 =
+      l3.labelPlus === 24 &&
+      l3.imagePlus === l3.images &&
+      l3.axialLove === 1 &&
+      l3.axialFearC === -1 &&
+      l3.axialFearCprime === 1
     const nL4 = all(r => r.pAll === 0 && zero(r.pInversion))
     const nL5 = all(r => zero(r.pFlip))
     const nL6 = all(r => r.c === 0)
@@ -409,12 +656,33 @@ export default experiment({
     const split = runs.filter(r => r.splits > 1)
     const nC1 = split.filter(r => r.antilinearP > 0).length
     const nC2 = split.filter(r => r.linearT > 0).length
-    const nC3 = all(r => r.twistBack && r.twistOff.every(x => x > 0) && zero(r.twistToLeft))
+    const nC3 = all(
+      r =>
+        r.twistBack &&
+        r.twistOff.every(x => x > 0) &&
+        zero(r.twistToLeft),
+    )
     const nC4 = all(r => zero(r.fixedInversion) && r.fixedMirrorX1 > 0)
-    const theory = gL1 && gL2 && gL3 && nL4 === n && nL5 === n && nL6 === n && nL7 === n && nL8 === n
-    const controls = split.length > 0 && nC1 === split.length && nC2 === split.length && nC3 === n && nC4 === n
+    const theory =
+      gL1 &&
+      gL2 &&
+      gL3 &&
+      nL4 === n &&
+      nL5 === n &&
+      nL6 === n &&
+      nL7 === n &&
+      nL8 === n
+    const controls =
+      split.length > 0 &&
+      nC1 === split.length &&
+      nC2 === split.length &&
+      nC3 === n &&
+      nC4 === n
     const status = theory && controls ? 'pass' : 'fail'
-    const range = (xs: number[]): string => (Math.min(...xs) === Math.max(...xs) ? `${Math.min(...xs)}` : `${Math.min(...xs)} to ${Math.max(...xs)}`)
+    const range = (xs: number[]): string =>
+      Math.min(...xs) === Math.max(...xs)
+        ? `${Math.min(...xs)}`
+        : `${Math.min(...xs)} to ${Math.max(...xs)}`
 
     return verdict({
       status,
@@ -441,7 +709,10 @@ export default experiment({
         axialLove: l3.axialLove,
         axialFearC: l3.axialFearC,
         axialFearCprime: l3.axialFearCprime,
-        pOffTotal: runs.reduce((s, r) => s + r.pAll + r.pInversion[0]! + r.pInversion[1]!, 0),
+        pOffTotal: runs.reduce(
+          (s, r) => s + r.pAll + r.pInversion[0]! + r.pInversion[1]!,
+          0,
+        ),
         branchesMax: Math.max(...runs.map(r => r.splits)),
         seconds: (Date.now() - started) / 1000,
       },
@@ -454,7 +725,9 @@ export default experiment({
         antilinearPOffMin: Math.min(...split.map(r => r.antilinearP)),
         linearTOffMin: Math.min(...split.map(r => r.linearT)),
         twistOffMin: Math.min(...runs.flatMap(r => r.twistOff)),
-        fixedMirrorX1OffMin: Math.min(...runs.map(r => r.fixedMirrorX1)),
+        fixedMirrorX1OffMin: Math.min(
+          ...runs.map(r => r.fixedMirrorX1),
+        ),
       },
       notes: `L1. Gates: L1 ${gL1} (${JSON.stringify(l1)}), L2 ${gL2} (table ${JSON.stringify(table)}, lone ${JSON.stringify(lone)}), L3 ${gL3} (${JSON.stringify(l3)}), L4 ${nL4}, L5 ${nL5}, L6 ${nL6}, L7 ${nL7}, L8 ${nL8} of ${n}; C1 ${nC1} and C2 ${nC2} of ${split.length} splitting starts, C3 ${nC3}, C4 ${nC4} of ${n}. Per start (branches max; P off over 48 parities x ${SHORT} beats, inversions; flip lift; C; T^2, T; CP, CPT; antilinear P, linear T; twist back, off, onto left; fixed inversions, x1 mirror): ${runs.map(r => `${r.name} ${r.splits}; ${r.pAll}, ${r.pInversion.join('/')}; ${r.pFlip.join('/')}; ${r.c}; ${r.tSquare}, ${r.t}; ${r.cp}, ${r.cpt}; ${r.antilinearP}, ${r.linearT}; ${r.twistBack}, ${r.twistOff.join('/')}, ${r.twistToLeft.join('/')}; ${r.fixedInversion.join('/')}, ${r.fixedMirrorX1}`).join(' | ')}. Antilinear P off ${range(split.map(r => r.antilinearP))}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })

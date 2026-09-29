@@ -82,32 +82,53 @@ import {
 } from '@/code/rule/trit-column'
 import { buildHopTable, gasStep, hopStep } from '@/code/rule/trit-hop'
 import { huskGreenDifference } from '@/code/measure/trit-hop-light'
-import { dockOfColumn, longitudinalEnergy, placeStrung } from '@/code/measure/husk-coulomb'
+import {
+  dockOfColumn,
+  longitudinalEnergy,
+  placeStrung,
+} from '@/code/measure/husk-coulomb'
 
 const SIDE = 12
 const DEPTH = 4
 const BEATS = 48
 const RS = [1, 2, 3, 4, 5]
 const KINDS = ['charge4', 'charge-4', 'charge1', 'neutral'] as const
+
 type Kind = (typeof KINDS)[number]
+
 const LEVEL_SIGNS: Record<Kind, readonly number[]> = {
   charge4: [1, 1, 1, 1],
   'charge-4': [-1, -1, -1, -1],
   charge1: [1],
   neutral: [1, 1, -1, -1],
 }
-const chargeOf = (k: Kind): number => LEVEL_SIGNS[k].reduce((a, b) => a + b, 0)
+const chargeOf = (k: Kind): number =>
+  LEVEL_SIGNS[k].reduce((a, b) => a + b, 0)
 
-type Run = { energy: number; drift: number; gauss: number; totalMean: number; husk: string[] }
+type Run = {
+  energy: number
+  drift: number
+  gauss: number
+  totalMean: number
+  husk: string[]
+}
 
 function hashHusk(light: TritLight, s: TritState): string {
   const h = readHusk(light, s)
+
   let a = 0
   let b = 0
 
-  for (const part of [h.angle, h.potential, h.counter, h.lag, h.spatial, h.string]) {
+  for (const part of [
+    h.angle,
+    h.potential,
+    h.counter,
+    h.lag,
+    h.spatial,
+    h.string,
+  ]) {
     for (let i = 0; i < part.length; i++) {
-      const v = (part[i] as number) + 1000
+      const v = part[i]! + 1000
 
       a = Math.imul(a ^ (v + i * 7), 0x9e3779b1)
       b = Math.imul(b + v * 31 + i, 0x85ebca6b) ^ (b >>> 13)
@@ -125,29 +146,78 @@ function run(light: TritLight, place: (s: TritState) => void): Run {
   place(s)
 
   const first = longitudinalEnergy(light, s)
+
   let drift = 0
-  let gauss = bulkGaussViolations(light, s) + huskGaussViolations(light, columnSumLinks(light, bulkFlux(light, s)), s.vibe)
+  let gauss =
+    bulkGaussViolations(light, s) +
+    huskGaussViolations(
+      light,
+      columnSumLinks(light, bulkFlux(light, s)),
+      s.vibe,
+    )
   let total = 0
+
   const husk: string[] = []
 
   for (let t = 1; t <= BEATS; t++) {
     tritLightBeat(light, s)
-    gauss += bulkGaussViolations(light, s) + huskGaussViolations(light, columnSumLinks(light, bulkFlux(light, s)), s.vibe)
+    gauss +=
+      bulkGaussViolations(light, s) +
+      huskGaussViolations(
+        light,
+        columnSumLinks(light, bulkFlux(light, s)),
+        s.vibe,
+      )
 
     const e = longitudinalEnergy(light, s)
 
-    drift = Math.max(drift, Math.abs(e.longitudinal - first.longitudinal))
+    drift = Math.max(
+      drift,
+      Math.abs(e.longitudinal - first.longitudinal),
+    )
     total += e.total
     husk.push(hashHusk(light, s))
   }
 
-  return { energy: first.longitudinal, drift, gauss, totalMean: total / BEATS, husk }
+  return {
+    energy: first.longitudinal,
+    drift,
+    gauss,
+    totalMean: total / BEATS,
+    husk,
+  }
 }
 
-const placeKnot = (light: TritLight, s: TritState, kind: Kind): void => {
-  LEVEL_SIGNS[kind].forEach((sign, level) => void placeStrung(light, s, dockOfColumn(light, [0, 0, 0], level), [0, 4, 4], sign))
+const placeKnot = (
+  light: TritLight,
+  s: TritState,
+  kind: Kind,
+): void => {
+  LEVEL_SIGNS[kind].forEach(
+    (sign, level) =>
+      void placeStrung(
+        light,
+        s,
+        dockOfColumn(light, [0, 0, 0], level),
+        [0, 4, 4],
+        sign,
+      ),
+  )
 }
-const placeTest = (light: TritLight, s: TritState, q: number, r: number): void => void placeStrung(light, s, dockOfColumn(light, [r, 0, 0], 0), [0, 4, 4], q)
+
+const placeTest = (
+  light: TritLight,
+  s: TritState,
+  q: number,
+  r: number,
+): void =>
+  void placeStrung(
+    light,
+    s,
+    dockOfColumn(light, [r, 0, 0], 0),
+    [0, 4, 4],
+    q,
+  )
 
 export default experiment({
   id: 'gravity/knot-light-reach',
@@ -160,55 +230,113 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const light = makeTritLight({ side: SIDE, depth: DEPTH, form: 'wave' })
+    const light = makeTritLight({
+      side: SIDE,
+      depth: DEPTH,
+      form: 'wave',
+    })
     const scale = Math.PI / DEPTH
     const runs: Run[] = []
+
     const keep = (r: Run): Run => {
       runs.push(r)
 
       return r
     }
-    const alone = Object.fromEntries(KINDS.map(k => [k, keep(run(light, s => placeKnot(light, s, k)))])) as Record<Kind, Run>
+
+    const alone = Object.fromEntries(
+      KINDS.map(k => [
+        k,
+        keep(run(light, s => placeKnot(light, s, k))),
+      ]),
+    ) as Record<Kind, Run>
     const test = new Map<string, Run>()
     const four = new Map<string, Run>()
 
     for (const q of [1, -1]) {
       for (const r of RS) {
-        test.set(`${q},${r}`, keep(run(light, s => placeTest(light, s, q, r))))
+        test.set(
+          `${q},${r}`,
+          keep(run(light, s => placeTest(light, s, q, r))),
+        )
 
         for (const k of KINDS) {
-          four.set(`${k},${q},${r}`, keep(run(light, s => {
-            placeKnot(light, s, k)
-            placeTest(light, s, q, r)
-          })))
+          four.set(
+            `${k},${q},${r}`,
+            keep(
+              run(light, s => {
+                placeKnot(light, s, k)
+                placeTest(light, s, q, r)
+              }),
+            ),
+          )
         }
       }
     }
 
-    const W = (k: Kind, q: number, r: number, field: 'energy' | 'totalMean' = 'energy'): number =>
-      (four.get(`${k},${q},${r}`) as Run)[field] - alone[k][field] - (test.get(`${q},${r}`) as Run)[field]
-    const electric = (k: Kind, r: number, field: 'energy' | 'totalMean' = 'energy'): number => (W(k, 1, r, field) - W(k, -1, r, field)) / 2
-    const blind = (k: Kind, r: number, field: 'energy' | 'totalMean' = 'energy'): number => (W(k, 1, r, field) + W(k, -1, r, field)) / 2
+    const W = (
+      k: Kind,
+      q: number,
+      r: number,
+      field: 'energy' | 'totalMean' = 'energy',
+    ): number =>
+      four.get(`${k},${q},${r}`)![field] -
+      alone[k][field] -
+      test.get(`${q},${r}`)![field]
+    const electric = (
+      k: Kind,
+      r: number,
+      field: 'energy' | 'totalMean' = 'energy',
+    ): number => (W(k, 1, r, field) - W(k, -1, r, field)) / 2
+    const blind = (
+      k: Kind,
+      r: number,
+      field: 'energy' | 'totalMean' = 'energy',
+    ): number => (W(k, 1, r, field) + W(k, -1, r, field)) / 2
     const predicted = (k: Kind, r: number): number =>
-      chargeOf(k) * scale * (-2 * huskGreenDifference(SIDE, [r, 0, 0]) + huskGreenDifference(SIDE, [r, 4, 4]) + huskGreenDifference(SIDE, [r, -4, -4]))
-    const knotTest = (k: Kind, r: number): number => -chargeOf(k) * scale * huskGreenDifference(SIDE, [r, 0, 0])
+      chargeOf(k) *
+      scale *
+      (-2 * huskGreenDifference(SIDE, [r, 0, 0]) +
+        huskGreenDifference(SIDE, [r, 4, 4]) +
+        huskGreenDifference(SIDE, [r, -4, -4]))
+    const knotTest = (k: Kind, r: number): number =>
+      -chargeOf(k) * scale * huskGreenDifference(SIDE, [r, 0, 0])
 
     // J1
     const g1 = runs.every(x => x.gauss === 0 && x.drift < 1e-9)
 
     // J2
     const charged: Kind[] = ['charge4', 'charge-4', 'charge1']
+
     let worstPrediction = 0
     let worstLinear = 0
 
-    for (const k of charged) for (const r of RS) worstPrediction = Math.max(worstPrediction, Math.abs(electric(k, r) - predicted(k, r)))
-    for (const r of RS) worstLinear = Math.max(worstLinear, Math.abs(electric('charge4', r) - 4 * electric('charge1', r)), Math.abs(electric('charge4', r) + electric('charge-4', r)))
+    for (const k of charged) {
+      for (const r of RS) {
+        worstPrediction = Math.max(
+          worstPrediction,
+          Math.abs(electric(k, r) - predicted(k, r)),
+        )
+      }
+    }
 
-    const reaches = charged.every(k => Math.abs(electric(k, 1) - electric(k, 5)) > 1e-6)
+    for (const r of RS) {
+      worstLinear = Math.max(
+        worstLinear,
+        Math.abs(electric('charge4', r) - 4 * electric('charge1', r)),
+        Math.abs(electric('charge4', r) + electric('charge-4', r)),
+      )
+    }
+
+    const reaches = charged.every(
+      k => Math.abs(electric(k, 1) - electric(k, 5)) > 1e-6,
+    )
     const g2 = worstPrediction < 1e-9 && worstLinear < 1e-9 && reaches
 
     // J3
-    const attracts = (k: Kind): boolean => Math.abs(blind(k, 1) - blind(k, 5)) > 1e-9 && RS.every((r, i) => i === 0 || blind(k, r) > blind(k, RS[i - 1] as number))
+    const attracts = (k: Kind): boolean =>
+      Math.abs(blind(k, 1) - blind(k, 5)) > 1e-9 &&
+      RS.every((r, i) => i === 0 || blind(k, r) > blind(k, RS[i - 1]!))
     const g3 = KINDS.some(attracts)
     const status = !g1 ? 'partial' : g2 && g3 ? 'pass' : 'fail'
 
@@ -218,12 +346,15 @@ export default experiment({
 
     for (const q of [1, -1]) {
       for (const r of RS) {
-        const a = (four.get(`neutral,${q},${r}`) as Run).husk
-        const b = (test.get(`${q},${r}`) as Run).husk
+        const a = four.get(`neutral,${q},${r}`)!.husk
+        const b = test.get(`${q},${r}`)!.husk
 
         a.forEach((h, i) => {
           neutralBeats++
-          if (h === b[i]) neutralSame++
+
+          if (h === b[i]) {
+            neutralSame++
+          }
         })
       }
     }
@@ -236,6 +367,7 @@ export default experiment({
     placeTest(light, withLight, 1, 3)
 
     const without = copyTritState(withLight)
+
     let hopSame = 0
 
     for (let t = 0; t < BEATS; t++) {
@@ -245,7 +377,12 @@ export default experiment({
       tritLightBeat(light, withLight)
       hopStep(table, without, k, phase)
 
-      if (withLight.vibe.every((v, i) => v === without.vibe[i]) && withLight.string.every((v, i) => v === without.string[i])) hopSame++
+      if (
+        withLight.vibe.every((v, i) => v === without.vibe[i]) &&
+        withLight.string.every((v, i) => v === without.string[i])
+      ) {
+        hopSame++
+      }
     }
 
     const metrics: Record<string, number> = {
@@ -269,14 +406,25 @@ export default experiment({
         metrics[`predicted_${k}_r${r}`] = predicted(k, r)
         metrics[`blind_${k}_r${r}`] = blind(k, r)
         metrics[`knotTest_${k}_r${r}`] = knotTest(k, r)
-        metrics[`totalElectric_${k}_r${r}`] = electric(k, r, 'totalMean')
+        metrics[`totalElectric_${k}_r${r}`] = electric(
+          k,
+          r,
+          'totalMean',
+        )
         metrics[`totalBlind_${k}_r${r}`] = blind(k, r, 'totalMean')
       }
     }
 
-    const list = (g: (r: number) => number): string => RS.map(r => g(r).toExponential(3)).join(', ')
-    const worstBlind = Math.max(...KINDS.flatMap(k => RS.map(r => Math.abs(blind(k, r)))))
-    const worstTotalBlind = Math.max(...KINDS.flatMap(k => RS.map(r => Math.abs(blind(k, r, 'totalMean')))))
+    const list = (g: (r: number) => number): string =>
+      RS.map(r => g(r).toExponential(3)).join(', ')
+    const worstBlind = Math.max(
+      ...KINDS.flatMap(k => RS.map(r => Math.abs(blind(k, r)))),
+    )
+    const worstTotalBlind = Math.max(
+      ...KINDS.flatMap(k =>
+        RS.map(r => Math.abs(blind(k, r, 'totalMean'))),
+      ),
+    )
 
     metrics.worstBlind = worstBlind
     metrics.worstTotalBlind = worstTotalBlind
@@ -290,7 +438,20 @@ export default experiment({
         neutralInvisibleBeats: neutralSame,
         hopLightBlind: hopSame === BEATS ? 1 : 0,
       },
-      notes: `L2 (J2), L1 (J3's longitudinal clause, an identity). Gates J1 ${g1}, J2 ${g2}, J3 ${g3}. Per kind (r = 1 .. 5): ${KINDS.map(k => `${k}: electric ${list(r => electric(k, r))}; predicted ${list(r => predicted(k, r))}; charge-blind ${list(r => blind(k, r))}; knot-test term ${list(r => knotTest(k, r))}; total-energy electric ${list(r => electric(k, r, 'totalMean'))}, total-energy charge-blind ${list(r => blind(k, r, 'totalMean'))}`).join('; ')}. The knot-test term's r-dependence against 1/(24 pi r): (G(r) - G(5)) / ((1/r - 1/5) / (24 pi)) at r = 1 .. 4, on the side-12 torus (images included): ${RS.slice(0, -1).map(r => (((knotTest('charge1', r) - knotTest('charge1', 5)) / scale) / ((1 / r - 1 / 5) / (24 * Math.PI))).toFixed(4)).join(', ')}. Neutral lump husk state equal to the test vibe's alone on ${neutralSame} of ${neutralBeats} beats. Hop steps with and without the light identical on ${hopSame} of ${BEATS}. Worst Gauss ${metrics.worstGauss}, worst longitudinal drift ${metrics.worstDrift!.toExponential(1)} over ${runs.length} configurations. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+      notes: `L2 (J2), L1 (J3's longitudinal clause, an identity). Gates J1 ${g1}, J2 ${g2}, J3 ${g3}. Per kind (r = 1 .. 5): ${KINDS.map(k => `${k}: electric ${list(r => electric(k, r))}; predicted ${list(r => predicted(k, r))}; charge-blind ${list(r => blind(k, r))}; knot-test term ${list(r => knotTest(k, r))}; total-energy electric ${list(r => electric(k, r, 'totalMean'))}, total-energy charge-blind ${list(r => blind(k, r, 'totalMean'))}`).join('; ')}. The knot-test term's r-dependence against 1/(24 pi r): (G(r) - G(5)) / ((1/r - 1/5) / (24 pi)) at r = 1 .. 4, on the side-12 torus (images included): ${RS.slice(
+        0,
+        -1,
+      )
+        .map(r =>
+          (
+            (knotTest('charge1', r) - knotTest('charge1', 5)) /
+            scale /
+            ((1 / r - 1 / 5) / (24 * Math.PI))
+          ).toFixed(4),
+        )
+        .join(
+          ', ',
+        )}. Neutral lump husk state equal to the test vibe's alone on ${neutralSame} of ${neutralBeats} beats. Hop steps with and without the light identical on ${hopSame} of ${BEATS}. Worst Gauss ${metrics.worstGauss}, worst longitudinal drift ${metrics.worstDrift!.toExponential(1)} over ${runs.length} configurations. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },
 })

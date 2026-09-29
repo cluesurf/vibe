@@ -48,15 +48,14 @@ export default experiment({
     for (let d = 0; d < 24; d++) {
       const to = mesh.neighbour(center, d)
 
-      roots.push(
-        [0, 1, 2, 3].map(a => wrapOf(coordinate(to, a) - mid)),
-      )
+      roots.push([0, 1, 2, 3].map(a => wrapOf(coordinate(to, a) - mid)))
     }
 
     const trackFront = (
       dir: number,
     ): { steps: number[]; exactSteps: number; reversals: number[] } => {
       const axis = roots[dir]!.map(v => v / Math.SQRT2)
+
       let vacuum: Will = makeWill(mesh)
       let seeded: Will = makeWill(mesh)
 
@@ -64,6 +63,7 @@ export default experiment({
 
       const steps: number[] = []
       const reversals: number[] = []
+
       let exactSteps = 0
       let prev = 0
 
@@ -76,6 +76,7 @@ export default experiment({
         for (let i = 0; i < seeded.data.length; i++) {
           if (seeded.data[i] !== vacuum.data[i]) {
             const cell = Math.floor(i / 24)
+
             let p = 0
 
             for (let a = 0; a < 4; a++) {
@@ -132,8 +133,7 @@ export default experiment({
       // CONTROL: the massless species through the identical tracker, nine exact forward
       // steps and zero reversals
       control: {
-        masslessNeverReverses:
-          massless.reversals.length === 0 ? 1 : 0,
+        masslessNeverReverses: massless.reversals.length === 0 ? 1 : 0,
       },
       notes:
         'speed is never intermediate at the front: eighteen of eighteen interacting-species beats and nine of nine massless beats land at exactly root two cells per beat in magnitude. The mass formula is now a counting problem over the schedule (the reversal duty cycle per species), and connecting that duty cycle to the composite centroid speeds of E-FND-0129, through the cloud drag the naive churn formula exposed, is the dispersion programme continuation.',

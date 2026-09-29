@@ -128,7 +128,8 @@ export default experiment({
     const startSpectrum = columnSpectrum(ordered)
     const startRatio = startSpectrum[0]! / mean(startSpectrum.slice(8))
     const relaxed = averagedSpectrum({ start: ordered, settle: SETTLE })
-    const relaxedRatio = mean(relaxed.slice(0, 7)) / mean(relaxed.slice(-7))
+    const relaxedRatio =
+      mean(relaxed.slice(0, 7)) / mean(relaxed.slice(-7))
 
     const equipartition = low / high > 0.7 && low / high < 1.4
     const noUvSuppression = high / mid > 0.8

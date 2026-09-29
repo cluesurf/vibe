@@ -155,7 +155,9 @@ export default experiment({
       s => !s.erasing.chargeConserved,
     )
 
-    const sortingChangesState = perSize.every(s => s.sortingChangesState)
+    const sortingChangesState = perSize.every(
+      s => s.sortingChangesState,
+    )
 
     const first = perSize[0]!
     const second = perSize[1]!
@@ -189,9 +191,8 @@ export default experiment({
         sortingRecoverableB: second.sorting.stateRecoverable ? 1 : 0,
         conservationWithoutRecoverability:
           conservationWithoutRecoverability ? 1 : 0,
-        recoverabilityWithoutPersistence: recoverabilityWithoutPersistence
-          ? 1
-          : 0,
+        recoverabilityWithoutPersistence:
+          recoverabilityWithoutPersistence ? 1 : 0,
       },
       control: {
         erasingConservedA: first.erasing.chargeConserved ? 1 : 0,

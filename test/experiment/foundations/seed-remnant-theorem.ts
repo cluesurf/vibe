@@ -59,6 +59,7 @@ export default experiment({
     for (let dir = 0; dir < 24; dir++) {
       let vacuum: Will = makeWill(mesh)
       let seeded: Will = makeWill(mesh)
+
       const acc = new Set<number>()
 
       for (let t = 0; t < BEATS; t++) {

@@ -103,11 +103,17 @@ export function addPointSeed(input: {
 // |R(x)|^2 and |L(x)|^2, each as re^2 + im^2. The sums below add the two chiralities as
 // (|R|^2) + (|L|^2), the association the original six copies used, so results match bit for bit.
 function rightWeight(walk: CoinedWalk, x: number): number {
-  return walk.rightRe[x]! * walk.rightRe[x]! + walk.rightIm[x]! * walk.rightIm[x]!
+  return (
+    walk.rightRe[x]! * walk.rightRe[x]! +
+    walk.rightIm[x]! * walk.rightIm[x]!
+  )
 }
 
 function leftWeight(walk: CoinedWalk, x: number): number {
-  return walk.leftRe[x]! * walk.leftRe[x]! + walk.leftIm[x]! * walk.leftIm[x]!
+  return (
+    walk.leftRe[x]! * walk.leftRe[x]! +
+    walk.leftIm[x]! * walk.leftIm[x]!
+  )
 }
 
 export function coinedWalkNorm(walk: CoinedWalk): number {
@@ -411,7 +417,11 @@ export function coinedWalkWindowFraction(input: {
 
   let inside = 0
 
-  for (let x = input.centre - input.window; x <= input.centre + input.window; x++) {
+  for (
+    let x = input.centre - input.window;
+    x <= input.centre + input.window;
+    x++
+  ) {
     inside += p[((x % size) + size) % size]!
   }
 
@@ -428,7 +438,11 @@ export function coinedWalkRangeProbability(input: {
 
   let sum = 0
 
-  for (let x = Math.max(0, input.from); x < Math.min(input.walk.size, input.to); x++) {
+  for (
+    let x = Math.max(0, input.from);
+    x < Math.min(input.walk.size, input.to);
+    x++
+  ) {
     sum += p[x]!
   }
 

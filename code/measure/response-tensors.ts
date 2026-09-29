@@ -25,14 +25,23 @@ export function quadraticFit(input: {
 }): { tensor: number[][]; residual: number } {
   const { wavevectors, values } = input
   const pairs: [number, number][] = [
-    [0, 0], [1, 1], [2, 2], [3, 3],
-    [0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3],
+    [0, 0],
+    [1, 1],
+    [2, 2],
+    [3, 3],
+    [0, 1],
+    [0, 2],
+    [0, 3],
+    [1, 2],
+    [1, 3],
+    [2, 3],
   ]
   const rows = wavevectors.map(n => {
     const norm2 = n.reduce((s, x) => s + x * x, 0)
 
-    return pairs.map(([i, j]) =>
-      ((i === j ? 1 : 2) * (n[i] ?? 0) * (n[j] ?? 0)) / norm2,
+    return pairs.map(
+      ([i, j]) =>
+        ((i === j ? 1 : 2) * (n[i] ?? 0) * (n[j] ?? 0)) / norm2,
     )
   })
   const normal = pairs.map((_, a) =>
@@ -47,8 +56,8 @@ export function quadraticFit(input: {
   const tensor = [0, 1, 2, 3].map(() => [0, 0, 0, 0])
 
   pairs.forEach(([i, j], a) => {
-    ;(tensor[i] as number[])[j] = x[a] ?? 0
-    ;(tensor[j] as number[])[i] = x[a] ?? 0
+    tensor[i]![j] = x[a] ?? 0
+    tensor[j]![i] = x[a] ?? 0
   })
 
   let misfit = 0
@@ -64,17 +73,25 @@ export function quadraticFit(input: {
   return { tensor, residual: Math.sqrt(misfit / size) }
 }
 
-export function kineticValue(input: { relaxationAfterOneBeat: number; kSquared: number }): number {
+export function kineticValue(input: {
+  relaxationAfterOneBeat: number
+  kSquared: number
+}): number {
   return (2 * (1 - input.relaxationAfterOneBeat)) / input.kSquared
 }
 
-export function peakFrequency(curve: readonly number[], resolution = 3000): number {
+export function peakFrequency(
+  curve: readonly number[],
+  resolution = 3000,
+): number {
   const mean = curve.reduce((a, b) => a + b, 0) / curve.length
+
   let best = 0
   let bestPower = -1
 
   for (let s = 1; s < resolution; s++) {
     const w = (Math.PI * s) / resolution
+
     let re = 0
     let im = 0
 
@@ -94,7 +111,9 @@ export function peakFrequency(curve: readonly number[], resolution = 3000): numb
   return best
 }
 
-export function gramTensor(vectors: readonly (readonly number[])[]): number[][] {
+export function gramTensor(
+  vectors: readonly (readonly number[])[],
+): number[][] {
   return [0, 1, 2, 3].map(i =>
     [0, 1, 2, 3].map(
       j =>
@@ -105,7 +124,9 @@ export function gramTensor(vectors: readonly (readonly number[])[]): number[][] 
 }
 
 function frobenius(m: readonly (readonly number[])[]): number {
-  return Math.sqrt(m.reduce((s, row) => s + row.reduce((t, x) => t + x * x, 0), 0))
+  return Math.sqrt(
+    m.reduce((s, row) => s + row.reduce((t, x) => t + x * x, 0), 0),
+  )
 }
 
 export function tensorDistance(
@@ -116,13 +137,18 @@ export function tensorDistance(
   const nb = frobenius(b)
 
   return frobenius(
-    a.map((row, i) => row.map((x, j) => x / na - (b[i]?.[j] ?? 0) / nb)),
+    a.map((row, i) =>
+      row.map((x, j) => x / na - (b[i]?.[j] ?? 0) / nb),
+    ),
   )
 }
 
 export function anisotropy(m: readonly (readonly number[])[]): number {
-  const trace = [0, 1, 2, 3].reduce((s, i) => s + (m[i]?.[i] ?? 0), 0) / 4
-  const traceless = m.map((row, i) => row.map((x, j) => x - (i === j ? trace : 0)))
+  const trace =
+    [0, 1, 2, 3].reduce((s, i) => s + (m[i]?.[i] ?? 0), 0) / 4
+  const traceless = m.map((row, i) =>
+    row.map((x, j) => x - (i === j ? trace : 0)),
+  )
 
   return frobenius(traceless) / (2 * Math.abs(trace))
 }

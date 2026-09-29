@@ -20,7 +20,10 @@ export function zero3(): Complex3 {
 }
 
 // eigenvalues (ascending, each once) and eigenvectors (columns, as complex 3-vectors) of a Hermitian 3 x 3
-export function hermitian3(h: Complex3): { values: number[]; vectors: { re: number[]; im: number[] }[] } {
+export function hermitian3(h: Complex3): {
+  values: number[]
+  vectors: { re: number[]; im: number[] }[]
+} {
   const n = 6
   const a = new Float64Array(36)
 
@@ -63,8 +66,11 @@ export function hermitian3(h: Complex3): { values: number[]; vectors: { re: numb
           continue
         }
 
-        const theta = ((a[q * n + q] ?? 0) - (a[p * n + p] ?? 0)) / (2 * apq)
-        const t = Math.sign(theta || 1) / (Math.abs(theta) + Math.sqrt(theta * theta + 1))
+        const theta =
+          ((a[q * n + q] ?? 0) - (a[p * n + p] ?? 0)) / (2 * apq)
+        const t =
+          Math.sign(theta || 1) /
+          (Math.abs(theta) + Math.sqrt(theta * theta + 1))
         const c = 1 / Math.sqrt(t * t + 1)
         const s = t * c
 
@@ -96,7 +102,9 @@ export function hermitian3(h: Complex3): { values: number[]; vectors: { re: numb
   }
 
   // pair the doubled eigenvalues: sort, take every other, and read each complex vector off a column
-  const order = Array.from({ length: n }, (_, i) => i).sort((x, y) => (a[x * n + x] ?? 0) - (a[y * n + y] ?? 0))
+  const order = Array.from({ length: n }, (_, i) => i).sort(
+    (x, y) => (a[x * n + x] ?? 0) - (a[y * n + y] ?? 0),
+  )
   const values: number[] = []
   const vectors: { re: number[]; im: number[] }[] = []
   const taken: { re: number[]; im: number[] }[] = []
@@ -112,15 +120,26 @@ export function hermitian3(h: Complex3): { values: number[]; vectors: { re: numb
       let di = 0
 
       for (let k = 0; k < 3; k++) {
-        dr += (t.re[k] ?? 0) * (re[k] ?? 0) + (t.im[k] ?? 0) * (im[k] ?? 0)
-        di += (t.re[k] ?? 0) * (im[k] ?? 0) - (t.im[k] ?? 0) * (re[k] ?? 0)
+        dr +=
+          (t.re[k] ?? 0) * (re[k] ?? 0) + (t.im[k] ?? 0) * (im[k] ?? 0)
+
+        di +=
+          (t.re[k] ?? 0) * (im[k] ?? 0) - (t.im[k] ?? 0) * (re[k] ?? 0)
       }
 
-      re = re.map((x, k) => x - (dr * (t.re[k] ?? 0) - di * (t.im[k] ?? 0)))
-      im = im.map((x, k) => x - (dr * (t.im[k] ?? 0) + di * (t.re[k] ?? 0)))
+      re = re.map(
+        (x, k) => x - (dr * (t.re[k] ?? 0) - di * (t.im[k] ?? 0)),
+      )
+
+      im = im.map(
+        (x, k) => x - (dr * (t.im[k] ?? 0) + di * (t.re[k] ?? 0)),
+      )
     }
 
-    const norm = Math.sqrt(re.reduce((s, x) => s + x * x, 0) + im.reduce((s, x) => s + x * x, 0))
+    const norm = Math.sqrt(
+      re.reduce((s, x) => s + x * x, 0) +
+        im.reduce((s, x) => s + x * x, 0),
+    )
 
     if (norm < 1e-6 || taken.length === 3) {
       continue
@@ -152,8 +171,12 @@ export function sign3(h: Complex3): Complex3 {
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) {
         // v_i conj(v_j)
-        const re = (v.re[i] ?? 0) * (v.re[j] ?? 0) + (v.im[i] ?? 0) * (v.im[j] ?? 0)
-        const im = (v.im[i] ?? 0) * (v.re[j] ?? 0) - (v.re[i] ?? 0) * (v.im[j] ?? 0)
+        const re =
+          (v.re[i] ?? 0) * (v.re[j] ?? 0) +
+          (v.im[i] ?? 0) * (v.im[j] ?? 0)
+        const im =
+          (v.im[i] ?? 0) * (v.re[j] ?? 0) -
+          (v.re[i] ?? 0) * (v.im[j] ?? 0)
 
         out.re[3 * i + j] = (out.re[3 * i + j] ?? 0) + s * re
         out.im[3 * i + j] = (out.im[3 * i + j] ?? 0) + s * im
@@ -181,17 +204,28 @@ function sandwich(p: readonly number[], x: Complex3): Complex3 {
 }
 
 function add3(a: Complex3, b: Complex3, s: number): Complex3 {
-  return { re: a.re.map((x, i) => x + s * (b.re[i] ?? 0)), im: a.im.map((x, i) => x + s * (b.im[i] ?? 0)) }
+  return {
+    re: a.re.map((x, i) => x + s * (b.re[i] ?? 0)),
+    im: a.im.map((x, i) => x + s * (b.im[i] ?? 0)),
+  }
 }
 
 // the CHSH value of Alice's pair at its best Bob: || D X D ||_1 + || D Y D ||_1
-export function aliceValue(p: readonly number[], a0: Complex3, a1: Complex3): number {
-  return traceNorm3(sandwich(p, add3(a0, a1, 1))) + traceNorm3(sandwich(p, add3(a0, a1, -1)))
+export function aliceValue(
+  p: readonly number[],
+  a0: Complex3,
+  a1: Complex3,
+): number {
+  return (
+    traceNorm3(sandwich(p, add3(a0, a1, 1))) +
+    traceNorm3(sandwich(p, add3(a0, a1, -1)))
+  )
 }
 
 // a Hermitian 3 x 3 from nine numbers in [0, 1)
 function hermitianFrom(u: readonly number[]): Complex3 {
   const h = zero3()
+
   let k = 0
 
   for (let i = 0; i < 3; i++) {
@@ -215,14 +249,26 @@ function hermitianFrom(u: readonly number[]): Complex3 {
 
 // the see-saw on the pure Schmidt state from `starts` golden Weyl starts: the largest value found, and the
 // observables that found it
-export function pureSeeSaw(p: readonly number[], starts: number, steps = 400): { value: number; a0: Complex3; a1: Complex3 } {
-  let best = { value: Number.NEGATIVE_INFINITY, a0: zero3(), a1: zero3() }
+export function pureSeeSaw(
+  p: readonly number[],
+  starts: number,
+  steps = 400,
+): { value: number; a0: Complex3; a1: Complex3 } {
+  let best = {
+    value: Number.NEGATIVE_INFINITY,
+    a0: zero3(),
+    a1: zero3(),
+  }
+
   // eighteen Weyl rates: frac(sqrt q) for the primes 2 .. 61
-  const primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61]
+  const primes = [
+    2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61,
+  ]
   const rates = primes.map(q => Math.sqrt(q) % 1)
 
   for (let s = 1; s <= starts; s++) {
     const u = rates.map(r => (s * r) % 1)
+
     let a0 = sign3(hermitianFrom(u.slice(0, 9)))
     let a1 = sign3(hermitianFrom(u.slice(9, 18)))
     let value = aliceValue(p, a0, a1)
@@ -259,7 +305,11 @@ export function pureSeeSaw(p: readonly number[], starts: number, steps = 400): {
 // each read as a Hermitian operator on its role (Tr[B beta] = sum B_jl beta_lj).
 export type Density9 = { re: Float64Array; im: Float64Array }
 
-function meets(rho: Density9, x: Complex3, side: 'bob' | 'alice'): Complex3 {
+function meets(
+  rho: Density9,
+  x: Complex3,
+  side: 'bob' | 'alice',
+): Complex3 {
   const out = zero3()
 
   for (let i = 0; i < 3; i++) {
@@ -270,8 +320,14 @@ function meets(rho: Density9, x: Complex3, side: 'bob' | 'alice'): Complex3 {
           const rr = rho.re[at] ?? 0
           const ri = rho.im[at] ?? 0
           // the observable's entry: X_ik for Bob's operator, Y_jl for Alice's
-          const xr = side === 'bob' ? (x.re[3 * i + k] ?? 0) : (x.re[3 * j + l] ?? 0)
-          const xi = side === 'bob' ? (x.im[3 * i + k] ?? 0) : (x.im[3 * j + l] ?? 0)
+          const xr =
+            side === 'bob'
+              ? (x.re[3 * i + k] ?? 0)
+              : (x.re[3 * j + l] ?? 0)
+          const xi =
+            side === 'bob'
+              ? (x.im[3 * i + k] ?? 0)
+              : (x.im[3 * j + l] ?? 0)
           // the product lands at beta_lj (Bob) or alpha_ki (Alice)
           const to = side === 'bob' ? 3 * l + j : 3 * k + i
 
@@ -287,14 +343,24 @@ function meets(rho: Density9, x: Complex3, side: 'bob' | 'alice'): Complex3 {
 
 // the see-saw on a general two-role density from `starts` Weyl starts: Bob and Alice in turn take the sign
 // of the operator their partner's observables leave them, which never lowers the value
-export function densitySeeSaw(rho: Density9, starts: number, steps = 400): number {
+export function densitySeeSaw(
+  rho: Density9,
+  starts: number,
+  steps = 400,
+): number {
   let best = Number.NEGATIVE_INFINITY
-  const primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61]
+
+  const primes = [
+    2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61,
+  ]
   const rates = primes.map(q => Math.sqrt(q) % 1)
-  const valueOf = (a0: Complex3, a1: Complex3): number => traceNorm3(meets(rho, add3(a0, a1, 1), 'bob')) + traceNorm3(meets(rho, add3(a0, a1, -1), 'bob'))
+  const valueOf = (a0: Complex3, a1: Complex3): number =>
+    traceNorm3(meets(rho, add3(a0, a1, 1), 'bob')) +
+    traceNorm3(meets(rho, add3(a0, a1, -1), 'bob'))
 
   for (let s = 1; s <= starts; s++) {
     const u = rates.map(r => (s * r) % 1)
+
     let a0 = sign3(hermitianFrom(u.slice(0, 9)))
     let a1 = sign3(hermitianFrom(u.slice(9, 18)))
     let value = valueOf(a0, a1)
@@ -342,7 +408,10 @@ export function pureChshExact(schmidt: readonly number[]): number {
 // sqrt p1 |00> + sqrt p2 |11>, and Horodecki's settings A0 = Z, A1 = X, B = cos(t) Z +- sin(t) X with
 // tan t = 2 sqrt(p1 p2) / (p1 + p2) reach 2 sqrt((p1 + p2)^2 + 4 p1 p2) on it; every observable is +1 on
 // a3 and on b3, which adds 2 p3. The value is read off the density itself, Tr[B rho].
-export function alignedChsh(rho: Density9, top: { re: number[]; im: number[] }): number {
+export function alignedChsh(
+  rho: Density9,
+  top: { re: number[]; im: number[] },
+): number {
   const m = zero3()
 
   for (let i = 0; i < 9; i++) {
@@ -408,7 +477,11 @@ export function alignedChsh(rho: Density9, top: { re: number[]; im: number[] }):
 
     return { re, im }
   })
-  const cross = (u: { re: number[]; im: number[] }, v: { re: number[]; im: number[] }): { re: number[]; im: number[] } => {
+
+  const cross = (
+    u: { re: number[]; im: number[] },
+    v: { re: number[]; im: number[] },
+  ): { re: number[]; im: number[] } => {
     const re: number[] = []
     const im: number[] = []
 
@@ -416,8 +489,16 @@ export function alignedChsh(rho: Density9, top: { re: number[]; im: number[] }):
       const j = (i + 1) % 3
       const k = (i + 2) % 3
       // u_j v_k - u_k v_j, then conjugated
-      const r = (u.re[j] ?? 0) * (v.re[k] ?? 0) - (u.im[j] ?? 0) * (v.im[k] ?? 0) - ((u.re[k] ?? 0) * (v.re[j] ?? 0) - (u.im[k] ?? 0) * (v.im[j] ?? 0))
-      const q = (u.re[j] ?? 0) * (v.im[k] ?? 0) + (u.im[j] ?? 0) * (v.re[k] ?? 0) - ((u.re[k] ?? 0) * (v.im[j] ?? 0) + (u.im[k] ?? 0) * (v.re[j] ?? 0))
+      const r =
+        (u.re[j] ?? 0) * (v.re[k] ?? 0) -
+        (u.im[j] ?? 0) * (v.im[k] ?? 0) -
+        ((u.re[k] ?? 0) * (v.re[j] ?? 0) -
+          (u.im[k] ?? 0) * (v.im[j] ?? 0))
+      const q =
+        (u.re[j] ?? 0) * (v.im[k] ?? 0) +
+        (u.im[j] ?? 0) * (v.re[k] ?? 0) -
+        ((u.re[k] ?? 0) * (v.im[j] ?? 0) +
+          (u.im[k] ?? 0) * (v.re[j] ?? 0))
 
       re.push(r)
       im.push(-q)
@@ -429,23 +510,50 @@ export function alignedChsh(rho: Density9, top: { re: number[]; im: number[] }):
   b.push(cross(b[0]!, b[1]!))
 
   // |x><y| + ... as a 3 x 3
-  const outer = (terms: [number, { re: number[]; im: number[] }, { re: number[]; im: number[] }][]): Complex3 => {
+  const outer = (
+    terms: [
+      number,
+      { re: number[]; im: number[] },
+      { re: number[]; im: number[] },
+    ][],
+  ): Complex3 => {
     const o = zero3()
 
     for (const [c, x, y] of terms) {
       for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 3; j++) {
-          o.re[3 * i + j] = (o.re[3 * i + j] ?? 0) + c * ((x.re[i] ?? 0) * (y.re[j] ?? 0) + (x.im[i] ?? 0) * (y.im[j] ?? 0))
-          o.im[3 * i + j] = (o.im[3 * i + j] ?? 0) + c * ((x.im[i] ?? 0) * (y.re[j] ?? 0) - (x.re[i] ?? 0) * (y.im[j] ?? 0))
+          o.re[3 * i + j] =
+            (o.re[3 * i + j] ?? 0) +
+            c *
+              ((x.re[i] ?? 0) * (y.re[j] ?? 0) +
+                (x.im[i] ?? 0) * (y.im[j] ?? 0))
+
+          o.im[3 * i + j] =
+            (o.im[3 * i + j] ?? 0) +
+            c *
+              ((x.im[i] ?? 0) * (y.re[j] ?? 0) -
+                (x.re[i] ?? 0) * (y.im[j] ?? 0))
         }
       }
     }
 
     return o
   }
-  const [a1, a2, a3] = a as [{ re: number[]; im: number[] }, { re: number[]; im: number[] }, { re: number[]; im: number[] }]
-  const [b1, b2, b3] = b as [{ re: number[]; im: number[] }, { re: number[]; im: number[] }, { re: number[]; im: number[] }]
-  const t = Math.atan2(2 * Math.sqrt((p[0] ?? 0) * (p[1] ?? 0)), (p[0] ?? 0) + (p[1] ?? 0))
+
+  const [a1, a2, a3] = a as [
+    { re: number[]; im: number[] },
+    { re: number[]; im: number[] },
+    { re: number[]; im: number[] },
+  ]
+  const [b1, b2, b3] = b as [
+    { re: number[]; im: number[] },
+    { re: number[]; im: number[] },
+    { re: number[]; im: number[] },
+  ]
+  const t = Math.atan2(
+    2 * Math.sqrt((p[0] ?? 0) * (p[1] ?? 0)),
+    (p[0] ?? 0) + (p[1] ?? 0),
+  )
   const c = Math.cos(t)
   const s = Math.sin(t)
   const a0 = outer([
@@ -468,6 +576,7 @@ export function alignedChsh(rho: Density9, top: { re: number[]; im: number[] }):
     ])
   const b0 = bOf(1)
   const b1o = bOf(-1)
+
   const expect = (x: Complex3, y: Complex3): number => {
     // Tr[(x (x) y) rho] = sum x_ik y_jl rho_(k l),(i j), real part
     let re = 0
@@ -493,13 +602,19 @@ export function alignedChsh(rho: Density9, top: { re: number[]; im: number[] }):
     return re
   }
 
-  return expect(a0, b0) + expect(a0, b1o) + expect(a1x, b0) - expect(a1x, b1o)
+  return (
+    expect(a0, b0) +
+    expect(a0, b1o) +
+    expect(a1x, b0) -
+    expect(a1x, b1o)
+  )
 }
 
 // the pairing form of code/measure/bell-gates, the best Schmidt-aligned block choice
 export function pairingForm(p: readonly number[]): number {
   const [a = 0, b = 0, c = 0] = p
-  const pair = (x: number, y: number, z: number): number => 2 * Math.sqrt((x + y) ** 2 + 4 * x * y) + 2 * z
+  const pair = (x: number, y: number, z: number): number =>
+    2 * Math.sqrt((x + y) ** 2 + 4 * x * y) + 2 * z
 
   return Math.max(pair(a, b, c), pair(a, c, b), pair(b, c, a))
 }

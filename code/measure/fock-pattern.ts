@@ -19,13 +19,19 @@ import { eigenSymmetricSmall } from '@/code/measure/husk-emission'
 
 export type Matrix4 = number[][]
 
-const identity4 = (): Matrix4 => [0, 1, 2, 3].map(i => [0, 1, 2, 3].map(j => (i === j ? 1 : 0)))
+const identity4 = (): Matrix4 =>
+  [0, 1, 2, 3].map(i => [0, 1, 2, 3].map(j => (i === j ? 1 : 0)))
 
 function multiply(a: Matrix4, b: Matrix4): Matrix4 {
-  return a.map(row => [0, 1, 2, 3].map(j => row.reduce((s, x, k) => s + x * b[k]![j]!, 0)))
+  return a.map(row =>
+    [0, 1, 2, 3].map(j =>
+      row.reduce((s, x, k) => s + x * b[k]![j]!, 0),
+    ),
+  )
 }
 
-const keyOf = (m: Matrix4): string => m.map(row => row.map(x => Math.round(2 * x)).join(',')).join(';')
+const keyOf = (m: Matrix4): string =>
+  m.map(row => row.map(x => Math.round(2 * x)).join(',')).join(';')
 
 // the closure of a set of generators (entries in multiples of 1/2)
 export function closure(generators: Matrix4[]): Matrix4[] {
@@ -55,6 +61,7 @@ export function closure(generators: Matrix4[]): Matrix4[] {
 function signedPermutations(axes: number, even: boolean): Matrix4[] {
   const out: Matrix4[] = []
   const perms: number[][] = []
+
   const permute = (prefix: number[], rest: number[]): void => {
     if (rest.length === 0) {
       perms.push(prefix)
@@ -62,7 +69,12 @@ function signedPermutations(axes: number, even: boolean): Matrix4[] {
       return
     }
 
-    rest.forEach((r, i) => permute([...prefix, r], rest.filter((_, j) => j !== i)))
+    rest.forEach((r, i) =>
+      permute(
+        [...prefix, r],
+        rest.filter((_, j) => j !== i),
+      ),
+    )
   }
 
   permute(
@@ -108,7 +120,9 @@ export function groupWD4(): Matrix4[] {
 }
 
 export function groupWF4(): Matrix4[] {
-  const reflection = [0, 1, 2, 3].map(i => [0, 1, 2, 3].map(j => (i === j ? 1 : 0) - 0.5))
+  const reflection = [0, 1, 2, 3].map(i =>
+    [0, 1, 2, 3].map(j => (i === j ? 1 : 0) - 0.5),
+  )
 
   return closure([...signedPermutations(4, false), reflection])
 }
@@ -186,7 +200,9 @@ export function representation(g: Matrix4, degree: 1 | 2): number[][] {
 
   const basis = harmonicBasis2()
   const n = basis.length
-  const out = Array.from({ length: n }, () => new Array<number>(n).fill(0))
+  const out = Array.from({ length: n }, () =>
+    new Array<number>(n).fill(0),
+  )
   const gt = g[0]!.map((_, j) => g.map(row => row[j]!))
 
   basis.forEach((b, j) => {
@@ -210,9 +226,19 @@ export function representation(g: Matrix4, degree: 1 | 2): number[][] {
 
 // the multiplet sizes a group splits the shell into: the degeneracies of the group average of a generic
 // symmetric operator, largest gap tolerance `tolerance` (relative)
-export function multipletSizes(group: readonly Matrix4[], degree: 1 | 2, tolerance = 1e-9): number[] {
+export function multipletSizes(
+  group: readonly Matrix4[],
+  degree: 1 | 2,
+  tolerance = 1e-9,
+): number[] {
   const n = degree === 1 ? 4 : 9
-  const generic = Array.from({ length: n }, (_, i) => Array.from({ length: n }, (_, j) => (i <= j ? weyl(1 + i * n + j, GOLDEN) + weyl(1 + j * n + i, SILVER) : 0)))
+  const generic = Array.from({ length: n }, (_, i) =>
+    Array.from({ length: n }, (_, j) =>
+      i <= j
+        ? weyl(1 + i * n + j, GOLDEN) + weyl(1 + j * n + i, SILVER)
+        : 0,
+    ),
+  )
 
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < i; j++) {
@@ -241,13 +267,19 @@ export function multipletSizes(group: readonly Matrix4[], degree: 1 | 2, toleran
     }
   }
 
-  const values = Array.from(eigenSymmetricSmall(average, n, false).values).sort((a, b) => a - b)
+  const values = Array.from(
+    eigenSymmetricSmall(average, n, false).values,
+  ).sort((a, b) => a - b)
   const scale = Math.max(...values.map(Math.abs), 1)
   const sizes: number[] = []
+
   let run = 1
 
   for (let i = 1; i <= values.length; i++) {
-    if (i < values.length && Math.abs(values[i]! - values[i - 1]!) <= tolerance * scale) {
+    if (
+      i < values.length &&
+      Math.abs(values[i]! - values[i - 1]!) <= tolerance * scale
+    ) {
       run += 1
     } else {
       sizes.push(run)

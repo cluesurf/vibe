@@ -35,7 +35,15 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { BAND_TOP, hartreeFockEnergy, makeGrid, makePoisson, selfConsistent, standinUnits, type Nucleus } from '@/code/measure/standin-chemistry'
+import {
+  BAND_TOP,
+  hartreeFockEnergy,
+  makeGrid,
+  makePoisson,
+  selfConsistent,
+  standinUnits,
+  type Nucleus,
+} from '@/code/measure/standin-chemistry'
 
 const SIDE = 32
 const A0 = 3
@@ -46,14 +54,32 @@ const BOSON_SIZES = [1, 2, 4, 8, 27, 64]
 
 // the cluster of N nuclei at spacing s, centered in the box
 function cluster(n: number, s: number): Nucleus[] {
-  const shape: [number, number, number] = n === 1 ? [1, 1, 1] : n === 2 ? [2, 1, 1] : n === 4 ? [2, 2, 1] : [Math.round(Math.cbrt(n)), Math.round(Math.cbrt(n)), Math.round(Math.cbrt(n))]
+  const shape: [number, number, number] =
+    n === 1
+      ? [1, 1, 1]
+      : n === 2
+        ? [2, 1, 1]
+        : n === 4
+          ? [2, 2, 1]
+          : [
+              Math.round(Math.cbrt(n)),
+              Math.round(Math.cbrt(n)),
+              Math.round(Math.cbrt(n)),
+            ]
   const base = shape.map(k => SIDE / 2 - Math.floor(((k - 1) * s) / 2))
   const out: Nucleus[] = []
 
   for (let z = 0; z < shape[2]; z++) {
     for (let y = 0; y < shape[1]; y++) {
       for (let x = 0; x < shape[0]; x++) {
-        out.push({ at: [(base[0] ?? 0) + x * s, (base[1] ?? 0) + y * s, (base[2] ?? 0) + z * s], charge: 1 })
+        out.push({
+          at: [
+            (base[0] ?? 0) + x * s,
+            (base[1] ?? 0) + y * s,
+            (base[2] ?? 0) + z * s,
+          ],
+          charge: 1,
+        })
       }
     }
   }
@@ -68,7 +94,10 @@ function exponent(n: number[], e: number[]): number {
   const mx = x.reduce((a, b) => a + b, 0) / x.length
   const my = y.reduce((a, b) => a + b, 0) / y.length
 
-  return x.reduce((s, xi, i) => s + (xi - mx) * ((y[i] ?? 0) - my), 0) / x.reduce((s, xi) => s + (xi - mx) ** 2, 0)
+  return (
+    x.reduce((s, xi, i) => s + (xi - mx) * ((y[i] ?? 0) - my), 0) /
+    x.reduce((s, xi) => s + (xi - mx) ** 2, 0)
+  )
 }
 
 export default experiment({
@@ -97,16 +126,35 @@ export default experiment({
 
       for (const s of n === 1 ? [0] : FERMION_SPACINGS) {
         const nuclei = cluster(n, s)
-        const scf = selfConsistent({ grid, poisson, units, nuclei, electrons: n, capacity: 1, field: 'fermi-amaldi', spare: 2, buffer: 4, start })
+        const scf = selfConsistent({
+          grid,
+          poisson,
+          units,
+          nuclei,
+          electrons: n,
+          capacity: 1,
+          field: 'fermi-amaldi',
+          spare: 2,
+          buffer: 4,
+          start,
+        })
 
         start = scf.block
         unconverged += scf.converged ? 0 : 1
         deepest = Math.min(deepest, scf.deepest)
 
-        const hf = hartreeFockEnergy({ grid, poisson, units, external: scf.external, nuclear: scf.nuclear, orbitals: scf.orbitals.slice(0, n) })
+        const hf = hartreeFockEnergy({
+          grid,
+          poisson,
+          units,
+          external: scf.external,
+          nuclear: scf.nuclear,
+          orbitals: scf.orbitals.slice(0, n),
+        })
 
         metrics[`fermionN${n}S${s}Rydberg`] = hf.total / units.rydberg
-        metrics[`fermionN${n}S${s}ExchangeRydberg`] = hf.exchange / units.rydberg
+        metrics[`fermionN${n}S${s}ExchangeRydberg`] =
+          hf.exchange / units.rydberg
 
         if (hf.total < best.energy) {
           best = { energy: hf.total, spacing: s }
@@ -122,7 +170,18 @@ export default experiment({
 
       for (const s of n === 1 ? [0] : BOSON_SPACINGS) {
         const nuclei = cluster(n, s)
-        const scf = selfConsistent({ grid, poisson, units, nuclei, electrons: n, capacity: n, field: 'fermi-amaldi', spare: 2, buffer: 3, start })
+        const scf = selfConsistent({
+          grid,
+          poisson,
+          units,
+          nuclei,
+          electrons: n,
+          capacity: n,
+          field: 'fermi-amaldi',
+          spare: 2,
+          buffer: 3,
+          start,
+        })
 
         start = scf.block
         unconverged += scf.converged ? 0 : 1
@@ -150,16 +209,23 @@ export default experiment({
       boson.map(b => b.n),
       boson.map(b => b.energy),
     )
-    const perParticle = (list: typeof fermion, n: number): number => (list.find(x => x.n === n)?.energy ?? Number.NaN) / n
-    const ratio = (n: number): number => perParticle(boson, n) / perParticle(fermion, n)
-    const control = Math.abs(perParticle(boson, 1) - perParticle(fermion, 1)) / Math.abs(perParticle(fermion, 1))
+    const perParticle = (list: typeof fermion, n: number): number =>
+      (list.find(x => x.n === n)?.energy ?? Number.NaN) / n
+    const ratio = (n: number): number =>
+      perParticle(boson, n) / perParticle(fermion, n)
+    const control =
+      Math.abs(perParticle(boson, 1) - perParticle(fermion, 1)) /
+      Math.abs(perParticle(fermion, 1))
 
     fermion.forEach(f => {
-      metrics[`fermionMinN${f.n}PerParticleRydberg`] = f.energy / f.n / units.rydberg
+      metrics[`fermionMinN${f.n}PerParticleRydberg`] =
+        f.energy / f.n / units.rydberg
       metrics[`fermionMinN${f.n}SpacingOverA0`] = f.spacing / A0
     })
+
     boson.forEach(b => {
-      metrics[`bosonMinN${b.n}PerParticleRydberg`] = b.energy / b.n / units.rydberg
+      metrics[`bosonMinN${b.n}PerParticleRydberg`] =
+        b.energy / b.n / units.rydberg
       metrics[`bosonMinN${b.n}SpacingOverA0`] = b.spacing / A0
     })
 
@@ -167,7 +233,12 @@ export default experiment({
     const gate2 = bosonExponent >= 1.3
     const gate3 = ratio(4) > 1 && ratio(8) > ratio(4)
     const gate4 = control < 1e-9
-    const status = gate1 && gate2 && gate3 && gate4 ? 'pass' : gate1 && gate4 ? 'partial' : 'fail'
+    const status =
+      gate1 && gate2 && gate3 && gate4
+        ? 'pass'
+        : gate1 && gate4
+          ? 'partial'
+          : 'fail'
 
     return verdict({
       status,

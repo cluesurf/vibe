@@ -71,7 +71,12 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { alphaSpanned, alphaUnspanned, COULOMB_COMPARE_FROM, spanCoulombSurvey } from '@/code/measure/span-coulomb'
+import {
+  alphaSpanned,
+  alphaUnspanned,
+  COULOMB_COMPARE_FROM,
+  spanCoulombSurvey,
+} from '@/code/measure/span-coulomb'
 
 export default experiment({
   id: 'gauge/span-coulomb',
@@ -86,14 +91,39 @@ export default experiment({
     const s = spanCoulombSurvey(what => console.error(what))
     const x = s.readings
     const q = (d: number): number => 2 * d + 1
-    const k1 = x.every(r => r.gauss === 0 && r.wraps === 0 && r.reversed && r.strungReversed && r.oldGauss === 0 && r.oldReversed)
-    const k2 = x.every(r => r.fluxOff <= (r.depth >= COULOMB_COMPARE_FROM ? 1e-5 : 2e-3))
+    const k1 = x.every(
+      r =>
+        r.gauss === 0 &&
+        r.wraps === 0 &&
+        r.reversed &&
+        r.strungReversed &&
+        r.oldGauss === 0 &&
+        r.oldReversed,
+    )
+    const k2 = x.every(
+      r => r.fluxOff <= (r.depth >= COULOMB_COMPARE_FROM ? 1e-5 : 2e-3),
+    )
     const compared = x.filter(r => r.depth >= COULOMB_COMPARE_FROM)
-    const k3 = x.every(r => r.growthOff <= 1e-4) && compared.every(r => r.oldGrowthOff <= 1e-2 && Math.abs(r.ratioMean / q(r.depth) - 1) <= 1e-3 && r.ratioSpread / q(r.depth) <= 5e-3)
-    const k4 = x.every(r => r.strungDrift <= 1e-3 && r.strungWrongDrift > 0.1)
+    const k3 =
+      x.every(r => r.growthOff <= 1e-4) &&
+      compared.every(
+        r =>
+          r.oldGrowthOff <= 1e-2 &&
+          Math.abs(r.ratioMean / q(r.depth) - 1) <= 1e-3 &&
+          r.ratioSpread / q(r.depth) <= 5e-3,
+      )
+    const k4 = x.every(
+      r => r.strungDrift <= 1e-3 && r.strungWrongDrift > 0.1,
+    )
     const status = !k1 ? 'partial' : k2 && k3 && k4 ? 'pass' : 'fail'
     const depths = [...new Set(x.map(r => r.depth))]
-    const metrics: Record<string, number> = { gate_K1: k1 ? 1 : 0, gate_K2: k2 ? 1 : 0, gate_K3: k3 ? 1 : 0, gate_K4: k4 ? 1 : 0, seconds: s.seconds }
+    const metrics: Record<string, number> = {
+      gate_K1: k1 ? 1 : 0,
+      gate_K2: k2 ? 1 : 0,
+      gate_K3: k3 ? 1 : 0,
+      gate_K4: k4 ? 1 : 0,
+      seconds: s.seconds,
+    }
 
     for (const r of x) {
       const tag = `D${r.depth}_r${r.r}`
@@ -116,13 +146,25 @@ export default experiment({
     }
 
     const e = (v: number): string => v.toExponential(2)
-    const worst = (f: (r: (typeof x)[number]) => number, list = x): string => e(Math.max(...list.map(f)))
+    const worst = (
+      f: (r: (typeof x)[number]) => number,
+      list = x,
+    ): string => e(Math.max(...list.map(f)))
 
     return verdict({
       status,
       claim: `on uniform depths ${depths.join(', ')} the lattice Coulomb field of a +1, -1 pair is a static solution of the spanned light (shadow flux within ${worst(r => r.fluxOff)} of it over 256 beats; Gauss exact, no wraps, reversed); the angle a test charge reads grows at E / Q to ${worst(r => r.growthOff)}, and beside the unspanned light the ratio of growths is ${compared.map(r => r.ratioMean.toFixed(5)).join(', ')} against q = ${compared.map(r => q(r.depth)).join(', ')}; the spanned invariant (E^2 weighted 1 / Q) holds a strung pair to ${worst(r => r.strungDrift)} where the unspanned weight drifts by at least ${e(Math.min(...x.map(r => r.strungWrongDrift)))}; so the Coulomb energy and the force on a test charge fall by q and alpha = sqrt(3) / (24 q) = alpha_old / sqrt(q): ${depths.map(d => `1/${(1 / alphaSpanned(d)).toFixed(1)} against 1/${(1 / alphaUnspanned(d)).toFixed(1)} at D ${d}`).join(', ')}`,
       metrics,
-      control: { strungWrongDriftMin: Math.min(...x.map(r => r.strungWrongDrift)), oldGrowthOffAtD4: Math.max(...x.filter(r => r.depth < COULOMB_COMPARE_FROM).map(r => r.oldGrowthOff)) },
+      control: {
+        strungWrongDriftMin: Math.min(
+          ...x.map(r => r.strungWrongDrift),
+        ),
+        oldGrowthOffAtD4: Math.max(
+          ...x
+            .filter(r => r.depth < COULOMB_COMPARE_FROM)
+            .map(r => r.oldGrowthOff),
+        ),
+      },
       notes: `L2. Gates K1 ${k1}, K2 ${k2}, K3 ${k3}, K4 ${k4}. Per configuration (D, r: flux off, spanned growth off, unspanned growth off, ratio, spread, energy over (G0 - G(r)) / q): ${x.map(r => `D ${r.depth} r ${r.r}: ${e(r.fluxOff)}, ${e(r.growthOff)}, ${e(r.oldGrowthOff)}, ${r.ratioMean.toFixed(5)}, ${e(r.ratioSpread)}, ${r.energyOverGreen.toFixed(12)}`).join('; ')}. Relax residual ${worst(r => r.residual)}. Survey ${s.seconds.toFixed(1)} s.`,
     })
   },

@@ -129,10 +129,7 @@ export default experiment({
     const looseUnbound = loose.every(b => Math.abs(b) < 0.01) // no real binding, disperses
 
     const saturationValue = fermionBindingPerParticle[last]!
-    const ok =
-      fermionSaturates &&
-      fermionPositive &&
-      looseUnbound
+    const ok = fermionSaturates && fermionPositive && looseUnbound
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -143,7 +140,9 @@ export default experiment({
           saturationValue * 1000,
         ),
         fermionBindingSlopeTimes1000: Math.round(fermionSlope * 1000),
-        singleParticleBindingTimes1000: Math.round(singleBinding * 1000),
+        singleParticleBindingTimes1000: Math.round(
+          singleBinding * 1000,
+        ),
         looseBindingPerParticleTimes1000: Math.round(
           Math.max(...loose.map(Math.abs)) * 1000,
         ),

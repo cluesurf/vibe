@@ -74,7 +74,14 @@ export function nearCriticalRP(input?: {
     }
 
     for (let t = 0; t < 120; t++) {
-      conservingEdgeSweep({ tone: tone, eu: eu, ev: ev, moved, rng: rng, arrow: arrow })
+      conservingEdgeSweep({
+        tone: tone,
+        eu: eu,
+        ev: ev,
+        moved,
+        rng: rng,
+        arrow: arrow,
+      })
     }
 
     const T = 4000
@@ -119,7 +126,14 @@ export function nearCriticalRP(input?: {
         }
       }
 
-      conservingEdgeSweep({ tone: tone, eu: eu, ev: ev, moved, rng: rng, arrow: arrow })
+      conservingEdgeSweep({
+        tone: tone,
+        eu: eu,
+        ev: ev,
+        moved,
+        rng: rng,
+        arrow: arrow,
+      })
     }
 
     const mean = sumM / mCnt

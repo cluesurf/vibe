@@ -17,7 +17,10 @@
 // commute with every g (x) g and g (x) conj(g), so they need no frame. With the start written in the frame (the
 // runner applies G), the field run's positions equal the no-field run's until a token crosses the ring's last link.
 
-import { type Convention, type Vibe } from '@/code/rule/locked-token-line'
+import {
+  type Convention,
+  type Vibe,
+} from '@/code/rule/locked-token-line'
 import { DOUBLET_BASIS } from '@/code/measure/locked-cluster'
 import { type M3 } from '@/code/measure/token-pair-run'
 
@@ -28,7 +31,11 @@ const OMEGA: Complex = [-0.5, SQRT3_2]
 const A: Complex = [0.25, SQRT3_2 / 2]
 const B: Complex = [0.75, -SQRT3_2 / 2]
 
-export type LockedStart = { readonly x: readonly number[]; readonly j: readonly number[]; readonly amp: Complex }
+export type LockedStart = {
+  readonly x: readonly number[]
+  readonly j: readonly number[]
+  readonly amp: Complex
+}
 
 export type LockedRunOptions = {
   readonly ring: number
@@ -59,7 +66,10 @@ export type LockedRun = {
 
 type C3 = { re: Float64Array; im: Float64Array }
 
-const zero3 = (): C3 => ({ re: new Float64Array(9), im: new Float64Array(9) })
+const zero3 = (): C3 => ({
+  re: new Float64Array(9),
+  im: new Float64Array(9),
+})
 
 function mul(p: C3, q: C3): C3 {
   const out = zero3()
@@ -70,10 +80,10 @@ function mul(p: C3, q: C3): C3 {
       let si = 0
 
       for (let k = 0; k < 3; k++) {
-        const ar = p.re[3 * i + k] as number
-        const ai = p.im[3 * i + k] as number
-        const br = q.re[3 * k + j] as number
-        const bi = q.im[3 * k + j] as number
+        const ar = p.re[3 * i + k]!
+        const ai = p.im[3 * i + k]!
+        const br = q.re[3 * k + j]!
+        const bi = q.im[3 * k + j]!
 
         sr += ar * br - ai * bi
         si += ar * bi + ai * br
@@ -92,8 +102,8 @@ function dagger(p: C3): C3 {
 
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 3; j++) {
-      out.re[3 * i + j] = p.re[3 * j + i] as number
-      out.im[3 * i + j] = -(p.im[3 * j + i] as number)
+      out.re[3 * i + j] = p.re[3 * j + i]!
+      out.im[3 * i + j] = -p.im[3 * j + i]!
     }
   }
 
@@ -119,10 +129,10 @@ export function toLockedBasis(g: M3, conjugate: boolean): C3 {
 
       for (let i = 0; i < 3; i++) {
         for (let k = 0; k < 3; k++) {
-          const w = (DOUBLET_BASIS[a]![i] as number) * (DOUBLET_BASIS[b]![k] as number)
+          const w = DOUBLET_BASIS[a]![i]! * DOUBLET_BASIS[b]![k]!
 
-          sr += w * (g.re[3 * i + k] as number)
-          si += w * (conjugate ? -(g.im[3 * i + k] as number) : (g.im[3 * i + k] as number))
+          sr += w * g.re[3 * i + k]!
+          si += w * (conjugate ? -g.im[3 * i + k]! : g.im[3 * i + k]!)
         }
       }
 
@@ -137,11 +147,13 @@ export function toLockedBasis(g: M3, conjugate: boolean): C3 {
 // the smallest arc of the ring holding every position
 export function spanOf(L: number, xs: readonly number[]): number {
   const sorted = [...xs].sort((a, b) => a - b)
+
   let largestGap = 0
 
   for (let i = 0; i < sorted.length; i++) {
-    const next = i + 1 < sorted.length ? (sorted[i + 1] as number) : (sorted[0] as number) + L
-    largestGap = Math.max(largestGap, next - (sorted[i] as number))
+    const next = i + 1 < sorted.length ? sorted[i + 1]! : sorted[0]! + L
+
+    largestGap = Math.max(largestGap, next - sorted[i]!)
   }
 
   return L - largestGap
@@ -159,18 +171,21 @@ function meeting(kind: 'like' | 'unlike'): C3[] {
     if (kind === 'like') {
       const q = 3 * j + i
 
-      re[p * 9 + p] = (re[p * 9 + p] as number) + (1 + OMEGA[0]) / 2
-      im[p * 9 + p] = (im[p * 9 + p] as number) + OMEGA[1] / 2
-      re[q * 9 + p] = (re[q * 9 + p] as number) + (1 - OMEGA[0]) / 2
-      im[q * 9 + p] = (im[q * 9 + p] as number) - OMEGA[1] / 2
-    } else re[p * 9 + p] = 1
+      re[p * 9 + p] = re[p * 9 + p]! + (1 + OMEGA[0]) / 2
+      im[p * 9 + p] = im[p * 9 + p]! + OMEGA[1] / 2
+      re[q * 9 + p] = re[q * 9 + p]! + (1 - OMEGA[0]) / 2
+      im[q * 9 + p] = im[q * 9 + p]! - OMEGA[1] / 2
+    } else {
+      re[p * 9 + p] = 1
+    }
   }
 
   if (kind === 'unlike') {
     for (let j = 0; j < 3; j++) {
       for (let k = 0; k < 3; k++) {
-        re[4 * j * 9 + 4 * k] = (re[4 * j * 9 + 4 * k] as number) + (OMEGA[0] - 1) / 3
-        im[4 * j * 9 + 4 * k] = (im[4 * j * 9 + 4 * k] as number) + OMEGA[1] / 3
+        re[4 * j * 9 + 4 * k] =
+          re[4 * j * 9 + 4 * k]! + (OMEGA[0] - 1) / 3
+        im[4 * j * 9 + 4 * k] = im[4 * j * 9 + 4 * k]! + OMEGA[1] / 3
       }
     }
   }
@@ -184,13 +199,20 @@ export function lockedRun(options: LockedRunOptions): LockedRun {
   const R = 3 ** n
   const P = L ** n
   const size = P * R
+
   let re = new Float64Array(size)
   let im = new Float64Array(size)
   let nre = new Float64Array(size)
   let nim = new Float64Array(size)
+
   const strides = Array.from({ length: n }, (_, t) => 3 ** (n - 1 - t))
-  const posStrides = Array.from({ length: n }, (_, t) => L ** (n - 1 - t))
-  const fwdLabel = options.kinds.map(k => (k === 'fear' && options.convention === 'Cprime' ? 1 : 0))
+  const posStrides = Array.from(
+    { length: n },
+    (_, t) => L ** (n - 1 - t),
+  )
+  const fwdLabel = options.kinds.map(k =>
+    k === 'fear' && options.convention === 'Cprime' ? 1 : 0,
+  )
   const backLabel = fwdLabel.map(f => 1 - f)
   const links = options.links
 
@@ -198,11 +220,24 @@ export function lockedRun(options: LockedRunOptions): LockedRun {
   const frames: C3[][] = options.kinds.map(kind => {
     const out: C3[] = [identity3()]
 
-    for (let x = 1; x < L; x++) out.push(links ? mul(toLockedBasis(links[x - 1] as M3, kind === 'fear'), out[x - 1] as C3) : identity3())
+    for (let x = 1; x < L; x++) {
+      out.push(
+        links
+          ? mul(
+              toLockedBasis(links[x - 1]!, kind === 'fear'),
+              out[x - 1]!,
+            )
+          : identity3(),
+      )
+    }
 
     return out
   })
-  const linkOf = (t: number, x: number): C3 => (links ? toLockedBasis(links[x] as M3, options.kinds[t] === 'fear') : identity3())
+  const linkOf = (t: number, x: number): C3 =>
+    links
+      ? toLockedBasis(links[x]!, options.kinds[t] === 'fear')
+      : identity3()
+
   const projector = (label: number): C3 => {
     const m = zero3()
 
@@ -210,6 +245,7 @@ export function lockedRun(options: LockedRunOptions): LockedRun {
 
     return m
   }
+
   const coin = ((): C3 => {
     const m = zero3()
 
@@ -232,17 +268,21 @@ export function lockedRun(options: LockedRunOptions): LockedRun {
 
     return m
   })()
+
   // per token, per dock: coin, and the three moves with their bounces
   type Moves = { coin: C3; move: [C3, C3, C3]; bounce: [C3, C3, C3] }
+
   const tables: Moves[][] = options.kinds.map((_, t) =>
     Array.from({ length: L }, (_, x) => {
-      const G = frames[t]![x] as C3
+      const G = frames[t]![x]!
       const Gd = dagger(G)
       const inFrame = (m: C3): C3 => mul(mul(G, m), Gd)
       const fwd = inFrame(projector(fwdLabel[t] as number))
-      const back = inFrame(projector(backLabel[t] as number))
+      const back = inFrame(projector(backLabel[t]!))
       const rest = inFrame(projector(2))
-      const back1 = links ? dagger(linkOf(t, (x - 1 + L) % L)) : identity3()
+      const back1 = links
+        ? dagger(linkOf(t, (x - 1 + L) % L))
+        : identity3()
       const flip = inFrame(swap)
 
       return {
@@ -253,17 +293,19 @@ export function lockedRun(options: LockedRunOptions): LockedRun {
     }),
   )
   const STEPS = [1, -1, 0] as const
-  const like = meeting('like')[0] as C3
-  const unlike = meeting('unlike')[0] as C3
+  const like = meeting('like')[0]!
+  const unlike = meeting('unlike')[0]!
+
   // the knit's love-fear meeting in the frame: V on the opposite-slot label pairs, Pi V Pi + (1 - Pi), refused
   // unless V keeps those pairs (it is unitary only then)
   const knitMeeting = (p: number, q: number): C3 => {
     const opposite = new Set<number>()
 
-    opposite.add(3 * (fwdLabel[p] as number) + (backLabel[q] as number))
-    opposite.add(3 * (backLabel[p] as number) + (fwdLabel[q] as number))
+    opposite.add(3 * (fwdLabel[p] as number) + backLabel[q]!)
+    opposite.add(3 * backLabel[p]! + (fwdLabel[q] as number))
 
     const out = { re: new Float64Array(81), im: new Float64Array(81) }
+
     let leak = 0
 
     for (let row = 0; row < 9; row++) {
@@ -272,36 +314,59 @@ export function lockedRun(options: LockedRunOptions): LockedRun {
         const inCol = opposite.has(col)
 
         if (inRow && inCol) {
-          out.re[row * 9 + col] = unlike.re[row * 9 + col] as number
-          out.im[row * 9 + col] = unlike.im[row * 9 + col] as number
-        } else if (!inRow && !inCol) out.re[row * 9 + col] = row === col ? 1 : 0
-        else if (inCol) leak = Math.max(leak, Math.hypot(unlike.re[row * 9 + col] as number, unlike.im[row * 9 + col] as number))
+          out.re[row * 9 + col] = unlike.re[row * 9 + col]!
+          out.im[row * 9 + col] = unlike.im[row * 9 + col]!
+        } else if (!inRow && !inCol) {
+          out.re[row * 9 + col] = row === col ? 1 : 0
+        } else if (inCol) {
+          leak = Math.max(
+            leak,
+            Math.hypot(
+              unlike.re[row * 9 + col]!,
+              unlike.im[row * 9 + col]!,
+            ),
+          )
+        }
       }
     }
 
-    if (leak > 1e-12) throw new Error('the knit meeting is not closed under V with this convention')
+    if (leak > 1e-12) {
+      throw new Error(
+        'the knit meeting is not closed under V with this convention',
+      )
+    }
 
     return out
   }
+
   const base9: (C3 | undefined)[][] = options.kinds.map((a, p) =>
     options.kinds.map((b, q) => {
-      if (p >= q || options.meet === false) return undefined
-      if (a === b) return like
-      if (options.unlike === 'knit') return knitMeeting(p, q)
+      if (p >= q || options.meet === false) {
+        return undefined
+      }
+
+      if (a === b) {
+        return like
+      }
+
+      if (options.unlike === 'knit') {
+        return knitMeeting(p, q)
+      }
 
       return unlike
     }),
   )
+
   // per dock, the meeting in the lab: (G_a (x) G_b) M (G_a (x) G_b)^+
   const kron9 = (g: C3, h: C3): C3 => {
     const out = { re: new Float64Array(81), im: new Float64Array(81) }
 
     for (let a = 0; a < 9; a++) {
       for (let b = 0; b < 9; b++) {
-        const gr = g.re[3 * Math.floor(a / 3) + Math.floor(b / 3)] as number
-        const gi = g.im[3 * Math.floor(a / 3) + Math.floor(b / 3)] as number
-        const hr = h.re[3 * (a % 3) + (b % 3)] as number
-        const hi = h.im[3 * (a % 3) + (b % 3)] as number
+        const gr = g.re[3 * Math.floor(a / 3) + Math.floor(b / 3)]!
+        const gi = g.im[3 * Math.floor(a / 3) + Math.floor(b / 3)]!
+        const hr = h.re[3 * (a % 3) + (b % 3)]!
+        const hi = h.im[3 * (a % 3) + (b % 3)]!
 
         out.re[a * 9 + b] = gr * hr - gi * hi
         out.im[a * 9 + b] = gr * hi + gi * hr
@@ -310,6 +375,7 @@ export function lockedRun(options: LockedRunOptions): LockedRun {
 
     return out
   }
+
   const mul9 = (x: C3, y: C3, daggerY: boolean): C3 => {
     const out = { re: new Float64Array(81), im: new Float64Array(81) }
 
@@ -319,10 +385,10 @@ export function lockedRun(options: LockedRunOptions): LockedRun {
         let si = 0
 
         for (let k = 0; k < 9; k++) {
-          const ar = x.re[i * 9 + k] as number
-          const ai = x.im[i * 9 + k] as number
-          const br = daggerY ? (y.re[j * 9 + k] as number) : (y.re[k * 9 + j] as number)
-          const bi = daggerY ? -(y.im[j * 9 + k] as number) : (y.im[k * 9 + j] as number)
+          const ar = x.re[i * 9 + k]!
+          const ai = x.im[i * 9 + k]!
+          const br = daggerY ? y.re[j * 9 + k]! : y.re[k * 9 + j]!
+          const bi = daggerY ? -y.im[j * 9 + k]! : y.im[k * 9 + j]!
 
           sr += ar * br - ai * bi
           si += ar * bi + ai * br
@@ -335,18 +401,25 @@ export function lockedRun(options: LockedRunOptions): LockedRun {
 
     return out
   }
+
   const meetings: (C3[] | undefined)[][] = base9.map((row, p) =>
     row.map((m, q) => {
-      if (!m) return undefined
-      if (!links) return Array.from({ length: L }, () => m)
+      if (!m) {
+        return undefined
+      }
+
+      if (!links) {
+        return Array.from({ length: L }, () => m)
+      }
 
       return Array.from({ length: L }, (_, x) => {
-        const k = kron9(frames[p]![x] as C3, frames[q]![x] as C3)
+        const k = kron9(frames[p]![x]!, frames[q]![x]!)
 
         return mul9(mul9(k, m, false), k, true)
       })
     }),
   )
+
   const decode = (code: number, out: number[]): void => {
     let c = code
 
@@ -355,6 +428,7 @@ export function lockedRun(options: LockedRunOptions): LockedRun {
       c = Math.floor(c / L)
     }
   }
+
   const xs = new Array<number>(n).fill(0)
   const spans = new Int32Array(P)
 
@@ -368,40 +442,52 @@ export function lockedRun(options: LockedRunOptions): LockedRun {
     const p = s.x.reduce((acc, x) => acc * L + x, 0)
     const r = s.j.reduce((acc, j) => acc * 3 + j, 0)
 
-    re[p * R + r] = (re[p * R + r] as number) + s.amp[0]
-    im[p * R + r] = (im[p * R + r] as number) + s.amp[1]
+    re[p * R + r] = re[p * R + r]! + s.amp[0]
+    im[p * R + r] = im[p * R + r]! + s.amp[1]
   }
 
   const tr = new Float64Array(R)
   const ti = new Float64Array(R)
   const ur = new Float64Array(R)
   const ui = new Float64Array(R)
+
   // apply a 3 x 3 to token t of the role tensor (tr, ti) -> (ur, ui)
-  const applyOne = (m: C3, t: number, inR: Float64Array, inI: Float64Array, outR: Float64Array, outI: Float64Array): void => {
-    const st = strides[t] as number
+  const applyOne = (
+    m: C3,
+    t: number,
+    inR: Float64Array,
+    inI: Float64Array,
+    outR: Float64Array,
+    outI: Float64Array,
+  ): void => {
+    const st = strides[t]!
 
     outR.fill(0)
     outI.fill(0)
 
     for (let r = 0; r < R; r++) {
-      const vr = inR[r] as number
-      const vi = inI[r] as number
+      const vr = inR[r]!
+      const vi = inI[r]!
 
-      if (vr === 0 && vi === 0) continue
+      if (vr === 0 && vi === 0) {
+        continue
+      }
 
       const digit = Math.floor(r / st) % 3
       const base = r - digit * st
 
       for (let row = 0; row < 3; row++) {
-        const mr = m.re[3 * row + digit] as number
-        const mi = m.im[3 * row + digit] as number
+        const mr = m.re[3 * row + digit]!
+        const mi = m.im[3 * row + digit]!
 
-        if (mr === 0 && mi === 0) continue
+        if (mr === 0 && mi === 0) {
+          continue
+        }
 
         const k = base + row * st
 
-        outR[k] = (outR[k] as number) + mr * vr - mi * vi
-        outI[k] = (outI[k] as number) + mr * vi + mi * vr
+        outR[k] = outR[k]! + mr * vr - mi * vi
+        outI[k] = outI[k]! + mr * vi + mi * vr
       }
     }
   }
@@ -411,19 +497,19 @@ export function lockedRun(options: LockedRunOptions): LockedRun {
       decode(p, xs)
 
       for (let r = 0; r < R; r++) {
-        tr[r] = re[p * R + r] as number
-        ti[r] = im[p * R + r] as number
+        tr[r] = re[p * R + r]!
+        ti[r] = im[p * R + r]!
       }
 
       for (let t = 0; t < n; t++) {
-        applyOne(frames[t]![xs[t] as number] as C3, t, tr, ti, ur, ui)
+        applyOne(frames[t]![xs[t]!]!, t, tr, ti, ur, ui)
         tr.set(ur)
         ti.set(ui)
       }
 
       for (let r = 0; r < R; r++) {
-        re[p * R + r] = tr[r] as number
-        im[p * R + r] = ti[r] as number
+        re[p * R + r] = tr[r]!
+        im[p * R + r] = ti[r]!
       }
     }
   }
@@ -440,12 +526,13 @@ export function lockedRun(options: LockedRunOptions): LockedRun {
       const o = p * R
 
       if (options.phaseString) {
-        const k = (spans[p] as number) % 3
-        const ph: Complex = k === 0 ? [1, 0] : k === 1 ? OMEGA : [OMEGA[0], -OMEGA[1]]
+        const k = spans[p]! % 3
+        const ph: Complex =
+          k === 0 ? [1, 0] : k === 1 ? OMEGA : [OMEGA[0], -OMEGA[1]]
 
         for (let r = 0; r < R; r++) {
-          const vr = re[o + r] as number
-          const vi = im[o + r] as number
+          const vr = re[o + r]!
+          const vi = im[o + r]!
 
           re[o + r] = ph[0] * vr - ph[1] * vi
           im[o + r] = ph[0] * vi + ph[1] * vr
@@ -458,12 +545,14 @@ export function lockedRun(options: LockedRunOptions): LockedRun {
         for (let b = a + 1; b < n; b++) {
           const list = meetings[a]![b]
 
-          if (!list || xs[a] !== xs[b]) continue
+          if (!list || xs[a] !== xs[b]) {
+            continue
+          }
 
-          const m = list[xs[a] as number] as C3
+          const m = list[xs[a]!]!
 
-          const sa = strides[a] as number
-          const sb = strides[b] as number
+          const sa = strides[a]!
+          const sb = strides[b]!
           const others = R / 9
 
           for (let rest = 0; rest < others; rest++) {
@@ -472,17 +561,20 @@ export function lockedRun(options: LockedRunOptions): LockedRun {
             let c = rest
 
             for (let t = n - 1; t >= 0; t--) {
-              if (t === a || t === b) continue
+              if (t === a || t === b) {
+                continue
+              }
 
-              base += (c % 3) * (strides[t] as number)
+              base += (c % 3) * strides[t]!
               c = Math.floor(c / 3)
             }
 
             for (let q = 0; q < 9; q++) {
-              const idx = o + base + Math.floor(q / 3) * sa + (q % 3) * sb
+              const idx =
+                o + base + Math.floor(q / 3) * sa + (q % 3) * sb
 
-              pairBuf[q] = re[idx] as number
-              pairBuf[9 + q] = im[idx] as number
+              pairBuf[q] = re[idx]!
+              pairBuf[9 + q] = im[idx]!
             }
 
             for (let q = 0; q < 9; q++) {
@@ -490,14 +582,15 @@ export function lockedRun(options: LockedRunOptions): LockedRun {
               let si = 0
 
               for (let k = 0; k < 9; k++) {
-                const mr = m.re[q * 9 + k] as number
-                const mi = m.im[q * 9 + k] as number
+                const mr = m.re[q * 9 + k]!
+                const mi = m.im[q * 9 + k]!
 
-                sr += mr * (pairBuf[k] as number) - mi * (pairBuf[9 + k] as number)
-                si += mr * (pairBuf[9 + k] as number) + mi * (pairBuf[k] as number)
+                sr += mr * pairBuf[k]! - mi * pairBuf[9 + k]!
+                si += mr * pairBuf[9 + k]! + mi * pairBuf[k]!
               }
 
-              const idx = o + base + Math.floor(q / 3) * sa + (q % 3) * sb
+              const idx =
+                o + base + Math.floor(q / 3) * sa + (q % 3) * sb
 
               re[idx] = sr
               im[idx] = si
@@ -512,19 +605,19 @@ export function lockedRun(options: LockedRunOptions): LockedRun {
       decode(p, xs)
 
       for (let r = 0; r < R; r++) {
-        tr[r] = re[p * R + r] as number
-        ti[r] = im[p * R + r] as number
+        tr[r] = re[p * R + r]!
+        ti[r] = im[p * R + r]!
       }
 
       for (let t = 0; t < n; t++) {
-        applyOne(tables[t]![xs[t] as number]!.coin, t, tr, ti, ur, ui)
+        applyOne(tables[t]![xs[t]!]!.coin, t, tr, ti, ur, ui)
         tr.set(ur)
         ti.set(ui)
       }
 
       for (let r = 0; r < R; r++) {
-        re[p * R + r] = tr[r] as number
-        im[p * R + r] = ti[r] as number
+        re[p * R + r] = tr[r]!
+        im[p * R + r] = ti[r]!
       }
     }
 
@@ -536,12 +629,13 @@ export function lockedRun(options: LockedRunOptions): LockedRun {
       decode(p, xs)
 
       for (let r = 0; r < R; r++) {
-        tr[r] = re[p * R + r] as number
-        ti[r] = im[p * R + r] as number
+        tr[r] = re[p * R + r]!
+        ti[r] = im[p * R + r]!
       }
 
       for (let combo = 0; combo < combos; combo++) {
         let c = combo
+
         const dirs: number[] = []
 
         for (let t = n - 1; t >= 0; t--) {
@@ -549,19 +643,27 @@ export function lockedRun(options: LockedRunOptions): LockedRun {
           c = Math.floor(c / 3)
         }
 
-        for (let t = 0; t < n; t++) ys[t] = ((((xs[t] as number) + STEPS[dirs[t] as 0 | 1 | 2]) % L) + L) % L
+        for (let t = 0; t < n; t++) {
+          ys[t] = (((xs[t]! + STEPS[dirs[t] as 0 | 1 | 2]) % L) + L) % L
+        }
 
-        const blocked = options.wall !== undefined && spanOf(L, ys) > options.wall
+        const blocked =
+          options.wall !== undefined && spanOf(L, ys) > options.wall
+
         let target = 0
 
-        for (let t = 0; t < n; t++) target += (blocked ? (xs[t] as number) : (ys[t] as number)) * (posStrides[t] as number)
+        for (let t = 0; t < n; t++) {
+          target += (blocked ? xs[t]! : ys[t]!) * posStrides[t]!
+        }
 
         cr.set(tr)
         ci.set(ti)
 
         for (let t = 0; t < n; t++) {
-          const table = tables[t]![xs[t] as number]!
-          const m = blocked ? table.bounce[dirs[t] as 0 | 1 | 2] : table.move[dirs[t] as 0 | 1 | 2]
+          const table = tables[t]![xs[t]!]!
+          const m = blocked
+            ? table.bounce[dirs[t] as 0 | 1 | 2]
+            : table.move[dirs[t] as 0 | 1 | 2]
 
           applyOne(m, t, cr, ci, ur, ui)
           cr.set(ur)
@@ -569,8 +671,8 @@ export function lockedRun(options: LockedRunOptions): LockedRun {
         }
 
         for (let r = 0; r < R; r++) {
-          nre[target * R + r] = (nre[target * R + r] as number) + (cr[r] as number)
-          nim[target * R + r] = (nim[target * R + r] as number) + (ci[r] as number)
+          nre[target * R + r] = nre[target * R + r]! + cr[r]!
+          nim[target * R + r] = nim[target * R + r]! + ci[r]!
         }
       }
     }
@@ -592,21 +694,30 @@ export function lockedRun(options: LockedRunOptions): LockedRun {
     for (let p = 0; p < P; p++) {
       let s = 0
 
-      for (let r = 0; r < R; r++) s += (re[p * R + r] as number) ** 2 + (im[p * R + r] as number) ** 2
+      for (let r = 0; r < R; r++) {
+        s += re[p * R + r]! ** 2 + im[p * R + r]! ** 2
+      }
 
       out[p] = s
     }
 
     return out
   }
+
   const compactWeight = (near: number): number => {
     const pos = positions()
+
     let s = 0
 
-    for (let p = 0; p < P; p++) if ((spans[p] as number) <= near) s += pos[p] as number
+    for (let p = 0; p < P; p++) {
+      if (spans[p]! <= near) {
+        s += pos[p]!
+      }
+    }
 
     return s
   }
+
   const lineWeight = (): number => {
     let s = 0
 
@@ -616,39 +727,72 @@ export function lockedRun(options: LockedRunOptions): LockedRun {
         let c = r
 
         for (let t = 0; t < n; t++) {
-          if (c % 3 === 2) onLine = true
+          if (c % 3 === 2) {
+            onLine = true
+          }
+
           c = Math.floor(c / 3)
         }
 
-        if (onLine) s += (re[p * R + r] as number) ** 2 + (im[p * R + r] as number) ** 2
+        if (onLine) {
+          s += re[p * R + r]! ** 2 + im[p * R + r]! ** 2
+        }
       }
     }
 
     return s
   }
-  const run: LockedRun = { ring: L, n, re, im, beat, positions, compactWeight, lineWeight }
+
+  const run: LockedRun = {
+    ring: L,
+    n,
+    re,
+    im,
+    beat,
+    positions,
+    compactWeight,
+    lineWeight,
+  }
 
   return run
 }
 
 // antisymmetrize a start over the permutations of n identical tokens (positions and labels together)
-export function antisymmetrized(input: { x: readonly number[]; j: readonly number[] }): LockedStart[] {
+export function antisymmetrized(input: {
+  x: readonly number[]
+  j: readonly number[]
+}): LockedStart[] {
   const n = input.x.length
-  const perms: number[][] = n === 2 ? [[0, 1], [1, 0]] : [[0, 1, 2], [1, 0, 2], [2, 1, 0], [0, 2, 1], [1, 2, 0], [2, 0, 1]]
+  const perms: number[][] =
+    n === 2
+      ? [
+          [0, 1],
+          [1, 0],
+        ]
+      : [
+          [0, 1, 2],
+          [1, 0, 2],
+          [2, 1, 0],
+          [0, 2, 1],
+          [1, 2, 0],
+          [2, 0, 1],
+        ]
   const signs = n === 2 ? [1, -1] : [1, -1, -1, -1, 1, 1]
   const merged = new Map<string, LockedStart>()
 
   perms.forEach((p, k) => {
-    const x = p.map(i => input.x[i] as number)
-    const j = p.map(i => input.j[i] as number)
+    const x = p.map(i => input.x[i]!)
+    const j = p.map(i => input.j[i]!)
     const key = `${x.join(',')}|${j.join(',')}`
     const known = merged.get(key)
-    const s = signs[k] as number
+    const s = signs[k]!
 
     merged.set(key, { x, j, amp: [(known?.amp[0] ?? 0) + s, 0] })
   })
 
-  const list = [...merged.values()].filter(s => Math.abs(s.amp[0]) > 1e-12)
+  const list = [...merged.values()].filter(
+    s => Math.abs(s.amp[0]) > 1e-12,
+  )
   const norm = Math.sqrt(list.reduce((t, s) => t + s.amp[0] ** 2, 0))
 
   return list.map(s => ({ ...s, amp: [s.amp[0] / norm, 0] as Complex }))

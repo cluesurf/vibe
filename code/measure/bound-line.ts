@@ -17,10 +17,30 @@
 // around every closed loop is the parity of the loop's net label permutation, so an exchange loop is -1 and a loop
 // returning each love to its own mode is +1, whatever the path.
 
-import { lockedNorm, norm, sameConfiguration, type Branch, type Configuration, type LockedState, type LockedTables } from '@/code/rule/doublet-locked-knit'
+import {
+  lockedNorm,
+  norm,
+  sameConfiguration,
+  type Branch,
+  type Configuration,
+  type LockedState,
+  type LockedTables,
+} from '@/code/rule/doublet-locked-knit'
 import { coinedVetoBeat } from '@/code/rule/coined-locked-knit'
 import { toWords } from '@/code/rule/occupation-veto-knit'
-import { bagPositions, boundBeat, boundBeatBack, boundStart, CLOCK, cutCrossing, fluxLinks, lineSign, slantLinks, type BoundOptions, type BoundState } from '@/code/rule/bound-line-pieces'
+import {
+  bagPositions,
+  boundBeat,
+  boundBeatBack,
+  boundStart,
+  CLOCK,
+  cutCrossing,
+  fluxLinks,
+  lineSign,
+  slantLinks,
+  type BoundOptions,
+  type BoundState,
+} from '@/code/rule/bound-line-pieces'
 import { bagHeavy } from '@/code/rule/fine-coin'
 import { fineCoin, ringKey } from '@/code/measure/coined-line-bloch'
 import { dockEnergies } from '@/code/measure/energy-lines'
@@ -28,18 +48,40 @@ import { boxHusk, type BoxHusk } from '@/code/measure/causal-components'
 import { centerOf } from '@/code/measure/wall-reading'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
 import { vacuumConfiguration } from '@/code/measure/doublet-locked-readings'
-import { axisRing, eisenstein, eisensteinValue, fitRing, placeExact, ringColumns, type AxisRing, type Placed, type PointLove, type Relative } from '@/code/measure/held-cluster'
+import {
+  axisRing,
+  eisenstein,
+  eisensteinValue,
+  fitRing,
+  placeExact,
+  ringColumns,
+  type AxisRing,
+  type Placed,
+  type PointLove,
+  type Relative,
+} from '@/code/measure/held-cluster'
 
 const SQ3 = Math.sqrt(3)
+
 type C = [number, number]
-const cm = (x: C, y: C): C => [x[0] * y[0] - x[1] * y[1], x[0] * y[1] + x[1] * y[0]]
+
+const cm = (x: C, y: C): C => [
+  x[0] * y[0] - x[1] * y[1],
+  x[0] * y[1] + x[1] * y[0],
+]
 const W: C = [-0.5, SQ3 / 2]
 const KEEP: C = [0.25, SQ3 / 4]
 const CROSS: C = [0.75, -SQ3 / 4]
 const EXCHANGE: C = [-0.75, SQ3 / 4]
-const clockPhase = (e: number): C => [Math.cos((2 * Math.PI * e) / CLOCK), Math.sin((2 * Math.PI * e) / CLOCK)]
+const clockPhase = (e: number): C => [
+  Math.cos((2 * Math.PI * e) / CLOCK),
+  Math.sin((2 * Math.PI * e) / CLOCK),
+]
 // the fine coin's count u read as zeta^u, zeta = e^(2 pi i/(3 fine)) (code/rule/fine-coin)
-const finePhase = (u: number, fine: number): C => [Math.cos((2 * Math.PI * u) / (3 * fine)), Math.sin((2 * Math.PI * u) / (3 * fine))]
+const finePhase = (u: number, fine: number): C => [
+  Math.cos((2 * Math.PI * u) / (3 * fine)),
+  Math.sin((2 * Math.PI * u) / (3 * fine)),
+]
 const modeOf = (t: PointLove): number => 2 * t.x + (t.j === 0 ? 1 : 0)
 
 export const pointKeyOf = (ts: readonly PointLove[]): string =>
@@ -51,28 +93,54 @@ export const pointKeyOf = (ts: readonly PointLove[]): string =>
 
 // ---- the ring form with the pieces ----
 
-export type PieceOptions = BoundOptions & { readonly unit: 0 | 3; readonly flat: boolean }
+export type PieceOptions = BoundOptions & {
+  readonly unit: 0 | 3
+  readonly flat: boolean
+}
 
-export type CutState = Map<string, { ts: PointLove[]; c: number; amp: C }>
+export type CutState = Map<
+  string,
+  { ts: PointLove[]; c: number; amp: C }
+>
 
-function addCut(out: CutState, ts: PointLove[], c: number, amp: C): void {
+function addCut(
+  out: CutState,
+  ts: PointLove[],
+  c: number,
+  amp: C,
+): void {
   const key = `${pointKeyOf(ts)}#${c}`
   const o = out.get(key)
 
-  if (o) o.amp = [o.amp[0] + amp[0], o.amp[1] + amp[1]]
-  else out.set(key, { ts, c, amp })
+  if (o) {
+    o.amp = [o.amp[0] + amp[0], o.amp[1] + amp[1]]
+  } else {
+    out.set(key, { ts, c, amp })
+  }
 }
 
-export function placeCut(L: number, placed: readonly Placed[], anchor: number, P: number): CutState {
+export function placeCut(
+  L: number,
+  placed: readonly Placed[],
+  anchor: number,
+  P: number,
+): CutState {
   const out: CutState = new Map()
 
   for (const p of placed) {
     const { a, b } = eisenstein(p.re, p.im, P)
 
-    if (a === 0n && b === 0n) continue
+    if (a === 0n && b === 0n) {
+      continue
+    }
+
     addCut(
       out,
-      p.ts.map(([x, j]) => ({ x: (((anchor + x) % L) + L) % L, j, p: 0 })),
+      p.ts.map(([x, j]) => ({
+        x: (((anchor + x) % L) + L) % L,
+        j,
+        p: 0,
+      })),
       0,
       eisensteinValue(a, b, P),
     )
@@ -81,21 +149,39 @@ export function placeCut(L: number, placed: readonly Placed[], anchor: number, P
   return out
 }
 
-export function pointBeatWith(options: PieceOptions, tables: LockedTables, ring: AxisRing, state: CutState): CutState {
+export function pointBeatWith(
+  options: PieceOptions,
+  tables: LockedTables,
+  ring: AxisRing,
+  state: CutState,
+): CutState {
   const L = ring.docks.length
   const out: CutState = new Map()
   // the coin's entries: the working coin's, or the fine coin's (E-SPN-0107), a full dock kept at w by the full-dock
   // correction (E-SPN-0108), or chosen per dock by the string's flux (E-SPN-0109: the heavy coin w where `bag` says)
-  const fine = options.fine === undefined ? undefined : fineCoin(options.fine)
-  const light = fine === undefined ? { keep: KEEP, cross: CROSS, det: W } : options.fullDock ? { ...fine, det: W } : fine
+  const fine =
+    options.fine === undefined ? undefined : fineCoin(options.fine)
+  const light =
+    fine === undefined
+      ? { keep: KEEP, cross: CROSS, det: W }
+      : options.fullDock
+        ? { ...fine, det: W }
+        : fine
   const heavy = { keep: KEEP, cross: CROSS, det: W }
 
-  if (options.bag !== undefined && fine === undefined) throw new Error('bound-line: the bag needs `fine`')
+  if (options.bag !== undefined && fine === undefined) {
+    throw new Error('bound-line: the bag needs `fine`')
+  }
 
   for (const { ts, c, amp } of state.values()) {
     let start = amp
-    const heavyAt = options.bag === undefined ? undefined : bagPositions(L, ts, c, options.bag)
-    const coinOf = (x: number): typeof light => (heavyAt !== undefined && heavyAt.has(x) ? heavy : light)
+
+    const heavyAt =
+      options.bag === undefined
+        ? undefined
+        : bagPositions(L, ts, c, options.bag)
+    const coinOf = (x: number): typeof light =>
+      heavyAt?.has(x) ? heavy : light
 
     if (options.cost && !options.slant) {
       const th = (-2 * Math.PI * fluxLinks(L, ts, c)) / CLOCK
@@ -103,16 +189,20 @@ export function pointBeatWith(options: PieceOptions, tables: LockedTables, ring:
       start = cm(start, [Math.cos(th), Math.sin(th)])
     }
 
-    let pieces: { ts: PointLove[]; amp: C }[] = [{ ts: ts.map(t => ({ ...t })), amp: start }]
+    let pieces: { ts: PointLove[]; amp: C }[] = [
+      { ts: ts.map(t => ({ ...t })), amp: start },
+    ]
 
     for (const x of [...new Set(ts.map(t => t.x))]) {
-      const at = ts.map((t, i) => (t.x === x ? i : -1)).filter(i => i >= 0)
+      const at = ts
+        .map((t, i) => (t.x === x ? i : -1))
+        .filter(i => i >= 0)
       const next: typeof pieces = []
       const coin = coinOf(x)
 
       for (const piece of pieces) {
         if (at.length === 1) {
-          const i = at[0] as number
+          const i = at[0]!
           const crossed = piece.ts.map(t => ({ ...t }))
 
           next.push({ ts: piece.ts, amp: cm(piece.amp, coin.keep) })
@@ -122,11 +212,17 @@ export function pointBeatWith(options: PieceOptions, tables: LockedTables, ring:
         }
 
         const [i, k] = at as [number, number]
+
         let det = cm(piece.amp, coin.det)
 
-        if (options.unit === 3) det = [-det[0], -det[1]]
+        if (options.unit === 3) {
+          det = [-det[0], -det[1]]
+        }
 
-        if (piece.ts[i]!.p === piece.ts[k]!.p || options.meeting === 'keep') {
+        if (
+          piece.ts[i]!.p === piece.ts[k]!.p ||
+          options.meeting === 'keep'
+        ) {
           next.push({ ts: piece.ts, amp: cm(det, W) })
           continue
         }
@@ -162,13 +258,23 @@ export function pointBeatWith(options: PieceOptions, tables: LockedTables, ring:
         a = cm(a, [Math.cos(th), Math.sin(th)])
       }
 
-      if (options.sign && lineSign(L, piece.ts) < 0) a = [-a[0], -a[1]]
+      if (options.sign && lineSign(L, piece.ts) < 0) {
+        a = [-a[0], -a[1]]
+      }
 
-      const c1 = options.cost || options.bag !== undefined ? (((c + cutCrossing(L, piece.ts)) % 3) + 3) % 3 : c
+      const c1 =
+        options.cost || options.bag !== undefined
+          ? (((c + cutCrossing(L, piece.ts)) % 3) + 3) % 3
+          : c
       const moved = piece.ts.map(t => {
-        const slot = (ring.docks[t.x] as number) * 24 + (t.j === 0 ? ring.first : ring.second)
+        const slot =
+          ring.docks[t.x]! * 24 + (t.j === 0 ? ring.first : ring.second)
 
-        return { x: (((t.x + (t.j === 0 ? 1 : -1)) % L) + L) % L, j: t.j, p: options.flat ? 0 : (tables.move[slot * 9 + t.p] as number) }
+        return {
+          x: (((t.x + (t.j === 0 ? 1 : -1)) % L) + L) % L,
+          j: t.j,
+          p: options.flat ? 0 : tables.move[slot * 9 + t.p]!,
+        }
       })
 
       addCut(out, moved, c1, a)
@@ -181,7 +287,11 @@ export function pointBeatWith(options: PieceOptions, tables: LockedTables, ring:
 export function cutDensity(L: number, s: CutState): Float64Array {
   const out = new Float64Array(L)
 
-  for (const { ts, amp } of s.values()) for (const t of ts) out[t.x]! += amp[0] ** 2 + amp[1] ** 2
+  for (const { ts, amp } of s.values()) {
+    for (const t of ts) {
+      out[t.x]! += amp[0] ** 2 + amp[1] ** 2
+    }
+  }
 
   return out
 }
@@ -193,11 +303,12 @@ export function cutRelative(L: number, s: CutState): Relative {
 
   for (const { ts, c, amp } of s.values()) {
     const xs = [...new Set(ts.map(t => t.x))].sort((a, b) => a - b)
-    let anchor = xs[0] as number
+
+    let anchor = xs[0]!
     let gap = -1
 
     xs.forEach((x, i) => {
-      const prev = xs[(i - 1 + xs.length) % xs.length] as number
+      const prev = xs[(i - 1 + xs.length) % xs.length]!
       const g = (((x - prev) % L) + L) % L || L
 
       if (g > gap) {
@@ -206,13 +317,16 @@ export function cutRelative(L: number, s: CutState): Relative {
       }
     })
 
-    const rel = ts.map(t => ({ x: (((t.x - anchor) % L) + L) % L, j: t.j, p: t.p })).sort((u, v) => modeOf(u) - modeOf(v))
+    const rel = ts
+      .map(t => ({ x: (((t.x - anchor) % L) + L) % L, j: t.j, p: t.p }))
+      .sort((u, v) => modeOf(u) - modeOf(v))
     const key = ringKey(rel.map(t => ({ x: t.x, j: t.j, f: 0 })))
     // the flux OUTSIDE the cluster (on the link just before the anchor, in the largest gap), f = c + Q(anchor - 1):
     // the translation-invariant part of the register. c alone is the flux on the ring's cut, a gauge relative to the
     // cut, so a cluster translated across the cut carries another c with the same string (run 1's reading bug)
     const before = (((anchor - 1) % L) + L) % L
-    const outside = (((c + ts.filter(t => t.x <= before).length) % 3) + 3) % 3
+    const outside =
+      (((c + ts.filter(t => t.x <= before).length) % 3) + 3) % 3
     const q = `${rel.map(t => t.p).join(',')}#${outside}`
     const m = out.get(key) ?? new Map<string, [number, number]>()
     const o = m.get(q) ?? [0, 0]
@@ -229,22 +343,51 @@ export function cutRelative(L: number, s: CutState): Relative {
 function configurationKey(b: Configuration): string {
   const parts: number[] = []
 
-  for (let i = 0; i < b.vibe.length; i++) if (b.vibe[i] !== 0) parts.push(i, b.vibe[i] as number, b.point[i] as number, b.open[i] as number)
+  for (let i = 0; i < b.vibe.length; i++) {
+    if (b.vibe[i] !== 0) {
+      parts.push(i, b.vibe[i]!, b.point[i]!, b.open[i]!)
+    }
+  }
+
   parts.push(-1)
-  for (let i = 0; i < b.store.length; i++) if (b.store[i] !== 0) parts.push(i, b.store[i] as number, b.spoint[i] as number, b.sopen[i] as number)
+
+  for (let i = 0; i < b.store.length; i++) {
+    if (b.store[i] !== 0) {
+      parts.push(i, b.store[i]!, b.spoint[i]!, b.sopen[i]!)
+    }
+  }
 
   return parts.join(',')
 }
 
-export type BoundReading = { pointProbability: Map<string, number>; leak: number; disturbed: number; total: number; columnExcess: Float64Array; freeNormKept: boolean; physicalNorm: number }
+export type BoundReading = {
+  pointProbability: Map<string, number>
+  leak: number
+  disturbed: number
+  total: number
+  columnExcess: Float64Array
+  freeNormKept: boolean
+  physicalNorm: number
+}
 
-export function readBound(s: BoundState, ring: AxisRing, vacuum: Configuration, husk: BoxHusk, start: { total: bigint; unit: bigint }): BoundReading {
+export function readBound(
+  s: BoundState,
+  ring: AxisRing,
+  vacuum: Configuration,
+  husk: BoxHusk,
+  start: { total: bigint; unit: bigint },
+): BoundReading {
   const coherent = new Map<string, { b: Branch; c: number; amp: C }>()
+
   let disturbed = 0
+
   const all: Branch[] = []
 
   for (const { e, c, u, fine, branches } of s.values()) {
-    const z = u === undefined || fine === undefined ? clockPhase(e) : cm(clockPhase(e), finePhase(u, fine))
+    const z =
+      u === undefined || fine === undefined
+        ? clockPhase(e)
+        : cm(clockPhase(e), finePhase(u, fine))
 
     for (const b of branches) {
       all.push(b)
@@ -253,23 +396,46 @@ export function readBound(s: BoundState, ring: AxisRing, vacuum: Configuration, 
       const v = cm(eisensteinValue(b.a, b.b, b.k), z)
       const o = coherent.get(key)
 
-      if (o) o.amp = [o.amp[0] + v[0], o.amp[1] + v[1]]
-      else coherent.set(key, { b, c, amp: v })
+      if (o) {
+        o.amp = [o.amp[0] + v[0], o.amp[1] + v[1]]
+      } else {
+        coherent.set(key, { b, c, amp: v })
+      }
 
       // the vacuum part: every slot and store but the open loves' as the vacuum's own run
       let differs = false
 
       for (let i = 0; i < b.vibe.length && !differs; i++) {
         if (b.vibe[i] !== 0 && b.open[i] === 1) {
-          if (vacuum.vibe[i] !== 0) differs = true
+          if (vacuum.vibe[i] !== 0) {
+            differs = true
+          }
+
           continue
         }
 
-        if (b.vibe[i] !== vacuum.vibe[i] || b.open[i] !== vacuum.open[i] || (b.vibe[i] !== 0 && b.point[i] !== vacuum.point[i])) differs = true
+        if (
+          b.vibe[i] !== vacuum.vibe[i] ||
+          b.open[i] !== vacuum.open[i] ||
+          (b.vibe[i] !== 0 && b.point[i] !== vacuum.point[i])
+        ) {
+          differs = true
+        }
       }
 
-      for (let i = 0; i < b.store.length && !differs; i++) if (b.store[i] !== vacuum.store[i] || b.sopen[i] !== vacuum.sopen[i] || (b.store[i] !== 0 && b.spoint[i] !== vacuum.spoint[i])) differs = true
-      if (differs) disturbed++
+      for (let i = 0; i < b.store.length && !differs; i++) {
+        if (
+          b.store[i] !== vacuum.store[i] ||
+          b.sopen[i] !== vacuum.sopen[i] ||
+          (b.store[i] !== 0 && b.spoint[i] !== vacuum.spoint[i])
+        ) {
+          differs = true
+        }
+      }
+
+      if (differs) {
+        disturbed++
+      }
     }
   }
 
@@ -279,28 +445,36 @@ export function readBound(s: BoundState, ring: AxisRing, vacuum: Configuration, 
   const columnExcess = new Float64Array(husk.columns)
   const ev = dockEnergies(vacuum, new Int32Array(cells))
   const eb = new Int32Array(cells)
+
   let leak = 0
   let total = 0
 
   for (const { b, c, amp } of coherent.values()) {
     const w = amp[0] ** 2 + amp[1] ** 2
     const ps: PointLove[] = []
+
     let off = false
 
     total += w
 
     for (let i = 0; i < b.vibe.length; i++) {
-      if (b.vibe[i] === 0 || b.open[i] !== 1) continue
+      if (b.vibe[i] === 0 || b.open[i] !== 1) {
+        continue
+      }
 
       const x = ring.position.get(Math.floor(i / 24))
       const d = i % 24
 
-      if (x === undefined || (d !== ring.first && d !== ring.second)) off = true
-      else ps.push({ x, j: d === ring.first ? 0 : 1, p: b.point[i] as number })
+      if (x === undefined || (d !== ring.first && d !== ring.second)) {
+        off = true
+      } else {
+        ps.push({ x, j: d === ring.first ? 0 : 1, p: b.point[i]! })
+      }
     }
 
-    if (off) leak += w
-    else {
+    if (off) {
+      leak += w
+    } else {
       const k = `${pointKeyOf(ps)}#${c}`
 
       pointProbability.set(k, (pointProbability.get(k) ?? 0) + w)
@@ -309,33 +483,77 @@ export function readBound(s: BoundState, ring: AxisRing, vacuum: Configuration, 
     dockEnergies(b, eb)
 
     for (let x = 0; x < cells; x++) {
-      const d = (eb[x] as number) - (ev[x] as number)
+      const d = eb[x]! - ev[x]!
 
-      if (d !== 0) columnExcess[husk.column[x] as number]! += w * d
+      if (d !== 0) {
+        columnExcess[husk.column[x]!]! += w * d
+      }
     }
   }
 
-  return { pointProbability, leak, disturbed, total, columnExcess, freeNormKept: n.total * start.unit === start.total * n.unit, physicalNorm: total }
+  return {
+    pointProbability,
+    leak,
+    disturbed,
+    total,
+    columnExcess,
+    freeNormKept: n.total * start.unit === start.total * n.unit,
+    physicalNorm: total,
+  }
 }
 
 export function cutGap(p: Map<string, number>, s: CutState): number {
   let worst = 0
+
   const q = new Map<string, number>()
 
-  for (const [k, v] of s) q.set(k, v.amp[0] ** 2 + v.amp[1] ** 2)
-  for (const [k, v] of q) worst = Math.max(worst, Math.abs((p.get(k) ?? 0) - v))
-  for (const [k, v] of p) if (!q.has(k)) worst = Math.max(worst, v)
+  for (const [k, v] of s) {
+    q.set(k, v.amp[0] ** 2 + v.amp[1] ** 2)
+  }
+
+  for (const [k, v] of q) {
+    worst = Math.max(worst, Math.abs((p.get(k) ?? 0) - v))
+  }
+
+  for (const [k, v] of p) {
+    if (!q.has(k)) {
+      worst = Math.max(worst, v)
+    }
+  }
 
   return worst
 }
 
 // ---- the exact window with the pieces ----
 
-export type BoundWindowBeat = { branches: number; slices: number; normKept: boolean; physicalNormOff: number; leak: number; disturbed: number; pointGap: number; energyGap: number }
+export type BoundWindowBeat = {
+  branches: number
+  slices: number
+  normKept: boolean
+  physicalNormOff: number
+  leak: number
+  disturbed: number
+  pointGap: number
+  energyGap: number
+}
 
-export type BoundWindow = { side: number; L: number; dropped: number; startBranches: number; beats: BoundWindowBeat[]; reversed: boolean; seconds: number }
+export type BoundWindow = {
+  side: number
+  L: number
+  dropped: number
+  startBranches: number
+  beats: BoundWindowBeat[]
+  reversed: boolean
+  seconds: number
+}
 
-export function boundWindow(options: BoundOptions, side: number, beats: number, placed: readonly Placed[], P: number): BoundWindow {
+export function boundWindow(
+  options: BoundOptions,
+  side: number,
+  beats: number,
+  placed: readonly Placed[],
+  P: number,
+): BoundWindow {
   const started = Date.now()
   const center = centerOf(side)
   const f = contactFresh(side, 'pass', center)
@@ -347,10 +565,16 @@ export function boundWindow(options: BoundOptions, side: number, beats: number, 
   const start = placeExact(vac, ring, fit.kept, 0, P)
   const n0 = lockedNorm(start)
   const physical0 = Number(n0.total) / Number(n0.unit)
+
   let s = boundStart(start)
   let v: LockedState = { branches: [{ ...vac, a: 1n, b: 0n, k: 0 }] }
   let ps = placeCut(L, fit.kept, 0, P)
-  const pieceOptions: PieceOptions = { ...options, unit: 0, flat: false }
+
+  const pieceOptions: PieceOptions = {
+    ...options,
+    unit: 0,
+    flat: false,
+  }
   const out: BoundWindowBeat[] = []
 
   for (let t = 0; t < beats; t++) {
@@ -358,14 +582,23 @@ export function boundWindow(options: BoundOptions, side: number, beats: number, 
     v = coinedVetoBeat('none', f.tables, v, t)
     ps = pointBeatWith(pieceOptions, f.tables, ring, ps)
 
-    const r = readBound(s, ring, v.branches[0] as Branch, husk, n0)
+    const r = readBound(s, ring, v.branches[0]!, husk, n0)
     const expected = ringColumns(husk, ring, cutDensity(L, ps))
+
     let energyGap = 0
 
-    for (let c = 0; c < husk.columns; c++) energyGap = Math.max(energyGap, Math.abs((r.columnExcess[c] as number) - (expected[c] as number)))
+    for (let c = 0; c < husk.columns; c++) {
+      energyGap = Math.max(
+        energyGap,
+        Math.abs(r.columnExcess[c]! - expected[c]!),
+      )
+    }
 
     out.push({
-      branches: [...s.values()].reduce((a, x) => a + x.branches.length, 0),
+      branches: [...s.values()].reduce(
+        (a, x) => a + x.branches.length,
+        0,
+      ),
       slices: s.size,
       normKept: r.freeNormKept,
       physicalNormOff: Math.abs(r.physicalNorm - physical0),
@@ -378,12 +611,33 @@ export function boundWindow(options: BoundOptions, side: number, beats: number, 
 
   let back = s
 
-  for (let t = beats - 1; t >= 0; t--) back = boundBeatBack(options, f.tables, ring, back, t)
+  for (let t = beats - 1; t >= 0; t--) {
+    back = boundBeatBack(options, f.tables, ring, back, t)
+  }
 
   const only = back.get('0,0')
-  const reversed = back.size === 1 && only !== undefined && only.branches.length === start.branches.length && start.branches.every(b => only.branches.some(c => c.a === b.a && c.b === b.b && c.k === b.k && sameConfiguration(c, b)))
+  const reversed =
+    back.size === 1 &&
+    only?.branches.length === start.branches.length &&
+    start.branches.every(b =>
+      only.branches.some(
+        c =>
+          c.a === b.a &&
+          c.b === b.b &&
+          c.k === b.k &&
+          sameConfiguration(c, b),
+      ),
+    )
 
-  return { side, L, dropped: fit.dropped, startBranches: start.branches.length, beats: out, reversed, seconds: (Date.now() - started) / 1000 }
+  return {
+    side,
+    L,
+    dropped: fit.dropped,
+    startBranches: start.branches.length,
+    beats: out,
+    reversed,
+    seconds: (Date.now() - started) / 1000,
+  }
 }
 
 // ---- the link register in full: every link's trit, no Gauss reduction (flat points) ----
@@ -393,24 +647,47 @@ export function boundWindow(options: BoundOptions, side: number, beats: number, 
 // on a cluster of three (Gauss with total charge 3 = 0 mod 3), and it is the only honest form for a LONE love, whose
 // charge 1 is not 0 mod 3: its string runs from its start to wherever it is.
 
-export type FluxState = Map<string, { ts: { x: number; j: number }[]; f: Int8Array; amp: C }>
+export type FluxState = Map<
+  string,
+  { ts: { x: number; j: number }[]; f: Int8Array; amp: C }
+>
 
-function addFlux(out: FluxState, ts: { x: number; j: number }[], f: Int8Array, amp: C): void {
-  const sorted = ts.slice().sort((u, v) => 2 * u.x + (u.j === 0 ? 1 : 0) - (2 * v.x + (v.j === 0 ? 1 : 0)))
+function addFlux(
+  out: FluxState,
+  ts: { x: number; j: number }[],
+  f: Int8Array,
+  amp: C,
+): void {
+  const sorted = ts
+    .slice()
+    .sort(
+      (u, v) =>
+        2 * u.x + (u.j === 0 ? 1 : 0) - (2 * v.x + (v.j === 0 ? 1 : 0)),
+    )
   const key = `${sorted.map(t => `${t.x},${t.j}`).join('|')}#${f.join('')}`
   const o = out.get(key)
 
-  if (o) o.amp = [o.amp[0] + amp[0], o.amp[1] + amp[1]]
-  else out.set(key, { ts: sorted, f, amp })
+  if (o) {
+    o.amp = [o.amp[0] + amp[0], o.amp[1] + amp[1]]
+  } else {
+    out.set(key, { ts: sorted, f, amp })
+  }
 }
 
 // the start: each configuration with its Gauss flux f_l = Q(l) mod 3 (Q the loves at positions 0 .. l; none outside an
 // arc from 0 that holds a multiple of three), or with every trit 0 (`gauss` false: a lone love's string starts empty)
-export function fluxStart(L: number, loves: readonly { ts: readonly (readonly [number, number])[]; amp: C }[], gauss: boolean): FluxState {
+export function fluxStart(
+  L: number,
+  loves: readonly {
+    ts: readonly (readonly [number, number])[]
+    amp: C
+  }[],
+  gauss: boolean,
+): FluxState {
   const out: FluxState = new Map()
 
   for (const { ts, amp } of loves) {
-    const at = ts.map(([x, j]) => ({ x: (((x % L) + L) % L), j }))
+    const at = ts.map(([x, j]) => ({ x: ((x % L) + L) % L, j }))
     const f = new Int8Array(L)
 
     if (gauss) {
@@ -430,42 +707,70 @@ export function fluxStart(L: number, loves: readonly { ts: readonly (readonly [n
 
 // with `fine` the fine coin (a full dock at w under `fullDock`), and with `bag` (E-SPN-0109) the heavy coin w on a dock
 // whose two links' trits, read from the full register, say so (code/rule/fine-coin bagHeavy)
-export function fluxBeat(options: BoundOptions, L: number, state: FluxState): FluxState {
+export function fluxBeat(
+  options: BoundOptions,
+  L: number,
+  state: FluxState,
+): FluxState {
   const out: FluxState = new Map()
-  const fine = options.fine === undefined ? undefined : fineCoin(options.fine)
-  const light = fine === undefined ? { keep: KEEP, cross: CROSS, det: W } : options.fullDock ? { ...fine, det: W } : fine
+  const fine =
+    options.fine === undefined ? undefined : fineCoin(options.fine)
+  const light =
+    fine === undefined
+      ? { keep: KEEP, cross: CROSS, det: W }
+      : options.fullDock
+        ? { ...fine, det: W }
+        : fine
   const heavy = { keep: KEEP, cross: CROSS, det: W }
 
-  if (options.bag !== undefined && fine === undefined) throw new Error('bound-line: the bag needs `fine`')
+  if (options.bag !== undefined && fine === undefined) {
+    throw new Error('bound-line: the bag needs `fine`')
+  }
 
   for (const { ts, f, amp } of state.values()) {
-    const coinOf = (x: number): typeof light => (options.bag !== undefined && bagHeavy(options.bag, f[(x - 1 + L) % L] !== 0, f[x] !== 0) ? heavy : light)
+    const coinOf = (x: number): typeof light =>
+      options.bag !== undefined &&
+      bagHeavy(options.bag, f[(x - 1 + L) % L] !== 0, f[x] !== 0)
+        ? heavy
+        : light
+
     let start = amp
 
     if (options.cost) {
       let n = 0
 
-      for (let l = 0; l < L; l++) if (f[l] !== 0) n++
+      for (let l = 0; l < L; l++) {
+        if (f[l] !== 0) {
+          n++
+        }
+      }
 
       const th = (-2 * Math.PI * n) / CLOCK
 
       start = cm(start, [Math.cos(th), Math.sin(th)])
     }
 
-    let pieces: { ts: { x: number; j: number }[]; amp: C }[] = [{ ts: ts.map(t => ({ ...t })), amp: start }]
+    let pieces: { ts: { x: number; j: number }[]; amp: C }[] = [
+      { ts: ts.map(t => ({ ...t })), amp: start },
+    ]
 
     for (const x of [...new Set(ts.map(t => t.x))]) {
-      const at = ts.map((t, i) => (t.x === x ? i : -1)).filter(i => i >= 0)
+      const at = ts
+        .map((t, i) => (t.x === x ? i : -1))
+        .filter(i => i >= 0)
       const next: typeof pieces = []
       const coin = coinOf(x)
 
       for (const piece of pieces) {
         if (at.length === 2) {
-          next.push({ ts: piece.ts, amp: cm(cm(piece.amp, coin.det), W) })
+          next.push({
+            ts: piece.ts,
+            amp: cm(cm(piece.amp, coin.det), W),
+          })
           continue
         }
 
-        const i = at[0] as number
+        const i = at[0]!
         const crossed = piece.ts.map(t => ({ ...t }))
 
         next.push({ ts: piece.ts, amp: cm(piece.amp, coin.keep) })
@@ -479,18 +784,24 @@ export function fluxBeat(options: BoundOptions, L: number, state: FluxState): Fl
     for (const piece of pieces) {
       let a = piece.amp
 
-      if (options.sign && lineSign(L, piece.ts) < 0) a = [-a[0], -a[1]]
+      if (options.sign && lineSign(L, piece.ts) < 0) {
+        a = [-a[0], -a[1]]
+      }
 
       const g = Int8Array.from(f)
       const moved = piece.ts.map(t => {
-        if (t.j === 0) g[t.x] = (((g[t.x] as number) + 2) % 3) as number
-        else {
+        if (t.j === 0) {
+          g[t.x] = (g[t.x]! + 2) % 3
+        } else {
           const l = (((t.x - 1) % L) + L) % L
 
-          g[l] = (((g[l] as number) + 1) % 3) as number
+          g[l] = (g[l]! + 1) % 3
         }
 
-        return { x: (((t.x + (t.j === 0 ? 1 : -1)) % L) + L) % L, j: t.j }
+        return {
+          x: (((t.x + (t.j === 0 ? 1 : -1)) % L) + L) % L,
+          j: t.j,
+        }
       })
 
       addFlux(out, moved, g, a)
@@ -503,18 +814,32 @@ export function fluxBeat(options: BoundOptions, L: number, state: FluxState): Fl
 export function fluxDensity(L: number, s: FluxState): Float64Array {
   const out = new Float64Array(L)
 
-  for (const { ts, amp } of s.values()) for (const t of ts) out[t.x]! += amp[0] ** 2 + amp[1] ** 2
+  for (const { ts, amp } of s.values()) {
+    for (const t of ts) {
+      out[t.x]! += amp[0] ** 2 + amp[1] ** 2
+    }
+  }
 
   return out
 }
 
-export type LoneFront = { L: number; beats: number; supportSame: boolean; densityOff: number; reachWith: number; reachWithout: number; farWith: number; farWithout: number }
+export type LoneFront = {
+  L: number
+  beats: number
+  supportSame: boolean
+  densityOff: number
+  reachWith: number
+  reachWithout: number
+  farWith: number
+  farWithout: number
+}
 
 // one love at position 0 of a ring long enough that nothing wraps, `beats` beats with the full register's cost and
 // without: whether the support is the same at every beat, the largest density difference, the farthest position
 // reached either way, and the weight beyond half the reach at the end
 export function loneFront(beats: number): LoneFront {
   const L = 2 * beats + 4
+
   let a = fluxStart(L, [{ ts: [[0, 0]], amp: [1, 0] }], false)
   let b = fluxStart(L, [{ ts: [[0, 0]], amp: [1, 0] }], false)
   let supportSame = true
@@ -529,37 +854,75 @@ export function loneFront(beats: number): LoneFront {
     db = fluxDensity(L, b)
 
     for (let x = 0; x < L; x++) {
-      if (((da[x] as number) > 1e-15) !== ((db[x] as number) > 1e-15)) supportSame = false
-      densityOff = Math.max(densityOff, Math.abs((da[x] as number) - (db[x] as number)))
+      if (da[x]! > 1e-15 !== db[x]! > 1e-15) {
+        supportSame = false
+      }
+
+      densityOff = Math.max(densityOff, Math.abs(da[x]! - db[x]!))
     }
   }
 
-  const reach = (d: Float64Array): number => Math.max(...[...d].map((v, x) => (v > 1e-15 ? Math.min(x, L - x) : 0)))
-  const far = (d: Float64Array): number => [...d].reduce((s, v, x) => s + (Math.min(x, L - x) > beats / 4 ? v : 0), 0)
+  const reach = (d: Float64Array): number =>
+    Math.max(
+      ...[...d].map((v, x) => (v > 1e-15 ? Math.min(x, L - x) : 0)),
+    )
+  const far = (d: Float64Array): number =>
+    [...d].reduce(
+      (s, v, x) => s + (Math.min(x, L - x) > beats / 4 ? v : 0),
+      0,
+    )
 
-  return { L, beats, supportSame, densityOff, reachWith: reach(da), reachWithout: reach(db), farWith: far(da), farWithout: far(db) }
+  return {
+    L,
+    beats,
+    supportSame,
+    densityOff,
+    reachWith: reach(da),
+    reachWithout: reach(db),
+    farWith: far(da),
+    farWithout: far(db),
+  }
 }
 
 const sortedKey = (ts: readonly { x: number; j: number }[]): string =>
   ts
-    .map(t => ({ m: 2 * t.x + (t.j === 0 ? 1 : 0), s: `${t.x},${t.j}` }))
+    .map(t => ({
+      m: 2 * t.x + (t.j === 0 ? 1 : 0),
+      s: `${t.x},${t.j}`,
+    }))
     .sort((u, v) => u.m - v.m)
     .map(u => u.s)
     .join('|')
 
 // the largest gap between the cut-trit form (flat) and the full register, over `beats` beats of a placed cluster
-export function reductionGap(options: BoundOptions, tables: LockedTables, ring: AxisRing, placed: readonly Placed[], P: number, beats: number): number {
+export function reductionGap(
+  options: BoundOptions,
+  tables: LockedTables,
+  ring: AxisRing,
+  placed: readonly Placed[],
+  P: number,
+  beats: number,
+): number {
   const L = ring.docks.length
+
   let cut = placeCut(L, placed, 0, P)
   let full = fluxStart(
     L,
-    [...cut.values()].map(v => ({ ts: v.ts.map(t => [t.x, t.j] as const), amp: v.amp })),
+    [...cut.values()].map(v => ({
+      ts: v.ts.map(t => [t.x, t.j] as const),
+      amp: v.amp,
+    })),
     true,
   )
   let worst = 0
 
   for (let t = 0; t < beats; t++) {
-    cut = pointBeatWith({ ...options, unit: 0, flat: true }, tables, ring, cut)
+    cut = pointBeatWith(
+      { ...options, unit: 0, flat: true },
+      tables,
+      ring,
+      cut,
+    )
     full = fluxBeat(options, L, full)
 
     const p = new Map<string, number>()
@@ -578,8 +941,15 @@ export function reductionGap(options: BoundOptions, tables: LockedTables, ring: 
       q.set(k, (q.get(k) ?? 0) + v.amp[0] ** 2 + v.amp[1] ** 2)
     }
 
-    for (const [k, v] of p) worst = Math.max(worst, Math.abs(v - (q.get(k) ?? 0)))
-    for (const [k, v] of q) if (!p.has(k)) worst = Math.max(worst, v)
+    for (const [k, v] of p) {
+      worst = Math.max(worst, Math.abs(v - (q.get(k) ?? 0)))
+    }
+
+    for (const [k, v] of q) {
+      if (!p.has(k)) {
+        worst = Math.max(worst, v)
+      }
+    }
   }
 
   return worst
@@ -587,7 +957,15 @@ export function reductionGap(options: BoundOptions, tables: LockedTables, ring: 
 
 // ---- the sign's holonomy ----
 
-export type Holonomy = { L: number; states: number; edges: number; consistent: boolean; exchangeLoops: number; exchangeMinus: boolean; windingPlus: boolean }
+export type Holonomy = {
+  L: number
+  states: number
+  edges: number
+  consistent: boolean
+  exchangeLoops: number
+  exchangeMinus: boolean
+  windingPlus: boolean
+}
 
 // the line block's sign on labelled configurations of three loves on the side's axis line, the transitions the rule's
 // own tables give (each lone love kept or crossed by the coin, a full line kept, then streamed by tables.target): a
@@ -602,44 +980,63 @@ export function signHolonomy(side: number): Holonomy {
   const ring = axisRing(f.tables, center)
   const L = ring.docks.length
   const M = 2 * L
-  const code = (m: readonly number[]): number => ((m[0] as number) * M + (m[1] as number)) * M + (m[2] as number)
+  const code = (m: readonly number[]): number =>
+    (m[0]! * M + m[1]!) * M + m[2]!
   const modeX = (m: number): number => m >> 1
   const modeJ = (m: number): number => m & 1
+
   const step = (m: number, j: number): number => {
-    const slot = (ring.docks[modeX(m)] as number) * 24 + (j === 0 ? ring.first : ring.second)
-    const to = f.tables.target[slot] as number
+    const slot =
+      ring.docks[modeX(m)]! * 24 + (j === 0 ? ring.first : ring.second)
+    const to = f.tables.target[slot]!
     const x = ring.position.get(Math.floor(to / 24))
     const d = to % 24
 
-    if (x === undefined || (d !== ring.first && d !== ring.second)) throw new Error('bound-line: the stream leaves the line')
-    if (x !== (((modeX(m) + (j === 0 ? 1 : -1)) % L) + L) % L || (d === ring.first ? 0 : 1) !== j) throw new Error('bound-line: the stream is not one position along the line')
+    if (x === undefined || (d !== ring.first && d !== ring.second)) {
+      throw new Error('bound-line: the stream leaves the line')
+    }
+
+    if (
+      x !== (((modeX(m) + (j === 0 ? 1 : -1)) % L) + L) % L ||
+      (d === ring.first ? 0 : 1) !== j
+    ) {
+      throw new Error(
+        'bound-line: the stream is not one position along the line',
+      )
+    }
 
     return 2 * x + (d === ring.first ? 0 : 1)
   }
+
   const phi = new Map<number, number>()
   const start = [0, 2, 4]
   const queue: number[][] = [start]
+
   let edges = 0
   let consistent = true
 
   phi.set(code(start), 1)
 
   while (queue.length > 0) {
-    const m = queue.shift() as number[]
-    const here = phi.get(code(m)) as number
+    const m = queue.shift()!
+    const here = phi.get(code(m))!
     const xs = m.map(modeX)
-    const lone = [0, 1, 2].filter(i => xs.filter(x => x === xs[i]).length === 1)
+    const lone = [0, 1, 2].filter(
+      i => xs.filter(x => x === xs[i]).length === 1,
+    )
 
     for (let mask = 0; mask < 1 << lone.length; mask++) {
       const js = m.map(modeJ)
 
       lone.forEach((i, n) => {
-        if ((mask >> n) & 1) js[i] = 1 - (js[i] as number)
+        if ((mask >> n) & 1) {
+          js[i] = 1 - js[i]!
+        }
       })
 
-      const loves = m.map((_, i) => ({ x: xs[i] as number, j: js[i] as number }))
+      const loves = m.map((_, i) => ({ x: xs[i]!, j: js[i]! }))
       const sign = lineSign(L, loves)
-      const next = m.map((_, i) => step(2 * (xs[i] as number) + (js[i] as number), js[i] as number))
+      const next = m.map((_, i) => step(2 * xs[i]! + js[i]!, js[i]!))
       const k = code(next)
       const want = here * sign
 
@@ -650,7 +1047,9 @@ export function signHolonomy(side: number): Holonomy {
       if (seen === undefined) {
         phi.set(k, want)
         queue.push(next)
-      } else if (seen !== want) consistent = false
+      } else if (seen !== want) {
+        consistent = false
+      }
     }
   }
 
@@ -668,24 +1067,44 @@ export function signHolonomy(side: number): Holonomy {
     ] as const) {
       const s = m.slice()
 
-      s[a] = m[b] as number
-      s[b] = m[a] as number
+      s[a] = m[b]!
+      s[b] = m[a]!
 
       const q = phi.get(code(s))
 
-      if (q === undefined) continue
+      if (q === undefined) {
+        continue
+      }
+
       exchangeLoops++
-      if (q !== -p) exchangeMinus = false
+
+      if (q !== -p) {
+        exchangeMinus = false
+      }
     }
 
-    const q = phi.get(code([m[1] as number, m[2] as number, m[0] as number]))
+    const q = phi.get(code([m[1]!, m[2]!, m[0]!]))
 
-    if (q !== undefined && q !== p) windingPlus = false
+    if (q !== undefined && q !== p) {
+      windingPlus = false
+    }
   }
 
-  return { L, states: phi.size, edges, consistent, exchangeLoops, exchangeMinus, windingPlus }
+  return {
+    L,
+    states: phi.size,
+    edges,
+    consistent,
+    exchangeLoops,
+    exchangeMinus,
+    windingPlus,
+  }
 }
 
-export const boundNorm = (s: BoundState): { total: bigint; unit: bigint } => lockedNorm({ branches: [...s.values()].flatMap(x => x.branches) })
+export const boundNorm = (
+  s: BoundState,
+): { total: bigint; unit: bigint } =>
+  lockedNorm({ branches: [...s.values()].flatMap(x => x.branches) })
 
-export const physicalWeight = (b: Branch): number => Number(norm(b.a, b.b)) / 4 ** b.k
+export const physicalWeight = (b: Branch): number =>
+  Number(norm(b.a, b.b)) / 4 ** b.k

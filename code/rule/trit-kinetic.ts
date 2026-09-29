@@ -34,7 +34,14 @@
 // Integers only (held exactly in doubles below 2^53): no float, no trig, no rounding.
 
 import { addCurrent, type HuskEngine } from '@/code/rule/trit-husk'
-import { shapedBeat, shapedBeatBack, shapedFlux, type ShapedOptions, type ShapedScratch, type ShapedState } from '@/code/rule/trit-husk-shaped'
+import {
+  shapedBeat,
+  shapedBeatBack,
+  shapedFlux,
+  type ShapedOptions,
+  type ShapedScratch,
+  type ShapedState,
+} from '@/code/rule/trit-husk-shaped'
 
 const mod = (x: number, m: number): number => ((x % m) + m) % m
 const floorDiv = (x: number, q: number): number => (x - mod(x, q)) / q
@@ -51,16 +58,27 @@ export type KineticMatter = {
   readonly momentum: Float64Array
 }
 
-export function makeMatter(input: { mass: number; charges: { charge: number; moving: boolean; dock: number[]; offset?: number[]; momentum?: number[] }[] }): KineticMatter {
-  const n = input.charges.length
-
+export function makeMatter(input: {
+  mass: number
+  charges: {
+    charge: number
+    moving: boolean
+    dock: number[]
+    offset?: number[]
+    momentum?: number[]
+  }[]
+}): KineticMatter {
   return {
     mass: input.mass,
     charge: Int8Array.from(input.charges, c => c.charge),
     moving: Uint8Array.from(input.charges, c => (c.moving ? 1 : 0)),
     dock: Int32Array.from(input.charges.flatMap(c => c.dock)),
-    offset: Float64Array.from(input.charges.flatMap(c => c.offset ?? [0, 0, 0])),
-    momentum: Float64Array.from(input.charges.flatMap(c => c.momentum ?? [0, 0, 0])),
+    offset: Float64Array.from(
+      input.charges.flatMap(c => c.offset ?? [0, 0, 0]),
+    ),
+    momentum: Float64Array.from(
+      input.charges.flatMap(c => c.momentum ?? [0, 0, 0]),
+    ),
   }
 }
 
@@ -77,7 +95,13 @@ export function copyMatter(m: KineticMatter): KineticMatter {
 
 // the field numerators, per husk link: E^ = q^L E~ and A^ = q^L A~ minus the raw angle part (the angle part
 // is added centered per square). Scratch allocated once per engine
-export type FieldScratch = { flux: Int32Array; eHat: Float64Array; aShift: Float64Array; now: Float64Array; delta: Float64Array }
+export type FieldScratch = {
+  flux: Int32Array
+  eHat: Float64Array
+  aShift: Float64Array
+  now: Float64Array
+  delta: Float64Array
+}
 
 export function makeFieldScratch(engine: HuskEngine): FieldScratch {
   const g = engine.geometry
@@ -91,7 +115,12 @@ export function makeFieldScratch(engine: HuskEngine): FieldScratch {
   }
 }
 
-export function fieldNumerators(engine: HuskEngine, s: ShapedState, options: ShapedOptions, f: FieldScratch): void {
+export function fieldNumerators(
+  engine: HuskEngine,
+  s: ShapedState,
+  options: ShapedOptions,
+  f: FieldScratch,
+): void {
   const g = engine.geometry
   const q = engine.q
   const levels = options.levels
@@ -124,7 +153,9 @@ export function fieldNumerators(engine: HuskEngine, s: ShapedState, options: Sha
     const d = f.delta[p]!
     const n = f.now[p]!
 
-    if (d === 0 && n === 0) continue
+    if (d === 0 && n === 0) {
+      continue
+    }
 
     for (let j = p * 3; j < p * 3 + 3; j++) {
       const l = g.triLinks[j]!
@@ -136,21 +167,45 @@ export function fieldNumerators(engine: HuskEngine, s: ShapedState, options: Sha
   }
 }
 
-const dockIndex = (side: number, a: number, b: number, c: number): number => mod(a, side) + side * mod(b, side) + side * side * mod(c, side)
+const dockIndex = (
+  side: number,
+  a: number,
+  b: number,
+  c: number,
+): number =>
+  mod(a, side) + side * mod(b, side) + side * side * mod(c, side)
 
 function coords(m: KineticMatter, k: number): [number, number, number] {
   return [m.dock[k * 3]!, m.dock[k * 3 + 1]!, m.dock[k * 3 + 2]!]
 }
 
 // the circulation numerator Phi^_ij of the unit square at base z (z, z + e_i, z + e_i + e_j, z + e_j)
-export function squareNumerator(engine: HuskEngine, s: ShapedState, f: FieldScratch, levels: number, z: [number, number, number], i: number, j: number): number {
+export function squareNumerator(
+  engine: HuskEngine,
+  s: ShapedState,
+  f: FieldScratch,
+  levels: number,
+  z: [number, number, number],
+  i: number,
+  j: number,
+): number {
   const side = engine.geometry.side
   const nb = engine.nb
-  const at = (v: [number, number, number], h: number): number => dockIndex(side, v[0], v[1], v[2]) * 9 + h
-  const zi: [number, number, number] = [z[0] + (i === 0 ? 1 : 0), z[1] + (i === 1 ? 1 : 0), z[2] + (i === 2 ? 1 : 0)]
-  const zj: [number, number, number] = [z[0] + (j === 0 ? 1 : 0), z[1] + (j === 1 ? 1 : 0), z[2] + (j === 2 ? 1 : 0)]
+  const at = (v: [number, number, number], h: number): number =>
+    dockIndex(side, v[0], v[1], v[2]) * 9 + h
+  const zi: [number, number, number] = [
+    z[0] + (i === 0 ? 1 : 0),
+    z[1] + (i === 1 ? 1 : 0),
+    z[2] + (i === 2 ? 1 : 0),
+  ]
+  const zj: [number, number, number] = [
+    z[0] + (j === 0 ? 1 : 0),
+    z[1] + (j === 1 ? 1 : 0),
+    z[2] + (j === 2 ? 1 : 0),
+  ]
   const links = [at(z, i), at(zi, j), at(zj, i), at(z, j)]
   const signs = [1, 1, -1, -1]
+
   let raw = 0
   let shift = 0
 
@@ -164,43 +219,88 @@ export function squareNumerator(engine: HuskEngine, s: ShapedState, f: FieldScra
 
 export type KineticTally = { crossings: number }
 
-function crossOnce(engine: HuskEngine, s: ShapedState, m: KineticMatter, f: FieldScratch, levels: number, k: number, i: number, sigma: number, tally?: KineticTally): void {
+function crossOnce(
+  engine: HuskEngine,
+  s: ShapedState,
+  m: KineticMatter,
+  f: FieldScratch,
+  levels: number,
+  k: number,
+  i: number,
+  sigma: number,
+  tally?: KineticTally,
+): void {
   const side = engine.geometry.side
   const e = m.charge[k]!
   const y = coords(m, k)
-  const z: [number, number, number] = [y[0] - (sigma < 0 && i === 0 ? 1 : 0), y[1] - (sigma < 0 && i === 1 ? 1 : 0), y[2] - (sigma < 0 && i === 2 ? 1 : 0)]
+  const z: [number, number, number] = [
+    y[0] - (sigma < 0 && i === 0 ? 1 : 0),
+    y[1] - (sigma < 0 && i === 1 ? 1 : 0),
+    y[2] - (sigma < 0 && i === 2 ? 1 : 0),
+  ]
 
   addCurrent(s, dockIndex(side, z[0], z[1], z[2]) * 9 + i, sigma * e)
 
   for (let j = 0; j < 3; j++) {
-    if (j === i) continue
+    if (j === i) {
+      continue
+    }
 
-    const below: [number, number, number] = [z[0] - (j === 0 ? 1 : 0), z[1] - (j === 1 ? 1 : 0), z[2] - (j === 2 ? 1 : 0)]
-    const turn = squareNumerator(engine, s, f, levels, z, i, j) + squareNumerator(engine, s, f, levels, below, i, j)
+    const below: [number, number, number] = [
+      z[0] - (j === 0 ? 1 : 0),
+      z[1] - (j === 1 ? 1 : 0),
+      z[2] - (j === 2 ? 1 : 0),
+    ]
+    const turn =
+      squareNumerator(engine, s, f, levels, z, i, j) +
+      squareNumerator(engine, s, f, levels, below, i, j)
 
     m.momentum[k * 3 + j] = m.momentum[k * 3 + j]! + sigma * e * turn
   }
 
   m.dock[k * 3 + i] = mod(m.dock[k * 3 + i]! + sigma, side)
 
-  if (tally) tally.crossings++
+  if (tally) {
+    tally.crossings++
+  }
 }
 
 // the magnetic turn of a crossing, undone
-function uncrossOnce(engine: HuskEngine, s: ShapedState, m: KineticMatter, f: FieldScratch, levels: number, k: number, i: number, sigma: number): void {
+function uncrossOnce(
+  engine: HuskEngine,
+  s: ShapedState,
+  m: KineticMatter,
+  f: FieldScratch,
+  levels: number,
+  k: number,
+  i: number,
+  sigma: number,
+): void {
   const side = engine.geometry.side
   const e = m.charge[k]!
 
   m.dock[k * 3 + i] = mod(m.dock[k * 3 + i]! - sigma, side)
 
   const y = coords(m, k)
-  const z: [number, number, number] = [y[0] - (sigma < 0 && i === 0 ? 1 : 0), y[1] - (sigma < 0 && i === 1 ? 1 : 0), y[2] - (sigma < 0 && i === 2 ? 1 : 0)]
+  const z: [number, number, number] = [
+    y[0] - (sigma < 0 && i === 0 ? 1 : 0),
+    y[1] - (sigma < 0 && i === 1 ? 1 : 0),
+    y[2] - (sigma < 0 && i === 2 ? 1 : 0),
+  ]
 
   for (let j = 0; j < 3; j++) {
-    if (j === i) continue
+    if (j === i) {
+      continue
+    }
 
-    const below: [number, number, number] = [z[0] - (j === 0 ? 1 : 0), z[1] - (j === 1 ? 1 : 0), z[2] - (j === 2 ? 1 : 0)]
-    const turn = squareNumerator(engine, s, f, levels, z, i, j) + squareNumerator(engine, s, f, levels, below, i, j)
+    const below: [number, number, number] = [
+      z[0] - (j === 0 ? 1 : 0),
+      z[1] - (j === 1 ? 1 : 0),
+      z[2] - (j === 2 ? 1 : 0),
+    ]
+    const turn =
+      squareNumerator(engine, s, f, levels, z, i, j) +
+      squareNumerator(engine, s, f, levels, below, i, j)
 
     m.momentum[k * 3 + j] = m.momentum[k * 3 + j]! - sigma * e * turn
   }
@@ -208,11 +308,20 @@ function uncrossOnce(engine: HuskEngine, s: ShapedState, m: KineticMatter, f: Fi
   addCurrent(s, dockIndex(side, z[0], z[1], z[2]) * 9 + i, -sigma * e)
 }
 
-function drift(engine: HuskEngine, s: ShapedState, m: KineticMatter, f: FieldScratch, options: ShapedOptions, tally?: KineticTally): void {
+function drift(
+  engine: HuskEngine,
+  s: ShapedState,
+  m: KineticMatter,
+  f: FieldScratch,
+  options: ShapedOptions,
+  tally?: KineticTally,
+): void {
   const mass = m.mass
 
   for (let k = 0; k < m.charge.length; k++) {
-    if (!m.moving[k]) continue
+    if (!m.moving[k]) {
+      continue
+    }
 
     for (let i = 0; i < 3; i++) {
       const y = m.offset[k * 3 + i]! + m.momentum[k * 3 + i]!
@@ -222,16 +331,26 @@ function drift(engine: HuskEngine, s: ShapedState, m: KineticMatter, f: FieldScr
 
       const sigma = n > 0 ? 1 : -1
 
-      for (let c = 0; c < Math.abs(n); c++) crossOnce(engine, s, m, f, options.levels, k, i, sigma, tally)
+      for (let c = 0; c < Math.abs(n); c++) {
+        crossOnce(engine, s, m, f, options.levels, k, i, sigma, tally)
+      }
     }
   }
 }
 
-function driftBack(engine: HuskEngine, s: ShapedState, m: KineticMatter, f: FieldScratch, options: ShapedOptions): void {
+function driftBack(
+  engine: HuskEngine,
+  s: ShapedState,
+  m: KineticMatter,
+  f: FieldScratch,
+  options: ShapedOptions,
+): void {
   const mass = m.mass
 
   for (let k = m.charge.length - 1; k >= 0; k--) {
-    if (!m.moving[k]) continue
+    if (!m.moving[k]) {
+      continue
+    }
 
     for (let i = 2; i >= 0; i--) {
       const x = m.offset[k * 3 + i]!
@@ -239,33 +358,60 @@ function driftBack(engine: HuskEngine, s: ShapedState, m: KineticMatter, f: Fiel
       const n = -floorDiv(x - kk, mass)
       const sigma = n > 0 ? 1 : -1
 
-      for (let c = 0; c < Math.abs(n); c++) uncrossOnce(engine, s, m, f, options.levels, k, i, sigma)
+      for (let c = 0; c < Math.abs(n); c++) {
+        uncrossOnce(engine, s, m, f, options.levels, k, i, sigma)
+      }
 
       m.offset[k * 3 + i] = x + n * mass - kk
     }
   }
 }
 
-function kick(engine: HuskEngine, m: KineticMatter, f: FieldScratch, sign: number): void {
+function kick(
+  engine: HuskEngine,
+  m: KineticMatter,
+  f: FieldScratch,
+  sign: number,
+): void {
   const side = engine.geometry.side
 
   for (let k = 0; k < m.charge.length; k++) {
-    if (!m.moving[k]) continue
+    if (!m.moving[k]) {
+      continue
+    }
 
     const y = coords(m, k)
     const e = m.charge[k]!
 
     for (let i = 0; i < 3; i++) {
       const here = dockIndex(side, y[0], y[1], y[2]) * 9 + i
-      const back = dockIndex(side, y[0] - (i === 0 ? 1 : 0), y[1] - (i === 1 ? 1 : 0), y[2] - (i === 2 ? 1 : 0)) * 9 + i
+      const back =
+        dockIndex(
+          side,
+          y[0] - (i === 0 ? 1 : 0),
+          y[1] - (i === 1 ? 1 : 0),
+          y[2] - (i === 2 ? 1 : 0),
+        ) *
+          9 +
+        i
 
-      m.momentum[k * 3 + i] = m.momentum[k * 3 + i]! + sign * e * (f.eHat[here]! + f.eHat[back]!)
+      m.momentum[k * 3 + i] =
+        m.momentum[k * 3 + i]! +
+        sign * e * (f.eHat[here]! + f.eHat[back]!)
     }
   }
 }
 
 // one beat of light and matter, in place
-export function kineticBeat(engine: HuskEngine, s: ShapedState, m: KineticMatter, options: ShapedOptions, light: ShapedScratch, f: FieldScratch, tally?: KineticTally): void {
+export function kineticBeat(
+  engine: HuskEngine,
+  s: ShapedState,
+  m: KineticMatter,
+  options: ShapedOptions,
+  light: ShapedScratch,
+  f: FieldScratch,
+  tally?: KineticTally,
+): void {
   fieldNumerators(engine, s, options, f)
   drift(engine, s, m, f, options, tally)
   shapedBeat(engine, s, light, options)
@@ -273,7 +419,14 @@ export function kineticBeat(engine: HuskEngine, s: ShapedState, m: KineticMatter
   kick(engine, m, f, 1)
 }
 
-export function kineticBeatBack(engine: HuskEngine, s: ShapedState, m: KineticMatter, options: ShapedOptions, light: ShapedScratch, f: FieldScratch): void {
+export function kineticBeatBack(
+  engine: HuskEngine,
+  s: ShapedState,
+  m: KineticMatter,
+  options: ShapedOptions,
+  light: ShapedScratch,
+  f: FieldScratch,
+): void {
   fieldNumerators(engine, s, options, f)
   kick(engine, m, f, -1)
   shapedBeatBack(engine, s, light, options)

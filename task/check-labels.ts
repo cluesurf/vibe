@@ -11,7 +11,12 @@
 //   pnpm check:labels --commit   rewrite
 //   pnpm check:labels --all      also list the experiments whose label is consistent
 
-import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
+import {
+  readdirSync,
+  readFileSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs'
 import { join, relative } from 'node:path'
 
 //   pnpm check:labels --strict   exit 1 while any contradicted label remains
@@ -144,7 +149,9 @@ for (const file of files) {
 
   if (!claims3434) {
     if (showAll) {
-      console.log(`  ok        ${relative(root, file)}  (no 3434 claim)`)
+      console.log(
+        `  ok        ${relative(root, file)}  (no 3434 claim)`,
+      )
     }
 
     continue
@@ -182,7 +189,10 @@ for (const file of files) {
   )
 
   if (commit) {
-    const fixed = source.replace(/substrates: \['3434'\]/g, "substrates: 'any'")
+    const fixed = source.replace(
+      /substrates: \['3434'\]/g,
+      "substrates: 'any'",
+    )
 
     if (fixed !== source) {
       writeFileSync(file, fixed)
@@ -193,8 +203,14 @@ for (const file of files) {
 
 // A registry row whose file the barrel never imports is an experiment that runs in no build and prints in
 // no table. Four such rows were found on 2026-08-31 (one of them an L3 that had never executed).
-const barrel = readFileSync(join(root, 'test', 'experiment', 'all.ts'), 'utf8')
-const registryRows = readFileSync(join(root, 'test', 'registry.csv'), 'utf8')
+const barrel = readFileSync(
+  join(root, 'test', 'experiment', 'all.ts'),
+  'utf8',
+)
+const registryRows = readFileSync(
+  join(root, 'test', 'registry.csv'),
+  'utf8',
+)
   .trim()
   .split('\n')
   .slice(1)
@@ -207,7 +223,9 @@ for (const row of registryRows) {
 
   if (!barrel.includes(`'${module}'`)) {
     unimported++
-    console.log(`  unimported ${file}  (in registry.csv, not in test/experiment/all.ts)`)
+    console.log(
+      `  unimported ${file}  (in registry.csv, not in test/experiment/all.ts)`,
+    )
   }
 }
 

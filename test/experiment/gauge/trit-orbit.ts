@@ -44,7 +44,14 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { addStringPath, relaxStart, runKinetic, setLandauAngles, staticForce, type KineticRun } from '@/code/measure/trit-kinetic-light'
+import {
+  addStringPath,
+  relaxStart,
+  runKinetic,
+  setLandauAngles,
+  staticForce,
+  type KineticRun,
+} from '@/code/measure/trit-kinetic-light'
 import { makeMatter } from '@/code/rule/trit-kinetic'
 import { huskGeometry, makeHuskEngine } from '@/code/rule/trit-husk'
 import { emptyShaped } from '@/code/rule/trit-husk-shaped'
@@ -60,6 +67,7 @@ function rate(t: number[], y: number[]): number {
   const n = t.length
   const mt = t.reduce((s, v) => s + v, 0) / n
   const my = y.reduce((s, v) => s + v, 0) / n
+
   let num = 0
   let den = 0
 
@@ -74,6 +82,7 @@ function rate(t: number[], y: number[]): number {
 // the unwrapped angle of a sequence of 2D vectors
 function unwrappedAngles(v: [number, number][]): number[] {
   const out: number[] = []
+
   let last = 0
 
   for (const [x, y] of v) {
@@ -91,12 +100,30 @@ function unwrappedAngles(v: [number, number][]): number[] {
   return out
 }
 
-function sectionB(): { omega: number; predicted: number; run: KineticRun; kineticRatio: number; zDrift: number } {
+function sectionB(): {
+  omega: number
+  predicted: number
+  run: KineticRun
+  kineticRatio: number
+  zDrift: number
+} {
   const beta = 8
   const k = 48 * Q ** 3
   const mass = Math.round(k / 0.01)
   const half = Math.floor(mass / 2)
-  const matter = makeMatter({ mass, charges: [{ charge: 1, moving: true, dock: [0, 0, 0], offset: [half, half, half], momentum: [k, 0, 0] }, { charge: -1, moving: false, dock: [8, 8, 8] }] })
+  const matter = makeMatter({
+    mass,
+    charges: [
+      {
+        charge: 1,
+        moving: true,
+        dock: [0, 0, 0],
+        offset: [half, half, half],
+        momentum: [k, 0, 0],
+      },
+      { charge: -1, moving: false, dock: [8, 8, 8] },
+    ],
+  })
   const run = runKinetic({
     side: SIDE,
     depth: DEPTH,
@@ -112,23 +139,45 @@ function sectionB(): { omega: number; predicted: number; run: KineticRun; kineti
     every: 100,
     reverse: 50,
   })
-  const angles = unwrappedAngles(run.momenta.map(m => [m[0]?.[0] ?? 0, m[0]?.[1] ?? 0]))
+  const angles = unwrappedAngles(
+    run.momenta.map(m => [m[0]?.[0] ?? 0, m[0]?.[1] ?? 0]),
+  )
   const t = angles.map((_, i) => i)
 
   return {
     omega: rate(t, angles),
     predicted: (2 * Q ** 3 * beta) / mass,
     run,
-    kineticRatio: (run.kinetic[run.kinetic.length - 1] ?? 0) / (run.kinetic[0] ?? 1),
-    zDrift: (run.positions[run.positions.length - 1]?.[0]?.[2] ?? 0) - (run.positions[0]?.[0]?.[2] ?? 0),
+    kineticRatio:
+      (run.kinetic[run.kinetic.length - 1] ?? 0) /
+      (run.kinetic[0] ?? 1),
+    zDrift:
+      (run.positions[run.positions.length - 1]?.[0]?.[2] ?? 0) -
+      (run.positions[0]?.[0]?.[2] ?? 0),
   }
 }
 
-function sectionA(scale: number, periods: number): { turn: number; predicted: number; minSeparation: number; maxSeparation: number; run: KineticRun; period: number } {
+function sectionA(
+  scale: number,
+  periods: number,
+): {
+  turn: number
+  predicted: number
+  minSeparation: number
+  maxSeparation: number
+  run: KineticRun
+  period: number
+} {
   const r0 = 4
   const g = huskGeometry(SIDE)
   const e = makeHuskEngine(g, DEPTH)
-  const probe = makeMatter({ mass: 1, charges: [{ charge: 1, moving: true, dock: [0, 0, 0] }, { charge: -1, moving: true, dock: [r0, 0, 0] }] })
+  const probe = makeMatter({
+    mass: 1,
+    charges: [
+      { charge: 1, moving: true, dock: [0, 0, 0] },
+      { charge: -1, moving: true, dock: [r0, 0, 0] },
+    ],
+  })
   const s = emptyShaped(g, LEVELS)
 
   addStringPath(s, g, [0, 0, 0], [r0, 0, 0], 1)
@@ -144,17 +193,50 @@ function sectionA(scale: number, periods: number): { turn: number; predicted: nu
   const matter = makeMatter({
     mass,
     charges: [
-      { charge: 1, moving: true, dock: [0, 0, 0], offset: [half, half, half], momentum: [0, -k, 0] },
-      { charge: -1, moving: true, dock: [r0, 0, 0], offset: [half, half, half], momentum: [0, k, 0] },
+      {
+        charge: 1,
+        moving: true,
+        dock: [0, 0, 0],
+        offset: [half, half, half],
+        momentum: [0, -k, 0],
+      },
+      {
+        charge: -1,
+        moving: true,
+        dock: [r0, 0, 0],
+        offset: [half, half, half],
+        momentum: [0, k, 0],
+      },
     ],
   })
-  const run = runKinetic({ side: SIDE, depth: DEPTH, options: OPTIONS, matter, setup: (st, geometry) => (addStringPath(st, geometry, [0, 0, 0], [r0, 0, 0], 1), undefined), beats, every: Math.max(1, Math.round(beats / 20)), reverse: 50 })
-  const separations = run.positions.map(p => [0, 1, 2].map(i => (p[1]?.[i] ?? 0) - (p[0]?.[i] ?? 0)))
-  const angles = unwrappedAngles(separations.map(d => [d[0] ?? 0, d[1] ?? 0]))
-  const lengths = separations.map(d => Math.hypot(d[0] ?? 0, d[1] ?? 0, d[2] ?? 0))
+  const run = runKinetic({
+    side: SIDE,
+    depth: DEPTH,
+    options: OPTIONS,
+    matter,
+    setup: (st, geometry) => (
+      addStringPath(st, geometry, [0, 0, 0], [r0, 0, 0], 1),
+      undefined
+    ),
+    beats,
+    every: Math.max(1, Math.round(beats / 20)),
+    reverse: 50,
+  })
+  const separations = run.positions.map(p =>
+    [0, 1, 2].map(i => (p[1]?.[i] ?? 0) - (p[0]?.[i] ?? 0)),
+  )
+  const angles = unwrappedAngles(
+    separations.map(d => [d[0] ?? 0, d[1] ?? 0]),
+  )
+  const lengths = separations.map(d =>
+    Math.hypot(d[0] ?? 0, d[1] ?? 0, d[2] ?? 0),
+  )
 
   return {
-    turn: rate(angles.map((_, i) => i), angles),
+    turn: rate(
+      angles.map((_, i) => i),
+      angles,
+    ),
     predicted: k / mass / (r0 / 2),
     minSeparation: Math.min(...lengths),
     maxSeparation: Math.max(...lengths),
@@ -167,7 +249,7 @@ export default experiment({
   id: 'gauge/trit-orbit',
   code: 'E-FRC-0216',
   title:
-    'the Lorentz force and the first atom on trits: a heavy trit charge with a stand-in inertia circles in a uniform husk magnetic field at the rule\'s cyclotron frequency, the magnetic turn taken one crossing at a time from the swept plaquette, but a love and a fear set on a circular orbit about each other do not stay bound: every crossing creates more energy than the orbit\'s binding',
+    "the Lorentz force and the first atom on trits: a heavy trit charge with a stand-in inertia circles in a uniform husk magnetic field at the rule's cyclotron frequency, the magnetic turn taken one crossing at a time from the swept plaquette, but a love and a fear set on a circular orbit about each other do not stay bound: every crossing creates more energy than the orbit's binding",
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -189,7 +271,10 @@ export default experiment({
       b_lightEnd: b.run.light[b.run.light.length - 1] ?? 0,
     }
 
-    for (const [name, a] of [['atom', atom], ['heavy', heavy]] as const) {
+    for (const [name, a] of [
+      ['atom', atom],
+      ['heavy', heavy],
+    ] as const) {
       metrics[`${name}_turn`] = a.turn
       metrics[`${name}_predicted`] = a.predicted
       metrics[`${name}_ratio`] = a.turn / a.predicted
@@ -200,19 +285,32 @@ export default experiment({
       metrics[`${name}_gauss`] = a.run.gaussFailures
       metrics[`${name}_back`] = a.run.back
       metrics[`${name}_lightStart`] = a.run.light[0] ?? 0
-      metrics[`${name}_lightEnd`] = a.run.light[a.run.light.length - 1] ?? 0
+      metrics[`${name}_lightEnd`] =
+        a.run.light[a.run.light.length - 1] ?? 0
       metrics[`${name}_kineticStart`] = a.run.kinetic[0] ?? 0
-      metrics[`${name}_kineticEnd`] = a.run.kinetic[a.run.kinetic.length - 1] ?? 0
+      metrics[`${name}_kineticEnd`] =
+        a.run.kinetic[a.run.kinetic.length - 1] ?? 0
     }
 
     const gates = {
-      B: Math.abs(b.omega / b.predicted - 1) <= 0.03 && b.run.gaussFailures === 0 && b.run.back === 0,
-      A: atom.minSeparation >= 2 && atom.maxSeparation <= 8 && Math.abs(atom.turn / atom.predicted - 1) <= 0.1 && atom.run.gaussFailures === 0 && atom.run.back === 0,
+      B:
+        Math.abs(b.omega / b.predicted - 1) <= 0.03 &&
+        b.run.gaussFailures === 0 &&
+        b.run.back === 0,
+      A:
+        atom.minSeparation >= 2 &&
+        atom.maxSeparation <= 8 &&
+        Math.abs(atom.turn / atom.predicted - 1) <= 0.1 &&
+        atom.run.gaussFailures === 0 &&
+        atom.run.back === 0,
     }
 
-    for (const [gate, ok] of Object.entries(gates)) metrics[`gate${gate}`] = ok ? 1 : 0
+    for (const [gate, ok] of Object.entries(gates)) {
+      metrics[`gate${gate}`] = ok ? 1 : 0
+    }
 
-    const status = gates.A && gates.B ? 'pass' : gates.B ? 'partial' : 'fail'
+    const status =
+      gates.A && gates.B ? 'pass' : gates.B ? 'partial' : 'fail'
 
     return verdict({
       status,
@@ -220,7 +318,7 @@ export default experiment({
       metrics,
       control: { cyclotronPredicted: b.predicted },
       notes:
-        'L2 (B) and STAND-IN (A: the inertia registers and the classical orbit). Three-level light, D = 32, cyclic potential, relaxed starts from reals (construction). FIRST RUN 2026-09-26 (tmp/frc0216.log, 151.5 s), PARTIAL: B passes, A fails as predicted, no gate moved. B, THE LORENTZ FORCE: the heavy love\'s momentum turns at 0.9955 of the rule\'s 2 q^3 beta / M (0.003318 against 0.003333 a beat) over 2,000 beats and 30 crossings, in the sense e v x B gives, with Gauss exact and the last 50 beats reversing to 0 mismatches. The turn is taken one crossing at a time from the plaquette the crossing sweeps, so the magnetic force appears from the same threshold rule as the electric one. But energy is not kept: the kinetic energy grows 2.17-fold in 2,000 beats and the charge drifts 0.56 docks along z, the created hop energy and forward self-impulse of E-FRC-0215 acting on the orbit. THE LANDAU GATE WAS NOT REGISTERED (disclosed in the header): this charge has a frequency, not levels, and its band is Galilean, so it circles at the continuum frequency (0.9955), where the fear walk\'s exact spacings sit at 0.77 to 0.91 of the continuum from its own band (E-FRC-0182). Landau levels need the walk\'s band and its amplitudes, which a classical trit charge does not carry. A, THE ATOM, FAILS: set on a circular orbit 4 docks apart (v = 0.01, predicted period 1,257 beats), the love and fear come apart: separation 4.0 to 1,172.6 docks over two periods, 2,248 crossings, the separation turning at 0.037 of the orbital rate, the light\'s energy 9,965 times its start and the kinetic energy 3,500 times. Ten times heavier (period 3,974): 4.0 to 228.9 docks over one period, 310 crossings, light 1,140 times its start. THE REASON, measured in E-FRC-0215: each crossing creates about 0.021 of transverse light energy at D = 32, against a binding of 1 / (24 D r) = 0.0003 at r = 4 (the ratio is about 16 r at any depth), and it gives the charge a forward self-impulse of about 0.6 q^3, comparable to the orbit\'s whole momentum (0.8 q^3 here). A classical point charge that moves by whole-unit crossings cannot hold an orbit on this light. What the pieces need for an atom: a charge whose crossings are spread so the transverse energy of each is small against the binding (a charge spread over many docks, which is what the quantum wave of the stand-in hydrogen is, a = 150 to 890 docks at the depth-set coupling, E-FRC-0211), or quantum matter whose amplitudes, not whole units, carry the current.',
+        "L2 (B) and STAND-IN (A: the inertia registers and the classical orbit). Three-level light, D = 32, cyclic potential, relaxed starts from reals (construction). FIRST RUN 2026-09-26 (tmp/frc0216.log, 151.5 s), PARTIAL: B passes, A fails as predicted, no gate moved. B, THE LORENTZ FORCE: the heavy love's momentum turns at 0.9955 of the rule's 2 q^3 beta / M (0.003318 against 0.003333 a beat) over 2,000 beats and 30 crossings, in the sense e v x B gives, with Gauss exact and the last 50 beats reversing to 0 mismatches. The turn is taken one crossing at a time from the plaquette the crossing sweeps, so the magnetic force appears from the same threshold rule as the electric one. But energy is not kept: the kinetic energy grows 2.17-fold in 2,000 beats and the charge drifts 0.56 docks along z, the created hop energy and forward self-impulse of E-FRC-0215 acting on the orbit. THE LANDAU GATE WAS NOT REGISTERED (disclosed in the header): this charge has a frequency, not levels, and its band is Galilean, so it circles at the continuum frequency (0.9955), where the fear walk's exact spacings sit at 0.77 to 0.91 of the continuum from its own band (E-FRC-0182). Landau levels need the walk's band and its amplitudes, which a classical trit charge does not carry. A, THE ATOM, FAILS: set on a circular orbit 4 docks apart (v = 0.01, predicted period 1,257 beats), the love and fear come apart: separation 4.0 to 1,172.6 docks over two periods, 2,248 crossings, the separation turning at 0.037 of the orbital rate, the light's energy 9,965 times its start and the kinetic energy 3,500 times. Ten times heavier (period 3,974): 4.0 to 228.9 docks over one period, 310 crossings, light 1,140 times its start. THE REASON, measured in E-FRC-0215: each crossing creates about 0.021 of transverse light energy at D = 32, against a binding of 1 / (24 D r) = 0.0003 at r = 4 (the ratio is about 16 r at any depth), and it gives the charge a forward self-impulse of about 0.6 q^3, comparable to the orbit's whole momentum (0.8 q^3 here). A classical point charge that moves by whole-unit crossings cannot hold an orbit on this light. What the pieces need for an atom: a charge whose crossings are spread so the transverse energy of each is small against the binding (a charge spread over many docks, which is what the quantum wave of the stand-in hydrogen is, a = 150 to 890 docks at the depth-set coupling, E-FRC-0211), or quantum matter whose amplitudes, not whole units, carry the current.",
     })
   },
 })

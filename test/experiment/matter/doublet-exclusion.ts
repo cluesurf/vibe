@@ -92,7 +92,24 @@ import {
 
 const SIDE = 3
 const XYZ: readonly TokenStep[] = ['x', 'y', 'z']
-const NESTED: readonly TokenStep[] = ['z', 'up', 'down', 'x', 'up', 'down', 'y', 'up', 'down', 'y', 'up', 'down', 'x', 'up', 'down', 'z']
+const NESTED: readonly TokenStep[] = [
+  'z',
+  'up',
+  'down',
+  'x',
+  'up',
+  'down',
+  'y',
+  'up',
+  'down',
+  'y',
+  'up',
+  'down',
+  'x',
+  'up',
+  'down',
+  'z',
+]
 const CLOSURE = 1e-8
 const COMMUTES = 1e-12
 const BIG_SIDE = 4
@@ -101,9 +118,18 @@ const BIG_BLOCKS: readonly (readonly [number, number, number])[] = [
   [1, 2, 3],
 ]
 
-type Scan = { mode: TokenMode; reading: ExclusionReading; blocks: KeptSpace[] }
+type Scan = {
+  mode: TokenMode
+  reading: ExclusionReading
+  blocks: KeptSpace[]
+}
 
-function scan(mode: TokenMode, reading: ExclusionReading, side: number, blocks?: readonly (readonly [number, number, number])[]): Scan {
+function scan(
+  mode: TokenMode,
+  reading: ExclusionReading,
+  side: number,
+  blocks?: readonly (readonly [number, number, number])[],
+): Scan {
   const substeps = tokenSubsteps(XYZ, mode, reading)
   const n = mode === 'walk' ? 2 : 4
   const ks: (readonly [number, number, number])[] = []
@@ -120,15 +146,28 @@ function scan(mode: TokenMode, reading: ExclusionReading, side: number, blocks?:
     }
   }
 
-  return { mode, reading, blocks: ks.map(k => keptSpace({ side, n, k: [k[0], k[1], k[2]], substeps })) }
+  return {
+    mode,
+    reading,
+    blocks: ks.map(k =>
+      keptSpace({ side, n, k: [k[0], k[1], k[2]], substeps }),
+    ),
+  }
 }
 
-const sum = (s: Scan, f: (b: KeptSpace) => number): number => s.blocks.reduce((a, b) => a + f(b), 0)
+const sum = (s: Scan, f: (b: KeptSpace) => number): number =>
+  s.blocks.reduce((a, b) => a + f(b), 0)
 // the symmetric sector's dimension in a block
-const symmetricDimension = (b: KeptSpace): number => b.sector.dimension - b.antisymmetric
-const antisymmetricKept = (s: Scan): boolean => s.blocks.every(b => b.antisymmetricRemoved === 0)
-const symmetricCut = (s: Scan): boolean => s.blocks.every(b => b.symmetricKept < symmetricDimension(b))
-const sound = (s: Scan): boolean => s.blocks.every(b => b.closureResidual < CLOSURE && b.exchangeCommutes < COMMUTES)
+const symmetricDimension = (b: KeptSpace): number =>
+  b.sector.dimension - b.antisymmetric
+const antisymmetricKept = (s: Scan): boolean =>
+  s.blocks.every(b => b.antisymmetricRemoved === 0)
+const symmetricCut = (s: Scan): boolean =>
+  s.blocks.every(b => b.symmetricKept < symmetricDimension(b))
+const sound = (s: Scan): boolean =>
+  s.blocks.every(
+    b => b.closureResidual < CLOSURE && b.exchangeCommutes < COMMUTES,
+  )
 
 // the singlet of the label in one k = 0 orbital, the slot in the coin eigenvector tau_x = sign
 function singletPair(sign: 1 | -1): Vector {
@@ -140,9 +179,15 @@ function singletPair(sign: 1 | -1): Vector {
     for (let j = 0; j < 4; j++) {
       const si = i % 2
       const sj = j % 2
-      const label = si === 0 && sj === 1 ? Math.SQRT1_2 : si === 1 && sj === 0 ? -Math.SQRT1_2 : 0
+      const label =
+        si === 0 && sj === 1
+          ? Math.SQRT1_2
+          : si === 1 && sj === 0
+            ? -Math.SQRT1_2
+            : 0
 
-      re[i * 4 + j] = (slot[Math.floor(i / 2)] as number) * (slot[Math.floor(j / 2)] as number) * label
+      re[i * 4 + j] =
+        slot[Math.floor(i / 2)]! * slot[Math.floor(j / 2)]! * label
     }
   }
 
@@ -165,46 +210,98 @@ export default experiment({
     const spectator = scan('spectator', 'slot', SIDE)
     const spectatorComponent = scan('spectator', 'component', SIDE)
     const big = scan('locked', 'slot', BIG_SIDE, BIG_BLOCKS)
-    const scans = [walk, locked, pauli, spectator, spectatorComponent, big]
+    const scans = [
+      walk,
+      locked,
+      pauli,
+      spectator,
+      spectatorComponent,
+      big,
+    ]
     const void_ = !scans.every(sound)
     const nested = tokenSubsteps(NESTED, 'locked', 'slot')
-    const plus = contactWeight({ substeps: nested, pair: singletPair(1) })
-    const minus = contactWeight({ substeps: nested, pair: singletPair(-1) })
+    const plus = contactWeight({
+      substeps: nested,
+      pair: singletPair(1),
+    })
+    const minus = contactWeight({
+      substeps: nested,
+      pair: singletPair(-1),
+    })
     const nestedComponent = tokenSubsteps(NESTED, 'locked', 'component')
-    const plusComponent = contactWeight({ substeps: nestedComponent, pair: singletPair(1) })
+    const plusComponent = contactWeight({
+      substeps: nestedComponent,
+      pair: singletPair(1),
+    })
     const labels = [1, 2, 3].map(k => antisymmetricLabels(2, k))
     const roles = [1, 2, 3, 4].map(k => antisymmetricLabels(3, k))
 
     const g1 = antisymmetricKept(walk) && symmetricCut(walk)
     const g2 = antisymmetricKept(locked) && symmetricCut(locked)
     const g3 = antisymmetricKept(pauli)
-    const g4 = plus.total === 0 && minus.total === 0 && labels.join(',') === '2,1,0'
-    const status = void_ ? 'fail' : g1 && g2 && g3 && g4 ? 'pass' : !g2 ? 'fail' : 'partial'
+    const g4 =
+      plus.total === 0 &&
+      minus.total === 0 &&
+      labels.join(',') === '2,1,0'
+    const status = void_
+      ? 'fail'
+      : g1 && g2 && g3 && g4
+        ? 'pass'
+        : !g2
+          ? 'fail'
+          : 'partial'
     const metrics: Record<string, number> = {}
 
     for (const s of scans) {
-      const name = s === big ? 'lockedSlotSide4' : `${s.mode}${s.reading === 'slot' ? 'Slot' : 'Component'}`
+      const name =
+        s === big
+          ? 'lockedSlotSide4'
+          : `${s.mode}${s.reading === 'slot' ? 'Slot' : 'Component'}`
 
       metrics[`${name}Dimension`] = sum(s, b => b.sector.dimension)
       metrics[`${name}Kept`] = sum(s, b => b.kept)
       metrics[`${name}Antisymmetric`] = sum(s, b => b.antisymmetric)
-      metrics[`${name}AntisymmetricRemoved`] = sum(s, b => b.antisymmetricRemoved)
+      metrics[`${name}AntisymmetricRemoved`] = sum(
+        s,
+        b => b.antisymmetricRemoved,
+      )
       metrics[`${name}Symmetric`] = sum(s, symmetricDimension)
       metrics[`${name}SymmetricKept`] = sum(s, b => b.symmetricKept)
-      metrics[`${name}BlocksWithAntisymmetricRemoved`] = s.blocks.filter(b => b.antisymmetricRemoved > 0).length
-      metrics[`${name}WorstClosure`] = Math.max(...s.blocks.map(b => b.closureResidual))
-      metrics[`${name}WorstExchangeCommutator`] = Math.max(...s.blocks.map(b => b.exchangeCommutes))
-      metrics[`${name}K0AntisymmetricRemoved`] = s.blocks[0]?.antisymmetricRemoved ?? -1
-      metrics[`${name}K0SymmetricKept`] = s.blocks[0]?.symmetricKept ?? -1
-      metrics[`${name}SmallestAcceptedResidual`] = Math.min(...s.blocks.map(b => b.smallestAccepted))
-      metrics[`${name}LargestRejectedResidual`] = Math.max(...s.blocks.map(b => b.largestRejected))
+      metrics[`${name}BlocksWithAntisymmetricRemoved`] =
+        s.blocks.filter(b => b.antisymmetricRemoved > 0).length
+
+      metrics[`${name}WorstClosure`] = Math.max(
+        ...s.blocks.map(b => b.closureResidual),
+      )
+
+      metrics[`${name}WorstExchangeCommutator`] = Math.max(
+        ...s.blocks.map(b => b.exchangeCommutes),
+      )
+
+      metrics[`${name}K0AntisymmetricRemoved`] =
+        s.blocks[0]?.antisymmetricRemoved ?? -1
+
+      metrics[`${name}K0SymmetricKept`] =
+        s.blocks[0]?.symmetricKept ?? -1
+
+      metrics[`${name}SmallestAcceptedResidual`] = Math.min(
+        ...s.blocks.map(b => b.smallestAccepted),
+      )
+
+      metrics[`${name}LargestRejectedResidual`] = Math.max(
+        ...s.blocks.map(b => b.largestRejected),
+      )
     }
 
-    plus.perSubstep.forEach((c, i) => (metrics[`orbitalPlusContactSubstep${i + 1}`] = c))
+    plus.perSubstep.forEach(
+      (c, i) => (metrics[`orbitalPlusContactSubstep${i + 1}`] = c),
+    )
     metrics.orbitalPlusContactPerPeriod = plus.total
     metrics.orbitalMinusContactPerPeriod = minus.total
     metrics.orbitalPlusContactComponentReading = plusComponent.total
-    labels.forEach((v, i) => (metrics[`doubletAntisymmetricK${i + 1}`] = v))
+    labels.forEach(
+      (v, i) => (metrics[`doubletAntisymmetricK${i + 1}`] = v),
+    )
     roles.forEach((v, i) => (metrics[`roleAntisymmetricK${i + 1}`] = v))
     metrics.gateCalibration = g1 ? 1 : 0
     metrics.gateHypothesis = g2 ? 1 : 0
@@ -216,13 +313,25 @@ export default experiment({
 
     return verdict({
       status,
-      claim: `two stand-in electrons under the slot's exclusion, no exchange symmetry put in: the bare fear walk keeps its whole antisymmetric sector and cuts the symmetric one (${g1 ? 'as E-SPN-0047' : 'NOT as E-SPN-0047'}); the moving doublet (locked), with one vibe per slot whatever its label, ${g2 ? 'does the same, so the slot supplies Pauli\'s sign' : `removes ${removed} of ${anti} antisymmetric directions on L = 3, so the slot is harder than Pauli's exclusion: two tokens may not share a link direction even with opposite labels`}; with each label component its own slot the antisymmetric sector is ${g3 ? 'whole' : 'NOT whole'} (the control); a singlet pair in one k = 0 orbital puts ${plus.total.toFixed(4)} of its contact weight per period on a forbidden slot (${plusComponent.total.toFixed(4)} under the component reading), and the doublet's antisymmetric counts are ${labels.join(', ')}, so at most two per orbital`,
+      claim: `two stand-in electrons under the slot's exclusion, no exchange symmetry put in: the bare fear walk keeps its whole antisymmetric sector and cuts the symmetric one (${g1 ? 'as E-SPN-0047' : 'NOT as E-SPN-0047'}); the moving doublet (locked), with one vibe per slot whatever its label, ${g2 ? "does the same, so the slot supplies Pauli's sign" : `removes ${removed} of ${anti} antisymmetric directions on L = 3, so the slot is harder than Pauli's exclusion: two tokens may not share a link direction even with opposite labels`}; with each label component its own slot the antisymmetric sector is ${g3 ? 'whole' : 'NOT whole'} (the control); a singlet pair in one k = 0 orbital puts ${plus.total.toFixed(4)} of its contact weight per period on a forbidden slot (${plusComponent.total.toFixed(4)} under the component reading), and the doublet's antisymmetric counts are ${labels.join(', ')}, so at most two per orbital`,
       metrics,
       control: {
-        pauliReadingAntisymmetricRemoved: sum(pauli, b => b.antisymmetricRemoved),
-        spectatorSlotAntisymmetricRemoved: sum(spectator, b => b.antisymmetricRemoved),
-        spectatorComponentAntisymmetricRemoved: sum(spectatorComponent, b => b.antisymmetricRemoved),
-        walkAntisymmetricRemoved: sum(walk, b => b.antisymmetricRemoved),
+        pauliReadingAntisymmetricRemoved: sum(
+          pauli,
+          b => b.antisymmetricRemoved,
+        ),
+        spectatorSlotAntisymmetricRemoved: sum(
+          spectator,
+          b => b.antisymmetricRemoved,
+        ),
+        spectatorComponentAntisymmetricRemoved: sum(
+          spectatorComponent,
+          b => b.antisymmetricRemoved,
+        ),
+        walkAntisymmetricRemoved: sum(
+          walk,
+          b => b.antisymmetricRemoved,
+        ),
       },
       notes: `L2, stand-ins (the spinor token of code/rule/spinor-token on the husk torus; its label is the role's doublet by E-SPN-0066). Exact linear algebra over every total-momentum block of L = 3 (dimension ${sum(locked, b => b.sector.dimension)} for the token, ${sum(walk, b => b.sector.dimension)} for the walk), floating rounding only; the exchange is read after the kept space is found, never imposed. The label count C(2, k) is algebra (L1). The contact weight is the forbidden weight of a pair's internal state, summed over the checked substeps of one period of the nested g = 2 schedule (its depth steps are not checked: a husk shadow does not tell depths apart). The component reading is a choice of basis, stated as one; it is the control, not the model.`,
     })

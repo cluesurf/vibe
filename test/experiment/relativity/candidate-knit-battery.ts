@@ -80,7 +80,11 @@ import {
   type CandidateDressing,
   type QuantumRun,
 } from '@/code/measure/candidate-battery'
-import { fullState, goldenFill, kernelAgreement } from '@/code/measure/candidate-kernel'
+import {
+  fullState,
+  goldenFill,
+  kernelAgreement,
+} from '@/code/measure/candidate-kernel'
 import { storeStart } from '@/code/measure/token-store-gates'
 
 // ---- the reference: E-FRC-0159 rerun 2026-09-26 (comoving beat, exact kernels), tmp/adopt-after.jsonl ----
@@ -135,8 +139,14 @@ const QUANTUM_GATES = [
   'interferenceBeyondStandIn',
   'chshAbove2',
 ] as const
-const passAll = (names: readonly string[]): Record<string, boolean> => Object.fromEntries(names.map(n => [n, true]))
-const H_GATES: Record<string, boolean> = { ...passAll(CLASSICAL_GATES), fearDressingSide9: false, fearDressingSide11: false, ...passAll(QUANTUM_GATES) }
+const passAll = (names: readonly string[]): Record<string, boolean> =>
+  Object.fromEntries(names.map(n => [n, true]))
+const H_GATES: Record<string, boolean> = {
+  ...passAll(CLASSICAL_GATES),
+  fearDressingSide9: false,
+  fearDressingSide11: false,
+  ...passAll(QUANTUM_GATES),
+}
 const HF_GATES: Record<string, boolean> = {
   ...passAll(CLASSICAL_GATES),
   vacuumPeriodic: false,
@@ -164,9 +174,17 @@ const H_NUMBERS: Record<string, number> = {
   generationPlanesSplit: 16,
 }
 
-const noMore = (xs: readonly number[], ref: readonly number[]): boolean => xs.every((x, p) => x <= (ref[p] ?? 0))
+const noMore = (
+  xs: readonly number[],
+  ref: readonly number[],
+): boolean => xs.every((x, p) => x <= (ref[p] ?? 0))
 
-type Classical = { gates: Record<string, boolean>; numbers: Record<string, number>; love9: CandidateDressing; fear9: CandidateDressing }
+type Classical = {
+  gates: Record<string, boolean>
+  numbers: Record<string, number>
+  love9: CandidateDressing
+  fear9: CandidateDressing
+}
 
 function classicalOn(tau: number): Classical {
   const rc = reversalAndCharge(tau)
@@ -176,7 +194,8 @@ function classicalOn(tau: number): Classical {
   const dense = lineComponents(tau, true)
   const additivity = additivityWorst(tau)
   const wall = walls(tau)
-  const side = (s: number, tone: number): CandidateDressing => dressing(tau, s, tone)
+  const side = (s: number, tone: number): CandidateDressing =>
+    dressing(tau, s, tone)
   const love9 = side(9, 1)
   const fear9 = side(9, -1)
   const love7 = side(7, 1)
@@ -198,8 +217,14 @@ function classicalOn(tau: number): Classical {
     fearDressingSide9: noMore(fear9.periodLargest, COMMITTED.side9Fear),
     loveDressingSide7: noMore(love7.periodLargest, COMMITTED.side7Love),
     fearDressingSide7: noMore(fear7.periodLargest, COMMITTED.side7Fear),
-    loveDressingSide11: noMore(love11.periodLargest, COMMITTED.side11Love),
-    fearDressingSide11: noMore(fear11.periodLargest, COMMITTED.side11Fear),
+    loveDressingSide11: noMore(
+      love11.periodLargest,
+      COMMITTED.side11Love,
+    ),
+    fearDressingSide11: noMore(
+      fear11.periodLargest,
+      COMMITTED.side11Fear,
+    ),
     boxReverses: box.boxReverses === 1,
     boxChargeKept: box.boxChargeKept === 1,
     noColorLeak: box.boxColorLeaks === 0,
@@ -207,7 +232,11 @@ function classicalOn(tau: number): Classical {
     momentumKept: box.pDrift === 0,
     lineMomentaExchanged: (box.lineMomentumDrift ?? 0) > 0,
   }
-  const periods = (prefix: string, xs: readonly number[]): Record<string, number> => Object.fromEntries(xs.map((x, p) => [`${prefix}Period${p + 1}`, x]))
+  const periods = (
+    prefix: string,
+    xs: readonly number[],
+  ): Record<string, number> =>
+    Object.fromEntries(xs.map((x, p) => [`${prefix}Period${p + 1}`, x]))
 
   return {
     gates,
@@ -244,20 +273,52 @@ function classicalOn(tau: number): Classical {
 }
 
 // the readings E-RLT-0073 cites, computed once per process
-let cached: { status: string; metrics: Record<string, number>; newlyFailing: string[]; newlyPassing: string[]; unevaluable: string[] } | undefined
+let cached:
+  | {
+      status: string
+      metrics: Record<string, number>
+      newlyFailing: string[]
+      newlyPassing: string[]
+      unevaluable: string[]
+    }
+  | undefined
 
-export function candidateBattery(): { status: string; claim: string; metrics: Record<string, number>; control: Record<string, number>; notes: string; newlyFailing: string[]; newlyPassing: string[]; unevaluable: string[] } {
+export function candidateBattery(): {
+  status: string
+  claim: string
+  metrics: Record<string, number>
+  control: Record<string, number>
+  notes: string
+  newlyFailing: string[]
+  newlyPassing: string[]
+  unevaluable: string[]
+} {
   const started = Date.now()
-  const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+  const log = (what: string): void =>
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
 
   // X0
   const w3 = weaveOf(3)
   const slots3 = w3.mesh.cellCount * 24
   const agreements = [
-    ...[1, 0, -1].map(tau => kernelAgreement({ weave: w3, start: fullState({ ...goldenFill(slots3, 1.37), tau }), beats: 48 })),
-    kernelAgreement({ weave: w3, start: storeStart(w3.mesh.cellCount, 11), beats: 48 }),
+    ...[1, 0, -1].map(tau =>
+      kernelAgreement({
+        weave: w3,
+        start: fullState({ ...goldenFill(slots3, 1.37), tau }),
+        beats: 48,
+      }),
+    ),
+    kernelAgreement({
+      weave: w3,
+      start: storeStart(w3.mesh.cellCount, 11),
+      beats: 48,
+    }),
   ]
-  const x0 = agreements.every(a => a.mismatches === 0) && agreements.every(a => a.vetoed > 0)
+  const x0 =
+    agreements.every(a => a.mismatches === 0) &&
+    agreements.every(a => a.vetoed > 0)
 
   log('x0')
 
@@ -269,7 +330,10 @@ export function candidateBattery(): { status: string; claim: string; metrics: Re
 
   log('classical cold')
 
-  const runs: Record<string, QuantumRun> = { on: quantum(1, 'on'), off: quantum(1, 'off') }
+  const runs: Record<string, QuantumRun> = {
+    on: quantum(1, 'on'),
+    off: quantum(1, 'off'),
+  }
 
   log('quantum')
 
@@ -281,18 +345,42 @@ export function candidateBattery(): { status: string; claim: string; metrics: Re
 
   log('readings')
 
-  const x1 = (runs.on?.metrics.controlsHold ?? 0) === 1 && (runs.off?.metrics.controlsHold ?? 0) === 1
-  const candidateGates: Record<string, boolean> = { ...hot.gates, ...(runs.on?.gates ?? {}) }
-  const newlyFailing = Object.keys(H_GATES).filter(g => H_GATES[g] && !candidateGates[g])
-  const newlyPassing = Object.keys(H_GATES).filter(g => !H_GATES[g] && candidateGates[g])
-  const newlyFailingVsHF = Object.keys(HF_GATES).filter(g => HF_GATES[g] && !candidateGates[g])
-  const quantumFailing = QUANTUM_GATES.filter(g => !(runs.on?.gates[g] ?? false))
-  const failsOnlyOn = QUANTUM_GATES.filter(g => (runs.off?.gates[g] ?? false) && !(runs.on?.gates[g] ?? false))
+  const x1 =
+    (runs.on?.metrics.controlsHold ?? 0) === 1 &&
+    (runs.off?.metrics.controlsHold ?? 0) === 1
+  const candidateGates: Record<string, boolean> = {
+    ...hot.gates,
+    ...(runs.on?.gates ?? {}),
+  }
+  const newlyFailing = Object.keys(H_GATES).filter(
+    g => H_GATES[g] && !candidateGates[g],
+  )
+  const newlyPassing = Object.keys(H_GATES).filter(
+    g => !H_GATES[g] && candidateGates[g],
+  )
+  const newlyFailingVsHF = Object.keys(HF_GATES).filter(
+    g => HF_GATES[g] && !candidateGates[g],
+  )
+  const quantumFailing = QUANTUM_GATES.filter(
+    g => !(runs.on?.gates[g] ?? false),
+  )
+  const failsOnlyOn = QUANTUM_GATES.filter(
+    g => (runs.off?.gates[g] ?? false) && !(runs.on?.gates[g] ?? false),
+  )
   const unevaluable = runs.on?.unevaluable ?? []
-  const condition = newlyFailing.length === 0 && quantumFailing.length === 0
+  const condition =
+    newlyFailing.length === 0 && quantumFailing.length === 0
   const status = x0 && x1 ? (condition ? 'pass' : 'fail') : 'partial'
-  const flatten = (prefix: string, record: Record<string, number | boolean>): Record<string, number> =>
-    Object.fromEntries(Object.entries(record).map(([k, v]) => [`${prefix}_${k}`, typeof v === 'boolean' ? (v ? 1 : 0) : v]))
+  const flatten = (
+    prefix: string,
+    record: Record<string, number | boolean>,
+  ): Record<string, number> =>
+    Object.fromEntries(
+      Object.entries(record).map(([k, v]) => [
+        `${prefix}_${k}`,
+        typeof v === 'boolean' ? (v ? 1 : 0) : v,
+      ]),
+    )
   const metrics: Record<string, number> = {
     worksWithEverything: condition ? 1 : 0,
     newlyFailingVsH: newlyFailing.length,
@@ -301,7 +389,10 @@ export function candidateBattery(): { status: string; claim: string; metrics: Re
     quantumGatesFailingOn: quantumFailing.length,
     quantumUnevaluable: unevaluable.length,
     failsOnlyWithFearOn: failsOnlyOn.length,
-    kernelMismatchBeats: agreements.reduce((s, a) => s + a.mismatches, 0),
+    kernelMismatchBeats: agreements.reduce(
+      (s, a) => s + a.mismatches,
+      0,
+    ),
     kernelVetoes: agreements.reduce((s, a) => s + a.vetoed, 0),
     ...flatten('hot_gate', hot.gates),
     ...flatten('hot', hot.numbers),
@@ -326,7 +417,9 @@ export function candidateBattery(): { status: string; claim: string; metrics: Re
     seconds: (Date.now() - started) / 1000,
   }
   const control: Record<string, number> = {
-    ...Object.fromEntries(Object.entries(H_NUMBERS).map(([k, v]) => [`H_${k}`, v])),
+    ...Object.fromEntries(
+      Object.entries(H_NUMBERS).map(([k, v]) => [`H_${k}`, v]),
+    ),
     ...flatten('H_gate', H_GATES),
     committedSide9LovePeriod1: COMMITTED.side9Love[0] ?? 0,
     committedTravelFullSpeed: COMMITTED.travelFullSpeed,
@@ -335,7 +428,8 @@ export function candidateBattery(): { status: string; claim: string; metrics: Re
   cached = { status, metrics, newlyFailing, newlyPassing, unevaluable }
 
   const m = metrics
-  const list = (xs: readonly string[]): string => (xs.length > 0 ? xs.join(', ') : 'none')
+  const list = (xs: readonly string[]): string =>
+    xs.length > 0 ? xs.join(', ') : 'none'
 
   return {
     status,
@@ -349,7 +443,13 @@ export function candidateBattery(): { status: string; claim: string; metrics: Re
   }
 }
 
-export function candidateBatteryCached(): { status: string; metrics: Record<string, number>; newlyFailing: string[]; newlyPassing: string[]; unevaluable: string[] } {
+export function candidateBatteryCached(): {
+  status: string
+  metrics: Record<string, number>
+  newlyFailing: string[]
+  newlyPassing: string[]
+  unevaluable: string[]
+} {
   return cached ?? candidateBattery()
 }
 
@@ -365,6 +465,12 @@ export default experiment({
   run() {
     const r = candidateBattery()
 
-    return verdict({ status: r.status as 'pass' | 'fail' | 'partial', claim: r.claim, metrics: r.metrics, control: r.control, notes: r.notes })
+    return verdict({
+      status: r.status as 'pass' | 'fail' | 'partial',
+      claim: r.claim,
+      metrics: r.metrics,
+      control: r.control,
+      notes: r.notes,
+    })
   },
 })

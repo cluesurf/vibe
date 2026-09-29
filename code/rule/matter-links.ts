@@ -92,7 +92,12 @@ export type MatterState = {
 }
 
 // link moves, link moves that changed the matter term on their link, role moves, hops
-export type MoveCount = { links: number; felt: number; roles: number; hops: number }
+export type MoveCount = {
+  links: number
+  felt: number
+  roles: number
+  hops: number
+}
 
 const mod3 = (x: number): number => ((x % 3) + 3) % 3
 
@@ -115,10 +120,15 @@ export function makeMatterLinks(input: {
     }
   }
 
-  const opposite = Array.from({ length: DEGREE }, (_, d) => mesh.opposite(d))
-  const firsts = opposite.map((o, d) => (d < o ? d : -1)).filter(d => d >= 0)
+  const opposite = Array.from({ length: DEGREE }, (_, d) =>
+    mesh.opposite(d),
+  )
+  const firsts = opposite
+    .map((o, d) => (d < o ? d : -1))
+    .filter(d => d >= 0)
   const roots = rootsD4()
-  const find = (v: number[]): number => roots.findIndex(r => r.every((x, k) => x === v[k]))
+  const find = (v: number[]): number =>
+    roots.findIndex(r => r.every((x, k) => x === v[k]))
   const staples = roots.map(a =>
     roots.flatMap((b, j) => {
       const c = find(a.map((x, k) => -x - (b[k] ?? 0)))
@@ -131,7 +141,9 @@ export function makeMatterLinks(input: {
   const order = moves.act.length
   const act = new Int8Array(order * 9)
   const compose = new Int16Array(order * order)
-  const index = new Map(moves.act.map((table, g) => [table.join(''), g]))
+  const index = new Map(
+    moves.act.map((table, g) => [table.join(''), g]),
+  )
 
   moves.act.forEach((table, g) => act.set(table, g * 9))
 
@@ -148,7 +160,15 @@ export function makeMatterLinks(input: {
   }
 
   const inverse = Int16Array.from(moves.inverse)
-  const level = Int8Array.from(moves.act, table => 9 - table.reduce((n, image, point) => n + (image === point ? 1 : 0), 0))
+  const level = Int8Array.from(
+    moves.act,
+    table =>
+      9 -
+      table.reduce(
+        (n, image, point) => n + (image === point ? 1 : 0),
+        0,
+      ),
+  )
 
   return {
     side: input.side,
@@ -173,7 +193,10 @@ export function makeMatterLinks(input: {
 }
 
 // the hashed link field of the vibe weave: a fixed, frame-generic start
-export function hashedLinks(rule: MatterLinks, scale = 7.31): Int16Array {
+export function hashedLinks(
+  rule: MatterLinks,
+  scale = 7.31,
+): Int16Array {
   const links = new Int16Array(rule.cells * DEGREE).fill(-1)
 
   for (let x = 0; x < rule.cells; x++) {
@@ -182,10 +205,15 @@ export function hashedLinks(rule: MatterLinks, scale = 7.31): Int16Array {
         continue
       }
 
-      const g = Math.floor((((x * DEGREE + d + 1) * GOLDEN * scale) % 1) * rule.order)
+      const g = Math.floor(
+        (((x * DEGREE + d + 1) * GOLDEN * scale) % 1) * rule.order,
+      )
 
       links[x * DEGREE + d] = g
-      links[(rule.neighbour[x * DEGREE + d] ?? 0) * DEGREE + (rule.opposite[d] ?? d)] = rule.inverse[g] ?? rule.identity
+      links[
+        (rule.neighbour[x * DEGREE + d] ?? 0) * DEGREE +
+          (rule.opposite[d] ?? d)
+      ] = rule.inverse[g] ?? rule.identity
     }
   }
 
@@ -196,13 +224,28 @@ export function coldLinks(rule: MatterLinks): Int16Array {
   return new Int16Array(rule.cells * DEGREE).fill(rule.identity)
 }
 
-function setLink(rule: MatterLinks, links: Int16Array, x: number, d: number, g: number): void {
+function setLink(
+  rule: MatterLinks,
+  links: Int16Array,
+  x: number,
+  d: number,
+  g: number,
+): void {
   links[x * DEGREE + d] = g
-  links[(rule.neighbour[x * DEGREE + d] ?? 0) * DEGREE + (rule.opposite[d] ?? d)] = rule.inverse[g] ?? rule.identity
+  links[
+    (rule.neighbour[x * DEGREE + d] ?? 0) * DEGREE +
+      (rule.opposite[d] ?? d)
+  ] = rule.inverse[g] ?? rule.identity
 }
 
 // the summed level of the 8 triangles through the link (x, a), with u in its place
-function triangleEnergy(rule: MatterLinks, links: Int16Array, x: number, a: number, u: number): number {
+function triangleEnergy(
+  rule: MatterLinks,
+  links: Int16Array,
+  x: number,
+  a: number,
+  u: number,
+): number {
   const { neighbour, compose, level, order } = rule
   const y = neighbour[x * DEGREE + a] ?? 0
 
@@ -213,14 +256,23 @@ function triangleEnergy(rule: MatterLinks, links: Int16Array, x: number, a: numb
     const gb = links[y * DEGREE + b] ?? 0
     const gc = links[z * DEGREE + c] ?? 0
 
-    total += level[compose[gc * order + (compose[gb * order + u] ?? 0)] ?? 0] ?? 0
+    total +=
+      level[
+        compose[gc * order + (compose[gb * order + u] ?? 0)] ?? 0
+      ] ?? 0
   }
 
   return total
 }
 
 // the matter term on the link (x, d) with u in its place
-function linkMatter(rule: MatterLinks, state: MatterState, x: number, d: number, u: number): number {
+function linkMatter(
+  rule: MatterLinks,
+  state: MatterState,
+  x: number,
+  d: number,
+  u: number,
+): number {
   const y = rule.neighbour[x * DEGREE + d] ?? 0
 
   if (state.vibe[x] === 0 || state.vibe[y] === 0) {
@@ -234,7 +286,11 @@ function linkMatter(rule: MatterLinks, state: MatterState, x: number, d: number,
 }
 
 // the matter term on every link at cell x
-export function cellMatter(rule: MatterLinks, state: MatterState, x: number): number {
+export function cellMatter(
+  rule: MatterLinks,
+  state: MatterState,
+  x: number,
+): number {
   if (state.vibe[x] === 0) {
     return 0
   }
@@ -242,7 +298,13 @@ export function cellMatter(rule: MatterLinks, state: MatterState, x: number): nu
   let total = 0
 
   for (let d = 0; d < DEGREE; d++) {
-    total += linkMatter(rule, state, x, d, state.links[x * DEGREE + d] ?? 0)
+    total += linkMatter(
+      rule,
+      state,
+      x,
+      d,
+      state.links[x * DEGREE + d] ?? 0,
+    )
   }
 
   return total
@@ -252,11 +314,18 @@ export function cellMatter(rule: MatterLinks, state: MatterState, x: number): nu
 function demonSlot(rule: MatterLinks, x: number, d: number): number {
   const o = rule.opposite[d] ?? d
 
-  return d < o ? x * DEGREE + d : (rule.neighbour[x * DEGREE + d] ?? 0) * DEGREE + o
+  return d < o
+    ? x * DEGREE + d
+    : (rule.neighbour[x * DEGREE + d] ?? 0) * DEGREE + o
 }
 
 // pay `cost` from a demon, or refuse
-export function pay(rule: MatterLinks, state: MatterState, slot: number, cost: number): boolean {
+export function pay(
+  rule: MatterLinks,
+  state: MatterState,
+  slot: number,
+  cost: number,
+): boolean {
   const next = (state.demon[slot] ?? 0) - cost
 
   if (next < 0 || next > rule.capacity) {
@@ -270,7 +339,13 @@ export function pay(rule: MatterLinks, state: MatterState, slot: number, cost: n
 
 // reflect the link (x, a) through the staple of triangle `type`: an involution. Returns 0 when it does not
 // move, 1 when it moves, 2 when it moves and the matter term on it changes
-export function reflectLink(rule: MatterLinks, state: MatterState, x: number, a: number, type: number): number {
+export function reflectLink(
+  rule: MatterLinks,
+  state: MatterState,
+  x: number,
+  a: number,
+  type: number,
+): number {
   const { neighbour, compose, inverse, order } = rule
   const links = state.links
   const pairs = rule.staples[a] ?? []
@@ -278,18 +353,31 @@ export function reflectLink(rule: MatterLinks, state: MatterState, x: number, a:
   const u = links[x * DEGREE + a] ?? 0
   const y = neighbour[x * DEGREE + a] ?? 0
   const z = neighbour[y * DEGREE + b] ?? 0
-  const staple = compose[(links[z * DEGREE + c] ?? 0) * order + (links[y * DEGREE + b] ?? 0)] ?? 0
+  const staple =
+    compose[
+      (links[z * DEGREE + c] ?? 0) * order +
+        (links[y * DEGREE + b] ?? 0)
+    ] ?? 0
   const back = inverse[staple] ?? 0
-  const next = compose[back * order + (compose[(inverse[u] ?? 0) * order + back] ?? 0)] ?? 0
+  const next =
+    compose[
+      back * order + (compose[(inverse[u] ?? 0) * order + back] ?? 0)
+    ] ?? 0
 
   if (next === u) {
     return 0
   }
 
-  const gauge = triangleEnergy(rule, links, x, a, next) - triangleEnergy(rule, links, x, a, u)
-  const matter = linkMatter(rule, state, x, a, next) - linkMatter(rule, state, x, a, u)
+  const gauge =
+    triangleEnergy(rule, links, x, a, next) -
+    triangleEnergy(rule, links, x, a, u)
+  const matter =
+    linkMatter(rule, state, x, a, next) -
+    linkMatter(rule, state, x, a, u)
 
-  if (!pay(rule, state, x * DEGREE + a, gauge + (rule.feel ? matter : 0))) {
+  if (
+    !pay(rule, state, x * DEGREE + a, gauge + (rule.feel ? matter : 0))
+  ) {
     return 0
   }
 
@@ -299,7 +387,12 @@ export function reflectLink(rule: MatterLinks, state: MatterState, x: number, a:
 }
 
 // reflect the role point at x through its neighbor across d: p' = 2 q - p, q the neighbor's point brought over
-export function reflectRole(rule: MatterLinks, state: MatterState, x: number, d: number): boolean {
+export function reflectRole(
+  rule: MatterLinks,
+  state: MatterState,
+  x: number,
+  d: number,
+): boolean {
   const y = rule.neighbour[x * DEGREE + d] ?? 0
 
   if (state.vibe[x] === 0 || state.vibe[y] === 0 || x === y) {
@@ -307,9 +400,13 @@ export function reflectRole(rule: MatterLinks, state: MatterState, x: number, d:
   }
 
   const back = state.links[y * DEGREE + (rule.opposite[d] ?? d)] ?? 0
-  const q = rule.transport ? (rule.act[back * 9 + (state.role[y] ?? 0)] ?? 0) : (state.role[y] ?? 0)
+  const q = rule.transport
+    ? (rule.act[back * 9 + (state.role[y] ?? 0)] ?? 0)
+    : (state.role[y] ?? 0)
   const p = state.role[x] ?? 0
-  const next = mod3(2 * (q % 3) - (p % 3)) + 3 * mod3(2 * Math.floor(q / 3) - Math.floor(p / 3))
+  const next =
+    mod3(2 * (q % 3) - (p % 3)) +
+    3 * mod3(2 * Math.floor(q / 3) - Math.floor(p / 3))
 
   if (next === p) {
     return false
@@ -331,7 +428,12 @@ export function reflectRole(rule: MatterLinks, state: MatterState, x: number, d:
 }
 
 // a lone vibe crosses the link (x, a) with its role point carried: an involution
-function hopAcross(rule: MatterLinks, state: MatterState, x: number, a: number): boolean {
+function hopAcross(
+  rule: MatterLinks,
+  state: MatterState,
+  x: number,
+  a: number,
+): boolean {
   const y = rule.neighbour[x * DEGREE + a] ?? 0
   const vx = state.vibe[x] ?? 0
   const vy = state.vibe[y] ?? 0
@@ -340,7 +442,10 @@ function hopAcross(rule: MatterLinks, state: MatterState, x: number, a: number):
     return false
   }
 
-  const [from, to, via] = vx !== 0 ? [x, y, state.links[x * DEGREE + a] ?? 0] : [y, x, state.links[y * DEGREE + (rule.opposite[a] ?? a)] ?? 0]
+  const [from, to, via] =
+    vx !== 0
+      ? [x, y, state.links[x * DEGREE + a] ?? 0]
+      : [y, x, state.links[y * DEGREE + (rule.opposite[a] ?? a)] ?? 0]
   const before = cellMatter(rule, state, from)
   const v = state.vibe[from] ?? 0
   const p = state.role[from] ?? 0
@@ -373,7 +478,11 @@ function copy(state: MatterState): MatterState {
   }
 }
 
-export function streamDemons(rule: MatterLinks, demon: Int32Array, forward: boolean): void {
+export function streamDemons(
+  rule: MatterLinks,
+  demon: Int32Array,
+  forward: boolean,
+): void {
   const old = Int32Array.from(demon)
 
   for (let x = 0; x < rule.cells; x++) {
@@ -389,7 +498,11 @@ export function streamDemons(rule: MatterLinks, demon: Int32Array, forward: bool
   }
 }
 
-export function matterBeat(rule: MatterLinks, input: MatterState, t: number): { state: MatterState; moved: MoveCount } {
+export function matterBeat(
+  rule: MatterLinks,
+  input: MatterState,
+  t: number,
+): { state: MatterState; moved: MoveCount } {
   const state = copy(input)
   const moved: MoveCount = { links: 0, felt: 0, roles: 0, hops: 0 }
 
@@ -425,7 +538,11 @@ export function matterBeat(rule: MatterLinks, input: MatterState, t: number): { 
   return { state, moved }
 }
 
-export function matterBeatBack(rule: MatterLinks, input: MatterState, t: number): MatterState {
+export function matterBeatBack(
+  rule: MatterLinks,
+  input: MatterState,
+  t: number,
+): MatterState {
   const state = copy(input)
 
   streamDemons(rule, state.demon, false)
@@ -461,12 +578,21 @@ export function matterBeatBack(rule: MatterLinks, input: MatterState, t: number)
 }
 
 // the links' own energy: every triangle once
-export function fieldEnergy(rule: MatterLinks, links: Int16Array): number {
+export function fieldEnergy(
+  rule: MatterLinks,
+  links: Int16Array,
+): number {
   let total = 0
 
   for (let x = 0; x < rule.cells; x++) {
     for (const a of rule.firsts) {
-      total += triangleEnergy(rule, links, x, a, links[x * DEGREE + a] ?? 0)
+      total += triangleEnergy(
+        rule,
+        links,
+        x,
+        a,
+        links[x * DEGREE + a] ?? 0,
+      )
     }
   }
 
@@ -474,29 +600,54 @@ export function fieldEnergy(rule: MatterLinks, links: Int16Array): number {
 }
 
 // the matter term: every link once
-export function matterEnergy(rule: MatterLinks, state: MatterState): number {
+export function matterEnergy(
+  rule: MatterLinks,
+  state: MatterState,
+): number {
   let total = 0
 
   for (let x = 0; x < rule.cells; x++) {
     for (const a of rule.firsts) {
-      total += linkMatter(rule, state, x, a, state.links[x * DEGREE + a] ?? 0)
+      total += linkMatter(
+        rule,
+        state,
+        x,
+        a,
+        state.links[x * DEGREE + a] ?? 0,
+      )
     }
   }
 
   return total
 }
 
-export function totalEnergy(rule: MatterLinks, state: MatterState): number {
-  return fieldEnergy(rule, state.links) + matterEnergy(rule, state) + state.demon.reduce((a, b) => a + b, 0)
+export function totalEnergy(
+  rule: MatterLinks,
+  state: MatterState,
+): number {
+  return (
+    fieldEnergy(rule, state.links) +
+    matterEnergy(rule, state) +
+    state.demon.reduce((a, b) => a + b, 0)
+  )
 }
 
 // the mean level of the triangles through each cell's links, per cell: the field's energy density
-export function cellFieldLevel(rule: MatterLinks, links: Int16Array): Float64Array {
+export function cellFieldLevel(
+  rule: MatterLinks,
+  links: Int16Array,
+): Float64Array {
   const sum = new Float64Array(rule.cells)
 
   for (let x = 0; x < rule.cells; x++) {
     for (const a of rule.firsts) {
-      const e = triangleEnergy(rule, links, x, a, links[x * DEGREE + a] ?? 0)
+      const e = triangleEnergy(
+        rule,
+        links,
+        x,
+        a,
+        links[x * DEGREE + a] ?? 0,
+      )
       const y = rule.neighbour[x * DEGREE + a] ?? 0
 
       sum[x] = (sum[x] ?? 0) + e
@@ -509,7 +660,11 @@ export function cellFieldLevel(rule: MatterLinks, links: Int16Array): Float64Arr
 }
 
 // a change of role frame: h in every cell, links h_y U h_x^-1, a vibe's point h_x p, a calm cell's left at 0
-export function changeFrame(rule: MatterLinks, state: MatterState, frame: ArrayLike<number>): MatterState {
+export function changeFrame(
+  rule: MatterLinks,
+  state: MatterState,
+  frame: ArrayLike<number>,
+): MatterState {
   const { compose, inverse, order, act, neighbour } = rule
   const links = new Int16Array(state.links.length)
 
@@ -518,24 +673,43 @@ export function changeFrame(rule: MatterLinks, state: MatterState, frame: ArrayL
       const hy = frame[neighbour[x * DEGREE + d] ?? 0] ?? 0
       const hx = inverse[frame[x] ?? 0] ?? 0
 
-      links[x * DEGREE + d] = compose[(compose[hy * order + (state.links[x * DEGREE + d] ?? 0)] ?? 0) * order + hx] ?? 0
+      links[x * DEGREE + d] =
+        compose[
+          (compose[hy * order + (state.links[x * DEGREE + d] ?? 0)] ??
+            0) *
+            order +
+            hx
+        ] ?? 0
     }
   }
 
-  const role = Int8Array.from(state.role, (p, x) => (state.vibe[x] !== 0 ? (act[(frame[x] ?? 0) * 9 + p] ?? 0) : 0))
+  const role = Int8Array.from(state.role, (p, x) =>
+    state.vibe[x] !== 0 ? (act[(frame[x] ?? 0) * 9 + p] ?? 0) : 0,
+  )
 
-  return { vibe: Int8Array.from(state.vibe), role, links, demon: Int32Array.from(state.demon) }
+  return {
+    vibe: Int8Array.from(state.vibe),
+    role,
+    links,
+    demon: Int32Array.from(state.demon),
+  }
 }
 
 // the transport round the closed line x, x+a, x+2a, ... back to x: the Polyakov product along a
-export function lineTransport(rule: MatterLinks, links: Int16Array, x: number, a: number): number {
+export function lineTransport(
+  rule: MatterLinks,
+  links: Int16Array,
+  x: number,
+  a: number,
+): number {
   const { compose, order, neighbour } = rule
 
   let product = rule.identity
   let current = x
 
   do {
-    product = compose[(links[current * DEGREE + a] ?? 0) * order + product] ?? 0
+    product =
+      compose[(links[current * DEGREE + a] ?? 0) * order + product] ?? 0
     current = neighbour[current * DEGREE + a] ?? 0
   } while (current !== x)
 
@@ -543,15 +717,31 @@ export function lineTransport(rule: MatterLinks, links: Int16Array, x: number, a
 }
 
 // the mean level of the 8 triangles through the link (x, a)
-export function linkLevel(rule: MatterLinks, links: Int16Array, x: number, a: number): number {
-  return triangleEnergy(rule, links, x, a, links[x * DEGREE + a] ?? 0) / 8
+export function linkLevel(
+  rule: MatterLinks,
+  links: Int16Array,
+  x: number,
+  a: number,
+): number {
+  return (
+    triangleEnergy(rule, links, x, a, links[x * DEGREE + a] ?? 0) / 8
+  )
 }
 
 // whether the link (x, d) carries the role point of x onto the role point of its neighbor
-export function carries(rule: MatterLinks, state: MatterState, x: number, d: number): boolean {
+export function carries(
+  rule: MatterLinks,
+  state: MatterState,
+  x: number,
+  d: number,
+): boolean {
   const y = rule.neighbour[x * DEGREE + d] ?? 0
 
-  return rule.act[(state.links[x * DEGREE + d] ?? 0) * 9 + (state.role[x] ?? 0)] === state.role[y]
+  return (
+    rule.act[
+      (state.links[x * DEGREE + d] ?? 0) * 9 + (state.role[x] ?? 0)
+    ] === state.role[y]
+  )
 }
 
 // how many grid points a move leaves in place: |Tr U|^2 of its Sigma(648) element (E-FRC-0119)

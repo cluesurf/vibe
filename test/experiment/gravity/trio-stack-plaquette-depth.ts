@@ -129,13 +129,52 @@ import { openMesh } from '@/code/rule/open-husk'
 import { stackFaces } from '@/code/rule/stack-plaquette'
 import { huskDistances } from '@/code/measure/plaquette-readings'
 import { bulkLinks, huskCast } from '@/code/measure/energy-lines'
-import { lineBasis, lineLightest, wholeBasis, type LineSector } from '@/code/measure/coined-line-bloch'
-import { axisRing, blochPacket, fitRing, levelPlacement, ringCenter } from '@/code/measure/held-cluster'
+import {
+  lineBasis,
+  lineLightest,
+  wholeBasis,
+  type LineSector,
+} from '@/code/measure/coined-line-bloch'
+import {
+  axisRing,
+  blochPacket,
+  fitRing,
+  levelPlacement,
+  ringCenter,
+} from '@/code/measure/held-cluster'
 import type { PieceOptions } from '@/code/measure/bound-line'
-import { lineGauge, placeCutFramed } from '@/code/measure/permutation-meeting'
-import { depthReading, readSectors, ringHuskFlux, ringLinks, sectorBeat, type Sectors } from '@/code/measure/trio-energy-lines'
-import { armScratch, feedArm, plaquetteArm, reverseArm, wholeLines } from '@/code/measure/line-plaquette'
-import { feedStackArm, huskLinks, reverseStackArm, stackArm, stackArmScratch, stackGradient, stackStiffness, stackWholeLines, turnSplit, waveSplit, type WaveSplit } from '@/code/measure/stack-plaquette'
+import {
+  lineGauge,
+  placeCutFramed,
+} from '@/code/measure/permutation-meeting'
+import {
+  depthReading,
+  readSectors,
+  ringHuskFlux,
+  ringLinks,
+  sectorBeat,
+  type Sectors,
+} from '@/code/measure/trio-energy-lines'
+import {
+  armScratch,
+  feedArm,
+  plaquetteArm,
+  reverseArm,
+  wholeLines,
+} from '@/code/measure/line-plaquette'
+import {
+  feedStackArm,
+  huskLinks,
+  reverseStackArm,
+  stackArm,
+  stackArmScratch,
+  stackGradient,
+  stackStiffness,
+  stackWholeLines,
+  turnSplit,
+  waveSplit,
+  type WaveSplit,
+} from '@/code/measure/stack-plaquette'
 
 const BOX = 12
 const P = 40
@@ -179,7 +218,13 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const sector: LineSector = { flavors: [0, 0, 0], statistics: 'fermion', D: 3, box: BOX, unit: 0 }
+    const sector: LineSector = {
+      flavors: [0, 0, 0],
+      statistics: 'fermion',
+      D: 3,
+      box: BOX,
+      unit: 0,
+    }
     const basis = lineBasis(sector)
     const level = lineLightest(basis, wholeBasis(basis)).lightest
     const placed = levelPlacement(basis, level.cre, level.cim)
@@ -194,13 +239,30 @@ export default experiment({
     const fit = fitRing(placed, L)
     const links = ringLinks(f.tables, ring)
     const cast = huskCast(bulkLinks(f.tables), husk)
-    const c0 = Math.round(ringCenter(blochPacket(basis, L, level.cre, level.cim, true).density())) % L
-    const col = husk.column[ring.docks[c0] as number] as number
+    const c0 =
+      Math.round(
+        ringCenter(
+          blochPacket(basis, L, level.cre, level.cim, true).density(),
+        ),
+      ) % L
+    const col = husk.column[ring.docks[c0]!]!
     const sink = (c0 + L / 2) % L
     const dist = huskDistances(SIDE, col)
-    const options: PieceOptions = { cost: true, sign: true, unit: 0, flat: false }
-    let sectors: Sectors = new Map([[0, placeCutFramed(gauge, fit.kept, P, 'parallel')]])
-    const lines = Float64Array.from(readSectors(L, sink, sectors, false).gauss)
+    const options: PieceOptions = {
+      cost: true,
+      sign: true,
+      unit: 0,
+      flat: false,
+    }
+
+    let sectors: Sectors = new Map([
+      [0, placeCutFramed(gauge, fit.kept, P, 'parallel')],
+    ])
+
+    const lines = Float64Array.from(
+      readSectors(L, sink, sectors, false).gauss,
+    )
+
     const toHusk = (ringField: Float64Array): Float64Array => {
       const out = new Float64Array(husk.columns * 9)
 
@@ -216,7 +278,11 @@ export default experiment({
     const flat = openMesh(SIDE, 0, 'shrink')
     const sf = stackFaces(stack)
     const ff = stackFaces(flat)
-    const lambdaStack = stackStiffness(sf, stack.links, STIFF_ITERATIONS)
+    const lambdaStack = stackStiffness(
+      sf,
+      stack.links,
+      STIFF_ITERATIONS,
+    )
     const lambdaHusk = stackStiffness(ff, flat.links, STIFF_ITERATIONS)
     const ruleHusk = plaquetteRule(A_HUSK, Q_HUSK, LEVELS, WHOLE)
     const ruleStack = plaquetteRule(A_STACK, Q_STACK, LEVELS, WHOLE)
@@ -229,32 +295,87 @@ export default experiment({
     const slow = stackArm(flat, ff, ruleStack, start)
     const slowScratch = stackArmScratch(flat, ff)
     const huskLen = husk.columns * 9
-    const sum = { deep: [new Float64Array(huskLen), new Float64Array(huskLen)], husk: [new Float64Array(huskLen), new Float64Array(huskLen)], slow: [new Float64Array(huskLen), new Float64Array(huskLen)], bare: [new Float64Array(huskLen), new Float64Array(huskLen)] }
-    const addTo = (pair: Float64Array[], w: ArrayLike<number>, t: number): void => {
+    const sum = {
+      deep: [new Float64Array(huskLen), new Float64Array(huskLen)],
+      husk: [new Float64Array(huskLen), new Float64Array(huskLen)],
+      slow: [new Float64Array(huskLen), new Float64Array(huskLen)],
+      bare: [new Float64Array(huskLen), new Float64Array(huskLen)],
+    }
+
+    const addTo = (
+      pair: Float64Array[],
+      w: ArrayLike<number>,
+      t: number,
+    ): void => {
       for (let l = 0; l < huskLen; l++) {
-        if (t <= WINDOW) pair[0]![l]! += w[l]! / WINDOW
+        if (t <= WINDOW) {
+          pair[0]![l]! += w[l]! / WINDOW
+        }
+
         pair[1]![l]! += w[l]! / BEATS
       }
     }
 
     // the non-gradient split of a two-beat mean on its own mesh
-    const split = (mesh: typeof stack, now: Float64Array, prev: Float64Array): WaveSplit => {
+    const split = (
+      mesh: typeof stack,
+      now: Float64Array,
+      prev: Float64Array,
+    ): WaveSplit => {
       const mean = Float64Array.from(now, (v, i) => (v + prev[i]!) / 2)
 
-      return waveSplit(mesh, mean, stackGradient(mesh, mean).flux, dist, RADIUS)
+      return waveSplit(
+        mesh,
+        mean,
+        stackGradient(mesh, mean).flux,
+        dist,
+        RADIUS,
+      )
     }
+
     const wDeep0 = stackWholeLines(deep)
     const wSlow0 = stackWholeLines(slow)
     const wHusk0 = wholeLines(huskArm)
-    const s0 = { deep: split(stack, wDeep0, wDeep0), slow: split(flat, wSlow0, wSlow0), husk: split(flat, wHusk0, wHusk0) }
+    const s0 = {
+      deep: split(stack, wDeep0, wDeep0),
+      slow: split(flat, wSlow0, wSlow0),
+      husk: split(flat, wHusk0, wHusk0),
+    }
+
     let prev = { deep: wDeep0, slow: wSlow0, husk: wHusk0 }
-    const late = { deepIn: 0, deepBulk: 0, deepOut: 0, slowIn: 0, huskIn: 0, beats: 0 }
-    const first = { deepHalf: -1, deepTwentieth: -1, slowHalf: -1, slowTwentieth: -1, huskHalf: -1, huskTwentieth: -1 }
+
+    const late = {
+      deepIn: 0,
+      deepBulk: 0,
+      deepOut: 0,
+      slowIn: 0,
+      huskIn: 0,
+      beats: 0,
+    }
+    const first = {
+      deepHalf: -1,
+      deepTwentieth: -1,
+      slowHalf: -1,
+      slowTwentieth: -1,
+      huskHalf: -1,
+      huskTwentieth: -1,
+    }
     const timeline: string[] = []
     const f3 = (x: number): string => x.toFixed(3)
 
-    const report = (t: number, sd: WaveSplit, ss: WaveSplit, sh: WaveSplit): void => {
-      const turns = turnSplit(sf, deep.state.face, ruleStack, dist, RADIUS)
+    const report = (
+      t: number,
+      sd: WaveSplit,
+      ss: WaveSplit,
+      sh: WaveSplit,
+    ): void => {
+      const turns = turnSplit(
+        sf,
+        deep.state.face,
+        ruleStack,
+        dist,
+        RADIUS,
+      )
 
       timeline.push(
         `t${t}: stack N_in ${f3(sd.restInside)} husk-out ${f3(sd.restHuskOutside)} bulk ${f3(sd.restBulk)} gradient ${sd.gradient.toFixed(4)} energy ${f3(sd.energy)}, turns in ${f3(turns.inside)} out ${f3(turns.huskOutside)} seam ${f3(turns.seam)} deep ${f3(turns.deep)}; slow N_in ${f3(ss.restInside)} rest ${f3(ss.rest)}; husk N_in ${f3(sh.restInside)} rest ${f3(sh.rest)}`,
@@ -268,7 +389,9 @@ export default experiment({
 
       const r = readSectors(L, sink, sectors, true)
 
-      for (let k = 0; k < L; k++) lines[k]! += r.drag[k] as number
+      for (let k = 0; k < L; k++) {
+        lines[k]! += r.drag[k]!
+      }
 
       const target = toHusk(lines)
 
@@ -277,7 +400,11 @@ export default experiment({
       feedStackArm(stack, sf, deep, target, deepScratch)
       feedStackArm(flat, ff, slow, target, slowScratch)
 
-      const now = { deep: stackWholeLines(deep), slow: stackWholeLines(slow), husk: wholeLines(huskArm) }
+      const now = {
+        deep: stackWholeLines(deep),
+        slow: stackWholeLines(slow),
+        husk: wholeLines(huskArm),
+      }
 
       addTo(sum.deep, now.deep, t)
       addTo(sum.slow, now.slow, t)
@@ -287,16 +414,39 @@ export default experiment({
       const sd = split(stack, now.deep, prev.deep)
       const ss = split(flat, now.slow, prev.slow)
       const sh = split(flat, now.husk, prev.husk)
-      const cross = (key: keyof typeof first, value: number, base: number, ratio: number): void => {
-        if (first[key] < 0 && value <= ratio * base) first[key] = t
+
+      const cross = (
+        key: keyof typeof first,
+        value: number,
+        base: number,
+        ratio: number,
+      ): void => {
+        if (first[key] < 0 && value <= ratio * base) {
+          first[key] = t
+        }
       }
 
       cross('deepHalf', sd.restInside, s0.deep.restInside, 0.5)
-      cross('deepTwentieth', sd.restInside, s0.deep.restInside, Q3_RATIO)
+      cross(
+        'deepTwentieth',
+        sd.restInside,
+        s0.deep.restInside,
+        Q3_RATIO,
+      )
       cross('slowHalf', ss.restInside, s0.slow.restInside, 0.5)
-      cross('slowTwentieth', ss.restInside, s0.slow.restInside, Q3_RATIO)
+      cross(
+        'slowTwentieth',
+        ss.restInside,
+        s0.slow.restInside,
+        Q3_RATIO,
+      )
       cross('huskHalf', sh.restInside, s0.husk.restInside, 0.5)
-      cross('huskTwentieth', sh.restInside, s0.husk.restInside, Q3_RATIO)
+      cross(
+        'huskTwentieth',
+        sh.restInside,
+        s0.husk.restInside,
+        Q3_RATIO,
+      )
 
       if (t >= LATE_FROM) {
         late.deepIn += sd.restInside
@@ -306,12 +456,19 @@ export default experiment({
         late.huskIn += sh.restInside
         late.beats++
       }
-      if (REPORT.includes(t)) report(t, sd, ss, sh)
+
+      if (REPORT.includes(t)) {
+        report(t, sd, ss, sh)
+      }
+
       prev = now
     }
 
     // ---- the readings ----
-    const read = (field: Float64Array): ReturnType<typeof depthReading> => depthReading(SIDE, col, field, REF, FIT_R)
+    const read = (
+      field: Float64Array,
+    ): ReturnType<typeof depthReading> =>
+      depthReading(SIDE, col, field, REF, FIT_R)
     const deep64 = read(sum.deep[0]!)
     const deep128 = read(sum.deep[1]!)
     const husk64 = read(sum.husk[0]!)
@@ -324,17 +481,31 @@ export default experiment({
 
     bareStack.set(sum.bare[0]!)
 
-    const target = read(huskLinks(stack, stackGradient(stack, bareStack).flux))
+    const target = read(
+      huskLinks(stack, stackGradient(stack, bareStack).flux),
+    )
     // the STACK arm's own 64-beat mean, its stack-gradient part read the same way (its stack divergence is the bare's)
     const deepMean = new Float64Array(stack.links)
 
     deepMean.set(sum.deep[0]!)
 
-    const deepGradient = read(huskLinks(stack, stackGradient(stack, deepMean).flux))
+    const deepGradient = read(
+      huskLinks(stack, stackGradient(stack, deepMean).flux),
+    )
 
     // ---- Q4 ----
-    const reversed = { deep: reverseStackArm(sf, deep, deepScratch), slow: reverseStackArm(ff, slow, slowScratch), husk: reverseArm(hf, huskArm, huskScratch), bare: reverseArm(hf, bare, huskScratch) }
-    const wraps = { deep: deep.tally.lineWraps + deep.tally.faceWraps, slow: slow.tally.lineWraps + slow.tally.faceWraps, husk: huskArm.tally.lineWraps + huskArm.tally.faceWraps, bare: bare.tally.lineWraps + bare.tally.faceWraps }
+    const reversed = {
+      deep: reverseStackArm(sf, deep, deepScratch),
+      slow: reverseStackArm(ff, slow, slowScratch),
+      husk: reverseArm(hf, huskArm, huskScratch),
+      bare: reverseArm(hf, bare, huskScratch),
+    }
+    const wraps = {
+      deep: deep.tally.lineWraps + deep.tally.faceWraps,
+      slow: slow.tally.lineWraps + slow.tally.faceWraps,
+      husk: huskArm.tally.lineWraps + huskArm.tally.faceWraps,
+      bare: bare.tally.lineWraps + bare.tally.faceWraps,
+    }
 
     // ---- the gates ----
     const lateDeepIn = late.deepIn / late.beats
@@ -342,15 +513,27 @@ export default experiment({
     const lateDeepOut = late.deepOut / late.beats
     const left = s0.deep.restInside - lateDeepIn
     const targetSame = Math.abs(target.k - STACK_K) <= STACK_K_SAME
-    const q1 = deep.gaussOff === 0 && slow.gaussOff === 0 && huskArm.gaussOff === 0 && bare.gaussOff === 0
+    const q1 =
+      deep.gaussOff === 0 &&
+      slow.gaussOff === 0 &&
+      huskArm.gaussOff === 0 &&
+      bare.gaussOff === 0
     const q2 = Math.abs(deep64.k / STACK_K - 1) <= Q2_TOLERANCE
     const q3a = lateDeepIn <= Q3_RATIO * s0.deep.restInside
     const q3b = lateDeepBulk >= Q3_FOUND * left
     const q3 = q3a && q3b
-    const q4 = Object.values(reversed).every(Boolean) && Object.values(wraps).every(w => w === 0)
-    const controlH = Math.abs(husk64.k / HUSK_K_0130 - 1) <= HUSK_TOLERANCE
-    const control0 = Math.abs(bare64.k / BARE_K_0127 - 1) <= BARE_TOLERANCE
-    const status = !(controlH && control0 && targetSame) ? 'partial' : q1 && q2 && q3 && q4 ? 'pass' : 'fail'
+    const q4 =
+      Object.values(reversed).every(Boolean) &&
+      Object.values(wraps).every(w => w === 0)
+    const controlH =
+      Math.abs(husk64.k / HUSK_K_0130 - 1) <= HUSK_TOLERANCE
+    const control0 =
+      Math.abs(bare64.k / BARE_K_0127 - 1) <= BARE_TOLERANCE
+    const status = !(controlH && control0 && targetSame)
+      ? 'partial'
+      : q1 && q2 && q3 && q4
+        ? 'pass'
+        : 'fail'
     const f4 = (x: number): string => x.toFixed(4)
     const metrics: Record<string, number> = {
       gate_Q1: q1 ? 1 : 0,
@@ -416,9 +599,9 @@ export default experiment({
     }
 
     for (let q = 0; q <= REF; q++) {
-      metrics[`deep64_r${q}`] = deep64.profile[q] as number
-      metrics[`target_r${q}`] = target.profile[q] as number
-      metrics[`slow64_r${q}`] = slow64.profile[q] as number
+      metrics[`deep64_r${q}`] = deep64.profile[q]!
+      metrics[`target_r${q}`] = target.profile[q]!
+      metrics[`slow64_r${q}`] = slow64.profile[q]!
     }
 
     return verdict({

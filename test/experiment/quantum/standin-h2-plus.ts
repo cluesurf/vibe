@@ -56,7 +56,18 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { BAND_TOP, externalPotential, greenInfinite, lowestStates, makeGrid, minOf, nuclearRepulsion, standinUnits, type Nucleus, type Point } from '@/code/measure/standin-chemistry'
+import {
+  BAND_TOP,
+  externalPotential,
+  greenInfinite,
+  lowestStates,
+  makeGrid,
+  minOf,
+  nuclearRepulsion,
+  standinUnits,
+  type Nucleus,
+  type Point,
+} from '@/code/measure/standin-chemistry'
 
 const SIDE = 32
 const CENTER = SIDE / 2
@@ -73,19 +84,42 @@ const TOLERANCE = 1e-7
 type Curve = { r: number[]; energy: number[] }
 
 // the minimum of a sampled curve by a parabola through its lowest point and neighbors
-function minimum(curve: Curve): { r: number; energy: number; interior: boolean } {
+function minimum(curve: Curve): {
+  r: number
+  energy: number
+  interior: boolean
+} {
   const i = curve.energy.indexOf(Math.min(...curve.energy))
 
   if (i <= 0 || i >= curve.energy.length - 1) {
-    return { r: curve.r[i] ?? Number.NaN, energy: curve.energy[i] ?? Number.NaN, interior: false }
+    return {
+      r: curve.r[i] ?? Number.NaN,
+      energy: curve.energy[i] ?? Number.NaN,
+      interior: false,
+    }
   }
 
-  const [x0, x1, x2] = [curve.r[i - 1] ?? 0, curve.r[i] ?? 0, curve.r[i + 1] ?? 0]
-  const [y0, y1, y2] = [curve.energy[i - 1] ?? 0, curve.energy[i] ?? 0, curve.energy[i + 1] ?? 0]
+  const [x0, x1, x2] = [
+    curve.r[i - 1] ?? 0,
+    curve.r[i] ?? 0,
+    curve.r[i + 1] ?? 0,
+  ]
+  const [y0, y1, y2] = [
+    curve.energy[i - 1] ?? 0,
+    curve.energy[i] ?? 0,
+    curve.energy[i + 1] ?? 0,
+  ]
   const denominator = (x0 - x1) * (x0 - x2) * (x1 - x2)
-  const a = (x2 * (y1 - y0) + x1 * (y0 - y2) + x0 * (y2 - y1)) / denominator
-  const b = (x2 * x2 * (y0 - y1) + x1 * x1 * (y2 - y0) + x0 * x0 * (y1 - y2)) / denominator
-  const c = (x1 * x2 * (x1 - x2) * y0 + x2 * x0 * (x2 - x0) * y1 + x0 * x1 * (x0 - x1) * y2) / denominator
+  const a =
+    (x2 * (y1 - y0) + x1 * (y0 - y2) + x0 * (y2 - y1)) / denominator
+  const b =
+    (x2 * x2 * (y0 - y1) + x1 * x1 * (y2 - y0) + x0 * x0 * (y1 - y2)) /
+    denominator
+  const c =
+    (x1 * x2 * (x1 - x2) * y0 +
+      x2 * x0 * (x2 - x0) * y1 +
+      x0 * x1 * (x0 - x1) * y2) /
+    denominator
   const r = -b / (2 * a)
 
   return { r, energy: c - (b * b) / (4 * a), interior: true }
@@ -100,7 +134,19 @@ function followUp(): { curve: Curve; hydrogen: number } {
   const grid = makeGrid(FOLLOW_SIDE)
   const c = FOLLOW_SIDE / 2
   const units = standinUnits(FOLLOW_A0)
-  const hydrogen = lowestStates({ grid, potential: externalPotential({ grid, units, nuclei: [{ at: [c, c, c], charge: 1 }] }), count: 1, extra: 3, tolerance: TOLERANCE, maxIterations: 400 }).values[0] ?? Number.NaN
+  const hydrogen =
+    lowestStates({
+      grid,
+      potential: externalPotential({
+        grid,
+        units,
+        nuclei: [{ at: [c, c, c], charge: 1 }],
+      }),
+      count: 1,
+      extra: 3,
+      tolerance: TOLERANCE,
+      maxIterations: 400,
+    }).values[0] ?? Number.NaN
   const curve: Curve = { r: [], energy: [] }
 
   let start: Float64Array[] | undefined
@@ -111,22 +157,52 @@ function followUp(): { curve: Curve; hydrogen: number } {
       { at: [c - shift, c, c], charge: 1 },
       { at: [c - shift + m, c, c], charge: 1 },
     ]
-    const states = lowestStates({ grid, potential: externalPotential({ grid, units, nuclei }), count: 1, extra: 3, start, tolerance: TOLERANCE, maxIterations: 400 })
+    const states = lowestStates({
+      grid,
+      potential: externalPotential({ grid, units, nuclei }),
+      count: 1,
+      extra: 3,
+      start,
+      tolerance: TOLERANCE,
+      maxIterations: 400,
+    })
 
     start = states.vectors
     curve.r.push(m / FOLLOW_A0)
-    curve.energy.push((states.values[0] ?? 0) + nuclearRepulsion(units, nuclei))
+    curve.energy.push(
+      (states.values[0] ?? 0) + nuclearRepulsion(units, nuclei),
+    )
   }
 
   return { curve, hydrogen }
 }
 
-function scan(a0: number, direction: Point, steps: number[]): { bonding: Curve; antibonding: Curve; hydrogen: number; deepest: number } {
+function scan(
+  a0: number,
+  direction: Point,
+  steps: number[],
+): {
+  bonding: Curve
+  antibonding: Curve
+  hydrogen: number
+  deepest: number
+} {
   const grid = makeGrid(SIDE)
   const units = standinUnits(a0)
   const center: Point = [CENTER, CENTER, CENTER]
-  const hydrogenPotential = externalPotential({ grid, units, nuclei: [{ at: center, charge: 1 }] })
-  const hydrogen = lowestStates({ grid, potential: hydrogenPotential, count: 1, extra: 3, tolerance: TOLERANCE }).values[0] ?? Number.NaN
+  const hydrogenPotential = externalPotential({
+    grid,
+    units,
+    nuclei: [{ at: center, charge: 1 }],
+  })
+  const hydrogen =
+    lowestStates({
+      grid,
+      potential: hydrogenPotential,
+      count: 1,
+      extra: 3,
+      tolerance: TOLERANCE,
+    }).values[0] ?? Number.NaN
   const bonding: Curve = { r: [], energy: [] }
   const antibonding: Curve = { r: [], energy: [] }
   const length = Math.hypot(...direction)
@@ -137,14 +213,23 @@ function scan(a0: number, direction: Point, steps: number[]): { bonding: Curve; 
 
   for (const m of steps) {
     const shift = Math.floor(m / 2)
-    const a: Point = [CENTER - shift * direction[0], CENTER - shift * direction[1], CENTER - shift * direction[2]]
-    const b: Point = [a[0] + m * direction[0], a[1] + m * direction[1], a[2] + m * direction[2]]
+    const a: Point = [
+      CENTER - shift * direction[0],
+      CENTER - shift * direction[1],
+      CENTER - shift * direction[2],
+    ]
+    const b: Point = [
+      a[0] + m * direction[0],
+      a[1] + m * direction[1],
+      a[2] + m * direction[2],
+    ]
     const nuclei: Nucleus[] = [
       { at: a, charge: 1 },
       { at: b, charge: 1 },
     ]
     const potential = externalPotential({ grid, units, nuclei })
     const repulsion = nuclearRepulsion(units, nuclei)
+
     // the mirror through the bond's midplane: x -> a + b - x along the bond, the other coordinates kept, for
     // an axis bond; for a face-diagonal bond the mirror swaps the two diagonal coordinates about the midpoint
     const mirror = (i: number): number => {
@@ -162,6 +247,7 @@ function scan(a0: number, direction: Point, steps: number[]): { bonding: Curve; 
 
       return wrap(s - y) + SIDE * (wrap(s - x) + SIDE * z)
     }
+
     const odd = (v: Float64Array): void => {
       const copy = Float64Array.from(v)
 
@@ -169,7 +255,15 @@ function scan(a0: number, direction: Point, steps: number[]): { bonding: Curve; 
         v[i] = ((copy[i] ?? 0) - (copy[mirror(i)] ?? 0)) / 2
       }
     }
-    const even = lowestStates({ grid, potential, count: 1, extra: 3, start: evenStart, tolerance: TOLERANCE })
+
+    const even = lowestStates({
+      grid,
+      potential,
+      count: 1,
+      extra: 3,
+      start: evenStart,
+      tolerance: TOLERANCE,
+    })
 
     evenStart = even.vectors
     bonding.r.push((m * length) / a0)
@@ -177,7 +271,15 @@ function scan(a0: number, direction: Point, steps: number[]): { bonding: Curve; 
     deepest = Math.min(deepest, minOf(potential))
 
     if (direction[1] === 0) {
-      const oddStates = lowestStates({ grid, potential, count: 1, extra: 3, start: oddStart, project: odd, tolerance: TOLERANCE })
+      const oddStates = lowestStates({
+        grid,
+        potential,
+        count: 1,
+        extra: 3,
+        start: oddStart,
+        project: odd,
+        tolerance: TOLERANCE,
+      })
 
       oddStart = oddStates.vectors
       antibonding.r.push((m * length) / a0)
@@ -200,21 +302,37 @@ export default experiment({
   run() {
     const metrics: Record<string, number> = {}
     const results = A0S.map(a0 => {
-      const steps = Array.from({ length: Math.round((R_MAX - R_MIN) * a0) + 1 }, (_, i) => Math.round(R_MIN * a0) + i)
+      const steps = Array.from(
+        { length: Math.round((R_MAX - R_MIN) * a0) + 1 },
+        (_, i) => Math.round(R_MIN * a0) + i,
+      )
       const run = scan(a0, [1, 0, 0], steps)
       const units = standinUnits(a0)
       const min = minimum(run.bonding)
       const re = min.r
       const de = (run.hydrogen - min.energy) / units.rydberg
-      const antibondingAbove = run.antibonding.energy.every(e => e > run.hydrogen)
+      const antibondingAbove = run.antibonding.energy.every(
+        e => e > run.hydrogen,
+      )
 
-      metrics[`a0${a0}HydrogenOverRydberg`] = run.hydrogen / units.rydberg
+      metrics[`a0${a0}HydrogenOverRydberg`] =
+        run.hydrogen / units.rydberg
       metrics[`a0${a0}BondLengthOverA0`] = re
       metrics[`a0${a0}DepthOverRydberg`] = de
       metrics[`a0${a0}Interior`] = min.interior ? 1 : 0
-      metrics[`a0${a0}AntibondingLowestAboveHydrogenRydberg`] = (Math.min(...run.antibonding.energy) - run.hydrogen) / units.rydberg
-      metrics[`a0${a0}DeepestPotentialOverBandGap`] = -run.deepest / BAND_TOP
-      run.bonding.r.forEach((r, i) => (metrics[`a0${a0}CurveR${r.toFixed(3)}Rydberg`] = ((run.bonding.energy[i] ?? 0) - run.hydrogen) / units.rydberg))
+      metrics[`a0${a0}AntibondingLowestAboveHydrogenRydberg`] =
+        (Math.min(...run.antibonding.energy) - run.hydrogen) /
+        units.rydberg
+
+      metrics[`a0${a0}DeepestPotentialOverBandGap`] =
+        -run.deepest / BAND_TOP
+
+      run.bonding.r.forEach(
+        (r, i) =>
+          (metrics[`a0${a0}CurveR${r.toFixed(3)}Rydberg`] =
+            ((run.bonding.energy[i] ?? 0) - run.hydrogen) /
+            units.rydberg),
+      )
 
       return { a0, re, de, interior: min.interior, antibondingAbove }
     })
@@ -222,38 +340,63 @@ export default experiment({
     const middle = results.find(r => r.a0 === MIDDLE)
     const coarse = results.find(r => r.a0 === COARSE)
     // Richardson in 1 / a0^2 from a0 = 3 and 4
-    const extrapolate = (a: number, b: number): number => (FINE ** 2 * a - MIDDLE ** 2 * b) / (FINE ** 2 - MIDDLE ** 2)
-    const limit = { re: extrapolate(fine?.re ?? Number.NaN, middle?.re ?? Number.NaN), de: extrapolate(fine?.de ?? Number.NaN, middle?.de ?? Number.NaN) }
+    const extrapolate = (a: number, b: number): number =>
+      (FINE ** 2 * a - MIDDLE ** 2 * b) / (FINE ** 2 - MIDDLE ** 2)
+    const limit = {
+      re: extrapolate(fine?.re ?? Number.NaN, middle?.re ?? Number.NaN),
+      de: extrapolate(fine?.de ?? Number.NaN, middle?.de ?? Number.NaN),
+    }
     // the bond along a face diagonal at a0 = 4, separations m sqrt 2 about the axis minimum
     const diagonal = scan(FINE, [1, 1, 0], [4, 5, 6, 7])
     const diagonalMin = minimum(diagonal.bonding)
     const units = standinUnits(FINE)
 
     metrics['a0' + FINE + 'DiagonalBondLengthOverA0'] = diagonalMin.r
-    metrics['a0' + FINE + 'DiagonalDepthOverRydberg'] = (diagonal.hydrogen - diagonalMin.energy) / units.rydberg
-    metrics['greenAtZeroTimes24Pi'] = 24 * Math.PI * greenInfinite(0, 0, 0)
+    metrics['a0' + FINE + 'DiagonalDepthOverRydberg'] =
+      (diagonal.hydrogen - diagonalMin.energy) / units.rydberg
+    metrics.greenAtZeroTimes24Pi = 24 * Math.PI * greenInfinite(0, 0, 0)
 
     // the follow-up at a0 = 8 on the 64^3 box, added after the first run, reported and not gated
     const follow = followUp()
     const followMin = minimum(follow.curve)
     const followUnits = standinUnits(FOLLOW_A0)
 
-    metrics['followA08HydrogenOverRydberg'] = follow.hydrogen / followUnits.rydberg
-    metrics['followA08BondLengthOverA0'] = followMin.r
-    metrics['followA08DepthOverRydberg'] = (follow.hydrogen - followMin.energy) / followUnits.rydberg
-    metrics['followA08Interior'] = followMin.interior ? 1 : 0
-    metrics['followA08BondLengthError'] = followMin.r / REFERENCE_RE - 1
-    metrics['followA08DepthError'] = (follow.hydrogen - followMin.energy) / followUnits.rydberg / REFERENCE_DE - 1
-    follow.curve.r.forEach((r, i) => (metrics[`followA08CurveR${r.toFixed(3)}Rydberg`] = ((follow.curve.energy[i] ?? 0) - follow.hydrogen) / followUnits.rydberg))
+    metrics.followA08HydrogenOverRydberg =
+      follow.hydrogen / followUnits.rydberg
+    metrics.followA08BondLengthOverA0 = followMin.r
+    metrics.followA08DepthOverRydberg =
+      (follow.hydrogen - followMin.energy) / followUnits.rydberg
+    metrics.followA08Interior = followMin.interior ? 1 : 0
+    metrics.followA08BondLengthError = followMin.r / REFERENCE_RE - 1
+    metrics.followA08DepthError =
+      (follow.hydrogen - followMin.energy) /
+        followUnits.rydberg /
+        REFERENCE_DE -
+      1
 
-    const reError = (r: typeof fine): number => Math.abs((r?.re ?? Number.NaN) / REFERENCE_RE - 1)
-    const deError = (r: typeof fine): number => Math.abs((r?.de ?? Number.NaN) / REFERENCE_DE - 1)
+    follow.curve.r.forEach(
+      (r, i) =>
+        (metrics[`followA08CurveR${r.toFixed(3)}Rydberg`] =
+          ((follow.curve.energy[i] ?? 0) - follow.hydrogen) /
+          followUnits.rydberg),
+    )
+
+    const reError = (r: typeof fine): number =>
+      Math.abs((r?.re ?? Number.NaN) / REFERENCE_RE - 1)
+    const deError = (r: typeof fine): number =>
+      Math.abs((r?.de ?? Number.NaN) / REFERENCE_DE - 1)
     const gate1 = (fine?.interior ?? false) && (fine?.de ?? 0) > 0
     const gate2 = Math.abs(limit.re / REFERENCE_RE - 1) < 0.05
     const gate3 = Math.abs(limit.de / REFERENCE_DE - 1) < 0.1
-    const gate4 = reError(fine) < reError(coarse) && deError(fine) < deError(coarse)
+    const gate4 =
+      reError(fine) < reError(coarse) && deError(fine) < deError(coarse)
     const gate5 = results.every(r => r.antibondingAbove)
-    const status = gate1 && gate2 && gate3 && gate4 && gate5 ? 'pass' : gate1 && gate5 ? 'partial' : 'fail'
+    const status =
+      gate1 && gate2 && gate3 && gate4 && gate5
+        ? 'pass'
+        : gate1 && gate5
+          ? 'partial'
+          : 'fail'
 
     return verdict({
       status,
@@ -273,10 +416,12 @@ export default experiment({
         depthErrorCoarse: deError(coarse),
       },
       control: {
-        antibondingMinusHydrogenRydbergA0Fine: metrics[`a0${FINE}AntibondingLowestAboveHydrogenRydberg`] ?? Number.NaN,
+        antibondingMinusHydrogenRydbergA0Fine:
+          metrics[`a0${FINE}AntibondingLowestAboveHydrogenRydberg`] ??
+          Number.NaN,
       },
       notes:
-        'L2, stand-ins throughout: the electron is the charged fear walk (not the electron, which the model has not produced), the nuclei are fixed husk charges, and alpha is chosen through a0. The stand-in band is the fear walk band along each husk link direction weighed by the husk weights (mass sqrt 3), band-projected: the walk\'s second band and its quasi-energy wrap are left out. Exact diagonalization, no mean field. The continuum H2+ depth is 0.1026 hartree = 0.2053 Ry (the brief\'s "0.1026 Ry" is in hartree); the roadmap\'s 2.65 eV is D_0 with zero-point vibration, not modeled here. First run, 2026-09-25, status partial, and the failures stand. The bond forms and the antibonding state never binds (sigma_u above E_H by 0.23 Ry at its lowest, a0 = 4), and the raw errors fall from a0 = 2 to 4 (R_e 50 to 21 percent, D_e 132 to 26 percent). But at a0 = 4 the bond sits at 1.577 a0 with depth 0.259 Ry, and at a0 = 2 and 3 the minimum is not interior (the energy is still falling at R = 1 a0). The Richardson extrapolation from a0 = 3 and 4 is meaningless for that reason (2.32 a0, 0.057 Ry): a0 = 3 has no minimum to extrapolate. The cause is the husk lattice core: one stand-in hydrogen binds at -3.42, -1.55, -1.19 Ry for a0 = 2, 3, 4, against -1, because 24 pi G(0) = 3.98 and the bounded band make the nucleus\'s own dock a deep well. A continuum H2+ needs a0 well above 4 husk spacings, which this machine load did not allow. Along a face diagonal the bond reads 1.41 a0 (the edge of that scan) and 0.254 Ry, within 2 percent of the axis depth. Follow-up added after the first run, reported and not gated (2026-09-26): at a0 = 8 on the 64^3 box the bond is at 1.972 a0 and 0.2027 Ry, 1.2 percent from the continuum in both, so the gates fail on lattice resolution, not on the stand-in.',
+        "L2, stand-ins throughout: the electron is the charged fear walk (not the electron, which the model has not produced), the nuclei are fixed husk charges, and alpha is chosen through a0. The stand-in band is the fear walk band along each husk link direction weighed by the husk weights (mass sqrt 3), band-projected: the walk's second band and its quasi-energy wrap are left out. Exact diagonalization, no mean field. The continuum H2+ depth is 0.1026 hartree = 0.2053 Ry (the brief's \"0.1026 Ry\" is in hartree); the roadmap's 2.65 eV is D_0 with zero-point vibration, not modeled here. First run, 2026-09-25, status partial, and the failures stand. The bond forms and the antibonding state never binds (sigma_u above E_H by 0.23 Ry at its lowest, a0 = 4), and the raw errors fall from a0 = 2 to 4 (R_e 50 to 21 percent, D_e 132 to 26 percent). But at a0 = 4 the bond sits at 1.577 a0 with depth 0.259 Ry, and at a0 = 2 and 3 the minimum is not interior (the energy is still falling at R = 1 a0). The Richardson extrapolation from a0 = 3 and 4 is meaningless for that reason (2.32 a0, 0.057 Ry): a0 = 3 has no minimum to extrapolate. The cause is the husk lattice core: one stand-in hydrogen binds at -3.42, -1.55, -1.19 Ry for a0 = 2, 3, 4, against -1, because 24 pi G(0) = 3.98 and the bounded band make the nucleus's own dock a deep well. A continuum H2+ needs a0 well above 4 husk spacings, which this machine load did not allow. Along a face diagonal the bond reads 1.41 a0 (the edge of that scan) and 0.254 Ry, within 2 percent of the axis depth. Follow-up added after the first run, reported and not gated (2026-09-26): at a0 = 8 on the 64^3 box the bond is at 1.972 a0 and 0.2027 Ry, 1.2 percent from the continuum in both, so the gates fail on lattice resolution, not on the stand-in.",
     })
   },
 })

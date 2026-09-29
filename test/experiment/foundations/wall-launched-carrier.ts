@@ -31,7 +31,10 @@ import { squareMesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill, Will } from '@/code/tone/will'
 import { pairCollision } from '@/code/rule/collision'
 import { growingBeat } from '@/code/rule/lattice-gas'
-import { clockAmplitude, phaseDegrees } from '@/code/measure/clock-amplitude'
+import {
+  clockAmplitude,
+  phaseDegrees,
+} from '@/code/measure/clock-amplitude'
 import { pairAbs2, pairSub } from '@/code/algebra/linear/complex-pair'
 
 const SIDE = 24
@@ -180,8 +183,7 @@ export default experiment({
     const atOther = pokeStudy(12 + 6 * SIDE)
     const bulk = bulkControl()
 
-    const launches =
-      atMiddle.frontReach <= 1 && atOther.frontReach <= 1
+    const launches = atMiddle.frontReach <= 1 && atOther.frontReach <= 1
     const unidirectional =
       atMiddle.youngSideMax <= 14 && atOther.youngSideMax <= 14
     const clockPaced =
@@ -207,9 +209,7 @@ export default experiment({
       metrics: {
         frontReach: atMiddle.frontReach,
         youngSideMax: atMiddle.youngSideMax,
-        beatsPerColumn: Number(
-          atMiddle.speedBeatsPerColumn.toFixed(2),
-        ),
+        beatsPerColumn: Number(atMiddle.speedBeatsPerColumn.toFixed(2)),
         recoherence90Count: atMiddle.recoherence90,
         maxSupport: atMiddle.maxSupport,
       },

@@ -24,18 +24,51 @@
 //
 // DETERMINISM: every start is placed; nothing is drawn. NOTHING MOVES: each value takes its new value by the rule.
 
-import { G_METRIC, coulombFlux, energyMask } from '@/code/measure/trit-hop-light'
-import { carriedFractions, curlT, makeShadowScratch, shadowReading } from '@/code/measure/trit-shaped-light'
-import { dockWeight, halfMaxCentroid, makeMedium, planarPacket, type Medium } from '@/code/measure/varying-depth-light'
+import {
+  G_METRIC,
+  coulombFlux,
+  energyMask,
+} from '@/code/measure/trit-hop-light'
+import {
+  carriedFractions,
+  curlT,
+  makeShadowScratch,
+  shadowReading,
+} from '@/code/measure/trit-shaped-light'
+import {
+  dockWeight,
+  halfMaxCentroid,
+  makeMedium,
+  planarPacket,
+  type Medium,
+} from '@/code/measure/varying-depth-light'
 import { placedState, type Placement } from '@/code/measure/even-field'
 import type { HuskLightState } from '@/code/rule/trit-column'
-import { makeHuskEngine, type HuskEngine, type HuskGeometry } from '@/code/rule/trit-husk'
-import { copyShaped, emptyShaped, makeShapedScratch, shapedArrays, shapedBeat, shapedBeatBack, shapedFlux, type ShapedOptions, type ShapedState } from '@/code/rule/trit-husk-shaped'
+import {
+  makeHuskEngine,
+  type HuskEngine,
+  type HuskGeometry,
+} from '@/code/rule/trit-husk'
+import {
+  copyShaped,
+  emptyShaped,
+  makeShapedScratch,
+  shapedArrays,
+  shapedBeat,
+  shapedBeatBack,
+  shapedFlux,
+  type ShapedOptions,
+  type ShapedState,
+} from '@/code/rule/trit-husk-shaped'
 
 const mod = (x: number, m: number): number => ((x % m) + m) % m
 
 // a one-level state lifted to `levels` (the upper counters start at 0)
-export function liftState(g: HuskGeometry, s: HuskLightState, levels: number): ShapedState {
+export function liftState(
+  g: HuskGeometry,
+  s: HuskLightState,
+  levels: number,
+): ShapedState {
   const out = emptyShaped(g, levels)
 
   out.angle.set(s.angle)
@@ -49,7 +82,11 @@ export function liftState(g: HuskGeometry, s: HuskLightState, levels: number): S
 }
 
 // the weighted plaquette sum (C W x)_P on real or integer link values
-function plaquette(g: HuskGeometry, x: ArrayLike<number>, p: number): number {
+function plaquette(
+  g: HuskGeometry,
+  x: ArrayLike<number>,
+  p: number,
+): number {
   let b = 0
 
   for (let j = 0; j < 3; j++) {
@@ -86,13 +123,18 @@ export type KickIdentity = {
   kickTop: number
 }
 
-export function kickIdentity(engine: HuskEngine, start: HuskLightState, beats: number): KickIdentity {
+export function kickIdentity(
+  engine: HuskEngine,
+  start: HuskLightState,
+  beats: number,
+): KickIdentity {
   const g = engine.geometry
   const { q, p: pp, nb } = engine
   const options: ShapedOptions = { levels: 1, cyclic: false }
   const s = liftState(g, start, 1)
   const scratch = makeShapedScratch(g, 1)
   const flux = new Int32Array(g.huskLinks)
+
   let wrappedBeats = 0
   let driftOff = 0
   let kickOff = 0
@@ -115,13 +157,25 @@ export function kickIdentity(engine: HuskEngine, start: HuskLightState, beats: n
     // wraps: the angle, the field, the potential
     let wrapped = false
 
-    for (let l = 0; l < g.huskLinks; l++) if (s.angle[l] !== a0[l]! + e0[l]!) wrapped = true
+    for (let l = 0; l < g.huskLinks; l++) {
+      if (s.angle[l] !== a0[l]! + e0[l]!) {
+        wrapped = true
+      }
+    }
 
     for (let p = 0; p < g.triangles; p++) {
       const raw = plaquette(g, s.angle, p)
 
-      if (raw < -nb / 2 || raw >= nb / 2) wrapped = true
-      if (Math.abs(s.potential[p]! - u0[p]!) > g.multiplicity[p]! * engine.depth) wrapped = true
+      if (raw < -nb / 2 || raw >= nb / 2) {
+        wrapped = true
+      }
+
+      if (
+        Math.abs(s.potential[p]! - u0[p]!) >
+        g.multiplicity[p]! * engine.depth
+      ) {
+        wrapped = true
+      }
     }
 
     if (wrapped) {
@@ -137,7 +191,10 @@ export function kickIdentity(engine: HuskEngine, start: HuskLightState, beats: n
     const kickTri = new Float64Array(g.triangles)
 
     for (let p = 0; p < g.triangles; p++) {
-      const b = mod(plaquette(g, s.angle, p) + nb / 2, nb) - nb / 2 + plaquette(g, lag1, p) / q
+      const b =
+        mod(plaquette(g, s.angle, p) + nb / 2, nb) -
+        nb / 2 +
+        plaquette(g, lag1, p) / q
 
       kickTri[p] = (g.multiplicity[p]! * pp * b) / q
     }
@@ -147,7 +204,9 @@ export function kickIdentity(engine: HuskEngine, start: HuskLightState, beats: n
 
     curlT(g, kickTri, kick)
 
-    for (let p = 0; p < g.triangles; p++) dr[p] = (s.spatial[p]! - r0[p]!) / (q * q)
+    for (let p = 0; p < g.triangles; p++) {
+      dr[p] = (s.spatial[p]! - r0[p]!) / (q * q)
+    }
 
     const predicted = new Float64Array(g.huskLinks)
 
@@ -156,7 +215,8 @@ export function kickIdentity(engine: HuskEngine, start: HuskLightState, beats: n
     for (let l = 0; l < g.huskLinks; l++) {
       const shadow0 = e0[l]! + (cnt0[l]! - lag0[l]!) / q
       const shadow1 = flux[l]! + (cnt1[l]! - lag1[l]!) / q
-      const drift = s.angle[l]! + lag1[l]! / q - (a0[l]! + lag0[l]! / q) - shadow0
+      const drift =
+        s.angle[l]! + lag1[l]! / q - (a0[l]! + lag0[l]! / q) - shadow0
       const rho = shadow1 - shadow0 + kick[l]!
 
       driftOff = Math.max(driftOff, Math.abs(drift))
@@ -166,17 +226,32 @@ export function kickIdentity(engine: HuskEngine, start: HuskLightState, beats: n
     }
 
     // the lag took the counter (checked, not assumed)
-    for (let p = 0; p < g.triangles; p++) if (s.lag[p] !== counter0[p]) driftOff = Math.max(driftOff, 1)
+    for (let p = 0; p < g.triangles; p++) {
+      if (s.lag[p] !== counter0[p]) {
+        driftOff = Math.max(driftOff, 1)
+      }
+    }
   }
 
-  return { beats, wrappedBeats, driftOff, kickOff, residualTop, kickTop }
+  return {
+    beats,
+    wrappedBeats,
+    driftOff,
+    kickOff,
+    residualTop,
+    kickTop,
+  }
 }
 
 // ---------------------------------------------------------------------------------------------------------
 // the cosine (Villain-like) reading of the shadow invariant: the magnetic product B0 B1 replaced by
 // (N_B / pi)^2 sin(pi B0 / N_B) sin(pi B1 / N_B); equal to the quadratic reading as B / N_B -> 0
 
-export function compactReading(engine: HuskEngine, s: ShapedState, options: ShapedOptions): { energy: number; topField: number } {
+export function compactReading(
+  engine: HuskEngine,
+  s: ShapedState,
+  options: ShapedOptions,
+): { energy: number; topField: number } {
   const g = engine.geometry
   const { now, next } = carriedFractions(engine, s)
   const kappa = (2 * engine.p) / engine.q
@@ -200,14 +275,27 @@ export function compactReading(engine: HuskEngine, s: ShapedState, options: Shap
 
   const moved = new Float64Array(g.huskLinks)
 
-  for (let l = 0; l < g.huskLinks; l++) moved[l] = s.angle[l]! + flux[l]!
+  for (let l = 0; l < g.huskLinks; l++) {
+    moved[l] = s.angle[l]! + flux[l]!
+  }
 
   for (let p = 0; p < g.triangles; p++) {
-    const b0 = mod(plaquette(g, s.angle, p) + nb / 2, nb) - nb / 2 + plaquette(g, nowCurl, p)
-    const b1 = mod(plaquette(g, moved, p) + nb / 2, nb) - nb / 2 + plaquette(g, nextCurl, p)
+    const b0 =
+      mod(plaquette(g, s.angle, p) + nb / 2, nb) -
+      nb / 2 +
+      plaquette(g, nowCurl, p)
+    const b1 =
+      mod(plaquette(g, moved, p) + nb / 2, nb) -
+      nb / 2 +
+      plaquette(g, nextCurl, p)
 
     topField = Math.max(topField, Math.abs(b0))
-    e += (kappa / 8) * g.multiplicity[p]! * (nb / Math.PI) ** 2 * Math.sin((Math.PI * b0) / nb) * Math.sin((Math.PI * b1) / nb)
+    e +=
+      (kappa / 8) *
+      g.multiplicity[p]! *
+      (nb / Math.PI) ** 2 *
+      Math.sin((Math.PI * b0) / nb) *
+      Math.sin((Math.PI * b1) / nb)
   }
 
   return { energy: (Math.PI / engine.depth) * e, topField }
@@ -217,7 +305,11 @@ export function compactReading(engine: HuskEngine, s: ShapedState, options: Shap
 // a long run of the shaped light from a placed start: the shadow invariant (and its cosine reading) every `every`
 // beats, wraps, Gauss against the start's divergence, optional detectors, and exact reversal
 
-export type HeatSample = { beat: number; invariant: number; compact: number }
+export type HeatSample = {
+  beat: number
+  invariant: number
+  compact: number
+}
 
 export type Wraps = { angle: number; field: number; potential: number }
 
@@ -275,16 +367,25 @@ export function heatRun(input: HeatInput): HeatRun {
   shapedFlux(engine, s, cyclic, flux)
 
   const rho = divergenceOf(g, flux)
+
   let topField = 0
+
   const sample = (beat: number): HeatSample => {
     const c = compactReading(engine, s, options)
 
     topField = Math.max(topField, c.topField)
 
-    return { beat, invariant: shadowReading(engine, s, options, all, reading), compact: c.energy }
+    return {
+      beat,
+      invariant: shadowReading(engine, s, options, all, reading),
+      compact: c.energy,
+    }
   }
+
   const samples: HeatSample[] = [sample(0)]
+
   let gauss = 0
+
   const before = new Int32Array(g.huskLinks)
   const potential = new Int32Array(g.triangles)
 
@@ -294,26 +395,50 @@ export function heatRun(input: HeatInput): HeatRun {
     potential.set(s.potential)
     shapedBeat(engine, s, scratch, options)
 
-    for (let l = 0; l < g.huskLinks; l++) if (s.angle[l] !== before[l]! + flux[l]!) wraps.angle++
+    for (let l = 0; l < g.huskLinks; l++) {
+      if (s.angle[l] !== before[l]! + flux[l]!) {
+        wraps.angle++
+      }
+    }
 
     for (let p = 0; p < g.triangles; p++) {
       const raw = plaquette(g, s.angle, p)
 
-      if (raw < -nb / 2 || raw >= nb / 2) wraps.field++
-      if (!cyclic && Math.abs(s.potential[p]! - potential[p]!) > g.multiplicity[p]! * engine.depth) wraps.potential++
+      if (raw < -nb / 2 || raw >= nb / 2) {
+        wraps.field++
+      }
+
+      if (
+        !cyclic &&
+        Math.abs(s.potential[p]! - potential[p]!) >
+          g.multiplicity[p]! * engine.depth
+      ) {
+        wraps.potential++
+      }
     }
 
     shapedFlux(engine, s, cyclic, flux)
 
     const div = divergenceOf(g, flux)
 
-    for (let y = 0; y < g.huskDocks; y++) if (div[y] !== rho[y]) gauss++
+    for (let y = 0; y < g.huskDocks; y++) {
+      if (div[y] !== rho[y]) {
+        gauss++
+      }
+    }
 
-    if (t <= window) detectors.forEach((d, i) => (trace[i]![t] = dockWeight(s, d)))
-    if (t % every === 0) samples.push(sample(t))
+    if (t <= window) {
+      detectors.forEach((d, i) => (trace[i]![t] = dockWeight(s, d)))
+    }
+
+    if (t % every === 0) {
+      samples.push(sample(t))
+    }
   }
 
-  for (let t = 0; t < beats; t++) shapedBeatBack(engine, s, scratch, options)
+  for (let t = 0; t < beats; t++) {
+    shapedBeatBack(engine, s, scratch, options)
+  }
 
   const a = shapedArrays(s)
   const b = shapedArrays(start)
@@ -335,6 +460,7 @@ export function heatingSlope(run: HeatRun, from: number): number {
   const n = xs.length
   const mx = xs.reduce((a, x) => a + x.beat, 0) / n
   const my = xs.reduce((a, x) => a + x.invariant, 0) / n
+
   let num = 0
   let den = 0
 
@@ -350,14 +476,24 @@ export function heatingSlope(run: HeatRun, from: number): number {
 // starts
 
 // E-GRV-0070's plane packet on a line box
-export function packetStart(sides: readonly [number, number, number], depth: number, x0: number, amp: number, width: number): { medium: Medium; start: HuskLightState } {
+export function packetStart(
+  sides: readonly [number, number, number],
+  depth: number,
+  x0: number,
+  amp: number,
+  width: number,
+): { medium: Medium; start: HuskLightState } {
   const medium = makeMedium(sides, () => depth)
 
   return { medium, start: planarPacket(medium, x0, amp, width) }
 }
 
 // E-GRV-0077's standing lump: content placed at one column with its sink
-export function lumpStart(side: number, depth: number, placements: readonly Placement[]): { medium: Medium; start: HuskLightState } {
+export function lumpStart(
+  side: number,
+  depth: number,
+  placements: readonly Placement[],
+): { medium: Medium; start: HuskLightState } {
   const medium = makeMedium([side, side, side], () => depth)
 
   return { medium, start: placedState(medium, placements).state }
@@ -365,7 +501,11 @@ export function lumpStart(side: number, depth: number, placements: readonly Plac
 
 // the longitudinal energy U_L = (pi / D) 1/2 sum E_L^2 / g of a state's flux (Gauss fixes it; the rule's flux read
 // centered when the potential is cyclic)
-export function longitudinalOf(medium: Medium, s: HuskLightState, cyclic: boolean): number {
+export function longitudinalOf(
+  medium: Medium,
+  s: HuskLightState,
+  cyclic: boolean,
+): number {
   const g = medium.geometry
   const engine = makeHuskEngine(g, medium.dockDepth[0]!, medium.p)
   const flux = new Int32Array(g.huskLinks)
@@ -373,9 +513,12 @@ export function longitudinalOf(medium: Medium, s: HuskLightState, cyclic: boolea
   shapedFlux(engine, s, cyclic, flux)
 
   const el = coulombFlux(g, Float64Array.from(divergenceOf(g, flux)))
+
   let sum = 0
 
-  for (let l = 0; l < g.huskLinks; l++) sum += el[l]! ** 2 / (2 * G_METRIC[l % 9]!)
+  for (let l = 0; l < g.huskLinks; l++) {
+    sum += el[l]! ** 2 / (2 * G_METRIC[l % 9]!)
+  }
 
   return (Math.PI / medium.dockDepth[0]!) * sum
 }

@@ -52,7 +52,15 @@ import { verdict } from '@/test/scaffold/verdict'
 import { arrowBox, type ArrowBox } from '@/code/measure/second-law-husk'
 import { knotStart, knotStream } from '@/code/measure/held-knot'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
-import { classCorrelation, classSums, displacementClasses, fluctuations, gaussianInformation, jackknife, recordRun } from '@/code/measure/shared-distance'
+import {
+  classCorrelation,
+  classSums,
+  displacementClasses,
+  fluctuations,
+  gaussianInformation,
+  jackknife,
+  recordRun,
+} from '@/code/measure/shared-distance'
 
 const SIDE = 16
 const PER_DOCK = 8
@@ -65,22 +73,32 @@ export default experiment({
   id: 'gravity/shared-information-distance',
   code: 'E-GRV-0064',
   title:
-    'no distance from shared information on the adopted knit\'s vacuum, fail on C3 and C4: on the settled gas (side 16, 8/24 per slot, 17 starts, 192 beats) the Gaussian mutual information between husk columns, from the members\' connected energy correlation, is zero within errors at every separation: all 21 displacement classes (axis, face and body diagonals, k = 1 to 7) have |rho| at most 5.2e-4, none of the 16 classes of mesh distance up to 6 is 3 errors from zero (nearest axis neighbor 4.3e-5 +- 1.9e-4), and the mean, about -2.5e-4, is the conserved total\'s own -1/(4,096 - 1) = -2.44e-4 at every separation; the reading is translation invariant (the two halves agree within 3 errors, trivially), energy and charge exact; the settled vacuum is a product state on the husk, so neither d ~ I^(-1/2) nor d ~ -ln I can give back the mesh distance',
+    "no distance from shared information on the adopted knit's vacuum, fail on C3 and C4: on the settled gas (side 16, 8/24 per slot, 17 starts, 192 beats) the Gaussian mutual information between husk columns, from the members' connected energy correlation, is zero within errors at every separation: all 21 displacement classes (axis, face and body diagonals, k = 1 to 7) have |rho| at most 5.2e-4, none of the 16 classes of mesh distance up to 6 is 3 errors from zero (nearest axis neighbor 4.3e-5 +- 1.9e-4), and the mean, about -2.5e-4, is the conserved total's own -1/(4,096 - 1) = -2.44e-4 at every separation; the reading is translation invariant (the two halves agree within 3 errors, trivially), energy and charge exact; the settled vacuum is a product state on the husk, so neither d ~ I^(-1/2) nor d ~ -ln I can give back the mesh distance",
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const members = startFamily(16)
+
     let box: ArrowBox | undefined
+
     const runs = members.map((member, k) => {
       box = withStart(member, () => arrowBox(SIDE, 1))
 
       const plain = knotStream(box, -1, [0, 0, 0])
 
-      return recordRun(plain, knotStart(plain, { perDock: PER_DOCK, phase: k, lump: false }), SETTLE, SAMPLES)
+      return recordRun(
+        plain,
+        knotStart(plain, { perDock: PER_DOCK, phase: k, lump: false }),
+        SETTLE,
+        SAMPLES,
+      )
     })
 
     log('runs')
@@ -91,50 +109,121 @@ export default experiment({
 
     log('sums')
 
-    const rho = (j: number, h: 0 | 1 | 2) => jackknife(sums, total => classCorrelation(total, classes, j, h, columns))
-    const info = (j: number) => jackknife(sums, total => gaussianInformation(classCorrelation(total, classes, j, 2, columns)))
+    const rho = (j: number, h: 0 | 1 | 2) =>
+      jackknife(sums, total =>
+        classCorrelation(total, classes, j, h, columns),
+      )
+    const info = (j: number) =>
+      jackknife(sums, total =>
+        gaussianInformation(
+          classCorrelation(total, classes, j, 2, columns),
+        ),
+      )
     const infoGap = (i: number, j: number) =>
-      jackknife(sums, total => gaussianInformation(classCorrelation(total, classes, i, 2, columns)) - gaussianInformation(classCorrelation(total, classes, j, 2, columns)))
-    const halfGap = (j: number) => jackknife(sums, total => classCorrelation(total, classes, j, 0, columns) - classCorrelation(total, classes, j, 1, columns))
+      jackknife(
+        sums,
+        total =>
+          gaussianInformation(
+            classCorrelation(total, classes, i, 2, columns),
+          ) -
+          gaussianInformation(
+            classCorrelation(total, classes, j, 2, columns),
+          ),
+      )
+    const halfGap = (j: number) =>
+      jackknife(
+        sums,
+        total =>
+          classCorrelation(total, classes, j, 0, columns) -
+          classCorrelation(total, classes, j, 1, columns),
+      )
 
-    const axis1 = classes.findIndex(c => c.family === 'axis' && c.k === 1)
-    const all = classes.map((c, j) => ({ c, j, rho: rho(j, 2), info: info(j), halves: halfGap(j) }))
+    const axis1 = classes.findIndex(
+      c => c.family === 'axis' && c.k === 1,
+    )
+    const all = classes.map((c, j) => ({
+      c,
+      j,
+      rho: rho(j, 2),
+      info: info(j),
+      halves: halfGap(j),
+    }))
     const calibration = all.filter(x => x.c.mesh <= CALIBRATION)
     const i1 = all[axis1]!.info.value
 
     const g1 = runs.every(r => r.exact)
-    const g2 = calibration.every(x => Math.abs(x.halves.value) <= 3 * x.halves.error)
-    const far = all.filter(x => x.c.mesh >= 4).map(x => infoGap(axis1, x.j))
-    const g3 = Math.abs(all[axis1]!.rho.value) >= 3 * all[axis1]!.rho.error && far.every(g => g.value >= 3 * g.error)
+    const g2 = calibration.every(
+      x => Math.abs(x.halves.value) <= 3 * x.halves.error,
+    )
+    const far = all
+      .filter(x => x.c.mesh >= 4)
+      .map(x => infoGap(axis1, x.j))
+    const g3 =
+      Math.abs(all[axis1]!.rho.value) >= 3 * all[axis1]!.rho.error &&
+      far.every(g => g.value >= 3 * g.error)
 
     // the two emergent distances
-    const power = (x: (typeof all)[number]): number => (x.info.value > 0 && i1 > 0 ? Math.sqrt(i1 / x.info.value) : Infinity)
-    const logRatio = (x: (typeof all)[number]): number => (x.info.value > 0 && i1 > 0 ? Math.log(i1 / x.info.value) : Infinity)
-    const fitSet = calibration.filter(x => x.c.mesh > 1 && Number.isFinite(logRatio(x)))
-    const kappa = fitSet.length > 0 ? fitSet.reduce((a, x) => a + logRatio(x) * (x.c.mesh - 1), 0) / fitSet.reduce((a, x) => a + (x.c.mesh - 1) ** 2, 0) : 0
-    const logDistance = (x: (typeof all)[number]): number => (kappa > 0 ? 1 + logRatio(x) / kappa : Infinity)
-    const within = (d: number, mesh: number): boolean => Number.isFinite(d) && Math.abs(d / mesh - 1) <= 0.25
-    const significant = calibration.every(x => Math.abs(x.rho.value) >= 3 * x.rho.error)
-    const powerHolds = calibration.every(x => within(power(x), x.c.mesh))
-    const logHolds = calibration.every(x => within(logDistance(x), x.c.mesh))
+    const power = (x: (typeof all)[number]): number =>
+      x.info.value > 0 && i1 > 0
+        ? Math.sqrt(i1 / x.info.value)
+        : Infinity
+    const logRatio = (x: (typeof all)[number]): number =>
+      x.info.value > 0 && i1 > 0
+        ? Math.log(i1 / x.info.value)
+        : Infinity
+    const fitSet = calibration.filter(
+      x => x.c.mesh > 1 && Number.isFinite(logRatio(x)),
+    )
+    const kappa =
+      fitSet.length > 0
+        ? fitSet.reduce((a, x) => a + logRatio(x) * (x.c.mesh - 1), 0) /
+          fitSet.reduce((a, x) => a + (x.c.mesh - 1) ** 2, 0)
+        : 0
+    const logDistance = (x: (typeof all)[number]): number =>
+      kappa > 0 ? 1 + logRatio(x) / kappa : Infinity
+    const within = (d: number, mesh: number): boolean =>
+      Number.isFinite(d) && Math.abs(d / mesh - 1) <= 0.25
+    const significant = calibration.every(
+      x => Math.abs(x.rho.value) >= 3 * x.rho.error,
+    )
+    const powerHolds = calibration.every(x =>
+      within(power(x), x.c.mesh),
+    )
+    const logHolds = calibration.every(x =>
+      within(logDistance(x), x.c.mesh),
+    )
     const g4 = significant && (powerHolds || logHolds)
 
-    const rms = (form: (x: (typeof all)[number]) => number, target: (x: (typeof all)[number]) => number): number => {
+    const rms = (
+      form: (x: (typeof all)[number]) => number,
+      target: (x: (typeof all)[number]) => number,
+    ): number => {
       const finite = calibration.filter(x => Number.isFinite(form(x)))
 
-      return finite.length > 0 ? Math.sqrt(finite.reduce((a, x) => a + (form(x) / target(x) - 1) ** 2, 0) / finite.length) : -1
+      return finite.length > 0
+        ? Math.sqrt(
+            finite.reduce(
+              (a, x) => a + (form(x) / target(x) - 1) ** 2,
+              0,
+            ) / finite.length,
+          )
+        : -1
     }
 
     const status = !g1 ? 'partial' : g2 && g3 && g4 ? 'pass' : 'fail'
-    const label = (x: (typeof all)[number]): string => `${x.c.family}${x.c.k}`
-    const e = (v: number): string => (Number.isFinite(v) ? v.toExponential(2) : 'inf')
+    const label = (x: (typeof all)[number]): string =>
+      `${x.c.family}${x.c.k}`
+    const e = (v: number): string =>
+      Number.isFinite(v) ? v.toExponential(2) : 'inf'
     const table = all
       .map(
         x =>
           `${label(x)} (mesh ${x.c.mesh}, euclid ${x.c.euclid.toFixed(2)}): rho ${e(x.rho.value)} +- ${e(x.rho.error)}, I ${e(x.info.value)} +- ${e(x.info.error)}, halves gap ${e(x.halves.value)} +- ${e(x.halves.error)}, d power ${Number.isFinite(power(x)) ? power(x).toFixed(2) : 'inf'}, d log ${Number.isFinite(logDistance(x)) ? logDistance(x).toFixed(2) : 'inf'}`,
       )
       .join('; ')
-    const significantCount = calibration.filter(x => Math.abs(x.rho.value) >= 3 * x.rho.error).length
+    const significantCount = calibration.filter(
+      x => Math.abs(x.rho.value) >= 3 * x.rho.error,
+    ).length
 
     return verdict({
       status,
@@ -151,8 +240,12 @@ export default experiment({
         powerRmsEuclid: rms(power, x => x.c.euclid),
         logRmsMesh: rms(logDistance, x => x.c.mesh),
         logRmsEuclid: rms(logDistance, x => x.c.euclid),
-        ...Object.fromEntries(all.map(x => [`rho_${label(x)}`, x.rho.value])),
-        ...Object.fromEntries(all.map(x => [`rhoError_${label(x)}`, x.rho.error])),
+        ...Object.fromEntries(
+          all.map(x => [`rho_${label(x)}`, x.rho.value]),
+        ),
+        ...Object.fromEntries(
+          all.map(x => [`rhoError_${label(x)}`, x.rho.error]),
+        ),
         seconds: (Date.now() - started) / 1000,
       },
       control: {

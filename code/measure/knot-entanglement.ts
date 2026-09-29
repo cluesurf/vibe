@@ -13,8 +13,15 @@
 //   a wedge b (the space has dimension 3), so every pure state of every decomposition has Schmidt weights
 //   (1/2, 1/2) and C^2 = 1 exactly (Ou 2007)
 
-import { hermitianEigenvectors, hermitianSpectrum } from '@/code/measure/qutrit-clifford'
-import { operator, phasePointOperators, type Operator } from '@/code/measure/grid-weights'
+import {
+  hermitianEigenvectors,
+  hermitianSpectrum,
+} from '@/code/measure/qutrit-clifford'
+import {
+  operator,
+  phasePointOperators,
+  type Operator,
+} from '@/code/measure/grid-weights'
 import { signOf } from '@/code/measure/role-bell'
 
 type Hermitian3 = { re: Float64Array; im: Float64Array }
@@ -22,11 +29,20 @@ type Hermitian3 = { re: Float64Array; im: Float64Array }
 const ONE_ROLE = phasePointOperators(1)
 
 // rho = sum_x W(x) A(x1) x ... x A(xk) for k = 1, 2, 3 roles, by contracting one role at a time
-export function densityOf(weight: readonly bigint[], roles: number): Operator {
+export function densityOf(
+  weight: readonly bigint[],
+  roles: number,
+): Operator {
   const n = Number(weight.reduce((a, b) => a + b, 0n))
   const dim = 3 ** roles
+
   // current: for each remaining prefix of points, an operator on the roles already contracted (the last ones)
-  let current: { re: Float64Array; im: Float64Array }[] = weight.map(w => ({ re: Float64Array.of(Number(w) / n), im: Float64Array.of(0) }))
+  let current: { re: Float64Array; im: Float64Array }[] = weight.map(
+    w => ({
+      re: Float64Array.of(Number(w) / n),
+      im: Float64Array.of(0),
+    }),
+  )
   let done = 0
 
   for (let r = roles - 1; r >= 0; r--) {
@@ -81,10 +97,15 @@ export function densityOf(weight: readonly bigint[], roles: number): Operator {
 }
 
 // the reduced operator of the kept roles (in their order), for an operator on `roles` qutrits
-export function partialTrace(rho: Operator, roles: number, keep: readonly number[]): Operator {
+export function partialTrace(
+  rho: Operator,
+  roles: number,
+  keep: readonly number[],
+): Operator {
   const dim = 3 ** keep.length
   const out = operator(dim)
-  const digit = (index: number, r: number): number => Math.floor(index / 3 ** (roles - 1 - r)) % 3
+  const digit = (index: number, r: number): number =>
+    Math.floor(index / 3 ** (roles - 1 - r)) % 3
 
   for (let row = 0; row < rho.n; row++) {
     for (let col = 0; col < rho.n; col++) {
@@ -101,8 +122,11 @@ export function partialTrace(rho: Operator, roles: number, keep: readonly number
       const kr = keep.reduce((a, r) => a * 3 + digit(row, r), 0)
       const kc = keep.reduce((a, r) => a * 3 + digit(col, r), 0)
 
-      out.re[kr * dim + kc] = (out.re[kr * dim + kc] ?? 0) + (rho.re[row * rho.n + col] ?? 0)
-      out.im[kr * dim + kc] = (out.im[kr * dim + kc] ?? 0) + (rho.im[row * rho.n + col] ?? 0)
+      out.re[kr * dim + kc] =
+        (out.re[kr * dim + kc] ?? 0) + (rho.re[row * rho.n + col] ?? 0)
+
+      out.im[kr * dim + kc] =
+        (out.im[kr * dim + kc] ?? 0) + (rho.im[row * rho.n + col] ?? 0)
     }
   }
 
@@ -139,11 +163,17 @@ function traceNorm(a: Operator): number {
     }
   }
 
-  return hermitianSpectrum(g).reduce((s, x) => s + Math.sqrt(Math.max(0, x)), 0)
+  return hermitianSpectrum(g).reduce(
+    (s, x) => s + Math.sqrt(Math.max(0, x)),
+    0,
+  )
 }
 
 // the concurrence of a pure two-qutrit vector, sqrt(2 (1 - Tr rho_A^2))
-export function pureConcurrence(re: readonly number[], im: readonly number[]): number {
+export function pureConcurrence(
+  re: readonly number[],
+  im: readonly number[],
+): number {
   let purity = 0
 
   for (let i = 0; i < 3; i++) {
@@ -153,8 +183,13 @@ export function pureConcurrence(re: readonly number[], im: readonly number[]): n
 
       for (let k = 0; k < 3; k++) {
         // psi_ik conj(psi_jk)
-        r += (re[3 * i + k] ?? 0) * (re[3 * j + k] ?? 0) + (im[3 * i + k] ?? 0) * (im[3 * j + k] ?? 0)
-        m += (im[3 * i + k] ?? 0) * (re[3 * j + k] ?? 0) - (re[3 * i + k] ?? 0) * (im[3 * j + k] ?? 0)
+        r +=
+          (re[3 * i + k] ?? 0) * (re[3 * j + k] ?? 0) +
+          (im[3 * i + k] ?? 0) * (im[3 * j + k] ?? 0)
+
+        m +=
+          (im[3 * i + k] ?? 0) * (re[3 * j + k] ?? 0) -
+          (re[3 * i + k] ?? 0) * (im[3 * j + k] ?? 0)
       }
 
       purity += r * r + m * m
@@ -164,7 +199,12 @@ export function pureConcurrence(re: readonly number[], im: readonly number[]): n
   return Math.sqrt(Math.max(0, 2 * (1 - purity)))
 }
 
-export type ConcurrenceBounds = { lower: number; upper: number; antisymmetric: boolean; exact: number | null }
+export type ConcurrenceBounds = {
+  lower: number
+  upper: number
+  antisymmetric: boolean
+  exact: number | null
+}
 
 // bounds on the concurrence of a two-qutrit density matrix (9 x 9, index 3 i + j)
 export function concurrenceBounds(rho: Operator): ConcurrenceBounds {
@@ -181,15 +221,23 @@ export function concurrenceBounds(rho: Operator): ConcurrenceBounds {
           pt.re[(3 * i + l) * 9 + (3 * k + j)] = rho.re[from] ?? 0
           pt.im[(3 * i + l) * 9 + (3 * k + j)] = rho.im[from] ?? 0
           // realignment: (i k),(j l)
-          realigned.re[(3 * i + k) * 9 + (3 * j + l)] = rho.re[from] ?? 0
-          realigned.im[(3 * i + k) * 9 + (3 * j + l)] = rho.im[from] ?? 0
+          realigned.re[(3 * i + k) * 9 + (3 * j + l)] =
+            rho.re[from] ?? 0
+
+          realigned.im[(3 * i + k) * 9 + (3 * j + l)] =
+            rho.im[from] ?? 0
         }
       }
     }
   }
 
-  const lower = Math.max(0, (Math.max(traceNormHermitian(pt), traceNorm(realigned)) - 1) / Math.sqrt(3))
+  const lower = Math.max(
+    0,
+    (Math.max(traceNormHermitian(pt), traceNorm(realigned)) - 1) /
+      Math.sqrt(3),
+  )
   const { values, vectors } = hermitianEigenvectors(rho)
+
   let upper = 0
 
   values.forEach((p, c) => {
@@ -197,8 +245,14 @@ export function concurrenceBounds(rho: Operator): ConcurrenceBounds {
       upper +=
         p *
         pureConcurrence(
-          Array.from({ length: 9 }, (_, i) => vectors.re[i * 9 + c] ?? 0),
-          Array.from({ length: 9 }, (_, i) => vectors.im[i * 9 + c] ?? 0),
+          Array.from(
+            { length: 9 },
+            (_, i) => vectors.re[i * 9 + c] ?? 0,
+          ),
+          Array.from(
+            { length: 9 },
+            (_, i) => vectors.im[i * 9 + c] ?? 0,
+          ),
         )
     }
   })
@@ -208,20 +262,36 @@ export function concurrenceBounds(rho: Operator): ConcurrenceBounds {
 
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 3; j++) {
-      symmetric += ((rho.re[(3 * i + j) * 9 + (3 * i + j)] ?? 0) + (rho.re[(3 * i + j) * 9 + (3 * j + i)] ?? 0)) / 2
+      symmetric +=
+        ((rho.re[(3 * i + j) * 9 + (3 * i + j)] ?? 0) +
+          (rho.re[(3 * i + j) * 9 + (3 * j + i)] ?? 0)) /
+        2
     }
   }
 
   const antisymmetric = Math.abs(symmetric) < 1e-12
 
-  return { lower, upper, antisymmetric, exact: antisymmetric ? 1 : null }
+  return {
+    lower,
+    upper,
+    antisymmetric,
+    exact: antisymmetric ? 1 : null,
+  }
 }
 
 // Tr_(others)[rho (O_q x O_r)] as a 3 x 3 operator on `party`, for three roles, given the other two parties'
 // observables in role order
-function contract(rho: Operator, party: number, others: readonly [Hermitian3, Hermitian3]): Hermitian3 {
-  const out: Hermitian3 = { re: new Float64Array(9), im: new Float64Array(9) }
+function contract(
+  rho: Operator,
+  party: number,
+  others: readonly [Hermitian3, Hermitian3],
+): Hermitian3 {
+  const out: Hermitian3 = {
+    re: new Float64Array(9),
+    im: new Float64Array(9),
+  }
   const [q, r] = [0, 1, 2].filter(x => x !== party) as [number, number]
+
   const index = (p: number, a: number, b: number): number => {
     const d = [0, 0, 0]
 
@@ -245,8 +315,16 @@ function contract(rho: Operator, party: number, others: readonly [Hermitian3, He
               const at = index(i, a, b) * 27 + index(k, c, d)
               const rr = rho.re[at] ?? 0
               const ri = rho.im[at] ?? 0
-              const or = (others[0].re[c * 3 + a] ?? 0) * (others[1].re[d * 3 + b] ?? 0) - (others[0].im[c * 3 + a] ?? 0) * (others[1].im[d * 3 + b] ?? 0)
-              const oi = (others[0].re[c * 3 + a] ?? 0) * (others[1].im[d * 3 + b] ?? 0) + (others[0].im[c * 3 + a] ?? 0) * (others[1].re[d * 3 + b] ?? 0)
+              const or =
+                (others[0].re[c * 3 + a] ?? 0) *
+                  (others[1].re[d * 3 + b] ?? 0) -
+                (others[0].im[c * 3 + a] ?? 0) *
+                  (others[1].im[d * 3 + b] ?? 0)
+              const oi =
+                (others[0].re[c * 3 + a] ?? 0) *
+                  (others[1].im[d * 3 + b] ?? 0) +
+                (others[0].im[c * 3 + a] ?? 0) *
+                  (others[1].re[d * 3 + b] ?? 0)
 
               re += rr * or - ri * oi
               im += rr * oi + ri * or
@@ -261,12 +339,18 @@ function contract(rho: Operator, party: number, others: readonly [Hermitian3, He
   }
 
   // the Hermitian part
-  const h: Hermitian3 = { re: new Float64Array(9), im: new Float64Array(9) }
+  const h: Hermitian3 = {
+    re: new Float64Array(9),
+    im: new Float64Array(9),
+  }
 
   for (let i = 0; i < 3; i++) {
     for (let k = 0; k < 3; k++) {
-      h.re[i * 3 + k] = ((out.re[i * 3 + k] ?? 0) + (out.re[k * 3 + i] ?? 0)) / 2
-      h.im[i * 3 + k] = ((out.im[i * 3 + k] ?? 0) - (out.im[k * 3 + i] ?? 0)) / 2
+      h.re[i * 3 + k] =
+        ((out.re[i * 3 + k] ?? 0) + (out.re[k * 3 + i] ?? 0)) / 2
+
+      h.im[i * 3 + k] =
+        ((out.im[i * 3 + k] ?? 0) - (out.im[k * 3 + i] ?? 0)) / 2
     }
   }
 
@@ -278,7 +362,9 @@ function traceWith(a: Hermitian3, b: Hermitian3): number {
 
   for (let i = 0; i < 3; i++) {
     for (let k = 0; k < 3; k++) {
-      s += (a.re[i * 3 + k] ?? 0) * (b.re[k * 3 + i] ?? 0) - (a.im[i * 3 + k] ?? 0) * (b.im[k * 3 + i] ?? 0)
+      s +=
+        (a.re[i * 3 + k] ?? 0) * (b.re[k * 3 + i] ?? 0) -
+        (a.im[i * 3 + k] ?? 0) * (b.im[k * 3 + i] ?? 0)
     }
   }
 
@@ -293,27 +379,42 @@ const add = (a: Hermitian3, b: Hermitian3, s: number): Hermitian3 => ({
 // Mermin's M = <A1 B1 C1> - <A1 B2 C2> - <A2 B1 C2> - <A2 B2 C1> (local bound 2, quantum 4) over two-outcome
 // observables on each of three roles, by a see-saw from deterministic starts (a lower bound on the maximum).
 // starts: a list of six Hermitian 3 x 3 matrices per start (A1, A2, B1, B2, C1, C2 before taking signs)
-export function merminSeeSaw(rho: Operator, starts: readonly (readonly Hermitian3[])[], steps: number): number {
+export function merminSeeSaw(
+  rho: Operator,
+  starts: readonly (readonly Hermitian3[])[],
+  steps: number,
+): number {
   // terms: (setting of A, of B, of C, sign)
-  const terms: readonly (readonly [number, number, number, number])[] = [
-    [0, 0, 0, 1],
-    [0, 1, 1, -1],
-    [1, 0, 1, -1],
-    [1, 1, 0, -1],
-  ]
+  const terms: readonly (readonly [number, number, number, number])[] =
+    [
+      [0, 0, 0, 1],
+      [0, 1, 1, -1],
+      [1, 0, 1, -1],
+      [1, 1, 0, -1],
+    ]
+
   let best = Number.NEGATIVE_INFINITY
 
   for (const start of starts) {
-    const o: Hermitian3[][] = [0, 1, 2].map(p => [signOf(start[2 * p]!), signOf(start[2 * p + 1]!)])
+    const o: Hermitian3[][] = [0, 1, 2].map(p => [
+      signOf(start[2 * p]!),
+      signOf(start[2 * p + 1]!),
+    ])
+
     let value = Number.NEGATIVE_INFINITY
 
     for (let step = 0; step < steps; step++) {
       for (let party = 0; party < 3; party++) {
-        const x: Hermitian3[] = [0, 1].map(() => ({ re: new Float64Array(9), im: new Float64Array(9) }))
+        const x: Hermitian3[] = [0, 1].map(() => ({
+          re: new Float64Array(9),
+          im: new Float64Array(9),
+        }))
 
         for (const t of terms) {
           const settings = [t[0], t[1], t[2]]
-          const others = [0, 1, 2].filter(p => p !== party).map(p => o[p]![settings[p]!]!) as [Hermitian3, Hermitian3]
+          const others = [0, 1, 2]
+            .filter(p => p !== party)
+            .map(p => o[p]![settings[p]!]!) as [Hermitian3, Hermitian3]
           const c = contract(rho, party, others)
           const s = settings[party]!
 
@@ -323,7 +424,8 @@ export function merminSeeSaw(rho: Operator, starts: readonly (readonly Hermitian
         o[party] = [signOf(x[0]!), signOf(x[1]!)]
 
         if (party === 2) {
-          const next = traceWith(o[2]![0]!, x[0]!) + traceWith(o[2]![1]!, x[1]!)
+          const next =
+            traceWith(o[2]![0]!, x[0]!) + traceWith(o[2]![1]!, x[1]!)
 
           if (Math.abs(next - value) < 1e-13) {
             value = next

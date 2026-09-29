@@ -59,8 +59,10 @@ export function loneChargeCurrent(input: {
   const degree = mesh.degree
   const dimension = directions[0]?.length ?? 0
   const table = streamSourceTable(mesh)
+
   let src: Will = makeWill(mesh)
   let dst: Will = makeWill(mesh)
+
   const total = new Array<number>(dimension).fill(0)
 
   src.data[input.cell * degree + input.direction] = input.tone
@@ -94,7 +96,8 @@ export function loneChargeCurrent(input: {
 
         for (let a = 0; a < dimension; a++) {
           total[a] =
-            (total[a] ?? 0) - tone * (direction[a] ?? 0) * mesh.cellCount
+            (total[a] ?? 0) -
+            tone * (direction[a] ?? 0) * mesh.cellCount
         }
       }
     }
@@ -130,6 +133,7 @@ export function loneTravel(input: {
   const { mesh, schedule, vacuum, direction, beats } = input
   const degree = mesh.degree
   const table = streamSourceTable(mesh)
+
   let src: Will = makeWill(mesh)
   let dst: Will = makeWill(mesh)
   let expected = input.cell
@@ -160,6 +164,7 @@ export function loneTravel(input: {
 
     // after streaming a uniform vacuum is still v_t in every cell
     const background = vacuum[t] ?? new Int8Array(degree)
+
     let support = 0
     let at = -1
 
@@ -206,7 +211,11 @@ export function selfDualSplit(matrix: readonly (readonly number[])[]): {
 
   return {
     selfDual: [f(0, 1) + f(2, 3), f(0, 2) - f(1, 3), f(0, 3) + f(1, 2)],
-    antiSelfDual: [f(0, 1) - f(2, 3), f(0, 2) + f(1, 3), f(0, 3) - f(1, 2)],
+    antiSelfDual: [
+      f(0, 1) - f(2, 3),
+      f(0, 2) + f(1, 3),
+      f(0, 3) - f(1, 2),
+    ],
   }
 }
 
@@ -236,14 +245,36 @@ function applyMatrix(
 
 // the unit quaternion r (up to sign) whose conjugation x -> r x conj(r) is the given rotation Q of
 // the imaginary three-space (Q given as its action on i, j, k, columns), by the trace formula
-function quaternionOfRotation(q: readonly (readonly number[])[]): Quaternion4 {
+function quaternionOfRotation(
+  q: readonly (readonly number[])[],
+): Quaternion4 {
   const m = (i: number, j: number): number => q[i]?.[j] ?? 0
   const trace = m(0, 0) + m(1, 1) + m(2, 2)
   const candidates: Quaternion4[] = [
-    [1 + trace, m(2, 1) - m(1, 2), m(0, 2) - m(2, 0), m(1, 0) - m(0, 1)],
-    [m(2, 1) - m(1, 2), 1 + m(0, 0) - m(1, 1) - m(2, 2), m(0, 1) + m(1, 0), m(0, 2) + m(2, 0)],
-    [m(0, 2) - m(2, 0), m(0, 1) + m(1, 0), 1 - m(0, 0) + m(1, 1) - m(2, 2), m(1, 2) + m(2, 1)],
-    [m(1, 0) - m(0, 1), m(0, 2) + m(2, 0), m(1, 2) + m(2, 1), 1 - m(0, 0) - m(1, 1) + m(2, 2)],
+    [
+      1 + trace,
+      m(2, 1) - m(1, 2),
+      m(0, 2) - m(2, 0),
+      m(1, 0) - m(0, 1),
+    ],
+    [
+      m(2, 1) - m(1, 2),
+      1 + m(0, 0) - m(1, 1) - m(2, 2),
+      m(0, 1) + m(1, 0),
+      m(0, 2) + m(2, 0),
+    ],
+    [
+      m(0, 2) - m(2, 0),
+      m(0, 1) + m(1, 0),
+      1 - m(0, 0) + m(1, 1) - m(2, 2),
+      m(1, 2) + m(2, 1),
+    ],
+    [
+      m(1, 0) - m(0, 1),
+      m(0, 2) + m(2, 0),
+      m(1, 2) + m(2, 1),
+      1 - m(0, 0) - m(1, 1) + m(2, 2),
+    ],
   ]
   // the numerically best of the four equivalent forms is the one with the largest norm
   const best = candidates.reduce((x, y) =>
@@ -267,14 +298,21 @@ export function isoclinicFactors(
     [0, 0, 1, 0],
     [0, 0, 0, 1],
   ]
-  const images = basis.map(x => quaternionProduct(aBar, applyMatrix(matrix, x)))
-  const rotation = [0, 1, 2].map(i => [0, 1, 2].map(j => images[j]?.[i + 1] ?? 0))
+  const images = basis.map(x =>
+    quaternionProduct(aBar, applyMatrix(matrix, x)),
+  )
+  const rotation = [0, 1, 2].map(i =>
+    [0, 1, 2].map(j => images[j]?.[i + 1] ?? 0),
+  )
   const right = quaternionOfRotation(rotation)
   const left = quaternionProduct(a, right)
 
   // check the factorization on every basis vector
   for (const x of [[1, 0, 0, 0], ...basis]) {
-    const image = quaternionProduct(quaternionProduct(left, x), quaternionBar(right))
+    const image = quaternionProduct(
+      quaternionProduct(left, x),
+      quaternionBar(right),
+    )
     const target = applyMatrix(matrix, x)
 
     if (image.some((v, k) => Math.abs(v - (target[k] ?? 0)) > 1e-9)) {
@@ -287,11 +325,16 @@ export function isoclinicFactors(
 
 // the SO(3) rotation angle, in degrees, of the unit quaternion q acting by conjugation (sign blind)
 export function so3AngleDegrees(q: readonly number[]): number {
-  return (2 * Math.acos(Math.min(1, Math.abs(q[0] ?? 0))) * 180) / Math.PI
+  return (
+    (2 * Math.acos(Math.min(1, Math.abs(q[0] ?? 0))) * 180) / Math.PI
+  )
 }
 
 // the order of a unit quaternion in SU(2), or 0 when none up to the limit
-export function quaternionOrder(q: readonly number[], limit = 48): number {
+export function quaternionOrder(
+  q: readonly number[],
+  limit = 48,
+): number {
   let power: Quaternion4 = [q[0] ?? 0, q[1] ?? 0, q[2] ?? 0, q[3] ?? 0]
 
   for (let n = 1; n <= limit; n++) {

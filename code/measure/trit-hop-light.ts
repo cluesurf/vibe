@@ -21,32 +21,63 @@
 // THE PHOTON. c = sqrt(2 kappa / 3) at long waves (E-FRC-0179), kappa = 2p / (2D + 1). So alpha = C / (hbar
 // c) = 1 / (24 D c) for a charge of one vibe.
 
-import { makeComplexMatrix, type ComplexMatrix } from '@/code/algebra/linear/dense'
+import {
+  makeComplexMatrix,
+  type ComplexMatrix,
+} from '@/code/algebra/linear/dense'
 import { sortedEigen } from '@/code/measure/trit-column-light'
 import { weyl } from '@/code/tool/weyl'
-import { TRIT_HUSK_VECTORS, type HuskLightState } from '@/code/rule/trit-column'
-import { emptyHusk, fastFlux, type HuskEngine, type HuskGeometry } from '@/code/rule/trit-husk'
+import {
+  TRIT_HUSK_VECTORS,
+  type HuskLightState,
+} from '@/code/rule/trit-column'
+import {
+  emptyHusk,
+  fastFlux,
+  type HuskEngine,
+  type HuskGeometry,
+} from '@/code/rule/trit-husk'
 
 export const G_METRIC = [2, 2, 2, 1, 1, 1, 1, 1, 1]
 
-export const kappaOf = (depth: number, p = 1): number => (2 * p) / (2 * depth + 1)
-export const lightSpeedOf = (depth: number, p = 1): number => Math.sqrt((2 * kappaOf(depth, p)) / 3)
-export const alphaFormula = (depth: number, p = 1): number => 1 / (24 * depth * lightSpeedOf(depth, p))
+export const kappaOf = (depth: number, p = 1): number =>
+  (2 * p) / (2 * depth + 1)
+export const lightSpeedOf = (depth: number, p = 1): number =>
+  Math.sqrt((2 * kappaOf(depth, p)) / 3)
+export const alphaFormula = (depth: number, p = 1): number =>
+  1 / (24 * depth * lightSpeedOf(depth, p))
 
 const mod = (x: number, m: number): number => ((x % m) + m) % m
 
-export function coordinates(side: number, y: number): [number, number, number] {
-  return [y % side, Math.floor(y / side) % side, Math.floor(y / (side * side))]
+export function coordinates(
+  side: number,
+  y: number,
+): [number, number, number] {
+  return [
+    y % side,
+    Math.floor(y / side) % side,
+    Math.floor(y / (side * side)),
+  ]
 }
 
-export function dockAt(side: number, a: number, b: number, c: number): number {
+export function dockAt(
+  side: number,
+  a: number,
+  b: number,
+  c: number,
+): number {
   return mod(a, side) + side * mod(b, side) + side * side * mod(c, side)
 }
 
 // torus distance between two husk docks
-export function torusDistance(side: number, y: number, z: number): number {
+export function torusDistance(
+  side: number,
+  y: number,
+  z: number,
+): number {
   const a = coordinates(side, y)
   const b = coordinates(side, z)
+
   let s = 0
 
   for (let i = 0; i < 3; i++) {
@@ -61,7 +92,10 @@ export function torusDistance(side: number, y: number, z: number): number {
 // ---------------------------------------------------------------------------------------------------------
 // the rule's husk symbol from a geometry (the same construction as trit-column-light's tritHuskSymbol)
 
-export function geometrySymbol(g: HuskGeometry, k: readonly number[]): ComplexMatrix {
+export function geometrySymbol(
+  g: HuskGeometry,
+  k: readonly number[],
+): ComplexMatrix {
   const km = makeComplexMatrix({ rows: 9, cols: 9 })
   const re = new Float64Array(9)
   const im = new Float64Array(9)
@@ -73,7 +107,8 @@ export function geometrySymbol(g: HuskGeometry, k: readonly number[]): ComplexMa
     for (let j = 0; j < 3; j++) {
       const l = g.triLinks[p * 3 + j] ?? 0
       const y = coordinates(g.side, Math.floor(l / 9))
-      const phase = y[0] * (k[0] ?? 0) + y[1] * (k[1] ?? 0) + y[2] * (k[2] ?? 0)
+      const phase =
+        y[0] * (k[0] ?? 0) + y[1] * (k[1] ?? 0) + y[2] * (k[2] ?? 0)
       const c = g.triSigns[p * 3 + j] ?? 0
 
       re[l % 9] = (re[l % 9] ?? 0) + c * Math.cos(phase)
@@ -84,8 +119,15 @@ export function geometrySymbol(g: HuskGeometry, k: readonly number[]): ComplexMa
 
     for (let a = 0; a < 9; a++) {
       for (let b = 0; b < 9; b++) {
-        km.re[a * 9 + b] = (km.re[a * 9 + b] ?? 0) + n * ((re[a] ?? 0) * (re[b] ?? 0) + (im[a] ?? 0) * (im[b] ?? 0))
-        km.im[a * 9 + b] = (km.im[a * 9 + b] ?? 0) + n * ((re[a] ?? 0) * (im[b] ?? 0) - (im[a] ?? 0) * (re[b] ?? 0))
+        km.re[a * 9 + b] =
+          (km.re[a * 9 + b] ?? 0) +
+          n *
+            ((re[a] ?? 0) * (re[b] ?? 0) + (im[a] ?? 0) * (im[b] ?? 0))
+
+        km.im[a * 9 + b] =
+          (km.im[a * 9 + b] ?? 0) +
+          n *
+            ((re[a] ?? 0) * (im[b] ?? 0) - (im[a] ?? 0) * (re[b] ?? 0))
       }
     }
   }
@@ -107,26 +149,49 @@ export function geometrySymbol(g: HuskGeometry, k: readonly number[]): ComplexMa
 // ---------------------------------------------------------------------------------------------------------
 // waves on the fast husk engine (the reading of trit-column-light's tritWave, on any side and depth)
 
-export type FastWave = { lambda: number; omegaSymbol: number; omegaRead: number; relative: number; maxField: number; series: number[] }
+export type FastWave = {
+  lambda: number
+  omegaSymbol: number
+  omegaRead: number
+  relative: number
+  maxField: number
+  series: number[]
+}
 
-export function fastWave(engine: HuskEngine, symbolGeometry: HuskGeometry, k: readonly number[], rank: number, peakB: number, beats: number, step: (s: HuskLightState) => void): FastWave {
+export function fastWave(
+  engine: HuskEngine,
+  symbolGeometry: HuskGeometry,
+  k: readonly number[],
+  rank: number,
+  peakB: number,
+  beats: number,
+  step: (s: HuskLightState) => void,
+): FastWave {
   const g = engine.geometry
   const eig = sortedEigen(geometrySymbol(symbolGeometry, k))
-  const u = eig.vectors[rank] ?? { re: new Float64Array(9), im: new Float64Array(9) }
+  const u = eig.vectors[rank] ?? {
+    re: new Float64Array(9),
+    im: new Float64Array(9),
+  }
   const lambda = eig.values[rank] ?? 0
   const unit = new Float64Array(g.huskLinks)
 
   for (let l = 0; l < g.huskLinks; l++) {
     const c = coordinates(g.side, Math.floor(l / 9))
     const h = l % 9
-    const phase = c[0] * (k[0] ?? 0) + c[1] * (k[1] ?? 0) + c[2] * (k[2] ?? 0)
+    const phase =
+      c[0] * (k[0] ?? 0) + c[1] * (k[1] ?? 0) + c[2] * (k[2] ?? 0)
 
-    unit[l] = Math.sqrt(G_METRIC[h] ?? 1) * ((u.re[h] ?? 0) * Math.cos(phase) - (u.im[h] ?? 0) * Math.sin(phase))
+    unit[l] =
+      Math.sqrt(G_METRIC[h] ?? 1) *
+      ((u.re[h] ?? 0) * Math.cos(phase) -
+        (u.im[h] ?? 0) * Math.sin(phase))
   }
 
   // the plaquette pattern n_P beta_P and the unit wave's peak
   const pr = new Float64Array(g.triangles)
   const pi = new Float64Array(g.triangles)
+
   let unitPeak = 0
 
   for (let p = 0; p < g.triangles; p++) {
@@ -136,12 +201,24 @@ export function fastWave(engine: HuskEngine, symbolGeometry: HuskGeometry, k: re
       const l = g.triLinks[p * 3 + j] ?? 0
       const h = l % 9
       const c = coordinates(g.side, Math.floor(l / 9))
-      const phase = c[0] * (k[0] ?? 0) + c[1] * (k[1] ?? 0) + c[2] * (k[2] ?? 0)
+      const phase =
+        c[0] * (k[0] ?? 0) + c[1] * (k[1] ?? 0) + c[2] * (k[2] ?? 0)
       const s = (g.triSigns[p * 3 + j] ?? 0) * (g.weight[h] ?? 0)
 
       b += s * (unit[l] ?? 0)
-      pr[p] = (pr[p] ?? 0) + s * Math.sqrt(G_METRIC[h] ?? 1) * ((u.re[h] ?? 0) * Math.cos(phase) - (u.im[h] ?? 0) * Math.sin(phase))
-      pi[p] = (pi[p] ?? 0) + s * Math.sqrt(G_METRIC[h] ?? 1) * ((u.re[h] ?? 0) * Math.sin(phase) + (u.im[h] ?? 0) * Math.cos(phase))
+      pr[p] =
+        (pr[p] ?? 0) +
+        s *
+          Math.sqrt(G_METRIC[h] ?? 1) *
+          ((u.re[h] ?? 0) * Math.cos(phase) -
+            (u.im[h] ?? 0) * Math.sin(phase))
+
+      pi[p] =
+        (pi[p] ?? 0) +
+        s *
+          Math.sqrt(G_METRIC[h] ?? 1) *
+          ((u.re[h] ?? 0) * Math.sin(phase) +
+            (u.im[h] ?? 0) * Math.cos(phase))
     }
 
     pr[p] = (pr[p] ?? 0) * (g.multiplicity[p] ?? 0)
@@ -156,7 +233,8 @@ export function fastWave(engine: HuskEngine, symbolGeometry: HuskGeometry, k: re
   for (let l = 0; l < g.huskLinks; l++) {
     const n = l % 9 < 3 ? 4 * d : 2 * d
 
-    state.angle[l] = mod(Math.floor(amp * (unit[l] ?? 0) + 0.5) + n / 2, n) - n / 2
+    state.angle[l] =
+      mod(Math.floor(amp * (unit[l] ?? 0) + 0.5) + n / 2, n) - n / 2
   }
 
   for (let p = 0; p < g.triangles; p++) {
@@ -165,7 +243,9 @@ export function fastWave(engine: HuskEngine, symbolGeometry: HuskGeometry, k: re
 
   const zs: [number, number][] = []
   const series: number[] = []
+
   let maxField = 0
+
   const lagCurl = new Float64Array(g.huskLinks)
 
   const read = (): void => {
@@ -174,12 +254,15 @@ export function fastWave(engine: HuskEngine, symbolGeometry: HuskGeometry, k: re
     for (let p = 0; p < g.triangles; p++) {
       const v = state.lag[p] ?? 0
 
-      if (v === 0) continue
+      if (v === 0) {
+        continue
+      }
 
       for (let j = 0; j < 3; j++) {
         const l = g.triLinks[p * 3 + j] ?? 0
 
-        lagCurl[l] = (lagCurl[l] ?? 0) + (g.triSigns[p * 3 + j] ?? 0) * v
+        lagCurl[l] =
+          (lagCurl[l] ?? 0) + (g.triSigns[p * 3 + j] ?? 0) * v
       }
     }
 
@@ -235,26 +318,47 @@ export function fastWave(engine: HuskEngine, symbolGeometry: HuskGeometry, k: re
   const x = (2 * engine.p * lambda) / engine.q
   const omegaSymbol = 2 * Math.asin(Math.sqrt(x) / 2)
 
-  return { lambda, omegaSymbol, omegaRead, relative: omegaRead / omegaSymbol - 1, maxField, series }
+  return {
+    lambda,
+    omegaSymbol,
+    omegaRead,
+    relative: omegaRead / omegaSymbol - 1,
+    maxField,
+    series,
+  }
 }
 
 // ---------------------------------------------------------------------------------------------------------
 // the linear control: the same husk leapfrog in real numbers, U <- U + n p B / q with no counter (the
 // linearization the integer rule's shadow runs; the photon-links control on the husk)
 
-export type LinearHusk = { readonly angle: Float64Array; readonly potential: Float64Array; readonly string: Float64Array }
-
-export function emptyLinear(g: HuskGeometry): LinearHusk {
-  return { angle: new Float64Array(g.huskLinks), potential: new Float64Array(g.triangles), string: new Float64Array(g.huskLinks) }
+export type LinearHusk = {
+  readonly angle: Float64Array
+  readonly potential: Float64Array
+  readonly string: Float64Array
 }
 
-export function linearFlux(g: HuskGeometry, s: LinearHusk, out: Float64Array): void {
+export function emptyLinear(g: HuskGeometry): LinearHusk {
+  return {
+    angle: new Float64Array(g.huskLinks),
+    potential: new Float64Array(g.triangles),
+    string: new Float64Array(g.huskLinks),
+  }
+}
+
+export function linearFlux(
+  g: HuskGeometry,
+  s: LinearHusk,
+  out: Float64Array,
+): void {
   out.set(s.string)
 
   for (let p = 0; p < g.triangles; p++) {
     const u = s.potential[p] ?? 0
 
-    if (u === 0) continue
+    if (u === 0) {
+      continue
+    }
 
     for (let j = 0; j < 3; j++) {
       const l = g.triLinks[p * 3 + j] ?? 0
@@ -264,27 +368,43 @@ export function linearFlux(g: HuskGeometry, s: LinearHusk, out: Float64Array): v
   }
 }
 
-function plaquette(g: HuskGeometry, x: ArrayLike<number>, p: number): number {
+function plaquette(
+  g: HuskGeometry,
+  x: ArrayLike<number>,
+  p: number,
+): number {
   let b = 0
 
   for (let j = 0; j < 3; j++) {
     const l = g.triLinks[p * 3 + j] ?? 0
 
-    b += (g.triSigns[p * 3 + j] ?? 0) * (g.weight[l % 9] ?? 0) * (x[l] ?? 0)
+    b +=
+      (g.triSigns[p * 3 + j] ?? 0) *
+      (g.weight[l % 9] ?? 0) *
+      (x[l] ?? 0)
   }
 
   return b
 }
 
-export function linearBeat(engine: HuskEngine, s: LinearHusk, scratch: Float64Array): void {
+export function linearBeat(
+  engine: HuskEngine,
+  s: LinearHusk,
+  scratch: Float64Array,
+): void {
   const g = engine.geometry
 
   linearFlux(g, s, scratch)
 
-  for (let l = 0; l < g.huskLinks; l++) s.angle[l] = (s.angle[l] ?? 0) + (scratch[l] ?? 0)
+  for (let l = 0; l < g.huskLinks; l++) {
+    s.angle[l] = (s.angle[l] ?? 0) + (scratch[l] ?? 0)
+  }
 
   for (let p = 0; p < g.triangles; p++) {
-    s.potential[p] = (s.potential[p] ?? 0) + ((g.multiplicity[p] ?? 0) * engine.p * plaquette(g, s.angle, p)) / engine.q
+    s.potential[p] =
+      (s.potential[p] ?? 0) +
+      ((g.multiplicity[p] ?? 0) * engine.p * plaquette(g, s.angle, p)) /
+        engine.q
   }
 }
 
@@ -292,22 +412,44 @@ export function linearBeat(engine: HuskEngine, s: LinearHusk, scratch: Float64Ar
 // energies: the leapfrog invariant I_t, in beats at hbar = 1, restricted to the links and triangles whose
 // anchor dock is farther than `radius` from `center` (radius -1: everything)
 
-export type EnergyMask = { readonly links: Uint8Array; readonly triangles: Uint8Array }
+export type EnergyMask = {
+  readonly links: Uint8Array
+  readonly triangles: Uint8Array
+}
 
-export function energyMask(g: HuskGeometry, center: number, radius: number): EnergyMask {
+export function energyMask(
+  g: HuskGeometry,
+  center: number,
+  radius: number,
+): EnergyMask {
   const links = new Uint8Array(g.huskLinks)
   const triangles = new Uint8Array(g.triangles)
 
-  for (let l = 0; l < g.huskLinks; l++) links[l] = radius < 0 || torusDistance(g.side, Math.floor(l / 9), center) > radius ? 1 : 0
+  for (let l = 0; l < g.huskLinks; l++) {
+    links[l] =
+      radius < 0 ||
+      torusDistance(g.side, Math.floor(l / 9), center) > radius
+        ? 1
+        : 0
+  }
 
-  for (let p = 0; p < g.triangles; p++) triangles[p] = links[g.triLinks[p * 3] ?? 0] ?? 0
+  for (let p = 0; p < g.triangles; p++) {
+    triangles[p] = links[g.triLinks[p * 3] ?? 0] ?? 0
+  }
 
   return { links, triangles }
 }
 
-export function linearEnergy(engine: HuskEngine, s: LinearHusk, mask: EnergyMask, scratch: Float64Array, next: Float64Array): number {
+export function linearEnergy(
+  engine: HuskEngine,
+  s: LinearHusk,
+  mask: EnergyMask,
+  scratch: Float64Array,
+  next: Float64Array,
+): number {
   const g = engine.geometry
   const kappa = (2 * engine.p) / engine.q
+
   let e = 0
 
   linearFlux(g, s, scratch)
@@ -315,20 +457,39 @@ export function linearEnergy(engine: HuskEngine, s: LinearHusk, mask: EnergyMask
   for (let l = 0; l < g.huskLinks; l++) {
     next[l] = (s.angle[l] ?? 0) + (scratch[l] ?? 0)
 
-    if (mask.links[l]) e += (scratch[l] ?? 0) ** 2 / (2 * (G_METRIC[l % 9] ?? 1))
+    if (mask.links[l]) {
+      e += (scratch[l] ?? 0) ** 2 / (2 * (G_METRIC[l % 9] ?? 1))
+    }
   }
 
   for (let p = 0; p < g.triangles; p++) {
-    if (mask.triangles[p]) e += (kappa / 8) * (g.multiplicity[p] ?? 0) * plaquette(g, s.angle, p) * plaquette(g, next, p)
+    if (mask.triangles[p]) {
+      e +=
+        (kappa / 8) *
+        (g.multiplicity[p] ?? 0) *
+        plaquette(g, s.angle, p) *
+        plaquette(g, next, p)
+    }
   }
 
   return (Math.PI / engine.depth) * e
 }
 
 // the integer rule's shadow invariant: A~ = A + C^T lag / q, E~ = E + C^T (counter - lag) / q, B centered
-export function shadowEnergy(engine: HuskEngine, s: HuskLightState, mask: EnergyMask, flux: Int32Array, work: Float64Array[]): number {
+export function shadowEnergy(
+  engine: HuskEngine,
+  s: HuskLightState,
+  mask: EnergyMask,
+  flux: Int32Array,
+  work: Float64Array[],
+): number {
   const g = engine.geometry
-  const [shadowA, shadowE, lagCurl, counterCurl] = work as [Float64Array, Float64Array, Float64Array, Float64Array]
+  const [shadowA, shadowE, lagCurl, counterCurl] = work as [
+    Float64Array,
+    Float64Array,
+    Float64Array,
+    Float64Array,
+  ]
   const kappa = (2 * engine.p) / engine.q
   const nb = engine.nb
 
@@ -349,13 +510,19 @@ export function shadowEnergy(engine: HuskEngine, s: HuskLightState, mask: Energy
   let e = 0
 
   for (let l = 0; l < g.huskLinks; l++) {
-    shadowE[l] = (flux[l] ?? 0) + ((counterCurl[l] ?? 0) - (lagCurl[l] ?? 0)) / engine.q
+    shadowE[l] =
+      (flux[l] ?? 0) +
+      ((counterCurl[l] ?? 0) - (lagCurl[l] ?? 0)) / engine.q
 
-    if (mask.links[l]) e += (shadowE[l] ?? 0) ** 2 / (2 * (G_METRIC[l % 9] ?? 1))
+    if (mask.links[l]) {
+      e += (shadowE[l] ?? 0) ** 2 / (2 * (G_METRIC[l % 9] ?? 1))
+    }
   }
 
   for (let p = 0; p < g.triangles; p++) {
-    if (!mask.triangles[p]) continue
+    if (!mask.triangles[p]) {
+      continue
+    }
 
     // B(A) and B(A + E) centered, then the shadow shifts C W C^T lag / q and C W C^T counter / q
     let now = 0
@@ -384,32 +551,47 @@ export function shadowEnergy(engine: HuskEngine, s: HuskLightState, mask: Energy
   return (Math.PI / engine.depth) * e
 }
 
-export const shadowWork = (g: HuskGeometry): Float64Array[] => [0, 1, 2, 3].map(() => new Float64Array(g.huskLinks))
+export const shadowWork = (g: HuskGeometry): Float64Array[] =>
+  [0, 1, 2, 3].map(() => new Float64Array(g.huskLinks))
 
 // ---------------------------------------------------------------------------------------------------------
 // the husk Laplacian's Green's function on a side^3 torus: G(0) - G(r) = (1/V) sum_(k != 0) (1 - cos k . r) /
 // L(k), L(k) = sum_h g_h 2 (1 - cos k . u_h), summed exactly over the torus modes (no sampling)
 
-export function huskGreenDifference(side: number, r: readonly number[]): number {
+export function huskGreenDifference(
+  side: number,
+  r: readonly number[],
+): number {
   const step = (2 * Math.PI) / side
-  const cosTable = Float64Array.from({ length: side }, (_, m) => Math.cos(step * m))
+  const cosTable = Float64Array.from({ length: side }, (_, m) =>
+    Math.cos(step * m),
+  )
+
   let s = 0
 
   for (let c = 0; c < side; c++) {
     for (let b = 0; b < side; b++) {
       for (let a = 0; a < side; a++) {
-        if (a + b + c === 0) continue
+        if (a + b + c === 0) {
+          continue
+        }
 
         let l = 0
 
         for (let h = 0; h < 9; h++) {
           const u = TRIT_HUSK_VECTORS[h] ?? []
-          const m = mod(a * (u[0] ?? 0) + b * (u[1] ?? 0) + c * (u[2] ?? 0), side)
+          const m = mod(
+            a * (u[0] ?? 0) + b * (u[1] ?? 0) + c * (u[2] ?? 0),
+            side,
+          )
 
           l += (G_METRIC[h] ?? 1) * 2 * (1 - (cosTable[m] ?? 0))
         }
 
-        const phase = mod(a * (r[0] ?? 0) + b * (r[1] ?? 0) + c * (r[2] ?? 0), side)
+        const phase = mod(
+          a * (r[0] ?? 0) + b * (r[1] ?? 0) + c * (r[2] ?? 0),
+          side,
+        )
 
         s += (1 - (cosTable[phase] ?? 0)) / l
       }
@@ -421,8 +603,12 @@ export function huskGreenDifference(side: number, r: readonly number[]): number 
 
 // the static Coulomb flux of a husk charge density on the torus: E = G grad phi with L phi = rho, by
 // conjugate gradients (measurement side); returns the flux on every husk link (outflow convention)
-export function coulombFlux(g: HuskGeometry, rho: Float64Array): Float64Array {
+export function coulombFlux(
+  g: HuskGeometry,
+  rho: Float64Array,
+): Float64Array {
   const n = g.huskDocks
+
   const apply = (phi: Float64Array, out: Float64Array): void => {
     out.fill(0)
 
@@ -435,10 +621,12 @@ export function coulombFlux(g: HuskGeometry, rho: Float64Array): Float64Array {
       out[z] = (out[z] ?? 0) - e
     }
   }
+
   const phi = new Float64Array(n)
   const r = Float64Array.from(rho)
   const p = Float64Array.from(r)
   const ap = new Float64Array(n)
+
   let rr = r.reduce((s, v) => s + v * v, 0)
 
   for (let it = 0; it < 4000 && rr > 1e-28; it++) {
@@ -453,7 +641,9 @@ export function coulombFlux(g: HuskGeometry, rho: Float64Array): Float64Array {
 
     const next = r.reduce((s, v) => s + v * v, 0)
 
-    for (let i = 0; i < n; i++) p[i] = (r[i] ?? 0) + (next / rr) * (p[i] ?? 0)
+    for (let i = 0; i < n; i++) {
+      p[i] = (r[i] ?? 0) + (next / rr) * (p[i] ?? 0)
+    }
 
     rr = next
   }
@@ -461,7 +651,10 @@ export function coulombFlux(g: HuskGeometry, rho: Float64Array): Float64Array {
   const e = new Float64Array(g.huskLinks)
 
   for (let l = 0; l < g.huskLinks; l++) {
-    e[l] = (G_METRIC[l % 9] ?? 1) * ((phi[Math.floor(l / 9)] ?? 0) - (phi[g.huskNeighbour[l] ?? 0] ?? 0))
+    e[l] =
+      (G_METRIC[l % 9] ?? 1) *
+      ((phi[Math.floor(l / 9)] ?? 0) -
+        (phi[g.huskNeighbour[l] ?? 0] ?? 0))
   }
 
   return e
@@ -476,21 +669,38 @@ export function coulombFlux(g: HuskGeometry, rho: Float64Array): Float64Array {
 // the first term alone, so the full-current rate over the dipole rate is (1 + 4 (k a)^2 / 9)^(-4) exactly,
 // with k a = omega a / c = (3/8) C / c = (3/8) alpha
 
-export function hydrogenCurrentClosed(a: number, k: readonly number[]): { re: number[]; im: number[] } {
+export function hydrogenCurrentClosed(
+  a: number,
+  k: readonly number[],
+): { re: number[]; im: number[] } {
   const beta = 3 / (2 * a)
   const k2 = (k[0] ?? 0) ** 2 + (k[1] ?? 0) ** 2 + (k[2] ?? 0) ** 2
   const s = beta * beta + k2
-  const n = 1 / Math.sqrt(Math.PI * a ** 3) / Math.sqrt(32 * Math.PI * a ** 5)
+  const n =
+    1 / Math.sqrt(Math.PI * a ** 3) / Math.sqrt(32 * Math.PI * a ** 5)
   const kz = k[2] ?? 0
   // F = 2 Y - i k X: both real parts; -i k X = -i k (-32 pi i n beta kz / s^3) = -32 pi n beta k kz / s^3
-  const f = [0, 1, 2].map(i => 2 * n * ((i === 2 ? (8 * Math.PI) / (a * s * s) : 0) + ((16 * Math.PI) / a) * ((k[i] ?? 0) * kz) / s ** 3) - (32 * Math.PI * n * beta * (k[i] ?? 0) * kz) / s ** 3)
+  const f = [0, 1, 2].map(
+    i =>
+      2 *
+        n *
+        ((i === 2 ? (8 * Math.PI) / (a * s * s) : 0) +
+          (((16 * Math.PI) / a) * ((k[i] ?? 0) * kz)) / s ** 3) -
+      (32 * Math.PI * n * beta * (k[i] ?? 0) * kz) / s ** 3,
+  )
 
   return { re: f, im: [0, 0, 0] }
 }
 
 // the same F(k) by direct quadrature in spherical coordinates (Gauss-Laguerre in r, Gauss-Legendre in
 // cos theta, uniform phi), the check on the closed form
-export function hydrogenCurrentQuadrature(a: number, k: readonly number[], nr = 48, nt = 48, np = 64): { re: number[]; im: number[] } {
+export function hydrogenCurrentQuadrature(
+  a: number,
+  k: readonly number[],
+  nr = 48,
+  nt = 48,
+  np = 64,
+): { re: number[]; im: number[] } {
   const n1 = 1 / Math.sqrt(Math.PI * a ** 3)
   const n2 = 1 / Math.sqrt(32 * Math.PI * a ** 5)
   const re = [0, 0, 0]
@@ -513,14 +723,27 @@ export function hydrogenCurrentQuadrature(a: number, k: readonly number[], nr = 
 
         for (let m = 0; m < np; m++) {
           const ph = (2 * Math.PI * (m + 0.5)) / np
-          const x = [r * st * Math.cos(ph), r * st * Math.sin(ph), r * ct]
+          const x = [
+            r * st * Math.cos(ph),
+            r * st * Math.sin(ph),
+            r * ct,
+          ]
           const w = wr * wt * ((2 * Math.PI) / np)
           const g = n1 * Math.exp(-r / a)
           const e = n2 * x[2]! * Math.exp(-r / (2 * a))
           // grad g = -g x / (a r); grad e = n2 e^(-r/2a) (z_hat - z x / (2 a r))
-          const ge = [0, 1, 2].map(c => n2 * Math.exp(-r / (2 * a)) * ((c === 2 ? 1 : 0) - (x[2]! * x[c]!) / (2 * a * r)))
+          const ge = [0, 1, 2].map(
+            c =>
+              n2 *
+              Math.exp(-r / (2 * a)) *
+              ((c === 2 ? 1 : 0) - (x[2]! * x[c]!) / (2 * a * r)),
+          )
           const gg = [0, 1, 2].map(c => (-g * x[c]!) / (a * r))
-          const phase = -((k[0] ?? 0) * x[0]! + (k[1] ?? 0) * x[1]! + (k[2] ?? 0) * x[2]!)
+          const phase = -(
+            (k[0] ?? 0) * x[0]! +
+            (k[1] ?? 0) * x[1]! +
+            (k[2] ?? 0) * x[2]!
+          )
           const cr = Math.cos(phase)
           const ci = Math.sin(phase)
 
@@ -538,7 +761,10 @@ export function hydrogenCurrentQuadrature(a: number, k: readonly number[], nr = 
   return { re, im }
 }
 
-function legendre(n: number): { nodes: Float64Array; weights: Float64Array } {
+function legendre(n: number): {
+  nodes: Float64Array
+  weights: Float64Array
+} {
   const nodes = new Float64Array(n)
   const weights = new Float64Array(n)
 
@@ -563,7 +789,9 @@ function legendre(n: number): { nodes: Float64Array; weights: Float64Array } {
 
       x -= dx
 
-      if (Math.abs(dx) < 1e-15) break
+      if (Math.abs(dx) < 1e-15) {
+        break
+      }
     }
 
     nodes[i] = x
@@ -574,16 +802,23 @@ function legendre(n: number): { nodes: Float64Array; weights: Float64Array } {
 }
 
 // |F_T|^2 for photon direction n: F minus its component along n
-export function transverseSquare(f: { re: number[]; im: number[] }, n: readonly number[]): number {
+export function transverseSquare(
+  f: { re: number[]; im: number[] },
+  n: readonly number[],
+): number {
   const dr = f.re.reduce((s, v, i) => s + v * (n[i] ?? 0), 0)
   const di = f.im.reduce((s, v, i) => s + v * (n[i] ?? 0), 0)
+
   let s = 0
 
   for (let i = 0; i < 3; i++) {
-    s += ((f.re[i] ?? 0) - dr * (n[i] ?? 0)) ** 2 + ((f.im[i] ?? 0) - di * (n[i] ?? 0)) ** 2
+    s +=
+      ((f.re[i] ?? 0) - dr * (n[i] ?? 0)) ** 2 +
+      ((f.im[i] ?? 0) - di * (n[i] ?? 0)) ** 2
   }
 
   return s
 }
 
-export const retardationFactor = (ka: number): number => (1 + (4 * ka * ka) / 9) ** -4
+export const retardationFactor = (ka: number): number =>
+  (1 + (4 * ka * ka) / 9) ** -4

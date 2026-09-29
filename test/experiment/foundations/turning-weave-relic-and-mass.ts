@@ -46,7 +46,9 @@ export default experiment({
     const sheet = SIDE * SIDE * SIDE
 
     // the relic sweep
-    const relicFloor = (k: number): {
+    const relicFloor = (
+      k: number,
+    ): {
       quantized: boolean
       floorSheets: number
       everNull: boolean
@@ -117,6 +119,7 @@ export default experiment({
       const step = [0, 1, 2, 3].map(a =>
         wrap17(coordinate17(to, a) - mid),
       )
+
       let displacement = 0
       let exactBallistic = true
 
@@ -152,9 +155,7 @@ export default experiment({
         if (
           !(
             cells.size === 1 &&
-            centroid.every(
-              (v, a) => Math.abs(v - expected[a]!) < 1e-9,
-            )
+            centroid.every((v, a) => Math.abs(v - expected[a]!) < 1e-9)
           )
         ) {
           exactBallistic = false
@@ -192,9 +193,7 @@ export default experiment({
         relicFloorK1: k1.floorSheets,
         relicFloorK12: k12.floorSheets,
         relicFloorK24: k24.floorSheets,
-        masslessDisplacement: Number(
-          massless.displacement.toFixed(2),
-        ),
+        masslessDisplacement: Number(massless.displacement.toFixed(2)),
         heavyDisplacement: Number(heavy.displacement.toFixed(2)),
         middleweightDisplacement: Number(
           middleweight.displacement.toFixed(2),

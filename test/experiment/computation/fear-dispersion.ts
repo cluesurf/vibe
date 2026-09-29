@@ -34,7 +34,14 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { FEAR_COIN, norm, walkBeat, walkStart, ZERO, type WalkState } from '@/code/rule/fear-walk'
+import {
+  FEAR_COIN,
+  norm,
+  walkBeat,
+  walkStart,
+  ZERO,
+  type WalkState,
+} from '@/code/rule/fear-walk'
 import {
   bigRatio,
   complexOf,
@@ -82,7 +89,9 @@ export default experiment({
   run() {
     const transfer = transferOf(FEAR_COIN)
     const invariants = exactInvariants(transfer)
-    const symbolExact = invariants.trace === '1+1w z^-1 1+1w z^1' && invariants.determinant === '0+4w z^0'
+    const symbolExact =
+      invariants.trace === '1+1w z^-1 1+1w z^1' &&
+      invariants.determinant === '0+4w z^0'
 
     // 2. spectral residuals
     let residual = 0
@@ -110,7 +119,13 @@ export default experiment({
             const lam = lambda[b] ?? { re: 0, im: 0 }
             const p = projector[b]?.[i]?.[j] ?? { re: 0, im: 0 }
 
-            residual = Math.max(residual, Math.hypot(re - (lam.re * p.re - lam.im * p.im), im - (lam.re * p.im + lam.im * p.re)))
+            residual = Math.max(
+              residual,
+              Math.hypot(
+                re - (lam.re * p.re - lam.im * p.im),
+                im - (lam.re * p.im + lam.im * p.re),
+              ),
+            )
           }
         }
       }
@@ -118,11 +133,18 @@ export default experiment({
       for (let i = 0; i < 2; i++) {
         for (let j = 0; j < 2; j++) {
           const sum = {
-            re: (projector[0]?.[i]?.[j]?.re ?? 0) + (projector[1]?.[i]?.[j]?.re ?? 0),
-            im: (projector[0]?.[i]?.[j]?.im ?? 0) + (projector[1]?.[i]?.[j]?.im ?? 0),
+            re:
+              (projector[0]?.[i]?.[j]?.re ?? 0) +
+              (projector[1]?.[i]?.[j]?.re ?? 0),
+            im:
+              (projector[0]?.[i]?.[j]?.im ?? 0) +
+              (projector[1]?.[i]?.[j]?.im ?? 0),
           }
 
-          residual = Math.max(residual, Math.hypot(sum.re - (i === j ? 1 : 0), sum.im))
+          residual = Math.max(
+            residual,
+            Math.hypot(sum.re - (i === j ? 1 : 0), sum.im),
+          )
         }
       }
     }
@@ -138,6 +160,7 @@ export default experiment({
 
     {
       const scale = 2 ** -RING_BEATS
+
       // psi_0-hat(k) = e^(i k 5) e_R, so psi_t(x) = (1/N) sum_j sum_s lambda_s^t P_s(k) e_R e^(i k (5 - x))
       for (let x = 0; x < RING; x++) {
         let r = { re: 0, im: 0 }
@@ -149,31 +172,48 @@ export default experiment({
 
           for (let b = 0; b < 2; b++) {
             const lam = lambda[b] ?? { re: 0, im: 0 }
-            const angle = Math.atan2(lam.im, lam.re) * RING_BEATS + k * (5 - x)
-            const phase = { re: Math.cos(angle) / RING, im: Math.sin(angle) / RING }
+            const angle =
+              Math.atan2(lam.im, lam.re) * RING_BEATS + k * (5 - x)
+            const phase = {
+              re: Math.cos(angle) / RING,
+              im: Math.sin(angle) / RING,
+            }
             const pr = projector[b]?.[0]?.[0] ?? { re: 0, im: 0 }
             const pl = projector[b]?.[1]?.[0] ?? { re: 0, im: 0 }
 
-            r = { re: r.re + pr.re * phase.re - pr.im * phase.im, im: r.im + pr.re * phase.im + pr.im * phase.re }
-            l = { re: l.re + pl.re * phase.re - pl.im * phase.im, im: l.im + pl.re * phase.im + pl.im * phase.re }
+            r = {
+              re: r.re + pr.re * phase.re - pr.im * phase.im,
+              im: r.im + pr.re * phase.im + pr.im * phase.re,
+            }
+
+            l = {
+              re: l.re + pl.re * phase.re - pl.im * phase.im,
+              im: l.im + pl.re * phase.im + pl.im * phase.re,
+            }
           }
         }
 
         const er = complexOf(ring.right[x] ?? ZERO)
         const el = complexOf(ring.left[x] ?? ZERO)
 
-        ringError = Math.max(ringError, Math.hypot(er.re * scale - r.re, er.im * scale - r.im), Math.hypot(el.re * scale - l.re, el.im * scale - l.im))
+        ringError = Math.max(
+          ringError,
+          Math.hypot(er.re * scale - r.re, er.im * scale - r.im),
+          Math.hypot(el.re * scale - l.re, el.im * scale - l.im),
+        )
       }
     }
 
     // 3. the closed form against the walk
     const prop = exactPropagator(transfer, 200000)
+
     let mismatches = 0
     let compared = 0
 
     for (const start of ['right', 'left'] as const) {
       const cells = 2 * 400 + 3
       const middle = 401
+
       let s: WalkState = walkStart(cells, middle, start === 'right')
 
       for (let t = 1; t <= 400; t++) {
@@ -188,14 +228,22 @@ export default experiment({
           const r = s.right[middle + x] ?? ZERO
           const l = s.left[middle + x] ?? ZERO
 
-          mismatches += r[0] === w.right[0] && r[1] === w.right[1] && l[0] === w.left[0] && l[1] === w.left[1] ? 0 : 1
+          mismatches +=
+            r[0] === w.right[0] &&
+            r[1] === w.right[1] &&
+            l[0] === w.left[0] &&
+            l[1] === w.left[1]
+              ? 0
+              : 1
           compared += 1
         }
       }
     }
 
     // total chance and moments from the closed form
-    const moments = (t: number): { total: boolean; second: number; first: number } => {
+    const moments = (
+      t: number,
+    ): { total: boolean; second: number; first: number } => {
       let total = 0n
       let first = 0n
       let second = 0n
@@ -213,10 +261,13 @@ export default experiment({
 
       return {
         total: total === scale,
-        first: bigRatio(first < 0n ? -first : first, scale * BigInt(t)) * (first < 0n ? -1 : 1),
+        first:
+          bigRatio(first < 0n ? -first : first, scale * BigInt(t)) *
+          (first < 0n ? -1 : 1),
         second: bigRatio(second, scale * BigInt(t) * BigInt(t)),
       }
     }
+
     const at400 = moments(400)
     const at2000 = moments(2000)
     const limitSecond = limitMoment(transfer, 2, 'right')
@@ -224,7 +275,14 @@ export default experiment({
     const predicted = 1 - Math.sqrt(3) / 2
 
     // 5. far
-    const far: { t: number; v: number; x: number; exact: number; stationary: number; error: number }[] = []
+    const far: {
+      t: number
+      v: number
+      x: number
+      exact: number
+      stationary: number
+      error: number
+    }[] = []
 
     for (const t of FAR_BEATS) {
       for (const v of VELOCITIES) {
@@ -233,11 +291,21 @@ export default experiment({
         x += (x - t) % 2 !== 0 ? 1 : 0
 
         const w = prop.weight(t, x, 'right')
-        const exact = bigRatio(norm(w.right) + norm(w.left), 4n ** BigInt(t))
+        const exact = bigRatio(
+          norm(w.right) + norm(w.left),
+          4n ** BigInt(t),
+        )
         const sp = stationaryWeight(transfer, t, x, 'right')
         const stationary = cabs2(sp.right) + cabs2(sp.left)
 
-        far.push({ t, v, x, exact, stationary, error: Math.abs(stationary / exact - 1) })
+        far.push({
+          t,
+          v,
+          x,
+          exact,
+          stationary,
+          error: Math.abs(stationary / exact - 1),
+        })
       }
     }
 
@@ -250,6 +318,7 @@ export default experiment({
 
       return log10Ratio(norm(w.right) + norm(w.left), 4n ** BigInt(t))
     }
+
     const outside1000 = outside(1000)
     const outside10000 = outside(10000)
 
@@ -263,27 +332,48 @@ export default experiment({
       const b = u[0]?.[1] ?? { re: 0, im: 0 }
       const c = u[1]?.[0] ?? { re: 0, im: 0 }
       const tr = { re: a.re + d.re, im: a.im + d.im }
-      const det = { re: a.re * d.re - a.im * d.im - (b.re * c.re - b.im * c.im), im: a.re * d.im + a.im * d.re - (b.re * c.im + b.im * c.re) }
-      const disc = { re: tr.re * tr.re - tr.im * tr.im - 4 * det.re, im: 2 * tr.re * tr.im - 4 * det.im }
+      const det = {
+        re: a.re * d.re - a.im * d.im - (b.re * c.re - b.im * c.im),
+        im: a.re * d.im + a.im * d.re - (b.re * c.im + b.im * c.re),
+      }
+      const disc = {
+        re: tr.re * tr.re - tr.im * tr.im - 4 * det.re,
+        im: 2 * tr.re * tr.im - 4 * det.im,
+      }
       const size = Math.sqrt(Math.hypot(disc.re, disc.im))
       const angle = Math.atan2(disc.im, disc.re) / 2
-      const root = { re: size * Math.cos(angle), im: size * Math.sin(angle) }
-      const turn = { re: Math.cos(-Math.PI / 3), im: Math.sin(-Math.PI / 3) }
+      const root = {
+        re: size * Math.cos(angle),
+        im: size * Math.sin(angle),
+      }
+      const turn = {
+        re: Math.cos(-Math.PI / 3),
+        im: Math.sin(-Math.PI / 3),
+      }
       const phases = [1, -1].map(sign => {
-        const lam = { re: (tr.re + sign * root.re) / 2, im: (tr.im + sign * root.im) / 2 }
-        const mu = { re: lam.re * turn.re - lam.im * turn.im, im: lam.re * turn.im + lam.im * turn.re }
+        const lam = {
+          re: (tr.re + sign * root.re) / 2,
+          im: (tr.im + sign * root.im) / 2,
+        }
+        const mu = {
+          re: lam.re * turn.re - lam.im * turn.im,
+          im: lam.re * turn.im + lam.im * turn.re,
+        }
 
         return Math.atan2(mu.im, mu.re)
       })
 
       return Math.max(...phases)
     }
+
     const h = 1e-4
     // relative to the common phase pi/3: the two branches sit at pi/3 + W(0) = 2 pi/3 and pi/3 - W(0) = 0
     const restFrequency = eigenphase(0)
     const formulaGap = Math.abs(restFrequency - frequency(0))
-    const second0 = (eigenphase(h) - 2 * eigenphase(0) + eigenphase(-h)) / (h * h)
+    const second0 =
+      (eigenphase(h) - 2 * eigenphase(0) + eigenphase(-h)) / (h * h)
     const mass = 1 / second0
+
     let topSpeed = 0
     let topAt = 0
 
@@ -303,12 +393,22 @@ export default experiment({
     for (let q = 1; q < 200; q++) {
       const k = -Math.PI + (q * 2 * Math.PI) / 200
 
-      velocityError = Math.max(velocityError, Math.abs((eigenphase(k + 1e-6) - eigenphase(k - 1e-6)) / 2e-6 - groupVelocity(k)))
+      velocityError = Math.max(
+        velocityError,
+        Math.abs(
+          (eigenphase(k + 1e-6) - eigenphase(k - 1e-6)) / 2e-6 -
+            groupVelocity(k),
+        ),
+      )
     }
 
-    const at = (t: number, v: number) => far.find(f => f.t === t && f.v === v)
-    const farOk = far.filter(f => f.t === 100000 && f.v <= 0.4).every(f => f.error < 1e-3)
-    const falling = (at(1000, 0)?.error ?? 1) / (at(100000, 0)?.error ?? 1) >= 10
+    const at = (t: number, v: number) =>
+      far.find(f => f.t === t && f.v === v)
+    const farOk = far
+      .filter(f => f.t === 100000 && f.v <= 0.4)
+      .every(f => f.error < 1e-3)
+    const falling =
+      (at(1000, 0)?.error ?? 1) / (at(100000, 0)?.error ?? 1) >= 10
 
     const ok =
       symbolExact &&
@@ -363,7 +463,7 @@ export default experiment({
         exactBeatsEveryDock: EXACT_BEATS,
       },
       notes:
-        'L2. The closed form is (2U)^t = P_t (2U) - 4 omega P_(t-1) (Cayley-Hamilton), P_t a Chebyshev polynomial in T = (1 + omega)(z + 1/z), expanded in binomials; each weight is a sum of about t/2 Eisenstein terms carried by small-factor updates, so one dock at t = 10^5 takes seconds where the walk would take t^2 = 10^10 dock updates. Positions are docks along the vibe\'s line; in D4 a dock step is a root of length sqrt 2, so the top speed is sqrt 2 / 2 in lattice length per beat. The stationary phase uses the four points where +-W\'(k) = x/t and fails near the cone edge |x| = t/2 (the caustic, where an Airy form is needed): the v = 0.45 errors show it. The fear walk is the one-vibe sector of one line with no vacuum (E-QTM-0103, E-FND-0080), so this is the free particle only; the dressed vibe in the committed vacuum is not a translation-invariant linear walk and has no symbol of this kind. The chances are read from exact ratios to about 1e-15 relative.',
+        "L2. The closed form is (2U)^t = P_t (2U) - 4 omega P_(t-1) (Cayley-Hamilton), P_t a Chebyshev polynomial in T = (1 + omega)(z + 1/z), expanded in binomials; each weight is a sum of about t/2 Eisenstein terms carried by small-factor updates, so one dock at t = 10^5 takes seconds where the walk would take t^2 = 10^10 dock updates. Positions are docks along the vibe's line; in D4 a dock step is a root of length sqrt 2, so the top speed is sqrt 2 / 2 in lattice length per beat. The stationary phase uses the four points where +-W'(k) = x/t and fails near the cone edge |x| = t/2 (the caustic, where an Airy form is needed): the v = 0.45 errors show it. The fear walk is the one-vibe sector of one line with no vacuum (E-QTM-0103, E-FND-0080), so this is the free particle only; the dressed vibe in the committed vacuum is not a translation-invariant linear walk and has no symbol of this kind. The chances are read from exact ratios to about 1e-15 relative.",
     })
   },
 })

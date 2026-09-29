@@ -77,15 +77,41 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { EVEN_DEPTH } from '@/code/measure/even-field'
-import { FIT_R, LIKE_R, LONG_BEATS, LUMP_CONTENT, SIGN_SIDE, staticSurvey, type LongRun } from '@/code/measure/even-sign'
+import {
+  FIT_R,
+  LIKE_R,
+  LONG_BEATS,
+  LUMP_CONTENT,
+  SIGN_SIDE,
+  staticSurvey,
+  type LongRun,
+} from '@/code/measure/even-sign'
 
-const increasing = (xs: readonly number[]): boolean => xs.every((x, i) => i === 0 || x > xs[i - 1]!)
-const decreasing = (xs: readonly number[]): boolean => xs.every((x, i) => i === 0 || x < xs[i - 1]!)
-const worst = (a: readonly number[], b: readonly number[], f: (x: number, y: number) => number): number => Math.max(...a.map((x, i) => Math.abs(f(x, b[i]!))))
-const wrapsOf = (w: { angle: number; field: number; potential: number }): number => w.angle + w.field + w.potential
-const drift = (run: LongRun): number => Math.max(...run.samples.map(s => Math.abs(s.longitudinal - run.samples[0]!.longitudinal)))
-const leastTransverse = (run: LongRun): number => Math.min(...run.samples.map(s => s.transverse))
-const growth = (run: LongRun): number => Math.max(...run.samples.map(s => s.transverse)) / run.samples[0]!.transverse
+const increasing = (xs: readonly number[]): boolean =>
+  xs.every((x, i) => i === 0 || x > xs[i - 1]!)
+const decreasing = (xs: readonly number[]): boolean =>
+  xs.every((x, i) => i === 0 || x < xs[i - 1]!)
+const worst = (
+  a: readonly number[],
+  b: readonly number[],
+  f: (x: number, y: number) => number,
+): number => Math.max(...a.map((x, i) => Math.abs(f(x, b[i]!))))
+const wrapsOf = (w: {
+  angle: number
+  field: number
+  potential: number
+}): number => w.angle + w.field + w.potential
+const drift = (run: LongRun): number =>
+  Math.max(
+    ...run.samples.map(s =>
+      Math.abs(s.longitudinal - run.samples[0]!.longitudinal),
+    ),
+  )
+const leastTransverse = (run: LongRun): number =>
+  Math.min(...run.samples.map(s => s.transverse))
+const growth = (run: LongRun): number =>
+  Math.max(...run.samples.map(s => s.transverse)) /
+  run.samples[0]!.transverse
 
 export default experiment({
   id: 'gravity/even-sign',
@@ -102,14 +128,33 @@ export default experiment({
     const signed8 = e.evenLike.map(w => -w)
     const signed16 = s.like16.map(w => -w)
     const kWant = (LUMP_CONTENT * LUMP_CONTENT) / (24 * EVEN_DEPTH)
-    const bWant = (LUMP_CONTENT * LUMP_CONTENT * Math.PI) / (36 * SIGN_SIDE ** 3 * EVEN_DEPTH)
+    const bWant =
+      (LUMP_CONTENT * LUMP_CONTENT * Math.PI) /
+      (36 * SIGN_SIDE ** 3 * EVEN_DEPTH)
     const ruleVsGreen = worst(s.like16, s.green16, (x, y) => x - y)
     const kOff = Math.abs(s.fitK / kWant - 1)
-    const g1 = increasing(signed8) && increasing(signed16) && ruleVsGreen < 1e-9 && kOff <= 0.05 && decreasing(e.evenLike)
+    const g1 =
+      increasing(signed8) &&
+      increasing(signed16) &&
+      ruleVsGreen < 1e-9 &&
+      kOff <= 0.05 &&
+      decreasing(e.evenLike)
 
-    const loveFearVsLike = worst(e.evenLoveFear, e.evenLike, (x, y) => x - y)
-    const oddPlusEven = worst(e.oddLoveFear, e.evenLike, (x, y) => x + y)
-    const g2 = loveFearVsLike < 1e-12 && e.evenFlipIdentical && oddPlusEven < 1e-9 && increasing(e.oddLoveFear)
+    const loveFearVsLike = worst(
+      e.evenLoveFear,
+      e.evenLike,
+      (x, y) => x - y,
+    )
+    const oddPlusEven = worst(
+      e.oddLoveFear,
+      e.evenLike,
+      (x, y) => x + y,
+    )
+    const g2 =
+      loveFearVsLike < 1e-12 &&
+      e.evenFlipIdentical &&
+      oddPlusEven < 1e-9 &&
+      increasing(e.oddLoveFear)
 
     const lumpRuns = [e.evenLump, e.evenFlip, e.oddLump, e.oddFlip]
     const longRuns = [s.lump, s.pair, s.zero]
@@ -122,17 +167,34 @@ export default experiment({
       longRuns.every(r => r.gauss === 0 && r.reversed)
 
     const floorOff = Math.abs(s.lump.samples[0]!.longitudinal - s.floor)
-    const zeroEnergy = Math.max(...s.zero.samples.map(x => Math.abs(x.invariant) + Math.abs(x.longitudinal)))
-    const signedMin = Math.min(...[s.lump, s.pair].flatMap(r => r.samples.map(x => x.signed)))
+    const zeroEnergy = Math.max(
+      ...s.zero.samples.map(
+        x => Math.abs(x.invariant) + Math.abs(x.longitudinal),
+      ),
+    )
+    const signedMin = Math.min(
+      ...[s.lump, s.pair].flatMap(r => r.samples.map(x => x.signed)),
+    )
     const g4 =
-      [s.lump, s.pair].every(r => drift(r) < 1e-9 && leastTransverse(r) >= 0 && r.samples.every(x => x.signed >= -r.samples[0]!.longitudinal)) &&
+      [s.lump, s.pair].every(
+        r =>
+          drift(r) < 1e-9 &&
+          leastTransverse(r) >= 0 &&
+          r.samples.every(x => x.signed >= -r.samples[0]!.longitudinal),
+      ) &&
       s.lump.samples.every(x => x.signed >= -s.floor - 1e-12) &&
       zeroEnergy === 0
 
     const status = !g3 ? 'partial' : g1 && g2 && g4 ? 'pass' : 'fail'
     const f = (x: number): string => x.toPrecision(6)
-    const orthogonality = Math.max(...[s.lump, s.pair].flatMap(r => r.samples.map(x => Math.abs(x.orthogonality))))
-    const invariantGrowth = (run: LongRun): number => run.samples[run.samples.length - 1]!.invariant - run.samples[0]!.invariant
+    const orthogonality = Math.max(
+      ...[s.lump, s.pair].flatMap(r =>
+        r.samples.map(x => Math.abs(x.orthogonality)),
+      ),
+    )
+    const invariantGrowth = (run: LongRun): number =>
+      run.samples[run.samples.length - 1]!.invariant -
+      run.samples[0]!.invariant
 
     const metrics: Record<string, number> = {
       gate_A1: g1 ? 1 : 0,
@@ -177,6 +239,7 @@ export default experiment({
       metrics[`signed8_r${i + 1}`] = w
       metrics[`unmodified8_r${i + 1}`] = e.evenLike[i]!
     })
+
     LIKE_R.forEach((r, i) => {
       metrics[`signed16_r${r}`] = signed16[i]!
     })

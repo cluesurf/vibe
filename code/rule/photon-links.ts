@@ -49,7 +49,11 @@
 
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { d4BoxCoordinates, d4BoxMesh } from '@/code/substrate/d4-box'
-import { cubicMesh, CUBIC_DIRECTIONS, type Mesh } from '@/code/tool/mesh'
+import {
+  cubicMesh,
+  CUBIC_DIRECTIONS,
+  type Mesh,
+} from '@/code/tool/mesh'
 
 const GOLDEN = (Math.sqrt(5) - 1) / 2
 
@@ -129,7 +133,13 @@ export function buildPhotonLattice(input: {
   vectors: readonly (readonly number[])[]
   coordinates: (cell: number) => number[]
   wave: readonly (readonly number[])[]
-  plaquettes: (lattice: { cells: number; neighbour: Int32Array; firstOf: Int32Array; opposite: readonly number[]; f: number }) => {
+  plaquettes: (lattice: {
+    cells: number
+    neighbour: Int32Array
+    firstOf: Int32Array
+    opposite: readonly number[]
+    f: number
+  }) => {
     size: number
     links: number[]
     signs: number[]
@@ -146,8 +156,12 @@ export function buildPhotonLattice(input: {
     }
   }
 
-  const opposite = Array.from({ length: degree }, (_, d) => mesh.opposite(d))
-  const firsts = opposite.map((o, d) => (d < o ? d : -1)).filter(d => d >= 0)
+  const opposite = Array.from({ length: degree }, (_, d) =>
+    mesh.opposite(d),
+  )
+  const firsts = opposite
+    .map((o, d) => (d < o ? d : -1))
+    .filter(d => d >= 0)
   const firstOf = new Int32Array(degree).fill(-1)
 
   firsts.forEach((d, k) => (firstOf[d] = k))
@@ -155,11 +169,19 @@ export function buildPhotonLattice(input: {
   const coordinates = new Int32Array(cells * input.dimension)
 
   for (let x = 0; x < cells; x++) {
-    input.coordinates(x).forEach((c, i) => (coordinates[x * input.dimension + i] = c))
+    input
+      .coordinates(x)
+      .forEach((c, i) => (coordinates[x * input.dimension + i] = c))
   }
 
   const f = firsts.length
-  const built = input.plaquettes({ cells, neighbour, firstOf, opposite, f })
+  const built = input.plaquettes({
+    cells,
+    neighbour,
+    firstOf,
+    opposite,
+    f,
+  })
   const plaquetteLinks = Int32Array.from(built.links)
   const plaquetteSigns = Int8Array.from(built.signs)
   const links = cells * f
@@ -205,7 +227,17 @@ export function buildPhotonLattice(input: {
 }
 
 // the link index and orientation of the step from x along d
-function stepLink(input: { neighbour: Int32Array; firstOf: Int32Array; opposite: readonly number[]; f: number; degree: number }, x: number, d: number): [number, number] {
+function stepLink(
+  input: {
+    neighbour: Int32Array
+    firstOf: Int32Array
+    opposite: readonly number[]
+    f: number
+    degree: number
+  },
+  x: number,
+  d: number,
+): [number, number] {
   const k = input.firstOf[d] ?? -1
 
   if (k >= 0) {
@@ -214,14 +246,21 @@ function stepLink(input: { neighbour: Int32Array; firstOf: Int32Array; opposite:
 
   const o = input.opposite[d] ?? d
 
-  return [(input.neighbour[x * input.degree + d] ?? 0) * input.f + (input.firstOf[o] ?? 0), -1]
+  return [
+    (input.neighbour[x * input.degree + d] ?? 0) * input.f +
+      (input.firstOf[o] ?? 0),
+    -1,
+  ]
 }
 
 // The D4 box of code/substrate/d4-box, side^4 docks, 12 links and 32 triangles per dock. A triangle is kept
 // once, from the start and orientation whose first step has the smallest direction index of the six.
-export function photonLatticeD4(input: { side: number }): PhotonLattice {
+export function photonLatticeD4(input: {
+  side: number
+}): PhotonLattice {
   const roots = rootsD4()
-  const find = (v: readonly number[]): number => roots.findIndex(r => r.every((x, k) => x === v[k]))
+  const find = (v: readonly number[]): number =>
+    roots.findIndex(r => r.every((x, k) => x === v[k]))
   const degree = 24
 
   return buildPhotonLattice({
@@ -240,9 +279,21 @@ export function photonLatticeD4(input: { side: number }): PhotonLattice {
       for (let x = 0; x < cells; x++) {
         for (let a = 0; a < degree; a++) {
           for (let b = 0; b < degree; b++) {
-            const c = find(roots[a]!.map((v, k) => -v - (roots[b]![k] ?? 0)))
+            const c = find(
+              roots[a]!.map((v, k) => -v - (roots[b]![k] ?? 0)),
+            )
 
-            if (c < 0 || a >= Math.min(b, c, opposite[a] ?? 0, opposite[b] ?? 0, opposite[c] ?? 0)) {
+            if (
+              c < 0 ||
+              a >=
+                Math.min(
+                  b,
+                  c,
+                  opposite[a] ?? 0,
+                  opposite[b] ?? 0,
+                  opposite[c] ?? 0,
+                )
+            ) {
               continue
             }
 
@@ -269,7 +320,9 @@ export function photonLatticeD4(input: { side: number }): PhotonLattice {
 }
 
 // The cubic torus side^3, 3 links and 3 squares per dock: the flat 3D space of the horosphere ({4,3,4}).
-export function photonLatticeCubic(input: { side: number }): PhotonLattice {
+export function photonLatticeCubic(input: {
+  side: number
+}): PhotonLattice {
   const degree = 6
   const side = input.side
 
@@ -279,7 +332,11 @@ export function photonLatticeCubic(input: { side: number }): PhotonLattice {
     dimension: 3,
     mesh: cubicMesh({ side }),
     vectors: CUBIC_DIRECTIONS,
-    coordinates: cell => [cell % side, Math.floor(cell / side) % side, Math.floor(cell / (side * side))],
+    coordinates: cell => [
+      cell % side,
+      Math.floor(cell / side) % side,
+      Math.floor(cell / (side * side)),
+    ],
     wave: [
       [1, 0, 0],
       [0, 1, 0],
@@ -338,7 +395,9 @@ export function makePhotonRule(input: {
     const s = k * Math.sin((2 * Math.PI * b) / n)
 
     force[b] = Math.sign(s) * Math.round(Math.abs(s))
-    level[b] = Math.round(((k * n) / Math.PI) * (1 - Math.cos((2 * Math.PI * b) / n)))
+    level[b] = Math.round(
+      ((k * n) / Math.PI) * (1 - Math.cos((2 * Math.PI * b) / n)),
+    )
   }
 
   return {
@@ -357,24 +416,38 @@ export function makePhotonRule(input: {
 }
 
 // the link of the step from dock x along direction d, and its orientation
-export function photonLink(lattice: PhotonLattice, x: number, d: number): [number, number] {
+export function photonLink(
+  lattice: PhotonLattice,
+  x: number,
+  d: number,
+): [number, number] {
   return stepLink({ ...lattice, f: lattice.firsts.length }, x, d)
 }
 
 // B of plaquette p, in 0 .. N - 1
-export function plaquetteField(rule: PhotonRule, angle: Int32Array, p: number): number {
+export function plaquetteField(
+  rule: PhotonRule,
+  angle: Int32Array,
+  p: number,
+): number {
   const size = rule.lattice.plaquetteSize
 
   let b = 0
 
   for (let j = 0; j < size; j++) {
-    b += (rule.lattice.plaquetteSigns[p * size + j] ?? 0) * (angle[rule.lattice.plaquetteLinks[p * size + j] ?? 0] ?? 0)
+    b +=
+      (rule.lattice.plaquetteSigns[p * size + j] ?? 0) *
+      (angle[rule.lattice.plaquetteLinks[p * size + j] ?? 0] ?? 0)
   }
 
   return modulo(b, rule.n)
 }
 
-function drift(rule: PhotonRule, state: PhotonState, sign: number): void {
+function drift(
+  rule: PhotonRule,
+  state: PhotonState,
+  sign: number,
+): void {
   const { angle, flux } = state
 
   for (let l = 0; l < angle.length; l++) {
@@ -383,14 +456,21 @@ function drift(rule: PhotonRule, state: PhotonState, sign: number): void {
 }
 
 // E <- E - sign * (the force), the force read from the angles, which the kick does not change
-function kick(rule: PhotonRule, state: PhotonState, sign: number): void {
+function kick(
+  rule: PhotonRule,
+  state: PhotonState,
+  sign: number,
+): void {
   const { lattice } = rule
   const size = lattice.plaquetteSize
   const { angle, flux } = state
 
   for (let p = 0; p < lattice.plaquetteCount; p++) {
     const first = lattice.plaquetteLinks[p * size] ?? 0
-    const b = rule.kick === 'angle' ? modulo(angle[first] ?? 0, rule.n) : plaquetteField(rule, angle, p)
+    const b =
+      rule.kick === 'angle'
+        ? modulo(angle[first] ?? 0, rule.n)
+        : plaquetteField(rule, angle, p)
     const f = rule.force[b] ?? 0
 
     if (f === 0) {
@@ -398,7 +478,9 @@ function kick(rule: PhotonRule, state: PhotonState, sign: number): void {
     }
 
     if (rule.kick === 'link') {
-      flux[first] = (flux[first] ?? 0) - sign * (lattice.plaquetteSigns[p * size] ?? 0) * f
+      flux[first] =
+        (flux[first] ?? 0) -
+        sign * (lattice.plaquetteSigns[p * size] ?? 0) * f
 
       continue
     }
@@ -406,12 +488,19 @@ function kick(rule: PhotonRule, state: PhotonState, sign: number): void {
     for (let j = 0; j < size; j++) {
       const l = lattice.plaquetteLinks[p * size + j] ?? 0
 
-      flux[l] = (flux[l] ?? 0) - sign * (lattice.plaquetteSigns[p * size + j] ?? 0) * f
+      flux[l] =
+        (flux[l] ?? 0) -
+        sign * (lattice.plaquetteSigns[p * size + j] ?? 0) * f
     }
   }
 }
 
-function pay(rule: PhotonRule, state: PhotonState, l: number, cost: number): boolean {
+function pay(
+  rule: PhotonRule,
+  state: PhotonState,
+  l: number,
+  cost: number,
+): boolean {
   const next = (state.demon[l] ?? 0) - cost
 
   if (next < 0 || next > rule.capacity) {
@@ -424,7 +513,12 @@ function pay(rule: PhotonRule, state: PhotonState, l: number, cost: number): boo
 }
 
 // the magnetic level of every plaquette through link l, with u in its place
-function linkLevel(rule: PhotonRule, angle: Int32Array, l: number, u: number): number {
+function linkLevel(
+  rule: PhotonRule,
+  angle: Int32Array,
+  l: number,
+  u: number,
+): number {
   const { lattice } = rule
   const saved = angle[l] ?? 0
 
@@ -432,8 +526,21 @@ function linkLevel(rule: PhotonRule, angle: Int32Array, l: number, u: number): n
 
   let total = 0
 
-  for (let i = lattice.linkOffsets[l] ?? 0; i < (lattice.linkOffsets[l + 1] ?? 0); i++) {
-    total += rule.level[plaquetteField(rule, angle, Math.floor((lattice.linkEntries[i] ?? 0) / lattice.plaquetteSize))] ?? 0
+  for (
+    let i = lattice.linkOffsets[l] ?? 0;
+    i < (lattice.linkOffsets[l + 1] ?? 0);
+    i++
+  ) {
+    total +=
+      rule.level[
+        plaquetteField(
+          rule,
+          angle,
+          Math.floor(
+            (lattice.linkEntries[i] ?? 0) / lattice.plaquetteSize,
+          ),
+        )
+      ] ?? 0
   }
 
   angle[l] = saved
@@ -442,10 +549,19 @@ function linkLevel(rule: PhotonRule, angle: Int32Array, l: number, u: number): n
 }
 
 // the demon form's link move: reflect through plaquette number s of the link, B -> -B there
-function reflectLink(rule: PhotonRule, state: PhotonState, l: number, s: number): boolean {
+function reflectLink(
+  rule: PhotonRule,
+  state: PhotonState,
+  l: number,
+  s: number,
+): boolean {
   const { lattice } = rule
-  const through = (lattice.linkOffsets[l + 1] ?? 0) - (lattice.linkOffsets[l] ?? 0)
-  const entry = lattice.linkEntries[(lattice.linkOffsets[l] ?? 0) + (s % through)] ?? 0
+  const through =
+    (lattice.linkOffsets[l + 1] ?? 0) - (lattice.linkOffsets[l] ?? 0)
+  const entry =
+    lattice.linkEntries[
+      (lattice.linkOffsets[l] ?? 0) + (s % through)
+    ] ?? 0
   const p = Math.floor(entry / lattice.plaquetteSize)
   const own = lattice.plaquetteSigns[entry] ?? 0
   const u = state.angle[l] ?? 0
@@ -456,7 +572,15 @@ function reflectLink(rule: PhotonRule, state: PhotonState, l: number, s: number)
     return false
   }
 
-  if (!pay(rule, state, l, linkLevel(rule, state.angle, l, next) - linkLevel(rule, state.angle, l, u))) {
+  if (
+    !pay(
+      rule,
+      state,
+      l,
+      linkLevel(rule, state.angle, l, next) -
+        linkLevel(rule, state.angle, l, u),
+    )
+  ) {
     return false
   }
 
@@ -466,11 +590,16 @@ function reflectLink(rule: PhotonRule, state: PhotonState, l: number, s: number)
 }
 
 // the demon form's flux loop round plaquette p, paid by the demon of its first link
-function loopMove(rule: PhotonRule, state: PhotonState, p: number): boolean {
+function loopMove(
+  rule: PhotonRule,
+  state: PhotonState,
+  p: number,
+): boolean {
   const { lattice } = rule
   const size = lattice.plaquetteSize
   const first = lattice.plaquetteLinks[p * size] ?? 0
-  const oriented = (lattice.plaquetteSigns[p * size] ?? 0) * (state.flux[first] ?? 0)
+  const oriented =
+    (lattice.plaquetteSigns[p * size] ?? 0) * (state.flux[first] ?? 0)
   const step = modulo(oriented, 2) === 0 ? 1 : -1
 
   let cost = 0
@@ -490,17 +619,26 @@ function loopMove(rule: PhotonRule, state: PhotonState, p: number): boolean {
   for (let j = 0; j < size; j++) {
     const l = lattice.plaquetteLinks[p * size + j] ?? 0
 
-    state.flux[l] = (state.flux[l] ?? 0) + step * (lattice.plaquetteSigns[p * size + j] ?? 0)
+    state.flux[l] =
+      (state.flux[l] ?? 0) +
+      step * (lattice.plaquetteSigns[p * size + j] ?? 0)
   }
 
   return true
 }
 
 // a vibe crosses link l (dock x to dock y along first direction), paid in E^2 by the link's demon
-function hop(rule: PhotonRule, state: PhotonState, x: number, k: number): boolean {
+function hop(
+  rule: PhotonRule,
+  state: PhotonState,
+  x: number,
+  k: number,
+): boolean {
   const { lattice } = rule
   const l = x * lattice.firsts.length + k
-  const y = lattice.neighbour[x * lattice.degree + (lattice.firsts[k] ?? 0)] ?? 0
+  const y =
+    lattice.neighbour[x * lattice.degree + (lattice.firsts[k] ?? 0)] ??
+    0
   const a = state.vibe[x] ?? 0
   const b = state.vibe[y] ?? 0
 
@@ -523,7 +661,11 @@ function hop(rule: PhotonRule, state: PhotonState, x: number, k: number): boolea
   return true
 }
 
-function hops(rule: PhotonRule, state: PhotonState, forward: boolean): number {
+function hops(
+  rule: PhotonRule,
+  state: PhotonState,
+  forward: boolean,
+): number {
   const { lattice } = rule
   const f = lattice.firsts.length
 
@@ -538,14 +680,21 @@ function hops(rule: PhotonRule, state: PhotonState, forward: boolean): number {
   return moved
 }
 
-function streamDemons(rule: PhotonRule, demon: Int32Array, forward: boolean): void {
+function streamDemons(
+  rule: PhotonRule,
+  demon: Int32Array,
+  forward: boolean,
+): void {
   const { lattice } = rule
   const f = lattice.firsts.length
   const old = Int32Array.from(demon)
 
   for (let x = 0; x < lattice.cells; x++) {
     for (let k = 0; k < f; k++) {
-      const y = lattice.neighbour[x * lattice.degree + (lattice.firsts[k] ?? 0)] ?? 0
+      const y =
+        lattice.neighbour[
+          x * lattice.degree + (lattice.firsts[k] ?? 0)
+        ] ?? 0
 
       if (forward) {
         demon[y * f + k] = old[x * f + k] ?? 0
@@ -566,7 +715,11 @@ export function copyPhotonState(state: PhotonState): PhotonState {
 }
 
 // one beat, in place
-export function photonBeatInPlace(rule: PhotonRule, state: PhotonState, t: number): PhotonMoves {
+export function photonBeatInPlace(
+  rule: PhotonRule,
+  state: PhotonState,
+  t: number,
+): PhotonMoves {
   const moved: PhotonMoves = { links: 0, loops: 0, hops: 0 }
 
   if (rule.mode === 'leapfrog') {
@@ -592,7 +745,11 @@ export function photonBeatInPlace(rule: PhotonRule, state: PhotonState, t: numbe
 }
 
 // the inverse of one beat, in place
-export function photonBeatBackInPlace(rule: PhotonRule, state: PhotonState, t: number): void {
+export function photonBeatBackInPlace(
+  rule: PhotonRule,
+  state: PhotonState,
+  t: number,
+): void {
   streamDemons(rule, state.demon, false)
 
   if (rule.hop) {
@@ -613,14 +770,22 @@ export function photonBeatBackInPlace(rule: PhotonRule, state: PhotonState, t: n
   }
 }
 
-export function photonBeat(rule: PhotonRule, input: PhotonState, t: number): { state: PhotonState; moved: PhotonMoves } {
+export function photonBeat(
+  rule: PhotonRule,
+  input: PhotonState,
+  t: number,
+): { state: PhotonState; moved: PhotonMoves } {
   const state = copyPhotonState(input)
   const moved = photonBeatInPlace(rule, state, t)
 
   return { state, moved }
 }
 
-export function photonBeatBack(rule: PhotonRule, input: PhotonState, t: number): PhotonState {
+export function photonBeatBack(
+  rule: PhotonRule,
+  input: PhotonState,
+  t: number,
+): PhotonState {
   const state = copyPhotonState(input)
 
   photonBeatBackInPlace(rule, state, t)
@@ -629,8 +794,14 @@ export function photonBeatBack(rule: PhotonRule, input: PhotonState, t: number):
 }
 
 // the flux the last kick added, recomputed from the angles: E(-) = E(+) + force
-export function lastKick(rule: PhotonRule, state: PhotonState): Int32Array {
-  const probe = { ...copyPhotonState(state), flux: new Int32Array(state.flux.length) }
+export function lastKick(
+  rule: PhotonRule,
+  state: PhotonState,
+): Int32Array {
+  const probe = {
+    ...copyPhotonState(state),
+    flux: new Int32Array(state.flux.length),
+  }
 
   kick(rule, probe, 1)
 
@@ -638,18 +809,31 @@ export function lastKick(rule: PhotonRule, state: PhotonState): Int32Array {
 }
 
 // sum of (1 - cos(2 pi B / N)) over the plaquettes, and the plaquette mean of cos
-export function magneticSum(rule: PhotonRule, angle: Int32Array): { sum: number; meanCos: number } {
+export function magneticSum(
+  rule: PhotonRule,
+  angle: Int32Array,
+): { sum: number; meanCos: number } {
   let sum = 0
 
   for (let p = 0; p < rule.lattice.plaquetteCount; p++) {
-    sum += 1 - Math.cos((2 * Math.PI * plaquetteField(rule, angle, p)) / rule.n)
+    sum +=
+      1 -
+      Math.cos((2 * Math.PI * plaquetteField(rule, angle, p)) / rule.n)
   }
 
   return { sum, meanCos: 1 - sum / rule.lattice.plaquetteCount }
 }
 
 // the leapfrog energy H at the beat boundary, and the shadow energy 1/2 E(-) . E(+) + V, with the demons
-export function photonEnergy(rule: PhotonRule, state: PhotonState): { energy: number; shadow: number; electric: number; magnetic: number } {
+export function photonEnergy(
+  rule: PhotonRule,
+  state: PhotonState,
+): {
+  energy: number
+  shadow: number
+  electric: number
+  magnetic: number
+} {
   const kicked = lastKick(rule, state)
 
   let electric = 0
@@ -662,18 +846,30 @@ export function photonEnergy(rule: PhotonRule, state: PhotonState): { energy: nu
     staggered += (e * (e + (kicked[l] ?? 0))) / 2
   }
 
-  const magnetic = ((rule.k * rule.n) / (2 * Math.PI)) * magneticSum(rule, state.angle).sum
+  const magnetic =
+    ((rule.k * rule.n) / (2 * Math.PI)) *
+    magneticSum(rule, state.angle).sum
   const demons = state.demon.reduce((a, b) => a + b, 0) / 2
 
-  return { energy: electric + magnetic + demons, shadow: staggered + magnetic + demons, electric, magnetic }
+  return {
+    energy: electric + magnetic + demons,
+    shadow: staggered + magnetic + demons,
+    electric,
+    magnetic,
+  }
 }
 
 // the demon form's integer energy, in units of one half
-export function photonLevelEnergy(rule: PhotonRule, state: PhotonState): number {
+export function photonLevelEnergy(
+  rule: PhotonRule,
+  state: PhotonState,
+): number {
   let total = 0
 
   for (let l = 0; l < state.flux.length; l++) {
-    total += (state.flux[l] ?? 0) * (state.flux[l] ?? 0) + (state.demon[l] ?? 0)
+    total +=
+      (state.flux[l] ?? 0) * (state.flux[l] ?? 0) +
+      (state.demon[l] ?? 0)
   }
 
   for (let p = 0; p < rule.lattice.plaquetteCount; p++) {
@@ -683,14 +879,20 @@ export function photonLevelEnergy(rule: PhotonRule, state: PhotonState): number 
   return total
 }
 
-export function photonGaussViolations(rule: PhotonRule, state: PhotonState): number {
+export function photonGaussViolations(
+  rule: PhotonRule,
+  state: PhotonState,
+): number {
   const { lattice } = rule
   const f = lattice.firsts.length
   const divergence = new Int32Array(lattice.cells)
 
   for (let x = 0; x < lattice.cells; x++) {
     for (let k = 0; k < f; k++) {
-      const y = lattice.neighbour[x * lattice.degree + (lattice.firsts[k] ?? 0)] ?? 0
+      const y =
+        lattice.neighbour[
+          x * lattice.degree + (lattice.firsts[k] ?? 0)
+        ] ?? 0
       const e = state.flux[x * f + k] ?? 0
 
       divergence[x] = (divergence[x] ?? 0) + e
@@ -701,27 +903,43 @@ export function photonGaussViolations(rule: PhotonRule, state: PhotonState): num
   let violations = 0
 
   for (let x = 0; x < lattice.cells; x++) {
-    violations += divergence[x] === rule.charge * (state.vibe[x] ?? 0) ? 0 : 1
+    violations +=
+      divergence[x] === rule.charge * (state.vibe[x] ?? 0) ? 0 : 1
   }
 
   return violations
 }
 
 // a change of Z_N frame, chi[x] in every dock: A -> A + chi_y - chi_x, everything else unchanged
-export function changePhotonFrame(rule: PhotonRule, state: PhotonState, chi: ArrayLike<number>): PhotonState {
+export function changePhotonFrame(
+  rule: PhotonRule,
+  state: PhotonState,
+  chi: ArrayLike<number>,
+): PhotonState {
   const { lattice } = rule
   const f = lattice.firsts.length
   const angle = new Int32Array(state.angle.length)
 
   for (let x = 0; x < lattice.cells; x++) {
     for (let k = 0; k < f; k++) {
-      const y = lattice.neighbour[x * lattice.degree + (lattice.firsts[k] ?? 0)] ?? 0
+      const y =
+        lattice.neighbour[
+          x * lattice.degree + (lattice.firsts[k] ?? 0)
+        ] ?? 0
 
-      angle[x * f + k] = modulo((state.angle[x * f + k] ?? 0) + (chi[y] ?? 0) - (chi[x] ?? 0), rule.n)
+      angle[x * f + k] = modulo(
+        (state.angle[x * f + k] ?? 0) + (chi[y] ?? 0) - (chi[x] ?? 0),
+        rule.n,
+      )
     }
   }
 
-  return { vibe: Int8Array.from(state.vibe), angle, flux: Int32Array.from(state.flux), demon: Int32Array.from(state.demon) }
+  return {
+    vibe: Int8Array.from(state.vibe),
+    angle,
+    flux: Int32Array.from(state.flux),
+    demon: Int32Array.from(state.demon),
+  }
 }
 
 // the empty state: no vibes, every angle 0, no flux, no demon energy
@@ -738,37 +956,68 @@ export function emptyPhotonState(rule: PhotonRule): PhotonState {
 
 // add the curl of a hashed integer field on the plaquettes, each in -amplitude .. amplitude: transverse flux,
 // so Gauss's law is untouched
-export function addHashedCurl(rule: PhotonRule, state: PhotonState, amplitude: number, hash: number): void {
+export function addHashedCurl(
+  rule: PhotonRule,
+  state: PhotonState,
+  amplitude: number,
+  hash: number,
+): void {
   const { lattice } = rule
   const size = lattice.plaquetteSize
 
   for (let p = 0; p < lattice.plaquetteCount; p++) {
-    const h = Math.floor((((p + 1) * GOLDEN * hash) % 1) * (2 * amplitude + 1)) - amplitude
+    const h =
+      Math.floor(
+        (((p + 1) * GOLDEN * hash) % 1) * (2 * amplitude + 1),
+      ) - amplitude
 
     for (let j = 0; j < size; j++) {
       const l = lattice.plaquetteLinks[p * size + j] ?? 0
 
-      state.flux[l] = (state.flux[l] ?? 0) + (lattice.plaquetteSigns[p * size + j] ?? 0) * h
+      state.flux[l] =
+        (state.flux[l] ?? 0) +
+        (lattice.plaquetteSigns[p * size + j] ?? 0) * h
     }
   }
 }
 
 // set every angle to a hashed value in -amplitude .. amplitude, mod N
-export function setHashedAngles(rule: PhotonRule, state: PhotonState, amplitude: number, hash: number): void {
+export function setHashedAngles(
+  rule: PhotonRule,
+  state: PhotonState,
+  amplitude: number,
+  hash: number,
+): void {
   for (let l = 0; l < state.angle.length; l++) {
-    state.angle[l] = modulo(Math.floor((((l + 7) * GOLDEN * hash) % 1) * (2 * amplitude + 1)) - amplitude, rule.n)
+    state.angle[l] = modulo(
+      Math.floor(
+        (((l + 7) * GOLDEN * hash) % 1) * (2 * amplitude + 1),
+      ) - amplitude,
+      rule.n,
+    )
   }
 }
 
 // fill each demon with a hashed value in 0 .. top
-export function fillHashedDemons(state: PhotonState, top: number, hash: number): void {
+export function fillHashedDemons(
+  state: PhotonState,
+  top: number,
+  hash: number,
+): void {
   for (let l = 0; l < state.demon.length; l++) {
-    state.demon[l] = Math.floor((((l + 5) * GOLDEN * hash) % 1) * (top + 1))
+    state.demon[l] = Math.floor(
+      (((l + 5) * GOLDEN * hash) % 1) * (top + 1),
+    )
   }
 }
 
 // the oriented sum of the angles along a path of directions from dock x (mod nothing: the raw sum)
-export function pathAngle(rule: PhotonRule, angle: Int32Array, x: number, dirs: readonly number[]): number {
+export function pathAngle(
+  rule: PhotonRule,
+  angle: Int32Array,
+  x: number,
+  dirs: readonly number[],
+): number {
   const { lattice } = rule
 
   let sum = 0
@@ -785,7 +1034,11 @@ export function pathAngle(rule: PhotonRule, angle: Int32Array, x: number, dirs: 
 }
 
 // the links of a path of directions from dock x, each with its orientation
-export function pathLinks(lattice: PhotonLattice, x: number, dirs: readonly number[]): [number, number][] {
+export function pathLinks(
+  lattice: PhotonLattice,
+  x: number,
+  dirs: readonly number[],
+): [number, number][] {
   const out: [number, number][] = []
 
   let c = x
@@ -799,7 +1052,13 @@ export function pathLinks(lattice: PhotonLattice, x: number, dirs: readonly numb
 }
 
 // the directions of an r x t rectangle: r steps along a, t along b, r back along a, t back along b
-export function rectangle(lattice: PhotonLattice, a: number, r: number, b: number, t: number): number[] {
+export function rectangle(
+  lattice: PhotonLattice,
+  a: number,
+  r: number,
+  b: number,
+  t: number,
+): number[] {
   return [
     ...Array<number>(r).fill(a),
     ...Array<number>(t).fill(b),
@@ -811,16 +1070,23 @@ export function rectangle(lattice: PhotonLattice, a: number, r: number, b: numbe
 // the Coulomb flux of the vibes: E_L = e (phi_x - phi_y) on each link x -> y, with L phi = vibe, L the
 // graph Laplacian of the links, solved by conjugate gradient on the space orthogonal to the constant. The
 // longitudinal part of any flux obeying Gauss's law, since the kick and the loops only add curls
-export function coulombFlux(rule: PhotonRule, vibe: Int8Array): Float64Array {
+export function coulombFlux(
+  rule: PhotonRule,
+  vibe: Int8Array,
+): Float64Array {
   const { lattice } = rule
   const f = lattice.firsts.length
   const cells = lattice.cells
+
   const laplacian = (v: Float64Array, out: Float64Array): void => {
     out.fill(0)
 
     for (let x = 0; x < cells; x++) {
       for (let k = 0; k < f; k++) {
-        const y = lattice.neighbour[x * lattice.degree + (lattice.firsts[k] ?? 0)] ?? 0
+        const y =
+          lattice.neighbour[
+            x * lattice.degree + (lattice.firsts[k] ?? 0)
+          ] ?? 0
         const diff = (v[x] ?? 0) - (v[y] ?? 0)
 
         out[x] = (out[x] ?? 0) + diff
@@ -828,17 +1094,23 @@ export function coulombFlux(rule: PhotonRule, vibe: Int8Array): Float64Array {
       }
     }
   }
+
   const b = Float64Array.from(vibe, q => q * rule.charge)
   const mean = b.reduce((s, v) => s + v, 0) / cells
   const phi = new Float64Array(cells)
   const r = Float64Array.from(b, v => v - mean)
   const p = Float64Array.from(r)
   const ap = new Float64Array(cells)
-  const dot = (u: Float64Array, v: Float64Array): number => u.reduce((s, x, i) => s + x * (v[i] ?? 0), 0)
+  const dot = (u: Float64Array, v: Float64Array): number =>
+    u.reduce((s, x, i) => s + x * (v[i] ?? 0), 0)
 
   let rr = dot(r, r)
 
-  for (let it = 0; it < 10 * cells && rr > 1e-26 * Math.max(1, dot(b, b)); it++) {
+  for (
+    let it = 0;
+    it < 10 * cells && rr > 1e-26 * Math.max(1, dot(b, b));
+    it++
+  ) {
     laplacian(p, ap)
 
     const alpha = rr / dot(p, ap)
@@ -861,7 +1133,10 @@ export function coulombFlux(rule: PhotonRule, vibe: Int8Array): Float64Array {
 
   for (let x = 0; x < cells; x++) {
     for (let k = 0; k < f; k++) {
-      const y = lattice.neighbour[x * lattice.degree + (lattice.firsts[k] ?? 0)] ?? 0
+      const y =
+        lattice.neighbour[
+          x * lattice.degree + (lattice.firsts[k] ?? 0)
+        ] ?? 0
 
       flux[x * f + k] = (phi[x] ?? 0) - (phi[y] ?? 0)
     }
@@ -872,12 +1147,25 @@ export function coulombFlux(rule: PhotonRule, vibe: Int8Array): Float64Array {
 
 // place a vibe v at dock x and -v at the end of a straight path of `steps` steps along direction d, joined by
 // one unit of flux along the path. Returns the far dock
-export function placePair(rule: PhotonRule, state: PhotonState, x: number, d: number, steps: number, v: number): number {
+export function placePair(
+  rule: PhotonRule,
+  state: PhotonState,
+  x: number,
+  d: number,
+  steps: number,
+  v: number,
+): number {
   return placePairAlong(rule, state, x, Array<number>(steps).fill(d), v)
 }
 
 // the same along any path of directions
-export function placePairAlong(rule: PhotonRule, state: PhotonState, x: number, dirs: readonly number[], v: number): number {
+export function placePairAlong(
+  rule: PhotonRule,
+  state: PhotonState,
+  x: number,
+  dirs: readonly number[],
+  v: number,
+): number {
   const { lattice } = rule
 
   let c = x

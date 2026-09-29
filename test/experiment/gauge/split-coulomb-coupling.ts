@@ -49,7 +49,15 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { splitNear } from '@/code/rule/loop-ring'
 import { makeTritLight } from '@/code/rule/trit-column'
-import { alphaOfRatio, alphaOfShare, classicalSplit, driftCarriedSplit, realMinimum, staticShift, type StaticShift } from '@/code/measure/split-coulomb'
+import {
+  alphaOfRatio,
+  alphaOfShare,
+  classicalSplit,
+  driftCarriedSplit,
+  realMinimum,
+  staticShift,
+  type StaticShift,
+} from '@/code/measure/split-coulomb'
 
 const TWO_SQUARES = [13, 17, 21, 25]
 const THREE_SQUARES = 11
@@ -66,6 +74,7 @@ export default experiment({
   run() {
     const started = Date.now()
     const metrics: Record<string, number> = {}
+
     const record = (tag: string, r: StaticShift): void => {
       metrics[`${tag}_s`] = r.s
       metrics[`${tag}_f`] = r.f
@@ -93,17 +102,33 @@ export default experiment({
       record(`square_N${n}_L2`, sq)
       record(`drift_N${n}_L2`, dr)
       record(`classical_N${n}_L2`, cl)
-      q1 = q1 && Math.abs(sq.ratio - 1) < 1e-3 && sq.overlap0 >= 0.5 && sq.overlap1 >= 0.5
+      q1 =
+        q1 &&
+        Math.abs(sq.ratio - 1) < 1e-3 &&
+        sq.overlap0 >= 0.5 &&
+        sq.overlap1 >= 0.5
       q2 = q2 && Math.abs(dr.ratio - 1) < 2e-2
       q3 = q3 && cl.ratio - 1 > 0.05
     }
 
-    const sq3 = staticShift(THREE_SQUARES, 3, splitNear(THREE_SQUARES, 3))
-    const cl3 = staticShift(THREE_SQUARES, 3, classicalSplit(THREE_SQUARES))
+    const sq3 = staticShift(
+      THREE_SQUARES,
+      3,
+      splitNear(THREE_SQUARES, 3),
+    )
+    const cl3 = staticShift(
+      THREE_SQUARES,
+      3,
+      classicalSplit(THREE_SQUARES),
+    )
 
     record(`square_N${THREE_SQUARES}_L3`, sq3)
     record(`classical_N${THREE_SQUARES}_L3`, cl3)
-    q1 = q1 && Math.abs(sq3.ratio - 1) < 5e-3 && sq3.overlap0 >= 0.5 && sq3.overlap1 >= 0.5
+    q1 =
+      q1 &&
+      Math.abs(sq3.ratio - 1) < 5e-3 &&
+      sq3.overlap0 >= 0.5 &&
+      sq3.overlap1 >= 0.5
     q3 = q3 && cl3.ratio - 1 > 0.05
     metrics.eStarTwoSquares = realMinimum(2, 1)
     metrics.eStarThreeSquares = realMinimum(3, 1)
@@ -111,9 +136,14 @@ export default experiment({
     // Q4: the register count on the trit bulk
     const bulk = makeTritLight({ side: 4, depth: 2, form: 'wave' }).bulk
     const huskTrianglesPerDock = bulk.huskTriangles / bulk.huskDocks
-    const multiplicityPerDock = Array.from(bulk.multiplicity).reduce((s, v) => s + v, 0) / bulk.huskDocks
+    const multiplicityPerDock =
+      Array.from(bulk.multiplicity).reduce((s, v) => s + v, 0) /
+      bulk.huskDocks
     const bulkTrianglesPerDock = bulk.triangles / bulk.docks
-    const q4 = huskTrianglesPerDock === 20 && multiplicityPerDock === 32 && bulkTrianglesPerDock === 32
+    const q4 =
+      huskTrianglesPerDock === 20 &&
+      multiplicityPerDock === 32 &&
+      bulkTrianglesPerDock === 32
 
     metrics.huskTrianglesPerDock = huskTrianglesPerDock
     metrics.multiplicityPerDock = multiplicityPerDock
@@ -128,7 +158,9 @@ export default experiment({
     }
 
     for (const d of [11, 16, 32, 64]) {
-      for (const [name, form] of Object.entries(forms)) metrics[`inverseAlpha_${name}_D${d}`] = 1 / form(d)
+      for (const [name, form] of Object.entries(forms)) {
+        metrics[`inverseAlpha_${name}_D${d}`] = 1 / form(d)
+      }
     }
 
     let nearest = Infinity
@@ -147,19 +179,25 @@ export default experiment({
 
     const gates = { Q1: q1, Q2: q2, Q3: q3, Q4: q4, Q5: q5 }
 
-    for (const [k, v] of Object.entries(gates)) metrics[`gate${k}`] = v ? 1 : 0
+    for (const [k, v] of Object.entries(gates)) {
+      metrics[`gate${k}`] = v ? 1 : 0
+    }
 
     metrics.seconds = (Date.now() - started) / 1000
 
-    const ratios = (prefix: string): string => TWO_SQUARES.map(n => (metrics[`${prefix}_N${n}_L2_ratio`] ?? 0).toFixed(5)).join(', ')
+    const ratios = (prefix: string): string =>
+      TWO_SQUARES.map(n =>
+        (metrics[`${prefix}_N${n}_L2_ratio`] ?? 0).toFixed(5),
+      ).join(', ')
 
     return verdict({
       status: Object.values(gates).every(Boolean) ? 'pass' : 'fail',
-      claim: `a static charge on the quantum light's own rule (a ladder of husk squares, a STAND-IN pair across one rung) shifts the ground by ${ratios('square')} of the drift times the Coulomb form (pi s / N) E* at N = ${TWO_SQUARES.join(', ')} with f / s near 3 (${sq3.ratio.toFixed(5)} on three squares), ${ratios('drift')} with the drift-carried split, and ${ratios('classical')} (${cl3.ratio.toFixed(4)} on three squares) with the classical light's split, whose registers sit near integers (spread ${(metrics['classical_N25_L2_sigma2'] ?? 0).toFixed(3)} against ${(metrics['square_N25_L2_sigma2'] ?? 0).toFixed(2)}); so C = s kappa / 24 and alpha = (s / 24) sqrt(3 kappa / 2): ${(metrics['inverseAlpha_classical_D16'] ?? 0).toFixed(2)} (classical split), ${(metrics['inverseAlpha_rho3_D16'] ?? 0).toFixed(1)} (rho = 3), ${(metrics['inverseAlpha_rho3over8_D16'] ?? 0).toFixed(0)} (rho = 3/8, 1/alpha = 6 (2D + 1)) for 1/alpha at D = 16; no integer depth is within ${nearest.toExponential(2)} of 137.036`,
+      claim: `a static charge on the quantum light's own rule (a ladder of husk squares, a STAND-IN pair across one rung) shifts the ground by ${ratios('square')} of the drift times the Coulomb form (pi s / N) E* at N = ${TWO_SQUARES.join(', ')} with f / s near 3 (${sq3.ratio.toFixed(5)} on three squares), ${ratios('drift')} with the drift-carried split, and ${ratios('classical')} (${cl3.ratio.toFixed(4)} on three squares) with the classical light's split, whose registers sit near integers (spread ${(metrics.classical_N25_L2_sigma2 ?? 0).toFixed(3)} against ${(metrics.square_N25_L2_sigma2 ?? 0).toFixed(2)}); so C = s kappa / 24 and alpha = (s / 24) sqrt(3 kappa / 2): ${(metrics.inverseAlpha_classical_D16 ?? 0).toFixed(2)} (classical split), ${(metrics.inverseAlpha_rho3_D16 ?? 0).toFixed(1)} (rho = 3), ${(metrics.inverseAlpha_rho3over8_D16 ?? 0).toFixed(0)} (rho = 3/8, 1/alpha = 6 (2D + 1)) for 1/alpha at D = 16; no integer depth is within ${nearest.toExponential(2)} of 137.036`,
       metrics,
       control: {
-        classicalRatioN25: metrics['classical_N25_L2_ratio'] ?? 0,
-        integerRatioTwoSquares: metrics['classical_N25_L2_integerRatio'] ?? 0,
+        classicalRatioN25: metrics.classical_N25_L2_ratio ?? 0,
+        integerRatioTwoSquares:
+          metrics.classical_N25_L2_integerRatio ?? 0,
       },
       notes: `L2, deterministic (exact factors read in doubles, the eigenvectors by the repo's Hermitian solver; no draw). Gates: ${JSON.stringify(gates)}. FIRST RUN 2026-09-26 (tmp/frc0242.log, 245 s), FAIL on Q3 alone, recorded as is, no gate moved. Q1 holds sharply: f / s near 3 reads 0.99987, 0.9999993, 0.99999999, 0.999999995 of (pi s / N) E* at N = 13 .. 25 (0.99984 on three squares at N = 11), overlaps 0.92 to 0.98; the drift-carried split 0.9968 to 1.0001. Q3's premise was wrong: the classical split's register spread is NOT constant in N (sigma_m^2 0.226, 0.259, 0.288, 0.314 at N = 13, 17, 21, 25), and its excess over the Coulomb form falls with it, 0.172, 0.104, 0.064, 0.045 (1.272 on three squares at N = 11, sigma_m^2 0.199), about as exp(-15 sigma_m^2) (fitted after the run, against the theorem's exp(-2 pi^2 sigma_m^2) = exp(-19.7 sigma_m^2)); N = 25 read 1.045, under the 1.05 gate. So the classical split does NOT refuse the Coulomb coupling: it converges to it slowly in the column depth, where the balanced split is exact already at N = 13. The ground identification at classical N = 21 had overlap 0.58 in sector 0 (the gate on overlaps applies to Q1 only). Title rewritten after the run to say this; no logic changed.`,
     })

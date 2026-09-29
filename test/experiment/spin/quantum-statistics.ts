@@ -44,10 +44,20 @@ import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh } from '@/code/tool/mesh'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { GOLDEN, SILVER, weyl } from '@/code/tool/weyl'
-import { coldBeat, coldEnergy, makeColdWeave, type ColdState, type ColdWeave } from '@/code/rule/cold-weave'
+import {
+  coldBeat,
+  coldEnergy,
+  makeColdWeave,
+  type ColdState,
+  type ColdWeave,
+} from '@/code/rule/cold-weave'
 import { colorLocalCollision } from '@/code/rule/color-local-weave'
 import { cptMirrorPhase } from '@/code/measure/weave-acceptance'
-import { HEAD_TURN_SPEC, scatterSchedule, type ScatterWeaveSpec } from '@/code/rule/scatter-weave'
+import {
+  HEAD_TURN_SPEC,
+  scatterSchedule,
+  type ScatterWeaveSpec,
+} from '@/code/rule/scatter-weave'
 
 const SIDE = 7
 const DENSITY = 0.4
@@ -61,15 +71,27 @@ const ROOTS = rootsD4()
 
 // the E-FLD-0032 cold weave's spec, as fluids/cold-vacuum builds it
 function coldSpec(): ScatterWeaveSpec {
-  const mirror = cptMirrorPhase((o, f) => colorLocalCollision({ spec: HEAD_TURN_SPEC, opposite: o, forward: f }))
+  const mirror = cptMirrorPhase((o, f) =>
+    colorLocalCollision({
+      spec: HEAD_TURN_SPEC,
+      opposite: o,
+      forward: f,
+    }),
+  )
 
-  return { base: HEAD_TURN_SPEC, mirror, sets: scatterSchedule({ partitions: 2, pairs: 3 }), condition: 'matched' }
+  return {
+    base: HEAD_TURN_SPEC,
+    mirror,
+    sets: scatterSchedule({ partitions: 2, pairs: 3 }),
+    condition: 'matched',
+  }
 }
 
 // each root's husk direction (0 .. 17) and whether that direction is an axis
 const HUSK_KEYS: string[] = []
 const HUSK_OF = ROOTS.map(r => {
   const key = `${r[0]},${r[1]},${r[2]}`
+
   let h = HUSK_KEYS.indexOf(key)
 
   if (h < 0) {
@@ -79,13 +101,23 @@ const HUSK_OF = ROOTS.map(r => {
 
   return h
 })
-const HUSK_SLOTS = HUSK_KEYS.map((_, h) => HUSK_OF.filter(x => x === h).length)
+const HUSK_SLOTS = HUSK_KEYS.map(
+  (_, h) => HUSK_OF.filter(x => x === h).length,
+)
 const HUSK_IS_AXIS = HUSK_SLOTS.map(n => n === 2)
 
-type Tally = { sum: Float64Array; square: Float64Array; samples: number }
+type Tally = {
+  sum: Float64Array
+  square: Float64Array
+  samples: number
+}
 
 function makeTally(modes: number): Tally {
-  return { sum: new Float64Array(modes), square: new Float64Array(modes), samples: 0 }
+  return {
+    sum: new Float64Array(modes),
+    square: new Float64Array(modes),
+    samples: 0,
+  }
 }
 
 // add the husk occupations of one beat: mode = column * 18 + husk direction, column = x + 7 y + 49 z
@@ -112,7 +144,13 @@ function sampleHusk(vibe: Int8Array, tally: Tally): void {
   tally.samples++
 }
 
-type ClassReading = { fano: number; fermi: number; bose: number; fill: number; modes: number }
+type ClassReading = {
+  fano: number
+  fermi: number
+  bose: number
+  fill: number
+  modes: number
+}
 
 function readClass(tally: Tally, axis: boolean): ClassReading {
   let fano = 0
@@ -130,7 +168,8 @@ function readClass(tally: Tally, axis: boolean): ClassReading {
 
     const g = SIDE * (HUSK_SLOTS[h] ?? 1)
     const mean = (tally.sum[mode] ?? 0) / tally.samples
-    const variance = (tally.square[mode] ?? 0) / tally.samples - mean * mean
+    const variance =
+      (tally.square[mode] ?? 0) / tally.samples - mean * mean
 
     if (mean <= 0) {
       continue
@@ -143,7 +182,13 @@ function readClass(tally: Tally, axis: boolean): ClassReading {
     modes++
   }
 
-  return { fano: fano / modes, fermi: fermi / modes, bose: bose / modes, fill: fill / modes, modes }
+  return {
+    fano: fano / modes,
+    fermi: fermi / modes,
+    bose: bose / modes,
+    fill: fill / modes,
+    modes,
+  }
 }
 
 // the Fano factor ACROSS the modes of a class in one sample (the start has only one), var / mean
@@ -157,7 +202,8 @@ function spatialFano(tally: Tally, axis: boolean): number {
   }
 
   const mean = values.reduce((a, b) => a + b, 0) / values.length
-  const variance = values.reduce((a, b) => a + (b - mean) ** 2, 0) / values.length
+  const variance =
+    values.reduce((a, b) => a + (b - mean) ** 2, 0) / values.length
 
   return variance / mean
 }
@@ -181,7 +227,11 @@ function startState(weave: ColdWeave, coherent: boolean): ColdState {
     }
   }
 
-  return { vibe, store, demon: new Int32Array(weave.mesh.cellCount * 12) }
+  return {
+    vibe,
+    store,
+    demon: new Int32Array(weave.mesh.cellCount * 12),
+  }
 }
 
 // pure streaming: every slot's contents copied one dock along its direction
@@ -201,13 +251,16 @@ function streamOnly(weave: ColdWeave, s: ColdState): ColdState {
 
 function run(weave: ColdWeave, coherent: boolean, knit: boolean) {
   let s = startState(weave, coherent)
+
   const e0 = coldEnergy(s)
   const q0 = s.vibe.reduce((a, b) => a + b, 0)
   const modes = SIDE ** 3 * HUSK_KEYS.length
   const tallies = WINDOWS.map(() => makeTally(modes))
   const startTally = makeTally(modes)
+
   let bulkSum = 0
   let bulkSamples = 0
+
   const storeCounts = [0, 0, 0, 0, 0]
 
   sampleHusk(s.vibe, startTally)
@@ -246,6 +299,7 @@ function run(weave: ColdWeave, coherent: boolean, knit: boolean) {
   // slots whose contents differ from the same slot one depth step along x4: 0 for a depth-uniform state
   // (added after the first run, a reading only)
   const depthStride = SIDE ** 3 * 24
+
   let depthMismatch = 0
 
   for (let i = 0; i < s.vibe.length; i++) {
@@ -258,8 +312,14 @@ function run(weave: ColdWeave, coherent: boolean, knit: boolean) {
 
   return {
     depthMismatch,
-    windows: tallies.map(t => ({ axis: readClass(t, true), diagonal: readClass(t, false) })),
-    start: { axisSpatialFano: spatialFano(startTally, true), diagonalSpatialFano: spatialFano(startTally, false) },
+    windows: tallies.map(t => ({
+      axis: readClass(t, true),
+      diagonal: readClass(t, false),
+    })),
+    start: {
+      axisSpatialFano: spatialFano(startTally, true),
+      diagonalSpatialFano: spatialFano(startTally, false),
+    },
     bulkFill: bulkSum / Math.max(1, bulkSamples),
     storeCounts,
     energyExact: !knit || coldEnergy(s) === e0,
@@ -282,19 +342,35 @@ export default experiment({
     const spread = run(weave, false, true)
     const coherent = run(weave, true, true)
     const streaming = run(weave, true, false)
-    const lastOf = (r: ReturnType<typeof run>) => r.windows[r.windows.length - 1] ?? { axis: readClass(makeTally(1), true), diagonal: readClass(makeTally(1), false) }
+    const lastOf = (r: ReturnType<typeof run>) =>
+      r.windows[r.windows.length - 1] ?? {
+        axis: readClass(makeTally(1), true),
+        diagonal: readClass(makeTally(1), false),
+      }
     const classes = ['axis', 'diagonal'] as const
 
     const g1 = [spread, coherent].every(r =>
       classes.every(c => {
         const x = lastOf(r)[c]
 
-        return Math.abs(x.fano - x.fermi) <= 0.05 && Math.abs(x.fano - 1) >= 0.2 && Math.abs(x.fano - x.bose) >= 0.2
+        return (
+          Math.abs(x.fano - x.fermi) <= 0.05 &&
+          Math.abs(x.fano - 1) >= 0.2 &&
+          Math.abs(x.fano - x.bose) >= 0.2
+        )
       }),
     )
-    const g2 = classes.every(c => Math.abs(lastOf(spread)[c].fano - lastOf(coherent)[c].fano) <= 0.05)
-    const g3 = streaming.windows.every(w => classes.every(c => w[c].fano > 2))
-    const g4 = [spread, coherent].every(r => r.energyExact && r.chargeExact)
+    const g2 = classes.every(
+      c =>
+        Math.abs(lastOf(spread)[c].fano - lastOf(coherent)[c].fano) <=
+        0.05,
+    )
+    const g3 = streaming.windows.every(w =>
+      classes.every(c => w[c].fano > 2),
+    )
+    const g4 = [spread, coherent].every(
+      r => r.energyExact && r.chargeExact,
+    )
     const ok = g1 && g2 && g3 && g4
 
     const metrics: Record<string, number> = {}
@@ -305,27 +381,49 @@ export default experiment({
     ] as const) {
       r.windows.forEach((w, k) => {
         for (const c of classes) {
-          metrics[`${name}Window${k + 1}${c}Fano`] = Number(w[c].fano.toFixed(4))
-          metrics[`${name}Window${k + 1}${c}FermiDirac`] = Number(w[c].fermi.toFixed(4))
-          metrics[`${name}Window${k + 1}${c}BoseEinstein`] = Number(w[c].bose.toFixed(4))
-          metrics[`${name}Window${k + 1}${c}Fill`] = Number(w[c].fill.toFixed(4))
+          metrics[`${name}Window${k + 1}${c}Fano`] = Number(
+            w[c].fano.toFixed(4),
+          )
+
+          metrics[`${name}Window${k + 1}${c}FermiDirac`] = Number(
+            w[c].fermi.toFixed(4),
+          )
+
+          metrics[`${name}Window${k + 1}${c}BoseEinstein`] = Number(
+            w[c].bose.toFixed(4),
+          )
+
+          metrics[`${name}Window${k + 1}${c}Fill`] = Number(
+            w[c].fill.toFixed(4),
+          )
         }
       })
-      metrics[`${name}StartAxisSpatialFano`] = Number(r.start.axisSpatialFano.toFixed(4))
-      metrics[`${name}StartDiagonalSpatialFano`] = Number(r.start.diagonalSpatialFano.toFixed(4))
+
+      metrics[`${name}StartAxisSpatialFano`] = Number(
+        r.start.axisSpatialFano.toFixed(4),
+      )
+
+      metrics[`${name}StartDiagonalSpatialFano`] = Number(
+        r.start.diagonalSpatialFano.toFixed(4),
+      )
       metrics[`${name}BulkFill`] = Number(r.bulkFill.toFixed(4))
-      metrics[`${name}BulkFanoIdentically`] = Number((1 - r.bulkFill).toFixed(4))
+      metrics[`${name}BulkFanoIdentically`] = Number(
+        (1 - r.bulkFill).toFixed(4),
+      )
 
       const vibes = r.storeCounts.reduce((a, b) => a + b, 0)
 
       r.storeCounts.forEach((count, level) => {
-        metrics[`${name}StoreShare${level === 4 ? '4Plus' : level}`] = Number((count / Math.max(1, vibes)).toFixed(4))
+        metrics[`${name}StoreShare${level === 4 ? '4Plus' : level}`] =
+          Number((count / Math.max(1, vibes)).toFixed(4))
       })
       metrics[`${name}DepthMismatchedSlotsAtEnd`] = r.depthMismatch
 
       for (const c of classes) {
         // the Fermi value of a depth-uniform state: every vibe counted SIDE times
-        metrics[`${name}${c}FermiDiracTimesDepth`] = Number((SIDE * (lastOf(r)[c].fermi)).toFixed(4))
+        metrics[`${name}${c}FermiDiracTimesDepth`] = Number(
+          (SIDE * lastOf(r)[c].fermi).toFixed(4),
+        )
       }
 
       metrics[`${name}EnergyExact`] = r.energyExact ? 1 : 0
@@ -344,8 +442,13 @@ export default experiment({
 
     streaming.windows.forEach((w, k) => {
       for (const c of classes) {
-        control[`streamingWindow${k + 1}${c}Fano`] = Number(w[c].fano.toFixed(4))
-        control[`streamingWindow${k + 1}${c}FermiDirac`] = Number(w[c].fermi.toFixed(4))
+        control[`streamingWindow${k + 1}${c}Fano`] = Number(
+          w[c].fano.toFixed(4),
+        )
+
+        control[`streamingWindow${k + 1}${c}FermiDirac`] = Number(
+          w[c].fermi.toFixed(4),
+        )
       }
     })
 

@@ -456,13 +456,27 @@ export type CuspLayer = {
   readonly layerDegree: number[]
 }
 
-export function cuspLayer(input: {
-  coin: LabelledCoin
-  skinRadius: number
-}): CuspLayer {
-  const { coin, skinRadius } = input
-  const { normals, metric, center, timeAxis, dim } = coin.frame
-  const transports = labelTransports({ coin, kind: 'antipodal' })
+// The inverse of a frame (an isometry of the Minkowski form): J g^T J.
+export function frameInverse(coin: LabelledCoin, g: Mat): Mat {
+  const { metric, dim } = coin.frame
+
+  return Array.from({ length: dim }, (_, a) =>
+    Array.from(
+      { length: dim },
+      (_, b) => (metric[a] ?? 1) * (g[b]?.[a] ?? 0) * (metric[b] ?? 1),
+    ),
+  )
+}
+
+// The ideal vertex of the base cell fixed by its last four mirrors, and the 24 vertices of the base cell (the orbit of
+// that vertex under the four cell mirrors), each scaled to time coordinate 1 and keyed.
+export function baseCellVertices(coin: LabelledCoin): {
+  vertex: Vec
+  vertices: Vec[]
+  keys: Set<string>
+  unit: (v: Vec) => Vec
+} {
+  const { normals, metric, timeAxis } = coin.frame
   const vertex = nullVector(normals.slice(1), metric)
 
   const unit = (v: Vec): Vec => {
@@ -471,34 +485,37 @@ export function cuspLayer(input: {
     return v.map(x => x / t)
   }
 
-  const inverse = (g: Mat): Mat =>
-    Array.from({ length: dim }, (_, a) =>
-      Array.from(
-        { length: dim },
-        (_, b) =>
-          (metric[a] ?? 1) * (g[b]?.[a] ?? 0) * (metric[b] ?? 1),
-      ),
-    )
-  // the 24 vertices of the base cell, the orbit of the vertex under its four cell mirrors. A cell with
-  // frame g touches the vertex exactly when g^-1 v is one of them.
   const mirrors = normals
     .slice(0, 4)
     .map(normal => reflectionMatrix(normal, metric))
-  const baseVertices = new Set<string>([pointKey(unit(vertex))])
-  const queue: Vec[] = [unit(vertex)]
+  const keys = new Set<string>([pointKey(unit(vertex))])
+  const vertices: Vec[] = [unit(vertex)]
 
-  for (const point of queue) {
+  for (const point of vertices) {
     for (const mirror of mirrors) {
       const image = unit(matVec(mirror, point))
       const key = pointKey(image)
 
-      if (!baseVertices.has(key)) {
-        baseVertices.add(key)
-        queue.push(image)
+      if (!keys.has(key)) {
+        keys.add(key)
+        vertices.push(image)
       }
     }
   }
 
+  return { vertex, vertices, keys, unit }
+}
+
+export function cuspLayer(input: {
+  coin: LabelledCoin
+  skinRadius: number
+}): CuspLayer {
+  const { coin, skinRadius } = input
+  const { metric, center, timeAxis, dim } = coin.frame
+  const transports = labelTransports({ coin, kind: 'antipodal' })
+  const { vertex, keys: baseVertices, unit } = baseCellVertices(coin)
+  const inverse = (g: Mat): Mat => frameInverse(coin, g)
+  // A cell with frame g touches the vertex exactly when g^-1 v is one of the base cell's vertices.
   const touches = (g: Mat): boolean =>
     baseVertices.has(pointKey(unit(matVec(inverse(g), vertex))))
   const keyOf = (g: Mat): string =>

@@ -8,7 +8,13 @@
 // permutations. The displacement T(v) (x -> x + v) is the element a comoving meeting conjugates by.
 
 import { phasePointOperators } from '@/code/measure/grid-weights'
-import { applyFirst, cliffordGroup, eisValue, type Mat3, type State9 } from '@/code/measure/eisenstein-words'
+import {
+  applyFirst,
+  cliffordGroup,
+  eisValue,
+  type Mat3,
+  type State9,
+} from '@/code/measure/eisenstein-words'
 
 // the permutation a Clifford element makes of the nine single-role phase points (phase index 3 a + b), or -1
 // entries where a point has no image among them
@@ -47,7 +53,15 @@ export function cliffordPointPermutation(g: Mat3): number[] {
       }
     }
 
-    perm.push(points.findIndex(p => p.re.every((v, k) => Math.abs(v - (re[k] ?? 0)) < 1e-9 && Math.abs((p.im[k] ?? 0) - (im[k] ?? 0)) < 1e-9)))
+    perm.push(
+      points.findIndex(p =>
+        p.re.every(
+          (v, k) =>
+            Math.abs(v - (re[k] ?? 0)) < 1e-9 &&
+            Math.abs((p.im[k] ?? 0) - (im[k] ?? 0)) < 1e-9,
+        ),
+      ),
+    )
   }
 
   return perm
@@ -73,7 +87,9 @@ export function cliffordTable(): CliffordTable {
   const group = cliffordGroup()
   const perms = group.map(cliffordPointPermutation)
   const keys = new Map(perms.map((p, i) => [p.join(','), i]))
-  const indexOf = (perm: readonly number[]): number => keys.get(perm.join(',')) ?? -1
+  const indexOf = (perm: readonly number[]): number =>
+    keys.get(perm.join(',')) ?? -1
+
   const elementOf = (perm: readonly number[]): Mat3 => {
     const i = indexOf(perm)
 
@@ -89,7 +105,8 @@ export function cliffordTable(): CliffordTable {
     perms,
     elementOf,
     indexOf,
-    translation: (v: number) => elementOf(Array.from({ length: 9 }, (_, p) => phasePlus(p, v))),
+    translation: (v: number) =>
+      elementOf(Array.from({ length: 9 }, (_, p) => phasePlus(p, v))),
   }
 
   return TABLE
@@ -97,7 +114,10 @@ export function cliffordTable(): CliffordTable {
 
 // phase points added and negated componentwise mod 3 (index 3 a + b)
 export function phasePlus(p: number, v: number): number {
-  return 3 * ((Math.floor(p / 3) + Math.floor(v / 3)) % 3) + (((p % 3) + (v % 3)) % 3)
+  return (
+    3 * ((Math.floor(p / 3) + Math.floor(v / 3)) % 3) +
+    (((p % 3) + (v % 3)) % 3)
+  )
 }
 
 export function phaseNegate(v: number): number {
@@ -106,7 +126,11 @@ export function phaseNegate(v: number): number {
 
 // exchange the two roles of a state
 export function swapRoles(s: State9): State9 {
-  return { num: s.num.map((_, i) => s.num[3 * (i % 3) + Math.floor(i / 3)]!), k2: s.k2, m3: s.m3 }
+  return {
+    num: s.num.map((_, i) => s.num[3 * (i % 3) + Math.floor(i / 3)]!),
+    k2: s.k2,
+    m3: s.m3,
+  }
 }
 
 // (1 x D) psi

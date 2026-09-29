@@ -39,7 +39,11 @@
 // Index: ((p 3^n + lab) 3^L + fl) (2D + 1)^2 + (rL + D) (2D + 1) + (rR + D), p the positions (token 0 most
 // significant, base L), lab the labels (base 3), fl the link fluxes (link l the digit of 3^l).
 
-import { stepTable, type Convention, type Vibe } from '@/code/rule/locked-token-line'
+import {
+  stepTable,
+  type Convention,
+  type Vibe,
+} from '@/code/rule/locked-token-line'
 
 export type EndSpec = {
   readonly ring: number
@@ -53,21 +57,38 @@ export type EndSpec = {
   readonly meet?: boolean
 }
 
-export type EndRegisters = { x: number[]; j: number[]; f: number[]; rL: number; rR: number }
+export type EndRegisters = {
+  x: number[]
+  j: number[]
+  f: number[]
+  rL: number
+  rR: number
+}
 
-export type Run = { readonly l: number; readonly lo: number; readonly hi: number; readonly contact: number }
+export type Run = {
+  readonly l: number
+  readonly lo: number
+  readonly hi: number
+  readonly contact: number
+}
 
 const mod = (a: number, m: number): number => ((a % m) + m) % m
 
-export const chargeOf = (kind: Vibe): number => (kind === 'love' ? 1 : -1)
+export const chargeOf = (kind: Vibe): number =>
+  kind === 'love' ? 1 : -1
 
 export const portLevels = (s: EndSpec): number => 2 * s.depth + 1
 
-export function decodeRegisters(s: EndSpec, index: number): EndRegisters {
+export function decodeRegisters(
+  s: EndSpec,
+  index: number,
+): EndRegisters {
   const n = s.kinds.length
   const L = s.ring
   const V = portLevels(s)
+
   let rest = index
+
   const rR = (rest % V) - s.depth
 
   rest = Math.floor(rest / V)
@@ -104,23 +125,35 @@ export function encodeRegisters(s: EndSpec, g: EndRegisters): number {
   const n = s.kinds.length
   const L = s.ring
   const V = portLevels(s)
+
   let p = 0
 
-  for (let t = 0; t < n; t++) p = p * L + g.x[t]!
+  for (let t = 0; t < n; t++) {
+    p = p * L + g.x[t]!
+  }
 
   let lab = 0
 
-  for (let t = 0; t < n; t++) lab = lab * 3 + g.j[t]!
+  for (let t = 0; t < n; t++) {
+    lab = lab * 3 + g.j[t]!
+  }
 
   let fl = 0
 
-  for (let l = L - 1; l >= 0; l--) fl = fl * 3 + g.f[l]!
+  for (let l = L - 1; l >= 0; l--) {
+    fl = fl * 3 + g.f[l]!
+  }
 
-  return ((p * 3 ** n + lab) * 3 ** L + fl) * V * V + (g.rL + s.depth) * V + (g.rR + s.depth)
+  return (
+    ((p * 3 ** n + lab) * 3 ** L + fl) * V * V +
+    (g.rL + s.depth) * V +
+    (g.rR + s.depth)
+  )
 }
 
 // l: the count of links with nonzero center flux
-export const stringCount = (f: readonly number[]): number => f.reduce((a, v) => a + (v === 0 ? 0 : 1), 0)
+export const stringCount = (f: readonly number[]): number =>
+  f.reduce((a, v) => a + (v === 0 ? 0 : 1), 0)
 
 // the string's run: one contiguous arc of nonzero links, or contact (every token on one dock)
 export function runOf(s: EndSpec, g: EndRegisters): Run {
@@ -128,18 +161,26 @@ export function runOf(s: EndSpec, g: EndRegisters): Run {
   const l = stringCount(g.f)
 
   if (l === 0) {
-    if (g.x.some(v => v !== g.x[0])) throw new Error('end-store-line: no string but the tokens are apart')
+    if (g.x.some(v => v !== g.x[0])) {
+      throw new Error(
+        'end-store-line: no string but the tokens are apart',
+      )
+    }
 
     return { l: 0, lo: -1, hi: -1, contact: g.x[0]! }
   }
 
-  if (l >= L) throw new Error('end-store-line: the string wraps the ring')
+  if (l >= L) {
+    throw new Error('end-store-line: the string wraps the ring')
+  }
 
   let lo = -1
 
   for (let x = 0; x < L; x++) {
     if (g.f[x] !== 0 && g.f[mod(x - 1, L)] === 0) {
-      if (lo >= 0) throw new Error('end-store-line: the string is split')
+      if (lo >= 0) {
+        throw new Error('end-store-line: the string is split')
+      }
 
       lo = x
     }
@@ -149,7 +190,10 @@ export function runOf(s: EndSpec, g: EndRegisters): Run {
 }
 
 // the two end docks (the ports' docks)
-export const endDocks = (s: EndSpec, run: Run): [number, number] => (run.l === 0 ? [run.contact, run.contact] : [run.lo, mod(run.hi + 1, s.ring)])
+export const endDocks = (s: EndSpec, run: Run): [number, number] =>
+  run.l === 0
+    ? [run.contact, run.contact]
+    : [run.lo, mod(run.hi + 1, s.ring)]
 
 export function gaussHolds(s: EndSpec, g: EndRegisters): boolean {
   const L = s.ring
@@ -159,24 +203,41 @@ export function gaussHolds(s: EndSpec, g: EndRegisters): boolean {
     q[g.x[t]!] = q[g.x[t]!]! + chargeOf(k)
   })
 
-  for (let x = 0; x < L; x++) if (mod(g.f[x]! - g.f[mod(x - 1, L)]! - q[x]!, 3) !== 0) return false
+  for (let x = 0; x < L; x++) {
+    if (mod(g.f[x]! - g.f[mod(x - 1, L)]! - q[x]!, 3) !== 0) {
+      return false
+    }
+  }
 
   return true
 }
 
 // tokens on an arc that does not cross the seam (dock L - 1 to dock 0): the Gauss flux with none outside the arc
-export function placedRegisters(s: EndSpec, x: readonly number[], j: readonly number[], rL = 0, rR = 0): EndRegisters {
+export function placedRegisters(
+  s: EndSpec,
+  x: readonly number[],
+  j: readonly number[],
+  rL = 0,
+  rR = 0,
+): EndRegisters {
   const f = new Array<number>(s.ring).fill(0)
+
   let cum = 0
 
   for (let l = 0; l < s.ring; l++) {
     s.kinds.forEach((k, t) => {
-      if (x[t] === l) cum += chargeOf(k)
+      if (x[t] === l) {
+        cum += chargeOf(k)
+      }
     })
     f[l] = mod(cum, 3)
   }
 
-  if (f[s.ring - 1] !== 0) throw new Error('end-store-line: the placed tokens are not a center singlet')
+  if (f[s.ring - 1] !== 0) {
+    throw new Error(
+      'end-store-line: the placed tokens are not a center singlet',
+    )
+  }
 
   return { x: x.slice(), j: j.slice(), f, rL, rR }
 }
@@ -186,60 +247,112 @@ const FLIP = [1, 0, 2] as const
 export type Side = 'left' | 'right'
 
 // which end pays a group's change of l (Delta != 0) at `link`, given the run before the beat
-export function payingEnd(s: EndSpec, run: Run, link: number, delta: number, fromTail: boolean, fromHead: boolean): Side {
+export function payingEnd(
+  s: EndSpec,
+  run: Run,
+  link: number,
+  delta: number,
+  fromTail: boolean,
+  fromHead: boolean,
+): Side {
   const L = s.ring
 
   if (run.l === 0) {
-    if (delta !== 1) throw new Error('end-store-line: a change at contact that is not a new link')
-    if (link === mod(run.contact - 1, L)) return 'left'
-    if (link === run.contact) return 'right'
+    if (delta !== 1) {
+      throw new Error(
+        'end-store-line: a change at contact that is not a new link',
+      )
+    }
 
-    throw new Error('end-store-line: a new link away from the contact dock')
+    if (link === mod(run.contact - 1, L)) {
+      return 'left'
+    }
+
+    if (link === run.contact) {
+      return 'right'
+    }
+
+    throw new Error(
+      'end-store-line: a new link away from the contact dock',
+    )
   }
 
   if (delta === 1) {
-    if (link === mod(run.lo - 1, L)) return 'left'
-    if (link === mod(run.hi + 1, L)) return 'right'
+    if (link === mod(run.lo - 1, L)) {
+      return 'left'
+    }
+
+    if (link === mod(run.hi + 1, L)) {
+      return 'right'
+    }
 
     throw new Error('end-store-line: a new link away from the run')
   }
 
   if (run.l === 1) {
-    if (link !== run.lo) throw new Error('end-store-line: a vacated link off the run')
-    if (fromTail && fromHead) throw new Error('end-store-line: both sides vacate one link')
+    if (link !== run.lo) {
+      throw new Error('end-store-line: a vacated link off the run')
+    }
+
+    if (fromTail && fromHead) {
+      throw new Error('end-store-line: both sides vacate one link')
+    }
 
     return fromTail ? 'left' : 'right'
   }
 
-  if (link === run.lo) return 'left'
-  if (link === run.hi) return 'right'
+  if (link === run.lo) {
+    return 'left'
+  }
 
-  throw new Error('end-store-line: an inner link vacated (the string would split)')
+  if (link === run.hi) {
+    return 'right'
+  }
+
+  throw new Error(
+    'end-store-line: an inner link vacated (the string would split)',
+  )
 }
 
 // the stream with the ends' bounce, as a map of register configurations
-export function streamRegisters(s: EndSpec, g: EndRegisters): EndRegisters {
+export function streamRegisters(
+  s: EndSpec,
+  g: EndRegisters,
+): EndRegisters {
   const L = s.ring
   const n = s.kinds.length
   const run = runOf(s, g)
   const x = g.x.slice()
   const j = g.j.slice()
   const f = g.f.slice()
+
   let rL = g.rL
   let rR = g.rR
-  const steps = g.j.map((lab, t) => stepTable(s.kinds[t]!, s.convention)[lab]!)
-  const crossing = steps.map((st, t) => (st === 1 ? g.x[t]! : st === -1 ? mod(g.x[t]! - 1, L) : -1))
+
+  const steps = g.j.map(
+    (lab, t) => stepTable(s.kinds[t]!, s.convention)[lab]!,
+  )
+  const crossing = steps.map((st, t) =>
+    st === 1 ? g.x[t]! : st === -1 ? mod(g.x[t]! - 1, L) : -1,
+  )
   const done = new Array<boolean>(n).fill(false)
+
   let leftPaid = 0
   let rightPaid = 0
 
   for (let t = 0; t < n; t++) {
-    if (done[t] || crossing[t]! < 0) continue
+    if (done[t] || crossing[t]! < 0) {
+      continue
+    }
 
     const link = crossing[t]!
     const group: number[] = []
 
-    for (let u = 0; u < n; u++) if (crossing[u] === link) group.push(u)
+    for (let u = 0; u < n; u++) {
+      if (crossing[u] === link) {
+        group.push(u)
+      }
+    }
 
     group.forEach(u => {
       done[u] = true
@@ -247,9 +360,12 @@ export function streamRegisters(s: EndSpec, g: EndRegisters): EndRegisters {
 
     let fNew = g.f[link]!
 
-    for (const u of group) fNew = mod(fNew - steps[u]! * chargeOf(s.kinds[u]!), 3)
+    for (const u of group) {
+      fNew = mod(fNew - steps[u]! * chargeOf(s.kinds[u]!), 3)
+    }
 
     const delta = (fNew === 0 ? 0 : 1) - (g.f[link] === 0 ? 0 : 1)
+
     let fits = true
 
     if (delta !== 0) {
@@ -258,43 +374,67 @@ export function streamRegisters(s: EndSpec, g: EndRegisters): EndRegisters {
       const side = payingEnd(s, run, link, delta, fromTail, fromHead)
       const next = (side === 'left' ? g.rL : g.rR) - delta
 
-      if (side === 'left') leftPaid++
-      else rightPaid++
+      if (side === 'left') {
+        leftPaid++
+      } else {
+        rightPaid++
+      }
 
-      if (leftPaid > 1 || rightPaid > 1) throw new Error('end-store-line: one end paid twice in a beat')
+      if (leftPaid > 1 || rightPaid > 1) {
+        throw new Error('end-store-line: one end paid twice in a beat')
+      }
 
       fits = next >= -s.depth && next <= s.depth
 
-      if (fits && side === 'left') rL = next
-      if (fits && side === 'right') rR = next
+      if (fits && side === 'left') {
+        rL = next
+      }
+
+      if (fits && side === 'right') {
+        rR = next
+      }
     }
 
     if (!fits) {
-      for (const u of group) j[u] = FLIP[g.j[u] as 0 | 1 | 2]
+      for (const u of group) {
+        j[u] = FLIP[g.j[u] as 0 | 1 | 2]
+      }
 
       continue
     }
 
     f[link] = fNew
 
-    for (const u of group) x[u] = mod(g.x[u]! + steps[u]!, L)
+    for (const u of group) {
+      x[u] = mod(g.x[u]! + steps[u]!, L)
+    }
   }
 
   return { x, j, f, rL, rR }
 }
 
-export const streamIndex = (s: EndSpec, index: number): number => encodeRegisters(s, streamRegisters(s, decodeRegisters(s, index)))
+export const streamIndex = (s: EndSpec, index: number): number =>
+  encodeRegisters(s, streamRegisters(s, decodeRegisters(s, index)))
 
 // the inverse stream: flip every label, stream, flip back
 export function streamIndexBack(s: EndSpec, index: number): number {
   const g = decodeRegisters(s, index)
-  const out = streamRegisters(s, { ...g, j: g.j.map(v => FLIP[v as 0 | 1 | 2] as number) })
+  const out = streamRegisters(s, {
+    ...g,
+    j: g.j.map(v => FLIP[v as 0 | 1 | 2] as number),
+  })
 
-  return encodeRegisters(s, { ...out, j: out.j.map(v => FLIP[v as 0 | 1 | 2] as number) })
+  return encodeRegisters(s, {
+    ...out,
+    j: out.j.map(v => FLIP[v as 0 | 1 | 2] as number),
+  })
 }
 
 // the ends' positions against their ports: x_left - rL and x_right + rR (ring positions, mod L)
-export function endInvariants(s: EndSpec, g: EndRegisters): [number, number] {
+export function endInvariants(
+  s: EndSpec,
+  g: EndRegisters,
+): [number, number] {
   const [a, b] = endDocks(s, runOf(s, g))
 
   return [mod(a - g.rL, s.ring), mod(b + g.rR, s.ring)]
@@ -303,31 +443,50 @@ export function endInvariants(s: EndSpec, g: EndRegisters): [number, number] {
 // ---------------------------------------------------------------------------------------------------------
 // exact amplitudes in Z[x] / (x^K - 1)
 
-const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b))
+const gcd = (a: number, b: number): number =>
+  b === 0 ? a : gcd(b, a % b)
 
-export const exactRoot = (s: EndSpec): number => (s.root * 3) / gcd(s.root, 3)
+export const exactRoot = (s: EndSpec): number =>
+  (s.root * 3) / gcd(s.root, 3)
 
-export type ExactEndState = { readonly spec: EndSpec; readonly k: number; den: bigint; amp: Map<number, bigint[]> }
+export type ExactEndState = {
+  readonly spec: EndSpec
+  readonly k: number
+  den: bigint
+  amp: Map<number, bigint[]>
+}
 
 type Term = readonly [bigint, number]
 
-function addTerms(out: bigint[], v: readonly bigint[], terms: readonly Term[], k: number): void {
+function addTerms(
+  out: bigint[],
+  v: readonly bigint[],
+  terms: readonly Term[],
+  k: number,
+): void {
   for (const [c, a] of terms) {
-    if (c === 0n) continue
+    if (c === 0n) {
+      continue
+    }
 
     const sh = mod(a, k)
 
     for (let i = 0; i < k; i++) {
       const y = v[i]!
 
-      if (y !== 0n) out[(i + sh) % k] = out[(i + sh) % k]! + c * y
+      if (y !== 0n) {
+        out[(i + sh) % k] = out[(i + sh) % k]! + c * y
+      }
     }
   }
 }
 
 const zero = (k: number): bigint[] => new Array<bigint>(k).fill(0n)
 
-export function exactEndStart(s: EndSpec, start: readonly { registers: EndRegisters; weight: bigint }[]): ExactEndState {
+export function exactEndStart(
+  s: EndSpec,
+  start: readonly { registers: EndRegisters; weight: bigint }[],
+): ExactEndState {
   const k = exactRoot(s)
   const amp = new Map<number, bigint[]>()
 
@@ -341,7 +500,10 @@ export function exactEndStart(s: EndSpec, start: readonly { registers: EndRegist
   return { spec: s, k, den: 1n, amp }
 }
 
-function labelPiece(st: ExactEndState, apply: (g: EndRegisters) => { j: number[]; terms: Term[] }[]): void {
+function labelPiece(
+  st: ExactEndState,
+  apply: (g: EndRegisters) => { j: number[]; terms: Term[] }[],
+): void {
   const out = new Map<number, bigint[]>()
 
   for (const [i, v] of st.amp) {
@@ -349,6 +511,7 @@ function labelPiece(st: ExactEndState, apply: (g: EndRegisters) => { j: number[]
 
     for (const o of apply(g)) {
       const key = encodeRegisters(st.spec, { ...g, j: o.j })
+
       let target = out.get(key)
 
       if (!target) {
@@ -364,22 +527,34 @@ function labelPiece(st: ExactEndState, apply: (g: EndRegisters) => { j: number[]
 }
 
 const meetingScale = (s: EndSpec): bigint => {
-  if (s.meet === false) return 1n
+  if (s.meet === false) {
+    return 1n
+  }
 
   let scale = 1n
+
   const n = s.kinds.length
 
-  for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) if (s.kinds[a] === s.kinds[b]) scale *= 2n
+  for (let a = 0; a < n; a++) {
+    for (let b = a + 1; b < n; b++) {
+      if (s.kinds[a] === s.kinds[b]) {
+        scale *= 2n
+      }
+    }
+  }
 
   return scale
 }
 
-export const exactEndBeatScale = (s: EndSpec): bigint => 2n ** BigInt(s.kinds.length) * meetingScale(s)
+export const exactEndBeatScale = (s: EndSpec): bigint =>
+  2n ** BigInt(s.kinds.length) * meetingScale(s)
 
 function costPiece(st: ExactEndState, adjoint: boolean): void {
   const s = st.spec
 
-  if (s.cost === 0) return
+  if (s.cost === 0) {
+    return
+  }
 
   const unit = st.k / s.root
   const out = new Map<number, bigint[]>()
@@ -387,7 +562,20 @@ function costPiece(st: ExactEndState, adjoint: boolean): void {
   for (const [i, v] of st.amp) {
     const target = zero(st.k)
 
-    addTerms(target, v, [[1n, (adjoint ? 1 : -1) * s.cost * stringCount(decodeRegisters(s, i).f) * unit]], st.k)
+    addTerms(
+      target,
+      v,
+      [
+        [
+          1n,
+          (adjoint ? 1 : -1) *
+            s.cost *
+            stringCount(decodeRegisters(s, i).f) *
+            unit,
+        ],
+      ],
+      st.k,
+    )
     out.set(i, target)
   }
 
@@ -399,20 +587,30 @@ function costPiece(st: ExactEndState, adjoint: boolean): void {
 function meetingPiece(st: ExactEndState, adjoint: boolean): void {
   const s = st.spec
 
-  if (s.meet === false) return
+  if (s.meet === false) {
+    return
+  }
 
   const n = s.kinds.length
   const w3 = st.k / 3
   const w = adjoint ? -w3 : w3
   const pairs: [number, number][] = []
 
-  for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) if (s.kinds[a] === s.kinds[b]) pairs.push([a, b])
+  for (let a = 0; a < n; a++) {
+    for (let b = a + 1; b < n; b++) {
+      if (s.kinds[a] === s.kinds[b]) {
+        pairs.push([a, b])
+      }
+    }
+  }
 
   const order = adjoint ? pairs.slice().reverse() : pairs
 
   for (const [a, b] of order) {
     labelPiece(st, g => {
-      if (g.x[a] !== g.x[b]) return [{ j: g.j, terms: [[2n, 0]] }]
+      if (g.x[a] !== g.x[b]) {
+        return [{ j: g.j, terms: [[2n, 0]] }]
+      }
 
       const sw = g.j.slice()
 
@@ -420,8 +618,20 @@ function meetingPiece(st: ExactEndState, adjoint: boolean): void {
       sw[b] = g.j[a]!
 
       return [
-        { j: g.j.slice(), terms: [[1n, 0], [1n, w]] },
-        { j: sw, terms: [[1n, 0], [-1n, w]] },
+        {
+          j: g.j.slice(),
+          terms: [
+            [1n, 0],
+            [1n, w],
+          ],
+        },
+        {
+          j: sw,
+          terms: [
+            [1n, 0],
+            [-1n, w],
+          ],
+        },
       ]
     })
   }
@@ -435,15 +645,29 @@ function coinPiece(st: ExactEndState, adjoint: boolean): void {
     labelPiece(st, g => {
       const jt = g.j[t]!
 
-      if (jt === 2) return [{ j: g.j, terms: [[2n, 0]] }]
+      if (jt === 2) {
+        return [{ j: g.j, terms: [[2n, 0]] }]
+      }
 
       const other = g.j.slice()
 
       other[t] = 1 - jt
 
       return [
-        { j: g.j.slice(), terms: [[1n, 0], [1n, w]] },
-        { j: other, terms: [[1n, 0], [-1n, w]] },
+        {
+          j: g.j.slice(),
+          terms: [
+            [1n, 0],
+            [1n, w],
+          ],
+        },
+        {
+          j: other,
+          terms: [
+            [1n, 0],
+            [-1n, w],
+          ],
+        },
       ]
     })
   }
@@ -452,9 +676,18 @@ function coinPiece(st: ExactEndState, adjoint: boolean): void {
 function streamPiece(st: ExactEndState, back: boolean): void {
   const out = new Map<number, bigint[]>()
 
-  for (const [i, v] of st.amp) out.set(back ? streamIndexBack(st.spec, i) : streamIndex(st.spec, i), v)
+  for (const [i, v] of st.amp) {
+    out.set(
+      back ? streamIndexBack(st.spec, i) : streamIndex(st.spec, i),
+      v,
+    )
+  }
 
-  if (out.size !== st.amp.size) throw new Error('end-store-line: the stream merged two configurations')
+  if (out.size !== st.amp.size) {
+    throw new Error(
+      'end-store-line: the stream merged two configurations',
+    )
+  }
 
   st.amp = out
 }

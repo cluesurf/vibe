@@ -56,7 +56,12 @@ import {
   type BlochSpec,
   type Level,
 } from '@/code/measure/flux-store-bloch'
-import { antisymmetrized, lockedRun, spanOf, type LockedStart } from '@/code/measure/locked-run'
+import {
+  antisymmetrized,
+  lockedRun,
+  spanOf,
+  type LockedStart,
+} from '@/code/measure/locked-run'
 import { cliffordTable } from '@/code/measure/clifford-words'
 import { eisValue } from '@/code/measure/eisenstein-words'
 import { phaseMove } from '@/code/rule/fear-weave'
@@ -68,21 +73,45 @@ import { type Vibe } from '@/code/rule/locked-token-line'
 
 type Complex = [number, number]
 
-const threeSpec = (D: number, labels: 2 | 3 = 2, convention: 'C' | 'Cprime' = 'C'): BlochSpec => {
+const threeSpec = (
+  D: number,
+  labels: 2 | 3 = 2,
+  convention: 'C' | 'Cprime' = 'C',
+): BlochSpec => {
   const N = 2 * D + 1
 
-  return { kinds: ['love', 'love', 'love'], convention, unlike: 'knit', depth: D, cost: N, root: 2 * N * N, labels }
+  return {
+    kinds: ['love', 'love', 'love'],
+    convention,
+    unlike: 'knit',
+    depth: D,
+    cost: N,
+    root: 2 * N * N,
+    labels,
+  }
 }
 
 const pairSpec = (D: number): BlochSpec => {
   const N = 2 * D + 1
 
-  return { kinds: ['love', 'fear'], convention: 'C', unlike: 'knit', depth: D, cost: N, root: 2 * N * N, labels: 2 }
+  return {
+    kinds: ['love', 'fear'],
+    convention: 'C',
+    unlike: 'knit',
+    depth: D,
+    cost: N,
+    root: 2 * N * N,
+    labels: 2,
+  }
 }
 
 // T1: the weight the beat moves from the doublet-only states onto the line
-function lineLeak(D: number, K: number): { leak: number; columns: number } {
+function lineLeak(
+  D: number,
+  K: number,
+): { leak: number; columns: number } {
   const b = blochSpace(threeSpec(D, 3))
+
   let leak = 0
   let columns = 0
 
@@ -90,17 +119,24 @@ function lineLeak(D: number, K: number): { leak: number; columns: number } {
     const r = col % b.labelCount
     const j = [Math.floor(r / 9), Math.floor(r / 3) % 3, r % 3]
 
-    if (j.includes(2)) continue
+    if (j.includes(2)) {
+      continue
+    }
 
     columns++
 
     const img = blochColumn(b, K, col)
+
     let w = 0
 
     img.idx.forEach((i, m) => {
       const s = i % b.labelCount
 
-      if ([Math.floor(s / 9), Math.floor(s / 3) % 3, s % 3].includes(2)) w += img.re[m]! ** 2 + img.im[m]! ** 2
+      if (
+        [Math.floor(s / 9), Math.floor(s / 3) % 3, s % 3].includes(2)
+      ) {
+        w += img.re[m]! ** 2 + img.im[m]! ** 2
+      }
     })
 
     leak = Math.max(leak, w)
@@ -110,11 +146,18 @@ function lineLeak(D: number, K: number): { leak: number; columns: number } {
 }
 
 // T4: one beat of the ring runner against the Bloch operator on a momentum state
-function ringAgreement(spec: BlochSpec, ring: number, m: number): { gap: number; outside: number } {
+function ringAgreement(
+  spec: BlochSpec,
+  ring: number,
+  m: number,
+): { gap: number; outside: number } {
   const b: Bloch = blochSpace(spec)
   const K = (2 * Math.PI * m) / ring
   const n = spec.kinds.length
-  const phi = { re: new Float64Array(b.size), im: new Float64Array(b.size) }
+  const phi = {
+    re: new Float64Array(b.size),
+    im: new Float64Array(b.size),
+  }
 
   for (let i = 0; i < b.size; i++) {
     phi.re[i] = weyl(i + 1, GOLDEN) - 0.5
@@ -123,6 +166,7 @@ function ringAgreement(spec: BlochSpec, ring: number, m: number): { gap: number;
 
   const labelOf = (r: number): number[] => {
     const out = new Array<number>(n)
+
     let c = r
 
     for (let t = n - 1; t >= 0; t--) {
@@ -132,6 +176,7 @@ function ringAgreement(spec: BlochSpec, ring: number, m: number): { gap: number;
 
     return out
   }
+
   const starts: LockedStart[] = []
 
   for (let x0 = 0; x0 < ring; x0++) {
@@ -139,13 +184,27 @@ function ringAgreement(spec: BlochSpec, ring: number, m: number): { gap: number;
 
     for (let i = 0; i < b.size; i++) {
       const d = b.configs[Math.floor(i / b.labelCount)]!
-      const a: Complex = [phi.re[i]! * ph[0] - phi.im[i]! * ph[1], phi.re[i]! * ph[1] + phi.im[i]! * ph[0]]
+      const a: Complex = [
+        phi.re[i]! * ph[0] - phi.im[i]! * ph[1],
+        phi.re[i]! * ph[1] + phi.im[i]! * ph[0],
+      ]
 
-      starts.push({ x: d.map(v => (((x0 + v) % ring) + ring) % ring), j: labelOf(i % b.labelCount), amp: a })
+      starts.push({
+        x: d.map(v => (((x0 + v) % ring) + ring) % ring),
+        j: labelOf(i % b.labelCount),
+        amp: a,
+      })
     }
   }
 
-  const run = lockedRun({ ring, kinds: spec.kinds, convention: spec.convention, unlike: spec.unlike, wall: 2 * spec.depth, start: starts })
+  const run = lockedRun({
+    ring,
+    kinds: spec.kinds,
+    convention: spec.convention,
+    unlike: spec.unlike,
+    wall: 2 * spec.depth,
+    start: starts,
+  })
   const R = 3 ** n
   const P = ring ** n
   const xs = new Array<number>(n)
@@ -158,7 +217,9 @@ function ringAgreement(spec: BlochSpec, ring: number, m: number): { gap: number;
       c = Math.floor(c / ring)
     }
 
-    const th = (-2 * Math.PI * ((spec.cost * spanOf(ring, xs)) % spec.root)) / spec.root
+    const th =
+      (-2 * Math.PI * ((spec.cost * spanOf(ring, xs)) % spec.root)) /
+      spec.root
 
     for (let r = 0; r < R; r++) {
       const vr = run.re[p * R + r]!
@@ -172,18 +233,25 @@ function ringAgreement(spec: BlochSpec, ring: number, m: number): { gap: number;
   run.beat()
 
   // the Bloch image
-  const img = { re: new Float64Array(b.size), im: new Float64Array(b.size) }
+  const img = {
+    re: new Float64Array(b.size),
+    im: new Float64Array(b.size),
+  }
 
   for (let col = 0; col < b.size; col++) {
     const c = blochColumn(b, K, col)
 
     c.idx.forEach((i, k) => {
-      img.re[i] = img.re[i]! + c.re[k]! * phi.re[col]! - c.im[k]! * phi.im[col]!
-      img.im[i] = img.im[i]! + c.re[k]! * phi.im[col]! + c.im[k]! * phi.re[col]!
+      img.re[i] =
+        img.re[i]! + c.re[k]! * phi.re[col]! - c.im[k]! * phi.im[col]!
+
+      img.im[i] =
+        img.im[i]! + c.re[k]! * phi.im[col]! + c.im[k]! * phi.re[col]!
     })
   }
 
   let gap = 0
+
   const covered = new Uint8Array(P * R)
 
   for (let x0 = 0; x0 < ring; x0++) {
@@ -191,18 +259,34 @@ function ringAgreement(spec: BlochSpec, ring: number, m: number): { gap: number;
 
     for (let i = 0; i < b.size; i++) {
       const d = b.configs[Math.floor(i / b.labelCount)]!
-      const p = d.reduce((a, v) => a * ring + ((((x0 + v) % ring) + ring) % ring), 0)
+      const p = d.reduce(
+        (a, v) => a * ring + ((((x0 + v) % ring) + ring) % ring),
+        0,
+      )
       const r = labelOf(i % b.labelCount).reduce((a, v) => a * 3 + v, 0)
-      const want: Complex = [img.re[i]! * ph[0] - img.im[i]! * ph[1], img.re[i]! * ph[1] + img.im[i]! * ph[0]]
+      const want: Complex = [
+        img.re[i]! * ph[0] - img.im[i]! * ph[1],
+        img.re[i]! * ph[1] + img.im[i]! * ph[0],
+      ]
 
       covered[p * R + r] = 1
-      gap = Math.max(gap, Math.hypot(want[0] - run.re[p * R + r]!, want[1] - run.im[p * R + r]!))
+      gap = Math.max(
+        gap,
+        Math.hypot(
+          want[0] - run.re[p * R + r]!,
+          want[1] - run.im[p * R + r]!,
+        ),
+      )
     }
   }
 
   let outside = 0
 
-  for (let a = 0; a < P * R; a++) if (!covered[a]) outside += run.re[a]! ** 2 + run.im[a]! ** 2
+  for (let a = 0; a < P * R; a++) {
+    if (!covered[a]) {
+      outside += run.re[a]! ** 2 + run.im[a]! ** 2
+    }
+  }
 
   return { gap, outside }
 }
@@ -211,19 +295,39 @@ function ringAgreement(spec: BlochSpec, ring: number, m: number): { gap: number;
 function unitaryOf(k: number): M3 {
   const g = cliffordTable().group[k]!
   const vals = g.num.map(x => eisValue(x, 3 ** g.den3))
+
   let n2 = 0
 
-  for (let c = 0; c < 3; c++) n2 += (vals[3 * c]![0] ?? 0) ** 2 + (vals[3 * c]![1] ?? 0) ** 2
+  for (let c = 0; c < 3; c++) {
+    n2 += (vals[3 * c]![0] ?? 0) ** 2 + (vals[3 * c]![1] ?? 0) ** 2
+  }
 
   const f = 1 / Math.sqrt(n2)
 
-  return { re: Float64Array.from(vals, v => v[0] * f), im: Float64Array.from(vals, v => v[1] * f) }
+  return {
+    re: Float64Array.from(vals, v => v[0] * f),
+    im: Float64Array.from(vals, v => v[1] * f),
+  }
 }
 
-function costedRun(input: { ring: number; kinds: Vibe[]; D: number; links?: M3[]; start: LockedStart[] }): { beat: () => void; positions: () => Float64Array } {
+function costedRun(input: {
+  ring: number
+  kinds: Vibe[]
+  D: number
+  links?: M3[]
+  start: LockedStart[]
+}): { beat: () => void; positions: () => Float64Array } {
   const N = 2 * input.D + 1
   const M = 2 * N * N
-  const run = lockedRun({ ring: input.ring, kinds: input.kinds, convention: 'C', unlike: 'knit', wall: 2 * input.D, links: input.links, start: input.start })
+  const run = lockedRun({
+    ring: input.ring,
+    kinds: input.kinds,
+    convention: 'C',
+    unlike: 'knit',
+    wall: 2 * input.D,
+    links: input.links,
+    start: input.start,
+  })
   const n = input.kinds.length
   const R = 3 ** n
   const P = input.ring ** n
@@ -263,7 +367,20 @@ function costedRun(input: { ring: number; kinds: Vibe[]; D: number; links?: M3[]
   }
 }
 
-type LightRow = { D: number; dim: number; energy: number; raw: number; mean: number; spinHalf: number; even: number; contact: number; gapNext: number; naiveSpinHalf: number; naiveMean: number; residual: number }
+type LightRow = {
+  D: number
+  dim: number
+  energy: number
+  raw: number
+  mean: number
+  spinHalf: number
+  even: number
+  contact: number
+  gapNext: number
+  naiveSpinHalf: number
+  naiveMean: number
+  residual: number
+}
 
 function lightestThree(D: number): LightRow & { level: Level } {
   const r = spectrumAt(threeSpec(D), 0)
@@ -288,9 +405,18 @@ function lightestThree(D: number): LightRow & { level: Level } {
 }
 
 // T3: follow the lightest level from K = 0 to pi by overlap
-function dispersion(D: number, start: Level): { bandwidth: number; velocity: number; minOverlap: number; energies: number[] } {
+function dispersion(
+  D: number,
+  start: Level,
+): {
+  bandwidth: number
+  velocity: number
+  minOverlap: number
+  energies: number[]
+} {
   const steps = 12
   const energies = [start.energy]
+
   let prev = start
   let minOverlap = 1
   let velocity = 0
@@ -298,6 +424,7 @@ function dispersion(D: number, start: Level): { bandwidth: number; velocity: num
   for (let s = 1; s <= steps; s++) {
     const K = (Math.PI * s) / steps
     const r = spectrumAt(threeSpec(D), K)
+
     let best = r.all[0]!
     let bestOverlap = -1
 
@@ -313,32 +440,51 @@ function dispersion(D: number, start: Level): { bandwidth: number; velocity: num
     // unwrap continuously
     let e = best.energy
 
-    while (e - energies[s - 1]! > Math.PI) e -= 2 * Math.PI
-    while (e - energies[s - 1]! < -Math.PI) e += 2 * Math.PI
+    while (e - energies[s - 1]! > Math.PI) {
+      e -= 2 * Math.PI
+    }
 
-    velocity = Math.max(velocity, Math.abs(e - energies[s - 1]!) / (Math.PI / steps))
+    while (e - energies[s - 1]! < -Math.PI) {
+      e += 2 * Math.PI
+    }
+
+    velocity = Math.max(
+      velocity,
+      Math.abs(e - energies[s - 1]!) / (Math.PI / steps),
+    )
     energies.push(e)
     minOverlap = Math.min(minOverlap, bestOverlap)
     prev = best
   }
 
-  return { bandwidth: Math.max(...energies) - Math.min(...energies), velocity, minOverlap, energies }
+  return {
+    bandwidth: Math.max(...energies) - Math.min(...energies),
+    velocity,
+    minOverlap,
+    energies,
+  }
 }
 
 export default experiment({
   id: 'spin/lightest-charge-one',
   code: 'E-SPN-0077',
-  title: 'the lightest bound charge-one state under the flux string, a STAND-IN on locked tokens: three loves held by the string whose store is on the flux and whose cost is the light\'s drift; the line sector is closed off, so N = 3 and the 2 pi sign is -1 on every state, the lightest level is the natural spin one half at every depth tried, it travels, and (4, 1) is not held as one (three loves and a neutral pair part at no string cost)',
+  title:
+    "the lightest bound charge-one state under the flux string, a STAND-IN on locked tokens: three loves held by the string whose store is on the flux and whose cost is the light's drift; the line sector is closed off, so N = 3 and the 2 pi sign is -1 on every state, the lightest level is the natural spin one half at every depth tried, it travels, and (4, 1) is not held as one (three loves and a neutral pair part at no string cost)",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
 
     // ---- T1 ----
-    const leaks = [1, 2].flatMap(D => [0, 0.7].map(K => ({ D, K, ...lineLeak(D, K) })))
+    const leaks = [1, 2].flatMap(D =>
+      [0, 0.7].map(K => ({ D, K, ...lineLeak(D, K) })),
+    )
     const t1 = leaks.every(l => l.leak < 1e-14 && l.columns > 0)
 
     log('t1')
@@ -354,33 +500,89 @@ export default experiment({
     const t2 = rows.every(r => r.spinHalf >= 0.9)
 
     // ---- T3 ----
-    const bands = [2, 3, 4].map(D => ({ D, ...dispersion(D, rows.find(r => r.D === D)!.level) }))
-    const t3 = bands.every(b => b.bandwidth >= 0.01 && b.velocity >= 0.02 && b.minOverlap >= 0.5)
+    const bands = [2, 3, 4].map(D => ({
+      D,
+      ...dispersion(D, rows.find(r => r.D === D)!.level),
+    }))
+    const t3 = bands.every(
+      b =>
+        b.bandwidth >= 0.01 &&
+        b.velocity >= 0.02 &&
+        b.minOverlap >= 0.5,
+    )
 
     log('t3')
 
     // ---- T4 ----
     const agreeThree = ringAgreement(threeSpec(2), 16, 3)
     const agreePair = ringAgreement(pairSpec(3), 16, 3)
-    const t4 = agreeThree.gap < 1e-12 && agreePair.gap < 1e-12 && agreeThree.outside < 1e-24 && agreePair.outside < 1e-24
+    const t4 =
+      agreeThree.gap < 1e-12 &&
+      agreePair.gap < 1e-12 &&
+      agreeThree.outside < 1e-24 &&
+      agreePair.outside < 1e-24
 
     log('t4')
 
     // ---- T5 ----
     const moves = gridMoves()
     const table = cliffordTable()
-    const unitaries = Array.from({ length: 216 }, (_, k) => unitaryOf(k))
+    const unitaries = Array.from({ length: 216 }, (_, k) =>
+      unitaryOf(k),
+    )
     const ensemble = startFamily(16).map(member => {
-      const linksOf = (L: number): M3[] => Array.from({ length: L }, (_, x) => unitaries[table.indexOf(phaseMove(moves.act[member.start(x, moves.act.length)] ?? []))] as M3)
+      const linksOf = (L: number): M3[] =>
+        Array.from(
+          { length: L },
+          (_, x) =>
+            unitaries[
+              table.indexOf(
+                phaseMove(
+                  moves.act[member.start(x, moves.act.length)] ?? [],
+                ),
+              )
+            ]!,
+        )
+
       let gap = 0
-      const cases: { L: number; kinds: Vibe[]; D: number; beats: number; start: LockedStart[] }[] = [
-        { L: 12, kinds: ['love', 'love', 'love'], D: 1, beats: 5, start: antisymmetrized({ x: [5, 5, 6], j: [0, 1, 0] }) },
-        { L: 24, kinds: ['love', 'fear'], D: 2, beats: 10, start: [{ x: [12, 12], j: [0, 1], amp: [1, 0] }] },
+
+      const cases: {
+        L: number
+        kinds: Vibe[]
+        D: number
+        beats: number
+        start: LockedStart[]
+      }[] = [
+        {
+          L: 12,
+          kinds: ['love', 'love', 'love'],
+          D: 1,
+          beats: 5,
+          start: antisymmetrized({ x: [5, 5, 6], j: [0, 1, 0] }),
+        },
+        {
+          L: 24,
+          kinds: ['love', 'fear'],
+          D: 2,
+          beats: 10,
+          start: [{ x: [12, 12], j: [0, 1], amp: [1, 0] }],
+        },
       ]
 
       for (const c of cases) {
-        const field = costedRun({ ring: c.L, kinds: c.kinds, D: c.D, links: linksOf(c.L), start: c.start })
-        const plain = costedRun({ ring: c.L, kinds: c.kinds, D: c.D, start: c.start })
+        const field = costedRun({
+          ring: c.L,
+          kinds: c.kinds,
+          D: c.D,
+          links: linksOf(c.L),
+          start: c.start,
+        })
+        const plain = costedRun({
+          ring: c.L,
+          kinds: c.kinds,
+          D: c.D,
+          start: c.start,
+        })
 
         for (let t = 0; t < c.beats; t++) {
           field.beat()
@@ -389,32 +591,45 @@ export default experiment({
           const a = field.positions()
           const b = plain.positions()
 
-          for (let i = 0; i < a.length; i++) gap = Math.max(gap, Math.abs(a[i]! - b[i]!))
+          for (let i = 0; i < a.length; i++) {
+            gap = Math.max(gap, Math.abs(a[i]! - b[i]!))
+          }
         }
       }
 
       return { member: member.name, gap }
     })
-    const t5 = ensemble.length === 17 && ensemble.every(e => e.gap < 1e-12)
+    const t5 =
+      ensemble.length === 17 && ensemble.every(e => e.gap < 1e-12)
 
     log('t5')
 
     // ---- T6 ----
     let t6 = true
+
     const split: number[] = []
 
     for (let s = 1; s <= 20; s++) {
-      const apart = lineString([0, 0, 0, s, s], ['love', 'love', 'love', 'love', 'fear'])
-      const held = lineString([0, 0, 0, 0, s], ['love', 'love', 'love', 'love', 'fear'])
+      const apart = lineString(
+        [0, 0, 0, s, s],
+        ['love', 'love', 'love', 'love', 'fear'],
+      )
+      const held = lineString(
+        [0, 0, 0, 0, s],
+        ['love', 'love', 'love', 'love', 'fear'],
+      )
 
       split.push(apart)
 
-      if (apart !== 0 || held !== s) t6 = false
+      if (apart !== 0 || held !== s) {
+        t6 = false
+      }
     }
 
     // REPORTED: C and C' give the same three-love operator (no fear)
     const bc = blochSpace(threeSpec(2, 2, 'C'))
     const bp = blochSpace(threeSpec(2, 2, 'Cprime'))
+
     let conventionGap = 0
 
     for (let col = 0; col < bc.size; col++) {
@@ -424,7 +639,12 @@ export default experiment({
       x.idx.forEach((i, k) => {
         const m = y.idx.indexOf(i)
 
-        conventionGap = Math.max(conventionGap, m < 0 ? Math.hypot(x.re[k]!, x.im[k]!) : Math.hypot(x.re[k]! - y.re[m]!, x.im[k]! - y.im[m]!))
+        conventionGap = Math.max(
+          conventionGap,
+          m < 0
+            ? Math.hypot(x.re[k]!, x.im[k]!)
+            : Math.hypot(x.re[k]! - y.re[m]!, x.im[k]! - y.im[m]!),
+        )
       })
     }
 
@@ -454,7 +674,13 @@ export default experiment({
             [`three_D${r.D}_eigenResidual`, r.residual],
           ]),
         ),
-        ...Object.fromEntries(bands.flatMap(b => [[`band_D${b.D}_width`, b.bandwidth], [`band_D${b.D}_velocity`, b.velocity], [`band_D${b.D}_minOverlap`, b.minOverlap]])),
+        ...Object.fromEntries(
+          bands.flatMap(b => [
+            [`band_D${b.D}_width`, b.bandwidth],
+            [`band_D${b.D}_velocity`, b.velocity],
+            [`band_D${b.D}_minOverlap`, b.minOverlap],
+          ]),
+        ),
         ringGapThree: agreeThree.gap,
         ringGapPair: agreePair.gap,
         ringOutsideThree: agreeThree.outside,
@@ -466,7 +692,12 @@ export default experiment({
       },
       control: {
         conventionGap,
-        ...Object.fromEntries(rows.flatMap(r => [[`naive_D${r.D}_spinHalfShare`, r.naiveSpinHalf], [`naive_D${r.D}_meanString`, r.naiveMean]])),
+        ...Object.fromEntries(
+          rows.flatMap(r => [
+            [`naive_D${r.D}_spinHalfShare`, r.naiveSpinHalf],
+            [`naive_D${r.D}_meanString`, r.naiveMean],
+          ]),
+        ),
       },
       notes: `L2, a STAND-IN. Gates T1 ${t1}, T2 ${t2}, T3 ${t3}, T4 ${t4}, T5 ${t5}, T6 ${t6}. Lightest three-love level by depth: ${rows.map(r => `D ${r.D} (dim ${r.dim}): E ${r.energy.toFixed(5)} (raw ${r.raw.toFixed(5)}), <l> ${r.mean.toFixed(3)}, spin one half ${r.spinHalf.toFixed(4)}, particle ${r.even.toFixed(3)}, meeting energy ${r.contact.toFixed(3)}, next +${r.gapNext.toFixed(4)}, residual ${r.residual.toExponential(1)}`).join('; ')}. Bands (K = 0 to pi in 12 steps): ${bands.map(b => `D ${b.D}: ${b.energies.map(e => e.toFixed(3)).join(' ')} (min overlap ${b.minOverlap.toFixed(3)})`).join('; ')}. Naive nearest-to-zero levels: ${rows.map(r => `D ${r.D} spin one half ${r.naiveSpinHalf.toFixed(3)}, <l> ${r.naiveMean.toFixed(2)}`).join('; ')}. Line leak by (D, K): ${leaks.map(l => `(${l.D}, ${l.K}) ${l.leak.toExponential(1)} over ${l.columns} columns`).join(', ')}. Start members: ${ensemble.map(e => `${e.member} ${e.gap.toExponential(1)}`).join(', ')}. THE FEAR'S STREAM SIGN: the charge-one state holds no fear, so C (the user's choice, 2026-09-26) and C' give the same operator; they differ only on the love-fear pair (E-SPN-0076). MEANING: the flux string, with its store on the flux and its cost from the light, binds three loves into a compact state (<l> from ${Math.min(...rows.map(r => r.mean)).toFixed(2)} to ${Math.max(...rows.map(r => r.mean)).toFixed(2)} links over D = 1 to 6, against a column allowing 2D), and that lightest level is the natural spin one half with N = 3 and a full turn of -1, as E-SPN-0071 predicted for any role-blind binding, although the locked walk is not role-blind; it moves as a whole. The unwrapped energy falls with depth and is first below the free band bottom at D = ${rows.find(r => r.energy < 0)?.D ?? 'none of 1 to 6'} (the fear beat's meeting binds it below, meeting energy ${rows.map(r => r.contact.toFixed(2)).join(', ')}, and the string's cost lifts it), which is why a reading measured upward from 0 fails there. What this is not: an electron of the knit. The tokens are locked stand-ins on one line, the store is held at one port, and three loves are a color singlet of three, a baryon-like electron, which is the model's charge assignment Q = (love - fear) / 3, not a derivation that the electron is made this way.`,
     })

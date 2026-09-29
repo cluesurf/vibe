@@ -125,7 +125,13 @@ function gradientRow(input: {
   const { profile, schedule, depth } = input
   const side = GRADIENT_SIDE
   const mesh = d4Mesh({ side })
-  const start = gradientStart({ mesh, side, profile, mean: ACTIVE, salt: 5 })
+  const start = gradientStart({
+    mesh,
+    side,
+    profile,
+    mean: ACTIVE,
+    salt: 5,
+  })
   const reference = countSeries({ start, beats: BEATS, schedule })
   const distance = (other: Will, block: number): number =>
     mean(
@@ -190,7 +196,12 @@ function gradientRow(input: {
     slab,
     independent,
     golden6: depth === 'full' ? distance(golden, 6) : NaN,
-    golden6Moment: firstMomentDistance({ a: start, b: golden, side, block: 6 }),
+    golden6Moment: firstMomentDistance({
+      a: start,
+      b: golden,
+      side,
+      block: 6,
+    }),
     mirrorMoment: GRADIENT_BLOCKS.map((block, i) =>
       firstMomentDistance({ a: start, b: mirrored[i]!, side, block }),
     ),
@@ -440,8 +451,10 @@ export default experiment({
     )
     // and against the first moment the mirror reverses: delta / (first-moment distance)
     const momentRatio = gradients.map(row =>
-      GRADIENT_BLOCKS.map((_, i) =>
-        (delta(row)[i] ?? 0) / Math.max(1e-12, row.mirrorMoment[i] ?? 0),
+      GRADIENT_BLOCKS.map(
+        (_, i) =>
+          (delta(row)[i] ?? 0) /
+          Math.max(1e-12, row.mirrorMoment[i] ?? 0),
       ),
     )
 
@@ -458,7 +471,10 @@ export default experiment({
       mirrorOverUniform.every(r => r > 1) &&
       gradients
         .filter(row => row.profile.size >= 0.15)
-        .every(row => (delta(row)[at6] ?? 0) >= (delta(row)[at3] ?? Infinity))
+        .every(
+          row =>
+            (delta(row)[at6] ?? 0) >= (delta(row)[at3] ?? Infinity),
+        )
     // it does not fall with block size: the gradient share on a ramp is larger at b = 6 than at b = 3
     const doesNotFall = ramps.every(
       (row, i) =>
@@ -476,7 +492,9 @@ export default experiment({
     const slabBound = full.every(row =>
       row.slab.every((d, i) => d <= 1.5 * (row.independent[i] ?? 0)),
     )
-    const slabExponent = slabFits.every(f => Math.abs(f.slope + 2) < 0.4)
+    const slabExponent = slabFits.every(
+      f => Math.abs(f.slope + 2) < 0.4,
+    )
     const leanSlab = gradients
       .filter(row => Number.isNaN(row.golden6))
       .every(
@@ -539,7 +557,9 @@ export default experiment({
       const d = delta(row)
 
       gradientMetrics[`${name}Slope`] = row.slope
-      gradientMetrics[`${name}MirrorOverUniformB6`] = mirrorOverUniform[r] ?? 0
+      gradientMetrics[`${name}MirrorOverUniformB6`] =
+        mirrorOverUniform[r] ?? 0
+
       GRADIENT_BLOCKS.forEach((block, i) => {
         const put = (key: string, value: number | undefined): void => {
           if (value !== undefined && !Number.isNaN(value)) {
@@ -563,11 +583,15 @@ export default experiment({
         gradientMetrics[`${name}GoldenMomentB6`] = row.golden6Moment
       }
     })
+
     full.forEach((row, i) => {
-      gradientMetrics[`${label(row)}SlabExponent`] = slabFits[i]?.slope ?? 0
+      gradientMetrics[`${label(row)}SlabExponent`] =
+        slabFits[i]?.slope ?? 0
+
       gradientMetrics[`${label(row)}IndependentExponent`] =
         independentFits[i]?.slope ?? 0
     })
+
     ramps.forEach((row, i) => {
       // undefined when the share at b = 3 is below the uniform fluctuation level (read as zero)
       if (Number.isFinite(rampGrowth[i])) {
@@ -575,9 +599,11 @@ export default experiment({
           rampGrowth[i] ?? 0
       }
     })
+
     gradientMetrics.excessPerMomentB6Smallest = Math.min(
       ...momentRatio.map(r => r[at6] ?? 0),
     )
+
     gradientMetrics.excessPerMomentB6Largest = Math.max(
       ...momentRatio.map(r => r[at6] ?? 0),
     )

@@ -58,30 +58,85 @@ import { verdict } from '@/test/scaffold/verdict'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { weylF4DirectionPermutations } from '@/code/measure/coin-symmetry'
 import { groupTable } from '@/code/measure/color-isotropy-bound'
-import { conjugateRule, lineMomentumCollision, lineMomentumRule } from '@/code/rule/isometric-knit'
-import { cosetPeriodGroup, leftTransversal, momentumRuleStabilizer, palindrome } from '@/code/rule/conjugate-schedule'
+import {
+  conjugateRule,
+  lineMomentumCollision,
+  lineMomentumRule,
+} from '@/code/rule/isometric-knit'
+import {
+  cosetPeriodGroup,
+  leftTransversal,
+  momentumRuleStabilizer,
+  palindrome,
+} from '@/code/rule/conjugate-schedule'
 import { lineMomentumLinearization } from '@/code/measure/line-momentum-linearization'
-import { conjugateBySlots, symmetrize } from '@/code/measure/exact-linear-collision'
-import { dockAudit, kroneckerDockState } from '@/code/measure/dock-conservation'
-import { exponentsOf, readTransport, slowModes, spectrumOf, type Exponent } from '@/code/measure/husk-transport-exponents'
-import { huskDirections, invariantBasis } from '@/code/measure/husk-transport-order'
-import { forcedIsotropic, matrixOfPermutation } from '@/code/measure/husk-transport-symmetry'
+import {
+  conjugateBySlots,
+  symmetrize,
+} from '@/code/measure/exact-linear-collision'
+import {
+  dockAudit,
+  kroneckerDockState,
+} from '@/code/measure/dock-conservation'
+import {
+  exponentsOf,
+  readTransport,
+  slowModes,
+  spectrumOf,
+  type Exponent,
+} from '@/code/measure/husk-transport-exponents'
+import {
+  huskDirections,
+  invariantBasis,
+} from '@/code/measure/husk-transport-order'
+import {
+  forcedIsotropic,
+  matrixOfPermutation,
+} from '@/code/measure/husk-transport-symmetry'
 import { conjugateCollision } from '@/code/measure/rule-symmetry-ledger'
 
 const FIT = 5
 const LADDER = [4, 8, 16, 32, 64, 128, 256]
 
-type Reading = { husk: Record<string, Exponent>; invariants: number; unit: number; ks: readonly number[]; means: Record<string, number> }
+type Reading = {
+  husk: Record<string, Exponent>
+  invariants: number
+  unit: number
+  ks: readonly number[]
+  means: Record<string, number>
+}
 
-function read(matrices: readonly Float64Array[], ladder: 'schedule' | 'knit'): Reading {
+function read(
+  matrices: readonly Float64Array[],
+  ladder: 'schedule' | 'knit',
+): Reading {
   const invariants = invariantBasis(matrices)
   const method = ladder === 'schedule' ? 'ritz' : 'full'
   const s = spectrumOf({ matrices, invariants, method })
-  const top = ladder === 'schedule' ? Math.PI / (2 * Math.SQRT2 * matrices.length) : Math.sqrt(s.gap / s.dMax) / 4
-  const ks = ladder === 'schedule' ? [0, 1, 2, 3, 4, 5, 6].map(j => top / 2 ** j) : LADDER.map(r => (top * 4) / r)
-  const reading = readTransport({ matrices, invariants, ks, directions: huskDirections(24), husk: true, method })
+  const top =
+    ladder === 'schedule'
+      ? Math.PI / (2 * Math.SQRT2 * matrices.length)
+      : Math.sqrt(s.gap / s.dMax) / 4
+  const ks =
+    ladder === 'schedule'
+      ? [0, 1, 2, 3, 4, 5, 6].map(j => top / 2 ** j)
+      : LADDER.map(r => (top * 4) / r)
+  const reading = readTransport({
+    matrices,
+    invariants,
+    ks,
+    directions: huskDirections(24),
+    husk: true,
+    method,
+  })
 
-  return { husk: exponentsOf(reading, FIT), invariants: invariants.length, unit: s.unitEigenvalues, ks, means: reading.means }
+  return {
+    husk: exponentsOf(reading, FIT),
+    invariants: invariants.length,
+    unit: s.unitEigenvalues,
+    ks,
+    means: reading.means,
+  }
 }
 
 export default experiment({
@@ -96,43 +151,73 @@ export default experiment({
   run() {
     const started = Date.now()
     const table = groupTable()
-    const permutations = weylF4DirectionPermutations({ directions: rootsD4() })
+    const permutations = weylF4DirectionPermutations({
+      directions: rootsD4(),
+    })
     const base = lineMomentumRule('first-mirror')
     const stabilizer = momentumRuleStabilizer({ rule: base, table })
-    const { representatives, cosetOf } = leftTransversal({ table, stabilizer })
+    const { representatives, cosetOf } = leftTransversal({
+      table,
+      stabilizer,
+    })
     const plain = representatives.map((_, i) => i)
     const pal = palindrome(plain)
-    const elementOf = (coset: number): readonly number[] => table.permutations[representatives[coset] ?? 0] ?? []
+    const elementOf = (coset: number): readonly number[] =>
+      table.permutations[representatives[coset] ?? 0] ?? []
 
     // X1: the conjugation convention on two cosets
     const A = lineMomentumLinearization({ rule: base }).matrix
+
     let conventionWorst = 0
 
     for (const coset of [1, 287]) {
       const g = elementOf(coset)
-      const direct = lineMomentumLinearization({ rule: conjugateRule(base, g) }).matrix
+      const direct = lineMomentumLinearization({
+        rule: conjugateRule(base, g),
+      }).matrix
       const conj = conjugateBySlots(A, g)
 
-      for (let i = 0; i < 48 * 48; i++) conventionWorst = Math.max(conventionWorst, Math.abs((direct[i] ?? 0) - (conj[i] ?? 0)))
+      for (let i = 0; i < 48 * 48; i++) {
+        conventionWorst = Math.max(
+          conventionWorst,
+          Math.abs((direct[i] ?? 0) - (conj[i] ?? 0)),
+        )
+      }
     }
 
     // X1: every beat, dock by dock
     const collision = lineMomentumCollision(base)
-    const beats = plain.map(c => conjugateCollision({ collision, permutation: elementOf(c) }))
-    const states = Array.from({ length: 256 }, (_, m) => kroneckerDockState(50_000 + m))
+    const beats = plain.map(c =>
+      conjugateCollision({ collision, permutation: elementOf(c) }),
+    )
+    const states = Array.from({ length: 256 }, (_, m) =>
+      kroneckerDockState(50_000 + m),
+    )
+
     let beatFailures = 0
 
     for (const beat of beats) {
       const a = dockAudit({ collision: beat, inverse: beat, states })
 
-      beatFailures += a.involutionFailures + a.chargeChanges + a.countChanges + a.momentumChanges
+      beatFailures +=
+        a.involutionFailures +
+        a.chargeChanges +
+        a.countChanges +
+        a.momentumChanges
     }
 
     // X1: the period groups and CPT, by cosets and by collisions
     const palGroup = cosetPeriodGroup({ table, schedule: pal, cosetOf })
-    const plainGroup = cosetPeriodGroup({ table, schedule: plain, cosetOf })
+    const plainGroup = cosetPeriodGroup({
+      table,
+      schedule: plain,
+      cosetOf,
+    })
     const probeStates = states.slice(0, 64)
-    const sameOn = (a: (typeof beats)[number], b: (typeof beats)[number]): boolean =>
+    const sameOn = (
+      a: (typeof beats)[number],
+      b: (typeof beats)[number],
+    ): boolean =>
       probeStates.every(x => {
         const u = Int8Array.from(x)
         const v = Int8Array.from(x, y => -y)
@@ -143,6 +228,7 @@ export default experiment({
 
         return u.every((y, i) => y === -(v[i] ?? 0))
       })
+
     const mirrorsHolding = (schedule: readonly number[]): number[] => {
       const out: number[] = []
 
@@ -150,20 +236,45 @@ export default experiment({
         let holds = true
 
         for (let T = 0; T < schedule.length && holds; T++) {
-          holds = sameOn(beats[schedule[T] ?? 0]!, beats[schedule[(((m - T) % schedule.length) + schedule.length) % schedule.length] ?? 0]!)
+          holds = sameOn(
+            beats[schedule[T] ?? 0]!,
+            beats[
+              schedule[
+                (((m - T) % schedule.length) + schedule.length) %
+                  schedule.length
+              ] ?? 0
+            ]!,
+          )
         }
 
-        if (holds) out.push(m)
+        if (holds) {
+          out.push(m)
+        }
       }
 
       return out
     }
+
     const palMirrors = mirrorsHolding(pal)
     const plainMirrors = mirrorsHolding(plain)
-    const palMembers = [...new Set([...palGroup.glides, ...palGroup.reversals])]
-    const palMatrices = palMembers.map(i => matrixOfPermutation(table.permutations[i] ?? []))
-    const forcesScalar2 = forcedIsotropic({ group: palMatrices, kind: 'scalar', degree: 2, husk: true }).forced
-    const forcesScalar4 = forcedIsotropic({ group: palMatrices, kind: 'scalar', degree: 4, husk: true }).forced
+    const palMembers = [
+      ...new Set([...palGroup.glides, ...palGroup.reversals]),
+    ]
+    const palMatrices = palMembers.map(i =>
+      matrixOfPermutation(table.permutations[i] ?? []),
+    )
+    const forcesScalar2 = forcedIsotropic({
+      group: palMatrices,
+      kind: 'scalar',
+      degree: 2,
+      husk: true,
+    }).forced
+    const forcesScalar4 = forcedIsotropic({
+      group: palMatrices,
+      kind: 'scalar',
+      degree: 4,
+      husk: true,
+    }).forced
 
     const exact =
       stabilizer.length === 2 &&
@@ -184,9 +295,13 @@ export default experiment({
     const conjugated = plain.map(c => conjugateBySlots(A, elementOf(c)))
     const ritzWorst = (() => {
       let worst = 0
+
       const cases: [Float64Array[], number][] = [
         [[A], 0.17],
-        [pal.slice(0, 24).map(c => conjugated[c]!), Math.PI / (2 * Math.SQRT2 * 24)],
+        [
+          pal.slice(0, 24).map(c => conjugated[c]!),
+          Math.PI / (2 * Math.SQRT2 * 24),
+        ],
       ]
 
       for (const [matrices, k] of cases) {
@@ -198,14 +313,33 @@ export default experiment({
           [1 / Math.sqrt(3), 1 / Math.sqrt(3), 1 / Math.sqrt(3), 0],
         ]) {
           const wave = u.map(x => x * k)
-          const full = slowModes({ matrices, wave, count: invariants.length, families: {}, method: 'full' })
-          const ritz = slowModes({ matrices, wave, count: invariants.length, families: {}, method: 'ritz', starts: invariants })
-          const key = (m: { gamma: number; omega: number }): number => m.gamma * 1e3 + m.omega
+          const full = slowModes({
+            matrices,
+            wave,
+            count: invariants.length,
+            families: {},
+            method: 'full',
+          })
+          const ritz = slowModes({
+            matrices,
+            wave,
+            count: invariants.length,
+            families: {},
+            method: 'ritz',
+            starts: invariants,
+          })
+          const key = (m: { gamma: number; omega: number }): number =>
+            m.gamma * 1e3 + m.omega
           const a = [...full].sort((x, y) => key(x) - key(y))
           const b = [...ritz].sort((x, y) => key(x) - key(y))
 
           a.forEach((m, i) => {
-            worst = Math.max(worst, Math.abs(m.gamma - (b[i]?.gamma ?? 0)) / Math.max(m.gamma, 1e-300), Math.abs(m.omega - (b[i]?.omega ?? 0)) / k)
+            worst = Math.max(
+              worst,
+              Math.abs(m.gamma - (b[i]?.gamma ?? 0)) /
+                Math.max(m.gamma, 1e-300),
+              Math.abs(m.omega - (b[i]?.omega ?? 0)) / k,
+            )
           })
         }
       }
@@ -214,13 +348,23 @@ export default experiment({
     })()
 
     // transport
-    const palReading = read(pal.map(c => conjugated[c]!), 'schedule')
+    const palReading = read(
+      pal.map(c => conjugated[c]!),
+      'schedule',
+    )
     const plainReading = read(conjugated, 'schedule')
     const baseReading = read([A], 'knit')
     const averagedReading = read([symmetrize(A, permutations)], 'knit')
-    const invariantsOk = [palReading, plainReading].every(r => r.invariants === 6 && r.unit === 6) && ritzWorst < 1e-8
-    const resolved = [palReading, plainReading].every(r => Object.values(r.husk).every(e => e.error < 0.3))
-    const hypothesis = (palReading.husk.charge?.slope ?? 0) >= 3.5 && (palReading.husk.trace?.slope ?? 0) >= 3.5
+    const invariantsOk =
+      [palReading, plainReading].every(
+        r => r.invariants === 6 && r.unit === 6,
+      ) && ritzWorst < 1e-8
+    const resolved = [palReading, plainReading].every(r =>
+      Object.values(r.husk).every(e => e.error < 0.3),
+    )
+    const hypothesis =
+      (palReading.husk.charge?.slope ?? 0) >= 3.5 &&
+      (palReading.husk.trace?.slope ?? 0) >= 3.5
 
     const metrics: Record<string, number> = {
       ritzAgainstFullWorst: ritzWorst,
@@ -241,33 +385,58 @@ export default experiment({
       periodGroupForcesHuskScalar4: forcesScalar4 ? 1 : 0,
     }
 
-    for (const [name, r] of Object.entries({ palindrome: palReading, plain: plainReading, base: baseReading, averaged: averagedReading })) {
+    for (const [name, r] of Object.entries({
+      palindrome: palReading,
+      plain: plainReading,
+      base: baseReading,
+      averaged: averagedReading,
+    })) {
       metrics[`${name}Invariants`] = r.invariants
       metrics[`${name}UnitEigenvalues`] = r.unit
       metrics[`${name}LargestK`] = r.ks[0] ?? Number.NaN
 
       for (const [q, e] of Object.entries(r.husk)) {
-        metrics[`${name}_husk_${q}_exponent`] = Number(e.slope.toFixed(4))
+        metrics[`${name}_husk_${q}_exponent`] = Number(
+          e.slope.toFixed(4),
+        )
         metrics[`${name}_husk_${q}_error`] = Number(e.error.toFixed(4))
         metrics[`${name}_husk_${q}_anisotropyAtLargestK`] = e.atLargestK
-        metrics[`${name}_husk_${q}_anisotropyAtSmallestK`] = e.atSmallestK
+        metrics[`${name}_husk_${q}_anisotropyAtSmallestK`] =
+          e.atSmallestK
       }
 
-      for (const [q, v] of Object.entries(r.means)) if (Number.isFinite(v)) metrics[`${name}_husk_${q}_mean`] = v
+      for (const [q, v] of Object.entries(r.means)) {
+        if (Number.isFinite(v)) {
+          metrics[`${name}_husk_${q}_mean`] = v
+        }
+      }
     }
 
     metrics.seconds = (Date.now() - started) / 1000
 
-    const status = exact && invariantsOk && resolved ? (hypothesis ? 'pass' : 'fail') : 'partial'
-    const list = (r: Reading): string => ['charge', 'trace', 'sound', 'shear'].map(q => `${q} ${r.husk[q]?.slope.toFixed(2)} (anisotropy ${r.husk[q]?.atSmallestK.toExponential(2)})`).join(', ')
+    const status =
+      exact && invariantsOk && resolved
+        ? hypothesis
+          ? 'pass'
+          : 'fail'
+        : 'partial'
+    const list = (r: Reading): string =>
+      ['charge', 'trace', 'sound', 'shear']
+        .map(
+          q =>
+            `${q} ${r.husk[q]?.slope.toFixed(2)} (anisotropy ${r.husk[q]?.atSmallestK.toExponential(2)})`,
+        )
+        .join(', ')
 
     return verdict({
       status,
       claim: `palindromic W(F4) schedule of the first-mirror knit (period ${pal.length}, exact period group of order ${palMembers.length}, CPT at mirror ${palGroup.identityMirrors[0] ?? -1}): ${list(palReading)}; plain order (no CPT): ${list(plainReading)}; base ${list(baseReading)}; W(F4) average ${list(averagedReading)}`,
       metrics,
       control: {
-        averagedHuskChargeExponent: averagedReading.husk.charge?.slope ?? Number.NaN,
-        baseHuskChargeExponent: baseReading.husk.charge?.slope ?? Number.NaN,
+        averagedHuskChargeExponent:
+          averagedReading.husk.charge?.slope ?? Number.NaN,
+        baseHuskChargeExponent:
+          baseReading.husk.charge?.slope ?? Number.NaN,
       },
       notes: `L2. Gates: X1 exact ${exact}, X2 invariants ${invariantsOk}, X3 resolved ${resolved}, H ${hypothesis}. DISCLOSED: the first run stopped in the QR iteration of the 1,152-beat period map (every fast mode at the rounding floor) before any exponent was printed; the Rayleigh-Ritz reading and its cross-check gate were added then. The second run is recorded here and its X2 fails as registered: the cross-check's worst disagreement ${ritzWorst.toExponential(2)} comes wholly from its period-one case (the base knit, whose fast modes sit at modulus 0.64 per beat, which two applications of M cannot separate), a case the gate should never have held and the readings did not use (the base and the averaged matrix are read by the full decomposition). A probe (tmp/iso-ritz-probe.ts) gives Ritz against full at 7e-14 on a 24-beat piece and 4e-13 on a 96-beat piece at the schedule's ladder, where the fast modes are at 1e-5 and 1e-20 per period and far below at 1,152. Nothing was moved; the verdict stays partial. THE RESULT. The schedule's exponent is 0 in charge, trace and shear, both orders: the leading transport tensor is not the group average. The one-beat terms of the period's Green-Kubo sum do average over W(F4); the correlations between a beat and the next ones depend on the pairs g_T^-1 g_(T+1), which a list of cosets cannot make uniform, and they carry what is left: charge ${palReading.husk.charge?.atSmallestK.toExponential(2)} against the base knit's ${baseReading.husk.charge?.atSmallestK.toExponential(2)}. Sound is 2 for every order, as for any collision keeping count and momentum (E-RLT-0061). The palindrome costs nothing in transport (plain order ${plainReading.husk.charge?.atSmallestK.toExponential(2)}) and buys exact CPT. The exact period group of either order is the base's own {I, -I}, so E-RLT-0048 and 0049's conclusion (no schedule has an irreducible period group) extends from the couple architecture to any base collision visited once per coset; the symmetry of a schedule is not the group its conjugates are drawn from. A smaller floor needs a collision that forgets faster, never a symmetry: the constant is set by the beat-to-beat memory, and only a knit whose every beat commutes with the group (E-RLT-0061) reaches k^4.`,
     })

@@ -37,7 +37,7 @@ export default experiment({
   id: 'gauge/sign-class-drift',
   code: 'E-FRC-0130',
   title:
-    "a lone color cannot return to its partner under the committed orientation: color-local moves keep a lone vibe in its sign class, and the committed class of 12 directions lies in an open half-space, so it drifts one way forever, while some of the 4,096 orientations of the lines hold closed walks and would let a part come back",
+    'a lone color cannot return to its partner under the committed orientation: color-local moves keep a lone vibe in its sign class, and the committed class of 12 directions lies in an open half-space, so it drifts one way forever, while some of the 4,096 orientations of the lines hold closed walks and would let a part come back',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L1',
@@ -56,14 +56,29 @@ export default experiment({
     const candidates: number[][] = []
 
     for (let k = 0; k < (2 * RANGE + 1) ** 4; k++) {
-      candidates.push([0, 1, 2, 3].map(i => (Math.floor(k / (2 * RANGE + 1) ** i) % (2 * RANGE + 1)) - RANGE))
+      candidates.push(
+        [0, 1, 2, 3].map(
+          i =>
+            (Math.floor(k / (2 * RANGE + 1) ** i) % (2 * RANGE + 1)) -
+            RANGE,
+        ),
+      )
     }
 
     const witness = (plus: number[]): number[] | null =>
-      candidates.find(c => plus.every(d => (roots[d] ?? []).reduce((s, x, i) => s + x * (c[i] ?? 0), 0) > 0)) ?? null
+      candidates.find(c =>
+        plus.every(
+          d =>
+            (roots[d] ?? []).reduce(
+              (s, x, i) => s + x * (c[i] ?? 0),
+              0,
+            ) > 0,
+        ),
+      ) ?? null
 
     const triangles = zeroSumTriangles({ directions: roots })
-    const hasTriangle = (plus: Set<number>): boolean => triangles.some(t => t.every(d => plus.has(d)))
+    const hasTriangle = (plus: Set<number>): boolean =>
+      triangles.some(t => t.every(d => plus.has(d)))
 
     const committed = lines.map(([d]) => d)
     const committedWitness = witness(committed)
@@ -83,7 +98,10 @@ export default experiment({
       }
     }
 
-    const ok = committedWitness !== null && halfSpace + returning === 4096 && returning > 0
+    const ok =
+      committedWitness !== null &&
+      halfSpace + returning === 4096 &&
+      returning > 0
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -97,11 +115,20 @@ export default experiment({
         returningWithTriangle,
       },
       control: {
-        ...Object.fromEntries((committedWitness ?? [Number.NaN, Number.NaN, Number.NaN, Number.NaN]).map((x, i) => [`witnessC${i + 1}`, x])),
+        ...Object.fromEntries(
+          (
+            committedWitness ?? [
+              Number.NaN,
+              Number.NaN,
+              Number.NaN,
+              Number.NaN,
+            ]
+          ).map((x, i) => [`witnessC${i + 1}`, x]),
+        ),
         searchedVectors: candidates.length,
       },
       notes:
-        'L1, exact. The sign class of a lone vibe is kept by every color-local move (E-FRC-0124): changing it needs a charge moved onto a calm slot of the other sign, which changes the cell\'s color, or an opposite charge on the same line (the flip, annihilation). So in the committed orientation a lone part can only come back by meeting and flipping with an opposite charge, and moving binding needs either a returning orientation, which changes the collision table on some lines and would need the acceptance battery again, or a slot where matter can wait (E-FRC-0129).',
+        "L1, exact. The sign class of a lone vibe is kept by every color-local move (E-FRC-0124): changing it needs a charge moved onto a calm slot of the other sign, which changes the cell's color, or an opposite charge on the same line (the flip, annihilation). So in the committed orientation a lone part can only come back by meeting and flipping with an opposite charge, and moving binding needs either a returning orientation, which changes the collision table on some lines and would need the acceptance battery again, or a slot where matter can wait (E-FRC-0129).",
     })
   },
 })

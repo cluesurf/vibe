@@ -34,10 +34,24 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { loopSplit, ringCurl, ringOmega, type LoopSpec } from '@/code/rule/loop-ring'
+import {
+  loopSplit,
+  ringCurl,
+  ringOmega,
+  type LoopSpec,
+} from '@/code/rule/loop-ring'
 import { classicalOmega } from '@/code/rule/plaquette-ladder'
 import { atomBare } from '@/code/measure/quantum-ladder'
-import { fewQuanta, fewQuantaBeat, fewQuantaRead, fewQuantaRun, fewQuantaStart, ringAtomSpec, stripGoldenRule, stripModes } from '@/code/measure/few-quanta'
+import {
+  fewQuanta,
+  fewQuantaBeat,
+  fewQuantaRead,
+  fewQuantaRun,
+  fewQuantaStart,
+  ringAtomSpec,
+  stripGoldenRule,
+  stripModes,
+} from '@/code/measure/few-quanta'
 
 const L = 512
 const GATED = [25, 49]
@@ -45,21 +59,50 @@ const REPORTED = [11]
 const RESIDUAL = 0.02
 const RATE_BAND = [0.9, 1.1] as const
 
-const ladderShape = (spec: LoopSpec) => ({ n: spec.n, plaquettes: spec.squares, root: spec.root, drift: spec.drift, force: spec.force, hop: spec.hop! })
+const ladderShape = (spec: LoopSpec) => ({
+  n: spec.n,
+  plaquettes: spec.squares,
+  root: spec.root,
+  drift: spec.drift,
+  force: spec.force,
+  hop: spec.hop!,
+})
 
-type Decay = { population: Float64Array; normWorst: number; twoMax: number }
+type Decay = {
+  population: Float64Array
+  normWorst: number
+  twoMax: number
+}
 
-function decay(n: number, light: 'ring' | 'ladder', beats: number): Decay {
+function decay(
+  n: number,
+  light: 'ring' | 'ladder',
+  beats: number,
+): Decay {
   const spec = ringAtomSpec(n, L)
   const { f, kappa } = loopSplit(spec)
   const bare = atomBare(ladderShape(spec))
   const g = (4 * Math.PI * spec.drift) / spec.root
-  const js = light === 'ring' ? Array.from({ length: L - 1 }, (_, j) => j + 1) : Array.from({ length: L }, (_, j) => j)
-  const omegaOf = light === 'ring' ? (k: number) => ringOmega(kappa, k) : (k: number) => classicalOmega(kappa, k, L)
+  const js =
+    light === 'ring'
+      ? Array.from({ length: L - 1 }, (_, j) => j + 1)
+      : Array.from({ length: L }, (_, j) => j)
+  const omegaOf =
+    light === 'ring'
+      ? (k: number) => ringOmega(kappa, k)
+      : (k: number) => classicalOmega(kappa, k, L)
   const modes = stripModes({ n, squares: L, f, js, omegaOf })
-  const q = fewQuanta({ omega: modes.omega, u: modes.u, g, hop: spec.hop!, drift: spec.drift, root: spec.root })
+  const q = fewQuanta({
+    omega: modes.omega,
+    u: modes.u,
+    g,
+    hop: spec.hop!,
+    drift: spec.drift,
+    root: spec.root,
+  })
   const run = fewQuantaRun(q)
   const population = new Float64Array(beats + 1)
+
   let normWorst = 0
   let twoMax = 0
 
@@ -72,13 +115,19 @@ function decay(n: number, light: 'ring' | 'ladder', beats: number): Decay {
     normWorst = Math.max(normWorst, Math.abs(read.norm - 1))
     twoMax = Math.max(twoMax, read.two)
 
-    if (t < beats) fewQuantaBeat(q, run)
+    if (t < beats) {
+      fewQuantaBeat(q, run)
+    }
   }
 
   return { population, normWorst, twoMax }
 }
 
-function fit(p: Float64Array, from: number, to: number): { rate: number; intercept: number; residual: number } {
+function fit(
+  p: Float64Array,
+  from: number,
+  to: number,
+): { rate: number; intercept: number; residual: number } {
   let sx = 0
   let sy = 0
   let sxx = 0
@@ -97,9 +146,15 @@ function fit(p: Float64Array, from: number, to: number): { rate: number; interce
 
   const slope = (count * sxy - sx * sy) / (count * sxx - sx * sx)
   const intercept = (sy - slope * sx) / count
+
   let residual = 0
 
-  for (let t = from; t <= to; t++) residual = Math.max(residual, Math.abs(Math.log(p[t]!) - (intercept + slope * t)))
+  for (let t = from; t <= to; t++) {
+    residual = Math.max(
+      residual,
+      Math.abs(Math.log(p[t]!) - (intercept + slope * t)),
+    )
+  }
 
   return { rate: -slope, intercept, residual }
 }
@@ -115,6 +170,7 @@ export default experiment({
   paper: false,
   run() {
     const metrics: Record<string, number> = {}
+
     let x1 = true
     let x1rate = true
     let x2 = true
@@ -126,7 +182,16 @@ export default experiment({
       const { f, kappa } = loopSplit(spec)
       const bare = atomBare(ladderShape(spec))
       const g = (4 * Math.PI * spec.drift) / spec.root
-      const gr = stripGoldenRule({ n, f, kappa, g, dipole: bare.dipole, gap: bare.gap, curl: ringCurl, curlSlope: k => 2 * Math.sin(k) })
+      const gr = stripGoldenRule({
+        n,
+        f,
+        kappa,
+        g,
+        dipole: bare.dipole,
+        gap: bare.gap,
+        curl: ringCurl,
+        curlSlope: k => 2 * Math.sin(k),
+      })
       const from = Math.ceil(1 / gr.rate)
       const to = Math.floor(4 / gr.rate)
       const beats = Math.ceil(5 / gr.rate)
@@ -142,7 +207,8 @@ export default experiment({
       metrics[`kStar${tag}`] = gr.k
       metrics[`velocity${tag}`] = gr.velocity
       metrics[`bandTop${tag}`] = top
-      metrics[`rateOverDistance${tag}`] = gr.rate / Math.min(bare.gap, top - bare.gap)
+      metrics[`rateOverDistance${tag}`] =
+        gr.rate / Math.min(bare.gap, top - bare.gap)
       metrics[`fitFrom${tag}`] = from
       metrics[`fitTo${tag}`] = to
       metrics[`fitRate${tag}`] = result.rate
@@ -156,16 +222,21 @@ export default experiment({
       metrics[`populationAtTo${tag}`] = ring.population[to]!
 
       if (GATED.includes(n)) {
-        const rateOk = result.rate / gr.rate >= RATE_BAND[0] && result.rate / gr.rate <= RATE_BAND[1]
+        const rateOk =
+          result.rate / gr.rate >= RATE_BAND[0] &&
+          result.rate / gr.rate <= RATE_BAND[1]
 
         x1 &&= rateOk && result.residual < RESIDUAL
         x1rate &&= rateOk
         x2 &&= returnBeat > to
 
         const ladder = decay(n, 'ladder', to)
+
         let low = 1
 
-        for (let t = 0; t <= to; t++) low = Math.min(low, ladder.population[t]!)
+        for (let t = 0; t <= to; t++) {
+          low = Math.min(low, ladder.population[t]!)
+        }
 
         metrics[`ladderLowest${tag}`] = low
         metrics[`ladderCutoff${tag}`] = classicalOmega(kappa, 0, L)
@@ -175,15 +246,21 @@ export default experiment({
 
     const gates = { X1: x1, X2: x2, X3: x3 }
 
-    for (const [gate, ok] of Object.entries(gates)) metrics[`gate${gate}`] = ok ? 1 : 0
+    for (const [gate, ok] of Object.entries(gates)) {
+      metrics[`gate${gate}`] = ok ? 1 : 0
+    }
 
-    const status = x1 && x2 && x3 ? 'pass' : x2 && x3 && x1rate ? 'partial' : 'fail'
+    const status =
+      x1 && x2 && x3 ? 'pass' : x2 && x3 && x1rate ? 'partial' : 'fail'
 
     return verdict({
       status,
       claim: `a pure excited STAND-IN atom beside a closed strip of ${L} husk squares decays at ${metrics.fitRateOverGoldenN25!.toFixed(4)} and ${metrics.fitRateOverGoldenN49!.toFixed(4)} of the golden rule (${metrics.goldenRuleN25!.toFixed(5)} and ${metrics.goldenRuleN49!.toFixed(5)} per beat at N = 25, 49), ln P_e linear over one to four lifetimes within ${metrics.fitResidualN25!.toFixed(4)} and ${metrics.fitResidualN49!.toFixed(4)} (intercept ${metrics.fitInterceptN25!.toFixed(4)}, ${metrics.fitInterceptN49!.toFixed(4)}), the emitted quantum returning only after ${metrics.returnBeatN25!.toFixed(0)} and ${metrics.returnBeatN49!.toFixed(0)} beats; beside the open ladder, whose cutoff lies above the same gap, it keeps P_e at ${metrics.ladderLowestN25!.toFixed(4)} and ${metrics.ladderLowestN49!.toFixed(4)} or above; at N = 11 (the column the restriction was checked against the exact rule at) the rate is ${metrics.fitRateOverGoldenN11!.toFixed(4)} of the golden rule with residual ${metrics.fitResidualN11!.toFixed(4)}`,
       metrics,
-      control: { ladderLowestN25: metrics.ladderLowestN25!, ladderLowestN49: metrics.ladderLowestN49! },
+      control: {
+        ladderLowestN25: metrics.ladderLowestN25!,
+        ladderLowestN49: metrics.ladderLowestN49!,
+      },
       notes:
         "L2. FIRST RUN 2026-09-26 (tmp/frc0237.log, 2.4 s), FAIL: X2 passes, X1 and X3 fail. No gate moved. X1: the restricted decay loses its quantum at 0.860 and 0.928 of the golden rule (0.0202, 0.00739 per beat at N = 25, 49; only N = 49 inside the 0.9 to 1.1 band), and ln P_e over one to four lifetimes deviates from a line by 0.102 and 0.069 against 0.02 (intercept Z 0.853, 0.918). The restriction's norm drifts by 0.150 and 0.067 (two-quanta weight up to 0.057, 0.038), so it does NOT hold the sector here either (E-FRC-0236). X2: the quantum returns only after 2,074 and 2,913 beats, beyond 4 / Gamma = 198 and 541. X3: beside the open ladder (gap 0.286 below its cutoff 0.403 at N = 25) P_e dips to 0.921 and 0.959, so N = 25 misses 0.95: the atom has no channel below the cutoff, and the dip is its dressing and dephasing by the ladder's field (a unital effect, the same one E-FRC-0236's R3 met), which the gate's derivation (4) left out. N = 11 (reported): 0.772 of the golden rule, residual 0.173, norm drift 0.338. DIAGNOSED AFTER THE RUN (tmp/qlit-probe6.ts, disclosed; the same construction at deeper columns, L = 512): rate / golden rule 0.860, 0.928, 0.959, 0.972, 0.981, 0.985 and fit residual 0.102, 0.069, 0.033, 0.025, 0.017, 0.013 at N = 25, 49, 81, 121, 169, 225, the norm at four lifetimes 0.882, 0.948, 0.974, 0.984, 0.990, 0.993, and the deficit falls about as 1 / N, as Gamma / (distance to the band ends) does: the decay converges on Wigner-Weisskopf's exponential at the golden-rule rate as the column deepens and the charge's coupling g = 4 pi c / M weakens (0.070 at N = 25 down to 0.0026 at N = 225). The residual passes 0.02 from N = 169. So clean exponential emission at the golden rule IS what the massless light gives, but only at columns deeper than the gate's N = 25 and 49, and only in the harmonic reading with a two-quantum sector that still leaks about 1 percent: neither the restriction nor these columns are checked against the exact rule (E-FRC-0236 failed at N <= 11).",
     })

@@ -39,27 +39,52 @@
 
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { LINE_FIRSTS, OPPOSITE } from '@/code/rule/isometric-knit'
-import { closure, type GroupTable } from '@/code/measure/color-isotropy-bound'
-import { coinMove, pairMove, type BounceKernel } from '@/code/measure/bounce-pair-kernel'
-import { cloneReduced, tritDifference, type KernelTally, type Reduced } from '@/code/measure/living-pair-kernel'
-import { boxMaps, huskForcing, pointGenerator, type CoinData } from '@/code/measure/varying-vacuum'
+import {
+  closure,
+  type GroupTable,
+} from '@/code/measure/color-isotropy-bound'
+import {
+  coinMove,
+  pairMove,
+  type BounceKernel,
+} from '@/code/measure/bounce-pair-kernel'
+import {
+  cloneReduced,
+  tritDifference,
+  type KernelTally,
+  type Reduced,
+} from '@/code/measure/living-pair-kernel'
+import {
+  boxMaps,
+  huskForcing,
+  pointGenerator,
+  type CoinData,
+} from '@/code/measure/varying-vacuum'
 
 const ROOTS = rootsD4()
-const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(f => OPPOSITE[f] ?? f)
-const dot = (a: readonly number[], b: readonly number[]): number => a.reduce((s, x, k) => s + x * (b[k] ?? 0), 0)
+const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(
+  f => OPPOSITE[f] ?? f,
+)
+const dot = (a: readonly number[], b: readonly number[]): number =>
+  a.reduce((s, x, k) => s + x * (b[k] ?? 0), 0)
 
 // the frame of each line: 0 for line 0's frame, then in order of the least line of each new frame
 export function lineFrames(): Int8Array {
   const frame = new Int8Array(12).fill(-1)
+
   let next = 0
 
   for (let l = 0; l < 12; l++) {
-    if (frame[l] !== -1) continue
+    if (frame[l] !== -1) {
+      continue
+    }
 
     frame[l] = next
 
     for (let m = 0; m < 12; m++) {
-      if (dot(ROOTS[LINE_FIRSTS[l] as number] as number[], ROOTS[LINE_FIRSTS[m] as number] as number[]) === 0) frame[m] = next
+      if (dot(ROOTS[LINE_FIRSTS[l]!]!, ROOTS[LINE_FIRSTS[m]!]!) === 0) {
+        frame[m] = next
+      }
     }
 
     next++
@@ -69,38 +94,65 @@ export function lineFrames(): Int8Array {
 }
 
 // the frames of a line set are three iff every line is orthogonal to exactly three others, each frame four lines
-export function framesCheck(): { frames: number; sizes: number[]; orthogonalEach: number[] } {
+export function framesCheck(): {
+  frames: number
+  sizes: number[]
+  orthogonalEach: number[]
+} {
   const frame = lineFrames()
   const sizes = [0, 0, 0]
 
-  for (let l = 0; l < 12; l++) sizes[frame[l] as number] = (sizes[frame[l] as number] ?? 0) + 1
+  for (let l = 0; l < 12; l++) {
+    sizes[frame[l]!] = (sizes[frame[l]!] ?? 0) + 1
+  }
 
-  const orthogonalEach = LINE_FIRSTS.map((f, l) => LINE_FIRSTS.filter((g, m) => m !== l && dot(ROOTS[f] as number[], ROOTS[g] as number[]) === 0).length)
+  const orthogonalEach = LINE_FIRSTS.map(
+    (f, l) =>
+      LINE_FIRSTS.filter(
+        (g, m) => m !== l && dot(ROOTS[f]!, ROOTS[g]!) === 0,
+      ).length,
+  )
 
-  return { frames: Math.max(...Array.from(frame)) + 1, sizes, orthogonalEach }
+  return {
+    frames: Math.max(...Array.from(frame)) + 1,
+    sizes,
+    orthogonalEach,
+  }
 }
 
 // the permutation of the three frames by a W(F4) element
 export function framePermutation(coins: CoinData, g: number): number[] {
   const frame = lineFrames()
-  const image = coins.lineImage[g] as Int8Array
+  const image = coins.lineImage[g]!
 
-  return [0, 1, 2].map(c => frame[image[frame.indexOf(c)] as number] as number)
+  return [0, 1, 2].map(c => frame[image[frame.indexOf(c)]!]!)
 }
 
 // sigma if the permutation is the cyclic shift c -> c + sigma, else -1 (a transposition)
 export function cyclicShift(permutation: readonly number[]): number {
-  const sigma = (((permutation[0] as number) - 0) % 3 + 3) % 3
+  const sigma = (((permutation[0]! - 0) % 3) + 3) % 3
 
   return permutation.every((p, c) => p === (c + sigma) % 3) ? sigma : -1
 }
 
 // one beat of the kernel in place into next, recording before each coin piece, per dock, how many lines hold vibes and
 // whether the occupation momentum is zero
-export type BeatWatch = { maxLines: number; momentumDocks: number; tally: KernelTally }
+export type BeatWatch = {
+  maxLines: number
+  momentumDocks: number
+  tally: KernelTally
+}
 
-export function watchedBeat(k: BounceKernel, s: Reduced, next: Reduced, t: number, watch: BeatWatch): void {
-  const pFirst = k.schedule === 'palindrome' || k.schedule === 'first' || t % 2 === 0
+export function watchedBeat(
+  k: BounceKernel,
+  s: Reduced,
+  next: Reduced,
+  t: number,
+  watch: BeatWatch,
+): void {
+  const pFirst =
+    k.schedule === 'palindrome' || k.schedule === 'first' || t % 2 === 0
+
   const look = (x: number): void => {
     let lines = 0
     let p0 = 0
@@ -109,28 +161,33 @@ export function watchedBeat(k: BounceKernel, s: Reduced, next: Reduced, t: numbe
     let p3 = 0
 
     for (let l = 0; l < 12; l++) {
-      const a = s.vibe[x * 24 + (LINE_FIRSTS[l] as number)] !== 0
-      const b = s.vibe[x * 24 + (LINE_SECONDS[l] as number)] !== 0
+      const a = s.vibe[x * 24 + LINE_FIRSTS[l]!] !== 0
+      const b = s.vibe[x * 24 + LINE_SECONDS[l]!] !== 0
 
-      if (a || b) lines++
+      if (a || b) {
+        lines++
+      }
 
       for (const [held, d] of [
-        [a, LINE_FIRSTS[l] as number],
-        [b, LINE_SECONDS[l] as number],
+        [a, LINE_FIRSTS[l]!],
+        [b, LINE_SECONDS[l]!],
       ] as [boolean, number][]) {
-        if (!held) continue
+        if (!held) {
+          continue
+        }
 
-        const r = ROOTS[d] as number[]
+        const r = ROOTS[d]!
 
-        p0 += r[0] as number
-        p1 += r[1] as number
-        p2 += r[2] as number
-        p3 += r[3] as number
+        p0 += r[0]!
+        p1 += r[1]!
+        p2 += r[2]!
+        p3 += r[3]!
       }
     }
 
     watch.maxLines = Math.max(watch.maxLines, lines)
-    watch.momentumDocks += p0 !== 0 || p1 !== 0 || p2 !== 0 || p3 !== 0 ? 1 : 0
+    watch.momentumDocks +=
+      p0 !== 0 || p1 !== 0 || p2 !== 0 || p3 !== 0 ? 1 : 0
   }
 
   for (let x = 0; x < k.cells; x++) {
@@ -148,14 +205,16 @@ export function watchedBeat(k: BounceKernel, s: Reduced, next: Reduced, t: numbe
   next.vibe.fill(0)
 
   for (let slot = 0; slot < s.vibe.length; slot++) {
-    const v = s.vibe[slot] as number
+    const v = s.vibe[slot]!
 
-    if (v === 0) continue
+    if (v === 0) {
+      continue
+    }
 
-    const to = k.target[slot] as number
+    const to = k.target[slot]!
 
     next.vibe[to] = v
-    next.point[to] = (k.move[slot] as Int8Array)[s.point[slot] as number] as number
+    next.point[to] = k.move[slot]![s.point[slot]!]!
   }
 
   next.store.set(s.store)
@@ -164,15 +223,38 @@ export function watchedBeat(k: BounceKernel, s: Reduced, next: Reduced, t: numbe
 
 // the history of a start under the kernel: the reduced state at the start of each beat 0 .. beats, and per beat what
 // the watch saw (made, unmade, vetoed; the most lines on one dock at a coin piece; the docks with nonzero momentum)
-export type History = { states: Reduced[]; made: number[]; unmade: number[]; vetoed: number[]; maxLines: number[]; momentumDocks: number[] }
+export type History = {
+  states: Reduced[]
+  made: number[]
+  unmade: number[]
+  vetoed: number[]
+  maxLines: number[]
+  momentumDocks: number[]
+}
 
-export function history(k: BounceKernel, start: Reduced, beats: number): History {
+export function history(
+  k: BounceKernel,
+  start: Reduced,
+  beats: number,
+): History {
   let a = cloneReduced(start)
   let b = cloneReduced(start)
-  const out: History = { states: [cloneReduced(start)], made: [], unmade: [], vetoed: [], maxLines: [], momentumDocks: [] }
+
+  const out: History = {
+    states: [cloneReduced(start)],
+    made: [],
+    unmade: [],
+    vetoed: [],
+    maxLines: [],
+    momentumDocks: [],
+  }
 
   for (let t = 0; t < beats; t++) {
-    const watch: BeatWatch = { maxLines: 0, momentumDocks: 0, tally: { made: 0, unmade: 0, vetoed: 0 } }
+    const watch: BeatWatch = {
+      maxLines: 0,
+      momentumDocks: 0,
+      tally: { made: 0, unmade: 0, vetoed: 0 },
+    }
 
     watchedBeat(k, a, b, t, watch)
     ;[a, b] = [b, a]
@@ -188,23 +270,26 @@ export function history(k: BounceKernel, start: Reduced, beats: number): History
 }
 
 // The staggered start: frame c's slots and stores from the unstaggered vacuum's state at beat shifts[c]
-export function staggeredStart(unstaggered: History, shifts: readonly number[]): Reduced {
+export function staggeredStart(
+  unstaggered: History,
+  shifts: readonly number[],
+): Reduced {
   const frame = lineFrames()
-  const base = unstaggered.states[0] as Reduced
+  const base = unstaggered.states[0]!
   const out = cloneReduced(base)
   const cells = base.store.length / 12
 
   for (let x = 0; x < cells; x++) {
     for (let l = 0; l < 12; l++) {
-      const from = unstaggered.states[shifts[frame[l] as number] as number] as Reduced
+      const from = unstaggered.states[shifts[frame[l]!]!]!
 
-      for (const d of [LINE_FIRSTS[l] as number, LINE_SECONDS[l] as number]) {
-        out.vibe[x * 24 + d] = from.vibe[x * 24 + d] as number
-        out.point[x * 24 + d] = from.point[x * 24 + d] as number
+      for (const d of [LINE_FIRSTS[l]!, LINE_SECONDS[l]!]) {
+        out.vibe[x * 24 + d] = from.vibe[x * 24 + d]!
+        out.point[x * 24 + d] = from.point[x * 24 + d]!
       }
 
-      out.store[x * 12 + l] = from.store[x * 12 + l] as number
-      out.spoint[x * 12 + l] = from.spoint[x * 12 + l] as number
+      out.store[x * 12 + l] = from.store[x * 12 + l]!
+      out.spoint[x * 12 + l] = from.spoint[x * 12 + l]!
     }
   }
 
@@ -212,13 +297,20 @@ export function staggeredStart(unstaggered: History, shifts: readonly number[]):
 }
 
 // the least period p (even, up to `most`) with states[t + p] = states[t] on vibes and stores for every t in range
-export function periodOf(states: readonly Reduced[], most: number): number {
+export function periodOf(
+  states: readonly Reduced[],
+  most: number,
+): number {
   for (let p = 1; p <= most; p++) {
     let ok = true
 
-    for (let t = 0; t + p < states.length && ok; t++) ok = tritDifference(states[t] as Reduced, states[t + p] as Reduced).trits === 0
+    for (let t = 0; t + p < states.length && ok; t++) {
+      ok = tritDifference(states[t]!, states[t + p]!).trits === 0
+    }
 
-    if (ok) return p
+    if (ok) {
+      return p
+    }
   }
 
   return 0
@@ -228,10 +320,22 @@ export function periodOf(states: readonly Reduced[], most: number): number {
 // image of V(t) (docks by g about the hub, slots by g, stores by g with the side sign) against V(t + shift) for the
 // shift 2 sigma(g) (sigma the cyclic frame shift) and, for a transposition, against every shift. Returned: the elements
 // that are space-time symmetries with the derived shift, those that are with some other shift, those with none
-export function spaceTimeCheck(input: { coins: CoinData; side: number; group: readonly number[]; states: readonly Reduced[]; period: number }): { derived: number; otherShift: number; none: number; transpositions: number } {
+export function spaceTimeCheck(input: {
+  coins: CoinData
+  side: number
+  group: readonly number[]
+  states: readonly Reduced[]
+  period: number
+}): {
+  derived: number
+  otherShift: number
+  none: number
+  transpositions: number
+} {
   const { coins, side, group, states, period } = input
   const box = boxMaps(coins, side)
   const cells = box.cells
+
   let derived = 0
   let otherShift = 0
   let none = 0
@@ -239,33 +343,61 @@ export function spaceTimeCheck(input: { coins: CoinData; side: number; group: re
 
   for (const g of group) {
     const gen = pointGenerator(coins, box, g, [0, 0, 0, 0], 1)
-    const perm = coins.table.permutations[g] as readonly number[]
+    const perm = coins.table.permutations[g]!
     const sigma = cyclicShift(framePermutation(coins, g))
+
     const image = (s: Reduced): Reduced => {
-      const out: Reduced = { vibe: new Int8Array(s.vibe.length), point: new Int8Array(s.point.length), store: new Int8Array(s.store.length), spoint: new Int8Array(s.spoint.length) }
+      const out: Reduced = {
+        vibe: new Int8Array(s.vibe.length),
+        point: new Int8Array(s.point.length),
+        store: new Int8Array(s.store.length),
+        spoint: new Int8Array(s.spoint.length),
+      }
 
       for (let x = 0; x < cells; x++) {
-        const y = gen.map[x] as number
+        const y = gen.map[x]!
 
-        for (let d = 0; d < 24; d++) out.vibe[y * 24 + (perm[d] as number)] = s.vibe[x * 24 + d] as number
-        for (let l = 0; l < 12; l++) out.store[y * 12 + (gen.lineImage[l] as number)] = (s.store[x * 12 + l] as number) * (gen.lineSign[l] as number)
+        for (let d = 0; d < 24; d++) {
+          out.vibe[y * 24 + perm[d]!] = s.vibe[x * 24 + d]!
+        }
+
+        for (let l = 0; l < 12; l++) {
+          out.store[y * 12 + gen.lineImage[l]!] =
+            s.store[x * 12 + l]! * gen.lineSign[l]!
+        }
       }
 
       return out
     }
+
     const holdsWith = (shift: number): boolean => {
       for (let t = 0; t < period; t++) {
-        if (tritDifference(image(states[t] as Reduced), states[(t + shift) % period] as Reduced).trits !== 0) return false
+        if (
+          tritDifference(
+            image(states[t]!),
+            states[(t + shift) % period]!,
+          ).trits !== 0
+        ) {
+          return false
+        }
       }
 
       return true
     }
 
-    if (sigma < 0) transpositions++
+    if (sigma < 0) {
+      transpositions++
+    }
 
-    if (sigma >= 0 && holdsWith((2 * sigma) % period)) derived++
-    else if (Array.from({ length: period }, (_, s) => s).some(holdsWith)) otherShift++
-    else none++
+    if (sigma >= 0 && holdsWith((2 * sigma) % period)) {
+      derived++
+    } else if (
+      Array.from({ length: period }, (_, s) => s).some(holdsWith)
+    ) {
+      otherShift++
+    } else {
+      none++
+    }
   }
 
   return { derived, otherShift, none, transpositions }
@@ -274,16 +406,25 @@ export function spaceTimeCheck(input: { coins: CoinData; side: number; group: re
 // ---- the bound over forcing groups ----
 
 // the orbits of a group (element indices) on the twelve lines
-export function lineOrbits(coins: CoinData, group: readonly number[]): number[][] {
+export function lineOrbits(
+  coins: CoinData,
+  group: readonly number[],
+): number[][] {
   const seen = new Int8Array(12)
   const out: number[][] = []
 
   for (let l = 0; l < 12; l++) {
-    if (seen[l]) continue
+    if (seen[l]) {
+      continue
+    }
 
-    const orbit = [...new Set(group.map(g => coins.lineImage[g]?.[l] as number))].sort((a, b) => a - b)
+    const orbit = [
+      ...new Set(group.map(g => coins.lineImage[g]![l]!)),
+    ].sort((a, b) => a - b)
 
-    for (const m of orbit) seen[m] = 1
+    for (const m of orbit) {
+      seen[m] = 1
+    }
 
     out.push(orbit)
   }
@@ -294,44 +435,72 @@ export function lineOrbits(coins: CoinData, group: readonly number[]): number[][
 // the normal closure in `group` (generated by `generators`) of the commutators and the root stabilizers: the subgroup
 // every phase homomorphism must kill. For G generated by S, [G, G] is the normal closure of the commutators of pairs
 // of elements of S
-export function phaseKernel(table: GroupTable, group: readonly number[], generators: readonly number[]): number[] {
+export function phaseKernel(
+  table: GroupTable,
+  group: readonly number[],
+  generators: readonly number[],
+): number[] {
   const n = table.permutations.length
   const inGroup = new Set(group)
-  const mul = (a: number, b: number): number => table.multiply[a * n + b] as number
-  const inv = (a: number): number => table.inverse[a] as number
+  const mul = (a: number, b: number): number =>
+    table.multiply[a * n + b]!
+  const inv = (a: number): number => table.inverse[a]!
   const gens = new Set<number>()
   const members = [...group]
 
-  for (const a of generators) for (const b of generators) gens.add(mul(mul(a, b), mul(inv(a), inv(b))))
+  for (const a of generators) {
+    for (const b of generators) {
+      gens.add(mul(mul(a, b), mul(inv(a), inv(b))))
+    }
+  }
 
   // the root stabilizers
   for (const g of members) {
-    const p = table.permutations[g] as readonly number[]
+    const p = table.permutations[g]!
 
-    if (p.some((image, d) => image === d)) gens.add(g)
+    if (p.some((image, d) => image === d)) {
+      gens.add(g)
+    }
   }
 
   // normal closure: conjugates of the generators by every element, then the closure
   const conj = new Set<number>()
 
-  for (const x of gens) for (const g of members) conj.add(mul(mul(g, x), inv(g)))
+  for (const x of gens) {
+    for (const g of members) {
+      conj.add(mul(mul(g, x), inv(g)))
+    }
+  }
 
   const kernel = closure(table, [...conj])
 
-  if (!kernel.every(x => inGroup.has(x))) throw new Error('phase kernel left the group')
+  if (!kernel.every(x => inGroup.has(x))) {
+    throw new Error('phase kernel left the group')
+  }
 
   return kernel
 }
 
-export type ShareCensus = { pairs: number; subgroups: number; below: number; belowForcing: number; shares: Record<string, number> }
+export type ShareCensus = {
+  pairs: number
+  subgroups: number
+  below: number
+  belowForcing: number
+  shares: Record<string, number>
+}
 
 // Over every subgroup generated by two elements of W(F4) (each once): the count of subgroups by the smallest line orbit
 // of their phase kernel, and, among those whose smallest orbit is below `below`, how many force the husk scalars
 // through k^4 (the bound `below` holds for two-generated forcing groups exactly when that count is 0)
-export function lineShareCensus(table: GroupTable, coins: CoinData, below: number): ShareCensus {
+export function lineShareCensus(
+  table: GroupTable,
+  coins: CoinData,
+  below: number,
+): ShareCensus {
   const n = table.permutations.length
   const seen = new Set<string>()
   const shares: Record<string, number> = {}
+
   let subgroups = 0
   let belowCount = 0
   let belowForcing = 0
@@ -344,17 +513,23 @@ export function lineShareCensus(table: GroupTable, coins: CoinData, below: numbe
       const group = closure(table, [a, b])
       const key = group.join(',')
 
-      if (seen.has(key)) continue
+      if (seen.has(key)) {
+        continue
+      }
 
       seen.add(key)
       subgroups++
 
       const kernel = phaseKernel(table, group, [a, b])
-      const share = Math.min(...lineOrbits(coins, kernel).map(o => o.length))
+      const share = Math.min(
+        ...lineOrbits(coins, kernel).map(o => o.length),
+      )
 
       shares[String(share)] = (shares[String(share)] ?? 0) + 1
 
-      if (share >= below) continue
+      if (share >= below) {
+        continue
+      }
 
       belowCount++
       belowForcing += huskForcing(coins, group).husk4 ? 1 : 0

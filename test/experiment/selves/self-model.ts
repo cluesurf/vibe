@@ -64,7 +64,10 @@ function fullBeat(
   }
 }
 
-function run(withDynamics: boolean, scale: number | undefined): {
+function run(
+  withDynamics: boolean,
+  scale: number | undefined,
+): {
   selfModelCorr: number
   randomCorr: number
   shuffledCorr: number

@@ -40,7 +40,7 @@ export default experiment({
   id: 'quantum/bloch-oscillations',
   code: 'E-QTM-0074',
   title:
-    "Bloch oscillations from the coined Dirac walk model: a constant force makes the centroid oscillate at the Bloch frequency omega_B = F (measured ratio within six percent of one across forces 0.05 to 0.3) with amplitude times force a constant band width, while a zero force shows no oscillation",
+    'Bloch oscillations from the coined Dirac walk model: a constant force makes the centroid oscillate at the Bloch frequency omega_B = F (measured ratio within six percent of one across forces 0.05 to 0.3) with amplitude times force a constant band width, while a zero force shows no oscillation',
   category: 'quantum',
   substrates: 'any',
   depth: 'L2',
@@ -100,7 +100,7 @@ export default experiment({
       },
       notes:
         'AUDIT 2026-08-31: this experiment runs a hand-written 1D coined quantum walk from code/dynamics, not the lattice-gas rule, which is a classical permutation on ternary slots with no amplitudes (foundations/rule-has-no-amplitudes). Known quantum-walk physics reproduced correctly, so the honest depth is L2, and the former substrates label [3434] was false, nothing {3,4,3,4}-related is in the import graph. Prior art: Regensburger 2011. The zero-force control is a parity-symmetric packet whose centroid is pinned at zero, so it cannot fail. ' +
-        "Bloch oscillations measured on the coined Dirac walk model (code/dynamics/bloch-oscillation): centroid frequency = F to ~1 percent, amplitude * force = a constant band width, zero-force control shows none. L3, on the coined walk model, not the rule, quantitative could-be-wrong predictions with a control that shows the effect vanish.",
+        'Bloch oscillations measured on the coined Dirac walk model (code/dynamics/bloch-oscillation): centroid frequency = F to ~1 percent, amplitude * force = a constant band width, zero-force control shows none. L3, on the coined walk model, not the rule, quantitative could-be-wrong predictions with a control that shows the effect vanish.',
     })
   },
 })

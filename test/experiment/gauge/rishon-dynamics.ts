@@ -48,11 +48,33 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { DifferenceOverflow, makeDifferenceEngine, ROOT_STEPS } from '@/code/compute/difference-engine'
-import { ColdOverflow, makeColdDifferenceEngine } from '@/code/compute/cold-difference-engine'
-import { boxRun, knitForward, type KnitName } from '@/code/compute/knit-reference'
-import { a2Planes, coldSpec, KIND_ORDER, TRIPLES, tripleDock } from '@/code/measure/rishon-triples'
-import { coldBeat, makeColdWeave, type ColdState, type ColdWeave } from '@/code/rule/cold-weave'
+import {
+  DifferenceOverflow,
+  makeDifferenceEngine,
+  ROOT_STEPS,
+} from '@/code/compute/difference-engine'
+import {
+  ColdOverflow,
+  makeColdDifferenceEngine,
+} from '@/code/compute/cold-difference-engine'
+import {
+  boxRun,
+  knitForward,
+  type KnitName,
+} from '@/code/compute/knit-reference'
+import {
+  a2Planes,
+  coldSpec,
+  KIND_ORDER,
+  TRIPLES,
+  tripleDock,
+} from '@/code/measure/rishon-triples'
+import {
+  coldBeat,
+  makeColdWeave,
+  type ColdState,
+  type ColdWeave,
+} from '@/code/rule/cold-weave'
 import { d4BoxCell, d4BoxMesh, d4Vector } from '@/code/substrate/d4-box'
 
 const PERIOD = 24
@@ -73,7 +95,13 @@ type Runner = {
 }
 
 type Outcome = {
-  readonly cls: 'particle' | 'split' | 'bound' | 'dressing' | 'gone' | 'vacuum'
+  readonly cls:
+    | 'particle'
+    | 'split'
+    | 'bound'
+    | 'dressing'
+    | 'gone'
+    | 'vacuum'
   readonly speed: number
   readonly recurEvery: number
   readonly docks: number[]
@@ -84,13 +112,24 @@ type Outcome = {
 
 let COLD_WEAVE: ColdWeave | undefined
 
-const coldWeave = (): ColdWeave => (COLD_WEAVE ??= makeColdWeave({ mesh: d4BoxMesh({ side: 3 }), spec: coldSpec() }))
+const coldWeave = (): ColdWeave =>
+  (COLD_WEAVE ??= makeColdWeave({
+    mesh: d4BoxMesh({ side: 3 }),
+    spec: coldSpec(),
+  }))
 
 function runner(knit: Knit, state: Int8Array): Runner {
   if (knit === 'cold') {
-    const engine = makeColdDifferenceEngine({ weave: coldWeave(), maxDocks: CAP })
+    const engine = makeColdDifferenceEngine({
+      weave: coldWeave(),
+      maxDocks: CAP,
+    })
 
-    engine.set([0, 0, 0, 0], { vibe: state, store: new Int32Array(24), demon: new Int32Array(12) })
+    engine.set([0, 0, 0, 0], {
+      vibe: state,
+      store: new Int32Array(24),
+      demon: new Int32Array(12),
+    })
 
     return {
       step: engine.step,
@@ -107,7 +146,10 @@ function runner(knit: Knit, state: Int8Array): Runner {
     }
   }
 
-  const engine = makeDifferenceEngine({ forward: knitForward(knit), maxDocks: CAP })
+  const engine = makeDifferenceEngine({
+    forward: knitForward(knit),
+    maxDocks: CAP,
+  })
 
   engine.set([0, 0, 0, 0], state)
 
@@ -130,6 +172,7 @@ function runner(knit: Knit, state: Int8Array): Runner {
 function pieces(coords: number[][]): number {
   const key = (c: readonly number[]): string => c.join(',')
   const left = new Set(coords.map(key))
+
   let count = 0
 
   for (const c of coords) {
@@ -163,6 +206,7 @@ function follow(knit: Knit, state: Int8Array): Outcome {
   const r = runner(knit, state)
   const seen = new Map<string, { beat: number; anchor: number[] }>()
   const docks: number[] = []
+
   // slots, not docks: an engine stores a seeded dock even when it equals the vacuum
   let everDiffered = r.support().slots > 0
 
@@ -178,10 +222,20 @@ function follow(knit: Knit, state: Int8Array): Outcome {
 
     if (before) {
       const beats = r.beat() - before.beat
-      const shift = sig.anchor.map((x, k) => x - (before.anchor[k] ?? 0))
+      const shift = sig.anchor.map(
+        (x, k) => x - (before.anchor[k] ?? 0),
+      )
       const speed = Math.hypot(...d4Vector(shift)) / beats / Math.SQRT2
 
-      return { cls: 'particle', speed: Number(speed.toFixed(6)), recurEvery: beats, docks, slots: s.slots, pieces: pieces(r.coords()), everDiffered }
+      return {
+        cls: 'particle',
+        speed: Number(speed.toFixed(6)),
+        recurEvery: beats,
+        docks,
+        slots: s.slots,
+        pieces: pieces(r.coords()),
+        everDiffered,
+      }
     }
 
     seen.set(sig.key, { beat: r.beat(), anchor: sig.anchor })
@@ -211,21 +265,48 @@ function follow(knit: Knit, state: Int8Array): Outcome {
       }
     }
   } catch (error) {
-    if (!(error instanceof DifferenceOverflow) && !(error instanceof ColdOverflow)) {
+    if (
+      !(error instanceof DifferenceOverflow) &&
+      !(error instanceof ColdOverflow)
+    ) {
       throw error
     }
 
-    return { cls: 'dressing', speed: -1, recurEvery: -1, docks, slots: -1, pieces: -1, everDiffered: true }
+    return {
+      cls: 'dressing',
+      speed: -1,
+      recurEvery: -1,
+      docks,
+      slots: -1,
+      pieces: -1,
+      everDiffered: true,
+    }
   }
 
   const s = r.support()
 
   if (!everDiffered) {
-    return { cls: 'vacuum', speed: -1, recurEvery: -1, docks, slots: 0, pieces: 0, everDiffered }
+    return {
+      cls: 'vacuum',
+      speed: -1,
+      recurEvery: -1,
+      docks,
+      slots: 0,
+      pieces: 0,
+      everDiffered,
+    }
   }
 
   if (s.docks === 0) {
-    return { cls: 'gone', speed: -1, recurEvery: -1, docks, slots: 0, pieces: 0, everDiffered }
+    return {
+      cls: 'gone',
+      speed: -1,
+      recurEvery: -1,
+      docks,
+      slots: 0,
+      pieces: 0,
+      everDiffered,
+    }
   }
 
   const last = docks[PERIODS - 1] ?? 0
@@ -233,13 +314,30 @@ function follow(knit: Knit, state: Int8Array): Outcome {
   const count = pieces(r.coords())
 
   if (last > 16 && last > 1.5 * middle) {
-    return { cls: 'dressing', speed: -1, recurEvery: -1, docks, slots: s.slots, pieces: count, everDiffered }
+    return {
+      cls: 'dressing',
+      speed: -1,
+      recurEvery: -1,
+      docks,
+      slots: s.slots,
+      pieces: count,
+      everDiffered,
+    }
   }
 
-  return { cls: count >= 2 ? 'split' : 'bound', speed: -1, recurEvery: -1, docks, slots: s.slots, pieces: count, everDiffered }
+  return {
+    cls: count >= 2 ? 'split' : 'bound',
+    speed: -1,
+    recurEvery: -1,
+    docks,
+    slots: s.slots,
+    pieces: count,
+    everDiffered,
+  }
 }
 
-const outcomeKey = (o: Outcome): string => `${o.cls}|${o.speed}|${o.docks.join(',')}`
+const outcomeKey = (o: Outcome): string =>
+  `${o.cls}|${o.speed}|${o.docks.join(',')}`
 
 // I1: the cold engine against coldBeat on a box
 function coldExactness(seeds: Int8Array[]): number {
@@ -248,16 +346,28 @@ function coldExactness(seeds: Int8Array[]): number {
   const weave = makeColdWeave({ mesh, spec: coldSpec() })
   const center = [3, 3, 3, 3]
   const cell = d4BoxCell({ coordinates: center, side })
+
   let mismatches = 0
 
   for (const seed of seeds) {
-    let dense: ColdState = { vibe: new Int8Array(mesh.cellCount * 24), store: new Int32Array(mesh.cellCount * 24), demon: new Int32Array(mesh.cellCount * 12) }
+    let dense: ColdState = {
+      vibe: new Int8Array(mesh.cellCount * 24),
+      store: new Int32Array(mesh.cellCount * 24),
+      demon: new Int32Array(mesh.cellCount * 12),
+    }
 
     dense.vibe.set(seed, cell * 24)
 
-    const engine = makeColdDifferenceEngine({ weave: coldWeave(), side })
+    const engine = makeColdDifferenceEngine({
+      weave: coldWeave(),
+      side,
+    })
 
-    engine.set(center, { vibe: seed, store: new Int32Array(24), demon: new Int32Array(12) })
+    engine.set(center, {
+      vibe: seed,
+      store: new Int32Array(24),
+      demon: new Int32Array(12),
+    })
 
     for (let t = 0; t < 48; t++) {
       dense = coldBeat(weave, dense, t)
@@ -276,7 +386,10 @@ function coldExactness(seeds: Int8Array[]): number {
       })
 
       for (let i = 0; i < vibe.length; i++) {
-        mismatches += vibe[i] === dense.vibe[i] && store[i] === dense.store[i] ? 0 : 1
+        mismatches +=
+          vibe[i] === dense.vibe[i] && store[i] === dense.store[i]
+            ? 0
+            : 1
       }
 
       for (let i = 0; i < demon.length; i++) {
@@ -291,11 +404,20 @@ function coldExactness(seeds: Int8Array[]): number {
 // I2: the difference engine in box mode against the dense lattice gas
 function boxExactness(knit: KnitName, seeds: Int8Array[]): number {
   const side = 5
+
   let mismatches = 0
 
   for (const seed of seeds) {
     const forward = knitForward(knit)
-    const dense = boxRun({ forward, side, seed: { name: 'triple', docks: [{ coords: [0, 0, 0, 0], state: seed }] }, center: [0, 0, 0, 0] })
+    const dense = boxRun({
+      forward,
+      side,
+      seed: {
+        name: 'triple',
+        docks: [{ coords: [0, 0, 0, 0], state: seed }],
+      },
+      center: [0, 0, 0, 0],
+    })
     const engine = makeDifferenceEngine({ forward, side })
 
     engine.set([0, 0, 0, 0], seed)
@@ -311,7 +433,9 @@ function boxExactness(knit: KnitName, seeds: Int8Array[]): number {
         out[i] = vac[i % 24] ?? 0
       }
 
-      engine.forEach((c, s) => out.set(s, d4BoxCell({ coordinates: c, side }) * 24))
+      engine.forEach((c, s) =>
+        out.set(s, d4BoxCell({ coordinates: c, side }) * 24),
+      )
 
       const data = dense.data()
 
@@ -324,8 +448,14 @@ function boxExactness(knit: KnitName, seeds: Int8Array[]): number {
   return mismatches
 }
 
-const COLORED = ['love-love-calm', 'love-calm-calm', 'calm-calm-fear', 'calm-fear-fear']
-const camel = (kind: string): string => kind.replace(/-(\w)/g, (_, c: string) => c.toUpperCase())
+const COLORED = [
+  'love-love-calm',
+  'love-calm-calm',
+  'calm-calm-fear',
+  'calm-fear-fear',
+]
+const camel = (kind: string): string =>
+  kind.replace(/-(\w)/g, (_, c: string) => c.toUpperCase())
 
 export default experiment({
   id: 'gauge/rishon-dynamics',
@@ -342,31 +472,74 @@ export default experiment({
     const plane0 = planes[0]!
 
     // instruments
-    const i1 = coldExactness([...TRIPLES.map(t => tripleDock(plane0.triangle, t.vibes)), ...TRIPLES.map(t => tripleDock(plane0.triplets[0]!, t.vibes))])
-    const i2 = Object.fromEntries((['committed', 'combined'] as KnitName[]).map(k => [k, boxExactness(k, TRIPLES.map(t => tripleDock(plane0.triangle, t.vibes)))]))
+    const i1 = coldExactness([
+      ...TRIPLES.map(t => tripleDock(plane0.triangle, t.vibes)),
+      ...TRIPLES.map(t => tripleDock(plane0.triplets[0]!, t.vibes)),
+    ])
+    const i2 = Object.fromEntries(
+      (['committed', 'combined'] as KnitName[]).map(k => [
+        k,
+        boxExactness(
+          k,
+          TRIPLES.map(t => tripleDock(plane0.triangle, t.vibes)),
+        ),
+      ]),
+    )
 
     // the triangle runs
-    type Row = { knit: Knit; triangle: number; triple: number; outcome: Outcome }
+    type Row = {
+      knit: Knit
+      triangle: number
+      triple: number
+      outcome: Outcome
+    }
+
     const rows: Row[] = []
 
     for (const knit of KNITS) {
       triangles.forEach((t, ti) => {
         TRIPLES.forEach((x, xi) => {
-          rows.push({ knit, triangle: ti, triple: xi, outcome: follow(knit, tripleDock(t, x.vibes)) })
+          rows.push({
+            knit,
+            triangle: ti,
+            triple: xi,
+            outcome: follow(knit, tripleDock(t, x.vibes)),
+          })
         })
       })
     }
 
     // the copy runs: unmixed, non-empty triples on every copy
-    type CopyRow = { knit: Knit; plane: number; copy: number; triplet: boolean; triple: number; outcome: Outcome }
+    type CopyRow = {
+      knit: Knit
+      plane: number
+      copy: number
+      triplet: boolean
+      triple: number
+      outcome: Outcome
+    }
+
     const copyRows: CopyRow[] = []
-    const unmixed = TRIPLES.map((x, i) => ({ x, i })).filter(({ x }) => (x.loves === 0 || x.fears === 0) && x.kind !== 'calm-calm-calm')
+    const unmixed = TRIPLES.map((x, i) => ({ x, i })).filter(
+      ({ x }) =>
+        (x.loves === 0 || x.fears === 0) && x.kind !== 'calm-calm-calm',
+    )
 
     for (const knit of KNITS) {
       planes.forEach((p, pi) => {
-        ;[...p.triplets.map(c => ({ c, triplet: true })), ...p.antitriplets.map(c => ({ c, triplet: false }))].forEach(({ c, triplet }, ci) => {
+        ;[
+          ...p.triplets.map(c => ({ c, triplet: true })),
+          ...p.antitriplets.map(c => ({ c, triplet: false })),
+        ].forEach(({ c, triplet }, ci) => {
           for (const { x, i } of unmixed) {
-            copyRows.push({ knit, plane: pi, copy: ci % 3, triplet, triple: i, outcome: follow(knit, tripleDock(c, x.vibes)) })
+            copyRows.push({
+              knit,
+              plane: pi,
+              copy: ci % 3,
+              triplet,
+              triple: i,
+              outcome: follow(knit, tripleDock(c, x.vibes)),
+            })
           }
         })
       })
@@ -389,8 +562,15 @@ export default experiment({
 
       for (const kind of KIND_ORDER) {
         const list = mine.filter(r => TRIPLES[r.triple]?.kind === kind)
-        const count = (cls: string): number => list.filter(r => r.outcome.cls === cls).length
-        const speeds = [...new Set(list.filter(r => r.outcome.cls === 'particle').map(r => r.outcome.speed))].sort((a, b) => a - b)
+        const count = (cls: string): number =>
+          list.filter(r => r.outcome.cls === cls).length
+        const speeds = [
+          ...new Set(
+            list
+              .filter(r => r.outcome.cls === 'particle')
+              .map(r => r.outcome.speed),
+          ),
+        ].sort((a, b) => a - b)
         const name = `${knit}_${camel(kind)}`
 
         metrics[`${name}_particle`] = count('particle')
@@ -402,19 +582,38 @@ export default experiment({
         metrics[`${name}_runs`] = list.length
 
         if (speeds.length > 0) {
-          const particles = list.filter(r => r.outcome.cls === 'particle')
+          const particles = list.filter(
+            r => r.outcome.cls === 'particle',
+          )
 
           metrics[`${name}_speedMin`] = speeds[0] ?? -1
           metrics[`${name}_speedMax`] = speeds[speeds.length - 1] ?? -1
-          metrics[`${name}_lightParticles`] = particles.filter(r => Math.abs(r.outcome.speed - 1) < 1e-9).length
-          metrics[`${name}_particleSlotsMax`] = Math.max(...particles.map(r => r.outcome.slots))
-          metrics[`${name}_particleSlotsMin`] = Math.min(...particles.map(r => r.outcome.slots))
-          metrics[`${name}_particleRecurEveryMax`] = Math.max(...particles.map(r => r.outcome.recurEvery))
+          metrics[`${name}_lightParticles`] = particles.filter(
+            r => Math.abs(r.outcome.speed - 1) < 1e-9,
+          ).length
+
+          metrics[`${name}_particleSlotsMax`] = Math.max(
+            ...particles.map(r => r.outcome.slots),
+          )
+
+          metrics[`${name}_particleSlotsMin`] = Math.min(
+            ...particles.map(r => r.outcome.slots),
+          )
+
+          metrics[`${name}_particleRecurEveryMax`] = Math.max(
+            ...particles.map(r => r.outcome.recurEvery),
+          )
         }
 
-        metrics[`${name}_splitPiecesMax`] = Math.max(0, ...list.filter(r => r.outcome.cls === 'split').map(r => r.outcome.pieces))
+        metrics[`${name}_splitPiecesMax`] = Math.max(
+          0,
+          ...list
+            .filter(r => r.outcome.cls === 'split')
+            .map(r => r.outcome.pieces),
+        )
 
-        const outcomes = new Set(list.map(r => outcomeKey(r.outcome))).size
+        const outcomes = new Set(list.map(r => outcomeKey(r.outcome)))
+          .size
 
         control[`${name}_distinctOutcomes`] = outcomes
         table.push(
@@ -432,7 +631,14 @@ export default experiment({
 
       for (let ti = 0; ti < triangles.length; ti++) {
         for (const kind of COLORED) {
-          const keys = new Set(mine.filter(r => r.triangle === ti && TRIPLES[r.triple]?.kind === kind).map(r => outcomeKey(r.outcome)))
+          const keys = new Set(
+            mine
+              .filter(
+                r =>
+                  r.triangle === ti && TRIPLES[r.triple]?.kind === kind,
+              )
+              .map(r => outcomeKey(r.outcome)),
+          )
 
           cases += 1
           alike += keys.size === 1 ? 1 : 0
@@ -444,6 +650,7 @@ export default experiment({
 
       // generation: per plane, triple and chirality, are the three copies' outcomes one?
       const copies = copyRows.filter(r => r.knit === knit)
+
       let genAlike = 0
       let genAllDifferent = 0
       let genCases = 0
@@ -451,7 +658,16 @@ export default experiment({
       for (let pi = 0; pi < planes.length; pi++) {
         for (const { i } of unmixed) {
           for (const triplet of [true, false]) {
-            const keys = new Set(copies.filter(r => r.plane === pi && r.triple === i && r.triplet === triplet).map(r => outcomeKey(r.outcome)))
+            const keys = new Set(
+              copies
+                .filter(
+                  r =>
+                    r.plane === pi &&
+                    r.triple === i &&
+                    r.triplet === triplet,
+                )
+                .map(r => outcomeKey(r.outcome)),
+            )
 
             genCases += 1
             genAlike += keys.size === 1 ? 1 : 0
@@ -464,17 +680,32 @@ export default experiment({
       metrics[`${knit}_generationAllSplitCases`] = genAllDifferent
       metrics[`${knit}_generationCases`] = genCases
 
-      for (const kind of KIND_ORDER.filter(k => !k.includes('love') || !k.includes('fear'))) {
-        const list = copies.filter(r => TRIPLES[r.triple]?.kind === kind)
+      for (const kind of KIND_ORDER.filter(
+        k => !k.includes('love') || !k.includes('fear'),
+      )) {
+        const list = copies.filter(
+          r => TRIPLES[r.triple]?.kind === kind,
+        )
 
-        if (list.length === 0) continue
+        if (list.length === 0) {
+          continue
+        }
 
-        const count = (cls: string): number => list.filter(r => r.outcome.cls === cls).length
-        const speeds = [...new Set(list.filter(r => r.outcome.cls === 'particle').map(r => r.outcome.speed))].sort((a, b) => a - b)
+        const count = (cls: string): number =>
+          list.filter(r => r.outcome.cls === cls).length
+        const speeds = [
+          ...new Set(
+            list
+              .filter(r => r.outcome.cls === 'particle')
+              .map(r => r.outcome.speed),
+          ),
+        ].sort((a, b) => a - b)
 
-        control[`${knit}_copy_${camel(kind)}_particle`] = count('particle')
+        control[`${knit}_copy_${camel(kind)}_particle`] =
+          count('particle')
         control[`${knit}_copy_${camel(kind)}_split`] = count('split')
-        control[`${knit}_copy_${camel(kind)}_dressing`] = count('dressing')
+        control[`${knit}_copy_${camel(kind)}_dressing`] =
+          count('dressing')
         control[`${knit}_copy_${camel(kind)}_runs`] = list.length
         table.push(
           `${knit} on copies ${kind}: particle ${count('particle')}, split ${count('split')}, bound ${count('bound')}, dressing ${count('dressing')} of ${list.length}${speeds.length ? `, speeds ${speeds.join('/')}` : ''}`,
@@ -485,25 +716,37 @@ export default experiment({
     // physics gates, knit by knit
     const gates = KNITS.map(knit => {
       const mine = rows.filter(r => r.knit === knit)
-      const of = (kind: string) => mine.filter(r => TRIPLES[r.triple]?.kind === kind)
+      const of = (kind: string) =>
+        mine.filter(r => TRIPLES[r.triple]?.kind === kind)
       const fff = of('fear-fear-fear')
       const p1 = fff.every(r => r.outcome.cls === 'particle')
-      const p2 = p1 && fff.every(r => Math.abs(r.outcome.speed - 1) < 1e-9)
-      const p3 = COLORED.every(k => of(k).every(r => r.outcome.cls === 'particle'))
-      const p4 = (metrics[`${knit}_colorDegenerateCases`] ?? 0) === (metrics[`${knit}_colorCases`] ?? -1)
+      const p2 =
+        p1 && fff.every(r => Math.abs(r.outcome.speed - 1) < 1e-9)
+      const p3 = COLORED.every(k =>
+        of(k).every(r => r.outcome.cls === 'particle'),
+      )
+      const p4 =
+        (metrics[`${knit}_colorDegenerateCases`] ?? 0) ===
+        (metrics[`${knit}_colorCases`] ?? -1)
 
       return { knit, p1, p2, p3, p4 }
     })
 
     gates.forEach(g => {
-      metrics[`${g.knit}_P1_fearFearFearParticleEverywhere`] = g.p1 ? 1 : 0
+      metrics[`${g.knit}_P1_fearFearFearParticleEverywhere`] = g.p1
+        ? 1
+        : 0
       metrics[`${g.knit}_P2_fearFearFearLight`] = g.p2 ? 1 : 0
       metrics[`${g.knit}_P3_coloredParticlesEverywhere`] = g.p3 ? 1 : 0
       metrics[`${g.knit}_P4_colorsDegenerate`] = g.p4 ? 1 : 0
     })
 
     const physics = gates.some(g => g.p1 && g.p2 && g.p3 && g.p4)
-    const instruments = i1 === 0 && (i2.committed ?? 1) === 0 && (i2.combined ?? 1) === 0 && i3
+    const instruments =
+      i1 === 0 &&
+      (i2.committed ?? 1) === 0 &&
+      (i2.combined ?? 1) === 0 &&
+      i3
     const ok = instruments && physics
 
     metrics.i3CalmCalmCalmIsVacuum = i3 ? 1 : 0

@@ -26,14 +26,23 @@ import { type BoundState } from '@/code/rule/bound-line-pieces'
 import { sameConfiguration } from '@/code/rule/doublet-locked-knit'
 
 type C = [number, number]
-const cm = (x: C, y: C): C => [x[0] * y[0] - x[1] * y[1], x[0] * y[1] + x[1] * y[0]]
+
+const cm = (x: C, y: C): C => [
+  x[0] * y[0] - x[1] * y[1],
+  x[0] * y[1] + x[1] * y[0],
+]
 
 // the fine lone love's band at K: the band through 0 (upper false) or the other; its energy, dE/dK and eigenvector
-export function fineBand(n: number, K: number, upper = false): { energy: number; slope: number; vector: C[] } {
+export function fineBand(
+  n: number,
+  K: number,
+  upper = false,
+): { energy: number; slope: number; vector: C[] } {
   const m = Math.PI / (3 * n)
   const eps = Math.acos(Math.cos(K) * Math.cos(m))
   const energy = upper ? -m - eps : eps - m
-  const slope = ((upper ? -1 : 1) * Math.sin(K) * Math.cos(m)) / Math.sin(eps)
+  const slope =
+    ((upper ? -1 : 1) * Math.sin(K) * Math.cos(m)) / Math.sin(eps)
   const z: C = [Math.cos(2 * m), Math.sin(2 * m)]
   const k0: C = [(1 + z[0]) / 2, z[1] / 2]
   const c0: C = [(1 - z[0]) / 2, -z[1] / 2]
@@ -43,7 +52,9 @@ export function fineBand(n: number, K: number, upper = false): { energy: number;
   const a0 = cm(eK, c0)
   const ek = cm(eK, k0)
   const a1: C = [lambda[0] - ek[0], lambda[1] - ek[1]]
-  const norm = Math.sqrt(a0[0] ** 2 + a0[1] ** 2 + a1[0] ** 2 + a1[1] ** 2)
+  const norm = Math.sqrt(
+    a0[0] ** 2 + a0[1] ** 2 + a1[0] ** 2 + a1[1] ** 2,
+  )
 
   return {
     energy,
@@ -56,7 +67,13 @@ export function fineBand(n: number, K: number, upper = false): { energy: number;
 }
 
 // the fine lone love's Bloch state on a gauge's cover (no cost: the cut trit is 0 and stays 0)
-export function fineLoneEntries(gauge: LineGauge, n: number, K: number, P: number, upper = false): Entry[] {
+export function fineLoneEntries(
+  gauge: LineGauge,
+  n: number,
+  K: number,
+  P: number,
+  upper = false,
+): Entry[] {
   const L = gauge.L
   const orbit = pointOrbit(gauge)
   const cover = orbit.length * L
@@ -66,15 +83,19 @@ export function fineLoneEntries(gauge: LineGauge, n: number, K: number, P: numbe
 
   for (let Y = 0; Y < cover; Y++) {
     const x = Y % L
-    const p = (gauge.to[x] as number[])[orbit[Math.floor(Y / L) % orbit.length] as number] as number
+    const p = gauge.to[x]![orbit[Math.floor(Y / L) % orbit.length]!]!
 
     for (const j of [0, 1]) {
-      const v = vector[j] as C
-      const re = (v[0] * Math.cos(K * Y) - v[1] * Math.sin(K * Y)) * scale
-      const im = (v[0] * Math.sin(K * Y) + v[1] * Math.cos(K * Y)) * scale
+      const v = vector[j]!
+      const re =
+        (v[0] * Math.cos(K * Y) - v[1] * Math.sin(K * Y)) * scale
+      const im =
+        (v[0] * Math.sin(K * Y) + v[1] * Math.cos(K * Y)) * scale
       const { a, b } = eisenstein(re, im, P)
 
-      if (a !== 0n || b !== 0n) out.push({ ts: [{ x, j, p }], c: 0, a, b })
+      if (a !== 0n || b !== 0n) {
+        out.push({ ts: [{ x, j, p }], c: 0, a, b })
+      }
     }
   }
 
@@ -85,7 +106,12 @@ export function fineLoneEntries(gauge: LineGauge, n: number, K: number, P: numbe
 // of `like`, every point held at 0. A lone love's amplitudes do not read its point (only a meeting does), so on one
 // love this is the rule's line at any length; the experiment checks it against the mesh's own ring at shared K
 export function flatLine(L: number, like: AxisRing): AxisRing {
-  return { docks: new Array<number>(L).fill(like.docks[0] as number), first: like.first, second: like.second, position: new Map() }
+  return {
+    docks: new Array<number>(L).fill(like.docks[0]!),
+    first: like.first,
+    second: like.second,
+    position: new Map(),
+  }
 }
 
 // two exact states equal bit for bit: the same slices, each with the same branches (amplitude, scale, configuration)
@@ -95,14 +121,28 @@ export function sameBoundState(a: BoundState, b: BoundState): boolean {
     [...a].every(([k, x]) => {
       const y = b.get(k)
 
-      return y !== undefined && y.branches.length === x.branches.length && x.branches.every(u => y.branches.some(v => v.a === u.a && v.b === u.b && v.k === u.k && sameConfiguration(u, v)))
+      return (
+        y?.branches.length === x.branches.length &&
+        x.branches.every(u =>
+          y.branches.some(
+            v =>
+              v.a === u.a &&
+              v.b === u.b &&
+              v.k === u.k &&
+              sameConfiguration(u, v),
+          ),
+        )
+      )
     })
   )
 }
 
 // the k heaviest entries of a placed state (weight |a + b w|^2 = a^2 - ab + b^2, ties by place), in their order of
 // weight: a piece small enough for the exact window under the fine count, which multiplies the slices
-export function heaviestEntries(entries: readonly Entry[], k: number): Entry[] {
+export function heaviestEntries(
+  entries: readonly Entry[],
+  k: number,
+): Entry[] {
   const weight = (e: Entry): bigint => e.a * e.a - e.a * e.b + e.b * e.b
 
   return entries
@@ -140,25 +180,42 @@ export function slowEnergies(n: number, K: number): [number, number] {
   const f: C = [Math.cos(n * K), -Math.sin(n * K)]
   const g: C = [Math.cos(n * K), Math.sin(n * K)]
   // C S^n: column 0 carries e^(-inK), column 1 e^(inK)
-  const [l1, l2] = eigen2(cm(keep, f), cm(cross, g), cm(cross, f), cm(keep, g))
+  const [l1, l2] = eigen2(
+    cm(keep, f),
+    cm(cross, g),
+    cm(cross, f),
+    cm(keep, g),
+  )
 
   return [-Math.atan2(l1[1], l1[0]) / n, -Math.atan2(l2[1], l2[0]) / n]
 }
 
-export type SlowReading = { n: number; halfGap: number; mass: number; ratio: number; top: number }
+export type SlowReading = {
+  n: number
+  halfGap: number
+  mass: number
+  ratio: number
+  top: number
+}
 
 // the slow coin's half-gap (half the distance of its two energies at K = 0), m* from the second difference of the band
 // through 0, and the top |dE/dK| over a grid of K in (0, pi/n) (the band followed by continuity)
-export function slowReading(n: number, d = 1e-4, grid = 2048): SlowReading {
+export function slowReading(
+  n: number,
+  d = 1e-4,
+  grid = 2048,
+): SlowReading {
   const near = (K: number, to: number): number => {
     const [a, b] = slowEnergies(n, K)
 
     return Math.abs(a - to) <= Math.abs(b - to) ? a : b
   }
+
   const [a0, b0] = slowEnergies(n, 0)
   const zero = Math.abs(a0) <= Math.abs(b0) ? a0 : b0
   const halfGap = Math.abs(a0 - b0) / 2
   const mass = (d * d) / (near(d, zero) + near(-d, zero) - 2 * zero)
+
   let top = 0
   let prev = zero
 

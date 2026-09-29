@@ -21,24 +21,37 @@
 // NOTHING MOVES: the file reads stores and groups; no rule runs here.
 
 import { closure } from '@/code/measure/color-isotropy-bound'
-import { huskForcing, translate, type AffineGenerator, type BoxMaps, type CoinData } from '@/code/measure/varying-vacuum'
+import {
+  huskForcing,
+  translate,
+  type AffineGenerator,
+  type BoxMaps,
+  type CoinData,
+} from '@/code/measure/varying-vacuum'
 import { NORM4, orientUnits } from '@/code/measure/dense-hub'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { LINE_OF } from '@/code/rule/isometric-knit'
 import { d4Coordinates } from '@/code/substrate/d4-box'
 
-export type Subgroup = { readonly gens: number[]; readonly members: number[] }
+export type Subgroup = {
+  readonly gens: number[]
+  readonly members: number[]
+}
 
-export function fastClosure(coins: CoinData): (gens: readonly number[]) => number[] {
+export function fastClosure(
+  coins: CoinData,
+): (gens: readonly number[]) => number[] {
   const table = coins.table
   const n = table.permutations.length
   const mul = Int32Array.from(table.multiply as ArrayLike<number>)
   const mark = new Int32Array(n)
   const queue = new Int32Array(n)
+
   let epoch = 0
 
   return gens => {
     epoch++
+
     let head = 0
     let tail = 0
 
@@ -46,10 +59,10 @@ export function fastClosure(coins: CoinData): (gens: readonly number[]) => numbe
     queue[tail++] = table.identity
 
     while (head < tail) {
-      const x = queue[head++] as number
+      const x = queue[head++]!
 
       for (const g of gens) {
-        const y = mul[g * n + x] as number
+        const y = mul[g * n + x]!
 
         if (mark[y] !== epoch) {
           mark[y] = epoch
@@ -69,11 +82,19 @@ export function classRepresentatives(coins: CoinData): number[] {
   const reps: number[] = []
 
   for (let a = 0; a < n; a++) {
-    if (seen[a]) continue
+    if (seen[a]) {
+      continue
+    }
 
     reps.push(a)
 
-    for (let g = 0; g < n; g++) seen[table.multiply[g * n + (table.multiply[a * n + (table.inverse[g] as number)] as number)] as number] = 1
+    for (let g = 0; g < n; g++) {
+      seen[
+        table.multiply[
+          g * n + table.multiply[a * n + table.inverse[g]!]!
+        ]!
+      ] = 1
+    }
   }
 
   return reps
@@ -91,15 +112,23 @@ export type ForcingCensus = {
   readonly threeWithoutTwo: number
 }
 
-const forces = (coins: CoinData, members: readonly number[]): boolean => {
-  if (members.length < 24) return false
+const forces = (
+  coins: CoinData,
+  members: readonly number[],
+): boolean => {
+  if (members.length < 24) {
+    return false
+  }
 
   const f = huskForcing(coins, members)
 
   return f.husk2 && f.husk4 && f.huskShear2
 }
 
-export function forcingCensus(coins: CoinData, withThree: boolean): ForcingCensus {
+export function forcingCensus(
+  coins: CoinData,
+  withThree: boolean,
+): ForcingCensus {
   const table = coins.table
   const n = table.permutations.length
   const close = fastClosure(coins)
@@ -111,13 +140,17 @@ export function forcingCensus(coins: CoinData, withThree: boolean): ForcingCensu
       const members = close([a, b])
       const key = members.join(',')
 
-      if (!two.has(key)) two.set(key, { gens: [a, b], members })
+      if (!two.has(key)) {
+        two.set(key, { gens: [a, b], members })
+      }
     }
   }
 
   const cache = new Map<string, boolean>()
+
   const forcesCached = (members: number[]): boolean => {
     const key = members.join(',')
+
     let f = cache.get(key)
 
     if (f === undefined) {
@@ -127,17 +160,30 @@ export function forcingCensus(coins: CoinData, withThree: boolean): ForcingCensu
 
     return f
   }
-  const forcingTwo = [...two.values()].filter(G => forcesCached(G.members))
-  const minimal = forcingTwo.filter(F => !forcingTwo.some(G => G !== F && G.members.length < F.members.length && G.members.every(m => F.members.includes(m))))
+
+  const forcingTwo = [...two.values()].filter(G =>
+    forcesCached(G.members),
+  )
+  const minimal = forcingTwo.filter(
+    F =>
+      !forcingTwo.some(
+        G =>
+          G !== F &&
+          G.members.length < F.members.length &&
+          G.members.every(m => F.members.includes(m)),
+      ),
+  )
   const conjugateBits: Uint8Array[] = []
   const conjugateKeys = new Set<string>()
 
   for (const G of forcingTwo) {
     for (let g = 0; g < n; g++) {
-      const gi = table.inverse[g] as number
+      const gi = table.inverse[g]!
       const bits = new Uint8Array(n)
 
-      for (const m of G.members) bits[table.multiply[g * n + (table.multiply[m * n + gi] as number)] as number] = 1
+      for (const m of G.members) {
+        bits[table.multiply[g * n + table.multiply[m * n + gi]!]!] = 1
+      }
 
       const key = Array.from(bits).join('')
 
@@ -151,75 +197,138 @@ export function forcingCensus(coins: CoinData, withThree: boolean): ForcingCensu
   let threeClosures = 0
   let threeForcing = 0
   let threeWithoutTwo = 0
+
   const seen = new Set<string>()
 
   if (withThree) {
     for (const G of two.values()) {
-      if (forcesCached(G.members)) continue
+      if (forcesCached(G.members)) {
+        continue
+      }
 
       const inG = new Uint8Array(n)
 
-      for (const m of G.members) inG[m] = 1
+      for (const m of G.members) {
+        inG[m] = 1
+      }
 
       for (let c = 0; c < n; c++) {
-        if (inG[c]) continue
+        if (inG[c]) {
+          continue
+        }
 
         const K = close([...G.gens, c])
         const key = K.join(',')
 
         threeClosures++
-        if (seen.has(key)) continue
+
+        if (seen.has(key)) {
+          continue
+        }
+
         seen.add(key)
 
-        if (!forcesCached(K)) continue
+        if (!forcesCached(K)) {
+          continue
+        }
 
         threeForcing++
 
         const inK = new Uint8Array(n)
 
-        for (const m of K) inK[m] = 1
+        for (const m of K) {
+          inK[m] = 1
+        }
 
         const contains = conjugateBits.some(bits => {
-          for (let x = 0; x < n; x++) if (bits[x] && !inK[x]) return false
+          for (let x = 0; x < n; x++) {
+            if (bits[x] && !inK[x]) {
+              return false
+            }
+          }
 
           return true
         })
 
-        if (!contains) threeWithoutTwo++
+        if (!contains) {
+          threeWithoutTwo++
+        }
       }
     }
   }
 
-  return { classes: reps.length, twoGenerated: two.size, forcingTwo, minimal, conjugates: conjugateBits.length, threeClosures, threeDistinct: seen.size, threeForcing, threeWithoutTwo }
+  return {
+    classes: reps.length,
+    twoGenerated: two.size,
+    forcingTwo,
+    minimal,
+    conjugates: conjugateBits.length,
+    threeClosures,
+    threeDistinct: seen.size,
+    threeForcing,
+    threeWithoutTwo,
+  }
 }
 
 // every affine symmetry of an L'-periodic unoriented pattern with linear part g: x -> g x + t, t in `shifts`, c = +-1
-export function liftsOf(coins: CoinData, box: BoxMaps, g: number, shifts: readonly (readonly number[])[]): AffineGenerator[] {
-  const lin = box.linear[g] as Int32Array
+export function liftsOf(
+  coins: CoinData,
+  box: BoxMaps,
+  g: number,
+  shifts: readonly (readonly number[])[],
+): AffineGenerator[] {
+  const lin = box.linear[g]!
   const out: AffineGenerator[] = []
 
   for (const t of shifts) {
-    const map = Int32Array.from({ length: box.cells }, (_, x) => translate(box, lin[x] as number, t))
+    const map = Int32Array.from({ length: box.cells }, (_, x) =>
+      translate(box, lin[x]!, t),
+    )
 
-    for (const c of [1, -1]) out.push({ name: `${g}+${t.join('')}${c < 0 ? 'C' : ''}`, map, lineImage: coins.lineImage[g] as Int8Array, lineSign: coins.lineSign[g] as Int8Array, c })
+    for (const c of [1, -1]) {
+      out.push({
+        name: `${g}+${t.join('')}${c < 0 ? 'C' : ''}`,
+        map,
+        lineImage: coins.lineImage[g]!,
+        lineSign: coins.lineSign[g]!,
+        c,
+      })
+    }
   }
 
   return out
 }
 
 // how many lift pairs of a two-generated group keep an orientation of the held units
-export function orientingLiftPairs(coins: CoinData, box: BoxMaps, held: Uint8Array, G: Subgroup, shifts: readonly (readonly number[])[]): { tried: number; orienting: number } {
-  const A = liftsOf(coins, box, G.gens[0] as number, shifts)
-  const B = liftsOf(coins, box, G.gens[1] as number, shifts)
+export function orientingLiftPairs(
+  coins: CoinData,
+  box: BoxMaps,
+  held: Uint8Array,
+  G: Subgroup,
+  shifts: readonly (readonly number[])[],
+): { tried: number; orienting: number } {
+  const A = liftsOf(coins, box, G.gens[0]!, shifts)
+  const B = liftsOf(coins, box, G.gens[1]!, shifts)
+
   let orienting = 0
 
-  for (const a of A) for (const b of B) orienting += orientUnits(held, [a, b]).ok ? 1 : 0
+  for (const a of A) {
+    for (const b of B) {
+      orienting += orientUnits(held, [a, b]).ok ? 1 : 0
+    }
+  }
 
   return { tried: A.length * B.length, orienting }
 }
 
 // the elements with a lift that keeps some orientation alone, and every subgroup inside that set
-export function insideSubgroups(coins: CoinData, box: BoxMaps, held: Uint8Array, shifts: readonly (readonly number[])[], limit: number): { O: number[]; subgroups: Subgroup[]; complete: boolean } {
+export function insideSubgroups(
+  coins: CoinData,
+  box: BoxMaps,
+  held: Uint8Array,
+  shifts: readonly (readonly number[])[],
+  limit: number,
+): { O: number[]; subgroups: Subgroup[]; complete: boolean } {
   const table = coins.table
   const n = table.permutations.length
   const inO = new Uint8Array(n)
@@ -234,16 +343,22 @@ export function insideSubgroups(coins: CoinData, box: BoxMaps, held: Uint8Array,
   }
 
   const O = Array.from({ length: n }, (_, g) => g).filter(g => inO[g])
-  const inside = (members: readonly number[]): boolean => members.every(m => inO[m] === 1)
+  const inside = (members: readonly number[]): boolean =>
+    members.every(m => inO[m] === 1)
   const found = new Map<string, Subgroup>()
+
   let frontier: Subgroup[] = []
 
-  if (O.length > limit) return { O, subgroups: [], complete: false }
+  if (O.length > limit) {
+    return { O, subgroups: [], complete: false }
+  }
 
   for (const g of O) {
     const h = closure(table, [g])
 
-    if (!inside(h)) continue
+    if (!inside(h)) {
+      continue
+    }
 
     const key = h.join(',')
 
@@ -261,14 +376,20 @@ export function insideSubgroups(coins: CoinData, box: BoxMaps, held: Uint8Array,
     for (const H of frontier) {
       const bits = new Uint8Array(n)
 
-      for (const m of H.members) bits[m] = 1
+      for (const m of H.members) {
+        bits[m] = 1
+      }
 
       for (const g of O) {
-        if (bits[g]) continue
+        if (bits[g]) {
+          continue
+        }
 
         const K = closure(table, [...H.gens, g])
 
-        if (!inside(K)) continue
+        if (!inside(K)) {
+          continue
+        }
 
         const key = K.join(',')
 
@@ -296,50 +417,76 @@ export function insideSubgroups(coins: CoinData, box: BoxMaps, held: Uint8Array,
 // some S(k) and a norm-4 class in some S(k'); since 2T permutes the three norm-4 classes transitively, S0 = {0, n}
 // already covers all four, with two lines per root dock. Returned: the held units on the side-4 box about hub 0.
 
-const mod2Key = (c: readonly number[]): number => c.reduce((s, v, k) => s + ((((v % 2) + 2) % 2) << k), 0)
+const mod2Key = (c: readonly number[]): number =>
+  c.reduce((s, v, k) => s + ((((v % 2) + 2) % 2) << k), 0)
 
-export function coveringPattern(coins: CoinData, box: BoxMaps, twoT: readonly number[], start: readonly number[]): Uint8Array {
+export function coveringPattern(
+  coins: CoinData,
+  box: BoxMaps,
+  twoT: readonly number[],
+  start: readonly number[],
+): Uint8Array {
   const roots = rootsD4()
-  const classOfVector = (v: readonly number[]): number => mod2Key(d4Coordinates([...v]))
+  const classOfVector = (v: readonly number[]): number =>
+    mod2Key(d4Coordinates([...v]))
   const lineOfClass = new Int8Array(16).fill(-1)
   const rootOfClass: number[][] = Array.from({ length: 16 }, () => [])
 
   roots.forEach((r, d) => {
-    lineOfClass[classOfVector(r)] = LINE_OF[d] as number
-    rootOfClass[classOfVector(r)] = r as number[]
+    lineOfClass[classOfVector(r)] = LINE_OF[d]!
+    rootOfClass[classOfVector(r)] = r
   })
 
-  const act = (g: number, v: readonly number[]): number[] => (coins.doubled[g] as number[][]).map(row => row.reduce((s, x, k) => s + x * (v[k] as number), 0) / 2)
+  const act = (g: number, v: readonly number[]): number[] =>
+    (coins.doubled[g] as number[][]).map(
+      row => row.reduce((s, x, k) => s + x * v[k]!, 0) / 2,
+    )
   const norm4 = NORM4.map(v => classOfVector(v))
-  const representative = (c: number): number[] => (c === 0 ? [0, 0, 0, 0] : ([...(NORM4[norm4.indexOf(c)] as number[])] as number[]))
+  const representative = (c: number): number[] =>
+    c === 0
+      ? [0, 0, 0, 0]
+      : ([...(NORM4[norm4.indexOf(c)] as number[])] as number[])
   const S: number[][] = Array.from({ length: 16 }, () => [])
 
   for (const g of twoT) {
-    const k = classOfVector(act(g, roots[0] as number[]))
-    const image = start.map(c => (c === 0 ? 0 : classOfVector(act(g, representative(c))))).sort((a, b) => a - b)
+    const k = classOfVector(act(g, roots[0]!))
+    const image = start
+      .map(c =>
+        c === 0 ? 0 : classOfVector(act(g, representative(c))),
+      )
+      .sort((a, b) => a - b)
 
-    if ((S[k] as number[]).length === 0) S[k] = image
-    else if ((S[k] as number[]).join(',') !== image.join(',')) throw new Error('the pattern is not 2T-equivariant')
+    if (S[k]!.length === 0) {
+      S[k] = image
+    } else if (S[k]!.join(',') !== image.join(',')) {
+      throw new Error('the pattern is not 2T-equivariant')
+    }
   }
 
   const held = new Uint8Array(box.cells * 12)
 
   for (let x = 0; x < box.cells; x++) {
     const k = mod2Key(box.coords[x] as number[])
-    const r = rootOfClass[k] as number[]
+    const r = rootOfClass[k]!
 
-    if (r.length === 0) continue
+    if (r.length === 0) {
+      continue
+    }
 
-    for (const c of S[k] as number[]) {
+    for (const c of S[k]!) {
       const rep = representative(c)
 
-      held[x * 12 + (lineOfClass[classOfVector(r.map((v, i) => v - (rep[i] as number)))] as number)] = 1
+      held[
+        x * 12 +
+          lineOfClass[classOfVector(r.map((v, i) => v - rep[i]!))]!
+      ] = 1
     }
   }
 
   return held
 }
 
-export const NORM4_KEYS = (): number[] => NORM4.map(v => mod2Key(d4Coordinates([...v])))
+export const NORM4_KEYS = (): number[] =>
+  NORM4.map(v => mod2Key(d4Coordinates([...v])))
 
 export { forces as forcesScalarsAndShear }

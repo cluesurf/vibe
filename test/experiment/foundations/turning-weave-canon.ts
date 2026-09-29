@@ -80,6 +80,7 @@ export default experiment({
     const norm = (a: number, b: number): [number, number] =>
       a < b ? [a, b] : [b, a]
     const positions: [number, number][][] = []
+
     let current = M0.map(([a, b]) => norm(a, b))
 
     for (let i = 0; i < 4; i++) {
@@ -104,8 +105,9 @@ export default experiment({
 
       return (slots, base) => {
         for (let k = 0; k < 6; k++) {
-          const line = lines[b.couples[k]![0]!]!
-          const wire = lines[b.couples[k]![1]!]!
+          const line = lines[b.couples[k]![0]]!
+          const wire = lines[b.couples[k]![1]]!
+
           const swap = (): void => {
             const a0 = (slots[base + line[0]] ?? 0) as Tone
             const a1 = (slots[base + line[1]] ?? 0) as Tone
@@ -122,6 +124,7 @@ export default experiment({
               slots[base + wire[1]] = a1
             }
           }
+
           const clock = (): void => {
             const a = (slots[base + wire[0]] ?? 0) as Tone
             const x = (slots[base + wire[1]] ?? 0) as Tone
@@ -190,10 +193,7 @@ export default experiment({
     }
 
     const one = response([cellAt([1, 2, 2, 2])])
-    const two = response([
-      cellAt([1, 2, 2, 2]),
-      cellAt([1, 6, 6, 6]),
-    ])
+    const two = response([cellAt([1, 2, 2, 2]), cellAt([1, 6, 6, 6])])
     const three = response([
       cellAt([1, 2, 2, 2]),
       cellAt([1, 6, 6, 6]),
@@ -202,6 +202,7 @@ export default experiment({
 
     // the Sakharov structure under two quench rates
     const sheet = SIDE * SIDE * SIDE
+
     const quench = (
       k: number,
     ): {
@@ -215,16 +216,14 @@ export default experiment({
       let settledMax = 0
 
       for (let t = 0; t < 48; t++) {
-        const bornThrough = Math.min(
-          SIDE - 1,
-          Math.floor((t + 1) / k),
-        )
+        const bornThrough = Math.min(SIDE - 1, Math.floor((t + 1) / k))
         const active = (c: number): boolean =>
           coordinate(c, 0) <= bornThrough
 
         will = growingBeat(will, collisionAt(t), active)
 
         let total = 0
+
         const byLine = new Array<number>(12).fill(0)
 
         for (let i = 0; i < will.data.length; i++) {
@@ -234,9 +233,7 @@ export default experiment({
             total += v
 
             const d = i % 24
-            const line = lines.findIndex(
-              ([x, y]) => x === d || y === d,
-            )
+            const line = lines.findIndex(([x, y]) => x === d || y === d)
 
             byLine[line] = byLine[line]! + v
           }

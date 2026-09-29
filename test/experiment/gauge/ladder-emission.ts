@@ -42,8 +42,20 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { inverseDepthSpec, ladderBeat, ladderKernel, type LadderSpec } from '@/code/rule/plaquette-ladder'
-import { atomBare, atomPopulation, atomTimes, goldenRule, ladderVacuum, singleExcitationDecay } from '@/code/measure/quantum-ladder'
+import {
+  inverseDepthSpec,
+  ladderBeat,
+  ladderKernel,
+  type LadderSpec,
+} from '@/code/rule/plaquette-ladder'
+import {
+  atomBare,
+  atomPopulation,
+  atomTimes,
+  goldenRule,
+  ladderVacuum,
+  singleExcitationDecay,
+} from '@/code/measure/quantum-ladder'
 
 const NS = [9, 11]
 const L = 6
@@ -54,7 +66,9 @@ const FIT = [20, 80] as const
 function atomSpec(n: number): LadderSpec {
   const light = inverseDepthSpec(n, L, 'drift')
   const kappa = 2 / n
-  const hop = Math.round((Math.acos(1 - 2 * kappa) * light.root) / (2 * Math.PI))
+  const hop = Math.round(
+    (Math.acos(1 - 2 * kappa) * light.root) / (2 * Math.PI),
+  )
 
   return inverseDepthSpec(n, L, 'drift', hop)
 }
@@ -70,6 +84,7 @@ export default experiment({
   paper: false,
   run() {
     const metrics: Record<string, number> = {}
+
     let e1 = true
     let e2 = true
     let e3 = true
@@ -82,7 +97,13 @@ export default experiment({
       const bare = atomBare(spec)
       const gr = goldenRule(spec, bare.gap, bare.dipole)
       const returnBeat = L / gr.velocity
-      const model = singleExcitationDecay(spec, bare.gap, bare.dipole, L, BEATS)
+      const model = singleExcitationDecay(
+        spec,
+        bare.gap,
+        bare.dipole,
+        L,
+        BEATS,
+      )
 
       metrics[`vacuumResidualN${n}`] = vac.residual
       metrics[`gapN${n}`] = bare.gap
@@ -98,7 +119,9 @@ export default experiment({
         for (let t = 0; t <= BEATS; t++) {
           p.push(atomPopulation(bare.excited, v))
 
-          if (t === 1 && !forceOff) metrics[`freshRegisterLossN${n}`] = 1 - p[1]!
+          if (t === 1 && !forceOff) {
+            metrics[`freshRegisterLossN${n}`] = 1 - p[1]!
+          }
 
           ladderBeat(kernel, v.re, v.im)
         }
@@ -120,7 +143,9 @@ export default experiment({
 
           let worst = 0
 
-          for (let t = 0; t <= BEATS; t++) worst = Math.max(worst, Math.abs(p[t]! - model[t]!))
+          for (let t = 0; t <= BEATS; t++) {
+            worst = Math.max(worst, Math.abs(p[t]! - model[t]!))
+          }
 
           metrics[`halfBeatN${n}`] = crossing
           metrics[`lowestN${n}`] = Math.min(...p)
@@ -133,7 +158,14 @@ export default experiment({
       }
 
       // E4: the long ladder, harmonic reading
-      const long = singleExcitationDecay(spec, bare.gap, bare.dipole, RING, FIT[1])
+      const long = singleExcitationDecay(
+        spec,
+        bare.gap,
+        bare.dipole,
+        RING,
+        FIT[1],
+      )
+
       let sx = 0
       let sy = 0
       let sxx = 0
@@ -152,21 +184,36 @@ export default experiment({
 
       const slope = (count * sxy - sx * sy) / (count * sxx - sx * sx)
       const intercept = (sy - slope * sx) / count
+
       let residual = 0
 
-      for (let t = FIT[0]; t <= FIT[1]; t++) residual = Math.max(residual, Math.abs(Math.log(long[t]!) - (intercept + slope * t)))
+      for (let t = FIT[0]; t <= FIT[1]; t++) {
+        residual = Math.max(
+          residual,
+          Math.abs(Math.log(long[t]!) - (intercept + slope * t)),
+        )
+      }
 
       metrics[`longRateN${n}`] = -slope
       metrics[`longRateOverGoldenN${n}`] = -slope / gr.rate
       metrics[`longFitResidualN${n}`] = residual
-      e4 &&= residual < 0.02 && -slope / gr.rate >= 0.8 && -slope / gr.rate <= 1.25
+      e4 &&=
+        residual < 0.02 &&
+        -slope / gr.rate >= 0.8 &&
+        -slope / gr.rate <= 1.25
     }
 
     const gates = { E1: e1, E2: e2, E3: e3, E4: e4 }
 
-    for (const [gate, ok] of Object.entries(gates)) metrics[`gate${gate}`] = ok ? 1 : 0
+    for (const [gate, ok] of Object.entries(gates)) {
+      metrics[`gate${gate}`] = ok ? 1 : 0
+    }
 
-    const status = Object.values(gates).every(v => v) ? 'pass' : e1 && e2 && e3 ? 'partial' : 'fail'
+    const status = Object.values(gates).every(v => v)
+      ? 'pass'
+      : e1 && e2 && e3
+        ? 'partial'
+        : 'fail'
 
     return verdict({
       status,

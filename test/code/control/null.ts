@@ -79,7 +79,10 @@ suite('control/null: shuffledToneField', [
     'the shuffled field preserves the multiset and total charge',
     () => {
       const tone = Int8Array.from([1, 1, 0, -1, 1, 0, -1, -1, 0, 1])
-      const out = shuffledToneField({ tone, rng: makeWeyl({ start: 5 }) })
+      const out = shuffledToneField({
+        tone,
+        rng: makeWeyl({ start: 5 }),
+      })
 
       equal(
         JSON.stringify(multiset(out)),

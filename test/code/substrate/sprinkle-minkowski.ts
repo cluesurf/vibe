@@ -19,7 +19,11 @@ import { makeWeyl } from '@/code/tool/weyl'
 import { precedes, relationCount } from '@/code/tool/poset'
 
 const sprinkle = (seed: number, count = 120, dimension = 3) =>
-  sprinkleMinkowski({ dimension, count, rng: makeWeyl({ start: seed }) })
+  sprinkleMinkowski({
+    dimension,
+    count,
+    rng: makeWeyl({ start: seed }),
+  })
 
 suite('substrate/sprinkle-minkowski: determinism', [
   check('the same seed produces an identical sprinkle', () => {

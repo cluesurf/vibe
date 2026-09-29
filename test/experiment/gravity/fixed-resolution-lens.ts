@@ -46,7 +46,10 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { energyDrift } from '@/code/measure/depth-span'
-import { fixedLensSurvey, FIXED_RESOLUTION } from '@/code/measure/fixed-resolution'
+import {
+  fixedLensSurvey,
+  FIXED_RESOLUTION,
+} from '@/code/measure/fixed-resolution'
 import { LENS_DETECTORS } from '@/code/measure/radion'
 
 export default experiment({
@@ -62,15 +65,33 @@ export default experiment({
     const s = fixedLensSurvey(what => console.error(what))
     const b = s.base
     const { husk, clock, metric } = b.arena
-    const closed = (r: typeof clock): number => r.measuredDelay / r.closedCountDelay
-    const wraps = [s.uniform, s.lens].reduce((a, r) => a + r.wraps.angle + r.wraps.field + r.wraps.potential, 0)
-    const l1 = s.uniform.reversed && s.lens.reversed && s.uniform.gauss === 0 && s.lens.gauss === 0 && wraps === 0 && b.fall.every(f => f.reversed) && b.arena.field.reversed
-    const within = (x: number, want: number, tol: number): boolean => Math.abs(x / want - 1) <= tol
+    const closed = (r: typeof clock): number =>
+      r.measuredDelay / r.closedCountDelay
+    const wraps = [s.uniform, s.lens].reduce(
+      (a, r) => a + r.wraps.angle + r.wraps.field + r.wraps.potential,
+      0,
+    )
+    const l1 =
+      s.uniform.reversed &&
+      s.lens.reversed &&
+      s.uniform.gauss === 0 &&
+      s.lens.gauss === 0 &&
+      wraps === 0 &&
+      b.fall.every(f => f.reversed) &&
+      b.arena.field.reversed
+    const within = (x: number, want: number, tol: number): boolean =>
+      Math.abs(x / want - 1) <= tol
     const l2 = within(s.measuredDelay, b.eikonalDelay, 0.02)
-    const l3 = within(closed(clock), clock.closedFactor, 0.05) && within(closed(metric), metric.closedFactor, 0.05)
-    const l4 = within(s.factorClosedPull, metric.closedFactor, 0.1) && Math.abs(s.factorClosedPull - closed(metric)) < Math.abs(s.factorClosedPull - closed(clock))
+    const l3 =
+      within(closed(clock), clock.closedFactor, 0.05) &&
+      within(closed(metric), metric.closedFactor, 0.05)
+    const l4 =
+      within(s.factorClosedPull, metric.closedFactor, 0.1) &&
+      Math.abs(s.factorClosedPull - closed(metric)) <
+        Math.abs(s.factorClosedPull - closed(clock))
     const l5 = s.sameAsUnfixed.uniform && s.sameAsUnfixed.lens
-    const status = !l1 || !l3 ? 'partial' : l2 && l4 && l5 ? 'pass' : 'fail'
+    const status =
+      !l1 || !l3 ? 'partial' : l2 && l4 && l5 ? 'pass' : 'fail'
     const weak = (2 * s.factorClosedPull) / b.closedFactor
     const f = (x: number): string => x.toPrecision(6)
     const e = (x: number): string => x.toExponential(3)
@@ -105,7 +126,12 @@ export default experiment({
       status,
       claim: `with the resolution held at D0 = ${FIXED_RESOLUTION} and only the divisors reading the radion's depth, the spanned light is delayed ${f(s.measuredDelay)} beats between x = ${LENS_DETECTORS[0]} and ${LENS_DETECTORS[LENS_DETECTORS.length - 1]} against its eikonal ${f(b.eikonalDelay)}; against the Newtonian count with the lump's closed pull that is a factor ${f(s.factorClosedPull)} (closed ${f(b.closedFactor)}, weak-field reading ${f(weak)}), beside the unfixed light's ${f(b.factorClosedPull)}, the general-relativity control wave's ${f(closed(metric))} and the clock-only control's ${f(closed(clock))} (the old husk light ${f(closed(husk))}); the fixed runs equal the unfixed ones value for value: uniform ${s.sameAsUnfixed.uniform}, lens ${s.sameAsUnfixed.lens}; ${wraps} wraps; with the span lumps' measured pull (${f(b.pullScale)} of the ray law) the factor is ${f(s.factor)}`,
       metrics,
-      control: { clockFactor: closed(clock), metricFactor: closed(metric), oldHuskFactor: closed(husk), unfixedFactor: b.factorClosedPull },
+      control: {
+        clockFactor: closed(clock),
+        metricFactor: closed(metric),
+        oldHuskFactor: closed(husk),
+        unfixedFactor: b.factorClosedPull,
+      },
       notes: `L2. Gates L1 ${l1}, L2 ${l2}, L3 ${l3}, L4 ${l4}, L5 ${l5}. Fixed arrivals uniform ${s.uniform.arrival.map(x => x.toFixed(4)).join(' ')}, lens ${s.lens.arrival.map(x => x.toFixed(4)).join(' ')}; unfixed uniform ${b.uniform.arrival.map(x => x.toFixed(4)).join(' ')}, lens ${b.lens.arrival.map(x => x.toFixed(4)).join(' ')} at x = ${LENS_DETECTORS.join(', ')}. Shadow invariant drift: uniform ${e(energyDrift(s.uniform.energy))}, lens ${e(energyDrift(s.lens.energy))}. Runs ${s.uniform.seconds.toFixed(1)} s and ${s.lens.seconds.toFixed(1)} s; survey ${s.seconds.toFixed(1)} s.`,
     })
   },

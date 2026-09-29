@@ -24,16 +24,29 @@
 // - lineProjector: the eigenprojectors of a displacement, an operator reading of a line class that does not
 //   go through the phase-point operators
 
-import { operator, multiplyOperators, type Operator } from '@/code/measure/grid-weights'
+import {
+  operator,
+  multiplyOperators,
+  type Operator,
+} from '@/code/measure/grid-weights'
 import { displacementOperators } from '@/code/measure/qutrit-clifford'
-import { CONJUGATE_POINT, movePhaseCoordinate, wignerKernel, type Whole } from '@/code/rule/fear-weave'
+import {
+  CONJUGATE_POINT,
+  movePhaseCoordinate,
+  wignerKernel,
+  type Whole,
+} from '@/code/rule/fear-weave'
 
 const mod3 = (x: number): number => ((x % 3) + 3) % 3
 const KERNEL_TOLERANCE = 1e-9
 
 // a grid point as (role, tilt)
-export const pointVector = (p: number): [number, number] => [Math.floor(p / 3), p % 3]
-export const vectorPoint = (a: number, b: number): number => 3 * mod3(a) + mod3(b)
+export const pointVector = (p: number): [number, number] => [
+  Math.floor(p / 3),
+  p % 3,
+]
+export const vectorPoint = (a: number, b: number): number =>
+  3 * mod3(a) + mod3(b)
 
 // SUM on two roles, index 3 a + b: |a, b> -> |a, a + b>, the first role the control
 export function sumOperator(): Operator {
@@ -63,7 +76,11 @@ export function kernelPermutation(u: Operator): Int16Array | null {
         continue
       }
 
-      if (Math.abs(x - 1) > KERNEL_TOLERANCE || perm[c] !== -1 || hit[r] === 1) {
+      if (
+        Math.abs(x - 1) > KERNEL_TOLERANCE ||
+        perm[c] !== -1 ||
+        hit[r] === 1
+      ) {
         return null
       }
 
@@ -80,22 +97,42 @@ export function kernelPermutation(u: Operator): Int16Array | null {
 }
 
 // the joint point of two roles as (a1, b1, a2, b2)
-const jointVector = (j: number): number[] => [...pointVector(Math.floor(j / 9)), ...pointVector(j % 9)]
-const jointIndex = (v: readonly number[]): number => 9 * vectorPoint(v[0] ?? 0, v[1] ?? 0) + vectorPoint(v[2] ?? 0, v[3] ?? 0)
+const jointVector = (j: number): number[] => [
+  ...pointVector(Math.floor(j / 9)),
+  ...pointVector(j % 9),
+]
+const jointIndex = (v: readonly number[]): number =>
+  9 * vectorPoint(v[0] ?? 0, v[1] ?? 0) +
+  vectorPoint(v[2] ?? 0, v[3] ?? 0)
 
 // the symplectic form of two roles, [x, y] = a1 b1' - b1 a1' + a2 b2' - b2 a2' mod 3
 export function jointForm(x: number, y: number): number {
   const u = jointVector(x)
   const v = jointVector(y)
 
-  return mod3((u[0] ?? 0) * (v[1] ?? 0) - (u[1] ?? 0) * (v[0] ?? 0) + (u[2] ?? 0) * (v[3] ?? 0) - (u[3] ?? 0) * (v[2] ?? 0))
+  return mod3(
+    (u[0] ?? 0) * (v[1] ?? 0) -
+      (u[1] ?? 0) * (v[0] ?? 0) +
+      (u[2] ?? 0) * (v[3] ?? 0) -
+      (u[3] ?? 0) * (v[2] ?? 0),
+  )
 }
 
 // whether an 81-point permutation is affine (a linear map plus a shift) and keeps the symplectic form
-export function symplecticCheck(perm: ArrayLike<number>): { affine: boolean; symplectic: boolean } {
+export function symplecticCheck(perm: ArrayLike<number>): {
+  affine: boolean
+  symplectic: boolean
+} {
   const shift = jointVector(perm[0] ?? 0)
-  const linear = (j: number): number => jointIndex(jointVector(perm[j] ?? 0).map((x, i) => x - (shift[i] ?? 0)))
-  const add = (x: number, y: number): number => jointIndex(jointVector(x).map((v, i) => v + (jointVector(y)[i] ?? 0)))
+  const linear = (j: number): number =>
+    jointIndex(
+      jointVector(perm[j] ?? 0).map((x, i) => x - (shift[i] ?? 0)),
+    )
+  const add = (x: number, y: number): number =>
+    jointIndex(
+      jointVector(x).map((v, i) => v + (jointVector(y)[i] ?? 0)),
+    )
+
   let affine = true
   let symplectic = true
 
@@ -106,7 +143,9 @@ export function symplecticCheck(perm: ArrayLike<number>): { affine: boolean; sym
         break
       }
 
-      symplectic = symplectic && jointForm(linear(x), linear(y)) === jointForm(x, y)
+      symplectic =
+        symplectic &&
+        jointForm(linear(x), linear(y)) === jointForm(x, y)
     }
   }
 
@@ -117,7 +156,8 @@ let SUM_PERM: Int16Array | null | undefined
 
 // SUM's permutation of the joint grid, read off its kernel once
 export function sumPermutation(): Int16Array {
-  SUM_PERM = SUM_PERM === undefined ? kernelPermutation(sumOperator()) : SUM_PERM
+  SUM_PERM =
+    SUM_PERM === undefined ? kernelPermutation(sumOperator()) : SUM_PERM
 
   if (!SUM_PERM) {
     throw new Error('sum kernel is not a permutation')
@@ -128,7 +168,11 @@ export function sumPermutation(): Int16Array {
 
 // The 4 parallel classes of grid lines, each by its direction (the step along a line) and its 3 lines.
 // Role lines: role fixed, tilt varying, direction (0, 1). A line of direction v is {x0 + t v}.
-export type LineClass = { readonly name: string; readonly direction: readonly [number, number]; readonly lines: readonly (readonly number[])[] }
+export type LineClass = {
+  readonly name: string
+  readonly direction: readonly [number, number]
+  readonly lines: readonly (readonly number[])[]
+}
 
 export const LINE_CLASSES: readonly LineClass[] = (
   [
@@ -147,7 +191,9 @@ export const LINE_CLASSES: readonly LineClass[] = (
     }
 
     const [a, b] = pointVector(p)
-    const line = [0, 1, 2].map(t => vectorPoint(a + t * direction[0], b + t * direction[1])).sort((x, y) => x - y)
+    const line = [0, 1, 2]
+      .map(t => vectorPoint(a + t * direction[0], b + t * direction[1]))
+      .sort((x, y) => x - y)
 
     line.forEach(q => seen.add(q))
     lines.push(line)
@@ -158,6 +204,7 @@ export const LINE_CLASSES: readonly LineClass[] = (
 
 // a one-role linear map, [[s, t], [u, w]] acting on (role, tilt)
 type Linear2 = readonly [number, number, number, number]
+
 const applyLinear = (m: Linear2, p: number): number => {
   const [a, b] = pointVector(p)
 
@@ -167,11 +214,15 @@ const applyLinear = (m: Linear2, p: number): number => {
 // the SUM that reads class `direction`: the control is first moved by a determinant-1 map S carrying the
 // class's lines onto the role lines, SUM acts, and S is undone. label[p] = the role of S p, which is constant
 // on each line of the class and different on the three, so the record's role names the line
-export function readerPermutation(direction: readonly [number, number]): { perm: Int16Array; label: Int8Array } {
+export function readerPermutation(
+  direction: readonly [number, number],
+): { perm: Int16Array; label: Int8Array } {
   const sum = sumPermutation()
 
   for (let m = 0; m < 81; m++) {
-    const s = [0, 1, 2, 3].map(k => Math.floor(m / 3 ** k) % 3) as unknown as Linear2
+    const s = [0, 1, 2, 3].map(
+      k => Math.floor(m / 3 ** k) % 3,
+    ) as unknown as Linear2
 
     if (mod3(s[0] * s[3] - s[1] * s[2]) !== 1) {
       continue
@@ -197,7 +248,13 @@ export function readerPermutation(direction: readonly [number, number]): { perm:
       perm[j] = 9 * (inverse[Math.floor(image / 9)] ?? 0) + (image % 9)
     }
 
-    return { perm, label: Int8Array.from({ length: 9 }, (_, p) => pointVector(applyLinear(s, p))[0]) }
+    return {
+      perm,
+      label: Int8Array.from(
+        { length: 9 },
+        (_, p) => pointVector(applyLinear(s, p))[0],
+      ),
+    }
   }
 
   throw new Error('no reader for this direction')
@@ -208,7 +265,10 @@ export function readerPermutation(direction: readonly [number, number]): { perm:
 // (frame -1) holds its role at the reflected point (a, -b), and is reflected back here. A coordinate with no
 // frame yet is read as the history stored it: `conjugated` names the second coordinate of a history whose
 // start stores a fear there (code/measure/knot-histories physicalKnot, which predates the frames).
-export function physicalFrame(whole: Whole, conjugated: boolean): Whole {
+export function physicalFrame(
+  whole: Whole,
+  conjugated: boolean,
+): Whole {
   let out: Whole = { tokens: whole.tokens, weight: whole.weight }
 
   whole.tokens.forEach((_, c) => {
@@ -224,7 +284,11 @@ export function physicalFrame(whole: Whole, conjugated: boolean): Whole {
 
 // the whole with one more token, `token`, opened on a set of grid points (weight 1 on each, times the
 // whole's weight): opened on a line it is that line's stabilizer state
-export function openToken(whole: Whole, token: number, points: readonly number[]): Whole {
+export function openToken(
+  whole: Whole,
+  token: number,
+  points: readonly number[],
+): Whole {
   const weight = new Array<bigint>(whole.weight.length * 9).fill(0n)
 
   whole.weight.forEach((w, i) => {
@@ -236,11 +300,20 @@ export function openToken(whole: Whole, token: number, points: readonly number[]
   })
 
   // the own points (the comoving fear beat's, code/rule/fear-weave) carried, the new token's at the origin
-  return { tokens: [...whole.tokens, token], weight, ...(whole.own ? { own: [...whole.own, 0] } : {}) }
+  return {
+    tokens: [...whole.tokens, token],
+    weight,
+    ...(whole.own ? { own: [...whole.own, 0] } : {}),
+  }
 }
 
 // move coordinates a and b of the whole by an 81-point joint permutation (perm[9 x + y], x on a)
-export function permuteTwo(whole: Whole, a: number, b: number, perm: ArrayLike<number>): Whole {
+export function permuteTwo(
+  whole: Whole,
+  a: number,
+  b: number,
+  perm: ArrayLike<number>,
+): Whole {
   const k = whole.tokens.length
   const sa = 9 ** (k - 1 - a)
   const sb = 9 ** (k - 1 - b)
@@ -256,12 +329,17 @@ export function permuteTwo(whole: Whole, a: number, b: number, perm: ArrayLike<n
     const x = Math.floor(i / sa) % 9
     const y = Math.floor(i / sb) % 9
     const image = perm[9 * x + y] ?? 0
-    const j = i + (Math.floor(image / 9) - x) * sa + ((image % 9) - y) * sb
+    const j =
+      i + (Math.floor(image / 9) - x) * sa + ((image % 9) - y) * sb
 
     out[j] = (out[j] ?? 0n) + w
   }
 
-  return { tokens: whole.tokens, weight: out, ...(whole.own ? { own: whole.own } : {}) }
+  return {
+    tokens: whole.tokens,
+    weight: out,
+    ...(whole.own ? { own: whole.own } : {}),
+  }
 }
 
 // sum coordinate c out of the whole
@@ -278,7 +356,11 @@ export function traceOut(whole: Whole, c: number): Whole {
     out[j] = (out[j] ?? 0n) + w
   })
 
-  return { tokens: whole.tokens.filter((_, i) => i !== c), weight: out, ...(whole.own ? { own: whole.own.filter((_, i) => i !== c) } : {}) }
+  return {
+    tokens: whole.tokens.filter((_, i) => i !== c),
+    weight: out,
+    ...(whole.own ? { own: whole.own.filter((_, i) => i !== c) } : {}),
+  }
 }
 
 // the 9 weights of coordinate c alone
@@ -297,18 +379,32 @@ export function marginalOne(whole: Whole, c: number): bigint[] {
 }
 
 // the weight on each of a class's 3 lines
-export function lineSums(weights: readonly bigint[], lineClass: LineClass): bigint[] {
-  return lineClass.lines.map(line => line.reduce((s, p) => s + (weights[p] ?? 0n), 0n))
+export function lineSums(
+  weights: readonly bigint[],
+  lineClass: LineClass,
+): bigint[] {
+  return lineClass.lines.map(line =>
+    line.reduce((s, p) => s + (weights[p] ?? 0n), 0n),
+  )
 }
 
 // The 40 isotropic planes of Z3^4 (two roles), each as its 9 joint points, with whether it is a product of
 // two one-role line directions. A coset of one is the support of a two-role stabilizer state (Gross 2006), so
 // the 360 cosets are the two-role stabilizer readings, 144 of them products of lines and 216 entangled.
 // The non-isotropic planes are returned too, as the control: a coset of one is no reading.
-export function jointPlanes(): { isotropic: { points: number[]; product: boolean }[]; other: number[][] } {
-  const isotropic = new Map<string, { points: number[]; product: boolean }>()
+export function jointPlanes(): {
+  isotropic: { points: number[]; product: boolean }[]
+  other: number[][]
+} {
+  const isotropic = new Map<
+    string,
+    { points: number[]; product: boolean }
+  >()
   const other = new Map<string, number[]>()
-  const add = (x: number, y: number): number => jointIndex(jointVector(x).map((v, i) => v + (jointVector(y)[i] ?? 0)))
+  const add = (x: number, y: number): number =>
+    jointIndex(
+      jointVector(x).map((v, i) => v + (jointVector(y)[i] ?? 0)),
+    )
 
   for (let u = 1; u < 81; u++) {
     for (let w = u + 1; w < 81; w++) {
@@ -339,7 +435,9 @@ export function jointPlanes(): { isotropic: { points: number[]; product: boolean
 
       if (jointForm(u, w) === 0) {
         // a product plane holds a nonzero vector on each role alone
-        const product = points.some(x => x !== 0 && x % 9 === 0) && points.some(x => x !== 0 && x < 9)
+        const product =
+          points.some(x => x !== 0 && x % 9 === 0) &&
+          points.some(x => x !== 0 && x < 9)
 
         isotropic.set(key, { points, product })
       } else {
@@ -348,12 +446,18 @@ export function jointPlanes(): { isotropic: { points: number[]; product: boolean
     }
   }
 
-  return { isotropic: [...isotropic.values()], other: [...other.values()] }
+  return {
+    isotropic: [...isotropic.values()],
+    other: [...other.values()],
+  }
 }
 
 // the 9 cosets of a plane of joint points
 export function cosetsOf(plane: readonly number[]): number[][] {
-  const add = (x: number, y: number): number => jointIndex(jointVector(x).map((v, i) => v + (jointVector(y)[i] ?? 0)))
+  const add = (x: number, y: number): number =>
+    jointIndex(
+      jointVector(x).map((v, i) => v + (jointVector(y)[i] ?? 0)),
+    )
   const seen = new Set<number>()
   const out: number[][] = []
 
@@ -373,8 +477,11 @@ export function cosetsOf(plane: readonly number[]): number[][] {
 
 // The eigenprojectors of the one-role displacement D(v): P_k = (1/3) sum_j omega^(-j k) D(v)^j, for k = 0, 1,
 // 2. Their eigenbases are the stabilizer bases, one per line class, built here from the displacements alone
-export function lineProjectors(direction: readonly [number, number]): Operator[] {
-  const d = displacementOperators(1)[vectorPoint(direction[0], direction[1])]!
+export function lineProjectors(
+  direction: readonly [number, number],
+): Operator[] {
+  const d =
+    displacementOperators(1)[vectorPoint(direction[0], direction[1])]!
   const powers: Operator[] = [operator(3), d, multiplyOperators(d, d)]
 
   for (let i = 0; i < 3; i++) {
@@ -390,8 +497,11 @@ export function lineProjectors(direction: readonly [number, number]): Operator[]
       const s = Math.sin(angle) / 3
 
       for (let i = 0; i < 9; i++) {
-        out.re[i] = (out.re[i] ?? 0) + c * (m.re[i] ?? 0) - s * (m.im[i] ?? 0)
-        out.im[i] = (out.im[i] ?? 0) + c * (m.im[i] ?? 0) + s * (m.re[i] ?? 0)
+        out.re[i] =
+          (out.re[i] ?? 0) + c * (m.re[i] ?? 0) - s * (m.im[i] ?? 0)
+
+        out.im[i] =
+          (out.im[i] ?? 0) + c * (m.im[i] ?? 0) + s * (m.re[i] ?? 0)
       }
     })
 
@@ -402,11 +512,14 @@ export function lineProjectors(direction: readonly [number, number]): Operator[]
 // Re Tr(a b) of two operators of one size
 export function traceProduct(a: Operator, b: Operator): number {
   const n = a.n
+
   let re = 0
 
   for (let i = 0; i < n; i++) {
     for (let k = 0; k < n; k++) {
-      re += (a.re[i * n + k] ?? 0) * (b.re[k * n + i] ?? 0) - (a.im[i * n + k] ?? 0) * (b.im[k * n + i] ?? 0)
+      re +=
+        (a.re[i * n + k] ?? 0) * (b.re[k * n + i] ?? 0) -
+        (a.im[i * n + k] ?? 0) * (b.im[k * n + i] ?? 0)
     }
   }
 

@@ -39,15 +39,26 @@ const BINS = 16
 
 type Fit = { residual: number; temperature: number }
 
-function fit(centers: number[], values: number[], model: (w: number, t: number) => number): Fit {
+function fit(
+  centers: number[],
+  values: number[],
+  model: (w: number, t: number) => number,
+): Fit {
   let best: Fit = { residual: Infinity, temperature: Number.NaN }
 
   for (let i = 0; i < 200; i++) {
     const t = 1e-3 * 10 ** ((4 * i) / 199)
     // the best overall scale for this T, then the relative rms residual
     const m = centers.map(w => model(w, t))
-    const scale = values.reduce((s, v, j) => s + v * m[j]!, 0) / m.reduce((s, x) => s + x * x, 0)
-    const residual = Math.sqrt(values.reduce((s, v, j) => s + (v / (scale * m[j]!) - 1) ** 2, 0) / values.length)
+    const scale =
+      values.reduce((s, v, j) => s + v * m[j]!, 0) /
+      m.reduce((s, x) => s + x * x, 0)
+    const residual = Math.sqrt(
+      values.reduce(
+        (s, v, j) => s + (v / (scale * m[j]!) - 1) ** 2,
+        0,
+      ) / values.length,
+    )
 
     if (residual < best.residual) {
       best = { residual, temperature: t }
@@ -68,13 +79,27 @@ export default experiment({
   paper: false,
   run() {
     const metrics: Record<string, number> = {}
-    const start = (p: number): [[number, number], [number, number], [number, number], [number, number]] => {
+
+    const start = (
+      p: number,
+    ): [
+      [number, number],
+      [number, number],
+      [number, number],
+      [number, number],
+    ] => {
       const a = weyl(p + 1, GOLDEN)
       const b = weyl(p + 1, SILVER) - 0.5
 
       // a sigma_2 + b sigma_3 = [[b, -i a], [i a, -b]]
-      return [[b, 0], [0, -a], [0, a], [-b, 0]]
+      return [
+        [b, 0],
+        [0, -a],
+        [0, a],
+        [-b, 0],
+      ]
     }
+
     const before = pairOccupation(SIDE, [1, 0, 0], start, 0)
     const after = pairOccupation(SIDE, [1, 0, 0], start, BEATS)
     const total = before.occupation.reduce((s, x) => s + x, 0)
@@ -83,14 +108,24 @@ export default experiment({
     let negative = 0
 
     for (let i = 0; i < before.occupation.length; i++) {
-      change = Math.max(change, Math.abs((after.occupation[i] ?? 0) - (before.occupation[i] ?? 0)))
-      negative += (before.omega[i] ?? 0) < 0 ? (before.occupation[i] ?? 0) : 0
+      change = Math.max(
+        change,
+        Math.abs(
+          (after.occupation[i] ?? 0) - (before.occupation[i] ?? 0),
+        ),
+      )
+
+      negative +=
+        (before.omega[i] ?? 0) < 0 ? (before.occupation[i] ?? 0) : 0
     }
 
-    metrics['g0LargestChangeOverTotal'] = change / total
-    metrics['negativeFrequencyShare'] = negative / total
+    metrics.g0LargestChangeOverTotal = change / total
+    metrics.negativeFrequencyShare = negative / total
 
-    const binned = (o: { omega: Float64Array; occupation: Float64Array }): { centers: number[]; values: number[] } => {
+    const binned = (o: {
+      omega: Float64Array
+      occupation: Float64Array
+    }): { centers: number[]; values: number[] } => {
       let top = 0
 
       for (let i = 0; i < o.omega.length; i++) {
@@ -127,7 +162,8 @@ export default experiment({
       return { centers, values }
     }
 
-    const planck = (w: number, t: number): number => 1 / Math.expm1(w / t)
+    const planck = (w: number, t: number): number =>
+      1 / Math.expm1(w / t)
     const rayleigh = (w: number, t: number): number => t / w
     const results: Record<string, Fit> = {}
 
@@ -139,21 +175,29 @@ export default experiment({
 
       results[`planck${tag}`] = fit(centers, values, planck)
       results[`rayleigh${tag}`] = fit(centers, values, rayleigh)
-      metrics[`planck${tag}Residual`] = results[`planck${tag}`]!.residual
-      metrics[`planck${tag}Temperature`] = results[`planck${tag}`]!.temperature
-      metrics[`rayleigh${tag}Residual`] = results[`rayleigh${tag}`]!.residual
+      metrics[`planck${tag}Residual`] =
+        results[`planck${tag}`]!.residual
+
+      metrics[`planck${tag}Temperature`] =
+        results[`planck${tag}`]!.temperature
+
+      metrics[`rayleigh${tag}Residual`] =
+        results[`rayleigh${tag}`]!.residual
       metrics[`bins${tag}`] = centers.length
     }
 
     const okG0 = change / total < 1e-10
-    const okG1 = results['planckBeat1000']!.residual < 0.1 && results['planckBeat1000']!.residual < results['planckBeat0']!.residual
+    const okG1 =
+      results.planckBeat1000!.residual < 0.1 &&
+      results.planckBeat1000!.residual < results.planckBeat0!.residual
 
-    metrics['gateG0'] = okG0 ? 1 : 0
-    metrics['gateG1'] = okG1 ? 1 : 0
+    metrics.gateG0 = okG0 ? 1 : 0
+    metrics.gateG1 = okG1 ? 1 : 0
 
     return verdict({
       status: okG1 ? 'pass' : 'fail',
-      claim: 'the pair modes of two fear walks relax toward a Bose-Einstein occupation within 1,000 beats, fitting it within 10 percent and better than at the start',
+      claim:
+        'the pair modes of two fear walks relax toward a Bose-Einstein occupation within 1,000 beats, fitting it within 10 percent and better than at the start',
       metrics,
       notes:
         "L2, exact, deterministic (Weyl start weights, no seeds). Added at the coordinator's request after E-SPN-0058, gates fixed before the run. First run (tmp/frc0187.log, 0.6 s), FAIL as predicted. G0 passes: after 1,000 beats carried by repeated multiplication every pair mode's occupation equals its start to 4.5e-16 of the total, so the free pair sector is integrable mode by mode and cannot thermalize. G1 fails: the binned occupation of the positive-frequency same-branch modes fits Bose-Einstein with a relative rms residual of 36.9 and Rayleigh-Jeans 36.0, identical at beat 0 and beat 1,000 to 1e-12, and Planck's best temperature sits at the top of the scan (T = 10, where it becomes Rayleigh-Jeans): nothing moved toward either law. Half of the pair weight (0.5000) sits at negative pair frequency, which no Bose-Einstein occupation can hold, because a walk's frequency is a quasi-energy on a circle and has no ground. What a quantum-of-action photon from the slots needs, then, is not a better bilinear: it needs (1) an interaction that binds the pair into an isolated branch (E-FRC-0186 found none for free walks) and (2) a coupling to a bath with an energy bounded below (the cold vacuum's fear beat), neither of which free walks have.",

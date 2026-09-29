@@ -86,7 +86,13 @@ const SETTLE = 1500
 const MEASURE = 600
 const HASHES = [3.3, 4.7, 6.1]
 
-type Loops = { w11: number; w12: number; w22: number; w23: number; w33: number }
+type Loops = {
+  w11: number
+  w12: number
+  w22: number
+  w23: number
+  w33: number
+}
 
 type PointRun = {
   exact: boolean
@@ -102,13 +108,33 @@ type PointRun = {
   final: SigmaState
 }
 
-const creutz = (a: number, b: number, c: number): number => -Math.log((c * a) / (b * b))
+const creutz = (a: number, b: number, c: number): number =>
+  -Math.log((c * a) / (b * b))
 
 function makeConfinedRule(): SigmaLinks {
-  const probe = makeSigmaLinks({ side: SIDE, kappa: 0, tension: 0, capacity: 1, couple: 'center', scale: SCALE, ratio: RATIO })
-  const capacity = 3 * Math.max(...Array.from(probe.level).map(Math.abs))
+  const probe = makeSigmaLinks({
+    side: SIDE,
+    kappa: 0,
+    tension: 0,
+    capacity: 1,
+    couple: 'center',
+    scale: SCALE,
+    ratio: RATIO,
+  })
+  const capacity =
+    3 * Math.max(...Array.from(probe.level).map(Math.abs))
 
-  return makeSigmaLinks({ side: SIDE, kappa: KAPPA, tension: 0, capacity, hop: false, roles: false, couple: 'center', scale: SCALE, ratio: RATIO })
+  return makeSigmaLinks({
+    side: SIDE,
+    kappa: KAPPA,
+    tension: 0,
+    capacity,
+    hop: false,
+    roles: false,
+    couple: 'center',
+    scale: SCALE,
+    ratio: RATIO,
+  })
 }
 
 export default experiment({
@@ -124,7 +150,10 @@ export default experiment({
     const roots = rootsD4()
     const tau = roots.findIndex(r => r.join(',') === '1,-1,0,0')
     const along = roots.findIndex(r => r.join(',') === '0,0,1,1')
-    const back = (d: number): number => roots.findIndex(r => r.every((x, k) => x === -(roots[d]?.[k] ?? 0)))
+    const back = (d: number): number =>
+      roots.findIndex(r =>
+        r.every((x, k) => x === -(roots[d]?.[k] ?? 0)),
+      )
     const rule = makeConfinedRule()
     const { cells, group } = rule
     const triangles = (cells * 12 * 8) / 3
@@ -144,7 +173,9 @@ export default experiment({
       ['w33', 3, 3],
     ]
     const paths = sizes.map(([, r, h]) => rectangle(r, h))
-    const starts = Array.from({ length: cells }, (_, x) => x).filter(x => x % SIDE === 0)
+    const starts = Array.from({ length: cells }, (_, x) => x).filter(
+      x => x % SIDE === 0,
+    )
 
     const demonMean = (s: SigmaState): number => {
       let sum = 0
@@ -159,7 +190,11 @@ export default experiment({
     }
 
     const pointRun = (links: Int16Array): PointRun => {
-      const prepared = drainFillSettle(rule, links, { drain: DRAIN, fill: FILL, settle: SETTLE })
+      const prepared = drainFillSettle(rule, links, {
+        drain: DRAIN,
+        fill: FILL,
+        settle: SETTLE,
+      })
       const e0 = sigmaEnergy(rule, prepared.state)
       const loops: Loops = { w11: 0, w12: 0, w22: 0, w23: 0, w33: 0 }
       const halves = [0, 0]
@@ -175,7 +210,16 @@ export default experiment({
         exact = exact && sigmaEnergy(rule, s) === e0
 
         for (let x = 0; x < cells; x++) {
-          sizes.forEach(([key], k) => (loops[key] += (group.trace[pathTransport(rule, s.links, x, paths[k] ?? [])] ?? 0) / 3 / cells / MEASURE))
+          sizes.forEach(
+            ([key], k) =>
+              (loops[key] +=
+                (group.trace[
+                  pathTransport(rule, s.links, x, paths[k] ?? [])
+                ] ?? 0) /
+                3 /
+                cells /
+                MEASURE),
+          )
         }
 
         let sr = 0
@@ -190,11 +234,13 @@ export default experiment({
 
         pre += sr / MEASURE
         pim += si / MEASURE
-        triangle += sigmaFieldEnergy(rule, s.links) / triangles / MEASURE
+        triangle +=
+          sigmaFieldEnergy(rule, s.links) / triangles / MEASURE
 
         const half = t < MEASURE / 2 ? 0 : 1
 
-        halves[half] = (halves[half] ?? 0) + demonMean(s) / (MEASURE / 2)
+        halves[half] =
+          (halves[half] ?? 0) + demonMean(s) / (MEASURE / 2)
       }
 
       return {
@@ -202,7 +248,18 @@ export default experiment({
         drainedLevel: prepared.drainedLevel,
         stalledLevel: prepared.halfwayLevel,
         stored: ((prepared.drainedLevel - lowest) * 8) / 3,
-        beta0: [SCALE * unitDemonBeta({ meanDemon: halves[0] ?? 0, capacity: rule.capacity }), SCALE * unitDemonBeta({ meanDemon: halves[1] ?? 0, capacity: rule.capacity })],
+        beta0: [
+          SCALE *
+            unitDemonBeta({
+              meanDemon: halves[0] ?? 0,
+              capacity: rule.capacity,
+            }),
+          SCALE *
+            unitDemonBeta({
+              meanDemon: halves[1] ?? 0,
+              capacity: rule.capacity,
+            }),
+        ],
         triangle,
         polyakov: Math.hypot(pre, pim),
         loops,
@@ -212,12 +269,16 @@ export default experiment({
       }
     }
 
-    const ordered = HASHES.map(hash => pointRun(defectSigmaLinks(rule, 0.1, hash)))
+    const ordered = HASHES.map(hash =>
+      pointRun(defectSigmaLinks(rule, 0.1, hash)),
+    )
     const disordered = pointRun(hashedSigmaLinks(rule))
 
     const stats = (xs: number[]): { mean: number; error: number } => {
       const m = xs.reduce((a, b) => a + b, 0) / xs.length
-      const sd = Math.sqrt(xs.reduce((a, b) => a + (b - m) ** 2, 0) / (xs.length - 1))
+      const sd = Math.sqrt(
+        xs.reduce((a, b) => a + (b - m) ** 2, 0) / (xs.length - 1),
+      )
 
       return { mean: m, error: sd / Math.sqrt(xs.length) }
     }
@@ -225,7 +286,11 @@ export default experiment({
     const chi22 = stats(ordered.map(r => r.chi22))
     const chi33 = stats(ordered.map(r => r.chi33))
     const exact = [...ordered, disordered].every(r => r.exact)
-    const held = ordered.every(r => r.beta0.every(b => b >= 11 && b <= 13) && r.polyakov < 0.05) && chi22.mean > 3 * chi22.error
+    const held =
+      ordered.every(
+        r =>
+          r.beta0.every(b => b >= 11 && b <= 13) && r.polyakov < 0.05,
+      ) && chi22.mean > 3 * chi22.error
 
     const ok = exact && held
 

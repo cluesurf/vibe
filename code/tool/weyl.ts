@@ -164,7 +164,9 @@ const STREAM_PRIMES = new Map<number, number>()
 
 // the prime a start owns (see the header)
 export function weylStreamPrime(start: number): number {
-  const u = ((Math.round(start) % START_MODULUS) + START_MODULUS) % START_MODULUS
+  const u =
+    ((Math.round(start) % START_MODULUS) + START_MODULUS) %
+    START_MODULUS
   const known = STREAM_PRIMES.get(u)
 
   if (known !== undefined) {
@@ -215,9 +217,29 @@ const ACKLAM_D = [
 const ACKLAM_LOW = 0.02425
 
 export function inverseNormal(u: number): number {
-  const [a0, a1, a2, a3, a4, a5] = ACKLAM_A as [number, number, number, number, number, number]
-  const [b0, b1, b2, b3, b4] = ACKLAM_B as [number, number, number, number, number]
-  const [c0, c1, c2, c3, c4, c5] = ACKLAM_C as [number, number, number, number, number, number]
+  const [a0, a1, a2, a3, a4, a5] = ACKLAM_A as [
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+  ]
+  const [b0, b1, b2, b3, b4] = ACKLAM_B as [
+    number,
+    number,
+    number,
+    number,
+    number,
+  ]
+  const [c0, c1, c2, c3, c4, c5] = ACKLAM_C as [
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+  ]
   const [d0, d1, d2, d3] = ACKLAM_D as [number, number, number, number]
 
   if (u < ACKLAM_LOW) {
@@ -293,7 +315,11 @@ const CELL_KEY = fixedIrrational(2)
 const CELL_BEAT = fixedIrrational(3)
 const CELL_SALT = fixedIrrational(5)
 
-export function weylCell(key: number, beat: number, salt: number): number {
+export function weylCell(
+  key: number,
+  beat: number,
+  salt: number,
+): number {
   const value =
     (Math.imul(key | 0, CELL_KEY) +
       Math.imul(beat | 0, CELL_BEAT) +
@@ -466,7 +492,10 @@ export function weylUnitary(input: {
 
 // A Poisson(lambda) count by Knuth's product method, driven by the stream: the element count of a
 // sprinkling at expected count lambda. Valid while exp(-lambda) is representable.
-export function poissonSample(input: { lambda: number; rng: Weyl }): number {
+export function poissonSample(input: {
+  lambda: number
+  rng: Weyl
+}): number {
   const limit = Math.exp(-input.lambda)
 
   let k = 0

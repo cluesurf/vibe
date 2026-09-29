@@ -46,7 +46,11 @@
 // share a link with it: given the start values, the carried integers are a function of the angle history,
 // each angle the running sum of the flux the stream copied across its link. No link gets storage of its own.
 
-import { makePhotonRule, type PhotonLattice, type PhotonRule } from '@/code/rule/photon-links'
+import {
+  makePhotonRule,
+  type PhotonLattice,
+  type PhotonRule,
+} from '@/code/rule/photon-links'
 
 export type ShapedForm = 'first' | 'second' | 'third' | 'notch' | 'wave'
 
@@ -97,36 +101,87 @@ function centeredOf(b: number, n: number): number {
   return 2 * c > n ? c - n : c
 }
 
-export function makeShapedRule(input: { lattice: PhotonLattice; n: number; k: number; q: number; form: ShapedForm; charge?: number; notch?: number }): ShapedRule {
+export function makeShapedRule(input: {
+  lattice: PhotonLattice
+  n: number
+  k: number
+  q: number
+  form: ShapedForm
+  charge?: number
+  notch?: number
+}): ShapedRule {
   const { n, k, q, form } = input
-  const base = makePhotonRule({ lattice: input.lattice, n, k, capacity: 0, hop: false, charge: input.charge ?? 1 })
+  const base = makePhotonRule({
+    lattice: input.lattice,
+    n,
+    k,
+    capacity: 0,
+    hop: false,
+    charge: input.charge ?? 1,
+  })
   const p = Math.round(((2 * Math.PI * k) / n) * q)
-  const table = Int32Array.from({ length: n }, (_, b) => p * centeredOf(b, n))
-  const lead = form === 'notch' ? -Math.round((input.notch ?? 0) * q) : 0
+  const table = Int32Array.from(
+    { length: n },
+    (_, b) => p * centeredOf(b, n),
+  )
+  const lead =
+    form === 'notch' ? -Math.round((input.notch ?? 0) * q) : 0
 
-  return { base, lattice: input.lattice, n, form, p, q, taps: SHAPED_TAPS[form], spread: form === 'wave' ? 1 : 0, lead, table }
+  return {
+    base,
+    lattice: input.lattice,
+    n,
+    form,
+    p,
+    q,
+    taps: SHAPED_TAPS[form],
+    spread: form === 'wave' ? 1 : 0,
+    lead,
+    table,
+  }
 }
 
 export const shapedKappa = (rule: ShapedRule): number => rule.p / rule.q
 
 // the empty state, every carried integer 0 ('zero') or a golden-ratio Weyl sequence over the plaquette index
 // and the tap, floor(frac((i + 1 + j P) golden) q) ('weyl')
-export function emptyShapedState(rule: ShapedRule, dither: 'zero' | 'weyl'): ShapedState {
+export function emptyShapedState(
+  rule: ShapedRule,
+  dither: 'zero' | 'weyl',
+): ShapedState {
   const golden = (Math.sqrt(5) - 1) / 2
   const count = rule.lattice.plaquetteCount
   const carried = rule.taps.map((_, j) =>
-    dither === 'zero' ? new Int32Array(count) : Int32Array.from({ length: count }, (_, i) => Math.floor((((i + 1 + j * count) * golden) % 1) * rule.q)),
+    dither === 'zero'
+      ? new Int32Array(count)
+      : Int32Array.from({ length: count }, (_, i) =>
+          Math.floor((((i + 1 + j * count) * golden) % 1) * rule.q),
+        ),
   )
 
-  return { vibe: new Int8Array(rule.lattice.cells), angle: new Int32Array(rule.lattice.links), flux: new Int32Array(rule.lattice.links), carried }
+  return {
+    vibe: new Int8Array(rule.lattice.cells),
+    angle: new Int32Array(rule.lattice.links),
+    flux: new Int32Array(rule.lattice.links),
+    carried,
+  }
 }
 
 export function copyShapedState(s: ShapedState): ShapedState {
-  return { vibe: Int8Array.from(s.vibe), angle: Int32Array.from(s.angle), flux: Int32Array.from(s.flux), carried: s.carried.map(c => Int32Array.from(c)) }
+  return {
+    vibe: Int8Array.from(s.vibe),
+    angle: Int32Array.from(s.angle),
+    flux: Int32Array.from(s.flux),
+    carried: s.carried.map(c => Int32Array.from(c)),
+  }
 }
 
 // scratch buffers, one set per lattice size, so the beat allocates nothing
-type Scratch = { spreadLinks: Float64Array; next: Int32Array; paid: Int32Array }
+type Scratch = {
+  spreadLinks: Float64Array
+  next: Int32Array
+  paid: Int32Array
+}
 
 const scratches = new Map<PhotonLattice, Scratch>()
 
@@ -134,7 +189,11 @@ function scratchOf(lattice: PhotonLattice): Scratch {
   let s = scratches.get(lattice)
 
   if (!s) {
-    s = { spreadLinks: new Float64Array(lattice.links), next: new Int32Array(lattice.plaquetteCount), paid: new Int32Array(lattice.plaquetteCount) }
+    s = {
+      spreadLinks: new Float64Array(lattice.links),
+      next: new Int32Array(lattice.plaquetteCount),
+      paid: new Int32Array(lattice.plaquetteCount),
+    }
     scratches.set(lattice, s)
   }
 
@@ -148,7 +207,11 @@ export function payForward(x: number, q: number): number {
 
 // the kick backward: from total = y + U_t (y the kick's sum without its last tap), q f - last U_(t-L) = total
 // fixes f and the dropped U_(t-L) in [0, q). The same arithmetic as the kick's backward branch
-export function payBack(total: number, q: number, last: 1 | -1): [number, number] {
+export function payBack(
+  total: number,
+  q: number,
+  last: 1 | -1,
+): [number, number] {
   if (last > 0) {
     const f = Math.ceil(total / q)
 
@@ -161,7 +224,11 @@ export function payBack(total: number, q: number, last: 1 | -1): [number, number
 }
 
 // w = C^T U on the links
-export function curlTranspose(lattice: PhotonLattice, u: ArrayLike<number>, out: Float64Array): void {
+export function curlTranspose(
+  lattice: PhotonLattice,
+  u: ArrayLike<number>,
+  out: Float64Array,
+): void {
   const size = lattice.plaquetteSize
   const links = lattice.plaquetteLinks
   const signs = lattice.plaquetteSigns
@@ -169,16 +236,16 @@ export function curlTranspose(lattice: PhotonLattice, u: ArrayLike<number>, out:
   out.fill(0)
 
   for (let p = 0, o = 0; p < lattice.plaquetteCount; p++, o += size) {
-    const v = u[p] as number
+    const v = u[p]!
 
     if (v === 0) {
       continue
     }
 
     for (let j = 0; j < size; j++) {
-      const l = links[o + j] as number
+      const l = links[o + j]!
 
-      out[l] = (out[l] as number) + (signs[o + j] as number) * v
+      out[l] = out[l]! + signs[o + j]! * v
     }
   }
 }
@@ -188,7 +255,7 @@ function drift(rule: ShapedRule, s: ShapedState, sign: number): void {
   const n = rule.n
 
   for (let l = 0; l < angle.length; l++) {
-    let a = (angle[l] as number) + sign * (flux[l] as number)
+    let a = angle[l]! + sign * flux[l]!
 
     a %= n
     angle[l] = a < 0 ? a + n : a
@@ -197,13 +264,22 @@ function drift(rule: ShapedRule, s: ShapedState, sign: number): void {
 
 // the kick forward (sign 1) or backward (sign -1), in place
 function kick(rule: ShapedRule, s: ShapedState, sign: number): void {
-  const { lattice, q, table, n, taps, spread, lead, p: numerator } = rule
+  const {
+    lattice,
+    q,
+    table,
+    n,
+    taps,
+    spread,
+    lead,
+    p: numerator,
+  } = rule
   const size = lattice.plaquetteSize
   const links = lattice.plaquetteLinks
   const signs = lattice.plaquetteSigns
   const { angle, flux, carried } = s
   const depth = taps.length
-  const last = taps[depth - 1] as number
+  const last = taps[depth - 1]!
   const scratch = scratchOf(lattice)
   const w = scratch.spreadLinks
   const out = scratch.next
@@ -216,34 +292,38 @@ function kick(rule: ShapedRule, s: ShapedState, sign: number): void {
     curlTranspose(lattice, previous, w)
   }
 
-  for (let pl = 0, o = 0; pl < lattice.plaquetteCount; pl++, o += size) {
+  for (
+    let pl = 0, o = 0;
+    pl < lattice.plaquetteCount;
+    pl++, o += size
+  ) {
     let b = 0
 
     for (let j = 0; j < size; j++) {
-      b += (signs[o + j] as number) * (angle[links[o + j] as number] as number)
+      b += signs[o + j]! * angle[links[o + j]!]!
     }
 
     b %= n
 
-    let x = table[b < 0 ? b + n : b] as number
+    let x = table[b < 0 ? b + n : b]!
 
     if (spread) {
       let sum = 0
 
       for (let j = 0; j < size; j++) {
-        sum += (signs[o + j] as number) * (w[links[o + j] as number] as number)
+        sum += signs[o + j]! * w[links[o + j]!]!
       }
 
       x += Math.round((numerator * sum) / q)
     }
 
     if (lead !== 0) {
-      x += Math.round((lead * (previous[pl] as number)) / q)
+      x += Math.round((lead * previous[pl]!) / q)
     }
 
     if (sign > 0) {
       for (let j = 0; j < depth; j++) {
-        x += (taps[j] as number) * ((carried[j] as Int32Array)[pl] as number)
+        x += taps[j]! * carried[j]![pl]!
       }
 
       const f = payForward(x, q)
@@ -253,10 +333,10 @@ function kick(rule: ShapedRule, s: ShapedState, sign: number): void {
     } else {
       // the state holds U_t .. U_(t-L+1) in carried[0 .. L-1]; x without its last tap is y
       for (let j = 0; j < depth - 1; j++) {
-        x += (taps[j] as number) * ((carried[j + 1] as Int32Array)[pl] as number)
+        x += taps[j]! * carried[j + 1]![pl]!
       }
 
-      const total = x + ((carried[0] as Int32Array)[pl] as number)
+      const total = x + carried[0]![pl]!
 
       const [f, dropped] = payBack(total, q, last > 0 ? 1 : -1)
 
@@ -268,20 +348,24 @@ function kick(rule: ShapedRule, s: ShapedState, sign: number): void {
   // shift the carried integers
   if (sign > 0) {
     for (let j = depth - 1; j > 0; j--) {
-      ;(carried[j] as Int32Array).set(carried[j - 1] as Int32Array)
+      carried[j]!.set(carried[j - 1]!)
     }
 
-    ;(carried[0] as Int32Array).set(out)
+    carried[0]!.set(out)
   } else {
     for (let j = 0; j < depth - 1; j++) {
-      ;(carried[j] as Int32Array).set(carried[j + 1] as Int32Array)
+      carried[j]!.set(carried[j + 1]!)
     }
 
-    ;(carried[depth - 1] as Int32Array).set(out)
+    carried[depth - 1]!.set(out)
   }
 
-  for (let pl = 0, o = 0; pl < lattice.plaquetteCount; pl++, o += size) {
-    const f = paid[pl] as number
+  for (
+    let pl = 0, o = 0;
+    pl < lattice.plaquetteCount;
+    pl++, o += size
+  ) {
+    const f = paid[pl]!
 
     if (f === 0) {
       continue
@@ -290,25 +374,34 @@ function kick(rule: ShapedRule, s: ShapedState, sign: number): void {
     const g = sign * f
 
     for (let j = 0; j < size; j++) {
-      const l = links[o + j] as number
+      const l = links[o + j]!
 
-      flux[l] = (flux[l] as number) - (signs[o + j] as number) * g
+      flux[l] = flux[l]! - signs[o + j]! * g
     }
   }
 }
 
-export function shapedBeatInPlace(rule: ShapedRule, s: ShapedState): void {
+export function shapedBeatInPlace(
+  rule: ShapedRule,
+  s: ShapedState,
+): void {
   drift(rule, s, 1)
   kick(rule, s, 1)
 }
 
-export function shapedBeatBackInPlace(rule: ShapedRule, s: ShapedState): void {
+export function shapedBeatBackInPlace(
+  rule: ShapedRule,
+  s: ShapedState,
+): void {
   kick(rule, s, -1)
   drift(rule, s, -1)
 }
 
 // the linear state the `wave` form shadows: A~ = centered(A) + C^T U_(t-2) / q, E~ = E + C^T (U_(t-1) - U_(t-2)) / q
-export function waveShadow(rule: ShapedRule, s: ShapedState): { angle: Float64Array; flux: Float64Array } {
+export function waveShadow(
+  rule: ShapedRule,
+  s: ShapedState,
+): { angle: Float64Array; flux: Float64Array } {
   const lattice = rule.lattice
   const older = new Float64Array(lattice.links)
   const newer = new Float64Array(lattice.links)
@@ -317,7 +410,13 @@ export function waveShadow(rule: ShapedRule, s: ShapedState): { angle: Float64Ar
   curlTranspose(lattice, s.carried[0]!, newer)
 
   return {
-    angle: Float64Array.from(s.angle, (a, l) => centeredOf(a, rule.n) + (older[l] as number) / rule.q),
-    flux: Float64Array.from(s.flux, (e, l) => e + ((newer[l] as number) - (older[l] as number)) / rule.q),
+    angle: Float64Array.from(
+      s.angle,
+      (a, l) => centeredOf(a, rule.n) + older[l]! / rule.q,
+    ),
+    flux: Float64Array.from(
+      s.flux,
+      (e, l) => e + (newer[l]! - older[l]!) / rule.q,
+    ),
   }
 }

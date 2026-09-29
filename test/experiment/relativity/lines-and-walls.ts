@@ -47,7 +47,15 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { lineLocality } from '@/code/measure/line-locality'
-import { centerOf, hubSetup, pairSeedComponents, seedWake, vacuumSingleDocks, wallReading, type WallReading } from '@/code/measure/wall-reading'
+import {
+  centerOf,
+  hubSetup,
+  pairSeedComponents,
+  seedWake,
+  vacuumSingleDocks,
+  wallReading,
+  type WallReading,
+} from '@/code/measure/wall-reading'
 import { d4BoxCell } from '@/code/substrate/d4-box'
 import { type CollisionKind } from '@/code/rule/bounce-pair-knit'
 
@@ -64,29 +72,69 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const locality = Object.fromEntries(KINDS.map(k => [k, [0, 1, 2].map(s => lineLocality(k, s))]))
-    const t1 = (['lone', 'bounce'] as const).every(k => locality[k]![0]!.crossing === 0 && locality[k]![1]!.crossing === 0) && locality.isometric![1]!.crossing > 0
+    const locality = Object.fromEntries(
+      KINDS.map(k => [k, [0, 1, 2].map(s => lineLocality(k, s))]),
+    )
+    const t1 =
+      (['lone', 'bounce'] as const).every(
+        k =>
+          locality[k]![0]!.crossing === 0 &&
+          locality[k]![1]!.crossing === 0,
+      ) && locality.isometric![1]!.crossing > 0
     const side = 8
     const center = centerOf(side)
     const per = Object.fromEntries(
       KINDS.map(k => {
         const s = hubSetup(side, k, center)
 
-        return [k, { singles: vacuumSingleDocks(s, 24), seed: seedWake(s, center, 24), pairs: pairSeedComponents(s, center, 24) }]
+        return [
+          k,
+          {
+            singles: vacuumSingleDocks(s, 24),
+            seed: seedWake(s, center, 24),
+            pairs: pairSeedComponents(s, center, 24),
+          },
+        ]
       }),
     )
     const t2 = KINDS.every(k => per[k]!.singles.withSingle === 0)
-    const t3 = per.lone!.seed.offLine === 0 && per.bounce!.seed.offLine === 0 && per.isometric!.seed.offLine > 0
-    const m = per.lone!.pairs.crossing > 0 && per.lone!.pairs.components < 12
-    const anchors = [0, d4BoxCell({ coordinates: [1, 0, 0, 0], side: 12 }), d4BoxCell({ coordinates: [0, 2, 1, 0], side: 12 }), centerOf(12)]
-    const walls: Record<string, WallReading[]> = Object.fromEntries(KINDS.map(k => [k, anchors.map(a => wallReading(hubSetup(12, k, a)))]))
-    const idealWhole = (w: WallReading): boolean => w.ideal.every(x => x % w.sheet === 0)
+    const t3 =
+      per.lone!.seed.offLine === 0 &&
+      per.bounce!.seed.offLine === 0 &&
+      per.isometric!.seed.offLine > 0
+    const m =
+      per.lone!.pairs.crossing > 0 && per.lone!.pairs.components < 12
+    const anchors = [
+      0,
+      d4BoxCell({ coordinates: [1, 0, 0, 0], side: 12 }),
+      d4BoxCell({ coordinates: [0, 2, 1, 0], side: 12 }),
+      centerOf(12),
+    ]
+    const walls: Record<string, WallReading[]> = Object.fromEntries(
+      KINDS.map(k => [
+        k,
+        anchors.map(a => wallReading(hubSetup(12, k, a))),
+      ]),
+    )
+    const idealWhole = (w: WallReading): boolean =>
+      w.ideal.every(x => x % w.sheet === 0)
     const w = walls.lone!.every(r => r.period > 0 && idealWhole(r))
-    const status = t1 && t2 && t3 && m ? (w ? 'pass' : 'fail') : 'partial'
-    const range = (xs: number[]): string => `${Math.min(...xs)}..${Math.max(...xs)}`
+    const status =
+      t1 && t2 && t3 && m ? (w ? 'pass' : 'fail') : 'partial'
+    const range = (xs: number[]): string =>
+      `${Math.min(...xs)}..${Math.max(...xs)}`
     const wallText = (k: string): string =>
-      walls[k]!.map((r, i) => `anchor ${anchors[i]}: gate ${range(r.gate)}, ideal ${range(r.ideal)} (whole sheets ${idealWhole(r)}), excitation ${range(r.excitation)} trits on ${range(r.excitationDocks)} docks, layers ${r.layers.length} of 12, period ${r.period}`).join('; ')
-    const metrics: Record<string, number> = { gateT1: t1 ? 1 : 0, gateT2: t2 ? 1 : 0, gateT3: t3 ? 1 : 0, gateM: m ? 1 : 0, gateW: w ? 1 : 0 }
+      walls[k]!.map(
+        (r, i) =>
+          `anchor ${anchors[i]}: gate ${range(r.gate)}, ideal ${range(r.ideal)} (whole sheets ${idealWhole(r)}), excitation ${range(r.excitation)} trits on ${range(r.excitationDocks)} docks, layers ${r.layers.length} of 12, period ${r.period}`,
+      ).join('; ')
+    const metrics: Record<string, number> = {
+      gateT1: t1 ? 1 : 0,
+      gateT2: t2 ? 1 : 0,
+      gateT3: t3 ? 1 : 0,
+      gateM: m ? 1 : 0,
+      gateW: w ? 1 : 0,
+    }
 
     for (const k of KINDS) {
       locality[k]!.forEach((c, s) => {
@@ -101,8 +149,13 @@ export default experiment({
       metrics[`${k}_pairCrossing`] = per[k]!.pairs.crossing
       metrics[`${k}_pairComponents`] = per[k]!.pairs.components
       walls[k]!.forEach((r, i) => {
-        metrics[`${k}_wall${i}_excitationMax`] = Math.max(...r.excitation)
-        metrics[`${k}_wall${i}_excitationDocksMax`] = Math.max(...r.excitationDocks)
+        metrics[`${k}_wall${i}_excitationMax`] = Math.max(
+          ...r.excitation,
+        )
+
+        metrics[`${k}_wall${i}_excitationDocksMax`] = Math.max(
+          ...r.excitationDocks,
+        )
         metrics[`${k}_wall${i}_idealWhole`] = idealWhole(r) ? 1 : 0
         metrics[`${k}_wall${i}_period`] = r.period
       })

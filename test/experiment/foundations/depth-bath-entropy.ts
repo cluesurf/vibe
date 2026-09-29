@@ -85,7 +85,21 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { arrowBox, blockEnergy, chargeOf, depthMismatch, energyOf, lowEntropyStart, makeHuskLaw, readHuskLaw, sampleHuskLaw, shannon, twoWay, vacuumState, type LawReading } from '@/code/measure/second-law-husk'
+import {
+  arrowBox,
+  blockEnergy,
+  chargeOf,
+  depthMismatch,
+  energyOf,
+  lowEntropyStart,
+  makeHuskLaw,
+  readHuskLaw,
+  sampleHuskLaw,
+  shannon,
+  twoWay,
+  vacuumState,
+  type LawReading,
+} from '@/code/measure/second-law-husk'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
 import { uniformStore } from '@/code/measure/varying-vacuum'
 
@@ -97,7 +111,16 @@ const FROM = 150
 const EVERY = 5
 const HALF_LN9 = 0.5 * Math.log(9)
 
-type Run = { exact: boolean; law: LawReading; lateMismatch: number; mismatchMax: number; d0: number; late: number; t10: number; storeMismatch: number }
+type Run = {
+  exact: boolean
+  law: LawReading
+  lateMismatch: number
+  mismatchMax: number
+  d0: number
+  late: number
+  t10: number
+  storeMismatch: number
+}
 
 export default experiment({
   id: 'foundations/depth-bath-entropy',
@@ -110,20 +133,38 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const members = startFamily(16)
+
     // arm 'A' the adopted knit, 'B' the control of (b) (identity grid moves, empty vacuum), 'C' (added after the first
     // run, reported only) identity grid moves on the all-line vacuum, every line of every dock stored, all store points 0
-    const runOne = (arm: 'A' | 'B' | 'C', uniform: boolean, k: number): Run => {
+    const runOne = (
+      arm: 'A' | 'B' | 'C',
+      uniform: boolean,
+      k: number,
+    ): Run => {
       const control = arm !== 'A'
-      const box = withStart(members[k]!, () => arrowBox(SIDE, BLOCK, 'union', 'lone', control))
+      const box = withStart(members[k]!, () =>
+        arrowBox(SIDE, BLOCK, 'union', 'lone', control),
+      )
       const start = lowEntropyStart(box, {
         blocks: [0],
         perDock: PER_DOCK,
         phase: k,
         depthUniform: uniform,
         emptyVacuum: arm === 'B',
-        ...(arm === 'C' ? { store: uniformStore(box.cells, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]), storePoint: 0 } : {}),
+        ...(arm === 'C'
+          ? {
+              store: uniformStore(
+                box.cells,
+                [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+              ),
+              storePoint: 0,
+            }
+          : {}),
       })
       const r = twoWay(box, start)
       const e = new Float64Array(box.blocks)
@@ -132,6 +173,7 @@ export default experiment({
       const energy = energyOf(start)
       const charge = chargeOf(start)
       const deficit: number[] = []
+
       let exact = true
       let lateMismatch = 0
       let mismatchMax = depthMismatch(box, start)
@@ -149,18 +191,21 @@ export default experiment({
         blockEnergy(box, s, e)
         deficit.push(lnB - shannon(e))
 
-        if (control && uniform) mismatchMax = Math.max(mismatchMax, depthMismatch(box, s))
+        if (control && uniform) {
+          mismatchMax = Math.max(mismatchMax, depthMismatch(box, s))
+        }
 
         if (t >= FROM && t % EVERY === 0) {
-          exact = exact && energyOf(s) === energy && chargeOf(s) === charge
+          exact =
+            exact && energyOf(s) === energy && chargeOf(s) === charge
           sampleHuskLaw(box, law, s)
           lateMismatch += depthMismatch(box, s)
-          late += deficit[t] as number
+          late += deficit[t]!
           samples++
         }
       }
 
-      const d0 = deficit[0] as number
+      const d0 = deficit[0]!
 
       return {
         exact,
@@ -189,24 +234,70 @@ export default experiment({
       return out
     })
 
-    const all = arms.flatMap(a => [a.aUniform, a.aBroken, a.bUniform, a.bBroken])
-    const d1 = all.every(r => r.exact) && arms.every(a => a.bUniform.mismatchMax === 0)
-    const d2 = arms.every(a => a.aUniform.storeMismatch > 0 && Math.abs(a.aUniform.lateMismatch - a.aBroken.lateMismatch) <= 0.05 * a.aBroken.lateMismatch)
-    const gibbs = (r: Run): boolean => [0, 1].every(c => (r.law.tvBinomial[c] as number) <= 0.01 && Math.abs((r.law.fano[c] as number) - (r.law.fermi[c] as number)) <= 0.02) && Math.abs(r.law.betaStore - r.law.betaSlot - HALF_LN9) <= 0.02
+    const all = arms.flatMap(a => [
+      a.aUniform,
+      a.aBroken,
+      a.bUniform,
+      a.bBroken,
+    ])
+    const d1 =
+      all.every(r => r.exact) &&
+      arms.every(a => a.bUniform.mismatchMax === 0)
+    const d2 = arms.every(
+      a =>
+        a.aUniform.storeMismatch > 0 &&
+        Math.abs(a.aUniform.lateMismatch - a.aBroken.lateMismatch) <=
+          0.05 * a.aBroken.lateMismatch,
+    )
+    const gibbs = (r: Run): boolean =>
+      [0, 1].every(
+        c =>
+          r.law.tvBinomial[c]! <= 0.01 &&
+          Math.abs(r.law.fano[c]! - r.law.fermi[c]!) <= 0.02,
+      ) && Math.abs(r.law.betaStore - r.law.betaSlot - HALF_LN9) <= 0.02
     const d3 = arms.every(a => gibbs(a.aUniform) && gibbs(a.aBroken))
-    const d4 = arms.every(a => [0, 1].every(c => (a.bUniform.law.fano[c] as number) >= 0.8 * SIDE * (a.bUniform.law.fermi[c] as number) && Math.abs((a.bBroken.law.fano[c] as number) - (a.bBroken.law.fermi[c] as number)) <= 0.05))
+    const d4 = arms.every(a =>
+      [0, 1].every(
+        c =>
+          a.bUniform.law.fano[c]! >=
+            0.8 * SIDE * a.bUniform.law.fermi[c]! &&
+          Math.abs(a.bBroken.law.fano[c]! - a.bBroken.law.fermi[c]!) <=
+            0.05,
+      ),
+    )
     const d5 = arms.every(a => a.bUniform.late >= 3 * a.bBroken.late)
-    const status = !d1 ? 'partial' : d2 && d3 && d4 && d5 ? 'pass' : 'fail'
-    const pick = (f: (r: Run) => number, which: keyof (typeof arms)[number]): number[] => arms.map(a => f(a[which]))
-    const range = (xs: number[], digits = 3): string => `${Math.min(...xs).toFixed(digits)} to ${Math.max(...xs).toFixed(digits)}`
+    const status = !d1
+      ? 'partial'
+      : d2 && d3 && d4 && d5
+        ? 'pass'
+        : 'fail'
+    const pick = (
+      f: (r: Run) => number,
+      which: keyof (typeof arms)[number],
+    ): number[] => arms.map(a => f(a[which]))
+    const range = (xs: number[], digits = 3): string =>
+      `${Math.min(...xs).toFixed(digits)} to ${Math.max(...xs).toFixed(digits)}`
     const beta = (r: Run): number => r.law.betaSlot + 2 * HALF_LN9
     const gap = (r: Run): number => r.law.betaStore - r.law.betaSlot
-    const fanoRatio = (r: Run, c: number): number => (r.law.fano[c] as number) / (r.law.fermi[c] as number)
+    const fanoRatio = (r: Run, c: number): number =>
+      r.law.fano[c]! / r.law.fermi[c]!
     const a0 = arms[0]!
 
     return verdict({
       status,
-      claim: `on the adopted knit (coset-union vacuum, lone bounce, side ${SIDE}, 17 starts) the vacuum and the link start break the depth step, so a depth-uniform fill leaves its sector (late mismatch ${range(pick(r => r.lateMismatch, 'aUniform'), 0)} against ${range(pick(r => r.lateMismatch, 'aBroken'), 0)} depth-broken) and both fills reach the husk's exclusive-slot Gibbs law (axis Fano / (1 - f) ${range(pick(r => fanoRatio(r, 0), 'aUniform'))} and ${range(pick(r => fanoRatio(r, 0), 'aBroken'))}, binomial to ${Math.max(...pick(r => Math.max(...r.law.tvBinomial), 'aUniform'), ...pick(r => Math.max(...r.law.tvBinomial), 'aBroken')).toFixed(4)}), with the slot and store thermometers apart by ${range([...pick(gap, 'aUniform'), ...pick(gap, 'aBroken')], 4)} against (1/2) ln 9 = ${HALF_LN9.toFixed(4)} (the 9 role points counted), beta = ${range([...pick(beta, 'aUniform'), ...pick(beta, 'aBroken')])} per unit; in the control where the depth step is exact (identity grid moves, empty vacuum) the depth-uniform fill stays in its sector at every beat and its husk Fano is ${range(pick(r => fanoRatio(r, 0), 'bUniform'), 2)} times Fermi-Dirac (L = ${SIDE}), the depth-broken fill ${range(pick(r => fanoRatio(r, 0), 'bBroken'))}, and the husk's coarse deficit floor is ${range(arms.map(a => a.bUniform.late / a.bBroken.late), 1)} times higher without the depth`,
+      claim: `on the adopted knit (coset-union vacuum, lone bounce, side ${SIDE}, 17 starts) the vacuum and the link start break the depth step, so a depth-uniform fill leaves its sector (late mismatch ${range(
+        pick(r => r.lateMismatch, 'aUniform'),
+        0,
+      )} against ${range(
+        pick(r => r.lateMismatch, 'aBroken'),
+        0,
+      )} depth-broken) and both fills reach the husk's exclusive-slot Gibbs law (axis Fano / (1 - f) ${range(pick(r => fanoRatio(r, 0), 'aUniform'))} and ${range(pick(r => fanoRatio(r, 0), 'aBroken'))}, binomial to ${Math.max(...pick(r => Math.max(...r.law.tvBinomial), 'aUniform'), ...pick(r => Math.max(...r.law.tvBinomial), 'aBroken')).toFixed(4)}), with the slot and store thermometers apart by ${range([...pick(gap, 'aUniform'), ...pick(gap, 'aBroken')], 4)} against (1/2) ln 9 = ${HALF_LN9.toFixed(4)} (the 9 role points counted), beta = ${range([...pick(beta, 'aUniform'), ...pick(beta, 'aBroken')])} per unit; in the control where the depth step is exact (identity grid moves, empty vacuum) the depth-uniform fill stays in its sector at every beat and its husk Fano is ${range(
+        pick(r => fanoRatio(r, 0), 'bUniform'),
+        2,
+      )} times Fermi-Dirac (L = ${SIDE}), the depth-broken fill ${range(pick(r => fanoRatio(r, 0), 'bBroken'))}, and the husk's coarse deficit floor is ${range(
+        arms.map(a => a.bUniform.late / a.bBroken.late),
+        1,
+      )} times higher without the depth`,
       metrics: {
         gate_D1: d1 ? 1 : 0,
         gate_D2: d2 ? 1 : 0,
@@ -214,46 +305,116 @@ export default experiment({
         gate_D4: d4 ? 1 : 0,
         gate_D5: d5 ? 1 : 0,
         vacuumStoreMismatch: a0.aUniform.storeMismatch,
-        aUniformLateMismatchMin: Math.min(...pick(r => r.lateMismatch, 'aUniform')),
-        aBrokenLateMismatchMin: Math.min(...pick(r => r.lateMismatch, 'aBroken')),
-        bUniformMismatchMax: Math.max(...pick(r => r.mismatchMax, 'bUniform')),
-        aFanoRatioAxisMax: Math.max(...pick(r => fanoRatio(r, 0), 'aUniform'), ...pick(r => fanoRatio(r, 0), 'aBroken')),
-        aFanoRatioDiagonalMax: Math.max(...pick(r => fanoRatio(r, 1), 'aUniform'), ...pick(r => fanoRatio(r, 1), 'aBroken')),
-        aTvBinomialMax: Math.max(...pick(r => Math.max(...r.law.tvBinomial), 'aUniform'), ...pick(r => Math.max(...r.law.tvBinomial), 'aBroken')),
-        aThermometerGapMin: Math.min(...pick(gap, 'aUniform'), ...pick(gap, 'aBroken')),
-        aThermometerGapMax: Math.max(...pick(gap, 'aUniform'), ...pick(gap, 'aBroken')),
-        aBetaMin: Math.min(...pick(beta, 'aUniform'), ...pick(beta, 'aBroken')),
-        aBetaMax: Math.max(...pick(beta, 'aUniform'), ...pick(beta, 'aBroken')),
-        aFillAxis: a0.aBroken.law.fill[0] as number,
-        bUniformFanoRatioAxisMin: Math.min(...pick(r => fanoRatio(r, 0), 'bUniform')),
-        bUniformFanoRatioDiagonalMin: Math.min(...pick(r => fanoRatio(r, 1), 'bUniform')),
-        bBrokenFanoRatioAxisMax: Math.max(...pick(r => fanoRatio(r, 0), 'bBroken')),
-        bThermometerGapMin: Math.min(...pick(gap, 'bUniform'), ...pick(gap, 'bBroken')),
-        bThermometerGapMax: Math.max(...pick(gap, 'bUniform'), ...pick(gap, 'bBroken')),
-        bLateDeficitRatioMin: Math.min(...arms.map(a => a.bUniform.late / a.bBroken.late)),
+        aUniformLateMismatchMin: Math.min(
+          ...pick(r => r.lateMismatch, 'aUniform'),
+        ),
+        aBrokenLateMismatchMin: Math.min(
+          ...pick(r => r.lateMismatch, 'aBroken'),
+        ),
+        bUniformMismatchMax: Math.max(
+          ...pick(r => r.mismatchMax, 'bUniform'),
+        ),
+        aFanoRatioAxisMax: Math.max(
+          ...pick(r => fanoRatio(r, 0), 'aUniform'),
+          ...pick(r => fanoRatio(r, 0), 'aBroken'),
+        ),
+        aFanoRatioDiagonalMax: Math.max(
+          ...pick(r => fanoRatio(r, 1), 'aUniform'),
+          ...pick(r => fanoRatio(r, 1), 'aBroken'),
+        ),
+        aTvBinomialMax: Math.max(
+          ...pick(r => Math.max(...r.law.tvBinomial), 'aUniform'),
+          ...pick(r => Math.max(...r.law.tvBinomial), 'aBroken'),
+        ),
+        aThermometerGapMin: Math.min(
+          ...pick(gap, 'aUniform'),
+          ...pick(gap, 'aBroken'),
+        ),
+        aThermometerGapMax: Math.max(
+          ...pick(gap, 'aUniform'),
+          ...pick(gap, 'aBroken'),
+        ),
+        aBetaMin: Math.min(
+          ...pick(beta, 'aUniform'),
+          ...pick(beta, 'aBroken'),
+        ),
+        aBetaMax: Math.max(
+          ...pick(beta, 'aUniform'),
+          ...pick(beta, 'aBroken'),
+        ),
+        aFillAxis: a0.aBroken.law.fill[0]!,
+        bUniformFanoRatioAxisMin: Math.min(
+          ...pick(r => fanoRatio(r, 0), 'bUniform'),
+        ),
+        bUniformFanoRatioDiagonalMin: Math.min(
+          ...pick(r => fanoRatio(r, 1), 'bUniform'),
+        ),
+        bBrokenFanoRatioAxisMax: Math.max(
+          ...pick(r => fanoRatio(r, 0), 'bBroken'),
+        ),
+        bThermometerGapMin: Math.min(
+          ...pick(gap, 'bUniform'),
+          ...pick(gap, 'bBroken'),
+        ),
+        bThermometerGapMax: Math.max(
+          ...pick(gap, 'bUniform'),
+          ...pick(gap, 'bBroken'),
+        ),
+        bLateDeficitRatioMin: Math.min(
+          ...arms.map(a => a.bUniform.late / a.bBroken.late),
+        ),
         aUniformTenfoldMax: Math.max(...pick(r => r.t10, 'aUniform')),
         aBrokenTenfoldMax: Math.max(...pick(r => r.t10, 'aBroken')),
         bUniformTenfoldMax: Math.max(...pick(r => r.t10, 'bUniform')),
         bBrokenTenfoldMax: Math.max(...pick(r => r.t10, 'bBroken')),
-        cExact: arms.every(a => a.cUniform.exact && a.cBroken.exact) ? 1 : 0,
-        cUniformMismatchMax: Math.max(...pick(r => r.mismatchMax, 'cUniform')),
-        cUniformFanoRatioAxisMin: Math.min(...pick(r => fanoRatio(r, 0), 'cUniform')),
-        cUniformFanoRatioDiagonalMin: Math.min(...pick(r => fanoRatio(r, 1), 'cUniform')),
-        cBrokenFanoRatioAxisMin: Math.min(...pick(r => fanoRatio(r, 0), 'cBroken')),
-        cBrokenFanoRatioAxisMax: Math.max(...pick(r => fanoRatio(r, 0), 'cBroken')),
-        cBrokenTvBinomialMax: Math.max(...pick(r => Math.max(...r.law.tvBinomial), 'cBroken')),
-        cThermometerGapMin: Math.min(...pick(gap, 'cUniform'), ...pick(gap, 'cBroken')),
-        cThermometerGapMax: Math.max(...pick(gap, 'cUniform'), ...pick(gap, 'cBroken')),
-        cLateDeficitRatioMin: Math.min(...arms.map(a => a.cUniform.late / a.cBroken.late)),
-        cLateDeficitRatioMax: Math.max(...arms.map(a => a.cUniform.late / a.cBroken.late)),
+        cExact: arms.every(a => a.cUniform.exact && a.cBroken.exact)
+          ? 1
+          : 0,
+        cUniformMismatchMax: Math.max(
+          ...pick(r => r.mismatchMax, 'cUniform'),
+        ),
+        cUniformFanoRatioAxisMin: Math.min(
+          ...pick(r => fanoRatio(r, 0), 'cUniform'),
+        ),
+        cUniformFanoRatioDiagonalMin: Math.min(
+          ...pick(r => fanoRatio(r, 1), 'cUniform'),
+        ),
+        cBrokenFanoRatioAxisMin: Math.min(
+          ...pick(r => fanoRatio(r, 0), 'cBroken'),
+        ),
+        cBrokenFanoRatioAxisMax: Math.max(
+          ...pick(r => fanoRatio(r, 0), 'cBroken'),
+        ),
+        cBrokenTvBinomialMax: Math.max(
+          ...pick(r => Math.max(...r.law.tvBinomial), 'cBroken'),
+        ),
+        cThermometerGapMin: Math.min(
+          ...pick(gap, 'cUniform'),
+          ...pick(gap, 'cBroken'),
+        ),
+        cThermometerGapMax: Math.max(
+          ...pick(gap, 'cUniform'),
+          ...pick(gap, 'cBroken'),
+        ),
+        cLateDeficitRatioMin: Math.min(
+          ...arms.map(a => a.cUniform.late / a.cBroken.late),
+        ),
+        cLateDeficitRatioMax: Math.max(
+          ...arms.map(a => a.cUniform.late / a.cBroken.late),
+        ),
         cUniformTenfoldMax: Math.max(...pick(r => r.t10, 'cUniform')),
         cBrokenTenfoldMax: Math.max(...pick(r => r.t10, 'cBroken')),
-        cFillAxis: a0.cBroken.law.fill[0] as number,
+        cFillAxis: a0.cBroken.law.fill[0]!,
         seconds: (Date.now() - started) / 1000,
       },
       control: {
-        sectorClosedInControl: arms.every(a => a.bUniform.mismatchMax === 0) ? 1 : 0,
-        controlUniformFanoRatioAxis: a0.bUniform.law.fano[0]! / a0.bUniform.law.fermi[0]!,
+        sectorClosedInControl: arms.every(
+          a => a.bUniform.mismatchMax === 0,
+        )
+          ? 1
+          : 0,
+        controlUniformFanoRatioAxis:
+          a0.bUniform.law.fano[0]! / a0.bUniform.law.fermi[0]!,
       },
       notes: `L2. Gates D1 ${d1}, D2 ${d2}, D3 ${d3}, D4 ${d4}, D5 ${d5}. Committed start (arm A uniform; broken; arm B uniform; broken): fill ${[a0.aUniform, a0.aBroken, a0.bUniform, a0.bBroken].map(r => r.law.fill.map(x => x.toFixed(4)).join('/')).join('; ')}; Fano/(1 - f) axis ${[a0.aUniform, a0.aBroken, a0.bUniform, a0.bBroken].map(r => fanoRatio(r, 0).toFixed(3)).join('; ')}; diagonal ${[a0.aUniform, a0.aBroken, a0.bUniform, a0.bBroken].map(r => fanoRatio(r, 1).toFixed(3)).join('; ')}; b_slot ${[a0.aUniform, a0.aBroken, a0.bUniform, a0.bBroken].map(r => r.law.betaSlot.toFixed(4)).join('; ')}; b_store ${[a0.aUniform, a0.aBroken, a0.bUniform, a0.bBroken].map(r => r.law.betaStore.toFixed(4)).join('; ')}; deficit D(0) ${[a0.aUniform, a0.aBroken, a0.bUniform, a0.bBroken].map(r => r.d0.toFixed(4)).join('; ')}, late ${[a0.aUniform, a0.aBroken, a0.bUniform, a0.bBroken].map(r => r.late.toExponential(2)).join('; ')}, tenfold beat ${[a0.aUniform, a0.aBroken, a0.bUniform, a0.bBroken].map(r => r.t10).join('; ')}. Arm B thermometer gap ${range([...pick(gap, 'bUniform'), ...pick(gap, 'bBroken')], 4)} (not gated: identity grid moves keep every token's point, so the point degeneracy need not be ergodic there). ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })

@@ -14,7 +14,12 @@ import { join } from 'node:path'
 export type DeterminismFinding = {
   file: string
   line: number
-  kind: 'math-random' | 'retired-module' | 'retired-hash' | 'generator-constant' | 'hash-draw'
+  kind:
+    | 'math-random'
+    | 'retired-module'
+    | 'retired-hash'
+    | 'generator-constant'
+    | 'hash-draw'
   text: string
 }
 
@@ -31,13 +36,15 @@ export const DETERMINISM_EXEMPT = [
 const MATH_RANDOM = new RegExp(['\\bMath', '\\.random\\s*\\('].join(''))
 const RETIRED_MODULE = new RegExp(
   [
-    "(from\\s+|import\\s*\\(\\s*|import\\s+)['\"]",
+    '(from\\s+|import\\s*\\(\\s*|import\\s+)[\'"]',
     '(@/code/tool/|(\\.\\.?/)+(code/)?tool/|\\./tool/)',
     'rng',
-    "['\"]",
+    '[\'"]',
   ].join(''),
 )
-const RETIRED_CONFORMANCE = new RegExp(["['\"]@/test/code/tool/", "rng['\"]"].join(''))
+const RETIRED_CONFORMANCE = new RegExp(
+  ['[\'"]@/test/code/tool/', 'rng[\'"]'].join(''),
+)
 const RETIRED_HASH = new RegExp(['\\bhash', 'Rand\\b'].join(''))
 
 // mulberry32, the Numerical Recipes and ANSI C linear congruential generators, Knuth's MMIX (also PCG's
@@ -76,12 +83,21 @@ const FINALIZER_CONSTANTS = [
   ['12741', '26177'],
 ].map(([a, b]) => new RegExp(`\\b${a}${b}\\b`, 'i'))
 const NORMALIZE = [
-  new RegExp(['/\\s*', '(4294967296|0x100000000|2\\s*\\*\\*\\s*32|4\\.294967296e9)', '\\b'].join('')),
+  new RegExp(
+    [
+      '/\\s*',
+      '(4294967296|0x100000000|2\\s*\\*\\*\\s*32|4\\.294967296e9)',
+      '\\b',
+    ].join(''),
+  ),
   new RegExp(['\\*\\s*', '2\\.3283064365386963e-10'].join('')),
 ]
 
 // Every finding in one file's text. `file` is the path relative to the repo root.
-export function scanSource(file: string, text: string): DeterminismFinding[] {
+export function scanSource(
+  file: string,
+  text: string,
+): DeterminismFinding[] {
   const findings: DeterminismFinding[] = [...scanHashDraw(file, text)]
   const lines = text.split('\n')
 
@@ -92,12 +108,21 @@ export function scanSource(file: string, text: string): DeterminismFinding[] {
     const line = lines[i]!
     const trimmed = line.trim()
 
-    if (trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('/*')) {
+    if (
+      trimmed.startsWith('//') ||
+      trimmed.startsWith('*') ||
+      trimmed.startsWith('/*')
+    ) {
       continue
     }
 
     const record = (kind: DeterminismFinding['kind']): void => {
-      findings.push({ file, line: i + 1, kind, text: trimmed.slice(0, 160) })
+      findings.push({
+        file,
+        line: i + 1,
+        kind,
+        text: trimmed.slice(0, 160),
+      })
     }
 
     if (MATH_RANDOM.test(line)) {
@@ -122,7 +147,10 @@ export function scanSource(file: string, text: string): DeterminismFinding[] {
       importBlock += `${line}\n`
 
       if (/from\s+['"][^'"]+['"]/.test(line)) {
-        if (RETIRED_HASH.test(importBlock) && /conserving-sweep['"]/.test(importBlock)) {
+        if (
+          RETIRED_HASH.test(importBlock) &&
+          /conserving-sweep['"]/.test(importBlock)
+        ) {
           findings.push({
             file,
             line: importStart + 1,
@@ -140,24 +168,44 @@ export function scanSource(file: string, text: string): DeterminismFinding[] {
 }
 
 // the hash-draw finding of one file: at most one, at its first mixing line, when the file also normalizes
-export function scanHashDraw(file: string, text: string): DeterminismFinding[] {
+export function scanHashDraw(
+  file: string,
+  text: string,
+): DeterminismFinding[] {
   const lines = text.split('\n')
+
   const code = (line: string): boolean => {
     const trimmed = line.trim()
 
-    return !(trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('/*'))
+    return !(
+      trimmed.startsWith('//') ||
+      trimmed.startsWith('*') ||
+      trimmed.startsWith('/*')
+    )
   }
 
   const mixing = lines.findIndex(
-    line => code(line) && (XORSHIFT.some(p => p.test(line)) || FINALIZER_CONSTANTS.some(p => p.test(line))),
+    line =>
+      code(line) &&
+      (XORSHIFT.some(p => p.test(line)) ||
+        FINALIZER_CONSTANTS.some(p => p.test(line))),
   )
-  const normalizes = lines.some(line => code(line) && NORMALIZE.some(p => p.test(line)))
+  const normalizes = lines.some(
+    line => code(line) && NORMALIZE.some(p => p.test(line)),
+  )
 
   if (mixing < 0 || !normalizes) {
     return []
   }
 
-  return [{ file, line: mixing + 1, kind: 'hash-draw', text: (lines[mixing] ?? '').trim().slice(0, 160) }]
+  return [
+    {
+      file,
+      line: mixing + 1,
+      kind: 'hash-draw',
+      text: (lines[mixing] ?? '').trim().slice(0, 160),
+    },
+  ]
 }
 
 function walk(dir: string, out: string[]): void {
@@ -170,7 +218,12 @@ function walk(dir: string, out: string[]): void {
   }
 
   for (const name of names) {
-    if (name === 'node_modules' || name === 'host' || name === 'tmp' || name.startsWith('.')) {
+    if (
+      name === 'node_modules' ||
+      name === 'host' ||
+      name === 'tmp' ||
+      name.startsWith('.')
+    ) {
       continue
     }
 
@@ -202,7 +255,10 @@ export function scanRepository(base: string): {
   for (const path of paths) {
     const file = path.slice(base.length + 1)
 
-    if (DETERMINISM_EXEMPT.includes(file) || file.startsWith('test/site/')) {
+    if (
+      DETERMINISM_EXEMPT.includes(file) ||
+      file.startsWith('test/site/')
+    ) {
       continue
     }
 

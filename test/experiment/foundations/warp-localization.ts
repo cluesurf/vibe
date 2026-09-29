@@ -57,6 +57,7 @@ export default experiment({
     ): { settle: number; spread: number } => {
       let vacuum: Will = makeWill(mesh)
       let seeded: Will = makeWill(mesh)
+
       const samples: number[] = []
 
       for (let t = 0; t < BEATS; t++) {

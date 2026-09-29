@@ -41,7 +41,8 @@ export function matrixOfPermutation(perm: readonly number[]): Matrix4 {
 
     for (let i = 0; i < 4; i++) {
       for (let j = 0; j < 4; j++) {
-        m[i * 4 + j] = (m[i * 4 + j] ?? 0) + ((image[i] ?? 0) * (r[j] ?? 0)) / 12
+        m[i * 4 + j] =
+          (m[i * 4 + j] ?? 0) + ((image[i] ?? 0) * (r[j] ?? 0)) / 12
       }
     }
   })
@@ -56,7 +57,15 @@ export function permutationIsLinear(perm: readonly number[]): boolean {
   return ROOTS.every((r, d) => {
     const image = ROOTS[perm[d] ?? d] ?? r
 
-    return [0, 1, 2, 3].every(i => Math.abs([0, 1, 2, 3].reduce((s, j) => s + (m[i * 4 + j] ?? 0) * (r[j] ?? 0), 0) - (image[i] ?? 0)) < 1e-12)
+    return [0, 1, 2, 3].every(
+      i =>
+        Math.abs(
+          [0, 1, 2, 3].reduce(
+            (s, j) => s + (m[i * 4 + j] ?? 0) * (r[j] ?? 0),
+            0,
+          ) - (image[i] ?? 0),
+        ) < 1e-12,
+    )
   })
 }
 
@@ -64,7 +73,13 @@ export function doubledToMatrix(m: ArrayLike<number>): Matrix4 {
   return Array.from({ length: 16 }, (_, i) => (m[i] ?? 0) / 2)
 }
 
-const apply = (m: Matrix4, v: readonly number[]): number[] => [0, 1, 2, 3].map(i => [0, 1, 2, 3].reduce((s, j) => s + (m[i * 4 + j] ?? 0) * (v[j] ?? 0), 0))
+const apply = (m: Matrix4, v: readonly number[]): number[] =>
+  [0, 1, 2, 3].map(i =>
+    [0, 1, 2, 3].reduce(
+      (s, j) => s + (m[i * 4 + j] ?? 0) * (v[j] ?? 0),
+      0,
+    ),
+  )
 
 // the exponent tuples of the monomials of a degree in four variables
 function exponents(degree: number): number[][] {
@@ -81,7 +96,11 @@ function exponents(degree: number): number[][] {
   return out
 }
 
-const monomial = (v: readonly number[], e: readonly number[]): number => (v[0] ?? 0) ** (e[0] ?? 0) * (v[1] ?? 0) ** (e[1] ?? 0) * (v[2] ?? 0) ** (e[2] ?? 0) * (v[3] ?? 0) ** (e[3] ?? 0)
+const monomial = (v: readonly number[], e: readonly number[]): number =>
+  (v[0] ?? 0) ** (e[0] ?? 0) *
+  (v[1] ?? 0) ** (e[1] ?? 0) *
+  (v[2] ?? 0) ** (e[2] ?? 0) *
+  (v[3] ?? 0) ** (e[3] ?? 0)
 
 export type IsotropyKind = 'scalar' | 'transverse'
 
@@ -96,11 +115,18 @@ export type ForcedReport = {
 
 // deterministic sample points: k a unit vector, a a unit vector across k (transverse), both in the husk
 // (fourth entry 0) or in the bulk
-function samplePoints(input: { count: number; husk: boolean; start: number }): { k: number[]; a: number[] }[] {
+function samplePoints(input: {
+  count: number
+  husk: boolean
+  start: number
+}): { k: number[]; a: number[] }[] {
   const stream = makeWeyl({ start: input.start })
   const dim = input.husk ? 3 : 4
+
   const unit = (): number[] => {
-    const v = [0, 0, 0, 0].map((_, i) => (i < dim ? stream.nextGaussian() : 0))
+    const v = [0, 0, 0, 0].map((_, i) =>
+      i < dim ? stream.nextGaussian() : 0,
+    )
     const n = Math.hypot(...v)
 
     return v.map(x => x / n)
@@ -117,13 +143,27 @@ function samplePoints(input: { count: number; husk: boolean; start: number }): {
   })
 }
 
-export function forcedIsotropic(input: { group: readonly Matrix4[]; kind: IsotropyKind; degree: number; husk: boolean; points?: number }): ForcedReport {
+export function forcedIsotropic(input: {
+  group: readonly Matrix4[]
+  kind: IsotropyKind
+  degree: number
+  husk: boolean
+  points?: number
+}): ForcedReport {
   const { group, kind, degree, husk } = input
   const kExps = exponents(degree)
   const aExps = kind === 'transverse' ? exponents(2) : [[0, 0, 0, 0]]
   const columns = aExps.length * kExps.length
   const count = input.points ?? Math.max(60, 3 * columns)
-  const points = samplePoints({ count, husk, start: 7 + degree * 13 + (kind === 'transverse' ? 101 : 0) + (husk ? 1009 : 0) })
+  const points = samplePoints({
+    count,
+    husk,
+    start:
+      7 +
+      degree * 13 +
+      (kind === 'transverse' ? 101 : 0) +
+      (husk ? 1009 : 0),
+  })
   const f = new Float64Array(count * columns)
   const iso = new Float64Array(count)
 
@@ -136,7 +176,9 @@ export function forcedIsotropic(input: { group: readonly Matrix4[]; kind: Isotro
 
       for (let i = 0; i < av.length; i++) {
         for (let j = 0; j < kv.length; j++) {
-          f[row * columns + i * kv.length + j] = (f[row * columns + i * kv.length + j] ?? 0) + ((av[i] ?? 0) * (kv[j] ?? 0)) / group.length
+          f[row * columns + i * kv.length + j] =
+            (f[row * columns + i * kv.length + j] ?? 0) +
+            ((av[i] ?? 0) * (kv[j] ?? 0)) / group.length
         }
       }
     }
@@ -147,18 +189,26 @@ export function forcedIsotropic(input: { group: readonly Matrix4[]; kind: Isotro
 
   // residual of each column after projecting out the isotropic function, and the rank of F
   let worst = 0
+
   const basis: Float64Array[] = []
+
   let scale = 0
 
   for (let c = 0; c < columns; c++) {
-    const col = Float64Array.from({ length: count }, (_, r) => f[r * columns + c] ?? 0)
+    const col = Float64Array.from(
+      { length: count },
+      (_, r) => f[r * columns + c] ?? 0,
+    )
     const norm = Math.hypot(...col)
 
     scale = Math.max(scale, norm)
   }
 
   for (let c = 0; c < columns; c++) {
-    const col = Float64Array.from({ length: count }, (_, r) => f[r * columns + c] ?? 0)
+    const col = Float64Array.from(
+      { length: count },
+      (_, r) => f[r * columns + c] ?? 0,
+    )
     const norm = Math.hypot(...col)
 
     if (norm < 1e-12 * scale) {
@@ -176,8 +226,13 @@ export function forcedIsotropic(input: { group: readonly Matrix4[]; kind: Isotro
     for (const b of basis) {
       let s = 0
 
-      for (let i = 0; i < count; i++) s += (b[i] ?? 0) * (w[i] ?? 0)
-      for (let i = 0; i < count; i++) w[i] = (w[i] ?? 0) - s * (b[i] ?? 0)
+      for (let i = 0; i < count; i++) {
+        s += (b[i] ?? 0) * (w[i] ?? 0)
+      }
+
+      for (let i = 0; i < count; i++) {
+        w[i] = (w[i] ?? 0) - s * (b[i] ?? 0)
+      }
     }
 
     const wn = Math.hypot(...w)
@@ -187,15 +242,31 @@ export function forcedIsotropic(input: { group: readonly Matrix4[]; kind: Isotro
     }
   }
 
-  return { invariants: basis.length, residual: worst, forced: worst < 1e-9 }
+  return {
+    invariants: basis.length,
+    residual: worst,
+    forced: worst < 1e-9,
+  }
 }
 
 // The lowest degree n >= n0, among the degrees tested, at which G stops forcing isotropy: the predicted
 // order of the relative anisotropy is then n - n0. Undefined when G forces isotropy through every degree
 // tested (the order is then at least the next even degree minus n0).
-export function firstAnisotropicDegree(input: { group: readonly Matrix4[]; kind: IsotropyKind; husk: boolean; degrees: readonly number[] }): number | undefined {
+export function firstAnisotropicDegree(input: {
+  group: readonly Matrix4[]
+  kind: IsotropyKind
+  husk: boolean
+  degrees: readonly number[]
+}): number | undefined {
   for (const degree of input.degrees) {
-    if (!forcedIsotropic({ group: input.group, kind: input.kind, degree, husk: input.husk }).forced) {
+    if (
+      !forcedIsotropic({
+        group: input.group,
+        kind: input.kind,
+        degree,
+        husk: input.husk,
+      }).forced
+    ) {
       return degree
     }
   }

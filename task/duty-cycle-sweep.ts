@@ -11,36 +11,53 @@ const side = 13
 const mesh = d4Mesh({ side })
 const opposite = meshOpposites(mesh)
 const rule = turningWeave({ opposite })
-const coord = (c: number, a: number): number => Math.floor(c / side ** a) % side
+const coord = (c: number, a: number): number =>
+  Math.floor(c / side ** a) % side
 const mid = 6
 const seedCell = mid + mid * side + mid * side * side + mid * side ** 3
 
 const classify = (dir: number, seedBeat: number): 'K' | 'l' => {
   let vacuum: Will = makeWill(mesh)
   let seeded: Will = makeWill(mesh)
+
   const acc = new Set<number>()
   const readStart = seedBeat + 8
+
   for (let t = 0; t < readStart + 6; t++) {
     const active = (c: number): boolean => coord(c, 0) <= t
+
     if (t === seedBeat) {
       const slot = seedCell * 24 + dir
       const v = seeded.data[slot]!
+
       seeded.data[slot] = (((v + 1 + 4) % 3) - 1) as -1 | 0 | 1
     }
+
     vacuum = growingBeat(vacuum, rule(t), active)
     seeded = growingBeat(seeded, rule(t), active)
+
     if (t >= readStart) {
       for (let i = 0; i < seeded.data.length; i++) {
-        if (seeded.data[i] !== vacuum.data[i]) acc.add(Math.floor(i / 24))
+        if (seeded.data[i] !== vacuum.data[i]) {
+          acc.add(Math.floor(i / 24))
+        }
       }
     }
   }
+
   return acc.has(seedCell) ? 'K' : 'l'
 }
 
 for (const dir of [5, 6, 8, 11, 9, 10, 13, 14, 16, 19, 21, 22]) {
   let pattern = ''
-  for (let b = 20; b < 44; b++) pattern += classify(dir, b)
+
+  for (let b = 20; b < 44; b++) {
+    pattern += classify(dir, b)
+  }
+
   const duty = pattern.split('').filter(c => c === 'K').length
-  console.log(`dir ${String(dir).padStart(2)}: ${pattern} duty=${duty}/24`)
+
+  console.log(
+    `dir ${String(dir).padStart(2)}: ${pattern} duty=${duty}/24`,
+  )
 }

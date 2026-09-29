@@ -136,7 +136,8 @@ export default experiment({
     // and blindness must genuinely occur somewhere, else the criterion is vacuous
     const blindnessOccurs = blindCount > 0
 
-    const ok = predictionHolds && bothNecessityLegsPresent && blindnessOccurs
+    const ok =
+      predictionHolds && bothNecessityLegsPresent && blindnessOccurs
 
     return verdict({
       status: ok ? 'pass' : 'fail',

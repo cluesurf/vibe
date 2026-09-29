@@ -33,7 +33,11 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { Collision, passThrough, turningWeave } from '@/code/rule/collision'
+import {
+  Collision,
+  passThrough,
+  turningWeave,
+} from '@/code/rule/collision'
 import { chargeWaveResponse } from '@/code/measure/coarse-modes'
 import {
   loneChargeCurrent,
@@ -121,11 +125,17 @@ function sound(schedule: (beat: number) => Collision): {
   })
 }
 
-function vacuumTensor(schedule: (beat: number) => Collision): number[][] {
+function vacuumTensor(
+  schedule: (beat: number) => Collision,
+): number[][] {
   const side = LONE_SIDE
   const mesh = d4Mesh({ side })
   const directions = rootsD4()
-  const vacuum = vacuumCellTrajectory({ schedule, beats: PERIOD, degree: 24 })
+  const vacuum = vacuumCellTrajectory({
+    schedule,
+    beats: PERIOD,
+    degree: 24,
+  })
   const mid = Math.floor(side / 2)
   const dock = mid + mid * side + mid * side ** 2 + mid * side ** 3
 
@@ -149,7 +159,7 @@ export default experiment({
   id: 'relativity/emergent-metric-escape',
   code: 'E-RLT-0047',
   title:
-    'no single emergent metric absorbs the committed knit\'s anisotropy: its dense-background kinetic tensor is nearly isotropic while its vacuum lone-tone tensor is not, the two stay further apart than the pre-registered 0.1 at sides 9, 13 and 17, and pure streaming, where both are proportional, shows the test can pass; a third tensor, the sound tensor fitted from peak frequencies, is a quadratic form for the committed knit (residual 0.064) and disagrees with both (distances 0.95 and 1.12), so three rank-2 responses point three ways',
+    "no single emergent metric absorbs the committed knit's anisotropy: its dense-background kinetic tensor is nearly isotropic while its vacuum lone-tone tensor is not, the two stay further apart than the pre-registered 0.1 at sides 9, 13 and 17, and pure streaming, where both are proportional, shows the test can pass; a third tensor, the sound tensor fitted from peak frequencies, is a quadratic form for the committed knit (residual 0.064) and disagrees with both (distances 0.95 and 1.12), so three rank-2 responses point three ways",
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L2',
@@ -162,7 +172,10 @@ export default experiment({
     const g = SIDES.map(side => kinetic({ side, schedule: committed }))
     const v = vacuumTensor(committed)
     const c = sound(committed)
-    const gStream = kinetic({ side: SIDES[0] ?? 9, schedule: streaming })
+    const gStream = kinetic({
+      side: SIDES[0] ?? 9,
+      schedule: streaming,
+    })
     const vStream = vacuumTensor(streaming)
     const cStream = sound(streaming)
 
@@ -176,14 +189,23 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'pure streaming gives a quadratic kinetic tensor proportional to its vacuum tensor within the pre-registered 0.1, and the committed knit\'s kinetic and vacuum tensors are further apart than 0.1 at sides 9, 13 and 17, so no single metric makes both isotropic',
+        "pure streaming gives a quadratic kinetic tensor proportional to its vacuum tensor within the pre-registered 0.1, and the committed knit's kinetic and vacuum tensors are further apart than 0.1 at sides 9, 13 and 17, so no single metric makes both isotropic",
       metrics: {
         tolerance: TOLERANCE,
         ...Object.fromEntries(
           SIDES.flatMap((side, k) => [
-            [`kineticVacuumDistanceSide${side}`, Number((distances[k] ?? 0).toFixed(4))],
-            [`kineticAnisotropySide${side}`, Number(anisotropy(g[k]?.tensor ?? []).toFixed(4))],
-            [`kineticResidualSide${side}`, Number((g[k]?.residual ?? 0).toFixed(4))],
+            [
+              `kineticVacuumDistanceSide${side}`,
+              Number((distances[k] ?? 0).toFixed(4)),
+            ],
+            [
+              `kineticAnisotropySide${side}`,
+              Number(anisotropy(g[k]?.tensor ?? []).toFixed(4)),
+            ],
+            [
+              `kineticResidualSide${side}`,
+              Number((g[k]?.residual ?? 0).toFixed(4)),
+            ],
           ]),
         ),
         vacuumAnisotropy: Number(anisotropy(v).toFixed(4)),
@@ -192,17 +214,25 @@ export default experiment({
         soundKineticDistance: Number(
           tensorDistance(c.tensor, g[0]?.tensor ?? []).toFixed(4),
         ),
-        soundVacuumDistance: Number(tensorDistance(c.tensor, v).toFixed(4)),
+        soundVacuumDistance: Number(
+          tensorDistance(c.tensor, v).toFixed(4),
+        ),
       },
       control: {
-        streamingKineticVacuumDistance: Number(controlDistance.toFixed(4)),
+        streamingKineticVacuumDistance: Number(
+          controlDistance.toFixed(4),
+        ),
         streamingKineticResidual: Number(gStream.residual.toFixed(4)),
-        streamingKineticAnisotropy: Number(anisotropy(gStream.tensor).toFixed(4)),
-        streamingVacuumAnisotropy: Number(anisotropy(vStream).toFixed(4)),
+        streamingKineticAnisotropy: Number(
+          anisotropy(gStream.tensor).toFixed(4),
+        ),
+        streamingVacuumAnisotropy: Number(
+          anisotropy(vStream).toFixed(4),
+        ),
         streamingSoundResidual: Number(cStream.residual.toFixed(4)),
       },
       notes:
-        'L2. The two gated tensors are both quadratic by construction and measure different physics: G is how fast the charge carriers of the mixed background move, direction by direction, one beat after a long wave is laid down, and V is where a single tone on the empty vacuum carries charge. A metric that made the dense background isotropic would leave the vacuum\'s lone tones anisotropic, and the reverse, so the knit has no single light cone to read a metric from. The sound tensor is not gated, because for a ballistic gas the peak frequency is no quadratic form (streaming\'s residual is 0.33: an axis wave peaks at |k|, a face wave at |k| / root 2). For the committed knit it is one (residual 0.064), and it is dominated by the two protected directions, which stream freely forever (E-FRC-0143): a wave along axis 0 or 1 oscillates at exactly the streaming frequency and one along axis 2 hardly at all, so its (0, 1) block is nearly rank one along (1, 1, 0, 0). It is 0.95 from G and 1.12 from V, a third direction for a would-be metric. The kinetic residual reads how quadratic G is (the sixteen waves overdetermine its ten numbers). The tolerance, 0.1, was fixed after a side-9 probe had shown G nearly isotropic and V not, and before any distance or any side-13 or side-17 value was read.',
+        "L2. The two gated tensors are both quadratic by construction and measure different physics: G is how fast the charge carriers of the mixed background move, direction by direction, one beat after a long wave is laid down, and V is where a single tone on the empty vacuum carries charge. A metric that made the dense background isotropic would leave the vacuum's lone tones anisotropic, and the reverse, so the knit has no single light cone to read a metric from. The sound tensor is not gated, because for a ballistic gas the peak frequency is no quadratic form (streaming's residual is 0.33: an axis wave peaks at |k|, a face wave at |k| / root 2). For the committed knit it is one (residual 0.064), and it is dominated by the two protected directions, which stream freely forever (E-FRC-0143): a wave along axis 0 or 1 oscillates at exactly the streaming frequency and one along axis 2 hardly at all, so its (0, 1) block is nearly rank one along (1, 1, 0, 0). It is 0.95 from G and 1.12 from V, a third direction for a would-be metric. The kinetic residual reads how quadratic G is (the sixteen waves overdetermine its ten numbers). The tolerance, 0.1, was fixed after a side-9 probe had shown G nearly isotropic and V not, and before any distance or any side-13 or side-17 value was read.",
     })
   },
 })

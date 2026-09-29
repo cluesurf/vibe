@@ -46,9 +46,19 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { BIND_MOVE_FORWARD, type Collision, turningWeave } from '@/code/rule/collision'
+import {
+  BIND_MOVE_FORWARD,
+  type Collision,
+  turningWeave,
+} from '@/code/rule/collision'
 import { COLOR_TURN_SPEC } from '@/code/rule/color-turn-weave'
-import { colorLocalBeat, colorLocalCollision, colorLocalSpec, makeColorLocalWeave, type ColorLocalSpec } from '@/code/rule/color-local-weave'
+import {
+  colorLocalBeat,
+  colorLocalCollision,
+  colorLocalSpec,
+  makeColorLocalWeave,
+  type ColorLocalSpec,
+} from '@/code/rule/color-local-weave'
 import {
   acceptance,
   type Acceptance,
@@ -93,7 +103,6 @@ const GOLDEN = (Math.sqrt(5) - 1) / 2
 const BEATS = 48
 const PERIOD = 24
 
-
 const baseRule =
   (spec: ColorLocalSpec): ScheduledRule =>
   (opposite, forward) =>
@@ -118,14 +127,17 @@ function dense(slots: number, scale: number): VibeState {
 }
 
 const same = (a: VibeState, b: VibeState): boolean =>
-  a.vibe.every((x, i) => x === b.vibe[i]) && a.role.every((x, i) => x === b.role[i]) && a.flow.every((x, i) => x === b.flow[i])
+  a.vibe.every((x, i) => x === b.vibe[i]) &&
+  a.role.every((x, i) => x === b.role[i]) &&
+  a.flow.every((x, i) => x === b.flow[i])
 
 // the exact laws on one base with the block on (side 3, dense, 48 beats)
 function laws(spec: ScatterWeaveSpec) {
   const weave = makeScatterWeave({ side: 3, spec })
   const slots = weave.mesh.cellCount * 24
   const start = dense(slots, 1.37)
-  const charge = (s: VibeState): number => s.vibe.reduce((a, b) => a + b, 0)
+  const charge = (s: VibeState): number =>
+    s.vibe.reduce((a, b) => a + b, 0)
   const p0 = momentumOf(start.vibe).p
   const n0 = lineMomenta(start.vibe, weave.opposite)
 
@@ -144,12 +156,22 @@ function laws(spec: ScatterWeaveSpec) {
     s = scatterBeat(weave, s, t)
     chargeKept = chargeKept && charge(s) === charge(start)
     gauss = gauss && gaussHolds(weave, start, s)
-    pDrift = Math.max(pDrift, ...momentumOf(s.vibe).p.map((x, k) => Math.abs(x - (p0[k] ?? 0))))
+    pDrift = Math.max(
+      pDrift,
+      ...momentumOf(s.vibe).p.map((x, k) => Math.abs(x - (p0[k] ?? 0))),
+    )
 
     const n = lineMomenta(s.vibe, weave.opposite)
 
-    lineDrift = Math.max(lineDrift, ...n.map((x, k) => Math.abs(x - (n0[k] ?? 0))))
-    lineSumDrift = Math.max(lineSumDrift, Math.abs(n.reduce((a, b) => a + b, 0) - sum0))
+    lineDrift = Math.max(
+      lineDrift,
+      ...n.map((x, k) => Math.abs(x - (n0[k] ?? 0))),
+    )
+
+    lineSumDrift = Math.max(
+      lineSumDrift,
+      Math.abs(n.reduce((a, b) => a + b, 0) - sum0),
+    )
   }
 
   for (let t = BEATS - 1; t >= 0; t--) {
@@ -160,13 +182,18 @@ function laws(spec: ScatterWeaveSpec) {
 
   // a change of role frame in every dock, links changed to match
   const { mesh, moves } = weave
-  const frame = Array.from({ length: mesh.cellCount }, (_, x) => Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * moves.act.length))
+  const frame = Array.from({ length: mesh.cellCount }, (_, x) =>
+    Math.floor((((x + 11) * GOLDEN * 5.9) % 1) * moves.act.length),
+  )
   const links = new Int16Array(weave.links.length)
 
   for (let x = 0; x < mesh.cellCount; x++) {
     for (let d = 0; d < 24; d++) {
       links[x * 24 + d] = moves.compose(
-        moves.compose(frame[mesh.neighbour(x, d)] ?? moves.identity, weave.links[x * 24 + d] ?? moves.identity),
+        moves.compose(
+          frame[mesh.neighbour(x, d)] ?? moves.identity,
+          weave.links[x * 24 + d] ?? moves.identity,
+        ),
         moves.inverse[frame[x] ?? moves.identity] ?? moves.identity,
       )
     }
@@ -175,7 +202,12 @@ function laws(spec: ScatterWeaveSpec) {
   const gauged = { ...weave, links }
   const gaugeRoles = (state: VibeState): VibeState => ({
     ...state,
-    role: Int8Array.from(state.role, (p, i) => moves.act[frame[Math.floor(i / 24)] ?? moves.identity]?.[p] ?? 0),
+    role: Int8Array.from(
+      state.role,
+      (p, i) =>
+        moves.act[frame[Math.floor(i / 24)] ?? moves.identity]?.[p] ??
+        0,
+    ),
   })
 
   let a = dense(slots, 2.11)
@@ -188,13 +220,26 @@ function laws(spec: ScatterWeaveSpec) {
     frameFree = frameFree && same(gaugeRoles(a), b)
   }
 
-  return { chargeKept, gauss, leaks, pDrift, lineDrift, lineSumDrift, reverses, frameFree, cpt: cptMirrorPhase(scatterRule(spec)) }
+  return {
+    chargeKept,
+    gauss,
+    leaks,
+    pDrift,
+    lineDrift,
+    lineSumDrift,
+    reverses,
+    frameFree,
+    cpt: cptMirrorPhase(scatterRule(spec)),
+  }
 }
 
 // the block switched off is the base, vibes and role points
 function offIsBase(base: ColorLocalSpec, mirror: number): boolean {
   const w0 = makeColorLocalWeave({ side: 3, spec: base })
-  const w1 = makeScatterWeave({ side: 3, spec: { base, mirror, sets: [] } })
+  const w1 = makeScatterWeave({
+    side: 3,
+    spec: { base, mirror, sets: [] },
+  })
 
   let a = dense(w0.mesh.cellCount * 24, 1.37)
   let b = dense(w0.mesh.cellCount * 24, 1.37)
@@ -214,14 +259,31 @@ function keptSymmetries(rule: (t: number) => Collision): number {
   const roots = rootsD4()
   const index = new Map(roots.map((r, i) => [r.join(','), i]))
   const permutations = (xs: number[]): number[][] =>
-    xs.length <= 1 ? [xs] : xs.flatMap((x, i) => permutations([...xs.slice(0, i), ...xs.slice(i + 1)]).map(r => [x, ...r]))
+    xs.length <= 1
+      ? [xs]
+      : xs.flatMap((x, i) =>
+          permutations([...xs.slice(0, i), ...xs.slice(i + 1)]).map(
+            r => [x, ...r],
+          ),
+        )
   const states: Int8Array[] = Array.from({ length: 60 }, (_, n) =>
     Int8Array.from({ length: 24 }, (_, i) => {
       const u = (((n + 1) * 24 + i + 1) * GOLDEN * 3.7) % 1
 
-      return n % 3 === 0 ? (u < 0.15 ? 1 : u < 0.3 ? -1 : 0) : u < 0.33 ? -1 : u < 0.66 ? 0 : 1
+      return n % 3 === 0
+        ? u < 0.15
+          ? 1
+          : u < 0.3
+            ? -1
+            : 0
+        : u < 0.33
+          ? -1
+          : u < 0.66
+            ? 0
+            : 1
     }),
   )
+
   const apply = (c: Collision, v: Int8Array): Int8Array => {
     const out = Int8Array.from(v)
 
@@ -229,7 +291,10 @@ function keptSymmetries(rule: (t: number) => Collision): number {
 
     return out
   }
-  const images = Array.from({ length: PERIOD }, (_, t) => states.map(v => apply(rule(t), v)))
+
+  const images = Array.from({ length: PERIOD }, (_, t) =>
+    states.map(v => apply(rule(t), v)),
+  )
 
   let kept = 0
 
@@ -238,10 +303,14 @@ function keptSymmetries(rule: (t: number) => Collision): number {
       const g = roots.map(r => {
         const v = [0, 0, 0, 0]
 
-        axes.forEach((to, from) => (v[to] = (r[from] ?? 0) * ((signs >> from) & 1 ? -1 : 1)))
+        axes.forEach(
+          (to, from) =>
+            (v[to] = (r[from] ?? 0) * ((signs >> from) & 1 ? -1 : 1)),
+        )
 
         return index.get(v.join(',')) ?? 0
       })
+
       const act = (v: Int8Array): Int8Array => {
         const out = new Int8Array(24)
 
@@ -275,8 +344,12 @@ function keptSymmetries(rule: (t: number) => Collision): number {
 }
 
 // every gate of E-FRC-0125 against the committed rule, a lone love's dressing included
-function passesCommitted(a: Acceptance, committed: Acceptance): boolean {
-  const atLeast = (ok: boolean, reference: boolean): boolean => ok || !reference
+function passesCommitted(
+  a: Acceptance,
+  committed: Acceptance,
+): boolean {
+  const atLeast = (ok: boolean, reference: boolean): boolean =>
+    ok || !reference
 
   return (
     atLeast(a.reverses, committed.reverses) &&
@@ -285,28 +358,54 @@ function passesCommitted(a: Acceptance, committed: Acceptance): boolean {
     atLeast(a.vacuumPeriod > 0, committed.vacuumPeriod > 0) &&
     a.vacuumComponents <= committed.vacuumComponents &&
     a.denseComponents <= committed.denseComponents &&
-    atLeast(a.additivityWorst < 1e-9, committed.additivityWorst < 1e-9) &&
-    atLeast(a.wallQuantized && a.wallMax > 0, committed.wallQuantized && committed.wallMax > 0) &&
+    atLeast(
+      a.additivityWorst < 1e-9,
+      committed.additivityWorst < 1e-9,
+    ) &&
+    atLeast(
+      a.wallQuantized && a.wallMax > 0,
+      committed.wallQuantized && committed.wallMax > 0,
+    ) &&
     a.travellers >= committed.travellers &&
-    a.love.periodLargest.every((x, p) => x <= (committed.love.periodLargest[p] ?? 0))
+    a.love.periodLargest.every(
+      (x, p) => x <= (committed.love.periodLargest[p] ?? 0),
+    )
   )
 }
 
-const STAGES = ['dressing', 'cpt', 'vacuumPeriod', 'vacuumComponents', 'denseComponents', 'travel', 'none'] as const
+const STAGES = [
+  'dressing',
+  'cpt',
+  'vacuumPeriod',
+  'vacuumComponents',
+  'denseComponents',
+  'travel',
+  'none',
+] as const
 
 // The selection: every distinct negation-symmetric momentum-keeping member under two schedules, staged
 // through the gates cheapest-deciding first, then the members that fail only the dense line graph run
 // again with the block through the whole battery
-function select(committed: Acceptance): { metrics: Record<string, number>; passing: string[]; selectedPasses: boolean } {
+function select(committed: Acceptance): {
+  metrics: Record<string, number>
+  passing: string[]
+  selectedPasses: boolean
+} {
   const members = negationSymmetricMembers([
     ['bind', BIND_MOVE_FORWARD],
     ['bind-reverse', BIND_REVERSE_TABLE],
     ['flip', FLIP_TABLE],
     ['identity', IDENTITY_TABLE],
   ])
-  const schedules: [string, { turn?: readonly number[]; swapAt?: readonly number[] }][] = [
+  const schedules: [
+    string,
+    { turn?: readonly number[]; swapAt?: readonly number[] },
+  ][] = [
     ['committedSchedule', {}],
-    ['colorTurnSchedule', { turn: COLOR_TURN_SPEC.turn, swapAt: COLOR_TURN_SPEC.swapAt }],
+    [
+      'colorTurnSchedule',
+      { turn: COLOR_TURN_SPEC.turn, swapAt: COLOR_TURN_SPEC.swapAt },
+    ],
   ]
   const metrics: Record<string, number> = {}
   const passing: string[] = []
@@ -314,20 +413,38 @@ function select(committed: Acceptance): { metrics: Record<string, number>; passi
   let selectedPasses = false
 
   for (const [name, schedule] of schedules) {
-    const counts: Record<string, number> = Object.fromEntries(STAGES.map(s => [s, 0]))
+    const counts: Record<string, number> = Object.fromEntries(
+      STAGES.map(s => [s, 0]),
+    )
     const denseOnly: { id: string; spec: MomentumWeaveSpec }[] = []
 
     for (const m of members) {
       const spec: MomentumWeaveSpec = { ...m.spec, ...schedule }
-      const rule: ScheduledRule = (o, f) => momentumWeave({ spec, opposite: o, forward: f })
+      const rule: ScheduledRule = (o, f) =>
+        momentumWeave({ spec, opposite: o, forward: f })
+
       let stage: (typeof STAGES)[number] = 'none'
 
-      if (dressing(rule, { tone: 1, caps: committed.love.periodLargest }).overCapAt >= 0) stage = 'dressing'
-      else if (cptMirrorPhase(rule) < 0) stage = 'cpt'
-      else if (vacuumPeriod(rule) <= 0) stage = 'vacuumPeriod'
-      else if (lineComponents(rule, false) > committed.vacuumComponents) stage = 'vacuumComponents'
-      else if (lineComponents(rule, true) > committed.denseComponents) stage = 'denseComponents'
-      else if (travel(rule).travellers < committed.travellers) stage = 'travel'
+      if (
+        dressing(rule, { tone: 1, caps: committed.love.periodLargest })
+          .overCapAt >= 0
+      ) {
+        stage = 'dressing'
+      } else if (cptMirrorPhase(rule) < 0) {
+        stage = 'cpt'
+      } else if (vacuumPeriod(rule) <= 0) {
+        stage = 'vacuumPeriod'
+      } else if (
+        lineComponents(rule, false) > committed.vacuumComponents
+      ) {
+        stage = 'vacuumComponents'
+      } else if (
+        lineComponents(rule, true) > committed.denseComponents
+      ) {
+        stage = 'denseComponents'
+      } else if (travel(rule).travellers < committed.travellers) {
+        stage = 'travel'
+      }
 
       counts[stage] = (counts[stage] ?? 0) + 1
 
@@ -336,7 +453,9 @@ function select(committed: Acceptance): { metrics: Record<string, number>; passi
       }
     }
 
-    STAGES.forEach(s => (metrics[`${name}_firstFailure_${s}`] = counts[s] ?? 0))
+    STAGES.forEach(
+      s => (metrics[`${name}_firstFailure_${s}`] = counts[s] ?? 0),
+    )
     metrics[`${name}_denseOnlyFailures`] = denseOnly.length
 
     for (const { id, spec } of denseOnly) {
@@ -350,16 +469,26 @@ function select(committed: Acceptance): { metrics: Record<string, number>; passi
         swapWhen: (l, w) => fires[l * 9 + w] === 1,
       })
       const mirror = cptMirrorPhase(baseRule(base))
-      const withBlock = acceptance(scatterRule({ base, mirror, sets: scatterSchedule() }))
+      const withBlock = acceptance(
+        scatterRule({ base, mirror, sets: scatterSchedule() }),
+      )
 
       if (passesCommitted(withBlock, committed)) {
         passing.push(`${name}:${id}`)
 
-        const headOn = Array.from({ length: 81 }, (_, x) => (HEAD_TURN_SPEC.swapWhen(Math.floor(x / 9), x % 9) || HEAD_TURN_SPEC.swapWhen(x % 9, Math.floor(x / 9)) ? 1 : 0))
+        const headOn = Array.from({ length: 81 }, (_, x) =>
+          HEAD_TURN_SPEC.swapWhen(Math.floor(x / 9), x % 9) ||
+          HEAD_TURN_SPEC.swapWhen(x % 9, Math.floor(x / 9))
+            ? 1
+            : 0,
+        )
 
         selectedPasses =
           selectedPasses ||
-          (name === 'colorTurnSchedule' && spec.table === BIND_MOVE_FORWARD && spec.palindrome && headOn.every((f, x) => f === fires[x]))
+          (name === 'colorTurnSchedule' &&
+            spec.table === BIND_MOVE_FORWARD &&
+            spec.palindrome &&
+            headOn.every((f, x) => f === fires[x]))
       }
     }
   }
@@ -382,20 +511,27 @@ export default experiment({
     const quads = scatterQuads()
     const partitions = scatterPartitions(quads)
     const sets = scatterSchedule()
-    const setsDisjoint = sets.every(set => new Set(set.flat()).size === 4 * set.length)
+    const setsDisjoint = sets.every(
+      set => new Set(set.flat()).size === 4 * set.length,
+    )
     const census =
       all.length === 216 &&
       quads.length * 6 === all.filter(s => s.sideKept).length &&
-      quads.every(q => q.scatterings.length === 6 && q.pairs.length === 3) &&
+      quads.every(
+        q => q.scatterings.length === 6 && q.pairs.length === 3,
+      ) &&
       setsDisjoint
 
     // 0. the selection, against the committed rule's own numbers
-    const committedRule: ScheduledRule = (o, f) => turningWeave({ opposite: o, forward: f })
+    const committedRule: ScheduledRule = (o, f) =>
+      turningWeave({ opposite: o, forward: f })
     const committed = acceptance(committedRule)
     const selection = select(committed)
 
     // 2 to 4, on each base
-    const opposite = rootsD4().map((r, _, all4) => all4.findIndex(o => o.every((x, k) => x === -(r[k] ?? 0))))
+    const opposite = rootsD4().map((r, _, all4) =>
+      all4.findIndex(o => o.every((x, k) => x === -(r[k] ?? 0))),
+    )
     const bases: [string, ColorLocalSpec][] = [
       ['headTurn', HEAD_TURN_SPEC],
       ['momentumTurn', MOMENTUM_TURN_SPEC],
@@ -405,7 +541,14 @@ export default experiment({
       const mirror = cptMirrorPhase(baseRule(base))
       const spec: ScatterWeaveSpec = { base, mirror, sets }
 
-      return { name, base, mirror, spec, off: offIsBase(base, mirror), ...laws(spec) }
+      return {
+        name,
+        base,
+        mirror,
+        spec,
+        off: offIsBase(base, mirror),
+        ...laws(spec),
+      }
     })
     const [turn, weave, control] = results
 
@@ -421,12 +564,14 @@ export default experiment({
           [w, 1],
           [x, 1],
         ] as const) {
-          row[lineOfSlot(d)] = (row[lineOfSlot(d)] ?? 0) + sign * (SIDE[d] ?? 0)
+          row[lineOfSlot(d)] =
+            (row[lineOfSlot(d)] ?? 0) + sign * (SIDE[d] ?? 0)
         }
 
         return row
       })
     const blockQuotient = latticeQuotient(rows, 12)
+
     // every binary scattering, sides kept or not, and the sum of the twelve line momenta: the side-keeping
     // ones keep it exactly, the others change it by 2 or 4, which a dock's color weight (calm slots counted
     // by side) cannot absorb mod 3
@@ -439,16 +584,28 @@ export default experiment({
         [w ?? 0, 1],
         [x ?? 0, 1],
       ] as const) {
-        row[lineOfSlot(d)] = (row[lineOfSlot(d)] ?? 0) + sign * (SIDE[d] ?? 0)
+        row[lineOfSlot(d)] =
+          (row[lineOfSlot(d)] ?? 0) + sign * (SIDE[d] ?? 0)
       }
 
       return row
     }
-    const lineSum = (row: number[]): number => row.reduce((s, x) => s + x, 0)
-    const allQuotient = latticeQuotient(all.map(s => rowOf(s.scattering)), 12)
-    const keptKeepSum = all.filter(s => s.sideKept).every(s => lineSum(rowOf(s.scattering)) === 0)
-    const otherChangeSum = all.filter(s => !s.sideKept).map(s => Math.abs(lineSum(rowOf(s.scattering))))
-    const otherNotMultipleOf3 = otherChangeSum.every(x => x !== 0 && x % 3 !== 0)
+
+    const lineSum = (row: number[]): number =>
+      row.reduce((s, x) => s + x, 0)
+    const allQuotient = latticeQuotient(
+      all.map(s => rowOf(s.scattering)),
+      12,
+    )
+    const keptKeepSum = all
+      .filter(s => s.sideKept)
+      .every(s => lineSum(rowOf(s.scattering)) === 0)
+    const otherChangeSum = all
+      .filter(s => !s.sideKept)
+      .map(s => Math.abs(lineSum(rowOf(s.scattering))))
+    const otherNotMultipleOf3 = otherChangeSum.every(
+      x => x !== 0 && x % 3 !== 0,
+    )
     // the FHP triples: three tones on three lines with e_a + e_b + e_c = 0 reverse
     const roots4 = rootsD4()
     const tripleChanges: number[] = []
@@ -456,38 +613,79 @@ export default experiment({
     for (let a = 0; a < 24; a++) {
       for (let b = a + 1; b < 24; b++) {
         for (let c = b + 1; c < 24; c++) {
-          const distinct = new Set([lineOfSlot(a), lineOfSlot(b), lineOfSlot(c)]).size === 3
-          const closes = [0, 1, 2, 3].every(k => (roots4[a]?.[k] ?? 0) + (roots4[b]?.[k] ?? 0) + (roots4[c]?.[k] ?? 0) === 0)
+          const distinct =
+            new Set([lineOfSlot(a), lineOfSlot(b), lineOfSlot(c)])
+              .size === 3
+          const closes = [0, 1, 2, 3].every(
+            k =>
+              (roots4[a]?.[k] ?? 0) +
+                (roots4[b]?.[k] ?? 0) +
+                (roots4[c]?.[k] ?? 0) ===
+              0,
+          )
 
           if (distinct && closes) {
-            tripleChanges.push(-2 * ((SIDE[a] ?? 0) + (SIDE[b] ?? 0) + (SIDE[c] ?? 0)))
+            tripleChanges.push(
+              -2 * ((SIDE[a] ?? 0) + (SIDE[b] ?? 0) + (SIDE[c] ?? 0)),
+            )
           }
         }
       }
     }
 
-    const triplesChangeByTwo = tripleChanges.length === 32 && tripleChanges.every(x => Math.abs(x) === 2)
+    const triplesChangeByTwo =
+      tripleChanges.length === 32 &&
+      tripleChanges.every(x => Math.abs(x) === 2)
 
     // 6. symmetries, at the dock
-    const mainSpec: ScatterWeaveSpec = turn?.spec ?? { base: HEAD_TURN_SPEC, mirror: 23, sets }
-    const knitSymmetries = keptSymmetries(colorLocalCollision({ spec: COLOR_TURN_SPEC, opposite }))
-    const baseSymmetries = keptSymmetries(colorLocalCollision({ spec: HEAD_TURN_SPEC, opposite }))
-    const scatterSymmetries = keptSymmetries(scatterCollision({ spec: mainSpec, opposite }))
-    const committedSymmetries = keptSymmetries(turningWeave({ opposite }))
+    const mainSpec: ScatterWeaveSpec = turn?.spec ?? {
+      base: HEAD_TURN_SPEC,
+      mirror: 23,
+      sets,
+    }
+    const knitSymmetries = keptSymmetries(
+      colorLocalCollision({ spec: COLOR_TURN_SPEC, opposite }),
+    )
+    const baseSymmetries = keptSymmetries(
+      colorLocalCollision({ spec: HEAD_TURN_SPEC, opposite }),
+    )
+    const scatterSymmetries = keptSymmetries(
+      scatterCollision({ spec: mainSpec, opposite }),
+    )
+    const committedSymmetries = keptSymmetries(
+      turningWeave({ opposite }),
+    )
 
     // 7. the battery, the scatter weave on the head-on turn base against the committed rule
     const battery = acceptance(scatterRule(mainSpec))
     const baseBattery = acceptance(baseRule(HEAD_TURN_SPEC))
-    const momentumTurnBattery = acceptance(scatterRule(weave?.spec ?? { base: MOMENTUM_TURN_SPEC, mirror: 23, sets }))
-    const passes = (a: Acceptance): boolean => passesCommitted(a, committed)
+    const momentumTurnBattery = acceptance(
+      scatterRule(
+        weave?.spec ?? { base: MOMENTUM_TURN_SPEC, mirror: 23, sets },
+      ),
+    )
+    const passes = (a: Acceptance): boolean =>
+      passesCommitted(a, committed)
     const structural = passes(battery)
-    const fearNoMore = battery.fear.periodLargest.every((x, p) => x <= (committed.fear.periodLargest[p] ?? 0))
+    const fearNoMore = battery.fear.periodLargest.every(
+      (x, p) => x <= (committed.fear.periodLargest[p] ?? 0),
+    )
 
     // control: any two tones scatter, the vacuum's pairs included
-    const anyTones = acceptance(scatterRule({ ...mainSpec, lone: false }))
+    const anyTones = acceptance(
+      scatterRule({ ...mainSpec, lone: false }),
+    )
 
     const exact = (r: (typeof results)[number] | undefined): boolean =>
-      r !== undefined && r.off && r.chargeKept && r.gauss && r.leaks === 0 && r.reverses && r.frameFree && r.cpt === r.mirror && r.cpt >= 0
+      r !== undefined &&
+      r.off &&
+      r.chargeKept &&
+      r.gauss &&
+      r.leaks === 0 &&
+      r.reverses &&
+      r.frameFree &&
+      r.cpt === r.mirror &&
+      r.cpt >= 0
 
     const ok =
       census &&
@@ -531,7 +729,10 @@ export default experiment({
       perBase[`${r.name}LineMomentumDrift`] = r.lineDrift
     }
 
-    const flat = (prefix: string, a: typeof battery): Record<string, number> => ({
+    const flat = (
+      prefix: string,
+      a: typeof battery,
+    ): Record<string, number> => ({
       [`${prefix}Reverses`]: a.reverses ? 1 : 0,
       [`${prefix}ChargeKept`]: a.chargeKept ? 1 : 0,
       [`${prefix}CptMirrorPhase`]: a.cptPhase,
@@ -542,14 +743,24 @@ export default experiment({
       [`${prefix}WallQuantized`]: a.wallQuantized ? 1 : 0,
       [`${prefix}WallSettledMax`]: a.wallMax,
       [`${prefix}Travellers`]: a.travellers,
-      ...Object.fromEntries(a.love.periodLargest.map((x, p) => [`${prefix}LoveSupportPeriod${p + 1}`, x])),
-      ...Object.fromEntries(a.fear.periodLargest.map((x, p) => [`${prefix}FearSupportPeriod${p + 1}`, x])),
+      ...Object.fromEntries(
+        a.love.periodLargest.map((x, p) => [
+          `${prefix}LoveSupportPeriod${p + 1}`,
+          x,
+        ]),
+      ),
+      ...Object.fromEntries(
+        a.fear.periodLargest.map((x, p) => [
+          `${prefix}FearSupportPeriod${p + 1}`,
+          x,
+        ]),
+      ),
     })
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the census is as stated; with the block off the rule is its base bit for bit; on both momentum-keeping bases the scatter weave keeps charge, P, Gauss, reversal, local color, the frame change and CPT at the base mirror phase exactly while the line momenta change, and on the color turn base P drifts; the block leaves P and the sum of the line momenta free (all 216 scatterings would leave P alone, with charge parity), every color-keeping scattering keeps that sum and every other changes it by 2, which local color cannot absorb, as do all 32 FHP triples, and the sum is exact on a run; it keeps every dock symmetry the knit keeps; the selection finds members that pass every gate only with the block, all palindromic, the head-on turn weave among them; the scatter weave on it is at least as good as the committed rule on every E-FRC-0125 gate, a lone love\'s dressing included, where the head-on turn weave without the block and the momentum turn weave with it are not',
+        "the census is as stated; with the block off the rule is its base bit for bit; on both momentum-keeping bases the scatter weave keeps charge, P, Gauss, reversal, local color, the frame change and CPT at the base mirror phase exactly while the line momenta change, and on the color turn base P drifts; the block leaves P and the sum of the line momenta free (all 216 scatterings would leave P alone, with charge parity), every color-keeping scattering keeps that sum and every other changes it by 2, which local color cannot absorb, as do all 32 FHP triples, and the sum is exact on a run; it keeps every dock symmetry the knit keeps; the selection finds members that pass every gate only with the block, all palindromic, the head-on turn weave among them; the scatter weave on it is at least as good as the committed rule on every E-FRC-0125 gate, a lone love's dressing included, where the head-on turn weave without the block and the momentum turn weave with it are not",
       metrics: {
         scatterings: all.length,
         sideKeptScatterings: all.filter(s => s.sideKept).length,
@@ -559,16 +770,28 @@ export default experiment({
         ...perBase,
         blockRank: blockQuotient.rank,
         blockFree: blockQuotient.free,
-        blockTorsionOrder: blockQuotient.torsion.reduce((s, x) => s * x, 1),
+        blockTorsionOrder: blockQuotient.torsion.reduce(
+          (s, x) => s * x,
+          1,
+        ),
         allScatteringsRank: allQuotient.rank,
         allScatteringsFree: allQuotient.free,
-        allScatteringsTorsionOrder: allQuotient.torsion.reduce((s, x) => s * x, 1),
+        allScatteringsTorsionOrder: allQuotient.torsion.reduce(
+          (s, x) => s * x,
+          1,
+        ),
         sideKeptKeepLineSum: keptKeepSum ? 1 : 0,
-        otherScatteringsLineSumChangeSmallest: Math.min(...otherChangeSum),
-        otherScatteringsLineSumChangeLargest: Math.max(...otherChangeSum),
+        otherScatteringsLineSumChangeSmallest: Math.min(
+          ...otherChangeSum,
+        ),
+        otherScatteringsLineSumChangeLargest: Math.max(
+          ...otherChangeSum,
+        ),
         headTurnLineSumDrift: turn?.lineSumDrift ?? -1,
         fhpTriples: tripleChanges.length,
-        fhpTriplesChangingSumByTwo: tripleChanges.filter(x => Math.abs(x) === 2).length,
+        fhpTriplesChangingSumByTwo: tripleChanges.filter(
+          x => Math.abs(x) === 2,
+        ).length,
         knitDockSymmetries: knitSymmetries,
         baseDockSymmetries: baseSymmetries,
         scatterDockSymmetries: scatterSymmetries,

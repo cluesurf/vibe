@@ -153,7 +153,8 @@ export default experiment({
       }
     }
 
-    const lastDisjoint = overlapBeat === -1 ? BEATS - 1 : overlapBeat - 1
+    const lastDisjoint =
+      overlapBeat === -1 ? BEATS - 1 : overlapBeat - 1
 
     // the vector-sum law while disjoint
     let worstAdditivity = 0
@@ -174,14 +175,8 @@ export default experiment({
     let constructive = true
 
     for (let t = SEED_BEAT; t < SEED_BEAT + 3; t++) {
-      const magnitude = Math.hypot(
-        freeJoint.re[t]!,
-        freeJoint.im[t]!,
-      )
-      const phase = phaseDegrees([
-        freeJoint.re[t]!,
-        freeJoint.im[t]!,
-      ])
+      const magnitude = Math.hypot(freeJoint.re[t]!, freeJoint.im[t]!)
+      const phase = phaseDegrees([freeJoint.re[t]!, freeJoint.im[t]!])
 
       if (
         Math.abs(magnitude - 2 * ROOT3) > 1e-9 ||
@@ -221,8 +216,7 @@ export default experiment({
 
     const destructiveSeen = destructiveBeats >= 2
 
-    const ok =
-      additivityExact && constructive && destructiveSeen
+    const ok = additivityExact && constructive && destructiveSeen
 
     return verdict({
       status: ok ? 'pass' : 'fail',

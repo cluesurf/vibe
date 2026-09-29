@@ -40,15 +40,44 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { bulkFlux, columnSumLinks, emptyTritState, makeTritLight, tritLightBeat, type TritLight, type TritState } from '@/code/rule/trit-column'
-import { buildHopTable, cross, type HopTable } from '@/code/rule/trit-hop'
-import { fastBeat, geometryOfBulk, huskGeometry, makeHuskEngine } from '@/code/rule/trit-husk'
-import { G_METRIC, coordinates, coulombFlux, fastWave, huskGreenDifference, lightSpeedOf } from '@/code/measure/trit-hop-light'
+import {
+  bulkFlux,
+  columnSumLinks,
+  emptyTritState,
+  makeTritLight,
+  tritLightBeat,
+  type TritLight,
+  type TritState,
+} from '@/code/rule/trit-column'
+import {
+  buildHopTable,
+  cross,
+  type HopTable,
+} from '@/code/rule/trit-hop'
+import {
+  fastBeat,
+  geometryOfBulk,
+  huskGeometry,
+  makeHuskEngine,
+} from '@/code/rule/trit-husk'
+import {
+  G_METRIC,
+  coordinates,
+  coulombFlux,
+  fastWave,
+  huskGreenDifference,
+  lightSpeedOf,
+} from '@/code/measure/trit-hop-light'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 
 const DEPTHS = [11, 16, 32, 64]
 const PEAKS: Record<number, number> = { 11: 4, 16: 8, 32: 16, 64: 32 }
-const PREDICTED: Record<number, number> = { 11: 63.56, 16: 77.19, 32: 110.02, 64: 156.2 }
+const PREDICTED: Record<number, number> = {
+  11: 63.56,
+  16: 77.19,
+  32: 110.02,
+  64: 156.2,
+}
 const ROOTS = rootsD4()
 
 function coefficient(direction: readonly number[]): number {
@@ -58,7 +87,8 @@ function coefficient(direction: readonly number[]): number {
   const far = 16
   // lattice points only: the nearest integer multiple of the direction to each target length
   const len = Math.hypot(...direction)
-  const at = (m: number): number[] => direction.map(x => x * Math.round(m / len))
+  const at = (m: number): number[] =>
+    direction.map(x => x * Math.round(m / len))
   const rn = at(near)
   const rf = at(far)
   const dn = Math.hypot(...rn)
@@ -71,28 +101,43 @@ function coefficient(direction: readonly number[]): number {
 }
 
 // move the vibe at x along root index d (0 .. 23) by a crossing of the link between them
-function moveAlong(table: HopTable, s: TritState, x: number, d: number): number {
+function moveAlong(
+  table: HopTable,
+  s: TritState,
+  x: number,
+  d: number,
+): number {
   const bulk = table.bulk
   const y = bulk.neighbour[x * 24 + d] ?? 0
   const k = Array.from(table.rootOf).indexOf(d)
 
   if (k >= 0) {
-    if (cross(table, s, x, k) === 0) throw new Error('refused or empty')
+    if (cross(table, s, x, k) === 0) {
+      throw new Error('refused or empty')
+    }
 
     return y
   }
 
-  const back = ROOTS.findIndex(r => r.every((v, i) => v === -(ROOTS[d]?.[i] ?? 0)))
+  const back = ROOTS.findIndex(r =>
+    r.every((v, i) => v === -(ROOTS[d]?.[i] ?? 0)),
+  )
   const kb = Array.from(table.rootOf).indexOf(back)
 
-  if (cross(table, s, y, kb) === 0) throw new Error('refused or empty')
+  if (cross(table, s, y, kb) === 0) {
+    throw new Error('refused or empty')
+  }
 
   return y
 }
 
-const rootIndex = (v: readonly number[]): number => ROOTS.findIndex(r => r.every((x, i) => x === (v[i] ?? 0)))
+const rootIndex = (v: readonly number[]): number =>
+  ROOTS.findIndex(r => r.every((x, i) => x === (v[i] ?? 0)))
 
-function longitudinal(light: TritLight, s: TritState): { longitudinal: number; total: number } {
+function longitudinal(
+  light: TritLight,
+  s: TritState,
+): { longitudinal: number; total: number } {
   const g = geometryOfBulk(light.bulk)
   const e = columnSumLinks(light, bulkFlux(light, s))
   const rho = new Float64Array(g.huskDocks)
@@ -106,6 +151,7 @@ function longitudinal(light: TritLight, s: TritState): { longitudinal: number; t
   }
 
   const el = coulombFlux(g, rho)
+
   let lon = 0
   let total = 0
 
@@ -125,16 +171,27 @@ function sectionC2(depth: number): Record<string, number> {
   const out: Record<string, number> = {}
   const routes = [
     // three axis steps along x: e1 + e4, e1 - e4, e1 + e4
-    [[1, 0, 0, 1], [1, 0, 0, -1], [1, 0, 0, 1]],
+    [
+      [1, 0, 0, 1],
+      [1, 0, 0, -1],
+      [1, 0, 0, 1],
+    ],
     // a detour through y: e2 + e4, e1 - e4, e1 + e4, e1 - e4, -e2 + e4 (the same end dock)
-    [[0, 1, 0, 1], [1, 0, 0, -1], [1, 0, 0, 1], [1, 0, 0, -1], [0, -1, 0, 1]],
+    [
+      [0, 1, 0, 1],
+      [1, 0, 0, -1],
+      [1, 0, 0, 1],
+      [1, 0, 0, -1],
+      [0, -1, 0, 1],
+    ],
   ]
   const results = routes.map(route => {
     const s = emptyTritState(light)
     const x0 = 0
     // a pair on one link to start: -1 stays at x0's neighbour along -(e1 + e4)... place +1 at x0, -1 at the
     // dock behind it along the first root e1 + e4, joined by a string trit
-    const behind = light.bulk.neighbour[x0 * 24 + rootIndex([-1, 0, 0, -1])] ?? 0
+    const behind =
+      light.bulk.neighbour[x0 * 24 + rootIndex([-1, 0, 0, -1])] ?? 0
     const k = Array.from(table.rootOf).indexOf(rootIndex([1, 0, 0, 1]))
 
     s.vibe[behind] = -1
@@ -145,36 +202,56 @@ function sectionC2(depth: number): Record<string, number> {
     // behind is s = -1 = its vibe, at x0 the inflow of -1 is an outflow of +1 = its vibe
     let x = x0
 
-    for (const r of route) x = moveAlong(table, s, x, rootIndex(r))
+    for (const r of route) {
+      x = moveAlong(table, s, x, rootIndex(r))
+    }
 
     const first = longitudinal(light, s)
+
     let drift = 0
 
     for (let t = 0; t < 200; t++) {
       tritLightBeat(light, s)
-      drift = Math.max(drift, Math.abs(longitudinal(light, s).longitudinal - first.longitudinal))
+      drift = Math.max(
+        drift,
+        Math.abs(
+          longitudinal(light, s).longitudinal - first.longitudinal,
+        ),
+      )
     }
 
     const a = coordinates(8, light.bulk.column[x] ?? 0)
     const b = coordinates(8, light.bulk.column[behind] ?? 0)
-    const r = [0, 1, 2].map(i => (((a[i] ?? 0) - (b[i] ?? 0) + 4) % 8 + 8) % 8 - 4)
+    const r = [0, 1, 2].map(
+      i => (((((a[i] ?? 0) - (b[i] ?? 0) + 4) % 8) + 8) % 8) - 4,
+    )
     const green = (Math.PI / depth) * huskGreenDifference(8, r)
 
     return { first, drift, green, r }
   })
 
-  out[`c2_D${depth}_longitudinalStraight`] = results[0]!.first.longitudinal
-  out[`c2_D${depth}_longitudinalDetour`] = results[1]!.first.longitudinal
+  out[`c2_D${depth}_longitudinalStraight`] =
+    results[0]!.first.longitudinal
+
+  out[`c2_D${depth}_longitudinalDetour`] =
+    results[1]!.first.longitudinal
   out[`c2_D${depth}_green`] = results[0]!.green
   out[`c2_D${depth}_totalStraight`] = results[0]!.first.total
   out[`c2_D${depth}_totalDetour`] = results[1]!.first.total
-  out[`c2_D${depth}_driftMax`] = Math.max(results[0]!.drift, results[1]!.drift)
+  out[`c2_D${depth}_driftMax`] = Math.max(
+    results[0]!.drift,
+    results[1]!.drift,
+  )
   out[`c2_D${depth}_separation`] = Math.hypot(...results[0]!.r)
   out[`c2_D${depth}_ok`] =
-    Math.abs(results[0]!.first.longitudinal - results[1]!.first.longitudinal) < 1e-9 &&
-    Math.abs(results[0]!.first.longitudinal - results[0]!.green) < 1e-9 &&
+    Math.abs(
+      results[0]!.first.longitudinal - results[1]!.first.longitudinal,
+    ) < 1e-9 &&
+    Math.abs(results[0]!.first.longitudinal - results[0]!.green) <
+      1e-9 &&
     Math.max(results[0]!.drift, results[1]!.drift) < 1e-9 &&
-    Math.abs(results[0]!.first.total - results[1]!.first.total) > 1e-6 &&
+    Math.abs(results[0]!.first.total - results[1]!.first.total) >
+      1e-6 &&
     results[0]!.r.every((v, i) => v === results[1]!.r[i])
       ? 1
       : 0
@@ -182,20 +259,37 @@ function sectionC2(depth: number): Record<string, number> {
   return out
 }
 
-function lightSpeed(depth: number): { c: number; c16: number; c32: number; rel16: number; rel32: number } {
+function lightSpeed(depth: number): {
+  c: number
+  c16: number
+  c32: number
+  rel16: number
+  rel32: number
+} {
   const read = (side: number): { c: number; rel: number } => {
     const g = huskGeometry(side)
     const e = makeHuskEngine(g, depth)
     const k = [(2 * Math.PI) / side, 0, 0]
-    const beats = Math.ceil((3 * 2 * Math.PI) / (lightSpeedOf(depth) * k[0]!))
-    const w = fastWave(e, g, k, 1, PEAKS[depth] ?? 1, beats, s => fastBeat(e, s))
+    const beats = Math.ceil(
+      (3 * 2 * Math.PI) / (lightSpeedOf(depth) * k[0]!),
+    )
+    const w = fastWave(e, g, k, 1, PEAKS[depth] ?? 1, beats, s =>
+      fastBeat(e, s),
+    )
 
     return { c: w.omegaRead / k[0]!, rel: w.relative }
   }
+
   const a = read(16)
   const b = read(32)
 
-  return { c: (4 * b.c - a.c) / 3, c16: a.c, c32: b.c, rel16: a.rel, rel32: b.rel }
+  return {
+    c: (4 * b.c - a.c) / 3,
+    c16: a.c,
+    c32: b.c,
+    rel16: a.rel,
+    rel32: b.rel,
+  }
 }
 
 export default experiment({
@@ -246,18 +340,26 @@ export default experiment({
 
     metrics.inverseAlphaD49 = (48 * 49) / Math.sqrt(3 * 99)
     metrics.inverseAlphaD50 = (48 * 50) / Math.sqrt(3 * 101)
-    metrics.exponentD16toD64 = Math.log((metrics['D64_alpha'] ?? 1) / (metrics['D16_alpha'] ?? 1)) / Math.log(4)
+    metrics.exponentD16toD64 =
+      Math.log((metrics.D64_alpha ?? 1) / (metrics.D16_alpha ?? 1)) /
+      Math.log(4)
 
     const gates = {
       C1: Math.abs(axis - 1) < 0.01,
-      C2: c2['c2_D11_ok'] === 1 && c2['c2_D16_ok'] === 1,
+      C2: c2.c2_D11_ok === 1 && c2.c2_D16_ok === 1,
       L: okL,
       A: okA,
     }
 
-    for (const [gate, ok] of Object.entries(gates)) metrics[`gate${gate}`] = ok ? 1 : 0
+    for (const [gate, ok] of Object.entries(gates)) {
+      metrics[`gate${gate}`] = ok ? 1 : 0
+    }
 
-    const status = Object.values(gates).every(x => x) ? 'pass' : gates.C1 && gates.C2 && gates.L ? 'partial' : 'fail'
+    const status = Object.values(gates).every(x => x)
+      ? 'pass'
+      : gates.C1 && gates.C2 && gates.L
+        ? 'partial'
+        : 'fail'
 
     return verdict({
       status,
@@ -265,7 +367,7 @@ export default experiment({
       metrics,
       control: { inverseAlphaFormulaD16: PREDICTED[16] ?? 0 },
       notes:
-        'L2, deterministic. FIRST RUN 2026-09-26 (tmp/frc0212.log, 502 s), PASS on every gate. DISCLOSED: the reported (not gated) face and body diagonal coefficients read 0.0245 on the first run because the separations were not lattice points (a harness bug); fixed to the nearest integer multiple of the direction and rerun (tmp/frc0212-second.log), every gated number identical, face 1.0009 and body 1.0018. The one D = 11 wave peak was raised from the seam law\'s 2 to 4 before any run (header). C1: 24 D C = 0.9971 along the axis (r 8, 16 on a side-64 torus, background removed), 1.0009 face, 1.0018 body diagonal: the husk Coulomb law is isotropic to 0.5 percent at r 8 to 17. C2 on the trit rule itself (side 8, bulk trits): a +1, -1 pair moved to separation 4 along two routes of crossings holds longitudinal energy 0.0137908 (D 11) and 0.0094811 (D 16) along both, equal to (pi / D)(G(0) - G(r)) to 2e-16, drift 0 over 200 beats of light, while the total field energy differs between the routes (0.286 against 0.428 at D 11): the Coulomb energy is carried by the charges, the route only by the transverse string. L: c = 0.24077, 0.20101, 0.14322, 0.10167 by Richardson from k = 2 pi / 16 and 2 pi / 32, against sqrt(2 kappa / 3) to 3e-6, 2e-6, 2e-6, 2e-6. A: 1 / alpha = 63.75, 77.41, 110.32, 156.62 against 63.56, 77.19, 110.02, 156.20, all 0.3 percent high, which is the lattice\'s 0.9971 at r 8 to 16 and nothing else. alpha falls as D^-0.508 from 16 to 64 (the exact formula\'s local exponent). THE DEPTH IS THE COUPLING KNOB: at hbar = 1 (the angle column\'s period) the Coulomb coefficient is 1 / (24 D) and c^2 = 4 / (3 (2D + 1)), so alpha = sqrt(3 (2D + 1)) / (48 D), about 0.051 / sqrt(D). No integer depth gives 1 / 137.036 (D 49: 136.48, D 50: 137.88), and p (the coupling numerator) is a second knob: a choice, not a prediction.',
+        "L2, deterministic. FIRST RUN 2026-09-26 (tmp/frc0212.log, 502 s), PASS on every gate. DISCLOSED: the reported (not gated) face and body diagonal coefficients read 0.0245 on the first run because the separations were not lattice points (a harness bug); fixed to the nearest integer multiple of the direction and rerun (tmp/frc0212-second.log), every gated number identical, face 1.0009 and body 1.0018. The one D = 11 wave peak was raised from the seam law's 2 to 4 before any run (header). C1: 24 D C = 0.9971 along the axis (r 8, 16 on a side-64 torus, background removed), 1.0009 face, 1.0018 body diagonal: the husk Coulomb law is isotropic to 0.5 percent at r 8 to 17. C2 on the trit rule itself (side 8, bulk trits): a +1, -1 pair moved to separation 4 along two routes of crossings holds longitudinal energy 0.0137908 (D 11) and 0.0094811 (D 16) along both, equal to (pi / D)(G(0) - G(r)) to 2e-16, drift 0 over 200 beats of light, while the total field energy differs between the routes (0.286 against 0.428 at D 11): the Coulomb energy is carried by the charges, the route only by the transverse string. L: c = 0.24077, 0.20101, 0.14322, 0.10167 by Richardson from k = 2 pi / 16 and 2 pi / 32, against sqrt(2 kappa / 3) to 3e-6, 2e-6, 2e-6, 2e-6. A: 1 / alpha = 63.75, 77.41, 110.32, 156.62 against 63.56, 77.19, 110.02, 156.20, all 0.3 percent high, which is the lattice's 0.9971 at r 8 to 16 and nothing else. alpha falls as D^-0.508 from 16 to 64 (the exact formula's local exponent). THE DEPTH IS THE COUPLING KNOB: at hbar = 1 (the angle column's period) the Coulomb coefficient is 1 / (24 D) and c^2 = 4 / (3 (2D + 1)), so alpha = sqrt(3 (2D + 1)) / (48 D), about 0.051 / sqrt(D). No integer depth gives 1 / 137.036 (D 49: 136.48, D 50: 137.88), and p (the coupling numerator) is a second knob: a choice, not a prediction.",
     })
   },
 })

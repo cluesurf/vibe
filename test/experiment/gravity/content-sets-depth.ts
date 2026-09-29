@@ -84,9 +84,14 @@ export default experiment({
     const empty = readings.find(r => r.config.form === 'empty')!
     const lumps = readings.filter(r => r.config.form !== 'empty')
 
-    const g1 = readings.every(r => r.gauss === 0 && r.lumpKept) && empty.followsFixed && lumps.every(r => r.candidateSeenAt <= BEATS)
+    const g1 =
+      readings.every(r => r.gauss === 0 && r.lumpKept) &&
+      empty.followsFixed &&
+      lumps.every(r => r.candidateSeenAt <= BEATS)
     const g2 = lumps.some(r => r.followsCandidate && !r.followsFixed)
-    const g3 = lumps.filter(r => r.config.flip).every(r => r.sameAsUnflipped === true)
+    const g3 = lumps
+      .filter(r => r.config.flip)
+      .every(r => r.sameAsUnflipped === true)
     // S4 is read only if S2 holds, and its reader is not built (the closure of E-GRV-0062 makes S2 fail unless the
     // closure itself fails): if S2 holds the verdict is partial, never pass
     const g4 = false
@@ -112,7 +117,10 @@ export default experiment({
       metrics[`candidateSeenAt_${name}`] = r.candidateSeenAt
       metrics[`candidateDepth_${name}`] = r.candidateDepth
       metrics[`contentColumns_${name}`] = r.contentColumns
-      metrics[`mismatchTotal_${name}`] = r.mismatch.reduce((a, b) => a + b, 0)
+      metrics[`mismatchTotal_${name}`] = r.mismatch.reduce(
+        (a, b) => a + b,
+        0,
+      )
     }
 
     return verdict({
@@ -121,7 +129,8 @@ export default experiment({
       metrics,
       control: {
         emptyFollowsFixed: empty.followsFixed ? 1 : 0,
-        candidateSeen: lumps.filter(r => r.candidateSeenAt <= BEATS).length,
+        candidateSeen: lumps.filter(r => r.candidateSeenAt <= BEATS)
+          .length,
       },
       notes: `L1. Gates S1 ${g1}, S2 ${g2}, S3 ${g3}, S4 ${g4} (S4 not reached: it needs S2). Per configuration: ${readings
         .map(

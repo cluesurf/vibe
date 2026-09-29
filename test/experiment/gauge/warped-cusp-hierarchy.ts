@@ -44,7 +44,9 @@ export default experiment({
   run(context) {
     const scale = context.scale ?? 1
     // the warped hyperbolic bulk and its growth rate (the warp factor)
-    const addressing = buildAddressing({ maxCells: scaled(40000, scale) })
+    const addressing = buildAddressing({
+      maxCells: scaled(40000, scale),
+    })
     const warpFactor = growthRatioFromShellCounts(
       shellCountsFromGraph({
         neighbors: addressing.graph.neighbors,

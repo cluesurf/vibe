@@ -31,7 +31,10 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeWeyl } from '@/code/tool/weyl'
 import { chiralCondensateSignalSU2 } from '@/code/operator/overlap-su2'
-import { freeOverlapSpectrum, overlapCondensateWithBoundary } from '@/code/operator/overlap-boundary'
+import {
+  freeOverlapSpectrum,
+  overlapCondensateWithBoundary,
+} from '@/code/operator/overlap-boundary'
 
 const LENGTH = 3
 const M0 = 1
@@ -39,7 +42,8 @@ const TOLERANCE = 0.05
 const CONFIGS = 10
 const EXACT = 1e-12
 const DISORDERS = [0, 0.3, 0.6, 1.0]
-const start = (disorder: number): number => 600 + Math.round(disorder * 100)
+const start = (disorder: number): number =>
+  600 + Math.round(disorder * 100)
 
 export default experiment({
   id: 'gauge/su2-condensate',
@@ -51,28 +55,76 @@ export default experiment({
   depth: 'L2',
   paper: false,
   run() {
-    const shared = DISORDERS.map(d => chiralCondensateSignalSU2({ length: LENGTH, disorder: d, configs: CONFIGS, m0: M0, tolerance: TOLERANCE, rng: makeWeyl({ start: start(d) }) }).nearZeroDensity)
+    const shared = DISORDERS.map(
+      d =>
+        chiralCondensateSignalSU2({
+          length: LENGTH,
+          disorder: d,
+          configs: CONFIGS,
+          m0: M0,
+          tolerance: TOLERANCE,
+          rng: makeWeyl({ start: start(d) }),
+        }).nearZeroDensity,
+    )
     const arm = (time: 'periodic' | 'antiperiodic') =>
-      DISORDERS.map(d => overlapCondensateWithBoundary({ group: 'su2', length: LENGTH, disorder: d, configs: CONFIGS, m0: M0, tolerance: TOLERANCE, time, rng: makeWeyl({ start: start(d) }) }))
+      DISORDERS.map(d =>
+        overlapCondensateWithBoundary({
+          group: 'su2',
+          length: LENGTH,
+          disorder: d,
+          configs: CONFIGS,
+          m0: M0,
+          tolerance: TOLERANCE,
+          time,
+          rng: makeWeyl({ start: start(d) }),
+        }),
+      )
     const periodic = arm('periodic')
     const antiperiodic = arm('antiperiodic')
-    const freePeriodic = freeOverlapSpectrum({ length: LENGTH, m0: M0, tolerance: TOLERANCE, time: 'periodic' })
-    const freeAnti = freeOverlapSpectrum({ length: LENGTH, m0: M0, tolerance: TOLERANCE, time: 'antiperiodic' })
+    const freePeriodic = freeOverlapSpectrum({
+      length: LENGTH,
+      m0: M0,
+      tolerance: TOLERANCE,
+      time: 'periodic',
+    })
+    const freeAnti = freeOverlapSpectrum({
+      length: LENGTH,
+      m0: M0,
+      tolerance: TOLERANCE,
+      time: 'antiperiodic',
+    })
 
-    const reproduces = periodic.every((r, i) => Math.abs(r.nearZeroDensity - shared[i]!) < EXACT)
-    const freeControl = Math.abs(periodic[0]!.nearZeroDensity - freePeriodic.density) < EXACT && Math.abs(antiperiodic[0]!.nearZeroDensity - freeAnti.density) < EXACT
+    const reproduces = periodic.every(
+      (r, i) => Math.abs(r.nearZeroDensity - shared[i]!) < EXACT,
+    )
+    const freeControl =
+      Math.abs(periodic[0]!.nearZeroDensity - freePeriodic.density) <
+        EXACT &&
+      Math.abs(antiperiodic[0]!.nearZeroDensity - freeAnti.density) <
+        EXACT
     const free = antiperiodic[0]!.nearZeroDensity
-    const maxSignal = Math.max(...antiperiodic.map(r => r.nearZeroDensity))
+    const maxSignal = Math.max(
+      ...antiperiodic.map(r => r.nearZeroDensity),
+    )
     const ok = reproduces && freeControl && maxSignal > free
 
-    const metrics: Record<string, number> = { freeDensity: free, maxDensity: maxSignal, freeLowestDerived: freeAnti.lowest }
+    const metrics: Record<string, number> = {
+      freeDensity: free,
+      maxDensity: maxSignal,
+      freeLowestDerived: freeAnti.lowest,
+    }
 
     DISORDERS.forEach((d, i) => {
       const tag = Math.round(d * 100)
 
-      metrics[`antiperiodicDensity${tag}`] = antiperiodic[i]!.nearZeroDensity
-      metrics[`antiperiodicExactZero${tag}`] = antiperiodic[i]!.exactZeroModes
-      metrics[`antiperiodicLowest${tag}`] = antiperiodic[i]!.lowestEigenvalue
+      metrics[`antiperiodicDensity${tag}`] =
+        antiperiodic[i]!.nearZeroDensity
+
+      metrics[`antiperiodicExactZero${tag}`] =
+        antiperiodic[i]!.exactZeroModes
+
+      metrics[`antiperiodicLowest${tag}`] =
+        antiperiodic[i]!.lowestEigenvalue
       metrics[`periodicDensity${tag}`] = periodic[i]!.nearZeroDensity
     })
 

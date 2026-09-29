@@ -95,8 +95,12 @@ export default experiment({
     const directions = CELESTIAL_DIRECTIONS.map(normalize)
 
     const grounded =
-      CELESTIAL_DIRECTIONS.every(v => containsVector({ vectors: roots, vector: v })) &&
-      BOOST_AXES.every(v => containsVector({ vectors: roots, vector: v }))
+      CELESTIAL_DIRECTIONS.every(v =>
+        containsVector({ vectors: roots, vector: v }),
+      ) &&
+      BOOST_AXES.every(v =>
+        containsVector({ vectors: roots, vector: v }),
+      )
 
     let mapResidual = 0
     let crossRatioShift = 0

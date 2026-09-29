@@ -55,26 +55,29 @@ suite('tool/block: the coordinate blocking is consistent', [
   }),
 ])
 
-suite('tool/integer: the mix is deterministic and not a random source', [
-  check('the same input always gives the same output', () => {
-    equal(integerMix(12345), integerMix(12345))
-    equal(integerMix(0), integerMix(0))
-  }),
-  check('different inputs generally give different outputs', () => {
-    notOk(
-      integerMix(1) === integerMix(2),
-      'the mix must separate nearby inputs',
-    )
-  }),
-  check('the output is a non-negative 32-bit integer', () => {
-    const value = integerMix(987654)
+suite(
+  'tool/integer: the mix is deterministic and not a random source',
+  [
+    check('the same input always gives the same output', () => {
+      equal(integerMix(12345), integerMix(12345))
+      equal(integerMix(0), integerMix(0))
+    }),
+    check('different inputs generally give different outputs', () => {
+      notOk(
+        integerMix(1) === integerMix(2),
+        'the mix must separate nearby inputs',
+      )
+    }),
+    check('the output is a non-negative 32-bit integer', () => {
+      const value = integerMix(987654)
 
-    ok(
-      Number.isInteger(value) && value >= 0 && value <= 0xffffffff,
-      'the mix must stay in unsigned 32-bit range',
-    )
-  }),
-])
+      ok(
+        Number.isInteger(value) && value >= 0 && value <= 0xffffffff,
+        'the mix must stay in unsigned 32-bit range',
+      )
+    }),
+  ],
+)
 
 suite(
   'measure/continuity: the balance is exact for partitions with no geometry',
@@ -91,18 +94,21 @@ suite(
       equal(out.absResidual, 0)
       equal(out.maxRegionResidual, 0)
     }),
-    check('index-interleaved regions give exactly zero residual', () => {
-      const out = regionContinuityResidual({
-        will: patternWill(),
-        collision: passThrough,
-        regionOf: cell => cell % 7,
-        regionCount: 7,
-      })
+    check(
+      'index-interleaved regions give exactly zero residual',
+      () => {
+        const out = regionContinuityResidual({
+          will: patternWill(),
+          collision: passThrough,
+          regionOf: cell => cell % 7,
+          regionCount: 7,
+        })
 
-      equal(out.absResidual, 0)
-      equal(out.maxRegionResidual, 0)
-      ok(out.totalFlux > 0, 'the partition must actually carry flux')
-    }),
+        equal(out.absResidual, 0)
+        equal(out.maxRegionResidual, 0)
+        ok(out.totalFlux > 0, 'the partition must actually carry flux')
+      },
+    ),
     check('a one-signed sink breaks the balance', () => {
       // The one-signed sink removes POSITIVE charge from slot 0 only, so it is inert on a fill whose
       // slot 0 is never positive. fillWillPattern is exactly such a fill (slot 0 is negative in every
@@ -113,7 +119,8 @@ suite(
 
       for (let cell = 0; cell < will.mesh.cellCount; cell++) {
         for (let d = 0; d < degree; d++) {
-          will.data[cell * degree + d] = d === 0 ? 1 : ((cell + d) % 3) - 1
+          will.data[cell * degree + d] =
+            d === 0 ? 1 : ((cell + d) % 3) - 1
         }
       }
 
@@ -239,50 +246,56 @@ suite('measure/arp: the support share and the three gates', [
   }),
 ])
 
-suite('measure/resolution: the coarse reading is finite and quantised', [
-  check('the quantum is exactly one over the block volume', () => {
-    const out = coarseDensityResolution({
-      will: patternWill(),
-      meshSide: SIDE,
-      blockSide: 2,
-    })
+suite(
+  'measure/resolution: the coarse reading is finite and quantised',
+  [
+    check('the quantum is exactly one over the block volume', () => {
+      const out = coarseDensityResolution({
+        will: patternWill(),
+        meshSide: SIDE,
+        blockSide: 2,
+      })
 
-    equal(out.blockVolume, 16)
-    equal(out.quantum, 1 / 16)
-  }),
-  check('the attainable value set is finite and bounded', () => {
-    const out = coarseDensityResolution({
-      will: patternWill(),
-      meshSide: SIDE,
-      blockSide: 2,
-    })
+      equal(out.blockVolume, 16)
+      equal(out.quantum, 1 / 16)
+    }),
+    check('the attainable value set is finite and bounded', () => {
+      const out = coarseDensityResolution({
+        will: patternWill(),
+        meshSide: SIDE,
+        blockSide: 2,
+      })
 
-    equal(out.attainableValues, 2 * out.slotsPerBlock + 1)
-    ok(
-      Number.isFinite(out.attainableValues),
-      'the attainable set must be finite',
-    )
-    ok(out.onLattice, 'every block total must respect the slot bound')
-  }),
-  check('a finer block has a coarser quantum than a bigger block', () => {
-    const fine = coarseDensityResolution({
-      will: patternWill(),
-      meshSide: SIDE,
-      blockSide: 1,
-    })
-    const coarse = coarseDensityResolution({
-      will: patternWill(),
-      meshSide: SIDE,
-      blockSide: 2,
-    })
+      equal(out.attainableValues, 2 * out.slotsPerBlock + 1)
+      ok(
+        Number.isFinite(out.attainableValues),
+        'the attainable set must be finite',
+      )
+      ok(out.onLattice, 'every block total must respect the slot bound')
+    }),
+    check(
+      'a finer block has a coarser quantum than a bigger block',
+      () => {
+        const fine = coarseDensityResolution({
+          will: patternWill(),
+          meshSide: SIDE,
+          blockSide: 1,
+        })
+        const coarse = coarseDensityResolution({
+          will: patternWill(),
+          meshSide: SIDE,
+          blockSide: 2,
+        })
 
-    ok(
-      coarse.quantum < fine.quantum,
-      'growing the block must shrink the quantum',
-    )
-    ok(coarse.quantum > 0, 'the quantum never reaches zero')
-  }),
-])
+        ok(
+          coarse.quantum < fine.quantum,
+          'growing the block must shrink the quantum',
+        )
+        ok(coarse.quantum > 0, 'the quantum never reaches zero')
+      },
+    ),
+  ],
+)
 
 suite('tool/mesh: the exported coin vectors match their builders', [
   check('square vectors are unit and opposite-paired', () => {

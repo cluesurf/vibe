@@ -60,16 +60,51 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { LINE_FIRSTS, OPPOSITE } from '@/code/rule/isometric-knit'
-import { boxHusk, causalRun, streamTarget } from '@/code/measure/causal-components'
+import {
+  boxHusk,
+  causalRun,
+  streamTarget,
+} from '@/code/measure/causal-components'
 import { centerOf } from '@/code/measure/wall-reading'
 import { storeImage } from '@/code/measure/coset-walls'
 import { coinsOnce } from '@/code/measure/dense-hub'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
 import { d4BoxCoordinates } from '@/code/substrate/d4-box'
-import { lockedNorm, lockedState, newTally, norm, type Configuration, type LockedState } from '@/code/rule/doublet-locked-knit'
-import { toWords, vetoBeat, vetoBeatBack, type VetoKind } from '@/code/rule/occupation-veto-knit'
-import { idRun, laws, lockedFresh, newPathTally, registerKnot, sameOccupation, samePoints, vacuumConfiguration, THRESHOLD_BORN, THRESHOLD_EXCHANGE, THRESHOLD_KEEP, type LockedFresh } from '@/code/measure/doublet-locked-readings'
-import { readVetoWall, vetoPathReplay, vetoPathRunner, vetoPathTrack, vetoPathWake } from '@/code/measure/occupation-veto-readings'
+import {
+  lockedNorm,
+  lockedState,
+  newTally,
+  norm,
+  type Configuration,
+  type LockedState,
+} from '@/code/rule/doublet-locked-knit'
+import {
+  toWords,
+  vetoBeat,
+  vetoBeatBack,
+  type VetoKind,
+} from '@/code/rule/occupation-veto-knit'
+import {
+  idRun,
+  laws,
+  lockedFresh,
+  newPathTally,
+  registerKnot,
+  sameOccupation,
+  samePoints,
+  vacuumConfiguration,
+  THRESHOLD_BORN,
+  THRESHOLD_EXCHANGE,
+  THRESHOLD_KEEP,
+  type LockedFresh,
+} from '@/code/measure/doublet-locked-readings'
+import {
+  readVetoWall,
+  vetoPathReplay,
+  vetoPathRunner,
+  vetoPathTrack,
+  vetoPathWake,
+} from '@/code/measure/occupation-veto-readings'
 
 const SIDE = 8
 const BEATS = 96
@@ -80,7 +115,7 @@ const WAKE_BOUND = 32
 const Q_SIDE = 4
 const Q_BEATS = 48
 const SEARCH = 12
-const LINE_SECONDS = LINE_FIRSTS.map(f => OPPOSITE[f] as number)
+const LINE_SECONDS = LINE_FIRSTS.map(f => OPPOSITE[f]!)
 const KINDS: readonly VetoKind[] = ['occupation', 'pairing']
 const PATHS = [
   { name: 'keep', threshold: THRESHOLD_KEEP },
@@ -90,7 +125,16 @@ const PATHS = [
 
 type PathName = (typeof PATHS)[number]['name']
 
-const wordVacuum = (f: { cells: number; layout: Int8Array }, store: Int8Array): Configuration => toWords(vacuumConfiguration({ cells: f.cells, store, layout: f.layout }, 'all'))
+const wordVacuum = (
+  f: { cells: number; layout: Int8Array },
+  store: Int8Array,
+): Configuration =>
+  toWords(
+    vacuumConfiguration(
+      { cells: f.cells, store, layout: f.layout },
+      'all',
+    ),
+  )
 
 type PathReading = {
   lawBreaks: number
@@ -116,9 +160,18 @@ function readPath(kind: VetoKind, threshold: number): PathReading {
   const f = lockedFresh(SIDE)
   const vacuum = wordVacuum(f, f.store)
   const run = vetoPathRunner(kind, f.tables, vacuum, threshold)
-  const crun = vetoPathRunner(kind, f.tables, wordVacuum(f, Int8Array.from(f.store, v => -v)), threshold)
+  const crun = vetoPathRunner(
+    kind,
+    f.tables,
+    wordVacuum(
+      f,
+      Int8Array.from(f.store, v => -v),
+    ),
+    threshold,
+  )
   const tally = newPathTally()
   const l0 = laws(vacuum)
+
   let lawBreaks = 0
   let cBreaks = 0
   let freeLast = 0
@@ -130,6 +183,7 @@ function readPath(kind: VetoKind, threshold: number): PathReading {
     const s = run.state()
     const c = crun.state()
     const l = laws(s)
+
     let off = 0
     let free = 0
 
@@ -137,31 +191,59 @@ function readPath(kind: VetoKind, threshold: number): PathReading {
 
     for (let i = 0; i < s.vibe.length; i++) {
       free += s.vibe[i] !== 0 ? 1 : 0
-      if (s.vibe[i] !== -(c.vibe[i] as number) || (s.vibe[i] !== 0 && s.point[i] !== c.point[i])) off++
+
+      if (
+        s.vibe[i] !== -c.vibe[i]! ||
+        (s.vibe[i] !== 0 && s.point[i] !== c.point[i])
+      ) {
+        off++
+      }
     }
 
-    for (let i = 0; i < s.store.length; i++) if (s.store[i] !== -(c.store[i] as number) || (s.store[i] !== 0 && s.spoint[i] !== c.spoint[i])) off++
+    for (let i = 0; i < s.store.length; i++) {
+      if (
+        s.store[i] !== -c.store[i]! ||
+        (s.store[i] !== 0 && s.spoint[i] !== c.spoint[i])
+      ) {
+        off++
+      }
+    }
 
     cBreaks += off > 0 ? 1 : 0
     freeLast = free
   }
 
-  for (let t = 0; t < BEATS; t++) run.back()
+  for (let t = 0; t < BEATS; t++) {
+    run.back()
+  }
 
   const back = run.state()
+
   let reverses = true
 
-  for (let i = 0; i < back.vibe.length && reverses; i++) reverses = back.vibe[i] === vacuum.vibe[i] && (back.vibe[i] === 0 || back.point[i] === vacuum.point[i])
-  for (let i = 0; i < back.store.length && reverses; i++) reverses = back.store[i] === vacuum.store[i] && (back.store[i] === 0 || back.spoint[i] === vacuum.spoint[i])
+  for (let i = 0; i < back.vibe.length && reverses; i++) {
+    reverses =
+      back.vibe[i] === vacuum.vibe[i] &&
+      (back.vibe[i] === 0 || back.point[i] === vacuum.point[i])
+  }
+
+  for (let i = 0; i < back.store.length && reverses; i++) {
+    reverses =
+      back.store[i] === vacuum.store[i] &&
+      (back.store[i] === 0 || back.spoint[i] === vacuum.spoint[i])
+  }
 
   let units = 0
 
-  for (const v of f.store) units += v !== 0 ? 1 : 0
+  for (const v of f.store) {
+    units += v !== 0 ? 1 : 0
+  }
 
   // G4
   const husk = boxHusk(f.weave.mesh, SIDE)
   const target = streamTarget(f.weave.mesh)
   const center = centerOf(SIDE)
+
   let causalLargest = 0
   let descentMin = Number.POSITIVE_INFINITY
   let coveredBy = 0
@@ -172,34 +254,63 @@ function readPath(kind: VetoKind, threshold: number): PathReading {
     start.vibe[center * 24 + d] = 1
     start.open[center * 24 + d] = 1
 
-    const c = causalRun({ replay: vetoPathReplay(kind, f.tables, start, threshold), husk, target, beats: CAUSAL_BEATS, seedDock: center })
+    const c = causalRun({
+      replay: vetoPathReplay(kind, f.tables, start, threshold),
+      husk,
+      target,
+      beats: CAUSAL_BEATS,
+      seedDock: center,
+    })
     const first = new Int32Array(husk.columns).fill(-1)
 
     for (let x = 0; x < f.cells; x++) {
-      const at = c.log.reachedAt[x] as number
-      const col = husk.column[x] as number
+      const at = c.log.reachedAt[x]!
+      const col = husk.column[x]!
 
-      if (at >= 0 && (first[col] === -1 || at < (first[col] as number))) first[col] = at
+      if (at >= 0 && (first[col] === -1 || at < first[col]!)) {
+        first[col] = at
+      }
     }
 
     causalLargest = Math.max(causalLargest, c.counts.husk)
     descentMin = Math.min(descentMin, c.counts.reachedHusk)
-    coveredBy = Math.max(coveredBy, first.includes(-1) ? Number.POSITIVE_INFINITY : Math.max(...Array.from(first)))
+    coveredBy = Math.max(
+      coveredBy,
+      first.includes(-1)
+        ? Number.POSITIVE_INFINITY
+        : Math.max(...Array.from(first)),
+    )
   }
 
   // G6
   const g = lockedFresh(SIDE, center)
   const gVacuum = wordVacuum(g, g.store)
-  const track = vetoPathTrack(kind, g.tables, gVacuum, threshold, BEATS).states
+  const track = vetoPathTrack(
+    kind,
+    g.tables,
+    gVacuum,
+    threshold,
+    BEATS,
+  ).states
   const wakeWorst: number[][] = [
     [0, 0, 0, 0],
     [0, 0, 0, 0],
   ]
+
   let wakeOffLine = 0
 
   ;[1, -1].forEach((tone, k) => {
     for (let d = 0; d < 24; d++) {
-      const w = vetoPathWake({ kind, tables: g.tables, vacuum: gVacuum, track, seedSlot: center * 24 + d, tone, threshold, beats: BEATS })
+      const w = vetoPathWake({
+        kind,
+        tables: g.tables,
+        vacuum: gVacuum,
+        track,
+        seedSlot: center * 24 + d,
+        tone,
+        threshold,
+        beats: BEATS,
+      })
 
       w.worst.forEach((x, p) => {
         wakeWorst[k]![p] = Math.max(wakeWorst[k]![p] ?? 0, x)
@@ -212,9 +323,34 @@ function readPath(kind: VetoKind, threshold: number): PathReading {
   const h = lockedFresh(WALL_SIDE)
   const coins = coinsOnce()
   const whusk = boxHusk(h.weave.mesh, WALL_SIDE)
-  const inside = Uint8Array.from({ length: h.cells }, (_, x) => ((d4BoxCoordinates({ cell: x, side: WALL_SIDE })[0] ?? 0) >= WALL_SIDE / 2 ? 1 : 0))
-  const image = storeImage(coins, WALL_SIDE, h.store, coins.table.identity, -1, [0, 0, 0, 0])
-  const wall = readVetoWall({ kind, tables: h.tables, vacuum: store => wordVacuum(h, store), store: h.store, image, inside, column: whusk.column, columns: whusk.columns, from: 72, to: 192, window: 6, threshold })
+  const inside = Uint8Array.from({ length: h.cells }, (_, x) =>
+    (d4BoxCoordinates({ cell: x, side: WALL_SIDE })[0] ?? 0) >=
+    WALL_SIDE / 2
+      ? 1
+      : 0,
+  )
+  const image = storeImage(
+    coins,
+    WALL_SIDE,
+    h.store,
+    coins.table.identity,
+    -1,
+    [0, 0, 0, 0],
+  )
+  const wall = readVetoWall({
+    kind,
+    tables: h.tables,
+    vacuum: store => wordVacuum(h, store),
+    store: h.store,
+    image,
+    inside,
+    column: whusk.column,
+    columns: whusk.columns,
+    from: 72,
+    to: 192,
+    window: 6,
+    threshold,
+  })
 
   return {
     lawBreaks,
@@ -242,10 +378,19 @@ function readPath(kind: VetoKind, threshold: number): PathReading {
 function findLikePair(f: LockedFresh): [number, number] | undefined {
   const all = new Map<number, [number, number]>()
 
-  for (let line = 0; line < f.store.length; line++) if (f.store[line] !== 0) all.set(line, [2 * line, 2 * line + 1])
+  for (let line = 0; line < f.store.length; line++) {
+    if (f.store[line] !== 0) {
+      all.set(line, [2 * line, 2 * line + 1])
+    }
+  }
 
   // the no-open history of every veto is the old knit's (E-RLT-0100 T5), so the old id run names the vibes
-  const r = idRun(f.tables, f.weave, vacuumConfiguration(f, 'none'), all)
+  const r = idRun(
+    f.tables,
+    f.weave,
+    vacuumConfiguration(f, 'none'),
+    all,
+  )
 
   for (let t = 0; t < SEARCH; t++) {
     const c = r.state()
@@ -253,10 +398,18 @@ function findLikePair(f: LockedFresh): [number, number] | undefined {
 
     for (let x = 0; x < f.cells; x++) {
       for (let l = 0; l < 12; l++) {
-        const i = x * 24 + (LINE_FIRSTS[l] as number)
-        const j = x * 24 + (LINE_SECONDS[l] as number)
+        const i = x * 24 + LINE_FIRSTS[l]!
+        const j = x * 24 + LINE_SECONDS[l]!
 
-        if (c.vibe[i] !== 0 && c.vibe[i] === c.vibe[j] && c.point[i] !== c.point[j] && (ids[i] as number) >= 0 && (ids[j] as number) >= 0) return [ids[i] as number, ids[j] as number]
+        if (
+          c.vibe[i] !== 0 &&
+          c.vibe[i] === c.vibe[j] &&
+          c.point[i] !== c.point[j] &&
+          ids[i]! >= 0 &&
+          ids[j]! >= 0
+        ) {
+          return [ids[i]!, ids[j]!]
+        }
       }
     }
 
@@ -266,43 +419,78 @@ function findLikePair(f: LockedFresh): [number, number] | undefined {
   return undefined
 }
 
-type Study = { found: boolean; knot?: { weights: number[]; chsh: number }; normExact: boolean; reversed: boolean; occupations: number; branchesMax: number; splits: number; readings: string[]; differs: boolean }
+type Study = {
+  found: boolean
+  knot?: { weights: number[]; chsh: number }
+  normExact: boolean
+  reversed: boolean
+  occupations: number
+  branchesMax: number
+  splits: number
+  readings: string[]
+  differs: boolean
+}
 
 function likeStudy(kind: VetoKind, f: LockedFresh): Study {
   const pick = findLikePair(f)
 
-  if (!pick) return { found: false, normExact: false, reversed: false, occupations: 0, branchesMax: 0, splits: 0, readings: [], differs: false }
+  if (!pick) {
+    return {
+      found: false,
+      normExact: false,
+      reversed: false,
+      occupations: 0,
+      branchesMax: 0,
+      splits: 0,
+      readings: [],
+      differs: false,
+    }
+  }
 
   const raw = vacuumConfiguration(f, 'none')
 
-  for (const id of pick) raw.sopen[id >> 1] = (raw.sopen[id >> 1] as number) | (1 << (id & 1))
+  for (const id of pick) {
+    raw.sopen[id >> 1] = raw.sopen[id >> 1]! | (1 << (id & 1))
+  }
 
   const start = toWords(raw)
   const tally = newTally()
   // the keep term: the rule's classical history of this start (no exchange ever)
   const keep = vetoPathRunner(kind, f.tables, start, THRESHOLD_KEEP)
+
   let s: LockedState = lockedState(start)
   let normExact = true
   let branchesMax = 1
   let knot: { weights: number[]; chsh: number } | undefined
   let keepMeetings = 0
   let cumulative = 0
+
   const readings: string[] = []
+
   let differs = false
 
   for (let t = 0; t < Q_BEATS; t++) {
     const before = tally.splitMeetings
     const pre = keep.state()
     const twinPre = s.branches.find(b => samePoints(b, pre))
+
     let onKeep = 0
 
     if (twinPre) {
       for (let x = 0; x < f.cells; x++) {
         for (let l = 0; l < 12; l++) {
-          const i = x * 24 + (LINE_FIRSTS[l] as number)
-          const j = x * 24 + (LINE_SECONDS[l] as number)
+          const i = x * 24 + LINE_FIRSTS[l]!
+          const j = x * 24 + LINE_SECONDS[l]!
 
-          if (twinPre.vibe[i] !== 0 && twinPre.vibe[i] === twinPre.vibe[j] && twinPre.open[i] && twinPre.open[j] && twinPre.point[i] !== twinPre.point[j]) onKeep++
+          if (
+            twinPre.vibe[i] !== 0 &&
+            twinPre.vibe[i] === twinPre.vibe[j] &&
+            twinPre.open[i] &&
+            twinPre.open[j] &&
+            twinPre.point[i] !== twinPre.point[j]
+          ) {
+            onKeep++
+          }
         }
       }
     }
@@ -319,11 +507,20 @@ function likeStudy(kind: VetoKind, f: LockedFresh): Study {
       const b0 = s.branches[0]!
       const open: number[] = []
 
-      for (let i = 0; i < b0.open.length; i++) if (b0.open[i]) open.push(i)
+      for (let i = 0; i < b0.open.length; i++) {
+        if (b0.open[i]) {
+          open.push(i)
+        }
+      }
 
-      const k = open.length === 2 ? registerKnot(s, open[0]!, open[1]!) : undefined
+      const k =
+        open.length === 2
+          ? registerKnot(s, open[0]!, open[1]!)
+          : undefined
 
-      if (k) knot = { weights: k.weights, chsh: k.chsh }
+      if (k) {
+        knot = { weights: k.weights, chsh: k.chsh }
+      }
     }
 
     const now = keep.state()
@@ -336,23 +533,53 @@ function likeStudy(kind: VetoKind, f: LockedFresh): Study {
       const w = twin ? norm(twin.a, twin.b) : 0n
       const k = twin ? twin.k : 0
 
-      readings.push(`beat ${t}, m ${cumulative}: ${twin ? `${w}/4^${k}` : 'absent'}`)
-      if (!twin || w * (1n << BigInt(2 * cumulative)) !== 1n << BigInt(2 * k)) differs = true
+      readings.push(
+        `beat ${t}, m ${cumulative}: ${twin ? `${w}/4^${k}` : 'absent'}`,
+      )
+
+      if (
+        !twin ||
+        w * (1n << BigInt(2 * cumulative)) !== 1n << BigInt(2 * k)
+      ) {
+        differs = true
+      }
     }
   }
 
   const occupations: Configuration[] = []
 
-  for (const b of s.branches) if (!occupations.some(o => sameOccupation(o, b))) occupations.push(b)
+  for (const b of s.branches) {
+    if (!occupations.some(o => sameOccupation(o, b))) {
+      occupations.push(b)
+    }
+  }
 
   let back = s
 
-  for (let t = Q_BEATS - 1; t >= 0; t--) back = vetoBeatBack(kind, f.tables, back, t)
+  for (let t = Q_BEATS - 1; t >= 0; t--) {
+    back = vetoBeatBack(kind, f.tables, back, t)
+  }
 
   const b0 = back.branches[0]
-  const reversed = back.branches.length === 1 && !!b0 && b0.a === 1n && b0.b === 0n && b0.k === 0 && samePoints(b0, start)
+  const reversed =
+    back.branches.length === 1 &&
+    !!b0 &&
+    b0.a === 1n &&
+    b0.b === 0n &&
+    b0.k === 0 &&
+    samePoints(b0, start)
 
-  return { found: true, knot, normExact, reversed, occupations: occupations.length, branchesMax, splits: tally.splitMeetings, readings, differs }
+  return {
+    found: true,
+    knot,
+    normExact,
+    reversed,
+    occupations: occupations.length,
+    branchesMax,
+    splits: tally.splitMeetings,
+    readings,
+    differs,
+  }
 }
 
 export default experiment({
@@ -366,19 +593,27 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const family = startFamily(16)
     const perStart = family.map(member =>
       withStart(member, () => {
         const f4 = lockedFresh(Q_SIDE)
         const out = Object.fromEntries(
           KINDS.map(kind => {
-            const paths = Object.fromEntries(PATHS.map(p => [p.name, readPath(kind, p.threshold)])) as Record<PathName, PathReading>
+            const paths = Object.fromEntries(
+              PATHS.map(p => [p.name, readPath(kind, p.threshold)]),
+            ) as Record<PathName, PathReading>
             const study = likeStudy(kind, f4)
 
             return [kind, { paths, study }]
           }),
-        ) as Record<VetoKind, { paths: Record<PathName, PathReading>; study: Study }>
+        ) as Record<
+          VetoKind,
+          { paths: Record<PathName, PathReading>; study: Study }
+        >
 
         log(`start ${member.name}`)
 
@@ -390,45 +625,121 @@ export default experiment({
       G1: (r: PathReading) => r.lawBreaks === 0,
       G2: (r: PathReading) => r.reverses,
       G3: (r: PathReading) => r.cBreaks === 0,
-      G4: (r: PathReading) => r.causalLargest === 1 && r.descentMin === 512 && r.coveredBy <= DESCENT_BOUND,
+      G4: (r: PathReading) =>
+        r.causalLargest === 1 &&
+        r.descentMin === 512 &&
+        r.coveredBy <= DESCENT_BOUND,
       G5: (r: PathReading) => r.made === r.unmade && r.made >= r.units,
-      G6: (r: PathReading) => r.wakeOffLine === 0 && r.wakeWorst.flat().every(x => x <= WAKE_BOUND),
+      G6: (r: PathReading) =>
+        r.wakeOffLine === 0 &&
+        r.wakeWorst.flat().every(x => x <= WAKE_BOUND),
       G7: (r: PathReading) => r.wallPasses,
     }
     const q = {
-      Q2: (s: Study) => s.found && !!s.knot && s.knot.weights.length === 2 && Math.abs((s.knot.weights[0] ?? 0) - 0.75) < 1e-12 && Math.abs((s.knot.weights[1] ?? 0) - 0.25) < 1e-12 && Math.abs(s.knot.chsh - Math.sqrt(7)) < 1e-9,
+      Q2: (s: Study) =>
+        s.found &&
+        !!s.knot &&
+        s.knot.weights.length === 2 &&
+        Math.abs((s.knot.weights[0] ?? 0) - 0.75) < 1e-12 &&
+        Math.abs((s.knot.weights[1] ?? 0) - 0.25) < 1e-12 &&
+        Math.abs(s.knot.chsh - Math.sqrt(7)) < 1e-9,
       Q3: (s: Study) => s.found && s.normExact && s.reversed,
       Q4: (s: Study) => s.occupations > 1,
       Q7: (s: Study) => s.differs,
     }
-    const cases = (kind: VetoKind, test: (r: PathReading) => boolean, path?: PathName): number => perStart.reduce((n, p) => n + PATHS.filter(x => !path || x.name === path).filter(x => test(p[kind].paths[x.name])).length, 0)
-    const keeps = (kind: VetoKind): boolean => Object.values(g).every(test => cases(kind, test) === 3 * family.length)
-    const quantum = (kind: VetoKind): boolean => Object.values(q).every(test => perStart.every(p => test(p[kind].study)))
-    const status = KINDS.some(k => keeps(k) && quantum(k)) ? 'pass' : KINDS.some(k => keeps(k)) ? 'partial' : 'fail'
-    const range = (xs: number[]): string => (Math.min(...xs) === Math.max(...xs) ? `${Math.min(...xs)}` : `${Math.min(...xs)} to ${Math.max(...xs)}`)
-    const over = (kind: VetoKind, name: PathName, f: (r: PathReading) => number): string => range(perStart.map(p => f(p[kind].paths[name])))
+    const cases = (
+      kind: VetoKind,
+      test: (r: PathReading) => boolean,
+      path?: PathName,
+    ): number =>
+      perStart.reduce(
+        (n, p) =>
+          n +
+          PATHS.filter(x => !path || x.name === path).filter(x =>
+            test(p[kind].paths[x.name]),
+          ).length,
+        0,
+      )
+    const keeps = (kind: VetoKind): boolean =>
+      Object.values(g).every(
+        test => cases(kind, test) === 3 * family.length,
+      )
+    const quantum = (kind: VetoKind): boolean =>
+      Object.values(q).every(test =>
+        perStart.every(p => test(p[kind].study)),
+      )
+    const status = KINDS.some(k => keeps(k) && quantum(k))
+      ? 'pass'
+      : KINDS.some(k => keeps(k))
+        ? 'partial'
+        : 'fail'
+    const range = (xs: number[]): string =>
+      Math.min(...xs) === Math.max(...xs)
+        ? `${Math.min(...xs)}`
+        : `${Math.min(...xs)} to ${Math.max(...xs)}`
+    const over = (
+      kind: VetoKind,
+      name: PathName,
+      f: (r: PathReading) => number,
+    ): string => range(perStart.map(p => f(p[kind].paths[name])))
     const metrics: Record<string, number> = { starts: family.length }
 
     for (const kind of KINDS) {
       metrics[`${kind}_keepsVacuum`] = keeps(kind) ? 1 : 0
 
       for (const [name, test] of Object.entries(g)) {
-        for (const p of PATHS) metrics[`${kind}_${name}_${p.name}`] = cases(kind, test, p.name)
+        for (const p of PATHS) {
+          metrics[`${kind}_${name}_${p.name}`] = cases(
+            kind,
+            test,
+            p.name,
+          )
+        }
       }
 
-      for (const [name, test] of Object.entries(q)) metrics[`${kind}_${name}`] = perStart.filter(p => test(p[kind].study)).length
+      for (const [name, test] of Object.entries(q)) {
+        metrics[`${kind}_${name}`] = perStart.filter(p =>
+          test(p[kind].study),
+        ).length
+      }
 
       for (const p of PATHS) {
-        metrics[`${kind}_${p.name}_madeMax`] = Math.max(...perStart.map(s => s[kind].paths[p.name].made))
-        metrics[`${kind}_${p.name}_unmadeMin`] = Math.min(...perStart.map(s => s[kind].paths[p.name].unmade))
-        metrics[`${kind}_${p.name}_freeLastMax`] = Math.max(...perStart.map(s => s[kind].paths[p.name].freeLast))
-        metrics[`${kind}_${p.name}_wakeWorstMax`] = Math.max(...perStart.map(s => Math.max(...s[kind].paths[p.name].wakeWorst.flat())))
-        metrics[`${kind}_${p.name}_wakeOffLineMax`] = Math.max(...perStart.map(s => s[kind].paths[p.name].wakeOffLine))
-        metrics[`${kind}_${p.name}_wallOutsideColumnsMax`] = Math.max(...perStart.map(s => s[kind].paths[p.name].wallOutsideColumns))
+        metrics[`${kind}_${p.name}_madeMax`] = Math.max(
+          ...perStart.map(s => s[kind].paths[p.name].made),
+        )
+
+        metrics[`${kind}_${p.name}_unmadeMin`] = Math.min(
+          ...perStart.map(s => s[kind].paths[p.name].unmade),
+        )
+
+        metrics[`${kind}_${p.name}_freeLastMax`] = Math.max(
+          ...perStart.map(s => s[kind].paths[p.name].freeLast),
+        )
+
+        metrics[`${kind}_${p.name}_wakeWorstMax`] = Math.max(
+          ...perStart.map(s =>
+            Math.max(...s[kind].paths[p.name].wakeWorst.flat()),
+          ),
+        )
+
+        metrics[`${kind}_${p.name}_wakeOffLineMax`] = Math.max(
+          ...perStart.map(s => s[kind].paths[p.name].wakeOffLine),
+        )
+
+        metrics[`${kind}_${p.name}_wallOutsideColumnsMax`] = Math.max(
+          ...perStart.map(
+            s => s[kind].paths[p.name].wallOutsideColumns,
+          ),
+        )
       }
 
-      metrics[`${kind}_chshMin`] = Math.min(...perStart.map(p => p[kind].study.knot?.chsh ?? 0))
-      metrics[`${kind}_occupationsMax`] = Math.max(...perStart.map(p => p[kind].study.occupations))
+      metrics[`${kind}_chshMin`] = Math.min(
+        ...perStart.map(p => p[kind].study.knot?.chsh ?? 0),
+      )
+
+      metrics[`${kind}_occupationsMax`] = Math.max(
+        ...perStart.map(p => p[kind].study.occupations),
+      )
     }
 
     metrics.seconds = (Date.now() - started) / 1000
@@ -442,16 +753,28 @@ export default experiment({
       status,
       claim: KINDS.map(
         kind =>
-          `${kind}: keeps the vacuum ${keeps(kind)} (G1 to G7 on ${Object.values(g)
+          `${kind}: keeps the vacuum ${keeps(kind)} (G1 to G7 on ${Object.values(
+            g,
+          )
             .map(test => cases(kind, test))
-            .join(', ')} of ${3 * family.length}), knot sqrt 7 on ${metrics[`${kind}_Q2`]}, exact on ${metrics[`${kind}_Q3`]}, positions with amplitude on ${metrics[`${kind}_Q4`]}, interference on ${metrics[`${kind}_Q7`]} of ${family.length}`,
+            .join(
+              ', ',
+            )} of ${3 * family.length}), knot sqrt 7 on ${metrics[`${kind}_Q2`]}, exact on ${metrics[`${kind}_Q3`]}, positions with amplitude on ${metrics[`${kind}_Q4`]}, interference on ${metrics[`${kind}_Q7`]} of ${family.length}`,
       ).join('; '),
       metrics,
-      notes: `L2. Gates per veto (keep/born/exchange counts of 17): ${KINDS.map(kind => `${kind} ${Object.keys(g)
-        .map(name => `${name} ${PATHS.map(p => metrics[`${kind}_${name}_${p.name}`]).join('/')}`)
-        .join(', ')}; ${Object.keys(q)
-        .map(name => `${name} ${metrics[`${kind}_${name}`]}`)
-        .join(', ')}`).join('. ')}. ${KINDS.flatMap(kind => PATHS.map(p => pathLine(kind, p.name))).join('. ')}. ${KINDS.map(studyLine).join('. ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
+      notes: `L2. Gates per veto (keep/born/exchange counts of 17): ${KINDS.map(
+        kind =>
+          `${kind} ${Object.keys(g)
+            .map(
+              name =>
+                `${name} ${PATHS.map(p => metrics[`${kind}_${name}_${p.name}`]).join('/')}`,
+            )
+            .join(', ')}; ${Object.keys(q)
+            .map(name => `${name} ${metrics[`${kind}_${name}`]}`)
+            .join(', ')}`,
+      ).join(
+        '. ',
+      )}. ${KINDS.flatMap(kind => PATHS.map(p => pathLine(kind, p.name))).join('. ')}. ${KINDS.map(studyLine).join('. ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },
 })

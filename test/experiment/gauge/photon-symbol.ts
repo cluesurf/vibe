@@ -57,9 +57,26 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { coulombFlux, emptyPhotonState, makePhotonRule, photonLatticeCubic, photonLatticeD4, placePairAlong, type PhotonLattice } from '@/code/rule/photon-links'
-import { plaquetteWaveMatrix, waveVector } from '@/code/measure/photon-modes'
-import { bulkModeOfHusk, columnSum, huskCoulomb, makeHusk, projectLinks } from '@/code/measure/photon-husk'
+import {
+  coulombFlux,
+  emptyPhotonState,
+  makePhotonRule,
+  photonLatticeCubic,
+  photonLatticeD4,
+  placePairAlong,
+  type PhotonLattice,
+} from '@/code/rule/photon-links'
+import {
+  plaquetteWaveMatrix,
+  waveVector,
+} from '@/code/measure/photon-modes'
+import {
+  bulkModeOfHusk,
+  columnSum,
+  huskCoulomb,
+  makeHusk,
+  projectLinks,
+} from '@/code/measure/photon-husk'
 import {
   applyNorm,
   curlSymbol,
@@ -105,7 +122,12 @@ const unit = (v: readonly number[]): number[] => {
 
 // every integer mode of a side^d box
 function modes(side: number, dimension: number): number[][] {
-  return Array.from({ length: side ** dimension }, (_, i) => Array.from({ length: dimension }, (_, j) => Math.floor(i / side ** j) % side))
+  return Array.from({ length: side ** dimension }, (_, i) =>
+    Array.from(
+      { length: dimension },
+      (_, j) => Math.floor(i / side ** j) % side,
+    ),
+  )
 }
 
 function sectionA(): Record<string, number> & { ok: number } {
@@ -126,31 +148,59 @@ function sectionA(): Record<string, number> & { ok: number } {
     for (const n of modes(lattice.side, lattice.dimension)) {
       const reference = plaquetteWaveMatrix(lattice, n)
 
-      gapStencil = Math.max(gapStencil, matrixGap(stencilSymbol(lattice, stencil, n), reference))
-      gapShape = Math.max(gapShape, matrixGap(curlSymbol(lattice, shapes, waveVector(lattice, n)), reference))
+      gapStencil = Math.max(
+        gapStencil,
+        matrixGap(stencilSymbol(lattice, stencil, n), reference),
+      )
+
+      gapShape = Math.max(
+        gapShape,
+        matrixGap(
+          curlSymbol(lattice, shapes, waveVector(lattice, n)),
+          reference,
+        ),
+      )
     }
 
     out[`a${name}ProbeMismatches`] = stencil.mismatches
     out[`a${name}ProbeEntries`] = stencil.compared
-    out[`a${name}StencilLinksPerColumn`] = stencil.columns[0]?.length ?? 0
-    out[`a${name}StencilDiagonal`] = stencil.columns[0]?.find(([l]) => l === 0)?.[1] ?? 0
+    out[`a${name}StencilLinksPerColumn`] =
+      stencil.columns[0]?.length ?? 0
+
+    out[`a${name}StencilDiagonal`] =
+      stencil.columns[0]?.find(([l]) => l === 0)?.[1] ?? 0
     out[`a${name}StencilSymbolGap`] = gapStencil
     out[`a${name}ShapeSymbolGap`] = gapShape
-    ok = ok && stencil.mismatches === 0 && gapStencil < ZERO && gapShape < ZERO
+    ok =
+      ok &&
+      stencil.mismatches === 0 &&
+      gapStencil < ZERO &&
+      gapShape < ZERO
   }
 
   // the E-FRC-0164 force table itself: its dead zone about the cold vacuum
-  const rule = makePhotonRule({ lattice: photonLatticeCubic({ side: 2 }), n: N, k: K, capacity: 0 })
+  const rule = makePhotonRule({
+    lattice: photonLatticeCubic({ side: 2 }),
+    n: N,
+    k: K,
+    capacity: 0,
+  })
   const first = Array.from(rule.force).findIndex(f => f !== 0)
 
-  out['aKappa'] = KAPPA
-  out['aForceDeadZoneTop'] = first - 1
-  out['aForceFirstNonzeroAt'] = first
+  out.aKappa = KAPPA
+  out.aForceDeadZoneTop = first - 1
+  out.aForceFirstNonzeroAt = first
 
   return { ...out, ok: ok ? 1 : 0 }
 }
 
-type Counts = { zero: number; photon: number; massive: number; photonTop: number; massiveBottom: number }
+type Counts = {
+  zero: number
+  photon: number
+  massive: number
+  photonTop: number
+  massiveBottom: number
+}
 
 function count(values: readonly number[], photons: number): Counts {
   const zero = values.filter(v => Math.abs(v) < ZERO).length
@@ -195,7 +245,11 @@ function sectionB(): Record<string, number> & { ok: number } {
     const co = count(odd, 1)
 
     intertwining = Math.max(intertwining, symbol.intertwining)
-    unionGap = Math.max(unionGap, ...union.map((v, i) => Math.abs(v - (all[i] ?? 0))))
+    unionGap = Math.max(
+      unionGap,
+      ...union.map((v, i) => Math.abs(v - (all[i] ?? 0))),
+    )
+
     countsOk =
       countsOk &&
       cb.zero === 1 &&
@@ -226,22 +280,38 @@ function sectionB(): Record<string, number> & { ok: number } {
     [6, 0, 0],
     [2, 2, 1],
   ]) {
-    const values = eigenvalues(huskSymbol(husk, plaquetteWaveMatrix(bulk, bulkModeOfHusk(m))).hermitian)
+    const values = eigenvalues(
+      huskSymbol(husk, plaquetteWaveMatrix(bulk, bulkModeOfHusk(m)))
+        .hermitian,
+    )
     const k = Math.hypot(...waveVector(husk.lattice, m))
     const tag = m.join('')
 
     out[`bHuskLambdaPhotonM${tag}`] = values[1] ?? 0
     out[`bHuskLambdaPhoton2M${tag}`] = values[2] ?? 0
-    out[`bHuskOmegaM${tag}`] = leapfrogBlock(KAPPA, values[1] ?? 0).omega
-    out[`bHuskPhaseSpeedM${tag}`] = leapfrogBlock(KAPPA, values[1] ?? 0).omega / k
+    out[`bHuskOmegaM${tag}`] = leapfrogBlock(
+      KAPPA,
+      values[1] ?? 0,
+    ).omega
+
+    out[`bHuskPhaseSpeedM${tag}`] =
+      leapfrogBlock(KAPPA, values[1] ?? 0).omega / k
   }
 
   // the group speed at m1 from the symbol, by a central difference in k along the axis
   const shapes = plaquetteShapes(bulk)
-  const omegaAt = (kx: number): number => leapfrogBlock(KAPPA, eigenvalues(huskSymbol(husk, curlSymbol(bulk, shapes, [kx, 0, 0, 0])).hermitian)[1] ?? 0).omega
+  const omegaAt = (kx: number): number =>
+    leapfrogBlock(
+      KAPPA,
+      eigenvalues(
+        huskSymbol(husk, curlSymbol(bulk, shapes, [kx, 0, 0, 0]))
+          .hermitian,
+      )[1] ?? 0,
+    ).omega
   const k1 = (2 * Math.PI) / SIDE
 
-  out['bHuskGroupSpeedM100'] = (omegaAt(k1 + 1e-5) - omegaAt(k1 - 1e-5)) / 2e-5
+  out.bHuskGroupSpeedM100 =
+    (omegaAt(k1 + 1e-5) - omegaAt(k1 - 1e-5)) / 2e-5
 
   const ok =
     intertwining < ZERO &&
@@ -267,10 +337,20 @@ function sectionB(): Record<string, number> & { ok: number } {
 
 // the Rayleigh quotient of the linear form r_a -> r_a . e2 at k = 1e-4 e1, over k^2: the naive continuum
 // embedding (A_a = a . r_a at the link midpoint), an upper bound on the transverse photon's lambda / k^2
-function rayleighLinearForm(bulk: PhotonLattice, shapes: readonly PlaquetteShape[]): number {
+function rayleighLinearForm(
+  bulk: PhotonLattice,
+  shapes: readonly PlaquetteShape[],
+): number {
   const f = bulk.firsts.length
-  const v = Float64Array.from(bulk.firsts, d => bulk.vectors[d]?.[1] ?? 0)
-  const matrix: ComplexMatrix = curlSymbol(bulk, shapes, [1e-4, 0, 0, 0])
+  const v = Float64Array.from(
+    bulk.firsts,
+    d => bulk.vectors[d]?.[1] ?? 0,
+  )
+  const matrix: ComplexMatrix = curlSymbol(
+    bulk,
+    shapes,
+    [1e-4, 0, 0, 0],
+  )
 
   let num = 0
   let den = 0
@@ -318,12 +398,22 @@ function sectionC(): Record<string, number> & { ok: number } {
     // P g: the husk gauge vector, w_h 2 i sin(k . u_h / 2)
     const pg = { re: new Float64Array(9), im: new Float64Array(9) }
 
-    g.im.forEach((x, a) => (pg.im[husk.shadow[a] ?? 0] = (pg.im[husk.shadow[a] ?? 0] ?? 0) + x))
+    g.im.forEach(
+      (x, a) =>
+        (pg.im[husk.shadow[a] ?? 0] =
+          (pg.im[husk.shadow[a] ?? 0] ?? 0) + x),
+    )
 
     const norm = Math.hypot(...pg.im)
 
     if (norm > 0) {
-      huskGauge = Math.max(huskGauge, applyNorm(huskSymbol(husk, curlSymbol(bulk, shapes, k)).husk, pg) / norm)
+      huskGauge = Math.max(
+        huskGauge,
+        applyNorm(
+          huskSymbol(husk, curlSymbol(bulk, shapes, k)).husk,
+          pg,
+        ) / norm,
+      )
     }
   }
 
@@ -337,15 +427,27 @@ function sectionC(): Record<string, number> & { ok: number } {
   let linearForms = 0
 
   for (let q = 0; q < 4; q++) {
-    const v = { re: Float64Array.from(bulk.firsts, d => bulk.vectors[d]?.[q] ?? 0), im: new Float64Array(bulk.firsts.length) }
+    const v = {
+      re: Float64Array.from(
+        bulk.firsts,
+        d => bulk.vectors[d]?.[q] ?? 0,
+      ),
+      im: new Float64Array(bulk.firsts.length),
+    }
 
     linearForms = Math.max(linearForms, applyNorm(zero, v))
   }
 
   // C3 the photon limit
-  const photonLimit = (k: number[], rank: number, onHusk: boolean): number[] => {
+  const photonLimit = (
+    k: number[],
+    rank: number,
+    onHusk: boolean,
+  ): number[] => {
     const matrix = curlSymbol(bulk, shapes, k)
-    const values = onHusk ? eigenvalues(huskSymbol(husk, matrix).hermitian) : eigenvalues(matrix)
+    const values = onHusk
+      ? eigenvalues(huskSymbol(husk, matrix).hermitian)
+      : eigenvalues(matrix)
 
     return values.slice(1, 1 + rank)
   }
@@ -357,30 +459,56 @@ function sectionC(): Record<string, number> & { ok: number } {
 
   for (const q of BULK_DIRECTIONS) {
     const u = unit(q)
-    const coarse = photonLimit(u.map(x => 1e-3 * x), 3, false).map(v => v / 1e-6)
-    const fine = photonLimit(u.map(x => 1e-4 * x), 3, false).map(v => v / 1e-8)
+    const coarse = photonLimit(
+      u.map(x => 1e-3 * x),
+      3,
+      false,
+    ).map(v => v / 1e-6)
+    const fine = photonLimit(
+      u.map(x => 1e-4 * x),
+      3,
+      false,
+    ).map(v => v / 1e-8)
 
-    convergence = Math.max(convergence, ...fine.map((v, i) => Math.abs(v / (coarse[i] ?? 1) - 1)))
+    convergence = Math.max(
+      convergence,
+      ...fine.map((v, i) => Math.abs(v / (coarse[i] ?? 1) - 1)),
+    )
     limits.push(...fine)
   }
 
   for (const q of HUSK_DIRECTIONS) {
     const u = [...unit(q), 0]
-    const coarse = photonLimit(u.map(x => 1e-3 * x), 2, true).map(v => v / 1e-6)
-    const fine = photonLimit(u.map(x => 1e-4 * x), 2, true).map(v => v / 1e-8)
+    const coarse = photonLimit(
+      u.map(x => 1e-3 * x),
+      2,
+      true,
+    ).map(v => v / 1e-6)
+    const fine = photonLimit(
+      u.map(x => 1e-4 * x),
+      2,
+      true,
+    ).map(v => v / 1e-8)
 
-    convergence = Math.max(convergence, ...fine.map((v, i) => Math.abs(v / (coarse[i] ?? 1) - 1)))
+    convergence = Math.max(
+      convergence,
+      ...fine.map((v, i) => Math.abs(v / (coarse[i] ?? 1) - 1)),
+    )
     huskLimits.push(...fine)
   }
 
   const alpha = limits.reduce((a, b) => a + b, 0) / limits.length
-  const spread = Math.max(...[...limits, ...huskLimits].map(v => Math.abs(v / alpha - 1)))
+  const spread = Math.max(
+    ...[...limits, ...huskLimits].map(v => Math.abs(v / alpha - 1)),
+  )
 
   const rayleigh = rayleighLinearForm(bulk, shapes)
 
   // at k = 0 exactly: the photon eigenvalues
   const photonAtZero = Math.max(...values0.slice(0, 4).map(Math.abs))
-  const huskPhotonAtZero = Math.max(...huskValues0.slice(0, 3).map(Math.abs))
+  const huskPhotonAtZero = Math.max(
+    ...huskValues0.slice(0, 3).map(Math.abs),
+  )
 
   const ok =
     gauge < ZERO &&
@@ -443,8 +571,16 @@ function sectionD(): Record<string, number> & { ok: number } {
   }
 
   // D2 the bulk Coulomb field, projected, against the husk's
-  const rule = makePhotonRule({ lattice: bulk, n: N, k: K, capacity: 0, hop: false, charge: 64 })
-  const root = (v: number[]): number => bulk.vectors.findIndex(r => r.every((x, i) => x === v[i]))
+  const rule = makePhotonRule({
+    lattice: bulk,
+    n: N,
+    k: K,
+    capacity: 0,
+    hop: false,
+    charge: 64,
+  })
+  const root = (v: number[]): number =>
+    bulk.vectors.findIndex(r => r.every((x, i) => x === v[i]))
   const up = root([1, 0, 0, 1])
   const down = root([1, 0, 0, -1])
 
@@ -453,7 +589,13 @@ function sectionD(): Record<string, number> & { ok: number } {
   for (let r = 1; r <= 4; r++) {
     const s = emptyPhotonState(rule)
 
-    placePairAlong(rule, s, 0, Array.from({ length: r }, (_, i) => (i % 2 === 0 ? up : down)), 1)
+    placePairAlong(
+      rule,
+      s,
+      0,
+      Array.from({ length: r }, (_, i) => (i % 2 === 0 ? up : down)),
+      1,
+    )
 
     const projected = projectLinks(husk, coulombFlux(rule, s.vibe))
     const reference = huskCoulomb(
@@ -461,35 +603,70 @@ function sectionD(): Record<string, number> & { ok: number } {
       Float64Array.from(columnSum(husk, s.vibe), q => q * 64),
     ).flux
     const top = Math.max(...Array.from(reference, Math.abs))
-    const gap = Math.max(...Array.from(projected, (v, i) => Math.abs(v - (reference[i] ?? 0))))
+    const gap = Math.max(
+      ...Array.from(projected, (v, i) =>
+        Math.abs(v - (reference[i] ?? 0)),
+      ),
+    )
 
     out[`dR${r}ProjectedCoulombGap`] = gap / top
     d2 = Math.max(d2, gap / top)
   }
 
   // D3 the infinite lattice
-  const points = [[0, 0, 0], ...axis, ...[1, 2, 3].map(r => [r, r, 0]), ...[1, 2].map(r => [r, r, r])]
+  const points = [
+    [0, 0, 0],
+    ...axis,
+    ...[1, 2, 3].map(r => [r, r, 0]),
+    ...[1, 2].map(r => [r, r, r]),
+  ]
   const g64 = huskGreen(64, points)
   const g128 = huskGreen(128, points)
   const green = g128.map((v, i) => 2 * v - (g64[i] ?? 0))
-  const deviation = (i: number): number => 24 * Math.PI * Math.hypot(...(points[i] ?? [])) * (green[i] ?? 0) - 1
+  const deviation = (i: number): number =>
+    24 * Math.PI * Math.hypot(...(points[i] ?? [])) * (green[i] ?? 0) -
+    1
 
-  out['dGreenAtZero'] = green[0] ?? 0
-  out['dGreenAtZeroTimes24Pi'] = 24 * Math.PI * (green[0] ?? 0)
+  out.dGreenAtZero = green[0] ?? 0
+  out.dGreenAtZeroTimes24Pi = 24 * Math.PI * (green[0] ?? 0)
   axis.forEach((_, i) => {
     out[`dAxisR${i + 1}Deviation`] = deviation(i + 1)
-    out[`dAxisR${i + 1}PairEnergy`] = (green[0] ?? 0) - (green[i + 1] ?? 0)
-    out[`dAxisR${i + 1}PairEnergyContinuum`] = (green[0] ?? 0) - 1 / (24 * Math.PI * (i + 1))
+    out[`dAxisR${i + 1}PairEnergy`] =
+      (green[0] ?? 0) - (green[i + 1] ?? 0)
+
+    out[`dAxisR${i + 1}PairEnergyContinuum`] =
+      (green[0] ?? 0) - 1 / (24 * Math.PI * (i + 1))
   })
-  ;[1, 2, 3].forEach((r, i) => (out[`dFaceR${r}Deviation`] = deviation(1 + axis.length + i)))
-  ;[1, 2].forEach((r, i) => (out[`dBodyR${r}Deviation`] = deviation(1 + axis.length + 3 + i)))
-  out['dTorus12AgainstInfiniteR1'] = (g12[0] ?? 0) - (g12[1] ?? 0) - ((green[0] ?? 0) - (green[1] ?? 0))
-  out['dTorus12AgainstInfiniteR4'] = (g12[0] ?? 0) - (g12[4] ?? 0) - ((green[0] ?? 0) - (green[4] ?? 0))
+  ;[1, 2, 3].forEach(
+    (r, i) =>
+      (out[`dFaceR${r}Deviation`] = deviation(1 + axis.length + i)),
+  )
+  ;[1, 2].forEach(
+    (r, i) =>
+      (out[`dBodyR${r}Deviation`] = deviation(1 + axis.length + 3 + i)),
+  )
+
+  out.dTorus12AgainstInfiniteR1 =
+    (g12[0] ?? 0) - (g12[1] ?? 0) - ((green[0] ?? 0) - (green[1] ?? 0))
+
+  out.dTorus12AgainstInfiniteR4 =
+    (g12[0] ?? 0) - (g12[4] ?? 0) - ((green[0] ?? 0) - (green[4] ?? 0))
 
   const a = [1, 2, 3, 4].map(i => Math.abs(deviation(i)))
-  const ok = d1 < 1e-8 && d2 < 1e-7 && (a[0] ?? 0) > (a[1] ?? 0) && (a[1] ?? 0) > (a[2] ?? 0) && (a[2] ?? 0) > (a[3] ?? 0) && (a[3] ?? 1) < 0.02
+  const ok =
+    d1 < 1e-8 &&
+    d2 < 1e-7 &&
+    (a[0] ?? 0) > (a[1] ?? 0) &&
+    (a[1] ?? 0) > (a[2] ?? 0) &&
+    (a[2] ?? 0) > (a[3] ?? 0) &&
+    (a[3] ?? 1) < 0.02
 
-  return { ...out, dHuskCoulombAgainstGreen: d1, dProjectedCoulombGap: d2, ok: ok ? 1 : 0 }
+  return {
+    ...out,
+    dHuskCoulombAgainstGreen: d1,
+    dProjectedCoulombGap: d2,
+    ok: ok ? 1 : 0,
+  }
 }
 
 export default experiment({
@@ -507,15 +684,31 @@ export default experiment({
     const c = sectionC()
     const d = sectionD()
     const sections = [a.ok, b.ok, c.ok, d.ok]
-    const strip = (r: Record<string, number>): Record<string, number> => Object.fromEntries(Object.entries(r).filter(([key]) => key !== 'ok'))
+    const strip = (r: Record<string, number>): Record<string, number> =>
+      Object.fromEntries(
+        Object.entries(r).filter(([key]) => key !== 'ok'),
+      )
 
     return verdict({
-      status: sections.every(x => x === 1) ? 'pass' : sections.some(x => x === 1) ? 'partial' : 'fail',
+      status: sections.every(x => x === 1)
+        ? 'pass'
+        : sections.some(x => x === 1)
+          ? 'partial'
+          : 'fail',
       claim:
         "the symbol read off the rule is exactly [[I, I], [-M, I - M]] at unit coupling, in integers, and its transform is the curl-curl matrix at every mode; the husk symbol P M P^T G^-1 intertwines exactly with the bulk at k4 = 0, with 1 gauge, 2 photon and 6 massive branches; the gauge direction is annihilated at every k and the kernel of M(0) is exactly the linear forms, so the photons are massless with an isotropic lambda / k^2; the E-FRC-0169 love-fear reference is exactly the husk lattice Green's function and the projection of the bulk Coulomb field, and the r = 1 core departs from the continuum as lattice structure",
-      metrics: { ...strip(a), ...strip(b), ...strip(c), ...strip(d), sectionA: a.ok, sectionB: b.ok, sectionC: c.ok, sectionD: d.ok },
+      metrics: {
+        ...strip(a),
+        ...strip(b),
+        ...strip(c),
+        ...strip(d),
+        sectionA: a.ok,
+        sectionB: b.ok,
+        sectionC: c.ok,
+        sectionD: d.ok,
+      },
       notes:
-        'L2, exact where the rule is integer, machine precision elsewhere. The symbol is read at unit coupling because an integer table can only be linear with an integer slope; the rule enters the force only through the table, so the symbol at any kappa is the same matrices with M scaled by kappa. About the cold vacuum the E-FRC-0164 table (N = 8192, K = 80) is not linear: round(K sin(2 pi B / N)) is zero for |B| up to 8, so a field whose every plaquette stays in that dead zone feels no force and does not oscillate. The symbol is the rule\'s linear response where the staircase averages to kappa B, 1 / kappa << |B| << N / (2 pi). First run, 2026-09-25, status partial, and the failure stands: A, C and D pass (0 probe mismatches, symbol gaps 1.7e-14, gauge residual 1.3e-14, ker M(0) exactly 4 (husk 3) with every massive branch at 12, lambda / k^2 = 2/3 isotropic to 4.5e-7, so c^2 = 2 kappa / 3 and c = 0.2023 per beat; huskCoulomb equals the husk Green\'s function to 3e-14 and the projected bulk Coulomb field to 2e-14; 24 pi r G(r) - 1 along an axis is -0.055 at r = 1 and -0.0011, -0.0009, -0.0006 at r = 2 to 4). B fails on its band gate alone: closure (0), the spectrum union (4.6e-14) and the 1 + 3 + 8 and 1 + 2 + 6 counts hold at all 1,727 wave vectors, but the photon band reaches lambda 8 at the zone edge while the massive band dips to 6 on the bulk and 4 on the husk, so the two bands overlap in lambda and the rank labels photon and massive only hold near k = 0.',
+        "L2, exact where the rule is integer, machine precision elsewhere. The symbol is read at unit coupling because an integer table can only be linear with an integer slope; the rule enters the force only through the table, so the symbol at any kappa is the same matrices with M scaled by kappa. About the cold vacuum the E-FRC-0164 table (N = 8192, K = 80) is not linear: round(K sin(2 pi B / N)) is zero for |B| up to 8, so a field whose every plaquette stays in that dead zone feels no force and does not oscillate. The symbol is the rule's linear response where the staircase averages to kappa B, 1 / kappa << |B| << N / (2 pi). First run, 2026-09-25, status partial, and the failure stands: A, C and D pass (0 probe mismatches, symbol gaps 1.7e-14, gauge residual 1.3e-14, ker M(0) exactly 4 (husk 3) with every massive branch at 12, lambda / k^2 = 2/3 isotropic to 4.5e-7, so c^2 = 2 kappa / 3 and c = 0.2023 per beat; huskCoulomb equals the husk Green's function to 3e-14 and the projected bulk Coulomb field to 2e-14; 24 pi r G(r) - 1 along an axis is -0.055 at r = 1 and -0.0011, -0.0009, -0.0006 at r = 2 to 4). B fails on its band gate alone: closure (0), the spectrum union (4.6e-14) and the 1 + 3 + 8 and 1 + 2 + 6 counts hold at all 1,727 wave vectors, but the photon band reaches lambda 8 at the zone edge while the massive band dips to 6 on the bulk and 4 on the husk, so the two bands overlap in lambda and the rank labels photon and massive only hold near k = 0.",
     })
   },
 })

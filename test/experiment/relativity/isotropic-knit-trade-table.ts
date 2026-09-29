@@ -56,9 +56,18 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { weylF4DirectionPermutations } from '@/code/measure/coin-symmetry'
-import { groupTable, forcedForms } from '@/code/measure/color-isotropy-bound'
-import { twoGeneratedSubgroups, subgroupClassKey } from '@/code/measure/isotropy-group-census'
-import { forcedIsotropic, matrixOfPermutation } from '@/code/measure/husk-transport-symmetry'
+import {
+  groupTable,
+  forcedForms,
+} from '@/code/measure/color-isotropy-bound'
+import {
+  twoGeneratedSubgroups,
+  subgroupClassKey,
+} from '@/code/measure/isotropy-group-census'
+import {
+  forcedIsotropic,
+  matrixOfPermutation,
+} from '@/code/measure/husk-transport-symmetry'
 import {
   binaryTetrahedralMatrices,
   isometricKnit,
@@ -71,12 +80,36 @@ import {
   type LineMomentumRule,
 } from '@/code/rule/isometric-knit'
 import { momentumRuleStabilizer } from '@/code/rule/conjugate-schedule'
-import { equivarianceDefect, lineMomentumLinearization } from '@/code/measure/line-momentum-linearization'
-import { dockAudit, kroneckerDockState, sparseDockStates, type DockAudit } from '@/code/measure/dock-conservation'
-import { exponentsOf, readTransport, spectrumOf, type Exponent } from '@/code/measure/husk-transport-exponents'
-import { huskDirections, invariantBasis } from '@/code/measure/husk-transport-order'
-import { CHARGE_CONJUGATION, orientationOf, symmetryLedger } from '@/code/measure/rule-symmetry-ledger'
-import { acceptance, type Acceptance, type ScheduledRule } from '@/code/measure/weave-acceptance'
+import {
+  equivarianceDefect,
+  lineMomentumLinearization,
+} from '@/code/measure/line-momentum-linearization'
+import {
+  dockAudit,
+  kroneckerDockState,
+  sparseDockStates,
+  type DockAudit,
+} from '@/code/measure/dock-conservation'
+import {
+  exponentsOf,
+  readTransport,
+  spectrumOf,
+  type Exponent,
+} from '@/code/measure/husk-transport-exponents'
+import {
+  huskDirections,
+  invariantBasis,
+} from '@/code/measure/husk-transport-order'
+import {
+  CHARGE_CONJUGATION,
+  orientationOf,
+  symmetryLedger,
+} from '@/code/measure/rule-symmetry-ledger'
+import {
+  acceptance,
+  type Acceptance,
+  type ScheduledRule,
+} from '@/code/measure/weave-acceptance'
 
 const CENSUS_CAP = 192
 const LADDER = [4, 8, 16, 32, 64, 128, 256]
@@ -91,6 +124,7 @@ function linePairsCoupled(rule: LineMomentumRule): number {
 
   for (let code = 0; code < 3 ** 12; code++) {
     let rest = code
+
     const p = [0, 0, 0, 0]
 
     for (let l = 0; l < 12; l++) {
@@ -100,17 +134,23 @@ function linePairsCoupled(rule: LineMomentumRule): number {
       rest = Math.floor(rest / 3)
       n[l] = value
 
-      for (let k = 0; k < 4; k++) p[k] = (p[k] ?? 0) + value * (r[k] ?? 0)
+      for (let k = 0; k < 4; k++) {
+        p[k] = (p[k] ?? 0) + value * (r[k] ?? 0)
+      }
     }
 
     const w = rule(n, p)
 
-    if (!w) continue
+    if (!w) {
+      continue
+    }
 
     for (let l = 0; l < 12; l++) {
       const m = LINE_OF[w[LINE_FIRSTS[l] ?? 0] ?? 0] ?? l
 
-      if (m !== l) pairs.add(Math.min(l, m) * 12 + Math.max(l, m))
+      if (m !== l) {
+        pairs.add(Math.min(l, m) * 12 + Math.max(l, m))
+      }
     }
   }
 
@@ -148,30 +188,76 @@ export default experiment({
   run() {
     const started = Date.now()
     const table = groupTable()
-    const permutations = weylF4DirectionPermutations({ directions: rootsD4() })
+    const permutations = weylF4DirectionPermutations({
+      directions: rootsD4(),
+    })
 
     // 1. the census
     const groups = twoGeneratedSubgroups(table, CENSUS_CAP)
-    const perOrder = new Map<number, { total: number; scalar4: number; shear: number }>()
-    const forcing: { group: number[]; shear: boolean; husk6: boolean; bulk4: boolean; free: boolean; color: number }[] = []
+    const perOrder = new Map<
+      number,
+      { total: number; scalar4: number; shear: number }
+    >()
+    const forcing: {
+      group: number[]
+      shear: boolean
+      husk6: boolean
+      bulk4: boolean
+      free: boolean
+      color: number
+    }[] = []
 
     for (const g of groups) {
-      const matrices = g.map(i => matrixOfPermutation(table.permutations[i] ?? []))
-      const row = perOrder.get(g.length) ?? { total: 0, scalar4: 0, shear: 0 }
+      const matrices = g.map(i =>
+        matrixOfPermutation(table.permutations[i] ?? []),
+      )
+      const row = perOrder.get(g.length) ?? {
+        total: 0,
+        scalar4: 0,
+        shear: 0,
+      }
 
       row.total++
 
-      if (forcedIsotropic({ group: matrices, kind: 'scalar', degree: 4, husk: true }).forced) {
-        const shear = forcedIsotropic({ group: matrices, kind: 'transverse', degree: 2, husk: true }).forced
+      if (
+        forcedIsotropic({
+          group: matrices,
+          kind: 'scalar',
+          degree: 4,
+          husk: true,
+        }).forced
+      ) {
+        const shear = forcedIsotropic({
+          group: matrices,
+          kind: 'transverse',
+          degree: 2,
+          husk: true,
+        }).forced
 
         row.scalar4++
         row.shear += shear ? 1 : 0
         forcing.push({
           group: g,
           shear,
-          husk6: forcedIsotropic({ group: matrices, kind: 'scalar', degree: 6, husk: true }).forced,
-          bulk4: forcedIsotropic({ group: matrices, kind: 'scalar', degree: 4, husk: false }).forced,
-          free: g.every(i => i === table.identity || (table.permutations[i] ?? []).every((image, d) => image !== d)),
+          husk6: forcedIsotropic({
+            group: matrices,
+            kind: 'scalar',
+            degree: 6,
+            husk: true,
+          }).forced,
+          bulk4: forcedIsotropic({
+            group: matrices,
+            kind: 'scalar',
+            degree: 4,
+            husk: false,
+          }).forced,
+          free: g.every(
+            i =>
+              i === table.identity ||
+              (table.permutations[i] ?? []).every(
+                (image, d) => image !== d,
+              ),
+          ),
           color: forcedForms(table, g).length,
         })
       }
@@ -180,35 +266,92 @@ export default experiment({
     }
 
     const leastScalar = Math.min(...forcing.map(f => f.group.length))
-    const leastGroups = forcing.filter(f => f.group.length === leastScalar)
-    const leastClasses = new Set(leastGroups.map(f => subgroupClassKey(table, f.group))).size
+    const leastGroups = forcing.filter(
+      f => f.group.length === leastScalar,
+    )
+    const leastClasses = new Set(
+      leastGroups.map(f => subgroupClassKey(table, f.group)),
+    ).size
     const withShear = forcing.filter(f => f.shear)
-    const leastShear = withShear.length > 0 ? Math.min(...withShear.map(f => f.group.length)) : Number.NaN
+    const leastShear =
+      withShear.length > 0
+        ? Math.min(...withShear.map(f => f.group.length))
+        : Number.NaN
     const wf4 = table.permutations.map((_, i) => i)
-    const wf4Matrices = wf4.map(i => matrixOfPermutation(table.permutations[i] ?? []))
-    const wf4Shear = forcedIsotropic({ group: wf4Matrices, kind: 'transverse', degree: 2, husk: true }).forced
-    const wf4Husk6 = forcedIsotropic({ group: wf4Matrices, kind: 'scalar', degree: 6, husk: true }).forced
+    const wf4Matrices = wf4.map(i =>
+      matrixOfPermutation(table.permutations[i] ?? []),
+    )
+    const wf4Shear = forcedIsotropic({
+      group: wf4Matrices,
+      kind: 'transverse',
+      degree: 2,
+      husk: true,
+    }).forced
+    const wf4Husk6 = forcedIsotropic({
+      group: wf4Matrices,
+      kind: 'scalar',
+      degree: 6,
+      husk: true,
+    }).forced
 
     // 2T by left multiplication, as slot permutations, and whether it is one of the least forcing groups
-    const binary = binaryTetrahedralMatrices().map(m => Array.from(slotPermutationOf(m) ?? new Int32Array(24)))
-    const indexOf = new Map(table.permutations.map((p, i) => [p.join(','), i]))
-    const binaryIndices = binary.map(p => indexOf.get(p.join(',')) ?? -1).sort((a, b) => a - b)
-    const binaryIsLeast = leastGroups.some(f => f.group.join(',') === binaryIndices.join(','))
+    const binary = binaryTetrahedralMatrices().map(m =>
+      Array.from(slotPermutationOf(m) ?? new Int32Array(24)),
+    )
+    const indexOf = new Map(
+      table.permutations.map((p, i) => [p.join(','), i]),
+    )
+    const binaryIndices = binary
+      .map(p => indexOf.get(p.join(',')) ?? -1)
+      .sort((a, b) => a - b)
+    const binaryIsLeast = leastGroups.some(
+      f => f.group.join(',') === binaryIndices.join(','),
+    )
 
     // 2. the candidates
-    const states = [...sparseDockStates(), ...Array.from({ length: DENSE }, (_, m) => kroneckerDockState(m))]
-    const identity = permutations.findIndex(p => p.every((x, i) => x === i))
-    const candidates: Candidate[] = (['isometric', 'color-exact', 'binary-tetrahedral', 'first-mirror'] as const).map(name => {
+    const states = [
+      ...sparseDockStates(),
+      ...Array.from({ length: DENSE }, (_, m) => kroneckerDockState(m)),
+    ]
+    const identity = permutations.findIndex(p =>
+      p.every((x, i) => x === i),
+    )
+    const candidates: Candidate[] = (
+      [
+        'isometric',
+        'color-exact',
+        'binary-tetrahedral',
+        'first-mirror',
+      ] as const
+    ).map(name => {
       const rule = lineMomentumRule(name)
       const collision = lineMomentumCollision(rule)
       const lin = lineMomentumLinearization({ rule })
-      const ledger = symmetryLedger({ forward: () => collision, inverse: () => collision, period: 1, permutations, degree: 24, quickDense: 64, thoroughDense: 1024 })
-      const glideMaps = [...new Set(ledger.filter(e => e.kind === 'forward').map(e => e.p))]
+      const ledger = symmetryLedger({
+        forward: () => collision,
+        inverse: () => collision,
+        period: 1,
+        permutations,
+        degree: 24,
+        quickDense: 64,
+        thoroughDense: 1024,
+      })
+      const glideMaps = [
+        ...new Set(
+          ledger.filter(e => e.kind === 'forward').map(e => e.p),
+        ),
+      ]
       const matrices = [lin.matrix]
       const invariants = invariantBasis(matrices)
       const s = spectrumOf({ matrices, invariants })
       const kc = Math.sqrt(s.gap / s.dMax)
-      const reading = readTransport({ matrices, invariants, ks: LADDER.map(r => kc / r), directions: huskDirections(24), husk: true })
+      const reading = readTransport({
+        matrices,
+        invariants,
+        ks: LADDER.map(r => kc / r),
+        directions: huskDirections(24),
+        husk: true,
+      })
       const scheduled: ScheduledRule = () => isometricKnit(name)
 
       return {
@@ -216,10 +359,20 @@ export default experiment({
         acting: lin.acting,
         defectWF4: equivarianceDefect(lin.matrix, permutations),
         defect2T: equivarianceDefect(lin.matrix, binary),
-        stabilizer: name === 'color-exact' ? Number.NaN : momentumRuleStabilizer({ rule, table }).length,
+        stabilizer:
+          name === 'color-exact'
+            ? Number.NaN
+            : momentumRuleStabilizer({ rule, table }).length,
         glideCoinMaps: glideMaps.length,
-        reflections: glideMaps.filter(p => orientationOf(permutations[p] ?? []) === -1).length,
-        cpt: ledger.some(e => e.kind === 'reversal' && e.p === identity && e.tau === CHARGE_CONJUGATION),
+        reflections: glideMaps.filter(
+          p => orientationOf(permutations[p] ?? []) === -1,
+        ).length,
+        cpt: ledger.some(
+          e =>
+            e.kind === 'reversal' &&
+            e.p === identity &&
+            e.tau === CHARGE_CONJUGATION,
+        ),
         audit: dockAudit({ collision, inverse: collision, states }),
         pairs: linePairsCoupled(rule),
         invariants: invariants.length,
@@ -230,10 +383,19 @@ export default experiment({
         battery: acceptance(scheduled),
       }
     })
-    const by = Object.fromEntries(candidates.map(c => [c.name, c])) as Record<IsometricVariant, Candidate>
+    const by = Object.fromEntries(
+      candidates.map(c => [c.name, c]),
+    ) as Record<IsometricVariant, Candidate>
 
     // gates
-    const conserving = candidates.every(c => c.audit.involutionFailures + c.audit.chargeChanges + c.audit.countChanges + c.audit.momentumChanges === 0 && c.audit.slotChanges.every(x => x > 0))
+    const conserving = candidates.every(
+      c =>
+        c.audit.involutionFailures +
+          c.audit.chargeChanges +
+          c.audit.countChanges +
+          c.audit.momentumChanges ===
+          0 && c.audit.slotChanges.every(x => x > 0),
+    )
     const exact =
       conserving &&
       by.isometric.defectWF4 < 1e-12 &&
@@ -243,7 +405,13 @@ export default experiment({
       by['color-exact'].audit.sideSumChanges === 0 &&
       by['color-exact'].audit.lineMomentumChanges === 0
     const invariantsOk =
-      [by.isometric, by['binary-tetrahedral'], by['first-mirror']].every(c => c.invariants === 6 && c.unit === 6) && by['color-exact'].invariants === 14 && by['color-exact'].unit === 14
+      [
+        by.isometric,
+        by['binary-tetrahedral'],
+        by['first-mirror'],
+      ].every(c => c.invariants === 6 && c.unit === 6) &&
+      by['color-exact'].invariants === 14 &&
+      by['color-exact'].unit === 14
     const census = leastScalar === 24 && leastGroups.every(f => f.free)
     const gated: [Candidate, string][] = [
       [by['binary-tetrahedral'], 'charge'],
@@ -253,10 +421,19 @@ export default experiment({
       [by['color-exact'], 'charge'],
       [by['color-exact'], 'trace'],
     ]
-    const resolved = gated.every(([c, q]) => (c.husk[q]?.error ?? 1) < 0.3)
-    const slope = (c: Candidate, q: string): number => c.husk[q]?.slope ?? Number.NaN
-    const h1 = slope(by['binary-tetrahedral'], 'charge') >= 3.5 && slope(by['binary-tetrahedral'], 'trace') >= 3.5 && slope(by['binary-tetrahedral'], 'sound') >= 3.5 && slope(by['binary-tetrahedral'], 'shear') < 1
-    const h2 = slope(by['color-exact'], 'charge') >= 3.5 && slope(by['color-exact'], 'trace') >= 3.5
+    const resolved = gated.every(
+      ([c, q]) => (c.husk[q]?.error ?? 1) < 0.3,
+    )
+    const slope = (c: Candidate, q: string): number =>
+      c.husk[q]?.slope ?? Number.NaN
+    const h1 =
+      slope(by['binary-tetrahedral'], 'charge') >= 3.5 &&
+      slope(by['binary-tetrahedral'], 'trace') >= 3.5 &&
+      slope(by['binary-tetrahedral'], 'sound') >= 3.5 &&
+      slope(by['binary-tetrahedral'], 'shear') < 1
+    const h2 =
+      slope(by['color-exact'], 'charge') >= 3.5 &&
+      slope(by['color-exact'], 'trace') >= 3.5
 
     const metrics: Record<string, number> = {
       censusGroups: groups.length,
@@ -273,11 +450,21 @@ export default experiment({
       binaryTetrahedralIsALeastGroup: binaryIsLeast ? 1 : 0,
       wf4ForcesShear: wf4Shear ? 1 : 0,
       wf4ForcesHusk6: wf4Husk6 ? 1 : 0,
-      ...Object.fromEntries([...perOrder.entries()].sort((a, b) => a[0] - b[0]).flatMap(([o, r]) => [[`order${o}Groups`, r.total], [`order${o}ForcingScalar4`, r.scalar4], [`order${o}ForcingShear`, r.shear]])),
+      ...Object.fromEntries(
+        [...perOrder.entries()]
+          .sort((a, b) => a[0] - b[0])
+          .flatMap(([o, r]) => [
+            [`order${o}Groups`, r.total],
+            [`order${o}ForcingScalar4`, r.scalar4],
+            [`order${o}ForcingShear`, r.shear],
+          ]),
+      ),
     }
 
     for (const c of candidates) {
-      const key = c.name.replace(/-(\w)/g, (_, x: string) => x.toUpperCase())
+      const key = c.name.replace(/-(\w)/g, (_, x: string) =>
+        x.toUpperCase(),
+      )
       const b = c.battery
 
       Object.assign(metrics, {
@@ -288,7 +475,11 @@ export default experiment({
         [`${key}GlideCoinMaps`]: c.glideCoinMaps,
         [`${key}GlideReflections`]: c.reflections,
         [`${key}Cpt`]: c.cpt ? 1 : 0,
-        [`${key}AuditFailures`]: c.audit.involutionFailures + c.audit.chargeChanges + c.audit.countChanges + c.audit.momentumChanges,
+        [`${key}AuditFailures`]:
+          c.audit.involutionFailures +
+          c.audit.chargeChanges +
+          c.audit.countChanges +
+          c.audit.momentumChanges,
         [`${key}SideSumChanges`]: c.audit.sideSumChanges,
         [`${key}LineMomentumChanges`]: c.audit.lineMomentumChanges,
         [`${key}ChangedDocks`]: c.audit.changed,
@@ -306,22 +497,44 @@ export default experiment({
         [`${key}AdditivityWorst`]: b.additivityWorst,
         [`${key}WallQuantized`]: b.wallQuantized ? 1 : 0,
         [`${key}Travellers`]: b.travellers,
-        ...Object.fromEntries(b.love.periodLargest.map((x, p) => [`${key}LoveDressingPeriod${p + 1}`, x])),
-        ...Object.fromEntries(b.fear.periodLargest.map((x, p) => [`${key}FearDressingPeriod${p + 1}`, x])),
+        ...Object.fromEntries(
+          b.love.periodLargest.map((x, p) => [
+            `${key}LoveDressingPeriod${p + 1}`,
+            x,
+          ]),
+        ),
+        ...Object.fromEntries(
+          b.fear.periodLargest.map((x, p) => [
+            `${key}FearDressingPeriod${p + 1}`,
+            x,
+          ]),
+        ),
       })
 
       for (const [q, e] of Object.entries(c.husk)) {
-        metrics[`${key}_husk_${q}_exponent`] = Number(e.slope.toFixed(4))
+        metrics[`${key}_husk_${q}_exponent`] = Number(
+          e.slope.toFixed(4),
+        )
         metrics[`${key}_husk_${q}_error`] = Number(e.error.toFixed(4))
-        metrics[`${key}_husk_${q}_anisotropyAtSmallestK`] = e.atSmallestK
+        metrics[`${key}_husk_${q}_anisotropyAtSmallestK`] =
+          e.atSmallestK
       }
 
-      for (const [q, v] of Object.entries(c.means)) if (Number.isFinite(v)) metrics[`${key}_husk_${q}_mean`] = v
+      for (const [q, v] of Object.entries(c.means)) {
+        if (Number.isFinite(v)) {
+          metrics[`${key}_husk_${q}_mean`] = v
+        }
+      }
     }
 
     metrics.seconds = (Date.now() - started) / 1000
 
-    const status = exact && invariantsOk && census && resolved ? (h1 && h2 ? 'pass' : 'fail') : 'partial'
+    const status =
+      exact && invariantsOk && census && resolved
+        ? h1 && h2
+          ? 'pass'
+          : 'fail'
+        : 'partial'
     const row = (c: Candidate): string =>
       `${c.name}: glides ${c.glideCoinMaps} (${c.reflections} reflections), CPT ${c.cpt}, husk charge ${slope(c, 'charge').toFixed(2)} trace ${slope(c, 'trace').toFixed(2)} sound ${slope(c, 'sound').toFixed(2)} shear ${slope(c, 'shear').toFixed(2)}, side sum moved on ${c.audit.sideSumChanges} docks, ${c.pairs} of 66 line pairs, dressing ${c.battery.love.periodLargest.join('/')}`
 

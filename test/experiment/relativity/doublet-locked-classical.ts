@@ -75,16 +75,31 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { turningWeave } from '@/code/rule/collision'
-import { dressing as ruleDressing, type ScheduledRule } from '@/code/measure/weave-acceptance'
-import { bounceRunner, makeBounceKernel } from '@/code/measure/bounce-pair-kernel'
-import { boxHusk, causalRun, hubVacuum, streamTarget } from '@/code/measure/causal-components'
+import {
+  dressing as ruleDressing,
+  type ScheduledRule,
+} from '@/code/measure/weave-acceptance'
+import {
+  bounceRunner,
+  makeBounceKernel,
+} from '@/code/measure/bounce-pair-kernel'
+import {
+  boxHusk,
+  causalRun,
+  hubVacuum,
+  streamTarget,
+} from '@/code/measure/causal-components'
 import { centerOf } from '@/code/measure/wall-reading'
 import { storeImage } from '@/code/measure/coset-walls'
 import { coinsOnce } from '@/code/measure/dense-hub'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
 import { d4BoxCoordinates } from '@/code/substrate/d4-box'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { lockedBeat, lockedState, type Configuration } from '@/code/rule/doublet-locked-knit'
+import {
+  lockedBeat,
+  lockedState,
+  type Configuration,
+} from '@/code/rule/doublet-locked-knit'
 import {
   laws,
   lockedFresh,
@@ -114,11 +129,34 @@ const K1_SEEDS = [0, 7, 13, 20]
 
 type PathName = (typeof PATHS)[number]['name']
 
-const sameAsOld = (a: { vibe: Int8Array; point: Int8Array; store: Int8Array; spoint: Int8Array }, b: Configuration): number => {
+const sameAsOld = (
+  a: {
+    vibe: Int8Array
+    point: Int8Array
+    store: Int8Array
+    spoint: Int8Array
+  },
+  b: Configuration,
+): number => {
   let n = 0
 
-  for (let i = 0; i < a.vibe.length; i++) if (a.vibe[i] !== b.vibe[i] || (a.vibe[i] !== 0 && a.point[i] !== b.point[i])) n++
-  for (let i = 0; i < a.store.length; i++) if (a.store[i] !== b.store[i] || (a.store[i] !== 0 && a.spoint[i] !== b.spoint[i])) n++
+  for (let i = 0; i < a.vibe.length; i++) {
+    if (
+      a.vibe[i] !== b.vibe[i] ||
+      (a.vibe[i] !== 0 && a.point[i] !== b.point[i])
+    ) {
+      n++
+    }
+  }
+
+  for (let i = 0; i < a.store.length; i++) {
+    if (
+      a.store[i] !== b.store[i] ||
+      (a.store[i] !== 0 && a.spoint[i] !== b.spoint[i])
+    ) {
+      n++
+    }
+  }
 
   return n
 }
@@ -126,14 +164,22 @@ const sameAsOld = (a: { vibe: Int8Array; point: Int8Array; store: Int8Array; spo
 // K1: the locked rule against the old kernel, the vacuum and lone open seeds
 function bookkeeping(): number {
   let mismatches = 0
+
   const f = lockedFresh(SIDE)
-  const oldVac = bounceRunner(makeBounceKernel(f.weave, 'lone'), hubVacuum({ cells: f.cells, store: f.store, layout: f.layout }))
+  const oldVac = bounceRunner(
+    makeBounceKernel(f.weave, 'lone'),
+    hubVacuum({ cells: f.cells, store: f.store, layout: f.layout }),
+  )
+
   let s = lockedState(vacuumConfiguration(f, 'none'))
 
   for (let t = 0; t < BEATS; t++) {
     oldVac.beat()
     s = lockedBeat(f.tables, s, t)
-    mismatches += s.branches.length === 1 ? sameAsOld(oldVac.state(), s.branches[0]!) : 1
+    mismatches +=
+      s.branches.length === 1
+        ? sameAsOld(oldVac.state(), s.branches[0]!)
+        : 1
   }
 
   const center = centerOf(SIDE)
@@ -147,17 +193,25 @@ function bookkeeping(): number {
       start.vibe[center * 24 + d] = tone
       start.open[center * 24 + d] = 1
 
-      const oldStart = hubVacuum({ cells: g.cells, store: g.store, layout: g.layout })
+      const oldStart = hubVacuum({
+        cells: g.cells,
+        store: g.store,
+        layout: g.layout,
+      })
 
       oldStart.vibe[center * 24 + d] = tone
 
       const old = bounceRunner(kernel, oldStart)
+
       let q = lockedState(start)
 
       for (let t = 0; t < BEATS; t++) {
         old.beat()
         q = lockedBeat(g.tables, q, t)
-        mismatches += q.branches.length === 1 ? sameAsOld(old.state(), q.branches[0]!) : 1
+        mismatches +=
+          q.branches.length === 1
+            ? sameAsOld(old.state(), q.branches[0]!)
+            : 1
       }
     }
   }
@@ -188,14 +242,21 @@ type PathReading = {
   wallFrozen: boolean
 }
 
-function readPath(threshold: number, committed: { love: number[]; fear: number[] }): PathReading {
+function readPath(
+  threshold: number,
+  committed: { love: number[]; fear: number[] },
+): PathReading {
   const f = lockedFresh(SIDE)
   const vacuum = vacuumConfiguration(f, 'all')
   const run = pathRunner(f.tables, vacuum, threshold)
   const tally = newPathTally()
   const l0 = laws(vacuum)
-  const conj = vacuumConfiguration({ ...f, store: Int8Array.from(f.store, v => -v) }, 'all')
+  const conj = vacuumConfiguration(
+    { ...f, store: Int8Array.from(f.store, v => -v) },
+    'all',
+  )
   const crun = pathRunner(f.tables, conj, threshold)
+
   let lawBreaks = 0
   let cBreaks = 0
   let freeMax = 0
@@ -216,32 +277,60 @@ function readPath(threshold: number, committed: { love: number[]; fear: number[]
 
     for (let i = 0; i < s.vibe.length; i++) {
       free += s.vibe[i] !== 0 ? 1 : 0
-      if (s.vibe[i] !== -(c.vibe[i] as number) || (s.vibe[i] !== 0 && s.point[i] !== c.point[i])) off++
+
+      if (
+        s.vibe[i] !== -c.vibe[i]! ||
+        (s.vibe[i] !== 0 && s.point[i] !== c.point[i])
+      ) {
+        off++
+      }
     }
 
-    for (let i = 0; i < s.store.length; i++) if (s.store[i] !== -(c.store[i] as number) || (s.store[i] !== 0 && s.spoint[i] !== c.spoint[i])) off++
+    for (let i = 0; i < s.store.length; i++) {
+      if (
+        s.store[i] !== -c.store[i]! ||
+        (s.store[i] !== 0 && s.spoint[i] !== c.spoint[i])
+      ) {
+        off++
+      }
+    }
 
     cBreaks += off > 0 ? 1 : 0
     freeMax = Math.max(freeMax, free)
     freeLast = free
   }
 
-  for (let t = 0; t < BEATS; t++) run.back()
+  for (let t = 0; t < BEATS; t++) {
+    run.back()
+  }
 
   const back = run.state()
+
   let reverses = true
 
-  for (let i = 0; i < back.vibe.length && reverses; i++) reverses = back.vibe[i] === vacuum.vibe[i] && (back.vibe[i] === 0 || back.point[i] === vacuum.point[i])
-  for (let i = 0; i < back.store.length && reverses; i++) reverses = back.store[i] === vacuum.store[i] && (back.store[i] === 0 || back.spoint[i] === vacuum.spoint[i])
+  for (let i = 0; i < back.vibe.length && reverses; i++) {
+    reverses =
+      back.vibe[i] === vacuum.vibe[i] &&
+      (back.vibe[i] === 0 || back.point[i] === vacuum.point[i])
+  }
+
+  for (let i = 0; i < back.store.length && reverses; i++) {
+    reverses =
+      back.store[i] === vacuum.store[i] &&
+      (back.store[i] === 0 || back.spoint[i] === vacuum.spoint[i])
+  }
 
   let units = 0
 
-  for (const v of f.store) units += v !== 0 ? 1 : 0
+  for (const v of f.store) {
+    units += v !== 0 ? 1 : 0
+  }
 
   // K4: causal components along the path
   const husk = boxHusk(f.weave.mesh, SIDE)
   const target = streamTarget(f.weave.mesh)
   const center = centerOf(SIDE)
+
   let causalLargest = 0
   let descentMin = Number.POSITIVE_INFINITY
   let coveredBy = 0
@@ -252,19 +341,32 @@ function readPath(threshold: number, committed: { love: number[]; fear: number[]
     start.vibe[center * 24 + d] = 1
     start.open[center * 24 + d] = 1
 
-    const c = causalRun({ replay: pathReplay(f.tables, start, threshold), husk, target, beats: CAUSAL_BEATS, seedDock: center })
+    const c = causalRun({
+      replay: pathReplay(f.tables, start, threshold),
+      husk,
+      target,
+      beats: CAUSAL_BEATS,
+      seedDock: center,
+    })
     const first = new Int32Array(husk.columns).fill(-1)
 
     for (let x = 0; x < f.cells; x++) {
-      const at = c.log.reachedAt[x] as number
-      const col = husk.column[x] as number
+      const at = c.log.reachedAt[x]!
+      const col = husk.column[x]!
 
-      if (at >= 0 && (first[col] === -1 || at < (first[col] as number))) first[col] = at
+      if (at >= 0 && (first[col] === -1 || at < first[col]!)) {
+        first[col] = at
+      }
     }
 
     causalLargest = Math.max(causalLargest, c.counts.husk)
     descentMin = Math.min(descentMin, c.counts.reachedHusk)
-    coveredBy = Math.max(coveredBy, first.includes(-1) ? Number.POSITIVE_INFINITY : Math.max(...Array.from(first)))
+    coveredBy = Math.max(
+      coveredBy,
+      first.includes(-1)
+        ? Number.POSITIVE_INFINITY
+        : Math.max(...Array.from(first)),
+    )
   }
 
   // K6: the wake, center anchor
@@ -275,11 +377,20 @@ function readPath(threshold: number, committed: { love: number[]; fear: number[]
     [0, 0, 0, 0],
     [0, 0, 0, 0],
   ]
+
   let wakeOffLine = 0
 
   ;[1, -1].forEach((tone, k) => {
     for (let d = 0; d < 24; d++) {
-      const w = pathWake({ tables: g.tables, vacuum: gVacuum, track, seedSlot: center * 24 + d, tone, threshold, beats: BEATS })
+      const w = pathWake({
+        tables: g.tables,
+        vacuum: gVacuum,
+        track,
+        seedSlot: center * 24 + d,
+        tone,
+        threshold,
+        beats: BEATS,
+      })
 
       w.worst.forEach((x, p) => {
         wakeWorst[k]![p] = Math.max(wakeWorst[k]![p] ?? 0, x)
@@ -294,9 +405,33 @@ function readPath(threshold: number, committed: { love: number[]; fear: number[]
   const h = lockedFresh(WALL_SIDE)
   const coins = coinsOnce()
   const whusk = boxHusk(h.weave.mesh, WALL_SIDE)
-  const inside = Uint8Array.from({ length: h.cells }, (_, x) => ((d4BoxCoordinates({ cell: x, side: WALL_SIDE })[0] ?? 0) >= WALL_SIDE / 2 ? 1 : 0))
-  const image = storeImage(coins, WALL_SIDE, h.store, coins.table.identity, -1, [0, 0, 0, 0])
-  const wall = readPathWall({ tables: h.tables, layout: h.layout, store: h.store, image, inside, column: whusk.column, columns: whusk.columns, from: 72, to: 192, window: 6, threshold })
+  const inside = Uint8Array.from({ length: h.cells }, (_, x) =>
+    (d4BoxCoordinates({ cell: x, side: WALL_SIDE })[0] ?? 0) >=
+    WALL_SIDE / 2
+      ? 1
+      : 0,
+  )
+  const image = storeImage(
+    coins,
+    WALL_SIDE,
+    h.store,
+    coins.table.identity,
+    -1,
+    [0, 0, 0, 0],
+  )
+  const wall = readPathWall({
+    tables: h.tables,
+    layout: h.layout,
+    store: h.store,
+    image,
+    inside,
+    column: whusk.column,
+    columns: whusk.columns,
+    from: 72,
+    to: 192,
+    window: 6,
+    threshold,
+  })
 
   return {
     lawBreaks,
@@ -323,17 +458,30 @@ function readPath(threshold: number, committed: { love: number[]; fear: number[]
 }
 
 // K8: the knit's fastest husk copy against the photon's husk light speed
-function lightSpeed(): { front: number; axis: number; ratios: Record<number, number>; anyMatch: boolean } {
-  const shadows = rootsD4().map(r => Math.hypot(r[0] ?? 0, r[1] ?? 0, r[2] ?? 0))
+function lightSpeed(): {
+  front: number
+  axis: number
+  ratios: Record<number, number>
+  anyMatch: boolean
+} {
+  const shadows = rootsD4().map(r =>
+    Math.hypot(r[0] ?? 0, r[1] ?? 0, r[2] ?? 0),
+  )
   const front = Math.max(...shadows)
   const axis = Math.min(...shadows.filter(s => s > 0))
   const c = (D: number): number => 2 / Math.sqrt(3 * (2 * D + 1))
   const ratios: Record<number, number> = {}
+
   let anyMatch = false
 
   for (let D = 1; D <= 49; D++) {
-    if (front <= c(D) + 1e-12) anyMatch = true
-    if ([1, 4, 16, 49].includes(D)) ratios[D] = front / c(D)
+    if (front <= c(D) + 1e-12) {
+      anyMatch = true
+    }
+
+    if ([1, 4, 16, 49].includes(D)) {
+      ratios[D] = front / c(D)
+    }
   }
 
   return { front, axis, ratios, anyMatch }
@@ -350,9 +498,18 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
-    const committedRule: ScheduledRule = (opposite, forward) => turningWeave({ opposite, forward, table: 'pair' })
-    const committed = { love: ruleDressing(committedRule, { side: SIDE, tone: 1 }).periodLargest, fear: ruleDressing(committedRule, { side: SIDE, tone: -1 }).periodLargest }
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
+    const committedRule: ScheduledRule = (opposite, forward) =>
+      turningWeave({ opposite, forward, table: 'pair' })
+    const committed = {
+      love: ruleDressing(committedRule, { side: SIDE, tone: 1 })
+        .periodLargest,
+      fear: ruleDressing(committedRule, { side: SIDE, tone: -1 })
+        .periodLargest,
+    }
     const light = lightSpeed()
 
     log('committed dressing')
@@ -361,7 +518,9 @@ export default experiment({
     const perStart = family.map(member =>
       withStart(member, () => {
         const k1 = bookkeeping()
-        const paths = Object.fromEntries(PATHS.map(p => [p.name, readPath(p.threshold, committed)])) as Record<PathName, PathReading>
+        const paths = Object.fromEntries(
+          PATHS.map(p => [p.name, readPath(p.threshold, committed)]),
+        ) as Record<PathName, PathReading>
 
         log(`start ${member.name}`)
 
@@ -369,11 +528,22 @@ export default experiment({
       }),
     )
 
-    const every = (f: (r: PathReading) => boolean): boolean => perStart.every(p => PATHS.every(q => f(p.paths[q.name])))
-    const onPath = (name: PathName, f: (r: PathReading) => boolean): number => perStart.filter(p => f(p.paths[name])).length
-    const k4 = (r: PathReading): boolean => r.causalLargest === 1 && r.descentMin === 512 && r.coveredBy <= DESCENT_BOUND
-    const k5 = (r: PathReading): boolean => r.made === r.unmade && r.made >= r.units
-    const k6 = (r: PathReading): boolean => r.wakeOffLine === 0 && r.wakeWorst[0]!.every((x, p) => x <= (committed.love[p] ?? 0)) && r.wakeWorst[1]!.every((x, p) => x <= (committed.fear[p] ?? 0))
+    const every = (f: (r: PathReading) => boolean): boolean =>
+      perStart.every(p => PATHS.every(q => f(p.paths[q.name])))
+    const onPath = (
+      name: PathName,
+      f: (r: PathReading) => boolean,
+    ): number => perStart.filter(p => f(p.paths[name])).length
+    const k4 = (r: PathReading): boolean =>
+      r.causalLargest === 1 &&
+      r.descentMin === 512 &&
+      r.coveredBy <= DESCENT_BOUND
+    const k5 = (r: PathReading): boolean =>
+      r.made === r.unmade && r.made >= r.units
+    const k6 = (r: PathReading): boolean =>
+      r.wakeOffLine === 0 &&
+      r.wakeWorst[0]!.every((x, p) => x <= (committed.love[p] ?? 0)) &&
+      r.wakeWorst[1]!.every((x, p) => x <= (committed.fear[p] ?? 0))
     const gK1 = perStart.every(p => p.k1 === 0)
     const gK2 = every(r => r.lawBreaks === 0)
     const gK3 = every(r => r.reverses)
@@ -383,9 +553,20 @@ export default experiment({
     const gK7 = every(r => r.wallPasses)
     const gK8 = light.anyMatch
     const gK9 = every(r => r.cBreaks === 0)
-    const status = gK1 && gK2 && gK3 && gK9 ? (gK4 && gK5 && gK6 && gK7 && gK8 ? 'pass' : 'partial') : 'fail'
-    const range = (xs: number[]): string => (Math.min(...xs) === Math.max(...xs) ? `${Math.min(...xs)}` : `${Math.min(...xs)} to ${Math.max(...xs)}`)
-    const over = (name: PathName, f: (r: PathReading) => number): string => range(perStart.map(p => f(p.paths[name])))
+    const status =
+      gK1 && gK2 && gK3 && gK9
+        ? gK4 && gK5 && gK6 && gK7 && gK8
+          ? 'pass'
+          : 'partial'
+        : 'fail'
+    const range = (xs: number[]): string =>
+      Math.min(...xs) === Math.max(...xs)
+        ? `${Math.min(...xs)}`
+        : `${Math.min(...xs)} to ${Math.max(...xs)}`
+    const over = (
+      name: PathName,
+      f: (r: PathReading) => number,
+    ): string => range(perStart.map(p => f(p.paths[name])))
     const metrics: Record<string, number> = {
       gateK1: perStart.filter(p => p.k1 === 0).length,
       gateK2: gK2 ? 1 : 0,
@@ -404,13 +585,35 @@ export default experiment({
       metrics[`${p.name}_K5`] = onPath(p.name, k5)
       metrics[`${p.name}_K6`] = onPath(p.name, k6)
       metrics[`${p.name}_K7`] = onPath(p.name, r => r.wallPasses)
-      metrics[`${p.name}_madeMax`] = Math.max(...perStart.map(q => q.paths[p.name].made))
-      metrics[`${p.name}_unmadeMin`] = Math.min(...perStart.map(q => q.paths[p.name].unmade))
-      metrics[`${p.name}_freeLastMax`] = Math.max(...perStart.map(q => q.paths[p.name].freeLast))
-      metrics[`${p.name}_wakeWorstMax`] = Math.max(...perStart.map(q => Math.max(...q.paths[p.name].wakeWorst.flat())))
-      metrics[`${p.name}_wakeOffLineMax`] = Math.max(...perStart.map(q => q.paths[p.name].wakeOffLine))
-      metrics[`${p.name}_causalLargestMax`] = Math.max(...perStart.map(q => q.paths[p.name].causalLargest))
-      metrics[`${p.name}_wallOutsideColumnsMax`] = Math.max(...perStart.map(q => q.paths[p.name].wallOutsideColumns))
+      metrics[`${p.name}_madeMax`] = Math.max(
+        ...perStart.map(q => q.paths[p.name].made),
+      )
+
+      metrics[`${p.name}_unmadeMin`] = Math.min(
+        ...perStart.map(q => q.paths[p.name].unmade),
+      )
+
+      metrics[`${p.name}_freeLastMax`] = Math.max(
+        ...perStart.map(q => q.paths[p.name].freeLast),
+      )
+
+      metrics[`${p.name}_wakeWorstMax`] = Math.max(
+        ...perStart.map(q =>
+          Math.max(...q.paths[p.name].wakeWorst.flat()),
+        ),
+      )
+
+      metrics[`${p.name}_wakeOffLineMax`] = Math.max(
+        ...perStart.map(q => q.paths[p.name].wakeOffLine),
+      )
+
+      metrics[`${p.name}_causalLargestMax`] = Math.max(
+        ...perStart.map(q => q.paths[p.name].causalLargest),
+      )
+
+      metrics[`${p.name}_wallOutsideColumnsMax`] = Math.max(
+        ...perStart.map(q => q.paths[p.name].wallOutsideColumns),
+      )
     }
 
     metrics.seconds = (Date.now() - started) / 1000

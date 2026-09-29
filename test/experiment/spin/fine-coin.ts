@@ -111,17 +111,57 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { lineBasis, lineLevels, lineLightest, wholeBasis, type LineSector } from '@/code/measure/coined-line-bloch'
-import { cutDensity, pointBeatWith, type CutState, type PieceOptions } from '@/code/measure/bound-line'
-import { flatGauge, runWindow, windowContext } from '@/code/measure/permutation-meeting'
-import { bandCurvature, blochEntries, boostedRun, cutStart, exactStart, followLevel, loneBand, pointOrbit, quarticMass, type BandPoint, type BoostedRun, type Entry } from '@/code/measure/moving-level'
-import { fineBand, fineLoneEntries, flatLine, sameBoundState, slowReading } from '@/code/measure/fine-coin'
-import { boundBeat, type BoundOptions } from '@/code/rule/bound-line-pieces'
+import {
+  lineBasis,
+  lineLevels,
+  lineLightest,
+  wholeBasis,
+  type LineSector,
+} from '@/code/measure/coined-line-bloch'
+import {
+  cutDensity,
+  pointBeatWith,
+  type CutState,
+  type PieceOptions,
+} from '@/code/measure/bound-line'
+import {
+  flatGauge,
+  runWindow,
+  windowContext,
+} from '@/code/measure/permutation-meeting'
+import {
+  bandCurvature,
+  blochEntries,
+  boostedRun,
+  cutStart,
+  exactStart,
+  followLevel,
+  loneBand,
+  pointOrbit,
+  quarticMass,
+  type BoostedRun,
+  type Entry,
+} from '@/code/measure/moving-level'
+import {
+  fineBand,
+  fineLoneEntries,
+  flatLine,
+  sameBoundState,
+  slowReading,
+} from '@/code/measure/fine-coin'
+import {
+  boundBeat,
+  type BoundOptions,
+} from '@/code/rule/bound-line-pieces'
 
 const NS: readonly number[] = [1, 2, 4, 8]
 const LINE = 1024
 const FIT_STEPS: readonly number[] = [0, 1, 2, 4]
-const SPEED_KS: readonly number[] = [Math.PI / 4, (3 * Math.PI) / 8, Math.PI / 2]
+const SPEED_KS: readonly number[] = [
+  Math.PI / 4,
+  (3 * Math.PI) / 8,
+  Math.PI / 2,
+]
 const BEATS = 128
 const P = 40
 const MATCH = 1e-3
@@ -131,7 +171,15 @@ const SAME = 1e-9
 const SLOW_RATIO = 1e-5
 const SLOW_TOP = 1e-4
 const WINDOW = { side: 8, beats: 4 }
-const TRIO = { box: 12, side: 16, step: Math.PI / 64, d: 1e-2, ks: [0, (2 * Math.PI) / 32], tail: 1e-3, hold: 0.99 }
+const TRIO = {
+  box: 12,
+  side: 16,
+  step: Math.PI / 64,
+  d: 1e-2,
+  ks: [0, (2 * Math.PI) / 32],
+  tail: 1e-3,
+  hold: 0.99,
+}
 
 export default experiment({
   id: 'spin/fine-coin',
@@ -144,20 +192,37 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const f4 = (x: number): string => x.toFixed(4)
     const f6 = (x: number): string => x.toFixed(6)
     const e2 = (x: number): string => x.toExponential(2)
     const rest = (n: number): number => Math.PI / (3 * n)
-    const derivedRatio = (n: number): number => Math.tan(rest(n)) / rest(n)
+    const derivedRatio = (n: number): number =>
+      Math.tan(rest(n)) / rest(n)
     const derivedTop = (n: number): number => Math.cos(rest(n))
 
     // ---- the lone love on a flat line of LINE docks ----
     const ctx16 = windowContext(TRIO.side)
     const line = flatLine(LINE, ctx16.ring)
     const gLine = flatGauge(LINE)
-    const lone = (n: number): PieceOptions => ({ cost: false, sign: false, unit: 0, flat: true, fine: n })
-    const runOn = (options: PieceOptions, ring: typeof line, L: number, s0: CutState, K: number, beats = BEATS): BoostedRun =>
+    const lone = (n: number): PieceOptions => ({
+      cost: false,
+      sign: false,
+      unit: 0,
+      flat: true,
+      fine: n,
+    })
+    const runOn = (
+      options: PieceOptions,
+      ring: typeof line,
+      L: number,
+      s0: CutState,
+      K: number,
+      beats = BEATS,
+    ): BoostedRun =>
       boostedRun(
         s => pointBeatWith(options, ctx16.f.tables, ring, s),
         s0,
@@ -165,7 +230,8 @@ export default experiment({
         beats,
         s => cutDensity(L, s),
       )
-    const loneStart = (n: number, K: number, upper = false): CutState => cutStart(fineLoneEntries(gLine, n, K, P, upper), P)
+    const loneStart = (n: number, K: number, upper = false): CutState =>
+      cutStart(fineLoneEntries(gLine, n, K, P, upper), P)
     const walks = NS.map(n => {
       const fit = FIT_STEPS.map(s => {
         const K = (2 * Math.PI * s) / LINE
@@ -173,24 +239,53 @@ export default experiment({
         return runOn(lone(n), line, LINE, loneStart(n, K), K)
       })
       const other = runOn(lone(n), line, LINE, loneStart(n, 0, true), 0)
-      const speeds = SPEED_KS.map(K => runOn(lone(n), line, LINE, loneStart(n, K), K))
-      const halfGap = ((fit[0] as BoostedRun).energy - other.energy) / 2
+      const speeds = SPEED_KS.map(K =>
+        runOn(lone(n), line, LINE, loneStart(n, K), K),
+      )
+      const halfGap = (fit[0]!.energy - other.energy) / 2
       const mass = quarticMass(fit)
       const ratio = mass.mass / halfGap
       const top = Math.max(...speeds.map(r => Math.abs(r.velocity)))
-      const least = Math.min(...[...fit, other, ...speeds].map(r => r.least))
+      const least = Math.min(
+        ...[...fit, other, ...speeds].map(r => r.least),
+      )
 
       log(`lone n ${n}`)
 
-      return { n, fit, other, speeds, halfGap, mass: mass.mass, beta: mass.beta, ratio, top, least }
+      return {
+        n,
+        fit,
+        other,
+        speeds,
+        halfGap,
+        mass: mass.mass,
+        beta: mass.beta,
+        ratio,
+        top,
+        least,
+      }
     })
 
     // ---- W1, W2 ----
-    const falls = walks.every((w, i) => i === 0 || w.ratio < (walks[i - 1] as { ratio: number }).ratio)
-    const rises = walks.every((w, i) => i === 0 || w.top > (walks[i - 1] as { top: number }).top)
-    const last = walks[walks.length - 1] as (typeof walks)[number]
-    const w1 = walks.every(w => Math.abs(w.ratio / derivedRatio(w.n) - 1) <= MATCH) && falls && Math.abs(last.ratio - 1) <= NEAR_ONE
-    const w2 = walks.every(w => Math.abs(w.top - derivedTop(w.n)) <= MATCH) && rises && Math.abs(last.top - 1) <= NEAR_ONE
+    const falls = walks.every(
+      (w, i) =>
+        i === 0 || w.ratio < (walks[i - 1] as { ratio: number }).ratio,
+    )
+    const rises = walks.every(
+      (w, i) =>
+        i === 0 || w.top > (walks[i - 1] as { top: number }).top,
+    )
+    const last = walks[walks.length - 1]!
+    const w1 =
+      walks.every(
+        w => Math.abs(w.ratio / derivedRatio(w.n) - 1) <= MATCH,
+      ) &&
+      falls &&
+      Math.abs(last.ratio - 1) <= NEAR_ONE
+    const w2 =
+      walks.every(w => Math.abs(w.top - derivedTop(w.n)) <= MATCH) &&
+      rises &&
+      Math.abs(last.top - 1) <= NEAR_ONE
 
     // ---- control (a): n = 1 is the working coin ----
     const bandOff = Math.max(
@@ -198,16 +293,25 @@ export default experiment({
         const a = fineBand(1, K)
         const b = loneBand(K)
 
-        return Math.max(Math.abs(a.energy - b.energy), ...a.vector.flatMap((z, j) => [Math.abs(z[0] - (b.vector[j] as [number, number])[0]), Math.abs(z[1] - (b.vector[j] as [number, number])[1])]))
+        return Math.max(
+          Math.abs(a.energy - b.energy),
+          ...a.vector.flatMap((z, j) => [
+            Math.abs(z[0] - (b.vector[j] as [number, number])[0]),
+            Math.abs(z[1] - (b.vector[j] as [number, number])[1]),
+          ]),
+        )
       }),
     )
     const ctx8 = windowContext(WINDOW.side)
-    const onePoint = (ctx8.gauge.to[0] as number[])[0] as number
-    const loneAt: Entry[] = [{ ts: [{ x: 0, j: 0, p: onePoint }], c: 0, a: 1n, b: 0n }]
+    const onePoint = ctx8.gauge.to[0]![0]!
+    const loneAt: Entry[] = [
+      { ts: [{ x: 0, j: 0, p: onePoint }], c: 0, a: 1n, b: 0n },
+    ]
     const sameState = sameBoundState
     const bitForBit = ((): boolean => {
       const plain: BoundOptions = { cost: false, sign: false }
       const fine1: BoundOptions = { cost: false, sign: false, fine: 1 }
+
       let a = exactStart(ctx8.vac, ctx8.ring, loneAt, 0)
       let b = a
       let same = true
@@ -225,74 +329,184 @@ export default experiment({
 
     // ---- control (b): the exact window ----
     const windows = NS.filter(n => n > 1).map(n => {
-      const w = runWindow({ cost: false, sign: false, fine: n }, ctx8, exactStart(ctx8.vac, ctx8.ring, loneAt, 0), cutStart(loneAt, 0), WINDOW.beats)
+      const w = runWindow(
+        { cost: false, sign: false, fine: n },
+        ctx8,
+        exactStart(ctx8.vac, ctx8.ring, loneAt, 0),
+        cutStart(loneAt, 0),
+        WINDOW.beats,
+      )
 
       log(`window n ${n}`)
 
       return { n, w }
     })
-    const controlWindow = windows.every(({ w }) => w.reversed && w.beats.every((b, t) => b.normKept && b.physicalNormOff <= EXACT && b.leak === 0 && b.disturbed === 0 && b.pointGap <= EXACT && b.energyGap <= EXACT && b.toneBroken === 0 && b.outsideCone === 0 && b.reach === t + 1))
+    const controlWindow = windows.every(
+      ({ w }) =>
+        w.reversed &&
+        w.beats.every(
+          (b, t) =>
+            b.normKept &&
+            b.physicalNormOff <= EXACT &&
+            b.leak === 0 &&
+            b.disturbed === 0 &&
+            b.pointGap <= EXACT &&
+            b.energyGap <= EXACT &&
+            b.toneBroken === 0 &&
+            b.outsideCone === 0 &&
+            b.reach === t + 1,
+        ),
+    )
 
     // ---- control (c): the flat line against the mesh's ring ----
     const meshK = Math.PI / 4
     const meshRuns = NS.map(n => {
-      const r = runOn({ cost: false, sign: false, unit: 0, flat: false, fine: n }, ctx16.ring, ctx16.L, cutStart(fineLoneEntries(ctx16.gauge, n, meshK, P), P), meshK, 32)
-      const flat = (walks[NS.indexOf(n)] as (typeof walks)[number]).speeds[0] as BoostedRun
+      const r = runOn(
+        { cost: false, sign: false, unit: 0, flat: false, fine: n },
+        ctx16.ring,
+        ctx16.L,
+        cutStart(fineLoneEntries(ctx16.gauge, n, meshK, P), P),
+        meshK,
+        32,
+      )
+      const flat = walks[NS.indexOf(n)]!.speeds[0]!
 
-      return { n, energy: r.energy, least: r.least, offFlat: Math.abs(r.energy - flat.energy), offClosed: Math.abs(r.energy - fineBand(n, meshK).energy) }
+      return {
+        n,
+        energy: r.energy,
+        least: r.least,
+        offFlat: Math.abs(r.energy - flat.energy),
+        offClosed: Math.abs(r.energy - fineBand(n, meshK).energy),
+      }
     })
-    const controlMesh = meshRuns.every(r => r.offFlat <= SAME && r.offClosed <= SAME)
+    const controlMesh = meshRuns.every(
+      r => r.offFlat <= SAME && r.offClosed <= SAME,
+    )
 
     log('control c')
 
     // ---- control (d): the slow coin ----
     const slow = NS.map(n => slowReading(n))
-    const controlSlow = slow.every(s => Math.abs(s.ratio - derivedRatio(1)) <= SLOW_RATIO && Math.abs(s.top - 0.5) <= SLOW_TOP)
+    const controlSlow = slow.every(
+      s =>
+        Math.abs(s.ratio - derivedRatio(1)) <= SLOW_RATIO &&
+        Math.abs(s.top - 0.5) <= SLOW_TOP,
+    )
 
     // ---- W3: the trio under the fine coin (measurement) ----
     // the stand-in's level. lineLightest ranks by an unwrapping written for the working coin, so W3 reads its own
     // candidate: among the particle levels held inside the light's reach (tail beyond N at most TRIO.tail), the one of
     // least quasi-energy; with none held, the least-tail level is reported and nothing further is read from it
     const standIn = (fine?: number) => {
-      const sector: LineSector = { flavors: [0, 0, 0], statistics: 'fermion', D: 3, box: TRIO.box, unit: 0, ...(fine === undefined ? {} : { fine }) }
+      const sector: LineSector = {
+        flavors: [0, 0, 0],
+        statistics: 'fermion',
+        D: 3,
+        box: TRIO.box,
+        unit: 0,
+        ...(fine === undefined ? {} : { fine }),
+      }
       const basis = lineBasis(sector)
       const sub = wholeBasis(basis)
       const light = lineLightest(basis, sub)
       const levels = lineLevels(basis, sub).levels
       const inside = levels.filter(l => l.tailN <= TRIO.tail)
-      const candidate = inside.length > 0 ? inside.reduce((a, b) => (b.energy < a.energy ? b : a)) : levels.reduce((a, b) => (b.tailN < a.tailN ? b : a))
-      const band = inside.length > 0 ? followLevel(basis, sub, candidate, TRIO.ks, TRIO.step) : []
-      const mass = band.length > 0 ? 1 / bandCurvature(basis, sub, band[0] as BandPoint, TRIO.d) : Number.NaN
+      const candidate =
+        inside.length > 0
+          ? inside.reduce((a, b) => (b.energy < a.energy ? b : a))
+          : levels.reduce((a, b) => (b.tailN < a.tailN ? b : a))
+      const band =
+        inside.length > 0
+          ? followLevel(basis, sub, candidate, TRIO.ks, TRIO.step)
+          : []
+      const mass =
+        band.length > 0
+          ? 1 / bandCurvature(basis, sub, band[0]!, TRIO.d)
+          : Number.NaN
 
-      return { basis, light, candidate, inside: inside.length, band, mass }
+      return {
+        basis,
+        light,
+        candidate,
+        inside: inside.length,
+        band,
+        mass,
+      }
     }
+
     const plainStandIn = standIn()
 
     log('stand-in plain')
 
     const cover = pointOrbit(ctx16.gauge).length * ctx16.L
 
-    if (cover !== 32) throw new Error(`fine-coin: the cover is ${cover}, the trio's momenta were fixed for 32`)
+    if (cover !== 32) {
+      throw new Error(
+        `fine-coin: the cover is ${cover}, the trio's momenta were fixed for 32`,
+      )
+    }
 
     const trios = NS.map(n => {
       const s = standIn(n)
-      const options: PieceOptions = { cost: true, sign: true, unit: 0, flat: false, fine: n }
-      const runs = s.band.map(b => runOn(options, ctx16.ring, ctx16.L, cutStart(blochEntries(ctx16.gauge, s.basis, b.vector, b.K, P).entries, P), b.K))
-      const walk = walks[NS.indexOf(n)] as (typeof walks)[number]
-      const held = runs.length > 0 && (s.band[s.band.length - 1] as BandPoint).overlap >= TRIO.hold && (runs[0] as BoostedRun).least >= TRIO.hold
-      const eRest = runs.length > 0 ? 3 * walk.halfGap + (runs[0] as BoostedRun).energy : Number.NaN
+      const options: PieceOptions = {
+        cost: true,
+        sign: true,
+        unit: 0,
+        flat: false,
+        fine: n,
+      }
+      const runs = s.band.map(b =>
+        runOn(
+          options,
+          ctx16.ring,
+          ctx16.L,
+          cutStart(
+            blochEntries(ctx16.gauge, s.basis, b.vector, b.K, P)
+              .entries,
+            P,
+          ),
+          b.K,
+        ),
+      )
+      const walk = walks[NS.indexOf(n)]!
+      const held =
+        runs.length > 0 &&
+        s.band[s.band.length - 1]!.overlap >= TRIO.hold &&
+        runs[0]!.least >= TRIO.hold
+      const eRest =
+        runs.length > 0
+          ? 3 * walk.halfGap + runs[0]!.energy
+          : Number.NaN
       const ratio = s.mass / eRest
 
       log(`trio n ${n}`)
 
-      return { n, s, runs, eRest, ratio, R: ratio / walk.ratio, held, freeMass: 3 * walk.mass, bindingMass: s.mass - 3 * walk.mass }
+      return {
+        n,
+        s,
+        runs,
+        eRest,
+        ratio,
+        R: ratio / walk.ratio,
+        held,
+        freeMass: 3 * walk.mass,
+        bindingMass: s.mass - 3 * walk.mass,
+      }
     })
-    const trioOne = trios[0] as (typeof trios)[number]
+    const trioOne = trios[0]!
     // fine = 1 is the working coin: the same level (E-SPN-0104's, E 0.33002) and the same m* as the plain stand-in
-    const controlStandIn = Math.abs(trioOne.s.candidate.energy - plainStandIn.candidate.energy) <= SAME && Math.abs(trioOne.s.candidate.energy - plainStandIn.light.lightest.energy) <= SAME && Math.abs(trioOne.s.mass / plainStandIn.mass - 1) <= SAME
+    const controlStandIn =
+      Math.abs(
+        trioOne.s.candidate.energy - plainStandIn.candidate.energy,
+      ) <= SAME &&
+      Math.abs(
+        trioOne.s.candidate.energy - plainStandIn.light.lightest.energy,
+      ) <= SAME &&
+      Math.abs(trioOne.s.mass / plainStandIn.mass - 1) <= SAME
 
     const controlOne = bandOff <= 1e-14 && bitForBit && controlStandIn
-    const control = controlOne && controlWindow && controlMesh && controlSlow
+    const control =
+      controlOne && controlWindow && controlMesh && controlSlow
     const status = !control ? 'partial' : w1 && w2 ? 'pass' : 'fail'
     const metrics: Record<string, number> = {
       gate_W1: w1 ? 1 : 0,
@@ -347,11 +561,12 @@ export default experiment({
       t.runs.forEach((r, i) => {
         metrics[`trio${t.n}_k${i}_leastFidelity`] = r.least
         metrics[`trio${t.n}_k${i}_energy`] = r.energy
-        metrics[`trio${t.n}_k${i}_energyBand`] = (t.s.band[i] as BandPoint).energy
+        metrics[`trio${t.n}_k${i}_energyBand`] = t.s.band[i]!.energy
       })
     }
 
-    const walkRow = (w: (typeof walks)[number]): string => `n ${w.n}: E_rest ${f6(w.halfGap)} (pi/${3 * w.n} ${f6(rest(w.n))}), m* ${f6(w.mass)} (tan ${f6(Math.tan(rest(w.n)))}), m*/E_rest ${f4(w.ratio)} (derived ${f4(derivedRatio(w.n))}), v_top ${f4(w.top)} (derived ${f4(derivedTop(w.n))})`
+    const walkRow = (w: (typeof walks)[number]): string =>
+      `n ${w.n}: E_rest ${f6(w.halfGap)} (pi/${3 * w.n} ${f6(rest(w.n))}), m* ${f6(w.mass)} (tan ${f6(Math.tan(rest(w.n)))}), m*/E_rest ${f4(w.ratio)} (derived ${f4(derivedRatio(w.n))}), v_top ${f4(w.top)} (derived ${f4(derivedTop(w.n))})`
     const trioRow = (t: (typeof trios)[number]): string =>
       t.s.inside === 0
         ? `n ${t.n}: no particle level held inside the box (least tail ${f4(t.s.candidate.tailN)}, mean string ${f4(t.s.candidate.mean)}, contact ${f4(t.s.candidate.contact)})`
@@ -361,7 +576,12 @@ export default experiment({
       status,
       claim: `a lone love under the fine coin (zeta = e^(2 pi i/(3n)), carried exactly by a count in Z_n), no pieces, a flat line of ${LINE} docks, ${BEATS} beats: ${walks.map(walkRow).join('; ')}; W1 ${w1}, W2 ${w2}; the slow coin (coin every n-th beat) keeps m*/E_rest ${slow.map(s => f4(s.ratio)).join(', ')} and top speed ${slow.map(s => f4(s.top)).join(', ')} at n = ${NS.join(', ')}; the trio with the drift cost and the fermion sign (measured, not gated): ${trios.map(trioRow).join('; ')}; controls: n = 1 ${controlOne} (band off ${e2(bandOff)}, bit for bit ${bitForBit}, stand-in ${controlStandIn}), exact window ${controlWindow}, mesh ring ${controlMesh}, slow ${controlSlow}`,
       metrics,
-      control: { one: controlOne ? 1 : 0, window: controlWindow ? 1 : 0, mesh: controlMesh ? 1 : 0, slow: controlSlow ? 1 : 0 },
+      control: {
+        one: controlOne ? 1 : 0,
+        window: controlWindow ? 1 : 0,
+        mesh: controlMesh ? 1 : 0,
+        slow: controlSlow ? 1 : 0,
+      },
       notes: `L2. W1 ${w1} (falls ${falls}), W2 ${w2} (rises ${rises}); controls one ${controlOne}, window ${controlWindow}, mesh ${controlMesh}, slow ${controlSlow}. Lone fits: ${walks.map(w => `n ${w.n} E(K) ${w.fit.map(r => r.energy.toExponential(6)).join(' ')}, other band ${w.other.energy.toFixed(9)}, b ${w.beta.toExponential(3)}, speeds ${w.speeds.map(r => `K ${f4(r.K)} v ${r.velocity.toFixed(6)} (band ${fineBand(w.n, r.K).slope.toFixed(6)})`).join(' ')}, least fidelity ${w.least.toFixed(12)}`).join('; ')}. Slow: ${slow.map(s => `n ${s.n} half-gap ${s.halfGap.toFixed(9)} m* ${s.mass.toFixed(9)}`).join('; ')}. Mesh ring at K = pi/4, 32 beats: ${meshRuns.map(r => `n ${r.n} E ${r.energy.toFixed(12)} off flat ${e2(r.offFlat)} off closed ${e2(r.offClosed)} least ${r.least.toFixed(9)}`).join('; ')}. Windows (side ${WINDOW.side}, ${WINDOW.beats} beats): ${windows.map(({ n, w }) => `n ${n}: ${w.beats.map((b, t) => `beat ${t + 1} ${b.branches} branches in ${b.slices} slices, norm ${b.normKept}, physical ${e2(b.physicalNormOff)}, leak ${b.leak}, disturbed ${b.disturbed}, point gap ${e2(b.pointGap)}, energy gap ${e2(b.energyGap)}, tone ${b.toneBroken}, cone ${b.outsideCone}, reach ${b.reach}`).join('; ')}, reversed ${w.reversed}`).join(' | ')}. Stand-in plain: lightest E ${plainStandIn.light.lightest.energy}, candidate E ${plainStandIn.candidate.energy}, m* ${plainStandIn.mass}. Trio: ${trios.map(t => `n ${t.n} dim ${t.s.basis.configs.length} particle levels ${t.s.light.particleLevels}, held inside ${t.s.inside}; candidate E ${t.s.candidate.energy} mean string ${t.s.candidate.mean} contact ${t.s.candidate.contact} tail ${t.s.candidate.tailN} even ${t.s.candidate.even}; lineLightest E ${t.s.light.lightest.energy} mean ${t.s.light.lightest.mean} tail ${t.s.light.lightest.tailN}; m* ${t.s.mass} band ${t.s.band.map(b => `K ${f4(b.K)} E ${f6(b.energy)} overlap ${f4(b.overlap)}`).join(' ')} ring ${t.runs.map(r => `K ${f4(r.K)} least ${f6(r.least)} E ${f6(r.energy)} v ${r.velocity.toExponential(3)}`).join(' ')}`).join('; ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },

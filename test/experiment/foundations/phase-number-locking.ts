@@ -51,9 +51,7 @@ export default experiment({
       Math.floor(c / SIDE ** a) % SIDE
     const mid = 8
 
-    const run = (
-      offset: number | null,
-    ): { n: number; amp: number } => {
+    const run = (offset: number | null): { n: number; amp: number } => {
       const slab = new Set<number>()
 
       if (offset !== null) {
@@ -103,9 +101,7 @@ export default experiment({
     const numberOnly = run(1)
 
     const blindExact = blind.every(
-      r =>
-        r.n === baseline.n &&
-        Math.abs(r.amp - baseline.amp) < 1e-9,
+      r => r.n === baseline.n && Math.abs(r.amp - baseline.amp) < 1e-9,
     )
     const lockedBoth = locked.every(
       r =>
@@ -120,7 +116,10 @@ export default experiment({
       Math.abs(baseline.amp - 2 * Math.sqrt(21)) < 1e-9
 
     const ok =
-      blindExact && lockedBoth && numberAtFixedPhase && baselineQuantized
+      blindExact &&
+      lockedBoth &&
+      numberAtFixedPhase &&
+      baselineQuantized
 
     return verdict({
       status: ok ? 'pass' : 'fail',

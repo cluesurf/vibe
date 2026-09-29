@@ -48,17 +48,33 @@ import { verdict } from '@/test/scaffold/verdict'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { LINE_FIRSTS } from '@/code/rule/isometric-knit'
 import { groupTable } from '@/code/measure/color-isotropy-bound'
-import { coinData, orientedHubStore } from '@/code/measure/varying-vacuum'
-import { d4BoxCoordinates, d4Coordinates } from '@/code/substrate/d4-box'
+import {
+  coinData,
+  orientedHubStore,
+} from '@/code/measure/varying-vacuum'
+import {
+  d4BoxCoordinates,
+  d4Coordinates,
+} from '@/code/substrate/d4-box'
 import { ONE_LINE } from '@/code/measure/sparse-living-vacuum'
 import { quantum as candidateQuantum } from '@/code/measure/candidate-battery'
 import { quantum as livingQuantum } from '@/code/measure/living-pair-battery'
 import { quantum as sparseQuantum } from '@/code/measure/sparse-living-battery'
-import { EVEN_SIDES, quantum as varyingQuantum, type QuantumRun, type VaryingVacuum } from '@/code/measure/varying-living-battery'
+import {
+  EVEN_SIDES,
+  quantum as varyingQuantum,
+  type QuantumRun,
+  type VaryingVacuum,
+} from '@/code/measure/varying-living-battery'
 
 const SALTS = [11, 23, 37, 53]
 const FRAME_GATES = ['frameCommutesVacuum', 'frameCommutesMatter']
-const FRAME_METRICS = ['frameMismatchVacuum', 'frameMismatchMatter', 'frameMismatchSwapControl', 'controlsHold']
+const FRAME_METRICS = [
+  'frameMismatchVacuum',
+  'frameMismatchMatter',
+  'frameMismatchSwapControl',
+  'controlsHold',
+]
 
 export default experiment({
   id: 'relativity/frame-carry-batteries',
@@ -71,22 +87,50 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const log = (what: string): void =>
+      console.error(
+        `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+      )
     const coins = coinData(groupTable())
-    const r0 = d4Coordinates(rootsD4()[LINE_FIRSTS[0] as number] as number[])
-    const hubFor = (side: number, anchor: number): number[] => d4BoxCoordinates({ cell: anchor, side }).map((v, k) => v - (r0[k] as number))
-    const HUB: VaryingVacuum = { key: 'hub', store: (side, anchor) => orientedHubStore(coins, side, hubFor(side, anchor)) }
-    const batteries: { code: string; run: (carry: boolean, salt: number) => QuantumRun }[] = [
-      { code: 'E-RLT-0070', run: (carry, salt) => candidateQuantum(1, 'on', carry, salt) },
-      { code: 'E-RLT-0075', run: (carry, salt) => livingQuantum(1, 'on', 'alternate', carry, salt) },
-      { code: 'E-RLT-0079', run: (carry, salt) => sparseQuantum(ONE_LINE, 'on', 'alternate', carry, salt) },
-      { code: 'E-RLT-0082', run: (carry, salt) => varyingQuantum(HUB, 'on', EVEN_SIDES.q, carry, salt) },
+    const r0 = d4Coordinates(rootsD4()[LINE_FIRSTS[0]!]!)
+    const hubFor = (side: number, anchor: number): number[] =>
+      d4BoxCoordinates({ cell: anchor, side }).map((v, k) => v - r0[k]!)
+    const HUB: VaryingVacuum = {
+      key: 'hub',
+      store: (side, anchor) =>
+        orientedHubStore(coins, side, hubFor(side, anchor)),
+    }
+    const batteries: {
+      code: string
+      run: (carry: boolean, salt: number) => QuantumRun
+    }[] = [
+      {
+        code: 'E-RLT-0070',
+        run: (carry, salt) => candidateQuantum(1, 'on', carry, salt),
+      },
+      {
+        code: 'E-RLT-0075',
+        run: (carry, salt) =>
+          livingQuantum(1, 'on', 'alternate', carry, salt),
+      },
+      {
+        code: 'E-RLT-0079',
+        run: (carry, salt) =>
+          sparseQuantum(ONE_LINE, 'on', 'alternate', carry, salt),
+      },
+      {
+        code: 'E-RLT-0082',
+        run: (carry, salt) =>
+          varyingQuantum(HUB, 'on', EVEN_SIDES.q, carry, salt),
+      },
     ]
     const rows: string[] = []
     const metrics: Record<string, number> = {}
+
     let f1 = true
     let f2 = true
     let f3 = true
+
     const moved = new Set<string>()
 
     for (const b of batteries) {
@@ -94,28 +138,65 @@ export default experiment({
         const old = b.run(false, salt)
         const fixed = b.run(true, salt)
         const gates = Object.keys(fixed.gates)
-        const changedOther = gates.filter(g => !FRAME_GATES.includes(g) && old.gates[g] !== fixed.gates[g])
-        const changedMetrics = Object.keys(fixed.metrics).filter(m => !FRAME_METRICS.includes(m) && old.metrics[m] !== fixed.metrics[m] && !(Number.isNaN(old.metrics[m]) && Number.isNaN(fixed.metrics[m])))
-        const hasVacuum = (fixed.metrics.hasVacuumPair ?? 1) === 1 && (fixed.metrics.frameMismatchVacuum ?? 0) >= 0
-        const frameOk = (fixed.metrics.frameMismatchMatter ?? 1) === 0 && (!hasVacuum || (fixed.metrics.frameMismatchVacuum ?? 1) === 0)
+        const changedOther = gates.filter(
+          g =>
+            !FRAME_GATES.includes(g) && old.gates[g] !== fixed.gates[g],
+        )
+        const changedMetrics = Object.keys(fixed.metrics).filter(
+          m =>
+            !FRAME_METRICS.includes(m) &&
+            old.metrics[m] !== fixed.metrics[m] &&
+            !(
+              Number.isNaN(old.metrics[m]) &&
+              Number.isNaN(fixed.metrics[m])
+            ),
+        )
+        const hasVacuum =
+          (fixed.metrics.hasVacuumPair ?? 1) === 1 &&
+          (fixed.metrics.frameMismatchVacuum ?? 0) >= 0
+        const frameOk =
+          (fixed.metrics.frameMismatchMatter ?? 1) === 0 &&
+          (!hasVacuum || (fixed.metrics.frameMismatchVacuum ?? 1) === 0)
         const control = fixed.metrics.frameMismatchSwapControl ?? 0
 
-        f1 = f1 && changedOther.length === 0 && changedMetrics.length === 0
+        f1 =
+          f1 && changedOther.length === 0 && changedMetrics.length === 0
         f2 = f2 && frameOk
         f3 = f3 && control > 0
 
-        for (const g of gates) if (old.gates[g] !== fixed.gates[g]) moved.add(`${b.code} ${g} ${old.gates[g] ? 'pass' : 'fail'} -> ${fixed.gates[g] ? 'pass' : 'fail'} (frame ${salt})`)
+        for (const g of gates) {
+          if (old.gates[g] !== fixed.gates[g]) {
+            moved.add(
+              `${b.code} ${g} ${old.gates[g] ? 'pass' : 'fail'} -> ${fixed.gates[g] ? 'pass' : 'fail'} (frame ${salt})`,
+            )
+          }
+        }
 
         const key = `${b.code.slice(-4)}_s${salt}`
 
-        metrics[`${key}_oldMatter`] = old.metrics.frameMismatchMatter ?? -1
-        metrics[`${key}_fixedMatter`] = fixed.metrics.frameMismatchMatter ?? -1
-        metrics[`${key}_oldVacuum`] = old.metrics.frameMismatchVacuum ?? -1
-        metrics[`${key}_fixedVacuum`] = fixed.metrics.frameMismatchVacuum ?? -1
-        metrics[`${key}_oldControl`] = old.metrics.frameMismatchSwapControl ?? -1
+        metrics[`${key}_oldMatter`] =
+          old.metrics.frameMismatchMatter ?? -1
+
+        metrics[`${key}_fixedMatter`] =
+          fixed.metrics.frameMismatchMatter ?? -1
+
+        metrics[`${key}_oldVacuum`] =
+          old.metrics.frameMismatchVacuum ?? -1
+
+        metrics[`${key}_fixedVacuum`] =
+          fixed.metrics.frameMismatchVacuum ?? -1
+
+        metrics[`${key}_oldControl`] =
+          old.metrics.frameMismatchSwapControl ?? -1
         metrics[`${key}_fixedControl`] = control
-        metrics[`${key}_oldGatesFailing`] = gates.filter(g => !old.gates[g]).length
-        metrics[`${key}_fixedGatesFailing`] = gates.filter(g => !fixed.gates[g]).length
+        metrics[`${key}_oldGatesFailing`] = gates.filter(
+          g => !old.gates[g],
+        ).length
+
+        metrics[`${key}_fixedGatesFailing`] = gates.filter(
+          g => !fixed.gates[g],
+        ).length
+
         rows.push(
           `${b.code} frame ${salt}: matter ${old.metrics.frameMismatchMatter} -> ${fixed.metrics.frameMismatchMatter}, vacuum ${old.metrics.frameMismatchVacuum} -> ${fixed.metrics.frameMismatchVacuum}, swap control ${old.metrics.frameMismatchSwapControl} -> ${control}, failing old [${gates.filter(g => !old.gates[g]).join(', ')}] fixed [${gates.filter(g => !fixed.gates[g]).join(', ')}], other gates changed ${changedOther.length}, other metrics changed ${changedMetrics.length}${changedMetrics.length > 0 ? ` (${changedMetrics.join(', ')})` : ''}`,
         )
@@ -123,12 +204,20 @@ export default experiment({
       }
     }
 
-    const status = f1 && f2 && f3 ? 'pass' : f1 && !f2 ? 'fail' : 'partial'
+    const status =
+      f1 && f2 && f3 ? 'pass' : f1 && !f2 ? 'fail' : 'partial'
 
     return verdict({
       status,
       claim: `with the comoving own points carried by the frame change, the four batteries' frame gates ${f2 ? 'hold at all four frames' : 'do not all hold'}; moved gates: ${moved.size > 0 ? [...moved].join('; ') : 'none'}; the swap-phase control ${f3 ? 'keeps' : 'loses'} its teeth on at least one battery and frame`,
-      metrics: { gateF1: f1 ? 1 : 0, gateF2: f2 ? 1 : 0, gateF3: f3 ? 1 : 0, movedGates: moved.size, ...metrics, seconds: (Date.now() - started) / 1000 },
+      metrics: {
+        gateF1: f1 ? 1 : 0,
+        gateF2: f2 ? 1 : 0,
+        gateF3: f3 ? 1 : 0,
+        movedGates: moved.size,
+        ...metrics,
+        seconds: (Date.now() - started) / 1000,
+      },
       notes: `L1. Gates: F1 ${f1}, F2 ${f2}, F3 ${f3}. ${rows.join(' | ')}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,
     })
   },

@@ -74,11 +74,28 @@ import { centerOf } from '@/code/measure/wall-reading'
 import { contactFresh } from '@/code/measure/occupation-veto-readings'
 import { wordVacuum } from '@/code/measure/mixed-vacuum-readings'
 import { boxHusk } from '@/code/measure/causal-components'
-import { cloneConfiguration, sameConfiguration, type Configuration } from '@/code/rule/doublet-locked-knit'
-import { fullPathKey, keyedRunner, meshLines } from '@/code/measure/full-key-paths'
+import {
+  cloneConfiguration,
+  sameConfiguration,
+  type Configuration,
+} from '@/code/rule/doublet-locked-knit'
+import {
+  fullPathKey,
+  keyedRunner,
+  meshLines,
+} from '@/code/measure/full-key-paths'
 import { d4BoxCell } from '@/code/substrate/d4-box-integer'
 import { LINE_FIRSTS } from '@/code/rule/isometric-knit'
-import { addHuskFlux, bulkLinks, dockEnergies, gaussBackground, huskCast, lineDivergence, lineRunner, routeUnits } from '@/code/measure/energy-lines'
+import {
+  addHuskFlux,
+  bulkLinks,
+  dockEnergies,
+  gaussBackground,
+  huskCast,
+  lineDivergence,
+  lineRunner,
+  routeUnits,
+} from '@/code/measure/energy-lines'
 
 const RUNS: readonly { side: number; beats: number }[] = [
   { side: 8, beats: 512 },
@@ -111,7 +128,11 @@ function runs(side: number, beats: number): Run[] {
   const links = bulkLinks(f.tables)
   const cast = huskCast(links, husk)
   const mesh = meshLines(f.tables)
-  const ringOf = Int32Array.from({ length: f.cells * 12 }, (_, k) => mesh.lineOf[Math.floor(k / 12) * 24 + (LINE_FIRSTS[k % 12] as number)] as number)
+  const ringOf = Int32Array.from(
+    { length: f.cells * 12 },
+    (_, k) =>
+      mesh.lineOf[Math.floor(k / 12) * 24 + LINE_FIRSTS[k % 12]!]!,
+  )
   const vacuum = wordVacuum(f, f.store)
   const seeded = cloneConfiguration(vacuum)
 
@@ -131,7 +152,11 @@ function runs(side: number, beats: number): Run[] {
   const div = new Int32Array(f.cells)
   const vacLines: Int32Array[] = []
 
-  const one = (kind: 'vacuum' | 'seeded', start: Configuration, startLine: Int32Array): Run => {
+  const one = (
+    kind: 'vacuum' | 'seeded',
+    start: Configuration,
+    startLine: Int32Array,
+  ): Run => {
     const r = lineRunner(f.tables, start, startLine, key)
     const background = gaussBackground(links, startLine, start)
     const background1 = gaussBackground(links, startLine, start, 1)
@@ -139,6 +164,7 @@ function runs(side: number, beats: number): Run[] {
     const fluxMax: number[] = []
     const zeroAt: number[] = []
     const growth: [number, number][] = []
+
     let gaussOff = 0
     let controlOff = 0
     let maxAbs = 0
@@ -151,43 +177,65 @@ function runs(side: number, beats: number): Run[] {
       lineDivergence(links, r.line, div)
 
       for (let x = 0; x < f.cells; x++) {
-        if ((div[x] as number) - (e[x] as number) !== background[x]) gaussOff++
-        if ((div[x] as number) - (e1[x] as number) !== background1[x]) controlOff++
+        if (div[x]! - e[x]! !== background[x]) {
+          gaussOff++
+        }
+
+        if (div[x]! - e1[x]! !== background1[x]) {
+          controlOff++
+        }
       }
 
       let m = 0
       let atStart = true
 
       for (let k = 0; k < r.line.length; k++) {
-        const v = r.line[k] as number
+        const v = r.line[k]!
 
-        if (Math.abs(v) > m) m = Math.abs(v)
-        if (v !== startLine[k]) atStart = false
+        if (Math.abs(v) > m) {
+          m = Math.abs(v)
+        }
+
+        if (v !== startLine[k]) {
+          atStart = false
+        }
       }
 
       maxAbs = Math.max(maxAbs, m)
-      if (atStart) zeroAt.push(t)
+
+      if (atStart) {
+        zeroAt.push(t)
+      }
+
       huskFlux.fill(0)
       addHuskFlux(cast, r.line, huskFlux)
-      fluxMax.push(huskFlux.reduce((s, v) => Math.max(s, Math.abs(v)), 0))
-      if (kind === 'vacuum' && t === beats) vacLines.push(Int32Array.from(r.line))
-      if ((t & (t - 1)) === 0 || t === beats) growth.push([t, m])
+      fluxMax.push(
+        huskFlux.reduce((s, v) => Math.max(s, Math.abs(v)), 0),
+      )
+
+      if (kind === 'vacuum' && t === beats) {
+        vacLines.push(Int32Array.from(r.line))
+      }
+
+      if ((t & (t - 1)) === 0 || t === beats) {
+        growth.push([t, m])
+      }
 
       // the seeded lines minus the vacuum's on the same beat, split on the mesh lines
       if (kind === 'seeded' && t === beats) {
         const sum = new Float64Array(mesh.count)
         const hi = new Int32Array(mesh.count).fill(-(1 << 30))
         const lo = new Int32Array(mesh.count).fill(1 << 30)
-        const vac = vacLines[0] as Int32Array
+        const vac = vacLines[0]!
         const len = (f.cells * 12) / mesh.count
 
         for (let k = 0; k < r.line.length; k++) {
-          const v = (r.line[k] as number) - (vac[k] as number)
-          const q = ringOf[k] as number
+          const v = r.line[k]! - vac[k]!
+          const q = ringOf[k]!
 
           sum[q]! += v
-          hi[q] = Math.max(hi[q] as number, v)
-          lo[q] = Math.min(lo[q] as number, v)
+          hi[q] = Math.max(hi[q]!, v)
+          lo[q] = Math.min(lo[q]!, v)
         }
 
         let wind = 0
@@ -195,9 +243,13 @@ function runs(side: number, beats: number): Run[] {
         let winding = 0
 
         for (let q = 0; q < mesh.count; q++) {
-          wind = Math.max(wind, Math.abs((sum[q] as number) / len))
-          if (sum[q] !== 0) winding++
-          spread = Math.max(spread, (hi[q] as number) - (lo[q] as number))
+          wind = Math.max(wind, Math.abs(sum[q]! / len))
+
+          if (sum[q] !== 0) {
+            winding++
+          }
+
+          spread = Math.max(spread, hi[q]! - lo[q]!)
         }
 
         ring = `winding ${wind.toFixed(3)} on ${winding} of ${mesh.count} rings, spread ${spread}`
@@ -206,21 +258,33 @@ function runs(side: number, beats: number): Run[] {
 
     const keyed = keyedRunner(f.tables, start, { key })
 
-    for (let t = 0; t < beats; t++) keyed.beat()
+    for (let t = 0; t < beats; t++) {
+      keyed.beat()
+    }
 
     const sameAsKeyed = sameConfiguration(keyed.state(), r.state())
 
-    for (let t = 0; t < beats; t++) r.back()
+    for (let t = 0; t < beats; t++) {
+      r.back()
+    }
 
-    const reversed = sameConfiguration(r.state(), start) && r.line.every((v, k) => v === startLine[k])
+    const reversed =
+      sameConfiguration(r.state(), start) &&
+      r.line.every((v, k) => v === startLine[k])
     const quarter = beats / 4
-    const zeroQuarters = [0, 1, 2, 3].filter(q => zeroAt.some(t => t > q * quarter && t <= (q + 1) * quarter)).length
+    const zeroQuarters = [0, 1, 2, 3].filter(q =>
+      zeroAt.some(t => t > q * quarter && t <= (q + 1) * quarter),
+    ).length
     const late = growth.filter(([t, m]) => t >= 16 && m > 0)
     const lx = late.map(([t]) => Math.log(t))
     const ly = late.map(([, m]) => Math.log(m))
     const mx = lx.reduce((s, v) => s + v, 0) / Math.max(1, lx.length)
     const my = ly.reduce((s, v) => s + v, 0) / Math.max(1, ly.length)
-    const slope = lx.length > 1 ? lx.reduce((s, v, i) => s + (v - mx) * ((ly[i] as number) - my), 0) / lx.reduce((s, v) => s + (v - mx) ** 2, 0) : 0
+    const slope =
+      lx.length > 1
+        ? lx.reduce((s, v, i) => s + (v - mx) * (ly[i]! - my), 0) /
+          lx.reduce((s, v) => s + (v - mx) ** 2, 0)
+        : 0
 
     return {
       side,
@@ -260,9 +324,20 @@ export default experiment({
     const control = all.every(r => r.controlOff > 0)
     const gE2 = all.every(r => r.maxAbs <= TRIT)
     const gE3 = all.every(r => r.reversed)
-    const gE4 = vac.every(r => r.maxAbs <= TRIT && r.zeroQuarters === 4 && r.fluxSecond <= r.fluxFirst)
+    const gE4 = vac.every(
+      r =>
+        r.maxAbs <= TRIT &&
+        r.zeroQuarters === 4 &&
+        r.fluxSecond <= r.fluxFirst,
+    )
     const status = gE1 && gE2 && gE3 && gE4 && control ? 'pass' : 'fail'
-    const metrics: Record<string, number> = { gate_E1: gE1 ? 1 : 0, gate_E2: gE2 ? 1 : 0, gate_E3: gE3 ? 1 : 0, gate_E4: gE4 ? 1 : 0, control: control ? 1 : 0 }
+    const metrics: Record<string, number> = {
+      gate_E1: gE1 ? 1 : 0,
+      gate_E2: gE2 ? 1 : 0,
+      gate_E3: gE3 ? 1 : 0,
+      gate_E4: gE4 ? 1 : 0,
+      control: control ? 1 : 0,
+    }
 
     for (const r of all) {
       const p = `side${r.side}_${r.kind}_`
@@ -278,13 +353,16 @@ export default experiment({
 
     metrics.seconds = (Date.now() - t0) / 1000
 
-    const row = (r: Run): string => `side ${r.side} ${r.kind}: Gauss off ${r.gaussOff} (store-once control off ${r.controlOff}), largest |L| ${r.maxAbs} [${r.growth}], log-log slope ${r.slope.toFixed(2)}, reversed ${r.reversed}, keyed ${r.sameAsKeyed}, back at beat-0 lines in ${r.zeroQuarters} of 4 quarters, husk flux largest ${r.fluxFirst} then ${r.fluxSecond}${r.ring ? `, seeded minus vacuum ${r.ring}` : ''}`
+    const row = (r: Run): string =>
+      `side ${r.side} ${r.kind}: Gauss off ${r.gaussOff} (store-once control off ${r.controlOff}), largest |L| ${r.maxAbs} [${r.growth}], log-log slope ${r.slope.toFixed(2)}, reversed ${r.reversed}, keyed ${r.sameAsKeyed}, back at beat-0 lines in ${r.zeroQuarters} of 4 quarters, husk flux largest ${r.fluxFirst} then ${r.fluxSecond}${r.ring ? `, seeded minus vacuum ${r.ring}` : ''}`
 
     return verdict({
       status,
       claim: `energy lines dragged by every vibe the stream takes (one net-count register a bulk link, lines placed only at beat 0): ${all.map(row).join('; ')}`,
       metrics,
-      control: { leastStoreOnceOff: Math.min(...all.map(r => r.controlOff)) },
+      control: {
+        leastStoreOnceOff: Math.min(...all.map(r => r.controlOff)),
+      },
       notes: `L2 (E1 L1). Gates E1 ${gE1}, E2 ${gE2}, E3 ${gE3}, E4 ${gE4}; control ${control}. Seeded largest |L|: ${seed.map(r => `side ${r.side} ${r.maxAbs}`).join(', ')}. ${((Date.now() - t0) / 1000).toFixed(0)} s.`,
     })
   },

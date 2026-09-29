@@ -57,7 +57,15 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { bandCurvature, centroid, chargedBeat, packet, PALINDROME, uniformField, type Field } from '@/code/measure/charged-walk'
+import {
+  bandCurvature,
+  centroid,
+  chargedBeat,
+  packet,
+  PALINDROME,
+  uniformField,
+  type Field,
+} from '@/code/measure/charged-walk'
 import {
   areaNonlinearity,
   bandPhase,
@@ -78,11 +86,17 @@ const TURN_BEATS = 205
 const PEAK_TOLERANCE = 0.002
 const LEVELS = 5
 
-const fieldOf = (quanta: number): number => (2 * Math.PI * quanta) / (SIDE * SIDE)
+const fieldOf = (quanta: number): number =>
+  (2 * Math.PI * quanta) / (SIDE * SIDE)
 
 // the strip width for each field and charge, one orbit center per strip
 // (second run: 20 and 40 quanta widened from 96 and 64, charge 2 narrowed from 48, see the notes)
-const WIDTH: Record<string, number> = { '10:1': 160, '20:1': 128, '40:1': 80, '40:2': 40 }
+const WIDTH: Record<string, number> = {
+  '10:1': 160,
+  '20:1': 128,
+  '40:1': 80,
+  '40:2': 40,
+}
 
 // two strip states closer than this are one level (the even-dock and odd-dock copies); levels are at least
 // 0.05 apart
@@ -90,7 +104,16 @@ const SAME_LEVEL = 1e-4
 
 // the unwrapped angle of the centroid's velocity, beat by beat (E-FRC-0176's reading)
 function turning(field: Field, charge: number): number[] {
-  const w = packet({ side: SIDE, x0: 0, y0: SIDE / 2, sigma: SIGMA, kx: K0, ky: 0, target: 0, order: PALINDROME })
+  const w = packet({
+    side: SIDE,
+    x0: 0,
+    y0: SIDE / 2,
+    sigma: SIGMA,
+    kx: K0,
+    ky: 0,
+    target: 0,
+    order: PALINDROME,
+  })
   const angles: number[] = []
 
   let previous = centroid(w, SIDE)
@@ -100,9 +123,19 @@ function turning(field: Field, charge: number): number[] {
     chargedBeat(w, field, charge, PALINDROME)
 
     const now = centroid(w, SIDE)
-    const d = [0, 1].map(i => ((((now[i] ?? 0) - (previous[i] ?? 0) + SIDE * 1.5) % SIDE) - SIDE / 2))
+    const d = [0, 1].map(
+      i =>
+        (((now[i] ?? 0) - (previous[i] ?? 0) + SIDE * 1.5) % SIDE) -
+        SIDE / 2,
+    )
     const angle = Math.atan2(d[1] ?? 0, d[0] ?? 0)
-    const unwrapped = Number.isNaN(last) ? angle : last + ((((angle - last + 3 * Math.PI) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)) - Math.PI
+    const unwrapped = Number.isNaN(last)
+      ? angle
+      : last +
+        ((((angle - last + 3 * Math.PI) % (2 * Math.PI)) +
+          2 * Math.PI) %
+          (2 * Math.PI)) -
+        Math.PI
 
     angles.push(unwrapped)
     last = unwrapped
@@ -118,7 +151,10 @@ function slope(xs: readonly number[]): number {
   const mt = (n - 1) / 2
   const mx = xs.reduce((a, b) => a + b, 0) / n
 
-  return xs.reduce((s, x, t) => s + (t - mt) * (x - mx), 0) / xs.reduce((s, _, t) => s + (t - mt) ** 2, 0)
+  return (
+    xs.reduce((s, x, t) => s + (t - mt) * (x - mx), 0) /
+    xs.reduce((s, _, t) => s + (t - mt) ** 2, 0)
+  )
 }
 
 export default experiment({
@@ -142,10 +178,21 @@ export default experiment({
     const exact = new Map<string, number[]>()
 
     for (const key of Object.keys(WIDTH)) {
-      const [quanta, charge] = key.split(':').map(Number) as [number, number]
-      const width = WIDTH[key] as number
-      const strip = landauStrip({ width, field: fieldOf(quanta), charge, center: width / 2, order: PALINDROME })
-      const levels = bulkStates(strip, 0.05, -1, SAME_LEVEL).slice(0, LEVELS).map(s => s.phase)
+      const [quanta, charge] = key.split(':').map(Number) as [
+        number,
+        number,
+      ]
+      const width = WIDTH[key]!
+      const strip = landauStrip({
+        width,
+        field: fieldOf(quanta),
+        charge,
+        center: width / 2,
+        order: PALINDROME,
+      })
+      const levels = bulkStates(strip, 0.05, -1, SAME_LEVEL)
+        .slice(0, LEVELS)
+        .map(s => s.phase)
       const wc = charge * fieldOf(quanta) * w0
 
       unitarity = Math.max(unitarity, unitarityError(strip.beat))
@@ -154,43 +201,93 @@ export default experiment({
       levels.forEach((l, n) => {
         out[`exact${quanta}Charge${charge}Level${n}`] = l
       })
-      out[`exact${quanta}Charge${charge}ZeroPointOverHalf`] = -(levels[0] ?? 0) / (wc / 2)
+
+      out[`exact${quanta}Charge${charge}ZeroPointOverHalf`] =
+        -(levels[0] ?? 0) / (wc / 2)
+
       levels.slice(1).forEach((l, n) => {
-        out[`exact${quanta}Charge${charge}Spacing${n}${n + 1}OverContinuum`] = ((levels[n] ?? 0) - l) / wc
+        out[
+          `exact${quanta}Charge${charge}Spacing${n}${n + 1}OverContinuum`
+        ] = ((levels[n] ?? 0) - l) / wc
       })
 
-      const onsager = onsagerLevels({ field: fieldOf(quanta), charge, count: LEVELS, order: PALINDROME })
+      const onsager = onsagerLevels({
+        field: fieldOf(quanta),
+        charge,
+        count: LEVELS,
+        order: PALINDROME,
+      })
 
-      out[`onsager${quanta}Charge${charge}ZeroPointOverHalf`] = -(onsager[0] ?? 0) / (wc / 2)
+      out[`onsager${quanta}Charge${charge}ZeroPointOverHalf`] =
+        -(onsager[0] ?? 0) / (wc / 2)
+
       onsager.slice(1, levels.length).forEach((l, n) => {
-        out[`onsager${quanta}Charge${charge}Spacing${n}${n + 1}OverExact`] = ((onsager[n] ?? 0) - l) / ((levels[n] ?? 0) - (levels[n + 1] ?? 0))
+        out[
+          `onsager${quanta}Charge${charge}Spacing${n}${n + 1}OverExact`
+        ] =
+          ((onsager[n] ?? 0) - l) /
+          ((levels[n] ?? 0) - (levels[n + 1] ?? 0))
       })
       out[`firstOrder${quanta}Charge${charge}Deficit01`] = 2 * beta * wc
-      out[`exact${quanta}Charge${charge}Deficit01`] = 1 - ((levels[0] ?? 0) - (levels[1] ?? 0)) / wc
+      out[`exact${quanta}Charge${charge}Deficit01`] =
+        1 - ((levels[0] ?? 0) - (levels[1] ?? 0)) / wc
     }
 
     // A2: the strip states are the torus's
     const field40 = uniformField(SIDE, 40)
-    const strip40 = landauStrip({ width: 64, field: fieldOf(40), charge: 1, center: 32, order: PALINDROME })
-    const states40 = bulkStates(strip40, 0.05, -1, SAME_LEVEL).slice(0, 4)
+    const strip40 = landauStrip({
+      width: 64,
+      field: fieldOf(40),
+      charge: 1,
+      center: 32,
+      order: PALINDROME,
+    })
+    const states40 = bulkStates(strip40, 0.05, -1, SAME_LEVEL).slice(
+      0,
+      4,
+    )
 
     let residual = 0
 
     for (const state of states40) {
-      const walk = liftToTorus({ state, strip: strip40, side: SIDE, x0: 0, field: fieldOf(40), charge: 1 })
+      const walk = liftToTorus({
+        state,
+        strip: strip40,
+        side: SIDE,
+        x0: 0,
+        field: fieldOf(40),
+        charge: 1,
+      })
 
-      residual = Math.max(residual, torusResidual({ walk, field: field40, charge: 1, order: PALINDROME, phase: state.phase }))
+      residual = Math.max(
+        residual,
+        torusResidual({
+          walk,
+          field: field40,
+          charge: 1,
+          order: PALINDROME,
+          phase: state.phase,
+        }),
+      )
     }
 
     // A3: width convergence
-    const convergence = Math.max(...states40.map((s, n) => Math.abs(s.phase - (exact.get('40:1')?.[n] ?? 0))))
+    const convergence = Math.max(
+      ...states40.map((s, n) =>
+        Math.abs(s.phase - (exact.get('40:1')?.[n] ?? 0)),
+      ),
+    )
 
-    out['a1WorstUnitarity'] = unitarity
-    out['a2WorstTorusResidual'] = residual
-    out['a2StatesChecked'] = states40.length
-    out['a3WidthConvergence'] = convergence
+    out.a1WorstUnitarity = unitarity
+    out.a2WorstTorusResidual = residual
+    out.a2StatesChecked = states40.length
+    out.a3WidthConvergence = convergence
 
-    const okA = unitarity < 1e-12 && residual < 1e-9 && states40.length === 4 && convergence < 1e-9
+    const okA =
+      unitarity < 1e-12 &&
+      residual < 1e-9 &&
+      states40.length === 4 &&
+      convergence < 1e-9
 
     // B: the measurement
     let okB1 = true
@@ -200,12 +297,29 @@ export default experiment({
     for (const quanta of [10, 20, 40]) {
       const levels = exact.get(`${quanta}:1`) ?? []
       const field = uniformField(SIDE, quanta)
-      const start = packet({ side: SIDE, x0: 0, y0: SIDE / 2, sigma: SIGMA, kx: K0, ky: 0, target: 0, order: PALINDROME })
-      const peaks = returnSpectrumPeaks({ start, field, charge: 1, order: PALINDROME, beats: SPECTRUM_BEATS })
+      const start = packet({
+        side: SIDE,
+        x0: 0,
+        y0: SIDE / 2,
+        sigma: SIGMA,
+        kx: K0,
+        ky: 0,
+        target: 0,
+        order: PALINDROME,
+      })
+      const peaks = returnSpectrumPeaks({
+        start,
+        field,
+        charge: 1,
+        order: PALINDROME,
+        beats: SPECTRUM_BEATS,
+      })
       // below the last exact level by half a spacing (the first run read an undefined fifth level here and
       // compared every peak down to -0.6 with the fourth, see the notes)
       const last = levels.length - 1
-      const bottom = (levels[last] ?? 0) - 0.5 * ((levels[last - 1] ?? 0) - (levels[last] ?? 0))
+      const bottom =
+        (levels[last] ?? 0) -
+        0.5 * ((levels[last - 1] ?? 0) - (levels[last] ?? 0))
       const matched: { rank: number; phase: number }[] = []
 
       let worst = 0
@@ -215,7 +329,13 @@ export default experiment({
           return
         }
 
-        const rank = levels.reduce((best, l, n) => (Math.abs(l - p) < Math.abs((levels[best] ?? 0) - p) ? n : best), 0)
+        const rank = levels.reduce(
+          (best, l, n) =>
+            Math.abs(l - p) < Math.abs((levels[best] ?? 0) - p)
+              ? n
+              : best,
+          0,
+        )
         const miss = Math.abs(p - (levels[rank] ?? 0))
 
         worst = Math.max(worst, miss)
@@ -236,10 +356,17 @@ export default experiment({
 
         if (next) {
           const measured = m.phase - next.phase
-          const theirs = (levels[m.rank] ?? 0) - (levels[m.rank + 1] ?? 0)
+          const theirs =
+            (levels[m.rank] ?? 0) - (levels[m.rank + 1] ?? 0)
 
-          worstSpacing = Math.max(worstSpacing, Math.abs(measured / theirs - 1))
-          out[`b${quanta}MeasuredSpacing${m.rank}${m.rank + 1}OverContinuum`] = measured / wc
+          worstSpacing = Math.max(
+            worstSpacing,
+            Math.abs(measured / theirs - 1),
+          )
+
+          out[
+            `b${quanta}MeasuredSpacing${m.rank}${m.rank + 1}OverContinuum`
+          ] = measured / wc
 
           if (quanta === 40 && m.rank === 0) {
             control = Math.abs(measured / wc - 1)
@@ -254,20 +381,35 @@ export default experiment({
       okB2 = okB2 && worstSpacing < 0.01
     }
 
-    out['bControlContinuumMissAt40'] = control
+    out.bControlContinuumMissAt40 = control
 
     const okControl = control > 0.05
 
     // C
     const onsagerWorst = Math.max(
-      ...[10, 20].flatMap(q => [0, 1, 2, 3].map(n => Math.abs((out[`onsager${q}Charge1Spacing${n}${n + 1}OverExact`] ?? 0) - 1))),
+      ...[10, 20].flatMap(q =>
+        [0, 1, 2, 3].map(n =>
+          Math.abs(
+            (out[`onsager${q}Charge1Spacing${n}${n + 1}OverExact`] ??
+              0) - 1,
+          ),
+        ),
+      ),
     )
-    const firstOrder = (out['exact10Charge1Deficit01'] ?? 0) / (out['firstOrder10Charge1Deficit01'] ?? 1) - 1
+    const firstOrder =
+      (out.exact10Charge1Deficit01 ?? 0) /
+        (out.firstOrder10Charge1Deficit01 ?? 1) -
+      1
 
-    out['c1OnsagerWorstAt10And20'] = onsagerWorst
-    out['c2FirstOrderMissAt10'] = firstOrder
-    out['cDeficitRatio20Over10'] = (out['exact20Charge1Deficit01'] ?? 0) / (out['exact10Charge1Deficit01'] ?? 1)
-    out['cDeficitRatio40Over20'] = (out['exact40Charge1Deficit01'] ?? 0) / (out['exact20Charge1Deficit01'] ?? 1)
+    out.c1OnsagerWorstAt10And20 = onsagerWorst
+    out.c2FirstOrderMissAt10 = firstOrder
+    out.cDeficitRatio20Over10 =
+      (out.exact20Charge1Deficit01 ?? 0) /
+      (out.exact10Charge1Deficit01 ?? 1)
+
+    out.cDeficitRatio40Over20 =
+      (out.exact40Charge1Deficit01 ?? 0) /
+      (out.exact20Charge1Deficit01 ?? 1)
 
     const okC = onsagerWorst < 0.005 && Math.abs(firstOrder) < 0.05
 
@@ -277,17 +419,25 @@ export default experiment({
     const two = slope(turning(field40, 2))
     const energy = bandPhase(K0, 0, PALINDROME)
     const levels40 = exact.get('40:1') ?? []
-    const nearest = levels40.reduce((best, l, n) => (Math.abs(l - energy) < Math.abs((levels40[best] ?? 0) - energy) ? n : best), 0)
-    const local = (levels40[Math.max(0, nearest - 1)] ?? 0) - (levels40[Math.max(0, nearest - 1) + 1] ?? 0)
+    const nearest = levels40.reduce(
+      (best, l, n) =>
+        Math.abs(l - energy) < Math.abs((levels40[best] ?? 0) - energy)
+          ? n
+          : best,
+      0,
+    )
+    const local =
+      (levels40[Math.max(0, nearest - 1)] ?? 0) -
+      (levels40[Math.max(0, nearest - 1) + 1] ?? 0)
 
-    out['turnPacketBandEnergy'] = energy
-    out['turnNearestLevel'] = nearest
-    out['turnRateB'] = up
-    out['turnRateMinusB'] = down
-    out['turnRateCharge2'] = two
-    out['turnRateBOverExactSpacing'] = Math.abs(up) / local
-    out['turnRateMinusBOverExactSpacing'] = Math.abs(down) / local
-    out['turnRateBOverContinuum'] = Math.abs(up) / (fieldOf(40) * w0)
+    out.turnPacketBandEnergy = energy
+    out.turnNearestLevel = nearest
+    out.turnRateB = up
+    out.turnRateMinusB = down
+    out.turnRateCharge2 = two
+    out.turnRateBOverExactSpacing = Math.abs(up) / local
+    out.turnRateMinusBOverExactSpacing = Math.abs(down) / local
+    out.turnRateBOverContinuum = Math.abs(up) / (fieldOf(40) * w0)
 
     const ok = okA && okB1 && okB2 && okControl && okC
 
@@ -295,7 +445,14 @@ export default experiment({
       status: ok ? 'pass' : okB1 && okB2 ? 'partial' : 'fail',
       claim:
         "the fear walk's exact lattice Landau levels, from the k_y-reduced strip, are the E-FRC-0176 torus beat's own eigenphases (residual under 1e-9), and E-FRC-0176's return spectrum at 10, 20 and 40 quanta sits on them within 0.002 with every spacing within 1 percent, while missing the continuum 2 q B by more than 5 percent at 40 quanta, so the deficit is the lattice band; Onsager's rule with the band's full shape gives the spacings within 0.5 percent at 10 and 20 quanta and the first-order deficit 2 beta omega_c (n + 1) holds within 5 percent at 10",
-      metrics: { ...out, sectionA: okA ? 1 : 0, sectionB1: okB1 ? 1 : 0, sectionB2: okB2 ? 1 : 0, sectionControl: okControl ? 1 : 0, sectionC: okC ? 1 : 0 },
+      metrics: {
+        ...out,
+        sectionA: okA ? 1 : 0,
+        sectionB1: okB1 ? 1 : 0,
+        sectionB2: okB2 ? 1 : 0,
+        sectionControl: okControl ? 1 : 0,
+        sectionC: okC ? 1 : 0,
+      },
       control: { continuumMissAt40: control },
       notes:
         'L2, stand-in charge (the fear walk). Exact diagonalization of the k_y-reduced strip (Cayley transform, Hermitian Jacobi), no time evolution for sections A and C; section B reruns the E-FRC-0176 protocol. The exact levels and the Onsager comparison were computed in a probe before the gates were written (disclosed in the header). First run 2026-09-26 (tmp/frc0182.log, 419 s): fail, on three construction errors and one threshold. (1) The width-96 strip at 20 quanta and the width-64 strip at 40 held only 4 bulk levels, so B1 compared every peak down to -0.6 with the fourth level (misses 0.19 and 0.17) where each peak below it sat within 2e-6 of an exact level that the wider strips (128, 80) give: -0.24830, -0.29740, -0.34466, -0.39022 against -0.248300, -0.297395, -0.344659, -0.390224 at 20 quanta, -0.45506, -0.53720 against -0.455059, -0.537205 at 40. (2) C1 divided by a fifth exact level that did not exist (-0.259, -0.240). (3) The width-48 charge-2 strip held two orbit centers, so its levels came in pairs 2e-7 to 4e-6 apart, reported only. These were fixed (wider strips, the peak cutoff from the last computed level, one level per 1e-4) with no gate changed. (4) A2 read a torus residual of 4.65e-9 against its 1e-9 gate: the Jacobi eigenvectors of the even-odd degenerate pairs carry that error, and the gate is kept, so A fails. First-run numbers that the fixes do not touch: every 10-quanta peak within 2.1e-6 of an exact level, 5 hit, spacings within 6.9e-5 of the exact; spacings at 20 and 40 within 2.3e-5; the continuum 2 q B misses the measured first spacing at 40 quanta by 9.0 percent; Onsager within 0.025 percent at 10 quanta; the first-order deficit 2 beta omega_c at 10 quanta 4.5 percent above the exact deficit; E-FRC-0176 turn rates 0.84 (+B) and 0.93 (-B) of the exact first spacing, 0.76 of 2 q B, a mixture of levels 0 to 5 (peak heights 1, 0.61, 0.81, 0.73, 0.50, 0.27). Second run (tmp/frc0182-run2.log, 422 s): partial. B1, B2, the control and C pass: 5 levels hit at each field, worst peak miss 2.1e-6, 1.5e-6 and 1.3e-6, worst spacing 6.9e-5, 4.2e-5 and 2.1e-5 of the exact, Onsager spacings within 0.087 percent at 10 and 20 quanta and 0.28 percent at 40; A fails on A2 alone (4.65e-9). The zero point is where the band alone falls short: exact 0.987, 0.975, 0.952 of q B at 10, 20, 40 quanta against Onsager 0.993, 0.987, 0.975, a beyond-Onsager shift of about 0.6, 1.2 and 2.3 percent that grows in proportion to B (a Berry-phase or orbital-moment term, not derived here). The deficit doubles with the field (ratios 1.92 and 1.85), linear in B at first order as derived. Charge 2 at 40 quanta, width 40: 2 bulk levels, first spacing 0.841 of 2 q B, Onsager 0.8% off, reported only.',

@@ -50,12 +50,20 @@ import { verdict } from '@/test/scaffold/verdict'
 import { linearFit } from '@/code/measure/regression'
 import { radionMesh } from '@/code/rule/trit-radion'
 import { stepRule } from '@/code/rule/step-depth'
-import { openMesh, warpClock, type OpenMesh } from '@/code/rule/open-husk'
+import {
+  openMesh,
+  warpClock,
+  type OpenMesh,
+} from '@/code/rule/open-husk'
 import { horizonOf, horizonRule } from '@/code/rule/horizon-husk'
 import { clockHorizonRule } from '@/code/rule/clock-horizon'
 import { compressLump } from '@/code/measure/step-depth'
 import { huskDistance, stackModes } from '@/code/measure/open-husk'
-import { clockStatics, spreadSinks, stackDepthRadius } from '@/code/measure/clock-horizon'
+import {
+  clockStatics,
+  spreadSinks,
+  stackDepthRadius,
+} from '@/code/measure/clock-horizon'
 import { countStatics } from '@/code/measure/count-horizon'
 
 const DEPTH = 16
@@ -69,16 +77,30 @@ const MASSES: readonly number[] = [600, 800, 1200, 1600]
 const FIELD_TOLERANCE = 0.05
 const TOLERANCE = 1e-11
 
-const slopeOf = (ms: readonly number[], rs: readonly number[]): number => linearFit({ xs: ms.map(Math.log), ys: rs.map(Math.log) }).slope
-const volumeRadius = (docks: number): number => Math.cbrt((3 * docks) / (4 * Math.PI))
+const slopeOf = (
+  ms: readonly number[],
+  rs: readonly number[],
+): number =>
+  linearFit({ xs: ms.map(Math.log), ys: rs.map(Math.log) }).slope
+const volumeRadius = (docks: number): number =>
+  Math.cbrt((3 * docks) / (4 * Math.PI))
 
 type Read = { docks: number; volume: number; farthest: number }
 
-function readHorizon(mesh: OpenMesh, horizon: Uint8Array, center: readonly number[]): Read {
+function readHorizon(
+  mesh: OpenMesh,
+  horizon: Uint8Array,
+  center: readonly number[],
+): Read {
   let docks = 0
   let farthest = 0
 
-  for (let y = 0; y < mesh.huskDocks; y++) if (horizon[y]) (docks++, (farthest = Math.max(farthest, huskDistance(mesh, y, center))))
+  for (let y = 0; y < mesh.huskDocks; y++) {
+    if (horizon[y]) {
+      docks++
+      farthest = Math.max(farthest, huskDistance(mesh, y, center))
+    }
+  }
 
   return { docks, volume: volumeRadius(docks), farthest }
 }
@@ -94,7 +116,8 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const log = (what: string): void => console.error(`${what} ${(Date.now() - started) / 1000}s`)
+    const log = (what: string): void =>
+      console.error(`${what} ${(Date.now() - started) / 1000}s`)
     const metrics: Record<string, number> = {}
     const clockSlope: number[] = []
     const fieldSlope: number[] = []
@@ -102,7 +125,10 @@ export default experiment({
 
     for (const side of SIDES) {
       const mesh = warpClock(openMesh(side, LAYERS, 'shrink'))
-      const rule = clockHorizonRule(horizonRule(stepRule(DEPTH, LEVELS), BULK), CAP)
+      const rule = clockHorizonRule(
+        horizonRule(stepRule(DEPTH, LEVELS), BULK),
+        CAP,
+      )
       const center = [side / 2, side / 2, side / 2]
       const reference = huskDistance(mesh, rule.reference, center)
       const noHair: Read[] = []
@@ -111,21 +137,47 @@ export default experiment({
 
       for (const m of MASSES) {
         const sinks = spreadSinks(mesh, center, m, SINKS_FROM)
-        const lump = compressLump(radionMesh([side, side, side]), center, m, 1, sinks)
+        const lump = compressLump(
+          radionMesh([side, side, side]),
+          center,
+          m,
+          1,
+          sinks,
+        )
         const rho = new Int32Array(mesh.docks)
         const line = new Int8Array(mesh.links)
 
         rho.set(lump.content)
         line.set(lump.line)
-        noHair.push(readHorizon(mesh, countStatics(mesh, rule, rho, TOLERANCE).horizon, center))
-        held.push(readHorizon(mesh, clockStatics(mesh, rule, rho, TOLERANCE).horizon, center))
+        noHair.push(
+          readHorizon(
+            mesh,
+            countStatics(mesh, rule, rho, TOLERANCE).horizon,
+            center,
+          ),
+        )
+
+        held.push(
+          readHorizon(
+            mesh,
+            clockStatics(mesh, rule, rho, TOLERANCE).horizon,
+            center,
+          ),
+        )
         field.push(readHorizon(mesh, horizonOf(mesh, line), center))
         log(`side ${side} M ${m}`)
       }
 
-      const s = slopeOf(MASSES, noHair.map(r => r.volume))
-      const sField = slopeOf(MASSES, field.map(r => r.volume))
-      const meanRadius = noHair.reduce((t, r) => t + r.volume, 0) / noHair.length
+      const s = slopeOf(
+        MASSES,
+        noHair.map(r => r.volume),
+      )
+      const sField = slopeOf(
+        MASSES,
+        field.map(r => r.volume),
+      )
+      const meanRadius =
+        noHair.reduce((t, r) => t + r.volume, 0) / noHair.length
       const modes = stackModes(mesh.sides, 'clock')
       const infinite = slopeOf(
         MASSES,
@@ -136,9 +188,20 @@ export default experiment({
       fieldSlope.push(sField)
       metrics[`side${side}_reference`] = reference
       metrics[`side${side}_slopeVolume`] = s
-      metrics[`side${side}_slopeFarthest`] = slopeOf(MASSES, noHair.map(r => r.farthest))
-      metrics[`side${side}_heldSlopeVolume`] = slopeOf(MASSES, held.map(r => r.volume))
-      metrics[`side${side}_heldSlopeFarthest`] = slopeOf(MASSES, held.map(r => r.farthest))
+      metrics[`side${side}_slopeFarthest`] = slopeOf(
+        MASSES,
+        noHair.map(r => r.farthest),
+      )
+
+      metrics[`side${side}_heldSlopeVolume`] = slopeOf(
+        MASSES,
+        held.map(r => r.volume),
+      )
+
+      metrics[`side${side}_heldSlopeFarthest`] = slopeOf(
+        MASSES,
+        held.map(r => r.farthest),
+      )
       metrics[`side${side}_fieldSlopeVolume`] = sField
       metrics[`side${side}_boxPrediction`] = 1 - meanRadius / reference
       metrics[`side${side}_infiniteSlope`] = infinite
@@ -149,11 +212,18 @@ export default experiment({
         metrics[`side${side}_M${m}_heldDocks`] = held[i]!.docks
         metrics[`side${side}_M${m}_fieldDocks`] = field[i]!.docks
       })
-      lines.push(`side ${side} (reference ${reference.toFixed(1)}): volume radius ${noHair.map(r => r.volume.toFixed(2)).join(', ')} (slope ${s.toFixed(3)}), farthest ${noHair.map(r => r.farthest.toFixed(2)).join(', ')}, held docks ${held.map(r => r.docks).join(', ')} against no-hair ${noHair.map(r => r.docks).join(', ')}, field ${field.map(r => r.volume.toFixed(2)).join(', ')} (slope ${sField.toFixed(3)}), 1 - r_h / r_ref ${(1 - meanRadius / reference).toFixed(3)}, infinite stack ${infinite.toFixed(3)}`)
+
+      lines.push(
+        `side ${side} (reference ${reference.toFixed(1)}): volume radius ${noHair.map(r => r.volume.toFixed(2)).join(', ')} (slope ${s.toFixed(3)}), farthest ${noHair.map(r => r.farthest.toFixed(2)).join(', ')}, held docks ${held.map(r => r.docks).join(', ')} against no-hair ${noHair.map(r => r.docks).join(', ')}, field ${field.map(r => r.volume.toFixed(2)).join(', ')} (slope ${sField.toFixed(3)}), 1 - r_h / r_ref ${(1 - meanRadius / reference).toFixed(3)}, infinite stack ${infinite.toFixed(3)}`,
+      )
     }
 
-    const p1 = clockSlope.every((s, i) => i === 0 || s > clockSlope[i - 1]!)
-    const fieldMoved = Math.abs(fieldSlope[fieldSlope.length - 1]! - fieldSlope[0]!)
+    const p1 = clockSlope.every(
+      (s, i) => i === 0 || s > clockSlope[i - 1]!,
+    )
+    const fieldMoved = Math.abs(
+      fieldSlope[fieldSlope.length - 1]! - fieldSlope[0]!,
+    )
     const k = fieldMoved <= FIELD_TOLERANCE
     const status = !k ? 'partial' : p1 ? 'pass' : 'fail'
 

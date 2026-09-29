@@ -63,10 +63,28 @@ import {
   type Whole,
 } from '@/code/rule/fear-weave'
 import { gridMoves } from '@/code/rule/vibe-weave'
-import { classicalRecords, meetingPairs, pairRecords, productWhole, roleWeights, runWhole, vacuumBackground } from '@/code/measure/knit-magic'
-import { cosetLabels, lagrangians, marginalOf, permuteRole, phaseSpace, productWeights } from '@/code/measure/stabilizer-contexts'
+import {
+  classicalRecords,
+  meetingPairs,
+  pairRecords,
+  productWhole,
+  roleWeights,
+  runWhole,
+  vacuumBackground,
+} from '@/code/measure/knit-magic'
+import {
+  cosetLabels,
+  lagrangians,
+  marginalOf,
+  permuteRole,
+  phaseSpace,
+  productWeights,
+} from '@/code/measure/stabilizer-contexts'
 import { startFamily, withStart } from '@/code/measure/start-ensemble'
-import { hermitianSpectrum, operatorFromWigner } from '@/code/measure/qutrit-clifford'
+import {
+  hermitianSpectrum,
+  operatorFromWigner,
+} from '@/code/measure/qutrit-clifford'
 import { phasePointOperators } from '@/code/measure/grid-weights'
 
 const OMEGA = (2 * Math.PI) / 3
@@ -76,10 +94,15 @@ const KNOTS = 24
 
 type Protocol = { plane: number; corrections: Map<number, number[]> }
 
-const units = (w: readonly bigint[]): bigint => w.reduce((a, b) => a + b, 0n)
-const fearsOf = (w: readonly bigint[]): bigint => w.reduce((s, x) => s + (x < 0n ? -x : 0n), 0n)
+const units = (w: readonly bigint[]): bigint =>
+  w.reduce((a, b) => a + b, 0n)
+const fearsOf = (w: readonly bigint[]): bigint =>
+  w.reduce((s, x) => s + (x < 0n ? -x : 0n), 0n)
 
-function proportional(a: readonly bigint[], b: readonly bigint[]): boolean {
+function proportional(
+  a: readonly bigint[],
+  b: readonly bigint[],
+): boolean {
   const na = units(a)
   const nb = units(b)
 
@@ -87,8 +110,15 @@ function proportional(a: readonly bigint[], b: readonly bigint[]): boolean {
 }
 
 // the weights of every outcome of a reading of `read` roles by a plane's coset labels, in one pass
-function outcomes(weight: readonly bigint[], roles: number, read: readonly [number, number], labels: Int32Array): Map<number, bigint[]> {
-  const kept = Array.from({ length: roles }, (_, r) => r).filter(r => !read.includes(r))
+function outcomes(
+  weight: readonly bigint[],
+  roles: number,
+  read: readonly [number, number],
+  labels: Int32Array,
+): Map<number, bigint[]> {
+  const kept = Array.from({ length: roles }, (_, r) => r).filter(
+    r => !read.includes(r),
+  )
   const out = new Map<number, bigint[]>()
 
   weight.forEach((w, i) => {
@@ -96,9 +126,11 @@ function outcomes(weight: readonly bigint[], roles: number, read: readonly [numb
       return
     }
 
-    const digit = (r: number): number => Math.floor(i / 9 ** (roles - 1 - r)) % 9
+    const digit = (r: number): number =>
+      Math.floor(i / 9 ** (roles - 1 - r)) % 9
     const c = labels[9 * digit(read[0]) + digit(read[1])] ?? 0
     const keptPoint = kept.reduce((acc, r) => acc * 9 + digit(r), 0)
+
     let row = out.get(c)
 
     if (!row) {
@@ -125,8 +157,8 @@ export default experiment({
     const two = phaseSpace(2)
     const planes = lagrangians(two).map(p => cosetLabels(two, p))
     const perms = gridMoves().act.map(g => phasePermOf(g))
-    const colorOn = fearKernels({ like: OMEGA, unlike: OMEGA }) as FearKernels
-    const colorOff = fearKernels({ like: Math.PI, unlike: 0 }) as FearKernels
+    const colorOn = fearKernels({ like: OMEGA, unlike: OMEGA })!
+    const colorOff = fearKernels({ like: Math.PI, unlike: 0 })!
 
     // inputs: the 12 stabilizer states and the Strange state
     const basis0 = roleWeights('basis0')
@@ -151,12 +183,28 @@ export default experiment({
     {
       const weave = makeColorWeave({ side: 3, table: 'pair' })
       const slots = weave.mesh.cellCount * 24
-      const records = classicalRecords({ weave, links: weave.links, background: vacuumBackground(slots), open: Array.from({ length: 24 }, (_, d) => d), beats: BEATS })
+      const records = classicalRecords({
+        weave,
+        links: weave.links,
+        background: vacuumBackground(slots),
+        open: Array.from({ length: 24 }, (_, d) => d),
+        beats: BEATS,
+      })
 
       for (const { a, b } of meetingPairs(records)) {
-        const steps = runWhole({ weave, start: productWhole([a, b], ['basis0', 'basis1']), records: pairRecords(records, a, b), kernel4: [], color: colorOn })
+        const steps = runWhole({
+          weave,
+          start: productWhole([a, b], ['basis0', 'basis1']),
+          records: pairRecords(records, a, b),
+          kernel4: [],
+          color: colorOn,
+        })
 
-        for (let t = 0; t < steps.length && knots.length < KNOTS; t += 7) {
+        for (
+          let t = 0;
+          t < steps.length && knots.length < KNOTS;
+          t += 7
+        ) {
           const w = physicalWhole(steps[t]!.whole).weight
 
           if (fearsOf(w) > 0n && fearsOf(marginalOf(w, 2, [1])) > 0n) {
@@ -166,25 +214,40 @@ export default experiment({
       }
     }
 
-    const inputs = [...stabilizer, strange, ...knots.map(k => marginalOf(k, 2, [1]))]
+    const inputs = [
+      ...stabilizer,
+      strange,
+      ...knots.map(k => marginalOf(k, 2, [1])),
+    ]
 
     // teleport one input (one role) through a pair (two roles) with a plane: the receiver's weights per outcome
-    const teleport = (input: readonly bigint[], pair: readonly bigint[], plane: Int32Array): Map<number, bigint[]> =>
+    const teleport = (
+      input: readonly bigint[],
+      pair: readonly bigint[],
+      plane: Int32Array,
+    ): Map<number, bigint[]> =>
       outcomes(productWeights(input, pair), 3, [0, 1], plane)
 
     // a protocol for a pair: the first plane for which every outcome has a grid move taking the receiver's weights
     // to the input's for every input
-    const findProtocol = (pair: readonly bigint[], probe: readonly (readonly bigint[])[]): Protocol | null => {
+    const findProtocol = (
+      pair: readonly bigint[],
+      probe: readonly (readonly bigint[])[],
+    ): Protocol | null => {
       for (let plane = 0; plane < planes.length; plane++) {
         const corrections = new Map<number, number[]>()
+
         let ok = true
 
         for (const input of probe) {
           const got = teleport(input, pair, planes[plane]!)
 
           for (const [c, w] of got) {
-            const candidates = corrections.get(c) ?? perms.map((_, g) => g)
-            const kept = candidates.filter(g => proportional(permuteRole(w, 1, 0, perms[g]!), input))
+            const candidates =
+              corrections.get(c) ?? perms.map((_, g) => g)
+            const kept = candidates.filter(g =>
+              proportional(permuteRole(w, 1, 0, perms[g]!), input),
+            )
 
             corrections.set(c, kept)
             ok = ok && kept.length > 0
@@ -205,6 +268,7 @@ export default experiment({
 
     // the pair on each start
     const family = startFamily(16)
+
     let startsWithPair = 0
     let startsMaximal = 0
     let startsTeleporting = 0
@@ -213,18 +277,28 @@ export default experiment({
     let startsSwapping = 0
     let startsPairSwap = 0
     let carriedMoves = 0
+
     const distinctPairs = new Set<string>()
+
     let offProducts = 0
     let offTeleporting = 0
     let negativeMembers = 0
     let members = 0
+
     const detail: string[] = []
 
     for (const member of family) {
       withStart(member, () => {
         const weave = makeColorWeave({ side: 3, table: 'pair' })
         const slots = weave.mesh.cellCount * 24
-        const records = classicalRecords({ weave, links: weave.links, background: vacuumBackground(slots), open: Array.from({ length: 24 }, (_, d) => d), beats: BEATS })
+        const records = classicalRecords({
+          weave,
+          links: weave.links,
+          background: vacuumBackground(slots),
+          open: Array.from({ length: 24 }, (_, d) => d),
+          beats: BEATS,
+        })
+
         let found: { a: number; b: number; t0: number } | null = null
 
         for (let t = 0; t < records.length && !found; t++) {
@@ -245,12 +319,19 @@ export default experiment({
           return
         }
 
-        const { a, b, t0 } = found as { a: number; b: number; t0: number }
+        const { a, b, t0 } = found as {
+          a: number
+          b: number
+          t0: number
+        }
 
         startsWithPair++
 
         const mine: BeatRecord[] = pairRecords(records, a, b).slice(t0)
-        const carry = (color: FearKernels): { pair: bigint[]; beats: number } => {
+
+        const carry = (
+          color: FearKernels,
+        ): { pair: bigint[]; beats: number } => {
           let whole: Whole = productWhole([a, b], ['basis0', 'basis0'])
           let beats = 0
 
@@ -259,9 +340,22 @@ export default experiment({
               break
             }
 
-            whole = advanceWhole({ weave, whole, record: mine[t]!, kernel4: [], color, fixed: false, forward: true }) as Whole
+            whole = advanceWhole({
+              weave,
+              whole,
+              record: mine[t]!,
+              kernel4: [],
+              color,
+              fixed: false,
+              forward: true,
+            })!
             beats++
-            carriedMoves += color === colorOn ? (mine[t]?.crossings.filter(([, g]) => g !== weave.moves.identity).length ?? 0) : 0
+            carriedMoves +=
+              color === colorOn
+                ? (mine[t]?.crossings.filter(
+                    ([, g]) => g !== weave.moves.identity,
+                  ).length ?? 0)
+                : 0
           }
 
           return { pair: [...physicalWhole(whole).weight], beats }
@@ -272,12 +366,16 @@ export default experiment({
         const pair = on.pair
 
         distinctPairs.add(pair.join(','))
+
         const n = units(pair)
-        const maximal = [0, 1].every(keep => marginalOf(pair, 2, [keep]).every(w => w * 9n === n))
+        const maximal = [0, 1].every(keep =>
+          marginalOf(pair, 2, [keep]).every(w => w * 9n === n),
+        )
 
         startsMaximal += maximal ? 1 : 0
 
         const protocol = findProtocol(pair, [strange, ...stabilizer])
+
         let allExact = protocol !== null
         let chanceExact = protocol !== null
         let fearCarried = protocol !== null
@@ -293,7 +391,10 @@ export default experiment({
 
               allExact = allExact && proportional(fixed, input)
               chanceExact = chanceExact && units(w) * 9n === total
-              fearCarried = fearCarried && fearsOf(fixed) * units(input) === fearsOf(input) * units(fixed)
+              fearCarried =
+                fearCarried &&
+                fearsOf(fixed) * units(input) ===
+                  fearsOf(input) * units(fixed)
             }
 
             // members: each read point (x_A, x_B) inside an outcome, and its own column toward the receiver
@@ -305,7 +406,9 @@ export default experiment({
                   let negative = false
 
                   for (let z = 0; z < 9; z++) {
-                    negative = negative || (input[xa] ?? 0n) * (pair[9 * xb + z] ?? 0n) < 0n
+                    negative =
+                      negative ||
+                      (input[xa] ?? 0n) * (pair[9 * xb + z] ?? 0n) < 0n
                   }
 
                   negativeMembers += negative ? 1 : 0
@@ -324,7 +427,12 @@ export default experiment({
 
         if (protocol) {
           for (const knot of [...knots, pair]) {
-            const got = outcomes(productWeights(knot, pair), 4, [1, 2], planes[protocol.plane]!)
+            const got = outcomes(
+              productWeights(knot, pair),
+              4,
+              [1, 2],
+              planes[protocol.plane]!,
+            )
 
             for (const [c, w] of got) {
               const g = protocol.corrections.get(c)?.[0] ?? 0
@@ -335,13 +443,23 @@ export default experiment({
           }
 
           // the pair teleported through its own first role: the receiver and the pair's second role never met
-          const got = outcomes(productWeights(pair, pair), 4, [1, 2], planes[protocol.plane]!)
+          const got = outcomes(
+            productWeights(pair, pair),
+            4,
+            [1, 2],
+            planes[protocol.plane]!,
+          )
+
           let pairSwap = true
 
           for (const [, w] of got) {
             const m = units(w)
 
-            pairSwap = pairSwap && [0, 1].every(keep => marginalOf(w, 2, [keep]).every(x => x * 9n === m))
+            pairSwap =
+              pairSwap &&
+              [0, 1].every(keep =>
+                marginalOf(w, 2, [keep]).every(x => x * 9n === m),
+              )
           }
 
           startsPairSwap += pairSwap ? 1 : 0
@@ -351,11 +469,21 @@ export default experiment({
 
         // the fear beat off
         const offN = units(off.pair)
-        const offProduct = !marginalOf(off.pair, 2, [0]).every(w => w * 9n === offN)
+        const offProduct = !marginalOf(off.pair, 2, [0]).every(
+          w => w * 9n === offN,
+        )
 
         offProducts += offProduct ? 1 : 0
-        offTeleporting += findProtocol(off.pair, [strange, ...stabilizer]) ? 1 : 0
-        detail.push(`${member.name}:${a}-${b}@${t0}+${on.beats}${protocol ? `/plane${protocol.plane}` : '/none'}`)
+        offTeleporting += findProtocol(off.pair, [
+          strange,
+          ...stabilizer,
+        ])
+          ? 1
+          : 0
+
+        detail.push(
+          `${member.name}:${a}-${b}@${t0}+${on.beats}${protocol ? `/plane${protocol.plane}` : '/none'}`,
+        )
       })
     }
 
@@ -364,22 +492,40 @@ export default experiment({
     // (1/2, 1/2, 0), read exactly by the marginal's purity 3 sum W^2 = 1/2 and, in floats, a zero eigenvalue
     const kThird = meetingKernel(swapPhase(OMEGA)) ?? []
     const onePoints = phasePointOperators(1)
-    const meet = (w: Whole): Whole => meetWhole({ whole: w, a: 0, b: 1, kernel4: kThird, fixed: false }) as Whole
+    const meet = (w: Whole): Whole =>
+      meetWhole({
+        whole: w,
+        a: 0,
+        b: 1,
+        kernel4: kThird,
+        fixed: false,
+      })!
+
     let likePair: bigint[] | null = null
     let likeMove = -1
 
     for (const s of stabilizer) {
-      const after2 = meet(meet({ tokens: [0, 1], weight: productWeights(basis0, s) }))
+      const after2 = meet(
+        meet({ tokens: [0, 1], weight: productWeights(basis0, s) }),
+      )
 
       for (let g = 0; g < perms.length && !likePair; g++) {
-        const moved: Whole = { ...after2, weight: permuteRole(after2.weight, 2, 0, perms[g]!) }
+        const moved: Whole = {
+          ...after2,
+          weight: permuteRole(after2.weight, 2, 0, perms[g]!),
+        }
         const w = meet(moved).weight
         const m = marginalOf(w, 2, [0])
         const nm = units(m)
         const purity = 3n * m.reduce((x, y) => x + y * y, 0n)
 
         if (2n * purity === nm * nm) {
-          const spectrum = hermitianSpectrum(operatorFromWigner(m.map(x => Number(x) / Number(nm)), onePoints))
+          const spectrum = hermitianSpectrum(
+            operatorFromWigner(
+              m.map(x => Number(x) / Number(nm)),
+              onePoints,
+            ),
+          )
 
           if (Math.abs(spectrum[0] ?? 1) < 1e-9) {
             likePair = [...w]
@@ -399,7 +545,9 @@ export default experiment({
     if (likePair) {
       const pair = likePair
 
-      likeTeleporting = findProtocol(pair, [strange, ...stabilizer]) ? 1 : 0
+      likeTeleporting = findProtocol(pair, [strange, ...stabilizer])
+        ? 1
+        : 0
 
       // average fidelity over the 12 stabilizer inputs, each outcome corrected by its best grid move:
       // F = Tr(rho_C rho_in) = 3 sum W_C W_in
@@ -409,10 +557,12 @@ export default experiment({
         for (const input of stabilizer) {
           const got = teleport(input, pair, labels)
           const nIn = Number(units(input))
+
           let f = 0
 
           for (const [, w] of got) {
             const nW = Number(units(w))
+
             let best = 0
 
             if (nW === 0) {
@@ -421,6 +571,7 @@ export default experiment({
 
             for (const p of perms) {
               const fixed = permuteRole(w, 1, 0, p)
+
               let s = 0
 
               fixed.forEach((x, q) => {
@@ -437,7 +588,10 @@ export default experiment({
           total += f
         }
 
-        likeBestFidelity = Math.max(likeBestFidelity, total / stabilizer.length)
+        likeBestFidelity = Math.max(
+          likeBestFidelity,
+          total / stabilizer.length,
+        )
       }
     }
 
@@ -446,10 +600,16 @@ export default experiment({
     const g2 = startsTeleporting === all && startsChanceExact === all
     const g3 = startsFearCarried === all
     const g4 = startsSwapping === all && startsPairSwap === all
-    const g5 = offProducts === all && offTeleporting === 0 && likePair !== null && likeTeleporting === 0 && likeBestFidelity < 1 - 1e-12
+    const g5 =
+      offProducts === all &&
+      offTeleporting === 0 &&
+      likePair !== null &&
+      likeTeleporting === 0 &&
+      likeBestFidelity < 1 - 1e-12
 
     return verdict({
-      status: g1 && g2 && g3 && g4 && g5 ? 'pass' : g2 ? 'partial' : 'fail',
+      status:
+        g1 && g2 && g3 && g4 && g5 ? 'pass' : g2 ? 'partial' : 'fail',
       claim:
         'on every link start the love-fear pair made at one meeting from a common role point is maximally entangled, and a Lagrangian reading of two roles (9 outcomes, each at chance exactly 1/9) with one link move per outcome teleports every input exactly, fears included, and swaps a fear-carrying knot onto a role that never met its partner; with the fear beat off the pair is a product and nothing teleports, and a like pair (an ebit) teleports no qutrit',
       metrics: {
@@ -484,9 +644,10 @@ export default experiment({
         gridMoves: perms.length,
         stabilizerInputs: stabilizer.length,
       },
-      notes: `per start (tokens@meeting beat+beats carried/reading): ${detail.join(' ')}. ` +
+      notes:
+        `per start (tokens@meeting beat+beats carried/reading): ${detail.join(' ')}. ` +
         'First run 2026-09-26: every gate passed as fixed. Every start found the same love-fear meeting (tokens 22 and 21 at beat 2: the vibes, and so the meetings, do not depend on the link start) and the same reading, so two reported metrics were added after it to show the starts differ where they can: the pair carried 168 non-identity link moves over the 17 starts and arrived as 16 distinct pairs, and one reading (plane 16 of the 40) serves all of them with corrections that depend on the start; every other number unchanged. The like pair (the first word found: two like meetings from |0> x s, link move 90 on the first role, a third like meeting) teleports on 0 of 40 readings, with best average fidelity 5/6 over the 12 stabilizer inputs. ' +
-        'L2. The reading is the reader\'s net count over a coset, the adopted reading rule (E-QTM-0142), not a beat; the receiver\'s conditional weights are exact sums, and the correction is a link move. A member of an outcome (one joint point of the two read roles) sends the receiver the column input(x_A) pair(x_B, .), which for a Strange input is negative on some members: a single history does not carry the state, only the outcome\'s count does, as E-QTM-0144 found for Bell.',
+        "L2. The reading is the reader's net count over a coset, the adopted reading rule (E-QTM-0142), not a beat; the receiver's conditional weights are exact sums, and the correction is a link move. A member of an outcome (one joint point of the two read roles) sends the receiver the column input(x_A) pair(x_B, .), which for a Strange input is negative on some members: a single history does not carry the state, only the outcome's count does, as E-QTM-0144 found for Bell.",
     })
   },
 })
