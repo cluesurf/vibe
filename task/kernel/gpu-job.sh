@@ -1,5 +1,6 @@
 #!/bin/bash
-# THE GPU JOB: what task/kernel/gpu-run.ts runs on the rented machine, once, after copying this package to /root/vibe.
+# THE GPU JOB: what task/kernel/gpu-run.ts (droplet-run.ts --kind gpu) runs on the rented machine, once, after copying
+# this package to <run dir>/pkg.
 # task/kernel/
 #   1. the machine: CPU, memory, ROCm, the GPU agents
 #   2. the toolchain: node 24 (the official tarball), rust (rustup, minimal stable), tsx (the one npm package the check
@@ -14,8 +15,9 @@
 set -u
 FEATURE="${1:-hip}"
 BACKEND="$FEATURE"
-cd /root/vibe || exit 1
-LOG=/root/vibe/tmp/gpu-logs
+# the package is wherever droplet-run.ts copied it (<run dir>/pkg): this script's own directory, two levels up
+cd "$(dirname "$0")/../.." || exit 1
+LOG="$PWD/tmp/gpu-logs"
 mkdir -p "$LOG"
 # the sentinels gpu-run.ts reads: started here, finished on the last line. A run without both did not happen
 date -u +%FT%TZ >"$LOG/started"

@@ -19,6 +19,7 @@
     "format": "bash task/format.sh",
     "check:perturbation": "npx tsx --no-warnings=ExperimentalWarning task/check-perturbation.ts",
     "kernel:parity": "npx tsx --no-warnings=ExperimentalWarning task/kernel/parity.ts",
+    "droplet:run": "npx tsx --no-warnings=ExperimentalWarning task/kernel/droplet-run.ts",
     "gpu:run": "npx tsx --no-warnings=ExperimentalWarning task/kernel/gpu-run.ts",
     "gpu:watchdog": "npx tsx --no-warnings=ExperimentalWarning task/kernel/gpu-watchdog.ts"
   },

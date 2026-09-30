@@ -87,7 +87,18 @@
 //  - T3: the low shell at 2.654, the high one at -2.001: a thermometer, with a negative temperature above the middle
 //    of a bounded band.
 //  - CF: the free rule moves no band-resolved occupation, 5.0e-14.
-//  - I1 FAILS (norm 5.7e-10 against 1e-10) and I2 FAILS (tie antisymmetry 8.6e-7 against 1e-13). DIAGNOSIS
+//  - I1 FAILS (norm 5.7e-10 against 1e-10) and I2 FAILS (tie antisymmetry 8.6e-7 against 1e-13). Diagnosed after the
+//    run (tmp/tp-diag.ts, tmp/tp-diag.log: A1's start in the store and in the dense engine side by side on L = 6, both
+//    on the native kernel, stopped at cycle 80): the store equals the dense engine to 3.8e-17 at cycle 16, and the gap
+//    then grows with the store's tie violation, which rises about 1.25 times a cycle (5.1e-18, 1.7e-16, 5.2e-15,
+//    2.2e-13, 8.9e-12 at cycles 16 to 80, the amplitude gap half of it each time), toward the 8.6e-7 the gate read at
+//    cycle 128. The momentum occupation stays with the dense engine's to 9.8e-16 at cycle 80. So the redundant entries a
+//    tie row keeps (both orders of two holes at one momentum) are not held antisymmetric by the steps and grow at L = 6,
+//    where the direct-sum Fourier transform rounds; at L = 4, whose radix-4 twiddles are exact, E-FND-0164 read 3.4e-18
+//    after 48 cycles. It moves no fitted number at the digits reported (the growth extrapolates to 1e-6 in an amplitude,
+//    against occupations near 3e-3 a class read to 3 digits), but it is a defect of the store, not rounding, and the
+//    instrument was right to fail. The fix is a projection of the tie rows onto their antisymmetric part each cycle, not
+//    made here: it changes the store every registered run uses.
 //  - Read. A2 and B2 read the same fits as the probes' pick 0 of their shells to every printed digit, so those starts
 //    are images of the probes' under a symmetry of the torus (as E-FND-0162's P1 and P2 were); A1 and B1 are not. The
 //    start's own levels sit 1.02 to 1.22 times the line; on every level the fits read 2.77, 2.85, -2.08 and -2.24. The
@@ -182,7 +193,8 @@ const flag = (b: boolean): number => (b ? 1 : 0)
 export default experiment({
   id: 'foundations/register-temperature',
   code: 'E-FND-0165',
-  title: 'DRAFT',
+  title:
+    'three holes of the register sea on the L = 6 torus reach a temperature, partial (every physics gate passes, the instrument fails): with 11 band levels the relaxed occupation is a Gibbs form in the band level on the levels the start left empty (rms 0.040 to 0.072 in the log, the flat line 0.233 to 0.356), two starts of one band energy with different level content read one beta (2.662 and 2.647; -1.990 and -2.012 above the band\'s middle, a negative temperature), and every level fills where a kept free band energy would leave 7 of 11 empty, so the pair pieces act as the bath; Fermi-Dirac cannot be told from Gibbs at a filling of 1.2e-3 (1e-5 in rms); the free rule moves nothing (5.0e-14); the store\'s redundant tie entries grow 1.25 times a cycle at L = 6 (8.6e-7 at cycle 128), a defect that moves no reported digit',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',

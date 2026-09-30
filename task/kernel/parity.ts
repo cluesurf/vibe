@@ -28,7 +28,14 @@
 //
 // The golden files keep, per case and output, the length, the sha256 of the bytes and a few values in the shortest
 // decimal that reads back to the same double (with -0 kept), so a machine with no JavaScript reference run (a rented GPU)
-// is checked against the same bytes.
+// is checked against the same bytes. The one exception to "the same bytes" is a NaN, hashed as the canonical quiet NaN
+// (see bytesOf), since x86-64 and arm64 make different NaNs from the same arithmetic.
+//
+// CROSS-PLATFORM, what the golden files can and cannot promise (note/research/vibe/kernel.md): the reference's Math.sin,
+// cos, atan, atan2, exp, log and pow are V8's fdlibm compiled per platform, and the arm64 build fuses multiply-adds
+// (clang's default contraction) where the x86-64 build cannot, so they differ in the last bit on about 1 input in 100.
+// Files written on arm64 fail on x86-64 wherever a case's tables meet such an input: E-SPN-0178 and E-SPN-0179 here, the
+// weak string's sin(6 tau). Every backend on one machine still matches that machine's reference to the bit.
 
 import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
@@ -1041,7 +1048,32 @@ type Golden = { length: number; sha256: string; values: string[] }
 type GoldenFile = { note: string; tolerance: number; cases: Record<string, Record<string, Golden>> }
 
 const repr = (x: number): string => (Object.is(x, -0) ? '-0' : String(x))
-const bytesOf = (a: Float64Array): Buffer => Buffer.from(a.buffer, a.byteOffset, a.byteLength)
+// THE ONE CANONICALIZATION: every NaN is hashed and compared as the quiet NaN 0x7ff8000000000000, whatever its sign and
+// payload. Infinity - Infinity is 0x7ff8000000000000 on arm64 and 0xfff8000000000000 on x86-64 (the SSE "indefinite"
+// has its sign bit set), so the huge edge cases, whose norms overflow and whose differences of norms are NaN, hashed
+// differently on the two machines with every value equal (holes L 2 n 2 edge huge, 2026-09-30). JavaScript cannot
+// observe a NaN's sign or payload except through a typed array's bytes, and no reading here depends on it. Every other
+// bit, the sign of a zero and every subnormal included, is still compared exactly.
+const NAN_BITS = 0x7ff8000000000000n
+const bytesOf = (a: Float64Array): Buffer => {
+  if (!a.some(x => x !== x)) {
+    return Buffer.from(a.buffer, a.byteOffset, a.byteLength)
+  }
+
+  const c = new Float64Array(a.length)
+
+  c.set(a)
+
+  const u = new BigUint64Array(c.buffer)
+
+  for (let i = 0; i < c.length; i++) {
+    if (c[i] !== c[i]) {
+      u[i] = NAN_BITS
+    }
+  }
+
+  return Buffer.from(c.buffer)
+}
 const sha = (a: Float64Array): string => createHash('sha256').update(bytesOf(a)).digest('hex')
 const goldenOf = (a: Float64Array): Golden => ({
   length: a.length,
