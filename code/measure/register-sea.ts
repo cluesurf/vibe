@@ -618,7 +618,7 @@ export function movingBlocks(t: Torus, Ps: readonly CMatrix[]): Moving {
 }
 
 // the Fourier transform of the pair at momentum index j: M[m1][m2] = sum_y e^(-i q . y) psi(y)[m1][m2]
-function pairAt(
+export function pairAt(
   t: Torus,
   s: Pair,
   j: number,
@@ -787,7 +787,8 @@ function projected(
 }
 
 // the antisymmetric pair whose Fourier components are P_k1(q) e_m1 (x) P_k2(-q) e_m2 at every q (a pair at contact,
-// projected), normalized
+// projected), normalized. symmetry -1 (the default) antisymmetrizes, +1 symmetrizes, 0 keeps the two members
+// distinguishable (the raw product, member 1 the first index)
 export function pairStart(
   t: Torus,
   mv: Moving,
@@ -795,6 +796,7 @@ export function pairStart(
   m1: number,
   k2: Kind,
   m2: number,
+  symmetry: -1 | 0 | 1 = -1,
 ): Pair {
   const raw = newPair(t)
   const N = t.sites.length
@@ -836,8 +838,8 @@ export function pairStart(
         const k = i * FULL + x * MODES + z
         const kk = n * FULL + z * MODES + x
 
-        out.re[k] = raw.re[k]! - raw.re[kk]!
-        out.im[k] = raw.im[k]! - raw.im[kk]!
+        out.re[k] = raw.re[k]! + symmetry * raw.re[kk]!
+        out.im[k] = raw.im[k]! + symmetry * raw.im[kk]!
       }
     }
   }
@@ -889,15 +891,20 @@ export function contactWeights(
 // minus the holes on it. The slot rule's K fires at a dock with two or more SINGLE lines (a line with one slot empty and
 // the other not), and the store acts on an EMPTY line (both slots empty). Returned: the least occupancy any slot reaches,
 // and the number of configurations on which K's or the store's trigger appears. For two holes this is exhaustive over
-// (relative dock, slot 1, slot 2); registers do not change a slot's count.
-export function seaTriggers(t: Torus): {
+// (relative dock, slot 1, slot 2); registers do not change a slot's count. `capacity` is the members a slot holds on the
+// full sea (8, one per register component; E-FND-0160's roles and tones make it 8 x 3 x 2 = 48), and the configuration
+// count stays per register pair.
+export function seaTriggers(
+  t: Torus,
+  capacity = REG,
+): {
   configurations: number
   leastOccupancy: number
   kTriggers: number
   storeTriggers: number
 } {
   let configurations = 0
-  let least = REG
+  let least = capacity
   let k = 0
   let store = 0
 
@@ -907,7 +914,7 @@ export function seaTriggers(t: Torus): {
         configurations++
 
         // occupancy of the slots of the dock holding member 1 (the dock of member 2 is the same when i is the origin)
-        const occ = new Int32Array(NR).fill(REG)
+        const occ = new Int32Array(NR).fill(capacity)
 
         occ[d]!--
 

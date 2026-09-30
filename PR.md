@@ -54,6 +54,50 @@ apart from the recorded first-run paragraphs.
 - Notes changed outside this repo: `note/research/vibe/roadmap/remaining-pieces.md` (two new sections after
   E-FRC-0262), `open.md` (LGT-01 to 04), `everything.md` (the "value of α" row's text, no status change).
 
+## OPEN-LGT-12 for OPEN-LGT-02: what a quantum light's seams balance (E-FRC-0269)
+
+### What changed
+
+- `code/measure/quantum-balance.ts`: the exact split of κ = 2/N nearest any rational ratio (integer search over
+  w/c = p/q), the Planck ratio of one ladder split at given temperatures from its dense Floquet spectrum, and the
+  husk's register graph (links joined through shared triangles, per-link triangle classes).
+- `test/experiment/gauge/quantum-balance.ts` (E-FRC-0269), registered in `test/registry.csv`, the barrel and the
+  catalog.
+
+### Results (gates fixed in the header before the gate run, probes disclosed)
+
+- **E-FRC-0269, fail, 3 of 5 gates.** Held: one modulus reaches every husk register (576 links, one component,
+  every link in an n_P = 2 triangle, seen in a smoke probe first and disclosed), E-FRC-0262's fills reproduced
+  (average 0.4613818491, class fills to 1e-6), and the ladder box fills exactly as derived. So a quantum light adds
+  only which statistic of the fills its seams balance: the average (0.4613818 on the husk) or the worst register
+  (0.4146386).
+- Failed: P1 (the least Planck departure at the scan's end at N = 9) and P2 (2 of 8 ratios R nearer the predicted
+  worst-register reading: 0.934, 0.934, 0.889, 1.151, 1.016, 1.016 on 3 squares, 0.781, 1.038 on 4, against 5/6 and
+  4/5). The Planck departure jumps by up to 2.4 times between neighboring exact splits, so it follows each split's
+  root and not its ratio, and the 2-square control (both readings 3) lands at 2.27 to 3.82. Read, not gated: at
+  x = 1 all four R fall on the worst-register side.
+
+### How it was tested
+
+```
+pnpm call task/run-experiment.ts test/experiment/gauge/quantum-balance.ts   # 3,507 s, fail
+node_modules/.bin/tsc --noEmit -p tsconfig.check.json
+node_modules/.bin/tsx test/catalog.ts
+pnpm check:labels
+pnpm check:coverage
+pnpm result check
+```
+
+### Status and follow-ups
+
+- OPEN-LGT-02 stays open, narrowed to 0.4614 or 0.4146. The Planck-optimal split on the ladder cannot pick between
+  them at N ≤ 13. Next: a criterion that depends on ρ alone (Planck averaged over the splits of one ratio, or gated at
+  the onset against its split-to-split spread) on larger N with a sparse spectrum.
+- OPEN-LGT-12 stays open. The 3d light has about N^(8V) gauge-invariant states and does not run exactly. Its
+  dependencies form a loop (LGT-12 on LGT-01, LGT-01 on LGT-02, LGT-02 on LGT-12).
+- Notes changed outside this repo: `open.md` (Next up item 3, LGT-02, LGT-12), `remaining-pieces.md` (a new section
+  after E-FRC-0266), `solutions.md` (section 7 and the loose-ends table).
+
 ## OPEN-FND-07: the kept branch of a like meeting (E-QTM-0163)
 
 ### What changed
@@ -267,3 +311,226 @@ unknown, 0 mismatches), `test/result.ts check` (0 problems). `pnpm rerun` reprod
 - Notes changed outside this repo: `remaining-pieces.md` (a new section, "The four broken constraints, worked", before
   "A coincidence worth testing", and "Order of work" steps 5 and 7), `open.md` (FND-12, FND-14, the new FND-15, WKF-01,
   WKF-03, CPA-01), `everything.md` (the parity, Higgs and one-rule rows' text, no status change), `solutions.md` (§8).
+
+## OPEN-FND-03: the rows the line law blocked, rerun on the register rule (E-FND-0158)
+
+OPEN-FND-03 covers nine ledger rows: C no anyons and bosons, J temperature and the Bose and Fermi laws, K
+hydrodynamics and viscosity, and P binding, persistence and integration (with Q "matter and mind" waiting on them). Each
+was blocked because two vibes on different lines never meet on the knit. The one engine that runs the register rule
+with the sea present is E-SPN-0175's two-hole torus, so every row was read on it in one experiment, for the one thing
+the line law forbade.
+
+### What changed
+
+- `code/measure/register-crossing.ts`: two holes on one relative dock in pure (slot, register) modes, antisymmetric,
+  symmetric or distinguishable; the exchange-sector weights; the weight at each relative momentum; each member's weight
+  on the 12 lines; the one-slot and one-mode weights; a one-member sector piece (for a control that treats the members
+  differently).
+- `code/measure/register-sea.ts`: `pairAt` exported, and `pairStart` takes an optional symmetry (default −1, the old
+  behavior, bit for bit).
+- `test/experiment/foundations/register-crossing.ts` (E-FND-0158), with its rows in `test/registry.csv`,
+  `test/experiment/all.ts`, the regenerated `test/catalog.csv` and the readme count (1,527 rows, spin 182, foundations
+  158, L2 1,151).
+
+### Results (gates fixed in the header before the gate run, probes disclosed)
+
+Pass, as predicted, on the first run (457 s). Depth L2. No ledger row changes status: it is two holes on the 4d torus,
+one tone, and the register rule is not the adopted one.
+
+- **X, exchange is a conserved sign.** Under the rule the other exchange sector stays below 2e-30 for 64 cycles.
+  L(e₀₁)² = −1, (L⊗L)² = +1, (L⊗L⊗L)² = −1 exactly: a two-member composite turns and exchanges as a boson (kinematics).
+- **H, Pauli across lines.** Under the member mixers a distinguishable pair started on lines 0 and 1 reaches one mode
+  (8.8e-3), an antisymmetric pair never does (4e-33). One-slot exchange term 8.8e-3.
+- **S, momentum traded.** The pair pieces move 9.8e-5 to 2.1e-3 of the pair's weight between relative momenta. The free
+  rule keeps every momentum's weight to 1.2e-13: one-body, the register rule cannot equilibrate.
+- **I, one member changes another across lines.** Member 1's line weights, rule against free: up to 1.0e-2,
+  oscillating (1.5e-4 at cycle 64). The knit reads exactly 0 across lines (E-SLF-0178).
+- **Controls.** Mixers off: every one-slot weight and member 1's off-line weight exactly 0 (the line law). A rule that
+  treats the members differently puts 0.145 into the other sector. A member held in the flats is changed by 1.8e-15.
+- **Honest size.** A one-slot start keeps most of its weight in the flat bands, so only thousandths of the pair trade.
+  S and I are close to the definition of an interaction, and the momentum-spread read said nothing (a one-dock start is
+  already flat in momentum). Disclosed in the header's audit paragraph.
+
+### How it was tested
+
+Probes: `tmp/ofd3-probe1.log` (4 cycles), `tmp/ofd3-probe2.log` (16 cycles), `tmp/ofd3-smoke.log` (two cycles of the
+file). The gate run: `test/rerun.ts E-FND-0158`, log `tmp/ofd3-gate-run1.log`. Checks, log `tmp/ofd3-checks.log`:
+`tsc --noEmit -p tsconfig.check.json` exit 0, `test/catalog.ts` (1,527), `task/check-labels.ts` (the same 1 contradicted
+label and 20 for review as before, none from this item, and 1 registry row not in the barrel, `foundations/energy-ledger`
+E-FND-0159, another agent's reservation), `task/check-coverage.ts` (0 unknown, 0 mismatches), `test/result.ts check` (0
+problems).
+
+### Status and follow-ups
+
+- OPEN-FND-03 narrowed, not ticked: the two-body step is done, and each row's remaining need is listed in open.md
+  (a many-hole interacting run for J and K, four holes and a light composite for the bosons, roles and a tone for P, the
+  husk for all).
+- Notes changed outside this repo: `open.md` (FND-03 rewritten with the exact row list and each row's need, MAT-07,
+  CSM-13, CSM-14, MND-01, MND-03), `remaining-pieces.md` (a new section, "The rows the line law blocked, on the register
+  rule", before "A coincidence worth testing", and "Order of work" step 4), `everything.md` (notes on the C, J, K and P
+  rows and the one-rule row, no status change).
+
+## A part pulled from a knot comes back: the decisive test (E-SPN-0178)
+
+E-SPN-0177 failed on its free control: a free pair also stayed on its radius-8 ball. This item derives why, builds a
+test with teeth, and runs it.
+
+### What changed
+
+- `code/measure/register-ball-reduced.ts`: register-meson's pair cycle on the sector every signed permutation of the
+  four coordinates keeps (384 elements of W(F4), covariance counted), one representative an orbit. Radius 32 is 15,336
+  representatives for 4,464,769 sites, 63 MB a state and about 2 s a cycle. Also the Gram inner product, the filter,
+  the level read, the profile, a graded absorbing layer (an instrument), and `unfoldBall` for the witness.
+- `test/experiment/spin/pulled-pair-weak.ts` (E-SPN-0178), with its rows in `test/registry.csv`,
+  `test/experiment/all.ts` and the regenerated `test/catalog.csv` (1,527 rows, which the readme already states).
+
+### Results (gates fixed in the header before the gate run, probes disclosed)
+
+Pass, as predicted. Every gate and instrument holds on the first run.
+
+- **Why E-SPN-0177's control stayed.** The relative ball's edge reflects: in the exact coordinates the truncated cycle
+  stays nearly unitary, so a free pair on radius 4 keeps its norm to 3.5e-4 over 128 cycles. The members are not slow
+  (median 0.59 in V a cycle).
+- **Derived from the band before any run.** The opposite-band part of a pair has relative phase 2π at every momentum and
+  never moves (0.32 of a pull). A string τ lets the moving part rise at most W/τ = 9.8 at the weak string (3.3 at
+  E-SPN-0177's), so the weak string's swing reaches the knot. The free pair's norm through an absorber from V 23 on
+  radius 32 was predicted at about 0.42 and 0.36 by cycle 128.
+- **Measured, weak string (τ 0.0936, cap 24).** Pulls to 8 and 10: the knot weight (V ≤ 5) goes from 3e-17 and 6e-46 to
+  late means 0.230 and 0.102, the norm stays 1 to 4e-10, and at most 8e-6 lies past V0 + 10. With no string: norm
+  0.384 and 0.389, late knot weight 0.029 and 0.024. A half-strength absorber gives the same (0.379, 0.0288).
+- **The level converged.** Phase 1.2592028, residual 2.8e-7 on the radius-16 sector and 8.5e-6 on radius 32, where
+  E-SPN-0177's stopped at 3.2e-2.
+- **What returns is the swing, not the bound level.** The pulls overlap the level only 6.6e-3 and 2.9e-4.
+- **The string, and the tension.** The capped weak string both holds exactly and rises over every length the pair
+  reaches. It returns a part only from within about (2π − E_L − 2S_max − W)/τ ≈ 26, and that range scales as 1/τ.
+
+### How it was tested
+
+Probes: `tmp/pr-derive1.log`, `tmp/pr-derive2.log` (the momentum-space derivation), `tmp/pr-edge1.log` (the reflecting
+edge), `tmp/pr-probe2.log` (covariance, witness, speed), `tmp/pr-probe3.log` (the level on radius 16, fixing the knot
+region), `tmp/pr-smoke.log` (every path on a small plan). Gate run in two processes: `tmp/pr-gate-one.log`,
+`tmp/pr-gate-two.log`, combined in `tmp/pr-exp-run1.log`. Checks, `tmp/pr-checks.log`: `test/catalog.ts` 1,527,
+`task/check-coverage.ts` 0 unknown and 0 mismatches, `test/result.ts check` 0 problems. `task/check-labels.ts` shows 1
+contradicted label and 20 held for review (none from this item). It also shows `foundations/energy-ledger` registered but
+not in the barrel, and `tsc -p tsconfig.check.json` fails only in that file (4 errors), which is another item's work in
+progress. `tsc` was clean on this item's files before it appeared (`tmp/pr-tsc.log`).
+
+### Status and follow-ups
+
+- Constraints page (`mesh/site/clue.surf/home/site/tool/vibe/constraints.ts`): "a part pulled from a knot can come back"
+  moves broken → variant, citing E-SPN-0178. `physics.json`'s one-rule row now says R* keeps three of the four broken rows.
+- Open: a return from any distance needs τ → 0 on this rule. Every fixed string meets its cap or the D D ladder.
+- Notes changed outside this repo: `remaining-pieces.md` (a new subsection after E-SPN-0177's, the R* table's two rows,
+  the "what blocks it" paragraph), `open.md` (FND-15's pulled-member bullet and the tension bullet).
+
+## OPEN-FND-14: an energy ledger, and whether it selects the SU(2)₊-breaking sea (E-FND-0159)
+
+E-FRC-0268 left the Higgs row waiting on an energy: the register rule holds a stationary sea that breaks SU(2)₊ and
+nothing prefers it to a symmetric one. This item defines an energy native to the rule and asks whether it selects that
+sea. It does not.
+
+### What changed
+
+- `code/measure/energy-ledger.ts`: the prime-unit count. Every unit of the rule is ringUnit(k, j) = ρ^k ω^j with one
+  prime unit ρ of infinite order, so the exponent of ρ in an eigenvalue is an integer. The ledger is E = −d arg λ/dθ,
+  read by Hellmann–Feynman as the pieces' integer counts times their exponents (a mixer's sector occupancy, the pair
+  pieces' normal-ordered hole counts), with no branch cut. Per torus momentum it clusters the one-body cycle's
+  eigenvalues, restricts each cluster to a register projector (a half, or one SU(2)₊ eigenspace), and keeps its count
+  and its 8 × 8 sector blocks. A Slater sea of holes is then read by Wick's
+  theorem: one-body count, the sector string's direct and exchange terms, the contact, the count variances, and each
+  sector's SU(2)₊ Casimir.
+- `test/experiment/foundations/energy-ledger.ts` (E-FND-0159), with its rows in `test/registry.csv`,
+  `test/experiment/all.ts`, the regenerated `test/catalog.csv` and the readme count.
+
+### Results (gates fixed in the header before the gate run, probes disclosed)
+
+Fail on S alone, as predicted. Depth L1 (the count, the midpoint, the blind flats) and L2 (the torus numbers). Runs:
+R0 (E-SPN-0175's many-body register rule) at L = 4 and 6, R1 (its chiral Wilson variant) at L = 4.
+
+- **E, an exact count.** B (the full sea less the −i eigenspace of X₁ on half +) has one-body count 0 + 0i from integer
+  traces, sharp sector counts n_S = n_D = 2, and reads 0 (within 1.2e-12) along X₁, X₂, X₃: the full sea's value.
+- **H.** Hellmann–Feynman counts match finite differences of the phases within 2.9e-8. **F.** The flats read ≤ 9.6e-15.
+- **M, the midpoint.** The two complementary SU(2)₊-symmetric band seas read ±3,121.78 (R0, L 4), ±3,564.32 (R1) and
+  ±23,136.11 (R0, L 6) a dock, B exactly between. The whole ledger is E = E1 + (n_S − n_D)(4W − 6), W = Σ min(V, 8) =
+  260 and 1,976: the string's singlet-minus-partner imbalance rules it and grows with the box.
+- **S fails.** Under either sign a symmetric sea is below B by thousands a dock.
+- **Controls hold.** C1 a sea one momentum away is higher than the lower band sea. C2 the one-body ledger alone also
+  fails to select B. C3 B lies strictly between rivals on every run.
+- **Read.** The sector Casimir ⟨T²⟩ is 2 for B, 0.19 to 0.35 for the band seas: what an isospin piece would reward.
+  B is diagonal in the halves, so no mass and no gap follow even in principle.
+- **Dropped before the gate run, disclosed.** A spin-polarized symmetric sea built from the singlet's copies, meant to
+  show an exact tie, failed its own reconstruction check (it missed B by 2 and 8 in a count), so no tie is claimed.
+
+### How it was tested
+
+Probes: `tmp/el-probe1.log` (spectra), `tmp/el-probe2.log`, `tmp/el-probe2b.log` (register parts, the antisymmetry),
+`tmp/el-probe3.log` (the file at L = 4, with the dropped copy construction). Gate run: `pnpm rerun E-FND-0159`, log
+`tmp/el-gate-run1.log` (2,806 s). Checks, `tmp/el-checks-final.log`: `tsc --noEmit -p tsconfig.check.json` exit 0,
+`test/catalog.ts` 1,529 (one row is another agent's), `task/check-labels.ts` (the same 1 contradicted label and 20 for
+review, none from this item, 0 registry rows outside the barrel), `task/check-coverage.ts` (0 unknown, 0 mismatches),
+`test/result.ts check` (0 problems).
+
+### Status and follow-ups
+
+- OPEN-FND-14 is not ticked: the ledger is defined and does not select the vacuum, and the Casimir row's density is
+  not read. The Higgs row now waits on pieces the rule lacks (a neutral string, a sector piece that reads the isospin,
+  a channel between the halves), not on the ledger.
+- Notes changed outside this repo: `remaining-pieces.md` (a new section, "An energy ledger, and whether it selects the
+  vacuum", before "A coincidence worth testing", the R* table's fail row and "what blocks it" paragraph, "Order of
+  work" step 7), `open.md` (FND-14 rewritten with its proof command, FND-15's SU(2) bullet, what closing it takes and
+  proof commands, WKF-03, "Next up" item 8), `solutions.md` (§8), `everything.md` (the Higgs row's text, no status
+  change).
+
+## OPEN-FND-01: roles and a tone on the register rule (E-FND-0160, E-SPN-0179)
+
+The adopted knit carries tones, role points, the fear beat and Σ(648) links, and R* (the register rule) carries none,
+so about 18 of the 46 constraints and the self rows were unread on it. This item derives how they fit on R*, builds one
+construction (C*), gates what R* already held, and reads the rows it makes readable.
+
+### What changed
+
+- `code/measure/role-register.ts`: C*'s pieces and readings. The role is a qutrit (the 9 grid points are its phase
+  space), the fear-tone role in the conjugate representation. The two fear-beat kernels are diagonal in a fixed split of
+  the role pair and everything else is role-blind, so a pair is two orbital runs of E-SPN-0175's engine, and an unlike
+  pair's traced role state is fixed by one overlap g (`reducedRole`). Two-role Wigner function, the 40 Lagrangian
+  context sums, mana, the Schmidt block CHSH, the Σ(648) and grid checks, the knit-literal control (`dockPhaseCycle`),
+  and the fear beat on E-SPN-0178's reduced ball (`fearBallEngine`).
+- `code/measure/register-sea.ts`: `seaTriggers` takes a slot capacity (default 8, unchanged for every caller).
+- `test/experiment/foundations/register-roles.ts` (E-FND-0160) and `test/experiment/spin/pulled-pair-fear.ts`
+  (E-SPN-0179), with their rows in `test/registry.csv`, `test/experiment/all.ts`, the regenerated `test/catalog.csv`
+  and the readme count.
+
+### The construction, and why this one
+
+- **The grid is not in the register.** Both have an 8, but the central grid move fixes 0 of the 8 nonzero points while
+  −1 acts on the register with trace ±8 under every action, so no 2T-map joins them. The 9 points are the phase space
+  of a qutrit, so the role is C³ on every member.
+- **The tone is a species**, not the Dirac branch (both branches are holes of one sea, charge −1). A love-sea hole is
+  fear-tone, a fear-sea hole love-tone, the mirror swaps the fields, and the fear-tone role carries the conjugate
+  representation, forced by the unlike kernel's singlet.
+- **The links are flat Σ(648) on the role.** A curved field makes the member heavy (E-SPN-0161), so link curvature is
+  given up: the rows that need it stay unread. The links' linear part (SL(2, 3) ≅ 2T) could act on the register by
+  right multiplication, an SU(2)₊ gauge field: noted, not built.
+- **The fear beat is a sector contact counted from the sea**, the one placement E-SPN-0175 allows. The two kernels are
+  diagonal in a fixed split of the role pair, so a pair is two orbital runs of R*'s engine.
+
+### Results (gates fixed in each header before its gate run, probes disclosed)
+
+E-FND-0160, pass, as predicted (378 s). Depth L1 (algebra) and L2 (runs), the L = 4 D4 torus, 64 cycles.
+
+- **What R* held holds on C*.** One branch (stream even, Q_S and Q_D rank 8). Flats within 4.8e-14, 6.1e-14 of 1 and
+  2.0e-14, while the knit-literal placement (a phase on every pair sharing a dock) releases 0.115. K blocked (least
+  occupancy 46 of 48 over 4,718,592 configurations). Q_S and Q_D commute with J and all 1,152 W(F4) elements, and the
+  register exchange (the teeth) moves J ⊗ 1. The like channel's other exchange sector stays at 1.2e-29.
+- **The links are the grid.** Σ(648)'s 648 elements carry the phase points by exactly the 216 grid moves, 3 as the
+  identity. V commutes with g ⊗ ḡ (6.5e-16) and not with g ⊗ g (1.0).
+- **Bell on the roles.** An unlike pair started in the moving states and read with both orbits traced reaches CHSH
+  2.060 from |0⟩|+⟩ and 2.159 from |0⟩|0⟩, never past 2√2, 2 with the fear beat off. The knit's one clean meeting gives
+  2.361 and 2.552 (the reader reproduces both to 1e-8). The orbit dephases the kernel: |g| 0.57 to 0.92.
+- **Contextual.** Least context sum 3.615 from |0⟩|+⟩ (4 is the noncontextual floor), none with the fear beat off.
+- **Mirror** exact to 3.3e-13.
+- **Read.** From |0⟩|0⟩ the traced state passes CHSH 2 at cycles with no negative Wigner weight, as the knit's own top
+  color rung does: the escape through fears is about the model's own readings. Per configuration the role states reach
+  2.748 and 2.828, on 0.4% and 3.8% of the weight above 2.5.
+
+E-SPN-0179: PENDING_SPN_PR
