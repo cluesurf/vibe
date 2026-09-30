@@ -53,8 +53,8 @@
 //    dynamical read needs is a composite that moves (the row's standing need for a light composite, OPEN-MOT-01) under a
 //    pair interaction that does not pin it, in a box where two composites can be far apart.
 // 6. WHAT IT IS NOT. The 4d torus, not the husk (L2 at most); four holes in one half, one tone, one flavor, the register
-//    rule; composites that are heavy (E-SPN-0162's register meson is 35 times too heavy, and this contact pair moves only
-//    by the dressing). No ledger row can become held from it. The distinguishable control is the disjoint channel of the
+//    rule; composites that are heavy (E-SPN-0162's register meson is 35 times too heavy, and this contact pair's band is
+//    at most 0.032 a cycle wide, item 5). No ledger row can become held from it. The distinguishable control is the disjoint channel of the
 //    same state, not a run with distinguishable parts: holes of one kind in one half have no label to tell them apart,
 //    and a store without the cross-composite antisymmetry needs 34 GB at L = 4.
 //
@@ -112,6 +112,22 @@
 //  composites moved apart), each channel's fixed-point ratio, the Bose ratio over each half of the late window, the
 //  two-contact-pair weight by cycle, and the single holes' oddness.
 // Verdict: fail if B0, B1, B2 or B3 fails; partial if all hold and the control or the instrument fails; pass otherwise.
+//
+// FIRST RUN (tmp/tb-gate-E-FND-0166.log, 3,169 s on a loaded machine): FAIL on B1 alone, as derived. No gate moved and
+// none was rerun after it (the stopped launch before the fix is disclosed above).
+//  - B0: two holes started at contact keep 0.933 of their late sector weight there under the rule, 0.298 free.
+//  - B1 FAILS: the Bose ratio is 0.820 for S1 (equal 0.668, disjoint 0.815; halves 0.896 then 0.770) and 7.69 for S2
+//    (equal 2.95, disjoint 0.384; halves 8.86 then 7.20). Neither sits near 2 or near 1, and the two starts disagree
+//    by a factor of 9: the read is not resolved, because the composites stay where they began. Only 2.6e-3 (S1) and
+//    2.3e-4 (S2) of the late two-contact-pair weight lies outside the start's V shell.
+//  - B2: two single holes read 3.3e-29 at the fixed points in one fiber and 0.719 in different fibers: exact Pauli.
+//  - B3: the late two-contact-pair weight is 0.378 (S1) and 0.372 (S2), against a bar of 0.042 (a quarter of 0.168, the
+//    square of a lone composite's late contact weight 0.409): the composites stay composites.
+//  - CF: the free rule leaves 0.0033 of the start in two contact pairs after 8 cycles. I1: the equal channel even to
+//    2.3e-17. I2: norm 1.8e-13, ties 5.1e-19.
+//  So the composites are bound, stay bound, exchange as bosons exactly (I1), and their parts exclude as fermions (B2);
+//  what the rule does not give on this box is a composite that moves, so Bose statistics in the dynamics is not
+//  readable here. Depth L2.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
@@ -192,7 +208,8 @@ const flag = (b: boolean): number => (b ? 1 : 0)
 export default experiment({
   id: 'foundations/register-bosons',
   code: 'E-FND-0166',
-  title: 'DRAFT',
+  title:
+    'two composites of two holes each on the L = 4 torus, read for Bose bunching, fail as derived: the rule binds two holes on one site in the sector (0.933 of their sector weight stays at contact, 0.298 free), two such composites stay composites (0.37 of the weight in two contact pairs, 0.003 under the free rule), their relative amplitude is even to 2.3e-17 (exchange +1, kinematic), and the same read on two single holes vanishes at the exchange-fixed separations (3.3e-29, Pauli); but the fixed-point bunching that would show Bose statistics in the dynamics (2 for bosons, 1 for none) reads 0.82 and 7.69 from two starts, unresolved, because the composites are heavy and pinned by the pair string (2.6e-3 and 2.3e-4 of the weight leaves the start\'s separation in 48 cycles)',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',

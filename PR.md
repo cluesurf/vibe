@@ -1504,3 +1504,91 @@ Both experiments need the native kernel built (`pnpm call task/kernel/build.ts n
 - Site sentences that change: none required. Where a page says four holes are out of reach, or that whether the rule
   heats once four holes can wrap is open, it should now say four holes on the L = 4 torus run exactly and keep their
   band over 48 cycles where they can wrap (E-FND-0164).
+
+## OPEN-CSM-13, OPEN-CSM-14, OPEN-MAT-07: a temperature on L = 6, and two composites read for Bose bunching (E-FND-0165, E-FND-0166)
+
+The sorted store (E-FND-0163) unlocked two reads: three holes on the L = 6 torus, whose band has 11 levels rather than
+5, for a temperature; and two composites of two holes each on L = 4, for Bose statistics in the dynamics. Both run on
+the native kernel at 12 threads.
+
+### What changed
+
+- `code/measure/level-temperature.ts` (new): an occupation grouped by level, the Gibbs and Fermi-Dirac fits in the
+  level energy weighted by class counts, the flat line, the residual-scaled error, and a fit that leaves levels out.
+- `code/measure/register-composites.ts` (new): the two-contact-composite start in the sorted store, the relative
+  amplitude of two composites in site space for any pair of internal states, the same read for two single holes, the
+  exchange-fixed separations, the fixed-point bunching ratio (with a start's own separations left out) and the evenness
+  check.
+- `code/measure/register-sorted-holes.ts`: `sortedBandOccupation`, the band-resolved occupation per momentum class.
+- `code/measure/register-holes.ts`: `freeShell`'s `ups` filter now applies (a local of the same name had shadowed it;
+  its one caller, E-FND-0162, never passed it, so no registered number moves).
+- `test/experiment/foundations/register-temperature.ts` (E-FND-0165) and `register-bosons.ts` (E-FND-0166), their rows,
+  the barrel, the catalog and the readme count.
+
+### A temperature on L = 6 (E-FND-0165, partial: every physics gate passes, the instrument fails)
+
+Derived before the run from exact counts: L = 6 has 11 levels (9 degrees of freedom for a two-parameter fit, against 3
+at L = 4); if the free band energy were kept, three holes would leave 7 of 11 levels empty at δ = −1.218, so a Gibbs
+form that fills every level can only come from the pair pieces acting as the bath; and at a filling of 1.2e-3 a mode
+Fermi-Dirac and Gibbs differ by about f in the log, below any fit. Probes (disclosed) showed each start's own levels keep
+a memory, so the gate fits the levels the start left empty. Gates in the header before the run:
+
+- T1: Gibbs in the band level, β 2.662 ± 0.139, 2.647 ± 0.121, −1.990 ± 0.150, −2.012 ± 0.249, rms 0.040 to 0.072
+  in the log against 0.233 to 0.356 for the flat line.
+- T2: one free δ, two level contents, one β: 2.662 and 2.647; −1.990 and −2.012.
+- T3: positive below the band's middle, negative above it.
+- CF: the free rule moves no occupation (5.0e-14).
+- I1 and I2 FAIL: norm 5.7e-10, tie antisymmetry 8.6e-7. Diagnosed after the run against the dense engine on L = 6
+  (`tmp/tp-diag.log`): equal to 3.8e-17 at cycle 16, then the store's redundant tie entries grow about 1.25 times a
+  cycle (8.9e-12 at cycle 80), the amplitude gap half of that, the occupation still within 9.8e-16. It moves no reported
+  digit, but the store's tie rows need a projection onto their antisymmetric part each cycle (not made: it would change
+  every registered store run). L = 4's exact radix-4 twiddles are why E-FND-0164 read 3.4e-18.
+
+Read: the band energy is not what is kept (the up-band holes' mean level moves toward the middle, 12 to 27 percent of the
+weight sits in the other band); Fermi-Dirac and Gibbs differ by 1.4e-5 to 7.3e-5 in rms. A2 and B2 read the probes'
+pick-0 fits to every digit (symmetry images, disclosed). Depth L2.
+
+### Two composites, read for Bose bunching (E-FND-0166, fail as derived)
+
+Derived before the run: exchange of two two-hole composites is (13)(24), +1 in every antisymmetric state, so it is
+kinematic; the dynamical read is Hanbury Brown and Twiss bunching at the 15 separations that are their own negatives,
+where an even relative amplitude doubles (the two paths from +R₀ and −R₀ add, as in Hong-Ou-Mandel) and a composite pair
+in disjoint internal states gives the no-statistics reference: bosons 2, none 1, fermions 0. The composite is a contact
+pair in the sector, bound by the −2.668 contact. Predicted to fail: the composite's band is at most 0.032 a cycle wide
+and the string pins two composites' separation, so the bunching has too little weight to form. Gates in the header
+before the run:
+
+- B0: the contact pair keeps 0.933 of its sector weight at contact, 0.298 free.
+- B1 FAILS: Bose ratio 0.820 (S1) and 7.69 (S2), unresolved; 2.6e-3 and 2.3e-4 of the weight left the start's shell.
+- B2: two single holes vanish at the fixed points to 3.3e-29 in one fiber (0.719 in different fibers).
+- B3: 0.378 and 0.372 of the weight stays in two contact pairs (bar 0.042).
+- CF: the free rule leaves 0.0033. I1: even to 2.3e-17. I2: norm 1.8e-13, ties 5.1e-19.
+
+The smoke exposed two errors in the read, fixed before the gate run with no gate moved (the lone composite's weight was
+per site, and a start's own separations sat inside the reference means); a launch made before the fix was stopped after
+its two-hole parts (`tmp/tb-gate-E-FND-0166-stopped.log`). Depth L2.
+
+### How it was tested
+
+Probes `tmp/tp-levels.ts`, `tmp/tp-probe1.ts`, `tmp/tp-probe2.ts` (six shells), `tmp/tp-free-shells.ts`,
+`tmp/tp-l4-fit.ts`, `tmp/tp-refit.ts`; `tmp/bs-pair-probe.ts` (L = 4 and 6), `tmp/bs-probe2.ts`, `tmp/bs-read-test.ts`
+(the read against a direct sum on L = 2, 4.0e-16), `tmp/bs-probe3.ts` (rule and free), `tmp/bs-probe5.ts`. Smokes
+`tmp/tb-smoke-0165.ts`, `tmp/tb-smoke-0166.ts`. Gate runs `tmp/tb-gate-E-FND-0165.log` (1,456 s),
+`tmp/tb-gate-E-FND-0166.log` (3,169 s). Diagnosis `tmp/tp-diag.ts`. Checks `tmp/tb-checks.log`. Both need the native
+kernel built.
+
+### Status and follow-ups
+
+- No status moves: three and four holes on the 4d torus (L2 at most), one half, one tone, not the husk and not a
+  subsystem with a bath. OPEN-CSM-13 gains a resolved temperature, OPEN-CSM-14 learns the Fermi law needs a filling near
+  1, OPEN-MAT-07 learns the rule's composites do not move.
+- Next: project the store's tie rows each cycle (and re-run E-FND-0165's instrument), the point group on the store for
+  more holes or a larger box, a composite that moves.
+- Notes changed outside this repo: `remaining-pieces.md` (two sections, the row table, "Next", "Order of work" step 4),
+  `open.md` (FND-03, FND-14, MAT-07, CSM-13, CSM-14, text only), `everything.md` (bosons, temperature and equilibrium,
+  Bose and Fermi distributions, text only). `constraints.ts` unchanged: no status moves.
+- Site sentences that change: where the heat-and-time page says no temperature is resolved on the register rule, it
+  should say three holes on the L = 6 torus relax to a Gibbs occupation with one temperature per energy, negative above
+  the band's middle (E-FND-0165); where the spinor page says the two-plus-two composite read is not run, it should say
+  it is run and fails as derived: the composites bind and exchange as bosons exactly, but do not move, so Bose
+  statistics in the dynamics is not readable on L = 4 (E-FND-0166).

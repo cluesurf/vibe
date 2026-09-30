@@ -20,7 +20,7 @@
 //     - refuse if a build is running there (a docker or buildx build process) or another vibe run is live
 //     - the job runs at nice 19, the idle I/O class, and pinned to all cpus but --spare (default 2)
 //     - everything lives under ONE directory, /root/vibe-runs/<run id>/, and that directory alone is removed at the end
-//       (only when it carries the marker this run wrote; --keep leaves it)
+//       (on an existing host nothing is ever deleted: the run directory is left, and the command to remove it is printed)
 //
 // Then, either way:
 //   5. copy the package (kernel/ sources, code/, task/, test/, package.json and the tsconfig; never node_modules,
@@ -346,13 +346,15 @@ function resolveHost(): string {
   return `root@${ip}`
 }
 
-// what the host is and whether it is free: cores, memory, load, any build running, any other vibe run live. The
-// brackets in each pattern keep pgrep from matching this command's own line
+// what the host is and whether it is free: cores, memory, load, any build running, any other vibe run live. EVERY word
+// of every pattern is bracketed, so pgrep cannot match this command's own line: with only the first word bracketed,
+// the literal "[d]ocker buildx build" contains "buildx build", which the next pattern matched, and the probe counted
+// itself as a running build on an idle host
 const PREFLIGHT = [
   'echo "cores $(nproc)"',
   'free -g | awk \'/^Mem/ {print "memory_gb " $2 " available_gb " $7}\'',
   'echo "load $(cut -d " " -f 1-3 /proc/loadavg)"',
-  'echo "builds $(pgrep -fc \'[d]ocker build|[d]ocker buildx build|[b]uildx build|[d]ocker compose build|[d]ocker-compose build|[b]uildctl build\')"',
+  'echo "builds $(pgrep -fc \'[d]ocker [b]uild|[d]ocker [b]uildx [b]uild|[b]uildx [b]uild|[d]ocker [c]ompose [b]uild|[d]ocker-[c]ompose [b]uild|[b]uildctl [b]uild\')"',
   'live=0; for p in /root/vibe-runs/*/job.pid; do [ -f "$p" ] && [ ! -f "$(dirname "$p")/job.exit" ] && kill -0 "$(cat "$p")" 2>/dev/null && live=$((live + 1)); done; echo "vibe_live $live"',
   'for c in node cargo cc taskset ionice setsid timeout; do printf "%s=%s " "$c" "$(command -v "$c" >/dev/null && echo yes || echo no)"; done; echo',
   'echo "node_version $(node --version 2>/dev/null || echo none)"',
@@ -495,17 +497,11 @@ function fetchLogs(host: string, job: Job): void {
   log(`logs in ${join(OUT, job.logs)}`)
 }
 
-// remove the run directory on an existing host: only /root/vibe-runs/<this run's stamp>, and only with the marker this
-// run wrote in it
+// NEVER delete anything on an existing host. The work droplet is shared infrastructure, and removing files there is
+// the owner's call alone, so this only prints the command for them to run by hand. `host` is kept for the signature.
 function clean(host: string): void {
-  if (KEEP) {
-    log(`kept ${REMOTE} (--keep)`)
-    return
-  }
-
-  const r = spawnSync('ssh', [...sshOptions(), host, `test -f ${REMOTE}/${MARKER} && rm -rf -- ${REMOTE} && echo vibe-cleaned`], { timeout: 300_000 })
-
-  log(r.stdout?.toString().includes('vibe-cleaned') ? `removed ${REMOTE}` : `did NOT remove ${REMOTE} (no marker, or no connection)`)
+  void host
+  log(`left ${REMOTE} in place. To remove it by hand: ./work rm -rf -- ${REMOTE}`)
 }
 
 let verdict = false
@@ -749,7 +745,7 @@ export async function main(): Promise<void> {
   const steps = job.steps.map(s => s.name).join(', ') || '(the script\'s own)'
 
   if (HOST) {
-    const plan = `the existing ${HOST_TAG} host (nothing created or destroyed), job ${job.script} with steps ${steps}, all but ${SPARE} cores at nice 19, stopped on the host by ${cap} min, run directory ${REMOTE} removed at the end${KEEP ? ' (kept: --keep)' : ''}; cost: nothing beyond the host's own bill`
+    const plan = `the existing ${HOST_TAG} host (nothing created or destroyed), job ${job.script} with steps ${steps}, all but ${SPARE} cores at nice 19, stopped on the host by ${cap} min, run directory ${REMOTE} left in place for the owner to remove by hand; cost: nothing beyond the host's own bill`
 
     if (!COMMIT) {
       console.log(`droplet-run plan (nothing touched without --commit): ${plan}`)
