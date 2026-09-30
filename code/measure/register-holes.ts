@@ -767,8 +767,11 @@ export type Holes = {
 }
 
 export type HoleRule = {
-  // the pair angle at each relative site (null: the free rule, the one-body pieces alone)
+  // the pair angle at each relative site (null: the free rule, the one-body pieces alone). Beat 1 takes e^(+i angle),
+  // beat 2 e^(-i angle), E-SPN-0175's reversal
   angle: Float64Array | null
+  // a separate table for beat 2 (it takes e^(-i angle2)); absent, beat 2 uses `angle`. Used only by controls
+  angle2?: Float64Array | null
   // which member pairs the pair piece acts on, [i][j] for i < j (default: every pair). Used only by the engine's own
   // reduction checks
   pairs?: boolean[][]
@@ -1040,7 +1043,12 @@ export const holeEngine = (fr: HoleFrame, n: number, total: number): HoleEngine 
 export function holeCycle(e: HoleEngine, rule: HoleRule, s: Holes): void {
   pairPhases(e.frame, s, rule, 1)
   oneBody(e.frame, s, e.mom, e.frame.A1)
-  pairPhases(e.frame, s, rule, -1)
+  pairPhases(
+    e.frame,
+    s,
+    rule.angle2 === undefined ? rule : { ...rule, angle: rule.angle2 },
+    -1,
+  )
   oneBody(e.frame, s, e.mom, e.frame.A2)
 }
 
@@ -1412,6 +1420,60 @@ export function bandVectors(fr: HoleFrame, j: number): { up: Vec[]; down: Vec[] 
   return { up, down }
 }
 
+// the one-hole band level E(q) at every momentum class, from the positive-phase band: tr(U P_up) = (f / 2) e^(i (pi -
+// E)) when the band is degenerate (the free band is, E-SPN-0160). Also the largest departure of |tr(U P_up)| from f / 2,
+// which is 0 exactly when every level in the band has one phase
+export function bandLevels(fr: HoleFrame): Float64Array & { spread?: number } {
+  const f = fr.fiber
+  const out = new Float64Array(fr.fourier.N) as Float64Array & { spread?: number }
+
+  let spread = 0
+
+  for (let j = 0; j < fr.fourier.N; j++) {
+    const a1 = fr.A1[j]!
+    const a2 = fr.A2[j]!
+    const P = fr.up[j]!
+    // tr(A2 A1 P) = sum over r, m, k of A2[r][m] A1[m][k] P[k][r]
+    let tr = 0
+    let ti = 0
+
+    for (let r = 0; r < f; r++) {
+      for (let m = 0; m < f; m++) {
+        const xr = a2.re[r * f + m]!
+        const xi = a2.im[r * f + m]!
+
+        for (let k = 0; k < f; k++) {
+          const yr = a1.re[m * f + k]! * P.re[k * f + r]! - a1.im[m * f + k]! * P.im[k * f + r]!
+          const yi = a1.re[m * f + k]! * P.im[k * f + r]! + a1.im[m * f + k]! * P.re[k * f + r]!
+
+          tr += xr * yr - xi * yi
+          ti += xr * yi + xi * yr
+        }
+      }
+    }
+
+    out[j] = Math.PI - Math.atan2(ti, tr)
+    spread = Math.max(spread, Math.abs(Math.hypot(tr, ti) - f / 2))
+  }
+
+  out.spread = spread
+
+  return out
+}
+
+// one hole's fiber vector at momentum j through one free cycle (A2 A1), in place: a Slater determinant's orbitals under
+// the free rule, the reference the n-hole free run must equal
+export function orbitalCycle(fr: HoleFrame, j: number, v: Vec): void {
+  const f = fr.fiber
+
+  for (const A of [fr.A1[j]!, fr.A2[j]!]) {
+    const y = apply(A, f, v)
+
+    v.re.set(y.re)
+    v.im.set(y.im)
+  }
+}
+
 // ---- the bridge to E-SPN-0175's dense pair ----
 
 // E-SPN-0175's pair (psi(y)[m1][m2] on every relative dock, total momentum 0) in this engine's two-hole coordinates:
@@ -1496,6 +1558,107 @@ export function holeGap(a: Holes, b: Holes): number {
   }
 
   return g
+}
+
+// ---- the free energy shell ----
+
+const upsOf = (ss: Int32Array, n: number): number => {
+  let u = 0
+
+  for (let i = 0; i < n; i++) {
+    u += ss[i]! < 0 ? 1 : 0
+  }
+
+  return u
+}
+
+// the free n-hole states in one half at a total momentum, counted exactly: each hole a momentum class and a band (s = -1
+// the positive-phase band, +1 the other), fiber / 2 states a band a momentum, distinct modes. Each configuration carries
+// its band energy delta = sum s E(q) (the total phase is n pi + delta). Returned for a window |delta - delta0| <= window:
+// the number of states, the mean upper-band fraction, and the mean holes at each momentum class
+export function freeShell(
+  fr: HoleFrame,
+  E: Float64Array,
+  n: number,
+  total: number,
+  delta0: number,
+  window: number,
+  // keep only configurations with this many holes in the positive-phase band (the band ensemble); absent, all
+  ups?: number,
+): { states: number; up: number; occupation: Float64Array } {
+  const F = fr.fourier
+  const N = F.N
+  const m = fr.fiber / 2
+  const occ = new Float64Array(N)
+  const js = new Int32Array(n)
+  const ss = new Int32Array(n)
+  const tuples = N ** (n - 1)
+
+  let W = 0
+  let U = 0
+
+  for (let T = 0; T < tuples; T++) {
+    let rest = T
+    let acc = total
+
+    for (let i = n - 2; i >= 0; i--) {
+      js[i] = rest % N
+      rest = Math.floor(rest / N)
+      acc = F.sum[acc * N + F.neg[js[i]!]!]!
+    }
+
+    js[n - 1] = acc
+
+    for (let b = 0; b < 1 << n; b++) {
+      let d = 0
+      let ways = 1
+      let ups = 0
+
+      for (let i = 0; i < n; i++) {
+        ss[i] = (b >> i) & 1 ? 1 : -1
+        d += ss[i]! * E[js[i]!]!
+
+        let taken = 0
+
+        for (let k = 0; k < i; k++) {
+          if (js[k] === js[i] && ss[k] === ss[i]) {
+            taken++
+          }
+        }
+
+        ways *= m - taken
+        ups += ss[i]! < 0 ? 1 : 0
+      }
+
+      if (
+        ways <= 0 ||
+        Math.abs(d - delta0) > window ||
+        (ups !== undefined && ups !== upsOf(ss, n))
+      ) {
+        continue
+      }
+
+      W += ways
+      U += ways * ups
+
+      for (let i = 0; i < n; i++) {
+        occ[js[i]!]! += ways
+      }
+    }
+  }
+
+  // ordered tuples of distinct modes count every state n! times; ratios are unaffected
+  let fact = 1
+
+  for (let i = 2; i <= n; i++) {
+    fact *= i
+  }
+
+  return {
+    states: W / fact,
+    up: W > 0 ? U / W / n : 0,
+    occupation: occ.map(x => (W > 0 ? x / W : 0)),
+  }
 }
 
 // ---- the infinite-temperature prediction ----
