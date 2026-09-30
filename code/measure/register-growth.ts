@@ -1,4 +1,4 @@
-// THE REGISTER RULE ON A GROWING REGION (E-FND-0167). The wake (E-GRV-0066, code/measure/gated-wake) gives every dock a
+// THE REGISTER RULE ON A GROWING REGION (E-FND-0168). The wake (E-GRV-0066, code/measure/gated-wake) gives every dock a
 // birth beat and takes no state; the adopted knit has no rule for the growing edge. The only growing dynamics written in
 // code is the lattice gas's (code/rule/lattice-gas growingBeat, E-FND-0086): an unborn dock holds peace, the frontier
 // REFLECTS (a slot whose source dock is unborn takes its own dock's opposite slot, so the map stays a bijection on the
@@ -508,6 +508,106 @@ export function spanResidual(
   }
 
   return total
+}
+
+// the orbitals' weight outside 1 (x) P on every slot of every dock, P an 8 x 8 complex projector given by re and im
+// parts: sum over orbitals of |phi - (1 (x) P) phi|^2 (0: every orbital lies in P's image at every dock)
+export function registerOutside(
+  orbitals: readonly Orbital[],
+  P: { re: readonly (readonly number[])[]; im: readonly (readonly number[])[] },
+): number {
+  let out = 0
+
+  for (const o of orbitals) {
+    for (let base = 0; base < o.re.length; base += REG) {
+      for (let a = 0; a < REG; a++) {
+        let r = o.re[base + a]!
+        let i = o.im[base + a]!
+
+        for (let b = 0; b < REG; b++) {
+          const pr = P.re[a]![b]!
+          const pi = P.im[a]![b]!
+          const xr = o.re[base + b]!
+          const xi = o.im[base + b]!
+
+          r -= pr * xr - pi * xi
+          i -= pr * xi + pi * xr
+        }
+
+        out += r * r + i * i
+      }
+    }
+  }
+
+  return out
+}
+
+// THE BREAKING DOCK (E-FND-0159's B at one dock): holes filling the X_1 = +i space of half +, X_1 = A_1 P+. Its register
+// projector Pi = (P+ - i X_1) / 2 (rank 2), and the 48 orthonormal hole vectors of a dock (24 slots times Pi's two
+// columns, Gram-Schmidt in blade order)
+export type BreakingDock = {
+  Pi: { re: number[][]; im: number[][] }
+  holes: Orbital[]
+}
+
+export function breakingDock(
+  units: readonly (readonly (readonly number[])[])[],
+  J: readonly (readonly number[])[],
+): BreakingDock {
+  const Pp = J.map((row, i) => row.map((x, j) => ((i === j ? 1 : 0) + x) / 2))
+  const X1 = units[0]!.map(row =>
+    Array.from({ length: REG }, (_, j) =>
+      row.reduce((s, x, k) => s + x * Pp[k]![j]!, 0),
+    ),
+  )
+  const Pi = {
+    re: Pp.map(row => row.map(x => x / 2)),
+    im: X1.map(row => row.map(x => -x / 2)),
+  }
+  const cols: { re: number[]; im: number[] }[] = []
+
+  for (let c = 0; c < REG && cols.length < 2; c++) {
+    let re = Pi.re.map(row => row[c]!)
+    let im = Pi.im.map(row => row[c]!)
+
+    for (const e of cols) {
+      let dr = 0
+      let di = 0
+
+      for (let i = 0; i < REG; i++) {
+        dr += e.re[i]! * re[i]! + e.im[i]! * im[i]!
+        di += e.re[i]! * im[i]! - e.im[i]! * re[i]!
+      }
+
+      re = re.map((x, i) => x - (dr * e.re[i]! - di * e.im[i]!))
+      im = im.map((x, i) => x - (dr * e.im[i]! + di * e.re[i]!))
+    }
+
+    const n = Math.sqrt(
+      re.reduce((s, x) => s + x * x, 0) + im.reduce((s, x) => s + x * x, 0),
+    )
+
+    if (n > 1e-9) {
+      cols.push({ re: re.map(x => x / n), im: im.map(x => x / n) })
+    }
+  }
+
+  const holes: Orbital[] = []
+
+  for (let d = 0; d < SLOTS; d++) {
+    for (const c of cols) {
+      const v = { re: new Float64Array(MODES), im: new Float64Array(MODES) }
+
+      for (let a = 0; a < REG; a++) {
+        v.re[d * REG + a] = c.re[a]!
+        v.im[d * REG + a] = c.im[a]!
+      }
+
+      holes.push(v)
+    }
+  }
+
+  return { Pi, holes }
 }
 
 // ---- the band read through E-FND-0161's frame ----

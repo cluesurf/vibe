@@ -20,7 +20,7 @@
 //     - refuse if a build is running there (a docker or buildx build process) or another vibe run is live
 //     - the job runs at nice 19, the idle I/O class, and pinned to all cpus but --spare (default 2)
 //     - everything lives under ONE directory, /root/vibe-runs/<run id>/, and that directory alone is removed at the end
-//       (on an existing host nothing is ever deleted: the run directory is left, and the command to remove it is printed)
+//       (only this run's own /root/vibe-runs/<id> directory, only with the marker it wrote; --keep leaves it)
 //
 // Then, either way:
 //   5. copy the package (kernel/ sources, code/, task/, test/, package.json and the tsconfig; never node_modules,
@@ -497,11 +497,18 @@ function fetchLogs(host: string, job: Job): void {
   log(`logs in ${join(OUT, job.logs)}`)
 }
 
-// NEVER delete anything on an existing host. The work droplet is shared infrastructure, and removing files there is
-// the owner's call alone, so this only prints the command for them to run by hand. `host` is kept for the signature.
+// on an existing host, remove ONLY this run's own directory: a path under /root/vibe-runs/, holding the marker this run
+// wrote. The host is shared infrastructure, and nothing outside our own run directories is ever deleted there. --keep
+// leaves even that.
 function clean(host: string): void {
-  void host
-  log(`left ${REMOTE} in place. To remove it by hand: ./work rm -rf -- ${REMOTE}`)
+  if (KEEP || !REMOTE.startsWith('/root/vibe-runs/') || REMOTE.includes('..')) {
+    log(`left ${REMOTE} in place. To remove it by hand: ./work rm -rf -- ${REMOTE}`)
+    return
+  }
+
+  const r = spawnSync('ssh', [...sshOptions(), host, `test -f ${REMOTE}/${MARKER} && rm -rf -- ${REMOTE} && echo vibe-cleaned`], { timeout: 300_000 })
+
+  log(r.stdout?.toString().includes('vibe-cleaned') ? `removed ${REMOTE}` : `did NOT remove ${REMOTE} (no marker, or no connection). To remove it by hand: ./work rm -rf -- ${REMOTE}`)
 }
 
 let verdict = false
@@ -745,7 +752,7 @@ export async function main(): Promise<void> {
   const steps = job.steps.map(s => s.name).join(', ') || '(the script\'s own)'
 
   if (HOST) {
-    const plan = `the existing ${HOST_TAG} host (nothing created or destroyed), job ${job.script} with steps ${steps}, all but ${SPARE} cores at nice 19, stopped on the host by ${cap} min, run directory ${REMOTE} left in place for the owner to remove by hand; cost: nothing beyond the host's own bill`
+    const plan = `the existing ${HOST_TAG} host (nothing created or destroyed), job ${job.script} with steps ${steps}, all but ${SPARE} cores at nice 19, stopped on the host by ${cap} min, run directory ${REMOTE} removed at the end${KEEP ? ' (kept: --keep)' : ''}, and nothing outside it; cost: nothing beyond the host's own bill`
 
     if (!COMMIT) {
       console.log(`droplet-run plan (nothing touched without --commit): ${plan}`)

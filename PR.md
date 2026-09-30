@@ -1592,3 +1592,157 @@ kernel built.
   the band's middle (E-FND-0165); where the spinor page says the two-plus-two composite read is not run, it should say
   it is run and fails as derived: the composites bind and exchange as bosons exactly, but do not move, so Bose
   statistics in the dynamics is not readable on L = 4 (E-FND-0166).
+
+## OPEN-FND-14, OPEN-GRV-02, OPEN-GRV-13: is the sector imbalance a charge the rule could gauge? (E-FND-0167)
+
+One guess would have unified three blocks: E-FND-0159's ledger grows with the box through n_S − n_D, E-GRV-0147's
+gravity piece is two fields (S with S in beat 1, D with D in beat 2), and E-FRC-0273's only gauge invariant join takes
+an S pair to a D pair. If n_S − n_D were a conserved charge the model treats as long-range without a Gauss law, gauging
+it would make only neutral seas physical, might make gravity one field, and might make the join its charged matter.
+This item derives whether the charge exists. It does not.
+
+### What changed
+
+- `code/measure/sector-charge.ts`: one member's pieces at Bloch momentum K (the mixers, the coin with the stream, beat 1
+  and the cycle), the two-frame charge the ledger counts O₂ = Q_S − B₁†Q_D B₁ and the one-frame O₁ = Q_S − Q_D, their
+  commutators with the cycle and each piece, O₂'s minimal polynomial, the hop C = Q_D V Q_S and V's leak out of S ⊕ D,
+  the Z_n gaps, [Q_D, V Q_S V], and one member's total charge per cycle both as a Bloch sum and in real space.
+- `test/experiment/foundations/sector-charge.ts` (E-FND-0167), with its row in `test/registry.csv`,
+  `test/experiment/all.ts`, the regenerated `test/catalog.csv` and the readme count (1,550; L1 314; foundations 167).
+
+### The derivation (in the header, before the gate run)
+
+- **The pair pieces keep it, the mixers keep it, the stream breaks it.** A pair piece is a phase diagonal in its stage's
+  counts, and the mixers are phases on Q_S and Q_D. The coin with the stream carries S into D through the Clifford hop
+  C, ‖C‖² = 8g².
+- **The law.** In each Jordan block O₂² = 1 − g², its band diagonal is ±p = ±sin M (1 − g²)/sin E (E-GRV-0147's passive
+  charge), so ‖[U, O₂]‖ = 8|sin E|√(1 − g² − p²), 0 only at rest. n_S − n_D is Dirac's scalar density ψ̄ψ.
+- **Nothing to gauge.** O₂'s spectrum ±√(1 − g²) is not quantized. The integer O₁ keeps no U(1) and no Z_n, since the
+  hop picks up e^(−2iα) and V's leak e^(−iα). The conserved time average is m/E, velocity dependent.
+- **The capped string is not a gauge field in axial gauge.** Its direct term is W(n_S² − n_D²), odd in the imbalance and
+  without S–D cross terms, where a gauge field gives W q². Neutral seas are already extensive with no field.
+- **(b)** A field of this shape is a mass shift on the probe, so only the source's count matters. Counted as n_S − n_D a
+  band-B hole pushes every hole. The shared count is n_S + n_D, the moving number, and a one-stage pair piece on it
+  needs counts that fail to commute by the hop, ‖[Q_D, V Q_S V]‖² = 16g²(1 − g²).
+- **(c)** The join takes an S pair to a D pair, the hop's pair form: a second breaking of the would-be charge, with no
+  field to be charged under.
+
+### Results (gates fixed in the header before the gate run, probes disclosed)
+
+E-FND-0167, fail on H as derived and on one tolerance in B1 (62 s). D1 to D6, C1, C2 and the instrument hold.
+
+- The law to 3.0e-12 at 10 momenta (‖[U, O₂]‖ 1.07836, 3.66134, 4.77152 at |K| 0.2, 0.8, 1.6 on the axis, 1.5e-15 at
+  rest). O₂³ = (1 − g²)O₂ to 2.2e-13. The mixers commute with O₁ to 1.9e-15, the stream misses it by at least 0.890.
+  The Z_n gaps are at least 0.736 for n 2 to 12 away from rest and at most 4.4e-14 at rest.
+- One hole on the L = 4 torus: n_S − n_D spans 0.640 over 32 cycles (the run on the Bloch sum to 2.6e-14). A hole at
+  rest holds it at 1 to 2.9e-14.
+- On E-GRV-0147's slab: the two-field control reproduces 2.1739e-2 with cross at most 0.0816. Under the S − D field a
+  band-A source pulls both bands +1.786e-2 and a band-B source pushes both −8.603e-3, negative at every cycle.
+- B1's band mirror between the two pushes missed its 1e-9 relative tolerance at cycle 1 only: 2.57e-9, which is
+  1.4e-14 absolute on a push of 5.35e-6 (read after the run, `tmp/sd-probe3.log`). Cycles 2 to 8 hold within 2.2e-11.
+  The gate was worded badly, relative on a small number. It stands as written.
+
+### How it was tested
+
+Probes `tmp/sd-probe1.log` (the readings at five momenta, the torus series against the Bloch sum),
+`tmp/sd-probe2.log` (the three sourcings on a side-20 slab). Smoke `tmp/sd-smoke.log` (every path, small plan). Gate
+run `tmp/sd-gate-E-FND-0167.log`. After the run, read only: `tmp/sd-probe3.log`. Checks `tmp/sd-checks.log`:
+`tsc --noEmit -p tsconfig.check.json` exit 0, `test/catalog.ts` 1,550, `task/check-labels.ts` (the same 1 contradicted
+label and 20 for review, none from this item, 0 registry rows outside the barrel), `task/check-coverage.ts` (0 unknown,
+0 mismatches), `test/result.ts check` exit 0 (0 problems).
+
+### Status and follow-ups
+
+- No status moves. The guess dies at its first step: n_S − n_D is not conserved, and the piece that breaks it is the
+  stream's Clifford hop. What the three blocks share is one fact, not a charge: the pair pieces count S at beat 1 and D
+  at beat 2, the two sectors the hop joins.
+- What each needs now. OPEN-FND-14: a string whose direct term falls off (neutrality cannot be imposed). OPEN-GRV-02 and
+  13: a source counted as n_S + n_D, which as an instantaneous pair piece is blocked by the hop, so the candidate is a
+  field with its own state that takes the source's S count at beat 1 and D count at beat 2. The join: unchanged, the
+  Higgs row still needs a center-odd scalar.
+- Notes changed outside this repo: `remaining-pieces.md` (a new section, "Is the sector imbalance a charge?", and
+  "Order of work" step 7), `open.md` (Next up 8, FND-14, FND-15, GRV-02, GRV-13, text only), `solutions.md` (§8),
+  `everything.md` (the Higgs mechanism and the equivalence principle rows, text only). `constraints.ts` unchanged.
+- Site sentences that change: on /vibe/gravity, after "(E-GRV-0147)", add that counting the source as the difference of
+  the two sectors does not join the two fields, since that count is the scalar density the stream breaks and it makes a
+  hole of one band push every hole away (E-FND-0167); on /vibe/physics/weak-force, "no energy picks it" should add that
+  the imbalance ordering the seas is not a charge any field could hold neutral (E-FND-0167); the SU(2) row's reason in
+  `constraints.ts` may cite E-FND-0167 the same way, with no status change.
+
+## OPEN-FND-14, OPEN-FND-15: is the vacuum chosen by history? (E-FND-0168)
+
+A reversible rule has no ground state and E-FND-0159's ledger selects nothing, so the Higgs row was left needing "a
+vacuum other than the full sea that something selects" (E-FRC-0273). The mesh grows, and a new dock enters in the state
+growth writes. This item finds what the wake writes, derives the least growth rule for the register rule, and reads what
+a grown region is. History does choose the vacuum, exactly, and every growth law built from the rule's pieces chooses a
+symmetric one.
+
+### What changed
+
+- `code/measure/register-growth.ts`: the register rule's one-body cycle on a growing torus region (the plain wake from
+  a seed, the lattice gas's reflecting frontier, a born dock written in a fixed state), run through a Slater state's
+  minority orbitals (holes of the full sea or members on the empty mesh); readers for number, SU(2)₊ ⟨T_k⟩ and ⟨T²⟩,
+  sector counts, band and flat content through E-FND-0161's frame, stationarity (the part of a cycle's image outside the
+  span), B's dock and its projector, and the dock-local commutant of the pieces.
+- `test/experiment/foundations/growth-vacuum.ts` (E-FND-0168), with its row in `test/registry.csv`,
+  `test/experiment/all.ts`, the regenerated `test/catalog.csv` and the readme count (1,551; L1 315; foundations 168).
+
+### The derivation (in the header, before the gate run)
+
+- **What the wake writes today.** Birth beats and no state. The adopted knit has no edge rule (E-GRV-0066) and its
+  vacuum's store is prepared, not grown. The one growing dynamics in code is the lattice gas's (E-FND-0086): unborn
+  docks hold peace, the frontier reflects, a born dock starts from calm. The register rule has none.
+- **The least rule.** That one, ported: reversible (isometric birth, bijective frontier), local, one branch for a Fock
+  χ. It does not force χ. The knit's calm is χ empty; R*'s sea is χ full.
+- **The commutant decides the rest.** A stationary uniform product sea is 1 ⊗ V₀ with V₀'s projector in the dock-local
+  commutant of the pieces. If that is R(Cl⁺(4)) only, there are nine families (each half empty, one isospin line, or
+  full), and a law built from the pieces writes one of the four symmetric ones.
+- **The light cone.** The plain wake births one shell a beat and content moves one root step a beat, so after beat 0
+  nothing reaches the frontier: the grown vacuum is χ, with no attractor. Number, J and SU(2)± are conserved through
+  growth, so a breaking seed dilutes as 1/N.
+- **Elitzur.** The four symmetric dock states lie wholly in the trivial Gauss sector (det Γ(h) = 1).
+
+### Results (gates fixed in the header before the gate run, probes disclosed)
+
+E-FND-0168, fail on B alone, as derived (735 s). V0, V1, W1, W2, LC, H, BD, S, G and all three controls hold.
+
+- The engine equals E-FND-0161's frame to 1.1e-16. Both commutants (R0, and R1 with the chiral projectors) are exactly 8,
+  accepted 0.242, rejected 1.7e-16. Every 4Γ(h) has determinant 4⁸.
+- C (calm law, full seed, 192 members) and D (full law, B's dock as seed, 48 holes) on L = 4 (128 docks) and L = 6
+  (648): no weight on an unborn dock ever; number within 3.5e-9; ⟨T⟩ 0 and (24, 0, 0), ⟨T²⟩ 0 and 600 at start and end.
+  Moving and positive-band content C 16 and 8, D 4 and 2; S − D 0 within 6e-12. Neither seeded state is stationary
+  (residuals 207/7 and 207/28).
+- B fails: the order parameter per dock is 0.1875 and 0.0370, 24/N.
+- Controls: D's seed in a hand-prepared full sea keeps every conserved total with a different path (seed weight 45.25
+  against 0.0064); the breaking law writes B, stationary to 9.7e-29, ⟨T₁⟩ 1/2 a hole, Gauss weight E-FRC-0271's exact
+  value; the knit's unchanged stream loses all 192 members at beat 0.
+- Read: a wake at half light speed moves a seed's band content (moving 2.56, positive band 0.53 on L = 4; 2.55 and 0.49
+  on L = 6) and nothing conserved.
+
+### How it was tested
+
+Probe `tmp/vg-probe1.log` (the engine against the frame, the commutants, C and D for 8 cycles on L = 4). Smoke
+`tmp/vg-smoke.log` (every path, L = 4, 6 cycles). Gate run `tmp/vg-gate-E-FND-0168.log`. Checks `tmp/vg-checks.log`:
+`tsc --noEmit -p tsconfig.check.json` exit 0, `test/catalog.ts` 1,551, `task/check-labels.ts` (the same 1 contradicted
+label and 20 for review, none from this item, 0 registry rows outside the barrel), `task/check-coverage.ts` (0 unknown,
+0 mismatches), `test/result.ts check` exit 0 (0 problems). The code was renumbered from E-FND-0167 to E-FND-0168 before
+the gate run, when a parallel item registered 0167.
+
+### Status and follow-ups
+
+- No status moves. The Higgs row stays failed on R*, with its last escape closed: the vacuum is chosen by history, and a
+  covariant history chooses a symmetric one. What is left is a center-odd scalar on the docks (E-FRC-0273).
+- A tension named: the knit's own growth (calm) writes the empty mesh, where K is not blocked (E-SPN-0175), so R*'s full
+  sea is a choice of growth law, not something the knit's growth gives. One rule (OPEN-FND-01) has to say which.
+- Not done: the {3,4,3,4} mesh (the arguments use only graph distance and one dock), a gated wake near a crowd, and a
+  χ entangled across docks (a band sea needs a nonlocal write).
+- Notes changed outside this repo: `remaining-pieces.md` (a new section, "Is the vacuum chosen by history?", the "One
+  rule for all 46" table's failed row, and "Order of work" step 7), `open.md` (Next up 8, FND-14, FND-15, text only),
+  `solutions.md` (§8), `everything.md` (the Higgs mechanism row, text only). `constraints.ts` unchanged.
+- Site sentences that change: on /vibe/model/wake, "on the next beat they are born, calm in every slot" can add that on
+  the register rule calm is the empty mesh, and the Open item "A rule for the knit at the growing edge" can say one is
+  written for the register rule (the reflecting frontier) and that the wake moves at the stream's own speed, so the grown
+  vacuum is exactly what growth writes (E-FND-0168); on /vibe/physics/weak-force, "no energy picks it" should add that
+  growth does not either, since every growth law built from the rule's pieces writes a symmetric vacuum (E-FND-0168);
+  on /vibe/physics/vacuum, the vacuum is chosen by the growth law, not by an energy; the SU(2) row's reason in
+  `constraints.ts` may cite E-FND-0168 the same way, with no status change.

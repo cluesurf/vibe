@@ -112,6 +112,34 @@
 //  field lowers the local rest gap toward 0 (M - 0.2867 k), which is nonlinear; the two-field piece reproduces
 //  E-GRV-0147's probe (cross 0.33 of like at sigma 2). B1 was worded on sign and the band mirror for that reason.
 //
+// FIRST RUN (tmp/sd-gate-E-FND-0167.log, 62 s): FAIL on H, as derived, and on one tolerance in B1. No gate moved and
+// none was rerun.
+//  - D1: ||[U, O2]||^2 on 64 sin^2 E (1 - g^2 - p^2) within 3.0e-12 at 10 momenta; 1.5e-15 at rest; 1.07836, 3.66134,
+//    4.77152 at k 0.2, 0.8, 1.6 on the axis (the same on the body diagonal, 1.07837, 3.66704, 4.88888 on the face one).
+//  - D2: Q_S Q_D, [M1, O1], [M2, O1] at most 1.9e-15; ||C||^2 = 8 g^2 within 4.8e-13; ||[V, O1]|| at least 0.890 away
+//    from rest, 0 at rest. D3: O2^3 = (1 - g^2) O2 within 2.2e-13, O2^3 - O2 at least 0.0197. D4: the Z_n gaps at
+//    least 0.736 for n 2 to 12 away from rest, at most 4.4e-14 at rest. D6: [Q_D, V Q_S V]^2 on 16 g^2 (1 - g^2)
+//    within 3.7e-13.
+//  - D5: one hole's n_S - n_D on the L = 4 torus spans 0.640 over 32 cycles (0.958, 0.591, 0.318, 0.515, 0.743, ...),
+//    the real-space run on the Bloch sum within 2.6e-14; the frame count n_S + n_D swings 0.912 to 1.117 too.
+//  - B1 FAILS ON ITS MIRROR TOLERANCE ONLY. Under the S-D field a band-B source pushes the band-A hole at every cycle,
+//    -5.35e-6 at cycle 1 to -8.603e-3 at cycle 8, and the band-B hole identically; a band-A source pulls both bands
+//    1.786e-2 (equal within 6.1e-13). The mirror between the two pushes missed 1e-9 relative at cycle 1 alone (2.57e-9),
+//    where the push is 5.35e-6 and the difference 1.4e-14 absolute (tmp/sd-probe3.log, read after the run, gating
+//    nothing): float rounding against a relative tolerance on a tiny number, a gate worded badly, not a physics miss.
+//    Cycles 2 to 8 hold it within 2.2e-11.
+//  - H fails as derived. Controls: C1 the rest start holds n_S - n_D at 1 within 2.9e-14 for 32 cycles; C2 the
+//    two-field piece gives the like pull 2.1739e-2 and the cross at most 0.0816 of it (E-GRV-0147's 0.082). Instrument
+//    holds (pieces 1.1e-15, norms 6.2e-12).
+//  - Read: the push is 0.48 of the pull at cycle 8 (the negative field lowers the local rest gap toward 0, so the
+//    response is not odd); the S-D field's pull from a band-A source (1.786e-2) is below the two-field like pull
+//    (2.174e-2) for the same reason, the D stage's angle raising the local mass further.
+//  THE AUDIT, as harshly as a stranger's. L1: the law, the group test and the string's form are algebra read off exact
+//  pieces, each with a rest point that must read 0 and does. The real-space charge is the one reading with a control
+//  that could fail (the rest start). The slab pulls are L2 test-particle runs whose outcome follows from the source's
+//  sign, so they confirm the derivation's sign rather than find anything. The informative result is the negative:
+//  there is no conserved S - D charge, so nothing to gauge.
+//
 // DETERMINISM: no random numbers; every start is a fixed mode or packet. EXACT: the projectors are integer matrices over
 // 24 and 48, the coin a permutation; every product and norm is float measurement.
 
@@ -178,7 +206,7 @@ export default experiment({
   id: 'foundations/sector-charge',
   code: 'E-FND-0167',
   title:
-    "the sector imbalance n_S - n_D that E-FND-0159's ledger, E-GRV-0147's two gravity fields and E-FRC-0273's join all turn on is not a charge the rule could gauge, fail as derived: it is Dirac's scalar density, kept by the mixers and broken by the stream's Clifford hop C = Q_D V Q_S, with ||[U, O2]||_F = 8 |sin E| sqrt(1 - g^2 - p^2) (0 only at rest); its spectrum is +-sqrt(1 - g^2), not quantized, and the integer one-frame Q_S - Q_D keeps no U(1) and no Z_n for n 2 to 12; on the L = 4 torus a hole's total n_S - n_D swings over cycles while a start at rest holds it at 1; the capped string's direct term is W (n_S^2 - n_D^2), odd in the charge and without S-D cross terms, so it is not a gauge field in axial gauge, and neutral seas are already extensive without one; a field sourced by n_S - n_D makes a band-B hole push every hole away, and the combination both bands share, n_S + n_D, is blocked as a one-stage pair piece by the same hop ([Q_D, V Q_S V] = 16 g^2 (1 - g^2))",
+    "the sector imbalance n_S - n_D that E-FND-0159's ledger, E-GRV-0147's two gravity fields and E-FRC-0273's join all turn on is not a charge the rule could gauge, fail as derived: it is Dirac's scalar density, kept by the mixers and broken by the stream's Clifford hop C = Q_D V Q_S, with ||[U, O2]||_F = 8 |sin E| sqrt(1 - g^2 - p^2) (0 only at rest); its spectrum is +-sqrt(1 - g^2), not quantized, and the integer one-frame Q_S - Q_D keeps no U(1) and no Z_n for n 2 to 12; on the L = 4 torus a hole's total n_S - n_D swings over cycles while a start at rest holds it at 1; the capped string's direct term is W (n_S^2 - n_D^2), odd in the charge and without S-D cross terms, so it is not a gauge field in axial gauge, and neutral seas are already extensive without one; a field sourced by n_S - n_D makes a band-B hole push every hole away, and the combination both bands share, n_S + n_D, is blocked as a one-stage pair piece by the same hop ([Q_D, V Q_S V] = 16 g^2 (1 - g^2)); one slab tolerance also missed (the band mirror of the push, 2.6e-9 relative at cycle 1 where the push is 5.4e-6)",
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L1',

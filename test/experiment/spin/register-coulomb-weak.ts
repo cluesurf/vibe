@@ -90,6 +90,7 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
 import { complexEigenvalues } from '@/code/algebra/linear/complex-eigen'
+import { type KernelOptions } from '@/code/kernel/index'
 import { darwinR, staticR } from '@/code/measure/darwin-exchange'
 import { wrap } from '@/code/measure/dock-mixer'
 import { infiniteGreenZero } from '@/code/measure/husk-coulomb'
@@ -453,17 +454,20 @@ export function witnessRun(
 
 // ---- one coupling point ----
 
+// kernel: run every engine on code/kernel (byte for byte the JavaScript engine at any thread count, task/kernel/check.ts);
+// omitted, the engines run their own JavaScript
 export function readPoint(
   su: Setup,
   p: Point,
   log: (what: string) => void = () => {},
+  kernel?: KernelOptions,
 ): PointRead {
   const started = Date.now()
   const oh = [...su.group.elements.keys()]
   const alpha = alphaOf(su, p.aB)
   const s = sector(su.group, oh, p.R)
   const count = reducedCounts(s, su.table, alpha, su.theta)
-  const e = reducedEngine(s, su.u, [0, 0, 0, 0], count, 'vector')
+  const e = reducedEngine(s, su.u, [0, 0, 0, 0], count, 'vector', kernel)
   const EbContinuum = 1 / (2 * su.mu * p.aB * p.aB)
 
   let v: RState = reducedHydrogenStart(s, p.aB)
@@ -549,6 +553,7 @@ export function readPoint(
         dir.map(x => x * k),
         countK,
         'vector',
+        kernel,
       )
 
       return harmonicLines(
@@ -629,6 +634,7 @@ export function readPoint(
         [k, 0, 0, 0],
         countK,
         'vector',
+        kernel,
       )
       const f = reducedFilter(ek, vk, EL, p.recordedKFilter)
 
