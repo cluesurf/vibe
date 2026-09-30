@@ -36,7 +36,9 @@
 //  1.8e-3 a class, Gibbs beta 2.78 +- 0.19, rms 0.076 against the flat line's 0.385, the up-band holes' mean E rising
 //  from 0.406 to 0.498 (so the free band energy is not what is kept), Fermi-Dirac's rms above Gibbs' by 1.0e-4;
 //  '3,4,6' (delta -1.626, next to infinite temperature) beta 0.57 +- 0.15, rms 0.062 against a flat 0.099, with the
-//  start's own levels still 5 to 10 percent above the line; '8,9,10' HIGH_PROBE. tmp/tp-l4-fit: the same fit on
+//  start's own levels still 5 to 10 percent above the line; '8,9,10' (delta -2.365) beta -3.44 +- 0.36, rms 0.148
+//  against 0.490, rising from 2.0e-3 to 9.9e-3 a class with the start's three top levels well above the rest, the
+//  up-band holes' mean E falling from 0.789 to 0.622 and the upper-band fraction down to 0.694. tmp/tp-l4-fit: the same fit on
 //  E-FND-0162's registered L = 4 level occupations reads beta 1.18 +- 0.31 (P1, delta -1.385) and -0.70 +- 0.27 (P4,
 //  delta -1.780) on 3 degrees of freedom, so L = 4 had a slope too, too coarse to test a form. tmp/tp-refit (the same
 //  probe logs, the start's own levels left out of the fit): '0,1,2' beta 2.36 +- 0.23, rms 0.065 against a flat 0.282,
@@ -113,11 +115,11 @@ const STRING: readonly [number, number] = [-2, 1]
 const VERTEX: readonly [number, number] = [2, 0]
 const CAP = 8
 const MODES = 4
-const FIT_RMS = 0.12
+const FIT_RMS = 0.1
 const FIT_GAIN = 0.5
 const RESOLVED = 4
 const SAME_BETA = 0.3
-const APART_BETA = 1.0
+const APART_BETA = 2
 const FREE_TOL = 1e-10
 const NORM_TOL = 1e-10
 const TIE_TOL = 1e-13

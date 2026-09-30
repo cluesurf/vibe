@@ -14,6 +14,16 @@ publish = false
 crate-type = ["cdylib"]
 path = "src/lib.rs"
 
+# The GPU backends (src/gpu.rs and src/gpu.cu), off by default so the default build is unchanged. None links against a
+# GPU toolkit: each opens its runtime with dlopen when first used, and compiles gpu.cu there for the device it finds.
+#   hip    AMD: libamdhip64 and hiprtc (ROCm), -ffp-contract=off
+#   cuda   NVIDIA: libcuda and NVRTC (the CUDA toolkit), --fmad=false
+#   emu    the same kernels built by the host C++ compiler, one CPU thread: the GPU path checked where there is no GPU
+[features]
+hip = []
+cuda = []
+emu = []
+
 [profile.release]
 opt-level = 3
 lto = true

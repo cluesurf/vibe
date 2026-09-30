@@ -38,9 +38,17 @@
 // 4. THE TEETH (L1, then run). The same read on two single holes (fermions), same fiber against different fibers: the
 //    relative amplitude of one fiber state is odd, so its fixed-point weight is exactly zero (B2). A read that could not
 //    see fermions could not see bosons.
-// 5. PREDICTED: B0 and B2 pass; the composites stay composites (B3); the Bose ratio near 2 if the relative motion of two
-//    composites fills the box within the window, lower if it does not. The prediction could fail by a slow or
-//    non-ergodic composite relative motion, or by the composites breaking up.
+// 5. WHAT THE BUNCHING NEEDS, AND WHY THIS RULE'S COMPOSITES CANNOT GIVE IT (derived from the probes below, before the
+//    gate run). Every factor in item 3 is made by the composites' RELATIVE motion: weight has to leave the start's
+//    separation and reach the fixed points. A contact composite moves only by both holes hopping together, a process
+//    second order in the hop and off resonance by the contact phase: its band is at most 0.032 a cycle wide over the
+//    total momenta of L = 4 (the width is at the 512-cycle spectrum's resolution, so it is an upper bound). And two
+//    composites feel the pair string between all four cross pairs, a phase that changes with V, so a hop that changes
+//    their separation is off resonance too. So the composites are pinned at their start's separation: probe 3 left 1e-4
+//    of the weight outside the start's shell after 16 cycles, and the Bose ratio read on that 1e-4 swung between 0.87
+//    and 1.62 from one read to the next. PREDICTED: B0, B2 and B3 pass, the composites stay pinned (B4 fails), and the
+//    bunching is not resolved (B1 fails): FAIL, as derived. What the dynamical read needs is a composite that moves
+//    (the row's standing need for a light composite, OPEN-MOT-01) under a pair interaction that does not pin it.
 // 6. WHAT IT IS NOT. The 4d torus, not the husk (L2 at most); four holes in one half, one tone, one flavor, the register
 //    rule; composites that are heavy (E-SPN-0162's register meson is 35 times too heavy, and this contact pair moves only
 //    by the dressing). No ledger row can become held from it. The distinguishable control is the disjoint channel of the
@@ -55,6 +63,34 @@
 //  fibers 0.719 of the non-fixed weight at the same V: the geometry alone biases fixed points, which is why the gate
 //  divides by the disjoint channel. tmp/bs-read-test (L = 2): the start's two-contact-pair weight is 1 to 2e-16 and the
 //  read equals a direct sum over the unfolded dense state to 4.0e-16. COMPOSITE_PROBE
+//
+// THE RUN. The L = 4 torus, E-SPN-0175's rule as in E-FND-0162 (the member mixers at ringUnit(-1, 4), the sector string
+// ringUnit(-2, 1) a unit of V, cap 8, the sector contact v^2 with v = ringUnit(2, 0), hole angles reversed), one half.
+// B0 and B2 on two holes (E-FND-0161's dense engine, 256 cycles, late 129 to 256). The composites on four holes in the
+// sorted store on the native kernel, 48 cycles, the late window cycles 25 to 48 read every 2, from two starts, each two
+// contact composites at a non-fixed separation: S1 both in internal state (0, 1) at the 8th non-fixed site of V = 1
+// (index 7), S2 in the disjoint states (0, 2) and (1, 3) at the 21st non-fixed site of V = 2 (index 20). S2 starts with
+// no weight in the equal channel at all, so there every bit of the equal channel's weight is made by the dynamics. None
+// is a probe's start (the probe took S1's states at index 0).
+//
+// GATES, fixed before the gate run.
+//  B0 THE COMPOSITE EXISTS: two holes started at contact in the sector keep at least 0.8 of their late sector-sector
+//     weight at contact under the rule, and at most 0.4 under the free rule (probe 0.934 and 0.284).
+//  B1 THE COMPOSITES BUNCH LIKE BOSONS: for both starts, the late Bose ratio is at least 1.5, the midpoint between
+//     bosons (2) and no statistics (1). PROBE_B1
+//  B2 THE READ SEES FERMIONS: two single holes (from a V = 1 start in fibers 0 and 1) give a late same-fiber fixed-point
+//     ratio at most 1e-12, while the different-fiber ratio is at least 0.1 (so the zero is not an empty read).
+//  B3 THE COMPOSITES STAY COMPOSITES: the late two-contact-pair weight (the probability that the four holes form two
+//     contact pairs in the sector) is at least KEPT_TEXT for both starts. PROBE_B3
+// CONTROL (a failure makes the verdict partial at best). CF the free rule from S1's start leaves a two-contact-pair
+//  weight below KEPT_TEXT after 8 cycles. PROBE_CF
+// INSTRUMENT (a failure makes the verdict partial at best). I1 the equal channel is even, |amp(R) - amp(-R)| at most
+//  1e-12 at every read (an exact consequence of item 1: a sign or gather error breaks it); I2 every norm within 1e-10
+//  and the tie antisymmetry within 1e-13.
+// READ, gating nothing: the late share of the two-contact-pair weight outside the start's V shell (how far the
+//  composites moved apart), each channel's fixed-point ratio, the Bose ratio over each half of the late window, the
+//  two-contact-pair weight by cycle, and the single holes' oddness.
+// Verdict: fail if B0, B1, B2 or B3 fails; partial if all hold and the control or the instrument fails; pass otherwise.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
@@ -94,7 +130,7 @@ const CAP = 8
 const BOUND = 0.8
 const UNBOUND = 0.4
 const BOSE = 1.5
-const KEPT = 0.1
+const KEPT = 0.25
 const FERMI_TOL = 1e-12
 const CROSS_SEEN = 0.1
 const EVEN_TOL = 1e-12
@@ -218,6 +254,8 @@ type CompositeRun = {
   // the late sums of the equal-internal and disjoint-internal weights over sites
   same: Float64Array
   cross: Float64Array
+  // the late share of the two-contact-pair weight outside the start's V shell
+  moved: number
   // the two-contact-pair weight at each read, and its late mean
   contact: { cycle: number; weight: number }[]
   lateContact: number
@@ -253,22 +291,30 @@ export function registerBosonsRun(plan: BosonPlan): Verdict {
 
   // ---------------- B0: the composite exists (two holes) ----------------
   const e2 = holeEngine(fr, 2, 0)
-  const contactFraction = (free: boolean): number => {
+  // the late share of the sector-sector weight at contact, and the late contact weight itself (of the whole pair)
+  const contactFraction = (free: boolean): { share: number; weight: number } => {
     const s = holePairStart(fr, T, T.origin, 0, 1)
     const late = new Float64Array(N)
+
+    let reads = 0
 
     for (let c = 1; c <= plan.pairCycles; c++) {
       holeCycle(e2, { angle: free ? null : angle }, s)
 
       if (c >= plan.pairLateFrom) {
         pairSectorWeights(e2, s, N).forEach((x, R) => (late[R]! += x))
+        reads++
       }
     }
 
-    return late[T.origin]! / late.reduce((a, x) => a + x, 0)
+    return { share: late[T.origin]! / late.reduce((a, x) => a + x, 0), weight: late[T.origin]! / reads }
   }
-  const boundRule = contactFraction(false)
-  const boundFree = contactFraction(true)
+  const rule2 = contactFraction(false)
+  const free2 = contactFraction(true)
+  const boundRule = rule2.share
+  const boundFree = free2.share
+  // two composites as intact as two lone ones would put the square of a lone one's contact weight in two contact pairs
+  const loneSquared = rule2.weight ** 2
   const B0 = boundRule >= BOUND && boundFree <= UNBOUND
 
   log(`B0 two holes started at contact: late sector weight at contact ${boundRule.toFixed(4)} under the rule, ${boundFree.toFixed(4)} free`)
@@ -312,7 +358,9 @@ export function registerBosonsRun(plan: BosonPlan): Verdict {
 
   // ---------------- the composites ----------------
   const e4: SortedEngine = sortedEngine(fr, 4, 0, { backend: 'native', threads: plan.threads })
-  const read = (s: Sorted): { same: Float64Array; cross: Float64Array; contact: number; even: number } => {
+  const read = (
+    s: Sorted,
+  ): { same: Float64Array; cross: Float64Array; all: Float64Array; contact: number; even: number } => {
     const amps = compositeAmplitudes(e4, s, ALL)
     const weigh = (chs: Channel[]): Float64Array => {
       const w = new Float64Array(N)
@@ -330,6 +378,7 @@ export function registerBosonsRun(plan: BosonPlan): Verdict {
     return {
       same: weigh(SAME),
       cross: weigh(CROSS),
+      all,
       // 12 N sum over R != 0: the probability of two contact pairs (4! orderings, halved for the two ways to name them)
       contact: 12 * N * all.reduce((x, v, R) => x + (R === T.origin ? 0 : v), 0),
       even: Math.max(...SAME.map(ch => exchangeParity(T, amps[ALL.findIndex(x => x.A === ch.A && x.B === ch.B)]!, 1))),
@@ -342,6 +391,7 @@ export function registerBosonsRun(plan: BosonPlan): Verdict {
     const s = compositeStart(e4, T, R0, st.A, st.B)
     const same = new Float64Array(N)
     const cross = new Float64Array(N)
+    const whole = new Float64Array(N)
     const halves = [0, 1].map(() => ({ same: new Float64Array(N), cross: new Float64Array(N) }))
     const contact: { cycle: number; weight: number }[] = [{ cycle: 0, weight: read(s).contact }]
 
@@ -371,17 +421,21 @@ export function registerBosonsRun(plan: BosonPlan): Verdict {
             cross[R]! += x
             h.cross[R]! += x
           })
+          r.all.forEach((x, R) => (whole[R]! += x))
         }
       }
     }
 
     const ratio = (a: Float64Array, b: Float64Array): number => fixedBunching(T, a).ratio / fixedBunching(T, b).ratio
     const late = contact.filter(x => x.cycle >= plan.lateFrom && (x.cycle - plan.lateFrom) % plan.every === 0)
+    const pairsWeight = whole.reduce((a, x, R) => a + (R === T.origin ? 0 : x), 0)
+    const outside = whole.reduce((a, x, R) => a + (R === T.origin || T.V[R] === T.V[R0] ? 0 : x), 0)
     const run: CompositeRun = {
       name: st.name,
       R0,
       same,
       cross,
+      moved: outside / pairsWeight,
       contact,
       lateContact: late.reduce((a, x) => a + x.weight, 0) / late.length,
       ratioSame: fixedBunching(T, same).ratio,
@@ -394,7 +448,7 @@ export function registerBosonsRun(plan: BosonPlan): Verdict {
       ties: sortedTies(e4, s),
     }
 
-    log(`${st.name} composites ${st.A.join('')} and ${st.B.join('')} at ${at(R0)} (V ${T.V[R0]}): late two-contact-pair weight ${run.lateContact.toFixed(4)}; fixed-point ratio equal ${run.ratioSame.toFixed(4)}, disjoint ${run.ratioCross.toFixed(4)}, Bose ratio ${run.bose.toFixed(4)} (halves ${run.boseFirst.toFixed(4)} ${run.boseSecond.toFixed(4)}); evenness ${run.even.toExponential(2)}`)
+    log(`${st.name} composites ${st.A.join('')} and ${st.B.join('')} at ${at(R0)} (V ${T.V[R0]}): late two-contact-pair weight ${run.lateContact.toFixed(4)}, ${run.moved.toExponential(2)} of it outside the start's shell; fixed-point ratio equal ${run.ratioSame.toFixed(4)}, disjoint ${run.ratioCross.toFixed(4)}, Bose ratio ${run.bose.toFixed(4)} (halves ${run.boseFirst.toFixed(4)} ${run.boseSecond.toFixed(4)}); evenness ${run.even.toExponential(2)}`)
 
     return run
   }
@@ -420,8 +474,8 @@ export function registerBosonsRun(plan: BosonPlan): Verdict {
 
   const runs = plan.starts.map(relax)
   const B1 = runs.every(r => r.bose >= BOSE)
-  const B3 = runs.every(r => r.lateContact >= KEPT)
-  const CF = freeContact < KEPT
+  const B3 = runs.every(r => r.lateContact >= KEPT * loneSquared)
+  const CF = freeContact < KEPT * loneSquared
   const I1 = runs.every(r => r.even <= EVEN_TOL)
   const I2 = runs.every(r => r.drift <= NORM_TOL && r.ties <= TIE_TOL)
   const hard = B0 && B1 && B2 && B3
@@ -436,6 +490,8 @@ export function registerBosonsRun(plan: BosonPlan): Verdict {
     I2: flag(I2),
     boundRule,
     boundFree,
+    loneContact: rule2.weight,
+    loneSquared,
     fermiSame,
     fermiCross,
     fermiOdd,
@@ -454,13 +510,14 @@ export function registerBosonsRun(plan: BosonPlan): Verdict {
     metrics[`ratioSame_${r.name}`] = r.ratioSame
     metrics[`ratioCross_${r.name}`] = r.ratioCross
     metrics[`lateContact_${r.name}`] = r.lateContact
+    metrics[`moved_${r.name}`] = r.moved
   })
 
   const curve = (r: CompositeRun): string => r.contact.map(x => `${x.cycle}:${x.weight.toFixed(3)}`).join(' ')
 
   return verdict({
     status,
-    claim: `B0 ${B0} (two holes started at contact keep ${boundRule.toFixed(4)} of their sector weight there under the rule, ${boundFree.toFixed(4)} free); B1 ${B1} (Bose ratio, fixed-point bunching for equal internal states over disjoint ones: ${runs.map(r => `${r.name} ${r.bose.toFixed(4)} (equal ${r.ratioSame.toFixed(4)}, disjoint ${r.ratioCross.toFixed(4)})`).join('; ')}; bosons 2, no statistics 1, fermions 0); B2 ${B2} (two single holes: same fiber ${fermiSame.toExponential(2)}, different fibers ${fermiCross.toFixed(4)}); B3 ${B3} (late two-contact-pair weight ${runs.map(r => `${r.name} ${r.lateContact.toFixed(4)}`).join(', ')}); control CF ${CF} (free rule ${startContact.toFixed(4)} to ${freeContact.toFixed(4)} in ${plan.freeCycles} cycles); instrument I1 ${I1} (evenness ${metrics.even!.toExponential(2)}) I2 ${I2} (norm ${metrics.normDrift!.toExponential(2)}, ties ${metrics.ties!.toExponential(2)})`,
+    claim: `B0 ${B0} (two holes started at contact keep ${boundRule.toFixed(4)} of their sector weight there under the rule, ${boundFree.toFixed(4)} free); B1 ${B1} (Bose ratio, fixed-point bunching for equal internal states over disjoint ones: ${runs.map(r => `${r.name} ${r.bose.toFixed(4)} (equal ${r.ratioSame.toFixed(4)}, disjoint ${r.ratioCross.toFixed(4)})`).join('; ')}; bosons 2, no statistics 1, fermions 0); B2 ${B2} (two single holes: same fiber ${fermiSame.toExponential(2)}, different fibers ${fermiCross.toFixed(4)}); B3 ${B3} (late two-contact-pair weight ${runs.map(r => `${r.name} ${r.lateContact.toFixed(4)}`).join(', ')}); read: its share outside the start's V shell ${runs.map(r => `${r.name} ${r.moved.toExponential(2)}`).join(', ')}; control CF ${CF} (free rule ${startContact.toFixed(4)} to ${freeContact.toFixed(4)} in ${plan.freeCycles} cycles); instrument I1 ${I1} (evenness ${metrics.even!.toExponential(2)}) I2 ${I2} (norm ${metrics.normDrift!.toExponential(2)}, ties ${metrics.ties!.toExponential(2)})`,
     metrics,
     control: { CF: flag(CF), instrument: flag(I1 && I2) },
     notes: `L2: Hanbury Brown and Twiss counting at exchange-fixed separations, read on two bound composites of the rule's own holes, with the disjoint internal channel as the no-statistics reference and single holes as the fermion reference. The 4d torus L ${plan.L} (${fixed.length} fixed separations), four holes in one half at total momentum 0, one tone, one flavor, not the husk; the composites are heavy. No ledger row is held. Starts: ${plan.starts.map(st => `${st.name} ${st.A.join('')} and ${st.B.join('')} at ${at(shellSite(st.shell, st.index))} (V ${st.shell})`).join('; ')}. Bose ratio over the late window's halves: ${runs.map(r => `${r.name} ${r.boseFirst.toFixed(4)} then ${r.boseSecond.toFixed(4)}`).join('; ')}. Two-contact-pair weight by cycle: ${runs.map(r => `${r.name} ${curve(r)}`).join('; ')}. Single holes' same-fiber oddness ${fermiOdd.toExponential(2)}. ${((Date.now() - started) / 1000).toFixed(0)} s.`,

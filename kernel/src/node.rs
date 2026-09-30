@@ -15,23 +15,23 @@ use crate::prim;
 use std::ffi::{c_char, c_void, CString};
 use std::ptr;
 
-type napi_env = *mut c_void;
-type napi_value = *mut c_void;
-type napi_callback_info = *mut c_void;
-type napi_status = i32;
-type napi_callback = unsafe extern "C" fn(napi_env, napi_callback_info) -> napi_value;
-type napi_finalize = unsafe extern "C" fn(napi_env, *mut c_void, *mut c_void);
+pub(crate) type napi_env = *mut c_void;
+pub(crate) type napi_value = *mut c_void;
+pub(crate) type napi_callback_info = *mut c_void;
+pub(crate) type napi_status = i32;
+pub(crate) type napi_callback = unsafe extern "C" fn(napi_env, napi_callback_info) -> napi_value;
+pub(crate) type napi_finalize = unsafe extern "C" fn(napi_env, *mut c_void, *mut c_void);
 
-const NAPI_OK: napi_status = 0;
+pub(crate) const NAPI_OK: napi_status = 0;
 const TA_INT8: i32 = 0;
 const TA_INT16: i32 = 3;
 const TA_INT32: i32 = 5;
 const TA_FLOAT64: i32 = 8;
-const VT_UNDEFINED: i32 = 0;
-const VT_NULL: i32 = 1;
+pub(crate) const VT_UNDEFINED: i32 = 0;
+pub(crate) const VT_NULL: i32 = 1;
 
 #[repr(C)]
-struct napi_property_descriptor {
+pub(crate) struct napi_property_descriptor {
     utf8name: *const c_char,
     name: napi_value,
     method: Option<napi_callback>,
@@ -51,8 +51,8 @@ extern "C" {
         this_arg: *mut napi_value,
         data: *mut *mut c_void,
     ) -> napi_status;
-    fn napi_is_typedarray(env: napi_env, value: napi_value, result: *mut bool) -> napi_status;
-    fn napi_get_typedarray_info(
+    pub(crate) fn napi_is_typedarray(env: napi_env, value: napi_value, result: *mut bool) -> napi_status;
+    pub(crate) fn napi_get_typedarray_info(
         env: napi_env,
         typedarray: napi_value,
         kind: *mut i32,
@@ -66,15 +66,28 @@ extern "C" {
     fn napi_throw_error(env: napi_env, code: *const c_char, msg: *const c_char) -> napi_status;
     fn napi_create_int32(env: napi_env, value: i32, result: *mut napi_value) -> napi_status;
     fn napi_get_undefined(env: napi_env, result: *mut napi_value) -> napi_status;
-    fn napi_create_external(
+    pub(crate) fn napi_create_external(
         env: napi_env,
         data: *mut c_void,
         finalize_cb: Option<napi_finalize>,
         finalize_hint: *mut c_void,
         result: *mut napi_value,
     ) -> napi_status;
-    fn napi_get_value_external(env: napi_env, value: napi_value, result: *mut *mut c_void) -> napi_status;
-    fn napi_typeof(env: napi_env, value: napi_value, result: *mut i32) -> napi_status;
+    pub(crate) fn napi_get_value_external(env: napi_env, value: napi_value, result: *mut *mut c_void) -> napi_status;
+    pub(crate) fn napi_typeof(env: napi_env, value: napi_value, result: *mut i32) -> napi_status;
+    pub(crate) fn napi_get_value_string_utf8(
+        env: napi_env,
+        value: napi_value,
+        buf: *mut c_char,
+        bufsize: usize,
+        result: *mut usize,
+    ) -> napi_status;
+    pub(crate) fn napi_create_string_utf8(
+        env: napi_env,
+        s: *const c_char,
+        length: usize,
+        result: *mut napi_value,
+    ) -> napi_status;
     fn napi_define_properties(
         env: napi_env,
         object: napi_value,
@@ -85,18 +98,18 @@ extern "C" {
 
 // ---- argument reading ----
 
-struct Fail;
+pub(crate) struct Fail;
 
-type R<T> = Result<T, Fail>;
+pub(crate) type R<T> = Result<T, Fail>;
 
-unsafe fn throw(env: napi_env, msg: &str) -> Fail {
+pub(crate) unsafe fn throw(env: napi_env, msg: &str) -> Fail {
     let m = CString::new(format!("vibe kernel: {msg}")).unwrap_or_default();
 
     napi_throw_error(env, ptr::null(), m.as_ptr());
     Fail
 }
 
-unsafe fn args<const N: usize>(env: napi_env, info: napi_callback_info) -> R<[napi_value; N]> {
+pub(crate) unsafe fn args<const N: usize>(env: napi_env, info: napi_callback_info) -> R<[napi_value; N]> {
     let mut argc = N;
     let mut argv = [ptr::null_mut(); N];
 
@@ -136,7 +149,7 @@ unsafe fn i32s(env: napi_env, v: napi_value, what: &str) -> R<(*mut i32, usize)>
     typed::<i32>(env, v, TA_INT32, what)
 }
 
-unsafe fn int(env: napi_env, v: napi_value, what: &str) -> R<i32> {
+pub(crate) unsafe fn int(env: napi_env, v: napi_value, what: &str) -> R<i32> {
     let mut x = 0i32;
 
     if napi_get_value_int32(env, v, &mut x) != NAPI_OK {
@@ -146,7 +159,7 @@ unsafe fn int(env: napi_env, v: napi_value, what: &str) -> R<i32> {
     Ok(x)
 }
 
-unsafe fn num(env: napi_env, v: napi_value, what: &str) -> R<f64> {
+pub(crate) unsafe fn num(env: napi_env, v: napi_value, what: &str) -> R<f64> {
     let mut x = 0f64;
 
     if napi_get_value_double(env, v, &mut x) != NAPI_OK {
@@ -163,14 +176,14 @@ unsafe fn undefined(env: napi_env) -> napi_value {
     u
 }
 
-unsafe fn done(env: napi_env, r: R<()>) -> napi_value {
+pub(crate) unsafe fn done(env: napi_env, r: R<()>) -> napi_value {
     match r {
         Ok(()) => undefined(env),
         Err(Fail) => ptr::null_mut(),
     }
 }
 
-fn check(ok: bool, env: napi_env, what: &str) -> R<()> {
+pub(crate) fn check(ok: bool, env: napi_env, what: &str) -> R<()> {
     if ok {
         Ok(())
     } else {
@@ -213,8 +226,8 @@ unsafe extern "C" fn js_threads(env: napi_env, info: napi_callback_info) -> napi
 
 // ---- the pair operator ----
 
-struct OwnedOp {
-    op: prim::PairOp,
+pub(crate) struct OwnedOp {
+    pub(crate) op: prim::PairOp,
     _i32: Vec<Vec<i32>>,
     _i16: Vec<i16>,
     _i8: Vec<Vec<i8>>,
@@ -237,6 +250,25 @@ unsafe fn to_vec<T: Copy>(p: *const T, n: usize) -> Vec<T> {
 unsafe extern "C" fn js_pair_op(env: napi_env, info: napi_callback_info) -> napi_value {
     let r = (|| -> R<napi_value> {
         let a = args::<16>(env, info)?;
+        let owned = read_pair_op(env, &a)?;
+        let mut out = ptr::null_mut();
+
+        if napi_create_external(env, Box::into_raw(owned) as *mut c_void, Some(op_free), ptr::null_mut(), &mut out)
+            != NAPI_OK
+        {
+            return Err(throw(env, "could not wrap the pair operator"));
+        }
+
+        Ok(out)
+    })();
+
+    r.unwrap_or(ptr::null_mut())
+}
+
+// the pair operator's sixteen tables read off the arguments, every length and index checked, copied into owned
+// vectors (shared with the GPU binding, which uploads the checked copies)
+pub(crate) unsafe fn read_pair_op(env: napi_env, a: &[napi_value; 16]) -> R<Box<OwnedOp>> {
+    {
         let (plus_rep, n_pr) = i32s(env, a[0], "plusRep")?;
         let (plus_g, n_pg) = i32s(env, a[1], "plusG")?;
         let (minus_rep, n_mr) = i32s(env, a[2], "minusRep")?;
@@ -336,25 +368,14 @@ unsafe extern "C" fn js_pair_op(env: napi_env, info: napi_callback_info) -> napi
             half_re: hr,
             half_im: hi,
         };
-        let owned = Box::new(OwnedOp {
+        Ok(Box::new(OwnedOp {
             op,
             _i32: vec![v_pr, v_pg, v_mr, v_mg, v_off, v_off_t],
             _i16: v_src,
             _i8: vec![v_sgn, v_row, v_col, v_row_t, v_col_t],
             _f64: vec![v_val, v_val_t],
-        });
-        let mut out = ptr::null_mut();
-
-        if napi_create_external(env, Box::into_raw(owned) as *mut c_void, Some(op_free), ptr::null_mut(), &mut out)
-            != NAPI_OK
-        {
-            return Err(throw(env, "could not wrap the pair operator"));
-        }
-
-        Ok(out)
-    })();
-
-    r.unwrap_or(ptr::null_mut())
+        }))
+    }
 }
 
 unsafe fn op_of(env: napi_env, v: napi_value) -> R<&'static prim::PairOp> {
@@ -984,7 +1005,7 @@ unsafe extern "C" fn js_hole_pair(env: napi_env, info: napi_callback_info) -> na
 
 // ---- the module ----
 
-fn method(name: &'static [u8], f: napi_callback) -> napi_property_descriptor {
+pub(crate) fn method(name: &'static [u8], f: napi_callback) -> napi_property_descriptor {
     napi_property_descriptor {
         utf8name: name.as_ptr() as *const c_char,
         name: ptr::null_mut(),
@@ -1001,7 +1022,8 @@ fn method(name: &'static [u8], f: napi_callback) -> napi_property_descriptor {
 /// Called by node once, when the addon is loaded.
 #[no_mangle]
 pub unsafe extern "C" fn napi_register_module_v1(env: napi_env, exports: napi_value) -> napi_value {
-    let fns = [
+    #[allow(unused_mut)]
+    let mut fns = vec![
         method(b"threads\0", js_threads),
         method(b"pairOp\0", js_pair_op),
         method(b"conv\0", js_conv),
@@ -1018,6 +1040,10 @@ pub unsafe extern "C" fn napi_register_module_v1(env: napi_env, exports: napi_va
         method(b"holeBand\0", js_hole_band),
         method(b"holePair\0", js_hole_pair),
     ];
+
+    // the GPU binding, only in a build with the hip, cuda or emu feature (the default build has none)
+    #[cfg(any(feature = "hip", feature = "cuda", feature = "emu"))]
+    fns.extend(crate::gpu::methods());
 
     if napi_define_properties(env, exports, fns.len(), fns.as_ptr()) != NAPI_OK {
         throw(env, "could not define the exports");
