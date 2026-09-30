@@ -4,6 +4,7 @@
 //   pnpm call task/kernel/build.ts            both
 //   pnpm call task/kernel/build.ts native     the addon only
 //   pnpm call task/kernel/build.ts wasm       the wasm module only
+//   pnpm call task/kernel/build.ts native hip        the addon with the AMD GPU binding (also cuda, emu, or hip,emu)
 //
 // The native target is the one node runs as (arm64 on Apple silicon), which need not be the toolchain's host: a
 // toolchain built for x86_64 cross-compiles. When the target's std is not installed (rustup target list --installed),
@@ -12,7 +13,7 @@
 // does) or uses fast-math.
 
 import { execFileSync } from 'node:child_process'
-import { copyFileSync, mkdirSync } from 'node:fs'
+import { copyFileSync, mkdirSync, renameSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -49,8 +50,22 @@ const installed = (): string[] =>
     .map(x => x.trim())
     .filter(x => x.length > 0)
 
-function build(triple: string, rustflags: string, targetDir = TARGET_DIR, std = false): void {
+// the GPU features for the native addon: `build.ts native hip`, `native cuda`, `native emu`, or several joined by
+// commas. None needs a GPU toolkit to build (kernel/src/gpu.rs opens the runtime at load), so any machine builds any
+const FEATURES = (process.argv[3] ?? '').split(',').filter(x => x.length > 0)
+
+for (const f of FEATURES) {
+  if (!['hip', 'cuda', 'emu'].includes(f)) {
+    throw new Error(`vibe kernel build: no feature ${f} (hip, cuda, emu)`)
+  }
+}
+
+function build(triple: string, rustflags: string, targetDir = TARGET_DIR, std = false, features: string[] = []): void {
   const args = ['build', '--release', '--target', triple, '--target-dir', targetDir]
+
+  if (features.length > 0) {
+    args.push('--features', features.join(','))
+  }
 
   if (std || !installed().includes(triple)) {
     console.log(`vibe kernel build: ${triple} std not installed, compiling it from source (-Z build-std)`)
@@ -65,14 +80,27 @@ function build(triple: string, rustflags: string, targetDir = TARGET_DIR, std = 
   })
 }
 
+// an artifact copied beside its destination and renamed over it: a process that has the old file loaded keeps its
+// mapping (a rename replaces the name, not the file), where copying over it in place could crash that process
+function place(from: string, to: string): void {
+  copyFileSync(from, `${to}.part`)
+  renameSync(`${to}.part`, to)
+}
+
 mkdirSync(HOST, { recursive: true })
 
 if (which === 'all' || which === 'native') {
   const { triple, library } = nativeTarget()
 
-  build(triple, '')
-  copyFileSync(join(TARGET_DIR, triple, 'release', library), join(HOST, 'vibe-kernel.node'))
-  console.log(`vibe kernel build: wrote ${join(HOST, 'vibe-kernel.node')}`)
+  // a GPU build is its own file and its own target directory, so building one never replaces (or rebuilds under) the
+  // plain addon another process may have loaded
+  const gpu = FEATURES.length > 0
+  const dir = gpu ? join(HOST, 'target-gpu') : TARGET_DIR
+  const out = join(HOST, gpu ? 'vibe-kernel-gpu.node' : 'vibe-kernel.node')
+
+  build(triple, '', dir, false, FEATURES)
+  place(join(dir, triple, 'release', library), out)
+  console.log(`vibe kernel build: wrote ${out}${gpu ? ` (features ${FEATURES.join(', ')})` : ''}`)
 }
 
 if (which === 'all' || which === 'wasm') {

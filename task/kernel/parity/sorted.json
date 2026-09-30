@@ -1,0 +1,486 @@
+{
+ "note": "The kernel parity suite (task/kernel/parity.ts): the reference outputs of every case, the sha256 of each output array's bytes (little-endian float64) and its first values as the shortest decimals that read back to the same doubles. Tolerance 0: every comparison is byte equality, and no quantity here is defined only up to a tolerance.",
+ "tolerance": 0,
+ "cases": {
+  "sorted L 2 n 3 rule": {
+   "state after 1 re": {
+    "length": 7680,
+    "sha256": "3bdc57a317b5e90bdf5b145a003cb1b8ac7347da47e80976e547fb5acbc9f2a0",
+    "values": [
+     "-1.9914742746832563e-67",
+     "1.2538671352033666e-66",
+     "6.537936475625403e-68"
+    ]
+   },
+   "state after 1 im": {
+    "length": 7680,
+    "sha256": "0b762982610c220adf4a0ad6380fb1115f9573ab80c8aa9628661d938a55001d",
+    "values": [
+     "1.2994045567585693e-67",
+     "4.896369843609947e-67",
+     "-1.9534899953573875e-66"
+    ]
+   },
+   "state after 64 re": {
+    "length": 7680,
+    "sha256": "5cc2ee0cd775ce5715511f822c4d694a8d78b7b6caa0ebeeeb7e290076cbb108",
+    "values": [
+     "2.5248002386651422e-65",
+     "-1.4503478831943268e-64",
+     "1.064790240151728e-65"
+    ]
+   },
+   "state after 64 im": {
+    "length": 7680,
+    "sha256": "04716f690efdcd5f7eda464dcc86abac1009b62638abe63872310131b2efc961",
+    "values": [
+     "-5.665783031184986e-66",
+     "5.660994423933271e-65",
+     "-1.2845265827081939e-64"
+    ]
+   },
+   "sorted norm, up": {
+    "length": 2,
+    "sha256": "e22248417b387a879340de841fa383d76aa0d057b186b263065a9eb79d0bc628",
+    "values": [
+     "0.9999999999995562",
+     "0.9999999999995562"
+    ]
+   },
+   "sorted occupation": {
+    "length": 8,
+    "sha256": "8482f8b4553bdd2d33facd44b708eed1e5cca83da57f5679d7a2c5e87481afbf",
+    "values": [
+     "3.351473134952846e-30",
+     "0.9692676166368266",
+     "0.969267616636826",
+     "0.9385352332740964",
+     "0.030732383362729813",
+     "0.03073238336272994",
+     "0.030732383362729866",
+     "0.03073238336272999"
+    ]
+   }
+  },
+  "sorted L 2 n 4 rule": {
+   "state after 1 re": {
+    "length": 204800,
+    "sha256": "c42b1282840224380d681aaa6c475e95d89b3ea15e816abc706f99cbfcba773f",
+    "values": [
+     "-1.574005925780642e-83",
+     "-6.653696994885398e-84",
+     "1.6700078653641428e-84"
+    ]
+   },
+   "state after 1 im": {
+    "length": 204800,
+    "sha256": "db12c7097134e74277c7150ee0e7ad5be81f7a401d0b80b8334069e26e51164b",
+    "values": [
+     "-1.0090899226104536e-83",
+     "7.394970608793415e-84",
+     "-2.0871552073831443e-84"
+    ]
+   },
+   "state after 16 re": {
+    "length": 204800,
+    "sha256": "65d9c8a612e9fd23457aee59c43651d4069518ed4bfe7d17deb32ef34f7afeba",
+    "values": [
+     "-8.332150239660321e-82",
+     "4.469011281472464e-81",
+     "1.0813368190768923e-81"
+    ]
+   },
+   "state after 16 im": {
+    "length": 204800,
+    "sha256": "83425c91920f7089dcb8e25b536f10ff6e8bf94789218ea27f89646422fcfafc",
+    "values": [
+     "6.672163158188005e-82",
+     "2.0660392966879923e-81",
+     "8.157583133113363e-82"
+    ]
+   },
+   "sorted norm, up": {
+    "length": 2,
+    "sha256": "26548bb4b69a4015606103004b29e34bc02f3fc6d91b6d7edc27756c210f06be",
+    "values": [
+     "0.9999999999998463",
+     "0.9999999999998463"
+    ]
+   },
+   "sorted occupation": {
+    "length": 8,
+    "sha256": "c7467af4862b7e0bdb36a886b8bacc37e5ba1bc1cbcd357f676dd2b2abba93fe",
+    "values": [
+     "9.231290180392787e-31",
+     "0.9999999999998463",
+     "0.9999999999998463",
+     "1.0606250788811356e-30",
+     "0.9999999999998463",
+     "1.2141649407512349e-30",
+     "1.040495258428584e-30",
+     "0.9999999999998463"
+    ]
+   }
+  },
+  "sorted L 2 n 4 free rule": {
+   "state after 1 re": {
+    "length": 204800,
+    "sha256": "143b1f42ab7e16be655a23b93b8270c4c874d782fd74d9ee9b27226ab2a25117",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "state after 1 im": {
+    "length": 204800,
+    "sha256": "fc78df9db2a9d72603954458dd1b36b59a4fc3a0ab2bdb541881c0910ab6dfb5",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "state after 16 re": {
+    "length": 204800,
+    "sha256": "6e35ae3e338bc41a0e96f2e24e5d820268175653e9ecd88b63b0220be537831a",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "state after 16 im": {
+    "length": 204800,
+    "sha256": "989641c9c09f8d077a0b84b20b48be1d4a54ca8c7a004225b3cd65adcb727719",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "sorted norm, up": {
+    "length": 2,
+    "sha256": "b4a617d05395a6edaeec6dc162da10d4a8f845eb2fda37b4f609401d3cf754d4",
+    "values": [
+     "0.9999999999998632",
+     "0.9999999999998632"
+    ]
+   },
+   "sorted occupation": {
+    "length": 8,
+    "sha256": "8ceac56c00af72c2def483b5f31c729b1d55a6c54da501313cc88a3dda0b2ab1",
+    "values": [
+     "0",
+     "0.9999999999998632",
+     "0.9999999999998632",
+     "0",
+     "0.9999999999998632",
+     "0",
+     "0",
+     "0.9999999999998632"
+    ]
+   }
+  },
+  "sorted L 2 n 3 one-sign control": {
+   "state after 1 re": {
+    "length": 7680,
+    "sha256": "f956218f987518592d9984a938114408a1fe910027a28d135d72247b48c7a9b6",
+    "values": [
+     "-4.3510529818452834e-67",
+     "1.3746700670891848e-66",
+     "5.6679332717881936e-67"
+    ]
+   },
+   "state after 1 im": {
+    "length": 7680,
+    "sha256": "c189ef8c517a33ab73e97ef5e9a862e49300f097e08570986a2b218da825247b",
+    "values": [
+     "-9.475036710365303e-68",
+     "4.749343307208949e-67",
+     "-1.5565769938322584e-66"
+    ]
+   },
+   "state after 16 re": {
+    "length": 7680,
+    "sha256": "d09cd2dc09ab611bdc769c19189c7ed8307ebca4a4edd94c5d550b5846e65306",
+    "values": [
+     "1.5286211794361606e-64",
+     "7.52271465237369e-64",
+     "-7.105806805834696e-65"
+    ]
+   },
+   "state after 16 im": {
+    "length": 7680,
+    "sha256": "86e8c025d0a6918ca1c82b4a240748c08526c5e9f3f881725bc14ad8e5a54e8f",
+    "values": [
+     "8.939922480120769e-65",
+     "-3.6731999514474536e-64",
+     "6.389472158595392e-65"
+    ]
+   },
+   "sorted norm, up": {
+    "length": 2,
+    "sha256": "be34037dbe44d7b5f7ad6a54a4e678db1b94489c5fd5f336544b46ab8dbf2727",
+    "values": [
+     "0.9999999999998881",
+     "0.9999999999998882"
+    ]
+   },
+   "sorted occupation": {
+    "length": 8,
+    "sha256": "d4ab39b0af42e5f3a9f1dd8c10efbcc32517ed84cc55eca01130bccf63fb2524",
+    "values": [
+     "1.704828185814437e-30",
+     "0.7187651442779083",
+     "0.7187651442779082",
+     "0.4375302885559283",
+     "0.2812348557219802",
+     "0.28123485572198015",
+     "0.2812348557219797",
+     "0.28123485572197965"
+    ]
+   }
+  },
+  "sorted L 2 n 3 edge zero": {
+   "state after 1 re": {
+    "length": 7680,
+    "sha256": "0693f6bfa2117a9b14f9ceca13d3a5611de5dca226bf999f20a7f615fbd08dff",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "state after 1 im": {
+    "length": 7680,
+    "sha256": "0693f6bfa2117a9b14f9ceca13d3a5611de5dca226bf999f20a7f615fbd08dff",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "state after 8 re": {
+    "length": 7680,
+    "sha256": "0693f6bfa2117a9b14f9ceca13d3a5611de5dca226bf999f20a7f615fbd08dff",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "state after 8 im": {
+    "length": 7680,
+    "sha256": "0693f6bfa2117a9b14f9ceca13d3a5611de5dca226bf999f20a7f615fbd08dff",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "sorted norm, up": {
+    "length": 2,
+    "sha256": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb",
+    "values": [
+     "0",
+     "0"
+    ]
+   },
+   "sorted occupation": {
+    "length": 8,
+    "sha256": "f5a5fd42d16a20302798ef6ed309979b43003d2320d9f0e8ea9831a92759fb4b",
+    "values": [
+     "0",
+     "0",
+     "0",
+     "0",
+     "0",
+     "0",
+     "0",
+     "0"
+    ]
+   }
+  },
+  "sorted L 2 n 3 edge tiny": {
+   "state after 1 re": {
+    "length": 7680,
+    "sha256": "8b0c0d3f11957b374c3e13649472fa0a535222c76b322ed4459e1967077c2535",
+    "values": [
+     "1.1486524728271028e-301",
+     "-1.282387772839505e-302",
+     "6.528475744597824e-302"
+    ]
+   },
+   "state after 1 im": {
+    "length": 7680,
+    "sha256": "842d21136f4e28fe6d9810183b29d3f1592b162dc454968433d86631c82455d3",
+    "values": [
+     "2.4985094965627773e-303",
+     "-3.7330096500469443e-302",
+     "8.034831232929788e-302"
+    ]
+   },
+   "state after 8 re": {
+    "length": 7680,
+    "sha256": "7ab7c093e12576a45dae448e376ebacfe6120203300008696c858d2d38ab22ec",
+    "values": [
+     "8.098209383999842e-302",
+     "-1.193126143937223e-302",
+     "2.8314894403657874e-302"
+    ]
+   },
+   "state after 8 im": {
+    "length": 7680,
+    "sha256": "76e9b77760fcc1661b7448a0e11480d635df1e0049861582a5c60be72fd85159",
+    "values": [
+     "-5.63663781633097e-302",
+     "-5.872279430548946e-303",
+     "2.975863924247142e-302"
+    ]
+   },
+   "sorted norm, up": {
+    "length": 2,
+    "sha256": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb",
+    "values": [
+     "0",
+     "0"
+    ]
+   },
+   "sorted occupation": {
+    "length": 8,
+    "sha256": "f5a5fd42d16a20302798ef6ed309979b43003d2320d9f0e8ea9831a92759fb4b",
+    "values": [
+     "0",
+     "0",
+     "0",
+     "0",
+     "0",
+     "0",
+     "0",
+     "0"
+    ]
+   }
+  },
+  "sorted L 2 n 3 edge huge": {
+   "state after 1 re": {
+    "length": 7680,
+    "sha256": "7e2fce05d7fb1b78af4570734e123d061f20c7e1fa964377cc7a1cca21438705",
+    "values": [
+     "6.072915813365556e+298",
+     "8.167702252202463e+297",
+     "6.528475744597833e+298"
+    ]
+   },
+   "state after 1 im": {
+    "length": 7680,
+    "sha256": "e0e3e16a694e69171c7db6b045ad085f4dab48557bf6cef0a5492d6768d128fe",
+    "values": [
+     "-3.816065437001947e+298",
+     "4.8833537926890695e+298",
+     "8.034831232929794e+298"
+    ]
+   },
+   "state after 8 re": {
+    "length": 7680,
+    "sha256": "f34e26c14ac8559b00122b7372b7ea70dcd73f6c30896180bbcd70450b129564",
+    "values": [
+     "9.717839476261562e+298",
+     "-1.5144641766084067e+298",
+     "2.831489440365797e+298"
+    ]
+   },
+   "state after 8 im": {
+    "length": 7680,
+    "sha256": "0b13df02bb6530d80652f092cf6429a61540adeb5531cb6539274e4b49c947b6",
+    "values": [
+     "-1.9704241596130435e+298",
+     "-1.6051160540973059e+298",
+     "2.975863924247146e+298"
+    ]
+   },
+   "sorted norm, up": {
+    "length": 2,
+    "sha256": "e28b77045029f15dc09fb9745a7ea4395a5116ff77ed66311cbe64dcbd90e66d",
+    "values": [
+     "Infinity",
+     "Infinity"
+    ]
+   },
+   "sorted occupation": {
+    "length": 8,
+    "sha256": "ccdb76a25fbfdad9f7c45afa8005a5d675e015117135f20bccb598ed51c9e875",
+    "values": [
+     "Infinity",
+     "Infinity",
+     "Infinity",
+     "Infinity",
+     "Infinity",
+     "Infinity",
+     "Infinity",
+     "Infinity"
+    ]
+   }
+  },
+  "sorted L 2 n 3 edge mixed": {
+   "state after 1 re": {
+    "length": 7680,
+    "sha256": "d62f40000195bb20cd538adaf5965c1be37767240b03026f41dbbd23b9d9235e",
+    "values": [
+     "8.511085782520047e+147",
+     "-1.3987537295002208e+149",
+     "-3.9070191536411247e+148"
+    ]
+   },
+   "state after 1 im": {
+    "length": 7680,
+    "sha256": "9957960908261e1c4304ae71fc3ba785853037a07b8e0c12547ad6944a7da1f9",
+    "values": [
+     "-2.123660258433074e+149",
+     "-3.02326714563459e+148",
+     "1.48214806175083e+148"
+    ]
+   },
+   "state after 8 re": {
+    "length": 7680,
+    "sha256": "6decb2d619b49b098dff41e9fd5106a5964f344e348baa3617606eac5231e350",
+    "values": [
+     "4.5434685074304074e+148",
+     "1.4071912398355291e+147",
+     "4.014507553114644e+147"
+    ]
+   },
+   "state after 8 im": {
+    "length": 7680,
+    "sha256": "8d749715f1b299fe6315648fd1d95a8bdfb88755c223229fe0c469859ae42cfb",
+    "values": [
+     "3.1571423486265736e+148",
+     "-1.1418082554313927e+147",
+     "-1.786519721638e+147"
+    ]
+   },
+   "sorted norm, up": {
+    "length": 2,
+    "sha256": "fee8fc5fae69d026db70e9cc44668ea444ba8d5d4229fe6a3acb043334c07b1f",
+    "values": [
+     "1.6013919422067228e+303",
+     "8.076802429602018e+302"
+    ]
+   },
+   "sorted occupation": {
+    "length": 8,
+    "sha256": "f1e98197c06ef9a98fd5b987585768822ec570bfb32dad01748dcc85086c0c7c",
+    "values": [
+     "5.615886249520312e+302",
+     "6.015146598816885e+302",
+     "5.922981408195601e+302",
+     "6.089090634198109e+302",
+     "6.157705472295489e+302",
+     "5.839541652432968e+302",
+     "6.1470489762669e+302",
+     "6.254357274475419e+302"
+    ]
+   }
+  }
+ }
+}

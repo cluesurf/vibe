@@ -23,13 +23,15 @@
 //
 // DETERMINISM: no random numbers. Nothing here is a tolerance: a difference of one unit in the last place fails.
 
-import { available, kernel, type Kernel } from '@/code/kernel/index'
+import { available, kernel, onDevice, type Backend, type Kernel, type KernelOptions } from '@/code/kernel/index'
+import { gpuInfo } from '@/code/kernel/gpu'
 import { jsKernel } from '@/code/kernel/js'
 import {
   adopt,
   fastAutocorrelation,
   fastBall,
   fastCycle,
+  fastCycles,
   fastFilter,
   fastInner,
   fastRead,
@@ -38,8 +40,8 @@ import {
   pairTablesOfReduced,
   type PairState,
 } from '@/code/kernel/pair'
-import { fastFlatCount, fastPairAt, fastSeaCycle } from '@/code/kernel/sea'
-import { densePairTables, holeFourierTables, phaseTables } from '@/code/kernel/holes'
+import { fastFlatCount, fastPairAt, fastSeaCycle, fastSeaCycles } from '@/code/kernel/sea'
+import { densePairTables, fastHoleCycles, holeFourierTables, phaseTables } from '@/code/kernel/holes'
 import type { HolePairTables, HolePhase } from '@/code/kernel/types'
 import { ringUnit, unitAngle } from '@/code/measure/swap-string'
 import { partnerProjector48, registerPiece, scaled, singletProjector24 } from '@/code/measure/spinor-register'
@@ -161,37 +163,63 @@ function stream(n: number, offset: number, scale = 1): Float64Array {
   return out
 }
 
+// CHECK_BACKENDS=native,hip keeps only the backends named (a GPU machine need not build wasm); a backend named there
+// and missing is a failure. Unset: native and wasm are required, the threaded wasm module and the GPU backends are
+// checked when present
+const only = process.env.CHECK_BACKENDS?.split(',').filter(x => x.length > 0)
+const wanted = (b: Backend): boolean => !only || only.includes(b)
+const required = (b: Backend): boolean => (only ? only.includes(b) : b === 'native' || b === 'wasm')
+
 // the backends under test, each named with its thread count
 function backends(): { name: string; k: Kernel }[] {
   const out: { name: string; k: Kernel }[] = []
+  const missing = (b: Backend, how: string): void => {
+    if (required(b)) {
+      failures++
+      console.log(`FAIL the ${b} build is missing: ${how}`)
+    } else if (wanted(b)) {
+      console.log(`note: no ${b} build, so the ${b} backend is not checked (${how})`)
+    }
+  }
 
-  if (available('native')) {
+  if (wanted('native') && available('native')) {
     for (const n of THREADS) {
       out.push({ name: `native x${n}`, k: kernel('native', n) })
     }
   } else {
-    failures++
-    console.log('FAIL the native build is missing: pnpm call task/kernel/build.ts')
+    missing('native', 'pnpm call task/kernel/build.ts native')
   }
 
-  if (available('wasm')) {
+  if (wanted('wasm') && available('wasm')) {
     out.push({ name: 'wasm x1', k: kernel('wasm') })
   } else {
-    failures++
-    console.log('FAIL the wasm build is missing: pnpm call task/kernel/build.ts')
+    missing('wasm', 'pnpm call task/kernel/build.ts wasm')
   }
 
   // the threaded wasm module is optional (pnpm call task/kernel/build.ts wasm-threads); checked when present
-  if (available('wasm-threads')) {
+  if (wanted('wasm-threads') && available('wasm-threads')) {
     for (const n of THREADS) {
       out.push({ name: `wasm-threads x${n}`, k: kernel('wasm-threads', n) })
     }
   } else {
-    console.log('note: no threaded wasm build, so the wasm-threads backend is not checked')
+    missing('wasm-threads', 'pnpm call task/kernel/build.ts wasm-threads')
+  }
+
+  // the GPU backends (one per process: the first one that loads), from the addon built with a feature
+  for (const g of ['hip', 'cuda', 'gpu-emu'] as const) {
+    if (wanted(g) && available(g)) {
+      out.push({ name: g, k: kernel(g) })
+      console.log(`${g}: ${gpuInfo(g)}`)
+    } else {
+      missing(g, `pnpm call task/kernel/build.ts native ${g === 'gpu-emu' ? 'emu' : g}, on a machine with that device`)
+    }
   }
 
   return out
 }
+
+// the backends an engine's opt-in option is checked on beyond the native counts: every GPU backend under test
+const gpuOf = (list: { name: string; k: Kernel }[]): { name: string; k: Kernel }[] => list.filter(b => b.k.device)
 
 const say = (what: string): void => console.log(`${what} (${((Date.now() - started) / 1000).toFixed(1)} s)`)
 
@@ -223,18 +251,15 @@ function reducedAt(members: number[], K: number[], R: number): ReducedEngine {
 
 // the same engine (same sector, counts, momentum and form) with the opt-in backend: the wired path, read only through
 // the engine's own functions
-const wiredReduced = (e: ReducedEngine, threads: number): ReducedEngine =>
-  reducedEngine(
-    e.s,
-    e.u,
-    e.K,
-    { counts: reducedCounts.get(e)!, nearest: 0, top: 30, alpha: 1, theta: 0.0731 },
-    e.form,
-    { backend: 'native', threads },
-  )
+const wiredReduced = (e: ReducedEngine, o: KernelOptions): ReducedEngine =>
+  reducedEngine(e.s, e.u, e.K, { counts: reducedCounts.get(e)!, nearest: 0, top: 30, alpha: 1, theta: 0.0731 }, e.form, o)
 
-// the wired paths are held to the default paths at these native thread counts
+// the wired paths are held to the default paths at these native thread counts, and on every GPU backend under test
 const WIRED = [1, 4, 16]
+const wiredOptions = (list: { name: string; k: Kernel }[]): { name: string; o: KernelOptions }[] => [
+  ...WIRED.map(n => ({ name: `native x${n}`, o: { backend: 'native' as const, threads: n } })),
+  ...gpuOf(list).map(b => ({ name: b.name, o: { backend: b.k.backend } })),
+]
 
 const redZero = reducedAt(oh, [0, 0, 0, 0], quick ? 7 : 9)
 const axisK = [0.21, 0, 0, 0]
@@ -421,6 +446,12 @@ function ballEngines(list: { name: string; k: Kernel }[]): void {
 
     compare(`ballCycle x${cycles} radius ${ballSec.radius} ${b.name}`, [want.re, want.im], [have.re, have.im])
 
+    // the cycles with the state held on the device throughout (the plain loop on a backend without one)
+    const held = adopt(f, start)
+
+    fastCycles(f, held, cycles)
+    compare(`ballCycle held x${cycles} ${b.name}`, [want.re, want.im], [held.re, held.im])
+
     const hi = fastInner(f, start, have)
 
     compare(`ballInner ${b.name}`, [Float64Array.from(wantInner)], [Float64Array.from(hi)])
@@ -439,8 +470,8 @@ function ballEngines(list: { name: string; k: Kernel }[]): void {
   }
 
   // the wired engine: ballEngine's opt-in backend, read only through the engine's own functions
-  for (const b of list.filter(x => x.k.backend === 'native')) {
-    const wired = ballEngine(ballSec, ball.params, { backend: 'native', threads: b.k.threads })
+  for (const b of list.filter(x => x.k.backend === 'native' || x.k.device)) {
+    const wired = ballEngine(ballSec, ball.params, { backend: b.k.backend, threads: b.k.threads })
     const have = cloneBall(start)
 
     for (let c = 0; c < cycles; c++) {
@@ -496,6 +527,11 @@ function reducedEngines(list: { name: string; k: Kernel }[]): void {
       }
 
       compare(`reducedCycle vector x${cycles} ${label} ${b.name}`, [want.re, want.im], [have.re, have.im])
+
+      const held = adopt(f, start)
+
+      fastCycles(f, held, cycles)
+      compare(`reducedCycle held x${cycles} ${label} ${b.name}`, [want.re, want.im], [held.re, held.im])
       compare(`reducedInner ${label} ${b.name}`, [Float64Array.from(wantInner)], [Float64Array.from(fastInner(f, start, have))])
 
       const ha = fastAutocorrelation(f, start, 3)
@@ -508,35 +544,35 @@ function reducedEngines(list: { name: string; k: Kernel }[]): void {
     const wantFilter = reducedFilter(e, start, 1.2592, 5)
     const wantRead = reducedRead(e, wantFilter)
 
-    for (const n of WIRED) {
-      const w = wiredReduced(e, n)
+    for (const { name: wn, o } of wiredOptions(list)) {
+      const w = wiredReduced(e, o)
       const have = cloneState(start)
 
       for (let c = 0; c < cycles; c++) {
         reducedCycle(w, have)
       }
 
-      compare(`wired reducedCycle x${cycles} ${label} native x${n}`, [want.re, want.im], [have.re, have.im])
+      compare(`wired reducedCycle x${cycles} ${label} ${wn}`, [want.re, want.im], [have.re, have.im])
 
       const hg = reducedGram(w, start)
 
-      compare(`wired reducedGram ${label} native x${n}`, [wantGram.re, wantGram.im], [hg.re, hg.im])
+      compare(`wired reducedGram ${label} ${wn}`, [wantGram.re, wantGram.im], [hg.re, hg.im])
       compare(
-        `wired reducedInner ${label} native x${n}`,
+        `wired reducedInner ${label} ${wn}`,
         [Float64Array.from(wantInner)],
         [Float64Array.from(reducedInner(w, start, have))],
       )
 
       const ha = autocorrelation(w, start, 3)
 
-      compare(`wired autocorrelation 3 ${label} native x${n}`, [wantAuto.re, wantAuto.im], [ha.re, ha.im])
+      compare(`wired autocorrelation 3 ${label} ${wn}`, [wantAuto.re, wantAuto.im], [ha.re, ha.im])
 
       const hf = reducedFilter(w, start, 1.2592, 5)
       const hr = reducedRead(w, hf)
 
-      compare(`wired reducedFilter S 5 ${label} native x${n}`, [wantFilter.re, wantFilter.im], [hf.re, hf.im])
+      compare(`wired reducedFilter S 5 ${label} ${wn}`, [wantFilter.re, wantFilter.im], [hf.re, hf.im])
       compare(
-        `wired reducedRead ${label} native x${n}`,
+        `wired reducedRead ${label} ${wn}`,
         [Float64Array.from([...wantRead.lambda, wantRead.phase, wantRead.residual])],
         [Float64Array.from([...hr.lambda, hr.phase, hr.residual])],
       )
@@ -563,7 +599,7 @@ function seaEngines(list: { name: string; k: Kernel }[]): void {
   const clonePair = (p: Pair): Pair => ({ re: Float64Array.from(p.re), im: Float64Array.from(p.im) })
   // sea runs are 75 MB a state: the thread counts 1, 4 and 16 carry it, with js and wasm
   const SEA = new Set(['native x1', 'native x4', 'native x16', 'wasm x1', 'wasm-threads x1', 'wasm-threads x16'])
-  const seaList = [{ name: 'js', k: jsKernel() }, ...list.filter(b => SEA.has(b.name))]
+  const seaList = [{ name: 'js', k: jsKernel() }, ...list.filter(b => SEA.has(b.name) || b.k.device)]
 
   for (const [label, rule] of quick ? rules.slice(0, 1) : rules) {
     const want = clonePair(start)
@@ -575,14 +611,20 @@ function seaEngines(list: { name: string; k: Kernel }[]): void {
 
       fastSeaCycle(b.k, T, rule, E, have)
       compare(`seaCycle ${label} ${b.name}`, [want.re, want.im], [have.re, have.im])
+
+      // one cycle with the state held on the device (the dock contact fetches it back and puts it out again)
+      const held = clonePair(start)
+
+      fastSeaCycles(b.k, T, rule, E, held, 1)
+      compare(`seaCycle held ${label} ${b.name}`, [want.re, want.im], [held.re, held.im])
     }
 
     // the wired engine: seaCycle's opt-in backend against its default
-    for (const n of WIRED) {
+    for (const { name: wn, o } of wiredOptions(list)) {
       const have = clonePair(start)
 
-      seaCycle(T, rule, E, have, undefined, { backend: 'native', threads: n })
-      compare(`wired seaCycle ${label} native x${n}`, [want.re, want.im], [have.re, have.im])
+      seaCycle(T, rule, E, have, undefined, o)
+      compare(`wired seaCycle ${label} ${wn}`, [want.re, want.im], [have.re, have.im])
     }
 
     say(`sea cycle ${label}: ${runs} comparisons, ${failures} failures`)
@@ -610,18 +652,18 @@ function seaEngines(list: { name: string; k: Kernel }[]): void {
 
     const want = flatCount(T, mv, start)
 
-    for (const b of seaList.filter(x => x.name === 'js' || x.name === 'native x16')) {
+    for (const b of seaList.filter(x => x.name === 'js' || x.name === 'native x16' || x.k.device)) {
       const have = fastFlatCount(b.k, T, mv, start)
 
       compare(`flatCount ${b.name}`, [Float64Array.from([want.nF, want.fourier])], [Float64Array.from([have.nF, have.fourier])])
     }
 
     // the wired engine: flatCount's opt-in backend against its default
-    for (const n of WIRED) {
-      const have = flatCount(T, mv, start, { backend: 'native', threads: n })
+    for (const { name: wn, o } of wiredOptions(list)) {
+      const have = flatCount(T, mv, start, o)
 
       compare(
-        `wired flatCount native x${n}`,
+        `wired flatCount ${wn}`,
         [Float64Array.from([want.nF, want.fourier])],
         [Float64Array.from([have.nF, have.fourier])],
       )
@@ -802,11 +844,10 @@ function holeEngines(list: { name: string; k: Kernel }[]): void {
     const engines: { name: string; e: ReturnType<typeof holeEngine> }[] = [
       { name: 'js', e: holeEngine(fr, n, 0, { backend: 'js' }) },
       ...WIRED.map(t => ({ name: `wired native x${t}`, e: holeEngine(fr, n, 0, { backend: 'native', threads: t }) })),
-      ...(n === 2
-        ? list
-            .filter(b => b.k.backend !== 'native')
-            .map(b => ({ name: b.name, e: holeEngine(fr, n, 0, { backend: b.k.backend, threads: b.k.threads }) }))
-        : []),
+      ...(n === 2 ? list.filter(b => b.k.backend !== 'native') : gpuOf(list)).map(b => ({
+        name: b.name,
+        e: holeEngine(fr, n, 0, { backend: b.k.backend, threads: b.k.threads }),
+      })),
     ]
 
     for (const [label, rule, c] of rules) {
@@ -827,6 +868,14 @@ function holeEngines(list: { name: string; k: Kernel }[]): void {
 
         compare(`holeCycle x${c} L ${L} n ${n} ${label} ${w.name}`, [want.re, want.im], [have.re, have.im])
         compare(`bandWeights L ${L} n ${n} ${label} ${w.name}`, [wantBand], [bandWeights(w.e, have)])
+
+        // the cycles with the state held on a device (a GPU engine only: elsewhere it is the loop above)
+        if (w.e.fast?.k.device) {
+          const held = copyHoles(start)
+
+          fastHoleCycles(w.e.fast, w.e, rule, held, c)
+          compare(`holeCycle held x${c} L ${L} n ${n} ${label} ${w.name}`, [want.re, want.im], [held.re, held.im])
+        }
       }
     }
 
@@ -873,6 +922,17 @@ function holeEngines(list: { name: string; k: Kernel }[]): void {
 
       compare(`sortedCycle x${cycles} L ${L} n ${n} ${w.name}`, [want.re, want.im], [have.re, have.im])
       compare(`sortedUp L ${L} n ${n} ${w.name}`, [wantUp], [Float64Array.from([sortedUp(se, have)])])
+
+      if (se.k.device) {
+        const held = copySorted(start)
+
+        onDevice(se.k, [held.re, held.im], () => {
+          for (let c = 0; c < cycles; c++) {
+            sortedCycle(se, { angle }, held)
+          }
+        })
+        compare(`sortedCycle held x${cycles} L ${L} n ${n} ${w.name}`, [want.re, want.im], [held.re, held.im])
+      }
     }
 
     say(`sorted store L ${L} n ${n} (${ref.rows} rows): ${runs} comparisons, ${failures} failures`)

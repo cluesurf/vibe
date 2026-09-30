@@ -147,7 +147,8 @@ export function compositeAmplitudes(
 }
 
 // two holes at total momentum 0 (the dense engine's layout: member 0 at class j, member 1 at its negative), the amplitude
-// of hole 1 at site R in fiber a and hole 2 at 0 in fiber c: N^(-1/2) toSites(psi(.; a, c))(R)
+// of hole 1 at site R in fiber a and hole 2 at 0 in fiber c: N^(-1/2) toSites(psi(.; a, c))(R). Its square is per site
+// of hole 2, so the probability of the separation R over the whole torus is N times it
 export function holePairAmplitude(
   e: HoleEngine,
   s: Holes,
@@ -178,10 +179,12 @@ export function holePairAmplitude(
 
 // the fixed-point bunching of a weight W(R) over sites: pooled over the V shells holding both fixed and non-fixed sites,
 // sum over fixed R* of W(R*) divided by sum over the same R* of the mean W over the shell's non-fixed sites; also the
-// shells used
+// shells used. Sites in `exclude` (a start's own separations, whose weight was put in rather than moved there) are left
+// out of the non-fixed means
 export function fixedBunching(
   t: Torus,
   W: ArrayLike<number>,
+  exclude: readonly number[] = [],
 ): { ratio: number; shells: number[]; fixedWeight: number; expected: number } {
   const fixed = new Set(fixedSites(t))
   const vmax = Math.max(...t.V)
@@ -194,7 +197,7 @@ export function fixedBunching(
   for (let v = 1; v <= vmax; v++) {
     const inShell = t.sites.map((_, i) => i).filter(i => i !== t.origin && t.V[i] === v)
     const fx = inShell.filter(i => fixed.has(i))
-    const other = inShell.filter(i => !fixed.has(i))
+    const other = inShell.filter(i => !fixed.has(i) && !exclude.includes(i))
 
     if (fx.length === 0 || other.length === 0) {
       continue

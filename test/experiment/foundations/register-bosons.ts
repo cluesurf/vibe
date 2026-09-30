@@ -44,11 +44,14 @@
 //    second order in the hop and off resonance by the contact phase: its band is at most 0.032 a cycle wide over the
 //    total momenta of L = 4 (the width is at the 512-cycle spectrum's resolution, so it is an upper bound). And two
 //    composites feel the pair string between all four cross pairs, a phase that changes with V, so a hop that changes
-//    their separation is off resonance too. So the composites are pinned at their start's separation: probe 3 left 1e-4
-//    of the weight outside the start's shell after 16 cycles, and the Bose ratio read on that 1e-4 swung between 0.87
-//    and 1.62 from one read to the next. PREDICTED: B0, B2 and B3 pass, the composites stay pinned (B4 fails), and the
-//    bunching is not resolved (B1 fails): FAIL, as derived. What the dynamical read needs is a composite that moves
-//    (the row's standing need for a light composite, OPEN-MOT-01) under a pair interaction that does not pin it.
+//    their separation is off resonance too. So the composites stay near their start's separation: in probe 3 the
+//    two-contact-pair weight outside the start's shell was 1e-3 of it at cycle 20 and 4e-3 at cycle 32. And at V = 1 and
+//    2 two composites overlap, so the Pauli exclusion between their parts (two holes of one fiber state cannot share a
+//    site) can act on the equal channel and not on the disjoint one, which the division by the disjoint channel does not
+//    cancel. The Bose ratio read on that thin weight swung 1.55, 1.62, 0.87, 1.18, 0.69, 0.73, 0.49, 0.83 at cycles 4 to
+//    32. PREDICTED: B0, B2 and B3 pass, and the bunching is not resolved (B1 fails): FAIL, as derived. What the
+//    dynamical read needs is a composite that moves (the row's standing need for a light composite, OPEN-MOT-01) under a
+//    pair interaction that does not pin it, in a box where two composites can be far apart.
 // 6. WHAT IT IS NOT. The 4d torus, not the husk (L2 at most); four holes in one half, one tone, one flavor, the register
 //    rule; composites that are heavy (E-SPN-0162's register meson is 35 times too heavy, and this contact pair moves only
 //    by the dressing). No ledger row can become held from it. The distinguishable control is the disjoint channel of the
@@ -62,7 +65,21 @@
 //  from a V = 1 start, 256 cycles, late half): the same-fiber fixed-point weight 3.3e-29 (odd, as derived), different
 //  fibers 0.719 of the non-fixed weight at the same V: the geometry alone biases fixed points, which is why the gate
 //  divides by the disjoint channel. tmp/bs-read-test (L = 2): the start's two-contact-pair weight is 1 to 2e-16 and the
-//  read equals a direct sum over the unfolded dense state to 4.0e-16. COMPOSITE_PROBE
+//  read equals a direct sum over the unfolded dense state to 4.0e-16. tmp/bs-probe5 (two holes at contact at 16 total
+//  momenta, 512 cycles): the strongest line lies between 2.019 and 2.051 a cycle, so the composite band is at most
+//  0.032 wide. tmp/bs-probe3 (four holes, both composites (0, 1) at the first non-fixed V = 1 site, 32 cycles, read
+//  every 4): the two-contact-pair weight 1, 0.756, 0.690, 0.532, 0.516, 0.393, 0.321, 0.240, 0.208, falling as the
+//  adjacent composites dissolve; the Bose ratio as in item 5; the equal channel even to 1.5e-17 at every read.
+//  tmp/bs-probe3-free.log (the same start under the free rule, 8 cycles): 0.512, 0.109, 0.052, 0.091, 0.095, 0.028,
+//  0.005, 0.003, and the disjoint channel stays empty (below 3e-37), so under the rule the disjoint channel is filled
+//  by the pair pieces alone.
+//  SMOKE (tmp/tb-smoke-0166.ts, 4 cycles; tmp/tb-smoke-E-FND-0166.log) ran every path and exposed two errors in the
+//  code, both fixed before the gate run, with no gate or threshold moved: the lone composite's contact weight was per
+//  site (N = 128 times too small, so B3's bar was 4.5e-6), and the start's own separations +-R0 were inside the
+//  non-fixed means, which for S2 (a V = 2 start, in the pooled shell) put the start's own weight in the disjoint
+//  channel's reference and read a Bose ratio of 22,933. Both reads now leave +-R0 out. A gate launch made before the
+//  fix was stopped after its two-hole parts (tmp/tb-gate-E-FND-0166-stopped.log: B0 0.933 and 0.298, B2 3.3e-29 and
+//  0.719); the gate run is the one after.
 //
 // THE RUN. The L = 4 torus, E-SPN-0175's rule as in E-FND-0162 (the member mixers at ringUnit(-1, 4), the sector string
 // ringUnit(-2, 1) a unit of V, cap 8, the sector contact v^2 with v = ringUnit(2, 0), hole angles reversed), one half.
@@ -70,20 +87,24 @@
 // sorted store on the native kernel, 48 cycles, the late window cycles 25 to 48 read every 2, from two starts, each two
 // contact composites at a non-fixed separation: S1 both in internal state (0, 1) at the 8th non-fixed site of V = 1
 // (index 7), S2 in the disjoint states (0, 2) and (1, 3) at the 21st non-fixed site of V = 2 (index 20). S2 starts with
-// no weight in the equal channel at all, so there every bit of the equal channel's weight is made by the dynamics. None
-// is a probe's start (the probe took S1's states at index 0).
+// no weight in the equal channel at all, so there every bit of the equal channel's weight is made by the dynamics.
+// Neither composite start is a probe's (the probe took S1's states at index 0). B0 and B2 reuse the probes' two-hole
+// starts (contact, and the first V = 1 site), so their outcomes were known before the run and gate only the machinery.
 //
 // GATES, fixed before the gate run.
 //  B0 THE COMPOSITE EXISTS: two holes started at contact in the sector keep at least 0.8 of their late sector-sector
 //     weight at contact under the rule, and at most 0.4 under the free rule (probe 0.934 and 0.284).
 //  B1 THE COMPOSITES BUNCH LIKE BOSONS: for both starts, the late Bose ratio is at least 1.5, the midpoint between
-//     bosons (2) and no statistics (1). PROBE_B1
+//     bosons (2) and no statistics (1). Set from the derivation, not the probe (which is predicted to fail it).
 //  B2 THE READ SEES FERMIONS: two single holes (from a V = 1 start in fibers 0 and 1) give a late same-fiber fixed-point
 //     ratio at most 1e-12, while the different-fiber ratio is at least 0.1 (so the zero is not an empty read).
-//  B3 THE COMPOSITES STAY COMPOSITES: the late two-contact-pair weight (the probability that the four holes form two
-//     contact pairs in the sector) is at least KEPT_TEXT for both starts. PROBE_B3
+//  B3 THERE ARE COMPOSITES TO READ: the late two-contact-pair weight (the probability that the four holes form two
+//     contact pairs in the sector) is at least a quarter of the square of a lone composite's late contact weight (two
+//     lone composites would keep that square) for both starts. It asks that composites remain, not that they are
+//     unperturbed: the probe's adjacent composites fell to 0.208 by cycle 32.
 // CONTROL (a failure makes the verdict partial at best). CF the free rule from S1's start leaves a two-contact-pair
-//  weight below KEPT_TEXT after 8 cycles. PROBE_CF
+//  weight below B3's bar (a quarter of the lone composite's square) after 8 cycles: without the pair pieces there are
+//  no composites (probe 0.003).
 // INSTRUMENT (a failure makes the verdict partial at best). I1 the equal channel is even, |amp(R) - amp(-R)| at most
 //  1e-12 at every read (an exact consequence of item 1: a sign or gather error breaks it); I2 every norm within 1e-10
 //  and the tie antisymmetry within 1e-13.
@@ -307,7 +328,8 @@ export function registerBosonsRun(plan: BosonPlan): Verdict {
       }
     }
 
-    return { share: late[T.origin]! / late.reduce((a, x) => a + x, 0), weight: late[T.origin]! / reads }
+    // the per-site weight times N is the probability of contact over the whole torus
+    return { share: late[T.origin]! / late.reduce((a, x) => a + x, 0), weight: (N * late[T.origin]!) / reads }
   }
   const rule2 = contactFraction(false)
   const free2 = contactFraction(true)
@@ -348,8 +370,10 @@ export function registerBosonsRun(plan: BosonPlan): Verdict {
       }
     }
 
-    fermiSame = fixedBunching(T, same).ratio
-    fermiCross = fixedBunching(T, cross).ratio
+    const own = [R0, T.neg[R0]!]
+
+    fermiSame = fixedBunching(T, same, own).ratio
+    fermiCross = fixedBunching(T, cross, own).ratio
   }
 
   const B2 = fermiSame <= FERMI_TOL && fermiCross >= CROSS_SEEN
@@ -426,7 +450,10 @@ export function registerBosonsRun(plan: BosonPlan): Verdict {
       }
     }
 
-    const ratio = (a: Float64Array, b: Float64Array): number => fixedBunching(T, a).ratio / fixedBunching(T, b).ratio
+    // the start's own separations hold weight that was put there, not moved there: left out of the non-fixed means
+    const own = [R0, T.neg[R0]!]
+    const ratio = (a: Float64Array, b: Float64Array): number =>
+      fixedBunching(T, a, own).ratio / fixedBunching(T, b, own).ratio
     const late = contact.filter(x => x.cycle >= plan.lateFrom && (x.cycle - plan.lateFrom) % plan.every === 0)
     const pairsWeight = whole.reduce((a, x, R) => a + (R === T.origin ? 0 : x), 0)
     const outside = whole.reduce((a, x, R) => a + (R === T.origin || T.V[R] === T.V[R0] ? 0 : x), 0)
@@ -438,8 +465,8 @@ export function registerBosonsRun(plan: BosonPlan): Verdict {
       moved: outside / pairsWeight,
       contact,
       lateContact: late.reduce((a, x) => a + x.weight, 0) / late.length,
-      ratioSame: fixedBunching(T, same).ratio,
-      ratioCross: fixedBunching(T, cross).ratio,
+      ratioSame: fixedBunching(T, same, own).ratio,
+      ratioCross: fixedBunching(T, cross, own).ratio,
       bose: ratio(same, cross),
       boseFirst: ratio(halves[0]!.same, halves[0]!.cross),
       boseSecond: ratio(halves[1]!.same, halves[1]!.cross),

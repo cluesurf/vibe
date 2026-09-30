@@ -380,8 +380,9 @@ impl Gpu {
 
 // ---- loading a runtime and compiling gpu.cu ----
 
-fn rocm_names(lib: &str, version: &str) -> Vec<String> {
-    let mut out = vec![format!("{lib}.so"), format!("{lib}.so.{version}")];
+// the ROCm 6 and 7 names, then ROCM_PATH and the default install
+fn rocm_names(lib: &str) -> Vec<String> {
+    let mut out = vec![format!("{lib}.so"), format!("{lib}.so.7"), format!("{lib}.so.6")];
 
     if let Ok(p) = std::env::var("ROCM_PATH") {
         out.push(format!("{p}/lib/{lib}.so"));
@@ -483,8 +484,8 @@ unsafe fn rtc_compile(
 }
 
 unsafe fn load_hip(contract: bool, arch: &str) -> Result<Gpu, String> {
-    let hip = open(&rocm_names("libamdhip64", "6"))?;
-    let rtc = open(&rocm_names("libhiprtc", "6"))?;
+    let hip = open(&rocm_names("libamdhip64"))?;
+    let rtc = open(&rocm_names("libhiprtc"))?;
     let init: unsafe extern "C" fn(u32) -> i32 = sym(hip, "hipInit")?;
     let count: unsafe extern "C" fn(*mut c_int) -> i32 = sym(hip, "hipGetDeviceCount")?;
     let set: unsafe extern "C" fn(c_int) -> i32 = sym(hip, "hipSetDevice")?;

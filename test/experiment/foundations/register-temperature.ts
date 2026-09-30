@@ -23,9 +23,10 @@
 //    mode. ln(1 / f - 1) differs from -ln f by about f, below 3e-3, far under any fit residual. The holes are fermions by
 //    construction (the store is antisymmetric, E-FND-0163), and the occupation's shape cannot show it at this filling.
 //    The difference of the two fits' residuals is read, not gated.
-// 5. PREDICTED: the occupation follows a Gibbs form in E with every level filled; beta is set by the start's energy,
-//    positive for a low shell and negative for a high one; two starts of one free delta with different level content
-//    reach one beta if the energy that matters is the free delta, and may not, since item 3 says it is not quite.
+// 5. PREDICTED (after the probes below): the occupation follows a Gibbs form in E with every level filled; beta is set
+//    by the start's energy, positive for a low shell and negative for a high one; two starts of one free delta with
+//    different level content reach one beta. PASS. It could fail on T2 if the energy that sets beta is not the free
+//    delta (item 3 says the band energy alone is not kept), or on T1 if a start's own memory spreads to other levels.
 // 6. WHAT IT IS NOT. The 4d torus, not the husk (L2 at most); three holes, not a subsystem and a bath; one half, one
 //    tone, one flavor, the register rule. No ledger row can become held from it.
 //
@@ -45,7 +46,10 @@
 //  its own levels 1.23, 1.19 and 1.14 times the line; '3,4,6' 0.57 +- 0.06, rms 0.023; '8,9,10' -2.49 +- 0.30, rms 0.074
 //  against 0.265, its own levels 1.70, 1.57 and 1.89 times the line. So the start's levels carry a memory the others do
 //  not, and the gate reads the temperature on the levels the start left empty, where any weight arrived by relaxation.
-//  PAIR_PROBES
+//  tmp/tp-probe2 on the gate's four shells (pick 0 of each, not the gate's picks), the start's levels left out: '0,1,2'
+//  2.36 +- 0.23 and '1,1,1' (delta -1.219) 2.65 +- 0.12, 0.29 apart; '6,7,9' (delta -2.154) -2.07 +- 0.21 and '4,9,10'
+//  (delta -2.158) -2.01 +- 0.25, 0.06 apart; every rms 0.046 to 0.073. The T2 tolerance, 0.5, is about twice the
+//  combined error of two such fits.
 //
 // THE RUN. The L = 6 torus, three holes in half + at total momentum 0, E-SPN-0175's rule as in E-FND-0162 (the member
 // mixers at ringUnit(-1, 4), the sector string ringUnit(-2, 1) a unit of V, cap 8, the sector contact v^2 with v =
@@ -61,7 +65,7 @@
 // ln n, flat the same for beta = 0 (infinite temperature), and beta's error is scaled by the residual.
 //  T1 A TEMPERATURE RESOLVES: for every start, rms <= 0.10, rms <= 0.5 flat, and |beta| >= 4 times its error (probes:
 //     rms 0.023 to 0.074, 0.23 to 0.28 of flat, |beta| 8.5 to 10 errors).
-//  T2 ONE TEMPERATURE PER ENERGY: in each shell the two starts' betas differ by at most SAME_TEXT.
+//  T2 ONE TEMPERATURE PER ENERGY: in each shell the two starts' betas differ by at most 0.5.
 //  T3 A THERMOMETER: the low shell's mean beta exceeds the high shell's by at least 2.0 (probes: 2.36 at delta -1.218
 //     against -2.49 at delta -2.365).
 // CONTROL (a failure makes the verdict partial at best). CF the free rule from A1's start moves no band-resolved
@@ -118,7 +122,7 @@ const MODES = 4
 const FIT_RMS = 0.1
 const FIT_GAIN = 0.5
 const RESOLVED = 4
-const SAME_BETA = 0.3
+const SAME_BETA = 0.5
 const APART_BETA = 2
 const FREE_TOL = 1e-10
 const NORM_TOL = 1e-10
@@ -318,8 +322,8 @@ export function registerTemperatureRun(plan: TemperaturePlan): Verdict {
   const betaHigh = (high[0]!.gibbs.beta + high[1]!.gibbs.beta) / 2
   const T1 = fits
   const T2 =
-    Math.abs(low[0]!.gibbs.beta - low[1]!.gibbs.beta) <= SAME_BETA * Math.max(1, Math.abs(betaLow)) &&
-    Math.abs(high[0]!.gibbs.beta - high[1]!.gibbs.beta) <= SAME_BETA * Math.max(1, Math.abs(betaHigh))
+    Math.abs(low[0]!.gibbs.beta - low[1]!.gibbs.beta) <= SAME_BETA &&
+    Math.abs(high[0]!.gibbs.beta - high[1]!.gibbs.beta) <= SAME_BETA
   const T3 = betaLow - betaHigh >= APART_BETA
   const CF = freeGap <= FREE_TOL
   const I1 = runs.every(r => r.drift <= NORM_TOL)

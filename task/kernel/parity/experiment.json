@@ -1,0 +1,138 @@
+{
+ "note": "The kernel parity suite (task/kernel/parity.ts): the reference outputs of every case, the sha256 of each output array's bytes (little-endian float64) and its first values as the shortest decimals that read back to the same doubles. Tolerance 0: every comparison is byte equality, and no quantity here is defined only up to a tolerance.",
+ "tolerance": 0,
+ "cases": {
+  "E-SPN-0175 flats frozen, L 2": {
+   "modes 0 47: N_F, fourier, norm at 1 2 4 8": {
+    "length": 12,
+    "sha256": "277de2d1ca8e6aaadb30b1f266ed73594dc75aead989a424204cebe18f51d0a6",
+    "values": [
+     "1.623701173514766e-14",
+     "7.999999999997662",
+     "0.9999999999998446",
+     "5.849487560995424e-14",
+     "7.999999999997769",
+     "0.9999999999998437",
+     "2.25930385511285e-14",
+     "7.999999999997676",
+     "0.9999999999998443",
+     "7.062406215398656e-14",
+     "7.999999999997871",
+     "0.999999999999844"
+    ]
+   },
+   "modes 19 20: N_F, fourier, norm at 1 2 4 8": {
+    "length": 12,
+    "sha256": "9567021cb0f533ac03b099346649a8f5319b63829ba1034cd9d9dd7b974f5f78",
+    "values": [
+     "2.907674101493757e-13",
+     "7.9999999999987015",
+     "0.9999999999998711",
+     "4.06896738525234e-14",
+     "7.9999999999977565",
+     "0.9999999999998707",
+     "2.8417546094066025e-13",
+     "7.999999999998772",
+     "0.9999999999998711",
+     "3.1412372702992314e-13",
+     "7.999999999998907",
+     "0.9999999999998744"
+    ]
+   }
+  },
+  "E-FND-0158 traded weight, L 2": {
+   "traded weight at 1 2 4 8": {
+    "length": 4,
+    "sha256": "7eb91b6a351697823795942ee5ad2babc78c2e2483f76251d80b2b9a0df7f809",
+    "values": [
+     "2.307043445170543e-13",
+     "7.371880883510495e-14",
+     "2.6867397195929508e-14",
+     "5.107025913275694e-15"
+    ]
+   }
+  },
+  "E-FND-0161 dense against reduced and the three-hole reads, L 2": {
+   "V2 gap, outside, norm per cycle": {
+    "length": 12,
+    "sha256": "deae4a4913af52de04c538afb5be210583fbdf2dd29e9ce1f0e4d763a8818f53",
+    "values": [
+     "5.051591013050332e-16",
+     "-1.7785772854495008e-13",
+     "0.9999999999996824",
+     "5.883040438995289e-16",
+     "-6.38378239159465e-14",
+     "0.9999999999996787",
+     "8.131246828796541e-16",
+     "-1.1031175972675555e-12",
+     "0.999999999999676",
+     "1.0720310378270181e-15",
+     "-1.3156142841808105e-13",
+     "0.9999999999996736"
+    ]
+   },
+   "V4 slater gap, norm, exchange other": {
+    "length": 18,
+    "sha256": "ffff427fe5d72a731f7abf010cb5af0d1e58d451cd082ba7f2304f712d2efb1f",
+    "values": [
+     "1.191874962812805e-15",
+     "0.999999999999994",
+     "2.220446049250313e-16"
+    ]
+   }
+  },
+  "E-FND-0163 four holes, L 2": {
+   "slater gaps, then norm and occupation per cycle": {
+    "length": 11,
+    "sha256": "6e072999b76259ef7e558c852a34f149513a3dcec45ce4a778b19e1fed8c6d21",
+    "values": [
+     "8.91305243561917e-16",
+     "1.708972937535342e-15",
+     "3.4410198049550255e-15",
+     "0.9999999999999907",
+     "3.9999999999999627",
+     "0.9999999999999807",
+     "3.9999999999999227",
+     "0.9999999999999714",
+     "3.9999999999998854",
+     "0.9999999999999611",
+     "3.9999999999998446"
+    ]
+   }
+  },
+  "E-SPN-0178 pulled pair, held and free, radius 10": {
+   "held: knot start, late, out max, norm": {
+    "length": 4,
+    "sha256": "7de3f47c710613ef8cf61f0c450a6fff1b93ec55c857af2fc1b6e9ee0576769a",
+    "values": [
+     "1.0645978844846995e-8",
+     "0.2612761942888493",
+     "0.1412969948411682",
+     "0.905797614149988"
+    ]
+   },
+   "free: knot start, late, out max, norm": {
+    "length": 4,
+    "sha256": "cbe9a762f6e21cda7ae0fe3fcf6758507cdf6485b38f6c9e4abb28211e03187b",
+    "values": [
+     "1.0645978844846995e-8",
+     "0.11724394785561533",
+     "0.1771384926634927",
+     "0.7018570923159089"
+    ]
+   }
+  },
+  "E-SPN-0179 pulled pair with the fear beat, radius 10": {
+   "singlet held: knot start, late, out max, norm": {
+    "length": 4,
+    "sha256": "f8572c46d4f6ce768f23a0bffa5944001ba9ed61891c49a3bfef9f36ca0ef8b9",
+    "values": [
+     "1.0645978844846995e-8",
+     "0.23279689199126302",
+     "0.13963497945047812",
+     "0.9057571951727487"
+    ]
+   }
+  }
+ }
+}

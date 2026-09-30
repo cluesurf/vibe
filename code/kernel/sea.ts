@@ -10,6 +10,7 @@
 
 // Only types come from register-sea, so the engine can import this file without a cycle.
 
+import { fetchHost, onDevice, putHost } from '@/code/kernel/device'
 import type { Kernel } from '@/code/kernel/types'
 import { betaOf } from '@/code/measure/register-meson'
 import type { Moving, Pair, SeaRule, SectorBases, Torus } from '@/code/measure/register-sea'
@@ -76,7 +77,10 @@ export function fastSeaBeat(
   const phase = rule.whole ? new Float64Array(2 * N) : null
 
   if (rule.dock) {
+    // the contact runs on the host: a state held on a device comes back for it, and goes out again
+    fetchHost(k, [s.re, s.im])
     dockContact(t, s, rule.dock)
+    putHost(k, [s.re, s.im])
   }
 
   for (let i = 0; i < N; i++) {
@@ -123,6 +127,19 @@ export function fastSeaCycle(k: Kernel, t: Torus, rule: SeaRule, E: SectorBases,
   const mid = fastSeaBeat(k, t, rule, E, s, 1, spare ?? newPair(t))
 
   return fastSeaBeat(k, t, rule, E, mid, 2, s)
+}
+
+// n cycles in place, the state and the spare held on the device throughout when the backend has one
+export function fastSeaCycles(k: Kernel, t: Torus, rule: SeaRule, E: SectorBases, s: Pair, n: number, spare?: Pair): Pair {
+  const sp = spare ?? newPair(t)
+
+  onDevice(k, [s.re, s.im, sp.re, sp.im], () => {
+    for (let c = 0; c < n; c++) {
+      fastSeaCycle(k, t, rule, E, s, sp)
+    }
+  })
+
+  return s
 }
 
 // pairAt: M[m1][m2] = sum_y e^(-i q . y) psi(y)[m1][m2], the phases computed here as pairAt computes them

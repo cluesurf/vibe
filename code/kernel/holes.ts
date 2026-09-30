@@ -16,6 +16,7 @@
 //
 // Only types come from register-holes, so the engine can import this file without a cycle.
 
+import { onDevice } from '@/code/kernel/device'
 import type { HoleFourierTables, HolePairTables, HolePhase, Kernel } from '@/code/kernel/types'
 import type { CMatrix } from '@/code/measure/dock-mixer'
 import type { HoleEngine, HoleFrame, HoleRule, Holes, TorusFourier } from '@/code/measure/register-holes'
@@ -460,6 +461,16 @@ export function fastHoleCycle(h: FastHoles, e: HoleEngine, rule: HoleRule, s: Ho
   h.k.holeOneBody(s.re, s.im, e.mom, s.n, f, h.A1.re, h.A1.im)
   fastPairPhases(h, e, s, rule.angle2 === undefined ? rule : { ...rule, angle: rule.angle2 }, -1)
   h.k.holeOneBody(s.re, s.im, e.mom, s.n, f, h.A2.re, h.A2.im)
+}
+
+// n holeCycles in place, the state held on the device throughout when the backend has one (the tables are uploaded once
+// on first use by the GPU backends themselves)
+export function fastHoleCycles(h: FastHoles, e: HoleEngine, rule: HoleRule, s: Holes, n: number): void {
+  onDevice(h.k, [s.re, s.im], () => {
+    for (let c = 0; c < n; c++) {
+      fastHoleCycle(h, e, rule, s)
+    }
+  })
 }
 
 // bandWeights: the local sums on the kernel, then the sum over tuples in the reference's order

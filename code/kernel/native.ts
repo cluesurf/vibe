@@ -47,6 +47,7 @@ function load(): Addon {
   return addon
 }
 
+
 export function nativeKernel(threads: number): Kernel {
   const a = load()
   const n = Math.max(1, Math.min(64, Math.floor(threads)))

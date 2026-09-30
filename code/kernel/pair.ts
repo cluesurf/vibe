@@ -10,6 +10,7 @@
 //
 // Only types are imported from the engines, so an engine can import this file without a cycle.
 
+import { onDevice, setInto } from '@/code/kernel/device'
 import type { Kernel, PairOp, PairTables } from '@/code/kernel/types'
 import type { BallEngine } from '@/code/measure/register-ball-reduced'
 import { blackmanHarris, type SparseEight } from '@/code/measure/register-meson'
@@ -249,6 +250,16 @@ export function fastCycle(f: FastPair, st: PairState): void {
   }
 }
 
+// n cycles in place, the state and scratch held on the device throughout when the backend has one (one upload, one
+// download), else simply n fastCycles
+export function fastCycles(f: FastPair, st: PairState, n: number): void {
+  onDevice(f.k, [st.re, st.im, ...f.t], () => {
+    for (let c = 0; c < n; c++) {
+      fastCycle(f, st)
+    }
+  })
+}
+
 // ---- the metric ----
 
 // zeros for an array like `a`: on the backend's memory when it has one, else on the same kind of buffer as `a`
@@ -280,8 +291,8 @@ function gramInto(f: FastPair, st: PairState, g1: PairState, g2: PairState): Pai
   const { k, op } = f
   const [xr, xi, yr, yi] = f.t as T12
 
-  g1.re.set(st.re)
-  g1.im.set(st.im)
+  setInto(k, g1.re, st.re)
+  setInto(k, g1.im, st.im)
   k.conv(op, st.re, st.im, X, SITE, 2, xr, xi, 1, false)
   k.blockAdd(g1.re, g1.im, xr, xi, A)
   k.conv(op, st.re, st.im, D, SITE, 3, xr, xi, 1, false)
@@ -290,8 +301,8 @@ function gramInto(f: FastPair, st: PairState, g1: PairState, g2: PairState): Pai
   k.blockAdd(g1.re, g1.im, xr, xi, X)
   k.conv(op, st.re, st.im, B, SITE, 1, xr, xi, 1, true)
   k.blockAdd(g1.re, g1.im, xr, xi, D)
-  g2.re.set(g1.re)
-  g2.im.set(g1.im)
+  setInto(k, g2.re, g1.re)
+  setInto(k, g2.im, g1.im)
   k.conv(op, g1.re, g1.im, B, SITE, 1, yr, yi, 2, false)
   k.blockAdd(g2.re, g2.im, yr, yi, A)
   k.conv(op, g1.re, g1.im, D, SITE, 3, yr, yi, 2, false)
@@ -336,12 +347,14 @@ export function fastFilter(f: FastPair, psi: PairState, phase: number, S: number
   const out: PairState = { re: zerosLike(f.k, psi.re), im: zerosLike(f.k, psi.im) }
   const st = adopt(f, psi)
 
-  for (let k = 0; k < S; k++) {
-    const w = blackmanHarris(k, S)
+  onDevice(f.k, [out.re, out.im, st.re, st.im, ...f.t], () => {
+    for (let k = 0; k < S; k++) {
+      const w = blackmanHarris(k, S)
 
-    f.k.axpy(out.re, out.im, st.re, st.im, w * Math.cos(-phase * k), w * Math.sin(-phase * k))
-    fastCycle(f, st)
-  }
+      f.k.axpy(out.re, out.im, st.re, st.im, w * Math.cos(-phase * k), w * Math.sin(-phase * k))
+      fastCycle(f, st)
+    }
+  })
 
   return out
 }
@@ -374,16 +387,23 @@ export function fastAutocorrelation(f: FastPair, v: PairState, N: number): { re:
   const im = new Float64Array(N + 1)
   const st = adopt(f, v)
 
-  for (let l = 0; l <= N; l++) {
-    const [r, i] = fastInner(f, v, st)
+  // the Gram's two states made before the device holds anything, so they are held too
+  f.gram ??= [adopt(f, v), adopt(f, v)]
 
-    re[l] = r
-    im[l] = i
+  const g = f.gram
 
-    if (l < N) {
-      fastCycle(f, st)
+  onDevice(f.k, [v.re, v.im, st.re, st.im, g[0]!.re, g[0]!.im, g[1]!.re, g[1]!.im, ...f.t], () => {
+    for (let l = 0; l <= N; l++) {
+      const [r, i] = fastInner(f, v, st)
+
+      re[l] = r
+      im[l] = i
+
+      if (l < N) {
+        fastCycle(f, st)
+      }
     }
-  }
+  })
 
   return { re, im }
 }

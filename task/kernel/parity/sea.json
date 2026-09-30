@@ -1,0 +1,533 @@
+{
+ "note": "The kernel parity suite (task/kernel/parity.ts): the reference outputs of every case, the sha256 of each output array's bytes (little-endian float64) and its first values as the shortest decimals that read back to the same doubles. Tolerance 0: every comparison is byte equality, and no quantity here is defined only up to a tolerance.",
+ "tolerance": 0,
+ "cases": {
+  "sea L 2 plain moving start": {
+   "state after 1 re": {
+    "length": 294912,
+    "sha256": "5ca6ea485920afabff83e917d2845f9cfc318cc61cf878ee7b32cf441aa13222",
+    "values": [
+     "1.5237255192513965e-21",
+     "1.5603114860628483e-20",
+     "-3.49939055729408e-20"
+    ]
+   },
+   "state after 1 im": {
+    "length": 294912,
+    "sha256": "b87d99c9655494516434c6b27914d96a4a5ca6583dc6cdd27f8adf3a6becc873",
+    "values": [
+     "-7.469190907243353e-22",
+     "1.2407525245004922e-20",
+     "4.010038458506394e-21"
+    ]
+   },
+   "state after 16 re": {
+    "length": 294912,
+    "sha256": "3d38aa230e9e26911839ece021a9e693359dad21dccd036fefe2a874f49eda51",
+    "values": [
+     "-6.418684790993844e-20",
+     "1.0444421247413085e-19",
+     "1.8877288048767972e-19"
+    ]
+   },
+   "state after 16 im": {
+    "length": 294912,
+    "sha256": "5c6c0af95a50213fdf2108dd9de287fe859c066e5da5bdd3c632eedebb4b0458",
+    "values": [
+     "-7.627324434933179e-20",
+     "-5.730185072648615e-20",
+     "-1.086421927928167e-19"
+    ]
+   },
+   "pair norm": {
+    "length": 1,
+    "sha256": "904a2bb53ab94513bd1a2e82660048ac34062afe858df3f1f3f6b9728d60ec31",
+    "values": [
+     "0.9999999999998478"
+    ]
+   },
+   "flat count N_F, fourier": {
+    "length": 2,
+    "sha256": "0201663fbe8d208db3d59db869a039366ae68438c9a36007620e019515706888",
+    "values": [
+     "5.1514348342620983e-14",
+     "7.999999999997869"
+    ]
+   }
+  },
+  "sea L 2 plain weyl": {
+   "state after 1 re": {
+    "length": 294912,
+    "sha256": "dc1305570cdfb2ce8dfcdd5b5aba87470df482cf96302b9a067682b01558acc7",
+    "values": [
+     "-0.00033197343970218336",
+     "-0.00001914217432970203",
+     "-0.00003674104582114909"
+    ]
+   },
+   "state after 1 im": {
+    "length": 294912,
+    "sha256": "35d783257854d01aeb99fbd833aa1149dda383c6d8b5746fc1da02ba3ad98b30",
+    "values": [
+     "0.00003277458610232032",
+     "0.00022657425557682137",
+     "0.0002588931456445437"
+    ]
+   },
+   "state after 16 re": {
+    "length": 294912,
+    "sha256": "813ca56eff5c7e6312821e066883e5adfe31b84ddaacb1b522470f60fcd3e651",
+    "values": [
+     "-0.00047550144230360214",
+     "0.0001476231413808417",
+     "-0.0002535397692879336"
+    ]
+   },
+   "state after 16 im": {
+    "length": 294912,
+    "sha256": "79f205f4b376db224a3daf3db2dd2b8d185a8d9810f4712a65bffdd2ed3187eb",
+    "values": [
+     "0.0002520843008801555",
+     "-0.00011301316573094384",
+     "0.0004926251045683306"
+    ]
+   },
+   "pair norm": {
+    "length": 1,
+    "sha256": "1681001fe97378868b71d3c238f0df3934b1e682926a4c291e0782f261811eaf",
+    "values": [
+     "0.042701557235077826"
+    ]
+   },
+   "flat count N_F, fourier": {
+    "length": 2,
+    "sha256": "c525cd93a405b0ed5bdb6fc640f84af04821d7e549d72f59c8e2a20f9502c153",
+    "values": [
+     "1.8661071668899218",
+     "0.3416124578806241"
+    ]
+   }
+  },
+  "sea L 2 dock control": {
+   "state after 1 re": {
+    "length": 294912,
+    "sha256": "15a7ff3a82493f69d8a5c740837fcb1df9ae98da70fa0aef38797053a85ed525",
+    "values": [
+     "-7.898683431760421e-21",
+     "1.1551159449050997e-22",
+     "4.8140152076444534e-20"
+    ]
+   },
+   "state after 1 im": {
+    "length": 294912,
+    "sha256": "84d7737281781e9d2e0948d452b7ff9bac37eed4c96a0798abf90ba9e4c6cc34",
+    "values": [
+     "5.258588953372675e-21",
+     "1.2243109325453385e-20",
+     "1.2950307469106703e-19"
+    ]
+   },
+   "state after 16 re": {
+    "length": 294912,
+    "sha256": "d5e3c1d5e531befa5499ec67a38da0e8001ead219f81b9e28c7c22e58d24e059",
+    "values": [
+     "8.244615095900074e-19",
+     "-5.957599698669889e-19",
+     "-2.0947950152054303e-18"
+    ]
+   },
+   "state after 16 im": {
+    "length": 294912,
+    "sha256": "b45c96a9f22ae22a07ee5dd4203c50c692236b2718c21f75adc1ecb2b6c54b2f",
+    "values": [
+     "-4.441213016058508e-19",
+     "2.9544085292724697e-19",
+     "3.1386309521325372e-18"
+    ]
+   },
+   "pair norm": {
+    "length": 1,
+    "sha256": "1b2e386589e564b2fbc1304eb6701794e91a68d53a6c36350b416757f4ac3656",
+    "values": [
+     "0.9999999999994725"
+    ]
+   },
+   "flat count N_F, fourier": {
+    "length": 2,
+    "sha256": "b7a6d67b555c9e7e868f620d664b687380680c95e73eb7fbabc9a316ed295b97",
+    "values": [
+     "0.4891015823223158",
+     "7.999999999997616"
+    ]
+   }
+  },
+  "sea L 2 member control": {
+   "state after 1 re": {
+    "length": 294912,
+    "sha256": "f9e9fdcf6f6f70be6ea0141ed1fae58f5fca314b54bd9ad2b027d68f0b7eaca0",
+    "values": [
+     "-1.2739239208595249e-21",
+     "1.5874955817560998e-20",
+     "-1.663040335470691e-20"
+    ]
+   },
+   "state after 1 im": {
+    "length": 294912,
+    "sha256": "ab3d8e3f28f96fa7cefa2df2cc735b67e0a6b16f04032baa4b6dea9d544aac9b",
+    "values": [
+     "6.459316037494937e-22",
+     "2.2758842339631813e-21",
+     "3.2157977986369846e-21"
+    ]
+   },
+   "state after 16 re": {
+    "length": 294912,
+    "sha256": "7d213abeedb6e9fce9a975357fe9c6a08cf3af2cff05da8cb582ae99a089c9cb",
+    "values": [
+     "-2.743669760823523e-20",
+     "-6.7501612911186416e-21",
+     "3.595460634208188e-21"
+    ]
+   },
+   "state after 16 im": {
+    "length": 294912,
+    "sha256": "e6e1d1a7e6a7f161aed980a407cf3ae87b2071e57447d699184d05fce5bf21cf",
+    "values": [
+     "2.8137222093172734e-20",
+     "3.3241671335642085e-20",
+     "-9.446081504971008e-20"
+    ]
+   },
+   "pair norm": {
+    "length": 1,
+    "sha256": "69163db13a3cdccb03961d66c63d7df263b90483b3c54a5813a074245cf8edce",
+    "values": [
+     "1.0000000000001295"
+    ]
+   },
+   "flat count N_F, fourier": {
+    "length": 2,
+    "sha256": "443cb16222b693d3f406e9f92726aac6b3f05012bb5473d178ed5412f103adae",
+    "values": [
+     "0.08161266130064684",
+     "7.999999999998467"
+    ]
+   }
+  },
+  "sea L 2 whole with kernel": {
+   "state after 1 re": {
+    "length": 294912,
+    "sha256": "cea9238cdf8f4419d578b9845844529c348fa3b623e3de512ce26884ed070e51",
+    "values": [
+     "-0.0004419795071640995",
+     "0.00004157850517706962",
+     "-0.00018555357317188986"
+    ]
+   },
+   "state after 1 im": {
+    "length": 294912,
+    "sha256": "481d99f12295abb4545f37ed1fecd8e3092eaf2c4b02f140be6daf4d5dda4b46",
+    "values": [
+     "0.00007793132770753892",
+     "-0.0001157362966544792",
+     "-0.0005850151561086376"
+    ]
+   },
+   "state after 16 re": {
+    "length": 294912,
+    "sha256": "68e3458ab0642845cb46cdef609205f63bb5b7bdcffc5fedecaa6631ac91cefb",
+    "values": [
+     "-0.0003430519628496106",
+     "0.00008585405868090467",
+     "0.00012545665171120825"
+    ]
+   },
+   "state after 16 im": {
+    "length": 294912,
+    "sha256": "d67a62074f4f543430bf06c9cd18ecd924888eb597f5dfe0b8a174aa79f17045",
+    "values": [
+     "-0.00026281224275967506",
+     "0.00037942161980402284",
+     "-0.0002694399496003106"
+    ]
+   },
+   "pair norm": {
+    "length": 1,
+    "sha256": "bc17b97978baf33ec6a750561a2de0060ab26888368aac48af0d4f06ad9869de",
+    "values": [
+     "0.042701573084864046"
+    ]
+   }
+  },
+  "sea L 2 edge zero": {
+   "state after 1 re": {
+    "length": 294912,
+    "sha256": "96a12deebdc8a3421e923d2fc00a649326f0b5167b48ffd231941a415777308c",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "state after 1 im": {
+    "length": 294912,
+    "sha256": "96a12deebdc8a3421e923d2fc00a649326f0b5167b48ffd231941a415777308c",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "state after 4 re": {
+    "length": 294912,
+    "sha256": "96a12deebdc8a3421e923d2fc00a649326f0b5167b48ffd231941a415777308c",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "state after 4 im": {
+    "length": 294912,
+    "sha256": "96a12deebdc8a3421e923d2fc00a649326f0b5167b48ffd231941a415777308c",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "pair norm": {
+    "length": 1,
+    "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+    "values": [
+     "0"
+    ]
+   }
+  },
+  "sea L 2 edge single": {
+   "state after 1 re": {
+    "length": 294912,
+    "sha256": "458804c8dcb269eab10726b0cc2173832828aa7ce0f8288ead7be4f00209ec61",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "state after 1 im": {
+    "length": 294912,
+    "sha256": "6d94b46af6f2d5ca14e6dab81055a1fa59e0c8d0d16367b941d906f4e3131f81",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "state after 4 re": {
+    "length": 294912,
+    "sha256": "289f7abce99091cc717e59b1f216d1847c6a3b248ec630043075be77dbf36cd4",
+    "values": [
+     "8.238506953535741e-22",
+     "8.238506953535742e-22",
+     "-2.140669602174058e-56"
+    ]
+   },
+   "state after 4 im": {
+    "length": 294912,
+    "sha256": "798d37d8631adb12c3e178d57efe04de246ed03233d7d5c23f33916ab2aab68a",
+    "values": [
+     "6.5730507391614e-23",
+     "6.573050739161428e-23",
+     "-6.535373442319332e-73"
+    ]
+   },
+   "pair norm": {
+    "length": 1,
+    "sha256": "e30d3363d135fbd98fad64cbb7c309948ed30a930707b21af8210514b7998576",
+    "values": [
+     "1.0000000000002347"
+    ]
+   }
+  },
+  "sea L 2 edge negzero": {
+   "state after 1 re": {
+    "length": 294912,
+    "sha256": "4daa507f438f4068fca15a828711f413f97b7bf47166128d1c7513a5373a10d9",
+    "values": [
+     "-0.000945544190899178",
+     "-0.05760052014287302",
+     "-0.15131027177038484"
+    ]
+   },
+   "state after 1 im": {
+    "length": 294912,
+    "sha256": "ef5bfc5f3ade3c199e1d756fee9a6b71c650273bc5f5b6ebc80832e8708370f8",
+    "values": [
+     "-0.2088344409849896",
+     "-0.001040262219198361",
+     "0.02755307145140095"
+    ]
+   },
+   "state after 4 re": {
+    "length": 294912,
+    "sha256": "e63e9f571d1f32ad9680a1fd6a10fb44eca2eabc724d120bde536a16e2f9e8e0",
+    "values": [
+     "-0.07175676746890028",
+     "-0.055815145329607234",
+     "-0.10440088706063276"
+    ]
+   },
+   "state after 4 im": {
+    "length": 294912,
+    "sha256": "d3ea591c4f1c1edfad708158b99521b729d33d703afd3e883d7390e6babb1d35",
+    "values": [
+     "-0.25288108723883707",
+     "-0.014879862280278669",
+     "-0.005519283167113767"
+    ]
+   },
+   "pair norm": {
+    "length": 1,
+    "sha256": "0a594a0f381c3a49a0b06460e3d879dd6951a53ce901f7f62e20dd0b21225923",
+    "values": [
+     "4991.587039608841"
+    ]
+   }
+  },
+  "sea L 2 edge tiny": {
+   "state after 1 re": {
+    "length": 294912,
+    "sha256": "c35e6fcf464c67bb28802b7a9ddae069528f5742adf5a4d0ef62ca68f34e393e",
+    "values": [
+     "2.398882097891301e-301",
+     "-4.109652650777684e-301",
+     "4.413697004160918e-302"
+    ]
+   },
+   "state after 1 im": {
+    "length": 294912,
+    "sha256": "3d73aaa07922f977a0ac078a09f79655821a34fa081c765d5f448f8965c67ddd",
+    "values": [
+     "-1.770538689433413e-301",
+     "3.0487819766093347e-302",
+     "2.767910101128116e-302"
+    ]
+   },
+   "state after 4 re": {
+    "length": 294912,
+    "sha256": "ef30b5dd9b3f36f2d35246dff59272b6e8d8e6c8dd5d4c397c4e0807cc800a1c",
+    "values": [
+     "6.542443470943356e-302",
+     "-3.4755559056127982e-301",
+     "1.6539910256712107e-301"
+    ]
+   },
+   "state after 4 im": {
+    "length": 294912,
+    "sha256": "4efafa952506cd9bec4a4e90e3508f50df68b915892c2ddb66d022ec25e1ddb3",
+    "values": [
+     "-2.5923971608233005e-301",
+     "2.4583922582941913e-301",
+     "8.03412374379487e-302"
+    ]
+   },
+   "pair norm": {
+    "length": 1,
+    "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+    "values": [
+     "0"
+    ]
+   }
+  },
+  "sea L 2 edge huge": {
+   "state after 1 re": {
+    "length": 294912,
+    "sha256": "3156b06bae4223b0938d3171adb3cd198d03c480e5c688ba8f60434d069c6fb8",
+    "values": [
+     "1.4025775301924215e+299",
+     "-4.145453534661276e+299",
+     "7.369732104412483e+298"
+    ]
+   },
+   "state after 1 im": {
+    "length": 294912,
+    "sha256": "67520b79949588d0268caacab4c523f16496255c161f3c5a0d89f7ebcf9f30f8",
+    "values": [
+     "-1.4923752171200332e+299",
+     "3.337036318739627e+298",
+     "8.87817239020234e+298"
+    ]
+   },
+   "state after 4 re": {
+    "length": 294912,
+    "sha256": "822adf194aaa5b149807103296f593ae02f82761c864daddfdca7231aecec0bf",
+    "values": [
+     "7.649949980427356e+298",
+     "-3.2931283319753883e+299",
+     "1.6755391016729494e+299"
+    ]
+   },
+   "state after 4 im": {
+    "length": 294912,
+    "sha256": "2105647535258b0bb8f1693e6626a866b628562b1b0c7400fc93f42b6f0b3eb2",
+    "values": [
+     "-2.284137367573083e+299",
+     "2.1011356726697043e+299",
+     "8.7403247122484e+298"
+    ]
+   },
+   "pair norm": {
+    "length": 1,
+    "sha256": "9402bb655bc3b7331a00f1219ef647565bbe517c74aa0e41026885785867d1cd",
+    "values": [
+     "Infinity"
+    ]
+   }
+  },
+  "sea L 2 edge mixed": {
+   "state after 1 re": {
+    "length": 294912,
+    "sha256": "8ca59f0059f28abf29e52382fee351c28d36cbaf61a9f8595ceb0e75539c78a9",
+    "values": [
+     "1.4910624824329394e+149",
+     "-1.300858077182159e+149",
+     "1.9531274227467893e+148"
+    ]
+   },
+   "state after 1 im": {
+    "length": 294912,
+    "sha256": "bd33bcd721213c4b1f7dd7372478ba1d34e32c0b3563aa273db776a5c8013b5d",
+    "values": [
+     "-7.818271619272635e+148",
+     "1.6981031466242402e+149",
+     "-4.874050868591954e+148"
+    ]
+   },
+   "state after 4 re": {
+    "length": 294912,
+    "sha256": "13a129371e1da8290895094c36c9df51a74a497a573e1539b53ec0778df4c10e",
+    "values": [
+     "7.065688216808038e+148",
+     "2.2387556086184637e+148",
+     "7.794761283817219e+148"
+    ]
+   },
+   "state after 4 im": {
+    "length": 294912,
+    "sha256": "24e5ec234118d8966e9576c82be379b9e42e7f8fc35e026dcbd8ad30a1e58604",
+    "values": [
+     "5.986724086552135e+148",
+     "2.763388098974378e+149",
+     "-5.15919459457355e+146"
+    ]
+   },
+   "pair norm": {
+    "length": 1,
+    "sha256": "9813872bfc90e6c1ed45552c4e0d324c4b03ef4ab730c28fd778c5319e9ab788",
+    "values": [
+     "1.4234444271005733e+304"
+    ]
+   }
+  }
+ }
+}

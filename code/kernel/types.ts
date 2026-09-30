@@ -10,11 +10,38 @@
 //   native   the Rust crate kernel/ built as a Node-API addon, zero copy, std::thread over all cores
 //   wasm     the same crate built for wasm32 with SIMD128, one instance, arrays copied in and out
 //   wasm-threads   the crate built for wasm32 with atomics, one instance per worker_thread over one shared memory
+//   hip      the crate's GPU binding on an AMD GPU (kernel/src/gpu.cu compiled by hiprtc at load), float64
+//   cuda     the same kernels on an NVIDIA GPU (NVRTC at load), float64
+//   gpu-emu  the same kernels compiled for the CPU, one thread: the GPU path checked byte for byte where there is no GPU
 //
-// EXACT (integer and modular) primitives would be a second family behind the same shape, the one a GPU backend could
-// run byte for byte (u32 arithmetic): see the phase-two section of the kernel note. Nothing here is integer yet.
+// A GPU backend keeps arrays on the device between calls only when told to (Kernel.device: hold and release, see
+// code/kernel/device.ts onDevice); any other array is copied in, and back out when it is an output, on every call.
+//
+// EXACT (integer and modular) primitives would be a second family behind the same shape: see the phase-two section of
+// the kernel note. Nothing here is integer yet.
 
-export type Backend = 'js' | 'native' | 'wasm' | 'wasm-threads'
+export type Backend = 'js' | 'native' | 'wasm' | 'wasm-threads' | 'hip' | 'cuda' | 'gpu-emu'
+
+export type GpuBackend = 'hip' | 'cuda' | 'gpu-emu'
+
+// the arrays a device backend may hold
+export type Typed = Float64Array | Int32Array | Int16Array | Int8Array
+
+// a backend with its own memory that is NOT the host's (a GPU): the arrays it holds live on the device between calls,
+// and their host copies are stale until released or fetched. Held arrays must not be read or written on the host while
+// held, except through fetch, put and copy
+export type Device = {
+  // upload each array and keep it on the device (counted: holding an array twice needs two releases)
+  hold(arrays: readonly Typed[]): void
+  // the last release of an array downloads it into its host copy and frees the device copy
+  release(arrays: readonly Typed[]): void
+  // download held arrays into their host copies, still held
+  fetch(arrays: readonly Typed[]): void
+  // upload held arrays' host copies (after the host changed them)
+  put(arrays: readonly Typed[]): void
+  // dst.set(src), wherever each lives
+  copy(dst: Float64Array, src: Float64Array): void
+}
 
 // the pair convolution's static tables, flattened (code/kernel/pair.ts builds them from an engine)
 export type PairTables = {
@@ -78,11 +105,20 @@ export type HolePairTables = {
 export type HolePhase = { cos: Float64Array; sin: Float64Array; skip: Int8Array }
 
 // a backend's handle on a PairTables (the native backend copies the tables into the addon once)
-export type PairOp = { readonly count: number; readonly tables: PairTables; readonly native?: unknown; readonly wasm?: number }
+export type PairOp = {
+  readonly count: number
+  readonly tables: PairTables
+  readonly native?: unknown
+  readonly wasm?: number
+  readonly gpu?: unknown
+}
 
 export type Kernel = {
   readonly backend: Backend
   readonly threads: number
+
+  // a GPU backend's residency control (absent: every array is read in place or copied by the backend itself)
+  readonly device?: Device
 
   // a zeroed array this backend reads and writes with no copy (only where that differs from a plain Float64Array: the
   // threaded wasm module's shared memory); absent, any Float64Array is read in place or copied by the backend itself
