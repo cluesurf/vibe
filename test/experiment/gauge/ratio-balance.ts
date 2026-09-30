@@ -76,6 +76,22 @@
 // on (13, 2)): one level moved, harmonic reading 7.14, phase 4.00, a difference of 3.14. tmp/qr-model1.log printed
 // the Gaussian-tail model's optima. No spread, sub-grid optimum or 3-square departure was computed before the gate
 // run.
+//
+// FIRST RUN 2026-09-29 (tmp/qr-gate-run1.log, 8,616 s): FAIL, the clean negative, no gate moved. Q1 held: the split
+// and its double agree to 0 (bit for bit), the real-ratio beat matches all 24 of E-FRC-0269's (13, 2) exact splits to
+// 1.2e-15 and its printed departures exactly. So the departure IS a function of rho alone, and 0269's "follows the
+// root" was fine structure in rho. Q2 failed at x = 2: the 2-square spreads over N = 9 .. 29 are 0.012 (an artifact:
+// every sub-grid's optimum sat at the scan's top, 4.12), 0.264, 0.125, 0.259, 0.118, 0.069, 0.067, fit slope +0.48.
+// At x = 1 they are 0.302, 0.150, 0.051, 0.194, 0.162, 0.161, 0.080, slope -0.41, and they would reach the needed
+// 0.0036 at N = 123,187 (lambda = 12.5, inflated by the x = 2, N = 9 artifact; with lambda = 1 the need is 0.032,
+// still N about 590). Q3 failed: R = 1.128 and 0.831 (N 9), 1.442 and 1.243 (N 11) at x = 1 and 2, with errors 0.64,
+// 0.29, 0.45 and 0.55 against the 0.0912 a separation needs, so no pair picks. The 3-square spreads, 0.078 to 0.169,
+// are no better than the 2-square ones. READ: the least smoothed departure falls as N grows (E at x = 1 from 6.5 at
+// N 9 to 18.5 at N 29) while the spread does not, which is point 2: the jitter sits on the signal. The 2-square
+// control lands at 2.75 to 2.91 at x = 2 on N = 21 .. 29, below 3, as the model's finite-N shift puts it (2.64 to
+// 2.74). The model's own R at the run's boxes is 0.92 to 1.00, so even a perfect statistic sits nearer 1 there. On
+// (11, 3) at rho = 3 the levels holding all but 1e-9 of the x = 2 weight reach 4.0 turns of 2 pi and are 1,316 of
+// 1,331: every phase and nearly every level is needed, so no sparse method helps.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'

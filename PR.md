@@ -54,6 +54,55 @@ apart from the recorded first-run paragraphs.
 - Notes changed outside this repo: `note/research/vibe/roadmap/remaining-pieces.md` (two new sections after
   E-FRC-0262), `open.md` (LGT-01 to 04), `everything.md` (the "value of α" row's text, no status change).
 
+## OPEN-LGT-02 and OPEN-LGT-12: the split by its ratio alone (E-FRC-0270)
+
+### What changed
+
+- `code/measure/ratio-balance.ts`: the ladder beat at any real split ratio (root 1, fractional exponents), the
+  Planck departure on a grid uniform in ln ρ, the sub-grid optima with a running median, the spread, a power fit,
+  and the Gaussian-tail model of the finite-N Planck optimum (each register a Gaussian with its exact harmonic
+  thermal variance, seam weight erfc).
+- `test/experiment/gauge/ratio-balance.ts` (E-FRC-0270), registered in `test/registry.csv`, the barrel and the
+  catalog.
+
+### Results (gates fixed in the header before the gate run, probes disclosed)
+
+- **E-FRC-0270, fail, the clean negative, 1 of 4 gates.** Held, Q1: the beat is a function of ρ alone, a theorem
+  (its phases are c/M and r/M, and every exact split of one ratio is a multiple of the least one), checked bit for
+  bit on a split and its double, and to 1.2e-15 against all 24 of E-FRC-0269's (13, 2) exact splits. So "averaged
+  over the splits of one ratio" is one operator, and 0269's "follows the root" was fine structure in ρ. A probe
+  traced one jump to a single level whose harmonic reading (7.14) and phase (4.00) differ by π, so its unwrap turn
+  flips: the jitter sits on the seam levels that carry the signal.
+- Failed, Q2 to Q4. The split-to-split spread of the Planck-optimal ratio (10 shifted sub-grids at 0269's density,
+  5-point running median) on 2 squares, N = 9 to 29: 0.30 to 0.05 at x = 1 (fit slope −0.41), 0.26 to 0.07 at x = 2
+  (slope +0.48). R = ρ*(3)/ρ*(2): 1.128, 0.831 (N 9), 1.442, 1.243 (N 11), errors 0.29 to 0.64 against the 0.0912
+  a separation needs. The x = 1 trend reaches separation only at N ≈ 590 (λ = 1) to 123,187 (λ = 12.5 measured),
+  against a dense reach of N = 25 on 3 squares. No sparse method helps: on (11, 3) the levels holding all but 1e-9
+  of the x = 2 weight span 4.0 turns of 2π and are 1,316 of 1,331.
+- Read: the 2-square control lands at 2.75 to 2.91 (x = 2, N 21 to 29), below 3 as the Gaussian-tail model's
+  finite-N shift puts it (2.64 to 2.74). The model's own R on the run's boxes is 0.92 to 1.00, so at these N even
+  a smooth statistic would sit nearer the average.
+
+### How it was tested
+
+```
+pnpm call task/run-experiment.ts test/experiment/gauge/ratio-balance.ts   # 8,616 s, fail
+node_modules/.bin/tsc --noEmit -p tsconfig.check.json
+node_modules/.bin/tsx test/catalog.ts
+pnpm check:labels
+pnpm check:coverage
+pnpm result check
+```
+
+### Status and follow-ups
+
+- OPEN-LGT-02 stays open at 0.4614 or 0.4146. The ladder's Planck criterion cannot pick the split at any N a dense
+  spectrum reaches, and the thermal sum of a Floquet light is not a function of U, so no sparse method computes it.
+  What is left: a seam criterion that does not unwrap energies, or the 3d light.
+- OPEN-LGT-12 stays open.
+- Notes changed outside this repo: `open.md` (Next up item 3, LGT-02, LGT-12), `remaining-pieces.md` (a new section
+  after E-FRC-0269), `solutions.md` (section 7).
+
 ## OPEN-LGT-12 for OPEN-LGT-02: what a quantum light's seams balance (E-FRC-0269)
 
 ### What changed
@@ -772,3 +821,59 @@ barrel), `task/check-coverage.ts` (0 unknown, 0 mismatches), `test/result.ts che
   `solutions.md` (§8), `everything.md` (the parity violation row, text only). `constraints.ts` is unchanged: no status
   moved, though its handedness reason still says the true mesh's cusp is not read. Site sentences corrected, since they
   stated the refuted argument: `pages-matter.tsx` (two), `pages-open.tsx` (two), `figures-open.tsx` (one).
+
+## OPEN-WKF-03 and OPEN-FND-14: a channel that joins the register halves, and the Higgs row read on it (E-FRC-0273)
+
+E-FRC-0271 left the Higgs row as a gauge invariant condensate ⟨ψ₋†ψ₊⟩ joining the register halves, dressed by the
+SU(2)₊ field. This item derives what can join the halves and keep R*'s invariants, builds the one channel that survives,
+and reads the condensate.
+
+### What changed
+
+- `code/measure/register-join.ts`: the rule's symmetries restricted to the sector ranges S and D (Γ₊, a half − 2T Γ₋
+  found by the same exact search, the 576 rotations and reflections, the untwisted rotations L(s)), the channel census
+  by characters, the intertwiner from the isospin singlet of Λ²(X₊) to Λ²(Y₋) by a rotation average with Schur's check,
+  the S → D join as a piece in E-SPN-0175's relative engine (source: the pre-stream S contact in beat 2's frame;
+  target: the D contact), its control, and the half-weight and contact-pair readers.
+- `test/experiment/gauge/register-join.ts` (E-FRC-0273), with its row in `test/registry.csv`, `test/experiment/all.ts`,
+  the regenerated `test/catalog.csv` and the readme count.
+
+### The derivation, and the construction chosen
+
+- **The center.** 4Γ(−1) = −4J, and a link is odd under the center at both ends, so a gauge invariant operator holds an
+  even number of half + fields. The dressed ⟨ψ₋†ψ₊⟩ does not exist for any field, and a physical state holds N₊ even.
+- **The candidates.** A + with − contact keeps N₊ and N₋ (a Fierz relabeling of a J-commuting piece). The chiral wall,
+  Σ(648), the roles and the field all commute with J. A dressed ψ₋†Uψ₊ is center-odd. So the least join is new: two
+  half + members in an isospin singlet to two half − members.
+- **The census** (13,824 and 331,776 elements): S → S 0, D → D 1 (0 with SU(2)₋), S → D 1 and 1, D → S 2 and 1. The
+  chosen join is S → D, unique, keeping rotations, SU(2)₋ and spin one half. A sector contact counted from the sea, at
+  the ledger's prime unit ρ, in beat 2's frame where both channels are orthogonal to the flats.
+
+### Results (gates fixed in the header before the gate run, probes disclosed)
+
+E-FRC-0273, fail on H alone, as derived (833 s). Z, N, B, I, X, C1, C2 and the instrument hold. One cycle converts
+exactly 3/28 of a contact pair into half − at ρ (L = 4 and 6) and 3/4 at ω; the same phase with nothing joined keeps it
+at 1.4e-29 or less. N_F within 3.2e-13 of 0, N₊ odd at most 2.4e-29, least occupancy 6 over 4,718,592 configurations.
+D → D misses Γ₋ and the untwisted rotations by 0.125. H fails: ⟨ψ₋†ψ₊⟩ stays at 2e-29. Read: the gauge invariant
+coherence κ's running mean settles near 0.04 over 16 to 64 cycles (not claimed stationary), and its ledger term flips
+with the ledger's sign.
+
+### How it was tested
+
+Probes `tmp/hc-probe1.log` (the census), `tmp/hc-probe2.log` (the channels). Smokes `tmp/hc-smoke.log` (4 cycles),
+`tmp/hc-smoke2.log` (every path of the experiment). Gate run `tmp/hc-gate-E-FRC-0273.log`. Checks `tmp/hc-checks.log`:
+`tsc --noEmit -p tsconfig.check.json` exit 0, `test/catalog.ts` 1,538, `task/check-labels.ts` (the same 1 contradicted
+label and 20 for review, none from this item, 0 registry rows outside the barrel), `task/check-coverage.ts` (0 unknown,
+0 mismatches), `test/result.ts check` exit 0 (0 problems). The readme's category counts were stale for gauge and spin
+and now read the catalog (272, 185).
+
+### Status and follow-ups
+
+- No row is ticked, and the Higgs row stays broken. It now needs a center-odd scalar on the docks, which the rule does
+  not have, or a vacuum other than the full sea that some ledger selects (every hole-counted piece is the identity on
+  the full sea). The mass to read is a gauge invariant pair's level shift, not a lone doublet's.
+- Not read: whether κ's settled mean is a stationary part, the mirror join (S₋S₋ to D₊D₊, also admissible), the join in
+  a curved field and on the chiral slab.
+- Notes changed outside this repo: `remaining-pieces.md` (a new section, "A channel that joins the register halves",
+  and the one-rule table), `open.md` (Next up 8, FND-14, FND-15, WKF-01, WKF-03, text only), `solutions.md` (§8),
+  `everything.md` (the Higgs row, text only). `constraints.ts` is unchanged: the Higgs row stays broken.
