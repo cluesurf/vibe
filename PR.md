@@ -573,3 +573,202 @@ label and 20 for review, none from this item, 0 registry rows outside the barrel
   `mesh/site/clue.surf/home/site/tool/vibe/constraints.ts`: the codes and a clause on the quantum-roles, fear-is-magic,
   love-fear, classical-steps, pulled-part and Higgs rows (no status change, and the Higgs row's stale "without an energy
   ledger" now cites E-FND-0159).
+
+## OPEN-FND-01 and OPEN-WKF-03: a curved link field that keeps the member light, and the SU(2)₊ gauge field (E-SPN-0180, E-FRC-0271)
+
+C* kept its links flat because a curved field made E-SPN-0161's member heavy. This item derives why, finds that the
+register member rests where curvature cannot reach, builds the 2T link field on half + of the register (SU(2)₊'s
+gauge field), and reads what it allows for Gauss's law and E-FND-0159's vacuum question.
+
+### What changed
+
+- `code/measure/register-link-field.ts`: 2T as the 24 Hurwitz units acting on half + by right multiplication (an exact
+  homomorphism found by search, 4Γ integer), static fields on the D4 torus (trivial, Weyl, pure gauge, dilute, −1,
+  gauge-transformed), the covariant Clifford hop's C†C on half + (`diracHalf`), E-SPN-0161's averaged hop in the same
+  field (`hopHalf`), the same hop with a link on a separate factor (`roleDirac`, `roleHop`, for C*'s Σ(648) role),
+  the one-member cycle with the field, the plane check, the exact gauge checks, triangle curvature, the breaking sea's
+  one-cycle leak and its exact Gauss weight.
+- `test/experiment/spin/register-curved-links.ts` (E-SPN-0180) and `test/experiment/gauge/register-su2-gauge.ts`
+  (E-FRC-0271), with their rows in `test/registry.csv`, `test/experiment/all.ts`, the regenerated `test/catalog.csv` and
+  the readme count.
+
+### The derivation, and the construction chosen
+
+- **Why 0161's member was heavy.** It rests at the TOP of its averaged hop (m = π/2 − arcsin(sin(θ/2) λ_top)), which
+  reaches 1 only in a flat field. Disorder pulls a spectrum's edges in, to the Kesten radius. Its color commuted with
+  its coin, so commuting was never the issue.
+- **Where the register member rests.** V (coin and stream) is an involution in every static field, so the cycle is a
+  product of phases on two projectors, and Jordan's lemma gives cos E = cos M − 2cos²(M/2)μ in any field, μ the
+  spectrum of C†C with C = Q_D V Q_S = c₀ Σ γ(r_d) G_d T_d, a naive Dirac operator. The member rests at a ZERO of C,
+  the middle of a chiral spectrum, which disorder fills rather than empties.
+- **Chosen:** a curvature that commutes with the mixer (right multiplication on half +). Curvature kept off the
+  member's line is impossible on D4 (every triangle uses three roots), and a field small in its vacuum does not exist
+  for a finite group. Commuting makes it the rule's gauge field; the Dirac zero is what keeps the member light. No
+  plaquette term is needed for lightness. The field's own electric and magnetic pieces (E-SPN-0152's) are built and
+  checked exactly, not run with members.
+
+### Results (gates fixed in each header before its gate run, probes disclosed)
+
+E-SPN-0180, pass, as predicted (389 s). In 9 curved 2T fields (three Weyl fields at L = 4 and one at L = 6, curving
+0.955 to 0.963 of the D4 triangles, and five dilute fields) the register member stays within 7.4e-7 of 0.190126, while
+E-SPN-0161's law on the same hop reads 1.170 to 1.180 (Weyl) and 0.214 to 1.007 (dilute). μ_min falls with the box
+(3e-8 at L = 4, 6.3e-9 at L = 6). The law closes on the explicit cycle to 2.9e-11 and holds to 6e-15; gauge covariance
+exact (dynamic 1.8e-17); one branch, 176 flats a dock (μ_max 0.163), K, chirality and the pure-gauge identity kept. A
+curved Σ(648) field on C*'s role reads the same (μ_min 4.3e-8, 0161's law 1.168). Depth L2: the member's rest level,
+not free motion, is what is read.
+
+E-FRC-0271, fail on H and S, as derived (0.5 s): Gauss's law exact (the
+homomorphism over 576 products, projector gaps 0, link covariance, electric and magnetic class functions), a half +
+member two doublets and a half − member none, a lone triplet pair must emit 3-flux (least a triangle loop, electric
+count 12) where a singlet needs none, the field commutes with J (no channel joins the halves), and the breaking sea
+leaks 7.5e-2 a cycle in a curved field and lies in each dock's Gauss sector with weight exactly 1/6 + (2/3)·2⁻²⁴, its
+X₁ averaging to 0 there (Elitzur).
+
+### How it was tested
+
+Probes `tmp/lf-probe1.log` (L = 4), `tmp/lf-probe1-6.log` (L = 6, stopped after the Weyl and dilute 0.01 fields to free
+the machine for the gate run), `tmp/lf-probe2.log`. Smokes `tmp/lf-smoke.log`, `tmp/lf-smoke2.log`. Gate runs
+`tmp/lf-gate-E-SPN-0180.log`, `tmp/lf-gate-E-FRC-0271.log`. Checks `tmp/lf-checks.log`: `tsc --noEmit -p
+tsconfig.check.json` exit 0, `test/catalog.ts` 1,534, `task/check-labels.ts` (the same 1 contradicted label and 20 for
+review, none from this item, 0 registry rows outside the barrel), `task/check-coverage.ts` (0 unknown, 0 mismatches),
+`test/result.ts check` exit 0 (0 problems).
+
+### Status and follow-ups
+
+- No row is ticked. OPEN-FND-01's rows on link curvature are now unblocked on the member side; the field's own
+  dynamics with members (a 24-state register a link) is not run, and a moving field moves the flat space.
+- The Higgs row stays broken, now sharper: a local SU(2)₊ cannot be broken by a sea, and the field joins no halves, so
+  the missing piece is still a channel between the halves, read gauge-invariantly.
+- Notes changed outside this repo: `remaining-pieces.md` (a new section, "A curved link field that keeps the member
+  light"), `open.md` (Next up 4 and 8, FND-01, FND-14, FND-15, WKF-01, WKF-03, text only), `solutions.md` (§8),
+  `everything.md` (the Higgs and one-rule rows, text only). `constraints.ts` is unchanged: no status moved.
+
+## OPEN-GRV-13: gravity's count field under the register rule (E-GRV-0146)
+
+### What changed
+
+- `code/measure/register-count.ts`: the husk depth kernel as a pair angle per relative dock of a register-sea torus,
+  the raw count's Hartree angle, the rest gap against the mixer angle, one member on the D4 torus of any even side
+  (full 192-mode state, mixers, swap coin, stream) with its sector and dock counts per dock, projected one-member starts,
+  and the pair's separation.
+- `code/measure/register-sea.ts`: `SeaRule` takes an optional `kernel` (a pair angle per relative dock in place of
+  string min(V, cap)) and `whole` (the control: the angle on the whole relative dock, the dock count). `projected` is
+  exported. With neither field set the engine is unchanged.
+- `test/experiment/gravity/register-count-field.ts` (E-GRV-0146), with its rows in `test/registry.csv`,
+  `test/experiment/all.ts`, the regenerated `test/catalog.csv` and the readme (1,535 rows, gravity 143, L2 1,157, and a
+  sentence under the register section).
+
+### Results (gates fixed in the header before the gate run, probes disclosed)
+
+Pass, as predicted (436 s). No gate moved, none rerun.
+
+- **G1, the source.** A member projected on the flats has sector count below 1.6e-31 at every dock and beat and
+  returns to its start every cycle (2.4e-16). A moving member holds 0.500. So the source is the sector count, and the
+  flats neither source nor feel it.
+- **G2.** Under the gravity piece N_F stays within 1.9e-14 of 0, 0 and 1 for 64 cycles (L = 4).
+- **G3, the pull.** Mean separation over cycles 1 to L/2: gravity 1.4910, 1.4592, 1.6570 against free 1.5028,
+  1.4775, 1.7192 (L 4 two starts, L 6).
+- **G4, the far field.** One hole on L = 16, its sector count averaged over 16 beats: k per unit charge on r 5..7 is
+  0.99969 of the point unit's. Charge 0.524 a beat (1.000, 0.042, 0.852, 0.273, ... by beat).
+- **Controls.** The same piece read as members pushes them apart (1.5106, 1.4915, 1.7716): the sector phase is odd
+  under particle-hole. The dock count releases N_F to 0.12, 0.22 and 1.001. Raw counts put a Hartree angle of 318 to
+  94,149 on each hole (as L⁴) and move the rest gap to 1.21 to 2.87 against 0.380.
+- **Instrument.** The point unit's k at 1.000013 of E-GRV-0119's. M = π − |θ| with slope 1.000000000, which fixed the
+  sign before any pair ran.
+- **A read that failed.** The husk solve of the raw count (64 − n a column) returned −2.9e5, and NaN on a probe after
+  the run: the solver does not survive the sea's uniform count. The raw sign rests on the algebra.
+
+### How it was tested
+
+Probes `tmp/gc-probe1.log`, `gc-probe2A.log`, `gc-probe2B.log`, `gc-probe3F.log`, `gc-probe3six.log`, and after the run
+`gc-probe4.log`. Smoke `tmp/gc-smoke.log`. Gate run `tmp/gc-gate-run1.log` (`test/rerun.ts E-GRV-0146`). Checks
+`tmp/gc-checks.log`: `test/catalog.ts` 1,535, `tsc --noEmit -p tsconfig.check.json` exit 0, `task/check-labels.ts`,
+`task/check-coverage.ts`, `test/result.ts check`.
+
+### Status and follow-ups
+
+- OPEN-GRV-13 is not ticked. The count field runs, but the pull is read as slower spreading on small tori, not as a
+  force law, and the rereadings at c/4 (G's units) are not done. The kernel is the depth register's float Green's
+  function, a stand-in.
+- New question: the gravity piece attracts holes and repels members. It is universal on the love sea because every
+  excitation is a hole. C*'s fear-sea holes need their own check.
+- New question: the charge is 0.524 a beat, not 1. Whether it equals the hole's inertia is idea 1d (OPEN-GRV-02).
+- Notes changed outside this repo: `remaining-pieces.md` (a new section after E-SPN-0175's, and a pointer in
+  E-GRV-0145's), `open.md` (Next up 2, GRV-13), `everything.md` (Newton's inverse square and the equivalence principle,
+  text only). `constraints.ts` is unchanged: no status moved.
+
+## OPEN-CPA-01 and OPEN-MOT-03: parity and motion on the true mesh, at a cusp (E-FRC-0272, E-SPN-0181)
+
+Every earlier parity and register-motion read ran on a flat stand-in, and the code says which: E-SPN-0167 on the flat
+D4 mesh's depth-period-2 quotient, E-SPN-0168 and E-FRC-0267 on a flat Wilson slab, E-FRC-0258 and E-SPN-0160 as Bloch
+bands of the flat mesh. Only lines, line waves and the Hopf reading had been run on {3,4,3,4} (E-SPN-0156 to 0158).
+This item runs the register rule itself on the true mesh near a cusp, dock by dock.
+
+### What changed
+
+- `code/substrate/coxeter/labelled-region.ts`: a labelled region of the true mesh grown from any seed frames
+  (`buildLabelledRegion`), the husk neighbourhood of a cusp (`cuspRegion`: the layer patch to a skin radius and every
+  cell below it to a depth cut, with depth, Busemann level and husk position), the image of a region under a mesh
+  isometry with its one label action (`regionImage`), and group closure (`closeGroup`). Keys are the hyperboloid
+  centers on a half-unit grid, safe because distinct centers are at least 2 apart.
+- `code/measure/cusp-register.ts`: E-SPN-0160's pieces and E-FRC-0258's chiral mass applied structurally (about 3,000
+  multiplications a dock, checked against the dense 192 x 192 pieces to 1.3e-15), a beat on any labelled region with a
+  per-dock class (so a rule may read a dock property), a reflecting or absorbing frontier, mesh symmetries as operators,
+  the symmetry defect of the dynamics, and the upper-band member at a momentum (a spectral projection).
+- `test/experiment/gauge/cusp-parity.ts` (E-FRC-0272) and `test/experiment/spin/cusp-motion.ts` (E-SPN-0181), with their
+  rows in `test/registry.csv`, `test/experiment/all.ts`, the regenerated `test/catalog.csv` and the readme count.
+
+### The derivation (in each header, before its gate run)
+
+- **The labelling reverses orientation at every step.** The translation-like transport carries holonomy on {3,4,3,4}
+  (E-SPN-0156), so the antipodal one is what the mesh admits, and each step (a facet reflection times the cell's point
+  inversion) has det -1. Relative to parallel transport a step is -R_d, a W(F4) reflection, which swaps the register
+  halves. So a rule written in labels holds each half left-handed on even docks and right-handed on odd ones.
+- **The cusp orients the depth.** The layer is the top of the mesh: 6 slots along it, 18 down, none up.
+- **The labels hide it from the chiral mass.** The cusp's face mirror r4 acts on the labels as -I, the register identity.
+  A rotation-covariant rule keeps g exactly when g's label action is a rotation: r4 and the husk inversion about a face
+  center kept, the cube-center mirrors and the half-turns such as r1 r4 broken.
+- **Motion.** The swap coin's bounce returns an excursion below the screen to the dock it left (every depth-1 dock hangs
+  under one layer dock), so only 6 of 24 slots can carry the member along the husk.
+
+### Results (gates fixed in each header before its gate run, probes disclosed)
+
+E-FRC-0272, fail as derived (270 s). 24 of 24 transports det -1 and 0 neighbour pairs of equal orientation on regions of
+481 to 16,800 docks. The label chiral rule keeps every element whose label action is a rotation to 3.6e-16 over 6
+beats (r4, the face-center inversion, two improper quarter turns) and breaks every other by at least 5.7e-2 (0.22 with
+a massless half). E-FRC-0258's argument that the cusp picks the depth-keeping reflection is refuted. A mass that reads
+each dock's orientation keeps every husk rotation and breaks all 128 husk-mirror readings. Controls: the achiral rule
+keeps all 64 elements (3.8e-16); the flat box reproduces E-SPN-0167 in real space (-I kept, P_imp and R4 broken by
+7.5e-2). Depth L1 and L2.
+
+E-SPN-0181, fail as derived (45 s). The screen: 2,625 of 2,625 layer docks split 6, 18, 0; 47,250 of 47,250 depth-1
+docks under one layer dock. The member at rest puts exactly 1/4 on the layer after one beat (flat: 1/2, 1/4, 1/4,
+mirror-symmetric to 8.3e-17). The upper-band member at husk momentum 0.6 moves +0.060, +0.019 (depth cut 1, light and
+massless) and +0.054, +0.015 (depth cut 2) husk docks in 8 beats, against -0.748, -1.003, -0.456, -0.598 on the flat
+quotient; 0.10 to 0.39 passes below the cut. The pair census on the true horosphere is not reached. Depth L2.
+
+### How it was tested
+
+Probes `tmp/hm-probe1.log`, `tmp/hm-probe2.log`, `tmp/hm-motion-probe-6-1.log`, `tmp/hm-packet-probe.log` and the three
+`tmp/hm-packet-probe2-*.log`. Engine smoke `tmp/hm-smoke.log`. Smokes `tmp/hm-parity-smoke.log`,
+`tmp/hm-motion-smoke.log`; after the motion smoke, before its gate run, I2 and I3 (float sums of up to 2.6e7 squared
+amplitudes) moved from 1e-12 to 1e-10, disclosed in the header; the gate run read 1.4e-12. Gate runs
+`tmp/hm-parity-gate-run1.log`, `tmp/hm-motion-gate-run1.log`. Checks `tmp/hm-checks.log`: `tsc --noEmit -p
+tsconfig.check.json` exit 0, `test/catalog.ts` 1,537 (one row, `E-SPN-XXXX` spin/route-free-string, is another item's),
+`task/check-labels.ts` (the same 1 contradicted label and 20 for review, none from this item, 0 registry rows outside the
+barrel), `task/check-coverage.ts` (0 unknown, 0 mismatches), `test/result.ts check` exit 0 (0 problems).
+
+### Status and follow-ups
+
+- No row is ticked. The named test of OPEN-CPA-01 ran and found no P violation from the chiral mass; the named mover of
+  OPEN-MOT-03 ran and does not travel. Both stay open with sharper requirements.
+- Next for parity: whether a mass that reads each dock's orientation keeps E-FRC-0258's one-body results when a member
+  meets m+ and m- on alternate beats, and whether reading the orientation can be a local piece at all; E-FRC-0267's
+  Wilson half at the cusp's one-sided screen.
+- Next for motion: the rule's own eigenmodes on the layer and the docks under it, Bloch along the horosphere's
+  translations, asked whether any stays on the screen; then the census.
+- Notes changed outside this repo: `remaining-pieces.md` (a new section, "Parity and motion on the true mesh, at a
+  cusp", and pointers in E-FRC-0258's, E-FRC-0267's and E-SPN-0167's), `open.md` (Next up 7, CPA-01, MOT-03, text only),
+  `solutions.md` (§8), `everything.md` (the parity violation row, text only). `constraints.ts` is unchanged: no status
+  moved, though its handedness reason still says the true mesh's cusp is not read. Site sentences corrected, since they
+  stated the refuted argument: `pages-matter.tsx` (two), `pages-open.tsx` (two), `figures-open.tsx` (one).

@@ -554,6 +554,12 @@ realizes.
      graviton shares it: every one of a member's 192 bands is the Dirac
      band or flat, and no register that closes the census keeps c/2
      ([`E-GRV-0145`](test/experiment/gravity/register-graviton-speed.ts)).
+     Gravity's count field on the many-body register rule is one hole's
+     sector count, counted from the sea. The flats neither source nor
+     feel it, two holes pull together with the sign fixed by the clock,
+     and the same piece pushes members apart, so it is universal only
+     because every excitation of the full sea is a hole
+     ([`E-GRV-0146`](test/experiment/gravity/register-count-field.ts)).
    - **The many-body rule with registers is exact.** Every register
      piece is one-body, so its fermionic lift is fixed, the full sea is
      one branch with a unit amplitude every beat, K never fires, and one
@@ -1002,14 +1008,14 @@ carry a control) are in
 
 [**`test/catalog.csv`**](test/catalog.csv) is the full index, one row
 per experiment, generated from the registered experiments and sorted
-strongest first. It holds **1,532 rows in 18 categories**:
+strongest first. It holds **1,537 rows in 18 categories**:
 
 | total | L3 emergent, novel | L2 known physics | L1 known math | L0 circular | backing a paper claim |
 | ----: | -----------------: | ---------------: | ------------: | ----------: | --------------------: |
-|  1532 |                 53 |             1155 |           310 |          14 |                   604 |
+|  1537 |                 53 |             1159 |           311 |          14 |                   604 |
 
-The largest categories are gauge (269), spin (183), selves (177),
-quantum (172), foundations (160), gravity (142) and relativity (112). The
+The largest categories are gauge (270), spin (184), selves (177),
+quantum (172), foundations (160), gravity (143) and relativity (112). The
 first full depth audit (2026-08-31) found 40 of 92 L3 experiments with
 no substrate, rule or coin in their import graph, and regraded them
 down. Every correction is recorded in the experiment it corrects.

@@ -1,4 +1,4 @@
-// A CURVED LINK FIELD ON THE REGISTER RULE THAT KEEPS THE MEMBER LIGHT (E-SPN-0180, E-FRC-0270). E-SPN-0161 found that a
+// A CURVED LINK FIELD ON THE REGISTER RULE THAT KEEPS THE MEMBER LIGHT (E-SPN-0180, E-FRC-0271). E-SPN-0161 found that a
 // link field that is not flat makes the swap-coin member heavy: its rest level is the TOP of the averaged hop T, and a
 // disordered field pulls T's top in to the Kesten radius. The register member (E-SPN-0160) rests somewhere else. Its
 // cycle is U = V (1 + (conj u - 1) Q_D) V (1 + (u - 1) Q_S), V = stream x swap coin an involution in every static field,
@@ -1146,6 +1146,69 @@ export function covariantExact(
   return true
 }
 
+// ---- curvature ----
+
+// every D4 triangle x -> x + r_a -> x + r_a + r_b -> x with r_a + r_b = r_c a root: its holonomy g(x + r_c, -c) g(x + r_a,
+// b) g(x, a). Returns the triangles counted, the share whose holonomy is not the identity, and the mean magnetic count
+// 2 - chi_2(U) (chi_2 = the doubled real part, an integer on 2T)
+export function triangleCurvature(
+  f: RegisterField,
+  G: RegisterGauge,
+): { triangles: number; curved: number; magnetic: number } {
+  const g = G.group
+  const n = g.order
+  const rootIndex = new Map(DOCK_ROOTS.map((r, d) => [r.join(','), d]))
+
+  let triangles = 0
+  let curved = 0
+  let magnetic = 0
+
+  for (let x = 0; x < f.t.sites.length; x++) {
+    for (let a = 0; a < SLOTS; a++) {
+      for (let b = 0; b < SLOTS; b++) {
+        const c = rootIndex.get(
+          DOCK_ROOTS[a]!.map((v, k) => v + DOCK_ROOTS[b]![k]!).join(','),
+        )
+
+        if (c === undefined) {
+          continue
+        }
+
+        const y = f.nb[x * SLOTS + a]!
+        const z = f.nb[y * SLOTS + b]!
+        const g1 = f.link[x * SLOTS + a]!
+        const g2 = f.link[y * SLOTS + b]!
+        const g3 = f.link[z * SLOTS + OPPOSITE[c]!]!
+        const hol = g.table[g.table[g3 * n + g2]! * n + g1]!
+
+        triangles++
+        curved += hol === g.identity ? 0 : 1
+        magnetic += 2 - G.hurwitz.doubled[hol]![0]!
+      }
+    }
+  }
+
+  return { triangles, curved: curved / triangles, magnetic: magnetic / triangles }
+}
+
+// the magnetic count is a class function: chi_2(h g h^-1) = chi_2(g) for all 576 pairs, exactly
+export function magneticClassExact(G: RegisterGauge): boolean {
+  const g = G.group
+  const n = g.order
+
+  for (let h = 0; h < n; h++) {
+    for (let x = 0; x < n; x++) {
+      const y = g.table[g.table[h * n + x]! * n + g.inverse[h]!]!
+
+      if (G.hurwitz.doubled[y]![0] !== G.hurwitz.doubled[x]![0]) {
+        return false
+      }
+    }
+  }
+
+  return true
+}
+
 // ---- the band law, checked on the explicit cycle ----
 
 // y an eigenvector of diracHalf's H (length 4 N, unit) at eigenvalue mu: s = E_S b y and p = V Q_D V s span an invariant
@@ -1329,6 +1392,8 @@ export function breakingLeak(
 // of each unit, and the float check that Pi Gamma(h) Pi = (w + i x) Pi for every h
 export function breakingGaussWeight(G: RegisterGauge): {
   numerator: bigint
+  // the imaginary part of the sum's numerator (0: the weight is real)
+  imaginary: bigint
   denominator: bigint
   value: number
   blockGap: number
@@ -1406,10 +1471,11 @@ export function breakingGaussWeight(G: RegisterGauge): {
   const denominator = 24n * 2n ** 48n
 
   return {
-    numerator: si === 0n ? sr : sr,
+    numerator: sr,
+    imaginary: si,
     denominator,
     value: Number(sr) / Number(denominator),
-    blockGap: si === 0n ? blockGap : Infinity,
+    blockGap,
   }
 }
 

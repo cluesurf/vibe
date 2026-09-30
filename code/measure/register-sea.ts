@@ -207,6 +207,12 @@ export type SeaRule = {
   dock: readonly [number, number] | null
   // CONTROL: E-SPN-0147's member string, each member's own unit u e^(i phi / 2) whatever the other's sector
   member: boolean
+  // E-GRV-0146: a pair angle per relative dock that replaces string min(V, cap) (the depth's kernel, code/measure/
+  // register-count huskKernel); absent, the string is used
+  kernel?: Float64Array
+  // E-GRV-0146 CONTROL: the pair angle applied to the whole relative dock (the DOCK count, every mode) instead of
+  // inside the beat's sector
+  whole?: boolean
 }
 
 // E-SPN-0163's vertex as a dock contact at the origin: psi[(d, a)][(e, b)] and psi[(d, b)][(e, a)] mix as
@@ -412,10 +418,34 @@ export function seaBeat(
     const V = t.V[i]!
     const phi =
       sign *
-      (rule.string * Math.min(V, rule.cap) +
+      ((rule.kernel
+        ? rule.kernel[i]!
+        : rule.string * Math.min(V, rule.cap)) +
         (V === 0 ? rule.contact : 0))
 
-    if (rule.member) {
+    if (rule.whole) {
+      // the dock count: every amplitude of the relative dock takes e^(i phi), then the plain member mixers
+      const c = Math.cos(phi)
+      const sn = Math.sin(phi)
+      const o = i * FULL
+
+      for (let k = 0; k < FULL; k++) {
+        const xr = s.re[o + k]!
+        const xi = s.im[o + k]!
+
+        s.re[o + k] = c * xr - sn * xi
+        s.im[o + k] = c * xi + sn * xr
+      }
+
+      sectorPiece(
+        s.re,
+        s.im,
+        o,
+        basis,
+        [w[0] - 1, w[1]],
+        betaOf(w[0], w[1], 0),
+      )
+    } else if (rule.member) {
       // each member takes w e^(i phi / 2): alpha = w' - 1 on each, beta = alpha^2
       const wr = w[0] * Math.cos(phi / 2) - w[1] * Math.sin(phi / 2)
       const wi = w[0] * Math.sin(phi / 2) + w[1] * Math.cos(phi / 2)
@@ -750,7 +780,7 @@ export function flatCount(
 export type Kind = 'W' | 'F'
 
 // P_kind(q) e_m as a 192-vector
-function projected(
+export function projected(
   mv: Moving,
   j: number,
   kind: Kind,
