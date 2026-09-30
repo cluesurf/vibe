@@ -1637,7 +1637,6 @@ export function freeShell(
     for (let b = 0; b < 1 << n; b++) {
       let d = 0
       let ways = 1
-      let ups = 0
 
       for (let i = 0; i < n; i++) {
         ss[i] = (b >> i) & 1 ? 1 : -1
@@ -1652,19 +1651,19 @@ export function freeShell(
         }
 
         ways *= m - taken
-        ups += ss[i]! < 0 ? 1 : 0
       }
 
-      if (
-        ways <= 0 ||
-        Math.abs(d - delta0) > window ||
-        (ups !== undefined && ups !== upsOf(ss, n))
-      ) {
+      // the configuration's holes in the positive-phase band (the parameter `ups`, when given, keeps only that count;
+      // before 2026-09-30 a local of the same name shadowed it and the filter never applied, which changed nothing for
+      // E-FND-0162, the one caller, since it never passed it)
+      const upCount = upsOf(ss, n)
+
+      if (ways <= 0 || Math.abs(d - delta0) > window || (ups !== undefined && ups !== upCount)) {
         continue
       }
 
       W += ways
-      U += ways * ups
+      U += ways * upCount
 
       for (let i = 0; i < n; i++) {
         occ[js[i]!]! += ways

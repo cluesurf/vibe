@@ -606,6 +606,67 @@ export function sortedBandCounts(
   return out
 }
 
+// the expected number of holes at each momentum class in each band (read at cycle boundaries): out[j] in the
+// positive-phase band, out[N + j] in the other, summing to n times the norm. The store is moved to band coordinates a
+// chunk of rows at a time, as sortedBandCounts does, and each fiber index's weight is split over its members' digits
+export function sortedBandOccupation(
+  e: SortedEngine,
+  s: Sorted,
+  basis: { re: Float64Array; im: Float64Array },
+  chunk = 2048,
+): Float64Array {
+  const n = e.n
+  const f = e.frame.fiber
+  const half = f / 2
+  const N = e.frame.fourier.N
+  // the band (0 up, 1 other) of each member's digit, per fiber index
+  const bands = new Uint8Array(e.block * n)
+
+  for (let c = 0; c < e.block; c++) {
+    digits(c, n, f).forEach((d, k) => (bands[c * n + k] = d >= half ? 1 : 0))
+  }
+
+  const out = new Float64Array(2 * N)
+  const row = new Float64Array(2 * n)
+  const sr = new Float64Array(Math.min(chunk, e.rows) * e.block)
+  const si = new Float64Array(sr.length)
+
+  for (let r0 = 0; r0 < e.rows; r0 += chunk) {
+    const r1 = Math.min(e.rows, r0 + chunk)
+    const xr = sr.subarray(0, (r1 - r0) * e.block)
+    const xi = si.subarray(0, (r1 - r0) * e.block)
+
+    xr.set(s.re.subarray(r0 * e.block, r1 * e.block))
+    xi.set(s.im.subarray(r0 * e.block, r1 * e.block))
+    e.k.holeOneBody(xr, xi, e.mom.subarray(r0 * n, r1 * n), n, f, basis.re, basis.im)
+
+    for (let r = r0; r < r1; r++) {
+      row.fill(0)
+
+      const o = (r - r0) * e.block
+
+      for (let c = 0; c < e.block; c++) {
+        const x = xr[o + c]!
+        const y = xi[o + c]!
+        const w = x * x + y * y
+
+        for (let k = 0; k < n; k++) {
+          row[k * 2 + bands[c * n + k]!]! += w
+        }
+      }
+
+      for (let k = 0; k < n; k++) {
+        const j = e.mom[r * n + k]!
+
+        out[j]! += e.weight[r]! * row[k * 2]!
+        out[N + j]! += e.weight[r]! * row[k * 2 + 1]!
+      }
+    }
+  }
+
+  return out
+}
+
 // the antisymmetry the store keeps at a tie: at rows with s_k = s_(k+1), the largest |stored(c) + stored(c with k and
 // k + 1 swapped)| (twice |stored(c)| where the two fibers agree). Exact arithmetic keeps it 0; rounding may not
 export function sortedTies(e: SortedEngine, s: Sorted): number {
