@@ -285,7 +285,7 @@ export function screenModesRun(plan: ScreenPlan): Verdict {
   const classes = new Set<string>()
 
   for (let c = 0; c < 8; c++) {
-    let m = [0, 1, 2, 3].map(i => [0, 1, 2, 3].map(j => (i === j ? 1 : 0)))
+    let m: number[][] = [0, 1, 2, 3].map(i => [0, 1, 2, 3].map(j => (i === j ? 1 : 0)))
 
     tr.forEach((t, i) => {
       if ((c >> i) & 1) {
