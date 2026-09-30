@@ -21,7 +21,9 @@ import { fileURLToPath } from 'node:url'
 const CRATE = fileURLToPath(new URL('../../kernel', import.meta.url))
 const HOST = join(CRATE, 'host')
 const TARGET_DIR = join(HOST, 'target')
-const CARGO_BIN = join(homedir(), '.cargo', 'bin')
+// CARGO_HOME wins when set: a run on a shared host installs rust inside its own run directory (droplet-job.sh), and
+// the toolchain is then there, not under the home directory
+const CARGO_BIN = join(process.env.CARGO_HOME ?? join(homedir(), '.cargo'), 'bin')
 const cargo = join(CARGO_BIN, 'cargo')
 const rustup = join(CARGO_BIN, 'rustup')
 const which = process.argv[2] ?? 'all'

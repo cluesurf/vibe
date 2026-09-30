@@ -27,6 +27,13 @@ mkdir -p "$LOG" "$TOOLS"
 date -u +%FT%TZ >"$LOG/started"
 echo "== job started on $(hostname) as $(id -un), in $PKG"
 export PATH="$TOOLS/node/bin:$TOOLS/cargo/bin:$TOOLS/node_modules/.bin:$PATH"
+# when the host has no cargo of its own, every step uses our toolchain under tools/. Exported here, globally, because
+# each step runs in its own subshell, and an export inside install_rust never reached build_native (which then looked
+# for rustup under the home directory and failed)
+if [ -x "$TOOLS/cargo/bin/cargo" ] || ! command -v cargo >/dev/null 2>&1; then
+  export RUSTUP_HOME="$TOOLS/rustup"
+  export CARGO_HOME="$TOOLS/cargo"
+fi
 TSX="$TOOLS/node_modules/.bin/tsx"
 CORES=$(nproc)
 THREADS="${THREADS:-$CORES}"
