@@ -76,6 +76,24 @@
 //  and its rms against Gibbs', the upper-band fraction, the up-band holes' mean E against the start's, the down band's
 //  occupation, and the free shell at each start's delta (window 0.05) with its empty levels.
 // Verdict: fail if T1, T2 or T3 fails; partial if all hold and the control or the instrument fails; pass otherwise.
+//
+// FIRST RUN (tmp/tb-gate-E-FND-0165.log, 1,456 s): PARTIAL. Every physics gate and the control pass; the instrument
+// fails, and the diagnosis is below. No gate moved and none was rerun. The smoke before it (6 cycles,
+// tmp/tb-smoke-E-FND-0165.log) failed T1 and T2 on its unrelaxed window and changed nothing.
+//  - T1: on the levels each start left empty, A1 beta 2.662 +- 0.139 (rms 0.040, flat 0.312), A2 2.647 +- 0.121 (0.046,
+//    0.356), B1 -1.990 +- 0.150 (0.042, 0.233), B2 -2.012 +- 0.249 (0.072, 0.247). A Gibbs form in the band level, with
+//    every level filled, where the free shell leaves 7 of 11 levels empty (A) or 3 of 11 (B).
+//  - T2: one free delta, two level contents, one temperature: 2.662 and 2.647 (0.015 apart), -1.990 and -2.012 (0.022).
+//  - T3: the low shell at 2.654, the high one at -2.001: a thermometer, with a negative temperature above the middle
+//    of a bounded band.
+//  - CF: the free rule moves no band-resolved occupation, 5.0e-14.
+//  - I1 FAILS (norm 5.7e-10 against 1e-10) and I2 FAILS (tie antisymmetry 8.6e-7 against 1e-13). DIAGNOSIS
+//  - Read. A2 and B2 read the same fits as the probes' pick 0 of their shells to every printed digit, so those starts
+//    are images of the probes' under a symmetry of the torus (as E-FND-0162's P1 and P2 were); A1 and B1 are not. The
+//    start's own levels sit 1.02 to 1.22 times the line; on every level the fits read 2.77, 2.85, -2.08 and -2.24. The
+//    up-band holes' mean E moves toward the band's middle, 0.406 to 0.499 and 0.497 (A), 0.718 to 0.585 and 0.590 (B), and the upper-band
+//    fraction is 0.884 (A) and 0.732 (B): the band energy is not what is kept, the pair pieces' energy is part of it.
+//    Fermi-Dirac's rms is above Gibbs' by 1.4e-5 to 7.3e-5: indistinguishable at this filling, as derived.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'

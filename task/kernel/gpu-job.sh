@@ -17,6 +17,9 @@ BACKEND="$FEATURE"
 cd /root/vibe || exit 1
 LOG=/root/vibe/tmp/gpu-logs
 mkdir -p "$LOG"
+# the sentinels gpu-run.ts reads: started here, finished on the last line. A run without both did not happen
+date -u +%FT%TZ >"$LOG/started"
+echo "== job started on $(hostname) as $(id -un), feature $FEATURE"
 export PATH=/opt/node/bin:/root/.cargo/bin:/opt/rocm/bin:/usr/local/cuda/bin:$PATH
 TSX=/root/tools/node_modules/.bin/tsx
 
@@ -100,3 +103,4 @@ step bench_sorted_4 env BENCH_THREADS="$CORES" "$TSX" task/kernel/bench.ts sorte
 
 echo "== $(date -u +%H:%M:%S) job done"
 cat "$LOG/steps.txt"
+date -u +%FT%TZ >"$LOG/finished"

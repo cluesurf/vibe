@@ -2,6 +2,84 @@
 
 One branch for this round's experiments. Each item has its own section.
 
+## The kernel on a GPU: float64 hip and cuda backends, byte for byte, measured on an MI325X
+
+The kernel's primitives now run on a data-center GPU in float64 and give the JavaScript reference's bytes. The CPU
+backends and every engine's default are unchanged. The architecture note is `note/research/vibe/kernel.md` in the
+parent repo, in the section "The GPU backends".
+
+### What changed
+
+- **`kernel/src/gpu.cu`**, new: every primitive as a GPU kernel, in one C-like source that compiles as HIP, as CUDA and,
+  with `-DVK_EMU`, as plain C++ on one CPU thread.
+  - Each output element is summed by one thread, in the reference's order. There are no atomics and no tree
+    reductions.
+  - The sea piece runs as five ordered passes. The hole pair piece runs as gather, transform axis by axis, phase, then
+    scatter.
+  - Contraction is off through the compile options and a pragma.
+- **`kernel/src/gpu.rs`**, new: the binding, behind the cargo features `hip`, `cuda` and `emu`. The default build is
+  unchanged.
+  - It opens the runtime with dlopen and compiles gpu.cu at load: hiprtc with `-ffp-contract=off`, NVRTC with
+    `--fmad=false`.
+  - It owns device memory, checks every buffer size, and synchronizes after each launch.
+  - `node.rs` changed only to share its helpers and the pair-operator reader.
+- **`code/kernel/gpu.ts`**, new: the backends `hip`, `cuda` and `gpu-emu`, with three kinds of array (held, table,
+  copied).
+- **`code/kernel/device.ts`**, new: `onDevice`, `setInto`, fetch and put.
+- **`Kernel.device`**: `fastCycles`, `fastSeaCycles` and `fastHoleCycles` are new, and `fastFilter` and
+  `fastAutocorrelation` now hold their state on the device. The engines take `{ backend: 'hip' }`.
+- **`task/kernel/build.ts native hip|cuda|emu`**: writes `kernel/host/vibe-kernel-gpu.node`, and renames every artifact
+  into place.
+- **`task/kernel/check.ts`**: takes `CHECK_BACKENDS` and covers the GPU backends, the held paths and the GPU wired
+  paths.
+- **`task/kernel/bench.ts`**: adds `holes` and `sorted`, the GPU backends, `BENCH_THREADS`, and a warm-up cycle.
+- **`task/kernel/parity.ts`**, new: 57 short cases on every backend, with golden files in `task/kernel/parity/`
+  (`pnpm kernel:parity`).
+- **`task/kernel/gpu-run.ts`**, **`gpu-watchdog.ts`** and **`gpu-job.sh`**, new (`pnpm gpu:run`, `pnpm gpu:watchdog`).
+  - They rent exactly one tagged droplet and run the job on it.
+  - A detached watchdog destroys the droplet at creation plus the cap, and `--sweep` removes any leftover.
+  - Nothing account-specific is in them. The token comes from the environment only.
+
+### Results
+
+- **Mac, gpu-emu** (the GPU kernels on the CPU):
+  - `check.ts` with native, wasm and gpu-emu: PASS, 2,425 comparisons, 0 failures.
+  - The contracted emulator fails 168 of 439, as required.
+  - `parity.ts --golden`: 57 of 57 cases on both paths.
+- **MI325X, hip** (tor1, 20 EPYC 9575F cores; DigitalOcean offered no MI300X that day):
+  - `check.ts` with native and hip: PASS, 2,097 comparisons, 0 failures.
+  - Its contracted control fails 168 of 439, as required.
+  - `parity.ts` live against the droplet's JavaScript: 57 of 57 cases (copy path) and 50 of 50 (held path).
+  - `parity.ts --golden`: 3 cases differ, because the Mac's JavaScript reference and the droplet's differ there (native
+    x20 differs in the same three). The golden files are not yet byte-portable across x86 and arm64 in those cases.
+  - The parity FMA control fails 97 runs, as required.
+
+**Seconds a cycle, every row bytes-equal to the reference:**
+
+| engine | droplet native x20 | MI325X hip | hip vs droplet CPU |
+| --- | --- | --- | --- |
+| ball radius 24 | 0.0101 | 0.0045 | 2.2x |
+| ball radius 40 | 0.0690 | 0.0257 | 2.7x |
+| reduced vector R 30 | 0.0088 | 0.0051 | 1.7x |
+| sea L 4 | 0.0088 | 0.0084 | 1.05x |
+| three holes L 4 | 0.0486 | 0.0147 | 3.3x |
+| four holes L 4, sorted store | 8.19 | 1.70 | 4.8x |
+
+Against the Mac's native 16 in kernel.md, hip is 8 to 29 times faster. That Mac was loaded, at a load average of 70 to
+105, so the droplet column is the fair comparison.
+
+**Cost:** two droplet sessions, 2.8 min (the first lost to the image's first-boot login gate) and 6.9 min, about $0.76
+in total. Both were destroyed and confirmed gone by tag.
+
+### Status and follow-ups
+
+- **cuda is compile-ready and UNTESTED.** No NVIDIA GPU has run it. kernel.md lists what a Lambda GH200 needs: aarch64
+  Grace, linux-arm64 node, and `build.ts native cuda`, with the check run first.
+- **The three golden cases** need their cross-platform difference pinned down: a NaN sign bit, or a `Math` function that
+  differs between the node builds.
+- **The sea on the GPU is memory-bound.** Fusing its passes, and dropping the synchronize after each launch, are the
+  next speedups.
+
 ## OPEN-LGT-02 and OPEN-LGT-12: the split by spectral flow from the identity (E-FRC-0275)
 
 ### What changed

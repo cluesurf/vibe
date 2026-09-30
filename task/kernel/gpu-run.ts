@@ -25,7 +25,7 @@
 // See note/research/vibe/kernel.md for how this project calls it (through term zone load).
 
 import { execFileSync, spawn, spawnSync } from 'node:child_process'
-import { closeSync, mkdirSync, openSync, writeFileSync } from 'node:fs'
+import { closeSync, existsSync, mkdirSync, openSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { CAP_MINUTES, TAG, destroy, doctl, log as watchLog, tagged } from './gpu-watchdog'
@@ -109,12 +109,19 @@ function waitActive(id: number, until: number): string {
   }
 }
 
+// ssh up AND the machine running our commands. A GPU image finishes its own first-boot setup after ssh answers, and
+// until then its login prints "Please wait while we get your droplet ready..." and exits 0 WITHOUT running the command
+// (the first run of this script was lost that way): so a command counts only when its own marker comes back
 function waitSsh(host: string, until: number): void {
   for (;;) {
-    const r = spawnSync('ssh', [...sshOptions(), host, 'true'], { timeout: 40_000, stdio: 'ignore' })
+    const r = spawnSync('ssh', [...sshOptions(), host, 'echo vibe-ready-$((6 * 7))'], { timeout: 40_000 })
 
-    if (r.status === 0) {
+    if (r.status === 0 && r.stdout?.toString().includes('vibe-ready-42')) {
       return
+    }
+
+    if (r.stdout?.toString().trim()) {
+      log(`not ready yet: ${r.stdout.toString().trim().split('\n')[0]}`)
     }
 
     if (Date.now() > until) {
@@ -123,6 +130,57 @@ function waitSsh(host: string, until: number): void {
 
     pause(10)
   }
+}
+
+// the image's own first-boot setup (cloud-init, which the DigitalOcean AMD images use to prepare the machine and which
+// gates the login until it is done), waited for with a stated bound: 15 minutes
+function waitSetup(host: string): void {
+  const r = spawnSync(
+    'ssh',
+    [...sshOptions(), host, 'timeout 900 cloud-init status --wait >/dev/null 2>&1; echo vibe-setup-$(cloud-init status 2>/dev/null | tr -d " ")'],
+    { timeout: 960_000 },
+  )
+  const out = r.stdout?.toString() ?? ''
+
+  log(`first-boot setup: ${out.trim().split('\n').pop() ?? '(nothing)'}`)
+
+  if (!out.includes('vibe-setup-')) {
+    throw new Error('the first-boot setup wait did not run')
+  }
+}
+
+// what a finished job leaves behind: gpu-job.sh's two sentinels, and the logs the report is made of. A run missing any
+// of these did NOT happen, whatever the exit code said
+export const REQUIRED_LOGS = [
+  'started',
+  'finished',
+  'steps.txt',
+  'machine.log',
+  'build_gpu.log',
+  'check.log',
+  'check_fma_control.log',
+  'parity_golden.log',
+  'parity_fma_control.log',
+  'bench_ball_24.log',
+  'bench_reduced_30.log',
+  'bench_sea.log',
+  'bench_holes_3.log',
+]
+
+export function verify(out: string): string[] {
+  const logs = join(out, 'gpu-logs')
+  const missing = REQUIRED_LOGS.filter(f => !existsSync(join(logs, f)))
+  const job = existsSync(join(out, 'job.log')) ? readFileSync(join(out, 'job.log'), 'utf8') : ''
+
+  if (!job.includes('== job started on')) {
+    missing.push('job.log: the job\'s first line (it never ran)')
+  }
+
+  if (!job.includes('job done')) {
+    missing.push('job.log: the "job done" line')
+  }
+
+  return missing
 }
 
 // the package as a tar stream over ssh (the repo copies to droplets this way, never with rsync)
@@ -140,13 +198,14 @@ function transfer(host: string): void {
 
   log(`copying ${(tar.stdout.length / 1e6).toFixed(1)} MB to the droplet`)
 
-  const r = spawnSync('ssh', [...sshOptions(), host, 'mkdir -p /root/vibe && tar -C /root/vibe -xzf - 2>/dev/null; echo copied'], {
-    input: tar.stdout,
-    maxBuffer: 1 << 26,
-  })
+  const r = spawnSync(
+    'ssh',
+    [...sshOptions(), host, 'mkdir -p /root/vibe && tar -C /root/vibe -xzf - 2>/dev/null && test -f /root/vibe/task/kernel/gpu-job.sh && echo vibe-copied'],
+    { input: tar.stdout, maxBuffer: 1 << 26 },
+  )
 
-  if (r.status !== 0) {
-    throw new Error(`copy failed: ${r.stderr.toString()}`)
+  if (r.status !== 0 || !r.stdout.toString().includes('vibe-copied')) {
+    throw new Error(`copy failed: ${r.stdout.toString().trim()} ${r.stderr.toString().trim()}`)
   }
 }
 
@@ -195,7 +254,31 @@ function fetchLogs(host: string): void {
   log(`logs in ${join(OUT, 'gpu-logs')}`)
 }
 
+let verdict = false
+
+function report(dir = OUT): void {
+  const missing = verify(dir)
+
+  verdict = missing.length === 0
+
+  if (verdict) {
+    log('RUN COMPLETE: both sentinels and every required log are present')
+  } else {
+    log(`RUN FAILED: missing ${missing.join(', ')}`)
+  }
+}
+
 async function main(): Promise<void> {
+  // --verify <run directory>: the completeness check alone, on a run already fetched (no droplet, no token)
+  const check = arg('verify')
+
+  if (check) {
+    const missing = verify(check)
+
+    console.log(missing.length === 0 ? 'RUN COMPLETE' : `RUN FAILED: missing ${missing.join(', ')}`)
+    process.exit(missing.length === 0 ? 0 : 1)
+  }
+
   if (!REGION || !SSH_KEY) {
     console.error('gpu-run: --region and --ssh-key (or VIBE_GPU_REGION and VIBE_GPU_SSH_KEY) are required')
     process.exit(2)
@@ -276,14 +359,16 @@ async function main(): Promise<void> {
     const host = `root@${ip}`
 
     log(`droplet ${id} active at ${ip}`)
-    waitSsh(host, Date.now() + 10 * 60_000)
-    log('ssh up')
+    waitSsh(host, Date.now() + 20 * 60_000)
+    log('ssh up, and the machine runs commands')
+    waitSetup(host)
     transfer(host)
 
     const code = await job(host, deadline - MARGIN_MINUTES * 60_000)
 
     log(`job exited ${code}`)
     fetchLogs(host)
+    report()
   } catch (e) {
     log(`FAILED: ${(e as Error).message}`)
   } finally {
@@ -308,7 +393,7 @@ async function main(): Promise<void> {
     }
   }
 
-  process.exit(gone ? 0 : 1)
+  process.exit(gone && verdict ? 0 : 1)
 }
 
 void main()
