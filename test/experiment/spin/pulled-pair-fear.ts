@@ -41,6 +41,21 @@
 //  R2, R3 and E there, as a ball that small must): |g| 0.99 at cycle 8 and 0.88 at 16, the Phi and Phi-perp knot weights
 //  0.397 and 0.395 at cycle 16, the role state's CHSH up to 2.015.
 //
+// FIRST RUN (two processes, tmp/rt-pull-part-8.log 793 s and tmp/rt-pull-part-10.log about 900 s, combined by
+//  tmp/rt-pull-combine.ts into tmp/rt-pull-combine.log): PASS. Every gate and the instrument hold. No gate moved.
+//  - R1, it comes back. On Phi the late mean knot weight is 0.187 (V0 8) and 0.095 (V0 10), from 3e-17 and 6e-46.
+//  - R2, it is held. Norm 1 - 1.7e-11 and 1 - 4.4e-10, the most past V0 + 10 7.9e-6 and 1.2e-6.
+//  - R3, the free pair leaves. Norm 0.387 and 0.392, late knot 0.019 and 0.020, 0.10 and 0.21 of the held Phi pair's. At
+//    V0 10 the ratio is within 16% of the gate's quarter: the fear beat lowers the held return there more than the free.
+//  - E: the Phi-perp channel reads 0.23013090836559863 and 0.10193202924267739, E-SPN-0178's values to the last digit,
+//    and the fear engine differs from E-SPN-0178's at exactly 1 representative.
+//  - READ: the fear beat lowers the late return by 19% (V0 8, 0.187 against 0.230) and 7% (V0 10). |g| falls to 0.850 and
+//    0.965 as the pair keeps returning through V = 0, and the role state from |0>|+> grows steadily entangled and
+//    contextual: CHSH 2.023 and 2.005, least context sum 3.849 and 3.968. A pair that keeps coming back keeps meeting.
+//  THE AUDIT. The return is E-SPN-0178's mechanism (the swing in the rising string), unchanged in kind by a phase in the
+//  core. What this adds is that C*'s fear beat, the only new piece a pulled pair meets, does not break it, and the
+//  splitting into channels makes Phi-perp an exact reproduction. L2, two members, the 4d ball, not the husk.
+//
 // DETERMINISM: no random numbers. FLOATS: measurement on exact pieces (code/measure/register-meson).
 
 import { experiment } from '@/test/scaffold/suite'
@@ -356,7 +371,7 @@ export default experiment({
   id: 'spin/pulled-pair-fear',
   code: 'E-SPN-0179',
   title:
-    'a register pair pulled from its knot still comes back with roles and the fear beat on (C*, E-FND-0160)',
+    "a register pair pulled from its knot still comes back with roles and the fear beat on (C*, E-FND-0160), pass: a love-fear pair's role space splits into the singlet, where the fear beat adds a phase at V = 0, and its complement, which is E-SPN-0178's run to the last digit; on the singlet channel the pair pulled to 8 or 10 swings back into the knot region (late means 0.187 and 0.095, against 0.230 and 0.102 without the fear beat) and stays held (norm to 4e-10, 8e-6 past V0 + 10), while the same pull with no string leaves (norm 0.387 and 0.392, late 0.019 and 0.020); the returning pair's roles grow entangled and contextual as it keeps meeting (|g| to 0.850, CHSH 2.023, least context sum 3.849)",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',

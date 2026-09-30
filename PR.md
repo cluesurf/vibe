@@ -533,4 +533,43 @@ E-FND-0160, pass, as predicted (378 s). Depth L1 (algebra) and L2 (runs), the L 
   color rung does: the escape through fears is about the model's own readings. Per configuration the role states reach
   2.748 and 2.828, on 0.4% and 3.8% of the weight above 2.5.
 
-E-SPN-0179: PENDING_SPN_PR
+E-SPN-0179, pass (two processes, 793 s and about 900 s). E-SPN-0178's gates on the singlet channel of a love-fear pair.
+
+- **R1 to R3 hold.** Late knot weight 0.187 and 0.095 (pulls 8, 10) against E-SPN-0178's 0.230 and 0.102, held norm 1 to
+  4.4e-10, free pair norm 0.387 and 0.392 with late knot 0.019 and 0.020. At pull 10 the free-to-held ratio is 0.21,
+  within 16% of the gate's quarter.
+- **E holds.** The Φ⊥ channel reproduces E-SPN-0178's late means to the last digit.
+- **Read.** The returning pair's roles grow entangled and contextual (|g| to 0.850, CHSH 2.023, least context sum 3.849).
+
+### What C* answers for E-FND-0159
+
+Neither piece. Both kernels are (Q ⊗ Q) ⊗ (a role projector): on a role-blind sea their count is the sector-contact
+count times a fixed factor, blind to SU(2)₊, and both commute with J, so they join no halves. The one lead is the links'
+2T image acting by right multiplication on half +, an SU(2)₊ gauge field, which needs curved links.
+
+### How it was tested
+
+Probes: `tmp/rt-probe1.log`, `tmp/rt-probe1-slot.log`, `tmp/rt-probe1-move.log` (the channel overlap and role readings;
+the first used the wrong unit, ringUnit(0, 1) = e^(iπ/3), and a flat-heavy slot start, both corrected before any gate),
+`tmp/rt-probe2.log` (the invariants, Σ(648), the control). Smokes: `tmp/rt-smoke.log` (E-FND-0160 at 2 cycles, which
+moved M's tolerance to 1e-10 before the gate run), `tmp/rt-pull-smoke.log` (E-SPN-0179 on a radius-12 ball). Gate runs:
+`pnpm rerun E-FND-0160`, log `tmp/rt-gate-E-FND-0160.log`; E-SPN-0179 as `tmp/rt-pull-part.ts 8` and `10` combined by
+`tmp/rt-pull-combine.ts` (`tmp/rt-pull-combine.log`). Checks, `tmp/rt-checks.log` and the final rerun of it:
+`tsc --noEmit -p tsconfig.check.json` exit 0, `test/catalog.ts` 1,532, `task/check-labels.ts` (the same 1 contradicted
+label and 20 for review, none from this item, 0 registry rows outside the barrel), `task/check-coverage.ts` (0 unknown,
+0 mismatches), `test/result.ts check` exit 0.
+
+### Status and follow-ups
+
+- OPEN-FND-01 is not ticked: C* is a candidate, not the adopted rule, read on two members on the 4d torus and ball.
+- Unread on C*: everything on link curvature (color, Gauss's law for color, Tsirelson by a link move, the start-picked
+  rungs), the like pair's role Bell (confounded by exchange), the Born rule as a count, grain, purity, no signaling, and
+  the P rows (many members). The fear beat as the one quantum source fails as stated on C*.
+- Next: a curved link field on C* that keeps the member light, and a many-member run for the P rows.
+- Notes changed outside this repo: `remaining-pieces.md` (a new section, "Roles and a tone on the register rule", the
+  R* table and its paragraph, "What each row still needs", "Order of work" step 4), `open.md` (FND-01 status, proof and
+  closing text, FND-03's P bullet, FND-15, MND-01, "Next up" item 4), `solutions.md` (§8, §12), `everything.md` (Bell,
+  Bell's escape, contextuality, binding, integration and one-rule rows, text only, no status change). And
+  `mesh/site/clue.surf/home/site/tool/vibe/constraints.ts`: the codes and a clause on the quantum-roles, fear-is-magic,
+  love-fear, classical-steps, pulled-part and Higgs rows (no status change, and the Higgs row's stale "without an energy
+  ledger" now cites E-FND-0159).
