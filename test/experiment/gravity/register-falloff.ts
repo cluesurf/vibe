@@ -63,6 +63,19 @@
 //  -2.04 against the gradient's -2.12, and the ramp's pull is 1.593e-2 to 1.608e-2 over r 4 .. 8; at sigma 1.5 the
 //  packet reaches the source (ratio 1.27 to 2.31), which fixed sigma 1. tmp/eq-probe4: the solver diagnosis of point 7.
 //
+// FIRST RUN (tmp/eq-gate-E-GRV-0148.log, 725 s): PASS, as predicted. No gate moved and none was rerun.
+//  - F1: the pull falls monotonically, 4.09e-2, 2.65e-2, 1.76e-2, 1.22e-2, 8.90e-3, 6.72e-3 at r 3..8 (L 40; L 48 within
+//    2 percent).
+//  - F2: pull / (-dk/dr) 1.292, 1.319, 1.330, 1.336 on r 5..8 (spread 0.033 on both sides); 0.998 and 1.217 at r 3, 4
+//    where the packet reaches the source.
+//  - F3: the pull's power -2.043 (L 40) and -2.016 (L 48) against the kernel gradient's -2.114 and -2.086.
+//  - CR: the ramp's pull 1.593e-2 to 1.608e-2 on r 4..8 (spread 0.0097) while the kernel's falls 2.61 and 2.58 from r 5
+//    to 8. I1, I2 exact. I3: the raw count on a uniform 64 solved directly returns NaN, counted from the sea it is
+//    -7.079e-3, exactly minus the ordered hole's.
+//  - Read: the kernel's r^2 dk/dr falls 0.341, 0.336, 0.331, 0.327 on r 5..8 at L 48 (the lattice husk kernel is not yet
+//    1/r there, and the torus term is 1.9 percent), so the pull's ratio to it drifts up 3 percent, of which the local
+//    mass gives about 1. The pull's own power, -2.02 at L 48, is nearer Newton's 2 than the kernel's gradient.
+//
 // Depth: L2 (a known construction, a Dirac-type walk in a static scalar field, read on this rule's pieces; the kernel is
 // the depth register's float stand-in, added to the rule). DETERMINISM: no random numbers. NOTHING MOVES.
 
@@ -108,7 +121,8 @@ const flag = (b: boolean): number => (b ? 1 : 0)
 export default experiment({
   id: 'gravity/register-falloff',
   code: 'E-GRV-0148',
-  title: 'PLACEHOLDER',
+  title:
+    "the pull's falloff under the register count, pass: one hole (a column packet on the slab, sides 40 and 48 by 2) in a static hole's sector field is pulled 4.09e-2, 2.65e-2, 1.76e-2, 1.22e-2, 8.90e-3, 6.72e-3 at r 3..8 after 6 cycles, following the kernel's own gradient (ratio flat to 3.3 percent on r 5..8, short near the source) with power -2.02 at side 48 against the gradient's -2.09 and Newton's -2, while a planar ramp read the same way gives a flat pull (spread 0.010): the dynamics shows the kernel's shape, and the kernel is 1/r to within its lattice drift (r^2 dk/dr 0.341 to 0.327) and a torus term of 1.9 percent; the husk solve failed on the sea's uniform count because its absolute stop cannot clear the rounding left in the singular Laplacian's null space, and counting from the sea before the solve bypasses it (the raw depth is exactly minus the hole's)",
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',

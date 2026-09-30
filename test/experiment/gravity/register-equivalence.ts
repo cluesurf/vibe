@@ -85,6 +85,20 @@
 //  wrapped tails drift 2.7e-4, so sigma 3 was kept); the reversed piece pushes. G5 was worded on the largest cross pull
 //  over the cycles after this probe, since the cross pull changes sign.
 //
+// FIRST RUN (tmp/eq-gate-E-GRV-0147.log, 322 s): PASS, as predicted. No gate moved and none was rerun.
+//  - G1: s + d - 1 at most 8.2e-11 at all 24 momenta, both bands, 8 + 8 + 176 states: the active charge is 1/2 a beat
+//    for every state.
+//  - G2: the passive charge s_A - d_A on sin M (1 - g^2) / sin E within 8.1e-11; 1 at rest, 0.937 at k 0.2, 0.585 at
+//    0.8, 0.447 at 1.6, while E rises 0.380, 0.405, 0.636, 0.812.
+//  - G3: 16-beat means 0.50549 (beats 0..15) and 0.49420 (1..16); the 17-beat mean 0.52395 is E-GRV-0146's 0.524.
+//  - G4: s_A = 1 to 3e-11 at rest gaps 0.1, 0.38, 1, 2: the charge is one hole whatever the mass.
+//  - G5: after 8 cycles A|A = B|B = 2.1739e-2 (to 2e-14); A|B = B|A swing 7e-5, 5.3e-4, 1.4e-3, 1.8e-3, 7.7e-4, -8.2e-4,
+//    -9.0e-4, 1.2e-3, at most 0.082 of the like pull. A band-mixed source pulls both bands 1.163e-2, about half.
+//  - Instrument: bands on diracPhase to 2.7e-15; m = 0.769801 against 4 tan(M/2) = 0.769800; norms exact; free drift
+//    7.3e-6. Control CM: the members' image is pushed, -4.06e-2.
+//  - Read: the like fall 2.174e-2 is 1.21 of the local-mass prediction (M + 0.2867 k(10) = 0.746) and 0.59 of the
+//    bare-mass one: the hole falls with the heavier local mass. A hole with one other at the antipode has rest gap 0.750.
+//
 // Depth: L1 for the charges, the sum rule and the window (algebra read off exact pieces); L2 for the band pulls (one hole
 // in a static source's field, the test-particle limit of E-GRV-0146's pair piece; the kernel is the depth register's
 // float stand-in). DETERMINISM: no random numbers; every start is a fixed packet. NOTHING MOVES: the pieces act inside a
@@ -153,7 +167,8 @@ const flag = (b: boolean): number => (b ? 1 : 0)
 export default experiment({
   id: 'gravity/register-equivalence',
   code: 'E-GRV-0147',
-  title: 'PLACEHOLDER',
+  title:
+    "the equivalence principle under the register count, pass (as derived, the principle fails): every hole state's weights in the two stages' sectors sum to 1 (to 8e-11 over 24 momenta), so the charge E-GRV-0146 read is exactly 1/2 a beat, one hole a cycle, at every momentum and at every rest gap (s = 1 at M 0.1 to 2), a NUMBER, while the passive charge is the scalar density dE/dM (1 at rest, 0.447 at k 1.6, on the closed band to 8e-11) and the inertia is the band's curvature 4 tan(M/2) = 0.7698 against a rest energy 0.3803: no unit makes charge, response and mass one number; E-GRV-0146's 0.524 is an odd window (16-beat means 0.505 and 0.494); and the piece is two fields, not one: a hole feels only the count in its own band's sector, so on the slab (side 40, r 10, sigma 3, 8 cycles) a hole falls toward a source of its own band (2.174e-2, the two bands equal to 2e-14) and hardly at all toward the other band's (at most 0.082 of that, swinging in sign), though both bands have one mass; only a band-mixed source pulls both alike; the fall follows the local rest gap M + 0.2867 k (1.21 of that prediction, 0.59 of the bare one), and the members' image is pushed away; the tones agree by construction",
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',

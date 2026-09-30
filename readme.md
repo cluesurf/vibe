@@ -560,6 +560,14 @@ realizes.
      and the same piece pushes members apart, so it is universal only
      because every excitation of the full sea is a hole
      ([`E-GRV-0146`](test/experiment/gravity/register-count-field.ts)).
+     Against the rule's own inertia it fails: the charge is one hole a
+     cycle whatever the hole's speed or mass, the response is the scalar
+     density, and the piece acts as two fields, so a hole falls toward
+     its own band and at most 0.082 as much toward the other
+     ([`E-GRV-0147`](test/experiment/gravity/register-equivalence.ts)).
+     Read at separations 3 to 8 the pull follows the kernel's gradient,
+     power −2.02 against the kernel's −2.09
+     ([`E-GRV-0148`](test/experiment/gravity/register-falloff.ts)).
    - **The many-body rule with registers is exact.** Every register
      piece is one-body, so its fermionic lift is fixed, the full sea is
      one branch with a unit amplitude every beat, K never fires, and one
@@ -1008,14 +1016,14 @@ carry a control) are in
 
 [**`test/catalog.csv`**](test/catalog.csv) is the full index, one row
 per experiment, generated from the registered experiments and sorted
-strongest first. It holds **1,538 rows in 18 categories**:
+strongest first. It holds **1,543 rows in 18 categories**:
 
 | total | L3 emergent, novel | L2 known physics | L1 known math | L0 circular | backing a paper claim |
 | ----: | -----------------: | ---------------: | ------------: | ----------: | --------------------: |
-|  1538 |                 53 |             1160 |           311 |          14 |                   604 |
+|  1543 |                 53 |             1164 |           312 |          14 |                   604 |
 
-The largest categories are gauge (272), spin (185), selves (177),
-quantum (172), foundations (160), gravity (143) and relativity (112). The
+The largest categories are gauge (272), spin (186), selves (177),
+quantum (172), foundations (162), gravity (145) and relativity (112). The
 first full depth audit (2026-08-31) found 40 of 92 L3 experiments with
 no substrate, rule or coin in their import graph, and regraded them
 down. Every correction is recorded in the experiment it corrects.

@@ -1,0 +1,22 @@
+# THE VIBE KERNEL CRATE: the float64 primitives the heavy engines spend their time in, restated from the TypeScript
+# reference operation for operation, built two ways from this one crate:
+#   native   a Node-API addon (cdylib) for the machine's own target, threads by std::thread, loaded in place by node
+#   wasm     wasm32-unknown-unknown with SIMD128, loaded by WebAssembly.instantiate
+# No dependencies. task/kernel/build.ts drives cargo and copies the artifacts to kernel/host/ (build output, gitignored).
+
+[package]
+name = "vibe-kernel"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+path = "src/lib.rs"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+debug = false

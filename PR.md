@@ -746,6 +746,54 @@ Probes `tmp/gc-probe1.log`, `gc-probe2A.log`, `gc-probe2B.log`, `gc-probe3F.log`
   E-GRV-0145's), `open.md` (Next up 2, GRV-13), `everything.md` (Newton's inverse square and the equivalence principle,
   text only). `constraints.ts` is unchanged: no status moved.
 
+## OPEN-GRV-02 and OPEN-GRV-01: the equivalence principle and the pull's falloff under the register (E-GRV-0147, E-GRV-0148)
+
+### What changed
+
+- `code/measure/register-count.ts`: `oneTorus(L, wSide)` takes a fourth side, and at 2 it is the slab (one dock a
+  husk column, exact for column-uniform states); `oneBeat` takes an optional per-dock angle (a static source's sector
+  field); `columnKernel` (shared with `huskKernel`); `bandCharges` (each band's S and D weights by Hellmann-Feynman, and
+  its energy); `envelopeStart`, `meanOffset` and `packetRun` (a column packet of either band in a static field). With
+  the new arguments absent every existing call is unchanged.
+- `test/experiment/gravity/register-equivalence.ts` (E-GRV-0147) and `register-falloff.ts` (E-GRV-0148), with rows in
+  `test/registry.csv`, `test/experiment/all.ts`, the regenerated catalog and the readme count.
+
+### Results (gates fixed in each header before its gate run, probes disclosed)
+
+Both pass, as predicted, first run (322 s and 725 s). No gate moved.
+
+- **E-GRV-0147. Charge is number, the piece is two fields.** Every hole state's stage weights sum to 1 (8e-11 over 24
+  momenta, both bands), so the active charge is exactly 1/2 a beat at every momentum and at every rest gap (0.1 to 2).
+  The passive charge is dE/dM on the closed band (8e-11): 1 at rest, 0.447 at |K| 1.6. The inertia is
+  4 tan(M/2) = 0.7698 against a rest energy 0.3803. The 0.524 was a 17-beat window (16 beats: 0.505, 0.494). The piece
+  pairs S with S and D with D, so at rest a hole feels only its own band: on the slab (side 40, r 10, sigma 3, 8 cycles)
+  A|A = B|B = 2.174e-2 to 2e-14, and A|B at most 0.082 of that, swinging in sign. The members' image is pushed
+  (−4.06e-2). The fall is 1.21 of the local-mass prediction (M + 0.2867 k = 0.746) and 0.59 of the bare one.
+- **E-GRV-0148. The pull follows the kernel.** On slabs of side 40 and 48, one hole in a static hole's field: 4.09e-2
+  at r 3 to 6.72e-3 at r 8; over r 5 to 8 the pull over the kernel's gradient is flat to 3.3%, power −2.04 and −2.02
+  against the gradient's −2.11 and −2.09. A planar ramp gives a flat pull (1%). Torus term at r 8 derived as
+  4πr³/(3L³), 1.9% at side 48.
+- **The solver.** coulombFlux stops at an absolute |r|² ≤ 1e-28 on a singular Laplacian; a uniform 64 with a
+  float-weighted hole leaves a null-space residual far above that, and the solve returns NaN. Counting from the sea
+  before the solve bypasses it (exactly minus the hole's depth). The shared solver is not changed.
+
+### How it was tested
+
+Probes `tmp/eq-probe1.log`, `eq-probe2-small.log`, `eq-probe2-s3.log`, `eq-probe2-s4.log`, `eq-probe3-s1.log`,
+`eq-probe3-s15.log`, `eq-probe4.log`. Smoke `tmp/eq-smoke.log`. Gate runs `tmp/eq-gate-E-GRV-0147.log`,
+`tmp/eq-gate-E-GRV-0148.log` (`test/rerun.ts`). Checks `tmp/eq-checks.log`.
+
+### Status and follow-ups
+
+- OPEN-GRV-02 and OPEN-GRV-01 are not ticked. Ledger H's two rows stay stand-in: the kernel is the added depth
+  register's, and both runs are the test-particle limit (one hole in a static field), not the two-body engine.
+- New finding: the kernel is 0 at contact, so a hole's rest gap grows by 0.2867 k (about 0.37) for every other
+  like-band hole anywhere. E-GRV-0146's "light by construction" holds for one hole alone.
+- Next: whether a physical source is band-mixed; a kernel measured from infinity, gated against this one; G at c/4.
+- Notes changed outside this repo: `remaining-pieces.md` (a new section after E-GRV-0146's), `open.md` (Next up 2,
+  GRV-01, GRV-02, GRV-13), `everything.md` (both rows, text only), and one sentence on /vibe/gravity
+  (`component/page/vibe/gravity/page.tsx`). `constraints.ts` is unchanged: no status moved.
+
 ## OPEN-CPA-01 and OPEN-MOT-03: parity and motion on the true mesh, at a cusp (E-FRC-0272, E-SPN-0181)
 
 Every earlier parity and register-motion read ran on a flat stand-in, and the code says which: E-SPN-0167 on the flat

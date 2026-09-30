@@ -21,7 +21,20 @@
 // DETERMINISM: no random numbers. FLOATS: measurement on exact pieces, as in code/measure/register-meson. The sum over the
 // 24 roots at a representative runs in register-meson's order, and a neighbour's value is an exact signed permutation of
 // its representative's, so the reduced cycle equals the unreduced one to the order of float summation.
+//
+// SPEED (opt in): ballEngine(s, params, { backend: 'native', threads: 12 }) runs ballCycle, ballGram, ballInner and
+// ballFilter on code/kernel (the Rust crate kernel/, built by task/kernel/build.ts), byte for byte the JavaScript below
+// at any thread count (task/kernel/check.ts). With no options the engine is this file's JavaScript, unchanged.
 
+import { kernel, type KernelOptions } from '@/code/kernel/index'
+import {
+  fastBall,
+  fastCycle,
+  fastFilter,
+  fastGram,
+  fastInner,
+  type FastPair,
+} from '@/code/kernel/pair'
 import { DOCK_ROOTS } from '@/code/measure/dock-mixer'
 import {
   betaOf,
@@ -359,10 +372,17 @@ export type BallEngine = {
   t: Float64Array[]
   tmpRe: Float64Array
   tmpIm: Float64Array
+  // present only when a kernel backend was asked for: the cycle, Gram, inner and filter then run on it
+  fast?: FastPair
 }
 
-// register-meson's pairEngine on the sector (params.K must be 0: the sector is the one every signed permutation keeps)
-export function ballEngine(s: BallSector, params: PairParams): BallEngine {
+// register-meson's pairEngine on the sector (params.K must be 0: the sector is the one every signed permutation keeps);
+// options.backend puts the heavy loops on a kernel (absent: this file's JavaScript)
+export function ballEngine(
+  s: BallSector,
+  params: PairParams,
+  options?: KernelOptions,
+): BallEngine {
   if (params.K.some(k => k !== 0)) {
     throw new Error(
       'register-ball-reduced: the reduced sector needs total momentum 0',
@@ -386,7 +406,7 @@ export function ballEngine(s: BallSector, params: PairParams): BallEngine {
     beta2[2 * i + 1] = b2[1]
   }
 
-  return {
+  const e: BallEngine = {
     s,
     params,
     halfRe: new Float64Array(NR).fill(1),
@@ -399,6 +419,12 @@ export function ballEngine(s: BallSector, params: PairParams): BallEngine {
     tmpRe: new Float64Array(PAIR),
     tmpIm: new Float64Array(PAIR),
   }
+
+  if (options?.backend) {
+    e.fast = fastBall(e, kernel(options.backend, options.threads ?? 1))
+  }
+
+  return e
 }
 
 export const newBall = (s: BallSector): BallState => ({
@@ -506,6 +532,12 @@ const D = 192
 
 // ONE CYCLE (two beats), register-meson's pairCycle on the sector, in place
 export function ballCycle(e: BallEngine, st: BallState): void {
+  if (e.fast) {
+    fastCycle(e.fast, st)
+
+    return
+  }
+
   const N = e.s.count
   const [ur, ui] = e.params.u
   const [t1r, t1i, t2r, t2i, er, ei, , , fr, fi, gr, gi] = e.t as [
@@ -650,6 +682,10 @@ export function ballCycle(e: BallEngine, st: BallState): void {
 
 // G st: member 1 then member 2, (a, b) -> (a + C b, b + C^dag a), register-meson's gram
 export function ballGram(e: BallEngine, st: BallState): BallState {
+  if (e.fast) {
+    return fastGram(e.fast, st)
+  }
+
   const N = e.s.count
   const [xr, xi, yr, yi] = e.t as [
     Float64Array,
@@ -703,6 +739,10 @@ export function ballInner(
   a: BallState,
   b: BallState,
 ): [number, number] {
+  if (e.fast) {
+    return fastInner(e.fast, a, b)
+  }
+
   const gb = ballGram(e, b)
 
   let re = 0
@@ -767,6 +807,10 @@ export function ballFilter(
   phase: number,
   S: number,
 ): BallState {
+  if (e.fast) {
+    return fastFilter(e.fast, psi, phase, S)
+  }
+
   const out = newBall(e.s)
   const st = cloneBall(psi)
 

@@ -64,7 +64,20 @@
 //  residuals 8.7e-16 (sector), 1.4e-15 (transfer), 4.3e-15 (unitary), 6e-17 (between halves), accepted 0.219, rejected
 //  9e-16; the dense and reduced two-hole states agree to 2.2e-16 to 4.8e-16 from both starts. tmp/mh-probe2: the three
 //  pair masks agree with the two-hole engine to 2.0e-17 to 2.3e-17 after 3 cycles; the antisymmetric sector's
-//  complement 1.1e-16 under the rule; the free rule keeps the momentum weights to the last printed digit.
+//  complement 1.1e-16 under the rule; the free rule keeps the momentum weights to the last printed digit. A short smoke
+//  (tmp/mh-smoke, 4 cycles) exercised every path before the gate run.
+//
+// FIRST RUN (tmp/mh-gate-E-FND-0161.log, 1,532 s): PASS, as predicted. No gate moved and none was rerun.
+//  - V1: sector states inside their moving span to 3.0e-15, transfers complete to 2.4e-15 and unitary to 4.3e-15, 6e-17
+//    between the halves, 4 complement states a half at every momentum of L = 4 and 6 (accepted 0.187, rejected 3.7e-15).
+//  - V2: the dense and reduced two-hole states agree to 6.8e-15 and 8.3e-15 over 64 cycles on L = 4, and 3.0e-16 over 8
+//    on L = 6; the dense weight outside W (x) W is 8.4e-12 (a float sum of 4.7e6 squares).
+//  - V3: E-FND-0158's traded weight, dense and reduced, 9.750e-5, 9.400e-4, 1.110e-3, 1.632e-3, 2.139e-3, 2.067e-3,
+//    1.584e-3 at cycles 1 to 64, agreeing to 1.5e-14: the flat parts of that start are spectators, as derived.
+//  - V4: the masks 2.2e-17 to 2.3e-17, the free rule equals its Slater determinant to 5.1e-15, the antisymmetric
+//    complement 4.4e-16.
+//  - Controls: the one-sign error differs from the dense engine by 5.1e-2, the free rule by 6.1e-2.
+//  - Read: 0.019 s a reduced cycle against 0.84 s dense on L = 4 (0.21 s against 5.7 s on L = 6).
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
