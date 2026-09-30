@@ -8,23 +8,24 @@
 // every dock (independent docks, so a dock is a row), the swap coin and stream (a copy, a dock a row), and pairAt's sum
 // over docks (an entry a row, each summed over docks in order).
 
+// Only types come from register-sea, so the engine can import this file without a cycle.
+
 import type { Kernel } from '@/code/kernel/types'
 import { betaOf } from '@/code/measure/register-meson'
-import {
-  newPair,
-  type Moving,
-  type Pair,
-  type SeaRule,
-  type SectorBases,
-  type Torus,
-  FULL,
-  MODES,
-} from '@/code/measure/register-sea'
+import type { Moving, Pair, SeaRule, SectorBases, Torus } from '@/code/measure/register-sea'
 import { OPPOSITE } from '@/code/rule/isometric-knit'
 
 const REG = 8
 const NR = 24
+const MODES = 24 * REG
+const FULL = MODES * MODES
 const OPP = Int32Array.from(OPPOSITE)
+
+// register-sea newPair
+const newPair = (t: Torus): Pair => ({
+  re: new Float64Array(t.sites.length * FULL),
+  im: new Float64Array(t.sites.length * FULL),
+})
 
 // register-sea dockContact, restated (it is module-private there)
 function dockContact(t: Torus, s: Pair, v: readonly [number, number]): void {

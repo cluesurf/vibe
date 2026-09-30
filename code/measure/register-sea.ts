@@ -23,7 +23,13 @@
 //
 // DETERMINISM: no random numbers; starts are fixed modes projected exactly. FLOATS here are measurement on exact pieces
 // (the projectors are integer matrices over 24 and 48, the units are ring units).
+//
+// SPEED (opt in): seaCycle(t, rule, E, s, spare, { backend: 'native', threads: 12 }) and flatCount(t, mv, s, { ... })
+// run on code/kernel (the Rust crate kernel/, built by task/kernel/build.ts), byte for byte the JavaScript below at any
+// thread count (task/kernel/check.ts). With no options they are this file's JavaScript, unchanged.
 
+import { kernel, type KernelOptions } from '@/code/kernel/index'
+import { fastFlatCount, fastSeaCycle } from '@/code/kernel/sea'
 import { DOCK_ROOTS, type CMatrix } from '@/code/measure/dock-mixer'
 import { d4Steps } from '@/code/measure/swap-sector'
 import { cycleMatrix } from '@/code/measure/swap-cone'
@@ -505,7 +511,12 @@ export function seaCycle(
   E: SectorBases,
   s: Pair,
   spare?: Pair,
+  options?: KernelOptions,
 ): Pair {
+  if (options?.backend) {
+    return fastSeaCycle(kernel(options.backend, options.threads ?? 1), t, rule, E, s, spare)
+  }
+
   // beat 1 streams s into the spare, beat 2 streams the spare back into s: two buffers for the whole run
   const mid = seaBeat(t, rule, E, s, 1, spare ?? newPair(t))
 
@@ -760,7 +771,12 @@ export function flatCount(
   t: Torus,
   mv: Moving,
   s: Pair,
+  options?: KernelOptions,
 ): { nF: number; fourier: number } {
+  if (options?.backend) {
+    return fastFlatCount(kernel(options.backend, options.threads ?? 1), t, mv, s)
+  }
+
   let total = 0
   let flat = 0
 

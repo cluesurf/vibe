@@ -260,3 +260,110 @@ pub unsafe extern "C" fn vk_phase_sum(
 ) {
     prim::phase_sum(re, im, c, s, docks, width, m_re, m_im, start, end)
 }
+
+/// # Safety
+/// As vk_conv.
+#[no_mangle]
+#[allow(clippy::too_many_arguments)]
+pub unsafe extern "C" fn vk_hole_one_body(
+    re: *mut f64,
+    im: *mut f64,
+    mom: *const i32,
+    n: usize,
+    f: usize,
+    a_re: *const f64,
+    a_im: *const f64,
+    start: usize,
+    end: usize,
+) {
+    prim::hole_one_body(re, im, mom, n, f, a_re, a_im, start, end)
+}
+
+/// # Safety
+/// As vk_conv.
+#[no_mangle]
+#[allow(clippy::too_many_arguments)]
+pub unsafe extern "C" fn vk_hole_band(
+    re: *const f64,
+    im: *const f64,
+    mom: *const i32,
+    n: usize,
+    f: usize,
+    p_re: *const f64,
+    p_im: *const f64,
+    part: *mut f64,
+    start: usize,
+    end: usize,
+) {
+    prim::hole_band(re, im, mom, n, f, p_re, p_im, part, start, end)
+}
+
+/// # Safety
+/// As vk_conv; every size and index checked by code/kernel/wasm.ts, which reads them off the arrays as node.rs does.
+#[no_mangle]
+#[allow(clippy::too_many_arguments)]
+pub unsafe extern "C" fn vk_hole_pair(
+    re: *mut f64,
+    im: *mut f64,
+    l: usize,
+    n: usize,
+    axes: usize,
+    rows: usize,
+    nperm: usize,
+    k_sites: f64,
+    k_classes: f64,
+    class_of_grid: *const i32,
+    grid_of_site: *const i32,
+    grid_of_class: *const i32,
+    cos_l: *const f64,
+    sin_l: *const f64,
+    row_of: *const i32,
+    perm_of: *const i32,
+    psign: *const i32,
+    fb_of: *const i32,
+    pattern: *const i32,
+    write_off: *const i32,
+    write_c: *const i32,
+    write_tau: *const i32,
+    t_of: *const i32,
+    phase_c: *const f64,
+    phase_s: *const f64,
+    skip: *const i8,
+    block: usize,
+    start: usize,
+    end: usize,
+) {
+    let fo = prim::HoleFourier {
+        l,
+        n,
+        g: l.pow(4),
+        class_of_grid,
+        grid_of_site,
+        grid_of_class,
+        cos: cos_l,
+        sin: sin_l,
+        k_sites,
+        k_classes,
+    };
+    let hp = prim::HolePair {
+        block,
+        tuples: n.pow(axes as u32),
+        axes,
+        rows,
+        nperm,
+        row_of,
+        perm_of,
+        psign,
+        fb_of,
+        pattern,
+        write_off,
+        write_c,
+        write_tau,
+        t_of,
+        cos: phase_c,
+        sin: phase_s,
+        skip,
+    };
+
+    prim::hole_pair(re, im, &fo, &hp, start, end)
+}

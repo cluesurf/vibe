@@ -2,12 +2,12 @@
 // kernel/host/vibe-kernel.wasm). code/kernel/
 // One instance, one thread. A call copies its arrays into the module's memory, runs the primitive over all rows, and
 // copies the outputs back: an engine's arrays live on the JS heap, and a wasm module can only read its own memory.
-// That copy is part of the measured cost. The module's exports take a row range, so the route to threads is several
-// instances over one shared memory (see the kernel note); it is not built, because the native backend is faster on this
-// machine and needs no copy.
+// That copy is part of the measured cost. The threaded form, several instances over one shared memory with no copy, is
+// code/kernel/wasm-threads.ts.
 
 import { existsSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
+import { holePairShape, holeRowsShape } from '@/code/kernel/holes'
 import type { Kernel, PairOp, PairTables } from '@/code/kernel/types'
 
 export const WASM_PATH = fileURLToPath(new URL('../../kernel/host/vibe-kernel.wasm', import.meta.url))
@@ -27,6 +27,9 @@ type Exports = {
   vk_sea_piece(...a: number[]): void
   vk_sea_stream(...a: number[]): void
   vk_phase_sum(...a: number[]): void
+  vk_hole_one_body(...a: number[]): void
+  vk_hole_band(...a: number[]): void
+  vk_hole_pair(...a: number[]): void
 }
 
 type Typed = Float64Array | Int32Array | Int16Array | Int8Array
@@ -138,5 +141,65 @@ export function wasmKernel(): Kernel {
       call(w, [re, im, c, s, mRe, mIm], [4, 5], p =>
         w.vk_phase_sum(p[0]!, p[1]!, p[2]!, p[3]!, c.length, width, p[4]!, p[5]!, 0, width),
       ),
+    holeOneBody: (re, im, mom, n, f, aRe, aIm) => {
+      const rows = holeRowsShape(re, im, mom, n, f, aRe, aIm)
+
+      call(w, [re, im, mom, aRe, aIm], [0, 1], p =>
+        w.vk_hole_one_body(p[0]!, p[1]!, p[2]!, n, f, p[3]!, p[4]!, 0, rows),
+      )
+    },
+    holeBand: (re, im, mom, n, f, pRe, pIm, part) => {
+      const rows = holeRowsShape(re, im, mom, n, f, pRe, pIm)
+
+      if (part.length !== rows * n) {
+        throw new Error('vibe kernel: holeBand part size')
+      }
+
+      call(w, [re, im, mom, pRe, pIm, part], [5], p =>
+        w.vk_hole_band(p[0]!, p[1]!, p[2]!, n, f, p[3]!, p[4]!, p[5]!, 0, rows),
+      )
+    },
+    holePair: (re, im, F, P, ph) => {
+      const sh = holePairShape(re, im, F, P, ph)
+      const arrays: Typed[] = [
+        re,
+        im,
+        F.classOfGrid,
+        F.gridOfSite,
+        F.gridOfClass,
+        F.cos,
+        F.sin,
+        P.rowOf,
+        P.permOf,
+        P.psign,
+        P.fbOf,
+        P.pattern,
+        P.writeOff,
+        P.writeC,
+        P.writeTau,
+        P.tOf,
+        ph.cos,
+        ph.sin,
+        ph.skip,
+      ]
+
+      call(w, arrays, [0, 1], p =>
+        w.vk_hole_pair(
+          p[0]!,
+          p[1]!,
+          sh.L,
+          sh.N,
+          sh.axes,
+          sh.rows,
+          sh.nperm,
+          F.scales[0]!,
+          F.scales[1]!,
+          ...p.slice(2),
+          sh.block,
+          0,
+          sh.orbits,
+        ),
+      )
+    },
   }
 }

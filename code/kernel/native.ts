@@ -22,6 +22,9 @@ type Addon = {
   seaPiece(...args: unknown[]): void
   seaStream(...args: unknown[]): void
   phaseSum(...args: unknown[]): void
+  holeOneBody(...args: unknown[]): void
+  holeBand(...args: unknown[]): void
+  holePair(...args: unknown[]): void
 }
 
 // VIBE_KERNEL_NATIVE names another build of the addon (the check's negative control loads a contracting build this way)
@@ -115,6 +118,39 @@ export function nativeKernel(threads: number): Kernel {
     phaseSum: (...args) => {
       set()
       a.phaseSum(...args)
+    },
+    holeOneBody: (...args) => {
+      set()
+      a.holeOneBody(...args)
+    },
+    holeBand: (...args) => {
+      set()
+      a.holeBand(...args)
+    },
+    holePair: (re, im, F, P, ph) => {
+      set()
+      a.holePair(
+        re,
+        im,
+        F.scales,
+        F.classOfGrid,
+        F.gridOfSite,
+        F.gridOfClass,
+        F.cos,
+        F.sin,
+        P.rowOf,
+        P.permOf,
+        P.psign,
+        P.fbOf,
+        P.pattern,
+        P.writeOff,
+        P.writeC,
+        P.writeTau,
+        P.tOf,
+        ph.cos,
+        ph.sin,
+        ph.skip,
+      )
     },
   }
 }

@@ -57,6 +57,26 @@
 //  0.931, level occupations within 0.006 of each other, L1 0.50; the same momenta in the other band, up 0.065, L1 0.145
 //  from the up start; shell {0, 1, 4}, up 0.922, L1 1.33 from both; every late L1 from its start 5.52 to 5.57.
 //  Thresholds sit at 0.8 (E1, probe 0.92), 4.5 (E2, probe 5.5), 0.8 (E3, probe 0.50) and 1.5 (E4, probe ratio 2.7).
+//  tmp/mh-smoke (8 cycles, late window 5 to 8) ran every path; E3 and E4 failed there, as a 4-cycle window is not
+//  relaxed; the smoke also showed the first disjoint triple was probe 4's S1, so P2 was moved to the last one.
+//
+// FIRST RUN (tmp/mh-gate-E-FND-0162.log, 4,862 s on a loaded machine): PASS, as predicted. No gate moved and none was
+// rerun.
+//  - E1: late upper-band fraction 0.9321 (P1), 0.9320 (P2), 0.9006 (P4), and 0.0646 from the other band (P3). The first
+//    and second halves of the late window read 0.9322 and 0.9320 (P1), 0.0645 and 0.0647 (P3): no drift toward 1/2.
+//  - E2: late momentum distance from the start 5.566, 5.566, 5.564, 5.574 of 6.
+//  - E3: late P1 against P2 0.511, against its band mirror P3 0.100.
+//  - E4: late P1 against the other shell P4 1.273, 2.5 times the larger of the two.
+//  - CF: the free rule moves nothing, 3.8e-13 at most. I1 4.4e-13, I2 6.7e-16.
+//  - Reads. Late level occupations P1 1.012 0.674 0.792 0.397 0.125, P2 the same to the third digit (so P1 and P2 are
+//    probably images under a symmetry of the torus; E3's per-momentum distance is taken without any rotation), P3
+//    1.018 0.677 0.795 0.389 0.121, P4 0.770 0.572 0.807 0.651 0.200; infinite temperature 0.935 0.563 0.751 0.563
+//    0.188. No free-shell window reproduces the levels (window 0.2 misses by up to 0.27, window 0.5 by up to 0.12), so
+//    the pair pieces' own phase is part of the energy and the free delta is kept only roughly: what is kept sharply is
+//    the band. The shell temperatures (P1 -4.5, P3 +4.5, P4 +2.5) come from a density of free states that jumps by a
+//    factor of 3 between neighbouring bins of 0.1, so at L = 4 no temperature is resolved. Two holes keep 0.631 (L = 4)
+//    and 0.159 (L = 6) of their weight on the start's level, against 0.313 and 0.062 at infinite temperature, and 0.993
+//    and 0.979 of it in their band.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
@@ -124,7 +144,7 @@ export default experiment({
   id: 'foundations/register-relaxation',
   code: 'E-FND-0162',
   title:
-    'three holes of the register sea relax to equilibrium at a fixed energy, not to infinite temperature: the free rule keeps every momentum and band exactly, while under the pair pieces the momenta spread over the torus and forget their start inside an energy shell, the band content stays where it began, and a start in another shell relaxes elsewhere; the register member is a massive Dirac band, so while three holes cannot wrap the cycle phase their band energy is conserved',
+    'three holes of the register sea relax, and not to infinite temperature, pass: the free rule keeps every momentum and band exactly (3.8e-13), while under the pair pieces the momenta spread over the L = 4 torus (5.57 of 6 from the start) and forget their start inside an energy shell (two disjoint starts end 0.51 apart, a start and its band mirror 0.10), the band content stays where it began (0.932 in the upper band from up starts, 0.065 from the other, no drift, where infinite temperature gives 0.5), and a start in another shell relaxes elsewhere (1.27); the register member is a massive Dirac band, so while three holes cannot wrap the cycle phase their band energy is conserved, sharply across the gap and roughly within a band',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',
@@ -234,7 +254,7 @@ function relax(
 }
 
 // the triples of distinct momentum classes summing to 0 whose band levels form the multiset `key`, in the engine's order
-function shellTriples(fr: HoleFrame, lev: Int32Array, key: string): number[][] {
+export function shellTriples(fr: HoleFrame, lev: Int32Array, key: string): number[][] {
   const F = fr.fourier
   const N = F.N
   const out: number[][] = []

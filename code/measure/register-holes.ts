@@ -30,7 +30,13 @@
 //                  prediction), by exact counting
 //
 // DETERMINISM: no random numbers. FLOATS are measurement on exact pieces, as in register-sea.
+//
+// SPEED (opt in): holeEngine(fr, n, total, { backend: 'native', threads: 12 }) runs holeCycle and bandWeights on
+// code/kernel (code/kernel/holes.ts, the Rust crate kernel/), byte for byte the JavaScript below at any thread count
+// (task/kernel/check.ts). With no options the engine is this file's JavaScript, unchanged.
 
+import { kernel, type KernelOptions } from '@/code/kernel/index'
+import { fastBandWeights, fastHoleCycle, fastHoles, type FastHoles } from '@/code/kernel/holes'
 import { cycleMatrix } from '@/code/measure/swap-cone'
 import { REGISTER_ROOTS } from '@/code/measure/spinor-register'
 import { partnerBasis } from '@/code/measure/register-meson'
@@ -1029,18 +1035,33 @@ export type HoleEngine = {
   mom: Int32Array
   n: number
   total: number
+  // the kernel path (absent: this file's JavaScript)
+  fast?: FastHoles
 }
 
-export const holeEngine = (fr: HoleFrame, n: number, total: number): HoleEngine => ({
+export const holeEngine = (
+  fr: HoleFrame,
+  n: number,
+  total: number,
+  options?: KernelOptions,
+): HoleEngine => ({
   frame: fr,
   mom: memberMomenta(fr, n, total),
   n,
   total,
+  ...(options?.backend
+    ? { fast: fastHoles(kernel(options.backend, options.threads ?? 1), fr) }
+    : {}),
 })
 
 // one cycle: beat 1 (the pair phases on S, then A1: the mixer, the swap coin and the stream), beat 2 (the pair phases on
 // D, reversed, then A2)
 export function holeCycle(e: HoleEngine, rule: HoleRule, s: Holes): void {
+  if (e.fast) {
+    fastHoleCycle(e.fast, e, rule, s)
+    return
+  }
+
   pairPhases(e.frame, s, rule, 1)
   oneBody(e.frame, s, e.mom, e.frame.A1)
   pairPhases(
@@ -1103,6 +1124,10 @@ export function momentumWeights(e: HoleEngine, s: Holes): Float64Array {
 // every member's weight in the cycle's positive-phase band at each momentum, [member * N + j] (read at cycle
 // boundaries, where the frame is W)
 export function bandWeights(e: HoleEngine, s: Holes): Float64Array {
+  if (e.fast) {
+    return fastBandWeights(e.fast, e, s)
+  }
+
   const fr = e.frame
   const N = fr.fourier.N
   const f = fr.fiber

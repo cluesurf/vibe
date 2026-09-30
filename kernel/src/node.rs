@@ -700,6 +700,288 @@ unsafe extern "C" fn js_phase_sum(env: napi_env, info: napi_callback_info) -> na
     done(env, r)
 }
 
+// ---- register-holes ----
+
+// block = f^n, when it fits (f 1..=16, n 1..=8)
+fn hole_block(n: i32, f: i32) -> Option<usize> {
+    if !(1..=8).contains(&n) || !(1..=prim::HOLE_FIBER_MAX as i32).contains(&f) {
+        return None;
+    }
+
+    (f as usize).checked_pow(n as u32)
+}
+
+// the shape shared by holeOneBody and holeBand: rows, and every momentum class a valid transfer
+unsafe fn hole_rows(
+    env: napi_env,
+    n_re: usize,
+    n_im: usize,
+    mom: *const i32,
+    n_mom: usize,
+    n: i32,
+    f: i32,
+    n_a: usize,
+    n_ai: usize,
+    what: &str,
+) -> R<(usize, usize)> {
+    let block = match hole_block(n, f) {
+        Some(b) => b,
+        None => return Err(throw(env, &format!("{what} arguments out of range"))),
+    };
+    let ff = (f * f) as usize;
+
+    check(
+        n_im == n_re && n_re % block == 0 && n_a == n_ai && n_a % ff == 0 && n_a > 0,
+        env,
+        what,
+    )?;
+
+    let rows = n_re / block;
+    let classes = n_a / ff;
+
+    check(n_mom == rows * n as usize, env, what)?;
+    check(
+        std::slice::from_raw_parts(mom, n_mom).iter().all(|&j| j >= 0 && (j as usize) < classes),
+        env,
+        &format!("{what} index"),
+    )?;
+
+    Ok((rows, block))
+}
+
+// holeOneBody(re, im, mom, n, f, aRe, aIm)
+unsafe extern "C" fn js_hole_one_body(env: napi_env, info: napi_callback_info) -> napi_value {
+    let r = (|| -> R<()> {
+        let a = args::<7>(env, info)?;
+        let (re, n_re) = f64s(env, a[0], "re")?;
+        let (im, n_im) = f64s(env, a[1], "im")?;
+        let (mom, n_mom) = i32s(env, a[2], "mom")?;
+        let n = int(env, a[3], "n")?;
+        let f = int(env, a[4], "f")?;
+        let (ar, n_ar) = f64s(env, a[5], "aRe")?;
+        let (ai, n_ai) = f64s(env, a[6], "aIm")?;
+        let (rows, _) = hole_rows(env, n_re, n_im, mom, n_mom, n, f, n_ar, n_ai, "holeOneBody")?;
+        let (re, im, mom, ar, ai) = (P(re), P(im), P(mom), P(ar), P(ai));
+
+        pool::run(rows, 1, &|s, e| {
+            prim::hole_one_body(re.p(), im.p(), mom.p(), n as usize, f as usize, ar.p(), ai.p(), s, e)
+        });
+        Ok(())
+    })();
+
+    done(env, r)
+}
+
+// holeBand(re, im, mom, n, f, pRe, pIm, part)
+unsafe extern "C" fn js_hole_band(env: napi_env, info: napi_callback_info) -> napi_value {
+    let r = (|| -> R<()> {
+        let a = args::<8>(env, info)?;
+        let (re, n_re) = f64s(env, a[0], "re")?;
+        let (im, n_im) = f64s(env, a[1], "im")?;
+        let (mom, n_mom) = i32s(env, a[2], "mom")?;
+        let n = int(env, a[3], "n")?;
+        let f = int(env, a[4], "f")?;
+        let (pr, n_pr) = f64s(env, a[5], "pRe")?;
+        let (pi, n_pi) = f64s(env, a[6], "pIm")?;
+        let (part, n_part) = f64s(env, a[7], "part")?;
+        let (rows, _) = hole_rows(env, n_re, n_im, mom, n_mom, n, f, n_pr, n_pi, "holeBand")?;
+
+        check(n_part == rows * n as usize, env, "holeBand")?;
+
+        let (re, im, mom, pr, pi, part) = (P(re), P(im), P(mom), P(pr), P(pi), P(part));
+
+        pool::run(rows, 1, &|s, e| {
+            prim::hole_band(re.p(), im.p(), mom.p(), n as usize, f as usize, pr.p(), pi.p(), part.p(), s, e)
+        });
+        Ok(())
+    })();
+
+    done(env, r)
+}
+
+unsafe fn in_range(p: *const i32, len: usize, lo: i32, hi: usize) -> bool {
+    len == 0 || std::slice::from_raw_parts(p, len).iter().all(|&x| x >= lo && (x as i64) < hi as i64)
+}
+
+// holePair(re, im, scales, classOfGrid, gridOfSite, gridOfClass, cosL, sinL, rowOf, permOf, psign, fbOf, pattern,
+// writeOff, writeC, writeTau, tOf, phaseC, phaseS, skip): every size is read off the arrays and checked against the
+// others, every index checked against what it indexes, and the orbits checked disjoint (each fiber index written by one
+// orbit only, each orbit reading only what it writes), so the threads never share an entry
+unsafe extern "C" fn js_hole_pair(env: napi_env, info: napi_callback_info) -> napi_value {
+    let r = (|| -> R<()> {
+        let a = args::<20>(env, info)?;
+        let (re, n_re) = f64s(env, a[0], "re")?;
+        let (im, n_im) = f64s(env, a[1], "im")?;
+        let (scales, n_scales) = f64s(env, a[2], "scales")?;
+        let (cog, g) = i32s(env, a[3], "classOfGrid")?;
+        let (gos, n) = i32s(env, a[4], "gridOfSite")?;
+        let (goc, n_goc) = i32s(env, a[5], "gridOfClass")?;
+        let (cos_l, l) = f64s(env, a[6], "cosL")?;
+        let (sin_l, n_sin_l) = f64s(env, a[7], "sinL")?;
+        let (row_of, tuples) = i32s(env, a[8], "rowOf")?;
+        let (perm_of, n_perm_of) = i32s(env, a[9], "permOf")?;
+        let (psign, nperm) = i32s(env, a[10], "psign")?;
+        let (fb_of, n_fb_of) = i32s(env, a[11], "fbOf")?;
+        let (pattern, orbits) = i32s(env, a[12], "pattern")?;
+        let (write_off, n_write_off) = i32s(env, a[13], "writeOff")?;
+        let (write_c, n_write_c) = i32s(env, a[14], "writeC")?;
+        let (write_tau, n_write_tau) = i32s(env, a[15], "writeTau")?;
+        let (t_of, n_t_of) = i32s(env, a[16], "tOf")?;
+        let (ph_c, n_ph_c) = f64s(env, a[17], "phaseC")?;
+        let (ph_s, n_ph_s) = f64s(env, a[18], "phaseS")?;
+        let (skip, n_skip) = typed::<i8>(env, a[19], TA_INT8, "skip")?;
+
+        // the grid and the axes: G = L^4, tuples = N^axes
+        check(
+            n_scales == 2
+                && l >= 1
+                && n_sin_l == l
+                && l.checked_pow(4) == Some(g)
+                && n >= 2
+                && n_goc == n
+                && n_perm_of == tuples
+                && nperm >= 1
+                && tuples >= 1,
+            env,
+            "holePair",
+        )?;
+
+        let mut axes = 0usize;
+        let mut span = 1usize;
+
+        while span < tuples {
+            span = span.saturating_mul(n);
+            axes += 1;
+        }
+
+        check(span == tuples && axes >= 1, env, "holePair axes")?;
+        check(
+            n_t_of % nperm == 0 && n_t_of > 0 && n_fb_of == orbits * nperm && n_write_off == orbits + 1,
+            env,
+            "holePair",
+        )?;
+
+        let rows = n_t_of / nperm;
+
+        check(n_re % rows == 0 && n_im == n_re && n_re > 0, env, "holePair")?;
+
+        let block = n_re / rows;
+
+        check(
+            n_ph_s == n_ph_c && n_skip == n_ph_c && n_ph_c % tuples == 0 && n_write_tau == n_write_c,
+            env,
+            "holePair",
+        )?;
+
+        let patterns = n_ph_c / tuples;
+        let wo = std::slice::from_raw_parts(write_off, n_write_off);
+
+        check(
+            wo[0] == 0 && wo.windows(2).all(|w| w[0] <= w[1]) && wo[orbits] as usize == n_write_c,
+            env,
+            "holePair writeOff",
+        )?;
+        check(
+            in_range(cog, g, 0, n)
+                && in_range(gos, n, 0, g)
+                && in_range(goc, n, 0, g)
+                && in_range(row_of, tuples, 0, rows)
+                && in_range(perm_of, tuples, 0, nperm)
+                && std::slice::from_raw_parts(psign, nperm).iter().all(|&s| s == 1 || s == -1)
+                && in_range(fb_of, n_fb_of, 0, block)
+                && in_range(pattern, orbits, 0, patterns)
+                && in_range(write_c, n_write_c, 0, block)
+                && in_range(write_tau, n_write_tau, 0, nperm)
+                && in_range(t_of, n_t_of, 0, tuples),
+            env,
+            "holePair index",
+        )?;
+
+        // the orbits are disjoint: a fiber index is written by one orbit once, and an orbit gathers only what it writes
+        let mut owner = vec![-1i64; block];
+        let wc = std::slice::from_raw_parts(write_c, n_write_c);
+        let fbs = std::slice::from_raw_parts(fb_of, n_fb_of);
+        let mut disjoint = true;
+
+        for o in 0..orbits {
+            for w in wo[o] as usize..wo[o + 1] as usize {
+                let c = wc[w] as usize;
+
+                if owner[c] >= 0 {
+                    disjoint = false;
+                }
+
+                owner[c] = o as i64;
+            }
+        }
+
+        for o in 0..orbits {
+            for p in 0..nperm {
+                if owner[fbs[o * nperm + p] as usize] != o as i64 {
+                    disjoint = false;
+                }
+            }
+        }
+
+        check(disjoint, env, "holePair orbits")?;
+
+        // the gather covers every tuple once: t = t_of[row_of[t] * nperm + perm_of[t]] for every t, and every (row, p)
+        // whose tuple has permutation p is that tuple's own row (so a column entry is never left from another orbit)
+        let ro = std::slice::from_raw_parts(row_of, tuples);
+        let po = std::slice::from_raw_parts(perm_of, tuples);
+        let to = std::slice::from_raw_parts(t_of, n_t_of);
+        let covered = (0..tuples).all(|t| to[ro[t] as usize * nperm + po[t] as usize] as usize == t)
+            && (0..rows).all(|r| {
+                (0..nperm).all(|p| {
+                    let t = to[r * nperm + p] as usize;
+
+                    po[t] as usize != p || ro[t] as usize == r
+                })
+            });
+
+        check(covered, env, "holePair gather")?;
+
+        let sc = std::slice::from_raw_parts(scales, 2);
+        let fo = prim::HoleFourier {
+            l,
+            n,
+            g,
+            class_of_grid: cog,
+            grid_of_site: gos,
+            grid_of_class: goc,
+            cos: cos_l,
+            sin: sin_l,
+            k_sites: sc[0],
+            k_classes: sc[1],
+        };
+        let hp = prim::HolePair {
+            block,
+            tuples,
+            axes,
+            rows,
+            nperm,
+            row_of,
+            perm_of,
+            psign,
+            fb_of,
+            pattern,
+            write_off,
+            write_c,
+            write_tau,
+            t_of,
+            cos: ph_c,
+            sin: ph_s,
+            skip,
+        };
+        let (re, im) = (P(re), P(im));
+
+        pool::run(orbits, 1, &|s, e| prim::hole_pair(re.p(), im.p(), &fo, &hp, s, e));
+        Ok(())
+    })();
+
+    done(env, r)
+}
+
 // ---- the module ----
 
 fn method(name: &'static [u8], f: napi_callback) -> napi_property_descriptor {
@@ -732,6 +1014,9 @@ pub unsafe extern "C" fn napi_register_module_v1(env: napi_env, exports: napi_va
         method(b"seaPiece\0", js_sea_piece),
         method(b"seaStream\0", js_sea_stream),
         method(b"phaseSum\0", js_phase_sum),
+        method(b"holeOneBody\0", js_hole_one_body),
+        method(b"holeBand\0", js_hole_band),
+        method(b"holePair\0", js_hole_pair),
     ];
 
     if napi_define_properties(env, exports, fns.len(), fns.as_ptr()) != NAPI_OK {

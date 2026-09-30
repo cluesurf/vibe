@@ -4,7 +4,14 @@
 // operations in the same order. The equivalence check (task/kernel/check.ts) holds this backend to the engines
 // themselves, and every other backend to this one, byte for byte.
 
-import type { Kernel, PairOp, PairTables } from '@/code/kernel/types'
+import type {
+  HoleFourierTables,
+  HolePairTables,
+  HolePhase,
+  Kernel,
+  PairOp,
+  PairTables,
+} from '@/code/kernel/types'
 
 const PAIR = 64
 const SITE = 256
@@ -466,6 +473,374 @@ export function jsPhaseSum(
   }
 }
 
+// ---- register-holes (code/measure/register-holes oneBody, bandWeights and pairPhases) ----
+
+export function jsHoleOneBody(
+  re: Float64Array,
+  im: Float64Array,
+  mom: Int32Array,
+  n: number,
+  f: number,
+  aRe: Float64Array,
+  aIm: Float64Array,
+): void {
+  const block = f ** n
+  const tuples = re.length / block
+  const xr = new Float64Array(f)
+  const xi = new Float64Array(f)
+
+  for (let T = 0; T < tuples; T++) {
+    const off = T * block
+
+    for (let i = 0; i < n; i++) {
+      const a = mom[T * n + i]! * f * f
+      const st = f ** (n - 1 - i)
+      const outer = f ** i
+
+      for (let hi = 0; hi < outer; hi++) {
+        for (let lo = 0; lo < st; lo++) {
+          const base = off + hi * f * st + lo
+
+          for (let k = 0; k < f; k++) {
+            xr[k] = re[base + k * st]!
+            xi[k] = im[base + k * st]!
+          }
+
+          for (let r = 0; r < f; r++) {
+            let yr = 0
+            let yi = 0
+            const ro = a + r * f
+
+            for (let k = 0; k < f; k++) {
+              const ar = aRe[ro + k]!
+              const ai = aIm[ro + k]!
+
+              if (ar === 0 && ai === 0) {
+                continue
+              }
+
+              yr += ar * xr[k]! - ai * xi[k]!
+              yi += ar * xi[k]! + ai * xr[k]!
+            }
+
+            re[base + r * st] = yr
+            im[base + r * st] = yi
+          }
+        }
+      }
+    }
+  }
+}
+
+export function jsHoleBand(
+  re: Float64Array,
+  im: Float64Array,
+  mom: Int32Array,
+  n: number,
+  f: number,
+  pRe: Float64Array,
+  pIm: Float64Array,
+  part: Float64Array,
+): void {
+  const block = f ** n
+  const tuples = re.length / block
+  const yr = new Float64Array(f)
+  const yi = new Float64Array(f)
+
+  for (let T = 0; T < tuples; T++) {
+    const off = T * block
+
+    for (let i = 0; i < n; i++) {
+      const p = mom[T * n + i]! * f * f
+      const st = f ** (n - 1 - i)
+      const outer = f ** i
+
+      let w = 0
+
+      for (let hi = 0; hi < outer; hi++) {
+        for (let lo = 0; lo < st; lo++) {
+          const base = off + hi * f * st + lo
+
+          for (let r = 0; r < f; r++) {
+            let ar = 0
+            let ai = 0
+
+            for (let k = 0; k < f; k++) {
+              const pr = pRe[p + r * f + k]!
+              const pi = pIm[p + r * f + k]!
+              const xr = re[base + k * st]!
+              const xi = im[base + k * st]!
+
+              ar += pr * xr - pi * xi
+              ai += pr * xi + pi * xr
+            }
+
+            yr[r] = ar
+            yi[r] = ai
+          }
+
+          for (let r = 0; r < f; r++) {
+            w += yr[r]! * yr[r]! + yi[r]! * yi[r]!
+          }
+        }
+      }
+
+      part[T * n + i] = w
+    }
+  }
+}
+
+// register-holes dft4d on the flattened tables
+function holeDft4d(
+  F: HoleFourierTables,
+  re: Float64Array,
+  im: Float64Array,
+  sign: 1 | -1,
+  sr: Float64Array,
+  si: Float64Array,
+): void {
+  const L = F.cos.length
+
+  for (let axis = 0; axis < 4; axis++) {
+    const st = L ** (3 - axis)
+    const outer = L ** axis
+
+    for (let o = 0; o < outer; o++) {
+      for (let lo = 0; lo < st; lo++) {
+        const base = o * L * st + lo
+
+        if (L === 4) {
+          const i0 = base
+          const i1 = base + st
+          const i2 = base + 2 * st
+          const i3 = base + 3 * st
+          const a0r = re[i0]! + re[i2]!
+          const a0i = im[i0]! + im[i2]!
+          const a1r = re[i0]! - re[i2]!
+          const a1i = im[i0]! - im[i2]!
+          const b0r = re[i1]! + re[i3]!
+          const b0i = im[i1]! + im[i3]!
+          const b1r = re[i1]! - re[i3]!
+          const b1i = im[i1]! - im[i3]!
+
+          re[i0] = a0r + b0r
+          im[i0] = a0i + b0i
+          re[i2] = a0r - b0r
+          im[i2] = a0i - b0i
+          re[i1] = a1r - sign * b1i
+          im[i1] = a1i + sign * b1r
+          re[i3] = a1r + sign * b1i
+          im[i3] = a1i - sign * b1r
+          continue
+        }
+
+        for (let m = 0; m < L; m++) {
+          let r = 0
+          let q = 0
+
+          for (let n = 0; n < L; n++) {
+            const k = (m * n) % L
+            const c = F.cos[k]!
+            const s = sign * F.sin[k]!
+            const xr = re[base + n * st]!
+            const xi = im[base + n * st]!
+
+            r += c * xr - s * xi
+            q += c * xi + s * xr
+          }
+
+          sr[m] = r
+          si[m] = q
+        }
+
+        for (let m = 0; m < L; m++) {
+          re[base + m * st] = sr[m]!
+          im[base + m * st] = si[m]!
+        }
+      }
+    }
+  }
+}
+
+type HoleScratch = {
+  br: Float64Array
+  bi: Float64Array
+  lr: Float64Array
+  li: Float64Array
+  gr: Float64Array
+  gi: Float64Array
+  sr: Float64Array
+  si: Float64Array
+}
+
+// register-holes toSites (dir 1) and toClasses (dir -1) on the line lr, li
+function holeLine(F: HoleFourierTables, x: HoleScratch, dir: 1 | -1): void {
+  const N = F.gridOfSite.length
+  const G = F.classOfGrid.length
+
+  if (dir === 1) {
+    for (let g = 0; g < G; g++) {
+      const j = F.classOfGrid[g]!
+
+      x.gr[g] = x.lr[j]!
+      x.gi[g] = x.li[j]!
+    }
+
+    holeDft4d(F, x.gr, x.gi, 1, x.sr, x.si)
+
+    const k = F.scales[0]!
+
+    for (let i = 0; i < N; i++) {
+      const g = F.gridOfSite[i]!
+
+      x.lr[i] = x.gr[g]! * k
+      x.li[i] = x.gi[g]! * k
+    }
+
+    return
+  }
+
+  x.gr.fill(0)
+  x.gi.fill(0)
+
+  for (let i = 0; i < N; i++) {
+    const g = F.gridOfSite[i]!
+
+    x.gr[g] = x.lr[i]!
+    x.gi[g] = x.li[i]!
+  }
+
+  holeDft4d(F, x.gr, x.gi, -1, x.sr, x.si)
+
+  const k = F.scales[1]!
+
+  for (let j = 0; j < N; j++) {
+    const g = F.gridOfClass[j]!
+
+    x.lr[j] = x.gr[g]! * k
+    x.li[j] = x.gi[g]! * k
+  }
+}
+
+// register-holes transformAxis
+function holeAxis(F: HoleFourierTables, x: HoleScratch, axes: number, a: number, dir: 1 | -1): void {
+  const N = F.gridOfSite.length
+  const st = N ** (axes - 1 - a)
+  const outer = N ** a
+
+  for (let o = 0; o < outer; o++) {
+    for (let lo = 0; lo < st; lo++) {
+      const base = o * N * st + lo
+
+      for (let k = 0; k < N; k++) {
+        x.lr[k] = x.br[base + k * st]!
+        x.li[k] = x.bi[base + k * st]!
+      }
+
+      holeLine(F, x, dir)
+
+      for (let k = 0; k < N; k++) {
+        x.br[base + k * st] = x.lr[k]!
+        x.bi[base + k * st] = x.li[k]!
+      }
+    }
+  }
+}
+
+export function jsHolePair(
+  re: Float64Array,
+  im: Float64Array,
+  F: HoleFourierTables,
+  P: HolePairTables,
+  ph: HolePhase,
+): void {
+  const N = F.gridOfSite.length
+  const tuples = P.rowOf.length
+  const nperm = P.psign.length
+  const rows = P.tOf.length / nperm
+  const block = re.length / rows
+  const orbits = P.pattern.length
+
+  let axes = 0
+
+  for (let span = 1; span < tuples; span *= N) {
+    axes++
+  }
+
+  const x: HoleScratch = {
+    br: new Float64Array(tuples),
+    bi: new Float64Array(tuples),
+    lr: new Float64Array(N),
+    li: new Float64Array(N),
+    gr: new Float64Array(F.classOfGrid.length),
+    gi: new Float64Array(F.classOfGrid.length),
+    sr: new Float64Array(F.cos.length),
+    si: new Float64Array(F.cos.length),
+  }
+
+  for (let o = 0; o < orbits; o++) {
+    const fbs = o * nperm
+
+    // the gather, row by row: tuple t is reached from its own row and permutation only
+    for (let r = 0; r < rows; r++) {
+      for (let p = 0; p < nperm; p++) {
+        const t = P.tOf[r * nperm + p]!
+
+        if (P.permOf[t] !== p) {
+          continue
+        }
+
+        const at = r * block + P.fbOf[fbs + p]!
+
+        if (P.psign[p]! < 0) {
+          x.br[t] = -re[at]!
+          x.bi[t] = -im[at]!
+        } else {
+          x.br[t] = re[at]!
+          x.bi[t] = im[at]!
+        }
+      }
+    }
+
+    for (let a = 0; a < axes; a++) {
+      holeAxis(F, x, axes, a, 1)
+    }
+
+    const pat = P.pattern[o]! * tuples
+
+    for (let t = 0; t < tuples; t++) {
+      if (ph.skip[pat + t] !== 0) {
+        continue
+      }
+
+      const c = ph.cos[pat + t]!
+      const sn = ph.sin[pat + t]!
+      const xr = x.br[t]!
+      const xi = x.bi[t]!
+
+      x.br[t] = c * xr - sn * xi
+      x.bi[t] = c * xi + sn * xr
+    }
+
+    for (let a = 0; a < axes; a++) {
+      holeAxis(F, x, axes, a, -1)
+    }
+
+    // the scatter, row by row
+    for (let r = 0; r < rows; r++) {
+      for (let w = P.writeOff[o]!; w < P.writeOff[o + 1]!; w++) {
+        const c = P.writeC[w]!
+        const tau = P.writeTau[w]!
+        const t = P.tOf[r * nperm + tau]!
+        const at = r * block + c
+
+        re[at] = P.psign[tau]! < 0 ? -x.br[t]! : x.br[t]!
+        im[at] = P.psign[tau]! < 0 ? -x.bi[t]! : x.bi[t]!
+      }
+    }
+  }
+}
+
 export function jsKernel(): Kernel {
   return {
     backend: 'js',
@@ -482,5 +857,8 @@ export function jsKernel(): Kernel {
     seaPiece: jsSeaPiece,
     seaStream: jsSeaStream,
     phaseSum: jsPhaseSum,
+    holeOneBody: jsHoleOneBody,
+    holeBand: jsHoleBand,
+    holePair: jsHolePair,
   }
 }

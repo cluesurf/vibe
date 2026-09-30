@@ -15,6 +15,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { Worker } from 'node:worker_threads'
+import { holePairShape, holeRowsShape } from '@/code/kernel/holes'
 import type { Kernel, PairOp, PairTables } from '@/code/kernel/types'
 
 export const WASM_THREADS_PATH = fileURLToPath(new URL('../../kernel/host/vibe-kernel-threads.wasm', import.meta.url))
@@ -33,6 +34,9 @@ const FNS = [
   'vk_sea_piece',
   'vk_sea_stream',
   'vk_phase_sum',
+  'vk_hole_one_body',
+  'vk_hole_band',
+  'vk_hole_pair',
 ] as const
 
 type Fn = (typeof FNS)[number]
@@ -49,7 +53,8 @@ type Exports = {
   __tls_align?: WebAssembly.Global
 }
 
-const MAX_ARGS = 24
+// vk_hole_pair takes 27 before its row range
+const MAX_ARGS = 32
 const STACK = 1 << 20
 
 // control block: [0] generation, [1] remaining, [2] function, [3] parts, [4] rows, [5] argument count
@@ -73,8 +78,10 @@ for (;;) {
     const n = ctrl[5]
     const a = Array.from(args.subarray(0, n))
     table[ctrl[2]](...a, Math.floor((id * rows) / parts), Math.floor(((id + 1) * rows) / parts))
-    if (Atomics.sub(ctrl, 1, 1) === 1) Atomics.notify(ctrl, 1)
   }
+  // every worker acknowledges every call, working or not, so the main thread never writes the next call's parameters
+  // while a worker may still be reading this one's
+  if (Atomics.sub(ctrl, 1, 1) === 1) Atomics.notify(ctrl, 1)
 }
 `
 
@@ -208,7 +215,8 @@ export function wasmThreadsKernel(threads: number): Kernel & { alloc(n: number):
     p.ctrl[3] = parts
     p.ctrl[4] = rows
     p.ctrl[5] = args.length
-    Atomics.store(p.ctrl, 1, parts - 1)
+    // every worker in the pool acknowledges (not only the parts - 1 that work), see WORKER
+    Atomics.store(p.ctrl, 1, p.workers.length)
     Atomics.add(p.ctrl, 0, 1)
     Atomics.notify(p.ctrl, 0)
     f(...args, 0, Math.floor(rows / parts))
@@ -314,5 +322,56 @@ export function wasmThreadsKernel(threads: number): Kernel & { alloc(n: number):
       call([re, im, c, s, mRe, mIm], [4, 5], q =>
         run('vk_phase_sum', [q[0]!, q[1]!, q[2]!, q[3]!, c.length, width, q[4]!, q[5]!], width, 1024),
       ),
+    holeOneBody: (re, im, mom, nh, f, aRe, aIm) => {
+      const rows = holeRowsShape(re, im, mom, nh, f, aRe, aIm)
+
+      call([re, im, mom, aRe, aIm], [0, 1], q =>
+        run('vk_hole_one_body', [q[0]!, q[1]!, q[2]!, nh, f, q[3]!, q[4]!], rows, 1),
+      )
+    },
+    holeBand: (re, im, mom, nh, f, pRe, pIm, part) => {
+      const rows = holeRowsShape(re, im, mom, nh, f, pRe, pIm)
+
+      if (part.length !== rows * nh) {
+        throw new Error('vibe kernel: holeBand part size')
+      }
+
+      call([re, im, mom, pRe, pIm, part], [5], q =>
+        run('vk_hole_band', [q[0]!, q[1]!, q[2]!, nh, f, q[3]!, q[4]!, q[5]!], rows, 1),
+      )
+    },
+    holePair: (re, im, F, P, ph) => {
+      const sh = holePairShape(re, im, F, P, ph)
+      const arrays: Typed[] = [
+        re,
+        im,
+        F.classOfGrid,
+        F.gridOfSite,
+        F.gridOfClass,
+        F.cos,
+        F.sin,
+        P.rowOf,
+        P.permOf,
+        P.psign,
+        P.fbOf,
+        P.pattern,
+        P.writeOff,
+        P.writeC,
+        P.writeTau,
+        P.tOf,
+        ph.cos,
+        ph.sin,
+        ph.skip,
+      ]
+
+      call(arrays, [0, 1], q =>
+        run(
+          'vk_hole_pair',
+          [q[0]!, q[1]!, sh.L, sh.N, sh.axes, sh.rows, sh.nperm, F.scales[0]!, F.scales[1]!, ...q.slice(2), sh.block],
+          sh.orbits,
+          1,
+        ),
+      )
+    },
   }
 }

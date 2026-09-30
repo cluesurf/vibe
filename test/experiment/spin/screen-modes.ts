@@ -101,6 +101,38 @@
 //  radius 1, 2, 3 about one cell, 0.043, 0.076, 0.094. So M was seen to fail at the generic k before these gates were
 //  written; the three other symmetric momenta, cut 3 at k = 0, the controls C1 to C3 and I4 were not run.
 //
+// FIRST RUN (tmp/ms-gate-run1.log, 5,474 s on a loaded machine, under 1 GB): PARTIAL, on the instrument alone. G1, G2,
+//  G3, C1, C2, C3, I1, I2 and I4 hold, M fails as derived, and I3 fails: the dense residuals read 1.4e-13 (inside
+//  1e-12) but the cut 3 Krylov Ritz residuals reach 5.5e-5 against the 1e-10 fixed before the run. No gate moved and
+//  none was rerun. What the failure does and does not touch: the residual bounds each Ritz value's distance to an
+//  eigenvalue of H, so a residual of 5.5e-5 leaves one of the top 8 cut 3 eigenspaces located only to 5.5e-5; the
+//  probe at the same cut (ms-probe6b-d3.log, 300 vectors) read the TOP eigenspace, the one of largest share at every
+//  gate k here, at 1.4e-15 and the unconverged ones at the 7th and 8th places. The cut 3 shares are therefore read, not
+//  certified; the cut 1 and cut 2 shares are dense and certified (1.4e-13).
+//  - G1: three unit translations (shift error 2.2e-14), each label action of order 2 with -M a reflection, 0 disagreeing,
+//    8 distinct parity classes, the even lattice label-trivial. G2: 1, 19, 349 and 6,383 docks per cell at cuts 0 to 3,
+//    0 inconsistent, 18 of 18 depth-1 docks single-parent. G3: the leak is I / 32 to 6.9e-18 and the layer block C_LL^dag
+//    C_LL + I / 32 to 1.4e-17 at all five k; mu_along at most exactly 1/32.
+//  - M, the largest layer share at cuts 1, 2, 3: k = 0 and (pi, 0, 0) 0.704, 0.554, 0.412; (pi/2, 0, 0) 0.616, 0.432,
+//    0.288; (pi/2, pi/2, pi/2) 0.477, 0.344, 0.228; generic 0.697, 0.544, 0.402. Falling at every k, below theta at
+//    cut 3 everywhere, and at k = 0, (pi, 0, 0) and the generic k it falls by MORE than cut 2's deepest-shell weight
+//    (0.142 against 0.117): the share leaves faster than a bound state's tail allows. The band sits at the top of the
+//    spectrum at every cut (mu 0.084, 0.096, 0.106 at k = 0), riding up with the region's growing top. Its husk speed
+//    is 0 at k = 0 and (pi, 0, 0) and at most 0.025 docks a beat anywhere (0.072 of sqrt(2)/4, at (pi/2, 0, 0), cut 1).
+//  - C1: flat law 2.6e-16, massless speed at q = 1e-3 0.353553 against sqrt(2)/4 = 0.353553, at q = 0.6 light 0.2144
+//    and massless 0.2978 equal to diracSpeed. C2: the closed screen, share 1 (2.5e-13), fastest band 0.0464 docks a beat.
+//    C3: the most screen-bound band at most 2 eigenvalues from the top at cuts 1 and 2.
+//  - I1 8.7e-15, I2 overlap 6.6e-15, closure 7.4e-12, law 3.8e-12, I4 4.5e-14. S and D shares equal band by band to
+//    2.0e-11 (read). Open frontier at the generic k: 0.551 at cut 2, 0.410 at cut 3.
+// WHY NONE, AND WHAT WOULD MAKE ONE. The screen couples down with a fixed strength, 1/32 on the diagonal of H at every k
+//  (G3), as large as the along hop's whole reach (1/32), and it couples into shells whose own band reaches past 0.106:
+//  a state held on the layer sits at most at 1/16, inside the depth's band, and mixes into every shell. The closed
+//  screen (C2) is the same rule with the 18 down slots returned to the dock: there a screen band exists and moves, at
+//  0.046 docks a beat (0.13 of sqrt(2)/4). So what would create a screen mode is a rule in which the screen's down slots
+//  do not stream into the bulk (a layer dock that returns them, or a coin whose moving sector has no weight on the
+//  down labels); the 18 down, 6 along split and the fixed 1/32 are geometry, so on this rule no such mode exists, and
+//  even the closed screen's band is 7.6 times slower than the flat's.
+//
 // Depth L2 (the register rule's own spectrum below a cusp of the true mesh, read by the law E-SPN-0180 derived and
 // checked here against the rule itself). DETERMINISM: no random numbers; the Lanczos start is a fixed Weyl sequence.
 // NOTHING MOVES: the pieces hand values between slots and register components of one dock, and the stream takes each
@@ -190,7 +222,8 @@ const flag = (b: boolean): number => (b ? 1 : 0)
 export default experiment({
   id: 'spin/screen-modes',
   code: 'E-SPN-0182',
-  title: 'no mode of the register rule stays on the true screen, fail as derived',
+  title:
+    'no mode of the register rule stays on the true screen, partial on the instrument: below a cusp of {3,4,3,4} the husk translations twist the labels (each unit step acts as minus a reflection, the label-trivial kernel is 2 Z^3), and by the band law the modes there are the spectrum of H(k) = C^dag C; each depth-1 dock has one layer parent, so the layer couples down with exactly 1/32 at every k (to 6.9e-18), as much as the whole along hop, into shells whose band reaches past 0.106; the most screen-bound band falls from 0.70 to 0.55 to 0.41 of its weight on the layer at depth cuts 1, 2, 3 (0.62 to 0.29 and 0.48 to 0.23 at other momenta), below 1/2 everywhere and faster than its deepest shell allows, and moves at most 0.025 docks a beat against the flat quotient\'s sqrt(2)/4 (controls: the flat quotient reproduces sqrt(2)/4 and diracSpeed, and the closed screen carries a band at 0.046); the cut 3 Krylov reading left Ritz residuals of 5.5e-5 against 1e-10, so the cut 3 shares are read, not certified',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',

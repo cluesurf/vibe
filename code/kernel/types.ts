@@ -40,6 +40,43 @@ export type PairTables = {
   halfIm: Float64Array
 }
 
+// register-holes' torus Fourier transform (code/measure/register-holes torusFourier), flattened: the class of every
+// grid momentum (G = L^4 entries), the grid index of every site and of every class's representative (N each), cos and
+// sin of 2 pi m / L, and the two unitary scales [1 / (2 sqrt N) to sites, 1 / sqrt N to classes], computed in TypeScript
+export type HoleFourierTables = {
+  classOfGrid: Int32Array
+  gridOfSite: Int32Array
+  gridOfClass: Int32Array
+  cos: Float64Array
+  sin: Float64Array
+  scales: Float64Array
+}
+
+// register-holes' pair piece, cut into ORBITS (the rows): an orbit is a set of fiber indices whose full-momentum column
+// is one function, read through the gather and written back through the scatter. The dense engine's orbit is one fiber
+// index and every map is the identity (nperm 1); the sorted store's is a fiber tuple and its member permutations.
+//   gather   column[t] = psign[p] state[rowOf[t] * block + fbOf[orbit * nperm + p]], p = permOf[t], t over the N^(n-1)
+//            momentum tuples of members 0 .. n - 2
+//   phase    after the transform to sites, column[t] *= cos + i sin of the orbit's pattern at t, unless skip (the
+//            reference multiplies only where the phase angle is not 0); [pattern * tuples + t]
+//   scatter  for each (writeC[w], writeTau[w]), w in writeOff[orbit] .. writeOff[orbit + 1], and every stored row r:
+//            state[r * block + c] = psign[tau] column[tOf[r * nperm + tau]]
+export type HolePairTables = {
+  rowOf: Int32Array
+  permOf: Int32Array
+  psign: Int32Array
+  fbOf: Int32Array
+  pattern: Int32Array
+  writeOff: Int32Array
+  writeC: Int32Array
+  writeTau: Int32Array
+  tOf: Int32Array
+}
+
+// the phase of every sector pattern at every relative site tuple, one beat's sign (cos, sin of sign phi, and skip where
+// phi is exactly 0), computed in TypeScript exactly where register-holes pairPhases computes them
+export type HolePhase = { cos: Float64Array; sin: Float64Array; skip: Int8Array }
+
 // a backend's handle on a PairTables (the native backend copies the tables into the addon once)
 export type PairOp = { readonly count: number; readonly tables: PairTables; readonly native?: unknown; readonly wasm?: number }
 
@@ -132,4 +169,32 @@ export type Kernel = {
 
   // register-sea's pairAt: M = sum over docks of (c_i + i s_i) psi_i, zero entries skipped
   phaseSum(re: Float64Array, im: Float64Array, c: Float64Array, s: Float64Array, width: number, mRe: Float64Array, mIm: Float64Array): void
+
+  // register-holes oneBody: every row (a momentum tuple's block of f^n amplitudes), member by member, times the transfer
+  // of that member's momentum class (a[j * f * f + r * f + k]); mom[row * n + i] the classes
+  holeOneBody(
+    re: Float64Array,
+    im: Float64Array,
+    mom: Int32Array,
+    n: number,
+    f: number,
+    aRe: Float64Array,
+    aIm: Float64Array,
+  ): void
+
+  // register-holes bandWeights' local sums: part[row * n + i] = |P x|^2 of member i over the row, P that member's
+  // class's band projector
+  holeBand(
+    re: Float64Array,
+    im: Float64Array,
+    mom: Int32Array,
+    n: number,
+    f: number,
+    pRe: Float64Array,
+    pIm: Float64Array,
+    part: Float64Array,
+  ): void
+
+  // register-holes pairPhases, an orbit a row (the transform, the phase and the transform back, per orbit)
+  holePair(re: Float64Array, im: Float64Array, fourier: HoleFourierTables, pair: HolePairTables, phase: HolePhase): void
 }

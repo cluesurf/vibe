@@ -76,14 +76,12 @@ pub unsafe fn conv(
     let sg: f64 = if dagger { -1.0 } else { 1.0 };
     let mut tr = [0.0f64; PAIR];
     let mut ti = [0.0f64; PAIR];
-
-    for k in start * PAIR..end * PAIR {
-        *out_re.add(k) = 0.0;
-        *out_im.add(k) = 0.0;
-    }
-
     for i in start..end {
         let oo = i * PAIR;
+        // a row's 64 outputs are accumulated in locals (which cannot alias the source), starting from +0.0 as the
+        // reference's fill(0) does and taking the same additions in the same order, then stored once
+        let mut acc_re = [0.0f64; PAIR];
+        let mut acc_im = [0.0f64; PAIR];
 
         for d in 0..NR {
             let j = *rep_t.add(i * NR + d);
@@ -118,31 +116,30 @@ pub unsafe fn conv(
                 let wi = v * pi;
 
                 if member == 1 {
-                    let ob = oo + r * 8;
+                    let ob = r * 8;
                     let sb = c * 8;
 
                     for r2 in 0..8 {
                         let xr = tr[sb + r2];
                         let xi = ti[sb + r2];
-                        let o_re = out_re.add(ob + r2);
-                        let o_im = out_im.add(ob + r2);
 
-                        *o_re = *o_re + (wr * xr - wi * xi);
-                        *o_im = *o_im + (wr * xi + wi * xr);
+                        acc_re[ob + r2] = acc_re[ob + r2] + (wr * xr - wi * xi);
+                        acc_im[ob + r2] = acc_im[ob + r2] + (wr * xi + wi * xr);
                     }
                 } else {
                     for r1 in 0..8 {
                         let xr = tr[r1 * 8 + c];
                         let xi = ti[r1 * 8 + c];
-                        let o_re = out_re.add(oo + r1 * 8 + r);
-                        let o_im = out_im.add(oo + r1 * 8 + r);
 
-                        *o_re = *o_re + (wr * xr - wi * xi);
-                        *o_im = *o_im + (wr * xi + wi * xr);
+                        acc_re[r1 * 8 + r] = acc_re[r1 * 8 + r] + (wr * xr - wi * xi);
+                        acc_im[r1 * 8 + r] = acc_im[r1 * 8 + r] + (wr * xi + wi * xr);
                     }
                 }
             }
         }
+
+        std::ptr::copy_nonoverlapping(acc_re.as_ptr(), out_re.add(oo), PAIR);
+        std::ptr::copy_nonoverlapping(acc_im.as_ptr(), out_im.add(oo), PAIR);
     }
 }
 
@@ -546,6 +543,451 @@ pub unsafe fn phase_sum(
 
             *m_re.add(k) = *m_re.add(k) + (ci * xr - sn * xi);
             *m_im.add(k) = *m_im.add(k) + (ci * xi + sn * xr);
+        }
+    }
+}
+
+// ---- register-holes (code/measure/register-holes, and the sorted store of code/measure/register-sorted-holes) ----
+
+// the largest fiber a member may have (both halves, 16)
+pub const HOLE_FIBER_MAX: usize = 16;
+
+// register-holes oneBody, tuples [start, end): member by member, the member's fiber index times the transfer of its
+// momentum class, a[j * f * f + r * f + k], zero entries skipped as the reference skips them. A row is a tuple's block of
+// f^n amplitudes, which the loop reads and writes and nothing else
+#[allow(clippy::too_many_arguments)]
+pub unsafe fn hole_one_body(
+    re: *mut f64,
+    im: *mut f64,
+    mom: *const i32,
+    n: usize,
+    f: usize,
+    a_re: *const f64,
+    a_im: *const f64,
+    start: usize,
+    end: usize,
+) {
+    let block = f.pow(n as u32);
+    let mut xr = [0.0f64; HOLE_FIBER_MAX];
+    let mut xi = [0.0f64; HOLE_FIBER_MAX];
+
+    for t in start..end {
+        let off = t * block;
+
+        for i in 0..n {
+            let a = *mom.add(t * n + i) as usize * f * f;
+            let st = f.pow((n - 1 - i) as u32);
+            let outer = f.pow(i as u32);
+
+            for hi in 0..outer {
+                for lo in 0..st {
+                    let base = off + hi * f * st + lo;
+
+                    for k in 0..f {
+                        xr[k] = *re.add(base + k * st);
+                        xi[k] = *im.add(base + k * st);
+                    }
+
+                    for r in 0..f {
+                        let mut yr = 0.0f64;
+                        let mut yi = 0.0f64;
+                        let ro = a + r * f;
+
+                        for k in 0..f {
+                            let ar = *a_re.add(ro + k);
+                            let ai = *a_im.add(ro + k);
+
+                            if ar == 0.0 && ai == 0.0 {
+                                continue;
+                            }
+
+                            yr = yr + (ar * xr[k] - ai * xi[k]);
+                            yi = yi + (ar * xi[k] + ai * xr[k]);
+                        }
+
+                        *re.add(base + r * st) = yr;
+                        *im.add(base + r * st) = yi;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// register-holes bandWeights' local sum, tuples [start, end): part[t * n + i] = the weight of member i of tuple t in the
+// band projector of its momentum class, |P x|^2 summed over the other members' indices in the reference's order. The sum
+// over tuples into each (member, class) is finished in TypeScript, in tuple order
+#[allow(clippy::too_many_arguments)]
+pub unsafe fn hole_band(
+    re: *const f64,
+    im: *const f64,
+    mom: *const i32,
+    n: usize,
+    f: usize,
+    p_re: *const f64,
+    p_im: *const f64,
+    part: *mut f64,
+    start: usize,
+    end: usize,
+) {
+    let block = f.pow(n as u32);
+    let mut yr = [0.0f64; HOLE_FIBER_MAX];
+    let mut yi = [0.0f64; HOLE_FIBER_MAX];
+
+    for t in start..end {
+        let off = t * block;
+
+        for i in 0..n {
+            let p = *mom.add(t * n + i) as usize * f * f;
+            let st = f.pow((n - 1 - i) as u32);
+            let outer = f.pow(i as u32);
+            let mut w = 0.0f64;
+
+            for hi in 0..outer {
+                for lo in 0..st {
+                    let base = off + hi * f * st + lo;
+
+                    for r in 0..f {
+                        let mut ar = 0.0f64;
+                        let mut ai = 0.0f64;
+
+                        for k in 0..f {
+                            let pr = *p_re.add(p + r * f + k);
+                            let pi = *p_im.add(p + r * f + k);
+                            let xr = *re.add(base + k * st);
+                            let xi = *im.add(base + k * st);
+
+                            ar = ar + (pr * xr - pi * xi);
+                            ai = ai + (pr * xi + pi * xr);
+                        }
+
+                        yr[r] = ar;
+                        yi[r] = ai;
+                    }
+
+                    for r in 0..f {
+                        w = w + (yr[r] * yr[r] + yi[r] * yi[r]);
+                    }
+                }
+            }
+
+            *part.add(t * n + i) = w;
+        }
+    }
+}
+
+// the D4 torus Fourier transform's tables (register-holes torusFourier): L, the N classes and sites, the G = L^4 grid,
+// the class of every grid momentum, the grid index of every site and every class's representative, cos and sin of
+// 2 pi m / L, and the two unitary scales (1 / (2 sqrt N) to sites, 1 / sqrt N to classes), computed in TypeScript
+pub struct HoleFourier {
+    pub l: usize,
+    pub n: usize,
+    pub g: usize,
+    pub class_of_grid: *const i32,
+    pub grid_of_site: *const i32,
+    pub grid_of_class: *const i32,
+    pub cos: *const f64,
+    pub sin: *const f64,
+    pub k_sites: f64,
+    pub k_classes: f64,
+}
+
+unsafe impl Send for HoleFourier {}
+unsafe impl Sync for HoleFourier {}
+
+// the pair piece's tables. A row is an ORBIT: a set of fiber indices whose full-momentum column is one function. The
+// dense engine's orbit is one fiber index (nperm 1, every map the identity); the sorted store's is a fiber tuple and its
+// member permutations. Gather: column[t] = psign[p] * state[row_of[t] * block + fb_of[orbit * nperm + p]], p = perm_of[t].
+// Then the transform to sites on every axis, the phase (cos, sin) of the orbit's sector pattern at every site tuple
+// unless skip, the transform back, and the scatter: for each (c, tau) of the orbit's write list and every stored row r,
+// state[r * block + c] = psign[tau] * column[t_of[r * nperm + tau]]
+pub struct HolePair {
+    pub block: usize,
+    pub tuples: usize,
+    pub axes: usize,
+    pub rows: usize,
+    pub nperm: usize,
+    pub row_of: *const i32,
+    pub perm_of: *const i32,
+    pub psign: *const i32,
+    pub fb_of: *const i32,
+    pub pattern: *const i32,
+    pub write_off: *const i32,
+    pub write_c: *const i32,
+    pub write_tau: *const i32,
+    pub t_of: *const i32,
+    pub cos: *const f64,
+    pub sin: *const f64,
+    pub skip: *const i8,
+}
+
+unsafe impl Send for HolePair {}
+unsafe impl Sync for HolePair {}
+
+// register-holes dft4d: the 4d DFT on the L^4 grid in place, x(m) <- sum_n x(n) e^(sign 2 pi i m . n / L), the radix-4
+// butterfly at L = 4 and the direct sum otherwise, operation for operation
+#[allow(clippy::too_many_arguments)]
+fn dft4d(fo: &HoleFourier, re: &mut [f64], im: &mut [f64], sign: f64, sr: &mut [f64], si: &mut [f64]) {
+    let l = fo.l;
+    let cos = unsafe { std::slice::from_raw_parts(fo.cos, l) };
+    let sin = unsafe { std::slice::from_raw_parts(fo.sin, l) };
+
+    for axis in 0..4u32 {
+        let st = l.pow(3 - axis);
+        let outer = l.pow(axis);
+
+        for o in 0..outer {
+            for lo in 0..st {
+                let base = o * l * st + lo;
+
+                if l == 4 {
+                    // the grid is l^4 = 256 entries and base + 3 st < 256 for every (axis, o, lo), so the reads are in
+                    // bounds without a check (the slices were made from G entries by the caller)
+                    unsafe {
+                        let r = re.as_mut_ptr();
+                        let m = im.as_mut_ptr();
+                        let i0 = base;
+                        let i1 = base + st;
+                        let i2 = base + 2 * st;
+                        let i3 = base + 3 * st;
+                        let a0r = *r.add(i0) + *r.add(i2);
+                        let a0i = *m.add(i0) + *m.add(i2);
+                        let a1r = *r.add(i0) - *r.add(i2);
+                        let a1i = *m.add(i0) - *m.add(i2);
+                        let b0r = *r.add(i1) + *r.add(i3);
+                        let b0i = *m.add(i1) + *m.add(i3);
+                        let b1r = *r.add(i1) - *r.add(i3);
+                        let b1i = *m.add(i1) - *m.add(i3);
+
+                        *r.add(i0) = a0r + b0r;
+                        *m.add(i0) = a0i + b0i;
+                        *r.add(i2) = a0r - b0r;
+                        *m.add(i2) = a0i - b0i;
+                        *r.add(i1) = a1r - sign * b1i;
+                        *m.add(i1) = a1i + sign * b1r;
+                        *r.add(i3) = a1r + sign * b1i;
+                        *m.add(i3) = a1i - sign * b1r;
+                    }
+                    continue;
+                }
+
+                for m in 0..l {
+                    let mut r = 0.0f64;
+                    let mut q = 0.0f64;
+
+                    for nn in 0..l {
+                        let k = (m * nn) % l;
+                        let c = cos[k];
+                        let s = sign * sin[k];
+                        let xr = re[base + nn * st];
+                        let xi = im[base + nn * st];
+
+                        r = r + (c * xr - s * xi);
+                        q = q + (c * xi + s * xr);
+                    }
+
+                    sr[m] = r;
+                    si[m] = q;
+                }
+
+                for m in 0..l {
+                    re[base + m * st] = sr[m];
+                    im[base + m * st] = si[m];
+                }
+            }
+        }
+    }
+}
+
+// the scratch one thread needs for a pair piece
+struct HoleScratch {
+    br: Vec<f64>,
+    bi: Vec<f64>,
+    lr: Vec<f64>,
+    li: Vec<f64>,
+    gr: Vec<f64>,
+    gi: Vec<f64>,
+    sr: Vec<f64>,
+    si: Vec<f64>,
+}
+
+// register-holes toSites (dir 1) and toClasses (dir -1) on the line lr, li (N entries), in place
+//
+// Indices are read unchecked here: the caller checked every class_of_grid entry below N and every grid index below G,
+// the grid scratch holds G entries and the line N
+fn hole_line(fo: &HoleFourier, x: &mut HoleScratch, dir: i32) {
+    unsafe {
+        let (lr, li) = (x.lr.as_mut_ptr(), x.li.as_mut_ptr());
+        let (gr, gi) = (x.gr.as_mut_ptr(), x.gi.as_mut_ptr());
+
+        if dir == 1 {
+            for g in 0..fo.g {
+                let j = *fo.class_of_grid.add(g) as usize;
+
+                *gr.add(g) = *lr.add(j);
+                *gi.add(g) = *li.add(j);
+            }
+
+            dft4d(fo, &mut x.gr, &mut x.gi, 1.0, &mut x.sr, &mut x.si);
+
+            let k = fo.k_sites;
+
+            for i in 0..fo.n {
+                let g = *fo.grid_of_site.add(i) as usize;
+
+                *lr.add(i) = *gr.add(g) * k;
+                *li.add(i) = *gi.add(g) * k;
+            }
+        } else {
+            x.gr.fill(0.0);
+            x.gi.fill(0.0);
+
+            for i in 0..fo.n {
+                let g = *fo.grid_of_site.add(i) as usize;
+
+                *gr.add(g) = *lr.add(i);
+                *gi.add(g) = *li.add(i);
+            }
+
+            dft4d(fo, &mut x.gr, &mut x.gi, -1.0, &mut x.sr, &mut x.si);
+
+            let k = fo.k_classes;
+
+            for j in 0..fo.n {
+                let g = *fo.grid_of_class.add(j) as usize;
+
+                *lr.add(j) = *gr.add(g) * k;
+                *li.add(j) = *gi.add(g) * k;
+            }
+        }
+    }
+}
+
+// register-holes transformAxis: one axis of the N^axes column between classes and sites (base + k st < N^axes, the
+// column's length)
+fn hole_axis(fo: &HoleFourier, x: &mut HoleScratch, axes: usize, a: usize, dir: i32) {
+    let n = fo.n;
+    let st = n.pow((axes - 1 - a) as u32);
+    let outer = n.pow(a as u32);
+
+    for o in 0..outer {
+        for lo in 0..st {
+            let base = o * n * st + lo;
+
+            unsafe {
+                let (br, bi) = (x.br.as_ptr(), x.bi.as_ptr());
+                let (lr, li) = (x.lr.as_mut_ptr(), x.li.as_mut_ptr());
+
+                for k in 0..n {
+                    *lr.add(k) = *br.add(base + k * st);
+                    *li.add(k) = *bi.add(base + k * st);
+                }
+            }
+
+            hole_line(fo, x, dir);
+
+            unsafe {
+                let (br, bi) = (x.br.as_mut_ptr(), x.bi.as_mut_ptr());
+                let (lr, li) = (x.lr.as_ptr(), x.li.as_ptr());
+
+                for k in 0..n {
+                    *br.add(base + k * st) = *lr.add(k);
+                    *bi.add(base + k * st) = *li.add(k);
+                }
+            }
+        }
+    }
+}
+
+// register-holes pairPhases (and the sorted store's), orbits [start, end): gather an orbit's full-momentum column, to
+// sites axis by axis, the phase, back to classes, scatter. An orbit reads and writes only its own fiber indices, so
+// orbits are independent rows
+pub unsafe fn hole_pair(re: *mut f64, im: *mut f64, fo: &HoleFourier, hp: &HolePair, start: usize, end: usize) {
+    let tuples = hp.tuples;
+    let mut x = HoleScratch {
+        br: vec![0.0; tuples],
+        bi: vec![0.0; tuples],
+        lr: vec![0.0; fo.n],
+        li: vec![0.0; fo.n],
+        gr: vec![0.0; fo.g],
+        gi: vec![0.0; fo.g],
+        sr: vec![0.0; fo.l],
+        si: vec![0.0; fo.l],
+    };
+
+    for o in start..end {
+        let fbs = hp.fb_of.add(o * hp.nperm);
+
+        // the gather, row by row so the state is read one row's block at a time: tuple t is reached from its own row
+        // and its own permutation, t = t_of[row_of[t] * nperm + perm_of[t]] (checked by the caller), and from no other
+        // (row, permutation) whose permutation is t's, so every entry of the column is assigned exactly once
+        for r in 0..hp.rows {
+            let rb = r * hp.block;
+
+            for p in 0..hp.nperm {
+                let t = *hp.t_of.add(r * hp.nperm + p) as usize;
+
+                if *hp.perm_of.add(t) as usize != p {
+                    continue;
+                }
+
+                let at = rb + *fbs.add(p) as usize;
+
+                if *hp.psign.add(p) < 0 {
+                    x.br[t] = -*re.add(at);
+                    x.bi[t] = -*im.add(at);
+                } else {
+                    x.br[t] = *re.add(at);
+                    x.bi[t] = *im.add(at);
+                }
+            }
+        }
+
+        for a in 0..hp.axes {
+            hole_axis(fo, &mut x, hp.axes, a, 1);
+        }
+
+        let pat = *hp.pattern.add(o) as usize * tuples;
+
+        for t in 0..tuples {
+            if *hp.skip.add(pat + t) != 0 {
+                continue;
+            }
+
+            let c = *hp.cos.add(pat + t);
+            let sn = *hp.sin.add(pat + t);
+            let xr = x.br[t];
+            let xi = x.bi[t];
+
+            x.br[t] = c * xr - sn * xi;
+            x.bi[t] = c * xi + sn * xr;
+        }
+
+        for a in 0..hp.axes {
+            hole_axis(fo, &mut x, hp.axes, a, -1);
+        }
+
+        let w0 = *hp.write_off.add(o) as usize;
+        let w1 = *hp.write_off.add(o + 1) as usize;
+
+        // the scatter, row by row (each (row, c) is written once, so the order is free)
+        for r in 0..hp.rows {
+            let rb = r * hp.block;
+
+            for w in w0..w1 {
+                let c = *hp.write_c.add(w) as usize;
+                let tau = *hp.write_tau.add(w) as usize;
+                let t = *hp.t_of.add(r * hp.nperm + tau) as usize;
+                let at = rb + c;
+
+                if *hp.psign.add(tau) < 0 {
+                    *re.add(at) = -x.br[t];
+                    *im.add(at) = -x.bi[t];
+                } else {
+                    *re.add(at) = x.br[t];
+                    *im.add(at) = x.bi[t];
+                }
+            }
         }
     }
 }

@@ -30,8 +30,23 @@
 // order of float summation: the sum over the 24 roots at a representative runs in the same order as the unreduced
 // engine's at that site, and a neighbour's value is an exact signed permutation of its representative's, so the two
 // differ only where the unreduced engine's own images drift apart by rounding (the witness measures it).
+//
+// SPEED (opt in): reducedEngine(s, u, K, count, form, { backend: 'native', threads: 12 }) runs reducedCycle,
+// reducedGram, reducedInner, reducedFilter and autocorrelation on code/kernel (the Rust crate kernel/, built by
+// task/kernel/build.ts), byte for byte the JavaScript below at any thread count (task/kernel/check.ts). With no options
+// the engine is this file's JavaScript, unchanged.
 
 import { Worker } from 'node:worker_threads'
+import { kernel, type KernelOptions } from '@/code/kernel/index'
+import {
+  fastAutocorrelation,
+  fastCycle,
+  fastFilter,
+  fastGram,
+  fastInner,
+  fastReduced,
+  type FastPair,
+} from '@/code/kernel/pair'
 import {
   complexEigenvalues,
   complexEigenvector,
@@ -600,6 +615,8 @@ export type ReducedEngine = {
     halfRe: Float64Array
     halfIm: Float64Array
   }
+  // present only when a kernel backend was asked for: the cycle, Gram, inner, filter and autocorrelation then run on it
+  fast?: FastPair
 }
 
 let engineCounter = 0
@@ -863,6 +880,7 @@ export function reducedEngine(
   K: readonly number[],
   count: ReducedCount,
   form: Form = 'vector',
+  options?: KernelOptions,
 ): ReducedEngine {
   const { sparse, sparseT } = overlapMatrices()
   const halfRe = new Float64Array(NR)
@@ -893,7 +911,7 @@ export function reducedEngine(
     cross[2 * i + 1] = Math.sin(ph)
   }
 
-  return {
+  const e: ReducedEngine = {
     s,
     u,
     K,
@@ -911,6 +929,12 @@ export function reducedEngine(
     id: engineCounter++,
     flat: flatten(s, sparse, sparseT, halfRe, halfIm),
   }
+
+  if (options?.backend) {
+    e.fast = fastReduced(e, kernel(options.backend, options.threads ?? 1))
+  }
+
+  return e
 }
 
 export const newState = (s: Sector): RState => ({
@@ -1263,6 +1287,12 @@ function crossPiece(
 
 // one Coulomb cycle: the two beats, then (vector form) P_SD and P_DS
 export function reducedCycle(e: ReducedEngine, st: RState): void {
+  if (e.fast) {
+    fastCycle(e.fast, st)
+
+    return
+  }
+
   beats(e, st)
 
   if (e.form === 'vector') {
@@ -1273,6 +1303,10 @@ export function reducedCycle(e: ReducedEngine, st: RState): void {
 
 // G st: member 1 then member 2, (a, b) -> (a + C b, b + C^dag a)
 export function reducedGram(e: ReducedEngine, st: RState): RState {
+  if (e.fast) {
+    return fastGram(e.fast, st)
+  }
+
   const N = e.s.count
   const [xr, xi, yr, yi] = e.t as [
     Float64Array,
@@ -1326,6 +1360,10 @@ export function reducedInner(
   a: RState,
   b: RState,
 ): [number, number] {
+  if (e.fast) {
+    return fastInner(e.fast, a, b)
+  }
+
   const gb = reducedGram(e, b)
 
   let re = 0
@@ -1390,6 +1428,10 @@ export function reducedFilter(
   phase: number,
   S: number,
 ): RState {
+  if (e.fast) {
+    return fastFilter(e.fast, psi, phase, S)
+  }
+
   const out = newState(e.s)
   const st = cloneState(psi)
 
@@ -1451,6 +1493,10 @@ export function autocorrelation(
   v: RState,
   N: number,
 ): { re: Float64Array; im: Float64Array } {
+  if (e.fast) {
+    return fastAutocorrelation(e.fast, v, N)
+  }
+
   const re = new Float64Array(N + 1)
   const im = new Float64Array(N + 1)
   const st = cloneState(v)

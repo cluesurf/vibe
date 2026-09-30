@@ -2,6 +2,66 @@
 
 One branch for this round's experiments. Each item has its own section.
 
+## OPEN-LGT-02 and OPEN-LGT-12: the split by spectral flow from the identity (E-FRC-0275)
+
+### What changed
+
+- `code/measure/spectral-flow.ts`: the ladder light split into symmetry blocks (momentum, the charge mirror C, the
+  reflection P), the block beat written exactly as Y^dag diag(F) Y diag(D), a tracker that carries every level's
+  phase from U(0) = 1 with an exact increment window (Hellmann-Feynman for a product) and eigenvector matching,
+  the trace identity checked at every step, turn and line meetings counted, the cyclic (analytic) lift, and the
+  Planck ratio of any lift. A unitary eigensolver on the complex Householder solver, 3 to 5 times faster than
+  quantum-ladder's real embedding, with the same phases to 1.3e-15.
+- `test/experiment/gauge/spectral-flow.ts` (E-FRC-0275), registered in `test/registry.csv`, the barrel and the
+  catalog.
+
+### The derivation (in the header, before the gate run)
+
+- The trace identity catches a miscounted increment, not a swap. Where two levels of one block meet on the circle
+  a whole turn apart, the two matchings differ by a turn moved between them and have the same sum.
+- Inside one block, levels avoid each other, so the exact continuation keeps their cyclic order: the lifted phases
+  stay d consecutive points of the periodic set, fixed by the trace. That is the cyclic lift. It needs no path, it
+  is continuous in ρ, and every block spans under one turn. A lift that spans more has crossed avoided meetings for
+  lack of resolution, so it depends on the step and the path.
+- Predicted, frozen: the exact lift folds levels into the vacuum gap and is not an energy.
+
+### Results (gates fixed in the header before the gate run, probes on N = 7 disclosed)
+
+- **E-FRC-0275, fail as derived, 1 of 6 gates.** A1 held: the block beat matches the ladder's to 1.8e-15, the
+  trace identity holds to 1.8e-12 on every tracked step, the cyclic window integer to 3.4e-13.
+- A2 held on (9, 2): the resolved blocks equal the cyclic lift to 1.8e-15. It failed on (11, 2): at window π/32 and
+  overlap 0.999 the tracker still crossed 1 to 11 turn meetings in every block, so none could be compared.
+- E failed on every box: the cyclic lift puts 7 to 136 levels inside the vacuum gap. The harmonic reading's control
+  keeps the gap on (9, 2) and (9, 3).
+- The tracked lifts are not branch-free: quarter step against coarse differs by 1.0 to 2.9 radians, and a carried
+  path by 0.7 to 2.0, with the trace exact on all of them.
+- Read on the exact lift: the departure is 1.9 to 25.5, a thermal energy 3 to 26 times Planck's, not a Planck
+  criterion. The 2-square spread is 0.012 to 0.06 up to N = 21, then 0.33 and 0.36 at N = 25 and 29: fit slope +2.7,
+  so it does not fall. R = 0.872 (N 9) and 0.862 (N 11), separated and nearer 5/6, and 0.63 with error 0.38 at
+  N = 13. Those picks are of a folded spectrum and are not read as evidence. The control ρ*(2) lands at 3.18, 2.53
+  and 3.91, not at 3.
+
+### How it was tested
+
+```
+node_modules/.bin/tsx test/rerun.ts E-FRC-0275          # 1,771 s, fail
+node_modules/.bin/tsc --noEmit -p tsconfig.check.json   # exit 0
+node_modules/.bin/tsx test/catalog.ts                   # 1,545 rows
+node_modules/.bin/tsx task/check-labels.ts
+node_modules/.bin/tsx task/check-coverage.ts
+node_modules/.bin/tsx test/result.ts check
+```
+
+### Status and follow-ups
+
+- OPEN-LGT-02 stays open at 0.4614 or 0.4146. Spectral flow from the identity is not a branch-free energy: the
+  exact lift is choice-free but folds, and any lift that keeps the harmonic turns depends on how finely the path
+  resolves avoided meetings. The Planck criterion on the ladder's Floquet light has now failed three ways (0269,
+  0270, 0275). What is left: a seam criterion that reads no energies at all, or the 3d light.
+- OPEN-LGT-12 stays open.
+- Notes changed outside this repo: `open.md` (Next up item 3, LGT-02, LGT-12), `remaining-pieces.md` (part B of
+  "Two exact reductions"), `solutions.md` (section 7).
+
 ## OPEN-LGT-02 and OPEN-LGT-03: the light's balance and the two alphas (E-FRC-0265, E-FRC-0266)
 
 ### What changed
@@ -925,3 +985,444 @@ and now read the catalog (272, 185).
 - Notes changed outside this repo: `remaining-pieces.md` (a new section, "A channel that joins the register halves",
   and the one-rule table), `open.md` (Next up 8, FND-14, FND-15, WKF-01, WKF-03, text only), `solutions.md` (§8),
   `everything.md` (the Higgs row, text only). `constraints.ts` is unchanged: the Higgs row stays broken.
+
+## The kernel: the heavy engines' inner loops in Rust, native and wasm, byte for byte
+
+The pair engines and the sea engine spend nearly all their time in a few loops. This moves them into one Rust crate
+built two ways, and proves every backend gives the TypeScript's bytes at every thread count. No experiment was rerun and
+no engine's default changed. The architecture note is `note/research/vibe/kernel.md` in the parent repo.
+
+### What was built
+
+- `kernel/`, one Rust crate with no dependencies: `src/prim.rs` (the arithmetic, each primitive a restatement of an
+  engine loop over a range of rows), `src/pool.rs` (a persistent `std::thread` pool, fixed contiguous row split),
+  `src/node.rs` (a Node-API addon, the dozen `napi_*` calls declared by hand, so no crate and no npm package; it reads
+  and writes the engine's typed arrays in place), `src/wasm.rs` (the same primitives as wasm exports), `build.rs`.
+- `code/kernel/`: `types.ts` (the `Kernel` interface), `js.ts` (the reference backend, the engines' loops restated),
+  `native.ts`, `wasm.ts` (one instance, copies in and out), `wasm-threads.ts` (one instance per `worker_thread` over
+  one shared memory, states adopted into it so no copy), `pair.ts` (the ball and reduced cycles, Gram, inner, filter,
+  read, autocorrelation on a kernel), `sea.ts` (seaBeat, seaCycle, pairAt, flatCount on a kernel), `index.ts`.
+- `task/kernel/build.ts` (runs cargo, writes `kernel/host/vibe-kernel.node` and `vibe-kernel.wasm`; `wasm-threads`
+  writes `vibe-kernel-threads.wasm`), `task/kernel/check.ts` (the proof), `task/kernel/bench.ts` (the timings).
+- Three engines take an opt-in last argument `{ backend: 'native', threads: 12 }`. Without it, nothing changes:
+  - `code/measure/register-ball-reduced.ts`: `ballEngine(s, params, opts)`. `ballCycle`, `ballGram`, `ballInner` and
+    `ballFilter` (and so `ballRead`, `ballNorm2`) run on the kernel.
+  - `code/measure/register-reduced.ts`: `reducedEngine(s, u, K, count, form, opts)`. `reducedCycle` (vector form
+    included), `reducedGram`, `reducedInner`, `reducedFilter` and `autocorrelation` (and so `reducedRead`,
+    `reducedNorm2`) run on the kernel.
+  - `code/measure/register-sea.ts`: `seaCycle(t, rule, E, s, spare, opts)` and `flatCount(t, mv, s, opts)`.
+- **Every registered experiment still defaults to js.** No experiment file passes the option, so no registered number
+  can change. A new gate run opts in by passing it.
+
+The artifacts under `kernel/host/` are generated and gitignored by the `host/` rule. The addon is machine specific, so
+it should not be committed: each machine runs the build.
+
+### The primitives
+
+`conv` (the gathered block convolution: the sparse 8 x 8 overlap per root on member 1 or 2, over a neighbour read
+through a signed index permutation), `pairBeat`, `crossApply`, `blockAdd`, `blockInner` (per-representative partials,
+summed in TypeScript in the reference's order), `axpy`, `scale`, `seaPiece`, `seaStream`, `phaseSum`. Chosen by the
+profile: `conv` was 67% and 11% of the profiled run (over 95% of each pair engine), `sectorPiece` 805 of 940 ms of a sea
+cycle. Transcendentals stay in TypeScript and are passed in, since V8's `Math.cos` is its own fdlibm port.
+
+### The equivalence proof
+
+`pnpm call task/kernel/check.ts` (or `--quick`). Every primitive on fixed inputs with planted zeros and negative zeros,
+on real ball and reduced tables (K = 0 and an axis), against the js backend, byte for byte; then whole engine steps
+against the engines' own functions: `ballCycle`, `ballInner`, `ballFilter`, `ballRead` (also through the wired
+`ballEngine` option), `reducedCycle` in the vector form at K = 0 and on the axis, `reducedInner`, `autocorrelation`,
+`seaCycle` under the plain rule and the dock, member and whole controls, `pairAt`, `flatCount`. Backends: native at 1,
+2, 4, 8 and 16 threads, wasm, and wasm-threads at 1, 2, 4, 8 and 16. The wired paths are held to each engine's default path through the engine's own functions: `ballEngine`
+at every native count, and `reducedEngine` (`reducedCycle`, `reducedGram`, `reducedInner`, `autocorrelation`,
+`reducedFilter`, `reducedRead`, at K = 0 and on the axis), `seaCycle` (three rules) and `flatCount` at 1, 4 and 16
+threads. Result: **PASS, 3,202 comparisons (full), 0 differences.** The comparison first proves it sees one ulp and a
+signed zero. Negative control (`tmp/kn-control.sh`): the same crate built with `-C llvm-args=-fp-contract=fast` fails
+599 of 3,177 quick comparisons, every wired path of all three engines among them, and exits 1.
+
+A bug found and fixed on the way: the wasm-threads handshake could lose a wakeup when a worker that sat out one call
+woke late and read the next call's parameters (the full check hung at 0% CPU). Every worker now acknowledges every
+call. The native pool reads its parameters under the same mutex as the generation and never had the race.
+
+No primitive had to stay on the JS path: every one holds byte equality.
+
+### Speedups (wall time a cycle, the machine at a load average of 70 to 105 on 18 cores)
+
+Every row below had its final state compared byte for byte with the js engine's (all equal). The machine carried other
+experiment runs throughout, so each thread got well under a core and these figures understate the gain on an idle
+machine. Measured by CPU time on one thread, the native `conv` runs at 4.6 GFLOPS against JavaScript's 1.6 (2.9x a
+core), the wasm one at 4.2 (2.6x).
+
+| threads | ball radius 24 (5,401 reps, js 3.19 s) | reduced vector R 30 (2,805 reps, js 1.83 s) | sea L 4 (4.7M amplitudes, js 1.28 s) |
+| --- | --- | --- | --- |
+| native 1 | 3.0x | 2.8x | 2.7x |
+| native 2 | 5.2x | 4.7x | |
+| native 4 | 7.3x | 9.2x | 8.2x |
+| native 8 | 16.0x | 16.3x | 17.9x |
+| native 12 | 19.1x | 19.2x | |
+| native 16 | 24.2x | 24.3x | 19.0x |
+| wasm 1 | 2.2x | 2.0x | 1.6x |
+| wasm-threads 16 | 30.4x | 16.1x | 5.9x (copies the state every call) |
+
+An earlier run of the ball at a lower load gave native 5.0x on 1 thread and 22.9x on 16, and wasm-threads 34.2x on
+16. The spread between runs is the contention. The two backends are close at high thread counts; native needs no copy
+anywhere, runs outside the JS heap, and is the one wired. For the gate filter this means a radius-24 cycle drops from
+about 3.2 s to about 0.13 s, and a 2,048-cycle filter from about 1.8 hours to about 4.5 minutes, at this load.
+
+### What each engine needs to adopt it
+
+- **register-ball-reduced** (E-SPN-0178): wired. `ballAbsorb`, `ballProfile`, `ballStart` stay JavaScript (cheap).
+- **register-reduced** (the weak pull): wired. With the option set, its own worker pool is bypassed (it is no longer
+  needed). The open-pieces worktree running the weak-pull gate has its own copy of the code and is untouched.
+- **register-sea** (E-SPN-0175): wired for `seaCycle` and `flatCount`. `seaBeat` alone, `movingBlocks` and
+  `pairStart` stay JavaScript (once a run).
+- **register-link-field** (E-SPN-0180): its time is dense Hermitian eigensolves (`eig-hermitian-tridiagonal`,
+  Householder then QL). A kernel for it means porting that solver operation for operation, including its `Math.sqrt`
+  and `Math.hypot` calls (sqrt is exact in IEEE, but hypot is not, so hypot would have to be passed through or
+  restated as V8 computes it). Not built.
+- **harmonicLines**: 3% of the profile, trigonometric in its inner loop. Stays JavaScript.
+
+### Phase two, not built: integer engines on the GPU
+
+GPUs have no float64 (WGSL and Metal), so no float gate may run there. But purely integer or modular engines can run
+exactly: `sea-reach`'s mod-p beats (a sparse 192 x 192 matrix mod p < 2^25 at every cell, then the stream, needing
+50-bit products done as 16-bit limbs or Barrett reduction on 32-bit lanes), ring-unit counts mapped to F_p, and census
+and trigger counts (per-lane counts, a tree sum, exact since integer addition is associative). The `Kernel` interface
+would take an exact family beside the float one, with the same row contract, so a `webgpu` backend could implement
+only that family. In Node it needs an npm WebGPU binding the user would add (`webgpu` is already a dependency here,
+unused by the kernel) or a Swift and Metal worker; in the browser, native WebGPU.
+
+### How it was tested
+
+`tsc --noEmit -p tsconfig.check.json` exit 0. `task/kernel/check.ts` PASS (quick and full). `tmp/kn-control.sh` FAIL
+as required. `task/kernel/bench.ts ball 24 8`, `reduced 30 6`, `sea 3`, `primitive 24`, and `tmp/kn-cpu.ts` (CPU
+against wall time). Profile: `tmp/kn-profile.ts` under `tmp/kn-prof.sh`, read by `tmp/kn-prof-read.ts`.
+
+### Toolchain notes
+
+rustc here is an x86_64 nightly (1.96, 2026-03-02) with only the x86_64 std installed. The build cross-compiles for
+aarch64 (what node runs as) and for wasm32 with `-Z build-std`, which compiles std from `rust-src` and installs nothing.
+No rustup target was added. `rustup target add aarch64-apple-darwin wasm32-unknown-unknown` would skip the std build,
+except for wasm-threads, which always rebuilds std with atomics (nightly, about 17 minutes under this load). No crate
+was needed; rayon was not, since the row partition is static and a hand pool keeps the split fixed and visible.
+
+## OPEN-WKF-03 and OPEN-CPA-01: the true mesh's orientation sign, read as a staggered sign (E-FRC-0274)
+
+The guess: the orientation sign ε(x) = det f_x that the true mesh's labelling alternates is a center-odd scalar from
+geometry, and in an oriented frame a label hop joins the register halves, supplying both the Higgs row's channel and the
+parity row's orientation-reading mass, as staggered fermions do. Derived in the note first, then run.
+
+### What changed
+
+- `code/measure/orientation-taste.ts`: the graph parity, the dock signs, the per-half weights in labels and in the
+  oriented frame, the class weights and restriction, a local 2T move on a state, the four-dock loop holonomies of the
+  parallel transport read in labels, a cycle's band on one half, the Jordan roots with two free phases, and the
+  schedules (achiral, label chiral, orientation-reading, orientation-weighted, and the one-class label rules each
+  becomes).
+- `test/experiment/gauge/orientation-sign.ts` (E-FRC-0274), with its row in `test/registry.csv`,
+  `test/experiment/all.ts`, the regenerated `test/catalog.csv` and the readme count.
+
+### The derivation
+
+- **The frame change is local** (a reflection's minors on the ε = −1 docks), and the oriented frame's chirality is ε J.
+- **One stream flips the physical hand entirely, one cycle not at all**, because every value crosses one link a beat.
+  The cycle commutes with ε J. So the joining is the frame change: no mass, no gap.
+- **ε is a character of the mesh group** (every relation of [3,4,3,4] has an even number of r₄), a checkerboard with no
+  holonomy, and on the husk it is Kogut and Susskind's (−1)^(h₁ + h₂ + h₃). The holonomy the labels hide is a rotation.
+- **ε is center-even**, and the center is −J in every frame, so E-FRC-0273's obstruction does not depend on the frame.
+- **Two classes.** The stream splits spacetime into two classes no dock-local piece joins. On a class the
+  orientation-reading mass is a label rule, with both hands at the mean mass and a rigid offset (the Jordan law with two
+  free phases). The orientation-weighted identity, the staggered mass's analog, makes the member massless, because the
+  model's own u, ū schedule is already the staggered mass.
+- **Parity inside a class.** det g = χ(g) det φ(g), so every husk mirror the label chiral rule keeps swaps the classes.
+
+### Results (gates fixed in the header before the gate run, probes disclosed)
+
+E-FRC-0274, fail as derived (130 s, 716 MB). Every gate, control and instrument held. m_i4 = 2, 2, 2, 4; 0 odd loops
+on 8,857 docks against 3,072 on the flat box; 63 of 63 husk cubes on Kogut and Susskind's sign; 192 ridge loops, each
+holonomy a rotation of order 3 commuting with J. In the oriented frame, one beat moves all the weight across and each of
+4 cycles moves exactly 0, and the label halves and the classes never mix. 4Γ(−1) = −4J, 2T moves change nothing
+(1.3e-16). The two-phase law to 1.1e-14. The label chiral mass keeps 4 husk mirrors, all class-swapping, and breaks all
+28 class-keeping ones (at least 1.09e-2). Controls: flat box 0 moved, achiral rule keeps every element (8.5e-17), the
+label rule is not the orientation-reading one (2.5e-2), the orientation-reading class misses the label law (9.4e-2).
+
+### How it was tested
+
+Probe `tmp/ot-probe1.log`, smoke `tmp/ot-smoke.log`, gate run `tmp/ot-gate-E-FRC-0274.log`. Checks `tmp/ot-checks.log`:
+`tsc --noEmit -p tsconfig.check.json`, `test/catalog.ts`, `task/check-labels.ts`, `task/check-coverage.ts`,
+`test/result.ts check`.
+
+### Status and follow-ups
+
+- No row is ticked. The Higgs row stays broken, now with the geometric candidate ruled out. The parity row is restated:
+  within one class the chiral mass breaks P. Whether the true mesh violates P turns on whether the two classes interact,
+  which dock-local pieces and static links never do and a dynamical link field would.
+- Not read: the classes under the SU(2)₊ field with its own dynamics, the two-phase law on the true region's own C†C
+  spectrum (derived for any static field, read here on the flat cycle, which each class's label rule is).
+- Notes changed outside this repo: `remaining-pieces.md` (a new section, "The orientation sign as a staggered sign"),
+  `open.md` (Next up 7, CPA-01, WKF-01, WKF-03, FND-14, FND-15, text only), `everything.md` (the parity and Higgs rows,
+  text only). `constraints.ts` is unchanged: no status changes.
+
+## OPEN-MOT-01 and OPEN-LGT-02: two exact reductions against the long time series (derived, neither applies)
+
+Two proposals to replace the long runs: E-SPN-0180's Jordan law as a Hermitian eigen-solve for the weak-pull pair, and
+E-FND-0159's prime-unit count as a branch-free energy for the ladder light's balance. Both were derived first. Neither
+applies, so nothing was built and no row was added.
+
+### What changed
+
+- No code or experiment. One probe, `tmp/hr-probe1.ts` (log `tmp/hr-probe1.log`), and the runners `tmp/hr-tsx.sh`,
+  `tmp/hr-checks.sh`.
+- Notes outside this repo: `remaining-pieces.md` (a new section, "Two exact reductions tested against the long time
+  series"), `open.md` (OPEN-MOT-01, OPEN-LGT-02, OPEN-LGT-12, text only), `solutions.md` (§7).
+
+### The derivations
+
+- **A, no.** E-SPN-0180's law needs each beat to be a phase on one projector with V an involution. The pair's beat 1 is
+  (1 + (u − 1)Q₁)(1 + (u − 1)Q₂) Σₙ ρ^(−n) Πₙ with Πₙ = Q₁Q₂[n(Y) = n], hundreds of eigenvalues, and the vector form adds
+  two cross pieces. Without the pull a tensor form survives (±E(μ₁) ± E(μ₂), exact thresholds). The pull is a scalar
+  potential, which no static link field can carry. A (+,+)-branch Hermitian projection errs by about 1.7e-3 at a_B 8,
+  50 times the 3e-5 K shifts R needs. A Krylov method on U needs about 2/δ products for lines δ apart, the same order as
+  the autocorrelation.
+- **B, no.** The light's units are ζ_M, of finite order, so an exponent lives in Z/M, which is the seam. The count's
+  analog c⟨N_D⟩ + r⟨N_F⟩ is real and reads 2 tan(ω/2), not ω. Named instead: the spectral flow from the identity
+  (scale both exponents from 0, follow each phase), with integer turns, a lifted spectrum continuous in ρ, and an exact
+  integer trace per sector. Its gates are listed in the note. Not run.
+
+### Probe (read, not gated)
+
+a_B 3, ball 10, O_h sector, 512 cycles. Vector form: bound lines 1.42123, 1.52013, 1.54061, 1.54933, and no mirror
+partner from an S S or a D D start, so the gate's cycle is not a two-projector product for any projectors. Scalar form
+(the control): the D D start's lines mirror the S S start's to 1e-6 with equal weights.
+
+### How it was tested
+
+`tmp/hr-checks.log`: `task/check-labels.ts` (the same 1 contradicted label and 20 for review, 0 registry rows outside
+the barrel), `task/check-coverage.ts` (0 unknown, 0 mismatches), `test/result.ts check` (0 problems). `tsc --noEmit -p
+tsconfig.check.json` exits 2 on one error in `test/experiment/gauge/orientation-sign.ts` line 634 (a readonly tuple cast
+to `Mat[]`). That file is another item's, in progress in this worktree, and this item adds no code.
+
+### Status and follow-ups
+
+- The weak-pull class stays days long. No speedup from A.
+- B's spectral-flow lift is the one new route for OPEN-LGT-02, about 30 minutes on (9, 3).
+
+## OPEN-MOT-03: the rule's own modes below a cusp, read for one that stays on the screen (E-SPN-0182)
+
+E-SPN-0181 found that the register member, carried over from the flat band, does not travel on the true husk. Its named
+next step was a mover built for the screen: the rule's own eigenmodes on the layer and the docks under it, Bloch-reduced
+along the horosphere, asked whether any stays on the screen and moves. This item reads them.
+
+### What changed
+
+- `code/algebra/linear/eig-hermitian-householder.ts`: eigenvalues and eigenvectors of a complex Hermitian matrix
+  (Householder with complex reflections, then tql2 on the real tridiagonal, vectors as rows), O(n^3) once. The library
+  had the values only, or Jacobi on the 2n embedding. Checked against the values-only solver (gap 0) and by residual.
+- `code/measure/cusp-bloch.ts`: the husk's unit translations with their label actions; the region below a cusp modulo
+  the unit lattice (twisted by the label action) or the even lattice (label-trivial), to a depth cut; the flat quotient
+  and a finite region in the same form; E-SPN-0180's covariant Clifford hop C(k) with a reflecting or open frontier;
+  H = C^dag C; every band with its layer share and Hellmann-Feynman velocity; the top eigenspaces by a block Krylov space
+  from the layer; and the register rule itself on the even quotient at a momentum (the check that H is the rule's).
+- `test/experiment/spin/screen-modes.ts` (E-SPN-0182), with its row in `test/registry.csv`, `test/experiment/all.ts`,
+  the regenerated `test/catalog.csv` and the readme count (1,545).
+
+### The derivation (in the header, before the gate run)
+
+- **The husk's translations move the labels.** A unit translation is r4 times the parallel cube mirror, and φ(r4) = −I,
+  so its label action is minus a reflection (diag(−1, 1, −1, −1) for one axis). A Bloch reduction along the horosphere
+  is twisted by it, and 2Z³ is the label-trivial kernel.
+- **The modes are one Hermitian matrix.** By E-SPN-0180's law every moving level is cos E = cos M − 2cos²(M/2)μ over the
+  spectrum of H(k) = C(k)†C(k), for any member mass. A mode's layer share is where its S and D mixers act.
+- **The leak is fixed.** Each depth-1 dock has one layer parent, so the layer block is exactly C_LL†C_LL + 1/32 at every
+  k, no phase can cancel the 1/32, and a layer-held state sits at most at 1/16, inside the depth's band.
+
+### Results (gates fixed in the header before the gate run, probes disclosed)
+
+E-SPN-0182, partial on the instrument (5,474 s on a loaded machine). G1, G2, G3, C1, C2, C3, I1, I2 and I4 hold; M fails
+as derived; I3 fails. The cut 3 Krylov reading left Ritz residuals of 5.5e-5 against the 1e-10 set before the run. No
+gate moved and none was rerun.
+
+- The twisted cell: 1, 19, 349 and 6,383 docks at depth cuts 0 to 3. The leak is I/32 to 6.9e-18 at all five k, and
+  the along hop reaches exactly 1/32 at most.
+- The largest layer share at cuts 1, 2, 3: 0.704, 0.554, 0.412 at k = 0 and (π, 0, 0); 0.616, 0.432, 0.288 at (π/2, 0,
+  0); 0.477, 0.344, 0.228 at (π/2, π/2, π/2); 0.697, 0.544, 0.402 at the generic k. Falling everywhere, below 1/2 at cut
+  3, and at three momenta faster than cut 2's deepest-shell weight allows a bound state. The band rides the top of the
+  spectrum (μ 0.084, 0.096, 0.106 at k = 0). Husk speed at most 0.025 docks a beat, 0.072 of √2/4.
+- Controls: the flat quotient gives √2/4 to 6 digits at small q and diracSpeed at q = 0.6. The closed screen (the 18 down
+  slots returned to the dock) carries a band on the layer at 0.046 docks a beat.
+- Instrument: the twist 8.7e-15, the plane of an H eigenvector closes under the rule itself (7.4e-12) with the law's
+  phases (3.8e-12), dense residuals 1.4e-13, the Krylov reading against the dense one at cut 2 4.5e-14.
+- The cut 3 shares are read, not certified. A 300-vector probe at the same cut read the top eigenspace, the one of
+  largest share at every k, at 1.4e-15, and the unconverged ones at the 7th and 8th places.
+
+### How it was tested
+
+Probes `tmp/ms-probe1.log` to `tmp/ms-probe7.log` (with `ms-probe2-d2`, `ms-probe3-d2`, `ms-probe6-d1/d2/d3`,
+`ms-probe6b-d2/d3`) and `tmp/ms-eig-probe.log`. Smokes `tmp/ms-smoke.log` and `tmp/ms-smoke2.log`: the first caught
+two faults before the gate run, both fixed and disclosed in the header (G3 summed the six along blocks' Grams where they
+land on one dock, and the smoke's 120-vector space was too small). Gate run `tmp/ms-gate-run1.log`. Checks
+`tmp/ms-checks.log`: `tsc --noEmit -p tsconfig.check.json` exit 0, `test/catalog.ts` 1,545, `task/check-labels.ts` (the
+same 1 contradicted label and 20 for review, none from this item, 0 registry rows outside the barrel),
+`task/check-coverage.ts` (0 unknown, 0 mismatches), `test/result.ts check` exit 0 (0 problems).
+
+### Status and follow-ups
+
+- No row is ticked, and OPEN-MOT-03 stays open. No mode of the register rule stays on the true screen. The share falls
+  at every cut and momentum read, and even the best band moves at most 0.07 of √2/4.
+- Why none: the down coupling is geometry, 1/32 on the diagonal at every k, as large as the along hop's whole reach, into
+  shells whose band reaches past 0.106. What would make one: a rule whose screen docks do not stream their 18 down slots
+  into the bulk. The closed screen shows such a band exists and moves, at 0.13 of √2/4.
+- Not done: the wave packet (there is no screen mode to launch), the pair census (it needs one), a certified cut 3
+  reading (more Krylov vectors), and cut 4.
+- Notes changed outside this repo: `remaining-pieces.md` (a new subsection under "Parity and motion on the true mesh, at
+  a cusp"), `open.md` (Next up 7, MOT-03, text only), `everything.md` (the Lorentz dispersion row, text only).
+  `constraints.ts` is unchanged: no status moves. No site sentence changes.
+
+## OPEN-FND-03, OPEN-CSM-13: a many-hole engine for the register rule, and three holes relaxing (E-FND-0161, E-FND-0162)
+
+Every register-rule read was two holes on the 4d torus, on E-SPN-0175's engine, which holds 192^n amplitudes a momentum
+tuple. This item derives which method reaches more holes, builds it exactly, validates it as a gate, and runs the
+first physics it unlocks.
+
+### What changed
+
+- `code/measure/register-holes.ts`: the exact reduction (flat holes are spectators, each hole keeps its half), the
+  per-momentum frames with the sector states as coordinates, the transfers A1, A2, the n-hole engine at any total
+  momentum (one-body beats, the pair phase product over in-sector pairs through a 4d FFT on the torus), reads (momentum,
+  band, half, exchange weights), Slater starts, the bridge from E-SPN-0175's dense pair, the band levels, the exact free
+  energy shell and the infinite-temperature count.
+- `test/experiment/foundations/register-holes.ts` (E-FND-0161) and `register-relaxation.ts` (E-FND-0162), their rows
+  in `test/registry.csv`, `test/experiment/all.ts`, the regenerated `test/catalog.csv` and the readme count (1,545).
+
+### The derivation, and the method chosen
+
+Four methods weighed in `remaining-pieces.md`, "A many-hole engine for the register rule". Free fermions plus pair
+pieces at low density have no small parameter (the sector string acts at every separation). Time-dependent
+Hartree–Fock keeps natural occupations at 0 and 1 and, from plane-wave starts, every momentum: it cannot decide
+equilibration, and its error bar on the J rows is the whole effect. A 3d slab gives the same reach, not more. The exact
+engine in the moving space reaches two holes on every torus run so far and three on L = 4 (8.4e6 amplitudes a half
+against 1.2e11 dense); four holes on L = 4 need 8.6e9 a half, out of reach. It offers one other vacuum, seas of flat
+holes, exactly stationary and tied with the full sea by E-FND-0159's ledger; a partly filled band sea is Hartree–Fock's
+only. And few holes carry an energy: the member is a massive Dirac band, and while n E_max < π (n ≤ 3 on L = 4) the band
+quasi-energy cannot wrap.
+
+### Results (gates fixed in each header before its gate run, probes disclosed)
+
+E-FND-0161, pass (1,532 s). The frame to 3.0e-15 on L = 4 and 6; the dense and reduced two-hole states agree to 8.3e-15
+over 64 cycles on L = 4 and 3.0e-16 over 8 on L = 6; E-FND-0158's traded weights (9.750e-5 to 2.139e-3) come out of
+the moving part alone to 1.5e-14; the three pair masks match the two-hole engine to 2.3e-17, the free rule its Slater
+determinant to 5.1e-15. A one-sign error (5.1e-2) and the free rule (6.1e-2) fail to agree, as they must. Depth L1.
+
+E-FND-0162, pass (4,862 s on a loaded machine). Three holes on L = 4: momenta end 5.57 of 6 from the start; two starts
+in one shell end 0.51 apart, a start and its band mirror 0.10, a start in another shell 1.27; 0.932 of the weight stays
+in the starting band (0.065 from the other), with no drift across the late window, where infinite temperature gives
+0.5. The free rule moves nothing (3.8e-13). No temperature is resolved on five band levels. Depth L2.
+
+### How it was tested
+
+Probes `tmp/mh-probe1.log` to `tmp/mh-probe4.log`, `tmp/mh-bands.log`, `tmp/mh-levels.log`, `tmp/mh-micro.log`,
+`tmp/mh-shell.log`; smoke `tmp/mh-smoke.log` (after it, P2 of E-FND-0162 was moved because it equalled a probe start,
+disclosed). Gate runs `tmp/mh-gate-E-FND-0161.log`, `tmp/mh-gate-E-FND-0162.log`. Checks `tmp/mh-checks.log`: `tsc
+--noEmit -p tsconfig.check.json` exit 0, catalog 1,545, `task/check-labels.ts` (the standing 1 contradicted label and
+20 for review, 0 registry rows outside the barrel), `task/check-coverage.ts` (0 unknown, 0 mismatches), `test/result.ts
+check` (0 problems).
+
+### Status and follow-ups
+
+- No row is ticked and no status moves: three holes on the 4d torus, one half, one tone, not the husk.
+- Next: four holes on the L = 2 box (2.1e6 amplitudes a half) for the Bose composite and for whether the band energy
+  heats once it can wrap; a symmetry-reduced engine for four holes on L = 4; a box whose band is dense enough to
+  resolve a temperature; the husk.
+- Notes changed outside this repo: `remaining-pieces.md` (a new section, "A many-hole engine for the register rule",
+  and pointers in E-FND-0158's row table and "Order of work" step 4), `open.md` (FND-03, CSM-13, CSM-14, MAT-07,
+  MND-01, FND-14, text only), `everything.md` (bosons, temperature and equilibrium, Bose and Fermi distributions, text
+  only). `constraints.ts` is unchanged. No site sentence changes.
+
+## OPEN-FND-03, OPEN-CSM-13: the many-hole engine on the Rust kernel, and four holes on L = 4 (E-FND-0163, E-FND-0164)
+
+E-FND-0161's engine stopped at three holes on L = 4: four need 8.6e9 amplitudes a half (137 GB). This item moves the
+engine's hot loops onto the kernel, byte for byte, derives a storage that fits four holes, validates it as a gate, and
+runs the first question four holes unlock: whether the rule heats once the band energy can wrap.
+
+### What changed
+
+- `kernel/src/prim.rs`, `node.rs`, `wasm.rs`: three primitives, `hole_one_body` (register-holes `oneBody`, a tuple a
+  row), `hole_band` (`bandWeights`' local sums) and `hole_pair` (`pairPhases`: an orbit of fiber indices a row, its
+  column gathered, the 4d FFT to sites on every axis with the reference's own butterflies, the phase, the FFT back,
+  scattered). The binding checks every size and index, the orbits disjoint and the gather a bijection.
+- `code/kernel/types.ts`, `js.ts` (the reference restated), `native.ts`, `wasm.ts`, `wasm-threads.ts` (its argument
+  block raised to 32), and `code/kernel/holes.ts`: the tables (Fourier, flattened transfers, the dense engine's
+  orbits, the pair phases computed in TypeScript exactly as `pairPhases` computes them), `fastHoleCycle`,
+  `fastBandWeights`, and the shape checks the wasm backends run.
+- `code/measure/register-holes.ts`: `holeEngine(fr, n, total, { backend, threads })` opts in; the default path is
+  unchanged, so no registered number moves.
+- `code/measure/register-sorted-holes.ts` (new): the sorted store, antisymmetric by construction, on a kernel (js by
+  default, its reference): the engine, the cycle, Slater starts, fold and unfold to the dense layout, and the reads
+  (norm, occupation, upper-band fraction, the band-resolved count P(k), tie antisymmetry).
+- `task/kernel/check.ts`: the holes section. `test/experiment/foundations/register-sorted-holes.ts` (E-FND-0163) and
+  `register-wrap.ts` (E-FND-0164), their rows, the barrel, the catalog and the readme count; `register-relaxation.ts`
+  exports `shellTriples` (no number moves).
+
+### The kernel
+
+Profiled on three holes at L = 4: 5.6 s a cycle, half in `oneBody`, half in `pairPhases` (the FFTs), 1.3 s a band
+read. On the kernel, byte for byte: `holeCycle` 6.9 s to 0.41 s (16.6x) and `bandWeights` 1.32 s to 0.061 s (21.6x) at
+12 native threads on the loaded machine. The full check is 3,614 comparisons, 0 failures (the ball, reduced and sea
+paths as before, plus 412 hole comparisons: the three primitives alone on L = 2, 4 and 6 tables, the dense and sorted
+orbit tables, both phase signs and a stream of phases, against js, native at 1 to 16 threads, wasm and threaded wasm;
+`holeCycle` and `bandWeights` wired against the engine's own JavaScript under the rule, the one-sign control, a pair
+mask and the free rule; the sorted store against its js reference). The FMA build fails 749 of 3,539 in the quick check,
+every hole path among them.
+
+### The reduction (E-FND-0163, pass, 273 s)
+
+Antisymmetry as a storage rule: keep the rows whose momenta are nondecreasing, with every fiber tuple (ties keep both
+orders, so the one-body step stays a product). Translation was already used. Four holes at L = 4: 91,808 rows, 3.76e8
+amplitudes, 6.0 GB, a factor 22.8. The point group (up to 192 more) was not needed and is the next reduction. Gates in
+the header before the run: the unfolded store equals the dense engine to 5.3e-17 (three holes, L = 4) and 3.2e-16 (four
+holes, L = 2) over 16 cycles; E-FND-0162's P1 gives 0.932108 from both engines (to 4.4e-16); four holes on L = 4 keep
+the free Slater determinant to 4.7e-16 and the norm to 2.5e-14 under the rule. Dropping the permutation signs misses by
+0.20, the free rule by 0.14. 32 s a four-hole cycle at 12 threads. Depth L1.
+
+### Four holes can wrap, and do not heat (E-FND-0164, pass, 14,075 s)
+
+Derived before the run: at L = 4, 4 E_max = 3.251 > π, and only the two corners of the four-hole spectrum (every hole at
+the top two levels, all in one band against all in the other) meet across 2π, a four-fold band flip. Predicted: no
+heating. Probes (disclosed) showed U alone cannot tell a flow from a larger dressing, so the store is also read
+band-resolved, P(k) with k holes in the other band. Gates in the header before the run, starts not the probes':
+
+- W1: band memory U − U′ 0.415 ('3344', U 0.709, U′ 0.294) and 0.474 ('3333'); full mixing gives 0.
+- W2: U + U′ 1.003 and 0.993.
+- W3: memory kept from the late window's first half to its second 0.986 and 0.963, the non-wrapping comparator 0.965.
+- W4: every hole flipped 0.0205 and 0.0174, falling across the window (a half-mixed corner carries 0.15 to 0.25).
+- CF: the free rule keeps the band to 4.9e-15. I1 2.1e-13, I2 3.4e-18.
+
+Read: the corners carry 0.68 and 0.78 of the comparator's memory and 5 to 6 times its four-fold weight, close to an
+independent-hole dressing ((0.29 / 0.20)⁴ = 4.4): at most a small static admixture of the other corner, no flow; a
+mixing rate above about 1e-3 a cycle is excluded. The smoke's 2-cycle window had failed W2 to W4 (the transient),
+disclosed; nothing changed after it. Depth L2.
+
+### How it was tested
+
+Profile `tmp/fh-prof.ts` (`tmp/kn-prof/`), the wired smoke `tmp/fh-smoke1.ts`, probes `tmp/fh-probe1.ts` to
+`tmp/fh-probe5.ts`, the heating probes `tmp/fh-heat-*.log` and `tmp/fh-count-*.log`, smokes `tmp/fh-smoke-0163.ts` and
+`tmp/fh-smoke-0164.log`. The check `tmp/fh-check.log` (3,614, 0 failures), the FMA control `tmp/fh-control.log`. Gate
+runs `tmp/fh-gate-E-FND-0163.log`, `tmp/fh-gate-E-FND-0164.log`. Checks `tmp/fh-checks.log`: `tsc --noEmit -p
+tsconfig.check.json` exit 0, catalog 1,547, `task/check-labels.ts` (the standing 1 contradicted and 20 for review, 0
+rows outside the barrel), `task/check-coverage.ts` (0 unknown, 0 mismatches), `test/result.ts check` (0 problems).
+Both experiments need the native kernel built (`pnpm call task/kernel/build.ts native`) to rerun.
+
+### Status and follow-ups
+
+- No row is ticked and no status moves: four holes on the 4d torus, one half, one tone, not the husk.
+- (b), the two-plus-two composite read for Bose statistics (OPEN-MAT-07), was not run: the row also needs a composite
+  that is light (E-SPN-0162's is 35 times too heavy), and heating was the question closer to J's bar. The store makes
+  it cheap to start: two bound pairs at total momentum 0 are 6 GB.
+- Next: the point group on the store for five holes or L = 6 four holes (4.7e10 amplitudes after antisymmetry, 750
+  GB); three holes on L = 6 fit already (3.6e7 amplitudes), the box where a temperature might resolve.
+- Notes changed outside this repo: `kernel.md` (the three primitives, the holes check, the counts), `remaining-pieces.md`
+  (two new sections under "A many-hole engine for the register rule", its row table and "Next", and "Order of work"
+  step 4), `open.md` (FND-03, FND-14, MAT-07, CSM-13, MND-01, text only), `everything.md` (bosons, temperature and
+  equilibrium, text only). No status moves.
+- Site sentences that change: none required. Where a page says four holes are out of reach, or that whether the rule
+  heats once four holes can wrap is open, it should now say four holes on the L = 4 torus run exactly and keep their
+  band over 48 cycles where they can wrap (E-FND-0164).
