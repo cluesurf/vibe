@@ -75,7 +75,26 @@
 // DEPTH: L2 (one hole of the rule in a static step-angle field, exact on the strip; the lapse's form is composed).
 // DETERMINISM: no random numbers; every start is a fixed packet.
 //
-// FIRST RUN (below, after the gate run).
+// FIRST RUN (tmp/lx-lapse-gate.log, 1,400 s on the loaded machine): FAIL on H1, as predicted. No gate moved and none
+// was rerun.
+//  - H1 holds at rest and fails moving: 5 of 15 points within 1e-3 of E / m* grad N. At k 0, a / a_route is 1.00001,
+//    1.00000, 1.00000, 1.00000, 1.00000 at M 0.2, 0.38025, 0.854058, 1, 2. At k 0.2 it is 1.0206, 1.0069, 1.0028,
+//    1.0025, 1.0022, and at k 0.4 it is 1.5711, 1.1188, 1.0281, 1.0226, 1.0125 (probe 4's step/route to 4 digits).
+//  - H2 holds: at rest eps R = 0.99979, 0.99992, 0.99997, 0.99997, 0.99997, so the bare holes fall at eps = 0.99646,
+//    0.98785, 0.93843 (the light pair's member), 0.91521 and 0.64208 of a body whose inertia is its energy. The
+//    equivalence ratio is 1 / R to 3e-4 at every rest gap, and the weak principle fails between holes of different mass
+//    by exactly their R - 1.
+//  - H3 holds: a / a_step within 9e-5 at every rest gap and momentum. The rule's step angle couples to the scalar
+//    density M dE/dM, so a moving hole falls by its mass, not its energy (eps 0.25 at M 0.2, k 0.4). The full lapse's
+//    prediction misses moving packets by up to a factor 3.6 (a / a_full), as it must: the rule cannot scale a hop.
+//  - H4 holds: band B at rest falls as band A, B / A = 1.00000 at every rest gap (unlike E-GRV-0147's count piece,
+//    which a hole of the other band hardly feels).
+//  - Instrument: projector defect at most 1.3e-13, uniform to 0, norm drift 7.1e-13, edge weight 2.1e-11, the
+//    parabola's residual 4.1e-5 of its span. Control C1: a uniform step angle gives a curvature -2e-5 of the route's
+//    fall.
+// So the lapse turns the equivalence principle into R for every one-body object at rest: eps = 1 / R. A body falls
+// universally only if its inertia equals its energy, which is OPEN-MOT-01's gate. For the light pair the same identity
+// gives eps 0.368 (a_B 6) and 0.654 (a_B 8), derived and not run.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
@@ -789,7 +808,7 @@ export default experiment({
   id: 'gravity/lapse-fall',
   code: 'E-GRV-0149',
   title:
-    'gravity as a lapse on the one-body register band: does a packet fall at E/m* times the lapse gradient, and is its equivalence ratio 1/R (not yet run)',
+    'gravity as a lapse on the one-body register band, fail on H1 as predicted: the rule\'s own lapse (the local step angle) drops a packet at rest at exactly E/m* times the gradient (to 1e-5) and its equivalence ratio is 1/R to 3e-4 at five rest gaps (0.996 to 0.642), so universality is R = 1; a moving packet falls by its mass M dE/dM, not its energy (to 9e-5), up to 1.57 times E/m*; both bands fall alike',
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',

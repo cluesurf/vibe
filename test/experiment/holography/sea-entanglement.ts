@@ -60,6 +60,28 @@
 // instrument holding, the predicted outcome; PASS when H1 holds; PARTIAL when a control or instrument fails. The band
 // sea's gates are reported in the claim either way.
 //
+// FIRST RUN, DISCLOSED. tmp/ax-hlg-run1 stopped before any entropy was printed: the tridiagonal QL did not converge on
+// a Gram matrix with a cluster of exact zeros. The solver was given a unit shift (A + I, then subtract 1, the same
+// cure code/algebra/linear/eig-hermitian-householder documents), tmp/ax-probe4 checked every path at L = 4, and the run
+// was started again. No gate moved.
+// GATE RUN (tmp/ax-hlg-run2.log, 1,092 s): PARTIAL, by the rule fixed above, because CP missed its threshold.
+//  - Z: the rule's own seas are products, S = 0, eta = 0. H1 fails on the rule's sea, as predicted.
+//  - CP FAILED AS WRITTEN: the singlet product sea gave at most 3.6e-10 nats against a gate of 1e-10. It is the float
+//    floor (eigenvalues within 1e-14 of 0 or 1, thousands of them, each adding about 1e-13), not entanglement: the band
+//    sea's entropies are 10^2 to 10^4 nats. The gate was set too tight and is reported failed, not moved.
+//  - THE BAND SEA HAS AN AREA LAW. Husk slabs at L = 12, w = 1 .. 6: 4585.65, 5764.46, 5924.23, 5953.40, 5954.90,
+//    5955.17 (the steps fall 1179, 160, 29, 1.5, 0.27: saturation within about two docks); at L = 8: 1355.64, 1704.32,
+//    1751.61, 1759.73; L = 4: 156.30, 192.66, and 156.30 at w = 3, 3.5e-11 at w = L. Entropy per cut link 0.57438 (L =
+//    12) and 0.57283 (L = 8), 0.27% apart, so S scales with the cross-section. Volume share 9.5e-3. Husk bars s = 1..4:
+//    248.09, 691.41, 1133.98, 1577.09, linear in the perimeter (rms 0.15) and not the area (rms 87.3), 110.7 nats per
+//    unit of perimeter. Depth slabs equal the husk slabs to every printed digit (the D4 axes are equivalent). Husk boxes
+//    s = 1, 2: 36.88, 220.57.
+//  - eta = 0.5744 +- 0.0016 nats a cut link, so G = 1/(4 eta) = 0.435 link areas (a read, on a sea the rule does not
+//    write). H1B, H2B hold, PB does not fire.
+//  - CG: the gapped chain saturates (S(100) - S(60) = 1.0e-12). CL: the gapless chain gives c = 1.0001. I1 to I4 hold:
+//    8 band states and 16 moving at every momentum, |sin| margin 0.371, leak 8e-15, moving phases 2.314 from 0 and
+//    0.380 from pi, real-space commutator 3.5e-15, the Gram and block forms equal.
+//
 // WHAT IT CAN AND CANNOT SAY FOR JACOBSON. An area law with eta on a sea is the first of three things Jacobson's
 // derivation needs. The other two are the first law with a local modular Hamiltonian (route H6e) and a boost structure
 // near the cut. A zero on the rule's sea closes the route for the rule as it stands. An area law on the band sea only
@@ -88,7 +110,7 @@ export default experiment({
   id: 'holography/sea-entanglement',
   code: 'E-HLG-0037',
   title:
-    "the sea's entanglement exactly from its correlation matrix: the rule's own sea is a product, so no area law and no G = 1/(4 eta); the Floquet band sea it does not write is read for an area law",
+    "the sea's entanglement exactly from its correlation matrix, partial (the product control missed its 1e-10 gate at 3.6e-10, the float floor): the rule's own sea is a product, so S = 0, no area law and G = 1/(4 eta) infinite; the Floquet band sea it does not write has an area law, 0.5744 +- 0.0016 nats a cut link (L 8 and 12 within 0.27%, depth saturated in two docks, husk bars linear in the perimeter), which would give G = 0.435 link areas; gapped chain saturates, gapless chain c = 1.0001",
   category: 'holography',
   substrates: ['3434'],
   depth: 'L2',

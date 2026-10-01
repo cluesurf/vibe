@@ -531,6 +531,25 @@ function readFamily(
     const NB = peeledNullSpace(B)
     const proj = new Map(vectors.map(k => [k.name, projectDensity(group, basis, k.v)]))
 
+    // a basis that did not lift to rationals cannot be read exactly: report the dimensions only, unverified
+    if (!NA.reconstructed || !NB.reconstructed) {
+      vectors.forEach(k => inAll.set(k.name, false))
+      chars.push({
+        chi,
+        columns: m,
+        dimA: NA.dim,
+        dimB: NB.dim,
+        found: NA.dim - NB.dim,
+        knownRank: 0,
+        perLineRank: 0,
+        verified: false,
+        peeled: { zeroed: NA.zeroed, merged: NA.merged, dense: NA.dense },
+        extra: [`chi ${chi}: not reconstructed`],
+      })
+      log(`${family} chi ${chi}: ${m} columns, NOT RECONSTRUCTED (A ${NA.reconstructed}, B ${NB.reconstructed})`)
+      continue
+    }
+
     for (const k of vectors) {
       const y = proj.get(k.name)!
 
@@ -560,7 +579,7 @@ function readFamily(
       let tried = 0
 
       for (const v of NA.vectors) {
-        if (extra.length >= 4 || tried >= 200) {
+        if (extra.length >= 8 || tried >= 400) {
           break
         }
 
@@ -604,7 +623,8 @@ function readFamily(
       peeled: { zeroed: NA.zeroed, merged: NA.merged, dense: NA.dense },
       extra,
     })
-    log(`${family} chi ${chi}: ${m} columns, A ${c.A.rows.length} rows peeled to ${NA.dense} dense, found ${found}`)
+    log(`${family} chi ${chi}: ${m} columns, A ${c.A.rows.length} rows peeled to ${NA.dense} dense, found ${found}, beyond the lists ${found - perLineRank}`)
+    extra.forEach(e => log(`  extra ${e}`))
   }
 
   const found = chars.reduce((s, r) => s + r.found, 0)
