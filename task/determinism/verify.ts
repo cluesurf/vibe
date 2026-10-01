@@ -25,9 +25,12 @@ let state = 0x9e3779b9
 
 function next(): number {
   state = (state + 0x9e3779b9) | 0
+
   let z = state
+
   z = Math.imul(z ^ (z >>> 16), 0x85ebca6b)
   z = Math.imul(z ^ (z >>> 13), 0xc2b2ae35)
+
   return ((z ^ (z >>> 16)) >>> 0) / 4294967296
 }
 
@@ -64,48 +67,61 @@ const inputs: Record<keyof typeof RESTATED, () => number[]> = {
 
 function trig(): number {
   const u = next()
+
   if (u < 0.4) {
     return (next() - 0.5) * 160
   }
+
   if (u < 0.7) {
     return (next() - 0.5) * 2
   }
+
   return sign() * logUniform(-30, 19)
 }
 
 function unit(): number {
   const u = next()
+
   if (u < 0.6) {
     return (next() - 0.5) * 2
   }
+
   if (u < 0.85) {
     return sign() * (1 - logUniform(-50, -1))
   }
+
   return sign() * logUniform(-35, -1)
 }
 
 function positive(): number {
   const u = next()
+
   if (u < 0.4) {
     return next() * 3
   }
+
   if (u < 0.8) {
     return 2 ** ((next() - 0.5) * 200) * (1 + next())
   }
+
   if (u < 0.95) {
     return (1 + (next() - 0.5) * 4e-6) * 2 ** Math.floor((next() - 0.5) * 40)
   }
+
   return next() * 2 ** -1022
 }
 
 function hyperbolic(): number {
   const u = next()
+
   if (u < 0.5) {
     return (next() - 0.5) * 50
   }
+
   if (u < 0.75) {
     return (next() - 0.5) * 1430
   }
+
   return sign() * logUniform(-60, 0)
 }
 
@@ -117,34 +133,47 @@ for (const name of Object.keys(inputs) as (keyof typeof RESTATED)[]) {
   if (only.size > 0 && !only.has(name)) {
     continue
   }
+
   const restated = RESTATED[name] as (...a: number[]) => number
+
   let plain = 0
   let fused = 0
   let plainMiss = ''
   let fusedMiss = ''
+
   for (let i = 0; i < count; i++) {
     const a = inputs[name]()
     const want = native[name]!(...a)
+
     setFused(false)
+
     const p = restated(...a)
+
     setFused(true)
+
     const f = restated(...a)
+
     setFused(false)
+
     if (Object.is(p, want)) {
       plain++
     } else if (!plainMiss) {
       plainMiss = `${name}(${a.join(', ')}): Math ${want}, plain ${p}`
     }
+
     if (Object.is(f, want)) {
       fused++
     } else if (!fusedMiss) {
       fusedMiss = `${name}(${a.join(', ')}): Math ${want}, fused ${f}`
     }
   }
+
   console.log(`${name.padEnd(6)} fused ${fused} of ${count}   plain ${plain} of ${count}`)
+
   if (fusedMiss) {
     console.log(`         first fused miss  ${fusedMiss}`)
   }
+
   if (plainMiss) {
     console.log(`         first plain miss  ${plainMiss}`)
   }
@@ -155,15 +184,19 @@ for (const name of Object.keys(inputs) as (keyof typeof RESTATED)[]) {
 function powInput(): [number, number] {
   const u = next()
   const x = next() < 0.8 ? logUniform(-40, 40) * (next() < 0.1 ? -1 : 1) : 1 + (next() - 0.5) * 2 ** -20
+
   if (u < 0.3) {
     return [x, Math.floor(next() * 12) - 3]
   }
+
   if (u < 0.4) {
     return [Math.abs(x), [0.5, -0.5, 1 / 3, 1 / 4, 1.5, 2 / 3][Math.floor(next() * 6)]!]
   }
+
   if (u < 0.5) {
     return [1 + (next() - 0.5) * 2 ** -30, (next() - 0.5) * 2 ** 40]
   }
+
   return [Math.abs(x), (next() - 0.5) * 20]
 }
 
@@ -173,31 +206,40 @@ if (only.size === 0 || only.has('pow')) {
   let hard = 0
   let hardEqual = 0
   let miss = ''
+
   const started = Date.now()
+
   for (let i = 0; i < count; i++) {
     const [x, y] = powInput()
     const want = Math.pow(x, y)
     const answer = powOracle(x, y)
     const same = Object.is(want, answer.value)
+
     if (answer.exact) {
       exact++
     }
+
     if (!answer.exact && answer.margin <= MARGIN) {
       hard++
+
       if (same) {
         hardEqual++
       }
     }
+
     if (same) {
       equal++
     } else if (!miss) {
       miss = `pow(${x}, ${y}): Math ${want}, correctly rounded ${answer.value}, margin ${answer.margin.toFixed(4)}`
     }
   }
+
   const us = ((Date.now() - started) * 1000) / count
+
   console.log(
     `pow    correctly rounded ${equal} of ${count}   exact ${exact}   hard (margin <= ${MARGIN}) ${hard}, of them correctly rounded ${hardEqual}   ${us.toFixed(1)} us an input`,
   )
+
   if (miss) {
     console.log(`         first miss  ${miss}`)
   }

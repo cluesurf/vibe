@@ -294,7 +294,7 @@ export default experiment({
   id: 'relativity/one-speed-bounds',
   code: 'E-RLT-0110',
   title:
-    "one light speed as a register-size limit survives the published Lorentz-violation bounds at a price, pass: E-FRC-0261's Pell splits give the light c_L^2 / c_m^2 = 1 + eps / (2 q^2) exactly, so kappa_tr = -eps / (2 q^2 + p^2); the air-shower bounds -6e-21 < kappa < 3e-20 (Duenkel, Niechciol, Risse 2021, 2023) first pass at q = 7,645,370,045, a register m = 1.22e11 with the light slower by 8.6e-21 in the squared speed (the fast side alone needs 2.95e11; Coleman and Glashow's 1999 high-energy bounds allow 2.6e8, and with their atomic bound 7.1e11); m enters neither alpha nor stability, so the route's falsifier cannot fire, but the least register is 4.3e5 times the e^(4 pi) clock register, which misses the bounds by kappa 1.3e-9",
+    'one light speed as a register-size limit survives the published Lorentz-violation bounds at a price, pass: the Pell splits of E-FRC-0261 give the light c_L^2 / c_m^2 = 1 + eps / (2 q^2) exactly, so kappa_tr = -eps / (2 q^2 + p^2); the air-shower bounds -6e-21 < kappa < 3e-20 (Duenkel, Niechciol, Risse 2021, 2023) first pass at q = 7,645,370,045, a register m = 1.22e11 with the light slower by 8.6e-21 in the squared speed (the fast side alone needs 2.95e11; the 1999 Coleman-Glashow high-energy bounds allow 2.6e8, and with their atomic bound 7.1e11); m enters neither alpha nor stability, so the falsifier of the route cannot fire, but the least register is 4.3e5 times the e^(4 pi) clock register, which misses the bounds by kappa 1.3e-9',
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L1',

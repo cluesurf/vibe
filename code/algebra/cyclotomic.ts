@@ -137,6 +137,7 @@ export function cyclotomicRing(m: number): CyclotomicRing {
 
   // zeta^j reduced, for j up to 2 m
   const powers: Cyc[] = []
+
   let current: bigint[] = [1n, ...new Array<bigint>(degree - 1).fill(0n)]
 
   for (let j = 0; j <= 2 * m; j++) {
@@ -496,7 +497,9 @@ export function rootsOfUnityTest(
 
   // R(x) * den^deg = sum P_k den^k x^k, an integer polynomial whose leading coefficient is den^deg
   const deg = normPoly.length - 1
+
   let scaled: Poly = normPoly.map((c, k) => c * u.den ** BigInt(k))
+
   const stripped: number[] = []
 
   for (let n = 1; n <= 64 * deg + 2; n++) {

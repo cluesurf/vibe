@@ -173,11 +173,11 @@ export default experiment({
 })
 
 type Runner = { state: () => Configuration; beat: () => void }
-type Dynamics = { name: string; make: (tables: LockedTables, start: Configuration, phase: number) => Runner }
+export type Dynamics = { name: string; make: (tables: LockedTables, start: Configuration, phase: number) => Runner }
 
 // ---------------- the three dynamics ----------------
 
-const RULE: Dynamics = {
+export const RULE: Dynamics = {
   name: 'rule',
   make: (tables, start, phase) => keyedRunner(tables, start, { key: fullPathKey(0), phase }),
 }
@@ -199,14 +199,14 @@ function swapRunner(start: Configuration, step: (a: Configuration, b: Configurat
   }
 }
 
-const STREAM: Dynamics = {
+export const STREAM: Dynamics = {
   name: 'stream',
   make: (tables, start) => swapRunner(start, (a, b) => streamInto(tables, a, b)),
 }
 
 const raise = (v: number): number => (v === 1 ? -1 : 0)
 
-const DECAY: Dynamics = {
+export const DECAY: Dynamics = {
   name: 'decay',
   make: (tables, start) =>
     swapRunner(start, (a, b) => {
@@ -224,7 +224,7 @@ const DECAY: Dynamics = {
 
 // ---------------- the local family ----------------
 
-type Content = { vibes: [number, number][]; stores: [number, number][] }
+export type Content = { vibes: [number, number][]; stores: [number, number][] }
 
 function* signed(slots: number[], k: number, from = 0, acc: [number, number][] = []): Generator<[number, number][]> {
   if (acc.length === k) {
@@ -291,7 +291,7 @@ function tableContents(): { contents: Content[]; momenta: number } {
   return { contents, momenta: seen.size }
 }
 
-function localContents(): { contents: Content[]; momenta: number } {
+export function localContents(): { contents: Content[]; momenta: number } {
   const contents: Content[] = []
 
   for (let k = 1; k <= 3; k++) {
@@ -321,7 +321,7 @@ function localContents(): { contents: Content[]; momenta: number } {
   return { contents: [...contents, ...table.contents], momenta: table.momenta }
 }
 
-const emptyConfiguration = (cells: number): Configuration => ({
+export const emptyConfiguration = (cells: number): Configuration => ({
   vibe: new Int8Array(cells * 24),
   point: new Int8Array(cells * 24),
   open: new Uint8Array(cells * 24),
@@ -395,7 +395,7 @@ function collectLocal(dyn: Dynamics, contents: readonly Content[]): Collected {
 
 // ---------------- the vacuum family ----------------
 
-function disturbances(center: number): Content[] {
+export function disturbances(center: number): Content[] {
   const out: Content[] = []
 
   for (const d of SLOTS) {
@@ -658,7 +658,7 @@ const foundOnly = (c: Collected, degree: 1 | 2): { found: number; verified: bool
 
 // ---------------- the toys ----------------
 
-function toyRule184(): { ok: boolean; found: number; dimA: number; dimB: number } {
+export function toyRule184(): { ok: boolean; found: number; dimA: number; dimB: number } {
   const n = 8
   const A = new RowSet(3)
   const B = new RowSet(3)
@@ -695,7 +695,7 @@ function toyRule184(): { ok: boolean; found: number; dimA: number; dimB: number 
   return { ok, found: NA.dim - NB.dim, dimA: NA.dim, dimB: NB.dim }
 }
 
-function toyTriple(): { ok: boolean; overQ: number; overZ3: number } {
+export function toyTriple(): { ok: boolean; overQ: number; overZ3: number } {
   const n = 6
   const A = new RowSet(2)
   const B = new RowSet(2)

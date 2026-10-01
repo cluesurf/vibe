@@ -122,6 +122,7 @@ function census(letters: readonly CycMatrix[], withU: boolean): Census {
     byLength: new Array<number>(LENGTH + 1).fill(0),
     infiniteByLength: new Array<number>(LENGTH + 1).fill(0),
   }
+
   const walk = (word: number[], product: CycMatrix): void => {
     if (word.length > 0) {
       const hasU = word.includes(8)
@@ -135,6 +136,7 @@ function census(letters: readonly CycMatrix[], withU: boolean): Census {
         if (!test.finite) {
           out.infinite++
           out.infiniteByLength[word.length]!++
+
           // the depth-first walk meets long words before short ones: keep the shortest, first in its length
           if (!out.first || out.first.word.length > word.length) {
             out.first = {
@@ -166,6 +168,7 @@ function restRootPhases(rest: readonly bigint[]): number[] {
   const n = rest.length - 1
   const lead = Number(rest[n])
   const coeffs = rest.map(c => Number(c) / lead)
+
   let roots = Array.from({ length: n }, (_, k): [number, number] => [
     Math.cos(0.4 + (2 * Math.PI * k) / n),
     Math.sin(0.4 + (2 * Math.PI * k) / n),

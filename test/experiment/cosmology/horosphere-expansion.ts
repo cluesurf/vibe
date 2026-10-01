@@ -60,6 +60,17 @@
 //  ledger rows move only as far as that reading is accepted, and nothing here runs the rule: a pass would not show that
 //  the RULE expands anything, and a fail rules out only the reading "one horosphere of the mesh a beat".
 //
+// FIRST RUN 2026-10-01 (tmp/hx-csm-run1.log, 257 s): FAIL as derived, every gate as registered, none moved or rerun.
+//  I1: 0 inconsistent steps, every level an integer, window counts equal between the 214,893-cell and the 725,816-cell
+//  regions to level 33, and between skin 2 (165,107 cells) and skin 3 (412,401) to depth 3. C1: shells 1, 24, 456,
+//  8376, 153192, last ratio 18.2894. D1: the levels are exactly the odd integers 1 .. 33. H1 fails on both readings, P
+//  holds. Window counts per level: 1, 12, 30, 56, 108, 132, 182, 360, 306, 380, 672, 552, 750, 972, 870, 992, 1584 (not
+//  monotone: 360 at 15, 306 at 17); the cumulative count over L^3 falls 1, 0.48, 0.34, ... to 0.2215 at 33; the count
+//  grows as t^2.05 over the last half, so the count reading gives a ~ t^0.68, near the dust law t^(2/3), and the
+//  geometric reading a = 2t + 1. Hyperbolic gaps between layers 1.0986, 0.5108, 0.3365, ... 0.1112, falling as 1/t.
+//  Graph depth: 1, 18, 330, 6034 per cusp cell, ratios 18, 18.333, 18.285, so a constant H = ln(18.28) / 3 = 0.97 per
+//  beat appears only as the limit of the graph-depth layers, whose depth-3 cells spread over levels 7 to 169.
+//
 // Depth L1: exact counts on the true mesh against a derived prediction; no rule is run.
 // DETERMINISM: the mesh and its regions are fixed; no start, no random number.
 
@@ -75,7 +86,7 @@ import {
   cuspRegion,
 } from '@/code/substrate/coxeter/labelled-region'
 import { horosphericalChart } from '@/code/measure/hyperbolic-lines'
-import { identity, matVec, type Vec } from '@/code/substrate/coxeter/minkowski'
+import { identity, matVec } from '@/code/substrate/coxeter/minkowski'
 import { CANONICAL_SHELLS } from '@/code/substrate/mesh-unfolding'
 
 export type HoroPlan = {
@@ -119,7 +130,7 @@ function levelCounts(
     seeds: [identity(c0.length)],
     radius: 1_000_000,
     accept: g => {
-      const p = matVec(g, c0) as Vec
+      const p = matVec(g, c0)
 
       if (chart.level(p) / chart.layerLevel > level + 1e-9) {
         return false
@@ -133,7 +144,7 @@ function levelCounts(
   let offInteger = 0
 
   for (const g of region.frames) {
-    const p = matVec(g, c0) as Vec
+    const p = matVec(g, c0)
     const l = chart.level(p) / chart.layerLevel
     const k = Math.round(l)
 
@@ -260,7 +271,9 @@ export function horosphereExpansionRun(plan: HoroPlan): Verdict {
   // ---- READ ----
   const ratios = k.slice(1).map((v, i) => v / k[i]!)
   const depthRatios = n.slice(1).map((v, i) => v / n[i]!)
+
   let cumulative = 0
+
   const cubic = levels.map((l, i) => {
     cumulative += k[i]!
 
@@ -316,7 +329,7 @@ export default experiment({
   id: 'cosmology/horosphere-expansion',
   code: 'E-CSM-0060',
   title:
-    'expansion as horosphere counting below a cusp of the true {3,4,3,4} mesh: pending the gate run',
+    'expansion as horosphere counting below a cusp of the true {3,4,3,4} mesh, fail as derived: the cell centers lie on the horospheres at exactly the odd levels 1, 3, 5, ..., 33, with 1, 12, 30, 56, 108, 132, 182, 360, 306 docks per cusp cell on the first nine (ratios 12 to 0.85, not one constant, and not even monotone), growing as t^2.05 with the cumulative count 0.22 L^3, as the volume law says; so one horosphere a beat gives a scale factor 2t + 1, H falling as 1/t and w = -1/3, not constant H and w = -1; the graph-depth layers (1, 18, 330, 6034, ratios 18, 18.33, 18.28) approach the bulk rate 18.28 but are not horospheres, and the concentric control reproduces 1, 24, 456, 8376, 153192',
   category: 'cosmology',
   substrates: ['3434'],
   depth: 'L1',

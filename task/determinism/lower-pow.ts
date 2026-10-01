@@ -24,13 +24,17 @@ const ROOTS = [new URL('../../code/', import.meta.url).href, new URL('../../test
 
 export async function load(url: string, context: unknown, nextLoad: NextLoad): Promise<Loaded> {
   const result = await nextLoad(url, context)
+
   if (!ROOTS.some(root => url.startsWith(root)) || result.source == null || result.format !== 'module') {
     return result
   }
+
   const text = typeof result.source === 'string' ? result.source : new TextDecoder().decode(result.source)
+
   if (!text.includes('**')) {
     return result
   }
+
   // this hook can sit before tsx in the chain, so the source may still be TypeScript: strip it the way tsx would for
   // this package's tsconfig (target ES2020, so class fields are assigned, not defined)
   const lowered = esbuild.transformSync(text, {
@@ -39,5 +43,6 @@ export async function load(url: string, context: unknown, nextLoad: NextLoad): P
     supported: { 'exponent-operator': false },
     sourcefile: url,
   })
+
   return { ...result, source: lowered.code }
 }

@@ -81,6 +81,7 @@ export function walkCorrelator(
   tj: number,
 ): Rational {
   const at = evolve(start, coin, ti)
+
   let num = 0n
 
   for (const right of [true, false]) {
@@ -106,6 +107,7 @@ export function walkCorrelatorFine(
   const center = Math.floor(n / 2)
   const at = evolve(start, coin, ti)
   const [atRight, atLeft] = slotCounts(at)
+
   const fromSlot = (right: boolean): bigint => {
     const unit: WalkState = {
       right: Array.from({ length: n }, (_, x) =>
@@ -170,6 +172,7 @@ export function walkMarginals(
 ): { read: bigint; unread: bigint } {
   const at = evolve(start, coin, ti)
   const unread = slotCounts(evolve(at, coin, tj - ti))[0]
+
   let read = 0n
 
   for (const right of [true, false]) {
@@ -388,6 +391,7 @@ export function expectation(
   state: CycMatrix,
 ): { a: bigint; b: bigint; den: bigint } {
   const product = cycMul(RING12, k, state)
+
   let trace = RING12.zero()
 
   for (let i = 0; i < 3; i++) {
