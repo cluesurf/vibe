@@ -1,4 +1,4 @@
-// THE LIGHT REGISTER PAIR UNDER A WEAK PULL: DOES ITS INERTIA APPROACH ITS ENERGY? (E-SPN-0175, the code checked free
+// THE LIGHT REGISTER PAIR UNDER A WEAK PULL: DOES ITS INERTIA APPROACH ITS ENERGY? (E-SPN-0183, from next-code
 // immediately before registering). E-SPN-0173 held a light register pair (m 0.427) with the husk light's Coulomb pull and
 // found it binds like hydrogen but moves 8 to 16 times too heavily (R static 8.46 at a_B 3.5, 16.45 at a_B 3), and read
 // the cause as strong coupling across one link: a member moves only through its partner T D, one link away in the
@@ -85,11 +85,39 @@
 //     K = 0 lines only, six of weight 0.07 to 0.35 within 0.016, the heaviest at 1.674966 (E_b 0.0332, the
 //     continuum's 0.0172), |u| off 1 by up to 4e-6 at N 2048, so the gate run takes N 4096. Stopped before any K line
 //
-// FIRST RUN (below, after the gate run).
+// FIRST RUN (2026-09-29 to 2026-10-01, four processes, open-pieces tmp/rcw-gate-*.log and tmp/rcw-part-*.json,
+// combined by tmp/rcw-combine.ts with this file's combine): FAIL (H2, H3, H4, H5, H6, P).
+//   H0 pass: covariance 0 of 1,152, gaps 9.9e-16 of 0.854 in O_h, C4v and C2v, norms equal to 2e-13
+//   C1 pass: E_L 1.6133573497835847 against 1.6133573497836755, the recorded read R 8.459326019 against 8.459326180
+//   I1, I2 pass (8.9e-16, member R 1.065571760)
+//   The level at every point is a multiplet of register-channel lines, not one line. The main line (heaviest at K = 0):
+//     a_B 3.5: E 1.613463084 (w 0.82), R 8.4967 against 1.2259, excess 5.93, ratio 4.014; face 8.5737 (9.0e-3)
+//     a_B 6:   E 1.678102546 (w 0.62), NOT quadratic on the axis (d(K) 1.6e-5, d(K / 2) -2.1e-5, ratio -0.75) and
+//              ratio 5.75 on the face (R 22.9): at K != 0 the little group lets the line mix with near lines of other
+//              O_h representations, so no single curvature exists over K = 0.02 to 0.04. H2 and H3 fail here
+//     a_B 8:   E 1.681188016 (w 0.54), R 10.3946 against 1.1093, excess 8.37, ratio 4.005. The most bound line,
+//              E 1.674964363 (w 0.023 in the filtered level, E_b 0.0332), reads R 1.5340 against 1.1197, excess 0.37
+//     a_B 12:  E 1.695612118 (w 0.92, E_b 0.0125 against the continuum's 0.0076), R 1.2693 against 1.0857, excess
+//              0.169, ratio 4.024; R with the Darwin exchange 1.2495 against tan m / m 1.0656. H4 (0.1) and P
+//              ([0.015, 0.05]) fail by about a factor of 2 and 3
+//   H6 fails: the main line's excess runs 5.93, -2.81, 8.37, 0.17, because the main line is a different channel at
+//     different points (its binding is 1.06, 0.98, 1.57 and 1.64 times the continuum hydrogen's)
+//   Every point holds: norm kept to 3e-7 or better over 64 cycles, edge 4e-5 or below, the main line |u| within 7e-9
+//   AFTER THE RUN (not gates). An audit found that at a_B 8 the line at 1.674964 carries 23 times the start overlap
+//   (with the hydrogenic start) that the main line does: the filters, centred on the running mean, picked the 1.681188 channel, so "the
+//   heaviest line of the filtered level" is not the tracked bound level. Read on that line, a_B 8 gives R 1.534 (excess
+//   0.37). The dense tracked scan (spin/register-coulomb-track) is the follow-up that settles which line is the level
+//   at each a_B. The a_B 6 face leg was also run on the native kernel (code/kernel, 12 threads): on exactly its
+//   configuration (the level from the hydrogenic start through filters 256, 1024 and 2048, unfolded into the C2v
+//   sector, 64 cycles at K and a 64-lag autocorrelation at K / 2) the kernel and this engine's JavaScript gave
+//   74,014,850 doubles equal bit for bit (open-pieces tmp/rcw-eq.ts, rcw-eq-compare.ts; 10.4 min against 38 min), and
+//   the full kernel point reproduced the JavaScript level, K = 0 lines and axis lines to every printed digit in 2.8 h
+//   against 15.2 h. The JavaScript leg finished first and is the record. The kernel run was stopped in its face leg.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
 import { complexEigenvalues } from '@/code/algebra/linear/complex-eigen'
+import { type KernelOptions } from '@/code/kernel/index'
 import { darwinR, staticR } from '@/code/measure/darwin-exchange'
 import { wrap } from '@/code/measure/dock-mixer'
 import { infiniteGreenZero } from '@/code/measure/husk-coulomb'
@@ -453,17 +481,20 @@ export function witnessRun(
 
 // ---- one coupling point ----
 
+// kernel: run every engine on code/kernel (byte for byte the JavaScript engine at any thread count, task/kernel/check.ts);
+// omitted, the engines run their own JavaScript
 export function readPoint(
   su: Setup,
   p: Point,
   log: (what: string) => void = () => {},
+  kernel?: KernelOptions,
 ): PointRead {
   const started = Date.now()
   const oh = [...su.group.elements.keys()]
   const alpha = alphaOf(su, p.aB)
   const s = sector(su.group, oh, p.R)
   const count = reducedCounts(s, su.table, alpha, su.theta)
-  const e = reducedEngine(s, su.u, [0, 0, 0, 0], count, 'vector')
+  const e = reducedEngine(s, su.u, [0, 0, 0, 0], count, 'vector', kernel)
   const EbContinuum = 1 / (2 * su.mu * p.aB * p.aB)
 
   let v: RState = reducedHydrogenStart(s, p.aB)
@@ -549,6 +580,7 @@ export function readPoint(
         dir.map(x => x * k),
         countK,
         'vector',
+        kernel,
       )
 
       return harmonicLines(
@@ -629,6 +661,7 @@ export function readPoint(
         [k, 0, 0, 0],
         countK,
         'vector',
+        kernel,
       )
       const f = reducedFilter(ek, vk, EL, p.recordedKFilter)
 
@@ -902,9 +935,9 @@ export function registerCoulombWeakRun(plan: WeakPlan): Verdict {
 
 export default experiment({
   id: 'spin/register-coulomb-weak',
-  code: 'E-SPN-0175',
+  code: 'E-SPN-0183',
   title:
-    'a light register pair under a weak Coulomb pull, read on the cubic-symmetry reduction of the husk quotient (not yet run)',
+    'the light register pair under a weak Coulomb pull: at a_B 12 its main line moves within 17% of its energy, but the level is a multiplet and R is no law yet, fail (H2, H3, H4, H5, H6, P): the cycle reduced by the cubic group exactly (witnessed against E-SPN-0173 to 1e-15, its R 8.459326 reproduced), and R read line by line by harmonic inversion, since the filtered level holds several register-channel lines the filter cannot separate; the main line reads R 8.50 at a_B 3.5, is not quadratic in K at a_B 6 (it mixes with lines of other cubic representations), 10.39 at 8, and 1.2693 at 12 against the formula 1.0857 (with the Darwin exchange 1.2495 against tan m / m 1.0656); at a_B 8 the line carrying the bound level (23 times the start overlap) reads 1.534; every point holds, a_B 20 needs about 90 hours and was not run',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',

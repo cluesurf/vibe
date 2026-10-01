@@ -70,11 +70,15 @@ export type Patch = {
   husk: boolean
 }
 
+// the tree is breadth first from dock 0 over every link, unless `treeLinks` names it (E-SPN-0186's strip uses the
+// zigzag path, so that every non-tree link closes exactly one triangle); a named tree must span the docks with
+// docks - 1 links, or this throws
 export function patchOf(
   name: string,
   docks: number[][],
   links: [number, number][],
   triangles: [number, number, number][],
+  treeLinks?: readonly number[],
 ): Patch {
   const V = docks.length
   const keys = new Set(huskVectors().map(v => v.join(',')))
@@ -106,13 +110,21 @@ export function patchOf(
 
   seen[0] = true
 
+  const allowed = treeLinks ? new Set(treeLinks) : null
+
+  if (allowed && allowed.size !== V - 1) {
+    throw new Error(
+      `prethermal-patch: ${name} names ${allowed.size} tree links, not ${V - 1}`,
+    )
+  }
+
   while (queue.length) {
     const p = queue.shift()!
 
     links.forEach(([a, b], l) => {
       const q = a === p ? b : b === p ? a : -1
 
-      if (q < 0 || seen[q]) {
+      if (q < 0 || seen[q] || (allowed && !allowed.has(l))) {
         return
       }
 
@@ -209,6 +221,64 @@ export const huskTetrahedron = (): Patch =>
       [1, 2, 3],
     ],
   )
+
+// the tetrahedron with an EAR (E-SPN-0185): a fifth dock (1, 0, -1), one face diagonal from docks 0 and (1, 1, 0) and from
+// no other, closing a fifth husk triangle on the tetrahedron's link 01. 5 docks, 8 links, 4 loops; the tetrahedron's
+// links each sit on 2 or 3 triangles, the ear's two links on 1
+export const huskTetrahedronEar = (): Patch =>
+  patchOf(
+    'tetrahedron-ear',
+    [O, A, B, C, [1, 0, -1]],
+    [
+      [0, 1],
+      [0, 2],
+      [0, 3],
+      [0, 4],
+      [1, 2],
+      [1, 3],
+      [1, 4],
+      [2, 3],
+    ],
+    [
+      [0, 1, 2],
+      [0, 1, 3],
+      [0, 2, 3],
+      [1, 2, 3],
+      [0, 1, 4],
+    ],
+  )
+
+// a STRIP of k husk triangles (E-SPN-0186): docks 0 .. k + 1, the even ones on a line along v = (1, 1, 0) (dock 2j at
+// j v) and the odd ones beside it (dock 2j + 1 at w + j v, w = (1, 0, 1)); v, w and v - w are husk vectors, so links (i,
+// i + 1) and (i, i + 2) are husk links and every (i, i + 1, i + 2) an equilateral husk triangle. The tree is the zigzag
+// path of links (i, i + 1), so the non-tree link (i, i + 2) closes exactly triangle i, and its digit IS that
+// triangle's holonomy. Loops k; the even docks 0, 2, 4, .. are the line that holds the pair separations
+export function huskStrip(k: number): Patch {
+  const docks = Array.from({ length: k + 2 }, (_, i) => {
+    const j = Math.floor(i / 2)
+    const odd = i % 2
+
+    return [j + odd, j, odd]
+  })
+  const links: [number, number][] = []
+  const tree: number[] = []
+
+  for (let i = 0; i + 1 < docks.length; i++) {
+    tree.push(links.length)
+    links.push([i, i + 1])
+
+    if (i + 2 < docks.length) {
+      links.push([i, i + 2])
+    }
+  }
+
+  const triangles = Array.from(
+    { length: k },
+    (_, i) => [i, i + 1, i + 2] as [number, number, number],
+  )
+
+  return patchOf(`strip-${k}`, docks, links, triangles, tree)
+}
 
 // dock permutations carrying links to links and triangles to triangles (all V! tried; V is small)
 export function patchAutomorphisms(p: Patch): number[][] {
@@ -352,7 +422,7 @@ export function moveDigits(
 }
 
 // the value of link l in the fixed gauge (the identity on a tree link), oriented from a to b
-function linkValue(
+export function linkValue(
   r: Register,
   x: Int16Array,
   a: number,

@@ -44,7 +44,7 @@ export const SECTOR_MODES = SLOTS * 4
 // ---- the volume element ----
 
 // the Euclidean Clifford product of two sorted blades: the sign and the sorted blade
-function clifford(
+export function clifford(
   a: readonly number[],
   b: readonly number[],
 ): { sign: number; blade: number[] } {

@@ -1,0 +1,32 @@
+# THE VIBE KERNEL CRATE: the float64 primitives the heavy engines spend their time in, restated from the TypeScript
+# reference operation for operation, built two ways from this one crate:
+#   native   a Node-API addon (cdylib) for the machine's own target, threads by std::thread, loaded in place by node
+#   wasm     wasm32-unknown-unknown with SIMD128, loaded by WebAssembly.instantiate
+# No dependencies. task/kernel/build.ts drives cargo and copies the artifacts to kernel/host/ (build output, gitignored).
+
+[package]
+name = "vibe-kernel"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+path = "src/lib.rs"
+
+# The GPU backends (src/gpu.rs and src/gpu.cu), off by default so the default build is unchanged. None links against a
+# GPU toolkit: each opens its runtime with dlopen when first used, and compiles gpu.cu there for the device it finds.
+#   hip    AMD: libamdhip64 and hiprtc (ROCm), -ffp-contract=off
+#   cuda   NVIDIA: libcuda and NVRTC (the CUDA toolkit), --fmad=false
+#   emu    the same kernels built by the host C++ compiler, one CPU thread: the GPU path checked where there is no GPU
+[features]
+hip = []
+cuda = []
+emu = []
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+debug = false

@@ -30,8 +30,23 @@
 // order of float summation: the sum over the 24 roots at a representative runs in the same order as the unreduced
 // engine's at that site, and a neighbour's value is an exact signed permutation of its representative's, so the two
 // differ only where the unreduced engine's own images drift apart by rounding (the witness measures it).
+//
+// SPEED (opt in): reducedEngine(s, u, K, count, form, { backend: 'native', threads: 12 }) runs reducedCycle,
+// reducedGram, reducedInner, reducedFilter and autocorrelation on code/kernel (the Rust crate kernel/, built by
+// task/kernel/build.ts), byte for byte the JavaScript below at any thread count (task/kernel/check.ts). With no options
+// the engine is this file's JavaScript, unchanged.
 
 import { Worker } from 'node:worker_threads'
+import { kernel, type KernelOptions } from '@/code/kernel/index'
+import {
+  fastAutocorrelation,
+  fastCycle,
+  fastFilter,
+  fastGram,
+  fastInner,
+  fastReduced,
+  type FastPair,
+} from '@/code/kernel/pair'
 import {
   complexEigenvalues,
   complexEigenvector,
@@ -600,6 +615,8 @@ export type ReducedEngine = {
     halfRe: Float64Array
     halfIm: Float64Array
   }
+  // present only when a kernel backend was asked for: the cycle, Gram, inner, filter and autocorrelation then run on it
+  fast?: FastPair
 }
 
 let engineCounter = 0
@@ -863,6 +880,7 @@ export function reducedEngine(
   K: readonly number[],
   count: ReducedCount,
   form: Form = 'vector',
+  options?: KernelOptions,
 ): ReducedEngine {
   const { sparse, sparseT } = overlapMatrices()
   const halfRe = new Float64Array(NR)
@@ -893,7 +911,7 @@ export function reducedEngine(
     cross[2 * i + 1] = Math.sin(ph)
   }
 
-  return {
+  const e: ReducedEngine = {
     s,
     u,
     K,
@@ -911,6 +929,12 @@ export function reducedEngine(
     id: engineCounter++,
     flat: flatten(s, sparse, sparseT, halfRe, halfIm),
   }
+
+  if (options?.backend) {
+    e.fast = fastReduced(e, kernel(options.backend, options.threads ?? 1))
+  }
+
+  return e
 }
 
 export const newState = (s: Sector): RState => ({
@@ -1263,6 +1287,12 @@ function crossPiece(
 
 // one Coulomb cycle: the two beats, then (vector form) P_SD and P_DS
 export function reducedCycle(e: ReducedEngine, st: RState): void {
+  if (e.fast) {
+    fastCycle(e.fast, st)
+
+    return
+  }
+
   beats(e, st)
 
   if (e.form === 'vector') {
@@ -1273,6 +1303,10 @@ export function reducedCycle(e: ReducedEngine, st: RState): void {
 
 // G st: member 1 then member 2, (a, b) -> (a + C b, b + C^dag a)
 export function reducedGram(e: ReducedEngine, st: RState): RState {
+  if (e.fast) {
+    return fastGram(e.fast, st)
+  }
+
   const N = e.s.count
   const [xr, xi, yr, yi] = e.t as [
     Float64Array,
@@ -1326,6 +1360,10 @@ export function reducedInner(
   a: RState,
   b: RState,
 ): [number, number] {
+  if (e.fast) {
+    return fastInner(e.fast, a, b)
+  }
+
   const gb = reducedGram(e, b)
 
   let re = 0
@@ -1390,6 +1428,10 @@ export function reducedFilter(
   phase: number,
   S: number,
 ): RState {
+  if (e.fast) {
+    return fastFilter(e.fast, psi, phase, S)
+  }
+
   const out = newState(e.s)
   const st = cloneState(psi)
 
@@ -1436,7 +1478,7 @@ export function reducedRead(
 //
 // The filtered level is not one eigenvector: the phase reducedRead gives is the weighted mean of every line left in it,
 // and when a line of the same sector sits closer than the filter resolves, the mean moves with K through the weights as
-// well as through the lines (the drift E-SPN-0175's probe 6 measured). The lines themselves come from the autocorrelation
+// well as through the lines (the drift E-SPN-0183's probe 6 measured). The lines themselves come from the autocorrelation
 // c_l = <v | G U^l v>, l = 0 .. N, one inner product a cycle and no stored vectors: U is unitary in the Gram metric, so
 // <U^n v | G U^m v> = c_(m - n), with c_(-l) the conjugate of c_l. On the filter basis Phi_j = sum_(n = 0 .. N - 1)
 // e^(-i phi_j n) U^n v at L phases phi_j across a window, the matrices S_p = <Phi_j | G U^p Phi_k> (p = 0, 1) are sums of
@@ -1451,6 +1493,10 @@ export function autocorrelation(
   v: RState,
   N: number,
 ): { re: Float64Array; im: Float64Array } {
+  if (e.fast) {
+    return fastAutocorrelation(e.fast, v, N)
+  }
+
   const re = new Float64Array(N + 1)
   const im = new Float64Array(N + 1)
   const st = cloneState(v)
@@ -1664,6 +1710,163 @@ export function harmonicLines(
       }
     })
     .sort((a, b) => b.weight - a.weight)
+}
+
+// ---- a fixed state's lines: the reference correlation, filtered afterwards (spin/register-coulomb-track) ----
+//
+// A filtered level's line weights are the start's overlaps times every filter's transfer at each line, and a filter
+// centered on the level's mean phase favors the lines near that mean (E-SPN-0183's weak-pull gate read its "main line" so).
+// To follow ONE level across couplings by its overlap with a fixed reference r (normalized in the Gram metric), read r's
+// own correlation x_l = <r | G U^l r>, one plain inner product a cycle against G r formed once (G is self-adjoint, so
+// <r | G b> = <G r | b>). Any Blackman-Harris filter F of length S at phase p is then applied afterwards, exactly:
+// c_l = <F r | G U^l F r> = sum_d A_d e^(-i p d) x_(l + d), A_d = sum_s w_s w_(s + d), x_(-m) the conjugate of x_m (U is
+// unitary in the Gram metric). A line's overlap with r is its weight in F r times c_0 / |F(E)|^2, so no filter biases it.
+
+export function referenceCorrelation(
+  e: ReducedEngine,
+  r: RState,
+  n: number,
+): { re: Float64Array; im: Float64Array } {
+  const N = e.s.count
+  const gr = reducedGram(e, r)
+  const st = cloneState(r)
+  const re = new Float64Array(n + 1)
+  const im = new Float64Array(n + 1)
+  const partRe = new Float64Array(N)
+  const partIm = new Float64Array(N)
+
+  for (let l = 0; l <= n; l++) {
+    if (e.fast) {
+      e.fast.k.blockInner(gr.re, gr.im, st.re, st.im, partRe, partIm)
+    } else {
+      for (let i = 0; i < N; i++) {
+        let sr = 0
+        let si = 0
+
+        for (let k = i * SITE; k < (i + 1) * SITE; k++) {
+          const xr = gr.re[k]!
+          const xi = gr.im[k]!
+          const yr = st.re[k]!
+          const yi = st.im[k]!
+
+          sr += xr * yr + xi * yi
+          si += xr * yi - xi * yr
+        }
+
+        partRe[i] = sr
+        partIm[i] = si
+      }
+    }
+
+    let sr = 0
+    let si = 0
+
+    for (let i = 0; i < N; i++) {
+      const w = e.s.orbit[i]!
+
+      sr += w * partRe[i]!
+      si += w * partIm[i]!
+    }
+
+    re[l] = sr
+    im[l] = si
+
+    if (l < n) {
+      reducedCycle(e, st)
+    }
+  }
+
+  return { re, im }
+}
+
+// |F(E)|^2 for the Blackman-Harris filter of length S at phase p: |sum_s w_s e^(i (E - p) s)|^2
+export function filterTransfer(E: number, p: number, S: number): number {
+  let r = 0
+  let i = 0
+
+  for (let s = 0; s < S; s++) {
+    const w = blackmanHarris(s, S)
+
+    r += w * Math.cos((E - p) * s)
+    i += w * Math.sin((E - p) * s)
+  }
+
+  return r * r + i * i
+}
+
+// c_l, l = 0 .. n, of F r from r's correlation x (which must reach lag n + S - 1)
+export function filteredCorrelation(
+  x: { re: Float64Array; im: Float64Array },
+  p: number,
+  S: number,
+  n: number,
+): { re: Float64Array; im: Float64Array } {
+  if (x.re.length < n + S) {
+    throw new Error('register-reduced: the correlation is too short for this filter')
+  }
+
+  const w = Array.from({ length: S }, (_, s) => blackmanHarris(s, S))
+  // A_d e^(-i p d) for d = -(S - 1) .. S - 1, stored at d + S - 1
+  const kr = new Float64Array(2 * S - 1)
+  const ki = new Float64Array(2 * S - 1)
+
+  for (let d = -(S - 1); d <= S - 1; d++) {
+    let a = 0
+
+    for (let s = Math.max(0, -d); s < Math.min(S, S - d); s++) {
+      a += w[s]! * w[s + d]!
+    }
+
+    kr[d + S - 1] = a * Math.cos(-p * d)
+    ki[d + S - 1] = a * Math.sin(-p * d)
+  }
+
+  const lag = (t: number): [number, number] =>
+    t >= 0 ? [x.re[t]!, x.im[t]!] : [x.re[-t]!, -x.im[-t]!]
+  const re = new Float64Array(n + 1)
+  const im = new Float64Array(n + 1)
+
+  for (let l = 0; l <= n; l++) {
+    let sr = 0
+    let si = 0
+
+    for (let d = -(S - 1); d <= S - 1; d++) {
+      const [xr, xi] = lag(l + d)
+      const ar = kr[d + S - 1]!
+      const ai = ki[d + S - 1]!
+
+      sr += ar * xr - ai * xi
+      si += ar * xi + ai * xr
+    }
+
+    re[l] = sr
+    im[l] = si
+  }
+
+  return { re, im }
+}
+
+// every line of r in the window (L phases 2 pi / n apart around `center`), read from F r's correlation over n lags, with
+// its overlap |<psi | G r>|^2 / <r | G r> (the filter's transfer divided out)
+export type RefLine = Line & { transfer: number; overlap: number }
+
+export function referenceLines(
+  x: { re: Float64Array; im: Float64Array },
+  n: number,
+  center: number,
+  L: number,
+  p: number,
+  S: number,
+): RefLine[] {
+  const c = filteredCorrelation(x, p, S, n)
+  const c0 = c.re[0]!
+  const x0 = x.re[0]!
+
+  return harmonicLines(c, center, L, (2 * Math.PI) / n).map(l => {
+    const transfer = filterTransfer(l.E, p, S)
+
+    return { ...l, transfer, overlap: (l.weight * c0) / transfer / x0 }
+  })
 }
 
 // ---- starts, unfolding, readings ----

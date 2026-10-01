@@ -1,0 +1,453 @@
+{
+ "note": "The kernel parity suite (task/kernel/parity.ts): the reference outputs of every case, the sha256 of each output array's bytes (little-endian float64) and its first values as the shortest decimals that read back to the same doubles. Tolerance 0: every comparison is byte equality, and no quantity here is defined only up to a tolerance.",
+ "tolerance": 0,
+ "cases": {
+  "ball radius 6 string shell start": {
+   "state after 1 re": {
+    "length": 16384,
+    "sha256": "482b28bbbf388ad284ea62246cfc28c375dff07bb8a4c7e6199bcd3b876b67e8",
+    "values": [
+     "7.641785625931326e-9",
+     "0",
+     "0"
+    ]
+   },
+   "state after 1 im": {
+    "length": 16384,
+    "sha256": "83b3ccc4c773d4d5dfe29dd50fa6bffec0eb3d0c03c73030c5284fa7d54f3b27",
+    "values": [
+     "7.27045743129353e-9",
+     "0",
+     "0"
+    ]
+   },
+   "state after 64 re": {
+    "length": 16384,
+    "sha256": "f8273b3d0988f0799e30162e0f17262377a7ae59b5a3119b129221810f259b5e",
+    "values": [
+     "1.811525588791727",
+     "6.349176559260967e-33",
+     "3.8315357282406914e-33"
+    ]
+   },
+   "state after 64 im": {
+    "length": 16384,
+    "sha256": "4eb7a1b6d2353e241ad4cd5ec23db2eaec649fb128efee70f33d8d8dc955c26d",
+    "values": [
+     "-3.0438912291775746",
+     "1.589071743603738e-33",
+     "8.949546340466793e-33"
+    ]
+   },
+   "norm2 start, after": {
+    "length": 2,
+    "sha256": "975ab17c76020c0ee5dbb14b2e9224b984ae619c956b22fcc43db8350f142a93",
+    "values": [
+     "3810.048228361438",
+     "3812.902400686532"
+    ]
+   },
+   "inner start after": {
+    "length": 2,
+    "sha256": "c0e97f651591528597f19f313248f05a23ca0d9d69bdc48b4a36f3aa469b045f",
+    "values": [
+     "977.3764456486587",
+     "-1578.6022836544764"
+    ]
+   },
+   "filter S 6 re": {
+    "length": 16384,
+    "sha256": "e4f0a77579d18c75bffd1a1d593e154d82023ed2ba81f6e95ed2b3d8205d3f55",
+    "values": [
+     "0.9585548103016011",
+     "-6.123799779710193e-38",
+     "-7.612859085149614e-37"
+    ]
+   },
+   "read lambda phase residual": {
+    "length": 4,
+    "sha256": "b4dd6a8cd7cccb0b0f611ba0ec71f77d79c3f192a32718ebf64df21bb05ec2ae",
+    "values": [
+     "0.2812497430739335",
+     "0.8331092250759474",
+     "1.2452192462442317",
+     "0.4762643111546808"
+    ]
+   }
+  },
+  "ball radius 8 strong string weyl": {
+   "state after 1 re": {
+    "length": 36864,
+    "sha256": "9420e91ceb733e9ebfe441b716ba7f17d81dbd57dd713bff95f1be6c2edf2a19",
+    "values": [
+     "-1.0116526365200849",
+     "0.1649094279365534",
+     "0.16663983649548386"
+    ]
+   },
+   "state after 1 im": {
+    "length": 36864,
+    "sha256": "e0d7b87921df934ef97b733d59ee0270e395b65830d2a186db88f15ede220084",
+    "values": [
+     "0.5474906997012057",
+     "0.24000496577019836",
+     "-0.4865355015725642"
+    ]
+   },
+   "state after 64 re": {
+    "length": 36864,
+    "sha256": "144ec933b32741945e875bdf42497bce47ad0c26a94feeea003fb6d6a94d944c",
+    "values": [
+     "-3.3757236055568933",
+     "0.29923253254527765",
+     "0.17972689517138307"
+    ]
+   },
+   "state after 64 im": {
+    "length": 36864,
+    "sha256": "62e6ccfe107c3cde6522a4d07e17b7c9cc5a16854de0f20556c183324980be51",
+    "values": [
+     "-9.581463668976838",
+     "0.1482455103517738",
+     "-0.5684011582627391"
+    ]
+   },
+   "norm2 start, after": {
+    "length": 2,
+    "sha256": "c503be4f7ca866ecdaeb1e55128f0ecd02a61187256264baf558046f183f802c",
+    "values": [
+     "774468.0160065485",
+     "5743515.365427074"
+    ]
+   },
+   "inner start after": {
+    "length": 2,
+    "sha256": "8d0df08c3de60f3336908114016bb2072e4c9114832b34f1b78b331f3b3dc5c8",
+    "values": [
+     "372443.4983549266",
+     "21861.033392186615"
+    ]
+   },
+   "filter S 6 re": {
+    "length": 36864,
+    "sha256": "d96a170d62a1b1af4c16ada8415fe487c3144d102a45c686d028115a319e16a3",
+    "values": [
+     "0.011291624480245437",
+     "-0.05535673157672528",
+     "0.514638937987732"
+    ]
+   },
+   "read lambda phase residual": {
+    "length": 4,
+    "sha256": "ec65b4fca337db5235a71b990883ba0deba662427d37a7f697f5ae4152a0e8fc",
+    "values": [
+     "0.39606007584614566",
+     "0.45054751027694945",
+     "0.8496692490685331",
+     "0.7932447264600517"
+    ]
+   }
+  },
+  "ball radius 4 free weyl": {
+   "state after 1 re": {
+    "length": 5888,
+    "sha256": "19db8b43ed6659c459815339963ceef907fd896993473987abfab6ac7e5dc668",
+    "values": [
+     "-0.9727701197828224",
+     "-0.5484355616512355",
+     "0.16260739950159359"
+    ]
+   },
+   "state after 1 im": {
+    "length": 5888,
+    "sha256": "cc035de401a74f63ab4bb67f2b9bbd6ea66572969ab0dabf63ccfe1453647320",
+    "values": [
+     "-1.3355028900756836",
+     "-0.009167895357421463",
+     "0.14010350979251807"
+    ]
+   },
+   "state after 64 re": {
+    "length": 5888,
+    "sha256": "253eb612fe69c49a9ec8cbec20c60755abdc2be7f62d8f3096b6b05538b9a0fd",
+    "values": [
+     "231.26979757658307",
+     "-1.188968029428258",
+     "-1.5847612493198755"
+    ]
+   },
+   "state after 64 im": {
+    "length": 5888,
+    "sha256": "4133fd99b725698eb24ef224ff043d06ab98b13f4d5fb91289f4ad4d28b6c53e",
+    "values": [
+     "-534.3203981506608",
+     "-1.267013805862089",
+     "-1.8762853151978227"
+    ]
+   },
+   "norm2 start, after": {
+    "length": 2,
+    "sha256": "a5f48f45ae59df54f7f1dba3f2b7e3610a3e7c9bc4e5ba98aa49d97c8cdc472d",
+    "values": [
+     "61249.47901836886",
+     "20719311.221743587"
+    ]
+   },
+   "inner start after": {
+    "length": 2,
+    "sha256": "36d7acc7fc883fb44effc4671513cc565ee69e9b92ca073f7f046c3ae29be00c",
+    "values": [
+     "38228.56914248511",
+     "-238.6682856495408"
+    ]
+   },
+   "filter S 6 re": {
+    "length": 5888,
+    "sha256": "96ee6ca016b9e4e33441057118dac967e4edefa4247b35a41e94822dc1928815",
+    "values": [
+     "0.5755369379015697",
+     "0.23708571014831978",
+     "-0.04220420824123494"
+    ]
+   },
+   "read lambda phase residual": {
+    "length": 4,
+    "sha256": "ac170ae1e9a81ddfb1f9efc9c4f7a647a1de82fb5687555b5027bcd19f20a804",
+    "values": [
+     "0.9130989759502325",
+     "0.2786018515057311",
+     "0.2961444843026548",
+     "0.5119485024884718"
+    ]
+   }
+  },
+  "ball radius 4 edge zero": {
+   "state after 1 re": {
+    "length": 5888,
+    "sha256": "961fc9bf866c5b58401d3c91735f9a7b7b4fc93c94038c504c965491f622b52b",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "state after 1 im": {
+    "length": 5888,
+    "sha256": "961fc9bf866c5b58401d3c91735f9a7b7b4fc93c94038c504c965491f622b52b",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "state after 16 re": {
+    "length": 5888,
+    "sha256": "961fc9bf866c5b58401d3c91735f9a7b7b4fc93c94038c504c965491f622b52b",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "state after 16 im": {
+    "length": 5888,
+    "sha256": "961fc9bf866c5b58401d3c91735f9a7b7b4fc93c94038c504c965491f622b52b",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   }
+  },
+  "ball radius 4 edge single": {
+   "state after 1 re": {
+    "length": 5888,
+    "sha256": "82bb842266649b0304928ec8f673b443a7b9ede3c7cec177f9e22c0b7ed92237",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "state after 1 im": {
+    "length": 5888,
+    "sha256": "0b47cbab41d53abf403034e08b026851fe4e6796a7e68bb216470260310bdeb1",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "state after 16 re": {
+    "length": 5888,
+    "sha256": "939bca6ec6188c894bcb4f176c162720cfb92eab245629912c85b3e061fd5dd3",
+    "values": [
+     "-0.3599097949986676",
+     "-5.446937016896388e-35",
+     "-5.23409930639148e-35"
+    ]
+   },
+   "state after 16 im": {
+    "length": 5888,
+    "sha256": "db3e915e0fc9ce9f12e744b9edce020ad81f83a75dbf46fc5491ec433421e26e",
+    "values": [
+     "-0.23320649798537602",
+     "-1.2761553484034844e-36",
+     "-6.695536160464354e-35"
+    ]
+   }
+  },
+  "ball radius 4 edge negzero": {
+   "state after 1 re": {
+    "length": 5888,
+    "sha256": "39e6e7de89abe60ee935587613d567d79b72e78c11838a4fb0161a036115e7c9",
+    "values": [
+     "0.5938576536394746",
+     "-0.008174024009280686",
+     "-0.008174024009280686"
+    ]
+   },
+   "state after 1 im": {
+    "length": 5888,
+    "sha256": "dc6caedfd026a3553ce75cea8338783d2ad68223e3fbd716330ef2988ff94665",
+    "values": [
+     "0.5585955551305593",
+     "-0.010077982312199646",
+     "-0.010077982312199644"
+    ]
+   },
+   "state after 16 re": {
+    "length": 5888,
+    "sha256": "045b404e6d52fd08c8273ac196e68ef9471896ca208d45904e1391089104ae6d",
+    "values": [
+     "-6.024457341078505",
+     "-0.07216546564681138",
+     "-0.07216546564681134"
+    ]
+   },
+   "state after 16 im": {
+    "length": 5888,
+    "sha256": "7fc43b667e509652c1491d394c5ff85df513ee3dd003a0f2721a1f2c6ea681fe",
+    "values": [
+     "-2.0998428075885203",
+     "-0.017153379344121034",
+     "-0.017153379344120978"
+    ]
+   }
+  },
+  "ball radius 4 edge tiny": {
+   "state after 1 re": {
+    "length": 5888,
+    "sha256": "968d16ba0562b069edb75969b3cc2fad91314fac5fd899cae5e4adc727c4f454",
+    "values": [
+     "1.594201084807776e-300",
+     "-2.2026729603378353e-302",
+     "-7.247590898300006e-301"
+    ]
+   },
+   "state after 1 im": {
+    "length": 5888,
+    "sha256": "c7536f6bb33b119d0ac732731ec44a1d329179add46ab06e8026ebc0e72c0182",
+    "values": [
+     "-7.808978224758301e-302",
+     "-2.5043542835060646e-301",
+     "-6.595975274338282e-302"
+    ]
+   },
+   "state after 16 re": {
+    "length": 5888,
+    "sha256": "6ba70d85842f5e5879bc92396f88d67908887cab869d820ea73d1d82a340feeb",
+    "values": [
+     "-7.212497781044742e-300",
+     "-1.0975015368413679e-301",
+     "-2.220878309355796e-301"
+    ]
+   },
+   "state after 16 im": {
+    "length": 5888,
+    "sha256": "230e62ff602e0d9c1ba01d5f6428ba0aff5e310f1ae2aa34cc4ccb8736258dee",
+    "values": [
+     "2.7279755348921574e-299",
+     "3.2817896634930373e-301",
+     "1.0459841566831226e-300"
+    ]
+   }
+  },
+  "ball radius 4 edge huge": {
+   "state after 1 re": {
+    "length": 5888,
+    "sha256": "7b8e85651de10bde21dd7414f83212fce493ec02787a3d2d1ba541052c4d3a7f",
+    "values": [
+     "1.8812410752371744e+300",
+     "9.56809105003452e+298",
+     "-6.070514497262773e+299"
+    ]
+   },
+   "state after 1 im": {
+    "length": 5888,
+    "sha256": "e791d556d359c2c383d2f654cf2d7ad9dcf854a2fd7045088f501d2d0e717fc7",
+    "values": [
+     "2.0600231272375497e+299",
+     "-2.1611688029776204e+299",
+     "-3.164120469053928e+298"
+    ]
+   },
+   "state after 16 re": {
+    "length": 5888,
+    "sha256": "50fdc73b3fbdb0fdb832a2357d577aef7714ba999bb9e9d00f08c108c94f9241",
+    "values": [
+     "-8.230592654195598e+300",
+     "-1.355483932050913e+298",
+     "-1.2589251657195798e+299"
+    ]
+   },
+   "state after 16 im": {
+    "length": 5888,
+    "sha256": "72e3276e786bfa5e38279ef398d1aba0aaa9f0593545e0534fc8bafd59e4beff",
+    "values": [
+     "2.4568651498465055e+301",
+     "3.502094359814175e+299",
+     "1.0680146263152361e+300"
+    ]
+   }
+  },
+  "ball radius 4 edge mixed": {
+   "state after 1 re": {
+    "length": 5888,
+    "sha256": "6d3bf87d8e1df4c433fb3c43f6eb333e7301c4ef9ba733ba501eca1f93dc2b35",
+    "values": [
+     "2.8140389955814904e+149",
+     "1.4492324747947504e+149",
+     "-1.0104437400585853e+148"
+    ]
+   },
+   "state after 1 im": {
+    "length": 5888,
+    "sha256": "1acb6afd8353175ec46c0d04bdeb091740189e027e69f484a9809bc4ce99f4d0",
+    "values": [
+     "4.989821542063823e+149",
+     "-1.5546287050284997e+149",
+     "7.482631225654623e+147"
+    ]
+   },
+   "state after 16 re": {
+    "length": 5888,
+    "sha256": "5a652582402b122c89653a161b2f6dd9a485958002f0bd59ed1b7ebe36f499c8",
+    "values": [
+     "-6.87889359697566e+150",
+     "-1.4868301361334952e+149",
+     "-6.14443231884161e+148"
+    ]
+   },
+   "state after 16 im": {
+    "length": 5888,
+    "sha256": "13a9898f0a5d65b16a8a7b111927cedaa2656998dc3dac6bad47b566f6d48edb",
+    "values": [
+     "1.1044082161854548e+151",
+     "3.5352776113434677e+148",
+     "2.426550445664559e+149"
+    ]
+   }
+  }
+ }
+}
