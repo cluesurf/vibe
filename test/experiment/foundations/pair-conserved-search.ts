@@ -494,6 +494,15 @@ function reduced(set: RowSet, basis: CharacterBasis): RowSet {
   return out
 }
 
+// a span test that left the exact range answers "not in the span", which only ever keeps a candidate for the exact rank
+const safeInSpan = (basis: NullBasis, y: ReadonlyMap<number, number>): boolean => {
+  try {
+    return inSpanSparse(basis, y)
+  } catch {
+    return false
+  }
+}
+
 const quotientRank = (NB: NullBasis, ys: readonly number[][]): number => rankExact(ys.map(y => spanResidual(NB, y)))
 
 function readFamily(
@@ -543,16 +552,29 @@ function readFamily(
     if (found - perLineRank > 0) {
       const spanned = [...knownYs, ...perLineYs]
 
+      let rank = quotientRank(NB, spanned)
+      let tried = 0
+
       for (const v of NA.vectors) {
-        if (extra.length >= 4) {
+        if (extra.length >= 4 || tried >= 200) {
           break
         }
+
+        // a vector of N(B) is no invariant: skip it before any rank
+        if (safeInSpan(NB, new Map(Array.from(v.idx, (col, i) => [col, v.num[i]!] as [number, number])))) {
+          continue
+        }
+
+        tried++
 
         const y = new Array<number>(m).fill(0)
 
         v.idx.forEach((col, i) => (y[col] = v.num[i]!))
 
-        if (quotientRank(NB, [...spanned, y]) > quotientRank(NB, spanned)) {
+        const next = quotientRank(NB, [...spanned, y])
+
+        if (next > rank) {
+          rank = next
           spanned.push(y)
 
           const top = Array.from(v.idx, (col, i) => [col, v.num[i]!] as const)
