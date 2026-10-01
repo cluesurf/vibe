@@ -324,7 +324,11 @@ export type PairEngine = {
 }
 
 // beta = w^2 e^(i phi) - 2 w + 1 for w = (wr, wi)
-function betaOf(wr: number, wi: number, phi: number): [number, number] {
+export function betaOf(
+  wr: number,
+  wi: number,
+  phi: number,
+): [number, number] {
   const w2r = wr * wr - wi * wi
   const w2i = 2 * wr * wi
   const c = Math.cos(phi)
@@ -855,7 +859,7 @@ const FULL = MODES * MODES
 export type FullState = { re: Float64Array; im: Float64Array }
 
 // E(eta) slot-d components: e[d][a][eta] = gamma(r_d)[eta][a] / (2 sqrt 12) (the D basis), with Q_D = E E^T
-function partnerBasis(): Float64Array {
+export function partnerBasis(): Float64Array {
   const g = gammaMatrices()
   const E = new Float64Array(MODES * REG)
   const f = 1 / (2 * Math.sqrt(12))
@@ -911,7 +915,7 @@ export const newFull = (ball: RelBall): FullState => ({
 
 // the pair piece at one site on the 192 x 192 matrix psi[s1][s2]: psi + alpha (Q psi + psi Q^T) + beta Q psi Q^T, Q = Q_S
 // (the slot average) or Q_D (E E^T); w = the unit (alpha = w - 1)
-function pieceAt(
+export function pieceAt(
   psiRe: Float64Array,
   psiIm: Float64Array,
   o: number,

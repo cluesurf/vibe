@@ -302,7 +302,7 @@ export const PROBLEMS: Problem[] = [
     known:
       'the knit tells left from right: of 1152 x 6 x 24 candidates it keeps only the identity and C with reversal, and its lone-love response is 4.1 and 4.7 times more self-dual at sides 9 and 13 (E-FRC-0142). The vacuum is a period-24 condensate respecting only the charge U(1), a Higgs-like vacuum without a Higgs mechanism (E-FRC-0143). Coarse rotation symmetry does not return under the committed knit (E-RLT-0045), and its handedness is lattice-scale only (E-RLT-0046, partial). No single emergent metric absorbs the anisotropy (E-RLT-0047). No schedule of the committed architecture restores rotation symmetry. The orbit knit does, with anisotropy at the noise (0.23 and 0.21 against 1.20) and no CPT partner (E-RLT-0048). A palindrome buys CPT back and loses the isotropy (E-RLT-0049), and the scatter block narrows the fork without opening it (E-RLT-0050). Forced isotropy with exact local color costs at least 8 line-momentum invariants, and the quaternion knit, with CPT and forced isotropy, dresses 106,055 against 1,508 by the fourth period (E-RLT-0051). Calm-moving relabelings grow no period group (E-RLT-0052), and the combined knit shows no emergent isotropy to side 25 (anisotropy 0.76, E-RLT-0053)',
     unknown:
-      "the doublet, a massive vector, Yukawa couplings, and chirality on a knit that keeps coarse rotation symmetry and CPT. The fork between isotropy and CPT was a property of the old couple architecture: the isometric knit has W(F4) as its exact symmetry and keeps CPT (E-RLT-0061). But its rule keeps every orientation-reversing coin map, so no handedness (E-RLT-0070). A vacuum's stored points give it one hand, with no hand preferred across layouts (E-RLT-0076), so where chirality comes from is open",
+      "the doublet, a massive vector, Yukawa couplings, and chirality on a knit that keeps coarse rotation symmetry and CPT. The fork between isotropy and CPT was a property of the old couple architecture: the isometric knit has W(F4) as its exact symmetry and keeps CPT (E-RLT-0061). But its rule keeps every orientation-reversing coin map, so no handedness (E-RLT-0070). A vacuum's stored points give it one hand, with no hand preferred across layouts (E-RLT-0076). On the register rule (not adopted) chirality is measured: with the Wilson mixers on one half of the Cl+(4) register a slab face carries net Weyl chirality +2 at k = 0 and its depth-keeping mirror -2, with the 576 rotations, spin one half, charge per half and CPT kept (E-FRC-0258, E-SPN-0168, E-FRC-0267). That rule keeps an SU(2) on each register half exactly, and its full sea keeps it too, so nothing breaks it (E-FRC-0268). Open: which vacuum breaks it, the gauge field that would carry it, and chirality on the true mesh's cusp",
     why: 'the Higgs ledger rows stay algebra until one of these is measured',
     skills: ['lattice field theory', 'representation theory'],
     scope: 'open research',
@@ -312,7 +312,7 @@ export const PROBLEMS: Problem[] = [
     ],
     depends: [],
     source:
-      'E-FRC-0142, E-FRC-0143, E-RLT-0045 to E-RLT-0053, E-RLT-0061, E-RLT-0070, E-RLT-0076',
+      'E-FRC-0142, E-FRC-0143, E-RLT-0045 to E-RLT-0053, E-RLT-0061, E-RLT-0070, E-RLT-0076, E-FRC-0258, E-SPN-0168, E-FRC-0267, E-FRC-0268',
   },
   {
     id: 'OP-17',

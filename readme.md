@@ -554,6 +554,20 @@ realizes.
      graviton shares it: every one of a member's 192 bands is the Dirac
      band or flat, and no register that closes the census keeps c/2
      ([`E-GRV-0145`](test/experiment/gravity/register-graviton-speed.ts)).
+     Gravity's count field on the many-body register rule is one hole's
+     sector count, counted from the sea. The flats neither source nor
+     feel it, two holes pull together with the sign fixed by the clock,
+     and the same piece pushes members apart, so it is universal only
+     because every excitation of the full sea is a hole
+     ([`E-GRV-0146`](test/experiment/gravity/register-count-field.ts)).
+     Against the rule's own inertia it fails: the charge is one hole a
+     cycle whatever the hole's speed or mass, the response is the scalar
+     density, and the piece acts as two fields, so a hole falls toward
+     its own band and at most 0.082 as much toward the other
+     ([`E-GRV-0147`](test/experiment/gravity/register-equivalence.ts)).
+     Read at separations 3 to 8 the pull follows the kernel's gradient,
+     power −2.02 against the kernel's −2.09
+     ([`E-GRV-0148`](test/experiment/gravity/register-falloff.ts)).
    - **The many-body rule with registers is exact.** Every register
      piece is one-body, so its fermionic lift is fixed, the full sea is
      one branch with a unit amplitude every beat, K never fires, and one
@@ -641,9 +655,9 @@ not 2 ([`E-GRV-0088`](test/experiment/gravity/depth-arena-prediction.ts)).
 | composite light | a bound love and fear pair is massive by a theorem, with one polarization on the husk, not two. Light stays its own field | [`E-FRC-0246`](test/experiment/gauge/composite-locked-light.ts), [`E-FRC-0247`](test/experiment/gauge/composite-light-husk.ts) |
 | the electron in 3d, and g | bound on one husk line only. A general direction is a superposition over lines. g needs its coupling to the light, not a mixer | [`E-SPN-0093`](test/experiment/spin/passing-contact-cluster.ts), [`E-SPN-0089`](test/experiment/spin/knit-cluster-landau.ts) |
 | measurement | a frame-covariant rule depolarizes every basis at one rate, so a pointer basis must come from the environment, never the rule (a 2-design theorem) | [`E-QTM-0154`](test/experiment/quantum/pointer-basis-theorem.ts) |
-| the weak force | the locked rule keeps P, C, T, CP and CPT exactly. The register supplies what was missing, a spin apart from the slot: its two halves (J = right multiplication by vol) are kept by the 576 rotations and swapped by the 576 reflections, and a chiral mass breaks P and CP by 0.180 with CPT exact and no isotropy lost (Molien). The frames cannot be the three generations (anisotropic at fourth order). On the flat husk quotient parity survives exactly, so P violation needs an oriented depth, and the Wilson wall's chiral face breaks it by a whole chirality, +2 and −2 at the two faces. All on the candidate rule | [`E-FRC-0248`](test/experiment/gauge/locked-parity-ledger.ts), [`E-FRC-0258`](test/experiment/gauge/chiral-register.ts), [`E-SPN-0167`](test/experiment/spin/husk-reading.ts), [`E-SPN-0168`](test/experiment/spin/wall-face.ts) |
+| the weak force | the locked rule keeps P, C, T, CP and CPT exactly. The register supplies what was missing, a spin apart from the slot: its two halves (J = right multiplication by vol) are kept by the 576 rotations and swapped by the 576 reflections, and a chiral mass breaks P and CP by 0.180 with CPT exact and no isotropy lost (Molien). The frames cannot be the three generations (anisotropic at fourth order). On the flat husk quotient parity survives exactly, so P violation needs an oriented depth, and the Wilson wall's chiral face breaks it by a whole chirality, +2 and −2 at the two faces, the rule's depth-keeping mirror reading −2 and +2, with rotations, spin one half (the untwisted rotation, exact) and CPT kept. The rule keeps an SU(2) on each register half exactly, and the full sea keeps it too, so no vacuum yet breaks it. All on the candidate rule | [`E-FRC-0248`](test/experiment/gauge/locked-parity-ledger.ts), [`E-FRC-0258`](test/experiment/gauge/chiral-register.ts), [`E-SPN-0167`](test/experiment/spin/husk-reading.ts), [`E-SPN-0168`](test/experiment/spin/wall-face.ts), [`E-FRC-0267`](test/experiment/gauge/register-handedness.ts), [`E-FRC-0268`](test/experiment/gauge/register-internal-su2.ts) |
 | CP and the asymmetry | three flavors keep every invariant, and the trimaximal mixing, exact in the ring with Jarlskog √3/18, is removable at one body (no one-body piece joins the halves, a theorem). A two-body register exchange makes it physical, and C and CP then break together inside one sea with no piece that tells love from fear, so the love-fear mirror stays exact. Member number is kept by every piece and by any gauge winding (Nielsen–Ninomiya in Floquet form), but flows through the Wilson wall under an exact E·B field, +4 per loop at one face and −4 at the other. So all three Sakharov conditions are in the rule. The flow is an index, blind to CP, so a CP-symmetric field history nets 0: a net asymmetry needs a dynamical light biased by the CP-odd currents, which is not built | [`E-FRC-0259`](test/experiment/gauge/flavor-register.ts), [`E-SPN-0163`](test/experiment/spin/register-many-body.ts), [`E-SPN-0164`](test/experiment/spin/sea-conjugation.ts), [`E-SPN-0165`](test/experiment/spin/chiral-flow.ts), [`E-SPN-0168`](test/experiment/spin/wall-face.ts), [`E-SPN-0171`](test/experiment/spin/wall-asymmetry.ts) |
-| the value of α | $\alpha = \sqrt{3/(2\rho)}/(12N)$, set by the split and the depth, not by the speed. A frozen prediction over depths 1 to 10,000 at ρ = 3 and 3/8, and at the husk's measured 0.4614, finds no hit within 1e-3 of 1/137.036 (nearest 138 at depth 11, 0.70% off, chance about 0.32 under the null), so nothing is claimed | [`E-FRC-0242`](test/experiment/gauge/split-coulomb-coupling.ts), [`E-FRC-0261`](test/experiment/gauge/light-split-origin.ts), [`E-FRC-0262`](test/experiment/gauge/husk-balance.ts), [`E-MTH-0010`](test/experiment/method/closed-forms-under-a-null.ts) |
+| the value of α | $\alpha = \sqrt{3/(2\rho)}/(12N)$, set by the split and the depth, not by the speed. A frozen prediction over depths 1 to 10,000 at ρ = 3 and 3/8, and at the husk's measured 0.4614, finds no hit within 1e-3 of 1/137.036 (nearest 138 at depth 11, 0.70% off, chance about 0.32 under the null), so nothing is claimed. The husk's split is narrowed to two readings of one set of fills, 0.4614 (average) or 0.4146 (worst register), and the ladder's Planck-optimal split cannot pick between them at N ≤ 13 (a fail). Its departure is a function of the ratio alone, but its spread stays above what separation needs at every N a dense spectrum reaches, and no sparse method computes it (a fail, the clean negative) | [`E-FRC-0242`](test/experiment/gauge/split-coulomb-coupling.ts), [`E-FRC-0261`](test/experiment/gauge/light-split-origin.ts), [`E-FRC-0262`](test/experiment/gauge/husk-balance.ts), [`E-FRC-0269`](test/experiment/gauge/quantum-balance.ts), [`E-FRC-0270`](test/experiment/gauge/ratio-balance.ts), [`E-MTH-0010`](test/experiment/method/closed-forms-under-a-null.ts) |
 | a bounded self | shared history gives one component of all 24,576 vibes or closed components of exactly 8 on one line, nothing in between | [`E-SLF-0177`](test/experiment/selves/shared-origin-components.ts), [`E-SLF-0178`](test/experiment/selves/shared-origin-integration.ts) |
 | one rule for every row | the working vacuum and the electron share one rule. Most older rows ran on earlier rules, and a triage found the rest cannot be rerun usefully: most wait on motion across lines, the light's own quantum sector, CP violation or an energy ledger. The register results run on the candidate rule, which is not adopted | the ledger's section Q |
 
@@ -1002,14 +1016,14 @@ carry a control) are in
 
 [**`test/catalog.csv`**](test/catalog.csv) is the full index, one row
 per experiment, generated from the registered experiments and sorted
-strongest first. It holds **1,516 rows in 18 categories**:
+strongest first. It holds **1,556 rows in 18 categories**:
 
 | total | L3 emergent, novel | L2 known physics | L1 known math | L0 circular | backing a paper claim |
 | ----: | -----------------: | ---------------: | ------------: | ----------: | --------------------: |
-|  1516 |                 53 |             1141 |           308 |          14 |                   604 |
+|  1556 |                 53 |             1172 |           317 |          14 |                   604 |
 
-The largest categories are gauge (263), spin (178), selves (177),
-quantum (171), foundations (156), gravity (142) and relativity (112). The
+The largest categories are gauge (275), spin (188), selves (177),
+quantum (172), foundations (169), gravity (145) and relativity (112). The
 first full depth audit (2026-08-31) found 40 of 92 L3 experiments with
 no substrate, rule or coin in their import graph, and regraded them
 down. Every correction is recorded in the experiment it corrects.

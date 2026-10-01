@@ -1,0 +1,878 @@
+{
+ "note": "The kernel parity suite (task/kernel/parity.ts): the reference outputs of every case, the sha256 of each output array's bytes (little-endian float64) and its first values as the shortest decimals that read back to the same doubles. Tolerance 0: every comparison is byte equality, and no quantity here is defined only up to a tolerance.",
+ "tolerance": 0,
+ "cases": {
+  "holes L 4 n 2 rule slater": {
+   "state after 1 re": {
+    "length": 8192,
+    "sha256": "bc0626d56bfa3a21931032f054c13a265b65b70aad641722c75b0cdaab58133d",
+    "values": [
+     "-2.6727647100921956e-51",
+     "-1.2116755855168993e-18",
+     "-5.795842980601001e-18"
+    ]
+   },
+   "state after 1 im": {
+    "length": 8192,
+    "sha256": "67d1e2d0d755d8e2a4e11e1d6126ec89728430d15303f89deabef197bacb8b1b",
+    "values": [
+     "5.345529420184391e-51",
+     "-5.321979737050743e-19",
+     "4.2825773137368756e-19"
+    ]
+   },
+   "state after 64 re": {
+    "length": 8192,
+    "sha256": "879734f69d2db86e0858ba8b7f94f4ecca211c8076f4c9a13d2d8ae72cd2a444",
+    "values": [
+     "5.075672474768298e-18",
+     "2.8994844127966217e-18",
+     "-2.485314549165987e-16"
+    ]
+   },
+   "state after 64 im": {
+    "length": 8192,
+    "sha256": "d75eaf026347bff0556be6b7d1c698c23af21396f8a0bb265c22e57d9774e3a2",
+    "values": [
+     "-2.923914260987098e-17",
+     "3.524025342092186e-17",
+     "7.280598306280005e-17"
+    ]
+   },
+   "hole norm": {
+    "length": 1,
+    "sha256": "f76177f0f397b0c485b07f1e71fa761a722a28b6ef2db40d01dcd257b4300bb4",
+    "values": [
+     "1.000000000000191"
+    ]
+   },
+   "band weights": {
+    "length": 256,
+    "sha256": "047f984a74f41fe330ca14e40e76bcf745e470d44a42cfbc587813c05029ee1c",
+    "values": [
+     "3.1118401392574483e-30",
+     "0.3655245832663043",
+     "0.0007090108881795085"
+    ]
+   },
+   "momentum weights": {
+    "length": 256,
+    "sha256": "fe83d5b9226e2ac6b5d8e740033573e37cd2323bd7cd4ce4fe2ef0056997553b",
+    "values": [
+     "4.086890655786209e-30",
+     "0.3849307286538252",
+     "0.0008010429259893079"
+    ]
+   },
+   "exchange antisymmetric, other": {
+    "length": 2,
+    "sha256": "bb5870a4e60874ede7ae06e047f4e13748b08ec8b4ccd5bdf0cee95b9c160f60",
+    "values": [
+     "1.0000000000001912",
+     "-2.220446049250313e-16"
+    ]
+   }
+  },
+  "holes L 4 n 2 one-sign control": {
+   "state after 1 re": {
+    "length": 8192,
+    "sha256": "f1374d3b4884ad0ba736781409a329c7844ff8017393d8996ce3b3d04447cdc0",
+    "values": [
+     "-2.6727647100921956e-51",
+     "-1.2116755855168993e-18",
+     "-5.795842980601001e-18"
+    ]
+   },
+   "state after 1 im": {
+    "length": 8192,
+    "sha256": "d3d8f8211ae6b8fb8e82b77be85eea4d04bc80111e9af9150f9e5719cedf1e6f",
+    "values": [
+     "5.345529420184391e-51",
+     "-5.321979737050743e-19",
+     "4.2825773137368756e-19"
+    ]
+   },
+   "state after 16 re": {
+    "length": 8192,
+    "sha256": "d068eb8df14e9373b8c628dba4aa8e836695f36e363fc7604b1da6ae457b955a",
+    "values": [
+     "2.233285749607757e-17",
+     "4.9075494643892626e-18",
+     "5.554118067677678e-17"
+    ]
+   },
+   "state after 16 im": {
+    "length": 8192,
+    "sha256": "67855331a9f42bf2b0f617e18e34876cb13a3850c694adbabb4cb02fd24be61b",
+    "values": [
+     "7.603069099798586e-19",
+     "-3.0991400306258857e-18",
+     "-1.9406896148487128e-17"
+    ]
+   },
+   "hole norm": {
+    "length": 1,
+    "sha256": "241de941ec80287730d9ab184e4dcdd811495c1b9ac2615ef11dee6ef4771956",
+    "values": [
+     "1.0000000000000504"
+    ]
+   },
+   "band weights": {
+    "length": 256,
+    "sha256": "fb0df87beb7f4f63b195593e1a333f3ab6f6b3c631b476f5b375c1684c288b56",
+    "values": [
+     "1.1689415111810764e-30",
+     "0.04350637677208058",
+     "0.0012252164634280508"
+    ]
+   },
+   "momentum weights": {
+    "length": 256,
+    "sha256": "df7c794534d56fee0c773b5a762292b12ded993dfbf185fda31e99a590e2ad6c",
+    "values": [
+     "1.1951945750131268e-30",
+     "0.044018655153687004",
+     "0.0013076416571661197"
+    ]
+   },
+   "exchange antisymmetric, other": {
+    "length": 2,
+    "sha256": "8e207f459cdd366159b02aa60c2a97b61294b13e6de43038efb54e7ff83e1a0c",
+    "values": [
+     "1.000000000000051",
+     "-6.661338147750939e-16"
+    ]
+   }
+  },
+  "holes L 4 n 2 other phase sign weyl": {
+   "state after 1 re": {
+    "length": 8192,
+    "sha256": "8d791a0a16fbcae69a37553aa613594a7ad8baa97dd7047609ae1969a6b2ea62",
+    "values": [
+     "0.11908110772072372",
+     "-0.056788501261175496",
+     "0.25276209877967454"
+    ]
+   },
+   "state after 1 im": {
+    "length": 8192,
+    "sha256": "88b81a439ee937cb15ba6eb9f32f6750d31af1608eee3434d830810eeac670e1",
+    "values": [
+     "0.01911308787845386",
+     "-0.5012655789694204",
+     "0.17914761771174595"
+    ]
+   },
+   "state after 16 re": {
+    "length": 8192,
+    "sha256": "663857124ce9857dd012d51d16292cdbf02b5b79c5a260202d088bc61e18b7bf",
+    "values": [
+     "-0.13975159003194418",
+     "0.012464053515942784",
+     "0.2338808749645102"
+    ]
+   },
+   "state after 16 im": {
+    "length": 8192,
+    "sha256": "86e9593ff5d61ad043b6e1e0c87d7f0df3b92d340a41656746d617ddb73f96f0",
+    "values": [
+     "-0.17120880741472422",
+     "0.2986528035915522",
+     "-0.10880844572779941"
+    ]
+   },
+   "hole norm": {
+    "length": 1,
+    "sha256": "e1073895ab87cc4d49edb53d210e7994fdd22cce6977b1934cd4087a8f6f15b9",
+    "values": [
+     "1185.3032302682109"
+    ]
+   },
+   "band weights": {
+    "length": 256,
+    "sha256": "dee677ab80c133e95888c478268bc785cebbf28863c0a9d199be6a5c5388374c",
+    "values": [
+     "6.0638079986631706",
+     "6.095527938435108",
+     "4.739995345332198"
+    ]
+   },
+   "momentum weights": {
+    "length": 256,
+    "sha256": "1d7e9b4f37a7dc6783f931357a4e06a24e9dcc44ad8238b80cf8133e78f9922d",
+    "values": [
+     "10.19366229758264",
+     "8.979019244918279",
+     "8.801156449714547"
+    ]
+   },
+   "exchange antisymmetric, other": {
+    "length": 2,
+    "sha256": "ea71cd2ec2228b62058835a8179803f68eb6de9840d6b4d92b8133f1d2c61f79",
+    "values": [
+     "591.2607738038314",
+     "594.0424564643795"
+    ]
+   }
+  },
+  "holes L 2 n 3 rule slater": {
+   "state after 1 re": {
+    "length": 32768,
+    "sha256": "44481e97d319e05d1e021c80bc9051be6dc2a378a87fe0f108196fa57a1c7b07",
+    "values": [
+     "6.999917750890195e-67",
+     "1.8149502356536536e-66",
+     "-6.939262815807795e-67"
+    ]
+   },
+   "state after 1 im": {
+    "length": 32768,
+    "sha256": "3719f59249d5bb1e2461e85d863abf49ec5b139b73f7ad88985ca614f3c134db",
+    "values": [
+     "4.942553666130153e-67",
+     "-4.272401128203368e-67",
+     "-1.851755768896222e-66"
+    ]
+   },
+   "state after 64 re": {
+    "length": 32768,
+    "sha256": "d89930cf54cb098e6532a16b54f7328c8a7023c1922379d9815460becda57109",
+    "values": [
+     "1.486112740354559e-64",
+     "-2.083218584074591e-63",
+     "2.131218012752499e-63"
+    ]
+   },
+   "state after 64 im": {
+    "length": 32768,
+    "sha256": "5a390bcd593adde676f52a2b08e8dbd7a0fd26c9c5c394b90aa01f396d75d58d",
+    "values": [
+     "-2.1864792069772218e-63",
+     "1.4770924368653497e-63",
+     "7.977858699527507e-64"
+    ]
+   },
+   "hole norm": {
+    "length": 1,
+    "sha256": "7072da0521ff9cdc6f260335cde745efc12e75e2bce20e4466ecfde6a0386efe",
+    "values": [
+     "0.9999999999995572"
+    ]
+   },
+   "band weights": {
+    "length": 24,
+    "sha256": "27d08f93ca7fdb4407e18db8fb75e72e92cde6684a95babeeb3bd19c2fb98ead",
+    "values": [
+     "2.8797379837338788e-30",
+     "0.3230892055456091",
+     "0.32308920554560877"
+    ]
+   },
+   "momentum weights": {
+    "length": 24,
+    "sha256": "27d08f93ca7fdb4407e18db8fb75e72e92cde6684a95babeeb3bd19c2fb98ead",
+    "values": [
+     "2.8797379837338788e-30",
+     "0.3230892055456091",
+     "0.32308920554560877"
+    ]
+   },
+   "exchange antisymmetric, other": {
+    "length": 2,
+    "sha256": "f885dcbcbbef8614b65e5500c6a7c92bda145c15cbb4fb7d38a060eea33adefd",
+    "values": [
+     "0.999999999999557",
+     "2.220446049250313e-16"
+    ]
+   }
+  },
+  "holes L 2 n 3 pair mask 0-2 weyl": {
+   "state after 1 re": {
+    "length": 32768,
+    "sha256": "3c46c383377a5a1de55a0f8347b7bc072ea4d0f3350fa4d533754f94572598d3",
+    "values": [
+     "-0.15924469575697034",
+     "-0.4292190172641162",
+     "-0.07301463371541694"
+    ]
+   },
+   "state after 1 im": {
+    "length": 32768,
+    "sha256": "028a263bac0cfda817a7447876f5ef51ad1b0b221a4529725dac244b1c177228",
+    "values": [
+     "-0.19018203550101537",
+     "0.17573849715545947",
+     "-0.27943497542569534"
+    ]
+   },
+   "state after 16 re": {
+    "length": 32768,
+    "sha256": "dc324cb2cb4fb5f4072f6ed3335bd9e9fafa91e49d8c4ec2b038840b908badc7",
+    "values": [
+     "-0.1743237735870936",
+     "-0.14181449634877877",
+     "-0.2820364175272809"
+    ]
+   },
+   "state after 16 im": {
+    "length": 32768,
+    "sha256": "98e1b64e1b01675e4a81bb9d0def888de709710ebecb1d9c9178e7eae5ac75f4",
+    "values": [
+     "-0.15800401331371994",
+     "0.3330752592901016",
+     "-0.15333433666775442"
+    ]
+   },
+   "hole norm": {
+    "length": 1,
+    "sha256": "20e2c76cfb783652223f8002ca62845933f9dfe87e508f8397753322af31ea91",
+    "values": [
+     "4744.046422623351"
+    ]
+   },
+   "band weights": {
+    "length": 24,
+    "sha256": "b0e73e028f2db98110a8fc8f4b22d68a0049cf967066f439a62c8a6cbf078a24",
+    "values": [
+     "311.4782473121183",
+     "332.7483967845738",
+     "270.2250724901934"
+    ]
+   },
+   "momentum weights": {
+    "length": 24,
+    "sha256": "5e7043378336e82c74429f74e56e77575735947070a22175412d352272e7ece4",
+    "values": [
+     "621.4098071145963",
+     "667.4890125433592",
+     "536.0160164001788"
+    ]
+   },
+   "exchange antisymmetric, other": {
+    "length": 2,
+    "sha256": "765224097bc5483d8238704b142a3396e518b03de5908d28b4c00fe40d3b863f",
+    "values": [
+     "775.6321450186733",
+     "3968.4142776046774"
+    ]
+   }
+  },
+  "holes L 2 n 3 free rule weyl": {
+   "state after 1 re": {
+    "length": 32768,
+    "sha256": "652f0b7354e8bc861b44251ed70dd022230862bd4c7bec1302a5e6a8cccfdb05",
+    "values": [
+     "-0.14674549784186222",
+     "-0.3346874140989044",
+     "-0.03059100568422792"
+    ]
+   },
+   "state after 1 im": {
+    "length": 32768,
+    "sha256": "6c0c520e7851ea141df1f36495acf5cb434123534eee5c39312ba94ef9998a5c",
+    "values": [
+     "-0.10275359160479922",
+     "0.4036789346158949",
+     "-0.4157461058176489"
+    ]
+   },
+   "state after 16 re": {
+    "length": 32768,
+    "sha256": "68bdb2dcc03c68ce29cad10e640ecd0f2a7b3f0a8feaee170553b5a6a8ff1bb9",
+    "values": [
+     "0.07685765726519685",
+     "-0.4538159283936548",
+     "0.40483197013413774"
+    ]
+   },
+   "state after 16 im": {
+    "length": 32768,
+    "sha256": "5c2f420350782b70c88fc2ce74835c693db73deea17169096cb1fd73b09d7fc8",
+    "values": [
+     "-0.16181916525630113",
+     "-0.2627231442888567",
+     "-0.09945707661407623"
+    ]
+   },
+   "hole norm": {
+    "length": 1,
+    "sha256": "1d0f16ea1ec158442f5f8612cdf996133b414a1dface91bdab78cedb68c8c0fa",
+    "values": [
+     "4744.046422623354"
+    ]
+   },
+   "band weights": {
+    "length": 24,
+    "sha256": "8a4908fbe8e28def9febf11ab1d65d53d675bb9e46fbdc721cd4f6542c39bcaf",
+    "values": [
+     "295.4885971376146",
+     "297.0070159363359",
+     "297.16905949354964"
+    ]
+   },
+   "momentum weights": {
+    "length": 24,
+    "sha256": "7f8d484f097f9fdbbb9ad750b9d87e7f3eb295d903b45837dc0973a256a93b78",
+    "values": [
+     "592.4623615551923",
+     "592.8408687129378",
+     "593.0238255070011"
+    ]
+   },
+   "exchange antisymmetric, other": {
+    "length": 2,
+    "sha256": "b0b4021512231e868acd08f794c186c9b2dc891d846642da6a6c3e79db9b94fc",
+    "values": [
+     "778.096695934787",
+     "3965.9497266885674"
+    ]
+   }
+  },
+  "holes L 2 n 2 edge zero": {
+   "state after 1 re": {
+    "length": 512,
+    "sha256": "ad7facb2586fc6e966c004d7d1d16b024f5805ff7cb47c7a85dabd8b48892ca7",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "state after 1 im": {
+    "length": 512,
+    "sha256": "ad7facb2586fc6e966c004d7d1d16b024f5805ff7cb47c7a85dabd8b48892ca7",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "state after 16 re": {
+    "length": 512,
+    "sha256": "ad7facb2586fc6e966c004d7d1d16b024f5805ff7cb47c7a85dabd8b48892ca7",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "state after 16 im": {
+    "length": 512,
+    "sha256": "ad7facb2586fc6e966c004d7d1d16b024f5805ff7cb47c7a85dabd8b48892ca7",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "hole norm": {
+    "length": 1,
+    "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+    "values": [
+     "0"
+    ]
+   },
+   "band weights": {
+    "length": 16,
+    "sha256": "38723a2e5e8a17aa7950dc008209944e898f69a7bd10a23c839d341e935fd5ca",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "momentum weights": {
+    "length": 16,
+    "sha256": "38723a2e5e8a17aa7950dc008209944e898f69a7bd10a23c839d341e935fd5ca",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "exchange antisymmetric, other": {
+    "length": 2,
+    "sha256": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb",
+    "values": [
+     "0",
+     "0"
+    ]
+   }
+  },
+  "holes L 2 n 2 edge single": {
+   "state after 1 re": {
+    "length": 512,
+    "sha256": "812e8487d8e2b89c1956b90c8218bb7a4d3d6198fbd8e76e3eb95f9e74ad40ef",
+    "values": [
+     "-1.9664302036227926e-52",
+     "1.2455560280620081e-52",
+     "-3.5510740840066836e-52"
+    ]
+   },
+   "state after 1 im": {
+    "length": 512,
+    "sha256": "c44fa255be5e4f9e3428bae5224f48d90e409245f705520a2bf5059dc7baa556",
+    "values": [
+     "8.823455334077509e-52",
+     "1.9450809681642807e-52",
+     "4.68474321101862e-52"
+    ]
+   },
+   "state after 16 re": {
+    "length": 512,
+    "sha256": "00aaae68e88078206c090cbbd9ee2024662930860efacb041e0d82bf4ccadfd1",
+    "values": [
+     "-1.7524003038953464e-34",
+     "-7.670026014398592e-35",
+     "-7.00403500541872e-18"
+    ]
+   },
+   "state after 16 im": {
+    "length": 512,
+    "sha256": "6e8e3e821f5d9defdea69fb88db9d5d4c54a560752653989503639b5028d2cf9",
+    "values": [
+     "1.316559743089669e-34",
+     "2.3022712568924024e-34",
+     "1.1794555438080275e-17"
+    ]
+   },
+   "hole norm": {
+    "length": 1,
+    "sha256": "6d7591657a009819887bad00e3c2da6c14f796f12b23e8891b36b4d9c437480a",
+    "values": [
+     "0.9999999999999225"
+    ]
+   },
+   "band weights": {
+    "length": 16,
+    "sha256": "6e41bee28c4ec5b4aaffedbc00ad1ab296596e3dea5e2e218abeaafc0e12a62b",
+    "values": [
+     "4.7551517107766915e-34",
+     "1.5039575932605405e-33",
+     "0.9999999999999225"
+    ]
+   },
+   "momentum weights": {
+    "length": 16,
+    "sha256": "4cedc9650fdaa72a54b9fed44c7c7b7bc2e93aa5a588e8da1e72c9cada4b9a84",
+    "values": [
+     "1.0694975008092963e-33",
+     "3.305948176833277e-33",
+     "0.9999999999999225"
+    ]
+   },
+   "exchange antisymmetric, other": {
+    "length": 2,
+    "sha256": "1bf52693c51ad4a7f763de921ce1e816154ba4629f8f8daefcb10399a907972b",
+    "values": [
+     "0.49999999999996125",
+     "0.49999999999996125"
+    ]
+   }
+  },
+  "holes L 2 n 2 edge negzero": {
+   "state after 1 re": {
+    "length": 512,
+    "sha256": "3e98ebed6bb0216ff3ba429705965e2f98d1cfae5727740e0490f972db187e02",
+    "values": [
+     "0.18628663265975426",
+     "-0.06026661844101272",
+     "0.12457452631432425"
+    ]
+   },
+   "state after 1 im": {
+    "length": 512,
+    "sha256": "3c490a88e5646c6a7fafb014b568aeae16f718e5a55bcf64b06e0e66159fd098",
+    "values": [
+     "-0.09815946158501132",
+     "0.0706435996538381",
+     "-0.026059983937009538"
+    ]
+   },
+   "state after 16 re": {
+    "length": 512,
+    "sha256": "5904fa8f5cbc9e136cc6f2aca64ca5a36aaef865743f39f1d41db9e7d9f23210",
+    "values": [
+     "-0.1507129887446482",
+     "0.12595958207214145",
+     "-0.015422574228537458"
+    ]
+   },
+   "state after 16 im": {
+    "length": 512,
+    "sha256": "eaab557192a08084a5783ab957d1897e12ec01776ba12fadb6fa67524e515105",
+    "values": [
+     "0.13629517438331468",
+     "-0.07753396528514009",
+     "0.07156631111559256"
+    ]
+   },
+   "hole norm": {
+    "length": 1,
+    "sha256": "fc0aa8a35f80479820460ac4d32b04c3678584a77e467ab6be9ca6666709c90e",
+    "values": [
+     "9.25492936947751"
+    ]
+   },
+   "band weights": {
+    "length": 16,
+    "sha256": "44405b0682066da055d02d18f5b20a76db8b970618b4230887f0df75058500f2",
+    "values": [
+     "0.6486965592488733",
+     "0.840543525937462",
+     "0.5910155567000959"
+    ]
+   },
+   "momentum weights": {
+    "length": 16,
+    "sha256": "50346aa60c6787735640ec5deb8f9b72ddc16804bd65ef3035dfd966ff3e92f6",
+    "values": [
+     "1.3466004044383948",
+     "1.398840084447563",
+     "1.1290359699803971"
+    ]
+   },
+   "exchange antisymmetric, other": {
+    "length": 2,
+    "sha256": "b9276140983a6914add5cc35f3321b797ed9f0ef303ee67da61eb50050f3e203",
+    "values": [
+     "4.4489094119146175",
+     "4.806019957562893"
+    ]
+   }
+  },
+  "holes L 2 n 2 edge tiny": {
+   "state after 1 re": {
+    "length": 512,
+    "sha256": "208241b959c080a69b7697d7e43975bad2107478a5638703e04a53781bc8d128",
+    "values": [
+     "3.826263067754776e-301",
+     "-4.787258971592976e-301",
+     "1.7059638682396154e-301"
+    ]
+   },
+   "state after 1 im": {
+    "length": 512,
+    "sha256": "3c4456c4d3b62e52c0bc8610fefe44aa32e854ba4b6fbff85a612ee8639f7aec",
+    "values": [
+     "1.7156917391903298e-302",
+     "-2.3809312923444626e-301",
+     "2.203012688334074e-301"
+    ]
+   },
+   "state after 16 re": {
+    "length": 512,
+    "sha256": "0d4dd4713503fbc2cae7a3afbc19933318961755561ea720f239fbc34f75dcb1",
+    "values": [
+     "-5.990023892612538e-301",
+     "4.834065746476351e-301",
+     "1.561292268984514e-302"
+    ]
+   },
+   "state after 16 im": {
+    "length": 512,
+    "sha256": "f9f1ef7d8b4c315d3d8abf31e5337390ee6c027422b3d2100a53be73779a674a",
+    "values": [
+     "-1.126650636067981e-301",
+     "2.406432796170052e-301",
+     "-2.480851440436226e-301"
+    ]
+   },
+   "hole norm": {
+    "length": 1,
+    "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+    "values": [
+     "0"
+    ]
+   },
+   "band weights": {
+    "length": 16,
+    "sha256": "38723a2e5e8a17aa7950dc008209944e898f69a7bd10a23c839d341e935fd5ca",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "momentum weights": {
+    "length": 16,
+    "sha256": "38723a2e5e8a17aa7950dc008209944e898f69a7bd10a23c839d341e935fd5ca",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "exchange antisymmetric, other": {
+    "length": 2,
+    "sha256": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb",
+    "values": [
+     "0",
+     "0"
+    ]
+   }
+  },
+  "holes L 2 n 2 edge huge": {
+   "state after 1 re": {
+    "length": 512,
+    "sha256": "e3caed31266476bf7968a889fc57bae5ad663ca25ef84d8debb1d0527f61fad8",
+    "values": [
+     "3.448314630066581e+299",
+     "-4.787258971592974e+299",
+     "1.911984931271255e+299"
+    ]
+   },
+   "state after 1 im": {
+    "length": 512,
+    "sha256": "5004a4709616aa752b7dc5e1068424ca756fce52b1f47dba81af255f70ee4f51",
+    "values": [
+     "-4.162897777449858e+298",
+     "-2.3809312923444627e+299",
+     "2.523456733228904e+299"
+    ]
+   },
+   "state after 16 re": {
+    "length": 512,
+    "sha256": "e35cbb8cf86a647483f6eb41407203a4a0457f9f63122aaad6dfdbe5907b1057",
+    "values": [
+     "-5.705285511163968e+299",
+     "4.8340657464763535e+299",
+     "9.173033070645097e+295"
+    ]
+   },
+   "state after 16 im": {
+    "length": 512,
+    "sha256": "520bee7026d79a3ec10c69207be80ea2ea06c75805a5de280ce8229d83cb6d45",
+    "values": [
+     "-5.047326417357161e+297",
+     "2.4064327961700556e+299",
+     "-3.067479625816365e+299"
+    ]
+   },
+   "hole norm": {
+    "length": 1,
+    "sha256": "9402bb655bc3b7331a00f1219ef647565bbe517c74aa0e41026885785867d1cd",
+    "values": [
+     "Infinity"
+    ]
+   },
+   "band weights": {
+    "length": 16,
+    "sha256": "c7d2441d7af8d5f9c0b8ecda4876ff6c330ac474b2ef987ea696e9d353b69c4a",
+    "values": [
+     "Infinity",
+     "Infinity",
+     "Infinity"
+    ]
+   },
+   "momentum weights": {
+    "length": 16,
+    "sha256": "c7d2441d7af8d5f9c0b8ecda4876ff6c330ac474b2ef987ea696e9d353b69c4a",
+    "values": [
+     "Infinity",
+     "Infinity",
+     "Infinity"
+    ]
+   },
+   "exchange antisymmetric, other": {
+    "length": 2,
+    "sha256": "7efafaf4eeec5fb8e968a2a581b175fcb8aa0b126b4703563eaa5dc5d3ccb1a8",
+    "values": [
+     "Infinity",
+     "NaN"
+    ]
+   }
+  },
+  "holes L 2 n 2 edge mixed": {
+   "state after 1 re": {
+    "length": 512,
+    "sha256": "a61a57e6d7042bb6ad4f03d8eae8ac064ae22c44735b4a0901de1de23898ae0c",
+    "values": [
+     "-5.833325057767566e+148",
+     "-3.129280525759283e+149",
+     "-3.554432200920176e+148"
+    ]
+   },
+   "state after 1 im": {
+    "length": 512,
+    "sha256": "9aeb1769412992b4631ab35e88c3d391abe795b732a6a7bfa732d41cad759118",
+    "values": [
+     "7.918843066423973e+147",
+     "1.72413206442318e+149",
+     "8.189906608307138e+148"
+    ]
+   },
+   "state after 16 re": {
+    "length": 512,
+    "sha256": "1f882fb9816439d85cf4b4b1f67c06c3b08e8d72704d453bcec2ceacaae8bd7a",
+    "values": [
+     "1.325245728150053e+148",
+     "2.7422986371840618e+149",
+     "7.671881631631172e+148"
+    ]
+   },
+   "state after 16 im": {
+    "length": 512,
+    "sha256": "0b0563b3c56e591addecffc502af6ee88768274912e2202beaa600c1e2da1aac",
+    "values": [
+     "-6.095691532864312e+148",
+     "-4.083390948083399e+148",
+     "-2.501929037278463e+148"
+    ]
+   },
+   "hole norm": {
+    "length": 1,
+    "sha256": "6176c0971c07091f63a74dee6ee1cf9079fffb292ef733bc6fb3c972c402ab53",
+    "values": [
+     "2.5068320022917464e+301"
+    ]
+   },
+   "band weights": {
+    "length": 16,
+    "sha256": "9f8f76b504d2a7882b1aecc38705b0d699e7df2e5e73073150ef272ddf05df3b",
+    "values": [
+     "1.679084894010737e+300",
+     "1.8665802725758143e+300",
+     "1.4371896999151118e+300"
+    ]
+   },
+   "momentum weights": {
+    "length": 16,
+    "sha256": "7b5a90f75aea5a17f252a4e8ff53bf4c1f1c5e84b313cc0e3adeb601852d082a",
+    "values": [
+     "3.164541289368822e+300",
+     "3.361064113447697e+300",
+     "2.6466536089180463e+300"
+    ]
+   },
+   "exchange antisymmetric, other": {
+    "length": 2,
+    "sha256": "6a07bf53b9fe8c1d1cf7a54422c332e08b64b079a1e337da21bda7bbf61aac43",
+    "values": [
+     "8.327716890924476e+300",
+     "1.6740603131992987e+301"
+    ]
+   }
+  },
+  "holes L 2 n 3 free rule Slater identity": {
+   "slater gap at 1, 4, 16": {
+    "length": 3,
+    "sha256": "6cc0c3bef52b1d7d5b5cd43d448109b706d72c35f45dc2a74c8174abcdb9540b",
+    "values": [
+     "1.191874962812805e-15",
+     "5.006752152683813e-15",
+     "1.9847002750484052e-14"
+    ]
+   },
+   "state after 16 re": {
+    "length": 32768,
+    "sha256": "20e3ce20706d057943646312e6974fc9444ba30c370258a673b7f030bf75270d",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   }
+  }
+ }
+}

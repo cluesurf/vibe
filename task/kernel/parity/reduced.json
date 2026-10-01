@@ -1,0 +1,557 @@
+{
+ "note": "The kernel parity suite (task/kernel/parity.ts): the reference outputs of every case, the sha256 of each output array's bytes (little-endian float64) and its first values as the shortest decimals that read back to the same doubles. Tolerance 0: every comparison is byte equality, and no quantity here is defined only up to a tolerance.",
+ "tolerance": 0,
+ "cases": {
+  "reduced vector K 0 R 5": {
+   "state after 1 re": {
+    "length": 6912,
+    "sha256": "296aead4159ee812c0a05fe08ab716b3f797fc3ed18c2019a92961d42be645d9",
+    "values": [
+     "0.24606924755083914",
+     "0.02689957748994315",
+     "-0.07911253834248694"
+    ]
+   },
+   "state after 1 im": {
+    "length": 6912,
+    "sha256": "44461a28d715a23c39ff3657b5759091ef1f6d40d36dd5f2a57de99263108653",
+    "values": [
+     "0.1580080497808823",
+     "-0.5528154720344494",
+     "0.16514050525235557"
+    ]
+   },
+   "state after 64 re": {
+    "length": 6912,
+    "sha256": "32e83ccdc1f0b7ee36dc3f823646ec82241928ca474ff5693c1cde10f2b76d96",
+    "values": [
+     "0.28629510451552187",
+     "0.5166878718743869",
+     "-0.3619518370978752"
+    ]
+   },
+   "state after 64 im": {
+    "length": 6912,
+    "sha256": "f42b1d2ae85328a11763c8f36938e0073777236ac7f6df0112a20b0bbfca21be",
+    "values": [
+     "0.6716394358294958",
+     "0.04818520325707193",
+     "-0.015678032798430913"
+    ]
+   },
+   "norm2 start, after": {
+    "length": 2,
+    "sha256": "41721556863034d736eb24d8869622698554d81042971146e335df7d3757a515",
+    "values": [
+     "19506.882144959072",
+     "37560.81366498803"
+    ]
+   },
+   "inner start after": {
+    "length": 2,
+    "sha256": "40db1f5d0782b95fd83821fba95e6661e887cce6b7fc038e87f6a33b082b550d",
+    "values": [
+     "-4661.850948352973",
+     "331.2231103481087"
+    ]
+   },
+   "autocorrelation 4 re": {
+    "length": 5,
+    "sha256": "6d509119099e8c67fbb584e3a4943c6c1b5d2989d0275ebdea51b3ef4c0c4dc8",
+    "values": [
+     "19506.882144959072",
+     "1851.6390069181612",
+     "7228.607008591155",
+     "1918.4416673141934",
+     "-1267.1516012997756"
+    ]
+   },
+   "autocorrelation 4 im": {
+    "length": 5,
+    "sha256": "7b1a1d4bd500457c24c2beec2ccad14e4f1fb7bc3dd3fd7dd1c6c10f61058305",
+    "values": [
+     "59.657598707870875",
+     "-622.4023833686255",
+     "-11158.716705203868",
+     "-10119.07333236856",
+     "-3000.6527587622045"
+    ]
+   },
+   "filter S 5 re": {
+    "length": 6912,
+    "sha256": "7a542f0a81365e7d04d17adae9324329a06c1f6a5b502696330f409ec1155a0d",
+    "values": [
+     "0.36412595200970743",
+     "-0.21414721209776413",
+     "-0.04269924300335006"
+    ]
+   },
+   "read lambda phase residual": {
+    "length": 4,
+    "sha256": "501f8fbe24df907f1f1ee1e6874cda8f95535e5f225663de084116ba508c9ebe",
+    "values": [
+     "0.026147186198123482",
+     "0.169120716653553",
+     "1.4174041782238802",
+     "0.9814694044022804"
+    ]
+   }
+  },
+  "reduced vector axis x R 5": {
+   "state after 1 re": {
+    "length": 26368,
+    "sha256": "2a5f22ad9ab3227bedfdb6eab6ed3b6727adca409b3c70a9e9bb2b8cb2d05bce",
+    "values": [
+     "0.26274767313783604",
+     "-0.02044895508226713",
+     "-0.09216884841321493"
+    ]
+   },
+   "state after 1 im": {
+    "length": 26368,
+    "sha256": "afe639dd808e9adc54765b8632347600f1e2017c0be3915c6e895e1f8129927c",
+    "values": [
+     "0.15565848038030494",
+     "-0.5862545007671768",
+     "0.1718975460573504"
+    ]
+   },
+   "state after 64 re": {
+    "length": 26368,
+    "sha256": "62a2a8f46f41c4686333e76ff5be6a256baea1a2e30db1ff43770361aafc3e18",
+    "values": [
+     "-0.030180211669255413",
+     "0.528431681911523",
+     "-0.05337914212670888"
+    ]
+   },
+   "state after 64 im": {
+    "length": 26368,
+    "sha256": "4c59fe143687c18970437c0870026d9e11521988724e786b42c3139216e6ea7a",
+    "values": [
+     "0.188068139078123",
+     "-0.1011545942284221",
+     "0.14647857973118084"
+    ]
+   },
+   "norm2 start, after": {
+    "length": 2,
+    "sha256": "7f058e50cd68dc20b22344a40eb87faca4b16b4652768665e7641966003ce705",
+    "values": [
+     "20287.996144960987",
+     "32554.383075767622"
+    ]
+   },
+   "inner start after": {
+    "length": 2,
+    "sha256": "6d99f0cdcaecc4c3e717ea8327511ff3d7f4dc17fbc34d49b1c225e344fa6d30",
+    "values": [
+     "-4050.67421562437",
+     "466.9503474979573"
+    ]
+   },
+   "autocorrelation 4 re": {
+    "length": 5,
+    "sha256": "54c8fc34f13568e6f8e2c345c52ad91ea642438e03d77b43d7cdc450384198d9",
+    "values": [
+     "20287.996144960987",
+     "2604.256057889165",
+     "6768.503258394848",
+     "1467.7320797320174",
+     "-1717.2928305675937"
+    ]
+   },
+   "autocorrelation 4 im": {
+    "length": 5,
+    "sha256": "cc9cecd764e5a4ee77afc47cd2b0b8199ecf2c15f9e39e7f7eae1b1272881b82",
+    "values": [
+     "49.082600136527795",
+     "-1265.4095379874439",
+     "-11634.916455143808",
+     "-11300.41621441603",
+     "-2536.691278664702"
+    ]
+   },
+   "filter S 5 re": {
+    "length": 26368,
+    "sha256": "787589362cc6e44ff64973e8b09f274bfb1035d0409827cf7995b1448b501f17",
+    "values": [
+     "0.3514234041777879",
+     "-0.2372594109819694",
+     "0.011636262885394337"
+    ]
+   },
+   "read lambda phase residual": {
+    "length": 4,
+    "sha256": "21a607c7835113d14357c9f2068c32ceef829ac9ac2f16c8eef9bc8ba7fc7a85",
+    "values": [
+     "0.05177166696257699",
+     "0.15071107800498987",
+     "1.2399095350341456",
+     "0.9911673921648051"
+    ]
+   }
+  },
+  "reduced scalar K 0 R 7": {
+   "state after 1 re": {
+    "length": 14848,
+    "sha256": "4a67a67f274dbeddccce417c23541f71bf9c5431fc37542d406022c191b89564",
+    "values": [
+     "0.15838599609318466",
+     "0.07133603817506307",
+     "-0.04639124660049743"
+    ]
+   },
+   "state after 1 im": {
+    "length": 14848,
+    "sha256": "6267a991e8b201cec61e684f11a52c96d3f3b4d0a2b20403a035cda35ac50f9d",
+    "values": [
+     "0.1607016505230094",
+     "-0.5149503379438589",
+     "0.15802550319621744"
+    ]
+   },
+   "state after 64 re": {
+    "length": 14848,
+    "sha256": "e0df4dde8809ba17de8e0d2a776521633e6dd8e62a37ba44a72b7412637225e4",
+    "values": [
+     "0.060479198409817525",
+     "-0.5147445940991038",
+     "0.13475094671309423"
+    ]
+   },
+   "state after 64 im": {
+    "length": 14848,
+    "sha256": "5819f2a18f668156c7e7853bd204f8890aa5f692eb06316e0b1b1f8e07e527e2",
+    "values": [
+     "-0.5604821785988181",
+     "0.019807876777068467",
+     "0.006359735930176344"
+    ]
+   },
+   "norm2 start, after": {
+    "length": 2,
+    "sha256": "0be04a205204c781b7eee7f971d0528cdb2dc0ecb334cb41f94df3f71039ba56",
+    "values": [
+     "55229.88445092744",
+     "126877.08436110492"
+    ]
+   },
+   "inner start after": {
+    "length": 2,
+    "sha256": "03ca155d98772a4213cf1148d26edf6e36473b47a7667e326fec5d4ec3f8c9e0",
+    "values": [
+     "28660.184128160738",
+     "1906.1066208576415"
+    ]
+   },
+   "autocorrelation 4 re": {
+    "length": 5,
+    "sha256": "73cc8e2552b7f4a26ae150bbb47bc6cbc3ec72efb4e5c40092c17c765def5927",
+    "values": [
+     "55229.88445092744",
+     "12301.95108767881",
+     "20171.779553032327",
+     "51807.98208171108",
+     "8417.497940159494"
+    ]
+   },
+   "autocorrelation 4 im": {
+    "length": 5,
+    "sha256": "5a022280224dc24c252aa418b37a274e0270f4b7a8e23d3e6e9f1c64d01d483d",
+    "values": [
+     "165.77689587281776",
+     "846.2092557732914",
+     "-685.5515462824995",
+     "631.8091456856876",
+     "892.6867579256887"
+    ]
+   },
+   "filter S 5 re": {
+    "length": 14848,
+    "sha256": "3c85bc4370b5ab37de79e1a4c4489f5343957d4a62068186de8de8e3536cbb55",
+    "values": [
+     "0.23259584044075748",
+     "0.000055928472443266946",
+     "-0.09143254657486004"
+    ]
+   },
+   "read lambda phase residual": {
+    "length": 4,
+    "sha256": "d51b951d4fead080ef9adbf53a4f90a16a67b53935feb3e08860ac1918e421a8",
+    "values": [
+     "0.32785803364091626",
+     "0.23836409700553313",
+     "0.6286404461584381",
+     "0.9146403985999673"
+    ]
+   }
+  },
+  "reduced scalar axis y R 5": {
+   "state after 1 re": {
+    "length": 26368,
+    "sha256": "f709520c9b0fe08aaa316b8754c62c1a0a3731f70b0aadbfe5a25fb7b6f6070d",
+    "values": [
+     "0.2611977215214643",
+     "-0.04193448005793182",
+     "-0.10270037167222917"
+    ]
+   },
+   "state after 1 im": {
+    "length": 26368,
+    "sha256": "d57343a832828132043734201a31ad16324c8e212e5e73b9843f1eac73797709",
+    "values": [
+     "0.18858746166501628",
+     "-0.5189260787981531",
+     "0.21235573908930927"
+    ]
+   },
+   "state after 16 re": {
+    "length": 26368,
+    "sha256": "6c9d9cc14bac79e4e9a50c4e14757b15a8dbeba3eaeeab5350235136b50efbc3",
+    "values": [
+     "-0.25085899001002104",
+     "0.5128628809715369",
+     "-0.19433877905706345"
+    ]
+   },
+   "state after 16 im": {
+    "length": 26368,
+    "sha256": "99edb649e9374a533cd3684e2692916fcbc1780ed6795e0b3bcb3e2b7f185be7",
+    "values": [
+     "0.29232314347773686",
+     "0.11058945843729823",
+     "-0.12905409970632029"
+    ]
+   }
+  },
+  "reduced vector K 0 R 3 edge zero": {
+   "state after 1 re": {
+    "length": 2560,
+    "sha256": "cc61635da46b2c9974335ea37e0b5fd660a5c8a42a89b271fa7ec2ac4b8b26f6",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "state after 1 im": {
+    "length": 2560,
+    "sha256": "cc61635da46b2c9974335ea37e0b5fd660a5c8a42a89b271fa7ec2ac4b8b26f6",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "state after 16 re": {
+    "length": 2560,
+    "sha256": "cc61635da46b2c9974335ea37e0b5fd660a5c8a42a89b271fa7ec2ac4b8b26f6",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "state after 16 im": {
+    "length": 2560,
+    "sha256": "cc61635da46b2c9974335ea37e0b5fd660a5c8a42a89b271fa7ec2ac4b8b26f6",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   }
+  },
+  "reduced vector K 0 R 3 edge single": {
+   "state after 1 re": {
+    "length": 2560,
+    "sha256": "8538de895f32ff8ee95f0cfc334fe4bbb127631b58eb7e6fe261cb49e0a20a9b",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "state after 1 im": {
+    "length": 2560,
+    "sha256": "91048c0ba9a121d7a19efb1d5bbdc148db4dbe1e4a2d724f3704ad5070d99d7d",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "state after 16 re": {
+    "length": 2560,
+    "sha256": "fb68fa2054e48a9fb82c15209f3d96748b3b3b64e31baeb3d539519b8521cb90",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "state after 16 im": {
+    "length": 2560,
+    "sha256": "0d419fbe08330f7dbf0e94bd61d9e53d528b9ec533138603028df96d58a8b3f2",
+    "values": [
+     "0",
+     "0",
+     "0"
+    ]
+   }
+  },
+  "reduced vector K 0 R 3 edge negzero": {
+   "state after 1 re": {
+    "length": 2560,
+    "sha256": "ba9d60d7960c9ec6b89741731885b5c4c27436513b077e017d27300810b917b6",
+    "values": [
+     "-0.3711037827095272",
+     "0",
+     "-0.013382427222960394"
+    ]
+   },
+   "state after 1 im": {
+    "length": 2560,
+    "sha256": "fbe1ecdff39b36aebfe5e8628fc423a2e638cfbf2f22fa28d9c489b529c07739",
+    "values": [
+     "0.29587467658781896",
+     "0",
+     "-0.003473134449030593"
+    ]
+   },
+   "state after 16 re": {
+    "length": 2560,
+    "sha256": "093191253e0fdd12b105503dcb5d4f1952be3def2db77df23cb0cb53d185b3c1",
+    "values": [
+     "-0.20128732161428128",
+     "-1.6387451608265846e-19",
+     "-0.009951345832052018"
+    ]
+   },
+   "state after 16 im": {
+    "length": 2560,
+    "sha256": "eb73c464b5b64f7904cfb2eac78290a02d0ff3fff1c11fc270007badc053dabb",
+    "values": [
+     "0.36611164746827485",
+     "-7.277073044104935e-19",
+     "-0.0013177549067340567"
+    ]
+   }
+  },
+  "reduced vector K 0 R 3 edge tiny": {
+   "state after 1 re": {
+    "length": 2560,
+    "sha256": "afa0cf6c8a188c91683c042aae2d84d287e4d14e89fb69c7b88871e9887c3d4f",
+    "values": [
+     "-3.5983823809380503e-301",
+     "1.8954876524060294e-301",
+     "-2.447734968568814e-301"
+    ]
+   },
+   "state after 1 im": {
+    "length": 2560,
+    "sha256": "78051219ae120471f965d20fba7ae5288f9a84fba137cbb26a567d8f062c4311",
+    "values": [
+     "3.0292549074592048e-301",
+     "1.1828689708260337e-301",
+     "-4.772246822565762e-301"
+    ]
+   },
+   "state after 16 re": {
+    "length": 2560,
+    "sha256": "3ef7c7e4ee70cebda7535b361f38a0b2ce0df25ccd0a640ff3b4ba5770603bc5",
+    "values": [
+     "-2.7501004769766307e-301",
+     "2.166227074426399e-301",
+     "-3.804921182045388e-301"
+    ]
+   },
+   "state after 16 im": {
+    "length": 2560,
+    "sha256": "849c1f49a8439c957df8fa7db58992685212ef98ec5d6142561faffd4bb7b9c9",
+    "values": [
+     "3.907385828787282e-301",
+     "7.765229308975299e-302",
+     "-3.77365512518799e-301"
+    ]
+   }
+  },
+  "reduced vector K 0 R 3 edge huge": {
+   "state after 1 re": {
+    "length": 2560,
+    "sha256": "f2a371e64a6b346196caaa3b4ea456ca7d3973033b6ec77c7bb6acd894c086c2",
+    "values": [
+     "-3.6025330227803056e+299",
+     "1.8954876524060306e+299",
+     "-2.4267480124101975e+299"
+    ]
+   },
+   "state after 1 im": {
+    "length": 2560,
+    "sha256": "3b7f16e5adb89df30782477b7dae01a1cf90d1afa354c7b332fb2c3a88b8623b",
+    "values": [
+     "3.0293757350326888e+299",
+     "1.1828689708260341e+299",
+     "-4.952116193124644e+299"
+    ]
+   },
+   "state after 16 re": {
+    "length": 2560,
+    "sha256": "ba29ee326239ff618caaf659fb056f16a499688a65ded6e509862f9a9789d1be",
+    "values": [
+     "-2.761545111248678e+299",
+     "2.166227074426402e+299",
+     "-3.756608862351409e+299"
+    ]
+   },
+   "state after 16 im": {
+    "length": 2560,
+    "sha256": "5f1bc712dcfdd0ec84f3ab1b616893ae44919a699664ceef33b941fcf90493da",
+    "values": [
+     "3.894846969944141e+299",
+     "7.765229308975297e+298",
+     "-3.842008962888812e+299"
+    ]
+   }
+  },
+  "reduced vector K 0 R 3 edge mixed": {
+   "state after 1 re": {
+    "length": 2560,
+    "sha256": "6adccfa9fd969596a78cd5e9167165e8694b3197299e17999d398cfd2e383663",
+    "values": [
+     "-1.6747536508056097e+149",
+     "1.8657666599983685e+149",
+     "-3.307856252120781e+148"
+    ]
+   },
+   "state after 1 im": {
+    "length": 2560,
+    "sha256": "c406164e881e73712d30552f5f0d45f3af6b1cee20ed16a30107ebcdbb1be0f6",
+    "values": [
+     "3.786748835920859e+149",
+     "8.771559782183283e+148",
+     "2.1347761476628942e+148"
+    ]
+   },
+   "state after 16 re": {
+    "length": 2560,
+    "sha256": "bce18630a2fbe85ccf963b0a2e03ea3abcf3b3236aaa518cb5e940196a1372ae",
+    "values": [
+     "3.138520738952984e+148",
+     "2.0713564770265707e+149",
+     "-9.924232458901138e+147"
+    ]
+   },
+   "state after 16 im": {
+    "length": 2560,
+    "sha256": "d3d81cccb76802effc72ddea37606d39608de0a250ba1ec365ba214ec5cacb65",
+    "values": [
+     "3.536472312077105e+149",
+     "3.4025861259986773e+148",
+     "5.558250231246379e+147"
+    ]
+   }
+  }
+ }
+}

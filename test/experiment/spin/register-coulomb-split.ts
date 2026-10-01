@@ -1,5 +1,5 @@
 // DOES SPLITTING THE PULL AROUND THE STREAM MAKE THE HELD REGISTER PAIR MOVE WITH INERTIA EQUAL TO ITS ENERGY?
-// (E-SPN-XXXX). E-SPN-0173 held a light register pair (m 0.427) with the husk light's Coulomb pull and read R = 8.46
+// (E-SPN-0176). E-SPN-0173 held a light register pair (m 0.427) with the husk light's Coulomb pull and read R = 8.46
 // against the static formula's 1.23 at a_B 3.5, 16.45 against 1.31 at a_B 3. Its reading of the cause: a member moves
 // only by passing to its partner T D, one link away, so every center-of-mass step crosses the pull's gradient, a
 // first-order splitting error that a symmetric (Strang) split of the pull around the stream would remove. This file
@@ -48,7 +48,7 @@
 //    The formula's own neglected terms are O((E_b / 2 m)^2), about 1%, so the 10% band below is set by the lattice, not
 //    by the formula.
 // 5. THE REACH. a_B 8 needs a ball of radius ~29 (R / a_B 3.6), ~102,000 sites and about 45 s a split cycle on this
-//    engine: out of reach here. The symmetry-reduced engine (spin/register-coulomb-weak, E-SPN-0175) reads the unsplit
+//    engine: out of reach here. The symmetry-reduced engine (spin/register-coulomb-weak, its gate run pending) reads the unsplit
 //    pull there, and by point 2 the split differs from it only by the pieces' commutator, which falls as alpha^2.
 //
 // GATES, fixed before the gate run (GATE_PLAN: m 0.427029; seven points, each a coupling, a ball and a placement of the
@@ -103,6 +103,44 @@
 //  about 13 hours for its longest point. Its witness part finished (tmp/rcs-part-parts.json, kept: the witness, the
 //  instrument and C1, C2 do not depend on the points) and one point had read one filter (a_B 3, split, filter 128: E
 //  1.5730, residual 3.5e-2). Nothing else was seen. The plan above is the one restarted, with smaller balls and filters.
+//
+// FIRST RUN (tmp/rcs-exp-run1.log, the points in five parallel processes, the longest 15,908 s): FAIL on H1, H3, H4, H5
+//  and H6. H0, H2, the instrument and every control hold. No gate moved and none was rerun.
+//  - H0: the free cycle and the half-phase pull pieces against the full 192 x 192 rule at 3.1e-17 to 1.1e-16, norms kept
+//    to 5e-14, S S weights equal to 15 digits. I2: P_SS U against V K P_SS 1.1e-15 (point 1's conjugacy, measured). I3:
+//    the split keeps the Gram norm to 4.7e-13. I4: the D content's centroid 6.9e-18, its smeared pull equal to G to 8e-15
+//    beyond one link (0.79 off at contact). C1 bit for bit, C2 bit for bit, C3.
+//  - THE SPLIT AGAINST THE UNSPLIT, one ball and one filter schedule each (R static, then the formula at the level's own
+//    E_b, then the pieces' commutator on the level):
+//      a_B 3,   ball 10:  split 11.555, unsplit 12.976, formula 1.309, commutator 2.3e-2   (split -10.9%)
+//      a_B 3.5, ball 12:  split 10.792, unsplit 10.245, formula 1.227, commutator 6.0e-3   (split +5.3%)
+//      a_B 5,   ball 14:  split 15.053, unsplit 15.309, formula 1.151, commutator 8.8e-4   (split -1.7%)
+//    The split moves R by a fraction whose size falls with the commutator, as point 2 derived, with no fixed sign, and
+//    the excess over the formula stays 9.6 to 13.9 (H6 FAILS at every coupling: 10.25 against 11.67, 9.57 against 9.02,
+//    13.90 against 14.16). H3 and H4 FAIL (R_full 10.64 at a_B 3.5 against 1.0656).
+//  - THE MAIN LEVEL (split, a_B 3.5, ball 12): E_b 0.0951 (continuum 0.0897), residual 4.4e-3, lost 3e-8 over 64 cycles,
+//    fidelity 0.926, edge 5.4e-4, isotropy 2.1e-7 (H2). H1 FAILS on |lambda| (1 - 9.5e-6), the residual, the fidelity and the edge (the ball is
+//    smaller than E-SPN-0173's and the filter shorter): the level is held, not isolated, as there.
+//  - THE TRUE DOCKS (a_B 3.5, ball 12, read): R 11.921, E_b 0.0917 (nearer the continuum's 0.0897 than the unsplit
+//    0.0965, the softer core binding less), 16% heavier than the unsplit: a core-sized change, as point 3 predicted.
+//  - THE WEAK POINT is not a clean read. At a_B 5 on a radius-14 ball (R / a_B 2.8, edge 1.3e-3) with a 512-cycle filter
+//    the level is not isolated (residual 9e-3, fidelity 0.70 over 64 cycles) and both forms read R 15, above a_B 3.5's
+//    10, so H5 FAILS on a point whose ball and filter cannot hold the level. What it does show is H6's question, cleanly:
+//    split and unsplit agree to 1.7% there, the commutator being 9e-4.
+//  WHAT IT MEANS. R = tan m / m is NOT reached, and the split is not the fix, for a reason that is exact rather than
+//  numerical: the first-order [V, K] error that E-SPN-0173's reading pointed to is a similarity of the cycle, so it never
+//  moved R in the first place, and a Strang split can change only what the pull's pieces do among themselves, which it
+//  did, by -11% to +5%. Placing the pull at the D content's true dock is not the split either (the centroid is already
+//  exact) and changes only the core. The excess is second order in the pull and lives at the core (7.23 and 15.15 over
+//  the formula at a_B 3.5 and 3 on E-SPN-0173's balls, a power a_B^-4.8, a contact term's scaling), where the pull is
+//  2.5 rad a cycle, and no placement of a pair-phase pull in time or space removes it at a coupling this engine holds.
+//  The one route left is the weak pull itself: a_B far above the lattice, where the contact term falls as a_B^-4 and the
+//  commutator with it (6.0e-3 to 8.8e-4 from a_B 3.5 to 5). That is spin/register-coulomb-weak's symmetry-reduced engine (a_B 6, 8,
+//  12), and E-SPN-0174 already saw the same excess fall steeply as a string weakened (R 34.65, 13.47, 1.43).
+// NEXT. (1) spin/register-coulomb-weak's reads at a_B 6 to 12 decide whether R approaches the formula as the contact term's scaling
+//  says; by point 2 the split would move them only by the commutator, below 1e-3 there. (2) A weak-pull point on this
+//  full engine needs a_B 5 on a radius near 20 with a 2048-cycle filter (about a day on this machine), which would make
+//  H5 a clean read.
 //
 // Depth L2 (a two-body quantum walk of register members on the husk quotient with an integer-counted Coulomb phase split
 // around the free cycle, in the exact coordinates of its invariant block, witnessed piece by piece against the full
@@ -1046,8 +1084,9 @@ export function registerCoulombSplitRun(plan: SplitPlan): Verdict {
 
 export default experiment({
   id: 'spin/register-coulomb-split',
-  code: 'E-SPN-XXXX',
-  title: 'TITLE_PLACEHOLDER',
+  code: 'E-SPN-0176',
+  title:
+    'splitting the Coulomb pull around the stream leaves the held register pair 9 to 13 times too heavy, fail (H1, H3, H4, H5, H6): the first-order [V, K] error E-SPN-0173 blamed is exactly a similarity (its cycle is the pull-after-free cycle conjugated by P_SS, to 1e-15), so it never moved R, and a Strang split V_h K V_h (every piece at half the phase in steps of the square-root unit, witnessed piece by piece against the full 192 x 192 rule to 1e-16, W (x) W exact) can change only the pull pieces\' own commutators: it moves R by -11%, +5% and -2% at a_B 3, 3.5 and 5 (12.98 to 11.55, 10.25 to 10.79, 15.31 to 15.05, against formulas of 1.15 to 1.31), the change falling with the commutator (2e-2 to 9e-4); the D content\'s charge centroid is exactly its label (7e-18), so the pull at its true dock differs only at the core and reads 11.92; the excess is second order and lives at the core (a power a_B^-4.8), and R = tan m / m is not reached at any coupling this engine holds',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
