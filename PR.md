@@ -375,8 +375,7 @@ review), `task/check-coverage.ts` (0 unknown, 0 mismatches), `test/result.ts che
 - OPEN-MOT-01 stays open. Where the pull is placed does not cause the R excess: it is a second-order core term (about
   a_B^−4.8 on E-SPN-0173's balls). What remains is the weak pull, spin/register-coulomb-weak's symmetry-reduced engine
   at a_B 6, 8 and 12.
-- That file claims E-SPN-0175, which `register-sea` holds in this worktree. Its owner needs to renumber it at
-  registration. E-SPN-0176 is taken by this item.
+- That file is registered as E-SPN-0183 (see its section). E-SPN-0176 is taken by this item.
 - Notes changed outside this repo: `remaining-pieces.md` (a new section after E-SPN-0173's), `open.md` (MOT-01: a ladder
   row, the result, and the closing route).
 
@@ -425,8 +424,7 @@ move. The gate run here: `test/rerun.ts E-SPN-0175`, log `tmp/spn-sea-gate.log`.
 - OPEN-FND-02 ticked with proof, under two conditions the run found: every pair piece acts inside the beat's sector,
   and it is counted from the sea.
 - Limits: K is lifted by occupancy (a hole-relative lift would fire). One tone, one flavor in the runs, two holes.
-- `spin/register-coulomb-weak.ts` also declares E-SPN-0175 but is not registered. This item holds 0175 in the registry,
-  so that file needs the next free code when it is registered.
+- `spin/register-coulomb-weak.ts` once declared E-SPN-0175 too. It is registered as E-SPN-0183.
 - /vibe/physics/vacuum still says the rule is "not written".
 - Notes changed outside this repo: `remaining-pieces.md` (a new section after E-SPN-0163's, and "Order of work" step
   3), `open.md` (FND-02 ticked, "Next up" item 2, disagreement 7), `everything.md` (the "one rule" and "Pauli exclusion"
@@ -1746,3 +1744,91 @@ the gate run, when a parallel item registered 0167.
   growth does not either, since every growth law built from the rule's pieces writes a symmetric vacuum (E-FND-0168);
   on /vibe/physics/vacuum, the vacuum is chosen by the growth law, not by an energy; the SU(2) row's reason in
   `constraints.ts` may cite E-FND-0168 the same way, with no status change.
+
+## OPEN-MOT-01: the light register pair under a weak pull, read line by line (E-SPN-0183)
+
+The light register pair of E-SPN-0173 (m 0.427), held by the husk light's Coulomb pull, run where the pull is weak
+across a link (a_B 6, 8, 12) on balls of radius 40 to 60, to see whether its inertia approaches its energy.
+
+### What changed
+
+- `code/measure/register-reduced.ts`: E-SPN-0173's pair engine reduced exactly by the cubic group. The 48 signed
+  permutations of the husk coordinates lie in W(F4) and act on the register by minors, so the cycle commutes with each
+  of them. A state is stored once an orbit (O_h at K = 0, C4v on an axis, C2v on a face diagonal). It adds a worker pool
+  for the convolution, the hydrogenic start, unfolding between sectors, and E-SPN-0169's S on the O_h-canonical
+  momenta. It also adds `autocorrelation` and `harmonicLines`, filter diagonalization, which gives every line of a state
+  and its weight from c_l = <v | G U^l v> with no stored vectors, since U is unitary in the Gram metric.
+- `test/experiment/spin/register-coulomb-weak.ts` (E-SPN-0183), with its rows in `test/registry.csv`,
+  `test/experiment/all.ts`, the regenerated `test/catalog.csv` and the readme count. `readPoint` takes an optional
+  kernel, so a rerun can use the native kernel. The gate run used the JavaScript engines.
+
+### The derivation (in the header, before the gate run)
+
+- Neither sum rule offered for R is exact here. The f-sum and the center-of-mass response give only the first-order
+  curvature, and the second-order term runs through every state the K coupling reaches. What is exact and cheap is to
+  read the cycle's lines at K = 0, K and K / 2 in the little group of K.
+- **The filtered level is a multiplet.** Probes 6 and 7 found it holds several register-channel lines of the trivial
+  sector closer together than any affordable filter separates. So a filter's mean phase moves with K through the weights
+  as well as through the lines. E-SPN-0173's own differential read gives R between -53.5 and 30.7 depending on the
+  filter history, and 8.459326 only after its exact schedule.
+
+### Results (gates fixed in the header before the gate run, probes disclosed)
+
+Fail on H2, H3, H4, H5, H6 and P. H0, C1, I1 and I2 hold.
+
+| gate | result |
+| --- | --- |
+| H0 the witness | pass: no covariance failure in 1,152 checks, gaps 9.9e-16 of 0.854 in O_h, C4v and C2v against E-SPN-0173's unreduced engine |
+| C1 the control | pass: E_L 1.6133573497835847 against 1.6133573497836755, E-SPN-0173's read R 8.459326019 against 8.459326180 |
+| H2 the hold | fail at a_B 6 only, on the quadratic test. Every point keeps its norm (3e-7 or better over 64 cycles), its edge (4e-5 or below) and a main line with \|u\| within 7e-9 of 1 |
+| H3 isotropy (a_B 6) | fail: the main line is not quadratic on either direction, R -2.0 on the axis and 22.9 on the face. The control reads 8.4967 and 8.5737 (9.0e-3) |
+| H4 the weakest excess within 0.1 | fail: 0.169 at a_B 12 |
+| H5 R_full within 0.05 of tan m / m | fail: 1.2495 against 1.0656 |
+| H6 the excess falls | fail: 5.93, -2.81, 8.37, 0.17 at a_B 3.5, 6, 8, 12 |
+| P the predicted bands | fail: a_B 6 outside [0.4, 0.7], 8 outside [0.1, 0.2], 12 outside [0.015, 0.05] |
+
+The main line (the heaviest at K = 0) at each point:
+
+| a_B | ball | E (w) | E_b against hydrogen | R against the formula | excess |
+| --- | --- | --- | --- | --- | --- |
+| 3.5 | 16 | 1.613463 (0.82) | 0.0947 against 0.0897 | 8.4967 against 1.2259 | 5.93 |
+| 6 | 40 | 1.678103 (0.62) | 0.0300 against 0.0305 | not quadratic (ratio -0.75 axis, 5.75 face) | |
+| 8 | 48 | 1.681188 (0.54) | 0.0269 against 0.0172 | 10.3946 against 1.1093 | 8.37 |
+| 12 | 60 | 1.695612 (0.92) | 0.0125 against 0.0076 | 1.2693 against 1.0857 | 0.169 |
+
+- **a_B 12 is the clean point.** One line carries 0.92 of the level, quadratic (ratio 4.024), and R is within 17% of
+  the formula. With the Darwin exchange it is 1.2495 against tan m / m 1.0656.
+- **a_B 6 has no single curvature over K = 0.02 to 0.04.** At K ≠ 0 the little group lets the main line mix with near
+  lines of other cubic representations. Its d(K) and d(K / 2) have opposite signs.
+- **a_B 8's main line is a channel the filters chose.** The line at 1.674964 (E_b 0.0332) reads R 1.534 (excess 0.37).
+  An audit after the run found that it carries 23 times the start overlap the main line does. The filters, centered on
+  the running mean, favored the 1.681188 channel. So "the heaviest line of the filtered level" is not the tracked bound
+  level, and H6 compares different channels. The gates are left as run.
+- a_B 20 was not run. It needs a ball of about 120 (about 820,000 C4v representatives) and about 90 hours on the axis.
+
+### How it was tested
+
+- The probes were run in the open-pieces worktree before the gate run: probes 1 to 7 and 7a, logs `tmp/rcw-probe*.log`.
+- The gate run was four parallel processes there, from 2026-09-29 to 2026-10-01. Logs are `tmp/rcw-gate-*.log` and
+  parts `tmp/rcw-part-*.json`. `tmp/rcw-combine.ts` combined them with the file's own `combine`. The longest leg (a_B 6
+  with the face) took 143,493 s.
+- **The native kernel, as an equivalence record.** On exactly the a_B 6 face configuration, the kernel at 12 threads
+  and the open-pieces JavaScript engine gave 74,014,850 doubles equal bit for bit (`tmp/rcw-eq.ts`,
+  `tmp/rcw-eq-compare.ts` in open-pieces, 10.4 min against 38 min). That configuration was the level from the
+  hydrogenic start through filters 256, 1024 and 2048, the C2v unfolding, 64 cycles at K and a 64-lag autocorrelation
+  at K / 2. The full kernel point (next-pieces `tmp/rcw-part-kernel.ts`) reproduced the JavaScript level, K = 0 lines
+  and axis lines to every printed digit in 2.8 h against 15.2 h. The JavaScript leg finished first and is the record,
+  and the kernel run was stopped in its face leg.
+- Checks here (`tmp/rcw-checks.log`): the row appended as E-SPN-0183 (next-code gave 0183 at that moment),
+  `test/catalog.ts` 1,552, `task/check-labels.ts` (the same 1 contradicted label and 20 for review, none from this
+  item, 0 registry rows outside the barrel), `task/check-coverage.ts` (0 unknown, 0 mismatches), `test/result.ts
+  check` (0 problems), `tsc --noEmit -p tsconfig.check.json` exit 0.
+
+### Status and follow-ups
+
+- OPEN-MOT-01 stays open. At a_B 12 the main line reads R 1.2693 against 1.0857, the first light-pair line within 20%
+  of the formula. But which line is the bound level is not settled at a_B 6 and 8. The dense tracked scan
+  (spin/register-coulomb-track) follows one level by its overlap with a fixed reference, and is the follow-up that
+  settles it.
+- Notes changed outside this repo: `remaining-pieces.md` (a new section after E-SPN-0176's), `open.md` (MOT-01: two
+  ladder rows and the result).

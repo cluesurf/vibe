@@ -1478,7 +1478,7 @@ export function reducedRead(
 //
 // The filtered level is not one eigenvector: the phase reducedRead gives is the weighted mean of every line left in it,
 // and when a line of the same sector sits closer than the filter resolves, the mean moves with K through the weights as
-// well as through the lines (the drift E-SPN-0175's probe 6 measured). The lines themselves come from the autocorrelation
+// well as through the lines (the drift E-SPN-0183's probe 6 measured). The lines themselves come from the autocorrelation
 // c_l = <v | G U^l v>, l = 0 .. N, one inner product a cycle and no stored vectors: U is unitary in the Gram metric, so
 // <U^n v | G U^m v> = c_(m - n), with c_(-l) the conjugate of c_l. On the filter basis Phi_j = sum_(n = 0 .. N - 1)
 // e^(-i phi_j n) U^n v at L phases phi_j across a window, the matrices S_p = <Phi_j | G U^p Phi_k> (p = 0, 1) are sums of
@@ -1715,7 +1715,7 @@ export function harmonicLines(
 // ---- a fixed state's lines: the reference correlation, filtered afterwards (spin/register-coulomb-track) ----
 //
 // A filtered level's line weights are the start's overlaps times every filter's transfer at each line, and a filter
-// centered on the level's mean phase favors the lines near that mean (E-SPN-0175's weak-pull gate read its "main line" so).
+// centered on the level's mean phase favors the lines near that mean (E-SPN-0183's weak-pull gate read its "main line" so).
 // To follow ONE level across couplings by its overlap with a fixed reference r (normalized in the Gram metric), read r's
 // own correlation x_l = <r | G U^l r>, one plain inner product a cycle against G r formed once (G is self-adjoint, so
 // <r | G b> = <G r | b>). Any Blackman-Harris filter F of length S at phase p is then applied afterwards, exactly:
