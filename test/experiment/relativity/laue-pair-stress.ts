@@ -97,6 +97,9 @@ const STATIONARY = 1e-3
 const IDENTITY = 0.05
 const FILTER = 8192
 
+// the default logger: the experiment suite prints only the verdict
+const quiet = (what: string): void => void what
+
 type Recorded = {
   name: string
   aB: number
@@ -291,7 +294,7 @@ export function levelRead(
   su: Setup,
   p: Recorded,
   opts: KernelOptions,
-  log: (what: string) => void = () => {},
+  log: (what: string) => void = quiet,
 ): LevelRead {
   const started = Date.now()
   const R = radiusOf(p.aB)
@@ -456,9 +459,7 @@ export function combine(
 
 const NATIVE: KernelOptions = { backend: 'native', threads: 6 }
 
-export function laueRun(
-  log: (what: string) => void = () => {},
-): Verdict {
+export function laueRun(log: (what: string) => void = quiet): Verdict {
   const su = setup()
   const refs = REFERENCE_AB.map(aB => referenceRead(su, aB))
 
