@@ -42,9 +42,17 @@
 // SIDE 4 ALIASES ONE LINK PER DIRECTION (tmp/ax-probe2, a probe of geometry only): among x0, y and their 48 targets,
 // exactly one pair per d (a target of x0 and a target of y) is linked on the side-4 torus and not on side 8 (2 r_d -
 // r_e is a root mod 4). One beat moves a trit one dock and acts inside docks, so the DYNAMICS of a probe is the side-8
-// dynamics; only a bilinear on that false link would be counted wrongly. So a G2 row is DROPPED, and counted, whenever
-// both ends of its direction's false link are occupied after the beat. G1 never touches a false link (checked). V runs on
-// side 8, where the relations among the ring agree with every larger side (checked against side 8 itself at x0 and y).
+// dynamics; only a bilinear on that false link would be counted wrongly. So a G2 beat that leaves both ends of its
+// direction's false link occupied is RUN AGAIN ON SIDE 8 (x0 at the center, y the target of the same slot, the same
+// beat) and its row read there, and counted. G1 never touches a false link (checked). V runs on side 8, where the
+// relations among the ring agree with every larger side (checked against side 8 itself at x0 and y).
+// THIS WAS A DROP UNTIL A BUG SHOWED. Runs 2 and 3 dropped such a beat from A and kept its starting state in B. A
+// store pair (or two vibes) on line l at x0 and x0 + r_l releases onto x0 - r_l and x0 + 2 r_l, which is exactly the
+// false link (3 r_l is -r_l mod 4), so EVERY beat of those probes was dropped and their bilinears appeared in states and
+// in no change: 60 spurious "invariants", per-line store x store and tone x line-tone products along a line's own
+// link. The post-run read tmp/ax-third.ts (side 8, no aliasing; run on the droplet) showed they change in 192 of 192
+// two-particle beats (store products) and 336 of 384 (tone products), and in 26,880 of 26,880 and 48,000 of 53,760
+// beats with a third particle. They are not conserved. The rerun on side 8 replaces the drop. No gate moved.
 //
 // HYPOTHESES, written before any run of this file (the only probes before it, tmp/ax-probe2, read the neighbor tables,
 // the side-4 aliasing above, the coordinate flips and the time of a beat, nothing conserved).
@@ -305,6 +313,15 @@ function collect(dyn: Dynamics, probes: readonly Probe[], alias: Aliasing): Coll
   const A = new RowSet(TWO_DOCK_FEATURES)
   const B = new RowSet(TWO_DOCK_FEATURES)
 
+  // the side-8 box, where a beat that touches a side-4 false link is run again instead of dropped
+  const f8 = contactFresh(V_SIDE, 'pass', 0)
+  const t8 = f8.tables
+  const nb8 = neighborTables(t8)
+  const x8 = centerOf(V_SIDE)
+  const x4 = centerOf(G_SIDE)
+  const base8 = emptyConfiguration(t8.cells)
+  const T8 = (x: number, d: number): number => Math.floor(t8.target[x * 24 + d]! / 24)
+
   let count = 0
   let dropped = 0
   let scanOk = true
@@ -335,7 +352,26 @@ function collect(dyn: Dynamics, probes: readonly Probe[], alias: Aliasing): Coll
       count++
 
       if (falseLink) {
+        // the same probe on side 8: x0 at its center, y the target of the same slot, the same beat
         dropped++
+
+        const at8 = probe.at.map(([x, c]) => [x === x4 ? x8 : T8(x8, probe.direction), c] as [number, Content])
+        const where8 = at8.map(([x]) => x)
+        const scan8 = [...new Set(where8.flatMap(x => [x, ...SLOTS.map(d => T8(x, d))]))]
+
+        at8.forEach(([x, c]) => place(base8, x, c, true))
+
+        const before8 = pairFeatures(base8, where8, nb8)
+        const r8 = dyn.make(t8, base8, phase)
+
+        r8.beat()
+
+        const fa8 = pairFeatures(r8.state(), scan8, nb8)
+
+        A.add(difference(fa8, before8))
+        B.add(before8)
+        B.add(fa8)
+        at8.forEach(([x, c]) => place(base8, x, c, false))
         continue
       }
 
@@ -693,7 +729,7 @@ export function pairConservedRun(plan: PairPlan = { thin: 1, vacuum: true }): Ve
 
   const g2 = collect(RULE, probes.G2, alias)
 
-  log(`G2 rule: ${g2.A.rows.length} A rows, ${g2.dropped} dropped on a false link`)
+  log(`G2 rule: ${g2.A.rows.length} A rows, ${g2.dropped} run again on side 8 (a false link on side 4)`)
 
   const G = { A: new RowSet(TWO_DOCK_FEATURES), B: new RowSet(TWO_DOCK_FEATURES) }
 
@@ -770,7 +806,7 @@ export function pairConservedRun(plan: PairPlan = { thin: 1, vacuum: true }): Ve
     g2Probes: probes.G2.length,
     g1Rows: g1.A.rows.length,
     g2Rows: g2.A.rows.length,
-    g2Dropped: g2.dropped,
+    g2Side8: g2.dropped,
     aliasRelations: alias.count,
     splitUnsplit: split.unsplit,
     splitSplit: split.split,
@@ -796,7 +832,7 @@ export function pairConservedRun(plan: PairPlan = { thin: 1, vacuum: true }): Ve
 
   return verdict({
     status,
-    claim: `H1 ${H1} P ${P}. ${readings.map(line).join('. ')}. Controls: C1 ${C1} (the bare stream on G finds ${at(stream, 0)} in the trivial character and ${at(stream, 1)} in character 1) C2 ${C2} (the decay map ${at(decay, 0)}, ${at(decay, 1)}); instrument I1 ${I1} I2 ${I2} I3 ${I3} I4 ${I4} I5 ${I5} I6 ${I6} I7 ${I7} (one-dock G1: ${split.unsplit} unsplit, ${split.split} through the characters) I8 ${I8} (${alias.count} side-4 relations differ from side 8, all links between a target of x0 and a target of y; ${g2.dropped} G2 rows dropped)`,
+    claim: `H1 ${H1} P ${P}. ${readings.map(line).join('. ')}. Controls: C1 ${C1} (the bare stream on G finds ${at(stream, 0)} in the trivial character and ${at(stream, 1)} in character 1) C2 ${C2} (the decay map ${at(decay, 0)}, ${at(decay, 1)}); instrument I1 ${I1} I2 ${I2} I3 ${I3} I4 ${I4} I5 ${I5} I6 ${I6} I7 ${I7} (one-dock G1: ${split.unsplit} unsplit, ${split.split} through the characters) I8 ${I8} (${alias.count} side-4 relations differ from side 8, all links between a target of x0 and a target of y; ${g2.dropped} G2 beats run again on side 8)`,
     metrics,
     control: {
       stream0: at(stream, 0),

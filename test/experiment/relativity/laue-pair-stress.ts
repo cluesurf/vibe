@@ -65,7 +65,27 @@
 //
 // DETERMINISM: no random numbers; the native kernel (byte for byte the JavaScript path, task/kernel/check.ts).
 //
-// FIRST RUN (below, after the gate run).
+// FIRST RUN (tmp/lx-laue-gate.log: a_B 6 and 8 on this machine, 1,015 s and 1,843 s; a_B 12 moved to a 32-core droplet
+// when the machine was needed, 10,630 s, the same file and the same gate script, which reuses saved levels): FAIL, as
+// predicted. No gate moved and none was rerun.
+//  - H1 fails at both clear points. R_static - 1 is 1.7195 (a_B 6) and 0.5283 (a_B 8), R_full - 1 1.6109 and 0.4758,
+//    against Laue's SIGMA / E = 0. The stress Laue would need, (R - 1) E, is 2.821 and 0.885, 41.8 and 26.7 times the
+//    binding E_b (0.06746 and 0.03315). P holds.
+//  - H1b and H1c fail. -SIGMA_BIND / E is 0.0298 (a_B 6), 0.0145 (8) and 0.0060 (12): the predicted sign and size
+//    (0.027, 0.013, 0.005), 58 and 36 times smaller than R - 1. The staircase and the smooth form agree to 1% on the
+//    levels (-4.895e-2 against -4.844e-2 at a_B 6), and <V> / E_b is -1.98, -2.06 and -2.21, the virial's -2.
+//  - Instrument holds: filter shares 1.000, 0.976, 0.966; phases within 2.1e-5 of the scan's lines, residuals at most
+//    1.5e-4; <|y|^2> moves by at most 1.2e-5 over a cycle, so SIGMA's own read is 0 to that.
+//  - Control C1 FAILS (not hard): on the hydrogenic references the staircase's SIGMA_BIND is 1.030 (a_B 6) to 1.634
+//    (a_B 16) of (1/3) <V>, not within 5%. The cause, read after the run and not tested: the floor in n(y) lowers |V|
+//    by up to theta where alpha G is near theta, which is the reference's far tail at large a_B, while the difference
+//    stencil is blind to that offset only where the steps are dense. So the 1/|y| identity is not a property of the
+//    staircase count on a wide reference. On the tracked levels the two forms agree, so the H1b numbers stand.
+//  - The crossing. Laue's reading puts R = 1 at every a_B, so it predicts none. H1b's falls as 0.43 / a_B^2 per 2M,
+//    under 0.01 already from a_B 6.6, and predicts R(a_B 12) - 1 = 0.006 for the tracked scan.
+// So the pair's excess inertia is not stress. Its stationary level holds Laue's condition exactly and still has R - 1 of
+// 0.5 to 1.7. What fails is Laue's other premise, that the pair's energy and momentum move together as a tensor under a
+// boost, which on the lattice is the dispersion and the instantaneous pull, not a stress.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
@@ -474,7 +494,7 @@ export default experiment({
   id: 'relativity/laue-pair-stress',
   code: 'E-RLT-0111',
   title:
-    "Laue's theorem for the light register pair: is the excess inertia the pair's integrated stress (not yet run)",
+    "Laue's theorem for the light register pair, fail as predicted: the excess inertia is not stress. A tracked level is stationary, so its integrated stress is 0 exactly (its second moment moves under 1.2e-5 a cycle), yet R - 1 is 1.72 (a_B 6) and 0.53 (a_B 8); the binding's stress alone has the right sign and is 0.030, 0.015 and 0.006 of E (a_B 6, 8, 12), 58 and 36 times too small, and Laue would need a stress 42 and 27 times the binding; the reference control on the 1/r identity fails at large a_B (the count's floor)",
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L2',
