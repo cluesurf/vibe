@@ -8,8 +8,14 @@
 //                                                           start every job, fetch each as it finishes, then destroy
 //   burst run    --jobs <more.json> --detach --commit       add jobs to a live batch; its running `run` watches them
 //   burst watch  [--keep-up]                                re-attach the waiting half of `run` (a lost laptop session)
-//   burst stop   --job <name> --commit                      stop one job, keep its partial outputs, mark it done
-//   burst sync   [--path <file> ...] [--changed] --commit   copy files into the staged package of a live batch
+//   burst stop   --job <name> [--final] --commit            stop one job now, mark it done; its outputs go to
+//                                                           partial/ (or, --final, to their paths)
+//   burst stop   --job <name> --when <pattern> --commit     the watcher stops it once a line of its log matches,
+//                                                           and fetches its outputs to their paths
+//   burst prioritize --job <name> --commit                  nice 0 and out of the OOM killer's reach (a job's
+//                                                           "priority": true does the same at launch)
+//   burst sync   [--path <file or dir> ...] [--changed] --commit
+//                                                           copy files into the staged package of a live batch
 //                                                           (--changed: code/, test/, task/, kernel/src since the stage)
 //   burst status                                            every vibe-burst droplet, its age and cost, each job's state
 //   burst down   [--force] [--all] --commit                 fetch anything unfetched, then DESTROY the droplet
@@ -66,6 +72,8 @@ const STOP_MARGIN = 10 * 60_000
 const JOB_MARGIN = 20 * 60_000
 // how often the waiting half of `run` asks the droplet for its jobs' states
 const WATCH_SECONDS = 120
+// how many times `down` tries the final fetch, a minute apart, before it gives up on it
+const FETCH_ATTEMPTS = 5
 
 const { values: opt, positionals } = parseArgs({
   allowPositionals: true,
@@ -88,6 +96,8 @@ const { values: opt, positionals } = parseArgs({
     job: { type: 'string' },
     path: { type: 'string', multiple: true },
     changed: { type: 'boolean', default: false },
+    when: { type: 'string' },
+    final: { type: 'boolean', default: false },
   },
 })
 
@@ -119,9 +129,12 @@ type JobSpec = {
   outputs: string[]
   append: string[]
   log?: string
+  // the job that must not be slowed or killed by the rest (see favor)
+  priority?: boolean
 }
 
-type JobState = JobSpec & { launched: string; pid: number; exit?: number; fetched: boolean }
+// stopWhen: a pattern the watcher stops the job at (burst stop --when); stopped: why it was stopped, if it was
+type JobState = JobSpec & { launched: string; pid: number; exit?: number; fetched: boolean; stopWhen?: string; stopped?: string }
 
 type Droplet = {
   id: number
@@ -169,6 +182,7 @@ function readJobs(file: string): { jobs: JobSpec[]; protect: string[] } {
       outputs: j.outputs ?? [],
       append: j.append ?? [],
       log: j.log,
+      priority: j.priority === true,
     }
 
     if (!/^[A-Za-z0-9_-]+$/.test(job.name) || names.has(job.name)) {
@@ -390,10 +404,22 @@ function sync(): number {
       .flatMap(j => [...j.outputs, ...j.append]),
   )
   const since = d.stagedAt ?? d.created
-  const files = [...new Set([...(opt.path ?? []), ...(opt.changed ? changedSince(since) : [])])]
+  // a named directory is every file under it
+  const named = (opt.path ?? []).flatMap(p => {
+    const full = join(ROOT, p)
+
+    if (!safePath(p) || !existsSync(full) || !statSync(full).isDirectory()) {
+      return [p]
+    }
+
+    return (readdirSync(full, { recursive: true }) as string[])
+      .map(rel => `${p.replace(/\/$/, '')}/${rel}`)
+      .filter(f => statSync(join(ROOT, f)).isFile() && !f.endsWith('.DS_Store') && !f.includes('node_modules'))
+  })
+  const files = [...new Set([...named, ...(opt.changed ? changedSince(since) : [])])]
 
   if (files.length === 0) {
-    console.error('burst sync: nothing to send (give --path <file> ..., or --changed for code/, test/, task/ and kernel/src changed since the stage)')
+    console.error('burst sync: nothing to send (give --path <file or directory> ..., or --changed for code/, test/, task/, research/ and kernel/src changed since the stage)')
 
     return 2
   }
@@ -466,23 +492,107 @@ function stop(): number {
     return 0
   }
 
+  if (opt.when !== undefined) {
+    if (!STOP_PATTERN.test(opt.when)) {
+      console.error('burst stop --when: the pattern is letters, digits, spaces and ^ $ . - only')
+
+      return 2
+    }
+
+    if (!opt.commit) {
+      console.log(`burst stop --when (nothing recorded without --commit): the watcher would stop ${name} once a line of ${job.log ?? 'its output'} matches /${opt.when}/, and fetch its outputs to their paths`)
+
+      return 0
+    }
+
+    const s = load()
+
+    s.jobs[name] = { ...s.jobs[name]!, stopWhen: opt.when }
+    save(s)
+    log(`${name}: the watcher stops it once a line of ${job.log ?? 'its output'} matches /${opt.when}/`)
+
+    return 0
+  }
+
   if (!opt.commit) {
-    console.log(`burst stop (nothing touched without --commit): stop ${name} (session ${job.pid}) on ${d.name} and keep its partial outputs`)
+    console.log(`burst stop (nothing touched without --commit): stop ${name} (session ${job.pid}) on ${d.name} and keep its outputs ${opt.final ? 'at their paths' : 'in tmp/burst/jobs/<name>/partial/'}`)
 
     return 0
   }
 
   awake(d)
-  ssh(d, `pkill -TERM -s ${job.pid}; sleep 5; pkill -KILL -s ${job.pid}; [ -f ${jobDir(name)}/job.exit ] || echo 143 > ${jobDir(name)}/job.exit; echo stopped`, 60_000)
-  fetchJob(d, job, false)
+  halt(d, job, opt.final, 'by hand')
+
+  return 0
+}
+
+// give one job the machine's priority: nice 0 on every thread of its session (every other job runs at nice 19, so under
+// load it gets nearly all the CPU it asks for), and -1000 on the OOM score of each of its processes (the kernel's OOM
+// killer then picks another job's process, never this one). Children and threads it starts later inherit both
+function favor(d: Droplet, job: JobState): void {
+  const out = ssh(
+    d,
+    `n=0; for p in $(pgrep -s ${job.pid}); do for t in /proc/$p/task/*; do renice -n 0 -p "$(basename "$t")" >/dev/null 2>&1; done; echo -1000 > /proc/$p/oom_score_adj; n=$((n + 1)); done; echo "favored $n"`,
+  )
+
+  log(`${job.name}: ${out.trim()} process(es) at nice 0 and out of the OOM killer's reach`)
+}
+
+function prioritize(): number {
+  const d = current()
+  const job = load().jobs[opt.job ?? '']
+
+  if (!d || !job || job.fetched) {
+    console.error(`burst prioritize: no running job ${opt.job ?? ''} in the batch`)
+
+    return 1
+  }
+
+  if (!opt.commit) {
+    console.log(`burst prioritize (nothing touched without --commit): ${job.name} to nice 0 and out of the OOM killer's reach`)
+
+    return 0
+  }
+
+  awake(d)
+  favor(d, job)
 
   const s = load()
 
-  s.jobs[name] = { ...s.jobs[name]!, exit: 143, fetched: true }
+  s.jobs[job.name] = { ...s.jobs[job.name]!, priority: true }
   save(s)
-  log(`${name}: stopped by hand (exit 143), partial outputs in tmp/burst/jobs/${name}/partial/`)
 
   return 0
+}
+
+// what a --when pattern may hold (it goes into a remote grep -E, single quoted)
+const STOP_PATTERN = /^[A-Za-z0-9 ^$.-]+$/
+
+// stop one job's whole session, record exit 143, fetch its outputs (final: to their paths, the job ended where it was
+// meant to; otherwise to partial/), and mark it done so the batch can finish
+function halt(d: Droplet, job: JobState, final: boolean, why: string): void {
+  ssh(d, `pkill -TERM -s ${job.pid}; sleep 5; pkill -KILL -s ${job.pid}; [ -f ${jobDir(job.name)}/job.exit ] || echo 143 > ${jobDir(job.name)}/job.exit; echo stopped`, 60_000)
+
+  if (!fetchJob(d, job, final)) {
+    throw new Error(`${job.name}: stopped, but the fetch did not complete`)
+  }
+
+  const s = load()
+
+  s.jobs[job.name] = { ...s.jobs[job.name]!, exit: 143, fetched: true, stopped: why }
+  save(s)
+  log(`${job.name}: stopped ${why} (exit 143), outputs ${final ? 'at their paths' : `in tmp/burst/jobs/${job.name}/partial/`}`)
+}
+
+// whether a job's --when pattern has matched a line of its log
+function reached(d: Droplet, job: JobState): boolean {
+  if (!job.stopWhen || !STOP_PATTERN.test(job.stopWhen)) {
+    return false
+  }
+
+  const file = job.log ? `${PKG}/${job.log}` : `${jobDir(job.name)}/job.log`
+
+  return ssh(d, `grep -qE '${job.stopWhen}' ${file} && echo hit || echo no`).includes('hit')
 }
 
 // the idle guard, by cron every two minutes
@@ -792,40 +902,55 @@ function remoteStates(d: Droplet): Remote[] {
     .map(([n, e]) => ({ name: n!, exit: e === '-' ? undefined : Number(e) }))
 }
 
-function settle(d: Droplet, final: boolean): { finished: number; running: number } {
+// one pass over the batch: fetch every newly finished job (and, final, every running one's partial outputs). failed
+// counts the fetches that did not complete, which are tried again on the next pass. A job missing from the droplet's
+// list is counted as running, never as done, so an odd answer can only delay a destroy, never cause one
+function settle(d: Droplet, final: boolean): { finished: number; running: number; failed: number } {
   const states = remoteStates(d)
 
   let finished = 0
   let running = 0
+  let failed = 0
 
   for (const job of Object.values(load().jobs)) {
+    if (job.fetched) {
+      finished++
+      continue
+    }
+
     const r = states.find(s => s.name === job.name)
 
     if (r?.exit === undefined) {
+      if (!final && reached(d, job)) {
+        halt(d, job, true, `at /${job.stopWhen}/`)
+        finished++
+        continue
+      }
+
       running++
 
-      if (final && !job.fetched) {
-        fetchJob(d, job, false)
+      if (final && !fetchJob(d, job, false)) {
+        failed++
       }
 
       continue
     }
 
     finished++
+    log(`${job.name}: exit ${r.exit}${r.exit === 124 ? ' (stopped at the cap)' : ''}`)
 
-    if (!job.fetched) {
-      log(`${job.name}: exit ${r.exit}${r.exit === 124 ? ' (stopped at the cap)' : ''}`)
+    if (fetchJob(d, job, true)) {
+      const s = load()
 
-      if (fetchJob(d, job, true)) {
-        const s = load()
-
-        s.jobs[job.name] = { ...s.jobs[job.name]!, exit: r.exit, fetched: true }
-        save(s)
-      }
+      s.jobs[job.name] = { ...s.jobs[job.name]!, exit: r.exit, fetched: true }
+      save(s)
+    } else {
+      failed++
+      log(`${job.name}: the fetch did not complete; trying again on the next pass`)
     }
   }
 
-  return { finished, running }
+  return { finished, running, failed }
 }
 
 async function watch(): Promise<number> {
@@ -841,13 +966,15 @@ async function watch(): Promise<number> {
     if (Date.now() >= d.deadline - STOP_MARGIN) {
       log(`the hard cap is reached (${new Date(d.deadline).toISOString()}): stopping the jobs, fetching, destroying`)
 
-      return down('the hard cap', true)
+      return down('the hard cap', true, true)
     }
 
     try {
       const { finished, running } = settle(d, false)
 
-      if (running === 0 && Object.values(load().jobs).every(j => j.fetched)) {
+      const jobs = Object.values(load().jobs)
+
+      if (running === 0 && jobs.length > 0 && jobs.every(j => j.fetched)) {
         log(`every job finished (${finished}) and is fetched`)
 
         if (opt['keep-up']) {
@@ -958,6 +1085,10 @@ async function run(): Promise<number> {
     s.jobs[j.name] = { ...j, launched: new Date().toISOString(), pid, fetched: false }
     save(s)
     log(`${j.name}: started (session ${pid}), ${j.threads} threads, stopped on the machine by ${(cap / 3600).toFixed(1)} h`)
+
+    if (j.priority) {
+      favor(d, s.jobs[j.name]!)
+    }
   }
 
   ssh(d, `touch ${BASE}/active`)
@@ -1040,7 +1171,7 @@ function status(): number {
   return 0
 }
 
-function down(reason: string, auto = false): number {
+function down(reason: string, auto = false, cap = false): number {
   const d = current()
   const list = tagged(TAG)
 
@@ -1080,22 +1211,33 @@ function down(reason: string, auto = false): number {
 
   log(`down (${reason}): fetching anything unfetched from ${d.name}`)
 
-  let fetched = true
+  // a transient ssh failure (a dropped route, a loaded machine) must never cost an output: the fetch is retried, and
+  // the droplet is destroyed only once every job's outputs are here, or at the hard cap, or on --force
+  let complete = !list.some(x => x.id === d.id)
 
-  if (list.some(x => x.id === d.id)) {
+  for (let attempt = 1; !complete && attempt <= FETCH_ATTEMPTS; attempt++) {
     try {
       awake(d)
-      settle(d, true)
+      complete = settle(d, true).failed === 0
     } catch (e) {
-      fetched = false
-      log(`could not fetch: ${(e as Error).message}`)
+      log(`fetch attempt ${attempt} of ${FETCH_ATTEMPTS} failed: ${(e as Error).message}`)
+    }
+
+    if (!complete && attempt < FETCH_ATTEMPTS) {
+      pause(60)
     }
   }
 
-  if (!fetched && !auto && !opt.force) {
-    console.error('burst down: the fetch failed, so the droplet is left up. Look at `burst status`, or pass --force to destroy anyway')
+  const allFetched = Object.values(load().jobs).every(j => j.fetched)
+
+  if (!complete && !allFetched && !cap && !opt.force) {
+    log(`burst down: the fetch did not complete after ${FETCH_ATTEMPTS} attempts, so ${d.name} is LEFT UP (the watchdog stays armed for the cap). Look at \`burst status\`, run \`burst down --commit\` again, or pass --force to destroy anyway`)
 
     return 1
+  }
+
+  if (!complete && !allFetched) {
+    log(`destroying without every output fetched (${cap ? 'the hard cap' : '--force'}); what was fetched is in tmp/burst/jobs/`)
   }
 
   const gone = destroy(d.id, TAG, LOG)
@@ -1192,6 +1334,8 @@ async function main(): Promise<number> {
         return sync()
       case 'stop':
         return stop()
+      case 'prioritize':
+        return prioritize()
       case 'down':
         return down('burst down')
       default:

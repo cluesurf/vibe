@@ -19,6 +19,7 @@
 // DETERMINISM: no random numbers. EXACT: integer rows, residues mod a prime, rationals.
 
 import { exactNullSpace, RowSet, type ExactVector, type NullBasis } from '@/code/algebra/linear/exact-null-space'
+import { multiModularNullSpace, type MultiModularNull } from '@/code/algebra/linear/multi-modular-null-space'
 
 export type PeeledNull = NullBasis & {
   // classes forced to zero, merges made, and the live roots left for the dense solve (touched by a remaining row)
@@ -26,6 +27,8 @@ export type PeeledNull = NullBasis & {
   readonly merged: number
   readonly dense: number
   readonly passes: number
+  // the primes the lift needed (1 when exactNullSpace's own prime sufficed)
+  readonly primes: number
 }
 
 export function peeledNullSpace(set: RowSet): PeeledNull {
@@ -146,7 +149,11 @@ export function peeledNullSpace(set: RowSet): PeeledNull {
     dense += reduced.touched[c]!
   }
 
-  const inner = exactNullSpace(reduced)
+  // one prime first; when its residues do not lift (Wang's bound is about 4,096 below 2^25), several primes joined
+  // by the Chinese remainder theorem (code/algebra/linear/multi-modular-null-space)
+  const single = exactNullSpace(reduced)
+  const inner = single.reconstructed && single.verified ? single : multiModularNullSpace(reduced)
+  const primes = inner === single ? 1 : (inner as MultiModularNull).primes
 
   // lift: every original column to (root, sign), or zero
   const rootOf = new Int32Array(n)
@@ -206,6 +213,7 @@ export function peeledNullSpace(set: RowSet): PeeledNull {
     merged,
     dense,
     passes,
+    primes,
   }
 }
 

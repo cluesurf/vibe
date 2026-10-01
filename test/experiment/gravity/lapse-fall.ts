@@ -808,7 +808,7 @@ export default experiment({
   id: 'gravity/lapse-fall',
   code: 'E-GRV-0149',
   title:
-    'gravity as a lapse on the one-body register band, fail on H1 as predicted: the rule\'s own lapse (the local step angle) drops a packet at rest at exactly E/m* times the gradient (to 1e-5) and its equivalence ratio is 1/R to 3e-4 at five rest gaps (0.996 to 0.642), so universality is R = 1; a moving packet falls by its mass M dE/dM, not its energy (to 9e-5), up to 1.57 times E/m*; both bands fall alike',
+    "gravity as a lapse on the one-body register band, fail on H1 as predicted: the rule's own lapse (the local step angle) drops a packet at rest at exactly E/m* times the gradient (to 1e-5) and its equivalence ratio is 1/R to 3e-4 at five rest gaps (0.996 to 0.642), so universality at rest is R = 1; a moving packet falls by its mass M dE/dM, not its energy (to 9e-5), up to 1.57 times E/m*; both bands fall alike",
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',

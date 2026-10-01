@@ -84,6 +84,32 @@
 // VERDICT, fixed before the run: PASS when H1 holds with every control and instrument; FAIL when P fires with them
 // holding; PARTIAL when a control or instrument fails.
 //
+// GATE RUN (tmp/ax-fnd-run4.log, on the droplet, 7,128 s): PARTIAL, by the rule fixed above, because I3 failed on V.
+//  - G (G1 and G2: 74,083 one-dock contents and 207,360 two-dock probes, 624,486 distinct A rows, 2,304 beats run
+//    again on side 8): found 2 summed over the 16 characters, both in the trivial character, exactly L and F; 0 in
+//    every other character, so 0 momentum-like. Every basis certified (peeled, the Gram remainder at most 3,209
+//    columns). WITHIN DEGREE 2 AT SUPPORT TWO NEIGHBORING DOCKS, every conserved density whose coordinate reflections are
+//    conserved too is a combination of L, F and the constant. There is no local momentum density at this support.
+//  - V8 IS NOT A READING. In all 16 characters the solve's residues mod its one prime did not lift to rationals:
+//    exactNullSpace reconstructs by Wang's bound, |n|, d <= sqrt((p - 1) / 2), about 4,096 for p < 2^25, and reports
+//    `reconstructed` false when any entry misses it. On that flag this file's reader marks every named density as
+//    outside N(A) and prints the mod-p dimensions. So the log's "found 216", "momentum-like 75" and "known in N(A) 0 of
+//    14" (even L and F) are that guard's output: an uncertified mod-p count and a refusal, not invariants and not a
+//    measurement that L and F fail. The likely reason only V fails: its whole-box rows count a bilinear over 4,096 docks,
+//    so the null vectors need rationals past 4,096, where E-FND-0170's one-dock V8 stayed inside. I3 is false on V only,
+//    and that alone makes P read true and H1 false by the letter of the gates. On G, H1 holds and P does not fire.
+//  THE FIX, AFTER THIS RUN (no gate moved): code/algebra/linear/multi-modular-null-space solves the same Gram system
+//    modulo several primes, joins them by the Chinese remainder theorem and reconstructs with the product's bound,
+//    verifying every vector against every row in BigInt. peeledNullSpace falls back to it whenever one prime does not
+//    lift. A rerun of this file reads V with it. pairVacuumRun (tmp/ax-vacuum.ts <characters>) reads V alone, one process
+//    per character, as a check that is not the registered verdict.
+//  - C1: the bare stream finds 951 (trivial) and 645 (character 1) against the rule's 2 and 0. C2: the decay map 0 and 0.
+//    I1, I2 (rule 184 one invariant, the triple toggle 0 over Q), I4 to I8 hold; I7 one-dock split 2 = 2.
+//  - Runs 2 and 3 carried the dropped-row bug described above (60 spurious products on G, all gone here).
+// WHAT IT MEANS: Navier-Stokes cannot come from a local conserved momentum at support two and degree 2. The long-
+// wavelength theory of the rule stays two coupled diffusions of love and fear (K1b), unless a wider support or a
+// higher degree holds a momentum density.
+//
 // Depth L2: an exact reading of the rule's own runs. DETERMINISM: no random numbers; probes are enumerated in a fixed
 // order. EXACT: integer rows, residues mod a prime, rationals, BigInt. NOTHING MOVES: each slot takes the value a piece
 // hands it.
@@ -154,7 +180,7 @@ export default experiment({
   id: 'foundations/pair-conserved-search',
   code: 'E-FND-0171',
   title:
-    'every conserved density of the working rule on two neighboring docks up to degree 2, by exact linear algebra split over the 16 characters of the coordinate reflections (the momentum density)',
+    'every conserved density of the working rule on two neighboring docks up to degree 2, by exact linear algebra split over the 16 characters of the coordinate reflections (the momentum density), partial (the vacuum family did not certify): on 74,083 one-dock and 207,360 two-dock probes the rule keeps exactly the love and fear counts, 0 in every non-trivial character, so no local momentum density at support two; the bare stream finds 951, the decay map 0',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',
@@ -698,6 +724,28 @@ function splitCheck(c: { A: RowSet; B: RowSet }, generators: readonly Int32Array
   }
 
   return { unsplit, split }
+}
+
+// THE VACUUM FAMILY ALONE, on chosen characters: a check that can be split across processes (one character each). It
+// reports per character the dimensions, whether they certified, and the named densities inside N(A); it is not the
+// registered run, whose verdict reads V through pairConservedRun.
+export function pairVacuumRun(characters: readonly number[]): Record<string, number | string> {
+  const named = namedDensities()
+  const group = elementaryGroup([0, 1, 2, 3].map(coordinateFlip).map(pairPermutation))
+  const vacuum = collectVacuum()
+  const r = readFamily(`V${V_SIDE}`, vacuum, group, named, characters, what => console.error(what))
+  const out: Record<string, number | string> = {
+    reproducible: flag(vacuum.reproducible),
+    perLineIn: r.perLineIn.length,
+    knownIn: r.knownIn.length,
+    verified: flag(r.verified),
+  }
+
+  for (const c of r.chars) {
+    out[`chi${c.chi}`] = `found ${c.found}, dimA ${c.dimA}, dimB ${c.dimB}, known rank ${c.knownRank}, per-line rank ${c.perLineRank}, verified ${c.verified}${c.extra.length > 0 ? `, extra ${c.extra.join(' | ')}` : ''}`
+  }
+
+  return out
 }
 
 // ---------------- the run ----------------
