@@ -1,3 +1,5 @@
+// STATE 2026-10-01: GATES WRITTEN, GATE RUN NOT STARTED, NOT REGISTERED (paused for a merge; E-SPN-0185 is reserved, not
+// taken). Resume: register the row and the barrel import, then THREADS=6 test/rerun.ts E-SPN-0185 (about 4 to 6 hours).
 // DOES THE SMALL-ANGLE 2I BEAT KEEP THE ORDERED VACUUM ON A PATCH WITH A NEAR-CONTINUOUS SPECTRUM (E-SPN-0185, OPEN-STR-02)?
 // E-SPN-0154 found, on the husk tetrahedron (3 loops, 29,288 Gauss states, a 1,589-state symmetric sector), that the
 // prepared ground state of H = H_E + 8 H_B is lost within a beat for 1/delta up to 12, survives tau = 3, 10, 40, 40 beats
