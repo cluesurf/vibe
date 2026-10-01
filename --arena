@@ -1,0 +1,22 @@
+CMP  computation     used  19  next E-CMP-0020
+CSM  cosmology       used  59  next E-CSM-0060
+DRK  dark            used   0  next E-DRK-0001
+DST  data            used  28  next E-DST-0029
+FLD  fluid           used  33  next E-FLD-0034
+FND  foundations     used 170  next E-FND-0171
+FRC  force           used 276  next E-FRC-0277
+GMT  geometry        used  39  next E-GMT-0040
+GRV  gravity         used 145  next E-GRV-0149
+HLG  holography      used  36  next E-HLG-0037
+MMR  memory          used  16  next E-MMR-0017
+MSC  miscellany      used   1  next E-MSC-0002
+MTH  method          used  25  next E-MTH-0030
+MTR  matter          used  25  next E-MTR-0026
+NVG  navigation      used  14  next E-NVG-0015
+QTM  quantum         used 158  next E-QTM-0164
+RLT  relativity      used 109  next E-RLT-0110
+SBT  substrate       used  30  next E-SBT-0031
+SCL  scale           used  17  next E-SCL-0018
+SLF  self            used 178  next E-SLF-0179
+SPN  spin            used 181  next E-SPN-0187
+exit 0
