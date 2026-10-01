@@ -173,6 +173,7 @@ export default experiment({
 })
 
 type Runner = { state: () => Configuration; beat: () => void }
+
 export type Dynamics = { name: string; make: (tables: LockedTables, start: Configuration, phase: number) => Runner }
 
 // ---------------- the three dynamics ----------------

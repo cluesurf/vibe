@@ -65,6 +65,7 @@ export function peeledNullSpace(set: RowSet): PeeledNull {
   let merged = 0
   let passes = 0
   let changed = true
+
   const acc = new Map<number, number>()
 
   const mapped = (idx: Int32Array, val: Float64Array): Map<number, number> => {

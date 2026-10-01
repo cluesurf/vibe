@@ -57,7 +57,19 @@ export function registerPieces(): CMatrix[] {
   ]
 }
 
-export const binaryEntropy = (nu: number): number => {
+// the spectrum of a Hermitian matrix whose eigenvalues lie in [0, 1], run on A + I and shifted back: the QL test is
+// relative, and a cluster of exact zeros (a region's Gram matrix has many) need not converge unshifted
+export function unitSpectrum(n: number, re: Float64Array, im: Float64Array): number[] {
+  const shifted = Float64Array.from(re)
+
+  for (let i = 0; i < n; i++) {
+    shifted[i * n + i]! += 1
+  }
+
+  return hermitianEigenvaluesTridiagonal(n, shifted, im).map(v => v - 1)
+}
+
+export const binaryEntropy =(nu: number): number => {
   const x = Math.min(1, Math.max(0, nu))
 
   return (x > 1e-300 ? -x * Math.log(x) : 0) + (x < 1 ? -(1 - x) * Math.log(1 - x) : 0)
@@ -440,7 +452,7 @@ export function regionEntropies(
         }
       }
 
-      for (const nu of hermitianEigenvaluesTridiagonal(D, Gr, Gi)) {
+      for (const nu of unitSpectrum(D, Gr, Gi)) {
         spill = Math.max(spill, -nu, nu - 1)
         S[r]! += binaryEntropy(nu)
       }
@@ -513,7 +525,7 @@ export function regionEntropyBlock(
       }
     }
 
-    for (const nu of hermitianEigenvaluesTridiagonal(D, Br, Bi)) {
+    for (const nu of unitSpectrum(D, Br, Bi)) {
       spill = Math.max(spill, -nu, nu - 1)
       S += binaryEntropy(nu)
     }
@@ -540,6 +552,7 @@ export function stationarity(band: Band, Ps: readonly CMatrix[], modes: readonly
   })
 
   type V = { re: Float64Array; im: Float64Array }
+
   const zero = (): V => ({ re: new Float64Array(N * MODES), im: new Float64Array(N * MODES) })
 
   const applyU = (v: V): V => {
@@ -705,7 +718,7 @@ export function chainEntropies(hops: readonly number[], blocks: readonly number[
       }
     }
 
-    return hermitianEigenvaluesTridiagonal(l, br, bi).reduce((s, nu) => s + binaryEntropy(nu), 0)
+    return unitSpectrum(l, br, bi).reduce((s, nu) => s + binaryEntropy(nu), 0)
   })
 
   return { S, filled, gap }

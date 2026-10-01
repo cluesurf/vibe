@@ -60,8 +60,11 @@
 // the dock) breaks the occupation momentum at support one with nothing on the neighbor to compensate.
 //
 // CONTROLS (a failure makes the verdict partial). C1 MORE INVARIANTS: the bare stream (a slot permutation that keeps every
-// slot's direction) on G2 finds strictly more than the rule on G in the trivial character and in character 1. C2 NONE:
-// E-FND-0170's decay map (the stream, then every trit raised by one mod 3) on G2 finds 0 in characters 0 and 1.
+// slot's direction) on G finds strictly more than the rule on G in the trivial character and in character 1. C2 NONE:
+// E-FND-0170's decay map (the stream, then every trit raised by one mod 3) on G finds 0 in characters 0 and 1.
+// (The controls were first written on G2 alone. A smoke of this file on a family thinned 64-fold, tmp/ax-smoke2, found
+// the decay map leaving 146 there, because G2 alone has no one-dock probes to pin the linear part. They were moved to
+// the rule's own family G before the gate run, which is where E-FND-0170 ran them. Nothing else moved.)
 // INSTRUMENT (a failure makes the verdict partial). I1 E-FND-0170's toy rule 184 (one invariant) and I2 its mod-3 triple
 // toggle (0 over Q). I3 every null basis lifted to rationals and verified against every original row. I4 the neighbor
 // tables on sides 4 and 8 are consistent (the opposite slot streams back) and bijective; the four flips are involutions
@@ -541,6 +544,7 @@ function readFamily(
 
       return y.every(v => v === 0) || inSpanSparse(NA, sparse(y))
     }
+
     const knownYs = named.known.filter(within).map(k => proj.get(k.name)!)
     const perLineYs = named.perLine.filter(within).map(k => proj.get(k.name)!)
     const knownRank = quotientRank(NB, knownYs)
@@ -692,11 +696,11 @@ export function pairConservedRun(plan: PairPlan = { thin: 1, vacuum: true }): Ve
     readings.push(readFamily(`V${V_SIDE}`, vacuum, group, named, undefined, log))
   }
 
-  // the controls, on G2, characters 0 and 1
-  const s2 = collect(STREAM, probes.G2, alias)
-  const d2 = collect(DECAY, probes.G2, alias)
-  const stream = readFamily('stream G2', s2, group, named, [0, 1])
-  const decay = readFamily('decay G2', d2, group, named, [0, 1])
+  // the controls, on G (G1 and G2, as the rule), characters 0 and 1
+  const s2 = collect(STREAM, [...probes.G1, ...probes.G2], alias)
+  const d2 = collect(DECAY, [...probes.G1, ...probes.G2], alias)
+  const stream = readFamily('stream G', s2, group, named, [0, 1])
+  const decay = readFamily('decay G', d2, group, named, [0, 1])
 
   log('controls read')
 
@@ -772,7 +776,7 @@ export function pairConservedRun(plan: PairPlan = { thin: 1, vacuum: true }): Ve
 
   return verdict({
     status,
-    claim: `H1 ${H1} P ${P}. ${readings.map(line).join('. ')}. Controls: C1 ${C1} (the bare stream on G2 finds ${at(stream, 0)} in the trivial character and ${at(stream, 1)} in character 1) C2 ${C2} (the decay map ${at(decay, 0)}, ${at(decay, 1)}); instrument I1 ${I1} I2 ${I2} I3 ${I3} I4 ${I4} I5 ${I5} I6 ${I6} I7 ${I7} (one-dock G1: ${split.unsplit} unsplit, ${split.split} through the characters) I8 ${I8} (${alias.count} side-4 relations differ from side 8, all links between a target of x0 and a target of y; ${g2.dropped} G2 rows dropped)`,
+    claim: `H1 ${H1} P ${P}. ${readings.map(line).join('. ')}. Controls: C1 ${C1} (the bare stream on G finds ${at(stream, 0)} in the trivial character and ${at(stream, 1)} in character 1) C2 ${C2} (the decay map ${at(decay, 0)}, ${at(decay, 1)}); instrument I1 ${I1} I2 ${I2} I3 ${I3} I4 ${I4} I5 ${I5} I6 ${I6} I7 ${I7} (one-dock G1: ${split.unsplit} unsplit, ${split.split} through the characters) I8 ${I8} (${alias.count} side-4 relations differ from side 8, all links between a target of x0 and a target of y; ${g2.dropped} G2 rows dropped)`,
     metrics,
     control: {
       stream0: at(stream, 0),
