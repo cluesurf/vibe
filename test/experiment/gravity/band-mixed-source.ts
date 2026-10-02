@@ -70,6 +70,29 @@
 // VERDICT: fail if P1 fires and I1, C1, C2 hold (the route closed); partial if I1, C1 or C2 fails (the reading not
 //  trusted); pass if H1 holds with I1, C1 and C2.
 //
+// FIRST RUN 2026-10-02 (tmp/bm-run1.log, 1,101 s): PARTIAL, on one instrument clause; the route's kill fires on both
+//  composites, as predicted. No gate moved and none was rerun.
+//  - I1 FAILS on the meson's stability: its sigma_S and sigma_D moved by 0.082 and 0.068 between the 64 and 192 filters
+//    (1.830 to 1.912, 0.128 to 0.060) against the 0.02 allowed, so the radius-7 level with residual 3.5e-2 is not
+//    converged and its counts are read to about 0.1 only. Every other clause holds: the projector beats reproduce both
+//    engines to 7.7e-16 and 6.8e-16, the projector checks 1.6e-8 and 7.5e-8, residuals 3.5e-2 and 2.1e-2, the light
+//    pair's counts moved 5.7e-3, slab norms kept to 6e-12, the free drift 7.3e-6.
+//  - P1 FIRES, H1 fails on all four parts. The meson (E 1.9503 against E-SPN-0162's 1.978945 on radius 9): sigma_S
+//    1.912 (0.956 a member), sigma_D 0.060 (0.030 a member), D over S 0.031; band-A pull 3.21e-2, band-B 2.41e-3, cross
+//    ratio 0.075. The light pair (a_B 3, E 1.5656 against E-SPN-0173's 1.5685 on radius 14): sigma_S 1.978 (0.989),
+//    sigma_D 0.027 (0.013), D over S 0.013; pulls 3.25e-2 and 1.63e-3, cross ratio 0.050. Both are band-A pairs: the
+//    weights differ by a factor 30 and 74 where the route needs 10%, and the other band is pulled at 5 to 8% of the
+//    like band, near a bare band-A hole's 5.7%. The meson's ratio, the less converged, would have to move by a factor 7
+//    to reach 0.5.
+//  - C1: the D D start reads sigma_S 0.145, sigma_D 1.817 (E -1.925): the reader reads either band. C2: a (1, 1) source
+//    pulls both bands 1.786e-2 (ratio 1.0000000), a (1, 0) source 2.174e-2 and 1.23e-3 (ratio 0.057, E-GRV-0147's).
+//  - Read: sigma_S + sigma_D is 1.972 (meson) and 2.004 (light pair), not exactly 2; the pulls are sublinear in the
+//    counts (the first-order form of point 3 gives 4.16e-2 and 4.30e-2 for the like pulls, read 3.21e-2 and 3.25e-2;
+//    the (1, 1) source 1.79e-2 against 2.30e-2), which does not touch the ratios' order.
+//  So a composite of members of one band sources one band's field: the meson and the light pair are band-pure to 3% and
+//  1%, and the two fields do not average on them. Route H2c is closed for the composites the rule holds; an S D pair (one
+//  member of each band) is the composite left that would carry about (1, 1), and none is held.
+//
 // WHAT THIS CAN AND CANNOT SHOW. It reads the two composites the row names, as levels of their own engines on smaller
 // balls, in the test-particle limit of the pull (a static source with the composite's counts, one hole probe), as
 // E-GRV-0147 did. It can close the route for these composites: a band-pure composite cannot average the two fields. It
@@ -267,7 +290,8 @@ function buildLevel(input: {
 export default experiment({
   id: 'gravity/band-mixed-source',
   code: 'E-GRV-0152',
-  title: 'are composite gravity sources band-mixed (route H2c)',
+  title:
+    "composite sources are not band-mixed, partial (the meson's counts moved 0.08 between filters against 0.02, its level unconverged on radius 7), the route's kill firing on both: read with exact projectors at each beat's stage, the register meson carries S and D counts 1.91 and 0.06 and the light register pair 1.98 and 0.027, so both are band-A pairs, and on E-GRV-0147's slab a hole of the other band is pulled toward them at 0.075 and 0.050 of the like band (a bare band-A hole 0.057), where a (1, 1) source pulls both bands equally; the two gravity fields do not average on the composites the rule holds",
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',
