@@ -89,6 +89,20 @@
 //  itself is outside both. A fail removes Gauss's law as the source of D on this column; it says nothing about the
 //  other D-fixing candidates (a fixed point of the running, a seam condition).
 //
+// FIRST RUN 2026-10-02 (tmp/dg-run1.log, 84 s): FAIL, as derived; every gate as fixed, none moved. I1 holds: at
+//  every D = 1 .. 64 all values are trits, 0 bulk Gauss violations, 0 flat husk violations on both fields by both
+//  counts, 0 links inside a column. C1 holds: the one-sheet restriction violates the husk's Gauss's law at 49 to 59
+//  of the 64 husk docks at every D >= 2 (0 at D = 1, where the sheet is the column). H1 fails and P1 holds: the
+//  warped column is exact at 0 of D = 2 .. 64 and 0 of D = 5 .. 12 under every reading (s = 1/3 and 1, two-sided
+//  and one-sided, weighted and unweighted charge); at s = 1 two-sided weighted, 62, 63 and then 64 of 64 husk docks
+//  violate from D = 2 on; links joining two layers number 384 at D = 2 and 12,288 at D = 64 (two-sided, 192 per
+//  layer step), and the level graph is one component at every D. Reported: D1 holds (every warped reading exactly
+//  0 at D = 1, one layer, every weight 1). R0 holds: the smallest relative residual over D = 2 .. 64 is 0.16 (s = 1/3,
+//  two-sided, at D = 37) to 0.28 (s = 1, one-sided, at D = 15), with no trend toward 0 (s = 1 two-sided: 0.50, 0.53,
+//  0.58, 0.35 at D = 2 .. 5, 0.37 at 12, 0.35 at 64). W holds: the warp carried inside the rule keeps Gauss's law
+//  at every D, worst 5.3e-16 relative. So the warp as a projection breaks Gauss's law at every depth that has a warp,
+//  and the warp as part of the rule keeps it at every depth: D enters neither. Title written after the run.
+//
 // Depth L1: exact counts and an exact identity, with the warped residuals in floats beside them.
 
 import { experiment } from '@/test/scaffold/suite'
@@ -118,7 +132,6 @@ const NEAR_EXACT = 1e-3
 const RULE_TOLERANCE = 1e-12
 
 type Layering = (typeof LAYERINGS)[number]
-type Reading = (typeof READINGS)[number]
 
 const ROOTS = rootsD4()
 
@@ -223,21 +236,21 @@ function huskResidual(
   return { residual, projected }
 }
 
-const norm = (a: ArrayLike<number>): number => {
+const norm = (a: Float64Array): number => {
   let s = 0
 
-  for (let i = 0; i < a.length; i++) {
-    s += (a[i] ?? 0) ** 2
+  for (const x of a) {
+    s += x ** 2
   }
 
   return Math.sqrt(s)
 }
 
-const nonzero = (a: ArrayLike<number>): number => {
+const nonzero = (a: Float64Array): number => {
   let n = 0
 
-  for (let i = 0; i < a.length; i++) {
-    n += a[i] === 0 ? 0 : 1
+  for (const x of a) {
+    n += x === 0 ? 0 : 1
   }
 
   return n
@@ -266,6 +279,7 @@ function bulkDivergence(
 function levelComponents(light: TritLight, heads: Int32Array): number {
   const d = light.bulk.depth
   const parent = Array.from({ length: d }, (_, i) => i)
+
   const find = (i: number): number => {
     while (parent[i] !== i) {
       i = parent[i] ?? i
@@ -293,7 +307,10 @@ function readDepth(depth: number): DepthRead {
   const { bulk } = light
   const heads = linkHeads(light)
   const out: DepthRead = {}
-  const fields = { a: makeField(light, true), b: makeField(light, false) }
+  const fields = {
+    a: makeField(light, true),
+    b: makeField(light, false),
+  }
   const ones = new Float64Array(bulk.links).fill(1)
 
   // I1: the instrument
@@ -301,7 +318,9 @@ function readDepth(depth: number): DepthRead {
 
   for (let l = 0; l < bulk.links; l++) {
     inColumn +=
-      bulk.column[Math.floor(l / 12)] === bulk.column[heads[l] ?? 0] ? 1 : 0
+      bulk.column[Math.floor(l / 12)] === bulk.column[heads[l] ?? 0]
+        ? 1
+        : 0
   }
 
   out.linksInsideColumn = inColumn
@@ -322,19 +341,15 @@ function readDepth(depth: number): DepthRead {
 
   // C1: the one-sheet restriction
   const sheet = Float64Array.from({ length: bulk.links }, (_, l) =>
-    bulk.level[Math.floor(l / 12)] === 0 && bulk.level[heads[l] ?? 0] === 0
+    bulk.level[Math.floor(l / 12)] === 0 &&
+    bulk.level[heads[l] ?? 0] === 0
       ? 1
       : 0,
   )
 
   out.sheetHusk_a = nonzero(
-    huskResidual(
-      light,
-      fields.a.flux,
-      fields.a.state.vibe,
-      sheet,
-      null,
-    ).residual,
+    huskResidual(light, fields.a.flux, fields.a.state.vibe, sheet, null)
+      .residual,
   )
 
   // the warped readings
@@ -342,6 +357,7 @@ function readDepth(depth: number): DepthRead {
     const layer = Int32Array.from({ length: bulk.docks }, (_, x) =>
       layerOf(bulk.level[x] ?? 0, depth, layering),
     )
+
     let crossing = 0
 
     for (let l = 0; l < bulk.links; l++) {
@@ -373,7 +389,10 @@ function readDepth(depth: number): DepthRead {
             reading === 'weighted' ? phi : null,
           )
 
-          out[`violations_${tag}_${reading}_${name}`] = nonzero(r.residual)
+          out[`violations_${tag}_${reading}_${name}`] = nonzero(
+            r.residual,
+          )
+
           out[`relResidual_${tag}_${reading}_${name}`] =
             norm(r.residual) / Math.max(norm(r.projected), 1e-300)
         }
@@ -381,7 +400,10 @@ function readDepth(depth: number): DepthRead {
 
       // W: the warp inside the rule, F = w E with q' = div F
       if (layering === 'two' && s === 1) {
-        const fa = Float64Array.from(fields.a.flux, (e, l) => e * (w[l] ?? 0))
+        const fa = Float64Array.from(
+          fields.a.flux,
+          (e, l) => e * (w[l] ?? 0),
+        )
         const q = bulkDivergence(light, heads, fa)
         const r = huskResidual(light, fa, q, ones, null)
 
@@ -424,10 +446,12 @@ function run() {
   const c1 = deep.every(d => v(d, 'sheetHusk_a') > 0)
   // H1
   const exactAt = (d: number, tag: string): boolean =>
-    v(d, `violations_${tag}_a`) === 0 && v(d, `violations_${tag}_b`) === 0
+    v(d, `violations_${tag}_a`) === 0 &&
+    v(d, `violations_${tag}_b`) === 0
   const h1 = tags.some(
     tag =>
-      deep.some(d => exactAt(d, tag)) && deep.some(d => !exactAt(d, tag)),
+      deep.some(d => exactAt(d, tag)) &&
+      deep.some(d => !exactAt(d, tag)),
   )
   // P1
   const p1 = deep.every(
@@ -439,7 +463,9 @@ function run() {
   const exactInCusp = DEPTHS.filter(
     d => d >= CUSP_WINDOW[0] && d <= CUSP_WINDOW[1],
   ).filter(d => tags.some(tag => exactAt(d, tag))).length
-  const exactDeep = deep.filter(d => tags.some(tag => exactAt(d, tag))).length
+  const exactDeep = deep.filter(d =>
+    tags.some(tag => exactAt(d, tag)),
+  ).length
   // reported
   const d1 = tags.every(tag => exactAt(1, tag))
   const minRel = Object.fromEntries(
@@ -452,14 +478,20 @@ function run() {
     tags.map(tag => {
       const vals = deep.map(d => v(d, `relResidual_${tag}_a`))
 
-      return [`argMinD_${tag}`, deep[vals.indexOf(Math.min(...vals))] ?? 0]
+      return [
+        `argMinD_${tag}`,
+        deep[vals.indexOf(Math.min(...vals))] ?? 0,
+      ]
     }),
   )
   const r0 = Object.values(minRel).every(x => x > NEAR_EXACT)
-  const ruleWorst = Math.max(...DEPTHS.map(d => v(d, 'ruleWarpRelResidual')))
+  const ruleWorst = Math.max(
+    ...DEPTHS.map(d => v(d, 'ruleWarpRelResidual')),
+  )
   const w = ruleWorst < RULE_TOLERANCE
 
-  const status = i1 && c1 && p1 ? 'fail' : i1 && c1 && h1 ? 'pass' : 'partial'
+  const status =
+    i1 && c1 && p1 ? 'fail' : i1 && c1 && h1 ? 'pass' : 'partial'
   const sample = (key: string): Record<string, number> =>
     Object.fromEntries(
       [1, 2, 3, 4, 5, 8, 12, 16, 32, 64].map(d => [
@@ -515,7 +547,7 @@ export default experiment({
   id: 'gauge/depth-from-gauss',
   code: 'E-FRC-0281',
   title:
-    "the depth from Gauss's law on the warped column, as derived before the run",
+    "Gauss's law on the warped column fixes no depth, fail as derived: with E-FRC-0177's layer weights lambda^(-s j) (s = 1/3 and 1, two-sided and one-sided, charge weighted or not) on E-FRC-0207's trit column, the husk's Gauss's law fails at every D = 2 .. 64 (0 exact, 0 in the cusp window 5 .. 12; 62 to 64 of 64 husk docks off, relative residual 0.16 to 0.58 with no trend) and holds only at D = 1, a column of one layer where every weight is 1; no link stays in a column and the levels form one chain, so only a constant weighting keeps Gauss's law, while the flat sum and the warp carried inside the rule keep it at every D (5.3e-16): Gauss's law is a column sum of bulk constraints and the depth does not enter it",
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L1',
