@@ -94,7 +94,16 @@
 //  than certifying it between samples, it is one-body (no interaction), and it is not a Hall conductance: the row's
 //  quantum Hall effect needs a 2d sample and a measured sigma_xy, which this does not give.
 //
-// FIRST RUN: pending.
+// FIRST RUN 2026-10-02 (tmp/wp-spn-run1.log, 1184 s): PASS, every gate as registered, none moved or rerun. I1 every
+//  step of every flow complete, worst eigen residual 2.2e-9 (the closing read; 5.9e-12 or less on the gated cases). I2
+//  B0 A +4, B -4, as E-SPN-0168's E1. K1 the field-free Wilson gap along arg v from -1.5210 to -1.2403: 0.54195,
+//  0.55373, 0.56501, 0.57583, 0.57339, 0.52661, 0.47983. K2 no bulk level within the window for B0, D1 to D5, fluxes
+//  1/12 and 1/10 and the midpoint loop, every search complete. H1 D1 (Wilson v, m0 0.4798) A +4 B -4 (8 ambiguous labels,
+//  eigen 5.9e-12); D2 (flux 1/9) +4 / -4; D3 (loop 0.31, -0.17, 0.4) +4 / -4; D4 (depth 16) +4 / -4; D5 (Wilson region 4
+//  of 12) +4 / -4; each wall's count is 4 up and 0 down (A) or 0 up and 4 down (B), no crossing against the flow. C1 the
+//  gap at v(2, -2), K = 0, is 0 to the float; the flow at v(4, -3) reads 0 and 0 with no level in the window. Read: at
+//  the closing point v(2, -2) the flow reads 0 and 0, with 8 bulk levels inside the window (nearest 0.1289) and 8
+//  ambiguous labels: there the count has already left 4. P1 false.
 //
 // Depth L2, as E-SPN-0168. DETERMINISM: no random numbers (fixed trigonometric Lanczos starts and Weyl momenta). EXACT: every
 // unit is a ring unit of Z[omega][1/42]; the gated fields' phases are roots of unity of order 2 qa (qa 15 and 9); the
@@ -206,7 +215,7 @@ export default experiment({
   id: 'spin/wall-pump-deformation',
   code: 'E-SPN-0188',
   title:
-    'the wall pump under deformations that keep the gap (Wilson mass, field strength, loop, depth, wall position) and one that closes it: pending the gate run',
+    'the E . B wall pump of the register rule is quantized, pass: member number moves +4 per loop on one wall and -4 on the other under five deformations that keep the bulk gap open (a Wilson unit with rest mass 0.48 in place of 0.76, flux 1/9 in place of 1/15, another loop through the magnetic zone, depth 16 in place of 12, the wall moved off center), each count certified complete with eigen residuals at most 5.9e-12, and it drops to 0 on both walls when the Wilson unit is moved past the exact ring unit where the bulk gap closes at rest, so the count is an index of the bulk and changes only where the gap closes; it is one-body and not yet a Hall conductance',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',

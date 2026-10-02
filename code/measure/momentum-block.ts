@@ -261,6 +261,8 @@ export type UnitaryOptions = {
 }
 
 const TOP = 8
+// the solver runs on K + SHIFT (K has norm at most 1): its QL test is relative, and eigenvalues near 0 stall it
+const SHIFT = 3
 
 const wrap = (x: number): number => {
   let y = x % (2 * Math.PI)
@@ -491,7 +493,7 @@ function smallEigenColumns(k: number, H: { re: Float64Array; im: Float64Array })
   Zr: Float64Array
   Zi: Float64Array
 } {
-  const eig = hermitianEigenRows(k, H.re, H.im)
+  const eig = hermitianEigenRows(k, H.re, H.im, SHIFT)
   const Zr = new Float64Array(k * k)
   const Zi = new Float64Array(k * k)
 
@@ -578,7 +580,7 @@ export function unitaryEigen(U: BlockMatrix, opt: UnitaryOptions): UnitaryEigen 
       }
     }
 
-    const eig = hermitianEigenRows(k, Kr, Ki)
+    const eig = hermitianEigenRows(k, Kr, Ki, SHIFT)
     const rows: number[] = []
 
     for (let c = 0; c < k; c++) {

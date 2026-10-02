@@ -212,7 +212,9 @@ function pairRun(
       if (a.step[l] !== b.step[l]) {
         stepOff++
 
-        const d = Math.abs(mod(b.step[l]! - a.step[l]! + rule.top, rule.span) - rule.top)
+        const d = Math.abs(
+          mod(b.step[l]! - a.step[l]! + rule.top, rule.span) - rule.top,
+        )
 
         maxStep = Math.max(maxStep, d)
       }
@@ -223,7 +225,10 @@ function pairRun(
         restOff++
       }
 
-      if (whole && mod(b.rate[y]! - a.rate[y]! - t * shift, rule.span) !== 0) {
+      if (
+        whole &&
+        mod(b.rate[y]! - a.rate[y]! - t * shift, rule.span) !== 0
+      ) {
         rateOff++
       }
     }
@@ -302,6 +307,7 @@ function tiltRun(
   }
 
   const d = stepDepth(mesh, s.step)
+
   let lo = Infinity
   let hi = -Infinity
 
@@ -328,7 +334,9 @@ const sameState = (a: StepState, b: StepState): boolean =>
 export function blindRun(plan: BlindPlan): Verdict {
   const started = Date.now()
   const log = (what: string): void =>
-    console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
   const L = plan.side
   const mesh = radionMesh([L, L, L])
   const rule = stepRule(plan.depth, plan.levels)
@@ -372,7 +380,10 @@ export function blindRun(plan: BlindPlan): Verdict {
   log(`I1 ${I1}: Gauss ${gaussDip}, beats off ${i1Off}`)
 
   // ---------------- I2: a closed box's lines cannot hold a uniform source ----------------
-  const pattern = Int8Array.from({ length: N * 9 }, (_, l) => ((l * 7) % 3) - 1)
+  const pattern = Int8Array.from(
+    { length: N * 9 },
+    (_, l) => ((l * 7) % 3) - 1,
+  )
   const divP = new Float64Array(N)
 
   divergence(mesh, pattern, divP)
@@ -390,7 +401,9 @@ export function blindRun(plan: BlindPlan): Verdict {
 
   const I2 = totalDip === 0 && totalPattern === 0 && uniformRefused
 
-  log(`I2 ${I2}: totals ${totalDip} ${totalPattern}, uniform refused ${uniformRefused}`)
+  log(
+    `I2 ${I2}: totals ${totalDip} ${totalPattern}, uniform refused ${uniformRefused}`,
+  )
 
   // ---------------- H1: the depth is blind to a uniform source ----------------
   const bases: [string, Int32Array][] = [
@@ -404,7 +417,13 @@ export function blindRun(plan: BlindPlan): Verdict {
 
   for (const [name, content] of bases) {
     for (const c of plan.uniforms) {
-      const r = pairRun(mesh, rule, units(rule, content, 0), rule.unit * c, plan.beats)
+      const r = pairRun(
+        mesh,
+        rule,
+        units(rule, content, 0),
+        rule.unit * c,
+        plan.beats,
+      )
       const ok =
         r.stepOff === 0 &&
         r.restOff === 0 &&
@@ -429,11 +448,14 @@ export function blindRun(plan: BlindPlan): Verdict {
   const sub0 = pairRun(mesh, rule, units(rule, zero, 0), 1, plan.beats)
   const subDip = pairRun(mesh, rule, units(rule, dip, 0), 1, plan.beats)
 
-  log(`read sub-unit: zero ${JSON.stringify(sub0)} dip ${JSON.stringify(subDip)}`)
+  log(
+    `read sub-unit: zero ${JSON.stringify(sub0)} dip ${JSON.stringify(subDip)}`,
+  )
 
   // ---------------- C1: non-uniform sources of the same total tilt it ----------------
   const uniform1 = units(rule, new Int32Array(N).fill(1), 0)
-  const plus = (content: Int32Array): Int32Array => Int32Array.from(content, v => v + 1)
+  const plus = (content: Int32Array): Int32Array =>
+    Int32Array.from(content, v => v + 1)
   const planes = new Int32Array(N)
   const slab = new Int32Array(N)
 
@@ -445,13 +467,25 @@ export function blindRun(plan: BlindPlan): Verdict {
   }
 
   const uni = tiltRun(mesh, rule, uniform1, plan.beats)
-  const cDip = tiltRun(mesh, rule, units(rule, plus(dip), 0), plan.beats)
-  const cPlanes = tiltRun(mesh, rule, units(rule, plus(planes), 0), plan.beats)
+  const cDip = tiltRun(
+    mesh,
+    rule,
+    units(rule, plus(dip), 0),
+    plan.beats,
+  )
+  const cPlanes = tiltRun(
+    mesh,
+    rule,
+    units(rule, plus(planes), 0),
+    plan.beats,
+  )
   const cSlab = tiltRun(mesh, rule, units(rule, slab, 0), plan.beats)
   // the static planar depth: -6 (x_{n+1} - 2 x_n + x_{n-1}) = rho, so x(0) - x(L/2) = (L/2) / 12
   const planarStatic = h / 12
   const planarRel = Math.abs(cPlanes.contrast / planarStatic - 1)
-  const totals = [plus(dip), plus(planes), slab].map(c => c.reduce((a, v) => a + v, 0))
+  const totals = [plus(dip), plus(planes), slab].map(c =>
+    c.reduce((a, v) => a + v, 0),
+  )
   const C1 =
     totals.every(t => t === N) &&
     uni.tilted === 0 &&
@@ -465,12 +499,16 @@ export function blindRun(plan: BlindPlan): Verdict {
   )
 
   const instrument = I1 && I2 && I3
-  const status: Verdict['status'] = !H1 ? 'fail' : instrument && C1 ? 'pass' : 'partial'
+  const status: Verdict['status'] = !H1
+    ? 'fail'
+    : instrument && C1
+      ? 'pass'
+      : 'partial'
 
   return verdict({
     status,
     claim: H1
-      ? 'a uniform source moves only the depth register\'s uniform rate; every step, rest and found depth is bit for bit the departure\'s alone'
+      ? "a uniform source moves only the depth register's uniform rate; every step, rest and found depth is bit for bit the departure's alone"
       : 'a uniform source changes the steps: the depth field is not blind to it',
     metrics: {
       side: L,

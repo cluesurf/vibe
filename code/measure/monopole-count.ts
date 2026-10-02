@@ -12,7 +12,7 @@
 //
 // THE CUBES. Each husk dock y is the low corner of a unit cube. Each of its six square faces is the union of the
 // two husk triangles cut by the face's rising diagonal (1,1,0), (0,1,1) or (1,0,1) from the face's low corner, both
-// of type axis-axis-diagonal. A face shared by two cubes uses the same two triangles with opposite outward signs,
+// of type axis-axis-diagonal (or, read beside it, by the falling diagonal (1,-1,0), (0,1,-1) or (1,0,-1)). A face shared by two cubes uses the same two triangles with opposite outward signs,
 // so the charges of all cubes sum to 0 on the periodic box.
 //
 // THE HARMONIC VACUUM. In y = W^(1/2) A, eta = W^(1/2) E the rule's linear beat is y' = y + eta, eta' = eta - f
@@ -26,7 +26,6 @@
 import { curlAt, huskLight, jacobiEigen } from '@/code/measure/husk-balance'
 import {
   centeredField,
-  huskCurlT,
   huskCurlWeighted,
   TRIT_HUSK_VECTORS,
   type TritLight,
@@ -42,7 +41,10 @@ export type Cubes = {
   readonly sign: Int8Array
 }
 
-export function huskCubes(light: TritLight): Cubes {
+export function huskCubes(
+  light: TritLight,
+  split: 'rising' | 'falling' = 'rising',
+): Cubes {
   const { bulk } = light
   const side = bulk.side
   const dock = (p: readonly number[]): number =>
@@ -104,15 +106,18 @@ export function huskCubes(light: TritLight): Cubes {
         const p2 = base.map((x, i) => x + (eu[i] ?? 0) + (ev[i] ?? 0))
         const p3 = base.map((x, i) => x + (ev[i] ?? 0))
         // counterclockwise seen from +w on the top face, reversed on the bottom face (outward normal -w)
-        const cycles = top
-          ? [
-              [p0, p1, p2],
-              [p0, p2, p3],
-            ]
-          : [
-              [p0, p2, p1],
-              [p0, p3, p2],
-            ]
+        // the rising split cuts along p0 -> p2, the falling split along p1 -> p3
+        const halves =
+          split === 'rising'
+            ? [
+                [p0, p1, p2],
+                [p0, p2, p3],
+              ]
+            : [
+                [p0, p1, p3],
+                [p1, p2, p3],
+              ]
+        const cycles = top ? halves : halves.map(c => [c[0]!, c[2]!, c[1]!])
 
         for (const cycle of cycles) {
           const steps = [0, 1, 2].map(j => {
@@ -532,56 +537,54 @@ export function triangleTypeMultiplicity(): number[] {
 // A planted monopole pair
 
 /**
- * The least-squares real angles whose fluxes are N_B m_P - r with r orthogonal to every curl (conjugate gradient on
- * W C^T C W A = W C^T N_B m): a Dirac sheet m whose two ends are a monopole and an antimonopole.
+ * The real angles of a monopole at c1 and an antimonopole at c2 (husk coordinates), each of total flux N_B, joined by
+ * a Dirac string along +x: the difference of two Dirac potentials whose strings run along +x from c1 and from c2,
+ * A(r) = (N_B / 4 pi)(1 + r_x / |r|)(0, -r_z, r_y) / rho^2, rho^2 = r_y^2 + r_z^2. Each link holds its line integral
+ * (midpoint rule, `points` nodes) over its weight.
  */
-export function dualSheetAngles(
+export function dipoleAngles(
   light: TritLight,
-  sheet: ArrayLike<number>,
-  iterations: number,
-): { angle: Float64Array; residual: number } {
+  c1: readonly number[],
+  c2: readonly number[],
+  points: number,
+): Float64Array {
   const { bulk } = light
-  const links = bulk.huskLinks
-  const weight = (l: number): number => bulk.weight[l % 9] ?? 1
-  const apply = (x: Float64Array): Float64Array => {
-    const b = Float64Array.from({ length: bulk.huskTriangles }, (_, p) =>
-      huskCurlWeighted(light, x, p),
-    )
-    const t = huskCurlT(light, b)
+  const side = bulk.side
+  const g = light.nb / (4 * Math.PI)
+  const potential = (p: readonly number[], c: readonly number[]): number[] => {
+    const rx = (p[0] ?? 0) - (c[0] ?? 0)
+    const ry = (p[1] ?? 0) - (c[1] ?? 0)
+    const rz = (p[2] ?? 0) - (c[2] ?? 0)
+    const rho2 = ry * ry + rz * rz
+    const r = Math.sqrt(rho2 + rx * rx)
+    const f = (g * (1 + rx / r)) / rho2
 
-    return Float64Array.from({ length: links }, (_, l) => weight(l) * (t[l] ?? 0))
+    return [0, -rz * f, ry * f]
   }
-  const rhsT = huskCurlT(
-    light,
-    Float64Array.from({ length: bulk.huskTriangles }, (_, p) => light.nb * (sheet[p] ?? 0)),
-  )
-  const rhs = Float64Array.from({ length: links }, (_, l) => weight(l) * (rhsT[l] ?? 0))
-  const x = new Float64Array(links)
-  const r = Float64Array.from(rhs)
-  const d = Float64Array.from(rhs)
-  const dot = (a: Float64Array, b: Float64Array): number => a.reduce((s, v, i) => s + v * (b[i] ?? 0), 0)
+  const out = new Float64Array(bulk.huskLinks)
 
-  let rr = dot(r, r)
+  for (let y = 0; y < bulk.huskDocks; y++) {
+    const o = [y % side, Math.floor(y / side) % side, Math.floor(y / (side * side))]
 
-  const r0 = Math.sqrt(rr)
+    for (let h = 0; h < 9; h++) {
+      const u = TRIT_HUSK_VECTORS[h] ?? []
 
-  for (let it = 0; it < iterations && Math.sqrt(rr) > 1e-12 * r0; it++) {
-    const ad = apply(d)
-    const alpha = rr / dot(d, ad)
+      let sum = 0
 
-    for (let i = 0; i < links; i++) {
-      x[i] = x[i]! + alpha * d[i]!
-      r[i] = r[i]! - alpha * ad[i]!
+      for (let j = 0; j < points; j++) {
+        const t = (j + 0.5) / points
+        const p = o.map((x, i) => x + t * (u[i] ?? 0))
+        const a1 = potential(p, c1)
+        const a2 = potential(p, c2)
+
+        for (let i = 0; i < 3; i++) {
+          sum += ((a1[i] ?? 0) - (a2[i] ?? 0)) * (u[i] ?? 0)
+        }
+      }
+
+      out[y * 9 + h] = sum / points / (bulk.weight[h] ?? 1)
     }
-
-    const next = dot(r, r)
-
-    for (let i = 0; i < links; i++) {
-      d[i] = r[i]! + (next / rr) * d[i]!
-    }
-
-    rr = next
   }
 
-  return { angle: x, residual: Math.sqrt(rr) / r0 }
+  return out
 }

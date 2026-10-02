@@ -76,6 +76,22 @@
 // sectors, not on the flats), or what flats do on the true hyperbolic mesh. A flat mode stays a charge: if one is
 // occupied it is a static charge of 1/3 that sources the light; this experiment reads only that it cannot move or mix
 // at low energy.
+//
+// FIRST RUN 2026-10-02 (tmp/fb-run1.log, 14 s): PASS, as predicted; every gate holds and P1 does not fire. No gate moved
+//  and none was rerun.
+//  - I1: the free box's mu equals |s(K)|^2 / 4 at the 128 momenta to 8.4e-15; the flat-part solver leaves 2.0e-32.
+//  - H1a: in all four static fields and both halves, no mu = 1, so 11,264 = 88 x 128 flats per half; mu_max 0.125
+//    (trivial), 0.156 (U(1)), 0.157 (2T, half +; half - 0.125), 0.155 / 0.156 (both); the least gap pi - E(mu_max) is
+//    2.246 rad a cycle (rest levels at pi - M, M = 0.380 and 0.287); a flat state is fixed by the cycle to 5.6e-16 and its
+//    moving weight after a cycle is at most 9.1e-32; the 24 global SU(2)+ moves keep a half + flat state flat (1.9e-32).
+//  - C1: a curved U(1) field on one beat leaks 8.6e-2, 2.7e-3, 2.8e-5 at strengths 1, 0.1, 0.01 (ratio 99.5, first order
+//    in the change), the 2T field on one beat 8.7e-2; the fast drive (P = 8) leaks 2.7e-2 (uniform) and 2.4e-2 (curved).
+//  - H1b: the slow drive's leak, uniform: 1.2e-5, 5.0e-7, 5.0e-8, 3.0e-9, 2.4e-10 at P = 32 .. 512; curved: 1.1e-4,
+//    5.7e-6, 3.6e-7, 2.3e-8, 1.6e-9; each doubling divides it by 6 to 23.
+//  So a flat mode carries charge (1/3, and a doublet in half +) but no static light or SU(2)+ field mixes it with moving
+//  modes, because the swap coin and stream undo each other over a cycle; only a change of the field within a cycle (the
+//  electric field) mixes it, at first order, and across a gap of about 2.25 rad a cycle, so a slow drive leaves it in
+//  the flat space. The many-body vacuum and the true mesh are not read.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
@@ -121,7 +137,7 @@ export default experiment({
   id: 'gauge/flat-bands-decouple',
   code: 'E-FRC-0284',
   title:
-    'the register member\'s 88 flat modes per half decouple from the light and the SU(2)+ field at low energy, flat bands decouple (pending the gate run)',
+    "the register member's 88 flat modes per half decouple from the light and the SU(2)+ field, pass: in every static field on the side-4 box (a Weyl U(1) field, a Weyl 2T field, both) no eigenvalue of the covariant Clifford hop reaches 1, so 11,264 = 88 x 128 flats per half stay at phase 0, fixed by the cycle to 5.6e-16 with moving weight below 1e-31, 2.25 rad a cycle from the nearest moving level; a flat mode still carries charge 1/3 and in half + a doublet, and a field that changes within a cycle mixes it at first order (8.6e-2 for a one-beat field, 2.7e-2 for a fast drive), but a slow drive leaves at most 1.6e-9 in the moving modes at 512 beats, falling 6 to 23 times per doubling",
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -155,13 +171,24 @@ export function flatBandsRun(): Verdict {
   const free = linkField(t, nb, () => 0, null, null)
   const fields: { name: string; f: LinkField }[] = [
     { name: 'trivial', f: free },
-    { name: 'U(1)', f: linkField(t, nb, curvedTheta(1, 0.5), null, null) },
+    {
+      name: 'U(1)',
+      f: linkField(t, nb, curvedTheta(1, 0.5), null, null),
+    },
     { name: '2T', f: linkField(t, nb, () => 0, G, weyl2T) },
-    { name: 'both', f: linkField(t, nb, curvedTheta(1, 0.37), G, weyl2T) },
+    {
+      name: 'both',
+      f: linkField(t, nb, curvedTheta(1, 0.37), G, weyl2T),
+    },
   ]
   const gOf = (f: LinkField): typeof G | null => (f.link ? G : null)
   const E = (M: number, mu: number): number =>
-    Math.acos(Math.max(-1, Math.min(1, Math.cos(M) - 2 * Math.cos(M / 2) ** 2 * mu)))
+    Math.acos(
+      Math.max(
+        -1,
+        Math.min(1, Math.cos(M) - 2 * Math.cos(M / 2) ** 2 * mu),
+      ),
+    )
 
   // ---- I1: the free box's mu against |s(K)|^2 / 4 ----
   const g2 = t.momenta
@@ -188,6 +215,7 @@ export function flatBandsRun(): Verdict {
   }
 
   const reads: StaticRead[] = []
+
   let i1Dev = 0
   let i1Solver = 0
 
@@ -221,7 +249,10 @@ export function flatBandsRun(): Verdict {
       const leak = movingWeight(f, Gf, b, B, Uf).weight / nf
 
       if (name === 'trivial') {
-        i1Dev = Math.max(i1Dev, ...mu.map((x, k) => Math.abs(x - g2[k]!)))
+        i1Dev = Math.max(
+          i1Dev,
+          ...mu.map((x, k) => Math.abs(x - g2[k]!)),
+        )
         i1Solver = Math.max(i1Solver, solverLeak)
       }
 
@@ -242,8 +273,15 @@ export function flatBandsRun(): Verdict {
 
   // the global SU(2)+ moves on a free half + flat state
   const B0 = hopBlock(free, null, bases.plus)
-  const f0 = flatPart(free, null, bases.plus, B0, halfProject(weylStart(N * MODES, 0.21), 1))
+  const f0 = flatPart(
+    free,
+    null,
+    bases.plus,
+    B0,
+    halfProject(weylStart(N * MODES, 0.21), 1),
+  )
   const n0 = normSq(f0)
+
   const globalMove = (hIndex: number, s: CVec): CVec => {
     const M = G.gamma4[hIndex]!
     const out = newVec(s.re.length)
@@ -271,17 +309,29 @@ export function flatBandsRun(): Verdict {
   for (let h = 0; h < G.group.order; h++) {
     const g = globalMove(h, f0)
 
-    su2Leak = Math.max(su2Leak, movingWeight(free, null, bases.plus, B0, g).weight / n0)
+    su2Leak = Math.max(
+      su2Leak,
+      movingWeight(free, null, bases.plus, B0, g).weight / n0,
+    )
   }
 
   // ---- C1: a field on one beat only ----
   const oneBeat = (f1: LinkField, Gf: typeof G | null): number =>
-    movingWeight(free, null, bases.plus, B0, cycleField(f1, free, Gf, bases, u, f0)).weight / n0
-  const sudden = [1, 0.1, 0.01].map(lam => oneBeat(linkField(t, nb, curvedTheta(lam, 0.5), null, null), null))
+    movingWeight(
+      free,
+      null,
+      bases.plus,
+      B0,
+      cycleField(f1, free, Gf, bases, u, f0),
+    ).weight / n0
+  const sudden = [1, 0.1, 0.01].map(lam =>
+    oneBeat(linkField(t, nb, curvedTheta(lam, 0.5), null, null), null),
+  )
   const sudden2T = oneBeat(fields[2]!.f, G)
 
   // ---- H1b and C1: the drives ----
   const AXIS = [1, 0.5, 0.25, 0]
+
   const driveLeak = (kind: 'uniform' | 'curved', P: number): number => {
     const mk = (a: number): LinkField =>
       kind === 'uniform'
@@ -291,14 +341,19 @@ export function flatBandsRun(): Verdict {
     let s = f0
 
     for (let c = 0; c < P / 2; c++) {
-      const a1 = DRIVE_AMPLITUDE * Math.sin((2 * Math.PI * (2 * c + 0.5)) / P) ** 2
-      const a2 = DRIVE_AMPLITUDE * Math.sin((2 * Math.PI * (2 * c + 1.5)) / P) ** 2
+      const a1 =
+        DRIVE_AMPLITUDE *
+        Math.sin((2 * Math.PI * (2 * c + 0.5)) / P) ** 2
+      const a2 =
+        DRIVE_AMPLITUDE *
+        Math.sin((2 * Math.PI * (2 * c + 1.5)) / P) ** 2
 
       s = cycleField(mk(a1), mk(a2), null, bases, u, s)
     }
 
     return movingWeight(free, null, bases.plus, B0, s).weight / n0
   }
+
   const drives = (['uniform', 'curved'] as const).map(kind => ({
     kind,
     fast: driveLeak(kind, FAST_PERIOD),
@@ -334,11 +389,23 @@ export function flatBandsRun(): Verdict {
     drives.some(
       d =>
         d.slow[d.slow.length - 1]! > 1e-4 ||
-        d.slow.some((x, k) => SLOW_PERIODS[k]! > 128 && x > d.slow[k - 1]!),
+        d.slow.some(
+          (x, k) => SLOW_PERIODS[k]! > 128 && x > d.slow[k - 1]!,
+        ),
     )
-  const status: Verdict['status'] = P1 ? 'fail' : I1 && C1 && H1a && H1b ? 'pass' : 'partial'
-  const worst = (key: 'fixed' | 'leak' | 'muMax' | 'gap', min = false): number =>
-    reads.reduce((a, r) => (min ? Math.min(a, r[key]) : Math.max(a, r[key])), min ? Infinity : 0)
+  const status: Verdict['status'] = P1
+    ? 'fail'
+    : I1 && C1 && H1a && H1b
+      ? 'pass'
+      : 'partial'
+  const worst = (
+    key: 'fixed' | 'leak' | 'muMax' | 'gap',
+    min = false,
+  ): number =>
+    reads.reduce(
+      (a, r) => (min ? Math.min(a, r[key]) : Math.max(a, r[key])),
+      min ? Infinity : 0,
+    )
   const readLine = reads
     .map(
       r =>

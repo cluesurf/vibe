@@ -91,7 +91,10 @@ export function linkField(
 }
 
 // the reverse rule: theta(x + r_d, -d) = -theta(x, d) and g(x + r_d, -d) g(x, d) = 1
-export function reverseHolds(f: LinkField, G: RegisterGauge | null): boolean {
+export function reverseHolds(
+  f: LinkField,
+  G: RegisterGauge | null,
+): boolean {
   const N = f.t.sites.length
 
   for (let x = 0; x < N; x++) {
@@ -103,7 +106,10 @@ export function reverseHolds(f: LinkField, G: RegisterGauge | null): boolean {
       }
 
       if (f.link && G) {
-        const p = G.group.table[f.link[back]! * G.group.order + f.link[x * SLOTS + d]!]!
+        const p =
+          G.group.table[
+            f.link[back]! * G.group.order + f.link[x * SLOTS + d]!
+          ]!
 
         if (p !== G.group.identity) {
           return false
@@ -207,6 +213,7 @@ export function halfBases(sign: number): HalfBases {
     Array.from({ length: MODES }, (_, m) => {
       const d = Math.floor(m / REG)
       const a = m % REG
+
       let s = v[m]!
 
       for (let b = 0; b < REG; b++) {
@@ -220,9 +227,16 @@ export function halfBases(sign: number): HalfBases {
 
   for (let a = 0; a < REG; a++) {
     sCols.push(
-      P(Array.from({ length: MODES }, (_, m) => (m % REG === a ? 1 / Math.sqrt(SLOTS) : 0))),
+      P(
+        Array.from({ length: MODES }, (_, m) =>
+          m % REG === a ? 1 / Math.sqrt(SLOTS) : 0,
+        ),
+      ),
     )
-    dCols.push(P(Array.from({ length: MODES }, (_, m) => ED[m * REG + a]!)))
+
+    dCols.push(
+      P(Array.from({ length: MODES }, (_, m) => ED[m * REG + a]!)),
+    )
   }
 
   const S = orthonormalColumns(sCols)
@@ -322,7 +336,10 @@ function mix(
   })
 }
 
-export type HalfMasses = { plus: readonly [number, number]; minus: readonly [number, number] }
+export type HalfMasses = {
+  plus: readonly [number, number]
+  minus: readonly [number, number]
+}
 
 // one cycle: the S mixer, V1, the D mixer (conjugate units), V2
 export function cycleField(
@@ -334,7 +351,10 @@ export function cycleField(
   s: CVec,
 ): CVec {
   const N = f1.t.sites.length
-  const a: CVec = { re: Float64Array.from(s.re), im: Float64Array.from(s.im) }
+  const a: CVec = {
+    re: Float64Array.from(s.re),
+    im: Float64Array.from(s.im),
+  }
   const bs = [bases.plus, bases.minus]
 
   mix(a, N, bs, [u.plus, u.minus], 'S')
@@ -420,7 +440,10 @@ export function hopBlock(
 }
 
 // H = B^dag B, Hermitian, n x n
-export function hopGram(B: HopBlock): { re: Float64Array; im: Float64Array } {
+export function hopGram(B: HopBlock): {
+  re: Float64Array
+  im: Float64Array
+} {
   const n = B.n
   const re = new Float64Array(n * n)
   const im = new Float64Array(n * n)
@@ -501,10 +524,14 @@ export function movingWeight(
   const n = B.n
   const rhsS = coords(b.S, psi, N)
   const rhsD = coords(b.D, streamField(f, G, psi), N)
+
   const apply = (v: CVec): CVec => {
     const s = newVec(n)
     const dd = newVec(n)
-    const al: CVec = { re: v.re.subarray(0, n), im: v.im.subarray(0, n) }
+    const al: CVec = {
+      re: v.re.subarray(0, n),
+      im: v.im.subarray(0, n),
+    }
     const be: CVec = { re: v.re.subarray(n), im: v.im.subarray(n) }
     const Bb = matVec(n, B.re, B.im, be, false)
     const Ba = matVec(n, B.re, B.im, al, true)
@@ -525,6 +552,7 @@ export function movingWeight(
 
     return out
   }
+
   const rhs = newVec(2 * n)
 
   rhs.re.set(rhsS.re, 0)
@@ -533,8 +561,14 @@ export function movingWeight(
   rhs.im.set(rhsD.im, n)
 
   const x = newVec(2 * n)
-  const r: CVec = { re: Float64Array.from(rhs.re), im: Float64Array.from(rhs.im) }
-  const p: CVec = { re: Float64Array.from(r.re), im: Float64Array.from(r.im) }
+  const r: CVec = {
+    re: Float64Array.from(rhs.re),
+    im: Float64Array.from(rhs.im),
+  }
+  const p: CVec = {
+    re: Float64Array.from(r.re),
+    im: Float64Array.from(r.im),
+  }
   const r0 = Math.sqrt(normSq(rhs))
 
   let rr = normSq(r)
@@ -586,6 +620,7 @@ export function flatPart(
   const n = B.n
   const rhsS = coords(b.S, psi, N)
   const rhsD = coords(b.D, streamField(f, G, psi), N)
+
   // solve [[1, B], [B^dag, 1]] [al; be] = [rhsS; rhsD] by CG
   const apply = (al: CVec, be: CVec): [CVec, CVec] => {
     const Bb = matVec(n, B.re, B.im, be, false)
@@ -602,6 +637,7 @@ export function flatPart(
 
     return [s, dd]
   }
+
   const join = (a: CVec, c: CVec): CVec => {
     const out = newVec(2 * n)
 
@@ -612,14 +648,21 @@ export function flatPart(
 
     return out
   }
+
   const split = (v: CVec): [CVec, CVec] => [
     { re: v.re.slice(0, n), im: v.im.slice(0, n) },
     { re: v.re.slice(n), im: v.im.slice(n) },
   ]
   const rhs = join(rhsS, rhsD)
   const x = newVec(2 * n)
-  const r: CVec = { re: Float64Array.from(rhs.re), im: Float64Array.from(rhs.im) }
-  const p: CVec = { re: Float64Array.from(r.re), im: Float64Array.from(r.im) }
+  const r: CVec = {
+    re: Float64Array.from(rhs.re),
+    im: Float64Array.from(rhs.im),
+  }
+  const p: CVec = {
+    re: Float64Array.from(r.re),
+    im: Float64Array.from(r.im),
+  }
   const r0 = Math.sqrt(normSq(rhs))
 
   let rr = normSq(r)

@@ -165,7 +165,10 @@ export function beatFromProjectors(
   const q1 = projectMember(e, s, sector, 1)
   const q2 = projectMember(e, s, sector, 2)
   const q12 = projectMember(e, q2, sector, 1)
-  const out: PairState = { re: Float64Array.from(s.re), im: Float64Array.from(s.im) }
+  const out: PairState = {
+    re: Float64Array.from(s.re),
+    im: Float64Array.from(s.im),
+  }
   const N = e.ball.points.length
 
   for (let i = 0; i < N; i++) {
@@ -205,7 +208,11 @@ export function sectorWeights(
   psi: PairState,
   afterBeat1: PairState,
 ): SectorWeights {
-  const read = (x: PairState, sector: Sector, member: 1 | 2): [number, number] => {
+  const read = (
+    x: PairState,
+    sector: Sector,
+    member: 1 | 2,
+  ): [number, number] => {
     const n = inner(e, x, x)[0]
     const q = projectMember(e, x, sector, member)
     const w = inner(e, q, q)[0] / n
@@ -213,6 +220,7 @@ export function sectorWeights(
 
     return [w, Math.abs(v - w)]
   }
+
   const s1 = read(psi, 'S', 1)
   const s2 = read(psi, 'S', 2)
   const d1 = read(afterBeat1, 'D', 1)
