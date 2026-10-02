@@ -1,5 +1,6 @@
-// STATE 2026-10-01: GATES WRITTEN, GATE RUN NOT STARTED, NOT REGISTERED (paused for a merge; E-SPN-0186 is reserved, not
-// taken). Resume: register the row and the barrel import, then THREADS=6 test/rerun.ts E-SPN-0186 (about 1.5 to 2 hours).
+// STATE 2026-10-01: GATES WRITTEN, REGISTERED, GATE RUN STARTED on the work droplet (6 threads), no gate moved. The
+// instrument I1 was re-probed first with the fixed Lanczos restart (tmp/st-probe6.log): the unfixed Q8 register equals
+// the orbit register at the vacuum, (0,2) and (0,4) to 9.8e-11, 4.7e-10 and 2.1e-10.
 // IS THERE A STRING IN THE KEPT 2I VACUUM, AND WHAT DOES IT COST A LINK (E-SPN-0186, OPEN-STR-02)? E-SPN-0154 kept the
 // ordered vacuum of H = H_E + 8 H_B on a husk tetrahedron under a small-angle beat, and E-SPN-0185 asks the same on a
 // 4-loop patch. Neither reads the string: "every pair of the tetrahedron's docks is one link apart, so a static pair has

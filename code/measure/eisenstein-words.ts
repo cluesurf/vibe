@@ -106,8 +106,9 @@ const ONE: Eis = [1, 0]
 const ZERO: Eis = [0, 0]
 const powW = (j: number): Eis => [ONE, W, W2][((j % 3) + 3) % 3]!
 
-// the local Clifford group on one role, mod the six units: 216 elements (E-QTM-0117)
-export function cliffordGroup(): Mat3[] {
+// the four exact generators of the local Clifford group on one role: the shift X, the clock Z, the phase gate
+// S and the Fourier gate F, in that order
+export function cliffordGenerators(): Mat3[] {
   const x: Mat3 = {
     num: [ZERO, ZERO, ONE, ONE, ZERO, ZERO, ZERO, ONE, ZERO],
     den3: 0,
@@ -130,7 +131,13 @@ export function cliffordGroup(): Mat3[] {
     }),
     den3: 1,
   }
-  const gens = [x, z, s, f]
+
+  return [x, z, s, f]
+}
+
+// the local Clifford group on one role, mod the six units: 216 elements (E-QTM-0117)
+export function cliffordGroup(): Mat3[] {
+  const gens = cliffordGenerators()
   const seen = new Map<string, Mat3>()
   const id: Mat3 = {
     num: [ONE, ZERO, ZERO, ZERO, ONE, ZERO, ZERO, ZERO, ONE],
