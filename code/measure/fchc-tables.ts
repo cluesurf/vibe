@@ -47,8 +47,8 @@ export class ExactEchelon {
     this.n = n
   }
 
-  reduce(row: readonly number[] | readonly bigint[]): bigint[] {
-    const r = Array.from(row, x => BigInt(x))
+  reduce(row: readonly (number | bigint)[]): bigint[] {
+    const r: bigint[] = row.map(x => BigInt(x))
 
     for (let k = 0; k < this.rows.length; k++) {
       const p = this.pivots[k]!
@@ -81,7 +81,7 @@ export class ExactEchelon {
     return r
   }
 
-  add(row: readonly number[] | readonly bigint[]): boolean {
+  add(row: readonly (number | bigint)[]): boolean {
     const r = this.reduce(row)
     const p = r.findIndex(x => x !== 0n)
 
@@ -129,7 +129,10 @@ export class InvariantTable {
   momentumBroken = 0
 
   // mass: the per-feature mass; momentum: one per-feature vector per axis
-  constructor(mass: readonly number[], momentum: readonly (readonly number[])[]) {
+  constructor(
+    mass: readonly number[],
+    momentum: readonly (readonly number[])[],
+  ) {
     this.n = mass.length
     this.mass = mass
     this.momentum = momentum
@@ -140,6 +143,7 @@ export class InvariantTable {
     this.transitions++
 
     const d = new Array<number>(this.n)
+
     let nonzero = false
 
     for (let c = 0; c < this.n; c++) {
@@ -199,14 +203,17 @@ export class InvariantTable {
       invariants: this.n - this.echelon.rank,
       massBroken: this.massBroken,
       momentumBroken: this.momentumBroken,
-      massMomentumInvariant: this.massBroken === 0 && this.momentumBroken === 0,
+      massMomentumInvariant:
+        this.massBroken === 0 && this.momentumBroken === 0,
     }
   }
 }
 
 // the D4 slot features: mass 1 on each slot, momentum the root's coordinates
 export const SLOT_MASS: readonly number[] = ROOTS.map(() => 1)
-export const SLOT_MOMENTUM: readonly (readonly number[])[] = [0, 1, 2, 3].map(a => ROOTS.map(r => r[a]!))
+export const SLOT_MOMENTUM: readonly (readonly number[])[] = [
+  0, 1, 2, 3,
+].map(a => ROOTS.map(r => r[a]!))
 
 // the occupation momentum of a 24-slot occupation
 export function occupationMomentum(n: ArrayLike<number>): number[] {
@@ -257,9 +264,8 @@ export function weylF4Slots(): Int32Array[] {
   const seen = new Set<string>([id.join(',')])
   const out: Int32Array[] = [id]
 
-  for (let i = 0; i < out.length; i++) {
-    const g = out[i]!
-
+  // the array iterator reads the length at every step, so elements pushed during the walk are visited too
+  for (const g of out) {
     for (const s of gens) {
       const h = new Int32Array(24)
 
@@ -280,7 +286,10 @@ export function weylF4Slots(): Int32Array[] {
 }
 
 // a slot permutation applied to an occupation: the content of slot d moves to slot g[d]
-export function permuteOccupation(g: Int32Array, n: ArrayLike<number>): number[] {
+export function permuteOccupation(
+  g: Int32Array,
+  n: ArrayLike<number>,
+): number[] {
   const out = new Array<number>(24).fill(0)
 
   for (let d = 0; d < 24; d++) {
@@ -291,7 +300,10 @@ export function permuteOccupation(g: Int32Array, n: ArrayLike<number>): number[]
 }
 
 // the elements of a group (slot permutations) that fix a momentum p
-export function stabilizerOf(group: readonly Int32Array[], p: readonly number[]): Int32Array[] {
+export function stabilizerOf(
+  group: readonly Int32Array[],
+  p: readonly number[],
+): Int32Array[] {
   return group.filter(g => {
     // g p = p, with g's matrix read from the images of four independent roots
     const img = [0, 0, 0, 0]
@@ -310,7 +322,8 @@ export function stabilizerOf(group: readonly Int32Array[], p: readonly number[])
 // the 4 x 4 matrix of a slot permutation, read from the images of four independent roots (exact on half-integers)
 export function matrixOfSlots(g: Int32Array): number[][] {
   // basis roots e1+e2, e1-e2, e3+e4, e3-e4 give e1 = (r_a + r_b) / 2 and so on
-  const pick = (v: readonly number[]): number => ROOT_INDEX.get(v.join(','))!
+  const pick = (v: readonly number[]): number =>
+    ROOT_INDEX.get(v.join(','))!
   const a = pick([1, 1, 0, 0])
   const b = pick([1, -1, 0, 0])
   const c = pick([0, 0, 1, 1])
@@ -345,6 +358,7 @@ export function fhpToy(triple: boolean): TableReading {
     FHP_VELOCITIES.map(() => 1),
     [0, 1].map(a => FHP_VELOCITIES.map(v => v[a]!)),
   )
+
   const occ = (bits: readonly number[]): number[] => {
     const n = new Array<number>(6).fill(0)
 

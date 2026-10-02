@@ -1,4 +1,4 @@
-// ONE REGISTER MEMBER IN A FIXED STATIC FIELD (the experiment spin/register-member-h2plus). A single member carrying
+// ONE REGISTER MEMBER IN A FIXED STATIC FIELD (the experiment spin/register-member-h2plus, E-SPN-0187). A single member carrying
 // E-SPN-0160's Cl+(4) register runs in the exact coordinates of its moving block (code/measure/register-meson: W = S + T D,
 // a member in W is sum_x S_x a_x + sum_y T D_y b_y, a_x and b_y in C^8, 16 states a dock) on the HUSK QUOTIENT (docks
 // Z^3, code/measure/register-coulomb's huskRelBall), with fixed sources in place of a partner. This is
@@ -16,12 +16,13 @@
 //                    (w1 - 1) C b; beat 2: b <- w2 b + (w2 - 1) C^dag a. At phi = 0 on a Bloch state this is
 //                    register-meson's memberCycle(u, K) exactly (the instrument gate reads it)
 //   THE METRIC       <v | G w> = a_v^dag a_w + b_v^dag b_w + a_v^dag (C b_w) + b_v^dag (C^dag a_w)
-//   THE EDGE         a shift out of the ball is dropped (the edge absorbs)
+//   THE EDGE         a shift out of the ball is dropped (the edge absorbs); capsuleBall gives the docks near a segment
 //
 // DETERMINISM: no random numbers. FLOATS: measurement on exact pieces (the overlap's c0 is irrational only through the
 // normalization; the field's phases are floats).
 
 import { DOCK_ROOTS } from '@/code/measure/dock-mixer'
+import { huskPoint } from '@/code/measure/husk-meson'
 import { C0, type RelBall } from '@/code/measure/register-meson'
 import { gammaMatrices } from '@/code/measure/spinor-register'
 
@@ -91,7 +92,9 @@ export function memberEngine(
     const nz = [0, 1, 2, 3].filter(i => r[i] !== 0)
 
     if (nz.length !== 2 || nz.some(i => Math.abs(r[i]!) !== 1)) {
-      throw new Error('register-member-field: a root is not +-e_i +- e_j')
+      throw new Error(
+        'register-member-field: a root is not +-e_i +- e_j',
+      )
     }
 
     nz.forEach((i, h) => {
@@ -211,7 +214,10 @@ function convolve(
 }
 
 // one cycle: beat 1 on the S coordinates, then beat 2 on the D coordinates with the updated a
-export function memberFieldCycle(e: MemberEngine, s: MemberState): void {
+export function memberFieldCycle(
+  e: MemberEngine,
+  s: MemberState,
+): void {
   const n = e.ball.points.length
 
   convolve(e, s, false)
@@ -311,7 +317,10 @@ export function scaleMember(s: MemberState, f: number): void {
 }
 
 // G w as a state: (a + C b, b + C^dag a)
-export function memberGram(e: MemberEngine, w: MemberState): MemberState {
+export function memberGram(
+  e: MemberEngine,
+  w: MemberState,
+): MemberState {
   const n = e.ball.points.length
   const out = cloneMember(w)
 
@@ -414,4 +423,54 @@ export function memberSiteWeights(
   }
 
   return w
+}
+
+// the husk docks within distance rho of the segment between two points on the x axis (x0 <= x1), as a RelBall (the
+// root shifts reduced to the quotient's representative, a shift out of the region dropped; V unused, 0)
+export function capsuleBall(
+  x0: number,
+  x1: number,
+  rho: number,
+): RelBall {
+  const points: number[][] = []
+  const r = Math.ceil(rho)
+  const key = (a: number, b: number, c: number): string =>
+    huskPoint(a, b, c).join(',')
+
+  for (let a = Math.floor(x0 - rho); a <= Math.ceil(x1 + rho); a++) {
+    const dx = a < x0 ? a - x0 : a > x1 ? a - x1 : 0
+
+    for (let b = -r; b <= r; b++) {
+      for (let c = -r; c <= r; c++) {
+        if (Math.hypot(dx, b, c) <= rho) {
+          points.push(huskPoint(a, b, c))
+        }
+      }
+    }
+  }
+
+  const index = new Map(points.map((p, i) => [p.join(','), i]))
+  const plus = new Int32Array(points.length * NR)
+  const minus = new Int32Array(points.length * NR)
+
+  points.forEach((p, i) => {
+    DOCK_ROOTS.forEach((q, d) => {
+      plus[i * NR + d] =
+        index.get(key(p[0]! + q[0]!, p[1]! + q[1]!, p[2]! + q[2]!)) ??
+        -1
+
+      minus[i * NR + d] =
+        index.get(key(p[0]! - q[0]!, p[1]! - q[1]!, p[2]! - q[2]!)) ??
+        -1
+    })
+  })
+
+  return {
+    radius: r,
+    points,
+    index,
+    plus,
+    minus,
+    V: new Int32Array(points.length),
+  }
 }

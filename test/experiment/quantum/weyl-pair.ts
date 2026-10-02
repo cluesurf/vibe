@@ -110,6 +110,24 @@
 // content is the commutation and the covering. The continuum part is floats on a known construction (Schwinger 1960);
 // it shows the column's low rungs reach [x, p] = i, not that the rule's light does.
 //
+// FIRST RUN 2026-10-02 (tmp/wy-run1.log, 1,038 s): PASS, every gate as registered, none moved, run once. I1 holds
+// (B read off the rule equals the table B on every column at L = 3, 6, 9, beats 0 and 1, and on every sampled column at
+// side 16 and L = 27; exactly unitary on every ring and start). C1a to C1d hold: trivial links [B, T0] = 0; pure gauge
+// links (holonomy 1) [B, T0] fails on 160 of 162 columns while [B, T] = 0; one order-4 move on every link [B, T0] = 0
+// with holonomy that move (cycles 1, 4, 4); a broken back link [B, T] fails on 36 columns. H1: [B, T] = 0 on 17 of 17
+// starts at L = 3, 6, 9, 27, U T = zeta_L T U on all; [B, T0] = 0 on 0 of 17 at every L (52 to 484 columns fail), and
+// the full holonomy is trivial on 0 of 17 at every L, L = 27 included, so the strict Z_L pair (T^L = 1) holds on no start.
+// H2: T^L is the holonomy at every dock, T's orbits are L times its cycle lengths, and the lone vibe is the fear walk on
+// the covering ring of L c_0 docks bit for bit to beat L c_0 + 1 on every start and ring (c_0 from 1 to 6; c_0 = 1 where
+// the holonomy fixes point 0 although it moves others). H3: side 16 reads 1,304,279,928 / 4^16 = 0.303676 on 16 starts
+// (c_0 = 2, 3, 4 or 6) and 0 on integer+13 alone, E-QTM-0157's after-wrap numbers. H4 and C2: |c_n - 1| for n = 0 .. 4
+// is 2.1e-5 to 0.57 at D = 4, 8.9e-11 to 2.9e-5 at D = 8, 5.4e-10 at most at D = 12, and at the float floor (2.6e-14 at
+// most) from D = 16 to 64; falling like e^(-1.55 N) for n = 0 between D = 4 and 8, faster than any power. The sum of c_n
+// over all rungs is 3.1e-12 at most, and the top rung reads 9.6 (D = 4) to 211 (D = 64). So the route's kill as written
+// fires for the plain shift on every start, but control C1b shows the cause is the links' non-uniformity, not the
+// holonomy; the transported shift commutes on every start, and the holonomy enters as a twisted boundary: matter's pair
+// on a ring of L docks is the Z_(L c) pair of the covering ring.
+//
 // DETERMINISM: no random number; starts are E-MTH-0028's family; the gauge of C1b is the golden Weyl sequence
 // (code/tool/weyl). Depth L2: the matter half is exact algebra in Z[w] over 2; the continuum half is floats.
 
@@ -895,7 +913,8 @@ function column(D: number): ColumnReading {
 export default experiment({
   id: 'quantum/weyl-pair',
   code: 'E-QTM-0167',
-  title: 'matter and the column as Weyl pairs',
+  title:
+    "matter's Weyl pair on a ring is the covering ring's, pass: the lone vibe's beat commutes exactly with the shift by one dock that carries the vibe's point across each link (17 of 17 starts at L = 3, 6, 9, 27, U T = zeta_L T U on all), never with the plain shift (0 of 17; pure gauge links with trivial holonomy break it too), and T^L is the link holonomy, never trivial, so the pair is that of Z_(L c) on the covering ring, where the lone vibe is the fear walk bit for bit (c from 1 to 6), which gives E-QTM-0157's after-wrap L1 exactly (1,304,279,928 / 4^16 = 0.3037 on 16 starts, 0 on integer+13); Schwinger's column pair reaches [x, p] = i on its lowest 5 rungs faster than any power of N (|c - 1| 2.9e-5 at D = 8, float floor from D = 16 to 64)",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',

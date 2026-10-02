@@ -277,7 +277,8 @@ export function liftedLevelCharges(
       const vr = e.vre[a * n + k]!
       const vi = e.vim[a * n + k]!
 
-      r2 += (xr - (c * vr - s * vi)) ** 2 + (xi - (c * vi + s * vr)) ** 2
+      r2 +=
+        (xr - (c * vr - s * vi)) ** 2 + (xi - (c * vi + s * vr)) ** 2
     }
 
     residual = Math.max(residual, Math.sqrt(r2))
@@ -512,7 +513,9 @@ function transposeClosure(
 export function memberChargeRun(plan: ChargePlan): Verdict {
   const started = Date.now()
   const log = (what: string): void =>
-    console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
 
   // ---------------- I1 (a): the count against E-FRC-0170's triples ----------------
   let tripleMismatch = 0
@@ -558,7 +561,10 @@ export function memberChargeRun(plan: ChargePlan): Verdict {
           Array.from({ length: R }, (__, c) => {
             const x = P[(d * R + a) * N + e * R + c]!
 
-            nonInteger = Math.max(nonInteger, Math.abs(x - Math.round(x)))
+            nonInteger = Math.max(
+              nonInteger,
+              Math.abs(x - Math.round(x)),
+            )
 
             return Math.round(x)
           }),
@@ -577,13 +583,19 @@ export function memberChargeRun(plan: ChargePlan): Verdict {
   const basis = sectorBasis(J)
   const ranges = (half: 0 | 1): { sR: number[][]; dR: number[][] } => ({
     sR: rangeBasis(
-      sectorBlock({ re: qS, im: new Float64Array(qS.length) }, basis, half)
-        .block.re,
+      sectorBlock(
+        { re: qS, im: new Float64Array(qS.length) },
+        basis,
+        half,
+      ).block.re,
       96,
     ),
     dR: rangeBasis(
-      sectorBlock({ re: qD, im: new Float64Array(qD.length) }, basis, half)
-        .block.re,
+      sectorBlock(
+        { re: qD, im: new Float64Array(qD.length) },
+        basis,
+        half,
+      ).block.re,
       96,
     ),
   })
@@ -607,7 +619,14 @@ export function memberChargeRun(plan: ChargePlan): Verdict {
     K: readonly number[],
     keep: (eps: number) => boolean,
   ): Read => {
-    const red = slabReduced(s, sets, K, DOCK_ROOTS, rH[half].sR, rH[half].dR)
+    const red = slabReduced(
+      s,
+      sets,
+      K,
+      DOCK_ROOTS,
+      rH[half].sR,
+      rH[half].dR,
+    )
 
     leak = Math.max(leak, red.leak)
 
@@ -626,7 +645,9 @@ export function memberChargeRun(plan: ChargePlan): Verdict {
   const memberReads: Read[] = []
 
   for (const half of [0, 1] as const) {
-    const sets: HalfSet[] = [{ pieces: halfPieces(plain, basis, half).pieces }]
+    const sets: HalfSet[] = [
+      { pieces: halfPieces(plain, basis, half).pieces },
+    ]
 
     for (const K of plan.memberK) {
       memberReads.push(
@@ -663,9 +684,14 @@ export function memberChargeRun(plan: ChargePlan): Verdict {
 
   // ---------------- H2: the light wall levels of E-SPN-0168's chiral slab ----------------
   const uH = unitValue(HEAVY)
-  const MH = Math.abs(wrap(unitAngle(ringUnit(HEAVY[0], HEAVY[1])) - Math.PI))
+  const MH = Math.abs(
+    wrap(unitAngle(ringUnit(HEAVY[0], HEAVY[1])) - Math.PI),
+  )
   const trivial = wilsonSchedule(qS, qD, uH, { wilson: false })
-  const chiral = wilsonSchedule(qS, qD, uH, { wilson: true, half: pPlus })
+  const chiral = wilsonSchedule(qS, qD, uH, {
+    wilson: true,
+    half: pPlus,
+  })
   const wallReads: Read[] = []
 
   for (const half of [0, 1] as const) {
@@ -683,7 +709,9 @@ export function memberChargeRun(plan: ChargePlan): Verdict {
               L,
               qa: 1,
               p: 0,
-              profile: Array.from({ length: L }, (_, c) => (c < L / 2 ? 1 : 0)),
+              profile: Array.from({ length: L }, (_, c) =>
+                c < L / 2 ? 1 : 0,
+              ),
             },
             sets,
             half,
@@ -702,11 +730,15 @@ export function memberChargeRun(plan: ChargePlan): Verdict {
   const controlsOf = (reads: Read[]): LevelCharge[] =>
     reads.flatMap(r => r.control)
   const hasOne = (ls: LevelCharge[]): boolean =>
-    ls.some(l => l.charges.some(q => Math.abs(Math.abs(q) - 1) <= ONE_TOL))
+    ls.some(l =>
+      l.charges.some(q => Math.abs(Math.abs(q) - 1) <= ONE_TOL),
+    )
   const thirdGap = (ls: LevelCharge[]): number =>
     Math.max(
       0,
-      ...ls.flatMap(l => l.charges.map(q => Math.abs(Math.abs(q) - THIRD))),
+      ...ls.flatMap(l =>
+        l.charges.map(q => Math.abs(Math.abs(q) - THIRD)),
+      ),
     )
   const balanced = (ls: LevelCharge[]): boolean =>
     ls.every(
@@ -717,15 +749,21 @@ export function memberChargeRun(plan: ChargePlan): Verdict {
   const memberLevels = levelsOf(memberReads)
   const wallLevels = levelsOf(wallReads)
   const memberLevelsPerHalf = [0, 1].map(
-    h => memberReads.filter(r => r.where.startsWith(`member half ${h}`)).flatMap(r => r.levels).length,
+    h =>
+      memberReads
+        .filter(r => r.where.startsWith(`member half ${h}`))
+        .flatMap(r => r.levels).length,
   )
   const wallLevelsPerHalf = [0, 1].map(
-    h => wallReads.filter(r => r.where.startsWith(`wall half ${h}`)).flatMap(r => r.levels).length,
+    h =>
+      wallReads
+        .filter(r => r.where.startsWith(`wall half ${h}`))
+        .flatMap(r => r.levels).length,
   )
   const controlGap = Math.max(
     0,
-    ...[...controlsOf(memberReads), ...controlsOf(wallReads)].flatMap(l =>
-      l.charges.map(q => Math.abs(q)),
+    ...[...controlsOf(memberReads), ...controlsOf(wallReads)].flatMap(
+      l => l.charges.map(q => Math.abs(q)),
     ),
   )
   const controlLevels =
@@ -734,14 +772,19 @@ export function memberChargeRun(plan: ChargePlan): Verdict {
   // ---------------- H3: the join channel's in and out pairs ----------------
   const sym = sectorSymmetries()
   const ch = joinChannel(sym, 'S', 'D')
-  const P = 64
   const toneCharge = (t: number): number => (t === 0 ? THIRD : -THIRD)
   const pairCharge = (tau: number): number =>
     toneCharge(tau >> 1) + toneCharge(tau & 1)
+
   // a lifted pair operator acting as T on the register pair and as `tones` (4 x 4, [out][in]) on the tone pair
   const pairReading = (
     tones: readonly (readonly number[])[],
-  ): { worstDelta: number; inQ: number[]; outQ: number[]; commutator: number } => {
+  ): {
+    worstDelta: number
+    inQ: number[]
+    outQ: number[]
+    commutator: number
+  } => {
     let worstDelta = 0
 
     const inQ: number[] = []
@@ -765,7 +808,10 @@ export function memberChargeRun(plan: ChargePlan): Verdict {
         if (w > 0) {
           inQ.push(pairCharge(tau))
           outQ.push(q / w)
-          worstDelta = Math.max(worstDelta, Math.abs(q / w - pairCharge(tau)))
+          worstDelta = Math.max(
+            worstDelta,
+            Math.abs(q / w - pairCharge(tau)),
+          )
         }
       }
     }
@@ -786,12 +832,15 @@ export function memberChargeRun(plan: ChargePlan): Verdict {
     // tone part's largest entry (the tone part here is a single entry or diagonal)
     const tNorm = Math.max(
       ...ch.A.map(a =>
-        Math.hypot(...ch.T.map(r => r.reduce((s, x, j) => s + x * a[j]!, 0))),
+        Math.hypot(
+          ...ch.T.map(r => r.reduce((s, x, j) => s + x * a[j]!, 0)),
+        ),
       ),
     )
 
     return { worstDelta, inQ, outQ, commutator: tc * tNorm }
   }
+
   const identity4 = [0, 1, 2, 3].map(o =>
     [0, 1, 2, 3].map(t => (o === t ? 1 : 0)),
   )
@@ -803,7 +852,9 @@ export function memberChargeRun(plan: ChargePlan): Verdict {
   const planted = pairReading(charged4)
   const holePairIn = -2 * THIRD
   const holePairOut =
-    neutral.outQ[neutral.inQ.findIndex(q => Math.abs(q - holePairIn) < 1e-12)]
+    neutral.outQ[
+      neutral.inQ.findIndex(q => Math.abs(q - holePairIn) < 1e-12)
+    ]
 
   log('H3 join')
 
@@ -912,7 +963,8 @@ export function memberChargeRun(plan: ChargePlan): Verdict {
     planted.commutator > 0.1
   const H1 = hasOne(memberLevels)
   const H2 = hasOne(wallLevels)
-  const H3 = neutral.worstDelta > ONE_TOL || neutral.commutator > THIRD_TOL
+  const H3 =
+    neutral.worstDelta > ONE_TOL || neutral.commutator > THIRD_TOL
   const P1 =
     memberLevels.length > 0 &&
     wallLevels.length > 0 &&

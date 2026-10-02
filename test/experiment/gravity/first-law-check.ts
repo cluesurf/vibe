@@ -94,8 +94,9 @@
 //    E-GRV-0131's S / A over 1/4G, as derived. In the stated unit of M a cut link would need 12.477 nats, 0.993 of 4 pi,
 //    against the 18.180 it holds; equivalently one unit of M would carry 1.457 inverse docks. With the light's T in place
 //    of the profile's (E-GRV-0123's 0.983 and 0.967, read at its own deep M) the factor would be about 1.41 .. 1.43.
-//    The membrane's register is not the one that fixes Hawking's T and Bekenstein's S together; ln C does not enter at
-//    all, so the e^(4 pi) coincidence is not a statement about the headroom register C in this reading.
+//    At these numbers the membrane's register (18.18 nats a link) is not the one the first law asks for (12.48, near
+//    4 pi); the headroom register C does not enter the reading at all, so in this reading the e^(4 pi) coincidence
+//    concerns the cut-link register's span, not C.
 //
 // Depth L2: arithmetic on a float profile and exact lattice counts; the reading is a fitted derivative.
 // DETERMINISM: nothing is drawn.
