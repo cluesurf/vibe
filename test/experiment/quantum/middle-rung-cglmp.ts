@@ -56,6 +56,16 @@
 // facet of the two-setting three-outcome local polytope; other facets are not read. Floats throughout, with
 // residuals reported; the standard-reading values are closed forms checked in floats.
 //
+// FIRST RUN 2026-10-02 (tmp/qb-run1.log, 238 s): PASS, every gate as fixed. I1: standard readings 2.8729341
+// on the maximally entangled state, block error 9e-16, top eigenvalue 2.9148542155127; the optimizer reaches
+// 2.872934051172 and 2.914854215511 (2e-12 short), never above, frames unitary to 4e-15. C1: product 2 +
+// 1e-15, dephased knot 2 - 1e-15. H1: the knot's optimum is 2.312116099 (16 of 16 starts within 4e-14), 0.312
+// above the local bound and below its CHSH maximum 2.36126; P1 not met. H2: the three placements read 1.255885,
+// 1.134988, 1.595110, on the closed forms to 7e-16. A slip in the header's prose, not in the gate: 4 sqrt 30 /
+// 27 + 4/9 is 1.25589, not 1.25577 as written above (the gate compared against the closed form). Reported: the
+// knot cut to (p1, p2) reads 2.274823935, so the third weight adds 0.0373; the Acin state's starts spread 6e-5
+// (some stop short), the knot's 4e-14.
+//
 // DETERMINISM: Weyl starts, no random number. Depth L2: a float optimization, with closed-form instrument
 // checks.
 
@@ -86,7 +96,8 @@ const KNOT_CHSH = (8 + 2 * Math.sqrt(21) + 2 * Math.sqrt(35) - 2 * S15) / 9
 export default experiment({
   id: 'quantum/middle-rung-cglmp',
   code: 'E-QTM-0169',
-  title: 'the love-fear middle rung under CGLMP (gate run pending)',
+  title:
+    'the love-fear middle rung violates the qutrit Bell inequality CGLMP, pass: over projective readings, two a party, a deterministic search reaches 2.312116 against the local bound 2 (its CHSH maximum is 2.36126), and the knot cut to its two largest weights reaches 2.274824, so the third Schmidt weight adds 0.0373; the standard Fourier readings see no violation (1.25589, 1.13499, 1.59511 over the three placements, closed forms), so the readings must be fitted to the knot; the instrument reads 2.8729 and 1 + sqrt(11/3) on its reference states and 2 on separable ones; a reached value, not a proven maximum',
   category: 'quantum',
   substrates: 'any',
   depth: 'L2',
