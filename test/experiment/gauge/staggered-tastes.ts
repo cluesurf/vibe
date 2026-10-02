@@ -82,6 +82,14 @@
 //  was changed. Under the protocol's one gate run this file has NOT been run again: its gates are unread, and a second
 //  run, recorded as such, is left to the program's decision. The exact counts the gates would read are in the probes
 //  above (tmp/tt-probe1.log, tmp/tt-smoke.log), which are probes, not a gate run.
+//
+// SECOND RUN 2026-10-02 (tmp/tt-run2.log, 14 s), run by the coordinating session after the crash, disclosed: the
+//  first run read no gate, and the instrument was fixed (halfBlockLevels) with no gate or threshold moved. FAIL as
+//  derived: I1, C1, D1 hold, H1 false, P1 true. The Clifford hop's exact zeros number 40 on the side-4 box ((a) 8 + (b)
+//  8 + (d) 24, 8 at the corners, Jacobian signs 4 + / 36 -), 40 on side 6 and 72 on side 12 (36 + / 36 -), and the
+//  cycle's levels in every class and half sit exactly on that zero set (40 each, 8 at the corners). So each orientation
+//  class carries 40 species on the box, far more than one of a hand: the route's kill fires. Read: the husk slice holds
+//  20 (side 4) and 28 (side 12). A Wilson-shifted hop leaves 1 zero (the control).
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
@@ -379,7 +387,7 @@ export default experiment({
   id: 'gauge/staggered-tastes',
   code: 'E-FRC-0285',
   title:
-    'the species one orientation class carries, not read: the one gate run crashed in the eigenvalue reader (a QR iteration on a projected cycle with 96 exact zeros failed at 3 of 512 solves) before any gate was read; the reader is fixed to the unitary half block and the experiment has not been run again',
+    'the species one orientation class carries, fail as derived (second run, after the first crashed in the reader before any gate): the Clifford hop of each class has 40 exact zeros on the side-4 box, 8 of them at the zone corners, and 72 on side 12 with Jacobian signs 36 + and 36 -, and the cycle levels of every class and half sit exactly on that set, so each orientation class carries 40 species on the box, not one of a hand: the staggered split leaves the doublers, and only a Wilson-shifted hop keeps one',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L1',
