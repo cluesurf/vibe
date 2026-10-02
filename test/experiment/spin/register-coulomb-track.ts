@@ -459,13 +459,26 @@ export function readMotion(
   const rk = unfold(s, r, sk)
   const countK: ReducedCount = reducedCounts(sk, su.table, alpha, su.theta)
 
+  // each K read once: the retry's K / 2 pair shares K 0.02 with the first pair, and the read is deterministic, so the
+  // second read of it would return the same lines byte for byte
+  const memo = new Map<number, LineOut[]>()
   const linesAt = (k: number): LineOut[] => {
+    const seen = memo.get(k)
+
+    if (seen) {
+      return seen
+    }
+
     const ek = reducedEngine(sk, su.u, [k, 0, 0, 0], countK, 'vector', opts)
     const x = plain(referenceCorrelation(ek, rk, NK + w.S - 1))
 
     log(`${p.name} K ${k}: correlation read`)
 
-    return linesOf(su, p.aB, x, NK)
+    const ls = linesOf(su, p.aB, x, NK)
+
+    memo.set(k, ls)
+
+    return ls
   }
 
   const readAt = (kappa: number): {

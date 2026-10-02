@@ -51,10 +51,11 @@
 //
 // See note/research/vibe/kernel.md, "Running heavy jobs on a CPU droplet".
 
-import { execFileSync, spawn, spawnSync } from 'node:child_process'
+import { spawn, spawnSync } from 'node:child_process'
 import { closeSync, existsSync, mkdirSync, openSync, readFileSync, writeFileSync, writeSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { makeShell, PACKAGE_PATHS, pause, priceHourly } from './droplet-shell'
 import { destroy, doctl, log as watchLog, tagged } from './gpu-watchdog'
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url))
@@ -65,6 +66,7 @@ const arg = (name: string): string | undefined => {
 
   return i >= 0 ? process.argv[i + 1] : undefined
 }
+
 const args = (name: string): string[] => process.argv.flatMap((a, i) => (a === `--${name}` && process.argv[i + 1] ? [process.argv[i + 1]!] : []))
 const opt = (name: string, envs: string[], fallback?: string): string | undefined =>
   arg(name) ?? envs.map(e => process.env[e]).find(v => v !== undefined && v !== '') ?? fallback
@@ -97,9 +99,6 @@ const REMOTE = `/root/vibe-runs/${stamp}`
 const MARKER = '.vibe-run'
 
 const log = (line: string): void => watchLog(line, RUN_LOG)
-const pause = (seconds: number): void => {
-  execFileSync('sleep', [String(seconds)])
-}
 
 // ---- the job ----
 
@@ -265,66 +264,12 @@ function failedSteps(out: string, logs: string): string[] {
 
 // ---- ssh ----
 
-const sshOptions = (): string[] => [
-  '-o',
-  'BatchMode=yes',
-  '-o',
-  'ConnectTimeout=15',
-  '-o',
-  'ServerAliveInterval=30',
-  '-o',
-  'ServerAliveCountMax=10',
-  '-o',
-  'StrictHostKeyChecking=accept-new',
-  '-o',
-  `UserKnownHostsFile=${join(OUT, 'known_hosts')}`,
-  ...(IDENTITY ? ['-i', IDENTITY, '-o', 'IdentitiesOnly=yes'] : []),
-]
-
-// one command on the machine; its output, or a thrown error naming what failed
-function remote(host: string, command: string, timeout = 120_000): string {
-  const r = spawnSync('ssh', [...sshOptions(), host, command], { timeout, maxBuffer: 1 << 26 })
-
-  if (r.status !== 0) {
-    throw new Error(`ssh failed (${r.status}): ${r.stderr?.toString().trim().split('\n')[0] ?? ''}`)
-  }
-
-  return r.stdout.toString()
-}
-
-// ssh up AND the machine running our commands. A GPU image finishes its own first-boot setup after ssh answers, and
-// until then its login prints "Please wait while we get your droplet ready..." and exits 0 WITHOUT running the command
-// (the first GPU run was lost that way): so a command counts only when its own marker comes back
-function waitSsh(host: string, until: number): void {
-  for (;;) {
-    const r = spawnSync('ssh', [...sshOptions(), host, 'echo vibe-ready-$((6 * 7))'], { timeout: 40_000 })
-
-    if (r.status === 0 && r.stdout?.toString().includes('vibe-ready-42')) {
-      return
-    }
-
-    if (r.stdout?.toString().trim()) {
-      log(`not ready yet: ${r.stdout.toString().trim().split('\n')[0]}`)
-    }
-
-    if (Date.now() > until) {
-      throw new Error('no ssh to the machine in time')
-    }
-
-    pause(10)
-  }
-}
-
-// the image's own first-boot setup (cloud-init), waited for with a stated bound: 15 minutes
-function waitSetup(host: string): void {
-  const out = remote(host, 'timeout 900 cloud-init status --wait >/dev/null 2>&1; echo vibe-setup-$(cloud-init status 2>/dev/null | tr -d " ")', 960_000)
-
-  log(`first-boot setup: ${out.trim().split('\n').pop() ?? '(nothing)'}`)
-
-  if (!out.includes('vibe-setup-')) {
-    throw new Error('the first-boot setup wait did not run')
-  }
-}
+// ssh, the readiness waits and the package's path list live in droplet-shell.ts, shared with task/burst/index.ts
+const shell = makeShell(join(OUT, 'known_hosts'), IDENTITY, log)
+const sshOptions = shell.options
+const remote = shell.remote
+const waitSsh = shell.waitSsh
+const waitSetup = shell.waitSetup
 
 // ---- the existing host ----
 
@@ -336,6 +281,7 @@ function resolveHost(): string {
   }
 
   type Listed = { networks?: { v4?: { ip_address: string; type: string }[] } }
+
   const list = JSON.parse(doctl(['compute', 'droplet', 'list', '--tag-name', HOST_TAG, '-o', 'json']) || '[]') as Listed[]
   const ip = list[0]?.networks?.v4?.find(n => n.type === 'public')?.ip_address
 
@@ -364,13 +310,13 @@ type Preflight = { cores: number; memory: number; available: number; load: strin
 
 function preflight(host: string): Preflight {
   const out = remote(host, PREFLIGHT)
-  const field = (k: string): string => out.match(new RegExp(`^${k} (.*)$`, 'm'))?.[1]?.trim() ?? ''
+  const field = (k: string): string => (new RegExp(`^${k} (.*)$`, 'm').exec(out))?.[1]?.trim() ?? ''
   const tools = out.split('\n').find(l => l.startsWith('node='))?.trim() ?? ''
 
   return {
     cores: Number(field('cores')),
-    memory: Number(out.match(/memory_gb (\d+)/)?.[1] ?? 0),
-    available: Number(out.match(/available_gb (\d+)/)?.[1] ?? 0),
+    memory: Number((/memory_gb (\d+)/.exec(out))?.[1] ?? 0),
+    available: Number((/available_gb (\d+)/.exec(out))?.[1] ?? 0),
     load: field('load'),
     builds: Number(field('builds') || 0),
     live: Number(field('vibe_live') || 0),
@@ -384,7 +330,7 @@ function preflight(host: string): Preflight {
 // the package as a tar stream over ssh (the repo copies to droplets this way, never with rsync), with the job's step
 // list added at the package root
 function transfer(host: string, job: Job): void {
-  const paths = ['package.json', 'tsconfig.json', 'kernel/Cargo.toml', 'kernel/Cargo.lock', 'kernel/build.rs', 'kernel/src', 'code', 'task', 'test']
+  const paths = PACKAGE_PATHS
 
   writeFileSync(join(OUT, 'job-steps.tsv'), job.steps.map(s => `${s.name}\t${s.info ? 1 : 0}\t${s.command}\n`).join(''))
 
@@ -420,7 +366,7 @@ function launch(host: string, job: Job, capSeconds: number, cpus: string, env: R
     host,
     `cd ${REMOTE}/pkg && env ${vars} bash task/kernel/droplet-launch.sh ${REMOTE} ${capSeconds} ${cpus} ${job.script} ${job.args.join(' ')}`,
   )
-  const pid = Number(out.match(/vibe-launched-(\d+)/)?.[1])
+  const pid = Number((/vibe-launched-(\d+)/.exec(out))?.[1])
 
   if (!pid) {
     throw new Error(`the job did not launch: ${out.trim()}`)
@@ -433,6 +379,7 @@ function launch(host: string, job: Job, capSeconds: number, cpus: string, env: R
 // byte already received, until the deadline. Resolves true once the job has written its exit file
 async function follow(host: string, pid: number, until: number): Promise<boolean> {
   const file = openSync(join(OUT, 'job.log'), 'a')
+
   let received = 0
 
   try {
@@ -490,6 +437,7 @@ function fetchLogs(host: string, job: Job): void {
 
   if (r.status !== 0) {
     log(`could not fetch the logs: ${r.stderr?.toString().split('\n')[0]}`)
+
     return
   }
 
@@ -503,6 +451,7 @@ function fetchLogs(host: string, job: Job): void {
 function clean(host: string): void {
   if (KEEP || !REMOTE.startsWith('/root/vibe-runs/') || REMOTE.includes('..')) {
     log(`left ${REMOTE} in place. To remove it by hand: ./work rm -rf -- ${REMOTE}`)
+
     return
   }
 
@@ -521,16 +470,6 @@ function report(job: Job): void {
 
   log(verdict ? 'RUN COMPLETE: both sentinels and every required log are present' : `RUN FAILED: missing ${missing.join(', ')}`)
   log(failed.length === 0 ? 'every step exited 0 (informational steps aside)' : `steps that failed: ${failed.join(', ')}`)
-}
-
-function priceHourly(size: string): number | undefined {
-  try {
-    const sizes = JSON.parse(doctl(['compute', 'size', 'list', '-o', 'json'])) as { slug: string; price_hourly: number }[]
-
-    return sizes.find(x => x.slug === size)?.price_hourly
-  } catch {
-    return undefined
-  }
 }
 
 // run the job on a machine that is up: copy, launch, follow, fetch, verify. The caller owns the machine's life
@@ -576,16 +515,19 @@ async function existing(job: Job, cap: number): Promise<boolean> {
 
   if (p.builds > 0) {
     log(`refusing: ${p.builds} build process(es) running on the host; run again once the deploy is done`)
+
     return false
   }
 
   if (p.live > 0) {
     log(`refusing: ${p.live} other vibe run(s) live on the host`)
+
     return false
   }
 
   if (!p.tools.includes('setsid=yes') || !p.tools.includes('timeout=yes')) {
     log('refusing: the host lacks setsid or timeout, which the launcher needs')
+
     return false
   }
 
@@ -631,6 +573,7 @@ async function created(kind: Kind, job: Job, cap: number, size: string, image: s
 
   if (leftover.length > 0) {
     log(`refusing: ${leftover.length} droplet(s) already tagged ${tag}; run gpu-watchdog.ts --sweep --tag ${tag} first`)
+
     return false
   }
 
@@ -668,6 +611,7 @@ async function created(kind: Kind, job: Job, cap: number, size: string, image: s
 
   try {
     type Detail = { status?: string; networks?: { v4?: { ip_address: string; type: string }[] } }
+
     let ip: string | undefined
 
     for (;;) {
@@ -756,6 +700,7 @@ export async function main(): Promise<void> {
 
     if (!COMMIT) {
       console.log(`droplet-run plan (nothing touched without --commit): ${plan}`)
+
       return
     }
 
@@ -779,6 +724,7 @@ export async function main(): Promise<void> {
 
   if (!COMMIT) {
     console.log(`droplet-run plan (nothing created without --commit): ${plan}`)
+
     return
   }
 

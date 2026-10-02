@@ -1,3 +1,13 @@
+// CORRECTION 2026-10-01 (read with E-SPN-0185): the perimeter-4 loop READ below (0.356, 0.544, 0.678, 0.798 at r 1, 2,
+// 4, 8) is not the ground state's loop. prethermal-patch loopMean reads ONE walk at ONE representative configuration of
+// each symmetric sector, and the perimeter-4 loop is not invariant under the patch automorphisms that a sector merges
+// (the tetrahedron holds three such loops), so the number depends on which representative was stored. Read over every
+// configuration of the Gauss orbits (gauss-orbit orbitLoopMean, E-SPN-0185's engine on this same tetrahedron at r 8,
+// next-pieces tmp/st-smoke-a.log), the perimeter-4 loop is 0.8114, not 0.798. The plaquette is unaffected (it averages
+// all four triangles, which the automorphisms permute among themselves): 0.8555 by the orbit engine against 0.856 here.
+// The loops at r 1, 2, 4 were not re-read. The loop gated nothing and the coupling was chosen by the plaquette, so no
+// gate, verdict or number the gates read changes; the record below is unchanged.
+//
 // DOES A SMALL-ANGLE BEAT KEEP THE ORDERED 2I VACUUM PRETHERMALLY ON A HUSK PATCH (E-SPN-0154)? E-SPN-0153 found that 2I
 // on the husk x beat reaches SU(2)'s scaling region before it freezes (the equilibrium string exists in a bounded
 // register, ring Z[w, phi][1/210]) and that no ordered register state is KEPT by the beat. The theorem that remains is
