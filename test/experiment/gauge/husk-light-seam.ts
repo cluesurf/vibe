@@ -104,6 +104,32 @@
 //
 // Depth L2: dense Floquet spectra of the model's ladder light and harmonic (Gaussian) algebra of its 3D husk light on
 // a symbol grid, doubles with residuals.
+//
+// FIRST RUN 2026-10-02 (tmp/ls-run1.log, 128 s): FAIL by the verdict rule, on C1b, a defect in point 4 of the
+// derivation. No gate moved, no rerun. I1 held: the measure's ladder variances equal harmonicTwoPoint's to 6.8e-16,
+// the two-point function is beat-invariant to 6.1e-16, the exact band errors reproduce E-FRC-0231 within 1.4 percent
+// (4.94e-3, 2.56e-4, 1.71e-4, 1.72e-5, 7.13e-6 at L = 2; 2.01e-3, 1.99e-3, 4.67e-4 at L = 3), the husk axis photon
+// solves lambda^2 - 12 lambda + 8u = 0 to 3.2e-14 and the k = 0 massive branch is 24 to 4.3e-14. C1a held: the
+// classical split's seam shift is 22.4 and 80.0 times the drift split's (N = 9, 13), its exact miss 1,669 and 1,462
+// times. C1b FAILED: with the register modulus held at 9 while kappa follows D, the seam weight per dock FALLS, 5.04e-2
+// at D = 4 to 6.44e-3 at D = 16 (leak 0.238 to 0.0117, band 0.040 to 0.0116). Point 4's claim that such a light's
+// variances do not depend on kappa holds only at small s f lambda; at D = 4 the husk's top modes sit near omega = pi
+// (s f lambda up to 32/9), where 1 / sin omega inflates every register's variance, and that inflation leaves as kappa
+// falls. So the instrument was NOT shown to read a leak that does not fall, and part of every fall below (D = 4 to
+// about 6) is this band-top inflation, not the column's depth. HC held: the first-order Gaussian seam shift Phi
+// (2.97e-3, 4.75e-4, 1.05e-4, 2.81e-5, 8.64e-6 at L = 2) reads the exact errors with A = 0.942 (point 3 predicted 1,
+// with no constant), slope 1.092, calibrated ratios 1.76, 0.57, 1.73, 0.65, 0.88, and out of sample on L = 3 0.62,
+// 1.43, 0.72. The plain largest seam weight fits as well (slope 0.998, largest ln residual 0.654, against 0.675 for
+// Phi); D^2 / sigma^2 alone does not (slope -0.52). H1 held and P1 did not fire, a frozen prediction for the side-8
+// husk at kappa = 2/(2D + 1): the calibrated one-quantum leak per beat falls at every step, 2.24e-1, 3.53e-2, 8.64e-3,
+// 2.19e-3, 5.64e-4, 1.47e-4, 3.84e-5, 1.01e-5, 2.67e-6, 7.07e-7, 1.88e-7, 5.00e-8, 1.33e-8 for D = 4 .. 16 at rho
+// 0.4614, and 2.15e-1 .. 4.77e-9 at rho 0.4146. The leak peaks on massive modes, not the photon: lambda_A = 32 (band
+// top, k = (0, pi, pi)) at D = 4, 23.39 at D = 16. Largest husk registers: the axis links (variance 2.88 at D = 4,
+// 6.95 at D = 16; seam weight 8.0e-3 and 3.8e-10), then the n_P = 1 triangles (2.27, 5.88). OPEN-LGT-02: the two
+// splits' seam per dock agree within 6 percent at D = 4 to 6 and part with depth (worst over average 0.536 at D = 16,
+// just inside the pre-set [1/2, 2], so not "different" by the stated rule; the leak ratio is 0.358 at D = 16). The
+// worst-register split leaks less at every D >= 4, by an amount that grows with D. Infinite-volume variances (16-grid)
+// match the side-8 box within 1e-4 relative.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -155,7 +181,11 @@ const ladderSplit = (spec: LadderSpec): Split => {
   return { s, f, n: spec.n }
 }
 
-const huskSplit = (depth: number, rho: number, modulus?: number): Split => {
+const huskSplit = (
+  depth: number,
+  rho: number,
+  modulus?: number,
+): Split => {
   const n = 2 * depth + 1
   const sf = 1 / n
 
@@ -172,7 +202,10 @@ const bandError = (spec: LadderSpec): number => {
   let worst = 0
 
   for (const b of band) {
-    worst = Math.max(worst, Math.abs(b.omega - b.classical) / b.classical)
+    worst = Math.max(
+      worst,
+      Math.abs(b.omega - b.classical) / b.classical,
+    )
   }
 
   return worst
@@ -218,7 +251,9 @@ function ladderReference(spec: LadderSpec): {
   }
 
   // beat[j] is column j of M, gamma[j] column j of Gamma (symmetric)
-  const at = (mat: number[][], r: number, c: number): number => mat[c]![r]!
+  const at = (mat: number[][], r: number, c: number): number =>
+    mat[c]![r]!
+
   let diff = 0
   let norm = 0
 
@@ -251,7 +286,10 @@ function ladderReference(spec: LadderSpec): {
 const relative = (a: number, b: number): number =>
   Math.abs(a - b) / Math.abs(b)
 
-function fit(xs: number[], ys: number[]): { slope: number; scatter: number } {
+function fit(
+  xs: number[],
+  ys: number[],
+): { slope: number; scatter: number } {
   const mx = xs.reduce((a, b) => a + b, 0) / xs.length
   const my = ys.reduce((a, b) => a + b, 0) / ys.length
 
@@ -275,7 +313,7 @@ export default experiment({
   id: 'gauge/husk-light-seam',
   code: 'E-FRC-0282',
   title:
-    'the seam of the 3D quantum light, calibrated on the ladder: the harmonic vacuum weight past the column seam against the exact band misses, carried to the husk as a leak per beat against D',
+    'the seam of the 3D quantum light, fail on its own control: on the ladder the first-order Gaussian seam shift reads the exact one-quantum band misses with one constant A = 0.94 (slope 1.09, every box within a factor 1.8, the L = 3 boxes out of sample within 1.6), and carried to the side-8 husk it predicts a leak per beat falling from 0.22 at D = 4 to 1.3e-8 at D = 16 at both candidate splits, so the route does not die; but a husk whose registers do not deepen also falls (5.0e-2 to 6.4e-3 seam weight per dock), against the derivation, so the instrument was not shown to read a leak that does not fall',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -336,7 +374,10 @@ export default experiment({
       metrics[`varPlaquette${tag}`] = v.plaquette[0]!
 
       if (carrier === 'drift') {
-        recordWorst = Math.max(recordWorst, relative(error, RECORDED[tag]!))
+        recordWorst = Math.max(
+          recordWorst,
+          relative(error, RECORDED[tag]!),
+        )
       }
 
       return {
@@ -412,10 +453,12 @@ export default experiment({
     for (const c of controls) {
       const drift = boxes.find(b => b.n === c.n && b.L === 2)!
 
-      metrics[`phiRatioForceN${c.n}`] = c.reading.band / drift.reading.band
+      metrics[`phiRatioForceN${c.n}`] =
+        c.reading.band / drift.reading.band
       metrics[`errorRatioForceN${c.n}`] = c.error / drift.error
       c1a &&=
-        c.reading.band > 10 * drift.reading.band && c.error > 10 * drift.error
+        c.reading.band > 10 * drift.reading.band &&
+        c.error > 10 * drift.error
     }
 
     // (c): the husk, and C1 (b): the modulus held at 9
@@ -453,7 +496,8 @@ export default experiment({
       l2.reduce((s, b) => s + Math.log(b.error / b.reading.band), 0) /
         l2.length,
     )
-    const calibrated = (b: Box): number => b.error / (A * b.reading.band)
+    const calibrated = (b: Box): number =>
+      b.error / (A * b.reading.band)
     const phiFit = fit(
       l2.map(b => Math.log(b.reading.band)),
       l2.map(b => Math.log(b.error)),
@@ -532,11 +576,16 @@ export default experiment({
           Math.max(...idx.map(j => xs[j]!))
 
         metrics[`huskVarAxis${tag}D${D}`] = cls(v.link, [0, 1, 2])
-        metrics[`huskVarDiagonal${tag}D${D}`] = cls(v.link, [3, 4, 5, 6, 7, 8])
+        metrics[`huskVarDiagonal${tag}D${D}`] = cls(
+          v.link,
+          [3, 4, 5, 6, 7, 8],
+        )
+
         metrics[`huskVarTri1${tag}D${D}`] = cls(
           v.plaquette,
           husk.n.flatMap((n, j) => (n === 1 ? [j] : [])),
         )
+
         metrics[`huskVarTri2${tag}D${D}`] = cls(
           v.plaquette,
           husk.n.flatMap((n, j) => (n === 2 ? [j] : [])),
@@ -593,9 +642,9 @@ export default experiment({
       p1 || !i1 || !c1 ? 'fail' : hc && h1 ? 'pass' : 'partial'
 
     const leakSeries = (tag: string): string =>
-      DEPTHS.map(D => metrics[`huskLeak${tag}D${D}`]!.toExponential(2)).join(
-        ', ',
-      )
+      DEPTHS.map(D =>
+        metrics[`huskLeak${tag}D${D}`]!.toExponential(2),
+      ).join(', ')
 
     return verdict({
       status,

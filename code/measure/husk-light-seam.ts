@@ -24,7 +24,11 @@
 //   the quantum's excess seam kick per beat     sum_registers beta b,      b = E_0[(x^2 / sigma^2 - 1) |Delta(x)|^2]
 // with E_0 the Gaussian p_0(x) ~ exp(-x^2 / (2 sigma^2)) over the integers.
 
-import { jacobiEigen, curlAt, type LightSymbol } from '@/code/measure/husk-balance'
+import {
+  jacobiEigen,
+  curlAt,
+  type LightSymbol,
+} from '@/code/measure/husk-balance'
 
 export type Light = { light: LightSymbol; w: number[]; n: number[] }
 
@@ -76,8 +80,11 @@ export function lightModes(
         let si = 0
 
         for (let t = 0; t < P; t++) {
-          sr += n[t]! * (re[t]![r]! * re[t]![c]! + im[t]![r]! * im[t]![c]!)
-          si += n[t]! * (re[t]![r]! * im[t]![c]! - im[t]![r]! * re[t]![c]!)
+          sr +=
+            n[t]! * (re[t]![r]! * re[t]![c]! + im[t]![r]! * im[t]![c]!)
+
+          si +=
+            n[t]! * (re[t]![r]! * im[t]![c]! - im[t]![r]! * re[t]![c]!)
         }
 
         const x = sw[r]! * sw[c]!
@@ -103,7 +110,9 @@ export function lightModes(
       const vi = vectors.slice(L).map(row => row[j]!)
       const link = vr.map(
         (x, l) =>
-          ((hbar / 2) * ((split.f * lambda) / sin) * (x * x + vi[l]! ** 2)) /
+          ((hbar / 2) *
+            ((split.f * lambda) / sin) *
+            (x * x + vi[l]! ** 2)) /
           w[l]!,
       )
       const plaquette = re.map((row, t) => {
@@ -135,7 +144,9 @@ export function registerVariances(
   points: number,
 ): { link: number[]; plaquette: number[] } {
   const link = new Array<number>(modes[0]!.link.length).fill(0)
-  const plaquette = new Array<number>(modes[0]!.plaquette.length).fill(0)
+  const plaquette = new Array<number>(modes[0]!.plaquette.length).fill(
+    0,
+  )
 
   for (const m of modes) {
     m.link.forEach((c, l) => (link[l] = link[l]! + c / (2 * points)))
@@ -221,7 +232,9 @@ export function erfc(x: number): number {
                               (-1.13520398 +
                                 t *
                                   (1.48851587 +
-                                    t * (-0.82215223 + t * 0.17087277)))))))),
+                                    t *
+                                      (-0.82215223 +
+                                        t * 0.17087277)))))))),
     )
 
   return x >= 0 ? r : 2 - r
@@ -267,7 +280,9 @@ export function seamReading(
     seamMoments(v, plaqQ[t]!, split.n),
   )
   const linkWeight = variances.link.map(v => seamWeight(v, depth))
-  const plaquetteWeight = variances.plaquette.map(v => seamWeight(v, depth))
+  const plaquetteWeight = variances.plaquette.map(v =>
+    seamWeight(v, depth),
+  )
 
   let band = 0
   let leak = 0
@@ -288,6 +303,7 @@ export function seamReading(
       im += beta * linkMom[l]!.aIm
       kick += beta * linkMom[l]!.b
     })
+
     m.plaquette.forEach((c, t) => {
       const beta = c / variances.plaquette[t]!
 
