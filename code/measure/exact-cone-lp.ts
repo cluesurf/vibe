@@ -127,70 +127,165 @@ export function rank(rows: readonly (readonly Q[])[], n: number): number {
   return n - nullSpace(rows, n).length
 }
 
-// the extreme rays of the pointed cone { x : A x >= 0 } in R^n, A integer rows, as primitive integer vectors (the
-// rays tight on n - 1 independent rows, found by trying every such set of rows: exhaustive, for small cones)
-export function extremeRays(A: readonly (readonly bigint[])[], n: number): bigint[][] {
-  const rows = A.map(r => r.map(x => q(x)))
-  const seen = new Set<string>()
-  const out: bigint[][] = []
-  const pick: number[] = []
+// the extreme rays of the pointed cone { x : A x >= 0 } in R^n, A integer rows spanning R^n, as primitive integer
+// vectors: the double description method (Motzkin et al. 1953), exact, with the combinatorial adjacency test
+export function extremeRays(
+  A: readonly (readonly bigint[])[],
+  n: number,
+): bigint[][] {
+  const dot = (a: readonly bigint[], x: readonly bigint[]): bigint =>
+    a.reduce((s, v, i) => s + v * x[i]!, 0n)
+  const prim = (v: bigint[]): bigint[] => {
+    const g = v.reduce((s, x) => gcd(s, x), 0n) || 1n
 
-  const visit = (start: number, chosen: Q[][]): void => {
-    if (chosen.length === n - 1) {
-      const ns = nullSpace(chosen, n)
+    return v.map(x => x / g)
+  }
+  // a first set of n independent rows
+  const chosen: number[] = []
 
-      if (ns.length !== 1) {
-        return
-      }
+  for (let i = 0; i < A.length && chosen.length < n; i++) {
+    const rows = [...chosen, i].map(k => A[k]!.map(x => q(x)))
 
-      const v = primitive(ns[0]!)
-
-      for (const sign of [1n, -1n]) {
-        const w = v.map(x => x * sign)
-
-        if (A.every(a => a.reduce((s, x, i) => s + x * w[i]!, 0n) >= 0n)) {
-          const key = w.join(',')
-
-          if (!seen.has(key)) {
-            seen.add(key)
-            out.push(w)
-          }
-        }
-      }
-
-      return
-    }
-
-    for (let i = start; i <= rows.length - (n - 1 - chosen.length); i++) {
-      const next = [...chosen, rows[i]!]
-
-      // prune: keep the chosen rows independent
-      if (rank(next, n) < next.length) {
-        continue
-      }
-
-      pick.push(i)
-      visit(i + 1, next)
-      pick.pop()
+    if (rank(rows, n) === chosen.length + 1) {
+      chosen.push(i)
     }
   }
 
-  visit(0, [])
+  if (chosen.length < n) {
+    throw new Error('rows do not span: the cone is not pointed')
+  }
 
-  return out
+  // the rays of { x : A_chosen x >= 0 } are the columns of A_chosen^-1: the null vector of the other n - 1 rows,
+  // signed positive on its own row
+  let rays: bigint[][] = chosen.map((k, idx) => {
+    const others = chosen
+      .filter((_, j) => j !== idx)
+      .map(r => A[r]!.map(x => q(x)))
+    const v = primitive(nullSpace(others, n)[0]!)
+
+    return dot(A[k]!, v) > 0n ? v : v.map(x => -x)
+  })
+  const used = [...chosen]
+
+  for (let h = 0; h < A.length; h++) {
+    if (chosen.includes(h)) {
+      continue
+    }
+
+    const row = A[h]!
+    const val = rays.map(r => dot(row, r))
+    const pos = rays.filter((_, i) => val[i]! > 0n)
+    const zero = rays.filter((_, i) => val[i]! === 0n)
+    const neg = rays.filter((_, i) => val[i]! < 0n)
+    const zeroSet = (r: bigint[]): Set<number> =>
+      new Set(used.filter(k => dot(A[k]!, r) === 0n))
+    const zs = rays.map(zeroSet)
+    const posIdx = rays.map((_, i) => i).filter(i => val[i]! > 0n)
+    const negIdx = rays.map((_, i) => i).filter(i => val[i]! < 0n)
+    const fresh: bigint[][] = []
+
+    for (const p of posIdx) {
+      for (const m of negIdx) {
+        const common = [...zs[p]!].filter(k => zs[m]!.has(k))
+
+        if (common.length < n - 2) {
+          continue
+        }
+
+        const adjacent = !rays.some(
+          (_, r) => r !== p && r !== m && common.every(k => zs[r]!.has(k)),
+        )
+
+        if (!adjacent) {
+          continue
+        }
+
+        const vp = val[p]!
+        const vm = -val[m]!
+
+        fresh.push(prim(rays[p]!.map((x, i) => vm * x + vp * rays[m]![i]!)))
+      }
+    }
+
+    rays = [...pos, ...zero, ...fresh]
+    used.push(h)
+
+    if (neg.length === 0 && fresh.length === 0) {
+      continue
+    }
+  }
+
+  const seen = new Set<string>()
+
+  return rays.filter(r => {
+    const k = r.join(',')
+
+    if (seen.has(k)) {
+      return false
+    }
+
+    seen.add(k)
+
+    return true
+  })
 }
 
 export type LpResult = {
   feasible: boolean
-  // the non-negative solution (feasible) or a Farkas certificate y with y . column >= 0 for every column and
-  // y . rhs < 0 (infeasible)
+  // feasible: an exact non-negative solution with columns . x = rhs, verified here
   x?: Q[]
+  // infeasible: an exact Farkas certificate, y . column >= 0 for every column and y . rhs < 0, verified here
   y?: Q[]
+  // the float search's pivots, and whether the exact check on its final basis held
   pivots: number
+  certified: boolean
 }
 
-// Is there x >= 0 with M x = rhs? M given by columns (integer), rhs integer. Phase I of the simplex method with
-// Bland's rule, exact. Returns a solution or a Farkas certificate, each verified exactly by the caller.
+// solve the square rational system B z = r exactly (B by rows); undefined if singular
+function solveExact(B: readonly (readonly Q[])[], r: readonly Q[]): Q[] | undefined {
+  const n = B.length
+  const m = B.map((row, i) => [...row, r[i]!])
+
+  for (let c = 0; c < n; c++) {
+    let p = -1
+
+    for (let i = c; i < n; i++) {
+      if (m[i]![c]!.n !== 0n) {
+        p = i
+        break
+      }
+    }
+
+    if (p < 0) {
+      return undefined
+    }
+
+    ;[m[c], m[p]] = [m[p]!, m[c]!]
+
+    const inv = qdiv(Q1, m[c]![c]!)
+    const pr = m[c]!.map(x => (x.n === 0n ? Q0 : qmul(x, inv)))
+
+    m[c] = pr
+
+    for (let i = 0; i < n; i++) {
+      const f = m[i]![c]!
+
+      if (i !== c && f.n !== 0n) {
+        m[i] = m[i]!.map((x, j) =>
+          pr[j]!.n === 0n ? x : qsub(x, qmul(f, pr[j]!)),
+        )
+      }
+    }
+  }
+
+  return m.map(row => row[n]!)
+}
+
+// Is there x >= 0 with sum_j x_j column_j = rhs? Columns and rhs integer. A float phase-I simplex (Dantzig's rule,
+// Bland's after a run of degenerate pivots) finds a final basis; the answer is then proved exactly: a feasible basis
+// by solving for its values in rationals and checking them against every row, an infeasible one by solving for the
+// phase-I duals in rationals and checking every column's reduced cost (a Farkas certificate). certified is false
+// when the float basis does not survive the exact check, and the answer is then not to be used.
 export function feasibility(
   columns: readonly (readonly bigint[])[],
   rhs: readonly bigint[],
@@ -198,55 +293,59 @@ export function feasibility(
   const m = rhs.length
   const nCols = columns.length
   const total = nCols + m
-  // tableau rows: m constraint rows over total columns plus rhs; sign-normalise so rhs >= 0
-  const T: Q[][] = []
+  const sign = rhs.map(r => (r < 0n ? -1 : 1))
+  const width = total + 1
+  const T = new Float64Array(m * width)
 
   for (let i = 0; i < m; i++) {
-    const s = rhs[i]! < 0n ? -1n : 1n
-    const row: Q[] = new Array<Q>(total + 1)
-
     for (let j = 0; j < nCols; j++) {
-      row[j] = q(columns[j]![i]! * s)
+      T[i * width + j] = Number(columns[j]![i]!) * sign[i]!
     }
 
-    for (let k = 0; k < m; k++) {
-      row[nCols + k] = k === i ? Q1 : Q0
-    }
-
-    row[total] = q(rhs[i]! * s)
-    T.push(row)
+    T[i * width + nCols + i] = 1
+    T[i * width + total] = Number(rhs[i]!) * sign[i]!
   }
 
-  const sign = rhs.map(r => (r < 0n ? -1n : 1n))
-  const basis = Array.from({ length: m }, (_, i) => nCols + i)
-  // reduced cost row of the phase-I objective (minimise the artificials' sum): c_j - sum_i T_ij for j real
-  const cost: Q[] = new Array<Q>(total + 1)
+  const cost = new Float64Array(width)
 
-  for (let j = 0; j <= total; j++) {
+  for (let j = 0; j < width; j++) {
     if (j >= nCols && j < total) {
-      cost[j] = Q0
       continue
     }
 
-    let s = Q0
+    let s = 0
 
     for (let i = 0; i < m; i++) {
-      s = qadd(s, T[i]![j]!)
+      s += T[i * width + j]!
     }
 
-    cost[j] = qsub(Q0, s)
+    cost[j] = -s
   }
 
-  let pivots = 0
+  const basis = Array.from({ length: m }, (_, i) => nCols + i)
+  const EPS = 1e-9
 
-  for (;;) {
-    // Bland: the lowest index with negative reduced cost
+  let pivots = 0
+  let degenerate = 0
+
+  for (; pivots < 200000; pivots++) {
     let enter = -1
 
-    for (let j = 0; j < total; j++) {
-      if (cost[j]!.n < 0n) {
-        enter = j
-        break
+    if (degenerate < 50) {
+      let best = -EPS
+
+      for (let j = 0; j < total; j++) {
+        if (cost[j]! < best) {
+          best = cost[j]!
+          enter = j
+        }
+      }
+    } else {
+      for (let j = 0; j < total; j++) {
+        if (cost[j]! < -EPS) {
+          enter = j
+          break
+        }
       }
     }
 
@@ -255,89 +354,130 @@ export function feasibility(
     }
 
     let leave = -1
-    let best: Q | undefined
+    let ratio = Infinity
 
     for (let i = 0; i < m; i++) {
-      const a = T[i]![enter]!
+      const a = T[i * width + enter]!
 
-      if (a.n > 0n) {
-        const ratio = qdiv(T[i]![total]!, a)
-        const c = best ? qcmp(ratio, best) : -1
+      if (a > EPS) {
+        const rr = T[i * width + total]! / a
 
-        if (c < 0 || (c === 0 && basis[i]! < basis[leave]!)) {
-          best = ratio
+        if (
+          rr < ratio - 1e-12 ||
+          (Math.abs(rr - ratio) <= 1e-12 && basis[i]! < basis[leave]!)
+        ) {
+          ratio = rr
           leave = i
         }
       }
     }
 
     if (leave < 0) {
-      // unbounded cannot happen in phase I (objective bounded below by 0)
-      throw new Error('phase I unbounded')
+      break
     }
 
-    const inv = qdiv(Q1, T[leave]![enter]!)
-    const pr = T[leave]!.map(x => (x.n === 0n ? Q0 : qmul(x, inv)))
+    degenerate = ratio < 1e-12 ? degenerate + 1 : 0
 
-    T[leave] = pr
+    const piv = T[leave * width + enter]!
 
-    const nz: number[] = []
-
-    for (let j = 0; j <= total; j++) {
-      if (pr[j]!.n !== 0n) {
-        nz.push(j)
-      }
+    for (let j = 0; j < width; j++) {
+      T[leave * width + j] = T[leave * width + j]! / piv
     }
 
     for (let i = 0; i < m; i++) {
-      if (i === leave) {
+      const f = T[i * width + enter]!
+
+      if (i === leave || f === 0) {
         continue
       }
 
-      const f = T[i]![enter]!
-
-      if (f.n === 0n) {
-        continue
-      }
-
-      const row = T[i]!
-
-      for (const j of nz) {
-        row[j] = qsub(row[j]!, qmul(f, pr[j]!))
+      for (let j = 0; j < width; j++) {
+        T[i * width + j] = T[i * width + j]! - f * T[leave * width + j]!
       }
     }
 
     const f = cost[enter]!
 
-    for (const j of nz) {
-      cost[j] = qsub(cost[j]!, qmul(f, pr[j]!))
+    for (let j = 0; j < width; j++) {
+      cost[j] = cost[j]! - f * T[leave * width + j]!
     }
 
     basis[leave] = enter
-    pivots++
   }
 
-  // objective value = -cost[total]
-  const value = qsub(Q0, cost[total]!)
+  // the exact check on the final basis, in the original (unsigned) system
+  const colOf = (j: number): Q[] =>
+    j < nCols
+      ? columns[j]!.map(x => q(x))
+      : Array.from({ length: m }, (_, i) => (i === j - nCols ? Q1 : Q0))
+  const Bcols = basis.map(colOf)
+  const Brows = Array.from({ length: m }, (_, i) => Bcols.map(c => c[i]!))
+  const rq = rhs.map(x => q(x))
 
-  if (value.n === 0n) {
+  if (-cost[total]! < 1e-7) {
+    const xB = solveExact(Brows, rq)
     const x: Q[] = Array.from({ length: nCols }, () => Q0)
 
+    let ok = xB !== undefined
+
     basis.forEach((b, i) => {
-      if (b < nCols) {
-        x[b] = T[i]![total]!
+      const v = xB?.[i] ?? Q0
+
+      if (b >= nCols) {
+        ok &&= v.n === 0n
+      } else {
+        ok &&= v.n >= 0n
+        x[b] = v
       }
     })
 
-    return { feasible: true, x, pivots }
+    for (let i = 0; i < m && ok; i++) {
+      let s = Q0
+
+      for (let j = 0; j < nCols; j++) {
+        if (x[j]!.n !== 0n && columns[j]![i]! !== 0n) {
+          s = qadd(s, qmul(q(columns[j]![i]!), x[j]!))
+        }
+      }
+
+      ok &&= qcmp(s, rq[i]!) === 0
+    }
+
+    return { feasible: true, x, pivots, certified: ok }
   }
 
-  // Farkas: with phase-I duals w, the artificial k's reduced cost is 1 - w_k, real columns have -w . A_j >= 0 and
-  // w . rhs is the positive optimum. So y = -w = (reduced cost of artificial k) - 1, undoing the row signs, has
-  // y . column >= 0 for every column and y . rhs < 0.
-  const y = Array.from({ length: m }, (_, k) =>
-    qmul(qsub(cost[nCols + k]!, Q1), q(sign[k]!)),
-  )
+  // infeasible: phase-I duals w with w . B_k = c_k (1 on artificials, 0 on real columns) over the basis; the
+  // certificate is y = -w: y . column >= 0 for every real column and y . rhs < 0
+  const cB = basis.map(b => (b >= nCols ? Q1 : Q0))
+  const w = solveExact(Bcols, cB)
 
-  return { feasible: false, y, pivots }
+  if (!w) {
+    return { feasible: false, pivots, certified: false }
+  }
+
+  const y = w.map(v => qsub(Q0, v))
+
+  let ok = true
+
+  for (let j = 0; j < nCols && ok; j++) {
+    let s = Q0
+
+    for (let i = 0; i < m; i++) {
+      if (columns[j]![i]! !== 0n && y[i]!.n !== 0n) {
+        s = qadd(s, qmul(y[i]!, q(columns[j]![i]!)))
+      }
+    }
+
+    ok &&= s.n >= 0n
+  }
+
+  let yb = Q0
+
+  for (let i = 0; i < m; i++) {
+    yb = qadd(yb, qmul(y[i]!, rq[i]!))
+  }
+
+  ok &&= yb.n < 0n
+
+  return { feasible: false, y, pivots, certified: ok }
 }
