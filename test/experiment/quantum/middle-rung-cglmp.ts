@@ -91,7 +91,8 @@ const S10 = Math.sqrt(10)
 const S15 = Math.sqrt(15)
 const ME_STANDARD = 4 / (6 * S3 - 9)
 const QUANTUM_TOP = 1 + Math.sqrt(11 / 3)
-const KNOT_CHSH = (8 + 2 * Math.sqrt(21) + 2 * Math.sqrt(35) - 2 * S15) / 9
+const KNOT_CHSH =
+  (8 + 2 * Math.sqrt(21) + 2 * Math.sqrt(35) - 2 * S15) / 9
 
 export default experiment({
   id: 'quantum/middle-rung-cglmp',
@@ -117,6 +118,7 @@ export default experiment({
       [c, 0, c],
       [2, c, 0],
     ]
+
     let blockError = 0
 
     for (let i = 0; i < 3; i++) {
@@ -135,8 +137,16 @@ export default experiment({
 
     const gamma = (Math.sqrt(11) - S3) / 2
     const norm = 2 + gamma * gamma
-    const adgl = schmidtState([1 / norm, (gamma * gamma) / norm, 1 / norm])
-    const cutP = [knotP[0]! / (knotP[0]! + knotP[1]!), knotP[1]! / (knotP[0]! + knotP[1]!), 0]
+    const adgl = schmidtState([
+      1 / norm,
+      (gamma * gamma) / norm,
+      1 / norm,
+    ])
+    const cutP = [
+      knotP[0]! / (knotP[0]! + knotP[1]!),
+      knotP[1]! / (knotP[0]! + knotP[1]!),
+      0,
+    ]
     const product: Ensemble = schmidtState([1, 0, 0])
 
     const runs = [
@@ -182,7 +192,10 @@ export default experiment({
 
     // H2: the three placements at the standard readings, against the closed forms
     const placements: [number[], number][] = [
-      [[knotP[0]!, knotP[1]!, knotP[2]!], (4 * Math.sqrt(30)) / 27 + 4 / 9],
+      [
+        [knotP[0]!, knotP[1]!, knotP[2]!],
+        (4 * Math.sqrt(30)) / 27 + 4 / 9,
+      ],
       [
         [knotP[1]!, knotP[0]!, knotP[2]!],
         (4 / S3) * ((S10 + S6) / 6) * (1 / 3 + (S10 - S6) / 6) +
@@ -194,16 +207,22 @@ export default experiment({
           (4 * (S10 + S6)) / 18,
       ],
     ]
-    const stdValues = placements.map(([p]) => cglmpValue(schmidtState(p), std))
-    const stdError = Math.max(
-      ...placements.map(([, want], k) => Math.abs(stdValues[k]! - want)),
+    const stdValues = placements.map(([p]) =>
+      cglmpValue(schmidtState(p), std),
     )
-    const h2 = stdError < 1e-12 && placements.every(([, want]) => want < 2)
+    const stdError = Math.max(
+      ...placements.map(([, want], k) =>
+        Math.abs(stdValues[k]! - want),
+      ),
+    )
+    const h2 =
+      stdError < 1e-12 && placements.every(([, want]) => want < 2)
 
     const knotValue = at('knot').value
     const h1 = knotValue > 2 + 1e-6
     const p1 = knotValue <= 2 + 1e-9
-    const status = !i1 || !c1 || p1 ? 'fail' : h1 && h2 ? 'pass' : 'partial'
+    const status =
+      !i1 || !c1 || p1 ? 'fail' : h1 && h2 ? 'pass' : 'partial'
     const cut = at('cut knot').value
 
     return verdict({

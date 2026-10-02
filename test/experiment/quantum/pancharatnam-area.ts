@@ -128,7 +128,12 @@ function onLadder(x: Eis): boolean {
   const [a, b] = x
 
   return (
-    b === 0 || a === 0 || a === b || b === 2 * a || a === 2 * b || a === -b
+    b === 0 ||
+    a === 0 ||
+    a === b ||
+    b === 2 * a ||
+    a === 2 * b ||
+    a === -b
   )
 }
 
@@ -145,7 +150,8 @@ function inner(x: readonly Eis[], y: readonly Eis[]): Eis {
 
 function colKey(c: Col): string {
   return UNITS.map(
-    u => `${c.den3}|${c.num.map(x => eisMul(x, u).join(',')).join(';')}`,
+    u =>
+      `${c.den3}|${c.num.map(x => eisMul(x, u).join(',')).join(';')}`,
   ).sort()[0]!
 }
 
@@ -166,7 +172,10 @@ function applyMat(g: Mat3, c: Col): Col {
   return { num, den3 }
 }
 
-function floatVector(num: readonly Eis[], s: number): {
+function floatVector(
+  num: readonly Eis[],
+  s: number,
+): {
   re: number[]
   im: number[]
 } {
@@ -175,15 +184,19 @@ function floatVector(num: readonly Eis[], s: number): {
   return { re: v.map(z => z[0]), im: v.map(z => z[1]) }
 }
 
-const sym = (u: Point, v: Point): number => mod3(u[0] * v[1] - u[1] * v[0])
-const sub = (u: Point, v: Point): Point => [mod3(u[0] - v[0]), mod3(u[1] - v[1])]
+const sym = (u: Point, v: Point): number =>
+  mod3(u[0] * v[1] - u[1] * v[0])
+const sub = (u: Point, v: Point): Point => [
+  mod3(u[0] - v[0]),
+  mod3(u[1] - v[1]),
+]
 const sign = (x: number): number => (mod3(x) === 1 ? 1 : -1)
 
 export default experiment({
   id: 'quantum/pancharatnam-area',
   code: 'E-QTM-0168',
   title:
-    'the discrete Pancharatnam phase on the role is the symplectic area count with an orientation sign, pass: on all 648 ordered triples of stabilizer states with three different directions the Bargmann invariant is exactly 3^(-3/2) i chi omega^A, A the area of the triangle of their lines in the role\'s 9-point phase space and chi = +-1 the orientation of the directions, so concurrent triples read +-i and the literal omega^A fails on them; the 1,080 degenerate triples give 0 or |<a|c>|^2; Clifford covariance leaves 4 orbits, so the content is the ratio omega^A; the strange state and a wrong area are read as off the law; after one like or love-fear meeting 2,795,956 of 9,784,236 reached-state triples leave the twelve-point ladder, so the area count stops at the stabilizer states',
+    "the discrete Pancharatnam phase on the role is the symplectic area count with an orientation sign, pass: on all 648 ordered triples of stabilizer states with three different directions the Bargmann invariant is exactly 3^(-3/2) i chi omega^A, A the area of the triangle of their lines in the role's 9-point phase space and chi = +-1 the orientation of the directions, so concurrent triples read +-i and the literal omega^A fails on them; the 1,080 degenerate triples give 0 or |<a|c>|^2; Clifford covariance leaves 4 orbits, so the content is the ratio omega^A; the strange state and a wrong area are read as off the law; after one like or love-fear meeting 2,795,956 of 9,784,236 reached-state triples leave the twelve-point ladder, so the area count stops at the stabilizer states",
   category: 'quantum',
   substrates: 'any',
   depth: 'L1',
@@ -199,8 +212,12 @@ export default experiment({
 
       return s[1] === 0 && s[0] === 9 ** c.den3
     })
-    const wigners = states.map(c => wignerFunction(floatVector(c.num, 3 ** c.den3)))
+    const wigners = states.map(c =>
+      wignerFunction(floatVector(c.num, 3 ** c.den3)),
+    )
+
     let wignerError = 0
+
     const lines: Point[][] = wigners.map(w => {
       const pts: Point[] = []
 
@@ -237,10 +254,15 @@ export default experiment({
     const parallel = (i: number, j: number): boolean =>
       sym(dirs[i]!, dirs[j]!) === 0
     const meet = (i: number, j: number): Point =>
-      lines[i]!.find(p => lines[j]!.some(q => q[0] === p[0] && q[1] === p[1]))!
+      lines[i]!.find(p =>
+        lines[j]!.some(q => q[0] === p[0] && q[1] === p[1]),
+      )!
 
     // exact overlaps: gram[i][j] = <i|j> * 3^(den_i + den_j)
-    const gram: Eis[][] = states.map(a => states.map(b => inner(a.num, b.num)))
+    const gram: Eis[][] = states.map(a =>
+      states.map(b => inner(a.num, b.num)),
+    )
+
     let overlapsOk = true
 
     for (let i = 0; i < n; i++) {
@@ -271,12 +293,21 @@ export default experiment({
     )
 
     // B(a, b, c) exactly: 9 B = num9 / 3^den, returned as [num9, den]
-    const bargmann = (a: number, b: number, c: number): [Eis, number] => {
-      const num = eisMul(eisMul(gram[a]![b]!, gram[b]![c]!), gram[c]![a]!)
-      const den = 2 * (states[a]!.den3 + states[b]!.den3 + states[c]!.den3)
+    const bargmann = (
+      a: number,
+      b: number,
+      c: number,
+    ): [Eis, number] => {
+      const num = eisMul(
+        eisMul(gram[a]![b]!, gram[b]![c]!),
+        gram[c]![a]!,
+      )
+      const den =
+        2 * (states[a]!.den3 + states[b]!.den3 + states[c]!.den3)
 
       return [scale(num, 9), den]
     }
+
     const equalScaled = (x: [Eis, number], y: Eis): boolean =>
       same(x[0], scale(y, 3 ** x[1]))
 
@@ -287,6 +318,7 @@ export default experiment({
     let wrongAreaPassTriangle = 0
     let wrongAreaPassConcurrent = 0
     let triangles = 0
+
     const classes = new Map<string, number>()
     const triples: [number, number, number][] = []
 
@@ -297,11 +329,13 @@ export default experiment({
 
           if (parallel(a, b) || parallel(b, c) || parallel(c, a)) {
             degenerate++
+
             // derivation 1
             let want: Eis
 
             if (a === b || b === c || c === a) {
-              const [x, y] = a === b ? [a, c] : b === c ? [b, a] : [c, b]
+              const [x, y] =
+                a === b ? [a, c] : b === c ? [b, a] : [c, b]
               const g = gram[x]![y]!
               const nrm = eisMul(g, eisConj(g))
               // 9 |<x|y>|^2 at the same 3-power as bv
@@ -325,16 +359,25 @@ export default experiment({
 
           generic++
           triples.push([a, b, c])
+
           const p = meet(a, b)
           const q = meet(b, c)
           const r = meet(c, a)
           const area = mod3(2 * sym(sub(q, p), sub(r, p)))
           const wrongArea = sym(sub(q, p), sub(r, p))
           const chi = sign(
-            sym(dirs[a]!, dirs[b]!) * sym(dirs[b]!, dirs[c]!) * sym(dirs[c]!, dirs[a]!),
+            sym(dirs[a]!, dirs[b]!) *
+              sym(dirs[b]!, dirs[c]!) *
+              sym(dirs[c]!, dirs[a]!),
           )
-          const predicted = scale(eisMul(SQRT_M3, OMEGA_POW[area]!), chi)
-          const wrong = scale(eisMul(SQRT_M3, OMEGA_POW[wrongArea]!), chi)
+          const predicted = scale(
+            eisMul(SQRT_M3, OMEGA_POW[area]!),
+            chi,
+          )
+          const wrong = scale(
+            eisMul(SQRT_M3, OMEGA_POW[wrongArea]!),
+            chi,
+          )
           const key = `chi ${chi > 0 ? '+1' : '-1'}, A ${area}`
 
           classes.set(key, (classes.get(key) ?? 0) + 1)
@@ -359,11 +402,14 @@ export default experiment({
     }
 
     // orbits of the generic ordered triples under the Clifford action
-    const tripleKey = (t: readonly number[]): number => 144 * t[0]! + 12 * t[1]! + t[2]!
+    const tripleKey = (t: readonly number[]): number =>
+      144 * t[0]! + 12 * t[1]! + t[2]!
     const genericSet = new Set(triples.map(tripleKey))
     const orbitOf = new Map<number, number>()
     const orbitSizes: number[] = []
+
     let invariantsConstant = true
+
     const invariant = (t: readonly number[]): string => {
       const [a, b, c] = t as [number, number, number]
       const p = meet(a, b)
@@ -389,7 +435,9 @@ export default experiment({
         const ik = tripleKey(image)
 
         if (!genericSet.has(ik)) {
-          throw new Error('a Clifford image of a generic triple is degenerate')
+          throw new Error(
+            'a Clifford image of a generic triple is degenerate',
+          )
         }
 
         if (invariant(image) !== inv) {
@@ -421,9 +469,14 @@ export default experiment({
       [1, 0],
       [-1, 0],
     ]
-    const strangeWigner = wignerFunction(floatVector(strange, Math.SQRT2))
+    const strangeWigner = wignerFunction(
+      floatVector(strange, Math.SQRT2),
+    )
     const strangeMin = Math.min(...strangeWigner)
-    const strangeLine = strangeWigner.filter(v => Math.abs(v - 1 / 3) < 1e-9).length
+    const strangeLine = strangeWigner.filter(
+      v => Math.abs(v - 1 / 3) < 1e-9,
+    ).length
+
     let strangeTriples = 0
     let strangeOff = 0
 
@@ -434,6 +487,7 @@ export default experiment({
         }
 
         strangeTriples++
+
         // <a|b><b|s><s|a> times 3^(da + db) * 3^db * 3^da * 2; on the law it would be a unit times
         // sqrt(-3) with |B| = 3^(-3/2): test the phase only, through the ladder of i omega^k values
         const x = eisMul(
@@ -492,7 +546,10 @@ export default experiment({
 
     const list = [...reached.values()]
     const m = list.length
-    const rg: Eis[][] = list.map(x => list.map(y => inner(x.s.num, y.s.num)))
+    const rg: Eis[][] = list.map(x =>
+      list.map(y => inner(x.s.num, y.s.num)),
+    )
+
     let productTriples = 0
     let productOff = 0
     let metTriples = 0

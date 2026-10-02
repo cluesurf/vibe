@@ -125,7 +125,10 @@ export function cglmpValue(state: Ensemble, s: Settings): number {
 }
 
 // the Bell operator sum c P^A (x) P^B as a 9 x 9 complex matrix (row major)
-export function bellOperator(s: Settings): { re: number[]; im: number[] } {
+export function bellOperator(s: Settings): {
+  re: number[]
+  im: number[]
+} {
   const re = new Array<number>(81).fill(0)
   const im = new Array<number>(81).fill(0)
 
@@ -157,8 +160,11 @@ export function bellOperator(s: Settings): { re: number[]; im: number[] } {
 
           for (let x = 0; x < 9; x++) {
             for (let y = 0; y < 9; y++) {
-              re[9 * x + y] = re[9 * x + y]! + c * (vr[x]! * vr[y]! + vi[x]! * vi[y]!)
-              im[9 * x + y] = im[9 * x + y]! + c * (vi[x]! * vr[y]! - vr[x]! * vi[y]!)
+              re[9 * x + y] =
+                re[9 * x + y]! + c * (vr[x]! * vr[y]! + vi[x]! * vi[y]!)
+
+              im[9 * x + y] =
+                im[9 * x + y]! + c * (vi[x]! * vr[y]! - vr[x]! * vi[y]!)
             }
           }
         }
@@ -174,7 +180,9 @@ export function frameOf(x: ArrayLike<number>, offset: number): Frame {
   const cols: [number[], number[]][] = []
 
   for (let k = 0; k < 3; k++) {
-    let vr = [0, 1, 2].map(i => (i === k ? 1 : 0) + x[offset + 3 * i + k]!)
+    let vr = [0, 1, 2].map(
+      i => (i === k ? 1 : 0) + x[offset + 3 * i + k]!,
+    )
     let vi = [0, 1, 2].map(i => x[offset + 9 + 3 * i + k]!)
 
     for (const [ur, ui] of cols) {
@@ -191,7 +199,9 @@ export function frameOf(x: ArrayLike<number>, offset: number): Frame {
       vi = vi.map((v, i) => v - (pr * ui[i]! + pi * ur[i]!))
     }
 
-    const n = Math.sqrt(vr.reduce((s, v, i) => s + v * v + vi[i]! ** 2, 0))
+    const n = Math.sqrt(
+      vr.reduce((s, v, i) => s + v * v + vi[i]! ** 2, 0),
+    )
 
     cols.push([vr.map(v => v / n), vi.map(v => v / n)])
   }
@@ -224,11 +234,20 @@ export function frameDefect(s: Settings): number {
         let m = 0
 
         for (let i = 0; i < 3; i++) {
-          r += f.re[3 * i + p]! * f.re[3 * i + q]! + f.im[3 * i + p]! * f.im[3 * i + q]!
-          m += f.re[3 * i + p]! * f.im[3 * i + q]! - f.im[3 * i + p]! * f.re[3 * i + q]!
+          r +=
+            f.re[3 * i + p]! * f.re[3 * i + q]! +
+            f.im[3 * i + p]! * f.im[3 * i + q]!
+
+          m +=
+            f.re[3 * i + p]! * f.im[3 * i + q]! -
+            f.im[3 * i + p]! * f.re[3 * i + q]!
         }
 
-        worst = Math.max(worst, Math.abs(r - (p === q ? 1 : 0)), Math.abs(m))
+        worst = Math.max(
+          worst,
+          Math.abs(r - (p === q ? 1 : 0)),
+          Math.abs(m),
+        )
       }
     }
   }
@@ -246,15 +265,18 @@ export function cglmpOptimize(input: {
   const { state, starts, iterations = 600, offset = 0 } = input
   const n = 72
   const h = 1e-6
-  const f = (x: Float64Array): number => cglmpValue(state, settingsOf(x))
+  const f = (x: Float64Array): number =>
+    cglmpValue(state, settingsOf(x))
 
   let best = -Infinity
   let bestX = new Float64Array(n)
+
   const values: number[] = []
 
   for (let s = 0; s < starts; s++) {
-    let x = Float64Array.from({ length: n }, (_, k) =>
-      2 * weyl(1 + (offset + s) * n + k) - 1,
+    let x = Float64Array.from(
+      { length: n },
+      (_, k) => 2 * weyl(1 + (offset + s) * n + k) - 1,
     )
     let fx = f(x)
     let step = 0.1
@@ -280,7 +302,10 @@ export function cglmpOptimize(input: {
       let moved = false
 
       for (let tries = 0; tries < 40; tries++) {
-        const y = Float64Array.from(x, (v, k) => v + (step * g[k]!) / gn)
+        const y = Float64Array.from(
+          x,
+          (v, k) => v + (step * g[k]!) / gn,
+        )
         const fy = f(y)
 
         if (fy > fx) {
