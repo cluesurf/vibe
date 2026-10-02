@@ -72,6 +72,20 @@
 // VERDICT: pass if H1 holds, P1 does not fire, and I1, C1, C2 hold; partial if H1's growth exists but a rate or k_J
 //  gate misses, or an instrument or control fails; fail if P1 fires.
 //
+// FIRST RUN 2026-10-02 (tmp/jn-run1.log, 8 s): PASS, every gate as written, none moved or rerun.
+//  - H1: both closures have growing modes; the largest growing k is 0.18041 in both (lambda_J 34.83 docks) against the
+//    continuum 0.18090 (34.73), 0.27% short, the lattice's share. At m 1 (k 0.02454, 256 docks) the knit closure grows
+//    0.12651 a beat against the derived 0.12659 (an e-fold in 7.9 beats), the register closure 0.01485 against the
+//    overdamped 0.01507 (1.4% under, the relaxation's finite rate). Modes m 1 .. 7 grow (knit 0.1265 down to 0.0329,
+//    register 0.0149 down to 0.0014), m 8 does not. P1 does not fire.
+//  - I1: the ring runs equal the map's prediction to 7.3e-6 and 5.1e-6 (the 1e-9 start grows to 2.5e-5 in the knit
+//    closure, so this is the nonlinearity), late slopes 1.00000 of the map's rate, counts kept to 2e-16, the growing mode's
+//    charge share 1e-31: it is pure content, as derived. C1: the screened depth grows nowhere at n0 0.5 (largest |lambda|
+//    1 - 1e-16 and 1 - 2.7e-7), nor does the field off. C2: the m 12 wave ends at 0.162 of its start (map gap 1.6e-5).
+//  - Reads: lambda_J 11.50 docks at n0 4.8 (the flip knit's fill) and 6.64 at n0 16 (continuum 11.21, 6.14), with Omega_J
+//    0.396 and 0.724 a beat: at the knit's own densities the Jeans length is a few docks. The screened depth (E-GRV-0094's
+//    open husk) grows only above 14.4018 content a dock (continuum 14.4018), and at n0 16 only below k 0.289.
+//
 // WHAT THIS CAN AND CANNOT SHOW. It shows whether the coarse fluid made of the two densities and the depth field (as the
 // ledger holds them: the depth register added, inertia a stand-in) has a Jeans instability, at which length, and how
 // fast. It does not derive the coarse fluid from the rule (the closure is a single relaxation at the knit's viscosity),
@@ -132,7 +146,8 @@ type Field = { coupling: number; mu2: number }
 const flag = (b: boolean): number => (b ? 1 : 0)
 
 // the husk symbol of a plane wave along an axis, with an optional screening 6 mu^2
-const symbol = (k: number, f: Field): number => 12 * (1 - Math.cos(k)) + 6 * f.mu2
+const symbol = (k: number, f: Field): number =>
+  12 * (1 - Math.cos(k)) + 6 * f.mu2
 
 // THE ONE-BEAT MAP at wavenumber k, on (love v=-1, 0, +1, fear v=-1, 0, +1), linearized about n0 / 2 each at rest
 export function beatMap(
@@ -153,9 +168,20 @@ export function beatMap(
 
     dr[col] = 1
 
-    const ns = [0, 1].map(s => [0, 1, 2].reduce((a, v) => [a[0]! + dr[3 * s + v]!, a[1]! + di[3 * s + v]!], [0, 0]))
+    const ns = [0, 1].map(s =>
+      [0, 1, 2].reduce(
+        (a, v) => [a[0]! + dr[3 * s + v]!, a[1]! + di[3 * s + v]!],
+        [0, 0],
+      ),
+    )
     const js = [0, 1].map(s =>
-      [0, 1, 2].reduce((a, v) => [a[0]! + VEL[v]! * dr[3 * s + v]!, a[1]! + VEL[v]! * di[3 * s + v]!], [0, 0]),
+      [0, 1, 2].reduce(
+        (a, v) => [
+          a[0]! + VEL[v]! * dr[3 * s + v]!,
+          a[1]! + VEL[v]! * di[3 * s + v]!,
+        ],
+        [0, 0],
+      ),
     )
     const nr = ns[0]![0]! + ns[1]![0]!
     const ni = ns[0]![1]! + ns[1]![1]!
@@ -167,16 +193,26 @@ export function beatMap(
     const Fi = g * nr * half
     const Ftr = 2 * Fr
     const Fti = 2 * Fi
-    const ur = closure === 'knit' ? (js[0]![0]! + js[1]![0]! + Ftr / 2) / n0 : 0
-    const ui = closure === 'knit' ? (js[0]![1]! + js[1]![1]! + Fti / 2) / n0 : 0
+    const ur =
+      closure === 'knit' ? (js[0]![0]! + js[1]![0]! + Ftr / 2) / n0 : 0
+    const ui =
+      closure === 'knit' ? (js[0]![1]! + js[1]![1]! + Fti / 2) / n0 : 0
 
     for (let s = 0; s < 2; s++) {
       for (let v = 0; v < 3; v++) {
         const i = 3 * s + v
-        const er = WEIGHTS[v]! * (ns[s]![0]! + (half * VEL[v]! * ur) / CS2)
-        const ei = WEIGHTS[v]! * (ns[s]![1]! + (half * VEL[v]! * ui) / CS2)
-        const pr = dr[i]! - W * (dr[i]! - er) + ((1 - W / 2) * WEIGHTS[v]! * VEL[v]! * Fr) / CS2
-        const pi = di[i]! - W * (di[i]! - ei) + ((1 - W / 2) * WEIGHTS[v]! * VEL[v]! * Fi) / CS2
+        const er =
+          WEIGHTS[v]! * (ns[s]![0]! + (half * VEL[v]! * ur) / CS2)
+        const ei =
+          WEIGHTS[v]! * (ns[s]![1]! + (half * VEL[v]! * ui) / CS2)
+        const pr =
+          dr[i]! -
+          W * (dr[i]! - er) +
+          ((1 - W / 2) * WEIGHTS[v]! * VEL[v]! * Fr) / CS2
+        const pi =
+          di[i]! -
+          W * (di[i]! - ei) +
+          ((1 - W / 2) * WEIGHTS[v]! * VEL[v]! * Fi) / CS2
         // stream: new f_v(x) = old f_v(x - v), the factor e^(-i k v)
         const c = Math.cos(k * VEL[v]!)
         const sn = -Math.sin(k * VEL[v]!)
@@ -190,7 +226,12 @@ export function beatMap(
   return { re, im }
 }
 
-export function growthOf(k: number, n0: number, closure: Closure, f: Field): number {
+export function growthOf(
+  k: number,
+  n0: number,
+  closure: Closure,
+  f: Field,
+): number {
   const m = beatMap(k, n0, closure, f)
   const e = complexEigenvalues({ re: m.re, im: m.im, n: 6 })
 
@@ -198,7 +239,11 @@ export function growthOf(k: number, n0: number, closure: Closure, f: Field): num
 }
 
 // the largest k in (0, pi] with a growing mode (0 if none): a scan, then bisection at the last sign change
-function marginal(n0: number, closure: Closure, f: Field): { k: number; worst: number } {
+function marginal(
+  n0: number,
+  closure: Closure,
+  f: Field,
+): { k: number; worst: number } {
   let last = 0
   let worst = 0
 
@@ -234,8 +279,14 @@ function marginal(n0: number, closure: Closure, f: Field): { k: number; worst: n
 }
 
 // the share of the growing eigenvector in the charge (love - fear) combination, by inverse iteration on M - lambda
-function chargeShare(k: number, n0: number, closure: Closure, f: Field): number {
+function chargeShare(
+  k: number,
+  n0: number,
+  closure: Closure,
+  f: Field,
+): number {
   const m = beatMap(k, n0, closure, f)
+
   // power iteration: the growing mode dominates
   let xr = Float64Array.from([1, 2, 1, 1, 2, 1])
   let xi = new Float64Array(6)
@@ -251,7 +302,10 @@ function chargeShare(k: number, n0: number, closure: Closure, f: Field): number 
       }
     }
 
-    const nrm = Math.sqrt(yr.reduce((a, x) => a + x * x, 0) + yi.reduce((a, x) => a + x * x, 0))
+    const nrm = Math.sqrt(
+      yr.reduce((a, x) => a + x * x, 0) +
+        yi.reduce((a, x) => a + x * x, 0),
+    )
 
     xr = yr.map(x => x / nrm)
     xi = yi.map(x => x / nrm)
@@ -272,11 +326,18 @@ function chargeShare(k: number, n0: number, closure: Closure, f: Field): number 
 
 type Ring = { f: Float64Array[]; L: number }
 
-function ringStart(L: number, n0: number, amplitude: number, mode: number): Ring {
+function ringStart(
+  L: number,
+  n0: number,
+  amplitude: number,
+  mode: number,
+): Ring {
   const f = Array.from({ length: 6 }, () => new Float64Array(L))
 
   for (let x = 0; x < L; x++) {
-    const n = (n0 / 2) * (1 + amplitude * Math.cos((2 * Math.PI * mode * x) / L))
+    const n =
+      (n0 / 2) *
+      (1 + amplitude * Math.cos((2 * Math.PI * mode * x) / L))
 
     for (let s = 0; s < 2; s++) {
       for (let v = 0; v < 3; v++) {
@@ -290,9 +351,22 @@ function ringStart(L: number, n0: number, amplitude: number, mode: number): Ring
 
 function ringBeat(r: Ring, closure: Closure, fd: Field): void {
   const { L, f } = r
-  const n = [0, 1].map(s => Float64Array.from({ length: L }, (_, x) => f[3 * s]![x]! + f[3 * s + 1]![x]! + f[3 * s + 2]![x]!))
-  const j = [0, 1].map(s => Float64Array.from({ length: L }, (_, x) => f[3 * s + 2]![x]! - f[3 * s]![x]!))
-  const content = Float64Array.from({ length: L }, (_, x) => n[0]![x]! + n[1]![x]!)
+  const n = [0, 1].map(s =>
+    Float64Array.from(
+      { length: L },
+      (_, x) => f[3 * s]![x]! + f[3 * s + 1]![x]! + f[3 * s + 2]![x]!,
+    ),
+  )
+  const j = [0, 1].map(s =>
+    Float64Array.from(
+      { length: L },
+      (_, x) => f[3 * s + 2]![x]! - f[3 * s]![x]!,
+    ),
+  )
+  const content = Float64Array.from(
+    { length: L },
+    (_, x) => n[0]![x]! + n[1]![x]!,
+  )
   // Phi by the discrete Fourier transform (L is small): Phi(q) = -(c / D) n(q) / lambda(q), q != 0
   const phi = new Float64Array(L)
 
@@ -314,19 +388,28 @@ function ringBeat(r: Ring, closure: Closure, fd: Field): void {
     }
   }
 
-  const grad = Float64Array.from({ length: L }, (_, x) => (phi[(x + 1) % L]! - phi[(x - 1 + L) % L]!) / 2)
+  const grad = Float64Array.from(
+    { length: L },
+    (_, x) => (phi[(x + 1) % L]! - phi[(x - 1 + L) % L]!) / 2,
+  )
   const post = Array.from({ length: 6 }, () => new Float64Array(L))
 
   for (let x = 0; x < L; x++) {
     const F = [0, 1].map(s => -n[s]![x]! * grad[x]!)
-    const u = closure === 'knit' ? (j[0]![x]! + j[1]![x]! + (F[0]! + F[1]!) / 2) / content[x]! : 0
+    const u =
+      closure === 'knit'
+        ? (j[0]![x]! + j[1]![x]! + (F[0]! + F[1]!) / 2) / content[x]!
+        : 0
 
     for (let s = 0; s < 2; s++) {
       for (let v = 0; v < 3; v++) {
         const i = 3 * s + v
         const eq = WEIGHTS[v]! * n[s]![x]! * (1 + (VEL[v]! * u) / CS2)
 
-        post[i]![x] = f[i]![x]! - W * (f[i]![x]! - eq) + ((1 - W / 2) * WEIGHTS[v]! * VEL[v]! * F[s]!) / CS2
+        post[i]![x] =
+          f[i]![x]! -
+          W * (f[i]![x]! - eq) +
+          ((1 - W / 2) * WEIGHTS[v]! * VEL[v]! * F[s]!) / CS2
       }
     }
   }
@@ -344,6 +427,7 @@ function ringBeat(r: Ring, closure: Closure, fd: Field): void {
 function amplitudeAt(r: Ring, mode: number): [number, number] {
   let cr = 0
   let ci = 0
+
   const k = (2 * Math.PI * mode) / r.L
 
   for (let x = 0; x < r.L; x++) {
@@ -361,14 +445,29 @@ function amplitudeAt(r: Ring, mode: number): [number, number] {
 }
 
 const counts = (r: Ring): [number, number] =>
-  [0, 1].map(s => [0, 1, 2].reduce((a, v) => a + r.f[3 * s + v]!.reduce((b, x) => b + x, 0), 0)) as [number, number]
+  [0, 1].map(s =>
+    [0, 1, 2].reduce(
+      (a, v) => a + r.f[3 * s + v]!.reduce((b, x) => b + x, 0),
+      0,
+    ),
+  ) as [number, number]
 
 // the map's prediction for the content amplitude after T beats from the content wave at rest
-function predicted(k: number, n0: number, closure: Closure, f: Field, T: number, a0: number): [number, number] {
+function predicted(
+  k: number,
+  n0: number,
+  closure: Closure,
+  f: Field,
+  T: number,
+  a0: number,
+): [number, number] {
   const m = beatMap(k, n0, closure, f)
 
   // each species carries half the content amplitude a0, split over the velocities by the weights
-  let xr = Float64Array.from([0, 1, 2, 3, 4, 5], i => (WEIGHTS[i % 3]! * a0) / 2)
+  let xr = Float64Array.from(
+    [0, 1, 2, 3, 4, 5],
+    i => (WEIGHTS[i % 3]! * a0) / 2,
+  )
   let xi = new Float64Array(6)
 
   for (let t = 0; t < T; t++) {
@@ -389,7 +488,12 @@ function predicted(k: number, n0: number, closure: Closure, f: Field, T: number,
   return [xr.reduce((a, x) => a + x, 0), xi.reduce((a, x) => a + x, 0)]
 }
 
-function runWave(plan: JeansPlan, closure: Closure, f: Field, mode: number) {
+function runWave(
+  plan: JeansPlan,
+  closure: Closure,
+  f: Field,
+  mode: number,
+) {
   const r = ringStart(plan.ring, plan.n0, plan.amplitude, mode)
   const k = (2 * Math.PI * mode) / plan.ring
   const start = counts(r)
@@ -405,7 +509,8 @@ function runWave(plan: JeansPlan, closure: Closure, f: Field, mode: number) {
   const final = amplitudeAt(r, mode)
   // the start's content amplitude in the transform is a0 = L n0 amplitude / 2, at rest
   const [pr, pi] = predicted(k, plan.n0, closure, f, plan.beats, a0)
-  const runGap = Math.hypot(final[0] - pr, final[1] - pi) / Math.hypot(pr, pi)
+  const runGap =
+    Math.hypot(final[0] - pr, final[1] - pi) / Math.hypot(pr, pi)
   // late growth: least-squares slope of log amplitude over the fit window
   const xs: number[] = []
   const ys: number[] = []
@@ -418,14 +523,18 @@ function runWave(plan: JeansPlan, closure: Closure, f: Field, mode: number) {
   const mx = xs.reduce((a, x) => a + x, 0) / xs.length
   const my = ys.reduce((a, x) => a + x, 0) / ys.length
   const slope =
-    xs.reduce((a, x, i) => a + (x - mx) * (ys[i]! - my), 0) / xs.reduce((a, x) => a + (x - mx) ** 2, 0)
+    xs.reduce((a, x, i) => a + (x - mx) * (ys[i]! - my), 0) /
+    xs.reduce((a, x) => a + (x - mx) ** 2, 0)
 
   return {
     k,
     runGap,
     slope,
     mapRate: Math.log(growthOf(k, plan.n0, closure, f)),
-    countDrift: Math.max(Math.abs(end[0] / start[0] - 1), Math.abs(end[1] / start[1] - 1)),
+    countDrift: Math.max(
+      Math.abs(end[0] / start[0] - 1),
+      Math.abs(end[1] / start[1] - 1),
+    ),
     growth: Math.hypot(...final) / a0,
   }
 }
@@ -433,7 +542,8 @@ function runWave(plan: JeansPlan, closure: Closure, f: Field, mode: number) {
 export default experiment({
   id: 'cosmology/coarse-jeans',
   code: 'E-CSM-0062',
-  title: 'Jeans on the coarse layer (route I8a)',
+  title:
+    "the coarse fluid of love, fear and the depth field is Jeans unstable, pass: with the 1/r depth (E-GRV-0090, 4 pi G = pi / (6 D)) and sound at c_s^2 = 1/2, a long content wave grows in both closures, the knit one (momentum kept, 0.1265 a beat at n0 0.5 and D 16, against the derived 0.1266) and the register one (no local momentum, diffusing, 0.0149 against 0.0151), below the same marginal k 0.1804 against Jeans 0.1809 (lambda_J 34.8 docks; 11.5 and 6.6 docks at contents 4.8 and 16 a dock), the growing mode pure content (the charge mode does not grow), the ring run on the map to 7e-6; the open husk's screened depth (Yukawa 1.03) grows nowhere below 14.4 content a dock, which is the kill this route would meet if the bulk screens the husk",
   category: 'cosmology',
   substrates: ['3434'],
   depth: 'L2',
@@ -445,7 +555,10 @@ export default experiment({
 
 export function coarseJeansRun(plan: JeansPlan): Verdict {
   const started = Date.now()
-  const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+  const log = (what: string): void =>
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
   const coupling = Math.PI / plan.depth
   const open: Field = { coupling, mu2: 0 }
   const screened: Field = { coupling, mu2: 1 / YUKAWA ** 2 }
@@ -464,16 +577,24 @@ export function coarseJeansRun(plan: JeansPlan): Verdict {
   // ---------------- the map ----------------
   const closures: Closure[] = ['knit', 'register']
   const margins = closures.map(c => marginal(plan.n0, c, open))
-  const rates = closures.map(c => Math.log(growthOf(kLong, plan.n0, c, open)))
+  const rates = closures.map(c =>
+    Math.log(growthOf(kLong, plan.n0, c, open)),
+  )
   const modeRates = closures.map(c =>
-    Array.from({ length: 7 }, (_, i) => Math.log(growthOf((2 * Math.PI * (i + 1)) / plan.ring, plan.n0, c, open))),
+    Array.from({ length: 7 }, (_, i) =>
+      Math.log(
+        growthOf((2 * Math.PI * (i + 1)) / plan.ring, plan.n0, c, open),
+      ),
+    ),
   )
   const charge = closures.map(c => chargeShare(kLong, plan.n0, c, open))
 
   log('map')
 
   // ---------------- controls on the map ----------------
-  const screenedMargins = closures.map(c => marginal(plan.n0, c, screened))
+  const screenedMargins = closures.map(c =>
+    marginal(plan.n0, c, screened),
+  )
   const offMargins = closures.map(c => marginal(plan.n0, c, off))
 
   log('controls')
@@ -498,6 +619,7 @@ export function coarseJeansRun(plan: JeansPlan): Verdict {
       screenedK: s.k,
     }
   })
+
   // the screened threshold on the lattice: the least n0 with a growing mode (bisection between 0.5 and 64)
   let lo = plan.n0
   let hi = 64
@@ -519,18 +641,24 @@ export function coarseJeansRun(plan: JeansPlan): Verdict {
 
   // ---------------- gates ----------------
   const grows = margins.map(m => m.k > 0)
-  const kJok = margins.every(m => Math.abs(m.k / kJ - 1) <= KJ_TOLERANCE)
+  const kJok = margins.every(
+    m => Math.abs(m.k / kJ - 1) <= KJ_TOLERANCE,
+  )
   const knitOk = Math.abs(rates[0]! / knitWant - 1) <= KNIT_TOLERANCE
-  const registerOk = Math.abs(rates[1]! / registerWant - 1) <= REGISTER_TOLERANCE
+  const registerOk =
+    Math.abs(rates[1]! / registerWant - 1) <= REGISTER_TOLERANCE
   const H1 = grows.every(Boolean) && kJok && knitOk && registerOk
   const P1 = !grows.some(Boolean)
   const I1 =
     runs.every(r => r.runGap <= RUN_TOLERANCE) &&
-    runs.every(r => Math.abs(r.slope / r.mapRate - 1) <= RATE_TOLERANCE) &&
+    runs.every(
+      r => Math.abs(r.slope / r.mapRate - 1) <= RATE_TOLERANCE,
+    ) &&
     [...runs, stable].every(r => r.countDrift <= COUNT_TOLERANCE) &&
     charge.every(c => c <= CHARGE_TOLERANCE)
   const C1 =
-    screenedMargins.every(m => m.worst <= 1 + STABLE) && offMargins.every(m => m.worst <= 1 + STABLE)
+    screenedMargins.every(m => m.worst <= 1 + STABLE) &&
+    offMargins.every(m => m.worst <= 1 + STABLE)
   const C2 = stable.growth <= 1 && stable.runGap <= RUN_TOLERANCE
   const status = P1 ? 'fail' : H1 && I1 && C1 && C2 ? 'pass' : 'partial'
   const f5 = (v: number): string => v.toFixed(5)
