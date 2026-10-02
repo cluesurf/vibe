@@ -103,6 +103,28 @@
 // the member's own gap, and with it its rho_em, is not read. Depth L2: float dynamics, residuals reported.
 //
 // DETERMINISM: no random numbers; every run starts from the same state.
+//
+// FIRST RUN 2026-10-02 (tmp/em-run1.log, 26 s): FAIL, as derived. Every instrument and control gate held, P1 held and
+// H1 did not; no gate moved and none was rerun.
+//  - I1: the run at rho1 and the conjugated run at rho2 with the rescaled strengths agree to 2.3e-13 (x, e and the
+//    emitter, E fixed, A fixed and mixed): the coupled split is a change of units that carries the coupling's strength.
+//  - I2: at g = 0.1 the emitter keeps 0.306 / 0.311 (E fixed), 0.430 / 0.427 (A fixed), 0.266 / 0.267 (mixed) of 0.5.
+//  - C0: the couplings written in the rescaled units give |D| <= 8.1e-13. C1: a gap moved from 0.5 to 0.75 with the
+//    split reads D_far = -5.7e-2, so the instrument reads a share the member moves.
+//  - P1 (the kill): D for E fixed, E drift, A fixed is at most 1.6e-3 (whole, g = 0.1) and falls as g^2: at g = 0.05 and
+//    0.025, E fixed -4.6e-4 and -1.2e-4 whole, -9.1e-5 and -2.3e-5 far; E drift the mirror (+4.8e-4, +1.2e-4); A fixed
+//    2.3e-5 and 6.0e-6 whole, 1.0e-5 and 2.5e-6 far; largest ratio D(0.025) / D(0.05) 0.261. Mixed far |D| <= 1.5e-4.
+//  - M1 (reported): the mixed coupling's whole-box D does not fall (9.6e-4, 1.8e-3, 2.1e-3 at g = 0.1, 0.05, 0.025),
+//    as item 3 says: two fields with split-free weights are not carried, and the departure lives in the bound near
+//    field; the radiated far field falls with g (1.5e-4 to 5.6e-5).
+//  - READ: the far-field emitted balance rho_em is the same at both splits to 4e-4 at every gap: 0.4953, 0.4928, 0.4645,
+//    0.3846, 0.4056 at delta = 0.25, 0.5, 0.75, 1.0, 1.25 (vacuum balance on the box 0.4613753). It meets 0.4614 at
+//    delta 0.760 and 0.4146 at delta 0.906: the agreement rho_em = rho_vac picks the member's gap, not the split.
+// WHAT IT MEANS for OPEN-LGT-02: emission cannot choose the split on the linear light. Every coupling the code has goes
+// through one field (the ladder's drift-phase dipole through E, the Clifford hop's Peierls phase through A), and the
+// unit change carries it, so the emitted share moves by rho1 / rho2 as the vacuum's does; the coupling's strength
+// moves too (its square by 1.055), which changes the rate and leaves an O(g^2) trace, not an agreement. The split stays
+// a question about the registers' integer seams.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
@@ -151,7 +173,8 @@ const COUPLINGS: Coupling[] = [
 export default experiment({
   id: 'gauge/emission-share',
   code: 'E-FRC-0288',
-  title: 'emission sets the share (pending the first run)',
+  title:
+    "emission does not choose the light's split, fail as derived: at fixed kappa the coupled split is the same change of units as the free light's, carrying a coupling through E or through A along with its strength rescaled (conjugated runs agree to 2.3e-13), so a STAND-IN emitter on the side-12 husk light emits a share that follows rho1 / rho2 = 1.1127 as the vacuum's does, up to an O(g^2) strength term (1.2e-4 at g = 0.025 for the ladder-like E coupling, 6.0e-6 for the Peierls-like A coupling, a quarter per halving); couplings written in the rescaled units depart by 8e-13 and a gap that moves with the split by 5.7e-2; only a coupling through both fields with split-free weights keeps a first-order departure, 2e-3 in its bound near field; the emitted light balances at a split set by the gap (0.493 at delta 0.5, 0.385 at 1.0), the same at both splits, meeting 0.4614 at delta 0.76 and 0.4146 at 0.91",
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -166,7 +189,9 @@ function emissionShareRun(): Verdict {
   const box = emissionBox(SIDE)
   const L = box.bulk.huskLinks
   const P = box.bulk.huskTriangles
-  const farLinks = Array.from(box.linkDistance).filter(d => d > FAR).length
+  const farLinks = Array.from(box.linkDistance).filter(
+    d => d > FAR,
+  ).length
   const farTriangles = Array.from(box.triangleDistance).filter(
     d => d > FAR,
   ).length
@@ -212,7 +237,12 @@ function emissionShareRun(): Verdict {
 
   // ---------------- the vacuum's balance on the box's own momenta ----------------
   const husk = huskLight()
-  const fills = averageFills(husk.light, SIDE, { w: husk.w, n: husk.n }, 0)
+  const fills = averageFills(
+    husk.light,
+    SIDE,
+    { w: husk.w, n: husk.n },
+    0,
+  )
   const mean = (xs: number[]): number =>
     xs.reduce((x, y) => x + y, 0) / xs.length
   const rhoVac =
@@ -255,8 +285,17 @@ function emissionShareRun(): Verdict {
     ['mixed', 0.05, 0.05],
   ] as const) {
     const a = run(RHO1, gE, gA)
-    const b = run(RHO2, gE * Math.sqrt(s2 / s1), gA * Math.sqrt(s1 / s2))
-    const rel = (u: Float64Array, v: Float64Array, k: number): number => {
+    const b = run(
+      RHO2,
+      gE * Math.sqrt(s2 / s1),
+      gA * Math.sqrt(s1 / s2),
+    )
+
+    const rel = (
+      u: Float64Array,
+      v: Float64Array,
+      k: number,
+    ): number => {
       let top = 0
       let diff = 0
 
@@ -267,6 +306,7 @@ function emissionShareRun(): Verdict {
 
       return diff / top
     }
+
     const dx = rel(a.x, b.x, Math.sqrt(s1 / s2))
     const de = rel(a.e, b.e, Math.sqrt(s2 / s1))
     const dm = Math.abs(a.emitterEnd - b.emitterEnd)
@@ -363,6 +403,7 @@ function emissionShareRun(): Verdict {
       whole1: RHO1 / a.whole,
     }
   })
+
   const crossing = (target: number): number[] => {
     const out: number[] = []
 
@@ -380,6 +421,7 @@ function emissionShareRun(): Verdict {
 
     return out
   }
+
   const crossAverage = crossing(RHO1)
   const crossWorst = crossing(RHO2)
 
@@ -436,11 +478,15 @@ function emissionShareRun(): Verdict {
       conjugation,
     )
       .map(([k, v]) => `${k} ${e(v)}`)
-      .join(', ')}. Gap scan (E fixed, g 0.05), rho_em far at avg / worst split (whole at avg): ${scan
+      .join(
+        ', ',
+      )}. Gap scan (E fixed, g 0.05), rho_em far at avg / worst split (whole at avg): ${scan
       .map(
         x =>
           `delta ${x.delta}: ${x.em1.toFixed(5)} / ${x.em2.toFixed(5)} (${x.whole1.toFixed(5)})`,
       )
-      .join('; ')}. rho_em far meets 0.4614 at delta ${crossAverage.map(x => x.toFixed(3)).join(', ') || 'none'} and 0.4146 at delta ${crossWorst.map(x => x.toFixed(3)).join(', ') || 'none'}. ${seconds.toFixed(0)} s.`,
+      .join(
+        '; ',
+      )}. rho_em far meets 0.4614 at delta ${crossAverage.map(x => x.toFixed(3)).join(', ') || 'none'} and 0.4146 at delta ${crossWorst.map(x => x.toFixed(3)).join(', ') || 'none'}. ${seconds.toFixed(0)} s.`,
   })
 }
