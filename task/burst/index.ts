@@ -565,6 +565,105 @@ function prioritize(): number {
   return 0
 }
 
+// lift the on-machine `timeout` off one running job, without touching the job. The timeout process is FROZEN with
+// SIGSTOP: its alarm cannot fire while stopped. job.exit is made a directory first, so the launcher's wrapper cannot
+// write a false exit. A small detached watcher then waits for the job's `finished` sentinel (or its death without
+// one), writes job.exit from the job's own command.exit (137 without one), and only then kills the wrapper and the
+// frozen timeout. The wrapper must stay alive until the job is done: killing it orphans the timeout's process group
+// while it holds a stopped process, and the kernel then sends that whole group SIGHUP, which kills the job (measured on
+// a probe job, 2026-10-02)
+function release(d: Droplet, job: JobState): void {
+  const dir = jobDir(job.name)
+  const out = ssh(
+    d,
+    [
+      `S=${job.pid}`,
+      `J=${dir}`,
+      'T=$(pgrep -P $S -x timeout)',
+      'C=$(pgrep -P "$T")',
+      '[ -n "$T" ] && [ -n "$C" ] && [ ! -e $J/job.exit ] || { echo "release-failed no timeout under $S, or already exited"; exit 0; }',
+      // job.exit as a directory: the wrapper's own `echo $? > job.exit` cannot land while the timeout is frozen
+      'mkdir $J/job.exit',
+      'kill -STOP $T',
+      `setsid sh -c "while [ ! -f $J/finished ] && [ -e /proc/$C ] && [ \\"\\$(awk '{print \\$3}' /proc/$C/stat)\\" != Z ]; do sleep 30; done; rmdir $J/job.exit; if [ -f $J/finished ] && [ -s $J/command.exit ]; then cp $J/command.exit $J/job.exit.part; else echo 137 > $J/job.exit.part; fi; kill -KILL $S; kill -KILL $T; mv $J/job.exit.part $J/job.exit" </dev/null >/dev/null 2>&1 &`,
+      'echo "released job $C, timeout $T frozen"',
+    ].join('\n'),
+  )
+
+  log(`${job.name}: ${out.trim()}`)
+
+  if (!out.includes('released')) {
+    throw new Error(`${job.name}: could not lift its timeout`)
+  }
+}
+
+// move the hard cap of the live droplet: the state (which the watcher reads every pass), the watchdog (stood down and
+// re-armed at the new deadline), and the on-machine timeout of every running job (release)
+function extend(): number {
+  const d = current()
+
+  if (!d || !tagged(TAG).some(x => x.id === d.id)) {
+    console.error('burst extend: no burst droplet is up')
+
+    return 1
+  }
+
+  const { capHours, capDollars } = caps()
+  const cap = capOf(capHours, capDollars, d.price)
+  const deadline = d.created + cap * 3_600_000
+  const running = Object.values(load().jobs).filter(j => !j.fetched)
+
+  console.log(
+    `burst extend ${d.name}: hard cap ${new Date(d.deadline).toISOString()} -> ${new Date(deadline).toISOString()} (${cap.toFixed(1)} h, the earlier of ${capHours} h and ${money(capDollars)}: at most ${money(cap * d.price)}); lift the timeout of ${running.map(j => j.name).join(', ') || 'no job'}`,
+  )
+
+  if (!opt.commit) {
+    console.log('(nothing changed without --commit)')
+
+    return 0
+  }
+
+  if (deadline <= Date.now() + STOP_MARGIN) {
+    console.error('burst extend: the new cap is already (nearly) past')
+
+    return 1
+  }
+
+  awake(d)
+
+  for (const job of running) {
+    release(d, job)
+  }
+
+  if (d.watchdogPid) {
+    try {
+      process.kill(d.watchdogPid, 'SIGTERM')
+      log(`old watchdog (pid ${d.watchdogPid}) stood down`)
+    } catch {
+      log(`old watchdog (pid ${d.watchdogPid}) was not running`)
+    }
+  }
+
+  const wout = openSync(join(LOCAL, 'watchdog.out'), 'a')
+  const dog = spawn(
+    process.execPath,
+    [...process.execArgv, WATCHDOG, '--id', String(d.id), '--deadline', new Date(deadline).toISOString(), '--tag', TAG, '--log', join(LOCAL, 'watchdog.log')],
+    { detached: true, stdio: ['ignore', wout, wout], env: process.env },
+  )
+
+  dog.unref()
+  closeSync(wout)
+
+  const s = load()
+
+  s.droplet = { ...s.droplet!, capHours, capDollars, deadline, watchdogPid: dog.pid }
+  save(s)
+  history({ event: 'extend', id: d.id, name: d.name, deadline: new Date(deadline).toISOString(), capHours, capDollars })
+  log(`hard cap moved to ${new Date(deadline).toISOString()}; new watchdog armed (pid ${dog.pid})`)
+
+  return 0
+}
+
 // what a --when pattern may hold (it goes into a remote grep -E, single quoted)
 const STOP_PATTERN = /^[A-Za-z0-9 ^$.-]+$/
 
@@ -1336,6 +1435,23 @@ async function main(): Promise<number> {
         return stop()
       case 'prioritize':
         return prioritize()
+      case 'extend':
+        return extend()
+      case 'release': {
+        // lift one running job's on-machine timeout (extend does this for every running job)
+        const d = current()
+        const job = load().jobs[opt.job ?? '']
+
+        if (!d || !job || job.fetched || !opt.commit) {
+          console.error('burst release: give --job <a running job> --commit')
+
+          return 1
+        }
+
+        release(d, job)
+
+        return 0
+      }
       case 'down':
         return down('burst down')
       default:
