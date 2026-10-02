@@ -1,4 +1,4 @@
-// H2+ WITH ONE REGISTER MEMBER (E-SPN-0187, roadmap item 7, atoms; routes/matter-forces-numbers.md section E, chemical
+// H2+ WITH ONE REGISTER MEMBER (E-SPN-0190, roadmap item 7, atoms; routes/matter-forces-numbers.md section E, chemical
 // bonds, the row "H2+ with one register member": one member and two fixed charges, energy against separation; H2+ binds
 // at 2.0 a_B with a depth about 0.205 of the atom's E_b; killed by no minimum, or a minimum away from 2 a_B that does not
 // move toward it as a_B grows). The bond rows so far are stand-ins (E-MTR-0007: a fear-walk stand-in electron on two
@@ -75,6 +75,28 @@
 // a_B 3 (where the atom itself is 17 percent too bound). It cannot show anything about nuclei the rule makes (the
 // sources are fixed and put in by hand, labeled stand-in), about the Born-Oppenheimer motion of the nuclei, or about
 // a_B large against the lattice: a_B 4 costs about four times a_B 3 a point and is not run here.
+//
+// FIRST RUN 2026-10-02 (tmp/at-run1.log, 900 s on the loaded machine): FAIL (T1, H1, P1; C1 and H2 not met).
+//   I1 pass: the field-free cycle against memberCycle 7.0e-16; mu 1.820204 on the axis and the face against 4 tan m
+//      1.820121
+//   The atoms: b 1.1342 E_b (weight 0.305) at a_B 2.5, 1.1710 E_b (weight 0.561) at a_B 3 (the probe's line, to 1e-5)
+//   T1 FAILS, and the cause is a defect of point 5's rule, not a reading of the bond. The hydrogenic line, at the N
+//      planned, has |modulus - 1| from 2e-5 to 1e-4, against the genuine cut of 1e-4; where it fell outside the cut, the
+//      largest-weight genuine line left was one of the deep core lines (weight 0.005 to 0.016, binding 3.2 to 3.7 E_b)
+//      that the two cores hold, and e(R) jumped to about -2. Points with the tracked weight 0.2 or more:
+//        a_B 3:   R 3: e -0.974755 (w 0.237); R 4: -1.148349 (0.304); R 6: -1.118774 (0.331); R 7: -1.132850 (0.481);
+//                 R 8: -1.111441 (0.500); R 9: -1.090918 (0.506). R 5, 10, 12 tracked a core line (w 0.009, 0.008,
+//                 0.008; e -2.09, -2.32, -2.31)
+//        a_B 2.5: R 3: -1.050701 (0.423); R 10: -1.117297 (0.335). R 6 at 0.164 (-1.3237); R 4, 5, 7, 8 core lines
+//      The parabola read on the mixed curve (R_min 3.66 a_B, D 1.72 at a_B 3; 3.00 a_B, 1.21 at a_B 2.5) is a core line,
+//      not the bonding level, and is not a result
+//   C1 (the sigma_u control) tracked a core line at all five separations (weight 0.005 to 0.013): it read nothing
+//   AFTER THE RUN (not gates, not a result). Even the heavy points do not form a smooth curve (at a_B 3, R 4 lies below
+//      R 6 and R 7 below R 6), so the heavy line at these N is itself a blend of unresolved lines, not one level. What
+//      the next run needs, read from this one: the overlap-tracking rule of spin/register-coulomb-track (the line of
+//      largest overlap with the fixed start, its genuineness judged at two N), N at least doubled, and a scan that
+//      shows the core lines' weight staying small. Nothing here says whether the register member binds two fixed
+//      charges at 2 a_B.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
@@ -108,14 +130,34 @@ const TRACK_WEIGHT = 0.2
 const CONTINUUM = { Rmin: 1.997, D: 0.2053 }
 const BAND = { R: [1.7, 2.3], D: [0.16, 0.25] } as const
 
-type Plan = { aB: number; N: number; gerade: number[]; ungerade: number[] }
+type Plan = {
+  aB: number
+  N: number
+  gerade: number[]
+  ungerade: number[]
+}
 
 const PLAN: readonly Plan[] = [
-  { aB: 2.5, N: 700, gerade: [3, 4, 5, 6, 7, 8, 10], ungerade: [3, 4, 5, 7, 10] },
-  { aB: 3, N: 1000, gerade: [3, 4, 5, 6, 7, 8, 9, 10, 12], ungerade: [] },
+  {
+    aB: 2.5,
+    N: 700,
+    gerade: [3, 4, 5, 6, 7, 8, 10],
+    ungerade: [3, 4, 5, 7, 10],
+  },
+  {
+    aB: 3,
+    N: 1000,
+    gerade: [3, 4, 5, 6, 7, 8, 9, 10, 12],
+    ungerade: [],
+  },
 ]
 
-type Read = { b: number; weight: number; modulus: number; docks: number }
+type Read = {
+  b: number
+  weight: number
+  modulus: number
+  docks: number
+}
 
 type Setup = {
   u: [number, number]
@@ -126,8 +168,12 @@ type Setup = {
   table: GreenTable
 }
 
-const greenOf = (s: Setup, dx: number, dy: number, dz: number): number =>
-  s.g0 - greenAt(s.table, dx, dy, dz)
+const greenOf = (
+  s: Setup,
+  dx: number,
+  dy: number,
+  dz: number,
+): number => s.g0 - greenAt(s.table, dx, dy, dz)
 
 // the tracked line for nuclei on the x axis (one at 0 for the atom), parity +1 (gerade) or -1 (ungerade)
 function readLevel(
@@ -137,7 +183,8 @@ function readLevel(
   R: number | null,
   parity: 1 | -1,
 ): Read {
-  const nuclei = R === null ? [0] : [-Math.floor(R / 2), R - Math.floor(R / 2)]
+  const nuclei =
+    R === null ? [0] : [-Math.floor(R / 2), R - Math.floor(R / 2)]
   const ball = capsuleBall(
     Math.min(...nuclei),
     Math.max(...nuclei),
@@ -146,7 +193,10 @@ function readLevel(
   const alpha = (24 * Math.PI) / (s.mu * aB)
   const Eb = 1 / (2 * s.mu * aB * aB)
   const phi = ball.points.map(p =>
-    nuclei.reduce((t, x) => t + alpha * greenOf(s, p[0]! - x, p[1]!, p[2]!), 0),
+    nuclei.reduce(
+      (t, x) => t + alpha * greenOf(s, p[0]! - x, p[1]!, p[2]!),
+      0,
+    ),
   )
   const e = memberEngine(ball, s.u, phi)
   const v = newMember(ball)
@@ -176,7 +226,12 @@ function readLevel(
   )
 
   if (lines.length === 0) {
-    return { b: NaN, weight: 0, modulus: NaN, docks: ball.points.length }
+    return {
+      b: NaN,
+      weight: 0,
+      modulus: NaN,
+      docks: ball.points.length,
+    }
   }
 
   const top = lines.reduce((x, y) => (y.weight > x.weight ? y : x))
@@ -258,7 +313,9 @@ function curve(
 export function registerMemberH2plusRun(): Verdict {
   const started = Date.now()
   const log = (what: string): void =>
-    console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
   const theta0 = unitAngle(ringUnit(LIGHT[0], LIGHT[1]))
   const u: [number, number] = [Math.cos(theta0), Math.sin(theta0)]
   const M0 = wrap(theta0 - Math.PI)
@@ -320,6 +377,7 @@ export function registerMemberH2plusRun(): Verdict {
         xr += mr * r! - mi * im!
         xi += mr * im! + mi * r!
       })
+
       i1 = Math.max(
         i1,
         Math.hypot(
@@ -339,6 +397,7 @@ export function registerMemberH2plusRun(): Verdict {
 
     return (k * k) / (2 * (E - M0))
   }
+
   const muAxis = kin([1, 0, 0, 0])
   const muFace = kin([Math.SQRT1_2, Math.SQRT1_2, 0, 0])
   const I1 =
@@ -353,6 +412,7 @@ export function registerMemberH2plusRun(): Verdict {
   // ---------------- the curves ----------------
   const curves: Curve[] = []
   const atoms: Read[] = []
+
   let control: Curve | null = null
 
   for (const plan of PLAN) {
@@ -372,7 +432,9 @@ export function registerMemberH2plusRun(): Verdict {
   const [weak, main] = curves as [Curve, Curve]
   const T1 =
     atoms.every(a => a.weight >= TRACK_WEIGHT) &&
-    curves.every(c => c.points.every(p => p.read.weight >= TRACK_WEIGHT))
+    curves.every(c =>
+      c.points.every(p => p.read.weight >= TRACK_WEIGHT),
+    )
   const ues = control!.points.map(p => p.e)
   const C1 = ues.every((x, k) => k === 0 || x < ues[k - 1]!)
   const inBand = (c: Curve): boolean =>
@@ -421,6 +483,7 @@ export function registerMemberH2plusRun(): Verdict {
       metrics[`${t}_w_R${p.R}`] = p.read.weight
     })
   })
+
   control!.points.forEach(p => {
     metrics[`ungerade_e_R${p.R}`] = p.e
   })
@@ -440,9 +503,9 @@ export function registerMemberH2plusRun(): Verdict {
 
 export default experiment({
   id: 'spin/register-member-h2plus',
-  code: 'E-SPN-0187',
+  code: 'E-SPN-0190',
   title:
-    'H2+ with one register member on two fixed husk-Coulomb sources (not yet run)',
+    "H2+ with one register member on two fixed husk-Coulomb sources, fail on the tracking rule: the atom binds at 1.171 E_b at a_B 3 and the field-free cycle is the member cycle to 7e-16, but the bonding line, at |modulus - 1| up to 1e-4, fell outside the genuine cut at 7 of 16 separations and the read jumped to the two cores' deep lines (weight under 0.02), so no bond curve was read",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',

@@ -1,4 +1,4 @@
-// ONE REGISTER MEMBER IN A FIXED STATIC FIELD (the experiment spin/register-member-h2plus, E-SPN-0187). A single member carrying
+// ONE REGISTER MEMBER IN A FIXED STATIC FIELD (the experiment spin/register-member-h2plus, E-SPN-0190). A single member carrying
 // E-SPN-0160's Cl+(4) register runs in the exact coordinates of its moving block (code/measure/register-meson: W = S + T D,
 // a member in W is sum_x S_x a_x + sum_y T D_y b_y, a_x and b_y in C^8, 16 states a dock) on the HUSK QUOTIENT (docks
 // Z^3, code/measure/register-coulomb's huskRelBall), with fixed sources in place of a partner. This is
