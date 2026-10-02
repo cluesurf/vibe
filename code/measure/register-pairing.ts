@@ -68,7 +68,10 @@ export type Eigen = { values: Float64Array; V: CM; residual: number }
 
 // eigenvalues ascending, V's columns the eigenvectors; residual = max_i |A v_i - lambda_i v_i|
 export function eigH(A0: CM, n: number): Eigen {
-  const A: CM = { re: Float64Array.from(A0.re), im: Float64Array.from(A0.im) }
+  const A: CM = {
+    re: Float64Array.from(A0.re),
+    im: Float64Array.from(A0.im),
+  }
   const V = cm(n)
 
   for (let i = 0; i < n; i++) {
@@ -112,7 +115,9 @@ export function eigH(A0: CM, n: number): Eigen {
         const app = A.re[p * n + p]!
         const aqq = A.re[q * n + q]!
         const zeta = (aqq - app) / (2 * r)
-        const t = (zeta >= 0 ? 1 : -1) / (Math.abs(zeta) + Math.sqrt(1 + zeta * zeta))
+        const t =
+          (zeta >= 0 ? 1 : -1) /
+          (Math.abs(zeta) + Math.sqrt(1 + zeta * zeta))
         const c = 1 / Math.sqrt(1 + t * t)
         const s = t * c
 
@@ -155,7 +160,9 @@ export function eigH(A0: CM, n: number): Eigen {
     }
   }
 
-  const order = Array.from({ length: n }, (_, i) => i).sort((a, b) => A.re[a * n + a]! - A.re[b * n + b]!)
+  const order = Array.from({ length: n }, (_, i) => i).sort(
+    (a, b) => A.re[a * n + a]! - A.re[b * n + b]!,
+  )
   const values = Float64Array.from(order.map(i => A.re[i * n + i]!))
   const W = cm(n)
 
@@ -192,7 +199,10 @@ export function eigH(A0: CM, n: number): Eigen {
 
 // the Floquet Hamiltonian of a unitary whose eigenphases lie in (-pi/2, pi/2): U = e^(-i h). From the Hermitian
 // S = (U^dag - U) / (2 i), whose eigenvalues are sin(eps); checks cos(eps) > 0 and |U v - e^(-i eps) v|
-export function floquetH(U: CM, n: number): { h: CM; eps: Float64Array; residual: number; minCos: number } {
+export function floquetH(
+  U: CM,
+  n: number,
+): { h: CM; eps: Float64Array; residual: number; minCos: number } {
   const S = cm(n)
 
   for (let i = 0; i < n; i++) {
@@ -241,7 +251,10 @@ export function floquetH(U: CM, n: number): { h: CM; eps: Float64Array; residual
 
       // Re conj(v_r) y_r, summed: Re <v|U|v> = cos(eps)
       lr += vr * yr + vi * yi
-      residual = Math.max(residual, Math.hypot(yr - (cr * vr - ci * vi), yi - (cr * vi + ci * vr)))
+      residual = Math.max(
+        residual,
+        Math.hypot(yr - (cr * vr - ci * vi), yi - (cr * vi + ci * vr)),
+      )
     }
 
     minCos = Math.min(minCos, lr)
@@ -311,7 +324,12 @@ export type PairState = {
 }
 
 // one evaluation: the BdG ground state at mu for given Deltas, its pair amplitudes and filling
-export function bdgEvaluate(P: PairProblem, mu: number, delta: readonly Float64Array[], pairsUsed = PAIRS.length): PairState {
+export function bdgEvaluate(
+  P: PairProblem,
+  mu: number,
+  delta: readonly Float64Array[],
+  pairsUsed = PAIRS.length,
+): PairState {
   const n = P.n
   const N = P.h.length
   const m2 = 2 * n
@@ -373,8 +391,10 @@ export function bdgEvaluate(P: PairProblem, mu: number, delta: readonly Float64A
         H.re[i * m2 + j] = hq.re[i * n + j]! - (i === j ? mu : 0)
         H.im[i * m2 + j] = hq.im[i * n + j]!
         // -(h(-q) - mu)^T
-        H.re[(n + i) * m2 + n + j] = -hn.re[j * n + i]! + (i === j ? mu : 0)
+        H.re[(n + i) * m2 + n + j] =
+          -hn.re[j * n + i]! + (i === j ? mu : 0)
         H.im[(n + i) * m2 + n + j] = -hn.im[j * n + i]!
+
         // D = X(q) - X(-q)^T
         const dr = X[q]!.re[i * n + j]! - X[qn]!.re[j * n + i]!
         const di = X[q]!.im[i * n + j]! - X[qn]!.im[j * n + i]!
@@ -496,7 +516,8 @@ export type GapSolution = PairState & {
   seedNorm: number
 }
 
-export const deltaNorm = (d: Float64Array): number => Math.sqrt(d.reduce((a, x) => a + x * x, 0))
+export const deltaNorm = (d: Float64Array): number =>
+  Math.sqrt(d.reduce((a, x) => a + x * x, 0))
 
 export type SolveOptions = {
   // a Weyl-spread seed of this size (ignored when start is given)
@@ -515,10 +536,15 @@ export type SolveOptions = {
 }
 
 // small dense least squares min |F gamma - f| by normal equations with a Tikhonov floor
-function leastSquares(cols: Float64Array[], f: Float64Array): Float64Array {
+function leastSquares(
+  cols: Float64Array[],
+  f: Float64Array,
+): Float64Array {
   const m = cols.length
   const A = Array.from({ length: m }, (_, i) =>
-    Array.from({ length: m }, (_, j) => cols[i]!.reduce((a, x, k) => a + x * cols[j]![k]!, 0)),
+    Array.from({ length: m }, (_, j) =>
+      cols[i]!.reduce((a, x, k) => a + x * cols[j]![k]!, 0),
+    ),
   )
   const b = cols.map(c => c.reduce((a, x, k) => a + x * f[k]!, 0))
   const tr = A.reduce((a, r, i) => a + r[i]!, 0)
@@ -565,10 +591,15 @@ function leastSquares(cols: Float64Array[], f: Float64Array): Float64Array {
 }
 
 // the gap equation Delta = g <B>(Delta) at chemical potential mu, by Anderson-accelerated fixed-point iteration
-export function solveGap(P: PairProblem, mu: number, opts: SolveOptions): GapSolution {
+export function solveGap(
+  P: PairProblem,
+  mu: number,
+  opts: SolveOptions,
+): GapSolution {
   const used = opts.pairsUsed ?? PAIRS.length
   const C = P.channels.length
   const len = 2 * PAIRS.length
+
   const pack = (d: readonly Float64Array[]): Float64Array => {
     const x = new Float64Array(C * len)
 
@@ -576,24 +607,36 @@ export function solveGap(P: PairProblem, mu: number, opts: SolveOptions): GapSol
 
     return x
   }
+
   const unpack = (x: Float64Array): Float64Array[] =>
-    Array.from({ length: C }, (_, c) => Float64Array.from(x.subarray(c * len, (c + 1) * len)))
+    Array.from({ length: C }, (_, c) =>
+      Float64Array.from(x.subarray(c * len, (c + 1) * len)),
+    )
   const start =
     opts.start?.map(d => Float64Array.from(d)) ??
     P.channels.map((ch, c) =>
       Float64Array.from({ length: len }, (_, k) =>
-        Math.floor(k / 2) < used && ch.g !== 0 ? opts.seed * (2 * weyl(opts.seedIndex + 13 * c + k) - 1) : 0,
+        Math.floor(k / 2) < used && ch.g !== 0
+          ? opts.seed * (2 * weyl(opts.seedIndex + 13 * c + k) - 1)
+          : 0,
       ),
     )
   const seedNorm = Math.max(...start.map(deltaNorm))
   const mapOf = (st: PairState): Float64Array =>
-    pack(P.channels.map((ch, c) => Float64Array.from(st.pair[c]!, (x, k) => (Math.floor(k / 2) < used ? ch.g * x : 0))))
+    pack(
+      P.channels.map((ch, c) =>
+        Float64Array.from(st.pair[c]!, (x, k) =>
+          Math.floor(k / 2) < used ? ch.g * x : 0,
+        ),
+      ),
+    )
 
   let x = pack(start)
   let st = bdgEvaluate(P, mu, unpack(x), used)
   let f = mapOf(st).map((y, k) => y - x[k]!)
   let change = f.reduce((a, y) => Math.max(a, Math.abs(y)), 0)
   let it = 0
+
   const dX: Float64Array[] = []
   const dF: Float64Array[] = []
 
@@ -608,7 +651,9 @@ export function solveGap(P: PairProblem, mu: number, opts: SolveOptions): GapSol
       next = x.map((xi, k) => {
         let v = xi + opts.mix * f[k]!
 
-        gamma.forEach((gm, j) => (v -= gm * (dX[j]![k]! + opts.mix * dF[j]![k]!)))
+        gamma.forEach(
+          (gm, j) => (v -= gm * (dX[j]![k]! + opts.mix * dF[j]![k]!)),
+        )
 
         return v
       })
@@ -637,7 +682,13 @@ export function solveGap(P: PairProblem, mu: number, opts: SolveOptions): GapSol
 
   const delta = unpack(x)
 
-  return { ...st, iterations: it, change, norm: delta.map(deltaNorm), seedNorm }
+  return {
+    ...st,
+    iterations: it,
+    change,
+    norm: delta.map(deltaNorm),
+    seedNorm,
+  }
 }
 
 // the same at a fixed filling: mu by the secant method on filling(mu), each solve warm-started from the last
@@ -653,9 +704,15 @@ export function solveGapAtFilling(
   let sb = solveGap(P, b, { ...opts, start: sa.delta })
   let steps = 2
 
-  while (Math.abs(sb.filling - target) > opts.fillTol && steps < opts.maxMu) {
+  while (
+    Math.abs(sb.filling - target) > opts.fillTol &&
+    steps < opts.maxMu
+  ) {
     const slope = (sb.filling - sa.filling) / (b - a)
-    const c = Math.abs(slope) > 1e-12 ? b + (target - sb.filling) / slope : b + 0.01
+    const c =
+      Math.abs(slope) > 1e-12
+        ? b + (target - sb.filling) / slope
+        : b + 0.01
 
     a = b
     sa = sb
@@ -673,12 +730,23 @@ export type RegisterBand = {
   problem: PairProblem
   // per momentum, the 8 band levels eps (h's eigenvalues)
   levels: Float64Array[]
-  checks: { floquetResidual: number; minCos: number; frameUnitary: number; sectorOutside: number }
+  checks: {
+    floquetResidual: number
+    minCos: number
+    frameUnitary: number
+    sectorOutside: number
+  }
 }
 
 // fr: E-FND-0161's frame on one half (fiber 8). g per channel: S (beat 1's contact) and D (beat 2's contact)
 export function registerBand(
-  fr: { fourier: { N: number; neg: Int32Array }; fiber: number; A1: CM[]; A2: CM[]; checks: { unitary: number; sectorOutside: number } },
+  fr: {
+    fourier: { N: number; neg: Int32Array }
+    fiber: number
+    A1: CM[]
+    A2: CM[]
+    checks: { unitary: number; sectorOutside: number }
+  },
   gS: number,
   gD: number,
 ): RegisterBand {
@@ -702,8 +770,14 @@ export function registerBand(
     h.push(f.h)
     levels.push(f.eps)
 
-    const S = { re: new Float64Array(4 * n), im: new Float64Array(4 * n) }
-    const D = { re: new Float64Array(4 * n), im: new Float64Array(4 * n) }
+    const S = {
+      re: new Float64Array(4 * n),
+      im: new Float64Array(4 * n),
+    }
+    const D = {
+      re: new Float64Array(4 * n),
+      im: new Float64Array(4 * n),
+    }
 
     for (let a = 0; a < 4; a++) {
       S.re[a * n + a] = 1
@@ -729,7 +803,12 @@ export function registerBand(
       ],
     },
     levels,
-    checks: { floquetResidual, minCos, frameUnitary: fr.checks.unitary, sectorOutside: fr.checks.sectorOutside },
+    checks: {
+      floquetResidual,
+      minCos,
+      frameUnitary: fr.checks.unitary,
+      sectorOutside: fr.checks.sectorOutside,
+    },
   }
 }
 
@@ -738,7 +817,10 @@ export function registerBand(
 export function flatBandProblem(N: number, U: number): PairProblem {
   const n = 2
   const rows = Array.from({ length: N }, () => {
-    const R = { re: new Float64Array(4 * n), im: new Float64Array(4 * n) }
+    const R = {
+      re: new Float64Array(4 * n),
+      im: new Float64Array(4 * n),
+    }
 
     R.re[0 * n + 0] = 1
     R.re[1 * n + 1] = 1

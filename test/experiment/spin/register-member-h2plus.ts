@@ -76,6 +76,8 @@
 // sources are fixed and put in by hand, labeled stand-in), about the Born-Oppenheimer motion of the nuclei, or about
 // a_B large against the lattice: a_B 4 costs about four times a_B 3 a point and is not run here.
 //
+// RENUMBERED after the run from E-SPN-0187 (reserved for the R scan, handoff 2026-10-02) to E-SPN-0190; nothing
+// else changed.
 // FIRST RUN 2026-10-02 (tmp/at-run1.log, 900 s on the loaded machine): FAIL (T1, H1, P1; C1 and H2 not met).
 //   I1 pass: the field-free cycle against memberCycle 7.0e-16; mu 1.820204 on the axis and the face against 4 tan m
 //      1.820121

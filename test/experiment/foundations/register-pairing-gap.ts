@@ -54,6 +54,11 @@
 //  pairs, 1.585, and the filling moves from 0.5 to 0.635); pg-probe5 (L = 6, mu = 0.5: frame 46 s, |Delta_S| 5.6e-10,
 //  |Delta_D| 1.807, gap 0.680, 380 iterations, 339 s). The probe values of Delta_S differ between L = 4 (0.047) and
 //  L = 6 (6e-10): the paired state has a degenerate family (internal rotations of the D pair), and S is read, not gated.
+//  SMOKE (tmp/pg-smoke.log, this file at one filling, 0.75, with the size read at L = 4): every path ran, pass on that
+//  filling (mu 0.5125, |Delta_D| 1.8074, gap 0.672 against 0.046, C1 2.7e-12, I1 at 8e-12), and exposed one weakness:
+//  the both-channel solve started cold at the same mu did not converge in 600 steps (residual 4.8e-2, |Delta_D| 1.907),
+//  while the secant's warm-started solves did. The gated solves are all warm-started or single-channel, and the size
+//  read is now warm-started from L = 4's solution. No gate or threshold was moved.
 //
 // HYPOTHESES AND GATES, fixed before the gate run. L = 4 for the gates, one half, total momentum 0 pairs (q, -q).
 //  I1 INSTRUMENT: the frame unitary and the sector states inside the moving span within 1e-12; the Floquet logarithm's
@@ -80,11 +85,40 @@
 // state (E-FND-0166's exact two-hole pairs bind and do not move, band at most 0.032 a cycle); the gap here is a binding
 // scale, and the pairs' mobility, the stiffness and any off-diagonal long-range order (J4b) are not read; the string is
 // left out; one half, one tone, one flavor, the 4d torus, not the husk. No ledger row moves from a mean field. L2.
+//
+// FIRST RUN 2026-10-02 (tmp/pg-run1.log, 329 s): PARTIAL, H1 missed on one clause at one filling, a defect of the gate's
+// design recorded here and not rerun. P1 does not fire: the gap equation has a nonzero solution at every filling.
+//  - H1: filling 0.625 at mu -0.0475 (6 secant steps): |Delta_S| 0.061, |Delta_D| 1.544, Omega lowered by 0.2825, BdG gap
+//    0.3351 against the normal state's 0.3327 at that mu: the ratio clause (at least 2) FAILS. Filling 0.75 at mu 0.5125:
+//    |Delta_S| 0.047, |Delta_D| 1.807, gap 0.6725 against 0.0457, Omega lowered by 0.914. Filling 0.875 at mu 1.1247:
+//    |Delta_S| 1.2e-10, |Delta_D| 1.589, gap 0.8482 against 0.3120, Omega lowered by 0.318. So H1 holds at 0.75 and 0.875.
+//    The defect: at strong coupling the number equation moves mu out of the band (into the Dirac gap at 0.625, above the
+//    band top 0.813 at 0.875), so the normal state at the paired mu is an insulator and its gap is no reference for a
+//    gap opened by pairing. That mu leaves the band is itself the strong-coupling (Bose) side of Nozieres and
+//    Schmitt-Rink, which item 3 named but the gate did not foresee. The order parameter and the energy clauses hold at
+//    all three fillings.
+//  - C1: the repulsive S contact alone returns 4.7e-13, 2.7e-12, 6.6e-12 at the three mu (the concavity theorem's 0).
+//  - I1: frame 4.3e-15, sector 8.7e-16, log 4.1e-15 (min cos 0.6875), eigen 6.8e-15, convergence 9.7e-12, fillings within
+//    5e-10, the textbook flat band within 8.2e-12 (0.866025403784 and 0.458257569504; 9.4e-13 for U > 0).
+//  - Reads at mu 0.5125: D alone |Delta_D| 1.805, gap 0.684 (the pairing is the D channel's; S adds 0.047 and costs
+//    little); the sign flip (members' reading) pairs in S, 1.212, gap 0.093; the other branch pairs in S, 2.076, gap
+//    0.115, with D at 1.5e-10; at mu 0 (inside the Dirac gap) the rule pairs anyway, 1.585, and the filling moves from 0.5
+//    to 0.635; on L = 6 (648 momenta, warm-started) |Delta_D| 1.811, |Delta_S| 0.048, gap 0.671 against 0.0066: the
+//    pairing does not depend on the box.
+//  Read plainly: in this mean field the register rule's contact pairs holes at every filling tried, through the attractive
+//  half of its contact (beat 2's D phase on the principal branch, S on the other), at a gap of order the contact angle
+//  itself; the reading is uncontrolled at that strength, and a pair band (E-FND-0166: at most 0.032 a cycle) says the
+//  pairs are heavy, so superconductivity is not shown.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
 import { ringUnit, unitAngle } from '@/code/measure/swap-string'
-import { partnerProjector48, registerPiece, scaled, singletProjector24 } from '@/code/measure/spinor-register'
+import {
+  partnerProjector48,
+  registerPiece,
+  scaled,
+  singletProjector24,
+} from '@/code/measure/spinor-register'
 import { torus } from '@/code/measure/register-sea'
 import { holeFrame } from '@/code/measure/register-holes'
 import {
@@ -128,7 +162,15 @@ export const GATE_PLAN: PairingPlan = {
     [0.6, 0.65],
   ],
   readL: 6,
-  solve: { seed: 0.2, seedIndex: 7, maxIter: 600, tol: 1e-11, mix: 0.3, memory: 6, plain: 40 },
+  solve: {
+    seed: 0.2,
+    seedIndex: 7,
+    maxIter: 600,
+    tol: 1e-11,
+    mix: 0.3,
+    memory: 6,
+    plain: 40,
+  },
   maxMu: 24,
 }
 
@@ -137,7 +179,8 @@ const flag = (b: boolean): number => (b ? 1 : 0)
 export default experiment({
   id: 'foundations/register-pairing-gap',
   code: 'E-FND-0173',
-  title: 'a pairing gap from the contact angle: a BCS mean field on the register band with the contact phases as the pair potential',
+  title:
+    "a BCS mean field on the register rule's band, with the rule's contact phases as the pair potential, pairs at all three fillings, partial (the gap gate's normal-state reference fails at filling 0.625, where the number equation moves mu into the Dirac gap and the normal state is already gapped, 0.335 against 0.333): beat 1's contact repels in S and beat 2's conjugate attracts in D (g = +-2.668 on the principal branch), the D channel pairs at strong coupling (|Delta_D| 1.54, 1.81, 1.59 at fillings 0.625, 0.75, 0.875, Omega lowered by 0.28 to 0.91, BdG gap 0.672 against 0.046 normal at 0.75, mu outside the band at 0.625 and 0.875: the Bose side), the repulsive S contact alone gives 0 (6.6e-12, as concavity demands), and the other branch pairs in S instead; a first-order reading of a cycle whose contact phase is not small, and the pairs' mobility is not read",
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',
@@ -151,7 +194,10 @@ const maxNorm = (s: GapSolution): number => Math.max(...s.norm)
 
 export function registerPairingRun(plan: PairingPlan): Verdict {
   const started = Date.now()
-  const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+  const log = (what: string): void =>
+    console.error(
+      `${what} ${Math.round((Date.now() - started) / 1000)}s`,
+    )
   const th = unitAngle(ringUnit(LIGHT[0], LIGHT[1]))
   const u: [number, number] = [Math.cos(th), Math.sin(th)]
   const Ps = [
@@ -162,14 +208,17 @@ export function registerPairingRun(plan: PairingPlan): Verdict {
   const gS = -phi
   const gD = phi
   const o = plan.solve
+
   let eigWorst = 0
   let convWorst = 0
+
   const track = (s: GapSolution): GapSolution => {
     eigWorst = Math.max(eigWorst, s.residual)
     convWorst = Math.max(convWorst, s.change)
 
     return s
   }
+
   const normal = (P: PairProblem, mu: number): GapSolution =>
     track(solveGap(P, mu, { ...o, seed: 0, maxIter: 0 }))
 
@@ -181,28 +230,52 @@ export function registerPairingRun(plan: PairingPlan): Verdict {
       [2, 0.3],
     ] as const
   ).map(([U, mu]) => {
-    const s = track(solveGap(flatBandProblem(4, U), mu, { ...o, pairsUsed: 1 }))
-    const expect = U < 0 && Math.abs(mu) < -U / 2 ? Math.sqrt((U * U) / 4 - mu * mu) : 0
+    const s = track(
+      solveGap(flatBandProblem(4, U), mu, { ...o, pairsUsed: 1 }),
+    )
+    const expect =
+      U < 0 && Math.abs(mu) < -U / 2
+        ? Math.sqrt((U * U) / 4 - mu * mu)
+        : 0
 
-    return { U, mu, delta: s.norm[0]!, expect, error: Math.abs(s.norm[0]! - expect) }
+    return {
+      U,
+      mu,
+      delta: s.norm[0]!,
+      expect,
+      error: Math.abs(s.norm[0]! - expect),
+    }
   })
   const textbookOk = textbook.every(t => t.error <= TEXTBOOK_TOL)
 
-  log(`textbook flat band: ${textbook.map(t => `U ${t.U} mu ${t.mu}: ${t.delta.toPrecision(12)} (expect ${t.expect.toPrecision(12)})`).join('; ')}`)
+  log(
+    `textbook flat band: ${textbook.map(t => `U ${t.U} mu ${t.mu}: ${t.delta.toPrecision(12)} (expect ${t.expect.toPrecision(12)})`).join('; ')}`,
+  )
 
   // ---------------- the band ----------------
   const fr = holeFrame(torus(plan.L), Ps, 8)
   const band = registerBand(fr, gS, gD)
   const P = band.problem
-  const frameOk = band.checks.frameUnitary <= FRAME_TOL && band.checks.sectorOutside <= FRAME_TOL
-  const logOk = band.checks.floquetResidual <= LOG_TOL && band.checks.minCos > 0
-  const levels = band.levels.flatMap(x => Array.from(x)).sort((a, b) => a - b)
+  const frameOk =
+    band.checks.frameUnitary <= FRAME_TOL &&
+    band.checks.sectorOutside <= FRAME_TOL
+  const logOk =
+    band.checks.floquetResidual <= LOG_TOL && band.checks.minCos > 0
+  const levels = band.levels
+    .flatMap(x => Array.from(x))
+    .sort((a, b) => a - b)
 
-  log(`frame L ${plan.L}: unitary ${band.checks.frameUnitary.toExponential(2)}, sector ${band.checks.sectorOutside.toExponential(2)}, log ${band.checks.floquetResidual.toExponential(2)}, min cos ${band.checks.minCos.toFixed(4)}; levels ${levels[0]!.toFixed(4)} .. ${levels[levels.length - 1]!.toFixed(4)}`)
+  log(
+    `frame L ${plan.L}: unitary ${band.checks.frameUnitary.toExponential(2)}, sector ${band.checks.sectorOutside.toExponential(2)}, log ${band.checks.floquetResidual.toExponential(2)}, min cos ${band.checks.minCos.toFixed(4)}; levels ${levels[0]!.toFixed(4)} .. ${levels[levels.length - 1]!.toFixed(4)}`,
+  )
 
   // ---------------- H1: the rule at three fillings ----------------
   const rule = plan.fillings.map((f, i) => {
-    const s = solveGapAtFilling(P, f, plan.starts[i]!, { ...o, fillTol: FILL_TOL / 10, maxMu: plan.maxMu })
+    const s = solveGapAtFilling(P, f, plan.starts[i]!, {
+      ...o,
+      fillTol: FILL_TOL / 10,
+      maxMu: plan.maxMu,
+    })
 
     track(s)
 
@@ -219,36 +292,87 @@ export function registerPairingRun(plan: PairingPlan): Verdict {
       fill0: z.filling,
       dOmega: s.omega - z.omega,
       iterations: s.iterations,
+      delta: s.delta,
     }
 
-    log(`H1 filling ${f}: mu ${out.mu.toFixed(6)} (${out.muSteps} steps, filling ${out.reached.toFixed(10)}), |Delta_S| ${out.dS.toExponential(3)}, |Delta_D| ${out.dD.toFixed(5)}, gap ${out.gap.toFixed(5)} against ${out.gap0.toFixed(5)}, dOmega ${out.dOmega.toFixed(5)}`)
+    log(
+      `H1 filling ${f}: mu ${out.mu.toFixed(6)} (${out.muSteps} steps, filling ${out.reached.toFixed(10)}), |Delta_S| ${out.dS.toExponential(3)}, |Delta_D| ${out.dD.toFixed(5)}, gap ${out.gap.toFixed(5)} against ${out.gap0.toFixed(5)}, dOmega ${out.dOmega.toFixed(5)}`,
+    )
 
     return out
   })
-  const fillOk = rule.every(r => Math.abs(r.reached - r.filling) <= FILL_TOL)
-  const paired = rule.map(r => Math.max(r.dS, r.dD) >= NONZERO && r.gap >= GAP_RATIO * r.gap0 && r.dOmega < 0)
+  const fillOk = rule.every(
+    r => Math.abs(r.reached - r.filling) <= FILL_TOL,
+  )
+  const paired = rule.map(
+    r =>
+      Math.max(r.dS, r.dD) >= NONZERO &&
+      r.gap >= GAP_RATIO * r.gap0 &&
+      r.dOmega < 0,
+  )
   const H1 = paired.every(Boolean)
   const P1 = rule.every(r => Math.max(r.dS, r.dD) <= ZERO)
 
   // ---------------- C1: the repulsive S channel alone ----------------
-  const sOnly: PairProblem = { ...P, channels: [{ ...P.channels[0]!, g: gS }, { ...P.channels[1]!, g: 0 }] }
+  const sOnly: PairProblem = {
+    ...P,
+    channels: [
+      { ...P.channels[0]!, g: gS },
+      { ...P.channels[1]!, g: 0 },
+    ],
+  }
   const control = rule.map(r => track(solveGap(sOnly, r.mu, o)))
   const C1 = control.every(s => maxNorm(s) <= ZERO)
 
-  log(`C1 S alone: ${control.map(s => maxNorm(s).toExponential(2)).join(', ')}`)
+  log(
+    `C1 S alone: ${control.map(s => maxNorm(s).toExponential(2)).join(', ')}`,
+  )
 
   // ---------------- reads ----------------
-  const muHalf = rule[1]!.mu
-  const variant = (name: string, a: number, b: number, mu: number): { name: string; mu: number; dS: number; dD: number; gap: number; dOmega: number; filling: number; change: number } => {
-    const Q: PairProblem = { ...P, channels: [{ ...P.channels[0]!, g: a }, { ...P.channels[1]!, g: b }] }
+  const muHalf = rule[Math.floor(rule.length / 2)]!.mu
+
+  const variant = (
+    name: string,
+    a: number,
+    b: number,
+    mu: number,
+  ): {
+    name: string
+    mu: number
+    dS: number
+    dD: number
+    gap: number
+    dOmega: number
+    filling: number
+    change: number
+  } => {
+    const Q: PairProblem = {
+      ...P,
+      channels: [
+        { ...P.channels[0]!, g: a },
+        { ...P.channels[1]!, g: b },
+      ],
+    }
     const s = solveGap(Q, mu, o)
     const z = solveGap(Q, mu, { ...o, seed: 0, maxIter: 0 })
-    const out = { name, mu, dS: s.norm[0]!, dD: s.norm[1]!, gap: s.gap, dOmega: s.omega - z.omega, filling: s.filling, change: s.change }
+    const out = {
+      name,
+      mu,
+      dS: s.norm[0]!,
+      dD: s.norm[1]!,
+      gap: s.gap,
+      dOmega: s.omega - z.omega,
+      filling: s.filling,
+      change: s.change,
+    }
 
-    log(`read ${name} at mu ${mu.toFixed(4)}: |Delta_S| ${out.dS.toExponential(3)}, |Delta_D| ${out.dD.toExponential(3)}, gap ${out.gap.toFixed(5)}, dOmega ${out.dOmega.toFixed(5)}, filling ${out.filling.toFixed(4)} (residual ${out.change.toExponential(1)})`)
+    log(
+      `read ${name} at mu ${mu.toFixed(4)}: |Delta_S| ${out.dS.toExponential(3)}, |Delta_D| ${out.dD.toExponential(3)}, gap ${out.gap.toFixed(5)}, dOmega ${out.dOmega.toFixed(5)}, filling ${out.filling.toFixed(4)} (residual ${out.change.toExponential(1)})`,
+    )
 
     return out
   }
+
   const reads = [
     variant('D alone', 0, gD, muHalf),
     variant('sign flip', -gS, -gD, muHalf),
@@ -256,17 +380,46 @@ export function registerPairingRun(plan: PairingPlan): Verdict {
     variant('rule at mu 0', gS, gD, 0),
   ]
 
-  let large: { L: number; dS: number; dD: number; gap: number; gap0: number; filling: number; change: number; seconds: number } | null = null
+  let large: {
+    L: number
+    dS: number
+    dD: number
+    gap: number
+    gap0: number
+    filling: number
+    change: number
+    seconds: number
+  } | null = null
 
   if (plan.readL !== null) {
     const t0 = Date.now()
     const frL = holeFrame(torus(plan.readL), Ps, 8)
     const bL = registerBand(frL, gS, gD)
-    const s = solveGap(bL.problem, muHalf, o)
-    const z = solveGap(bL.problem, muHalf, { ...o, seed: 0, maxIter: 0 })
+    // warm-started from L = 4's solution at the same mu (Delta is a per-site amplitude, so it carries between tori)
+    const s = solveGap(bL.problem, muHalf, {
+      ...o,
+      start: rule[Math.floor(rule.length / 2)]!.delta,
+    })
+    const z = solveGap(bL.problem, muHalf, {
+      ...o,
+      seed: 0,
+      maxIter: 0,
+    })
 
-    large = { L: plan.readL, dS: s.norm[0]!, dD: s.norm[1]!, gap: s.gap, gap0: z.gap, filling: s.filling, change: s.change, seconds: (Date.now() - t0) / 1000 }
-    log(`read L ${plan.readL} at mu ${muHalf.toFixed(4)}: |Delta_S| ${large.dS.toExponential(3)}, |Delta_D| ${large.dD.toFixed(5)}, gap ${large.gap.toFixed(5)} against ${large.gap0.toFixed(5)}, filling ${large.filling.toFixed(4)} (residual ${large.change.toExponential(1)})`)
+    large = {
+      L: plan.readL,
+      dS: s.norm[0]!,
+      dD: s.norm[1]!,
+      gap: s.gap,
+      gap0: z.gap,
+      filling: s.filling,
+      change: s.change,
+      seconds: (Date.now() - t0) / 1000,
+    }
+
+    log(
+      `read L ${plan.readL} at mu ${muHalf.toFixed(4)}: |Delta_S| ${large.dS.toExponential(3)}, |Delta_D| ${large.dD.toFixed(5)}, gap ${large.gap.toFixed(5)} against ${large.gap0.toFixed(5)}, filling ${large.filling.toFixed(4)} (residual ${large.change.toExponential(1)})`,
+    )
   }
 
   const eigOk = eigWorst <= EIG_TOL
@@ -304,6 +457,7 @@ export function registerPairingRun(plan: PairingPlan): Verdict {
     metrics[`gapNormal_${k}`] = r.gap0
     metrics[`dOmega_${k}`] = r.dOmega
   })
+
   reads.forEach(r => {
     const k = r.name.replace(/ /g, '_')
 
