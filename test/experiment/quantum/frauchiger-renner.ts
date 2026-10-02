@@ -64,6 +64,18 @@
 // the link flow, role stabilizer states as starts (amplitudes 1 / sqrt 3), or longer words; the friends are single
 // vibes' points, not selves, and the schedule is arranged, as in E-QTM-0162.
 //
+// FIRST RUN 2026-10-02 (tmp/fr-run1.log, 45 s): FAIL, the row's kill fires, every gate as registered, no gate moved.
+//  - I1: the textbook chain reads (i) 0, (ii) 0, (iii) 0 and P(okbar, ok) = 1/12 exactly.
+//  - C1: with F's record the rule's one-way like meeting, (iii) reads 1/24 (P(okbar, ok) still 1/12): the chain is
+//    broken at Wbar's certainty, as (c) says, and the checker sees it.
+//  - D1: every amplitude of every rule circuit has a power-of-two denominator. D2: 5,791 distinct words of like
+//    meetings on three loves to length 8, none a permutation of the points other than the identity up to a phase.
+//  - H1 fails, P1 fires: 2,704 arrangements (arms, C's point, r's preparation word, outcome values) with every Wbar and
+//    W word to length 4; (ii) holds with possible premises on 576, reader words pass (i) 84,768 times and (iii) with
+//    okbar possible 67,200 times, but no arrangement closes the chain at any probability (0), so none at 1/12.
+//  So the textbook contradiction is not posed by the rule's coin and like meeting: its probability is not dyadic, and
+//  without a perfect record the friends' certainties do not chain.
+//
 // Depth L1 (exact algebra over Q(w) and Q(w, sqrt 2), exhaustive enumeration). No random numbers, no start family:
 // the gates are E-QTM-0162's, read there on 17 of 17 starts.
 
@@ -395,7 +407,7 @@ export default experiment({
   id: 'quantum/frauchiger-renner',
   code: 'E-QTM-0177',
   title:
-    'the Frauchiger-Renner chain on four loves (placeholder title, set after the gate run)',
+    "the Frauchiger-Renner chain does not close on the rule's own gates, fail as the row's kill words it: the textbook chain reads 1/12 exactly in Q(w, sqrt 2), but every Born weight of the coin and the like meeting is dyadic, no like-meeting word on three loves to length 8 is a perfect record, and of 2,704 arrangements on four loves (reader words to length 4) none closes the chain at any probability; a one-way record breaks Wbar's certainty ((iii) 1/24 in the control)",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L1',

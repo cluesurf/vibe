@@ -100,8 +100,14 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
-import { huskLight, type LightSymbol } from '@/code/measure/husk-balance'
-import { buildTritBulk, TRIT_HUSK_VECTORS } from '@/code/rule/trit-column'
+import {
+  huskLight,
+  type LightSymbol,
+} from '@/code/measure/husk-balance'
+import {
+  buildTritBulk,
+  TRIT_HUSK_VECTORS,
+} from '@/code/rule/trit-column'
 import {
   boxModes,
   buildBox,
@@ -140,7 +146,10 @@ const SCAN = Array.from(
   (_, i) => RHO_WORST * (RHO_AVERAGE / RHO_WORST) ** ((i - 3) / 2),
 )
 const RING_SIDE = 4096
-const MODEL_RHO_STAR: Record<number, number> = { 3: 0.40497, 4: 0.40669 }
+const MODEL_RHO_STAR: Record<number, number> = {
+  3: 0.40497,
+  4: 0.40669,
+}
 
 type ClassRead = {
   rate: number
@@ -166,13 +175,18 @@ const mean = (xs: readonly number[]): number =>
 function classesOf(
   box: Box,
   light: LightSymbol,
-): { links: Record<string, number[]>; plaqs: Record<string, number[]> } {
+): {
+  links: Record<string, number[]>
+  plaqs: Record<string, number[]>
+} {
   if (box.linkTypes === 1) {
     return { links: { link: [0] }, plaqs: { plaquette: [0] } }
   }
 
   const types = (n: number): number[] =>
-    light.plaquettes.map((p, t) => (p.n === n ? t : -1)).filter(t => t >= 0)
+    light.plaquettes
+      .map((p, t) => (p.n === n ? t : -1))
+      .filter(t => t >= 0)
 
   return {
     links: { axis: [0, 1, 2], diagonal: [3, 4, 5, 6, 7, 8] },
@@ -272,8 +286,12 @@ function runLight(input: {
   const firstRead = readTally(box, light, first)
   const secondRead = readTally(box, light, second)
   const { links, plaqs } = classesOf(box, light)
-  const linkMax = Math.max(...Object.keys(links).map(k => classes[k]!.rate))
-  const plaqMax = Math.max(...Object.keys(plaqs).map(k => classes[k]!.rate))
+  const linkMax = Math.max(
+    ...Object.keys(links).map(k => classes[k]!.rate),
+  )
+  const plaqMax = Math.max(
+    ...Object.keys(plaqs).map(k => classes[k]!.rate),
+  )
   const hot = Object.keys(links)[0]!
 
   return {
@@ -338,7 +356,9 @@ function crossingOf(runs: readonly Run[]): number {
     } else if (la * lb < 0) {
       const t = la / (la - lb)
 
-      changes.push(Math.exp(Math.log(a.rho) + t * Math.log(b.rho / a.rho)))
+      changes.push(
+        Math.exp(Math.log(a.rho) + t * Math.log(b.rho / a.rho)),
+      )
     }
   }
 
@@ -360,10 +380,10 @@ export function splitWrapsRun(): Verdict {
     const e = [0, 1, 2]
       .map(
         j =>
-          [bulk.huskTriLinks[p * 3 + j]!, bulk.huskTriSigns[p * 3 + j]!] as [
-            number,
-            number,
-          ],
+          [
+            bulk.huskTriLinks[p * 3 + j]!,
+            bulk.huskTriSigns[p * 3 + j]!,
+          ] as [number, number],
       )
       .sort((a, b) => a[0] - b[0])
     const o = e[0]![1]
@@ -377,7 +397,8 @@ export function splitWrapsRun(): Verdict {
 
   const keys = plaquetteKeys(box)
   const i1a =
-    keys.length === reference.length && keys.every((k, i) => k === reference[i])
+    keys.length === reference.length &&
+    keys.every((k, i) => k === reference[i])
 
   metrics.boxTriangles = keys.length
   metrics.gateI1a = i1a ? 1 : 0
@@ -386,7 +407,8 @@ export function splitWrapsRun(): Verdict {
   const model = gibbsModel(husk.light, modes, SIDE, KAPPA)
   const axisModel = mean(model.linkVar.slice(0, 3))
   const temperature = (z: number): number =>
-    (((DEPTH + 0.5) / z) ** 2 * Math.sqrt(KAPPA / RHO_WORST)) / axisModel
+    (((DEPTH + 0.5) / z) ** 2 * Math.sqrt(KAPPA / RHO_WORST)) /
+    axisModel
 
   metrics.modelAxis = axisModel
   metrics.modelDiagonal = mean(model.linkVar.slice(3))
@@ -395,7 +417,9 @@ export function splitWrapsRun(): Verdict {
   const scan = SCAN.map(rho => carriedSplit(MODULUS, rho, M_MAX))
   const worst = scan[3]!
   const average = scan[5]!
-  const averageTwo = carriedSplit(MODULUS, RHO_AVERAGE, M_MAX, [average])
+  const averageTwo = carriedSplit(MODULUS, RHO_AVERAGE, M_MAX, [
+    average,
+  ])
 
   scan.forEach((sp, j) => (metrics[`scanRho${j - 3}`] = sp.rho))
   metrics.nullRho = averageTwo.rho
@@ -427,10 +451,12 @@ export function splitWrapsRun(): Verdict {
 
     const back = sameCarried(state, start)
 
-    metrics[`reversible_${sp === worst ? 'worst' : 'average'}`] = back ? 1 : 0
-    metrics[`fieldConsistent_${sp === worst ? 'worst' : 'average'}`] = fieldOk
+    metrics[`reversible_${sp === worst ? 'worst' : 'average'}`] = back
       ? 1
       : 0
+
+    metrics[`fieldConsistent_${sp === worst ? 'worst' : 'average'}`] =
+      fieldOk ? 1 : 0
     i1b &&= back && fieldOk
   }
 
@@ -442,6 +468,7 @@ export function splitWrapsRun(): Verdict {
   let g1 = true
   let h1 = true
   let p1 = false
+
   const scanRuns: Record<number, Run[]> = {}
 
   for (const z of ZS) {
@@ -534,7 +561,9 @@ export function splitWrapsRun(): Verdict {
     i1c &&= nullRun.gauss
 
     const delta = Math.abs(Math.log(nullRun.R) - Math.log(runAverage.R))
-    const separation = Math.abs(Math.log(runAverage.R) - Math.log(runWorst.R))
+    const separation = Math.abs(
+      Math.log(runAverage.R) - Math.log(runWorst.R),
+    )
 
     metrics[`nullRZ${z}`] = nullRun.R
     metrics[`nullDeltaZ${z}`] = delta
@@ -583,7 +612,8 @@ export function splitWrapsRun(): Verdict {
 
   for (const z of ZS) {
     const T =
-      (((DEPTH + 0.5) / z) ** 2 * Math.sqrt(KAPPA)) / ringModel.linkVar[0]!
+      (((DEPTH + 0.5) / z) ** 2 * Math.sqrt(KAPPA)) /
+      ringModel.linkVar[0]!
 
     for (const [tag, sp] of [
       ['one', ringOne],
@@ -602,7 +632,9 @@ export function splitWrapsRun(): Verdict {
 
       metrics[`ring_z${z}_${tag}_R`] = run.R
       metrics[`ring_z${z}_${tag}_linkRate`] = run.classes.link!.rate
-      metrics[`ring_z${z}_${tag}_plaquetteRate`] = run.classes.plaquette!.rate
+      metrics[`ring_z${z}_${tag}_plaquetteRate`] =
+        run.classes.plaquette!.rate
+
       c1 &&=
         tag === 'one' ? run.R >= 0.8 && run.R <= 1.25 : run.R >= 1.3
     }

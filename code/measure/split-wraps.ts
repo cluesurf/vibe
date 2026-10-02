@@ -23,7 +23,11 @@
 // (1 - kappa lambda / 4)) and |(C W^(1/2) v)_t|^2 / (lambda (1 - kappa lambda / 4)); along one mode both e and B
 // have lag-one correlation cos omega, 2 - 2 cos omega = kappa lambda.
 
-import { curlAt, jacobiEigen, type LightSymbol } from '@/code/measure/husk-balance'
+import {
+  curlAt,
+  jacobiEigen,
+  type LightSymbol,
+} from '@/code/measure/husk-balance'
 import { makeWeyl } from '@/code/tool/weyl'
 
 const mod = (x: number, m: number): number => ((x % m) + m) % m
@@ -52,6 +56,7 @@ export type Box = {
 
 const coordsOf = (y: number, side: number, dims: number): number[] => {
   const out: number[] = []
+
   let rest = y
 
   for (let d = 0; d < dims; d++) {
@@ -206,8 +211,11 @@ export function boxModes(light: LightSymbol, side: number): BoxMode[] {
         let si = 0
 
         for (let t = 0; t < P; t++) {
-          sr += n[t]! * (re[t]![r]! * re[t]![c]! + im[t]![r]! * im[t]![c]!)
-          si += n[t]! * (re[t]![r]! * im[t]![c]! - im[t]![r]! * re[t]![c]!)
+          sr +=
+            n[t]! * (re[t]![r]! * re[t]![c]! + im[t]![r]! * im[t]![c]!)
+
+          si +=
+            n[t]! * (re[t]![r]! * im[t]![c]! - im[t]![r]! * re[t]![c]!)
         }
 
         const x = sw[r]! * sw[c]!
@@ -314,7 +322,10 @@ export function gibbsFields(
   const e = new Float64Array(box.links)
   const points = box.docks
   const kappa = split.s * split.f
-  const isw = Array.from({ length: L }, (_, h) => 1 / Math.sqrt(box.w[h]!))
+  const isw = Array.from(
+    { length: L },
+    (_, h) => 1 / Math.sqrt(box.w[h]!),
+  )
   const coords = Array.from({ length: box.docks }, (_, y) =>
     coordsOf(y, box.side, box.dims),
   )
@@ -340,7 +351,10 @@ export function gibbsFields(
     const bi = l21 * g3 + l22 * g4
 
     for (let y = 0; y < box.docks; y++) {
-      const theta = m.k.reduce((sum, kd, d) => sum + kd * coords[y]![d]!, 0)
+      const theta = m.k.reduce(
+        (sum, kd, d) => sum + kd * coords[y]![d]!,
+        0,
+      )
       const cs = Math.cos(theta)
       const sn = Math.sin(theta)
       // (a_r + i a_i) e^(i theta)
@@ -387,7 +401,11 @@ const balOf = (x: number, n: number): number => {
 }
 
 /** B_P = bal(sum sign w x) on every plaquette. */
-export function fieldOf(box: Box, x: Int32Array, modulus: number): Int32Array {
+export function fieldOf(
+  box: Box,
+  x: Int32Array,
+  modulus: number,
+): Int32Array {
   const B = new Int32Array(box.plaquettes)
 
   for (let p = 0; p < box.plaquettes; p++) {
@@ -414,7 +432,9 @@ export function carriedFrom(
 ): Carried {
   const modulus = 2 * depth + 1
   const x = Int32Array.from(fields.x, v => mod(Math.round(v), modulus))
-  const e = Int32Array.from(fields.e, v => balOf(Math.round(v), modulus))
+  const e = Int32Array.from(fields.e, v =>
+    balOf(Math.round(v), modulus),
+  )
   const half = Math.floor(split.q / 2)
 
   return {
@@ -464,10 +484,18 @@ export function emptyTally(box: Box): Tally {
   }
 }
 
-const scratch = new Map<number, { o: Int32Array; d: Int32Array; F: Int32Array }>()
+const scratch = new Map<
+  number,
+  { o: Int32Array; d: Int32Array; F: Int32Array }
+>()
 
-function buffers(box: Box): { o: Int32Array; d: Int32Array; F: Int32Array } {
+function buffers(box: Box): {
+  o: Int32Array
+  d: Int32Array
+  F: Int32Array
+} {
   const key = box.links * 7919 + box.plaquettes
+
   let b = scratch.get(key)
 
   if (!b) {
@@ -645,7 +673,11 @@ export function sameCarried(a: Carried, b: Carried): boolean {
     u.length === v.length && u.every((x, i) => x === v[i])
 
   return (
-    eq(a.x, b.x) && eq(a.e, b.e) && eq(a.B, b.B) && eq(a.X, b.X) && eq(a.Y, b.Y)
+    eq(a.x, b.x) &&
+    eq(a.e, b.e) &&
+    eq(a.B, b.B) &&
+    eq(a.X, b.X) &&
+    eq(a.Y, b.Y)
   )
 }
 
@@ -735,7 +767,9 @@ export function upperTail(z: number): number {
                               (-1.13520398 +
                                 t *
                                   (1.48851587 +
-                                    t * (-0.82215223 + t * 0.17087277)))))))),
+                                    t *
+                                      (-0.82215223 +
+                                        t * 0.17087277)))))))),
     )
 
   return (x >= 0 ? r : 2 - r) / 2
@@ -745,7 +779,11 @@ export function upperTail(z: number): number {
  * The Gaussian seam crossing per register and beat: P(|X| <= a, |Y| > a) for (X, Y) jointly normal with variance
  * sigma2 and lag-one correlation corr, a = D + 1/2 (Simpson's rule over X).
  */
-export function crossing(sigma2: number, corr: number, depth: number): number {
+export function crossing(
+  sigma2: number,
+  corr: number,
+  depth: number,
+): number {
   const a = depth + 0.5
   const sigma = Math.sqrt(sigma2)
   const tau = sigma * Math.sqrt(Math.max(1e-300, 1 - corr * corr))
@@ -757,7 +795,8 @@ export function crossing(sigma2: number, corr: number, depth: number): number {
   for (let i = 0; i <= steps; i++) {
     const x = -a + i * h
     const density =
-      Math.exp(-(x * x) / (2 * sigma2)) / (sigma * Math.sqrt(2 * Math.PI))
+      Math.exp(-(x * x) / (2 * sigma2)) /
+      (sigma * Math.sqrt(2 * Math.PI))
     const out =
       upperTail((a - corr * x) / tau) + upperTail((a + corr * x) / tau)
     const weight = i === 0 || i === steps ? 1 : i % 2 === 1 ? 4 : 2
