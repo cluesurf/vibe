@@ -201,7 +201,7 @@ export default experiment({
   id: 'cosmology/shared-ancestry',
   code: 'E-CSM-0061',
   title:
-    'ripples from shared ancestry on the seed’s husk reach (route I8b)',
+    'ripples from shared ancestry on the seed husk reach, partial as the verdict rule reads it: the fraction of shared causal ancestors of two husk docks is neither flat nor exponential (the route kill does not fire) and not a power of the separation (local slopes -0.44 to -1.34 at t = 24), but a function of d / t, the horizon its one scale (t = 16 and 24 agree within 0.017 at equal d / t), falling from 1 to about 1 / t at d = 2t (t f(2t) = 0.94, 0.96), where the two cones share little more than the seed; so it gives no scale-free ripple spectrum',
   category: 'cosmology',
   substrates: ['3434'],
   depth: 'L1',
