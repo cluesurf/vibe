@@ -23,7 +23,11 @@
 // A sample is y(x) = sqrt 2 Re (V^(-1/2) sum_k y^(k) e^(i k x)) with y^(k) = sum over modes sigma g (v / sqrt 2), g
 // normal deviates from a Kronecker stream (code/tool/weyl), then A = W^(-1/2) y rounded to integers.
 
-import { curlAt, huskLight, jacobiEigen } from '@/code/measure/husk-balance'
+import {
+  curlAt,
+  huskLight,
+  jacobiEigen,
+} from '@/code/measure/husk-balance'
 import {
   centeredField,
   huskCurlWeighted,
@@ -62,7 +66,10 @@ export function huskCubes(
   }
 
   // the oriented husk link of the step a -> a + d
-  const edge = (a: readonly number[], d: readonly number[]): [number, number] => {
+  const edge = (
+    a: readonly number[],
+    d: readonly number[],
+  ): [number, number] => {
     for (let h = 0; h < 9; h++) {
       const u = TRIT_HUSK_VECTORS[h] ?? []
 
@@ -82,7 +89,11 @@ export function huskCubes(
   const sign = new Int8Array(bulk.huskDocks * 12)
 
   for (let y = 0; y < bulk.huskDocks; y++) {
-    const o = [y % side, Math.floor(y / side) % side, Math.floor(y / (side * side))]
+    const o = [
+      y % side,
+      Math.floor(y / side) % side,
+      Math.floor(y / (side * side)),
+    ]
 
     let at = 0
 
@@ -117,7 +128,9 @@ export function huskCubes(
                 [p0, p1, p3],
                 [p1, p2, p3],
               ]
-        const cycles = top ? halves : halves.map(c => [c[0]!, c[2]!, c[1]!])
+        const cycles = top
+          ? halves
+          : halves.map(c => [c[0]!, c[2]!, c[1]!])
 
         for (const cycle of cycles) {
           const steps = [0, 1, 2].map(j => {
@@ -133,7 +146,9 @@ export function huskCubes(
           const p = key.get(ls.join(','))
 
           if (p === undefined) {
-            throw new Error('a cube face triangle is not a husk triangle')
+            throw new Error(
+              'a cube face triangle is not a husk triangle',
+            )
           }
 
           let eps = 0
@@ -145,7 +160,9 @@ export function huskCubes(
             const e = mine * s
 
             if (eps !== 0 && e !== eps) {
-              throw new Error('a cube face triangle is not consistently oriented')
+              throw new Error(
+                'a cube face triangle is not consistently oriented',
+              )
             }
 
             eps = e
@@ -166,7 +183,12 @@ export function huskCubes(
 export function triangleSeams(
   light: TritLight,
   angle: ArrayLike<number>,
-): { n: Int32Array; field: Int32Array; halfTurns: number; strings: number } {
+): {
+  n: Int32Array
+  field: Int32Array
+  halfTurns: number
+  strings: number
+} {
   const t = light.bulk.huskTriangles
   const n = new Int32Array(t)
   const field = new Int32Array(t)
@@ -230,7 +252,14 @@ export function cubeCharges(
     net += q
   }
 
-  return { charges, monopoles, net, identityFailures, halfTurns, strings }
+  return {
+    charges,
+    monopoles,
+    net,
+    identityFailures,
+    halfTurns,
+    strings,
+  }
 }
 
 /** The same count on a real-valued field: each triangle's branch by nearest multiple of N_B (no integer rounding). */
@@ -252,7 +281,9 @@ export function realCubeMonopoles(
     let q = 0
 
     for (let j = 0; j < 12; j++) {
-      q += (cubes.sign[c * 12 + j] ?? 0) * (n[cubes.triangle[c * 12 + j] ?? 0] ?? 0)
+      q +=
+        (cubes.sign[c * 12 + j] ?? 0) *
+        (n[cubes.triangle[c * 12 + j] ?? 0] ?? 0)
     }
 
     total += Math.abs(q)
@@ -295,7 +326,9 @@ export function vacuumBox(side: number): VacuumBox {
       (2 * Math.PI * Math.floor(i / (side * side))) / side,
     ]
     const { re, im } = curlAt(light, k)
-    const a = Array.from({ length: 2 * L }, () => new Array<number>(2 * L).fill(0))
+    const a = Array.from({ length: 2 * L }, () =>
+      new Array<number>(2 * L).fill(0),
+    )
 
     for (let r = 0; r < L; r++) {
       for (let c = 0; c < L; c++) {
@@ -303,8 +336,11 @@ export function vacuumBox(side: number): VacuumBox {
         let si = 0
 
         for (let t = 0; t < P; t++) {
-          sr += n[t]! * (re[t]![r]! * re[t]![c]! + im[t]![r]! * im[t]![c]!)
-          si += n[t]! * (re[t]![r]! * im[t]![c]! - im[t]![r]! * re[t]![c]!)
+          sr +=
+            n[t]! * (re[t]![r]! * re[t]![c]! + im[t]![r]! * im[t]![c]!)
+
+          si +=
+            n[t]! * (re[t]![r]! * im[t]![c]! - im[t]![r]! * re[t]![c]!)
         }
 
         const x = sw[r]! * sw[c]!
@@ -363,8 +399,12 @@ function dftAxis(
   axis: number,
 ): void {
   const stride = side ** axis
-  const cos = Float64Array.from({ length: side }, (_, j) => Math.cos((2 * Math.PI * j) / side))
-  const sin = Float64Array.from({ length: side }, (_, j) => Math.sin((2 * Math.PI * j) / side))
+  const cos = Float64Array.from({ length: side }, (_, j) =>
+    Math.cos((2 * Math.PI * j) / side),
+  )
+  const sin = Float64Array.from({ length: side }, (_, j) =>
+    Math.sin((2 * Math.PI * j) / side),
+  )
   const br = new Float64Array(side)
   const bi = new Float64Array(side)
   const total = side ** 3
@@ -415,7 +455,9 @@ export function sampleVacuum(
     const ls = box.lambda[i] ?? []
 
     ls.forEach((lambda, j) => {
-      const amp = Math.sqrt(modeVariance(lambda, input.depth, p, scale) / 2)
+      const amp = Math.sqrt(
+        modeVariance(lambda, input.depth, p, scale) / 2,
+      )
       const g = stream.nextGaussian() * amp
       const vr = box.vre[i]![j]!
       const vi = box.vim[i]![j]!
@@ -444,7 +486,10 @@ export function sampleVacuum(
 }
 
 /** Round a real field to integers and put each angle in its window (axis -2D .. 2D - 1, diagonal -D .. D - 1). */
-export function integerAngles(light: TritLight, a: ArrayLike<number>): Int32Array {
+export function integerAngles(
+  light: TritLight,
+  a: ArrayLike<number>,
+): Int32Array {
   return Int32Array.from({ length: light.bulk.huskLinks }, (_, l) => {
     const n = light.window[l % 9] ?? 1
 
@@ -486,6 +531,7 @@ export function vacuumFluxVariances(
     ].map(([u, v]) => {
       const sr = new Array<number>(9).fill(0)
       const si = new Array<number>(9).fill(0)
+
       const add = (link: number, sign: number, phase: number): void => {
         sr[link] = sr[link]! + sign * Math.cos(phase)
         si[link] = si[link]! + sign * Math.sin(phase)
@@ -503,6 +549,7 @@ export function vacuumFluxVariances(
       const sigma2 = modeVariance(lambda, input.depth, p, scale) / 2
       const vr = box.vre[i]![j]!
       const vi = box.vim[i]![j]!
+
       const flux = (rr: number[], ri: number[]): number => {
         let ar = 0
         let ai = 0
@@ -516,7 +563,8 @@ export function vacuumFluxVariances(
       }
 
       re.forEach((row, t) => {
-        triangle[t] = triangle[t]! + (sigma2 * flux(row, im[t]!)) / points
+        triangle[t] =
+          triangle[t]! + (sigma2 * flux(row, im[t]!)) / points
       })
 
       for (const s of squares) {
@@ -551,7 +599,11 @@ export function dipoleAngles(
   const { bulk } = light
   const side = bulk.side
   const g = light.nb / (4 * Math.PI)
-  const potential = (p: readonly number[], c: readonly number[]): number[] => {
+
+  const potential = (
+    p: readonly number[],
+    c: readonly number[],
+  ): number[] => {
     const rx = (p[0] ?? 0) - (c[0] ?? 0)
     const ry = (p[1] ?? 0) - (c[1] ?? 0)
     const rz = (p[2] ?? 0) - (c[2] ?? 0)
@@ -561,10 +613,15 @@ export function dipoleAngles(
 
     return [0, -rz * f, ry * f]
   }
+
   const out = new Float64Array(bulk.huskLinks)
 
   for (let y = 0; y < bulk.huskDocks; y++) {
-    const o = [y % side, Math.floor(y / side) % side, Math.floor(y / (side * side))]
+    const o = [
+      y % side,
+      Math.floor(y / side) % side,
+      Math.floor(y / (side * side)),
+    ]
 
     for (let h = 0; h < 9; h++) {
       const u = TRIT_HUSK_VECTORS[h] ?? []

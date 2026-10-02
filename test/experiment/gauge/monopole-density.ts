@@ -105,6 +105,36 @@
 // flux; the unrounded count is read beside it. Nothing here runs the quantum light, which does not exist in 3D.
 //
 // Depth L2: exact integer counts on configurations drawn from the harmonic vacuum of the rule's linear beat.
+//
+// FIRST RUN 2026-10-02 (tmp/mp-run1.log, 29 s): PARTIAL by the verdict rule, H1 failing on its coupling reading at
+// D = 4 alone. No gate moved, no rerun. I1 held: 0 net-charge and 0 identity failures on every configuration, 0 cube
+// charges changed by the gauge shifts, the planted pair read +1 at (1,3,3) and -1 at (5,3,3) and nothing else, the
+// trit columns equal the husk integers for 20 beats at D = 4 and 16 (0 mismatches, 0 charge mismatches), the analytic
+// triangle variances equal lightModes' to 3.2e-16, and the samples' mean triangle variance is 0.992 and 0.983 of the
+// analytic (D = 4, 16). C1 held: random flux reads 0.724, 0.739, 0.725 per cube (sides 8, 12, 16), so the Coulomb
+// line 0.03 rho_rand is 0.0218 on side 16 and the confining line 0.109; the strong-coupling Gaussian (every mode
+// variance times 10.1) reads 0.412. C2 held: the smooth gauged field reads 0 monopoles on every side with seam
+// integers on 27 to 35 percent of the triangles. THE VACUUM, monopoles per cube per slice at D = 4, 5, 6, 8, 10, 12,
+// 16: side 8 0.0139, 0.0024, 0.00049, 0, 0, 0, 0; side 12 0.0145, 0.0029, 0.00077, 0, 0, 0.0001 (2 cubes), 0; side
+// 16 0.0156 (510 of 32,768), 0.0029 (96), 0.00067 (22), 0.00012 (4), 0.00006 (2), 0, 0. So by density the vacuum is
+// on the Coulomb side at every D and side (worst 0.021 rho_rand, at D = 4), falling with D on side 16, and none of
+// the three sides differs from the others by more than the spread. By coupling it is not at D = 4: beta_eff = 0.564,
+// 0.730, 0.861, 1.08, 1.26, 1.42, 1.69 at the seven depths, crossing 0.643 at D = 4.48. P1 did not fire (D = 16:
+// 0 monopoles in 32,768 cubes, beta_eff 1.69). The two readings disagree only at D = 4, where the density sits within
+// a factor 1.4 of the Coulomb line. READ: the coupling ladder (side 16) puts D = 4 past the confining line at twice
+// the vacuum's variance (0.167 at 2x, 0.50 at 4x) and D = 16 between 4x (0.035) and 8x (0.283), first density at 2x
+// 0.0006; the unrounded real field reads about half the integer count at D = 4 to 6 (0.0085 against 0.0156 at side 16,
+// D = 4), so integer rounding of the angles adds monopoles; the falling-diagonal cubes read the same within the spread
+// (0.0153 against 0.0156 at side 16, D = 4; 0.00055 against 0.00012 at D = 8); half turns 4,903 at side 16, D = 4,
+// 0 at D = 16. THE QUENCH (the rule run from vacuum angles with zero flux, side 8) reads 0.693 per cube per beat at
+// D = 4, the random-flux level, and 0 at D = 16. A post-run diagnostic (tmp/mp-post1.ts, not part of the verdict)
+// shows why: at D = 4 the density goes 0.016, 0.17, 0.30, 0.58, 0.75 over beats 0, 1, 2, 4, 8, with the first
+// potential column wrap at beat 4 and 29,212 by beat 64; D = 5 and 6 scramble by beats 8 to 32 (first wraps at beats 7
+// and 13), D = 8 starts at beat 63 (0.086, 6 wraps), D = 16 stays at 0 with 0 wraps. A start with zero flux is not on
+// the vacuum's invariant ellipse: a mode with f lambda near 4 swings its angle up to (1 - f lambda / 4)^(-1/2) times
+// its start, 3.0 at D = 4 (f lambda_max = 32/9) and 1.15 at D = 16, and the potential columns, |U| <= n_P D, then fill
+// and wrap. So the quench measures that start and the columns' capacity, not the vacuum; it says the trit rule's own
+// run keeps the light free of monopoles from such a start only at the larger depths.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -254,8 +284,7 @@ function smoothGauged(light: TritLight, amp: number): Int32Array {
             ? amp * Math.sin(kk * y)
             : (amp * (Math.cos(kk * y) - Math.cos(kk * (y + dy)))) /
               (kk * dy)
-      const gauge =
-        chi(x + u[0]!, y + u[1]!, z + u[2]!) - chi(x, y, z)
+      const gauge = chi(x + u[0]!, y + u[1]!, z + u[2]!) - chi(x, y, z)
       const n = light.window[h] ?? 1
       const v = Math.round(integral / w) + gauge / w
 
@@ -336,7 +365,7 @@ export default experiment({
   id: 'gauge/monopole-density',
   code: 'E-FRC-0283',
   title:
-    'the Coulomb phase by monopole count: the monopole density of the trit rule light in its harmonic vacuum, side 8 to 16 husk, D = 4 to 16, exact counts against random-flux, strong-coupling and smooth controls',
+    'the trit rule light is in the Coulomb phase by monopole count, partial: exact cube counts on its harmonic vacuum, side 8 to 16 husk, read 0.0156 monopoles per cube at D = 4 (0.021 of random flux, under the 0.03 line), 0.0029 at D = 5, 0.0007 at D = 6 and none in 32,768 cubes at D = 12 and 16, while random flux reads 0.725 and a smooth field wound round its windows 0; but the square-face coupling beta_eff = 0.56 at D = 4 is below the Villain transition 0.643 (crossing at D = 4.5), and at twice the vacuum variance D = 4 reads past the confining line',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -380,6 +409,7 @@ export default experiment({
 
     // I1e: the analytic triangle variances against husk-light-seam's lightModes
     let modesDiff = 0
+
     const hl = huskLight()
 
     for (const d of [4, 16]) {
@@ -473,7 +503,8 @@ export default experiment({
           t.strings / t.triangles
         metrics[`side${side}_D${d}_halfTurns`] = t.halfTurns
         metrics[`side${side}_D${d}_realFieldDensity`] = real / t.cubes
-        metrics[`side${side}_D${d}_fallingSplitDensity`] = density(falling)
+        metrics[`side${side}_D${d}_fallingSplitDensity`] =
+          density(falling)
         netFailures += falling.netFailures
         identityFailures += falling.identityFailures
       }
@@ -584,7 +615,12 @@ export default experiment({
       pairCubes,
       integerAngles(
         pairLight,
-        dipoleAngles(pairLight, [1.5, 3.5, 3.2071], [5.5, 3.5, 3.2071], 400),
+        dipoleAngles(
+          pairLight,
+          [1.5, 3.5, 3.2071],
+          [5.5, 3.5, 3.2071],
+          400,
+        ),
       ),
     )
     const plus = cubeAt(1, 3, 3)
@@ -693,7 +729,9 @@ export default experiment({
 
       if (betaAt(a) <= BETA_VILLAIN && betaAt(b) > BETA_VILLAIN) {
         betaCross =
-          a + ((BETA_VILLAIN - betaAt(a)) * (b - a)) / (betaAt(b) - betaAt(a))
+          a +
+          ((BETA_VILLAIN - betaAt(a)) * (b - a)) /
+            (betaAt(b) - betaAt(a))
       }
     }
 
@@ -703,7 +741,9 @@ export default experiment({
         ['Confining', CONFINING],
       ] as const) {
         const target = level * rhoRand.get(16)!
-        const first = LADDER.find(s => (ladder.get(`${d}:${s}`) ?? 0) >= target)
+        const first = LADDER.find(
+          s => (ladder.get(`${d}:${s}`) ?? 0) >= target,
+        )
 
         metrics[`ladder_D${d}_firstScaleAt${tag}`] = first ?? NaN
       }
@@ -740,7 +780,9 @@ export default experiment({
 
     const fmt = (x: number): string => x.toPrecision(3)
     const row = (side: number): string =>
-      DEPTHS.map(d => fmt(density(vacuum.get(`${side}:${d}`)!))).join(', ')
+      DEPTHS.map(d => fmt(density(vacuum.get(`${side}:${d}`)!))).join(
+        ', ',
+      )
 
     return verdict({
       status,

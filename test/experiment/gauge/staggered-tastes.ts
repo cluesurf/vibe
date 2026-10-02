@@ -70,6 +70,18 @@
 // level; each is a massive Dirac point carrying 4 + 4 levels. It does not say whether a piece the rule does not yet have
 // (a Wilson term, E-SPN-0168's mixers on one half, an overlap operator) removes the doublers, only that the class split
 // does not.
+//
+// FIRST RUN 2026-10-02 (tmp/tt-run1.log, 55 s): NO VERDICT. The run crashed in the instrument before returning: code/
+//  algebra/linear/complex-eigen threw "QR iteration did not converge" inside code/measure/orientation-taste's
+//  halfBandEigenvalues, which diagonalizes the 192 x 192 matrix U P (96 exact zeros from the projector, 88 levels at 1).
+//  No gate was read and nothing was printed. A diagnostic (tmp/tt-diag.log, failure locations only) found three of the
+//  512 solves failing, all in class B: momentum 17 (0, pi, 0, pi/2) half -, 109 (3 pi/2, pi/2, pi, pi/2) half + and 113
+//  (3 pi/2, pi, 0, pi/2) half +. THE INSTRUMENT DEFECT, FIXED AFTER THE RUN: the levels are now read from the unitary
+//  96 x 96 block b^T U b on the half (halfBlockLevels below), which has no cluster of zeros; tmp/tt-fixcheck.log shows it
+//  returns the 8 moving levels at the three failing momenta (counts only, no gate read). No gate, tolerance or threshold
+//  was changed. Under the protocol's one gate run this file has NOT been run again: its gates are unread, and a second
+//  run, recorded as such, is left to the program's decision. The exact counts the gates would read are in the probes
+//  above (tmp/tt-probe1.log, tmp/tt-smoke.log), which are probes, not a gate run.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
@@ -78,7 +90,6 @@ import { densePiece, type Unit } from '@/code/measure/cusp-register'
 import {
   chiralSchedules,
   conjUnit,
-  halfBandEigenvalues,
   jordanRoots,
   matchEigenvalues,
 } from '@/code/measure/orientation-taste'
@@ -89,6 +100,9 @@ import {
   structureVector,
 } from '@/code/measure/spinor-register'
 import { volumeRight } from '@/code/measure/chiral-register'
+import { halfBasis } from '@/code/measure/register-link-field'
+import { complexEigenvalues } from '@/code/algebra/linear/complex-eigen'
+import { type CMatrix } from '@/code/measure/dock-mixer'
 
 const PLUS: readonly [number, number] = [-1, 4]
 const MINUS: readonly [number, number] = [2, 2]
@@ -96,6 +110,73 @@ const LAW = 1e-10
 const APART = 1e-3
 
 const flag = (b: boolean): number => (b ? 1 : 0)
+
+// the moving levels of one half, read from the 96 x 96 block b^T U b (b = 1_24 x the half's 4-column register basis),
+// which is unitary, so the QR iteration meets no cluster of exact zeros (the FIRST RUN's crash, see the header)
+export function halfBlockLevels(
+  U: CMatrix,
+  J: number[][],
+  sign: 1 | -1,
+  flat = 1e-6,
+): [number, number][] {
+  const b = halfBasis(J, sign)
+  const n = 192
+  const m = 96
+  // U b: n x m
+  const ur = new Float64Array(n * m)
+  const ui = new Float64Array(n * m)
+
+  for (let i = 0; i < n; i++) {
+    for (let d = 0; d < 24; d++) {
+      for (let c = 0; c < 4; c++) {
+        let r = 0
+        let im = 0
+
+        for (let a = 0; a < 8; a++) {
+          const v = b[a * 4 + c]!
+
+          if (v !== 0) {
+            r += U.re[i * n + d * 8 + a]! * v
+            im += U.im[i * n + d * 8 + a]! * v
+          }
+        }
+
+        ur[i * m + d * 4 + c] = r
+        ui[i * m + d * 4 + c] = im
+      }
+    }
+  }
+
+  const re = new Float64Array(m * m)
+  const im = new Float64Array(m * m)
+
+  for (let d = 0; d < 24; d++) {
+    for (let c = 0; c < 4; c++) {
+      for (let j = 0; j < m; j++) {
+        let r = 0
+        let q = 0
+
+        for (let a = 0; a < 8; a++) {
+          const v = b[a * 4 + c]!
+
+          if (v !== 0) {
+            r += v * ur[(d * 8 + a) * m + j]!
+            q += v * ui[(d * 8 + a) * m + j]!
+          }
+        }
+
+        re[(d * 4 + c) * m + j] = r
+        im[(d * 4 + c) * m + j] = q
+      }
+    }
+  }
+
+  const ev = complexEigenvalues({ re, im, n: m })
+
+  return ev.re
+    .map((x, i): [number, number] => [x, ev.im[i]!])
+    .filter(([x, y]) => Math.hypot(x - 1, y) > flat)
+}
 
 // ---- Z[sqrt 3]: [a, b] = a + b sqrt 3, integers ----
 type Q3 = readonly [number, number]
@@ -274,7 +355,7 @@ export default experiment({
   id: 'gauge/staggered-tastes',
   code: 'E-FRC-0285',
   title:
-    'the species one orientation class carries, counted on the side-4 box and the D4 zone (pending the gate run)',
+    'the species one orientation class carries, not read: the one gate run crashed in the eigenvalue reader (a QR iteration on a projected cycle with 96 exact zeros failed at 3 of 512 solves) before any gate was read; the reader is fixed to the unitary half block and the experiment has not been run again',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L1',
@@ -335,7 +416,7 @@ export function tastesRun(): Verdict {
       const xKey = K.map(k => Math.round((k * 4) / (2 * Math.PI))).join(',')
 
       for (const sign of [1, -1] as const) {
-        const ev = halfBandEigenvalues(U, J, sign)
+        const ev = halfBlockLevels(U, J, sign)
         const ab = sign > 0 ? cl.ab[0] : cl.ab[1]
         const law = matchEigenvalues(ev, jordanRoots(ab[0], ab[1], mu), LAW)
         const rest = matchEigenvalues(ev, jordanRoots(ab[0], ab[1], 0), LAW)
