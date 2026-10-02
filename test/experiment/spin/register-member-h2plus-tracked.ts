@@ -83,7 +83,34 @@
 // sources are fixed and put in by hand, labeled stand-in) or about the nuclei's motion, and two couplings at which
 // the lattice atom is 13 to 17 percent overbound are not the a_B -> infinity limit.
 //
-// FIRST RUN (below, after the gate run).
+// FIRST RUN 2026-10-02 (tmp/h2-run1.log, 1,053 s on the loaded machine): FAIL (T1; T2 and H2 not met; I1, H1 and C1
+// hold, P1 does not).
+//   I1 pass: the field-free cycle against memberCycle 7.0e-16; mu 1.820204 on the axis and the face against 4 tan m
+//      1.820121
+//   a_B 3, N 2,000, every point held T1 and T2 (largest overlap 0.24 to 0.55, band 0.47 to 0.76, core weight 0.013 to
+//      0.026, the 3N / 4 centroid within 0.006 E_b). b (E_b) and e at R 4, 5, 6, 7, 8, 9, 11 docks: 2.8134 -1.15838,
+//      2.5229 -1.16653, 2.3372 -1.17909, 2.1706 -1.15817, 2.0546 -1.15030, 1.9368 -1.11995, 1.7740 -1.08328. The
+//      minimum is interior at R 6: R_min 1.958 a_B, e_min -1.17935, D 0.1793 (continuum 1.997 and 0.2053). H1 holds
+//   a_B 2.5, N 1,600: R 3, 4, 5, 6, 7, 9: b 2.8653, 2.5750, 2.3411, 2.2547, 2.0227, 1.8269; e -1.01274, -1.11859,
+//      -1.13204, -1.19969, -1.10437, -1.07311. T1 FAILS at two points: R 4 (largest overlap 0.176) and R 6 (0.172, band
+//      0.352); R 6 also fails T2 (its centroid moved by 0.068 E_b from 3N / 4 to N, the next largest drift 0.004). The
+//      curve's lowest point is that failed R 6 point, so its minimum (2.366 a_B, D 0.2003) rests on a read the gates
+//      reject. H2 fails: R_min moves toward 2 a_B (|R_min / a_B - 2| 0.366 to 0.042) but |D - 0.2053| grows from 0.005
+//      to 0.026
+//   C1 holds as written (ungerade e -0.4820, -0.8105, -0.9240 at R 3, 5, 8), but on reads the probe already showed to
+//      be centroids of a smear: largest overlap 0.057 and 0.072 at R 3 and 5, and at R 3 the 3N / 4 centroid sits at
+//      1.213 E_b against 2.237 from N. It is not evidence that the instrument reads "no minimum"
+//   A DEFECT OF POINT 2, seen in the run: the atoms are not single lines inside the band. The largest-overlap atom line
+//      is 1.1715 E_b at a_B 3 (overlap 0.551, E-SPN-0190's line) and 1.1337 at a_B 2.5 (0.306, E-SPN-0190's 1.134),
+//      but the 0.2 E_b band pulls in neighbours, so the centroids that normalize e are 1.1341 and 1.1848: 3.2 percent
+//      below and 4.5 percent above the main lines. Normalized by the main lines instead (after the run, not a gate),
+//      D would be 0.142 at a_B 3 and 0.254 at a_B 2.5. So the depth here carries a normalization error of a few
+//      percent of e, larger than the gap between D and the continuum's 0.205; R_min does not depend on it.
+//   What this run reads: at a_B 3, with the level identified by its overlap and the core lines light (under 0.03), the
+//      bonding level's total energy has an interior minimum near 2 a_B (1.96). What it does not read: a depth to better
+//      than the atom normalization's few percent, or a trend with a_B, since the a_B 2.5 curve fails its own tracking
+//      gate at two of six points. A rerun needs the atom's normalization read by the same rule as the clean line (a
+//      band that holds only the main line, or the main line itself) and a_B 2.5 at larger N or a third a_B above 3.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
@@ -552,7 +579,7 @@ export default experiment({
   id: 'spin/register-member-h2plus-tracked',
   code: 'E-SPN-0191',
   title:
-    'H2+ with one register member, the bonding level tracked by its overlap with a fixed start (not yet run)',
+    'H2+ with one register member, the bonding level tracked by its overlap with a fixed start, fail on the tracking gate at a_B 2.5: at a_B 3 every separation held (overlap 0.24 to 0.55, core lines under 0.03) and the total energy has its minimum at 1.958 a_B with depth 0.179 of the atom read (continuum 1.997 and 0.205), but at a_B 2.5 the largest overlap fell to 0.17 at two of six separations, and the atom reads are band centroids 3 to 5 percent off their main lines, so the depth and the trend with a_B are not read',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',

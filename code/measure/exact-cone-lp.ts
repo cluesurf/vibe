@@ -232,60 +232,15 @@ export function extremeRays(
 
 export type LpResult = {
   feasible: boolean
-  // feasible: an exact non-negative solution with columns . x = rhs, verified here
+  // feasible: a non-negative solution with columns . x = rhs; infeasible: a Farkas certificate y with
+  // y . column >= 0 for every column and y . rhs < 0. Both are to be checked exactly by the caller.
   x?: Q[]
-  // infeasible: an exact Farkas certificate, y . column >= 0 for every column and y . rhs < 0, verified here
   y?: Q[]
-  // the float search's pivots, and whether the exact check on its final basis held
   pivots: number
-  certified: boolean
 }
 
-// solve the square rational system B z = r exactly (B by rows); undefined if singular
-function solveExact(B: readonly (readonly Q[])[], r: readonly Q[]): Q[] | undefined {
-  const n = B.length
-  const m = B.map((row, i) => [...row, r[i]!])
-
-  for (let c = 0; c < n; c++) {
-    let p = -1
-
-    for (let i = c; i < n; i++) {
-      if (m[i]![c]!.n !== 0n) {
-        p = i
-        break
-      }
-    }
-
-    if (p < 0) {
-      return undefined
-    }
-
-    ;[m[c], m[p]] = [m[p]!, m[c]!]
-
-    const inv = qdiv(Q1, m[c]![c]!)
-    const pr = m[c]!.map(x => (x.n === 0n ? Q0 : qmul(x, inv)))
-
-    m[c] = pr
-
-    for (let i = 0; i < n; i++) {
-      const f = m[i]![c]!
-
-      if (i !== c && f.n !== 0n) {
-        m[i] = m[i]!.map((x, j) =>
-          pr[j]!.n === 0n ? x : qsub(x, qmul(f, pr[j]!)),
-        )
-      }
-    }
-  }
-
-  return m.map(row => row[n]!)
-}
-
-// Is there x >= 0 with sum_j x_j column_j = rhs? Columns and rhs integer. A float phase-I simplex (Dantzig's rule,
-// Bland's after a run of degenerate pivots) finds a final basis; the answer is then proved exactly: a feasible basis
-// by solving for its values in rationals and checking them against every row, an infeasible one by solving for the
-// phase-I duals in rationals and checking every column's reduced cost (a Farkas certificate). certified is false
-// when the float basis does not survive the exact check, and the answer is then not to be used.
+// Is there x >= 0 with sum_j x_j column_j = rhs? Columns and rhs integer. Phase I of the simplex method with
+// Bland's rule, exact rationals throughout (for small programs: tens of rows, hundreds of columns).
 export function feasibility(
   columns: readonly (readonly bigint[])[],
   rhs: readonly bigint[],
@@ -293,59 +248,52 @@ export function feasibility(
   const m = rhs.length
   const nCols = columns.length
   const total = nCols + m
-  const sign = rhs.map(r => (r < 0n ? -1 : 1))
-  const width = total + 1
-  const T = new Float64Array(m * width)
+  const sign = rhs.map(r => (r < 0n ? -1n : 1n))
+  const T: Q[][] = []
 
   for (let i = 0; i < m; i++) {
+    const row: Q[] = new Array<Q>(total + 1)
+
     for (let j = 0; j < nCols; j++) {
-      T[i * width + j] = Number(columns[j]![i]!) * sign[i]!
+      row[j] = q(columns[j]![i]! * sign[i]!)
     }
 
-    T[i * width + nCols + i] = 1
-    T[i * width + total] = Number(rhs[i]!) * sign[i]!
-  }
-
-  const cost = new Float64Array(width)
-
-  for (let j = 0; j < width; j++) {
-    if (j >= nCols && j < total) {
-      continue
+    for (let k = 0; k < m; k++) {
+      row[nCols + k] = k === i ? Q1 : Q0
     }
 
-    let s = 0
-
-    for (let i = 0; i < m; i++) {
-      s += T[i * width + j]!
-    }
-
-    cost[j] = -s
+    row[total] = q(rhs[i]! * sign[i]!)
+    T.push(row)
   }
 
   const basis = Array.from({ length: m }, (_, i) => nCols + i)
-  const EPS = 1e-9
+  // reduced costs of the phase-I objective (the artificials' sum), artificial columns start at 0
+  const cost: Q[] = new Array<Q>(total + 1)
+
+  for (let j = 0; j <= total; j++) {
+    if (j >= nCols && j < total) {
+      cost[j] = Q0
+      continue
+    }
+
+    let s = Q0
+
+    for (let i = 0; i < m; i++) {
+      s = qadd(s, T[i]![j]!)
+    }
+
+    cost[j] = qsub(Q0, s)
+  }
 
   let pivots = 0
-  let degenerate = 0
 
-  for (; pivots < 200000; pivots++) {
+  for (;;) {
     let enter = -1
 
-    if (degenerate < 50) {
-      let best = -EPS
-
-      for (let j = 0; j < total; j++) {
-        if (cost[j]! < best) {
-          best = cost[j]!
-          enter = j
-        }
-      }
-    } else {
-      for (let j = 0; j < total; j++) {
-        if (cost[j]! < -EPS) {
-          enter = j
-          break
-        }
+    for (let j = 0; j < total; j++) {
+      if (cost[j]!.n < 0n) {
+        enter = j
+        break
       }
     }
 
@@ -354,130 +302,307 @@ export function feasibility(
     }
 
     let leave = -1
-    let ratio = Infinity
+    let best: Q | undefined
 
     for (let i = 0; i < m; i++) {
-      const a = T[i * width + enter]!
+      const a = T[i]![enter]!
 
-      if (a > EPS) {
-        const rr = T[i * width + total]! / a
+      if (a.n > 0n) {
+        const ratio = qdiv(T[i]![total]!, a)
+        const c = best ? qcmp(ratio, best) : -1
 
-        if (
-          rr < ratio - 1e-12 ||
-          (Math.abs(rr - ratio) <= 1e-12 && basis[i]! < basis[leave]!)
-        ) {
-          ratio = rr
+        if (c < 0 || (c === 0 && basis[i]! < basis[leave]!)) {
+          best = ratio
           leave = i
         }
       }
     }
 
     if (leave < 0) {
-      break
+      throw new Error('phase I unbounded')
     }
 
-    degenerate = ratio < 1e-12 ? degenerate + 1 : 0
+    const inv = qdiv(Q1, T[leave]![enter]!)
+    const pr = T[leave]!.map(x => (x.n === 0n ? Q0 : qmul(x, inv)))
 
-    const piv = T[leave * width + enter]!
+    T[leave] = pr
 
-    for (let j = 0; j < width; j++) {
-      T[leave * width + j] = T[leave * width + j]! / piv
+    const nz: number[] = []
+
+    for (let j = 0; j <= total; j++) {
+      if (pr[j]!.n !== 0n) {
+        nz.push(j)
+      }
     }
 
     for (let i = 0; i < m; i++) {
-      const f = T[i * width + enter]!
+      const f = T[i]![enter]!
 
-      if (i === leave || f === 0) {
+      if (i === leave || f.n === 0n) {
         continue
       }
 
-      for (let j = 0; j < width; j++) {
-        T[i * width + j] = T[i * width + j]! - f * T[leave * width + j]!
+      const row = T[i]!
+
+      for (const j of nz) {
+        row[j] = qsub(row[j]!, qmul(f, pr[j]!))
       }
     }
 
     const f = cost[enter]!
 
-    for (let j = 0; j < width; j++) {
-      cost[j] = cost[j]! - f * T[leave * width + j]!
+    for (const j of nz) {
+      cost[j] = qsub(cost[j]!, qmul(f, pr[j]!))
     }
 
     basis[leave] = enter
+    pivots++
   }
 
-  // the exact check on the final basis, in the original (unsigned) system
-  const colOf = (j: number): Q[] =>
-    j < nCols
-      ? columns[j]!.map(x => q(x))
-      : Array.from({ length: m }, (_, i) => (i === j - nCols ? Q1 : Q0))
-  const Bcols = basis.map(colOf)
-  const Brows = Array.from({ length: m }, (_, i) => Bcols.map(c => c[i]!))
-  const rq = rhs.map(x => q(x))
+  const value = qsub(Q0, cost[total]!)
 
-  if (-cost[total]! < 1e-7) {
-    const xB = solveExact(Brows, rq)
+  if (value.n === 0n) {
     const x: Q[] = Array.from({ length: nCols }, () => Q0)
 
-    let ok = xB !== undefined
-
     basis.forEach((b, i) => {
-      const v = xB?.[i] ?? Q0
-
-      if (b >= nCols) {
-        ok &&= v.n === 0n
-      } else {
-        ok &&= v.n >= 0n
-        x[b] = v
+      if (b < nCols) {
+        x[b] = T[i]![total]!
       }
     })
 
-    for (let i = 0; i < m && ok; i++) {
+    return { feasible: true, x, pivots }
+  }
+
+  // with phase-I duals w, artificial k's reduced cost is 1 - w_k (sign-normalised rows), every real column has
+  // -w . A_j >= 0 and w . rhs is the positive optimum; so y_k = (cost_k - 1) times the row's sign is a certificate
+  const y = Array.from({ length: m }, (_, k) =>
+    qmul(qsub(cost[nCols + k]!, Q1), q(sign[k]!)),
+  )
+
+  return { feasible: false, y, pivots }
+}
+
+export type NcResult = {
+  feasible: boolean
+  raysStates: number
+  raysEffects: number
+  group: number
+  orbits: number
+  pivots: number
+  // feasible: the ontic states used (pairs with sigma > 0), and whether the full sum reproduces the identity exactly
+  onticStates: number
+  identityExact: boolean
+  // infeasible: the witness Y (n x n, by rows) with b^T Y a >= 0 on every ray pair and trace < 0, checked exactly on
+  // every full pair; witnessExact true when it holds
+  witness?: Q[]
+  witnessTrace?: Q
+  witnessExact: boolean
+  // feasible: sigma on every full pair (b index * |A| + a index), for the caller's own model check
+  sigma?: Map<number, Q>
+  statesRays: bigint[][]
+  effectsRays: bigint[][]
+}
+
+const keyOf = (v: readonly bigint[]): string => {
+  const g = v.reduce((s, x) => gcd(s, x), 0n) || 1n
+
+  return v.map(x => x / g).join(',')
+}
+
+// Does a fragment (states and effects as integer vectors in R^n, p(e|s) proportional to s . e) admit a non-negative
+// linear (noncontextual) model? The simplex-embedding program: identity = sum sigma_ij b_i a_j^T with sigma >= 0, b_i
+// the extreme rays of the states' dual cone, a_j those of the effects' dual cone. The program is averaged over the
+// coordinate permutations (perms) that keep both sets: a solution averaged over them is a solution, so sigma may be
+// taken constant on orbits of pairs. Both answers are then checked exactly on the full program: a solution expanded
+// to every pair, a dual witness on every pair.
+export function noncontextualModel(input: {
+  states: readonly (readonly bigint[])[]
+  effects: readonly (readonly bigint[])[]
+  n: number
+  perms: readonly (readonly number[])[]
+}): NcResult {
+  const { states, effects, n } = input
+  const B = extremeRays(states, n)
+  const A = extremeRays(effects, n)
+  const permute = (v: readonly bigint[], p: readonly number[]): bigint[] => {
+    const out = new Array<bigint>(n)
+
+    for (let i = 0; i < n; i++) {
+      out[p[i]!] = v[i]!
+    }
+
+    return out
+  }
+  const setKey = (vs: readonly (readonly bigint[])[]): string =>
+    vs.map(keyOf).sort().join('|')
+  const sKey = setKey(states)
+  const eKey = setKey(effects)
+  const group = input.perms.filter(
+    p =>
+      setKey(states.map(v => permute(v, p))) === sKey &&
+      setKey(effects.map(v => permute(v, p))) === eKey,
+  )
+  const bIndex = new Map(B.map((v, i) => [keyOf(v), i]))
+  const aIndex = new Map(A.map((v, i) => [keyOf(v), i]))
+  const bPerm = group.map(p => B.map(v => bIndex.get(keyOf(permute(v, p)))!))
+  const aPerm = group.map(p => A.map(v => aIndex.get(keyOf(permute(v, p)))!))
+  // orbits of pairs, by union-find
+  const N = B.length * A.length
+  const parent = Int32Array.from({ length: N }, (_, i) => i)
+  const find = (x: number): number => {
+    while (parent[x] !== x) {
+      parent[x] = parent[parent[x]!]!
+      x = parent[x]!
+    }
+
+    return x
+  }
+
+  for (let g = 0; g < group.length; g++) {
+    for (let i = 0; i < B.length; i++) {
+      for (let j = 0; j < A.length; j++) {
+        const x = find(i * A.length + j)
+        const y = find(bPerm[g]![i]! * A.length + aPerm[g]![j]!)
+
+        if (x !== y) {
+          parent[x] = y
+        }
+      }
+    }
+  }
+
+  const orbitOf = new Map<number, number>()
+  const members: number[][] = []
+
+  for (let k = 0; k < N; k++) {
+    const r = find(k)
+
+    if (!orbitOf.has(r)) {
+      orbitOf.set(r, members.length)
+      members.push([])
+    }
+
+    members[orbitOf.get(r)!]!.push(k)
+  }
+
+  const columns = members.map(ms => {
+    const c = new Array<bigint>(n * n).fill(0n)
+
+    for (const k of ms) {
+      const b = B[Math.floor(k / A.length)]!
+      const a = A[k % A.length]!
+
+      for (let r = 0; r < n; r++) {
+        for (let s = 0; s < n; s++) {
+          c[r * n + s] = c[r * n + s]! + b[r]! * a[s]!
+        }
+      }
+    }
+
+    return c
+  })
+  const rhs = Array.from({ length: n * n }, (_, k) =>
+    Math.floor(k / n) === k % n ? 1n : 0n,
+  )
+  const lp = feasibility(columns, rhs)
+  const base = {
+    raysStates: B.length,
+    raysEffects: A.length,
+    group: group.length,
+    orbits: members.length,
+    pivots: lp.pivots,
+    statesRays: B,
+    effectsRays: A,
+  }
+
+  if (lp.feasible) {
+    const sigma = new Map<number, Q>()
+
+    members.forEach((ms, o) => {
+      const v = lp.x![o]!
+
+      if (v.n !== 0n) {
+        for (const k of ms) {
+          sigma.set(k, v)
+        }
+      }
+    })
+
+    // the full sum, exactly
+    const sum: Q[] = new Array<Q>(n * n).fill(Q0)
+
+    for (const [k, v] of sigma) {
+      const b = B[Math.floor(k / A.length)]!
+      const a = A[k % A.length]!
+
+      for (let r = 0; r < n; r++) {
+        for (let s = 0; s < n; s++) {
+          if (b[r]! !== 0n && a[s]! !== 0n) {
+            sum[r * n + s] = qadd(sum[r * n + s]!, qmul(v, q(b[r]! * a[s]!)))
+          }
+        }
+      }
+    }
+
+    const identityExact = sum.every((x, k) => qcmp(x, q(rhs[k]!)) === 0)
+
+    return {
+      ...base,
+      feasible: true,
+      onticStates: sigma.size,
+      identityExact,
+      witnessExact: false,
+      sigma,
+    }
+  }
+
+  // the program's certificate holds for orbit sums; averaged over the group it holds on every pair (a symmetric
+  // Y gives b^T Y a constant on each orbit, equal to the orbit sum's value over the orbit's size)
+  const raw = lp.y!
+  const Y: Q[] = Array.from({ length: n * n }, (_, k) => {
+    const r = Math.floor(k / n)
+    const c = k % n
+    let s = Q0
+
+    for (const p of group) {
+      s = qadd(s, raw[p[r]! * n + p[c]!]!)
+    }
+
+    return qdiv(s, q(group.length))
+  })
+  let ok = true
+
+  for (const b of B) {
+    for (const a of A) {
       let s = Q0
 
-      for (let j = 0; j < nCols; j++) {
-        if (x[j]!.n !== 0n && columns[j]![i]! !== 0n) {
-          s = qadd(s, qmul(q(columns[j]![i]!), x[j]!))
+      for (let r = 0; r < n; r++) {
+        for (let c = 0; c < n; c++) {
+          if (b[r]! !== 0n && a[c]! !== 0n && Y[r * n + c]!.n !== 0n) {
+            s = qadd(s, qmul(Y[r * n + c]!, q(b[r]! * a[c]!)))
+          }
         }
       }
 
-      ok &&= qcmp(s, rq[i]!) === 0
+      ok &&= s.n >= 0n
     }
-
-    return { feasible: true, x, pivots, certified: ok }
   }
 
-  // infeasible: phase-I duals w with w . B_k = c_k (1 on artificials, 0 on real columns) over the basis; the
-  // certificate is y = -w: y . column >= 0 for every real column and y . rhs < 0
-  const cB = basis.map(b => (b >= nCols ? Q1 : Q0))
-  const w = solveExact(Bcols, cB)
+  let trace = Q0
 
-  if (!w) {
-    return { feasible: false, pivots, certified: false }
+  for (let r = 0; r < n; r++) {
+    trace = qadd(trace, Y[r * n + r]!)
   }
 
-  const y = w.map(v => qsub(Q0, v))
+  ok &&= trace.n < 0n
 
-  let ok = true
-
-  for (let j = 0; j < nCols && ok; j++) {
-    let s = Q0
-
-    for (let i = 0; i < m; i++) {
-      if (columns[j]![i]! !== 0n && y[i]!.n !== 0n) {
-        s = qadd(s, qmul(y[i]!, q(columns[j]![i]!)))
-      }
-    }
-
-    ok &&= s.n >= 0n
+  return {
+    ...base,
+    feasible: false,
+    onticStates: 0,
+    identityExact: false,
+    witness: Y,
+    witnessTrace: trace,
+    witnessExact: ok,
   }
-
-  let yb = Q0
-
-  for (let i = 0; i < m; i++) {
-    yb = qadd(yb, qmul(y[i]!, rq[i]!))
-  }
-
-  ok &&= yb.n < 0n
-
-  return { feasible: false, y, pivots, certified: ok }
 }
