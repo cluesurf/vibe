@@ -95,6 +95,12 @@
 //  0.1668. H2: K 1, 5.997, 10.701, 20.229, 29.823 at floors 1, 9, 17, 33, 49, K(49)/K(17) 2.787 against 2.778, about
 //  1.19 a level. Dirichlet G(0) 0.0435817, 0.0435918, 0.0435925 at floors 17, 33, 49.
 //
+//  A PROBE AFTER THE RUN (tmp/hd-probe1.ts, 193 s, gating nothing): the source moved off the husk to a cell at level 9
+//  and at level 17 (floor 49, N = 32). G between the cell and its own lattice translates falls by the same factor, about
+//  22 a dock (level 9: 2.96e-8, 1.33e-9, 5.78e-11, 3.0e-12 at r = 1 to 4; level 17: 7.09e-9, 3.16e-10, 1.45e-11), down
+//  to the solve's floor near 1e-13. So a deep cell reaches a horizontal translate by climbing to the husk, crossing it and
+//  coming back: the continuum's r^-6 (Delta = 3) could only appear between cells less than one husk spacing apart.
+//
 // Depth L1: exact linear algebra on the true mesh against a derived prediction; no rule is run.
 // DETERMINISM: the mesh, its quotients and the momentum grid are fixed; no start, no random number.
 
