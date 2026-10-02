@@ -111,6 +111,32 @@
 // the same way. Part B uses the register rule's one-body pieces, not the knit; it says nothing about the knit under
 // growth, which has no growth rule (E-FND-0168). I9c (the ceiling) and I9d (the depth field) are not read.
 //
+// FIRST RUN 2026-10-02 (tmp/se-run1.log, 165 s): PARTIAL, on C2 alone. Every other gate held. Recorded as is.
+//  - I1, C1: the vacuum reads ln 8 exactly. Of the 32,640 two-dock pairs, 3,968 read 0 (same block) and 28,672 read
+//    ln 2, as derived.
+//  - H1 held and P1 did not fire: all 82,944 one-dock starts on the empty box read H = 0 exactly, both seeds too, and
+//    none read below the seed. The minimality is a tie with every start of the seed's size, as derivation 1 says it
+//    must be.
+//  - H2 held: on the vacuum the deficit depends on delta alone. It runs from 1.48e-6 (delta 1) to 3.04e-3 (delta +48,
+//    the 64 full docks on store-free docks). The full origin dock (delta +40) reads 2.15e-3, so it is not minimal there.
+//  - I2, H3, H4 and R held at L = 4 and L = 6. Gram gap at most 1.3e-13, member drift at most 7.9e-10. The born
+//    shells' mean occupation entropy spans at least 2.67 (L = 4) and 4.64 (L = 6) at every row from 3 on (the seed dock
+//    swings between about 0.6 and 82 on alternate rows). The newest born shell is the least while the region grows.
+//    The grown run equals the preborn run one row later to 4.2e-15 and 5.0e-15.
+//  - C2 missed at L = 6: after the last shell is born (rows 8 to 10) it stays the least (0.000 to 0.001 against 0.008
+//    to 0.014 for the shell before it), so in 10 rows the reading never came out the other way there. At L = 4 it did
+//    (rows 9 and 11: 0.678 against 0.343, 1.829 against 0.404). The L = 6 window was 3 rows. The reading may only need
+//    longer, which this run does not show.
+//  - Reported: the full-dock seed (24 held, 12 stored) on the empty side-4 box read 1.12, 1.92, 1.93, 1.39 at beats 1
+//    to 4 and did NOT return to H = 0 in 200 beats (late mean 0.698 of ln 8). Forward and backward gave the same
+//    numbers. The probe 1 sentence above, "returns to exactly 0 again and again", holds for the seed without stores and
+//    at side 8. With stores at side 4, probe 1 had already read a late minimum of 0.173. The header overstated it. It
+//    is corrected here, not rerun. The slow wake at L = 4 had the newest shell least at rows 4 to 9 and 11.
+//  Reading: I9a's kill does not fire, but the seed is not singled out: on block energy every start of its size ties
+//  at the floor. I9b's kill does not fire either, but on the plain wake with chi empty the birth-beat dependence is
+//  exactly the seed's light cone in an empty region that is already there. The frontier adds empty docks, not a new
+//  low-entropy source. Title written after the run.
+//
 // Depth L2: an exact enumeration (Part A, integer energies, H exact at 0) and float amplitudes with reported
 // residuals (Part B). DETERMINISM: no random numbers; role points from the silver sequence; every orbital a fixed local
 // basis vector. NOTHING MOVES: the stream copies.
@@ -199,7 +225,7 @@ const emptyState = (box: ArrowBox): Reduced => {
   return s
 }
 
-// k held slots (the first k, alternately love and fear, silver role points) and j stored units on dock x
+// k held slots (the first k, alternately +1 and -1, silver role points) and j stored units on dock x
 function fillDock(s: Reduced, x: number, k: number, j: number): void {
   for (let d = 0; d < 24; d++) {
     const slot = x * 24 + d
@@ -426,7 +452,7 @@ export default experiment({
   id: 'foundations/seed-minimal-entropy',
   code: 'E-FND-0174',
   title:
-    'the seed is minimal and the frontier renews it (pending the gate run)',
+    "the seed's low entropy is a tie and the frontier renews nothing beyond the seed's light cone, partial (one control missed): on E-FND-0146's coarse map (side-4 box, 8 husk blocks) all 82,944 starts that differ from the empty mesh on one dock read coarse entropy exactly 0, the seed among them, so none is lower and the seed is not singled out (two docks read 0 or ln 2 by block); on the coset-union vacuum a one-dock start's entropy depends only on its energy change and is least for the full dock on one of 64 store-free docks, so the full origin dock (+40) is not minimal there; under register growth with chi empty the born shells' occupation entropy depends on birth beat (spread 2.67 or more from row 3) and the newest shell is least while the region grows, but the grown run equals a full seed in an already-born empty region one beat later to 5e-15; the control that the newest shell can lose its place after growth held at L = 4 and not at L = 6 in 10 rows",
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',

@@ -112,6 +112,30 @@
 // rule's crystal momentum, the Bloch charge of translation it keeps globally (E-FND-0157), which is not the particle
 // momentum sum c_i n_i whose flux is the stress. Depth L1: exact counts and exact algebra on the rule's own pieces.
 // DETERMINISM: no random numbers; every table is enumerated in a fixed order.
+//
+// FIRST RUN 2026-10-02 (tmp/fc-run1.log, 85 s): FAIL, as predicted. I1, C1 hold; H1 fails; P1 fires, on momentum and
+// never on mass. No gate moved and none was rerun. Every predicted number came out as written.
+//  - I1: FHP 4 invariants with head-on collisions, 3 with the triple; |W(F4)| = 1,152; 24 Q_S and 48 Q_D symmetric and
+//    idempotent on every entry, tr Q = 8 for both; the side-4 stream a bijection with 0 direction changes; the five
+//    FCHC vectors of rank 5.
+//  - C1: FCHC's isometric collision, 2-body 23,040 transitions (18,432 moving) and 3-body 93,312 (81,792), 0 mass or
+//    momentum breaks, exactly 5 invariants on each. The slot-diagonal pair piece: commutator 0, one- and two-body.
+//  - THE KNIT'S COLLISION, all four kinds: 0 mass or momentum breaks on the 2-body (1,128 contents), 3-body (17,344) and
+//    full tables (2^24 occupations; moving 9,349,056 isometric, 1,322,496 bounce, 9,302,976 lone and pass). The 2-body
+//    table is the identity: 0 contents move, 24 invariants, 19 of them spurious. The 3-body and the full tables have
+//    exactly 5, FCHC's set. So the collision lacks no conservation FCHC needs; it fails only the spurious-invariant
+//    requirement, and only at two bodies: it has no binary collisions.
+//  - THE KNIT'S COIN (keys none, all and each line alone; 1 to 3 vibes): 93,024 crossings, 63,808 moving transitions,
+//    63,552 change the momentum (the other 256 cross three lines whose roots sum to 0), 0 change the mass; its own
+//    invariants are the 12 line counts. Coin then collision: 127,104 momentum breaks, 1 invariant (the mass).
+//  - THE REGISTER RULE: ||[Q, C_a]||^2 = 8 for Q_S and Q_D on every axis (the mixers), and 128 for Q (x) Q against the
+//    pair momentum (the pair piece, its only two-body piece); as a slot-pair table each sector allows all 331,776
+//    transitions (d, e) -> (d', e'), and 328,392 of them change r_d + r_e. The swap coin sends every root to its
+//    negative (0 violations of 96), so it reverses the momentum every beat. Only the stream keeps it.
+// WHAT IT MEANS for route K1d: the knit's dock permutation is an FCHC collision in its conservation laws (it is
+// Henon's isometric rule with the one covariant element of each stabilizer), except that this element turns no
+// two-body content; the momentum the rule loses (E-FND-0170, 0171) is lost at the coin, which hands a lone vibe from
+// r to -r, and on the register rule at the pair piece, the mixers and the swap coin alike.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
@@ -161,7 +185,7 @@ export default experiment({
   id: 'fluids/fchc-comparison',
   code: 'E-FLD-0034',
   title:
-    'the knit and the register rule against the FCHC collision requirements (provisional, set after the first run)',
+    "is the rule's collision an FCHC collision? fail as predicted, on momentum and never on mass, at the coin and not at the knit's collision: the knit's collision (pair move and dock permutation, all four kinds) keeps mass and momentum on every two-body, three-body and full table (0 breaks over all 2^24 occupations) and has exactly FCHC's 5 invariants from three bodies up, but its two-body table is the identity (0 of 1,128 contents move, 24 invariants: the deterministic -1 never turns a head-on pair), while its coin changes the momentum on 63,552 of 63,808 moving transitions and coin with collision keeps the mass alone; on the register rule the pair piece itself breaks it (two-body commutator^2 128 in both sectors, 328,392 of 331,776 slot-pair transitions change the pair's momentum), as do the mixers (8) and the swap coin, which reverses it; controls: FCHC's isometric collision keeps both with exactly 5 invariants at two and three bodies, FHP gives 4 and 3, a slot-diagonal pair piece commutes",
   category: 'fluids',
   substrates: ['3434'],
   depth: 'L1',

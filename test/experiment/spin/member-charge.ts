@@ -103,6 +103,26 @@
 // e/2 of a half-filled Dirac sea: the rule's vacuum is the full sea of each tone, whose charge is 0 on every slot. The
 // commutant reading is for one-body charges on one member's register only.
 //
+// FIRST RUN 2026-10-02 (tmp/mc-run1.log, 1547 s): FAIL, as derived; all three routes killed. No gate moved, none rerun.
+//  - H1 false: 16 member levels (8 in each half; |eps| 0.38025 at k = 0, 0.42730, 0.41981, 0.44186 at the Weyl momenta,
+//    8-fold) carry charge -1/3 and +1/3, 8 each per lifted level; L(e_01)^2 = -1 exactly and keeps the halves.
+//  - H2 false: 20 light wall levels, all in half 0 (half 1 holds none below 0.380): |eps| 0.114466, 0.072936, 0.024406,
+//    0.004886, 0.000122 at k = 0 and 0.128992, 0.095492, 0.066792, 0.062377, 0.062185 at k = (0.1, 0, 0, 0), L = 4 .. 12,
+//    each -1/3 and +1/3; worst ||q| - 1/3| over all 36 levels 5.6e-16.
+//  - H3 false: the S -> D channel (scale 0.04340, Schur 9.0e-17) takes every tone pair to itself, worst Delta Q 0 and
+//    commutator 0; two love-sea holes -2/3 -> -2/3.
+//  - P1 holds: spectra {-1/3, +1/3} balanced; commutant 8 and 5 (exact), generic multiplicities 2,2,2,2 and 2,4,2,
+//    transpose closure 0.
+//  - I1: 27 triples match, pieces integer, leak 6.3e-15, eigen residual 1.6e-12, every level even. C1: the tone swap reads
+//    at most 2.5e-15 on 82 levels. C2: full seas 3Q = 0, one hole -1 (8) and +1 (8), three love-sea holes -3 in 56 of 56,
+//    none with fewer holes whole. C3: the planted contact Delta Q -4/3, commutator norm 4/3.
+//  THE AUDIT. Points 1, 2 and 5 are bookkeeping: once the tone is a species label that every piece leaves alone, each
+//  member is one vibe and no tone-blind piece moves charge, so the level readings confirm the lift is done right more
+//  than they test the physics. The content is in what follows: an electron needs three like-tone members (two half +
+//  and one half -, or three half -, under SU(2)+'s Gauss law), and no conserved one-body register charge can give a single
+//  member a whole charge in Furey's way, since every eigenvalue is at least 2-fold. The run took 26 minutes, most of it
+//  the dense lifted eigensolves at L = 10 and 12.
+//
 // DETERMINISM: no random numbers (Weyl momenta and Weyl weights). EXACT: the triple counts, the Fock counts, the
 // commutant dimensions (BigInt elimination) and L(e_01)^2; the level charges are floats, as measurement, with residuals.
 
@@ -192,7 +212,7 @@ export default experiment({
   id: 'spin/member-charge',
   code: 'E-SPN-0189',
   title:
-    'the charge of a register member, of a light wall level and of the join channel: pending the gate run',
+    'no register member, light wall level or join pair carries or moves charge one, fail as derived: on the register rule the tone is a species label every piece leaves alone, so a member is one vibe and carries (love - fear)/3 = -1/3 or +1/3 in each half (16 member levels) and on every light wall level of the chiral slab (20 levels, L = 4 to 12, worst 5.6e-16), while spin one half holds (the full turn is -1 on both halves); the S -> D join keeps every tone pair (Delta Q 0), a neutral current, where a planted tone-turning contact reads -4/3; the register keeps only 8 one-body charges (5 with the SU(2)+ field), each eigenvalue at least 2-fold, so no Furey number operator lives on one member; charge one needs three like-tone members, two half + and one half - or three half -',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',

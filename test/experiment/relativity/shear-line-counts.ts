@@ -84,7 +84,7 @@
 //    lines. So the route's premise does not hold on the knit whose shears froze, and its overlap is zero besides.
 //  - WHAT HOLDS THE FROZEN SHEARS (reported, not gated): at beat 60 the shear sits on the line momenta of lines with
 //    k . d = 0 (share 1.009 .. 1.014 of A): on axes01 three of the four such lines keep their momentum to 1 percent
-//    (4142 -> 4137, 4125, 4187) and the fourth falls to 1414, its loss appearing as +-1355 on the two lines along k
+//    (4152, 4122, 4174 -> 4137, 4125, 4187) and the fourth falls to 1414, its loss appearing as 1355 and -1335 on the two lines along k
 //    with no component along a; axes20 and axes10 the same pattern. On axes12, which decays, the four lines with k . d
 //    = 0 and root . a nonzero all lose their momentum (to |.| < 60). So k . d = 0 is not enough; which lines keep their
 //    momentum at k depends on which moves of the chosen group touch them, an odd-parity, k-resolved family the route
@@ -176,7 +176,11 @@ export default experiment({
         permutations: table.permutations,
         group: perms,
       })
-      const set = scatterMoves({ group: perms, forms, rotation: rotations[0] })
+      const set = scatterMoves({
+        group: perms,
+        forms,
+        rotation: rotations[0],
+      })
 
       return {
         set,
@@ -218,7 +222,9 @@ export default experiment({
       const histogram = new Array<number>(SIDE).fill(0)
 
       for (let x = 0; x < docks; x++) {
-        const r = [0, 1, 2, 3].map(k => Math.floor(x / SIDE ** k) % SIDE)
+        const r = [0, 1, 2, 3].map(
+          k => Math.floor(x / SIDE ** k) % SIDE,
+        )
         const kr = ((dot(geometry.wave, r) % SIDE) + SIDE) % SIDE
 
         residue[x] = kr
@@ -233,11 +239,14 @@ export default experiment({
         (s, h, j) => s + h * sine[j]! ** 2,
         0,
       )
-      const along = pairs.map(([d]) => dot(ROOTS[d]!, geometry.momentum))
+      const along = pairs.map(([d]) =>
+        dot(ROOTS[d]!, geometry.momentum),
+      )
       const across = pairs.map(([d]) => dot(ROOTS[d]!, geometry.wave))
 
       // exact slot sums: the shear's coefficient (root . a, both signs alike) against each functional's
-      const slot = (d: number): number => dot(ROOTS[d]!, geometry.momentum)
+      const slot = (d: number): number =>
+        dot(ROOTS[d]!, geometry.momentum)
       const countOverlap = pairs.map(([d, o]) => slot(d) + slot(o))
       const momOverlap = pairs.map(([d, o]) => slot(d) - slot(o))
 
@@ -375,11 +384,13 @@ export default experiment({
       metrics[`${r.name}_countOverlapMaxAbs`] = Math.max(
         ...r.countOverlap.map(Math.abs),
       )
+
       metrics[`${r.name}_momOverlapNonzero`] = r.momOverlap.filter(
         m => m !== 0,
       ).length
       metrics[`${r.name}_countWorstOverA0`] = r.countWorst0 / r.a0
-      metrics[`${r.name}_countWorstOverA60`] = r.countWorst1 / Math.abs(r.a0)
+      metrics[`${r.name}_countWorstOverA60`] =
+        r.countWorst1 / Math.abs(r.a0)
       metrics[`${r.name}_perpShare60`] = r.perpShare
       metrics[`${r.name}_globalKept`] = r.globalKept ? 1 : 0
       metrics[`${r.name}_globalChange`] = r.globalChange
