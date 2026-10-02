@@ -182,9 +182,13 @@ export function halfBlockLevels(
 type Q3 = readonly [number, number]
 
 const add = (x: Q3, y: Q3): Q3 => [x[0] + y[0], x[1] + y[1]]
-const mul = (x: Q3, y: Q3): Q3 => [x[0] * y[0] + 3 * x[1] * y[1], x[0] * y[1] + x[1] * y[0]]
+const mul = (x: Q3, y: Q3): Q3 => [
+  x[0] * y[0] + 3 * x[1] * y[1],
+  x[0] * y[1] + x[1] * y[0],
+]
 const neg = (x: Q3): Q3 => [-x[0], -x[1]]
 const isZero = (x: Q3): boolean => x[0] === 0 && x[1] === 0
+
 // the exact sign of a + b sqrt 3
 const sign3 = (x: Q3): number => {
   const [a, b] = x
@@ -220,6 +224,7 @@ const TWO_COS_12: readonly Q3[] = [
 
 // 2 cos(2 pi m / 12) for m in twelfths of a turn
 const twoCos12 = (m: number): Q3 => TWO_COS_12[((m % 12) + 12) % 12]!
+
 const twelfths = (x: number, L: number): number => {
   if (12 % L !== 0) {
     throw new Error(`staggered-tastes: side ${L} does not divide 12`)
@@ -227,9 +232,11 @@ const twelfths = (x: number, L: number): number => {
 
   return (x * 12) / L
 }
+
 const twoCos = (x: number, L: number): Q3 => twoCos12(twelfths(x, L))
 // sin a = cos(a - quarter turn)
-const twoSin = (x: number, L: number): Q3 => twoCos12(twelfths(x, L) - 3)
+const twoSin = (x: number, L: number): Q3 =>
+  twoCos12(twelfths(x, L) - 3)
 
 const det = (m: readonly (readonly Q3[])[]): Q3 => {
   if (m.length === 1) {
@@ -248,7 +255,12 @@ const det = (m: readonly (readonly Q3[])[]): Q3 => {
   return s
 }
 
-type Zero = { x: number[]; type: string; corner: boolean; detSign: number }
+type Zero = {
+  x: number[]
+  type: string
+  corner: boolean
+  detSign: number
+}
 
 // the exact zeros of s on the side-L grid, one per D4 class (x and x + L/2 (1, 1, 1, 1) identified, so the
 // representatives with x_4 < L/2, as code/measure/register-sea's torus takes them); dims 4, or 3 for the husk slice
@@ -265,7 +277,10 @@ export function exactZeros(L: number, slice: boolean): Zero[] {
           const C = x.map(y => twoCos(y, L))
           const S = x.map(y => twoSin(y, L))
           const sumOthers = (i: number): Q3 =>
-            C.reduce<Q3>((acc, v, k) => (k === i ? acc : add(acc, v)), [0, 0])
+            C.reduce<Q3>(
+              (acc, v, k) => (k === i ? acc : add(acc, v)),
+              [0, 0],
+            )
           const zero = [0, 1, 2, 3].every(
             i => isZero(S[i]!) || isZero(sumOthers(i)),
           )
@@ -278,11 +293,15 @@ export function exactZeros(L: number, slice: boolean): Zero[] {
           const dims = slice ? 3 : n
           const Jm = Array.from({ length: dims }, (_, i) =>
             Array.from({ length: dims }, (__, j) =>
-              i === j ? mul(C[i]!, sumOthers(i)) : neg(mul(S[i]!, S[j]!)),
+              i === j
+                ? mul(C[i]!, sumOthers(i))
+                : neg(mul(S[i]!, S[j]!)),
             ),
           )
           const sinZero = S.filter(isZero).length
-          const quarter = x.filter(y => (4 * y) % L === 0 && (2 * y) % L !== 0).length
+          const quarter = x.filter(
+            y => (4 * y) % L === 0 && (2 * y) % L !== 0,
+          ).length
           const type =
             sinZero === 4
               ? 'a'
@@ -323,7 +342,12 @@ export function wilsonZeros(L: number): number {
           const sZero = [0, 1, 2, 3].every(
             i =>
               isZero(S[i]!) ||
-              isZero(C.reduce<Q3>((acc, v, k) => (k === i ? acc : add(acc, v)), [0, 0])),
+              isZero(
+                C.reduce<Q3>(
+                  (acc, v, k) => (k === i ? acc : add(acc, v)),
+                  [0, 0],
+                ),
+              ),
           )
 
           let wZero = true
@@ -381,7 +405,8 @@ export function tastesRun(): Verdict {
   const twelve = exactZeros(12, false)
   const huskBox = exactZeros(4, true)
   const husk12 = exactZeros(12, true)
-  const byType = (z: Zero[], ty: string): number => z.filter(q => q.type === ty).length
+  const byType = (z: Zero[], ty: string): number =>
+    z.filter(q => q.type === ty).length
   const signs = (z: Zero[]): [number, number, number] => [
     z.filter(q => q.detSign > 0).length,
     z.filter(q => q.detSign < 0).length,
@@ -390,9 +415,27 @@ export function tastesRun(): Verdict {
   const zeroKeys = new Set(box.map(q => q.x.join(',')))
 
   // ---- I1 and the cycle count, both classes, both halves ----
-  const classes: { name: string; specs: typeof sch.geometricEven; ab: [[Unit, Unit], [Unit, Unit]] }[] = [
-    { name: 'A', specs: sch.geometricEven, ab: [[plus, conjUnit(minus)], [minus, conjUnit(plus)]] },
-    { name: 'B', specs: sch.geometricOdd, ab: [[minus, conjUnit(plus)], [plus, conjUnit(minus)]] },
+  const classes: {
+    name: string
+    specs: typeof sch.geometricEven
+    ab: [[Unit, Unit], [Unit, Unit]]
+  }[] = [
+    {
+      name: 'A',
+      specs: sch.geometricEven,
+      ab: [
+        [plus, conjUnit(minus)],
+        [minus, conjUnit(plus)],
+      ],
+    },
+    {
+      name: 'B',
+      specs: sch.geometricOdd,
+      ab: [
+        [minus, conjUnit(plus)],
+        [plus, conjUnit(minus)],
+      ],
+    },
   ]
 
   let lawWorst = 0
@@ -401,7 +444,13 @@ export function tastesRun(): Verdict {
   let restWorstAtZeros = 0
   let leastApart = Infinity
 
-  const species: { cls: string; half: number; count: number; matchesExact: boolean; corners: number }[] = []
+  const species: {
+    cls: string
+    half: number
+    count: number
+    matchesExact: boolean
+    corners: number
+  }[] = []
 
   for (const cl of classes) {
     const dense = cl.specs.map(p => densePiece(p[0]!))
@@ -413,13 +462,23 @@ export function tastesRun(): Verdict {
     for (const K of t.momenta) {
       const U = cycleMatrix(dense, REGISTER_ROOTS, K)
       const mu = structureVector(K).reduce((q, x) => q + x * x, 0) / 4
-      const xKey = K.map(k => Math.round((k * 4) / (2 * Math.PI))).join(',')
+      const xKey = K.map(k => Math.round((k * 4) / (2 * Math.PI))).join(
+        ',',
+      )
 
       for (const sign of [1, -1] as const) {
         const ev = halfBlockLevels(U, J, sign)
         const ab = sign > 0 ? cl.ab[0] : cl.ab[1]
-        const law = matchEigenvalues(ev, jordanRoots(ab[0], ab[1], mu), LAW)
-        const rest = matchEigenvalues(ev, jordanRoots(ab[0], ab[1], 0), LAW)
+        const law = matchEigenvalues(
+          ev,
+          jordanRoots(ab[0], ab[1], mu),
+          LAW,
+        )
+        const rest = matchEigenvalues(
+          ev,
+          jordanRoots(ab[0], ab[1], 0),
+          LAW,
+        )
 
         levelsEight &&= ev.length === 8
         lawWorst = Math.max(lawWorst, law.worst)
@@ -442,8 +501,11 @@ export function tastesRun(): Verdict {
         half: f.half,
         count: f.keys.length,
         matchesExact:
-          set.size === zeroKeys.size && [...zeroKeys].every(k => set.has(k)),
-        corners: f.keys.filter(k => k.split(',').every(y => Number(y) % 2 === 0)).length,
+          set.size === zeroKeys.size &&
+          [...zeroKeys].every(k => set.has(k)),
+        corners: f.keys.filter(k =>
+          k.split(',').every(y => Number(y) % 2 === 0),
+        ).length,
       })
     }
   }
@@ -465,7 +527,9 @@ export function tastesRun(): Verdict {
     six.length === 40 &&
     twelve.length === 72 &&
     twelve.filter(q => q.corner).length === 8 &&
-    [box, six, twelve].every(z => z.every(q => q.detSign !== 0 && q.type !== '?')) &&
+    [box, six, twelve].every(z =>
+      z.every(q => q.detSign !== 0 && q.type !== '?'),
+    ) &&
     s12p === 36 &&
     s12m === 36 &&
     species.every(s => s.count === 40 && s.matchesExact)
@@ -478,7 +542,10 @@ export function tastesRun(): Verdict {
   const [hbp, hbm] = signs(huskBox)
   const [h12p, h12m] = signs(husk12)
   const speciesLine = species
-    .map(s => `class ${s.cls} half ${s.half > 0 ? '+' : '-'}: ${s.count} (corners ${s.corners}, the exact zero set ${s.matchesExact})`)
+    .map(
+      s =>
+        `class ${s.cls} half ${s.half > 0 ? '+' : '-'}: ${s.count} (corners ${s.corners}, the exact zero set ${s.matchesExact})`,
+    )
     .join('; ')
 
   return verdict({
