@@ -1,10 +1,11 @@
 // THE POINTER IS WHAT THE ENVIRONMENT CONSERVES (E-QTM-0166, OPEN-QTM-06, the route "the pointer is what the environment
 // conserves" in routes/quantum-relativity-light-computation.md, row "A · decoherence and pointer states"). Einselection
 // picks the eigenbasis of what the system-environment coupling keeps. E-FND-0170 found that the only local conserved
-// densities of the working rule are the love and fear counts. The route reads from this that the one pointer a covariant
-// rule can pick is a dock's love and fear numbers, a charge-like superselection, and not the role, which would also
+// densities of the working rule are the love and fear counts (written pleasure and pain below; the code keeps the old
+// names). The route reads from this that the one pointer a covariant
+// rule can pick is a dock's pleasure and pain numbers, a charge-like superselection, and not the role, which would also
 // explain E-QTM-0154 (a frame-covariant rule with a frame-invariant environment depolarizes every role basis alike).
-// This file runs the route's test on C* (E-FND-0160): a member in a superposition of two local love counts against a
+// This file runs the route's test on C* (E-FND-0160): a member in a superposition of two local pleasure counts against a
 // member in a superposition of two roles at one dock, both coupled by the rule to the same environment, and reads the
 // off-diagonal of the system's reduced state every beat.
 //
@@ -16,19 +17,19 @@
 //    one rate, zero. That is the route's kill condition met for a structural reason, and it reads nothing about which
 //    basis an environment picks, because the full sea couples to nothing. The rule couples a member only to another hole
 //    (the sector pair pieces and the fear beat act on hole pairs counted from the sea). So the closest decisive version
-//    takes as the environment one other hole, a fear-tone member, together with both members' positions over the docks
+//    takes as the environment one other hole, a pain-tone member, together with both members' positions over the docks
 //    of the box: the L = 2 D4 torus (8 docks, the route's range) and the L = 4 torus (128 docks).
-//  - "A LOCAL LOVE COUNT" ON C*. The tone is a species: a hole of the fear sea is a love-tone member (love count 1 at its
-//    dock), a hole of the love sea a fear-tone member (fear count 1). A superposition of two local love counts at one dock
-//    is taken as the member superposed between love-tone and fear-tone, same dock, same orbital start, same role chi1:
-//    one branch has (love, fear) counts (1, 0) at the member's place, the other (0, 1). The rule keeps each species'
+//  - "A LOCAL PLEASURE COUNT" ON C*. The tone is a species: a hole of the pain sea is a pleasure-tone member (pleasure count 1 at its
+//    dock), a hole of the pleasure sea a pain-tone member (pain count 1). A superposition of two local pleasure counts at one dock
+//    is taken as the member superposed between pleasure-tone and pain-tone, same dock, same orbital start, same role chi1:
+//    one branch has (pleasure, pain) counts (1, 0) at the member's place, the other (0, 1). The rule keeps each species'
 //    number, so the tone is conserved by the whole dynamics: the two branches never mix, and the system's reduced
 //    off-diagonal is the overlap of what the rest of the world does in each branch. The rule cannot prepare such a state
 //    (it never changes a count); it is put in by hand, as environment-induced superselection arguments do.
-//  - THE ROLE SUPERPOSITION. A love-tone member in (|a> + |b>) / sqrt 2, a and b two states of one of the 4 role bases
+//  - THE ROLE SUPERPOSITION. A pleasure-tone member in (|a> + |b>) / sqrt 2, a and b two states of one of the 4 role bases
 //    (the 4 line classes of the role grid, the qutrit's 4 stabilizer bases), same orbital start.
-//  - THE ENVIRONMENT MEMBER is fear-tone with role chi2 one of the 12 line states. So in the role case and in the love
-//    branch the pair is unlike (distinguishable, kernel V = 1 + (w - 1) Phi Phi^dag), and in the fear branch the pair is
+//  - THE ENVIRONMENT MEMBER is pain-tone with role chi2 one of the 12 line states. So in the role case and in the pleasure
+//    branch the pair is unlike (distinguishable, kernel V = 1 + (w - 1) Phi Phi^dag), and in the pain branch the pair is
 //    like (identical fermions, kernel U = P_sym + w P_anti), w the knit's fear angle ringUnit(0, 2), as in E-FND-0160.
 //  - THE FAMILIES. Tone: chi1 over the 12 line states, chi2 over the 12 (144 cases). Role: 4 classes x 3 pairs (a, b) x
 //    12 chi2 (144 cases). Both families are closed under the 216 grid moves, so neither favours a frame.
@@ -45,10 +46,10 @@
 //    branch is a sum over channels of one orbital run W_k psi0 (the contact phase moved by theta_k) times Pi_k chi, chi =
 //    chi1 (x) chi2. Everything below is fixed by the channel overlaps G_kl = <W_k psi0 | W_l psi0> and the exchange
 //    overlaps H_kl = <X W_k psi0 | W_l psi0>, X the exchange of the two holes (y -> -y, modes swapped).
-// 2. THE TONE COHERENCE. Love branch: Psi_L = sum_l W_l psi0 (x) Pi^L_l chi (Pi^L: Phi-perp with theta 0, Phi with w).
-//    Fear branch, antisymmetrized: Psi_F = sum_k [W_k P_- psi0 (x) Pi^F_k chi_s + W_k P_+ psi0 (x) Pi^F_k chi_a], P_+- =
+// 2. THE TONE COHERENCE. Pleasure branch: Psi_L = sum_l W_l psi0 (x) Pi^L_l chi (Pi^L: Phi-perp with theta 0, Phi with w).
+//    Pain branch, antisymmetrized: Psi_F = sum_k [W_k P_- psi0 (x) Pi^F_k chi_s + W_k P_+ psi0 (x) Pi^F_k chi_a], P_+- =
 //    (1 +- X) / 2, chi_s and chi_a the swap-symmetric and antisymmetric parts (Pi^F: sym with 0, anti with w). The
-//    off-diagonal of the dock's (love, fear) count in the reduced state is <Psi_F | Psi_L> up to the fixed factor of the
+//    off-diagonal of the dock's (pleasure, pain) count in the reduced state is <Psi_F | Psi_L> up to the fixed factor of the
 //    second-quantized flip b_F^dag a_L, and
 //      <Psi_F | Psi_L> = sum_kl [ (G_kl - H_kl) / 2 <Pi^F_k chi_s | Pi^L_l chi> + (G_kl + H_kl) / 2 <Pi^F_k chi_a | Pi^L_l chi> ].
 //    The decoherence factor is D_T(t) = |<Psi_F | Psi_L>(t)| / |<Psi_F | Psi_L>(0)|. The tone populations are kept
@@ -80,7 +81,7 @@
 //   unprobed start S2 and 32 more beats.
 //  tmp/pc-smoke.log (this file with 4 beats, every code path): L = 2 and 4, S1 as in the probes; S2, seen here for 4
 //   beats only, mean coherence at beat 1 tone 0.835, role 0.918 (ratio of losses 2.0, its exchange overlap h is about
-//   0, so its fear branch has no exchange term). The smoke read the instrument's float floor at L = 4: the fear-off
+//   0, so its pain branch has no exchange term). The smoke read the instrument's float floor at L = 4: the fear-off
 //   residual 1.3e-11 and the role reduction against reducedRole 5e-12 after 4 beats, above the 1e-12 first written for
 //   I1 (c) and (d), because both carry the runs' norm drift. Those two tolerances were set to 1e-9 before the gate run;
 //   no physics gate was touched.
@@ -97,8 +98,8 @@
 //  C1 CONTROL, THE OTHER OUTCOME IS READABLE. Under the tone-blind role-diagonal kernel of point 5, on every box and
 //     start: loss_R >= 0.05 and every D_T within 1e-9 of 1 at every beat. There the role dephases and the tone does not,
 //     which is the route's kill outcome, so the reader can see it.
-//  H1 THE ROUTE'S HYPOTHESIS. On every box and start, loss_T >= 1.5 loss_R and first_T >= 1.5 first_R: the dock's love
-//     and fear count dephases faster than any role superposition, on average over frames.
+//  H1 THE ROUTE'S HYPOTHESIS. On every box and start, loss_T >= 1.5 loss_R and first_T >= 1.5 first_R: the dock's pleasure
+//     and pain count dephases faster than any role superposition, on average over frames.
 //  P1 THE FALSIFIER (the route's kill). On some box and start loss_T <= 1.1 loss_R: one rate (within 10%) or the role
 //     faster.
 // VERDICT. Fail if P1 fires. Pass if H1, I1 and C1 hold. Partial if P1 does not fire but H1 fails (a ratio between 1.1
@@ -115,6 +116,23 @@
 // standard status of superselection arguments (Wick, Wightman, Wigner 1952; Zurek 2003). The vacuum (the full sea) is
 // shown, by derivation, to be no environment at all on C*, which is what the route asked for literally. C* is not the
 // adopted rule, two holes on the 4d D4 torus are not the husk, and no ledger row becomes held from it.
+//
+// FIRST RUN 2026-10-02 (tmp/pc-qtm-run1.log, 530 s): PASS, as predicted. No gate moved and none was rerun.
+//  - H1: mean coherence loss a beat over 96 beats, tone against role: L = 2 (8 docks) S1 0.2828 against 0.1073 (ratio
+//    2.64), S2 0.1097 against 0.0543 (2.02); L = 4 (128 docks) S1 0.1882 against 0.0595 (3.16), S2 0.1222 against
+//    0.0602 (2.03). At beat 1: 0.2483 against 0.0815 (3.05) and 0.1646 against 0.0815 (2.02) on L = 2, 0.2462 against
+//    0.0812 (3.03) and 0.1647 against 0.0816 (2.02) on L = 4. P1 did not fire: the least ratio is 2.02.
+//  - C1: the tone-blind role-diagonal kernel dephases the role (loss a beat 0.121 to 0.241) and keeps the tone to
+//    1.3e-11, so the reader sees the other outcome where the coupling makes it.
+//  - I1: the exchange route agrees with separately run P_-+ psi0 to 4.3e-12, norms kept to 1.3e-12, the fear beat off
+//    keeps both coherences to 1.3e-11, the role reduction matches reducedRole to 6.8e-12.
+//  - Reads. The role loss is the same in all 4 classes to 1e-16 (frame covariance, as E-QTM-0154 has it). The role
+//    populations move by up to 0.167 (L = 2) and 0.097 (L = 4); the tone populations cannot move. The least single-case
+//    coherence over the run is 0.361 (tone) against 0.667 (role) on L = 2 S1 and 0.568 against 0.807 on L = 4 S1; in both
+//    families some cases never dephase (environment roles on which both kernels act trivially). The L = 2 box recurs
+//    exactly every 24 beats (|g| back to 1, every coherence back to 1), so what is read is a time-averaged loss, not a
+//    rate. S2, whose exchange overlap is about 0, gives the smaller ratio, about 2: part of S1's larger tone loss comes
+//    from the fermion exchange term of the pain branch.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
@@ -857,7 +875,7 @@ export default experiment({
   id: 'quantum/pointer-conserved',
   code: 'E-QTM-0166',
   title:
-    'the pointer is what the environment conserves, on C*: a member superposed between two local love counts against a member superposed between two roles, coupled to one other hole over 8 and 128 docks',
+    "on C* the environment picks the dock's pleasure and pain count over the role, pass: the full sea couples to nothing, so the environment is one other hole over 8 and 128 docks; a member superposed between pleasure-tone and pain-tone loses 2.0 to 3.2 times more coherence a beat than one superposed between two roles (0.110 to 0.283 against 0.054 to 0.107, mean over 96 beats and 144 cases each; 3.0 and 2.0 times at the first beat), the role loss equal in all 4 classes, the role populations moving by up to 0.167 while the tone's cannot; a tone-blind role-reading kernel reverses it (role loss 0.12 to 0.24, tone kept to 1e-11), and with the fear beat off neither dephases; the 8-dock box recurs every 24 beats, so this is a time-averaged loss, not a rate",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
