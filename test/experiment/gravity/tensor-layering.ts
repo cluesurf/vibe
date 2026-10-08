@@ -3,7 +3,7 @@
 // rule's own slide (linearized Einstein-Hilbert, speed c, lambda = 1), and the correction coefficient c_2 in
 // V = (G M / r)(1 + c_2 / r^2 + ...) extrapolated in the layering L exactly as E-GRV-0137 did.
 //
-// WHY (note/research/vibe/roadmap/remaining-pieces.md, "The Randall-Sundrum number"). The scalar depth's c_2 converges
+// WHY (note/project/vibe/roadmap/research/remaining-pieces.md, "The Randall-Sundrum number"). The scalar depth's c_2 converges
 // to the scalar's own continuum 1 / (2 k^2), 0.971 extrapolated and 0.998 from the kernel, which is 3/4 of RS's
 // 2 / (3 k^2). The missing 4/3 was predicted to be the massive spin-2 modes' tensor structure.
 //

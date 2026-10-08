@@ -1,4 +1,4 @@
-// ENERGY LINES DRAGGED BY THE RULE (E-GRV-0106, E-GRV-0107; note/research/vibe/roadmap/discrete-gravity.md, Part 5e).
+// ENERGY LINES DRAGGED BY THE RULE (E-GRV-0106, E-GRV-0107; note/project/vibe/roadmap/research/discrete-gravity.md, Part 5e).
 // The rule conserves E = count + 2 sum |tau| exactly and LOCALLY: every piece of the collision (the coin, the meeting,
 // the pair move, the bounce) acts inside one dock and keeps the dock's own energy e(x) = held slots + 2 stored pairs (a
 // slot permutation keeps the count; making or unmaking a pair turns two vibes into one store of weight 2 or back), and

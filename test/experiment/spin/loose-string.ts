@@ -6,7 +6,7 @@
 // with N = 2D + 1 and D the light's trit-column depth (code/measure/drift-cost-bloch lightN), so the string's tension is
 // the light's resolution and loosening it adds no number. A linear potential of tension sigma binds a pair of mass m
 // into a state of size about (sigma m)^(-1/3): a smaller sigma gives a wider state, deeper in the long-wavelength regime
-// where the walk is covariant, so R should fall toward 1 as D grows. note/research/vibe/roadmap/remaining-pieces.md,
+// where the walk is covariant, so R should fall toward 1 as D grows. note/project/vibe/roadmap/research/remaining-pieces.md,
 // ideas 1a (the loose string) and 1b (light loves with it, the Schwinger regime).
 //
 // THE READING (tmp/loose-probe1.ts, unchanged). The stand-in (code/measure/coined-line-bloch: three loves on one bulk

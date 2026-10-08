@@ -2,7 +2,7 @@
 // tessellation. Each cell holds a ternary WORD (slots in {0,1,2}). You broadcast a COMPARAND (a query word
 // with an optional don't-care mask), every cell compares it to its own word in parallel, and the matching
 // cells are the RESPONDERS. This is the base-layer (reversible-rule-compatible) flavor, a parallel search,
-// not an attractor relaxation. See note/research/vibe/notes/theory-v0.7.0/plans/associative-engine-architecture.md.
+// not an attractor relaxation. See note/project/vibe/archive/theory-v0.7.0/plans/associative-engine-architecture.md.
 
 import { bfsShells } from '@/code/measure/shells'
 

@@ -1,4 +1,4 @@
-// DOES NORMAL ORDERING GIVE THE SEA'S HOLE THE RIGHT GRAVITY (E-GRV-0144)? note/research/vibe/roadmap/remaining-pieces.md,
+// DOES NORMAL ORDERING GIVE THE SEA'S HOLE THE RIGHT GRAVITY (E-GRV-0144)? note/project/vibe/roadmap/research/remaining-pieces.md,
 // "Auditing the candidate rule (E-SPN-0134)": under the candidate rule (flat links, the filled love sea, E-SPN-0130's
 // fermionic frame mixer) depth is sourced by the energy count, held slots + 2 stored pairs (code/measure/energy-lines),
 // and relative to the sea a hole is -1: its time-averaged depth at the source was -0.0015 against a love's +0.0015, so

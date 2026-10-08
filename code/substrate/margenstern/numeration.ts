@@ -7,7 +7,7 @@
 // For the pentagrid/heptagrid the basis is Fibonacci (1, 2, 3, 5, 8, ... , the recurrence u = u' + u''), and
 // the dodecagrid {5,3,4} and the 4D grids have their own recurrences. We build the basis either from an
 // explicit linear recurrence or directly from a grid's measured shell growth, so the numeration is exact in any
-// dimension. See note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md and the
+// dimension. See note/project/vibe/archive/theory-v0.8.0/plans/hyperrogue-port-roadmap.md and the
 // splitting-method notes.
 
 export type Numeration = {

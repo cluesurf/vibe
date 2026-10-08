@@ -227,7 +227,7 @@ search. Full catalog in `api/computing-and-data-structures.md`.
 ## The headline results (the crown jewels)
 
 The proven, controlled results, distilled. The full scoreboard is in
-`note/research/vibe/notes/theory-v0.7.0/paper/recent-results.md`.
+`note/project/vibe/archive/theory-v0.7.0/paper/recent-results.md`.
 
 | result                                                             | status                              |
 |:--- |:--- |
@@ -247,7 +247,7 @@ The proven, controlled results, distilled. The full scoreboard is in
 
 - [readme.md](readme.md), the map of the per-domain guides.
 - [overview.md](overview.md), how the library works.
-- `note/research/vibe/notes/theory-v0.7.0/paper/recent-results.md`, the
+- `note/project/vibe/archive/theory-v0.7.0/paper/recent-results.md`, the
   full results scoreboard.
 - `note/research/vibe/notes/theory-v0.7.0/paper/tessellations.csv`,
   every substrate and its measured properties.

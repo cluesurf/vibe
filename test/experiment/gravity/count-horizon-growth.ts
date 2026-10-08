@@ -3,7 +3,7 @@
 // spread evenly over its vertical links with carry (code/rule/count-horizon). Does the settled field outside forget how
 // the lump grew?
 //
-// WHY (note/research/vibe/roadmap/discrete-gravity.md, "Measured, the clock horizon"). E-GRV-0112 ended the slip but a
+// WHY (note/project/vibe/roadmap/research/discrete-gravity.md, "Measured, the clock horizon"). E-GRV-0112 ended the slip but a
 // dock that tears mid-growth holds the step it had then: the settled force outside is 36 percent off the placed lump's
 // (E-GRV-0109, the line criterion: 22). The held step is hair.
 //

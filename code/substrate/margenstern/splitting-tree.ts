@@ -7,7 +7,7 @@
 // "strip", a 2-node, address ending in 1) has two children, appending "00", "01" (appending "10" would make a
 // forbidden "11"). The PREFERRED SON (the continuator) is always the "+00" child, and the parent is the
 // address with its last two digits removed. That single uniform rule is what lets a finite machine walk an
-// infinite, undrawable plane. See note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md and
+// infinite, undrawable plane. See note/project/vibe/archive/theory-v0.8.0/plans/hyperrogue-port-roadmap.md and
 // the splitting-method notes (land/text/papers/maurice-margenstern/notes/02-splitting-method.md).
 
 import {

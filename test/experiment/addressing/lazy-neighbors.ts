@@ -1,4 +1,4 @@
-// P184: lazy on-demand neighbor computation, Stage 0 of the WebGPU billion-cell plan. (P104, cell-scale.ts, note/plan/vibe-webgpu-billion-cell-sim.md.)
+// P184: lazy on-demand neighbor computation, Stage 0 of the WebGPU billion-cell plan. (P104, cell-scale.ts, note/project/vibe/vibe-webgpu-billion-cell-sim.md.)
 //
 // The plan to reach a billion cells needs neighbors computed ON DEMAND, not stored. This proves the
 // mechanism is correct. The lazy engine computes a cell's 12 neighbors purely from the cell's own group

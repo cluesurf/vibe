@@ -1,5 +1,5 @@
 // P94: the conserved dynamics on the real {5,3,4} crystal. (Stage 2 of the unfolding,
-// see note/research/vibe/notes/unfolding-experiment-plan.md.)
+// see note/project/vibe/idea/unfolding-experiment-plan.md.)
 //
 // Implements the discrete conserved exchange (how-zero-becomes-charged.md) with its three elementary
 // moves, all conserving the total charge Q = sum of tones:

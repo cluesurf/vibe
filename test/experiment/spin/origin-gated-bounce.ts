@@ -1,4 +1,4 @@
-// AN ORIGIN-GATED BOUNCE (E-SPN-0128). note/research/vibe/roadmap/remaining-pieces.md, "Angle 4, the origin trit
+// AN ORIGIN-GATED BOUNCE (E-SPN-0128). note/project/vibe/roadmap/research/remaining-pieces.md, "Angle 4, the origin trit
 // (E-SPN-0123)", "The star theorem" and "Two hubs bound by the string". E-SPN-0123 put a stored ORIGIN trit on every
 // vibe (vacuum-born or matter-born) and let the line mixer turn only a matter-born single. The mixer's own cascade
 // stopped (17 turns a meson term against 6,958), but the footprint still filled the box, because one turn puts the

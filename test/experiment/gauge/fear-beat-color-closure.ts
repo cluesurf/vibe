@@ -1,5 +1,5 @@
 // DO THE LINK MOVES AND THE FEAR BEAT GENERATE A GROUP DENSE IN SU(3)? (E-FRC-0278, the "three colors" route of
-// note/research/vibe/roadmap/routes/matter-forces-numbers.md, block F). The links act on a role by the 216 grid moves,
+// note/project/vibe/roadmap/research/routes/matter-forces-numbers.md, block F). The links act on a role by the 216 grid moves,
 // whose linear lift is the classical color group Sigma(648) (E-QTM-0117). The fear beat is the only non-Clifford step
 // (E-QTM-0118), and on two roles it reaches all of su(9) (E-QTM-0101). Color is a property of ONE role, a triplet, so the
 // question is the group in SU(3) that the links and the fear beat's one-role images generate.

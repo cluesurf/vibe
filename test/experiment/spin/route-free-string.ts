@@ -1,4 +1,4 @@
-// A STRING WITH NO ROUTE RECORD (E-SPN-0131). note/research/vibe/roadmap/remaining-pieces.md, "K gated on origin too
+// A STRING WITH NO ROUTE RECORD (E-SPN-0131). note/project/vibe/roadmap/research/remaining-pieces.md, "K gated on origin too
 // (E-SPN-0128, partial)" and its diagnosis, "coherent motion needs turning that leaves no record". In the vacuum-free
 // stand-in (code/measure/frame-meson, E-SPN-0121/0123/0128) the mixed love-fear pair unbinds: after a turn the two sit
 // on orthogonal axes, the string register holds the path they took, routes that differ end in different registers and

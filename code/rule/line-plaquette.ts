@@ -1,4 +1,4 @@
-// THE PLAQUETTE MOVE ON THE ENERGY-LINE REGISTER (E-GRV-0130; note/research/vibe/roadmap/remaining-pieces.md, ideas 2
+// THE PLAQUETTE MOVE ON THE ENERGY-LINE REGISTER (E-GRV-0130; note/project/vibe/roadmap/research/remaining-pieces.md, ideas 2
 // and 3c). E-GRV-0127 found the rule's own energy lines keep Gauss exactly but form a tube on the source's husk line,
 // 98.8 percent divergence free, so summing them is not the depth. This is the one move that changes a line field's curl
 // and never its divergence: take one unit of line around a closed face.

@@ -1,6 +1,6 @@
 // The horizon with no hair (E-GRV-0113): the clock horizon of code/rule/clock-horizon with the torn links' held steps
 // taken OUT of the beat, and the horizon's pull on the rest of the mesh set by one number, the COUNT of lines that went
-// down through it (note/research/vibe/roadmap/discrete-gravity.md, "Measured, the clock horizon": "Next: a horizon with
+// down through it (note/project/vibe/roadmap/research/discrete-gravity.md, "Measured, the clock horizon": "Next: a horizon with
 // no hair"). A STAND-IN, as the torn husk is: nothing in the model makes the depth read any state (E-GRV-0071).
 //
 // THE HAIR (E-GRV-0109, 0112). A dock that joins the horizon while the lump is still filling tears its husk links, and

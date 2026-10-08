@@ -2,7 +2,7 @@
 // stream takes, so Gauss's law for the rule's energy holds exactly with nothing placed after beat 0. If that is the
 // gravitational source, the depth should now FOLLOW from the rule: the husk column sums of the dragged lines around a
 // seeded lump, averaged over time, should carry the static step field E-GRV-0090 holds for a placed lump of the same
-// content. note/research/vibe/roadmap/discrete-gravity.md, Part 5e.
+// content. note/project/vibe/roadmap/research/discrete-gravity.md, Part 5e.
 //
 // WHAT IS COMPARED. Link by link the two cannot agree (the dragged lines follow the vibes' paths, the placed lines a
 // routing), and only one part of a link field is unique: the part fixed by its divergence. On the husk (code/measure/

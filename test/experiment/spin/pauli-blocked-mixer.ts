@@ -1,4 +1,4 @@
-// A PAULI-BLOCKED FRAME MIXER ON A FILLED-FRAME VACUUM (E-SPN-0130). note/research/vibe/roadmap/remaining-pieces.md,
+// A PAULI-BLOCKED FRAME MIXER ON A FILLED-FRAME VACUUM (E-SPN-0130). note/project/vibe/roadmap/research/remaining-pieces.md,
 // "Six angles on 3d motion" and "A string-gated line mixer (E-SPN-0121)": every line mixer added so far cascades the
 // working vacuum, because the vacuum's own vibes pass its gate. THE IDEA (the Dirac sea): a FERMIONIC mixer, second-
 // quantized with the knit's fermion sign, leaves a completely filled or completely empty set of modes alone up to a

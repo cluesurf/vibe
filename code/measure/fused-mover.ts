@@ -1,5 +1,5 @@
 // FUSED MOVERS (E-SPN-0125, X-cube fusion). Readings for the question of
-// note/research/vibe/roadmap/remaining-pieces.md, "Six angles on 3d motion", angle 2: in the X-cube model lineons
+// note/project/vibe/roadmap/research/remaining-pieces.md, "Six angles on 3d motion", angle 2: in the X-cube model lineons
 // along x and y fuse into one that moves along z, because their creation operators compose. The {3,4,3,4} mesh's 12
 // line classes come from the D4 roots, and roots add to roots, so could a set of singles at one dock act, under the
 // bounce K = w_P, like one excitation on the line a + b (or another line), and translate along a line none of them

@@ -3,7 +3,7 @@
 // kept its links flat for that reason, leaving color, Gauss's law, the start-picked rungs and the SU(2)+ gauge field of
 // the Higgs row unread. This file builds the SU(2)+ link field E-FRC-0268 said R* lacks, 2T acting on half + of the
 // register by right multiplication, and asks whether it makes the register member heavy. The derivation is
-// note/research/vibe/roadmap/remaining-pieces.md, "A curved link field that keeps the member light".
+// note/project/vibe/roadmap/research/remaining-pieces.md, "A curved link field that keeps the member light".
 //
 // DERIVED BEFORE THE RUN (code/measure/register-link-field).
 // 1. WHY 0161'S MEMBER WAS HEAVY (L1). Its lightest level is m = pi/2 - arcsin(sin(theta/2) lambda_top), lambda_top the TOP

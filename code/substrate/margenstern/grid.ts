@@ -14,7 +14,7 @@
 // verified correct (children counts, growth, and routing all check against the geometry), and it generalizes to
 // every dimension for free, the geometry engine does the dimension-specific work. Margenstern proves addresses
 // exist up to 4D (the geometric ceiling, there is no regular hyperbolic honeycomb in 5D), with the navigation
-// language no longer regular past 2D. See note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md
+// language no longer regular past 2D. See note/project/vibe/archive/theory-v0.8.0/plans/hyperrogue-port-roadmap.md
 // and the splitting-method notes (land/text/papers/maurice-margenstern/notes).
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'

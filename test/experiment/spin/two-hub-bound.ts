@@ -1,4 +1,4 @@
-// CAN A BOUND TWO-HUB COMPOSITE MOVE AS A UNIT (E-SPN-0120)? note/research/vibe/roadmap/remaining-pieces.md, "The star
+// CAN A BOUND TWO-HUB COMPOSITE MOVE AS A UNIT (E-SPN-0120)? note/project/vibe/roadmap/research/remaining-pieces.md, "The star
 // theorem (E-SPN-0119)": a composite whose lines all pass through one dock is pinned at every order, and two unbound hubs
 // one diagonal apart set off a K-cascade that fills the box. That cascade is the only route left inside the rule for a
 // composite to move off its lines. The question here: when a Z3-neutral two-hub set is joined by the drift cost's

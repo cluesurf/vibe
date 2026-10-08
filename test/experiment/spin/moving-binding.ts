@@ -2,7 +2,7 @@
 // ITS ENERGY? (E-SPN-0112)
 // E-SPN-0111 found the held trio contact bound: 2.2 docks across at every D 3 to 6, R = (m*/E_rest)/(tan m/m) 4.2 to
 // 5.1, and light loves (n 2) unbound. A wide, covariant composite needs a binding that is not the full-dock contact.
-// note/research/vibe/roadmap/remaining-pieces.md, section 1, "1a, the looser string" (as corrected by E-SPN-0111),
+// note/project/vibe/roadmap/research/remaining-pieces.md, section 1, "1a, the looser string" (as corrected by E-SPN-0111),
 // ideas 1b and 1c. Two routes, one file.
 //
 // (A) THE STRING-ONLY TRIO. code/measure/coined-line-bloch's three loves on one bulk line ('fermion', flavors

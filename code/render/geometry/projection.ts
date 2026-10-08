@@ -2,7 +2,7 @@
 // truth, a point of hyperbolic space is a point on the upper sheet of the hyperboloid in Lorentzian space.
 // EVERY familiar picture (the Poincare disk, the Klein disk, the upper half-plane, the band, the Gans plane) is
 // just a different map OFF that hyperboloid. So we keep one Scene and render it in any model by choosing the
-// map, exactly like HyperRogue's applymodel. See note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md
+// map, exactly like HyperRogue's applymodel. See note/project/vibe/archive/theory-v0.8.0/plans/hyperrogue-port-roadmap.md
 // and the Hyperbolic-Honeycombs notes.
 //
 // Our Scene stores Poincare-ball coordinates (the neutral, bounded form). applyModel lifts a ball point to the

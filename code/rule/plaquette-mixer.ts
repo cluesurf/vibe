@@ -1,4 +1,4 @@
-// THE CONTROLLED PLAQUETTE MIXER (E-SPN-0116; note/research/vibe/roadmap/remaining-pieces.md, section 3, "a bound pair on
+// THE CONTROLLED PLAQUETTE MIXER (E-SPN-0116; note/project/vibe/roadmap/research/remaining-pieces.md, section 3, "a bound pair on
 // crossing lines" and "the plaquette move"). E-SPN-0110 found a string's path between two lines frozen: the rule writes a
 // link's trit only where a vibe copies across it, so Gauss fixes the flux only up to closed loops and nothing changes
 // the loops. E-GRV-0130's plaquette move changed them CLASSICALLY, on expected fields, and spread the string. This is the

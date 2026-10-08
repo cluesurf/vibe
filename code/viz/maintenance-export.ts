@@ -6,7 +6,7 @@
 // rule. One is MAINTAINED, the will restores the region to its identity each beat (P171's mechanism, a
 // balanced rewrite, so it never floods). The other is left alone. The maintained self keeps its identity,
 // the unmaintained one dissolves into the churn (P159). A local patch of cells (the self plus its surround)
-// is projected to flat 2D for viewing. See note/research/vibe/notes/what-counts-as-a-self.md.
+// is projected to flat 2D for viewing. See note/project/vibe/research/notes/what-counts-as-a-self.md.
 //
 // Honest scope, the region is a controlled probe (placed, as in the experiment), not an emergent self, and
 // the maintenance is the will rewriting the balanced identity. The dynamics, the conservation, and the

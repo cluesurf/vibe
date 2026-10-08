@@ -1,4 +1,4 @@
-// Section 4 of note/research/vibe/roadmap/remaining-pieces.md, the open piece E-GRV-0125 left: its coupling was
+// Section 4 of note/project/vibe/roadmap/research/remaining-pieces.md, the open piece E-GRV-0125 left: its coupling was
 // CHOSEN (linearized general relativity) and its 6 extras were held by Rocek and Williams' result, not the model's.
 // Can the rule's own bookkeeping symmetry pick the coupling, as Fierz and Pauli's uniqueness does in the continuum?
 //

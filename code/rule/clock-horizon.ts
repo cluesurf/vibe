@@ -1,5 +1,5 @@
 // The clock horizon (E-GRV-0111, 0112): the torn husk of code/rule/horizon-husk with its horizon joined by a bound on the
-// CLOCK instead of the FIELD (note/research/vibe/roadmap/discrete-gravity.md, "Why sqrt(M), and the fix: bound the clock,
+// CLOCK instead of the FIELD (note/project/vibe/roadmap/research/discrete-gravity.md, "Why sqrt(M), and the fix: bound the clock,
 // not the field"). A STAND-IN, as the torn husk is: nothing in the model makes the depth read any state (E-GRV-0071).
 //
 // THE CRITERION. E-GRV-0108 joins a husk dock to the horizon when all 18 of its husk links carry a content line: a bound

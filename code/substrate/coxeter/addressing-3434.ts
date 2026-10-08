@@ -14,7 +14,7 @@
 // the confluence (a cell reachable as a child of more than one shell-(k-1) cell). Shells start
 // 1, 24, 456, 8376, degree is 24 (the 24-cell D4 coin).
 //
-// See note/research/vibe/notes/theory-v0.6.0/addressing-3434-plan.md and addressing-3434-results.md.
+// See note/project/vibe/archive/theory-v0.6.0/addressing-3434-plan.md and addressing-3434-results.md.
 
 import {
   buildCellGraph,

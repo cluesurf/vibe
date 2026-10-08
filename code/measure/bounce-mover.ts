@@ -1,5 +1,5 @@
 // A COMPOSITE HELD BY BOUNCE MEETINGS AT A HUB (E-SPN-0118). A STAND-IN for the question of
-// note/research/vibe/roadmap/remaining-pieces.md, "Parallel lineons, and the bounce that changes lines" (E-SPN-0117):
+// note/project/vibe/roadmap/research/remaining-pieces.md, "Parallel lineons, and the bounce that changes lines" (E-SPN-0117):
 // the bounce K fires only on a dock holding two or more singles and carries vibes between lines, so can a composite
 // held by repeated K meetings move in 3d?
 //

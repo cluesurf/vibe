@@ -1,4 +1,4 @@
-// THE DOCK-WIDE PAULI-BLOCKED MIXER (E-SPN-0140). note/research/vibe/roadmap/remaining-pieces.md, "Gravity's sign and the
+// THE DOCK-WIDE PAULI-BLOCKED MIXER (E-SPN-0140). note/project/vibe/roadmap/research/remaining-pieces.md, "Gravity's sign and the
 // mixer's cone (E-GRV-0144, E-SPN-0136)": the frame mixer of E-SPN-0130 moves a hole only among its frame's 4 lines, so
 // even massless its velocity reaches only 0.5 c along other frames' roots. The fix proposed there: a fermionic mixer over
 // ALL 24 slots of a dock, M = exp(i theta N_U), U uniform. On the love sea every dock is full, so M is a phase there; a

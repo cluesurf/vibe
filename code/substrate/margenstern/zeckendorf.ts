@@ -3,7 +3,7 @@
 // unique sum of non-consecutive Fibonacci numbers, written as a binary word with no two adjacent 1s. That word
 // IS the tile's address, and the whole point is exactness, these are integers, so dedup and identity never
 // drift the way a floating-point cell center does. See
-// note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md and the splitting-method notes.
+// note/project/vibe/archive/theory-v0.8.0/plans/hyperrogue-port-roadmap.md and the splitting-method notes.
 
 // the Fibonacci basis used for Zeckendorf, F1=1, F2=2, F3=3, F4=5, F5=8, ... (the "no two consecutive" basis,
 // which omits the ordinary-Fibonacci leading 1 so the representation is unique)

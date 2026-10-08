@@ -5,7 +5,7 @@
 // the leftmost / rightmost branch tiles crossing into the adjacent quarter and the four roots forming the
 // central ring. This is exactly the pentagrid, verified, the pure-arithmetic graph is 5-regular, symmetric, and
 // has the same ball growth (1, 5, 15, 40, 105, 275, 720) as the geometry. See
-// note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md and the splitting-method notes.
+// note/project/vibe/archive/theory-v0.8.0/plans/hyperrogue-port-roadmap.md and the splitting-method notes.
 
 import {
   father,

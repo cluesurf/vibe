@@ -1,5 +1,5 @@
 // IS THE FRAME THE HIGGS? (E-FRC-0277, the first route of "G · the Higgs mechanism" in
-// note/research/vibe/roadmap/routes/matter-forces-numbers.md, and decision 1 in gaps.md). Nothing breaks SU(2)+
+// note/project/vibe/roadmap/research/routes/matter-forces-numbers.md, and decision 1 in gaps.md). Nothing breaks SU(2)+
 // (E-FRC-0268): every gauge-invariant operator holds an even number of half + fields, because the center of SU(2)+ acts
 // as -J (E-FRC-0273), so a Higgs needs a scalar odd under that center, and the rule has none. The route, from Nesti and
 // Percacci's graviweak unification: a slot direction is a 4-vector, the (2, 2) of the two SU(2)s; right multiplication by

@@ -1,5 +1,5 @@
 // Render EVERY tessellation in the catalog to a PNG, the full strut-wireframe gallery. Reads the canonical
-// list at note/research/vibe/notes/theory-v0.7.0/paper/tessellations.csv, builds each buildable symbol with
+// list at note/project/vibe/tessellations.csv, builds each buildable symbol with
 // the upright orientation (a vertex up for an odd-sided cell, a flat side up for an even-sided cell), draws
 // true geodesic arcs in the Poincare disk (2D) or ball (3D, with the higher dimensions projected), and
 // writes make/render/tessellations/<symbol>.png. Run: pnpm tsx code/render/run/tessellations.ts
@@ -22,11 +22,7 @@ const csvPath = join(
   '..',
   '..',
   '..',
-  'note',
-  'research',
-  'vibe',
-  'notes',
-  'tessellations.csv',
+  'note/project/vibe/tessellations.csv',
 )
 
 const outDir = join(

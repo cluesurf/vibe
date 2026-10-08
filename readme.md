@@ -633,7 +633,7 @@ realizes.
    ([`E-GRV-0143`](test/experiment/gravity/bulk-slide-depth.ts)). Left:
    the warp, the radion's stabilization and brane bending
 
-The full record is note/research/vibe/roadmap/remaining-pieces.md and
+The full record is note/project/vibe/roadmap/research/remaining-pieces.md and
 discrete-gravity.md in the ClueSurf notes.
 
 **Where the previous readme read otherwise.** It gave gravity as solved: the

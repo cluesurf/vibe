@@ -4,7 +4,7 @@
 // passes through it (the Klein effect; a split love turns round only with sin(pi/(3n))). What confines a light Dirac
 // particle is a scalar potential, one that raises its mass. The proposal: on a dock where a love's link carries nonzero
 // flux (inside the string) the love takes the heavy coin w (mass pi/3), elsewhere the fine coin zeta (mass pi/(3n)). The
-// flux trit is already carried, so nothing new is stored. note/research/vibe/roadmap/discrete-gravity.md, "Measured, the
+// flux trit is already carried, so nothing new is stored. note/project/vibe/roadmap/research/discrete-gravity.md, "Measured, the
 // contact restored (E-SPN-0108 fail on F1): the Klein effect".
 //
 // THE RULE, DERIVED BEFORE ANY RUN (code/rule/fine-coin header, `heavy` and bagHeavy; code/rule/bound-line-pieces

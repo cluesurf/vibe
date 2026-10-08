@@ -1,5 +1,5 @@
 // A LARGER LINK GROUP, OR A WILSON LINE TO THE SCREEN? (E-FRC-0279, routes 3 and 4 of "G · the Higgs mechanism" in
-// note/research/vibe/roadmap/routes/matter-forces-numbers.md, OPEN-WKF-03, decision 1 in gaps.md). Nothing breaks SU(2)+
+// note/project/vibe/roadmap/research/routes/matter-forces-numbers.md, OPEN-WKF-03, decision 1 in gaps.md). Nothing breaks SU(2)+
 // (E-FRC-0268). The center of each dock's 2T acts as -J (E-FRC-0273), a link is odd under it at both ends, so every
 // gauge-invariant operator holds an even number of half + fields, and a Higgs needs a scalar odd under that center.
 // E-FRC-0277 closed "the frame is the Higgs" as a reading of the rule. This file runs the two routes left that could

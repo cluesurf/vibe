@@ -3,7 +3,7 @@
 // Coxeter group) and the canonical Minkowski math, and adds only what drawing needs, the cell shape, the
 // upright orientation, the ball projection, and edge dedup. The SAME path makes a 2D tiling ({7,3}) and a 3D
 // honeycomb ({5,3,4}), reading the dimension from the frame. See
-// note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
+// note/project/vibe/archive/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
 
 import type { Scene, SceneEdge } from '@/code/render/scene'
 import {

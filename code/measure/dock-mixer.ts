@@ -1,4 +1,4 @@
-// THE DOCK-WIDE PAULI-BLOCKED MIXER (E-SPN-0140). note/research/vibe/roadmap/remaining-pieces.md, "Gravity's sign and
+// THE DOCK-WIDE PAULI-BLOCKED MIXER (E-SPN-0140). note/project/vibe/roadmap/research/remaining-pieces.md, "Gravity's sign and
 // the mixer's cone": E-SPN-0130's fermionic mixer acts on one frame (8 slots), so a hole moves only among its frame's
 // four lines, and E-SPN-0136 found its group velocity confined to that frame's cross-polytope (0.5 c along other
 // frames' roots). The fix proposed there: mix all 24 slots of a dock. On a love sea every dock is full, so a fermionic

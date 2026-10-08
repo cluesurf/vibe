@@ -1,5 +1,5 @@
 // sin^2(theta_W) FROM A TRACE OVER THE REGISTER (E-FRC-0280, the route "sin²θ from a trace" in
-// note/research/vibe/roadmap/routes/matter-forces-numbers.md, section "the weak force" row at line 522, and its echo "the
+// note/project/vibe/roadmap/research/routes/matter-forces-numbers.md, section "the weak force" row at line 522, and its echo "the
 // trace over the register" at line 772 of section "O · sin²θ_W"). The route: at a unification point sin^2(theta_W) =
 // Tr(T3^2) / Tr(Q^2) over every charged mode; the register's modes carry SU(2)+ isospin and the charge (love - fear) / 3,
 // so the ratio is an exact count over the rule's own content, not 3/8 by assumption. Its kill, in its own words: "the

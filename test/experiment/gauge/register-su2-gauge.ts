@@ -2,7 +2,7 @@
 // half + of the register by right multiplication and found that it keeps the member light. E-FRC-0268 left SU(2)+ as a
 // global symmetry with no gauge field, and E-FND-0159 found the vacuum cannot be selected without a piece that reads
 // isospin and a two-body channel joining the register halves. This file reads what the field newly allows, without
-// forcing any of it. The derivation is note/research/vibe/roadmap/remaining-pieces.md, "A curved link field that keeps the
+// forcing any of it. The derivation is note/project/vibe/roadmap/research/remaining-pieces.md, "A curved link field that keeps the
 // member light", "What it could newly allow".
 //
 // DERIVED BEFORE THE RUN (code/measure/register-link-field, code/measure/hurwitz-gauge).

@@ -1,4 +1,4 @@
-// WHAT THE CANDIDATE RULE FOR 3D MOTION BREAKS (E-SPN-0134), an audit. note/research/vibe/roadmap/remaining-pieces.md,
+// WHAT THE CANDIDATE RULE FOR 3D MOTION BREAKS (E-SPN-0134), an audit. note/project/vibe/roadmap/research/remaining-pieces.md,
 // "The link holonomy (E-SPN-0132)": the candidate rule is FLAT links, a filled LOVE SEA as the vacuum, and E-SPN-0130's
 // fermionic frame mixer. A hole then moves freely and isotropically in 3d with the vacuum inert. Before it is adopted:
 // which registered results depend on the working links' curvature, and which assume the working, partly filled vacuum.

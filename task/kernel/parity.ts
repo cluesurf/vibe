@@ -31,7 +31,7 @@
 // is checked against the same bytes. The one exception to "the same bytes" is a NaN, hashed as the canonical quiet NaN
 // (see bytesOf), since x86-64 and arm64 make different NaNs from the same arithmetic.
 //
-// CROSS-PLATFORM, what the golden files can and cannot promise (note/research/vibe/kernel.md): the reference's Math.sin,
+// CROSS-PLATFORM, what the golden files can and cannot promise (note/project/vibe/kernel.md): the reference's Math.sin,
 // cos, atan, atan2, exp, log and pow are V8's fdlibm compiled per platform, and the arm64 build fuses multiply-adds
 // (clang's default contraction) where the x86-64 build cannot, so they differ in the last bit on about 1 input in 100.
 // Files written on arm64 fail on x86-64 wherever a case's tables meet such an input: E-SPN-0178 and E-SPN-0179 here, the

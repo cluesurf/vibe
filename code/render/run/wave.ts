@@ -3,7 +3,7 @@
 // texture, reads the pixels back, and writes a PNG, all in Node, no browser. This is the headless
 // visualization path, the same WGSL also drives the live browser viz.
 // Run: pnpm tsx code/gpu/render-wave.ts   (after `pnpm add webgpu`)
-// See note/plan/vibe-webgpu-billion-cell-sim.md.
+// See note/project/vibe/vibe-webgpu-billion-cell-sim.md.
 
 import { create, globals } from 'webgpu'
 import zlib from 'node:zlib'

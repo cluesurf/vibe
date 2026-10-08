@@ -1,4 +1,4 @@
-// CAN A BOUND COMPOSITE MOVE OFF A LINE (E-SPN-0110)? note/research/vibe/roadmap/remaining-pieces.md section 3, ideas
+// CAN A BOUND COMPOSITE MOVE OFF A LINE (E-SPN-0110)? note/project/vibe/roadmap/research/remaining-pieces.md section 3, ideas
 // 3a (loves on crossing lines) and 3b (isotropy from the line classes).
 //
 // DERIVED BEFORE THE RUN.

@@ -1,6 +1,6 @@
 // A membrane horizon with ONE counter for its whole surface, grown stage by stage (E-GRV-0135). E-GRV-0131 carried
 // every torn value onto its NEAREST surface dock's counter and found an exact area law, with two caveats
-// (note/research/vibe/roadmap/remaining-pieces.md, 7, the membrane horizon): (a) the bound was enforced per dock, so a
+// (note/project/vibe/roadmap/research/remaining-pieces.md, 7, the membrane horizon): (a) the bound was enforced per dock, so a
 // compact deep infall piled on a few docks and was refused at 4 percent of the surface's capacity; (b) the horizon was
 // placed at each M, not formed. HYPOTHESIS: reading the whole surface as one mixed-radix number removes (a) exactly, and
 // the same push, applied at each join of a horizon that grows with its lump, keeps (b)'s horizon exact, reversible and

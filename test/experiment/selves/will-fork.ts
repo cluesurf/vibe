@@ -1,5 +1,5 @@
 // P98: the will and delayed gratification, the fork. (Stage 6 of the unfolding,
-// see note/research/vibe/notes/unfolding-experiment-plan.md and how-the-will-works.md.)
+// see note/project/vibe/idea/unfolding-experiment-plan.md and how-the-will-works.md.)
 //
 // A self stands at a fork: a SMALL pleasure right now, or a BIG pleasure reached only by enduring a
 // valley of pain or peace. The mechanics are exactly those of how-the-will-works.md:

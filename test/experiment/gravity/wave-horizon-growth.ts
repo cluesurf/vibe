@@ -3,7 +3,7 @@
 // as a reversible wave (code/rule/wave-horizon). Is the horizon continuous (no runaway) and bald (the settled field
 // outside forgets the growth order)?
 //
-// WHY (note/research/vibe/roadmap/discrete-gravity.md, "Measured, the no-hair horizon"). Held tears (E-GRV-0112) keep a
+// WHY (note/project/vibe/roadmap/research/discrete-gravity.md, "Measured, the no-hair horizon"). Held tears (E-GRV-0112) keep a
 // torn dock's step: hair, the settled field 36 percent off the placed lump's. Count tears (E-GRV-0113) are bald but
 // each is a jolt; with no damping the overshoot pushes the next ring past the cap and the horizon runs away (2,154 docks
 // against 779, the field 283 percent off). And E-GRV-0113's two orders could not tell hair apart: the held rule agreed

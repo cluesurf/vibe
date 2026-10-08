@@ -2,7 +2,7 @@
 // coloring that repeats coherently across the tiling because it is read off the tile's ADDRESS, not its
 // position, so the same rule paints every congruent cell the same way. These labels drive coherent face
 // colorings and give the cellular-automaton capstone its symmetry classes. See
-// note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
+// note/project/vibe/archive/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
 
 import type { MargensternGrid } from '@/code/substrate/margenstern/grid'
 

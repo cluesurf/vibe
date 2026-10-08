@@ -5,7 +5,7 @@
 // table by expanding every rule across its rotations, checking there are no conflicts, and stepping a graph.
 // The per-paper rule data and the rotation shape (how many neighbours and how a rotation permutes them) live in
 // the data modules (margenstern-pentagrid*.ts, margenstern-heptagrid.ts). See
-// land/text/papers/maurice-margenstern and note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
+// land/text/papers/maurice-margenstern and note/project/vibe/archive/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
 
 export type MargensternCa = {
   readonly name: string

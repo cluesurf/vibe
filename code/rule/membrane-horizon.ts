@@ -1,5 +1,5 @@
 // The membrane tear (test/experiment/gravity/membrane-horizon-entropy): a horizon whose interior holds no state of its
-// own. note/research/vibe/roadmap/remaining-pieces.md, 7, "What an area law would need": when a link tears, its value
+// own. note/project/vibe/roadmap/research/remaining-pieces.md, 7, "What an area law would need": when a link tears, its value
 // is carried, exactly and reversibly, onto a bounded counter on the nearest SURFACE dock, so the only registers nothing
 // outside reads are the surface's. A STAND-IN, as the torn husk is (code/rule/horizon-husk, code/rule/count-horizon):
 // nothing in the model makes the depth read any state (E-GRV-0071).

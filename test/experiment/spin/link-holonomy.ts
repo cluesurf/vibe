@@ -1,5 +1,5 @@
 // THE LINKS' POINT MOVES ARE CURVATURE, AND THE WORKING BEAT READS THEM ONLY AT A LIKE MEETING (E-SPN-0132).
-// note/research/vibe/roadmap/remaining-pieces.md, "The Pauli-blocked mixer (E-SPN-0130)": with FLAT links a filled love
+// note/project/vibe/roadmap/research/remaining-pieces.md, "The Pauli-blocked mixer (E-SPN-0130)": with FLAT links a filled love
 // sea and the fermionic frame mixer let a lone hole move freely in 3d (inverse mass tensor isotropic to 3e-9); on the
 // working links the stream's point moves split the sea's points, so a hole's frame is rarely one content. Two questions
 // were left:

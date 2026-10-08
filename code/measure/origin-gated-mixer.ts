@@ -1,4 +1,4 @@
-// THE ORIGIN-GATED LINE MIXER (E-SPN-0123). note/research/vibe/roadmap/remaining-pieces.md, "Six angles on 3d motion",
+// THE ORIGIN-GATED LINE MIXER (E-SPN-0123). note/project/vibe/roadmap/research/remaining-pieces.md, "Six angles on 3d motion",
 // angle 4. E-SPN-0121's string-gated mixer keeps the vacuum but cascades: where matter blocks the vacuum's pairs the
 // stream leaves vacuum vibes unpaired, and its gate (one single, a lone frame, string on the frame's links) cannot tell
 // those from matter. The change here adds ONE STORED FACT to the rule: every vibe carries a trit ORIGIN, and the mixer

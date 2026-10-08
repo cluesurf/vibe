@@ -1,5 +1,5 @@
 // A HOLDING MAP FOR THREE HOLES ON THE SLAB: WHERE, IN STRING TENSION AND MIXER ANGLE, DOES THE COMPOSITE HOLD
-// (E-SPN-0139)? note/research/vibe/roadmap/remaining-pieces.md, "Three holes on a 2d slab (E-SPN-0135)", "The
+// (E-SPN-0139)? note/project/vibe/roadmap/research/remaining-pieces.md, "Three holes on a 2d slab (E-SPN-0135)", "The
 // Pauli-blocked mixer (E-SPN-0130)", "1, the joint limit (E-SPN-0113)"; discrete-gravity.md, the Klein note under
 // "the contact restored (E-SPN-0108)" and "the string sets the coin (E-SPN-0109)". E-SPN-0135 found three holes bound
 // by the route-free Steiner string at pi/7 a link unbind under the frame mixer at every angle down to 14 deg. The lead:

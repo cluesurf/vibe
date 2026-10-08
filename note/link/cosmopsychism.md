@@ -61,4 +61,4 @@ fixed: the base substance, the direction selves are made, a definite whole that 
 
 - [../triangulating-invariants.md](../triangulating-invariants.md), the method and the full list of recurring invariants across theories.
 - [readme.md](readme.md), the index of every theory map.
-- Fuller by-author treatment: `deck/note/base/substack.com/philipgoff/notes/` and the author bridge at `note/research/vibe/v1.1.0/author-bridges/philip-goff.md`.
+- Fuller by-author treatment: `deck/note/base/substack.com/philipgoff/notes/` and the author bridge at `note/project/vibe/research/v1.1.0/author-bridges/philip-goff.md`.

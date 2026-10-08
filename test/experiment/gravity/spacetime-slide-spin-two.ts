@@ -1,4 +1,4 @@
-// The two open pieces E-GRV-0138 left (note/research/vibe/roadmap/remaining-pieces.md, "Spin 2 from the rule's own
+// The two open pieces E-GRV-0138 left (note/project/vibe/roadmap/research/remaining-pieces.md, "Spin 2 from the rule's own
 // symmetry"): its static slide fixed the metric coupling to linearized Einstein-Hilbert but left the 6 extras
 // dynamical and the kinetic term free (the TT polarizations' squared speeds 2.5 apart with equal inertia per class).
 // Two ideas, both fixed before computing:

@@ -3,7 +3,7 @@
 // nothing else, read on the linear statics of the warped shrinking stack (code/rule/open-husk) for three stack depths
 // under two warps and four boxes.
 //
-// WHY (note/research/vibe/roadmap/discrete-gravity.md, "Measured, the clock horizon" and E-GRV-0114). The slope is 0.64
+// WHY (note/project/vibe/roadmap/research/discrete-gravity.md, "Measured, the clock horizon" and E-GRV-0114). The slope is 0.64
 // to 0.74 on boxes of side 24 to 48 and 0.88 on the infinite stack. The argument: the box costs part (the reference is
 // only 21 to 42 docks away) and the massive modes (lightest mass 0.141, range 7.1) the rest, since they make the depth
 // fall faster than 1/r near the lump. If that is the whole story, a formula with those two parts and no free number

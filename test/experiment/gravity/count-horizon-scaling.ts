@@ -2,7 +2,7 @@
 // Schwarzschild's r ~ M as the box grows and the reference dock the depth is read against moves away, read on the
 // statics of the no-hair rule (code/rule/count-horizon, code/measure/count-horizon countStatics).
 //
-// WHY (note/research/vibe/roadmap/discrete-gravity.md, "Measured, the clock horizon"). E-GRV-0111 read a log slope of
+// WHY (note/project/vibe/roadmap/research/discrete-gravity.md, "Measured, the clock horizon"). E-GRV-0111 read a log slope of
 // 0.64 for radius against M on the side-24 box, 0.76 on a side-96 statics read and 0.88 on the infinite stack, and put
 // about half the gap to 1 on the box: the reference sits 21 docks away. This file fills in the sequence at one stack
 // depth (3 layers on every box, so the stack's modes are the same and only the box moves) for the no-hair rule.

@@ -49,7 +49,7 @@
 //   environment: VIBE_DROPLET_REGION, VIBE_DROPLET_SSH_KEY, VIBE_DROPLET_IDENTITY, VIBE_WORK_HOST, VIBE_WORK_IDENTITY
 //                (and gpu-run.ts's VIBE_GPU_* names, still read)
 //
-// See note/research/vibe/kernel.md, "Running heavy jobs on a CPU droplet".
+// See note/project/vibe/kernel.md, "Running heavy jobs on a CPU droplet".
 
 import { spawn, spawnSync } from 'node:child_process'
 import { closeSync, existsSync, mkdirSync, openSync, readFileSync, writeFileSync, writeSync } from 'node:fs'

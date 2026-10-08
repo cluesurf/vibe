@@ -1,7 +1,7 @@
 // The shape of ONE cell of a tessellation, its vertices and edges in the Coxeter frame, independent of where
 // the cell sits in the tiling. A cell placed by an isometry g draws its vertices as toPoincare(g * vertex).
 // Pulled out of honeycomb.ts so both the all-cells gallery renderer and the virtualized walking camera build
-// the cell shape the same way (DRY). See note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
+// the cell shape the same way (DRY). See note/project/vibe/archive/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
 
 import {
   coxeterCellFrame,

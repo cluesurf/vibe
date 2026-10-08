@@ -1,4 +1,4 @@
-// DOCKS BORN A BEAT PER VOLUME UNDER REGISTER GROWTH (E-CSM-0063), route H12b (note/research/vibe/roadmap/routes/
+// DOCKS BORN A BEAT PER VOLUME UNDER REGISTER GROWTH (E-CSM-0063), route H12b (note/project/vibe/roadmap/research/routes/
 // gravity-cosmos-heat-classical.md, H · the cosmological constant): "Λ as an integration constant: if each beat adds a
 // fixed number of docks per unit of husk volume, the volume element is fixed, which is unimodular gravity, where Λ is
 // not a vacuum energy but a constant of integration." Test, in the route's words: "read the docks born a beat per husk

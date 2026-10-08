@@ -2,7 +2,7 @@
 // E-SPN-0107's fine coin (zeta = e^(2 pi i/(3n))) makes a lone love light (m*/E_rest 1.006, top speed 0.991 at n = 8),
 // but it also turns a full dock's det C from w to zeta, and no three-love level held at n >= 2. E-SPN-0104's level sits
 // 92 percent on full docks, whose phase (det C times the meeting's w) is the contact that bound it. This separates the
-// mass from the contact. note/research/vibe/roadmap/discrete-gravity.md, "Measured, a light walk (E-SPN-0107 ...)".
+// mass from the contact. note/project/vibe/roadmap/research/discrete-gravity.md, "Measured, a light walk (E-SPN-0107 ...)".
 //
 // THE CORRECTION, DERIVED (code/rule/fine-coin header, `fullDock`). A line holding two open vibes takes det C: w under
 // the working coin, zeta under the fine coin. The full-dock correction is the diagonal phase

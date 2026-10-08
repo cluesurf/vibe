@@ -1,5 +1,5 @@
 // The bounded depth field, static (E-GRV-0090): can the radion's gravity (E-GRV-0079) be held with no unbounded register
-// anywhere, the depth FOUND by summing steps rather than stored (note/research/vibe/roadmap/discrete-gravity.md, 5c)?
+// anywhere, the depth FOUND by summing steps rather than stored (note/project/vibe/roadmap/research/discrete-gravity.md, 5c)?
 //
 // THE CONSTRUCTION: code/rule/step-depth (its header gives every design choice and what was rejected), measured by
 // code/measure/step-depth. Per husk link: a line trit f (content's lines of force, Gauss exact) and a step F (the depth's

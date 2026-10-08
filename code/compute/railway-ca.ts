@@ -11,7 +11,7 @@
 // head is the tail A, not clear track), the head becomes the tail, and the tail clears. Switches route and
 // update from their own port labels. The track topology and switch placement are the (structured, infinite)
 // initial configuration, exactly the weakly-universal setting. See
-// note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
+// note/project/vibe/archive/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
 
 export type RailDyn = 'empty' | 'C' | 'H' | 'A' // empty space, clear track, head, tail
 export type SwitchType = 'fix' | 'flip-flop' | 'memory'

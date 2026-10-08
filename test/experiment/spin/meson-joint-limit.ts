@@ -3,7 +3,7 @@
 // at fine n = 1 with R = (m*/E_rest)/(tan m/m) 1.186 to 1.018, at n = 2 held at D 20 and 30 (R 1.010, 1.008), and at
 // n = 4 held at no D up to 30 (the D 30 ground has span 18). The walk's factor tan m/m goes to 1 as n grows, so the
 // TOTAL m*/E_rest should go to 1 on a joint path where D grows faster than n. This file derives how much faster and
-// runs that path. note/research/vibe/roadmap/remaining-pieces.md, "1b and 1c".
+// runs that path. note/project/vibe/roadmap/research/remaining-pieces.md, "1b and 1c".
 //
 // THE DERIVATION (stated before any gate was read). Two walkers of rest energy m = pi/(3n) (the half gap of the fine
 // walk) and inertia tan m, bound by sigma |d| with sigma = pi/N, N = 2D + 1. Two conditions hold a level.

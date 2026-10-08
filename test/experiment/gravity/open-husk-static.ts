@@ -1,6 +1,6 @@
 // The open husk, static (E-GRV-0094): the bounded depth field of E-GRV-0090 with the husk made the boundary of a bulk
 // that grows below it, so content lines end by going down and no sink is placed by hand
-// (note/research/vibe/roadmap/discrete-gravity.md, Parts 5c.1 and 5d 1b).
+// (note/project/vibe/roadmap/research/discrete-gravity.md, Parts 5c.1 and 5d 1b).
 //
 // THE CONSTRUCTION: code/rule/open-husk (its header gives the bulk and every choice), measured by
 // code/measure/open-husk. The husk is E-GRV-0090's, unchanged: side 12, nine out-links a dock, a line trit and a step

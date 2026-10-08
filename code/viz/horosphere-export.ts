@@ -1,6 +1,6 @@
 // Horosphere export: the real {5,3,4} does the computing, the horosphere gives the flat picture.
 //
-// The faithful selves pipeline (note/research/vibe/notes/visualizing-the-selves.md, what-is-a-self.md,
+// The faithful selves pipeline (note/project/vibe/research/notes/visualizing-the-selves.md, what-is-a-self.md,
 // 04-life.md). The cohesive perception rule (the P106 rule, a charge hops toward where it has MORE
 // same-sign neighbours, conserving) runs on the genuine hyperbolic {5,3,4} crystal. We then take a
 // HOROSPHERE slice (a flat Busemann level set, P142), project its cells to flat 2D (perpendicular to the

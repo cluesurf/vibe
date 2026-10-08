@@ -6,7 +6,7 @@
 // least 0.99: a light meson's band turns fast across such a step (overlap 0.987, 0.951, 0.827 at n 4, 8, 16). A
 // post-run probe (tmp/meson2-probe2.log, no gate) found the overlap at steps pi/128 .. pi/512 rises to 0.998 at n 4
 // and 8 and 0.984 at n 16. This file is the clean rerun: the step is DERIVED from the level's own physics before any
-// gate is read, and every gate and control is fixed here. note/research/vibe/roadmap/remaining-pieces.md, "1".
+// gate is read, and every gate and control is fixed here. note/project/vibe/roadmap/research/remaining-pieces.md, "1".
 //
 // THE READING RULE (fixed before the first run of this file).
 //  THE STEP. A band's block vector turns in K at its quantum metric g: |<psi(K)|psi(K + dK)>| = 1 - g dK^2/2. Two

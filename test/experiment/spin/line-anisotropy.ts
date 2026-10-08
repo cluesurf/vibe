@@ -1,5 +1,5 @@
 // IF MATTER MOVES ONLY ALONG THE 12 LINE CLASSES, WHAT DOES THE 3D DISPERSION PREDICT, AND IS IT ALREADY EXCLUDED
-// (E-SPN-0126)? note/research/vibe/roadmap/remaining-pieces.md, "Six angles on 3d motion", angle 6 ("accept it as a
+// (E-SPN-0126)? note/project/vibe/roadmap/research/remaining-pieces.md, "Six angles on 3d motion", angle 6 ("accept it as a
 // prediction"), and section 3b (E-SPN-0110): a 3d state is an average over the twelve line classes.
 //
 // DERIVED BEFORE THE RUN (code/measure/line-anisotropy, header).

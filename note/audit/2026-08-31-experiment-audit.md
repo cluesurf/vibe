@@ -72,7 +72,7 @@ control. The full post-fix run is recorded in the roadmap's `state.md`
 ## What is left
 
 Tracked as checklist items in the monorepo roadmap
-(`note/research/vibe/roadmap/project/experiment-audit.json`):
+(`note/project/vibe/roadmap/experiment-audit/checklist.json`):
 consolidating the six walk copies onto the shared stepper with
 bit-identical proof (0007), the arena readmes (0009), the post-fix run
 record (0010), size perturbation of the 50 L3s (0012), the

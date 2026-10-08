@@ -1,7 +1,7 @@
 // A1: the content-addressable memory core works on the {3,4,3,4} bulk. Store a distinct word on every cell,
 // query each by exact content, and every query returns its one cell with no false positives. This is the
 // base-layer associative search (a parallel match), compatible with the reversible rule. Plan in
-// note/research/vibe/notes/theory-v0.7.0/plans/associative-engine-architecture.md.
+// note/project/vibe/archive/theory-v0.7.0/plans/associative-engine-architecture.md.
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { makeWeyl } from '@/code/tool/weyl'

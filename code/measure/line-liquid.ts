@@ -1,4 +1,4 @@
-// THE LINE-LIQUID VACUUM AND ONE LOVE ON IT (E-SPN-0137). note/research/vibe/roadmap/remaining-pieces.md, "Six angles on
+// THE LINE-LIQUID VACUUM AND ONE LOVE ON IT (E-SPN-0137). note/project/vibe/roadmap/research/remaining-pieces.md, "Six angles on
 // 3d motion", angle 3: a vacuum whose state is a superposition over line assignments, itself invariant under the frame
 // mixer, so a mixer turning matter has nothing fixed to disturb. This file holds the two instruments the experiment
 // test/experiment/spin/line-liquid-vacuum reads.

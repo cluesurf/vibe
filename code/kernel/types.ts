@@ -1,6 +1,6 @@
 // THE KERNEL INTERFACE: the float64 primitives the heavy engines spend their time in, and the backends that run them.
 // code/kernel/
-// The profile (note/research/vibe/kernel.md) put 78 to 95 percent of the pair engines' time in ONE loop, the gathered
+// The profile (note/project/vibe/kernel.md) put 78 to 95 percent of the pair engines' time in ONE loop, the gathered
 // block convolution (code/measure/register-ball-reduced and register-reduced conv), and most of register-sea's in its
 // per-dock sector piece and its Fourier sum. Each primitive here is that loop cut at a row boundary: it computes rows
 // [0, rows) of an output, and every row is summed in the reference's exact order, so a backend that splits the rows over

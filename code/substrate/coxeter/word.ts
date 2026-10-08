@@ -4,7 +4,7 @@
 // (s_i s_i -> nothing) and braid moves (s_i s_j s_i ... -> s_j s_i s_j ..., m_ij letters), so
 // word equality is decided by pure integer combinatorics, no floating point and no rim crowding.
 // This is the exact replacement for the coordinate dedup at depth, and the normal form is a
-// canonical address for each chamber. See note/research/vibe/notes/coxeter-word-problem.md.
+// canonical address for each chamber. See note/project/vibe/research/notes/coxeter-word-problem.md.
 
 export type Word = number[]
 

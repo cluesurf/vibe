@@ -3,7 +3,7 @@
 // entire candidate space the rung ranges over, apply the one constraint the rung
 // imposes, and count the survivors. A rung is FORCED when exactly one survives (or,
 // for the census rungs, when the exact count matches). This is the register-one
-// spine of note/research/vibe/v1.1.0/primer/02-from-nothing-to-the-mesh-worked.md
+// spine of note/project/vibe/research/v1.1.0/primer/02-from-nothing-to-the-mesh-worked.md
 // turned into code: the numbers 3, 8, 24, 81, 10395, 1 are not inputs, they are what
 // the seed grows into, and here every one of them is recomputed from its candidate
 // set rather than asserted.

@@ -4,7 +4,7 @@
 // no string leaves through an absorbing layer. C* adds a role to each member and the fear beat at contact. This file asks
 // whether that breaks the return.
 //
-// THE REDUCTION, derived before the run (note/research/vibe/roadmap/remaining-pieces.md, "Roles and a tone on the
+// THE REDUCTION, derived before the run (note/project/vibe/roadmap/research/remaining-pieces.md, "Roles and a tone on the
 // register rule"). E-SPN-0178's pair is two distinguishable members, which on C* is an UNLIKE pair: one love-tone and one
 // fear-tone member. The unlike kernel V = 1 + (w - 1) Phi Phi^dag acts only at V = 0 with both members in the beat's sector,
 // and every other piece is role-blind. So the pair's role space splits into the singlet Phi and its complement:

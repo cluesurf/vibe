@@ -979,7 +979,7 @@ function matInvMod(m: IMat, p: number): IMat {
   return out
 }
 
-// A LAZY engine for {5,3,4}, the seed of the WebGPU lazy path (note/plan/vibe-webgpu-billion-cell-sim.md).
+// A LAZY engine for {5,3,4}, the seed of the WebGPU lazy path (note/project/vibe/vibe-webgpu-billion-cell-sim.md).
 // Given a cell's group matrices (mod the two primes), it computes the 12 neighbor matrices and the cell's
 // identity fingerprint ON DEMAND, with NO stored adjacency graph. Correctness is verified against
 // buildDodecagrid in P183. Honest note, carrying the 4x4 matrix is not itself a memory win (it is bigger

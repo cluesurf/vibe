@@ -9,7 +9,7 @@
 //     integer value of z(n) + "00". Every node has exactly one.
 // From these, a node's sons are CONSECUTIVE integers around the continuator (a 3-node has {c-1, c, c+1}, a
 // 2-node has {c, c+1}), and the per-level node counts grow 1, 3, 8, 21, 55 (the golden ratio squared). See
-// note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md and the splitting-method notes.
+// note/project/vibe/archive/theory-v0.8.0/plans/hyperrogue-port-roadmap.md and the splitting-method notes.
 
 import {
   toZeckendorf,

@@ -3,7 +3,7 @@
 // geometry. Read in an oriented frame instead of labels, a hop that keeps the label half flips the physical hand every
 // step, which would be a term joining the register halves (the Higgs row's missing channel, E-FRC-0273) and an
 // orientation-reading mass (the parity row's, E-FRC-0272), as in Kogut and Susskind's staggered fermions. The derivation
-// is note/research/vibe/roadmap/remaining-pieces.md, "The orientation sign as a staggered sign".
+// is note/project/vibe/roadmap/research/remaining-pieces.md, "The orientation sign as a staggered sign".
 //
 // DERIVED BEFORE THE RUN (code/measure/orientation-taste, code/measure/cusp-register, code/substrate/coxeter).
 // 1. THE FRAME CHANGE IS LOCAL. An oriented frame at each dock is f_x h_x with h_x = 1 where e = +1 and one reflection

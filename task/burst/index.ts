@@ -41,7 +41,7 @@
 // A finished job's outputs come back to the same paths here. An `append` file's NEW lines (those past its size when the
 // job started) are appended to the local file instead of replacing it. A job still running at a `down` or at the cap
 // has its outputs fetched to tmp/burst/jobs/<name>/partial/, never over the local files. See
-// note/research/vibe/compute.md.
+// note/project/vibe/compute.md.
 //
 // The DigitalOcean token is read from the environment only (DIGITALOCEAN_ACCESS_TOKEN, which doctl reads itself),
 // supplied by `term zone load cluesurf -- ...`. Nothing here reads a file for it or prints it.

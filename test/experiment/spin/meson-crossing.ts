@@ -3,7 +3,7 @@
 // only, no meeting) on the joint path D = 2 D(n) with a K step set by its own quantum metric. At rest the total
 // m*/E_rest goes to 1 (1.793 .. 1.003), but at n = 4, 8, 16 the band's consecutive overlap drops under 0.99 at ONE step,
 // K 0.244, 0.216, 0.084 (0.39, 0.69, 0.54 of E_rest), on a step whose smooth loss is a quarter of the bound: a narrow
-// crossing with another level. note/research/vibe/roadmap/remaining-pieces.md, "1", the rerun.
+// crossing with another level. note/project/vibe/roadmap/research/remaining-pieces.md, "1", the rerun.
 //
 // THE CROSSING LEVEL (code/measure/meson-crossing). Two facts, each derived before it is read.
 //  THE EXCHANGE. Love and fear enter the pair beat alike, so swapping them, (X phi)(d, j0, j1) = e^(iKd) phi(-d, j1, j0),

@@ -2,7 +2,7 @@
 // O(band) not O(bulk)), evolve it beat by beat on the GPU, and render the flat slice every beat. Because the
 // whole cell budget goes to the band, this reaches HUNDREDS OF THOUSANDS of band cells, about 100x more than
 // slicing a full bulk of the same size. Run: pnpm tsx code/gpu/render-band-anim.ts (after `pnpm add webgpu`),
-// then task/render-video.sh. See note/research/vibe/notes/horosphere-extraction-algorithms.md and the plan.
+// then task/render-video.sh. See note/project/vibe/research/notes/horosphere-extraction-algorithms.md and the plan.
 
 import { create, globals } from 'webgpu'
 import { makeWeyl } from '@/code/tool/weyl'

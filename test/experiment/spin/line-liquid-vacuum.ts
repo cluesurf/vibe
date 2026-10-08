@@ -1,4 +1,4 @@
-// A LINE-LIQUID VACUUM (E-SPN-0137). note/research/vibe/roadmap/remaining-pieces.md, "Six angles on 3d motion", angle 3.
+// A LINE-LIQUID VACUUM (E-SPN-0137). note/project/vibe/roadmap/research/remaining-pieces.md, "Six angles on 3d motion", angle 3.
 // Every added line mixer cascades (E-SPN-0094 .. 0099, 0121) because the vacuum is a fixed bundle of line pairs, so any
 // turn unpairs them. The proposal: a vacuum whose state is a superposition over line assignments, invariant under the
 // mixer, as a lattice theory's ground state is isotropic. Asked: does the working rule with a frame mixer have such a

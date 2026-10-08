@@ -1,5 +1,5 @@
 // CAN A BOUND PAIR ON CROSSING LINES MOVE ONCE ITS STRING CAN BEND QUANTUM MECHANICALLY (E-SPN-0116)?
-// note/research/vibe/roadmap/remaining-pieces.md section 3, "a bound pair on crossing lines (E-SPN-0110)" and "the
+// note/project/vibe/roadmap/research/remaining-pieces.md section 3, "a bound pair on crossing lines (E-SPN-0110)" and "the
 // plaquette move (E-GRV-0130)". E-SPN-0110 held a love and a fear on two crossing lines but could not move them (2e-5
 // docks a beat against 0.17 predicted) and blamed the frozen string: the rule writes flux only where a vibe copies
 // across a link, so Gauss fixes the string only up to closed loops and nothing changes them. E-GRV-0130's classical

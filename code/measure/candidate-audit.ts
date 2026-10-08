@@ -1,4 +1,4 @@
-// THE CANDIDATE RULE'S READINGS (E-SPN-0134). note/research/vibe/roadmap/remaining-pieces.md, "The link holonomy
+// THE CANDIDATE RULE'S READINGS (E-SPN-0134). note/project/vibe/roadmap/research/remaining-pieces.md, "The link holonomy
 // (E-SPN-0132)": the candidate rule for 3d motion is FLAT links, a filled LOVE SEA as the vacuum, and E-SPN-0130's
 // fermionic frame mixer. These are the readings an audit of what that rule breaks needs: the candidate beat itself (the
 // mixer first, then the working keyed beat, E-SPN-0132's run), the front of a difference, the image of a run under

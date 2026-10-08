@@ -1,4 +1,4 @@
-// A STRING-GATED LINE MIXER (E-SPN-0121). note/research/vibe/roadmap/remaining-pieces.md, "Two hubs bound by the string"
+// A STRING-GATED LINE MIXER (E-SPN-0121). note/project/vibe/roadmap/research/remaining-pieces.md, "Two hubs bound by the string"
 // (E-SPN-0120): in the working rule bound matter moves freely only along a line class it wholly occupies, and every
 // added line mixer cascades the vacuum (E-SPN-0094 .. 0099) because it acts on vacuum states. The first remedy named
 // there: a line mixer that acts only on non-vacuum states and still cannot cascade. The minimal one is tested here.

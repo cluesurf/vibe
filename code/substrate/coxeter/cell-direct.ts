@@ -384,7 +384,7 @@ export function buildHorosphere(input: {
 // within (half + margin) of the Busemann level 0, dropping everything outside the slab. Returns the slab
 // graph (run the dynamics on it) plus the Busemann value per cell (filter |b| < half for the band) and xi
 // (for the 2D projection). Reaches far more band cells than slicing a full bulk of the same size. See
-// note/research/vibe/notes/horosphere-extraction-algorithms.md and the WebGPU plan.
+// note/project/vibe/research/notes/horosphere-extraction-algorithms.md and the WebGPU plan.
 export function buildHorosphereBand(input: {
   symbol?: number[]
   maxBand?: number

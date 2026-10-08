@@ -1,7 +1,7 @@
 // Shared WGSL kernels for the vibe field on a flat lattice, the GPU port of the deterministic reversible
 // second-order wave (CPU reference in mesh .../tool/vibe/wave.ts and experiments P148 to P154). The SAME
 // WGSL runs headless in Node via the `webgpu` package (Dawn) and in the browser via the built-in
-// navigator.gpu, so the engine is written once. See note/plan/vibe-webgpu-billion-cell-sim.md.
+// navigator.gpu, so the engine is written once. See note/project/vibe/vibe-webgpu-billion-cell-sim.md.
 //
 // Rule, next = ((sum of the 4 toroidal neighbours of current) - previous) mod 3, tones in {0,1,2} where 0 is
 // peace, 1 is pleasure (+1), 2 is pain (-1). Each cell packs its two needed beats into one u32, the low 2

@@ -233,4 +233,4 @@ frontier research agenda needs.
 - `note/research/vibe/notes/theory-v0.7.0/paper/tessellations.csv`,
   every substrate and its measured properties.
 - The source catalog notes in
-  `note/research/vibe/explorations/emergent-geometry/paper/notes/hyperbolic-tessellations`.
+  `note/project/vibe/research/explorations/emergent-geometry/paper/notes/hyperbolic-tessellations`.

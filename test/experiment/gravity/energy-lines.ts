@@ -4,7 +4,7 @@
 // one unit of energy line along the bulk link it crosses when the stream takes its value there, the way the light's
 // string trit is the flux a vibe dragged (code/rule/trit-column), and let each store hold its two. Then Gauss's law for
 // energy holds on every dock and every beat with no line placed after beat 0, because energy is conserved dock by dock.
-// note/research/vibe/roadmap/discrete-gravity.md, Part 5e.
+// note/project/vibe/roadmap/research/discrete-gravity.md, Part 5e.
 //
 // THE REGISTER (code/measure/energy-lines, whose header derives it): one integer L per bulk link (dock x, line l: the
 // link from x along the line's first root). A vibe taken forward across it lowers L by one, backward raises it by one;

@@ -3,7 +3,7 @@
 // the radion is: nothing in the model makes the depth read any state (E-GRV-0071), and the bulk geometry here is a
 // stated stand-in for the {3,4,3,4}'s, not that mesh.
 //
-// THE BULK (note/research/vibe/roadmap/discrete-gravity.md, Parts 5c.1 and 5d 1b). Layer 0 is the husk: the periodic
+// THE BULK (note/project/vibe/roadmap/research/discrete-gravity.md, Parts 5c.1 and 5d 1b). Layer 0 is the husk: the periodic
 // cubic mesh of side N with code/rule/trit-radion's nine out-links a dock (weight g = 2 on an axis, 1 on a face
 // diagonal, the light's metric), unchanged. Layer k is the same nine-link mesh on a torus of side N 2^k (GROW) or
 // N / 2^k (SHRINK), and each dock is joined by one VERTICAL link (g = 1, pointing down) to each dock of the next layer

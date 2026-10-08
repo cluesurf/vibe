@@ -1,4 +1,4 @@
-// DO SINGLES AT ONE DOCK FUSE INTO A MOVER ALONG A NEW LINE (X-CUBE FUSION)? note/research/vibe/roadmap/remaining-pieces.md,
+// DO SINGLES AT ONE DOCK FUSE INTO A MOVER ALONG A NEW LINE (X-CUBE FUSION)? note/project/vibe/roadmap/research/remaining-pieces.md,
 // "Six angles on 3d motion", angle 2. In the X-cube model a lineon along x and one along y fuse into one that moves
 // along z, because their creation operators compose. The mesh's 12 line classes are the D4 roots up to sign, and roots
 // add to roots, so a set of singles at one dock X on lines a and b might act, under the bounce K = w_P, like one

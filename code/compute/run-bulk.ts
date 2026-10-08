@@ -2,7 +2,7 @@
 // (Dawn). The bulk is an irregular 12-neighbour graph, so neighbours are uploaded as a CSR adjacency
 // (offsets, adj) built by the exact engine, and the GPU sums over them (stored-neighbour path, plan Stage 3).
 // It (1) SELF-CHECKS the GPU against a CPU reference of the same graph rule, and (2) BENCHMARKS at scale.
-// Run: pnpm tsx code/gpu/run-bulk.ts   (after `pnpm add webgpu`). See note/plan/vibe-webgpu-billion-cell-sim.md.
+// Run: pnpm tsx code/gpu/run-bulk.ts   (after `pnpm add webgpu`). See note/project/vibe/vibe-webgpu-billion-cell-sim.md.
 
 import { create, globals } from 'webgpu'
 import { makeWeyl } from '@/code/tool/weyl'

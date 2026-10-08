@@ -8,7 +8,7 @@
 // since fib is non-negative the cost here counts standard base-3 digits, which is the same digit count. A literal
 // ternary railway CA would store each trit as a three-state switch (the model already has three switch kinds);
 // that and the {7,3} layout for it are documented in
-// note/research/vibe/notes/theory-v0.8.0/notes/register-representations.md.
+// note/project/vibe/archive/theory-v0.8.0/notes/register-representations.md.
 
 import type { BinaryProgram } from '@/code/compute/binary-machine'
 

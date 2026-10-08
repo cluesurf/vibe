@@ -4,7 +4,7 @@
 // the whole infinite tiling without ever storing it, just step and turn.
 //
 // It rides on a TileSource, so the SAME walker drives a lazy infinite {7,3}, an eager finite cell graph, or a
-// future Margenstern address grid. See note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
+// future Margenstern address grid. See note/project/vibe/archive/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
 
 import type { TileSource } from '@/code/substrate/tile-source'
 

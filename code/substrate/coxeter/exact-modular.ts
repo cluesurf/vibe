@@ -7,7 +7,7 @@
 // whole zoo, {5,4}, {6,4}, {7,3} (cos(pi/7), a cubic irrational, handled by the 14th root of unity), {5,3,4},
 // and beyond. Two such primes make cell identity collision-proof, there is no floating-point precision wall,
 // and stepping across a face and back is exactly symmetric (a reflection is an involution). See
-// note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
+// note/project/vibe/archive/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
 
 function modpow(base: number, exp: number, p: number): number {
   let r = 1

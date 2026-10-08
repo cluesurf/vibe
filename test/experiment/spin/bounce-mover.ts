@@ -1,4 +1,4 @@
-// CAN A COMPOSITE HELD BY BOUNCE MEETINGS MOVE IN 3D (E-SPN-0118)? note/research/vibe/roadmap/remaining-pieces.md,
+// CAN A COMPOSITE HELD BY BOUNCE MEETINGS MOVE IN 3D (E-SPN-0118)? note/project/vibe/roadmap/research/remaining-pieces.md,
 // "Parallel lineons, and the bounce that changes lines" (E-SPN-0117): K, the bounce on a dock with two or more singles,
 // never fires on the vacuum (it has no single line) and carries vibes between lines, so it is a line mixer that acts
 // only inside matter. Does a composite whose members keep meeting through K have a band with dispersion in more than

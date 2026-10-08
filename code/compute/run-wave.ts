@@ -3,7 +3,7 @@
 // BENCHMARKS a large grid (millions of cells) to report beats per second. The same WGSL (./wave.wgsl) runs in
 // the browser via the built-in navigator.gpu, so this is the headless half of the shared engine.
 // Run: pnpm tsx code/gpu/run-wave.ts   (after `pnpm add webgpu`)
-// See note/plan/vibe-webgpu-billion-cell-sim.md.
+// See note/project/vibe/vibe-webgpu-billion-cell-sim.md.
 
 import { create, globals } from 'webgpu'
 import { makeWeyl } from '@/code/tool/weyl'

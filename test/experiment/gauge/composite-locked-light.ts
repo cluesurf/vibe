@@ -3,7 +3,7 @@
 // and code/rule/drift-cost-line), read through code/measure/composite-locked-light.
 //
 // WHY. A token that copies its whole value never shares the photon's c = sqrt(2 kappa / 3) (E-MTR-0023), and a
-// covariant lock cannot be lazy (Schur, E-RLT-0097). Candidate from note/research/vibe/roadmap/solutions.md section 3:
+// covariant lock cannot be lazy (Schur, E-RLT-0097). Candidate from note/project/vibe/roadmap/solutions.md section 3:
 // build the photon from the SAME walk as matter, a love and a fear, so light and matter share one cone by
 // construction. E-FRC-0186 found two free walks give only a continuum. The question here is whether the pair of
 // LOCKED tokens, with the binding the model already has (the drift phase of E-SPN-0086), carries a massless bound

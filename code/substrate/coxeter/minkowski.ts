@@ -3,7 +3,7 @@
 // The metric is a diagonal signature (each entry +1 spacelike or -1 timelike), so the same routines serve
 // hyperbolic, spherical, and Euclidean frames. Both the base cell engine (cell-direct) and the renderer
 // (render/geometry/honeycomb) build on this, so the reflection, matrix, and projection math lives in exactly
-// one place. See note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
+// one place. See note/project/vibe/archive/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
 
 export type Mat = number[][]
 export type Vec = number[]

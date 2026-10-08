@@ -3,7 +3,7 @@
 // every link. R*, the register rule (E-SPN-0160, 0163, 0175: the love sea, the dock-wide mixer, the swap coin, the Cl+(4)
 // register), carries none of them, so about 18 of the 46 constraints and the self rows are unread on it. This file
 // builds one way to put them on R*, gates what R* already held, and reads the rows the knit's roles and fear beat make
-// readable. The derivation is note/research/vibe/roadmap/remaining-pieces.md, "Roles and a tone on the register rule".
+// readable. The derivation is note/project/vibe/roadmap/research/remaining-pieces.md, "Roles and a tone on the register rule".
 //
 // THE CONSTRUCTION C* (code/measure/role-register). A member mode is (slot, register, role, tone), 24 x 8 x 3 x 2 = 1,152 a
 // dock, and the full sea fills them all.

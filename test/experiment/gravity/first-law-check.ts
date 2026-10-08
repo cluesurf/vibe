@@ -1,4 +1,4 @@
-// The first law from numbers on hand (E-GRV-0151), route H10a (note/research/vibe/roadmap/routes/
+// The first law from numbers on hand (E-GRV-0151), route H10a (note/project/vibe/roadmap/research/routes/
 // gravity-cosmos-heat-classical.md, H · Hawking radiation): "dM = T dS ties Hawking's T to Bekenstein's S. The membrane
 // gives S per cut link (18.18 nats, E-GRV-0131) and the headroom horizon gives T·M flat to 1.7% (E-GRV-0123). Check
 // whether T dS/dM = 1 across the existing M, with no new run." Kill, in the route's words: "T dS/dM is far from 1 and not

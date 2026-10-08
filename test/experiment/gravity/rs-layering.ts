@@ -3,7 +3,7 @@
 // warpedLayering), the husk's static potential read through the stack's own mode sum with no box, and the correction
 // coefficient c_2 in V = (G M / r)(1 + c_2 / r^2 + ...) extrapolated in L.
 //
-// WHY (note/research/vibe/roadmap/discrete-gravity.md, E-GRV-0100 .. 0105 and 0117). The one-slab stacks held about a fifth
+// WHY (note/project/vibe/roadmap/research/discrete-gravity.md, E-GRV-0100 .. 0105 and 0117). The one-slab stacks held about a fifth
 // of their own continuum's correction at r = 4, and E-GRV-0105 said reaching RS's 2 / (3 k^2 r^2) needs about 8 slabs a
 // doubling and k r >> 1. Finer layering exists as theory (warpedLayering) and the mode sum is the infinite husk's own
 // potential, so both can be had at once.

@@ -2,7 +2,7 @@
 // per-cell field. In the SITDAC model these run by bit-slice masking driven by the some-or-none responder
 // signal, so they cost one pass per field BIT, constant in the number of cells. The reference results here
 // are the plain argmax, argmin, and next-value, and numericSearchSteps reports the constant ASC pass count
-// (the parallel cost). See note/research/vibe/notes/theory-v0.7.0/plans/associative-engine-architecture.md.
+// (the parallel cost). See note/project/vibe/archive/theory-v0.7.0/plans/associative-engine-architecture.md.
 
 // The cell holding the maximum field value among the active cells (maxdex). active is an optional responder
 // mask, all cells active by default. Ties go to the lowest index.

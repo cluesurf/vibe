@@ -2,7 +2,7 @@
 // (bandWeights), each the engine's own sequence of steps with the heavy loops on a kernel, and the tables they need.
 // code/kernel/
 //
-// The profile (note/research/vibe/kernel.md) put a three-hole cycle on L = 4 at 5.6 s, half in oneBody (the member by
+// The profile (note/project/vibe/kernel.md) put a three-hole cycle on L = 4 at 5.6 s, half in oneBody (the member by
 // member transfer) and half in pairPhases (the 4d FFTs over the torus in relative coordinates and the phase between), and
 // a band read at 1.3 s. Those three loops are the primitives holeOneBody, holePair and holeBand.
 //

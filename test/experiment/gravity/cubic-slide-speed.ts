@@ -1,4 +1,4 @@
-// The piece E-GRV-0139 left open (note/research/vibe/roadmap/remaining-pieces.md, "The spacetime slide"): the linear
+// The piece E-GRV-0139 left open (note/project/vibe/roadmap/research/remaining-pieces.md, "The spacetime slide"): the linear
 // spacetime slide forces the ADM structure (lapse and shift multipliers, DeWitt's kinetic term, linearized
 // Einstein-Hilbert potential), but the TT speed stays free, because at quadratic order the kinetic part (with the lapse's
 // constraint) and the potential part are each invariant alone. The Deser / Feynman / Wald bootstrap says the next order

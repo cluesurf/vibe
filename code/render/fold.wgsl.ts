@@ -10,7 +10,7 @@
 // the mirror normals come from mirrorFrame(symbol) (reordered so the metric is diag(+..,-1),
 // time last) and are uploaded as a uniform. The reflection is the Householder reflection with
 // the Minkowski inner product hdot. See the technique notes in
-// note/research/vibe/notes/theory-v0.8.0/notes/hyperbolic-honeycombs.
+// note/project/vibe/archive/theory-v0.8.0/notes/hyperbolic-honeycombs.
 
 // ---------------------------------------------------------------------------------------------
 // 2D renderer (rank 3, three mirrors). Flat fragment shader, no raymarch. The cheapest variant

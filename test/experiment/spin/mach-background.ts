@@ -1,7 +1,7 @@
 // CAN A PINNED COMPOSITE MOVE BY EXCHANGE WITH A BACKGROUND OF MATTER (E-SPN-0124)? Pretko, "Emergent gravity of fractons:
 // Mach's principle revisited" (Phys. Rev. D 96, 024051, 2017): an isolated fracton cannot move, but in a background of
 // other fractons it moves by trading dipoles with them, so its mobility, and its inertia, come from the matter around it.
-// note/research/vibe/roadmap/remaining-pieces.md, "Six angles on 3d motion", angle 1. The rule's only line-changing piece
+// note/project/vibe/roadmap/research/remaining-pieces.md, "Six angles on 3d motion", angle 1. The rule's only line-changing piece
 // K fires where two or more singles share a dock, only where matter meets: one hub is pinned (E-SPN-0119's star
 // theorem) and two hubs alone cascade (E-SPN-0120). The question: in a uniform BACKGROUND of other composites, does a
 // probe composite hop by exchange, its hub handing a line to a neighbor and a neighbor's line becoming its own?

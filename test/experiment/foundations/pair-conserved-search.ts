@@ -2,7 +2,7 @@
 // (E-FND-0171, the momentum density). E-FND-0170 found that within degree 2 at support ONE dock the working rule keeps
 // only the love and fear counts L and F (and, on the vacuum family, the per-direction counts L_l, F_l). A global charge
 // from translation always has a local density, but that density may straddle a link. K1a of the routes file
-// (note/research/vibe/roadmap/routes/gravity-cosmos-heat-classical.md) asks the next support: is there a conserved
+// (note/project/vibe/roadmap/research/routes/gravity-cosmos-heat-classical.md) asks the next support: is there a conserved
 // density on two neighboring docks, in particular a MOMENTUM density? Hydrodynamics with a velocity field (Navier-Stokes)
 // needs one; with only L and F conserved locally the long-wavelength theory is two coupled diffusions.
 //

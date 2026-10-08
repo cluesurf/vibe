@@ -6,7 +6,7 @@
 // Faces (edges in 2D, facets in 3D) are indexed by a local SPIN 0..degree-1. In 2D the spin is the cyclic
 // edge index around the cell (counterclockwise), so rotating the spin turns to the next edge, exactly the
 // HyperRogue cellwalker convention. Each step is self-reciprocal, stepping across a face and then back across
-// the reciprocal face returns to the start. See note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
+// the reciprocal face returns to the start. See note/project/vibe/archive/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
 
 export type FaceStep = {
   // the neighbor cell reached across this face

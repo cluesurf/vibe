@@ -1,4 +1,4 @@
-// The frozen shears against the line counts (E-RLT-0112), route K2a (note/research/vibe/roadmap/routes/
+// The frozen shears against the line counts (E-RLT-0112), route K2a (note/project/vibe/roadmap/research/routes/
 // gravity-cosmos-heat-classical.md, K · hydrodynamics): "in the vacuum sector the per-line love and fear counts are
 // conserved (24 per dock, E-FND-0170). These are spurious invariants, the known disease of lattice gases, and a shear
 // that projects onto them cannot decay. Project E-RLT-0057's frozen shears onto the line counts." Kill, in the route's

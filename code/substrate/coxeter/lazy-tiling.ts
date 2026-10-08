@@ -8,7 +8,7 @@
 // Each cell is tracked by its group matrix g (center = g * c0), and its facet neighbors are g * faces[i] for
 // the shared face reflections. In 2D the neighbors are then ordered cyclically (counterclockwise) around the
 // cell center so the spin is the cyclic edge index a cellwalker expects. See
-// note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
+// note/project/vibe/archive/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
 
 import { coxeterCellFrame } from '@/code/substrate/coxeter/frame'
 import {

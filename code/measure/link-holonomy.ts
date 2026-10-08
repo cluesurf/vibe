@@ -1,4 +1,4 @@
-// THE HOLONOMY OF THE LINKS' POINT MOVES (E-SPN-0132). note/research/vibe/roadmap/remaining-pieces.md, "The Pauli-blocked
+// THE HOLONOMY OF THE LINKS' POINT MOVES (E-SPN-0132). note/project/vibe/roadmap/research/remaining-pieces.md, "The Pauli-blocked
 // mixer (E-SPN-0130)": left open was whether the point moves the stream applies are GAUGE (a change of frame at each
 // dock, so "flat links" is a choice of frame) or CURVATURE (a loop carries a point to another point).
 //

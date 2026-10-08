@@ -3,7 +3,7 @@
 // outer-totalistic rule depends only on the cell's own state and the WEIGHT of its neighbourhood, the sum of
 // the ranks of its twelve face-neighbours (W=0, B=1, R=2, G=3), not their arrangement. The whole automaton is
 // 34 (state, weight) -> new-state entries (35 numbered rules in the paper, one repeated). See
-// land/text/papers/more-5/2108.13094.pdf and note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
+// land/text/papers/more-5/2108.13094.pdf and note/project/vibe/archive/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
 
 export type DodecaTotalisticState = 'W' | 'B' | 'R' | 'G'
 

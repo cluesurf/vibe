@@ -3,7 +3,7 @@
 // kernel/ built (pnpm call task/kernel/build.ts); they throw with that instruction when it is not. kernel('hip'),
 // kernel('cuda') and kernel('gpu-emu') need the addon built with that feature (task/kernel/build.ts native hip) and, for
 // hip and cuda, the GPU and its runtime. Every backend gives the bytes js gives, at every thread count (pnpm call
-// task/kernel/check.ts proves it). See note/research/vibe/kernel.md.
+// task/kernel/check.ts proves it). See note/project/vibe/kernel.md.
 
 import { gpuAvailable, gpuKernel } from '@/code/kernel/gpu'
 import { jsKernel } from '@/code/kernel/js'

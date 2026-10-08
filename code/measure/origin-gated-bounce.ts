@@ -1,4 +1,4 @@
-// THE ORIGIN-GATED BOUNCE (E-SPN-0128). note/research/vibe/roadmap/remaining-pieces.md, "Angle 4, the origin trit".
+// THE ORIGIN-GATED BOUNCE (E-SPN-0128). note/project/vibe/roadmap/research/remaining-pieces.md, "Angle 4, the origin trit".
 // E-SPN-0123 (code/measure/origin-gated-mixer) put a trit ORIGIN on every vibe (vacuum-born or matter-born) and let the
 // line mixer turn only a matter-born single. The mixer's own cascade stopped, but K still fired between vacuum-born
 // singles where two disturbed stars crossed. The change here gates K on origin too.

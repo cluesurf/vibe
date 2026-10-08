@@ -1,5 +1,5 @@
 // TWO VIBES ON TWO CROSSING MESH LINES, JOINED BY THE DRIFT COST'S STRING (E-SPN-0110). A STAND-IN for the question of
-// note/research/vibe/roadmap/remaining-pieces.md idea 3a: can a bound composite move off a line?
+// note/project/vibe/roadmap/research/remaining-pieces.md idea 3a: can a bound composite move off a line?
 //
 // THE GEOMETRY. Two mesh lines of the D4 box that cross at one dock X, each closed into a ring of L docks (position 0 is
 // X on both rings, position p is p docks along the line's first root). The two rings share X and nothing else: a

@@ -1,5 +1,5 @@
 // The Born rule as a count: does any count the knit makes over deterministic starts converge to the fear
-// weave's chances? The roadmap's question (note/research/vibe/roadmap/atoms-and-quanta.md, section 1): a
+// weave's chances? The roadmap's question (note/project/vibe/roadmap/atoms-and-quanta.md, section 1): a
 // probability here must be a COUNT over deterministic histories, never a draw.
 //
 // The chance of a reading (the roles of the knot's two tokens) is its share of the signed weight,

@@ -348,6 +348,6 @@ negatives are as much the output as the positives.
   accounting, and `l3-causal-emergence-needs-loss.ts`, the explicit
   demonstration that emergence requires information loss.
 - The research notes,
-  `note/research/vibe/notes/theory-v0.7.0/paper/selves-and-the-coarse-graining-of-reversibility.md`
+  `note/project/vibe/archive/theory-v0.7.0/paper/selves-and-the-coarse-graining-of-reversibility.md`
   and `routes-to-nested-selves.md`, the written-up findings on selves
   and the reversible bulk.

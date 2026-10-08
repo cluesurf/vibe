@@ -5,7 +5,7 @@
 // the current state of a cell, the states of its five neighbours in cyclic order, and the new state, over the
 // alphabet W (white, empty), B (blue, track), G (green, locomotive front), R (red, locomotive rear), Y (yellow,
 // switch sensor). Rotation invariance means the rule holds under any cyclic permutation of the five neighbours.
-// See land/text/papers/maurice-margenstern and note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
+// See land/text/papers/maurice-margenstern and note/project/vibe/archive/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
 
 export type PentaState = 'W' | 'B' | 'G' | 'R' | 'Y'
 

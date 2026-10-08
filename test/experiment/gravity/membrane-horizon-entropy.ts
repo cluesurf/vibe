@@ -1,4 +1,4 @@
-// A horizon whose interior holds no state of its own (E-GRV-0131). note/research/vibe/roadmap/remaining-pieces.md, 7,
+// A horizon whose interior holds no state of its own (E-GRV-0131). note/project/vibe/roadmap/research/remaining-pieces.md, 7,
 // "What an area law would need": E-GRV-0124 found the torn headroom horizon's hidden count to be a volume law on the husk,
 // S = 9 |H| ln(3 span) + T_cut (ln span - ln 3) / 2, because every interior link tears and keeps its value unread; the
 // only area-law piece was the cut links, T_cut ~ r_h^1.994, 8.4 percent of the count. HYPOTHESIS: an area law needs the

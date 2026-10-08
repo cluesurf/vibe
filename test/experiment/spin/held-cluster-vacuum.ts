@@ -4,7 +4,7 @@
 // points, the canonical fermion sign, and the drift cost the husk flux would charge), never in the working vacuum.
 // E-GRV-0107 found that gravity from the rule's own energy is blocked by matter that does not stay put. So: placed in
 // the working vacuum and run by the rule itself, does E-SPN-0093's cluster hold its energy in place?
-// note/research/vibe/roadmap/discrete-gravity.md, Part 5e.
+// note/project/vibe/roadmap/research/discrete-gravity.md, Part 5e.
 //
 // THE PLACEMENT (code/measure/held-cluster). The level's K = 0 relative amplitudes (box 12, dimension 576) put on the
 // axis mesh line (root (1, 0, 0, 1)) through the box's center dock with the least position at that dock: a localized

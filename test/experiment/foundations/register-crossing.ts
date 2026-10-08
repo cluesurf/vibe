@@ -11,7 +11,7 @@
 // on the register rule, which is not the adopted rule. So no ledger row can become held from it: the held bar needs the
 // 3d husk, the one rule, and the start family where the start enters. What it can settle is whether the register
 // rule lifts the line law for two bodies, which each blocked row needs first. What each row needs beyond that is
-// listed in note/research/vibe/roadmap/open.md, OPEN-FND-03.
+// listed in note/project/vibe/roadmap/open.md, OPEN-FND-03.
 //
 // DERIVED BEFORE THE RUN (code/measure/register-crossing on code/measure/register-sea).
 // 1. EXCHANGE IS A CONSERVED SIGN, +1 OR -1 (L1; rows C "no anyons", C "bosons"). With (P12 psi)(y)[m1][m2] =

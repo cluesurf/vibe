@@ -2,7 +2,7 @@
 // running on the cell graph can color cell i by drawing polygons[i]. Reuses the cell engine (buildCellGraph)
 // and the shared cell shape (buildCellShape), and recenters so the central cell sits at the origin (same as the
 // honeycomb strut renderer). The polygon vertices are returned in cyclic (counterclockwise) order, ready to
-// fill. See note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
+// fill. See note/project/vibe/archive/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { buildCellShape } from '@/code/render/geometry/cell-shape'

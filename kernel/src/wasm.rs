@@ -2,7 +2,7 @@
 // The same primitives as plain exports over the module's linear memory, built for wasm32-unknown-unknown with SIMD128.
 // A caller (code/kernel/wasm.ts) allocates the arrays inside the module with vk_alloc, copies its inputs in, calls a
 // primitive on a row range, and copies the outputs back. The row range is an argument, so several instances over one
-// shared memory can each take a range (the route to threads, see note/research/vibe/kernel.md). Wasm float arithmetic
+// shared memory can each take a range (the route to threads, see note/project/vibe/kernel.md). Wasm float arithmetic
 // is IEEE double with no contraction and no fast-math, so the bytes are the native build's and the reference's.
 
 use crate::prim;

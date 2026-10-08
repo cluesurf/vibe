@@ -1,5 +1,5 @@
 // THE TURNED COMPOSITE: DOES THE TRUE 2D THREE-HOLE LEVEL HOLD UNDER THE MIXER, AND WITH WHAT INERTIA (E-SPN-0144)?
-// note/research/vibe/roadmap/remaining-pieces.md, "Three holes on a 2d slab (E-SPN-0135)". E-SPN-0141 (test/experiment/
+// note/project/vibe/roadmap/research/remaining-pieces.md, "Three holes on a 2d slab (E-SPN-0135)". E-SPN-0141 (test/experiment/
 // spin/slab-string-break) found the slab composite's loss under the frame mixer is neither shaking against the one-line
 // gap nor string breaking: the fidelity to the RATE-0 line level beats rather than decays, the leaked weight is the same
 // three holes bent, and the followed vector was not an eigenvector (Ritz residual 0.07 at D 3, a partner 0.002 rad away

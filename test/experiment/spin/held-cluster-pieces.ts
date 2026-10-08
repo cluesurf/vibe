@@ -2,7 +2,7 @@
 // placed E-SPN-0093's three-love level on the side-16 working vacuum's axis line: the rule runs it exactly and never
 // touches the vacuum, but the packet spreads, because the working rule lacks two things the stand-in has: the DRIFT
 // COST (removing it from the stand-in drops the fidelity to 0.74) and the FERMION SIGN where stores exist (0.20 with
-// both gone). note/research/vibe/roadmap/discrete-gravity.md, "Measured, the missing link".
+// both gone). note/project/vibe/roadmap/research/discrete-gravity.md, "Measured, the missing link".
 //
 // THE PIECES (code/rule/bound-line-pieces, each optional, both off = the working rule bit for bit):
 //  (a) the drift cost: a trit on every link, written only by an OPEN vibe's copy across it (the recorded hop), and a

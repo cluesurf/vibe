@@ -7,7 +7,7 @@
 // neighbor becomes the new origin and the camera coordinates reset to small, so coordinates never drift toward
 // the floating-point wall no matter how far you walk. Memory is O(window), not O(distance). This works the same
 // in 2D, 3D, and 4D (any buildable symbol), because it is all reflection-matrix math through the shared frame.
-// See note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
+// See note/project/vibe/archive/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
 
 import {
   buildCellShape,

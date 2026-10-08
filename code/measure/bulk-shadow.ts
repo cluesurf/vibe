@@ -1,4 +1,4 @@
-// THE HUSK AS THE BULK'S SHADOW (E-SPN-0127). Readings for the question of note/research/vibe/roadmap/remaining-pieces.md,
+// THE HUSK AS THE BULK'S SHADOW (E-SPN-0127). Readings for the question of note/project/vibe/roadmap/research/remaining-pieces.md,
 // "Six angles on 3d motion", angle 5: is 3d turning on the husk the shadow of something free in the 4d bulk?
 //
 // THE PROJECTION. A dock of the D4 box is a D4 vector v = (v_1, v_2, v_3, w), w the depth. The husk reading is

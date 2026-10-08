@@ -2,7 +2,7 @@
 // inward, the {3,4,3,4}'s own orientation seen from its husk (the outermost shell holds 94 percent of the docks,
 // E-HLG-0011) and Randall-Sundrum II's: the bulk behind each patch of husk has finite volume, so the zero mode stays on
 // the husk and the pull should stay 1/r there, with a short-range correction from the bulk
-// (note/research/vibe/roadmap/discrete-gravity.md, Part 5c.1, after E-GRV-0094 and 0095).
+// (note/project/vibe/roadmap/research/discrete-gravity.md, Part 5c.1, after E-GRV-0094 and 0095).
 //
 // THE GEOMETRY: code/rule/open-husk with growth 'shrink'. Layer 0 is the husk, E-GRV-0090's mesh (nine out-links a
 // dock, g = 2 on an axis and 1 on a face diagonal), a periodic cube of side 64. Below it FOUR layers of sides 32, 16, 8, 4

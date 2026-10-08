@@ -1,5 +1,5 @@
 // THE CHARGE OF A MEMBER, OF A WALL LEVEL AND OF THE JOIN CHANNEL (E-SPN-0189, OPEN-MAT-01, which blocks OPEN-MAT-02).
-// Three routes of note/research/vibe/roadmap/routes/matter-forces-numbers.md ask the same reading, each in minutes:
+// Three routes of note/project/vibe/roadmap/research/routes/matter-forces-numbers.md ask the same reading, each in minutes:
 //  - line 160, "the wall member is the electron": read E-SPN-0168's wall member's (love - fear)/3 charge and its turn
 //    sign; killed if "charge 0 or fractional on every light wall level".
 //  - line 163, "the register member alone": E-SPN-0160's member's charge and spin per half on the register rule; killed

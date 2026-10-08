@@ -2,7 +2,7 @@
 // cost and the fermion sign into the working rule: on flat links they hold E-SPN-0093's three-love level (fidelity at
 // least 0.9991), on the mesh's links it still spreads, and the step between the two is the like meeting at UNEQUAL
 // points, which splits a branch: keep (1 + w)/2, exchange -(1 - w)/2 (code/rule/occupation-veto-knit meetBranch).
-// note/research/vibe/roadmap/discrete-gravity.md, "Measured, both pieces added (E-SPN-0103 fail), and the third piece".
+// note/project/vibe/roadmap/research/discrete-gravity.md, "Measured, both pieces added (E-SPN-0103 fail), and the third piece".
 //
 // WHAT THE SPLIT IS FOR, derived (code/rule/doublet-locked-knit header, E-RLT-0100 T1). On the two points it is
 // U = w P_sym + P_anti = (1 + w)/2 I - (1 - w)/2 SWAP: the lock's two-label form of the coin, a phase w on the

@@ -27,7 +27,7 @@ All output is written to `make/` (gitignored).
 | `render-persistence-anim.ts [free\|maintained]` | the SELFHOOD test, colours by persistence-of-identity, flicker stays dark, a maintained self glows |
 | `render-jewel-mesh.ts` | the recursive subdivision of a dodecahedron (the "jewel mesh"), 3D surface render |
 
-### {3,4,3,4} (the 4D candidate, see `note/research/vibe/notes/testing-3434-results.md`)
+### {3,4,3,4} (the 4D candidate, see `note/project/vibe/finding/testing-3434-results.md`)
 
 | script | what it does |
 |---|---|
@@ -63,7 +63,7 @@ task/render-video.sh
 
 A connected same-sign blob is NOT a self, it flickers, it is the shallow proxy the theory rejects. A real
 self is persistent, bounded, self-maintaining, and integrated, recognized by its dynamics, not its momentary
-tones (`note/research/vibe/notes/theory-v0.5.0/the-definition-of-a-self.md`).
+tones (`note/project/vibe/archive/theory-v0.5.0/the-definition-of-a-self.md`).
 
 `render-persistence-anim.ts` makes this visible by colouring each charge by how long it has continuously held
 its identity. Run both modes and compare:
@@ -102,5 +102,5 @@ P178 found. The persistence colouring is the test, the self is the thing that gl
 - The horosphere flattening uses a stereographic inversion from the ideal point (an orthographic drop folds
   the horosphere into a ring).
 - Scaling, precision, and the path to millions of cells are documented in
-  `note/research/vibe/notes/gpu-simulation-options.md`, `horosphere-extraction-algorithms.md`, and
-  `note/plan/vibe-webgpu-billion-cell-sim.md`.
+  `note/project/vibe/research/notes/gpu-simulation-options.md`, `horosphere-extraction-algorithms.md`, and
+  `note/project/vibe/vibe-webgpu-billion-cell-sim.md`.

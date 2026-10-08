@@ -1,5 +1,5 @@
 // The bounded depth field (E-GRV-0090, 0091): the radion of E-GRV-0079 written on registers that cannot grow. Depth is
-// FOUND, not stored (note/research/vibe/roadmap/discrete-gravity.md, Part 5c): no register anywhere holds a depth, and a
+// FOUND, not stored (note/project/vibe/roadmap/research/discrete-gravity.md, Part 5c): no register anywhere holds a depth, and a
 // column's depth is read by summing steps along a path. A STAND-IN, like the radion: nothing in the model makes the
 // depth read any state (E-GRV-0071), so this rule is added by hand; what is tested is whether its physics fits in
 // bounded storage.

@@ -8,7 +8,7 @@
 // CA timing only stretches the track, it does not change the logic). The full 250-rule pentagrid CA and the
 // 5-state dodecagrid CA are Ada-checked configuration tables in the book, here we implement the universal MODEL
 // they realize, faithfully and verifiably. See land/text/papers/maurice-margenstern/notes/chapters/v2-ch4-universality-issues.md
-// and note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
+// and note/project/vibe/archive/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
 
 // the three switch kinds Margenstern uses, plus a plain crossing
 export type SwitchKind = 'fix' | 'flip-flop' | 'memory' | 'crossing'

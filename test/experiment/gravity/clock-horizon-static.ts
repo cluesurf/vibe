@@ -4,7 +4,7 @@
 // its clock can run no slower, and its links tear as in E-GRV-0108 (the tear, the stored bit, the vertical routing are
 // E-GRV-0108's, unchanged).
 //
-// WHY (note/research/vibe/roadmap/discrete-gravity.md, "Why sqrt(M), and the fix: bound the clock, not the field"). The
+// WHY (note/project/vibe/roadmap/research/discrete-gravity.md, "Why sqrt(M), and the fix: bound the clock, not the field"). The
 // line criterion bounds the step, so its horizon's edge is where M over an area reaches the window: r ~ sqrt(M), E-GRV-
 // 0108's slope 0.54. General relativity's horizon is where the POTENTIAL reaches a fixed value (a static clock stops),
 // so r ~ M: Schwarzschild.

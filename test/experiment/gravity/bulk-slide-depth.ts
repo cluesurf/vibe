@@ -1,4 +1,4 @@
-// The piece E-GRV-0142 left open (note/research/vibe/roadmap/remaining-pieces.md, "Randall-Sundrum with the tensor"):
+// The piece E-GRV-0142 left open (note/project/vibe/roadmap/research/remaining-pieces.md, "Randall-Sundrum with the tensor"):
 // its massive Kaluza-Klein gravitons exchange with Einstein-Hilbert's five-dimensional factor, 1 - 1/(D - 2) = 2/3,
 // which ASSUMES the bulk's depth direction carries Einstein-Hilbert. E-GRV-0141 derived Einstein-Hilbert only on the
 // 3+1 husk, from the slide of its unlabeled docks in space and time. The bulk's docks are unlabeled too, so a slide

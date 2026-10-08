@@ -2,7 +2,7 @@
 // periodic Green's function of the stack's husk operator, so the box is subtracted and not guessed, and then the slope
 // of r_h against M on the modes alone.
 //
-// WHY (note/research/vibe/roadmap/discrete-gravity.md, "Measured, the slope against the modes and the box"). E-GRV-0117
+// WHY (note/project/vibe/roadmap/research/discrete-gravity.md, "Measured, the slope against the modes and the box"). E-GRV-0117
 // found the modes' part of 1 - s = rho + beta x e^(-x) right to about 0.006, but on a closed periodic husk the box costs
 // about 1.5 rho where the formula says rho (the far -1/N background and the husk's own images bend the excess too), so
 // every measured slope sat 0.07 .. 0.09 under the formula and whether the slope goes to 1 stayed hidden.

@@ -2,7 +2,7 @@
 // word on every bulk cell, seed a cue at the central cell, and broadcast a wave. Activation arrival time at
 // each cell equals its graph distance from the seed, and the whole store is reached in coverageRadius beats,
 // which is O(log N) on the hyperbolic bulk. Control, a flat 3D cubic memory of equal N needs many more beats.
-// Plan in note/research/vibe/notes/theory-v0.7.0/plans/associative-engine-architecture.md.
+// Plan in note/project/vibe/archive/theory-v0.7.0/plans/associative-engine-architecture.md.
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import {

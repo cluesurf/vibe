@@ -102,7 +102,7 @@ export default experiment({
         sortingDistinctImages: sorting.distinctImages,
       },
       notes:
-        'Closes idea 6 of note/research/vibe/next-paper/ideas.md exactly: the pair is not the coarse variable either. Whatever carries an amplitude has to be coarser than a pair at a cell, most likely a count over many cells or many beats. L1, finite enumeration on the committed coin with a control.',
+        'Closes idea 6 of note/project/vibe/next-paper/ideas.md exactly: the pair is not the coarse variable either. Whatever carries an amplitude has to be coarser than a pair at a cell, most likely a count over many cells or many beats. L1, finite enumeration on the committed coin with a control.',
     })
   },
 })

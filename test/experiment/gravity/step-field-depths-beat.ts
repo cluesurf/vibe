@@ -1,4 +1,4 @@
-// The two pieces E-GRV-0139 left free (note/research/vibe/roadmap/remaining-pieces.md, "The spacetime slide"): V3, the
+// The two pieces E-GRV-0139 left free (note/project/vibe/roadmap/research/remaining-pieces.md, "The spacetime slide"): V3, the
 // TT wave speed (a linear gauge slide never sees a light cone, so the kinetic and potential parts are each invariant),
 // and V4, the Eg doublet of 2 non-metric registers, which no diffeomorphism reaches. The idea, fixed before computing:
 //   (a) THE UNIVERSAL BEAT. The rule advances every field once a beat on one stream, and the scalar step field's speed

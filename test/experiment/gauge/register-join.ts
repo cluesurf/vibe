@@ -2,7 +2,7 @@
 // one question: every piece of the register rule R*, the SU(2)+ field included, commutes with J, and under Gauss's law a
 // sea that breaks SU(2)+ is not a state (Elitzur). So the row was restated as a gauge invariant condensate <psi_-^dag
 // psi_+>, dressed by the field. This file derives what can join the halves and keep the rule's invariants, builds the one
-// channel that survives, and reads the condensate. The derivation is note/research/vibe/roadmap/remaining-pieces.md, "A
+// channel that survives, and reads the condensate. The derivation is note/project/vibe/roadmap/research/remaining-pieces.md, "A
 // channel that joins the register halves".
 //
 // DERIVED BEFORE THE RUN (code/measure/register-join, register-sea, register-link-field).

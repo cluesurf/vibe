@@ -1,4 +1,4 @@
-// THE PAULI-BLOCKED FRAME MIXER (E-SPN-0130). note/research/vibe/roadmap/remaining-pieces.md, "Six angles on 3d
+// THE PAULI-BLOCKED FRAME MIXER (E-SPN-0130). note/project/vibe/roadmap/research/remaining-pieces.md, "Six angles on 3d
 // motion" and E-SPN-0121: every added line mixer so far cascades the working vacuum. The idea tested here is the Dirac
 // sea's: a FERMIONIC mixer, second-quantized with the knit's fermion sign, leaves a completely filled or completely
 // empty set of modes alone up to a phase (its determinant), so on a vacuum whose frames are all full or all empty it

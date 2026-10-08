@@ -1,4 +1,4 @@
-// NORMAL-ORDERED ENERGY ON A SEA (E-GRV-0144). note/research/vibe/roadmap/remaining-pieces.md, "Auditing the candidate
+// NORMAL-ORDERED ENERGY ON A SEA (E-GRV-0144). note/project/vibe/roadmap/research/remaining-pieces.md, "Auditing the candidate
 // rule (E-SPN-0134)": the depth is sourced by the energy count (code/measure/energy-lines: held slots + 2 stored pairs),
 // and relative to the love sea a hole is -1, so it would fall up. Normal ordering counts energy from the vacuum instead.
 //

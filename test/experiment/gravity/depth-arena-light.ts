@@ -1,6 +1,6 @@
 // The depth arena, measured (E-GRV-0089): the husk light run through the radion's own depth field, its delay read
 // against the eikonal and against the Newtonian count built from a slow lump's MEASURED fall in the same field. This is
-// the deciding experiment of note/research/vibe/roadmap/discrete-gravity.md Part 5b option 1: it passes if light is
+// the deciding experiment of note/project/vibe/roadmap/research/discrete-gravity.md Part 5b option 1: it passes if light is
 // delayed by 2 times the count (general relativity) and fails at 1 (a clock-only arena) or 0 (Nordstrom).
 //
 // THE PREDICTION (E-GRV-0088's header, derived before either run): depth enters the husk light only through its

@@ -2,7 +2,7 @@
 // three-love level for 128 beats on the working rule with the drift cost and the fermion sign, placed in one frame. But
 // the drift cost also slows the trio's centroid (rms 1.81 against 3.96 without it, E-SPN-0104's confinement reading), so
 // "matter that moves as a whole" was not shown. A particle carries momentum as a unit: a band E(K), with the level
-// intact at every K. note/research/vibe/roadmap/discrete-gravity.md, "Measured, both pieces added" and after.
+// intact at every K. note/project/vibe/roadmap/research/discrete-gravity.md, "Measured, both pieces added" and after.
 //
 // THE BAND, DERIVED BEFORE THE RUN (code/measure/moving-level, the stand-in's operator, box 12). The line is flat and
 // the drift cost's register on a line is one Gauss-fixed trit, so the one-line operator is translation invariant and

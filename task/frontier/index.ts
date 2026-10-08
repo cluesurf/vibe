@@ -56,7 +56,7 @@
 //   --json        machine-readable output, every section
 //   --area, -a    limit the per-row listing to ledger section letters (A,B)
 //   --notes       the roadmap directory. Default: found by walking up from
-//                 the package to note/research/vibe/roadmap
+//                 the package to note/project/vibe/roadmap
 
 import { existsSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
@@ -69,7 +69,7 @@ const PACKAGE_ROOT = resolve(
 )
 
 /** Where the roadmap notes sit below a repository root. */
-const ROADMAP_PATH = 'note/research/vibe/roadmap'
+const ROADMAP_PATH = 'note/project/vibe/roadmap'
 
 /** A lettered ledger section heading: `A. Quantum foundations`. */
 const SECTION_HEADING = /^([A-Z])\.\s+(.+)$/

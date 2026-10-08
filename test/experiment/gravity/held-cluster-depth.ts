@@ -3,7 +3,7 @@
 // stays: a sparse love+fear pair spreads, so it sources no lump. E-SPN-0093's one-line three-love cluster is the one
 // bound state known. This is the chain with nothing placed by hand: the rule's own energy, held in place by the rule's
 // own bound state (E-SPN-0102 runs it in the working vacuum), as the source of E-GRV-0090's bounded static step field.
-// note/research/vibe/roadmap/discrete-gravity.md, Part 5e.
+// note/project/vibe/roadmap/research/discrete-gravity.md, Part 5e.
 //
 // THE SOURCE. E-SPN-0102's placed packet on the side-16 working vacuum's axis line, run by the working vacuum's rule (the
 // point-carrying ring form, code/measure/held-cluster pointBeat, which E-SPN-0102 checks equal to the exact superposed rule

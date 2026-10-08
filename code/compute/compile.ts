@@ -5,7 +5,7 @@
 // the thin selector over them.
 //
 // Future representations to explore are documented in
-// note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md (a Fibonacci / Zeckendorf base native
+// note/project/vibe/archive/theory-v0.8.0/plans/hyperrogue-port-roadmap.md (a Fibonacci / Zeckendorf base native
 // to the tiling's own growth, and BALANCED TERNARY, the natural register for a vibe-theory ternary-tone computer).
 
 import {

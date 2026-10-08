@@ -1,6 +1,6 @@
 // The horizon's flux budget, grown against placed (E-GRV-0116): under the held clock rule every slip-free growth order
 // ends within 1.4 percent of every other, yet every one is 32 to 36 percent off the lump PLACED with its statics at
-// r = 8 .. 11 (note/research/vibe/roadmap/discrete-gravity.md, "Measured, the wave horizon (E-GRV-0115 partial), and a
+// r = 8 .. 11 (note/project/vibe/roadmap/research/discrete-gravity.md, "Measured, the wave horizon (E-GRV-0115 partial), and a
 // reframe"). Where does the systematic gap come from, and which exterior is the right one?
 //
 // THE BUDGET (code/measure/horizon-flux). A horizon dock keeps only its vertical link live, so the content on the horizon

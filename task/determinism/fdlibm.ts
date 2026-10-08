@@ -16,7 +16,7 @@
 // How it was verified (task/determinism/verify.ts, 200,000 inputs per function, node 24.13.1 on darwin-arm64): the
 // FUSED form equals this Mac's Math bit for bit on every input, for every function restated here. The PLAIN form
 // reproduces, through the parity replay, the exact values node 24.21 printed on an x86-64 droplet (E-SPN-0178 and
-// E-SPN-0179, see note/research/vibe/kernel.md). The restatement is that evidence, not a replacement for Math: nothing
+// E-SPN-0179, see note/project/vibe/kernel.md). The restatement is that evidence, not a replacement for Math: nothing
 // in code/ or test/ uses it.
 //
 // Not restated: Math.pow and the ** operator. V8 13.6 runs them through the platform's C library (std::pow, behind

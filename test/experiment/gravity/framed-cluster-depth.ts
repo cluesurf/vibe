@@ -5,7 +5,7 @@
 // found the working rule with the drift cost and the fermion sign (E-SPN-0103's pieces) HOLDS the cluster once it is
 // placed in one frame along its line (the transport along a line is flat; E-SPN-0103 had put every love at point 0 in
 // the table's gauge, a different frame at every dock). This is E-GRV-0110's depth read, unchanged, on that held source.
-// note/research/vibe/roadmap/discrete-gravity.md, Part 5e.
+// note/project/vibe/roadmap/research/discrete-gravity.md, Part 5e.
 //
 // THE SOURCES (code/measure/permutation-meeting, code/measure/bound-line pointBeatWith, the ring form E-SPN-0104 checks
 // against the exact rule): E-SPN-0104's WabP (the working rule, both pieces, the working split meeting, the parallel

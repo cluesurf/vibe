@@ -2,7 +2,7 @@
 // found the held three-love level moves as one particle (fidelity at least 0.99976 at every K up to pi/2) with
 // m* = 24.56 against E_rest 0.33002, a ratio of 74, and pointed at the drift cost: charged per link per MESH beat, like a
 // static string, where a relativistic string (Nambu-Goto) is priced per unit of its own proper time.
-// note/research/vibe/roadmap/discrete-gravity.md, "Measured, the trio moving".
+// note/project/vibe/roadmap/research/discrete-gravity.md, "Measured, the trio moving".
 //
 // DERIVED BEFORE THE RUN.
 // 1. THE LONE LOVE FIRST (code/measure/moving-level loneBand). One love, no pieces, is a Dirac walk: its two bands are

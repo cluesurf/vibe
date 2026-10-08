@@ -3,7 +3,7 @@
 // EVERY beat, writing a PNG frame per beat. Assemble the frames into a video with ffmpeg to watch the
 // Euclidean layer evolve. The geometry (which cells, where) is fixed, only the tones change, so the band is
 // extracted once and recoloured each beat. Run: pnpm tsx code/gpu/render-horosphere-anim.ts (after
-// `pnpm add webgpu`), then ffmpeg the frames. See note/plan/vibe-webgpu-billion-cell-sim.md.
+// `pnpm add webgpu`), then ffmpeg the frames. See note/project/vibe/vibe-webgpu-billion-cell-sim.md.
 
 import { create, globals } from 'webgpu'
 import { makeWeyl } from '@/code/tool/weyl'

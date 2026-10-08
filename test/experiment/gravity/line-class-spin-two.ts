@@ -1,4 +1,4 @@
-// Idea 4a of the gravity roadmap (note/research/vibe/roadmap/remaining-pieces.md, section 4): can one depth per line
+// Idea 4a of the gravity roadmap (note/project/vibe/roadmap/research/remaining-pieces.md, section 4): can one depth per line
 // class carry spin-2 waves? A derivation on the lattice symbol, not a run of the working rule.
 //
 // THE FIELD. One depth d_a per line class a per dock, the 12 classes the D4 first roots of the {3,4,3,4} mesh

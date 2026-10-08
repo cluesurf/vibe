@@ -1,4 +1,4 @@
-// A DIPOLE OF LINEONS IS NOT A PLANON IN THIS RULE (E-SPN-0117). note/research/vibe/roadmap/remaining-pieces.md, "A bent
+// A DIPOLE OF LINEONS IS NOT A PLANON IN THIS RULE (E-SPN-0117). note/project/vibe/roadmap/research/remaining-pieces.md, "A bent
 // string" (E-SPN-0116), asks the fracton question: in the X-cube model two lineons on parallel lines one dock apart
 // move sideways as a unit (a planon) by making a pair on the next line over and unmaking the old member. Can the
 // rule's own pair processes do that? Derived first, then checked exactly.

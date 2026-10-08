@@ -6,7 +6,7 @@
 // Run: pnpm tsx code/render/run/web-export.ts
 //
 // This is the "webgpu for everything" interactive layer. The headless runners prove the shaders; this hands
-// them a live camera in the browser. See note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
+// them a live camera in the browser. See note/project/vibe/archive/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
 
 import { writeFileSync, mkdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'

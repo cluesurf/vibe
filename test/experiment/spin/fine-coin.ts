@@ -1,7 +1,7 @@
 // DOES A LIGHT WALK, BUILT FROM THE SAME PARTS, RESTORE INERTIA = ENERGY FOR A LONE LOVE (E-SPN-0107)? E-SPN-0106 found
 // the ratio that keeps the held level from falling alike starts in the walk itself: a lone love is a Dirac walk with
 // half-gap m = pi/3, a third of the lattice scale, so m* = tan m = sqrt 3 against its rest energy pi/3 (ratio 1.654) and
-// its top speed is cos m = 1/2, not the stream's 1. note/research/vibe/roadmap/discrete-gravity.md, "Measured, where the
+// its top speed is cos m = 1/2, not the stream's 1. note/project/vibe/roadmap/research/discrete-gravity.md, "Measured, where the
 // 74 really comes from (E-SPN-0106)".
 //
 // WHY THE COIN'S ANGLE IS pi/3 (code/rule/coined-locked-knit, code/rule/fine-coin). The coin is C = P+ + beta P- on a

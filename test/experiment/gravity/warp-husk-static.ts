@@ -1,7 +1,7 @@
 // The warped clock, static (E-GRV-0102): E-GRV-0100's husk backed by four shrinking layers, with the bulk's time warped
 // with its scale (code/rule/open-husk warpClock): a layer-k dock is 2^k husk docks across and its proper time runs 2^-k
 // as fast as the husk's, so the lapse falls with depth exactly as the spatial scale grows, as in Randall-Sundrum's warp
-// (note/research/vibe/roadmap/discrete-gravity.md, "The fix: warp the clock with the scale"). E-GRV-0100 read a
+// (note/project/vibe/roadmap/research/discrete-gravity.md, "The fix: warp the clock with the scale"). E-GRV-0100 read a
 // short-range correction of hyperbolic 4-space's shape (log slope 1.16, RS II's 1.87) and E-GRV-0101 a front at 1.26 to
 // 1.40 c; the note's claim is that one cause, the unwarped bulk clock, makes both, and that warping it gives RS's shape.
 //

@@ -2,7 +2,7 @@
 // the cell stabilizer H (the finite group fixing the cell center), the FACE reflections (the H-orbit of the
 // outer generator, one per facet), and the cell center c0. This is lifted out of cell-direct's buildCellGraph
 // (which now calls it) so the eager builder, the horosphere band, and the LAZY walker all share one exact
-// construction, no duplicated group BFS. See note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
+// construction, no duplicated group BFS. See note/project/vibe/archive/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
 
 import { mirrorFrame } from '@/code/substrate/coxeter/schlafli'
 import {

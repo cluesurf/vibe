@@ -8,7 +8,7 @@
 // The guess tested here: n_S - n_D is a conserved charge the model treats as long-range without gauging it (a charge
 // whose energy grows with the box is what an ungauged charge looks like). Gauged, with a Gauss law on the D4 links,
 // (a) only neutral seas would be physical and the ledger extensive, (b) gravity might become one field, (c) the join
-// might be the field's charged matter. The derivation is note/research/vibe/roadmap/remaining-pieces.md, "Is the
+// might be the field's charged matter. The derivation is note/project/vibe/roadmap/research/remaining-pieces.md, "Is the
 // sector imbalance a charge?".
 //
 // DERIVED BEFORE THE GATE RUN (code/measure/sector-charge; E-SPN-0160's pieces, E-SPN-0175's many-body rule,

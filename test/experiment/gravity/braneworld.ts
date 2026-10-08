@@ -2,7 +2,7 @@
 //
 // Matter is effectively three-dimensional (orbit stability, P68), but the substrate could be a bare
 // 3D crystal OR a 4D bulk with matter on a 3D slice (a braneworld, see
-// note/research/vibe/notes/is-the-substrate-3d-or-4d.md). These differ observationally at short
+// note/project/vibe/research/notes/is-the-substrate-3d-or-4d.md). These differ observationally at short
 // range. A bare 3D substrate gives pure inverse-square gravity (force ~ 1/r^2) at every scale. A 4D
 // bulk with a compact extra dimension of size L gives genuinely 4D gravity (force ~ 1/r^3) at short
 // range r << L, crossing over to 3D (1/r^2) at long range r >> L. Summing the Kaluza-Klein modes
