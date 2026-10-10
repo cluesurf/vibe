@@ -15,7 +15,7 @@
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
 import { sigmaTable, wallVerdict, type BulkWallRead, type GatesPlan, type SlabWallRead } from '@/code/measure/color-gates'
 import { dockCageRead, type DockCageRead } from '@/code/measure/color-gates-cage'
-import { GATE_FIELDS, type FieldName } from '@/test/experiment/gauge/color-gates'
+import { GATE_FIELDS, type FieldName } from '@/code/measure/color-gate-fields'
 
 const REF = { slabNearest8: 0.4736, slabNearestTol: 1e-3, packetRatio: 0.3004, packetTol: 5e-5 }
 const TOL = { table: 1e-12, plaquette: 1e-12, cage: 1e-10, norm: 1e-10 }

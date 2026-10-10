@@ -326,7 +326,7 @@ export function cageVelocityVerdict(stages: readonly CvelStage[], ref: CageRefer
 
 export default experiment({
   id: 'gauge/cage-velocity',
-  code: 'E-FRC-0000',
+  code: 'E-FRC-0301',
   title: 'explores whether the centre field cf0 could stop a lone third for ever, or only slows it, from its Bloch band velocities',
   category: 'gauge',
   substrates: ['3434'],

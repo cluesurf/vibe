@@ -495,7 +495,7 @@ export function centerPumpRun(plan: CenterPumpPlan): Verdict {
 
 export default experiment({
   id: 'gauge/center-pump',
-  code: 'E-FRC-0000',
+  code: 'E-FRC-0300',
   title:
     'explores whether the fully frustrated Z3 centre flux cf0 keeps chiral wall members that its bulk levels only pushed out of the window: a Laughlin pump of one colour-singlet flux quantum and a closed x2 twist counts the wall levels crossing pi, an index no box size can fake',
   category: 'gauge',

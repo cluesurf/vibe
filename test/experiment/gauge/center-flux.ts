@@ -247,7 +247,7 @@ export function centerFluxVerdict(
 
 export default experiment({
   id: 'gauge/center-flux',
-  code: 'E-FRC-0000',
+  code: 'E-FRC-0299',
   title:
     'explores whether a coherent Z3 centre flux, the most frustrated periodic pattern, could cage lone thirds by interference while keeping the chiral walls',
   category: 'gauge',

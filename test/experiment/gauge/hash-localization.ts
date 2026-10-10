@@ -1261,7 +1261,7 @@ export function localizationVerdict(rule: readonly SideSummary[], identityAll: r
 
 export default experiment({
   id: 'gauge/hash-localization',
-  code: 'E-FRC-0000',
+  code: 'E-FRC-0304',
   title: "explores whether R*'s own colour hash could localize a lone third, or only slows it, from level statistics and the Thouless number",
   category: 'gauge',
   substrates: ['3434'],

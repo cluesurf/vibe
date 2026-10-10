@@ -34,27 +34,16 @@ import { verdict, type Verdict } from '@/test/scaffold/verdict'
 import {
   bulkWallRead,
   cageRead,
-  gaugeField,
   GATES_PLAN,
-  identityField,
-  ruleField,
   sigmaTable,
   slabWallRead,
   wallVerdict,
   type BulkWallRead,
   type CageRead,
-  type ColorField,
   type GatesPlan,
   type SlabWallRead,
 } from '@/code/measure/color-gates'
-
-export const GATE_FIELDS: Record<'cf' | 'cr' | 'cg', ColorField> = {
-  cf: identityField,
-  cr: ruleField('first'),
-  cg: gaugeField(ruleField('first'), 1),
-}
-
-export type FieldName = keyof typeof GATE_FIELDS
+import { GATE_FIELDS, type FieldName } from '@/code/measure/color-gate-fields'
 
 const REF = { slabNearest8: 0.4736, slabNearestTol: 1e-3, ratio: 0.3004, ratioTol: 5e-5 }
 const TOL = { table: 1e-12, plaquette: 1e-12, roleTrace: 1e-10, norm: 1e-10 }

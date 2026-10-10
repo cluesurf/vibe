@@ -1022,7 +1022,7 @@ export function cageFrontVerdict(stages: readonly CfrontStage[]): Verdict {
 
 export default experiment({
   id: 'gauge/cage-front',
-  code: 'E-FRC-0000',
+  code: 'E-FRC-0305',
   title: 'explores whether any colour field could cage a lone third on R*s cycle, from the straight-through front block',
   category: 'gauge',
   substrates: ['3434'],

@@ -297,7 +297,7 @@ export function cageCellsVerdict(input: CageCellsInput): Verdict {
 
 export default experiment({
   id: 'gauge/cage-cells',
-  code: 'E-FRC-0000',
+  code: 'E-FRC-0303',
   title: 'explores whether a static centre field on a 2- or 3-dock cell, or a grid-move field, could stop a lone third exactly',
   category: 'gauge',
   substrates: ['3434'],

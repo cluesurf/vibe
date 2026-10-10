@@ -566,7 +566,7 @@ export function cageSpacetimeVerdict(stages: readonly CstStage[], ref: { cf0V2: 
 
 export default experiment({
   id: 'gauge/cage-spacetime',
-  code: 'E-FRC-0000',
+  code: 'E-FRC-0302',
   title: 'explores whether centre phases that change with the half-beat could stop a lone third exactly where cf0 only slows it',
   category: 'gauge',
   substrates: ['3434'],
