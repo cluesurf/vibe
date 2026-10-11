@@ -27,11 +27,13 @@
 //
 // Base code is read only: word.ts (normalForm), label-transport.ts (labelledCoin, labelTransports, buildHyperbolicBall).
 
+import { experiment } from '@/test/scaffold/suite'
+import { verdict, type Verdict } from '@/test/scaffold/verdict'
 import { normalForm, type Word } from '@/code/substrate/coxeter/word'
 import { buildHyperbolicBall, labelTransports, labelledCoin, type LabelledCoin } from '@/code/substrate/coxeter/label-transport'
 import { identity, matMul, type Mat } from '@/code/substrate/coxeter/minkowski'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { meshPaths, type MeshPaths } from '@/test/experiment/gauge/cage-front'
+import { meshPaths, type MeshPaths } from '@/code/measure/mesh-paths'
 
 export const SLOTS = 24
 export const MAX_HOPS = 32
@@ -748,3 +750,33 @@ export function frontMeshVerdict(stages: readonly FmeshStage[]): FmeshVerdict {
     checks,
   }
 }
+
+// the suite verdict: PROVED passes, COUNTER fails, OPEN stays open
+export function frontMeshSuiteVerdict(read: FmeshVerdict): Verdict {
+  const metrics: Record<string, number> = {}
+
+  read.checks.forEach((c, i) => {
+    metrics[`check${i}`] = c.pass ? 1 : 0
+  })
+
+  return verdict({
+    status: read.verdict === 'PROVED' ? 'pass' : read.verdict === 'COUNTER' ? 'fail' : 'open',
+    claim: `front-mesh ${read.verdict}: ${read.checks.map(c => `${c.name}: ${c.pass ? 'pass' : 'FAIL'} (${c.read})`).join('. ')}.`,
+    metrics,
+    notes: 'Read on the true {3,4,3,4} mesh (hyperbolic matrices and the radius 3 and 4 balls), never a flat stand-in.',
+  })
+}
+
+export default experiment({
+  id: 'gauge/front-mesh',
+  code: 'E-FRC-0310',
+  title: 'explores whether the straight transport tau_d^L is reached by exactly one geodesic dock path for every L on the true {3,4,3,4} mesh',
+  category: 'gauge',
+  substrates: ['3434'],
+  depth: 'L2',
+  paper: false,
+  run() {
+    // serially (minutes; the stage runner deck/vibe/tmp/fmesh-stage.ts splits it)
+    return frontMeshSuiteVerdict(frontMeshVerdict(fmeshSpecs().map(s => s.run())))
+  },
+})

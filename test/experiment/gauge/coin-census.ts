@@ -45,6 +45,7 @@ import { verdict, type Verdict } from '@/test/scaffold/verdict'
 import { DOCK_ROOTS } from '@/code/measure/dock-mixer'
 import { partnerBasis } from '@/code/measure/register-meson'
 import { ringUnit, unitAngle } from '@/code/measure/swap-string'
+import { enumerateCenterPatterns, ROTATIONS, rotatePattern } from '@/code/measure/center-flux'
 
 const S = 24
 const R = 8
@@ -115,10 +116,11 @@ export type Family = {
   checks: Record<string, number>
 }
 
-function slotHarmonics(): { P: Float64Array[]; dims: number[] } {
+function slotHarmonics(): { P: Float64Array[]; dims: number[]; basis: Float64Array[][] } {
   const basis: Float64Array[] = []
   const P: Float64Array[] = []
   const dims: number[] = []
+  const byDegree: Float64Array[][] = []
 
   for (let l = 0; l <= 4; l++) {
     const fresh: Float64Array[] = []
@@ -175,11 +177,305 @@ function slotHarmonics(): { P: Float64Array[]; dims: number[] } {
     }
 
     basis.push(...fresh)
+    byDegree.push(fresh)
     P.push(Pl)
     dims.push(fresh.length)
   }
 
-  return { P, dims }
+  return { P, dims, basis: byDegree }
+}
+
+// ---- the fast walk: G v by the family's low rank (slot harmonics (x) 1, and QD = E E^T), main family only ----
+
+export type FastCoin = { w: Phase[] }
+
+export function fastWalk(G1: Coin, G2: Coin): (state: Map<number, Float64Array>, k: number) => Map<number, Float64Array> {
+  const ph = phases()
+  const H = slotHarmonics().basis
+  const E = partnerBasis()
+  const coins = [G1, G2]
+
+  const apply = (coin: Coin, v: Float64Array): Float64Array => {
+    // main family order: P0, QD, P1', P2, P3, P4
+    const w = Array.from(coin, i => ph[i]!)
+    const out = Float64Array.from(v)
+    const addH = (l: number, fr: number, fi: number): void => {
+      if (fr === 0 && fi === 0) {
+        return
+      }
+
+      for (const q of H[l]!) {
+        // c_a = sum_d q_d v_(d, a)
+        for (let a = 0; a < R; a++) {
+          let cr = 0
+          let ci = 0
+
+          for (let d = 0; d < S; d++) {
+            cr += q[d]! * v[d * R + a]!
+            ci += q[d]! * v[N + d * R + a]!
+          }
+
+          const zr = fr * cr - fi * ci
+          const zi = fr * ci + fi * cr
+
+          for (let d = 0; d < S; d++) {
+            out[d * R + a]! += q[d]! * zr
+            out[N + d * R + a]! += q[d]! * zi
+          }
+        }
+      }
+    }
+
+    addH(0, w[0]!.re - 1, w[0]!.im)
+    addH(1, w[2]!.re - 1, w[2]!.im)
+    addH(2, w[3]!.re - 1, w[3]!.im)
+    addH(3, w[4]!.re - 1, w[4]!.im)
+    addH(4, w[5]!.re - 1, w[5]!.im)
+
+    // QD with coefficient (w_D - 1) - (w_1' - 1) = w_D - w_1'
+    const fr = w[1]!.re - w[2]!.re
+    const fi = w[1]!.im - w[2]!.im
+
+    if (fr !== 0 || fi !== 0) {
+      const tr = new Float64Array(R)
+      const ti = new Float64Array(R)
+
+      for (let i = 0; i < N; i++) {
+        for (let eta = 0; eta < R; eta++) {
+          tr[eta]! += E[i * R + eta]! * v[i]!
+          ti[eta]! += E[i * R + eta]! * v[N + i]!
+        }
+      }
+
+      for (let i = 0; i < N; i++) {
+        let sr = 0
+        let si = 0
+
+        for (let eta = 0; eta < R; eta++) {
+          sr += E[i * R + eta]! * tr[eta]!
+          si += E[i * R + eta]! * ti[eta]!
+        }
+
+        out[i]! += fr * sr - fi * si
+        out[N + i]! += fr * si + fi * sr
+      }
+    }
+
+    return out
+  }
+
+  return (state, k) => {
+    const coin = coins[k % 2]!
+    const next = new Map<number, Float64Array>()
+
+    for (const [key, v] of state) {
+      const x = coordsOf(key)
+      const w = apply(coin, v)
+
+      for (let c = 0; c < S; c++) {
+        const e = OPP[c]!
+
+        let p = 0
+
+        for (let a = 0; a < R; a++) {
+          p += w[c * R + a]! ** 2 + w[N + c * R + a]! ** 2
+        }
+
+        if (p === 0) {
+          continue
+        }
+
+        const ky = keyOf(x.map((z, i) => z + ROOTS[e]![i]!))
+        let t = next.get(ky)
+
+        if (!t) {
+          t = new Float64Array(2 * N)
+          next.set(ky, t)
+        }
+
+        for (let a = 0; a < R; a++) {
+          t[e * R + a]! += w[c * R + a]!
+          t[N + e * R + a]! += w[N + c * R + a]!
+        }
+      }
+    }
+
+    return next
+  }
+}
+
+// the 0/1 support evolution with path counts and cf0 class counts: per dock, [24 counts, 24 x 3 class counts]
+export function countWalk(
+  sup: readonly Uint8Array[],
+  c: Int8Array,
+  hops: number,
+): Map<number, Float64Array> {
+  // hop 0 from the start: every slot (the start is slot-uniform and G1 keeps it)
+  let state = new Map<number, Float64Array>()
+
+  for (let e = 0; e < S; e++) {
+    const t = new Float64Array(4 * S)
+
+    t[e] = 1
+    t[S + e * 3 + c[e]!] = 1
+    state.set(keyOf(ROOTS[e]!), t)
+  }
+
+  for (let k = 1; k < hops; k++) {
+    const A = sup[k % 2]!
+    const next = new Map<number, Float64Array>()
+
+    for (const [key, v] of state) {
+      const x = coordsOf(key)
+
+      for (let e = 0; e < S; e++) {
+        let any = false
+
+        for (let b = 0; b < S; b++) {
+          if (A[e * S + b] && v[b]! > 0) {
+            any = true
+            break
+          }
+        }
+
+        if (!any) {
+          continue
+        }
+
+        const ky = keyOf(x.map((z, i) => z + ROOTS[e]![i]!))
+        let t = next.get(ky)
+
+        if (!t) {
+          t = new Float64Array(4 * S)
+          next.set(ky, t)
+        }
+
+        for (let b = 0; b < S; b++) {
+          if (!A[e * S + b] || v[b]! === 0) {
+            continue
+          }
+
+          t[e]! += v[b]!
+
+          for (let q = 0; q < 3; q++) {
+            t[S + e * 3 + ((q + c[e]!) % 3)]! += v[S + b * 3 + q]!
+          }
+        }
+      }
+    }
+
+    state = next
+  }
+
+  return state
+}
+
+export type TrueFront = {
+  cycle: string
+  hops: number
+  docks: number
+  norm: number
+  // per n: over directions, the least and greatest paths at the farthest nonzero (dock, final slot), the most cf0 classes
+  // at any farthest nonzero point, directions whose farthest nonzero point has 2 or fewer paths, and the farthest value
+  // along the first direction
+  perN: { n: number; leastPaths: number; mostPaths: number; maxClasses: number; witnessDirs: number; reach: number }[]
+}
+
+// the true front of one cycle by the fast evolution: the farthest (dock, final slot) with amplitude above 1e-12 of the
+// state's largest, per direction, and its paths and cf0 classes from the support evolution
+export function trueFront(G1: Coin, G2: Coin, sig1: CoinSignature, sig2: CoinSignature, nmax: number, c: Int8Array): TrueFront {
+  const step = fastWalk(G1, G2)
+  const sup = [supportOf(sig1), supportOf(sig2)]
+  const dirs = frontDirections()
+  const perN: TrueFront['perN'] = []
+
+  let state = new Map<number, Float64Array>([[keyOf([0, 0, 0, 0]), startVector()]])
+  let docks = 0
+  let norm = 0
+
+  for (let k = 0; k < 2 * nmax; k++) {
+    state = step(state, k)
+
+    if (k % 2 === 0) {
+      continue
+    }
+
+    const n = (k + 1) / 2
+    const counts = countWalk(sup, c, k + 1)
+    const rows: { x: number[]; s: number; amp: number }[] = []
+
+    let top = 0
+
+    norm = 0
+
+    for (const [key, w] of state) {
+      const x = coordsOf(key)
+
+      for (let s = 0; s < S; s++) {
+        let p = 0
+
+        for (let a = 0; a < R; a++) {
+          p += w[s * R + a]! ** 2 + w[N + s * R + a]! ** 2
+        }
+
+        norm += p
+
+        if (p > 0) {
+          rows.push({ x, s, amp: Math.sqrt(p) })
+          top = Math.max(top, Math.sqrt(p))
+        }
+      }
+    }
+
+    const live = rows.filter(r => r.amp > REL * top)
+
+    let leastPaths = Infinity
+    let mostPaths = 0
+    let maxClasses = 0
+    let witnessDirs = 0
+    let reach = 0
+
+    dirs.forEach((v, di) => {
+      let best = -Infinity
+
+      for (const r of live) {
+        best = Math.max(best, dot4(r.x, v))
+      }
+
+      if (di === 0) {
+        reach = best
+      }
+
+      let witnessed = false
+
+      for (const r of live) {
+        if (Math.abs(dot4(r.x, v) - best) >= EPS_V) {
+          continue
+        }
+
+        const t = counts.get(keyOf(r.x))
+        const paths = t ? t[r.s]! : 0
+        const cls = t ? [0, 1, 2].filter(q => t[S + r.s * 3 + q]! > 0).length : 0
+
+        leastPaths = Math.min(leastPaths, paths)
+        mostPaths = Math.max(mostPaths, paths)
+        maxClasses = Math.max(maxClasses, cls)
+
+        if (paths <= 2) {
+          witnessed = true
+        }
+      }
+
+      if (witnessed) {
+        witnessDirs++
+      }
+    })
+
+    docks = state.size
+    perN.push({ n, leastPaths, mostPaths, maxClasses, witnessDirs, reach })
+  }
+
+  return { cycle: `${Array.from(G1).join('')}/${Array.from(G2).join('')}`, hops: 2 * nmax, docks, norm, perN }
 }
 
 function qdProjector(slotPerm?: readonly number[]): Float64Array {
@@ -459,8 +755,85 @@ export function straightExact(fam: Family, ph: readonly Phase[], coin: Coin): [n
   return [x, y]
 }
 
-// singular values squared of an 8 x 8 complex block (eigenvalues of B^dag B by a cyclic Jacobi on its 16 x 16 real form)
+// singular values squared of an 8 x 8 complex block, by a one-sided (Hestenes) Jacobi on its 16 x 16 real form
+// [[Br, -Bi], [Bi, Br]] (each singular value appears twice). Never through B^dag B: the Gram squares the conditioning,
+// and a zero singular value then reads near 1e-9 instead of 1e-17
 export function blockSingular2(B: Float64Array): number[] {
+  const n = 2 * R
+  // columns of the real form, column-major
+  const C = new Float64Array(n * n)
+
+  for (let i = 0; i < R; i++) {
+    for (let j = 0; j < R; j++) {
+      const br = B[i * R + j]!
+      const bi = B[R * R + i * R + j]!
+
+      C[j * n + i] = br
+      C[j * n + i + R] = bi
+      C[(j + R) * n + i] = -bi
+      C[(j + R) * n + i + R] = br
+    }
+  }
+
+  for (let sweep = 0; sweep < 40; sweep++) {
+    let rotated = false
+
+    for (let p = 0; p < n; p++) {
+      for (let q = p + 1; q < n; q++) {
+        let alpha = 0
+        let beta = 0
+        let gamma = 0
+
+        for (let k = 0; k < n; k++) {
+          const x = C[p * n + k]!
+          const y = C[q * n + k]!
+
+          alpha += x * x
+          beta += y * y
+          gamma += x * y
+        }
+
+        if (Math.abs(gamma) <= 1e-17 * Math.sqrt(alpha * beta) || gamma === 0) {
+          continue
+        }
+
+        rotated = true
+
+        const zeta = (beta - alpha) / (2 * gamma)
+        const t = Math.sign(zeta || 1) / (Math.abs(zeta) + Math.sqrt(1 + zeta * zeta))
+        const c = 1 / Math.sqrt(1 + t * t)
+        const s = c * t
+
+        for (let k = 0; k < n; k++) {
+          const x = C[p * n + k]!
+          const y = C[q * n + k]!
+
+          C[p * n + k] = c * x - s * y
+          C[q * n + k] = s * x + c * y
+        }
+      }
+    }
+
+    if (!rotated) {
+      break
+    }
+  }
+
+  const sv2 = Array.from({ length: n }, (_, j) => {
+    let s = 0
+
+    for (let k = 0; k < n; k++) {
+      s += C[j * n + k]! ** 2
+    }
+
+    return s
+  }).sort((a, b) => b - a)
+
+  return sv2.filter((_, i) => i % 2 === 0)
+}
+
+// the Gram route, kept only for the record of why it is not used
+export function blockSingular2Gram(B: Float64Array): number[] {
   const n = 2 * R
   const A = new Float64Array(n * n)
 
@@ -538,7 +911,8 @@ export function blockSingular2(B: Float64Array): number[] {
   return ev.filter((_, i) => i % 2 === 0)
 }
 
-// the rank of a block, counted above tol times the coin's scale (1)
+// the rank of a block: singular values above 1e-10 (blocks are of scale 1/24 to 1; the census reports the least nonzero
+// and the greatest zero singular value to show the separation)
 const RANK_TOL2 = 1e-20
 
 export function blockRank(B: Float64Array): { rank: number; least: number } {
@@ -1162,6 +1536,8 @@ export type Step0 = {
   // conj omega on Q_S, omega on QD: ranks of the 60, 90, 120 degree turns over all pairs, the straight scalar
   ternaryRanks: number[]
   ternaryUniform: boolean
+  ternaryLeast: number
+  ternaryZeroMax: number
   ternaryStraight: [number, number]
   ternaryStraightGap: number
   pass: boolean
@@ -1253,6 +1629,8 @@ export function step0(fam: Family): Step0 {
     mergedTurnNorms,
     ternaryRanks: sig.ranks.slice(1, 4),
     ternaryUniform: sig.uniform,
+    ternaryLeast: sig.least,
+    ternaryZeroMax: sig.zeroMax,
     ternaryStraight: [st[0]!, st[R * R]!],
     ternaryStraightGap,
     pass,
@@ -1564,6 +1942,285 @@ export function step2(fam: Family, s1: Step1, pairSample: number): { pairs: Clas
   return { pairs, directions: dirs.length, seconds: (Date.now() - t0) / 1000 }
 }
 
+// ---- STEP 3: flux classes of the paths into each farthest point ----
+//
+// A path is its sequence of hop directions e_0 .. e_(2n-1) from x0, and a link's reverse is its inverse (W
+// holonomy-caging.ts:313-314), so a hop along e followed by a hop along -e retraces one link and contributes 1 to the
+// holonomy of EVERY link field. Two paths into one (dock, final slot) with the same freely reduced word therefore carry
+// the same holonomy under every field, cf0 and its rotations included, and lie in one flux class. One reduced word means
+// one class exactly; several are read further only if they occur.
+
+export type Step3Point = {
+  dir: number
+  slot: number
+  paths: number
+  words: number
+  amp: number
+  scale: number
+  // under cf0: paths per flux class (sum of c over the steps, mod 3), and |V_c| the summed colour-free amplitude per class
+  cf0Paths: number[]
+  cf0V: number[]
+  // over cf0 and its 192 rotations: the most flux classes populated at this point, and whether some field populates all
+  // three with V_0 = V_1 = V_2 != 0 (to 1e-12 of the path scale)
+  maxClasses: number
+  threeEqual: boolean
+}
+
+// the flux-class pass: for each pattern (c per slot), path counts and amplitudes per class into each farthest final slot.
+// A uniform centre field puts omega^(c_d) on every link along d, so a path's holonomy is omega^(sum c_(e_k))
+export function classPass(
+  getters: readonly BlockGetter[],
+  sup: readonly Uint8Array[],
+  v: readonly number[],
+  hops: number,
+  g: GeoFront,
+  start0: Float64Array,
+  patterns: readonly Int8Array[],
+  withAmp: number,
+): { counts: number[][][]; amps: Float64Array[][] } {
+  const proj = ROOTS.map(r => dot4(r, v))
+  const opt = (k: number, s: number): boolean => Math.abs(g.F[k]![s]! + g.Bk[k]![s]! - g.value) < EPS_V
+  const P = patterns.length
+  // cnt[s][p * 3 + c]
+  let cnt: Float64Array[] = Array.from({ length: S }, () => new Float64Array(P * 3))
+  // amplitude per class for pattern withAmp: amp[s][c] 2R vector
+  let amp: Float64Array[][] = Array.from({ length: S }, () => [0, 1, 2].map(() => new Float64Array(2 * R)))
+
+  for (let e = 0; e < S; e++) {
+    if (!opt(0, e)) {
+      continue
+    }
+
+    for (let p = 0; p < P; p++) {
+      cnt[e]![p * 3 + patterns[p]![e]!]! += 1
+    }
+
+    const c = patterns[withAmp]![e]!
+    const w = amp[e]![c]!
+
+    for (let b = 0; b < S; b++) {
+      const B = getters[0]!(e, b)!
+
+      for (let x = 0; x < R; x++) {
+        for (let y = 0; y < R; y++) {
+          const br = B[x * R + y]!
+          const bi = B[R * R + x * R + y]!
+          const sr = start0[b * R + y]!
+          const si = start0[N + b * R + y]!
+
+          w[x]! += br * sr - bi * si
+          w[R + x]! += br * si + bi * sr
+        }
+      }
+    }
+  }
+
+  for (let k = 1; k < hops; k++) {
+    const A = sup[k % 2]!
+    const nc: Float64Array[] = Array.from({ length: S }, () => new Float64Array(P * 3))
+    const na: Float64Array[][] = Array.from({ length: S }, () => [0, 1, 2].map(() => new Float64Array(2 * R)))
+
+    for (let e = 0; e < S; e++) {
+      if (!opt(k, e)) {
+        continue
+      }
+
+      for (let b = 0; b < S; b++) {
+        if (!A[e * S + b] || !opt(k - 1, b) || Math.abs(g.F[k - 1]![b]! + proj[e]! - g.F[k]![e]!) >= EPS_V) {
+          continue
+        }
+
+        for (let p = 0; p < P; p++) {
+          const ce = patterns[p]![e]!
+
+          for (let c = 0; c < 3; c++) {
+            nc[e]![p * 3 + ((c + ce) % 3)]! += cnt[b]![p * 3 + c]!
+          }
+        }
+
+        const B = getters[k % 2]!(e, b)!
+        const ce = patterns[withAmp]![e]!
+
+        for (let c = 0; c < 3; c++) {
+          const a = amp[b]![c]!
+          const w = na[e]![(c + ce) % 3]!
+
+          for (let x = 0; x < R; x++) {
+            for (let y = 0; y < R; y++) {
+              const br = B[x * R + y]!
+              const bi = B[R * R + x * R + y]!
+
+              w[x]! += br * a[y]! - bi * a[R + y]!
+              w[R + x]! += br * a[R + y]! + bi * a[y]!
+            }
+          }
+        }
+      }
+    }
+
+    cnt = nc
+    amp = na
+  }
+
+  return {
+    counts: g.finals.map(f => Array.from({ length: P }, (_, p) => [0, 1, 2].map(c => cnt[f.slot]![p * 3 + c]!))),
+    amps: g.finals.map(f => amp[f.slot]!),
+  }
+}
+
+export type Step3Pair = {
+  c1: number
+  c2: number
+  cycles: number
+  // the sample cycle read (phase indices)
+  sample: string
+  // per direction and farthest final slot at n 6: the paths, the distinct reduced words, the amplitude and its path scale
+  points: Step3Point[]
+  // the most distinct reduced words at any farthest point (1: one flux class under every field)
+  maxWords: number
+  maxClasses: number
+  anyThreeEqual: boolean
+  allThreeEqual: boolean
+  leastPaths: number
+  leastRel: number
+  // farthest value along the first direction per n (a constant value: the walk is frozen at cycle times)
+  reach: number[]
+}
+
+function reducedWords(sup: readonly Uint8Array[], v: readonly number[], hops: number, g: GeoFront, slot: number, cap: number): number {
+  const proj = ROOTS.map(r => dot4(r, v))
+  const opt = (k: number, s: number): boolean => Math.abs(g.F[k]![s]! + g.Bk[k]![s]! - g.value) < EPS_V
+  let cur: Map<string, number>[] = Array.from({ length: S }, (_, s) => (opt(0, s) ? new Map([[String.fromCharCode(65 + s), 1]]) : new Map()))
+
+  for (let k = 1; k < hops; k++) {
+    const A = sup[k % 2]!
+    const nx: Map<string, number>[] = Array.from({ length: S }, () => new Map())
+
+    for (let e = 0; e < S; e++) {
+      if (!opt(k, e)) {
+        continue
+      }
+
+      for (let b = 0; b < S; b++) {
+        if (!A[e * S + b] || cur[b]!.size === 0 || Math.abs(g.F[k - 1]![b]! + proj[e]! - g.F[k]![e]!) >= EPS_V) {
+          continue
+        }
+
+        for (const [w, c] of cur[b]!) {
+          const last = w.length ? w.charCodeAt(w.length - 1) - 65 : -1
+          const nw = last === OPP[e] ? w.slice(0, -1) : w + String.fromCharCode(65 + e)
+
+          nx[e]!.set(nw, (nx[e]!.get(nw) ?? 0) + c)
+        }
+
+        if (nx[e]!.size > cap) {
+          return Infinity
+        }
+      }
+    }
+
+    cur = nx
+  }
+
+  return cur[slot]!.size
+}
+
+// cf0 (the most frustrated uniform centre pattern, item 0058) and its distinct images under the 192 box rotations
+export function cf0Patterns(): Int8Array[] {
+  const c = enumerateCenterPatterns().kept[0]!.pattern.c
+  const seen = new Map<string, Int8Array>()
+
+  for (const g of ROTATIONS) {
+    const r = rotatePattern(c, g)
+
+    seen.set(r.join(''), r)
+  }
+
+  return [Int8Array.from(c), ...[...seen.values()].filter(r => r.join('') !== c.join(''))]
+}
+
+export function step3(fam: Family, s1: Step1, pairs: readonly ClassPair[]): Step3Pair[] {
+  const ph = phases()
+  const dirs = frontDirections()
+  const start = startVector()
+  const patterns = cf0Patterns()
+  const out: Step3Pair[] = []
+
+  for (const p of pairs) {
+    if (p.witness) {
+      continue
+    }
+
+    const c1 = s1.classes[p.c1]!
+    const c2 = s1.classes[p.c2]!
+    const G1 = Int8Array.from((c1.zero > 0 ? c1.zeroCoins : c1.nonzeroCoins)[0]!)
+    const G2 = Int8Array.from((c2.zero > 0 ? c2.zeroCoins : c2.nonzeroCoins)[0]!)
+    const sup = [supportOf({ ranks: c1.ranks, least: 0, zeroMax: 0, uniform: true }), supportOf({ ranks: c2.ranks, least: 0, zeroMax: 0, uniform: true })]
+    const getters = [blockGetter(fam, ph, G1), blockGetter(fam, ph, G2)]
+    const points: Step3Point[] = []
+    const hops = 2 * NMAX
+
+    const vnorm8 = (a: Float64Array): number => Math.sqrt(a.reduce((s, x) => s + x * x, 0))
+
+    dirs.forEach((v, di) => {
+      const g = geoFront(sup, v, hops)
+      const amps = geoAmplitude(getters, sup, v, hops, g, start)
+      const cp = classPass(getters, sup, v, hops, g, start, patterns, 0)
+
+      amps.forEach((a, fi) => {
+        const counts = cp.counts[fi]!
+        const maxClasses = Math.max(...counts.map(row => row.filter(x => x > 0).length))
+
+        let threeEqual = false
+
+        counts.forEach((row, p) => {
+          if (threeEqual || row.some(x => x === 0)) {
+            return
+          }
+
+          const V = classPass(getters, sup, v, hops, g, start, [patterns[p]!], 0).amps[fi]!
+          const gap = Math.max(...[0, 1, 2].map(i => vnorm8(V[i]!.map((x, j) => x - V[(i + 1) % 3]![j]!))))
+
+          if (gap <= REL * a.scale && vnorm8(V[0]!) > REL * a.scale) {
+            threeEqual = true
+          }
+        })
+
+        points.push({
+          dir: di,
+          slot: a.slot,
+          paths: a.paths,
+          words: reducedWords(sup, v, hops, g, a.slot, 100000),
+          amp: a.amp,
+          scale: a.scale,
+          cf0Paths: counts[0]!,
+          cf0V: cp.amps[fi]!.map(vnorm8),
+          maxClasses,
+          threeEqual,
+        })
+      })
+    })
+
+    out.push({
+      c1: p.c1,
+      c2: p.c2,
+      cycles: p.cycles,
+      sample: `${Array.from(G1).join('')}/${Array.from(G2).join('')}`,
+      points,
+      maxWords: Math.max(...points.map(x => x.words)),
+      maxClasses: Math.max(...points.map(x => x.maxClasses)),
+      anyThreeEqual: points.some(x => x.threeEqual),
+      // SURVIVOR needs EVERY farthest nonzero point to carry three classes of equal amplitude
+      allThreeEqual: points.filter(x => x.amp > REL * x.scale).every(x => x.threeEqual),
+      leastPaths: Math.min(...points.map(x => x.paths)),
+      leastRel: Math.min(...points.map(x => x.amp / x.scale)),
+      reach: p.reach,
+    })
+  }
+
+  return out
+}
+
 // the instrument: the full dictionary evolution against the geometric read, for a cycle, over the first directions
 export type Instrument = { cycle: string; hops: number; directions: number; valueGap: number; ampGap: number; slotMismatch: number; docks: number }
 
@@ -1621,20 +2278,24 @@ export const census = {
 
 export default experiment({
   id: 'gauge/coin-census',
-  code: 'E-FRC-0000',
+  code: 'E-FRC-0309',
   title: 'explores whether any constant-free coin from R*s slot-harmonic and Clifford projectors could give a cageable front',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run(): Verdict {
-    // the census runs in stages (deck/vibe/tmp/ncoin.sh); the suite run reads only the family instruments
+    // the census runs in stages (deck/vibe/tmp/ncoin.sh); the suite run reads only the family instruments and states
+    // the staged outcome, read KILL by item 0095 (one flux class under cf0 and its 192 rotations is colour-blind)
     const f = buildFamilies()
+    const instrumentsOk = Object.values(f.main.checks).every(v => Math.abs(v) < 1e-9)
 
     return verdict({
-      status: 'open',
-      claim: `coin-census family: harmonic dims ${f.harmonicDims.join(', ')}; run the staged census for the verdict`,
+      status: instrumentsOk ? 'fail' : 'open',
+      claim: `coin-census ${instrumentsOk ? 'KILL' : 'OPEN (family instruments failed)'}: family harmonic dims ${f.harmonicDims.join(', ')}. Staged census: 74 of 46,656 coins have a zero straight block, 6,899,612 cycles; 33,244 have a farthest point on one path through full-rank blocks, and the other 6,866,368 (6,306,592 moving, 559,776 frozen) carry every farthest nonzero (dock, final slot) at n 6 in one flux class under the uniform centre field cf0 and all 192 rotations, so none has three classes of equal amplitude.`,
       metrics: f.main.checks,
+      notes:
+        'Read on the flat D4 dock box at the support level with sampled amplitudes; the KILL holds on the fields the gate named (uniform cf0 and its rotations). A non-uniform centre field was declined, not disproved (item 0095).',
     })
   },
 })
