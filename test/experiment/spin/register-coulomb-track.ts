@@ -851,9 +851,9 @@ export function registerCoulombTrackRun(): Verdict {
 
 export default experiment({
   id: 'spin/register-coulomb-track',
-  code: 'E-SPN-0000',
+  code: 'E-SPN-0200',
   title:
-    'a light register pair under a weak Coulomb pull, one level tracked by its overlap with a fixed reference (not yet run)',
+    'explores whether a light register pair under a weak Coulomb pull, one level tracked by its overlap with a fixed reference, brings R down to tan m / m: partial, the Darwin-corrected excess falls 1.545, 0.410, 0.169 over the unambiguous radii a_B 6, 8 and 12 (log-log slope -3.13, so no kill), but R is still 16% above tan m / m at a_B 12',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
