@@ -306,6 +306,19 @@ vibe leaving its line, and ended with one reading of all four.
   vacuum is the line vacuum relabeled. A store piece that is an
   involution must return every vibe to the slot it took it from, so no
   store of any kind moves a vibe onto another line.
+- **The line law is not a fracton constraint**
+  ([`E-RLT-0114`](test/experiment/relativity/composite-lineon-mobility.ts),
+  fail as derived). In fracton models a lone lineon is stuck on its
+  line, but some bound groups of lineons move freely. Here no group
+  does. Of 1,804 runs of 396 placed groups (dipoles on parallel lines,
+  pairs and triples on lines crossing at one dock, 150 kinds of triple
+  whose lines span 3d), 0 stay bound and 0 move off their members'
+  lines. A dipole is two separate 1d worlds. At a crossing dock K
+  sends members out along all 9 line shadows, but never off that
+  dock's 12 lines and never along a body diagonal. The reason: a
+  fracton rule conserves a few charges, while this rule keeps every
+  line's whole state, so lineons can turn only at the dock where they
+  started.
 
 **One property behind all of it: the vacuum is correlated without limit
 along each line and not at all across lines.** A 3d vacuum has to be
@@ -472,9 +485,13 @@ realizes.
    ([`E-SPN-0116`](test/experiment/spin/bent-string.ts) to
    [`E-SPN-0120`](test/experiment/spin/two-hub-bound.ts)). Line-only
    motion is excluded by observation, by about 17 orders of magnitude
-   ([`E-SPN-0126`](test/experiment/spin/line-anisotropy.ts)). So the
-   rule has to change. A candidate change is tested, and it splits the
-   problem in two.
+   ([`E-SPN-0126`](test/experiment/spin/line-anisotropy.ts)). Binding
+   lineons into groups, as fracton models do, does not get around it:
+   no group of vibes on different lines binds or moves off its
+   members' lines
+   ([`E-RLT-0114`](test/experiment/relativity/composite-lineon-mobility.ts)).
+   So the rule has to change. A candidate change is tested, and it
+   splits the problem in two.
 
    **Motion works under the candidate.** It has four parts:
    - a filled love sea as the vacuum;
