@@ -30,7 +30,15 @@
 //   sign)
 // Verdict: pass if K1 to K4 hold at D = 2, 3, 4; fail otherwise.
 //
-// FIRST RUN (below, after the run).
+// FIRST RUN (2026-10-19, tmp/spn-0207-run2.log, 28 s): PASS, K1 to K4 at D = 2, 3, 4. Meeting on: the lowest level sits
+// 0.93, 0.92, 0.92 at contact and the next 0.44, 0.42, 0.41; own c^2 0.129, 0.141, 0.095 against 0.363, 0.363, 0.340
+// (the knot 2.8, 2.6, 3.6 times heavier per unit energy); alpha -0.100, -0.078, -0.083. Meeting off: the lowest level
+// 0.27, 0.23, 0.20 at contact, c^2 0.568, 0.545, 0.554 against the next 0.561, 0.495, 0.511; alpha +0.0131, +0.0261,
+// +0.0282, the right sign but 2.5, 6.1, 7.6 times relativity's. READ on "inertia as states": the knot holds the FEWEST
+// configurations (7.1 to 7.2, inverse participation) and is the heaviest, the string-held level 18 to 19 and lighter,
+// so inertia over energy does not follow the number of states a level occupies; it follows the share of the level that
+// must change before it can move (the contact). D = 1 is read only: with the meeting on its levels 1 and 2 are flat
+// (c^2 0, contact 1.0, the knot that cannot move at all).
 //
 // Depth L2: the tokens are E-SPN-0077's locked STAND-INS on one husk line. DETERMINISM: no random numbers; exact
 // diagonalization of the Bloch beat at each K.
@@ -129,7 +137,7 @@ export default experiment({
       control: Object.fromEntries(
         GATED.map(D => [`off_D${D}_L0_contact`, at(false, D).levels[0]!.contact]),
       ),
-      notes: `L2, a diagnosis with post-probe gates (the probe tmp/spn-clock-probe.log read these numbers first). Gates K1 ${K1}, K2 ${K2}, K3 ${K3}, K4 ${K4}. Meeting on: ${[1, 2, 3, 4].map(D => row(true, D)).join(' | ')}. Meeting off: ${[1, 2, 3, 4].map(D => row(false, D)).join(' | ')}. MEANING: inertia here is the states that must change for the whole to move. A knot (two tokens on one dock under the meeting's phase) can move only by undoing itself, so its band is flat, as a tightly bound lattice pair's is (hopping squared over the well). The clock's wrong sign is that one level is a knot and the other is not. With the knot gone the sign is right but the size is still ${GATED.map(D => (metrics[`off_D${D}_alpha`]! / metrics[`off_D${D}_alphaSR`]!).toFixed(1)).join(', ')} times relativity's, and the higher levels (longer strings) are heavier per unit energy than the lower: on locked tokens of mass pi / 3 against a beat, no level is light enough for inertia to equal energy (E-MTR-0024). The same reading applies to the register pair on the candidate rule (E-SPN-0206): its contact well is the knot.`,
+      notes: `L2, a diagnosis with post-probe gates (the probe tmp/spn-clock-probe.log read these numbers first). Gates K1 ${K1}, K2 ${K2}, K3 ${K3}, K4 ${K4}. Meeting on: ${[1, 2, 3, 4].map(D => row(true, D)).join(' | ')}. Meeting off: ${[1, 2, 3, 4].map(D => row(false, D)).join(' | ')}. MEANING: inertia here is the states that must change for the whole to move. A knot (two tokens on one dock under the meeting's phase) can move only by undoing itself, so its band is flat, as a tightly bound lattice pair's is (hopping squared over the well). The clock's wrong sign is that one level is a knot and the other is not. With the knot gone the sign is right but the size is still ${GATED.map(D => (metrics[`off_D${D}_alpha`]! / metrics[`off_D${D}_alphaSR`]!).toFixed(1)).join(', ')} times relativity's, and the higher levels (longer strings) are heavier per unit energy than the lower: on locked tokens of mass pi / 3 against a beat, no level is light enough for inertia to equal energy (E-MTR-0024). E-SPN-0206 tests the same reading on the register pair of the candidate rule, whose knot is the light's contact well.`,
     })
   },
 })

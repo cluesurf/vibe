@@ -1,4 +1,4 @@
-// THE BOOST'S PARTNERS OF A BOUND LEVEL (E-SPN-0208). A bound level's band curvature at K = 0 has two parts: the members'
+// THE BOOST'S PARTNERS OF A BOUND LEVEL (a read of E-SPN-0206, from tmp/spn-partner-part.ts). A bound level's band curvature at K = 0 has two parts: the members'
 // own curvature, and the second-order coupling K . p of the level to the internal levels of the opposite parity (the
 // T1u lines of an A1g level). A partner line just ABOVE the level pushes it down at K (heavier), one just BELOW pushes
 // it up (lighter), each by its coupling squared over the gap. In the "matter as machine" picture these are the internal

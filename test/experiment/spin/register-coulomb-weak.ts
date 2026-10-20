@@ -165,28 +165,20 @@ import {
 } from '@/code/measure/register-reduced'
 import { diracPhase } from '@/code/measure/spinor-register'
 import { ringUnit, unitAngle } from '@/code/measure/swap-string'
+import {
+  COUNT_UNIT,
+  MEMBER_LIGHT,
+  memberInstrument,
+  RECORDED,
+  setup,
+  type Setup,
+} from '@/code/measure/register-track'
 
-const LIGHT: readonly [number, number] = [-5, 1]
-const UNIT: readonly [number, number] = [11, 5]
 const C_STAR2 = 0.5
 const KAPPA = 0.04
 // a K = 0 line is read when it carries this much of the level; a K line is followed when it carries this much
 const LINE_WEIGHT = 0.02
 const FOLLOW_WEIGHT = 1e-4
-const I1_MOMENTA: readonly number[][] = [
-  [0, 0, 0, 0],
-  [0.3, 0.1, -0.2, 0],
-  [1.1, -0.7, 0.4, 0],
-  [2.5, 0.3, 0.3, 0],
-  [0.01, 0, 0, 0],
-]
-
-// E-SPN-0173's recorded main point (tmp/rch-exp-run1.log): the control
-export const RECORDED = {
-  EL: 1.6133573497836755,
-  Rstatic: 8.459326179870311,
-  Eb: 0.09475961475246364,
-}
 
 export type Point = {
   name: string
@@ -258,93 +250,6 @@ export type PointRead = {
   Rfull: number
   RfullD5: number
   seconds: number
-}
-
-export type Setup = {
-  u: [number, number]
-  M0: number
-  m: number
-  tanOver: number
-  mu: number
-  aMember: number
-  theta: number
-  G0: number
-  table: GreenTable
-  group: CubicGroup
-}
-
-export function setup(): Setup {
-  const theta0 = unitAngle(ringUnit(LIGHT[0], LIGHT[1]))
-  const u: [number, number] = [Math.cos(theta0), Math.sin(theta0)]
-  const M0 = wrap(theta0 - Math.PI)
-  const m = M0 / 2
-
-  const sEps = (k: number): number => {
-    const c = memberCycle(u, [k, 0, 0, 0])
-    const ev = complexEigenvalues({ re: c.re, im: c.im, n: 16 })
-
-    return ev.re
-      .map((x, i) => wrap(Math.atan2(ev.im[i]!, x) - Math.PI))
-      .reduce((b, x) => (Math.abs(x - M0) < Math.abs(b - M0) ? x : b))
-  }
-
-  const aMember =
-    (4 * ((sEps(0.01) - M0) / 0.01 ** 2) -
-      (sEps(0.02) - M0) / 0.02 ** 2) /
-    3
-  const mu = C_STAR2 / (2 * aMember) / 2
-  const G0 = infiniteGreenZero('husk', 64).value
-  const table = huskGreenTable(128, 16, G0)
-
-  return {
-    u,
-    M0,
-    m,
-    tanOver: Math.tan(m) / m,
-    mu,
-    aMember,
-    theta: unitAngle(ringUnit(UNIT[0], UNIT[1])),
-    G0,
-    table,
-    group: cubicGroup(),
-  }
-}
-
-// the member instrument (E-SPN-0173's I1 and I2)
-export function memberInstrument(su: Setup): {
-  i1: number
-  RMember: number
-  I1: boolean
-  I2: boolean
-} {
-  let i1 = 0
-
-  for (const K of I1_MOMENTA) {
-    const c = memberCycle(su.u, K)
-    const ev = complexEigenvalues({ re: c.re, im: c.im, n: 16 })
-    const ph = ev.re
-      .map((x, i) => Math.atan2(ev.im[i]!, x))
-      .sort((a, b) => a - b)
-    const E = diracPhase(K, su.M0)
-    const want = [
-      ...Array(8).fill(wrap(Math.PI + E)),
-      ...Array(8).fill(wrap(Math.PI - E)),
-    ].sort((a, b) => a - b)
-
-    i1 = Math.max(
-      i1,
-      ...ph.map((x, i) => Math.abs(wrap(x - (want[i] as number)))),
-    )
-  }
-
-  const RMember = C_STAR2 / (2 * su.aMember * su.M0)
-
-  return {
-    i1,
-    RMember,
-    I1: i1 <= 1e-12,
-    I2: Math.abs(RMember - su.tanOver) <= 1e-6,
-  }
 }
 
 const alphaOf = (su: Setup, aB: number): number =>
@@ -859,7 +764,7 @@ export function combine(
       ),
     },
     control: { C1: flag(C1), instrument: flag(instrument) },
-    notes: `L2. The light member m 0.427029 (u = ringUnit(${LIGHT.join(', ')}), tan m / m ${tanOver.toFixed(9)}), the Coulomb count in steps of ringUnit(${UNIT.join(', ')}), the vector form, on the cubic-symmetry reduction of the husk quotient.`,
+    notes: `L2. The light member m 0.427029 (u = ringUnit(${MEMBER_LIGHT.join(', ')}), tan m / m ${tanOver.toFixed(9)}), the Coulomb count in steps of ringUnit(${COUNT_UNIT.join(', ')}), the vector form, on the cubic-symmetry reduction of the husk quotient.`,
   })
 }
 

@@ -603,6 +603,52 @@ realizes.
      to read R where the pull is weak across a link. It found that the
      level is a multiplet of at least 6 lines, each one heavy on its
      own, so the high R is not a blend
+     ([`E-SPN-0183`](test/experiment/spin/register-coulomb-weak.ts)).
+     Followed as one level by its overlap with a fixed hydrogenic
+     start, R reads 2.72, 1.53, 2.19 and 1.25 at a_B 6, 8, 10 and 12
+     (with the Darwin term 1.235 at a_B 12, against tan m/m 1.066),
+     and every other line it reaches is heavier still
+     ([`E-SPN-0200`](test/experiment/spin/register-coulomb-track.ts)).
+     So no other level, and no mixture of the levels, is light
+   - **Why R is high: the excess lives where the pull is steep across
+     one link.** The light's lattice Green function stays finite at
+     contact, and there the pull is 4.2 times its first shell's (a
+     step of 1.1 rad a cycle at a_B 6, against a member's room of
+     0.41). A level held there is a knot: a member cannot step without
+     leaving the well, so the pair moves only at second order, as a
+     tightly bound lattice pair does. That is the "matter as machine"
+     reading of inertia, the states that must change before the whole
+     can move, and it is not the number of states a level occupies.
+     Flattening the pull inside radius 2 cuts the excess at a_B 6
+     from 1.31 to 0.23, and removing the contact well alone at a_B 8
+     cuts it from 0.365 to 0.140. There the 2s-like level then has the
+     same R (1.274) as the ground, and the pair's clock dilates at 0.79
+     of relativity's rate with the right sign, where on the rule's
+     count the other levels read R 8 to 15. At a_B 6 the same removal
+     leaves a near triplet of levels, each R 3.2 to 3.6, so the
+     pre-registered test there failed
+     ([`E-SPN-0206`](test/experiment/spin/register-contact-core.ts),
+     fail on its a_B 6 gate). The same knot explains why the bound
+     clock of E-MTR-0025 ticks faster when it moves: its lower level
+     sits 0.92 at contact under the meeting and is 2.6 to 3.6 times
+     heavier per unit energy than the level above. With the meeting
+     off, the clock dilates with the right sign, but 2.5 to 7.6 times
+     too strongly
+     ([`E-SPN-0207`](test/experiment/spin/clock-contact-knot.ts)).
+     Binding by exchange at one dock therefore gives a knot, not a
+     unit that carries momentum whole
+   - **The well is a regulator, and it is not what is left.** At
+     a_B 12, with the contact well removed, a clean level reads
+     R_full 1.173 against tan m/m 1.066. That gap is 0.64 of the rule's
+     own (1.235), so the test failed its gates, which were fixed before
+     the run. Over a_B 8 and 12 the well's part of the excess falls as
+     a_B^−3.4, from 0.62 of the excess to 0.36 of it, as a lattice
+     artifact of the core should. What remains falls only as about
+     1/a_B (0.158 to 0.107), which is first order in the coupling at
+     fixed member mass. The clock read there used a line at the
+     continuum's edge, and it rose with K
+     ([`E-SPN-0208`](test/experiment/spin/register-contact-weak.ts),
+     fail). So a 1/a_B remainder now holds R up, not the core
    - **The wall as the husk.** A Wilson mass built from the rule's own
      mixers makes the husk a domain wall, second Chern number −1 per copy
      ([`E-SPN-0166`](test/experiment/spin/wilson-wall.ts), a fail on
@@ -696,10 +742,13 @@ one pre-registered instrument clause).
 One chain gates nearly everything, because most rows still at none or
 partial wait on bound matter that moves across lines.
 
-1. **R for a light pair held by the light.** The symmetry-reduced
-   engine reads R at Bohr radii 8 to 20, static and with the Darwin
-   term. If it falls to tan m/m there, bound matter moving in 3d has
-   its full demonstration on the candidate rule with the register.
+1. **R for a light pair held by the light.** The excess is traced to
+   the pull's contact well and steep core (E-SPN-0206, E-SPN-0207),
+   which fades as a regulator should, and a remainder falling as
+   1/a_B (E-SPN-0208). Next: find that first-order term, through the
+   pair and the quantum light as one dynamics, or the static formula
+   at order α. If R then falls to tan m/m, bound matter moving in 3d
+   has its full demonstration on the candidate rule with the register.
 2. **The pair and the quantum light as one exact dynamics**, to confirm
    the Darwin term beyond linear response.
 3. **Adopt or refuse the candidate rule.** The register results then

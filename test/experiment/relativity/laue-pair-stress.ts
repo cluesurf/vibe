@@ -105,8 +105,12 @@ import {
   type RState,
   type Sector,
 } from '@/code/measure/register-reduced'
-import { setup, type Setup } from '@/test/experiment/spin/register-coulomb-weak'
-import { alphaOf, radiusOf } from '@/test/experiment/spin/register-coulomb-track'
+import {
+  alphaOf,
+  radiusOf,
+  setup,
+  type Setup,
+} from '@/code/measure/register-track'
 import type { KernelOptions } from '@/code/kernel/index'
 
 const TOLERANCE = 0.05
