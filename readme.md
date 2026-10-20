@@ -649,6 +649,40 @@ realizes.
      continuum's edge, and it rose with K
      ([`E-SPN-0208`](test/experiment/spin/register-contact-weak.ts),
      fail). So a 1/a_B remainder now holds R up, not the core
+   - **The reference formula has no first-order term.** Every piece
+     of the static formula plus the Darwin exchange is second order
+     in the coupling: the band's non-quadratic terms, the register,
+     recoil, the binding's share of inertia, and the exchange itself.
+     The member's exact band, averaged over each level's momentum
+     density, raises the reference by 0.015 at a_B 8 and 0.006 at
+     a_B 12. The recorded values sit 0.10 to 0.39 above it
+     ([`E-SPN-0209`](test/experiment/spin/register-pair-formula-audit.ts),
+     fail as predicted). The remainder, falling as a_B^−0.85, is
+     inertia the static picture leaves out by construction. That
+     points at the pair and its light as one dynamics
+   - **Why the exact pair-plus-light run was not started.** With total
+     momentum fixed, the a_B 8 motion sector holds about 28,000
+     representatives of 256 states. One transverse photon on a husk
+     torus of side 64 adds about 520,000 modes, so a single sector
+     holds about 4 × 10^12 amplitudes, 64 TB a state. The run also
+     could not close the gap: E-SPN-0169 showed the light's kernels
+     are one Maxwell form, so the moving field's first new term is the
+     Darwin exchange. That term is order 1/a_B² and is already in
+     R_full, while the remainder is order 1/a_B. A direction test was
+     dropped for the same kind of reason. The tracked level is
+     O_h-symmetric, so its K² coefficient is isotropic by symmetry,
+     whatever its cause (measured 5e-7 and 2e-6 in E-SPN-0162 and
+     E-SPN-0173)
+   - **The remainder is the static engine's lattice, not one law.** At
+     a_B 8, with the contact well removed, three members of the ring
+     (m 0.284, 0.427, 0.474) leave remainders of 0.533, 0.143 and
+     0.191. The lightest one's K read is not quadratic, so it is read
+     but not gated. The two clean members give m^+2.8 against the
+     internal-speed law's m^−1
+     ([`E-SPN-0211`](test/experiment/spin/register-pair-mass-scan.ts),
+     fail). One piece grows as the member gets lighter, and one grows
+     with the member's own lattice inertia, tan m/m − 1. Neither is a
+     term a relativistic bound state carries
    - **The wall as the husk.** A Wilson mass built from the rule's own
      mixers makes the husk a domain wall, second Chern number −1 per copy
      ([`E-SPN-0166`](test/experiment/spin/wilson-wall.ts), a fail on
@@ -745,9 +779,12 @@ partial wait on bound matter that moves across lines.
 1. **R for a light pair held by the light.** The excess is traced to
    the pull's contact well and steep core (E-SPN-0206, E-SPN-0207),
    which fades as a regulator should, and a remainder falling as
-   1/a_B (E-SPN-0208). Next: find that first-order term, through the
-   pair and the quantum light as one dynamics, or the static formula
-   at order α. If R then falls to tan m/m, bound matter moving in 3d
+   1/a_B (E-SPN-0208), which the reference formula cannot supply
+   (E-SPN-0209), and which is a lattice term of the static engine
+   with no single power of the pair's speed (E-SPN-0211). The exact
+   pair-plus-light run is out of reach (about 64 TB a state). Next:
+   lighter members at larger a_B, so that both lattice pieces shrink
+   together (m a_B held large while m and 1/a_B both fall). If R then falls to tan m/m, bound matter moving in 3d
    has its full demonstration on the candidate rule with the register.
 2. **The pair and the quantum light as one exact dynamics**, to confirm
    the Darwin term beyond linear response.

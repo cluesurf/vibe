@@ -77,8 +77,12 @@ export type Setup = {
   group: CubicGroup
 }
 
-export function setup(): Setup {
-  const theta0 = unitAngle(ringUnit(LIGHT[0], LIGHT[1]))
+// the setup of E-SPN-0173's member, ringUnit(-5, 1)
+export const setup = (): Setup => setupFor(LIGHT)
+
+// the same setup for a member of another ring unit (E-SPN-0211's mass scan); everything else unchanged
+export function setupFor(light: readonly [number, number]): Setup {
+  const theta0 = unitAngle(ringUnit(light[0], light[1]))
   const u: [number, number] = [Math.cos(theta0), Math.sin(theta0)]
   const M0 = wrap(theta0 - Math.PI)
   const m = M0 / 2
@@ -433,6 +437,8 @@ export function readMotion(
   log: (what: string) => void = () => {},
   // the same diagnostic transform as readZero's
   transform?: (s: Sector, c: ReducedCount) => ReducedCount,
+  // the unit direction of K on the husk (E-SPN-0210's face and body diagonals); the axis when absent
+  direction: readonly [number, number, number] = [1, 0, 0],
 ): MotionRead {
   const started = Date.now()
   const oh = [...su.group.elements.keys()]
@@ -447,7 +453,13 @@ export function readMotion(
   const base = linesOf(su, p.aB, zero.x, NK)
   const b = trackedOf(base).tracked
   // (the reference is left unnormalized here: a K line's overlap is divided by its own correlation's x_0)
-  const sk = sector(su.group, littleGroup(su.group, [0.04, 0, 0, 0]), p.R)
+  const along = (k: number): number[] => [
+    k * direction[0],
+    k * direction[1],
+    k * direction[2],
+    0,
+  ]
+  const sk = sector(su.group, littleGroup(su.group, along(0.04)), p.R)
   const rk = unfold(s, r, sk)
   const ruleCountK: ReducedCount = reducedCounts(sk, su.table, alpha, su.theta)
   const countK = transform ? transform(sk, ruleCountK) : ruleCountK
@@ -462,7 +474,7 @@ export function readMotion(
       return seen
     }
 
-    const ek = reducedEngine(sk, su.u, [k, 0, 0, 0], countK, 'vector', opts)
+    const ek = reducedEngine(sk, su.u, along(k), countK, 'vector', opts)
     const x = plain(referenceCorrelation(ek, rk, NK + w.S - 1))
 
     log(`${p.name} K ${k}: correlation read`)
