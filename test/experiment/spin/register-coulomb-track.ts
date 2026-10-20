@@ -135,6 +135,7 @@ import {
   type ReducedCount,
   type RefLine,
   type RState,
+  type Sector,
 } from '@/code/measure/register-reduced'
 import {
   memberInstrument,
@@ -296,12 +297,15 @@ export function readZero(
   opts: KernelOptions,
   log: (what: string) => void = () => {},
   alphaScale = 1,
+  // a diagnostic transform of the count (E-SPN-0206's softened cores); the identity when absent
+  transform?: (s: Sector, c: ReducedCount) => ReducedCount,
 ): ZeroRead {
   const started = Date.now()
   const oh = [...su.group.elements.keys()]
   const alpha = alphaOf(su, p.aB) * alphaScale
   const s = sector(su.group, oh, p.R)
-  const count = reducedCounts(s, su.table, alpha, su.theta)
+  const ruleCount = reducedCounts(s, su.table, alpha, su.theta)
+  const count = transform ? transform(s, ruleCount) : ruleCount
   const e = reducedEngine(s, su.u, [0, 0, 0, 0], count, 'vector', opts)
   const r = reducedHydrogenStart(s, p.aB)
   const w = windowOf(su, p.aB, p.N)
@@ -441,6 +445,8 @@ export function readMotion(
   zero: ZeroRead,
   opts: KernelOptions,
   log: (what: string) => void = () => {},
+  // the same diagnostic transform as readZero's
+  transform?: (s: Sector, c: ReducedCount) => ReducedCount,
 ): MotionRead {
   const started = Date.now()
   const oh = [...su.group.elements.keys()]
@@ -457,7 +463,8 @@ export function readMotion(
   // (the reference is left unnormalized here: a K line's overlap is divided by its own correlation's x_0)
   const sk = sector(su.group, littleGroup(su.group, [0.04, 0, 0, 0]), p.R)
   const rk = unfold(s, r, sk)
-  const countK: ReducedCount = reducedCounts(sk, su.table, alpha, su.theta)
+  const ruleCountK: ReducedCount = reducedCounts(sk, su.table, alpha, su.theta)
+  const countK = transform ? transform(sk, ruleCountK) : ruleCountK
 
   // each K read once: the retry's K / 2 pair shares K 0.02 with the first pair, and the read is deterministic, so the
   // second read of it would return the same lines byte for byte
