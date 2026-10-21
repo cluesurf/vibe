@@ -12,7 +12,9 @@
 // E0 + a K^2 with c^2 = 2 a E0, the two forms a curvature a fixes; relativityFraction is where a read sits between
 // them, 1 on the relativistic form and 0 on the Galilean.
 
+import { filterDiagonalize, type FilterLine } from '@/code/algebra/linear/filter-diagonalization'
 import type { KernelOptions } from '@/code/kernel/index'
+import { weightedLeastSquares } from '@/code/measure/regression'
 import {
   alphaOf,
   genuine,
@@ -170,4 +172,113 @@ export function relativityFraction(input: {
   const g = galileanEnergy(input)
 
   return (g - input.E) / (g - relativisticEnergy(input))
+}
+
+// ---- the sector eigensolver's read of one level over several settings (E-MTR-0031, E-MTR-0032) ----
+
+// one solver setting: the filter length S, the basis density (J per 0.02 of window, at least `floor` states) and a shift
+// of the whole window
+export type FilterSetting = { S: number; density: number; shift: number }
+
+export type LevelPick = 'lowest' | 'heaviest'
+
+// the level in the window [lo, hi] at each setting: the lowest line whose weight is at least `least` (the ground, since a
+// bound sector's ground is its lowest level), or the heaviest line; the first setting's line is the read, and the
+// half-spread of its energy over all settings is its stability
+export function levelOverSettings(input: {
+  x: { re: ArrayLike<number>; im: ArrayLike<number> }
+  lo: number
+  hi: number
+  settings: readonly FilterSetting[]
+  pick: LevelPick
+  least?: number
+  floor?: number
+}): { line: FilterLine | undefined; half: number; reads: (FilterLine | undefined)[]; lines: FilterLine[] } {
+  const least = input.least ?? 0.1
+  const floor = input.floor ?? 60
+  const all: FilterLine[][] = input.settings.map(s =>
+    filterDiagonalize({
+      x: input.x,
+      lo: input.lo + s.shift,
+      hi: input.hi + s.shift,
+      basis: Math.max(floor, Math.round((s.density * (input.hi - input.lo)) / 0.02)),
+      length: s.S,
+    }),
+  )
+  const reads = all.map(ls => {
+    if (input.pick === 'heaviest') {
+      return ls.length === 0 ? undefined : ls.reduce((b, l) => (l.weight > b.weight ? l : b))
+    }
+
+    return ls.filter(l => l.weight >= least).sort((a, b) => a.E - b.E)[0]
+  })
+  const Es = reads.map(l => l?.E ?? NaN)
+
+  return {
+    line: reads[0],
+    half: (Math.max(...Es) - Math.min(...Es)) / 2,
+    reads,
+    lines: all[0] ?? [],
+  }
+}
+
+// the lone member's own quartic as a fraction of relativity's at total momentum K (each member at K / 2, its exact band
+// against its own Galilean and relativistic forms)
+export function memberQuarticFraction(su: Setup, K: number): number {
+  const cm2 = 2 * su.aMember * su.M0
+  const k = K / 2
+  const E = diracPhase([k, 0, 0, 0], su.M0)
+  const gal = su.M0 + (cm2 / (2 * su.M0)) * k * k
+  const rel = Math.sqrt(su.M0 ** 2 + cm2 * k * k)
+
+  return (gal - E) / (gal - rel)
+}
+
+// one quartic fraction rho through the reads E(K), E0 fixed: E = E_gal - rho (E_gal - E_rel), (a, rho) by Gauss-Newton
+// from (a0, rho0), the errors scaled by the larger of sigma and the residual's own scatter (E-MTR-0031's fit)
+export function quarticFractionFit(input: {
+  E0: number
+  points: readonly { K: number; E: number }[]
+  a0: number
+  rho0?: number
+  sigma: number
+}): { a: number; rho: number; sigmaA: number; sigmaRho: number; rms: number; perK: { K: number; rho: number }[] } {
+  const { E0, points, sigma } = input
+  const model = (a: number, rho: number, K: number): number =>
+    galileanEnergy({ E0, a, K }) - rho * (galileanEnergy({ E0, a, K }) - relativisticEnergy({ E0, a, K }))
+
+  let a = input.a0
+  let rho = input.rho0 ?? 1.5
+  let errs = [NaN, NaN]
+  let rms = NaN
+
+  for (let it = 0; it < 50; it++) {
+    const h = 1e-7
+    const rows = points.map(p => [
+      (model(a + h, rho, p.K) - model(a - h, rho, p.K)) / (2 * h),
+      -(galileanEnergy({ E0, a, K: p.K }) - relativisticEnergy({ E0, a, K: p.K })),
+    ])
+    const ys = points.map(p => p.E - model(a, rho, p.K))
+    const step = weightedLeastSquares({ rows, ys, errors: points.map(() => 1) })
+
+    a += step.coefficients[0] ?? 0
+    rho += step.coefficients[1] ?? 0
+
+    const resid = points.map(p => p.E - model(a, rho, p.K))
+    const ss = resid.reduce((s, x) => s + x * x, 0)
+
+    rms = Math.sqrt(ss / points.length)
+    errs = step.errors.map(e => e * Math.max(sigma, Math.sqrt(ss / Math.max(1, points.length - 2))))
+
+    if (Math.abs(step.coefficients[0] ?? 0) < 1e-14 && Math.abs(step.coefficients[1] ?? 0) < 1e-12) break
+  }
+
+  return {
+    a,
+    rho,
+    sigmaA: errs[0] ?? NaN,
+    sigmaRho: errs[1] ?? NaN,
+    rms,
+    perK: points.map(p => ({ K: p.K, rho: relativityFraction({ E: p.E, E0, a, K: p.K }) })),
+  }
 }
