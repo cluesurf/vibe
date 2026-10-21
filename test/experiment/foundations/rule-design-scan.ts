@@ -49,6 +49,32 @@
 //  register, at every mass, whatever the prime: the prime 7 is not singled out by these scores (it is the least split
 //  prime, which sets the least exponent of a light mass, a cost these scores do not see).
 //
+// FIRST RUN (2026-10-20, tmp/fnd177-run.log, 1,468 s, one thread): PARTIAL, as predicted, with one prediction wrong. No
+//  probe read any score before this header was written (tmp/fnd177-time.ts timed one variant of each kind and printed
+//  only seconds).
+//  - Instrument: I1 R* = 1.0007300338253453 bit for bit, c0 = c / 2; I2 c0 = c / 4 at every mass, HF gap within 1e-6.
+//  - Mass points (delta): in-ring 1.047198; q 7: k 1 0.380251, k 3 0.093556; q 13: k 1 0.485128, k 2 0.076942; q 19:
+//    k 1 0.229922, k 5 0.102412; q 31: k 1 0.312354, k 7 0.092081.
+//  - S2 holds for every variant with a singlet (at most 3e-10; one variant, phi 5pi/6 in-ring two beats, has no
+//    singlet), as predicted: isotropy cannot discriminate.
+//  - S1 holds for every one-beat slot variant at every coin (at most 6e-11) and for every register variant (at most
+//    4e-11), as predicted. THE PREDICTION THAT MISSED: the two- and three-beat schedules fail S1 only at the heavier
+//    masses (in-ring 0.077 and 0.091, q 7 k 1 0.0092 and 0.0109); at the light points (k 2 to 7, per-beat m 0.012 to
+//    0.026) their defect, tan(b m) / (b m) against tan m / m, is 5.5e-4 to 6.5e-4, under the 1e-3 tolerance. So S1 at
+//    1e-3 does not separate the schedules from the one-beat walk below m of about 0.05; the defect is real and grows as
+//    m^2. (One read, phi 11pi/12 q 7 k 1 two beats, S1 3.68, takes a level other than the light singlet.)
+//  - 94 of 144 variants are scored; 26 of them pass the held-out check and 68 fail it. The 26: the swap coin, one beat,
+//    at all 9 masses; the swap coin's two- and three-beat schedules at the 4 light points; the register at all 9
+//    masses. The 68: every scored variant of every other coin. The one-beat swap walk's top speed is 0.713 to 0.981 c0,
+//    its massless twin 0.99999994 c0; the register's 0.290 to 0.902 c0 and 1.000000 c0. The other coins' massless twins
+//    read 1.0084 c0 (11pi/12) to 1.160 c0 (2pi/3) (the massless pair's 2 gamma K), so the held-out check fails there
+//    even where the massive variant itself sits under c0 (11pi/12 at q 7 k 3, 0.997 c0).
+//  - So the two scores alone select every coin, and the held-out one light speed is what singles out the swap coin.
+//    Neither score nor the held-out check prefers 7: R tracks the mass only (R 1.000730 at q 7 k 3, 1.000494 at q 13
+//    k 2, 1.000875 at q 19 k 5, 1.000707 at q 31 k 7). Read, not scored: the least-exponent (k 1) masses are 0.190 (7),
+//    0.243 (13), 0.115 (19) and 0.156 (31), so 19 gives a lighter member at k 1 than 7 does, and 13 reaches m 0.038 at
+//    k 2 where 7 needs k 3 for 0.047.
+//
 // Depth L2 (band kinematics of coined walks, read off existing exact pieces). DETERMINISM: no random numbers; Weyl
 // sequences and fixed directions.
 
@@ -150,7 +176,7 @@ export default experiment({
   id: 'foundations/rule-design-scan',
   code: 'E-FND-0177',
   title:
-    'a pre-registered survey of the candidate rule discrete choices (5 coins, the in-ring angle and 4 split primes at two exponents, 1 to 3 beat schedules, with and without the Cl+(4) register; 144 variants), scored on a lone member R against tan m / m and the K^2 isotropy, with one light speed held out',
+    'a pre-registered survey of the candidate rule discrete choices, partial: of 144 variants (5 coins, the in-ring angle and 4 split primes at two exponents, 1 to 3 beat schedules, with and without the Cl+(4) register) 94 hold R = tan m / m to 1e-3 and K^2 isotropy to 1e-6, every coin among them, and only 26 keep the held-out one light speed: the swap coin (one beat at every mass, two and three beats at the light masses) and the register; no score prefers the prime 7, and the schedule defect hides under 1e-3 below m 0.05',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',

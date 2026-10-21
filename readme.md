@@ -700,6 +700,31 @@ realizes.
      fail). One piece grows as the member gets lighter, and one grows
      with the member's own lattice inertia, tan m/m − 1. Neither is a
      term a relativistic bound state carries
+   - **The light member at the weaker pull.** m 0.284 at a_B 12 moves
+     inside the pair at the same speed as m 0.427 at a_B 8 (m·a_B 3.40
+     against 3.42). The prediction, fixed before the run, was 0.143
+     scaled by the members' tan m/m − 1, which gives 0.060. The clean
+     read gives 0.054, down from 0.533 at a_B 8, with R_full 1.0785
+     against the member's own tan m/m 1.0277
+     ([`E-SPN-0212`](test/experiment/spin/register-pair-light-weak.ts),
+     pass). So both pieces of the remainder are lattice terms that
+     vanish for light, loosely bound members. A light bound pair's
+     inertia equals its energy up to such terms, which now stand at
+     5% of R
+   - **The remainder collapses to a term that vanishes in the
+     continuum.** The four clean softened reads fall on one form,
+     r = C + B(tan m/m − 1)/a_B: the member's lattice inertia excess
+     times 1/a_B. Held at fixed m·a_B, which fixes the pair's own
+     physics, that term falls as a_B^−3. Fitted on three reads before
+     the m 0.284, a_B 12 read landed, the form predicted 0.0405 for it.
+     The read gave 0.0541, inside the pre-registered 0.02 band. Refitted
+     on all four, the continuum remainder C is 0.012 ± 0.009, within
+     0.02 of 0 but 1.4σ above it
+     ([`E-MTR-0028`](test/experiment/matter/remainder-collapse.ts),
+     pass). Every form with a separate light-member piece gives that
+     piece the wrong sign on the clean reads, so the 0.533 of the
+     unclean a_B 8 read leaves no trace in them. This covers the
+     softened count only, and rests on four reads and two parameters
    - **The wall as the husk.** A Wilson mass built from the rule's own
      mixers makes the husk a domain wall, second Chern number −1 per copy
      ([`E-SPN-0166`](test/experiment/spin/wilson-wall.ts), a fail on
@@ -799,9 +824,15 @@ partial wait on bound matter that moves across lines.
    1/a_B (E-SPN-0208), which the reference formula cannot supply
    (E-SPN-0209), and which is a lattice term of the static engine
    with no single power of the pair's speed (E-SPN-0211). The exact
-   pair-plus-light run is out of reach (about 64 TB a state). Next:
-   lighter members at larger a_B, so that both lattice pieces shrink
-   together (m a_B held large while m and 1/a_B both fall). If R then falls to tan m/m, bound matter moving in 3d
+   pair-plus-light run is out of reach (about 64 TB a state). A light
+   member at a weaker pull takes the remainder to 0.054 as predicted
+   (E-SPN-0212). The four clean reads collapse onto the member's
+   lattice inertia times 1/a_B, with a continuum remainder of
+   0.012 ± 0.009 (E-MTR-0028). The pair's dispersion along its whole
+   curve and its clock in quadrature are running (E-MTR-0029). Next: a
+   clean moving clock (E-SPN-0213), then the
+   lightest ring member (m 0.190) at a_B 18 or more to take the
+   remainder below 0.02 (about 40 hours, a droplet job). If R then falls to tan m/m, bound matter moving in 3d
    has its full demonstration on the candidate rule with the register.
 2. **The pair and the quantum light as one exact dynamics**, to confirm
    the Darwin term beyond linear response.

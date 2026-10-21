@@ -22,7 +22,18 @@
 //   Verdict: pass if I and P; partial if I and H (not P), or P holds on a read that misses I only on the ratio within
 //   0.1 of 4; fail otherwise.
 //
-// FIRST RUN (below, after the run).
+// FIRST RUN (2026-10-20, tmp/spn-light-m0284-a12.log and .json, the native kernel at 12 threads on a machine at load 40,
+// 6.2 hours; the verdict by combineLightWeak in tmp/spn-0212-combine.ts, tmp/spn-0212-verdict.log): PASS, as
+// predicted. No gate moved.
+//  - I holds: the tracked line 1.1141074 (scaled binding 1.731), overlap 0.684 against the next 0.253, ratio 3.989 at
+//    K 0.04 (at a_B 8 this member's read was not quadratic, 3.855 at K 0.02).
+//  - P holds: R 1.1278, R_full 1.0785 against the corrected reference 1.0244, remainder 0.0541 against the predicted
+//    0.060 (within 0.006), from 0.533 at a_B 8: a fall of ten times for a_B 8 to 12.
+//  - R_full is 0.051 above the member's own tan m / m (1.0277), the closest any register pair has come.
+// MEANING. At equal internal speed (m a_B 3.40 against 3.42) the remainder is the m 0.427, a_B 8 one scaled by the
+// member's lattice inertia, tan m / m - 1, to 10%. So both pieces are lattice terms: one set by how fast the pair moves
+// inside against the mesh, one by the member's own lattice mass, and both vanish where members are light against a
+// dock and bound loosely (the continuum limit), as the lone member's tan m / m - 1 does.
 //
 // Depth L2 (a two-body quantum walk on the husk quotient; the softened count is a control). DETERMINISM: no random
 // numbers; the native kernel, byte for byte the JavaScript.

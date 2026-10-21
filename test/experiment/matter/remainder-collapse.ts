@@ -42,7 +42,24 @@
 // 0.0617 against the recorded 0.533. E-SPN-0212's own prediction for point 5, made on a different argument (the
 // whole a_B 8 remainder carried by tan m / m - 1 at fixed X), is 0.060.
 //
-// FIRST RUN (below, after point 5 lands).
+// FIRST RUN (2026-10-20, after point 5 landed at 20:28; tmp/mtr-collapse-train.log before it, tmp/mtr-collapse-run1.log
+// after): PASS. No gate moved.
+//  - T: C_train -0.0020 +- 0.0183, B 18.39, the three clean points fitted to 0.0062, 0.0027 and 0.0035.
+//  - H holds: point 5 is clean (overlap 0.684 against 0.253, ratio 3.989) and reads R_full 1.0785 against its corrected
+//    reference 1.0244, a remainder of 0.0541 against the predicted 0.0405, a miss of 0.0136 inside the 0.02 band.
+//    E-SPN-0212's own prediction (0.060) also lands inside it, so this point does not choose between the two arguments.
+//  - K holds: refitted on the four clean points, C = 0.0120 +- 0.0086 (rms 0.0051), within 0.02 of 0, but 1.4 sigma
+//    above it, so a small positive continuum remainder is not excluded at this precision.
+//  - At the same X (3.404 against 3.416), the remainder falls from 0.143 at a_B 8 to 0.054 at a_B 12 when the member is
+//    a third lighter: the pair's own physics held fixed, the remainder shrank 2.6 times with the lattice, which is what a
+//    lattice artifact does and what a missing continuum term would not do.
+//  - Point 4 (seen, not clean) reads 0.533 against the form's 0.062. Its light piece is gone at a_B 12 (0.054), so it
+//    was either the unclean K read or a light-member artifact that falls faster than 1 / a_B (by 10 from a_B 8 to 12).
+// MEANING. On the softened count the whole remainder over the static-plus-Darwin reference is carried, to 0.014 on a
+// blind point, by the member's lattice inertia excess times 1 / a_B, a term that vanishes in the continuum limit at fixed
+// m a_B, and the extrapolated continuum remainder is 0.012 +- 0.009. The caveats: four clean points and two parameters,
+// the form chosen on three of them, and the contact well's own part (E-SPN-0208, falling as a_B^-3.4) is outside this
+// fit, which is of the softened count only.
 //
 // Depth L2 (an analysis of reads of a two-body quantum walk on the husk quotient; the softened count is a control, and
 // the reference formula is the comparison). DETERMINISM: no random numbers, recorded reads only.
@@ -119,6 +136,19 @@ const READS: readonly RecordedRead[] = [
     next: 0.21283459017848785,
     ratio: 3.854637419439117,
     role: 'seen',
+  },
+  // E-SPN-0212's read (tmp/spn-light-m0284-a12.json), added after the prediction above was written
+  {
+    name: 'm0284a12',
+    unit: [-7, 2],
+    aB: 12,
+    Rfull: 1.0785232103074023,
+    E: 1.1141074420257853,
+    darwinS: 0.9977735605422176,
+    overlap: 0.6838837712968797,
+    next: 0.25272745185192935,
+    ratio: 3.989489758337509,
+    role: 'blind',
   },
 ]
 
@@ -208,7 +238,7 @@ export default experiment({
   id: 'matter/remainder-collapse',
   code: 'E-MTR-0028',
   title:
-    "explores whether the light register pair's remaining excess inertia is a lattice artifact that vanishes in the continuum limit: a collapse of the recorded remainders onto C + B (tan m / m - 1) / a_B, with a blind prediction for m 0.284 at a_B 12",
+    "explores whether the light register pair's remaining excess inertia is a lattice artifact that vanishes in the continuum limit: a collapse of the recorded remainders onto C + B (tan m / m - 1) / a_B: pass, the blind point m 0.284 at a_B 12 reads 0.054 against the predicted 0.041 and the continuum remainder is 0.012 +- 0.009",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
