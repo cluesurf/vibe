@@ -690,6 +690,30 @@ realizes.
      O_h-symmetric, so its K² coefficient is isotropic by symmetry,
      whatever its cause (measured 5e-7 and 2e-6 in E-SPN-0162 and
      E-SPN-0173)
+   - **The power-counting argument, tested where the problem is small.**
+     A pair and its light were run as one exact quantum dynamics in low
+     dimension: Gauss's law solved, the transverse light quantized, the
+     exact Peierls phase, photon number converged to a few percent. On a
+     line there is no transverse light at all, so it cannot test the
+     claim. In the plane the moving light adds 0.154 to 0.028 to R over
+     a_B 8 to 64, falling as a_B^−0.81, but the plane's Darwin term
+     itself grows with the box, so the comparison is not posed there
+     ([`E-QTM-0181`](test/experiment/quantum/plane-pair-light.ts),
+     partial). With the members in a plane and the light in a slab (the
+     3d pull and Darwin kernel), the moving light adds 0.76, 0.41, 0.21
+     and 0.14 to R at a_B 3, 4, 6, 8. That is 10 to 36 times the
+     remainder, with local slopes running from −2.1 toward −1.45 as the
+     coupling weakens
+     ([`E-QTM-0182`](test/experiment/quantum/plane-pair-light.ts),
+     partial; the a_B 6 and 8 large slabs were stopped for time). The
+     term the argument leaves out is each member's own dressing by the
+     exact phase. A lone member's R rises 0.43 to 0.13 above tan m/m,
+     as a_B^−1.23, first order in the coupling. Against its dressed
+     member the pair reads 0.30, 0.076, −0.0005, −0.007. So the moving
+     light does change R at first order. It raises R rather than
+     lowering it, so it cannot close the remainder against the bare
+     tan m/m. Against the dressed member the binding's own excess falls
+     to about zero
    - **The remainder is the static engine's lattice, not one law.** At
      a_B 8, with the contact well removed, three members of the ring
      (m 0.284, 0.427, 0.474) leave remainders of 0.533, 0.143 and
@@ -711,6 +735,24 @@ realizes.
      vanish for light, loosely bound members. A light bound pair's
      inertia equals its energy up to such terms, which now stand at
      5% of R
+   - **The moving clock is still open.** A clock of the 1s-like and
+     2s-like levels, pre-registered at a_B 7, could not be read. There
+     the 1s-like level is a near pair, and the 2s-like line has no
+     clean continuation at K
+     ([`E-SPN-0213`](test/experiment/spin/register-pair-clock.ts),
+     fail on the instrument). The one clean clock on record is the a_B
+     8 read, 0.79 of relativity's rate with the right sign, and it was
+     read after its file's gated runs. A blind clock at a_B 7.5 was
+     taken at the first point where both levels are clean single
+     lines. There the 2s level is lighter per unit energy than the 1s
+     (R 1.283 against 1.337), so the beat rises with K, at −1.09 times
+     relativity's
+     ([`E-SPN-0214`](test/experiment/spin/register-pair-clean-clock.ts),
+     fail). The clock's alpha flips on a few percent of R between two
+     levels, so it needs lattice remainders below about 1%. That is the
+     same continuum limit R needs. A heavy-light pair needs a member of
+     its own unit in the engine and its kernel, and the ring's masses
+     below π/6 allow a ratio of only about 2.5
    - **The remainder collapses to a term that vanishes in the
      continuum.** The four clean softened reads fall on one form,
      r = C + B(tan m/m − 1)/a_B: the member's lattice inertia excess
@@ -725,6 +767,43 @@ realizes.
      piece the wrong sign on the clean reads, so the 0.533 of the
      unclean a_B 8 read leaves no trace in them. This covers the
      softened count only, and rests on four reads and two parameters
+   - **The pair at a finite momentum is not yet readable.** Boosting
+     the same a_B 8 pair to K 0.4, 0.8 and 1.2, to test the full
+     relativistic curve and whether its clock slows with its motion,
+     failed on the instrument
+     ([`E-MTR-0029`](test/experiment/matter/composite-dispersion.ts),
+     fail). Its levels mix with lines closer together than the read's
+     resolution, 2π/4096. At K 0.8 the line of largest overlap is the
+     2s-like level, not the ground. The lone member's own band at this
+     mass has a quartic 2.8 times relativity's. A rigid composite carries
+     its members' quartic, so at this member mass a pair is expected to
+     sit off the relativistic curve by lattice band alone.
+     Reading it needs the full N 8192 correlation or a sector
+     eigensolver
+   - **A sector eigensolver from one correlation.** Lanczos needs a
+     Hermitian operator. The pair's cycle is unitary in the Gram metric,
+     and the engine has no inverse cycle. So the solver is filter
+     diagonalization on the autocorrelation the engine already gives
+     ([`E-MTR-0030`](test/experiment/matter/sector-eigensolver.ts),
+     partial). It recovers known lines five times closer than the
+     Fourier limit exactly, and reads the a_B 8 ground within 1.1e-8 of
+     the Fourier read. At a_B 12 an 8,450-cycle correlation pins the
+     ground only to about 1e-6, by either method. The light member
+     (m 0.284) is not near-relativistic either: its band's quartic is
+     1.77 times relativity's at every K. Within the K where it stays
+     within 2% of its own relativistic form, relativity and Galilean
+     motion differ by under 2.3%
+   - **Binding bends the light pair further from relativity.** Read by
+     that solver at K 0.2 to 1.0, the light pair's quartic is
+     2.21 ± 0.05 of relativity's. One constant fits all four K to
+     1.5e-5. Its members read 1.77, and relativity is 1
+     ([`E-MTR-0031`](test/experiment/matter/light-pair-dispersion.ts),
+     fail). So binding neither repairs the members' lattice dispersion
+     nor simply carries it: it adds its own. The run failed its own
+     witness and stability gates at the 1e-5 level, which moves the
+     quartic by under 0.01. Whether the excess fades at lighter members
+     and larger a_B, as the K² remainder did (E-MTR-0028), is not yet
+     run
    - **The wall as the husk.** A Wilson mass built from the rule's own
      mixers makes the husk a domain wall, second Chern number −1 per copy
      ([`E-SPN-0166`](test/experiment/spin/wilson-wall.ts), a fail on
@@ -737,6 +816,17 @@ realizes.
      closes by moving the far side's phase, which displaces the wall's
      Weyl node ([`E-SPN-0172`](test/experiment/spin/far-side-shift.ts),
      a fail on one rigidity tolerance)
+   - **The candidate's discrete choices, surveyed.** A pre-registered
+     grid of 144 variants (5 coins, the in-ring angle and the split
+     primes 7, 13, 19 and 31 at two exponents, one to three beats, with
+     and without the register) was scored on a lone member's R against
+     tan m/m and its K² isotropy. 94 pass both, every coin among them,
+     so the two scores cannot tell the coins apart. The held-out check,
+     one light speed, leaves 26: the swap coin and the register. No score
+     prefers the prime 7. At k = 1, the prime 19 gives a lighter member
+     (m 0.115) than 7 does (0.190). Nothing is adopted
+     ([`E-FND-0177`](test/experiment/foundations/rule-design-scan.ts),
+     partial)
 2. a temperature: a forming horizon's spectrum stays a power law at
    every register size run (C 13 to 49), so what shows is the growth's
    quench
@@ -813,6 +903,20 @@ and the Coulomb binding gate registered with its first run
 ([`E-SPN-0155`](test/experiment/spin/husk-coulomb-meson.ts), partial on
 one pre-registered instrument clause).
 
+Light from a moving source, rerun with its readings resolved and its
+gates fixed before the run
+([`E-FRC-0315`](test/experiment/gauge/moving-source-light-speed-resolved.ts),
+open). The test used a box twice as long and a 32-dock baseline. A
+sheet emitter moving at up to 0.622 c then sends its backward front
+within 0.0024 c of the rest front, where light leaving at c − v would
+give 0.751 to 0 c. The period behind matches the mesh Doppler within
+0.41% at three speeds. At the fastest source the registered reading
+skips two early rises. A reader that follows the local envelope was
+fixed before a fresh run, and that run passes
+([`E-FRC-0316`](test/experiment/gauge/moving-source-light-speed-envelope.ts)).
+At every speed the period behind is within 0.091% of the mesh Doppler,
+with no rise skipped.
+
 ## Order of work
 
 One chain gates nearly everything, because most rows still at none or
@@ -829,8 +933,11 @@ partial wait on bound matter that moves across lines.
    (E-SPN-0212). The four clean reads collapse onto the member's
    lattice inertia times 1/a_B, with a continuum remainder of
    0.012 ± 0.009 (E-MTR-0028). The pair's dispersion along its whole
-   curve and its clock in quadrature are running (E-MTR-0029). Next: a
-   clean moving clock (E-SPN-0213), then the
+   curve and its clock in quadrature are not yet resolved: the levels
+   mix past K 0.4 at the read's resolution (E-MTR-0029). A blind
+   clock at the first clean point, a_B 7.5, reads the wrong sign,
+   because the two levels' lattice remainders differ by 4%
+   (E-SPN-0214). So the clock waits on the same limit as R. Next: the
    lightest ring member (m 0.190) at a_B 18 or more to take the
    remainder below 0.02 (about 40 hours, a droplet job). If R then falls to tan m/m, bound matter moving in 3d
    has its full demonstration on the candidate rule with the register.

@@ -22,7 +22,18 @@
 // RUNTIME: about 2 hours at 6 threads (a_B 8 took 2.3 hours for three processes at 6 threads each; a_B 7's ball holds
 // about 0.7 of a_B 8's representatives).
 //
-// FIRST RUN (below, after the run).
+// FIRST RUN (2026-10-20, tmp/spn-clock-a7.log and .json, 6 threads at machine load near 40, 2.4 hours; the verdict by
+// combineClock in tmp/spn-0213-combine.ts, tmp/spn-0213-verdict.log): FAIL, against the predicted pass. No gate moved.
+//  - I fails: at a_B 7 the softened 1s-like level is a near pair, 1.666094 and 1.665332 (overlaps 0.398 and 0.256,
+//    ratio 1.56, under the gate's 2), R 1.982 and 2.846, as at a_B 10 on the rule's count. Its K read retried at
+//    K 0.02 and is quadratic there (ratio 4.054).
+//  - S fails: the 2s-like line exists (1.699695, scaled binding 0.376, overlap 0.240) but has no clean continuation at
+//    K (its ratio reads -35), so no clock can be read.
+//  - So the clock is not read here. The one clean clock of a 1s and a 2s level on record remains E-SPN-0206's read at
+//    a_B 8 (0.79 of relativity's rate, right sign), which was added after that file's gated runs.
+// MEANING. Which points are clean depends on where near-degeneracies of the core family fall (a_B 7 and 10 are not,
+// a_B 8 and 12 are). A clock test needs a point where both the 1s and the 2s lines are isolated. That is found from
+// the K = 0 identity read alone, the first of the run's three reads (about a third of its time).
 //
 // Depth L2 (a two-body quantum walk on the husk quotient; the softened count is a control). DETERMINISM: no random
 // numbers; the native kernel, byte for byte the JavaScript.

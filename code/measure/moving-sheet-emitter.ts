@@ -272,3 +272,86 @@ export function meanUpCrossingPeriod(input: {
     times,
   }
 }
+
+// THE ENVELOPE READER (E-FRC-0316), built so a growing or shrinking envelope cannot hide a rise. The trace is first
+// smoothed by a centered boxcar of `smooth` beats (odd; no phase shift, and a ripple whose period is well under
+// `smooth` is cut). A rise counts when the smoothed trace y goes from below -h(t) to above +h(t), where h(t) is `band`
+// times the largest |y| over the trailing `window` beats [t - window, t] (local, not the whole record's), and its time is
+// the last interpolated zero crossing of y on the way up. The period is the mean spacing of the rises; the spacings
+// themselves are returned so a skipped rise (a spacing near twice the others) or a spurious one is visible.
+export function envelopeRisePeriod(input: {
+  trace: Float64Array
+  from: number
+  to: number
+  smooth: number
+  window: number
+  band: number
+}): { period: number; crossings: number; times: number[]; spacings: number[] } {
+  const { trace, smooth, window, band } = input
+  const to = Math.min(input.to, trace.length)
+  const half = (smooth - 1) / 2
+
+  if (!Number.isInteger(half) || half < 0) {
+    throw new Error('smooth must be a positive odd number of beats')
+  }
+
+  const y = new Float64Array(trace.length)
+
+  for (let t = 0; t < trace.length; t++) {
+    let sum = 0
+    let count = 0
+
+    for (let s = t - half; s <= t + half; s++) {
+      if (s >= 0 && s < trace.length) {
+        sum += trace[s]!
+        count++
+      }
+    }
+
+    y[t] = sum / count
+  }
+
+  const times: number[] = []
+  const start = input.from + half
+
+  let armed = false
+  let zero = Number.NaN
+
+  for (let t = start + 1; t < to - half; t++) {
+    let peak = 0
+
+    for (let s = Math.max(start, t - window); s <= t; s++) {
+      peak = Math.max(peak, Math.abs(y[s]!))
+    }
+
+    const h = band * peak
+    const a = y[t - 1]!
+    const b = y[t]!
+
+    if (b < -h) {
+      armed = true
+      zero = Number.NaN
+    }
+
+    if (armed && a < 0 && b >= 0) {
+      zero = t - 1 + -a / (b - a)
+    }
+
+    if (armed && b > h && !Number.isNaN(zero)) {
+      times.push(zero)
+      armed = false
+    }
+  }
+
+  const spacings = times.slice(1).map((x, i) => x - times[i]!)
+
+  return {
+    period:
+      times.length > 1
+        ? (times[times.length - 1]! - times[0]!) / (times.length - 1)
+        : Number.NaN,
+    crossings: times.length,
+    times,
+    spacings,
+  }
+}

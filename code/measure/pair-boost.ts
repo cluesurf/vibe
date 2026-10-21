@@ -108,6 +108,38 @@ export function readBoost(
   }
 }
 
+// the pair's own autocorrelation x_l = <r_K | G U_K^l r_K>, l = 0 .. n, in the sector of total momentum K, with readBoost's
+// start (the K = 0 hydrogenic start unfolded onto the K sector), for code/algebra/linear/filter-diagonalization
+export function boostCorrelation(
+  su: Setup,
+  p: TrackPoint,
+  K: number,
+  n: number,
+  opts: KernelOptions,
+  transform?: (s: Sector, c: ReducedCount) => ReducedCount,
+  direction: readonly [number, number, number] = [1, 0, 0],
+): { K: number; n: number; re: number[]; im: number[]; seconds: number } {
+  const started = Date.now()
+  const oh = [...su.group.elements.keys()]
+  const s = sector(su.group, oh, p.R)
+  const r = reducedHydrogenStart(s, p.aB)
+  const along = [K * direction[0], K * direction[1], K * direction[2], 0]
+  const sk = sector(su.group, littleGroup(su.group, along), p.R)
+  const rk = unfold(s, r, sk)
+  const ruleCount = reducedCounts(sk, su.table, alphaOf(su, p.aB), su.theta)
+  const count = transform ? transform(sk, ruleCount) : ruleCount
+  const e = reducedEngine(sk, su.u, along, count, 'vector', opts)
+  const x = referenceCorrelation(e, rk, n)
+
+  return {
+    K,
+    n,
+    re: [...x.re],
+    im: [...x.im],
+    seconds: (Date.now() - started) / 1000,
+  }
+}
+
 // the genuine lines by overlap rank: [ground, 2s-like, third]
 export function boostLevels(lines: readonly LineOut[]): LineOut[] {
   return lines.filter(genuine).sort((a, b) => b.overlap - a.overlap)

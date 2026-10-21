@@ -69,6 +69,21 @@
 // read). The first probe's Hermiticity test failed at N 2 and 3 because its test vectors were not symmetric in the
 // photon labels (the operators act on the symmetric space); with symmetrized vectors 1.3e-14 and 2.7e-14.
 //
+// FIRST RUN (2026-10-20, tmp/qtm-part-*.json by tmp/qtm-part.ts, verdict tmp/qtm-0181-verdict.log by
+// tmp/qtm-combine.ts; one thread a part, about 3 hours in all): PARTIAL, by I2. No gate moved.
+//  - I0, I1, I3, C1 hold: Hermitian to 2.7e-14, the vertex to 8.8e-18, light off R to 1.9e-9 (pair) and 3.0e-8
+//    (lone), every residual under 1e-9 and every ratio within 0.002 of 4; photon number N 2 moves Delta by 0.9% and
+//    1.5% (a_B 8, 16 on L 16), and on L 8 N 1, 2, 3 read 0.0872, 0.0853, 0.0857 (converged); transverse off equals
+//    the static pull exactly.
+//  - Delta = R_b - R_a = 0.154, 0.0868, 0.0508, 0.0282 at a_B 8, 16, 32, 64: exponent -0.81, inside the FAIL band.
+//  - I2 FAILS: Delta grows 10 to 11% from the check box to the main box at every a_B, the ln L the header predicted
+//    for (a): R_a itself drifts (0.841 to 0.825 at a_B 8), as does a lone member's dressing (1.207 to 1.229), while
+//    R_b moves by 1e-3. So the verdict is partial, and the plane cannot decide the claim; E-QTM-0182 moves the light
+//    to a slab.
+//  - Read: the whole zero-frequency exchange gives R_b - R_ms -0.035, -0.032, -0.0195, -0.0107 (finite in L to 1e-3
+//    at a_B 32, 64), the dynamics beyond it is about a_B^-0.6; the binding part 0.027, 0.0088, 0.0027, 0.0008
+//    (exponent -1.70) is small beside the lone dressing.
+//
 // Depth L2: a known construction (lattice QED in Coulomb gauge with the exact Peierls phase) on a stand-in member,
 // testing a claim about the 3d rule's reading, not the rule itself.
 
@@ -530,6 +545,20 @@ export default experiment({
 // PREDICTED (this builder, before the slab run): FAIL, p near -1, the first-order term being each member's own
 // dressing (in E-QTM-0181's plane the pair's R_b sits 0.15 above R_a at a_B 8 to 16), which the 3d R_full leaves out
 // with its bare tan m / m.
+//
+// FIRST RUN (2026-10-20, tmp/qtm-L1..L4.log, tmp/qtm-S2..S4.log, verdict tmp/qtm-0182-verdict.log): PARTIAL. No
+// gate moved. The two (32, 16) main slabs (a_B 6, 8, 33.5 million amplitudes) were stopped after their static,
+// Darwin and lone reads, at about 36 minutes a level under the shared load, to keep the task under 8 hours; the
+// verdict reads a_B 6 and 8 on their (24, 12) finite-size slabs, so I2 cannot hold there (disclosed, the reason for
+// partial along with `small`).
+//  - I0, I1, I3, C1 hold: Hermitian to 2.1e-14; N 2 moves Delta by 6.6% (a_B 3) and 1.9% (a_B 4); transverse off
+//    equals the static pull exactly. I2 holds where read: 2.2% (a_B 3), 3.1% (a_B 4).
+//  - Delta = R_b - R_a = 0.756, 0.412, 0.205, 0.135 at a_B 3, 4, 6, 8: exponent -1.75, inside the PASS band, but
+//    the local slopes run -2.1, -1.7, -1.45 toward weak coupling, and |Delta| is 10 to 36 times the remainder scale
+//    |R_a - tan m / m| (0.021, 0.038, 0.024, 0.013), so `small` fails and the verdict is partial.
+//  - The term is each member's own dressing: a lone member's R_lone - tan m / m is 0.431, 0.298, 0.181, 0.129
+//    (exponent -1.23), the Debye-Waller factor 0.61 to 0.83, and the pair against its dressed member, R_b - R_lone,
+//    is 0.304, 0.076, -0.0005, -0.0070. The light raises R; it does not lower it.
 
 export const SLAB_A_B = [3, 4, 6, 8] as const
 export const SLAB_MAIN: Record<number, [number, number]> = { 3: [24, 12], 4: [24, 12], 6: [32, 16], 8: [32, 16] }
@@ -593,10 +622,16 @@ export function combineSlab(inst: SlabInstrumentPart, parts: PairPart[]): Verdic
   const I0 = inst.hermiticity <= 1e-12
   const reads = parts.flatMap(p => [p.static, p.darwin, p.quantum, p.lone, ...(p.magneto ? [p.magneto] : [])])
   const I1 = reads.every(r => r.residuals.every(x => x <= 1e-9) && Math.abs(r.ratio - 4) <= 0.1)
-  const main = SLAB_A_B.map(aB => find(aB, SLAB_MAIN[aB]!, 1))
+  // a main slab not read (the first run stopped the (32, 16) parts for time, disclosed) falls back to its check slab,
+  // and then I2 cannot hold at that a_B
+  const has = (aB: number, box: [number, number]): boolean =>
+    parts.some(x => x.key.aB === aB && x.key.L === box[0] && x.key.Z === box[1] && x.key.N === 1)
+  const main = SLAB_A_B.map(aB => find(aB, has(aB, SLAB_MAIN[aB]!) ? SLAB_MAIN[aB]! : SLAB_CHECK[aB]!, 1))
   const check = SLAB_A_B.map(aB => find(aB, SLAB_CHECK[aB]!, 1))
   const D = main.map(delta)
-  const sizeGaps = main.map((p, i) => Math.abs(delta(p) - delta(check[i]!)) / Math.abs(delta(p)))
+  const sizeGaps = main.map((p, i) =>
+    p === check[i] ? NaN : Math.abs(delta(p) - delta(check[i]!)) / Math.abs(delta(p)),
+  )
   const I2 = sizeGaps.every(x => x <= 0.1)
   const photonGaps = [3, 4].map(aB => {
     const one = delta(find(aB, [8, 4], 1))
@@ -617,6 +652,9 @@ export function combineSlab(inst: SlabInstrumentPart, parts: PairPart[]): Verdic
   const Dms = main.map(m => m.quantum.R - (m.magneto?.R ?? NaN))
   const own = main.map(m => (m.magneto?.R ?? NaN) - m.darwin.R)
   const darwinShift = main.map(m => m.darwin.R - m.static.R)
+  // the pair against its own dressed member: R_b - R_lone(b), and the static side's R_a - tan m / m
+  const bound = main.map(m => m.quantum.R - m.lone.R)
+  const loneExcess = main.map(m => m.lone.R - member.Rwalk)
   const e = (x: number): string => x.toExponential(2)
   const f = (x: number, d = 3): string => (Number.isFinite(x) ? x.toFixed(d) : String(x))
 
@@ -628,6 +666,10 @@ export function combineSlab(inst: SlabInstrumentPart, parts: PairPart[]): Verdic
       exponentMs: expOf(Dms),
       exponentOwn: expOf(own),
       exponentDarwin: expOf(darwinShift),
+      exponentLone: expOf(loneExcess),
+      ...Object.fromEntries(SLAB_A_B.map((a, i) => [`bound_a${a}`, bound[i]!])),
+      ...Object.fromEntries(SLAB_A_B.map((a, i) => [`loneExcess_a${a}`, loneExcess[i]!])),
+      ...Object.fromEntries(SLAB_A_B.map((a, i) => [`mainL_a${a}`, main[i]!.key.L])),
       ...Object.fromEntries(SLAB_A_B.map((a, i) => [`delta_a${a}`, D[i]!])),
       ...Object.fromEntries(SLAB_A_B.map((a, i) => [`deltaMs_a${a}`, Dms[i]!])),
       ...Object.fromEntries(SLAB_A_B.map((a, i) => [`own_a${a}`, own[i]!])),
@@ -648,7 +690,7 @@ export function combineSlab(inst: SlabInstrumentPart, parts: PairPart[]): Verdic
       small: flag(small),
     },
     control: { C1: flag(C1), transverseOff: inst.transverseOff, hermiticity: inst.hermiticity, Rwalk: member.Rwalk },
-    notes: `L2, deterministic. Gates I0 ${I0} I1 ${I1} I2 ${I2} I3 ${I3} C1 ${C1}, small ${small}. Darwin's own shift R_a - R_static ${darwinShift.map(e).join(', ')}; the members' own instantaneous share R_ms - R_a ${own.map(e).join(', ')}. Finite size (main, check): ${main.map((m, i) => `${e(delta(m))}/${e(delta(check[i]!))}`).join('; ')}. Photon number on (8, 4): a_B 3 ${e(delta(find(3, [8, 4], 1)))}/${e(delta(find(3, [8, 4], 2)))}, a_B 4 ${e(delta(find(4, [8, 4], 1)))}/${e(delta(find(4, [8, 4], 2)))}.`,
+    notes: `L2, deterministic. Gates I0 ${I0} I1 ${I1} I2 ${I2} I3 ${I3} C1 ${C1}, small ${small}. Main slab side by a_B: ${main.map(m => m.key.L).join(', ')}. A lone member's own dressing R_lone - tan m / m ${loneExcess.map(e).join(', ')} (exponent ${f(expOf(loneExcess))}); the pair against its dressed member R_b - R_lone ${bound.map(e).join(', ')}. Darwin's own shift R_a - R_static ${darwinShift.map(e).join(', ')}; the members' own instantaneous share R_ms - R_a ${own.map(e).join(', ')}. Finite size (main, check): ${main.map((m, i) => `${e(delta(m))}/${e(delta(check[i]!))}`).join('; ')}. Photon number on (8, 4): a_B 3 ${e(delta(find(3, [8, 4], 1)))}/${e(delta(find(3, [8, 4], 2)))}, a_B 4 ${e(delta(find(4, [8, 4], 1)))}/${e(delta(find(4, [8, 4], 2)))}.`,
   })
 }
 

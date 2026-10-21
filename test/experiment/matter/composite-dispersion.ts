@@ -37,7 +37,30 @@
 // Expected verdict: partial. Runtime estimate before the run: one K read took 2,800 s at 6 threads with three such
 // processes sharing the machine (tmp/spn-mass-m0427.log), so five reads at 6 threads take about 2 to 4 hours.
 //
-// FIRST RUN (below, after the run).
+// FIRST RUN (2026-10-20 and 21, tmp/mtr-boost-a.log and -b.log, two processes of tmp/mtr-boost-part.ts at 3 threads
+// each on a shared machine, 2.1 hours a read, the reads in tmp/mtr-boost-K<K>.json; the verdict by combineBoost in
+// tmp/mtr-boost-combine.ts, tmp/mtr-boost-verdict.log): FAIL on W and I, so D, L and Q were not reached. No gate moved.
+// The K 1.6 read was stopped after K 0.4, 0.8 and 1.2 had already failed I, since it could not change the verdict
+// (disclosed).
+//  - W fails narrowly: the ground at K 0.04 reads 1.676859773 against the recorded 1.6768597365, off by 3.7e-8 against
+//    a 1e-8 tolerance. The moved window shifts an extracted line by that much. The 2s-like line moves by 2.1e-5, since
+//    it has an unresolved neighbor 6e-4 away (overlap 0.015).
+//  - I fails at every K from 0.4 up. The lines are no longer genuine (|u| off 1 by 1e-6 to 1e-5), because the levels
+//    lie closer together than the read's resolution, 2 pi / 4096 = 1.5e-3. At K 0.4 the ground stays one line (weight
+//    0.915) but the 2s-like level spreads over four continuum lines (overlap 0.14, 0.08, 0.03, 0.03). At K 0.8 the
+//    ground splits into two lines 7.6e-4 apart (weight 0.48 and 0.29), and the line of largest overlap is the 2s-like
+//    level (0.35), so ranking by overlap no longer names the ground. At K 1.2 the ground spreads over nine lines, the
+//    largest carrying weight 0.18.
+//  - A POST-RUN DIAGNOSTIC, not gated (tmp/mtr-boost-centroid.mjs): the weight centroid of the ground's cluster sits
+//    above both forms at K 0.4 (rho -6.2, lighter than Galilean), and below relativity at K 0.8 and 1.2 (rho 1.9 and
+//    3.8, against the lone member's 2.80 and 2.78). The quartic changes sign, so the level is mixing with its
+//    multiplet, and the centroids are not a dispersion.
+// MEANING. This instrument cannot follow the pair to finite K. The motion read works at K 0.04 and 0.02 because the
+// level barely moves, and readBoost reproduces it there to 4e-8. From K 0.4 up the ground and the 2s-like level mix
+// with lines closer than the read resolves, so neither the full-curve dispersion nor the clock's quadrature is
+// measured. Reading them needs the full N 8192 correlation, which doubles the resolution and the time, or a sector
+// eigensolver. The rough trend at K 0.8 and 1.2 (heavier than relativity, near the members' own lattice band) fits the
+// expected lattice inheritance, but it is not a result.
 //
 // Depth L2 (a two-body quantum walk on the husk quotient, exact in its moving block; the softened count is a control,
 // the lone member's band the comparison). DETERMINISM: no random numbers; the native kernel, byte for byte the
@@ -194,7 +217,7 @@ export default experiment({
   id: 'matter/composite-dispersion',
   code: 'E-MTR-0029',
   title:
-    "explores whether the light register pair disperses relativistically along its whole curve and whether its internal clock dilates with its centre-of-mass motion (quadrature): the a_B 8 pair with the contact well removed boosted to K 0.04 to 1.6, against the lone member's own lattice band",
+    "explores whether the light register pair disperses relativistically along its whole curve and whether its internal clock dilates with its centre-of-mass motion (quadrature): the a_B 8 pair with the contact well removed boosted to K 0.04 to 1.6, against the lone member's own lattice band: fail, from K 0.4 up the levels mix with lines closer than the read's resolution, so neither is measured",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',

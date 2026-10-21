@@ -46,6 +46,31 @@
 // as a model of this light. Whether a MOVING observer reads c needs detectors built from the rule's own moving
 // matter (E-SPN-0126). The source is a prescribed current, not matter.
 //
+// RUNTIME, estimated before the run: 0.33 s a beat on the loaded machine (tmp/frc315-time.ts, 60 beats, timing only),
+// so about 4,150 s for 5 x 2400 + 400 beats on one thread. No probe read a front or a period before these gates.
+//
+// FIRST RUN (2026-10-20, tmp/frc315-run.log, 8,278 s on one thread beside other runs): OPEN. M1, M2 and M3 hold; M4
+// misses at the fastest source only.
+//  - M1: the 200-beat run reverses exactly; the largest flux 6.30 against q / 2 = 16.5.
+//  - M2: at rest the half-rise beats ahead and behind agree bit for bit; the rest front reads 0.9943 c (E-FRC-0314's
+//    8-dock baseline read 0.9856 c). The causal edge is at beats 135 and 288 at |x| = 32 and 64.
+//  - M3 HOLDS, where E-FRC-0314 missed: the front off the rest front, ahead +0.00002, -0.0004, +0.0012, +0.0072 c and
+//    behind +0.0003, +0.0011, +0.0024, -0.0009 c at v / c = 0.124, 0.249, 0.415, 0.622 (tolerance 0.02 c; E-FRC-0314's
+//    fastest backward front was +0.035 c). The backward front moved 0.001 to 0.003 of the way toward the slow-photon
+//    front (0.751, 0.503, 0.171, 0 c).
+//  - M4 misses at v / c = 0.622 only: the period behind reads 107.84, 119.87, 136.36, 190.71 beats against the mesh
+//    Doppler 107.94, 119.88, 135.80, 155.70 (-0.10, -0.01, +0.41, +22.5 percent) on 18, 16, 14, 10 rises. The slow-photon
+//    rule predicts 111.89, 143.52, 328.96 and no backward light, so the slow-photon reading does not hold either.
+//  - DIAGNOSED AFTER THE RUN, gating nothing (tmp/frc315-diag.ts, the T = 8 source alone at x = -64): the 22.5 percent is
+//    the reading, not the light. The hysteresis band is half the window's largest |E~|, and at this speed the trace's
+//    envelope grows through the run (largest |E~| about 1.0 to 1.2 a period early, 1.4 to 1.7 late, with a fast ripple of
+//    about 13 beats riding on it late), so the rises at 710.8 and 868.2 stay under the band and are skipped: 551.6 to
+//    1022.0 counts as one period of 470 beats. At band 0.25 the early rises are 396.3, 551.6, 710.8, 868.2, 1022.0,
+//    1178.2 (mean spacing 156.4, +0.4 percent), and at band 0.5 the rises from 1022.0 to 2268.0 are 8 periods of 155.75
+//    (+0.03 percent). The tolerance and the band stay as registered, so the verdict is OPEN; a retest would fix a reading
+//    that does not skip (a band set per period, or the spacing of rises at a fixed fraction of the local envelope)
+//    before its run.
+//
 // DETERMINISM: no start is drawn; the only inputs are the fixed schedule and box. Depth L2.
 
 import { experiment } from '@/test/scaffold/suite'
@@ -150,7 +175,7 @@ export default experiment({
   id: 'gauge/moving-source-light-speed-resolved',
   code: 'E-FRC-0315',
   title:
-    'light from a moving source, resolved: the E-FRC-0314 sheet emitter on the husk light (D 16) on a box twice as long, run 2400 beats, stepping in eighth docks, with a 32-dock front baseline and the period behind read over 12 to 21 rises, its gates and tolerances fixed before the run',
+    'light from a moving source, resolved, open: on a box twice as long, 2400 beats, eighth-dock steps and a 32-dock baseline, the E-FRC-0314 sheet emitter at 0.124 to 0.622 c sends its front behind within 0.0024 c of the rest front (0.9943 c) and ahead within 0.0072 c, where light leaving at c - v would give 0.751 to 0 c, so the front gate E-FRC-0314 missed now holds; the period behind reads 107.84, 119.87, 136.36 beats within 0.41 percent of the mesh Doppler, but 190.71 against 155.70 at the fastest source, where the registered half-peak hysteresis skips two early rises (diagnosed after the run: the rises it keeps are 155.75 apart)',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
