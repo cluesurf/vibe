@@ -38,6 +38,24 @@
 // THE RUN AND ITS COST, estimated before the run: 32,768 cycles over 2,488 and 3,136 representatives, about 30 minutes
 // at 6 threads (E-RLT-0115's 2,048-cycle reads took 200 s on 3,136), at 3 threads beside another run about an hour.
 //
+// FIRST RUN (2026-10-21, tmp/rlt116.log, .json and -verdict.log, 5,526 s at 3 native threads beside E-RLT-0115's stage
+// 2): OPEN, as registered. No gate moved. I1, I2 and I3 hold: every correlation stays bounded, the lines converge, and
+// the same solve on twelve line branches finds them exactly (axis 0 and 3.751e-3 at 0.50 each; body 0, 1.250e-3 and
+// 5.002e-3 at 0.25, 0.50, 0.25).
+//  - The K = 0 window is not one line: the main line (weight 0.8235) sits 1.06e-4 above E_L, with neighbours at -3.10e-3
+//    (0.114) and +4.14e-3 (0.060). The derivation took the level as isolated, and at kappa 0.32 its shift (1.9e-3) is
+//    comparable to that spacing, so the lines mix.
+//  - Axis: the weight spreads over lines at +0.77e-3 (0.267), +2.22e-3 (0.271), +3.19e-3 (0.143) and +5.55e-3 (0.114)
+//    from E_L, so the heaviest holds 0.27 of the 0.82 and the gate reads BRANCHES. But twelve line branches would put
+//    0.41 at the unshifted energy and 0.41 at +3.86e-3, and neither line is there.
+//  - Body: the heaviest line keeps 0.5685 (below the 0.9 x 0.82 whole-line bound, above the 0.6 x 0.82 split bound) at
+//    a shift of 1.72e-3 from the main line, against the single band's 1.85e-3, with a near neighbour 2.0e-4 above it
+//    (0.198). Twelve branches would leave 0.21 at the unshifted energy and 0.41 at +1.25e-3, and neither is there.
+//  - So the registered whole-line test cannot decide, because the pair's own levels mix at this momentum. Read after
+//    the run and not gated here: no line sits within 3.5e-4 of the K = 0 main line in either direction (the nearest
+//    on the axis is 3.7e-4 away and weighs 0.011, on the body diagonal 1.07e-3 away and 0.004), which is where the
+//    branches with n . u = 0 would stay. E-RLT-0117 gates that "still share" fresh.
+//
 // Depth L2 (a two-body quantum walk on the husk quotient, exact in its moving block; the lineon control is synthetic).
 // DETERMINISM: no random numbers; the start is placed; the native kernel, byte for byte the JavaScript.
 
