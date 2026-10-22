@@ -21,13 +21,39 @@
 
 ## The goal
 
-**Find the discrete base of the universe.** The working answer is a 4d
-hyperbolic mesh, the honeycomb **$\lbrace3,4,3,4\rbrace$**, whose every
-site holds 24 ternary values, updated by one deterministic, reversible,
-integer rule. Space and its dimension, time's arrow, relativity, spin,
-light, the quantum, gravity and selves each have to come out of that
-base, or the base is wrong. This repository tests that one measurable
-claim at a time, and keeps every result that said no.
+**Explore whether the universe could rest on a small discrete base.**
+The base tried here is five things: a 4d hyperbolic mesh, the honeycomb
+**$\lbrace3,4,3,4\rbrace$**, whose every site holds 24 values of three
+tones, one deterministic, reversible, integer perception rule, growth,
+and the arrow. Space and its dimension, time's arrow, relativity, spin,
+light, the quantum, gravity and selves would each have to come out of
+that base, or the base is wrong. Nothing here shows yet that they all
+do. This repository tests one measurable claim at a time, reports each
+as held, partial or failed, and keeps every result that said no.
+
+**The premise.** Vibe starts from an assumption, not a result:
+experience is at the base of reality. Everything is experiencing pain,
+peace or pleasure, the three tones −1, 0 and +1, across a vast mesh
+that keeps growing and changing. Consciousness is a network of
+integrated experience. The same model aims to hold physics and quantum
+physics exactly, inside the one mesh and its one perception rule, not
+as a separate layer on top. What is tested is how far this
+experience-first base can reach into known physics and quantum physics.
+
+**Nothing in the base is fixed.** The search is for the simplest base
+that can reach known physics, so the premise, the five base things and
+the rule itself are all open to change. When a test shows that a
+simpler or better choice works, or that a current choice cannot work,
+the base changes with it.
+
+Some of it holds so far. Light on the husk is the same in every
+direction up to fourth order (exponent 4.001, E-RLT-0113), and a light
+bound pair's inertia comes within mesh artifacts of its energy, with a
+continuum remainder of 0.012 ± 0.009 (E-MTR-0028). Some is still open:
+a moving pair's clock reads the wrong sign (E-SPN-0214), and matter on
+the working rule still moves only along its lines (E-SPN-0126). The
+plan is to keep pressing on different areas and paths to see how far
+this base can go, because the results so far have been interesting.
 
 The program draws on Maurice Margenstern's work on cellular automata in
 hyperbolic spaces: the $\lbrace7,3\rbrace$ heptagrid and the
@@ -306,6 +332,33 @@ vibe leaving its line, and ended with one reading of all four.
   vacuum is the line vacuum relabeled. A store piece that is an
   involution must return every vibe to the slot it took it from, so no
   store of any kind moves a vibe onto another line.
+- **The line law is not a fracton constraint**
+  ([`E-RLT-0114`](test/experiment/relativity/composite-lineon-mobility.ts),
+  fail as derived). In fracton models a lone lineon is stuck on its
+  line, but some bound groups of lineons move freely. Here no group
+  does. Of 1,804 runs of 396 placed groups (dipoles on parallel lines,
+  pairs and triples on lines crossing at one dock, 150 kinds of triple
+  whose lines span 3d), 0 stay bound and 0 move off their members'
+  lines. A dipole is two separate 1d worlds. At a crossing dock K
+  sends members out along all 9 line shadows, but never off that
+  dock's 12 lines and never along a body diagonal. The reason: a
+  fracton rule conserves a few charges, while this rule keeps every
+  line's whole state, so lineons can turn only at the dock where they
+  started.
+- **On the candidate rule, a bound pair is not a lineon**
+  ([`E-RLT-0115`](test/experiment/relativity/bound-pair-direction.ts) to
+  [`E-RLT-0118`](test/experiment/relativity/bound-pair-off-lines.ts).
+  0115 fails as registered on a residual floor, and 0116 to 0118 are
+  open). A register pair bound by the husk light's pull has one K²
+  coefficient in all 13 husk directions, to 2.3e-6 (1.5e-3 for a
+  lighter-bound pair on three of them). The working rule's
+  lineon spreads 0.158 over the same 13. Read above the instrument's
+  floor, the pair moves as one band along all four body diagonals and
+  a face diagonal at two momenta, and leaves at most 0.080 of its
+  weight at rest in any of six directions, where twelve line branches
+  would leave 1/4 to 1/2. One read of twelve, the axis at K 0.28, sits
+  between the gates, where the level mixes with a neighbor. That is one
+  pair at one mass. Open problem 1 has the numbers.
 
 **One property behind all of it: the vacuum is correlated without limit
 along each line and not at all across lines.** A 3d vacuum has to be
@@ -472,19 +525,45 @@ realizes.
    ([`E-SPN-0116`](test/experiment/spin/bent-string.ts) to
    [`E-SPN-0120`](test/experiment/spin/two-hub-bound.ts)). Line-only
    motion is excluded by observation, by about 17 orders of magnitude
-   ([`E-SPN-0126`](test/experiment/spin/line-anisotropy.ts)). So the
-   rule has to change. A candidate change is tested, and it splits the
-   problem in two.
+   ([`E-SPN-0126`](test/experiment/spin/line-anisotropy.ts)). Binding
+   lineons into groups, as fracton models do, does not get around it:
+   no group of vibes on different lines binds or moves off its
+   members' lines
+   ([`E-RLT-0114`](test/experiment/relativity/composite-lineon-mobility.ts)).
+   So the rule has to change. A candidate change is tested. Where it
+   stands as of 2026-10-21, with the runs behind each part below in the
+   order they ran:
+
+   - **one piece moves:** under the candidate a lone member moves the
+     same in every direction at one top speed, with R = tan(m)/m
+   - **bound-matter inertia holds so far up to mesh artifacts.** A light
+     pair's excess inertia came down from R 34.65
+     ([`E-SPN-0162`](test/experiment/spin/register-meson-hold.ts)) to
+     R_full 1.079 against its member's 1.028
+     ([`E-SPN-0212`](test/experiment/spin/register-pair-light-weak.ts)),
+     and what is left is a lattice term that vanishes in the continuum
+     limit, with a continuum remainder of 0.012 ± 0.009
+     ([`E-MTR-0028`](test/experiment/matter/remainder-collapse.ts))
+   - **still open:** the moving clock, which needs lattice remainders
+     below about 1%
+     ([`E-SPN-0214`](test/experiment/spin/register-pair-clean-clock.ts)),
+     the pair's dispersion, whose quartic is 2.21 times relativity's at
+     the one point read
+     ([`E-MTR-0031`](test/experiment/matter/light-pair-dispersion.ts))
+     and further above its members' at a heavier member
+     ([`E-MTR-0032`](test/experiment/matter/light-pair-fading.ts)),
+     and matter isotropy on the working rule, where every vibe is still
+     a lineon ([`E-SPN-0126`](test/experiment/spin/line-anisotropy.ts))
 
    **Motion works under the candidate.** It has four parts:
-   - a filled love sea as the vacuum;
+   - a filled love sea as the vacuum
    - a fermionic mixer over all 24 slots of a dock, which Pauli blocking
      keeps inert on the sea
-     ([`E-SPN-0140`](test/experiment/spin/dock-mixer.ts));
+     ([`E-SPN-0140`](test/experiment/spin/dock-mixer.ts))
    - the swap coin, which keeps a vibe or crosses it with integer
-     entries;
+     entries
    - one new prime, 7, so the mass can be tuned
-     ([`E-SPN-0143`](test/experiment/spin/swap-cone.ts)).
+     ([`E-SPN-0143`](test/experiment/spin/swap-cone.ts))
 
    Under it, a hole moves the same in every direction and obeys special
    relativity, with R = tan(m)/m. Every excitation shares one top speed,
@@ -603,6 +682,202 @@ realizes.
      to read R where the pull is weak across a link. It found that the
      level is a multiplet of at least 6 lines, each one heavy on its
      own, so the high R is not a blend
+     ([`E-SPN-0183`](test/experiment/spin/register-coulomb-weak.ts)).
+     Followed as one level by its overlap with a fixed hydrogenic
+     start, R reads 2.72, 1.53, 2.19 and 1.25 at a_B 6, 8, 10 and 12
+     (with the Darwin term 1.235 at a_B 12, against tan m/m 1.066),
+     and every other line it reaches is heavier still
+     ([`E-SPN-0200`](test/experiment/spin/register-coulomb-track.ts)).
+     So no other level, and no mixture of the levels, is light
+   - **Why R is high: the excess lives where the pull is steep across
+     one link.** The light's lattice Green function stays finite at
+     contact, and there the pull is 4.2 times its first shell's (a
+     step of 1.1 rad a cycle at a_B 6, against a member's room of
+     0.41). A level held there is a knot: a member cannot step without
+     leaving the well, so the pair moves only at second order, as a
+     tightly bound lattice pair does. That is the "matter as machine"
+     reading of inertia, the states that must change before the whole
+     can move, and it is not the number of states a level occupies.
+     Flattening the pull inside radius 2 cuts the excess at a_B 6
+     from 1.31 to 0.23, and removing the contact well alone at a_B 8
+     cuts it from 0.365 to 0.140. There the 2s-like level then has the
+     same R (1.274) as the ground, and the pair's clock dilates at 0.79
+     of relativity's rate with the right sign, where on the rule's
+     count the other levels read R 8 to 15. At a_B 6 the same removal
+     leaves a near triplet of levels, each R 3.2 to 3.6, so the
+     pre-registered test there failed
+     ([`E-SPN-0206`](test/experiment/spin/register-contact-core.ts),
+     fail on its a_B 6 gate). The same knot explains why the bound
+     clock of E-MTR-0025 ticks faster when it moves: its lower level
+     sits 0.92 at contact under the meeting and is 2.6 to 3.6 times
+     heavier per unit energy than the level above. With the meeting
+     off, the clock dilates with the right sign, but 2.5 to 7.6 times
+     too strongly
+     ([`E-SPN-0207`](test/experiment/spin/clock-contact-knot.ts)).
+     Binding by exchange at one dock therefore gives a knot, not a
+     unit that carries momentum whole
+   - **The well is a regulator, and it is not what is left.** At
+     a_B 12, with the contact well removed, a clean level reads
+     R_full 1.173 against tan m/m 1.066. That gap is 0.64 of the rule's
+     own (1.235), so the test failed its gates, which were fixed before
+     the run. Over a_B 8 and 12 the well's part of the excess falls as
+     a_B^−3.4, from 0.62 of the excess to 0.36 of it, as a lattice
+     artifact of the steep center should. What remains falls only as about
+     1/a_B (0.158 to 0.107), which is first order in the coupling at
+     fixed member mass. The clock read there used a line at the
+     continuum's edge, and it rose with K
+     ([`E-SPN-0208`](test/experiment/spin/register-contact-weak.ts),
+     fail). So a 1/a_B remainder now holds R up, not the well
+   - **The reference formula has no first-order term.** Every piece
+     of the static formula plus the Darwin exchange is second order
+     in the coupling: the band's non-quadratic terms, the register,
+     recoil, the binding's share of inertia, and the exchange itself.
+     The member's exact band, averaged over each level's momentum
+     density, raises the reference by 0.015 at a_B 8 and 0.006 at
+     a_B 12. The recorded values sit 0.10 to 0.39 above it
+     ([`E-SPN-0209`](test/experiment/spin/register-pair-formula-audit.ts),
+     fail as predicted). The remainder, falling as a_B^−0.85, is
+     inertia the static picture leaves out by construction. That
+     points at the pair and its light as one dynamics
+   - **Why the exact pair-plus-light run was not started.** With total
+     momentum fixed, the a_B 8 motion sector holds about 28,000
+     representatives of 256 states. One transverse photon on a husk
+     torus of side 64 adds about 520,000 modes, so a single sector
+     holds about 4 × 10^12 amplitudes, 64 TB a state. The run also
+     could not close the gap: E-SPN-0169 showed the light's kernels
+     are one Maxwell form, so the moving field's first new term is the
+     Darwin exchange. That term is order 1/a_B² and is already in
+     R_full, while the remainder is order 1/a_B. A direction test was
+     dropped for the same kind of reason. The tracked level is
+     O_h-symmetric, so its K² coefficient is isotropic by symmetry,
+     whatever its cause (measured 5e-7 and 2e-6 in E-SPN-0162 and
+     E-SPN-0173)
+   - **The power-counting argument, tested where the problem is small.**
+     A pair and its light were run as one exact quantum dynamics in low
+     dimension: Gauss's law solved, the transverse light quantized, the
+     exact Peierls phase, photon number converged to a few percent. On a
+     line there is no transverse light at all, so it cannot test the
+     claim. In the plane the moving light adds 0.154 to 0.028 to R over
+     a_B 8 to 64, falling as a_B^−0.81, but the plane's Darwin term
+     itself grows with the box, so the comparison is not posed there
+     ([`E-QTM-0181`](test/experiment/quantum/plane-pair-light.ts),
+     partial). With the members in a plane and the light in a slab (the
+     3d pull and Darwin kernel), the moving light adds 0.76, 0.41, 0.21
+     and 0.14 to R at a_B 3, 4, 6, 8. That is 10 to 36 times the
+     remainder, with local slopes running from −2.1 toward −1.45 as the
+     coupling weakens
+     ([`E-QTM-0182`](test/experiment/quantum/plane-pair-light.ts),
+     partial, with the a_B 6 and 8 large slabs stopped for time). The
+     term the argument leaves out is each member's own dressing by the
+     exact phase. A lone member's R rises 0.43 to 0.13 above tan m/m,
+     as a_B^−1.23, first order in the coupling. Against its dressed
+     member the pair reads 0.30, 0.076, −0.0005, −0.007. So the moving
+     light does change R at first order. It raises R rather than
+     lowering it, so it cannot close the remainder against the bare
+     tan m/m. Against the dressed member the binding's own excess falls
+     to about zero
+   - **The remainder is the static engine's lattice, not one law.** At
+     a_B 8, with the contact well removed, three members of the ring
+     (m 0.284, 0.427, 0.474) leave remainders of 0.533, 0.143 and
+     0.191. The lightest one's K read is not quadratic, so it is read
+     but not gated. The two clean members give m^+2.8 against the
+     internal-speed law's m^−1
+     ([`E-SPN-0211`](test/experiment/spin/register-pair-mass-scan.ts),
+     fail). One piece grows as the member gets lighter, and one grows
+     with the member's own lattice inertia, tan m/m − 1. Neither is a
+     term a relativistic bound state carries
+   - **The light member at the weaker pull.** m 0.284 at a_B 12 moves
+     inside the pair at the same speed as m 0.427 at a_B 8 (m·a_B 3.40
+     against 3.42). The prediction, fixed before the run, was 0.143
+     scaled by the members' tan m/m − 1, which gives 0.060. The clean
+     read gives 0.054, down from 0.533 at a_B 8, with R_full 1.0785
+     against the member's own tan m/m 1.0277
+     ([`E-SPN-0212`](test/experiment/spin/register-pair-light-weak.ts),
+     pass). So both pieces of the remainder are lattice terms that
+     vanish for light, loosely bound members. A light bound pair's
+     inertia equals its energy up to such terms, which now stand at
+     5% of R
+   - **The moving clock is still open.** A clock of the 1s-like and
+     2s-like levels, pre-registered at a_B 7, could not be read. There
+     the 1s-like level is a near pair, and the 2s-like line has no
+     clean continuation at K
+     ([`E-SPN-0213`](test/experiment/spin/register-pair-clock.ts),
+     fail on the instrument). The one clean clock on record is the a_B
+     8 read, 0.79 of relativity's rate with the right sign, and it was
+     read after its file's gated runs. A blind clock at a_B 7.5 was
+     taken at the first point where both levels are clean single
+     lines. There the 2s level is lighter per unit energy than the 1s
+     (R 1.283 against 1.337), so the beat rises with K, at −1.09 times
+     relativity's
+     ([`E-SPN-0214`](test/experiment/spin/register-pair-clean-clock.ts),
+     fail). The clock's alpha flips on a few percent of R between two
+     levels, so it needs lattice remainders below about 1%. That is the
+     same continuum limit R needs. A heavy-light pair needs a member of
+     its own unit in the engine and its kernel, and the ring's masses
+     below π/6 allow a ratio of only about 2.5
+   - **The remainder collapses to a term that vanishes in the
+     continuum.** The four clean softened reads fall on one form,
+     r = C + B(tan m/m − 1)/a_B: the member's lattice inertia excess
+     times 1/a_B. Held at fixed m·a_B, which fixes the pair's own
+     physics, that term falls as a_B^−3. Fitted on three reads before
+     the m 0.284, a_B 12 read landed, the form predicted 0.0405 for it.
+     The read gave 0.0541, inside the pre-registered 0.02 band. Refitted
+     on all four, the continuum remainder C is 0.012 ± 0.009, within
+     0.02 of 0 but 1.4σ above it
+     ([`E-MTR-0028`](test/experiment/matter/remainder-collapse.ts),
+     pass). Every form with a separate light-member piece gives that
+     piece the wrong sign on the clean reads, so the 0.533 of the
+     unclean a_B 8 read leaves no trace in them. This covers the
+     softened count only, and rests on four reads and two parameters
+   - **The pair at a finite momentum is not yet readable.** Boosting
+     the same a_B 8 pair to K 0.4, 0.8 and 1.2, to test the full
+     relativistic curve and whether its clock slows with its motion,
+     failed on the instrument
+     ([`E-MTR-0029`](test/experiment/matter/composite-dispersion.ts),
+     fail). Its levels mix with lines closer together than the read's
+     resolution, 2π/4096. At K 0.8 the line of largest overlap is the
+     2s-like level, not the ground. The lone member's own band at this
+     mass has a quartic 2.8 times relativity's. A rigid composite carries
+     its members' quartic, so at this member mass a pair is expected to
+     sit off the relativistic curve by lattice band alone.
+     Reading it needs the full N 8192 correlation or a sector
+     eigensolver
+   - **A sector eigensolver from one correlation.** Lanczos needs a
+     Hermitian operator. The pair's cycle is unitary in the Gram metric,
+     and the engine has no inverse cycle. So the solver is filter
+     diagonalization on the autocorrelation the engine already gives
+     ([`E-MTR-0030`](test/experiment/matter/sector-eigensolver.ts),
+     partial). It recovers known lines five times closer than the
+     Fourier limit exactly, and reads the a_B 8 ground within 1.1e-8 of
+     the Fourier read. At a_B 12 an 8,450-cycle correlation pins the
+     ground only to about 1e-6, by either method. The light member
+     (m 0.284) is not near-relativistic either: its band's quartic is
+     1.77 times relativity's at every K. Within the K where it stays
+     within 2% of its own relativistic form, relativity and Galilean
+     motion differ by under 2.3%
+   - **Binding bends the light pair further from relativity.** Read by
+     that solver at K 0.2 to 1.0, the light pair's quartic is
+     2.21 ± 0.05 of relativity's. One constant fits all four K to
+     1.5e-5. Its members read 1.77, and relativity is 1
+     ([`E-MTR-0031`](test/experiment/matter/light-pair-dispersion.ts),
+     fail). So binding neither repairs the members' lattice dispersion
+     nor simply carries it: it adds its own. The run failed its own
+     witness and stability gates at the 1e-5 level, which moves the
+     quartic by under 0.01
+   - **The excess over the members does not fade on the one new point.**
+     A filter twice as long fixes the witness: the rest ground now
+     agrees with the recorded read to 4e-9 at m 0.284, a_B 8, and to
+     9e-7 at m 0.380, a_B 10. The moving read still fails, because the
+     moving level splits into lines 3e-4 to 1.3e-3 apart at every K. At
+     a_B 8 the K 1.0 level spreads over a ladder of lines, none holding
+     a tenth of the start, so that pair has no quartic. At m 0.380,
+     a_B 10 the quartic is 3.21 ± 0.14 against its members' 2.41, an
+     excess of 0.80 ± 0.14 against 0.44 ± 0.05 at a_B 12
+     ([`E-MTR-0032`](test/experiment/matter/light-pair-fading.ts),
+     fail on the instrument). The excess grows with the member's own
+     lattice excess, as a lattice term would. On that reading the
+     lightest member at a_B 18 would read 1.58 ± 0.11 against its
+     members' 1.34, not relativity's 1. Two points cannot fix the trend
    - **The wall as the husk.** A Wilson mass built from the rule's own
      mixers makes the husk a domain wall, second Chern number −1 per copy
      ([`E-SPN-0166`](test/experiment/spin/wilson-wall.ts), a fail on
@@ -615,6 +890,101 @@ realizes.
      closes by moving the far side's phase, which displaces the wall's
      Weyl node ([`E-SPN-0172`](test/experiment/spin/far-side-shift.ts),
      a fail on one rigidity tolerance)
+   - **The candidate's discrete choices, surveyed.** A pre-registered
+     grid of 144 variants (5 coins, the in-ring angle and the split
+     primes 7, 13, 19 and 31 at two exponents, one to three beats, with
+     and without the register) was scored on a lone member's R against
+     tan m/m and its K² isotropy. 94 pass both, every coin among them,
+     so the two scores cannot tell the coins apart. The held-out check,
+     one light speed, leaves 26: the swap coin and the register. No score
+     prefers the prime 7. At k = 1, the prime 19 gives a lighter member
+     (m 0.115) than 7 does (0.190). Nothing is adopted
+     ([`E-FND-0177`](test/experiment/foundations/rule-design-scan.ts),
+     partial)
+   - **Bound matter on the surviving variant moves the same in every
+     direction.** Every bound-pair engine already runs it: the register
+     has the swap coin built in, which is the register variant
+     E-FND-0177 kept. On the slot walk without the register no pair
+     binds (its flat bands leak). E-SPN-0173's pair at a_B 3.5 reads
+     one K² coefficient, 0.0183178, along the 3 axes, the 6 face
+     diagonals, the 4 body diagonals and a generic direction. The
+     spread is 2.3e-6, against 0.158 for the working rule's lineon over
+     the same 13 directions. A lighter-bound pair at a_B 6 (R 2.72)
+     agrees on an axis, a face and a body diagonal to 1.5e-3. The
+     pair's first direction-dependent term
+     is K⁴, −0.0037 on the axes and −0.0025 on the body diagonals
+     ([`E-RLT-0115`](test/experiment/relativity/bound-pair-direction.ts),
+     fail as registered). Its own off-line test reads fail: at κ 0.16
+     all four body diagonals shift the same 4.01e-4, but each leaves a
+     one-cycle residual of 9.84e-4, above the 2.3e-4 its gate calls
+     stuck. That residual is the level's own floor, 1.5e-3 at rest and
+     1.0e-3 on an axis, not a split into branches. Two of the four
+     diagonals first read wrong because the reduced engine was unstable
+     on them. That is fixed, and every other sector reproduces bit for
+     bit.
+     An isotropic K² cannot prove the pair leaves its lines, since
+     twelve line branches average to an isotropic K² as well. Line
+     branches would leave a share of the pair at rest, so the next two
+     files looked for one. Along a body diagonal, a direction no line
+     casts, the pair moves whole. At K 0.20 and 0.24 it keeps 0 of its
+     weight at the rest energy, where branches would keep 1/4, and its
+     line shifts within 3% of the band's prediction. On an axis at 0.24
+     a neighboring level puts 0.126 there, which is not the branches'
+     0.5 but misses the pre-registered bound
+     ([`E-RLT-0116`](test/experiment/relativity/bound-pair-line-split.ts),
+     [`E-RLT-0117`](test/experiment/relativity/bound-pair-still-branch.ts),
+     both open). A fresh test with its gates set above floors measured
+     first used a 6,144-cycle filter, whose floor is 1.2e-5 (the 2,048
+     filter's was 9.2e-4). It read the axis, all four body diagonals and
+     the face diagonal (1, 1, 0) at K 0.22 and 0.28. On the body and
+     face diagonals the residual is 3.3e-5 to 9.1e-5, and at most 0.0075
+     of the pair stays at rest. Twelve line branches give 3.4e-4 to
+     5.5e-4 and 1/4 through the same reads, so 10 of those 10 reads
+     move. The axis moves at 0.22. At 0.28 it keeps nothing at rest,
+     where branches would keep 1/2, but its residual, 5.7e-4, sits
+     between the moves bound (5.1e-4) and the stuck bound (9.7e-4): the
+     level splits there with a neighbor
+     ([`E-RLT-0118`](test/experiment/relativity/bound-pair-off-lines.ts),
+     open). So bound matter on this variant is isotropic at leading
+     order. It leaves the lines along every body diagonal and a face
+     diagonal, and along the axis it moves at one momentum and is unread
+     at the other. The mobility read covers one strongly bound pair
+     (R 8.46) at one member mass (m 0.427).
+     Nothing is adopted
+
+   **A step-list model as a control.** The Matter As Machine model
+   treats a particle as a looped list of unit axis steps, its rest mass
+   the steps that cancel. Its claims were run as external controls on
+   the mesh:
+   - **the clock.** Its counting clock, the share of a history's steps
+     that cancel, falls linearly as 1 − v. Vibe's band clock has no
+     linear term and follows the square root, √(1 − v²/c²), reading 3/4
+     at the top group speed where the counting clock reads 1/2
+     ([`E-MTR-0026`](test/experiment/matter/counting-clock.ts), pass)
+   - **the quadrature.** Read from a stand-in token's self ports, his
+     rule x² + (v/c)² = 1 holds to 1.04e-3 at a light mass and misses by
+     6.5% to 28% at the mass π/3
+     ([`E-MTR-0027`](test/experiment/matter/self-port-quadrature.ts),
+     pass)
+   - **taxicab motion.** A looped list of axis steps moves at 1 on an
+     axis and 0.577 on a body diagonal at every loop length, anisotropic
+     at leading order. Vibe's husk light is anisotropic only at fourth
+     order (exponent 4.001). This clears the light only: matter on the
+     working rule moves on lines and is anisotropic at leading order too
+     ([`E-RLT-0113`](test/experiment/relativity/taxicab-control-anisotropy.ts),
+     pass)
+   - **slow photons.** Light from a source moving at up to 0.622 c
+     leaves at c both ways, and its period behind matches ordinary mesh
+     Doppler within 0.091%, where light leaving at c − v would give 0.751
+     c down to 0
+     ([`E-FRC-0314`](test/experiment/gauge/moving-source-light-speed.ts)
+     to [`E-FRC-0316`](test/experiment/gauge/moving-source-light-speed-envelope.ts),
+     pass on the last)
+
+   **Pending reads.** Results from these runs are added here when they
+   land: the lightest ring member (m 0.190) at a_B 18 or more, the
+   pair's dispersion at a lighter member and a larger a_B, and a
+   heavy-light pair once the engine carries a heavy member.
 2. a temperature: a forming horizon's spectrum stays a power law at
    every register size run (C 13 to 49), so what shows is the growth's
    quench
@@ -691,15 +1061,60 @@ and the Coulomb binding gate registered with its first run
 ([`E-SPN-0155`](test/experiment/spin/husk-coulomb-meson.ts), partial on
 one pre-registered instrument clause).
 
+Light from a moving source, rerun with its readings resolved and its
+gates fixed before the run
+([`E-FRC-0315`](test/experiment/gauge/moving-source-light-speed-resolved.ts),
+open). The test used a box twice as long and a 32-dock baseline. A
+sheet emitter moving at up to 0.622 c then sends its backward front
+within 0.0024 c of the rest front, where light leaving at c − v would
+give 0.751 to 0 c. The period behind matches the mesh Doppler within
+0.41% at three speeds. At the fastest source the registered reading
+skips two early rises. A reader that follows the local envelope was
+fixed before a fresh run, and that run passes
+([`E-FRC-0316`](test/experiment/gauge/moving-source-light-speed-envelope.ts)).
+At every speed the period behind is within 0.091% of the mesh Doppler,
+with no rise skipped.
+
 ## Order of work
 
 One chain gates nearly everything, because most rows still at none or
 partial wait on bound matter that moves across lines.
 
-1. **R for a light pair held by the light.** The symmetry-reduced
-   engine reads R at Bohr radii 8 to 20, static and with the Darwin
-   term. If it falls to tan m/m there, bound matter moving in 3d has
-   its full demonstration on the candidate rule with the register.
+1. **A light pair held by the light, moving as relativity says.** Its
+   inertia holds in these tests up to mesh artifacts. The excess was the pull's
+   contact well and steep center (E-SPN-0206, E-SPN-0207), which fades as
+   a regulator should, and a remainder falling as 1/a_B (E-SPN-0208)
+   that the reference formula cannot supply (E-SPN-0209). That
+   remainder is a lattice term of the static engine (E-SPN-0211,
+   E-SPN-0212): the four clean reads collapse onto the member's lattice
+   inertia times 1/a_B, with a continuum remainder of 0.012 ± 0.009
+   (E-MTR-0028). The exact pair-plus-light run is out of reach (about
+   64 TB a state), and in low dimension the moving light raises R
+   through each member's own dressing rather than lowering it
+   (E-QTM-0181, E-QTM-0182). What is left, in order:
+   1. **the remainder read directly below 0.02:** the lightest ring
+      member (m 0.190) at a_B 18 or more, about 40 hours, a droplet job.
+      If R then falls to tan m/m, the inertia has its full
+      demonstration on the candidate rule with the register
+   2. **the moving clock:** a blind clock at the first clean point,
+      a_B 7.5, reads the wrong sign, because the two levels' lattice
+      remainders differ by 4% (E-SPN-0213, E-SPN-0214). It needs
+      remainders below about 1%, the same limit as step 1.1
+   3. **the pair's dispersion:** the levels mix past K 0.4 at the
+      Fourier read's resolution (E-MTR-0029), and read by the sector
+      eigensolver (E-MTR-0030) the light pair's quartic is 2.21 times
+      relativity's, against its members' 1.77 (E-MTR-0031). At m 0.380,
+      a_B 10 the excess over the members is larger (0.80 against 0.44),
+      and at a_B 8 the moving level is too split to read (E-MTR-0032).
+      Next: a read that follows the level through its splitting, before
+      any long run reads a quartic
+   4. **a heavy-light pair,** which needs a heavy member of its own
+      unit in the engine and its kernel, since the ring's masses below
+      π/6 allow a mass ratio of only about 2.5
+   5. **matter isotropy on the working rule:** every vibe there is a
+      lineon, anisotropic at leading order (E-SPN-0126, E-RLT-0113,
+      E-RLT-0114), so this closes only through step 3, adopting the
+      candidate
 2. **The pair and the quantum light as one exact dynamics**, to confirm
    the Darwin term beyond linear response.
 3. **Adopt or refuse the candidate rule.** The register results then
@@ -1016,14 +1431,14 @@ carry a control) are in
 
 [**`test/catalog.csv`**](test/catalog.csv) is the full index, one row
 per experiment, generated from the registered experiments and sorted
-strongest first. It holds **1,556 rows in 18 categories**:
+strongest first. It holds **1,672 rows in 18 categories**:
 
 | total | L3 emergent, novel | L2 known physics | L1 known math | L0 circular | backing a paper claim |
 | ----: | -----------------: | ---------------: | ------------: | ----------: | --------------------: |
-|  1556 |                 53 |             1172 |           317 |          14 |                   604 |
+|  1672 |                 53 |             1251 |           354 |          14 |                   604 |
 
-The largest categories are gauge (275), spin (188), selves (177),
-quantum (172), foundations (169), gravity (145) and relativity (112). The
+The largest categories are gauge (312), spin (218), quantum (186),
+selves (180), foundations (177), gravity (150) and relativity (123). The
 first full depth audit (2026-08-31) found 40 of 92 L3 experiments with
 no substrate, rule or coin in their import graph, and regraded them
 down. Every correction is recorded in the experiment it corrects.
@@ -1147,7 +1562,7 @@ those numbers live in one cited place:
   use as a comparison: the fundamental constants, the full Standard
   Model particle table, the roughly 26 free Standard Model parameters,
   the CKM and PMNS mixing matrices, the cosmological parameters, and the
-  geometric and group-theory targets the model derives (the ternary 3,
+  geometric and group-theory targets the model aims to reach (the ternary 3,
   the 24 of the dock, the octonion ceiling 8, F4 order 1152,
   sin^2(theta_W) = 3/8, the Tsirelson bound, the Born exponent, and so
   on).

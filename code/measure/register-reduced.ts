@@ -383,8 +383,190 @@ const cubeIndex = (
   c: number,
 ): number => a + R + (2 * R + 1) * (b + R + (2 * R + 1) * (c + R))
 
+// THE STORED PART OUTSIDE THE SECTOR. At a representative y with a stabilizer H (y on a mirror or on the axis), the 256
+// stored components hold the invariant part (rho(h) psi(y) = psi(y) for h in H) and a remainder no invariant state has.
+// The cycle maps invariant states to invariant states exactly, but rounding seeds the remainder, and the cycle acts on it
+// through whichever g the tables chose for each neighbour (any g with g (rep) = q reads the same invariant part, not the
+// same remainder), so the remainder's growth depends on the tables. For the tables built directly below, every sector
+// tried keeps it at rounding over 1,024 cycles (O_h, the 3 axes, the 6 face diagonals, (1, 1, 1), (1, -1, -1) and ten
+// low-symmetry directions, tmp/rrfix-probe6.ts) except the two body diagonals (1, 1, -1) and (1, -1, 1), where it grows
+// about 5% a cycle (norm 2.9e152 by 4,096 cycles at R 16, E-RLT-0115's probe). Those two groups are conjugates k G k of
+// (1, 1, 1)'s G, k the flip of the third or the second coordinate, which commutes with the whole cycle. So their sectors
+// are built as the image of (1, 1, 1)'s (conjugateSector): representatives k y, elements k g k. That sector's cycle is
+// (1, 1, 1)'s with every site and element relabeled, so it is stable exactly when (1, 1, 1)'s is. Every other group is
+// built directly, its tables unchanged (so every result recorded on them stays bit for bit).
+
+// the index of the composition e_i e_j (apply e_j first)
+function composeIndex(group: CubicGroup, i: number, j: number): number {
+  const q = applyCubic(group.elements[j]!, 1, 2, 3)
+  const p = applyCubic(group.elements[i]!, q[0], q[1], q[2])
+
+  return group.elements.findIndex(
+    e => applyCubic(e, 1, 2, 3).join(',') === p.join(','),
+  )
+}
+
+// the body-diagonal groups built by conjugation: (1, 1, 1)'s group and the flip k (perm 012, the sign on one coordinate)
+// that carries it to `members`, or null to build directly
+function conjugateOf(
+  group: CubicGroup,
+  members: readonly number[],
+): { base: number[]; k: number } | null {
+  if (members.length !== 6) {
+    return null
+  }
+
+  const base = littleGroup(group, [1, 1, 1, 0])
+  const want = [...members].sort((x, y) => x - y).join(',')
+
+  for (const sign of [
+    [1, -1, 1],
+    [1, 1, -1],
+  ]) {
+    const k = group.elements.findIndex(
+      e =>
+        e.perm.join(',') === '0,1,2' && e.sign.join(',') === sign.join(','),
+    )
+    const image = base
+      .map(g => composeIndex(group, k, composeIndex(group, g, group.elements[k]!.inverse)))
+      .sort((x, y) => x - y)
+      .join(',')
+
+    if (image === want) {
+      return { base, k }
+    }
+  }
+
+  return null
+}
+
 // the sector of subgroup `members` on the husk ball of radius R (a^2 + b^2 + c^2 <= R^2)
 export function sector(
+  group: CubicGroup,
+  members: readonly number[],
+  R: number,
+): Sector {
+  const via = conjugateOf(group, members)
+
+  return via
+    ? conjugateSector(directSector(group, via.base, R), via.k, members)
+    : directSector(group, members, R)
+}
+
+// the image k S of a sector under the element k: representatives k y, the element for k q the conjugate k g k^-1 of
+// q's, as an index into `members` (which must be k G k^-1 as a set); orbits, shells and sites carry over
+export function conjugateSector(
+  s: Sector,
+  k: number,
+  members: readonly number[],
+): Sector {
+  const group = s.group
+  const kEl = group.elements[k]!
+  const R = s.R
+  const side = 2 * R + 1
+  const at = new Map(members.map((m, i) => [m, i]))
+  const image = s.members.map(g => {
+    const c = composeIndex(group, k, composeIndex(group, g, kEl.inverse))
+    const i = at.get(c)
+
+    if (i === undefined) {
+      throw new Error('register-reduced: the members are not the conjugate group')
+    }
+
+    return i
+  })
+  const pointRep = new Int32Array(side * side * side).fill(-1)
+  const pointG = new Int8Array(side * side * side).fill(-1)
+
+  for (let c = -R; c <= R; c++) {
+    for (let b = -R; b <= R; b++) {
+      for (let a = -R; a <= R; a++) {
+        const from = cubeIndex(R, a, b, c)
+        const r = s.pointRep[from]!
+
+        if (r < 0) {
+          continue
+        }
+
+        const q = applyCubic(kEl, a, b, c)
+        const to = cubeIndex(R, q[0], q[1], q[2])
+
+        pointRep[to] = r
+        pointG[to] = image[s.pointG[from]!]!
+      }
+    }
+  }
+
+  const reps = new Int32Array(s.reps.length)
+
+  for (let i = 0; i < s.count; i++) {
+    reps.set(
+      applyCubic(kEl, s.reps[3 * i]!, s.reps[3 * i + 1]!, s.reps[3 * i + 2]!),
+      3 * i,
+    )
+  }
+
+  return {
+    group,
+    members: [...members],
+    R,
+    reps,
+    shell: Int32Array.from(s.shell),
+    orbit: Float64Array.from(s.orbit),
+    count: s.count,
+    ...neighbourTables(R, reps, s.count, pointRep, pointG),
+    pointRep,
+    pointG,
+    sites: s.sites,
+  }
+}
+
+// per representative and root, the neighbour's representative and element (-1 outside the ball), plus and minus
+function neighbourTables(
+  R: number,
+  reps: ArrayLike<number>,
+  count: number,
+  pointRep: Int32Array,
+  pointG: Int8Array,
+): Pick<Sector, 'plusRep' | 'plusG' | 'minusRep' | 'minusG'> {
+  const R2 = R * R
+  const plusRep = sharedI32(count * NR)
+  const plusG = sharedI8(count * NR)
+  const minusRep = sharedI32(count * NR)
+  const minusG = sharedI8(count * NR)
+
+  for (let i = 0; i < count; i++) {
+    const a = reps[3 * i]!
+    const b = reps[3 * i + 1]!
+    const c = reps[3 * i + 2]!
+
+    for (let d = 0; d < NR; d++) {
+      const r = ROOTS[d] as number[]
+
+      for (const [s, repOut, gOut] of [
+        [1, plusRep, plusG],
+        [-1, minusRep, minusG],
+      ] as const) {
+        const q = [a + s * r[0]!, b + s * r[1]!, c + s * r[2]!]
+
+        if (q[0]! ** 2 + q[1]! ** 2 + q[2]! ** 2 > R2) {
+          repOut[i * NR + d] = -1
+          gOut[i * NR + d] = -1
+        } else {
+          const k = cubeIndex(R, q[0]!, q[1]!, q[2]!)
+
+          repOut[i * NR + d] = pointRep[k]!
+          gOut[i * NR + d] = pointG[k]!
+        }
+      }
+    }
+  }
+
+  return { plusRep, plusG, minusRep, minusG }
+}
+
+// the sector built directly: each point's representative is its image of least cube index
+export function directSector(
   group: CubicGroup,
   members: readonly number[],
   R: number,
@@ -455,37 +637,12 @@ export function sector(
   }
 
   const count = reps.length / 3
-  const plusRep = sharedI32(count * NR)
-  const plusG = sharedI8(count * NR)
-  const minusRep = sharedI32(count * NR)
-  const minusG = sharedI8(count * NR)
   const shell = new Int32Array(count)
 
   for (let i = 0; i < count; i++) {
-    const a = reps[3 * i]!
-    const b = reps[3 * i + 1]!
-    const c = reps[3 * i + 2]!
-
-    shell[i] = Math.round(Math.hypot(a, b, c))
-
-    for (let d = 0; d < NR; d++) {
-      const r = ROOTS[d] as number[]
-
-      for (const [s, repOut, gOut] of [
-        [1, plusRep, plusG],
-        [-1, minusRep, minusG],
-      ] as const) {
-        const q = [a + s * r[0]!, b + s * r[1]!, c + s * r[2]!]
-
-        if (q[0]! ** 2 + q[1]! ** 2 + q[2]! ** 2 > R2) {
-          repOut[i * NR + d] = -1
-          gOut[i * NR + d] = -1
-        } else {
-          repOut[i * NR + d] = pointRep[key(q)]!
-          gOut[i * NR + d] = pointG[key(q)]!
-        }
-      }
-    }
+    shell[i] = Math.round(
+      Math.hypot(reps[3 * i]!, reps[3 * i + 1]!, reps[3 * i + 2]!),
+    )
   }
 
   const orbit = Float64Array.from(orbitCount)
@@ -498,10 +655,7 @@ export function sector(
     shell,
     orbit,
     count,
-    plusRep,
-    plusG,
-    minusRep,
-    minusG,
+    ...neighbourTables(R, reps, count, pointRep, pointG),
     pointRep,
     pointG,
     sites,

@@ -1,4 +1,4 @@
-// H2+ WITH ONE REGISTER MEMBER, THE BONDING LEVEL TRACKED BY ITS OVERLAP (E-SPN-0191, roadmap item 7, atoms;
+// H2+ WITH ONE REGISTER MEMBER, THE BONDING LEVEL TRACKED BY ITS OVERLAP (E-SPN-0203, roadmap item 7, atoms;
 // routes/matter-forces-numbers.md section E, chemical bonds, the row "H2+ with one register member": H2+ binds at 2.0 a_B
 // with a depth about 0.205 of the atom's E_b; killed by no minimum, or a minimum away from 2 a_B that does not move toward
 // it as a_B grows). E-SPN-0190 (spin/register-member-h2plus) put E-SPN-0160's light register member (u = ringUnit(-5,
@@ -577,7 +577,7 @@ export function registerMemberH2plusTrackedRun(): Verdict {
 
 export default experiment({
   id: 'spin/register-member-h2plus-tracked',
-  code: 'E-SPN-0191',
+  code: 'E-SPN-0203',
   title:
     'H2+ with one register member, the bonding level tracked by its overlap with a fixed start, fail on the tracking gate at a_B 2.5: at a_B 3 every separation held (overlap 0.24 to 0.55, core lines under 0.03) and the total energy has its minimum at 1.958 a_B with depth 0.179 of the atom read (continuum 1.997 and 0.205), but at a_B 2.5 the largest overlap fell to 0.17 at two of six separations, and the atom reads are band centroids 3 to 5 percent off their main lines, so the depth and the trend with a_B are not read',
   category: 'spin',
