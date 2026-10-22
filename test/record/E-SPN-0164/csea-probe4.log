@@ -1,0 +1,7 @@
+Householder S - member 0.000e+0 0.000e+0 0.000e+0 | + member 0.000e+0 0.000e+0 0.000e+0
+Householder D - member 0.000e+0 0.000e+0 0.000e+0 | + member 0.000e+0 0.000e+0 0.000e+0
+V = 1 S - member 0.000e+0 0.000e+0 0.000e+0 | + member 0.000e+0 0.000e+0 0.000e+0
+V = 1 D - member 0.000e+0 0.000e+0 0.000e+0 | + member 0.000e+0 0.000e+0 0.000e+0
+v = 1 S - member 0.000e+0 0.000e+0 0.000e+0 | + member -3.145e-4 -2.499e-3 -8.344e-3
+v = 1 D - member 0.000e+0 0.000e+0 0.000e+0 | + member 3.145e-4 2.499e-3 8.344e-3
+exit=0

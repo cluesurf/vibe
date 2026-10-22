@@ -1,0 +1,15 @@
+sigma (k -3, j 2) 0.09355606888220278, theta0 -2.0943951023931957, step 3 sigma per link, cap 6
+m0 0.5235987755982987 mid0 -2.6179938779914944 sign -1
+V 0 norm true theta -2.094395 m 0.523599 (sched 0.523599) K0 levels -0.523598776 0.523598776 2.617993878 | S eps [0.5236, 1.8636] closed [0.5236, 1.8636] | D eps [-1.8636, -0.7912] closed [-1.8636, -0.5236] | flats missing 0
+V 1 norm true theta -1.813727 m 0.663933 (sched 0.663933) K0 levels -0.523598776 0.804266982 2.617993878 | S eps [0.8043, 1.9768] closed [0.8043, 1.9768] | D eps [-1.6961, -0.7369] closed [-1.6961, -0.5236] | flats missing 0
+V 2 norm true theta -1.533059 m 0.804267 (sched 0.804267) K0 levels -0.523598776 1.084935189 2.617993878 | S eps [1.0849, 2.0848] closed [1.0849, 2.0848] | D eps [-1.5235, -0.6920] closed [-1.5235, -0.5236] | flats missing 0
+V 3 norm true theta -1.252390 m 0.944601 (sched 0.944601) K0 levels -0.523598776 1.365603396 2.617993878 | S eps [1.3656, 2.1884] closed [1.3656, 2.1884] | D eps [-1.3464, -0.6540] closed [-1.3464, -0.5236] | flats missing 0
+V 4 norm true theta -0.971722 m 1.084935 (sched 1.084935) K0 levels -0.523598776 1.646271602 2.617993878 | S eps [1.6463, 2.2884] closed [1.6463, 2.2884] | D eps [-1.1658, -0.6207] closed [-1.1658, -0.5236] | flats missing 0
+V 5 norm true theta -0.691054 m 1.225269 (sched 1.225269) K0 levels -0.523598776 1.926939809 2.617993878 | S eps [1.9269, 2.3856] closed [1.9269, 2.3856] | D eps [-0.9823, -0.5906] closed [-0.9823, -0.5236] | flats missing 0
+V 6 norm true theta -0.410386 m 1.365603 (sched 1.365603) K0 levels -0.523598776 2.207608015 2.617993878 | S eps [2.2076, 2.4808] closed [2.2076, 2.4808] | D eps [-0.7968, -0.5626] closed [-0.7968, -0.5236] | flats missing 0
+V 7 norm true theta -0.410386 m 1.365603 (sched 1.365603) K0 levels -0.523598776 2.207608015 2.617993878 | S eps [2.2076, 2.4808] closed [2.2076, 2.4808] | D eps [-0.7968, -0.5626] closed [-0.7968, -0.5236] | flats missing 0
+gap for E_L: (2.0944, 2.5559), E_b in (1.0472, 1.5087); window nonempty iff m0 > atan(1/3) = 0.3218
+solver check: phase string E_b 0.523310 against eps4 F l 0.523310
+constant mu: E_b 1.7279, E_rest (0146 units) 2.7751, <W> 1.1520, T 0.5759, <V> 2.052, <tan m> 1.0865, R 1.0537
+mu = tan m(V): E_b 1.5249, E_rest (0146 units) 2.5721, <W> 1.0717, T 0.4532, <V> 1.909, <tan m> 1.0315, R 1.0384
+exit=0

@@ -109,16 +109,16 @@
 // fidelity and absorbed fraction at every point and the line through ln(1 - fbar), the ground-state Wilson loops
 // (triangle and perimeter 4), the energy-based time (running-mean Q reaching 1/4).
 //
-// PROBES BEFORE THE GATE RUN, disclosed. tmp/prt-probe1.log: the patches, the sector counts (orbits equal to Burnside on
+// PROBES BEFORE THE GATE RUN, disclosed. test/record/E-SPN-0154/prt-probe1.log: the patches, the sector counts (orbits equal to Burnside on
 // all three), the exact checks, the ground states at r 1, 2, 4, 8 (sector ground equal to Gauss-sector Lanczos to the
 // printed digits), the coupling rule's reading (r = 8), and the cost of one Floquet decomposition at 1 / delta = 10 (23
 // s, residual 4e-10, unitarity 4e-14); its survival was computed but NOT printed. The ladder was extended to 1 / delta =
 // 160 after the probe read W = 669 at r = 8, so that it runs past delta_W; no survival value had been seen. One smoke of
-// the whole run on the short ladder 1, 4, 8, 64 with one cross beat and one unfixed beat (tmp/prt-smoke.log), written
+// the whole run on the short ladder 1, 4, 8, 64 with one cross beat and one unfixed beat (test/record/E-SPN-0154/prt-smoke.log), written
 // AFTER the gates above: tau 1, 1, 1, infinity (fbar 1.8e-3, 1.8e-3, 1.9e-3, 0.905), every control and exactness check
 // holding. No gate, threshold or ladder point moved after it.
 //
-// FIRST RUN (tmp/prt-exp-run1.log, 884 s): PARTIAL, on an instrument threshold. K1, K2, K3a and K3b hold, and so do every
+// FIRST RUN (test/record/E-SPN-0154/prt-exp-run1.log, 884 s): PARTIAL, on an instrument threshold. K1, K2, K3a and K3b hold, and so do every
 //  cross-check of K3c except one: at 1 / delta = 5.93 the largest Floquet residual |F u - lambda u| is 1.3e-8 against
 //  the gate's 1e-8 (every other ladder point 1.2e-10 to 5.3e-9; least phase gap there 1.1e-4, so it is the QL solver's
 //  accuracy in a crowded stretch of the spectrum, at a point where tau = 1 and fbar = 1.9e-3 either way). The gate is not

@@ -1,0 +1,43 @@
+E-QTM-0160 status partial
+claim weak values on the working rule: the lone vibe's two histories to one end at beat 3 have shares -1/2 and 3/2 on 17 of 17 starts, outside the range a passage probability could take; on the rule's gates (read on 17 of 17) a two-coin interferometer has (Pi_L)_w = 3/2 and non-real weak values -w and 1 + w, and a pointer love present on the arm only through its keep history (amplitude k^n) reads, post-selected, 0.6923, 1.4400, 1.9726, 2.1736 ... 2.24999970 exchanges per unit (n = 0 .. 12), converging to |(Pi_L)_w|^2 = 9/4 > 1, while disturbing the love's statistics by 1.34e-7 at n = 12; unconditioned the pointer reads exactly the arm-L probability 3/4, and with the arms dephased at most 1
+  starts 17
+  startsWithShares 17
+  startsReadingTheGates 17
+  weakValueLimit 2.25
+  gate_G0 1
+  gate_W1 1
+  gate_W2 1
+  gate_W3 1
+  gate_W4 1
+  gate_C1 1
+  gate_C2 1
+  response_n0 0.6923076923076923
+  disturbance_n0 2.25
+  response_n1 1.44
+  disturbance_n1 0.5625
+  response_n2 1.9726027397260273
+  disturbance_n2 0.140625
+  response_n3 2.1735849056603773
+  disturbance_n3 0.03515625
+  response_n4 2.230396902226525
+  disturbance_n4 0.0087890625
+  response_n5 2.2450669914738124
+  disturbance_n5 0.002197265625
+  response_n6 2.2487647166473494
+  disturbance_n6 0.00054931640625
+  response_n7 2.2496910519490427
+  disturbance_n7 0.0001373291015625
+  response_n8 2.2499227550323666
+  disturbance_n8 0.000034332275390625
+  response_n9 2.249980688260847
+  disturbance_n9 0.00000858306884765625
+  response_n10 2.249995172034133
+  disturbance_n10 0.0000021457672119140625
+  response_n11 2.249998793006591
+  disturbance_n11 5.364418029785156e-7
+  response_n12 2.2499996982515262
+  disturbance_n12 1.341104507446289e-7
+  seconds 3.649
+control {"unconditionedResponse":0.75,"dephasedResponseMax":0.9}
+notes L2 with W1 on the rule. Gates G0 true, W1 true, W2 true, W3 true, W4 true, C1 true, C2 true. Weak values: f R j 0: (Pi_R)_w -1/2, (Pi_L)_w 3/2; f R j 1: (Pi_R)_w (4 + 3w)/13, (Pi_L)_w (9 - 3w)/13; f R j 2: (Pi_R)_w (1 - 3w)/13, (Pi_L)_w (12 + 3w)/13; f L j 0: (Pi_R)_w 1/2, (Pi_L)_w 1/2; f L j 1: (Pi_R)_w (0 - 1w), (Pi_L)_w (1 + 1w); f L j 2: (Pi_R)_w (1 + 1w), (Pi_L)_w (0 - 1w). Shares on integer+0: kxk -1/2, xxx 3/2, kxx 1/2, xxk 1/2. Response exact by n: 9/13, 36/25, 144/73, 576/265, 2304/1033, 9216/4105, 36864/16393, 147456/65545, 589824/262153, 2359296/1048585, 9437184/4194313, 37748736/16777225, 150994944/67108873. The schedule is arranged (B's line on arm L at the coupling beat); B's presence amplitude k^n is its keep-every-beat history, argued, not run on the mesh. 3.6 s.
+exit=0

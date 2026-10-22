@@ -1,0 +1,12 @@
+C1 E-SPN-0162 string through setPairPhases: bit for bit true, beta arrays equal true [8.5s]
+coord 5 (515 sites), full 4 (257 sites) [8.5s]
+K 0,0,0,0 start 64: gap all 3.83e-17 (weights 10.583142737761 / 10.583142737761), within 1 3.83e-17, coordinate norm 10.598340448088 -> 10.598340448088 [12.4s]
+K 0,0,0,0 start 256: gap all 4.35e-3 (weights 41.887862603510 / 41.902998509264), within 1 6.64e-17, coordinate norm 41.957969722246 -> 41.957969335744 [31.2s]
+K 0.31,-0.17,0.52,0 start 64: gap all 3.86e-17 (weights 10.583556881362 / 10.583556881362), within 1 3.86e-17, coordinate norm 10.598340448088 -> 10.598340448088 [35.1s]
+K 0.31,-0.17,0.52,0 start 256: gap all 4.26e-3 (weights 41.908162459834 / 41.923103885609), within 1 8.58e-17, coordinate norm 41.973161372416 -> 41.973161571606 [53.5s]
+coord 7 (1419 sites), full 6 (925 sites) [53.5s]
+K 0,0,0,0 start 64: gap all 3.83e-17 (weights 10.598340448092 / 10.598340448092), within 3 3.83e-17, coordinate norm 10.598340448088 -> 10.598340448088 [61.3s]
+K 0,0,0,0 start 256: gap all 6.94e-17 (weights 41.957909688506 / 41.957909688506), within 3 6.94e-17, coordinate norm 41.957969722246 -> 41.957969722246 [88.3s]
+K 0.31,-0.17,0.52,0 start 64: gap all 3.86e-17 (weights 10.598340448094 / 10.598340448094), within 3 3.86e-17, coordinate norm 10.598340448088 -> 10.598340448088 [96.6s]
+K 0.31,-0.17,0.52,0 start 256: gap all 8.58e-17 (weights 41.973107553598 / 41.973107553598), within 3 8.58e-17, coordinate norm 41.973161372416 -> 41.973161372416 [126.0s]
+exit=0

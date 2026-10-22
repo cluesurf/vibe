@@ -1,0 +1,18 @@
+L 12 unit (-2,5) M 0.760502  [0.0s]
+  symmetric half 0:
+    in gap at k = 0: 8 (A weights 0.003 0.003 0.003 0.003 0.997 0.997 0.997 0.997)
+    wall A: 4 states, H_x eigenvalues -0.6225 -0.6225 0.6225 0.6225, Im tr(HxHyHz) 0.96480 (Re -7.0e-18), net chirality 1.9999, v per beat 0.31124
+    wall B: 4 states, H_x eigenvalues -0.6225 -0.6225 0.6225 0.6225, Im tr(HxHyHz) -0.96480 (Re -6.9e-18), net chirality -1.9999, v per beat 0.31124  [1.7s]
+  symmetric half 1:
+    in gap at k = 0: 8 (A weights 0.003 0.003 0.003 0.003 0.997 0.997 0.997 0.997)
+    wall A: 4 states, H_x eigenvalues -0.6225 -0.6225 0.6225 0.6225, Im tr(HxHyHz) -0.96480 (Re 1.7e-17), net chirality -1.9999, v per beat 0.31124
+    wall B: 4 states, H_x eigenvalues -0.6225 -0.6225 0.6225 0.6225, Im tr(HxHyHz) 0.96480 (Re 3.5e-18), net chirality 1.9999, v per beat 0.31124  [17.4s]
+  chiral half 0:
+    in gap at k = 0: 8 (A weights 0.003 0.003 0.003 0.003 0.997 0.997 0.997 0.997)
+    wall A: 4 states, H_x eigenvalues -0.6225 -0.6225 0.6225 0.6225, Im tr(HxHyHz) 0.96480 (Re 1.9e-18), net chirality 1.9999, v per beat 0.31124
+    wall B: 4 states, H_x eigenvalues -0.6225 -0.6225 0.6225 0.6225, Im tr(HxHyHz) -0.96480 (Re -2.3e-17), net chirality -1.9999, v per beat 0.31124  [20.4s]
+  chiral half 1:
+    in gap at k = 0: 0 (A weights )
+    wall A: 0 states, H_x eigenvalues , Im tr(HxHyHz) 0.00000 (Re 0.0e+0), net chirality 0.0000, v per beat -Infinity
+    wall B: 0 states, H_x eigenvalues , Im tr(HxHyHz) 0.00000 (Re 0.0e+0), net chirality 0.0000, v per beat -Infinity  [23.0s]
+exit=0

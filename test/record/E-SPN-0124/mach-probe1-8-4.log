@@ -1,0 +1,7 @@
+side 8 period 4: 16 hubs, union star lines 96 of 6144, crossings off hubs 0
+probe docks by (new crossings*100 + slots-on-union-lines): 0:384 400:1152 1200:1920 2400:48 2701:576
+path 0: wake 351/390/436/461/387/463 footprint 165/209/211/266/226/232 kDocks 13/16/16/16/16/16 of 4096; vacuum K 0
+  K events 966, off hubs 0
+path 1: wake 261/387/438/465/380/460 footprint 131/208/204/271/232/237 kDocks 16/16/16/16/16/16 of 4096; vacuum K 0
+  K events 999, off hubs 0
+exit=0

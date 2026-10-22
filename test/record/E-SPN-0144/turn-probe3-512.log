@@ -1,0 +1,5 @@
+1/1024: E 0.35172515830766465 slope 0.6938920120022074 residual 0.000105750799190617  [464s]
+rate 0.001953125 predicted E 0.3607086308526392; 1 Ritz levels within 0.06  [1020s]
+  dE -0.038140 weight 8.944e-1 overlap 7.453e-1 krylov residual 3.02e-1  [1020s]
+  vec E 0.3608802407070852 residual 4.18e-4 |lam| 0.9999953660233474 offline 0.2368 least fidelity 0.995895693815595 missed/hole 2.72e-3  [1094s]
+exit=0

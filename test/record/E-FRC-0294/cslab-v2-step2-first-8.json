@@ -1,0 +1,40 @@
+{
+ "kind": "slab",
+ "label": "step2 first L 8",
+ "L": 8,
+ "k": 3,
+ "window": 0.1,
+ "count": 0,
+ "eps": [],
+ "wallShareMin": null,
+ "projector": [],
+ "delta": null,
+ "deltaRef": 0.02440643997837634,
+ "D3": 1,
+ "D3eps": 1,
+ "singular": [],
+ "eigenResidual": 0,
+ "passes": 1,
+ "aboveCut": 0,
+ "guard": 1.6981806940286346,
+ "complete": true,
+ "krylov": {
+  "count": 0,
+  "offsets": [],
+  "complete": true,
+  "rounds": 1,
+  "nearest": 0.4735540284334393,
+  "nearestResidual": 0.00003683484595839895,
+  "eigenResidual": 0,
+  "seconds": 207.928
+ },
+ "seconds": 597.2,
+ "witness": {
+  "pieceGap": 1.9238771594458774e-15,
+  "reverse": 5.588000014763635e-16,
+  "unitary": 4.440892098500626e-16,
+  "cycle": 1.8013923676850108e-14,
+  "cycleDag": 1.950003071763511e-14,
+  "metric": 1.3030755784211759e-14
+ }
+}

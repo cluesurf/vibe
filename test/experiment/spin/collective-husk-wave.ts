@@ -119,10 +119,10 @@
 // dispersion table A_n(K) at several |K|, the dense keep path's count wave (the sound speed of (3)), and a dense packet
 // on the ball with K on and off (its husk-shadow radius), set beside the flat box.
 //
-// PROBES before this file, disclosed. tmp/wave-probe1.log (instrument): a beat costs 37 ms on the side-16 vacuum and
+// PROBES before this file, disclosed. test/record/E-SPN-0157/wave-probe1.log (instrument): a beat costs 37 ms on the side-16 vacuum and
 // 59 ms with lineons; the vacuum holds 3.000 stored units per dock, 0 full lines and 0 singles, at beat 0 and beat 48
 // (24 at side 16); lineons at 1/8 or 1 per dock fire K on 32 to 51 percent of dock-beats and leave 0.45 to 0.59 stored
-// units per dock. tmp/wave-probe2.log (regime): N lineons at golden-Weyl docks, side 16, 96 beats, Born and keep paths:
+// units per dock. test/record/E-SPN-0157/wave-probe2.log (regime): N lineons at golden-Weyl docks, side 16, 96 beats, Born and keep paths:
 // N = 1, 2, 8 fire K on 0 docks; N = 32 fires it 40 (Born) and 27 (keep) times, stored units 196,608 to about 196,470,
 // no cascade; N = 128 and 512 melt the vacuum (stored units about 28,000, singles about 265,000, from beat 48 to 84).
 // No plane wave, packet, Fourier amplitude or class distribution was read before this file's first run.
@@ -131,7 +131,7 @@
 // beat t* (the last beat with class <s^2> at most 16), because a line of the side-16 box closes after 16 docks and a
 // signed position past 8 aliases. No quantity had been read.
 //
-// RESULT (run 1, 927 s, tmp/wave-exp-run1.log), recorded after the run; no gate moved. FAIL, on W1 and W2 as
+// RESULT (run 1, 927 s, test/record/E-SPN-0157/wave-exp-run1.log), recorded after the run; no gate moved. FAIL, on W1 and W2 as
 // predicted, and on three gates predicted to hold or read: W1e, W1d-iso (and W1d-prop, predicted to fail). W3, W4, M
 // and C1 held.
 //  - W4: K fired on 0 docks in all 48 linear class runs, 0 line misses, 0 slots or stores off the class, 0 vacuum

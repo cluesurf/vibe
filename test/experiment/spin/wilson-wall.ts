@@ -80,23 +80,23 @@
 //  against c/4; the pair census of the light construction; the lowest in-gap pair of the L = 12 magnetic slab at k2 =
 //  0.3 (which level leans to wall A) for half 0 and half 1 at p = 1, half 0 at p = 2, and at p = 0.
 //
-// PROBES, disclosed: tmp/wil-probe1.log (plain lattice, the Wilson schedule v = conj u^2, u = (-1, 4) and (-2, 5): singlet
+// PROBES, disclosed: test/record/E-SPN-0166/wil-probe1.log (plain lattice, the Wilson schedule v = conj u^2, u = (-1, 4) and (-2, 5): singlet
 //  offsets -M at K = 0 and +M, +0.287 / +0.494, +0.356 / +0.682, +0.367 / +0.715 at W = 24, 32, 28, 27; zero-count C2 -1
 //  in both halves; pi gap 0.326 / 0.542; its partner reading by a single eigenvector was wrong inside degenerate spaces,
-//  an instrument flaw fixed by the cluster weights). tmp/wil-probe1b.log (the cluster weights: uniform signs + at all 72,
+//  an instrument flaw fixed by the cluster weights). test/record/E-SPN-0166/wil-probe1b.log (the cluster weights: uniform signs + at all 72,
 //  C2 0; Wilson - at K = 0, + at every doubler, C2 -1; at the doublers the partner is T D, not D, which sits at phase 0,
-//  so the mass is read from the singlet alone). tmp/wil-probe2.log (the plain slab, L = 12: leak 1.5e-15, 8 in-gap states
-//  per half at k = 0, a cone +-0.6225 per unit k per cycle along x0, x1, x2). tmp/wil-probe3.log (the walls' chirality:
+//  so the mass is read from the singlet alone). test/record/E-SPN-0166/wil-probe2.log (the plain slab, L = 12: leak 1.5e-15, 8 in-gap states
+//  per half at k = 0, a cone +-0.6225 per unit k per cycle along x0, x1, x2). test/record/E-SPN-0166/wil-probe3.log (the walls' chirality:
 //  symmetric half 0 A +2 B -2, half 1 A -2 B +2; chiral variant half 0 as symmetric, half 1 no in-gap states; speed 0.311
-//  per beat). tmp/wil-probe4.log (one magnetic step at L = 6 and 8: 1.4 s and 3.7 s). tmp/wil-probe5.log (an E . B loop
-//  at L = 6: no crossing, the walls' A weights 0.68). tmp/wil-probe6.log (unitarity 3.8e-15, covariance 1.7e-18, rest
-//  8 + 8 + 176, R 1.771 against tan m / m 1.012 for u = (-1, 4), v = conj u^2). tmp/wil-probe7.log (the L = 12 magnetic
-//  slab: the lowest pair +-0.129 at k2 = 0, the upper leaning to wall A, 0.65 to 0.71, as k2 grows). tmp/wil-probe8.log
+//  per beat). test/record/E-SPN-0166/wil-probe4.log (one magnetic step at L = 6 and 8: 1.4 s and 3.7 s). test/record/E-SPN-0166/wil-probe5.log (an E . B loop
+//  at L = 6: no crossing, the walls' A weights 0.68). test/record/E-SPN-0166/wil-probe6.log (unitarity 3.8e-15, covariance 1.7e-18, rest
+//  8 + 8 + 176, R 1.771 against tan m / m 1.012 for u = (-1, 4), v = conj u^2). test/record/E-SPN-0166/wil-probe7.log (the L = 12 magnetic
+//  slab: the lowest pair +-0.129 at k2 = 0, the upper leaning to wall A, 0.65 to 0.71, as k2 grows). test/record/E-SPN-0166/wil-probe8.log
 //  (the field's bulk gaps: Wilson 0.0051 at k2 = 0 in the field, 0.61 without; trivial 0.76 either way; the L = 12 slab's
-//  smallest |phase - pi| over a k2 loop 0.129). tmp/wil-probe9.log (the light construction u = (-2, 5), v = (-3, 1): m0
-//  0.193, C2 -1, R 1.335). tmp/wil-probe10.log (R - 1 against m0 (M + m0) over four exact pairs: 0.335 / 0.184, 0.197 /
+//  smallest |phase - pi| over a k2 loop 0.129). test/record/E-SPN-0166/wil-probe9.log (the light construction u = (-2, 5), v = (-3, 1): m0
+//  0.193, C2 -1, R 1.335). test/record/E-SPN-0166/wil-probe10.log (R - 1 against m0 (M + m0) over four exact pairs: 0.335 / 0.184, 0.197 /
 //  0.111, 0.122 / 0.071, 0.042 / 0.027). Points 1 to 4 were derived before probe 1; point 5, W6 and G were written after
-//  probes 7 and 8; the light construction's choice (the smallest R cost of probe 10) after probe 10. tmp/wil-smoke.log
+//  probes 7 and 8; the light construction's choice (the smallest R cost of probe 10) after probe 10. test/record/E-SPN-0166/wil-smoke.log
 //  (every code path on a small plan, 605 s): W4 missed at L = 8 (the two walls hybridize on so short a slab, depth
 //  weights 0.16 against 0.998) and C3's positive control read 0 and 1 at 96 and 97 steps (a winding of 96 aliases
 //  there, E-SPN-0165's known flaw); both are the small plan, and the gate plan's L = 12 and 480 / 481 steps were fixed
@@ -104,7 +104,7 @@
 //  construction's R negative (-1.61): the Wilson mass reopens a pair channel that E-SPN-0160 had closed. Neither gates
 //  anything; both are reported. No gate changed after the smoke run.
 //
-// FIRST RUN (tmp/wil-exp-run1.log, 1,237 s): FAIL on W4's isotropy clause only, everything else as derived. W1 units
+// FIRST RUN (test/record/E-SPN-0166/wil-exp-run1.log, 1,237 s): FAIL on W4's isotropy clause only, everything else as derived. W1 units
 //  exact, unitary 1.1e-15, covariant under 1,152 6.9e-18, chiral variant under the 576 rotations 6.9e-18 and off a
 //  reflection 4.2e-2. W2 72 zeros, the singlet's offset -m0 at K = 0 and positive at all 71 doublers in both
 //  constructions and halves (light: -0.0936 at K = 0; 0.1931, 0.1607, 0.1850, 0.1886 at W = 24, 32, 28, 27), pi gaps

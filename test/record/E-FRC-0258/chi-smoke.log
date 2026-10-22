@@ -1,0 +1,52 @@
+A1 A2 2s
+A3 A4 2s
+B1 5s
+B2 5s
+B3 6s
+B4 11s
+S 12s
+D 12s
+I 12s
+C 14s
+{
+ "status": "partial",
+ "claim": "A1 true A2 true A3 true A4 true (first difference at degree 24, stabilizer 192 with 3 quartics); B1 true B2 true (leak 0.00e+0, band gap 1.13e-15) B3 true B4 true (+ B* 0.760502413 x0, nearest at |q| 8.4823 (pair -0.6907, 0.6907), - B* 0.573390276 x0, nearest at |q| 4.3982 (pair -3.1416, -3.1416), mixed B* 0.573390276 x0, nearest at |q| 6.2832 (pair 0.3803, -0.2867)); S true (chiral mass: P_imp raw 8.38e-2 rephased 1.68e-1, P_rot 8.88e-16, C raw 8.88e-16 rephased 1.33e-15, CP 1.68e-1, CPT 9.30e-16); D1 true D2 true (Jarlskog 9 w / 81 = 0.09622504486493762); instrument I1 true (1.33e-15) I2 true; controls C1 true C2 true C3 true",
+ "metrics": {
+  "A1": 1,
+  "A2": 1,
+  "A3": 1,
+  "A4": 1,
+  "B1": 1,
+  "B2": 1,
+  "B3": 1,
+  "B4": 1,
+  "S": 1,
+  "D1": 1,
+  "D2": 1,
+  "instrument": 1,
+  "I1": 1,
+  "I2": 1,
+  "C1": 1,
+  "C2": 1,
+  "C3": 1,
+  "mPlus": 0.19012560334646678,
+  "mMinus": 0.14334756890536549,
+  "firstMolienDifference": 24,
+  "stabilizerQuartics": 3,
+  "leak": 0,
+  "bandGap": 1.133107779529596e-15,
+  "censusPlus": 0.7605024133858648,
+  "censusMinus": 0.5733902756214595,
+  "censusMixed": 0.5733902756214604,
+  "crossings": 0,
+  "Pimp": 0.16751444094877632,
+  "Prot": 8.881784197001252e-16,
+  "Craw": 8.881784197001252e-16,
+  "CP": 0.1675144409487759,
+  "CPT": 9.301784202444459e-16,
+  "jarlskog": 0.09622504486493762,
+  "seconds": 14.423
+ },
+ "notes": "L1 and L2. 192 modes a member, two sectors of 96. Masses m+ 0.190126 (ringUnit(-1, 4)), m- 0.143348 (ringUnit(2, 2)). Molien (even degrees 0 .. 30): W(F4) 1 1 1 2 3 3 5 6 7 9 11 12 16 18 20 24; W+(F4) 1 1 1 2 3 3 5 6 7 9 11 12 17 19 21 26; frame stabilizer 1 1 3 4 7 9 14 17 24 29 38 45 57 66 81 93. Group 1152, rotations 576. Per sector: massless pairs 8 c0/(c/4) 1.000000000002 gamma -2.54e-11; 8 c0/(c/4) 0.999999999992 gamma -2.54e-11; 8 c0/(c/4) 0.999999999998 gamma -8.66e-12; 8 c0/(c/4) 0.999999999995 gamma -7.62e-12; 8 c0/(c/4) 1.000000000002 gamma -2.65e-11; 8 c0/(c/4) 0.999999999992 gamma -8.65e-12; 8 c0/(c/4) 0.999999999998 gamma -8.66e-12; 8 c0/(c/4) 0.999999999995 gamma -6.57e-12; R+ - tan m/m 3.49e-12 1.75e-12 -2.90e-12 -1.79e-13; R- - tan m/m 4.08e-12 -2.93e-14 -2.02e-12 4.86e-12; isotropy 6.30e-12, 6.05e-12. Census: + B* 0.760502413 x0, nearest at |q| 8.4823 (pair -0.6907, 0.6907) (2M 0.760502413); - B* 0.573390276 x0, nearest at |q| 4.3982 (pair -3.1416, -3.1416) (2M 0.573390276); mixed B* 0.573390276 x0, nearest at |q| 6.2832 (pair 0.3803, -0.2867) (2 M- 0.573390276). Symmetries: chiral mass P_imp raw 8.38e-2 rephased 1.68e-1, P_rot 8.88e-16, C raw 8.88e-16 rephased 1.33e-15, CP 1.68e-1, CPT 9.30e-16; mirror-symmetric mass P_imp raw 8.88e-16 rephased 1.33e-15, P_rot 8.88e-16, C raw 8.88e-16 rephased 2.22e-15, CP 1.33e-15, CPT 1.33e-15 (piece gap 0.00e+0); chiral phase P_imp raw 6.67e-1 rephased 1.78e-15, P_rot 1.33e-15, C raw 1.33e+0 rephased 1.33e-15, CP 1.33e-15, CPT 1.33e-15. Trimaximal Jarlskog 0 + 9 w over 81, value 0.09622504486493762 against 1/(6 sqrt 3) 0.09622504486493763. 14 s."
+}
+exit=0

@@ -1,0 +1,48 @@
+axis branch shifts per a kappa^2: 2.0000 2.0000 2.0000 2.0000 2.0000 2.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000; still classes 6/12
+body branch shifts per a kappa^2: 2.6667 0.0000 2.6667 0.0000 0.6667 0.6667 2.6667 0.0000 0.6667 0.6667 0.6667 0.6667; still classes 3/12
+face branch shifts per a kappa^2: 4.0000 0.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 0.0000 0.0000; still classes 3/12
+axis: unfiltered residual 1.5248e-3; E0 - EL 1.057e-4 w0 0.8235 |z| 0.9999999999962633
+  K0 lines: -3.203e-3:0.1139 0.000e+0:0.8235 4.038e-3:0.0599 8.331e-3:0.0023
+  S 2048: floor at E0 9.180e-4 (at EL 9.222e-4)
+    kappa 0.2: a k^2 7.327e-4, line residual 1.182e-3, band residual 9.273e-4, line/floor 1.288 
+    kappa 0.24: a k^2 1.055e-3, line residual 1.388e-3, band residual 9.036e-4, line/floor 1.512 
+    kappa 0.28: a k^2 1.436e-3, line residual 1.664e-3, band residual 8.556e-4, line/floor 1.813 
+    kappa 0.32: a k^2 1.876e-3, line residual 2.005e-3, band residual 7.775e-4, line/floor 2.184 
+  S 4096: floor at E0 2.068e-4 (at EL 2.307e-4)
+    kappa 0.2: a k^2 7.327e-4, line residual 7.518e-4, band residual 1.580e-4, line/floor 3.636 line still 0.5000, band still 0.0000
+    kappa 0.24: a k^2 1.055e-3, line residual 1.075e-3, band residual 1.823e-4, line/floor 5.198 line still 0.5000, band still 0.0000
+    kappa 0.28: a k^2 1.436e-3, line residual 1.459e-3, band residual 2.255e-4, line/floor 7.058 line still 0.5000, band still 0.0000
+    kappa 0.32: a k^2 1.876e-3, line residual 1.887e-3, band residual 2.690e-4, line/floor 9.129 line still 0.5000, band still 0.0000
+  S 6144: floor at E0 1.206e-5 (at EL 1.769e-5)
+    kappa 0.2: a k^2 7.327e-4, line residual 7.327e-4, band residual 6.370e-6, line/floor 60.777 
+    kappa 0.24: a k^2 1.055e-3, line residual 1.055e-3, band residual 1.752e-5, line/floor 87.537 
+    kappa 0.28: a k^2 1.436e-3, line residual 1.438e-3, band residual 4.428e-5, line/floor 119.296 
+    kappa 0.32: a k^2 1.876e-3, line residual 1.883e-3, band residual 9.483e-5, line/floor 156.193 
+  S 8191: floor at E0 1.147e-6 (at EL 1.155e-6)
+    kappa 0.2: a k^2 7.327e-4, line residual 7.327e-4, band residual 1.473e-6, line/floor 638.942 
+    kappa 0.24: a k^2 1.055e-3, line residual 1.055e-3, band residual 9.592e-7, line/floor 920.074 
+    kappa 0.28: a k^2 1.436e-3, line residual 1.436e-3, band residual 2.353e-6, line/floor 1252.334 
+    kappa 0.32: a k^2 1.876e-3, line residual 1.879e-3, band residual 1.742e-5, line/floor 1638.155 
+body: unfiltered residual 1.5248e-3; E0 - EL 1.057e-4 w0 0.8235 |z| 1.0000000000132445
+  K0 lines: -3.203e-3:0.1139 0.000e+0:0.8235 4.038e-3:0.0599 8.331e-3:0.0023
+  S 2048: floor at E0 9.180e-4 (at EL 9.222e-4)
+    kappa 0.2: a k^2 7.327e-4, line residual 1.169e-3, band residual 9.274e-4, line/floor 1.274 
+    kappa 0.24: a k^2 1.055e-3, line residual 1.345e-3, band residual 9.037e-4, line/floor 1.465 
+    kappa 0.28: a k^2 1.436e-3, line residual 1.543e-3, band residual 8.556e-4, line/floor 1.681 
+    kappa 0.32: a k^2 1.876e-3, line residual 1.715e-3, band residual 7.770e-4, line/floor 1.869 
+  S 4096: floor at E0 2.068e-4 (at EL 2.307e-4)
+    kappa 0.2: a k^2 7.327e-4, line residual 6.736e-4, band residual 1.579e-4, line/floor 3.258 line still 0.2500, band still 0.0000
+    kappa 0.24: a k^2 1.055e-3, line residual 8.342e-4, band residual 1.821e-4, line/floor 4.035 line still 0.2500, band still 0.0000
+    kappa 0.28: a k^2 1.436e-3, line residual 8.776e-4, band residual 2.248e-4, line/floor 4.245 line still 0.2500, band still 0.0000
+    kappa 0.32: a k^2 1.876e-3, line residual 8.148e-4, band residual 2.674e-4, line/floor 3.941 line still 0.2500, band still 0.0000
+  S 6144: floor at E0 1.206e-5 (at EL 1.769e-5)
+    kappa 0.2: a k^2 7.327e-4, line residual 5.439e-4, band residual 6.365e-6, line/floor 45.111 
+    kappa 0.24: a k^2 1.055e-3, line residual 5.192e-4, band residual 1.749e-5, line/floor 43.065 
+    kappa 0.28: a k^2 1.436e-3, line residual 3.789e-4, band residual 4.415e-5, line/floor 31.425 
+    kappa 0.32: a k^2 1.876e-3, line residual 3.213e-4, band residual 9.426e-5, line/floor 26.649 
+  S 8191: floor at E0 1.146e-6 (at EL 1.156e-6)
+    kappa 0.2: a k^2 7.327e-4, line residual 4.051e-4, band residual 1.472e-6, line/floor 353.492 
+    kappa 0.24: a k^2 1.055e-3, line residual 2.862e-4, band residual 9.550e-7, line/floor 249.790 
+    kappa 0.28: a k^2 1.436e-3, line residual 1.860e-4, band residual 2.344e-6, line/floor 162.325 
+    kappa 0.32: a k^2 1.876e-3, line residual 9.873e-5, band residual 1.731e-5, line/floor 86.157 
+exit=0

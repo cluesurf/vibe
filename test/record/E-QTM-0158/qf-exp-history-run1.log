@@ -1,0 +1,58 @@
+start integer+0 6s
+start integer+1 11s
+start integer+2 16s
+start integer+3 20s
+start integer+4 25s
+start integer+5 30s
+start integer+6 33s
+start integer+7 37s
+start integer+8 42s
+start integer+9 44s
+start integer+10 47s
+start integer+11 52s
+start integer+12 56s
+start integer+13 60s
+start integer+14 65s
+start integer+15 69s
+start golden 71s
+H3a 76s
+long walk 78s
+E-QTM-0158 status fail
+claim on the working rule the state is the sum over take histories term for term: one love to beat 12 on 17 of 17 starts, two loves with their meetings to beat 8 on 17 of 17 (the sum without the meeting fails on 15); the sum is coherent from beat 3 (L1 against the incoherent sum 0.5625); in the long-time limit it concentrates on the stationary-phase rays: E[v^2] 0.134112, 0.134005, 0.133983, 0.133977, 0.133975 at T = 64, 128, 256, 512, 1024 against (1/2 pi) int W'^2 = 0.133975 (1 - sqrt 3/2), peak at |v| = 0.4941 (top group speed 0.500000), where the dephased sum diffuses (T E[v^2] = 0.3338)
+  starts 17
+  gate_H0 1
+  gate_H1 1
+  gate_C1 0
+  gate_H3a 1
+  gate_H2 1
+  gate_H3b 1
+  gate_H3c 1
+  gate_H3d 1
+  stationaryIntegral 0.1339745962334861
+  topGroupSpeed 0.500000000069889
+  ev2_T64 0.13411249897296765
+  dephasedTEv2_T64 0.3402777777777778
+  argmax_T64 0.46875
+  beyondHalf_T64 0.024766995791323423
+  ev2_T128 0.13400474617341876
+  dephasedTEv2_T128 0.3368055555555556
+  argmax_T128 0.46875
+  beyondHalf_T128 0.02357310111266433
+  ev2_T256 0.13398276048935914
+  dephasedTEv2_T256 0.3350694444444444
+  argmax_T256 0.484375
+  beyondHalf_T256 0.021588652053157825
+  ev2_T512 0.13397650178776704
+  dephasedTEv2_T512 0.3342013888888889
+  argmax_T512 0.4921875
+  beyondHalf_T512 0.019178902639328498
+  ev2_T1024 0.13397509224258985
+  dephasedTEv2_T1024 0.3337673611111111
+  argmax_T1024 0.494140625
+  beyondHalf_T1024 0.016634948718050102
+  loneL1AtT12Min 0.9211864471435547
+  twoL1Min 0.797499418258667
+  seconds 77.716
+control {"noMeetingMismatchStarts":15,"dephasedTEv2":0.3337673611111111}
+notes L2 with an exact identity. Gates H0 true, H1 true, C1 false, H3a true, H2 true, H3b true, H3c true, H3d true. Per start: one-love mismatches integer+0 [000000000000] integer+1 [000000000000] integer+2 [000000000000] integer+3 [000000000000] integer+4 [000000000000] integer+5 [000000000000] integer+6 [000000000000] integer+7 [000000000000] integer+8 [000000000000] integer+9 [000000000000] integer+10 [000000000000] integer+11 [000000000000] integer+12 [000000000000] integer+13 [000000000000] integer+14 [000000000000] integer+15 [000000000000] golden [000000000000]; histories/ends by beat on integer+0: 2/2 4/4 8/6 16/8 32/8 64/8 128/8 256/8 512/8 1024/8 2048/6 4096/8; coherence L1 by beat on integer+0: 0.0000 0.0000 0.5625 0.7031 0.7500 1.0283 1.1206 1.0023 1.1603 1.2669 1.1809 0.9212; two-love mismatches all zero on 17, without the meeting first mismatch at beat 2,2,2,2,2,2,2,2,2,0,4,2,2,2,2,2,0; two-love coherence L1 at beat 8 1.0823 1.0823 1.0324 1.0823 1.0823 1.0823 1.0862 1.0862 1.0823 0.7975 0.8928 1.0823 1.0324 1.0315 1.0823 1.0823 0.7975. T = 3 history shares on integer+0 (numerators over 8): 41931:1: kxk 1,2 + xxx -3,-6 = -2,-4; 70392:4: kxx 3,0 + xxk 3,0 = 6,0. Weight beyond |v| > 1/2: T 64 0.0248, T 128 0.0236, T 256 0.0216, T 512 0.0192, T 1024 0.0166. 78 s.
+exit=0

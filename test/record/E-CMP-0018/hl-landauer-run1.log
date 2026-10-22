@@ -1,0 +1,23 @@
+{
+ "status": "pass",
+ "claim": "on 17 link starts, side 8: L1 true (three distinct configurations at every beat 1..24); L2 true (the runs differ only on the register's line); L3 true (register erased at beat 1); L4 true (H_coarse at beat 1 0.636514168295 against H(1/3, 2/3) 0.636514168295, so 0.462098 nats invisible to the coarse map); mean H_coarse over the beats 0.7067 (mean heat 0.3919 nats); instrument true (24 forward, 24 back, bit for bit); controls C1 true (the overwrite leaves one configuration), C2 true (a second difference reads two lines)",
+ "metrics": {
+  "L1": 1,
+  "L2": 1,
+  "L3": 1,
+  "L4": 1,
+  "instrument": 1,
+  "C1": 1,
+  "C2": 1,
+  "starts": 17,
+  "coarseAtOne": 0.6365141682948128,
+  "heatAtOne": 0.4620981203732968,
+  "coarseMean": 0.7067349610966374,
+  "heatMean": 0.3918773275714722,
+  "erasedShareFirst6": 1,
+  "erasedShareAll": 0.5441176470588235,
+  "seconds": 12.762
+ },
+ "notes": "L1 and L2. Per beat, the share of starts whose register reads one value in all three runs: 1.00 1.00 1.00 1.00 1.00 1.00 0.12 0.12 1.00 0.06 0.06 0.00 0.65 0.65 0.12 1.00 0.00 0.82 1.00 0.00 0.82 0.00 0.65 0.00. Per beat, the starts where H_coarse reaches ln 3: 0 0 0 0 0 0 1 1 1 5 4 4 5 6 5 1 0 1 6 2 2 6 6 6. 12.8 s."
+}
+exit=0

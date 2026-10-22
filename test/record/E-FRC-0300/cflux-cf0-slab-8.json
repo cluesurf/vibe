@@ -1,0 +1,48 @@
+{
+ "kind": "slab",
+ "pattern": "cf0",
+ "read": {
+  "L": 8,
+  "levels": [],
+  "near": 0,
+  "far": 0,
+  "nearest": 0.2320220859562849,
+  "nearestResidual": 3.7256941289460454e-13,
+  "blockCount": 0,
+  "krylovCount": 0,
+  "complete": true,
+  "eigenResidual": 0,
+  "plaquette": {
+   "mean": -0.5,
+   "triangles": 786432,
+   "histogram": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    393216,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    393216
+   ]
+  },
+  "reverseBad": 0,
+  "seconds": 274.51
+ }
+}

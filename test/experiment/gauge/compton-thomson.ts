@@ -56,15 +56,15 @@
 // finite k (Klein-Nishina: the transverse polarization sums and the two-quantum amplitude on the rule), and the model's
 // alpha (not fixed, E-FRC-0261), so the absolute Thomson cross section is a ratio, not a number.
 //
-// PROBES, disclosed: tmp/cmp-probe1.log (eps'' = c^2 / (R m) to 5e-10 in two directions; the lights' speeds; the Compton
+// PROBES, disclosed: test/record/E-FRC-0263/cmp-probe1.log (eps'' = c^2 / (R m) to 5e-10 in two directions; the lights' speeds; the Compton
 // ratio f at k 0.01 to 0.1 on both lights; the drive at 4 frequencies, which showed chi following (2m)^2 / ((2m)^2 -
-// w^2)); tmp/cmp-probe3.log (whole-period lock-in on both units: chi / (eps'' Dirac) = 1 to 8e-6 at P >= 512, 4e-4 at
+// w^2)); test/record/E-FRC-0263/cmp-probe3.log (whole-period lock-in on both units: chi / (eps'' Dirac) = 1 to 8e-6 at P >= 512, 4e-4 at
 // P 64, quadrature <= 2.3e-6, A0 doubling 5e-6). The gates' tolerances and the Dirac form were set from them.
 //
-// SMOKE (tmp/cmp-smoke.log, 2 s, one incoming direction, one period per band): every path, all as predicted; nothing
+// SMOKE (test/record/E-FRC-0263/cmp-smoke.log, 2 s, one incoming direction, one period per band): every path, all as predicted; nothing
 // changed after it.
 //
-// FIRST RUN (tmp/cmp-exp-run1.log, 12 s): PARTIAL, as predicted, every gate and control held. K1 eps'' = c^2 / (R m) =
+// FIRST RUN (test/record/E-FRC-0263/cmp-exp-run1.log, 12 s): PARTIAL, as predicted, every gate and control held. K1 eps'' = c^2 / (R m) =
 // 0.6495190528 to 4.8e-10 on the axis, face and body diagonals; K2 the Compton limit to 5.0e-6 (3 directions x 4 angles x
 // 2 lights); K3 the finite-k departure as k^2 (ratios 3.87 to 3.98; 4.4e-4 at k 0.02); K4 lambda_C / lambda_C,std =
 // 0.987922 on the loop light (1 / R) and 1.003239 on the column; T1 chi / (eps'' Dirac) = 1 to 8.9e-6 at P 2048 to 512 on

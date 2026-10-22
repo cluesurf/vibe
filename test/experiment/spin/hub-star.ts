@@ -64,17 +64,17 @@
 //  firings at X recruit at least one vacuum pair over the runs (the mechanism the question asks about happens).
 // Verdict: partial if a check or a control fails; pass if H1 and H3 hold and H2 holds or is not reached because H1
 // holds by the proof branch; fail otherwise.
-// PROBES, disclosed (instrument only): tmp/hub-probe-1.log (side 4: 0 star crossings, the trio fires K 3 times at X
-// in 32 beats and recruits nothing; the two-hub start fires off X 7 times), tmp/hub-probe-2.log (sides 8 and 12, 128
+// PROBES, disclosed (instrument only): test/record/E-SPN-0119/hub-probe-1.log (side 4: 0 star crossings, the trio fires K 3 times at X
+// in 32 beats and recruits nothing; the two-hub start fires off X 7 times), test/record/E-SPN-0119/hub-probe-2.log (sides 8 and 12, 128
 // beats, path 0 on 'pass': 0 star crossings, the trio fires 67 and 60 times, all at X, recruiting 13 and 11 vacuum
 // pairs, 0 off-star readings, all 12 star lines touched; the two-hub start fires K on every dock of the box).
 //
 //
-// FIRST RUN (tmp/hub-exp-run1.log): PARTIAL, on the census check alone, which was mis-specified: it compared
+// FIRST RUN (test/record/E-SPN-0119/hub-exp-run1.log): PARTIAL, on the census check alone, which was mis-specified: it compared
 // recruitCensus's `recruit` (a full line carried onto ANY other line, 165,888 docks, which includes two vacuum pairs
 // swapping lines) with twoSinglesCensus's `fullMoved` (a full line carried onto a line that was NOT full, 141,312). The
 // check was corrected to compare the same quantity (`recruitNew`); no gate, control or threshold moved, and every gate
-// and control reading is unchanged. SECOND RUN (tmp/hub-exp-run2.log, 21 s): PASS, as predicted. Over 18 trio runs K
+// and control reading is unchanged. SECOND RUN (test/record/E-SPN-0119/hub-exp-run2.log, 21 s): PASS, as predicted. Over 18 trio runs K
 // fires 977 times, 0 off X, and recruits 195 vacuum pairs onto new lines (47 firings with only two singles recruit),
 // every one through X; all 12 star lines carry a difference, the difference reaches 2, 4 and 6 box steps (half the
 // box at sides 4, 8, 12) and its centroid spreads 0.51 steps along the lines, yet 0 readings differ from the vacuum

@@ -1,0 +1,49 @@
+W1 19s
+W2 W3 127s
+W4 138s
+W5 1094s
+W6 1097s
+branches 1184s
+instrument and controls 1187s
+reads 1237s
+{
+ "status": "fail",
+ "claim": "W1 true (units exact, Q_S Q_D = 0 and 2P+ commuting exactly, unitary 1.1e-15, covariant under 1152 6.9e-18, chiral variant under 576 rotations 6.9e-18 and not a reflection 4.2e-2); W2 true (72 zeros, the singlet's offset negative at K = 0 and positive at 71 doublers for both constructions and halves, pi gaps 0.1903, 0.1903, 0.5419, 0.5419, uniform all positive); W3 true (C2 by the zeros -1, -1, -1, -1 per copy, uniform 0); W4 false (walls: symmetric net chirality A/B 2.0000/-2.0000 and -2.0000/2.0000, chiral variant 2.0000/-2.0000 with 0 in-gap states in the other half, Weyl speed 0.880327 of c/4); W5 true (rest 8 + 8 + 176, isotropy 7.7e-12, fastest band 0.858059653 of c/4, massless pieces 1.0e-17 from E-SPN-0160's, rest asymmetry with the masses conjugated 3047158125/10851569165584); W6 true (the q = 3 field's bulk pi gap: Wilson 0.0051 against 0.4955 without the field, trivial 0.7606 and 0.7609); G false (a per-wall flow at the exact field: predicted false); instrument I1 true (leak 5.6e-15) I2 true (1.8e-15) I3 true (2.6e-14); controls C1 true C2 true (8.0e-15) C3 true (Wilson windings 1.4e-16, chiral stream -96.0000, -96.0000) C4 true; read: u (5,0) v (-2,1): M 0.1931 m0 0.0936 R 1.042407 tan m/m 1.000730 (R - 1 0.0424, m0 (M + m0) 0.0268); u (-2,5) v conj u^2: M 0.7605 m0 0.7605 R -1.609585 tan m/m 1.051158 (R - 1 -2.6096, m0 (M + m0) 1.1567); u (-1,4) v conj u^2: M 0.3803 m0 0.3803 R 1.771396 tan m/m 1.012226 (R - 1 0.7714, m0 (M + m0) 0.2892)",
+ "metrics": {
+  "W1": 1,
+  "W2": 1,
+  "W3": 1,
+  "W4": 0,
+  "W5": 1,
+  "W6": 1,
+  "G": 0,
+  "I1": 1,
+  "I2": 1,
+  "I3": 1,
+  "C1": 1,
+  "C2": 1,
+  "C3": 1,
+  "C4": 1,
+  "unitary": 1.1102230246251565e-15,
+  "covSym": 6.938893903907228e-18,
+  "covChiralRot": 6.938893903907228e-18,
+  "covChiralRef": 0.04161502747256543,
+  "c2Light": -1,
+  "chiralityA0": 1.9999999999856668,
+  "chiralityB0": -1.9999999999834868,
+  "chiralityA1": -1.9999999999934068,
+  "weylSpeed": 0.88032664290893,
+  "isotropy": 7.665867940431781e-12,
+  "topOverQuarter": 0.8580596529307749,
+  "RLight": 1.0424070467012427,
+  "bulkWilsonField": 0.005144373345371101,
+  "bulkTrivialField": 0.7605938198672071,
+  "worstLeak": 5.564443328497555e-15,
+  "oneClassGap": 1.7763568394002505e-15,
+  "gaugeGap": 7.993605777301127e-15,
+  "censusCrossings": 10492,
+  "seconds": 1236.834
+ },
+ "notes": "L2. Light construction u = ringUnit(5, 0) (doublers M 0.193139), v = ringUnit(-2, 1) (rest mass m0 0.093556); heavy symmetric u = ringUnit(-2, 5) (M 0.760502), v = conj u^2. Masses at one zero of each class, light half 0: W 0: -0.0936, W 24: 0.1931, W 32: 0.1607, W 28: 0.1850, W 27: 0.1886. Walls (symmetric, L 12): in-gap 8, 8, depth weights 0.0033 0.0033 0.0033 0.0033 0.9967 0.9967 0.9967 0.9967, speeds per cycle 0.62248/0.62247/0.62248 0.62248/0.62247/0.62248. The R cost: u (5,0) v (-2,1): M 0.1931 m0 0.0936 R 1.042407 tan m/m 1.000730 (R - 1 0.0424, m0 (M + m0) 0.0268); u (-2,5) v conj u^2: M 0.7605 m0 0.7605 R -1.609585 tan m/m 1.051158 (R - 1 -2.6096, m0 (M + m0) 1.1567); u (-1,4) v conj u^2: M 0.3803 m0 0.3803 R 1.771396 tan m/m 1.012226 (R - 1 0.7714, m0 (M + m0) 0.2892). Light census: crossings 10492, B* 0.000000 (2 m0 0.187112). E-SPN-0164 A_S(1) -3047158125/10851569165584, masses conjugated 3047158125/10851569165584. The exact field, the L 12 slab's lowest pair at k2 0.3 (offset from pi / wall A weight): half 0 p 1: -0.2163/0.30 0.2163/0.71 0.2163/0.71 -0.2163/0.30; half 1 p 1: 0.2163/0.29 0.2163/0.29 -0.2163/0.70 -0.2163/0.70; half 0 p 2: -0.2836/0.62 0.2836/0.37 -0.2836/0.62 0.2836/0.37; half 0 p 0: -0.1970/0.53 0.1970/0.53 -0.1970/0.53 -0.1970/0.53. 1237 s."
+}
+exit=0

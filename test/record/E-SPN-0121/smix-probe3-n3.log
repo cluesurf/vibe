@@ -1,0 +1,58 @@
+meson D 6: energy 0.31886543752232316 unwrapped 0.31886543752232316 residual 8.739977119232829e-14 mean 0.8547783108870433 frame 0 axis 0
+angle 0, one beat on the embedded level: lambda 0.9495917024792357,-0.3134893914992785, |lambda| 1.0000000000000007, energy 0.31886543752232316, escaped 2.950942318540111e-20
+
+<--- Last few GCs --->
+
+[88774:0xbbc80c000]    81616 ms: Scavenge 4058.8 (4069.7) -> 4051.3 (4069.7) MB, pooled: 0 MB, 1.17 / 0.00 ms  (average mu = 0.304, current mu = 0.290) allocation failure; 
+[88774:0xbbc80c000]    81952 ms: Mark-Compact (reduce) 4051.3 (4069.7) -> 4051.2 (4054.7) MB, pooled: 0 MB, 331.67 / 0.00 ms  (+ 1.8 ms in 1 steps since start of marking, biggest step 1.8 ms, walltime since start of marking 336 ms) (average mu = 0.344, cu
+FATAL ERROR: Ineffective mark-compacts near heap limit Allocation failed - JavaScript heap out of memory
+----- Native stack trace -----
+
+ 1: 0x10278f714 node::OOMErrorHandler(char const*, v8::OOMDetails const&) [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+ 2: 0x10298e7e8 v8::internal::V8::FatalProcessOutOfMemory(v8::internal::Isolate*, char const*, v8::OOMDetails const&) [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+ 3: 0x102bee41c v8::internal::Heap::stack() [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+ 4: 0x102bf17f0 v8::internal::Heap::HasLowYoungGenerationAllocationRate() [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+ 5: 0x102c02a40 v8::internal::Heap::CollectGarbage(v8::internal::AllocationSpace, v8::internal::GarbageCollectionReason, v8::GCCallbackFlags)::$_1::operator()() const [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+ 6: 0x102c02314 void heap::base::Stack::SetMarkerAndCallbackImpl<v8::internal::Heap::CollectGarbage(v8::internal::AllocationSpace, v8::internal::GarbageCollectionReason, v8::GCCallbackFlags)::$_1>(heap::base::Stack*, void*, void const*) [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+ 7: 0x1035b7c5c PushAllRegistersAndIterateStack [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+ 8: 0x102bec120 v8::internal::Heap::CollectGarbage(v8::internal::AllocationSpace, v8::internal::GarbageCollectionReason, v8::GCCallbackFlags) [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+ 9: 0x102b63c18 v8::internal::StackGuard::HandleInterrupts(v8::internal::StackGuard::InterruptLevel) [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+10: 0x103051184 v8::internal::Runtime_StackGuard(int, unsigned long*, v8::internal::Isolate*) [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+11: 0x1036a5f74 Builtins_CEntry_Return1_ArgvOnStack_NoBuiltinExit [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+12: 0x10366da20 Builtins_MapPrototypeSet [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+13: 0x12cf86f28 
+14: 0x12cf827d0 
+15: 0x12cf085d8 
+16: 0x103608bec Builtins_InterpreterEntryTrampoline [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+17: 0x103608bec Builtins_InterpreterEntryTrampoline [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+18: 0x103649ce8 Builtins_GeneratorPrototypeNext [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+19: 0x1036068cc Builtins_JSEntryTrampoline [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+20: 0x103606570 Builtins_JSEntry [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+21: 0x102b32664 v8::internal::(anonymous namespace)::Invoke(v8::internal::Isolate*, v8::internal::(anonymous namespace)::InvokeParams const&) [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+22: 0x102b32e90 v8::internal::(anonymous namespace)::InvokeWithTryCatch(v8::internal::Isolate*, v8::internal::(anonymous namespace)::InvokeParams const&) [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+23: 0x102b32f5c v8::internal::Execution::TryCall(v8::internal::Isolate*, v8::internal::DirectHandle<v8::internal::Object>, v8::internal::DirectHandle<v8::internal::Object>, v8::base::Vector<v8::internal::DirectHandle<v8::internal::Object> const>, v8::internal::Execution::MessageHandling, v8::internal::MaybeDirectHandle<v8::internal::Object>*) [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+24: 0x102f463d0 v8::internal::SourceTextModule::ExecuteModule(v8::internal::Isolate*, v8::internal::DirectHandle<v8::internal::SourceTextModule>, v8::internal::MaybeDirectHandle<v8::internal::Object>*) [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+25: 0x102f45cfc v8::internal::SourceTextModule::InnerModuleEvaluation(v8::internal::Isolate*, v8::internal::Handle<v8::internal::SourceTextModule>, v8::internal::ZoneForwardList<v8::internal::Handle<v8::internal::SourceTextModule>>*, unsigned int*) [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+26: 0x102f45700 v8::internal::SourceTextModule::Evaluate(v8::internal::Isolate*, v8::internal::Handle<v8::internal::SourceTextModule>) [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+27: 0x102efd6b8 v8::internal::Module::Evaluate(v8::internal::Isolate*, v8::internal::Handle<v8::internal::Module>) [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+28: 0x102996294 v8::Module::Evaluate(v8::Local<v8::Context>) [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+29: 0x1027403ec node::loader::ModuleWrap::Evaluate(v8::FunctionCallbackInfo<v8::Value> const&) [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+30: 0x10360a818 Builtins_CallApiCallbackGeneric [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+31: 0x103608bec Builtins_InterpreterEntryTrampoline [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+32: 0x103647648 Builtins_AsyncFunctionAwaitResolveClosure [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+33: 0x10371c5f8 Builtins_PromiseFulfillReactionJob [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+34: 0x103636a50 Builtins_RunMicrotasks [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+35: 0x1036067b0 Builtins_JSRunMicrotasksEntry [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+36: 0x102b3261c v8::internal::(anonymous namespace)::Invoke(v8::internal::Isolate*, v8::internal::(anonymous namespace)::InvokeParams const&) [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+37: 0x102b32e90 v8::internal::(anonymous namespace)::InvokeWithTryCatch(v8::internal::Isolate*, v8::internal::(anonymous namespace)::InvokeParams const&) [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+38: 0x102b32fcc v8::internal::Execution::TryRunMicrotasks(v8::internal::Isolate*, v8::internal::MicrotaskQueue*) [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+39: 0x102b61e7c v8::internal::MicrotaskQueue::RunMicrotasks(v8::internal::Isolate*) [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+40: 0x102b627dc v8::internal::MicrotaskQueue::PerformCheckpoint(v8::Isolate*) [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+41: 0x102691028 node::InternalCallbackScope::Close() [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+42: 0x102690ae8 node::InternalCallbackScope::~InternalCallbackScope() [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+43: 0x1027459e4 node::StartExecution(node::Environment*, std::__1::function<v8::MaybeLocal<v8::Value> (node::StartExecutionCallbackInfo const&)>) [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+44: 0x1026957c0 node::LoadEnvironment(node::Environment*, std::__1::function<v8::MaybeLocal<v8::Value> (node::StartExecutionCallbackInfo const&)>, std::__1::function<void (node::Environment*, v8::Local<v8::Value>, v8::Local<v8::Value>)>) [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+45: 0x1027e31d0 node::NodeMainInstance::Run() [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+46: 0x1027496ac node::Start(int, char**) [/Users/lancepollard/.nvm/versions/node/v24.13.1/bin/node]
+47: 0x1833f3da4 start [/usr/lib/dyld]
+exit=134

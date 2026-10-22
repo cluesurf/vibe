@@ -1,0 +1,4 @@
+t=1 coherent: terms 8 w 1.000000 e1 1.0000 off 1.000/1 onLine 0.7188 | transverse: terms 8 w 1.000000 e1 1.0000 off 1.000/1 onLine 0.7187 | classical: terms 8 w 1.000000 e1 1.0000 off 1.000/1 onLine 0.7188 | transverse distance 1.11e-16 0.0s
+t=2 coherent: terms 52 w 1.000000 e1 1.0000 off 1.000/1 onLine 0.7188 | transverse: terms 52 w 1.000000 e1 1.0000 off 1.000/1 onLine 0.7188 | classical: terms 52 w 1.000000 e1 1.0000 off 1.000/1 onLine 0.7188 | transverse distance 1.11e-16 0.1s
+t=3 coherent: terms 34958 w 1.000000 e1 0.9019 off 1.128/4 onLine 0.7187 | transverse: terms 34958 w 1.000000 e1 0.9019 off 1.128/4 onLine 0.7187 | classical: terms 34958 w 1.000000 e1 0.9019 off 1.128/4 onLine 0.7187 | transverse distance 1.67e-16 273.2s
+exit=143

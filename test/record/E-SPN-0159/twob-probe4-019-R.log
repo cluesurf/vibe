@@ -1,0 +1,7 @@
+doubled one-beat: crossings 69, B* 0.000e+0, v 0.9000 0.6000 -2.4000 3.5218 0.0000 0.0000 0.0000; 183 evaluations, 96 s
+nine at S: crossings 137, B* 0.000e+0, v -3.2000 2.1605 1.6000 3.5218 1.6000 0.3803 0.0000; 197 evaluations, 206 s
+even at S: crossings 1000000000, B* 0.000e+0, v 0.7605 0.7605 0.0000 3.5218 0.3803 0.3803 0.0000; 99 evaluations, 207 s
+eight at 3M: crossings 80, B* 0.000e+0, v 0.0000 -0.2000 1.1408 3.5218 0.0000 0.1000 1.4000; 141 evaluations, 294 s
+split one: crossings 41, B* 0.000e+0, v 3.4000 3.6000 -3.4000 3.5218 0.5000 0.2000 0.3000; 141 evaluations, 338 s
+split two: crossings 111, B* 0.000e+0, v -0.9500 1.8000 3.7000 3.5218 -1.2000 1.7500 3.5000; 211 evaluations, 431 s
+exit=0

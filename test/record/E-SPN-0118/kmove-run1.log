@@ -1,0 +1,106 @@
+censuses 0s
+M1 245s
+M2 e1 382s
+M2 e2 514s
+M2 e3 647s
+M2 e12 785s
+M2 e13 930s
+M2 e23 1085s
+calibration 1099s
+C1 1289s
+C2 1312s
+M3 1314s
+status fail
+claim three loves on lines (1,1,0,0), (1,0,1,0), (0,1,1,0) through a hub X, held by the drift cost's string and meeting through the committed bounce K: K changes their lines (7.6289 of the weight passes through a line-changing meeting over 128 beats, 6 lines held, 4 line triples reachable, rank 3 on the husk) but every meeting is at X; held with tail at most 5.25e-5 (M1 true); boosted to K = pi/2 along six husk directions dE = e1 -0.0011 (0.0774), e2 -0.0011 (0.0774), e3 -0.0011 (0.0774), e12 -0.0010 (0.1149), e13 -0.0010 (0.1149), e23 -0.0010 (0.1149) (M2 false, 0 of 6 moving); inverse mass eigenvalues -9.26e-4, -9.26e-4, -8.13e-4; the vacuum and a lone love run identically with and without K and the love stays on its line (M3 true); line-keeping contact dE -0.0011, -0.0011, -0.0011, no string tail 3.34e-1; free trio reading 0.0771 (0.0774), 0.0771 (0.0774), 0.0771 (0.0774), 0.1145 (0.1149), 0.1145 (0.1149), 0.1145 (0.1149)
+  M1 1
+  M2 0
+  M3 1
+  control_C1 1
+  control_C2 1
+  calibrated 1
+  pairKeep 168
+  pairChange 0
+  pairIdentity 96
+  tripleKeep 416
+  tripleChange 576
+  tripleIdentity 768
+  twoSingleDocks 270336
+  twoSingleSinglesLeft 0
+  twoSingleFullMoved 141312
+  lineTriplesReached 4
+  linesReached 6
+  reachedRank4 3
+  reachedRankHusk 3
+  oneLevelEnergy -2.7305369915803634
+  oneLevelMeanString 0.6527741516783118
+  windingWeight 9.40457113388253e-10
+  startSize 702464
+  heldMaxTail 0.000052471787232422214
+  heldLeastFidelity 0.9999999594944093
+  heldLineChange 7.628929677258047
+  heldLinesSeen 6
+  heldSize 702464
+  heldDropped 3.443848149714081e-8
+  heldEscaped 0
+  restEnergy -1.9084256381966542
+  restShare 0.9327781955249042
+  movingDirections 0
+  inverseEigenMin -0.0009255385750424106
+  inverseEigenMid -0.0009255385746971635
+  inverseEigenMax -0.0008129596842142773
+  anisotropy 0.12163608720789905
+  keptLeastFidelity 0.9999999870438282
+  singleUnderKLeastFidelity 0.4566765167779466
+  singleUnderKLineChange 1.1449299448179102
+  looseMaxTail 0.3335463602671766
+  vacuumDiffer 0
+  loveDiffer 0
+  loneOff 0
+  passOff 0
+  vacuumSingles 0
+  seconds 1313.935
+  e1_dE -0.0010955412357873673
+  e1_predicted 0.07739680156933737
+  e1_share 0.9015069736516698
+  e1_inverseMass -0.0008880122779117241
+  e2_dE -0.0010955412358613084
+  e2_predicted 0.07739680156933737
+  e2_share 0.9015069736505392
+  e2_inverseMass -0.0008880122779716585
+  e3_dE -0.0010955412359832106
+  e3_predicted 0.07739680156933737
+  e3_share 0.9015069736495092
+  e3_inverseMass -0.0008880122780704688
+  e12_dE -0.0010492450228525296
+  e12_predicted 0.1148933786717472
+  e12_share 0.9037938579199606
+  e12_inverseMass -0.0008504859811700004
+  e13_dE -0.0010492450227630454
+  e13_predicted 0.1148933786717472
+  e13_share 0.9037938579196118
+  e13_inverseMass -0.0008504859810974673
+  e23_dE -0.0010492450226808892
+  e23_predicted 0.1148933786717472
+  e23_share 0.903793857919253
+  e23_inverseMass -0.0008504859810308739
+  free_e1_dE 0.07710264935526823
+  free_e2_dE 0.07710264935526823
+  free_e3_dE 0.07710264935526823
+  free_e12_dE 0.11448414249755734
+  free_e13_dE 0.11448414249755734
+  free_e23_dE 0.11448414249755734
+  keep_e1_dE -0.0010955412050692726
+  keep_e2_dE -0.0010955412050697166
+  keep_e3_dE -0.0010955412050683844
+  inverseMass_00 -0.0008880122779117241
+  inverseMass_01 0.000037526296771690846
+  inverseMass_02 0.00003752629689362911
+  inverseMass_10 0.000037526296771690846
+  inverseMass_11 -0.0008880122779716585
+  inverseMass_12 0.000037526296990189677
+  inverseMass_20 0.00003752629689362911
+  inverseMass_21 0.000037526296990189677
+  inverseMass_22 -0.0008880122780704688
+control {"keepMaxAbsDE":0.0010955412050697166,"looseMaxTail":0.3335463602671766}
+notes L2. M1 true, M2 false, M3 true; C1 true, C2 true; calibrated true; checks {"pairs":true,"triples":true,"singlesStay":true,"winding":true,"hub":true,"exact":true,"orbitExact":true}. Pair census keep 168 change 0 identity 96; triple census keep 416 change 576 identity 768; two singles with full lines: 270336 docks, singles off their lines 0, a full line moved on 141312. Line triples reached [[0,2,6],[0,3,7],[1,2,7],[1,3,6]] (24 changing edges), lines 6, rank 4d 3, husk 3. One-vibe level E -2.7305369915803634 mean string 0.6528 residual 9.10e-13, winding 9.40e-10; start 702464 configurations. Held: least fidelity 1.0000, size 702464, dropped 3.44e-8, escaped 0.00e+0, rest E -1.9084256381966542 share 0.9328. Band: e1 dE -0.0010955412357873673 pred 0.0774 share 0.9015 1/m -8.88e-4 lineChange 3.4275 size 702464; e2 dE -0.0010955412358613084 pred 0.0774 share 0.9015 1/m -8.88e-4 lineChange 3.4275 size 702464; e3 dE -0.0010955412359832106 pred 0.0774 share 0.9015 1/m -8.88e-4 lineChange 3.4275 size 702464; e12 dE -0.0010492450228525296 pred 0.1149 share 0.9038 1/m -8.50e-4 lineChange 3.4280 size 702464; e13 dE -0.0010492450227630454 pred 0.1149 share 0.9038 1/m -8.50e-4 lineChange 3.4280 size 702464; e23 dE -0.0010492450226808892 pred 0.1149 share 0.9038 1/m -8.50e-4 lineChange 3.4280 size 702464. Inverse mass tensor [["-8.88e-4","3.75e-5","3.75e-5"],["3.75e-5","-8.88e-4","3.75e-5"],["3.75e-5","3.75e-5","-8.88e-4"]], anisotropy 0.1216. Keep: rest -1.9084256382100993, least fidelity 0.9999999870438282. Knit M3: same vacuum true, vacuum lone/bounce differ 0 (first -1), lone love differ 0 (first -1), off its line on lone 0 and pass 0, reach 4, 4 box steps, vacuum singles 0. 1314 s.
+exit=0

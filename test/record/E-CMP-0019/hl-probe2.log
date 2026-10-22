@@ -1,0 +1,30 @@
+lines 6144, lengths 8, register line 0, vacuum vibe there 0, vacuum vibes total 0
+t 1: distinct true register 0,0,0 lines 0 (register line 0) coarse H 0.6365
+t 2: distinct true register 1,1,1 lines 0 (register line 0) coarse H 0.6365
+t 3: distinct true register 0,0,0 lines 0 (register line 0) coarse H 0.6365
+t 4: distinct true register 0,0,0 lines 0 (register line 0) coarse H 0.6365
+t 5: distinct true register -1,-1,-1 lines 0 (register line 0) coarse H 0.6365
+t 6: distinct true register 0,0,0 lines 0 (register line 0) coarse H 0.6365
+t 7: distinct true register 1,0,1 lines 0 (register line 0) coarse H 0.6365
+t 8: distinct true register 0,1,0 lines 0 (register line 0) coarse H 0.6365
+t 9: distinct true register 0,0,0 lines 0 (register line 0) coarse H 0.6365
+t 10: distinct true register -1,0,0 lines 0 (register line 0) coarse H 1.0986
+t 11: distinct true register 0,-1,0 lines 0 (register line 0) coarse H 1.0986
+t 12: distinct true register -1,0,1 lines 0 (register line 0) coarse H 1.0986
+t 13: distinct true register 0,0,-1 lines 0 (register line 0) coarse H 1.0986
+t 14: distinct true register 1,1,-1 lines 0 (register line 0) coarse H 1.0986
+t 15: distinct true register -1,0,1 lines 0 (register line 0) coarse H 1.0986
+t 16: distinct true register 0,0,0 lines 0 (register line 0) coarse H 0.6365
+t 17: distinct true register 1,-1,-1 lines 0 (register line 0) coarse H 0.6365
+t 18: distinct true register 0,0,0 lines 0 (register line 0) coarse H 0.6365
+t 19: distinct true register 0,0,0 lines 0 (register line 0) coarse H 1.0986
+t 20: distinct true register 0,1,0 lines 0 (register line 0) coarse H 0.6365
+t 21: distinct true register 0,0,0 lines 0 (register line 0) coarse H 0.6365
+t 22: distinct true register -1,0,1 lines 0 (register line 0) coarse H 1.0986
+t 23: distinct true register -1,-1,1 lines 0 (register line 0) coarse H 1.0986
+t 24: distinct true register -1,0,1 lines 0 (register line 0) coarse H 1.0986
+returns: false,false,false
+change on line 5: lines reached at most 1, at T 5, pulled back to 0: 5
+change on line 40: lines reached at most 1, at T 40, pulled back to 0: 40
+change on line 77: lines reached at most 1, at T 77, pulled back to 0: 77
+exit=0

@@ -1,0 +1,105 @@
+g60: exact 1s
+g60: theta 0 22s
+g60: level 236s
+g60: B1 585s
+g60: B2 B3 1293s
+g60: controls 1666s
+g90: exact 1667s
+g90: theta 0 1675s
+g90: level 1696s
+g90: B1 1730s
+g90: B2 B3 1807s
+g90: controls 1833s
+{
+  "status": "partial",
+  "claim": "g60 (8 live faces): level E 1.0276 (share 0.9306), tail + dropped at most 7.72e-3 over 64 beats (B1 false), least fidelity 0.6906; boosted to pi/2 its centroid moves -1.31e-3 docks a beat along the bisector against 0.2956 predicted, reach 0.5937, held 1.98e-2 (B2 false); dE -0.0010 (0.0655), -0.0039 (0.2487) (B3 false); string bent 0.0146, mean length 1.3101 against 1.3055 at theta 0, 0.0226 links off the lines, excess over the vibes' distance 0.1961; theta 0 equals crossBeat to 0.00e+0 and moves -2.65e-3; no string tail 6.78e-1; the lone love's walk moved 4.31e-2 in total variation, reach 14 against 14; g90 (4 live faces): level E 1.0147 (share 0.9239), tail + dropped at most 3.93e-2 over 64 beats (B1 false), least fidelity 0.1507; boosted to pi/2 its centroid moves -1.04e-3 docks a beat along the bisector against 0.2059 predicted, reach 0.4427, held 3.76e-2 (B2 false); dE -0.0006 (0.0440), -0.0028 (0.1696) (B3 false); string bent 0.0278, mean length 1.3973 against 1.3055 at theta 0, 0.0621 links off the lines, excess over the vibes' distance 0.0841; theta 0 equals crossBeat to 0.00e+0 and moves -2.12e-3; no string tail 7.54e-1; the lone love's walk moved 4.23e-2 in total variation, reach 14 against 14",
+  "metrics": {
+    "B1": 0,
+    "B2": 0,
+    "B3": 0,
+    "theta": 0.14959965017094254,
+    "seconds": 1832.519,
+    "g60_liveFaces": 8,
+    "g60_levelEnergy": 1.0276440653800272,
+    "g60_levelShare": 0.9306251508737735,
+    "g60_probeEnergy": 1.027496403488553,
+    "g60_heldWorst": 0.007722451831517716,
+    "g60_heldMaxTail": 0.0068466026033464165,
+    "g60_heldLost": 0.0008758492281712993,
+    "g60_heldLeastFidelity": 0.690645791327583,
+    "g60_heldSize": 343342,
+    "g60_probeMaxTail": 0.002611278992826176,
+    "g60_c0Distance": 0,
+    "g60_zeroVelocity": -0.00265275034810004,
+    "g60_noStringMaxTail": 0.6778854651325508,
+    "g60_frontTV": 0.043062816354154425,
+    "g60_frontReachOn": 14,
+    "g60_frontReachOff": 14,
+    "g60_bent": 0.014562928535610047,
+    "g60_meanLength": 1.3101083418136965,
+    "g60_meanOffLine": 0.02259547250120654,
+    "g60_meanExcess": 0.19606520394875881,
+    "g60_meanDistance": 1.1140431378648759,
+    "g60_zeroMeanLength": 1.3055477629227634,
+    "g60_endBent": 0.032153152364097756,
+    "g60_move0_along": -0.0015326207359897038,
+    "g60_move0_predicted": 0.1637752132642394,
+    "g60_move0_reach": 0.3667824532492205,
+    "g60_move0_worst": 0.012823681991647382,
+    "g60_move0_dE": -0.000980231259056552,
+    "g60_move0_dEPredicted": 0.0655268962202622,
+    "g60_move1_along": -0.0013148560555333133,
+    "g60_move1_predicted": 0.29558134501049,
+    "g60_move1_reach": 0.5937260640146369,
+    "g60_move1_worst": 0.01981016795438584,
+    "g60_move1_dE": -0.0039433876673724555,
+    "g60_move1_dEPredicted": 0.24868892929926112,
+    "g90_liveFaces": 4,
+    "g90_levelEnergy": 1.0146931289336854,
+    "g90_levelShare": 0.9239401245164715,
+    "g90_probeEnergy": 1.0145767136775676,
+    "g90_heldWorst": 0.039321300884231164,
+    "g90_heldMaxTail": 0.03919298505291827,
+    "g90_heldLost": 0.00012831583131289737,
+    "g90_heldLeastFidelity": 0.15072205214157725,
+    "g90_heldSize": 95522,
+    "g90_probeMaxTail": 0.012623581975650045,
+    "g90_c0Distance": 0,
+    "g90_zeroVelocity": -0.002118620489891288,
+    "g90_noStringMaxTail": 0.7542743234627047,
+    "g90_frontTV": 0.04233784152988081,
+    "g90_frontReachOn": 14,
+    "g90_frontReachOff": 14,
+    "g90_bent": 0.027781654915216766,
+    "g90_meanLength": 1.3973195855777785,
+    "g90_meanOffLine": 0.06210742996368497,
+    "g90_meanExcess": 0.08414106066616106,
+    "g90_meanDistance": 1.3131785249115997,
+    "g90_zeroMeanLength": 1.3055477629227634,
+    "g90_endBent": 0.14960261887205917,
+    "g90_move0_along": -0.0007173477107965988,
+    "g90_move0_predicted": 0.11053544241355039,
+    "g90_move0_reach": 0.2499649492967518,
+    "g90_move0_worst": 0.0385680857359227,
+    "g90_move0_dE": -0.0006439222185719018,
+    "g90_move0_dEPredicted": 0.04395668344463921,
+    "g90_move1_along": -0.0010356701310527965,
+    "g90_move1_predicted": 0.2059193997496787,
+    "g90_move1_reach": 0.44271068938908165,
+    "g90_move1_worst": 0.03756507059570968,
+    "g90_move1_dE": -0.0027505009109418666,
+    "g90_move1_dEPredicted": 0.16959359801841067
+  },
+  "control": {
+    "g60_thetaZeroDistance": 0,
+    "g60_thetaZeroVelocity": -0.00265275034810004,
+    "g60_noStringMaxTail": 0.6778854651325508,
+    "g60_vacuumFixed": 1,
+    "g90_thetaZeroDistance": 0,
+    "g90_thetaZeroVelocity": -0.002118620489891288,
+    "g90_noStringMaxTail": 0.7542743234627047,
+    "g90_vacuumFixed": 1
+  },
+  "notes": "L2. B1 false, B2 false, B3 false; controls false, checks true. theta = 2 pi 1 / 42, window 1, floor 1e-10. g60: exact mixer (vacuum, straight, bent; whole plane then window) 1 terms rev true gauss true float 0.00e+0 norm 1.00000000000000 fixed true; 801 terms rev true gauss true float 3.33e-16 norm 0.99999999999999 fixed false; 801 terms rev true gauss true float 1.11e-16 norm 0.99999999999999 fixed false; 1 terms rev true gauss true float 0.00e+0 norm 1.00000000000000 fixed true; 39 terms rev true gauss true float 2.78e-16 norm 1.00000000000000 fixed false; 39 terms rev true gauss true float 2.29e-16 norm 1.00000000000000 fixed false; classes disjoint true; strict codec true; C0 true C1 true C2 true; probe E 1.0275 share 0.9326 max tail 2.61e-3; held tails 8: 1.62e-3 lost 7.68e-5, 16: 2.30e-3 lost 1.66e-4, 32: 3.66e-3 lost 3.75e-4, 64: 6.85e-3 lost 8.76e-4, size 343342; moves K 0.7854 k 0.3401 along -1.53e-3 pred 0.1638 reach 0.3668 worst 1.28e-2 dE -0.0010 pred 0.0655 share 0.9098; K 1.5708 k 0.6802 along -1.31e-3 pred 0.2956 reach 0.5937 worst 1.98e-2 dE -0.0039 pred 0.2487 share 0.7123; level shapes length 0.1891 0.4280 0.2960 0.0696 0.0119 0.0023 0.0011 0.0011 0.0007 0.0003 0.0001 0.0000 0.0000 0.0000, off-line 0.9854 0.0081 0.0051 0.0011 0.0001 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000, turned faces 0.9854 0.0130 0.0014 0.0002 0.0000 0.0000 0.0000 0.0000 0.0000, mean distance 1.1140; after 64 beats bent 0.0322 length 0.1839 0.4210 0.2880 0.0686 0.0123 0.0053 0.0066 0.0075 0.0047 0.0017 0.0004 0.0001 0.0000 0.0000; theta 0 shapes length 0.1848 0.4251 0.3042 0.0736 0.0107 0.0013 0.0002 0.0001 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000; lone love on its line true, lost 3.23e-5, tail 8.67e-1. g90: exact mixer (vacuum, straight, bent; whole plane then window) 1 terms rev true gauss true float 0.00e+0 norm 1.00000000000000 fixed true; 2385 terms rev true gauss true float 3.33e-16 norm 0.99999999999998 fixed false; 2385 terms rev true gauss true float 1.11e-16 norm 0.99999999999998 fixed false; 1 terms rev true gauss true float 0.00e+0 norm 1.00000000000000 fixed true; 19 terms rev true gauss true float 2.78e-16 norm 1.00000000000000 fixed false; 19 terms rev true gauss true float 2.69e-16 norm 1.00000000000000 fixed false; classes disjoint true; strict codec true; C0 false C1 true C2 true; probe E 1.0146 share 0.9311 max tail 1.26e-2; held tails 8: 8.43e-3 lost 1.34e-5, 16: 1.14e-2 lost 2.72e-5, 32: 1.75e-2 lost 5.74e-5, 64: 3.92e-2 lost 1.28e-4, size 95522; moves K 0.7854 k 0.2777 along -7.17e-4 pred 0.1105 reach 0.2500 worst 3.86e-2 dE -0.0006 pred 0.0440 share 0.9117; K 1.5708 k 0.5554 along -1.04e-3 pred 0.2059 reach 0.4427 worst 3.76e-2 dE -0.0028 pred 0.1696 share 0.8037; level shapes length 0.1845 0.4237 0.2869 0.0693 0.0158 0.0056 0.0056 0.0035 0.0038 0.0009 0.0003 0.0000 0.0000 0.0000, off-line 0.9722 0.0000 0.0246 0.0000 0.0031 0.0000 0.0001 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000, turned faces 0.9722 0.0246 0.0031 0.0001 0.0000, mean distance 1.3132; after 64 beats bent 0.1496 length 0.1526 0.3895 0.2389 0.0637 0.0214 0.0263 0.0339 0.0346 0.0291 0.0071 0.0024 0.0003 0.0001 0.0001; theta 0 shapes length 0.1848 0.4251 0.3042 0.0736 0.0107 0.0013 0.0002 0.0001 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000; lone love on its line true, lost 1.16e-7, tail 9.25e-1. 1833 s."
+}
+exit=0

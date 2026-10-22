@@ -1,0 +1,48 @@
+A1: 3 holes on L 6, 70335 rows, classes 157,501,506 14s
+A1 free: I 3.11e-15 6.33e-15 B 6.22e-15 1.27e-14 drift 1.31e-14 ties 0.00e+0 15s
+A1 rule: I 1.284e-1 3.908e-1 B 3.531e-1 8.667e-1 drift 1.04e-14 ties 8.57e-20 same-class pairs 4.56e-4 sums 5.22e-13 21s
+B1: 3 holes on L 6, 70335 rows, classes 112,120,176 41s
+B1 free: I 4.55e-15 8.66e-15 B 9.10e-15 1.73e-14 drift 1.71e-14 ties 0.00e+0 42s
+B1 rule: I 9.729e-2 2.789e-1 B 2.733e-1 6.879e-1 drift 1.53e-14 ties 1.36e-20 same-class pairs 3.57e-4 sums 6.84e-14 49s
+D3: 3 holes on L 4, 2795 rows, classes 1,2,83 53s
+D3 free: I 2.22e-15 4.33e-15 B 4.44e-15 8.66e-15 drift 8.22e-15 ties 0.00e+0 53s
+D3 rule: I 7.284e-2 1.776e-1 B 2.068e-1 4.614e-1 drift 1.11e-14 ties 1.36e-20 same-class pairs 2.68e-3 sums 1.92e-13 53s
+D4: 4 holes on L 4, 91808 rows, classes 1,2,3,80 58s
+D4 free: I 1.22e-15 3.00e-15 B 2.44e-15 6.00e-15 drift 5.77e-15 ties 0.00e+0 75s
+D4 rule: I 1.177e-1 2.319e-1 B 2.049e-1 3.610e-1 drift 2.38e-14 ties 1.08e-19 same-class pairs 7.17e-2 sums 5.24e-13 132s
+{
+ "status": "partial",
+ "claim": "INTEGRATION (OPEN-MND-03, E-SLF-0178's cut on R*) partial (3 holes on L 6: I 3.908e-1 against free 8.66e-15, B 8.667e-1 against free 1.73e-14; 4 holes on L 4: I 2.319e-1 against free 3.00e-15, B 3.610e-1 against free 6.00e-15; four not below three false); BINDING (OPEN-MND-01) partial: E-SLF-0177's read pass, E-QTM-0154's read needs C* (its frame classes live on a qutrit R* lacks); control CF true; instrument true",
+ "metrics": {
+  "I_3@6": 0.3907638443778856,
+  "Ifree_3@6": 8.659739592076221e-15,
+  "B_3@6": 0.8667134532518556,
+  "Bfree_3@6": 1.7319479184152442e-14,
+  "I_4@4": 0.23187088534758718,
+  "Ifree_4@4": 2.9976021664879227e-15,
+  "B_4@4": 0.36099478508836963,
+  "Bfree_4@4": 5.995204332975845e-15,
+  "I_A1": 0.3907638443778856,
+  "B_A1": 0.8667134532518556,
+  "drift_A1": 1.3100631690576847e-14,
+  "ties_A1": 8.571370772892337e-20,
+  "I_B1": 0.27891997901767357,
+  "B_B1": 0.687876018178362,
+  "drift_B1": 1.709743457922741e-14,
+  "ties_B1": 1.3552527156068805e-20,
+  "I_D3": 0.17763759562857853,
+  "B_D3": 0.4613653103541142,
+  "drift_D3": 1.1102230246251565e-14,
+  "ties_D3": 1.3552527156068805e-20,
+  "I_D4": 0.23187088534758718,
+  "B_D4": 0.36099478508836963,
+  "drift_D4": 2.375877272697835e-14,
+  "ties_D4": 1.0842021724855044e-19
+ },
+ "control": {
+  "CF": 1,
+  "instrument": 1
+ },
+ "notes": "L2 on the 4d bulk torus, not the husk; no ledger row is held. Reads at cycles 1, 2: A1 (3 holes, L 6) I 1.28e-1 3.91e-1, B 3.53e-1 8.67e-1, same-class pair weight 4.56e-4; B1 (3 holes, L 6) I 9.73e-2 2.79e-1, B 2.73e-1 6.88e-1, same-class pair weight 3.57e-4; D3 (3 holes, L 4, read only) I 7.28e-2 1.78e-1, B 2.07e-1 4.61e-1, same-class pair weight 2.68e-3; D4 (4 holes, L 4) I 1.18e-1 2.32e-1, B 2.05e-1 3.61e-1, same-class pair weight 7.17e-2. E-SLF-0172's Fiedler value is a graph read with no dynamics and was not rerun; the cut stands for it. 132 s."
+}
+exit=0

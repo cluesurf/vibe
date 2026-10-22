@@ -65,7 +65,7 @@
 // r = 4 .. 128, E-GRV-0105's force-form delta(4), c_4, G on the full-lattice normalization, and the three parts of the
 // 3 percent at L = 1 (window, box, lattice).
 //
-// FIRST RUN (tmp/rs-run1.log, the record, 24 s): FAIL on C1, R0, R1, R2 and R3. No gate moved.
+// FIRST RUN (test/record/E-GRV-0137/rs-run1.log, the record, 24 s): FAIL on C1, R0, R1, R2 and R3. No gate moved.
 //  - C0 holds: the L = 1 layering is E-GRV-0105's stack to 8.9e-16, every layering reads k = 0.28298 to 4.7e-14, and the
 //    husk alone's lattice k equals the periodic kernel's to 3.7e-13. C2 holds: the growing grounded bulk's lightest mass
 //    is 0.39 .. 1.02 a dock and U(24) / U(2) is 1.8e-4 .. 1.6e-10, against the shrinking stack's 0.92 .. 0.73.

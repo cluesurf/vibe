@@ -1,0 +1,10 @@
+length 2: 577 words, 553 even, 1 contact, gauss true, distinct true, cost below length 0, 0.012s
+patternNext agrees 26496, disagrees 0; 0.03s
+sigma 0 beat 1: radial chain against the word engine 2.22e-16, spread 0.00e+0
+sigma 0 beat 2: radial chain against the word engine 2.22e-16, spread 0.00e+0
+sigma -0.187112 beat 1: radial chain against the word engine 2.22e-16, spread 0.00e+0
+sigma -0.187112 beat 2: radial chain against the word engine 2.22e-16, spread 0.00e+0
+beat 0: projected flux beat against the meson beat 0.00e+0 (largest entry 0.634), lost 0 and 0
+beat 1: projected flux beat against the meson beat 0.00e+0 (largest entry 0.634), lost 0 and 0
+one flux beat at length 2: 0.003s; state 0.005096832 GB
+exit=0

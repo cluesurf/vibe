@@ -89,7 +89,7 @@
 // Verdict: fail if H1, H2, H3, H4 or H5 fails (a derivation refuted); partial if the instrument or a control fails, or if
 // every gate holds but a result changes on the husk (H4 holding means it does); pass if every result survives.
 //
-// PROBES BEFORE THE GATE RUN, disclosed. tmp/hsk-probe1.log (closed-form band only, no eigensolves): M 0.380251, 3M
+// PROBES BEFORE THE GATE RUN, disclosed. test/record/E-SPN-0167/hsk-probe1.log (closed-form band only, no eigensolves): M 0.380251, 3M
 //  1.140754; Smax on 4,096 slice momenta 0.837565 against 0.837692 on 4,096 bulk momenta; the slice's massive top
 //  0.607432 of c/4 (the bulk sample's 0.606652 is below it: the bulk sample missed the maximum, both under 1); the
 //  massless top 0.988 on the slice without small momenta (so the gate adds radial ones); s4 and d|s|^2/dK4 exactly 0 on
@@ -97,7 +97,7 @@
 //  a 12^3 grid, B* 0.7605 on one depth and 0.3277 over four (the pair D at -0.3945, S at 0.8273); -I, P_imp and R4 all in
 //  W(F4) with dets 1, -1, -1, -I and P_imp inverting every husk step and R4 fixing it. The first loose census also
 //  flagged "reaches the threshold", which is S + S at rest, the continuum's own floor, not a channel below it: that
-//  flag was removed before the gate run. tmp/hsk-smoke.log: every code path on a small plan (83 s; gating nothing):
+//  flag was removed before the gate run. test/record/E-SPN-0167/hsk-smoke.log: every code path on a small plan (83 s; gating nothing):
 //  H1 to H5 and I1 held as derived, H4's husk P_imp 0.184 and P_rot 1.8e-15; K1 matched E-SPN-0160's recorded c0/c, R
 //  defect, isotropy, massless top, g max and census B* bit for bit but not the massive top (which needs the gate's 4,096
 //  momenta), K3 needs the gate's 64 momenta, and K2 failed as first written: it demanded the root sum equal huskSymbol
@@ -105,7 +105,7 @@
 //  hsk-probe2.log: 144 of 256 equal, largest gap 1.8e-14; the weighted symbol also 1.8e-14). CORRECTED BEFORE THE GATE
 //  RUN: K2 reads both to 1e-12. No other gate moved.
 //
-// FIRST RUN (tmp/hsk-exp-run1.log, 823 s): PARTIAL, as predicted: H1 to H5, the instrument and K1 to K3 all hold, and
+// FIRST RUN (test/record/E-SPN-0167/hsk-exp-run1.log, 823 s): PARTIAL, as predicted: H1 to H5, the instrument and K1 to K3 all hold, and
 //  H4 holding is the derived change. No gate moved and none was rerun.
 //  - H1: 176 + 8 + 8 on 64 slice momenta (gap 2.3e-15); depth slope exactly 0, full-cycle |v4| at most 1.4e-16; massless
 //    pairs of 16 along 6 husk directions, c0 / (sqrt 2 / 4) 1 to 8e-12, |gamma| / c0 at most 2.6e-11; R - tan m/m at most

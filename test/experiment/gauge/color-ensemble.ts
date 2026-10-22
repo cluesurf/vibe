@@ -14,7 +14,7 @@
 //      plaquettes at beta_f depend on the form?
 //   Stored: 4 configurations per (beta, branch, box), measured sweeps 40, 80, 120 and 160 after 50 thermalizing ones, as
 //   colorGates' input (one gridLifts index per directed slot x * 24 + d, reverse = inverse, little-endian Int16), under
-//   tmp/color-ens-<box>/.
+//   test/record/E-FRC-0297/color-ens-<box>/.
 //
 // CONTROLS (the proof)
 //   I  the float table maps onto the exact Sigma(648) (holonomy-caging sigmaElements) to 1e-12, one to one, inverses kept;
@@ -105,7 +105,7 @@ export const FLOOR_TRIANGLE = (-11 / 32) * Math.log(648)
 export const FLOOR_SQUARE = (-3 / 6) * Math.log(648)
 
 export const ENSEMBLE_PLAN: EnsemblePlan = {
-  dir: fileURLToPath(new URL('../../../tmp/', import.meta.url)),
+  dir: fileURLToPath(new URL('../../record/E-FRC-0297/', import.meta.url)),
   boxes: ['bulk8', 'slab8x8', 'slab8x12'],
   coarse: Array.from({ length: 25 }, (_, i) => i * 0.25),
   fineStep: 0.05,

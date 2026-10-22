@@ -1,0 +1,4 @@
+[3.4s] palindrome transitions 18 particle = hole 6 even in v 6 max |Qp - Qh| 1.134e-5
+[5.3s] one-sided transitions 18 particle = hole 3 even in v 3 max |Qp - Qh| 8.210e-8
+[5.3s] exit
+exit=0

@@ -57,7 +57,7 @@ export const HALF_PHASE = 1e-7
 export const HALF_OVERLAP = 0.05
 export const QUADRATIC = 0.1
 
-// E-SPN-0173's recorded main point (tmp/rch-exp-run1.log): the control
+// E-SPN-0173's recorded main point (test/record/E-SPN-0200/rch-exp-run1.log): the control
 export const RECORDED = {
   EL: 1.6133573497836755,
   Rstatic: 8.459326179870311,

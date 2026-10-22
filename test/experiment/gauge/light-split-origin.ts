@@ -91,7 +91,7 @@
 // stand-in for the 3D husk's quantum light, which does not fit in memory); no start family (every claim is about
 // every start or about the rule's constants).
 //
-// FIRST RUN 2026-09-28 (tmp/lso-exp-run1.log, 38 s): PARTIAL as predicted, all ten gates held, no gate moved, no
+// FIRST RUN 2026-09-28 (test/record/E-FRC-0261/lso-exp-run1.log, 38 s): PARTIAL as predicted, all ten gates held, no gate moved, no
 // probe run before it. Counts 12 / 32 bulk, 9 directions of weight 12 and 20 triangles of multiplicity 32 on the
 // husk. Only rho = 3 is 3 times a rational square (64 joint splits to m = 256; 0 for 3/8, 9/20, 3/5, 9/32, 2).
 // 24 Pell pairs to q = 1e9, every one exact; squared-speed miss 3.5e-3 at m = 192, 1.0e-4 at m = 1,120, 3.0e-6 at

@@ -1,0 +1,43 @@
+L 4 2I weyl: flats + 1408 - 1408 (11 c N 1408), top 0.375326928, gaps 6.247e-1 6.353e-1, mass 1.193333 0s
+L 4 Q8 weyl: flats + 1408 - 1408 (11 c N 1408), top 0.368025747, gaps 6.320e-1 6.311e-1, mass 1.200154 0s
+L 4 trivial trivial: flats + 1410 - 1408 (11 c N 1408), top 1.000000000, gaps 5.000e-1 6.667e-1, mass 0.190126 0s
+L 4 2I pure-gauge: flats + 1410 - 1408 (11 c N 1408), top 1.000000000, gaps 5.000e-1 6.667e-1, mass 0.190126 0s
+L 4 trivial minus: flats + 1408 - 1410 (11 c N 1408), top 0.333333333, gaps 6.667e-1 5.000e-1, mass 0.190126 0s
+F1 true: counts true, vectors true (worst uniform 9.34e-17, residual 2.41e-16) 0s
+F2 true: trivial: lambda -0.333333 closure 1.4e-14 law 4.4e-16, lambda 1.000000 closure 2.1e-14 law 3.1e-14; 2I: lambda -0.364750 closure 5.7e-15 law 1.1e-15, lambda 0.375327 closure 2.7e-15 law 1.5e-15 2s
+instrument true; C1 true (4.7e-15 1.2e-14), C2 true, C3 true, C4 true (2.0e-15 3.3e-15) 5s
+R1 p 0: top 1.000000 m 0.190126 flats 1410 1408; p 0.1: top 0.982604 m 0.265740 flats 1408 1408; R2 V* 11.193 5s
+{
+  "status": "fail",
+  "claim": "F1 true (2 Weyl fields exactly 11 c N flat at each sign, T at least 0.6247 from +-1; trivial and pure gauge 11 c N + 2 at +c, the -1 field 11 c N + 2 at -c; flat vectors uniform <= 9.3e-17, residual <= 2.4e-16); F2 true (closure <= 2.1e-14, law <= 3.1e-14); F3 true (lambda_top 2I L 4 0.3753, Q8 L 4 0.3680; member mass 1.1933 to 1.2002 against m0 0.190126); F4 false; instrument true; controls C1 true C2 true C3 true C4 true",
+  "metrics": {
+    "F1": 1,
+    "F2": 1,
+    "F3": 1,
+    "F4": 0,
+    "instrument": 1,
+    "C1": 1,
+    "C2": 1,
+    "C3": 1,
+    "C4": 1,
+    "m0": 0.19012560334646667,
+    "theta": 2.76134144689686,
+    "topMin": 0.36802574688115164,
+    "topMax": 0.3753269282789672,
+    "massMin": 1.1933328202343039,
+    "vectorResidual": 2.409272615779004e-16,
+    "pairLaw": 3.108624468950438e-14,
+    "vStar": 11.193269819109386,
+    "seconds": 4.849
+  },
+  "control": {
+    "C1": 1,
+    "C2": 1,
+    "C3": 1,
+    "C4": 1,
+    "instrument": 1
+  },
+  "notes": "Light point u = ringUnit(-1, 4), angle -2.761341, theta 2.761341, m0 0.190126; Kesten 0.399653. Fields: L 4 2I weyl + 1408 - 1408 of 1408, top 0.375327, mass 1.1933, reverse 0e+0, herm 0e+0, U0^2 8.3e-17; L 4 Q8 weyl + 1408 - 1408 of 1408, top 0.368026, mass 1.2002, reverse 0e+0, herm 0e+0, U0^2 0.0e+0; L 4 trivial trivial + 1410 - 1408 of 1408, top 1.000000, mass 0.1901, reverse 0e+0, herm 0e+0, U0^2 0.0e+0; L 4 2I pure-gauge + 1410 - 1408 of 1408, top 1.000000, mass 0.1901, reverse 0e+0, herm 0e+0, U0^2 9.7e-17; L 4 trivial minus + 1408 - 1410 of 1408, top 0.333333, mass 0.1901, reverse 0e+0, herm 0e+0, U0^2 0.0e+0. F2: trivial: lambda -0.333333 phases -1.047198/1.427449 closure 1.4e-14 law 4.4e-16, lambda 1.000000 phases -2.761341/-2.761341 closure 2.1e-14 law 3.1e-14; 2I: lambda -0.364750 phases -1.014356/1.394607 closure 5.7e-15 law 1.1e-15, lambda 0.375327 phases -1.758134/2.138385 closure 2.7e-15 law 1.5e-15. C1: 4.7e-15 1.2e-14. C2: {\"integral\":true,\"classConstant\":true,\"completeness\":true,\"idempotents\":true,\"checked\":9720}, register 1728000, orbits 29288, symmetric 1589. C3: m0 0.524 floor 1.2175 measured 1.217, m0 0.19 floor 1.1675 measured 1.1688, m0 0.143 floor 1.1641 measured 1.1636, m0 0.047 floor 1.1601 measured 1.1604. C4: 2.0e-15 3.3e-15. R1 (L 4): p 0 top 1.000000 m 0.1901 flats 2/0 over 11 c N; p 0.1 top 0.982604 m 0.2657 flats 0/0 over 11 c N. R2: V* = 2 m / sigma 11.193 against E-SPN-0146's recorded 11. 5 s."
+}
+seconds 4.8
+exit=0

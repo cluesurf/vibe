@@ -1,0 +1,4 @@
+unit (-1,4) M 0.380251: u^2 = ringUnit(-2,8), conj u^2 = ringUnit(2,-8), exact true  [0.1s]
+  unitarity 3.8e-15, covariance over 1152 1.7e-18  [2.6s]
+  rest: 8 at -theta (the singlet, inverted), 8 at theta, 176 at 0, 0 at 2 theta, 0 at -2 theta, total 192  [2.6s]
+  R by direction 1.771395599 1.771395599 1.771395599 1.771395599 against tan m / m 1.012226057; c2 0.070565830 0.070565830 0.070565830 0.070565830; isotropy 1.1e-11  [4.5s]

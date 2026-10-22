@@ -1,0 +1,53 @@
+liquid 103s
+rigidity 116s
+keyed check 122s
+n 0 beat 1 122s
+n 0 beat 2 122s
+n 0 beat 3 122s
+n 0 beat 4 122s
+n 0 beat 5 143s
+n 3 beat 1 143s
+n 3 beat 2 143s
+n 3 beat 3 323s
+C1 337s
+status open
+claim a frame-invariant stationary vacuum exists (1152 W(F4) images, overlap 1.000000000000 after 64 beats, 0 gated docks) but only as a superposition of images at least 144 of 256 docks apart, since 0 of 12288 one-dock rearrangements are vacua; on it a love sees a classical mixture of fixed vacua, so E-SPN-0121's cascade carries over; the coherent window (3 beats at rate 3) is far short of the 48 a Floquet level needs, and in it the coherent and decoherent readings agree to 0.0e+0
+  L1 1
+  L2 0
+  L2_decided 0
+  L3 0
+  control_C1 1
+  control_C2 1
+  checked 1
+  images 1152
+  imageSingles 0
+  imageGated 0
+  imagePeriodic 1152
+  overlap64 1
+  generators 6
+  generated 1152
+  reflectionChange 0
+  minApart 144
+  cellDocks 256
+  rigidTested 12288
+  rigidKept 0
+  keyedDiffer3 0
+  keyedDiffer0 0
+  window0 5
+  window3 3
+  terms0 3070
+  terms3 34958
+  e1Rate3 0.9019470214843749
+  e1Rate3Decoherent 0.9019470214843749
+  meanOffRate3 1.1277160644531252
+  maxOffRate3 4
+  onLineRate3 0.7187499999999999
+  coherentVsDecoherent 0
+  across0 1.1102230246251565e-16
+  unitGap 2.220446049250313e-16
+  footprint128Rate3 4095.25
+  footprint128Rate0 6.25
+  seconds 336.911
+control {"C1":1,"C2":1,"footprint128Rate3":4095.25,"footprint128Rate0":6.25,"across0":1.1102230246251565e-16}
+notes L1 true (images 1152, singles 0, gated 0, periodic 1152, overlap 1, reflections 6 change 0, min apart 144 of 256). Rigidity: 0 of 12288 non-trivial one-dock alternatives keep Z and the period. L2 undecided (window 5 beats at n = 0, 3 at n = 3, 48 needed). n = 0: t1: terms 2, e1 1.0000, off 1.000/1, one line 1.0000; t2: terms 4, e1 1.0000, off 1.000/1, one line 1.0000; t3: terms 14, e1 1.0000, off 1.000/1, one line 1.0000; t4: terms 184, e1 1.0000, off 1.000/1, one line 1.0000; t5: terms 3070, e1 1.0000, off 1.000/1, one line 1.0000; across-line moduli 1.1e-16 1.1e-16 5.6e-17 5.6e-17 1.1e-16. n = 3 coherent: t1: terms 8, e1 1.0000, off 1.000/1, one line 0.7188; t2: terms 52, e1 1.0000, off 1.000/1, one line 0.7188; t3: terms 34958, e1 0.9019, off 1.128/4, one line 0.7187; decoherent: t1: terms 8, e1 1.0000, off 1.000/1, one line 0.7188; t2: terms 52, e1 1.0000, off 1.000/1, one line 0.7188; t3: terms 34958, e1 0.9019, off 1.128/4, one line 0.7187. C1 rate 3 9/108/4096/4094/4096; 4/61/4083/4090/4094; 6/45/3314/4093/4096; 5/51/3908/4094/4095; rate 0 7/7/5/6/6; 3/7/7/6/7; 4/6/7/8/6; 6/5/7/7/6. Keyed check differ 0, 0. 337 s.
+exit=0

@@ -17,7 +17,7 @@
 // pairCorrelation). For n the body diagonal (1, 1, 1) at kappa 0.20 and 0.24 and the axis (1, 0, 0) at kappa 0.24: the
 // correlation x_l, l = 0 .. 8,191, of the K = 0 level unfolded into n's little-group sector and run at K = kappa n;
 // filterDiagonalize with S 4096, J 60, window [E_L - 0.004, E_L + 0.010], exactly E-RLT-0116's settings. The K = 0
-// correlation in each sector is E-RLT-0116's recorded one (tmp/rlt116.json; same sector, start and engine, so the same
+// correlation in each sector is E-RLT-0116's recorded one (test/record/E-RLT-0116/rlt116.json; same sector, start and engine, so the same
 // bytes); E0 and w0 are its heaviest line's energy and weight.
 //  STILL SHARE s = (sum of the weights of the lines within 2e-4 of E0 at K) / w0. A single band's own line has moved by
 //  a kappa^2 = 7.3e-4 and 1.05e-3 at kappa 0.20 and 0.24, well outside 2e-4.
@@ -33,7 +33,7 @@
 // THE RUN AND ITS COST, estimated before the run: three 8,192-cycle correlations on 3,136, 3,136 and 2,488
 // representatives at 3 native threads beside another run, about 1.2 hours (E-RLT-0116's took 1,100 to 2,300 s each).
 //
-// FIRST RUN (2026-10-21, tmp/rlt117.log, .json and -verdict.log, 4,012 s at 3 native threads): OPEN, as registered, on
+// FIRST RUN (2026-10-21, test/record/E-RLT-0117/rlt117.log, .json and -verdict.log, 4,012 s at 3 native threads): OPEN, as registered, on
 // the axis alone. No gate moved. I1, I2, I3 hold (the same solve on twelve line branches reads 0.2500 and 0.5000).
 //  - BODY DIAGONAL, the direction no line casts: still share 0 at kappa 0.20 and at 0.24 (no line within 2e-4 of E0),
 //    against 0.25 for line branches. The K = 0 line moves whole: weight 0.804 and 0.776 of its 0.8235, shifted 7.13e-4
@@ -47,7 +47,7 @@
 // AFTER THE ENGINE FIX (2026-10-21, vibe-roadmap-moving-matter-0008). code/measure/register-reduced now builds the
 // (1, 1, -1) and (1, -1, 1) sectors as images of (1, 1, 1)'s; this file reads only (1, 0, 0) and (1, 1, 1), whose tables
 // are unchanged bit for bit (tmp/rrfix-tables.ts), so its reads stand as recorded; the verdict recomputed from the
-// recorded part after the fix is unchanged (tmp/rrfix-rlt116.log).
+// recorded part after the fix is unchanged (test/record/E-RLT-0116/rrfix-rlt116.log).
 //
 // Depth L2 (a two-body quantum walk on the husk quotient, exact in its moving block; the lineon control is synthetic).
 // DETERMINISM: no random numbers; the start is placed; the native kernel, byte for byte the JavaScript.
@@ -216,8 +216,8 @@ export function stillCombine(part: StillPart): Verdict {
   })
 }
 
-const PART = 'tmp/rlt117.json'
-const ZERO = 'tmp/rlt116.json'
+const PART = 'test/record/E-RLT-0117/rlt117.json'
+const ZERO = 'test/record/E-RLT-0116/rlt116.json'
 
 export default experiment({
   id: 'relativity/bound-pair-still-branch',

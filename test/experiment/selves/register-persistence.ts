@@ -42,13 +42,13 @@
 // the twist family for K (the same as E-SPN-0193's). A two-component packet on a four-dock ring is the smallest packet;
 // it moves but does not spread far. Depth L2 at most.
 //
-// DISCLOSED CORRECTION, after the first gate run (tmp/persist-gate-first.log) and before the second: the first run
+// DISCLOSED CORRECTION, after the first gate run (test/record/E-SLF-0181/persist-gate-first.log) and before the second: the first run
 //  centered each sector's filter at the start's Rayleigh mean, which for (1,1,1) sat 0.07 off the bound line (outside
 //  the Hann lobe) and filtered another level (a^2 1.6e-4). The filter is now centered at the start's strongest line in
 //  its own sector, as the rest sector always was. No gate or threshold moved; (1,0,0) changed only in rho (1.5e-5 to
 //  1.7e-6) and so in its lower bound (0.529 to 0.722).
 //
-// GATE RUN 2026-10-08 (tmp/persist-gate.log, 1,245 s): PARTIAL.
+// GATE RUN 2026-10-08 (test/record/E-SLF-0181/persist-gate.log, 1,245 s): PARTIAL.
 //  - (1,0,0), K = (pi/2,0,0): leak 0.045, a^2 0.8647, rho 1.7e-6, level E -2.875022 against rest -2.877832, a crossing
 //    2,236 cycles (E-SPN-0193's speed gives 1,712), 10 crossings 22,363 cycles. O at least 0.722 (OV fails), central
 //    estimate 0.868, direct run (256 cycles) never under 0.892, BF 0.926.

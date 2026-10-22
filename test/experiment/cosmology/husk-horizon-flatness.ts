@@ -47,7 +47,7 @@
 // 8 (833 cells, degree 6, spread 1.7e-12), and read the husk docks' seed distances (equal to skin at every one of 129)
 // and the reach counts 1, 7, 25, 63, 129. F1, F2 and H1 are confirmations of that probe and of E-NVG-0014 here.
 //
-// FIRST RUN (tmp/hc-exp12-run1.log, 21 s): pass, every gate, recorded as is. 8,256 pairs of reached docks at beat 4, 0
+// FIRST RUN (test/record/E-CSM-0059/hc-exp12-run1.log, 21 s): pass, every gate, recorded as is. 8,256 pairs of reached docks at beat 4, 0
 // disjoint, the fewest shared cells 1 (the seed alone, at separation 6 to 8); the control leaves 171 of 300 pairs with
 // no shared past at beat 1, exactly those farther apart than 2. Title written after the run.
 //

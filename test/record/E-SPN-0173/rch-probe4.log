@@ -1,0 +1,7 @@
+gMax 0.3667882424043842
+unit (-8,3) m 0.473807 tan m 0.512765 mu 0.512765 R_member 1.082222 Smax 1.1912 a_B above 2.473 | a_B 2.5: alpha G0 3.107 E_b 0.1560 DF margin 0.211 | a_B 3: alpha G0 2.589 E_b 0.1083 DF margin 0.164 | a_B 3.5: alpha G0 2.220 E_b 0.0796 DF margin 0.135 | a_B 4: alpha G0 1.942 E_b 0.0609 DF margin 0.116
+unit (-5,1) m 0.427029 tan m 0.455030 mu 0.455030 R_member 1.065572 Smax 1.1219 a_B above 2.786 | a_B 2.5: alpha G0 3.502 E_b 0.1758 DF margin 0.487 | a_B 3: alpha G0 2.918 E_b 0.1221 DF margin 0.434 | a_B 3.5: alpha G0 2.501 E_b 0.0897 DF margin 0.401 | a_B 4: alpha G0 2.188 E_b 0.0687 DF margin 0.380
+unit (-2,5) m 0.380251 tan m 0.399704 mu 0.399704 R_member 1.051158 Smax 1.0559 a_B above 3.172 | a_B 2.5: alpha G0 3.986 E_b 0.2001 DF margin 0.765 | a_B 3: alpha G0 3.322 E_b 0.1390 DF margin 0.704 | a_B 3.5: alpha G0 2.847 E_b 0.1021 DF margin 0.667 | a_B 4: alpha G0 2.491 E_b 0.0782 DF margin 0.643
+unit (3,2) m 0.476821 tan m 0.516577 mu 0.516577 R_member 1.083377 Smax 1.1957 a_B above 2.454 | a_B 2.5: alpha G0 3.084 E_b 0.1549 DF margin 0.193 | a_B 3: alpha G0 2.570 E_b 0.1075 DF margin 0.146 | a_B 3.5: alpha G0 2.203 E_b 0.0790 DF margin 0.118 | a_B 4: alpha G0 1.928 E_b 0.0605 DF margin 0.099
+unit (6,0) m 0.430043 tan m 0.458673 mu 0.458673 R_member 1.066575 Smax 1.1262 a_B above 2.764 | a_B 2.5: alpha G0 3.474 E_b 0.1744 DF margin 0.470 | a_B 3: alpha G0 2.895 E_b 0.1211 DF margin 0.416 | a_B 3.5: alpha G0 2.481 E_b 0.0890 DF margin 0.384 | a_B 4: alpha G0 2.171 E_b 0.0681 DF margin 0.363
+exit=0

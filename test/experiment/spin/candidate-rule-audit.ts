@@ -67,10 +67,10 @@
 //  Verdict: partial if A1's instrument agreement fails; pass if A2 and A3 hold; fail otherwise.
 //  PREDICTED: pass; a hole's depth exactly the negative of a love's; the ring form, the Pauli gate and the point-veto knit
 //  changed on flat links; the line law broken on the candidate rule by the mixer alone.
-// PROBE, disclosed (instrument only): tmp/audit-probe1-8.log (the ring form, 8 beats: working 0.31 to 0.64, on flat tables
+// PROBE, disclosed (instrument only): test/record/E-SPN-0134/audit-probe1-8.log (the ring form, 8 beats: working 0.31 to 0.64, on flat tables
 // 0.9998 to 0.9999, equal to E-SPN-0103's flat flag and to E-SPN-0104's keep meeting on flat tables beat for beat).
 //
-// FIRST RUN (tmp/audit-exp-run1.log, 128 s): FAIL on A2 alone; A1 and A3 hold, the instrument agrees with every record.
+// FIRST RUN (test/record/E-SPN-0134/audit-exp-run1.log, 128 s): FAIL on A2 alone; A1 and A3 hold, the instrument agrees with every record.
 //  - Unchanged on flat links: the line law without a mixer (0 lines broken, 0 occupation readings off), K on the meson
 //    (0 and 0: this start fires no K in 64 beats, so the item is weak), Gauss for the dragged energy lines, E-GRV-0119's
 //    held source (Fab 0.9996), the light's alpha (ratio 1.0000), charge conjugation between the seas.

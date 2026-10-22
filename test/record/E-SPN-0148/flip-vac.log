@@ -1,0 +1,4 @@
+side 8 sea 0 u(0): {"side":8,"sea":0,"cells":4096,"exact":true,"permutes":0,"charged":0} 0.02 s a beat
+side 8 sea 0 u(10): {"side":8,"sea":0,"cells":4096,"exact":true,"permutes":0,"charged":0} 0.09 s a beat
+side 4 sea 1 u(10): {"side":4,"sea":1,"cells":256,"exact":true,"permutes":0,"charged":0} 0.03 s a beat
+exit=0

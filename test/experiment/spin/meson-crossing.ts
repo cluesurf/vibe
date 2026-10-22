@@ -24,7 +24,7 @@
 // (183.0 predicted) and dE 7e-6 from the band (its golden section there took a bracket of +- one step, which held two
 // crossings; the bracket below is +- half a Klein spacing).
 // Two solver defects the probes found and fixed before this file: a near spectrum of 4 to 6 vectors left the joined
-// levels unconverged (tmp/cross-probe4-8.log, the band then lost to wall states), and a shift at the previous energy
+// levels unconverged (test/record/E-SPN-0115/cross-probe4-8.log, the band then lost to wall states), and a shift at the previous energy
 // lags a light meson by several level spacings.
 //
 // THE DIABATIC READING RULE (fixed before the first run of this file, meson-crossing followDiabatic).
@@ -77,7 +77,7 @@
 // 1/n: the crossing is avoided at every n and never closes, but the meson's width into the Klein channel is a smaller
 // fraction of its energy as n grows.
 //
-// RUN 1 (980 s, tmp/cross-run1.log, the record): PASS on X1, X2, X3, every control clean, no gate moved.
+// RUN 1 (980 s, test/record/E-SPN-0115/cross-run1.log, the record): PASS on X1, X2, X3, every control clean, no gate moved.
 //   n   D     step     least    c_eff    top      cos m    m*/E_rest  break K   gap       gap/sigma  Gamma/E_rest
 //   1   6     pi/57    0.99905  0.7230   0.3535   0.5000   1.7931     none      -         -          -
 //   2   26    pi/117   0.99904  0.9467   0.8087   0.8660   1.1124     3.115     -         -          -

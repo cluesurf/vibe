@@ -1,0 +1,54 @@
+side 8 9s
+side 12 43s
+side 16 133s
+E-FND-0155 {
+ "status": "pass",
+ "claim": "on the adopted knit at sides 8, 12, 16 (8, 27, 64 husk blocks, 3 starts each, 400 beats), the coarse entropy rises to its ceiling ln B and stays within the equilibrium fluctuation floor: the late deficit is 0.00047 to 0.00050 of its start at side 8, 0.00104 to 0.00113 of its start at side 12, 0.00196 to 0.00201 of its start at side 16, and 1.016 to 1.143 of the predicted floor (B - 1) F / (2 E), with block Fano factors 0.613 to 0.790; energy and charge exact and the start returned bit for bit; so a fixed box ends in a coarse heat death with fluctuations and exact recurrence, and a growing mesh, whose ceiling ln B rises without bound, has no coarse end state (argued, not run on a growing mesh)",
+ "metrics": {
+  "gate_E1": 1,
+  "gate_E2": 1,
+  "gate_E3": 1,
+  "floorRatioMin": 1.0158890277687866,
+  "floorRatioMax": 1.1432862284708423,
+  "fanoMin": 0.6125546264648437,
+  "fanoMax": 0.7900966064453125,
+  "tenfoldBeatMaxSide8": 4,
+  "tenfoldBeatMaxSide12": 4,
+  "tenfoldBeatMaxSide16": 4,
+  "lateOverStartMaxSide8": 0.0004959220557923549,
+  "lateOverStartMaxSide12": 0.0011327717859924724,
+  "lateOverStartMaxSide16": 0.002014691647896303,
+  "seconds": 133.319
+ },
+ "notes": "L2. Gates E1 true, E2 true, E3 true. Per side (blocks; start deficit; late / start; late / predicted floor; Fano; tenfold beat): side 8 (8): 0.1589 to 0.1589; 0.00047 to 0.00050; 1.143 to 1.143; 0.613 to 0.646; 4, 4, 3; side 12 (27): 0.0664 to 0.0664; 0.00104 to 0.00113; 1.038 to 1.039; 0.698 to 0.762; 4, 4, 4; side 16 (64): 0.0306 to 0.0306; 0.00196 to 0.00201; 1.016 to 1.016; 0.769 to 0.790; 4, 4, 4. The floor is set by the energy per block, not the box: (B - 1) F / (2 E) is about F / (2 E_b), so a mesh that grows with a fixed energy density keeps the same floor under a ceiling that rises as ln B. Exact recurrence on the side-4 box is E-FND-0146's (6 to over 524,288 beats). Not run: the adopted knit on a growing mesh, which it is not defined on. 133 s."
+}
+member 0 32s
+member 1 64s
+member 2 96s
+member 3 128s
+member 4 158s
+member 5 189s
+E-FND-0156 {
+ "status": "pass",
+ "claim": "on the adopted knit (side 12, a husk block of 768 docks as the subsystem, the other 26 as the bath, 6 link starts) noise and drag come from one bath at one temperature: the block energy's fluctuation, (B / (B - 1)) Var(E_b), is 0.941 to 1.045 of its response to temperature, - dE_b / dbeta (mean 0.995), with beta 3.869 to 3.928 per unit from the occupations and the slot and store thermometers apart by 1.0962 to 1.1009 against (1/2) ln 9 = 1.0986; and the relaxation of a 384-vibe excess, averaged over 60 twins, follows the equilibrium autocorrelation lag by lag (1.000, 0.672, 0.342, 0.127, -0.027 against 1.000, 0.665, 0.346, 0.117, -0.058 at lags 0 to 4, largest gap 0.096 to lag 24); on the control where the depth step is exact and the husk is not Gibbs, the static ratio is 159.2",
+ "metrics": {
+  "gate_S1": 1,
+  "gate_S2": 1,
+  "gate_D1": 1,
+  "gate_C1": 1,
+  "staticRatioMin": 0.941469823300099,
+  "staticRatioMax": 1.0445719201387613,
+  "staticRatioMean": 0.9952343550224922,
+  "thermometerGapMin": 1.0961667957776136,
+  "thermometerGapMax": 1.1009369873316777,
+  "betaMin": 3.869307716645612,
+  "betaMax": 3.9282336468322745,
+  "regressionEarlyGap": 0.030997691646995534,
+  "regressionGap": 0.09640132811120058,
+  "twins": 60,
+  "controlStaticRatio": 159.2468406392058,
+  "seconds": 204.425
+ },
+ "notes": "L2. Gates S1 true, S2 true, D1 true, C1 true. Static ratio per start: 0.958, 0.963, 1.045, 0.941, 1.021, 1.043. Beta at 12 / 16 / 20 extra per dock, per start: 3.9279 / 3.8985 / 3.8695; 3.9280 / 3.8984 / 3.8694; 3.9282 / 3.8985 / 3.8695; 3.9281 / 3.8986 / 3.8693; 3.9281 / 3.8986 / 3.8694; 3.9281 / 3.8985 / 3.8693. C(tau) lags 0 to 24: 1.000 0.665 0.346 0.117 -0.058 -0.076 -0.074 -0.069 -0.066 -0.040 -0.008 0.023 0.053 0.052 0.040 0.029 0.014 0.004 -0.002 -0.003 -0.005 -0.007 -0.007 -0.005 -0.003. R(tau): 1.000 0.672 0.342 0.127 -0.027 -0.035 -0.026 0.005 -0.006 0.056 0.060 0.075 0.077 0.020 0.037 0.049 0.060 0.031 0.014 0.040 0.049 0.025 -0.006 -0.037 -0.006. Lag 12 is the stream's period on the side-12 box, where a free vibe returns to its dock. What this is not: a response to an external field (the knit has no field to apply here); the excess plays that part, as in Onsager's regression. 204 s."
+}
+exit=0

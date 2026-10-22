@@ -1,0 +1,55 @@
+R3 1s
+R1 R2 384s
+CN 411s
+CR 512s
+reads 630s
+status fail
+claim the stand-in's string cost read as V = |n|_1 of the two members' offset (no register): at rate 3 the dominant level holds fidelity >= 0.24550 and tail <= 6.84e-1 over 128 beats (R1 false), inverse mass eigenvalues -0.32363, -0.29268, -0.28149 against 0.00578 (R2 false, isotropy 1.1497), one line at rate 0 gives E 0.3188654375223384 and m*/E_rest 1.7930822459364377 (R3 true); the recorded register keeps 0.0351 by beat 24 (CR true) and no cost gives fidelity 0.0484, tail 9.52e-1 (CN true)
+  R1 0
+  R2 0
+  R3 1
+  control_CR 1
+  control_CN 1
+  checked 1
+  levelEnergy 0.3306409301230973
+  levelStartWeight 0.22514216438919266
+  levelResidual 0.6370106746226477
+  eRest 2.4250360325162927
+  minFidelity 0.24549771091617942
+  maxTail 0.6837913038194224
+  meanString NaN
+  offLine 0.6671222036742195
+  curvedDirections 0
+  eigenMin -0.3236337848105998
+  eigenMid -0.2926795525190997
+  eigenMax -0.2814931085931786
+  isotropy 1.1497041132837251
+  curveFourth -0.29926881496186913
+  curveLine0 0.23109767590882066
+  curveThreshold 0.005777441897720517
+  totalAlongMixed -1.3006533096701824
+  standEnergy0 0.3188654375223384
+  standTotal0 1.7930822459364377
+  standTransverse 0
+  freeMinFidelity 0.04843011444613325
+  freeMaxTail 0.9515541084805722
+  recordedRetained24 0.035099853171565346
+  d4Held 0
+  d4MinFidelity 0.10807224347285448
+  d4MaxTail 0.8610677432827537
+  normGap 6.347367076386945e-12
+  autoGap 0
+  bfsChecked 1289
+  bfsOff 0
+  lineOff 0
+  classes 9689
+  seconds 630.336
+  rate1Held 0
+  rate1MinFidelity 0.8304600094886744
+  rate1MaxTail 0.05551292376536031
+  rate0.25Held 0
+  rate0.25MinFidelity 0.9926088760346198
+  rate0.25MaxTail 0.0013654971892830096
+control {"recordedRetained24":0.035099853171565346,"freeMinFidelity":0.04843011444613325,"freeMaxTail":0.9515541084805722,"standEnergy0":0.3188654375223384,"standTotal0":1.7930822459364377}
+notes L2. cost frame rate 3: held false, level E 0.330641 (start weight 0.2251, residual 6.37e-1), fidelity 0.64984 0.64510 0.52948 0.41086 0.26281 (min 0.24550), tail 8.45e-2 1.44e-1 3.25e-1 4.81e-1 6.84e-1 (max 6.84e-1), mean string NaN, off-line 0.667, shells 2.5e-1/0.0e+0/4.0e-1/0.0e+0/1.4e-1/0.0e+0/6.6e-2/0.0e+0/7.5e-2/0.0e+0/4.6e-2/0.0e+0/2.8e-2//NaN//NaN//NaN//NaN//NaN//NaN//NaN, 9689 classes. Tensor on e_1..e_3 [[-0.29926881533659805,-0.017775706677227165,0.008959553306567225],[-0.017775706677227165,-0.2992688152042134,0.008959553156242639],[0.008959553306567225,0.008959553156242639,-0.29926881538206657]], eigenvalues -0.3236337848105998, -0.2926795525190997, -0.2814931085931786, e_4 curvature -0.29926881496186913, one-line curvature 0.23109767590882066, m*/E_rest along the line with the mixer on -1.3006533096701824. CN: cost none rate 3: held false, level E -0.323850 (start weight 0.1106, residual 5.76e-1), fidelity 0.81109 0.52631 0.26709 0.12811 0.04843 (min 0.04843), tail 3.24e-1 5.04e-1 7.32e-1 8.66e-1 9.52e-1 (max 9.52e-1), mean string NaN, off-line 0.682, shells 1.2e-1/0.0e+0/2.0e-1/0.0e+0/1.0e-1/0.0e+0/9.2e-2/0.0e+0/2.0e-1/0.0e+0/2.1e-1/0.0e+0/8.2e-2//NaN//NaN//NaN//NaN//NaN//NaN//NaN, 9689 classes. CR: recorded retained 0.9999 0.9983 0.9825 0.9224 0.8041 0.6666 0.5346 0.4323 0.3618 0.3080 0.2694 0.2370 0.2086 0.1802 0.1562 0.1373 0.1183 0.1011 0.0853 0.0709 0.0596 0.0493 0.0410 0.0351, 407601 classes. Reads: cost d4 rate 3: held false, level E 0.451831 (start weight 0.2481, residual 4.10e-1), fidelity 0.88097 0.85310 0.67112 0.39122 0.11459 (min 0.10807), tail 6.28e-2 1.05e-1 3.33e-1 5.92e-1 8.61e-1 (max 8.61e-1), mean string NaN, off-line 0.677, shells 2.8e-1/0.0e+0/4.8e-1/0.0e+0/9.8e-2/0.0e+0/4.7e-2/0.0e+0/4.3e-2/0.0e+0/3.5e-2/0.0e+0/1.9e-2//NaN//NaN//NaN//NaN//NaN//NaN//NaN, 9689 classes; cost frame rate 1: held false, level E 0.096223 (start weight 0.2495, residual 2.05e-1), fidelity 0.96895 0.94576 0.93779 0.90986 0.83310 (min 0.83046), tail 1.36e-2 1.72e-2 2.61e-2 3.51e-2 5.45e-2 (max 5.55e-2), mean string NaN, off-line 0.662, shells 1.2e-1/0.0e+0/3.6e-1/0.0e+0/3.1e-1/0.0e+0/1.5e-1/0.0e+0/4.6e-2/0.0e+0/1.1e-2/0.0e+0/2.6e-3//NaN//NaN//NaN//NaN//NaN//NaN//NaN, 9689 classes; cost frame rate 0.25: held false, level E 0.163908 (start weight 0.5324, residual 5.76e-2), fidelity 0.99673 0.99747 0.99487 0.99589 0.99268 (min 0.99261), tail 4.09e-4 4.86e-4 6.41e-4 9.01e-4 1.36e-3 (max 1.37e-3), mean string NaN, off-line 0.431, shells 2.8e-1/0.0e+0/4.9e-1/0.0e+0/2.1e-1/0.0e+0/1.9e-2/0.0e+0/1.5e-3/0.0e+0/3.0e-4/0.0e+0/5.7e-5//NaN//NaN//NaN//NaN//NaN//NaN//NaN, 9689 classes. Checks: norm gap 6.35e-12, rate-0 autocorrelation gap 0.00e+0, D4 distance against BFS 0 off of 1289, one-line costs 0 off. 630 s.
+exit=0

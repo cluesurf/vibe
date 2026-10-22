@@ -80,7 +80,7 @@
 // 0.33 s, a run 0.42 s (0.70 s with the check) at side 8; a start equal to the vacuum differs 0 times. No gated
 // reading was seen.
 //
-// FIRST RUN (tmp/rlt114-run1.log, 2026-10-20, 992 s, one thread): FAIL on G1 as predicted; C1, CP, CV and the stepper
+// FIRST RUN (test/record/E-RLT-0114/rlt114-run1.log, 2026-10-20, 992 s, one thread): FAIL on G1 as predicted; C1, CP, CV and the stepper
 // check hold and no gate moved. 0 of 1,804 composite runs are bound and 0 composites are movers, so G2 is empty. F2:
 // 0 singles off member lines, 0 K firings (two independent 1d worlds); its 8 "new direction" runs and body reach 1
 // are the fear's own line seen from pi(X), as the header warned, not motion. F3 and F4: 0 readings off the star, 0 K

@@ -1,0 +1,20 @@
+{
+ "status": "pass",
+ "claim": "on 17 link starts, n = 3 and 5, values fear, calm, love, errors of 3 trits on fewer than n/2 lines at beats 0, 5, 11: D1 true (2754 of 2754 decode); D2 true (2754 of 2754 stay on the errored lines, forward and pulled back); D3 true (102 of 102 majority errors decode to the written value); instrument true (forward and back bit for bit with no error)",
+ "metrics": {
+  "D1": 1,
+  "D2": 1,
+  "D3": 1,
+  "instrument": 1,
+  "C1": 1,
+  "starts": 17,
+  "cases": 2754,
+  "correct": 2754,
+  "localCases": 2754,
+  "majorityCases": 102,
+  "majorityWrong": 102,
+  "seconds": 254.859
+ },
+ "notes": "L2. Code lines 3, 1000, 2000, 3000, 4000; copies on each line's first slot at position 0. 254.9 s."
+}
+exit=0

@@ -1,0 +1,8 @@
+qa 3 dense near pi:  [15s]
+qa 3 lanczos 120:  ritz 0.0e+0 eig 0.0e+0 sub 0 [16s]
+qa 3 lanczos 200:  ritz 0.0e+0 eig 0.0e+0 sub 0 [19s]
+qa 15 k2 0.1: -0.05941/0.00 -0.05941/0.00 0.05941/1.00 0.05941/1.00 ritz 0.0e+0 eig 2.4e-6 sub 4 [47s]
+qa 15 k2 0.9:  ritz 0.0e+0 eig 0.0e+0 sub 0 [58s]
+qa 15 k2 1.7:  ritz 0.0e+0 eig 0.0e+0 sub 0 [69s]
+qa 15 k2 2.5:  ritz 0.0e+0 eig 0.0e+0 sub 0 [95s]
+exit=0

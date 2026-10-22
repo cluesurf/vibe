@@ -104,18 +104,18 @@
 // Verdict: fail if any of A1 to A3, B1 to B4, D1 to D3 fails, or if G fails (predicted); partial if all hold with G
 // holding; a failed instrument or control is reported and keeps the verdict at fail or partial.
 //
-// PROBES BEFORE THE GATE RUN, disclosed (no gate moved after them). tmp/flv-probe1.log: the commutant ranks (bilinears null
+// PROBES BEFORE THE GATE RUN, disclosed (no gate moved after them). test/record/E-FRC-0259/flv-probe1.log: the commutant ranks (bilinears null
 //  8, the R(x) commuting, commuting with J, rank 8; rotations alone null 6, of which 4 commute with J; all of W(F4) null
 //  3; bilinears and rotations null 2); the three masses; uK's angle 0.0936; the exact asymmetry for the trimaximal
 //  mixing coupled (0, -1.50e-9, -3.58e-8 ... -6.01e-4 at t = 12), its exact negative for conj(V), zeros for Householder,
 //  V = 1 and no coupling, invariant over 36 rephasings; det[H+, H-] = (-959078961 - 1918157922 w) / 1276676260761792016
 //  against prod^2 = 8631710649 / (same), so b = -(2/9) prod^2's numerator: -2 i J prod^2 with J = sqrt(3) / 18.
-//  tmp/flv-probe2.log: the free rule's block leak 2.7e-16 and block gap 2.2e-16 against registerPiece, E-FRC-0258 bit
+//  test/record/E-FRC-0259/flv-probe2.log: the free rule's block leak 2.7e-16 and block gap 2.2e-16 against registerPiece, E-FRC-0258 bit
 //  for bit, the rest instrument 8e-20, and at 2 momenta the free rule's CPT 4.0e-15 and Dirac-law distance 3.8e-15 with
-//  528 flats, the toy's CPT 7.95e-2 and Dirac-law distance 7.95e-2 with 528 flats. tmp/flv-smoke.log: every code path on
+//  528 flats, the toy's CPT 7.95e-2 and Dirac-law distance 7.95e-2 with 528 flats. test/record/E-FRC-0259/flv-smoke.log: every code path on
 //  a small plan (4 momenta, 30 census steps, 6 beats), 40 s: every gate as predicted, G false, verdict fail.
 //
-// FIRST RUN (tmp/flv-exp-run1.log, 159 s): FAIL on G, as derived; every other gate, the instrument and all three controls
+// FIRST RUN (test/record/E-FRC-0259/flv-exp-run1.log, 159 s): FAIL on G, as derived; every other gate, the instrument and all three controls
 //  hold. No gate moved and none was rerun.
 //  - A1: bilinear commutant null 8, the eight R(x) in it with rank 8, each commuting with J; with the rotations null 2
 //    (P+ and P-). Rotations alone null 6, of which 4 commute with J. A2 exact. A3: det[H+, H-] = (-959078961 - 1918157922

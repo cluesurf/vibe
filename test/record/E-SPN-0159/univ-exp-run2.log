@@ -1,0 +1,73 @@
+ring 0s
+c0 0s
+chosen point 35s
+massless point 51s
+U4a 57s
+U4b 64s
+instrument 64s
+controls 73s
+plane 160s
+{
+  "status": "fail",
+  "claim": "U1 true (theta* 3.235149: top 0.488178 c, massless 0.49999997 c, against c0 0.5000000000 c); U2 true (gamma/c0 7.57e-12, midpoint drift 4.27e-13, 0 misses); U3 true (multiplets 1+11+12, partner 12, m 0.046778, R 1.000730 1.000730 1.000730 1.000730, c_eff 0.499818 c, eta -1.826e-4); U4a false (schedule pi, 4pi/3: 1+23, per-beat m 0.261799, R 1.102658 1.102658 1.102658 1.102658, top 0.403722 c, drift 2.42e-15); U4b true (norms exact true, distinct true, least m 0.003013 at k 11; k 2: m 0.143348, R 1.006906 1.006906 1.006906 1.006906, top 0.463039 c); controls C1 true (n 1 top 0.5638 c), C2 true (gamma 0.0721688 against 0.0721688), C3 true (in-ring R 1.102658), C4 true (phi 11pi/12 third band 0.1293 c)",
+  "metrics": {
+    "U1": 1,
+    "U2": 1,
+    "U3": 1,
+    "U4a": 0,
+    "U4b": 1,
+    "instrument": 1,
+    "C1": 1,
+    "C2": 1,
+    "C3": 1,
+    "C4": 1,
+    "thetaStar": 3.2351487224719957,
+    "mStar": 0.04677803444110118,
+    "c0OverC": 0.5000000000011358,
+    "topOverC": 0.48817847622126725,
+    "masslessTopOverC": 0.4999999687499996,
+    "gammaOverC0": 7.56833630474046e-12,
+    "midpointDrift": 4.2685299739275706e-13,
+    "flatMiss": 0,
+    "RStar": 1.0007300338253453,
+    "RWorst": 0.0007300338274007778,
+    "cEffOverC": 0.49981759141205534,
+    "etaStar": -0.00018258839804798102,
+    "schedTopOverC": 0.4037221140226534,
+    "schedM": 0.26179938779914924,
+    "schedR": 1.1026577908486987,
+    "schedDrift": 2.419605899270905e-15,
+    "tripleR": 1.1026577908490522,
+    "tripleM": 0.17453292519943286,
+    "secondM": 0.14334756890536546,
+    "secondR": 1.0069062796129855,
+    "secondTopOverC": 0.46303921895363687,
+    "leastM": 0.0030134655820611574,
+    "leastK": 11,
+    "ringR": 1.1026577908476376,
+    "c1TopOverC": 0.5637913391856184,
+    "gammaN1": 0.07216878362523334,
+    "thirdN811": 0.1292602287127875,
+    "streamOverC": 0.9999999673180721,
+    "frontAmplitude": 0.08324217560322265,
+    "lemmaA": 1.000000000482023,
+    "lemmaB": 0.999999875210906,
+    "closedGap": 2.7200464103316335e-14,
+    "thirdBand": 2.1875022923360273e-14,
+    "velocityGap": 1.4924331492860432e-9,
+    "fitGap": 0,
+    "schedClosed": 1.3322676295501878e-15,
+    "angleGap": 1.3877787807814457e-17,
+    "seconds": 160.622
+  },
+  "control": {
+    "C1": 1,
+    "C2": 1,
+    "C3": 1,
+    "C4": 1,
+    "instrument": 1
+  },
+  "notes": "L1/L2. Plane (top over 1024 Weyl momenta, hole): phi 0.1667 pi (n 4.0000): lineon 0.9659 c, gamma/c0 6.597e-1; m 0.0000: top 0.9644 c OVER c0; m 0.0164: top 0.9641 c OVER c0, R 1.00009; m 0.0654: top 0.9633 c OVER c0, R 1.00143; m 0.2618: top 0.9598 c OVER c0, R 1.02349 | phi 0.3333 pi (n 2.0000): lineon 0.8660 c, gamma/c0 3.062e-1; m 0.0000: top 0.8624 c OVER c0; m 0.0164: top 0.8621 c OVER c0, R 1.00009; m 0.0654: top 0.8612 c OVER c0, R 1.00143; m 0.2618: top 0.8575 c OVER c0, R 1.02349 | phi 0.6667 pi (n 1.0000): lineon 0.5000 c, gamma/c0 1.021e-1; m 0.0000: top 0.5711 c OVER c0; m 0.0164: top 0.5696 c OVER c0, R 1.00009; m 0.0654: top 0.5638 c OVER c0, R 1.00143; m 0.2618: top 0.5251 c OVER c0, R 1.02349 | phi 0.8333 pi (n 0.8000): lineon 0.2588 c, gamma/c0 4.737e-2; m 0.0000: top 0.5170 c OVER c0; m 0.0164: top 0.5161 c OVER c0, R 1.00009; m 0.0654: top 0.5102 c OVER c0, R 1.00143; m 0.2618: top 0.4731 c under c0, R 1.02349 | phi 0.9167 pi (n 0.7273): lineon 0.1305 c, gamma/c0 2.327e-2; m 0.0000: top 0.5042 c OVER c0; m 0.0164: top 0.5031 c OVER c0, R 1.00009; m 0.0654: top 0.4949 c under c0, R 1.00143; m 0.2618: top 0.4496 c under c0, R 1.02349 | phi 1.0000 pi (n 0.6667): lineon 0.0000 c, gamma/c0 -5.553e-12; m 0.0000: top 0.4946 c under c0; m 0.0164: top 0.4938 c under c0, R 1.00009; m 0.0654: top 0.4831 c under c0, R 1.00143; m 0.2618: top 0.4295 c under c0, R 1.02349. Chosen point e^(i theta*) = -(360 + 37 w) / 343; ring table (k: m): 1: 0.190126, 2: 0.143348, 3: 0.046778, 4: 0.236904, 5: 0.096570, 6: 0.093556, 7: 0.239917, 8: 0.049792, 9: 0.140334, 10: 0.193139, 11: 0.003013, 12: 0.187112, 13: 0.146361, 14: 0.043765, 15: 0.233890, 16: 0.099583, 17: 0.090543, 18: 0.242931, 19: 0.052805, 20: 0.137321, 21: 0.196153, 22: 0.006027, 23: 0.184099, 24: 0.149375. Massless swap speed on the radial set (axis, face, body, generic at |K| 0.001, 0.01, 0.1, 0.3, 1): 0.499999969 0.499996875 0.499687272 0.497168995 0.466409955 0.499999969 0.499996875 0.499687446 0.497183131 0.468244649 0.499999969 0.499996875 0.499687349 0.497175289 0.467242808 0.499999969 0.499996875 0.499687386 0.497178255 0.467624390 c. Period-3 schedule (pi, pi, 4pi/3): 1+11+12, per-beat m 0.174533, R 1.102658. Chosen point along axis/face/body/generic: c^2 0.4996352494 0.4996352494 0.4996352494 0.4996352494, eta -1.826e-4 -1.826e-4 -1.826e-4 -1.826e-4. Bare stream (n 4096, theta 0): top 0.99999997 c. Front: |P_BB| at theta* 0.083242 (weight 6.929e-3 a beat at c). Lemma over the U1 momenta: max |grad g|^2 / ((1 - <cos^2>)/2) 1.000000000, max ((1 - <cos^2>)/2) / ((1 - g^2)/2) 0.999999875. In-ring 4pi/3 R 1.102658 1.102658 1.102658 1.102658. Instrument: closed form 2.72e-14, third band 2.19e-14, velocity 1.49e-9, fit 0.00e+0, schedule closed form 1.33e-15, angle 1.39e-17. 160.6 s."
+}
+seconds 160.6
+exit=0

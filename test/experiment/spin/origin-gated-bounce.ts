@@ -100,14 +100,14 @@
 // footprint per line, vacuum-born singles at 128, beats where the disturbed line count fell; the star and two hubs at
 // rate 0 with and without the gate (what gating K breaks); the stand-in at rates 1 and 1/4.
 // Verdict: partial if a control or check fails; pass if O1 .. O4 hold; fail otherwise.
-// PROBES, disclosed (instrument only): tmp/origk-probe1.log (meson and lone love, offsets 0 and 1, rates 3 and 0: the
+// PROBES, disclosed (instrument only): test/record/E-SPN-0128/origk-probe1.log (meson and lone love, offsets 0 and 1, rates 3 and 0: the
 // meson ends at 79 and 97 docks on 14 and 18 lines after 16 and 25 turns, the lone love at 60 and 55; 0 K firings, 0
 // B-leaves, 0 mismatches; gate 'none' equals originTrack for 48 beats; growth 64 to 128 is 47 to 79 docks),
-// tmp/origk-star1.log (trio at rate 0: K 67 -> 4 and 49 -> 7 firings, 0 off the star either way; two hubs: 4,092 and
-// 4,095 docks ungated, 41 and 39 gated), tmp/origk-stand1.log (the window at rate 0 keeps 0.99977 at beat 24; rate 1
+// test/record/E-SPN-0128/origk-star1.log (trio at rate 0: K 67 -> 4 and 49 -> 7 firings, 0 off the star either way; two hubs: 4,092 and
+// 4,095 docks ungated, 41 and 39 gated), test/record/E-SPN-0128/origk-stand1.log (the window at rate 0 keeps 0.99977 at beat 24; rate 1
 // keeps 0.293 from the one-line level).
 //
-// FIRST RUN (tmp/origk-exp-run1.log, 401 s): PARTIAL, because control CK fails on its cascade clause. O1 and O3 fail,
+// FIRST RUN (test/record/E-SPN-0128/origk-exp-run1.log, 401 s): PARTIAL, because control CK fails on its cascade clause. O1 and O3 fail,
 // O2 passes, O4 is not reached, CA and CW pass, and every check passes.
 //  - CK: gate 'none' equals originTrack bit for bit on 4 of 4 meson terms (0 off). But the clause "and cascades there
 //    (at least half the box on each)" fails on p2, which ends at 185 docks. E-SPN-0123 recorded the same 185 for p2, so

@@ -74,10 +74,10 @@
 // function); ONE planted link (a translation, fixing no point) on flat links curves exactly the loops through its edge
 // (8 triangles, 6 squares, 16 rhombi) and 1 ring; the root order agrees with the rule's own opposite slots.
 // Verdict: partial if a check or A2 to A4 or B0 fails; otherwise open (A decided by G1, B undecided).
-// PROBES, disclosed (instrument only): tmp/flat-probe1-8.log (the census on four link sets, 7 s), tmp/flat-probe2.log
+// PROBES, disclosed (instrument only): test/record/E-SPN-0132/flat-probe1-8.log (the census on four link sets, 7 s), test/record/E-SPN-0132/flat-probe2.log
 // (covariance, blindness and carry-over at 32 beats, 0 off each; like meetings over 32 beats 6,087 equal and 78,362
 // unequal on the working links against 66,927 and 17,522 on flat links).
-// FIRST RUN (tmp/flat-exp-run1.log, 44 s): OPEN, as derived. Every check passes.
+// FIRST RUN (test/record/E-SPN-0132/flat-exp-run1.log, 44 s): OPEN, as derived. Every check passes.
 //  - G1: 399,485 of 401,408 contractible elementary loops are curved: triangles 130,419 of 131,072, squares 73,430 of
 //    73,728, rhombi 195,636 of 196,608, at every one of 4,096 docks for every kind; element orders 2, 3, 4 and 6; about
 //    a quarter fix no point (triangles 33,342, squares 19,544, rhombi 50,625). 6,121 of 6,144 rings are curved. CURVATURE.

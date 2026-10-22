@@ -99,24 +99,24 @@
 //  the straight-path amplitude |P_BB| at theta* (the front at c); the lemma's two ratios over the U1 momenta; the
 //  massless swap speed on the radial set; the ring table to k = 24; a period-3 schedule (pi, pi, 4 pi / 3).
 //
-// PROBES BEFORE THE GATE RUN, disclosed. tmp/univ-probe1.log: the ring table to k = 8 (k 3: 360 + 37 w over 343, m
+// PROBES BEFORE THE GATE RUN, disclosed. test/record/E-SPN-0143/univ-probe1.log: the ring table to k = 8 (k 3: 360 + 37 w over 343, m
 //  0.046778, R 1.000730; k 2: m 0.143348); at theta* the HF top speed 0.488178 c equal to the closed form to 1e-15, hole
 //  and love, the third band 6e-16; the fit R 1.000730, eta -1.83e-4, the cycle fit equal to singletKinematics; massless
 //  swap c0 = 0.5 c, gamma -4e-12; the schedule 1 + 23, per-beat m 0.261799 = pi/12, R 1.102658, top 0.3973 c (closed
 //  form equal); in-ring 4 pi / 3 R 1.102658; the plane: top speed 0.964, 0.862, 0.571, 0.517, 0.504, 0.495 c at m = 0
 //  for phi pi/6 .. pi, and BELOW c0 at 5 pi/6 m pi/12 (0.473) and 11 pi/12 m pi/48 (0.495): massive points near the swap
-//  can sit under c0 on the sample, but their massless limit does not (point 2). tmp/univ-probe2.log: the ring table to
+//  can sit under c0 on the sample, but their massless limit does not (point 2). test/record/E-SPN-0143/univ-probe2.log: the ring table to
 //  k = 24 (least m 0.003013 at k 11, then 0.006027 at k 22), which set the tunability ceiling pi / 96 = 0.0327 with room;
 //  the massless swap speed on the radial set 0.49999997 c at 1e-3 down to 0.466 c at 1; 22 flat phases and a fixed
 //  midpoint at three K. No other threshold was set or moved after a probe.
 //
-// FIRST RUN (tmp/univ-exp-run1.log, 148 s): FAIL on U2, U4a and U4b. U4a failed as derived. U2 and U4b failed on a
+// FIRST RUN (test/record/E-SPN-0143/univ-exp-run1.log, 148 s): FAIL on U2, U4a and U4b. U4a failed as derived. U2 and U4b failed on a
 //  READING DEFECT: the midpoint drift read exactly pi (3.141592653589793) at the chosen point, the schedule and the k = 2
 //  point. Two phases on a circle have two midpoints pi apart, and the vector-sum midpoint jumps to the other one once the
 //  pair spreads past pi (w and pi - w at large K). The fix reads the midpoint modulo pi (pairDrift), which still sees any
 //  real drift below pi / 2. The tolerance (1e-9) and every other gate are unchanged. Every other number in run 1 equals
 //  run 2.
-// SECOND RUN (tmp/univ-exp-run2.log, 161 s): FAIL on U4a only, as derived. U1, U2, U3, U4b, the instrument and every
+// SECOND RUN (test/record/E-SPN-0159/univ-exp-run2.log, 161 s): FAIL on U4a only, as derived. U1, U2, U3, U4b, the instrument and every
 //  control hold. No threshold moved.
 //  - U1: at theta* = pi + 0.093556 the top speed over 4,116 momenta, hole and love, is 0.488178 c. At theta = pi it is
 //    0.49999997 c, reached at |K| = 1e-3, and c0 = 0.5000000000 c. The radial set reads 0.49999997, 0.4999969, 0.49969,

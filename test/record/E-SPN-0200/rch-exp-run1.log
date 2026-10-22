@@ -1,0 +1,19 @@
+I1 I2 0s
+green 5s
+witness SS 0,0,0,0 11s
+witness generic 0,0,0,0 31s
+witness SS 0.31,-0.17,0.52,0 37s
+witness generic 0.31,-0.17,0.52,0 57s
+level a_B 3.5: E 1.6133573497836755 6014s
+motion a_B 3.5: R 8.459326179870311 8151s
+S a_B 3.5: 0.9969089728467897 8194s
+H1 8195s
+level a_B 3: E 1.5685474773273518 11105s
+motion a_B 3: R 16.4538835851102 12974s
+S a_B 3: 0.9443522289211257 13013s
+controls 13162s
+fail
+H0 true (SS K 0,0,0,0: gap 3.58e-17 (inner 3.58e-17), weights 10.598340448074/10.598340448074, norm 10.598340448088 -> 10.598340448088; generic K 0,0,0,0: gap 7.24e-17 (inner 7.24e-17), weights 41.957937082667/41.957937082667, norm 41.957969722246 -> 41.957969722247; SS K 0.31,-0.17,0.52,0: gap 3.74e-17 (inner 3.74e-17), weights 10.598340448079/10.598340448079, norm 10.598340448088 -> 10.598340448088; generic K 0.31,-0.17,0.52,0: gap 7.14e-17 (inner 7.14e-17), weights 41.973131994722/41.973131994722, norm 41.973161372416 -> 41.973161372416); H1 true (main: least margin 0.4064 at DF, below the S S threshold by 0.094760; S D width at the run's K 1.00e-2; Smax 1.121851; the D D band meets the level out to r 0 (local); doubled: margin 0.4512 at DF, bound 0.139569, D D to r 0); H2 false; H3 true; H4 false (static R against the formula within 0.1); H5 false (R with the Darwin exchange within 0.05 of tan m / m); H6 true (the stronger coupling farther). MAIN a_B 3.5 (alpha 47.343, ball 16, 17077 sites, count top 414, nearest threshold 6.14e-6): E_L 1.61335735, E_b 0.094760 (continuum 0.089700), |lambda| 0.9999988376, residual 1.52e-3 (after each filter 3.08e-2, 9.85e-3, 1.52e-3), lost 3.20e-7 over 64 cycles, least fidelity 0.9905778207, edge 4.31e-5, mean r 5.122, shares 0.9800 0.0097 0.0097 0.0006, shells 0..7 4.6e-4 3.0e-3 2.6e-2 1.7e-2 3.0e-1 3.7e-1 2.0e-1 5.9e-2, <G> 0.002770; a 0.0183178439 0.0183178102 (isotropy 1.84e-6); R static 8.459326 against the formula 1.226048; S 0.996909 (<k^2> 0.10300, wrapped 0.00e+0); R with the Darwin exchange 8.303185 at one speed, 8.298306 on the D 5 column, against tan m / m 1.065572. STRONGER a_B 3 (alpha 55.233, ball 14, 11513 sites, count top 484, nearest threshold 4.24e-3): E_L 1.56854748, E_b 0.139569 (continuum 0.122092), |lambda| 0.9999999915, residual 1.25e-4 (after each filter 3.65e-2, 9.14e-3, 1.25e-4), lost 9.17e-8 over 64 cycles, least fidelity 0.9999384094, edge 2.90e-5, mean r 4.122, shares 0.9643 0.0117 0.0117 0.0124, shells 0..7 1.2e-2 2.3e-3 4.6e-2 8.4e-2 7.4e-1 5.8e-2 4.1e-2 1.0e-2, <G> 0.003916; a 0.0096866574 0.0096866568 (isotropy 5.70e-8); R static 16.453884 against the formula 1.308687; S 0.944352 (<k^2> 1.56996, wrapped 0.00e+0); R with the Darwin exchange 16.229807 at one speed, 16.222805 on the D 5 column, against tan m / m 1.065572. Instrument I1 true (8.88e-16) I2 true (member R 1.065571760 vs 1.065571753, mu 0.455030) I3 true (cross pieces: Gram adjointness 2.27e-15, idempotence 0.00e+0, norm over one cycle 1.73e-13); the doubled coupling (a_B 1.75) would put 5.002 rad a cycle at contact, above pi, which a pair phase cannot represent; controls C1 true (E-SPN-0162's string bit for bit) C2 true (light off: lost -1.01e-5, least fidelity 0.194058) C3 true
+{"H0":1,"H1":1,"H2":0,"H3":1,"H4":0,"H5":0,"H6":1,"I1":1,"I2":1,"I3":1,"C1":1,"C2":1,"C3":1,"EL":1.6133573497836755,"Eb":0.09475961475246364,"residual":0.001523108072287865,"lost":3.202537997015753e-7,"leastFidelity":0.9905778206542072,"edge":0.00004312774421912835,"margin":0.4063847962048843,"isotropy":0.000001839404653702914,"Rstatic":8.459326179870311,"RformulaStatic":1.2260482026093489,"S":0.9969089728467897,"Rfull":8.303185181559508,"RfullD5":8.298305775362294,"doubleEb":0.13956948720878737,"doubleRstatic":16.4538835851102,"doubleRfull":16.229807475222728,"doubleS":0.9443522289211257,"seconds":13161.971}
+L2. Light m 0.427029 (M0 0.854058), the Coulomb count in steps of ringUnit(11, 5) (angle 0.006026931), G(0) 0.052830507, mu 0.455030. 13162 s.
+exit=0

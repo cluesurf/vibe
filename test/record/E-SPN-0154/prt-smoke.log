@@ -1,0 +1,27 @@
+K3a true: {"integral":true,"classConstant":true,"completeness":true,"idempotents":true,"checked":9720}; units exact true: 1/1 k 29 j 0 delta 0.983776, 1/4 k 52 j 3 delta 0.247381, 1/8 k 58 j 5 delta 0.126843, 1/64 k 1578 j 3 delta 0.015585 10s
+triangle: husk true, docks 3, links 3, triangles 1, loops 1, gauge-fixed 120, Gauss sector 9, automorphisms 6, symmetric sector 9; rows equal true, n_B constant true, H_E asymmetry 1.60e-14, integer error 4.97e-14 10s
+rhombus: husk true, docks 4, links 5, triangles 2, loops 2, gauge-fixed 14400, Gauss sector 296, automorphisms 4, symmetric sector 150; rows equal true, n_B constant true, H_E asymmetry 1.42e-14, integer error 4.26e-13 10s
+tetrahedron: husk true, docks 4, links 6, triangles 4, loops 3, gauge-fixed 1728000, Gauss sector 29288, automorphisms 24, symmetric sector 1589; rows equal true, n_B constant true, H_E asymmetry 2.84e-14, integer error 1.90e-12 10s
+coupling rule: r 1: E0 29.365167 (Gauss-sector Lanczos 29.365167), gap 11.7965, Einf 161.159, W 208.32, <q0> triangle 0.4835, perimeter 4 0.3556; r 2: E0 46.526124 (Gauss-sector Lanczos 46.526124), gap 19.6160, Einf 201.159, W 259.66, <q0> triangle 0.6398, perimeter 4 0.5439; r 4: E0 70.720182 (Gauss-sector Lanczos 70.720182), gap 28.6615, Einf 281.159, W 387.09, <q0> triangle 0.7484, perimeter 4 0.6778; r 8: E0 103.171174 (Gauss-sector Lanczos 103.171174), gap 17.2393, Einf 441.159, W 669.22, <q0> triangle 0.8555, perimeter 4 0.7981 -> r = 8 57s
+tetrahedron r 8: 1/delta 1.02 (k 29): tau 1, tau_E 1, fbar 1.827e-3, 1 - fbar 9.982e-1, Qbar 9.987e-1, f(10) 0.002189, f(1e3) 0.0009801, f(1e6) 0.007229, components 1589, least gap 8.43e-5, residual 5.8e-10, |lambda| - 1 2.7e-14 240s
+tetrahedron r 8: 1/delta 4.04 (k 52): tau 1, tau_E 1, fbar 1.842e-3, 1 - fbar 9.982e-1, Qbar 9.987e-1, f(10) 0.004445, f(1e3) 0.0008696, f(1e6) 0.0004005, components 1589, least gap 1.22e-5, residual 3.9e-9, |lambda| - 1 2.8e-14 240s
+tetrahedron r 8: 1/delta 7.88 (k 58): tau 1, tau_E 1, fbar 1.945e-3, 1 - fbar 9.981e-1, Qbar 9.985e-1, f(10) 0.0005405, f(1e3) 0.002178, f(1e6) 0.002446, components 1589, least gap 1.27e-4, residual 2.5e-10, |lambda| - 1 3.2e-14 240s
+tetrahedron r 8: 1/delta 64.16 (k 1578): tau inf, tau_E inf, fbar 9.045e-1, 1 - fbar 9.553e-2, Qbar 1.091e-1, f(10) 0.9866, f(1e3) 0.9066, f(1e6) 0.8387, components 1589, least gap 3.78e-5, residual 5.3e-9, |lambda| - 1 5.6e-14 240s
+K1 false: finite points 0 (1/delta ), span 0.00, fit none against [0.0177, 0.1571] (J 160 to 355); delta_W 0.00939 (1/delta_W 106.5) 240s
+READ leak on the kept side: 1 points, ln(1 - fbar) slope none (predicted about -2c), worst miss none 240s
+K2a true: strong beat Qbar 0.9987, tau 1; K2b true: trivial sector n 1, F 1 + 0 i, f always 1 true 240s
+K2c true: commuting beat 1/delta 1: least f 1.00000000000011, tau inf; 1/delta 8: least f 1.00000000000011, tau inf; 1/delta 64: least f 1.00000000000005, tau inf 310s
+cross beat 1: register vs sector 2.13e-15, Gauss defect 8.56e-17, f 0.000046276550 (dense 0.000046276550, Floquet 0.000046276550) 362s
+register energy of psi0 103.171174257 against E0 103.171174258; link unitary integer error 1.63e-13 362s
+Q8 unfixed: 262144 configurations, sector n 26, integer error 2.13e-14, Gauss defect at every dock 8.54e-18, unfixed vs fixed 2.99e-16, overlap after 1 beats -0.401025 363s
+K3 true: a true, b true, c true (integral true, ground true, ladder true, cross true: gap 2.13e-15 Gauss 8.56e-17 fidelity 3.30e-16, unfixed true) 363s
+READ rhombus r 8 (n 150, W 381.5): 1.0: tau 1 fbar 1.92e-2 Qbar 9.98e-1; 4.0: tau 1 fbar 1.85e-2 Qbar 9.84e-1; 7.9: tau 1 fbar 1.69e-2 Qbar 9.87e-1; 64.2: tau inf fbar 9.99e-1 Qbar 1.12e-3 364s
+READ triangle r 8 (n 9, W 207.1): 1.0: tau 1 fbar 2.76e-1 Qbar 9.26e-1; 4.0: tau 1 fbar 1.59e-1 Qbar 9.74e-1; 7.9: tau 1 fbar 2.15e-1 Qbar 7.91e-1; 64.2: tau inf fbar 1.00e+0 Qbar 1.68e-4 364s
+READ rhombus r 1: 1.0: tau 1 fbar 2.16e-2; 4.0: tau 4 fbar 7.50e-2; 7.9: tau inf fbar 9.79e-1; 64.2: tau inf fbar 1.00e+0 364s
+READ rhombus r 2: 1.0: tau 1 fbar 3.35e-2; 4.0: tau 1 fbar 1.93e-2; 7.9: tau 50 fbar 2.00e-1; 64.2: tau inf fbar 1.00e+0 365s
+READ rhombus r 4: 1.0: tau 1 fbar 3.59e-2; 4.0: tau 1 fbar 1.89e-2; 7.9: tau 1 fbar 6.66e-2; 64.2: tau inf fbar 1.00e+0 366s
+K4 not decidable: the tetrahedron holds one pair separation; a 6-loop strip's Gauss sector 49766816576 states 366s
+fail
+K1 false (0 ladder points with finite tau > 1, fit none against [0.0177, 0.1571]); K2 true (strong Qbar 0.999, tau 1; trivial true; commuting true); K3 true (a true, b true, c true); K4 undecidable (one separation; the 6-loop strip has 49766816576 Gauss states); r 8, <q0> 0.8555, W 669.2
+{"K1":0,"K2":1,"K3":1,"K4":0,"coupling":8,"plaquette":0.8554735143849228,"sectorStates":1589,"gaussStates":29288,"finitePoints":0,"slope":null,"slopeLo":0.017699113541350946,"slopeHi":0.15707963267948966,"strongAbsorbed":0.998726775349635,"crossGap":2.125264946045012e-15,"freeGauss":8.542522420166516e-18,"seconds":366.012}
+exit=0

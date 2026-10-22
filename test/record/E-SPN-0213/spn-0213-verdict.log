@@ -1,0 +1,18 @@
+status fail
+claim a_B 7, m 0.4270, the contact well removed: the tracked level (overlap 0.398, next 0.256, ratio 4.054, R 1.9823) and no 2s partner beat with alpha NaN against relativity's NaN (NaN of it). I false, S false, C false
+  I 0
+  S 0
+  C 0
+  overlap 0.3975516867739008
+  next 0.25551616233262486
+  ratio 4.054498172967436
+  R 1.9823242025309058
+  Rfull 1.9154646303955614
+  partnerE NaN
+  partnerR NaN
+  partnerScaled NaN
+  alpha NaN
+  alphaSR NaN
+  alphaOverSR NaN
+notes L2. Followed lines: E 1.665332 (scaled 1.908) overlap 0.256 R 2.846 ratio 3.92; E 1.699695 (scaled 0.376) overlap 0.240 R -4.025 ratio -35.12; none.
+exit=0

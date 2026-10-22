@@ -1,0 +1,15 @@
+ladder 16 rank 1 pi [ '0.288675', '0.288675', '0.422650' ] Pi [ '1.000000' ] avg 2.9999999999999987
+ladder 64 rank 1 pi [ '0.288675', '0.288675', '0.422650' ] Pi [ '1.000000' ] avg 3
+/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/code/measure/husk-balance.ts:290
+  if (plaquettes.some(t => t.count !== side ** 3)) throw new Error('a husk triangle type does not tile the husk')
+                                                         ^
+
+Error: a husk triangle type does not tile the husk
+    at huskLight (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/code/measure/husk-balance.ts:290:58)
+    at <anonymous> (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/hb-probe1.ts:15:14)
+    at ModuleJob.run (node:internal/modules/esm/module_job:430:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:661:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.13.1
+exit=1

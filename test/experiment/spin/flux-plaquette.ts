@@ -82,16 +82,16 @@
 //  |P - P_tree|, and the cost profile.
 // Verdict: partial if the instrument or a control fails; pass if P1 to P4 hold; fail otherwise.
 //
-// PROBES BEFORE THE GATE RUN, disclosed (no gate moved after them). tmp/pq-probe2-3-3.log: the KS form on 3 faces, 3
+// PROBES BEFORE THE GATE RUN, disclosed (no gate moved after them). test/record/E-SPN-0151/pq-probe2-3-3.log: the KS form on 3 faces, 3
 //  beats: reduced-state gap to the piece off 6.2e-17, 2.1e-17, 2.8e-17 at alpha, 2 pi/3, pi (Theorem A). tmp/pq-probe1-
 //  3-4.log: the census as in I1; the piece off equals treeBeat on 955,656 amplitudes; the controlled form on the cost box 4
 //  interns 427,196 patterns by beat 3 at every theta; at theta 0.0936 it absorbs 3.0e-3 and I(3) = 0.020; at alpha it
 //  absorbs 0.20 in the first beat and 0.68 by beat 3; at pi/3 0.96 by beat 3, at 2 pi/3 0.9988 in the first beat. A cost
-//  box 6 did not finish one beat (the decorations fill it). tmp/pq-probe3-3.log: at the strong string sigma = alpha the
+//  box 6 did not finish one beat (the decorations fill it). test/record/E-SPN-0151/pq-probe3-3.log: at the strong string sigma = alpha the
 //  tied member's root level is eps -1.2940 on the tree and -1.2839 for a D4 member in the same well, 0.01 apart, so a
 //  strong string cannot tell the two apart and the gate reads the stringless member at short times instead.
 //
-// FIRST RUN (tmp/pq-exp-run1.log, 556 s): FAIL on P1, as predicted; P2, both controls and the instrument hold. No gate
+// FIRST RUN (test/record/E-SPN-0151/pq-exp-run1.log, 556 s): FAIL on P1, as predicted; P2, both controls and the instrument hold. No gate
 //  moved and none was rerun.
 //  - P1a fails: the KS form moves the member's reduced state by 6.2e-17, 2.1e-17, 2.8e-17 at alpha, 2 pi/3, pi, while
 //    its register leaves the plain string (plain weight 0.07, 0.23 to 1.00 and back, 0.008 at beat 3): Theorem A, read.

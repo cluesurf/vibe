@@ -1,0 +1,30 @@
+{
+ "status": "partial",
+ "claim": "at m* 0.046778 (c* 0.706848816) on the rule's band, husk momenta: B1 true (residual at the boosted CM sphere 6.98e-7, 1.33e-5, 1.75e-4, 7.30e-4 at boosts 0.000, 0.354, 0.542, 0.830); B2 true (k = 2 over chosen 9.3837, 9.3899, 9.3879, 9.2822 against 9.3907); B3 true (largest |K . r| 0.2696 against pi/2); instrument false (rule against closed 6.66e-14, CM k* 1.67e-7); controls C1 true (heavy 2.14e-2), C2 true (Galilean 2.97e-1)",
+ "metrics": {
+  "B1": 1,
+  "B2": 1,
+  "B3": 1,
+  "instrument": 0,
+  "C1": 1,
+  "C2": 1,
+  "mStar": 0.04677803444110118,
+  "cStar": 0.7068488155574595,
+  "residualCM": 6.97699892442847e-7,
+  "residual035": 0.000013339958404134648,
+  "residual054": 0.00017486205939509056,
+  "residual083": 0.0007304388397377947,
+  "boostMax": 0.8295170036008781,
+  "lawTarget": 9.390673159923807,
+  "lawMin": 9.28216045275664,
+  "lawMax": 9.389887862437382,
+  "farthestReach": 0.2695798935489478,
+  "ruleClosed": 6.661707623522532e-14,
+  "cmGap": 1.667409242345208e-7,
+  "heavyResidual054": 0.021374727850164563,
+  "galileanResidual054": 0.2970893301127632,
+  "seconds": 0.158
+ },
+ "notes": "L1 and L2. B3 reads |K . r| 0.0283, 0.0740, 0.1775, 0.2696 per collision over p1, p2 and every predicted p3, p4. Chosen point: boost 0.0000 sqrt s/2m 0.048868 k* 0.020000 residual 6.977e-7; boost 0.3541 sqrt s/2m 0.050265 k* 0.026023 residual 1.334e-5; boost 0.5422 sqrt s/2m 0.062214 k* 0.058028 residual 1.749e-4; boost 0.8295 sqrt s/2m 0.060665 k* 0.054647 residual 7.304e-4. k = 2 point (m 0.143348): boost 0.0000 sqrt s/2m 0.149711 k* 0.061284 residual 6.547e-6; boost 0.3533 sqrt s/2m 0.153957 k* 0.079698 residual 1.253e-4; boost 0.5420 sqrt s/2m 0.190165 k* 0.177325 residual 1.642e-3; boost 0.8328 sqrt s/2m 0.183000 k* 0.161430 residual 6.780e-3. Heavy point (m 0.523599): boost 0.0000 sqrt s/2m 0.544821 k* 0.223613 residual 8.575e-5; boost 0.3416 sqrt s/2m 0.558458 k* 0.288416 residual 1.654e-3; boost 0.5387 sqrt s/2m 0.669359 k* 0.619252 residual 2.137e-2; boost 0.8951 sqrt s/2m 0.478735 k* 0.000000 residual 1.889e-2. Galilean band: boost 0.0000 sqrt s/2m 0.048914 k* 0.020227 residual 9.972e-4; boost 0.3491 sqrt s/2m 0.051092 k* 0.029069 residual 2.166e-2; boost 0.4785 sqrt s/2m 0.073668 k* 0.080513 residual 2.971e-1; boost 0.5398 sqrt s/2m 0.140533 k* 0.187479 residual 1.369e+0. Husk momenta 1,0,0,0 and 26 CM directions. 0.2 s."
+}
+exit=0

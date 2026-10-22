@@ -1,0 +1,82 @@
+matrices 0s
+X1a readings 4s
+box hole 32s
+box starts 36s
+contact pairs 38s
+reverse 38s
+X5a 63s
+X1b 66s
+X2 107s
+pair class 0 226s
+pair class -2 370s
+pair class 1 513s
+pair class -1 663s
+X3a X4 663s
+C3 C4 665s
+X3b X3c 676s
+X5 681s
+{
+  "status": "fail",
+  "claim": "X1 true (X1a true: rule matrix vs float 4.86e-15, w^11 off 0, box one hole 24/576/3768 branches 0 off; 1+11+12, partner 12, m 0.046778, R 1.000730 1.000730 1.000730 1.000730, c_eff 0.499818 c, read gap 8.20e-12, third band 4.48e-16, top 0.488178 c; X1b true: exact reach 1 2 3 4 5 6 (straight path 0.08324 a beat), W(4, 8, 16) 2.65e-4 1.25e-4 7.29e-5, 1e-3 fronts 8: 0.3750, 10: 0.3536, 12: 0.3333, 14: 0.3214, 16: 0.3317 c); X2 true (side 4 (256 docks) exact true, collision permutes 0; side 8 (4096 docks) exact true, collision permutes 0); X3 true (X3a true: top retained-peak speed 2.20e-2 c over 32 matched peaks; X3b true: lone fear charge reach 0 0 1 roots (front weight 0.0000 0.0000 0.4912), hole and fear 0 0; X3c true: stored pair 0 off); X4 false (classes holding more than free: 0); X5 true (X5a true: hole vs empty-mesh love 24/576/3768 slots, 0 off; X5b true: charge register 0 branches off, 0 of 1185 met docks' outcomes off (occupation 2); X5c true: slide at c/2 mu 1 pair 1 tied 0 face 0, mu 1 pair 1 tied 0 face 0); controls C1 true (0.500), C2 true (K acts on 168 pairs), C3 true (1.21e-6), C4 true (free kept vs (1 - 0.0834)^2 = 0.8402), C5 true",
+  "metrics": {
+    "X1": 1,
+    "X1a": 1,
+    "X1b": 1,
+    "X2": 1,
+    "X3": 1,
+    "X3a": 1,
+    "X3b": 1,
+    "X3c": 1,
+    "X4": 0,
+    "X5": 1,
+    "X5a": 1,
+    "X5b": 1,
+    "X5c": 1,
+    "instrument": 1,
+    "C1": 1,
+    "C2": 1,
+    "C3": 1,
+    "C4": 1,
+    "C5": 1,
+    "matrixGap": 4.863664723429877e-15,
+    "oldCoinGap": 0.49999999999999994,
+    "mSinglet": 0.046778034441101186,
+    "RAxis": 1.0007300338289953,
+    "cEffOverC": 0.4998175914100086,
+    "readGap": 8.19633250159768e-12,
+    "thirdBand": 4.483547113736576e-16,
+    "topOverC": 0.4881784762212673,
+    "straightPath": 0.08324217560322265,
+    "W4": 0.0002651666215683413,
+    "W8": 0.0001250332881853327,
+    "W16": 0.00007294622775602127,
+    "frontWorst": 0.375,
+    "topPeakSpeed": 0.022045096095038283,
+    "heldClasses": 0,
+    "fearFront3": 0.49120393438754195,
+    "moving": 0.0833883892854992,
+    "frozen2": 0.8401768448966316,
+    "c3Gap": 0.0000012114582525479811,
+    "shapeGap": 6.938893903907228e-18,
+    "bUnitary": 2.4424906541753444e-15,
+    "fastGap": 3.3306690738754696e-16,
+    "contactOff": 0,
+    "chargeBranchOff": 0,
+    "dockChargeOff": 0,
+    "dockOccupationOff": 2,
+    "signOff": 0,
+    "kActs": 168,
+    "seconds": 681.912
+  },
+  "control": {
+    "C1": 1,
+    "C2": 1,
+    "C3": 1,
+    "C4": 1,
+    "C5": 1,
+    "instrument": 1
+  },
+  "notes": "L1/L2. Pair classes (ball 4, 256 beats, Hann over the last 128, peak floor 0.01, delta 0.2): inner 0 (0,1, K acts): kept at 128/256 K0 0.7346/0.7164 (free 0.8509/0.8462), g 0.6503/0.6384 (free 0.8472/0.8420), ball 5 0.7484/0.7298 (free 0.8574/0.8478); peaks K0 -1.04720:0.1564 1.89417:0.0144 2.09439:0.1535 2.21416:0.0216; speeds 0: e1 -1.0472->1.61e-8 1.8942->2.20e-2 2.0944->3.82e-5 2.2142->3.66e-3; face -1.0472->1.36e-7 1.8942->2.07e-2 2.0944->3.26e-5 2.2142->5.12e-3 | g: e1 -1.0472->2.78e-8 2.0944->6.20e-6; face -1.0472->1.50e-7 2.0944->9.26e-6 || inner -2 (0,3, K never): kept at 128/256 K0 0.3282/0.1884 (free 0.8493/0.8442), g 0.2781/0.1564 (free 0.8470/0.8418), ball 5 0.3815/0.2259 (free 0.8565/0.8460); peaks K0 1.63835:0.0941; speeds 0: e1 1.6383->5.59e-3; face 1.6383->8.13e-3 | g: e1 1.6447->4.39e-3; face 1.6447->5.59e-3 || inner 1 (0,4, K never): kept at 128/256 K0 0.7883/0.7736 (free 0.8516/0.8464), g 0.7577/0.7481 (free 0.8478/0.8421), ball 5 0.7996/0.7825 (free 0.8583/0.8482); peaks K0 -1.04720:0.3421 2.09439:0.3399; speeds 0: e1 -1.0472->4.86e-8 2.0944->6.84e-6; face -1.0472->4.36e-8 2.0944->1.73e-5 | g: e1 -1.0472->1.04e-7 2.0944->8.26e-7; face -1.0472->2.42e-7 2.0944->2.59e-7 || inner -1 (0,6, K acts): kept at 128/256 K0 0.8061/0.7942 (free 0.8508/0.8459), g 0.7921/0.7833 (free 0.8472/0.8419), ball 5 0.8164/0.8004 (free 0.8577/0.8477); peaks K0 -1.04720:0.1964 2.09439:0.1941; speeds 0: e1 -1.0472->4.33e-8 2.0944->3.05e-5; face -1.0472->4.66e-8 2.0944->3.35e-5 | g: e1 -1.0472->2.12e-7 2.0944->9.56e-7; face -1.0472->2.13e-7 2.0944->1.20e-6. Frozen phases arg(c^2) 2.09440 and minus pi. Fronts per direction (e1, e4, e12, -e12, e1-2, e34, e123, half, generic): t 8: 0.354 0.265 0.313 0.375 0.313 0.313 0.306 0.354 0.331; t 10: 0.354 0.283 0.350 0.350 0.300 0.300 0.327 0.354 0.323; t 12: 0.295 0.295 0.333 0.292 0.292 0.292 0.306 0.295 0.318; t 14: 0.303 0.303 0.321 0.286 0.286 0.286 0.321 0.303 0.318; t 16: 0.309 0.265 0.313 0.281 0.281 0.281 0.332 0.309 0.318. Box starts one beat: neighbors 576 branches 0 off; hole and fear 24 branches 0 off; hole and stored pair 24 branches 0 off; lone fear 2 beats 1/576 branches 0 off; contact pairs 552 one-beat checks 0 off; tables 0 off; reverse true. A = c X (I + beta z z^T): c 0.500000000,0.866025404, beta -0.083151118,0.003892485, shape gap 6.94e-18; B unitary 2.44e-15; fast pair beat 3.33e-16; velocity 6.86e-11. Slide control (tie at 1): 1, 1. 682 s."
+}
+seconds 681.9
+exit=0

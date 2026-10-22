@@ -1,0 +1,68 @@
+lines [{"E":3.4054373491061236,"height":0.5649646406299997},{"E":3.5550004759249734,"height":0.07555887319920833},{"E":3.8065733251382188,"height":0.04800498131923652},{"E":5.840631849874579,"height":0.021637063508819533}] 195s
+sector lines [{"E":3.4054373491061236,"height":0.9999923825198184},{"E":3.347146079166469,"height":0.026693823352599615},{"E":3.462961628651835,"height":0.026674553525469446},{"E":3.489039302045891,"height":0.008434263554613802}] 487s
+sector 0.0000,0.0000,0.0000 leak 7.608e-13 a2 1.000000 rho 5.443e-11 E -2.8778319 min|c|^2 1.00000 min free 0.00006 I 6.66e-5 487s
+sector lines [{"E":3.4085053106818948,"height":0.8646782376138581},{"E":3.466029590227606,"height":0.02687721533758762},{"E":3.3502140407422405,"height":0.023116901574523712},{"E":3.4951752251974333,"height":0.013722158126292168}] 817s
+sector 1.5708,0.0000,0.0000 leak 4.537e-2 a2 0.864698 rho 1.745e-6 E -2.8750221 min|c|^2 0.70377 min free 0.00002 I 8.82e-2 817s
+d 1,0,0 tCross 2236.2 tMax 22363 O_low 0.72188 O_high_min 1.00000 at 0 direct min 0.89175 free min 0.00958 BF 0.92569 bracket 0.00e+0 817s
+sector lines [{"E":3.4131072530455517,"height":0.6867248176919233},{"E":3.35558297349984,"height":0.018387493134321708},{"E":3.500544157955033,"height":0.014386427709189336},{"E":3.470631532591263,"height":0.011993535663052064}] 1245s
+sector 1.5708,1.5708,1.5708 leak 1.178e-1 a2 0.686851 rho 5.172e-6 E -2.8698710 min|c|^2 0.41924 min free 0.00002 I 1.21e-1 1245s
+d 1,1,1 tCross 789.3 tMax 7893 O_low 0.54592 O_high_min 1.00000 at 0 direct min 0.79428 free min 0.01576 BF 0.83740 bracket 0.00e+0 1245s
+{
+ "status": "partial",
+ "claim": "the rest bound triple of E-SPN-0193 (R*, L = 4), started as a packet over K = k_m d (weights 0.4964, 0.4964 on m = 0, 1, unrun 0.0071): (1,0,0) internal overlap at least 0.7219 over 10 crossings (22363 cycles, upper value min 1.0000), central estimate 0.8676, bound fraction 0.9257, free control min 0.0096; (1,1,1) internal overlap at least 0.5459 over 10 crossings (7893 cycles, upper value min 1.0000), central estimate 0.7306, bound fraction 0.8374, free control min 0.0158 (OV false, BF false, CF true, I1 true, I2 true, I3 true)",
+ "metrics": {
+  "OV": 0,
+  "BF": 0,
+  "CF": 1,
+  "I1": 1,
+  "I2": 1,
+  "I3": 1,
+  "E0": 3.4054373491061236,
+  "unrunWeight": 0.007140529500559656,
+  "restA2": 0.9999999226077565,
+  "restRho": 5.4433087875575704e-11,
+  "restE": -2.877831878923184,
+  "restIntegration": 0.00006656872018657826,
+  "normDrift": 2.03759231709455e-12,
+  "seconds": 1245.45,
+  "tCross_100": 2236.2211178547886,
+  "tMax_100": 22363,
+  "overlapLow_100": 0.7218779768352144,
+  "overlapHighMin_100": 1,
+  "directMin_100": 0.8917511028578843,
+  "freeMin_100": 0.009577592654889779,
+  "boundFraction_100": 0.9256914236765792,
+  "bracket_100": 0,
+  "movingA2_100": 0.8646978542305439,
+  "movingLeak_100": 0.04536716702040322,
+  "movingRho_100": 0.0000017445900223677353,
+  "movingE_100": -2.8750221454594356,
+  "movingReturn_100": 0.9999999928341913,
+  "overlapEstimate_100": 0.8676113663757887,
+  "movingIntegration_100": 0.08821055456284244,
+  "crossMotion_100": 1711.5960633290542,
+  "tCross_111": 789.2529017712754,
+  "tMax_111": 7893,
+  "overlapLow_111": 0.5459223429479966,
+  "overlapHighMin_111": 1,
+  "directMin_111": 0.7942846164936075,
+  "freeMin_111": 0.01576164363972672,
+  "boundFraction_111": 0.83740305160493,
+  "bracket_111": 0,
+  "movingA2_111": 0.6868511907400152,
+  "movingLeak_111": 0.11776749234491413,
+  "movingRho_111": 0.000005172347075647458,
+  "movingE_111": -2.869870951198904,
+  "movingReturn_111": 0.9999999949360698,
+  "overlapEstimate_111": 0.7306276175241398,
+  "movingIntegration_111": 0.12089838479331567,
+  "crossMotion_111": 1363.3265167007498
+ },
+ "control": {
+  "CF": 1,
+  "freeMin_100": 0.009577592654889779,
+  "freeMin_111": 0.01576164363972672
+ },
+ "notes": "R* with L(s), decision 0006; the heavy bulk state of decision 002, not the electron. Lines at K = 0: 3.4054 (0.565), 3.5550 (0.076), 3.8066 (0.048), 5.8406 (0.022). Rest sector (an eigenstate by construction): a^2 1.000000, rho 5.44e-11. Moving sectors: (1,0,0) K 1.5708,0.0000,0.0000 leak 4.54e-2 a^2 0.864698 rho 1.74e-6 E -2.875022 compressed return at 22363 1.00000 integration max 8.82e-2, crossing 2236 cycles (E-SPN-0193 speed: 1712); (1,1,1) K 1.5708,1.5708,1.5708 leak 1.18e-1 a^2 0.686851 rho 5.17e-6 E -2.869871 compressed return at 7893 1.00000 integration max 1.21e-1, crossing 789 cycles (E-SPN-0193 speed: 1363). 1245 s."
+}
+exit=0

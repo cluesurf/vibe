@@ -52,7 +52,7 @@
 //    most 0.367 (probe 1), so Smax = 0.838 at the light point, against pi - 2 M = 2.381. PREDICTED: no crossing and B* =
 //    2 M exactly (the Dirac value, C4's 2 in units of M) at the light point; at pi/6, the boundary, B* = 0 up to the
 //    sampling (D + F leaves the threshold from rest). (THIS POINT WAS CORRECTED BEFORE THE GATE RUN: the first
-//    version checked only S + F against Smax and predicted B* = 2 M at pi/6 too; the smoke run, tmp/spr-smoke.log, read
+//    version checked only S + F against Smax and predicted B* = 2 M at pi/6 too; the smoke run, test/record/E-SPN-0160/spr-smoke.log, read
 //    B* 1.2e-5 at pi/6 with the pair (flat -pi, D -pi/3), which is D + F at the threshold, and the region was derived
 //    again.) The heavy member (2 M = 3.43 > pi) is outside this region and is read, not predicted. The
 //    continuum cluster of S and this D is four Dirac multiplets: B* = 2, no crossing (N1); with the whole vector as the
@@ -116,19 +116,19 @@
 // Verdict: fail if F1 (a to e), F2, F3 (a) or (b), N1 or T1 fails; partial if the instrument or a control fails, or if
 // all of those hold but F1 (f), the hold or F4 does not; pass if everything holds.
 //
-// PROBES BEFORE THE GATE RUN, disclosed (no gate moved after them). tmp/spr-probe1.log: the Clifford identity (gap 0), the
+// PROBES BEFORE THE GATE RUN, disclosed (no gate moved after them). test/record/E-SPN-0160/spr-probe1.log: the Clifford identity (gap 0), the
 //  three projectors exact (idempotent, traces 8, 8, 32, Q_S Q_D = 0, Q_D Q_V = 12 Q_D), the group (1,152, every slot map
 //  a permutation), covariance of all three under all 1,152 elements, the capture 0.250000000000000 on 4 directions
 //  (Clifford sides 1e-17), the vector's 1, the Clifford cluster B* 2 - 6e-14 with no crossing, the vector cluster 576
 //  crossings, the Dirac family through familyCensusN equal to familyCensus as JSON, and the lattice cycle at 4 momenta:
 //  176 flat at 0, 8 at pi + E and 8 at pi - E, to 1.2e-15, 75 ms an eigensolve; g's largest value 0.3668 on a scan
-//  (Smax 0.838 against pi - 2 M = 2.381). tmp/spr-smoke.log: every code path on a small plan (66 s; unconverged,
+//  (Smax 0.838 against pi - 2 M = 2.381). test/record/E-SPN-0160/spr-smoke.log: every code path on a small plan (66 s; unconverged,
 //  gating nothing): F1 a to e, F2, F3 (a) (B* 0.760502413 = 2 M, no crossing), N1, T1, I1, I2 and C2 to C7 held, F1 (f)
 //  failed as predicted (c0 / c 0.2500000000006), C1 matched every recorded float but top / c, which needs the gate's
 //  4,096 momenta (as in E-SPN-0159's smoke run), and pi/6 read B* 1.2e-5, which corrected point 6 and F3 (b) as stated
 //  there. The heavy member read B* 0.573390, the doubled one-beat slot walk's own heavy value.
 //
-// FIRST RUN (tmp/spr-exp-run1.log, 662 s): PARTIAL, as predicted: every hard gate, the instrument and all seven controls
+// FIRST RUN (test/record/E-SPN-0160/spr-exp-run1.log, 662 s): PARTIAL, as predicted: every hard gate, the instrument and all seven controls
 //  hold; F1 (f) fails (c0 = c / 4) and the hold and F4 are not run. No gate moved and none was rerun.
 //  - F1: 1,152 group elements, ranks 8, 8, 32, every projector idempotent and covariant exactly; multiplets 8 at
 //    +-2.761341447 and 176 at 0; over 64 momenta exactly 176 flat at 0 and 8 + 8 on pi +- E(K), worst 2.4e-15; massless

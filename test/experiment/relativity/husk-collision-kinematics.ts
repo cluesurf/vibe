@@ -39,19 +39,19 @@
 //     collision
 // Verdict: pass if B1 to B3 hold with the instrument and controls; fail if they hold and a gate fails; partial otherwise.
 //
-// PROBES BEFORE THE GATE RUN, disclosed. tmp/hl-probe1b.log: at m* the residuals read 7.0e-7, 1.3e-5, 1.8e-4, 7.3e-4
+// PROBES BEFORE THE GATE RUN, disclosed. test/record/E-RLT-0108/hl-probe1b.log: at m* the residuals read 7.0e-7, 1.3e-5, 1.8e-4, 7.3e-4
 // (rule equal to closed to every printed digit); the k = 2 over m* ratios 9.38, 9.40, 9.37, 9.29; the heavy point 8.6e-5,
 // 1.7e-3, 2.1e-2, 1.9e-2. B1's 1e-3 and B2's 5% were SET AFTER THAT PROBE, so they confirm a probed reading; the m^2
 // law and point 1 were derived before it. C2's Galilean reading was not probed.
 //
-// FIRST RUN (tmp/hl-collision-run1.log): PARTIAL on an INSTRUMENT DEFECT, disclosed. The instrument then asked that the
+// FIRST RUN (test/record/E-RLT-0109/hl-collision-run1.log): PARTIAL on an INSTRUMENT DEFECT, disclosed. The instrument then asked that the
 // CM collision's k*, read back from sqrt s through the RELATIVISTIC relation, equal the incoming 0.02 m*/0.046778 to
 // 1e-9. That holds only if the band is exactly relativistic, which is what B1 measures, so the check read the lattice
 // defect itself (1.67e-7, 8e-6 of k*, the same order as B1's CM residual 7.0e-7). The fix checks what the instrument
 // was meant to check, that the boost vanishes in the CM frame, and reports the k* gap. Every gate, threshold and every
 // other number of run 1 is unchanged in run 2: B1 6.98e-7, 1.33e-5, 1.75e-4, 7.30e-4; B2 9.38 to 9.28 against 9.391;
 // B3 0.2696; rule against closed 6.7e-14; C1 2.1e-2, C2 0.297.
-// SECOND RUN (tmp/hl-collision-run2.log): pass, every gate, instrument and control; CM boost exactly 0; k* gap 1.67e-7
+// SECOND RUN (test/record/E-RLT-0109/hl-collision-run2.log): pass, every gate, instrument and control; CM boost exactly 0; k* gap 1.67e-7
 // reported.
 //
 // NOT MEASURED: WHERE on the shell the pair goes, which is the contact amplitude (E-SPN-0145's contact K and meeting

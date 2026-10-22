@@ -1,0 +1,3 @@
+witness K 0,0,0,0: worst entry gap 2.32e-5, full weight 42.034228500582, lifted weight 42.034691935972, coordinate norm 42.035459468466 -> 42.035370693705 [54.2s]
+witness K 0.31,-0.17,0.52,0.08: worst entry gap 2.21e-5, full weight 42.045176380436, lifted weight 42.045561011322, coordinate norm 42.046362460438 -> 42.046320466195 [104.1s]
+exit=0

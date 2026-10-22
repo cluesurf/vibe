@@ -92,7 +92,7 @@
 //  representatives took 460 s at 12 threads): stage 1 about 45 minutes and stage 2 about 2 hours at 6 threads, on a
 //  loaded machine possibly twice that. The run stops at 8 hours with what has landed.
 //
-// FIRST RUN, STAGE 1 (2026-10-21, tmp/rlt115-one.log and .json, 4,638 s at 6 native threads). No gate moved; one
+// FIRST RUN, STAGE 1 (2026-10-21, test/record/E-RLT-0115/rlt115-one.log and .json, 4,638 s at 6 native threads). No gate moved; one
 // instrument check (I4) was added after the run and is disclosed here.
 //  - W1, I1, I2 hold. The level reads E_L 1.6133573497835847 and the axis R 8.459326019 (recorded 8.459326180, 1.9e-8),
 //    bit for bit E-SPN-0200's reduced read of the same point. Every one of the 14 directions holds one quadratic line
@@ -105,7 +105,7 @@
 //    twelve-branch split would add, so the residual cannot see branching. Worse, two of the four body diagonals,
 //    (1, 1, -1) and (1, -1, 1), read their K = 0 base at phase -0.055 instead of E_L (shifts 1.38e-3 and -1.90e-3),
 //    while (1, 1, 1), (1, -1, -1) and the generic direction read 4.01e-4, 4.01e-4, 4.03e-4. A probe after the run
-//    (tmp/rlt115-probe.log, -probe2.log) found why: the reduced engine's sector of the little group of (1, 1, -1)
+//    (test/record/E-RLT-0115/rlt115-probe.log, -probe2.log) found why: the reduced engine's sector of the little group of (1, 1, -1)
 //    (elements 0, 14, 16, 30, 37, 45: the 3-cycles and transpositions with two sign flips) is unstable, its norm 1 for
 //    512 cycles and then 2.8e11 at 1,024 and 2.9e152 at 4,096, while the sectors of (1, 0, 0), (1, 1, 0), (1, -1, 0)
 //    and (1, 1, 1) stay at 1 over 4,096. The 256-cycle reads behind G1 lie inside the stable window (they match their
@@ -119,7 +119,7 @@
 //    E-SPN-0126's "20 percent" is the same range over its maximum, and 22% is it over the midrange.
 //  STAGE 2 was started at 3 threads beside E-RLT-0116, stopped after its first K read when the cost showed it would
 //    pass the 8-hour stop, and restarted with each direction written as it lands, in the order axis, body, face
-//    (tmp/rlt115-two.log and .json, 19,338 s at 3 threads). All three landed. W2 holds: the axis R is
+//    (test/record/E-RLT-0115/rlt115-two.log and .json, 19,338 s at 3 threads). All three landed. W2 holds: the axis R is
 //    2.7194742442590423, E-SPN-0200's to the bit at 3 threads against its 12. I3 holds (ratios 3.978, 3.973, 3.969).
 //    G1' HOLDS: R 2.71947, 2.71794, 2.71535 on the axis, body and face diagonals, a spread of 1.5e-3 against 0.02.
 //    That is 650 times stage 1's spread, as expected of the harmonic-inversion track (the ratios sit 0.02 to 0.03
@@ -127,8 +127,8 @@
 //    lineon's 0.158.
 //  VERDICT: OPEN, by I4. Leading-order isotropy holds at both points (G1, G1'). Mobility off lines is not read here.
 //
-// REDO AFTER THE ENGINE FIX (2026-10-21, vibe-roadmap-moving-matter-0008; tmp/rrfix-rlt115.log, tmp/rlt115-one-fixed.json,
-// tmp/rrfix-verdict115.log). The instability was in code/measure/register-reduced, not in the pair: at representatives
+// REDO AFTER THE ENGINE FIX (2026-10-21, vibe-roadmap-moving-matter-0008; test/record/E-RLT-0115/rrfix-rlt115.log, test/record/E-RLT-0115/rlt115-one-fixed.json,
+// test/record/E-RLT-0115/rrfix-verdict115.log). The instability was in code/measure/register-reduced, not in the pair: at representatives
 // with a stabilizer the reduced engine also stores a part no invariant state has, and for the tables sector() built
 // directly for (1, 1, -1) and (1, -1, 1) the cycle amplified that part about 5% a cycle from rounding. Those two sectors
 // are now built as the images of (1, 1, 1)'s under the flip of one coordinate, which commutes with the cycle; every other
@@ -629,7 +629,7 @@ export default experiment({
   depth: 'L2',
   paper: false,
   run() {
-    // stage 1 as redone after the reduced engine's fix (tmp/rrfix-rlt115.ts, stageOneRedo); the first run's part is kept
+    // stage 1 as redone after the reduced engine's fix (test/record/E-RLT-0115/run/rrfix-rlt115.ts, stageOneRedo); the first run's part is kept
     const one =
       readPart<StageOne>(`${PARTS}-one-fixed.json`) ??
       readPart<StageOne>(`${PARTS}-one.json`) ??

@@ -41,14 +41,14 @@
 //  coming back round the line), and H_coarse over the 24 beats (its mean, and the beats where it reaches ln 3).
 // Verdict: pass if L1 to L4 hold with the instrument and controls; fail if they hold and a gate fails; partial otherwise.
 //
-// PROBE BEFORE THE GATE RUN, disclosed. tmp/hl-probe2.log (one start, the first of the family): three distinct runs at
+// PROBE BEFORE THE GATE RUN, disclosed. test/record/E-CMP-0019/hl-probe2.log (one start, the first of the family): three distinct runs at
 // every beat, the difference on the register's line only, the register erased at beats 1 to 6 and back at 7 (the line's
 // period is 8), H_coarse 0.6365 through beat 9 and ln 3 at some later beats; a lone change on lines 5, 40 and 77 reached
 // no other line in 21 beats forward nor pulled back. Its return check read false on a READER defect: it compared the
 // point of empty slots, which the inverse beat leaves stale; sameState now reads a point only where a vibe or stored
 // unit is. The gates were written after the probe, which set nothing but the reader fix.
 //
-// FIRST RUN (tmp/hl-landauer-run1.log, 12.8 s): pass, every gate, instrument and control, on 17 of 17 starts. H_coarse
+// FIRST RUN (test/record/E-CMP-0018/hl-landauer-run1.log, 12.8 s): pass, every gate, instrument and control, on 17 of 17 starts. H_coarse
 // at beat 1 is 0.636514168295 = H(1/3, 2/3) exactly, 0.462098 nats of the trit invisible to the coarse map; over the 24
 // beats the mean H_coarse is 0.7067 (mean heat 0.3919 nats), reaching ln 3 on up to 6 of 17 starts at a beat as the
 // love and fear wakes come to weigh differently. The register reads one value on all starts at beats 1 to 6, then the

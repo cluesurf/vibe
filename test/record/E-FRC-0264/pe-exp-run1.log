@@ -1,0 +1,47 @@
+level 472s
+rate_0.8_A5e-3 785s
+rate_0.8_A1e-2 1185s
+rate_1.25_A5e-3 1896s
+rate_1.25_A1e-2 2493s
+rate_1.1_A5e-3 2832s
+rate_1.6_A5e-3 3392s
+rate_2.2_A5e-3 3735s
+rate_undriven 4012s
+rate_static 4328s
+{
+  "status": "fail",
+  "claim": "E-SPN-0155's heavy love-fear pair (E_b 0.047365) driven by a uniform light field, the coupling the shift of the relative momentum: at first order it ionizes only above its binding energy, the rate at 0.8 E_b 6.01e-2 of the rate at 1.25 E_b (A0 5e-3), open at 1.1, 1.25, 1.6 and 2.2 E_b (6.61e-6, 7.73e-6, 2.83e-6, 6.51e-6 a beat), growing as the intensity above threshold (doubling A0 gives 3.990) and only at higher order below it (4.1), with no loss undriven (1.42e-12) or under a static field (1.25e-11); a static stand-in pair and a uniform field, the golden rule's form and not its absolute value",
+  "metrics": {
+    "P1": 0,
+    "P2": 1,
+    "P3": 1,
+    "P4": 0,
+    "m": 0.8570719478501313,
+    "alpha": 18.65622203212337,
+    "E": 1.6667789235965516,
+    "Eb": 0.047364972103711045,
+    "residual": 8.737078396171723e-8,
+    "tail": 4.77996915651331e-11,
+    "rate_0.8_A5e-3": 3.974811246160952e-7,
+    "rate_0.8_A1e-2": 0.0000016339366753087307,
+    "rate_1.25_A5e-3": 0.000006609670102096839,
+    "rate_1.25_A1e-2": 0.000026373230215907318,
+    "rate_1.1_A5e-3": 0.00000772576898648969,
+    "rate_1.6_A5e-3": 0.0000028311185805545787,
+    "rate_2.2_A5e-3": 0.0000065108220920122545,
+    "rate_undriven": 1.4227538595753016e-12,
+    "rate_static": 1.2491430143711696e-11,
+    "belowOverAbove": 0.060136303094764,
+    "aboveScaling": 3.990097812527848,
+    "belowScaling": 4.110727715402483
+  },
+  "control": {
+    "C1": 1,
+    "C2": 1,
+    "C3": 1,
+    "C4": 1,
+    "gap": 0.23933016570702037
+  },
+  "notes": "L2, deterministic (a placed Lanczos start, fixed frequencies; no draw). Gates {\"P1\":false,\"P2\":true,\"P3\":true,\"P4\":false}, controls {\"C1\":true,\"C2\":true,\"C3\":true,\"C4\":true}. Plan {\"N\":128,\"rAbs\":44,\"beats\":1200,\"ramp\":400,\"filter\":512,\"lanczos\":200,\"recordTolerance\":0.000001}. Level E 1.6667789236 (recorded 1.66677892), residual 8.74e-8, tail beyond r 44 4.78e-11, nearest open channel 0.2393. 4328 s."
+}
+exit=0

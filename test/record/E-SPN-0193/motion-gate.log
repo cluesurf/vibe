@@ -1,0 +1,74 @@
+BND rule late share 0.7124 (157 s) 166s
+BND contact late share 0.4300 (151 s) 316s
+BND free late share 0.1185 (63 s) 379s
+lines [{"E":3.4054373491061236,"height":0.5649646406299997},{"E":3.5550004759249734,"height":0.07555887319920833},{"E":3.8065733251382188,"height":0.04800498131923652},{"E":5.840631849874579,"height":0.021637063508819533}] 379s
+rest E -2.877832 sigma 4.47e-5 wb 0.5650 544s
+d 1,0,0 v 2.337e-3,-6.514e-13,2.533e-13 angle 0.00 f 1.0043 sigma 9.05e-5 1691s
+d 1,1,0 v 1.964e-3,1.964e-3,-1.357e-13 angle 0.00 f 1.0059 sigma 5.67e-5 2756s
+d 1,1,1 v 1.694e-3,1.694e-3,1.694e-3 angle 0.00 f 1.0065 sigma 5.03e-5 3420s
+d 1,2,3 v 8.576e-4,1.597e-3,2.118e-3 angle 4.01 f 1.0059 sigma 6.38e-5 3889s
+{
+ "status": "pass",
+ "claim": "three like-tone register holes (Q = -1, J = 1/2) at contact on the L = 4 torus: late contact share 0.712 under the rule, 0.430 with the contact alone, 0.118 free (BND true); the bound line 3.4054 a cycle holds 0.565 of the start; boosted to |K| = 0.785: (1,0,0) 0.00 deg off its line, |v| 2.34e-3, f 1.004; (1,1,0) 0.00 deg off its line, |v| 2.78e-3, f 1.006; (1,1,1) 0.00 deg off its line, |v| 2.93e-3, f 1.006; (1,2,3) 4.01 deg off its line, |v| 2.79e-3, f 1.006 (VEL true, BF true); control CT true, instruments I1 true I2 true I3 true",
+ "metrics": {
+  "BND": 1,
+  "VEL": 1,
+  "BF": 1,
+  "CT": 1,
+  "I1": 1,
+  "I2": 1,
+  "I3": 1,
+  "shareRule": 0.712364917526248,
+  "shareContact": 0.4300318346956332,
+  "shareFree": 0.1184726648813104,
+  "E0": 3.4054373491061236,
+  "restE": -2.8778318666821954,
+  "restWb": 0.5649962152876161,
+  "restSigma": 0.00004471905258386141,
+  "restShare": 0.8179400600946443,
+  "bindingGap": 0.1495631268188493,
+  "kinetic": 0.001243874189405858,
+  "kineticOverBinding": 0.008316716933261479,
+  "bandMass": 267.6688816649088,
+  "normDrift": 3.241851231905457e-12,
+  "seconds": 3888.908,
+  "angle_100": 0,
+  "speed_100": 0.0023370484838810286,
+  "f_100": 1.004254356609998,
+  "sign_100": 1,
+  "sigma_100": 0.00009046703466641564,
+  "pull_100": 1.6672887190733737e-7,
+  "minDiff_100": 0.00045887839675273767,
+  "crossings_100": 0.14957110296838583,
+  "angle_110": 0.0000012074182697257333,
+  "speed_110": 0.002777194052833798,
+  "f_110": 1.005854286338454,
+  "sign_110": 1,
+  "sigma_110": 0.00005670225876731657,
+  "pull_110": 6.549841951058832e-8,
+  "minDiff_110": 0.00038558587730719296,
+  "crossings_110": 0.17774041938136306,
+  "angle_111": 0,
+  "speed_111": 0.002934215432560734,
+  "f_111": 1.0064834812886199,
+  "sign_111": 1,
+  "sigma_111": 0.000050265175100109326,
+  "pull_111": 5.1471224570533226e-8,
+  "minDiff_111": 0.0003326298804360306,
+  "crossings_111": 0.187789787683887,
+  "angle_123": 4.00564059073331,
+  "speed_123": 0.002787735112160917,
+  "f_123": 1.005888792887881,
+  "sign_123": 1,
+  "sigma_123": 0.00006378118596335304,
+  "pull_123": 8.287342390095617e-8,
+  "minDiff_123": 0.000415803568976969,
+  "crossings_123": 0.17841504717829867
+ },
+ "control": {
+  "CT": 1,
+  "freeShare": 0.1184726648813104
+ },
+ "notes": "Register rule, provisional until moving-matter item 0006. Lines at K = 0: 3.4054 (0.565), 3.5550 (0.076), 3.8066 (0.048), 5.8406 (0.022). Per direction: (1,0,0) v 2.337e-3 -6.514e-13 2.533e-13, E -2.876717, sign 1, sigma 9.05e-5 against the FD difference 4.59e-4, level contact share 0.825, crossing time 1.71e+3 cycles; (1,1,0) v 1.964e-3 1.964e-3 -1.357e-13, E -2.876621, sign 1, sigma 5.67e-5 against the FD difference 3.86e-4, level contact share 0.826, crossing time 1.44e+3 cycles; (1,1,1) v 1.694e-3 1.694e-3 1.694e-3, E -2.876588, sign 1, sigma 5.03e-5 against the FD difference 3.33e-4, level contact share 0.827, crossing time 1.36e+3 cycles; (1,2,3) v 8.576e-4 1.597e-3 2.118e-3, E -2.876621, sign 1, sigma 6.38e-5 against the FD difference 4.16e-4, level contact share 0.826, crossing time 1.43e+3 cycles. Light or heavy: the kinetic energy at |K| = 0.785 is 1.24e-3 a cycle against a binding gap of 0.1496 (ratio 8.32e-3), band mass 2.68e+2. 3889 s."
+}
+exit=0

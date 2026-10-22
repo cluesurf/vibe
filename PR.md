@@ -55,9 +55,36 @@ All commands were run from this worktree. `node_modules` is symlinked to the mai
 - Build: pass.
 - E-SPN-0202: verdict and every number it computes are unchanged.
 
+## Records kept
+
+Experiments cited pre-registrations, verdict logs and saved parts that lived only in the old moving-matter worktree's
+gitignored `tmp/`, or in other worktrees. The evidence among them is now tracked under
+`test/record/<experiment-code>/`, and every citation of a kept file points there. `.gitignore` re-includes `test/record/**/*.log`.
+
+- Frozen gates: `E-SPN-0202/scross-gates-frozen-20261009T213901Z.md`, `E-FRC-0306/leak-fresh-frozen-20261009T032809Z.json`.
+- Verdict and run logs for E-FND-0175 to 0177, E-FRC-0289 to 0294, 0315, 0316, E-MTR-0028 to 0032, E-QTM-0181 and 0182,
+  E-RLT-0114 to 0118, E-SLF-0179 to 0181, and E-SPN-0191 to 0214.
+- Saved parts that verdicts are rebuilt from: `track-a*.json`, `spn-core-*.json`, `spn-mass-*.json`,
+  `spn-light-m0284-a12.json`, `spn-clock-a7.json`, `spn-cleanclock-*.json`, `mtr-boost-K*.json`, `mtr-light-K*.json`,
+  `mtr-fade-*.json`, `qtm-part-*.json`, `rlt115-*.json`, `rlt116.json`, `rlt117.json`, `cflux-cf0-slab-8.json`, and
+  E-FRC-0297's two small boxes `color-ens-hyper3d/` and `color-ens-hyper8/`.
+- Four experiments read their recorded inputs at run time (sector-eigensolver, light-pair-dispersion, light-pair-fading,
+  register-pair-formula-audit). Their path constants now resolve from the file to `test/record/`, not to the old
+  worktree.
+
+`test/record/index.csv` lists every cited `tmp/` path with its status (kept, too_large, scratch, other_worktree,
+missing) and where it is cited.
+
 ## Follow-ups
 
-- The singlet-crossing header still cites its frozen gate file
-  `tmp/scross-gates-frozen-20261009T213901Z.md`, which is not in git. It is a citation in a comment,
-  not an import, so it breaks nothing. Copying that file into a tracked note is a separate decision.
-- The recorded verdict log also lives only in the old worktree's `tmp/`.
+- The large records are tracked with Git LFS (`.gitattributes`): `E-RLT-0118/rlt118.json` (5.8 MB, read at run time)
+  and E-FRC-0297's `color-ens-bulk20/` (31 MB), `color-ens-bulk8/` (55 MB), `color-ens-slab8x8/` (55 MB) and
+  `color-ens-slab8x12/` (83 MB). `.archiveignore` keeps them out of the Internet Archive zip, and the npm `files` list
+  already leaves `test/` out.
+- 342 evidence files that lived only in other worktrees (339 in `experiment/open-pieces`) are now in `test/record/`,
+  with 358 citations repointed in 104 files. `open-pieces/tmp/rcw-eq-js.bin` (592 MB) is too large and stays out.
+- 22 rerun scripts are kept in `test/record/<code>/run/`. `spn-0213-combine` and `mtr-light-combine` reproduce their
+  recorded verdict logs.
+- 790 cited evidence paths exist nowhere on disk. They are listed in `test/record/index.csv`.
+- Some records sit in the folder of the first experiment that cites them, not the one that made them (for example
+  `E-SPN-0200/rch-exp-run1.log` belongs to E-SPN-0173).

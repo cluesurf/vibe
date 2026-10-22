@@ -13,6 +13,13 @@ test/site/build/
 test/site/node_modules/
 .react-router/
 
+# large experiment records tracked through Git LFS (about 220 MB): kept in git, left out of the zip
+test/record/E-RLT-0118/rlt118.json
+test/record/E-FRC-0297/color-ens-bulk20/
+test/record/E-FRC-0297/color-ens-bulk8/
+test/record/E-FRC-0297/color-ens-slab8x8/
+test/record/E-FRC-0297/color-ens-slab8x12/
+
 # editor and agent settings
 .vscode/
 .claude/

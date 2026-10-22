@@ -1,0 +1,15 @@
+level 1.6133573497835847 18s
+axis kappa 0.22 read 231s
+body kappa 0.22 read 497s
+body-z kappa 0.22 read 783s
+body-y kappa 0.22 read 1111s
+body-yz kappa 0.22 read 1393s
+face kappa 0.22 read 1832s
+axis kappa 0.28 read 2055s
+body kappa 0.28 read 2309s
+body-z kappa 0.28 read 2557s
+body-y kappa 0.28 read 2799s
+body-yz kappa 0.28 read 3040s
+face kappa 0.28 read 3400s
+done 3400s
+exit=0

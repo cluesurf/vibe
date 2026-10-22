@@ -35,10 +35,10 @@
 //  the rewritten value (this is D3's reading; the gate there asks for it on every case).
 // Verdict: pass if D1 to D3 hold with the instrument; fail if the instrument holds and a gate fails; partial otherwise.
 //
-// PROBE BEFORE THE GATE RUN, disclosed. tmp/hl-probe2.log (one start): a lone vibe flipped on lines 5, 40 and 77 at beat
+// PROBE BEFORE THE GATE RUN, disclosed. test/record/E-CMP-0019/hl-probe2.log (one start): a lone vibe flipped on lines 5, 40 and 77 at beat
 // 3 reached no other line in 21 beats forward, nor after the pull-back to beat 0. The gates were written after it.
 //
-// FIRST RUN (tmp/hl-code-run1.log, 255 s): pass, every gate and the instrument. 2,754 of 2,754 correctable cases decode
+// FIRST RUN (test/record/E-CMP-0019/hl-code-run1.log, 255 s): pass, every gate and the instrument. 2,754 of 2,754 correctable cases decode
 // and stay on the errored lines forward and pulled back; 102 of 102 majority errors decode to the written value.
 //
 // Depth L2: a repetition code over lines, measured on the adopted knit's own dynamics and inverse over 17 starts. A

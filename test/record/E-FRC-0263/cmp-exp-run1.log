@@ -1,0 +1,44 @@
+K1 C3 0s
+K2 K3 K4 C2 1s
+T 12s
+C1 12s
+{
+  "status": "partial",
+  "claim": "a photon off a charged register member at rest, read on the husk: the kinematics conserve husk momentum and quasi-energy exactly, and the wavelength shift is lambda_C (1 - cos theta) in the low-energy limit to 5.0e-6 (3 directions x 4 angles, both lights), with lambda_C = 2 pi eps'' / c_l set by the member's INERTIA (eps'' = c^2 / (R m) to 4.8e-10): 0.98792 of the standard Compton wavelength on the loop light (1 / R), 1.00324 on the depth-5 trit column, the departure at finite k growing as k^2 (ratio 3.87 to 3.98); the forward amplitude's low-frequency limit is Thomson's -q^2 / m* with m* the inertia (sigma / sigma_T = 1 / R^2 = 0.97599), and below the pair threshold the member's dipole response is Dirac's eps'' (2m)^2 / ((2m)^2 - w^2), to 8.9e-6 at low frequency and 4.0e-4 up to w 0.098, linear and in phase; not run: the angular distribution and cross section at finite k (Klein-Nishina), and the absolute cross section, which needs the model's alpha",
+  "metrics": {
+    "K1": 1,
+    "K2": 1,
+    "K3": 1,
+    "K4": 1,
+    "T1": 1,
+    "T2": 1,
+    "T3": 1,
+    "T4": 1,
+    "m": 0.19012560334646678,
+    "R": 1.0122260565778327,
+    "epp": 0.6495190533195583,
+    "k1Gap": 4.812291676259406e-10,
+    "k2Gap": 0.000004962223988269621,
+    "k3Lo": 3.8686285380073464,
+    "k3Hi": 3.979853012677763,
+    "k4Gap": 7.433005322354802e-10,
+    "lambdaRatioLoop": 0.9879216151792553,
+    "lambdaRatioColumn": 1.0032391428107823,
+    "sigmaRatio": 0.9759891162921666,
+    "t1Gap": 0.000008936644770862756,
+    "t2Gap": 0.00039803966062701424,
+    "t3Gap": 0.000010057293094667408,
+    "t4Gap": 0.000002266207108186542
+  },
+  "control": {
+    "C1": 1,
+    "C2": 1,
+    "C3": 1,
+    "C4": 1,
+    "c1Gap": 9.367506770274758e-17,
+    "c2Speed": 0.353553387484535,
+    "rFromCurvature": 1.0122260558278735
+  },
+  "notes": "L2, deterministic (fixed directions and angles, whole-period drives; no draw). Gates {\"K1\":true,\"K2\":true,\"K3\":true,\"K4\":true,\"T1\":true,\"T2\":true,\"T3\":true,\"T4\":true}, controls {\"C1\":true,\"C2\":true,\"C3\":true,\"C4\":true}. Member u = ringUnit(-1, 4) m 0.19012560, R 1.01222606, eps'' 0.6495190533 0.6495190533 0.6495190533 (axis, face, body) against c^2/(R m) 0.6495190528. Lights: kappa 0.18750 c_l 0.35355339 lambda_C 11.54295 (ratio 0.987922, worst finite-k departure at k 0.02 4.42e-4); kappa 0.18182 c_l 0.34815531 lambda_C 11.72192 (ratio 1.003239, worst finite-k departure at k 0.02 4.02e-4). Thomson table: -1,4 P 2048: chi/eps'' 1.0000630 Dirac 1.0000651; -1,4 P 1024: chi/eps'' 1.0002572 Dirac 1.0002605; -1,4 P 512: chi/eps'' 1.0010347 Dirac 1.0010426; -1,4 P 256: chi/eps'' 1.0041570 Dirac 1.0041836; -1,4 P 128: chi/eps'' 1.0168447 Dirac 1.0169472; -1,4 P 64: chi/eps'' 1.0709933 Dirac 1.0714197; 2,2 P 2048: chi/eps'' 1.0001114 Dirac 1.0001145; 2,2 P 1024: chi/eps'' 1.0004540 Dirac 1.0004583; 2,2 P 512: chi/eps'' 1.0018266 Dirac 1.0018356; 2,2 P 256: chi/eps'' 1.0073552 Dirac 1.0073830; 2,2 P 128: chi/eps'' 1.0300952 Dirac 1.0302010; 2,2 P 64: chi/eps'' 1.1323987 Dirac 1.1328396. Read: -1,4 P 32 (w 0.1963, 2m 0.3803): chi/eps'' 1.36169 Dirac 1.36358 quad/chi 3.27e-4; -1,4 P 24 (w 0.2618, 2m 0.3803): chi/eps'' 1.89778 Dirac 1.90121 quad/chi 5.39e-3; 2,2 P 32 (w 0.1963, 2m 0.2867): chi/eps'' 1.88023 Dirac 1.88342 quad/chi 5.09e-3; 2,2 P 24 (w 0.2618, 2m 0.2867): chi/eps'' 7.23606 Dirac 6.01926 quad/chi 8.64e-2. 12 s."
+}
+exit=0

@@ -1,0 +1,53 @@
+instrument 0s
+control filter 16 phase 1.7810621096295258 residual 1.92e-1 4s
+control filter 16 phase 1.7608353166189934 residual 1.71e-1 7s
+control hold lost 0.00e+0 least 1 edge 2.97e-2 7s
+control axis a 0.01986649556288504 15s
+control R 7.211909755364644 15s
+middle witness SS gap 4.67e-17 24s
+middle witness generic gap 1.26e-16 63s
+middle filter 16 phase 1.5283928648438574 residual 1.16e-1 66s
+middle filter 16 phase 1.5178687437477099 residual 1.01e-1 69s
+middle hold lost -1.28e-4 least 0.3518219309894903 edge 3.77e-2 86s
+middle axis a 0.062245606401584164 94s
+middle R 2.6601188148730923 94s
+weakest witness SS gap 4.83e-17 102s
+weakest witness generic gap 9.70e-17 142s
+weakest filter 16 phase 1.2530784624640843 residual 7.61e-2 145s
+weakest filter 16 phase 1.248238662503032 residual 6.26e-2 148s
+weakest hold lost -1.79e-5 least 0.5179086846887518 edge 4.22e-1 165s
+weakest axis a 0.09255034038628078 173s
+weakest R 2.1689459266978734 179s
+{
+ "status": "fail",
+ "claim": "H0 true; H1 true; H2 false; H3 true; H4 false (R 7.2119, 2.6601, 2.1689); T1 true; instrument I1 true (1.78e-15) I2 true (member R 1.012226137 vs 1.012226057); control C1 false (E_L 1.7608353166189934 vs 1.9789453403525277, R 7.211909755364644 vs 34.65226307820285). control tau 0.280668 cap 8 radius 5 (3721 sites): E_L 1.760835 (NR 2.0054), residual 1.71e-1, lost 0.00e+0, least fidelity 1.0000000000, edge 2.97e-2, margin 0.5430 (DF at V 0), V* 10.14, a 0.0198664956, R 7.211910 (NR 0.6941, excess 9.3901); middle tau 0.187112 cap 12 radius 5 (3721 sites): E_L 1.517869 (NR 1.7106), residual 1.01e-1, lost -1.28e-4, least fidelity 0.3518219310, edge 3.77e-2, margin 0.7859 (DF at V 0), V* 16.51, a 0.0622456064, R 2.660119 (NR 0.7277, excess 2.6554), witness 1.26e-16; weakest tau 0.093556 cap 24 radius 5 (3721 sites): E_L 1.248239 (NR 1.3590), residual 6.26e-2, lost -1.79e-5, least fidelity 0.5179086847, edge 4.22e-1, margin 0.7907 (SD at V 0), V* 35.91, a 0.0925503404 / 0.0925503407 (isotropy 3.02e-9), R 2.168946 (NR 0.7866, excess 1.7572), witness 9.70e-17. Fit R - R_NR = 26.482 tau^1.312, meeting R = 1 at tau 0.0253.",
+ "metrics": {
+  "H0": 1,
+  "H1": 1,
+  "H2": 0,
+  "H3": 1,
+  "H4": 0,
+  "T1": 1,
+  "I1": 1,
+  "I2": 1,
+  "C1": 0,
+  "R_control": 7.211909755364644,
+  "R_middle": 2.6601188148730923,
+  "R_weakest": 2.1689459266978734,
+  "nrR_middle": 0.7277292251842045,
+  "nrR_weakest": 0.7866411282374236,
+  "EL_middle": 1.5178687437477099,
+  "EL_weakest": 1.248238662503032,
+  "isotropy": 3.0189637456601304e-9,
+  "fitPower": 1.3116262869256259,
+  "fitA": 26.48221581877295,
+  "tauOne": 0.025329574637590252,
+  "seconds": 178.405
+ },
+ "control": {
+  "C1": 0,
+  "instrument": 1
+ },
+ "notes": "L2. Block shares (S S, S D, D S, D D) and profiles: control 0.8128 0.0885 0.0884 0.0102; profile 5.2e-3 1.4e-1 3.6e-1 3.1e-1 1.4e-1 3.0e-2; NR mean V 2.96 | middle 0.7576 0.1103 0.1103 0.0217; profile 2.4e-2 3.0e-1 3.5e-1 1.6e-1 1.3e-1 3.8e-2; NR mean V 3.39 | weakest 0.8775 0.0577 0.0577 0.0071; profile 1.7e-2 6.2e-2 1.2e-1 2.8e-1 1.0e-1 4.2e-1; NR mean V 4.26."
+}
+exit=0

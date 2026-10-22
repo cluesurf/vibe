@@ -1,0 +1,43 @@
+points 0s
+chosen point 3s
+light limit 4s
+controls 4s
+{
+ "status": "pass",
+ "claim": "at m* 0.046778 (c* 0.706848816, R 1.000730), on the rule's band along the husk axis, face and body diagonals: A1 true (factor at 0.5 c* 3.07e-5, at 0.9 5.07e-3); A2 true (contraction 3.04e-4, 1.34e-2); A3 true (simultaneity 1.23e-4, 1.58e-3); A4 true (spread 3.17e-5, transverse 4.19e-9, tilt 0.00e+0); A5 true (contraction ratio k2 over chosen 9.5340, 9.5373, 9.5654 at beta 0.1, 0.3, 0.5, against (m2/m*)^2 9.3907); husk top speed 0.976696, 0.976812, 0.976747 c*; instrument true (rule against closed 7.83e-7, c* 9.15e-10, step 3.38e-6); controls C1 true (heavy contraction at 0.5 c* -4.99e-2), C2 true (Galilean factor at 0.5 c* 2.64e-2)",
+ "metrics": {
+  "A1": 1,
+  "A2": 1,
+  "A3": 1,
+  "A4": 1,
+  "A5": 1,
+  "instrument": 1,
+  "C1": 1,
+  "C2": 1,
+  "mStar": 0.04677803444110118,
+  "cStar": 0.7068488155574595,
+  "R": 1.0007300364544667,
+  "factorAtHalf": 0.000030708949345870096,
+  "contractionAtHalf": 0.0003039849083519286,
+  "simultaneityAtHalf": 0.00012255059090793274,
+  "factorAtHigh": 0.005073486420101525,
+  "contractionAtHigh": 0.013424501405517208,
+  "simultaneityAtHigh": 0.0015792317047418347,
+  "spread": 0.00003167156168293328,
+  "transverseSplit": 4.1871136720600735e-9,
+  "tilt": 0,
+  "lawTarget": 9.390673159923807,
+  "lawRatioHalf": 9.565447274728662,
+  "huskTopAxis": 0.9766959204920335,
+  "huskTopFace": 0.9768117199385726,
+  "huskTopBody": 0.9767472779698811,
+  "ruleClosed": 7.831003739910969e-7,
+  "cStarGap": 9.150966651105819e-10,
+  "stepGap": 0.000003381909518429538,
+  "heavyContractionHalf": -0.04989649062428603,
+  "galileanFactorHalf": 0.02640047855931682,
+  "seconds": 6.894
+ },
+ "notes": "L2. The chosen point, rule band: axis: b 0.1 k 0.0067 F -3.92e-8 L -7.40e-6 S -4.81e-6, b 0.3 k 0.0208 F -2.77e-6 L -7.74e-5 S -3.71e-5, b 0.5 k 0.0382 F -3.07e-5 L -3.04e-4 S -1.22e-4, b 0.7 k 0.0649 F -2.54e-4 L -1.21e-3 S -3.52e-4, b 0.9 k 0.1376 F -5.07e-3 L -1.34e-2 S -1.58e-3 | face: b 0.1 k 0.0067 F -3.93e-8 L -7.40e-6 S -4.81e-6, b 0.3 k 0.0208 F -2.78e-6 L -7.74e-5 S -3.71e-5, b 0.5 k 0.0382 F -3.07e-5 L -3.04e-4 S -1.23e-4, b 0.7 k 0.0649 F -2.54e-4 L -1.21e-3 S -3.52e-4, b 0.9 k 0.1376 F -5.07e-3 L -1.34e-2 S -1.58e-3 | body: b 0.1 k 0.0067 F -3.93e-8 L -7.40e-6 S -4.81e-6, b 0.3 k 0.0208 F -2.78e-6 L -7.74e-5 S -3.71e-5, b 0.5 k 0.0382 F -3.07e-5 L -3.04e-4 S -1.23e-4, b 0.7 k 0.0649 F -2.54e-4 L -1.21e-3 S -3.52e-4, b 0.9 k 0.1376 F -5.07e-3 L -1.34e-2 S -1.58e-3. The k = 2 point (m 0.143348, c* 0.704677617): axis: b 0.1 k 0.0204 F -2.67e-7 L -7.06e-5 S -3.51e-5, b 0.3 k 0.0640 F -2.55e-5 L -7.38e-4 S -3.43e-4, b 0.5 k 0.1176 F -2.91e-4 L -2.91e-3 S -1.16e-3, b 0.7 k 0.2006 F -2.45e-3 L -1.17e-2 S -3.38e-3, b 0.9 k 0.4543 F -5.90e-2 L -1.70e-1 S -1.75e-2 | face: b 0.1 k 0.0204 F -2.67e-7 L -7.06e-5 S -3.51e-5, b 0.3 k 0.0640 F -2.55e-5 L -7.37e-4 S -3.43e-4, b 0.5 k 0.1176 F -2.90e-4 L -2.90e-3 S -1.16e-3, b 0.7 k 0.2006 F -2.44e-3 L -1.17e-2 S -3.37e-3, b 0.9 k 0.4538 F -5.81e-2 L -1.65e-1 S -1.73e-2 | body: b 0.1 k 0.0204 F -2.67e-7 L -7.06e-5 S -3.51e-5, b 0.3 k 0.0640 F -2.55e-5 L -7.38e-4 S -3.43e-4, b 0.5 k 0.1176 F -2.90e-4 L -2.91e-3 S -1.16e-3, b 0.7 k 0.2006 F -2.45e-3 L -1.17e-2 S -3.37e-3, b 0.9 k 0.4541 F -5.86e-2 L -1.68e-1 S -1.74e-2. The heavy point (m 0.523599, c* 0.673386843, top 0.7425, 0.7508, 0.7461 c*): axis: b 0.1 k 0.0782 F -4.16e-6 L -1.11e-3 S -5.48e-4, b 0.3 k 0.2460 F -4.07e-4 L -1.18e-2 S -5.44e-3, b 0.5 k 0.4600 F -4.93e-3 L -4.99e-2 S -1.91e-2, b 0.7 k 0.8693 F -5.73e-2 L -3.00e-1 S -6.99e-2 | face: b 0.1 k 0.0782 F -4.16e-6 L -1.11e-3 S -5.48e-4, b 0.3 k 0.2460 F -4.05e-4 L -1.17e-2 S -5.42e-3, b 0.5 k 0.4598 F -4.87e-3 L -4.84e-2 S -1.89e-2, b 0.7 k 0.8631 F -5.40e-2 L -2.67e-1 S -6.65e-2 | body: b 0.1 k 0.0782 F -4.16e-6 L -1.11e-3 S -5.48e-4, b 0.3 k 0.2460 F -4.06e-4 L -1.18e-2 S -5.43e-3, b 0.5 k 0.4599 F -4.90e-3 L -4.94e-2 S -1.91e-2, b 0.7 k 0.8664 F -5.58e-2 L -2.86e-1 S -6.83e-2. Husk momenta K4 = 0 (1,0,0,0 is the axis). 6.9 s."
+}
+exit=0

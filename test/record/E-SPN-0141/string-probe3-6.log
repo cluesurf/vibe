@@ -1,0 +1,14 @@
+D 6 E0 -0.12246960716426848 push weight 0.0007967992648897594 (theta^2 9.766e-4) push off line 0.3979615352813834
+level E -0.12646 dE -0.00399 weight 5.158e-1 residual 6.01e-2
+level E -0.24669 dE -0.12423 weight 1.548e-3 residual 1.62e-1
+level E -0.28709 dE -0.16462 weight 3.146e-3 residual 1.27e-1
+level E 0.05489 dE 0.17736 weight 1.117e-3 residual 6.37e-1
+level E -0.46181 dE -0.33934 weight 1.672e-3 residual 1.73e-1
+level E -0.49046 dE -0.36799 weight 2.795e-3 residual 1.22e-1
+level E -0.51142 dE -0.38895 weight 2.149e-3 residual 1.12e-1
+level E -0.57805 dE -0.45558 weight 3.723e-3 residual 2.49e-2
+level E -0.59252 dE -0.47005 weight 2.174e-3 residual 5.29e-2
+level E -0.62066 dE -0.49819 weight 2.115e-3 residual 8.71e-2
+level E -0.69064 dE -0.56817 weight 4.591e-3 residual 4.05e-1
+level E -0.71863 dE -0.59616 weight 5.246e-3 residual 1.83e-1
+exit=0

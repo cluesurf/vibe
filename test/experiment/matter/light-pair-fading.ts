@@ -21,7 +21,7 @@
 //  - Why E-MTR-0031's witness failed: at filter length S 2048 a spurious line 2.5e-4 above the ground (weight 0.056) pulls
 //    it 2e-5 low, and window shifts of 0.003 move it by up to 2e-5. At S 3072 and 4096 the spurious line is gone and the
 //    a_B 12 ground sits within 1.3e-6 and 1.2e-6 of the recorded read over the settings. On the a_B 8 m 0.284 K = 0 read
-//    (E-SPN-0211's, tmp/spn-mass-m0284.json) S 2048 is 1.9e-5 off and S 4096 within 8e-9: there a real line 1.9e-4 above
+//    (E-SPN-0211's, test/record/E-SPN-0211/spn-mass-m0284.json) S 2048 is 1.9e-5 off and S 4096 within 8e-9: there a real line 1.9e-4 above
 //    the ground (weight 0.073) is what S 2048 could not separate, which is why that read was not clean.
 //  - Why stability failed: at S 2048 window shifts of 0.003 bring in or drop lines 4e-4 to 7e-4 from the ground. So the
 //    fix is the filter length: S 4096, which needs a correlation of 2 S = 8192 cycles a K (E-MTR-0031 had 4096).
@@ -29,7 +29,7 @@
 //    code/measure/pair-boost thresholdRise) assumed the pair's inertia within 10% of its members'. A tighter pair (E-SPN-0211
 //    read R 1.55 at P2) would rise only 0.66 as fast and leave that window. And widened on E-MTR-0031's K 1.0 read, the
 //    heaviest line is 1.3111 (weight 0.53), above that window's top, while the lowest heavy line, 1.2817 (weight 0.23), is
-//    the smooth continuation of K 0.2 to 0.5 (tmp/mtr-fade-window.log, S 2048). So here the window is wide, [E0 + 0.45
+//    the smooth continuation of K 0.2 to 0.5 (test/record/E-MTR-0032/mtr-fade-window.log, S 2048). So here the window is wide, [E0 + 0.45
 //    rise - 0.004, E0 + 1.05 rise + 0.004], still placed by the lone member only, and the ground is named by being lowest:
 //    the lowest line of weight at least 0.1 (code/measure/pair-boost levelOverSettings), which on E-MTR-0031's reads names
 //    the same lines its narrow window did. The heaviest line is reported beside it, not gated.
@@ -68,8 +68,8 @@
 // two K a point within 8 hours, so the K runs were stopped after 1.4 h (nothing saved from them) and relaunched as six
 // one-thread processes (6 threads in all): P2's K {1.0, 0.35} and {0.5, 0.2}, and P3's four K one each.
 //
-// FIRST RUN (2026-10-21 12:20 to 23:25, tmp/mtr-fade-p2a.log, -p2b.log, -p3-*.log; the verdict by combineFading in
-// tmp/mtr-fade-combine.ts, tmp/mtr-fade-verdict2.log): FAIL on I at both new points. No gate moved.
+// FIRST RUN (2026-10-21 12:20 to 23:25, test/record/E-MTR-0032/mtr-fade-p2a.log, -p2b.log, -p3-*.log; the verdict by combineFading in
+// test/record/E-MTR-0032/run/mtr-fade-combine.ts, test/record/E-MTR-0032/mtr-fade-verdict2.log): FAIL on I at both new points. No gate moved.
 //  - THE 8-HOUR STOP WAS MISSED. Each K took 7.6 h (P2) and 11.1 h (P3) on the shared machine, against 1.55 h and 2.9 h
 //    estimated. P3's four one-K runs finished at 11.1 h, past the stop, and are used. P2's second K (0.35, 0.2) were
 //    stopped at 11.1 h, unsaved, so P2 has K 1.0 and 0.5 only.
@@ -122,7 +122,7 @@ export const POINTS: readonly FadePoint[] = [
   { name: 'm0284a8', unit: [-7, 2], aB: 8 },
   { name: 'm0380a10', unit: [-2, 5], aB: 10 },
 ]
-// E-MTR-0031's recorded read (tmp/mtr-light-verdict.log)
+// E-MTR-0031's recorded read (test/record/E-MTR-0031/mtr-light-verdict.log)
 const P1 = { name: 'm0284a12', unit: [-7, 2] as const, aB: 12, rho: 2.2144820481509897, sigmaRho: 0.05168301850959985 }
 const TARGET = { unit: [-1, 4] as const, aB: 18 }
 const SETTINGS: readonly FilterSetting[] = [
@@ -358,12 +358,12 @@ export function combineFading(reads: readonly PointRead[]): Verdict {
   })
 }
 
-const W_DIR = '/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/moving-matter'
+const W_DIR = `${import.meta.dirname}/../../..`
 
-// the saved K = 0 reads: P2's from E-SPN-0211 (tmp/spn-mass-m0284.json), P3's from this run's part runner
+// the saved K = 0 reads: P2's from E-SPN-0211 (test/record/E-SPN-0211/spn-mass-m0284.json), P3's from this run's part runner
 export const savedZero = (name: string): { x: Correlation; ref: number } | null => {
   if (name === 'm0284a8') {
-    const path = `${W_DIR}/tmp/spn-mass-m0284.json`
+    const path = `${W_DIR}/test/record/E-SPN-0211/spn-mass-m0284.json`
 
     if (!existsSync(path)) return null
 
@@ -372,7 +372,7 @@ export const savedZero = (name: string): { x: Correlation; ref: number } | null 
     return { x: z.x, ref: z.tracked.E }
   }
 
-  const path = `${W_DIR}/tmp/mtr-fade-${name}-zero.json`
+  const path = `${W_DIR}/test/record/E-MTR-0032/mtr-fade-${name}-zero.json`
 
   if (!existsSync(path)) return null
 

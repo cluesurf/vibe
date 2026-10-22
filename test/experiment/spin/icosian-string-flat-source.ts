@@ -87,15 +87,15 @@
 // Verdict: partial if the instrument or a control fails, or if F4 holds (a field without flats would need a binding
 // run); fail otherwise (the answer to the question is no, by 6).
 //
-// PROBES BEFORE THE GATE RUN, disclosed (no gate moved after them). tmp/fsrc-probe1.log: the count on L = 4, 6 in six
+// PROBES BEFORE THE GATE RUN, disclosed (no gate moved after them). test/record/E-SPN-0161/fsrc-probe1.log: the count on L = 4, 6 in six
 //  fields (Weyl 2I, 2T, Q8: exactly 22 N at each sign, T's top 0.368 to 0.395; trivial and pure gauge 22 N + 2 at +;
 //  -1 field 22 N + 2 at -) and flat vectors at L = 4 (uniform 1e-16, residual 2.4e-16), which confirmed 2 and suggested
-//  4's Kesten reading before 4 was written as a gate. tmp/fsrc-probe2.log: the pair law on L = 4 (closure 1.4e-14, law
+//  4's Kesten reading before 4 was written as a gate. test/record/E-SPN-0161/fsrc-probe2.log: the pair law on L = 4 (closure 1.4e-14, law
 //  1.5e-15; the lambda = 1 plane of the trivial field degenerates to a line, P- Z y = 0, a reading defect fixed in
 //  pairChecks before this header), L = 8's 2I top 0.387 (27 s), and C2's counts and algebra (0.5 s).
-//  tmp/fsrc-smoke.log: every code path on a small plan (L = 4, 5 s; checks the code, gates nothing).
+//  test/record/E-SPN-0161/fsrc-smoke.log: every code path on a small plan (L = 4, 5 s; checks the code, gates nothing).
 //
-// FIRST RUN (tmp/fsrc-exp-run1.log, 163 s): FAIL, as predicted (F1, F2, F3 hold; F4 fails). The instrument and all four
+// FIRST RUN (test/record/E-SPN-0161/fsrc-exp-run1.log, 163 s): FAIL, as predicted (F1, F2, F3 hold; F4 fails). The instrument and all four
 //  controls hold. No gate moved and none was rerun.
 //  - F1: 9 Weyl fields (2I, 2T, Q8 at L = 4, 6, 8) exactly 11 c N flat at each sign (1,408, 4,752, 11,264), T at least
 //    0.594 from +-1; trivial and 2I pure gauge 11 c N + 2 at +c, the -1 field 11 c N + 2 at -c, at every side. Flat

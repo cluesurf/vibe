@@ -1,0 +1,23 @@
+{
+ "kind": "step1",
+ "section": "weyl",
+ "set": "wilson",
+ "gauge": false,
+ "levels": [],
+ "complete": true,
+ "rounds": 1,
+ "steps": 160,
+ "nearest": 0.46726700118407394,
+ "nearestResidual": 0.0002564970214610917,
+ "eigenResidual": 0,
+ "ritzResidual": 0,
+ "seconds": 162.67,
+ "witness": {
+  "pieceGap": 1.9238771594458774e-15,
+  "reverse": 5.588000014763635e-16,
+  "unitary": 4.440892098500626e-16,
+  "cycle": 1.6939273576677403e-14,
+  "cycleDag": 1.8450136313409074e-14,
+  "metric": 6.57640308164869e-14
+ }
+}

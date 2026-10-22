@@ -31,7 +31,7 @@
 // nothing) found the free member CROSSES the side-8 box by beat 24: rms 2.00, 2.77, 3.73, 4.54, 5.04 at beats 0, 8, 16,
 // 24, 32 (sigma 1) against the box's uniform rms 5.30, then falls (4.77, 4.55) and the return probability revives (0.90
 // at beat 48 for sigma 2): a torus recurrence. A slope over beats 16 to 64 there reads the free member as nearly still
-// and would fire a false KILL. PROBE 2 (tmp/caging-probe-s16.log, side 16, sigma 1): T rms 3.74, 6.03, 8.49, 10.22 at
+// and would fire a false KILL. PROBE 2 (test/record/E-SPN-0196/caging-probe-s16.log, side 16, sigma 1): T rms 3.74, 6.03, 8.49, 10.22 at
 // beats 16, 32, 48, 64 against the box's 10.55, still saturating by beat 64 (alpha bends); C 3.01, 3.96, 4.71, 5.36,
 // return 0.04, 82 s. So the GATED box is side 20 (larger is allowed, smaller is not; box rms about 13.2, T's projected
 // rms at 64 about 10.2, 0.77 of it), and side 8 is run as a READ, the brief's box.
@@ -56,7 +56,7 @@
 // On PASS: 'Key 4 pair run ready' goes to the lead (the singlet's kinetic mass against flat, keys.md Key 4).
 //
 //
-// FIRST RUN (tmp/caging.log, 629 s): PASS, narrowly. No gate moved and none was rerun.
+// FIRST RUN (test/record/E-SPN-0196/caging.log, 629 s): PASS, narrowly. No gate moved and none was rerun.
 //  - G: speed_T 0.15581, speed_C 0.04680 a beat, ratio 0.3004 (pass <= 0.3333). rms T 2.000, 3.738, 6.032, 8.596, 11.098
 //    at beats 0, 16, 32, 48, 64; C 2.000, 3.031, 3.964, 4.720, 5.365. alpha T 0.811, C 0.400: the triplet spreads
 //    sub-diffusively, the free member nearly ballistically. Return at 64: T 0.010, C 0.033.

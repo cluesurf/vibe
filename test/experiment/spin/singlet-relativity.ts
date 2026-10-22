@@ -86,15 +86,15 @@
 // REPORTED, gating nothing: the scan over theta and n; the fastest band of the hole and of the love at theta* over 1,024
 // deterministic momenta (Hellmann-Feynman), against c_eff; the derived against the measured numbers.
 //
-// PROBE BEFORE THE GATE RUN, disclosed: tmp/sing-probe1.log (m = pi/96, pi/48, pi/24): m, c^2 and eta read the same on
+// PROBE BEFORE THE GATE RUN, disclosed: test/record/E-SPN-0142/sing-probe1.log (m = pi/96, pi/48, pi/24): m, c^2 and eta read the same on
 // two node sets and four directions; eta 4.55e-3, 8.78e-3, 1.64e-2 against beta m 4.72e-3, 9.45e-3, 1.89e-2; the tensor
 // defect 2e-10 at kappa m/16 .. m/64; the K^6 slope 5.92 between 0.4 m and 0.2 m, 5.98 between 0.2 m and 0.1 m, and noise
 // below 0.1 m; c0 = 0.70710678 and gamma = 0.0721688 at n = 1, 0.4665 at n = 4, 5e-12 at n = 2/3; the frame control's
 // slope 3.98; the fastest band 0.560 c over 256 momenta. The probe fixed the K^6 kappas (0.2 m and 0.1 m) and the node
-// sets; no threshold was set or moved after it. (tmp/sing-predict.log evaluates item 3's closed forms; its two-level eta
+// sets; no threshold was set or moved after it. (test/record/E-SPN-0142/sing-predict.log evaluates item 3's closed forms; its two-level eta
 // column is float noise, superseded by the series -m^4 / 45 above.)
 //
-// FIRST RUN (tmp/sing-exp-run1.log, 4.8 s): FAIL on S3d and S4b, as derived; S1, S2, S3a, S3b, S3c, S4a, the instrument
+// FIRST RUN (test/record/E-SPN-0142/sing-exp-run1.log, 4.8 s): FAIL on S3d and S4b, as derived; S1, S2, S3a, S3b, S3c, S4a, the instrument
 // and every control hold. No gate moved.
 //  - S1: 12 + 11 + 1, m 0.065450 (derived pi/48), gap 0.130900, a band edge.
 //  - S2: tensor -7.628526 I (the phase curvature, -(1/2) cot m) to 3.7e-10; K^6 slopes 5.982, 5.984, 5.982; face/body

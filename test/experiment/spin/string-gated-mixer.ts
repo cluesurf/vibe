@@ -41,7 +41,7 @@
 //    hypercubic lattice, and the register is held link by link. Gauss makes the string clause true whenever a vibe is
 //    alone on its dock. At rate 0 it is the one-line meson exactly. WHAT IT CANNOT DO: a register of up to 13 links (the
 //    gate's N) in four directions has far too many shapes (a window cut at 13 ran out of 4 GB before beat 4,
-//    tmp/smix-probe3-n3.log); the window it can hold absorbs every register of more than C = 6 links, and a held level
+//    test/record/E-SPN-0121/smix-probe3-n3.log); the window it can hold absorbs every register of more than C = 6 links, and a held level
 //    with tail at most 1e-3 past 13 may still reach past 6. So on this window S2 can PASS (if the retained weight stays
 //    at least 1 - 1e-3, the tail past 13 is smaller still) and cannot FAIL; a leak is reported, not gated.
 //    S4 PREDICTED to fail: the four line copies of the one-line meson are degenerate at K = 0 by the frame's symmetry,
@@ -80,26 +80,26 @@
 // vacuum's at beat 128.
 // Verdict: partial if a control fails; pass if S1, S2, S3 and S4 hold; fail if any gate fails; S2 undecided with S1
 // failing reads fail on S1.
-// PROBES, disclosed (instrument only): tmp/smix-probe1-8.log (side 8, paths 0 and 1: the vacuum lines are all empty at
+// PROBES, disclosed (instrument only): test/record/E-SPN-0121/smix-probe1-8.log (side 8, paths 0 and 1: the vacuum lines are all empty at
 // the start, stores holding its pairs; at rate 3 a lone love, the meson, the trio and the two-hub start each fill 4,083
-// to 4,096 docks by beat 64, while rate 0 reproduces the records), tmp/smix-probe2.log (the census: only the stream
+// to 4,096 docks by beat 64, while rate 0 reproduces the records), test/record/E-SPN-0121/smix-probe2.log (the census: only the stream
 // changes the single count; at rate 0 a lone love holds 1 to 5 singles, all on its line; at rate 3 939 by beat 24),
-// tmp/smix-probe3-n0.log (the stand-in at rate 0 is the one-line meson to 16 digits), tmp/smix-probe3-n3.log (a cut
-// at 13 runs out of memory), tmp/smix-probe4-b.log and -free.log (the window at C = 6 holds 407,601 classes and loses
+// test/record/E-SPN-0121/smix-probe3-n0.log (the stand-in at rate 0 is the one-line meson to 16 digits), test/record/E-SPN-0121/smix-probe3-n3.log (a cut
+// at 13 runs out of memory), test/record/E-SPN-0121/smix-probe4-b.log and -free.log (the window at C = 6 holds 407,601 classes and loses
 // 0.763 of the weight by beat 12 with the string and 0.772 without it).
 //
-// FIRST RUN (tmp/smix-exp-run1.log, 131 s): PARTIAL, on control C0 alone, which was mis-specified: it read the stand-in's
+// FIRST RUN (test/record/E-SPN-0121/smix-exp-run1.log, 131 s): PARTIAL, on control C0 alone, which was mis-specified: it read the stand-in's
 // m*/E_rest with E_rest = E(0) = 0.3189, where E-SPN-0115 reads E_rest = 2 m + E(0) (meson-crossing readPoint, m = pi/3)
 // and takes its second difference at E_rest/64, not pi/57. The curvature itself was right (0.2311, so 13.57 x 0.3189 =
 // 1.7931 x 2.4133). The control was corrected to E-SPN-0115's reading; no gate, threshold or other control moved, and
 // every gate reading is unchanged (S1a pass, S1b fail on 16 of 16 terms, S2 undecided).
-// SECOND RUN (tmp/smix-exp-run2.log, 130 s): PARTIAL, on C0's total alone, 1.79301 against 1.7931 (5e-5): the Ritz
+// SECOND RUN (test/record/E-SPN-0121/smix-exp-run2.log, 130 s): PARTIAL, on C0's total alone, 1.79301 against 1.7931 (5e-5): the Ritz
 // reading on 40 beats left E(+-K) unconverged by 7e-9 (residual 2.8e-5), which a second difference at K = 0.0377
-// turns into 4e-5 of the total. tmp/smix-probe5.log reads 1.79301, 1.79308, 1.793082246, 1.793082260 at 40, 80, 120, 160
+// turns into 4e-5 of the total. test/record/E-SPN-0121/smix-probe5.log reads 1.79301, 1.79308, 1.793082246, 1.793082260 at 40, 80, 120, 160
 // beats against meson-band's own bandCurvature 1.793082236, so the reading was lengthened to 120 beats. Two checks were
 // added (the keyed piece's reversal and the stand-in's weight balance). No gate, threshold or control moved; every
 // gate reading is unchanged.
-// THIRD RUN (tmp/smix-exp-run3.log, 134 s): FAIL on S1b, as derived; every control and check passes.
+// THIRD RUN (test/record/E-SPN-0121/smix-exp-run3.log, 134 s): FAIL on S1b, as derived; every control and check passes.
 //  - S1a holds exactly: 0 vacuum singles and 0 gated vacuum docks on every track, vacuum-only boxes of side 4 and 8 at 0
 //    readings on every beat, the vacuum run equal to keyedRunner's at beat 128.
 //  - S1b fails on 16 of 16 terms: the meson fills 4,089 to 4,096 of 4,096 docks by beat 128, half the box at beats 26 to

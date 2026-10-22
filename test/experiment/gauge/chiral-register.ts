@@ -40,7 +40,7 @@
 //    each sector is E-SPN-0160's walk at its own mass: 4 up and 4 down on pi +- E(K; M_s) and 88 flats at phase 0, so
 //    per sector gamma = 0, one light speed c / 4, R_s = tan m_s / m_s and isotropy, all as in E-SPN-0160, and its census
 //    closes with B* = 2 M_s for m_s < pi / 6. Masses: m+ = 0.190126 (ringUnit(-1, 4), E-SPN-0160's light point) and m- =
-//    0.143348 (ringUnit(2, 2), the lightest positive unit below it on the ring's list, tmp/chi-probe2.log).
+//    0.143348 (ringUnit(2, 2), the lightest positive unit below it on the ring's list, test/record/E-FRC-0258/chi-probe2.log).
 // 4. THE MIXED PAIR. A composite with one member in each sector sits below the threshold M+ + M-. Its channels are one
 //    band from each sector. S+ + S- is the continuum itself (distance at most 0). S+ + D- has distance M+ + M- - E+(q) +
 //    E-(q). With cos E = cos M (1 - g^2) - g^2 at the same g, dE / dM = sin M (1 - g^2) / sin E, which is below 1 for g > 0
@@ -119,21 +119,21 @@
 // Verdict: fail if A1 to A4, B1 to B4, S or D1 to D2 fails; partial if all of those hold (point 6: no asymmetry from a
 // conserved-sector phase), or if a control or the instrument fails; pass is not available here.
 //
-// PROBES BEFORE THE GATE RUN, disclosed (no gate moved after them). tmp/chi-probe1.log: J^2 = 1, trace 0, commuting with
+// PROBES BEFORE THE GATE RUN, disclosed (no gate moved after them). test/record/E-FRC-0258/chi-probe1.log: J^2 = 1, trace 0, commuting with
 //  every gamma_i^T gamma_j, g J = det(g) J g on all 1,152 (576 proper), 2 P+ commuting with Q_S and Q_D, covariant under
 //  every rotation and no reflection, -I in the group with the register identity, the four depth-keeping parities in it
 //  with det -1, the frame stabilizer 192 (96 proper), and the Molien series to degree 30 (W and W+ equal to degree 22,
-//  16 against 17 at 24; the stabilizer 3 of degree 4). tmp/chi-probe2.log: the ring's unit masses (the table that chose
+//  16 against 17 at 24; the stabilizer 3 of degree 4). test/record/E-FRC-0258/chi-probe2.log: the ring's unit masses (the table that chose
 //  m-), the sector blocks' leak 0, each sector 4 up, 4 down, 88 flat (gap 1.1e-15), the chiral mass's symmetry readings
 //  at 8 momenta with m- = -0.143348 (the unit (-2, 4), a negative mass, replaced here by (2, 2)): P_imp 0.084, P_rot 9e-16,
-//  C 9e-16, CP 0.168, CPT 9e-16, and the trimaximal matrix unitary with Jarlskog 9 w / 81. tmp/chi-smoke.log: every code
+//  C 9e-16, CP 0.168, CPT 9e-16, and the trimaximal matrix unitary with Jarlskog 9 w / 81. test/record/E-FRC-0258/chi-smoke.log: every code
 //  path on a small plan, all gates held, BUT the rephased reading was flawed: it tried only the shifts that align the
 //  first phase, so it was no minimum (rephased P_imp 0.168 above raw 0.084). CORRECTED BEFORE THE GATE RUN: a rephased
 //  reading now compares the circular GAP sequences under the best rotation, which is exactly shift invariant (zero iff
 //  the spectra agree up to some common phase); a gap mismatch can reach twice a phase mismatch, so rephased above raw is
-//  expected. tmp/chi-smoke2.log reran every path with it: the same verdicts, C rephased 8.9e-16, CP 0.168.
+//  expected. test/record/E-FRC-0258/chi-smoke2.log reran every path with it: the same verdicts, C rephased 8.9e-16, CP 0.168.
 //
-// FIRST RUN (tmp/chi-exp-run1.log, 78 s): PARTIAL, as predicted: every hard gate, the instrument and all three controls
+// FIRST RUN (test/record/E-FRC-0258/chi-exp-run1.log, 78 s): PARTIAL, as predicted: every hard gate, the instrument and all three controls
 //  hold. No gate moved and none was rerun.
 //  - A: J integer, J^2 = 1, trace 0, commuting with all sixteen bilinears; g J = det(g) J g on all 1,152 (576 rotations);
 //    2 P+ commutes with Q_S and Q_D, is covariant under every rotation, and every reflection sends it to 2 P-; -I is a

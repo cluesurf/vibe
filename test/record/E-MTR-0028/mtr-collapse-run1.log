@@ -1,0 +1,41 @@
+status pass
+claim the remainder collapses onto C + B (tan m / m - 1) / a_B with C 0.0120 +- 0.0086 and B 16.78 (training C -0.0020), the blind point m 0.284 at a_B 12 reading 0.0541 against the predicted 0.0405: H true, K true
+  m0427a8_m 0.4270292411340348
+  m0427a8_X 3.4162339290722783
+  m0427a8_remainder 0.14257472386761294
+  m0427a8_predicted 0.14876339541501538
+  m0427a8_clean 1
+  m0427a12_m 0.4270292411340348
+  m0427a12_X 5.124350893608417
+  m0427a12_remainder 0.10119391019811141
+  m0427a12_predicted 0.09851795195743678
+  m0427a12_clean 1
+  m0474a8_m 0.47380727557513647
+  m0474a8_X 3.7904582046010917
+  m0474a8_remainder 0.19055270482740783
+  m0474a8_predicted 0.18703999152067882
+  m0474a8_clean 1
+  m0284a8_m 0.2836816722286698
+  m0284a8_X 2.2694533778293584
+  m0284a8_remainder 0.5326280260968399
+  m0284a8_predicted 0.06174445107779561
+  m0284a8_clean 0
+  m0284a12_m 0.2836816722286698
+  m0284a12_X 3.4041800667440376
+  m0284a12_remainder 0.054078171328235225
+  m0284a12_predicted 0.04050532239929026
+  m0284a12_clean 1
+  trainContinuum -0.0019729349577204403
+  trainContinuumError 0.01830358987421129
+  trainSlope 18.39039821924422
+  trainRms 0.004389364525104364
+  finalContinuum 0.01200992350570751
+  finalContinuumError 0.008646138926046442
+  finalSlope 16.776639052497387
+  finalRms 0.005070181627797599
+  blindMiss 0.013572848928944968
+  H 1
+  K 1
+  consistent 1
+notes L2. m0427a8 (train, X 3.416): remainder 0.1426, the training form 0.1488. m0427a12 (train, X 5.124): remainder 0.1012, the training form 0.0985. m0474a8 (train, X 3.790): remainder 0.1906, the training form 0.1870. m0284a8 (seen, X 2.269, not clean): remainder 0.5326, the training form 0.0617. m0284a12 (blind, X 3.404): remainder 0.0541, the training form 0.0405.
+exit=0

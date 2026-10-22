@@ -68,7 +68,7 @@
 //    representatives, C4v about 820,000, about 3.4 GB a state) and, at the measured 3.3 s a cycle for 96,000 C4v
 //    representatives, 8,192 cycles of the axis alone would take about 90 hours.
 //
-// PROBES (all before the gate run, none read a weak point's R by the gate's method; logs in tmp/rcw-*):
+// PROBES (all before the gate run, none read a weak point's R by the gate's method; logs in test/record/E-SPN-0183/rcw-*):
 //   1 the witness at E-SPN-0173's ball, pooled against single-threaded bit for bit, and the cost (104 us a
 //     representative a cycle single-threaded; 0.58 s a cycle at 20,585 representatives on 12 workers)
 //   2 a_B 3.5 with the K levels read against the converged E_L (not the re-filtered base): R 14.99 with a K filter of
@@ -85,8 +85,8 @@
 //     K = 0 lines only, six of weight 0.07 to 0.35 within 0.016, the heaviest at 1.674966 (E_b 0.0332, the
 //     continuum's 0.0172), |u| off 1 by up to 4e-6 at N 2048, so the gate run takes N 4096. Stopped before any K line
 //
-// FIRST RUN (2026-09-29 to 2026-10-01, four processes, open-pieces tmp/rcw-gate-*.log and tmp/rcw-part-*.json,
-// combined by tmp/rcw-combine.ts with this file's combine): FAIL (H2, H3, H4, H5, H6, P).
+// FIRST RUN (2026-09-29 to 2026-10-01, four processes, open-pieces test/record/E-SPN-0183/rcw-gate-*.log and test/record/E-SPN-0183/rcw-part-*.json,
+// combined by test/record/E-SPN-0183/run/rcw-combine.ts with this file's combine): FAIL (H2, H3, H4, H5, H6, P).
 //   H0 pass: covariance 0 of 1,152, gaps 9.9e-16 of 0.854 in O_h, C4v and C2v, norms equal to 2e-13
 //   C1 pass: E_L 1.6133573497835847 against 1.6133573497836755, the recorded read R 8.459326019 against 8.459326180
 //   I1, I2 pass (8.9e-16, member R 1.065571760)

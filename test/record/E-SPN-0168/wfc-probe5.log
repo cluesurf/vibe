@@ -1,0 +1,11 @@
+heavy wall L 6 m 0.07293558: crossings 3212 MM 1812 MF 220 FF 1180 first 0.065 (3.1416, 3.1416) [17s]
+heavy wall L 8 m 0.02440644: crossings 6576 MM 5252 MF 108 FF 1216 first 0.065 (-2.9592, 2.5355) [52s]
+control E-SPN-0160 L 2 M 0.380251207: crossings 176 B* 0.000000000 (2M 0.760502413) MM 72 MF 0 FF 104 [54s]
+control E-SPN-0160 L 6 M 0.380251207: crossings 1132 B* 0.000000000 (2M 0.760502413) MM 712 MF 0 FF 420 [68s]
+v (0,1) arg v 1.047198 M 0.760502 m0 -1.807700: far-side walk width 1.459182 [73s]
+v (1,1) arg v 1.714144 M 0.760502 m0 -2.474646: far-side walk width 1.569292 [78s]
+v (-1,2) arg v 1.427449 M 0.760502 m0 -2.187951: far-side walk width 1.555034 [83s]
+v (-2,1) arg v -0.286695 M 0.760502 m0 -0.473807: far-side walk width 0.286378 [88s]
+v (-3,1) arg v -0.953641 M 0.760502 m0 0.193139: far-side walk width 0.952504 [94s]
+v (4,-10) arg v -1.521005 M 0.760502 m0 0.760502: far-side walk width 1.518905 [99s]
+exit=0

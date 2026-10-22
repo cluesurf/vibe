@@ -1,0 +1,63 @@
+lines [{"E":3.4054373491061236,"height":0.5649646406299997},{"E":3.5550004759249734,"height":0.07555887319920833},{"E":3.8065733251382188,"height":0.04800498131923652},{"E":5.840631849874579,"height":0.021637063508819533}] 185s
+sector 0.0000,0.0000,0.0000 leak 7.608e-13 a2 1.000000 rho 5.465e-11 E -2.8778319 min|c|^2 1.00000 min free 0.00006 I 6.66e-5 396s
+sector 1.5708,0.0000,0.0000 leak 4.537e-2 a2 0.864717 rho 1.484e-5 E -2.8750221 min|c|^2 0.70377 min free 0.00002 I 8.82e-2 692s
+d 1,0,0 tCross 2236.2 tMax 22363 O_low 0.52935 O_high_min 1.00000 at 0 direct min 0.89175 free min 0.00958 BF 0.92570 bracket 0.00e+0 692s
+sector 1.5708,1.5708,1.5708 leak 1.178e-1 a2 0.000159 rho 1.108e-2 E -2.8052581 min|c|^2 0.41924 min free 0.00002 I 1.21e-1 993s
+d 1,1,1 tCross 86.6 tMax 866 O_low 0.49643 O_high_min 1.00000 at 0 direct min 0.79428 free min 0.01576 BF 0.49651 bracket 0.00e+0 993s
+{
+ "status": "partial",
+ "claim": "the rest bound triple of E-SPN-0193 (R*, L = 4), started as a packet over K = k_m d (weights 0.4964, 0.4964 on m = 0, 1, unrun 0.0071): (1,0,0) internal overlap at least 0.5294 over 10 crossings (22363 cycles, upper value min 1.0000), bound fraction 0.9257, free control min 0.0096; (1,1,1) internal overlap at least 0.4964 over 10 crossings (866 cycles, upper value min 1.0000), bound fraction 0.4965, free control min 0.0158 (OV false, BF false, CF true, I1 true, I2 true, I3 true)",
+ "metrics": {
+  "OV": 0,
+  "BF": 0,
+  "CF": 1,
+  "I1": 1,
+  "I2": 1,
+  "I3": 1,
+  "E0": 3.4054373491061236,
+  "unrunWeight": 0.007140529500559656,
+  "restA2": 0.9999999226099456,
+  "restRho": 5.4648692866977546e-11,
+  "restE": -2.8778318789232027,
+  "restIntegration": 0.00006656872018657826,
+  "normDrift": 1.7682522113204868e-12,
+  "seconds": 993.275,
+  "tCross_100": 2236.2184198084797,
+  "tMax_100": 22363,
+  "overlapLow_100": 0.5293517473935792,
+  "overlapHighMin_100": 1,
+  "directMin_100": 0.8917511028578843,
+  "freeMin_100": 0.009577592654889779,
+  "boundFraction_100": 0.9257008533554183,
+  "bracket_100": 0,
+  "movingA2_100": 0.8647168492203333,
+  "movingLeak_100": 0.04536716702040322,
+  "movingRho_100": 0.000014835591534707303,
+  "movingE_100": -2.875022142069449,
+  "movingReturn_100": 0.999999929720869,
+  "movingIntegration_100": 0.08821055456284244,
+  "crossMotion_100": 1711.5960633290542,
+  "tCross_111": 86.57653822560664,
+  "tMax_111": 866,
+  "overlapLow_111": 0.49642953456086736,
+  "overlapHighMin_111": 1,
+  "directMin_111": 0.7942846164936075,
+  "freeMin_111": 0.01576164363972672,
+  "boundFraction_111": 0.4965086256925841,
+  "bracket_111": 0,
+  "movingA2_111": 0.00015899301750809227,
+  "movingLeak_111": 0.11776749234491413,
+  "movingRho_111": 0.011075900602750254,
+  "movingE_111": -2.805258114298814,
+  "movingReturn_111": 0.6150662211009584,
+  "movingIntegration_111": 0.12089838479331567,
+  "crossMotion_111": 1363.3265167007498
+ },
+ "control": {
+  "CF": 1,
+  "freeMin_100": 0.009577592654889779,
+  "freeMin_111": 0.01576164363972672
+ },
+ "notes": "R* with L(s), decision 0006; the heavy bulk state of decision 002, not the electron. Lines at K = 0: 3.4054 (0.565), 3.5550 (0.076), 3.8066 (0.048), 5.8406 (0.022). Rest sector (an eigenstate by construction): a^2 1.000000, rho 5.46e-11. Moving sectors: (1,0,0) K 1.5708,0.0000,0.0000 leak 4.54e-2 a^2 0.864717 rho 1.48e-5 E -2.875022 compressed return at 22363 1.00000 integration max 8.82e-2, crossing 2236 cycles (E-SPN-0193 speed: 1712); (1,1,1) K 1.5708,1.5708,1.5708 leak 1.18e-1 a^2 0.000159 rho 1.11e-2 E -2.805258 compressed return at 866 0.61507 integration max 1.21e-1, crossing 87 cycles (E-SPN-0193 speed: 1363). 993 s."
+}
+exit=0

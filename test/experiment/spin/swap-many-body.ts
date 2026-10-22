@@ -114,17 +114,17 @@
 // 3); the slide at c = 1/2 (Y2 on both primes). The probes fixed the kappa-free readings above (ball 4, 256 beats, the Hann
 // window, weight floor 0.01, the W thresholds); no threshold was moved after the gate run.
 //
-// FIRST RUN (tmp/mbody-exp-run1.log, 935 s): partial, on two READING DEFECTS. (1) X2's census counted a dock whenever
+// FIRST RUN (test/record/E-SPN-0145/mbody-exp-run1.log, 935 s): partial, on two READING DEFECTS. (1) X2's census counted a dock whenever
 //  bouncePermutation returned nonzero, and it returns 2 on any dock of full lines even when every like line passes (its
 //  permutation is then the identity): 32,768 and 524,288 "permuting" dock-beats on the untouched seas. The fix counts a dock
 //  only when the permutation moves a slot. (2) C3 matched the one-hole bands within X3a's 0.05 rad, but a one-hole band
 //  moves up to 0.14 rad over the 0.2 step, so the moving peaks went unmatched (NaN). The control got its own window, 0.3.
 //  No gate threshold moved; every other number of run 1 equals run 2's.
-// SECOND RUN (tmp/mbody-exp-run2.log, 643 s): partial on C3 alone, a third reading defect in the control: its peak floor
+// SECOND RUN (test/record/E-SPN-0145/mbody-exp-run2.log, 643 s): partial on C3 alone, a third reading defect in the control: its peak floor
 //  1e-6 admitted the Hann sidelobes (1e-4 to 1e-6 of a main peak), which were matched as moving bands (gap 0.397 c). The
-//  floor is set to 1e-3 (tmp/mbody-c3.log: the peaks sit on the eigenphases to 1e-5; the moving pair at 0.1224 and 0.0089).
+//  floor is set to 1e-3 (test/record/E-SPN-0145/mbody-c3.log: the peaks sit on the eigenphases to 1e-5; the moving pair at 0.1224 and 0.0089).
 //  X1, X2, X3, X5 hold, X4 fails, as predicted.
-// THIRD RUN (tmp/mbody-exp-run3.log, 682 s): FAIL on X4 alone, as predicted; the instrument and every control hold. No
+// THIRD RUN (test/record/E-SPN-0145/mbody-exp-run3.log, 682 s): FAIL on X4 alone, as predicted; the instrument and every control hold. No
 //  gate threshold moved in any run.
 //  - X1a: the rule's matrix equals the float model to 4.9e-15, the full operator is w^11 times it (0 off, both parities),
 //    the side-4 box run equals the sparse sum at 24 / 576 / 3,768 branches (0 off); 1 + 11 + 12, m 0.046778, R 1.000730
