@@ -1,8 +1,29 @@
 {
   "name": "@cluesurf/vibe",
-  "version": "1.4.0",
+  "version": "1.5.0",
+  "description": "A discrete possible universe",
   "license": "MIT",
-  "main": "./host/index.js",
+  "repository": "github:cluesurf/vibe",
+  "keywords": [
+    "physics",
+    "consciousness",
+    "research",
+    "math"
+  ],
+  "archive": {
+    "identifier": "vibe-theory",
+    "title": "Vibe Theory",
+    "cover": "view/vibe-mesh-{7,3}.png",
+    "preview": "text/0012-discrete-universe/vibe.pdf"
+  },
+  "main": "./host/code/index.js",
+  "types": "./host/code/index.d.ts",
+  "files": [
+    "host/code/**/*.js",
+    "host/code/**/*.d.ts",
+    "readme.md",
+    "LICENSE"
+  ],
   "type": "module",
   "scripts": {
     "make": "rm -rf host && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
