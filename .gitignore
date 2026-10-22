@@ -7,6 +7,8 @@ make/
 *.out
 *.thm
 *.log
+# kept experiment records (pre-registrations, verdict logs, saved parts) are tracked
+!test/record/**/*.log
 
 # throwaway dev runners (reusable scratch, never committed)
 tmp/
