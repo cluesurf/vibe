@@ -7,7 +7,8 @@ minimumReleaseAgeExclude:
 
 overrides:
   # critical
-  shell-quote: '>=1.8.4'
+  # GHSA-395f-4hp3-45gv, GHSA-pqg4-j6r4-53mv
+  shell-quote: '>=1.11.0'
   # high
   'minimatch@<3.1.4': '^3.1.5'
   flatted: '>=3.4.2'
@@ -15,9 +16,15 @@ overrides:
   lodash: '>=4.17.24'
   # moderate
   'esbuild@<0.25.0': '>=0.25.0'
-  'js-yaml@<4.2.0': '^4.2.0'
+  # GHSA-2883-xcg3-v3hh, GHSA-52cp-r559-cp3m, GHSA-5p4m-2wfm-xmqj
+  'js-yaml@<4.3.2': '^4.3.2'
   'ajv@<6.14.0': '^6.14.0'
-  'brace-expansion@<1.1.13': '^1.1.13'
+  # GHSA-3jxr-9vmj-r5cp, GHSA-6j4f-fj2g-mc7p, GHSA-mh99-v99m-4gvg,
+  # GHSA-q2hr-2g5m-vwhr, GHSA-qhr7-859c-m2p7, GHSA-rgw5-rvv9-x895
+  'brace-expansion@<1.1.21': '^1.1.21'
+  'brace-expansion@>=2.0.0 <2.1.7': '^2.1.7'
+  # GHSA-p498-v437-472g
+  '@humanfs/node@<0.16.8': '^0.16.8'
   # low
   '@eslint/plugin-kit': '>=0.3.4'
   'diff@<4.0.4': '^4.0.4'

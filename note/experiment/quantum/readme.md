@@ -172,6 +172,13 @@ The signed weight on the role grid run inside the lattice, and what it needs. Se
 - **[`E-QTM-0109`](../../../test/experiment/quantum/fear-turn-weave.ts)** (L2) - the fear weave on the hop-free color turn weave: every token keeps its sign for life (0 flips against 126), the knots interfere 1/3, 1/3, 1 against 1/3 dephased and violate CHSH at 2.55, and stored as the departure from calm times omega^q they read back unchanged for 480 beats.
 - **[`E-QTM-0110`](../../../test/experiment/quantum/dock-interference.ts)** (L2) - lines of one dock interfere: an exact reduced state (the vacuum is a product of line states) equals the full configuration space, and two seeds on different lines interfere from beat 15 on the committed knit and beat 37 on the color turn knit.
 
+## A bound pair and its light as one dynamics, added 2026-10-20
+
+Tests the power-counting argument that set the 3d pair-plus-light run aside. That argument says the moving light adds nothing to a bound pair's R beyond the Darwin exchange at first order in the coupling.
+
+- **[`E-QTM-0181`](../../../test/experiment/quantum/plane-pair-light.ts)** (L2, partial) - in the plane, Coulomb gauge, the transverse light quantized, the exact Peierls phase. R_b - R_a = 0.154 to 0.028 over a_B 8 to 64, exponent -0.81. The plane's transverse kernel 1 / q^2 makes the Darwin term and a lone member's dressing grow as ln L, so the finite-size gate fails and the comparison is not posed. A line has no transverse light at all.
+- **[`E-QTM-0182`](../../../test/experiment/quantum/plane-pair-light.ts)** (L2, partial) - members in the plane, light in a slab (the 3d pull and Darwin kernel). R_b - R_a = 0.756, 0.412, 0.205, 0.135 at a_B 3 to 8, exponent -1.75, with local slopes -2.1 to -1.45. That is far above the remainder scale. The term is each member's own dressing: a lone member's R exceeds tan m / m by 0.43 to 0.13, as a_B^-1.23. Against its dressed member the pair reads 0.30, 0.076, -0.0005, -0.007. The a_B 6 and 8 large slabs were stopped for time.
+
 ## What this arena establishes
 
 - **The single-particle quantum laws are reproducible on the walk model.** The unitary ballistic walk yields the Dirac and Schrodinger dispersion, uncertainty, an S-matrix, tunneling, and the Aharonov-Bohm phase, mostly at L1 and L2 with lossy controls.
