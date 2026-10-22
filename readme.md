@@ -319,6 +319,17 @@ vibe leaving its line, and ended with one reading of all four.
   fracton rule conserves a few charges, while this rule keeps every
   line's whole state, so lineons can turn only at the dock where they
   started.
+- **On the candidate rule, a bound pair is not a lineon**
+  ([`E-RLT-0115`](test/experiment/relativity/bound-pair-direction.ts) to
+  [`E-RLT-0117`](test/experiment/relativity/bound-pair-still-branch.ts).
+  0115 fails as registered on a residual floor, and 0116 and 0117 are
+  open). A register pair bound by the husk light's pull has one K²
+  coefficient in all 13 husk directions, to 2.3e-6 (1.5e-3 for a
+  lighter-bound pair on three of them). The working rule's
+  lineon spreads 0.158 over the same 13. Along a body diagonal the
+  pair moves as one band and leaves none of its weight at rest, where
+  twelve line branches would leave 1/4. That is one pair at one mass,
+  and the axis read stayed open. Open problem 1 has the numbers.
 
 **One property behind all of it: the vacuum is correlated without limit
 along each line and not at all across lines.** A 3d vacuum has to be
@@ -509,7 +520,9 @@ realizes.
      ([`E-SPN-0214`](test/experiment/spin/register-pair-clean-clock.ts)),
      the pair's dispersion, whose quartic is 2.21 times relativity's at
      the one point read
-     ([`E-MTR-0031`](test/experiment/matter/light-pair-dispersion.ts)),
+     ([`E-MTR-0031`](test/experiment/matter/light-pair-dispersion.ts))
+     and further above its members' at a heavier member
+     ([`E-MTR-0032`](test/experiment/matter/light-pair-fading.ts)),
      and matter isotropy on the working rule, where every vibe is still
      a lineon ([`E-SPN-0126`](test/experiment/spin/line-anisotropy.ts))
 
@@ -821,9 +834,21 @@ realizes.
      fail). So binding neither repairs the members' lattice dispersion
      nor simply carries it: it adds its own. The run failed its own
      witness and stability gates at the 1e-5 level, which moves the
-     quartic by under 0.01. Whether the excess fades at lighter members
-     and larger a_B, as the K² remainder did (E-MTR-0028), is not yet
-     run
+     quartic by under 0.01
+   - **The excess over the members does not fade on the one new point.**
+     A filter twice as long fixes the witness: the rest ground now
+     agrees with the recorded read to 4e-9 at m 0.284, a_B 8, and to
+     9e-7 at m 0.380, a_B 10. The moving read still fails, because the
+     moving level splits into lines 3e-4 to 1.3e-3 apart at every K. At
+     a_B 8 the K 1.0 level spreads over a ladder of lines, none holding
+     a tenth of the start, so that pair has no quartic. At m 0.380,
+     a_B 10 the quartic is 3.21 ± 0.14 against its members' 2.41, an
+     excess of 0.80 ± 0.14 against 0.44 ± 0.05 at a_B 12
+     ([`E-MTR-0032`](test/experiment/matter/light-pair-fading.ts),
+     fail on the instrument). The excess grows with the member's own
+     lattice excess, as a lattice term would. On that reading the
+     lightest member at a_B 18 would read 1.58 ± 0.11 against its
+     members' 1.34, not relativity's 1. Two points cannot fix the trend
    - **The wall as the husk.** A Wilson mass built from the rule's own
      mixers makes the husk a domain wall, second Chern number −1 per copy
      ([`E-SPN-0166`](test/experiment/spin/wilson-wall.ts), a fail on
@@ -847,6 +872,43 @@ realizes.
      (m 0.115) than 7 does (0.190). Nothing is adopted
      ([`E-FND-0177`](test/experiment/foundations/rule-design-scan.ts),
      partial)
+   - **Bound matter on the surviving variant moves the same in every
+     direction.** Every bound-pair engine already runs it: the register
+     has the swap coin built in, which is the register variant
+     E-FND-0177 kept. On the slot walk without the register no pair
+     binds (its flat bands leak). E-SPN-0173's pair at a_B 3.5 reads
+     one K² coefficient, 0.0183178, along the 3 axes, the 6 face
+     diagonals, the 4 body diagonals and a generic direction. The
+     spread is 2.3e-6, against 0.158 for the working rule's lineon over
+     the same 13 directions. A lighter-bound pair at a_B 6 (R 2.72)
+     agrees on an axis, a face and a body diagonal to 1.5e-3. The
+     pair's first direction-dependent term
+     is K⁴, −0.0037 on the axes and −0.0025 on the body diagonals
+     ([`E-RLT-0115`](test/experiment/relativity/bound-pair-direction.ts),
+     fail as registered). Its own off-line test reads fail: at κ 0.16
+     all four body diagonals shift the same 4.01e-4, but each leaves a
+     one-cycle residual of 9.84e-4, above the 2.3e-4 its gate calls
+     stuck. That residual is the level's own floor, 1.5e-3 at rest and
+     1.0e-3 on an axis, not a split into branches. Two of the four
+     diagonals first read wrong because the reduced engine was unstable
+     on them. That is fixed, and every other sector reproduces bit for
+     bit.
+     An isotropic K² cannot prove the pair leaves its lines, since
+     twelve line branches average to an isotropic K² as well. Line
+     branches would leave a share of the pair at rest, so the next two
+     files looked for one. Along a body diagonal, a direction no line
+     casts, the pair moves whole. At K 0.20 and 0.24 it keeps 0 of its
+     weight at the rest energy, where branches would keep 1/4, and its
+     line shifts within 3% of the band's prediction. On an axis at 0.24
+     a neighboring level puts 0.126 there, which is not the branches'
+     0.5 but misses the pre-registered bound
+     ([`E-RLT-0116`](test/experiment/relativity/bound-pair-line-split.ts),
+     [`E-RLT-0117`](test/experiment/relativity/bound-pair-still-branch.ts),
+     both open). So bound matter on this variant is isotropic at
+     leading order and leaves the lines along the body diagonal. The
+     mobility read covers one strongly bound pair (R 8.46) at one member
+     mass (m 0.427).
+     Nothing is adopted
 
    **A step-list model as a control.** The Matter As Machine model
    treats a particle as a looped list of unit axis steps, its rest mass
@@ -999,8 +1061,11 @@ partial wait on bound matter that moves across lines.
    3. **the pair's dispersion:** the levels mix past K 0.4 at the
       Fourier read's resolution (E-MTR-0029), and read by the sector
       eigensolver (E-MTR-0030) the light pair's quartic is 2.21 times
-      relativity's, against its members' 1.77 (E-MTR-0031). Next: the
-      same read at a lighter member and a larger a_B
+      relativity's, against its members' 1.77 (E-MTR-0031). At m 0.380,
+      a_B 10 the excess over the members is larger (0.80 against 0.44),
+      and at a_B 8 the moving level is too split to read (E-MTR-0032).
+      Next: a read that follows the level through its splitting, before
+      any long run reads a quartic
    4. **a heavy-light pair,** which needs a heavy member of its own
       unit in the engine and its kernel, since the ring's masses below
       π/6 allow a mass ratio of only about 2.5
@@ -1324,14 +1389,14 @@ carry a control) are in
 
 [**`test/catalog.csv`**](test/catalog.csv) is the full index, one row
 per experiment, generated from the registered experiments and sorted
-strongest first. It holds **1,667 rows in 18 categories**:
+strongest first. It holds **1,671 rows in 18 categories**:
 
 | total | L3 emergent, novel | L2 known physics | L1 known math | L0 circular | backing a paper claim |
 | ----: | -----------------: | ---------------: | ------------: | ----------: | --------------------: |
-|  1667 |                 53 |             1246 |           354 |          14 |                   604 |
+|  1671 |                 53 |             1250 |           354 |          14 |                   604 |
 
-The largest categories are gauge (312), spin (217), quantum (186),
-selves (180), foundations (177), gravity (150) and relativity (119). The
+The largest categories are gauge (312), spin (218), quantum (186),
+selves (180), foundations (177), gravity (150) and relativity (122). The
 first full depth audit (2026-08-31) found 40 of 92 L3 experiments with
 no substrate, rule or coin in their import graph, and regraded them
 down. Every correction is recorded in the experiment it corrects.

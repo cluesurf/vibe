@@ -42,19 +42,25 @@
 // 2): OPEN, as registered. No gate moved. I1, I2 and I3 hold: every correlation stays bounded, the lines converge, and
 // the same solve on twelve line branches finds them exactly (axis 0 and 3.751e-3 at 0.50 each; body 0, 1.250e-3 and
 // 5.002e-3 at 0.25, 0.50, 0.25).
-//  - The K = 0 window is not one line: the main line (weight 0.8235) sits 1.06e-4 above E_L, with neighbours at -3.10e-3
+//  - The K = 0 window is not one line: the main line (weight 0.8235) sits 1.06e-4 above E_L, with neighbors at -3.10e-3
 //    (0.114) and +4.14e-3 (0.060). The derivation took the level as isolated, and at kappa 0.32 its shift (1.9e-3) is
 //    comparable to that spacing, so the lines mix.
 //  - Axis: the weight spreads over lines at +0.77e-3 (0.267), +2.22e-3 (0.271), +3.19e-3 (0.143) and +5.55e-3 (0.114)
 //    from E_L, so the heaviest holds 0.27 of the 0.82 and the gate reads BRANCHES. But twelve line branches would put
 //    0.41 at the unshifted energy and 0.41 at +3.86e-3, and neither line is there.
 //  - Body: the heaviest line keeps 0.5685 (below the 0.9 x 0.82 whole-line bound, above the 0.6 x 0.82 split bound) at
-//    a shift of 1.72e-3 from the main line, against the single band's 1.85e-3, with a near neighbour 2.0e-4 above it
+//    a shift of 1.72e-3 from the main line, against the single band's 1.85e-3, with a near neighbor 2.0e-4 above it
 //    (0.198). Twelve branches would leave 0.21 at the unshifted energy and 0.41 at +1.25e-3, and neither is there.
 //  - So the registered whole-line test cannot decide, because the pair's own levels mix at this momentum. Read after
 //    the run and not gated here: no line sits within 3.5e-4 of the K = 0 main line in either direction (the nearest
 //    on the axis is 3.7e-4 away and weighs 0.011, on the body diagonal 1.07e-3 away and 0.004), which is where the
 //    branches with n . u = 0 would stay. E-RLT-0117 gates that "still share" fresh.
+//
+// AFTER THE ENGINE FIX (2026-10-21, vibe-roadmap-moving-matter-0008). code/measure/register-reduced now builds the
+// (1, 1, -1) and (1, -1, 1) sectors as images of (1, 1, 1)'s; this file reads only (1, 0, 0) and (1, 1, 1), whose tables
+// are unchanged bit for bit (tmp/rrfix-tables.ts). Rerun after the fix (tmp/rrfix-rlt116.log): the level and the first
+// 513 lags of the axis K = 0 and the body K = 0.32 correlations equal tmp/rlt116.json to the bit, and the verdict from the
+// recorded part is unchanged, OPEN.
 //
 // Depth L2 (a two-body quantum walk on the husk quotient, exact in its moving block; the lineon control is synthetic).
 // DETERMINISM: no random numbers; the start is placed; the native kernel, byte for byte the JavaScript.
@@ -234,7 +240,7 @@ export default experiment({
   id: 'relativity/bound-pair-line-split',
   code: 'E-RLT-0116',
   title:
-    'explores whether the bound register pair on the candidate rule is one 3d band or twelve line branches with an isotropic average, by resolving its lines at K = 0.32 along an axis and a body diagonal',
+    "the bound register pair's lines at K 0.32, open (gates fixed before the run): filter diagonalization resolves twelve synthetic line branches exactly (axis 0 and 3.75e-3, body 0, 1.25e-3 and 5.0e-3), but the pair's K = 0 line (weight 0.82) has neighbors 3.1e-3 and 4.1e-3 away and mixes with them at this momentum, so the whole-line gate reads neither one band nor branches on the body diagonal (heaviest line 0.57, shift 1.72e-3 against 1.85e-3) and branches on the axis (0.27); no line stays near the K = 0 energy, where line branches with n . u = 0 would",
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L2',

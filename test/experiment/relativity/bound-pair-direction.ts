@@ -118,7 +118,31 @@
 //  - The control holds (C1, C2, C3). Its grid spread is 0.199 (mean-normalized), not the 0.22 the header guessed;
 //    E-SPN-0126's "20 percent" is the same range over its maximum, and 22% is it over the midrange.
 //  STAGE 2 was started at 3 threads beside E-RLT-0116, stopped after its first K read when the cost showed it would
-//    pass the 8-hour stop, and restarted with each direction written as it lands, in the order axis, body, face.
+//    pass the 8-hour stop, and restarted with each direction written as it lands, in the order axis, body, face
+//    (tmp/rlt115-two.log and .json, 19,338 s at 3 threads). All three landed. W2 holds: the axis R is
+//    2.7194742442590423, E-SPN-0200's to the bit at 3 threads against its 12. I3 holds (ratios 3.978, 3.973, 3.969).
+//    G1' HOLDS: R 2.71947, 2.71794, 2.71535 on the axis, body and face diagonals, a spread of 1.5e-3 against 0.02.
+//    That is 650 times stage 1's spread, as expected of the harmonic-inversion track (the ratios sit 0.02 to 0.03
+//    below 4, so the K^4 term and the level's neighbors enter at that size), and it is still 100 times below the
+//    lineon's 0.158.
+//  VERDICT: OPEN, by I4. Leading-order isotropy holds at both points (G1, G1'). Mobility off lines is not read here.
+//
+// REDO AFTER THE ENGINE FIX (2026-10-21, vibe-roadmap-moving-matter-0008; tmp/rrfix-rlt115.log, tmp/rlt115-one-fixed.json,
+// tmp/rrfix-verdict115.log). The instability was in code/measure/register-reduced, not in the pair: at representatives
+// with a stabilizer the reduced engine also stores a part no invariant state has, and for the tables sector() built
+// directly for (1, 1, -1) and (1, -1, 1) the cycle amplified that part about 5% a cycle from rounding. Those two sectors
+// are now built as the images of (1, 1, 1)'s under the flip of one coordinate, which commutes with the cycle; every other
+// sector's tables are unchanged bit for bit (tmp/rrfix-tables.ts: 72 of 78 sector fingerprints identical, the 6 changed
+// being these two at three radii). The redo read directions 10 and 11 again and spliced them into the recorded stage 1
+// (stageOneRedo); the level, the axis read and the face read (1, 1, 0) reproduced the record to the bit. No gate moved.
+//  - The two reads now equal their stable partners: a 0.0183178024, ratio 3.99935, and far bases 1.613341371278834 on
+//    all four body diagonals and the axis (I4 holds, spread 2.2e-16), shifts 4.013e-4 on each body diagonal.
+//  - As registered the verdict is FAIL: every off-line residual (9.84e-4 on the body diagonals, 9.96e-4 generic) is above
+//    0.5 a kappa^2 = 2.34e-4, so "stuck" fires. That residual is the floor this header already disclosed: the level's own
+//    one-cycle residual at K = 0 is 1.52e-3, and the axis far read (where a line is cast) leaves 1.03e-3, more than the
+//    off-line reads. So the fail reads the instrument's floor, not twelve line branches; the line-resolving reads of
+//    E-RLT-0116 and E-RLT-0117 found no weight left at rest on the body diagonal. Whether G2 should count as an instrument
+//    failure is filed as a decision, not settled here.
 //
 // Depth L2 (a two-body quantum walk on the husk quotient, exact in its moving block; the lineon control is closed
 // form). DETERMINISM: no random numbers; the starts are placed; the native kernel, byte for byte the JavaScript.
@@ -389,6 +413,51 @@ export function stageOne(
   }
 }
 
+// THE REDO after code/measure/register-reduced's fix (vibe-roadmap-moving-matter-0008): the sectors of (1, 1, -1) and
+// (1, -1, 1) are now built as images of (1, 1, 1)'s, and every other sector's tables are unchanged bit for bit
+// (tmp/rrfix-tables.ts), so only those two directions' reads (DIRECTIONS 10 and 11, far reads 2 and 3) can move. The
+// redo reads them again on the same level and splices them into the recorded stage, and reads the axis (0) and the face
+// diagonal (1, 1, 0) (3) again as witnesses that must equal the recorded ones to the bit.
+export const REDO = [10, 11] as const
+export const REDO_WITNESS = [0, 3] as const
+
+export function stageOneRedo(
+  old: StageOne,
+  opts: KernelOptions,
+  log: (what: string) => void = () => {},
+): { one: StageOne; witness: { index: number; same: boolean }[]; level: boolean } {
+  const started = Date.now()
+  const su = setup()
+  const level = pairLevel({ su, aB: STAGE_ONE.aB, R: STAGE_ONE.R, opts })
+  const along = (i: number): DirectionRead =>
+    pairAlong({ su, level, direction: DIRECTIONS[i]!, kappa: KAPPA, opts })
+  const witness = REDO_WITNESS.map(i => {
+    const r = along(i)
+
+    log(`redo witness ${i}: a ${r.a}, recorded ${old.reads[i]!.a}`)
+
+    return { index: i, same: JSON.stringify(r) === JSON.stringify(old.reads[i]) }
+  })
+  const reads = [...old.reads]
+  const far = [...old.far]
+
+  for (const i of REDO) {
+    reads[i] = along(i)
+    log(`redo ${i}: a ${reads[i]!.a}, ratio ${reads[i]!.ratio}`)
+
+    const at = [0, ...OFF_LINE].indexOf(i)
+
+    far[at] = farRead({ su, level, direction: DIRECTIONS[i]!, kappa: FAR, S: FAR_FILTER, opts })
+    log(`redo far ${i}: base ${far[at]!.base}, shift ${far[at]!.shift}, residual ${far[at]!.residual}`)
+  }
+
+  return {
+    one: { ...old, reads, far, seconds: old.seconds + (Date.now() - started) / 1000 },
+    witness,
+    level: level.EL === old.EL,
+  }
+}
+
 // ---- stage 2 ----
 
 export type StageTwo = {
@@ -554,13 +623,17 @@ export default experiment({
   id: 'relativity/bound-pair-direction',
   code: 'E-RLT-0115',
   title:
-    'explores whether a bound register pair on the candidate rule (the swap coin built into the Cl+(4) register, the surviving variant of E-FND-0177) moves the same in all 13 husk directions and off every mesh line, against the working rule\'s lineon',
+    "a bound register pair on the candidate rule moves the same in all 13 husk directions, fail as registered on its off-line residual: on the swap coin built into the Cl+(4) register (E-FND-0177's surviving variant, which every bound-pair engine already runs) E-SPN-0173's pair at a_B 3.5 has one K^2 coefficient 0.0183178 over the 3 axes, 6 face and 4 body diagonals and a generic direction, spread 2.3e-6, against 0.158 for the working rule's lineon over the same 13 (0.199 on a grid), and the lighter-bound a_B 6 pair (R 2.72, E-SPN-0200's axis read reproduced to the bit) agrees on an axis, a body and a face diagonal to 1.5e-3; its first direction-dependent term is K^4 (-0.0037 on the axes to -0.0025 on the body diagonals); after the reduced engine's fix (the (1, 1, -1) and (1, -1, 1) sectors built as images of (1, 1, 1)'s, every other sector bit for bit unchanged) all four body diagonals read the same base and shift 4.01e-4 at kappa 0.16, but their residual 9.84e-4 is above the 2.3e-4 the registered gate calls stuck, and it is the level's own floor (1.5e-3 at K 0, 1.0e-3 on the axis), not line branching, so mobility off lines is read in E-RLT-0116 and E-RLT-0117",
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
-    const one = readPart<StageOne>(`${PARTS}-one.json`) ?? stageOne(NATIVE)
+    // stage 1 as redone after the reduced engine's fix (tmp/rrfix-rlt115.ts, stageOneRedo); the first run's part is kept
+    const one =
+      readPart<StageOne>(`${PARTS}-one-fixed.json`) ??
+      readPart<StageOne>(`${PARTS}-one.json`) ??
+      stageOne(NATIVE)
     const two = readPart<StageTwo>(`${PARTS}-two.json`) ?? stageTwo(NATIVE)
 
     return combine({ one, two, control: controlRead() })

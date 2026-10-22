@@ -68,6 +68,31 @@
 // two K a point within 8 hours, so the K runs were stopped after 1.4 h (nothing saved from them) and relaunched as six
 // one-thread processes (6 threads in all): P2's K {1.0, 0.35} and {0.5, 0.2}, and P3's four K one each.
 //
+// FIRST RUN (2026-10-21 12:20 to 23:25, tmp/mtr-fade-p2a.log, -p2b.log, -p3-*.log; the verdict by combineFading in
+// tmp/mtr-fade-combine.ts, tmp/mtr-fade-verdict2.log): FAIL on I at both new points. No gate moved.
+//  - THE 8-HOUR STOP WAS MISSED. Each K took 7.6 h (P2) and 11.1 h (P3) on the shared machine, against 1.55 h and 2.9 h
+//    estimated. P3's four one-K runs finished at 11.1 h, past the stop, and are used. P2's second K (0.35, 0.2) were
+//    stopped at 11.1 h, unsaved, so P2 has K 1.0 and 0.5 only.
+//  - W holds at both points: P2's K = 0 ground within 3.9e-9 of E-SPN-0211's read (spread 1.1e-8), P3's within 8.7e-7 of
+//    its own Fourier read 1.4989864343 (spread 1.1e-5). The longer filter fixed the witness.
+//  - I fails at every K, and not on the filter: the moving level is a multiplet. P2 at K 1.0 has no line of weight 0.1 at
+//    all (a ladder 1.2294 to 1.2347, 1.3e-3 apart, weights 0.03 to 0.045), so P2 has no rho. P2 at K 0.5: 1.12780 (weight
+//    0.35, half-spread 3.9e-5). P3: weights 0.32, 0.13, 0.48, 0.21 at K 0.2, 0.35, 0.5, 1.0, half-spreads 8e-5 to 1.6e-4;
+//    at K 0.2 two lines of equal weight (0.319, 0.314) 3.4e-4 apart, at K 0.35 the lowest heavy line (0.126) sits 4.2e-4
+//    below the heaviest (0.469).
+//  - THE NUMBER at P3: rho = 3.21 +- 0.14 against its member's 2.41 (the member's fraction grows with m: 1.34, 1.77,
+//    2.41 at m 0.190, 0.284, 0.380), Delta 0.80 +- 0.14, R 1.14. F holds, but only because the spreads are large (sigma_E
+//    1.6e-4): per K rho reads 17.2, 5.6, 2.79, 3.21, so the number rests on K 0.5 and 1.0. The heaviest-line reading gives
+//    3.32. P1's Delta is 0.44 +- 0.05.
+//  - THE TREND is unread (two points). Post-run, with the two points the forms are exact lines: P3 lies ABOVE P1 by 2.4
+//    sigma, the way a lattice term (tan m / m - 1) / a_B puts it, and against a term in m a_B alone (whose slope comes out
+//    -11.5 +- 4.8, growing with m a_B). The lattice line gives C 0.15 (continuum excess) and, at m 0.190 a_B 18, rho 1.58
+//    +- 0.11 against the member's 1.34; the m a_B line gives 1.80 +- 0.05. Neither predicts 1.
+// MEANING. The longer filter fixes the witness but not the read: the moving pair's level splits into lines closer than
+// 5e-4 already at K 0.2, so rho at a tighter pair (a_B 8) cannot be read at all and at m 0.380 a_B 10 only roughly. On
+// the one new point, the extra quartic grows with the member's own lattice excess, which reads it as a lattice term; it
+// does not show it fading toward relativity's 1.
+//
 // Depth L2 (a two-body quantum walk on the husk quotient, exact in its moving block; the lone member's band is the
 // control). DETERMINISM: no random numbers; the native kernel, byte for byte the JavaScript.
 
@@ -267,7 +292,11 @@ export function combineFading(reads: readonly PointRead[]): Verdict {
     rho: P1.rho,
     rhoMember: memberMean(su1),
   }
-  const all = [p1, ...reads.map(r => ({ name: r.name, m: r.m, aB: r.aB, delta: r.delta, sigma: r.sigmaRho, rho: r.rho, rhoMember: r.rhoMember }))]
+  // a point whose fit could not be formed (a K with no line of weight 0.1) carries no Delta and leaves the trend; with
+  // fewer than three points the trend is unread and the two forms are exact lines through two points (post-run, disclosed)
+  const all = [p1, ...reads.map(r => ({ name: r.name, m: r.m, aB: r.aB, delta: r.delta, sigma: r.sigmaRho, rho: r.rho, rhoMember: r.rhoMember }))].filter(
+    p => Number.isFinite(p.delta) && Number.isFinite(p.sigma),
+  )
   const metrics: Record<string, number> = {}
   const p2 = all.find(p => p.name === 'm0284a8')
   const ds = all.map(p => p.delta)
@@ -279,8 +308,9 @@ export function combineFading(reads: readonly PointRead[]): Verdict {
   const wsum = es.reduce((s, e) => s + 1 / e ** 2, 0)
   const mean = ds.reduce((s, d, i) => s + d / es[i]! ** 2, 0) / wsum
   const chiFlat = ds.reduce((s, d, i) => s + ((d - mean) / es[i]!) ** 2, 0)
-  const trend = fadeA || fadeB ? 'fading' : chiFlat <= FLAT ? 'flat' : 'other'
-  const primary = xForm.chi2 <= lForm.chi2 ? 'm a_B' : 'lattice'
+  const read = all.length >= 3
+  const trend = !read ? 'unread' : fadeA || fadeB ? 'fading' : chiFlat <= FLAT ? 'flat' : 'other'
+  const primary = !read ? 'neither (two points)' : xForm.chi2 <= lForm.chi2 ? 'm a_B' : 'lattice'
   const best = primary === 'm a_B' ? xForm : lForm
   const memberT = memberMean(suT)
   const rhoT = memberT + best.prediction
@@ -357,7 +387,7 @@ export default experiment({
   id: 'matter/light-pair-fading',
   code: 'E-MTR-0032',
   title:
-    "explores whether the light register pair's extra quartic over its members fades for lighter, larger pairs: the instrument fixed first (filter length 4096, a wide member-placed window, the lowest heavy line as the ground), then the quartic fraction at m 0.284 a_B 8 and m 0.380 a_B 10 with E-MTR-0031's m 0.284 a_B 12, against each member's own band",
+    "explores whether the light register pair's extra quartic over its members fades for lighter, larger pairs: the instrument fixed first (filter length 4096, a wide member-placed window, the lowest heavy line as the ground), then the quartic fraction at m 0.284 a_B 8 and m 0.380 a_B 10 with E-MTR-0031's m 0.284 a_B 12, against each member's own band: fail on the instrument, the witness fixed but the moving level a multiplet at every K, so a_B 8 has no read and m 0.380 a_B 10 reads 3.21 +- 0.14 against its member's 2.41, an excess 0.80 above a_B 12's 0.44, the way a lattice term would go, not toward relativity",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',

@@ -7,7 +7,7 @@
 // WHY THIS FILE, AND WHAT WAS SEEN BEFORE IT (disclosed). E-RLT-0115 read the pair's K^2 coefficient isotropic in all 13
 // husk directions (2.3e-6) but could not read mobility off lines. E-RLT-0116 resolved the pair's lines at K 0.32 by filter
 // diagonalization and returned open: the K = 0 window holds the main line (weight 0.8235, at E_L + 1.06e-4) and two
-// neighbours 3.1e-3 below and 4.1e-3 above, and at K 0.32 (a kappa^2 1.9e-3, comparable to that spacing) the main line
+// neighbors 3.1e-3 below and 4.1e-3 above, and at K 0.32 (a kappa^2 1.9e-3, comparable to that spacing) the main line
 // mixes with them, so its registered whole-line test failed on the axis (weight 0.27) and missed on the body diagonal
 // (weight 0.57, shift 1.72e-3 against 1.85e-3). Read AFTER that run, its line lists hold no line within 3.5e-4 of the
 // K = 0 main line on either direction (the nearest weigh 0.011 and 0.004), where twelve line branches would leave 0.21
@@ -32,6 +32,22 @@
 //
 // THE RUN AND ITS COST, estimated before the run: three 8,192-cycle correlations on 3,136, 3,136 and 2,488
 // representatives at 3 native threads beside another run, about 1.2 hours (E-RLT-0116's took 1,100 to 2,300 s each).
+//
+// FIRST RUN (2026-10-21, tmp/rlt117.log, .json and -verdict.log, 4,012 s at 3 native threads): OPEN, as registered, on
+// the axis alone. No gate moved. I1, I2, I3 hold (the same solve on twelve line branches reads 0.2500 and 0.5000).
+//  - BODY DIAGONAL, the direction no line casts: still share 0 at kappa 0.20 and at 0.24 (no line within 2e-4 of E0),
+//    against 0.25 for line branches. The K = 0 line moves whole: weight 0.804 and 0.776 of its 0.8235, shifted 7.13e-4
+//    and 1.013e-3 against a kappa^2 7.33e-4 and 1.055e-3 (the K^4 term, b -0.0025, takes those to 7.29e-4 and 1.047e-3,
+//    so the reads sit 2% and 3% below). NO STILL BRANCH on both reads: the pair moves along a body diagonal as one band.
+//  - AXIS at kappa 0.24: a line 1.4e-5 from E0 holds 0.104 (share 0.126), between the 0.05 and 0.15 bounds, while the
+//    main line keeps 0.607 at a shift of 1.27e-3 (a kappa^2 1.055e-3), so the level mixes there with a neighbor. Line
+//    branches would leave 0.5 at E0 and the main line would split in two; neither shows, but the registered bound is
+//    not met, so the axis read is open and with it the verdict.
+//
+// AFTER THE ENGINE FIX (2026-10-21, vibe-roadmap-moving-matter-0008). code/measure/register-reduced now builds the
+// (1, 1, -1) and (1, -1, 1) sectors as images of (1, 1, 1)'s; this file reads only (1, 0, 0) and (1, 1, 1), whose tables
+// are unchanged bit for bit (tmp/rrfix-tables.ts), so its reads stand as recorded; the verdict recomputed from the
+// recorded part after the fix is unchanged (tmp/rrfix-rlt116.log).
 //
 // Depth L2 (a two-body quantum walk on the husk quotient, exact in its moving block; the lineon control is synthetic).
 // DETERMINISM: no random numbers; the start is placed; the native kernel, byte for byte the JavaScript.
@@ -207,7 +223,7 @@ export default experiment({
   id: 'relativity/bound-pair-still-branch',
   code: 'E-RLT-0117',
   title:
-    'explores whether any part of the bound register pair on the candidate rule stays behind when it moves, the mark of line branches, at K 0.20 and 0.24 on a body diagonal and 0.24 on an axis',
+    "no part of the bound register pair stays behind on a body diagonal, open on the axis (gates fixed before the run): line branches with n . u = 0 would keep 1/4 of the K = 0 line at its energy on a body diagonal and 1/2 on an axis (the same solve reads 0.2500 and 0.5000 on them), and the pair keeps 0 at K 0.20 and 0.24 on the body diagonal, its line moving whole (0.80 and 0.78 of 0.82) by 2 to 3% less than a kappa^2 + b kappa^4; on the axis at 0.24 a neighboring level puts 0.126 there, between the 0.05 and 0.15 bounds",
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L2',
