@@ -21,13 +21,39 @@
 
 ## The goal
 
-**Find the discrete base of the universe.** The working answer is a 4d
-hyperbolic mesh, the honeycomb **$\lbrace3,4,3,4\rbrace$**, whose every
-site holds 24 ternary values, updated by one deterministic, reversible,
-integer rule. Space and its dimension, time's arrow, relativity, spin,
-light, the quantum, gravity and selves each have to come out of that
-base, or the base is wrong. This repository tests that one measurable
-claim at a time, and keeps every result that said no.
+**Explore whether the universe could rest on a small discrete base.**
+The base tried here is five things: a 4d hyperbolic mesh, the honeycomb
+**$\lbrace3,4,3,4\rbrace$**, whose every site holds 24 values of three
+tones, one deterministic, reversible, integer perception rule, growth,
+and the arrow. Space and its dimension, time's arrow, relativity, spin,
+light, the quantum, gravity and selves would each have to come out of
+that base, or the base is wrong. Nothing here shows yet that they all
+do. This repository tests one measurable claim at a time, reports each
+as held, partial or failed, and keeps every result that said no.
+
+**The premise.** Vibe starts from an assumption, not a result:
+experience is at the base of reality. Everything is experiencing pain,
+peace or pleasure, the three tones −1, 0 and +1, across a vast mesh
+that keeps growing and changing. Consciousness is a network of
+integrated experience. The same model aims to hold physics and quantum
+physics exactly, inside the one mesh and its one perception rule, not
+as a separate layer on top. What is tested is how far this
+experience-first base can reach into known physics and quantum physics.
+
+**Nothing in the base is fixed.** The search is for the simplest base
+that can reach known physics, so the premise, the five base things and
+the rule itself are all open to change. When a test shows that a
+simpler or better choice works, or that a current choice cannot work,
+the base changes with it.
+
+Some of it holds so far. Light on the husk is the same in every
+direction up to fourth order (exponent 4.001, E-RLT-0113), and a light
+bound pair's inertia comes within mesh artifacts of its energy, with a
+continuum remainder of 0.012 ± 0.009 (E-MTR-0028). Some is still open:
+a moving pair's clock reads the wrong sign (E-SPN-0214), and matter on
+the working rule still moves only along its lines (E-SPN-0126). The
+plan is to keep pressing on different areas and paths to see how far
+this base can go, because the results so far have been interesting.
 
 The program draws on Maurice Margenstern's work on cellular automata in
 hyperbolic spaces: the $\lbrace7,3\rbrace$ heptagrid and the
@@ -1147,7 +1173,7 @@ those numbers live in one cited place:
   use as a comparison: the fundamental constants, the full Standard
   Model particle table, the roughly 26 free Standard Model parameters,
   the CKM and PMNS mixing matrices, the cosmological parameters, and the
-  geometric and group-theory targets the model derives (the ternary 3,
+  geometric and group-theory targets the model aims to reach (the ternary 3,
   the 24 of the dock, the octonion ceiling 8, F4 order 1152,
   sin^2(theta_W) = 3/8, the Tsirelson bound, the Born exponent, and so
   on).
