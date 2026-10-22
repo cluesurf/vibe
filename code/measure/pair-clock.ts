@@ -39,6 +39,48 @@ export function twoSLine(z: ZeroRead, b: ClockBands = CLOCK_BANDS): LineOut | nu
   return top
 }
 
+// THE CLOCK'S ERROR, TAKEN APART (E-SPN-0217). With R_n = 1 + eps_n, alpha / alpha_SR = (E_2 / R_1 - E_1 / R_2) /
+// Delta E = 1 - eps_1 - Q + O(eps^2), Q = E_1 (eps_1 - eps_2) / Delta E. The static class (code/measure/darwin-exchange
+// staticR, the pair held by an instantaneous pull: members' band, binding, no transverse light) already gives each level
+// R_static,n = (2 tan m + (5/3) e_n) / (2m - e_n), e_n = (2 M0 - E_n) / 2 a beat, so its share of Q is
+// Q_static = E_1 (R_static,1 - R_static,2) / Delta E, about (2/3) E_1 / m = 8/3 for any size: a level-dependent inertia
+// the instantaneous pull cannot cancel. The Darwin exchange (the transverse light, darwinR) removes it at S = 1 (its
+// continuum value): R_full,n = R_n + darwinR(S) - staticR. What is left, Q - Q_static, is the levels' lattice remainder.
+export function clockDecomposition(input: {
+  m: number
+  M0: number
+  E1: number
+  E2: number
+  R1: number
+  R2: number
+  S?: number
+  cStar2?: number
+}): { Qstatic: number; Qlattice: number; Q: number; ratio: number; ratioDarwin: number; R1full: number; R2full: number } {
+  const { m, M0, E1, E2, R1, R2 } = input
+  const S = input.S ?? 1
+  const dE = E2 - E1
+  const e1 = (2 * M0 - E1) / 2
+  const e2 = (2 * M0 - E2) / 2
+  const s1 = (2 * Math.tan(m) + (5 / 3) * e1) / (2 * m - e1)
+  const s2 = (2 * Math.tan(m) + (5 / 3) * e2) / (2 * m - e2)
+  const d1 = (2 * Math.tan(m) + (5 / 3) * e1 - (8 / 3) * e1 * S) / (2 * m - e1)
+  const d2 = (2 * Math.tan(m) + (5 / 3) * e2 - (8 / 3) * e2 * S) / (2 * m - e2)
+  const R1full = R1 + d1 - s1
+  const R2full = R2 + d2 - s2
+  const Q = (E1 * (R1 - R2)) / dE
+  const Qstatic = (E1 * (s1 - s2)) / dE
+
+  return {
+    Qstatic,
+    Qlattice: Q - Qstatic,
+    Q,
+    ratio: (E2 / R1 - E1 / R2) / dE,
+    ratioDarwin: (E2 / R1full - E1 / R2full) / dE,
+    R1full,
+    R2full,
+  }
+}
+
 export function clockOf(
   lo: Follow,
   hi: Follow,

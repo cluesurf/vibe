@@ -1,0 +1,12 @@
+radius direct 1,1,1: {"diagonal":[1,1,1],"build":"direct","reps":1357,"radius":1.0004566372347383,"remainder":0.33901701751020324,"levelDefect":2.7438692207226723e-8} 208s
+radius sector 1,1,1: {"diagonal":[1,1,1],"build":"sector","reps":1357,"radius":1.0004566372347383,"remainder":0.33901701751020324,"levelDefect":2.7438692207226723e-8} 365s
+radius direct 1,1,-1: {"diagonal":[1,1,-1],"build":"direct","reps":1357,"radius":1.045843983214703,"remainder":1.8802206962934744,"levelDefect":2.7438692429271327e-8} 485s
+radius sector 1,1,-1: {"diagonal":[1,1,-1],"build":"sector","reps":1357,"radius":1.0005221813437681,"remainder":0.3945129836337479,"levelDefect":2.7438692207226723e-8} 633s
+radius direct 1,-1,1: {"diagonal":[1,-1,1],"build":"direct","reps":1357,"radius":1.046231264071786,"remainder":1.867406059718416,"levelDefect":2.7438692873360537e-8} 859s
+radius sector 1,-1,1: {"diagonal":[1,-1,1],"build":"sector","reps":1357,"radius":1.000479853528692,"remainder":0.3576177141280219,"levelDefect":2.7438692207226723e-8} 1049s
+radius direct 1,-1,-1: {"diagonal":[1,-1,-1],"build":"direct","reps":1357,"radius":1.0005111139108038,"remainder":0.36194386127108513,"levelDefect":2.7438692651315932e-8} 1244s
+radius sector 1,-1,-1: {"diagonal":[1,-1,-1],"build":"sector","reps":1357,"radius":1.0005111139108038,"remainder":0.36194386127108513,"levelDefect":2.7438692651315932e-8} 1464s
+ball 1,1,1 norm 256: 0.9999958370583624 1707s
+ball 1,1,1 norm 512: 0.9999959592491267 1774s
+ball 1,1,1 norm 1024: 0.9999969130822639 1864s
+ball 1,1,1 norm 2048: 0.9999937391961111 2057s

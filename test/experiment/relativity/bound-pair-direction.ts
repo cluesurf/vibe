@@ -613,8 +613,9 @@ export function combine(input: {
   })
 }
 
-// the recorded parts (written by a runner of stageOne and stageTwo), else the run itself
-const PARTS = 'tmp/rlt115'
+// the recorded parts (written by a runner of stageOne and stageTwo, kept in test/record/E-RLT-0115/ and found from this
+// file), else the run itself
+const PARTS = `${import.meta.dirname}/../../record/E-RLT-0115/rlt115`
 
 const readPart = <T>(path: string): T | null =>
   existsSync(path) ? (JSON.parse(readFileSync(path, 'utf8')) as T) : null
