@@ -54,7 +54,7 @@ import { DOCK_ROOTS } from '@/code/measure/dock-mixer'
 import { gridLifts, roleLinks } from '@/code/measure/holonomy-caging'
 import { makeColorWeave } from '@/code/rule/color-weave'
 import { bulkBox, gaugeLinks, linksOf, weylGauge, type ColorLinks } from '@/code/measure/color-slab'
-import { det3f, mul3f } from '../../../tmp/leada-common'
+import { det3f, mul3f } from '@/code/algebra/linear/complex-matrix3'
 
 export type StartKind = 'sym' | 'sym000' | 'anti'
 
