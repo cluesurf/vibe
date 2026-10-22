@@ -1,4 +1,88 @@
-// HEADER PENDING (E-RLT-0118): the gates are written here after the floors are read and before any K read.
+// IS THE BOUND REGISTER PAIR STUCK ON LINES, READ ABOVE THE INSTRUMENT'S FLOOR (E-RLT-0118)? Decision 002 of
+// vibe/roadmap/moving-matter: E-RLT-0115 stays FAIL as registered (its off-line residual 9.84e-4 is above its 2.34e-4
+// "stuck" bound), but that residual is the level's own floor (1.52e-3 at K 0 after a 2048-cycle filter), so this file
+// asks the same question with gates set above floors measured first. E-RLT-0116 and E-RLT-0117 (open) read lines by
+// filter diagonalization on the axis and the (1, 1, 1) body diagonal only; this file reads the axis, all four body
+// diagonals and the face diagonal (1, 1, 0), at two momenta neither read.
+//
+// THE OBJECT. E-RLT-0115 stage 1's pair (a_B 3.5, ball 16, code/measure/pair-direction's pairLevel, E_L
+// 1.6133573497835847). For each direction n: the autocorrelation x_l, l = 0 .. 8,191, of the K = 0 level unfolded into
+// the sector of n's little group, run at K = 0 (step 1) and at K = kappa n, kappa 0.22 and 0.28 (step 2). Both
+// observables come from that one correlation (code/measure/line-mobility):
+//  RESIDUAL r: the Blackman-Harris filter of 6,144 cycles at phase E0 + a kappa^2 (a = 0.0183178, E-RLT-0115's
+//   isotropic K^2 coefficient; the centroid of twelve line branches and of a single band alike), its one-cycle residual
+//   |U f - lambda f| / |f| read from the filtered correlation (filteredRead: residual^2 = 1 - |lambda|^2).
+//  STILL SHARE s: filter diagonalization (S 4,096, J 60, window [E_L - 0.004, E_L + 0.010], E-RLT-0116's settings), the
+//   weight of the lines within 2e-4 of E0 over w0 (E0, w0 the heaviest K = 0 line). Line branches with n . u = 0 never
+//   move: they leave 1/2 on the axis, 1/4 on a body diagonal and 1/4 on the face diagonal (3 of 12 classes,
+//   branchShifts 0, 1, 4 times a kappa^2). A single band leaves none.
+//
+// STEP 1, THE FLOORS, read before any K read (2026-10-22, tmp/rlt118-zero.log, tmp/rlt118-floors.log; the axis and
+// (1, 1, 1) K = 0 correlations are E-RLT-0116's tmp/rlt116.json, same sector, start and engine, the other four read
+// fresh, 1,291 s at 6 native threads). The six K = 0 correlations agree to 9.4e-15 at every lag (the dynamics at K = 0
+// commutes with O_h, and every sector, the repaired (1, 1, -1) and (1, -1, 1) ones among them, reproduces it). The heaviest
+// K = 0 line: E0 = E_L + 1.057e-4, w0 0.8235, |z| - 1 below 1.2e-11; neighbors at -3.20e-3 (0.114) and +4.04e-3
+// (0.060). The correlation's own one-cycle residual is 1.5248e-3, against the level's direct read 1.5231e-3 (E-RLT-0115;
+// the 0.1% is the engine's Gram drift, about 3e-9 a cycle, which the unitary formula does not see).
+//  - The residual floor, by filter length (axis and body, tmp/rlt118-floor.log): 9.18e-4 at 2,048 (E-RLT-0115's filter:
+//    its 9.84e-4 is this floor), 2.07e-4 at 4,096, 1.21e-5 at 6,144, 1.1e-6 at 8,191. At 6,144 the neighbors fall outside
+//    the main lobe while the branches of a moving line stay inside it (at 8,191 the body diagonal's outer branch falls
+//    out and the line-branch value drops toward the floor), so 6,144 it is.
+//  - The controls, the same reads on the K = 0 correlation with its main line replaced (code/measure/line-mobility's
+//    replaceLine, every other line left in place): by twelve equal line branches at E0 + branchShifts (LINES), or by
+//    one line at E0 + a kappa^2 + b kappa^4 with E-RLT-0115's b (BAND, b -0.0037 axis, -0.0025 body, -0.0028 face):
+//      kappa 0.22: residual BAND 1.06e-5 in every direction; LINES 8.87e-4 axis, 5.54e-4 body, 3.40e-4 face
+//      kappa 0.28: residual BAND 4.4e-5 in every direction;  LINES 1.44e-3 axis, 3.79e-4 body, 3.80e-4 face
+//      still share BAND 0.0000 everywhere; LINES 0.5000 axis, 0.2500 body and face, at both momenta
+//
+// GATES, fixed here before any K read. Per direction and momentum, with the anchors BAND and LINES above (recomputed
+// by offLineFloors from the recorded K = 0 part, so these are the numbers the code uses):
+//  MOVES on a read: r <= BAND + (LINES - BAND) / 3 AND s <= BAND + (LINES - BAND) / 3, that is
+//    r <= 3.03e-4 axis, 1.92e-4 body, 1.20e-4 face at 0.22; 5.09e-4 axis, 1.56e-4 body and face at 0.28;
+//    s <= 0.1667 axis, 0.0833 body and face.
+//  STUCK on a read: r >= BAND + 2 (LINES - BAND) / 3 AND s >= BAND + 2 (LINES - BAND) / 3, that is
+//    r >= 5.95e-4 axis, 3.73e-4 body, 2.30e-4 face at 0.22; 9.74e-4 axis, 2.67e-4 body and face at 0.28;
+//    s >= 0.3333 axis, 0.1667 body and face.
+//  A direction MOVES (or is STUCK) when both its reads do.
+//  INSTRUMENTS: W the correlation residual within 1% of the level's direct 1.5231e-3; I1 |x_l| <= 1 + 1e-6 in every
+//   correlation; I2 every K = 0 heaviest line has |z| within 1e-6 of 1; I3 the six K = 0 correlations agree to 1e-9;
+//   I4 LINES >= 3 BAND for the residual at every read; I5 the still control reads LINES within 0.03 of 1/2 or 1/4 and
+//   BAND at most 0.05. All hold at step 1.
+//  VERDICT: open if an instrument fails or a read is missing; PASS (moves off lines) if all six directions MOVE; FAIL
+//   (stuck on lines) if all six are STUCK; open otherwise.
+//  G_ISO, registered, reported, moving no status (for vibe-roadmap-moving-matter-0003): the leading-order coefficient a(n)
+//   = (d1 k2^2 / k1^2 - d2 k1^2 / k2^2) / (k2^2 - k1^2) from the heaviest line's shift d at the two momenta, spread
+//   (max - min) / mean over the six below 0.02, and every shift above 0.
+// PREDICTED: pass (the members are 3d Dirac bands, E-SPN-0140, E-SPN-0145; E-RLT-0117 left 0 at rest on (1, 1, 1)). The
+//  risk: the BAND control leaves the neighbors in place, and if they move into the filter or mix with the main line
+//  (E-RLT-0116 at 0.32) the reads sit between the gates and the verdict is open.
+//
+// THE RUN AND ITS COST, estimated before it: 12 K reads of 8,192 cycles, about 300 s each on 2,488 to 3,136
+// representatives and 500 s on the face's 4,616 at 6 native threads, about 1.5 hours. It stops at 8 hours with what has
+// landed (each read is written as it lands).
+//
+// THE RUN (2026-10-22, tmp/rlt118-moved.log, tmp/rlt118.json, tmp/rlt118-verdict.log; 3,400 s at 6 native threads for
+// the 12 K reads). OPEN, as registered, by one read of twelve. No gate moved. Every instrument holds.
+//  - ALL FOUR BODY DIAGONALS MOVE at both momenta, and their reads are equal to 4 digits (the repaired sectors read as
+//    their partners): residual 3.34e-5 at 0.22 (moves at most 1.92e-4, lines 5.54e-4) and 6.32e-5 at 0.28 (at most
+//    1.56e-4, lines 3.79e-4); still share 0.0000 at both (lines 0.25). The K = 0 line moves whole: weight 0.795 and
+//    0.745 of 0.8235, shifted 8.577e-4 and 1.3605e-3 (a kappa^2 + b kappa^4 8.81e-4 and 1.421e-3).
+//  - THE FACE DIAGONAL (1, 1, 0) MOVES at both: residual 6.92e-5 (at most 1.20e-4) and 9.13e-5 (at most 1.56e-4), still
+//    0.0000 and 0.0075 (at most 0.0833).
+//  - THE AXIS MOVES at 0.22 (residual 2.99e-4 against at most 3.03e-4, still 0.080 against at most 0.167) and is BETWEEN
+//    at 0.28: still share 0.0000 (line branches would leave 0.50), but residual 5.70e-4, above 5.09e-4 and below the
+//    9.74e-4 stuck bound. The axis line splits there into 0.438 at +1.724e-3 and 0.194 at +2.95e-4 from E0: the level
+//    meets a neighbor (the -3.2e-3 line rises with K), the same mixing E-RLT-0116 saw at 0.32. That is not a line
+//    branch (a still branch sits at exactly 0 shift and holds 0.5), but the registered residual gate reads it as
+//    neither.
+//  - G_ISO false: a(n) 0.018313 on every body diagonal, 0.018511 on the face, 0.021206 on the axis (spread 0.154), the
+//    axis value carried by that mixing. Every shift is above 0 (smallest 8.58e-4).
+//  So: no direction reads stuck on either observable, and no part of the pair stays at rest in any of the six
+//  directions at either momentum (largest still share 0.080, against 0.25 to 0.5 for line branches). As registered the
+//  question stays open, on the axis at 0.28 alone.
+//
+// Depth L2 (a two-body quantum walk on the husk quotient, exact in its moving block; the controls are synthetic).
+// DETERMINISM: no random numbers; the start is placed; the native kernel, byte for byte the JavaScript.
 
 import { existsSync, readFileSync } from 'node:fs'
 import { experiment } from '@/test/scaffold/suite'
@@ -315,7 +399,8 @@ const PART = 'tmp/rlt118.json'
 export default experiment({
   id: 'relativity/bound-pair-off-lines',
   code: 'E-RLT-0118',
-  title: 'pending',
+  title:
+    "the bound register pair moves off lines in 11 of 12 reads above the instrument's floor, open on the axis at K 0.28 (gates fixed before the run): with a 6,144-cycle filter the residual floor is 1.2e-5 (E-RLT-0115's 2,048 filter left 9.2e-4), and on all four body diagonals and the face diagonal at K 0.22 and 0.28 the residual (3.3e-5 to 9.1e-5) and the share left at rest (0 to 0.0075) sit far below what twelve line branches give through the same reads (3.4e-4 to 5.5e-4, and 0.25); no direction leaves any part at rest (at most 0.080, against 0.5 on the axis); the axis at 0.28 reads a residual of 5.7e-4 between the moves (5.1e-4) and stuck (9.7e-4) bounds, where its level mixes with a neighbor",
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L2',

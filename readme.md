@@ -347,15 +347,18 @@ vibe leaving its line, and ended with one reading of all four.
   started.
 - **On the candidate rule, a bound pair is not a lineon**
   ([`E-RLT-0115`](test/experiment/relativity/bound-pair-direction.ts) to
-  [`E-RLT-0117`](test/experiment/relativity/bound-pair-still-branch.ts).
-  0115 fails as registered on a residual floor, and 0116 and 0117 are
+  [`E-RLT-0118`](test/experiment/relativity/bound-pair-off-lines.ts).
+  0115 fails as registered on a residual floor, and 0116 to 0118 are
   open). A register pair bound by the husk light's pull has one K²
   coefficient in all 13 husk directions, to 2.3e-6 (1.5e-3 for a
   lighter-bound pair on three of them). The working rule's
-  lineon spreads 0.158 over the same 13. Along a body diagonal the
-  pair moves as one band and leaves none of its weight at rest, where
-  twelve line branches would leave 1/4. That is one pair at one mass,
-  and the axis read stayed open. Open problem 1 has the numbers.
+  lineon spreads 0.158 over the same 13. Read above the instrument's
+  floor, the pair moves as one band along all four body diagonals and
+  a face diagonal at two momenta, and leaves at most 0.080 of its
+  weight at rest in any of six directions, where twelve line branches
+  would leave 1/4 to 1/2. One read of twelve, the axis at K 0.28, sits
+  between the gates, where the level mixes with a neighbor. That is one
+  pair at one mass. Open problem 1 has the numbers.
 
 **One property behind all of it: the vacuum is correlated without limit
 along each line and not at all across lines.** A 3d vacuum has to be
@@ -930,10 +933,23 @@ realizes.
      0.5 but misses the pre-registered bound
      ([`E-RLT-0116`](test/experiment/relativity/bound-pair-line-split.ts),
      [`E-RLT-0117`](test/experiment/relativity/bound-pair-still-branch.ts),
-     both open). So bound matter on this variant is isotropic at
-     leading order and leaves the lines along the body diagonal. The
-     mobility read covers one strongly bound pair (R 8.46) at one member
-     mass (m 0.427).
+     both open). A fresh test with its gates set above floors measured
+     first used a 6,144-cycle filter, whose floor is 1.2e-5 (the 2,048
+     filter's was 9.2e-4). It read the axis, all four body diagonals and
+     the face diagonal (1, 1, 0) at K 0.22 and 0.28. On the body and
+     face diagonals the residual is 3.3e-5 to 9.1e-5, and at most 0.0075
+     of the pair stays at rest. Twelve line branches give 3.4e-4 to
+     5.5e-4 and 1/4 through the same reads, so 10 of those 10 reads
+     move. The axis moves at 0.22. At 0.28 it keeps nothing at rest,
+     where branches would keep 1/2, but its residual, 5.7e-4, sits
+     between the moves bound (5.1e-4) and the stuck bound (9.7e-4): the
+     level splits there with a neighbor
+     ([`E-RLT-0118`](test/experiment/relativity/bound-pair-off-lines.ts),
+     open). So bound matter on this variant is isotropic at leading
+     order. It leaves the lines along every body diagonal and a face
+     diagonal, and along the axis it moves at one momentum and is unread
+     at the other. The mobility read covers one strongly bound pair
+     (R 8.46) at one member mass (m 0.427).
      Nothing is adopted
 
    **A step-list model as a control.** The Matter As Machine model
@@ -1415,14 +1431,14 @@ carry a control) are in
 
 [**`test/catalog.csv`**](test/catalog.csv) is the full index, one row
 per experiment, generated from the registered experiments and sorted
-strongest first. It holds **1,671 rows in 18 categories**:
+strongest first. It holds **1,672 rows in 18 categories**:
 
 | total | L3 emergent, novel | L2 known physics | L1 known math | L0 circular | backing a paper claim |
 | ----: | -----------------: | ---------------: | ------------: | ----------: | --------------------: |
-|  1671 |                 53 |             1250 |           354 |          14 |                   604 |
+|  1672 |                 53 |             1251 |           354 |          14 |                   604 |
 
 The largest categories are gauge (312), spin (218), quantum (186),
-selves (180), foundations (177), gravity (150) and relativity (122). The
+selves (180), foundations (177), gravity (150) and relativity (123). The
 first full depth audit (2026-08-31) found 40 of 92 L3 experiments with
 no substrate, rule or coin in their import graph, and regraded them
 down. Every correction is recorded in the experiment it corrects.
