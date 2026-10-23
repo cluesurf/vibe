@@ -49,6 +49,33 @@
 // COST, estimated before the run: R 12 about 1,400 representatives a sector, 8 x 2,048 cycles; R 16 about 3,100 (ball)
 // and 6,000 (torus) a sector, 8 x 4,096 cycles: about an hour at 6 native threads.
 //
+// THE RUN (2026-10-22, test/record/E-SPN-0216/diagonal-run.log and diagonal.json, 9,183 s at 6 native threads on a
+// machine at load 45 to 175). No gate moved. VERDICT: OPEN as registered (C1 failed), with S1 and S3 failing as
+// registered. The cause is read all the same: it is (B).
+//  - THE BUG IS REPRODUCED AND IT IS (B), NOT (A). Built directly, (1, 1, -1) and (1, -1, 1) read spectral radius
+//    1.04584 and 1.04623 (about 5% a cycle, the old blow-up), and their growing mode is remainder (invariance defect
+//    1.88 and 1.87 of the largest block). The invariant level's one-cycle isometry defect is 2.7438692e-8 in all eight
+//    builds, the direct and current builds agreeing to 7e-16 (H1 holds): the step acts identically on invariant
+//    states, with the register carried by rho(g), so rotating positions without the internal state was never the
+//    cause. The amplification lives only in the part of the stored blocks no invariant state has.
+//  - C1 AND S1 FAIL ON THEIR 1 + 1e-9 BOUND, which a 2,048-cycle power iteration cannot resolve. Every stable build
+//    (directly built (1, 1, 1) and (1, -1, -1), and all four as sector() builds them) reads 1.00046 to 1.00052. The read
+//    added after the run (test/record/E-SPN-0216/remainder-probe.log, run/remainder-probe.ts, disclosed, gating
+//    nothing) shows that number is a decaying transient of the plain-norm power iteration, not an eigenvalue: its four
+//    quarters fall (1.0036, 1.0009, 1.0006, 1.00045), it is the same on the torus (1.00045, 1.00044) as on the ball,
+//    and the cycle followed by the projection onto invariant states reads 1.0000006 to 1.000003. The gate should have
+//    asked for a radius well below the broken builds' 1.046, not 1 + 1e-9.
+//  - S2 HOLDS (the proof for vibe-roadmap-moving-matter-0008): on the torus of radius 16 all four body diagonals keep
+//    N / N0 - 1 at most 7.06e-13 over 4,096 cycles (identical to the 13th digit), and the final remainder is at most
+//    5.4e-14 of the largest block.
+//  - S3 FAILS ON "NEVER RISES". On the ball of radius 16 all four lose the same 1.17403e-5 by 4,096 cycles (spread
+//    4.2e-15), but the norm dips 4.16e-6 by 256 cycles and rises back to 3.09e-6 below 1 by 1,024 before falling: the
+//    ball's edge adds norm to part of the state as well as losing it (E-SPN-0215). That happens identically in
+//    (1, 1, 1), so it is the edge and not a sector's growth.
+//  - B1, B2 HOLD: the 18 sector fingerprints at R 12 and 16 (O_h, an axis, two face diagonals, four body diagonals,
+//    the identity) equal the committed file's, and 128 lags of E-RLT-0116's axis K = 0 and body K = 0.32 correlations
+//    are recomputed to the bit.
+//
 // Depth L1 (an instrument read of the reduced engine; no physics claim). DETERMINISM: no random numbers; the starts are
 // placed. The native kernel, byte for byte the JavaScript.
 
@@ -344,7 +371,7 @@ export function diagonalCombine(input: {
 
   return verdict({
     status,
-    claim: `the reduced engine's four body-diagonal sectors at K 0.32 n: built directly, (1, 1, -1) and (1, -1, 1) have spectral radius ${broken.map(d => f(rad(d, 'direct').radius)).join(' and ')} on the whole stored space at R ${RADIUS_R}, their growing mode a remainder (invariance defect ${broken.map(d => e(rad(d, 'direct').remainder, 2)).join(', ')}), while (1, 1, 1) and (1, -1, -1) read ${stable.map(d => f(rad(d, 'direct').radius)).join(' and ')} (C1 ${C1}); the invariant level's one-cycle isometry defect is the same in both builds (${broken.map(d => `${e(rad(d, 'direct').levelDefect)} against ${e(rad(d, 'sector').levelDefect)}`).join('; ')}, H1 ${H1})${H1 ? ', so the step on invariant states was never the fault (the register is carried by rho(g) in both): the remainder at fixed points grew' : ', so the two builds step invariant states differently'}; as built now every body diagonal reads radius ${DIAGONALS.map(d => f(rad(d, 'sector').radius)).join(', ')} (S1 ${S1}); over 4,096 cycles at R ${RUN_R} on the closed torus the norm holds to ${e(torusWorst, 2)} with invariance defect at most ${e(torusDefect, 2)} (S2 ${S2}), and on the ball all four lose the same ${e(ballDrift)} (spread ${e(ballSpread, 2)}, never rising: S3 ${S3}); tables of ${part.fingerprints.length} sectors bit for bit as committed (B1 ${B1}) and 128 lags of two E-RLT-0116 correlations reproduced to the bit (B2 ${B2})`,
+    claim: `the reduced engine's four body-diagonal sectors at K 0.32 n: built directly, (1, 1, -1) and (1, -1, 1) have spectral radius ${broken.map(d => f(rad(d, 'direct').radius)).join(' and ')} on the whole stored space at R ${RADIUS_R}, their growing mode a remainder (invariance defect ${broken.map(d => e(rad(d, 'direct').remainder, 2)).join(', ')}), while (1, 1, 1) and (1, -1, -1) read ${stable.map(d => f(rad(d, 'direct').radius)).join(' and ')} (C1 ${C1}); the invariant level's one-cycle isometry defect is the same in both builds (${broken.map(d => `${e(rad(d, 'direct').levelDefect)} against ${e(rad(d, 'sector').levelDefect)}`).join('; ')}, H1 ${H1})${H1 ? ', so the step on invariant states was never the fault (the register is carried by rho(g) in both): the remainder at fixed points grew' : ', so the two builds step invariant states differently'}; as built now every body diagonal reads radius ${DIAGONALS.map(d => f(rad(d, 'sector').radius)).join(', ')} (S1 ${S1}); over 4,096 cycles at R ${RUN_R} on the closed torus the norm holds to ${e(torusWorst, 2)} with invariance defect at most ${e(torusDefect, 2)} (S2 ${S2}), and on the ball all four lose the same ${e(ballDrift)} (spread ${e(ballSpread, 2)}, never rising ${neverRises}: S3 ${S3}); tables of ${part.fingerprints.length} sectors bit for bit as committed (B1 ${B1}) and 128 lags of two E-RLT-0116 correlations reproduced to the bit (B2 ${B2})`,
     metrics: {
       C1: flag(C1),
       H1: flag(H1),
@@ -382,7 +409,7 @@ export default experiment({
   id: 'spin/reduced-diagonal-sectors',
   code: 'E-SPN-0216',
   title:
-    'explores whether all four body-diagonal sectors of the reduced register-pair engine are stable and norm conserving after the conjugate-sector fix, by their spectral radius and a closed-boundary 4,096-cycle run (running)',
+    "the reduced register-pair engine's four body-diagonal sectors conserve the norm to 7.1e-13 over 4,096 cycles on a closed torus after the conjugate-sector fix, open as registered (gates fixed before the run): built directly, (1, 1, -1) and (1, -1, 1) grow at 4.6% a cycle (spectral radius 1.046) in the part of the stored blocks that no invariant state has, while the step on invariant states is the same in both builds to 7e-16, so the old blow-up was that remainder and not an unrotated register; the stable builds read 1.0005 over 2,048 cycles, above the registered 1 + 1e-9, which a disclosed probe shows is a decaying transient (projected onto invariant states, 1.000001); on the ball all four lose the same 1.17e-5 but the norm rises between 256 and 1,024 cycles, failing the registered never-rises gate; tables and two recorded correlations bit for bit unchanged",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L1',

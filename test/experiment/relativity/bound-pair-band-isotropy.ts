@@ -73,6 +73,33 @@
 // 5,300 s, GENERIC about 10,300 s. Each part is written to test/record/E-RLT-0119/ as each read lands
 // (test/record/E-RLT-0119/run/run.ts <part>, which refuses to overwrite a finished part).
 //
+// THE RUN (2026-10-22/23, test/record/E-RLT-0119/rlt119-axes.json and rlt119-plane.json with their logs, verdict
+// test/record/E-RLT-0119/rlt119-verdict.log). The machine ran at load 40 to 95 on 18 cores, so every read took 3 to 5
+// times the probe's estimate: AXES 14,042 s, PLANE 12,271 s. GENERIC was stopped before its first read and not run
+// (about 5 more hours at that load), and AXES was restarted once at a read boundary to read body before face (the order
+// moves no gate). 16 of 20 reads landed. OPEN, as registered: the generic reads and their images are missing (so I6 and
+// the five-direction G1 and G2 are unread), and G3 fails. No gate moved.
+//  - Every instrument read holds: W (1.5248e-3 against 1.5231e-3), I1, I2 (|z| - 1 -3.7e-12), I3 (the body, face and
+//    plane K = 0 correlations equal the axis's to 1.6e-14), I4.
+//  - EVERY DIRECTION MOVES at 0.12 and 0.16, as one line keeping 0.94 to 0.99 of w0, residual 1.4e-5 to 1.3e-4 against
+//    moves-at-most 7.9e-5 to 1.6e-4, nothing left at E0.
+//  - M = 1 / (2A) (sigma from FIT, LAG, GRID): axis 27.460 +- 2.04 (A 0.0182085), body 27.483 +- 0.017 (A 0.0181932),
+//    face 27.414 +- 0.170 (A 0.0182388), plane 27.435 +- 0.597 (A 0.0182247). Over the four, max |M / M_mean - 1| =
+//    1.3e-3 (M_mean 27.448), A spread (max - min) / mean 2.5e-3, against the 0.02 gate. Every A is at least 13 sigma_A,
+//    every smallest-kappa shift 2.91e-5 to 2.92e-5 is above 0 by at least 380 times its lag difference, and every shift
+//    at every kappa is above 0 (the band's minimum is at K = 0).
+//  - G3 FAILS on three of four: sigma_A / A is 7.7% axis, 0.62% face, 2.2% plane, 0.06% body. The part that fails is LAG:
+//    at kappa 0.16 the S 4,096 solve shows the main line with satellites 3.2e-4 to 3.4e-4 and 1.4e-3 to 1.5e-3 below it
+//    (weights 0.017 and 0.016 on the axis, 0.008 on the plane, 0.004 on the face, none on the body), and the S 2,048 solve
+//    cannot resolve them from the main line, so its shift is pulled down (axis 4.711e-4 against 5.157e-4). FIT and GRID
+//    alone stay at or below 0.15% in every direction. The LAG check registered as convergence measures the shorter
+//    solve's resolution, not the longer one's error, so as a gate it is too strict here; it stays as registered.
+//  - The K^4 term is direction-dependent, as a cubic band's must be: C = +0.0756 axis, -0.0090 body, +0.0073 face,
+//    +0.0325 plane, near alpha + beta sum n_i^4 with beta about 0.13 (body and axis fix -0.0513 + 0.127 sum n_i^4, which
+//    puts face at 0.012 and plane at 0.035). The axis's large positive C comes with the satellites: levels about 3e-4
+//    and 1.5e-3 below E0 at small K that the O_h-invariant start does not hold at K = 0 and that mix in as K grows.
+//  - Against the centroid's 0.0183178 the line's A is 0.4% to 0.7% lower in every direction.
+//
 // Depth L2 (a two-body quantum walk on the husk quotient, exact in its moving block; the controls are synthetic).
 // DETERMINISM: no random numbers; the start is placed; the native kernel, byte for byte the JavaScript.
 
@@ -107,8 +134,8 @@ const IMAGE_KAPPA = 0.16
 export const PARTS: Record<string, readonly BandPlan[]> = {
   axes: [
     { name: 'axis', n: [1, 0, 0], zeroLags: LAGS, kappas: KAPPAS, lags: LAGS, images: [] },
-    { name: 'face', n: [1, 1, 0], zeroLags: ZERO_SHORT, kappas: KAPPAS, lags: LAGS, images: [] },
     { name: 'body', n: [1, 1, 1], zeroLags: ZERO_SHORT, kappas: KAPPAS, lags: LAGS, images: [] },
+    { name: 'face', n: [1, 1, 0], zeroLags: ZERO_SHORT, kappas: KAPPAS, lags: LAGS, images: [] },
   ],
   plane: [{ name: 'plane', n: [2, 1, 0], zeroLags: ZERO_SHORT, kappas: KAPPAS, lags: LAGS, images: [] }],
   generic: [
@@ -401,7 +428,7 @@ export default experiment({
   id: 'relativity/bound-pair-band-isotropy',
   code: 'E-RLT-0119',
   title:
-    "explores whether the bound register pair's band has one curvature in every husk direction at small K, read line by line (running)",
+    "explores whether the bound register pair's band has one curvature in every husk direction at small K, read line by line, open (gates fixed before the run): on the axis, the face and body diagonals and the off-line (2, 1, 0) the pair moves as one line (residual and still share below the line-branch controls at K 0.12 and 0.16) with M = 1 / (2A) of 27.46, 27.41, 27.48 and 27.44, a spread of 0.13% against the 2% gate, every shift above 0; but the registered precision gate fails on three of four (the S 2,048 lag check cannot resolve satellite lines near the main one at K 0.16), and the generic (1, 2, 3) direction and its cubic images were not run",
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L2',

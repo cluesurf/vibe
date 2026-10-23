@@ -402,7 +402,11 @@ const cubeIndex = (
 // (1, 1, 1)'s G, k the flip of the third or the second coordinate, which commutes with the whole cycle. So their sectors
 // are built as the image of (1, 1, 1)'s (conjugateSector): representatives k y, elements k g k. That sector's cycle is
 // (1, 1, 1)'s with every site and element relabeled, so it is stable exactly when (1, 1, 1)'s is. Every other group is
-// built directly, its tables unchanged (so every result recorded on them stays bit for bit).
+// built directly, its tables unchanged (so every result recorded on them stays bit for bit). E-SPN-0216 measured it: the
+// direct (1, 1, -1) and (1, -1, 1) tables give spectral radius 1.046 on the stored space, the mode pure remainder, while
+// the step on invariant states is the same in both builds to 7e-16; built as now, all four body diagonals conserve the
+// norm to 7.1e-13 over 4,096 cycles on the torus. Projecting the remainder out after each cycle would make any table
+// choice stable, but it moves every sector's bits at rounding, so it is not done.
 
 // the index of the composition e_i e_j (apply e_j first)
 function composeIndex(group: CubicGroup, i: number, j: number): number {

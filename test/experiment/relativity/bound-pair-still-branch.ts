@@ -47,7 +47,9 @@
 // AFTER THE ENGINE FIX (2026-10-21, vibe-roadmap-moving-matter-0008). code/measure/register-reduced now builds the
 // (1, 1, -1) and (1, -1, 1) sectors as images of (1, 1, 1)'s; this file reads only (1, 0, 0) and (1, 1, 1), whose tables
 // are unchanged bit for bit (tmp/rrfix-tables.ts), so its reads stand as recorded; the verdict recomputed from the
-// recorded part after the fix is unchanged (test/record/E-RLT-0116/rrfix-rlt116.log).
+// recorded part after the fix is unchanged (test/record/E-RLT-0116/rrfix-rlt116.log). RERUN (2026-10-22,
+// test/record/E-RLT-0117/rerun-0008.log): OPEN, every number as recorded (still share 0 at K 0.20 and 0.24 on the body
+// diagonal, 0.126 on the axis at 0.24).
 //
 // Depth L2 (a two-body quantum walk on the husk quotient, exact in its moving block; the lineon control is synthetic).
 // DETERMINISM: no random numbers; the start is placed; the native kernel, byte for byte the JavaScript.

@@ -1,3 +1,20 @@
 2026-10-22T23:07:31.968Z part axes start, a_B 3.5, ball 16, 6 native threads
 2026-10-22T23:08:39.102Z level 1.6133573497835847
 2026-10-22T23:27:21.413Z axis zero read (8191 lags, 2488 representatives)
+2026-10-22T23:52:31.823Z axis kappa 0.04 read
+2026-10-23T00:22:25.935Z axis kappa 0.08 read
+2026-10-23T00:36:09.655Z axis kappa 0.12 read
+2026-10-23T00:49:06.850Z axis kappa 0.16 read
+2026-10-23T00:49:29.132Z part axes start (resumed), a_B 3.5, ball 16, 6 native threads
+2026-10-23T00:50:45.094Z level 1.6133573497835847
+2026-10-23T00:52:46.094Z body zero read (1024 lags, 3136 representatives)
+2026-10-23T01:07:55.346Z body kappa 0.04 read
+2026-10-23T01:23:10.983Z body kappa 0.08 read
+2026-10-23T01:40:05.483Z body kappa 0.12 read
+2026-10-23T01:54:28.567Z body kappa 0.16 read
+2026-10-23T01:56:34.465Z face zero read (1024 lags, 4616 representatives)
+2026-10-23T02:14:15.824Z face kappa 0.04 read
+2026-10-23T02:35:03.343Z face kappa 0.08 read
+2026-10-23T02:52:28.286Z face kappa 0.12 read
+2026-10-23T03:02:23.981Z face kappa 0.16 read
+2026-10-23T03:02:24.032Z part axes done, 14042 s

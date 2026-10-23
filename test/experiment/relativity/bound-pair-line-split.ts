@@ -60,7 +60,9 @@
 // (1, 1, -1) and (1, -1, 1) sectors as images of (1, 1, 1)'s; this file reads only (1, 0, 0) and (1, 1, 1), whose tables
 // are unchanged bit for bit (tmp/rrfix-tables.ts). Rerun after the fix (test/record/E-RLT-0116/rrfix-rlt116.log): the level and the first
 // 513 lags of the axis K = 0 and the body K = 0.32 correlations equal test/record/E-RLT-0116/rlt116.json to the bit, and the verdict from the
-// recorded part is unchanged, OPEN.
+// recorded part is unchanged, OPEN. RERUN (2026-10-22, test/record/E-RLT-0116/rerun-0008.log): OPEN, every number as
+// recorded; E-SPN-0216 recomputed 128 lags of both correlations to the bit and fingerprinted both sectors' tables
+// against the committed file (equal).
 //
 // Depth L2 (a two-body quantum walk on the husk quotient, exact in its moving block; the lineon control is synthetic).
 // DETERMINISM: no random numbers; the start is placed; the native kernel, byte for byte the JavaScript.

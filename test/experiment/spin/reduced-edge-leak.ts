@@ -44,6 +44,28 @@
 // 24 (ball) and 2,600 and 6,000 on the torus; at E-SPN-0200's 460 s per 4,096 cycles on 10,000 representatives at 12
 // threads, about an hour at 6 native threads in all.
 //
+// THE RUN (2026-10-22, test/record/E-SPN-0215/edge-run.log and edge.json, 8,405 s at 6 native threads on a machine at
+// load 45 to 175). No gate moved. VERDICT: PARTIAL as registered: the loss is the open edge, not the bound tail's law.
+//  - I0, I_WEIGHT, I_LOCAL hold. The ball's R 16 drift is 1.17403e-5 (the recorded 1.174e-5). The level's norm is
+//    1 - 2e-16 on O_h, 1 - 4e-16 unfolded on C3v and 1 + 1.1e-14 on the identity's sector (17,077 points). The torus's
+//    isometry defect is at most 2.3e-15 on all 22 shells (0 to 21); on the ball it is at rounding to shell 5 (1.0e-14),
+//    then -4.5e-13, +1.2e-10, +1.1e-7 from shell 6 to 8 and up to 1.3e-4 on the edge shells. It has both signs: the
+//    ball's truncated step adds norm to some states as well as losing it.
+//  - G_CLOSED HOLDS: on the torus N / N0 - 1 is 7.21e-13 (R 12) and 7.10e-13 (R 16) at 4,096 cycles, growing linearly
+//    from 4.4e-14 at 256 (about 1.7e-16 a cycle, the rounding of one cycle). The closed boundary conserves the norm.
+//  - G_LAW FAILS: D is 2.94e-4, 1.17e-5, -5.27e-7, -6.69e-7 at R 12, 16, 20, 24. Past R 20 the ball adds norm
+//    instead of losing it, and the size stops falling. The K 0.32 n state is the K = 0 level boosted, not an eigenstate
+//    at K, so it carries a part that reaches the edge (the 256-cycle dip is 2.5e-5, 4.2e-6, 2.3e-6, 1.5e-6, falling only
+//    as about R^-2.5), and the edge's gain and loss on that part set the drift at large R.
+//  - READ: the K = 0 level on its own O_h sector (a near-eigenstate) loses 4.22e-4, 1.88e-5, 7.95e-7, 3.18e-8 at R 12
+//    to 24, always a loss, 22.5, 23.6 and 25.0 times less per 4 docks: exp(-0.791 R), about exp(-2.77 R / a_B), a
+//    tail steeper than the hydrogenic exp(-2R / a_B) the gate assumed. D(4096) / D(2048) is 1.94, 1.88 at R 12 and 16
+//    (a nearly constant rate), 0.85 and 1.23 at R 20 and 24 (where the sign has turned).
+//  So the norm drift of vibe-roadmap-moving-matter-0009 is the open ball: closed, the cycle conserves the norm to
+//  7e-13 over 4,096 cycles in the same sector. It is not the orbit weights (I_WEIGHT) and not U^dag U - I off the
+//  edge (I_LOCAL). Its size is set by the part of the state that reaches the edge, which for a bound level falls as
+//  exp(-0.79 R).
+//
 // Depth L1 (an instrument read of the reduced engine; no physics claim). DETERMINISM: no random numbers; the starts
 // are placed (the hydrogenic profile, a fixed trigonometric pattern). The native kernel, byte for byte the JavaScript.
 
@@ -349,7 +371,7 @@ export default experiment({
   id: 'spin/reduced-edge-leak',
   code: 'E-SPN-0215',
   title:
-    "explores whether the reduced register-pair engine's Gram norm drift (1.2e-5 over 4,096 cycles at R 16) is the open husk ball's edge, by its fall with R and by a closed (torus) boundary (running)",
+    "the reduced register-pair engine's norm drift is the open husk ball's edge, partial as registered (gates fixed before the run): on a closed torus boundary the a_B 3.5 level at K 0.32 n keeps its Gram norm to 7.1e-13 over 4,096 cycles at R 12 and 16, against the ball's 1.17e-5 at R 16, and a state held on one shell loses or gains norm only within 6 docks of the ball's edge (at most 2.3e-15 anywhere on the torus); but the ball's drift does not follow the bound tail's exp(-2R / a_B): it is 2.9e-4 and 1.2e-5 at R 12 and 16, then turns to a gain of 5e-7 to 7e-7 at R 20 and 24, set by the part of the boosted state that reaches the edge; the K = 0 level alone loses 4.2e-4 to 3.2e-8 from R 12 to 24, as exp(-0.79 R)",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L1',

@@ -107,6 +107,23 @@
 //   Final verdict once the new point's four reads exist: fail if S2-I fails, else pass if S2-LIMIT passes, else partial
 //   if D or L holds at all three points, else fail.
 //
+// SECOND STAGE RUN (the reads 2026-10-23 02:47, test/record/E-SPN-0217/clock-c7.5-K*.json; the final verdict
+// test/record/E-MTR-0033/mtr-band-final.log): FAIL. No gate moved.
+//  - S2-I fails at K 1.0: the group's centroid moves 1.4e-4 over the settings (gate 5e-5); its width is 4.2e-3 there,
+//    the 1s group spreading as P2's did. W2 holds (8e-5).
+//  - THE NUMBER: rho 4.488 +- 0.114 against the carried band 2.795 and the lone member 2.808; lambda 1.419 +- 0.049.
+//    The non-quadratic excess keeps growing with the lattice term: lambda - 1 is 0.18, 0.27, 0.42 at x 0.00231,
+//    0.00507, 0.00874.
+//  - S2-F: the lattice-term form predicted 4.159 and misses by 2.7 sigma (survives the 3-sigma rule); the m^2 form
+//    misses by 5.0, the 1 / (m a_B) form by 12.3: the excess is a lattice term, not a coupling term.
+//  - S2-LIMIT fails: the three-point line gives rho_inf 1.071 +- 0.021 with chi^2 7.4 on one degree of freedom, so the
+//    straight line in x is itself rejected (the excess rises faster than linearly in x across the three points).
+// MEANING. The extra quartic is a lattice effect of binding: it grows with the lattice term and is far from any
+// coupling (1 / (m a_B)) law, so it should fade in the continuum. Its continuum value is not resolved: a line in x
+// leaves 0.07 +- 0.02 and is rejected by chi^2; a curved law would need a lighter point (x below 0.002), which here is
+// the droplet-sized run. The members' part of rho falls to 1 analytically as m -> 0 (1 + 9.4 m^2, M's scaling clause);
+// the carried band at fixed coupling tends to about 0.98.
+//
 // Depth L2 (a two-body quantum walk on the husk quotient read through saved correlations; the lone member's band is the
 // control; M is L1). DETERMINISM: no random numbers, no engine run.
 
@@ -574,7 +591,7 @@ export default experiment({
   id: 'matter/light-pair-band-decomposition',
   code: 'E-MTR-0033',
   title:
-    "explores whether the light register pair's extra quartic is its members' lattice band carried by the bound state, read as level-group centroids of the saved correlations, and whether its fitted continuum limit is relativity's 1",
+    "explores whether the light register pair's extra quartic is its members' lattice band carried by the bound state, read as level-group centroids of the saved correlations, and whether its fitted continuum limit is relativity's 1: fail, rho 2.192 +- 0.009, 3.241 +- 0.018 and 4.49 +- 0.11 at m 0.284 a_B 12, m 0.380 a_B 10 and m 0.427 a_B 7.5 against the carried band's 1.74, 2.39, 2.80, so binding adds 18 to 42 percent beyond K^2, growing with the lattice term; a line in that term leaves rho_inf 1.071 +- 0.021 and is rejected by chi^2 7.4",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',

@@ -66,6 +66,31 @@
 // cycle at 3 threads with setup on a machine at load 40 to 90, so 4,400 lags a K take 2 to 3 hours. K 0.2, 0.35, 0.5,
 // 1.0 run as four processes of 2 threads (K 1.0 for E-MTR-0033's second stage).
 //
+// FIRST RUN (2026-10-22 23:44 to 2026-10-23 02:47, four one-K processes of 2 threads at load 50 to 93, 3.05 hours a K
+// against the 2 to 3 estimated; test/record/E-SPN-0217/clock-c7.5-K*.log and .json; the verdict by
+// test/record/E-SPN-0217/run/clock-combine.ts, test/record/E-SPN-0217/clock-verdict.log): FAIL. No gate moved.
+//  - I fails at the two re-read points (the 2s group's half-spread 1.4e-4 to 1.9e-4 against 1.5e-4) and holds at the new
+//    point (1s within 3.8e-5, 2s within 1.4e-4).
+//  - THE CLOCK runs fast at all three: alpha / alpha_SR -2.63 +- 1.06 (m 0.284 a_B 12), -4.79 +- 1.98 (m 0.380 a_B 10),
+//    -3.78 +- 1.01 (m 0.427 a_B 7.5, R_1s 1.2243 +- 0.0056, R_2s 1.115 +- 0.021). C fails everywhere. The new point
+//    falls outside both registered predictions: the first band [-2.5, -0.5] and, narrowly, the refined [-10, -4].
+//  - THE DECOMPOSITION holds where it was predicted from the K = 0 centroids alone: Q_static 2.70, 2.72, 2.74 (8/3 is
+//    2.67). The lattice part is 1.41, 4.10, 3.54 (predicted about 5.0 at the new point). With each level's Darwin
+//    exchange restored at S = 1 the clock reads -0.36, -2.68, -1.94 (the new point inside its predicted [-7, -1]).
+//  - X fails: eps_1 - eps_2 extrapolates to 0.050 +- 0.025 (raw) and 0.011 +- 0.025 (Darwin restored), against the
+//    0.0037 the gate needs; alpha_inf -2.42 +- 1.65 raw, 0.25 +- 1.65 Darwin restored. The law fitted on the
+//    Darwin-restored remainders (eps_1 - eps_2 = 6.2 x, eps_1 = 14.6 x) puts the per-point clock inside the band only at
+//    x <= 5.8e-4: m 0.18, a_B 18.9 at m a_B 3.4.
+// MEANING. Two things stand between this engine's bound clock and relativity's, and they are separable. (1) The count's
+// pull is instantaneous: without the transverse light (the Darwin exchange) each level's kinetic mass carries its own
+// binding, so the 2s is lighter per unit energy than the 1s by an amount that makes Q 8/3 at every size and mass. This
+// part does not fade with a_B; no run at any size can pass the item's gate on the raw engine. (2) The levels' lattice
+// remainders differ, the 1s's being larger, falling with (tan m / m - 1) / a_B. With the Darwin exchange restored the
+// continuum limit is consistent with relativity (0.25 +- 1.65) but not resolved: the 2s curvature carries an error of
+// 0.02 in R, six times what the extrapolation needs. A resolved read needs either a 2s error near 0.003 at these points
+// (longer correlations, so a finer sigma separates the 2s from the 3s; not estimated here), or a point near m 0.18
+// a_B 19.
+//
 // Depth L2 (a two-body quantum walk on the husk quotient; the softened count as in E-SPN-0214; relativity's alpha is the
 // control). DETERMINISM: no random numbers; the native kernel, byte for byte the JavaScript.
 
@@ -389,7 +414,7 @@ export default experiment({
   id: 'spin/register-pair-clock-continuum',
   code: 'E-SPN-0217',
   title:
-    "explores whether the register pair's 1s-2s clock dilates as relativity says once its levels' lattice remainders are extrapolated to the continuum, each level read as its level group's centroid, at m 0.284 a_B 12, m 0.380 a_B 10 and m 0.427 a_B 7.5",
+    "explores whether the register pair's 1s-2s clock dilates as relativity says once its levels' lattice remainders are extrapolated to the continuum, each level read as its level group's centroid, at m 0.284 a_B 12, m 0.380 a_B 10 and m 0.427 a_B 7.5: fail, the clock runs fast at all three (-2.6, -4.8, -3.8 times relativity's); 8/3 of its error is the instantaneous pull's level-dependent inertia at any size, and with the Darwin exchange restored the extrapolated clock, 0.25 +- 1.65 of relativity's, is not resolved",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',

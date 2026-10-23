@@ -121,6 +121,11 @@ export type CurvatureFit = { A: number; C: number; rss: number; sigmaA: number }
 
 export function curvatureFit(input: { kappas: readonly number[]; shifts: readonly number[] }): CurvatureFit {
   const { kappas, shifts } = input
+
+  if (kappas.length < 2) {
+    return { A: NaN, C: NaN, rss: NaN, sigmaA: NaN }
+  }
+
   const rows = kappas.map(k => [k ** 2, k ** 4])
   const fit = weightedLeastSquares({ rows, ys: shifts, errors: kappas.map(() => 1) })
   const [A, C] = fit.coefficients as [number, number]

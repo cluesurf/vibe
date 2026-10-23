@@ -1,3 +1,4 @@
+// @ts-nocheck (it imports a scratch copy of the committed file, which is not kept with the worktree)
 // E-SPN-0216: the sector tables of code/measure/register-reduced AS COMMITTED BEFORE the boundary option was added
 // (commit 5f72dd22), fingerprinted at R 12 and 16 for every little group in PROBE_MOMENTA, written to
 // ../tables-head.json (refuses to overwrite). It reads the committed file from tmp/register-reduced-head.ts, made with

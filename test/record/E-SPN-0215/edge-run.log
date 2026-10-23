@@ -9,3 +9,61 @@ torus R 12 norm 4096: 1.000000000000721 1195s
 torus R 16 norm 256: 1.000000000000047 1910s
 torus R 16 norm 512: 1.0000000000000844 2004s
 torus R 16 norm 1024: 1.0000000000001716 2222s
+torus R 16 norm 2048: 1.00000000000036 2733s
+torus R 16 norm 4096: 1.0000000000007099 4125s
+ball R 12 norm 256: 0.9999754343961397 4317s
+ball R 12 norm 512: 0.9999610265764761 4341s
+ball R 12 norm 1024: 0.9999317618198909 4390s
+ball R 12 norm 2048: 0.9998480555024196 4481s
+ball R 12 norm 4096: 0.9997058913205786 4623s
+ball R 16 norm 256: 0.9999958370583625 4826s
+ball R 16 norm 512: 0.9999959592491273 4857s
+ball R 16 norm 1024: 0.9999969130822642 4915s
+ball R 16 norm 2048: 0.9999937391961131 5030s
+ball R 16 norm 4096: 0.999988259735247 5280s
+ball R 20 norm 256: 0.999997730914959 5609s
+ball R 20 norm 512: 0.999998037562995 5665s
+ball R 20 norm 1024: 1.00000006568848 5775s
+ball R 20 norm 2048: 1.0000006195892934 5999s
+ball R 20 norm 4096: 1.0000005269163936 6443s
+ball R 24 norm 256: 0.9999984712221427 6940s
+ball R 24 norm 512: 0.9999982111305084 7037s
+ball R 24 norm 1024: 0.9999997727203805 7231s
+ball R 24 norm 2048: 1.0000005431116898 7616s
+ball R 24 norm 4096: 1.000000668708129 8405s
+{
+ "status": "partial",
+ "claim": "the reduced engine's norm drift over 4,096 cycles of the a_B 3.5 level at K 0.32 n (C3v): on the ball D = 2.941e-4, 1.174e-5, -5.269e-7, -6.687e-7 at R 12, 16, 20, 24 (slope of ln D unread per dock against -2 / a_B = -0.5714, G_LAW false); on the closed torus the largest |N / N0 - 1| is 7.21e-13 at R 12, 16 (G_CLOSED true); the isometry defect of states held on one shell is at most 2.33e-15 on the torus and 1.32e-4 on the ball's edge shells, nonzero from shell 7 of 12 out (I_LOCAL true); the R 16 drift 1.174e-5 against the recorded 0.00001174 (I0 true); orbit weights: the level's norm 0.9999999999999998 on O_h, 0.9999999999999996 unfolded on C3v, 1.0000000000000109 on the identity (I_WEIGHT true)",
+ "metrics": {
+  "I0": 1,
+  "I_WEIGHT": 1,
+  "I_LOCAL": 1,
+  "G_CLOSED": 1,
+  "G_LAW": 0,
+  "drift12": 0.00029410867942136765,
+  "drift16": 0.000011740264753035135,
+  "drift20": -5.269163936283405e-7,
+  "drift24": -6.687081290923658e-7,
+  "zeroDrift12": 0.0004223613655222058,
+  "zeroDrift16": 0.00001878172182878668,
+  "zeroDrift20": 7.954424454670317e-7,
+  "zeroDrift24": 3.175915841424626e-8,
+  "rate12": 1.935632313804454,
+  "rate16": 1.875200847232199,
+  "rate20": 0.8504285003280685,
+  "rate24": 1.2312534265005193,
+  "slope": null,
+  "closedWorst": 7.209788321915767e-13,
+  "torusDefect": 2.3314683517128287e-15,
+  "edgeDefect": 0.00013157694425425248,
+  "innermost": 7,
+  "seconds": 8404.915
+ },
+ "control": {
+  "lawSlope": -0.5714285714285714,
+  "recordedDrift": 0.00001174
+ },
+ "notes": "L1. Tracks (cycle: N / N0) at K 0.32 n: torus R 12 (2925 reps, E_L 1.6129792530050748) 256: 4.352e-14 512: 8.105e-14 1024: 1.701e-13 2048: 3.637e-13 4096: 7.210e-13; torus R 16 (6545 reps, E_L 1.613466179745649) 256: 4.707e-14 512: 8.438e-14 1024: 1.716e-13 2048: 3.599e-13 4096: 7.099e-13; ball R 12 (1357 reps, E_L 1.612499529097149) 256: -2.457e-5 512: -3.897e-5 1024: -6.824e-5 2048: -1.519e-4 4096: -2.941e-4; ball R 16 (3136 reps, E_L 1.6133573497835847) 256: -4.163e-6 512: -4.041e-6 1024: -3.087e-6 2048: -6.261e-6 4096: -1.174e-5; ball R 20 (6019 reps, E_L 1.6135192884221976) 256: -2.269e-6 512: -1.962e-6 1024: 6.569e-8 2048: 6.196e-7 4096: 5.269e-7; ball R 24 (10275 reps, E_L 1.6135465608296127) 256: -1.529e-6 512: -1.789e-6 1024: -2.273e-7 2048: 5.431e-7 4096: 6.687e-7. K = 0 on O_h: torus R 12 7.441e-13; torus R 16 7.250e-13; ball R 12 -4.224e-4; ball R 16 -1.878e-5; ball R 20 -7.954e-7; ball R 24 -3.176e-8. Isometry defect per shell, ball: 0 6.66e-16, 1 -6.66e-16, 2 -1.11e-16, 3 0.00e+0, 4 2.22e-16, 5 -1.04e-14, 6 -4.45e-13, 7 1.18e-10, 8 1.13e-7, 9 1.87e-5, 10 4.42e-4, 11 1.32e-4, 12 -6.84e-5; torus: 0 6.66e-16, 1 -6.66e-16, 2 -1.11e-16, 3 0.00e+0, 4 2.22e-16, 5 -4.44e-16, 6 -3.33e-16, 7 -1.33e-15, 8 -1.33e-15, 9 1.78e-15, 10 4.44e-16, 11 0.00e+0, 12 -5.55e-16, 13 8.88e-16, 14 -7.77e-16, 15 -7.77e-16, 16 -2.33e-15, 17 -1.11e-16, 18 1.11e-15, 19 2.22e-16, 20 -3.33e-16, 21 -1.33e-15. 8405 s."
+}
+done 8405s
+exit=0

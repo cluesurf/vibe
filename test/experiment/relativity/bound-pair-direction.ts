@@ -143,6 +143,12 @@
 //    off-line reads. So the fail reads the instrument's floor, not twelve line branches; the line-resolving reads of
 //    E-RLT-0116 and E-RLT-0117 found no weight left at rest on the body diagonal. Whether G2 should count as an instrument
 //    failure is filed as a decision, not settled here.
+//  - Decision 002 of the moving-matter project (2026-10-22): FAIL stands as registered; mobility above the floor is
+//    E-RLT-0118. RERUN (2026-10-22, vibe-roadmap-moving-matter-0008, test/record/E-RLT-0115/rerun-0008.log): FAIL, I4
+//    holding (far bases spread 2.2e-16), off-line residuals 9.84e-4 and 9.96e-4, stuck true, every other number as
+//    above. It recombines the recorded parts, which the parts' path now finds from this file (it was tmp/rlt115, lost
+//    with the old worktree). E-SPN-0216 shows the sectors behind them unchanged bit for bit and all four body
+//    diagonals conserving the norm on a closed boundary.
 //
 // Depth L2 (a two-body quantum walk on the husk quotient, exact in its moving block; the lineon control is closed
 // form). DETERMINISM: no random numbers; the starts are placed; the native kernel, byte for byte the JavaScript.
