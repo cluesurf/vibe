@@ -1,2 +1,12 @@
 2026-10-22T23:07:32.045Z part generic start, a_B 3.5, ball 16, 6 native threads
 2026-10-22T23:08:39.356Z level 1.6133573497835847
+2026-10-23T07:42:29.473Z part generic start, a_B 3.5, ball 16, 6 native threads
+2026-10-23T07:43:43.729Z level 1.613357349783585
+2026-10-23T07:54:23.296Z generic zero read (1024 lags, 17077 representatives)
+2026-10-23T09:19:27.691Z generic kappa 0.04 read
+2026-10-23T10:33:52.064Z generic kappa 0.08 read
+2026-10-23T11:43:42.262Z generic kappa 0.12 read
+2026-10-23T12:58:43.865Z generic kappa 0.16 read
+2026-10-23T13:04:01.906Z generic-turn image of generic at kappa 0.16 read
+2026-10-23T13:09:09.196Z generic-mirror image of generic at kappa 0.16 read
+2026-10-23T13:09:09.262Z part generic done, 19586 s
