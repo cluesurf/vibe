@@ -1,0 +1,13 @@
+/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/moving-matter-next/tmp/rlt120-spectrum-4.5.json: EL 1.6504683714095383, 4097 points
+FD S 2048: -2.558e-3:0.2834 -1.103e-3:0.0105 -7.247e-4:0.0340 7.085e-4:0.5314 1.957e-3:0.1044 3.717e-3:0.0437 7.739e-3:0.0018; heaviest 7.085e-4
+sigma 0.002: peaks 4.038e-4:0.7363
+  window [-0.02, 0.02]: weight 1.000000 centroid - EL 5.6660e-9 width 1.823e-3
+  window [-0.015, 0.015]: weight 0.999999 centroid - EL 1.9862e-9 width 1.823e-3
+  window [-0.01, 0.01]: weight 0.999538 centroid - EL -2.6200e-6 width 1.808e-3
+  density x sigma at offsets -0.03:6.7e-11 -0.02:2.9e-10 -0.015:6.8e-7 -0.01:2.4e-4 0.01:6.3e-4 0.015:1.7e-6 0.02:6.0e-10 0.03:3.0e-10
+sigma 0.003: peaks 1.221e-4:0.8516
+  window [-0.02, 0.02]: weight 1.000000 centroid - EL 4.8477e-9 width 1.823e-3
+  window [-0.015, 0.015]: weight 0.999966 centroid - EL -2.1317e-7 width 1.820e-3
+  window [-0.01, 0.01]: weight 0.995636 centroid - EL -1.0144e-6 width 1.683e-3
+  density x sigma at offsets -0.03:1.0e-10 -0.02:9.1e-8 -0.015:3.6e-5 -0.01:5.9e-3 0.01:5.5e-3 0.015:7.2e-5 0.02:2.6e-7 0.03:4.5e-10
+exit=0

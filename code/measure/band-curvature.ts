@@ -41,6 +41,9 @@ export type BandPlan = {
 
 export type BandPart = {
   EL: number
+  // the level's own one-cycle residual (pairLevel), the witness of the reference correlation's first lag (E-RLT-0120;
+  // absent from E-RLT-0119's parts, which predate it)
+  residual?: number
   zero: Record<string, Plain>
   moved: { name: string; kappa: number; x: Plain }[]
   image: { name: string; of: string; kappa: number; x: Plain }[]
@@ -71,6 +74,7 @@ export function bandRun(input: {
   const before = input.have?.seconds ?? 0
   const now = (): BandPart => ({
     EL: level.EL,
+    residual: level.residual,
     zero,
     moved: [...moved],
     image: [...image],
@@ -117,7 +121,21 @@ export function bandRun(input: {
   return now()
 }
 
-export type CurvatureFit = { A: number; C: number; rss: number; sigmaA: number }
+// recorded parts of one band run merged into one (every part reads the same level; the first part's level and residual
+// stand for all, and a check that they agree belongs to the reader)
+export function mergeBandParts(parts: readonly BandPart[]): BandPart {
+  return {
+    EL: parts[0]!.EL,
+    residual: parts[0]!.residual,
+    zero: Object.assign({}, ...parts.map(p => p.zero)),
+    moved: parts.flatMap(p => p.moved),
+    image: parts.flatMap(p => p.image),
+    reps: Object.assign({}, ...parts.map(p => p.reps)),
+    seconds: parts.reduce((s, p) => s + p.seconds, 0),
+  }
+}
+
+export type CurvatureFit ={ A: number; C: number; rss: number; sigmaA: number }
 
 export function curvatureFit(input: { kappas: readonly number[]; shifts: readonly number[] }): CurvatureFit {
   const { kappas, shifts } = input

@@ -21,15 +21,21 @@
 
 export type Correlation = { re: ArrayLike<number>; im: ArrayLike<number> }
 
+// The lag taper's floor: the read stops where the Gaussian taper falls below it, and refuses a sigma whose taper has not
+// reached it by the last lag. 1e-12 is the default every read before E-SPN-0219 used. E-SPN-0219 also reads at 1e-6
+// (sigma n >= 5.26 rather than 7.43), witnessed against the full-length fine read of the same correlation: the part of
+// the taper the correlation cannot supply is then at most 1e-6 of a lag's weight.
+export const TAPER_FLOOR = 1e-12
+
 // rho_sigma(E), normalized by x_0, so that it integrates to 1 over the whole circle
-export function broadenedSpectrum(x: Correlation, E: number, sigma: number): number {
+export function broadenedSpectrum(x: Correlation, E: number, sigma: number, floor: number = TAPER_FLOOR): number {
   const n = x.re.length
   let v = x.re[0]! / 2
 
   for (let l = 1; l < n; l++) {
     const g = Math.exp((-sigma * sigma * l * l) / 2)
 
-    if (g < 1e-12) break
+    if (g < floor) break
     v += g * (x.re[l]! * Math.cos(E * l) + x.im[l]! * Math.sin(E * l))
   }
 
@@ -37,16 +43,18 @@ export function broadenedSpectrum(x: Correlation, E: number, sigma: number): num
 }
 
 // the largest lag the taper reaches, and whether the correlation is long enough for it
-export const taperReach = (sigma: number): number => Math.ceil(Math.sqrt((2 * Math.log(1e12)) / (sigma * sigma)))
+export const taperReach = (sigma: number, floor: number = TAPER_FLOOR): number =>
+  Math.ceil(Math.sqrt((2 * Math.log(1 / floor)) / (sigma * sigma)))
 
 export type GroupMoments = { weight: number; centroid: number; width: number; variance: number }
 
 // weight, centroid and width of the measure inside [lo, hi] (Simpson's rule on a grid of step sigma / 16)
-export function groupMoments(input: { x: Correlation; lo: number; hi: number; sigma: number }): GroupMoments {
+export function groupMoments(input: { x: Correlation; lo: number; hi: number; sigma: number; floor?: number }): GroupMoments {
   const { x, lo, hi, sigma } = input
+  const floor = input.floor ?? TAPER_FLOOR
 
-  if (taperReach(sigma) > x.re.length) {
-    throw new Error(`groupMoments: sigma ${sigma} needs ${taperReach(sigma)} lags, the correlation has ${x.re.length}`)
+  if (taperReach(sigma, floor) > x.re.length) {
+    throw new Error(`groupMoments: sigma ${sigma} needs ${taperReach(sigma, floor)} lags, the correlation has ${x.re.length}`)
   }
 
   const steps = 2 * Math.ceil(((hi - lo) / (sigma / 16)) / 2)
@@ -58,7 +66,7 @@ export function groupMoments(input: { x: Correlation; lo: number; hi: number; si
 
   for (let i = 0; i <= steps; i++) {
     const E = lo + i * h
-    const f = broadenedSpectrum(x, E, sigma)
+    const f = broadenedSpectrum(x, E, sigma, floor)
     const s = i === 0 || i === steps ? 1 : i % 2 === 1 ? 4 : 2
 
     w += s * f
@@ -79,12 +87,19 @@ export function groupMoments(input: { x: Correlation; lo: number; hi: number; si
 export type Peak = { E: number; weight: number }
 
 // the local maxima of rho_sigma in [lo, hi] above `least` of the largest, each with the weight of a lone line there
-export function spectralPeaks(input: { x: Correlation; lo: number; hi: number; sigma: number; least?: number }): Peak[] {
+export function spectralPeaks(input: {
+  x: Correlation
+  lo: number
+  hi: number
+  sigma: number
+  least?: number
+  floor?: number
+}): Peak[] {
   const { x, lo, hi, sigma } = input
   const h = sigma / 8
   const vals: [number, number][] = []
 
-  for (let E = lo; E <= hi; E += h) vals.push([E, broadenedSpectrum(x, E, sigma)])
+  for (let E = lo; E <= hi; E += h) vals.push([E, broadenedSpectrum(x, E, sigma, input.floor)])
 
   const top = Math.max(...vals.map(v => v[1]))
   const least = (input.least ?? 0.01) * top
@@ -128,8 +143,9 @@ export function groupWindow(input: {
   return { peak, lo: peak.E - input.below, hi: up ? peak.E + input.edge * gap : peak.E + input.above, gap }
 }
 
-// one setting of the group read: the Gaussian width and how far up the gap to the next group the window's top edge sits
-export type GroupSetting = { sigma: number; edge: number }
+// one setting of the group read: the Gaussian width, how far up the gap to the next group the window's top edge sits,
+// and the lag taper's floor (TAPER_FLOOR when absent)
+export type GroupSetting = { sigma: number; edge: number; floor?: number }
 
 export type GroupRead = GroupMoments & { lo: number; hi: number; peak: number; gap: number }
 
@@ -149,7 +165,7 @@ export function groupOverSettings(input: {
 }): { main: GroupRead | null; reads: (GroupRead | null)[]; half: number } {
   const rank = input.rank ?? 0
   const reads = input.settings.map(s => {
-    const peaks = spectralPeaks({ x: input.x, lo: input.lo, hi: input.hi, sigma: s.sigma, least: 0.002 })
+    const peaks = spectralPeaks({ x: input.x, lo: input.lo, hi: input.hi, sigma: s.sigma, least: 0.002, floor: s.floor })
     let floor = input.lo
     let rest = peaks
     let w: ReturnType<typeof groupWindow> = null
@@ -174,7 +190,7 @@ export function groupOverSettings(input: {
     }
 
     const lo = rank === 0 ? w!.lo : floor
-    const m = groupMoments({ x: input.x, lo, hi: w!.hi, sigma: s.sigma })
+    const m = groupMoments({ x: input.x, lo, hi: w!.hi, sigma: s.sigma, floor: s.floor })
 
     return { ...m, lo, hi: w!.hi, peak: w!.peak.E, gap: w!.gap }
   })
