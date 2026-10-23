@@ -54,17 +54,20 @@ export function clockDecomposition(input: {
   R1: number
   R2: number
   S?: number
+  // the 2s level's own S when it differs from the 1s's (E-SPN-0218: each level's density weights the light's kernels)
+  S2?: number
   cStar2?: number
 }): { Qstatic: number; Qlattice: number; Q: number; ratio: number; ratioDarwin: number; R1full: number; R2full: number } {
   const { m, M0, E1, E2, R1, R2 } = input
   const S = input.S ?? 1
+  const S2 = input.S2 ?? S
   const dE = E2 - E1
   const e1 = (2 * M0 - E1) / 2
   const e2 = (2 * M0 - E2) / 2
   const s1 = (2 * Math.tan(m) + (5 / 3) * e1) / (2 * m - e1)
   const s2 = (2 * Math.tan(m) + (5 / 3) * e2) / (2 * m - e2)
   const d1 = (2 * Math.tan(m) + (5 / 3) * e1 - (8 / 3) * e1 * S) / (2 * m - e1)
-  const d2 = (2 * Math.tan(m) + (5 / 3) * e2 - (8 / 3) * e2 * S) / (2 * m - e2)
+  const d2 = (2 * Math.tan(m) + (5 / 3) * e2 - (8 / 3) * e2 * S2) / (2 * m - e2)
   const R1full = R1 + d1 - s1
   const R2full = R2 + d2 - s2
   const Q = (E1 * (R1 - R2)) / dE
