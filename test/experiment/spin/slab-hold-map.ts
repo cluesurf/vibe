@@ -10,7 +10,7 @@
 // 1. THE KLEIN GAP. On one line a hole is a Dirac walk of mass m0 = pi/3 (cos w = cos m0 cos k): bands 60 deg wide,
 //    gaps 2 m0 = 120 deg. The mixer lifts only the dock's uniform slot mode, by theta, and at K = 0 that mode is a sum
 //    of the two lines' band-edge states, so it enters the gap: the lone hole's smallest gap in the slab is
-//    2 pi/3 - theta (tmp/holdmap-probe1.log, the 4 x 4 Bloch beat on a 48 x 48 K grid: 105.5 deg at 14.36, 90.5 at
+//    2 pi/3 - theta (test/record/E-SPN-0139/holdmap-probe1.log, the 4 x 4 Bloch beat on a 48 x 48 K grid: 105.5 deg at 14.36, 90.5 at
 //    28.96, 59.5 at 60, closed at the working 120). Its Dirac mass is m(theta) = pi/3 - theta/2. So the mixer does not
 //    make the hole light at small theta (m falls 12% at 14 deg); it makes it MASSLESS at the working angle.
 // 2. THE HOLDING CONDITION. A phase potential of slope sigma = pi/N (N = 2 D + 1) confines no Dirac particle: every
@@ -18,7 +18,7 @@
 //    exp(-N m(theta)^2) per passage. E-SPN-0113's reading, no fitted constant: held iff N m(theta)^2 >= ln(1/TAIL) =
 //    6.908. THE DERIVED BOUNDARY is sigma_c(theta) = pi m(theta)^2 / 6.908, a parabola in theta that is 0.4986 at theta
 //    0 (E-SPN-0113's N >= 6.30) and vanishes as (2 pi/3 - theta)^2 at the working angle. Its exponent: sigma_c scales as
-//    m(theta)^2, so N_c = 6.908 / m^2 and d ln N_c / d ln m = -2. On the grid (tmp/holdmap-predict.log, exponent and its
+//    m(theta)^2, so N_c = 6.908 / m^2 and d ln N_c / d ln m = -2. On the grid (test/record/E-SPN-0139/holdmap-predict.log, exponent and its
 //    ratio to 6.908):
 //         rate   theta     D 1          D 2          D 3                D 6
 //         0      0         3.29 no      5.48 no      7.68 (1.11) HELD   14.26 HELD
@@ -85,7 +85,7 @@
 // Verdict: partial if a control or check fails; pass if M1, M2 and M3 hold; fail otherwise. The bag is its own gate B,
 // reported in the claim.
 //
-// FIRST RUN (tmp/holdmap-exp-run1.log, 989 s): FAIL, no gate moved. Every control and check holds: CR (E
+// FIRST RUN (test/record/E-SPN-0139/holdmap-exp-run1.log, 989 s): FAIL, no gate moved. Every control and check holds: CR (E
 // 0.330017263726011 against 0.3300172637259596), CC (0.9999986380622382 and 6.114256105783575e-6, equal), the placed
 // (3, 1/16) start reproduces E-SPN-0135's 0.6892365250233201 exactly, norm 8.9e-13, antisymmetry 2.2e-13, the bag at
 // equal rates equals slabBeat bit for bit.

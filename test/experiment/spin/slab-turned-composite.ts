@@ -20,7 +20,7 @@
 //    what beat against it. At rate 0 the two sectors are isospectral (a swap maps a configuration of k x-holes to one of
 //    3 - k, never to itself for three holes), and N_u couples an x-line only to one hole turned, so A1 and B1 split at
 //    third order in theta (three turns). The level followed is the A1 one; the B1 one is followed at D 3 for its split.
-// 3. THE FAMILY (probes tmp/turn-probe1-3.log, turn-probe2-3.log, turn-probe1-6-16.log, turn-probe2-6-16.log). In A1, a
+// 3. THE FAMILY (probes test/record/E-SPN-0144/turn-probe1-3.log, turn-probe2-3.log, turn-probe1-6-16.log, turn-probe2-6-16.log). In A1, a
 //    Blackman-Harris filter of 512 beats (half width 0.049 rad) around the line level passes, of the first-order push
 //    N_u v0, nothing but v0 itself: no rate-0 A1 level within about 0.03 rad is coupled to it. v0 is exact (residual
 //    2.6e-8 at D 3, 2.3e-9 at D 6 on w 16, |lambda| 1 - 4e-8 and 1 - 1e-12), <N_u> = 0.6928 (D 3) and 0.6495 (D 6), and
@@ -88,11 +88,11 @@
 //  characters equal to its sector's to 1e-9; antisymmetry of every level to 1e-10.
 // Verdict: partial if a control or check fails; pass if H1, H2 and H3 hold; fail otherwise.
 // PREDICTED: fail, on H3 (m*/E_rest near 145); H1 and H2 hold on the gate rates, the highest held rate 1/32 at both D.
-// PROBES, disclosed: tmp/turn-time.log (the beat's cost), tmp/turn-probe1-3.log, turn-probe1-6-16.log (characters, the
-// narrow family), tmp/turn-probe2-3.log, turn-probe2-3-odd.log, turn-probe2-6-16.log (the wide family). All at rate 0;
+// PROBES, disclosed: tmp/turn-time.log (the beat's cost), test/record/E-SPN-0144/turn-probe1-3.log, turn-probe1-6-16.log (characters, the
+// narrow family), test/record/E-SPN-0144/turn-probe2-3.log, turn-probe2-3-odd.log, turn-probe2-6-16.log (the wide family). All at rate 0;
 // nothing at a mixer rate was run before the gates were fixed.
 //
-// FIRST RUN (tmp/turn-exp-run1.log, 8,659 s): FAIL, no gate moved. Controls and checks hold: CR (E 0.33001837939 and
+// FIRST RUN (test/record/E-SPN-0144/turn-exp-run1.log, 8,659 s): FAIL, no gate moved. Controls and checks hold: CR (E 0.33001837939 and
 // -0.12246903431 against the line's 0.33001851839 and -0.12246902105, residuals 2.6e-8 and 2.3e-9, both held), CN (the
 // rate-0 level watched at 1/64: least fidelity 0.908, not held), symmetry 1.6e-16, character before projection 2.2e-15,
 // antisymmetry 2.5e-13. The families recomputed in the run agree with the probes (D 3 gap 0.0402, L 0.0166, RATE_C
@@ -124,7 +124,7 @@
 //    different hybrids). The B1 level fails every rate but 1/1024 too (least fidelity 0.994, 0.984, 0.996, 0.981).
 //  - H4 was triggered (H1 failed) and was NOT run in this experiment: a corner cost changes the beat and needs its own
 //    derivation and gates. DISCLOSED as a deviation from the gate list above; it is the next experiment.
-// PROBE AFTER THE RUN STARTED (diagnostic, gates nothing): tmp/turn-probe3-512.log. At D 3, 1/512, from the held 1/1024
+// PROBE AFTER THE RUN STARTED (diagnostic, gates nothing): test/record/E-SPN-0144/turn-probe3-512.log. At D 3, 1/512, from the held 1/1024
 // level, a 2048-beat filter (half width 0.012) and a 600-beat Krylov find one Ritz level within 0.06, and its vector
 // still has residual 4.2e-4, 24 percent off the line, least fidelity 0.9959 and missed 2.7e-3 per hole. So the failure
 // is not the 512-beat filter alone: at 1/512 the composite sits within about 0.01 rad of a bent level (or several) that

@@ -1,0 +1,41 @@
+E-SPN-0209 spin/register-pair-formula-audit L2 5.3s
+status   fail
+claim    the member's exact band over each level's momentum density moves the reference R_full to 1.0819 (rule_a8, recorded 1.4758, old 1.0671), 1.0719 (rule_a12, recorded 1.2347, old 1.0661), 1.0811 (soften_a8, recorded 1.2237, old 1.0670), 1.0718 (soften_a12, recorded 1.1730, old 1.0661): the static-plus-Darwin class holds no first-order term, and the remainder recorded minus corrected falls as a_B^-0.85 on the softened count
+  instrumentFar  -0.0000015084497475559289
+  rule_a6_recorded  2.610854368064847
+  rule_a6_old  1.0692902538366977
+  rule_a6_pred  1.0982468482791785
+  rule_a6_predAtAB  1.0457796410886109
+  rule_a6_radius  4.035996668202529
+  rule_a6_meanP2  0.06128979453651574
+  rule_a8_recorded  1.4757983092114777
+  rule_a8_old  1.0671136270590034
+  rule_a8_pred  1.081928477679504
+  rule_a8_predAtAB  1.0592048884433949
+  rule_a8_radius  5.7571308707823325
+  rule_a8_meanP2  0.030153731045246126
+  rule_a12_recorded  1.2347344914386658
+  rule_a12_old  1.0660990337907745
+  rule_a12_pred  1.071936090243686
+  rule_a12_predAtAB  1.0649353177166847
+  rule_a12_radius  9.374763754095289
+  rule_a12_meanP2  0.011376848985935162
+  soften_a8_recorded  1.2236985226452484
+  soften_a8_old  1.0670326250732132
+  soften_a8_pred  1.0811237987776354
+  soften_a8_predAtAB  1.0608313492504458
+  soften_a8_radius  5.911571295969503
+  soften_a8_meanP2  0.028600007517093327
+  soften_a12_recorded  1.172988158103087
+  soften_a12_old  1.0660868261292589
+  soften_a12_pred  1.0717942479049756
+  soften_a12_predAtAB  1.0652057499941596
+  soften_a12_radius  9.484404210458441
+  soften_a12_meanP2  0.01111538511450385
+  remainderExponent  -0.8455170477030183
+  instrument  1
+  seconds  5.28
+control
+  instrumentFar  -0.0000015084497475559289
+notes    L2, an audit on recorded levels. Instrument true. rule_a6: E 1.6406598, E_b 0.06746 (radius 4.036), S 0.9907; recorded R_full 2.6109, old 1.0693 (gap 1.5416), corrected 1.0982 (gap 1.5126; R_kin 1.2069, Darwin 0.1086), at the radius a_B 1.0458. rule_a8: E 1.6749644, E_b 0.03315 (radius 5.757), S 0.9954; recorded R_full 1.4758, old 1.0671 (gap 0.4087), corrected 1.0819 (gap 0.3939; R_kin 1.1345, Darwin 0.0525), at the radius a_B 1.0592. rule_a12: E 1.6956141, E_b 0.01250 (radius 9.375), S 0.9978; recorded R_full 1.2347, old 1.0661 (gap 0.1686), corrected 1.0719 (gap 0.1628; R_kin 1.0916, Darwin 0.0196), at the radius a_B 1.0649. soften_a8: E 1.6766740, E_b 0.03144 (radius 5.912), S 0.9954; recorded R_full 1.2237, old 1.0670 (gap 0.1567), corrected 1.0811 (gap 0.1426; R_kin 1.1309, Darwin 0.0498), at the radius a_B 1.0608. soften_a12: E 1.6959015, E_b 0.01222 (radius 9.484), S 0.9978; recorded R_full 1.1730, old 1.0661 (gap 0.1069), corrected 1.0718 (gap 0.1012; R_kin 1.0910, Darwin 0.0192), at the radius a_B 1.0652.
+exit=0

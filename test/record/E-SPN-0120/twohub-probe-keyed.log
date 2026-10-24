@@ -1,0 +1,4 @@
+49152 8: wake 69 foot 49 K 1 off 0.368 | 16: wake 123 foot 62 K 2 off 0.235 | 32: wake 171 foot 87 K 2 off 0.250 | 64: wake 12241 foot 3224 K 1039 off 0.387 | 128: wake 39160 foot 4095 K 4096 off 0.103 vacK 0 0
+65536 8: wake 34 foot 17 K 0 off 0.149 | 16: wake 46 foot 24 K 0 off 0.080 | 32: wake 37 foot 21 K 1 off 0.000 | 64: wake 33 foot 19 K 1 off 0.171 | 128: wake 22 foot 14 K 1 off 0.000 vacK 0 0
+0 8: wake 65 foot 29 K 0 off 0.250 | 16: wake 64 foot 33 K 0 off 0.144 | 32: wake 52 foot 22 K 1 off 0.047 | 64: wake 100 foot 56 K 1 off 0.192 | 128: wake 98 foot 61 K 2 off 0.337 vacK 0 0
+exit=0

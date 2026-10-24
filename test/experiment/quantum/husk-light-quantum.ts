@@ -43,7 +43,7 @@
 //    continuum's perfect-conductor law is p = -3, C = -pi^2 c0 / 720 (hbar = 1). Matter is left out of the plates' energy:
 //    a gapped sea's d-dependence falls exponentially (as R2's aliasing), not as a power.
 //
-// PROBES BEFORE THE GATES, DISCLOSED (tmp/hlq-probe.ts, tmp/hlq-probe.log): the symbol's eigenvalues at k = 0.01 and 0.3
+// PROBES BEFORE THE GATES, DISCLOSED (tmp/hlq-probe.ts, test/record/E-FRC-0292/hlq-probe.log): the symbol's eigenvalues at k = 0.01 and 0.3
 //    along x and y (one gauge zero, two photons 1.3333e-4 and 0.1197 doubly degenerate, six at 24; three zeros at k = 0),
 //    the member cycle's trace against diracPhase (equal at M = pi - |arg u| at three K, 9 digits), the Weyl count at
 //    N = 9, 17, 33 (0), one thermal mode's invariance (2.5e-17) and occupation (0.21438 against Bose 0.2146), one slab's
@@ -69,7 +69,7 @@
 // VERDICT: fail if a KILL fires; else open, with the slice's reads (pass of G1 to G5 on the slice cannot pass the
 //    whole husk, whose compact sector no engine holds); partial if G4 or G5 fails alone.
 //
-// FIRST RUN 2026-10-08 (tmp/hlq.log, about 25 min; an earlier start crashed before any gate, its c0 read at k = 1e-4
+// FIRST RUN 2026-10-08 (test/record/E-FRC-0292/hlq.log, about 25 min; an earlier start crashed before any gate, its c0 read at k = 1e-4
 // fell under the gauge cut, fixed to 1e-3, no gate moved): PARTIAL by the verdict rule, and that partial is a defect of
 // G4's instrument clause, not of the light. G1 held: commutators 4.2e-15 and 6.4e-15, beat law 4.6e-16 over 4,094 modes,
 // Weyl 0 failures; the Heisenberg deficit of the largest register falls 8.8e-2, 5.7e-4, 2.4e-8 at D = 4, 8, 16. G2 held

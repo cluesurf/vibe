@@ -87,6 +87,54 @@ export function latticePairCurvature(input: {
   return { a: sum / w / 4, meanP2: p2 / w, points: radial * dirs.length }
 }
 
+// THE WHOLE BAND, NOT ONLY ITS CURVATURE (E-MTR-0033): the static pair's energy at total momentum K along a unit
+// direction, E_m(K/2 + p) + E_m(K/2 - p) averaged over the same hydrogenic density (the same quadrature), with the
+// average at K = 0 subtracted, so only the K-dependence is returned. Every order in K of the members' exact band is
+// kept, which is the pair's dispersion if binding added nothing to its motion beyond holding the members together.
+export function latticePairBand(input: {
+  M0: number
+  radius: number
+  K: number
+  direction?: readonly [number, number, number]
+  radial?: number
+  directions?: number
+}): number {
+  const { M0, radius, K } = input
+  const d = input.direction ?? [1, 0, 0]
+  const radial = input.radial ?? 400
+  const dirs = fibonacciSphere(input.directions ?? 200)
+  const top = Math.atan(radius * Math.PI)
+  const dt = top / radial
+  const E = (p: readonly number[]): number => diracPhase(p, M0)
+  const half = [(K * d[0]) / 2, (K * d[1]) / 2, (K * d[2]) / 2]
+
+  let w = 0
+  let sum = 0
+
+  for (let i = 0; i < radial; i++) {
+    const t = (i + 0.5) * dt
+    const u = Math.tan(t)
+    const weight = ((u * u) / (1 + u * u) ** 4) * (1 + u * u) * dt
+    const q = u / radius
+
+    let band = 0
+
+    for (const [x, y, z] of dirs) {
+      const p = [q * x, q * y, q * z]
+
+      band +=
+        E([half[0]! + p[0]!, half[1]! + p[1]!, half[2]! + p[2]!, 0]) +
+        E([half[0]! - p[0]!, half[1]! - p[1]!, half[2]! - p[2]!, 0]) -
+        2 * E([p[0]!, p[1]!, p[2]!, 0])
+    }
+
+    w += weight
+    sum += (weight * band) / dirs.length
+  }
+
+  return sum / w
+}
+
 // the pair's kinetic inertia over energy, c*^2 / (2 a E), at a bound level of cycle phase E
 export const pairR = (a: number, E: number, cStar2 = 0.5): number =>
   cStar2 / (2 * a * E)

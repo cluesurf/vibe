@@ -1,0 +1,5 @@
+cap 2: 553 patterns, 1 contact, gauss true, by cost 0:1 2:552, transitions 26496, 0.017s
+u (0,4) theta -2.094395 m0 0.523599 c (1.000000,0.000000) beta (-0.062500,-0.036084); support |eps| 1.2170 .. 1.9246; predicted pi/2 -+ arcsin(rho cos m0) 1.2174 .. 1.9242; weight near eps 0:-1.1e-13 0.5:1.4e-12 1:5.8e-11 1.2:1.1e-1 1.5:9.0e-1 2:2.2e-9 3:1.8e-13
+u (-1,4) theta -2.761341 m0 0.190126 c (1.000000,0.000000) beta (-0.080357,-0.015465); support |eps| 1.1688 .. 1.9728; predicted pi/2 -+ arcsin(rho cos m0) 1.1675 .. 1.9741; weight near eps 0:-1.1e-13 0.5:3.4e-13 1:2.4e-11 1.2:4.2e-1 1.5:7.8e-1 2:2.3e-8 3:-1.7e-14
+u (2,4) theta -0.760502 m0 1.190545 c (1.000000,0.000000) beta (-0.011480,-0.028720); support |eps| 1.4234 .. 1.7182; predicted pi/2 -+ arcsin(rho cos m0) 1.4219 .. 1.7197; weight near eps 0:-5.0e-13 0.5:-1.1e-12 1:-1.4e-11 1.2:-1.0e-10 1.5:2.2e+0 2:-5.1e-11 3:-5.1e-13
+exit=0

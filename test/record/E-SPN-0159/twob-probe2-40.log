@@ -1,0 +1,7 @@
+base (all at D): B* 0.000e+0 crossings 66 nearest pair -1.000,2.867 at p 3.80
+even up odd down, uniform: B* 0.000e+0 crossings 135 nearest pair -5.933,7.933 at p 7.20
+even up odd down, c49 sqrt3: B* 0.000e+0 crossings 164 nearest pair -2.513,4.513 at p 4.00
+nine at S, rest far: B* 0.000e+0 crossings 9 nearest pair -2.946,4.903 at p 4.80
+nine at 2, eight at 3: B* 0.000e+0 crossings 165 nearest pair -11.520,13.520 at p 13.20
+scan 40: 40 with B* = 0; best B* 0.000e+0 at x  c ; 3.0 s
+exit=0

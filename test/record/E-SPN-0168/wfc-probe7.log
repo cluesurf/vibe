@@ -1,0 +1,5 @@
+pairCensusN 192, 3d paths: crossings 0 B* 0.760502413 (2M 0.760502413) [15s]
+wallCensus L 1: levels 17 crossings 0 B* 0.760502413 MM 0 MF 0 FF 0 first Infinity (NaN, NaN) [15s]
+wallCensus L 2: levels 33 crossings 176 B* 0.000000000 MM 72 MF 0 FF 104 first 0.065 (-3.1416, 3.1416) [16s]
+wallCensus L 4: levels 65 crossings 552 B* 0.000000000 MM 552 MF 0 FF 0 first 0.065 (-0.8129, 0.8129) [21s]
+exit=0

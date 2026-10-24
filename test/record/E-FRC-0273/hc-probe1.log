@@ -1,0 +1,7 @@
+ball 162049 cells 17.463 s returns true mismatch 3.852852405769759e-13
+shells 1 24 456 8376 153192
+layer members 833 spread 1.7331691637423319e-12 degree set 6 17.595 s
+husk docks in ball by skin 0:1/1 1:6/6 2:18/18 3:38/38 4:66/66
+husk docks in seed cone by beat 1 7 25 63 129 cubic 1 7 25 63 129
+one BFS 0.006 s reached 162049
+exit=0

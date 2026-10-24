@@ -1,0 +1,23 @@
+k3: theta 3.235149 m 0.046778 (closed m 0.046778) c* closed 0.706848816 rule 0.706848816, R = (c/2)^2/c*^2 1.000730
+  closed u 1.000,0.000,0.000: b 0.1: k 0.0067 v 0.1000 tilt 0.0e+0 F -3.92e-8 L -7.51e-6 S -4.81e-6 T 0.0e+0 | b 0.3: k 0.0208 v 0.3000 tilt 0.0e+0 F -2.77e-6 L -7.74e-5 S -3.71e-5 T 0.0e+0 | b 0.5: k 0.0382 v 0.5000 tilt 0.0e+0 F -3.07e-5 L -3.04e-4 S -1.22e-4 T 0.0e+0 | b 0.7: k 0.0649 v 0.7000 tilt 0.0e+0 F -2.54e-4 L -1.21e-3 S -3.52e-4 T 4.4e-8 | b 0.9: k 3.0000 v 0.0997 tilt 0.0e+0 F -9.70e-1 L -3.30e+3 S -9.26e-1 T 0.0e+0 | b 0.95: k 3.0000 v 0.0997 tilt 0.0e+0 F -9.70e-1 L -3.30e+3 S -9.26e-1 T 0.0e+0
+  closed u 0.707,0.707,0.000: b 0.1: k 0.0067 v 0.1000 tilt 2.1e-8 F -3.93e-8 L -7.44e-6 S -4.81e-6 T 0.0e+0 | b 0.3: k 0.0208 v 0.3000 tilt 0.0e+0 F -2.78e-6 L -7.74e-5 S -3.71e-5 T 0.0e+0 | b 0.5: k 0.0382 v 0.5000 tilt 0.0e+0 F -3.07e-5 L -3.04e-4 S -1.23e-4 T 4.4e-8 | b 0.7: k 0.0649 v 0.7000 tilt 0.0e+0 F -2.54e-4 L -1.21e-3 S -3.52e-4 T 6.7e-8 | b 0.9: k 3.0000 v 0.4232 tilt 0.0e+0 F -9.70e-1 L 4.11e+4 S -6.59e-1 T 2.9e-6 | b 0.95: k 3.0000 v 0.4232 tilt 0.0e+0 F -9.70e-1 L 4.11e+4 S -6.59e-1 T 2.9e-6
+  closed u 0.577,0.577,0.577: b 0.1: k 0.0067 v 0.1000 tilt 0.0e+0 F -3.93e-8 L -7.15e-6 S -4.81e-6 T 1.8e-7 | b 0.3: k 0.0208 v 0.3000 tilt 0.0e+0 F -2.78e-6 L -7.74e-5 S -3.71e-5 T 6.8e-11 | b 0.5: k 0.0382 v 0.5000 tilt 0.0e+0 F -3.07e-5 L -3.04e-4 S -1.23e-4 T 4.4e-8 | b 0.7: k 0.0649 v 0.7000 tilt 0.0e+0 F -2.54e-4 L -1.21e-3 S -3.52e-4 T 0.0e+0 | b 0.9: k 3.0000 v 0.2740 tilt 0.0e+0 F -9.70e-1 L -2.90e+3 S -7.88e-1 T 1.5e-7 | b 0.95: k 3.0000 v 0.2740 tilt 0.0e+0 F -9.70e-1 L -2.90e+3 S -7.88e-1 T 1.5e-7
+  rule u 1.000,0.000,0.000: b 0.1: k 0.0067 v 0.1000 tilt 0.0e+0 F -3.92e-8 L -7.40e-6 S -4.81e-6 T 6.5e-10 | b 0.3: k 0.0208 v 0.3000 tilt 0.0e+0 F -2.77e-6 L -7.74e-5 S -3.71e-5 T 1.2e-9 | b 0.5: k 0.0382 v 0.5000 tilt 0.0e+0 F -3.07e-5 L -3.04e-4 S -1.22e-4 T 5.5e-9 | b 0.7: k 0.0649 v 0.7000 tilt 0.0e+0 F -2.54e-4 L -1.21e-3 S -3.52e-4 T 2.7e-9 | b 0.9: k 3.0000 v 0.0997 tilt 0.0e+0 F -9.70e-1 L -3.30e+3 S -9.26e-1 T 0.0e+0 | b 0.95: k 3.0000 v 0.0997 tilt 0.0e+0 F -9.70e-1 L -3.30e+3 S -9.26e-1 T 0.0e+0
+/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/code/measure/dock-mixer.ts:587
+    if (list.length !== (ms[i] as Multiplet).size) throw new Error(`dock-mixer: multiplet ${i} holds ${list.length} phases at K, ${(ms[i] as Multiplet).size} at 0`)
+                                                         ^
+
+Error: dock-mixer: multiplet 0 holds 12 phases at K, 11 at 0
+    at <anonymous> (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/code/measure/dock-mixer.ts:587:58)
+    at Array.forEach (<anonymous>)
+    at multipletPhases (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/code/measure/dock-mixer.ts:586:7)
+    at singletEps (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/code/measure/singlet-kinematics.ts:68:19)
+    at E (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/hl-probe1.ts:22:20)
+    at <anonymous> (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/code/measure/husk-lorentz.ts:48:13)
+    at Array.map (<anonymous>)
+    at huskGradient (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/code/measure/husk-lorentz.ts:43:20)
+    at momentumForSpeed (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/code/measure/husk-lorentz.ts:77:19)
+    at lorentzReading (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/code/measure/husk-lorentz.ts:110:13)
+
+Node.js v24.13.1
+exit=1

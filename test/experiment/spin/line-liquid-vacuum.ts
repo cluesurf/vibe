@@ -40,7 +40,7 @@
 //    one line off tone, and the amplitude moduli independent of any momentum across the line.
 //
 // GATES, fixed before the registered run (the probes above are disclosed, and the rate-3 coherent probe
-// tmp/liquid-probe5-n3.log reached 3 beats at 34,958 terms in 273 s, so the coherent windows are fixed at 5 beats for
+// test/record/E-SPN-0137/liquid-probe5-n3.log reached 3 beats at 34,958 terms in 273 s, so the coherent windows are fixed at 5 beats for
 // n = 0 and 3 for n = 3; term counts grow about 15-fold a beat at n = 0 and 13 to 670-fold at n = 3).
 //  L1 on the side-4 box (one vacuum cell), the symmetric Floquet state Phi over all distinct W(F4) images: every image
 //     holds 0 single lines and 0 gated docks over 76 beats and repeats in 12; |<Phi|U^64 Phi>| / <Phi|Phi> >= 0.99 read
@@ -64,14 +64,14 @@
 // Verdict: partial if a control or check fails; fail if L1 fails or L2 is decided false; pass if L1, L2 and L3 hold;
 // open if L1 holds and L2 is undecided on the window.
 //
-// FIRST RUN (tmp/liquid-exp-run1.log, 341 s): FAIL on L1, on the count clause alone. The code read the W(F4) elements
+// FIRST RUN (test/record/E-SPN-0137/liquid-exp-run1.log, 341 s): FAIL on L1, on the count clause alone. The code read the W(F4) elements
 // that are involutions with a doubled trace of 4 and found 24 of them, not the 48 the gate had counted, so
 // `reflections === 48` was false; the change of Phi under those 24 was exactly 0, and every other clause held (1,152
 // images, 0 singles, 0 gated docks, 1,152 periodic, overlap 1 after 64 beats). The count was a mis-stated clause, not a
 // reading. It was replaced by the clause it stood for (Phi unchanged by a set of W(F4) elements whose generated group
 // is read to be all 1,152), with no threshold moved; a second run reading all 1,152 elements directly was stopped after
 // 30 minutes as too heavy.
-// THIRD RUN (tmp/liquid-exp-run3.log, 337 s): OPEN. L1 holds, L2 is undecided on the window, every control and check
+// THIRD RUN (test/record/E-SPN-0137/liquid-exp-run3.log, 337 s): OPEN. L1 holds, L2 is undecided on the window, every control and check
 // passes.
 //  - L1: 1,152 distinct images (the orbit is free), 0 single lines and 0 gated docks over 76 beats on every one, all
 //    1,152 periodic in 12, overlap exactly 1 after 64 beats, Phi unchanged by 6 generators whose closure is all 1,152.
@@ -131,7 +131,7 @@ const B = rootIndex([1, 1, 0, 0])
 const RATE = 3
 const BEATS = 128
 const REPORT_AT = [8, 16, 32, 64, 128]
-// E-SPN-0121's record (tmp/smix-exp-run3.log): lone love footprints at REPORT_AT, paths 0 .. 3
+// E-SPN-0121's record (test/record/E-SPN-0121/smix-exp-run3.log): lone love footprints at REPORT_AT, paths 0 .. 3
 const RECORD_RATE3 = [
   [9, 108, 4096, 4094, 4096],
   [4, 61, 4083, 4090, 4094],

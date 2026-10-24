@@ -1,0 +1,101 @@
+census 6s
+fock 8s
+Q1 18s
+Q2 61s
+SW 82s
+band 82s
+controls 111s
+checks 118s
+status fail
+claim a fermionic frame mixer (exp(i theta N_u), theta 2 pi/3) is exact and unitary on one-content frames and a phase on full ones, so every full-at-every-beat sea of the working beat stays bit for bit (SW false: a hole there sits in a frame of several contents, one content on at most 1.6% of beats, and stays a lineon); with flat links the love sea is stationary bit for bit (Q1 true), a hole and a hole-fear pair stay bounded (Q2 true, footprint at most 4), and the hole turns (34.5 mesh lines against 1 at theta 0), with an edge whose mean inverse mass tensor has isotropy 1.000000 (Q3a true); a bound composite is not decided; the partly filled working vacuum cascades under the same piece
+  SW 0
+  Q1 1
+  Q2 1
+  Q3a 1
+  Q3b_decided 0
+  control_C1 1
+  control_C2 1
+  control_C3 1
+  checked 1
+  cells 4096
+  workingFrameBeats 1572864
+  workingEmpty 1212672
+  workingHeld2 61056
+  workingHeld4 124416
+  workingHeld6 61056
+  workingFull 113664
+  workingOdd 0
+  workingPartial 246528
+  workingOneContentPartial 3171
+  workingOneContentFull 0
+  workingStoreChanges 1242624
+  emptyPartial 0
+  emptyReturn 1
+  storedPartial 0
+  storedFull 1572864
+  storedOneContentFull 0
+  storedReturn 2
+  storedStoreChanges 0
+  barePartial 0
+  bareFull 786432
+  bareEmpty 786432
+  loveWorkingPartial 0
+  loveWorkingOneContentFull 14290
+  loveWorkingReturn -1
+  loveFlatPartial 0
+  loveFlatOneContentFull 1572864
+  loveFlatReturn 1
+  seasKEvents 0
+  pointFieldMinWorking 10820
+  pointFieldMaxWorking 10870
+  pointFieldFlat 0
+  fockUnitaryOff 0
+  fockReversalOff 0
+  fockUnsignedOff 10248
+  fockTwoContentOff 373856
+  liftDiffer 0
+  liftChecked 3840
+  fullPhase 1
+  seaBlockedFrames 1572864
+  seaMoved 0
+  exactSea 1
+  holeMaxFootprint 1
+  holeFearMaxFootprint 4
+  holeFearMaxWake 4
+  loveMaxFootprint 1
+  mesonMaxFootprint 2
+  twoHolesMaxWake 2
+  holeLines 34.5
+  holeDocks 55
+  loveLines 34.5
+  loveDocks 55
+  mesonLines 66.25
+  holeMoves 42.625
+  holeLinesOff 1
+  holeDocksOff 8
+  swLoveGatedShare 0.015625
+  swLoveLines 1
+  swStoredGatedShare 0
+  swStoredLines 1
+  swStoredTwoContent 128
+  lineCurvature -1.1547005301788236
+  c -0.2886751325447059
+  spreadRank 3
+  spreadRank0 0
+  formGap 6.008096242737793e-9
+  tensorMin -0.2886751348955141
+  tensorMax -0.28867513403939393
+  isotropy 0.9999999970343127
+  vacuumMixedFootprint128 4094
+  vacuumMixedK 247501
+  vacuumMixedMoves 154137
+  cascadeMinFootprint128 4096
+  runnerSame 1
+  reversalDiffer 0
+  nonInvolutive 0
+  holeExactBranches 232
+  holeExactBack 1
+  seconds 117.783
+control {"vacuumMixedFootprint128":4094,"cascadeMinFootprint128":4096,"holeLinesOff":1,"runnerSame":1,"fockUnsignedOff":10248}
+notes L1 (paths, Fock) and L2 (band). Census over 128 beats of side 8: working by held 1212672 0 61056 0 124416 0 61056 0 113664, one-content partial 3171, store changes 1242624; empty partial 0 return 1; stored sea partial 0 return 2 store changes 0; bare sea by held 786432 0 0 0 0 0 0 0 786432; love sea working partial 0 one-content full 14290 return -1; love sea flat one-content full 1572864 return 1; K on the seas 0. Point field defects per frame component: working 10846 10852 10860 10820 10856 10870, flat 0 0 0 0 0 0. Fock: unitary off 0, reversal off 0, unsigned off 10248 (n 2,3,4,5,6,7), two contents off 373856 (n 2,3,4,5,6,7), lift 0 of 3840. Q1: sea blocked frames 1572864, moves 0, exact true, working-weave seas with vs without the piece 0, 0. Q2 per path (wake, footprint at 8/16/32/64/128): holes 1/1/1/1/1; 1/1/1/1/1; 1/1/1/1/1; 1/1/1/1/1; 1/1/1/1/1; 1/1/1/1/1; 1/1/1/1/1; 1/1/1/1/1; hole+fear 4/4/4/4/4 fp 3/4/4/4/4; 4/4/4/4/4 fp 4/4/4/4/4; 4/4/4/4/4 fp 4/4/4/4/4; 4/4/4/4/4 fp 3/4/4/4/4; 4/4/4/4/4 fp 4/3/4/4/4; 4/4/4/4/4 fp 4/4/4/4/4; 4/4/4/4/4 fp 4/4/4/4/4; 4/4/4/4/4 fp 4/4/4/4/4; loves 1/1/1/1/1; 1/1/1/1/1; 1/1/1/1/1; 1/1/1/1/1; 1/1/1/1/1; 1/1/1/1/1; 1/1/1/1/1; 1/1/1/1/1; mesons 2/2/2/2/2; 2/2/2/2/2; 2/2/2/2/2; 2/2/2/2/2; 2/2/2/2/2; 2/2/2/2/2; 2/2/2/2/2; 2/2/2/2/2; two holes wake 2/2/2/2/2. Lines touched: holes 38 39 34 34 34 32 30 35, loves 38 39 34 34 34 32 30 35, mesons 72 68 69 66 62 71 60 62, off 1 1 1 1. SW: love-sea hole gated 1 2 1 1 of 128, lines 1 1 1 1; stored-sea hole gated 0 0 0 0, lines 1 1 1 1. Band (curvatures 2 lambda, epsilon = lambda kappa^2; the lineon's own -1.154701, c -0.288675): e1: mixed -0.577350 -0.288675 0.000000 (line weights 0.500 0.250 0.500), unmixed -0.577350 -0.577350 0.000000 0.000000; e2: mixed -0.577350 -0.288675 -0.000000 (line weights 0.500 0.250 0.500), unmixed -0.577350 -0.577350 0.000000 0.000000; e3: mixed -0.577350 -0.288675 0.000000 (line weights 0.500 0.250 0.500), unmixed -0.577350 -0.577350 0.000000 0.000000; e12: mixed -0.866025 -0.000000 0.000000 (line weights 0.750 0.575 0.653), unmixed -1.154701 0.000000 0.000000 0.000000; e13: mixed -0.288675 -0.288675 -0.288675 (line weights 0.667 0.750 0.500), unmixed -0.288675 -0.288675 -0.288675 -0.288675; e23: mixed -0.288675 -0.288675 -0.288675 (line weights 0.667 0.750 0.500), unmixed -0.288675 -0.288675 -0.288675 -0.288675; spread directions rank 3 (theta 0: 0); form gap 6.01e-9; mean tensor eigenvalues -0.288675 -0.288675 -0.288675 -0.288675. C1: vacuum with the piece off the mixerless vacuum at 4094 docks (K 247501, moves 154137); meson 14/2136/4096/4096/4096; 6/1837/4096/4096/4096; 38/2085/4096/4096/4096; 15/1476/4096/4096/4096. Checks: reversal 0, non-involutive gated frames 0, exact hole norm true (232 branches), back true. 118 s.
+exit=0

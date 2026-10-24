@@ -1,0 +1,41 @@
+k 1 m 0.190126 running least 0.190126
+k 2 m 0.143348 running least 0.143348
+k 3 m 0.046778 running least 0.046778
+k 4 m 0.236904 running least 0.046778
+k 5 m 0.096570 running least 0.046778
+k 6 m 0.093556 running least 0.046778
+k 7 m 0.239917 running least 0.046778
+k 8 m 0.049792 running least 0.046778
+k 9 m 0.140334 running least 0.046778
+k 10 m 0.193139 running least 0.046778
+k 11 m 0.003013 running least 0.003013
+k 12 m 0.187112 running least 0.003013
+k 13 m 0.146361 running least 0.003013
+k 14 m 0.043765 running least 0.003013
+k 15 m 0.233890 running least 0.003013
+k 16 m 0.099583 running least 0.003013
+k 17 m 0.090543 running least 0.003013
+k 18 m 0.242931 running least 0.003013
+k 19 m 0.052805 running least 0.003013
+k 20 m 0.137321 running least 0.003013
+k 21 m 0.196153 running least 0.003013
+k 22 m 0.006027 running least 0.003013
+k 23 m 0.184099 running least 0.003013
+k 24 m 0.149375 running least 0.003013
+massless swap |K| 0.001: max 0.499999968750 c
+massless swap |K| 0.01: max 0.499996874977 c
+massless swap |K| 0.03: max 0.499971873154 c
+massless swap |K| 0.1: max 0.499687272069 c
+massless swap |K| 0.3: max 0.497168994812 c
+massless swap |K| 1: max 0.466409954567 c
+massless swap |K| 0.001: max 0.499999968750 c
+massless swap |K| 0.01: max 0.499996874995 c
+massless swap |K| 0.03: max 0.499971874561 c
+massless swap |K| 0.1: max 0.499687445781 c
+massless swap |K| 0.3: max 0.497183131003 c
+massless swap |K| 1: max 0.468244648997 c
+centers 11@-3.048037 1@-0.000000 12@0.093556
+K 0.01,0,0,0: moving 2, flat 22, pair 0.094087101 -0.000531033, midpoint 0.04677803444109632, single0 -5.023759186428828e-15
+K 0.3,-0.2,0.1,0.05: moving 2, flat 22, pair 0.316893739 -0.223337670, midpoint 0.04677803444109609, single0 -5.023759186428828e-15
+K 1.1,0.4,-2.2,0.7: moving 2, flat 22, pair 1.582590908 -1.489034839, midpoint 0.046778034441097946, single0 -5.023759186428828e-15
+exit=0

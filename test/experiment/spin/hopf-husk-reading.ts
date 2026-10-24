@@ -104,13 +104,13 @@
 // Verdict: partial if the instrument or C1 fails; pass if H1 to H4 hold; fail otherwise.
 //
 // PROBE BEFORE THE GATE RUN, disclosed (written after the gates above): one smoke of every code path on a reduced plan
-//  (skin 1: 7 layer docks; 64 frame momenta, 16 dock momenta, 3 walk beats; tmp/hopf-smoke.ts, tmp/hopf-smoke.log, 2 s).
+//  (skin 1: 7 layer docks; 64 frame momenta, 16 dock momenta, 3 walk beats; tmp/hopf-smoke.ts, test/record/E-SPN-0158/hopf-smoke.log, 2 s).
 //  It read the gated quantities on that plan: H1 and C1 as derived, H2 false (0 of 7 docks agree, 28 directed shadows
 //  with two corners), H2r true on 7 of 7, one frame -> chart axis map over the 7 docks, every cusp of type +-e_i, H3's
 //  exact rows exact, the singlet isotropic in every reading, the frame spread 1.41 to 2.08, H4 false (all three families
 //  agree), every instrument in range. Nothing was changed after it: no gate, threshold or reading.
 //
-// RESULT (run 1, tmp/hopf-exp-run1.log, 10 s), recorded after the run; no gate moved. FAIL on H2 and H4, as predicted.
+// RESULT (run 1, test/record/E-SPN-0158/hopf-exp-run1.log, 10 s), recorded after the run; no gate moved. FAIL on H2 and H4, as predicted.
 //  H1, H2r, H3, C1 and every instrument hold.
 //  - H1: 24 roots on the 6 corners, 4 each, each set the circle {q, q i, -q, -q i}; the 3 axes pull back to the 3 frames,
 //    which are the 3 cosets of Q8; the 12 lines give 12 integer rotations of determinant 1 with orders 1 x 1, 2 x 3,

@@ -1,0 +1,49 @@
+meet true D 1 c_photon^2 0.44444 distinct true minOverlap 0.999
+  level 0: E0 3.62630 b 3.3447e-2 c^2 0.24258 contact 0.9220 meeting 0.9220 string 1.078
+  level 1: E0 4.18879 b -5.9633e-15 c^2 -0.00000 contact 1.0000 meeting 1.0000 string 2.000
+  level 2: E0 4.71239 b -1.2800e-13 c^2 -0.00000 contact 1.0000 meeting 1.0000 string 2.000
+  level 3: E0 4.84323 b 5.6874e-2 c^2 0.55091 contact 0.4172 meeting 0.4172 string 1.583
+  clock alpha 5.946e-2 SR 1.463e-2 ratio 4.065
+meet true D 2 c_photon^2 0.26667 distinct true minOverlap 0.998
+  level 0: E0 3.85860 b 1.6698e-2 c^2 0.12887 contact 0.9260 meeting 0.9260 string 2.168
+  level 1: E0 4.13053 b 4.3914e-2 c^2 0.36278 contact 0.4362 meeting 0.4362 string 1.844
+  level 2: E0 4.36650 b 1.5529e-2 c^2 0.13562 contact 0.7579 meeting 0.7579 string 2.777
+  level 3: E0 4.60580 b 1.4777e-2 c^2 0.13612 contact 0.5579 meeting 0.5579 string 2.222
+  clock alpha -1.001e-1 SR 8.366e-3 ratio -11.963
+meet true D 3 c_photon^2 0.19048 distinct true minOverlap 0.999
+  level 0: E0 3.47181 b 2.0280e-2 c^2 0.14081 contact 0.9190 meeting 0.9190 string 2.184
+  level 1: E0 3.82208 b 4.7497e-2 c^2 0.36307 contact 0.4186 meeting 0.4186 string 1.809
+  level 2: E0 4.17375 b 3.0299e-2 c^2 0.25292 contact 0.4172 meeting 0.4172 string 2.188
+  level 3: E0 4.47424 b 1.9637e-2 c^2 0.17572 contact 0.4175 meeting 0.4175 string 2.524
+  clock alpha -7.770e-2 SR 7.177e-3 ratio -10.826
+meet true D 4 c_photon^2 0.14815 distinct true minOverlap 0.998
+  level 0: E0 3.25464 b 1.4656e-2 c^2 0.09540 contact 0.9160 meeting 0.9160 string 2.185
+  level 1: E0 3.64038 b 4.6702e-2 c^2 0.34002 contact 0.4126 meeting 0.4126 string 1.847
+  level 2: E0 3.95342 b 3.4832e-2 c^2 0.27541 contact 0.4145 meeting 0.4145 string 2.272
+  level 3: E0 4.30170 b 2.3964e-2 c^2 0.20617 contact 0.4808 meeting 0.4808 string 3.370
+  clock alpha -8.308e-2 SR 6.252e-3 ratio -13.288
+meet false D 1 c_photon^2 0.44444 distinct true minOverlap 0.739
+  level 0: E0 5.23599 b 6.4150e-2 c^2 0.67178 contact 0.3333 meeting 0.0000 string 1.667
+  level 1: E0 5.63106 b -7.0868e-3 c^2 -0.07981 contact 0.8578 meeting 0.0000 string 1.142
+  level 2: E0 5.67104 b 2.1479e-2 c^2 0.24362 contact 0.5890 meeting 0.0000 string 1.411
+  level 3: E0 6.28319 b -2.5600e-13 c^2 -0.00000 contact 0.4063 meeting 0.0000 string 1.662
+  clock alpha 1.803e-1 SR 7.537e-3 ratio 23.924
+meet false D 2 c_photon^2 0.26667 distinct true minOverlap 0.998
+  level 0: E0 4.91131 b 5.7853e-2 c^2 0.56826 contact 0.2737 meeting 0.0000 string 2.090
+  level 1: E0 5.25929 b 5.3287e-2 c^2 0.56050 contact 0.2292 meeting 0.0000 string 2.608
+  level 2: E0 5.44300 b 5.1852e-2 c^2 0.56446 contact 0.1786 meeting 0.0000 string 2.738
+  level 3: E0 5.61799 b 2.9539e-2 c^2 0.33190 contact 0.1531 meeting 0.0000 string 2.952
+  clock alpha 1.312e-2 SR 5.162e-3 ratio 2.542
+meet false D 3 c_photon^2 0.19048 distinct true minOverlap 0.865
+  level 0: E0 4.55066 b 5.9867e-2 c^2 0.54487 contact 0.2347 meeting 0.0000 string 2.196
+  level 1: E0 4.91282 b 5.0421e-2 c^2 0.49542 contact 0.2339 meeting 0.0000 string 2.633
+  level 2: E0 5.15767 b 4.3901e-2 c^2 0.45285 contact 0.1789 meeting 0.0000 string 3.002
+  level 3: E0 5.21776 b 4.1533e-2 c^2 0.43342 contact 0.6279 meeting 0.0000 string 2.894
+  clock alpha 2.608e-2 SR 4.260e-3 ratio 6.122
+meet false D 4 c_photon^2 0.14815 distinct true minOverlap 0.998
+  level 0: E0 4.32503 b 6.4017e-2 c^2 0.55375 contact 0.1987 meeting 0.0000 string 2.345
+  level 1: E0 4.64378 b 5.5025e-2 c^2 0.51105 contact 0.1937 meeting 0.0000 string 2.843
+  level 2: E0 4.86240 b 4.7334e-2 c^2 0.46031 contact 0.1615 meeting 0.0000 string 3.192
+  level 3: E0 4.91646 b 4.7982e-2 c^2 0.47181 contact 0.5313 meeting 0.0000 string 3.189
+  clock alpha 2.821e-2 SR 3.688e-3 ratio 7.649
+exit=0

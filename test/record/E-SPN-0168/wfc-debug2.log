@@ -1,0 +1,8 @@
+round 0: theta 0.9995158918 est 3.2e-21 true 1.3e-15 |y| 1.000000 | theta 0.9995158918 est 1.1e-14 true 1.1e-14 |y| 1.000000 | theta 0.9995158918 est 1.2e-14 true 1.2e-14 |y| 1.000000 | theta 0.9995158918 est 1.9e-16 true 1.1e-15 |y| 1.000000 | theta 0.9995158918 est 6.1e-17 true 2.0e-15 |y| 1.000000; found 5
+round 1: theta 0.9995158918 est 4.4e-35 true 2.4e-15 |y| 1.000000 | theta 1.0369190431 est 1.8e-34 true 5.3e-2 |y| 1.000000 | theta 1.1088743750 est 8.6e-28 true 3.8e-1 |y| 1.000000 | theta 1.2878053491 est 1.9e-35 true 2.9e-1 |y| 1.000000; found 9
+round 2: theta 0.9591966673 est 2.5e-15 true 1.2e-1 |y| 1.000000; found 10
+round 3: ; found 10
+round 4: theta 0.9977823433 est 7.4e-25 true 3.4e-1 |y| 1.000000; found 11
+round 5: theta 0.9549551881 est 1.7e-4 true 3.0e-1 |y| 1.000000 | theta 0.9754057439 est 2.9e-20 true 1.7e-1 |y| 1.000000; found 12
+expected theta 0.9995158918
+exit=0

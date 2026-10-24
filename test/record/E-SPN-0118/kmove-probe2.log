@@ -1,0 +1,12 @@
+lines [ 0, 2, 6 ] {
+  sets: [ [ 0, 2, 6 ], [ 0, 3, 7 ], [ 1, 2, 7 ], [ 1, 3, 6 ] ],
+  edges: 24
+}
+census2 { keep: 168, change: 0, identity: 96, clash: 0, total: 264 } census3 { keep: 416, change: 576, identity: 768, clash: 0, total: 1760 }
+one level -2.7305369915803634 0.6527741516783118 0.000017482273088442508
+profile 56 mismatch 9.40457113388253e-10
+start size 175616
+keep size 223124 maxTail 0.00005245936747757288 minFid 0.9999999887164142 drop 4.014057959266414e-15 esc 0 lineChange 0 offHub 0 clash 0 lines [ 0, 2, 6 ] E { energy: -1.9084256599470528, share: 0.9345172436434929 } s 45.524
+rule size 491489 maxTail 0.00016591099783686298 minFid 0.4566765176918205 drop 5.88687812101537e-15 esc 0 lineChange 1.1449299449045292 offHub 0 clash 0 lines [ 0, 2, 6, 3, 7, 1 ] E { energy: -1.9104996186088878, share: 0.8951590473444831 } s 79.457
+boost x { energy: -1.9114677807346907, share: 0.8812193677409209 } 78.176
+exit=0

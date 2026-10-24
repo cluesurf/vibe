@@ -27,7 +27,7 @@
 //    (the Ritz level at that rate is the dressed eigenvector) and its loss falls faster than the rate. With the coupling
 //    one-body and the level's shape self-similar in D (the linear potential's Airy scaling), the angle at which the loss
 //    reaches the reading's 0.01 is set by the binding gap: theta_c(D) / Delta(D) the same at D 3 and D 6.
-//    Delta(D), read before the run at rate 0 only (tmp/string-probe1.log; code/measure/coined-line-bloch lineLightest,
+//    Delta(D), read before the run at rate 0 only (test/record/E-SPN-0141/string-probe1.log; code/measure/coined-line-bloch lineLightest,
 //    one line, box 12, the loves' level whose image the holes are): the gap from the lightest level to the next,
 //    0.35043 rad at D 3 and 0.41969 at D 6, so predicted theta_c(6) / theta_c(3) = 1.198. The weaker string's gap is the
 //    LARGER here (the Airy scaling of a nonrelativistic level would give 0.66 of D 3's), so (A) predicts D 6 holds to a
@@ -77,15 +77,15 @@
 //  1e-10; held + escaped = 1 to 1e-10 and antisymmetry to 1e-12 at the end of every hold.
 // Verdict: partial if a control or check fails; pass if T1 and T2 hold (shaking, not breaking); fail otherwise.
 // PREDICTED: fail, on T1a at D 6 (the tail) and possibly T2s at D 6; T2r exact; T3 fails at D 6.
-// PROBE, disclosed (instrument only, rate 0): tmp/string-probe1.log, the two gaps above. Nothing at a mixer rate was run
+// PROBE, disclosed (instrument only, rate 0): test/record/E-SPN-0141/string-probe1.log, the two gaps above. Nothing at a mixer rate was run
 // before the gates were fixed; E-SPN-0139's record at 1/64 was known and is cited where it informed a prediction.
 //
-// FIRST RUN (tmp/string-exp-run1.log, 719 s): PARTIAL, on one check; no gate moved. Every control holds: CR (0.330017263726011
+// FIRST RUN (test/record/E-SPN-0141/string-exp-run1.log, 719 s): PARTIAL, on one check; no gate moved. Every control holds: CR (0.330017263726011
 // and -0.12246960716426848, equal), CF (E-SPN-0139's four numbers reproduced exactly), CP (the hole-and-fear start makes
 // a store on 4 of 4 paths). Checks: watchHold equals holdLevel bit for bit, leak identity 3.7e-13, norm 1.9e-13, but
 // ANTISYMMETRY 2.31e-12 against the 1e-12 carried over from E-SPN-0139 (which read 2.2e-13 over shorter work): float
 // roundoff, not a sign error, but the check as written fails, so the verdict is partial. (The control object was
-// flattened to numbers after run 1 started, for the typecheck; tmp/string-exp-run2.log, 472 s, reruns the final file and
+// flattened to numbers after run 1 started, for the typecheck; test/record/E-SPN-0141/string-exp-run2.log, 472 s, reruns the final file and
 // every number is identical to the last digit.)
 //                    rate:   1/1024     1/512      1/256      1/128      1/64
 //   D 3 least fidelity       0.98983    0.99552 H  0.97985    0.98741    0.96385
@@ -107,8 +107,8 @@
 //    within 4 docks of its center while its fidelity to the line level dips. At D 6 a real part escapes the w 12 window
 //    (escaped 9.5e-3 by beat 128 at 1/1024, 5.0e-2 at 1/64).
 //  - READOUT: A not supported, B not supported (the rule makes no pair). Neither mechanism as posed.
-// PROBES AFTER THE RUN (diagnostic, gate nothing): tmp/string-probe2-3-1024.log and -6-1024.log, the followed 1/1024
-// level's fidelity over 256 beats and its own Ritz levels; tmp/string-probe3-3.log and -6.log, where the first-order
+// PROBES AFTER THE RUN (diagnostic, gate nothing): test/record/E-SPN-0141/string-probe2-3-1024.log and -6-1024.log, the followed 1/1024
+// level's fidelity over 256 beats and its own Ritz levels; test/record/E-SPN-0141/string-probe3-3.log and -6.log, where the first-order
 // part of one mixer beat (U(1/1024) v - U(0) v) lands in the rate-0 spectrum.
 //  - The fidelity BEATS, it does not decay: D 3 between 0.988 and 0.998 with a slow drift, D 6 between 0.875 and 0.967,
 //    both recurring. The followed level vector is not an eigenvector (Ritz residual 0.068 at D 3, 0.045 at D 6), and at

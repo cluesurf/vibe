@@ -1,0 +1,15 @@
+hypercubic 4d: links 4, plaquettes [["square",6]], per link {"weighted":[6,6,6,6],"count":[6,6,6,6]}, continuum {"kappa":1,"anisotropy":0,"K":[[1,0,0,0,0,0],[0,1,0,0,0,0],[0,0,1,0,0,0],[0,0,0,1,0,0],[0,0,0,0,1,0],[0,0,0,0,0,1]]}
+  N 8: cL -3.999668, equipartition 3.000000 (want 3), least pivot 1.000e+0, failures 0, kappaP 0.50000, 12 ms
+    freezing Q8 0.8837 (dilute 0.1179), 2T 1.8336 (dilute 0.1290), 2O 2.8970 (dilute 0.1502), 2I 5.3992 (dilute 0.0975)
+  N 12: cL -3.999462, equipartition 3.000000 (want 3), least pivot 1.000e+0, failures 0, kappaP 0.50000, 43 ms
+    freezing Q8 0.8838 (dilute 0.1178), 2T 1.8338 (dilute 0.1289), 2O 2.8973 (dilute 0.1501), 2I 5.3996 (dilute 0.0975)
+  N 16: cL -3.999430, equipartition 3.000000 (want 3), least pivot 1.000e+0, failures 0, kappaP 0.50000, 135 ms
+    freezing Q8 0.8838 (dilute 0.1178), 2T 1.8338 (dilute 0.1289), 2O 2.8973 (dilute 0.1501), 2I 5.3996 (dilute 0.0975)
+husk x beat (xi 1): links 10, plaquettes [["triangle",20],["temporal square",9]], per link {"weighted":[10,10,10,8,8,8,8,8,8,18],"count":[10,10,10,8,8,8,8,8,8,18]}, continuum {"kappa":3.8729833462074166,"anisotropy":2.2932668186396046e-16,"K":[[3.8729833462074166,0,0,0,0,0],[0,3.8729833462074166,0,1.1102230246251565e-16,0,0],[0,0,3.8729833462074175,0,0,0],[0,1.1102230246251565e-16,0,3.8729833462074166,0,0],[0,0,0,0,3.8729833462074175,0],[0,0,0,0,0,3.8729833462074175]]}
+  N 8: cL -17.336325, equipartition 9.000000 (want 9), least pivot 2.388e-1, failures 0, kappaP 0.29610 0.33778 0.27540 0.31974, 133 ms
+    freezing Q8 0.4664 (dilute 0.9761), 2T 0.9554 (dilute 1.1816), 2O 1.5026 (dilute 1.3074), 2I 2.8182 (dilute 1.0634)
+  N 12: cL -17.336094, equipartition 9.000000 (want 9), least pivot 2.333e-1, failures 0, kappaP 0.29610 0.33779 0.27538 0.31971, 664 ms
+    freezing Q8 0.4664 (dilute 0.9759), 2T 0.9554 (dilute 1.1815), 2O 1.5026 (dilute 1.3072), 2I 2.8183 (dilute 1.0632)
+  N 16: cL -17.336056, equipartition 9.000000 (want 9), least pivot 2.315e-1, failures 0, kappaP 0.29610 0.33780 0.27538 0.31971, 2113 ms
+    freezing Q8 0.4664 (dilute 0.9759), 2T 0.9555 (dilute 1.1814), 2O 1.5026 (dilute 1.3071), 2I 2.8183 (dilute 1.0632)
+exit=0

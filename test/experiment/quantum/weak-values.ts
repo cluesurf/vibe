@@ -39,10 +39,10 @@
 // in an arranged schedule, and B's presence amplitude k^n is its keep history, not a mesh run); fail otherwise.
 //
 // PROBES before this file, disclosed: tmp/qf-probe1 (the weak values at every (f, j)), tmp/qf-probe2 (the T = 3 shares on
-// integer+0: 1 + 2w and -3(1 + 2w) at one end, 3 and 3 at the other). tmp/qf-smoke-weak.log ran this file as written with
+// integer+0: 1 + 2w and -3(1 + 2w) at one end, 3 and 3 at the other). test/record/E-QTM-0160/qf-smoke-weak.log ran this file as written with
 // its placeholder title; the gates did not move after it.
 //
-// FIRST RUN (3.6 s, tmp/qf-exp-weak-run1.log): partial as derived, every gate held, title written after the run. The
+// FIRST RUN (3.6 s, test/record/E-QTM-0160/qf-exp-weak-run1.log): partial as derived, every gate held, title written after the run. The
 // response is exactly 9 4^n / (4^(n+1) + 9): 9/13, 36/25, 144/73, 576/265 ... 150994944/67108873 at n = 0 .. 12,
 // the disturbance 9/4 4^-n. At full strength (n = 0) the pointer reads 9/13 < 1: the anomaly needs the weakness.
 //

@@ -74,14 +74,14 @@
 //  (0 off) with L bulk lines per face-diagonal husk line and 2L per axis; K on two singles changes 0 line sets; every
 //  unboosted level exact (fidelity at least 1 - 1e-9 over 64 beats); the knit stepper equals keyedRunner on every run.
 // Verdict: partial if a check or a control fails; pass if B1, B2 and B3 hold; fail otherwise.
-// PROBES, disclosed (instrument only): tmp/bulkturn-probe-1.log (side 8: the projection 0 off of 98,304 slots, fibers
+// PROBES, disclosed (instrument only): test/record/E-SPN-0127/bulkturn-probe-1.log (side 8: the projection 0 off of 98,304 slots, fibers
 // of 8; 6,144 bulk lines on 576 husk lines, 8 per face-diagonal husk line and 16 per axis; the star of X covers 9 husk
 // lines, no fiber dock lies on it, and the six other stacked hubs' stars cross X's at 6 bulk docks (12 for the
 // antipode); K without the vacuum: two singles 0 line changes and 156 of 264 carry a vibe onto a line of another
 // shadow, three singles change the shadow set on 552 of 1,760 and flip depth only on 24; xy60 boosted, 64 beats:
 // husk velocity (-0.0011, -0.0011, 0), reach 0.62, tail 2.1e-3, 12.5 s).
 //
-// FIRST RUN (tmp/bulkturn-exp-run1.log, 368 s): FAIL on B1 and B3, as predicted; every control and check holds and no
+// FIRST RUN (test/record/E-SPN-0127/bulkturn-exp-run1.log, 368 s): FAIL on B1 and B3, as predicted; every control and check holds and no
 // gate moved. The pair then named xy90 is at 120 degrees ((1,0,0,1) . (0,1,0,-1) = -1), so it was renamed xy120
 // after the run: a label only. B1: husk velocities off the shadows 5.7e-4 (h60), 4.7e-4 (xy60, xz60, yz60), 2.7e-4
 // (xy120), 0 (xx90, one shadow) docks a beat against a threshold of 1e-2, reach 0.28 to 0.76 docks over 128 beats. The

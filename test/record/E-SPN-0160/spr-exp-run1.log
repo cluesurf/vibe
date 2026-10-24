@@ -1,0 +1,64 @@
+F1 a 4s
+F1 b 13s
+F1 c f 14s
+F1 d, I2 40s
+F1 e 42s
+F3 a 232s
+F3 b 592s
+N1 T1 C6 593s
+C7 644s
+I1 645s
+C1 660s
+C2 to C5 662s
+{
+ "status": "partial",
+ "claim": "F1 a true b true (multiplets -0.000000000x176 -2.761341447x8 2.761341447x8; band gap 2.42e-15) c true d true (top 0.606652, massless 1.000000 of c/4) e true f false (c0 / (c/2) 0.5000000000); F2 true (Fock level); F3 a true (B* 0.760502413, crossings 0, nearest below at |q| 2.0106 (pair -0.7809, 0.7809), 2M 0.760502413) b true (pi/6 B* 0.000000048 x0, heavy B* 0.573390276 x0), hold not run; F4 not read; N1 true (B* 1.999999999999936, crossings 0); T1 true (capture gap 7.77e-16, sides 1.91e-17, vector 1); instrument I1 true I2 true (HF gap 1.25e-16); controls C1 true C2 true C3 true C4 true C5 true C6 true C7 true",
+ "metrics": {
+  "F1": 0,
+  "F1a": 1,
+  "F1b": 1,
+  "F1c": 1,
+  "F1d": 1,
+  "F1e": 1,
+  "F1f": 0,
+  "F2": 1,
+  "F3": 0,
+  "F3a": 1,
+  "F3b": 1,
+  "F4": 0,
+  "N1": 1,
+  "T1": 1,
+  "instrument": 1,
+  "I1": 1,
+  "I2": 1,
+  "C1": 1,
+  "C2": 1,
+  "C3": 1,
+  "C4": 1,
+  "C5": 1,
+  "C6": 1,
+  "C7": 1,
+  "mLight": 0.19012560334646678,
+  "c0OverC": 0.2500000000006183,
+  "gammaMax": 2.64585111982883e-11,
+  "RdefectMax": 8.027356557249732e-12,
+  "isotropy": 1.05494502022907e-11,
+  "top": 0.6066521753746141,
+  "topMassless": 0.9999995625189857,
+  "bandGap": 2.419605899270905e-15,
+  "censusBstar": 0.7605024133858624,
+  "censusCrossings": 0,
+  "bstar6": 4.7861235618492916e-8,
+  "bstarHeavy": 0.5733902756214595,
+  "captureGap": 7.771561172376096e-16,
+  "cliffordSides": 1.9081958235744878e-17,
+  "clusterBstar": 1.999999999999936,
+  "vectorClusterCrossings": 576,
+  "latticeVectorCrossings": 2112,
+  "hfGap": 1.249000902703301e-16,
+  "gMax": 0.3667882424043842,
+  "seconds": 662.102
+ },
+ "notes": "L1 and L2. 192 modes a member. Light u = ringUnit(-1, 4) m 0.190126 (2M 0.760502), pi/6 m 0.523599, heavy m 0.857072. F1: group 1152, ranks 8 8 32, idempotent true, covariant true; multiplets -0.000000000x176 -2.761341447x8 2.761341447x8; flats -3.69e-16x176; band gap 2.42e-15; massless pairs size 16 c0/(c/4) 1.000000000002 gamma -2.65e-11, size 16 c0/(c/4) 0.999999999992 gamma -9.69e-12, size 16 c0/(c/4) 0.999999999998 gamma -7.62e-12, size 16 c0/(c/4) 0.999999999995 gamma -7.62e-12; R - tan m/m -2.65e-12 8.03e-12 2.31e-12 5.29e-12 (tan m/m 1.012226057), K^2 0.123490201806 0.123490201805 0.123490201806 0.123490201805. F3: light B* 0.760502413, crossings 0, nearest below at |q| 2.0106 (pair -0.7809, 0.7809); pi/6 B* 0.000000048, crossings 0, nearest below at |q| 3.6285 (pair -3.1416, -1.0472) (4m 2.094395102); heavy B* 0.573390276, crossings 0, nearest below at |q| 9.4248 (pair -1.7141, -1.7141) (4m 3.428287791). Reads: g max 0.366788, Smax light 0.8378 pi/6 1.2680 heavy 1.8319. N1 1.999999999999936 x0; C6 vector cluster 576 crossings (first p 1.5946308724832214); C7 lattice vector B* 0.000000000, crossings 2112, first at |q| 0.8168 (pair eps -0.3803, 1.1416), nearest below at |q| 2.5761 (pair -0.3803, 1.1348). C1: m 0.04677803444110118, top/c 0.48817847622126725, R 1.0007300338253453, cycle R 1.0007300338253453, c0/c 0.5000000000011358; schedule m 0.26179938779914924, R 1.1026577908486987, top/c 0.4037221140226534. C2 heavy slots B* 0.573390276, crossings 0, nearest below at |q| 4.5082 (pair -1.7141, -1.7141), B*/2 0.286695 against 0.286695. C3 light slots 168 crossings. C4 Dirac 1.9999999999999538. C5 far first 4.1859 (step 0.1993). 662 s."
+}
+exit=0

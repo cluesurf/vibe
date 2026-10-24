@@ -64,11 +64,11 @@
 //    it is the control that the count can read nonzero.
 //
 // PROBES BEFORE THE GATES, disclosed (no gate was moved after the gate run).
-//  tmp/hl-probe1.log (killed after 210 s, a slow closure over all 600 elements as generators): Gamma is a homomorphism,
+//  test/record/E-RLT-0108/hl-probe1.log (killed after 210 s, a slow closure over all 600 elements as generators): Gamma is a homomorphism,
 //   W(F4) holds 1 element acting as a Gamma(h) (the identity), and the group of the 576 rotations with the 2T has 13,824
 //   elements with |C(z)| = 13,824, center-odd dimension 0 (point 1). The mirror group was not reached. This file uses
 //   small generating sets instead.
-//  tmp/hl-probe2.log (2 s): the skin 4 depth 1 region has 2,451 docks, 0 inconsistent steps; reading the link back as
+//  test/record/E-CMP-0019/hl-probe2.log (2 s): the skin 4 depth 1 region has 2,451 docks, 0 inconsistent steps; reading the link back as
 //   slot d at the neighbour gave 0 two-sided links, slot -d gave 7,284 of 7,284 (so the link back is slot -d); 63 layer
 //   docks with all 24 neighbours, all 6 on the layer, 18 down, 0 up; the integer beat's covariance gap 0 with the moves on
 //   the layer docks and on every dock; with the down links carried bare (no link value) the gap is 4,160 and 4,016.

@@ -7,7 +7,7 @@
 // THE OBSERVABLE: the pair's quartic as a fraction of relativity's. For a curve with rest energy E0 and curvature a,
 // the Galilean form is E0 + a K^2 and the relativistic one sqrt(E0^2 + 2 a E0 K^2). Write
 //   E(K) = E_gal(K) - rho (E_gal(K) - E_rel(K)),
-// so rho 1 is relativity and rho 0 Galileo. The lone member's own band (control, tmp/mtr-light-probe.log) has rho
+// so rho 1 is relativity and rho 0 Galileo. The lone member's own band (control, test/record/E-MTR-0031/mtr-light-probe.log) has rho
 // 1.772, 1.771, 1.770, 1.768 at k = K / 2 for K 0.2, 0.35, 0.5, 1.0, constant to 0.3%. The pair's rho is fitted the same
 // way, as one constant with a free: E0 is the solver's K = 0 ground, and (a, rho) are least squares over the four K
 // (two degrees of freedom). Why a is fitted, not taken from E-SPN-0212's K 0.04 and 0.02 read: that read's a carries
@@ -35,12 +35,12 @@
 // shows in every window; if it does, it is reported, not gated.
 //
 // THE RUN AND ITS COST, estimated before the run: 1.54 s a cycle at 6 threads on the a_B 12 C4v sector (86,420 states,
-// tmp/mtr-light-probe.log), 4,096 cycles a K, so 1.75 hours a K and 7 hours for four, as two processes of 3 threads.
+// test/record/E-MTR-0031/mtr-light-probe.log), 4,096 cycles a K, so 1.75 hours a K and 7 hours for four, as two processes of 3 threads.
 // The run stops at 8 hours with whatever K have landed.
 //
-// FIRST RUN (2026-10-21 00:19 to 04:38, tmp/mtr-light-a.log and -b.log, two processes of tmp/mtr-light-part.ts at 3
-// threads on a loaded machine, 2.1 hours a K; the verdict by combineLight in tmp/mtr-light-combine.ts,
-// tmp/mtr-light-verdict.log): FAIL on W and I. No gate moved. The fit itself holds (F).
+// FIRST RUN (2026-10-21 00:19 to 04:38, test/record/E-MTR-0031/mtr-light-a.log and -b.log, two processes of test/record/E-MTR-0031/run/mtr-light-part.ts at 3
+// threads on a loaded machine, 2.1 hours a K; the verdict by combineLight in test/record/E-MTR-0031/run/mtr-light-combine.ts,
+// test/record/E-MTR-0031/mtr-light-verdict.log): FAIL on W and I. No gate moved. The fit itself holds (F).
 //  - W fails: at S 2048 the solver's K = 0 ground is 1.11408757, 2.0e-5 below the recorded 1.11410744, against a 1e-5
 //    gate, with a half-spread of 1.0e-5 over the settings. This was knowable before the run and was not checked.
 //  - I fails at every K on stability (half-spreads 3.1e-5, 1.8e-5, 8.6e-5, 2.3e-4 at K 0.2, 0.35, 0.5, 1.0, against a
@@ -262,11 +262,11 @@ export function combineLight(input: {
 }
 
 const NATIVE: KernelOptions = { backend: 'native', threads: 6 }
-const W_DIR = '/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/moving-matter'
+const W_DIR = `${import.meta.dirname}/../../..`
 
 // E-SPN-0212's recorded K = 0 correlation, for a part run and a combine
 export const recordedZeroCorrelation = (): Correlation | null => {
-  const path = `${W_DIR}/tmp/spn-light-m0284-a12.json`
+  const path = `${W_DIR}/test/record/E-SPN-0212/spn-light-m0284-a12.json`
 
   return existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')).zero.x : null
 }

@@ -1,0 +1,22 @@
+{
+  "code": "E-SPN-0219",
+  "frozen": "2026-10-23, before any K > 0 correlation was read at the new settings",
+  "instrument": {
+    "sigmaMain": 0.00105,
+    "sigmaFactors": [1, 1.19, 1.405],
+    "edges": [0.5, 0.4],
+    "taperFloor": 0.0001,
+    "least": 0.1,
+    "next": 0.01,
+    "below": 0.02,
+    "above": 0.006,
+    "momenta": [0.2, 0.35, 0.5]
+  },
+  "R0": { "control": 1e-9 },
+  "W": { "witness": 5e-6 },
+  "I": { "weight1s": 0.2, "weight2s": 0.05, "stable1s": 5e-5, "stable2s": 6e-5 },
+  "clock": { "S": 1, "resolved": 0.5, "relSigmas": 2, "dilSigmas": 2, "staticSigmas": 3, "staticLimit": -1.6666666666666667, "band": 0.25 },
+  "verdict": "fail if R0, W or I fails, or not RES; pass if REL, DIL, NOTQ and X; partial if REL, DIL and NOTQ but not X; fail otherwise",
+  "predicted": { "sigmaInf": [0.15, 0.45], "ratioInf": [-1.4, 1.9] },
+  "stage2": "only if RES fails while R0, W and I hold: the three points' K reads at 8,450 lags on the work droplet, sigma n 4.29 at floor 1e-4, the same gates"
+}

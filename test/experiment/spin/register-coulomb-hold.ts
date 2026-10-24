@@ -83,32 +83,32 @@
 //  doubled coupling.
 // Verdict: fail if any of H0 to H6 fails; partial if the instrument or a control fails; pass if all hold.
 //
-// PROBES BEFORE THE GATE RUN, disclosed. tmp/rch-probe1.log: the ring's small units (the smallest angle 0.006027); at m
+// PROBES BEFORE THE GATE RUN, disclosed. test/record/E-SPN-0173/rch-probe1.log: the ring's small units (the smallest angle 0.006027); at m
 //  0.190 the continuum numbers (a_B 2 to 6: alpha G(0) from 10.3 down to 3.4 rad, every one above or near pi); the engine
 //  (ball 12, 16, 20: 0.51, 1.28, 2.40 s a cycle); a level at a_B 3.5, ball 20: E 1.5806 after S 64/128/128, residual
 //  3.8e-3, E_b 0.1799 against the continuum 0.212, 16 cycles lost 8e-9 (its S read crashed: the 3d FFT needs a
-//  power-of-two torus, fixed). tmp/rch-probe2.log: C1 bit for bit; the witness at coord 5 / full 4 and coord 7 / full 6,
+//  power-of-two torus, fixed). test/record/E-SPN-0173/rch-probe2.log: C1 bit for bit; the witness at coord 5 / full 4 and coord 7 / full 6,
 //  S S and generic, K 0 and generic: 3.8e-17 to 8.6e-17 on the whole full ball at 7/6 (the generic start at 5/4 reads
-//  4.4e-3 at the edge, 7e-17 inside). tmp/rch-probe3-35.log and -25.log (m 0.190, scalar): a_B 3.5, ball 20: E_b 0.1798,
+//  4.4e-3 at the edge, 7e-17 inside). test/record/E-SPN-0173/rch-probe3-35.log and -25.log (m 0.190, scalar): a_B 3.5, ball 20: E_b 0.1798,
 //  isotropy 1.9e-7, R 1.877 against the formula 1.841; a_B 2.5, ball 16: E_b 0.2396 (continuum 0.416: the core aliased),
-//  R 2.205 against 2.244. tmp/rch-probe4.log: the ring units with m in [0.35, 0.52] and their contact phases (point 3's
-//  numbers). tmp/rch-probe3-m427-35.log (m 0.427, scalar, ball 20, S 128/512/256): E_b 0.0968, residual 9.0e-3, shares
-//  0.979 S S, R static 7.546 against 1.230, S 0.9971. tmp/rch-probe5.log (the same, ball 16, S 2048): the start's weight
-//  at E_L - 0.06 eight times that at E_L; residual 1.24e-3; R 14.97 against 1.246. tmp/rch-probe6-scalar.log and
+//  R 2.205 against 2.244. test/record/E-SPN-0173/rch-probe4.log: the ring units with m in [0.35, 0.52] and their contact phases (point 3's
+//  numbers). test/record/E-SPN-0173/rch-probe3-m427-35.log (m 0.427, scalar, ball 20, S 128/512/256): E_b 0.0968, residual 9.0e-3, shares
+//  0.979 S S, R static 7.546 against 1.230, S 0.9971. test/record/E-SPN-0173/rch-probe5.log (the same, ball 16, S 2048): the start's weight
+//  at E_L - 0.06 eight times that at E_L; residual 1.24e-3; R 14.97 against 1.246. test/record/E-SPN-0173/rch-probe6-scalar.log and
 //  -vector.log (ball 14, S 128/512/1024): scalar R 12.24, vector R 11.34 (E_b 0.098, 0.095); their cross-piece checks on
-//  generic states filling the ball read 5e-4 (the edge; the gate's I3 holds its states inside). tmp/rch-probe6-core0.log
-//  (vector, contact count zeroed): R 7.85, E_b 0.1037. tmp/rch-probe7.log (vector, ball 12, the start's spectral weight
+//  generic states filling the ball read 5e-4 (the edge; the gate's I3 holds its states inside). test/record/E-SPN-0173/rch-probe6-core0.log
+//  (vector, contact count zeroed): R 7.85, E_b 0.1037. test/record/E-SPN-0173/rch-probe7.log (vector, ball 12, the start's spectral weight
 //  at E 1.30 to 1.75 in steps of 0.03, S 512): weight at 1.36, 1.39 (645), 1.45, 1.48 (3785), 1.51 (1387) and upward.
-//  tmp/rch-smoke.log (every code path on a small plan, unconverged, gating nothing): it found two defects in the gates as
+//  test/record/E-SPN-0173/rch-smoke.log (every code path on a small plan, unconverged, gating nothing): it found two defects in the gates as
 //  first written, fixed before the gate run: H0 compared the generic start over the whole full ball, where only the
 //  inside is exact (4.4e-3 at the edge, 7e-17 inside; E-SPN-0162 gated it "within 2 steps"); I3's norm over two cycles on
 //  a radius-12 ball (1.2e-12) could reach the edge, so it reads one cycle on a radius-16 ball against 1e-11. These probes
 //  moved the member from m 0.190 to 0.427, the form from scalar to vector, the main point from a_B 5 on a radius-34 ball
 //  to a_B 3.5 on radius 16, the stronger point from a doubled coupling to a_B 3, and the filters to 128, 512, 2048.
-//  tmp/rch-probe7.log's scan finished during the gate run (nothing changed after it): the start's weight rises from
+//  test/record/E-SPN-0173/rch-probe7.log's scan finished during the gate run (nothing changed after it): the start's weight rises from
 //  1.51 to a broad maximum at 1.60 (6424) and falls to 134 at 1.75, a dense spectrum around the hydrogenic level.
 //
-// FIRST RUN (tmp/rch-exp-run1.log, 13,162 s): FAIL on H2, H4 and H5, as predicted; H0, H1, H3, H6, the instrument and
+// FIRST RUN (test/record/E-SPN-0200/rch-exp-run1.log, 13,162 s): FAIL on H2, H4 and H5, as predicted; H0, H1, H3, H6, the instrument and
 //  every control hold. No gate moved and none was rerun.
 //  - H0: the full 192 x 192 rule and the lifted coordinate cycle agree to 3.6e-17 to 7.2e-17 (S S over the whole full
 //    ball, generic within radius 3), weights equal to 12 digits, the coordinate norm kept to 1e-12.

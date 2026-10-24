@@ -55,12 +55,12 @@
 //  side gap.
 // Verdict: fail if Y1, Y2 or Y3 fails; partial if a control fails; pass otherwise.
 //
-// PROBES BEFORE THE GATE RUN, disclosed (no gate moved after them). tmp/rmh-grv-smoke.log: every code path on a small
+// PROBES BEFORE THE GATE RUN, disclosed (no gate moved after them). test/record/E-GRV-0145/rmh-grv-smoke.log: every code path on a small
 //  plan (16 Weyl momenta, 4 directions, one prime; 315 s, gating nothing): Y1 (mu 1, pair 1, tied 0, mixing 0, face
 //  1/1/0/0 at the residue 1/4), Y2 (light 0.4933 of c/4, massless 0.99999956, flat bands 1.6e-16), Y3 on both registers
 //  (share gap 2.2e-16), C1 to C4 held. Its timing set the gate plan's momenta at 256 (from 512) before the gate run.
 //
-// FIRST RUN (tmp/rmh-grv-run1.log, 1,990 s): PASS, as predicted. No gate moved and none was rerun.
+// FIRST RUN (test/record/E-GRV-0145/rmh-grv-run1.log, 1,990 s): PASS, as predicted. No gate moved and none was rerun.
 //  - Y1: the full slide at the residue 1/4 (25165795 mod 33554393, 12582910 mod 16777213): mu 1, (mu, gamma) 1, tied 0,
 //    mixing 0, and the face 1/1/0/0 on both primes: the graviton at c/4.
 //  - Y2: over 276 momenta and all 192 bands, the largest speed 0.606 of c/4 at the light point and 0.99999956 at the

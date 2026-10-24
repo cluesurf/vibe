@@ -58,7 +58,7 @@
 // dock), tmp/pos-probe4 (the open line: side 8 grows 2, 24, 288 terms, beyond reach; side 4 to beat 6; off-line 0).
 // The all-open vacuum is out of reach (478 unequal-point like meetings in one beat on side 4, over the rule's guard).
 //
-// FIRST RUN (3,021 s, tmp/pos-exp-run1.log): pass, no gate moved, title written after the run. E0, E1, S1, O, F, N, C1
+// FIRST RUN (3,021 s, test/record/E-QTM-0157/pos-exp-run1.log): pass, no gate moved, title written after the run. E0, E1, S1, O, F, N, C1
 // all hold; Q1, Q1h, Q2 on 17 of 17. The empty box's occupation L1 reads 0, 0, 0.5625, 0.7031 ... 1.3198 by beat 15;
 // sigma^2 at beat 7 is 7.09 exact against 2.67 dephased (ballistic against diffusive). The open line: L1 0, 0, 0,
 // 0.1406, 0.6529, 0.6943 on 14 starts, 0.7055 and 0.7142 on integer+11, 0.6885 at beat 6 on integer+13 to 15; the start

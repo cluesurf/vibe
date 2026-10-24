@@ -8,7 +8,7 @@
 // epsilon and Pauli-allowed, bind; and what share of its bound level's one-half-beat transition weight crosses the same
 // slot from the same dock.
 //
-// GATES (item 0084, fixed 2026-10-09 by lead 0062; read definitions in tmp/scross-gates-frozen-20261009T213901Z.md,
+// GATES (item 0084, fixed 2026-10-09 by lead 0062; read definitions in test/record/E-SPN-0202/scross-gates-frozen-20261009T213901Z.md,
 // frozen before any read).
 //  STEP 1 BINDS when the Sym start's bound fraction (E-SPN-0193's BND read: the late mean contact share over cycles 128
 //    to 255 of 256 under the rule) is at least 0.5, else NO SINGLET (A' dead).
@@ -54,7 +54,7 @@ import { DOCK_ROOTS } from '@/code/measure/dock-mixer'
 import { gridLifts, roleLinks } from '@/code/measure/holonomy-caging'
 import { makeColorWeave } from '@/code/rule/color-weave'
 import { bulkBox, gaugeLinks, linksOf, weylGauge, type ColorLinks } from '@/code/measure/color-slab'
-import { det3f, mul3f } from '../../../tmp/leada-common'
+import { det3f, mul3f } from '@/code/algebra/linear/complex-matrix3'
 
 export type StartKind = 'sym' | 'sym000' | 'anti'
 

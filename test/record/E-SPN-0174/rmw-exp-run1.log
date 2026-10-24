@@ -1,0 +1,33 @@
+{
+ "status": "fail",
+ "claim": "H0 true; H1 true; H2 false; H3 true; H4 false (R 34.6523, 13.4671, 1.4332); T1 true; instrument I1 true (1.78e-15) I2 true (member R 1.012226137 vs 1.012226057); control C1 true (E_L 1.9789453403525277 vs 1.9789453403525277, R 34.65226307820285 vs 34.65226307820285). control tau 0.280668 cap 8 radius 9 (32761 sites): E_L 1.978945 (NR 2.0054), residual 8.11e-7, lost 0.00e+0, least fidelity 1.0000000000, edge 2.01e-7, margin 0.3249 (DF at V 0), V* 9.37, a 0.0036456469, R 34.652263 (NR 0.6941, excess 48.9232); middle tau 0.187112 cap 12 radius 12 (97969 sites): E_L 1.734035 (NR 1.7106), residual 2.53e-3, lost -4.06e-13, least fidelity 0.9751867057, edge 7.83e-9, margin 0.5698 (DF at V 0), V* 15.36, a 0.0107060141, R 13.467074 (NR 0.7277, excess 17.5056), witness 1.26e-16; weakest tau 0.093556 cap 24 radius 13 (133225 sites): E_L 1.259214 (NR 1.3590), residual 5.14e-4, lost -5.28e-10, least fidelity 0.9991215878, edge 9.17e-7, margin 0.8017 (SD at V 0), V* 35.79, a 0.1385302337 / 0.1385302421 (isotropy 6.06e-8), R 1.433171 (NR 0.7866, excess 0.8219), witness 9.70e-17. Fit R - R_NR = 4445.031 tau^3.681, meeting R = 1 at tau 0.0671.",
+ "metrics": {
+  "H0": 1,
+  "H1": 1,
+  "H2": 0,
+  "H3": 1,
+  "H4": 0,
+  "T1": 1,
+  "I1": 1,
+  "I2": 1,
+  "C1": 1,
+  "R_control": 34.65226307820285,
+  "R_middle": 13.46707438830816,
+  "R_weakest": 1.4331705827569337,
+  "nrR_middle": 0.7277292251842045,
+  "nrR_weakest": 0.7866411282374236,
+  "EL_middle": 1.7340352926461673,
+  "EL_weakest": 1.2592139005492806,
+  "isotropy": 6.060314428069091e-8,
+  "fitPower": 3.6805093608486508,
+  "fitA": 4445.030704445035,
+  "tauOne": 0.06707879096072875,
+  "seconds": 38246.357
+ },
+ "control": {
+  "C1": 1,
+  "instrument": 1
+ },
+ "notes": "L2. Block shares (S S, S D, D S, D D) and profiles: control 0.9171 0.0410 0.0410 0.0010; profile 1.2e-4 3.0e-3 1.7e-2 8.6e-2 8.4e-1 5.0e-2 3.0e-3 1.2e-4 5.4e-6 2.0e-7; NR mean V 2.96 | middle 0.7586 0.1101 0.1101 0.0213; profile 1.6e-2 2.0e-1 2.0e-1 2.5e-1 5.6e-2 2.6e-1 1.5e-2 5.1e-3 4.1e-4 3.4e-5 2.9e-6 6.9e-8 7.8e-9; NR mean V 3.39 | weakest 0.8506 0.0705 0.0705 0.0085; profile 6.7e-3 5.5e-2 1.5e-1 3.1e-1 2.3e-1 1.5e-1 6.2e-2 2.3e-2 5.9e-3 1.4e-3 2.6e-4 4.5e-5 5.9e-6 9.2e-7; NR mean V 4.26."
+}
+exit=0

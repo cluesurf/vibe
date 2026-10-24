@@ -1,0 +1,13 @@
+trio p0 K none: K events 67 (off X 0, recruited 13), collide {"k":67,"bMulti":0,"bKept":0,"bSwapped":0,"bLeft":0,"refusedK":0,"off":0}, offStar 0, footprint 12/36/30/35/35, lines 11, mismatch 0 2s
+trio p0 K matter: K events 4 (off X 0, recruited 4), collide {"k":4,"bMulti":48,"bKept":50,"bSwapped":52,"bLeft":42,"refusedK":45,"off":0}, offStar 0, footprint 12/29/34/37/32, lines 11, mismatch 0 2s
+trio p0: vibes differing gated vs ungated at the end 46
+trio p1 K none: K events 49 (off X 0, recruited 10), collide {"k":49,"bMulti":0,"bKept":0,"bSwapped":0,"bLeft":0,"refusedK":0,"off":0}, offStar 0, footprint 9/9/9/30/36, lines 11, mismatch 0 4s
+trio p1 K matter: K events 7 (off X 0, recruited 1), collide {"k":7,"bMulti":37,"bKept":35,"bSwapped":48,"bLeft":41,"refusedK":36,"off":0}, offStar 0, footprint 9/9/9/27/35, lines 12, mismatch 0 4s
+trio p1: vibes differing gated vs ungated at the end 48
+hubs p0 K none: K events 132117 (off X 132058, recruited 47917), collide {"k":132117,"bMulti":0,"bKept":0,"bSwapped":0,"bLeft":0,"refusedK":0,"off":0}, offStar 2358225, footprint 27/32/94/2332/4092, lines 6097, mismatch 0 7s
+hubs p0 K matter: K events 1 (off X 1, recruited 0), collide {"k":1,"bMulti":74,"bKept":45,"bSwapped":106,"bLeft":52,"refusedK":72,"off":0}, offStar 1410, footprint 27/32/33/32/41, lines 13, mismatch 0 7s
+hubs p0: vibes differing gated vs ungated at the end 31538
+hubs p1 K none: K events 160809 (off X 160751, recruited 57383), collide {"k":160809,"bMulti":0,"bKept":0,"bSwapped":0,"bLeft":0,"refusedK":0,"off":0}, offStar 2858967, footprint 33/91/218/4091/4095, lines 6090, mismatch 0 9s
+hubs p1 K matter: K events 7 (off X 2, recruited 1), collide {"k":7,"bMulti":85,"bKept":90,"bSwapped":100,"bLeft":48,"refusedK":72,"off":0}, offStar 1395, footprint 26/32/34/33/39, lines 13, mismatch 0 9s
+hubs p1: vibes differing gated vs ungated at the end 31642
+exit=0

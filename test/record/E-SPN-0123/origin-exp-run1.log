@@ -1,0 +1,70 @@
+meson terms 16s
+love terms 30s
+vacuum 32s
+control CG 39s
+control CA rule 44s
+stand-in rate 0 44s
+stand-in rate 3 90s
+status fail
+claim an origin-gated line mixer (E-SPN-0121's mixer, turning only a matter-born single; one stored trit per vibe) keeps the vacuum bit for bit (0 vacuum docks gated, 0 matter-born vacuum vibes, 0 readings off keyedRunner), conserves the matter-born count exactly (0 drift) and refuses the vacuum-born singles E-SPN-0121 turned (21051.125 a meson term); the meson ends at 185 to 4095 of 4096 docks (0 of 16 bounded), a lone love at 37 to 4096 (0 of 16 bounded); the stand-in's window keeps 0.0351 by beat 24
+  O1 0
+  O2 1
+  O3 0
+  O3_held 0
+  O4 0
+  control_CG 1
+  control_CA 1
+  checked 1
+  boundedMesons 0
+  boundedLoves 0
+  cells 4096
+  mesonMinFootprint128 185
+  mesonMaxFootprint128 4095
+  mesonMeanFootprint128 2975.125
+  mesonFilled 13
+  loveMinFootprint128 37
+  loveMaxFootprint128 4096
+  loveMeanFootprint128 1752.3125
+  loveFilled 7
+  loveFootprint128Rate0 6.25
+  mesonFootprint128Rate0 7
+  ungatedMinFootprint128 4089
+  cgOff 0
+  mesonMeanMoved 17
+  loveMeanMoved 10.125
+  mesonMeanRefused 21051.125
+  loveMeanRefused 10100.0625
+  ungatedMeanMoved 6957.75
+  mesonMeanFirstTurn 5.3125
+  mesonMeanKDocks128 1446.75
+  loveMeanKDocks128 400.125
+  mesonMaxMatterSingles 2
+  toneLinesMeson0 569
+  toneLinesRate0 0
+  meshLines 6144
+  vacuumSingles 0
+  vacuumGated 0
+  vacuumMatter 0
+  vacuumDiffer 0
+  windowWake4 0
+  windowWake8 0
+  stepperDiffer 0
+  mismatch 0
+  drift 0
+  reversalDiffer 0
+  standEnergy0 0.3188654375223384
+  standTotal0 1.7930822459364377
+  standTransverse 0
+  heldRetained8 0.4323082355753231
+  heldRetained24 0.035099853171565346
+  heldMeanString 3.9866429776518966
+  heldBent 0.8882952660801187
+  windowClasses 407601
+  normGap 6.347367076386945e-12
+  curvedDirections 0
+  isotropy NaN
+  totalMixed NaN
+  seconds 89.617
+control {"cgOff":0,"stepperDiffer":0,"standEnergy0":0.3188654375223384,"standTotal0":1.7930822459364377,"loveFootprint128Rate0":6.25}
+notes L1 (O1, O2) and L2 (stand-in). O1 false; O2 true (windows side 4: wake 0, gated 0, singles 0, matter 0; side 8: wake 0, gated 0, singles 0, matter 0); O3 false (held false: retained 0.9999 0.9983 0.9825 0.9224 0.8041 0.6666 0.5346 0.4323 0.3618 0.3080 0.2694 0.2370 0.2086 0.1802 0.1562 0.1373 0.1183 0.1011 0.0853 0.0709 0.0596 0.0493 0.0410 0.0351; mean string 3.987, bent 0.888, 407601 classes); O4 false (not reached). CG true (off 0/0/0/0, ungated footprints 4089/4095/4095/4095); CA true (stepper 0, lone love rate 0 7/7/5/6/6; 3/7/7/6/7; 4/6/7/8/6; 6/5/7/7/6, meson rate 0 7/8/7/6/7, stand-in E 0.3188654375223384, total 1.7930822459364377, transverse 0). Checks: mismatch 0, drift 0, reversal 0, norm gap 6.35e-12. Meson terms: p0: footprint 11/19/31/47/2971, K docks 1/1/4/7/243, matter singles 1/1/2/0/0, vacuum-born singles 9/13/14/26/2354, moves 15, refused 3720, first turn 2, half box 127, growth 62.2128; p1: footprint 8/20/42/2901/4094, K docks 1/2/3/334/4096, matter singles 2/0/1/0/2, vacuum-born singles 4/14/33/2972/16512, moves 13, refused 35705, first turn 2, half box 51, growth 0.4112; p2: footprint 7/31/47/98/185, K docks 0/1/1/7/9, matter singles 1/0/0/2/0, vacuum-born singles 3/10/10/48/74, moves 13, refused 2603, first turn 9, half box 0, growth 0.8878; p3: footprint 7/17/41/111/3363, K docks 0/0/2/5/322, matter singles 2/2/2/1/1, vacuum-born singles 2/12/16/67/2903, moves 19, refused 21500, first turn 7, half box 104, growth 29.2973; p4: footprint 13/16/26/151/3708, K docks 1/1/1/10/3211, matter singles 1/0/1/2/1, vacuum-born singles 7/8/15/92/6183, moves 16, refused 38789, first turn 4, half box 80, growth 23.5563; p5: footprint 4/9/19/160/3658, K docks 0/0/1/6/1641, matter singles 1/1/2/0/0, vacuum-born singles 1/3/10/106/5162, moves 22, refused 24620, first turn 4, half box 103, growth 21.8625; p6: footprint 12/25/29/97/246, K docks 0/2/3/4/11, matter singles 2/1/2/1/0, vacuum-born singles 8/9/14/55/166, moves 18, refused 3646, first turn 4, half box 0, growth 1.5361; p7: footprint 11/20/58/173/4050, K docks 0/1/2/5/3797, matter singles 2/1/1/1/1, vacuum-born singles 6/11/35/103/8763, moves 20, refused 22483, first turn 2, half box 103, growth 22.4104; p8: footprint 11/19/28/698/4095, K docks 0/1/2/41/4096, matter singles 2/0/1/0/0, vacuum-born singles 6/14/17/484/16252, moves 13, refused 41499, first turn 2, half box 68, growth 4.8668; p9: footprint 8/20/32/52/3347, K docks 1/2/2/2/281, matter singles 2/1/2/1/2, vacuum-born singles 4/13/18/29/2938, moves 27, refused 9950, first turn 2, half box 119, growth 63.3654; p10: footprint 7/6/34/85/3342, K docks 0/0/2/4/282, matter singles 0/0/2/1/1, vacuum-born singles 4/2/8/37/2927, moves 18, refused 24399, first turn 22, half box 99, growth 38.3176; p11: footprint 6/11/18/84/3345, K docks 0/0/1/4/278, matter singles 1/2/0/1/1, vacuum-born singles 3/6/10/45/2817, moves 10, refused 30499, first turn 11, half box 91, growth 38.8214; p12: footprint 10/15/17/37/3465, K docks 0/1/2/3/453, matter singles 1/0/2/0/0, vacuum-born singles 7/8/6/22/3160, moves 16, refused 19959, first turn 4, half box 104, growth 92.6486; p13: footprint 4/9/29/477/4094, K docks 0/0/1/26/4096, matter singles 1/2/1/2/1, vacuum-born singles 1/2/21/344/16499, moves 18, refused 30703, first turn 4, half box 71, growth 7.5828; p14: footprint 10/18/23/96/3373, K docks 1/1/1/4/318, matter singles 2/2/1/0/1, vacuum-born singles 6/10/17/64/2915, moves 18, refused 23276, first turn 4, half box 101, growth 34.1354; p15: footprint 12/22/25/46/266, K docks 0/1/2/4/14, matter singles 1/1/1/2/0, vacuum-born singles 7/13/15/24/156, moves 16, refused 3467, first turn 2, half box 0, growth 4.7826. Lone love terms: p0: footprint 7/7/8/36/173, K docks 0/0/0/0/6, matter singles 1/0/1/1/0, vacuum-born singles 4/5/2/22/119, moves 16, refused 1789, first turn 25, half box 0, growth 3.8056; p1: footprint 3/10/24/171/3337, K docks 0/0/0/5/268, matter singles 1/0/0/0/1, vacuum-born singles 0/7/19/89/2888, moves 10, refused 38292, first turn 11, half box 80, growth 18.5146; p2: footprint 4/12/13/20/37, K docks 0/0/1/2/4, matter singles 0/0/1/1/1, vacuum-born singles 3/9/10/14/24, moves 8, refused 743, first turn 13, half box 0, growth 0.8500; p3: footprint 6/9/39/70/244, K docks 0/0/1/3/7, matter singles 0/0/0/0/0, vacuum-born singles 3/7/7/11/95, moves 7, refused 1483, first turn 12, half box 0, growth 2.4857; p4: footprint 13/12/56/81/209, K docks 0/0/1/3/6, matter singles 0/0/1/0/1, vacuum-born singles 9/7/28/51/124, moves 12, refused 2861, first turn 4, half box 0, growth 1.5802; p5: footprint 5/11/12/86/577, K docks 0/0/1/3/24, matter singles 1/0/1/0/1, vacuum-born singles 2/7/8/55/420, moves 8, refused 5271, first turn 4, half box 0, growth 5.7093; p6: footprint 7/14/18/21/107, K docks 0/1/1/1/6, matter singles 1/1/1/0/0, vacuum-born singles 4/6/10/13/71, moves 12, refused 1729, first turn 8, half box 0, growth 4.0952; p7: footprint 7/13/38/89/4096, K docks 0/1/2/3/3889, matter singles 1/1/1/0/1, vacuum-born singles 4/6/22/53/13516, moves 9, refused 34962, first turn 8, half box 83, growth 45.0225; p8: footprint 7/7/13/119/250, K docks 0/0/0/2/6, matter singles 1/0/1/0/0, vacuum-born singles 4/5/8/71/153, moves 13, refused 3776, first turn 21, half box 0, growth 1.1008; p9: footprint 3/10/14/21/3332, K docks 0/1/1/1/265, matter singles 1/0/1/1/0, vacuum-born singles 0/7/8/12/2849, moves 11, refused 7829, first turn 11, half box 119, growth 157.6667; p10: footprint 6/5/10/12/96, K docks 0/0/1/1/4, matter singles 0/1/1/0/0, vacuum-born singles 3/2/6/5/63, moves 10, refused 1108, first turn 25, half box 0, growth 7.0000; p11: footprint 6/6/6/25/1761, K docks 0/0/0/1/93, matter singles 0/0/1/0/1, vacuum-born singles 3/3/2/15/1314, moves 9, refused 2623, first turn 32, half box 0, growth 69.4400; p12: footprint 4/7/10/84/3850, K docks 0/0/0/3/990, matter singles 1/1/1/0/0, vacuum-born singles 2/4/2/61/5025, moves 10, refused 31398, first turn 19, half box 91, growth 44.8333; p13: footprint 5/8/11/44/3290, K docks 0/0/1/2/291, matter singles 1/0/1/0/1, vacuum-born singles 2/5/8/15/2734, moves 10, refused 4933, first turn 4, half box 125, growth 73.7727; p14: footprint 11/13/13/82/3345, K docks 1/1/1/2/277, matter singles 1/0/1/1/1, vacuum-born singles 8/7/8/48/2830, moves 10, refused 13524, first turn 4, half box 113, growth 39.7927; p15: footprint 6/13/11/14/3333, K docks 0/0/1/1/266, matter singles 1/0/1/1/1, vacuum-born singles 2/9/8/8/2904, moves 7, refused 9280, first turn 8, half box 119, growth 237.0714. Tone lines off the vacuum at 128: meson p0 569, rate 0 0 of 6144. 90 s.
+exit=0

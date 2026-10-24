@@ -125,19 +125,19 @@
 //  freezing estimate against Hartung's 1.15.
 // Verdict: partial if the instrument or a control fails; pass if H1 to H4 hold; fail otherwise.
 //
-// PROBES BEFORE THE GATE RUN, disclosed. tmp/g2i-probe1.log (written before the gates): the zone data and freezing
+// PROBES BEFORE THE GATE RUN, disclosed. test/record/E-SPN-0153/g2i-probe1.log (written before the gates): the zone data and freezing
 //  estimates on both lattices at N 8, 12, 16. It found two bugs, fixed before the gates: the husk's link list took all 18
 //  vectors instead of one per pair (a key compared a 4-vector with a 3-vector), and the crossing search took the FIRST
 //  crossing, which for 2I on the hypercubic lattice is a spurious one at beta 0.18 where the frozen branch's link gas is
 //  not dilute (sum ln z 15.4); it now takes the last crossing. After the fixes it read the calibration numbers the gates
 //  then name: hypercubic Q8 0.884, 2T 1.834, 2O 2.897, 2I 5.400; husk 2I 2.818. So H1's value was SEEN before its 10%
 //  tolerance was written; the tolerance is Hartung's own error (0.2, 3.5%) plus the low bias the derivation predicted.
-//  Two smokes of the whole run at N 8 (tmp/g2i-smoke.log, -smoke2.log): the first hung in the matching bisection when a
+//  Two smokes of the whole run at N 8 (test/record/E-SPN-0153/g2i-smoke.log, -smoke2.log): the first hung in the matching bisection when a
 //  one-loop plaquette went negative (Q8 on the husk, deficit above 1), fixed to return NaN; and 2I's ninth irrep was
 //  first built as the Galois conjugate of spin 3/2, which is spin 3/2 itself (its character is rational), so I2 read an
 //  orthogonality error of 1. The ninth irrep is 2 x 2', the 4 of A5. No threshold moved.
 //
-// FIRST RUN (tmp/g2i-exp-run1.log, 5 s): FAIL on H3, as predicted. H1, H2, every control and the instrument hold. No gate
+// FIRST RUN (test/record/E-SPN-0153/g2i-exp-run1.log, 5 s): FAIL on H3, as predicted. H1, H2, every control and the instrument hold. No gate
 //  moved after it and none was rerun.
 //  - I1: the husk census is 10 link types, 20 triangles and 9 squares a dock, 10, 8 and 18 plaquettes a link; K =
 //    sqrt15 I to 2.3e-16. Zone sums (N 16): hypercubic c_L -3.99943 (N 12: -3.99946), equal to -2 <ln k^2> from the scalar

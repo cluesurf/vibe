@@ -1,0 +1,68 @@
+censuses 0s
+trio 19s
+CB 20s
+CL 21s
+CP 22s
+status partial
+claim three loves on (1,1,0,0), (1,0,1,0), (0,1,1,0) at a hub X in the working knit with its vacuum: over 18 runs K fires 977 times, 0 of them off X, and recruits 195 vacuum pairs onto new lines, all through X; 0 readings differ from the vacuum off the twelve lines through X (H1 true by the star theorem, H2 false, H3 true); the vacuum alone fires K 0 times, the bare trio fires 8 times all at X, a lone love stays on its line; two hubs one root apart fire K off X 132058 times on 4096 docks
+  H1 1
+  H1_motion 0
+  H1_proof 1
+  H2 0
+  H3 1
+  control_CV 1
+  control_CB 1
+  control_CL 1
+  control_CP 1
+  runs 18
+  trioEvents 977
+  trioOffHub 0
+  offHubFraction 0
+  offHubThreshold 0.1
+  offRank 0
+  trioOffStar 0
+  trioRecruited 195
+  twoSingleRecruitEvents 47
+  starCrossings 0
+  vacuumSingles 0
+  vacuumEvents 0
+  stepperDiffer 0
+  maxLinesTouched 12
+  maxReach 6
+  meanCentroidSpread 0.5140399650640046
+  meanOnStarLast 57.166666666666664
+  maxOnStarPeak 89
+  census2Docks 270336
+  census2Fires 172032
+  census2Recruit 165888
+  census2MaxRecruited 6
+  census2SinglesLeft 0
+  census3Docks 901120
+  census3Fires 507904
+  census3Recruit 476928
+  census3MaxRecruited 6
+  censusOffDock 0
+  referenceFullMoved 141312
+  bareEvents 8
+  bareOffStar 0
+  bareOffHub 0
+  loveOffPass 0
+  loveOffLone 0
+  twoHubOffStar 2358225
+  twoHubOffHub 132058
+  twoHubEvents 132117
+  twoHubDocks 4096
+  twoHubRecruited 47917
+  twoHubFirstOffBeat 0
+  seconds 21.504
+  twoHubWake_8 47
+  twoHubWake_16 64
+  twoHubWake_32 174
+  twoHubWake_128 39184
+  trioWake_8 26
+  trioWake_16 52
+  trioWake_32 54
+  trioWake_128 60
+control {"vacuumEvents":0,"bareOffStar":0,"twoHubOffHub":132058,"twoHubOffStar":2358225}
+notes L1. H1 true (motion false: off-X fraction 0 vs 0.1; proof true), H2 false (rank 0), H3 true; CV true, CB true, CL true, CP true; checks {"stepper":true,"census":false,"recruitment":true}. Census, 2 singles: {"docks":270336,"fires":172032,"recruit":165888,"maxRecruited":6,"singlesLeft":0,"offDock":0} (E-SPN-0118's twoSinglesCensus {"docks":270336,"singlesLeft":0,"fullMoved":141312}); 3 singles: {"docks":901120,"fires":507904,"recruit":476928,"maxRecruited":6,"singlesLeft":0,"offDock":0}. Runs: pass/s8/p0: K 67 (off X 0, recruited 13), off-star 0, star lines 12, reach 4, on-star last 60; pass/s8/p1: K 49 (off X 0, recruited 10), off-star 0, star lines 12, reach 4, on-star last 57; pass/s8/p2: K 69 (off X 0, recruited 12), off-star 0, star lines 12, reach 4, on-star last 57; pass/s8/p3: K 59 (off X 0, recruited 13), off-star 0, star lines 12, reach 4, on-star last 55; pass/s8/p4: K 40 (off X 0, recruited 6), off-star 0, star lines 12, reach 4, on-star last 57; pass/s8/p5: K 44 (off X 0, recruited 6), off-star 0, star lines 12, reach 4, on-star last 57; pass/s8/p6: K 53 (off X 0, recruited 14), off-star 0, star lines 12, reach 4, on-star last 60; pass/s8/p7: K 59 (off X 0, recruited 13), off-star 0, star lines 12, reach 4, on-star last 55; lone/s8/p0: K 67 (off X 0, recruited 13), off-star 0, star lines 12, reach 4, on-star last 60; lone/s8/p1: K 49 (off X 0, recruited 10), off-star 0, star lines 12, reach 4, on-star last 58; lone/s8/p2: K 69 (off X 0, recruited 12), off-star 0, star lines 12, reach 4, on-star last 58; lone/s8/p3: K 59 (off X 0, recruited 13), off-star 0, star lines 12, reach 4, on-star last 54; lone/s8/p4: K 40 (off X 0, recruited 6), off-star 0, star lines 12, reach 4, on-star last 57; lone/s8/p5: K 44 (off X 0, recruited 6), off-star 0, star lines 12, reach 4, on-star last 56; lone/s8/p6: K 53 (off X 0, recruited 14), off-star 0, star lines 12, reach 4, on-star last 60; lone/s8/p7: K 59 (off X 0, recruited 13), off-star 0, star lines 12, reach 4, on-star last 56; pass/s4/p0: K 37 (off X 0, recruited 10), off-star 0, star lines 12, reach 2, on-star last 27; pass/s12/p0: K 60 (off X 0, recruited 11), off-star 0, star lines 12, reach 6, on-star last 85. Two-singles K firings that recruited: 47. Bare trio: K 8, off-star 0, off X 0. Lone love: off 0, 0, vacuum singles 0, 0. Two hubs: K 132117 on 4096 docks, first off X at beat 0, recruited 47917, wake 8:47 16:64 32:174 128:39184; trio wake 8:26 16:52 32:54 128:60. 22 s.
+exit=0

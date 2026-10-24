@@ -26,7 +26,7 @@
 // divide out the free loop's scalar (the same step sequence), which leaves the free rule exactly flat. The centred-minus-
 // displaced read needs no such step: the two loops take the same steps.
 //
-// FIRST RUN (tmp/braid-gate.log, 1,119 s, 256 slice docks, 11,088 oriented triangles at length >= 2): PARTIAL, no
+// FIRST RUN (test/record/E-FND-0176/braid-gate.log, 1,119 s, 256 slice docks, 11,088 oriented triangles at length >= 2): PARTIAL, no
 // anyon. Instrument clean (exchange 7.9e-16, sector ranks 0.0242..0.0252, frame-free sector block 7.6e-17, the tube
 // pi/2 linked and 0 unlinked exactly, the free rule flat to 5.4e-15). Centred-minus-displaced on R*: ring 1.67, octagon
 // -2.30, saddle 1.68 (circular means; spreads 0.24 to 0.32 over the 16 eigenphases): shape-dependent, not one phase,
@@ -287,11 +287,11 @@ export function huskBraidDetail(log: (s: string) => void = () => {}): HuskBraidR
 // PLANES. A coordinate plane of the fcc slice holds a square mesh with no in-plane triangle (its in-plane roots never sum
 // to a root), so its plaquettes are squares; the {111} planes hold the triangles. Both are read.
 //
-// FIRST RUN (tmp/braid-chern.log, 174 s): INSTRUMENT FAILURE by the fixed table, cause understood. Controls clean (the
+// FIRST RUN (test/record/E-FND-0176/braid-chern.log, 174 s): INSTRUMENT FAILURE by the fixed table, cause understood. Controls clean (the
 // typed quantum reads C = 1 to 2e-15 on all 40 planes), but every read rule plane (34 of 40) has C off an integer
 // (2.49 to 15.70): the forward one-cycle hop is not reciprocal, phi(y, e) + phi(y + e, -e) differs from the free one by
 // up to 3.07, and that dynamical part does not cancel round a closed plane. The antisymmetrized (reciprocal) det field
-// is flat, C = 0 on every plane (tmp/braid-recip.log). Which field to read is escalated (moving-matter log, 0045).
+// is flat, C = 0 on every plane (test/record/E-FND-0176/braid-recip.log). Which field to read is escalated (moving-matter log, 0045).
 
 const MARGIN = 0.1
 

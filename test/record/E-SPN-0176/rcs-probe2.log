@@ -1,0 +1,11 @@
+centroid of the D content: 6.94e-18 (sum_d E_d^T E_d = 1 to 6.66e-16)
+shell 0: G 5.283e-2, one stencil 7.89e-1, two stencils 7.89e-1 (relative, the worst site)
+shell 1: G 9.796e-3, one stencil 8.88e-16, two stencils 2.77e-1 (relative, the worst site)
+shell 2: G 5.415e-3, one stencil 1.33e-15, two stencils 2.11e-15 (relative, the worst site)
+shell 3: G 3.823e-3, one stencil 2.22e-15, two stencils 3.55e-15 (relative, the worst site)
+shell 4: G 2.966e-3, one stencil 4.22e-15, two stencils 4.88e-15 (relative, the worst site)
+shell 5: G 2.422e-3, one stencil 2.22e-15, two stencils 6.88e-15 (relative, the worst site)
+shell 6: G 2.047e-3, one stencil 3.77e-15, two stencils 5.00e-15 (relative, the worst site)
+shell 7: G 1.772e-3, one stencil 4.22e-15, two stencils 6.00e-15 (relative, the worst site)
+shell 8: G 1.563e-3, one stencil 6.66e-15, two stencils 8.33e-15 (relative, the worst site)
+exit=0

@@ -55,16 +55,16 @@
 // Verdict: pass if A1 to A5 hold with the instrument and controls; fail if the instrument and controls hold and a gate
 // fails; partial otherwise.
 //
-// PROBES BEFORE THE GATE RUN, disclosed. tmp/hl-probe1.log: the first reading bisected over [0, 3] and landed past the
+// PROBES BEFORE THE GATE RUN, disclosed. test/record/E-RLT-0108/hl-probe1.log: the first reading bisected over [0, 3] and landed past the
 // speed's lattice maximum (the speed rises, peaks and falls), and the rule's band tracker then threw at large K; fixed
-// by reading only below the peak (speedPeak). tmp/hl-probe1b.log, after the fix: at m* the three deviations along all
+// by reading only below the peak (speedPeak). test/record/E-RLT-0108/hl-probe1b.log, after the fix: at m* the three deviations along all
 // three directions read F -3.9e-8, -2.8e-6, -3.1e-5, -2.5e-4, -5.1e-3; L -7.4e-6, -7.7e-5, -3.0e-4, -1.2e-3, -1.3e-2;
 // S -4.8e-6, -3.7e-5, -1.2e-4, -3.5e-4, -1.6e-3 at beta 0.1 .. 0.9, rule equal to closed to every printed digit; the
 // husk peak 0.9767 c*; the k = 2 point's L at beta 0.5 is 9.57 times the chosen point's; the heavy point's L at 0.5 is
 // -5.0e-2. EVERY GATE THRESHOLD ABOVE WAS SET AFTER THAT PROBE, with a margin of about 1.5 to 3 over it, so A1 to A5 are
 // confirmations of a probed reading, not blind predictions; the m^2 law (A5) and the controls were derived before it.
 //
-// FIRST RUN (tmp/hl-lorentz-run1.log): pass, every gate, instrument and control. At m*: factor 3.07e-5 at 0.5 c* and
+// FIRST RUN (test/record/E-RLT-0108/hl-lorentz-run1.log): pass, every gate, instrument and control. At m*: factor 3.07e-5 at 0.5 c* and
 // 5.07e-3 at 0.9; contraction 3.04e-4 and 1.34e-2; simultaneity 1.23e-4 and 1.58e-3; spread over the three husk
 // directions 3.2e-5, transverse split 4.2e-9, tilt 0; the k = 2 over chosen contraction ratio 9.534, 9.537, 9.565 at
 // beta 0.1, 0.3, 0.5 against (m2/m*)^2 9.391 (1.5 to 1.9% above the leading law, the next order); husk top speed

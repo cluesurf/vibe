@@ -57,7 +57,7 @@ export const HALF_PHASE = 1e-7
 export const HALF_OVERLAP = 0.05
 export const QUADRATIC = 0.1
 
-// E-SPN-0173's recorded main point (tmp/rch-exp-run1.log): the control
+// E-SPN-0173's recorded main point (test/record/E-SPN-0200/rch-exp-run1.log): the control
 export const RECORDED = {
   EL: 1.6133573497836755,
   Rstatic: 8.459326179870311,
@@ -80,8 +80,35 @@ export type Setup = {
 // the setup of E-SPN-0173's member, ringUnit(-5, 1)
 export const setup = (): Setup => setupFor(LIGHT)
 
+// the member alone (its rest phase, curvature and the pair's reduced mass), without the Green table: setupFor's own
+// first step, shared so a reader of saved parts needs no table per member (E-SPN-0218)
+export function memberOf(light: readonly [number, number]): Pick<Setup, 'u' | 'M0' | 'm' | 'tanOver' | 'mu' | 'aMember'> {
+  const { u, M0, m, tanOver, mu, aMember } = memberParts(light)
+
+  return { u, M0, m, tanOver, mu, aMember }
+}
+
 // the same setup for a member of another ring unit (E-SPN-0211's mass scan); everything else unchanged
 export function setupFor(light: readonly [number, number]): Setup {
+  const { u, M0, m, mu, aMember } = memberParts(light)
+  const G0 = infiniteGreenZero('husk', 64).value
+  const table = huskGreenTable(128, 16, G0)
+
+  return {
+    u,
+    M0,
+    m,
+    tanOver: Math.tan(m) / m,
+    mu,
+    aMember,
+    theta: unitAngle(ringUnit(UNIT[0], UNIT[1])),
+    G0,
+    table,
+    group: cubicGroup(),
+  }
+}
+
+function memberParts(light: readonly [number, number]) {
   const theta0 = unitAngle(ringUnit(light[0], light[1]))
   const u: [number, number] = [Math.cos(theta0), Math.sin(theta0)]
   const M0 = wrap(theta0 - Math.PI)
@@ -101,21 +128,8 @@ export function setupFor(light: readonly [number, number]): Setup {
       (sEps(0.02) - M0) / 0.02 ** 2) /
     3
   const mu = C_STAR2 / (2 * aMember) / 2
-  const G0 = infiniteGreenZero('husk', 64).value
-  const table = huskGreenTable(128, 16, G0)
 
-  return {
-    u,
-    M0,
-    m,
-    tanOver: Math.tan(m) / m,
-    mu,
-    aMember,
-    theta: unitAngle(ringUnit(UNIT[0], UNIT[1])),
-    G0,
-    table,
-    group: cubicGroup(),
-  }
+  return { u, M0, m, tanOver: Math.tan(m) / m, mu, aMember }
 }
 
 // the member instrument (E-SPN-0173's I1 and I2)

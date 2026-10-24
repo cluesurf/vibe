@@ -1,0 +1,20 @@
+E-QTM-0161 status partial
+claim a general reading of one vibe's direction from the working rule's own gates (read on 17 of 17 starts), by Naimark's dilation: two ancilla loves meeting it on one arm, with a coin between, then read, give 4 outcomes whose effects sum to the identity exactly, are not projectors, and do not commute (so not a sharp reading shuffled by noise), span 3 of the 4 real dimensions, and give Born's probabilities on the part exactly on 5 inputs; one coupling leaves the part mixed (purity 23/32) while the whole stays pure; with the points equal the device records nothing (one outcome, effect I)
+  startsReadingTheGates 17
+  starts 17
+  outcomes 4
+  hermitianRank 3
+  informationallyComplete 0
+  gate_G0 1
+  gate_M1 1
+  gate_M2 1
+  gate_M3 1
+  gate_M4 1
+  gate_M5 1
+  gate_M6 1
+  gate_C1 1
+  purity 0.71875
+  seconds 1.93
+control {"equalPointsOutcomes":1}
+notes L2. Gates G0 true, M1 true, M2 true, M3 true, M4 true, M5 true, M6 true, C1 true. Effects: 0,1,2 [[13/64, (-3 - 6w)/32], [(3 + 6w)/32, 7/16]]; 2,1,0 [[3/64, (3 + 6w)/32], [(-3 - 6w)/32, 9/16]]; 1,0,2 [[39/64, 0], [0, 0]]; 2,0,1 [[9/64, 0], [0, 0]]. Born on the part (predicted = device): R: 0,1,2 13/64 2,1,0 3/64 1,0,2 39/64 2,0,1 9/64 | L: 0,1,2 7/16 2,1,0 9/16 1,0,2 0 2,0,1 0 | C|R>: 0,1,2 61/256 2,1,0 147/256 1,0,2 39/256 2,0,1 9/256 | C|L>: 0,1,2 103/256 2,1,0 9/256 1,0,2 117/256 2,0,1 27/256 | C|R> w on L: 0,1,2 115/256 2,1,0 93/256 1,0,2 39/256 2,0,1 9/256. Reduced state after one coupling: [[1/4, (-1 - 2w)/8], [(1 + 2w)/8, 3/4]]. The schedule is arranged (which arm meets which ancilla, and the coin between); every gate is the rule's. 1.9 s.
+exit=0

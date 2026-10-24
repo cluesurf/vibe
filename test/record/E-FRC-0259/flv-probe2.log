@@ -1,0 +1,12 @@
+built free [0s]
+free leak 2.69e-16 [0s]
+free blocks against registerPiece: gap 2.22e-16 [0s]
+0258 control bit for bit: true [0s]
+instrument: rest transitions numeric against exact, gap 8.13e-20 [1s]
+free K -0.901,-1.672,-2.333,-2.899: flats 528 [6s]
+free K -1.801,2.939,1.617,0.485: flats 528 [20s]
+free: CPT 4.00e-15, largest distance from the Dirac law 3.80e-15, flats 528 [20s]
+toy K -0.901,-1.672,-2.333,-2.899: flats 528 [25s]
+toy K -1.801,2.939,1.617,0.485: flats 528 [30s]
+toy: CPT 7.95e-2, largest distance from the Dirac law 7.95e-2, flats 528 [30s]
+exit=0

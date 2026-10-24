@@ -139,6 +139,15 @@ These are the ways a test lies, and we hunt for them in our OWN work as hard as 
   code. It imports the substrate, rule, collision, algebra, measures, controls, and fits from `code/`, and
   holds only the logic unique to its question. A test that rebuilds shared machinery inline is rewritten to
   import it.
+- **The records.** Every frozen gate, verdict log, run log and saved part an experiment cites is written
+  straight into `test/record/<code>/`, the folder named by the experiment's code, and never into `tmp/`.
+  `tmp/` is gitignored and is lost with its worktree, so a cited file there is a citation of nothing. An
+  experiment that reads a saved part at run time resolves its path from its own file (`import.meta.dirname`),
+  never from the working directory or an absolute path. The scripts that rebuild a verdict from saved parts
+  (the part runners, combines and stage runners) go in `test/record/<code>/run/`, resolve their paths the same
+  way, and refuse to overwrite a record. A file over about 10 MB, or a folder of such files, gets its own Git
+  LFS line in `.gitattributes` and a line in `.archiveignore`. `test/record/index.csv` lists every cited path
+  with its status.
 
 ## 7. How we verify and report
 

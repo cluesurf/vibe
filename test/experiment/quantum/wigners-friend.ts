@@ -34,10 +34,10 @@
 // Verdict: fail if G0 or C1 fails; partial if every gate holds (the friend is one vibe's point, not a self region: the
 // selves of section P do not form on the bare knit, E-SLF-0083; and the schedule is arranged); fail otherwise.
 //
-// PROBES before this file, disclosed: tmp/qf-probe1 ((w U)^n for n = 1, 2, 3). tmp/qf-smoke-friend.log ran this file as
+// PROBES before this file, disclosed: tmp/qf-probe1 ((w U)^n for n = 1, 2, 3). test/record/E-QTM-0162/qf-smoke-friend.log ran this file as
 // written with its placeholder title; the gates did not move after it.
 //
-// FIRST RUN (1.8 s, tmp/qf-exp-friend-run1.log): partial as derived, every gate held, title written after the run.
+// FIRST RUN (1.8 s, test/record/E-QTM-0162/qf-exp-friend-run1.log): partial as derived, every gate held, title written after the run.
 // P(f = R, L): no friend 1/4, 3/4; Wigner after the undo 1/4, 3/4; the collapse account 17/32, 15/32; the record copied
 // to G then the undo 59/128, 69/128.
 //

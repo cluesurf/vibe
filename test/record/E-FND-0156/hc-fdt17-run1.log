@@ -1,0 +1,43 @@
+member 0 25s
+member 1 50s
+member 2 78s
+member 3 103s
+member 4 128s
+member 5 154s
+member 6 178s
+member 7 202s
+member 8 227s
+member 9 252s
+member 10 275s
+member 11 300s
+member 12 325s
+member 13 350s
+member 14 374s
+member 15 400s
+member 16 426s
+E-FND-0156 {
+ "status": "pass",
+ "claim": "on the adopted knit (side 12, a husk block of 768 docks as the subsystem, the other 26 as the bath, 17 link starts) noise and drag come from one bath at one temperature: the block energy's fluctuation, (B / (B - 1)) Var(E_b), is 0.941 to 1.045 of its response to temperature, - dE_b / dbeta (mean 1.001), with beta 3.869 to 3.928 per unit from the occupations and the slot and store thermometers apart by 1.0962 to 1.1009 against (1/2) ln 9 = 1.0986; and the relaxation of a 384-vibe excess, averaged over 170 twins, follows the equilibrium autocorrelation lag by lag (1.000, 0.674, 0.346, 0.142, -0.028 against 1.000, 0.667, 0.348, 0.120, -0.052 at lags 0 to 4, largest gap 0.085 to lag 24); on the control where the depth step is exact and the husk is not Gibbs, the static ratio is 159.2",
+ "metrics": {
+  "gate_S1": 1,
+  "gate_S2": 1,
+  "gate_D1": 1,
+  "gate_C1": 1,
+  "staticRatioMin": 0.941469823300099,
+  "staticRatioMax": 1.0445719201387613,
+  "staticRatioMean": 1.0013123782618754,
+  "staticRatioInBand": 17,
+  "members": 17,
+  "thermometerGapMin": 1.0961667957776136,
+  "thermometerGapMax": 1.1009369873316777,
+  "betaMin": 3.869307716645612,
+  "betaMax": 3.9282336468322745,
+  "regressionEarlyGap": 0.024686254612385838,
+  "regressionGap": 0.08512823164560449,
+  "twins": 170,
+  "controlStaticRatio": 159.2468406392058,
+  "seconds": 438.708
+ },
+ "notes": "L2. Gates S1 true, S2 true, D1 true, C1 true. Static ratio per start: 0.958, 0.963, 1.045, 0.941, 1.021, 1.043, 0.986, 1.012, 1.016, 0.974, 1.024, 1.026, 0.995, 1.011, 1.023, 0.975, 1.009. Beta at 12 / 16 / 20 extra per dock, per start: 3.9279 / 3.8985 / 3.8695; 3.9280 / 3.8984 / 3.8694; 3.9282 / 3.8985 / 3.8695; 3.9281 / 3.8986 / 3.8693; 3.9281 / 3.8986 / 3.8694; 3.9281 / 3.8985 / 3.8693; 3.9282 / 3.8985 / 3.8694; 3.9280 / 3.8985 / 3.8694; 3.9280 / 3.8984 / 3.8694; 3.9280 / 3.8986 / 3.8695; 3.9281 / 3.8986 / 3.8694; 3.9281 / 3.8985 / 3.8694; 3.9281 / 3.8986 / 3.8693; 3.9282 / 3.8986 / 3.8695; 3.9281 / 3.8985 / 3.8694; 3.9281 / 3.8985 / 3.8694; 3.9279 / 3.8986 / 3.8694. C(tau) lags 0 to 24: 1.000 0.667 0.348 0.120 -0.052 -0.072 -0.073 -0.066 -0.062 -0.034 -0.003 0.023 0.051 0.051 0.042 0.032 0.015 0.005 -0.001 -0.005 -0.010 -0.013 -0.014 -0.010 -0.004. R(tau): 1.000 0.674 0.346 0.142 -0.028 -0.053 -0.049 -0.042 -0.029 0.003 0.035 0.063 0.078 0.097 0.098 0.095 0.100 0.063 0.041 0.033 0.035 0.039 0.008 0.026 0.047. Lag 12 is the stream's period on the side-12 box, where a free vibe returns to its dock. What this is not: a response to an external field (the knit has no field to apply here); the excess plays that part, as in Onsager's regression. 439 s."
+}
+exit=0

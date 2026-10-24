@@ -56,7 +56,7 @@
 // 0.4613818, and alpha_GR / alpha_C per point.
 // Status: pass if every gate holds (one alpha on the husk, the sqrt 24 traced to eps and c); fail otherwise.
 //
-// FIRST RUN 2026-09-29 (in the experiment/light-balance worktree, tmp/two-alphas-run1.log, 83 s): PASS, all seven gates held, no gate moved, no probe before
+// FIRST RUN 2026-09-29 (in the experiment/light-balance worktree, test/record/E-FRC-0266/two-alphas-run1.log, 83 s): PASS, all seven gates held, no gate moved, no probe before
 // it. Husk c^2 / kappa 0.666666664 (spread 1.9e-8), eps_C 5.99999999997, eps_R 5.99999995 to 6.00000003 on the 9
 // directions (grid check 3e-9); cubic 1, 1, 1 to 1e-11; strip 0.99999999997. alpha against the Coulomb form: static
 // 1.9e-9, radiative 1.0e-8; the cubic control against 1 / (2 N sqrt rho): 1.1e-11. Trace 4.898979476 (sqrt 24 to

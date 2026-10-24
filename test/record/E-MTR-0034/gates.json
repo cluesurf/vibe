@@ -1,0 +1,29 @@
+{
+  "code": "E-MTR-0034",
+  "frozen": "2026-10-23, before the a_B 16 run was launched and before P1 was read at the new settings",
+  "point": { "name": "m0284a16", "unit": [-7, 2], "aB": 16, "R": 72, "zeroN": 8192, "lags": 4400, "momenta": [0.35, 0.5, 1], "controlMomenta": [0.2, 0.35, 0.5, 1] },
+  "reference": { "name": "m0284a12", "aB": 12, "E0ref": 1.1141074420257853 },
+  "instrument": {
+    "sigmaMain": 0.00105,
+    "sigmaFactors": [1, 1.19, 1.405],
+    "edges": [0.5, 0.4],
+    "taperFloor": 0.0001,
+    "least": 0.1,
+    "next": 0.03,
+    "below": 0.02,
+    "above": 0.01
+  },
+  "R0": { "control": 1e-9, "recordedRho": "m0284a12_rho of test/record/E-MTR-0033/mtr-band-final.log" },
+  "W": { "ground": 1e-4, "cut": 5e-6 },
+  "I": { "weight": 0.2, "stable": 5e-5 },
+  "forms": { "persistent": 0, "lattice": 1, "square": 2, "survive": 2 },
+  "FADE": { "sigmas": 3 },
+  "LIMIT": { "sigmas": 2 },
+  "verdict": "fail if R0, W or I fails; pass if FADE and LIMIT; partial if FADE alone; fail otherwise",
+  "predicted": {
+    "p": 1,
+    "pBand": [0.7, 1.6],
+    "rho16": { "lattice": 2.0866, "square": 2.0074, "persistent": 2.192 },
+    "rho16Band": [2.03, 2.12]
+  }
+}

@@ -54,8 +54,8 @@
 // Verdict: fail if both rows are killed; pass if both pass and the control and instrument hold; partial otherwise. As
 // the binding row cannot pass on R* alone, this file's verdict is partial or fail; each row's verdict is in the claim.
 //
-// SMOKE BEFORE THE GATE RUN (tmp/selves-smoke.log, 2 cycles, every start): every path ran, no gate moved.
-// FIRST RUN (2026-10-08, tmp/selves-gate.log, 627 s): PARTIAL. No gate moved and none was rerun.
+// SMOKE BEFORE THE GATE RUN (test/record/E-SLF-0179/selves-smoke.log, 2 cycles, every start): every path ran, no gate moved.
+// FIRST RUN (2026-10-08, test/record/E-SLF-0179/selves-gate.log, 627 s): PARTIAL. No gate moved and none was rerun.
 //  - INTEGRATION partial: I 0.974 (A1), 0.904 (B1) at three holes on L 6, 0.881 at four on L 4, against free reads 7.1e-14
 //    and 2.4e-14 (ratios above 1e13). It fails only the no-fall clause, 0.881 < 0.974. Three holes on L 4 (read only)
 //    give 0.885, so on one torus three and four agree to 0.5 percent: the drop is the larger torus's room, with I a

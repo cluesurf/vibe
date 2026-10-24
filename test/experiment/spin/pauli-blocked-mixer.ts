@@ -28,7 +28,7 @@
 //     - the LOVE SEA (every slot a love): full at every beat for the same reasons, but the stream's link moves split the
 //       points (probe: 12,288 of 12,288 frames of several points by beat 1). A one-content love sea needs a point field
 //       that every frame's eight slot moves carry onto itself; on the working weave the fewest inconsistent edges per
-//       frame component are about 10,850 of 16,384 (tmp/pauli-probe2-8.log), so none exists. THE PIECE THAT BREAKS
+//       frame component are about 10,850 of 16,384 (test/record/E-SPN-0130/pauli-probe2-8.log), so none exists. THE PIECE THAT BREAKS
 //       IT: the links' grid moves on the points (the piece E-SPN-0103 and 0104 found unbinding clusters).
 //     - THE MINIMAL CHANGE: flat links (every move the identity). Then the love sea at point 0 is stationary bit for bit
 //       (period 1): no piece changes it (like full lines pass under 'pass', meetings of equal points are a phase, no
@@ -92,11 +92,11 @@
 // start as one branch of amplitude 1.
 // Verdict: partial if a control or check fails; fail if SW, Q1, Q2 or Q3a fails; otherwise open (Q3b undecided).
 // PREDICTED: fail on SW, with Q1, Q2 and Q3a passing on the flat-link sea and the empty mesh.
-// PROBES, disclosed (instrument only): tmp/pauli-probe1-8.log (the census), tmp/pauli-probe2-8.log (no point field on
-// the working weave), tmp/pauli-probe3.log (the Fock checks, the band, one track per start: the flat hole touches 38
+// PROBES, disclosed (instrument only): test/record/E-SPN-0130/pauli-probe1-8.log (the census), test/record/E-SPN-0130/pauli-probe2-8.log (no point field on
+// the working weave), test/record/E-SPN-0130/pauli-probe3.log (the Fock checks, the band, one track per start: the flat hole touches 38
 // mesh lines, the empty love the same 38, the working-weave hole 1; the working vacuum with the piece fires K 247,501
 // times in 128 beats and the meson fills 4,096 docks).
-// FIRST RUN (tmp/pauli-exp-run1.log, 118 s): FAIL on SW alone, as derived; every control and check passes.
+// FIRST RUN (test/record/E-SPN-0130/pauli-exp-run1.log, 118 s): FAIL on SW alone, as derived; every control and check passes.
 //  - SW fails: on the working weave a hole in the love sea sits in a one-content frame on 1 to 2 of 128 beats (the
 //    links split the points after beat 0) and in the neutral stored sea on 0; it touches 1 mesh line on 4 of 4 paths.
 //  - Census: the working vacuum's frames 0/2/4/6/8 held on 1,212,672 / 61,056 / 124,416 / 61,056 / 113,664 frame-beats

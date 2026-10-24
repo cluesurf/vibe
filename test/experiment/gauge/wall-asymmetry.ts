@@ -49,18 +49,18 @@
 // Verdict: fail if K1 to K4 or CP1 fails (the piece fails and ends the item); partial if a control or the instrument
 // fails; open otherwise, since the dynamical-light run the gates need is beyond the exact engine (point 4).
 //
-// PROBE BEFORE THE GATE RUN, disclosed (tmp/wasym-probe.log, 14 s, no gate moved after it): invariant (0, 1.82e-5 i),
+// PROBE BEFORE THE GATE RUN, disclosed (test/record/E-FRC-0293/wasym-probe.log, 14 s, no gate moved after it): invariant (0, 1.82e-5 i),
 //  conj V the negative, aligned 0; unitarity 4.8e-15; leak 6.9e-18; at K = 0 and 2 momenta flats 264 / 240 against the
 //  copies' 264 / 240, CPT 1.3e-15 to 3.3e-15, V = 1 and aligned against the copies 2.2e-15 to 4.4e-15, the flavored half
 //  off the copies by 3.3e-2 to 1.9e-1 (the phase is physical), Y = Wv off CPT by 1.1 to 1.3. Rest phases +-1.9093,
 //  +-2.2921, +-2.5556 against the copies' +-2.0944, +-2.2815, +-2.3811.
 //
-// FIRST RUN (tmp/wasym-run1.log, 46 s): FAIL on K2 alone, an instrument error, not the piece: K2 fed commutesExactly the
+// FIRST RUN (test/record/E-FRC-0293/wasym-run1.log, 46 s): FAIL on K2 alone, an instrument error, not the piece: K2 fed commutesExactly the
 //  scaled products Q_D P+- (1 / 48 times 1 / 2, rounded), and the exact comparison kept 192 of 576 rotations, where
 //  E-FRC-0267 P2 reads the integer 96 Q_D P+ at 576. Commuting is scale-free, so K2 now reads the integer multiples
 //  48 Q_S P+-, 96 Q_D P+- (the gate's statement unchanged). Every other gate held as in the probe: K1 leak 6.9e-18, K3
 //  4.8e-15, K4 flats equal at 17 momenta and CPT 4.9e-15, CP1 1.820248e-5 i, C1 4.4e-15, C2 at least 0.88, I1 4.2e-15.
-// SECOND RUN (tmp/wasym.log, 47 s): OPEN, as derived. K2 576/576/576/576 rotations, 0/0 reflections; every other gate,
+// SECOND RUN (test/record/E-FRC-0293/wasym.log, 47 s): OPEN, as derived. K2 576/576/576/576 rotations, 0/0 reflections; every other gate,
 //  control and the instrument as in the first run. The dynamical-light run: 2.3e17 flops and 4.0e11 bytes a history.
 //
 // PART 'symmetry' (item 0044, decision 009 point 2): every exact symmetry of the flavored slab cycle (E-SPN-0171's slab,
@@ -85,10 +85,10 @@
 //   lattice). H1: every history's winding is 0 to 1e-12 and none is within 1e-3 of its image under a non-identity
 //   survivor.
 //  Status: fail on KILL; partial when I1, C1 or H1 fails; open otherwise (the flow is not run under this item).
-// SYMMETRY FIRST RUN (tmp/wasym-sym-run1.log, 404 s): PARTIAL by an instrument error, I1 false: the identity's operator
+// SYMMETRY FIRST RUN (test/record/E-FRC-0293/wasym-sym-run1.log, 404 s): PARTIAL by an instrument error, I1 false: the identity's operator
 //  read 1.9e-8 (the Gram's null vectors carry about sqrt(eps), and the twirl refinement did not converge). The twirl was
 //  replaced by iterative refinement from the direct residual; no gate moved.
-// SYMMETRY SECOND RUN (tmp/wasym-sym.log, 384 s): OPEN. Trimaximal survivors 5, residuals at most 2.9e-17 (dock) and
+// SYMMETRY SECOND RUN (test/record/E-FRC-0293/wasym-sym.log, 384 s): OPEN. Trimaximal survivors 5, residuals at most 2.9e-17 (dock) and
 //  3.4e-16 (cycle): the identity, the magnetic step (dK = 2 pi / 15 e1), the rotation (--++) (history kept, N kept),
 //  and (++--), (----) (the CP mirror -A2, N exchanged: flow(-h) = -flow(h) EXACTLY, by a parity, for any flavors).
 //  No KILL. Orbits 8 of 225 (15 under the magnetic step alone): 17,280 (momentum, band state) vectors, 8.3e15 flops a

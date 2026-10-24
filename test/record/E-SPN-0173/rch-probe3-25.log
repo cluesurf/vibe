@@ -1,0 +1,25 @@
+a_B 2.5 ball 16 (17077): filter 64: E 0.5180858929 |lambda| 0.9998252233 residual 1.87e-2 [113.4s]
+a_B 2.5 ball 16 (17077): filter 256: E 0.5205585014 |lambda| 0.9999880554 residual 4.89e-3 [451.7s]
+a_B 2.5 ball 16 (17077): filter 256: E 0.5209409067 |lambda| 0.9999929048 residual 3.77e-3 [779.1s]
+E_b 0.239562 shares 0.7253 0.0953 0.0953 0.0842 mean r 6.606 edge 7.36e-3 shells 3.7e-3 1.7e-2 6.3e-2 3.3e-2 1.2e-1 1.3e-1 1.5e-1 1.5e-1 1.0e-1 8.0e-2 5.4e-2 2.9e-2 [779.1s]
+  K 0.000,0.000,0.000,0.000: E 0.521004020768 residual 3.56e-3 [943.6s]
+  K 0.040,0.000,0.000,0.000: E 0.521352043099 residual 3.60e-3 [1090.2s]
+  K 0.020,0.000,0.000,0.000: E 0.521091059272 residual 3.57e-3 [1221.7s]
+  K 0.012,0.021,0.032,0.000: E 0.521352052390 residual 3.60e-3 [1349.6s]
+  K 0.006,0.010,0.016,0.000: E 0.521091059849 residual 3.57e-3 [1475.6s]
+a 0.2176236962 0.2176236829 isotropy 6.10e-8 R static 2.204920 formula 2.243676 tan m/m 1.012226 [1475.6s]
+/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/code/measure/standin-chemistry.ts:120
+    throw new Error(`the FFT side ${n} is not a power of 2`)
+          ^
+
+Error: the FFT side 24 is not a power of 2
+    at planOf (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/code/measure/standin-chemistry.ts:120:11)
+    at fft3 (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/code/measure/standin-chemistry.ts:200:16)
+    at densityS (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/code/measure/register-coulomb.ts:216:3)
+    at <anonymous> (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rch-probe3.ts:78:14)
+    at ModuleJob.run (node:internal/modules/esm/module_job:430:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:661:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.13.1
+exit=1

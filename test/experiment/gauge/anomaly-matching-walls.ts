@@ -71,7 +71,7 @@
 // are caged at all is 0019. Tr X C^2 is the continuous-group coefficient; for a finite colour group it is the
 // admissibility test the brief fixes, not a derivation.
 //
-// FIRST RUN 2026-10-08 (tmp/walls.log, 101.5 s): PASS, as derived. No gate moved, none rerun.
+// FIRST RUN 2026-10-08 (test/record/E-FRC-0290/walls.log, 101.5 s): PASS, as derived. No gate moved, none rerun.
 //  - D: tangent axes 0, 1, 2 (speeds 0.6225 each), so 3+1d. R: faces A and B 4 states each, chi +2.000000 and
 //    -2.000000 (hands +1, -1, one hand per face), half - 0 in-gap; SU(2)+ Casimir 3 to 8e-12, spans invariant to 5e-12;
 //    3Q -1, +1. Colour: [g x conj g, V] 6.5e-16, [g x g, V] 1.0 (conjugate tones); like-tone invariants anti 1, sym 0,

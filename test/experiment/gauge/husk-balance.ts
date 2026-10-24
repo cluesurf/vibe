@@ -68,12 +68,12 @@
 // grid with a finite-box witness; the trit rule's dither and wraps are not run, and the classical regime is the
 // one where seams are reached. No start family: every claim is about the rule's constants.
 //
-// PROBES, disclosed. tmp/hb-probe1.log (the first version failed to group husk triangles into types, since it
+// PROBES, disclosed. test/record/E-FRC-0262/hb-probe1.log (the first version failed to group husk triangles into types, since it
 // anchored each at the box's first-listed link, which is not translation invariant; fixed by the least key over all
-// anchors and both orientations, tmp/hb-probe1b.log): ladder rho_avg 3 at g = 16 and 64, rails 0.288675, rung
+// anchors and both orientations, test/record/E-FRC-0262/hb-probe1b.log): ladder rho_avg 3 at g = 16 and 64, rails 0.288675, rung
 // 0.422650; unweighted husk 9/20 at g = 6 and 10; the weighted husk rho_avg 0.4613819 (g = 6) and 0.4613819 (g =
 // 10), link fills 0.83880 (axis) and 0.45697 (diagonal), triangle fills 0.34780 (n = 1, 8 types) and 0.21740 (n =
-// 2, 12 types); bulk rank 11, every link 11/12, every triangle 11/32, rho_avg 3/8. tmp/hb-probe2.log: the side-4
+// 2, 12 types); bulk rank 11, every link 11/12, every triangle 11/32, rho_avg 3/8. test/record/E-FRC-0262/hb-probe2.log: the side-4
 // witness agrees with the symbol at the box's 64 momenta to 3e-13 in every class (axis 0.8354911, diagonal
 // 0.4551897, n = 1 0.3459071, n = 2 0.2167289), with every link and triangle of a class equal to 1.2e-14, in 62 s.
 // The Jacobi stopping rule was made relative before that probe (an absolute 1e-30 could stall on a 576 matrix).
@@ -81,7 +81,7 @@
 // (0.4614) and its class spread (a factor of about 2.9), so they record a measurement, not a prediction. The blind
 // parts are the derivation's exact claims (points 2, 3 and 5) and the controls C1 to C3 and I1 to I2.
 //
-// FIRST RUN 2026-09-28 (tmp/hb-exp-run1.log, 137 s): PARTIAL, all eight gates held, no gate moved. Ladder rho_avg 3,
+// FIRST RUN 2026-09-28 (test/record/E-FRC-0262/hb-exp-run1.log, 137 s): PARTIAL, all eight gates held, no gate moved. Ladder rho_avg 3,
 // rails 2 sqrt 3 = 3.4641016, rung (3 + sqrt 3) / 2 = 2.3660254. Bulk 3/8 (0.375 to 4e-15), link spread 1.6e-15,
 // triangle spread 4.4e-16. Unweighted husk 9/20. Weighted husk rho_avg 0.46138187 (g = 8), 0.46138185 (16),
 // 0.461381849 (24), 0.461381849 (32): 0.4613818, which misses 3/8 by +23.0%, 9/20 by +2.5%, 3/5 by -23.1% and 9/32

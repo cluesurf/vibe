@@ -1,0 +1,5 @@
+body kappa 0.2 read 1636s
+body kappa 0.24 read 2818s
+axis kappa 0.24 read 4012s
+done 4012s
+exit=0

@@ -1,0 +1,26 @@
+Y1 C1 C2 3s
+Y2 315s
+Y3 C4 315s
+C3 315s
+{
+ "status": "pass",
+ "claim": "Y1 true (slide at 1/4: mu 1 pair 1 tied 0 mixing 0 face 1/1/0/0); Y2 true (largest speed over c/4: light 0.493318592, massless 0.999999563, flat bands 1.58e-16, massless at |K| 1e-3 0.999999562); Y3 true (even: Clifford 0, orthonormal 6.66e-16, singlet 0.00e+0, share - 1/4 2.22e-16, sides 5.55e-17; whole: Clifford 0, orthonormal 6.66e-16, singlet 0.00e+0, share - 1/4 1.67e-16, sides 5.55e-17); controls C1 true (tie at 1/2 on the 1/4 slide: 1) C2 true C3 true (slot c0 / (c/2) 1.000000000002 1.000000000001 1.000000000002 1.000000000001) C4 true (vector share - 1 4.44e-16)",
+ "metrics": {
+  "Y1": 1,
+  "Y2": 1,
+  "Y3": 1,
+  "C1": 1,
+  "C2": 1,
+  "C3": 1,
+  "C4": 1,
+  "topLightOverQuarter": 0.4933185917509671,
+  "topMasslessOverQuarter": 0.9999995625000172,
+  "reachOverQuarter": 0.9999995624999967,
+  "flatTop": 1.5764105712906039e-16,
+  "evenShareGap": 2.220446049250313e-16,
+  "wholeShareGap": 1.6653345369377348e-16,
+  "seconds": 314.575
+ },
+ "notes": "L1 and L2. Primes 33554393, 1/4 residues 25165795. Slide at 1/2: mu 1 pair 1 tied 0 mixing 0 face 1/1/0/0. 36 momenta, light m 0.190126. 315 s."
+}
+exit=0

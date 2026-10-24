@@ -73,7 +73,7 @@
 //  level's string shapes (length, links off the lines, turned faces, length over the vibes' distance).
 // PREDICTED: B2 and B3 fail (item 3); B1 at risk (item 4); the lone love's walk changed, its front and line not.
 //
-// FIRST RUN (1,833 s, tmp/bend-run-run1.log, the record): PARTIAL by the rule above, no gate moved. C0's velocity half
+// FIRST RUN (1,833 s, test/record/E-SPN-0116/bend-run-run1.log, the record): PARTIAL by the rule above, no gate moved. C0's velocity half
 // failed on g90 by a hair (the theta = 0 level moves -2.12e-3 docks a beat against the 2.06e-3 bound; g60 -2.65e-3
 // against 2.96e-3): 64 beats of a pruned level read E-SPN-0110's frozen pair at 1 percent of the prediction, not its
 // 256-beat 1e-4; the entry-for-entry half holds exactly (distance 0 on both). Every check holds: the exact mixer

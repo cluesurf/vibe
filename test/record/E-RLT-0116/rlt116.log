@@ -1,0 +1,6 @@
+axis zero read 1243s
+axis moved read 3587s
+body zero read 4416s
+body moved read 5526s
+done 5526s
+exit=0

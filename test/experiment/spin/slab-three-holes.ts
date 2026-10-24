@@ -46,7 +46,7 @@
 // by G onto each of the slab's two lines, summed and normalized. The Ritz levels of the beat at K = 0 are read from the
 // start's autocorrelation over 120 beats (code/measure/frame-meson ritzLevels, as E-SPN-0131), the dominant one by start
 // weight, its vector built, and evolved. The curvature: second differences of the dominant Ritz energy at +-kappa,
-// T = 240 beats, the level vector as the start. Calibrated on the one line before any gated run (tmp/holes3-probe3.log):
+// T = 240 beats, the level vector as the start. Calibrated on the one line before any gated run (test/record/E-SPN-0135/holes3-probe3.log):
 // on the exact reflecting box, T = 120 reads E''(0) 1% low (0.04097) and T = 240 reads 0.041426 at pi/64 and 0.041305
 // at pi/32, Richardson 0.041466, E-SPN-0105's number; through an absorbing window of 12 the step pi/64 reads 3% high
 // (leak) and pi/32 0.4%, so H2 reads at kappa = pi/32 on the w = 12 window and H3 reads Richardson on the exact box.
@@ -77,15 +77,15 @@
 // line; the tensor at the largest held rate if H1 fails at rate 3; the tensor at kappa pi/64 beside pi/32.
 // Verdict: partial if a control or check fails; pass if H1, H2 and H3 hold; fail otherwise.
 //
-// DISCLOSED PROBES (instrument only): tmp/holes3-probe1.log (the carried level's energy 0.33001851839229807 against the
+// DISCLOSED PROBES (instrument only): test/record/E-SPN-0135/holes3-probe1.log (the carried level's energy 0.33001851839229807 against the
 // record; the window counts; one slab beat's cost; and, unplanned, 10 beats at rate 3 from a one-line start with
-// escaped weight 0.44, seen after H1's thresholds, which the task fixed, and before this file); tmp/holes3-probe2.log
+// escaped weight 0.44, seen after H1's thresholds, which the task fixed, and before this file); test/record/E-SPN-0135/holes3-probe2.log
 // (the wall through G, residual 3e-14; hole and love curvature equal to 2e-8 at T 120; the lone hole -0.577341 on a
 // line, -0.288676 isotropic in the slab at rates 3 and 1; the placed image holds only 0.014 of its weight on the
-// line-antisymmetric states, so a branch argument about it was dropped from the module); tmp/holes3-probe3.log (the
+// line-antisymmetric states, so a branch argument about it was dropped from the module); test/record/E-SPN-0135/holes3-probe3.log (the
 // curvature reading above).
 //
-// FIRST RUN (tmp/holes3-exp-run1.log, 581 s): PARTIAL, no gate moved. H1 and H2 fail, H3 and C0 hold, CN and one check
+// FIRST RUN (test/record/E-SPN-0135/holes3-exp-run1.log, 581 s): PARTIAL, no gate moved. H1 and H2 fail, H3 and C0 hold, CN and one check
 // fail as written.
 //  - H1: at the working angle nothing holds. The dominant Ritz reading is not a level (start weight 0.040, residual
 //    0.83, E 2.57), fidelity 0.297 after one beat and 0.00455 by beat 8, tail 0.32 after one beat and 1.00 by beat 64,
@@ -101,7 +101,7 @@
 //    (fidelity 0.99999, tail 4.5e-5) and equals the one-line window's level (E 0.3300172637 both; the absorbing window
 //    shifts E by 1.3e-6 from the box's).
 //  - CN FAILS: with the cost off at rate 0 a level still holds (start weight 0.916, E -0.667, fidelity 0.999999, tail
-//    6e-6, mean Steiner 2.33, only even Steiner lengths). Read after the run (tmp/holes3-probe4.log, no gate moved): it
+//    6e-6, mean Steiner 2.33, only even Steiner lengths). Read after the run (test/record/E-SPN-0135/holes3-probe4.log, no gate moved): it
 //    is the same at cuts 12, 20, 28 and over 512 beats, and 84% of its weight is two holes on one line-dock with the
 //    third two docks away. So the passing contact binds three holes on one line with no string at all, and "cost off,
 //    nothing held" is not true there. This does not rescue H1 (at rate 3 nothing holds WITH the cost), but it means the

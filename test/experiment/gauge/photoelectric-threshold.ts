@@ -46,15 +46,15 @@
 // wave number neglected), not the register pair held by the dynamical light; and the golden-rule rate is compared in its
 // form (zero below, A0^2 above), not its absolute value.
 //
-// PROBES, disclosed: tmp/cmp-probe2.log (N 64: the level E 1.66677892, E_b 0.047365; the absorber at r 20 ate the level's
+// PROBES, disclosed: test/record/E-FRC-0264/cmp-probe2.log (N 64: the level E 1.66677892, E_b 0.047365; the absorber at r 20 ate the level's
 // tail, 6.5e-4 lost per 250 beats undriven; the drive at 0.6 E_b lost more than undriven at A0 0.02, which is the
-// two-photon channel; at 1.5 E_b the loss grew with A0); tmp/cmp-probe4.log (N 128, absorber r 44: tail 4.8e-11, undriven
+// two-photon channel; at 1.5 E_b the loss grew with A0); test/record/E-FRC-0264/cmp-probe4.log (N 128, absorber r 44: tail 4.8e-11, undriven
 // loss 1.4e-12 a beat, one beat 0.28 s). The box, the absorber, the frequencies and the tolerances were set from them.
 //
-// SMOKE (tmp/pe-smoke.log, 5 s, N 32, absorber r 12): every code path ran; the gates failed as expected on that box, the
+// SMOKE (test/record/E-FRC-0264/pe-smoke.log, 5 s, N 32, absorber r 12): every code path ran; the gates failed as expected on that box, the
 // absorber eating 1.3e-2 of the level's tail (2.8e-4 a beat undriven, swamping every drive). Nothing changed after it.
 //
-// FIRST RUN (tmp/pe-exp-run1.log, 4,328 s): FAIL on P1 and P4, every control held. The level E 1.6667789236 (C3, recorded
+// FIRST RUN (test/record/E-FRC-0264/pe-exp-run1.log, 4,328 s): FAIL on P1 and P4, every control held. The level E 1.6667789236 (C3, recorded
 // 1.66677892), E_b 0.047365, tail beyond r 44 4.8e-11, nearest open channel 0.239. Above threshold the drive ionizes at
 // first order: 7.73e-6, 6.61e-6, 2.83e-6, 6.51e-6 a beat at 1.1, 1.25, 1.6, 2.2 E_b (P2), and doubling A0 at 1.25 E_b
 // gives 3.990 (P3, the intensity). BELOW threshold, at 0.8 E_b, the loss is 3.97e-7 a beat, 0.060 of the rate at 1.25 E_b
@@ -63,7 +63,7 @@
 // E_b = 0.75, 0.889, ... E_b, and a line's excited state, diffuse, reaches the absorber. That reading is probe 5's, after
 // the run (below); the fail stands. Undriven 1.42e-12, static field 1.25e-11 (C1, C2).
 //
-// PROBE 5, AFTER THE RUN (tmp/pe-probe5.log; moves no gate): at 0.5 E_b, below every bound-bound line, the rate is
+// PROBE 5, AFTER THE RUN (test/record/E-FRC-0264/pe-probe5.log; moves no gate): at 0.5 E_b, below every bound-bound line, the rate is
 // 1.5e-9 a beat, 4,300 times below the rate at 1.25 E_b. At 0.8 E_b with NO absorber, 2.4% of the ground level's weight
 // has moved out of it after 1,200 beats (overlap^2 0.9758) while the norm is kept: a large bound-bound excitation, of
 // which the absorber took only about 1.6e-4 in the run's window. So the below-threshold loss is the light exciting the

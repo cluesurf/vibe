@@ -69,7 +69,7 @@ export default experiment({
 
 const flag = (b: boolean): number => (b ? 1 : 0)
 
-// E-SPN-0197's delta (tmp/gwall.log metrics, half +), the S2 reference
+// E-SPN-0197's delta (test/record/E-SPN-0198/gwall.log metrics, half +), the S2 reference
 export const DELTA_0197: Readonly<Record<number, number>> = {
   8: 0.02440643997837634,
   10: 0.004885833789936357,

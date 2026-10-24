@@ -27,7 +27,7 @@
 //    momentum, so a boost along d is given by K along -d. The direction gate reads the angle between v and the LINE of d
 //    (the smaller of the angles to d and to -d), fixed here before any K run, and the sign is read.
 //
-// PROBE BEFORE THE GATES, DISCLOSED (tmp/motion-probe-*.log, K = 0, 256 cycles): the contact start keeps a contact share
+// PROBE BEFORE THE GATES, DISCLOSED (test/record/E-SPN-0193/motion-probe-*.log, K = 0, 256 cycles): the contact start keeps a contact share
 //  (contact weight over the all-sector weight) of 0.40 to 0.94 under the rule, beating with period near 42 cycles, and 0.001
 //  to 0.61 free (refocusing on the small torus). Its strongest line under the rule is 3.4054 a cycle with weight 0.565, the
 //  next 3.5558 (0.076), outside the Hann lobe; the lines at 3.347 and 3.464 are the strongest line's own Hann sidelobes. One
@@ -52,7 +52,7 @@
 //  sigma_E^2 / (4 pi / T) (the leaked weight's pull on E: |sum p_n (E_n - E)| <= sigma_E^2 / gap, every line nearer than
 //  the lobe's half width 4 pi / T counted as the level) at most a tenth of the smallest |E(K + h e_i) - E(K - h e_i)| that
 //  the velocity's largest component is read from.
-//  DISCLOSED CORRECTION, made after the smoke (T = 16, tmp/motion-smoke.log) and before the gate run: I3 first compared
+//  DISCLOSED CORRECTION, made after the smoke (T = 16, test/record/E-SPN-0193/motion-smoke.log) and before the gate run: I3 first compared
 //  sigma_E itself with the FD difference, but item 3's Rayleigh quotient errs at second order, sigma_E^2 / gap, not
 //  sigma_E. The smoke's numbers were not gate numbers (T = 16, sigma_E 0.08); no other gate or threshold moved.
 // PASS: BND (the rule), VEL, BF, the control failing BND, I1 to I3. PARTIAL otherwise, the gap named.
@@ -67,7 +67,7 @@
 // register rule. The velocity is the band's, read on the bulk torus at K_3 = 0, not on the true husk (E-SPN-0181: the
 // register member does not travel on the true screen). Depth L2 at most.
 //
-// FIRST RUN 2026-10-08 (tmp/motion-gate.log, 3,889 s): PASS. No gate moved after it and none was rerun.
+// FIRST RUN 2026-10-08 (test/record/E-SPN-0193/motion-gate.log, 3,889 s): PASS. No gate moved after it and none was rerun.
 //  - BND: late contact share 0.712 (rule), 0.430 (contact alone, under the 0.5 bar), 0.118 free (CT holds). Lines at K = 0:
 //    3.4054 (0.565), 3.5550 (0.076), 3.8066, 5.8406; the binding gap to the next line is 0.150 a cycle.
 //  - VEL: (1,0,0) 0.00 deg, (1,1,0) 0.00, (1,1,1) 0.00 (exact by the cubic symmetry, transverse parts 1e-13), (1,2,3) 4.01

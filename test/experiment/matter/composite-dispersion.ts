@@ -9,11 +9,11 @@
 //
 // THE RUN. code/measure/pair-boost readBoost at K 0.04, 0.4, 0.8, 1.2, 1.6 along the axis: readMotion's sector, count
 // (code/measure/contact-core softenContact) and start, with the window moved by the lone member's threshold rise. The
-// K = 0 read is E-SPN-0206's (tmp/spn-core-soften-a8.json), whose base lines give the ground E0 1.676673975509106
+// K = 0 read is E-SPN-0206's (test/record/E-SPN-0206/spn-core-soften-a8.json), whose base lines give the ground E0 1.676673975509106
 // (overlap 0.638) and the 2s-like level 1.7026982168978484 (overlap 0.256), and whose K 0.04 and 0.02 reads give the
 // ground's curvature a 0.11708484206118808, so c^2 = 2 a E0 = 0.392626 and R 1.27348. Levels are named by overlap rank.
 //
-// THE LONE MEMBER, THE CONTROL (computed before the run, tmp/mtr-boost-probe.log). The member's own band at this mass
+// THE LONE MEMBER, THE CONTROL (computed before the run, test/record/E-MTR-0029/mtr-boost-probe.log). The member's own band at this mass
 // (M0 0.854 a cycle) is not relativistic beyond K^2: against sqrt(M0^2 + c_m^2 k^2) with c_m^2 from its own curvature
 // its quartic is 2.81, 2.80, 2.78, 2.77 times relativity's at k = K / 2 = 0.2, 0.4, 0.6, 0.8 (relativity fraction rho,
 // 1 relativistic, 0 Galilean). A rigid composite carries its members' rho exactly (the K^4 terms of 2 E_member(K / 2)
@@ -35,11 +35,11 @@
 // fails and L holds. The clock: the 2s-like level's own small-K curvature (0.115281, from the same recorded reads, R
 // 1.2736) gives delta 0.993 at small K, so Q is expected to hold if the curvature difference persists along the curve.
 // Expected verdict: partial. Runtime estimate before the run: one K read took 2,800 s at 6 threads with three such
-// processes sharing the machine (tmp/spn-mass-m0427.log), so five reads at 6 threads take about 2 to 4 hours.
+// processes sharing the machine (test/record/E-SPN-0211/spn-mass-m0427.log), so five reads at 6 threads take about 2 to 4 hours.
 //
-// FIRST RUN (2026-10-20 and 21, tmp/mtr-boost-a.log and -b.log, two processes of tmp/mtr-boost-part.ts at 3 threads
-// each on a shared machine, 2.1 hours a read, the reads in tmp/mtr-boost-K<K>.json; the verdict by combineBoost in
-// tmp/mtr-boost-combine.ts, tmp/mtr-boost-verdict.log): FAIL on W and I, so D, L and Q were not reached. No gate moved.
+// FIRST RUN (2026-10-20 and 21, test/record/E-MTR-0029/mtr-boost-a.log and -b.log, two processes of test/record/E-MTR-0029/run/mtr-boost-part.ts at 3 threads
+// each on a shared machine, 2.1 hours a read, the reads in test/record/E-MTR-0029/mtr-boost-K<K>.json; the verdict by combineBoost in
+// test/record/E-MTR-0029/run/mtr-boost-combine.ts, test/record/E-MTR-0029/mtr-boost-verdict.log): FAIL on W and I, so D, L and Q were not reached. No gate moved.
 // The K 1.6 read was stopped after K 0.4, 0.8 and 1.2 had already failed I, since it could not change the verdict
 // (disclosed).
 //  - W fails narrowly: the ground at K 0.04 reads 1.676859773 against the recorded 1.6768597365, off by 3.7e-8 against
@@ -51,7 +51,7 @@
 //    ground splits into two lines 7.6e-4 apart (weight 0.48 and 0.29), and the line of largest overlap is the 2s-like
 //    level (0.35), so ranking by overlap no longer names the ground. At K 1.2 the ground spreads over nine lines, the
 //    largest carrying weight 0.18.
-//  - A POST-RUN DIAGNOSTIC, not gated (tmp/mtr-boost-centroid.mjs): the weight centroid of the ground's cluster sits
+//  - A POST-RUN DIAGNOSTIC, not gated (test/record/E-MTR-0029/run/mtr-boost-centroid.mjs): the weight centroid of the ground's cluster sits
 //    above both forms at K 0.4 (rho -6.2, lighter than Galilean), and below relativity at K 0.8 and 1.2 (rho 1.9 and
 //    3.8, against the lone member's 2.80 and 2.78). The quartic changes sign, so the level is mixing with its
 //    multiplet, and the centroids are not a dispersion.
@@ -234,7 +234,7 @@ export default experiment({
   },
 })
 
-// the recorded K = 0 read (E-SPN-0206, tmp/spn-core-soften-a8.json), for a part run and a combine from saved reads
+// the recorded K = 0 read (E-SPN-0206, test/record/E-SPN-0206/spn-core-soften-a8.json), for a part run and a combine from saved reads
 export const recordedZero = (
   file: string,
 ): { zero: ZeroRead; base: LineOut[] } => {

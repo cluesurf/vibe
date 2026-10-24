@@ -1,0 +1,8 @@
+m0 0.5235987755982987 mid -2.6179938779914944 sign -1 theta0 -2.0943951023931957 tau 0.18711213776440558
+base: channels within 0.01 of E_L: 0; nearest 1.709e-1 at V 1 bands 1 21 K 0.46,2.85,-1.23,-0.10; S band moved by at most 0.00e+0
+P8 0.2000: channels within 0.01 of E_L: 107857; nearest 7.181e-8 at V 0 bands 6 16 K 2.97,-1.31,-2.89,-2.20; S band moved by at most 7.01e-2
+P8 0.6669: channels within 0.01 of E_L: 27585; nearest 2.537e-7 at V 0 bands 8 14 K 0.22,-1.29,-2.50,-0.77; S band moved by at most 2.20e-1
+P8 -0.6669: channels within 0.01 of E_L: 0; nearest 1.346e-1 at V 0 bands 23 23 K 2.18,-2.93,0.95,-0.07; S band moved by at most 2.74e-1
+P8 -1.0472: channels within 0.01 of E_L: 26; nearest 6.505e-4 at V 0 bands 23 23 K -2.76,-2.43,0.56,-0.46; S band moved by at most 3.11e-1
+P2 alpha: channels within 0.01 of E_L: 8541; nearest 4.600e-8 at V 10 bands S 22 K -2.06,0.18,0.68,2.31; S band moved by at most 2.77e-1
+exit=0

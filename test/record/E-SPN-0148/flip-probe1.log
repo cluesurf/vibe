@@ -1,0 +1,16 @@
+dims: P1 0.9999999999999996 P2 2.000000 P9 9.000000 (q 9) P4 3.9999999999999982 P8 7.999999999999997
+base flats: -3.141593x11 -0.000000x11
+base: flats -3.14159x11 -0.00000x11 (total 22); S,D kept at 64/64 K (worst miss 0.00e+0); zone mean of the eigenvalue sum 1.6928003747224716e-16; diag -0.062500,-0.036084 spread 0.0e+0
+y mixer 3.1416: flats -3.14159x10 -0.00000x10 (total 20); S,D kept at 0/64 K (worst miss 4.51e-1); zone mean of the eigenvalue sum 1.7264158955066386e-16; diag 0.020833,-0.036084 spread 6.9e-18
+y mixer 2.0944: flats -3.14159x10 -0.00000x10 (total 20); S,D kept at 0/64 K (worst miss 3.15e-1); zone mean of the eigenvalue sum 1.4325523549001513e-16; diag -0.000000,-0.072169 spread 1.7e-18
+y mixer 4.1888: flats -3.14159x10 -0.00000x10 (total 20); S,D kept at 0/64 K (worst miss 5.34e-1); zone mean of the eigenvalue sum 1.798083193956452e-16; diag 0.000000,0.000000 spread 1.9e-18
+y mixer 0.6669: flats -3.14159x10 -0.00000x10 (total 20); S,D kept at 0/64 K (worst miss 1.16e-1); zone mean of the eigenvalue sum 2.7753034400454227e-16; diag -0.053571,-0.061859 spread 1.6e-17
+y mixer -0.6669: flats -3.14159x10 -0.00000x10 (total 20); S,D kept at 0/64 K (worst miss 1.52e-1); zone mean of the eigenvalue sum 1.3846446078853439e-16; diag -0.053571,-0.010310 spread 7.2e-18
+odd phases P4 0.000 P8 1.047: flats -3.14159x3 -0.00000x3 (total 6); S,D kept at 0/64 K (worst miss 3.34e-1); zone mean of the eigenvalue sum 6.49698994653901e-16; diag 0.104167,-0.324760 spread 0.0e+0
+odd phases P4 0.000 P8 0.667: flats -3.14159x3 -0.00000x3 (total 6); S,D kept at 0/64 K (worst miss 2.20e-1); zone mean of the eigenvalue sum 6.222835771265701e-16; diag 0.008929,-0.242281 spread 0.0e+0
+odd phases P4 1.047 P8 0.000: flats -3.14159x7 -0.00000x7 (total 14); S,D kept at 0/64 K (worst miss 3.79e-1); zone mean of the eigenvalue sum 4.468790436345474e-16; diag 0.020833,-0.180422 spread 0.0e+0
+odd phases P4 1.047 P8 1.047: flats  (total 0); S,D kept at 0/64 K (worst miss 3.80e-1); zone mean of the eigenvalue sum 6.294688230806705e-16; diag 0.187500,-0.469097 spread 0.0e+0
+even phases P2 1.047 P9 0.000: flats -3.14159x9 -0.00000x9 (total 18); S,D kept at 0/64 K (worst miss 2.99e-1); zone mean of the eigenvalue sum 2.7736595588077454e-16; diag -0.104167,0.036084 spread 1.7e-16
+even phases P2 0.000 P9 1.047: flats 0.00000x2 3.14159x2 (total 4); S,D kept at 0/64 K (worst miss 4.95e-1); zone mean of the eigenvalue sum 8.237137938088767e-16; diag -0.250000,0.288675 spread 2.8e-16
+trace-solved p8 pi/3 p2 1.8186 p9 0.5876: flats  (total 0); S,D kept at 0/64 K (worst miss 7.53e-1); zone mean of the eigenvalue sum 6.046072832872784e-16; diag -0.062500,-0.036084 spread 2.2e-16
+exit=0

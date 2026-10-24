@@ -1,0 +1,5 @@
+m 0.857072 rho -2.854897 0.000000 -0.000000 -0.000000 0.000000 cycle M 1.714144 B* 5.734e-1 (per beat 2.867e-1) crossings 0 nearest at |q| 4.2569 pair -1.7141,-1.7141; E-SPN-0155 per-beat gap E DF+ 0.2867, E+pi DD 0.2867; 567 ms
+m 0.523599 rho 2.094395 0.000000 -0.000000 0.000000 0.000000 cycle M 1.047198 B* 0.000e+0 (per beat 0.000e+0) crossings 7 nearest at |q| 5.4350 pair -1.0472,3.1416; E-SPN-0155 per-beat gap E SF- 0.0000, E+pi SF+ 0.0000; 549 ms
+m 0.190126 rho 0.760504 0.000000 0.000000 -0.000000 0.000000 cycle M 0.380252 B* 0.000e+0 (per beat 0.000e+0) crossings 168 nearest at |q| 3.9664 pair -2.7614,-2.7614; E-SPN-0155 per-beat gap E SF- 0.0000, E+pi SF+ 0.0000; 608 ms
+m 0.046778 rho 0.187112 -0.000000 0.000000 0.000000 -0.000000 cycle M 0.093556 B* 0.000e+0 (per beat 0.000e+0) crossings 191 nearest at |q| 6.1575 pair -3.0483,-3.0483; E-SPN-0155 per-beat gap E SF- 0.0000, E+pi SF+ 0.0000; 641 ms
+exit=0

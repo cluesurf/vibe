@@ -1,0 +1,12 @@
+status partial
+claim synthetic lines 3e-4 apart recovered exactly; the a_B 8 ground off the Fourier read by 1.07e-8 with spread 4.17e-8, the a_B 12 ground by 1.08e-7 with spread 1.97e-6
+  V1 1
+  a8_ground 1.6766739651361005
+  a8_off 1.0733634203674569e-8
+  a8_spread 4.165257827537516e-8
+  a12_ground 1.1141073338554075
+  a12_off 1.0817037776611471e-7
+  a12_spread 0.0000019659815599926134
+  V2 0
+  V3 0
+exit=0

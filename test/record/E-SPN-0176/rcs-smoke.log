@@ -1,0 +1,49 @@
+I1 I2 12s
+witness free SS 0,0,0,0 19s
+witness free generic 0,0,0,0 52s
+witness free SS 0.31,-0.17,0.52,0 60s
+witness free generic 0.31,-0.17,0.52,0 93s
+witness pieces SS 0,0,0,0 102s
+witness pieces generic 0,0,0,0 128s
+witness pieces SS 0.31,-0.17,0.52,0 137s
+witness pieces generic 0.31,-0.17,0.52,0 164s
+I2 I3 167s
+I4 167s
+C1 C2 170s
+parts exit=0
+main-strang filter 16: E 1.5744399286607587 residual 8.800e-2 22s
+main-strang filter 32: E 1.5687120995460406 residual 7.206e-2 36s
+main-strang level E 1.5687120995460406 hold 0.9204935801572374 40s
+main-strang R 8.006948208759576 formula 1.3083743217502208 90s
+main-strang exit=0
+main-coulomb filter 16: E 1.574794362496472 residual 8.984e-2 17s
+main-coulomb filter 32: E 1.570449618699527 residual 7.337e-2 24s
+main-coulomb level E 1.570449618699527 hold 0.9175625825232147 26s
+main-coulomb R 9.626445530191287 formula 1.3050827862318375 58s
+main-coulomb exit=0
+main-dock filter 16: E 1.5745007314939055 residual 9.009e-2 19s
+main-dock filter 32: E 1.5688430929585557 residual 7.484e-2 25s
+main-dock level E 1.5688430929585557 hold 0.9142593213921224 27s
+main-dock R 9.255141758274508 formula 1.3081259152822995 63s
+main-dock exit=0
+strong-strang filter 16: E 1.5341657296204518 residual 9.885e-2 25s
+strong-strang level E 1.5341657296204518 hold 0.85761134678177 29s
+strong-strang R 2.8761106565069845 formula 1.375366345196779 85s
+strong-strang exit=0
+strong-coulomb filter 16: E 1.5347686047211064 residual 1.015e-1 19s
+strong-coulomb level E 1.5347686047211064 hold 0.8508093827844442 21s
+strong-coulomb R 3.2193943680791506 formula 1.3741713989667215 52s
+strong-coulomb exit=0
+weak-strang filter 16: E 1.6408274767960114 residual 7.150e-2 20s
+weak-strang level E 1.6408274767960114 hold 0.9237712512036911 23s
+weak-strang R 2.0059395789759313 formula 1.1776194396874542 73s
+weak-strang exit=0
+weak-coulomb filter 16: E 1.6410334185359556 residual 7.235e-2 15s
+weak-coulomb level E 1.6410334185359556 hold 0.9218300231536054 17s
+weak-coulomb R 2.078770457762482 formula 1.1772624955673494 47s
+weak-coulomb exit=0
+fail
+H0 false (free SS K 0,0,0,0: gap 4.69e-17 (inner 4.69e-17), norm 10.598340448088 -> 10.598340448088; free generic K 0,0,0,0: gap 4.04e-3 (inner 8.62e-17), norm 41.957969722246 -> 41.957969488405; free SS K 0.31,-0.17,0.52,0: gap 5.03e-17 (inner 5.03e-17), norm 10.598340448088 -> 10.598340448088; free generic K 0.31,-0.17,0.52,0: gap 3.92e-3 (inner 1.09e-16), norm 41.973161372416 -> 41.973161493153; pieces SS K 0,0,0,0: gap 3.10e-17 (inner 3.10e-17), norm 10.598340448088 -> 10.598340448088; pieces generic K 0,0,0,0: gap 4.12e-17 (inner 4.12e-17), norm 41.957969722246 -> 41.957969722245; pieces SS K 0.31,-0.17,0.52,0: gap 3.74e-17 (inner 3.74e-17), norm 10.598340448088 -> 10.598340448088; pieces generic K 0.31,-0.17,0.52,0: gap 5.59e-17 (inner 5.42e-17), norm 41.973161372416 -> 41.973161372414); H1 false; H2 true; H3 false (the Strang cycle's static R within 0.1 of the formula at a_B 3.5); H4 false (R with the Darwin exchange within 0.05 of tan m / m); H5 false (the Strang excess over the formula 1.0912, 5.1198, 0.7034 at a_B 3, 3.5, 5, falling); H6 false (the Strang excess at most 0.5 of the unsplit's at every coupling: a_B 3 1.5007 against 1.8452, a_B 3.5 6.6986 against 8.3214, a_B 5 0.8283 against 0.9015). POINTS main-strang (a_B 3.5, strang, alpha 47.343, ball 6, 925 sites): E_L 1.56871210, E_b 0.139405 (continuum 0.089700), |lambda| 0.9974034571, residual 7.21e-2 (after each filter 8.80e-2, 7.21e-2), lost -1.55e-5 over 4 cycles, least fidelity 0.9204935802, edge 1.19e-1, mean r 3.063, shares 0.9216 0.0369 0.0368 0.0047, the pieces' commutator on the level 2.077e-2; a 0.0199159534 0.0199159533 (isotropy 4.24e-9); R static 8.006948 against the formula 1.308374; S 0.998694; R with the Darwin exchange 7.770282 against tan m / m 1.065572 [77 s]. main-coulomb (a_B 3.5, coulomb, alpha 47.343, ball 6, 925 sites): E_L 1.57044962, E_b 0.137667 (continuum 0.089700), |lambda| 0.9972994849, residual 7.34e-2 (after each filter 8.98e-2, 7.34e-2), lost 6.64e-5 over 4 cycles, least fidelity 0.9175625825, edge 1.30e-1, mean r 3.223, shares 0.9422 0.0263 0.0263 0.0052, the pieces' commutator on the level 2.174e-2; a 0.0165441456 0.0165441455 (isotropy 5.34e-9); R static 9.626446 against the formula 1.305083; S 0.996024; R with the Darwin exchange 9.393612 against tan m / m 1.065572 [45 s]. main-dock (a_B 3.5, coulomb at the true docks, alpha 47.343, ball 6, 925 sites, 19 sites re-counted): E_L 1.56884309, E_b 0.139274 (continuum 0.089700), |lambda| 0.9971907326, residual 7.48e-2 (after each filter 9.01e-2, 7.48e-2), lost 6.26e-5 over 4 cycles, least fidelity 0.9142593214, edge 1.16e-1, mean r 3.119, shares 0.9355 0.0311 0.0309 0.0025, the pieces' commutator on the level 2.448e-2; a 0.0172291054 0.0172291053 (isotropy 6.18e-9); R static 9.255142 against the formula 1.308126; S 1.013686; R with the Darwin exchange 9.015169 against tan m / m 1.065572 [49 s]. strong-strang (a_B 3, strang, alpha 55.233, ball 6, 925 sites): E_L 1.53416573, E_b 0.173951 (continuum 0.122092), |lambda| 0.9951024724, residual 9.89e-2 (after each filter 9.89e-2), lost 1.10e-6 over 4 cycles, least fidelity 0.8576113468, edge 9.99e-2, mean r 2.838, shares 0.8709 0.0545 0.0545 0.0200, the pieces' commutator on the level 3.142e-2; a 0.0566957485 0.0566957485 (isotropy 3.66e-10); R static 2.876111 against the formula 1.375366; S 0.967801; R with the Darwin exchange 2.583487 against tan m / m 1.065572 [71 s]. strong-coulomb (a_B 3, coulomb, alpha 55.233, ball 6, 925 sites): E_L 1.53476860, E_b 0.173348 (continuum 0.122092), |lambda| 0.9948361430, residual 1.01e-1 (after each filter 1.01e-1), lost 2.97e-5 over 4 cycles, least fidelity 0.8508093828, edge 9.53e-2, mean r 2.759, shares 0.8624 0.0443 0.0444 0.0488, the pieces' commutator on the level 4.376e-2; a 0.0506081373 0.0506081373 (isotropy 1.21e-10); R static 3.219394 against the formula 1.374171; S 0.913687; R with the Darwin exchange 2.944198 against tan m / m 1.065572 [37 s]. weak-strang (a_B 5, strang, alpha 33.140, ball 6, 925 sites): E_L 1.64082748, E_b 0.067289 (continuum 0.043953), |lambda| 0.9974404913, residual 7.15e-2 (after each filter 7.15e-2), lost 1.39e-6 over 4 cycles, least fidelity 0.9237712512, edge 1.65e-1, mean r 3.471, shares 0.9322 0.0326 0.0326 0.0026, the pieces' commutator on the level 8.940e-3; a 0.0760899349 0.0760899349 (isotropy 1.52e-10); R static 2.005940 against the formula 1.177619; S 1.009722; R with the Darwin exchange 1.895518 against tan m / m 1.065572 [62 s]. weak-coulomb (a_B 5, coulomb, alpha 33.140, ball 6, 925 sites): E_L 1.64103342, E_b 0.067084 (continuum 0.043953), |lambda| 0.9973751655, residual 7.24e-2 (after each filter 7.24e-2), lost 2.81e-5 over 4 cycles, least fidelity 0.9218300232, edge 1.62e-1, mean r 3.429, shares 0.9361 0.0309 0.0308 0.0022, the pieces' commutator on the level 1.001e-2; a 0.0734117446 0.0734117446 (isotropy 4.20e-10); R static 2.078770 against the formula 1.177262; S 1.014463; R with the Darwin exchange 1.968184 against tan m / m 1.065572 [36 s]. Instrument I1 true (8.88e-16) I2 true (member R 1.065571760 vs 1.065571753; P_SS U against V K P_SS 1.06e-15) I3 false (the Strang cycle's Gram norm over one cycle 6.34e-11) I4 true (the D content's centroid 6.94e-18; its smeared pull against G beyond one link 8.33e-15, within it 7.89e-1); controls C1 true (the unsplit pull is E-SPN-0173's cycle bit for bit) C2 true (light off: the Strang cycle is the free cycle bit for bit) C3 true
+{"H0":0,"H1":0,"H2":1,"H3":0,"H4":0,"H5":0,"H6":0,"I1":1,"I2":1,"I3":0,"I4":1,"C1":1,"C2":1,"C3":1,"conjugacy":1.0635910632346569e-15,"centroid":6.938893903907228e-18,"smear":8.326672684688674e-15,"main-strang_Rstatic":8.006948208759576,"main-strang_formula":1.3083743217502208,"main-strang_Rfull":7.770282143200688,"main-strang_Eb":0.13940486499009852,"main-strang_residual":0.07206426674410948,"main-strang_commutator":0.02076852028641634,"main-coulomb_Rstatic":9.626445530191287,"main-coulomb_formula":1.3050827862318375,"main-coulomb_Rfull":9.393611936259527,"main-coulomb_Eb":0.13766734583661222,"main-coulomb_residual":0.07337163126482027,"main-coulomb_commutator":0.021743518964755536,"main-dock_Rstatic":9.255141758274508,"main-dock_formula":1.3081259152822995,"main-dock_Rfull":9.01516870954192,"main-dock_Eb":0.13927387157758342,"main-dock_residual":0.07483996009174777,"main-dock_commutator":0.024482617539717227,"strong-strang_Rstatic":2.8761106565069845,"strong-strang_formula":1.375366345196779,"strong-strang_Rfull":2.583486505828281,"strong-strang_Eb":0.17395123491568731,"strong-strang_residual":0.09885223301379496,"strong-strang_commutator":0.031419992438582754,"strong-coulomb_Rstatic":3.2193943680791506,"strong-coulomb_formula":1.3741713989667215,"strong-coulomb_Rfull":2.9441978214793956,"strong-coulomb_Eb":0.17334835981503272,"strong-coulomb_residual":0.10146035440745685,"strong-coulomb_commutator":0.04376135010211953,"weak-strang_Rstatic":2.0059395789759313,"weak-strang_formula":1.1776194396874542,"weak-strang_Rfull":1.895517744596795,"weak-strang_Eb":0.06728948774012777,"weak-strang_residual":0.07149525593311597,"weak-strang_commutator":0.00893958068272946,"weak-coulomb_Rstatic":2.078770457762482,"weak-coulomb_formula":1.1772624955673494,"weak-coulomb_Rfull":1.9681835602178739,"weak-coulomb_Eb":0.06708354600018351,"weak-coulomb_residual":0.07235246170576871,"weak-coulomb_commutator":0.01000898984652599}
+L2. Light m 0.427029 (M0 0.854058), the Coulomb count in steps of ringUnit(11, 5) (angle 0.006026931), the half pull in steps of its square root, G(0) 0.052830507, mu 0.455030.
+combine exit=0

@@ -1,0 +1,17 @@
+faces 0@0,0,0,0 class 0; 1@0,0,0,0 class 1; 2@0,0,0,0 class 2
+  off beat 1: patterns 25, absorbed 0.00e+0
+  off beat 2: patterns 577, absorbed 0.00e+0
+  off beat 3: patterns 13273, absorbed 0.00e+0
+  1,0 beat 1: patterns 649, absorbed 1.71e-14
+  1,0 beat 2: patterns 15417, absorbed -3.71e-13
+  1,0 beat 3: patterns 354483, absorbed -1.60e-12
+KS 1,0: largest reduced-state gap to the piece off over 3 beats 6.245e-17
+  0,2 beat 1: patterns 649, absorbed -4.22e-15
+  0,2 beat 2: patterns 15417, absorbed 0.00e+0
+  0,2 beat 3: patterns 354483, absorbed -1.70e-11
+KS 0,2: largest reduced-state gap to the piece off over 3 beats 2.082e-17
+  0,3 beat 1: patterns 649, absorbed 6.11e-15
+  0,3 beat 2: patterns 15417, absorbed 2.78e-13
+  0,3 beat 3: patterns 354483, absorbed -1.33e-12
+KS 0,3: largest reduced-state gap to the piece off over 3 beats 2.776e-17
+exit=0

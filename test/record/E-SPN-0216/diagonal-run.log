@@ -1,0 +1,81 @@
+radius direct 1,1,1: {"diagonal":[1,1,1],"build":"direct","reps":1357,"radius":1.0004566372347383,"remainder":0.33901701751020324,"levelDefect":2.7438692207226723e-8} 208s
+radius sector 1,1,1: {"diagonal":[1,1,1],"build":"sector","reps":1357,"radius":1.0004566372347383,"remainder":0.33901701751020324,"levelDefect":2.7438692207226723e-8} 365s
+radius direct 1,1,-1: {"diagonal":[1,1,-1],"build":"direct","reps":1357,"radius":1.045843983214703,"remainder":1.8802206962934744,"levelDefect":2.7438692429271327e-8} 485s
+radius sector 1,1,-1: {"diagonal":[1,1,-1],"build":"sector","reps":1357,"radius":1.0005221813437681,"remainder":0.3945129836337479,"levelDefect":2.7438692207226723e-8} 633s
+radius direct 1,-1,1: {"diagonal":[1,-1,1],"build":"direct","reps":1357,"radius":1.046231264071786,"remainder":1.867406059718416,"levelDefect":2.7438692873360537e-8} 859s
+radius sector 1,-1,1: {"diagonal":[1,-1,1],"build":"sector","reps":1357,"radius":1.000479853528692,"remainder":0.3576177141280219,"levelDefect":2.7438692207226723e-8} 1049s
+radius direct 1,-1,-1: {"diagonal":[1,-1,-1],"build":"direct","reps":1357,"radius":1.0005111139108038,"remainder":0.36194386127108513,"levelDefect":2.7438692651315932e-8} 1244s
+radius sector 1,-1,-1: {"diagonal":[1,-1,-1],"build":"sector","reps":1357,"radius":1.0005111139108038,"remainder":0.36194386127108513,"levelDefect":2.7438692651315932e-8} 1464s
+ball 1,1,1 norm 256: 0.9999958370583624 1707s
+ball 1,1,1 norm 512: 0.9999959592491267 1774s
+ball 1,1,1 norm 1024: 0.9999969130822639 1864s
+ball 1,1,1 norm 2048: 0.9999937391961111 2057s
+ball 1,1,1 norm 4096: 0.9999882597352435 2541s
+ball 1,1,-1 norm 256: 0.9999958370583628 2602s
+ball 1,1,-1 norm 512: 0.9999959592491273 2631s
+ball 1,1,-1 norm 1024: 0.9999969130822645 2696s
+ball 1,1,-1 norm 2048: 0.9999937391961138 3054s
+ball 1,1,-1 norm 4096: 0.9999882597352462 3780s
+ball 1,-1,1 norm 256: 0.999995837058363 3846s
+ball 1,-1,1 norm 512: 0.9999959592491279 3909s
+ball 1,-1,1 norm 1024: 0.9999969130822655 4031s
+ball 1,-1,1 norm 2048: 0.9999937391961152 4239s
+ball 1,-1,1 norm 4096: 0.9999882597352477 4564s
+ball 1,-1,-1 norm 256: 0.9999958370583616 4591s
+ball 1,-1,-1 norm 512: 0.9999959592491274 4620s
+ball 1,-1,-1 norm 1024: 0.9999969130822647 4689s
+ball 1,-1,-1 norm 2048: 0.9999937391961102 4812s
+ball 1,-1,-1 norm 4096: 0.9999882597352429 5048s
+torus 1,1,1 norm 256: 1.000000000000047 5232s
+torus 1,1,1 norm 512: 1.000000000000084 5298s
+torus 1,1,1 norm 1024: 1.0000000000001705 5422s
+torus 1,1,1 norm 2048: 1.0000000000003568 5674s
+torus 1,1,1 norm 4096: 1.0000000000007059 6179s
+torus 1,1,-1 norm 256: 1.000000000000047 6246s
+torus 1,1,-1 norm 512: 1.000000000000084 6310s
+torus 1,1,-1 norm 1024: 1.0000000000001692 6430s
+torus 1,1,-1 norm 2048: 1.000000000000357 6665s
+torus 1,1,-1 norm 4096: 1.0000000000007059 7140s
+torus 1,-1,1 norm 256: 1.000000000000047 7199s
+torus 1,-1,1 norm 512: 1.0000000000000844 7257s
+torus 1,-1,1 norm 1024: 1.0000000000001705 7376s
+torus 1,-1,1 norm 2048: 1.000000000000358 7624s
+torus 1,-1,1 norm 4096: 1.000000000000706 8113s
+torus 1,-1,-1 norm 256: 1.0000000000000417 8172s
+torus 1,-1,-1 norm 512: 1.0000000000000782 8229s
+torus 1,-1,-1 norm 1024: 1.0000000000001659 8337s
+torus 1,-1,-1 norm 2048: 1.0000000000003515 8549s
+torus 1,-1,-1 norm 4096: 1.0000000000006997 9183s
+{
+ "status": "open",
+ "claim": "the reduced engine's four body-diagonal sectors at K 0.32 n: built directly, (1, 1, -1) and (1, -1, 1) have spectral radius 1.045844 and 1.046231 on the whole stored space at R 12, their growing mode a remainder (invariance defect 1.88e+0, 1.87e+0), while (1, 1, 1) and (1, -1, -1) read 1.000457 and 1.000511 (C1 false); the invariant level's one-cycle isometry defect is the same in both builds (2.744e-8 against 2.744e-8; 2.744e-8 against 2.744e-8, H1 true), so the step on invariant states was never the fault (the register is carried by rho(g) in both): the remainder at fixed points grew; as built now every body diagonal reads radius 1.000457, 1.000522, 1.000480, 1.000511 (S1 false); over 4,096 cycles at R 16 on the closed torus the norm holds to 7.06e-13 with invariance defect at most 5.40e-14 (S2 true), and on the ball all four lose the same 1.174e-5 (spread 4.22e-15, never rising: S3 false); tables of 18 sectors bit for bit as committed (B1 true) and 128 lags of two E-RLT-0116 correlations reproduced to the bit (B2 true)",
+ "metrics": {
+  "C1": 0,
+  "H1": 1,
+  "S1": 0,
+  "S2": 1,
+  "S3": 0,
+  "B1": 1,
+  "B2": 1,
+  "radius_direct_111": 1.0004566372347383,
+  "radius_sector_111": 1.0004566372347383,
+  "radius_direct_11-1": 1.045843983214703,
+  "radius_sector_11-1": 1.0005221813437681,
+  "radius_direct_1-11": 1.046231264071786,
+  "radius_sector_1-11": 1.000479853528692,
+  "radius_direct_1-1-1": 1.0005111139108038,
+  "radius_sector_1-1-1": 1.0005111139108038,
+  "torusWorst": 7.061018436615996e-13,
+  "torusDefect": 5.395254445238821e-14,
+  "ballSpread": 4.218847493575595e-15,
+  "ballDrift": 0.000011740264756476826,
+  "seconds": 9182.881
+ },
+ "control": {
+  "directRadius11-1": 1.045843983214703,
+  "directRadius1-11": 1.046231264071786
+ },
+ "notes": "L1. Radius reads (build, diagonal: reps, radius by quarter, remainder, level isometry defect): direct 1,1,1: 1357, 1.00305077 1.00076536 1.00054456 1.00045664, 3.39e-1, 2.744e-8; sector 1,1,1: 1357, 1.00305077 1.00076536 1.00054456 1.00045664, 3.39e-1, 2.744e-8; direct 1,1,-1: 1357, 1.03984472 1.04509532 1.04523542 1.04584398, 1.88e+0, 2.744e-8; sector 1,1,-1: 1357, 1.00304265 1.00081333 1.00057040 1.00052218, 3.95e-1, 2.744e-8; direct 1,-1,1: 1357, 1.03926207 1.04496328 1.04554137 1.04623126, 1.87e+0, 2.744e-8; sector 1,-1,1: 1357, 1.00303848 1.00076018 1.00054743 1.00047985, 3.58e-1, 2.744e-8; direct 1,-1,-1: 1357, 1.00309771 1.00079100 1.00060020 1.00051111, 3.62e-1, 2.744e-8; sector 1,-1,-1: 1357, 1.00309771 1.00079100 1.00060020 1.00051111, 3.62e-1, 2.744e-8. Tracks (N / N0 - 1 at 256, 512, 1024, 2048, 4096): ball 1,1,1 (3136 reps, defect 6.07e-14) -4.163e-6 -4.041e-6 -3.087e-6 -6.261e-6 -1.174e-5; ball 1,1,-1 (3136 reps, defect 5.14e-14) -4.163e-6 -4.041e-6 -3.087e-6 -6.261e-6 -1.174e-5; ball 1,-1,1 (3136 reps, defect 5.12e-14) -4.163e-6 -4.041e-6 -3.087e-6 -6.261e-6 -1.174e-5; ball 1,-1,-1 (3136 reps, defect 6.52e-14) -4.163e-6 -4.041e-6 -3.087e-6 -6.261e-6 -1.174e-5; torus 1,1,1 (6545 reps, defect 4.43e-14) 4.707e-14 8.393e-14 1.705e-13 3.568e-13 7.059e-13; torus 1,1,-1 (6545 reps, defect 5.40e-14) 4.707e-14 8.393e-14 1.692e-13 3.570e-13 7.059e-13; torus 1,-1,1 (6545 reps, defect 4.18e-14) 4.707e-14 8.438e-14 1.705e-13 3.579e-13 7.061e-13; torus 1,-1,-1 (6545 reps, defect 5.06e-14) 4.174e-14 7.816e-14 1.659e-13 3.515e-13 6.997e-13. 9183 s."
+}
+done 9183s
+exit=0

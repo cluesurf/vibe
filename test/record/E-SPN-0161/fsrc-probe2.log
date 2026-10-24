@@ -1,0 +1,7 @@
+theta 2.76134144689686 m0 0.19012560334646667
+trivial trivial lambda -0.333333 closure 1.4e-14 law 4.4e-16 | lambda -0.166667 closure 4.8e-15 law 2.4e-16 | lambda -0.166667 closure 2.4e-15 law 4.4e-16 | lambda 0.166667 closure 3.5e-15 law 2.4e-16 | lambda 1.000000 closure 9.8e-1 law 8.5e-1 0.2
+2I weyl lambda -0.364750 closure 5.7e-15 law 1.1e-15 | lambda -0.168646 closure 2.3e-15 law 1.1e-15 | lambda -0.006293 closure 1.4e-15 law 2.4e-16 | lambda 0.158810 closure 3.6e-15 law 6.4e-16 | lambda 0.375327 closure 2.7e-15 law 1.5e-15 1.4
+L 8 2I weyl: top 0.38677391730395977 flats 11264 11264 of 11264 m_eff 1.1812114328301093 27.4s
+register 1728000 orbits 29288 symmetric 1589 27.9
+exact {"integral":true,"classConstant":true,"completeness":true,"idempotents":true,"checked":9720} 28.0
+exit=0

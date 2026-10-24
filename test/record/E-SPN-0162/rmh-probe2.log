@@ -1,0 +1,18 @@
+member coordinates vs derived band 8.88e-16, vs full 192-mode cycle 1.78e-15 [0.7s]
+member: a 0.6495190015, R 1.0122261365 against tan m / m 1.0122260566 [0.7s]
+tau 0.093556 cap 6: Eb 0.5617 EL 1.3222 T 0.0876 W 0.4741 meanV 7.60 P(V>5) 6.50e-1 P(V>7) 4.48e-1 P(V>9) 3.08e-1 R 0.6816 | window (0.458, min(1.322, 4.046)) closed false
+tau 0.093556 cap 8: Eb 0.5960 EL 1.3565 T 0.1895 W 0.4065 meanV 4.39 P(V>5) 3.25e-1 P(V>7) 8.05e-2 P(V>9) 1.67e-2 R 0.7771 | window (0.458, min(1.509, 3.859)) closed true
+tau 0.093556 cap 10: Eb 0.5984 EL 1.3589 T 0.1987 W 0.3997 meanV 4.27 P(V>5) 3.05e-1 P(V>7) 6.26e-2 P(V>9) 7.66e-3 R 0.7858 | window (0.458, min(1.696, 3.672)) closed true
+tau 0.093556 cap 12: Eb 0.5985 EL 1.3590 T 0.1995 W 0.3990 meanV 4.27 P(V>5) 3.04e-1 P(V>7) 6.13e-2 P(V>9) 6.88e-3 R 0.7866 | window (0.458, min(1.883, 3.485)) closed true
+tau 0.187112 cap 6: Eb 0.9428 EL 1.7033 T 0.2899 W 0.6529 meanV 3.57 P(V>5) 1.53e-1 P(V>7) 2.76e-2 P(V>9) 5.02e-3 R 0.7072 | window (0.458, min(1.883, 3.485)) closed true
+tau 0.187112 cap 8: Eb 0.9499 EL 1.7104 T 0.3155 W 0.6343 meanV 3.39 P(V>5) 1.16e-1 P(V>7) 9.31e-3 P(V>9) 5.01e-4 R 0.7268 | window (0.458, min(2.257, 3.111)) closed true
+tau 0.187112 cap 10: Eb 0.9501 EL 1.7106 T 0.3167 W 0.6334 meanV 3.39 P(V>5) 1.15e-1 P(V>7) 8.54e-3 P(V>9) 2.87e-4 R 0.7277 | window (0.458, min(2.632, 2.736)) closed true
+tau 0.187112 cap 12: Eb 0.9501 EL 1.7106 T 0.3167 W 0.6334 meanV 3.39 P(V>5) 1.15e-1 P(V>7) 8.52e-3 P(V>9) 2.77e-4 R 0.7277 | window (0.458, min(3.006, 2.362)) closed true
+tau 0.280668 cap 6: Eb 1.2428 EL 2.0033 T 0.4055 W 0.8372 meanV 2.99 P(V>5) 5.77e-2 P(V>7) 4.13e-3 P(V>9) 2.95e-4 R 0.6879 | window (0.458, min(2.445, 2.924)) closed true
+tau 0.280668 cap 8: Eb 1.2449 EL 2.0054 T 0.4148 W 0.8301 meanV 2.96 P(V>5) 4.99e-2 P(V>7) 1.72e-3 P(V>9) 3.37e-5 R 0.6941 | window (0.458, min(3.006, 2.362)) closed true
+tau 0.280668 cap 10: Eb 1.2450 EL 2.0055 T 0.4150 W 0.8300 meanV 2.96 P(V>5) 4.98e-2 P(V>7) 1.65e-3 P(V>9) 2.06e-5 R 0.6942 | window (0.458, min(3.567, 1.801)) closed false
+tau 0.280668 cap 12: Eb 1.2450 EL 2.0055 T 0.4150 W 0.8300 meanV 2.96 P(V>5) 4.98e-2 P(V>7) 1.65e-3 P(V>9) 2.03e-5 R 0.6942 | window (0.458, min(4.129, 1.240)) closed false
+ball 4: 1681 sites, 0.115 s a cycle, norm 47.579234 -> 47.630790 [1.4s]
+ball 6: 7225 sites, 0.563 s a cycle, norm 48.438715 -> 48.440246 [3.6s]
+ball 8: 21025 sites, 2.010 s a cycle, norm 48.451031 -> 48.451043 [10.7s]
+exit=0

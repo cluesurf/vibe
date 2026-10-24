@@ -1,0 +1,13 @@
+D 3 cut 12 configs 36973 line energy 0.33001851839229945 unwrapped 0.33001851839229945 next 0.6804520706983619  [48s]
+x-line characters: x 1.000000, y 1.000000, swap 0.000000  [48s]
+y-line characters: x 1.000000, y 1.000000, swap 0.000000  [48s]
+sector {"x":1,"y":1,"swap":1}; placed weight in sector 0.9999999999999994  [49s]
+v0: E 0.3300138709319579 overlap 0.9999882996114599 residual 2.556e-8 energy 0.33001837938796996 |lambda| 0.9999999622091204 off line 0 chars x 1.000000, y 1.000000, swap 1.000000  [78s]
+push |N v0|^2 0.8929468994881568 <v0|N v0> 0.6928348417214469 in sector 0.9999999999999996  [79s]
+  level dE -0.082989 weight 7.266e-5 overlap v0 1.250e-7 krylov residual 4.34e-1  [159s]
+  level dE -0.000251 weight 9.995e-1 overlap v0 9.996e-1 krylov residual 2.47e-2  [159s]
+  vec dE -0.000251 residual 4.37e-5 |lam| 0.99999996 offline 0.0000 meanV 2.189 tail10 3.54e-5 chars x 1.000000, y 1.000000, swap 1.000000  [174s]
+N matrix (re, |im|):  [174s]
+  0.6929  [174s]
+push of v0 outside the family: 0.41289592338117614  [174s]
+exit=0

@@ -15,7 +15,7 @@
 // 8192) on the softened count (code/measure/contact-core softenContact), for three members, each a ring unit of the
 // rule's ring (code/measure/register-track setupFor):
 //   ringUnit(-7, 2)  m 0.283682
-//   ringUnit(-5, 1)  m 0.427029  (E-SPN-0206's recorded read, tmp/spn-core-soften-a8.json, the witness)
+//   ringUnit(-5, 1)  m 0.427029  (E-SPN-0206's recorded read, test/record/E-SPN-0206/spn-core-soften-a8.json, the witness)
 //   ringUnit(-8, 3)  m 0.473807
 // all below pi / 6. The pull is the same count, alpha = 24 pi / (mu a_B), so at fixed a_B a lighter member is bound by a
 // larger alpha and moves faster inside the pair. The remainder at each is r = R_full,recorded - R_full,corrected, the
@@ -34,8 +34,8 @@
 //   member's own lattice mass, tan m - m, rather than the pair's speed).
 // PREDICTED: under V, r(0.2837) = 0.143 x 0.427 / 0.284 = 0.215 and r(0.4738) = 0.129.
 //
-// FIRST RUN (2026-10-20, tmp/spn-mass-<name>.log and .json, three processes on the native kernel at 6 threads each,
-// 2.3 hours; the verdict by combineMass in tmp/spn-0211-combine.ts, tmp/spn-0211-verdict.log): FAIL. No gate moved.
+// FIRST RUN (2026-10-20, test/record/E-SPN-0211/spn-mass-<name>.log and .json, three processes on the native kernel at 6 threads each,
+// 2.3 hours; the verdict by combineMass in test/record/E-SPN-0211/run/spn-0211-combine.ts, test/record/E-SPN-0211/spn-0211-verdict.log): FAIL. No gate moved.
 //  - W holds: the m 0.427 read gives R_full 1.2236985226452484, the recorded value to the bit.
 //  - I fails at m 0.284: its identity is clean (overlap 0.476 against 0.213) but its K read is not quadratic (ratio
 //    5.79 at K 0.04, 3.855 at the retry's K 0.02). Read anyway: R 1.674, R_full 1.550 against a corrected reference of
@@ -210,7 +210,7 @@ export default experiment({
   },
 })
 
-// the recorded m 0.427 part, for a combine from saved reads (tmp/spn-0211-combine.ts)
+// the recorded m 0.427 part, for a combine from saved reads (test/record/E-SPN-0211/run/spn-0211-combine.ts)
 export const recordedBase = (file: string): MassPart => {
   const j = JSON.parse(readFileSync(file, 'utf8'))
 

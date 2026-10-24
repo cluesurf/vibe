@@ -1,0 +1,69 @@
+census 1s
+stand-in 201s
+planted 202s
+rule pass s4 p0 219s
+rule pass s4 p1 234s
+rule pass s4 p2 249s
+rule pass s4 p3 264s
+rule lone s4 p0 280s
+rule lone s4 p1 296s
+rule pass s8 p0 435s
+love 435s
+status pass
+claim singles at one dock never fuse into a mover along a new line: K is line-preserving and keeps the single-line count on all 679936 firing docks (0 fused), so the difference from the vacuum holds at least 2 lines at every beat; the stand-in finds 0 translations over 2024 starts (every coin history, 24 and 8 beats; fewest classes 2), the rule with its vacuum 0 over 14168 runs (fewest differing lines 2, 0 off the star); a planted fusing table gives 1484 fused translations
+  G1 1
+  G2 1
+  G3 1
+  control_CP 1
+  control_CT 1
+  control_CL 1
+  control_CV 1
+  starts 2024
+  census2Docks 270336
+  census2Fires 172032
+  census2SumPairs 98304
+  census2SumLanded 0
+  census2SingleNewLine 0
+  census3Docks 901120
+  census3Fires 507904
+  census3SumPairs 688128
+  census3SumLanded 360448
+  census3SingleNewLine 294912
+  censusSplitLines 0
+  censusCountChanged 0
+  censusFused 0
+  standInStates 27250464
+  standInTranslations 0
+  standInFused 0
+  standInOneClass 0
+  standInMinClasses 2
+  closureNodes 4328
+  closureOneClass 0
+  closureMinClasses 2
+  closureMisses 0
+  lineChangingStarts 1536
+  plantedStates 650
+  plantedTranslations 1484
+  plantedFused 1484
+  plantedPeriod 3
+  plantedClosureNewClassOnly 1
+  plantedCensusFused 1
+  ruleRuns 14168
+  ruleTranslations 0
+  ruleFused 0
+  ruleRecurrences 1739
+  ruleOffStar 0
+  ruleEvents 267280
+  ruleOffHub 0
+  ruleMinLines 2
+  ruleMaxLines 12
+  vacuumEvents 0
+  loveBareTranslations 262
+  loveBareFused 0
+  loveVacuumOffStart 0
+  stepperDiffer 0
+  starCrossings 0
+  seconds 435.461
+control {"plantedFused":1484,"loveBareTranslations":262,"vacuumEvents":0}
+notes L1. G1 true, G2 true, G3 true; CP true, CT true, CL true, CV true; checks {"stepper":true,"census":true,"closure":true,"crossings":true}. Census 2: {"docks":270336,"fires":172032,"splitLines":0,"singleCountChanged":0,"fused":0,"sumPairs":98304,"sumLanded":0,"singleNewLine":0}; 3: {"docks":901120,"fires":507904,"splitLines":0,"singleCountChanged":0,"fused":0,"sumPairs":688128,"sumLanded":360448,"singleNewLine":294912}; recruitCensus(2) fires 172032 of 270336. Stand-in: 27250464 states, closure 4328 nodes (1536 starts reach more than their own line set). Planted: {"states":650,"visits":1142,"minClasses":1,"oneClass":207,"classSets":2,"translatePairs":867,"translations":1484,"fused":1484,"example":{"l":2,"step":[1,0,1,0],"period":3}}, closure one-class new 1, census fused 1. Rule: pass/s4/p0/64b: K 40231, min lines 2, translations 0; pass/s4/p1/64b: K 40886, min lines 2, translations 0; pass/s4/p2/64b: K 40557, min lines 2, translations 0; pass/s4/p3/64b: K 40232, min lines 2, translations 0; lone/s4/p0/64b: K 40231, min lines 2, translations 0; lone/s4/p1/64b: K 40886, min lines 2, translations 0; pass/s8/p0/32b: K 24257, min lines 2, translations 0. Loves: slot 0 bare 160 translations (fused 0), vacuum lines 1-1 off-start 0; slot 5 bare 68 translations (fused 0), vacuum lines 1-1 off-start 0; slot 11 bare 34 translations (fused 0), vacuum lines 1-1 off-start 0. 435 s.
+exit=0

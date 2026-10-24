@@ -1,0 +1,7 @@
+one beat phi9 0.2: size -1 c0 NaN gamma NaN formula -1.254183e-2
+one beat phi9 -0.3: size -1 c0 NaN gamma NaN formula 1.889190e-2
+two beat phi9 (0.2, 0): size 15 c0 0.707106787 0.707106787 gamma -3.917283e-8 -3.904334e-8; mean of one-beat formulas -6.270917e-3; massive m 0.473598776 sizes 1+9+14 R 1.219070443 tan m/m 1.102657791
+two beat phi9 (0.2, -0.2): size 24 c0 0.710621809 0.710692388 gamma -4.727121e-13 1.299597e-12; mean of one-beat formulas 7.806256e-18; massive m 0.523598776 sizes 1+23 R 1.102657791 tan m/m 1.102657791
+two beat phi9 (0.2, 0.3): size 15 c0 0.707106781 0.707106781 gamma -1.507547e-2 -1.507547e-2; mean of one-beat formulas -1.571687e-2; massive m 0.398598776 sizes 1+9+14 R 1.448449681 tan m/m 1.102657791
+two beat phi9 (0.5, -0.1): size 15 c0 0.707106784 0.707106784 gamma 1.555982e-2 1.555982e-2; mean of one-beat formulas -1.283126e-2; massive m 0.423598776 sizes 1+9+14 R 1.362964915 tan m/m 1.102657791
+exit=0

@@ -1,0 +1,29 @@
+M0 (cycle half gap) 0.380251, m0 per beat 0.190126, kappa 0.8921
+unit k 11 j -7 angle 0.006027 (ringUnit 0.006027)
+unit k -14 j 9 angle 0.087529 (ringUnit 0.087529)
+unit k -3 j 2 angle 0.093556 (ringUnit 0.093556)
+unit k 8 j -5 angle 0.099583 (ringUnit 0.099583)
+unit k -6 j 4 angle 0.187112 (ringUnit 0.187112)
+unit k 5 j -3 angle 0.193139 (ringUnit 0.193139)
+unit k -9 j 6 angle 0.280668 (ringUnit 0.280668)
+unit k 2 j -1 angle 0.286695 (ringUnit 0.286695)
+unit k 13 j -8 angle 0.292722 (ringUnit 0.292722)
+tau 0.093556 cap 2: Mcap 0.567 Eb 0.3882 EL 1.1487 T 0.0140 W 0.3742 meanV 14.80 P(V>4) 9.95e-1 R 1.0335 | 2Mcap 1.135 pi-Smax(cap) 2.208 closed false
+tau 0.093556 cap 3: Mcap 0.661 Eb 0.5731 EL 1.3336 T 0.0121 W 0.5611 meanV 14.72 P(V>4) 9.94e-1 R 1.0422 | 2Mcap 1.322 pi-Smax(cap) 2.152 closed false
+tau 0.093556 cap 4: Mcap 0.754 Eb 0.7560 EL 1.5165 T 0.0254 W 0.7306 meanV 11.89 P(V>4) 9.16e-1 R 1.0533 | 2Mcap 1.509 pi-Smax(cap) 2.090 closed false
+tau 0.093556 cap 5: Mcap 0.848 Eb 0.8245 EL 1.5850 T 0.2248 W 0.5997 meanV 3.29 P(V>4) 2.52e-1 R 1.0848 | 2Mcap 1.696 pi-Smax(cap) 2.024 closed true
+tau 0.093556 cap 6: Mcap 0.942 Eb 0.8306 EL 1.5911 T 0.2472 W 0.5834 meanV 3.12 P(V>4) 2.06e-1 R 1.0905 | 2Mcap 1.883 pi-Smax(cap) 1.955 closed true
+tau 0.093556 cap 8: Mcap 1.129 Eb 0.8312 EL 1.5917 T 0.2500 W 0.5813 meanV 3.11 P(V>4) 2.01e-1 R 1.0914 | 2Mcap 2.257 pi-Smax(cap) 1.809 closed true
+tau 0.099471 cap 2: Mcap 0.579 Eb 0.4116 EL 1.1721 T 0.0137 W 0.3979 meanV 14.80 P(V>4) 9.95e-1 R 1.0344 | 2Mcap 1.158 pi-Smax(cap) 2.202 closed false
+tau 0.099471 cap 3: Mcap 0.679 Eb 0.6083 EL 1.3688 T 0.0118 W 0.5965 meanV 14.71 P(V>4) 9.93e-1 R 1.0441 | 2Mcap 1.357 pi-Smax(cap) 2.140 closed false
+tau 0.099471 cap 4: Mcap 0.778 Eb 0.8009 EL 1.5614 T 0.0458 W 0.7551 meanV 9.76 P(V>4) 8.27e-1 R 1.0568 | 2Mcap 1.556 pi-Smax(cap) 2.074 closed false
+tau 0.099471 cap 5: Mcap 0.878 Eb 0.8573 EL 1.6178 T 0.2389 W 0.6184 meanV 3.17 P(V>4) 2.17e-1 R 1.0877 | 2Mcap 1.755 pi-Smax(cap) 2.003 closed true
+tau 0.099471 cap 6: Mcap 0.977 Eb 0.8620 EL 1.6225 T 0.2567 W 0.6053 meanV 3.05 P(V>4) 1.82e-1 R 1.0923 | 2Mcap 1.954 pi-Smax(cap) 1.928 closed true
+tau 0.099471 cap 8: Mcap 1.176 Eb 0.8624 EL 1.6229 T 0.2587 W 0.6037 meanV 3.03 P(V>4) 1.79e-1 R 1.0929 | 2Mcap 2.352 pi-Smax(cap) 1.770 closed true
+tau 0.187112 cap 2: Mcap 0.754 Eb 0.7588 EL 1.5193 T 0.0104 W 0.7484 meanV 14.80 P(V>4) 9.95e-1 R 1.0534 | 2Mcap 1.509 pi-Smax(cap) 2.090 closed false
+tau 0.187112 cap 3: Mcap 0.942 Eb 1.1297 EL 1.8902 T 0.0137 W 1.1160 meanV 13.42 P(V>4) 9.61e-1 R 1.0821 | 2Mcap 1.883 pi-Smax(cap) 1.955 closed false
+tau 0.187112 cap 4: Mcap 1.129 Eb 1.2492 EL 2.0097 T 0.3484 W 0.9008 meanV 2.43 P(V>4) 4.38e-2 R 1.1071 | 2Mcap 2.257 pi-Smax(cap) 1.809 closed false
+tau 0.187112 cap 5: Mcap 1.316 Eb 1.2532 EL 2.0137 T 0.3647 W 0.8885 meanV 2.37 P(V>4) 2.77e-2 R 1.1103 | 2Mcap 2.632 pi-Smax(cap) 1.655 closed false
+tau 0.187112 cap 6: Mcap 1.503 Eb 1.2533 EL 2.0138 T 0.3653 W 0.8880 meanV 2.37 P(V>4) 2.72e-2 R 1.1104 | 2Mcap 3.006 pi-Smax(cap) 1.495 closed false
+tau 0.187112 cap 8: Mcap 1.877 Eb 1.2533 EL 2.0138 T 0.3653 W 0.8880 meanV 2.37 P(V>4) 2.72e-2 R 1.1104 | 2Mcap 3.754 pi-Smax(cap) 1.164 closed false
+exit=0

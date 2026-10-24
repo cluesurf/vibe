@@ -1,0 +1,77 @@
+level 73s
+H3 89s
+H1 152s
+ladder 2 207s
+ladder 1 286s
+ladder 0.5 335s
+ladder 0.25 394s
+ladder 0.125 438s
+ladder 0.0625 522s
+H2 522s
+CN 541s
+C0 580s
+lone 581s
+status partial
+claim three holes in the flat love sea on a slab (two lines of one frame, the Steiner string at pi/7 a link, the mixer at rate 3): the dominant level keeps fidelity >= 0.00000 with tail <= 1.00e+0 over 128 beats (H1 false); largest rate held none; tensor not read, isotropy not read against 0.00207 (H2 false); one line, mixer off: E 0.33001851839229795 (residual 2.90e-14), m* 24.1156, m*/E_rest 73.073 (H3 true); no cost: rate 0 fidelity 1.0000 (CN false); mixer off: off-line 0.0e+0, across 0.0e+0 (C0 true)
+  H1 0
+  H2 0
+  H3 1
+  control_CN 0
+  control_C0 1
+  checked 0
+  heldRate -1
+  levelEnergy 2.5722086920223513
+  levelStartWeight 0.039991360651739936
+  levelResidual 0.8263358964017189
+  minFidelity 1.2224679570262942e-9
+  maxTail 0.9999993824354247
+  meanSteiner 6.714791157497446
+  offLine 0.8202970329187623
+  lineEnergy 0.33001851839229795
+  lineResidual 2.897293412319125e-14
+  lineCurvature 0.04146693157236832
+  lineCurvatureLove 0.04146693157279451
+  lineCurvatureAtKappa 0.041426428981664085
+  lineCurvatureAtDouble 0.041304921209551385
+  mStar 24.115601566872495
+  mStarOverERest 73.07347988940975
+  curveThreshold 0.002073346578618416
+  cnRate0MinFidelity 0.9999986380622382
+  cnRate0MaxTail 0.000006114256105783575
+  c0OffLineMax 0
+  c0Energy 0.3300172637259596
+  c0LineEnergy 0.3300172637259596
+  c0Across 0
+  loneLine -0.5773406480980015
+  loneSlabMin -0.28867994690706666
+  loneSlabMax -0.2886727300666081
+  contactGap 2.482534153247273e-16
+  normGap 1.2303491558895985e-12
+  antiGap 1.1685604042362405e-14
+  windowSlab 36973
+  windowSlabAmplitudes 2366272
+  windowSlab10 18481
+  windowLine 469
+  window4d 5482753
+  seconds 580.589
+  rate2Held 0
+  rate2MinFidelity 0.000001097814089574252
+  rate2MaxTail 0.999256981839284
+  rate1Held 0
+  rate1MinFidelity 0.00010202983435346732
+  rate1MaxTail 0.7895863019528777
+  rate0.5Held 0
+  rate0.5MinFidelity 0.013937383630537472
+  rate0.5MaxTail 0.3704339094094433
+  rate0.25Held 0
+  rate0.25MinFidelity 0.016686541412263372
+  rate0.25MaxTail 0.16510847881894503
+  rate0.125Held 0
+  rate0.125MinFidelity 0.1821201878609013
+  rate0.125MaxTail 0.07856959907217437
+  rate0.0625Held 0
+  rate0.0625MinFidelity 0.6892365250233201
+  rate0.0625MaxTail 0.033183442054918605
+control {"cnRate0MinFidelity":0.9999986380622382,"c0OffLineMax":0,"c0Across":0,"loneLine":-0.5773406480980015,"loneSlabMin":-0.28867994690706666}
+notes L2. rate 3: held false, level E 2.572209 (start weight 0.0400, residual 8.26e-1), fidelity 0.29709 0.00455 0.00068 0.00000 0.00000 (min 0.00000), tail 3.22e-1 7.47e-1 9.84e-1 9.99e-1 1.00e+0 (max 1.00e+0), mean Steiner 6.715, off one line 0.8203, shells 3.1e-33/2.7e-31/1.6e-1/2.9e-2/1.1e-1/7.0e-2/1.2e-1/6.6e-2/1.3e-1/5.5e-2/1.3e-1/4.6e-2/8.6e-2. Ladder: rate 2 (theta 90.00 deg): held false, level E 2.385380 (start weight 0.0674, residual 9.21e-1), fidelity 0.14990 0.47406 0.02556 0.00014 0.00001 (min 0.00000), tail 2.21e-1 4.88e-1 8.61e-1 9.75e-1 9.99e-1 (max 9.99e-1), mean Steiner 6.389, off one line 0.8200, shells 2.5e-33/2.4e-31/1.6e-1/1.5e-2/1.2e-1/6.7e-2/1.8e-1/8.3e-2/1.4e-1/5.2e-2/9.0e-2/3.7e-2/5.7e-2; rate 1 (theta 60.00 deg): held false, level E 1.514694 (start weight 0.1371, residual 9.87e-1), fidelity 0.03157 0.50127 0.15242 0.00327 0.00029 (min 0.00010), tail 8.81e-2 1.64e-1 3.64e-1 5.56e-1 7.90e-1 (max 7.90e-1), mean Steiner 5.860, off one line 0.8089, shells 2.4e-32/4.6e-31/1.7e-1/1.6e-2/1.2e-1/8.2e-2/2.2e-1/1.2e-1/1.5e-1/4.9e-2/4.4e-2/1.5e-2/1.8e-2; rate 0.5 (theta 41.41 deg): held false, level E 0.602682 (start weight 0.2358, residual 9.42e-1), fidelity 0.11761 0.26109 0.16689 0.04429 0.01477 (min 0.01394), tail 3.69e-2 5.40e-2 1.23e-1 2.10e-1 3.70e-1 (max 3.70e-1), mean Steiner 5.151, off one line 0.7368, shells 1.6e-31/1.7e-30/2.5e-1/2.2e-2/1.3e-1/9.7e-2/2.1e-1/9.0e-2/1.3e-1/3.3e-2/2.4e-2/5.6e-3/5.0e-3; rate 0.25 (theta 28.96 deg): held false, level E 0.106723 (start weight 0.3456, residual 9.08e-1), fidelity 0.18517 0.68431 0.12346 0.11655 0.01669 (min 0.01669), tail 3.39e-2 4.00e-2 6.53e-2 9.49e-2 1.65e-1 (max 1.65e-1), mean Steiner 4.757, off one line 0.6369, shells 5.3e-31/3.9e-29/3.4e-1/1.8e-2/1.4e-1/8.5e-2/1.8e-1/7.3e-2/1.0e-1/3.5e-2/2.4e-2/5.8e-3/2.7e-3; rate 0.125 (theta 20.36 deg): held false, level E 0.335676 (start weight 0.5527, residual 7.35e-1), fidelity 0.48064 0.78390 0.38838 0.33949 0.18279 (min 0.18212), tail 2.14e-2 2.57e-2 3.60e-2 4.94e-2 7.86e-2 (max 7.86e-2), mean Steiner 3.928, off one line 0.4209, shells 2.8e-30/7.1e-28/5.1e-1/7.4e-3/1.3e-1/5.7e-2/1.4e-1/4.2e-2/6.7e-2/1.9e-2/1.7e-2/3.3e-3/1.4e-3; rate 0.0625 (theta 14.36 deg): held false, level E 0.424431 (start weight 0.8033, residual 4.81e-1), fidelity 0.78153 0.78877 0.78685 0.71777 0.72608 (min 0.68924), tail 9.19e-3 9.67e-3 1.49e-2 2.14e-2 3.32e-2 (max 3.32e-2), mean Steiner 2.928, off one line 0.1808, shells 1.1e-30/4.6e-28/7.4e-1/4.6e-3/1.1e-1/2.3e-2/6.0e-2/1.9e-2/2.9e-2/7.1e-3/7.3e-3/1.1e-3/7.1e-4. Tensor at kappa pi/32 not read, at pi/64 not read. H3: carried level E 0.33001851839229795, residual 2.90e-14; curvature holes 0.04146693157236832 (at pi/64 0.041426428981664085, pi/32 0.041304921209551385), loves 0.04146693157279451. CN: rate 0, no cost: held true, level E -0.666945 (start weight 0.9158, residual 5.45e-4), fidelity 1.00000 1.00000 1.00000 1.00000 1.00000 (min 1.00000), tail 5.16e-6 5.11e-6 5.41e-6 5.48e-6 6.11e-6 (max 6.11e-6), mean Steiner 2.333, off one line 0.0000, shells 8.0e-34/8.8e-31/8.4e-1/7.1e-30/1.5e-1/9.4e-30/5.9e-3/1.0e-29/1.8e-4/1.4e-29/5.0e-6/9.9e-30/2.3e-7. C0: rate 0, one line in the slab: held true, level E 0.330017 (start weight 1.0000, residual 1.64e-3), fidelity 1.00000 1.00000 1.00000 1.00000 0.99999 (min 0.99999), tail 3.47e-5 3.51e-5 3.71e-5 3.98e-5 4.47e-5 (max 4.47e-5), mean Steiner 2.188, off one line 0.0000, shells 2.1e-32/1.2e-30/9.1e-1/2.6e-30/8.2e-2/6.2e-29/5.4e-3/1.6e-28/5.3e-4/1.6e-28/3.3e-5/5.8e-29/2.1e-6; one-line window: held true, level E 0.330017 (start weight 1.0000, residual 1.64e-3), fidelity 1.00000 1.00000 1.00000 1.00000 0.99999 (min 0.99999), tail 3.47e-5 3.51e-5 3.71e-5 3.98e-5 4.47e-5 (max 4.47e-5), mean Steiner 2.188, off one line 0.0000, shells 2.1e-32/1.2e-30/9.1e-1/2.6e-30/8.2e-2/6.2e-29/5.4e-3/1.6e-28/5.3e-4/1.6e-28/3.3e-5/5.8e-29/2.1e-6; off-line max 0, across 0. Lone hole: line -0.5773406480980015, slab -0.28867994690706666, -0.2886727300666081. Checks: norm 1.23e-12, antisymmetry 1.17e-14, contact 2.48e-16, phi2^3 1.000000000000000, 0.000000000000000, windows true (slab 36973 x 64, at 10 18481, line 469, 4d at 10 5482753). 581 s.
+exit=0

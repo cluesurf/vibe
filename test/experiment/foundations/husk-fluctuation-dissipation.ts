@@ -39,11 +39,11 @@
 // tmp/hc-probe4 (one start, 12 / 16 / 20): static ratio 0.958 on the knit, 159 on arm B. The D1 and S1 bands were set
 // after these probes.
 //
-// FIRST RUN (tmp/hc-exp34-run1.log, 204 s): pass, every gate, recorded as is. Static ratio 0.941 to 1.045, mean 0.995;
+// FIRST RUN (test/record/E-FND-0156/hc-exp34-run1.log, 204 s): pass, every gate, recorded as is. Static ratio 0.941 to 1.045, mean 0.995;
 // thermometer gap 1.0962 to 1.1009; regression gap 0.031 to lag 4 and 0.096 to lag 24 over 60 twins; control ratio 159.
 // Title written after the run.
 //
-// SECOND RUN, the full 17-start family (tmp/hc-fdt17-run1.log). No band moved: S1's 0.85 to 1.15 per start and 0.9 to
+// SECOND RUN, the full 17-start family (test/record/E-FND-0156/hc-fdt17-run1.log). No band moved: S1's 0.85 to 1.15 per start and 0.9 to
 // 1.1 on the mean, S2's 0.02, D1's 0.05 and 0.12, C1's band. The first run's S1 allowed one of 6 starts outside the
 // band; the same allowance of one start is kept for 17 (at least 16 of 17 in band), and the strict count is reported.
 // D1 pools 17 x 5 x 2 = 170 twins. The first run's 6 starts are members 0 to 5 of the same family, rerun here.

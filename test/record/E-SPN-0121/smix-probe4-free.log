@@ -1,0 +1,17 @@
+t 1: active 841 classes 921 escaped 9.35e-5 dropped 0.00e+0 |c| 0.7141 string 1.486 offset 1.206 bent 0.2995 tail 0.00e+0 20ms heap 28MB
+t 2: active 22009 classes 22089 escaped 1.80e-3 dropped 0.00e+0 |c| 0.5173 string 2.540 offset 2.030 bent 0.4591 tail 0.00e+0 225ms heap 58MB
+t 3: active 135001 classes 135081 escaped 1.96e-2 dropped 0.00e+0 |c| 0.2224 string 3.420 offset 2.437 bent 0.8107 tail 0.00e+0 3026ms heap 188MB
+t 4: active 152329 classes 163161 escaped 8.04e-2 dropped 7.37e-7 |c| 0.1517 string 3.835 offset 2.540 bent 0.9199 tail 0.00e+0 15067ms heap 251MB
+t 5: active 172465 classes 237153 escaped 1.90e-1 dropped 1.77e-6 |c| 0.0759 string 4.198 offset 2.713 bent 0.9655 tail 0.00e+0 17651ms heap 356MB
+t 6: active 174865 classes 267153 escaped 3.28e-1 dropped 3.09e-6 |c| 0.0902 string 4.196 offset 2.682 bent 0.9446 tail 0.00e+0 20527ms heap 386MB
+t 7: active 182161 classes 278481 escaped 4.77e-1 dropped 4.51e-6 |c| 0.1008 string 4.121 offset 2.675 bent 0.9102 tail 0.00e+0 21653ms heap 427MB
+t 8: active 189265 classes 301377 escaped 6.05e-1 dropped 6.46e-6 |c| 0.1533 string 3.852 offset 2.570 bent 0.8814 tail 0.00e+0 23435ms heap 428MB
+t 9: active 192961 classes 332529 escaped 6.73e-1 dropped 8.91e-6 |c| 0.1758 string 3.462 offset 2.321 bent 0.8415 tail 0.00e+0 24977ms heap 449MB
+t 10: active 199009 classes 366129 escaped 7.10e-1 dropped 1.12e-5 |c| 0.2112 string 3.611 offset 2.420 bent 0.8010 tail 0.00e+0 26796ms heap 474MB
+t 11: active 202081 classes 401457 escaped 7.43e-1 dropped 1.30e-5 |c| 0.2036 string 3.555 offset 2.409 bent 0.7779 tail 0.00e+0 29171ms heap 499MB
+t 12: active 210001 classes 410961 escaped 7.72e-1 dropped 1.49e-5 |c| 0.1956 string 3.626 offset 2.414 bent 0.7915 tail 0.00e+0 30820ms heap 548MB
+t 13: active 192481 classes 447537 escaped 7.99e-1 dropped 1.74e-5 |c| 0.1527 string 3.695 offset 2.462 bent 0.8326 tail 0.00e+0 33478ms heap 567MB
+t 14: active 211105 classes 449937 escaped 8.21e-1 dropped 1.89e-5 |c| 0.1366 string 3.541 offset 2.398 bent 0.8490 tail 0.00e+0 34656ms heap 518MB
+t 15: active 196369 classes 452433 escaped 8.44e-1 dropped 2.14e-5 |c| 0.0807 string 3.587 offset 2.381 bent 0.8777 tail 0.00e+0 35921ms heap 539MB
+t 16: active 201457 classes 452433 escaped 8.63e-1 dropped 2.38e-5 |c| 0.0618 string 3.314 offset 2.306 bent 0.8869 tail 0.00e+0 37176ms heap 552MB
+exit=0

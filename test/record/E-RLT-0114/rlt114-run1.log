@@ -1,0 +1,83 @@
+census 0s
+F1 29s
+F2 F3 F4 side 8 483s
+F4 side 12 992s
+E-RLT-0114 relativity/composite-lineon-mobility L1 991.8s
+status   fail
+claim    12 line classes cast 9 husk directions, 0 of them a body diagonal; of 298 sets of 1 to 3 classes, 0 share a span beyond one class (150 triples span the husk); on the working knit F2 parallel dipoles: 176 runs, 0 bound (0 pinned at the hub), 0 away, 0 movers, 8 with a single 2 steps along a direction no member has, 0 single readings off member lines, off-star 0, K off hub 0, body-diagonal reach 1, reach by direction [3 2 1 3 3 1 1 1 1 1 1 1 1] (spread 1.300); F3 crossing pairs: 528 runs, 0 bound (0 pinned at the hub), 0 away, 0 movers, 432 with a single 2 steps along a direction no member has, 322712 single readings off member lines, off-star 0, K off hub 0, body-diagonal reach 0, reach by direction [3 3 3 3 3 3 3 3 3 0 0 0 0] (spread 1.444); F4 crossing triples: 880 runs, 0 bound (0 pinned at the hub), 0 away, 0 movers, 872 with a single 2 steps along a direction no member has, 543452 single readings off member lines, off-star 0, K off hub 0, body-diagonal reach 0, reach by direction [3 3 3 3 3 3 3 3 3 0 0 0 0] (spread 1.444); F4 at side 12: 220 runs, 0 bound (0 pinned at the hub), 0 away, 0 movers, 207 with a single 2 steps along a direction no member has, 175332 single readings off member lines, off-star 0, K off hub 0, body-diagonal reach 0, reach by direction [5 5 5 5 5 5 5 5 5 0 0 0 0] (spread 1.444); 0 composites are movers on every run (G1 false, G2 false); a lone love reaches [3 3 3 3 3 3 3 3 3 0 0 0 0] steps by direction, only on its own line (C1 true); the two-hub start reaches at least 3 steps on every direction with 15518 singles (CP true)
+  G1  0
+  G2  0
+  control_C1  1
+  control_CP  1
+  control_CV  1
+  stepper  1
+  lineClasses  12
+  huskShadows  9
+  bodyShadows  0
+  censusSets  298
+  spanGains  0
+  husk3dTriples  150
+  compositeNames  396
+  compositeRuns  1804
+  moverComposites  0
+  loneRuns  48
+  loneReachSpread  1.4444444444444444
+  cpWakeReachMin  3
+  cpSinglesMax  15518
+  cpApartMax  6.928203230275509
+  cpOffStar  418798
+  seconds  991.753
+  F2_runs  176
+  F2_bound  0
+  F2_pinnedBound  0
+  F2_away  0
+  F2_movers  0
+  F2_newDirection  8
+  F2_offMembers  0
+  F2_offStar  0
+  F2_offHub  0
+  F2_bodyReach  1
+  F2_reachSpread  1.2999999999999998
+  F2_kFirings  0
+  F2_maxSingles  12
+  F3_runs  528
+  F3_bound  0
+  F3_pinnedBound  0
+  F3_away  0
+  F3_movers  0
+  F3_newDirection  432
+  F3_offMembers  322712
+  F3_offStar  0
+  F3_offHub  0
+  F3_bodyReach  0
+  F3_reachSpread  1.4444444444444444
+  F3_kFirings  12288
+  F3_maxSingles  32
+  F4_runs  880
+  F4_bound  0
+  F4_pinnedBound  0
+  F4_away  0
+  F4_movers  0
+  F4_newDirection  872
+  F4_offMembers  543452
+  F4_offStar  0
+  F4_offHub  0
+  F4_bodyReach  0
+  F4_reachSpread  1.4444444444444444
+  F4_kFirings  23320
+  F4_maxSingles  33
+  F4side12_runs  220
+  F4side12_bound  0
+  F4side12_movers  0
+  F4side12_newDirection  207
+  F4side12_offStar  0
+  F4side12_bodyReach  0
+  F4side12_reachSpread  1.4444444444444444
+control
+  loneOffMembers  0
+  loneOffStar  0
+  cpWakeReachMin  3
+  vacuumEvents  0
+  vacuumSingles  0
+notes    L1. Controls {"C1":true,"CP":true,"CV":true}, stepper true. C1 per run: 48 of 48. Arrival beats Infinity Infinity Infinity Infinity Infinity Infinity Infinity Infinity Infinity Infinity Infinity Infinity Infinity. CP: off-star 418798, K 22247 (22204 off the hubs), singles by beat 16s 22 82 1686 15518, apart max 6.928. Lone love reach by class: love l0 [0003000000000], love l1 [0000300000000], love l2 [0000030000000], love l3 [0000003000000], love l4 [3000000000000], love l5 [3000000000000], love l6 [0000000300000], love l7 [0000000030000], love l8 [0300000000000], love l9 [0300000000000], love l10 [0030000000000], love l11 [0030000000000]. Max singles F2 12, F3 32, F4 33. K firings F2 0, F3 12288, F4 23320. 992 s.
+exit=0

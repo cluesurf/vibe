@@ -44,8 +44,8 @@
 //    partial at best.
 // Depth L2 at most, on the 4d bulk torus, not the husk: no ledger row is held from it.
 //
-// SMOKE BEFORE THE GATE RUN (tmp/meeting-smoke.log, 2 cycles): every path ran, no gate moved.
-// FIRST RUN (2026-10-08, tmp/meeting-gate.log, 35 s): PASS. No gate moved and none was rerun.
+// SMOKE BEFORE THE GATE RUN (test/record/E-SLF-0180/meeting-smoke.log, 2 cycles): every path ran, no gate moved.
+// FIRST RUN (2026-10-08, test/record/E-SLF-0180/meeting-gate.log, 35 s): PASS. No gate moved and none was rerun.
 //  - STAGE 0: 192 of W(F4)'s 576 rotations are torus symmetries (the half-integer ones do not keep L Z^4), V kept
 //    exactly. F2 = 2 at stabilizers of order 48, 24 and 12. The four order-48 pairs (class 0 with a class of three
 //    halves) hold no D-copy in the up band; the first order-24 pair, k_A = 0, k_B = (0, 0, 0, 1), holds two at each.

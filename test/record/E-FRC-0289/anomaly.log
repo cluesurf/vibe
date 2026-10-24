@@ -1,0 +1,46 @@
+{
+ "status": "fail",
+ "claim": "'t Hooft matching on one chiral face, KILL: the constituents (per tone an SU(2)+ doublet, colour 3, Q -1/3 and +1/3) give QQQ 0, Q 0, QTT 0, witten 0, QQN 4/3, QNN 0, NNN 12, N 12, NTT 3, so S1 and S2 are vacuous; the colour-singlet three-member J = 1/2 composites (8 multiplets) match S1 in 45521, S2 in 11319, S3 in 0 of 5764801 index assignments (|l| <= 3), with a charge-one composite at nonzero index in S1 39018, S2 9702, S3 0; the non-vacuous set S3 match nothing; instrument true, dropping one level kills every match true",
+ "metrics": {
+  "I1": 1,
+  "I1a": 1,
+  "I1b": 1,
+  "I1c": 1,
+  "I1d": 1,
+  "I1e": 1,
+  "C1": 1,
+  "constituent_QQQ_x27": 0,
+  "constituent_Q_x3": 0,
+  "constituent_QTT_x12": 0,
+  "constituent_witten_x1": 0,
+  "constituent_QQN_x9": 12,
+  "constituent_QNN_x3": 0,
+  "constituent_NNN_x1": 12,
+  "constituent_N_x1": 12,
+  "constituent_NTT_x4": 12,
+  "S1_matches": 45521,
+  "S1_electron_matches": 39018,
+  "S1_vacuous": 1,
+  "S2_matches": 11319,
+  "S2_electron_matches": 9702,
+  "S2_vacuous": 1,
+  "S3_matches": 0,
+  "S3_electron_matches": 0,
+  "S3_vacuous": 0,
+  "compositeMultiplets": 8,
+  "cubeDimension": 120,
+  "seconds": 10.444
+ },
+ "control": {
+  "dropsTried": 12,
+  "dropsWithAnyMatch": 0,
+  "plantedElectronMatches": 42,
+  "exoticQQQ": 27,
+  "twiceTrNCC": 4,
+  "sixTrQCC": 0,
+  "bothFacesNonzero": 0,
+  "doubletDropS1Electron": 38640
+ },
+ "notes": "L1, exact. Member on half +: weights (1, 1) x1 (1, -1) x1 (-1, 1) x1 (-1, -1) x1, isospin Casimir 3, tr(L R) 0. Cube (colour singlet, bose on spin x isospin x tone, n+ 3): Q -3/3 (J 3/2, T 3/2) x1; Q -3/3 (J 1/2, T 1/2) x1; Q -1/3 (J 3/2, T 3/2) x1; Q -1/3 (J 3/2, T 1/2) x1; Q -1/3 (J 1/2, T 3/2) x1; Q -1/3 (J 1/2, T 1/2) x2; Q 1/3 (J 3/2, T 3/2) x1; Q 1/3 (J 3/2, T 1/2) x1; Q 1/3 (J 1/2, T 3/2) x1; Q 1/3 (J 1/2, T 1/2) x2; Q 3/3 (J 3/2, T 3/2) x1; Q 3/3 (J 1/2, T 1/2) x1. Constituents: QQQ 0, Q 0, QTT 0, witten 0, QQN 4/3, QNN 0, NNN 12, N 12, NTT 3. Searches: S1: 45521 of 5764801 match, 39018 with |Q| = 1 at nonzero index (e.g. -3 x [Q -3/3 T 1/2 #1] + -3 x [Q -1/3 T 3/2 #1] + -3 x [Q -1/3 T 1/2 #1] + -3 x [Q -1/3 T 1/2 #2] + -3 x [Q 1/3 T 3/2 #1] + -3 x [Q 1/3 T 1/2 #1] + -3 x [Q 1/3 T 1/2 #2] + -3 x [Q 3/3 T 1/2 #1]); S2: 11319 of 5764801 match, 9702 with |Q| = 1 at nonzero index (e.g. -3 x [Q -3/3 T 1/2 #1] + -3 x [Q -1/3 T 3/2 #1] + -3 x [Q -1/3 T 1/2 #1] + -3 x [Q -1/3 T 1/2 #2] + -3 x [Q 1/3 T 3/2 #1] + -3 x [Q 1/3 T 1/2 #1] + -3 x [Q 1/3 T 1/2 #2] + -3 x [Q 3/3 T 1/2 #1]); S3: 0 of 5764801 match, 0 with |Q| = 1 at nonzero index. Sets per coefficient: S1 QQQ/Q; S2 QQQ/Q/QTT/witten; S3 QQQ/Q/QTT/witten/QQN/QNN/NNN/N/NTT. READ: Tr N C^2 = 4/2 and Tr Q C^2 = 0/6 (U(1)_N HAS an ABJ anomaly with colour, so on a gauged confining colour it is not a symmetry to match); both faces: QQQ 0, Q 0, QTT 0, witten 0, QQN 0, QNN 0, NNN 0, N 0, NTT 0; a whole love-sea doublet of one colour dropped: S1: 45080 of 5764801 match, 38640 with |Q| = 1 at nonzero index (e.g. -3 x [Q -3/3 T 1/2 #1] + -3 x [Q -1/3 T 3/2 #1] + -2 x [Q -1/3 T 1/2 #1] + -3 x [Q -1/3 T 1/2 #2] + -2 x [Q 1/3 T 3/2 #1] + -3 x [Q 1/3 T 1/2 #1] + -3 x [Q 1/3 T 1/2 #2] + -3 x [Q 3/3 T 1/2 #1]). Planted control: S3: 42 of 5764801 match, 42 with |Q| = 1 at nonzero index (e.g. 2 x [Q -3/3 T 1/2 #1] + 3 x [Q -1/3 T 1/2 #1] + -3 x [Q -1/3 T 1/2 #2] + 2 x [Q 1/3 T 1/2 #1] + -3 x [Q 1/3 T 1/2 #2]). 10.4 s."
+}
+exit=0

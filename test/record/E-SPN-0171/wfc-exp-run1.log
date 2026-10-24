@@ -1,0 +1,51 @@
+A0 A1 16s
+A2 17s
+B1 37s
+A3 41s
+G1 69s
+A4 80s
+P1 P2 P3 90s
+F0 140s
+I1 141s
+flow qa 15 p 1 half 0: A 4 B -4 185s
+flow qa 15 p 1 half 1: A -4 B 4 240s
+flow qa 15 p 0 half 0: A 0 B 0 303s
+flow qa 21 p 1 half 0: A 4 B -4 384s
+E 384s
+{
+ "status": "partial",
+ "claim": "A0 true (E-SPN-0160 on the one-class slab: crossings 0, B* 0.760502413 = 2M 0.760502413; pairCensusN 0, 0.760502413); A1 true (folded L 4: 552 crossings); A2 true (m_w 4: 1.1447e-1, 6: 7.2936e-2, 8: 2.4406e-2, 10: 4.8858e-3, 12: 1.2196e-4, multiplicity 8/8/8/8/8); A3 true (L 6: c_eff 0.61704116, R 1.017805, tan m/m 1.000444, iso 2.3e-7; L 8: c_eff 0.62239248, R 1.000378, tan m/m 1.000050, iso 2.0e-7; c_w 0.6225101904); G1 false (wall census L 6 (m 0.072936): 3212 crossings, MM 1812 MF 220 FF 1180; L 8 (m 0.024406): 6576 crossings, MM 5252 MF 108 FF 1216); A4 true (far-side width against |arg v|: 0.286378/0.286695, 0.952504/0.953641, 1.518905/1.521005, 1.459182/1.047198); B1 true (raw iso 2.57e-5, Richardson iso 1.81e-11, estimates apart 2.7e-10); P1 true (pieces under -I 0.0e+0, flat-quotient spectra K against -K 3.6e-15); P2 true (symmetric pieces under P_h 0.0e+0, face sums -0.0000, 0.0000; read: spectra half 0 at K against half 1 at P_h K 7.1e-15, and at K 7.1e-15, the spectrum blind to the parity); P3 true (chiral pieces under P_h 4.16e-2, faces 2.0000, -2.0000, in-gap 8, nearest half-1 partner 0.7604); F0 true (qa 15: 0.4899, qa 21: 0.5238); E1 true (qa 15 half 0: A 4 (up 4 down 0) B -4 (up 0 down 4), ambiguous 0, eigen 3.7e-14; half 1: A -4 (up 0 down 4) B 4 (up 4 down 0), ambiguous 0, eigen 6.3e-14); E2 true (A 0 (up 0 down 0) B 0 (up 0 down 0), ambiguous 49, eigen 5.4e-13); E3 true (qa 21: A 4 (up 4 down 0) B -4 (up 0 down 4), ambiguous 0, eigen 9.7e-15); instrument I1 true (3.6e-15) I2 true I3 true (4.9e-15); controls C1 true C2 true (1.1e-16)",
+ "metrics": {
+  "A0": 1,
+  "A1": 1,
+  "A2": 1,
+  "A3": 1,
+  "G1": 0,
+  "A4": 1,
+  "B1": 1,
+  "P1": 1,
+  "P2": 1,
+  "P3": 1,
+  "F0": 1,
+  "E1": 1,
+  "E2": 1,
+  "E3": 1,
+  "I1": 1,
+  "I2": 1,
+  "I3": 1,
+  "C1": 1,
+  "C2": 1,
+  "mass12": 0.00012195960804950445,
+  "R8": 1.000378279452871,
+  "cW": 0.6225101904396274,
+  "weylOverQuarter": 0.8803623540351793,
+  "richIso": 1.812350269858598e-11,
+  "censusCrossings8": 6576,
+  "flowA": 4,
+  "flowB": -4,
+  "chiralFaceA": 1.9999999999902305,
+  "seconds": 383.694
+ },
+ "notes": "L2. Heavy construction u = ringUnit(-2, 5) (M 0.760502), v = conj u^2. Wall speed c_w 0.6225101904 per cycle, 0.880362 of c/4. Wall member masses L 4: 1.144661e-1, L 6: 7.293558e-2, L 8: 2.440644e-2, L 10: 4.885834e-3, L 12: 1.219596e-4. Census channels (MM member side, MF mixed, FF far-side resonance): L 6: 1812/220/1180, first at |q| 0.065 (3.1416, 3.1416); L 8: 5252/108/1216, first at |q| 0.065 (-2.9592, 2.5355). Far side: v (-2,1): arg -0.286695, m0 -0.473807, width 0.286378; v (-3,1): arg -0.953641, m0 0.193139, width 0.952504; v (4,-10): arg -1.521005, m0 0.760502, width 1.518905; v (0,1): arg 1.047198, m0 -1.807700, width 1.459182. Flow steps (qa 15, half 0): 0.013: -0.0082/0.03 -0.0082/0.03 0.0082/0.97 0.0082/0.97; 0.406: -0.2371/0.00 -0.2371/0.00 0.2371/1.00 0.2371/1.00; 0.798: ; 1.191: ; 1.584: ; 1.976: ; 2.369: ; 2.762: -0.2223/1.00 -0.2223/1.00 0.2223/0.00 0.2223/0.00; 3.155: -0.0082/0.03 -0.0082/0.03 0.0082/0.97 0.0082/0.97; 3.547: -0.2371/0.00 -0.2371/0.00 0.2371/1.00 0.2371/1.00; 3.940: ; 4.333: ; 4.725: ; 5.118: ; 5.511: ; 5.903: -0.2223/1.00 -0.2223/1.00 0.2223/0.00 0.2223/0.00; 6.296: -0.0082/0.03 -0.0082/0.03 0.0082/0.97 0.0082/0.97. A face's member number per loop with the chiral variant (half 0 flows, half 1 has no wall): 4 on face A. The asymmetry per winding is not run jointly; E-SPN-0164's rest asymmetry per transition is 3047158125 / 10851569165584 = 2.81e-4. 384 s."
+}
+exit=0

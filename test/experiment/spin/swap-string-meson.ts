@@ -125,7 +125,7 @@
 //  intermediate dock than the scatter, so the ball's edge cut other entries; 900 ms a beat on a 12-ball on 8 threads).
 //  Physics, seen before these gates were written: (a) with the string's sign unconsidered (e^(-i sigma V), a HILL at
 //  this point) the start's weight left a 7-ball, which is what made the sign a derivation (3); (b) the spectral density of
-//  the start's autocorrelation on a 7-ball (tmp/sstr-probe3-a.log): with the cost, a ladder at phases 1.199, 1.287,
+//  the start's autocorrelation on a 7-ball (test/record/E-SPN-0146/sstr-probe3-a.log): with the cost, a ladder at phases 1.199, 1.287,
 //  1.379, 1.472 (spacing ~sigma, the members in opposite branches or one in the flat partner multiplet, eps 0.15 to 0.43),
 //  and a weak peak at 2.618; with the hill the ladder mirrored about 1.047; with no string a peak at 1.0472 (a singlet
 //  and a frozen partner) holding 0.24 of the start; (c) the filter at 2.618 lands on a level at phase 2.61435 (eps
@@ -134,13 +134,13 @@
 //  1.8e-3), with |lambda2| 0.99134 and 0.99913 (the tail absorbed at the ball's edge, falling tenfold over two steps),
 //  which set the 15-ball; the 8-ball's level, watched 256 beats, kept 0.106 (its edge absorbing 1.7e-2 a two-beat).
 //  No gate threshold was set by a probe's number except the ball and window (5). A smoke run of every code path on a
-//  5-ball (tmp/sstr-smoke.log, 243 s) checked the code, not the physics, and found two reading defects, fixed before
+//  5-ball (test/record/E-SPN-0146/sstr-smoke.log, 243 s) checked the code, not the physics, and found two reading defects, fixed before
 //  the gate run: Y4 counted a dock whenever the bounce table returned a permutation, which it does on every empty dock
 //  (1,024 and 16,384 "permuting" dock-beats on the empty boxes, 0 on the love sea); and Y2 subtracted the two-pass K = 0
 //  level's energy from one-pass K levels, so the filter's own bias (4.8e-3 on that unconverged 5-ball level) sat in
 //  every difference; the K = 0 energy is now read by the same one-pass procedure. Its instrument (I1 to I5) held.
 //
-// FIRST RUN (tmp/sstr-exp-run1.log, 7,731 s, 12 threads): PARTIAL, on I6 (Hellmann-Feynman against the central
+// FIRST RUN (test/record/E-SPN-0146/sstr-exp-run1.log, 7,731 s, 12 threads): PARTIAL, on I6 (Hellmann-Feynman against the central
 //  difference 4.95e-3 against 1e-3, read on a K = 0.4 level whose residual is 1.0e-2: an impure level, not a code defect;
 //  the smoke run's 0.31 on a worse level agrees). Y1, Y2 and Y3 FAIL, Y4 and Y5 hold, C1 and C2 hold, I1 to I5 hold. No
 //  gate moved and none was rerun.

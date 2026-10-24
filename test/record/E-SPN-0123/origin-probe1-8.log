@@ -1,0 +1,6 @@
+meson p0 origin: footprint 11/19/31/47/54/2971 wake 16/28/56/79/94/6833 K 1/1/4/7/8/243 mS 1/1/2/0/0/0 vS 9/13/14/26/36/2354 moved 15 gated 51 refused 3720 mismatch 0 drift 0 rev 0 vacGated 0 vacMatter 0 1s
+meson p1 origin: footprint 8/20/42/2901/4096/4094 wake 11/30/70/8838/34118/39006 K 1/2/3/334/4096/4096 mS 2/0/1/0/1/2 vS 4/14/33/2972/15967/16512 moved 13 gated 33 refused 35705 mismatch 0 drift 0 rev 0 vacGated 0 vacMatter 0 2s
+love p0 origin: footprint 7/7/8/36/54/173 wake 10/12/17/56/86/324 K 0/0/0/0/2/6 mS 1/0/1/1/0/0 vS 4/5/2/22/31/119 moved 16 gated 37 refused 1789 mismatch 0 drift 0 rev 0 vacGated 0 vacMatter 0 3s
+love p1 origin: footprint 3/10/24/171/3332/3337 wake 4/12/37/269/7995/8565 K 0/0/0/5/267/268 mS 1/0/0/0/0/1 vS 0/7/19/89/2845/2888 moved 10 gated 24 refused 38292 mismatch 0 drift 0 rev 0 vacGated 0 vacMatter 0 3s
+ungated vs mixTrack: 0 off; footprint at 48 4096 vs 4096; mismatch 0 drift 0 4s
+exit=0

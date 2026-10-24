@@ -1,0 +1,3 @@
+a_B 6 R 42: alpha 27.6166, continuum E_b 0.030523, 7330 representatives, 8 workers [6.2s]
+start: E 1.6559406058 residual 1.575e-1 [6.9s]
+filter 256: E 1.676749689257 |lambda| 0.999813780903 residual 1.930e-2 E_b 0.0313673 [117.0s]

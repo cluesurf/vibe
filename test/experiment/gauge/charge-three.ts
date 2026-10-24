@@ -114,7 +114,7 @@ export const CHARGE_THREE_PLAN = {
   i1Mu: 1.0686663729717417e-13,
   i3PerB: 3.1938069926362815e-15,
   leakLs: [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
-  // E-SPN-0199's frozen three-root law (tmp/leak-fresh-frozen-20261009T032809Z.json), copied verbatim
+  // E-SPN-0199's frozen three-root law (test/record/E-FRC-0306/leak-fresh-frozen-20261009T032809Z.json), copied verbatim
   law: {
     paths: [
       { kappa: 0.8627238544013857, qs: [3.141592653589793], side: 0 },

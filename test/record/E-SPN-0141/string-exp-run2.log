@@ -1,0 +1,157 @@
+D 3 rate 0: held true E 0.330017263726011 gap 0.35043355230606243 38s
+D 3 record 1/64: 0.9290323687319242 0.0033217368741665556 64s
+D 3 rate 0.0009765625: held false min fidelity 0.9898319130769186 max tail 0.0005666963425005083 E 0.34929852187195204 leak {"leaked":0.0023812856491796605,"escaped":0.0002314676917077945,"far":0.00012215974219747857,"compactOnLine":0.00008400640765499848,"compactOffLine":0.0019436518076193583,"fidelity":0.9976187143505599} 108s
+D 3 rate 0.001953125: held true min fidelity 0.9955242921456222 max tail 0.0003323106452756704 E 0.36035735282646647 leak {"leaked":0.0036345807697231716,"escaped":0.0001622904118289602,"far":0.00006674391286563002,"compactOnLine":0.000051182179113588855,"compactOffLine":0.003354364265914868,"fidelity":0.9963654192306496} 139s
+D 3 rate 0.00390625: held false min fidelity 0.979846654837953 max tail 0.002042527078013921 E 0.36876719633689653 leak {"leaked":0.012038635997887058,"escaped":0.0012386300528021428,"far":0.0007517191638740155,"compactOnLine":0.0012561725898875033,"compactOffLine":0.008792114191322706,"fidelity":0.9879613640022111} 175s
+D 3 rate 0.0078125: held false min fidelity 0.9874051317584063 max tail 0.0013406300179359771 E 0.3894058782098555 leak {"leaked":0.012544992178177963,"escaped":0.0008182980442106223,"far":0.0006035282029731466,"compactOnLine":0.0026650779350880904,"compactOffLine":0.008458087995905564,"fidelity":0.987455007822134} 210s
+D 3 rate 0.015625: held false min fidelity 0.9638545055358734 max tail 0.005294275096605303 E 0.4084102015937921 leak {"leaked":0.025538612074474974,"escaped":0.0030755357552472175,"far":0.00329981882118157,"compactOnLine":0.0038953401942064952,"compactOffLine":0.015267917303840525,"fidelity":0.9744613879258573} 242s
+D 6 rate 0: held true E -0.12246960716426848 gap 0.4196866602928012 279s
+D 6 record 1/64: 0.8967043880394913 0.060211346429437915 300s
+D 6 rate 0.0009765625: held false min fidelity 0.8657744358467923 max tail 0.011357262943353314 E -0.1262894895611608 leak {"leaked":0.11501268389883959,"escaped":0.009534139501471802,"far":0.005456520194933713,"compactOnLine":0.008783610181981802,"compactOffLine":0.09123841402044734,"fidelity":0.8849873161014213} 333s
+D 6 rate 0.001953125: held false min fidelity 0.11130217780436558 max tail 0.05570209098416087 E -0.3674218312375509 leak {"leaked":0.6502255584080474,"escaped":0.04338451982917292,"far":0.015138033452863842,"compactOnLine":0.13418418643067326,"compactOffLine":0.45751881869523764,"fidelity":0.34977444159214466} 367s
+D 6 rate 0.00390625: held false min fidelity 0.3552932427878671 max tail 0.05797395907130318 E -0.22284889474383573 leak {"leaked":0.20836183271814745,"escaped":0.04791788294754401,"far":0.012107597754957653,"compactOnLine":0.011774517460444694,"compactOffLine":0.13656183455518797,"fidelity":0.7916381672818728} 403s
+D 6 rate 0.0078125: held false min fidelity 0.8214733621886587 max tail 0.04275882984116745 E -0.10001442587394169 leak {"leaked":0.15091472075593468,"escaped":0.0364453031938429,"far":0.006378343271619883,"compactOnLine":0.005570336781649421,"compactOffLine":0.10252073750882908,"fidelity":0.8490852792442637} 436s
+D 6 rate 0.015625: held false min fidelity 0.8349568863269307 max tail 0.059897550725709625 E -0.07299151298571549 leak {"leaked":0.16504311367334576,"escaped":0.0504343111093501,"far":0.005212917122395931,"compactOnLine":0.004334903285939995,"compactOffLine":0.10506098215565025,"fidelity":0.8349568863269307} 469s
+T1 469s
+rule 472s
+status partial
+claim three holes on the slab (w 12, D 3 and 6) under the mixer at rates 1/1024, 1/512, 1/256, 1/128, 1/64: held D 3: -H---, D 6: -----; theta_c D 3 0.0531, D 6 none against gaps 0.3504, 0.4197 (T1a false, T1b false: measured ratio NaN against 1.198), slope of the loss on the rate 0.493, 1.132 (T1c false); the rule keeps three holes three holes (512 beats, holes off 0, fears 0, stores 0, register off 0; T2r true), compact share of the leak at 1/64 0.750, 0.663 (T2s true); register witness R 4 missed 4.56e-3, 5.23e-2 (T3 false); A false, B false; CR true, CF true, CP true
+  T1 0
+  T1a 0
+  T1b 0
+  T1c 0
+  T2 1
+  T2r 1
+  T2s 1
+  T3 0
+  A_supported 0
+  B_supported 0
+  control_CR 1
+  control_CF 1
+  control_CP 1
+  checked 0
+  gapD3 0.35043355230606243
+  gapD6 0.4196866602928012
+  heldRateD3 0.001953125
+  heldRateD6 NaN
+  thetaCD3 0.053103718735940546
+  thetaCD6 NaN
+  ratioPredicted 1.1976212252822593
+  ratioMeasured NaN
+  agreement NaN
+  slopeD3 0.49348552822898983
+  slopeD6 1.1319918179756312
+  windowRadius 4
+  ruleBeats 512
+  ruleHolesOff 0
+  ruleFears 0
+  ruleStores 0
+  ruleRegisterOff 0
+  pairPaths 4
+  normGap 1.8851586958135158e-13
+  antiGap 2.3120830734240906e-12
+  leakGap 3.727565131561583e-13
+  seconds 472.066
+  D3r0Held 1
+  D3r0MinFidelity 0.9999904082665786
+  D3r0MaxTail 0.00004465558429976462
+  D3r0Leak 0.000009591733499977921
+  D3r0Far 0.000009588431809129139
+  D3r0CompactOff 0
+  D3r0CompactOn 3.301690848782536e-9
+  D3r0Missed 0.0002005692458348998
+  D3r1_1024Held 0
+  D3r1_1024MinFidelity 0.9898319130769186
+  D3r1_1024MaxTail 0.0005666963425005083
+  D3r1_1024Leak 0.0023812856491796605
+  D3r1_1024Far 0.00035362743390527306
+  D3r1_1024CompactOff 0.0019436518076193583
+  D3r1_1024CompactOn 0.00008400640765499848
+  D3r1_1024Missed 0.0008736786342253281
+  D3r1_512Held 1
+  D3r1_512MinFidelity 0.9955242921456222
+  D3r1_512MaxTail 0.0003323106452756704
+  D3r1_512Leak 0.0036345807697231716
+  D3r1_512Far 0.0002290343246945902
+  D3r1_512CompactOff 0.003354364265914868
+  D3r1_512CompactOn 0.000051182179113588855
+  D3r1_512Missed 0.0005259022544665078
+  D3r1_256Held 0
+  D3r1_256MinFidelity 0.979846654837953
+  D3r1_256MaxTail 0.002042527078013921
+  D3r1_256Leak 0.012038635997887058
+  D3r1_256Far 0.001990349216676158
+  D3r1_256CompactOff 0.008792114191322706
+  D3r1_256CompactOn 0.0012561725898875033
+  D3r1_256Missed 0.0019859011321941866
+  D3r1_128Held 0
+  D3r1_128MinFidelity 0.9874051317584063
+  D3r1_128MaxTail 0.0013406300179359771
+  D3r1_128Leak 0.012544992178177963
+  D3r1_128Far 0.0014218262471837688
+  D3r1_128CompactOff 0.008458087995905564
+  D3r1_128CompactOn 0.0026650779350880904
+  D3r1_128Missed 0.001399096198142057
+  D3r1_64Held 0
+  D3r1_64MinFidelity 0.9638545055358734
+  D3r1_64MaxTail 0.005294275096605303
+  D3r1_64Leak 0.025538612074474974
+  D3r1_64Far 0.006375354576428788
+  D3r1_64CompactOff 0.015267917303840525
+  D3r1_64CompactOn 0.0038953401942064952
+  D3r1_64Missed 0.004555572214653181
+  D6r0Held 1
+  D6r0MinFidelity 0.9999954720062699
+  D6r0MaxTail 0.000006904375089898216
+  D6r0Leak 0.000004527993809303133
+  D6r0Far 0.0000045271759767003105
+  D6r0CompactOff 0
+  D6r0CompactOn 8.178326028233381e-10
+  D6r0Missed 0.000011754324130438392
+  D6r1_1024Held 0
+  D6r1_1024MinFidelity 0.8657744358467923
+  D6r1_1024MaxTail 0.011357262943353314
+  D6r1_1024Leak 0.11501268389883959
+  D6r1_1024Far 0.014990659696405515
+  D6r1_1024CompactOff 0.09123841402044734
+  D6r1_1024CompactOn 0.008783610181981802
+  D6r1_1024Missed 0.010156740911422093
+  D6r1_512Held 0
+  D6r1_512MinFidelity 0.11130217780436558
+  D6r1_512MaxTail 0.05570209098416087
+  D6r1_512Leak 0.6502255584080474
+  D6r1_512Far 0.05852255328203676
+  D6r1_512CompactOff 0.45751881869523764
+  D6r1_512CompactOn 0.13418418643067326
+  D6r1_512Missed 0.04630515370863759
+  D6r1_256Held 0
+  D6r1_256MinFidelity 0.3552932427878671
+  D6r1_256MaxTail 0.05797395907130318
+  D6r1_256Leak 0.20836183271814745
+  D6r1_256Far 0.06002548070250166
+  D6r1_256CompactOff 0.13656183455518797
+  D6r1_256CompactOn 0.011774517460444694
+  D6r1_256Missed 0.049992988057339566
+  D6r1_128Held 0
+  D6r1_128MinFidelity 0.8214733621886587
+  D6r1_128MaxTail 0.04275882984116745
+  D6r1_128Leak 0.15091472075593468
+  D6r1_128Far 0.04282364646546278
+  D6r1_128CompactOff 0.10252073750882908
+  D6r1_128CompactOn 0.005570336781649421
+  D6r1_128Missed 0.03773521034461868
+  D6r1_64Held 0
+  D6r1_64MinFidelity 0.8349568863269307
+  D6r1_64MaxTail 0.059897550725709625
+  D6r1_64Leak 0.16504311367334576
+  D6r1_64Far 0.05564722823174603
+  D6r1_64CompactOff 0.10506098215565025
+  D6r1_64CompactOn 0.004334903285939995
+  D6r1_64Missed 0.05234343267888115
+  recordD3MinFidelity 0.9290323687319242
+  recordD3MaxTail 0.0033217368741665556
+  recordD6MinFidelity 0.8967043880394913
+  recordD6MaxTail 0.060211346429437915
+control {"recordD3MinFidelity":0.9290323687319242,"recordD3MaxTail":0.0033217368741665556,"recordD6MinFidelity":0.8967043880394913,"recordD6MaxTail":0.060211346429437915,"restD3Energy":0.330017263726011,"restD6Energy":-0.12246960716426848,"pairPaths":4}
+notes L2. Points: D 3 rate 0 (0.00 deg): HELD least fidelity 0.999990 largest tail 4.466e-5 margin 0.04466 E 0.330017 start weight 1.0000; leak 9.592e-6 = escaped 9.41e-6 + far 1.75e-7 + compact on line 3.30e-9 + off line 0.00e+0; missed register per hole at R 4 2.01e-4; D 3 rate 1/1024 (1.79 deg): not held least fidelity 0.989832 largest tail 5.667e-4 margin 1.017 E 0.349299 start weight 0.9953; leak 2.381e-3 = escaped 2.31e-4 + far 1.22e-4 + compact on line 8.40e-5 + off line 1.94e-3; missed register per hole at R 4 8.74e-4; D 3 rate 1/512 (2.53 deg): HELD least fidelity 0.995524 largest tail 3.323e-4 margin 0.4476 E 0.360357 start weight 0.9948; leak 3.635e-3 = escaped 1.62e-4 + far 6.67e-5 + compact on line 5.12e-5 + off line 3.35e-3; missed register per hole at R 4 5.26e-4; D 3 rate 1/256 (3.58 deg): not held least fidelity 0.979847 largest tail 2.043e-3 margin 2.043 E 0.368767 start weight 0.9898; leak 1.204e-2 = escaped 1.24e-3 + far 7.52e-4 + compact on line 1.26e-3 + off line 8.79e-3; missed register per hole at R 4 1.99e-3; D 3 rate 1/128 (5.07 deg): not held least fidelity 0.987405 largest tail 1.341e-3 margin 1.341 E 0.389406 start weight 0.9930; leak 1.254e-2 = escaped 8.18e-4 + far 6.04e-4 + compact on line 2.67e-3 + off line 8.46e-3; missed register per hole at R 4 1.40e-3; D 3 rate 1/64 (7.17 deg): not held least fidelity 0.963855 largest tail 5.294e-3 margin 5.294 E 0.408410 start weight 0.9778; leak 2.554e-2 = escaped 3.08e-3 + far 3.30e-3 + compact on line 3.90e-3 + off line 1.53e-2; missed register per hole at R 4 4.56e-3; D 6 rate 0 (0.00 deg): HELD least fidelity 0.999995 largest tail 6.904e-6 margin 0.006904 E -0.122470 start weight 1.0000; leak 4.528e-6 = escaped 4.48e-6 + far 4.87e-8 + compact on line 8.18e-10 + off line 0.00e+0; missed register per hole at R 4 1.18e-5; D 6 rate 1/1024 (1.79 deg): not held least fidelity 0.865774 largest tail 1.136e-2 margin 13.42 E -0.126289 start weight 0.9423; leak 1.150e-1 = escaped 9.53e-3 + far 5.46e-3 + compact on line 8.78e-3 + off line 9.12e-2; missed register per hole at R 4 1.02e-2; D 6 rate 1/512 (2.53 deg): not held least fidelity 0.111302 largest tail 5.570e-2 margin 88.87 E -0.367422 start weight 0.5547; leak 6.502e-1 = escaped 4.34e-2 + far 1.51e-2 + compact on line 1.34e-1 + off line 4.58e-1; missed register per hole at R 4 4.63e-2; D 6 rate 1/256 (3.58 deg): not held least fidelity 0.355293 largest tail 5.797e-2 margin 64.47 E -0.222849 start weight 0.3878; leak 2.084e-1 = escaped 4.79e-2 + far 1.21e-2 + compact on line 1.18e-2 + off line 1.37e-1; missed register per hole at R 4 5.00e-2; D 6 rate 1/128 (5.07 deg): not held least fidelity 0.821473 largest tail 4.276e-2 margin 42.76 E -0.100014 start weight 0.7370; leak 1.509e-1 = escaped 3.64e-2 + far 6.38e-3 + compact on line 5.57e-3 + off line 1.03e-1; missed register per hole at R 4 3.77e-2; D 6 rate 1/64 (7.17 deg): not held least fidelity 0.834957 largest tail 5.990e-2 margin 59.90 E -0.072992 start weight 0.9091; leak 1.650e-1 = escaped 5.04e-2 + far 5.21e-3 + compact on line 4.33e-3 + off line 1.05e-1; missed register per hole at R 4 5.23e-2. Rest missed register per hole by R: D 3 9.7e-1 3.6e-1 5.4e-3 2.2e-3 2.0e-4 3.5e-5 1.0e-5 9.5e-6 9.4e-6 9.4e-6 9.4e-6 9.4e-6 9.4e-6; D 6 9.7e-1 3.7e-1 3.3e-3 4.5e-4 1.2e-5 5.6e-6 4.7e-6 4.6e-6 4.5e-6 4.5e-6 4.5e-6 4.5e-6 4.5e-6. Checks: watch equal true, leak identity 3.73e-13, norm 1.89e-13, antisymmetry 2.31e-12. 472 s.
+exit=0

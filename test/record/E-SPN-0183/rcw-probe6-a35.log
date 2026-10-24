@@ -1,0 +1,12 @@
+a_B 3.5 R 16: alpha 47.3427, continuum E_b 0.089700, 489 representatives, C4v 2488, 6 workers [9.4s]
+start: E 1.5548545439 residual 2.910e-1 [9.8s]
+filter 128: E 1.615634677582 |lambda| 0.999524109152 residual 3.085e-2 E_b 0.0924823 [31.4s]
+after 128 K filter 256: base drift -3.3377e-3, d(K) -1.250693e-5, d(K/2) -3.158542e-6, ratio 3.95972, a -0.0079228606, R static -19.570997 against the formula 1.221971 (excess -17.01593) [220.1s]
+after 128 K filter 1024: base drift -6.1857e-4, d(K) -4.630394e-6, d(K/2) -1.157364e-6, ratio 4.00081, a -0.0028932142, R static -53.503545 against the formula 1.221971 (excess -44.78464) [864.8s]
+filter 512: E 1.613901263769 |lambda| 0.999951520087 residual 9.847e-3 E_b 0.0942157 [925.8s]
+after 512 K filter 256: base drift -1.3041e-4, d(K) 2.308873e-5, d(K/2) 5.769445e-6, ratio 4.00190, a 0.0144213325, R static 10.742188 against the formula 1.225073 (excess 7.76861) [1063.9s]
+after 512 K filter 1024: base drift -3.0459e-4, d(K) 8.120622e-6, d(K/2) 2.023339e-6, ratio 4.01348, a 0.0050526655, R static 30.663694 against the formula 1.225073 (excess 24.03009) [1676.7s]
+filter 2048: E 1.613357349784 |lambda| 0.999998837555 residual 1.523e-3 E_b 0.0947596 [1963.0s]
+after 2048 K filter 256: base drift -2.5543e-6, d(K) 2.929919e-5, d(K/2) 7.326553e-6, ratio 3.99904, a 0.0183178442, R static 8.459326 against the formula 1.226048 (excess 5.89967) [2123.4s]
+after 2048 K filter 1024: base drift -2.5247e-5, d(K) 2.759316e-5, d(K/2) 6.900351e-6, ratio 3.99881, a 0.0172525957, R static 8.981767 against the formula 1.226048 (excess 6.32579) [2738.5s]
+exit=0

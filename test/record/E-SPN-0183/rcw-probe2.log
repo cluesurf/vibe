@@ -1,0 +1,6 @@
+a_B 3.5 R 16: alpha 47.3427, alpha G(0) 2.5011 rad, continuum E_b 0.089700 [5.3s]
+start: phase 1.55485454, residual 2.910e-1 [5.6s]
+filter 128: E 1.6156346776 |lambda| 0.999524109152 residual 3.085e-2 E_b 0.092482 [13.1s]
+filter 512: E 1.6139012638 |lambda| 0.999951520087 residual 9.847e-3 E_b 0.094216 [43.0s]
+filter 2048: E 1.6133573498 |lambda| 0.999998837555 residual 1.523e-3 E_b 0.094760 [234.7s]
+K filter 256: e(K) - e(0) at 0.04 2.674492e-5, at 0.02 4.772279e-6, a 0.0103357400, R static 14.992286 against the formula 1.226048 [452.4s]

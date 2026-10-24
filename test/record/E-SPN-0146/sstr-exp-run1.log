@@ -1,0 +1,81 @@
+I1 0s
+I2 2s
+I3 223s
+prediction 223s
+I4 225s
+ball 15: 231361 sites 229s
+Y1 1328s
+C2 1703s
+Y2 axis 2196s
+Y2 face 2518s
+Y2 body 2886s
+Y2 generic 3199s
+Y3 axis 0.4 3394s
+Y3 axis 0.8 3557s
+Y3 axis 1.2 3726s
+Y3 face 0.4 3889s
+Y3 face 0.8 4030s
+Y3 face 1.2 4167s
+Y3 I6 4575s
+read k6 5732s
+Y5 7210s
+C1 7730s
+Y4 7731s
+{
+  "status": "partial",
+  "claim": "Y1 false (level at eps 1.565757 against the predicted 1.5705, |lambda2| 0.99998329, residual 1.18e-3; over 256 beats the window V <= 14 keeps at least 0.995646 and the fidelity is at least 0.979730); Y2 false (isotropy 9.53e-9, R 1.02670 against the predicted 0.902); Y3 false (top Hellmann-Feynman speed 0.408899 c*); Y4 true; Y5 true (no string: at eps 1.5705 landed 1.5522, window 0.0001, fidelity 0.0000; at eps 1.0472 landed 1.0892, window 0.0755, fidelity 0.0340); controls C1 true (hill: window 0.9984, fidelity 0.1327), C2 true (mixed start fidelity 0.976142); read at sigma 0.18711: eps 1.85592 (predicted 1.8779), R 2.41705 (predicted 0.836)",
+  "metrics": {
+    "Y1": 0,
+    "Y2": 0,
+    "Y3": 0,
+    "Y4": 1,
+    "Y5": 1,
+    "instrument": 0,
+    "I1": 1,
+    "I2": 1,
+    "I3": 1,
+    "I4": 1,
+    "I5": 1,
+    "I6": 0,
+    "C1": 1,
+    "C2": 1,
+    "m": 0.5235987755982987,
+    "sigma": 0.09355606888220278,
+    "Erest": 1.5657565696347848,
+    "ErestPredicted": 1.5705074610318766,
+    "lambda2": 0.9999832899183998,
+    "residual": 0.0011839481973854333,
+    "leastWindow": 0.9956462049276175,
+    "leastFidelity": 0.979729598199481,
+    "absorbed": 0.0043274899380355315,
+    "singletShare": 0.7619811638502785,
+    "stored": 0.0002932169897503613,
+    "meanStringLength": 3.710042598909682,
+    "inertiaCoefficient": 0.15551466015765553,
+    "isotropy": 9.532977740533966e-9,
+    "R": 1.0267020529598845,
+    "RPredicted": 0.9018457590556731,
+    "RWalk": 1.1026577908432074,
+    "topSpeedOverCStar": 0.4088985752149334,
+    "hfGap": 0.004945539835363431,
+    "ErestRead": 1.8559156417877956,
+    "Rread": 2.4170498496304984,
+    "matrixGap": 7.076311083754596e-17,
+    "contactUnitarity": 0,
+    "boxWorst": 9.813077866773595e-18,
+    "threadGap": 0,
+    "threadSums": 7.25329574522565e-14,
+    "eps4": 2.8720974259776995,
+    "kappa": 0.8933104327129526,
+    "schwingerExponent": 13.019375417175965,
+    "seconds": 7730.837
+  },
+  "control": {
+    "C1": 1,
+    "C2": 1,
+    "instrument": 0
+  },
+  "notes": "L2. The members: m 0.523599, R_walk 1.102658 1.102658 1.102658 1.102658 along the four directions, the singlet's midpoint -2.61799, sign -1. I1: matrix 7.08e-17, love = fear, parities alike true, shape c 1.000000000,0.000000000 beta -0.062500000,-0.036084392 gap 0.00e+0, empty factor 24 alone true. I2: contact unitarity 0.00e+0, stored 24 and 24, released 24 and 24, parity differs on 48 of 576 states; the collision's K permutes a love and a fear on two single lines on 336 of 528 ordered pairs. I3: 2304 one-beat starts, worst 9.81e-18, 0 differ, 0 inexact, 0 stray. I4: entries 0.00e+0, sums 7.25e-14 (12 threads). I5: norm exact true, Airy 2.338107, eps4 2.872097. I6: Hellmann-Feynman against the central difference 4.95e-3. Prediction: kappa 0.89331 (0.70711 .. 1.00000), l 2.180, E_b 0.5233, Schwinger exponent 13.02; at the read string l 1.730, E_b 0.8307, exponent 6.51. The level: singlet share 0.7620, stores 2.93e-4, mean string length 3.710, profile 9.94e-3 5.43e-2 1.82e-1 2.46e-1 2.22e-1 1.45e-1 7.89e-2 3.86e-2 1.55e-2 4.89e-3 1.54e-3 5.79e-4 2.72e-4 1.45e-4 7.18e-5 2.54e-5; absorbed over the hold 4.33e-3. Y2: axis a 1.555146602e-1 (d 2.4879e-4, 6.2204e-5; |lambda2| >= 0.999982, residual <= 1.2e-3); face a 1.555146598e-1 (d 2.4879e-4, 6.2204e-5; |lambda2| >= 0.999982, residual <= 1.2e-3); body a 1.555146616e-1 (d 2.4879e-4, 6.2204e-5; |lambda2| >= 0.999982, residual <= 1.2e-3); generic a 1.555146605e-1 (d 2.4879e-4, 6.2204e-5; |lambda2| >= 0.999982, residual <= 1.2e-3). Y3: axis: K 0.4 eps 1.590171 speed 0.168042 c* (not followed) (|lambda2| 0.99993, residual 1.0e-2), K 0.8 eps 1.662594 speed 0.318387 c* (not followed) (|lambda2| 0.99994, residual 1.1e-2), K 1.2 eps 1.769874 speed 0.408460 c* (|lambda2| 0.99998, residual 6.5e-3); face: K 0.4 eps 1.590171 speed 0.168050 c* (not followed) (|lambda2| 0.99993, residual 1.0e-2), K 0.8 eps 1.662599 speed 0.318404 c* (not followed) (|lambda2| 0.99994, residual 1.1e-2), K 1.2 eps 1.769937 speed 0.408899 c* (|lambda2| 0.99998, residual 6.5e-3). Y4: side 4 empty (256 docks) exact true, permutes 0, charged 0; side 8 empty (4096 docks) exact true, permutes 0, charged 0; side 4 love sea (256 docks) exact true, permutes 0, charged 0. 7731 s."
+}
+seconds 7730.8
+exit=0

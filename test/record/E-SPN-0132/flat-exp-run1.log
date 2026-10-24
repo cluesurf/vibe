@@ -1,0 +1,62 @@
+census 15s
+A2 17s
+A3 19s
+A4 40s
+B0 44s
+status open
+claim A (G1): 399485 of 401408 contractible elementary loops of the working links carry a nontrivial holonomy (triangle 130419 of 131072 (fixing a point 97077, none 33342; orders 2:5590 3:47422 4:32882 6:44525; curved at 4096 of 4096 docks); square 73430 of 73728 (fixing a point 53886, none 19544; orders 2:2771 3:27959 4:18399 6:24301; curved at 4096 of 4096 docks); rhombus 195636 of 196608 (fixing a point 145011, none 50625; orders 2:7638 3:72265 4:49444 6:66289; curved at 4096 of 4096 docks)), and 6121 of 6144 rings: the point moves are curvature, spread over every dock, not a gauge; the working beat commutes with every frame change (0 slots off) and its occupation is the same on flat links on every path (0 readings off), so the curvature is read only where a like meeting compares two points (equal on 111585 of 1320467 meetings against 1047847 on flat links) and where the mixer asks for one content; on pure-gauge links E-SPN-0130's hole is its flat run bit for bit (0 off, 36.25 mesh lines); B: the love sea holds no opposite charge of a hole, and its Z3-neutral pair, a hole and a fear, is three holes and a store after one beat (fears 0 after beat 1 on every path), so Q3b is a three-body question left undecided (H1 to H3 not computed)
+  G1_curved 399485
+  G1_loops 401408
+  gauge 0
+  A2 1
+  A3 1
+  A4 1
+  B0 1
+  H_decided 0
+  instrument 1
+  triangleCurved 130419
+  triangleLoops 131072
+  squareCurved 73430
+  squareLoops 73728
+  rhombusCurved 195636
+  rhombusLoops 196608
+  triangleFixless 33342
+  squareFixless 19544
+  rhombusFixless 50625
+  flatCurved 0
+  pureCurved 0
+  rings 6144
+  ringsCurved 6121
+  ringsFixless 1553
+  plantedTriangles 8
+  plantedSquares 6
+  plantedRhombi 16
+  plantedRings 1
+  plantedShiftFixed 0
+  pointFieldWorkingMin 10820
+  pointFieldWorkingMax 10870
+  pointFieldPure 0
+  covarianceOff 0
+  blindOccupationOff 0
+  blindPointsOff 8794531
+  meetEqualWorking 111585
+  meetUnequalWorking 1208882
+  meetEqualFlat 1047847
+  meetUnequalFlat 272620
+  carryOff 0
+  pureHoleLines 36.25
+  flatHoleLines 36.25
+  workingHoleLines 1
+  pureHoleGated 128
+  workingHoleGated 1.25
+  fearFirstBeatFears 0
+  fearFirstBeatStores 1
+  fearsLater 1
+  steinerPairs 5482753
+  steinerAmplitudes 2807169536
+  twoBodyOffsets 16641
+  twoBodyAmplitudes 1065024
+  seconds 43.909
+control {"flatCurved":0,"pureCurved":0,"plantedTriangles":8,"plantedSquares":6,"plantedRhombi":16}
+notes L1. Census (side 8, 4096 docks): working triangle 130419 of 131072 (fixing a point 97077, none 33342; orders 2:5590 3:47422 4:32882 6:44525; curved at 4096 of 4096 docks); square 73430 of 73728 (fixing a point 53886, none 19544; orders 2:2771 3:27959 4:18399 6:24301; curved at 4096 of 4096 docks); rhombus 195636 of 196608 (fixing a point 145011, none 50625; orders 2:7638 3:72265 4:49444 6:66289; curved at 4096 of 4096 docks); rings order 2 fixing 1: 238, order 6 fixing 1: 2152, order 3 fixing 0: 1553, order 4 fixing 1: 1440, order 3 fixing 3: 738, order 1 fixing 9: 23; flat 0 curved, rings order 1 fixing 9: 6144; pure gauge 0 curved; working under the frame h equal to working true; planted translation triangle 8, square 6, rhombus 16, rings 1. Point field defects per frame component: working 10846 10852 10860 10820 10856 10870, pure gauge 0 0 0 0 0 0. Covariance off 0, 0 (without, with the mixer). Blindness per path (occupation off, points off): 0/2198688; 0/2199065; 0/2199464; 0/2197314; like meetings over 128 beats and 4 paths working 111585 equal 1208882 unequal, flat 1047847 equal 272620 unequal. Carry-over per path (off, lines flat/pure/working, gated pure/working): 0, 38/38/1, 128/1; 0, 39/39/1, 128/2; 0, 34/34/1, 128/1; 0, 34/34/1, 128/1. B0 per start and path (beat-1 fears/holes/stores, later fears, kept): 0/2/1, 0, true; 0/2/1, 0, true; 0/2/1, 0, true; 0/2/1, 1, true; 0/3/1, 0, true; 0/3/1, 0, true; 0/3/1, 0, true; 0/3/1, 1, true. Three-hole route-free window at Steiner length 10: 5482753 offset pairs x 512; two-body at |n|_1 12: 16641 x 64. 44 s.
+exit=0

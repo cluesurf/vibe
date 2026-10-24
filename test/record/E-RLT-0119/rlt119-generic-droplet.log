@@ -1,0 +1,38 @@
+== job started on work-sfo3-1 as root, in /root/vibe-runs/rlt119-generic/pkg
+== 07:42:08 machine
+== 07:42:08 machine exit 0 in 0 s
+ 07:42:08 up 1 day, 12:59,  4 users,  load average: 1.84, 2.04, 2.03
+nice 19
+idle
+pid 1702184's current affinity list: 0-5
+== 07:42:08 install_node
+== 07:42:08 install_node exit 0 in 0 s
+system node v24.14.1
+== 07:42:08 install_rust
+== 07:42:20 install_rust exit 0 in 12 s
+CFLAGS_x86_64_unknown_linux_gnu = None
+cargo:rerun-if-env-changed=CFLAGS_x86_64-unknown-linux-gnu
+CFLAGS_x86_64-unknown-linux-gnu = None
+cargo 1.99.1 (5f94df478 2026-08-27)
+== 07:42:20 install_tsx
+== 07:42:22 install_tsx exit 0 in 2 s
+
+added 3 packages in 1s
+tsx v4.23.15
+node v24.14.1
+== 07:42:22 build_native
+== 07:42:27 build_native exit 0 in 5 s
+
+warning: `vibe-kernel` (lib) generated 2 warnings
+    Finished `release` profile [optimized] target(s) in 5.08s
+vibe kernel build: wrote /root/vibe-runs/rlt119-generic/pkg/kernel/host/vibe-kernel.node
+== 07:42:27 rlt119_generic
+== 13:09:09 rlt119_generic exit 0 in 19602 s
+threads 6 of 6 cores
+== 13:09:09 job done
+machine 0 0
+install_node 0 0
+install_rust 0 12
+install_tsx 0 2
+build_native 0 5
+rlt119_generic 0 19602

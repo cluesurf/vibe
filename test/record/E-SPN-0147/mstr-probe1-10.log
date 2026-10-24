@@ -1,0 +1,8 @@
+coarse eps 2.265322 |l2| 0.99999958 res 9.20e-4 20s
+first eps 2.265323 |l2| 1.00000000 res 2.04e-9 127s
+second eps 2.265323 |l2| 1.00000000 res 1.46e-11 181s
+profile 1.13e-1 1.72e-1 3.65e-1 2.59e-1 7.80e-2 1.19e-2 9.06e-4 3.55e-5 7.62e-7 3.38e-8 2.37e-9
+share 0.6862 stores 2.08e-3
+tail ratios 0.076 0.039 0.021 0.044 0.070 rises 2 edge 3.62e-8
+hold 256: window 1.000000 fidelity 1.000000 absorbed 5.03e-9 263s
+exit=0

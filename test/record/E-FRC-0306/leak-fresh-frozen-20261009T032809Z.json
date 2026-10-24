@@ -1,0 +1,30 @@
+{
+  "frozen_at": "2026-10-09T03:28:09Z",
+  "item": "vibe-roadmap-moving-matter-0051",
+  "code": "E-SPN-0199",
+  "written_before": "any delta on a fresh slab was read; nothing below was computed after this file was written",
+  "form": "delta(nW, nP) = | sum over paths, over each path's columns, x_k * column_k |, columns as code/measure/wall-leak-channels.ts pathColumns: q 0 -> e^(-kappa n), q pi -> e^(-kappa n) (-1)^n, other q -> e^(-kappa n) cos(q n), e^(-kappa n) sin(q n); n = nW on side 0 (Wilson), nP on side 1 (plain)",
+  "roots_rule": "from the bulk symbol alone (bulkBlocks + piRoots at K = 0, quasienergy pi, sigma 0.6 e^(0.3 i)), E-SPN-0198; the run re-derives them and must match to 1e-9",
+  "paths": [
+    { "name": "wilson leading", "side": 0, "z": "-0.4220110188", "kappa": 0.8627238544013857, "qs": [3.141592653589793] },
+    { "name": "wilson second (conjugate pair)", "side": 0, "z_abs": "0.3827930909", "kappa": 0.9602606684249657, "qs": [1.0414631042336222] },
+    { "name": "plain leading (+-|z|)", "side": 1, "z": "+-0.3788060318", "kappa": 0.9707309943038691, "qs": [0, 3.141592653589793] }
+  ],
+  "coefficient_rule": "the 5 coefficients fitted in E-SPN-0198 (item 0050, tmp/leak-refit.log 'wilson second root') by fitPaths on the 45 old slabs nW + nP <= 16, copied verbatim and NEVER refit. They are not bulk-derived: a wall state's overlap with each root is a property of the wall, not the bulk. Order: wilson leading q pi; wilson pair cos, sin; plain q 0, q pi",
+  "coefficients": [-0.01670739260542085, -0.5943073194941031, -0.21289072815575694, 0.6978459098291303, 0.00004424567756717967],
+  "gates": {
+    "factor": "max(delta / predicted, predicted / delta)",
+    "pass": "every fresh slab has factor <= 1.5 (no live exclusion: every slab counts)",
+    "kill": "any fresh slab has factor > 3",
+    "partial": "neither",
+    "open": "an instrument fails: a re-derived root off its frozen kappa or q by more than 1e-9, or old slabs (8,9) and (11,6) off tmp/leak.log by more than 1e-12 relative"
+  },
+  "fresh_slabs": [
+    [13, 7], [7, 13], [16, 4], [4, 16],
+    [13, 9], [9, 13], [17, 5], [5, 17],
+    [14, 10], [10, 14], [18, 6], [6, 18],
+    [13, 13], [15, 11], [11, 15], [20, 6],
+    [14, 14], [16, 12], [12, 16], [21, 7]
+  ],
+  "fresh_rule": "every slab has nW or nP outside 4..12, so none is in the 81-slab grid; L = nW + nP from 20 to 28"
+}

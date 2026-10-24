@@ -1,0 +1,21 @@
+status fail
+claim identity reads a_B 7.5 clean (1s 0.617 against 0.241, 2s 0.241); the clock at a_B 7.5: tracked ratio 4.009 R 1.3374, 2s E 1.701456 ratio 3.896 R 1.2830, alpha -9.544e-2 against relativity's 8.785e-2 (-1.086 of it). clean true, I false, C false
+  aB 7.5
+  blind 1
+  clean 1
+  I 0
+  C 0
+  overlap 0.6173842334040369
+  next 0.24080526779852857
+  twoSOverlap 0.24080526779852857
+  twoSScaled 0.3415443450027936
+  ratio 4.00871394610945
+  R 1.337449646070041
+  Rfull 1.2809592840741009
+  partnerRatio 3.89648333694715
+  partnerR 1.282968340551254
+  alpha -0.09543695457977423
+  alphaSR 0.08785227423362969
+  alphaOverSR -1.0863344792415304
+notes L2. Followed lines: E 1.670877 overlap 0.041 R 7.836 ratio 3.91; E 1.701456 overlap 0.259 R 1.283 ratio 3.90.
+exit=0

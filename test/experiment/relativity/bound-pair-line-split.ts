@@ -38,7 +38,7 @@
 // THE RUN AND ITS COST, estimated before the run: 32,768 cycles over 2,488 and 3,136 representatives, about 30 minutes
 // at 6 threads (E-RLT-0115's 2,048-cycle reads took 200 s on 3,136), at 3 threads beside another run about an hour.
 //
-// FIRST RUN (2026-10-21, tmp/rlt116.log, .json and -verdict.log, 5,526 s at 3 native threads beside E-RLT-0115's stage
+// FIRST RUN (2026-10-21, test/record/E-RLT-0116/rlt116.log, .json and -verdict.log, 5,526 s at 3 native threads beside E-RLT-0115's stage
 // 2): OPEN, as registered. No gate moved. I1, I2 and I3 hold: every correlation stays bounded, the lines converge, and
 // the same solve on twelve line branches finds them exactly (axis 0 and 3.751e-3 at 0.50 each; body 0, 1.250e-3 and
 // 5.002e-3 at 0.25, 0.50, 0.25).
@@ -58,9 +58,11 @@
 //
 // AFTER THE ENGINE FIX (2026-10-21, vibe-roadmap-moving-matter-0008). code/measure/register-reduced now builds the
 // (1, 1, -1) and (1, -1, 1) sectors as images of (1, 1, 1)'s; this file reads only (1, 0, 0) and (1, 1, 1), whose tables
-// are unchanged bit for bit (tmp/rrfix-tables.ts). Rerun after the fix (tmp/rrfix-rlt116.log): the level and the first
-// 513 lags of the axis K = 0 and the body K = 0.32 correlations equal tmp/rlt116.json to the bit, and the verdict from the
-// recorded part is unchanged, OPEN.
+// are unchanged bit for bit (tmp/rrfix-tables.ts). Rerun after the fix (test/record/E-RLT-0116/rrfix-rlt116.log): the level and the first
+// 513 lags of the axis K = 0 and the body K = 0.32 correlations equal test/record/E-RLT-0116/rlt116.json to the bit, and the verdict from the
+// recorded part is unchanged, OPEN. RERUN (2026-10-22, test/record/E-RLT-0116/rerun-0008.log): OPEN, every number as
+// recorded; E-SPN-0216 recomputed 128 lags of both correlations to the bit and fingerprinted both sectors' tables
+// against the committed file (equal).
 //
 // Depth L2 (a two-body quantum walk on the husk quotient, exact in its moving block; the lineon control is synthetic).
 // DETERMINISM: no random numbers; the start is placed; the native kernel, byte for byte the JavaScript.
@@ -234,7 +236,7 @@ export function splitCombine(part: SplitPart): Verdict {
   })
 }
 
-const PART = 'tmp/rlt116.json'
+const PART = 'test/record/E-RLT-0116/rlt116.json'
 
 export default experiment({
   id: 'relativity/bound-pair-line-split',

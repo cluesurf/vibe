@@ -55,7 +55,7 @@ export type WindowPlan = {
 
 export const WINDOW_PLAN: WindowPlan = {
   gates: GATES_PLAN,
-  dir: '/Users/lancepollard/base/crew/cluesurf/.claude/worktrees/vibe-moving-matter/deck/vibe/tmp/',
+  dir: `${import.meta.dirname}/../../record/E-FRC-0297/`,
   betaF: { bulk8: 2.4166, slab8x8: 2.417, slab8x12: 2.4162 },
   betaFKey: '2.42f',
 }

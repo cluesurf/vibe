@@ -1,0 +1,55 @@
+I1 true: orthogonal true, Casimirs 0,12,12,4,10,10,8, orders Q8 8, 2O 48, 2I 120, 2x2=1+3 true,true,true 0s
+I3 true: D4 {"name":"D4 triangles","links":12,"plaquettes":32,"classes":[{"vector":[1,1,0,0],"perLink":8,"count":12}],"perimeter":3,"closedFaces":4,"closedPerPlaquette":0.75,"decorations":3,"decorationPower":2}; husk {"name":"husk triangles","links":9,"plaquettes":20,"classes":[{"vector":[-1,0,0],"perLink":8,"count":3},{"vector":[-1,-1,0],"perLink":6,"count":6}],"perimeter":3,"closedFaces":4,"closedPerPlaquette":null,"decorations":null,"decorationPower":2} 0s
+G2a true: roots true closed true exact true; electric class true unitary true den 2823576 needs 1/3 false; class true unitary true den 2823576 needs 1/3 false; spinor {"homomorphism":true,"orthogonal":true} 0s
+G2c false: kept weight alpha 0.629432, 2pi/3 0.015625, pi 0.111111 0s
+G2b true: gauge commutation gap 3.54e-16 3s
+G3a true: [M, W] 1.79e-16, magnetic alone alpha 1.58e-13, 2pi/3 5.21e-14, pi 0.00e+0; G3b true: escape 6.43e-2; C3 true: electric alone 3.16e-1 3s
+beat 1: pairs 0, Z3 vs tree 0.00e+0, trivial vs D4 walk 0.00e+0, 2T I 0.0000e+0, |P_D4 - P_tree| 0.00e+0, |P_2T - P_tree| 0.00e+0, reach bad 0 3s
+beat 2: pairs 1128, Z3 vs tree 0.00e+0, trivial vs D4 walk 0.00e+0, 2T I 0.0000e+0, |P_D4 - P_tree| 0.00e+0, |P_2T - P_tree| 0.00e+0, reach bad 0 3s
+G3c false; G2d true; 2T nonzero loop kernels [] 3s
+C1 false: Z2 hc4 {"beta":0.4406867935097717,"u":0.4142135623730952,"plaquetteStrong":0.45441558773270935,"plaquetteWeak":0.9597979745513961,"sigmaLead":0.8813735870195427,"sigmaCorrection":0.11774900609143783,"correction":0.0033586148102595853,"roots":3}, Z3 hc4 {"beta":0.6700350258282537,"u":0.36602540378443843,"plaquetteStrong":0.3947441117042871,"plaquetteWeak":0.9712812920656398,"sigmaLead":1.0050525387423817,"sigmaCorrection":0.07179676972449066,"correction":0.003198628705001707,"roots":3}, Z2 Hamiltonian cubic {"y":0.5,"yValid":0.12500000000000008}; C2 true 3s
+I2 true: Q8 1.2367 vs 1.15 (7.5%), 2T 2.1244 vs 2.15 (1.2%), 2O 2.9005 vs 3.2 (9.4%), 2I 4.7036 vs 5.7 (17.5%) 3s
+Euclidean D4 [{"name":"Q8","beta":0.7964924995178857,"u":0.20381945122498915,"plaquetteStrong":0.2314611285407497,"plaquetteWeak":0.9695357835570738,"sigmaLead":1.5905207200344873,"sigmaCorrection":0.1246271060929672,"correction":0.0052386173488513455,"roots":3},{"name":"2T","beta":1.3108889803335901,"u":0.30693348356911077,"plaquetteStrong":0.37672433750857154,"plaquetteWeak":0.9387150049430802,"sigmaLead":1.1811242207690487,"sigmaCorrection":0.2826244900076088,"correction":0.02629628866257383,"roots":3},{"name":"2O","beta":1.67914256174932,"u":0.37780894281870886,"plaquetteStrong":0.48942874713575607,"plaquetteWeak":0.8955608357730237,"sigmaLead":0.9733666534201042,"sigmaCorrection":0.4282187918213713,"correction":0.0593909845600914,"roots":3},{"name":"2I","beta":2.1985439506972124,"u":0.4642592975482274,"plaquetteStrong":0.6258736013564636,"plaquetteWeak":0.8284025043270303,"sigmaLead":0.7673120519208296,"sigmaCorrection":0.6466100860799208,"correction":0.13157674254968277,"roots":3}]; 5d [{"name":"Q8","beta":0.9443961381147368,"u":0.24356064215159143,"plaquetteStrong":0.24918685698552265,"plaquetteWeak":0.9874756003093453,"sigmaLead":1.412389323722036,"sigmaCorrection":0.021114446053893066,"correction":0.0015678690636239036,"roots":3},{"name":"2T","beta":1.5635650616118908,"u":0.3572344559226418,"plaquetteStrong":0.3838722363036506,"plaquetteWeak":0.9696228340516643,"sigmaLead":1.0293629734822574,"sigmaCorrection":0.09771575981516528,"correction":0.008284816145796844,"roots":3},{"name":"2O","beta":2.0239856276997363,"u":0.437080800816652,"plaquetteStrong":0.4974931184176245,"plaquetteWeak":0.9372757414582987,"sigmaLead":0.8276372020843,"sigmaCorrection":0.21897683322779887,"correction":0.02756415252248637,"roots":3},{"name":"2I","beta":2.7836127891758586,"u":0.5431448968781726,"plaquetteStrong":0.6688199543913864,"plaquetteWeak":0.8881559231566082,"sigmaLead":0.6103791495655099,"sigmaCorrection":0.5221725819211448,"correction":0.09867267489451996,"roots":3}] 3s
+Hamiltonian D4 [{"name":"2T","C2":4,"C3":8,"y":0.3651239938105011,"yValid":0.06300000000000004,"strings":[{"perLink":8,"slope":1.3333333333333335,"eps":0.8222459588584922,"error":0.03159649914213685}]},{"name":"2O","C2":1.7573593128807152,"C3":3.9999999999999987,"y":0.5486591515199108,"yValid":0.2430000000000002,"strings":[{"perLink":8,"slope":1.1647555712496414,"eps":0.6493772824235966,"error":0.12293629008066238}]},{"name":"2I","C2":2.2917960675006306,"C3":5.52786404500042,"y":1.015664149703325,"yValid":0.2860000000000002,"strings":[{"perLink":8,"slope":1.0918210690113637,"eps":-0.12629386167616707,"error":1.268537862849413}]}]; husk [{"name":"2T","C2":4,"C3":8,"y":0.4441901290308099,"yValid":0.07700000000000005,"strings":[{"perLink":8,"slope":1.3333333333333335,"eps":0.73692683902879,"error":0.06920748802338421},{"perLink":6,"slope":1,"eps":0.8026951292715925,"error":0.038929212013153615}]},{"name":"2O","C2":1.7573593128807152,"C3":3.9999999999999987,"y":0.6754487162961744,"yValid":0.2970000000000002,"strings":[{"perLink":8,"slope":1.1647555712496414,"eps":0.4686024378422031,"error":0.2823833690672496},{"perLink":6,"slope":0.873566678437231,"eps":0.6014518283816523,"error":0.1588406451003279}]},{"name":"2I","C2":2.2917960675006306,"C3":5.52786404500042,"y":1.3036410552992193,"yValid":0.35000000000000026,"strings":[{"perLink":8,"slope":1.0918210690113637,"eps":-0.8555280715225775,"error":3.442984424208295},{"perLink":6,"slope":0.8188658017585227,"eps":-0.39164605364193306,"error":1.936678738617166}]}] 3s
+G1 false: y_f 0.3651239938105011, eps(y_f) 0.8222459588584922, positive true, monotone true, worst error ratio 0.03842706528591718 3s
+{
+  "status": "partial",
+  "claim": "G1 false (2T on D4, Hamiltonian: y_f 0.3651, eps(y_f) 0.8222 of eps(0) 1; G1a true, G1b false); G2 false (G2a true, G2b true gauge gap 3.54e-16, G2c false kept 0.629432, G2d true); G3 false (G3a true: [M, W] 1.79e-16, magnetic alone 1.58e-13, 5.21e-14, 0.00e+0; G3b true: 6.43e-2; G3c I(3) 0.000e+0); G4 not run; controls C1 false C2 true C3 true; instrument I1 true I2 true I3 true",
+  "metrics": {
+    "G1": 0,
+    "G1a": 1,
+    "G1b": 0,
+    "G2": 0,
+    "G2a": 1,
+    "G2b": 1,
+    "G2c": 0,
+    "G2d": 1,
+    "G3": 0,
+    "G3a": 1,
+    "G3b": 1,
+    "G3c": 0,
+    "G4": 0,
+    "C1": 0,
+    "C2": 1,
+    "C3": 1,
+    "I1": 1,
+    "I2": 1,
+    "I3": 1,
+    "yFreeze": 0.3651239938105011,
+    "epsFreeze": 0.8222459588584922,
+    "interference": 0,
+    "gaussGap": 3.5427752230912388e-16,
+    "commutator": 1.7930411871971575e-16,
+    "escape": 0.06427014559739852,
+    "keptWeight": 0.6294317471886712,
+    "seconds": 3.279
+  },
+  "control": {
+    "C1": 0,
+    "C2": 1,
+    "C3": 1,
+    "instrument": 1
+  },
+  "notes": "L1 and L2. Casimirs 0, 12, 12, 4, 10, 10, 8; electric denominators 2823576 (needs 1/3 false), 2823576 (needs 1/3 false) at light and alpha, angles -2.761341, 0.666946. Kept weight of E = 0 under one face alpha 0.629432, 2pi/3 0.015625, pi 0.111111. Toy: gauge gap 3.54e-16, [M, W] 1.79e-16, magnetic alone alpha 1.58e-13, 2pi/3 5.21e-14, pi 0.00e+0, electric alone 3.16e-1, electric plus magnetic against electric 6.43e-2. Path sums beat 1: pairs 0, I 0.0000e+0, |P_D4 - P_tree| 0.00e+0, |P_2T - P_tree| 0.00e+0, Z3 vs tree 0.00e+0, trivial vs walk 0.00e+0; beat 2: pairs 1128, I 0.0000e+0, |P_D4 - P_tree| 0.00e+0, |P_2T - P_tree| 0.00e+0, Z3 vs tree 0.00e+0, trivial vs walk 0.00e+0. 2T nonzero loop kernels []. Calibration (4d hypercubic) Q8 1.2367 vs 1.15, 2T 2.1244 vs 2.15, 2O 2.9005 vs 3.2, 2I 4.7036 vs 5.7; Z2 0.4407, Z3 0.6700, Z2 Hamiltonian 0.5000. Euclidean D4 triangles: Q8 beta_f 0.7965, u 0.2038, plaquette 0.2315 -> 0.9695, sigma 1.5905 - 0.1246; 2T beta_f 1.3109, u 0.3069, plaquette 0.3767 -> 0.9387, sigma 1.1811 - 0.2826; 2O beta_f 1.6791, u 0.3778, plaquette 0.4894 -> 0.8956, sigma 0.9734 - 0.4282; 2I beta_f 2.1985, u 0.4643, plaquette 0.6259 -> 0.8284, sigma 0.7673 - 0.6466. Euclidean 5d: Q8 beta_f 0.9444, u 0.2436, plaquette 0.2492 -> 0.9875, sigma 1.4124 - 0.0211; 2T beta_f 1.5636, u 0.3572, plaquette 0.3839 -> 0.9696, sigma 1.0294 - 0.0977; 2O beta_f 2.0240, u 0.4371, plaquette 0.4975 -> 0.9373, sigma 0.8276 - 0.2190; 2I beta_f 2.7836, u 0.5431, plaquette 0.6688 -> 0.8882, sigma 0.6104 - 0.5222. Euclidean 4d: Q8 beta_f 1.2367, u 0.3240, plaquette 0.3404 -> 0.9857, sigma 1.1270 - 0.0441; 2T beta_f 2.1244, u 0.4564, plaquette 0.5065 -> 0.9730, sigma 0.7844 - 0.1736; 2O beta_f 2.9005, u 0.5574, plaquette 0.6483 -> 0.9560, sigma 0.5845 - 0.3860; 2I beta_f 4.7036, u 0.7035, plaquette 0.8261 -> 0.9603, sigma 0.3517 - 0.9795. Hamiltonian D4: 2T (C2 4.0000, C3 8.0000): y_f 0.3651 (valid from 0.0630), eps 0.8222 on 8-triangle links (slope 1.3333, error 3.16e-2); 2O (C2 1.7574, C3 4.0000): y_f 0.5487 (valid from 0.2430), eps 0.6494 on 8-triangle links (slope 1.1648, error 1.23e-1); 2I (C2 2.2918, C3 5.5279): y_f 1.0157 (valid from 0.2860), eps -0.1263 on 8-triangle links (slope 1.0918, error 1.27e+0). Hamiltonian husk: 2T (C2 4.0000, C3 8.0000): y_f 0.4442 (valid from 0.0770), eps 0.7369 on 8-triangle links (slope 1.3333, error 6.92e-2), eps 0.8027 on 6-triangle links (slope 1.0000, error 3.89e-2); 2O (C2 1.7574, C3 4.0000): y_f 0.6754 (valid from 0.2970), eps 0.4686 on 8-triangle links (slope 1.1648, error 2.82e-1), eps 0.6015 on 6-triangle links (slope 0.8736, error 1.59e-1); 2I (C2 2.2918, C3 5.5279): y_f 1.3036 (valid from 0.3500), eps -0.8555 on 8-triangle links (slope 1.0918, error 3.44e+0), eps -0.3916 on 6-triangle links (slope 0.8189, error 1.94e+0). Euclidean branches at beta 1 on D4 for 2T {\"strong\":0.13247487823977616,\"weak\":-0.0405062699714962,\"strongCorrection\":0.009955789743556197,\"weakCorrection\":0.05194973421061011}. 3 s."
+}
+exit=0

@@ -55,11 +55,11 @@
 //     CP conjugate sum to a nonzero number. (For the other flavors the conjugate is the same p -> -p map, point 4.)
 //  Status: pass needs G; partial when C1, R1, F1, V1 hold and G is false (as derived); fail otherwise.
 //
-// PROBES, disclosed: tmp/wa-probe1.log (the field gaps: heavy 0.4899, (2, 2) 0.1821, (-1, 4) 0.2436; wall masses at L 12).
-//  tmp/wa-probe2.log (the heavy flow at p -1: A -4, B +4, offsets as at p +1 with the walls exchanged; (2, 2) at p +1
-//  incomplete, eigen residual 1.6e-2). tmp/wa-probe3.log (three heavier units: their gaps and flows).
+// PROBES, disclosed: test/record/E-SPN-0171/wa-probe1.log (the field gaps: heavy 0.4899, (2, 2) 0.1821, (-1, 4) 0.2436; wall masses at L 12).
+//  test/record/E-SPN-0171/wa-probe2.log (the heavy flow at p -1: A -4, B +4, offsets as at p +1 with the walls exchanged; (2, 2) at p +1
+//  incomplete, eigen residual 1.6e-2). test/record/E-SPN-0171/wa-probe3.log (three heavier units: their gaps and flows).
 //
-// FIRST RUN (tmp/wa-exp-run1.log, 368 s): PARTIAL, as derived. C1 the heavy flow at p +1 reproduces E-SPN-0168's recorded
+// FIRST RUN (test/record/E-SPN-0171/wa-exp-run1.log, 368 s): PARTIAL, as derived. C1 the heavy flow at p +1 reproduces E-SPN-0168's recorded
 //  reading exactly, A +4 B -4. R1 at p -1 A -4 B +4, every level at the same offset (1.3e-15) with the wall weights
 //  exchanged (8.2e-15). F1 (-2, 5), (6, 0), (0, 4): each A +4 B -4, eigen residuals 3.7e-14, 2.4e-13, 1.3e-14: the
 //  flavored face +12 per forward winding. V1 the exchange count has 435 nonzero elements, 0 between different member
@@ -102,7 +102,7 @@ export const FLAVORS: readonly (readonly [number, number])[] = [
   [0, 4],
 ]
 
-// E-SPN-0168's recorded flow, qa 15, p 1, half 0 (its notes, tmp/wfc-exp-run1.log)
+// E-SPN-0168's recorded flow, qa 15, p 1, half 0 (its notes, test/record/E-SPN-0171/wfc-exp-run1.log)
 const RECORDED_0168 =
   '0.013: -0.0082/0.03 -0.0082/0.03 0.0082/0.97 0.0082/0.97; 0.406: -0.2371/0.00 -0.2371/0.00 0.2371/1.00 0.2371/1.00; 0.798: ; 1.191: ; 1.584: ; 1.976: ; 2.369: ; 2.762: -0.2223/1.00 -0.2223/1.00 0.2223/0.00 0.2223/0.00; 3.155: -0.0082/0.03 -0.0082/0.03 0.0082/0.97 0.0082/0.97; 3.547: -0.2371/0.00 -0.2371/0.00 0.2371/1.00 0.2371/1.00; 3.940: ; 4.333: ; 4.725: ; 5.118: ; 5.511: ; 5.903: -0.2223/1.00 -0.2223/1.00 0.2223/0.00 0.2223/0.00; 6.296: -0.0082/0.03 -0.0082/0.03 0.0082/0.97 0.0082/0.97'
 const WINDOW = 0.35

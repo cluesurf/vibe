@@ -1,0 +1,55 @@
+A1 11s
+A2 A3 11s
+B1 11s
+B2 14s
+B3 135s
+B4 145s
+D1 D2 150s
+I1 151s
+D3 159s
+C 159s
+{
+ "status": "fail",
+ "claim": "A1 true (bilinear commutant null 8, R(x) rank 8, all keep J true; with rotations null 2; rotations alone null 6, 4 of them keeping J) A2 true A3 true (det[H+, H-] = (-959078961 + -1918157922 w) / 1276676260761792016 = -2iJ prod^2); B1 true (leak 2.69e-16, block gap 2.22e-16) B2 true B3 true (B* 0.573390276 x0; B* 0.760502413 x0; B* 0.947614551 x0; mixed 01 B* 0.573390276 x0; 02 B* 0.573390276 x0; 12 B* 0.760502413 x0) B4 true (union 3.55e-15, P_imp 2.55e-15, CP 3.11e-15, CPT 3.55e-15, removable at rest true); G false (null with J 2); D1 true D2 true (A(t) 0.000e+0 -1.504e-9 -3.583e-8 -2.955e-7 -1.458e-6 -5.274e-6 -1.545e-5 -3.887e-5 -8.706e-5 -1.778e-4 -3.372e-4 -6.010e-4) D3 true (toy law 7.95e-2 CPT 7.95e-2, free 3.80e-15, 4.00e-15); instrument I1 true (8.13e-20); controls C1 true C2 true C3 true",
+ "metrics": {
+  "A1": 1,
+  "A2": 1,
+  "A3": 1,
+  "B1": 1,
+  "B2": 1,
+  "B3": 1,
+  "B4": 1,
+  "G": 0,
+  "D1": 1,
+  "D2": 1,
+  "D3": 1,
+  "I1": 1,
+  "C1": 1,
+  "C2": 1,
+  "C3": 1,
+  "nullBilinears": 8,
+  "nullWithRotations": 2,
+  "nullRotations": 6,
+  "nullRotationsJ": 4,
+  "leak": 2.6945789820192466e-16,
+  "blockGap": 2.220446049250313e-16,
+  "bandGap": 2.419605899270905e-15,
+  "rGap": 1.5711876244495215e-11,
+  "isotropy": 1.0713985254540148e-11,
+  "census0": 0.5733902756214588,
+  "census1": 0.7605024133858633,
+  "census2": 0.9476145511502725,
+  "crossings": 0,
+  "unionGap": 3.552713678800501e-15,
+  "Pimp": 2.5463230727563326e-15,
+  "CP": 3.1086244689504383e-15,
+  "CPT": 3.552713678800501e-15,
+  "asymmetryLast": -0.0006010309358202966,
+  "toyLaw": 0.0795234935441427,
+  "toyCPT": 0.07952349354414334,
+  "instrumentGap": 8.131516293641283e-20,
+  "seconds": 159.254
+ },
+ "notes": "L1 and L2. 576 modes a member. Masses 0.143348, 0.190126, 0.236904 (ringUnit (2, 2), (-1, 4), (-4, 0)); coupling ringUnit(-3, 2), angle 0.093556. Massless pairs 8 c0/(c/4) 1.000000000002 gamma -2.65e-11; 8 c0/(c/4) 0.999999999992 gamma -2.54e-11; 8 c0/(c/4) 0.999999999998 gamma -8.66e-12; 8 c0/(c/4) 0.999999999995 gamma -6.57e-12. R - tan m/m at most 1.57e-11, isotropy 1.07e-11, band gap 2.42e-15. Census per flavor B* 0.573390276 x0 (2M 0.573390276); B* 0.760502413 x0 (2M 0.760502413); B* 0.947614551 x0 (2M 0.947614551); mixed 01 B* 0.573390276 x0; 02 B* 0.573390276 x0; 12 B* 0.760502413 x0. Free rule readings: P_imp 2.55e-15, P_rot 2.66e-15, C raw 3.11e-15, CP 3.11e-15, CPT 3.55e-15. CP invariant det[H+, H-] (-959078961 + -1918157922 w) / 1276676260761792016, prod^2 8631710649 / 1276676260761792016; conj V (959078961 + 1918157922 w); Householder 0. Rest asymmetry A(t), t = 1 .. 12: trimaximal 0.000e+0 -1.504e-9 -3.583e-8 -2.955e-7 -1.458e-6 -5.274e-6 -1.545e-5 -3.887e-5 -8.706e-5 -1.778e-4 -3.372e-4 -6.010e-4; conj V 0.000e+0 1.504e-9 3.583e-8 2.955e-7 1.458e-6 5.274e-6 1.545e-5 3.887e-5 8.706e-5 1.778e-4 3.372e-4 6.010e-4. Toy cost: Dirac law 7.95e-2, CPT 7.95e-2; free 3.80e-15, 4.00e-15. 159 s."
+}
+exit=0

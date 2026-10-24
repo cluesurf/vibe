@@ -1,0 +1,23 @@
+{
+ "kind": "step1",
+ "section": "first",
+ "set": "plain",
+ "gauge": true,
+ "levels": [],
+ "complete": true,
+ "rounds": 1,
+ "steps": 160,
+ "nearest": 0.7605131492675795,
+ "nearestResidual": 0.0000836102193506256,
+ "eigenResidual": 0,
+ "ritzResidual": 0,
+ "seconds": 187.712,
+ "witness": {
+  "pieceGap": 1.9238771594458774e-15,
+  "reverse": 1.265701784718065e-15,
+  "unitary": 1.2212453270876722e-15,
+  "cycle": 1.9434346664096055e-14,
+  "cycleDag": 2.052252752112592e-14,
+  "metric": 1.480496619283259e-14
+ }
+}

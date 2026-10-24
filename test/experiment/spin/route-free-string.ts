@@ -89,9 +89,9 @@
 // READ, NOT GATED: rates 1 and 1/4; the 'd4' cost at rate 3 (and its tensor if held); the level's energy, start weight,
 // residual, string-length shells and off-line weight; m*/E_rest along the line with the mixer on.
 // Verdict: partial if a control or check fails; pass if R1, R2 and R3 hold; fail otherwise.
-// PROBES: none. The first run (tmp/route-exp-run1.log) printed NaN for the level's mean string, because the placed
+// PROBES: none. The first run (test/record/E-SPN-0131/route-exp-run1.log) printed NaN for the level's mean string, because the placed
 // start holds offsets out to 26 links that shellWeights did not size for; the fix touches no gate and the second run
-// (tmp/route-exp-run2.log, 394 s) reproduced every gated number to the last digit.
+// (test/record/E-SPN-0131/route-exp-run2.log, 394 s) reproduced every gated number to the last digit.
 //
 // RESULT: FAIL on R1 and R2, R3 and both controls holding, every check passing.
 //  - R1: the route-free cost does not hold the pair at rate 3. The dominant Ritz reading is not a level (start weight

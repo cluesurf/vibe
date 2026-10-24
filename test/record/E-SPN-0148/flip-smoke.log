@@ -1,0 +1,13 @@
+v angle -0.6669463445036642
+rule vs covariant model: love parity 0 1.11e-16, fear parity 1 1.11e-16
+matrix 0.0s
+space 0.1s
+box: 60 checked, worst 1.24e-16, differ 0, inexact 0, stray 0
+box 30 starts x 2 333.2s
+box with the model's piece OFF against the rule's piece ON (a control that must differ): worst 4.02e-1, differ 40
+vacuum: empty {"side":4,"sea":0,"cells":256,"exact":true,"permutes":0,"charged":0}; sea {"side":4,"sea":1,"cells":256,"exact":true,"permutes":0,"charged":0}
+vacuum 697.2s
+ball 15: 231361 sites
+calibration z (x) z: {"total":1.0000000001515221,"loveOff":-5.422064865285303e-16,"fearOff":-5.422064865285303e-16,"stores":0,"parseval":2.3273161172480906e-11}
+pair content 945.4s
+exit=0

@@ -61,7 +61,7 @@
 //  at (slot 0, register 0) and (slot e, register 0) sends to doubly held modes; the bosonic sea amplitude |perm P|^2;
 //  the orders of the simple rotations.
 //
-// FIRST RUN (tmp/stats.log in the moving-matter worktree, 2 s): PARTIAL, as predicted. No probe before it, no gate
+// FIRST RUN (test/record/E-SPN-0191/stats.log in the moving-matter worktree, 2 s): PARTIAL, as predicted. No probe before it, no gate
 //  moved, none rerun.
 //  - S: fermions keep R, C, T, V (|det|^2 = 1 both beats) and N; bosons keep R, C, T and fail V (|perm|^2 = 0.552742 on
 //    both beats) and N (up to 0.137755 of a 2- or 3-member start lands on doubled modes). Exactly one survives.

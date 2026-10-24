@@ -1,0 +1,3 @@
+m0 0.190126 sigma -0.666946 (0.0s)
+D4 target: patterns 21025, absorbed over 128 beats 1.033e-3, peaks eps -1.2853 (9.52e+0), eps 1.7428 (2.98e+0), eps 2.1355 (2.66e+0), eps -0.5130 (3.89e-1); level eps -1.283855 |lambda| 1.000000 residual 1.71e-4 lost at read 1.84e-9 (1.1s)
+theta off: patterns 13465, absorbed over 128 beats 9.267e-2, peaks eps -1.2940 (9.20e+0), eps 1.8475 (9.20e+0), eps 2.5719 (7.80e-1), eps -0.5697 (7.80e-1); level eps NaN |lambda| NaN residual NaN lost at read NaN (2.5s)

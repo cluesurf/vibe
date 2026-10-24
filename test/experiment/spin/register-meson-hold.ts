@@ -44,7 +44,7 @@
 //    the slot rule: E-SPN-0161's static color sources are the flats, and under the singlet-pair string they carry no
 //    amplitude at any V.
 // 3. THE LEVEL (NR 4d s-wave, radialWell, W = tau min(kappa x, 8), constant member inertia 2 tan(M0 / 2) per member):
-//    E_b = 1.245, E_L = 2.005, mean V 2.96, P(V > 7) 1.7e-3, P(V > 9) 3.4e-5 (tmp/rmh-probe2.log). The lattice level
+//    E_b = 1.245, E_L = 2.005, mean V 2.96, P(V > 7) 1.7e-3, P(V > 9) 3.4e-5 (test/record/E-SPN-0162/rmh-probe2.log). The lattice level
 //    sits near 1.98 (probes 3 and 5). So the ball is radius 9, reaching past the cap (8), where every channel is
 //    constant, to the uncapped V* (9.4) within a step; the H1 scan runs the channels to V = 40 analytically.
 // 4. R, AND WHY NOT 1. The string acts on the S S pair as a potential, not a mass: the members' inertia does not change
@@ -94,28 +94,28 @@
 //  change, for time: two more 256 filters.)
 // Verdict: fail if H0, H1, H2, H3 or H4 fails; partial if the instrument or a control fails; pass if all hold.
 //
-// PROBES BEFORE THE GATE RUN, disclosed (no gate moved after them). tmp/rmh-probe1.log: the ring's small angles (0.0060,
+// PROBES BEFORE THE GATE RUN, disclosed (no gate moved after them). test/record/E-SPN-0162/rmh-probe1.log: the ring's small angles (0.0060,
 //  0.0875, 0.0936, 0.0996, 0.1871, 0.1931, 0.2807), the member mass string's channel map and NR levels (clean only at
 //  angle 0.094 to 0.100 with cap 5 or 6, mean V 3.1 to 3.3; at 0.187 the D F band sweeps through E_L between V 2.8 and
-//  4.0). tmp/rmh-probe2.log: the member coordinates against the derived band (8.9e-16) and the full cycle (1.8e-15), the
+//  4.0). test/record/E-SPN-0162/rmh-probe2.log: the member coordinates against the derived band (8.9e-16) and the full cycle (1.8e-15), the
 //  member R (1.0122261 against tan m/m 1.0122261), the singlet-pair string's NR table (point 3's numbers), the engine
-//  (radius 8, 21,025 sites, 2.0 s a cycle). tmp/rmh-probe3-witness.log: a first witness that compared beyond the region
+//  (radius 8, 21,025 sites, 2.0 s a cycle). test/record/E-SPN-0162/rmh-probe3-witness.log: a first witness that compared beyond the region
 //  where a truncated full ball is exact (gap 2.3e-5, the coordinates reaching 4 steps in a cycle past a radius-3
-//  coordinate ball); tmp/rmh-probe4.log: the witness where it is exact, all four comparisons at 4.6e-17 to 9.7e-17.
-//  tmp/rmh-probe3-level.log: the level on a radius-8 ball from register (0, 0): phase 1.9703, 1.9292, 1.9198 after
+//  coordinate ball); test/record/E-SPN-0162/rmh-probe4.log: the witness where it is exact, all four comparisons at 4.6e-17 to 9.7e-17.
+//  test/record/E-SPN-0162/rmh-probe3-level.log: the level on a radius-8 ball from register (0, 0): phase 1.9703, 1.9292, 1.9198 after
 //  filters 64, 128, 128, residual 2.5e-2, 16 cycles lost 1.1e-9 (no leak) with fidelity 0.860 (not isolated).
-//  tmp/rmh-probe5.log: from the symmetric start on a radius-9 ball: phase 1.97090, 1.97228, 1.97947 after 64, 256, 256,
+//  test/record/E-SPN-0162/rmh-probe5.log: from the symmetric start on a radius-9 ball: phase 1.97090, 1.97228, 1.97947 after 64, 256, 256,
 //  residual 9.6e-3, shares 0.905 / 0.047 / 0.047 / 0.002, profile peaked at V 4 (0.78), 3.1e-7 at V 9; 16 cycles lost
 //  -2e-10, fidelity 0.978. These fixed the gate plan above (radius 9, a 1024 filter, residual 1e-3, the fidelity 1e-2
 //  against a separate leak gate, isotropy 1e-3 on two directions with the base read like the shifts), before the gate
-//  run. tmp/rmh-hold-smoke.log: every code path on a small plan (radius 5, filters 16 and 16, 219 s; unconverged, gating
+//  run. test/record/E-SPN-0162/rmh-hold-smoke.log: every code path on a small plan (radius 5, filters 16 and 16, 219 s; unconverged, gating
 //  nothing): H0 exact (4.6e-17 to 9.7e-17), I1 1.8e-15, I2, C1 and C2 (the member mass string off the lifted cycle by
 //  7.7e-4) held. It found two defects in the gates as first written, fixed before the gate run: H1 counted the S S band
 //  inside the core (above the level at V 4, where it is the forbidden side of the well) as a channel; and the leak read
 //  "lost <= 1e-3", where the edge's drops in the Gram metric read -6.8e-6 (a gain) at radius 5's 3% edge shell, so the
 //  gate reads the change's size.
 //
-// FIRST RUN (tmp/rmh-hold-run1.log, 8,140 s): FAIL on H4 alone, as predicted, but with R far on the OTHER side of 1
+// FIRST RUN (test/record/E-SPN-0174/rmh-hold-run1.log, 8,140 s): FAIL on H4 alone, as predicted, but with R far on the OTHER side of 1
 //  (34.65 against the predicted 0.69). H0 to H3, the instrument and both controls hold. No gate moved and none was rerun.
 //  - H0: the full 192 x 192 rule and the lifted coordinate cycle agree to 4.6e-17 (S S, whole ball) and 9.7e-17
 //    (generic, within 2) at both momenta; weights equal to 12 digits; the coordinate norm kept to 4e-14.

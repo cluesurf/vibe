@@ -49,7 +49,7 @@
 //  register, at every mass, whatever the prime: the prime 7 is not singled out by these scores (it is the least split
 //  prime, which sets the least exponent of a light mass, a cost these scores do not see).
 //
-// FIRST RUN (2026-10-20, tmp/fnd177-run.log, 1,468 s, one thread): PARTIAL, as predicted, with one prediction wrong. No
+// FIRST RUN (2026-10-20, test/record/E-FND-0177/fnd177-run.log, 1,468 s, one thread): PARTIAL, as predicted, with one prediction wrong. No
 //  probe read any score before this header was written (tmp/fnd177-time.ts timed one variant of each kind and printed
 //  only seconds).
 //  - Instrument: I1 R* = 1.0007300338253453 bit for bit, c0 = c / 2; I2 c0 = c / 4 at every mass, HF gap within 1e-6.

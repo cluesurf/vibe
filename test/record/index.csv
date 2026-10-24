@@ -1,0 +1,1691 @@
+cite,status,where,bytes,cited_at
+tmp/aniso-probe1.log,kept,test/record/E-SPN-0126/aniso-probe1.log,3759,test/experiment/spin/line-anisotropy.ts:87;from experiment/open-pieces
+tmp/aniso-run1.log,kept,test/record/E-SPN-0126/aniso-run1.log,8105,test/experiment/spin/line-anisotropy.ts:92;from experiment/open-pieces
+tmp/anomaly.log,kept,test/record/E-FRC-0289/anomaly.log,3417,test/experiment/gauge/anomaly-matching.ts:59
+tmp/audit-exp-run1.log,kept,test/record/E-SPN-0134/audit-exp-run1.log,5229,test/experiment/spin/candidate-rule-audit.ts:73;from experiment/open-pieces
+tmp/audit-probe1-8.log,kept,test/record/E-SPN-0134/audit-probe1-8.log,578,test/experiment/spin/candidate-rule-audit.ts:70;from experiment/open-pieces
+tmp/bend-run-run1.log,kept,test/record/E-SPN-0116/bend-run-run1.log,8233,test/experiment/spin/bent-string.ts:76;from experiment/open-pieces
+tmp/braid-chern.log,kept,test/record/E-FND-0176/braid-chern.log,17468,test/experiment/foundations/husk-braid.ts:290
+tmp/braid-gate.log,kept,test/record/E-FND-0176/braid-gate.log,8965,test/experiment/foundations/husk-braid.ts:29
+tmp/braid-recip.log,kept,test/record/E-FND-0176/braid-recip.log,3596,test/experiment/foundations/husk-braid.ts:294
+tmp/bulkturn-exp-run1.log,kept,test/record/E-SPN-0127/bulkturn-exp-run1.log,7301,test/experiment/spin/bulk-shadow-turn.ts:84;from experiment/open-pieces
+tmp/bulkturn-probe-1.log,kept,test/record/E-SPN-0127/bulkturn-probe-1.log,2062,test/experiment/spin/bulk-shadow-turn.ts:77;from experiment/open-pieces
+tmp/caging-probe-s16.log,kept,test/record/E-SPN-0196/caging-probe-s16.log,593,test/experiment/spin/holonomy-caging.ts:34
+tmp/caging.log,kept,test/record/E-SPN-0196/caging.log,1895,test/experiment/spin/holonomy-caging.ts:59
+tmp/census-probe.log,kept,test/record/E-SPN-0192/census-probe.log,6671,test/experiment/spin/three-member-census.ts:26
+tmp/census.log,kept,test/record/E-SPN-0192/census.log,2464,test/experiment/spin/three-member-census.ts:53
+tmp/cflow-exp-run1.log,kept,test/record/E-SPN-0165/cflow-exp-run1.log,3806,test/experiment/spin/chiral-flow.ts:73;from experiment/open-pieces
+tmp/cflow-probe1.log,kept,test/record/E-SPN-0165/cflow-probe1.log,5307,test/experiment/spin/chiral-flow.ts:64;from experiment/open-pieces
+tmp/cflow-probe2.log,kept,test/record/E-SPN-0165/cflow-probe2.log,1248,test/experiment/spin/chiral-flow.ts:67;from experiment/open-pieces
+tmp/cflow-smoke.log,kept,test/record/E-SPN-0165/cflow-smoke.log,3781,test/experiment/spin/chiral-flow.ts:70;from experiment/open-pieces
+tmp/cflux-cf0-slab-8.json,kept,test/record/E-FRC-0300/cflux-cf0-slab-8.json,565,test/experiment/gauge/center-pump.ts:85
+tmp/chi-exp-run1.log,kept,test/record/E-FRC-0258/chi-exp-run1.log,3115,test/experiment/gauge/chiral-register.ts:136;from experiment/open-pieces
+tmp/chi-probe1.log,kept,test/record/E-FRC-0258/chi-probe1.log,738,test/experiment/gauge/chiral-register.ts:122;from experiment/open-pieces
+tmp/chi-probe2.log,kept,test/record/E-FRC-0258/chi-probe2.log,1502,test/experiment/gauge/chiral-register.ts:43;test/experiment/gauge/chiral-register.ts:126;from experiment/open-pieces
+tmp/chi-smoke.log,kept,test/record/E-FRC-0258/chi-smoke.log,3113,test/experiment/gauge/chiral-register.ts:129;from experiment/open-pieces
+tmp/chi-smoke2.log,kept,test/record/E-FRC-0258/chi-smoke2.log,3109,test/experiment/gauge/chiral-register.ts:134;from experiment/open-pieces
+tmp/cmp-exp-run1.log,kept,test/record/E-FRC-0263/cmp-exp-run1.log,3470,test/experiment/gauge/compton-thomson.ts:67;from experiment/open-pieces
+tmp/cmp-probe1.log,kept,test/record/E-FRC-0263/cmp-probe1.log,3184,test/experiment/gauge/compton-thomson.ts:59;from experiment/open-pieces
+tmp/cmp-probe2.log,kept,test/record/E-FRC-0264/cmp-probe2.log,729,test/experiment/gauge/photoelectric-threshold.ts:49;from experiment/open-pieces
+tmp/cmp-probe3.log,kept,test/record/E-FRC-0263/cmp-probe3.log,1794,test/experiment/gauge/compton-thomson.ts:61;from experiment/open-pieces
+tmp/cmp-probe4.log,kept,test/record/E-FRC-0264/cmp-probe4.log,366,test/experiment/gauge/photoelectric-threshold.ts:51;from experiment/open-pieces
+tmp/cmp-smoke.log,kept,test/record/E-FRC-0263/cmp-smoke.log,2909,test/experiment/gauge/compton-thomson.ts:64;from experiment/open-pieces
+tmp/color-ens-hyper3d,kept,test/record/E-FRC-0297/color-ens-hyper3d,16702,test/experiment/gauge/color-ensemble.ts:17
+tmp/color-ens-hyper8,kept,test/record/E-FRC-0297/color-ens-hyper8,17155,test/experiment/gauge/color-ensemble.ts:17
+tmp/color-ens-instruments.json,kept,test/record/E-FRC-0297/color-ens-instruments.json,2369,test/experiment/gauge/color-ensemble.ts:runtime
+tmp/color-ens-z2.json,kept,test/record/E-FRC-0297/color-ens-z2.json,126,test/experiment/gauge/color-ensemble.ts:runtime
+tmp/coul-exp-run1.log,kept,test/record/E-SPN-0169/coul-exp-run1.log,8764,test/experiment/spin/darwin-exchange.ts:149;test/experiment/spin/husk-coulomb-meson.ts:147;from experiment/open-pieces
+tmp/coul-probe1.log,kept,test/record/E-SPN-0155/coul-probe1.log,5705,test/experiment/spin/husk-coulomb-meson.ts:128;from experiment/open-pieces
+tmp/coul-probe2-model.log,kept,test/record/E-SPN-0155/coul-probe2-model.log,2949,test/experiment/spin/husk-coulomb-meson.ts:42;test/experiment/spin/husk-coulomb-meson.ts:131;from experiment/open-pieces
+tmp/coul-probe3.log,kept,test/record/E-SPN-0155/coul-probe3.log,3534,test/experiment/spin/husk-coulomb-meson.ts:132;from experiment/open-pieces
+tmp/coul-probe4-engine.log,kept,test/record/E-SPN-0155/coul-probe4-engine.log,1436,test/experiment/spin/husk-coulomb-meson.ts:135;from experiment/open-pieces
+tmp/coul-probe4-engine35.log,kept,test/record/E-SPN-0155/coul-probe4-engine35.log,1777,test/experiment/spin/husk-coulomb-meson.ts:135;from experiment/open-pieces
+tmp/coul-probe4-engine35.log,kept,test/record/E-SPN-0155/coul-probe4-engine35.log,1777,test/experiment/spin/husk-coulomb-meson.ts:140;from experiment/open-pieces
+tmp/coul-probe4-face.log,kept,test/record/E-SPN-0155/coul-probe4-face.log,91,test/experiment/spin/husk-coulomb-meson.ts:135;from experiment/open-pieces
+tmp/coul-probe4-model.log,kept,test/record/E-SPN-0155/coul-probe4-model.log,451,test/experiment/spin/husk-coulomb-meson.ts:135;from experiment/open-pieces
+tmp/coul-probe5.log,kept,test/record/E-SPN-0155/coul-probe5.log,2260,test/experiment/spin/husk-coulomb-meson.ts:139;from experiment/open-pieces
+tmp/coul-smoke.log,kept,test/record/E-SPN-0155/coul-smoke.log,6841,test/experiment/spin/husk-coulomb-meson.ts:134;from experiment/open-pieces
+tmp/cross-probe4-8.log,kept,test/record/E-SPN-0115/cross-probe4-8.log,5835,test/experiment/spin/meson-crossing.ts:27;from experiment/open-pieces
+tmp/cross-run1.log,kept,test/record/E-SPN-0115/cross-run1.log,9651,test/experiment/spin/meson-crossing.ts:80;from experiment/open-pieces
+tmp/csea-exp-run1.log,kept,test/record/E-SPN-0164/csea-exp-run1.log,2941,test/experiment/spin/sea-conjugation.ts:119;from experiment/open-pieces
+tmp/csea-probe1.log,kept,test/record/E-SPN-0164/csea-probe1.log,1742,test/experiment/spin/sea-conjugation.ts:101;from experiment/open-pieces
+tmp/csea-probe2.log,kept,test/record/E-SPN-0164/csea-probe2.log,190,test/experiment/spin/sea-conjugation.ts:105;from experiment/open-pieces
+tmp/csea-probe3.log,kept,test/record/E-SPN-0164/csea-probe3.log,2007,test/experiment/spin/sea-conjugation.ts:108;from experiment/open-pieces
+tmp/csea-probe4.log,kept,test/record/E-SPN-0164/csea-probe4.log,514,test/experiment/spin/sea-conjugation.ts:53;test/experiment/spin/sea-conjugation.ts:113;from experiment/open-pieces
+tmp/csea-smoke.log,kept,test/record/E-SPN-0164/csea-smoke.log,1654,test/experiment/spin/sea-conjugation.ts:112;from experiment/open-pieces
+tmp/cslab-stage-c1-12.json,kept,test/record/E-FRC-0294/cslab-stage-c1-12.json,2137,tmp/cslab-stage.ts:combine
+tmp/cslab-stage-c1-16.json,kept,test/record/E-FRC-0294/cslab-stage-c1-16.json,2155,tmp/cslab-stage.ts:combine
+tmp/cslab-stage-c1-8.json,kept,test/record/E-FRC-0294/cslab-stage-c1-8.json,2025,tmp/cslab-stage.ts:combine
+tmp/cslab-stage-c3-step1-plain.json,kept,test/record/E-FRC-0294/cslab-stage-c3-step1-plain.json,509,tmp/cslab-stage.ts:combine
+tmp/cslab-stage-c3-step1-wilson.json,kept,test/record/E-FRC-0294/cslab-stage-c3-step1-wilson.json,512,tmp/cslab-stage.ts:combine
+tmp/cslab-stage-step1-first-plain.json,kept,test/record/E-FRC-0294/cslab-stage-step1-first-plain.json,510,tmp/cslab-stage.ts:combine
+tmp/cslab-stage-step1-first-wilson.json,kept,test/record/E-FRC-0294/cslab-stage-step1-first-wilson.json,513,tmp/cslab-stage.ts:combine
+tmp/cslab-stage-step1-weyl-plain.json,kept,test/record/E-FRC-0294/cslab-stage-step1-weyl-plain.json,507,tmp/cslab-stage.ts:combine
+tmp/cslab-stage-step1-weyl-wilson.json,kept,test/record/E-FRC-0294/cslab-stage-step1-weyl-wilson.json,509,tmp/cslab-stage.ts:combine
+tmp/cslab-stage-step2-first-8.json,kept,test/record/E-FRC-0294/cslab-stage-step2-first-8.json,594,tmp/cslab-stage.ts:combine
+tmp/cslab-v2-c2-colored.json,kept,test/record/E-FRC-0294/cslab-v2-c2-colored.json,2058,tmp/cslab-stage.ts:combine
+tmp/cslab-v2-c2-component-0.json,kept,test/record/E-FRC-0294/cslab-v2-c2-component-0.json,1130,tmp/cslab-stage.ts:combine
+tmp/cslab-v2-c2-component-1.json,kept,test/record/E-FRC-0294/cslab-v2-c2-component-1.json,1131,tmp/cslab-stage.ts:combine
+tmp/cslab-v2-c2-component-2.json,kept,test/record/E-FRC-0294/cslab-v2-c2-component-2.json,1126,tmp/cslab-stage.ts:combine
+tmp/cslab-v2-c3-slab.json,kept,test/record/E-FRC-0294/cslab-v2-c3-slab.json,789,tmp/cslab-stage.ts:combine
+tmp/cslab-v2-step2-first-12.json,kept,test/record/E-FRC-0294/cslab-v2-step2-first-12.json,801,tmp/cslab-stage.ts:combine
+tmp/cslab-v2-step2-first-16.json,kept,test/record/E-FRC-0294/cslab-v2-step2-first-16.json,802,tmp/cslab-stage.ts:combine
+tmp/cslab-v2-step2-first-8.json,kept,test/record/E-FRC-0294/cslab-v2-step2-first-8.json,796,tmp/cslab-stage.ts:combine
+tmp/cslab-v2-step2-weyl-12.json,kept,test/record/E-FRC-0294/cslab-v2-step2-weyl-12.json,803,tmp/cslab-stage.ts:combine
+tmp/cslab-v2-step2-weyl-16.json,kept,test/record/E-FRC-0294/cslab-v2-step2-weyl-16.json,800,tmp/cslab-stage.ts:combine
+tmp/cslab-v2-step2-weyl-8.json,kept,test/record/E-FRC-0294/cslab-v2-step2-weyl-8.json,795,tmp/cslab-stage.ts:combine
+tmp/cslab-verdict.log,kept,test/record/E-FRC-0294/cslab-verdict.log,2881,test/experiment/gauge/color-slab.ts:40
+tmp/dar-exp-run1.log,kept,test/record/E-SPN-0169/dar-exp-run1.log,3336,test/experiment/spin/darwin-exchange.ts:97;from experiment/open-pieces
+tmp/dar-probe1.log,kept,test/record/E-SPN-0169/dar-probe1.log,4187,test/experiment/spin/darwin-exchange.ts:91;from experiment/open-pieces
+tmp/dar-smoke.log,kept,test/record/E-SPN-0169/dar-smoke.log,3121,test/experiment/spin/darwin-exchange.ts:95;from experiment/open-pieces
+tmp/dock24-exp-run2.log,kept,test/record/E-SPN-0140/dock24-exp-run2.log,6777,test/experiment/spin/dock-mixer.ts:124;from experiment/open-pieces
+tmp/dock24-probe1.log,kept,test/record/E-SPN-0140/dock24-probe1.log,1683,test/experiment/spin/dock-mixer.ts:18;test/experiment/spin/dock-mixer.ts:117;from experiment/open-pieces
+tmp/dress-probe.log,kept,test/record/E-SPN-0201/dress-probe.log,604,test/experiment/spin/member-dressing.ts:14
+tmp/fermi-gate.log,kept,test/record/E-FND-0175/fermi-gate.log,9539,test/experiment/foundations/register-fermi.ts:16
+tmp/fermi-probe.log,kept,test/record/E-FND-0175/fermi-probe.log,4947,test/experiment/foundations/register-fermi.ts:16
+tmp/flat-exp-run1.log,kept,test/record/E-SPN-0132/flat-exp-run1.log,4040,test/experiment/spin/link-holonomy.ts:80;from experiment/open-pieces
+tmp/flat-probe1-8.log,kept,test/record/E-SPN-0132/flat-probe1-8.log,2313,test/experiment/spin/link-holonomy.ts:77;from experiment/open-pieces
+tmp/flat-probe2.log,kept,test/record/E-SPN-0132/flat-probe2.log,369,test/experiment/spin/link-holonomy.ts:77;from experiment/open-pieces
+tmp/flip-exp-run1.log,kept,test/record/E-SPN-0148/flip-exp-run1.log,8927,test/experiment/spin/swap-odd-phase.ts:120;from experiment/open-pieces
+tmp/flip-probe1.log,kept,test/record/E-SPN-0148/flip-probe1.log,2700,test/experiment/spin/swap-odd-phase.ts:105;from experiment/open-pieces
+tmp/flip-probe2.log,kept,test/record/E-SPN-0148/flip-probe2.log,4710,test/experiment/spin/swap-odd-phase.ts:108;from experiment/open-pieces
+tmp/flip-probe3.log,kept,test/record/E-SPN-0148/flip-probe3.log,936,test/experiment/spin/swap-odd-phase.ts:111;from experiment/open-pieces
+tmp/flip-probe4.log,kept,test/record/E-SPN-0148/flip-probe4.log,1645,test/experiment/spin/swap-odd-phase.ts:112;from experiment/open-pieces
+tmp/flip-smoke.log,kept,test/record/E-SPN-0148/flip-smoke.log,705,test/experiment/spin/swap-odd-phase.ts:114;from experiment/open-pieces
+tmp/flip-vac.log,kept,test/record/E-SPN-0148/flip-vac.log,317,test/experiment/spin/swap-odd-phase.ts:118;from experiment/open-pieces
+tmp/flv-exp-run1.log,kept,test/record/E-FRC-0259/flv-exp-run1.log,3040,test/experiment/gauge/flavor-register.ts:118;from experiment/open-pieces
+tmp/flv-probe1.log,kept,test/record/E-FRC-0259/flv-probe1.log,1556,test/experiment/gauge/flavor-register.ts:107;from experiment/open-pieces
+tmp/flv-probe2.log,kept,test/record/E-FRC-0259/flv-probe2.log,566,test/experiment/gauge/flavor-register.ts:113;from experiment/open-pieces
+tmp/flv-smoke.log,kept,test/record/E-FRC-0259/flv-smoke.log,2859,test/experiment/gauge/flavor-register.ts:115;from experiment/open-pieces
+tmp/fnd177-run.log,kept,test/record/E-FND-0177/fnd177-run.log,82059,test/experiment/foundations/rule-design-scan.ts:52
+tmp/frc315-run.log,kept,test/record/E-FRC-0315/frc315-run.log,5242,test/experiment/gauge/moving-source-light-speed-resolved.ts:52
+tmp/frc316-run.log,kept,test/record/E-FRC-0316/frc316-run.log,4280,test/experiment/gauge/moving-source-light-speed-envelope.ts:45
+tmp/fs-exp-run1.log,kept,test/record/E-SPN-0172/fs-exp-run1.log,1867,test/experiment/spin/far-side-shift.ts:78;from experiment/open-pieces
+tmp/fs-probe1.log,kept,test/record/E-SPN-0172/fs-probe1.log,11404,test/experiment/spin/far-side-shift.ts:65;from experiment/open-pieces
+tmp/fs-probe2.log,kept,test/record/E-SPN-0172/fs-probe2.log,10961,test/experiment/spin/far-side-shift.ts:66;from experiment/open-pieces
+tmp/fs-probe3.log,kept,test/record/E-SPN-0172/fs-probe3.log,11642,test/experiment/spin/far-side-shift.ts:67;from experiment/open-pieces
+tmp/fs-probe4.log,kept,test/record/E-SPN-0172/fs-probe4.log,6049,test/experiment/spin/far-side-shift.ts:68;from experiment/open-pieces
+tmp/fs-probe5.log,kept,test/record/E-SPN-0172/fs-probe5.log,1518,test/experiment/spin/far-side-shift.ts:69;from experiment/open-pieces
+tmp/fs-probe6.log,kept,test/record/E-SPN-0172/fs-probe6.log,3079,test/experiment/spin/far-side-shift.ts:71;from experiment/open-pieces
+tmp/fs-probe7.log,kept,test/record/E-SPN-0172/fs-probe7.log,1085,test/experiment/spin/far-side-shift.ts:73;from experiment/open-pieces
+tmp/fs-probe8.log,kept,test/record/E-SPN-0172/fs-probe8.log,1301,test/experiment/spin/far-side-shift.ts:75;from experiment/open-pieces
+tmp/fsrc-exp-run1.log,kept,test/record/E-SPN-0161/fsrc-exp-run1.log,7571,test/experiment/spin/icosian-string-flat-source.ts:98;from experiment/open-pieces
+tmp/fsrc-probe1.log,kept,test/record/E-SPN-0161/fsrc-probe1.log,3195,test/experiment/spin/icosian-string-flat-source.ts:90;from experiment/open-pieces
+tmp/fsrc-probe2.log,kept,test/record/E-SPN-0161/fsrc-probe2.log,794,test/experiment/spin/icosian-string-flat-source.ts:93;from experiment/open-pieces
+tmp/fsrc-smoke.log,kept,test/record/E-SPN-0161/fsrc-smoke.log,3542,test/experiment/spin/icosian-string-flat-source.ts:96;from experiment/open-pieces
+tmp/fuse-exp-run1.log,kept,test/record/E-SPN-0125/fuse-exp-run1.log,3208,test/experiment/spin/fused-mover.ts:68;from experiment/open-pieces
+tmp/fuse-probe-census.log,kept,test/record/E-SPN-0125/fuse-probe-census.log,306,test/experiment/spin/fused-mover.ts:64;from experiment/open-pieces
+tmp/fuse-probe-hub.log,kept,test/record/E-SPN-0125/fuse-probe-hub.log,724,test/experiment/spin/fused-mover.ts:62;from experiment/open-pieces
+tmp/fuse-probe-hub16.log,kept,test/record/E-SPN-0125/fuse-probe-hub16.log,742,test/experiment/spin/fused-mover.ts:62;from experiment/open-pieces
+tmp/fuse-probe-vac.log,kept,test/record/E-SPN-0125/fuse-probe-vac.log,1616,test/experiment/spin/fused-mover.ts:64;from experiment/open-pieces
+tmp/g2i-exp-run1.log,kept,test/record/E-SPN-0153/g2i-exp-run1.log,8774,test/experiment/spin/icosian-husk-window.ts:140;from experiment/open-pieces
+tmp/g2i-probe1.log,kept,test/record/E-SPN-0153/g2i-probe1.log,2174,test/experiment/spin/icosian-husk-window.ts:128;from experiment/open-pieces
+tmp/g2i-smoke.log,kept,test/record/E-SPN-0153/g2i-smoke.log,1735,test/experiment/spin/icosian-husk-window.ts:135;from experiment/open-pieces
+tmp/g2i-smoke2.log,kept,test/record/E-SPN-0153/g2i-smoke2.log,4898,test/experiment/spin/icosian-husk-window.ts:135;from experiment/open-pieces
+tmp/g2t-exp-run1.log,kept,test/record/E-SPN-0152/g2t-exp-run1.log,10102,test/experiment/spin/hurwitz-link-register.ts:143;from experiment/open-pieces
+tmp/g2t-probe1.log,kept,test/record/E-SPN-0152/g2t-probe1.log,2475,test/experiment/spin/hurwitz-link-register.ts:126;from experiment/open-pieces
+tmp/g2t-probe2.log,kept,test/record/E-SPN-0152/g2t-probe2.log,568,test/experiment/spin/hurwitz-link-register.ts:190;from experiment/open-pieces
+tmp/g2t-smoke.log,kept,test/record/E-SPN-0152/g2t-smoke.log,8022,test/experiment/spin/hurwitz-link-register.ts:125;from experiment/open-pieces
+tmp/g2t-smoke2.log,kept,test/record/E-SPN-0152/g2t-smoke2.log,8020,test/experiment/spin/hurwitz-link-register.ts:125;from experiment/open-pieces
+tmp/g2t-smoke3.log,kept,test/record/E-SPN-0152/g2t-smoke3.log,9813,test/experiment/spin/hurwitz-link-register.ts:125;from experiment/open-pieces
+tmp/gwall.log,kept,test/record/E-SPN-0198/gwall.log,6226,test/experiment/spin/wall-leak-channels.ts:72
+tmp/hb-exp-run1.log,kept,test/record/E-FRC-0262/hb-exp-run1.log,3367,test/experiment/gauge/husk-balance.ts:84;from experiment/open-pieces
+tmp/hb-probe1.log,kept,test/record/E-FRC-0262/hb-probe1.log,1046,test/experiment/gauge/husk-balance.ts:71;from experiment/open-pieces
+tmp/hb-probe1b.log,kept,test/record/E-FRC-0262/hb-probe1b.log,1486,test/experiment/gauge/husk-balance.ts:73;from experiment/open-pieces
+tmp/hb-probe2.log,kept,test/record/E-FRC-0262/hb-probe2.log,345,test/experiment/gauge/husk-balance.ts:76;from experiment/open-pieces
+tmp/hc-exp12-run1.log,kept,test/record/E-CSM-0059/hc-exp12-run1.log,4183,test/experiment/cosmology/husk-growth-rate.ts:35;test/experiment/cosmology/husk-horizon-flatness.ts:50;from experiment/open-pieces
+tmp/hc-exp34-run1.log,kept,test/record/E-FND-0156/hc-exp34-run1.log,4392,test/experiment/foundations/husk-fluctuation-dissipation.ts:42;test/experiment/foundations/coarse-end-state.ts:44;from experiment/open-pieces
+tmp/hc-fdt17-run1.log,kept,test/record/E-FND-0156/hc-fdt17-run1.log,2932,test/experiment/foundations/husk-fluctuation-dissipation.ts:46;from experiment/open-pieces
+tmp/hc-probe1.log,kept,test/record/E-FRC-0273/hc-probe1.log,336,test/experiment/gauge/register-join.ts:71;from experiment/open-pieces
+tmp/hc-probe2.log,kept,test/record/E-FRC-0273/hc-probe2.log,582,test/experiment/gauge/register-join.ts:72;from experiment/open-pieces
+tmp/hl-code-run1.log,kept,test/record/E-CMP-0019/hl-code-run1.log,729,test/experiment/computation/line-code.ts:41;from experiment/open-pieces
+tmp/hl-collision-run1.log,kept,test/record/E-RLT-0109/hl-collision-run1.log,2403,test/experiment/relativity/husk-collision-kinematics.ts:47;from experiment/open-pieces
+tmp/hl-collision-run2.log,kept,test/record/E-RLT-0109/hl-collision-run2.log,2514,test/experiment/relativity/husk-collision-kinematics.ts:54;from experiment/open-pieces
+tmp/hl-landauer-run1.log,kept,test/record/E-CMP-0018/hl-landauer-run1.log,1245,test/experiment/computation/landauer-line.ts:51;from experiment/open-pieces
+tmp/hl-lorentz-run1.log,kept,test/record/E-RLT-0108/hl-lorentz-run1.log,4046,test/experiment/relativity/husk-lorentz-kinematics.ts:67;from experiment/open-pieces
+tmp/hl-probe1.log,kept,test/record/E-RLT-0108/hl-probe1.log,3753,test/experiment/relativity/husk-lorentz-kinematics.ts:58;test/experiment/gauge/higgs-larger-group.ts:67;from experiment/open-pieces
+tmp/hl-probe1b.log,kept,test/record/E-RLT-0108/hl-probe1b.log,10063,test/experiment/relativity/husk-lorentz-kinematics.ts:60;test/experiment/relativity/husk-collision-kinematics.ts:42;from experiment/open-pieces
+tmp/hl-probe2.log,kept,test/record/E-CMP-0019/hl-probe2.log,2189,test/experiment/computation/line-code.ts:38;test/experiment/computation/landauer-line.ts:44;test/experiment/gauge/higgs-larger-group.ts:71;from experiment/open-pieces
+tmp/hloc-levels-10-identity-0.1.json,kept,test/record/E-FRC-0304/hloc-levels-10-identity-0.1.json,204805,tmp/hloc-main.ts:combine
+tmp/hloc-levels-10-identity-0.json,kept,test/record/E-FRC-0304/hloc-levels-10-identity-0.json,204788,tmp/hloc-main.ts:combine
+tmp/hloc-levels-10-rule-0.1.json,kept,test/record/E-FRC-0304/hloc-levels-10-rule-0.1.json,1239524,tmp/hloc-main.ts:combine
+tmp/hloc-levels-10-rule-0.json,kept,test/record/E-FRC-0304/hloc-levels-10-rule-0.json,1239507,tmp/hloc-main.ts:combine
+tmp/hloc-levels-6-gauge-0.json,kept,test/record/E-FRC-0304/hloc-levels-6-gauge-0.json,160756,tmp/hloc-main.ts:combine
+tmp/hloc-levels-6-identity-0.1.json,kept,test/record/E-FRC-0304/hloc-levels-6-identity-0.1.json,26672,tmp/hloc-main.ts:combine
+tmp/hloc-levels-6-identity-0.json,kept,test/record/E-FRC-0304/hloc-levels-6-identity-0.json,26621,tmp/hloc-main.ts:combine
+tmp/hloc-levels-6-rule-0.1.json,kept,test/record/E-FRC-0304/hloc-levels-6-rule-0.1.json,160779,tmp/hloc-main.ts:combine
+tmp/hloc-levels-6-rule-0.json,kept,test/record/E-FRC-0304/hloc-levels-6-rule-0.json,160738,tmp/hloc-main.ts:combine
+tmp/hloc-levels-8-identity-0.1.json,kept,test/record/E-FRC-0304/hloc-levels-8-identity-0.1.json,83966,tmp/hloc-main.ts:combine
+tmp/hloc-levels-8-identity-0.json,kept,test/record/E-FRC-0304/hloc-levels-8-identity-0.json,83951,tmp/hloc-main.ts:combine
+tmp/hloc-levels-8-rule-0.1.json,kept,test/record/E-FRC-0304/hloc-levels-8-rule-0.1.json,507761,tmp/hloc-main.ts:combine
+tmp/hloc-levels-8-rule-0.json,kept,test/record/E-FRC-0304/hloc-levels-8-rule-0.json,507892,tmp/hloc-main.ts:combine
+tmp/hlq-probe.log,kept,test/record/E-FRC-0292/hlq-probe.log,1255,test/experiment/quantum/husk-light-quantum.ts:46
+tmp/hlq.log,kept,test/record/E-FRC-0292/hlq.log,7875,test/experiment/quantum/husk-light-quantum.ts:72
+tmp/holdmap-exp-run1.log,kept,test/record/E-SPN-0139/holdmap-exp-run1.log,14197,test/experiment/spin/slab-hold-map.ts:88;from experiment/open-pieces
+tmp/holdmap-predict.log,kept,test/record/E-SPN-0139/holdmap-predict.log,1104,test/experiment/spin/slab-hold-map.ts:21;from experiment/open-pieces
+tmp/holdmap-probe1.log,kept,test/record/E-SPN-0139/holdmap-probe1.log,10667,test/experiment/spin/slab-hold-map.ts:13;code/measure/slab-hold-map.ts:9;from experiment/open-pieces
+tmp/holes3-exp-run1.log,kept,test/record/E-SPN-0135/holes3-exp-run1.log,6733,test/experiment/spin/slab-three-holes.ts:88;from experiment/open-pieces
+tmp/holes3-probe1.log,kept,test/record/E-SPN-0135/holes3-probe1.log,855,test/experiment/spin/slab-three-holes.ts:80;from experiment/open-pieces
+tmp/holes3-probe2.log,kept,test/record/E-SPN-0135/holes3-probe2.log,921,test/experiment/spin/slab-three-holes.ts:82;from experiment/open-pieces
+tmp/holes3-probe3.log,kept,test/record/E-SPN-0135/holes3-probe3.log,1045,test/experiment/spin/slab-three-holes.ts:49;test/experiment/spin/slab-three-holes.ts:85;from experiment/open-pieces
+tmp/holes3-probe4.log,kept,test/record/E-SPN-0135/holes3-probe4.log,2044,test/experiment/spin/slab-three-holes.ts:104;from experiment/open-pieces
+tmp/hopf-exp-run1.log,kept,test/record/E-SPN-0158/hopf-exp-run1.log,4577,test/experiment/spin/hopf-husk-reading.ts:113;from experiment/open-pieces
+tmp/hopf-smoke.log,kept,test/record/E-SPN-0158/hopf-smoke.log,4780,test/experiment/spin/hopf-husk-reading.ts:107;from experiment/open-pieces
+tmp/hsk-exp-run1.log,kept,test/record/E-SPN-0167/hsk-exp-run1.log,3303,test/experiment/spin/husk-reading.ts:108;from experiment/open-pieces
+tmp/hsk-probe1.log,kept,test/record/E-SPN-0167/hsk-probe1.log,595,test/experiment/spin/husk-reading.ts:92;from experiment/open-pieces
+tmp/hsk-smoke.log,kept,test/record/E-SPN-0167/hsk-smoke.log,3295,test/experiment/spin/husk-reading.ts:100;from experiment/open-pieces
+tmp/hub-exp-run1.log,kept,test/record/E-SPN-0119/hub-exp-run1.log,4224,test/experiment/spin/hub-star.ts:73;from experiment/open-pieces
+tmp/hub-exp-run2.log,kept,test/record/E-SPN-0119/hub-exp-run2.log,4314,test/experiment/spin/hub-star.ts:77;from experiment/open-pieces
+tmp/hub-probe-1.log,kept,test/record/E-SPN-0119/hub-probe-1.log,2006,test/experiment/spin/hub-star.ts:67;from experiment/open-pieces
+tmp/hub-probe-2.log,kept,test/record/E-SPN-0119/hub-probe-2.log,2420,test/experiment/spin/hub-star.ts:68;from experiment/open-pieces
+tmp/kmove-probe.log,kept,test/record/E-SPN-0118/kmove-probe.log,2380,test/experiment/spin/bounce-mover.ts:50;from experiment/open-pieces
+tmp/kmove-probe2.log,kept,test/record/E-SPN-0118/kmove-probe2.log,928,test/experiment/spin/bounce-mover.ts:51;from experiment/open-pieces
+tmp/kmove-probe3.log,kept,test/record/E-SPN-0118/kmove-probe3.log,626,test/experiment/spin/bounce-mover.ts:53;from experiment/open-pieces
+tmp/kmove-run1.log,kept,test/record/E-SPN-0118/kmove-run1.log,5532,test/experiment/spin/bounce-mover.ts:84;from experiment/open-pieces
+tmp/leak-fresh-frozen-20261009T032809Z.json,kept,test/record/E-FRC-0306/leak-fresh-frozen-20261009T032809Z.json,2378,test/experiment/gauge/charge-three.ts:117
+tmp/lflux-1d-exp-run1.log,kept,test/record/E-SPN-0149/lflux-1d-exp-run1.log,15281,test/experiment/spin/line-flux-string.ts:87;from experiment/open-pieces
+tmp/lflux-1d-smoke.log,kept,test/record/E-SPN-0149/lflux-1d-smoke.log,9392,test/experiment/spin/line-flux-string.ts:77;from experiment/open-pieces
+tmp/lflux-4d-exp-run1.log,kept,test/record/E-SPN-0150/lflux-4d-exp-run1.log,6860,test/experiment/spin/swap-link-flux.ts:104;from experiment/open-pieces
+tmp/lflux-probe1-2.log,kept,test/record/E-SPN-0150/lflux-probe1-2.log,894,test/experiment/spin/swap-link-flux.ts:90;from experiment/open-pieces
+tmp/lflux-probe2.log,kept,test/record/E-SPN-0150/lflux-probe2.log,14396,test/experiment/spin/swap-link-flux.ts:44;test/experiment/spin/swap-link-flux.ts:94;from experiment/open-pieces
+tmp/lflux-probe3-2.log,kept,test/record/E-SPN-0150/lflux-probe3-2.log,723,test/experiment/spin/swap-link-flux.ts:94;from experiment/open-pieces
+tmp/lflux-probe4-2-alpha.log,kept,test/record/E-SPN-0150/lflux-probe4-2-alpha.log,798,test/experiment/spin/swap-link-flux.ts:98;from experiment/open-pieces
+tmp/lflux-probe4-2-k6.log,kept,test/record/E-SPN-0150/lflux-probe4-2-k6.log,800,test/experiment/spin/swap-link-flux.ts:98;from experiment/open-pieces
+tmp/lflux-probe4-4-alpha.log,kept,test/record/E-SPN-0150/lflux-probe4-4-alpha.log,822,test/experiment/spin/swap-link-flux.ts:98;from experiment/open-pieces
+tmp/liquid-exp-run1.log,kept,test/record/E-SPN-0137/liquid-exp-run1.log,2603,test/experiment/spin/line-liquid-vacuum.ts:67;from experiment/open-pieces
+tmp/liquid-exp-run3.log,kept,test/record/E-SPN-0137/liquid-exp-run3.log,2616,test/experiment/spin/line-liquid-vacuum.ts:74;from experiment/open-pieces
+tmp/liquid-probe5-n3.log,kept,test/record/E-SPN-0137/liquid-probe5-n3.log,752,test/experiment/spin/line-liquid-vacuum.ts:43;from experiment/open-pieces
+tmp/lso-exp-run1.log,kept,test/record/E-FRC-0261/lso-exp-run1.log,4659,test/experiment/gauge/light-split-origin.ts:94;from experiment/open-pieces
+tmp/mach-exp-run1.log,kept,test/record/E-SPN-0124/mach-exp-run1.log,1578,test/experiment/spin/mach-background.ts:84;from experiment/open-pieces
+tmp/mach-exp-run2.log,kept,test/record/E-SPN-0124/mach-exp-run2.log,8067,test/experiment/spin/mach-background.ts:85;from experiment/open-pieces
+tmp/mach-probe1-8-4.log,kept,test/record/E-SPN-0124/mach-probe1-8-4.log,470,test/experiment/spin/mach-background.ts:77;from experiment/open-pieces
+tmp/mach-probe2.log,kept,test/record/E-SPN-0124/mach-probe2.log,4024,test/experiment/spin/mach-background.ts:78;from experiment/open-pieces
+tmp/mbody-c3.log,kept,test/record/E-SPN-0145/mbody-c3.log,1423,test/experiment/spin/swap-many-body.ts:125;from experiment/open-pieces
+tmp/mbody-exp-run1.log,kept,test/record/E-SPN-0145/mbody-exp-run1.log,5240,test/experiment/spin/swap-many-body.ts:117;from experiment/open-pieces
+tmp/mbody-exp-run2.log,kept,test/record/E-SPN-0145/mbody-exp-run2.log,5248,test/experiment/spin/swap-many-body.ts:123;from experiment/open-pieces
+tmp/mbody-exp-run3.log,kept,test/record/E-SPN-0145/mbody-exp-run3.log,5249,test/experiment/spin/swap-many-body.ts:127;from experiment/open-pieces
+tmp/mbr-exp-run1.log,kept,test/record/E-SPN-0163/mbr-exp-run1.log,2989,test/experiment/spin/register-many-body.ts:127;from experiment/open-pieces
+tmp/mbr-probe1.log,kept,test/record/E-SPN-0163/mbr-probe1.log,1954,test/experiment/spin/register-many-body.ts:115;from experiment/open-pieces
+tmp/mbr-probe2.log,kept,test/record/E-SPN-0163/mbr-probe2.log,364,test/experiment/spin/register-many-body.ts:121;from experiment/open-pieces
+tmp/mbr-smoke.log,kept,test/record/E-SPN-0163/mbr-smoke.log,2375,test/experiment/spin/register-many-body.ts:124;from experiment/open-pieces
+tmp/meeting-gate.log,kept,test/record/E-SLF-0180/meeting-gate.log,3991,test/experiment/selves/register-meeting.ts:48
+tmp/meeting-smoke.log,kept,test/record/E-SLF-0180/meeting-smoke.log,7959,test/experiment/selves/register-meeting.ts:47
+tmp/motion-gate.log,kept,test/record/E-SPN-0193/motion-gate.log,3979,test/experiment/spin/three-member-motion.ts:70
+tmp/motion-probe-f256.log,kept,test/record/E-SPN-0193/motion-probe-f256.log,1135,test/experiment/spin/three-member-motion.ts:30
+tmp/motion-probe-r256.log,kept,test/record/E-SPN-0193/motion-probe-r256.log,1136,test/experiment/spin/three-member-motion.ts:30
+tmp/motion-probe-t16.log,kept,test/record/E-SPN-0193/motion-probe-t16.log,597,test/experiment/spin/three-member-motion.ts:30
+tmp/motion-smoke.log,kept,test/record/E-SPN-0193/motion-smoke.log,3514,test/experiment/spin/three-member-motion.ts:55
+tmp/mstr-exp-run1.log,kept,test/record/E-SPN-0147/mstr-exp-run1.log,7316,test/experiment/spin/swap-mass-string.ts:146;test/experiment/spin/swap-odd-phase.ts:288;from experiment/open-pieces
+tmp/mstr-predict-1.log,kept,test/record/E-SPN-0147/mstr-predict-1.log,5511,test/experiment/spin/swap-mass-string.ts:76;from experiment/open-pieces
+tmp/mstr-predict-1.log,kept,test/record/E-SPN-0147/mstr-predict-1.log,5511,test/experiment/spin/swap-mass-string.ts:129;from experiment/open-pieces
+tmp/mstr-predict-3.log,kept,test/record/E-SPN-0147/mstr-predict-3.log,2348,test/experiment/spin/swap-mass-string.ts:76;from experiment/open-pieces
+tmp/mstr-predict-3.log,kept,test/record/E-SPN-0147/mstr-predict-3.log,2348,test/experiment/spin/swap-mass-string.ts:129;from experiment/open-pieces
+tmp/mstr-predict.log,kept,test/record/E-SPN-0147/mstr-predict.log,3251,test/experiment/spin/swap-mass-string.ts:129;from experiment/open-pieces
+tmp/mstr-probe1-10.log,kept,test/record/E-SPN-0147/mstr-probe1-10.log,418,test/experiment/spin/swap-mass-string.ts:136;from experiment/open-pieces
+tmp/mstr-smoke2.log,kept,test/record/E-SPN-0147/mstr-smoke2.log,6750,test/experiment/spin/swap-mass-string.ts:132;from experiment/open-pieces
+tmp/mstr-vac.log,kept,test/record/E-SPN-0147/mstr-vac.log,212,test/experiment/spin/swap-mass-string.ts:135;from experiment/open-pieces
+tmp/mtr-boost-K0.04.json,kept,test/record/E-MTR-0029/mtr-boost-K0.04.json,16900,test/experiment/matter/composite-dispersion.ts:41
+tmp/mtr-boost-K0.04.json,kept,test/record/E-MTR-0029/mtr-boost-K0.04.json,16900,tmp/mtr-boost-combine.ts:combine
+tmp/mtr-boost-K0.4.json,kept,test/record/E-MTR-0029/mtr-boost-K0.4.json,17186,test/experiment/matter/composite-dispersion.ts:41
+tmp/mtr-boost-K0.4.json,kept,test/record/E-MTR-0029/mtr-boost-K0.4.json,17186,tmp/mtr-boost-combine.ts:combine
+tmp/mtr-boost-K0.8.json,kept,test/record/E-MTR-0029/mtr-boost-K0.8.json,18112,test/experiment/matter/composite-dispersion.ts:41
+tmp/mtr-boost-K0.8.json,kept,test/record/E-MTR-0029/mtr-boost-K0.8.json,18112,tmp/mtr-boost-combine.ts:combine
+tmp/mtr-boost-K1.2.json,kept,test/record/E-MTR-0029/mtr-boost-K1.2.json,18181,test/experiment/matter/composite-dispersion.ts:41
+tmp/mtr-boost-K1.2.json,kept,test/record/E-MTR-0029/mtr-boost-K1.2.json,18181,tmp/mtr-boost-combine.ts:combine
+tmp/mtr-boost-a.log,kept,test/record/E-MTR-0029/mtr-boost-a.log,182,test/experiment/matter/composite-dispersion.ts:40
+tmp/mtr-boost-b.log,kept,test/record/E-MTR-0029/mtr-boost-b.log,177,test/experiment/matter/composite-dispersion.ts:40
+tmp/mtr-boost-probe.log,kept,test/record/E-MTR-0029/mtr-boost-probe.log,1317,test/experiment/matter/composite-dispersion.ts:16
+tmp/mtr-boost-verdict.log,kept,test/record/E-MTR-0029/mtr-boost-verdict.log,2633,test/experiment/matter/composite-dispersion.ts:42
+tmp/mtr-collapse-run1.log,kept,test/record/E-MTR-0028/mtr-collapse-run1.log,1765,test/experiment/matter/remainder-collapse.ts:45
+tmp/mtr-collapse-train.log,kept,test/record/E-MTR-0028/mtr-collapse-train.log,1468,test/experiment/matter/remainder-collapse.ts:45
+tmp/mtr-fade-m0284a8-K0.5.json,kept,test/record/E-MTR-0032/mtr-fade-m0284a8-K0.5.json,310602,tmp/mtr-fade-combine.ts:combine;tmp/mtr-fade-combine.ts:combine
+tmp/mtr-fade-m0284a8-K1.json,kept,test/record/E-MTR-0032/mtr-fade-m0284a8-K1.json,309694,tmp/mtr-fade-combine.ts:combine;tmp/mtr-fade-combine.ts:combine
+tmp/mtr-fade-m0380a10-K0.2.json,kept,test/record/E-MTR-0032/mtr-fade-m0380a10-K0.2.json,309278,tmp/mtr-fade-combine.ts:combine;tmp/mtr-fade-combine.ts:combine
+tmp/mtr-fade-m0380a10-K0.35.json,kept,test/record/E-MTR-0032/mtr-fade-m0380a10-K0.35.json,309229,tmp/mtr-fade-combine.ts:combine;tmp/mtr-fade-combine.ts:combine
+tmp/mtr-fade-m0380a10-K0.5.json,kept,test/record/E-MTR-0032/mtr-fade-m0380a10-K0.5.json,308265,tmp/mtr-fade-combine.ts:combine;tmp/mtr-fade-combine.ts:combine
+tmp/mtr-fade-m0380a10-K1.json,kept,test/record/E-MTR-0032/mtr-fade-m0380a10-K1.json,307280,tmp/mtr-fade-combine.ts:combine;tmp/mtr-fade-combine.ts:combine
+tmp/mtr-fade-m0380a10-zero.json,kept,test/record/E-MTR-0032/mtr-fade-m0380a10-zero.json,336018,test/experiment/matter/light-pair-fading.ts:runtime
+tmp/mtr-fade-p2a.log,kept,test/record/E-MTR-0032/mtr-fade-p2a.log,16,test/experiment/matter/light-pair-fading.ts:71
+tmp/mtr-fade-p2b.log,kept,test/record/E-MTR-0032/mtr-fade-p2b.log,18,test/experiment/matter/light-pair-fading.ts:71
+tmp/mtr-fade-p3-02.log,kept,test/record/E-MTR-0032/mtr-fade-p3-02.log,25,test/experiment/matter/light-pair-fading.ts:71
+tmp/mtr-fade-p3-035.log,kept,test/record/E-MTR-0032/mtr-fade-p3-035.log,26,test/experiment/matter/light-pair-fading.ts:71
+tmp/mtr-fade-p3-05.log,kept,test/record/E-MTR-0032/mtr-fade-p3-05.log,25,test/experiment/matter/light-pair-fading.ts:71
+tmp/mtr-fade-p3-1.log,kept,test/record/E-MTR-0032/mtr-fade-p3-1.log,23,test/experiment/matter/light-pair-fading.ts:71
+tmp/mtr-fade-verdict2.log,kept,test/record/E-MTR-0032/mtr-fade-verdict2.log,6086,test/experiment/matter/light-pair-fading.ts:72
+tmp/mtr-fade-wide2.log,kept,test/record/E-MTR-0032/mtr-fade-wide2.log,1773,test/experiment/matter/light-pair-fading.ts:19
+tmp/mtr-fade-window.log,kept,test/record/E-MTR-0032/mtr-fade-window.log,1087,test/experiment/matter/light-pair-fading.ts:32
+tmp/mtr-fade-witness.log,kept,test/record/E-MTR-0032/mtr-fade-witness.log,1254,test/experiment/matter/light-pair-fading.ts:19
+tmp/mtr-fd-probe2.log,kept,test/record/E-MTR-0030/mtr-fd-probe2.log,2731,test/experiment/matter/sector-eigensolver.ts:12;test/experiment/matter/sector-eigensolver.ts:22
+tmp/mtr-fd-run1.log,kept,test/record/E-MTR-0030/mtr-fd-run1.log,411,test/experiment/matter/sector-eigensolver.ts:29
+tmp/mtr-light-K0.2.json,kept,test/record/E-MTR-0031/mtr-light-K0.2.json,155764,tmp/mtr-light-combine.ts:combine
+tmp/mtr-light-K0.35.json,kept,test/record/E-MTR-0031/mtr-light-K0.35.json,155808,tmp/mtr-light-combine.ts:combine
+tmp/mtr-light-K0.5.json,kept,test/record/E-MTR-0031/mtr-light-K0.5.json,155677,tmp/mtr-light-combine.ts:combine
+tmp/mtr-light-K1.json,kept,test/record/E-MTR-0031/mtr-light-K1.json,155626,tmp/mtr-light-combine.ts:combine
+tmp/mtr-light-a.log,kept,test/record/E-MTR-0031/mtr-light-a.log,41,test/experiment/matter/light-pair-dispersion.ts:41
+tmp/mtr-light-b.log,kept,test/record/E-MTR-0031/mtr-light-b.log,42,test/experiment/matter/light-pair-dispersion.ts:41
+tmp/mtr-light-probe.log,kept,test/record/E-MTR-0031/mtr-light-probe.log,3409,test/experiment/matter/light-pair-dispersion.ts:10;test/experiment/matter/light-pair-dispersion.ts:38
+tmp/mtr-light-verdict.log,kept,test/record/E-MTR-0031/mtr-light-verdict.log,1733,test/experiment/matter/light-pair-fading.ts:125;test/experiment/matter/light-pair-dispersion.ts:43
+tmp/normal-grv-run1.log,kept,test/record/E-GRV-0144/normal-grv-run1.log,3391,test/experiment/gravity/normal-ordered-depth.ts:65;from experiment/open-pieces
+tmp/normal-spn-run1.log,kept,test/record/E-SPN-0136/normal-spn-run1.log,9195,test/experiment/spin/mixer-cone.ts:56;from experiment/open-pieces
+tmp/origin-exp-run1.log,kept,test/record/E-SPN-0123/origin-exp-run1.log,8633,test/experiment/spin/origin-gated-mixer.ts:90;from experiment/open-pieces
+tmp/origin-probe1-8.log,kept,test/record/E-SPN-0123/origin-probe1-8.log,933,test/experiment/spin/origin-gated-mixer.ts:86;from experiment/open-pieces
+tmp/origk-exp-run1.log,kept,test/record/E-SPN-0128/origk-exp-run1.log,9886,test/experiment/spin/origin-gated-bounce.ts:110;from experiment/open-pieces
+tmp/origk-probe1.log,kept,test/record/E-SPN-0128/origk-probe1.log,2333,test/experiment/spin/origin-gated-bounce.ts:103;from experiment/open-pieces
+tmp/origk-stand1.log,kept,test/record/E-SPN-0128/origk-stand1.log,1385,test/experiment/spin/origin-gated-bounce.ts:107;from experiment/open-pieces
+tmp/origk-star1.log,kept,test/record/E-SPN-0128/origk-star1.log,1888,test/experiment/spin/origin-gated-bounce.ts:106;from experiment/open-pieces
+tmp/osq-exp-run1.log,kept,test/record/E-FRC-0260/osq-exp-run1.log,2472,test/experiment/gauge/register-light-speed.ts:65;from experiment/open-pieces
+tmp/osq-probe1.log,kept,test/record/E-FRC-0260/osq-probe1.log,1495,test/experiment/gauge/register-light-speed.ts:39;from experiment/open-pieces
+tmp/pauli-exp-run1.log,kept,test/record/E-SPN-0130/pauli-exp-run1.log,5522,test/experiment/spin/pauli-blocked-mixer.ts:99;from experiment/open-pieces
+tmp/pauli-probe1-8.log,kept,test/record/E-SPN-0130/pauli-probe1-8.log,7844,test/experiment/spin/pauli-blocked-mixer.ts:95;from experiment/open-pieces
+tmp/pauli-probe2-8.log,kept,test/record/E-SPN-0130/pauli-probe2-8.log,608,test/experiment/spin/pauli-blocked-mixer.ts:31;test/experiment/spin/pauli-blocked-mixer.ts:95;from experiment/open-pieces
+tmp/pauli-probe3.log,kept,test/record/E-SPN-0130/pauli-probe3.log,4775,test/experiment/spin/pauli-blocked-mixer.ts:96;from experiment/open-pieces
+tmp/pe-exp-run1.log,kept,test/record/E-FRC-0264/pe-exp-run1.log,2197,test/experiment/gauge/photoelectric-threshold.ts:57;from experiment/open-pieces
+tmp/pe-probe5.log,kept,test/record/E-FRC-0264/pe-probe5.log,286,test/experiment/gauge/photoelectric-threshold.ts:66;from experiment/open-pieces
+tmp/pe-smoke.log,kept,test/record/E-FRC-0264/pe-smoke.log,2148,test/experiment/gauge/photoelectric-threshold.ts:54;from experiment/open-pieces
+tmp/persist-gate-first.log,kept,test/record/E-SLF-0181/persist-gate-first.log,3637,test/experiment/selves/register-persistence.ts:45
+tmp/persist-gate.log,kept,test/record/E-SLF-0181/persist-gate.log,4488,test/experiment/selves/register-persistence.ts:51
+tmp/planon-run1.log,kept,test/record/E-SPN-0117/planon-run1.log,2381,test/experiment/spin/planon-lines.ts:78;from experiment/open-pieces
+tmp/pos-exp-run1.log,kept,test/record/E-QTM-0157/pos-exp-run1.log,5877,test/experiment/quantum/position-interference.ts:61;from experiment/open-pieces
+tmp/pq-exp-run1.log,kept,test/record/E-SPN-0151/pq-exp-run1.log,6774,test/experiment/spin/flux-plaquette.ts:94;from experiment/open-pieces
+tmp/pq-probe2-3-3.log,kept,test/record/E-SPN-0151/pq-probe2-3-3.log,860,test/experiment/spin/flux-plaquette.ts:85;from experiment/open-pieces
+tmp/pq-probe3-3.log,kept,test/record/E-SPN-0151/pq-probe3-3.log,496,test/experiment/spin/flux-plaquette.ts:90;from experiment/open-pieces
+tmp/prt-exp-run1.log,kept,test/record/E-SPN-0154/prt-exp-run1.log,15807,test/experiment/spin/icosian-prethermal-patch.ts:121;from experiment/open-pieces
+tmp/prt-probe1.log,kept,test/record/E-SPN-0154/prt-probe1.log,3654,test/experiment/spin/icosian-prethermal-patch.ts:112;from experiment/open-pieces
+tmp/prt-smoke.log,kept,test/record/E-SPN-0154/prt-smoke.log,4993,test/experiment/spin/icosian-prethermal-patch.ts:117;from experiment/open-pieces
+tmp/qf-exp-eraser-run1.log,kept,test/record/E-QTM-0159/qf-exp-eraser-run1.log,1759,test/experiment/quantum/delayed-choice-eraser.ts:50;from experiment/open-pieces
+tmp/qf-exp-friend-run1.log,kept,test/record/E-QTM-0162/qf-exp-friend-run1.log,1326,test/experiment/quantum/wigners-friend.ts:40;from experiment/open-pieces
+tmp/qf-exp-history-run1.log,kept,test/record/E-QTM-0158/qf-exp-history-run1.log,3289,test/experiment/quantum/history-sum.ts:57;from experiment/open-pieces
+tmp/qf-exp-history-run2.log,kept,test/record/E-QTM-0158/qf-exp-history-run2.log,3666,test/experiment/quantum/history-sum.ts:62;from experiment/open-pieces
+tmp/qf-exp-povm-run1.log,kept,test/record/E-QTM-0161/qf-exp-povm-run1.log,1651,test/experiment/quantum/povm-from-an-ancilla.ts:41;from experiment/open-pieces
+tmp/qf-exp-weak-run1.log,kept,test/record/E-QTM-0160/qf-exp-weak-run1.log,2621,test/experiment/quantum/weak-values.ts:45;from experiment/open-pieces
+tmp/qf-smoke-eraser.log,kept,test/record/E-QTM-0159/qf-smoke-eraser.log,1759,test/experiment/quantum/delayed-choice-eraser.ts:47;from experiment/open-pieces
+tmp/qf-smoke-friend.log,kept,test/record/E-QTM-0162/qf-smoke-friend.log,1325,test/experiment/quantum/wigners-friend.ts:37;from experiment/open-pieces
+tmp/qf-smoke-povm.log,kept,test/record/E-QTM-0161/qf-smoke-povm.log,1650,test/experiment/quantum/povm-from-an-ancilla.ts:39;from experiment/open-pieces
+tmp/qf-smoke-weak.log,kept,test/record/E-QTM-0160/qf-smoke-weak.log,2621,test/experiment/quantum/weak-values.ts:42;from experiment/open-pieces
+tmp/qtm-0181-verdict.log,kept,test/record/E-QTM-0181/qtm-0181-verdict.log,4077,test/experiment/quantum/plane-pair-light.ts:72
+tmp/qtm-0182-verdict.log,kept,test/record/E-QTM-0182/qtm-0182-verdict.log,3714,test/experiment/quantum/plane-pair-light.ts:549
+tmp/qtm-S1.log,kept,test/record/E-QTM-0182/qtm-S1.log,4191,test/experiment/quantum/plane-pair-light.ts:539
+tmp/qtm-part-a16-L16-N1.json,kept,test/record/E-QTM-0181/qtm-part-a16-L16-N1.json,1621,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-a16-L16-N2.json,kept,test/record/E-QTM-0181/qtm-part-a16-L16-N2.json,1618,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-a16-L24-N1.json,kept,test/record/E-QTM-0181/qtm-part-a16-L24-N1.json,1610,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-a16-L32-N1.json,kept,test/record/E-QTM-0181/qtm-part-a16-L32-N1.json,1615,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-a32-L36-N1.json,kept,test/record/E-QTM-0181/qtm-part-a32-L36-N1.json,1619,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-a32-L48-N1.json,kept,test/record/E-QTM-0181/qtm-part-a32-L48-N1.json,1622,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-a64-L48-N1.json,kept,test/record/E-QTM-0181/qtm-part-a64-L48-N1.json,1624,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-a64-L64-N1.json,kept,test/record/E-QTM-0181/qtm-part-a64-L64-N1.json,1630,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-a8-L16-N1.json,kept,test/record/E-QTM-0181/qtm-part-a8-L16-N1.json,1621,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-a8-L16-N2.json,kept,test/record/E-QTM-0181/qtm-part-a8-L16-N2.json,1616,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-a8-L18-N1.json,kept,test/record/E-QTM-0181/qtm-part-a8-L18-N1.json,1620,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-a8-L24-N1.json,kept,test/record/E-QTM-0181/qtm-part-a8-L24-N1.json,1612,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-a8-L8-N1.json,kept,test/record/E-QTM-0181/qtm-part-a8-L8-N1.json,1616,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-a8-L8-N2.json,kept,test/record/E-QTM-0181/qtm-part-a8-L8-N2.json,1615,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-a8-L8-N3.json,kept,test/record/E-QTM-0181/qtm-part-a8-L8-N3.json,1619,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-inst.json,kept,test/record/E-QTM-0181/qtm-part-inst.json,170,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-ms-a16-L16-N1.json,kept,test/record/E-QTM-0181/qtm-part-ms-a16-L16-N1.json,321,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-ms-a16-L16-N1.json,kept,test/record/E-QTM-0181/qtm-part-ms-a16-L16-N1.json,321,tmp/qtm-combine.ts:combine
+tmp/qtm-part-ms-a16-L24-N1.json,kept,test/record/E-QTM-0181/qtm-part-ms-a16-L24-N1.json,319,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-ms-a16-L24-N1.json,kept,test/record/E-QTM-0181/qtm-part-ms-a16-L24-N1.json,319,tmp/qtm-combine.ts:combine
+tmp/qtm-part-ms-a16-L32-N1.json,kept,test/record/E-QTM-0181/qtm-part-ms-a16-L32-N1.json,320,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-ms-a16-L32-N1.json,kept,test/record/E-QTM-0181/qtm-part-ms-a16-L32-N1.json,320,tmp/qtm-combine.ts:combine
+tmp/qtm-part-ms-a32-L36-N1.json,kept,test/record/E-QTM-0181/qtm-part-ms-a32-L36-N1.json,323,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-ms-a32-L36-N1.json,kept,test/record/E-QTM-0181/qtm-part-ms-a32-L36-N1.json,323,tmp/qtm-combine.ts:combine
+tmp/qtm-part-ms-a32-L48-N1.json,kept,test/record/E-QTM-0181/qtm-part-ms-a32-L48-N1.json,324,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-ms-a32-L48-N1.json,kept,test/record/E-QTM-0181/qtm-part-ms-a32-L48-N1.json,324,tmp/qtm-combine.ts:combine
+tmp/qtm-part-ms-a64-L48-N1.json,kept,test/record/E-QTM-0181/qtm-part-ms-a64-L48-N1.json,320,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-ms-a64-L48-N1.json,kept,test/record/E-QTM-0181/qtm-part-ms-a64-L48-N1.json,320,tmp/qtm-combine.ts:combine
+tmp/qtm-part-ms-a64-L64-N1.json,kept,test/record/E-QTM-0181/qtm-part-ms-a64-L64-N1.json,323,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-ms-a64-L64-N1.json,kept,test/record/E-QTM-0181/qtm-part-ms-a64-L64-N1.json,323,tmp/qtm-combine.ts:combine
+tmp/qtm-part-ms-a8-L16-N1.json,kept,test/record/E-QTM-0181/qtm-part-ms-a8-L16-N1.json,319,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-ms-a8-L16-N1.json,kept,test/record/E-QTM-0181/qtm-part-ms-a8-L16-N1.json,319,tmp/qtm-combine.ts:combine
+tmp/qtm-part-ms-a8-L18-N1.json,kept,test/record/E-QTM-0181/qtm-part-ms-a8-L18-N1.json,321,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-ms-a8-L18-N1.json,kept,test/record/E-QTM-0181/qtm-part-ms-a8-L18-N1.json,321,tmp/qtm-combine.ts:combine
+tmp/qtm-part-ms-a8-L24-N1.json,kept,test/record/E-QTM-0181/qtm-part-ms-a8-L24-N1.json,322,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-ms-a8-L24-N1.json,kept,test/record/E-QTM-0181/qtm-part-ms-a8-L24-N1.json,322,tmp/qtm-combine.ts:combine
+tmp/qtm-part-ms-a8-L8-N1.json,kept,test/record/E-QTM-0181/qtm-part-ms-a8-L8-N1.json,324,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-ms-a8-L8-N1.json,kept,test/record/E-QTM-0181/qtm-part-ms-a8-L8-N1.json,324,tmp/qtm-combine.ts:combine
+tmp/qtm-part-s-a3-L8-Z4-N1.json,kept,test/record/E-QTM-0181/qtm-part-s-a3-L8-Z4-N1.json,1993,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-s-a3-L8-Z4-N1.json,kept,test/record/E-QTM-0181/qtm-part-s-a3-L8-Z4-N1.json,1993,test/experiment/quantum/plane-pair-light.ts:540
+tmp/qtm-part-s-a4-L8-Z4-N1.json,kept,test/record/E-QTM-0181/qtm-part-s-a4-L8-Z4-N1.json,1993,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-s-a4-L8-Z4-N1.json,kept,test/record/E-QTM-0181/qtm-part-s-a4-L8-Z4-N1.json,1993,test/experiment/quantum/plane-pair-light.ts:540
+tmp/qtm-part-slab-a3-L16-Z8-N1.json,kept,test/record/E-QTM-0181/qtm-part-slab-a3-L16-Z8-N1.json,2005,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-slab-a3-L24-Z12-N1.json,kept,test/record/E-QTM-0181/qtm-part-slab-a3-L24-Z12-N1.json,1998,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-slab-a3-L8-Z4-N1.json,kept,test/record/E-QTM-0181/qtm-part-slab-a3-L8-Z4-N1.json,1986,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-slab-a3-L8-Z4-N2.json,kept,test/record/E-QTM-0181/qtm-part-slab-a3-L8-Z4-N2.json,1992,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-slab-a4-L16-Z8-N1.json,kept,test/record/E-QTM-0181/qtm-part-slab-a4-L16-Z8-N1.json,1994,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-slab-a4-L24-Z12-N1.json,kept,test/record/E-QTM-0181/qtm-part-slab-a4-L24-Z12-N1.json,2005,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-slab-a4-L8-Z4-N1.json,kept,test/record/E-QTM-0181/qtm-part-slab-a4-L8-Z4-N1.json,1996,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-slab-a4-L8-Z4-N2.json,kept,test/record/E-QTM-0181/qtm-part-slab-a4-L8-Z4-N2.json,2002,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-slab-a6-L24-Z12-N1.json,kept,test/record/E-QTM-0181/qtm-part-slab-a6-L24-Z12-N1.json,2001,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-slab-a8-L24-Z12-N1.json,kept,test/record/E-QTM-0181/qtm-part-slab-a8-L24-Z12-N1.json,2001,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-part-slab-inst.json,kept,test/record/E-QTM-0181/qtm-part-slab-inst.json,65,test/experiment/quantum/plane-pair-light.ts:72;tmp/qtm-combine.ts:combine;tmp/qtm-combine.ts:combine
+tmp/qtm-probe.log,kept,test/record/E-QTM-0181/qtm-probe.log,834,test/experiment/quantum/plane-pair-light.ts:68
+tmp/qtm-probe2.log,kept,test/record/E-QTM-0181/qtm-probe2.log,587,test/experiment/quantum/plane-pair-light.ts:68
+tmp/qtm163-run1.log,kept,test/record/E-QTM-0163/qtm163-run1.log,8951,test/experiment/quantum/kept-branch.ts:69;from experiment/kept-branch
+tmp/rch-exp-run1.log,kept,test/record/E-SPN-0200/rch-exp-run1.log,3933,test/experiment/spin/register-coulomb-track.ts:169;test/experiment/spin/register-coulomb-hold.ts:111;code/measure/register-track.ts:60;from experiment/open-pieces
+tmp/rch-probe1.log,kept,test/record/E-SPN-0173/rch-probe1.log,2923,test/experiment/spin/register-coulomb-hold.ts:86;from experiment/open-pieces
+tmp/rch-probe2.log,kept,test/record/E-SPN-0173/rch-probe2.log,1518,test/experiment/spin/register-coulomb-hold.ts:90;from experiment/open-pieces
+tmp/rch-probe3-25.log,kept,test/record/E-SPN-0173/rch-probe3-25.log,1981,test/experiment/spin/register-coulomb-hold.ts:92;from experiment/open-pieces
+tmp/rch-probe3-35.log,kept,test/record/E-SPN-0173/rch-probe3-35.log,1984,test/experiment/spin/register-coulomb-hold.ts:92;from experiment/open-pieces
+tmp/rch-probe3-m427-35.log,kept,test/record/E-SPN-0173/rch-probe3-m427-35.log,1150,test/experiment/spin/register-coulomb-hold.ts:95;from experiment/open-pieces
+tmp/rch-probe4.log,kept,test/record/E-SPN-0173/rch-probe4.log,1549,test/experiment/spin/register-coulomb-hold.ts:94;from experiment/open-pieces
+tmp/rch-probe5.log,kept,test/record/E-SPN-0173/rch-probe5.log,864,test/experiment/spin/register-coulomb-hold.ts:96;from experiment/open-pieces
+tmp/rch-probe6-core0.log,kept,test/record/E-SPN-0173/rch-probe6-core0.log,1161,test/experiment/spin/register-coulomb-hold.ts:99;from experiment/open-pieces
+tmp/rch-probe6-scalar.log,kept,test/record/E-SPN-0173/rch-probe6-scalar.log,1130,test/experiment/spin/register-coulomb-hold.ts:97;from experiment/open-pieces
+tmp/rch-probe7.log,kept,test/record/E-SPN-0173/rch-probe7.log,566,test/experiment/spin/register-coulomb-hold.ts:100;test/experiment/spin/register-coulomb-hold.ts:108;from experiment/open-pieces
+tmp/rch-smoke.log,kept,test/record/E-SPN-0173/rch-smoke.log,3748,test/experiment/spin/register-coulomb-hold.ts:102;from experiment/open-pieces
+tmp/rcs-exp-run1.log,kept,test/record/E-SPN-0176/rcs-exp-run1.log,7741,test/experiment/spin/register-coulomb-split.ts:107;from experiment/open-pieces
+tmp/rcs-part-parts.json,kept,test/record/E-SPN-0176/rcs-part-parts.json,1922,test/experiment/spin/register-coulomb-split.ts:103;from experiment/open-pieces
+tmp/rcs-probe1.log,kept,test/record/E-SPN-0176/rcs-probe1.log,1061,test/experiment/spin/register-coulomb-split.ts:88;from experiment/open-pieces
+tmp/rcs-probe2.log,kept,test/record/E-SPN-0176/rcs-probe2.log,902,test/experiment/spin/register-coulomb-split.ts:92;from experiment/open-pieces
+tmp/rcs-probe3.log,kept,test/record/E-SPN-0176/rcs-probe3.log,658,test/experiment/spin/register-coulomb-split.ts:94;from experiment/open-pieces
+tmp/rcs-smoke.log,kept,test/record/E-SPN-0176/rcs-smoke.log,9660,test/experiment/spin/register-coulomb-split.ts:95;from experiment/open-pieces
+tmp/rcw-combine.log,kept,test/record/E-SPN-0183/rcw-combine.log,8078,test/experiment/spin/register-coulomb-weak.ts:71;from experiment/open-pieces
+tmp/rcw-counts.log,kept,test/record/E-SPN-0183/rcw-counts.log,162,test/experiment/spin/register-coulomb-weak.ts:71;from experiment/open-pieces
+tmp/rcw-draft-note.md,kept,test/record/E-SPN-0183/rcw-draft-note.md,298,test/experiment/spin/register-coulomb-weak.ts:71;from experiment/open-pieces
+tmp/rcw-eq-compare.log,kept,test/record/E-SPN-0183/rcw-eq-compare.log,102,test/experiment/spin/register-coulomb-weak.ts:71;from experiment/open-pieces
+tmp/rcw-eq-js.log,kept,test/record/E-SPN-0183/rcw-eq-js.log,1201,test/experiment/spin/register-coulomb-weak.ts:71;from experiment/open-pieces
+tmp/rcw-gate-a12.log,kept,test/record/E-SPN-0183/rcw-gate-a12.log,2880,test/experiment/spin/register-coulomb-weak.ts:71;from experiment/open-pieces
+tmp/rcw-gate-a12.log,kept,test/record/E-SPN-0183/rcw-gate-a12.log,2880,test/experiment/spin/register-coulomb-weak.ts:88;from experiment/open-pieces
+tmp/rcw-gate-a6.log,kept,test/record/E-SPN-0183/rcw-gate-a6.log,5298,test/experiment/spin/register-coulomb-weak.ts:71;from experiment/open-pieces
+tmp/rcw-gate-a6.log,kept,test/record/E-SPN-0183/rcw-gate-a6.log,5298,test/experiment/spin/register-coulomb-weak.ts:88;from experiment/open-pieces
+tmp/rcw-gate-a8.log,kept,test/record/E-SPN-0183/rcw-gate-a8.log,3976,test/experiment/spin/register-coulomb-weak.ts:71;from experiment/open-pieces
+tmp/rcw-gate-a8.log,kept,test/record/E-SPN-0183/rcw-gate-a8.log,3976,test/experiment/spin/register-coulomb-weak.ts:88;from experiment/open-pieces
+tmp/rcw-gate-control.log,kept,test/record/E-SPN-0183/rcw-gate-control.log,3972,test/experiment/spin/register-coulomb-weak.ts:71;from experiment/open-pieces
+tmp/rcw-gate-control.log,kept,test/record/E-SPN-0183/rcw-gate-control.log,3972,test/experiment/spin/register-coulomb-weak.ts:88;from experiment/open-pieces
+tmp/rcw-gate-witness.log,kept,test/record/E-SPN-0183/rcw-gate-witness.log,692,test/experiment/spin/register-coulomb-weak.ts:71;from experiment/open-pieces
+tmp/rcw-gate-witness.log,kept,test/record/E-SPN-0183/rcw-gate-witness.log,692,test/experiment/spin/register-coulomb-weak.ts:88;from experiment/open-pieces
+tmp/rcw-part-a12.json,kept,test/record/E-SPN-0183/rcw-part-a12.json,1950,test/experiment/spin/register-coulomb-weak.ts:71;from experiment/open-pieces
+tmp/rcw-part-a12.json,kept,test/record/E-SPN-0183/rcw-part-a12.json,1950,test/experiment/spin/register-coulomb-weak.ts:88;from experiment/open-pieces
+tmp/rcw-part-a6.json,kept,test/record/E-SPN-0183/rcw-part-a6.json,3337,test/experiment/spin/register-coulomb-weak.ts:71;from experiment/open-pieces
+tmp/rcw-part-a6.json,kept,test/record/E-SPN-0183/rcw-part-a6.json,3337,test/experiment/spin/register-coulomb-weak.ts:88;from experiment/open-pieces
+tmp/rcw-part-a8.json,kept,test/record/E-SPN-0183/rcw-part-a8.json,2760,test/experiment/spin/register-coulomb-weak.ts:71;from experiment/open-pieces
+tmp/rcw-part-a8.json,kept,test/record/E-SPN-0183/rcw-part-a8.json,2760,test/experiment/spin/register-coulomb-weak.ts:88;from experiment/open-pieces
+tmp/rcw-part-control.json,kept,test/record/E-SPN-0183/rcw-part-control.json,2515,test/experiment/spin/register-coulomb-weak.ts:71;from experiment/open-pieces
+tmp/rcw-part-control.json,kept,test/record/E-SPN-0183/rcw-part-control.json,2515,test/experiment/spin/register-coulomb-weak.ts:88;from experiment/open-pieces
+tmp/rcw-part-witness.json,kept,test/record/E-SPN-0183/rcw-part-witness.json,684,test/experiment/spin/register-coulomb-weak.ts:71;from experiment/open-pieces
+tmp/rcw-part-witness.json,kept,test/record/E-SPN-0183/rcw-part-witness.json,684,test/experiment/spin/register-coulomb-weak.ts:88;from experiment/open-pieces
+tmp/rcw-probe1.log,kept,test/record/E-SPN-0183/rcw-probe1.log,2154,test/experiment/spin/register-coulomb-weak.ts:71;from experiment/open-pieces
+tmp/rcw-probe2.log,kept,test/record/E-SPN-0183/rcw-probe2.log,545,test/experiment/spin/register-coulomb-weak.ts:71;from experiment/open-pieces
+tmp/rcw-probe3-a6.log,kept,test/record/E-SPN-0183/rcw-probe3-a6.log,223,test/experiment/spin/register-coulomb-weak.ts:71;from experiment/open-pieces
+tmp/rcw-probe3-a8.log,kept,test/record/E-SPN-0183/rcw-probe3-a8.log,132,test/experiment/spin/register-coulomb-weak.ts:71;from experiment/open-pieces
+tmp/rcw-probe4.log,kept,test/record/E-SPN-0183/rcw-probe4.log,431,test/experiment/spin/register-coulomb-weak.ts:71;from experiment/open-pieces
+tmp/rcw-probe5-a6.log,kept,test/record/E-SPN-0183/rcw-probe5-a6.log,231,test/experiment/spin/register-coulomb-weak.ts:71;from experiment/open-pieces
+tmp/rcw-probe5-a8.log,kept,test/record/E-SPN-0183/rcw-probe5-a8.log,138,test/experiment/spin/register-coulomb-weak.ts:71;from experiment/open-pieces
+tmp/rcw-probe6-a35.log,kept,test/record/E-SPN-0183/rcw-probe6-a35.log,1598,test/experiment/spin/register-coulomb-weak.ts:71;from experiment/open-pieces
+tmp/rcw-probe6-a8.log,kept,test/record/E-SPN-0183/rcw-probe6-a8.log,246,test/experiment/spin/register-coulomb-weak.ts:71;from experiment/open-pieces
+tmp/rcw-probe7-a35.log,kept,test/record/E-SPN-0183/rcw-probe7-a35.log,3163,test/experiment/spin/register-coulomb-weak.ts:71;from experiment/open-pieces
+tmp/rcw-probe7-a8.log,kept,test/record/E-SPN-0183/rcw-probe7-a8.log,571,test/experiment/spin/register-coulomb-weak.ts:71;from experiment/open-pieces
+tmp/rcw-probe7a.log,kept,test/record/E-SPN-0183/rcw-probe7a.log,991,test/experiment/spin/register-coulomb-weak.ts:71;from experiment/open-pieces
+tmp/rcw-tsc.log,kept,test/record/E-SPN-0183/rcw-tsc.log,11,test/experiment/spin/register-coulomb-weak.ts:71;from experiment/open-pieces
+tmp/rlt114-run1.log,kept,test/record/E-RLT-0114/rlt114-run1.log,3891,test/experiment/relativity/composite-lineon-mobility.ts:83
+tmp/rlt115-one-fixed.json,kept,test/record/E-RLT-0115/rlt115-one-fixed.json,5267,test/experiment/relativity/bound-pair-direction.ts:130
+tmp/rlt115-one.json,kept,test/record/E-RLT-0115/rlt115-one.json,5279,test/experiment/relativity/bound-pair-direction.ts:95
+tmp/rlt115-one.log,kept,test/record/E-RLT-0115/rlt115-one.log,2315,test/experiment/relativity/bound-pair-direction.ts:95
+tmp/rlt115-probe.log,kept,test/record/E-RLT-0115/rlt115-probe.log,891,test/experiment/relativity/bound-pair-direction.ts:108
+tmp/rlt115-probe2.log,kept,test/record/E-RLT-0115/rlt115-probe2.log,992,test/experiment/relativity/bound-pair-direction.ts:108
+tmp/rlt115-two.json,kept,test/record/E-RLT-0115/rlt115-two.json,161076,test/experiment/relativity/bound-pair-direction.ts:122
+tmp/rlt115-two.log,kept,test/record/E-RLT-0115/rlt115-two.log,12842,test/experiment/relativity/bound-pair-direction.ts:122
+tmp/rlt116-verdict.log,kept,test/record/E-RLT-0116/rlt116-verdict.log,1607,test/experiment/relativity/bound-pair-line-split.ts:41
+tmp/rlt116.json,kept,test/record/E-RLT-0116/rlt116.json,1300368,test/experiment/relativity/bound-pair-off-lines.ts:21;test/experiment/relativity/bound-pair-line-split.ts:41;test/experiment/relativity/bound-pair-line-split.ts:62;test/experiment/relativity/bound-pair-line-split.ts:237;test/experiment/relativity/bound-pair-still-branch.ts:20;test/experiment/relativity/bound-pair-still-branch.ts:220
+tmp/rlt116.log,kept,test/record/E-RLT-0116/rlt116.log,104,test/experiment/relativity/bound-pair-line-split.ts:41
+tmp/rlt117-verdict.log,kept,test/record/E-RLT-0117/rlt117-verdict.log,1364,test/experiment/relativity/bound-pair-still-branch.ts:36
+tmp/rlt117.json,kept,test/record/E-RLT-0117/rlt117.json,1616773,test/experiment/relativity/bound-pair-still-branch.ts:36;test/experiment/relativity/bound-pair-still-branch.ts:219
+tmp/rlt117.log,kept,test/record/E-RLT-0117/rlt117.log,98,test/experiment/relativity/bound-pair-still-branch.ts:36
+tmp/rlt118-floor.log,kept,test/record/E-RLT-0118/rlt118-floor.log,4576,test/experiment/relativity/bound-pair-off-lines.ts:27
+tmp/rlt118-floors.log,kept,test/record/E-RLT-0118/rlt118-floors.log,6547,test/experiment/relativity/bound-pair-off-lines.ts:20
+tmp/rlt118-moved.log,kept,test/record/E-RLT-0118/rlt118-moved.log,382,test/experiment/relativity/bound-pair-off-lines.ts:64
+tmp/rlt118-verdict.log,kept,test/record/E-RLT-0118/rlt118-verdict.log,7271,test/experiment/relativity/bound-pair-off-lines.ts:64
+tmp/rlt118-zero.log,kept,test/record/E-RLT-0118/rlt118-zero.log,135,test/experiment/relativity/bound-pair-off-lines.ts:20
+tmp/rmh-grv-run1.log,kept,test/record/E-GRV-0145/rmh-grv-run1.log,1299,test/experiment/gravity/register-graviton-speed.ts:63;from experiment/open-pieces
+tmp/rmh-grv-smoke.log,kept,test/record/E-GRV-0145/rmh-grv-smoke.log,1187,test/experiment/gravity/register-graviton-speed.ts:58;from experiment/open-pieces
+tmp/rmh-hold-run1.log,kept,test/record/E-SPN-0174/rmh-hold-run1.log,2259,test/experiment/spin/register-meson-weak.ts:64;test/experiment/spin/register-meson-weak.ts:175;test/experiment/spin/register-meson-hold.ts:118;from experiment/open-pieces
+tmp/rmh-hold-smoke.log,kept,test/record/E-SPN-0162/rmh-hold-smoke.log,2228,test/experiment/spin/register-meson-hold.ts:111;from experiment/open-pieces
+tmp/rmh-probe1.log,kept,test/record/E-SPN-0162/rmh-probe1.log,3217,test/experiment/spin/register-meson-hold.ts:97;from experiment/open-pieces
+tmp/rmh-probe2.log,kept,test/record/E-SPN-0162/rmh-probe2.log,2447,test/experiment/spin/register-meson-hold.ts:47;test/experiment/spin/register-meson-hold.ts:100;from experiment/open-pieces
+tmp/rmh-probe3-level.log,kept,test/record/E-SPN-0162/rmh-probe3-level.log,424,test/experiment/spin/register-meson-hold.ts:105;from experiment/open-pieces
+tmp/rmh-probe3-witness.log,kept,test/record/E-SPN-0162/rmh-probe3-witness.log,347,test/experiment/spin/register-meson-hold.ts:102;from experiment/open-pieces
+tmp/rmh-probe4.log,kept,test/record/E-SPN-0162/rmh-probe4.log,688,test/experiment/spin/register-meson-hold.ts:104;from experiment/open-pieces
+tmp/rmh-probe5.log,kept,test/record/E-SPN-0162/rmh-probe5.log,537,test/experiment/spin/register-meson-hold.ts:107;from experiment/open-pieces
+tmp/rmw-exp-run1.log,kept,test/record/E-SPN-0174/rmw-exp-run1.log,2263,test/experiment/spin/register-meson-weak.ts:80;from experiment/open-pieces
+tmp/rmw-gate-control.log,kept,test/record/E-SPN-0174/rmw-gate-control.log,1192,test/experiment/spin/register-meson-weak.ts:79;from experiment/open-pieces
+tmp/rmw-probe1.log,kept,test/record/E-SPN-0174/rmw-probe1.log,2246,test/experiment/spin/register-meson-weak.ts:24;test/experiment/spin/register-meson-weak.ts:69;from experiment/open-pieces
+tmp/rmw-smoke.log,kept,test/record/E-SPN-0174/rmw-smoke.log,3069,test/experiment/spin/register-meson-weak.ts:73;from experiment/open-pieces
+tmp/route-exp-run1.log,kept,test/record/E-SPN-0131/route-exp-run1.log,4688,test/experiment/spin/route-free-string.ts:92;from experiment/open-pieces
+tmp/route-exp-run2.log,kept,test/record/E-SPN-0131/route-exp-run2.log,5062,test/experiment/spin/route-free-string.ts:94;from experiment/open-pieces
+tmp/rrfix-rlt115.log,kept,test/record/E-RLT-0115/rrfix-rlt115.log,578,test/experiment/relativity/bound-pair-direction.ts:130
+tmp/rrfix-rlt116.log,kept,test/record/E-RLT-0116/rrfix-rlt116.log,1235,test/experiment/relativity/bound-pair-line-split.ts:61;test/experiment/relativity/bound-pair-still-branch.ts:50
+tmp/rrfix-verdict115.log,kept,test/record/E-RLT-0115/rrfix-verdict115.log,3717,test/experiment/relativity/bound-pair-direction.ts:131
+tmp/rs-run1.log,kept,test/record/E-GRV-0137/rs-run1.log,8003,test/experiment/gravity/rs-layering.ts:68;test/experiment/gravity/tensor-layering.ts:169;from experiment/open-pieces
+tmp/rs2-exp-run1.log,kept,test/record/E-GRV-0142/rs2-exp-run1.log,5925,test/experiment/gravity/tensor-layering.ts:69;from experiment/open-pieces
+tmp/rs2-exp-run4.log,kept,test/record/E-GRV-0142/rs2-exp-run4.log,6077,test/experiment/gravity/tensor-layering.ts:85;from experiment/open-pieces
+tmp/scross-gates-frozen-20261009T213901Z.md,kept,test/record/E-SPN-0202/scross-gates-frozen-20261009T213901Z.md,3038,test/experiment/spin/singlet-crossing.ts:11;PR.md:61
+tmp/selves-gate.log,kept,test/record/E-SLF-0179/selves-gate.log,3570,test/experiment/selves/register-selves.ts:58
+tmp/selves-smoke.log,kept,test/record/E-SLF-0179/selves-smoke.log,2940,test/experiment/selves/register-selves.ts:57
+tmp/sing-exp-run1.log,kept,test/record/E-SPN-0142/sing-exp-run1.log,4885,test/experiment/spin/singlet-relativity.ts:97;from experiment/open-pieces
+tmp/sing-predict.log,kept,test/record/E-SPN-0142/sing-predict.log,2041,test/experiment/spin/singlet-relativity.ts:94;from experiment/open-pieces
+tmp/sing-probe1.log,kept,test/record/E-SPN-0142/sing-probe1.log,4889,test/experiment/spin/singlet-relativity.ts:89;from experiment/open-pieces
+tmp/smix-exp-run1.log,kept,test/record/E-SPN-0121/smix-exp-run1.log,5908,test/experiment/spin/string-gated-mixer.ts:91;from experiment/open-pieces
+tmp/smix-exp-run2.log,kept,test/record/E-SPN-0121/smix-exp-run2.log,5938,test/experiment/spin/string-gated-mixer.ts:96;from experiment/open-pieces
+tmp/smix-exp-run3.log,kept,test/record/E-SPN-0121/smix-exp-run3.log,6045,test/experiment/spin/string-gated-mixer.ts:102;test/experiment/spin/line-liquid-vacuum.ts:134;from experiment/open-pieces
+tmp/smix-probe1-8.log,kept,test/record/E-SPN-0121/smix-probe1-8.log,2944,test/experiment/spin/string-gated-mixer.ts:83;from experiment/open-pieces
+tmp/smix-probe2.log,kept,test/record/E-SPN-0121/smix-probe2.log,4449,test/experiment/spin/string-gated-mixer.ts:85;from experiment/open-pieces
+tmp/smix-probe3-n0.log,kept,test/record/E-SPN-0121/smix-probe3-n0.log,731,test/experiment/spin/string-gated-mixer.ts:87;from experiment/open-pieces
+tmp/smix-probe3-n3.log,kept,test/record/E-SPN-0121/smix-probe3-n3.log,7930,test/experiment/spin/string-gated-mixer.ts:44;test/experiment/spin/string-gated-mixer.ts:87;from experiment/open-pieces
+tmp/smix-probe4-b.log,kept,test/record/E-SPN-0121/smix-probe4-b.log,3534,test/experiment/spin/string-gated-mixer.ts:88;from experiment/open-pieces
+tmp/smix-probe4-free.log,kept,test/record/E-SPN-0121/smix-probe4-free.log,2350,test/experiment/spin/string-gated-mixer.ts:88;from experiment/open-pieces
+tmp/smix-probe5.log,kept,test/record/E-SPN-0121/smix-probe5.log,691,test/experiment/spin/string-gated-mixer.ts:98;from experiment/open-pieces
+tmp/spn-0206-verdict.log,kept,test/record/E-SPN-0206/spn-0206-verdict.log,5724,test/experiment/spin/register-contact-core.ts:52
+tmp/spn-0207-run2.log,kept,test/record/E-SPN-0207/spn-0207-run2.log,8775,test/experiment/spin/clock-contact-knot.ts:33
+tmp/spn-0208-verdict.log,kept,test/record/E-SPN-0208/spn-0208-verdict.log,1144,test/experiment/spin/register-contact-weak.ts:35
+tmp/spn-0209-run1.log,kept,test/record/E-SPN-0209/spn-0209-run1.log,2853,test/experiment/spin/register-pair-formula-audit.ts:44
+tmp/spn-0211-verdict.log,kept,test/record/E-SPN-0211/spn-0211-verdict.log,1982,test/experiment/spin/register-pair-mass-scan.ts:38
+tmp/spn-0212-verdict.log,kept,test/record/E-SPN-0212/spn-0212-verdict.log,660,test/experiment/spin/register-pair-light-weak.ts:26
+tmp/spn-0213-verdict.log,kept,test/record/E-SPN-0213/spn-0213-verdict.log,638,test/experiment/spin/register-pair-clock.ts:26
+tmp/spn-0214-verdict.log,kept,test/record/E-SPN-0214/spn-0214-verdict.log,776,test/experiment/spin/register-pair-clean-clock.ts:27
+tmp/spn-cleanclock-motion-7.5.json,kept,test/record/E-SPN-0214/spn-cleanclock-motion-7.5.json,51003,tmp/spn-0214-combine.ts:combine
+tmp/spn-cleanclock-zero-7.5.json,kept,test/record/E-SPN-0214/spn-cleanclock-zero-7.5.json,368522,test/experiment/spin/register-pair-clean-clock.ts:25;tmp/spn-0214-combine.ts:combine
+tmp/spn-cleanclock.log,kept,test/record/E-SPN-0214/spn-cleanclock.log,12573,test/experiment/spin/register-pair-clean-clock.ts:25
+tmp/spn-clock-a7.json,kept,test/record/E-SPN-0213/spn-clock-a7.json,422737,test/experiment/spin/register-pair-clock.ts:25;tmp/spn-0213-combine.ts:combine
+tmp/spn-clock-a7.log,kept,test/record/E-SPN-0213/spn-clock-a7.log,12202,test/experiment/spin/register-pair-clock.ts:25
+tmp/spn-clock-probe.log,kept,test/record/E-SPN-0207/spn-clock-probe.log,3768,test/experiment/spin/clock-contact-knot.ts:12;test/experiment/spin/clock-contact-knot.ts:140
+tmp/spn-core-cap2-a6.json,kept,test/record/E-SPN-0206/spn-core-cap2-a6.json,420255,test/experiment/spin/register-contact-core.ts:50
+tmp/spn-core-cap2-a6.json,kept,test/record/E-SPN-0206/spn-core-cap2-a6.json,420255,tmp/spn-0206-combine.ts:combine
+tmp/spn-core-cap2-a6.json.zero.json,kept,test/record/E-SPN-0206/spn-core-cap2-a6.json.zero.json,367702,test/experiment/spin/register-contact-core.ts:50
+tmp/spn-core-cap2-a6.json.zero.json,kept,test/record/E-SPN-0206/spn-core-cap2-a6.json.zero.json,367702,tmp/spn-0206-combine.ts:combine
+tmp/spn-core-cap2-a6.log,kept,test/record/E-SPN-0206/spn-core-cap2-a6.log,12159,test/experiment/spin/register-contact-core.ts:50
+tmp/spn-core-cap3-a6.json,kept,test/record/E-SPN-0206/spn-core-cap3-a6.json,424524,test/experiment/spin/register-contact-core.ts:50
+tmp/spn-core-cap3-a6.json,kept,test/record/E-SPN-0206/spn-core-cap3-a6.json,424524,tmp/spn-0206-combine.ts:combine
+tmp/spn-core-cap3-a6.json.zero.json,kept,test/record/E-SPN-0206/spn-core-cap3-a6.json.zero.json,372175,test/experiment/spin/register-contact-core.ts:50
+tmp/spn-core-cap3-a6.json.zero.json,kept,test/record/E-SPN-0206/spn-core-cap3-a6.json.zero.json,372175,tmp/spn-0206-combine.ts:combine
+tmp/spn-core-cap3-a6.log,kept,test/record/E-SPN-0206/spn-core-cap3-a6.log,12425,test/experiment/spin/register-contact-core.ts:50
+tmp/spn-core-probe.log,kept,test/record/E-SPN-0206/spn-core-probe.log,2090,test/experiment/spin/register-contact-core.ts:15
+tmp/spn-core-rule-a6.json,kept,test/record/E-SPN-0206/spn-core-rule-a6.json,376442,test/experiment/spin/register-contact-core.ts:50
+tmp/spn-core-rule-a6.json,kept,test/record/E-SPN-0206/spn-core-rule-a6.json,376442,tmp/spn-0206-combine.ts:combine
+tmp/spn-core-rule-a6.json.zero.json,kept,test/record/E-SPN-0206/spn-core-rule-a6.json.zero.json,376405,test/experiment/spin/register-contact-core.ts:50
+tmp/spn-core-rule-a6.json.zero.json,kept,test/record/E-SPN-0206/spn-core-rule-a6.json.zero.json,376405,tmp/spn-0206-combine.ts:combine
+tmp/spn-core-rule-a6.log,kept,test/record/E-SPN-0206/spn-core-rule-a6.log,12126,test/experiment/spin/register-contact-core.ts:50
+tmp/spn-core-soften-a12.json,kept,test/record/E-SPN-0206/spn-core-soften-a12.json,472973,test/experiment/spin/register-contact-core.ts:50
+tmp/spn-core-soften-a12.json,kept,test/record/E-SPN-0206/spn-core-soften-a12.json,472973,tmp/spn-0206-combine.ts:combine
+tmp/spn-core-soften-a12.json,kept,test/record/E-SPN-0208/spn-core-soften-a12.json,472973,test/experiment/spin/register-contact-weak.ts:34;test/experiment/spin/register-pair-formula-audit.ts:runtime;tmp/spn-0208-combine.ts:combine
+tmp/spn-core-soften-a12.json.zero.json,kept,test/record/E-SPN-0206/spn-core-soften-a12.json.zero.json,370036,test/experiment/spin/register-contact-core.ts:50
+tmp/spn-core-soften-a12.json.zero.json,kept,test/record/E-SPN-0206/spn-core-soften-a12.json.zero.json,370036,tmp/spn-0206-combine.ts:combine
+tmp/spn-core-soften-a12.log,kept,test/record/E-SPN-0206/spn-core-soften-a12.log,12722,test/experiment/spin/register-contact-core.ts:50
+tmp/spn-core-soften-a12.log,kept,test/record/E-SPN-0208/spn-core-soften-a12.log,12722,test/experiment/spin/register-contact-weak.ts:34
+tmp/spn-core-soften-a6.json,kept,test/record/E-SPN-0206/spn-core-soften-a6.json,428151,test/experiment/spin/register-contact-core.ts:50
+tmp/spn-core-soften-a6.json,kept,test/record/E-SPN-0206/spn-core-soften-a6.json,428151,tmp/spn-0206-combine.ts:combine
+tmp/spn-core-soften-a6.json.zero.json,kept,test/record/E-SPN-0206/spn-core-soften-a6.json.zero.json,375174,test/experiment/spin/register-contact-core.ts:50
+tmp/spn-core-soften-a6.json.zero.json,kept,test/record/E-SPN-0206/spn-core-soften-a6.json.zero.json,375174,tmp/spn-0206-combine.ts:combine
+tmp/spn-core-soften-a6.log,kept,test/record/E-SPN-0206/spn-core-soften-a6.log,12567,test/experiment/spin/register-contact-core.ts:50
+tmp/spn-core-soften-a8.json,kept,test/record/E-SPN-0206/spn-core-soften-a8.json,419741,test/experiment/matter/composite-dispersion.ts:12;test/experiment/matter/composite-dispersion.ts:237;test/experiment/spin/register-pair-mass-scan.ts:18;test/experiment/matter/sector-eigensolver.ts:runtime;test/experiment/spin/register-pair-formula-audit.ts:runtime;tmp/mtr-boost-combine.ts:combine
+tmp/spn-core-soften-a8.json,kept,test/record/E-SPN-0206/spn-core-soften-a8.json,419741,test/experiment/spin/register-contact-core.ts:50
+tmp/spn-core-soften-a8.json,kept,test/record/E-SPN-0206/spn-core-soften-a8.json,419741,tmp/spn-0206-combine.ts:combine
+tmp/spn-core-soften-a8.json.zero.json,kept,test/record/E-SPN-0206/spn-core-soften-a8.json.zero.json,368516,test/experiment/spin/register-contact-core.ts:50
+tmp/spn-core-soften-a8.json.zero.json,kept,test/record/E-SPN-0206/spn-core-soften-a8.json.zero.json,368516,tmp/spn-0206-combine.ts:combine
+tmp/spn-core-soften-a8.log,kept,test/record/E-SPN-0206/spn-core-soften-a8.log,12053,test/experiment/spin/register-contact-core.ts:50
+tmp/spn-light-m0284-a12.json,kept,test/record/E-SPN-0212/spn-light-m0284-a12.json,468641,test/experiment/matter/remainder-collapse.ts:140;test/experiment/spin/register-pair-light-weak.ts:25;test/experiment/matter/sector-eigensolver.ts:runtime;test/experiment/matter/light-pair-dispersion.ts:runtime;tmp/spn-0212-combine.ts:combine
+tmp/spn-light-m0284-a12.log,kept,test/record/E-SPN-0212/spn-light-m0284-a12.log,12297,test/experiment/spin/register-pair-light-weak.ts:25
+tmp/spn-mass-m0284.json,kept,test/record/E-SPN-0211/spn-mass-m0284.json,421318,test/experiment/matter/light-pair-fading.ts:24;test/experiment/matter/light-pair-fading.ts:363;test/experiment/matter/light-pair-fading.ts:runtime
+tmp/spn-mass-m0284.json,kept,test/record/E-SPN-0211/spn-mass-m0284.json,421318,test/experiment/spin/register-pair-mass-scan.ts:37
+tmp/spn-mass-m0284.json,kept,test/record/E-SPN-0211/spn-mass-m0284.json,421318,tmp/spn-0211-combine.ts:combine
+tmp/spn-mass-m0284.log,kept,test/record/E-SPN-0211/spn-mass-m0284.log,12197,test/experiment/spin/register-pair-mass-scan.ts:37
+tmp/spn-mass-m0427.json,kept,test/record/E-SPN-0211/spn-mass-m0427.json,419739,test/experiment/spin/register-pair-mass-scan.ts:37
+tmp/spn-mass-m0427.json,kept,test/record/E-SPN-0211/spn-mass-m0427.json,419739,tmp/spn-0211-combine.ts:combine
+tmp/spn-mass-m0427.log,kept,test/record/E-SPN-0211/spn-mass-m0427.log,12044,test/experiment/matter/composite-dispersion.ts:38
+tmp/spn-mass-m0427.log,kept,test/record/E-SPN-0211/spn-mass-m0427.log,12044,test/experiment/spin/register-pair-mass-scan.ts:37
+tmp/spn-mass-m0474.json,kept,test/record/E-SPN-0211/spn-mass-m0474.json,420398,test/experiment/spin/register-pair-mass-scan.ts:37
+tmp/spn-mass-m0474.json,kept,test/record/E-SPN-0211/spn-mass-m0474.json,420398,tmp/spn-0211-combine.ts:combine
+tmp/spn-mass-m0474.log,kept,test/record/E-SPN-0211/spn-mass-m0474.log,12125,test/experiment/spin/register-pair-mass-scan.ts:37
+tmp/spn-mass-probe.log,kept,test/record/E-SPN-0211/spn-mass-probe.log,779,test/experiment/spin/register-pair-mass-scan.ts:37
+tmp/spn-partner-cap2-a6.log,kept,test/record/E-SPN-0206/spn-partner-cap2-a6.log,199,test/experiment/spin/register-contact-core.ts:74
+tmp/spn-partner-rule-a6.log,kept,test/record/E-SPN-0206/spn-partner-rule-a6.log,199,test/experiment/spin/register-contact-core.ts:74
+tmp/spn-partner-soften-a6.log,kept,test/record/E-SPN-0206/spn-partner-soften-a6.log,202,test/experiment/spin/register-contact-core.ts:74
+tmp/spr-exp-run1.log,kept,test/record/E-SPN-0160/spr-exp-run1.log,3451,test/experiment/spin/spinor-register.ts:131;from experiment/open-pieces
+tmp/spr-probe1.log,kept,test/record/E-SPN-0160/spr-probe1.log,1467,test/experiment/spin/spinor-register.ts:119;from experiment/open-pieces
+tmp/spr-smoke.log,kept,test/record/E-SPN-0160/spr-smoke.log,3442,test/experiment/spin/spinor-register.ts:55;test/experiment/spin/spinor-register.ts:125;from experiment/open-pieces
+tmp/sstr-exp-run1.log,kept,test/record/E-SPN-0146/sstr-exp-run1.log,4617,test/experiment/spin/swap-string-meson.ts:143;from experiment/open-pieces
+tmp/sstr-probe3-a.log,kept,test/record/E-SPN-0146/sstr-probe3-a.log,2505,test/experiment/spin/swap-string-meson.ts:128;from experiment/open-pieces
+tmp/sstr-smoke.log,kept,test/record/E-SPN-0146/sstr-smoke.log,4551,test/experiment/spin/swap-string-meson.ts:137;from experiment/open-pieces
+tmp/stats.log,kept,test/record/E-SPN-0191/stats.log,1901,test/experiment/spin/register-statistics.ts:64
+tmp/string-exp-run1.log,kept,test/record/E-SPN-0141/string-exp-run1.log,11934,test/experiment/spin/slab-string-break.ts:83;from experiment/open-pieces
+tmp/string-exp-run2.log,kept,test/record/E-SPN-0141/string-exp-run2.log,12009,test/experiment/spin/slab-string-break.ts:88;from experiment/open-pieces
+tmp/string-probe1.log,kept,test/record/E-SPN-0141/string-probe1.log,343,test/experiment/spin/slab-string-break.ts:30;test/experiment/spin/slab-string-break.ts:80;from experiment/open-pieces
+tmp/string-probe2-3-1024.log,kept,test/record/E-SPN-0141/string-probe2-3-1024.log,616,test/experiment/spin/slab-string-break.ts:110;from experiment/open-pieces
+tmp/string-probe3-3.log,kept,test/record/E-SPN-0141/string-probe3-3.log,856,test/experiment/spin/slab-string-break.ts:111;from experiment/open-pieces
+tmp/string-probe3-6.log,kept,test/record/E-SPN-0141/string-probe3-6.log,863,test/experiment/spin/slab-string-break.ts:111;from experiment/open-pieces
+tmp/track-a12.json,kept,test/record/E-SPN-0208/track-a12.json,473678,test/experiment/spin/register-contact-weak.ts:77;test/experiment/spin/register-pair-formula-audit.ts:runtime
+tmp/track-a6.json,kept,test/record/E-SPN-0206/track-a6.json,430082,test/experiment/spin/register-contact-core.ts:112;test/experiment/spin/register-pair-formula-audit.ts:runtime
+tmp/track-a8.json,kept,test/record/E-SPN-0206/track-a8.json,421932,test/experiment/spin/register-contact-core.ts:112;test/experiment/spin/register-pair-formula-audit.ts:33;test/experiment/spin/register-pair-formula-audit.ts:runtime
+tmp/trit-wraps-run1.log,kept,test/record/E-FRC-0265/trit-wraps-run1.log,9714,test/experiment/gauge/trit-rule-wraps.ts:77;from experiment/light-balance
+tmp/turn-exp-run1.log,kept,test/record/E-SPN-0144/turn-exp-run1.log,24201,test/experiment/spin/slab-turned-composite.ts:95;from experiment/open-pieces
+tmp/turn-probe1-3.log,kept,test/record/E-SPN-0144/turn-probe1-3.log,1049,test/experiment/spin/slab-turned-composite.ts:23;test/experiment/spin/slab-turned-composite.ts:91;from experiment/open-pieces
+tmp/turn-probe2-3.log,kept,test/record/E-SPN-0144/turn-probe2-3.log,2399,test/experiment/spin/slab-turned-composite.ts:92;from experiment/open-pieces
+tmp/turn-probe3-512.log,kept,test/record/E-SPN-0144/turn-probe3-512.log,411,test/experiment/spin/slab-turned-composite.ts:127;from experiment/open-pieces
+tmp/two-alphas-run1.log,kept,test/record/E-FRC-0266/two-alphas-run1.log,5346,test/experiment/gauge/two-alphas.ts:59;from experiment/light-balance
+tmp/twob-exp-run1.log,kept,test/record/E-SPN-0159/twob-exp-run1.log,4786,test/experiment/spin/swap-two-beat.ts:153;from experiment/open-pieces
+tmp/twob-probe1.log,kept,test/record/E-SPN-0159/twob-probe1.log,924,test/experiment/spin/swap-two-beat.ts:136;from experiment/open-pieces
+tmp/twob-probe2-2000.log,kept,test/record/E-SPN-0159/twob-probe2-2000.log,698,test/experiment/spin/swap-two-beat.ts:138;from experiment/open-pieces
+tmp/twob-probe2-40.log,kept,test/record/E-SPN-0159/twob-probe2-40.log,492,test/experiment/spin/swap-two-beat.ts:138;from experiment/open-pieces
+tmp/twob-probe3-smoke.log,kept,test/record/E-SPN-0159/twob-probe3-smoke.log,969,test/experiment/spin/swap-two-beat.ts:139;from experiment/open-pieces
+tmp/twob-probe4-019-R.log,kept,test/record/E-SPN-0159/twob-probe4-019-R.log,708,test/experiment/spin/swap-two-beat.ts:140;from experiment/open-pieces
+tmp/twob-probe4-019.log,kept,test/record/E-SPN-0159/twob-probe4-019.log,703,test/experiment/spin/swap-two-beat.ts:140;from experiment/open-pieces
+tmp/twob-probe4-pi6.log,kept,test/record/E-SPN-0159/twob-probe4-pi6.log,695,test/experiment/spin/swap-two-beat.ts:140;from experiment/open-pieces
+tmp/twob-probe5.log,kept,test/record/E-SPN-0159/twob-probe5.log,946,test/experiment/spin/swap-two-beat.ts:145;from experiment/open-pieces
+tmp/twob-probe6.log,kept,test/record/E-SPN-0159/twob-probe6.log,933,test/experiment/spin/swap-two-beat.ts:146;from experiment/open-pieces
+tmp/twob-probe7-019.log,kept,test/record/E-SPN-0159/twob-probe7-019.log,119,test/experiment/spin/swap-two-beat.ts:147;from experiment/open-pieces
+tmp/twob-probe8.log,kept,test/record/E-SPN-0159/twob-probe8.log,273,test/experiment/spin/swap-two-beat.ts:143;from experiment/open-pieces
+tmp/twob-smoke.log,kept,test/record/E-SPN-0159/twob-smoke.log,4595,test/experiment/spin/swap-two-beat.ts:68;test/experiment/spin/swap-two-beat.ts:148;from experiment/open-pieces
+tmp/twohub-exp-run1.log,kept,test/record/E-SPN-0120/twohub-exp-run1.log,3837,test/experiment/spin/two-hub-bound.ts:73;from experiment/open-pieces
+tmp/twohub-exp-run2.log,kept,test/record/E-SPN-0120/twohub-exp-run2.log,3909,test/experiment/spin/two-hub-bound.ts:76;from experiment/open-pieces
+tmp/twohub-probe-keyed.log,kept,test/record/E-SPN-0120/twohub-probe-keyed.log,601,test/experiment/spin/two-hub-bound.ts:68;from experiment/open-pieces
+tmp/twohub-probe-terms.log,kept,test/record/E-SPN-0120/twohub-probe-terms.log,3509,test/experiment/spin/two-hub-bound.ts:70;from experiment/open-pieces
+tmp/twohub-probe-window.log,kept,test/record/E-SPN-0120/twohub-probe-window.log,1217,test/experiment/spin/two-hub-bound.ts:42;test/experiment/spin/two-hub-bound.ts:71;from experiment/open-pieces
+tmp/univ-exp-run1.log,kept,test/record/E-SPN-0143/univ-exp-run1.log,5292,test/experiment/spin/swap-cone.ts:113;from experiment/open-pieces
+tmp/univ-exp-run2.log,kept,test/record/E-SPN-0159/univ-exp-run2.log,5302,test/experiment/spin/swap-two-beat.ts:125;test/experiment/spin/swap-two-beat.ts:263;test/experiment/spin/swap-cone.ts:119;from experiment/open-pieces
+tmp/univ-probe1.log,kept,test/record/E-SPN-0143/univ-probe1.log,2601,test/experiment/spin/swap-cone.ts:102;from experiment/open-pieces
+tmp/univ-probe2.log,kept,test/record/E-SPN-0143/univ-probe2.log,1900,test/experiment/spin/swap-cone.ts:108;from experiment/open-pieces
+tmp/wa-exp-run1.log,kept,test/record/E-SPN-0171/wa-exp-run1.log,1760,test/experiment/spin/wall-asymmetry.ts:62;from experiment/open-pieces
+tmp/wa-probe1.log,kept,test/record/E-SPN-0171/wa-probe1.log,274,test/experiment/spin/wall-asymmetry.ts:58;from experiment/open-pieces
+tmp/wa-probe2.log,kept,test/record/E-SPN-0171/wa-probe2.log,1684,test/experiment/spin/wall-asymmetry.ts:59;from experiment/open-pieces
+tmp/wa-probe3.log,kept,test/record/E-SPN-0171/wa-probe3.log,412,test/experiment/spin/wall-asymmetry.ts:60;from experiment/open-pieces
+tmp/walls.log,kept,test/record/E-FRC-0290/walls.log,3844,test/experiment/gauge/anomaly-matching-walls.ts:74
+tmp/wasym-probe.log,kept,test/record/E-FRC-0293/wasym-probe.log,1055,test/experiment/gauge/wall-asymmetry.ts:52
+tmp/wasym-run1.log,kept,test/record/E-FRC-0293/wasym-run1.log,1559,test/experiment/gauge/wall-asymmetry.ts:58
+tmp/wasym-sym-run1.log,kept,test/record/E-FRC-0293/wasym-sym-run1.log,7179,test/experiment/gauge/wall-asymmetry.ts:88
+tmp/wasym-sym.log,kept,test/record/E-FRC-0293/wasym-sym.log,7876,test/experiment/gauge/wall-asymmetry.ts:91
+tmp/wasym.log,kept,test/record/E-FRC-0293/wasym.log,9491,test/experiment/gauge/wall-asymmetry.ts:63
+tmp/wave-exp-run1.log,kept,test/record/E-SPN-0157/wave-exp-run1.log,8266,test/experiment/spin/collective-husk-wave.ts:134;from experiment/open-pieces
+tmp/wave-probe1.log,kept,test/record/E-SPN-0157/wave-probe1.log,2801,test/experiment/spin/collective-husk-wave.ts:122;from experiment/open-pieces
+tmp/wave-probe2.log,kept,test/record/E-SPN-0157/wave-probe2.log,4328,test/experiment/spin/collective-husk-wave.ts:125;from experiment/open-pieces
+tmp/wfc-debug1.log,kept,test/record/E-SPN-0168/wfc-debug1.log,150,test/experiment/spin/wall-face.ts:109;from experiment/open-pieces
+tmp/wfc-debug2.log,kept,test/record/E-SPN-0168/wfc-debug2.log,897,test/experiment/spin/wall-face.ts:110;from experiment/open-pieces
+tmp/wfc-exp-run1.log,kept,test/record/E-SPN-0171/wfc-exp-run1.log,3789,test/experiment/spin/wall-asymmetry.ts:105;test/experiment/spin/wall-face.ts:121;from experiment/open-pieces
+tmp/wfc-probe1.log,kept,test/record/E-SPN-0168/wfc-probe1.log,2891,test/experiment/spin/wall-face.ts:98;from experiment/open-pieces
+tmp/wfc-probe2.log,kept,test/record/E-SPN-0168/wfc-probe2.log,395,test/experiment/spin/wall-face.ts:100;from experiment/open-pieces
+tmp/wfc-probe3.log,kept,test/record/E-SPN-0168/wfc-probe3.log,2309,test/experiment/spin/wall-face.ts:101;from experiment/open-pieces
+tmp/wfc-probe5.log,kept,test/record/E-SPN-0168/wfc-probe5.log,934,test/experiment/spin/wall-face.ts:105;from experiment/open-pieces
+tmp/wfc-probe6.log,kept,test/record/E-SPN-0168/wfc-probe6.log,2391,test/experiment/spin/wall-face.ts:107;from experiment/open-pieces
+tmp/wfc-probe6c.log,kept,test/record/E-SPN-0168/wfc-probe6c.log,1817,test/experiment/spin/wall-face.ts:112;from experiment/open-pieces
+tmp/wfc-probe7.log,kept,test/record/E-SPN-0168/wfc-probe7.log,401,test/experiment/spin/wall-face.ts:111;from experiment/open-pieces
+tmp/wfc-smoke.log,kept,test/record/E-SPN-0168/wfc-smoke.log,2122,test/experiment/spin/wall-face.ts:114;from experiment/open-pieces
+tmp/wil-exp-run1.log,kept,test/record/E-SPN-0166/wil-exp-run1.log,3768,test/experiment/spin/wilson-wall.ts:107;from experiment/open-pieces
+tmp/wil-probe1.log,kept,test/record/E-SPN-0166/wil-probe1.log,7940,test/experiment/spin/wilson-wall.ts:83;from experiment/open-pieces
+tmp/wil-probe10.log,kept,test/record/E-SPN-0166/wil-probe10.log,755,test/experiment/spin/wilson-wall.ts:97;from experiment/open-pieces
+tmp/wil-probe1b.log,kept,test/record/E-SPN-0166/wil-probe1b.log,5075,test/experiment/spin/wilson-wall.ts:86;from experiment/open-pieces
+tmp/wil-probe2.log,kept,test/record/E-SPN-0166/wil-probe2.log,2707,test/experiment/spin/wilson-wall.ts:88;from experiment/open-pieces
+tmp/wil-probe3.log,kept,test/record/E-SPN-0166/wil-probe3.log,1558,test/experiment/spin/wilson-wall.ts:89;from experiment/open-pieces
+tmp/wil-probe4.log,kept,test/record/E-SPN-0166/wil-probe4.log,615,test/experiment/spin/wilson-wall.ts:91;from experiment/open-pieces
+tmp/wil-probe5.log,kept,test/record/E-SPN-0166/wil-probe5.log,1094,test/experiment/spin/wilson-wall.ts:91;from experiment/open-pieces
+tmp/wil-probe6.log,kept,test/record/E-SPN-0166/wil-probe6.log,437,test/experiment/spin/wilson-wall.ts:92;from experiment/open-pieces
+tmp/wil-probe7.log,kept,test/record/E-SPN-0166/wil-probe7.log,973,test/experiment/spin/wilson-wall.ts:93;from experiment/open-pieces
+tmp/wil-probe8.log,kept,test/record/E-SPN-0166/wil-probe8.log,719,test/experiment/spin/wilson-wall.ts:94;from experiment/open-pieces
+tmp/wil-probe9.log,kept,test/record/E-SPN-0166/wil-probe9.log,594,test/experiment/spin/wilson-wall.ts:96;from experiment/open-pieces
+tmp/wil-smoke.log,kept,test/record/E-SPN-0166/wil-smoke.log,3608,test/experiment/spin/wilson-wall.ts:99;from experiment/open-pieces
+tmp/windex.log,kept,test/record/E-FRC-0291/windex.log,4003,test/experiment/gauge/wall-index.ts:69
+tmp/wstream.log,kept,test/record/E-FRC-0291/wstream.log,10643,test/experiment/gauge/wall-index.ts:84
+tmp/color-ens-bulk20,kept_lfs,test/record/E-FRC-0297/color-ens-bulk20,30720000,test/experiment/gauge/color-ensemble.ts:17
+tmp/color-ens-bulk8,kept_lfs,test/record/E-FRC-0297/color-ens-bulk8,55127163,test/experiment/gauge/color-ensemble.ts:17
+tmp/color-ens-slab8x12,kept_lfs,test/record/E-FRC-0297/color-ens-slab8x12,82644315,test/experiment/gauge/color-ensemble.ts:17
+tmp/color-ens-slab8x8,kept_lfs,test/record/E-FRC-0297/color-ens-slab8x8,55117967,test/experiment/gauge/color-ensemble.ts:17
+tmp/rlt118.json,kept_lfs,test/record/E-RLT-0118/rlt118.json,5822693,test/experiment/relativity/bound-pair-off-lines.ts:64;test/experiment/relativity/bound-pair-off-lines.ts:397
+tmp/adopt-after.jsonl,missing,,,test/experiment/relativity/candidate-knit-battery.ts:11;test/experiment/relativity/candidate-knit-battery.ts:90
+tmp/area-probe1.log,missing,,,test/experiment/gravity/knot-area-law.ts:16
+tmp/area-probe2.log,missing,,,test/experiment/gravity/knot-area-law.ts:18
+tmp/area-probe3,missing,,,test/experiment/gravity/knot-area-law.ts:45
+tmp/area-probe3.log,missing,,,test/experiment/gravity/knot-area-law.ts:18
+tmp/at-run1.log,missing,,,test/experiment/spin/register-member-h2plus.ts:81
+tmp/atom-probe1,missing,,,test/experiment/matter/stand-in-hydrogen-degeneracy.ts:26;code/measure/stand-in-atom.ts:46
+tmp/ax-fnd-run4.log,missing,,,test/experiment/foundations/pair-conserved-search.ts:87
+tmp/ax-hlg-run1,missing,,,test/experiment/holography/sea-entanglement.ts:63
+tmp/ax-hlg-run2.log,missing,,,test/experiment/holography/sea-entanglement.ts:67
+tmp/ax-probe1,missing,,,test/experiment/holography/sea-entanglement.ts:17;test/experiment/holography/sea-entanglement.ts:33
+tmp/ax-probe2,missing,,,test/experiment/foundations/pair-conserved-search.ts:42;test/experiment/foundations/pair-conserved-search.ts:57
+tmp/ax-probe3,missing,,,test/experiment/holography/sea-entanglement.ts:33
+tmp/ax-probe4,missing,,,test/experiment/holography/sea-entanglement.ts:65
+tmp/ax-smoke2,missing,,,test/experiment/foundations/pair-conserved-search.ts:73
+tmp/bag-run1.log,missing,,,test/experiment/spin/string-bag.ts:93
+tmp/base-census7.log,missing,,,test/experiment/spin/g-two-forced.ts:35
+tmp/base-frc244.log,missing,,,test/experiment/gauge/photon-seam-law.ts:133
+tmp/base-frc245.log,missing,,,test/experiment/gauge/photon-circle-light.ts:157
+tmp/base-spn79.log,missing,,,test/experiment/spin/g-two-forced.ts:305
+tmp/base-spn80.log,missing,,,test/experiment/spin/g-two-zero-mode.ts:210
+tmp/bc-hand-gate-run1.log,missing,,,test/experiment/gauge/register-handedness.ts:63
+tmp/bc-pulled-gate-run1.log,missing,,,test/experiment/spin/pulled-member-returns.ts:65
+tmp/bc-return-probe1.log,missing,,,test/experiment/spin/pulled-member-returns.ts:56
+tmp/bc-sea-gate-run1.log,missing,,,test/experiment/foundations/sea-reach.ts:69
+tmp/bc-sea-gate-run2.log,missing,,,test/experiment/foundations/sea-reach.ts:70
+tmp/bc-sea-smoke.log,missing,,,test/experiment/foundations/sea-reach.ts:66
+tmp/bc-su2-gate-run1.log,missing,,,test/experiment/gauge/register-internal-su2.ts:55
+tmp/bc-sym-probe.log,missing,,,test/experiment/gauge/register-handedness.ts:59
+tmp/bend-probe1,missing,,,test/experiment/spin/bent-string.ts:94
+tmp/bend-probe2,missing,,,test/experiment/spin/bent-string.ts:97
+tmp/bend-probe3,missing,,,test/experiment/spin/bent-string.ts:96
+tmp/bind-d4-probe-*.log,missing,,,test/experiment/gauge/pair-string-yukawa.ts:40
+tmp/bind-d4-probe-a.log,missing,,,code/measure/pair-string.ts:1077
+tmp/bind-exclusion-*.log,missing,,,test/experiment/matter/doublet-exclusion.ts:56
+tmp/bm-probe1.log,missing,,,test/experiment/gravity/band-mixed-source.ts:42
+tmp/bm-run1.log,missing,,,test/experiment/gravity/band-mixed-source.ts:73
+tmp/bound-probe1.log,missing,,,test/experiment/gravity/step-depth-static.ts:11;test/experiment/gravity/step-depth-moving.ts:11;test/experiment/spin/held-cluster-pieces.ts:44
+tmp/bound-probe2.log,missing,,,test/experiment/spin/held-cluster-pieces.ts:49
+tmp/bound-probe3.log,missing,,,test/experiment/spin/held-cluster-pieces.ts:58
+tmp/bound-spn-run1.log,missing,,,test/experiment/spin/held-cluster-pieces.ts:52
+tmp/bound-spn-run2.log,missing,,,test/experiment/spin/held-cluster-pieces.ts:75
+tmp/box-probe1.log,missing,,,test/experiment/gravity/horizon-slope-box.ts:56
+tmp/box-run1.log,missing,,,test/experiment/gravity/horizon-slope-box.ts:55
+tmp/bridge-block-probe,missing,,,code/coarse/block-renormalization.ts:21
+tmp/bridge-lbe-probe,missing,,,test/experiment/fluids/knit-lattice-boltzmann.ts:44
+tmp/bs-pair-probe,missing,,,test/experiment/foundations/register-bosons.ts:17;test/experiment/foundations/register-bosons.ts:61
+tmp/bs-probe2,missing,,,test/experiment/foundations/register-bosons.ts:64
+tmp/bs-probe3,missing,,,test/experiment/foundations/register-bosons.ts:70
+tmp/bs-probe3-free.log,missing,,,test/experiment/foundations/register-bosons.ts:73
+tmp/bs-probe5,missing,,,test/experiment/foundations/register-bosons.ts:68
+tmp/bs-read-test,missing,,,test/experiment/foundations/register-bosons.ts:67
+tmp/bsrc-grv-run1.log,missing,,,test/experiment/gravity/held-cluster-depth.ts:40
+tmp/bsrc-probe1.log,missing,,,test/experiment/spin/held-cluster-vacuum.ts:48
+tmp/bsrc-probe2.log,missing,,,test/experiment/spin/held-cluster-vacuum.ts:50
+tmp/bsrc-probe3.log,missing,,,test/experiment/spin/held-cluster-vacuum.ts:51
+tmp/bsrc-probe4.log,missing,,,test/experiment/spin/held-cluster-vacuum.ts:53
+tmp/bsrc-probe5.log,missing,,,test/experiment/spin/held-cluster-vacuum.ts:54
+tmp/bsrc-probe6.log,missing,,,test/experiment/spin/held-cluster-vacuum.ts:55
+tmp/bsrc-probe7.log,missing,,,test/experiment/gravity/held-cluster-depth.ts:21
+tmp/bsrc-spn-run1.log,missing,,,test/experiment/spin/held-cluster-vacuum.ts:74
+tmp/bv-probe1,missing,,,test/experiment/cosmology/birth-per-volume.ts:37
+tmp/bv-probe2,missing,,,test/experiment/cosmology/birth-per-volume.ts:42
+tmp/bv-run1.log,missing,,,test/experiment/cosmology/birth-per-volume.ts:71
+tmp/caging-probe-s8,missing,,,test/experiment/spin/holonomy-caging.ts:30
+tmp/cand-probe-linear.log,missing,,,test/experiment/relativity/token-store-transport.ts:34
+tmp/cand-three-body-leak-first.log,missing,,,test/experiment/relativity/three-body-leak.ts:663
+tmp/clock-growth-run1.log,missing,,,test/experiment/gravity/clock-horizon-growth.ts:51
+tmp/clock-probe1,missing,,,test/experiment/gravity/clock-horizon-growth.ts:13;test/experiment/gravity/clock-horizon-static.ts:29;test/experiment/gravity/clock-horizon-static.ts:42;code/measure/clock-horizon.ts:6
+tmp/clock-probe2,missing,,,test/experiment/gravity/clock-horizon-static.ts:25
+tmp/clock-probe3,missing,,,test/experiment/gravity/clock-horizon-static.ts:34
+tmp/clock-probe4,missing,,,test/experiment/gravity/clock-horizon-growth.ts:12;test/experiment/gravity/clock-horizon-growth.ts:26
+tmp/clock-static-run2.log,missing,,,test/experiment/gravity/clock-horizon-static.ts:74
+tmp/cluster-long-probe,missing,,,test/experiment/spin/fracton-hierarchy.ts:16;test/experiment/spin/fracton-hierarchy.ts:36
+tmp/cluster-pair-bounce.log,missing,,,test/experiment/gravity/cluster-density.ts:12;test/experiment/spin/fracton-hierarchy.ts:18
+tmp/cluster-pair-probe,missing,,,test/experiment/gravity/cluster-density.ts:9
+tmp/cluster-search-probe,missing,,,test/experiment/spin/fracton-hierarchy.ts:13;test/experiment/spin/fracton-hierarchy.ts:35
+tmp/cmp-probe-life,missing,,,test/experiment/computation/hash-life-knit.ts:642
+tmp/cmp-probe-survey,missing,,,test/experiment/computation/difference-engine.ts:634
+tmp/compact-atom-probe1.log,missing,,,test/experiment/gauge/trit-quantum-atom.ts:31
+tmp/compact-atom-probe2c.log,missing,,,test/experiment/gauge/trit-quantum-decay.ts:23;test/experiment/gauge/trit-quantum-atom.ts:37
+tmp/compact-atom-probe6b.log,missing,,,test/experiment/gauge/trit-quantum-atom.ts:23
+tmp/compact-probe1.log,missing,,,test/experiment/gauge/trit-compact-counters.ts:24
+tmp/compact-probe2.log,missing,,,test/experiment/gauge/trit-compact-light.ts:13
+tmp/composite-frc246-run1.log,missing,,,test/experiment/gauge/composite-locked-light.ts:69;test/experiment/gauge/composite-locked-light.ts:394
+tmp/composite-frc247-run1.log,missing,,,test/experiment/gauge/composite-light-husk.ts:50;test/experiment/gauge/composite-light-husk.ts:223
+tmp/contact-chaos-probe,missing,,,test/experiment/spin/mixer-cascade.ts:11;test/experiment/spin/mixer-cascade.ts:35
+tmp/cost-probe1,missing,,,test/experiment/spin/drift-cost-electron.ts:21;test/experiment/spin/drift-cost-binding.ts:46;test/experiment/spin/drift-cost-binding.ts:448
+tmp/cost-probe2,missing,,,test/experiment/spin/drift-cost-binding.ts:47
+tmp/coul-probe1..2.log,missing,,,test/experiment/gauge/husk-coulomb-green.ts:41
+tmp/coul-probe2-probe3.log,missing,,,test/experiment/spin/husk-coulomb-meson.ts:42
+tmp/coul-probe3..4.log,missing,,,test/experiment/gauge/split-coulomb-coupling.ts:28
+tmp/coul-probe5..8.log,missing,,,test/experiment/gauge/husk-coulomb-green.ts:37;test/experiment/gauge/husk-coulomb-green.ts:533
+tmp/cq-gate-E-FND-0170.log,missing,,,test/experiment/foundations/conserved-search.ts:91
+tmp/cq-probe1,missing,,,test/experiment/foundations/conserved-search.ts:53
+tmp/cq-smoke,missing,,,test/experiment/foundations/conserved-search.ts:92
+tmp/cs-probe1.log,missing,,,test/experiment/spin/slant-string.ts:36;test/experiment/spin/slant-string.ts:79
+tmp/cs-spn-run1.log,missing,,,test/experiment/spin/slant-string.ts:67
+tmp/cs-spn105-refactor.log,missing,,,test/experiment/spin/moving-level.ts:78
+tmp/cv-probe1,missing,,,test/experiment/relativity/coined-store-vacuum.ts:14;test/experiment/relativity/coined-store-vacuum.ts:60;test/experiment/relativity/coined-store-build.ts:57
+tmp/cv-probe2,missing,,,test/experiment/relativity/coined-store-vacuum.ts:16;test/experiment/relativity/coined-store-vacuum.ts:60;test/experiment/relativity/coined-store-build.ts:59
+tmp/cv-probe3,missing,,,test/experiment/relativity/coined-store-build.ts:39;test/experiment/relativity/coined-store-build.ts:62
+tmp/dar-pointer-basis-theorem.log,missing,,,test/experiment/quantum/pointer-basis-theorem.ts:48
+tmp/dar-probe5,missing,,,test/experiment/quantum/vacuum-redundancy.ts:55
+tmp/dar-record-zeno.log,missing,,,test/experiment/quantum/record-zeno.ts:32
+tmp/dar-vacuum-redundancy.log,missing,,,test/experiment/quantum/vacuum-redundancy.ts:46
+tmp/deep-horizon-stair,missing,,,test/experiment/gravity/deep-headroom-horizon.ts:7
+tmp/deep-light*.log,missing,,,test/experiment/gravity/deep-headroom-horizon.ts:60
+tmp/deep-light1.log,missing,,,test/experiment/gravity/deep-headroom-horizon.ts:25
+tmp/deep-light6.log,missing,,,test/experiment/gravity/deep-headroom-horizon.ts:35
+tmp/deep-run1.log,missing,,,test/experiment/gravity/deep-headroom-horizon.ts:75
+tmp/dense-probe3,missing,,,test/experiment/relativity/covering-vacuum-isotropy.ts:32
+tmp/dense-probe9,missing,,,test/experiment/relativity/covering-vacuum-isotropy.ts:54
+tmp/density-probe,missing,,,test/experiment/gravity/cluster-density.ts:13
+tmp/density-probe-24,missing,,,test/experiment/gravity/cluster-density.ts:15
+tmp/dg-run1.log,missing,,,test/experiment/gauge/depth-from-gauss.ts:92
+tmp/dl-probe1,missing,,,test/experiment/relativity/doublet-locked-knit.ts:32
+tmp/dl-probe3,missing,,,test/experiment/relativity/doublet-locked-quantum.ts:34
+tmp/dl-probe4,missing,,,test/experiment/relativity/doublet-locked-classical.ts:22
+tmp/dock24-probe2,missing,,,test/experiment/spin/dock-mixer.ts:119
+tmp/dock24-probe3,missing,,,test/experiment/spin/dock-mixer.ts:121
+tmp/el-gate-run1.log,missing,,,test/experiment/foundations/energy-ledger.ts:124
+tmp/el-probe1,missing,,,test/experiment/foundations/energy-ledger.ts:107
+tmp/el-probe2,missing,,,test/experiment/foundations/energy-ledger.ts:109
+tmp/el-probe3,missing,,,test/experiment/foundations/energy-ledger.ts:116
+tmp/elastic-average-2,missing,,,test/experiment/gravity/plaquette-knot-area-law.ts:43;test/experiment/gravity/vacuum-response-average.ts:11;code/measure/plaquette-readings.ts:301
+tmp/elastic-average-probe,missing,,,test/experiment/gravity/vacuum-response-average.ts:9;test/experiment/method/full-period-key.ts:6;test/experiment/method/full-period-key.ts:13
+tmp/electron2-probe-g-landau-192.log,missing,,,test/experiment/matter/token-g-derived.ts:50
+tmp/eline-,missing,,,test/experiment/gravity/energy-line-depth.ts:24
+tmp/eline-probe1.log,missing,,,test/experiment/gravity/energy-lines.ts:29
+tmp/eline-probe2.log,missing,,,test/experiment/gravity/energy-lines.ts:32;test/experiment/gravity/energy-line-depth.ts:22
+tmp/eline-probe3.log,missing,,,test/experiment/gravity/energy-lines.ts:35
+tmp/elines-probe1.log,missing,,,test/experiment/gravity/trio-energy-line-depth.ts:47
+tmp/elines-probe2.log,missing,,,test/experiment/gravity/trio-energy-line-depth.ts:53
+tmp/elines-run1.log,missing,,,test/experiment/gravity/trio-energy-line-depth.ts:45
+tmp/elines-run2.log,missing,,,test/experiment/gravity/trio-energy-line-depth.ts:48
+tmp/em-probe1,missing,,,code/measure/emission-share.ts:21
+tmp/em-run1.log,missing,,,test/experiment/gauge/emission-share.ts:107
+tmp/ent-probe1,missing,,,test/experiment/gravity/headroom-horizon-entropy.ts:54
+tmp/ent-run1.log,missing,,,test/experiment/gravity/headroom-horizon-entropy.ts:71
+tmp/eq-gate-E-GRV-0147.log,missing,,,test/experiment/gravity/register-equivalence.ts:88
+tmp/eq-gate-E-GRV-0148.log,missing,,,test/experiment/gravity/register-falloff.ts:66
+tmp/eq-probe1,missing,,,test/experiment/gravity/register-equivalence.ts:22;test/experiment/gravity/register-equivalence.ts:80
+tmp/eq-probe2,missing,,,test/experiment/gravity/register-equivalence.ts:82
+tmp/eq-probe3,missing,,,test/experiment/gravity/register-falloff.ts:61
+tmp/eq-probe4,missing,,,test/experiment/gravity/register-falloff.ts:64
+tmp/exact-compare.md,missing,,,test/experiment/method/multi-start-robustness.ts:79;test/experiment/method/knit-path-is-exact.ts:407
+tmp/fb-probe1.log,missing,,,test/experiment/gauge/flat-bands-decouple.ts:42
+tmp/fb-probe2.log,missing,,,test/experiment/gauge/flat-bands-decouple.ts:45
+tmp/fb-probe3.log,missing,,,test/experiment/gauge/flat-bands-decouple.ts:46
+tmp/fb-run1.log,missing,,,test/experiment/gauge/flat-bands-decouple.ts:80
+tmp/fc-run1.log,missing,,,test/experiment/fluids/fchc-comparison.ts:116
+tmp/fcoin-probe1.log,missing,,,test/experiment/spin/fine-coin.ts:84
+tmp/fcoin-probe2.log,missing,,,test/experiment/spin/fine-coin.ts:88
+tmp/fcoin-run1.log,missing,,,test/experiment/spin/fine-coin.ts:94
+tmp/fdock-probe1.log,missing,,,test/experiment/spin/full-dock-contact.ts:73
+tmp/fdock-probe2.log,missing,,,test/experiment/spin/full-dock-contact.ts:76
+tmp/fdock-probe3.log,missing,,,test/experiment/spin/full-dock-contact.ts:81
+tmp/fdock-run1.log,missing,,,test/experiment/spin/full-dock-contact.ts:79
+tmp/fdock-run2.log,missing,,,test/experiment/spin/full-dock-contact.ts:86
+tmp/fh-count-0333.log,missing,,,test/experiment/foundations/register-wrap.ts:66
+tmp/fh-count-3344.log,missing,,,test/experiment/foundations/register-wrap.ts:64
+tmp/fh-gate-E-FND-0163.log,missing,,,test/experiment/foundations/register-sorted-holes.ts:55
+tmp/fh-gate-E-FND-0164.log,missing,,,test/experiment/foundations/register-wrap.ts:71
+tmp/fh-heat,missing,,,test/experiment/foundations/register-wrap.ts:23
+tmp/fh-heat-0012.log,missing,,,test/experiment/foundations/register-wrap.ts:61
+tmp/fh-heat-0333-0333-down.log,missing,,,test/experiment/foundations/register-wrap.ts:62
+tmp/fh-heat-0333-up.log,missing,,,test/experiment/foundations/register-wrap.ts:62
+tmp/fh-heat-3344-down.log,missing,,,test/experiment/foundations/register-wrap.ts:59
+tmp/fh-heat-3344.log,missing,,,test/experiment/foundations/register-wrap.ts:59
+tmp/fh-probe2,missing,,,test/experiment/foundations/register-sorted-holes.ts:48
+tmp/fh-probe3,missing,,,test/experiment/foundations/register-wrap.ts:8
+tmp/fh-probe4,missing,,,test/experiment/foundations/register-sorted-holes.ts:51
+tmp/fh-smoke-0163,missing,,,test/experiment/foundations/register-sorted-holes.ts:53
+tmp/fh-smoke-0164,missing,,,test/experiment/foundations/register-wrap.ts:69
+tmp/fh-smoke-0164.log,missing,,,test/experiment/foundations/register-wrap.ts:72
+tmp/fix-cold-ensemble.log,missing,,,test/experiment/relativity/viscosity-isotropy-bound.ts:726
+tmp/fix-rlt0057.jsonl,missing,,,test/experiment/relativity/viscosity-isotropy-bound.ts:726
+tmp/fixed-alpha-run1.log,missing,,,test/experiment/gauge/fixed-resolution-alpha.ts:59
+tmp/fixed-key-probe,missing,,,test/experiment/gravity/cluster-density.ts:16;test/experiment/method/full-period-key.ts:7;test/experiment/method/full-period-key.ts:13
+tmp/fixed-lens-run1.log,missing,,,test/experiment/gravity/fixed-resolution-lens.ts:35
+tmp/fk-fracton-hierarchy.log,missing,,,test/experiment/spin/fracton-hierarchy.ts:39;test/experiment/spin/fracton-hierarchy.ts:52
+tmp/fk-mixer-cascade.log,missing,,,test/experiment/spin/mixer-cascade.ts:38
+tmp/fl-run1.log,missing,,,test/experiment/gravity/first-law-check.ts:82
+tmp/flux-budget-run1.log,missing,,,test/experiment/gravity/horizon-flux-budget.ts:64
+tmp/flux-probe1,missing,,,test/experiment/gravity/horizon-flux-budget.ts:11;test/experiment/gravity/horizon-flux-budget.ts:69
+tmp/force-probe1,missing,,,test/experiment/gauge/trit-orbit.ts:26
+tmp/force-probe1..3.log,missing,,,test/experiment/gauge/trit-force.ts:28
+tmp/force-probe2.log,missing,,,code/measure/trit-kinetic-light.ts:156
+tmp/force-probe4.log,missing,,,test/experiment/gauge/trit-force.ts:33
+tmp/fp-probe1,missing,,,test/experiment/quantum/frame-broken-pointer.ts:34
+tmp/fr-probe1,missing,,,test/experiment/quantum/frauchiger-renner.ts:44
+tmp/fr-run1.log,missing,,,test/experiment/quantum/frauchiger-renner.ts:67
+tmp/frc0167.log,missing,,,test/experiment/gauge/sigma-confined-string.ts:62
+tmp/frc0181-AH.log,missing,,,test/experiment/gauge/photon-remainder.ts:81
+tmp/frc0181.log,missing,,,test/experiment/gauge/photon-remainder.ts:27;test/experiment/gauge/photon-remainder.ts:1564
+tmp/frc0182-run2.log,missing,,,test/experiment/gauge/husk-cyclotron-exact.ts:458
+tmp/frc0182.log,missing,,,test/experiment/gauge/husk-cyclotron-exact.ts:458
+tmp/frc0183-run2.log,missing,,,test/experiment/gauge/photon-noise-symbol.ts:217
+tmp/frc0183.log,missing,,,test/experiment/gauge/photon-noise-symbol.ts:217
+tmp/frc0184.log,missing,,,test/experiment/gauge/photon-noise-time.ts:175
+tmp/frc0185.log,missing,,,test/experiment/gauge/photon-noise-wave.ts:172
+tmp/frc0186-run2.log,missing,,,test/experiment/gauge/composite-light.ts:154
+tmp/frc0186.log,missing,,,test/experiment/gauge/composite-light.ts:154
+tmp/frc0187.log,missing,,,test/experiment/gauge/composite-light-thermal.ts:203
+tmp/frc0188-second.log,missing,,,test/experiment/gauge/pair-string-derivation.ts:55
+tmp/frc0188.log,missing,,,test/experiment/gauge/pair-string-derivation.ts:45
+tmp/frc0189-fifth.log,missing,,,test/experiment/gauge/pair-string-line.ts:62
+tmp/frc0189-second.log,missing,,,test/experiment/gauge/pair-string-line.ts:44
+tmp/frc0189.log,missing,,,test/experiment/gauge/pair-string-line.ts:32
+tmp/frc0195-second.log,missing,,,test/experiment/gauge/nucleon-string-potts.ts:65
+tmp/frc0196-second.log,missing,,,test/experiment/gauge/nucleon-yukawa.ts:61
+tmp/frc0197.log,missing,,,test/experiment/gauge/nucleon-spectrum.ts:36
+tmp/frc0198.log,missing,,,test/experiment/gauge/nucleon-deuteron.ts:40
+tmp/frc0199-geometry-probe,missing,,,test/experiment/gauge/static-singlets-on-the-confined-field.ts:255
+tmp/frc0199.log,missing,,,test/experiment/gauge/static-singlets-on-the-confined-field.ts:55
+tmp/frc0200.log,missing,,,test/experiment/gauge/pair-string-yukawa.ts:42
+tmp/frc0201.log,missing,,,test/experiment/gauge/pair-string-deuteron.ts:27
+tmp/frc0202.log,missing,,,test/experiment/gauge/pair-string-four-one.ts:27
+tmp/frc0203.log,missing,,,test/experiment/gauge/photon-count-first.ts:136
+tmp/frc0204.log,missing,,,test/experiment/gauge/photon-count-limit.ts:208
+tmp/frc0205.log,missing,,,test/experiment/gauge/photon-count-wave.ts:137
+tmp/frc0206.log,missing,,,test/experiment/gauge/fear-kernel-exact.ts:163
+tmp/frc0207.log,missing,,,test/experiment/gauge/trit-column-light.ts:532
+tmp/frc0208.log,missing,,,test/experiment/gauge/trit-column-depth.ts:278
+tmp/frc0209.log,missing,,,test/experiment/gauge/trit-column-stores.ts:320
+tmp/frc0210.log,missing,,,test/experiment/gauge/trit-hop.ts:573
+tmp/frc0211.log,missing,,,test/experiment/gauge/trit-emission.ts:512
+tmp/frc0212-second.log,missing,,,test/experiment/gauge/trit-alpha.ts:370
+tmp/frc0212.log,missing,,,test/experiment/gauge/trit-alpha.ts:370
+tmp/frc0213-second.log,missing,,,test/experiment/gauge/trit-reconnect.ts:843
+tmp/frc0213.log,missing,,,test/experiment/gauge/trit-reconnect.ts:843
+tmp/frc0214.log,missing,,,test/experiment/gauge/trit-smooth-hop.ts:356
+tmp/frc0215.log,missing,,,test/experiment/gauge/trit-force.ts:417
+tmp/frc0216.log,missing,,,test/experiment/gauge/trit-orbit.ts:321
+tmp/frc0217-second.log,missing,,,test/experiment/gauge/pair-yukawa-matched.ts:73
+tmp/frc0217.log,missing,,,test/experiment/gauge/pair-yukawa-matched.ts:61
+tmp/frc0218.log,missing,,,test/experiment/gauge/pair-line-both.ts:51
+tmp/frc0219.log,missing,,,test/experiment/gauge/trit-compact-counters.ts:258
+tmp/frc0220.log,missing,,,test/experiment/gauge/trit-compact-light.ts:150
+tmp/frc0221.log,missing,,,test/experiment/gauge/trit-quantum-atom.ts:312
+tmp/frc0222.log,missing,,,test/experiment/gauge/trit-quantum-decay.ts:308
+tmp/frc0223-refactor.log,missing,,,test/experiment/gauge/links-in-the-whole.ts:581
+tmp/frc0223.log,missing,,,test/experiment/gauge/links-in-the-whole.ts:581
+tmp/frc0224-refactor.log,missing,,,test/experiment/gauge/stream-spontaneous-emission.ts:531
+tmp/frc0224.log,missing,,,test/experiment/gauge/stream-spontaneous-emission.ts:531
+tmp/frc0225.log,missing,,,test/experiment/gauge/stream-planck.ts:589
+tmp/frc0226-second.log,missing,,,test/experiment/gauge/quantum-light-cost.ts:454
+tmp/frc0226-third.log,missing,,,test/experiment/gauge/quantum-light-cost.ts:454
+tmp/frc0226.log,missing,,,test/experiment/gauge/quantum-light-cost.ts:454
+tmp/frc0227-final.log,missing,,,test/experiment/gauge/minimal-lattice-qed.ts:660
+tmp/frc0227.log,missing,,,test/experiment/gauge/minimal-lattice-qed.ts:660
+tmp/frc0228-final.log,missing,,,test/experiment/gauge/flow-light-emission.ts:397
+tmp/frc0228-second.log,missing,,,test/experiment/gauge/flow-light-emission.ts:397
+tmp/frc0228.log,missing,,,test/experiment/gauge/flow-light-emission.ts:397
+tmp/frc0229-final.log,missing,,,test/experiment/gauge/quantum-link-relation.ts:807
+tmp/frc0229-second.log,missing,,,test/experiment/gauge/quantum-link-relation.ts:807
+tmp/frc0229.log,missing,,,test/experiment/gauge/quantum-link-relation.ts:807
+tmp/frc0230.log,missing,,,test/experiment/gauge/column-quantizes-the-mode.ts:354
+tmp/frc0231.log,missing,,,test/experiment/gauge/ladder-single-quantum.ts:456
+tmp/frc0232.log,missing,,,test/experiment/gauge/ladder-planck.ts:299
+tmp/frc0233.log,missing,,,test/experiment/gauge/ladder-emission.ts:227
+tmp/frc0234.log,missing,,,test/experiment/gauge/column-balanced-split.ts:373
+tmp/frc0235.log,missing,,,test/experiment/gauge/ring-massless-light.ts:356
+tmp/frc0236.log,missing,,,test/experiment/gauge/few-quanta-restriction.ts:213
+tmp/frc0237.log,missing,,,test/experiment/gauge/ring-golden-rule.ts:265
+tmp/frc0238.log,missing,,,test/experiment/gauge/polaron-frame.ts:633
+tmp/frc0239.log,missing,,,test/experiment/gauge/polaron-restriction-exact.ts:343
+tmp/frc0240.log,missing,,,test/experiment/gauge/polaron-golden-rule.ts:236
+tmp/frc0241.log,missing,,,test/experiment/gauge/husk-coulomb-green.ts:533
+tmp/frc0242.log,missing,,,test/experiment/gauge/split-coulomb-coupling.ts:202
+tmp/frc0243.log,missing,,,test/experiment/gauge/charge-count-every-beat.ts:320
+tmp/frc0248-run1.log,missing,,,test/experiment/gauge/locked-parity-ledger.ts:73
+tmp/frc0249-run1.log,missing,,,test/experiment/gauge/locked-parity-count.ts:44
+tmp/frc0250.log,missing,,,test/experiment/gauge/one-light-split.ts:270
+tmp/frc0251.log,missing,,,test/experiment/gauge/one-light-planck-coulomb.ts:236
+tmp/frc0252-run1.log,missing,,,test/experiment/gauge/peierls-test-charge.ts:52;test/experiment/gauge/span-peierls-test-charge.ts:66
+tmp/frc0253-run1.log,missing,,,test/experiment/gauge/induced-neutral-residue.ts:40;test/experiment/gauge/induced-neutral-residue.ts:296
+tmp/frc0253-run2.log,missing,,,test/experiment/gauge/induced-neutral-residue.ts:45
+tmp/frc252-post1.log,missing,,,test/experiment/gauge/peierls-test-charge.ts:57
+tmp/frc252-probe1.log,missing,,,test/experiment/gauge/peierls-test-charge.ts:30
+tmp/front-probe1.log,missing,,,test/experiment/gravity/rod-front.ts:19
+tmp/fsx-probe2,missing,,,test/experiment/spin/string-cost-lightest.ts:22;test/experiment/spin/string-cost-lightest.ts:313;test/experiment/spin/string-cost-lightest.ts:313
+tmp/fsx-probe3,missing,,,test/experiment/spin/string-depth-relation.ts:17;test/experiment/spin/lightest-charge-one.ts:18
+tmp/gc-gate-run1.log,missing,,,test/experiment/gravity/register-count-field.ts:102
+tmp/gc-probe1,missing,,,test/experiment/gravity/register-count-field.ts:85
+tmp/gc-probe2,missing,,,test/experiment/gravity/register-count-field.ts:88;test/experiment/gravity/register-count-field.ts:91
+tmp/gc-probe3,missing,,,test/experiment/gravity/register-count-field.ts:94;test/experiment/gravity/register-count-field.ts:98
+tmp/gc-probe4,missing,,,test/experiment/gravity/register-count-field.ts:118
+tmp/gq-color-run1.log,missing,,,test/experiment/gauge/fear-beat-color-closure.ts:60
+tmp/gq-frame-run1.log,missing,,,test/experiment/gauge/frame-higgs.ts:51
+tmp/grv-depth-run1.log,missing,,,test/experiment/gravity/energy-line-depth.ts:44
+tmp/grv-lines-run1.log,missing,,,test/experiment/gravity/energy-lines.ts:60
+tmp/grv0058-run1.log,missing,,,test/experiment/gravity/knot-time-dilation.ts:44
+tmp/grv0059-run1.log,missing,,,test/experiment/gravity/knot-light-reach.ts:56
+tmp/grv0060-run1.log,missing,,,test/experiment/gravity/gated-take-reversible.ts:55
+tmp/grv0061-run1.log,missing,,,test/experiment/gravity/gated-take-crowd.ts:43
+tmp/grv0062-run1.log,missing,,,test/experiment/gravity/depth-lump-front.ts:42
+tmp/grv0063-run1.log,missing,,,test/experiment/gravity/depth-lump-bending.ts:25
+tmp/grv0066-run1.log,missing,,,test/experiment/gravity/gated-wake-rule.ts:39
+tmp/grv0067-run1.log,missing,,,test/experiment/gravity/gated-wake-dilation.ts:36
+tmp/grv0070-run1.log,missing,,,test/experiment/gravity/varying-depth-light.ts:51
+tmp/grv0071-run1.log,missing,,,test/experiment/gravity/content-sets-depth.ts:48
+tmp/grv0071-run2.log,missing,,,test/experiment/gravity/content-sets-depth.ts:56
+tmp/grv0074-run1.log,missing,,,test/experiment/gravity/even-field.ts:41
+tmp/grv0075-run1.log,missing,,,test/experiment/gravity/even-lens.ts:48
+tmp/grv0076-run1.log,missing,,,test/experiment/gravity/even-sign.ts:55
+tmp/grv0076-run2.log,missing,,,test/experiment/gravity/even-sign.ts:59
+tmp/grv0077-run1.log,missing,,,test/experiment/gravity/even-fall.ts:47
+tmp/grv68-probe1,missing,,,test/experiment/gravity/quantum-shared-distance.ts:52;test/experiment/gravity/quantum-shared-curvature.ts:42
+tmp/grv68-probe2,missing,,,test/experiment/gravity/quantum-shared-distance.ts:58
+tmp/grv68-run1.log,missing,,,test/experiment/gravity/quantum-shared-distance.ts:56
+tmp/grv68-run2.log,missing,,,test/experiment/gravity/quantum-shared-distance.ts:61
+tmp/grv69-run1.log,missing,,,test/experiment/gravity/quantum-shared-curvature.ts:44
+tmp/grv72-probe1,missing,,,test/experiment/gravity/shared-history-curvature.ts:42;test/experiment/gravity/shared-history-distance.ts:49
+tmp/grv72-probe2,missing,,,test/experiment/gravity/shared-history-distance.ts:52
+tmp/grv72-probe3,missing,,,test/experiment/gravity/shared-history-distance.ts:54
+tmp/grv72-run1.log,missing,,,test/experiment/gravity/shared-history-distance.ts:56
+tmp/grv73-run1.log,missing,,,test/experiment/gravity/shared-history-curvature.ts:46
+tmp/grv76-probe1.log,missing,,,test/experiment/gravity/even-sign.ts:51;test/experiment/gravity/even-fall.ts:24
+tmp/grv79-run1.log,missing,,,test/experiment/gravity/radion-static.ts:43
+tmp/grv80-run1.log,missing,,,test/experiment/gravity/radion-causal.ts:43
+tmp/grv80-run2.log,missing,,,test/experiment/gravity/radion-causal.ts:45
+tmp/grv81-run1.log,missing,,,test/experiment/gravity/vacuum-response-static.ts:60
+tmp/grv82-run1.log,missing,,,test/experiment/gravity/vacuum-response-front.ts:35
+tmp/grv83-post.log,missing,,,test/experiment/gravity/knot-area-law.ts:63
+tmp/grv83-run1.log,missing,,,test/experiment/gravity/knot-area-law.ts:55
+tmp/grv84-run1.log,missing,,,test/experiment/gravity/knot-first-law.ts:51
+tmp/grv87-run1.log,missing,,,test/experiment/gravity/plaquette-knot-area-law.ts:49
+tmp/grv88-run1.log,missing,,,test/experiment/gravity/depth-arena-prediction.ts:72
+tmp/grv89-run1.log,missing,,,test/experiment/gravity/depth-arena-light.ts:45
+tmp/grv90-run1.log,missing,,,test/experiment/gravity/step-depth-static.ts:43
+tmp/grv91-run1.log,missing,,,test/experiment/gravity/step-depth-moving.ts:43
+tmp/grv94-run1.log,missing,,,test/experiment/gravity/open-husk-static.ts:52
+tmp/grv95-run1.log,missing,,,test/experiment/gravity/open-husk-moving.ts:37
+tmp/grv97-run1.log,missing,,,test/experiment/gravity/shrink-husk-static.ts:76
+tmp/grv98-run1.log,missing,,,test/experiment/gravity/shrink-husk-moving.ts:56
+tmp/h2-probe1-3-6.log,missing,,,test/experiment/spin/register-member-h2plus-tracked.ts:46
+tmp/h2-run1.log,missing,,,test/experiment/spin/register-member-h2plus-tracked.ts:86
+tmp/hawk-probe2,missing,,,test/experiment/gravity/forming-headroom-horizon.ts:8;code/measure/headroom-bogoliubov.ts:7;code/measure/headroom-bogoliubov.ts:16;code/measure/headroom-bogoliubov.ts:1057
+tmp/hawk-probe5,missing,,,test/experiment/gravity/forming-headroom-horizon.ts:11
+tmp/hawk-probe6,missing,,,test/experiment/gravity/forming-headroom-horizon.ts:28
+tmp/hawk-probe7,missing,,,test/experiment/gravity/forming-headroom-horizon.ts:47
+tmp/hawk-run1.log,missing,,,test/experiment/gravity/forming-horizon-late-slow.ts:71;test/experiment/gravity/forming-horizon-late-slow.ts:178;test/experiment/gravity/forming-headroom-horizon.ts:77;test/experiment/gravity/forming-horizon-register-scan.ts:40;test/experiment/gravity/forming-horizon-register-scan.ts:113
+tmp/hawk2-probe1,missing,,,test/experiment/gravity/forming-horizon-register-scan.ts:18;test/experiment/gravity/forming-horizon-register-scan.ts:23;test/experiment/gravity/forming-horizon-register-scan.ts:29;test/experiment/gravity/forming-horizon-register-scan.ts:31
+tmp/hawk2-run1.log,missing,,,test/experiment/gravity/forming-horizon-register-scan.ts:49
+tmp/hawk3-probe1,missing,,,test/experiment/gravity/forming-horizon-late-slow.ts:21;test/experiment/gravity/forming-horizon-late-slow.ts:25;test/experiment/gravity/forming-horizon-late-slow.ts:55
+tmp/hawk3-run1.log,missing,,,test/experiment/gravity/forming-horizon-late-slow.ts:81
+tmp/hc-gate-E-FRC-0273.log,missing,,,test/experiment/gauge/register-join.ts:79
+tmp/hc-probe1,missing,,,test/experiment/cosmology/husk-growth-rate.ts:33;test/experiment/cosmology/husk-horizon-flatness.ts:46
+tmp/hc-probe2,missing,,,test/experiment/foundations/coarse-end-state.ts:40
+tmp/hc-probe3b,missing,,,test/experiment/foundations/husk-fluctuation-dissipation.ts:37
+tmp/hc-probe4,missing,,,test/experiment/foundations/husk-fluctuation-dissipation.ts:39
+tmp/hc-smoke.log,missing,,,test/experiment/gauge/register-join.ts:75
+tmp/hc-smoke2.log,missing,,,test/experiment/gauge/register-join.ts:77
+tmp/heat-probe2,missing,,,test/experiment/gravity/even-fall-carried.ts:13
+tmp/hg-grv-run1.log,missing,,,test/experiment/gravity/horosphere-green.ts:84
+tmp/hl-frc-run1.log,missing,,,test/experiment/gauge/higgs-larger-group.ts:124
+tmp/hl-probe3.log,missing,,,test/experiment/gauge/higgs-larger-group.ts:81;test/experiment/gauge/higgs-larger-group.ts:99
+tmp/hl-smoke.log,missing,,,test/experiment/gauge/higgs-larger-group.ts:75
+tmp/hl-smoke2.log,missing,,,test/experiment/gauge/higgs-larger-group.ts:83
+tmp/hm-motion-gate-run1.log,missing,,,test/experiment/spin/cusp-motion.ts:72
+tmp/hm-motion-probe-6-1.log,missing,,,test/experiment/spin/cusp-motion.ts:61
+tmp/hm-motion-smoke.log,missing,,,test/experiment/spin/cusp-motion.ts:68
+tmp/hm-packet-probe.log,missing,,,test/experiment/spin/cusp-motion.ts:63
+tmp/hm-packet-probe2,missing,,,test/experiment/spin/cusp-motion.ts:64
+tmp/hm-parity-,missing,,,test/experiment/gauge/cusp-parity.ts:81
+tmp/hm-parity-gate-run1.log,missing,,,test/experiment/gauge/cusp-parity.ts:84
+tmp/hm-probe1.log,missing,,,test/experiment/gauge/cusp-parity.ts:75
+tmp/hm-probe2.log,missing,,,test/experiment/spin/cusp-motion.ts:60
+tmp/hm-smoke.log,missing,,,test/experiment/gauge/cusp-parity.ts:77
+tmp/hop-probe1..6.log,missing,,,test/experiment/gauge/trit-alpha.ts:29;test/experiment/gauge/trit-emission.ts:42
+tmp/hop-probe5.log,missing,,,code/rule/trit-husk-shaped.ts:17
+tmp/horizon-probe1,missing,,,test/experiment/gravity/torn-husk-static.ts:17
+tmp/horizon-probe2,missing,,,code/rule/horizon-husk.ts:24
+tmp/horizon-probe7,missing,,,code/rule/horizon-husk.ts:17
+tmp/horizon-probe9,missing,,,test/experiment/gravity/torn-husk-static.ts:66
+tmp/hx-csm-run1.log,missing,,,test/experiment/cosmology/horosphere-expansion.ts:63
+tmp/hx-probe1.log,missing,,,test/experiment/cosmology/horosphere-expansion.ts:32
+tmp/hx-rlt-run1.log,missing,,,test/experiment/relativity/one-speed-bounds.ts:63
+tmp/integration-runs-second/gauge-combined-knit-battery.log,missing,,,test/experiment/spin/comoving-battery.ts:22;test/experiment/spin/comoving-battery.ts:166
+tmp/integration.md,missing,,,test/experiment/spin/comoving-battery.ts:10
+tmp/jn-run1.log,missing,,,test/experiment/cosmology/coarse-jeans.ts:75
+tmp/kb-probe1,missing,,,test/experiment/spin/knit-drift-binding.ts:60;test/experiment/quantum/kept-branch.ts:66
+tmp/kb-probe2,missing,,,test/experiment/spin/knit-drift-binding.ts:85;test/experiment/spin/knit-drift-binding.ts:403;test/experiment/quantum/kept-branch.ts:63
+tmp/kb-probe4,missing,,,test/experiment/quantum/kept-branch.ts:64
+tmp/kb-probe5,missing,,,test/experiment/quantum/kept-branch.ts:64
+tmp/kb-probe7,missing,,,test/experiment/quantum/kept-branch.ts:66
+tmp/kb-spn88-run1.log,missing,,,test/experiment/spin/knit-drift-binding.ts:73
+tmp/kb-spn89-run1.log,missing,,,test/experiment/spin/knit-cluster-landau.ts:37
+tmp/ks-probe1,missing,,,test/experiment/relativity/charge-blind-shear.ts:12
+tmp/ks-probe2,missing,,,test/experiment/relativity/charge-blind-shear.ts:29
+tmp/ks-probe3,missing,,,test/experiment/spin/knit-g-schedule.ts:37
+tmp/ks-rlt96-run1.log,missing,,,test/experiment/relativity/charge-blind-shear.ts:48
+tmp/ks-spn83-run1.log,missing,,,test/experiment/spin/knit-g-schedule.ts:61
+tmp/lapse-probe1.log,missing,,,test/experiment/gravity/lapse-husk-static.ts:13
+tmp/lapse-probe2.log,missing,,,test/experiment/gravity/lapse-husk-static.ts:13
+tmp/lapse-static-run1.log,missing,,,test/experiment/gravity/lapse-husk-static.ts:52
+tmp/lc-hlg-run1.log,missing,,,test/experiment/holography/husk-least-cut.ts:37
+tmp/lf-gate-E-FRC-0271.log,missing,,,test/experiment/gauge/register-su2-gauge.ts:65
+tmp/lf-gate-E-SPN-0180.log,missing,,,test/experiment/spin/register-curved-links.ts:80
+tmp/lf-probe1-6.log,missing,,,test/experiment/spin/register-curved-links.ts:77
+tmp/lf-probe1.log,missing,,,test/experiment/spin/register-curved-links.ts:69
+tmp/lf-probe2.log,missing,,,test/experiment/spin/register-curved-links.ts:72;test/experiment/gauge/register-su2-gauge.ts:60
+tmp/lf-smoke.log,missing,,,test/experiment/spin/register-curved-links.ts:78
+tmp/lf-smoke2.log,missing,,,test/experiment/gauge/register-su2-gauge.ts:63
+tmp/lift-probe1.log,missing,,,test/experiment/spin/lifted-mixer-vacuum.ts:14;test/experiment/spin/frame-lift-theorem.ts:68
+tmp/lift-wake-probe,missing,,,test/experiment/spin/mixer-cascade.ts:14
+tmp/line-law-probe,missing,,,test/experiment/spin/line-law.ts:10;test/experiment/spin/line-law.ts:33
+tmp/liquid-probe1,missing,,,test/experiment/spin/line-liquid-vacuum.ts:13
+tmp/liquid-probe2,missing,,,test/experiment/spin/line-liquid-vacuum.ts:13
+tmp/liquid-probe4,missing,,,test/experiment/spin/line-liquid-vacuum.ts:28;code/measure/line-liquid.ts:488
+tmp/live-living-pair-battery.log,missing,,,test/experiment/relativity/sparse-living-battery.ts:194
+tmp/local-alpha-probe1.log,missing,,,test/experiment/gauge/local-alpha.ts:57
+tmp/local-alpha-run1.log,missing,,,test/experiment/gauge/local-alpha.ts:76
+tmp/loose-a.log,missing,,,test/experiment/spin/loose-string.ts:47
+tmp/loose-b.log,missing,,,test/experiment/spin/loose-string.ts:49
+tmp/loose-family1.log,missing,,,test/experiment/spin/loose-string.ts:65
+tmp/loose-run1.log,missing,,,test/experiment/spin/loose-string.ts:2;test/experiment/spin/loose-string.ts:52
+tmp/lqed-probe1.log,missing,,,test/experiment/gauge/minimal-lattice-qed.ts:660
+tmp/lqed-probe2.log,missing,,,test/experiment/gauge/minimal-lattice-qed.ts:33;test/experiment/gauge/minimal-lattice-qed.ts:660
+tmp/lqed-probe3.log,missing,,,test/experiment/gauge/flow-light-emission.ts:36
+tmp/lqed-probe6.log,missing,,,test/experiment/gauge/flow-light-emission.ts:36
+tmp/ls-run1.log,missing,,,test/experiment/gauge/husk-light-seam.ts:108
+tmp/lump-probe1.log,missing,,,test/experiment/gravity/knot-first-law.ts:19
+tmp/lx-lapse-gate.log,missing,,,test/experiment/gravity/lapse-fall.ts:78
+tmp/lx-laue-gate.log,missing,,,test/experiment/relativity/laue-pair-stress.ts:68
+tmp/lx-probe1,missing,,,test/experiment/gravity/lapse-fall.ts:72;test/experiment/relativity/laue-pair-stress.ts:62
+tmp/lx-probe2,missing,,,test/experiment/relativity/laue-pair-stress.ts:63
+tmp/lx-probe3,missing,,,test/experiment/relativity/laue-pair-stress.ts:64
+tmp/lx-probe4,missing,,,test/experiment/gravity/lapse-fall.ts:72
+tmp/mach-probe1,missing,,,test/experiment/spin/mach-background.ts:40
+tmp/mb-grv-run1.log,missing,,,test/experiment/gravity/moving-level-depth.ts:37
+tmp/mb-probe1,missing,,,test/experiment/spin/moving-level.ts:30
+tmp/mb-probe1.log,missing,,,test/experiment/spin/moving-level.ts:10;test/experiment/spin/moving-level.ts:80
+tmp/mb-probe2.log,missing,,,test/experiment/spin/moving-level.ts:82
+tmp/mb-spn-run1.log,missing,,,test/experiment/spin/moving-level.ts:67;test/experiment/spin/slant-string.ts:134
+tmp/mbody-probe1,missing,,,test/experiment/spin/swap-many-body.ts:106
+tmp/mbody-slide,missing,,,test/experiment/spin/swap-many-body.ts:106
+tmp/mc-probe1.log,missing,,,test/experiment/spin/member-charge.ts:50
+tmp/mc-probe2.log,missing,,,test/experiment/spin/member-charge.ts:53
+tmp/mc-probe3.log,missing,,,test/experiment/spin/member-charge.ts:57
+tmp/mc-run1.log,missing,,,test/experiment/spin/member-charge.ts:106
+tmp/mc-smoke.log,missing,,,test/experiment/spin/member-charge.ts:61
+tmp/mc-smoke2.log,missing,,,test/experiment/spin/member-charge.ts:65
+tmp/memb2-probe2,missing,,,test/experiment/gravity/balanced-membrane-growth.ts:49
+tmp/memb2-run1.log,missing,,,test/experiment/gravity/balanced-membrane-growth.ts:72
+tmp/meson-probe1-check.log,missing,,,test/experiment/spin/moving-binding.ts:67
+tmp/meson-probe1-mass1.log,missing,,,test/experiment/spin/moving-binding.ts:71
+tmp/meson-probe1-meson1.log,missing,,,test/experiment/spin/moving-binding.ts:69
+tmp/meson-probe1-near3.log,missing,,,test/experiment/spin/moving-binding.ts:72
+tmp/meson-probe1-near4.log,missing,,,test/experiment/spin/moving-binding.ts:74
+tmp/meson-probe1-trio3.log,missing,,,test/experiment/spin/moving-binding.ts:72
+tmp/meson-run1.log,missing,,,test/experiment/spin/meson-joint-limit.ts:49;test/experiment/spin/moving-binding.ts:76
+tmp/meson2-airy.log,missing,,,test/experiment/spin/meson-joint-limit.ts:13
+tmp/meson2-probe1.log,missing,,,test/experiment/spin/meson-joint-limit.ts:59;test/experiment/spin/meson-joint-limit.ts:60
+tmp/meson2-probe2.log,missing,,,test/experiment/spin/meson-joint-limit.ts:97;test/experiment/spin/meson-scaled-step.ts:7;test/experiment/spin/meson-scaled-step.ts:54
+tmp/meson2-run1.log,missing,,,test/experiment/spin/meson-joint-limit.ts:65;test/experiment/spin/meson-scaled-step.ts:41
+tmp/meson3-run1.log,missing,,,test/experiment/spin/meson-scaled-step.ts:57
+tmp/mh-bands,missing,,,test/experiment/foundations/register-relaxation.ts:54
+tmp/mh-gate-E-FND-0161.log,missing,,,test/experiment/foundations/register-holes.ts:70
+tmp/mh-gate-E-FND-0162.log,missing,,,test/experiment/foundations/register-relaxation.ts:63
+tmp/mh-levels,missing,,,test/experiment/foundations/register-relaxation.ts:54
+tmp/mh-micro,missing,,,test/experiment/foundations/register-relaxation.ts:54
+tmp/mh-probe1,missing,,,test/experiment/foundations/register-holes.ts:63
+tmp/mh-probe2,missing,,,test/experiment/foundations/register-relaxation.ts:51;test/experiment/foundations/register-holes.ts:65
+tmp/mh-probe3,missing,,,test/experiment/foundations/register-relaxation.ts:52
+tmp/mh-probe4,missing,,,test/experiment/foundations/register-relaxation.ts:56
+tmp/mh-shell,missing,,,test/experiment/foundations/register-relaxation.ts:54
+tmp/mh-smoke,missing,,,test/experiment/foundations/register-relaxation.ts:60;test/experiment/foundations/register-holes.ts:68
+tmp/move3d-cross-probe,missing,,,test/experiment/spin/crossing-lines.ts:32;code/measure/crossing-lines.ts:17
+tmp/move3d-exp-run1.log,missing,,,test/experiment/spin/crossing-lines.ts:79
+tmp/move3d-probe2.log,missing,,,test/experiment/spin/crossing-lines.ts:99
+tmp/move3d-probe3.log,missing,,,test/experiment/spin/crossing-lines.ts:100
+tmp/move3d-probe4.log,missing,,,test/experiment/spin/crossing-lines.ts:102
+tmp/mp-run1.log,missing,,,test/experiment/gauge/monopole-density.ts:109
+tmp/ms-eig-probe.log,missing,,,test/experiment/spin/screen-modes.ts:86
+tmp/ms-gate-run1.log,missing,,,test/experiment/spin/screen-modes.ts:104
+tmp/ms-probe1.log,missing,,,test/experiment/spin/screen-modes.ts:85
+tmp/ms-probe2.log,missing,,,test/experiment/spin/screen-modes.ts:87
+tmp/ms-probe3.log,missing,,,test/experiment/spin/screen-modes.ts:89
+tmp/ms-probe4.log,missing,,,test/experiment/spin/screen-modes.ts:90
+tmp/ms-probe5.log,missing,,,test/experiment/spin/screen-modes.ts:91
+tmp/ms-probe6-d1/d2/d3.log,missing,,,test/experiment/spin/screen-modes.ts:93
+tmp/ms-probe7.log,missing,,,test/experiment/spin/screen-modes.ts:100
+tmp/ms-smoke.log,missing,,,test/experiment/spin/screen-modes.ts:98
+tmp/mt-check1.log,missing,,,test/experiment/gauge/mixing-angle-trace.ts:79
+tmp/mt-probe1.log,missing,,,test/experiment/gauge/mixing-angle-trace.ts:50
+tmp/mt-run1.log,missing,,,test/experiment/gauge/mixing-angle-trace.ts:71
+tmp/mth0025.log,missing,,,test/experiment/method/no-continuity-in-the-rule.ts:167
+tmp/mth0027.log,missing,,,test/experiment/method/knit-path-is-exact.ts:407
+tmp/mth28-first.log,missing,,,test/experiment/method/multi-start-robustness.ts:606
+tmp/mth28-frc0159.jsonl,missing,,,test/experiment/method/multi-start-robustness.ts:606
+tmp/mth28-rlt0056.jsonl,missing,,,test/experiment/relativity/rich-exchange-cold-knit.ts:872;test/experiment/method/multi-start-robustness.ts:606
+tmp/mtr-fade-stable.log,missing,,,test/experiment/matter/light-pair-fading.ts:19
+tmp/mtr0018-second.log,missing,,,test/experiment/matter/doublet-exclusion.ts:68
+tmp/mtr0018-third.log,missing,,,test/experiment/matter/doublet-exclusion.ts:75
+tmp/mtr0018.log,missing,,,test/experiment/matter/doublet-exclusion.ts:60
+tmp/mtr0019.log,missing,,,test/experiment/matter/doublet-h2.ts:48
+tmp/mtr0020.log,missing,,,test/experiment/matter/doublet-shells.ts:30
+tmp/mtr0021-second.log,missing,,,test/experiment/matter/doublet-link-ends.ts:71
+tmp/mtr0021.log,missing,,,test/experiment/matter/doublet-link-ends.ts:59
+tmp/mtr0022.log,missing,,,test/experiment/matter/doublet-bulk-slots.ts:59
+tmp/mw-*,missing,,,test/experiment/spin/register-coulomb-track.ts:93
+tmp/mw-part-motion-a*.json,missing,,,test/experiment/relativity/laue-pair-stress.ts:137
+tmp/mw-part-motion-a6.json,missing,,,test/experiment/relativity/laue-pair-stress.ts:47
+tmp/mw-part-motion-a8.json,missing,,,test/experiment/relativity/laue-pair-stress.ts:47
+tmp/mw-part-zero-a*.json,missing,,,test/experiment/relativity/laue-pair-stress.ts:137
+tmp/mw-probe2-40.log,missing,,,test/experiment/spin/register-coulomb-track.ts:59
+tmp/mw-probe4-*.log,missing,,,test/experiment/spin/register-coulomb-track.ts:101
+tmp/mw-probe5-16.log,missing,,,test/experiment/spin/register-coulomb-track.ts:104
+tmp/nohair-growth-run1.log,missing,,,test/experiment/gravity/count-horizon-growth.ts:48
+tmp/nohair-probe1,missing,,,test/experiment/gravity/count-horizon-growth.ts:57
+tmp/nohair-scaling-run1.log,missing,,,test/experiment/gravity/count-horizon-scaling.ts:36
+tmp/np-gate-E-FND-0169.log,missing,,,test/experiment/foundations/disturbance-footprint.ts:46
+tmp/np-gate-E-FRC-0276.log,missing,,,test/experiment/gauge/split-winding.ts:60
+tmp/np-gate-E-GMT-0039.log,missing,,,test/experiment/geometry/dock-group-identity.ts:54
+tmp/np-gate-E-SPN-0184.log,missing,,,test/experiment/spin/screen-leak-count.ts:55
+tmp/nv-probe1,missing,,,test/experiment/relativity/no-veto-store-vacuum.ts:50;test/experiment/relativity/no-veto-store-build.ts:59
+tmp/nv-probe2,missing,,,test/experiment/relativity/no-veto-store-vacuum.ts:60
+tmp/ofd3-gate-run1.log,missing,,,test/experiment/foundations/register-crossing.ts:89
+tmp/ofd3-probe1,missing,,,test/experiment/foundations/register-crossing.ts:76
+tmp/ofd3-probe2,missing,,,test/experiment/foundations/register-crossing.ts:80
+tmp/ofd3-smoke,missing,,,test/experiment/foundations/register-crossing.ts:86
+tmp/open-probe1.log,missing,,,test/experiment/gravity/open-husk-static.ts:21
+tmp/open-relay-probe,missing,,,test/experiment/spin/mixer-cascade.ts:13
+tmp/ot-gate-E-FRC-0274.log,missing,,,test/experiment/gauge/orientation-sign.ts:85
+tmp/ot-probe1.log,missing,,,test/experiment/gauge/orientation-sign.ts:75
+tmp/ot-smoke.log,missing,,,test/experiment/gauge/orientation-sign.ts:82
+tmp/ov-probe1,missing,,,test/experiment/relativity/occupation-veto-build.ts:34;test/experiment/relativity/no-veto-store-build.ts:24
+tmp/ov-probe2,missing,,,test/experiment/relativity/occupation-veto-build.ts:36;test/experiment/relativity/occupation-veto-vacuum.ts:14
+tmp/ov-probe3,missing,,,test/experiment/relativity/no-veto-store-vacuum.ts:48;test/experiment/relativity/occupation-veto-vacuum.ts:49
+tmp/ov-probe4,missing,,,test/experiment/relativity/no-veto-store-vacuum.ts:11;test/experiment/relativity/no-veto-store-vacuum.ts:49;test/experiment/relativity/occupation-veto-vacuum.ts:52;test/experiment/relativity/no-veto-store-build.ts:3;test/experiment/relativity/no-veto-store-build.ts:58
+tmp/pair-mixer-debug,missing,,,test/experiment/spin/line-law.ts:14;test/experiment/spin/line-law.ts:30;test/experiment/spin/line-law.ts:32;test/experiment/spin/line-law.ts:352
+tmp/pair-mixer-probe,missing,,,test/experiment/spin/line-law.ts:13;code/measure/full-key-paths.ts:111
+tmp/pair-move-probe,missing,,,test/experiment/spin/fracton-hierarchy.ts:10
+tmp/pair-probe-linear.log,missing,,,test/experiment/relativity/pair-making-transport.ts:27;code/rule/pair-making-knit.ts:33
+tmp/par-probe1,missing,,,test/experiment/gauge/locked-parity-ledger.ts:48;test/experiment/gauge/locked-parity-count.ts:28
+tmp/partial-contact-probe,missing,,,test/experiment/spin/partial-contact.ts:8;code/rule/partial-contact-knit.ts:1
+tmp/pauli-probe1-,missing,,,test/experiment/spin/pauli-blocked-mixer.ts:18
+tmp/pbr-qtm-run1.log,missing,,,test/experiment/quantum/pbr-stabilizer-readings.ts:39
+tmp/pbr2-qtm-run1.log,missing,,,test/experiment/quantum/pbr-beat-words.ts:39
+tmp/pc-probe1-L2.log,missing,,,test/experiment/quantum/pointer-conserved.ts:73
+tmp/pc-probe1-L4.log,missing,,,test/experiment/quantum/pointer-conserved.ts:78
+tmp/pc-qtm-run1.log,missing,,,test/experiment/quantum/pointer-conserved.ts:120
+tmp/pc-smoke.log,missing,,,test/experiment/quantum/pointer-conserved.ts:82
+tmp/pg-*,missing,,,test/experiment/foundations/register-pairing-gap.ts:46
+tmp/pg-run1.log,missing,,,test/experiment/foundations/register-pairing-gap.ts:89
+tmp/pg-smoke.log,missing,,,test/experiment/foundations/register-pairing-gap.ts:57
+tmp/plaq-probe1,missing,,,code/rule/plaquette-store-knit.ts:16
+tmp/plaq-probe1.log,missing,,,test/experiment/gravity/trio-line-plaquette-depth.ts:11;test/experiment/relativity/plaquette-store-vacuum.ts:17
+tmp/plaq-probe3.log,missing,,,test/experiment/gravity/plaquette-knot-area-law.ts:18
+tmp/plaq-run1.log,missing,,,test/experiment/gravity/trio-line-plaquette-depth.ts:77
+tmp/plaq-run2.log,missing,,,test/experiment/gravity/trio-line-plaquette-depth.ts:77
+tmp/plaq2-exp.log,missing,,,test/experiment/gravity/trio-stack-plaquette-depth.ts:89
+tmp/plaq2-probe1.log,missing,,,test/experiment/gravity/trio-stack-plaquette-depth.ts:14;test/experiment/gravity/trio-stack-plaquette-depth.ts:30;test/experiment/gravity/trio-stack-plaquette-depth.ts:58
+tmp/pos-probe1,missing,,,test/experiment/quantum/position-interference.ts:55
+tmp/pos-probe2,missing,,,test/experiment/quantum/position-interference.ts:56
+tmp/pos-probe3,missing,,,test/experiment/quantum/position-interference.ts:57;test/experiment/quantum/position-interference.ts:76
+tmp/pos-probe4,missing,,,test/experiment/quantum/position-interference.ts:23;test/experiment/quantum/position-interference.ts:58
+tmp/pq-probe1-,missing,,,test/experiment/spin/flux-plaquette.ts:86
+tmp/pr-derive1.log,missing,,,test/experiment/spin/pulled-pair-weak.ts:85
+tmp/pr-derive2.log,missing,,,test/experiment/spin/pulled-pair-weak.ts:25;test/experiment/spin/pulled-pair-weak.ts:85
+tmp/pr-edge1.log,missing,,,test/experiment/spin/pulled-pair-weak.ts:10;test/experiment/spin/pulled-pair-weak.ts:86
+tmp/pr-exp-run1.log,missing,,,test/experiment/spin/pulled-pair-weak.ts:99
+tmp/pr-gate-one.log,missing,,,test/experiment/spin/pulled-pair-weak.ts:98
+tmp/pr-gate-two.log,missing,,,test/experiment/spin/pulled-pair-weak.ts:98
+tmp/pr-probe2.log,missing,,,test/experiment/spin/pulled-pair-weak.ts:87
+tmp/pr-probe3.log,missing,,,test/experiment/spin/pulled-pair-weak.ts:90
+tmp/pr-smoke.log,missing,,,test/experiment/spin/pulled-pair-weak.ts:93
+tmp/probe-box-cpt,missing,,,test/experiment/gauge/folded-acceptance.ts:35
+tmp/probe-carry,missing,,,test/experiment/gauge/steered-binding.ts:6
+tmp/probe-carry-trace,missing,,,test/experiment/gauge/steered-binding.ts:7
+tmp/probe-confinement-window,missing,,,test/experiment/gauge/deterministic-confinement.ts:17
+tmp/probe-dressing,missing,,,test/experiment/gauge/color-weave-acceptance.ts:23
+tmp/probe-matter-field,missing,,,test/experiment/gauge/matter-shapes-the-field.ts:11
+tmp/probe-matter-loops,missing,,,test/experiment/gauge/matter-shapes-the-field.ts:32
+tmp/probe-matter-shapes,missing,,,test/experiment/gauge/matter-shapes-the-field.ts:32
+tmp/probe-reflect,missing,,,test/experiment/gauge/slot-binding.ts:22;test/experiment/gauge/slot-binding.ts:596
+tmp/probe-reflect-scan,missing,,,test/experiment/gauge/slot-binding.ts:22
+tmp/probe-sigma-anneal,missing,,,test/experiment/gauge/sigma-deconfinement-scan.ts:6;test/experiment/gauge/sigma-cooled-string.ts:8
+tmp/probe-sigma-cool,missing,,,test/experiment/gauge/sigma-cooling-moves.ts:37
+tmp/probe-sigma-mixed,missing,,,test/experiment/gauge/sigma-confined-point.ts:12
+tmp/probe-sigma-point,missing,,,test/experiment/gauge/sigma-string-tension.ts:7
+tmp/probe-steer-variants,missing,,,test/experiment/gauge/knit-binding.ts:9;test/experiment/gauge/baryon-steering.ts:22
+tmp/probe-string-graph,missing,,,test/experiment/gauge/d4-string-binds.ts:17
+tmp/probe-string-line,missing,,,test/experiment/gauge/string-binds.ts:25
+tmp/probe-waiting,missing,,,test/experiment/gauge/slot-binding.ts:22
+tmp/probe-walk-starts,missing,,,test/experiment/gauge/steered-binding.ts:7
+tmp/py-probe-coupling.log,missing,,,test/experiment/gauge/pair-yukawa-matched.ts:58
+tmp/py-probe-krylov.log,missing,,,test/experiment/matter/doublet-bulk-slots.ts:43;test/experiment/matter/doublet-link-ends.ts:64
+tmp/py-probe-line.log,missing,,,test/experiment/gauge/pair-line-both.ts:41
+tmp/qa-run1.log,missing,,,test/experiment/quantum/pancharatnam-area.ts:77
+tmp/qb-gate-run1.log,missing,,,test/experiment/gauge/quantum-balance.ts:79
+tmp/qb-run1.log,missing,,,test/experiment/quantum/middle-rung-cglmp.ts:59
+tmp/qb-smoke.log,missing,,,test/experiment/gauge/quantum-balance.ts:73
+tmp/qb-splits.log,missing,,,test/experiment/gauge/quantum-balance.ts:73
+tmp/qf-probe1,missing,,,test/experiment/quantum/history-sum.ts:52;test/experiment/quantum/delayed-choice-eraser.ts:17;test/experiment/quantum/delayed-choice-eraser.ts:46;test/experiment/quantum/povm-from-an-ancilla.ts:38;test/experiment/quantum/weak-values.ts:20;test/experiment/quantum/weak-values.ts:41;test/experiment/quantum/wigners-friend.ts:37
+tmp/qf-probe2,missing,,,test/experiment/quantum/history-sum.ts:52;test/experiment/quantum/weak-values.ts:41
+tmp/qf-probe3,missing,,,test/experiment/quantum/history-sum.ts:54
+tmp/qf-probe4,missing,,,test/experiment/quantum/history-sum.ts:59
+tmp/qlad-probe2,missing,,,test/experiment/gauge/ladder-single-quantum.ts:456
+tmp/qr-gate-run1.log,missing,,,test/experiment/gauge/ratio-balance.ts:80
+tmp/qr-model1.log,missing,,,test/experiment/gauge/ratio-balance.ts:76
+tmp/qr-probe1-13x2.log,missing,,,test/experiment/gauge/ratio-balance.ts:73
+tmp/qr-probe2a.log,missing,,,test/experiment/gauge/ratio-balance.ts:75
+tmp/qtm-L1..L4.log,missing,,,test/experiment/quantum/plane-pair-light.ts:549
+tmp/qtm-S2..S4.log,missing,,,test/experiment/quantum/plane-pair-light.ts:549
+tmp/qx-cmp-run1.log,missing,,,test/experiment/computation/fear-beat-infinite-order.ts:41
+tmp/qx-cmp-run2.log,missing,,,test/experiment/computation/fear-beat-infinite-order.ts:43
+tmp/qx-jordan-run1.log,missing,,,test/experiment/quantum/middle-rung-jordan.ts:45
+tmp/qx-lg-run1.log,missing,,,test/experiment/quantum/leggett-garg-exact.ts:45
+tmp/rate-probe1,missing,,,test/experiment/spin/mixer-cascade.ts:10;test/experiment/spin/mixer-cascade.ts:21;test/experiment/spin/mixer-cascade.ts:34;code/measure/full-key-paths.ts:430
+tmp/recon-probe2.log,missing,,,test/experiment/gauge/trit-reconnect.ts:26
+tmp/rh-run1.log,missing,,,test/experiment/gravity/horizon-slope-modes.ts:60
+tmp/rh-run2.log,missing,,,test/experiment/gravity/horizon-slope-modes.ts:60
+tmp/rh-run3.log,missing,,,test/experiment/gravity/horizon-slope-modes.ts:61
+tmp/rlt089-run1.log,missing,,,test/experiment/relativity/causal-components.ts:51
+tmp/rlt089-run2.log,missing,,,test/experiment/relativity/causal-components.ts:60
+tmp/rlt091-run1.log,missing,,,test/experiment/relativity/dependence-components.ts:80
+tmp/rlt093-run1.log,missing,,,test/experiment/relativity/coset-union-vacuum.ts:70
+tmp/rlt094-run1.log,missing,,,test/experiment/relativity/covering-vacuum-isotropy.ts:44
+tmp/rlt095-run1.log,missing,,,test/experiment/relativity/union-walls.ts:37
+tmp/rlt097-run1.log,missing,,,test/experiment/relativity/doublet-locked-knit.ts:69
+tmp/rlt098-run1.log,missing,,,test/experiment/relativity/doublet-locked-classical.ts:63
+tmp/rlt099-run1.log,missing,,,test/experiment/relativity/doublet-locked-quantum.ts:57
+tmp/rlt100-run1.log,missing,,,test/experiment/relativity/occupation-veto-build.ts:63
+tmp/rlt101-run1.log,missing,,,test/experiment/relativity/occupation-veto-vacuum.ts:43
+tmp/rlt102-run1.log,missing,,,test/experiment/relativity/no-veto-store-build.ts:63
+tmp/rlt103-run1.log,missing,,,test/experiment/relativity/no-veto-store-vacuum.ts:52
+tmp/rlt104-run1.log,missing,,,test/experiment/relativity/coined-store-build.ts:37
+tmp/rlt104-run2.log,missing,,,test/experiment/relativity/coined-store-build.ts:66
+tmp/rlt105-run1.log,missing,,,test/experiment/relativity/coined-store-vacuum.ts:63
+tmp/rlt107-run1.log,missing,,,test/experiment/relativity/plaquette-store-vacuum.ts:50
+tmp/rlt115,missing,,,test/experiment/relativity/bound-pair-direction.ts:617
+tmp/robust-probe,missing,,,test/experiment/gauge/color-turn-weave-acceptance.ts:384
+tmp/rod-front-run1.log,missing,,,test/experiment/gravity/rod-front.ts:43
+tmp/room-probe1,missing,,,test/experiment/gravity/headroom-horizon-temperature.ts:55;code/measure/headroom-horizon.ts:15
+tmp/room-run1.log,missing,,,test/experiment/gravity/headroom-horizon-temperature.ts:78
+tmp/rs-probe1,missing,,,test/experiment/spin/register-sea.ts:78
+tmp/rs-probe1.log,missing,,,test/experiment/gravity/shrink-husk-static.ts:37;test/experiment/gravity/shrink-husk-static.ts:54
+tmp/rs-probe2,missing,,,test/experiment/spin/register-sea.ts:80
+tmp/rs-probe2.log,missing,,,test/experiment/gravity/shrink-husk-static.ts:54
+tmp/rs-probe3,missing,,,test/experiment/spin/register-sea.ts:82
+tmp/rs-smoke,missing,,,test/experiment/spin/register-sea.ts:85
+tmp/rt-gate-E-FND-0160.log,missing,,,test/experiment/foundations/register-roles.ts:105
+tmp/rt-probe1-move.log,missing,,,test/experiment/foundations/register-roles.ts:93;test/experiment/foundations/register-roles.ts:123
+tmp/rt-probe1.log,missing,,,test/experiment/foundations/register-roles.ts:91
+tmp/rt-probe2.log,missing,,,test/experiment/foundations/register-roles.ts:97
+tmp/rt-pull-combine.log,missing,,,test/experiment/spin/pulled-pair-fear.ts:45
+tmp/rt-pull-part-10.log,missing,,,test/experiment/spin/pulled-pair-fear.ts:44
+tmp/rt-pull-part-8.log,missing,,,test/experiment/spin/pulled-pair-fear.ts:44
+tmp/rt-pull-smoke.log,missing,,,test/experiment/spin/pulled-pair-fear.ts:39
+tmp/rt-smoke.log,missing,,,test/experiment/foundations/register-roles.ts:101
+tmp/sa-csm-run1.log,missing,,,test/experiment/cosmology/shared-ancestry.ts:37
+tmp/sd-gate-E-FND-0167.log,missing,,,test/experiment/foundations/sector-charge.ts:115
+tmp/sd-probe1.log,missing,,,test/experiment/foundations/sector-charge.ts:105
+tmp/sd-probe2.log,missing,,,test/experiment/foundations/sector-charge.ts:110
+tmp/sd-probe3.log,missing,,,test/experiment/foundations/sector-charge.ts:128
+tmp/se-probe1,missing,,,test/experiment/foundations/seed-minimal-entropy.ts:58
+tmp/se-run1.log,missing,,,test/experiment/foundations/seed-minimal-entropy.ts:114
+tmp/sf-gate-run1.log,missing,,,test/experiment/gauge/spectral-flow.ts:91
+tmp/sf-probe1.log,missing,,,test/experiment/gauge/spectral-flow.ts:82
+tmp/sf-probe2.log,missing,,,test/experiment/gauge/spectral-flow.ts:86
+tmp/sl-run1.log,missing,,,test/experiment/relativity/shear-line-counts.ts:72
+tmp/slab-probe1.log,missing,,,test/experiment/gravity/headroom-slab.ts:31
+tmp/slab-run2.log,missing,,,test/experiment/gravity/headroom-slab.ts:46
+tmp/slab-run3.log,missing,,,test/experiment/gravity/headroom-slab.ts:60
+tmp/slab2-run1.log,missing,,,test/experiment/gravity/headroom-slab-window.ts:34
+tmp/slf177-probe1,missing,,,test/experiment/selves/shared-origin-components.ts:51
+tmp/slf177-run1.log,missing,,,test/experiment/selves/shared-origin-components.ts:54
+tmp/slf178-run1.log,missing,,,test/experiment/selves/shared-origin-integration.ts:54
+tmp/smooth-probe1..3.log,missing,,,test/experiment/gauge/trit-smooth-hop.ts:22
+tmp/smooth-probe1.log,missing,,,test/experiment/gauge/trit-smooth-hop.ts:356
+tmp/smooth-probe3.log,missing,,,test/experiment/gauge/trit-smooth-hop.ts:356;test/experiment/gauge/trit-compact-light.ts:10
+tmp/span-coul-probe1.log,missing,,,test/experiment/gauge/span-coulomb.ts:29;code/measure/span-coulomb.ts:370
+tmp/span-coulomb-run1.log,missing,,,test/experiment/gauge/span-coulomb.ts:49
+tmp/span-fall-post1.log,missing,,,test/experiment/gravity/span-fall.ts:53
+tmp/span-fall-probe1..4.log,missing,,,test/experiment/gravity/span-fall.ts:7;code/measure/span-fall.ts:5
+tmp/span-fall-run1.log,missing,,,test/experiment/gravity/span-fall.ts:47
+tmp/span-lens-run1.log,missing,,,test/experiment/gravity/depth-span-lens.ts:38
+tmp/span-peierls-run1.log,missing,,,test/experiment/gauge/span-peierls-test-charge.ts:38
+tmp/span-rule-run1.log,missing,,,test/experiment/gravity/depth-span-rule.ts:65
+tmp/split-grv-run1.log,missing,,,test/experiment/gravity/framed-cluster-depth.ts:34;test/experiment/gravity/moving-level-depth.ts:103
+tmp/split-probe1.log,missing,,,test/experiment/spin/permutation-meeting.ts:21;test/experiment/spin/permutation-meeting.ts:72;code/measure/permutation-meeting.ts:5
+tmp/split-probe2.log,missing,,,test/experiment/spin/permutation-meeting.ts:73;code/measure/permutation-meeting.ts:17
+tmp/split-probe3*.log,missing,,,test/experiment/spin/permutation-meeting.ts:77
+tmp/split-spn-run1.log,missing,,,test/experiment/spin/permutation-meeting.ts:79
+tmp/spn-core-soften-a8,missing,,,test/experiment/spin/register-pair-formula-audit.ts:34
+tmp/spn-sea-gate.log,missing,,,test/experiment/spin/register-sea.ts:87
+tmp/spn90-exp1.log,missing,,,test/experiment/spin/covariant-coin-theorem.ts:58
+tmp/spn91-exp1.log,missing,,,test/experiment/spin/coined-knit-electron.ts:63;test/experiment/spin/passing-contact-cluster.ts:105
+tmp/spn91-probe1,missing,,,test/experiment/spin/coined-knit-electron.ts:55
+tmp/spn92-exp1.log,missing,,,test/experiment/spin/contact-rule-theorem.ts:71
+tmp/spn93-exp1.log,missing,,,test/experiment/spin/passing-contact-cluster.ts:48
+tmp/spn94-exp1.log,missing,,,test/experiment/spin/line-mixing-theorem.ts:64
+tmp/spn95-exp1.log,missing,,,test/experiment/spin/frame-mixed-vacuum.ts:72
+tmp/spn95-exp2.log,missing,,,test/experiment/spin/lifted-mixer-vacuum.ts:151;test/experiment/spin/frame-mixed-vacuum.ts:72
+tmp/spn95-probe1,missing,,,test/experiment/spin/frame-mixed-vacuum.ts:66
+tmp/spn96-exp1.log,missing,,,test/experiment/spin/frame-lift-theorem.ts:72
+tmp/spn96-exp2.log,missing,,,test/experiment/spin/frame-lift-theorem.ts:73
+tmp/spn96-exp3.log,missing,,,test/experiment/spin/frame-lift-theorem.ts:75
+tmp/spn97-exp1.log,missing,,,test/experiment/spin/lifted-mixer-vacuum.ts:49
+tmp/spn97-exp2.log,missing,,,test/experiment/spin/lifted-mixer-vacuum.ts:58
+tmp/sr-mtr23-run1.log,missing,,,test/experiment/matter/one-light-speed.ts:624
+tmp/sr-mtr24-run1.log,missing,,,test/experiment/matter/rest-energy.ts:316
+tmp/sr-mtr25-run1.log,missing,,,test/experiment/matter/moving-clock.ts:197
+tmp/sstr-predict,missing,,,test/experiment/spin/swap-string-meson.ts:121
+tmp/sstr-probe1,missing,,,test/experiment/spin/swap-string-meson.ts:121
+tmp/st-probe1.log,missing,,,test/experiment/spin/icosian-prethermal-krylov.ts:77
+tmp/st-probe3.log,missing,,,test/experiment/spin/icosian-prethermal-krylov.ts:78
+tmp/st-probe4.log,missing,,,test/experiment/spin/icosian-strip-string.ts:67
+tmp/st-probe5.log,missing,,,test/experiment/spin/icosian-strip-string.ts:70
+tmp/st-probe6.log,missing,,,test/experiment/spin/icosian-strip-string.ts:2
+tmp/st-smoke-a.log,missing,,,test/experiment/spin/icosian-prethermal-krylov.ts:81;test/experiment/spin/icosian-prethermal-patch.ts:6
+tmp/standin-runs/standin-h2-plus-second.log,missing,,,test/experiment/quantum/standin-h2-plus.ts:52
+tmp/standin-runs/standin-role-label.log,missing,,,test/experiment/quantum/standin-role-label.ts:31
+tmp/step-field-probe,missing,,,test/experiment/gravity/step-depth-moving.ts:31;code/rule/step-depth.ts:373;code/measure/step-depth.ts:461
+tmp/step-pair-probe,missing,,,test/experiment/gravity/step-depth-static.ts:28;code/rule/step-depth.ts:48
+tmp/string-probe2-3-6-1024.log,missing,,,test/experiment/spin/slab-string-break.ts:110
+tmp/surf-run1.log,missing,,,test/experiment/gravity/membrane-horizon-entropy.ts:70
+tmp/sw-probe1.log,missing,,,test/experiment/gauge/split-wraps.ts:57
+tmp/sym-after-*.log,missing,,,test/experiment/relativity/frame-carry-batteries.ts:31
+tmp/sym-before-*.log,missing,,,test/experiment/relativity/frame-carry-batteries.ts:32
+tmp/tb-fnd-run1.log,missing,,,test/experiment/foundations/two-vibe-uniqueness.ts:54
+tmp/tb-gate-E-FND-0165.log,missing,,,test/experiment/foundations/register-temperature.ts:80
+tmp/tb-gate-E-FND-0166-stopped.log,missing,,,test/experiment/foundations/register-bosons.ts:81
+tmp/tb-gate-E-FND-0166.log,missing,,,test/experiment/foundations/register-bosons.ts:116
+tmp/tb-smoke-E-FND-0165.log,missing,,,test/experiment/foundations/register-temperature.ts:82
+tmp/tb-smoke-E-FND-0166.log,missing,,,test/experiment/foundations/register-bosons.ts:76
+tmp/temp-probe1,missing,,,test/experiment/gravity/clock-horizon-temperature.ts:16
+tmp/temp-run1.log,missing,,,test/experiment/gravity/clock-horizon-temperature.ts:58
+tmp/tl-run1.log,missing,,,test/experiment/quantum/temporal-ladder.ts:63
+tmp/torn-growth-run1.log,missing,,,test/experiment/gravity/torn-husk-growth.ts:35
+tmp/torn-static-run1.log,missing,,,test/experiment/gravity/torn-husk-static.ts:49
+tmp/tp-diag.log,missing,,,test/experiment/foundations/register-temperature.ts:91
+tmp/tp-free-shells,missing,,,test/experiment/foundations/register-temperature.ts:7
+tmp/tp-l4-fit,missing,,,test/experiment/foundations/register-temperature.ts:42
+tmp/tp-levels,missing,,,test/experiment/foundations/register-temperature.ts:7
+tmp/tp-probe1,missing,,,test/experiment/foundations/register-temperature.ts:33
+tmp/tp-probe2,missing,,,test/experiment/foundations/register-temperature.ts:35;test/experiment/foundations/register-temperature.ts:49
+tmp/tp-refit,missing,,,test/experiment/foundations/register-temperature.ts:44
+tmp/track-a8,missing,,,test/experiment/spin/matching-table.ts:50
+tmp/trit-probe1..5.log,missing,,,test/experiment/gauge/trit-column-light.ts:31
+tmp/trit-probe2.log,missing,,,test/experiment/gauge/trit-column-depth.ts:30
+tmp/trit-probe5.log,missing,,,test/experiment/gauge/trit-column-depth.ts:30
+tmp/tsconfig.audit.json,missing,,,test/experiment/gauge/eig-hermitian-audit.ts:10
+tmp/tt-diag.log,missing,,,test/experiment/gauge/staggered-tastes.ts:77
+tmp/tt-fixcheck.log,missing,,,test/experiment/gauge/staggered-tastes.ts:80
+tmp/tt-probe1.log,missing,,,test/experiment/gauge/staggered-tastes.ts:40;test/experiment/gauge/staggered-tastes.ts:84
+tmp/tt-probe2.log,missing,,,test/experiment/gauge/staggered-tastes.ts:43
+tmp/tt-run1.log,missing,,,test/experiment/gauge/staggered-tastes.ts:74
+tmp/tt-run2.log,missing,,,test/experiment/gauge/staggered-tastes.ts:86
+tmp/tt-smoke.log,missing,,,test/experiment/gauge/staggered-tastes.ts:45;test/experiment/gauge/staggered-tastes.ts:84
+tmp/us-probe1,missing,,,test/experiment/gravity/uniform-source-blind.ts:35
+tmp/us-run1.log,missing,,,test/experiment/gravity/uniform-source-blind.ts:71
+tmp/veto-gap-probe,missing,,,test/experiment/relativity/veto-scatter.ts:6
+tmp/veto-gap-probe.log,missing,,,test/experiment/relativity/veto-scatter.ts:49
+tmp/vg-gate-E-FND-0168.log,missing,,,test/experiment/foundations/growth-vacuum.ts:98
+tmp/vg-probe1,missing,,,test/experiment/foundations/growth-vacuum.ts:91
+tmp/vg-smoke,missing,,,test/experiment/foundations/growth-vacuum.ts:94
+tmp/vw-run1.log,missing,,,test/experiment/quantum/vacuum-meeting-words.ts:69
+tmp/wake-probe1,missing,,,test/experiment/spin/mixer-cascade.ts:15
+tmp/wake-probe2.log,missing,,,test/experiment/spin/lifted-mixer-vacuum.ts:2;test/experiment/spin/frame-lift-theorem.ts:5
+tmp/wall90-probe1,missing,,,test/experiment/relativity/vacuum-own-walls.ts:20;test/experiment/relativity/vacuum-own-walls.ts:67
+tmp/wall90-probe2,missing,,,test/experiment/relativity/vacuum-own-walls.ts:67
+tmp/wall92-exp-first.log,missing,,,test/experiment/relativity/wall-core.ts:77
+tmp/wall92-exp-second.log,missing,,,test/experiment/relativity/wall-core.ts:85
+tmp/wall92-probe,missing,,,test/experiment/relativity/wall-core.ts:71
+tmp/warp-moving-run1.log,missing,,,test/experiment/gravity/warp-husk-moving.ts:54
+tmp/warp-probe1.log,missing,,,test/experiment/gravity/warp-husk-moving.ts:7;test/experiment/gravity/warp-husk-static.ts:13;test/experiment/gravity/warp-husk-static.ts:43
+tmp/warp-probe2.log,missing,,,test/experiment/gravity/warp-husk-static.ts:44
+tmp/warp-static-run1.log,missing,,,test/experiment/gravity/warp-husk-static.ts:64
+tmp/wave-growth-run1.log,missing,,,test/experiment/gravity/wave-horizon-growth.ts:67
+tmp/wave-probe2,missing,,,test/experiment/gravity/wave-horizon-growth.ts:28
+tmp/wave-probe3,missing,,,test/experiment/gravity/wave-horizon-growth.ts:38
+tmp/wave-probe4,missing,,,test/experiment/gravity/wave-horizon-growth.ts:76
+tmp/wfc-,missing,,,test/experiment/spin/wall-face.ts:102
+tmp/wp-probe1.log,missing,,,test/experiment/spin/wall-pump-deformation.ts:51
+tmp/wp-probe2.log,missing,,,test/experiment/spin/wall-pump-deformation.ts:53
+tmp/wp-probe3.log,missing,,,test/experiment/spin/wall-pump-deformation.ts:55
+tmp/wp-probe4.log,missing,,,test/experiment/spin/wall-pump-deformation.ts:56
+tmp/wp-probe5.log,missing,,,test/experiment/spin/wall-pump-deformation.ts:59
+tmp/wp-probe6.log,missing,,,test/experiment/spin/wall-pump-deformation.ts:62
+tmp/wp-probe7.log,missing,,,test/experiment/spin/wall-pump-deformation.ts:64
+tmp/wp-smoke.log,missing,,,test/experiment/spin/wall-pump-deformation.ts:65
+tmp/wp-spn-run1.log,missing,,,test/experiment/spin/wall-pump-deformation.ts:97
+tmp/wspec-gate.log,missing,,,test/experiment/spin/walker-species.ts:73
+tmp/wy-run1.log,missing,,,test/experiment/quantum/weyl-pair.ts:113
+tmp/zn-run1.log,missing,,,test/experiment/quantum/discrete-zeno-law.ts:70
+tmp/cslab-stage.ts,run,test/record/E-FRC-0294/run/cslab-stage.ts,1797,test/experiment/gauge/color-slab.ts:40
+tmp/hloc-main.ts,run,test/record/E-FRC-0304/run/hloc-main.ts,8230,test/experiment/gauge/hash-localization.ts:1271;test/experiment/gauge/hash-localization.ts:1272
+tmp/mtr-boost-centroid.mjs,run,test/record/E-MTR-0029/run/mtr-boost-centroid.mjs,1175,test/experiment/matter/composite-dispersion.ts:54
+tmp/mtr-boost-combine.ts,run,test/record/E-MTR-0029/run/mtr-boost-combine.ts,813,test/experiment/matter/composite-dispersion.ts:42
+tmp/mtr-boost-part.ts,run,test/record/E-MTR-0029/run/mtr-boost-part.ts,1332,test/experiment/matter/composite-dispersion.ts:40
+tmp/mtr-fade-combine.ts,run,test/record/E-MTR-0032/run/mtr-fade-combine.ts,1379,test/experiment/matter/light-pair-fading.ts:72
+tmp/mtr-light-combine.ts,run,test/record/E-MTR-0031/run/mtr-light-combine.ts,842,test/experiment/matter/light-pair-dispersion.ts:42
+tmp/mtr-light-part.ts,run,test/record/E-MTR-0031/run/mtr-light-part.ts,1204,test/experiment/matter/light-pair-dispersion.ts:41
+tmp/qtm-combine.ts,run,test/record/E-QTM-0181/run/qtm-combine.ts,1290,test/experiment/quantum/plane-pair-light.ts:73
+tmp/qtm-part.ts,run,test/record/E-QTM-0181/run/qtm-part.ts,1708,test/experiment/quantum/plane-pair-light.ts:72
+tmp/rcw-combine.ts,run,test/record/E-SPN-0183/run/rcw-combine.ts,793,test/experiment/spin/register-coulomb-weak.ts:89
+tmp/rcw-gate.sh,run,test/record/E-SPN-0183/run/rcw-gate.sh,466,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-part.ts,run,test/record/E-SPN-0183/run/rcw-part.ts,1282,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rrfix-rlt115.ts,run,test/record/E-RLT-0115/run/rrfix-rlt115.ts,1215,test/experiment/relativity/bound-pair-direction.ts:632
+tmp/spn-0206-combine.ts,run,test/record/E-SPN-0206/run/spn-0206-combine.ts,828,test/experiment/spin/register-contact-core.ts:51
+tmp/spn-0208-combine.ts,run,test/record/E-SPN-0208/run/spn-0208-combine.ts,690,test/experiment/spin/register-contact-weak.ts:35
+tmp/spn-0211-combine.ts,run,test/record/E-SPN-0211/run/spn-0211-combine.ts,666,test/experiment/spin/register-pair-mass-scan.ts:38;test/experiment/spin/register-pair-mass-scan.ts:213
+tmp/spn-0212-combine.ts,run,test/record/E-SPN-0212/run/spn-0212-combine.ts,581,test/experiment/spin/register-pair-light-weak.ts:26
+tmp/spn-0213-combine.ts,run,test/record/E-SPN-0213/run/spn-0213-combine.ts,557,test/experiment/spin/register-pair-clock.ts:26
+tmp/spn-0214-combine.ts,run,test/record/E-SPN-0214/run/spn-0214-combine.ts,729,test/experiment/spin/register-pair-clean-clock.ts:26
+tmp/spn-core-part.ts,run,test/record/E-SPN-0206/run/spn-core-part.ts,1361,test/experiment/spin/register-contact-core.ts:50;test/experiment/spin/register-contact-weak.ts:34
+tmp/spn-partner-part.ts,run,test/record/E-SPN-0206/run/spn-partner-part.ts,2357,code/measure/boost-partner.ts:1
+tmp/adopt-probe-diagonal.ts,scratch,,,code/rule/comoving-weave.ts:27
+tmp/arena-post88.ts,scratch,,,test/experiment/gravity/depth-arena-prediction.ts:79
+tmp/arena-probe.ts,scratch,,,test/experiment/gravity/depth-arena-light.ts:32;test/experiment/gravity/depth-arena-prediction.ts:52
+tmp/arrow-probe1.ts,scratch,,,test/experiment/foundations/husk-second-law.ts:44
+tmp/arrow-probe2.ts,scratch,,,test/experiment/foundations/depth-bath-entropy.ts:51
+tmp/arrow-probe3.ts,scratch,,,test/experiment/foundations/husk-arrow-records.ts:39
+tmp/at-probe1.ts,scratch,,,test/experiment/spin/register-member-h2plus.ts:47
+tmp/atom-emit-probe.ts,scratch,,,test/experiment/gauge/husk-emission-rate.ts:25;test/experiment/gauge/husk-emission-line-width.ts:23
+tmp/atom-fock-probe.ts,scratch,,,test/experiment/matter/stand-in-hydrogen-fock.ts:13;test/experiment/matter/stand-in-hydrogen-fock.ts:177
+tmp/atom-path-probe.ts,scratch,,,test/experiment/matter/stand-in-classical-limit.ts:309
+tmp/atom-probe1.ts,scratch,,,test/experiment/matter/stand-in-hydrogen-ground-state.ts:26
+tmp/atom-probe3.ts,scratch,,,test/experiment/matter/stand-in-hydrogen-spectrum.ts:26;test/experiment/matter/stand-in-hydrogen-spectrum.ts:196;test/experiment/matter/stand-in-hydrogen-ground-state.ts:24
+tmp/atom-zb-probe.ts,scratch,,,test/experiment/matter/stand-in-zitterbewegung.ts:244
+tmp/ax-third.ts,scratch,,,test/experiment/foundations/pair-conserved-search.ts:53
+tmp/ax-vacuum.ts,scratch,,,test/experiment/foundations/pair-conserved-search.ts:104
+tmp/base-probe-census.ts,scratch,,,test/experiment/spin/g-two-forced.ts:34
+tmp/base-probe-words.ts,scratch,,,test/experiment/spin/g-two-forced.ts:34
+tmp/base-probe-words16.ts,scratch,,,test/experiment/spin/g-two-forced.ts:34
+tmp/bind-exclusion-probe.ts,scratch,,,test/experiment/matter/doublet-exclusion.ts:55
+tmp/bind-h2-probe.ts,scratch,,,test/experiment/matter/doublet-h2.ts:44
+tmp/bind-vacuum-probe.ts,scratch,,,test/experiment/gauge/pair-string-yukawa.ts:39
+tmp/bm-probe1.ts,scratch,,,test/experiment/gravity/band-mixed-source.ts:42
+tmp/bound-post91.ts,scratch,,,test/experiment/gravity/step-depth-moving.ts:53
+tmp/cand-probe-kernel.ts,scratch,,,test/experiment/relativity/three-body-leak.ts:59;test/experiment/relativity/candidate-knit-battery.ts:56
+tmp/cand-probe-linear.ts,scratch,,,test/experiment/relativity/token-store-transport.ts:34;test/experiment/relativity/three-body-leak.ts:58
+tmp/cand-probe-timing.ts,scratch,,,test/experiment/relativity/candidate-knit-battery.ts:58
+tmp/compare-scross.mjs,scratch,,,PR.md:41
+tmp/composite-probe1.ts,scratch,,,test/experiment/gauge/composite-light-husk.ts:49;test/experiment/gauge/composite-locked-light.ts:66
+tmp/composite-probe2.ts,scratch,,,test/experiment/gauge/composite-locked-light.ts:74;test/experiment/gauge/composite-locked-light.ts:394
+tmp/cross-probe*.ts,scratch,,,test/experiment/spin/meson-crossing.ts:17
+tmp/ctx-probe2.ts,scratch,,,test/experiment/quantum/teleportation-and-swapping.ts:15
+tmp/cyclotron-probe.ts,scratch,,,test/experiment/gauge/husk-cyclotron.ts:328
+tmp/dar-parse155.ts,scratch,,,test/experiment/quantum/vacuum-redundancy.ts:52
+tmp/dar-parse156.ts,scratch,,,test/experiment/quantum/record-zeno.ts:36
+tmp/dense-probe1.ts,scratch,,,test/experiment/relativity/coset-union-vacuum.ts:46
+tmp/det-design-probe.ts,scratch,,,code/tool/weyl.ts:37
+tmp/dg-probe1.ts,scratch,,,test/experiment/gauge/depth-from-gauss.ts:54
+tmp/dump-physics.ts,scratch,,,note/data/reference/verification/readme.md:5
+tmp/eig-hermitian-fixed.ts,scratch,,,test/experiment/gauge/eig-hermitian-audit.ts:10
+tmp/em-probe1.ts,scratch,,,test/experiment/gauge/emission-share.ts:62
+tmp/emission-probe.ts,scratch,,,test/experiment/gauge/husk-emission-rate.ts:25;test/experiment/gauge/husk-emission-rate.ts:204
+tmp/end-probe1.ts,scratch,,,test/experiment/spin/string-count-on-the-hop.ts:22
+tmp/end-probe2.ts,scratch,,,test/experiment/spin/string-count-on-the-hop.ts:22
+tmp/exact-equal-divisions.ts,scratch,,,test/experiment/method/knit-path-is-exact.ts:407
+tmp/exact-equal.ts,scratch,,,test/experiment/method/knit-path-is-exact.ts:407
+tmp/fc-probe1.ts,scratch,,,test/experiment/fluids/fchc-comparison.ts:68
+tmp/fc-probe2.ts,scratch,,,test/experiment/fluids/fchc-comparison.ts:68
+tmp/fix-qtm109-like.ts,scratch,,,test/experiment/quantum/fear-turn-weave.ts:12
+tmp/fix-rlt55-like.ts,scratch,,,test/experiment/relativity/cold-quaternion-fear-beat.ts:10
+tmp/fix-start-blind.ts,scratch,,,test/experiment/relativity/rich-exchange-cold-knit.ts:5
+tmp/fl-probe1.ts,scratch,,,test/experiment/gravity/first-law-check.ts:47
+tmp/fnd177-time.ts,scratch,,,test/experiment/foundations/rule-design-scan.ts:53
+tmp/frame-meet-probe.ts,scratch,,,test/experiment/quantum/frame-covariant-meetings.ts:29;test/experiment/quantum/frame-covariant-meetings.ts:658
+tmp/frc0199-geometry-probe.ts,scratch,,,test/experiment/gauge/static-singlets-on-the-confined-field.ts:26
+tmp/frc314-probe1.ts,scratch,,,test/experiment/gauge/moving-source-light-speed.ts:29
+tmp/frc315-diag.ts,scratch,,,test/experiment/gauge/moving-source-light-speed-resolved.ts:64
+tmp/frc315-time.ts,scratch,,,test/experiment/gauge/moving-source-light-speed-resolved.ts:49
+tmp/fsx-probe6.ts,scratch,,,test/experiment/spin/string-store-on-flux.ts:39
+tmp/g2t-probe2.ts,scratch,,,test/experiment/spin/hurwitz-link-register.ts:190
+tmp/grv58-probe1.ts,scratch,,,test/experiment/gravity/knot-time-dilation.ts:38
+tmp/grv60-probe1.ts,scratch,,,test/experiment/gravity/gated-take-crowd.ts:39;test/experiment/gravity/gated-take-reversible.ts:50
+tmp/grv62-probe1.ts,scratch,,,test/experiment/gravity/depth-lump-front.ts:36
+tmp/grv64-probe.ts,scratch,,,test/experiment/gravity/shared-information-knot.ts:48;test/experiment/gravity/shared-information-distance.ts:36
+tmp/grv66-probe1.ts,scratch,,,test/experiment/gravity/gated-wake-dilation.ts:33;test/experiment/gravity/gated-wake-rule.ts:35
+tmp/grv70-post.ts,scratch,,,test/experiment/gravity/varying-depth-light.ts:59
+tmp/grv70-probe1.ts,scratch,,,test/experiment/gravity/varying-depth-light.ts:43;code/measure/varying-depth-light.ts:42;code/measure/varying-depth-light.ts:664
+tmp/grv70-probe2.ts,scratch,,,test/experiment/gravity/varying-depth-light.ts:45;code/measure/varying-depth-light.ts:664
+tmp/grv71-diag.ts,scratch,,,test/experiment/gravity/content-sets-depth.ts:51;test/experiment/gravity/varying-depth-light.ts:69;code/measure/varying-depth-light.ts:877
+tmp/grv74-probe1.ts,scratch,,,test/experiment/gravity/even-lens.ts:44;code/measure/even-field.ts:485
+tmp/grv75-post.ts,scratch,,,test/experiment/gravity/even-lens.ts:55
+tmp/grv76-probe1.ts,scratch,,,test/experiment/gravity/even-sign.ts:51;code/measure/even-sign.ts:392
+tmp/grv77-post.ts,scratch,,,test/experiment/gravity/even-fall.ts:60
+tmp/grv81-probe1.ts,scratch,,,test/experiment/gravity/vacuum-response-static.ts:53
+tmp/grv81-probe2.ts,scratch,,,test/experiment/gravity/vacuum-response-static.ts:53
+tmp/grv82-probe1.ts,scratch,,,test/experiment/gravity/vacuum-response-front.ts:31
+tmp/h2-probe1.ts,scratch,,,test/experiment/spin/register-member-h2plus-tracked.ts:46
+tmp/hd-probe1.ts,scratch,,,test/experiment/gravity/horosphere-green.ts:98
+tmp/hg-probe1.ts,scratch,,,test/experiment/gravity/horosphere-green.ts:40
+tmp/hg-probe4.ts,scratch,,,test/experiment/gravity/horosphere-green.ts:40
+tmp/hg-probe5.ts,scratch,,,test/experiment/gravity/horosphere-green.ts:87
+tmp/hidden-link-probe.ts,scratch,,,test/experiment/spin/link-thermal-spectrum.ts:33
+tmp/hidden-sign-probe.ts,scratch,,,test/experiment/quantum/tsirelson-closed-form.ts:19;test/experiment/quantum/tsirelson-closed-form.ts:357
+tmp/hidden-witness-probe.ts,scratch,,,test/experiment/quantum/tsirelson-reached-exactly.ts:7
+tmp/hidden-words-probe.ts,scratch,,,test/experiment/quantum/one-ring-behind-the-limits.ts:35
+tmp/hlq-probe.ts,scratch,,,test/experiment/quantum/husk-light-quantum.ts:46
+tmp/hopf-smoke.ts,scratch,,,test/experiment/spin/hopf-husk-reading.ts:107
+tmp/hx-probe1.ts,scratch,,,test/experiment/cosmology/horosphere-expansion.ts:32
+tmp/iso-census-probe.ts,scratch,,,test/experiment/relativity/isotropic-knit-trade-table.ts:33
+tmp/iso-ritz-probe.ts,scratch,,,test/experiment/relativity/conjugate-schedule-knit.ts:441
+tmp/iso-schedule-probe.ts,scratch,,,test/experiment/relativity/conjugate-schedule-knit.ts:37
+tmp/iso-transport-probe.ts,scratch,,,test/experiment/relativity/isometric-knit.ts:35;test/experiment/relativity/isometric-knit.ts:426
+tmp/jn-probe1.ts,scratch,,,test/experiment/cosmology/coarse-jeans.ts:46
+tmp/knot-probe.ts,scratch,,,test/experiment/gravity/knot-entropic-drift.ts:54
+tmp/knot-smoke.ts,scratch,,,test/experiment/gravity/knot-entropic-drift.ts:56
+tmp/landau-probe.ts,scratch,,,test/experiment/gauge/husk-cyclotron-exact.ts:24
+tmp/live-probe1.ts,scratch,,,test/experiment/relativity/living-pair-battery.ts:56;test/experiment/relativity/living-vacuum-pairs.ts:53
+tmp/live-probe2.ts,scratch,,,test/experiment/relativity/living-vacuum-pairs.ts:55;test/experiment/relativity/living-vacuum-handedness.ts:11
+tmp/live-probe3.ts,scratch,,,test/experiment/relativity/living-pair-battery.ts:60;test/experiment/relativity/sparse-living-battery.ts:56;test/experiment/relativity/sparse-living-vacuum.ts:46
+tmp/live-probe4.ts,scratch,,,test/experiment/relativity/living-pair-battery.ts:60
+tmp/loose-family-probe.ts,scratch,,,test/experiment/spin/loose-string.ts:65
+tmp/loose-probe1.ts,scratch,,,test/experiment/spin/loose-string.ts:12;test/experiment/spin/loose-string.ts:47
+tmp/ls-probe1.ts,scratch,,,test/experiment/gauge/husk-light-seam.ts:55
+tmp/ls-probe2.ts,scratch,,,test/experiment/gauge/husk-light-seam.ts:57
+tmp/ls-probe3.ts,scratch,,,test/experiment/gauge/husk-light-seam.ts:58
+tmp/mb-probe-bare.ts,scratch,,,test/experiment/spin/knit-cannot-bind.ts:413
+tmp/mb-probe-contact.ts,scratch,,,test/experiment/spin/fear-beat-binding.ts:25;test/experiment/spin/fear-beat-binding.ts:918
+tmp/mb-probe-knit.ts,scratch,,,test/experiment/spin/knit-cannot-bind.ts:17;test/experiment/spin/knit-cannot-bind.ts:413
+tmp/mb-probe-knit2.ts,scratch,,,test/experiment/spin/knit-cannot-bind.ts:17;test/experiment/spin/knit-cannot-bind.ts:413
+tmp/mb-probe-pair.ts,scratch,,,test/experiment/spin/fear-beat-binding.ts:26;test/experiment/spin/fear-beat-binding.ts:918
+tmp/mb-probe-pair2.ts,scratch,,,test/experiment/spin/fear-beat-binding.ts:918
+tmp/mb-probe-pauli.ts,scratch,,,test/experiment/spin/pauli-lightest-charge.ts:416
+tmp/mb-probe-shares.ts,scratch,,,test/experiment/spin/fear-beat-charge-one.ts:16;test/experiment/spin/fear-beat-charge-one.ts:547
+tmp/mb-probe-trimer.ts,scratch,,,test/experiment/spin/fear-beat-charge-one.ts:547
+tmp/mc-cut-probe1.ts,scratch,,,test/experiment/holography/husk-least-cut.ts:18
+tmp/meson-probe1.ts,scratch,,,test/experiment/spin/moving-binding.ts:67
+tmp/mp-post1.ts,scratch,,,test/experiment/gauge/monopole-density.ts:130
+tmp/mp-probe1.ts,scratch,,,test/experiment/gauge/monopole-density.ts:56
+tmp/mp-probe2.ts,scratch,,,test/experiment/gauge/monopole-density.ts:65
+tmp/mp-probe3.ts,scratch,,,test/experiment/gauge/monopole-density.ts:65
+tmp/mp-probe4.ts,scratch,,,test/experiment/gauge/monopole-density.ts:70
+tmp/mt-check1.ts,scratch,,,test/experiment/gauge/mixing-angle-trace.ts:79
+tmp/mt-probe1.ts,scratch,,,test/experiment/gauge/mixing-angle-trace.ts:50
+tmp/mth-husk*.ts,scratch,,,test/experiment/method/husk-isotropy-law.ts:304
+tmp/mth-linear-probe.ts,scratch,,,test/experiment/method/husk-light-isotropy-audit.ts:21
+tmp/mtr-fade-probe-time.log,scratch,,,test/experiment/matter/light-pair-fading.ts:61
+tmp/mtr-fade-probe-time2.log,scratch,,,test/experiment/matter/light-pair-fading.ts:61
+tmp/mtr-fade-probe.ts,scratch,,,test/experiment/matter/light-pair-fading.ts:19
+tmp/mtr-fade-wide.ts,scratch,,,test/experiment/matter/light-pair-fading.ts:19
+tmp/mtr-fd-probe.ts,scratch,,,test/experiment/matter/sector-eigensolver.ts:12
+tmp/mtr-probe-clock.ts,scratch,,,test/experiment/matter/self-port-quadrature.ts:41;test/experiment/matter/counting-clock.ts:47
+tmp/one-speed-probe.ts,scratch,,,test/experiment/gauge/one-light-split.ts:18
+tmp/pair-probe-linear.ts,scratch,,,test/experiment/relativity/covariant-pair-making.ts:24
+tmp/pair-probe-transport.ts,scratch,,,test/experiment/relativity/pair-making-transport.ts:24
+tmp/pbr-probe1.ts,scratch,,,test/experiment/quantum/pbr-stabilizer-readings.ts:20
+tmp/pbr-probe2.ts,scratch,,,test/experiment/quantum/pbr-beat-words.ts:20
+tmp/photon-probe-linear.ts,scratch,,,test/experiment/gauge/photon-links.ts:12
+tmp/pieces-check.ts,scratch,,,test/experiment/gauge/nucleon-deuteron.ts:37
+tmp/planon-probe.ts,scratch,,,test/experiment/spin/planon-lines.ts:83
+tmp/pol-derive.ts,scratch,,,test/experiment/gauge/polaron-golden-rule.ts:31;test/experiment/gauge/polaron-frame.ts:23;test/experiment/gauge/polaron-restriction-exact.ts:10
+tmp/pol-probe1.ts,scratch,,,test/experiment/gauge/polaron-golden-rule.ts:236
+tmp/probe-adoption-check.ts,scratch,,,note/open/field-content-and-gaps.md:271
+tmp/probe-born-ensemble.ts,scratch,,,note/open/coarse-bridge.md:98
+tmp/probe-color-cause.ts,scratch,,,test/experiment/quantum/color-law-keeps-states.ts:8
+tmp/probe-color-validity.ts,scratch,,,test/experiment/quantum/mana-moves-only-at-the-fear-beat.ts:43;test/experiment/quantum/kcbs-on-the-role.ts:45
+tmp/probe-ehrenfest.ts,scratch,,,test/experiment/quantum/ehrenfest-theorem.ts:203
+tmp/probe-g-landau.ts,scratch,,,test/experiment/matter/token-g-two.ts:47;test/experiment/matter/token-g-derived.ts:50
+tmp/probe-g-search.ts,scratch,,,test/experiment/matter/token-g-two.ts:47
+tmp/probe-photon-eigen.ts,scratch,,,code/measure/photon-modes.ts:31
+tmp/probe-port-splitter2.ts,scratch,,,note/open/coarse-bridge.md:47
+tmp/probe-string-net.ts,scratch,,,test/experiment/spin/four-one-binding.ts:481
+tmp/probe-token.ts,scratch,,,test/experiment/matter/token-dispersion.ts:13;test/experiment/spin/spinor-token.ts:22
+tmp/probe-token2.ts,scratch,,,test/experiment/spin/spinor-token.ts:22;test/experiment/spin/palindrome-saddle.ts:6
+tmp/probe-zeeman-mu.ts,scratch,,,test/experiment/matter/token-zeeman.ts:326
+tmp/py-probe-coupling.ts,scratch,,,test/experiment/gauge/pair-yukawa-matched.ts:58
+tmp/py-probe-keys.ts,scratch,,,test/experiment/gauge/pair-yukawa-matched.ts:67
+tmp/py-probe-krylov.ts,scratch,,,test/experiment/matter/doublet-link-ends.ts:64
+tmp/py-probe-line-smoke.ts,scratch,,,test/experiment/gauge/pair-line-both.ts:46
+tmp/py-probe-line.ts,scratch,,,test/experiment/gauge/pair-line-both.ts:41
+tmp/q3-ins.ts,scratch,,,test/experiment/gauge/charge-three.ts:113
+tmp/qa-probe.ts,scratch,,,test/experiment/quantum/pancharatnam-area.ts:40
+tmp/qb-probe.ts,scratch,,,test/experiment/quantum/middle-rung-cglmp.ts:30
+tmp/qb-probe2.ts,scratch,,,test/experiment/quantum/middle-rung-cglmp.ts:32
+tmp/qb-time*.log,scratch,,,test/experiment/gauge/quantum-balance.ts:76
+tmp/qb-time2.log,scratch,,,test/experiment/gauge/ratio-balance.ts:41
+tmp/qlad-probe1.ts,scratch,,,test/experiment/gauge/column-quantizes-the-mode.ts:354
+tmp/qlad-probe10.ts,scratch,,,test/experiment/gauge/ladder-planck.ts:299
+tmp/qlad-probe11.ts,scratch,,,test/experiment/gauge/ladder-emission.ts:227
+tmp/qlad-probe6.ts,scratch,,,test/experiment/gauge/ladder-emission.ts:227
+tmp/qlit-probe1.ts,scratch,,,test/experiment/gauge/ring-massless-light.ts:24
+tmp/qlit-probe2.ts,scratch,,,test/experiment/gauge/ring-massless-light.ts:25;test/experiment/gauge/column-balanced-split.ts:32
+tmp/qlit-probe3.ts,scratch,,,test/experiment/gauge/column-balanced-split.ts:373
+tmp/qlit-probe5.ts,scratch,,,test/experiment/gauge/ring-massless-light.ts:356
+tmp/qlit-probe6.ts,scratch,,,test/experiment/gauge/ring-golden-rule.ts:265
+tmp/qtm123-probe-three-best.ts,scratch,,,test/experiment/quantum/most-magic-roles.ts:311
+tmp/qtm123-probe-three.ts,scratch,,,test/experiment/quantum/most-magic-roles.ts:18
+tmp/qtm137-probe.ts,scratch,,,test/experiment/quantum/apparatus-from-the-knit.ts:61
+tmp/qtm137-probe2.ts,scratch,,,test/experiment/quantum/apparatus-from-the-knit.ts:63
+tmp/qtm138-probe.ts,scratch,,,test/experiment/quantum/bell-in-model-settings.ts:26
+tmp/qtm139-probe.ts,scratch,,,test/experiment/quantum/knot-phase-meeting.ts:11
+tmp/qtm143-probe.ts,scratch,,,test/experiment/quantum/bell-on-net-records.ts:40
+tmp/rad-post79.ts,scratch,,,test/experiment/gravity/radion-static.ts:51
+tmp/rad-post80.ts,scratch,,,test/experiment/gravity/radion-causal.ts:52
+tmp/rad-probe1.ts,scratch,,,test/experiment/gravity/radion-static.ts:23
+tmp/rcw-checks.sh,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-checks.sh,881,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-counts.ts,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-counts.ts,603,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-done.sh,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-done.sh,466,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-eq-compare.ts,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-eq-compare.ts,932,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-eq.ts,scratch,,,test/experiment/spin/register-coulomb-weak.ts:113
+tmp/rcw-eq.ts,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-eq.ts,3398,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-load.sh,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-load.sh,192,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-probe1.ts,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-probe1.ts,6472,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-probe2.ts,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-probe2.ts,3917,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-probe4.ts,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-probe4.ts,2409,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-probe5.ts,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-probe5.ts,3645,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-probe6.ts,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-probe6.ts,3930,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-probe7.ts,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-probe7.ts,4226,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-probe7a.ts,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-probe7a.ts,937,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-register.ts,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-register.ts,1062,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-run.sh,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-run.sh,423,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-stop-probe3.sh,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-stop-probe3.sh,308,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-tsc.sh,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-tsc.sh,299,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/rcw-watch.sh,scratch,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-watch.sh,427,test/experiment/spin/register-coulomb-weak.ts:71
+tmp/reel-probe1.ts,scratch,,,test/experiment/spin/lightest-charge-one-at-ends.ts:18;test/experiment/spin/string-held-at-ends.ts:42
+tmp/reel-probe2.ts,scratch,,,test/experiment/spin/lightest-charge-one-at-ends.ts:56
+tmp/remainder-hot-probe.ts,scratch,,,test/experiment/gauge/photon-remainder.ts:1564
+tmp/rerun-scross.sh,scratch,,,PR.md:39
+tmp/rlt089-probe.ts,scratch,,,test/experiment/relativity/causal-components.ts:22
+tmp/rlt091-descent-probe.ts,scratch,,,test/experiment/relativity/dependence-components.ts:87
+tmp/rlt091-descent-probe2.ts,scratch,,,test/experiment/relativity/dependence-components.ts:87
+tmp/rlt113-probe1.ts,scratch,,,test/experiment/relativity/taxicab-control-anisotropy.ts:20
+tmp/rlt114-timing-probe.ts,scratch,,,test/experiment/relativity/composite-lineon-mobility.ts:79
+tmp/rrfix-probe6.ts,scratch,,,code/measure/register-reduced.ts:392
+tmp/rrfix-tables.ts,scratch,,,test/experiment/relativity/bound-pair-direction.ts:135;test/experiment/relativity/bound-pair-direction.ts:418;test/experiment/relativity/bound-pair-line-split.ts:61;test/experiment/relativity/bound-pair-still-branch.ts:49
+tmp/rt-pull-combine.ts,scratch,,,test/experiment/spin/pulled-pair-fear.ts:45
+tmp/run-audit.sh,scratch,,,test/experiment/gauge/eig-hermitian-audit.ts:10;test/experiment/gauge/eig-hermitian-audit.ts:219
+tmp/run-mth28.sh,scratch,,,test/experiment/method/multi-start-robustness.ts:16
+tmp/run-one.ts,scratch,,,test/experiment/gauge/schwinger.ts:30;test/experiment/gauge/su2-condensate.ts:28
+tmp/sigma-fast-check.ts,scratch,,,test/experiment/gauge/sigma-confined-string.ts:49;code/rule/sigma-fast.ts:9
+tmp/sl-probe1.ts,scratch,,,test/experiment/relativity/shear-line-counts.ts:42
+tmp/span-probe.ts,scratch,,,test/experiment/gravity/depth-span-rule.ts:43
+tmp/sparse-probe1.ts,scratch,,,test/experiment/relativity/sparse-living-vacuum.ts:58
+tmp/sr-probe1.ts,scratch,,,test/experiment/matter/one-light-speed.ts:21;test/experiment/matter/one-light-speed.ts:632
+tmp/standin-convergence-probe.ts,scratch,,,test/experiment/quantum/standin-h2-plus.ts:46
+tmp/standin-probe.ts,scratch,,,test/experiment/quantum/standin-h2-plus.ts:17
+tmp/sw-probe1.ts,scratch,,,test/experiment/gauge/split-wraps.ts:57
+tmp/sx-probe-wall.ts,scratch,,,test/experiment/spin/paid-string-binding.ts:636
+tmp/sym-probe1.ts,scratch,,,test/experiment/relativity/symmetric-transport-reader.ts:44
+tmp/sym-probe2.ts,scratch,,,test/experiment/relativity/symmetric-transport-reader.ts:44
+tmp/sym-wall-probe2.ts,scratch,,,test/experiment/relativity/lines-and-walls.ts:22
+tmp/tb-probe1.ts,scratch,,,test/experiment/foundations/two-vibe-uniqueness.ts:28
+tmp/tb-probe2.ts,scratch,,,test/experiment/foundations/two-vibe-uniqueness.ts:28
+tmp/tb-probe3.ts,scratch,,,test/experiment/foundations/two-vibe-uniqueness.ts:59
+tmp/tb-smoke-0166.ts,scratch,,,test/experiment/foundations/register-bosons.ts:76
+tmp/tl-core.ts,scratch,,,test/experiment/quantum/temporal-ladder.ts:35
+tmp/tl-probe1.ts,scratch,,,test/experiment/quantum/temporal-ladder.ts:35
+tmp/tp-diag.ts,scratch,,,test/experiment/foundations/register-temperature.ts:91
+tmp/turn-time.log,scratch,,,test/experiment/spin/slab-turned-composite.ts:91
+tmp/vac-probe-orientation.ts,scratch,,,test/experiment/relativity/hot-vacuum-symmetry-breaking.ts:702
+tmp/vac-probe-rates.ts,scratch,,,test/experiment/relativity/returned-neutral-pairs.ts:158
+tmp/vary-probe1.ts,scratch,,,test/experiment/relativity/dock-varying-vacuum.ts:25;test/experiment/relativity/dock-varying-vacuum.ts:71
+tmp/vary-probe3.ts,scratch,,,test/experiment/relativity/dock-varying-vacuum.ts:62;test/experiment/relativity/frame-vacuum.ts:44;test/experiment/relativity/frame-vacuum.ts:50
+tmp/vw-probe1.ts,scratch,,,test/experiment/quantum/vacuum-meeting-words.ts:34
+tmp/vw-probe2.ts,scratch,,,test/experiment/quantum/vacuum-meeting-words.ts:35
+tmp/vw-probe3.ts,scratch,,,test/experiment/quantum/vacuum-meeting-words.ts:39
+tmp/walk-probe.ts,scratch,,,test/experiment/gauge/husk-cyclotron.ts:11;code/measure/charged-walk.ts:6
+tmp/wstream.sh,scratch,,,test/experiment/gauge/wall-index.ts:84
+tmp/wy-probe1.ts,scratch,,,test/experiment/quantum/weyl-pair.ts:58
+tmp/wy-probe5.ts,scratch,,,test/experiment/quantum/weyl-pair.ts:58;test/experiment/quantum/weyl-pair.ts:71
+tmp/zn-probe1.ts,scratch,,,test/experiment/quantum/discrete-zeno-law.ts:38
+tmp/rcw-eq-js.bin,too_large,/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rcw-eq-js.bin,592118800,test/experiment/spin/register-coulomb-weak.ts:71

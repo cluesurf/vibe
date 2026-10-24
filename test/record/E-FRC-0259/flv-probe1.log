@@ -1,0 +1,17 @@
+commutant of the bilinears: rank 56, null 8; right mults commute true, commute with J true, rank 8
+rotations alone: null 6; all of W(F4): null 3; bilinears + rotations: null 2
+rotation-covariant and commuting with J: null 4 (so 2 covariant operators couple the halves)
+masses 0.143348 0.190126 0.236904
+uK angle 0.09355606888220278
+A(0->1), trimaximal, coupled: 0.0000e+0 -1.5037e-9 -3.5825e-8 -2.9551e-7 -1.4582e-6 -5.2736e-6 -1.5454e-5 -3.8875e-5 -8.7056e-5 -1.7785e-4 -3.3723e-4 -6.0103e-4
+A(0->1), conj V, coupled:     0.0000e+0 1.5037e-9 3.5825e-8 2.9551e-7 1.4582e-6 5.2736e-6 1.5454e-5 3.8875e-5 8.7056e-5 1.7785e-4 3.3723e-4 6.0103e-4
+A(0->1), Householder:         0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0
+A(0->1), V = 1:               0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0
+A(0->1), trimaximal, uncoupled: 0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0
+P(0->1), trimaximal, uncoupled: 0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0 0.0000e+0
+rephasing invariant over 36: true
+det[H+, H-] = (-959078961 + -1918157922 w) / 1276676260761792016; real part zero true; product of differences 8631710649/1276676260761792016
+Jarlskog of V {"num":["0","9"],"den":"81","value":0.09622504486493762}
+det conj V: {"a":"959078961","b":"1918157922","d":"1276676260761792016"}
+det Householder: {"a":"0","b":"0","d":"1"}
+exit=0

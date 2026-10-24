@@ -65,12 +65,12 @@
 // cuts every hop by 1 - O(g^2) (the probe read DW 0.917 at a_B 8 on L 8) while the rest energy stays, and the
 // one-photon cloud adds inertia at first order too. So predicted FAIL, unless the dressing cancels in R.
 //
-// PROBES, disclosed: tmp/qtm-probe.log, tmp/qtm-probe2.log (Hermiticity, the vertex, light off, timing; no (b) level
+// PROBES, disclosed: test/record/E-QTM-0181/qtm-probe.log, test/record/E-QTM-0181/qtm-probe2.log (Hermiticity, the vertex, light off, timing; no (b) level
 // read). The first probe's Hermiticity test failed at N 2 and 3 because its test vectors were not symmetric in the
 // photon labels (the operators act on the symmetric space); with symmetrized vectors 1.3e-14 and 2.7e-14.
 //
-// FIRST RUN (2026-10-20, tmp/qtm-part-*.json by tmp/qtm-part.ts, verdict tmp/qtm-0181-verdict.log by
-// tmp/qtm-combine.ts; one thread a part, about 3 hours in all): PARTIAL, by I2. No gate moved.
+// FIRST RUN (2026-10-20, test/record/E-QTM-0181/qtm-part-*.json by test/record/E-QTM-0181/run/qtm-part.ts, verdict test/record/E-QTM-0181/qtm-0181-verdict.log by
+// test/record/E-QTM-0181/run/qtm-combine.ts; one thread a part, about 3 hours in all): PARTIAL, by I2. No gate moved.
 //  - I0, I1, I3, C1 hold: Hermitian to 2.7e-14, the vertex to 8.8e-18, light off R to 1.9e-9 (pair) and 3.0e-8
 //    (lone), every residual under 1e-9 and every ratio within 0.002 of 4; photon number N 2 moves Delta by 0.9% and
 //    1.5% (a_B 8, 16 on L 16), and on L 8 N 1, 2, 3 read 0.0872, 0.0853, 0.0857 (converged); transverse off equals
@@ -536,8 +536,8 @@ export default experiment({
 // READ: Delta_ms = R_b - R_ms against the whole instantaneous exchange (mutual plus each member's own) and its
 // exponent, which says whether anything beyond the zero-frequency exchange is first order; the members' own share
 // R_ms - R_a; the Debye-Waller factor.
-// AMENDED, disclosed: the first slab reads (the (8, 4) boxes at a_B 3 and 4 and the start of (16, 8), tmp/qtm-S1.log,
-// files tmp/qtm-part-s-*.json) counted the pull with each charge's own Coulomb energy, g^2 (G(0) - G(r)), E-QTM-0181's
+// AMENDED, disclosed: the first slab reads (the (8, 4) boxes at a_B 3 and 4 and the start of (16, 8), test/record/E-QTM-0182/qtm-S1.log,
+// files test/record/E-QTM-0181/qtm-part-s-*.json) counted the pull with each charge's own Coulomb energy, g^2 (G(0) - G(r)), E-QTM-0181's
 // plane convention; that put the pair's E far above 2 M0 (2.62 against 1.71) and R_static at 0.75, against the 3d
 // reading, whose pull is zero far away (-alpha n(r), E = 2 M0 - E_b). The slab now uses -g^2 G(r) (selfEnergy
 // false); no gate moved, the keys were renamed slab-*, and every slab part was read again under it. Those first reads
@@ -546,7 +546,7 @@ export default experiment({
 // dressing (in E-QTM-0181's plane the pair's R_b sits 0.15 above R_a at a_B 8 to 16), which the 3d R_full leaves out
 // with its bare tan m / m.
 //
-// FIRST RUN (2026-10-20, tmp/qtm-L1..L4.log, tmp/qtm-S2..S4.log, verdict tmp/qtm-0182-verdict.log): PARTIAL. No
+// FIRST RUN (2026-10-20, tmp/qtm-L1..L4.log, tmp/qtm-S2..S4.log, verdict test/record/E-QTM-0182/qtm-0182-verdict.log): PARTIAL. No
 // gate moved. The two (32, 16) main slabs (a_B 6, 8, 33.5 million amplitudes) were stopped after their static,
 // Darwin and lone reads, at about 36 minutes a level under the shared load, to keep the task under 8 hours; the
 // verdict reads a_B 6 and 8 on their (24, 12) finite-size slabs, so I2 cannot hold there (disclosed, the reason for

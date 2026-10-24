@@ -1,0 +1,40 @@
+{
+ "kind": "slab",
+ "label": "step2 weyl L 16",
+ "L": 16,
+ "k": 3,
+ "window": 0.1,
+ "count": 0,
+ "eps": [],
+ "wallShareMin": null,
+ "projector": [],
+ "delta": null,
+ "deltaRef": 0.00031780028996032417,
+ "D3": 1,
+ "D3eps": 1,
+ "singular": [],
+ "eigenResidual": 0,
+ "passes": 1,
+ "aboveCut": 0,
+ "guard": 1.7116620954148654,
+ "complete": true,
+ "krylov": {
+  "count": 0,
+  "offsets": [],
+  "complete": true,
+  "rounds": 1,
+  "nearest": 0.471433238500839,
+  "nearestResidual": 0.0005858540005161577,
+  "eigenResidual": 0,
+  "seconds": 318.682
+ },
+ "seconds": 1105.168,
+ "witness": {
+  "pieceGap": 1.9238771594458774e-15,
+  "reverse": 5.588000014763635e-16,
+  "unitary": 4.440892098500626e-16,
+  "cycle": 1.8224756755160066e-14,
+  "cycleDag": 1.951547817554272e-14,
+  "metric": 3.202039647068469e-14
+ }
+}

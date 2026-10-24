@@ -1,0 +1,26 @@
+class 0: P 578, |P - X|^2 12
+  bg p0: charge 3..3, offLine max 16.620 at 2.00/5.01/2.91/2.16/1.94, offStar 0/0/0/0/0, wake 49/52/55/55/59, footprint 27/34/32/34/34, K off hubs 0 on 0 docks, bg K off hub 0
+  vac p0: charge 3..3, offLine max 16.620 at 2.00/5.01/2.91/2.16/1.94, offStar 0/0/0/0/0, wake 49/52/55/55/59, footprint 27/34/32/34/34, K off hubs 0 on 0 docks, bg K off hub 0
+  bg p1: charge 3..3, offLine max 16.303 at 4.27/4.27/1.76/2.58/4.24, offStar 0/0/0/0/0, wake 51/49/48/54/58, footprint 27/25/25/35/35, K off hubs 0 on 0 docks, bg K off hub 0
+  vac p1: charge 3..3, offLine max 16.303 at 4.27/4.27/1.76/2.58/4.24, offStar 0/0/0/0/0, wake 51/49/48/54/58, footprint 27/25/25/35/35, K off hubs 0 on 0 docks, bg K off hub 0
+class 400: P 642, |P - X|^2 10
+  bg p0: charge 3..3, offLine max 821.755 at 5.27/21.17/6.00/748.01/137.49, offStar 34/720/30260/38957/39053, wake 97/852/30386/39061/39166, footprint 68/438/4089/4095/4095, K off hubs 217072 on 4079 docks, bg K off hub 0
+  vac p0: charge 3..3, offLine max 16.513 at 2.40/6.68/5.35/3.68/2.91, offStar 0/0/0/0/0, wake 59/126/144/137/138, footprint 40/65/73/73/74, K off hubs 0 on 0 docks, bg K off hub 0
+  bg p1: charge 3..3, offLine max 801.683 at 2.00/11.79/106.81/608.43/153.53, offStar 19/191/13345/38965/39091, wake 52/289/13489/39074/39210, footprint 41/160/3814/4094/4091, K off hubs 205577 on 4079 docks, bg K off hub 0
+  vac p1: charge 3..3, offLine max 17.626 at 2.00/13.31/4.83/3.02/2.16, offStar 0/0/0/0/0, wake 33/95/142/137/135, footprint 22/54/73/74/73, K off hubs 0 on 0 docks, bg K off hub 0
+class 1200: P 1235, |P - X|^2 4
+  bg p0: charge 3..3, offLine max 998.493 at 5.98/11.22/22.16/723.46/77.17, offStar 68/334/8385/38895/39049, wake 101/372/8436/38965/39122, footprint 77/213/2980/4094/4093, K off hubs 201915 on 4079 docks, bg K off hub 0
+  vac p0: charge 3..3, offLine max 9.649 at 1.70/1.76/1.70/9.58/4.35, offStar 0/0/0/0/0, wake 32/33/53/51/55, footprint 20/21/26/31/33, K off hubs 0 on 0 docks, bg K off hub 0
+  bg p1: charge 3..3, offLine max 1010.779 at 2.91/13.04/40.87/754.75/144.48, offStar 19/157/4048/38856/39057, wake 50/207/4103/38923/39127, footprint 37/126/1850/4094/4094, K off hubs 196381 on 4079 docks, bg K off hub 0
+  vac p1: charge 3..3, offLine max 12.745 at 3.56/4.94/1.15/5.93/2.16, offStar 0/0/0/0/0, wake 31/52/53/55/56, footprint 18/30/31/34/34, K off hubs 0 on 0 docks, bg K off hub 0
+class 2400: P 130, |P - X|^2 16
+  bg p0: charge 3..3, offLine max 174.547 at 2.91/5.93/6.07/140.80/94.67, offStar 15/124/890/3312/3364, wake 40/164/938/3371/3420, footprint 24/100/498/1552/1221, K off hubs 10276 on 239 docks, bg K off hub 0
+  vac p0: charge 3..3, offLine max 12.247 at 4.64/4.37/2.21/8.01/2.00, offStar 0/0/0/0/0, wake 27/42/53/48/50, footprint 16/27/31/33/35, K off hubs 0 on 0 docks, bg K off hub 0
+  bg p1: charge 3..3, offLine max 147.853 at 3.92/6.77/6.68/12.02/62.83, offStar 1/5/110/3017/3349, wake 45/52/158/3063/3403, footprint 24/31/97/1364/1234, K off hubs 8513 on 239 docks, bg K off hub 0
+  vac p1: charge 3..3, offLine max 9.888 at 3.92/5.77/3.30/9.59/2.58, offStar 0/0/0/0/0, wake 44/47/47/53/54, footprint 24/28/27/31/35, K off hubs 0 on 0 docks, bg K off hub 0
+class 2701: P 1747, |P - X|^2 2
+  bg p0: charge 3..3, offLine max 803.409 at 1.15/2.00/9.40/650.24/78.50, offStar 0/42/245/37307/39025, wake 21/77/301/37428/39137, footprint 14/28/195/4094/4095, K off hubs 161196 on 4079 docks, bg K off hub 0
+  vac p0: charge 3..3, offLine max 11.860 at 1.15/4.24/0.47/7.86/3.46, offStar 0/0/0/0/0, wake 21/34/50/90/116, footprint 14/19/37/49/61, K off hubs 0 on 0 docks, bg K off hub 0
+  bg p1: charge 3..3, offLine max 834.528 at 2.91/20.47/82.40/699.40/55.70, offStar 18/148/6650/38927/39074, wake 45/202/6745/39040/39195, footprint 24/132/2676/4095/4095, K off hubs 199812 on 4079 docks, bg K off hub 0
+  vac p1: charge 3..3, offLine max 17.321 at 1.94/3.56/1.94/3.02/2.36, offStar 0/0/0/0/0, wake 27/52/88/108/117, footprint 12/23/55/55/62, K off hubs 0 on 0 docks, bg K off hub 0
+exit=0

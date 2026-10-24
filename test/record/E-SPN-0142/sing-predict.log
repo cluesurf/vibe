@@ -1,0 +1,12 @@
+interior pi/3: theta 1.04720 phi 2.09440 m 0.523599 edge false gap 1.047198 a 0.433013 c/c_lat 0.476156 R 1.102658 eta2 -1.749e-3 (2-level c^2 0.453450) beta 0.14434 beta m 7.557e-2 eta ~ 7.383e-2
+massless phi: massless, c0/c = 0.5, gamma = beta/2 = 0.07217, gamma/c0 = 0.10206
+m pi/96: theta 2.15984 phi 2.09440 m 0.032725 edge true gap 0.065450 a 7.636710 c/c_lat 0.499911 R 1.000357 eta2 -2.741e-2 (2-level c^2 0.499822) beta 0.14434 beta m 4.723e-3 eta ~ -2.268e-2
+m pi/48 (chosen): theta 2.22529 phi 2.09440 m 0.065450 edge true gap 0.130900 a 3.814263 c/c_lat 0.499643 R 1.001430 eta2 -7.683e-3 (2-level c^2 0.499286) beta 0.14434 beta m 9.447e-3 eta ~ 1.764e-3
+m pi/24: theta 2.35619 phi 2.09440 m 0.130900 edge true gap 0.261799 a 1.898939 c/c_lat 0.498568 R 1.005751 eta2 2.641e-3 (2-level c^2 0.497141) beta 0.14434 beta m 1.889e-2 eta ~ 2.153e-2
+m pi/12: theta 2.61799 phi 2.09440 m 0.261799 edge true gap 0.523599 a 0.933013 c/c_lat 0.494229 R 1.023491 eta2 2.464e-4 (2-level c^2 0.488524) beta 0.14434 beta m 3.779e-2 eta ~ 3.803e-2
+pi (m pi/6): theta 3.14159 phi 2.09440 m 0.523599 edge true gap 1.047198 a 0.433013 c/c_lat 0.476156 R 1.102658 eta2 -2.129e-3 (2-level c^2 0.453450) beta 0.14434 beta m 7.557e-2 eta ~ 7.345e-2
+4pi/3 (m pi/3): theta 4.18879 phi 2.09440 m 1.047198 edge true gap 2.094395 a 0.144338 c/c_lat 0.388780 R 1.653987 eta2 -5.145e-2 (2-level c^2 0.302300) beta 0.14434 beta m 1.511e-1 eta ~ 9.970e-2
+5pi/3 (m pi/2): theta 5.23599 phi 2.09440 m 1.570796 edge false gap 1.047198 a 0.000000 c/c_lat 0.000000 R 10396789879511724.000000 eta2 NaN (2-level c^2 0.000000) beta 0.14434 beta m 2.267e-1 eta ~ NaN
+n 4, m pi/48: theta 0.65450 phi 0.52360 m 0.065450 edge true gap 0.130900 a 3.814263 c/c_lat 0.499643 R 1.001430 eta2 -6.820e-3 (2-level c^2 0.499286) beta 0.93301 beta m 6.107e-2 eta ~ 5.425e-2
+n 2/3, m pi/48: theta 3.27249 phi 3.14159 m 0.065450 edge true gap 0.130900 a 3.814263 c/c_lat 0.499643 R 1.001430 eta2 -7.683e-3 (2-level c^2 0.499286) beta 0.00000 beta m 1.002e-18 eta ~ -7.683e-3
+exit=0

@@ -1,0 +1,149 @@
+D 1 level, line c1 19.859938930154616 31s
+D 1 rate 0: held false min fidelity 0.8816262901862277 max tail 0.16616547622658545 E 1.5577128018307251 weight 0.8854511072338018 45s
+D 1 rate 0.015625: held false min fidelity 0.6946939552922675 max tail 0.28709689205166145 E 1.6597169428569154 weight 0.9204894383013538 102s
+D 1 rate 0.03125: held false min fidelity 0.6403329440173244 max tail 0.3761763769629791 E 1.6752765548966386 weight 0.912158641208439 147s
+D 1 rate 0.0625: held false min fidelity 0.336828198833263 max tail 0.5318974996839235 E 1.8367695740454304 weight 0.811857811435248 172s
+D 1 rate 0.125: held false min fidelity 0.14104105197840464 max tail 0.6914219658412037 E 2.023525812833987 weight 0.5038118928117432 195s
+D 1 rate 0.25: held false min fidelity 0.018103996121790596 max tail 0.8323518234253993 E 2.3027513654475973 weight 0.3455286524887476 229s
+D 2 level, line c1 -0.01766543647436507 259s
+D 2 rate 0: held false min fidelity 0.998727971416311 max tail 0.005354634718326041 E 0.7196288517041429 weight 0.9990012258906664 273s
+D 2 rate 0.015625: held false min fidelity 0.3731678739347758 max tail 0.07724101673052122 E 0.6977497193690078 weight 0.6911554090639737 310s
+D 2 rate 0.03125: held false min fidelity 0.4083940200204178 max tail 0.09427750412055473 E 0.8337110655248462 weight 0.7155655914094186 349s
+D 2 rate 0.0625: held false min fidelity 0.2834312259305678 max tail 0.15025041965122232 E 0.8575990130272039 weight 0.7080954301338995 402s
+D 2 rate 0.125: held false min fidelity 0.1817104145038846 max tail 0.18378039209004904 E 0.9808311661280699 weight 0.41342830972673517 463s
+D 2 rate 0.25: held false min fidelity 0.14430515771380562 max tail 0.31667739768962977 E 1.1902807603196728 weight 0.43100978521774536 510s
+D 3 level, line c1 0.6352988365657559 573s
+D 3 rate 0: held true min fidelity 0.9999904082665786 max tail 0.00004465558429976462 E 0.330017263726011 weight 0.9999956171926434 584s
+D 3 rate 0.015625: held false min fidelity 0.9290323687319242 max tail 0.0033217368741665556 E 0.4108756354607611 weight 0.9590582078996476 605s
+D 3 rate 0.03125: held false min fidelity 0.8975117165132251 max tail 0.008715960486148039 E 0.43796578271283604 weight 0.9656795369517117 622s
+D 3 rate 0.0625: held false min fidelity 0.7149056485964834 max tail 0.026379926605339745 E 0.4383439452088851 weight 0.8657573294270431 641s
+D 3 rate 0.125: held false min fidelity 0.2524113259660674 max tail 0.05724491740631581 E 0.43359638472685175 weight 0.6393096812462141 663s
+D 3 rate 0.25: held false min fidelity 0.08059458986032386 max tail 0.1212775844903568 E 0.51938231556611 weight 0.48444693542485895 684s
+D 3 checks 715s
+D 6 level, line c1 -0.03579056923033819 764s
+D 6 rate 0: held true min fidelity 0.9999954720062699 max tail 0.000006904375089898216 E -0.12246960716426848 weight 0.9999984661605867 781s
+D 6 rate 0.015625: held false min fidelity 0.8967043880394913 max tail 0.060211346429437915 E -0.05212006960740518 weight 0.9476185697882032 816s
+D 6 rate 0.03125: held false min fidelity 0.1474866252436822 max tail 0.21057617889251176 E -0.240863347924023 weight 0.5050746691159108 837s
+D 6 rate 0.0625: held false min fidelity 0.42459067912547627 max tail 0.35835250424269816 E -0.026148295355903486 weight 0.4952109530317529 860s
+D 6 rate 0.125: held false min fidelity 0.0794228242208838 max tail 0.5416484593560575 E -0.152909682831571 weight 0.591544585546893 892s
+D 6 rate 0.25: held false min fidelity 0.005501043612775598 max tail 0.7041304566471487 E -0.11881742959757087 weight 0.3701430558726341 935s
+M1 935s
+M2 M3 938s
+bag D 3: held false min fidelity 0.8561217513556236 max tail 0.01963199187573445 965s
+bag D 6: held false min fidelity 0.4682551979638866 max tail 0.34900477996619944 988s
+bag lone 989s
+status fail
+claim three holes on the slab (w 12, Steiner string pi/N, N 3 5 7 13; mixer rates 0 to 1/4): held D 1: ------, D 2: ------, D 3: H-----, D 6: H----- against the Klein-gap prediction D 1: ------, D 2: ------, D 3: H-----, D 6: HHHHHH (M1 false, 5 of 23 gated points disagree; boundary exponent not readable against -2); joint path none with 0 tensors passing (M2 false), best not read isotropy not read; m*/E_rest along it not read against the lone hole - (M3 false); bag inside 1/16 outside 3: D 3 not held (fidelity 0.8561, tail 1.96e-2), D 6 not held (fidelity 0.4683, tail 3.49e-1), lone hole free true (B false); CR true, CC true
+  M1 0
+  M2 0
+  M3 0
+  B 0
+  B1 0
+  B2 0
+  B3 1
+  control_CR 1
+  control_CC 1
+  checked 1
+  gatedPoints 23
+  disagreements 5
+  boundaryExponent NaN
+  boundaryExponentPredicted -2
+  boundaryRates 1
+  pathLength 0
+  pathPassing 0
+  isotropy NaN
+  normGap 8.892886427247504e-13
+  antiGap 2.2040876426440779e-13
+  placedGap 0
+  bagSameGap 0
+  loneBagGap 0
+  loneBagTensorGap 0
+  ccMinFidelity 0.9999986380622382
+  ccMaxTail 0.000006114256105783575
+  r03Energy 0.330017263726011
+  seconds 988.767
+  D1r0Held 0
+  D1r0MinFidelity 0.8816262901862277
+  D1r0MaxTail 0.16616547622658545
+  D1r1_64Held 0
+  D1r1_64MinFidelity 0.6946939552922675
+  D1r1_64MaxTail 0.28709689205166145
+  D1r1_32Held 0
+  D1r1_32MinFidelity 0.6403329440173244
+  D1r1_32MaxTail 0.3761763769629791
+  D1r1_16Held 0
+  D1r1_16MinFidelity 0.336828198833263
+  D1r1_16MaxTail 0.5318974996839235
+  D1r1_8Held 0
+  D1r1_8MinFidelity 0.14104105197840464
+  D1r1_8MaxTail 0.6914219658412037
+  D1r1_4Held 0
+  D1r1_4MinFidelity 0.018103996121790596
+  D1r1_4MaxTail 0.8323518234253993
+  D2r0Held 0
+  D2r0MinFidelity 0.998727971416311
+  D2r0MaxTail 0.005354634718326041
+  D2r1_64Held 0
+  D2r1_64MinFidelity 0.3731678739347758
+  D2r1_64MaxTail 0.07724101673052122
+  D2r1_32Held 0
+  D2r1_32MinFidelity 0.4083940200204178
+  D2r1_32MaxTail 0.09427750412055473
+  D2r1_16Held 0
+  D2r1_16MinFidelity 0.2834312259305678
+  D2r1_16MaxTail 0.15025041965122232
+  D2r1_8Held 0
+  D2r1_8MinFidelity 0.1817104145038846
+  D2r1_8MaxTail 0.18378039209004904
+  D2r1_4Held 0
+  D2r1_4MinFidelity 0.14430515771380562
+  D2r1_4MaxTail 0.31667739768962977
+  D3r0Held 1
+  D3r0MinFidelity 0.9999904082665786
+  D3r0MaxTail 0.00004465558429976462
+  D3r1_64Held 0
+  D3r1_64MinFidelity 0.9290323687319242
+  D3r1_64MaxTail 0.0033217368741665556
+  D3r1_32Held 0
+  D3r1_32MinFidelity 0.8975117165132251
+  D3r1_32MaxTail 0.008715960486148039
+  D3r1_16Held 0
+  D3r1_16MinFidelity 0.7149056485964834
+  D3r1_16MaxTail 0.026379926605339745
+  D3r1_8Held 0
+  D3r1_8MinFidelity 0.2524113259660674
+  D3r1_8MaxTail 0.05724491740631581
+  D3r1_4Held 0
+  D3r1_4MinFidelity 0.08059458986032386
+  D3r1_4MaxTail 0.1212775844903568
+  D6r0Held 1
+  D6r0MinFidelity 0.9999954720062699
+  D6r0MaxTail 0.000006904375089898216
+  D6r1_64Held 0
+  D6r1_64MinFidelity 0.8967043880394913
+  D6r1_64MaxTail 0.060211346429437915
+  D6r1_32Held 0
+  D6r1_32MinFidelity 0.1474866252436822
+  D6r1_32MaxTail 0.21057617889251176
+  D6r1_16Held 0
+  D6r1_16MinFidelity 0.42459067912547627
+  D6r1_16MaxTail 0.35835250424269816
+  D6r1_8Held 0
+  D6r1_8MinFidelity 0.0794228242208838
+  D6r1_8MaxTail 0.5416484593560575
+  D6r1_4Held 0
+  D6r1_4MinFidelity 0.005501043612775598
+  D6r1_4MaxTail 0.7041304566471487
+  c1D1 19.859938930154616
+  c1D2 -0.01766543647436507
+  c1D3 0.6352988365657559
+  c1D6 -0.03579056923033819
+  bagD3Held 0
+  bagD3MinFidelity 0.8561217513556236
+  bagD3MaxTail 0.01963199187573445
+  bagD6Held 0
+  bagD6MinFidelity 0.4682551979638866
+  bagD6MaxTail 0.34900477996619944
+control {"r03Energy":0.330017263726011,"ccMinFidelity":0.9999986380622382,"ccMaxTail":0.000006114256105783575,"placedMinFidelity":0.6892365250233201}
+notes L2. Grid: D 1 rate 0 (0.00 deg): not held (predicted not, exponent 3.290, ratio 0.476) least fidelity 0.88163 largest tail 1.66e-1 E 1.557713 start weight 0.8855 residual 2.92e-1 mean Steiner 4.076 off one line 0.0000; D 1 rate 1/64 (7.17 deg): not held (predicted not, exponent 2.909, ratio 0.421) least fidelity 0.69469 largest tail 2.87e-1 E 1.659717 start weight 0.9205 residual 3.21e-1 mean Steiner 4.360 off one line 0.0305; D 1 rate 1/32 (10.14 deg): not held (predicted not, exponent 2.757, ratio 0.399) least fidelity 0.64033 largest tail 3.76e-1 E 1.675277 start weight 0.9122 residual 2.17e-1 mean Steiner 4.708 off one line 0.0685; D 1 rate 1/16 (14.36 deg): not held (predicted not, exponent 2.550, ratio 0.369) least fidelity 0.33683 largest tail 5.32e-1 E 1.836770 start weight 0.8119 residual 4.88e-1 mean Steiner 5.148 off one line 0.1620; D 1 rate 1/8 (20.36 deg): not held (predicted not, exponent 2.268, ratio 0.328) least fidelity 0.14104 largest tail 6.91e-1 E 2.023526 start weight 0.5038 residual 5.82e-1 mean Steiner 6.110 off one line 0.3904; D 1 rate 1/4 (28.96 deg): not held (predicted not, exponent 1.894, ratio 0.274) least fidelity 0.01810 largest tail 8.32e-1 E 2.302751 start weight 0.3455 residual 6.20e-1 mean Steiner 6.546 off one line 0.6978; D 2 rate 0 (0.00 deg): not held (predicted not, exponent 5.483, ratio 0.794) least fidelity 0.99873 largest tail 5.35e-3 E 0.719629 start weight 0.9990 residual 4.38e-2 mean Steiner 2.548 off one line 0.0000; D 2 rate 1/64 (7.17 deg): not held (predicted not, exponent 4.848, ratio 0.702) least fidelity 0.37317 largest tail 7.72e-2 E 0.697750 start weight 0.6912 residual 7.67e-1 mean Steiner 3.062 off one line 0.2345; D 2 rate 1/32 (10.14 deg): not held (predicted not, exponent 4.595, ratio 0.665) least fidelity 0.40839 largest tail 9.43e-2 E 0.833711 start weight 0.7156 residual 4.55e-1 mean Steiner 2.987 off one line 0.2601; D 2 rate 1/16 (14.36 deg): not held (predicted not, exponent 4.249, ratio 0.615) least fidelity 0.28343 largest tail 1.50e-1 E 0.857599 start weight 0.7081 residual 7.34e-1 mean Steiner 3.589 off one line 0.4763; D 2 rate 1/8 (20.36 deg): not held (predicted not, exponent 3.780, ratio 0.547) least fidelity 0.18171 largest tail 1.84e-1 E 0.980831 start weight 0.4134 residual 8.05e-1 mean Steiner 3.579 off one line 0.4678; D 2 rate 1/4 (28.96 deg): not held (predicted not, exponent 3.156, ratio 0.457) least fidelity 0.14431 largest tail 3.17e-1 E 1.190281 start weight 0.4310 residual 8.11e-1 mean Steiner 4.204 off one line 0.6390; D 3 rate 0 (0.00 deg): HELD (predicted held, exponent 7.676, ratio 1.111) least fidelity 0.99999 largest tail 4.47e-5 E 0.330017 start weight 1.0000 residual 1.64e-3 mean Steiner 2.188 off one line 0.0000; D 3 rate 1/64 (7.17 deg): not held (predicted not, exponent 6.787, ratio 0.982, edge, not gated) least fidelity 0.92903 largest tail 3.32e-3 E 0.410876 start weight 0.9591 residual 1.37e-1 mean Steiner 2.328 off one line 0.0373; D 3 rate 1/32 (10.14 deg): not held (predicted not, exponent 6.434, ratio 0.931) least fidelity 0.89751 largest tail 8.72e-3 E 0.437966 start weight 0.9657 residual 2.23e-1 mean Steiner 2.469 off one line 0.0748; D 3 rate 1/16 (14.36 deg): not held (predicted not, exponent 5.949, ratio 0.861) least fidelity 0.71491 largest tail 2.64e-2 E 0.438344 start weight 0.8658 residual 4.46e-1 mean Steiner 3.065 off one line 0.2237; D 3 rate 1/8 (20.36 deg): not held (predicted not, exponent 5.292, ratio 0.766) least fidelity 0.25241 largest tail 5.72e-2 E 0.433596 start weight 0.6393 residual 6.43e-1 mean Steiner 3.461 off one line 0.3067; D 3 rate 1/4 (28.96 deg): not held (predicted not, exponent 4.419, ratio 0.640) least fidelity 0.08059 largest tail 1.21e-1 E 0.519382 start weight 0.4844 residual 7.45e-1 mean Steiner 4.406 off one line 0.5661; D 6 rate 0 (0.00 deg): HELD (predicted held, exponent 14.256, ratio 2.064) least fidelity 1.00000 largest tail 6.90e-6 E -0.122470 start weight 1.0000 residual 7.42e-4 mean Steiner 2.204 off one line 0.0000; D 6 rate 1/64 (7.17 deg): not held (predicted held, exponent 12.604, ratio 1.825) least fidelity 0.89670 largest tail 6.02e-2 E -0.052120 start weight 0.9476 residual 1.14e-1 mean Steiner 2.401 off one line 0.0411; D 6 rate 1/32 (10.14 deg): not held (predicted held, exponent 11.948, ratio 1.730) least fidelity 0.14749 largest tail 2.11e-1 E -0.240863 start weight 0.5051 residual 4.37e-1 mean Steiner 3.811 off one line 0.3713; D 6 rate 1/16 (14.36 deg): not held (predicted held, exponent 11.048, ratio 1.599) least fidelity 0.42459 largest tail 3.58e-1 E -0.026148 start weight 0.4952 residual 2.88e-1 mean Steiner 3.028 off one line 0.1748; D 6 rate 1/8 (20.36 deg): not held (predicted held, exponent 9.828, ratio 1.423) least fidelity 0.07942 largest tail 5.42e-1 E -0.152910 start weight 0.5915 residual 5.22e-1 mean Steiner 3.800 off one line 0.3878; D 6 rate 1/4 (28.96 deg): not held (predicted held, exponent 8.206, ratio 1.188) least fidelity 0.00550 largest tail 7.04e-1 E -0.118817 start weight 0.3701 residual 6.11e-1 mean Steiner 4.704 off one line 0.5429. Line c1: D 1 19.859938930154616 (line level held false, tail 1.66e-1), D 2 -0.01766543647436507 (line level held false, tail 5.35e-3), D 3 0.6352988365657559 (line level held true, tail 4.47e-5), D 6 -0.03579056923033819 (line level held true, tail 6.90e-6). Boundary: rate 0 N_c 5.916 m 1.0472. Path tensors: none. Lone hole: rate 1/64 [[-0.288708, 0.000036], [0.000036, -0.288708]] eigen -0.288744, -0.288673 E 2.094395; rate 1/32 [[-0.288699, 0.000026], [0.000026, -0.288699]] eigen -0.288724, -0.288673 E 2.094395; rate 1/16 [[-0.288692, 0.000019], [0.000019, -0.288692]] eigen -0.288711, -0.288673 E 2.094395; rate 1/8 [[-0.288687, 0.000014], [0.000014, -0.288687]] eigen -0.288701, -0.288673 E 2.094395; rate 1/4 [[-0.288683, 0.000010], [0.000010, -0.288683]] eigen -0.288694, -0.288673 E 2.094395; rate 1/0 [[-0.288676, 0.000004], [0.000004, -0.288676]] eigen -0.288680, -0.288673 E 2.094395. Bag: D 3 held false fidelity 0.8561217513556236 tail 0.01963199187573445 E 0.46921885050037015 weight 0.9256869179624043 residual 0.3448633881940766 mean Steiner 2.8614447355587727 tensor not read; D 6 held false fidelity 0.4682551979638866 tail 0.34900477996619944 E -0.04063474948802378 weight 0.8412546181309131 residual 0.308594674120481 mean Steiner 3.3272828783104202 tensor not read; lone under the bag: beat gap 0, tensor gap 0. Checks: norm 8.89e-13, antisymmetry 2.20e-13, placed (3, 1/16) least fidelity 0.6892365250233201 (gap 0.00e+0), bag = free at equal rates 0. CC: 0.9999986380622382, 0.000006114256105783575. 989 s.
+exit=0

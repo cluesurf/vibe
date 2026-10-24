@@ -74,7 +74,7 @@
 // Verdict: partial if a control fails; pass if F1, L1 and L2 hold; fail otherwise.
 //
 // PROBES BEFORE THE GATE RUN, disclosed (written after the gates above; no gate moved). A smoke of every code path on n
-// = 1, 2, 4 at all five k (tmp/lflux-1d-smoke.log, 136 s; it reads the gate grid's first three fines): F1 held (6,516
+// = 1, 2, 4 at all five k (test/record/E-SPN-0149/lflux-1d-smoke.log, 136 s; it reads the gate grid's first three fines): F1 held (6,516
 // columns, 32 beats of up to 4,480 branches, bit for bit, Gauss on every branch); it found C3's defect (above); C1 and C2
 // held at n = 1, 2, 4 (E(0) at n = 4 equal to E-SPN-0115's to 4e-17). Read there: R_bind at n = 4 is 1.00102, 1.00137,
 // 1.00032, 1.03014, 0.65624 at k = 4, 3, 2, 1.5, 1, and the Klein content 9.7e-4, 1.64e-3, 3.46e-3, 6.7e-3, 1.68e-2, so
@@ -84,7 +84,7 @@
 // assumed. R_pm reads 1.0082, 1.0030, 0.9931, 0.9843, 0.9694 at n = 4 against R_total 1.0245 .. 0.6717: the positive-
 // branch potential model sits 1.6% to 3% under the walk on the clean points.
 //
-// FIRST RUN (tmp/lflux-1d-exp-run1.log, 544 s): PASS on F1, L1 and L2, every control clean, no gate moved.
+// FIRST RUN (test/record/E-SPN-0149/lflux-1d-exp-run1.log, 544 s): PASS on F1, L1 and L2, every control clean, no gate moved.
 //   n   k    D     r      R_total   R_walk    R_bind    Klein     tail
 //   4   4    200   0.114  1.02453   1.02349   1.00102   9.7e-4    9e-21
 //   4   3    150   0.152  1.02489   1.02349   1.00137   1.6e-3    1e-18

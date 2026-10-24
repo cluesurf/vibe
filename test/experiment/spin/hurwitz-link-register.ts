@@ -122,8 +122,8 @@
 // Verdict: partial if the instrument or a control fails; pass if G1 to G4 hold; fail otherwise.
 //
 // PROBES BEFORE THE GATE RUN, disclosed (written after the gates above). Three smokes of every code path on a reduced
-//  plan (2 path-sum beats, 2 toy beats; tmp/g2t-smoke.log, -smoke2.log, -smoke3.log) and one probe of the Euclidean
-//  branches (tmp/g2t-probe1.log). What they found and what changed, none of it a gate threshold except the one named:
+//  plan (2 path-sum beats, 2 toy beats; test/record/E-SPN-0152/g2t-smoke.log, -smoke2.log, -smoke3.log) and one probe of the Euclidean
+//  branches (test/record/E-SPN-0152/g2t-probe1.log). What they found and what changed, none of it a gate threshold except the one named:
 //  - the Euclidean crossing search first looked for the lowest root and found none: the two branches cross THREE times
 //    (Z2, Z3 and every finite group), because each branch runs out of its range. The weak branch's link gas counts every
 //    link as free at small beta; the strong branch's closed-surface term tends to (closed per plaquette) ln |G| at large
@@ -140,7 +140,7 @@
 //    numerators are all divisible by 3 at both units, so its entries lie in Z[w][1/14]; at beat 2 the three path sums
 //    agree exactly (every two paths to one dock arrive in different slots, E-SPN-0151's reason for 3 beats).
 //
-// FIRST RUN (tmp/g2t-exp-run1.log, 4 s): FAIL on G1 (G1b), G2 (G2c) and G3 (G3c), as predicted; controls and instrument
+// FIRST RUN (test/record/E-SPN-0152/g2t-exp-run1.log, 4 s): FAIL on G1 (G1b), G2 (G2c) and G3 (G3c), as predicted; controls and instrument
 //  hold. No gate moved after it and none was rerun.
 //  - The run reproduced the smokes' shared numbers exactly (same code, same order).
 //  - G1 FAILS on G1b. 2T on D4 space, Hamiltonian: the frozen branch's ground energy falls below the confined one's at y_f

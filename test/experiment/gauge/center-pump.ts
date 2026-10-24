@@ -82,7 +82,7 @@ export type CenterPumpPlan = {
   colors: number
   controlL: number
   gaugeOffset: number
-  // 0058's cf0 slab L 8 nearest level (tmp/cflux-cf0-slab-8.json), the CN j 0 instrument
+  // 0058's cf0 slab L 8 nearest level (test/record/E-FRC-0300/cflux-cf0-slab-8.json), the CN j 0 instrument
   slabNearest: number
 }
 

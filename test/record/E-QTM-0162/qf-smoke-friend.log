@@ -1,0 +1,21 @@
+E-QTM-0162 status partial
+claim Wigner's friend posed exactly on the working rule's gates (read on 17 of 17 starts): the friend, a love whose point is its memory, records the system's arm by a meeting (reads 0 with probability 3/16, and then the system was R for certain); the rule predicts that Wigner, meeting the system twice more ((w U)^3 = I), restores the friend's memory with probability 1 and sees the no-friend interference exactly (P(R) 1/4), where the account with the friend's reading made definite predicts P(R) 17/32; once the record is copied to a third love, Wigner's undo on system and friend fails (L1 0.4219, memory restored with probability 91/256)
+  startsReadingTheGates 17
+  starts 17
+  friendReadsZero 0.1875
+  wignerR 0.25
+  noFriendR 0.25
+  collapseR 0.53125
+  ruleVersusCollapseL1 0.5625
+  redundantVersusNoFriendL1 0.421875
+  redundantFriendRestored 0.35546875
+  gate_G0 1
+  gate_F1 1
+  gate_F2 1
+  gate_F3 1
+  gate_F4 1
+  gate_C1 1
+  seconds 1.83
+control {"noRecordCollapseEqualsRule":1}
+notes L2. Gates G0 true, F1 true, F2 true, F3 true, F4 true, C1 true. P(f) for f = R, L: no friend 1/4, 3/4; Wigner after undo 1/4, 3/4; collapse account 17/32, 15/32; record copied to G then undo 59/128, 69/128. The friend is one vibe's point, not a self region, and the schedule is arranged. 1.8 s.
+exit=0

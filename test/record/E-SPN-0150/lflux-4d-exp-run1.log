@@ -1,0 +1,56 @@
+C2 {"absorbed":0.0043274899380355315,"eps":1.5657565696347848,"fidelity":0.979729598199481,"window":0.9956462049276175,"lambda":0.9999832899183998} 939s
+L5 vacuum [{"point":"light","side":4,"sea":0,"cells":256,"exact":true,"worstLinks":0,"crossings":0},{"point":"light","side":8,"sea":0,"cells":4096,"exact":true,"worstLinks":0,"crossings":0},{"point":"light","side":4,"sea":1,"cells":256,"exact":true,"worstLinks":0,"crossings":786432},{"point":"heavy","side":4,"sea":0,"cells":256,"exact":true,"worstLinks":0,"crossings":0},{"point":"heavy","side":8,"sea":0,"cells":4096,"exact":true,"worstLinks":0,"crossings":0},{"point":"heavy","side":4,"sea":1,"cells":256,"exact":true,"worstLinks":0,"crossings":786432}] 940s
+I1 true (305281 words, 292561 even, 2257 contact, cost below length 192); I2 agree 171401 disagree 0 944s
+I3 8.881784197001252e-16 948s
+I4 {"worst":0,"differ":0,"checked":24,"inexact":0,"stray":0} {"worst":1.3985787785349405e-17,"differ":0,"checked":48,"inexact":0,"stray":0} 952s
+I5 [{"sigma":0,"beats":4,"gap":8.881784197001252e-16,"spread":2.482534153247273e-16},{"sigma":-0.6669463445036642,"beats":3,"gap":1.1102230246251565e-16,"spread":0}] 953s
+T1 [{"unit":[0,4],"m0":0.5235987755982987,"floor":1.217375391931085,"lowest":1.2169580917226084,"below":0},{"unit":[-1,4],"m0":0.1901256033464667,"floor":1.1675013593872876,"lowest":1.1688053460175054,"below":0},{"unit":[2,2],"m0":0.14334756890536537,"floor":1.1641258846765088,"lowest":1.163604062373201,"below":0},{"unit":[-3,5],"m0":0.04677803444110129,"floor":1.1601353354076906,"lowest":1.1604480864460769,"below":0}] 956s
+light L 2: level eps 0.322014 |lambda2| 0.9941323848 absorbed 7.78e-1 958s
+light L 4: level eps 1.999584 |lambda2| 0.9972884727 absorbed 4.99e-1 1947s
+light L 4 K axis 2450s
+light L 4 K face 2731s
+light L 4 K body 3016s
+light L 4 K generic 3302s
+light, no string L 4: level eps -0.001069 |lambda2| 0.9988482946 absorbed 2.55e-1 4183s
+heavy L 4: level eps 0.279572 |lambda2| 0.9949886624 absorbed 7.24e-1 5062s
+{
+  "status": "fail",
+  "claim": "T1 true (the tied member's spectrum from 1.2170 at m0 0.5236 (floor 1.2174), 1.1688 at m0 0.1901 (floor 1.1675), 1.1636 at m0 0.1433 (floor 1.1641), 1.1604 at m0 0.0468 (floor 1.1601)); L3 false (light composite at L = 4: absorbed 4.99e-1, fidelity 0.501014, edge 4.94e-1, isotropy 5.14e-7); L4 false (R -150.33687); L5 true; controls C1 true (no string: absorbed 2.55e-1) C2 true (0.0043274899380355315); instrument I1 true I2 true I3 true I4 true I5 true",
+  "metrics": {
+    "T1": 1,
+    "L3": 0,
+    "L4": 0,
+    "L5": 1,
+    "C1": 1,
+    "C2": 1,
+    "I1": 1,
+    "I2": 1,
+    "I3": 1,
+    "I4": 1,
+    "I5": 1,
+    "words": 305281,
+    "contacts": 2257,
+    "costBelowLength": 192,
+    "projectGap": 8.881784197001252e-16,
+    "lightEps": 1.9995836583814215,
+    "lightAbsorbed": 0.4988777596610418,
+    "lightFidelity": 0.5010144948428888,
+    "lightShare": 0.5036176699008542,
+    "lightR": -150.33687043321194,
+    "lightIsotropy": 5.140235185274733e-7,
+    "smallAbsorbed": 0.7783261353579446,
+    "freeAbsorbed": 0.25547241506315505,
+    "heavyEps": 0.27957243136570814,
+    "heavyAbsorbed": 0.7236599074671642,
+    "c2Absorbed": 0.0043274899380355315,
+    "seconds": 5062.074
+  },
+  "control": {
+    "C1": 1,
+    "C2": 1,
+    "instrument": 1
+  },
+  "notes": "L1 and L2. Light point m0 0.190126, sigma -0.666946; heavy (E-SPN-0146) m0 0.523599, sigma -0.093556. Pair: light L 4: eps 1.999584, |lambda2| 0.9972884727, residual 1.18e-3, singlet share 0.5036, profile 5.45e-4 0.00e+0 5.05e-1 0.00e+0 4.94e-1, fidelity 0.501014, absorbed 4.99e-1, edge 4.94e-1, holds false; spectrum absorbed 6.95e-1, peaks eps -1.1438 (density 7.10e+0), eps 0.3266 (density 2.10e+0), eps 0.1564 (density 1.93e+0), eps 0.0910 (density 9.32e-1), eps -1.1046 (density 4.75e-1); K^2 coefficients -8.316392e-4 -8.316388e-4 -8.316389e-4 -8.316390e-4, isotropy 5.14e-7, R -150.33687 (2344 s) | light L 2: eps 0.322014, |lambda2| 0.9941323848, residual 3.06e-5, singlet share 0.4321, profile 4.68e-1 0.00e+0 5.32e-1, fidelity 0.221674, absorbed 7.78e-1, edge 5.32e-1, holds false; spectrum absorbed 9.69e-1, peaks eps 0.3222 (density 2.30e+0), eps 0.0997 (density 1.05e+0), eps 0.1739 (density 6.50e-1), eps -1.0697 (density 1.57e-1), eps 1.1033 (density 1.54e-1) (2 s) | light, no string L 4: eps -0.001069, |lambda2| 0.9988482946, residual 2.59e-7, singlet share 0.4963, profile 5.98e-8 0.00e+0 4.99e-1 0.00e+0 5.01e-1, fidelity 0.744528, absorbed 2.55e-1, edge 5.01e-1, holds false; spectrum absorbed 6.01e-1, peaks eps -0.0006 (density 6.33e+0), eps -0.3803 (density 3.12e+0), eps -0.7511 (density 2.83e+0), eps 0.6059 (density 9.26e-1), eps -0.3366 (density 7.42e-2) (881 s) | heavy L 4: eps 0.279572, |lambda2| 0.9949886624, residual 2.87e-5, singlet share 0.4880, profile 8.13e-6 0.00e+0 4.98e-1 0.00e+0 5.02e-1, fidelity 0.276340, absorbed 7.24e-1, edge 5.02e-1, holds false; spectrum absorbed 5.82e-1, peaks eps 0.2793 (density 5.49e+0), eps -1.0865 (density 3.68e+0), eps -0.9512 (density 2.96e+0), eps -0.1920 (density 9.81e-1), eps -2.3562 (density 4.49e-1) (879 s). T1 [{\"unit\":[0,4],\"m0\":0.5235987755982987,\"floor\":1.217375391931085,\"lowest\":1.2169580917226084,\"below\":0},{\"unit\":[-1,4],\"m0\":0.1901256033464667,\"floor\":1.1675013593872876,\"lowest\":1.1688053460175054,\"below\":0},{\"unit\":[2,2],\"m0\":0.14334756890536537,\"floor\":1.1641258846765088,\"lowest\":1.163604062373201,\"below\":0},{\"unit\":[-3,5],\"m0\":0.04677803444110129,\"floor\":1.1601353354076906,\"lowest\":1.1604480864460769,\"below\":0}]. I1 305281 words (292561 even, 2257 contact), cost below length 192; I2 agree 171401, disagree 0; I3 8.88e-16; I4 {\"worst\":0,\"differ\":0,\"checked\":24,\"inexact\":0,\"stray\":0} {\"worst\":1.3985787785349405e-17,\"differ\":0,\"checked\":48,\"inexact\":0,\"stray\":0}; I5 [{\"sigma\":0,\"beats\":4,\"gap\":8.881784197001252e-16,\"spread\":2.482534153247273e-16},{\"sigma\":-0.6669463445036642,\"beats\":3,\"gap\":1.1102230246251565e-16,\"spread\":0}]. L5 [{\"point\":\"light\",\"side\":4,\"sea\":0,\"cells\":256,\"exact\":true,\"worstLinks\":0,\"crossings\":0},{\"point\":\"light\",\"side\":8,\"sea\":0,\"cells\":4096,\"exact\":true,\"worstLinks\":0,\"crossings\":0},{\"point\":\"light\",\"side\":4,\"sea\":1,\"cells\":256,\"exact\":true,\"worstLinks\":0,\"crossings\":786432},{\"point\":\"heavy\",\"side\":4,\"sea\":0,\"cells\":256,\"exact\":true,\"worstLinks\":0,\"crossings\":0},{\"point\":\"heavy\",\"side\":8,\"sea\":0,\"cells\":4096,\"exact\":true,\"worstLinks\":0,\"crossings\":0},{\"point\":\"heavy\",\"side\":4,\"sea\":1,\"cells\":256,\"exact\":true,\"worstLinks\":0,\"crossings\":786432}]. C2 {\"absorbed\":0.0043274899380355315,\"eps\":1.5657565696347848,\"fidelity\":0.979729598199481,\"window\":0.9956462049276175,\"lambda\":0.9999832899183998}. 5062 s."
+}
+seconds 5062.1
+exit=0
