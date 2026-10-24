@@ -107,6 +107,33 @@
 // READ, gating nothing: every loss and first-beat loss; the per-basis role losses; the ratio's trend with k; the
 //  multi-contact weight; the ordered-product runs; every chi at m = 1 .. k, at beat 0 and late.
 //
+// FIRST RUN 2026-10-24 (tmp/pd186-gate-E-QTM-0186.log in the experiment/moving-matter-next worktree, 7150 s):
+// PARTIAL, as predicted. No gate moved and none was rerun. The cases with k <= 2 equal probe2's to every printed digit.
+//  - H1 fails, P1 does not fire. Tone against role loss a beat, start D: E1 (environment in the Z frame) 3.14 (L2k1),
+//    2.54 (L2k2), 3.93 (L4k1); E2 (environment in three other frames) 1.59, 1.42, 1.28 on L = 2 as k goes 1, 2, 3, and
+//    1.63, 1.54 on L = 4 as k goes 1, 2. B start: 3.62, 1.60, 4.33, 1.76, 3.52, 1.76. The least ratio is 1.28 (L2k3 D
+//    E2: tone 0.679, role 0.531). The count always dephases faster, but in a frame-mixed environment the gap closes as
+//    holes are added: the role catches up, it is not the count that slows.
+//  - H2 fails on the k = 1 E1 mixed superposition, which keeps its coherence exactly on both boxes and both starts
+//    (structural, see probe2): a superposition of different count survives an environment whose roles make neither
+//    branch's kernel act. Every tone superposition lost at least 0.031. H2's role clause (some role basis loses at most
+//    half what the tone loses) also fails in every E2 case with k >= 2: the least lossy basis loses 0.364 (L2k2 D), 0.523
+//    (L2k3), 0.409 (L4k2) against half the tone's 0.299, 0.340, 0.356, and 0.0545 against 0.0540 for L2k2 B. In a
+//    frame-mixed environment of two or three holes no role superposition survives markedly better than the count.
+//  - H3 holds: start D E2, tone loss 0.410 -> 0.679 on L = 2 (k 1 -> 3), 0.453 -> 0.713 on L = 4 (k 1 -> 2).
+//  - B1 fails on L = 2 only. Tone record growth in roles (bits, late mean minus beat 0): L2k3 0.102, 0.195, 0.263 for
+//    m = 1, 2, 3 (one hole holds 0.39 of all three: no plateau); L4k2 0.102, 0.090 for m = 1, 2 (one hole holds all of
+//    it: a plateau). The best role basis in one hole: 0.057 (L2k3) and 0.058 (L4k2) of log2 3, against 0.39 and 0.21 in
+//    every hole: the roles are recorded mostly in correlations across holes, the count more locally.
+//  - The role basis follows the environment's frame: with E1 the Z basis loses 0.188 / 0.224 / 0.385 against 0.079 /
+//    0.090 / 0.163 for the other three (L2k1, L4k1, L2k2), and the Z record in one hole is the largest (0.136 / 0.188 /
+//    0.088 against 0.112 / 0.093 / 0.071). With E2 the class of the environment's own state leads at k = 1, and at k = 3
+//    the three frames it holds read alike (0.523 each, Z 0.556).
+//  - C1 holds (tone kept to 1.7e-13, role loss 0.333, 0.441, 0.333); I1 holds (engine 1.8e-15 and 3.3e-16, norms to
+//    1.2e-11, fear off 1.7e-13, antisymmetry 3.3e-15).
+//  - Reads: the multi-contact weight a pair step is 0.50 on L = 2 from start D (every beat 1), 0.008 from start B, 0.17
+//    on L4k2; the ordered product moved L2k2 D E1 to 2.81 from 2.54 and the B start by 0.2%.
+//
 // WHAT THIS CAN AND CANNOT SHOW. It can show, at L2, whether the count stays the pointer when the environment grows from
 // one to three holes, whether the role keeps more coherence than the count in every such environment, and which basis
 // the environment's roles copy. It cannot show einselection as a rate (the boxes recur), cannot read records in
@@ -973,7 +1000,7 @@ export default experiment({
   id: 'quantum/pointer-darwinism',
   code: 'E-QTM-0186',
   title:
-    'explores whether the conserved pleasure-pain count stays the pointer as the environment grows to three holes, whether it is recorded redundantly, and whether superpositions of different count always decohere (charge superselection)',
+    "the conserved pleasure-pain count stays the favored pointer as C*'s environment grows to three holes, but the gap closes and superselection is not structural, partial: the count's superposition loses 1.28 to 4.33 times what a role superposition loses a beat over 14 cases (L = 2 and 4, 1 to 3 environment holes); in an environment spread over three role frames the ratio falls 1.59, 1.42, 1.28 on L = 2 as holes are added (1.63, 1.54 on L = 4), while an environment in one frame keeps it at 2.5 to 4.3 and dephases that frame's role basis most; a pleasure-to-pain superposition that also changes role keeps its coherence exactly when the environment's roles leave both kernels idle; one environment hole's roles hold 0.10 bit of the count's record, against 0.06 of log2 3 for the best role basis, a plateau on L = 4 but not on L = 2; the tone-blind control keeps the tone to 1.7e-13, the fear beat off moves nothing",
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',

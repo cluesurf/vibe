@@ -240,11 +240,19 @@ export type LpResult = {
 }
 
 // Is there x >= 0 with sum_j x_j column_j = rhs? Columns and rhs integer. Phase I of the simplex method with
-// Bland's rule, exact rationals throughout (for small programs: tens of rows, hundreds of columns).
+// Bland's rule, exact rationals throughout (for small programs: tens of rows, hundreds of columns). With `rule`
+// 'dantzig' (E-QTM-0189) the entering column is the most negative reduced cost, falling back to Bland's rule for
+// good after `streak` degenerate pivots in a row, so the method still terminates; the answers are the same.
 export function feasibility(
   columns: readonly (readonly bigint[])[],
   rhs: readonly bigint[],
+  options: { rule?: 'bland' | 'dantzig'; streak?: number } = {},
 ): LpResult {
+  const streakCap = options.streak ?? 30
+
+  let bland = (options.rule ?? 'bland') === 'bland'
+  let degenerate = 0
+
   const m = rhs.length
   const nCols = columns.length
   const total = nCols + m
@@ -292,8 +300,14 @@ export function feasibility(
 
     for (let j = 0; j < total; j++) {
       if (cost[j]!.n < 0n) {
-        enter = j
-        break
+        if (bland) {
+          enter = j
+          break
+        }
+
+        if (enter < 0 || qcmp(cost[j]!, cost[enter]!) < 0) {
+          enter = j
+        }
       }
     }
 
@@ -320,6 +334,14 @@ export function feasibility(
 
     if (leave < 0) {
       throw new Error('phase I unbounded')
+    }
+
+    if (!bland) {
+      degenerate = best!.n === 0n ? degenerate + 1 : 0
+
+      if (degenerate > streakCap) {
+        bland = true
+      }
     }
 
     const inv = qdiv(Q1, T[leave]![enter]!)

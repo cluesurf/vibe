@@ -85,6 +85,17 @@
 // local unitaries, so passing is the expected outcome; the content is the exact check, the controls, and which link
 // field the strict axioms hold on.
 //
+// FIRST RUN 2026-10-24 (tmp/qca-run2.log, 3,564 s, heap raised to 16 GB): PASS, every gate as registered. U1: 0 bad
+// norms and 0 bad pairs of 6,000 overlapping pairs on each of trivial and start links at beats 0 and 1, inverse misses
+// 0 (max denominator 2^6). L1 and L2: commutators by distance 0 to 4 read [0, 144, 0, 0, 0] after one beat and
+// [36, 0, 144, 0, 0] after two: none outside the cone, the edge reached, and after two beats nothing at distance 1
+// (a vibe that does not meet only goes straight or reverses on its line, so two beats carry it 2 steps or back home).
+// H1: 52 of 52 commute on trivial links with no gauge, H3: the reflections reach 24 of 24 directions. H2: 52 of 52
+// carry U_l to U_(S l) on the committed start. P holds: 0 of 52 commute plainly on the committed start and gaugeFor
+// finds no gauge for any (it finds one for all 52 on trivial links). Controls: keep-only coin 5,760 of 5,907 norms
+// off; the far swap (dock 11, distance 4) reads commutators [0, 0, 0, 91, 53]; the dock phase leaves 0 of 4
+// translations commuting; the slot-0 phase keeps 4 of 4 translations and 18 of 48 reflections.
+//
 // DETERMINISM: no random number; the committed start is member integer+0. Depth L2: a known construction (a QCA
 // assembled from local unitaries and a shift) confirmed on the rule.
 
@@ -241,7 +252,7 @@ export default experiment({
   id: 'quantum/qca-axioms',
   code: 'E-QTM-0184',
   title:
-    "the superposed rule is a quantum cellular automaton on the flat D4 box, read exactly: unitary, a strict cone of one dock a beat, homogeneous and isotropic under all of W(F4) on trivial links; on the committed link field only covariantly, with no gauge carrying the field onto its translates",
+    'explores whether the superposed rule is a quantum cellular automaton, pass on the flat D4 box: exactly unitary on 5,907 starts, a strict cone of one dock a beat, homogeneous and isotropic under all of W(F4) on trivial links; on the committed link field only covariant (52 of 52), with no gauge carrying the field onto any of its 52 images',
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
