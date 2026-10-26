@@ -1,0 +1,3 @@
+u(0) side 8 empty 4 beats: {"side":8,"sea":0,"cells":4096,"exact":true,"permutes":0,"charged":0} 0.1s
+u(10) side 8 empty 4 beats: {"side":8,"sea":0,"cells":4096,"exact":true,"permutes":0,"charged":0} 0.4s
+exit=0

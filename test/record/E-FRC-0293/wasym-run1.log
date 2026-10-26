@@ -1,0 +1,32 @@
+pieces 2s
+K2 5s
+spectra 46s
+{
+ "status": "fail",
+ "claim": "K1 true (leak 6.9e-18, - half against the unflavored 1.1e-16) K2 false (Q_S P+, Q_D P+, Q_S P-, Q_D P- keep 576/192/576/192 of 576 rotations; Q_S P+, Q_D P+ keep 0/0 of 576 reflections) K3 true (flavor matrices unitary over Q(w) true; pieces 4.8e-15, 3.2e-15) K4 true (flats equal to the copies at 17 momenta true, CPT 4.9e-15) CP1 true (det[H_m, H_w] = 0 + 1.820248e-5 i, conj V the negative, aligned 0; the flavored half off the copies by at least 1.0e-3); controls C1 true (aligned against the copies 4.4e-15) C2 true (Y = Wv off CPT by at least 8.8e-1); instrument I1 true (V = 1 against the copies 4.2e-15). The dynamical-light run (at least three histories on the slab L 12, qa 15, 225 transverse momenta, 2000 beats): 51840 modes and 2160 band states a momentum, 2.3e+17 flops a history, 4.0e+11 bytes: not run",
+ "metrics": {
+  "K1": 1,
+  "K2": 0,
+  "K3": 1,
+  "K4": 1,
+  "CP1": 1,
+  "C1": 1,
+  "C2": 1,
+  "I1": 1,
+  "invariantIm": 0.000018202481592431925,
+  "leak": 6.938893903907228e-18,
+  "cpt": 4.884981308350689e-15,
+  "physical": 0.001000032798813777,
+  "teethMin": 0.8849716566129484,
+  "runFlops": 232190115840000000,
+  "runBytes": 403107840000,
+  "seconds": 46.023
+ },
+ "control": {
+  "C1": 1,
+  "C2": 1,
+  "I1": 1
+ },
+ "notes": "L1 (the flavor algebra, exact) and L2 (the 576-mode pieces and the + half's spectra). Rest phases of the flavored half -2.5556 -2.2921 -1.9093 1.9093 2.2921 2.5556 against the copies -2.3811 -2.2815 -2.0944 2.0944 2.2815 2.3811 (read). 46 s."
+}
+exit=0

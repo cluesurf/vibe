@@ -1,0 +1,11 @@
+SD: <a|G P b> -1.032401e+3 9.374757e+2 vs <P a|G b> -1.032647e+3 9.369755e+2, gap 5.57e-1; idempotence gap 0.00e+0 [10.8s]
+DS: <a|G P b> -1.026234e+3 9.311218e+2 vs <P a|G b> -1.027448e+3 9.314432e+2, gap 1.26e+0; idempotence gap 0.00e+0 [14.1s]
+norm over 4 cycles: 8.5601404387e+3 -> 8.5574522755e+3 (relative -3.14e-4) [19.8s]
+scalar a_B 3.5 ball 14 (11513): filter 128: E 1.6081053593 |lambda| 0.9989688341 residual 4.541e-2 shares 0.9694 0.0141 0.0141 0.0024 [116.9s]
+scalar a_B 3.5 ball 14 (11513): filter 512: E 1.6092960253 |lambda| 0.9999480758 residual 1.019e-2 shares 0.9788 0.0105 0.0105 0.0003 [576.3s]
+scalar a_B 3.5 ball 14 (11513): filter 1024: E 1.6099394673 |lambda| 0.9999883166 residual 4.834e-3 shares 0.9746 0.0120 0.0120 0.0014 [1809.3s]
+  K 0.000,0.000,0.000,0.000: E 1.609975713080 residual 4.736e-3 [1999.5s]
+  K 0.040,0.000,0.000,0.000: E 1.609996011606 residual 4.739e-3 [2154.3s]
+  K 0.020,0.000,0.000,0.000: E 1.609980788313 residual 4.737e-3 [2307.6s]
+scalar: E_b 0.098141 (continuum 0.089700) a 0.0126885852 (free pair 0.137353) R static 12.237916 formula 1.232124 tan m/m 1.065572 [2307.6s]
+exit=0

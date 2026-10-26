@@ -1,0 +1,53 @@
+R 0s
+V 0s
+H 9s
+W a 10s
+W b c 29s
+G 29s
+N 29s
+instrument 29s
+controls 30s
+{
+ "status": "partial",
+ "claim": "R true (Cauchy-Binet true, unitary true, full = det true, one-hole Jacobi true, rank one = E-SPN-0140's mixer true); V true (X 96 transpositions, projectors exact true, u^8 conj(u)^8 = 1 true); H true (hole phases against the member's 1.78e-15 at 64 momenta, hole pairs 16 c0/(c/4) 1.000000000002, 16 c0/(c/4) 0.999999999992, 16 c0/(c/4) 0.999999999998, R - tan m/m 8.21e-12 8.03e-12 2.33e-12); W true (a true: swap covariant under 1,152 true, keeps J (x) J true, moves J (x) 1 true, R(x) keep J true; b true: H' in {0, 2, 3, 4, 6, 8, 12}, vertex unitary true; c true: A_T -2.8080e-4 -1.4551e-3 -2.0637e-3 -7.3595e-4 -1.5061e-4 -5.2174e-3 -1.5571e-2 -2.2396e-2 -1.7206e-2 -5.0487e-3 -4.7397e-3 -2.9995e-2, odd in V true, zero for Householder, V = 1 and v = 1 true, 36 rephasings true, Gamma(W) moves the vertex true); G false (Xi H' Xi^-1 = H' + 12 - 4N true, constant per sector true: C-even); N true (invariants 2, 2, 1, all 3; psi invariant under 1,152 true; weights (+,+) 0 (-,-) 0 (+,-) 0.5 (-,+) 0.5); instrument I1 true I2 true I3 true; controls C1 true C2 true C3 true",
+ "metrics": {
+  "R": 1,
+  "V": 1,
+  "H": 1,
+  "W": 1,
+  "Wa": 1,
+  "Wb": 1,
+  "Wc": 1,
+  "G": 0,
+  "N": 1,
+  "instrument": 1,
+  "C1": 1,
+  "C2": 1,
+  "C3": 1,
+  "transpositions": 96,
+  "holeGap": 1.7763568394002505e-15,
+  "holeRgap": 8.208322910263632e-12,
+  "holeC0gap": 7.983946836986888e-12,
+  "holeGamma": 2.64585111982883e-11,
+  "invariantsPP": 2,
+  "invariantsMM": 2,
+  "invariantsPM": 1,
+  "invariantsAll": 3,
+  "vertexAngle": 1.3338926890073284,
+  "seconds": 30.195,
+  "AT_1": -0.0002808034560258927,
+  "AT_2": -0.0014551421164228572,
+  "AT_3": -0.002063679535214715,
+  "AT_4": -0.0007359475378992136,
+  "AT_5": -0.00015060868800058317,
+  "AT_6": -0.00521744659073002,
+  "AT_7": -0.015571273187467942,
+  "AT_8": -0.0223963654749613,
+  "AT_9": -0.017206202973921666,
+  "AT_10": -0.005048745377799509,
+  "AT_11": -0.004739719500446202,
+  "AT_12": -0.029995422591847225
+ },
+ "notes": "L1 and L2. Vertex v = ringUnit(2, 0), angle 1.333893; masses 0.143348, 0.190126, 0.236904. A_T(t), t = 1 .. 12, palindrome: -2.8080e-4 -1.4551e-3 -2.0637e-3 -7.3595e-4 -1.5061e-4 -5.2174e-3 -1.5571e-2 -2.2396e-2 -1.7206e-2 -5.0487e-3 -4.7397e-3 -2.9995e-2; conj V 2.8080e-4 1.4551e-3 2.0637e-3 7.3595e-4 1.5061e-4 5.2174e-3 1.5571e-2 2.2396e-2 1.7206e-2 5.0487e-3 4.7397e-3 2.9995e-2; one-sided (read) 0.0000e+0 -2.8080e-4 -3.6743e-4 -9.9845e-4 -3.9479e-3 -3.0167e-4 -1.2810e-2 -1.5390e-3 -1.9612e-2 -1.7079e-2 -1.3122e-2 -5.2186e-2. Exact A_T(1) = (-3047158125) / 10851569165584. Hole: phase gap 1.78e-15, pairs 16 gamma/c0 -2.65e-11; 16 gamma/c0 -8.65e-12; 16 gamma/c0 7.04e-12, R - tan m/m 8.21e-12 8.03e-12 2.33e-12. Characters: rotations (+,+) 2, (-,-) 2, (+,-) 1; W(F4) 3. E-SPN-0140 sea 16 beats one branch true. E-FRC-0259 CP invariant (-959078961 + -1918157922 w) / 1276676260761792016. 30 s."
+}
+exit=0

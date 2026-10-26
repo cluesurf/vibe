@@ -22,9 +22,9 @@
 //   band; fail otherwise.
 // PREDICTED: alpha about 0.8 of relativity's at the chosen point, a pass.
 //
-// FIRST RUN (2026-10-20 to 21, tmp/spn-cleanclock.log and the saved reads tmp/spn-cleanclock-zero-7.5.json and
-// -motion-7.5.json, 6 threads at load near 40, 1.4 hours; the verdict by combineCleanClock in tmp/spn-0214-combine.ts,
-// tmp/spn-0214-verdict.log): FAIL. The gates did not move.
+// FIRST RUN (2026-10-20 to 21, test/record/E-SPN-0214/spn-cleanclock.log and the saved reads test/record/E-SPN-0214/spn-cleanclock-zero-7.5.json and
+// -motion-7.5.json, 6 threads at load near 40, 1.4 hours; the verdict by combineCleanClock in test/record/E-SPN-0214/run/spn-0214-combine.ts,
+// test/record/E-SPN-0214/spn-0214-verdict.log): FAIL. The gates did not move.
 //  - The choice: a_B 7.5, the first candidate, is clean. The 1s-like line overlaps 0.617 against the next 0.241, and
 //    the 2s-like line (scaled binding 0.342) overlaps 0.241 and is alone in its band. So the read is blind (not the
 //    a_B 8 fallback).

@@ -1,0 +1,12 @@
+core 0: zeroed 1 sites [12.0s]
+SD: <a|G P b> -1.032401e+3 9.374757e+2 vs <P a|G b> -1.032647e+3 9.369755e+2, gap 5.57e-1; idempotence gap 0.00e+0 [18.2s]
+DS: <a|G P b> -1.026234e+3 9.311218e+2 vs <P a|G b> -1.027448e+3 9.314432e+2, gap 1.26e+0; idempotence gap 0.00e+0 [24.0s]
+norm over 4 cycles: 8.5601404387e+3 -> 8.5574887510e+3 (relative -3.10e-4) [37.3s]
+vector a_B 3.5 ball 14 (11513): filter 128: E 1.6078595312 |lambda| 0.9994898409 residual 3.194e-2 shares 0.9768 0.0114 0.0114 0.0004 [442.0s]
+vector a_B 3.5 ball 14 (11513): filter 512: E 1.6045740113 |lambda| 0.9999520739 residual 9.789e-3 shares 0.9805 0.0097 0.0097 0.0002 [1375.4s]
+vector a_B 3.5 ball 14 (11513): filter 1024: E 1.6044090777 |lambda| 0.9999912154 residual 4.191e-3 shares 0.9809 0.0094 0.0094 0.0003 [2783.2s]
+  K 0.000,0.000,0.000,0.000: E 1.604406521751 residual 4.046e-3 [3130.8s]
+  K 0.040,0.000,0.000,0.000: E 1.604438303372 residual 4.043e-3 [3460.0s]
+  K 0.020,0.000,0.000,0.000: E 1.604414466703 residual 4.045e-3 [3896.5s]
+vector: E_b 0.103710 (continuum 0.089700) a 0.0198620022 (free pair 0.137353) R static 7.845174 formula 1.242186 tan m/m 1.065572 [3896.5s]
+exit=0

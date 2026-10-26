@@ -65,7 +65,7 @@
 //    dimension d leaves z^perp inter T E, of dimension at least d - 1, FIXED at lambda (U psi = T G2 T^dag psi = lambda psi):
 //    a mixer-only beat keeps at least 24 - (number of distinct phases of G2) - 1 bands flat, wherever the other beat's
 //    phases put them. Here: 14 flat at 0 (D's rest; 15 - 1) and 7 flat at arg v (8 - 1), and only S, D and one octet
-//    combination move. (The derivation first said the octet disperses; the smoke run, tmp/twob-smoke.log, read 7 of it
+//    combination move. (The derivation first said the octet disperses; the smoke run, test/record/E-SPN-0159/twob-smoke.log, read 7 of it
 //    flat at arg v, and this count was corrected before the gate run.) So the piece LIFTS 7 flats into the safe window
 //    and leaves 14 AT D'S REST, the 3 pinned transverse Pi4 states and the 11 of Pi2 and Pi9 that no exact piece here
 //    touches. gamma = 0 (the Pi9-Pi4 phase is untouched on both beats; Pi8 is not in the massless pair's K^2 term),
@@ -122,7 +122,7 @@
 // CONTROLS (a failure makes the verdict partial). C1 THE ONE-BEAT SCHEDULE REPRODUCES E-SPN-0143 BIT FOR BIT: at theta*
 //  m* === 0.04677803444110118, top / c === 0.48817847622126725, R === 1.0007300338253453 (and the one-beat CYCLE's fit
 //  gives the same R), c0 / c === 0.5000000000011358; its in-ring schedule (pi, 4 pi/3) through the cycle code: per-beat m
-//  === 0.26179938779914924, R === 1.1026577908486987, top / c === 0.4037221140226534 (tmp/univ-exp-run2.log). C2 THE
+//  === 0.26179938779914924, R === 1.1026577908486987, top / c === 0.4037221140226534 (test/record/E-SPN-0159/univ-exp-run2.log). C2 THE
 //  CENSUS CAN PASS: the doubled one-beat at the heavy member (ringUnit(1, 4), m 0.857072) has no crossing and B* / 2
 //  within 1e-3 of E-SPN-0155's per-beat distance to the nearest channel (E and E + pi). C3 THE CENSUS CAN FAIL: the
 //  doubled one-beat at the light point has crossings. C4 THE CLUSTER CENSUS CAN PASS: the ideal Dirac multiplet has no
@@ -133,24 +133,24 @@
 // Verdict: partial if the instrument or a control fails, or F3's census passes (the hold undecided); pass if F1 to F4
 // hold; fail otherwise.
 //
-// PROBES BEFORE THE GATE RUN, disclosed (no gate moved after them). tmp/twob-probe1.log: the doubled one-beat census at
+// PROBES BEFORE THE GATE RUN, disclosed (no gate moved after them). test/record/E-SPN-0159/twob-probe1.log: the doubled one-beat census at
 //  four masses (heavy B* / 2 0.2867 = E-SPN-0155's DF+ and DD distances; light crossings), which fixed the crossing
-//  detector after a first version missed a crossing that landed exactly on a grid point. tmp/twob-probe2-*.log: the
-//  cluster census on hand points and a Weyl scan (the gate's N1 plan, larger). tmp/twob-probe3-smoke.log: an
-//  unconstrained Weyl scan at the heavy point, every schedule B* = 0. tmp/twob-probe4-*.log: a pattern search (probe
+//  detector after a first version missed a crossing that landed exactly on a grid point. test/record/E-SPN-0159/twob-probe2-*.log: the
+//  cluster census on hand points and a Weyl scan (the gate's N1 plan, larger). test/record/E-SPN-0159/twob-probe3-smoke.log: an
+//  unconstrained Weyl scan at the heavy point, every schedule B* = 0. test/record/E-SPN-0159/twob-probe4-*.log: a pattern search (probe
 //  only): at pi/6 the doubled one-beat is a local minimum of the crossing count (5); unconstrained, four endpoints reached
 //  B* > 0 (0.749, 0.587, 2.3e-4 at the light point, 2.07 at pi/6), every one by draining a beat's mixer contrast (a1
-//  near 0 or 2 pi), freezing the singlet: tmp/twob-probe8.log reads their R as 455, 27, -35 and 98 against tan m / m
+//  near 0 or 2 pi), freezing the singlet: test/record/E-SPN-0159/twob-probe8.log reads their R as 455, 27, -35 and 98 against tan m / m
 //  1.012 and 1.103 (point 1), which set F3 (b)'s R constraint; the R-constrained search ends with 41 or more crossings
-//  from every start. tmp/twob-probe5.log: the gamma
-//  table of point 8. tmp/twob-probe6.log: the candidate on the model (1 + 8 + 15, 14 flat at 0, R - tan m / m 1.4e-12,
-//  gamma / c* 1.2e-11, top 0.915 and 0.989 c*, census 116 crossings). tmp/twob-probe7-019.log: 1,024 Weyl schedules at
-//  the light point, 21 keep R, all 21 with B* = 0 (which sized F3 (b) at 16,384). tmp/twob-smoke.log: every code path on
+//  from every start. test/record/E-SPN-0159/twob-probe5.log: the gamma
+//  table of point 8. test/record/E-SPN-0159/twob-probe6.log: the candidate on the model (1 + 8 + 15, 14 flat at 0, R - tan m / m 1.4e-12,
+//  gamma / c* 1.2e-11, top 0.915 and 0.989 c*, census 116 crossings). test/record/E-SPN-0159/twob-probe7-019.log: 1,024 Weyl schedules at
+//  the light point, 21 keep R, all 21 with B* = 0 (which sized F3 (b) at 16,384). test/record/E-SPN-0159/twob-smoke.log: every code path on
 //  a small plan (9 s; unconverged, gating nothing): the instrument and C2 to C5 hold (heavy B* / 2 0.286695 against
 //  E-SPN-0155's 0.286695; Dirac B* 2 - 5e-14; far first crossing 4.186 at step 0.199), C1 matches every recorded float
 //  but top / c, which needs the gate's 4,096 momenta, and F1 (b) read 7 flat octet states (point 7's correction).
 //
-// FIRST RUN (tmp/twob-exp-run1.log, 869 s): FAIL on F3 and F4, as predicted. The instrument and all five controls hold.
+// FIRST RUN (test/record/E-SPN-0159/twob-exp-run1.log, 869 s): FAIL on F3 and F4, as predicted. The instrument and all five controls hold.
 //  F1, F2 and N1 hold. No gate moved and none was rerun.
 //  - F1: the rule's matrices equal the model to 1.1e-16; multiplets 1 + 8 + 15; exactly 14 flat at 0 (D's rest) and 7
 //    at arg v = 1.333893 on 64 momenta; massless pair c0 = c* to 1e-10, |gamma| / c* at most 1.2e-11; top speed 0.927182 c*
@@ -260,7 +260,7 @@ const SIXTH: readonly [number, number] = [0, 4]
 const MASSLESS: readonly [number, number] = [0, 3]
 const HEAVY: readonly [number, number] = [1, 4]
 const OCTET: readonly [number, number] = [2, 0]
-// E-SPN-0143's recorded floats (tmp/univ-exp-run2.log) and its ring prime
+// E-SPN-0143's recorded floats (test/record/E-SPN-0159/univ-exp-run2.log) and its ring prime
 const PRIME: Eis = [3n, 1n]
 const REC = {
   mStar: 0.04677803444110118,

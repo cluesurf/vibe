@@ -1,0 +1,44 @@
+fermion 1s
+boson 2s
+hard-core 2s
+exchange 3s
+turn 7s
+read 7s
+{
+  "status": "partial",
+  "claim": "S true (fermion R true C true T true V true (|amp|^2 1.000000, 1.000000) N true (leak 0.000000): survives; boson R true C true T true V false (|amp|^2 0.552742, 0.552742) N false (leak 0.137755): fails); E true (survivor fermion, exchange sign -1 on 396 readings: 1 member -1, 2 -1, 3 -1, 2 holes -1, 3 holes -1); T true (190 one-plane rotations, orders 3: 64, 2: 90, 4: 36; turn sign minors 1, spinor lift -1; rule covariant under the spinor lift true (gap 4.44e-16)); exchange -1 != minors turn 1, = spinor turn -1; controls C1 true (hard-core R false C false T true V false (|amp|^2 0.552742, 0.552742) N true (leak 0.000000): fails, typed exchange 1) C2 true; instrument I1 true (minors = L(s) R(s~) to 2.50e-16) I2 true I3 true",
+  "metrics": {
+    "S": 1,
+    "E": 1,
+    "T": 1,
+    "fermionSurvives": 1,
+    "bosonSurvives": 0,
+    "exchange": -1,
+    "bosonExchange": 1,
+    "turnMinors": 1,
+    "turnSpin": -1,
+    "spinCovariant": 1,
+    "spinGap": 4.440892098500626e-16,
+    "liftGap": 2.498001805406602e-16,
+    "simpleRotations": 190,
+    "bosonSeaAmp2Beat1": 0.5527420857903421,
+    "bosonSeaAmp2Beat2": 0.5527420857903421,
+    "bosonLeak": 0.1377551020408163,
+    "bosonLeak192Beat1": 0.024633290816326536,
+    "bosonLeak192Beat2": 0.02328802614795908,
+    "readings": 396,
+    "C1": 1,
+    "C2": 1,
+    "I1": 1,
+    "I2": 1,
+    "I3": 1,
+    "seconds": 6.815
+  },
+  "control": {
+    "C1": 1,
+    "C2": 1,
+    "instrument": 1
+  },
+  "notes": "L1. Candidate (register) rule, provisional until moving-matter item 0006. Box: two docks of 4 modes, light unit ringUnit(-1, 4), two beats. Boson exchange sign 1, hard-core (typed) 1. Real 192-mode pieces, bosonic 2-member doubling weight from (slot 0, reg 0) and (slot e, reg 0), worst over e: beat 1 2.463e-2, beat 2 2.329e-2. 7 s."
+}
+exit=0

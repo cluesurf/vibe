@@ -39,7 +39,7 @@
 //    (12 mu), threshold |V0| ~ 1 / (12 mu G(0))): the ratio is about 2.5 / a_B, so for a_B under about 2.5 the contact
 //    alone binds and the level is a lattice core state, heavy to move. The single-channel model (point 9) at the heavy
 //    member: a_c 2.5, 3, 3.5, 4, 5 give contact weight 0.53, 0.22, 0.074, 0.030, 0.009, E_b over continuum 2.8, 1.7, 1.34,
-//    1.23, 1.11, R 3.17, 1.84, 1.55, ~1.45, ~1.40 (tmp/coul-probe2-model.log, -probe3.log). HYDROGENIC (E_b within 10% of
+//    1.23, 1.11, R 3.17, 1.84, 1.55, ~1.45, ~1.40 (test/record/E-SPN-0155/coul-probe2-model.log, -probe3.log). HYDROGENIC (E_b within 10% of
 //    the continuum) NEEDS a_B >~ 5 DOCKS, and the tail decays as exp(-2 kappa r), kappa = sqrt(2 mu E_b): the ball must
 //    reach ~16 / (2 kappa). An affordable ball (radius 44, 357k sites, 2.1e8 amplitudes a state) holds a_c up to ~3.5.
 // 6. THE CHANNELS (the key derivation). The level at E = 2m - E_b (and its pi image, the beat alternating its contact map
@@ -125,26 +125,26 @@
 // PREDICTED VERDICT: fail on C3 (the open model) and C6; C1, C2, C4, C5 hold.
 //
 // PROBES BEFORE THE GATE RUN, disclosed (the gates were written after probes 1 to 3 and revised after 4 and 5, as
-// stated; none moved after the gate run began). tmp/coul-probe1.log: G(0), the FFT table against the direct sums (to
+// stated; none moved after the gate run began). test/record/E-SPN-0155/coul-probe1.log: G(0), the FFT table against the direct sums (to
 // 1e-14 inside r 12), the band closed form against the rule at four units (1.6e-15), the channel census, and the open
 // model at a_B 1.5 and 2, where the level collapses onto contact (E_b 0.97 and 0.45 at the heavy member): the core.
-// tmp/coul-probe2-model.log: the open model at a_c 2.5 to 5 at three members (point 5's numbers); -time40*.log: the
-// threaded beat on a 268k-site ball takes 0.85 s with every site full. tmp/coul-probe3.log: the Floquet form against the
+// test/record/E-SPN-0155/coul-probe2-model.log: the open model at a_c 2.5 to 5 at three members (point 5's numbers); -time40*.log: the
+// threaded beat on a 268k-site ball takes 0.85 s with every site full. test/record/E-SPN-0155/coul-probe3.log: the Floquet form against the
 // Hamiltonian (E 0.005 apart at a_c 3), the N = 128 tails, the table against the closed form (5e-9 at r 40, so the cube
-// was cut to 16). tmp/coul-smoke.log: every code path on a 20-ball with short filters (unconverged, gating nothing; I3
-// on 3,456 starts a unit, 0 differ; the vacuum exact; isotropy 3e-9). tmp/coul-probe4-*.log: the model filter needs S
+// was cut to 16). test/record/E-SPN-0155/coul-smoke.log: every code path on a 20-ball with short filters (unconverged, gating nothing; I3
+// on 3,456 starts a unit, 0 differ; the vacuum exact; isotropy 3e-9). test/record/E-SPN-0155/coul-probe4-*.log: the model filter needs S
 // 1024 (residual 1e-13); the table's face error grows with the cube (2.8e-10 at 16, 1.1e-9 at 20); and ON THE RULE, the
 // heavy a_c 3 level (ball 28, the gate's filters) sits at E 1.67655640, |lambda2| 0.99999815, residual 4.5e-6, contact
 // weight 2.7e-3, singlet share 0.971, mean radius 5.72, held 128 beats (window 0.99969, fidelity 0.99976): binding 0.0376
-// against the open model's 0.0815. tmp/coul-probe5.log: the hard-core model, E 1.67357 at a_c 3 (0.003 from the rule).
-// tmp/coul-probe4-engine35.log (started before the gate run, finished during it; nothing changed after it): at a_c 3.5
+// against the open model's 0.0815. test/record/E-SPN-0155/coul-probe5.log: the hard-core model, E 1.67357 at a_c 3 (0.003 from the rule).
+// test/record/E-SPN-0155/coul-probe4-engine35.log (started before the gate run, finished during it; nothing changed after it): at a_c 3.5
 // on a 40-ball the rule's level sits at E 1.68602541 (binding 0.0281; hard core 0.0304, open 0.0474), |lambda2|
 // 0.99999996, residual 8.2e-6, contact 2.1e-3, held 128 beats (window 0.999993, fidelity 0.999995, absorbed 5.2e-6).
 // These probes moved the path from (3, 3.5, 4) on a 48-ball to (2.5, 3, 3.5) on a 44-ball, the witness's absorbed and
 // edge clauses from 1e-6 and 1e-8 to 1e-4 and 1e-6 (the rule's level is more extended than the model the first values
 // were read from), the filter lengths, and the cube, and made C3's prediction a failure.
 //
-// FIRST RUN (tmp/coul-exp-run1.log, 20,143 s, exit 0): PARTIAL, on the instrument alone (I5's FFT clause). Every other
+// FIRST RUN (test/record/E-SPN-0169/coul-exp-run1.log, 20,143 s, exit 0): PARTIAL, on the instrument alone (I5's FFT clause). Every other
 // clause came out as predicted: C1, C2, C4 and C5 hold, C3 and C6 fail, every control holds.
 //  C1 holds: the main level a_c 3.5, E 1.68602536 (open model 1.66677892), |lambda2| 0.9999999932, residual 1.54e-8;
 //     window 0.999998, fidelity 0.999998, absorbed 1.75e-6, edge 2.00e-8; binding 0.02812, singlet share 0.978, stores

@@ -1,0 +1,36 @@
+status partial
+claim the remainder collapses onto C + B (tan m / m - 1) / a_B with C -0.0020 +- 0.0183 and B 18.39 (training C -0.0020), the blind point not yet read: H false, K true
+  m0427a8_m 0.4270292411340348
+  m0427a8_X 3.4162339290722783
+  m0427a8_remainder 0.14257472386761294
+  m0427a8_predicted 0.14876339541501538
+  m0427a8_clean 1
+  m0427a12_m 0.4270292411340348
+  m0427a12_X 5.124350893608417
+  m0427a12_remainder 0.10119391019811141
+  m0427a12_predicted 0.09851795195743678
+  m0427a12_clean 1
+  m0474a8_m 0.47380727557513647
+  m0474a8_X 3.7904582046010917
+  m0474a8_remainder 0.19055270482740783
+  m0474a8_predicted 0.18703999152067882
+  m0474a8_clean 1
+  m0284a8_m 0.2836816722286698
+  m0284a8_X 2.2694533778293584
+  m0284a8_remainder 0.5326280260968399
+  m0284a8_predicted 0.06174445107779561
+  m0284a8_clean 0
+  trainContinuum -0.0019729349577204403
+  trainContinuumError 0.01830358987421129
+  trainSlope 18.39039821924422
+  trainRms 0.004389364525104364
+  finalContinuum -0.0019729349577204403
+  finalContinuumError 0.01830358987421129
+  finalSlope 18.39039821924422
+  finalRms 0.004389364525104364
+  blindMiss NaN
+  H 0
+  K 1
+  consistent 1
+notes L2. m0427a8 (train, X 3.416): remainder 0.1426, the training form 0.1488. m0427a12 (train, X 5.124): remainder 0.1012, the training form 0.0985. m0474a8 (train, X 3.790): remainder 0.1906, the training form 0.1870. m0284a8 (seen, X 2.269, not clean): remainder 0.5326, the training form 0.0617.
+exit=0

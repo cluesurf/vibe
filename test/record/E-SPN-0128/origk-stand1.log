@@ -1,0 +1,10 @@
+level weight past 6 links 5.285e-6, past 8 1.147e-7, past 13 3.547e-16; mean |d| 0.854778310887043
+n 0 line cut 6: retained 0.99999 0.99999 0.99997 0.99993 0.99985 0.99977, escaped 2.283e-4, dropped 0.000e+0, mean string 0.855, bent 0.000, classes 27, 0s
+n 0 sym cut 6: retained 0.99999 0.99999 0.99997 0.99993 0.99985 0.99977, escaped 2.283e-4, dropped 0.000e+0, mean string 0.855, bent 0.000, classes 105, 0s
+n 1 line cut 6: retained 0.99997 0.99978 0.99281 0.81871 0.43814 0.29340, escaped 7.066e-1, dropped 2.025e-5, mean string 4.025, bent 0.923, classes 294861, 42s
+n 1 sym cut 6: retained 0.99997 0.99978 0.99138 0.81801 0.38818 0.24500, escaped 7.550e-1, dropped 2.262e-5, mean string 3.960, bent 0.818, classes 303057, 88s
+n 2 line cut 6: retained 0.99994 0.99921 0.96551 0.49971 0.15872 0.04753, escaped 9.524e-1, dropped 3.785e-5, mean string 4.174, bent 0.941, classes 428181, 139s
+n 2 sym cut 6: retained 0.99994 0.99921 0.96097 0.48183 0.14393 0.03675, escaped 9.632e-1, dropped 3.507e-5, mean string 3.665, bent 0.864, classes 429105, 223s
+n 3 line cut 6: retained 0.99991 0.99826 0.92882 0.41759 0.11018 0.03269, escaped 9.673e-1, dropped 4.613e-5, mean string 4.298, bent 0.946, classes 481869, 317s
+n 3 sym cut 6: retained 0.99991 0.99826 0.92244 0.43231 0.13734 0.03510, escaped 9.649e-1, dropped 4.028e-5, mean string 3.987, bent 0.888, classes 407601, 408s
+exit=0

@@ -37,7 +37,7 @@
 // INSTRUMENT (a failure is partial): pieces P = X (1 + E (g - 1) E^dag) to 1e-13; every link unitary and its reverse its
 //  inverse to 1e-12; the reduction equals the full-space cycle to 1e-12 on each operator.
 //
-// FIRST RUN (stages in parallel, tmp/cslab-stage.ts, verdict tmp/cslab-verdict.log): PARTIAL, the STEP 2 stop.
+// FIRST RUN (stages in parallel, test/record/E-FRC-0294/run/cslab-stage.ts, verdict test/record/E-FRC-0294/cslab-verdict.log): PARTIAL, the STEP 2 stop.
 //  - STEP 1 OPEN under both sections: no level within 0.2 in either set; nearest Wilson 0.4618 (first), 0.4673 (weyl)
 //    against the colour-free 0.70, plain 0.7605 both. No gap-closing region: m_wire = 0 exactly.
 //  - STEP 2: 0 levels within 0.1 at L 8, 12, 16, both sections (Krylov-confirmed), the nearest 0.452 to 0.485, the

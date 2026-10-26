@@ -102,22 +102,22 @@
 //  point with the piece OFF.
 // Verdict: partial if the instrument or a control fails; pass if W1 to W5 hold; fail otherwise.
 //
-// PROBES BEFORE THE GATE RUN, disclosed (no gate moved after them). tmp/flip-probe1.log: every candidate keeps the zone
+// PROBES BEFORE THE GATE RUN, disclosed (no gate moved after them). test/record/E-SPN-0148/flip-probe1.log: every candidate keeps the zone
 //  mean of the eigenvalue sum at 1e-16; the rank-one on y at five angles leaves 10 + 10 flats and changes S, D at every
 //  momentum; phases on Pi8, Pi4, Pi2, Pi9 turn the moved states dispersive, never flat at a new phase, except (probe 2)
-//  the pair (Pi8 alpha, Pi2 alpha), which holds one flat at -2.4746. tmp/flip-probe2.log: the covariant table (R1's
+//  the pair (Pi8 alpha, Pi2 alpha), which holds one flat at -2.4746. test/record/E-SPN-0148/flip-probe2.log: the covariant table (R1's
 //  prediction: R kept by every variant, gamma 0 unless phi9 != phi4, -0.0722 and +0.0722 at Pi9 and Pi4 pi/3, -0.0125
 //  and +0.0125 at 0.2; top speed over 1,024 momenta 1.43 and 1.70 c* at Pi8 2 pi/3 and pi, 0.75 and 0.74 c* at +-alpha).
-//  tmp/flip-probe3.log: the channel census of point 3 (Pi8 +0.2 and +alpha cross the level, -alpha keeps 0.135, -pi/3
-//  6.5e-4). tmp/flip-probe4.log: A and B one-body over 4,096 momenta (A: R - tan m / m under 1.1e-12, gamma / c* under
+//  test/record/E-SPN-0148/flip-probe3.log: the channel census of point 3 (Pi8 +0.2 and +alpha cross the level, -alpha keeps 0.135, -pi/3
+//  6.5e-4). test/record/E-SPN-0148/flip-probe4.log: A and B one-body over 4,096 momenta (A: R - tan m / m under 1.1e-12, gamma / c* under
 //  3.5e-11, top 0.738 and 0.989 c*; B: c0 0.707, 0.553, 0.577, 0.768 c*, gamma / c* -0.21 to -0.35, R off by 0.29 to
-//  0.59). tmp/flip-smoke.log: the rule's matrix with A against the covariant model (1.1e-16); 30 box starts, both
+//  0.59). test/record/E-SPN-0148/flip-smoke.log: the rule's matrix with A against the covariant model (1.1e-16); 30 box starts, both
 //  parities, worst 1.2e-16 (5.5 s a rule beat, which set I3's subset), and the model with the piece OFF against the rule
 //  with it ON differs on 40 of 60 (worst 0.40); the vacuum exact on side 4, empty and sea; the calibration state off
 //  span -5.4e-16 on both members, Parseval 2.3e-11 (which set I5's Parseval tolerance); the gate ball holds 231,361
-//  sites; one pairContent takes 250 s. tmp/flip-vac.log: the side-8 vacuum with A at 0.02 to 0.09 s a beat.
+//  sites; one pairContent takes 250 s. test/record/E-SPN-0148/flip-vac.log: the side-8 vacuum with A at 0.02 to 0.09 s a beat.
 //
-// FIRST RUN (tmp/flip-exp-run1.log, 7,919 s, 12 threads): FAIL on W1, W3 (R) and W4, as predicted. The instrument and
+// FIRST RUN (test/record/E-SPN-0148/flip-exp-run1.log, 7,919 s, 12 threads): FAIL on W1, W3 (R) and W4, as predicted. The instrument and
 //  both controls hold; W2 and W5 hold. No gate moved and none was rerun. Two predictions were wrong (the level's eps and
 //  R under A), and the reading that motivated (b) is refuted (R2).
 //  - W1 FAILS for both pieces. A passes (a) to (c) and fails (d) alone: at rest 4 states at pi (D and the three Pi4
@@ -285,7 +285,7 @@ export const GATE_PLAN: OddPhasePlan = {
   light: true,
 }
 
-// E-SPN-0147's recorded floats (tmp/mstr-exp-run1.log)
+// E-SPN-0147's recorded floats (test/record/E-SPN-0147/mstr-exp-run1.log)
 const RECORDED_EPS = 2.265323205134809
 const RECORDED_LAMBDA = 1.0000000000126374
 const RECORDED_SHARE = 0.6861710791962495

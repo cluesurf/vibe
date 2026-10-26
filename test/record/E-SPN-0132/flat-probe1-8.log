@@ -1,0 +1,28 @@
+opposite agree true
+links equal tables true
+working triangle loops 131072 curved 130419 fixing 97077 fixless 33342 orders {"2":5590,"3":47422,"4":32882,"6":44525} open 0 curvedDocks 4096
+working square loops 73728 curved 73430 fixing 53886 fixless 19544 orders {"2":2771,"3":27959,"4":18399,"6":24301} open 0 curvedDocks 4096
+working rhombus60 loops 98304 curved 97818 fixing 72505.5 fixless 25312.5 orders {"2":3819,"3":36132.5,"4":24722,"6":33144.5} open 0 curvedDocks 4096
+working rhombus120 loops 98304 curved 97818 fixing 72505.5 fixless 25312.5 orders {"2":3819,"3":36132.5,"4":24722,"6":33144.5} open 0 curvedDocks 4096
+working rings 6144 {"8:2:1":238,"8:6:1":2152,"8:3:0":1553,"8:4:1":1440,"8:3:3":738,"8:1:9":23}
+working pointField 10820 10870 6
+flat triangle loops 131072 curved 0 fixing 0 fixless 0 orders {} open 0 curvedDocks 0
+flat square loops 73728 curved 0 fixing 0 fixless 0 orders {} open 0 curvedDocks 0
+flat rhombus60 loops 98304 curved 0 fixing 0 fixless 0 orders {} open 0 curvedDocks 0
+flat rhombus120 loops 98304 curved 0 fixing 0 fixless 0 orders {} open 0 curvedDocks 0
+flat rings 6144 {"8:1:9":6144}
+flat pointField 0 0 6
+pure triangle loops 131072 curved 0 fixing 0 fixless 0 orders {} open 0 curvedDocks 0
+pure square loops 73728 curved 0 fixing 0 fixless 0 orders {} open 0 curvedDocks 0
+pure rhombus60 loops 98304 curved 0 fixing 0 fixless 0 orders {} open 0 curvedDocks 0
+pure rhombus120 loops 98304 curved 0 fixing 0 fixless 0 orders {} open 0 curvedDocks 0
+pure rings 6144 {"8:1:9":6144}
+pure pointField 0 0 6
+workingGauged triangle loops 131072 curved 130419 fixing 97077 fixless 33342 orders {"2":5590,"3":47422,"4":32882,"6":44525} open 0 curvedDocks 4096
+workingGauged square loops 73728 curved 73430 fixing 53886 fixless 19544 orders {"2":2771,"3":27959,"4":18399,"6":24301} open 0 curvedDocks 4096
+workingGauged rhombus60 loops 98304 curved 97818 fixing 72505.5 fixless 25312.5 orders {"2":3819,"3":36132.5,"4":24722,"6":33144.5} open 0 curvedDocks 4096
+workingGauged rhombus120 loops 98304 curved 97818 fixing 72505.5 fixless 25312.5 orders {"2":3819,"3":36132.5,"4":24722,"6":33144.5} open 0 curvedDocks 4096
+workingGauged rings 6144 {"8:2:1":238,"8:6:1":2152,"8:3:0":1553,"8:4:1":1440,"8:3:3":738,"8:1:9":23}
+workingGauged pointField 10820 10870 6
+seconds 7.328
+exit=0

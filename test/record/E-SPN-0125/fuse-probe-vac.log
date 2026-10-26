@@ -1,0 +1,14 @@
+side 4 cells 256 crossings 0 vacuum events 0
+vacuum 0.805s
+{"minLines":2,"lastLines":2,"offStar":0,"events":1,"offHub":0,"translations":0,"fused":0,"shortest":-1,"recurrences":0}
+{"minLines":2,"lastLines":2,"offStar":0,"events":11,"offHub":0,"translations":0,"fused":0,"shortest":-1,"recurrences":0}
+{"minLines":5,"lastLines":5,"offStar":0,"events":1,"offHub":0,"translations":0,"fused":0,"shortest":-1,"recurrences":0}
+{"minLines":7,"lastLines":10,"offStar":0,"events":15,"offHub":0,"translations":0,"fused":0,"shortest":-1,"recurrences":0}
+{"minLines":5,"lastLines":5,"offStar":0,"events":2,"offHub":0,"translations":0,"fused":0,"shortest":-1,"recurrences":0}
+{"minLines":7,"lastLines":10,"offStar":0,"events":13,"offHub":0,"translations":0,"fused":0,"shortest":-1,"recurrences":0}
+vac 40 0.966s
+love 0 line 0 bare {"minLines":1,"lastLines":1,"offStar":0,"events":0,"offHub":0,"translations":43,"fused":0,"shortest":1,"recurrences":28} vacuum {"minLines":1,"lastLines":1,"offStar":0,"events":0,"offHub":0,"translations":0,"fused":0,"shortest":-1,"recurrences":0}
+love 5 line 3 bare {"minLines":1,"lastLines":1,"offStar":0,"events":0,"offHub":0,"translations":17,"fused":0,"shortest":1,"recurrences":8} vacuum {"minLines":1,"lastLines":1,"offStar":0,"events":0,"offHub":0,"translations":17,"fused":0,"shortest":1,"recurrences":8}
+love 11 line 4 bare {"minLines":1,"lastLines":1,"offStar":0,"events":0,"offHub":0,"translations":6,"fused":0,"shortest":9,"recurrences":35} vacuum {"minLines":1,"lastLines":1,"offStar":0,"events":0,"offHub":0,"translations":6,"fused":0,"shortest":9,"recurrences":35}
+love 0.99s
+exit=0

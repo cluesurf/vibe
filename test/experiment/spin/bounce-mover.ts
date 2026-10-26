@@ -47,10 +47,10 @@
 //    0.65). The product of three of them on one line triple is an exact level with the contact off, and not with K
 //    (K sends it to the other triples). The start is the equal sum of the products on the 4 reachable triples, the
 //    analogue of E-SPN-0110's exchange-symmetric level; the controls start from the one-triple product.
-// PROBES, disclosed (instrument only): tmp/kmove-probe.log (the triple census and the line-set graphs of every trio
-// through slot 0's line: 1, 2 or 4 triples), tmp/kmove-probe2.log (the product: 32 beats, contact off fidelity 1 -
+// PROBES, disclosed (instrument only): test/record/E-SPN-0118/kmove-probe.log (the triple census and the line-set graphs of every trio
+// through slot 0's line: 1, 2 or 4 triples), test/record/E-SPN-0118/kmove-probe2.log (the product: 32 beats, contact off fidelity 1 -
 // 1e-8, with K 0.457 and 6 lines held, tail 1.7e-4, 0 off-hub, 0 clash; a boost along e_1 moved the peak by -0.001),
-// tmp/kmove-probe3.log (floor 1e-14, 64 beats: the orbit sum is exact under K, fidelity 1 - 2e-8, tail 5e-5, at the
+// test/record/E-SPN-0118/kmove-probe3.log (floor 1e-14, 64 beats: the orbit sum is exact under K, fidelity 1 - 2e-8, tail 5e-5, at the
 // energy of the contact-off product; 702,464 configurations, 113 s).
 // PREDICTED: M1 holds (the string holds each vibe near X as in E-SPN-0110), M2 fails (dE = 0 in every direction, to the
 // reading's resolution), M3 holds (condition Z).
@@ -81,7 +81,7 @@
 //  product exact under C1 and the orbit sum exact under K (fidelity at least 1 - 1e-6 over their runs).
 // Verdict: partial if a check, the calibration or a control fails; pass if M1, M2 and M3 hold; fail otherwise.
 //
-// FIRST RUN (tmp/kmove-run1.log, 1,314 s): FAIL on M2 only, as predicted; no gate moved. M1: the orbit level holds
+// FIRST RUN (test/record/E-SPN-0118/kmove-run1.log, 1,314 s): FAIL on M2 only, as predicted; no gate moved. M1: the orbit level holds
 // under K with tail at most 5.2e-5 and fidelity 1 - 4e-8 over 128 beats, while 7.63 of its weight passes through
 // line-changing meetings and it holds 6 lines. The one-triple product falls to fidelity 0.457 under K, so the contact is
 // real. M2: dE at K = pi/2 is -0.0011 on every axis and -0.0010 on every face diagonal, against a free prediction of

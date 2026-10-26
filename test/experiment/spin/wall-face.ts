@@ -95,30 +95,30 @@
 //     1.9999999999856668 and -1.9999999999834868). C2 the chiral variant's half-0 pieces equal the symmetric pieces' half 0
 //     and its half-1 pieces the E-SPN-0160 pieces' half 1 (1e-15).
 //
-// PROBES, disclosed: tmp/wfc-probe1.log (m_w(L) at L = 4 .. 12: 0.1145, 0.0729, 0.0244, 0.00489, 0.000122; the massive
+// PROBES, disclosed: test/record/E-SPN-0168/wfc-probe1.log (m_w(L) at L = 4 .. 12: 0.1145, 0.0729, 0.0244, 0.00489, 0.000122; the massive
 //  wall's dispersion sqrt(m^2 + 0.622^2 k^2); the field's bulk gaps 0.49 / 0.76 at qa = 15 and 0.52 / 0.76 at qa = 21).
-//  tmp/wfc-probe2.log (the first matrix-free solver: at qa = 15 the wall levels +-0.0594 at k2 = 0.1 on walls A and B; its
-//  Ritz residual was read wrongly as 0, a flaw fixed). tmp/wfc-probe3.log (the W4 steps: Richardson 0.6225101904 on x0
+//  test/record/E-SPN-0168/wfc-probe2.log (the first matrix-free solver: at qa = 15 the wall levels +-0.0594 at k2 = 0.1 on walls A and B; its
+//  Ritz residual was read wrongly as 0, a flaw fixed). test/record/E-SPN-0168/wfc-probe3.log (the W4 steps: Richardson 0.6225101904 on x0
 //  and x1; the wall census OPEN at L = 6, 3212 crossings, and L = 8, 6576; c_eff 0.617041 and 0.622392). tmp/wfc-
 //  probe4.log (the single-vector solver finds a degenerate level's multiplicity only through rounding: at 80 steps it
 //  gave wrong levels with an eigen residual 3.1e-2; the first E . B loop, unreliable, showed the LLL crossing pi twice a
-//  loop). tmp/wfc-probe5.log (the census channels, L = 6: MM 1812, MF 220, FF 1180; L = 8: MM 5252, MF 108, FF 1216; the
+//  loop). test/record/E-SPN-0168/wfc-probe5.log (the census channels, L = 6: MM 1812, MF 220, FF 1180; L = 8: MM 5252, MF 108, FF 1216; the
 //  far-side width against arg v: 0.286378 / 0.286695, 0.952504 / 0.953641, 1.518905 / 1.521005; the E-SPN-0160 control on
-//  L = 2 and 6 OPEN, 176 and 1132). tmp/wfc-probe6.log, 6b, 6c (the deflated solver: the first two versions admitted
+//  L = 2 and 6 OPEN, 176 and 1132). test/record/E-SPN-0168/wfc-probe6.log, 6b, 6c (the deflated solver: the first two versions admitted
 //  inexact Ritz vectors, 20 and 10 spurious levels, eigen residual 0.97 and 0.77; the fix, true residuals and a
-//  breakdown stop, matches the dense reduction to 3.6e-15 with all 8 degenerate levels). tmp/wfc-debug1.log (U^dag is
-//  the adjoint to 3e-15) and tmp/wfc-debug2.log (the round-by-round trace that found the flaw: Ritz values above 1).
-//  tmp/wfc-probe7.log (the census instrument: E-SPN-0160 on the one-class slab 0 crossings, B* = 0.760502413 = 2M, equal
-//  to pairCensusN; L = 2 and 4 open, 176 and 552: the depth folding). tmp/wfc-probe6c.log (the corrected solver's E . B
+//  breakdown stop, matches the dense reduction to 3.6e-15 with all 8 degenerate levels). test/record/E-SPN-0168/wfc-debug1.log (U^dag is
+//  the adjoint to 3e-15) and test/record/E-SPN-0168/wfc-debug2.log (the round-by-round trace that found the flaw: Ritz values above 1).
+//  test/record/E-SPN-0168/wfc-probe7.log (the census instrument: E-SPN-0160 on the one-class slab 0 crossings, B* = 0.760502413 = 2M, equal
+//  to pairCensusN; L = 2 and 4 open, 176 and 552: the depth folding). test/record/E-SPN-0168/wfc-probe6c.log (the corrected solver's E . B
 //  loop at qa = 15, half 0, 16 steps: net +4 on wall A and -4 on wall B, eigen residual 3.7e-14, no ambiguous level).
-//  tmp/wfc-smoke.log (every code path on a small plan: all as derived except three gate statements, corrected before the
+//  test/record/E-SPN-0168/wfc-smoke.log (every code path on a small plan: all as derived except three gate statements, corrected before the
 //  gate run: A4 had included a v with arg v > 0, where the width is not |arg v|; P2's spectral clause had no teeth (the
 //  halves' spectra agree at the same K), replaced by the operator's covariance; E1 and E3 read 0 at 8 loop steps, where
 //  the window misses the crossings, the gate plan's 16 steps fixed before it). Points 1 to 3 and 6 were written before any probe;
 //  points 4, 5, 7, 8 and every numeric threshold after them. The chiral-face reading (point 6, P1 to P3) was added on the
 //  coordinator's request after probe 7 and before the gate run.
 //
-// FIRST RUN (tmp/wfc-exp-run1.log, 384 s): PARTIAL, as derived. A0 E-SPN-0160 on the one-class slab 0 crossings, B* =
+// FIRST RUN (test/record/E-SPN-0171/wfc-exp-run1.log, 384 s): PARTIAL, as derived. A0 E-SPN-0160 on the one-class slab 0 crossings, B* =
 //  0.760502413 = 2M, pairCensusN the same. A1 the folded L = 4 slab 552 crossings. A2 m_w 0.1145, 0.0729, 0.0244, 0.00489,
 //  0.000122 at L = 4 .. 12, each level 8-fold. A3 c_eff 0.61704116 (L 6) and 0.62239248 (L 8), isotropic to 2.3e-7; R
 //  1.017805 and 1.000378 (tan m/m 1.000444, 1.000050). G1 FALSE (predicted): the wall census open, L 6 3212 crossings (MM

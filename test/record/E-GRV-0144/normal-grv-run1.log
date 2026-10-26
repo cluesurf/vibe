@@ -1,0 +1,77 @@
+N1 15s
+C1 16s
+N2 path 0 23s
+N2 path 1 30s
+N2 path 2 37s
+N2 path 3 44s
+N2 path 4 53s
+N2 path 5 63s
+N2 path 6 71s
+N2 path 7 79s
+N2 80s
+status fail
+claim N1 false (the asked register |occupied - sea| + 2 stored; sea (asked register 0, charge register 0): asked drift 0/0/0/0, Gauss off 0/0/0/0, first break -1/-1/-1/-1; charge drift 0/0/0/0, Gauss off 0/0/0/0 | hole (asked register 1, charge register 1): asked drift 0/0/0/0, Gauss off 0/0/0/0, first break -1/-1/-1/-1; charge drift 0/0/0/0, Gauss off 0/0/0/0 | two holes (asked register 2, charge register 2): asked drift 0/0/0/0, Gauss off 0/0/0/0, first break -1/-1/-1/-1; charge drift 0/0/0/0, Gauss off 0/0/0/0 | hole and fear (asked register 1, charge register 5): asked drift 4/4/4/4, Gauss off 128/128/128/127, first break 1/1/1/1; charge drift 0/0/0/0, Gauss off 0/0/0/0); N1c true (the charge register); N2 false (particle-hole off 0, averaged depth gap 0.000e+0, beat-0 gap against a love in the working vacuum 0.000e+0, source depth 3.685e-3 against the count's -3.685e-3; k per unit 4.693e-3 against E-GRV-0119's 1.024e-2, ratio 0.4582); N3 true (sea register largest 0, depth 0); C1 true (count -0.0014837189754721514, asked 0.0014837189754721514); C2 true (point ratio 1.000013)
+  N1 0
+  N1c 1
+  N2 0
+  N2exact 1
+  N2k 0
+  N3 1
+  C1 1
+  C2 1
+  particleHoleOff 0
+  chargeOffOnHoles 0
+  averageDepthGap 0
+  startDepthGap 0
+  holeSourceDepth 0.003685252704762556
+  holeCountSourceDepth -0.003685252704762556
+  holeK 0.004692501977074693
+  holeEnergy 1
+  kPerUnit 0.004692501977074693
+  kReferencePerUnit 0.010241333333333333
+  kRatio 0.4581924857187892
+  pointK 0.010803136300130746
+  pointRatio 1.0000126168777883
+  countK -0.004692501977074693
+  auditCountDepth0 -0.0014837189754721514
+  auditNormalDepth0 0.0014837189754721514
+  seaLargest 0
+  seaCountColumnMax 192
+  seconds 79.55
+  sea_asked_drift 0
+  sea_asked_gaussOff 0
+  sea_charge_drift 0
+  sea_charge_gaussOff 0
+  hole_asked_drift 0
+  hole_asked_gaussOff 0
+  hole_charge_drift 0
+  hole_charge_gaussOff 0
+  two_holes_asked_drift 0
+  two_holes_asked_gaussOff 0
+  two_holes_charge_drift 0
+  two_holes_charge_gaussOff 0
+  hole_and_fear_asked_drift 4
+  hole_and_fear_asked_gaussOff 511
+  hole_and_fear_charge_drift 0
+  hole_and_fear_charge_gaussOff 0
+  hole_r0 0.0034022447470409074
+  point_r0 0.05074753456046921
+  hole_r1 0.0024578826791162847
+  point_r1 0.008636344670157477
+  hole_r2 0.001890403001144271
+  point_r2 0.003940098833084735
+  hole_r3 0.0014247962986801593
+  point_r3 0.002230796741659292
+  hole_r4 0.0009551290872347937
+  point_r4 0.0013133495622833801
+  hole_r5 0.0005694616590600486
+  point_r5 0.0007056298563685036
+  hole_r6 0.00029694193876677054
+  point_r6 0.0003423698542462635
+  hole_r7 0.00012072498277599292
+  point_r7 0.00013530156639942305
+  hole_r8 0
+  point_r8 0
+control {"C1":1,"C2":1}
+notes L1. Profiles x(r) - x(8) at r = 0 .. 8: hole 0.0034 0.0025 0.0019 0.0014 0.0010 0.0006 0.0003 0.0001 0.0000; love 0.0034 0.0025 0.0019 0.0014 0.0010 0.0006 0.0003 0.0001 0.0000; the un-ordered hole -0.0034 -0.0025 -0.0019 -0.0014 -0.0010 -0.0006 -0.0003 -0.0001 0.0000; point unit 0.0507 0.0086 0.0039 0.0022 0.0013 0.0007 0.0003 0.0001 0.0000. Fits: hole a -3.335e-4 k 4.693e-3; point k 1.080e-2 (hole/point 0.4344); un-ordered hole k -4.693e-3. The un-ordered sea's column source is 192 on every column (removed only as the torus mean). 80 s.
+exit=0

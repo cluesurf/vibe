@@ -1,0 +1,73 @@
+hands 18.4s
+isospin 36.1s
+colour 37.7s
+leaks 101.5s
+search 101.5s
+{
+ "status": "pass",
+ "claim": "two-wall matching on R*, PASS: walls 3+1d; face A 4 states chi 2.000000 (hand 1), face B 4 chi -2.000000 (hand -1), half - 0; SU(2)+ Casimir 3.000000000/3.000000000; 3Q -1/1; tones conjugate in colour true, like-tone invariants anti 1 sym 0 mixed 0, mixed-tone 0/0; N+ gap 0, SU(2)+ gap 0; admissible Q true V true; S4 non-vacuous: QQQ 0, Q 0, VVV 0, V 0, QQV 0, QVV 0, QTA 0, VTA 3, QTB 0, VTB -3, wittenA 0, wittenB 0; 4 J = 1/2 composites, 1 of 2401 assignments match, 1 with a charge-one composite on each wall (1 x [wall A Q -3/3 (1/2, 1/2)] + 1 x [wall A Q 3/3 (1/2, 1/2)] + 1 x [wall B Q -3/3 (1/2, 1/2)] + 1 x [wall B Q 3/3 (1/2, 1/2)]); controls C1 true (S3 one wall 0 matches) C2 true (QCD 1) C3 true (wall B dropped 0); instrument true",
+ "metrics": {
+  "D": 1,
+  "R": 1,
+  "E": 1,
+  "C1": 1,
+  "C2": 1,
+  "C3": 1,
+  "I1": 1,
+  "I2": 1,
+  "I3": 1,
+  "I4": 1,
+  "faceAChirality": 1.9999999999902305,
+  "faceBChirality": -1.9999999999893268,
+  "handA": 1,
+  "handB": -1,
+  "otherHalfInGap": 0,
+  "casimirGapMax": 8.20321588472464e-12,
+  "invarianceMax": 5.0737788546230215e-12,
+  "halfNumberGap": 0,
+  "su2Gap": 0,
+  "twiceTrVCC": 0,
+  "sixTrQCC": 0,
+  "twiceTrAxialCC": 8,
+  "s4Vacuous": 0,
+  "compositeMultiplets": 4,
+  "matches": 1,
+  "electronMatches": 1,
+  "electronComposite": 1,
+  "constituent_QQQ_x27": 0,
+  "constituent_Q_x3": 0,
+  "constituent_VVV_x1": 0,
+  "constituent_V_x1": 0,
+  "constituent_QQV_x9": 0,
+  "constituent_QVV_x3": 0,
+  "constituent_QTA_x12": 0,
+  "constituent_VTA_x4": 12,
+  "constituent_QTB_x12": 0,
+  "constituent_VTB_x4": -12,
+  "constituent_wittenA_x1": 0,
+  "constituent_wittenB_x1": 0,
+  "leak_L8": 0.024406439978382787,
+  "leak_L12": 0.00012195960805350126,
+  "leak_L16": 0.0003178002899633332,
+  "leak_L20": 0.00007349843938397883,
+  "commutatorA_L8": 0.018660509116413867,
+  "commutatorA_L12": 0.00009714684545026754,
+  "commutatorA_L16": 0.0002698401056641204,
+  "commutatorA_L20": 0.000053215432137112116,
+  "leakFalls": 0,
+  "seconds": 101.466
+ },
+ "control": {
+  "C1": 1,
+  "C2": 1,
+  "C3": 1,
+  "s3Matches": 0,
+  "qcdMatches": 1,
+  "dropBMatches": 0,
+  "plantedFound": 1,
+  "colourRoundGap": 2.2881882451975124e-15,
+  "leftTeeth": 0.08333333333333333
+ },
+ "notes": "L1 algebra on L2 reads. STEP 0: root dimension 4, depth axis 3, tangent axes 0,1,2 (speeds A 0.6225/0.6225/0.6225, B 0.6225/0.6225/0.6225); in-gap weights 0.0033 0.0033 0.0033 0.0033 0.9967 0.9967 0.9967 0.9967; isospin span invariance 5.1e-12/2.2e-12, Casimir gap 8.2e-12/7.4e-12; Sigma(648) [g x conj g, V] 6.5e-16, [g x g, V] 1.0000, averages round gap 2.3e-15. Read content equals E-FRC-0289 citation (face doublets, hands, Q); colour differs from it as the brief expects (fear 3-bar). STEP 1: rule pieces 5, N+ gap 0, SU(2)+ gap 0, left-multiplication teeth 0.08333333333333333; leak (max |eps| in gap, half +) L 8: 2.441e-2 (8 levels, half - 0, [U, Pi_A] 1.87e-2); L 12: 1.220e-4 (8 levels, half - 0, [U, Pi_A] 9.71e-5); L 16: 3.178e-4 (8 levels, half - 0, [U, Pi_A] 2.70e-4); L 20: 7.350e-5 (8 levels, half - 0, [U, Pi_A] 5.32e-5), falls false. STEP 2: colour traces 2 Tr V C^2 0, 6 Tr Q C^2 0, 2 Tr (N_A - N_B) C^2 8 (axial inadmissible); dropped coefficients none; constituents QQQ 0, Q 0, VVV 0, V 0, QQV 0, QVV 0, QTA 0, VTA 3, QTB 0, VTB -3, wittenA 0, wittenB 0; like-tone content (3/2, 3/2) x1 + (1/2, 1/2) x1 (20 states); composites wall A Q -3/3 (1/2, 1/2); wall A Q 3/3 (1/2, 1/2); wall B Q -3/3 (1/2, 1/2); wall B Q 3/3 (1/2, 1/2); matches (1,1,1,1). Controls: S3 one wall 0 of 49; QCD 1 of 49 ((1,1)), QCD target VVV 0, V 0, VTA 3/2, VTB -3/2, wittenA 1, wittenB 1; wall B dropped 0 of 2401, target QQQ 0, Q 0, VVV 12, V 12, QQV 4/3, QVV 0, QTA 0, VTA 3, QTB 0, VTB 0, wittenA 0, wittenB 0. 101.5 s."
+}
+exit=0

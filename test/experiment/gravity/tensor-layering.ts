@@ -66,7 +66,7 @@
 // REPORTED: per L the fitted and kernel c_2,tensor over RS, the local r^2 (U_T / w_0 - 1) over 2 / (3 k^2) at
 // r = 4 .. 128, the vDVZ limit (f_m at m = p / 64, exact and float), and the naive 5d zero mode's factor (k_5 = 0).
 //
-// FIRST RUN (tmp/rs2-exp-run1.log, 3 s): FAIL on TF, T2, CM and CF. No gate moved.
+// FIRST RUN (test/record/E-GRV-0142/rs2-exp-run1.log, 3 s): FAIL on TF, T2, CM and CF. No gate moved.
 //  - T0 holds (0 of 60 kernel coefficients off over both primes; 5 and 5 polarizations). T1 holds: the TT block is the
 //    identity to 2.2e-16 and the tensor kernel equals the scalar's times G^-1 to 6.7e-16 at every L.
 //  - TF FAILED ON A DEFECT OF METHOD, not of physics: the float pseudo-inverse read f_m = 1/2 at the tower's lightest
@@ -82,7 +82,7 @@
 // echelon pivots come out of column order (tensor-stack's solveMod pivots per column instead), and dyadicMod refuses
 // entries near 1e6, so the reported vDVZ momentum went from 1000 to 64.
 //
-// FOURTH RUN (tmp/rs2-exp-run4.log, the record, 3.4 s): FAIL on CM only. No gate moved.
+// FOURTH RUN (test/record/E-GRV-0142/rs2-exp-run4.log, the record, 3.4 s): FAIL on CM only. No gate moved.
 //  - T0: 0 of 60 kernel coefficients off E-GRV-0141's fierzPauli over both primes; 5 TT polarizations at rest and at
 //    a spacelike momentum.
 //  - T1: G^-1 A / (-(1/2) k^2) and G^-1 B / (-(1/2)) are the identity to 2.2e-16; the block-admittance tensor kernel
@@ -166,7 +166,7 @@ const MASSLESS_TOLERANCE = 1e-12
 const TUNING_GAP = 0.01
 // p / m for the reported vDVZ reading (m = 1); dyadicMod reads entries up to 2^13, so p^2 <= 2^12
 const VDVZ_MOMENTUM = 64
-// E-GRV-0137's extrapolated fit over RS (tmp/rs-run1.log, metric overRS), the control's target
+// E-GRV-0137's extrapolated fit over RS (test/record/E-GRV-0137/rs-run1.log, metric overRS), the control's target
 const E_GRV_0137_OVER_RS = 0.7282461128403613
 const REPRODUCE_TOLERANCE = 1e-9
 const SPACELIKE = [0, 1, 0, 0]

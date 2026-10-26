@@ -1,0 +1,24 @@
+backgrounds 9s
+CB 10s
+placements 10s
+probes T4 46s
+probes M4 54s
+probes T8 63s
+/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/test/experiment/spin/mach-background.ts:138
+  p.wake.every((v, t) => v === q.wake[t]) && p.offStar.every((v, t) => v === q.offStar[t]) && p.centroid.every((c, t) => c.every((v, k) => v === (q.centroid[t] as number[])[k]))
+                                 ^
+
+TypeError: Cannot read properties of undefined (reading 'wake')
+    at <anonymous> (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/test/experiment/spin/mach-background.ts:138:34)
+    at Array.every (<anonymous>)
+    at sameTrack (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/test/experiment/spin/mach-background.ts:138:10)
+    at <anonymous> (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/test/experiment/spin/mach-background.ts:260:95)
+    at Array.every (<anonymous>)
+    at Object.run (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/test/experiment/spin/mach-background.ts:260:79)
+    at experiment (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/test/scaffold/suite.ts:85:31)
+    at Array.map (<anonymous>)
+    at runSuite (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/test/scaffold/suite.ts:84:22)
+    at <anonymous> (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/mach-exp.ts:5:18)
+
+Node.js v24.13.1
+exit=1

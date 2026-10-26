@@ -1,0 +1,59 @@
+terms 11s
+trio 20s
+controls 22s
+reads 27s
+status fail
+claim a love on (1,0,1,0) and a love on (1,1,0,0) at X, a fear on (1,1,0,0) and a fear on (0,1,1,0) at Y = X + (1,1,0,0), charge 0, in the working knit with its vacuum: over 16 terms (side 8, 128 beats) 0 keep a bounded wake; the cascade triggers at beats 20 to 94 (0 untriggered) and the footprint at beat 128 is at least 4091 of 4096 docks; the drift cost is diagonal, so every term is the same at every tension (Q1 false, Q2 true, Q3 false)
+  Q1 0
+  Q2 1
+  Q3 0
+  control_CU 1
+  control_C1 1
+  control_CV 1
+  terms 16
+  boundedTerms 0
+  maxGrowth 527.3698630136986
+  minGrowth 0.0006139834736115019
+  minFootprint128 4091
+  cells 4096
+  minTrigger 20
+  maxTrigger 94
+  untriggered 0
+  minWakeDrift 0.3524822840306323
+  minHubDrift 0.6666666666666666
+  controlWakeDrift 1.0706214984688285
+  controlHubDrift 0
+  wakeThreshold 107.06214984688285
+  hubThreshold 0.1
+  minRank 4
+  cuWake128 39184
+  cuDocks128 4096
+  trioOffStar 0
+  trioOffX 0
+  vacuumEvents 0
+  vacuumSingles 0
+  stepperDiffer 0
+  compositeCrossings 0
+  starCrossings 8
+  vacuumSplitsStart 0
+  vacuumSplits 7680
+  alwaysWake128 22
+  alwaysKDocks 1
+  neverWake128 98
+  neverKDocks 2
+  side12Wake128 197966
+  side12Footprint128 20727
+  side12Cells 20736
+  side12Trigger 50
+  meanCostly32 354
+  meanCostly128 32551.875
+  meanCost128 2004954.125
+  alwaysCostly128 12
+  seconds 26.539
+  meanWake_16 94.1875
+  meanWake_32 640.25
+  meanWake_64 24133.5625
+  meanWake_128 39063.6875
+control {"cuWake128":39184,"trioOffStar":0,"vacuumEvents":0}
+notes L1. Q1 false (growth 0.0006 to 527.3699), Q2 true (wake drift min 0.352 vs 107.062, hub drift min 0.667 vs 0.100), Q3 false (ranks 4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4); CU true (wake 39184, K docks 4096), C1 true, CV true; checks {"stepper":true,"sharedB":true,"compositeCrossings":true}. Star crossings of X and Y on the box: 8. Vacuum unequal-point open like meetings: 0 at the start, at most 7680 at the start of any beat. Terms: p0: trigger 47, wake 123/171/12241/39160, footprint 4095, K docks 4096, costly 80/32817, drift 0.484/0.791; p1: trigger 46, wake 54/124/19371/39167, footprint 4093, K docks 4096, costly 76/32836, drift 0.508/0.791; p2: trigger 30, wake 78/423/37928/39183, footprint 4093, K docks 4096, costly 257/32578, drift 0.352/0.697; p3: trigger 21, wake 147/5183/39089/39113, footprint 4094, K docks 4096, costly 2852/32772, drift 0.461/1.414; p4: trigger 20, wake 197/1897/38890/39056, footprint 4095, K docks 4096, costly 1027/33039, drift 0.394/0.787; p5: trigger 40, wake 59/164/36363/39148, footprint 4095, K docks 4096, costly 93/32824, drift 0.479/0.803; p6: trigger 38, wake 67/191/36860/39104, footprint 4096, K docks 4096, costly 111/32626, drift 0.446/0.707; p7: trigger 38, wake 91/185/36060/39153, footprint 4091, K docks 4096, costly 121/32519, drift 0.491/1.173; p8: trigger 36, wake 93/247/35542/39135, footprint 4094, K docks 4096, costly 116/32743, drift 0.578/1.414; p9: trigger 55, wake 57/78/1084/39092, footprint 4094, K docks 4096, costly 51/32847, drift 0.634/0.676; p10: trigger 89, wake 58/64/104/38561, footprint 4095, K docks 4095, costly 51/31314, drift 0.722/0.667; p11: trigger 52, wake 55/63/3016/39146, footprint 4093, K docks 4096, costly 27/32619, drift 0.543/1.414; p12: trigger 94, wake 57/64/73/38571, footprint 4096, K docks 4096, costly 31/30970, drift 0.592/1.414; p13: trigger 27, wake 159/616/38450/39138, footprint 4093, K docks 4096, costly 359/32921, drift 0.419/0.789; p14: trigger 46, wake 63/166/12858/39132, footprint 4094, K docks 4096, costly 86/32649, drift 0.527/1.414; p15: trigger 28, wake 149/608/38208/39160, footprint 4096, K docks 4096, costly 326/32756, drift 0.735/0.946. Always exchange: wake 46/37/33/22, K docks 1, costly 12. Never exchange: wake 64/52/100/98, K docks 2. Side 12 path 0: wake 77/121/5204/197966, footprint 20727 of 20736, trigger 50. 27 s.
+exit=0

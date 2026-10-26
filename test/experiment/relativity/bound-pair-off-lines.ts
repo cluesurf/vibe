@@ -17,14 +17,14 @@
 //   move: they leave 1/2 on the axis, 1/4 on a body diagonal and 1/4 on the face diagonal (3 of 12 classes,
 //   branchShifts 0, 1, 4 times a kappa^2). A single band leaves none.
 //
-// STEP 1, THE FLOORS, read before any K read (2026-10-22, tmp/rlt118-zero.log, tmp/rlt118-floors.log; the axis and
-// (1, 1, 1) K = 0 correlations are E-RLT-0116's tmp/rlt116.json, same sector, start and engine, the other four read
+// STEP 1, THE FLOORS, read before any K read (2026-10-22, test/record/E-RLT-0118/rlt118-zero.log, test/record/E-RLT-0118/rlt118-floors.log; the axis and
+// (1, 1, 1) K = 0 correlations are E-RLT-0116's test/record/E-RLT-0116/rlt116.json, same sector, start and engine, the other four read
 // fresh, 1,291 s at 6 native threads). The six K = 0 correlations agree to 9.4e-15 at every lag (the dynamics at K = 0
 // commutes with O_h, and every sector, the repaired (1, 1, -1) and (1, -1, 1) ones among them, reproduces it). The heaviest
 // K = 0 line: E0 = E_L + 1.057e-4, w0 0.8235, |z| - 1 below 1.2e-11; neighbors at -3.20e-3 (0.114) and +4.04e-3
 // (0.060). The correlation's own one-cycle residual is 1.5248e-3, against the level's direct read 1.5231e-3 (E-RLT-0115;
 // the 0.1% is the engine's Gram drift, about 3e-9 a cycle, which the unitary formula does not see).
-//  - The residual floor, by filter length (axis and body, tmp/rlt118-floor.log): 9.18e-4 at 2,048 (E-RLT-0115's filter:
+//  - The residual floor, by filter length (axis and body, test/record/E-RLT-0118/rlt118-floor.log): 9.18e-4 at 2,048 (E-RLT-0115's filter:
 //    its 9.84e-4 is this floor), 2.07e-4 at 4,096, 1.21e-5 at 6,144, 1.1e-6 at 8,191. At 6,144 the neighbors fall outside
 //    the main lobe while the branches of a moving line stay inside it (at 8,191 the body diagonal's outer branch falls
 //    out and the line-branch value drops toward the floor), so 6,144 it is.
@@ -61,7 +61,7 @@
 // representatives and 500 s on the face's 4,616 at 6 native threads, about 1.5 hours. It stops at 8 hours with what has
 // landed (each read is written as it lands).
 //
-// THE RUN (2026-10-22, tmp/rlt118-moved.log, tmp/rlt118.json, tmp/rlt118-verdict.log; 3,400 s at 6 native threads for
+// THE RUN (2026-10-22, test/record/E-RLT-0118/rlt118-moved.log, test/record/E-RLT-0118/rlt118.json, test/record/E-RLT-0118/rlt118-verdict.log; 3,400 s at 6 native threads for
 // the 12 K reads). OPEN, as registered, by one read of twelve. No gate moved. Every instrument holds.
 //  - ALL FOUR BODY DIAGONALS MOVE at both momenta, and their reads are equal to 4 digits (the repaired sectors read as
 //    their partners): residual 3.34e-5 at 0.22 (moves at most 1.92e-4, lines 5.54e-4) and 6.32e-5 at 0.28 (at most
@@ -394,7 +394,7 @@ export function offLineCombine(part: OffLinePart): Verdict {
   })
 }
 
-const PART = 'tmp/rlt118.json'
+const PART = `${import.meta.dirname}/../../record/E-RLT-0118/rlt118.json`
 
 export default experiment({
   id: 'relativity/bound-pair-off-lines',

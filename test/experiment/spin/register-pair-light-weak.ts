@@ -22,8 +22,8 @@
 //   Verdict: pass if I and P; partial if I and H (not P), or P holds on a read that misses I only on the ratio within
 //   0.1 of 4; fail otherwise.
 //
-// FIRST RUN (2026-10-20, tmp/spn-light-m0284-a12.log and .json, the native kernel at 12 threads on a machine at load 40,
-// 6.2 hours; the verdict by combineLightWeak in tmp/spn-0212-combine.ts, tmp/spn-0212-verdict.log): PASS, as
+// FIRST RUN (2026-10-20, test/record/E-SPN-0212/spn-light-m0284-a12.log and .json, the native kernel at 12 threads on a machine at load 40,
+// 6.2 hours; the verdict by combineLightWeak in test/record/E-SPN-0212/run/spn-0212-combine.ts, test/record/E-SPN-0212/spn-0212-verdict.log): PASS, as
 // predicted. No gate moved.
 //  - I holds: the tracked line 1.1141074 (scaled binding 1.731), overlap 0.684 against the next 0.253, ratio 3.989 at
 //    K 0.04 (at a_B 8 this member's read was not quadratic, 3.855 at K 0.02).

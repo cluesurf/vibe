@@ -41,7 +41,7 @@
 //    = -m0 or pi - m0 at any separation): the singlet composite, if it forms, is in the flipped channels' continuum, the
 //    E-SPN-0146 situation made worse. What the singlet start finds instead sits near contact, where the pair shares a dock
 //    and the contact map (store and release) acts. The window: a tied member's radial levels at a strong string (sigma =
-//    alpha) put 3.5e-2 of their weight at depth 2 and 1.2e-3 at depth 3 (tmp/lflux-probe2.log), and the pair's word
+//    alpha) put 3.5e-2 of their weight at depth 2 and 1.2e-3 at depth 3 (test/record/E-SPN-0150/lflux-probe2.log), and the pair's word
 //    length is the sum of its two ends' depths, so absorption at the box of word length L falls roughly as the depth-L/2
 //    weight squared per end: the H witness (1e-9 absorbed in 256 beats) needs L of about 10, 24 x 23^9 = 4e13 words.
 //    The largest affordable box is L = 4 (292,561 words x 576 slot pairs + 2,257 contact words x 24 stores, 2.7 GB a state).
@@ -87,21 +87,21 @@
 //  (the same pair under the local string), each level's eps, |lambda2|, singlet share and word-length profile.
 // Verdict: partial if the instrument or a control fails; pass if T1, L3, L4 and L5 hold; fail otherwise.
 //
-// PROBES BEFORE THE GATE RUN, disclosed (no gate moved after them). tmp/lflux-probe1-2.log: the radial chain's spectral
+// PROBES BEFORE THE GATE RUN, disclosed (no gate moved after them). test/record/E-SPN-0150/lflux-probe1-2.log: the radial chain's spectral
 //  support at sigma 0 starts at |eps| 1.2170 (pi/6), 1.1688 (0.190) against the derived 1.2174, 1.1675. A first flux
 //  space keyed by patterns (a BFS over flux patterns of cost <= 4) grew past 18 GB and was stopped: patterns of bounded
 //  cost include words of unbounded length (a pair circling a triangle), so the box is set by WORD LENGTH, not cost.
-//  tmp/lflux-probe2.log: a tied member's radial levels near the root (point 4's window numbers). tmp/lflux-probe3-2.log
+//  test/record/E-SPN-0150/lflux-probe2.log: a tied member's radial levels near the root (point 4's window numbers). test/record/E-SPN-0150/lflux-probe3-2.log
 //  and -4.log: wordSpace(4) 305,281 words, 292,561 even, 2,257 contact, Gauss, distinct, 192 below length, built in 4 s;
 //  patternNext agrees on 144,905 sampled transitions; the radial chain equals the word engine to 1.1e-15 (sigma alpha:
 //  spread 1.1e-2 at beat 4, where the Z3 cost of the a b c a words breaks the tree symmetry, so I5 reads 3 beats there);
-//  the projected flux beat equals the meson beat to 8.9e-16; one flux beat at L = 4 takes 0.4 to 1.4 s. tmp/lflux-probe4-*:
+//  the projected flux beat equals the meson beat to 8.9e-16; one flux beat at L = 4 takes 0.4 to 1.4 s. test/record/E-SPN-0150/lflux-probe4-*:
 //  the procedure at the light point: at L = 2 the largest peak's level (eps 0.322) keeps 0.69 of its fidelity over 64
 //  beats and absorbs 0.31; at L = 4 (sigma alpha) the start's spectrum peaks at eps 1.998, the level there has
 //  |lambda2| 0.99729, weight 5.4e-4, 0.505, 0.494 at word lengths 0, 2, 4, and absorbs 0.159 in 64 beats (828 s). At
 //  sigma = 2 sigma_146 and L = 2 it absorbs 0.10 in 64 beats. These set the prediction that L3 fails.
 //
-// FIRST RUN (tmp/lflux-4d-exp-run1.log, 5,062 s): FAIL on L3 and L4, as predicted. T1 and L5 hold, the instrument and
+// FIRST RUN (test/record/E-SPN-0150/lflux-4d-exp-run1.log, 5,062 s): FAIL on L3 and L4, as predicted. T1 and L5 hold, the instrument and
 //  both controls hold. No gate moved and none was rerun.
 //  - T1 holds: the tied member's spectrum starts at |eps| 1.2170, 1.1688, 1.1636, 1.1604 at m0 0.524, 0.190, 0.143,
 //    0.047, against the Kesten floors 1.2174, 1.1675, 1.1641, 1.1601 (within the 2,048-phase grid, none below). A tied

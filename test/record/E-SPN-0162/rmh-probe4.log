@@ -1,0 +1,5 @@
+SS K 0,0,0,0: worst gap 4.60e-17 (within Infinity), full weight 10.598340448136, lifted 10.598340448136, coordinate norm 10.598340448088 -> 10.598340448088 [19.1s]
+generic K 0,0,0,0: worst gap 9.53e-17 (within 2), full weight 40.962072129930, lifted 40.962072129930, coordinate norm 42.035459468466 -> 42.035459468468 [100.1s]
+SS K 0.31,-0.17,0.52,0.08: worst gap 4.76e-17 (within Infinity), full weight 10.598340448124, lifted 10.598340448124, coordinate norm 10.598340448088 -> 10.598340448088 [118.7s]
+generic K 0.31,-0.17,0.52,0.08: worst gap 9.73e-17 (within 2), full weight 40.972500709802, lifted 40.972500709802, coordinate norm 42.046362460438 -> 42.046362460439 [207.3s]
+exit=0

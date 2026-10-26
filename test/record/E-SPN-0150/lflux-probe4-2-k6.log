@@ -1,0 +1,12 @@
+length 2, m0 0.190126, sigma -0.187112; spectrum over 128 two-beats absorbed 9.10e-1 (0.822s)
+  peak phase2 0.3927 (eps -0.1839 or 2.9577) density 2.65e+0
+  peak phase2 -0.0960 (eps -0.4282 or 2.7133) density 7.86e-1
+  peak phase2 2.2515 (eps 0.7455 or -2.3961) density 2.01e-1
+  peak phase2 -1.4923 (eps -1.1264 or 2.0152) density 1.44e-1
+  peak phase2 0.3142 (eps -0.2232 or 2.9184) density 1.41e-1
+  peak phase2 -2.3562 (eps -1.5583 or 1.5832) density 1.31e-1
+  peak phase2 0.2618 (eps -0.2494 or 2.8922) density 1.04e-1
+  peak phase2 0.2182 (eps -0.2712 or 2.8704) density 8.62e-2
+level: phase 0.196664 eps -0.183587 |lambda2| 0.9983118682 residual 1.78e-3 singlet share 0.4373 profile 4.78e-1 0.00e+0 5.22e-1 (1.653s)
+watch 64: window 0.897599 fidelity 0.896813 absorbed 1.02e-1 (1.879s)
+exit=0

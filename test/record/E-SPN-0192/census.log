@@ -1,0 +1,26 @@
+{
+ "status": "partial",
+ "claim": "fermionic three-member states on one register level (560): |Q| = 1 with J = 1/2 in 40 doublets (80 states, both tones; per tone n+ 3 J 1/2 x2, n+ 2 J 1/2 x8, n+ 1 J 1/2 x8, n+ 0 J 1/2 x2, n+ 2 J 3/2 x2, n+ 1 J 3/2 x2), |Q| = 1/3 in 448 states, |Q| = 2/3 in 0 (3Q is odd for three members); the unprojected table differs (true), the twisted rotation gives no half-integer J (true), instrument true",
+ "metrics": {
+  "I1": 1,
+  "C1": 1,
+  "C2": 1,
+  "electronStates": 80,
+  "thirdStates": 448,
+  "twoThirdStates": 0,
+  "fermiDimension": 560,
+  "boseDimension": 816,
+  "noneDimension": 4096,
+  "gaussElectronDoublets": 10,
+  "boseElectronDoublets": 20,
+  "pairTwoThirdStates": 56,
+  "seconds": 9.396
+ },
+ "control": {
+  "noneElectronStates": 512,
+  "twistedHalfIntegerRows": 0,
+  "twistedRows": 48
+ },
+ "notes": "L1, exact. Fermionic default (item 0002 not landed). |Q| = 1 per tone (Q = -1, love-sea holes): Q -3/3 J 1/2 n+ 3: 2 multiplets (4 states); Q -3/3 J 1/2 n+ 2: 8 multiplets (16 states); Q -3/3 J 1/2 n+ 1: 8 multiplets (16 states); Q -3/3 J 1/2 n+ 0: 2 multiplets (4 states); Q -3/3 J 3/2 n+ 2: 2 multiplets (8 states); Q -3/3 J 3/2 n+ 1: 2 multiplets (8 states). Under Gauss (n+ even): Q -3/3 J 1/2 n+ 2: 8 multiplets (16 states); Q -3/3 J 1/2 n+ 0: 2 multiplets (4 states); Q -3/3 J 3/2 n+ 2: 2 multiplets (8 states). Quark rows, Q = +1/3: Q 1/3 J 1/2 n+ 3: 8 multiplets (16 states); Q 1/3 J 1/2 n+ 2: 24 multiplets (48 states); Q 1/3 J 1/2 n+ 1: 24 multiplets (48 states); Q 1/3 J 1/2 n+ 0: 8 multiplets (16 states); Q 1/3 J 3/2 n+ 3: 2 multiplets (8 states); Q 1/3 J 3/2 n+ 2: 10 multiplets (40 states); Q 1/3 J 3/2 n+ 1: 10 multiplets (40 states); Q 1/3 J 3/2 n+ 0: 2 multiplets (8 states). Bosonic Q = -1, J = 1/2: Q -3/3 J 1/2 n+ 3: 2 multiplets (4 states); Q -3/3 J 1/2 n+ 2: 8 multiplets (16 states); Q -3/3 J 1/2 n+ 1: 8 multiplets (16 states); Q -3/3 J 1/2 n+ 0: 2 multiplets (4 states). Two members, Q >= 0: Q 0 J 0 n+ 2: 4 multiplets (4 states); Q 0 J 0 n+ 1: 8 multiplets (8 states); Q 0 J 0 n+ 0: 4 multiplets (4 states); Q 0 J 1 n+ 2: 4 multiplets (12 states); Q 0 J 1 n+ 1: 8 multiplets (24 states); Q 0 J 1 n+ 0: 4 multiplets (12 states); Q 2/3 J 0 n+ 2: 3 multiplets (3 states); Q 2/3 J 0 n+ 1: 4 multiplets (4 states); Q 2/3 J 0 n+ 0: 3 multiplets (3 states); Q 2/3 J 1 n+ 2: 1 multiplets (3 states); Q 2/3 J 1 n+ 1: 4 multiplets (12 states); Q 2/3 J 1 n+ 0: 1 multiplets (3 states). 9.4 s."
+}
+exit=0

@@ -1,0 +1,24 @@
+steps agree true
+unit [ -1, 4 ] angle -2.76134144689686 c [ 1, 0 ] beta [ -0.08035714285714285, -0.015464739353293547 ] gap 1.1102230246251565e-16
+unit [ 0, 4 ] angle -2.0943951023931957 c [ 1, 0 ] beta [ -0.0625, -0.03608439182435161 ] gap 0
+L 4 trivial trivial: reverse 0.0e+0 herm 0.0e+0 involution 0.0e+0 T top 1.000000000000 bottom -0.333333333333 at+1 2 at-1 0 flats + 1410 - 1408 (11cN 1408) gap+ 5.000e-1 gap- 6.667e-1 0.1s
+   flat -1: uniform 6.0e-17 5.9e-17 5.9e-17 residual 1.3e-16 1.2e-16 1.2e-16 norm 15.360 15.485 15.576
+L 4 2I weyl: reverse 0.0e+0 herm 0.0e+0 involution 8.3e-17 T top 0.375326928279 bottom -0.364749910935 at+1 0 at-1 0 flats + 1408 - 1408 (11cN 1408) gap+ 6.247e-1 gap- 6.353e-1 0.2s
+   flat 1: uniform 9.3e-17 9.6e-17 9.2e-17 residual 2.4e-16 2.4e-16 2.4e-16 norm 15.483 15.630 15.524
+   flat -1: uniform 7.3e-17 9.2e-17 6.9e-17 residual 2.1e-16 2.4e-16 2.1e-16 norm 15.676 15.563 15.688
+L 4 2I pure-gauge: reverse 0.0e+0 herm 0.0e+0 involution 9.7e-17 T top 1.000000000000 bottom -0.333333333333 at+1 2 at-1 0 flats + 1410 - 1408 (11cN 1408) gap+ 5.000e-1 gap- 6.667e-1 0.2s
+L 4 trivial minus: reverse 0.0e+0 herm 0.0e+0 involution 0.0e+0 T top 0.333333333333 bottom -1.000000000000 at+1 0 at-1 2 flats + 1408 - 1410 (11cN 1408) gap+ 6.667e-1 gap- 5.000e-1 0.3s
+L 4 Q8 weyl: reverse 0.0e+0 herm 0.0e+0 involution 0.0e+0 T top 0.368025746881 bottom -0.368860845227 at+1 0 at-1 0 flats + 1408 - 1408 (11cN 1408) gap+ 6.320e-1 gap- 6.311e-1 0.5s
+   flat 1: uniform 7.0e-17 7.0e-17 7.5e-17 residual 1.4e-16 1.4e-16 1.5e-16 norm 15.583 15.621 15.601
+   flat -1: uniform 7.5e-17 6.8e-17 7.3e-17 residual 1.5e-16 1.4e-16 1.5e-16 norm 15.625 15.625 15.550
+L 4 2T weyl: reverse 0.0e+0 herm 0.0e+0 involution 0.0e+0 T top 0.379243894125 bottom -0.389868194697 at+1 0 at-1 0 flats + 1408 - 1408 (11cN 1408) gap+ 6.208e-1 gap- 6.101e-1 0.6s
+   flat 1: uniform 7.6e-17 8.0e-17 7.3e-17 residual 1.8e-16 1.9e-16 1.8e-16 norm 15.569 15.639 15.578
+   flat -1: uniform 6.9e-17 7.4e-17 6.3e-17 residual 1.7e-16 1.8e-16 1.6e-16 norm 15.604 15.579 15.662
+L 6 trivial trivial: reverse 0.0e+0 herm 0.0e+0 involution 0.0e+0 T top 1.000000000000 bottom -0.333333333333 at+1 2 at-1 0 flats + 4754 - 4752 (11cN 4752) gap+ 2.500e-1 gap- 6.667e-1 1.4s
+L 6 2I weyl: reverse 0.0e+0 herm 0.0e+0 involution 8.1e-17 T top 0.378561905178 bottom -0.389493963676 at+1 0 at-1 0 flats + 4752 - 4752 (11cN 4752) gap+ 6.214e-1 gap- 6.105e-1 2.6s
+L 6 2I pure-gauge: reverse 0.0e+0 herm 0.0e+0 involution 9.4e-17 T top 1.000000000000 bottom -0.333333333333 at+1 2 at-1 0 flats + 4754 - 4752 (11cN 4752) gap+ 2.500e-1 gap- 6.667e-1 3.4s
+L 6 trivial minus: reverse 0.0e+0 herm 0.0e+0 involution 0.0e+0 T top 0.333333333333 bottom -1.000000000000 at+1 0 at-1 2 flats + 4752 - 4754 (11cN 4752) gap+ 6.667e-1 gap- 2.500e-1 4.5s
+L 6 Q8 weyl: reverse 0.0e+0 herm 0.0e+0 involution 0.0e+0 T top 0.395216099170 bottom -0.393051557072 at+1 0 at-1 0 flats + 4752 - 4752 (11cN 4752) gap+ 6.048e-1 gap- 6.069e-1 5.6s
+L 6 2T weyl: reverse 0.0e+0 herm 0.0e+0 involution 0.0e+0 T top 0.394811914538 bottom -0.389488282588 at+1 0 at-1 0 flats + 4752 - 4752 (11cN 4752) gap+ 6.052e-1 gap- 6.105e-1 6.5s
+done 6.526
+exit=0

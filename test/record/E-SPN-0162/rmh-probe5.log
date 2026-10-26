@@ -1,0 +1,7 @@
+ball 9: 32761 sites; M0 0.380251 [4.1s]
+filter 64: phase 1.97090409 |lambda| 0.9959484384 residual 8.99e-2 shares 0.8405 0.0769 0.0769 0.0058 [296.6s]
+filter 256: phase 1.97228370 |lambda| 0.9997023876 residual 2.44e-2 shares 0.9311 0.0342 0.0342 0.0005 [1134.0s]
+filter 256: phase 1.97947008 |lambda| 0.9999542920 residual 9.56e-3 shares 0.9051 0.0466 0.0466 0.0016 [1839.0s]
+profile 2.4e-4 6.1e-3 2.9e-2 1.3e-1 7.8e-1 4.6e-2 3.3e-3 1.5e-4 8.1e-6 3.1e-7 [1839.0s]
+16 cycles: lost -2.18e-10, least fidelity 0.9775110504 [1916.3s]
+exit=0

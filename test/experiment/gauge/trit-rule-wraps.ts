@@ -74,7 +74,7 @@
 // Status: partial if every gate holds (the rule's wraps answer what they can: one seam side, husk-column
 // registers, 3/8's premise false, the split undetermined by the rule); fail otherwise.
 //
-// FIRST RUN 2026-09-29 (in the experiment/light-balance worktree, tmp/trit-wraps-run1.log, 181 s): PARTIAL as
+// FIRST RUN 2026-09-29 (in the experiment/light-balance worktree, test/record/E-FRC-0265/trit-wraps-run1.log, 181 s): PARTIAL as
 // predicted, all seven gates held, no gate moved, no probe before it. Trit rule against the husk integers: 0
 // mismatches in 600 beats with about 73,000 angle wraps and 15,000 potential wraps per start; 0 re-encoding
 // mismatches; axis occupancy 0.939 at the top of the column down to 0.062 at the bottom. Doubled angle windows: 0

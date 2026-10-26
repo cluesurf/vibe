@@ -21,7 +21,7 @@
 // 3. THE CONTINUUM VALUE. As the step against the band width goes to 0 (tau -> 0 with the well depth tau cap held), the NR
 //    level widens as tau^(-1/3), T and <W> fall as tau^(2/3), and R_NR -> tan m / m = 1.012226 from below. The NR values
 //    (radialWell, 4d s-wave, centrifugal 3/4): tau 0.280668 cap 8: R_NR 0.6941 (E_L 2.0054); tau 0.187112 cap 12: 0.7277
-//    (E_L 1.7105); tau 0.093556 cap 24: 0.7866 (E_L 1.3592). (tmp/rmw-probe1.log.)
+//    (E_L 1.7105); tau 0.093556 cap 24: 0.7866 (E_L 1.3592). (test/record/E-SPN-0174/rmw-probe1.log.)
 // 4. THE LATTICE EXCESS, AND ITS PREDICTED TREND. E-SPN-0162 read R = 34.65, 50 times R_NR. Its reading after the run: the
 //    pair's centre moves through each member's own S-D mixing, whose amplitude depends on the member's momentum K/2 +- q,
 //    and a pair bound within ~3 sites spreads q over most of the zone, where the member band curves the other way near its
@@ -61,23 +61,23 @@
 //  check), I2 the member R against tan m / m (1e-6).
 // CONTROL (a failure makes the verdict partial): C1 E-SPN-0162 REPRODUCED BIT FOR BIT at its string (tau 0.280668, cap 8,
 //  radius 9, ell 2.5, filters 64, 256, 1024, the NR guess on L = 30): E_L === 1.9789453403525277 and R ===
-//  34.65226307820285, both recorded in tmp/rmh-hold-run1.log.
+//  34.65226307820285, both recorded in test/record/E-SPN-0174/rmh-hold-run1.log.
 // READ, gating nothing: R_NR beside each R; the excess R / R_NR - 1; the power p of a fit R - R_NR = A tau^p over the three
 //  strings, and the tau at which the fit gives R = 1; each level's block shares and profile.
 // Verdict: fail if H0 to H4 or T1 fails; partial if the instrument or the control fails; pass if all hold.
 //
-// PROBES BEFORE THE GATE RUN, disclosed (no gate moved after them). tmp/rmw-probe1.log: the ring's small angles (0.0060,
+// PROBES BEFORE THE GATE RUN, disclosed (no gate moved after them). test/record/E-SPN-0174/rmw-probe1.log: the ring's small angles (0.0060,
 //  0.0875, 0.0936, 0.0996, 0.1871, 0.1931, 0.2807), the NR table of point 3 for each with cap 8 and with the cap that
 //  holds tau cap at 2.245 (the tails of point 7), the ball sizes (radius 9 to 13: 32,761 to 133,225 sites, 0.13 to 0.55
 //  GB a state), and the engine's 2.5 s a cycle at radius 9. The strings (-6, 4) and (-3, 2) and their caps 12 and 24 were
-//  chosen from it. tmp/rmw-smoke.log: every code path on a small plan (radius 5, filters 16 and 16, K filter 16; 178 s;
+//  chosen from it. test/record/E-SPN-0174/rmw-smoke.log: every code path on a small plan (radius 5, filters 16 and 16, K filter 16; 178 s;
 //  unconverged, gating nothing): the witness at both new strings 4.7e-17 to 1.3e-16, the channels closed (margins 0.54,
 //  0.79, 0.79), the member instrument 1.8e-15 and 1.012226137, and R 7.21, 2.66, 2.17 at the three strings (monotone,
 //  unconverged on a radius-5 ball whose edge holds 3 to 42% of the level). The control does not reproduce E-SPN-0162 on
 //  that plan, as it must not (a different ball and filters); on the gate plan it runs E-SPN-0162's exact sequence.
 //
-// FIRST RUN (three processes, one a string, combined by the verdict function; tmp/rmw-gate-control.log,
-//  rmw-gate-middle.log, rmw-gate-weakest.log, combined in tmp/rmw-exp-run1.log; 38,246 s of process time): FAIL on H4, as
+// FIRST RUN (three processes, one a string, combined by the verdict function; test/record/E-SPN-0174/rmw-gate-control.log,
+//  rmw-gate-middle.log, rmw-gate-weakest.log, combined in test/record/E-SPN-0174/rmw-exp-run1.log; 38,246 s of process time): FAIL on H4, as
 //  predicted, and on H2 at the middle string (the residual), not predicted. T1 holds: R FALLS MONOTONICALLY, 34.65, 13.47,
 //  1.433. No gate moved and none was rerun.
 //  - C1: E-SPN-0162 reproduced bit for bit, E_L 1.9789453403525277 and R 34.65226307820285 (=== the recorded values).
@@ -172,7 +172,7 @@ const I2_TOLERANCE = 1e-6
 const HOLD_CYCLES = 64
 const V_SCAN = 60
 
-// E-SPN-0162's recorded level and R (tmp/rmh-hold-run1.log), the control's targets
+// E-SPN-0162's recorded level and R (test/record/E-SPN-0174/rmh-hold-run1.log), the control's targets
 export const RECORDED = { EL: 1.9789453403525277, R: 34.65226307820285 }
 
 export type Coupling = {

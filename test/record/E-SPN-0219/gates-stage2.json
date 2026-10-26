@@ -1,0 +1,26 @@
+{
+  "code": "E-SPN-0219",
+  "stage": 2,
+  "frozen": "2026-10-23, after stage 1's verdict (fail on I and RES) and before any stage-2 read existed",
+  "why": "stage 1 failed I at K > 0: the 3s line (weight 0.009 to 0.010 at K > 0) is a separate peak at sigma 1.05e-3 but merges into the 2s shoulder at 1.25e-3 and 1.48e-3, so the 2s window's top edge jumps between the 3s rule and the 0.006 rule (tmp/spn219-diagnose.ts); the cure is a smaller largest sigma, so longer solves, and a next-peak threshold clear of the 3s weight",
+  "lags": 6800,
+  "savedPoints": ["m0380a10"],
+  "savedWhy": "E-MTR-0032's m0380a10 K reads are already 8,193 lags long, so stage 2 reads them at the new settings and runs only m0284a12 and m0427a7.5 (4,097 and 4,400 lags before)",
+  "instrument": {
+    "sigmaMain": 0.000635,
+    "sigmaFactors": [1, 1.19, 1.405],
+    "edges": [0.5, 0.4],
+    "taperFloor": 0.0001,
+    "least": 0.1,
+    "next": 0.005,
+    "below": 0.02,
+    "above": 0.006,
+    "momenta": [0.2, 0.35, 0.5]
+  },
+  "R0": { "control": 1e-9 },
+  "W": { "witness": 5e-6 },
+  "I": { "weight1s": 0.2, "weight2s": 0.05, "stable1s": 5e-5, "stable2s": 6e-5 },
+  "clock": { "S": 1, "resolved": 0.5, "relSigmas": 2, "dilSigmas": 2, "staticSigmas": 3, "staticLimit": -1.6666666666666667, "band": 0.25 },
+  "verdict": "fail if R0, W or I fails, or not RES; pass if REL, DIL, NOTQ and X; partial if REL, DIL and NOTQ but not X; fail otherwise",
+  "predicted": { "sigmaInf": [0.15, 0.5], "ratioInf": [-1.2, 1.5] }
+}

@@ -1,0 +1,14 @@
+{
+ "beta": 6,
+ "start": "cold",
+ "therm": 30,
+ "sweeps": 40,
+ "P": 1,
+ "Perr": 0,
+ "tau": 0.5,
+ "Pfirst": 1,
+ "Plast": 1,
+ "ms": 26708,
+ "box": "hyper8",
+ "form": "wilson"
+}

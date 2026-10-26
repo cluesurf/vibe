@@ -1,0 +1,11 @@
+member {"M0":0.8540584822680696,"m":0.4270292411340348,"Rwalk":1.0655717526399189,"t":0.2747069829208704,"mu":0.9100605938073759}
+herm L 6 n 1 members 2 quantum: 1.75e-15
+herm L 6 n 2 members 2 quantum: 1.26e-14
+herm L 4 n 3 members 2 quantum: 2.70e-14
+herm L 6 n 2 members 1 quantum: 2.58e-15
+herm L 6 n 0 members 2 static: 2.54e-16
+herm L 6 n 0 members 2 darwin: 3.95e-17
+vertex gap 8.85e-18 DW 0.9173645229657306 0.9173645229657306
+g 0 pair: R 1.0655717545337557 against Rwalk 1.0655717526399189, gap 1.89e-9, ratio 3.999600013333075
+g 0 lone: R 1.0655717829450029 gap 3.03e-8
+exit=0

@@ -1,0 +1,35 @@
+small unit angles: (-22,2) -0.012054; (-11,1) -0.006027; (11,5) 0.006027; (22,4) 0.012054 [0.0s]
+M0 0.380251 m 0.190126 tan m / m 1.012226057 a_member 0.649519002 I 0.384900 R_member 1.012226137 mu 0.192450 [0.0s]
+G0 0.05283050719217969 [0.1s]
+green table [7.1s]
+a_B 2: alpha' 2.5981 alpha 195.890 E_b (cycle, continuum) 0.64952 E_b/2M0 0.8541 plateau alpha G0 10.3490 [7.1s]
+a_B 2.5: alpha' 2.0785 alpha 156.712 E_b (cycle, continuum) 0.41569 E_b/2M0 0.5466 plateau alpha G0 8.2792 [7.1s]
+a_B 3: alpha' 1.7321 alpha 130.594 E_b (cycle, continuum) 0.28868 E_b/2M0 0.3796 plateau alpha G0 6.8993 [7.1s]
+a_B 3.5: alpha' 1.4846 alpha 111.937 E_b (cycle, continuum) 0.21209 E_b/2M0 0.2789 plateau alpha G0 5.9137 [7.1s]
+a_B 4: alpha' 1.2990 alpha 97.945 E_b (cycle, continuum) 0.16238 E_b/2M0 0.2135 plateau alpha G0 5.1745 [7.1s]
+a_B 5: alpha' 1.0392 alpha 78.356 E_b (cycle, continuum) 0.10392 E_b/2M0 0.1367 plateau alpha G0 4.1396 [7.1s]
+a_B 6: alpha' 0.8660 alpha 65.297 E_b (cycle, continuum) 0.07217 E_b/2M0 0.0949 plateau alpha G0 3.4497 [7.1s]
+ball 12: 7153 sites, 0.51 s a cycle, count top 981 nearest 4.18e-3 [8.1s]
+ball 16: 17077 sites, 1.28 s a cycle, count top 981 nearest 8.62e-4 [10.9s]
+ball 20: 33401 sites, 2.40 s a cycle, count top 981 nearest 8.62e-4 [16.0s]
+theta 0.006026931164122315 predicted E 0.548415 [18.3s]
+filter 64: E 0.58040637 |lambda| 0.9999744963 residual 7.14e-3 E_b 0.180096 [175.4s]
+filter 128: E 0.58051700 |lambda| 0.9999906571 residual 4.32e-3 E_b 0.179985 [528.1s]
+filter 128: E 0.58057561 |lambda| 0.9999927271 residual 3.81e-3 E_b 0.179927 [868.3s]
+shares 0.7885 0.0800 0.0800 0.0515 mean r 6.314 edge 8.80e-4 shells 1.9e-3 2.2e-2 6.1e-2 5.9e-2 1.4e-1 1.4e-1 1.8e-1 1.2e-1 8.7e-2 7.0e-2 4.4e-2 2.7e-2 2.0e-2 1.3e-2 8.1e-3 4.5e-3 3.4e-3 1.8e-3 1.3e-3 6.2e-4 8.8e-4 <G> 0.002792 [868.4s]
+16 cycles: lost -8.44e-9 least fidelity 0.99632759 [946.0s]
+/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/code/measure/standin-chemistry.ts:120
+    throw new Error(`the FFT side ${n} is not a power of 2`)
+          ^
+
+Error: the FFT side 24 is not a power of 2
+    at planOf (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/code/measure/standin-chemistry.ts:120:11)
+    at fft3 (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/code/measure/standin-chemistry.ts:200:16)
+    at densityS (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/code/measure/register-coulomb.ts:216:3)
+    at <anonymous> (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/rch-probe1.ts:106:12)
+    at ModuleJob.run (node:internal/modules/esm/module_job:430:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:661:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.13.1
+exit=1

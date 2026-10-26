@@ -1,0 +1,6 @@
+setup L 16 flat ring same docks true 26.7s
+Wab working: fidelity 0.3659 0.5407 0.3150 0.6396 0.3237 0.5837 0.3086 0.4368 r90 2 3 2 1 2 3 2 3 energy 0.33005 size 59522 30.0s
+Wab on flat tables: fidelity 0.9999 0.9999 0.9999 0.9998 0.9998 0.9998 0.9998 0.9998 r90 2 1 2 1 2 1 2 1 energy 0.33005 size 1580 30.0s
+Fab flag: fidelity 0.9999 0.9999 0.9999 0.9998 0.9998 0.9998 0.9998 0.9998 r90 2 1 2 1 2 1 2 1 energy 0.33005 size 1580 30.1s
+Kab on flat tables: fidelity 0.9999 0.9999 0.9999 0.9998 0.9998 0.9998 0.9998 0.9998 r90 2 1 2 1 2 1 2 1 energy 0.33005 size 1580 30.1s
+exit=0

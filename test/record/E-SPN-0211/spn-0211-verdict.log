@@ -1,0 +1,41 @@
+status fail
+claim at a_B 8 with the contact well removed, the remainder over the corrected reference reads 0.5326 at m 0.284 (not clean), 0.1426 at m 0.427, 0.1906 at m 0.474: r proportional to m^2.79 at fixed a_B (the speed law asks -1); W true, V false
+  m0284_m 0.2836816722286698
+  m0284_tanOver 1.0277176753981718
+  m0284_overlap 0.47572580881633064
+  m0284_next 0.21283459017848785
+  m0284_scaled 1.885388185738428
+  m0284_ratio 3.854637419439117
+  m0284_Rstatic 1.6736735594502048
+  m0284_Rfull 1.5499845914375134
+  m0284_reference 1.0173565653406735
+  m0284_remainder 0.5326280260968399
+  m0284_clean 0
+  m0427_m 0.4270292411340348
+  m0427_tanOver 1.0655717526399189
+  m0427_overlap 0.6382514247428467
+  m0427_next 0.24622363044455356
+  m0427_scaled 1.83136160801838
+  m0427_ratio 3.974728223045248
+  m0427_Rstatic 1.2734758419489072
+  m0427_Rfull 1.2236985226452484
+  m0427_reference 1.0811237987776354
+  m0427_remainder 0.14257472386761294
+  m0427_clean 1
+  m0474_m 0.47380727557513647
+  m0474_tanOver 1.0822224398732643
+  m0474_overlap 0.6130741155861017
+  m0474_next 0.1964877352759551
+  m0474_scaled 1.8007799149779742
+  m0474_ratio 3.9037017008779267
+  m0474_Rstatic 1.3308940583454743
+  m0474_Rfull 1.2919034324027578
+  m0474_reference 1.10135072757535
+  m0474_remainder 0.19055270482740783
+  m0474_clean 1
+  W 1
+  allClean 0
+  exponent 2.7904543248371496
+  V 0
+notes L2. m0284 (m 0.283682, tan m / m 1.0277): tracked 1.0842041 (overlap 0.476, next 0.213, scaled E_b 1.885), R 1.6737 (ratio 3.855, K 0.02), R_full 1.5500, corrected reference 1.0174, remainder 0.5326. m0427 (m 0.427029, tan m / m 1.0656): tracked 1.6766740 (overlap 0.638, next 0.246, scaled E_b 1.831), R 1.2735 (ratio 3.975, K 0.04), R_full 1.2237, corrected reference 1.0811, remainder 0.1426. m0474 (m 0.473807, tan m / m 1.0822): tracked 1.8677924 (overlap 0.613, next 0.196, scaled E_b 1.801), R 1.3309 (ratio 3.904, K 0.04), R_full 1.2919, corrected reference 1.1014, remainder 0.1906.
+exit=0

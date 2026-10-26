@@ -1,0 +1,79 @@
+STEP 1 1s
+STEP 2 76s
+class 8 cell -2/9 L 12: A -2 B 2 182s
+class 8 cell 4/9 L 12: A 0 B 0 231s
+STEP 4 diagnostic class 8 s 1 component 2/9 window 0.0436: A 0 B 0 283s
+STEP 4 class 8 s 1: -1/9 0 (nearest none), 2/9 16 (nearest 0.0872), gapped false 283s
+STEP 4 class 8 s 2 component -1/9 L 12: A -4 B 4 536s
+STEP 4 class 8 s 2 component 2/9 L 12: A 8 B -8 745s
+STEP 4 class 8 s 2 component -1/9 L 16: A -4 B 4 1003s
+STEP 4 class 8 s 2 component 2/9 L 16: A 8 B -8 1611s
+STEP 4 class 8 s 2: -1/9 0 (nearest none), 2/9 0 (nearest none), gapped true 1611s
+STEP 4 class 8 s 3 component -1/9 L 12: A -4 B 4 2111s
+STEP 4 class 8 s 3 component 2/9 L 12: A 8 B -8 2517s
+STEP 4 class 8 s 3 component -1/9 L 16: A -4 B 4 2976s
+STEP 4 class 8 s 3 component 2/9 L 16: A 8 B -8 4336s
+STEP 4 class 8 s 3: -1/9 0 (nearest none), 2/9 0 (nearest none), gapped true 4336s
+STEP 4 class 8 s 4 component -1/9 L 12: A -4 B 4 4967s
+STEP 4 class 8 s 4 component 2/9 L 12: A 8 B -8 6060s
+STEP 4 class 8 s 4 component -1/9 L 16: A -4 B 4 6701s
+STEP 4 class 8 s 4 component 2/9 L 16: A 8 B -8 8402s
+STEP 4 class 8 s 4: -1/9 0 (nearest none), 2/9 0 (nearest none), gapped true 8402s
+STEP 4 diagnostic class 22 s 1 component -2/9 window 0.0432: A 0 B 0 8463s
+STEP 4 class 22 s 1: -2/9 16 (nearest 0.0865), 1/9 0 (nearest none), gapped false 8463s
+STEP 4 class 22 s 2 component -2/9 L 12: A -8 B 8 8700s
+STEP 4 class 22 s 2 component 1/9 L 12: A 4 B -4 8825s
+STEP 4 class 22 s 2 component -2/9 L 16: A -8 B 8 9220s
+STEP 4 class 22 s 2 component 1/9 L 16: A 4 B -4 9540s
+STEP 4 class 22 s 2: -2/9 0 (nearest none), 1/9 0 (nearest none), gapped true 9541s
+STEP 4 class 22 s 3 component -2/9 L 12: A -8 B 8 10028s
+STEP 4 class 22 s 3 component 1/9 L 12: A 4 B -4 10360s
+STEP 4 class 22 s 3 component -2/9 L 16: A -8 B 8 11521s
+STEP 4 class 22 s 3 component 1/9 L 16: A 4 B -4 11819s
+STEP 4 class 22 s 3: -2/9 0 (nearest none), 1/9 0 (nearest none), gapped true 11819s
+STEP 4 class 22 s 4 component -2/9 L 12: A -8 B 8 12613s
+STEP 4 class 22 s 4 component 1/9 L 12: A 4 B -4 12885s
+STEP 4 class 22 s 4 component -2/9 L 16: A -8 B 8 13902s
+STEP 4 class 22 s 4 component 1/9 L 16: A 4 B -4 14263s
+STEP 4 class 22 s 4: -2/9 0 (nearest none), 1/9 0 (nearest none), gapped true 14263s
+C1 14640s
+C3 14648s
+E 14774s
+{
+ "status": "pass",
+ "claim": "STEP 1: order 648, 24 classes, d_min 3, least largest |eigenphase| class 8 (-1/9, -1/9, 2/9) and class 22 (-2/9, 1/9, 1/9); finest walk pattern class 8 (cell -2/9, -2/9, 4/9). STEP 2 (bulk levels within 0.2 of pi): 1/18: 0, 1/15: 0, 1/12: 0, 1/9: 0, 1/6: 0, 2/9: 16 (nearest 0.1230), 1/4: 8 (nearest 0.0959), 5/18: 3 (nearest 0.0336) incomplete UNREAD, 1/3: 8 (nearest 0.0101), 7/18: 0 incomplete UNREAD, 5/12: 24 (nearest 0.0936), 4/9: 12 (nearest 0.1130), 1/2: 16 (nearest 0.0268) incomplete, 5/9: 8 (nearest 0.0912), 2/3: 8 (nearest 0.1013), 7/9: 16 (nearest 0.1406), 5/6: 16 (nearest 0.1034), 8/9: 12 (nearest 0.0719), 1: 16 (nearest 0.0364); widest open 1/6, narrowest closed 2/9. STEP 3: class 8 (cell -2/9, -2/9, 4/9, Q 9, 216 links in group true, trace dev 4.6e-15, gapped false): cell -2/9 Q 9 p -2 L 12: A -2 (up 0 down 2) B 2 (up 2 down 0), ambiguous 16, eigen 7.9e-12, complete true; cell 4/9 Q 9 p 4 L 12: A 0 (up 0 down 0) B 0 (up 0 down 0), ambiguous 0, eigen 0.0e+0, complete true. STEP 4 (G sheets): class 8 s 1 (Q 9, p (-1, -1, 2), 216 links in group true closing true, trace dev 2.0e-15): bulk -1/9 0 nearest none, 2/9 16 nearest 0.0872; gapped false; diagnostic (logged, never gated) 2/9 p 2 L 12 window 0.0436: A 0 (up 0 down 0) B 0 (up 0 down 0), ambiguous 0, eigen 0.0e+0, complete true | class 8 s 2 (Q 18, p (-1, -1, 2), 432 links in group true closing true, trace dev 2.0e-15): bulk -1/9 0 nearest none, 2/9 0 nearest none; gapped true, loop bulk 0; flows -1/9 p -1 L 12 window 0.2000: A -4 (up 0 down 4) B 4 (up 4 down 0), ambiguous 0, eigen 9.3e-15, complete true; 2/9 p 2 L 12 window 0.2000: A 8 (up 8 down 0) B -8 (up 0 down 8), ambiguous 16, eigen 3.9e-12, complete true; -1/9 p -1 L 16 window 0.2000: A -4 (up 0 down 4) B 4 (up 4 down 0), ambiguous 0, eigen 9.3e-15, complete true; 2/9 p 2 L 16 window 0.2000: A 8 (up 8 down 0) B -8 (up 0 down 8), ambiguous 0, eigen 1.3e-9, complete true | class 8 s 3 (Q 27, p (-1, -1, 2), 648 links in group true closing true, trace dev 2.0e-15): bulk -1/9 0 nearest none, 2/9 0 nearest none; gapped true, loop bulk 0; flows -1/9 p -1 L 12 window 0.2000: A -4 (up 0 down 4) B 4 (up 4 down 0), ambiguous 0, eigen 1.1e-14, complete true; 2/9 p 2 L 12 window 0.2000: A 8 (up 8 down 0) B -8 (up 0 down 8), ambiguous 8, eigen 4.2e-10, complete true; -1/9 p -1 L 16 window 0.2000: A -4 (up 0 down 4) B 4 (up 4 down 0), ambiguous 0, eigen 1.1e-14, complete true; 2/9 p 2 L 16 window 0.2000: A 8 (up 8 down 0) B -8 (up 0 down 8), ambiguous 0, eigen 1.3e-9, complete true | class 8 s 4 (Q 36, p (-1, -1, 2), 864 links in group true closing true, trace dev 2.0e-15): bulk -1/9 0 nearest none, 2/9 0 nearest none; gapped true, loop bulk 0; flows -1/9 p -1 L 12 window 0.2000: A -4 (up 0 down 4) B 4 (up 4 down 0), ambiguous 0, eigen 2.5e-14, complete true; 2/9 p 2 L 12 window 0.2000: A 8 (up 8 down 0) B -8 (up 0 down 8), ambiguous 8, eigen 2.2e-9, complete true; -1/9 p -1 L 16 window 0.2000: A -4 (up 0 down 4) B 4 (up 4 down 0), ambiguous 0, eigen 2.6e-14, complete true; 2/9 p 2 L 16 window 0.2000: A 8 (up 8 down 0) B -8 (up 0 down 8), ambiguous 0, eigen 1.7e-9, complete true | class 22 s 1 (Q 9, p (-2, 1, 1), 216 links in group true closing true, trace dev 2.5e-15): bulk -2/9 16 nearest 0.0865, 1/9 0 nearest none; gapped false; diagnostic (logged, never gated) -2/9 p -2 L 12 window 0.0432: A 0 (up 0 down 0) B 0 (up 0 down 0), ambiguous 0, eigen 0.0e+0, complete true | class 22 s 2 (Q 18, p (-2, 1, 1), 432 links in group true closing true, trace dev 2.5e-15): bulk -2/9 0 nearest none, 1/9 0 nearest none; gapped true, loop bulk 0; flows -2/9 p -2 L 12 window 0.2000: A -8 (up 0 down 8) B 8 (up 8 down 0), ambiguous 12, eigen 3.1e-11, complete true; 1/9 p 1 L 12 window 0.2000: A 4 (up 4 down 0) B -4 (up 0 down 4), ambiguous 0, eigen 8.2e-15, complete true; -2/9 p -2 L 16 window 0.2000: A -8 (up 0 down 8) B 8 (up 8 down 0), ambiguous 0, eigen 1.4e-9, complete true; 1/9 p 1 L 16 window 0.2000: A 4 (up 4 down 0) B -4 (up 0 down 4), ambiguous 0, eigen 1.2e-14, complete true | class 22 s 3 (Q 27, p (-2, 1, 1), 648 links in group true closing true, trace dev 2.5e-15): bulk -2/9 0 nearest none, 1/9 0 nearest none; gapped true, loop bulk 0; flows -2/9 p -2 L 12 window 0.2000: A -8 (up 0 down 8) B 8 (up 8 down 0), ambiguous 12, eigen 1.4e-9, complete true; 1/9 p 1 L 12 window 0.2000: A 4 (up 4 down 0) B -4 (up 0 down 4), ambiguous 0, eigen 9.2e-15, complete true; -2/9 p -2 L 16 window 0.2000: A -8 (up 0 down 8) B 8 (up 8 down 0), ambiguous 0, eigen 1.5e-9, complete true; 1/9 p 1 L 16 window 0.2000: A 4 (up 4 down 0) B -4 (up 0 down 4), ambiguous 0, eigen 1.2e-14, complete true | class 22 s 4 (Q 36, p (-2, 1, 1), 864 links in group true closing true, trace dev 2.5e-15): bulk -2/9 0 nearest none, 1/9 0 nearest none; gapped true, loop bulk 0; flows -2/9 p -2 L 12 window 0.2000: A -8 (up 0 down 8) B 8 (up 8 down 0), ambiguous 12, eigen 1.6e-9, complete true; 1/9 p 1 L 12 window 0.2000: A 4 (up 4 down 0) B -4 (up 0 down 4), ambiguous 0, eigen 1.6e-14, complete true; -2/9 p -2 L 16 window 0.2000: A -8 (up 0 down 8) B 8 (up 8 down 0), ambiguous 0, eigen 3.2e-9, complete true; 1/9 p 1 L 16 window 0.2000: A 4 (up 4 down 0) B -4 (up 0 down 4), ambiguous 0, eigen 1.8e-14, complete true. Controls: G true, C1 true (regated on flow, 008 point 6: cell 1/15 Q 15 p 1 L 12: A 4 (up 4 down 0) B -4 (up 0 down 4), ambiguous 0, eigen 7.1e-14, complete true; cell -1/15 Q 15 p -1 L 12: A -4 (up 0 down 4) B 4 (up 4 down 0), ambiguous 0, eigen 4.2e-13, complete true; cell 0 Q 15 p 0 L 12: A 0 (up 0 down 0) B 0 (up 0 down 0), ambiguous 18, eigen 1.8e-13, complete true; along H 8), C2 true, C3 true (cell 0 Q 1 p 0 L 12: A 0 (up 0 down 0) B 0 (up 0 down 0), ambiguous 22, eigen 1.6e-12, complete true), E true (copy A 4 B -4 ambiguous 0 against A 4 B -4 ambiguous 0, worst offset 0.0e+0), I true, I4 true.",
+ "metrics": {
+  "order": 648,
+  "classes": 24,
+  "dMin": 3,
+  "projection": 3.1703035258740583e-15,
+  "widestOpen": 0.16666666666666666,
+  "narrowestClosed": 0.2222222222222222,
+  "finestCellFlux": 0.4444444444444444,
+  "fields": 1,
+  "gappedFields": 0,
+  "passing": 6,
+  "sheets": 8,
+  "gappedSheets": 6,
+  "G": 1,
+  "C1": 1,
+  "C2": 1,
+  "C3": 1,
+  "E": 1,
+  "I": 1,
+  "I4": 1,
+  "eOffset": 0,
+  "alongH": 8,
+  "seconds": 14773.683
+ },
+ "control": {
+  "G": 1,
+  "C1": 1,
+  "C2": 1,
+  "C3": 1,
+  "E": 1,
+  "instrument": 1
+ },
+ "notes": "L2. Class table: 0: size 1 order 1 level 0 phases (0, 0, 0) cell (0, 0, 0); 1: size 24 order 3 level 6 phases (-1/3, 0, 1/3) cell (-2/3, 0, 2/3); 2: size 54 order 4 level 4 phases (-1/4, 0, 1/4) cell (-1/2, 0, 1/2); 3: size 12 order 9 level 7 phases (-4/9, 2/9, 2/9) cell (-8/9, 4/9, 4/9); 4: size 54 order 12 level 7 phases (-1/3, -1/12, 5/12) cell (-2/3, -1/6, 5/6); 5: size 72 order 3 level 6 phases (-1/3, 0, 1/3) cell (-2/3, 0, 2/3); 6: size 9 order 2 level 8 phases (0, 1/2, 1/2) cell (0, 1, 1); 7: size 12 order 9 level 8 phases (1/9, 4/9, 4/9) cell (2/9, 8/9, 8/9); 8: size 12 order 9 level 3 phases (-1/9, -1/9, 2/9) cell (-2/9, -2/9, 4/9); 9: size 12 order 9 level 7 phases (-2/9, -2/9, 4/9) cell (-4/9, -4/9, 8/9); 10: size 72 order 3 level 6 phases (-1/3, 0, 1/3) cell (-2/3, 0, 2/3); 11: size 36 order 18 level 6 phases (-5/18, -1/9, 7/18) cell (-5/9, -2/9, 7/9); 12: size 36 order 18 level 6 phases (-7/18, 1/9, 5/18) cell (-7/9, 2/9, 5/9); 13: size 1 order 3 level 9 phases (-1/3, -1/3, -1/3) cell (-2/3, -2/3, -2/3); 14: size 54 order 12 level 7 phases (-5/12, 1/12, 1/3) cell (-5/6, 1/6, 2/3); 15: size 9 order 6 level 5 phases (-1/6, -1/6, 1/3) cell (-1/3, -1/3, 2/3); 16: size 9 order 6 level 5 phases (-1/3, 1/6, 1/6) cell (-2/3, 1/3, 1/3); 17: size 36 order 18 level 4 phases (-2/9, -1/18, 5/18) cell (-4/9, -1/9, 5/9); 18: size 36 order 18 level 4 phases (-5/18, 1/18, 2/9) cell (-5/9, 1/9, 4/9); 19: size 36 order 18 level 8 phases (-4/9, 1/18, 7/18) cell (-8/9, 1/9, 7/9); 20: size 12 order 9 level 8 phases (-4/9, -4/9, -1/9) cell (-8/9, -8/9, -2/9); 21: size 36 order 18 level 8 phases (-7/18, -1/18, 4/9) cell (-7/9, -1/9, 8/9); 22: size 12 order 9 level 3 phases (-2/9, 1/9, 1/9) cell (-4/9, 2/9, 2/9); 23: size 1 order 3 level 9 phases (1/3, 1/3, 1/3) cell (2/3, 2/3, 2/3). Window 0.2, (k0, k1) = (0.02, 0.05), k2Start 0.013, 4 gap k2 values, 24 loop steps, Lanczos 80. 14774 s."
+}
+exit=0

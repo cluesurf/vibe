@@ -36,9 +36,9 @@
 // fail otherwise.
 //
 // PROBES before this file, disclosed: tmp/qf-probe1 (the gates on integer+0 and golden, and w U's action).
-// tmp/qf-smoke-povm.log ran this file as written with its placeholder title; the gates did not move after it.
+// test/record/E-QTM-0161/qf-smoke-povm.log ran this file as written with its placeholder title; the gates did not move after it.
 //
-// FIRST RUN (1.9 s, tmp/qf-exp-povm-run1.log): partial as derived, every gate held, title written after the run.
+// FIRST RUN (1.9 s, test/record/E-QTM-0161/qf-exp-povm-run1.log): partial as derived, every gate held, title written after the run.
 // Effects (A's point, B's, C's): 0,1,2 [[13/64, -(3 + 6w)/32], [(3 + 6w)/32, 7/16]], 2,1,0 [[3/64, (3 + 6w)/32],
 // [-(3 + 6w)/32, 9/16]], 1,0,2 diag(39/64, 0), 2,0,1 diag(9/64, 0). Hermitian rank 3: not informationally complete.
 //

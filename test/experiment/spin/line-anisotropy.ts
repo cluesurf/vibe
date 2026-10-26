@@ -84,12 +84,12 @@
 // PREDICTED: A1 holds at order 6; A2 gives a < about 1e15 Planck lengths, the only a-dependent bound; A3 ruled out;
 // every control holds. So the gates pass and angle 6 is excluded at every dock size.
 //
-// DISCLOSED PROBE (instrument only): tmp/aniso-probe1.log: M_2 3, M_4 3/2 exactly on (2,3,6) and (1,4,8); D/(aP)^6
+// DISCLOSED PROBE (instrument only): test/record/E-SPN-0126/aniso-probe1.log: M_2 3, M_4 3/2 exactly on (2,3,6) and (1,4,8); D/(aP)^6
 // against e_6 (3/8)/12 within 7e-5 at x = 0.01; massless speeds 0.35355, 0.41667, 0.40825 on axis, face, body, and on
 // the octant grid 0.3536 to 0.4410 (the largest is off the symmetry axes); spread over drift 1.7320508 at every
 // direction.
 //
-// FIRST RUN (under 1 s, tmp/aniso-run1.log, the record): PASS on A1, A2, A3, every control clean, no gate moved.
+// FIRST RUN (under 1 s, test/record/E-SPN-0126/aniso-run1.log, the record): PASS on A1, A2, A3, every control clean, no gate moved.
 //  A1: order 5.9995 to 5.9997 (x 0.01 to 0.02) and 5.9981 to 5.9988 (0.02 to 0.04) on all seven bands; coefficient
 //  against e_6 (3/8)/12 within 1.1e-4. Negative: cube faces 3.9997, 3.9990; cube axes 3.9997, 3.9989. A2: delta/m^2
 //  0.166673 and 16 m^5 e_6 0.99973 at n = 64; a < 1.34e-20 m = 8.28e14 l_P (Stecker-Glashow), 6.21e-22 m = 3.84e13 l_P

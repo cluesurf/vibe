@@ -1,0 +1,6 @@
+O_h R 30 (2805 representatives): pooled equals single-threaded bit for bit: true; norm 38015.236021773846 [14.0s]
+C4v R 20 (4727 representatives): pooled equals single-threaded bit for bit: true; norm 28077.684831635524 [18.8s]
+R 60 (20585 representatives), 0 workers: 4.936 s a cycle [35.0s]
+R 60 (20585 representatives), 6 workers: 0.825 s a cycle [37.5s]
+R 60 (20585 representatives), 12 workers: 0.583 s a cycle [39.2s]
+exit=0

@@ -1,0 +1,3 @@
+a_B 6 R 42: alpha 27.6166, alpha G(0) 1.4590 rad, continuum E_b 0.030523 [12.1s]
+start: phase 1.65594061, residual 1.575e-1 [19.2s]
+filter 256: E 1.6767496893 |lambda| 0.999813780903 residual 1.930e-2 E_b 0.031367 [377.1s]

@@ -1,0 +1,62 @@
+C4 1s
+G1 17s
+G2 35s
+L0, L1, C5 35s
+L2 53s
+P, C 64s
+{
+  "status": "partial",
+  "claim": "the register member couples to the husk light exactly (the Peierls phase is register-blind and is the shift K -> K + A to 2.2e-15, the current the light reads is the group velocity to 7.8e-11), and the light's transverse and Coulomb kernels are one Maxwell Lagrangian at its own speed (1 gauge mode, transverse lambda / k^2 = 2/3 to 1.9e-6, X -> 1 to 5.7e-8, X = 1 - 0.05556 k^2 isotropic to 3.9e-6), so the transverse exchange supplies the Darwin inertia -(8/3) S E_b with S 0.95945 (sigma 2), 0.98217 (sigma 3), 0.99001 (sigma 4), 0.99362 (sigma 5); on E-SPN-0155's bound heavy state (E_b 0.037590, S 0.99377) it takes R from the static 1.41484 to 1.35542 at one speed (1.35356 on the D = 5 trit column) against the member's own tan m / m 1.347262, removing 0.879 of the binding's excess; not run: the two members and the quantum light as one dynamics, and a light register pair held by the Coulomb pull",
+  "metrics": {
+    "G1": 1,
+    "G2": 1,
+    "L0": 1,
+    "L1": 1,
+    "L2": 1,
+    "P1": 1,
+    "P2": 1,
+    "g1Gap": 2.220446049250313e-15,
+    "g2Gap": 7.843942162466533e-11,
+    "betaGap": 0.0000018518645085174867,
+    "degeneracy": 1.6060153207320127e-11,
+    "xGap": 5.711047812440029e-8,
+    "k2Coefficient": 0.05555543258317641,
+    "coefficientSpread": 0.000003850048808651252,
+    "S_sigma2": 0.95944523901886,
+    "S_sigma3": 0.9821658838480274,
+    "S_sigma4": 0.9900083299182674,
+    "S_sigma5": 0.9936174156761008,
+    "meanK2_sigma2": 0.7671983408912211,
+    "meanK2_sigma3": 0.3278038072028646,
+    "meanK2_sigma4": 0.18194035838233893,
+    "meanK2_sigma5": 0.11573199906385223,
+    "lawSpread": 0.013690808982858016,
+    "heavyEb": 0.03758995999999981,
+    "heavySigma": 5.074535375142492,
+    "heavyS": 0.9937675158721343,
+    "rWalk": 1.347262143743217,
+    "rStatic": 1.4148373371000353,
+    "rOneSpeed": 1.3554207317222844,
+    "rColumn": 1.3535639628042297,
+    "columnRatio2": 1.0312500000000002,
+    "removed": 0.8792665240928367,
+    "lightStatic_Eb0.005": 1.0479207149222178,
+    "lightFull_Eb0.005": 1.012388961538027,
+    "lightStatic_Eb0.01": 1.0845794392223418,
+    "lightFull_Eb0.01": 1.0125562663477625,
+    "lightStatic_Eb0.02": 1.1609496513069908,
+    "lightFull_Eb0.02": 1.0129048083127716
+  },
+  "control": {
+    "C1": 1,
+    "C2": 1,
+    "C3": 1,
+    "C4": 1,
+    "C5": 1,
+    "staticOverRule": 0.9848862357636498,
+    "epsGap": 5.000939609089983e-7,
+    "tanRatio": 1.0122260565778327
+  },
+  "notes": "L2, deterministic (Weyl momenta, torus grids, separable Gaussian densities; no draw). Gates {\"G1\":true,\"G2\":true,\"L0\":true,\"L1\":true,\"L2\":true,\"P1\":true,\"P2\":true}, controls {\"C1\":true,\"C2\":true,\"C3\":true,\"C4\":true,\"C5\":true}. Member: light register u = ringUnit(-1, 4) m 0.190126, R 1.012226056575 1.012226056586 1.012226056580 1.012226056583 against tan m/m 1.012226056578. The Darwin reduction is the one-quantum exchange at order V^2 / c^2 (linear response of the light to the member's current), weighted by a Gaussian relative density whose continuum S is exactly 1. Light register member (read, S = 1, one speed): E_b 0.005: static 1.04792, full 1.01239; E_b 0.01: static 1.08458, full 1.01256; E_b 0.02: static 1.16095, full 1.01290 (tan m/m 1.012226). 64 s."
+}
+exit=0

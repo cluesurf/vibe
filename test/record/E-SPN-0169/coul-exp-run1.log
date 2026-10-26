@@ -1,0 +1,95 @@
+I1 I2 members 4s
+I5 green 16s
+predict heavy a_c 2.5 1503s
+predict heavy a_c 3 2556s
+predict heavy a_c 3.5 3713s
+predictions 4540s
+I3 box 4680s
+I4 threads 4681s
+C5 vacuum 4682s
+ball 44: 356637 sites 4684s
+C1 level 7298s
+C1 witness 7516s
+K3 7772s
+dispersion axis 8152s
+dispersion face 8383s
+dispersion body 8600s
+dispersion generic 8862s
+C4 axis 0.4 9092s
+C4 axis 0.8 9383s
+C4 axis 1.2 9695s
+C4 face 0.4 9967s
+C4 face 0.8 10220s
+C4 face 1.2 10432s
+I6 11067s
+K1 11707s
+K2 12304s
+dispersion axis 14836s
+path a_c 2.5 14838s
+dispersion axis 17472s
+path a_c 3 17473s
+C6 light 20143s
+{
+  "status": "partial",
+  "claim": "C1 true (the main level a_c 3.5: E 1.68602536 (coarse 1.68783, first 1.686025), |lambda2| 0.9999999932, residual 1.54e-8 against the model 1.66677892; window 0.999998, fidelity 0.999998, absorbed 1.75e-6, edge 2.00e-8, holds true); C2 true (isotropy 4.33e-8); C3 false (a_c 2.5: E 4.642914 R -131.80702 against the model 1.532904, 3.12372 (read, hard core: 1.657274, 1.47544), holds false; a_c 3: E 1.676554 R 1.43655 against the model 1.632637, 1.83894 (read, hard core: 1.673566, 1.43971), holds true; a_c 3.5: E 1.686025 R 1.41465 against the model 1.666779, 1.54690 (read, hard core: 1.683722, 1.41728), holds true; R_walk 1.347262); C4 true (top Hellmann-Feynman speed 0.313728 c*); C5 true; C6 false (the light member at a_c 4: E 0.95935645 (coarse 0.95840, first 0.959465), |lambda2| 0.9971207756, residual 4.52e-3 against the model 0.95708624; window 0.405192, fidelity 0.369043, absorbed 4.92e-1, edge 3.09e-2, holds false); K1 true (off: eps 1.73793, window 0.669833, fidelity 0.182454, absorbed 3.21e-1, edge 2.08e-3, holds false); K2 true (repulsive: eps 4.79670, window 0.999984, fidelity 0.413479, absorbed 1.22e-5, edge 1.56e-8, holds false); K3 true (mixed start fidelity 0.995048)",
+  "metrics": {
+    "C1": 1,
+    "C2": 1,
+    "C3": 0,
+    "C4": 1,
+    "C5": 1,
+    "C6": 0,
+    "instrument": 0,
+    "I1": 1,
+    "I3": 1,
+    "I4": 1,
+    "I5": 0,
+    "I6": 1,
+    "I7": 1,
+    "K1": 1,
+    "K2": 1,
+    "K3": 1,
+    "mHeavy": 0.8570719478501309,
+    "mLight": 0.5235987755982987,
+    "RwalkHeavy": 1.3472620837448792,
+    "RwalkLight": 1.1026577908432074,
+    "G0": 0.05283050719217969,
+    "mainE": 1.6860253622332206,
+    "mainEPredicted": 1.6667789216387687,
+    "mainEb": 0.028118533467041074,
+    "mainR": 1.4146462486058733,
+    "mainRPredicted": 1.546903937418041,
+    "isotropy": 4.3340235622579826e-8,
+    "topSpeedOverCStar": 0.3137277420697725,
+    "hfGap": 0.0000518910723941648,
+    "mainLeastWindow": 0.9999979930968715,
+    "mainLeastFidelity": 0.9999982517853254,
+    "mainAbsorbed": 0.0000017482234620099247,
+    "mainEdge": 1.9974847252276494e-8,
+    "mainShare": 0.9779828795066201,
+    "mainStored": 0.00005135510526098648,
+    "mainMeanRadius": 6.568941199199956,
+    "lightE": 0.9593564459033741,
+    "lightEPredicted": 0.957086244384276,
+    "lightLeastWindow": 0.40519229786232697,
+    "lightLeastFidelity": 0.36904272184556397,
+    "lightAbsorbed": 0.49171038161650404,
+    "lightEdge": 0.030850922110712935,
+    "fftGap": 7.950588798433245e-11,
+    "faceGap": 2.770335558177628e-10,
+    "worstUnity": 0.00012281015154658181,
+    "threadGap": 0,
+    "threadSums": 5.6548962141203483e-14,
+    "calibration": 3.552713678800501e-15,
+    "seconds": 20143.235
+  },
+  "control": {
+    "K1": 1,
+    "K2": 1,
+    "K3": 1,
+    "instrument": 0
+  },
+  "notes": "L2. Members: heavy -1.427449 m 0.857072 kmax 0.933712 R_walk 1.347262 (tan m / m 1.347262) band 1.33e-15 contact unitarity 0.00e+0; light m 0.523599 kmax 1.340040 R_walk 1.102658 band 1.55e-15 contact unitarity 0.00e+0. Green: G0 0.052830507192, FFT against the direct sums 7.95e-11, face 2.77e-10, 24 pi r G - 1 at r 6..20 1.23e-4. Model calibration (alpha 0 lowest against 2m) 3.55e-15. Predictions: a_c 2.5: alpha 26.1187 (alpha' 0.34641), V0 -1.3799, V(1) -0.3273, E 1.53290389 (Hamiltonian 1.52041604), E_b 0.181240 (continuum 0.069282), a 5.22098925e-2, R 3.123721, contact 5.33e-1, mean r 0.789, beyond the window 3.51e-21, edge shells 8.03e-23, nearest DF+ 0.1055, pi image F+F+ 0.1055, model residual 1.2e-13, Lanczos drift 4.4e-15; read, the hard-core model: E 1.65727427, R 1.475443, mean r 4.509; a_c 3: alpha 21.7656 (alpha' 0.28868), V0 -1.1499, V(1) -0.2728, E 1.63263727 (Hamiltonian 1.62739681), E_b 0.081507 (continuum 0.048113), a 8.32689567e-2, R 1.838938, contact 2.16e-1, mean r 2.040, beyond the window 4.49e-14, edge shells 4.32e-15, nearest DF+ 0.2052, pi image F+F+ 0.2052, model residual 3.3e-13, Lanczos drift 0.0e+0; read, the hard-core model: E 1.67356627, R 1.439709, mean r 5.301; a_c 3.5: alpha 18.6562 (alpha' 0.24744), V0 -0.9856, V(1) -0.2338, E 1.66677892 (Hamiltonian 1.66499291), E_b 0.047365 (continuum 0.035348), a 9.69613524e-2, R 1.546904, contact 7.36e-2, mean r 3.478, beyond the window 3.38e-10, edge shells 4.94e-11, nearest DF+ 0.2393, pi image F+F+ 0.2393, model residual 2.4e-13, Lanczos drift 0.0e+0; read, the hard-core model: E 1.68372245, R 1.417275, mean r 6.088; light a_c 4: alpha 32.6484 (alpha' 0.43301), V0 -1.7248, V(1) -0.4091, E 0.95708624 (Hamiltonian 0.94316869), E_b 0.090111 (continuum 0.054127), a 1.59232284e-1, R 1.640430, contact 2.10e-1, mean r 2.475, beyond the window 8.22e-11, edge shells 1.17e-11, nearest SF- 0.0000, pi image SF+ 0.0000, model residual 7.7e-13, Lanczos drift 0.0e+0; read, the hard-core model: E 0.99651576, R 1.243145, mean r 6.428. I3: heavy 3456 starts worst 2.26e-16 differ 0 inexact 0 stray 0; light 3456 worst 9.81e-18 differ 0 inexact 0 stray 0. I4 entries 0.00e+0 sums 5.65e-14. Main: share 0.9780, stores 5.14e-5, mean radius 6.569; dispersion axis a 1.048161137e-1 (|lambda2| >= 1.000000, residual <= 8.9e-6); face a 1.048161094e-1 (|lambda2| >= 1.000000, residual <= 8.9e-6); body a 1.048161092e-1 (|lambda2| >= 1.000000, residual <= 8.9e-6); generic a 1.048161098e-1 (|lambda2| >= 1.000000, residual <= 8.9e-6); follow axis: K 0.4 E 1.702677 speed 0.116826 c* (|lambda2| 1.00000, residual 5.6e-4), K 0.8 E 1.751232 speed 0.223771 c* (|lambda2| 1.00000, residual 1.5e-3), K 1.2 E 1.827831 speed 0.313486 c* (|lambda2| 1.00000, residual 2.9e-3); face: K 0.4 E 1.702677 speed 0.116828 c* (|lambda2| 1.00000, residual 5.6e-4), K 0.8 E 1.751236 speed 0.223809 c* (|lambda2| 1.00000, residual 1.5e-3), K 1.2 E 1.827866 speed 0.313728 c* (|lambda2| 1.00000, residual 2.9e-3); shells 2.1e-3 2.5e-2 7.1e-2 8.6e-2 1.3e-1 1.4e-1 1.1e-1 9.9e-2 8.0e-2 7.4e-2 4.9e-2 3.6e-2 2.8e-2 2.1e-2 1.4e-2 9.5e-3 7.5e-3 5.0e-3 3.4e-3 2.2e-3 1.6e-3 1.1e-3 6.8e-4 4.6e-4 3.0e-4 2.1e-4 1.3e-4 8.6e-5 5.7e-5 3.7e-5 2.4e-5 1.6e-5 9.9e-6 6.5e-6 4.2e-6 2.6e-6 1.7e-6 1.0e-6 6.2e-7 3.6e-7 2.0e-7 1.0e-7 4.5e-8 1.7e-8 3.2e-9. Path: a_c 2.5: E 4.64291388 (coarse 4.65621, first 4.641158), |lambda2| 0.9999617926, residual 8.74e-3, window 1.000000, fidelity 0.749334, absorbed 4.25e-19, edge 3.99e-21, holds false, share 0.0063, stores 3.21e-1, mean radius 1.031, a -4.08517675e-4, R -131.807016; a_c 3: E 1.67655404 (coarse 1.67771, first 1.676554), |lambda2| 0.9999999996, residual 3.13e-8, window 1.000000, fidelity 1.000000, absorbed 1.29e-7, edge 1.49e-9, holds true, share 0.9714, stores 7.46e-5, mean radius 5.726, a 1.03801109e-1, R 1.436549. Light: share 0.0001, stores 9.16e-5, mean radius 32.876, shells 2.8e-4 1.2e-4 6.2e-4 4.1e-4 6.5e-4 9.7e-4 1.3e-3 1.7e-3 2.1e-3 3.0e-3 3.0e-3 3.5e-3 4.4e-3 5.5e-3 6.3e-3 6.5e-3 8.3e-3 8.8e-3 9.9e-3 1.0e-2 1.2e-2 1.4e-2 1.5e-2 1.7e-2 1.9e-2 2.1e-2 2.3e-2 2.5e-2 2.8e-2 3.0e-2 3.3e-2 3.7e-2 4.0e-2 4.5e-2 4.9e-2 5.0e-2 5.5e-2 5.7e-2 5.9e-2 6.0e-2 6.4e-2 7.3e-2 6.5e-2 2.8e-2 3.0e-3. K1 shells 3.3e-4 3.1e-3 1.1e-2 1.7e-2 2.8e-2 2.7e-2 1.5e-2 6.3e-3 2.4e-3 8.2e-3 2.0e-2 3.5e-2 5.2e-2 6.4e-2 6.7e-2 5.8e-2 5.7e-2 4.5e-2 3.2e-2 2.0e-2 1.3e-2 6.6e-3 2.9e-3 2.1e-3 3.8e-3 7.7e-3 1.3e-2 1.8e-2 2.3e-2 2.7e-2 3.0e-2 3.2e-2 3.2e-2 3.3e-2 3.2e-2 3.1e-2 3.0e-2 2.7e-2 2.3e-2 1.8e-2 1.4e-2 8.5e-3 4.2e-3 1.7e-3 3.4e-4. K2 shells 3.6e-5 9.7e-1 1.8e-2 8.4e-3 5.5e-4 2.3e-5 4.4e-6 2.5e-6 1.7e-6 1.5e-6 9.0e-7 6.6e-7 6.3e-7 6.7e-7 7.3e-7 6.9e-7 7.2e-7 5.8e-7 4.0e-7 2.2e-7 1.0e-7 4.0e-8 4.8e-8 1.1e-7 2.0e-7 3.0e-7 3.6e-7 3.7e-7 3.6e-7 3.0e-7 2.3e-7 1.7e-7 1.0e-7 6.2e-8 3.9e-8 3.5e-8 4.7e-8 6.4e-8 7.9e-8 8.1e-8 7.4e-8 5.4e-8 3.0e-8 1.3e-8 2.6e-9. Vacuum: heavy D4 side 4 empty exact true charged 0; heavy D4 side 8 empty exact true charged 0; heavy D4 side 4 love sea exact true charged 0; heavy husk side 4 empty exact true charged 0; heavy husk side 4 love sea exact true charged 0; light D4 side 4 empty exact true charged 0; light D4 side 8 empty exact true charged 0; light D4 side 4 love sea exact true charged 0; light husk side 4 empty exact true charged 0; light husk side 4 love sea exact true charged 0. 20143 s."
+}
+seconds 20143.2
+exit=0

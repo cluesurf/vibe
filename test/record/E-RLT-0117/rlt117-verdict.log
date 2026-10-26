@@ -1,0 +1,25 @@
+{
+ "status": "open",
+ "claim": "I1 true, I2 true, I3 true; body kappa 0.2: still share 0.00e+0 of the K = 0 line (weight 0.8235), against 0.25 for twelve line branches (the same solve on them reads 0.2500); body kappa 0.24: still share 0.00e+0 of the K = 0 line (weight 0.8235), against 0.25 for twelve line branches (the same solve on them reads 0.2500); axis kappa 0.24: still share 1.26e-1 of the K = 0 line (weight 0.8235), against 0.5 for twelve line branches (the same solve on them reads 0.5000)",
+ "metrics": {
+  "I1": 1,
+  "I2": 1,
+  "I3": 1,
+  "reads": 3,
+  "EL": 1.6133573497835847,
+  "body0.2Still": 0,
+  "body0.2Control": 0.24999999989835264,
+  "body0.24Still": 0,
+  "body0.24Control": 0.2500000000199052,
+  "axis0.24Still": 0.1257562504762925,
+  "axis0.24Control": 0.5000000000002142,
+  "stillMax": 0.1257562504762925,
+  "seconds": 4011.706
+ },
+ "control": {
+  "I3": 1
+ },
+ "notes": "L2. Lines at K (shift from E0 : weight, weight >= 1e-3): body 0.2 [-2.592e-3:0.1139 -1.905e-3:0.0011 7.127e-4:0.8038 1.053e-3:0.0039 4.523e-3:0.0706 8.985e-3:0.0019]; body 0.24 [-2.324e-3:0.1135 -1.719e-3:0.0020 1.013e-3:0.7758 1.243e-3:0.0224 4.733e-3:0.0761 9.198e-3:0.0015]; axis 0.24 [-3.653e-3:0.0043 -2.665e-3:0.1189 -6.763e-4:0.0382 1.420e-5:0.1036 1.270e-3:0.6073 2.209e-3:0.0251 4.777e-3:0.0818 8.461e-3:0.0011 9.127e-3:0.0020]. 4012 s."
+}
+done 185s
+exit=0

@@ -73,7 +73,7 @@
 //    the cap): the gap needs a STRONG string. At tau = 2 sigma: E_b = 1.1946 (constant mu: 1.3187), E_L = 2.2418 IN THE
 //    GAP (0.148 above its floor, 0.314 below its top), mean V 2.22, turning point V ~ 3.2. The members' band bends under
 //    the quadratic, which lowers E_L; E-SPN-0146's model was 0.3% high at its point and 1.2% high at 2 sigma. At 3 sigma
-//    (cap 6) E_b = 1.525 (constant mu 1.728), at or over the top 1.509 (tmp/mstr-predict-1.log, -3.log).
+//    (cap 6) E_b = 1.525 (constant mu 1.728), at or over the top 1.509 (test/record/E-SPN-0147/mstr-predict-1.log, -3.log).
 //    So the point: m0 = pi/6, tau = 2 sigma, cap 10, on E-SPN-0146's ball (15) and window (14).
 // 6. R. The potential model of E-SPN-0146 with the local mass: inertia c*^2 = 1 / <1 / (2 tan m(V))> + 1.5 T, E_rest = 2
 //    m0 + E_b: R = 1.034 (T 0.364, <tan m> 0.907). The mass string's energy is half inertial (point 4), so R sits between
@@ -126,14 +126,14 @@
 //  = 16.8). Its eps, window, fidelity, tail and singlet share are printed beside the mass string's.
 // Verdict: partial if the instrument or a control fails; pass if Z1 to Z5 hold; fail otherwise.
 //
-// PROBES BEFORE THE GATE RUN, disclosed (written after the gates above; no gate moved). tmp/mstr-predict*.log: the
+// PROBES BEFORE THE GATE RUN, disclosed (written after the gates above; no gate moved). test/record/E-SPN-0147/mstr-predict*.log: the
 //  schedule's angles, the member bands against the closed form at every V (S and D ranges equal to 4 digits, 22 flats
 //  pinned), the gap, the NR levels at tau = sigma, 2 sigma, 3 sigma (point 5). A smoke run of every code path on a
-//  6-ball (tmp/mstr-smoke2.log, 339 s; its physics is unconverged and gates nothing) found two code defects, fixed before
+//  6-ball (test/record/E-SPN-0147/mstr-smoke2.log, 339 s; its physics is unconverged and gates nothing) found two code defects, fixed before
 //  the gate run: the schedule was built only to the ball's radius, so a small ball lost the cap's unit (a crash in Z4);
 //  and I3's V = 2 starts reach V = 4 in one beat, beyond the 3-ball model, which absorbed those branches (all 1,152
-//  differed, worst 0.91): the check ball is 4. tmp/mstr-vac.log: the side-8 vacuum at u(10) takes 0.1 s a beat.
-//  tmp/mstr-probe1-10.log, the Z1 procedure on a 10-ball: the level at eps 2.265323 (predicted 2.2418), |lambda2|
+//  differed, worst 0.91): the check ball is 4. test/record/E-SPN-0147/mstr-vac.log: the side-8 vacuum at u(10) takes 0.1 s a beat.
+//  test/record/E-SPN-0147/mstr-probe1-10.log, the Z1 procedure on a 10-ball: the level at eps 2.265323 (predicted 2.2418), |lambda2|
 //  1.00000000, residual 1.5e-11 after the third filter, singlet share 0.686, stores 2.1e-3, held 256 beats with window and
 //  fidelity 1.000000 (absorbed 5.0e-9). Its profile over V = 0 .. 10: 1.1e-1 1.7e-1 3.7e-1 2.6e-1 7.8e-2 1.2e-2 9.1e-4
 //  3.6e-5 7.6e-7 3.4e-8 2.4e-9, ratios from V = 5: 0.076 0.039 0.021 0.044 0.070, so the tail clause as written counts 2
@@ -143,7 +143,7 @@
 //  tail, not an outgoing one, but the clause cannot tell the two apart by ratios alone; the clause is kept as written,
 //  and the gate run's absorbed weight and edge shells are the reading that separates them.
 //
-// FIRST RUN (tmp/mstr-exp-run1.log, 5,808 s, 12 threads): FAIL on Z1 (the tail clause alone) and Z2 (R). The instrument
+// FIRST RUN (test/record/E-SPN-0147/mstr-exp-run1.log, 5,808 s, 12 threads): FAIL on Z1 (the tail clause alone) and Z2 (R). The instrument
 //  and both controls hold; Z3, Z4 and Z5 hold. No gate moved and none was rerun.
 //  - Z1 FAILS ON ITS TAIL CLAUSE ONLY, and the level is bound. The filter lands on eps 2.265323 (predicted 2.2418, 1.0%
 //    low; IN THE GAP (2.0944, 2.5559), 0.171 above its floor), |lambda2| 1.0000000000 (1 + 1.3e-11), residual 1.3e-11,

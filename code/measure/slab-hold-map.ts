@@ -6,7 +6,7 @@
 // The frame mixer multiplies the dock's uniform slot mode by e^(-i theta) and nothing else. At K = 0 the uniform mode
 // is a sum of the two lines' band-edge states, so it is lifted theta INTO the gap and every other state stays; at K
 // away from 0 the uniform mode is shared with the moving states and lifted less. So the smallest gap of a lone hole in
-// the slab is 2 pi/3 - theta (tmp/holdmap-probe1.log, the 4 x 4 Bloch beat on a 48 x 48 K grid: 105.5 deg at theta
+// the slab is 2 pi/3 - theta (test/record/E-SPN-0139/holdmap-probe1.log, the 4 x 4 Bloch beat on a 48 x 48 K grid: 105.5 deg at theta
 // 14.36 deg, 90.5 at 28.96, 59.5 at 60, closed at the working 120), a Dirac mass m(theta) = pi/3 - theta/2 that
 // vanishes at the working angle.
 //

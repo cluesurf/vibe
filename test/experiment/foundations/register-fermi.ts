@@ -13,7 +13,7 @@
 // 32, 32, 24 classes); C3 E is invariant under the 384 coordinate permutations and sign flips on the L = 6 grid to 1e-9,
 // so a box and its side permutations hold one level structure and nondecreasing sides cover every box.
 //
-// FIRST RUN (tmp/fermi-gate.log, this file, 1,279 s; the probe before it, tmp/fermi-probe.log, the same table): no box
+// FIRST RUN (test/record/E-FND-0175/fermi-gate.log, this file, 1,279 s; the probe before it, test/record/E-FND-0175/fermi-probe.log, the same table): no box
 // qualifies, OPEN.
 //  - C1 0 (to the bit), C2 the table to every class, C3 1.8e-15.
 //  - 26 candidate boxes, 6^4 to 8x8x8x10; 21 under 8 GB. The bottom level is E 0.380251 on every box (the band's

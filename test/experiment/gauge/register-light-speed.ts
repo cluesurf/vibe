@@ -36,7 +36,7 @@
 // kappa = 3/16, stable and isotropic, but only at a split that is not the husk's 3D balance, and never on the adopted
 // trit column light. Whether the split is free (a knob) or fixed is the question this leaves.
 //
-// GATES, fixed before the gate run (probe 1, tmp/osq-probe1.log, read the husk's long-wave lambda / |k|^2 = 2/3 and
+// GATES, fixed before the gate run (probe 1, test/record/E-FRC-0260/osq-probe1.log, read the husk's long-wave lambda / |k|^2 = 2/3 and
 // the long-wave speed at kappa = 3/16 on 13 directions, the top group velocity, the adopted relation's depths 3 to 7
 // and the 3D balance's nearest split before these were written; disclosed):
 // U1 UNITS: on 13 husk directions the long-wave lambda_1 / |k|^2 and lambda_2 / |k|^2 are 2/3 within 1e-6 (so
@@ -62,7 +62,7 @@
 // Depth L2: integer existence and the husk operator's spectrum, read on the husk; a theorem with its controls, no
 // start family (the claim is about every start).
 //
-// FIRST RUN 2026-09-28 (tmp/osq-exp-run1.log, 8 s): PARTIAL as predicted, all nine gates held, no gate moved.
+// FIRST RUN 2026-09-28 (test/record/E-FRC-0260/osq-exp-run1.log, 8 s): PARTIAL as predicted, all nine gates held, no gate moved.
 // lambda / |k|^2 = 2/3 to 2.1e-8; 0 trit solutions to D = 10,000; 3,772 loop splits over N = 5 .. 49, least m = 4;
 // the 3D balance's nearest m <= 64 is 12/34, 0.173 percent slow; long-wave speed sqrt 2 / 4 to 5.6e-9 on 13
 // directions, top group velocity 0.9999956 of it; husk top 16, D = 4 top 0.38490, kappa = 1/4 top 0.40825; the

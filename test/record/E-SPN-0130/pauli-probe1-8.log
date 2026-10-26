@@ -1,0 +1,44 @@
+working beat 0: frames by held slots 12288 0 0 0 0 0 0 0 0 | one-content partial 0, two-content partial 0, full of several contents 0 | frames by stored lines 9216 0 0 0 3072
+working beat 1: frames by held slots 9216 0 0 0 0 0 0 0 3072 | one-content partial 0, two-content partial 0, full of several contents 3072 | frames by stored lines 12288 0 0 0 0
+working beat 2: frames by held slots 9216 0 0 0 2304 0 0 0 768 | one-content partial 0, two-content partial 2304, full of several contents 768 | frames by stored lines 9984 1152 0 1152 0
+working beat 3: frames by held slots 9984 0 0 0 2304 0 0 0 0 | one-content partial 0, two-content partial 2304, full of several contents 0 | frames by stored lines 9216 0 2304 0 768
+working beat 4: frames by held slots 9216 0 1152 0 0 0 1152 0 768 | one-content partial 57, two-content partial 2247, full of several contents 768 | frames by stored lines 9984 0 2304 0 0
+working beat 8: frames by held slots 9216 0 0 0 2304 0 0 0 768 | one-content partial 0, two-content partial 2304, full of several contents 768 | frames by stored lines 9984 0 2304 0 0
+working beat 16: frames by held slots 9216 0 1152 0 0 0 1152 0 768 | one-content partial 84, two-content partial 2220, full of several contents 768 | frames by stored lines 9984 0 2304 0 0
+working beat 64: frames by held slots 9216 0 1152 0 0 0 1152 0 768 | one-content partial 113, two-content partial 2191, full of several contents 768 | frames by stored lines 9984 0 2304 0 0
+working beat 127: frames by held slots 6912 0 1152 0 2304 0 1152 0 768 | one-content partial 102, two-content partial 4506, full of several contents 768 | frames by stored lines 12288 0 0 0 0
+working SUM over 128 beats: frames by held 1212672 0 61056 0 124416 0 61056 0 113664 | one-content partial 3171 two-content partial 243357 multi-content full 113664 | K firings 0 | first return to start -1
+love-sea beat 0: frames by held slots 0 0 0 0 0 0 0 0 12288 | one-content partial 0, two-content partial 0, full of several contents 0 | frames by stored lines 12288 0 0 0 0
+love-sea beat 1: frames by held slots 0 0 0 0 0 0 0 0 12288 | one-content partial 0, two-content partial 0, full of several contents 12288 | frames by stored lines 12288 0 0 0 0
+love-sea beat 2: frames by held slots 0 0 0 0 0 0 0 0 12288 | one-content partial 0, two-content partial 0, full of several contents 10438 | frames by stored lines 12288 0 0 0 0
+love-sea beat 3: frames by held slots 0 0 0 0 0 0 0 0 12288 | one-content partial 0, two-content partial 0, full of several contents 12288 | frames by stored lines 12288 0 0 0 0
+love-sea beat 4: frames by held slots 0 0 0 0 0 0 0 0 12288 | one-content partial 0, two-content partial 0, full of several contents 12142 | frames by stored lines 12288 0 0 0 0
+love-sea beat 8: frames by held slots 0 0 0 0 0 0 0 0 12288 | one-content partial 0, two-content partial 0, full of several contents 12288 | frames by stored lines 12288 0 0 0 0
+love-sea beat 16: frames by held slots 0 0 0 0 0 0 0 0 12288 | one-content partial 0, two-content partial 0, full of several contents 12288 | frames by stored lines 12288 0 0 0 0
+love-sea beat 64: frames by held slots 0 0 0 0 0 0 0 0 12288 | one-content partial 0, two-content partial 0, full of several contents 12288 | frames by stored lines 12288 0 0 0 0
+love-sea beat 127: frames by held slots 0 0 0 0 0 0 0 0 12288 | one-content partial 0, two-content partial 0, full of several contents 12288 | frames by stored lines 12288 0 0 0 0
+love-sea SUM over 128 beats: frames by held 0 0 0 0 0 0 0 0 1572864 | one-content partial 0 two-content partial 0 multi-content full 1558574 | K firings 0 | first return to start -1
+neutral-stored beat 0: frames by held slots 0 0 0 0 0 0 0 0 12288 | one-content partial 0, two-content partial 0, full of several contents 12288 | frames by stored lines 0 0 0 0 12288
+neutral-stored beat 1: frames by held slots 0 0 0 0 0 0 0 0 12288 | one-content partial 0, two-content partial 0, full of several contents 12288 | frames by stored lines 0 0 0 0 12288
+neutral-stored beat 2: frames by held slots 0 0 0 0 0 0 0 0 12288 | one-content partial 0, two-content partial 0, full of several contents 12288 | frames by stored lines 0 0 0 0 12288
+neutral-stored beat 3: frames by held slots 0 0 0 0 0 0 0 0 12288 | one-content partial 0, two-content partial 0, full of several contents 12288 | frames by stored lines 0 0 0 0 12288
+neutral-stored beat 4: frames by held slots 0 0 0 0 0 0 0 0 12288 | one-content partial 0, two-content partial 0, full of several contents 12288 | frames by stored lines 0 0 0 0 12288
+neutral-stored beat 8: frames by held slots 0 0 0 0 0 0 0 0 12288 | one-content partial 0, two-content partial 0, full of several contents 12288 | frames by stored lines 0 0 0 0 12288
+neutral-stored beat 16: frames by held slots 0 0 0 0 0 0 0 0 12288 | one-content partial 0, two-content partial 0, full of several contents 12288 | frames by stored lines 0 0 0 0 12288
+neutral-stored beat 64: frames by held slots 0 0 0 0 0 0 0 0 12288 | one-content partial 0, two-content partial 0, full of several contents 12288 | frames by stored lines 0 0 0 0 12288
+neutral-stored beat 127: frames by held slots 0 0 0 0 0 0 0 0 12288 | one-content partial 0, two-content partial 0, full of several contents 12288 | frames by stored lines 0 0 0 0 12288
+neutral-stored SUM over 128 beats: frames by held 0 0 0 0 0 0 0 0 1572864 | one-content partial 0 two-content partial 0 multi-content full 1572864 | K firings 0 | first return to start 2
+neutral-bare beat 0: frames by held slots 0 0 0 0 0 0 0 0 12288 | one-content partial 0, two-content partial 0, full of several contents 12288 | frames by stored lines 12288 0 0 0 0
+neutral-bare beat 1: frames by held slots 12288 0 0 0 0 0 0 0 0 | one-content partial 0, two-content partial 0, full of several contents 0 | frames by stored lines 0 0 0 0 12288
+neutral-bare beat 2: frames by held slots 0 0 0 0 0 0 0 0 12288 | one-content partial 0, two-content partial 0, full of several contents 12288 | frames by stored lines 12288 0 0 0 0
+neutral-bare beat 3: frames by held slots 12288 0 0 0 0 0 0 0 0 | one-content partial 0, two-content partial 0, full of several contents 0 | frames by stored lines 0 0 0 0 12288
+neutral-bare beat 4: frames by held slots 0 0 0 0 0 0 0 0 12288 | one-content partial 0, two-content partial 0, full of several contents 12288 | frames by stored lines 12288 0 0 0 0
+neutral-bare beat 8: frames by held slots 0 0 0 0 0 0 0 0 12288 | one-content partial 0, two-content partial 0, full of several contents 12288 | frames by stored lines 12288 0 0 0 0
+neutral-bare beat 16: frames by held slots 0 0 0 0 0 0 0 0 12288 | one-content partial 0, two-content partial 0, full of several contents 12288 | frames by stored lines 12288 0 0 0 0
+neutral-bare beat 64: frames by held slots 0 0 0 0 0 0 0 0 12288 | one-content partial 0, two-content partial 0, full of several contents 12288 | frames by stored lines 12288 0 0 0 0
+neutral-bare beat 127: frames by held slots 12288 0 0 0 0 0 0 0 0 | one-content partial 0, two-content partial 0, full of several contents 0 | frames by stored lines 0 0 0 0 12288
+neutral-bare SUM over 128 beats: frames by held 786432 0 0 0 0 0 0 0 786432 | one-content partial 0 two-content partial 0 multi-content full 786432 | K firings 0 | first return to start -1
+empty beat 0: frames by held slots 12288 0 0 0 0 0 0 0 0 | one-content partial 0, two-content partial 0, full of several contents 0 | frames by stored lines 12288 0 0 0 0
+empty beat 127: frames by held slots 12288 0 0 0 0 0 0 0 0 | one-content partial 0, two-content partial 0, full of several contents 0 | frames by stored lines 12288 0 0 0 0
+empty SUM over 128 beats: frames by held 1572864 0 0 0 0 0 0 0 0 | one-content partial 0 two-content partial 0 multi-content full 0 | K firings 0 | first return to start 1
+exit=0

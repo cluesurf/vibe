@@ -11,7 +11,7 @@
 // lowest level of the cut Hamiltonian at K = 0 (O_h) is the dressed M1; on the x axis (C4v) at K 0.04, 0.02, 0.01 the
 // curvature a by three-level Richardson of (E(K) - E(0)) / K^2 gives M2 / M1 = c*^2 / (2 a M1), c*^2 = 1/2 a cycle.
 // D(a_B) = dressed M2 / M1 - tan m / m. The third K step (0.01) is added to 0001's two: with two the bare read misses
-// tan m / m by 6.0e-7, with three by 9.6e-11 (tmp/dress-probe.log), which control C1 needs.
+// tan m / m by 6.0e-7, with three by 9.6e-11 (test/record/E-SPN-0201/dress-probe.log), which control C1 needs.
 //
 // GATES (decision 015 point 2, fixed 2026-10-09 before any run; status: UNREACHABLE pass, REACHABLE fail, OPEN open):
 //   UNREACHABLE  |D| < 0.1026 at a_B 8 and < 0.0423 at a_B 12, with Z >= 0.8 at both

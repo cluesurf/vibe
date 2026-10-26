@@ -30,7 +30,7 @@
 //   R_full,pred = R_kin - (8/3) e_b S / (2m - e_b), e_b = E_b / 2 per beat (E-SPN-0169's Darwin term, unchanged)
 // and the current prediction it replaces, R_full,old = darwinR(m, e_b, S, 1).
 //
-// GATES (fixed before the comparison). The four points: the rule's count at a_B 8 and 12 (E-SPN-0200, tmp/track-a8.json
+// GATES (fixed before the comparison). The four points: the rule's count at a_B 8 and 12 (E-SPN-0200, test/record/E-SPN-0206/track-a8.json
 // and track-a12.json) and the contact well removed at a_B 8 and 12 (E-SPN-0206 and E-SPN-0208, tmp/spn-core-soften-a8
 // and -a12.json). The current gap at each is |R_full,recorded - R_full,old|.
 //   PASS     |R_full,pred - R_full,recorded| <= 0.02 at all four
@@ -41,7 +41,7 @@
 //   READ: the same at the reference's radius a_B; the rule's a_B 6 point; the remainder's exponent, the log slope of
 //   R_full,recorded - R_full,pred from a_B 8 to 12 on the softened count (predicted -1 +- 0.5).
 //
-// FIRST RUN (2026-10-20, tmp/spn-0209-run1.log, 5.3 s): FAIL, as predicted. No gate moved and none was rerun.
+// FIRST RUN (2026-10-20, test/record/E-SPN-0209/spn-0209-run1.log, 5.3 s): FAIL, as predicted. No gate moved and none was rerun.
 //  - Instrument holds: at radius 1000 the quadrature's a is the member's a / 2 to 1.5e-6; the doubled grid moves no
 //    R_kin by 1e-4.
 //  - The exact band raises the reference R_full from 1.0671 to 1.0819 (rule a_B 8), 1.0661 to 1.0719 (rule a_B 12),
@@ -72,19 +72,18 @@ import {
 } from '@/code/measure/lattice-pair-inertia'
 import { setup } from '@/code/measure/register-track'
 
-const TMP =
-  '/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/moving-matter/tmp'
+const RECORD = `${import.meta.dirname}/../../record`
 const PASS_BAND = 0.02
 const INSTRUMENT = 1e-4
 
 type Point = { name: string; aB: number; file: string; gated: boolean }
 
 const POINTS: readonly Point[] = [
-  { name: 'rule_a6', aB: 6, file: 'track-a6.json', gated: false },
-  { name: 'rule_a8', aB: 8, file: 'track-a8.json', gated: true },
-  { name: 'rule_a12', aB: 12, file: 'track-a12.json', gated: true },
-  { name: 'soften_a8', aB: 8, file: 'spn-core-soften-a8.json', gated: true },
-  { name: 'soften_a12', aB: 12, file: 'spn-core-soften-a12.json', gated: true },
+  { name: 'rule_a6', aB: 6, file: 'E-SPN-0206/track-a6.json', gated: false },
+  { name: 'rule_a8', aB: 8, file: 'E-SPN-0206/track-a8.json', gated: true },
+  { name: 'rule_a12', aB: 12, file: 'E-SPN-0208/track-a12.json', gated: true },
+  { name: 'soften_a8', aB: 8, file: 'E-SPN-0206/spn-core-soften-a8.json', gated: true },
+  { name: 'soften_a12', aB: 12, file: 'E-SPN-0208/spn-core-soften-a12.json', gated: true },
 ]
 
 export default experiment({
@@ -112,7 +111,7 @@ export default experiment({
     const gapOf: Record<string, number> = {}
 
     for (const pt of POINTS) {
-      const j = JSON.parse(readFileSync(`${TMP}/${pt.file}`, 'utf8'))
+      const j = JSON.parse(readFileSync(`${RECORD}/${pt.file}`, 'utf8'))
       const E: number = j.motion.tracked.E
       const S: number = j.zero.darwinS
       const recorded: number = j.motion.Rfull

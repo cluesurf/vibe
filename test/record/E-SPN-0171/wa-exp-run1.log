@@ -1,0 +1,24 @@
+flow u -2,5 p 1: A 4 B -4 85s
+flow u -2,5 p -1: A -4 B 4 173s
+flow u 6,0 p 1: A 4 B -4 272s
+flow u 0,4 p 1: A 4 B -4 368s
+V1 368s
+{
+ "status": "partial",
+ "claim": "C1 true (heavy qa 15 p +1: A 4 B -4, E-SPN-0168's recorded reading reproduced exactly); R1 true (p -1: A -4 B 4, offsets 1.3e-15, wall weights exchanged to 8.2e-15); F1 true (u (-2,5) M 0.760502: A 4 B -4, eigen 3.7e-14; u (6,0) M 0.860085: A 4 B -4, eigen 2.4e-13; u (0,4) M 1.047198: A 4 B -4, eigen 1.3e-14; flavored face A 12 per forward winding); V1 true (exchange count: 435 nonzero elements, 0 between different member numbers); G false (heavy forward + CP-conjugate winding on face A: 0)",
+ "metrics": {
+  "C1": 1,
+  "R1": 1,
+  "F1": 1,
+  "V1": 1,
+  "G": 0,
+  "heavyA": 4,
+  "heavyConjugateA": -4,
+  "flavoredFaceA": 12,
+  "perFlavor": 4,
+  "netCPSymmetric": 0,
+  "seconds": 367.762
+ },
+ "notes": "L2. The member asymmetry per forward E . B winding on face A of the chiral wall (love sea): +4 per flavor (heavy unit, and each of (-2,5), (6,0), (0,4)), so +12 with three flavors, CP-blind (an index; the flavor mixing removable at one body, the vertex number-conserving at two). The CP-conjugate winding gives the exact reverse, so a CP-symmetric history nets 0. p -1 steps: 0.013: -0.0082/0.97 -0.0082/0.97 0.0082/0.03 0.0082/0.03; 0.406: -0.2371/1.00 -0.2371/1.00 0.2371/0.00 0.2371/0.00; 0.798: ; 1.191: ; 1.584: ; 1.976: ; 2.369: ; 2.762: -0.2223/0.00 -0.2223/0.00 0.2223/1.00 0.2223/1.00; 3.155: -0.0082/0.97 -0.0082/0.97 0.0082/0.03 0.0082/0.03; 3.547: -0.2371/1.00 -0.2371/1.00 0.2371/0.00 0.2371/0.00; 3.940: ; 4.333: ; 4.725: ; 5.118: ; 5.511: ; 5.903: -0.2223/0.00 -0.2223/0.00 0.2223/1.00 0.2223/1.00; 6.296: -0.0082/0.97 -0.0082/0.97 0.0082/0.03 0.0082/0.03. 368 s."
+}
+exit=0

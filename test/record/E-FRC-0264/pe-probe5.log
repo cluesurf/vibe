@@ -1,0 +1,5 @@
+Eb 0.047364972103711045  [691.9s]
+0.5 E_b A0 5e-3 rate 1.541e-9  [1420.8s]
+0.8 E_b no absorber: ground overlap^2 0.9757793321538022  [1810.7s]
+excited part NaN; shells (fraction) 0:NaN 5:NaN 10:NaN 15:NaN 20:NaN 25:NaN 30:NaN 35:NaN 40:NaN 45:NaN 50:NaN 55:NaN 60:NaN  [1810.7s]
+exit=0

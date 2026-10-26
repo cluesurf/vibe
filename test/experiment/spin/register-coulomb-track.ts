@@ -166,7 +166,7 @@ const LIGHT_OFF_OVERLAP = 1e-3
 const LIGHT_OFF_PHASE = 1e-6
 const WITNESS_TOL = 1e-7
 
-// E-SPN-0173's stronger point (tmp/rch-exp-run1.log in open-pieces)
+// E-SPN-0173's stronger point (test/record/E-SPN-0200/rch-exp-run1.log in open-pieces)
 export const RECORDED_STRONG = {
   EL: 1.5685474773273518,
   Rstatic: 16.4538835851102,

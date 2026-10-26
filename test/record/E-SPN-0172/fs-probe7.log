@@ -1,0 +1,9 @@
+none L 6: in-gap -0.02218 0.02218, M 0.02218: crossings 3860, MM 2760 MF 0 FF 1100, first |q| 0.065 pair 3.1416, 3.1416, B* 0.000000  [14s]
+none L 8: in-gap -0.01804 0.01804, M 0.01804: crossings 7680, MM 5208 MF 0 FF 2472, first |q| 0.065 pair 3.1416, 3.1416, B* 0.000000  [43s]
+none flow qa 15 p 1: A 0 (up 0 down 0) B 0 (up 0 down 0), ambiguous 1, eigen 1.1e-2, complete false  [102s]
+both L 6: in-gap -0.08627 -0.02897, M -0.02897: crossings 3028, MM 2892 MF 136 FF 0, first |q| 0.065 pair -0.6218, 0.3804, B* 0.000000  [115s]
+both L 8: in-gap -0.03821 -0.07801, M -0.03821: crossings 5672, MM 5484 MF 188 FF 0, first |q| 0.065 pair -0.6635, 0.5296, B* 0.000000  [145s]
+both flow qa 15 p 1: A 0 (up 0 down 0) B 0 (up 0 down 0), ambiguous 0, eigen 2.8e-9, complete false  [230s]
+wilson only L 6: in-gap 0.04856 -0.10612, M 0.04856: crossings 2156, MM 1964 MF 192 FF 0, first |q| 0.065 pair -0.8095, 0.6512, B* 0.000000  [245s]
+wilson only L 8: in-gap -0.06358 0.00460, M 0.00460: crossings 4680, MM 4476 MF 204 FF 0, first |q| 0.065 pair -0.8141, 0.6532, B* 0.000000  [276s]
+exit=0

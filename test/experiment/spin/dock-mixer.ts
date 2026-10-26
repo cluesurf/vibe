@@ -15,7 +15,7 @@
 //    in Z[w][1/2] each mu_j is a sixth root of unity (2 is inert in Z[w], so a unit-modulus element is a unit), and the
 //    coefficient of each orbital is sum_j mu_j m_j P_k(j) / (24 v_k), which needs its numerator divisible by 3. For W(F4)
 //    E-SPN-0094 found 216 of 7,776 in the ring and none reaching inner +-1. The run repeats that census with one generic
-//    routine and extends it to W(D4) (192 elements, 7 orbitals, 6^7 = 279,936 choices): the probe (tmp/dock24-probe1.log)
+//    routine and extends it to W(D4) (192 elements, 7 orbitals, 6^7 = 279,936 choices): the probe (test/record/E-SPN-0140/dock24-probe1.log)
 //    found 7,776 in the ring and again NONE with an inner +-1 coefficient. So no mixer covariant under W(D4) or W(F4) and
 //    exact in Z[w][1/2] moves a vibe to a root at 60 or 120 degrees: every exact one stays in the frame. The uniform mixer
 //    is covariant under all 24! permutations, and its hop (e^(i theta) - 1) / 24 needs (w - 1) / 3 at theta = 2 pi / 3,
@@ -114,14 +114,14 @@
 // Verdict: partial if the instrument or a control fails; pass if D1 to D5 hold; fail otherwise.
 // PREDICTED: fail on D3 (D3b) and D4; D1, D2, D3a, D5 and every control hold.
 //
-// PROBES BEFORE THE GATE RUN, disclosed: tmp/dock24-probe1.log (matrices agree to 1.9e-15; multiplets 13 + 11 at the
+// PROBES BEFORE THE GATE RUN, disclosed: test/record/E-SPN-0140/dock24-probe1.log (matrices agree to 1.9e-15; multiplets 13 + 11 at the
 // working point; tensors isotropic to 5e-10; the W(D4) census; D4's speeds 0.7070, 0.9654, 0.8165, 0.9082 against the
 // derived 0.7071, 0.9659, 0.8165, 0.9086; 0 one-content partial docks in 64 beats of the working vacuum), tmp/dock24-probe2
 // (a love in the working vacuum fills 4,094 of 4,096 docks by beat 64, 6 or 7 without the piece; a hole's footprint 1,
 // 10 to 19 mesh lines), tmp/dock24-probe3 (K^6 slopes and patterns; the branch spectra). The probes fixed C3's wording and
 // the kappas of the K^6 readings; no gate threshold was changed after them.
 //
-// FIRST RUN (tmp/dock24-exp-run2.log, 72 s; run1 was a compile error, a duplicated name, and executed nothing): FAIL on
+// FIRST RUN (test/record/E-SPN-0140/dock24-exp-run2.log, 72 s; run1 was a compile error, a duplicated name, and executed nothing): FAIL on
 // D3 (D3b) and D4, as derived; D1, D2, D3a, D5, the instrument and every control hold. No gate moved.
 //  - Census: W(F4) 216 of 7,776 in Z[w][1/2], W(D4) 7,776 of 279,936 (7 orbitals, multiplicities 3,4,2,3,8,3,1), 0 of
 //    either reaching inner +-1. Fock: 0 entries off on every sector; unsigned 75,900 to 1,402,632 off on n = 2 to 22 and

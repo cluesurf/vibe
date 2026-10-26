@@ -39,7 +39,7 @@
 // 3. WHAT IS NOT COMPUTED, stated plainly. The superposed state itself, where the interference would live, is out of
 //    reach: the working vacuum's open pairs meet as like vibes of unequal points (read below as `vacuumSplits`, the most
 //    at the start of any beat; 0 at the start itself). On side 4 the superposed beat stopped at 480 such meetings in
-//    one beat against its guard of 16 (tmp/twohub-probe-window.log), a split into 2^480 branches before the composite
+//    one beat against its guard of 16 (test/record/E-SPN-0120/twohub-probe-window.log), a split into 2^480 branches before the composite
 //    adds any. So the verdict is read on terms,
 //    and the argument in 2 is what carries it to the superposed rule. That step is argued, not measured.
 //
@@ -65,15 +65,15 @@
 // READ, NOT GATED: each term's trigger (the first beat K has fired on more than 10 docks, the hubs and their 8 common
 // neighbors), the drift cost's costly links and running count k, the two extreme terms (always exchange, the one the
 // string favors most, and never exchange), side 12 on path 0, the star crossings of X and Y on the box.
-// PROBES, disclosed (instrument only): tmp/twohub-probe-keyed.log (path 0: wake 171 at beat 32, 12,241 at 64, 39,160 at
+// PROBES, disclosed (instrument only): test/record/E-SPN-0120/twohub-probe-keyed.log (path 0: wake 171 at beat 32, 12,241 at 64, 39,160 at
 // 128; the always-exchange and never-exchange terms stay under 100 readings with K on 1 or 2 docks),
-// tmp/twohub-probe-terms.log (16 paths: every one cascades to the box by beat 128, triggers at beats 20 to 93),
-// tmp/twohub-probe-window.log (the superposed beat on side 4 stops at the split guard in the vacuum alone).
+// test/record/E-SPN-0120/twohub-probe-terms.log (16 paths: every one cascades to the box by beat 128, triggers at beats 20 to 93),
+// test/record/E-SPN-0120/twohub-probe-window.log (the superposed beat on side 4 stops at the split guard in the vacuum alone).
 //
-// FIRST RUN (tmp/twohub-exp-run1.log, 25 s): FAIL on Q1 (and so Q3), every control and check passing. The header's
+// FIRST RUN (test/record/E-SPN-0120/twohub-exp-run1.log, 25 s): FAIL on Q1 (and so Q3), every control and check passing. The header's
 // line on the vacuum's splits said "thousands a beat", read at the start, where the count is 0. The reading was widened
 // to the most at the start of any beat, and the sentence corrected. No gate, control or threshold moved, and every
-// gate reading is unchanged. SECOND RUN (tmp/twohub-exp-run2.log, 27 s): FAIL, as predicted.
+// gate reading is unchanged. SECOND RUN (test/record/E-SPN-0120/twohub-exp-run2.log, 27 s): FAIL, as predicted.
 //  - All 16 terms run away. Each is bounded, at 50 to 200 readings with K on the two hubs and a few neighbors, until a
 //    trigger at beats 20 to 94. After it K fires on 4,095 or 4,096 docks, and the footprint at beat 128 is 4,091 to
 //    4,096 of 4,096. Growth from 64 to 128 runs 0.0006 to 527, so the numerical half of Q1 passes only on terms

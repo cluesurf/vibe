@@ -68,8 +68,8 @@
 // Verdict: fail if Z, N, B, I, X or H fails (H is predicted to); partial if a control or the instrument fails; pass
 //  otherwise.
 //
-// PROBES BEFORE THE GATE RUN, disclosed (no gate moved after the gate run). tmp/hc-probe1.log: the census on the eight
-//  numbers, exactly the integers of point 3; rotations normalize the gauge group (6.7e-16). tmp/hc-probe2.log: 4 Gamma(-1)
+// PROBES BEFORE THE GATE RUN, disclosed (no gate moved after the gate run). test/record/E-FRC-0273/hc-probe1.log: the census on the eight
+//  numbers, exactly the integers of point 3; rotations normalize the gauge group (6.7e-16). test/record/E-FRC-0273/hc-probe2.log: 4 Gamma(-1)
 //  = -4 J, S -> D intertwines everything (worst 3.5e-16, 576 of 576 untwisted), D -> D and D -> S keep 24 of 576 untwisted
 //  and miss Gamma- by 0.125 and 0.078, S -> S has scale 3.8e-33 (no channel); the mirror of S -> D is gauge invariant
 //  (3.2e-16). tmp/hc-smoke.log (4 cycles, L = 4): w-- 0.10714286 after one cycle from the contact start, control 1.8e-31,

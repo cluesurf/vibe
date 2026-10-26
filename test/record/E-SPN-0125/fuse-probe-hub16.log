@@ -1,0 +1,12 @@
+pairs 264 triples 1760
+pair T16 {"states":1924,"visits":5984,"minClasses":2,"oneClass":0,"translatePairs":0,"translations":0,"fused":0} sets 1
+pair 0.013s
+triple T16 {"states":118112,"visits":289928,"minClasses":3,"oneClass":0,"translatePairs":0,"translations":0,"fused":0} sets 2
+triple 0.58s
+closure nodes 2 min 3 one 0 true
+closure 0.58s
+planted 0 1 4 {"states":2842,"visits":8742,"minClasses":1,"oneClass":927,"translatePairs":8891,"translations":15372,"fused":15372,"example":{"l":2,"step":[1,0,1,0],"period":3}} sets 2
+planted closure {"minClasses":1,"oneClass":1,"newClassOnly":1}
+committed same pair {"states":1924,"visits":5984,"minClasses":2,"oneClass":0,"translatePairs":0,"translations":0,"fused":0} sets 1
+planted 13.402s
+exit=0

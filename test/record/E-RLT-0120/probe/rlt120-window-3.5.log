@@ -1,0 +1,24 @@
+/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/moving-matter-next/test/record/E-RLT-0119/rlt119-axes.json: EL 1.6133573497835847, 8192 points
+FD S 4096: -3.097e-3:0.1139 1.057e-4:0.8235 4.144e-3:0.0599 8.437e-3:0.0023; heaviest 1.057e-4
+FD S 2048: -3.097e-3:0.1139 1.057e-4:0.8231 4.144e-3:0.0599 8.437e-3:0.0023; heaviest 1.057e-4
+sigma 0.001: peaks 1.032e-4:0.8240 4.126e-3:0.0602 8.428e-3:0.0023
+  window [-0.02, 0.02]: weight 1.000000 centroid - EL 2.9927e-8 width 1.523e-3
+  window [-0.015, 0.015]: weight 1.000000 centroid - EL 2.9819e-8 width 1.523e-3
+  window [-0.01, 0.01]: weight 0.999835 centroid - EL -1.2726e-6 width 1.517e-3
+  density x sigma at offsets -0.03:5.7e-10 -0.02:1.5e-9 -0.015:2.9e-9 -0.01:3.9e-5 0.01:2.8e-4 0.015:4.5e-9 0.02:2.6e-9 0.03:1.2e-9
+sigma 0.0015: peaks 6.527e-5:0.8371
+  window [-0.02, 0.02]: weight 1.000000 centroid - EL 2.9925e-8 width 1.523e-3
+  window [-0.015, 0.015]: weight 1.000000 centroid - EL 2.9550e-8 width 1.523e-3
+  window [-0.01, 0.01]: weight 0.999595 centroid - EL -3.3081e-6 width 1.508e-3
+  density x sigma at offsets -0.03:8.7e-10 -0.02:2.3e-9 -0.015:1.5e-8 -0.01:7.3e-5 0.01:5.6e-4 0.015:9.2e-8 0.02:3.9e-9 0.03:1.8e-9
+sigma 0.002: peaks 1.236e-5:0.8637
+  window [-0.02, 0.02]: weight 1.000000 centroid - EL 2.9923e-8 width 1.523e-3
+  window [-0.015, 0.015]: weight 0.999998 centroid - EL 1.2458e-8 width 1.523e-3
+  window [-0.01, 0.01]: weight 0.999284 centroid - EL -5.7074e-6 width 1.495e-3
+  density x sigma at offsets -0.03:1.2e-9 -0.02:3.1e-9 -0.015:6.2e-7 -0.01:2.1e-4 0.01:1.0e-3 0.015:4.5e-6 0.02:5.3e-9 0.03:2.5e-9
+sigma 0.003: peaks -3.049e-5:0.9126
+  window [-0.02, 0.02]: weight 1.000000 centroid - EL 2.7327e-8 width 1.523e-3
+  window [-0.015, 0.015]: weight 0.999948 centroid - EL -5.2286e-7 width 1.519e-3
+  window [-0.01, 0.01]: weight 0.995741 centroid - EL -1.1942e-5 width 1.352e-3
+  density x sigma at offsets -0.03:1.8e-9 -0.02:8.8e-8 -0.015:3.0e-5 -0.01:4.5e-3 0.01:5.8e-3 0.015:1.2e-4 0.02:6.0e-7 0.03:3.8e-9
+exit=0

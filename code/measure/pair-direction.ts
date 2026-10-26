@@ -25,6 +25,7 @@ import {
   referenceCorrelation,
   sector,
   unfold,
+  type Boundary,
   type RState,
   type Sector,
 } from '@/code/measure/register-reduced'
@@ -43,17 +44,18 @@ export type PairLevel = {
   residual: number
 }
 
-// the pair's level at K = 0 on the O_h sector (E-SPN-0173's filters)
+// the pair's level at K = 0 on the O_h sector (E-SPN-0173's filters), on the husk ball (the default) or the torus
 export function pairLevel(input: {
   su: Setup
   aB: number
   R: number
   opts: KernelOptions
+  boundary?: Boundary
 }): PairLevel {
   const { su, aB, R, opts } = input
   const oh = [...su.group.elements.keys()]
   const alpha = alphaOf(su, aB)
-  const s = sector(su.group, oh, R)
+  const s = sector(su.group, oh, R, input.boundary ?? 'ball')
   const e = reducedEngine(
     s,
     su.u,

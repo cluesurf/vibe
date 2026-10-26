@@ -75,7 +75,7 @@
 //     lines. Reported beside it, not gated: how many change the per-line tone excess from its start.
 //  Verdict: pass if T0 to T3 and both controls hold; partial if only a control fails; fail otherwise.
 //
-// FIRST RUN (tmp/planon-run1.log, 163 s): PASS on every gate and control. The vacuum holds 0 single lines. Off S, 0
+// FIRST RUN (test/record/E-SPN-0117/planon-run1.log, 163 s): PASS on every gate and control. The vacuum holds 0 single lines. Off S, 0
 // readings differ from the vacuum, and on S, 0 differ from the lines' own runs, on all 7 variants. The sparse starts
 // reach 4 box steps (half the box), and S's stores change 18,672 times where the vacuum's do not. 'isometric' leaves S
 // at beat 1. Of the 44 crossing pairs, 32 reach lines off their own two, and all 44 change their per-line tone

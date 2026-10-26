@@ -1,0 +1,43 @@
+I1 I2 1s
+witness SS 0,0,0,0 26s
+witness generic 0,0,0,0 92s
+witness SS 0.31,-0.17,0.52,0.08 108s
+witness generic 0.31,-0.17,0.52,0.08 178s
+level 1.9789453403525277 3554s
+H2 3850s
+H1 3850s
+H3 H4 7665s
+C1 8140s
+{
+ "status": "fail",
+ "claim": "H0 true (SS K 0,0,0,0: gap 4.60e-17, weights 10.598340448136/10.598340448136, norm 10.598340448088 -> 10.598340448088; generic K 0,0,0,0: gap 9.53e-17, weights 40.962072129930/40.962072129930, norm 42.035459468466 -> 42.035459468468; SS K 0.31,-0.17,0.52,0.08: gap 4.76e-17, weights 10.598340448124/10.598340448124, norm 10.598340448088 -> 10.598340448088; generic K 0.31,-0.17,0.52,0.08: gap 9.73e-17, weights 40.972500709802/40.972500709802, norm 42.046362460438 -> 42.046362460439); H1 true (least margin 0.3249 at DF at V 0; Smax 0.837781; uncapped D D crossing V* 9.366); H2 true (E_L 1.978945 (NR 2.0054), |lambda| 1.0000000000, residual 8.11e-7, lost -7.96e-10 over 64 cycles, least fidelity 0.9999999996, edge shell 2.01e-7); H3 true (a 0.0036456469 0.0036456488, isotropy 4.99e-7); H4 false (R 34.652263, NR 0.6941); instrument I1 true (1.78e-15) I2 true (member R 1.012226137 vs 1.012226057); controls C1 true (no string: lost 1.22e-7, least fidelity 0.596408) C2 true (member mass string gap 7.69e-4)",
+ "metrics": {
+  "H0": 1,
+  "H1": 1,
+  "H2": 1,
+  "H3": 1,
+  "H4": 0,
+  "I1": 1,
+  "I2": 1,
+  "C1": 1,
+  "C2": 1,
+  "EL": 1.9789453403525277,
+  "lambdaAbs": 1.0000000000060862,
+  "residual": 8.105484562222889e-7,
+  "lost": -7.955553993355124e-10,
+  "leastFidelity": 0.9999999995980176,
+  "edge": 2.006160260268851e-7,
+  "margin": 0.3248665805583857,
+  "vStar": 9.36578650242024,
+  "isotropy": 4.986869255318993e-7,
+  "R": 34.65226307820285,
+  "nrR": 0.6941114379915979,
+  "nrEL": 2.005428353067574,
+  "speedAt04": null,
+  "memberGap": 0.0007687447523166768,
+  "shareSS": 0.9170838247365214,
+  "seconds": 8140.209
+ },
+ "notes": "L2. Light m 0.190126 (M0 0.380251), string angle 0.280668 a unit of V, cap 8, ball 9 (32761 sites). Level: block shares S S 0.9171 0.0410 0.0410 0.0010 (S S, S D, D S, D D), profile 1.2e-4 3.0e-3 1.7e-2 8.6e-2 8.4e-1 5.0e-2 3.0e-3 1.2e-4 5.4e-6 2.0e-7. NR: E_b 1.2449, T 0.4148, W 0.8301. Speed at |K| 0.4 (axis, a beat) NaN (c/4 = 0.353553). g max 0.366788. 8140 s."
+}
+exit=0

@@ -66,7 +66,7 @@
 // samples the gap at loop momenta rather than certifying it between them, and it is one-body. Floats for every spectrum;
 // exact only for the group (product-table indices, fractions).
 //
-// FIRST RUN 2026-10-08 (tmp/windex.log, 1016 s): OPEN, no gate moved, none rerun.
+// FIRST RUN 2026-10-08 (test/record/E-FRC-0291/windex.log, 1016 s): OPEN, no gate moved, none rerun.
 //  - STEP 1: order 648, 24 classes, projections integer to 3e-15, d_min 3 (classes 8 and 22, phases (-1/9, -1/9, 2/9)
 //    and (-2/9, 1/9, 1/9)). Every class with a nonzero phase has a component of |phase| at least 2/9.
 //  - STEP 2: open (0 levels, complete) at 1/18, 1/15, 1/12, 1/9, 1/6; closed at 2/9 (16, nearest 0.123), 1/4, 1/3
@@ -81,7 +81,7 @@
 //    true. With C1 false and STEP 4 not run the verdict is OPEN; STEP 3 alone reads the KILL side (no abelian field
 //    keeps the gap).
 //
-// SECOND RUN 2026-10-08 (decision 008's STEP 4 and C1 regate, tmp/wstream.log, sh tmp/wstream.sh run, 14774 s): PASS.
+// SECOND RUN 2026-10-08 (decision 008's STEP 4 and C1 regate, test/record/E-FRC-0291/wstream.log, sh tmp/wstream.sh run, 14774 s): PASS.
 //  - STEP 4: the lumpy fields (s 1, Q 9) are closed (class 8 component 2/9: 16 levels, nearest 0.0872; class 22
 //    component -2/9: nearest 0.0865), their half-distance diagnostic flows A 0 B 0. Every dilute sheet (s 2, 3, 4, both
 //    classes, Q 18, 27, 36) keeps the bulk window empty at 4 k2 and at all 24 loop k2, and every component flows the

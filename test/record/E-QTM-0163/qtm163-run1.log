@@ -1,0 +1,86 @@
+L0 166s
+side 4 integer+0 168s
+side 4 integer+1 171s
+side 4 integer+2 174s
+side 4 integer+3 177s
+side 4 integer+4 178s
+side 4 integer+5 181s
+side 4 integer+6 184s
+side 4 integer+7 188s
+side 4 integer+8 194s
+side 4 integer+9 199s
+side 4 integer+10 203s
+side 4 integer+11 206s
+side 4 integer+12 213s
+side 4 integer+13 219s
+side 4 integer+14 226s
+side 4 integer+15 233s
+side 4 golden 237s
+side 8 integer+0 286s
+side 8 integer+1 317s
+side 8 integer+2 343s
+side 8 integer+3 388s
+side 8 integer+4 410s
+side 8 integer+5 441s
+side 8 integer+6 451s
+side 8 integer+7 478s
+side 8 integer+8 497s
+side 8 integer+9 532s
+side 8 integer+10 586s
+side 8 integer+11 614s
+side 8 integer+12 664s
+side 8 integer+13 698s
+side 8 integer+14 720s
+side 8 integer+15 740s
+side 8 golden 776s
+K1 795s
+K2 795s
+
+E-QTM-0163 quantum/kept-branch  L2  794.7s
+status   pass
+claim    the kept branch interferes in the working vacuum: E-RLT-0105's like pair meets again on 17 and 17 of 17 starts (sides 4, 8), the rule adds terms whose meeting outcomes differ on 17 and 17, and the knot passes sqrt 7 on 17 and 16 (up to 2.8284), which no state with the interference off reaches (at most 2.645751); the re-meeting is the box's wrap (17 of 17); of the held rows only Tsirelson's "reached" needs it (register words 2.7839, 2.8174 on, at most 2.645751 off; E-QTM-0133's 18 words at (1/2, 1/2, 0) on, 0 off), with E-QTM-0100's clause (1/4, 3/4, 1/1 on, 1/4, 3/8, 7/16 off)
+metrics
+  starts  17
+  linkPointPermutations  216
+  registerTwoMeetingsOnBest  2.7838821814150108
+  registerThreeMeetingsOnBest  2.8173569173961615
+  registerOffBest  2.6457513110645907
+  registerAtTsirelson  0
+  rolesOnHalfHalf  18
+  rolesOffHalfHalf  0
+  rolesOffBest  2.3094010767585025
+  loneSplitsMax  0
+  seconds  794.691
+  side4_chshMin  2.7945496234090297
+  side4_chshMax  2.8284025070562397
+  side4_aboveSqrt7  17
+  side4_atTsirelson  0
+  side4_l1Min  0.608642578125
+  side4_l1Max  1.19970703125
+  side4_crossMin  42
+  side4_offChshMax  2.6457513110645907
+  side8_chshMin  2.6457513110645907
+  side8_chshMax  2.8153207409196415
+  side8_aboveSqrt7  16
+  side8_atTsirelson  0
+  side8_l1Min  0.5625
+  side8_l1Max  0.84375
+  side8_crossMin  4
+  side8_offChshMax  2.6457513110645907
+  gate_I1  1
+  gate_I2  1
+  gate_R0  1
+  gate_L0  1
+  gate_C1  1
+  gate_R1  1
+  gate_R2  1
+  gate_R3  1
+  gate_R4  1
+  gate_R5  1
+  gate_K1  1
+  gate_K2  1
+  gate_K3  1
+control
+  offMembersAtMostSqrt7  1
+  loneLoveSplits  0
+notes    L2. Gates I1 true, I2 true, R0 true, L0 true, C1 true, R1 true, R2 true, R3 true, R4 true, R5 true, K1 true, K2 true, K3 true. Side 4: integer+0: meets 1,4,7,10,13,16,19,22,25,28,31,34,37,40,43,46, lineage 16, cross merges 94, L1 1.1206, CHSH max 2.813788 (weights 0.3175, 0.2170, 0.1397, 0.1397, 0.0983, 0.0808, 0.0035, 0.0035), off max 2.645751 | integer+1: meets 1,4,7,10,13,16,19,22,25,28,31,34,37,40,43,46, lineage 14, cross merges 66, L1 0.8174, CHSH max 2.821942 (weights 0.3556, 0.2798, 0.0959, 0.0909, 0.0890, 0.0888), off max 2.645751 | integer+2: meets 1,4,7,10,13,16,19,22,25,28,31,34,37,40,43,46, lineage 16, cross merges 80, L1 1.1997, CHSH max 2.816462 (weights 0.3292, 0.2690, 0.2011, 0.1404, 0.0302, 0.0302), off max 2.645751 | integer+3: meets 1,4,7,10,13,16,19,22,25,28,31,34,37,40,43,46, lineage 16, cross merges 140, L1 1.0884, CHSH max 2.828403 (weights 0.5030, 0.4970), off max 2.645751 | integer+4: meets 1,4,7,10,13,16,19,22,25,28,31,34,37,40,43,46, lineage 13, cross merges 42, L1 0.6973, CHSH max 2.794550 (weights 0.3896, 0.2666, 0.2178, 0.1260), off max 2.645751 | integer+5: meets 1,4,7,10,13,16,19,22,25,28,31,34,37,40,43,46, lineage 16, cross merges 140, L1 1.0884, CHSH max 2.828403 (weights 0.5030, 0.4970), off max 2.645751 | integer+6: meets 1,4,7,10,13,16,19,22,25,28,31,34,37,40,43,46, lineage 16, cross merges 94, L1 1.1206, CHSH max 2.813788 (weights 0.3175, 0.2170, 0.1397, 0.1397, 0.0983, 0.0808, 0.0035, 0.0035), off max 2.645751 | integer+7: meets 1,4,7,10,13,16,19,22,25,28,31,34,37,40,43,46, lineage 16, cross merges 140, L1 1.0884, CHSH max 2.828403 (weights 0.5030, 0.4970), off max 2.645751 | integer+8: meets 1,4,7,10,13,16,19,22,25,28,31,34,37,40,43,46, lineage 16, cross merges 94, L1 1.1206, CHSH max 2.815863 (weights 0.5666, 0.4334), off max 2.645751 | integer+9: meets 1,4,7,10,13,16,19,22,25,28,31,34,37,40,43,46, lineage 16, cross merges 94, L1 1.1206, CHSH max 2.815863 (weights 0.5666, 0.4334), off max 2.645751 | integer+10: meets 1,4,7,10,13,16,19,22,25,28,31,34,37,40,43,46, lineage 16, cross merges 80, L1 1.1997, CHSH max 2.816462 (weights 0.3292, 0.2690, 0.2011, 0.1404, 0.0302, 0.0302), off max 2.645751 | integer+11: meets 1,4,7,10,13,16,19,22,25,28,31,34,37,40,43,46, lineage 14, cross merges 62, L1 0.6086, CHSH max 2.821672 (weights 0.3558, 0.2787, 0.0956, 0.0901, 0.0899, 0.0898), off max 2.645751 | integer+12: meets 1,4,7,10,13,16,19,22,25,28,31,34,37,40,43,46, lineage 16, cross merges 140, L1 1.0884, CHSH max 2.825057 (weights 0.3530, 0.3167, 0.1804, 0.1500), off max 2.645751 | integer+13: meets 1,4,7,10,13,16,19,22,25,28,31,34,37,40,43,46, lineage 16, cross merges 140, L1 1.0884, CHSH max 2.825057 (weights 0.3530, 0.3167, 0.1804, 0.1500), off max 2.645751 | integer+14: meets 1,4,7,10,13,16,19,22,25,28,31,34,37,40,43,46, lineage 16, cross merges 140, L1 1.0884, CHSH max 2.828403 (weights 0.5030, 0.4970), off max 2.645751 | integer+15: meets 1,4,7,10,13,16,19,22,25,28,31,34,37,40,43,46, lineage 16, cross merges 140, L1 1.0884, CHSH max 2.825057 (weights 0.3530, 0.3167, 0.1804, 0.1500), off max 2.645751 | golden: meets 1,4,7,10,13,16,19,22,25,28,31,34,37,40,43,46, lineage 16, cross merges 94, L1 1.1206, CHSH max 2.815863 (weights 0.5666, 0.4334), off max 2.645751. Side 8: integer+0: meets 1,7,13,19,25,31,37,43, lineage 8, cross merges 44, L1 0.7031, CHSH max 2.809195 (weights 0.3653, 0.2376, 0.1986, 0.1986), off max 2.645751 | integer+1: meets 1,7,13,19,25,31,37,43, lineage 8, cross merges 32, L1 0.7500, CHSH max 2.777550 (weights 0.3713, 0.3545, 0.0886, 0.0886, 0.0881, 0.0088), off max 2.645751 | integer+2: meets 1,7,13,19,25,31,37,43, lineage 8, cross merges 22, L1 0.5625, CHSH max 2.796871 (weights 0.3792, 0.2309, 0.1848, 0.1485, 0.0361, 0.0205), off max 2.645751 | integer+3: meets 1,7,13,19,25,31,37,43, lineage 8, cross merges 44, L1 0.7031, CHSH max 2.815321 (weights 0.5680, 0.4320), off max 2.645751 | integer+4: meets 1,7,13,19,25,31,37,43, lineage 8, cross merges 22, L1 0.5625, CHSH max 2.796871 (weights 0.3792, 0.2309, 0.1848, 0.1485, 0.0361, 0.0205), off max 2.645751 | integer+5: meets 1,7,13,19,25,31,37,43, lineage 8, cross merges 22, L1 0.5625, CHSH max 2.796871 (weights 0.3792, 0.2309, 0.1848, 0.1485, 0.0361, 0.0205), off max 2.645751 | integer+6: meets 1,13,25,37, lineage 4, cross merges 4, L1 0.7500, CHSH max 2.645751 (weights 0.7500, 0.2500), off max 2.645751 | integer+7: meets 1,7,13,19,25,31,37,43, lineage 8, cross merges 22, L1 0.5625, CHSH max 2.796871 (weights 0.3792, 0.2309, 0.1848, 0.1485, 0.0361, 0.0205), off max 2.645751 | integer+8: meets 1,7,13,19,25,31,37,43, lineage 7, cross merges 16, L1 0.7031, CHSH max 2.793687 (weights 0.3896, 0.2178, 0.1963, 0.1963), off max 2.645751 | integer+9: meets 1,7,13,19,25,31,37,43, lineage 8, cross merges 38, L1 0.7031, CHSH max 2.799100 (weights 0.6016, 0.3984), off max 2.645751 | integer+10: meets 1,7,13,19,25,31,37,43, lineage 8, cross merges 32, L1 0.7500, CHSH max 2.777550 (weights 0.3713, 0.3545, 0.0886, 0.0886, 0.0881, 0.0088), off max 2.645751 | integer+11: meets 1,7,13,19,25,31,37,43, lineage 8, cross merges 22, L1 0.5625, CHSH max 2.796871 (weights 0.3792, 0.2309, 0.1848, 0.1485, 0.0361, 0.0205), off max 2.645751 | integer+12: meets 1,7,13,19,25,31,37,43, lineage 8, cross merges 32, L1 0.7500, CHSH max 2.777550 (weights 0.3713, 0.3545, 0.0886, 0.0886, 0.0881, 0.0088), off max 2.645751 | integer+13: meets 1,7,13,19,25,31,37,43, lineage 8, cross merges 38, L1 0.7031, CHSH max 2.778151 (weights 0.3713, 0.1780, 0.1292, 0.1077, 0.0886, 0.0886, 0.0183, 0.0183), off max 2.645751 | integer+14: meets 1,7,13,19,25,31,37,43, lineage 8, cross merges 14, L1 0.8438, CHSH max 2.783882 (weights 0.6250, 0.3750), off max 2.645751 | integer+15: meets 1,7,13,19,25,31,37,43, lineage 7, cross merges 16, L1 0.7031, CHSH max 2.793687 (weights 0.3896, 0.2178, 0.1963, 0.1963), off max 2.645751 | golden: meets 1,7,13,19,25,31,37,43, lineage 8, cross merges 38, L1 0.7031, CHSH max 2.799100 (weights 0.6016, 0.3984), off max 2.645751. L1 0.6086 to 1.1997 (side 4), 0.5625 to 0.8438 (side 8). K1: 216 point permutations, 2-transitive true; on best 2.7838821814150108, 2.8173569173961615, off 2.6457513110645907, 2.6457513110645907, once 2.6457513110645907, 2.6457513110645907; 0 three-meeting words within 1e-9 of 2 sqrt 2. K2: {"onHits":18,"offHalf":0,"offBest":2.3094010767585025,"onceHalf":0}. K3: {"on":["1/4","3/4","1/1"],"off":["1/4","3/8","7/16"],"strict":["1/4","3/8","7/16"],"once":["1/4","1/4","1/4"]}. 795 s.

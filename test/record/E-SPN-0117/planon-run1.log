@@ -1,0 +1,58 @@
+status pass
+claim on side 8 over 128 beats, 16 starts on 1 to 3 parallel mesh lines of one class (start 0 a love on A and a fear on the parallel A' one dock over), 7 path variants on 'pass', 'lone' and 'bounce': the vacuum holds 0 single lines (condition Z), 0 readings off S differ from the vacuum, and 0 readings on S differ from the lines' own runs; the S content moves (sparse reach 4 box steps) and S's stores change where the vacuum's do not 18672 times; K on every dock ('isometric') takes start 0 off S from beat 1 (4590708 readings); of 44 pairs on crossing lines at one dock, 32 reach lines off their own and 44 move their per-line tone
+  pass_full0_off 0
+  pass_full0_unfactored 0
+  pass_full0_vacuumSingles 0
+  pass_full0_storeEvents 2624
+  pass_full0_wakeMax 46
+  pass_full7919_off 0
+  pass_full7919_unfactored 0
+  pass_full7919_vacuumSingles 0
+  pass_full7919_storeEvents 2583
+  pass_full7919_wakeMax 44
+  pass_old_off 0
+  pass_old_unfactored 0
+  pass_old_vacuumSingles 0
+  pass_old_storeEvents 2691
+  pass_old_wakeMax 46
+  pass_keep_off 0
+  pass_keep_unfactored 0
+  pass_keep_vacuumSingles 0
+  pass_keep_storeEvents 3102
+  pass_keep_wakeMax 43
+  pass_exchange_off 0
+  pass_exchange_unfactored 0
+  pass_exchange_vacuumSingles 0
+  pass_exchange_storeEvents 2592
+  pass_exchange_wakeMax 46
+  lone_full0_off 0
+  lone_full0_unfactored 0
+  lone_full0_vacuumSingles 0
+  lone_full0_storeEvents 2540
+  lone_full0_wakeMax 46
+  bounce_full0_off 0
+  bounce_full0_unfactored 0
+  bounce_full0_vacuumSingles 0
+  bounce_full0_storeEvents 2540
+  bounce_full0_wakeMax 46
+  gate_T0 1
+  gate_T1 1
+  gate_T2 1
+  gate_T3 1
+  control_C1 1
+  control_C2 1
+  linesSide8 6144
+  vacuumSingles 0
+  offTotal 0
+  unfactoredTotal 0
+  storeEventsTotal 18672
+  sparseReach 4
+  isometricOff 4590708
+  isometricFirstOff 1
+  crossSeeds 44
+  crossLeaving 32
+  crossToneMoved 44
+  seconds 162.675
+control {"isometricOff":4590708,"crossLeaving":32,"crossSeeds":44}
+notes L1. Gates T0 true (lines of one class true), T1 true, T2 true, T3 true; controls C1 true, C2 true. start 0 (2 lines, class 0, sparse): wake at most 14, reach 4, store events 75 | start 1 (2 lines, class 2, sparse): wake at most 15, reach 4, store events 97 | start 2 (3 lines, class 7, sparse): wake at most 19, reach 4, store events 190 | start 3 (1 lines, class 11, sparse): wake at most 14, reach 4, store events 108. 163 s.
+exit=0

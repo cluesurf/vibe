@@ -1,0 +1,82 @@
+I1 0s
+W1 base 9s
+W1 A 17s
+W1 B 25s
+R1 C2 I0 36s
+I2 36s
+I3 846s
+I4 847s
+W2 865s
+I5; ball 15: 231361 sites 1119s
+W5 1972s
+R2 off 2243s
+W3 hold 3520s
+W3 axis 3937s
+W3 face 4179s
+W3 body 4415s
+W3 generic 4662s
+R2 on 4958s
+C1 5744s
+W4 7117s
+R3 7919s
+{
+  "status": "fail",
+  "claim": "W1 false (A false: 4 states at pi at rest; B false: gamma false, speed true, R false, F- false); W2 true; W3 false (holds true at eps 2.218440, isotropy 5.47e-9, R 1.39567); W4 false (m0 0.190126, window (2.7613, 2.4746): eps -1.236271, |lambda2| 0.9909027583, residual 1.73e-2, window 0.095045, fidelity 0.001833503, absorbed 8.99e-1, edge 1.75e-1, singlet share 0.0095, stores 1.64e-6, holds false; profile 1.0e-5 2.3e-4 1.0e-3 2.7e-3 6.2e-3 1.4e-2 3.0e-2 6.1e-2 1.0e-1 1.1e-1 1.1e-1 1.2e-1 1.3e-1 1.3e-1 1.1e-1 6.1e-2); W5 true (eps 2.265323205134809, |lambda2| 1.0000000000126374, share 0.6861710791962495); C1 true (E-SPN-0146's level: absorbed 4.33e-3, fidelity 0.979730); C2 true; R2 E-SPN-0147's level off the moving span: love 0.00156, fear 0.00156 (stores 2.08e-3, Parseval 3.6e-11), with A off the moving span: love 0.00732, fear 0.00732 (stores 2.43e-3, Parseval 1.3e-10)",
+  "metrics": {
+    "W1": 0,
+    "W2": 1,
+    "W3": 0,
+    "W4": 0,
+    "W5": 1,
+    "instrument": 1,
+    "I0": 1,
+    "I1": 1,
+    "I2": 1,
+    "I3": 1,
+    "I4": 1,
+    "I5": 1,
+    "C1": 1,
+    "C2": 1,
+    "alpha": 0.6669463445036642,
+    "restAtPiA": 4,
+    "restAtPiB": 11,
+    "topA": 0.7379440245822569,
+    "topMasslessA": 0.9999999374999955,
+    "gammaMaxA": 3.588315473283544e-11,
+    "gammaMaxB": 0.3543821963649503,
+    "RdefectA": 3.036904061559653e-12,
+    "RdefectB": 0.5865201014952242,
+    "offEps": 2.265323205134809,
+    "onEps": 2.2184400616237756,
+    "onWindow": 0.9999999999708756,
+    "onFidelity": 0.9999999999611322,
+    "onAbsorbed": 8.969493512491212e-11,
+    "onEdge": 2.1679075490705898e-11,
+    "onShare": 0.6937508313257359,
+    "isotropy": 5.467879038434376e-9,
+    "R": 1.395666899259831,
+    "inertiaCoefficient": 0.08074405029987834,
+    "lightEps": -1.2362710993226014,
+    "lightFidelity": 0.0018335028508728365,
+    "lightAbsorbed": 0.8986126527140523,
+    "offLoveOff": 0.0015623898175580358,
+    "offFearOff": 0.0015623898175566183,
+    "onLoveOff": 0.007322849794622904,
+    "onFearOff": 0.007322849794614628,
+    "c1Absorbed": 0.0043274899380355315,
+    "contactUnitarity": 0,
+    "contactGap": 0,
+    "boxWorst": 1.2412670766236366e-16,
+    "threadGap": 0,
+    "threadSums": 6.553397702215096e-14,
+    "seconds": 7918.535
+  },
+  "control": {
+    "C1": 1,
+    "C2": 1,
+    "instrument": 1
+  },
+  "notes": "L1 and L2. The unit v = e^(-i alpha), alpha 0.666946. I1: 12 Pi8 exact true, trace 96, W(F4)-invariant true over 1152; the rule with A against the covariant model per V: 1.1e-16 1.1e-16 1.2e-16 4.4e-17 1.1e-16 1.0e-16 1.1e-16 7.5e-17 3.1e-17 1.1e-16 2.8e-17. W1: base: rest -3.141593x12 -2.094395x1 -0.000000x11 (12 at pi); m 0.523598776, R - tan m/m -3.77e-13 -1.90e-12 8.04e-13 -4.40e-14; massless c0 1.000000 1.000000 1.000000 1.000000 c*, gamma/c* -9.71e-12 -7.62e-12 -8.66e-12 7.04e-12; top 0.713679 c*, massless 1.000000 c*; flats -3.141593x11 -0.000000x11; band sum 8.4e-17 / 1.1e-16, trace 5.8e-17 / 3.6e-17; clauses a true b true c true d false | A odd octet: rest -3.141593x4 -2.094395x1 -0.000000x11 2.474646x8 (4 at pi); m 0.523598776, R - tan m/m -3.04e-12 -2.31e-12 -2.87e-12 2.56e-12; massless c0 1.000000 1.000000 1.000000 1.000000 c*, gamma/c* 2.44e-11 2.74e-13 3.59e-11 2.54e-11; top 0.737944 c*, massless 1.000000 c*; flats -3.141593x3 -0.000000x3; band sum 6.7e-16 / 4.5e-16, trace 8.8e-17 / 7.9e-18; clauses a true b true c true d false | B rank-one on y: rest -3.141593x11 -2.094395x1 -0.000000x11 2.474646x1 (11 at pi); m 0.523598776, R - tan m/m 3.68e-1 5.87e-1 5.51e-1 2.85e-1; massless c0 0.707107 0.552771 0.577350 0.767944 c*, gamma/c* -2.55e-1 -3.54e-1 -3.40e-1 -2.09e-1; top 0.716711 c*, massless 0.980139 c*; flats -3.141593x10 -0.000000x10; band sum 1.3e-16 / 1.5e-16, trace 1.8e-17 / 2.6e-17; clauses a false b true c false d false. R1: Pi2 alpha: rest -3.141593x12 -2.094395x1 -0.000000x9 0.666946x2 (12 at pi); m 0.523598776, R - tan m/m -8.76e-13 -7.79e-14 2.70e-13 6.15e-13; massless c0 1.000000 1.000000 1.000000 1.000000 c*, gamma/c* 9.71e-12 -8.08e-12 -4.16e-11 1.08e-11; top 0.714975 c*, massless 0.989305 c*; flats -3.141593x9 -0.000000x9; band sum 3.0e-16 / 2.4e-16, trace 4.9e-17 / 4.9e-17; clauses a true b true c true d false; gamma/c* derived 1.082e-17 | Pi9 0.2: rest -3.141593x12 -2.094395x1 0.000000x2 0.200000x9 (12 at pi); m 0.523598776, R - tan m/m -1.91e-11 -2.01e-11 -2.10e-11 -2.21e-11; massless c0 1.000000 1.000000 1.000000 1.000000 c*, gamma/c* -1.77e-2 -1.77e-2 -1.77e-2 -1.77e-2; top 0.748039 c*, massless 1.003769 c*; flats -3.141593x2 -0.000000x2; band sum 8.5e-17 / 1.9e-16, trace 1.3e-17 / 1.9e-17; clauses a false b false c true d false; gamma/c* derived -1.774e-2 | Pi4 0.2: rest -3.141593x8 -2.941593x4 -1.894395x1 -0.000000x11 (4 at pi); m 0.523598776, R - tan m/m 2.58e-11 2.81e-11 2.72e-11 2.45e-11; massless c0 1.000000 1.000000 1.000000 1.000000 c*, gamma/c* 1.77e-2 1.77e-2 1.77e-2 1.77e-2; top 0.762089 c*, massless 1.003760 c*; flats -3.141593x7 -0.000000x7; band sum 3.2e-16 / 4.0e-16, trace 2.3e-17 / 2.8e-17; clauses a false b false c true d false; gamma/c* derived 1.774e-2 | Pi8 +alpha: rest -3.141593x4 -2.474646x8 -2.094395x1 -0.000000x11 (4 at pi); m 0.523598776, R - tan m/m -6.32e-13 4.57e-10 1.12e-10 2.29e-10; massless c0 1.000000 1.000000 1.000000 1.000000 c*, gamma/c* 4.32e-11 2.37e-12 -7.61e-13 -9.15e-12; top 0.751690 c*, massless 0.988849 c*; flats -0.000000x3 3.141593x3; band sum 1.8e-16 / 3.4e-16, trace 1.5e-16 / 5.2e-17; clauses a true b true c true d false; gamma/c* derived 1.082e-17 | Pi8 alpha Pi2 alpha: rest -3.141593x4 -2.474646x8 -2.094395x1 -0.000000x9 0.666946x2 (4 at pi); m 0.523598776, R - tan m/m -2.23e-12 3.36e-10 1.15e-10 1.90e-10; massless c0 1.000000 1.000000 1.000000 1.000000 c*, gamma/c* 2.65e-11 1.81e-11 -1.96e-11 -5.52e-11; top 0.769376 c*, massless 0.988849 c*; flats -2.474646x1 0.000000x2 3.141593x1; band sum 3.0e-16 / 4.0e-16, trace 3.0e-17 / 4.3e-17; clauses a true b true c true d false; gamma/c* derived 1.082e-17. I2: unitarity 0.00e+0, against the no-piece maps 0.00e+0. I3: V 0 48 starts, worst 0.00e+0, 0 differ, 0 inexact, 0 stray; V 1 96 starts, worst 1.24e-16, 0 differ, 0 inexact, 0 stray. I4: entries 0.00e+0, sums 6.55e-14. I5: {\"total\":1.0000000000362972,\"loveOff\":-3.041827943438231e-16,\"fearOff\":-3.041827943438231e-16,\"stores\":0,\"parseval\":2.548650179697493e-11}. W2: u(0) side 4 empty exact true permutes 0 charged 0; u(0) side 8 empty exact true permutes 0 charged 0; u(0) side 4 sea exact true permutes 0 charged 0; u(1) side 4 empty exact true permutes 0 charged 0; u(1) side 8 empty exact true permutes 0 charged 0; u(1) side 4 sea exact true permutes 0 charged 0; u(10) side 4 empty exact true permutes 0 charged 0; u(10) side 8 empty exact true permutes 0 charged 0; u(10) side 4 sea exact true permutes 0 charged 0. Prediction: E_rest 2.241806, light point E_rest 1.912534 (m_cap 1.499911). W5 level: eps 2.265323, |lambda2| 1.0000000000, residual 1.32e-11, window 1.000000, fidelity 1.000000000, absorbed 1.83e-18, edge 1.57e-16, singlet share 0.6862, stores 2.08e-3, holds true; profile 1.1e-1 1.7e-1 3.6e-1 2.6e-1 7.8e-2 1.2e-2 9.1e-4 3.5e-5 7.6e-7 3.4e-8 2.5e-9 7.6e-11 7.5e-13 1.1e-14 1.6e-16 2.2e-18. W3 level: eps 2.218440, |lambda2| 1.0000000001, residual 6.61e-11, window 1.000000, fidelity 1.000000000, absorbed 8.97e-11, edge 2.17e-11, singlet share 0.6938, stores 2.43e-3, holds true; profile 4.3e-2 2.4e-1 3.7e-1 2.7e-1 7.1e-2 1.0e-2 7.6e-4 3.1e-5 1.1e-6 1.4e-7 2.4e-8 4.1e-9 7.1e-10 1.2e-10 1.9e-11 2.3e-12; K^2 coefficients axis 8.074405030e-2, face 8.074405074e-2, body 8.074405055e-2, generic 8.074405061e-2; velocity at rest 5.4e-18 5.5e-19 -1.2e-18 -5.8e-19. C1 level: eps 1.565757, |lambda2| 0.9999832899, residual 1.18e-3, window 0.995646, fidelity 0.979729598, absorbed 4.33e-3, edge 9.72e-5, singlet share 0.7620, stores 2.93e-4, holds false; profile 9.9e-3 5.4e-2 1.8e-1 2.5e-1 2.2e-1 1.4e-1 7.9e-2 3.9e-2 1.6e-2 4.9e-3 1.5e-3 5.8e-4 2.7e-4 1.4e-4 7.2e-5 2.5e-5. W4 level (A on): eps -1.236271, |lambda2| 0.9909027583, residual 1.73e-2, window 0.095045, fidelity 0.001833503, absorbed 8.99e-1, edge 1.75e-1, singlet share 0.0095, stores 1.64e-6, holds false; profile 1.0e-5 2.3e-4 1.0e-3 2.7e-3 6.2e-3 1.4e-2 3.0e-2 6.1e-2 1.0e-1 1.1e-1 1.1e-1 1.2e-1 1.3e-1 1.3e-1 1.1e-1 6.1e-2. R3 (A off): eps -1.232477, |lambda2| 0.9997601614, residual 2.19e-2, window 0.999998, fidelity 0.026512072, absorbed 1.05e-6, edge 9.12e-5, singlet share 0.0732, stores 5.26e-4, holds false; profile 1.1e-3 4.9e-4 4.4e-3 1.2e-2 3.9e-2 1.0e-1 2.0e-1 1.7e-1 1.0e-1 1.2e-1 1.4e-1 9.0e-2 2.0e-2 2.4e-3 9.0e-5 7.5e-7. 7919 s."
+}
+seconds 7918.5
+exit=0

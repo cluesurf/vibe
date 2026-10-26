@@ -1,0 +1,55 @@
+H1 a 2s
+H1 b, I1 10s
+H1 c d 14s
+H2 a 38s
+H2 b 60s
+H4 exact 60s
+H4 spectral 60s
+K1 82s
+K2 K3 83s
+{
+ "status": "partial",
+ "claim": "H1 true (a true: band gap 2.22e-15; b true: closed-form depth slope max 0, full-cycle |v4| max 1.37e-16; c true: c0 / (sqrt 2 / 4) 1.000000000002 0.999999999992 0.999999999998 0.999999999995 0.999999999998 0.999999999996; d true: R - tan m/m max 8.03e-12, isotropy 1.05e-11; e true: husk top 0.585594 massive, 0.999999563 massless, of c/4); H2 true (a true: B* 0.760502413 x0; b true: period-4 column B* 0.760502413 x0; 2M 0.760502413); H3 true (flats' speed 1.23e-16); H4 true (exact true; husk P_rot 1.78e-15, husk P_imp 0.184060: on the quotient -I is an exact husk parity, so P CHANGES); H5 true; instrument I1 true (HF gap 5.55e-17); controls K1 false K2 false K3 false; read: loose census B* 0.327998 (formula 3M - Smax 0.310894), thin 0.760502",
+ "metrics": {
+  "H1": 1,
+  "H1a": 1,
+  "H1b": 1,
+  "H1c": 1,
+  "H1d": 1,
+  "H1e": 1,
+  "H2": 1,
+  "H2a": 1,
+  "H2b": 1,
+  "H3": 1,
+  "H4": 1,
+  "H5": 1,
+  "instrument": 1,
+  "K1": 0,
+  "K2": 0,
+  "K3": 0,
+  "mLight": 0.19012560334646678,
+  "cStarHuskDocksPerBeat": 0.3535533905932738,
+  "bandGap": 2.220446049250313e-15,
+  "slopeMax": 0,
+  "v4Max": 1.3725999503666486e-16,
+  "flatSpeed": 1.2260301612918673e-16,
+  "hfGap": 5.551115123125783e-17,
+  "huskRdefect": 8.027356557249732e-12,
+  "huskIsotropy": 1.05494502022907e-11,
+  "topHusk": 0.5855937669031933,
+  "topHuskMassless": 0.9999995625189857,
+  "censusThinBstar": 0.7605024133858628,
+  "censusThinCrossings": 0,
+  "censusColumnBstar": 0.7605024133858633,
+  "censusColumnCrossings": 0,
+  "huskPimp": 0.18406011257071686,
+  "huskProt": 1.7763568394002505e-15,
+  "looseBstar": 0.32799805871013976,
+  "looseThinBstar": 0.7605024133858669,
+  "smaxSlice": 0.8343593346283582,
+  "smaxBulk": 0.8298599759682885,
+  "seconds": 82.819
+ },
+ "notes": "L1 and L2. Light m 0.190126, 2M 0.760502413, 3M 1.140753620. c* = sqrt 2 / 4 = 0.353553 husk docks a beat; the stream's husk front along the 6 husk directions 1.000000 1.414214 1.154701 1.323645 1.154701 1.323645. H1: 64 slice momenta 176 + 8 + 8 (gap 2.22e-15); massless pairs size 16 c0/(c/4) 1.000000000002 gamma -2.65e-11, size 16 c0/(c/4) 0.999999999992 gamma -9.69e-12, size 16 c0/(c/4) 0.999999999998 gamma -7.62e-12, size 16 c0/(c/4) 0.999999999995 gamma -7.62e-12, size 16 c0/(c/4) 0.999999999998 gamma -8.66e-12, size 16 c0/(c/4) 0.999999999996 gamma 9.13e-12; R - tan m/m -2.65e-12 8.03e-12 2.31e-12 5.29e-12 3.28e-12 -1.98e-12 (tan m/m 1.012226057); husk top 0.585593767 (bulk sample 0.606006476), massless 0.999999563. H2: thin B* 0.760502413 x0, nearest at |q| 8.0111 (pair -0.8046, 0.8046); column K4 = pi/2 B* 0.760502413 x0. H4: -I det 1, P_imp det -1, R4 det -1; ball parity true; husk P_rot 1.78e-15, P_imp 0.184060113. K1: c0/c 0.2500000000006183, R defect 8.027356557249732e-12, isotropy 1.05494502022907e-11, top 0.6060064755630771, massless 0.9999995625189857, g max 0.3667882424043842, census B* 0.7605024133858628 x0. K3: bulk P_imp 0.16835551628027012, P_rot 8.881784197001252e-16. Read: loose census (depth momentum not conserved) over a 8^3 grid and 4 depths B* 0.327998 (pair -0.3803, 0.8128), one depth 0.760502; Smax slice 0.834359, bulk 0.829860, 3M - Smax 0.310894. 83 s."
+}
+exit=0

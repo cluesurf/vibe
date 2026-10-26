@@ -61,16 +61,16 @@
 //     p = 0 the q = 3 spectrum is the plain spectrum folded at K, K + G, K + 2G, G = (2 pi / 3, 0, 0, 0) (1e-10).
 //  READ, gating nothing: the Wilson staircase C2(w) over the scanned zeros, and the zero classes.
 //
-// PROBES, disclosed: tmp/cflow-probe1.log: the leak (0), the halves' bands (4 + 4 + 88), plain and magnetic windings
+// PROBES, disclosed: test/record/E-SPN-0165/cflow-probe1.log: the leak (0), the halves' bands (4 + 4 + 88), plain and magnetic windings
 //  (all below 1e-15), the half-periods' Jacobians (index sum -8 over the 16), and a grid-10 zero scan (62 zeros, index
 //  sum 10: unconverged). It also found the positive control read 0 at 48 steps: aliasing (a winding of 96 in 48
-//  steps), an instrument flaw, fixed before the gate run by the 480 and 481 step reading. tmp/cflow-probe2.log: the
+//  steps), an instrument flaw, fixed before the gate run by the 480 and 481 step reading. test/record/E-SPN-0165/cflow-probe2.log: the
 //  positive control at -96.0000 at both step counts; the zero scan on grids 12, 16 and 24: 72 zeros each time, index sum
 //  0 (the classes: K = 0 det 20736; 12 half-periods det -768 W 24; 3 half-periods det 256 W 32; 24 zeros det -256 W 28;
-//  32 zeros det 324 W 27); the Wilson C2 = 1 for w/M <= -0.05 and 0 for w/M >= -0.02. tmp/cflow-smoke.log: every code
+//  32 zeros det 324 W 27); the Wilson C2 = 1 for w/M <= -0.05 and 0 for w/M >= -0.02. test/record/E-SPN-0165/cflow-smoke.log: every code
 //  path on a small plan (steps 12 and 17, 8 and 11, 4 band momenta, grid 12), all as predicted; no gate changed after it.
 //
-// FIRST RUN (tmp/cflow-exp-run1.log, 30 s): partial, as derived. F1 leak 0, union of halves against the 192-mode cycle
+// FIRST RUN (test/record/E-SPN-0165/cflow-exp-run1.log, 30 s): partial, as derived. F1 leak 0, union of halves against the 192-mode cycle
 //  8.9e-16. F2 16 threaded loops and F3 24 E . B loops (q = 3, p = 1 and 2): every half's winding 0 (largest 1.1e-15),
 //  arg det departing at most 5.0e-14. Z 72 zeros on grids 12, 16 and 24 (1 at K = 0 det 20736; 12 half-periods det
 //  -768; 3 half-periods det 256; 24 det -256 W 28; 32 det 324 W 27), index sum 0, uniform-mass C2 0. G false. I1 the

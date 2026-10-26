@@ -12,7 +12,7 @@
 // flux-string clock: its lower level is a contact knot (0.92 of it on one dock under the meeting), three times heavier
 // per unit energy than the string-held level above, which is why that moving clock ticks faster.
 //
-// THE CORE, READ BEFORE ANY RUN (tmp/spn-core-probe.log, code/measure/contact-core coreProfile). The pull is the
+// THE CORE, READ BEFORE ANY RUN (test/record/E-SPN-0206/spn-core-probe.log, code/measure/contact-core coreProfile). The pull is the
 // count n(y) = floor(alpha G(y) / theta), G the husk light's lattice Green function. G is finite at contact and FAR
 // deeper there than its 1/|y| tail: n(0) / n(first shell) = 242 / 57, 181 / 43, 121 / 28 at a_B 6, 8, 12 (4.2 to 4.3).
 // In cycle phase the contact well is 1.459, 1.091, 0.729 against the first shell's 0.344, 0.259, 0.169: a step of
@@ -47,9 +47,9 @@
 //   (2 E1 E2) (whether the pair's internal and external motion add in quadrature).
 // Verdict: fail if W or P1 fails; partial if P2, P3 or the instrument fails; pass if all hold.
 //
-// FIRST RUN (2026-10-19, tmp/spn-core-<form>-a<aB>.log and .json, the parts run one per process by tmp/spn-core-part.ts
-// on the native kernel at 4 to 6 threads, the verdict by this file's combineCore in tmp/spn-0206-combine.ts, logged in
-// tmp/spn-0206-verdict.log): FAIL on P1, as the pre-registered kill reads it. No gate moved and none was rerun.
+// FIRST RUN (2026-10-19, test/record/E-SPN-0206/spn-core-<form>-a<aB>.log and .json, the parts run one per process by test/record/E-SPN-0206/run/spn-core-part.ts
+// on the native kernel at 4 to 6 threads, the verdict by this file's combineCore in test/record/E-SPN-0206/run/spn-0206-combine.ts, logged in
+// test/record/E-SPN-0206/spn-0206-verdict.log): FAIL on P1, as the pre-registered kill reads it. No gate moved and none was rerun.
 //  - W holds: the rule's tracked line 1.6406597988563882, overlap 0.2676752332958895, both E-SPN-0200's to the bit.
 //  - P1 FAILS at a_B 6: with n(0) set to 57 the excess is 1.843 (R 3.310 against 1.164, at K 0.02 after the K 0.04
 //    continuation failed), above the rule's 1.309. But the instrument fails there too: the softened level is a near
@@ -71,7 +71,7 @@
 //    cap3 1.58 times, the softened a_B 8 clock 0.79 times. The beat changes as K^2 on every lattice band (each band is
 //    even in K), so a first-order "linear sum" of internal and external speeds cannot appear; what fails is the size,
 //    and it is set by how unequal the two levels' excess inertia is.
-//  - A boost-partner read (code/measure/boost-partner, tmp/spn-partner-*.log; x times the reference on the C4v sector
+//  - A boost-partner read (code/measure/boost-partner, test/record/E-SPN-0206/spn-partner-*.log; x times the reference on the C4v sector
 //    at K = 0): its weight sits 0.83 to 0.86 on one line, the 2p-like level at 1.6953 to 1.6954, for the rule, the
 //    softened and the capped count alike. So the T1u partner is hydrogenic and far (0.035 to 0.055 away); the excess is
 //    not a near T1u partner.
@@ -109,7 +109,7 @@ import {
 const C_STAR2 = 0.5
 const RECORDED_E = 1.6406597988563882
 const RECORDED_OVERLAP = 0.2676752332958895
-// E-SPN-0200's recorded a_B 6 and 8 excess (tmp/track-a6.json, tmp/track-a8.json), the rule's side of each comparison
+// E-SPN-0200's recorded a_B 6 and 8 excess (test/record/E-SPN-0206/track-a6.json, test/record/E-SPN-0206/track-a8.json), the rule's side of each comparison
 const RECORDED_EXCESS: Record<number, number> = {
   6: 1.3087281235858952,
   8: 0.36501078308290724,

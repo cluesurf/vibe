@@ -74,15 +74,15 @@
 //  hubs (the derivation's count); the recording stepper equals keyedRunner bit for bit (starRun on T4, path 0).
 // Verdict: partial if a check or a control fails; fail if G1 fails (the premise); pass if G1, G2, G3 and G4 hold at one
 // placement; fail otherwise.
-// PROBES, disclosed (instrument only): tmp/mach-probe1-8-4.log (T4 alone, paths 0 and 1: 0 crossings off the hubs, K
-// only at the 16 hubs, wake 461 and 465 at beat 64, 463 and 460 at 128, footprint about 230); tmp/mach-probe2.log (one
+// PROBES, disclosed (instrument only): test/record/E-SPN-0124/mach-probe1-8-4.log (T4 alone, paths 0 and 1: 0 crossings off the hubs, K
+// only at the 16 hubs, wake 461 and 465 at beat 64, 463 and 460 at 128, footprint about 230); test/record/E-SPN-0124/mach-probe2.log (one
 // probe per class, paths 0 and 1: the uncrossed probe runs exactly as in the vacuum; every crossed class fires K off the
 // hubs, four of them filling 4,091 to 4,095 docks by beat 128, the 24-crossing class reaching about 1,200 to 1,550
 // docks with K on 239; the probe's charge centroid in the vacuum already moves 10 to 18 off every line, since it is
 // the charge's mean over three loves and the dipoles of the pairs K displaces).
 //
-// FIRST RUN (tmp/mach-exp-run1.log): crashed before the verdict. A local number named `control` shadowed the control
-// tracks inside the grading map. It was renamed; no gate, control or threshold moved. SECOND RUN (tmp/mach-exp-run2.log,
+// FIRST RUN (test/record/E-SPN-0124/mach-exp-run1.log): crashed before the verdict. A local number named `control` shadowed the control
+// tracks inside the grading map. It was renamed; no gate, control or threshold moved. SECOND RUN (test/record/E-SPN-0124/mach-exp-run2.log,
 // 75 s): FAIL on G2, every control and check passing, as derived.
 //  - G1 holds. T4's wake peaks at 435, 453, 465 and 470 at beats 16, 32, 64 and 128, with peak growth 0.009 to 0.026 and
 //    a footprint of at most 237 of 4,096. K fires only at the 16 hubs (443 to 507 firings per hub over 8 terms, so the

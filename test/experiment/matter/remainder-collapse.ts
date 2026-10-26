@@ -42,7 +42,7 @@
 // 0.0617 against the recorded 0.533. E-SPN-0212's own prediction for point 5, made on a different argument (the
 // whole a_B 8 remainder carried by tan m / m - 1 at fixed X), is 0.060.
 //
-// FIRST RUN (2026-10-20, after point 5 landed at 20:28; tmp/mtr-collapse-train.log before it, tmp/mtr-collapse-run1.log
+// FIRST RUN (2026-10-20, after point 5 landed at 20:28; test/record/E-MTR-0028/mtr-collapse-train.log before it, test/record/E-MTR-0028/mtr-collapse-run1.log
 // after): PASS. No gate moved.
 //  - T: C_train -0.0020 +- 0.0183, B 18.39, the three clean points fitted to 0.0062, 0.0027 and 0.0035.
 //  - H holds: point 5 is clean (overlap 0.684 against 0.253, ratio 3.989) and reads R_full 1.0785 against its corrected
@@ -137,7 +137,7 @@ const READS: readonly RecordedRead[] = [
     ratio: 3.854637419439117,
     role: 'seen',
   },
-  // E-SPN-0212's read (tmp/spn-light-m0284-a12.json), added after the prediction above was written
+  // E-SPN-0212's read (test/record/E-SPN-0212/spn-light-m0284-a12.json), added after the prediction above was written
   {
     name: 'm0284a12',
     unit: [-7, 2],

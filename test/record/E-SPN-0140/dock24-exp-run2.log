@@ -1,0 +1,99 @@
+fock 3s
+rule run 26s
+census 26s
+D3 26s
+D4 26s
+D5 26s
+D1 29s
+D2 step 62s
+D2 67s
+C1 67s
+C2 68s
+C3 72s
+{
+  "status": "fail",
+  "claim": "D1 true (the flat love sea, sides 4 and 8, 128 beats: side 4 one branch equal to the start with a unit amplitude true, keyed 0 docks off, 32768 blocked dock-beats, K 0; side 8 one branch equal to the start with a unit amplitude true, keyed 0 docks off, 524288 blocked dock-beats, K 0); D2 true (one-beat step: keyed 0 of 12288 off, superposed 0 of 384 off; keyed side-8 footprints 1 1 1 1 over 128 beats; superposed one hole per branch true); D3 false (multiplets 13 + 11; D3a true: mean tensors -0.244264 I to 4.9e-10, 0.288675 I to 5.0e-10, K^6 slopes 5.987/5.989/5.988, 5.987/5.988/5.988; D3b false: branch spread 0.005, 0.464 of the largest, flat branches axis/face/body/generic 6/3/3/0, 5/2/2/0); D4 false (n 4096, kappa 0.02: theta 2pi/3 top 0.7070 0.9654 0.8164 0.9082 c, least 0.7070, spread 1.3655; theta pi/3 top 0.7070 0.9645 0.8164 0.9077 c, least 0.7070, spread 1.3642; theta pi/12 top 0.7070 0.9594 0.8164 0.9046 c, least 0.7070, spread 1.3569; derived 0.7071 0.9659 0.8165 0.9086); D5 true (exact reach 1 2 3 4 5 6, norm exact true, along the husk off 8.9e-16); controls C1 true (frame e13 0.49992 c), C2 true (off line 0, line top 0.500000 0.965926 0.999866), C3 true (a love in the working vacuum 4094 on, 6 off; 4094 on, 7 off of 4096), C4 true",
+  "metrics": {
+    "D1": 1,
+    "D2": 1,
+    "D3": 0,
+    "D3a": 1,
+    "D3b": 0,
+    "D4": 0,
+    "D5": 1,
+    "instrument": 1,
+    "C1": 1,
+    "C2": 1,
+    "C3": 1,
+    "C4": 1,
+    "gapHole": 1.865207723429512e-15,
+    "gapVibe": 1.4946834900704544e-16,
+    "velocityGap": 3.260894110290735e-9,
+    "builderPhase": 0,
+    "builderVelocity": 0,
+    "d4Order": 192,
+    "d4Classes": 7,
+    "d4InRing": 7776,
+    "d4ReachInnerOne": 0,
+    "f4InRing": 216,
+    "f4ReachInnerOne": 0,
+    "derivedGap": 0.006502306946323144,
+    "frameE13": 0.49992228386585685,
+    "lineGap": 1.1102230246251565e-16,
+    "keyedFailures": 0,
+    "superFailures": 0,
+    "seconds": 72.285,
+    "tensor_13_a": -0.24426357503350926,
+    "tensor_13_defect": 4.857123394398091e-10,
+    "branchDefect_13": 0.005431728152086954,
+    "slope_13_face": 5.9867025890565095,
+    "slope_13_body": 5.988547974525549,
+    "slope_13_generic": 5.9876506588612655,
+    "pattern_13_faceBody": 2.2491344346950144,
+    "pattern_13_genericFace": 0.6545785311916574,
+    "tensor_11_a": 0.2886751341550852,
+    "tensor_11_defect": 5.018349961411386e-10,
+    "branchDefect_11": 0.4640763418346699,
+    "slope_11_face": 5.9866393809909715,
+    "slope_11_body": 5.988404451429543,
+    "slope_11_generic": 5.987564213195499,
+    "pattern_11_faceBody": 2.2490088423383567,
+    "pattern_11_genericFace": 0.6545893826808981,
+    "D4_2pi/3_least": 0.7070490065726496,
+    "D4_2pi/3_spread": 1.3654510587657476,
+    "top_2pi/3_axis": 0.7070490065726496,
+    "top_2pi/3_face": 0.9654408146238943,
+    "top_2pi/3_body": 0.8164465428876266,
+    "top_2pi/3_generic": 0.9082376869501033,
+    "D4_pi/3_least": 0.7070490065726495,
+    "D4_pi/3_spread": 1.364179477869994,
+    "top_pi/3_axis": 0.7070490065726495,
+    "top_pi/3_face": 0.9645417446147749,
+    "top_pi/3_body": 0.8164465428876264,
+    "top_pi/3_generic": 0.9076743960600826,
+    "D4_pi/12_least": 0.7070490065726492,
+    "D4_pi/12_spread": 1.3569406228197072,
+    "top_pi/12_axis": 0.7070490065726492,
+    "top_pi/12_face": 0.9594235193427458,
+    "top_pi/12_body": 0.8164465428876266,
+    "top_pi/12_generic": 0.904557209015789,
+    "derived_axis": 0.7071067811865475,
+    "pair_axis": 0.499487864598123,
+    "derived_face": 0.965925826289069,
+    "pair_face": 0.4994899521430802,
+    "derived_body": 0.8164965809277263,
+    "pair_body": 0.49948879556085185,
+    "derived_generic": 0.9085616610439189,
+    "pair_generic": 0.4994892332185254
+  },
+  "control": {
+    "C1": 1,
+    "C2": 1,
+    "C3": 1,
+    "C4": 1,
+    "instrument": 1
+  },
+  "notes": "L1/L2. Census: W(F4) order 1152, 5 orbitals, multiplicities 2,4,8,9,1, exact true, 216 of 7776 unit choices in Z[w][1/2], 0 reach inner +-1, 180 leave the line (by inner {\"0\":180,\"2\":210,\"-2\":210}); W(D4) order 192, 7 orbitals, multiplicities 3,4,2,3,8,3,1, exact true, 7776 of 279936 unit choices in Z[w][1/2], 0 reach inner +-1, 7740 leave the line (by inner {\"0\":7740,\"2\":7770,\"-2\":7770}). Fock: n 0 (1) off 0 asym 0 unsigned off 0, n 1 (24) off 0 asym 0 unsigned off 0, n 2 (276) off 0 asym 0 unsigned off 75900, n 3 (2024) off 0 asym 0 unsigned off 1402632, n 21 (2024) off 0 asym 0 unsigned off 1402632, n 22 (276) off 0 asym 0 unsigned off 75900, n 23 (24) off 0 asym 0 unsigned off 552, n 24 (1) off 0 asym 0 unsigned off 0; full keep 0,24/24, empty 24,0/24. Rule run (branches/walk, unit): 24/24 unit 2, 576/576 unit 1, 3768/3768 unit 0. Matrix gaps 1.87e-15 (hole), 1.49e-16 (vibe); velocity 3.26e-9; builder 0.00e+0, 0.00e+0. D3 patterns at kappa 0.05: face/body 2.24913 (2.25), generic/face 0.65458 (0.65443); face/body 2.24901 (2.25), generic/face 0.65459 (0.65443); branches (offset/kappa^2 at 0.02, axis || face || body || generic): -35.427 -0.289 -0.289 -0.289 -0.289 -0.289 -0.000 -0.000 -0.000 0.000 0.000 0.000 35.283 || -35.428 -0.433 -0.144 -0.144 -0.144 -0.144 -0.144 -0.144 -0.144 -0.000 0.000 0.000 35.283 || -35.427 -0.385 -0.385 -0.192 -0.096 -0.096 -0.096 -0.096 -0.096 -0.000 -0.000 0.000 35.283 || -35.427 -0.434 -0.280 -0.189 -0.186 -0.105 -0.078 -0.076 -0.031 -0.024 -0.023 -0.016 35.283 ### 0.000 0.000 0.000 0.000 0.000 0.144 0.289 0.289 0.289 0.289 0.289 || 0.000 0.000 0.039 0.144 0.144 0.144 0.144 0.144 0.144 0.144 0.539 || 0.000 0.000 0.030 0.096 0.096 0.096 0.096 0.096 0.307 0.385 0.385 || 0.017 0.023 0.024 0.051 0.077 0.078 0.144 0.186 0.189 0.321 0.477. The linear pair at the working point, speed over c: 0.49949 0.49949 0.49949 0.49949. Robustness: theta pi/3: multiplets 12+1+11, tensor defects -0.3368:1.6e-9 0.8660:6.8e-9 0.2887:2.0e-10, least K^6 slope 5.99 5.99 5.98; n 4: multiplets 1+12+11, tensor defects -0.5000:1.9e-9 -1.6689:4.0e-7 1.8660:4.0e-7, least K^6 slope 6.00 5.92 5.92. D4 rms over c: 2pi/3 0.4890 0.4889 0.4889 0.4889; pi/3 0.4890 0.4889 0.4889 0.4889; pi/12 0.4889 0.4888 0.4888 0.4888 (derived 0.4890 0.4890 0.4890 0.4890); derived gap 6.50e-3. D5 sites 24 169 625 1681 3721 7225, husk cone 0.7071 0.7071 0.7071 1.0000 1.0000 1.0000 0.8165 0.9360. D2 keyed hole runs: lines 19 15 10 15 (piece off 1 1 1 1), hops 18 14 9 15 of 128 128 128 128 gated beats, K 0 0 0 0; superposed step branches 9216. C2 line reach 1 2 3 4 5 6 7 8, top n 1 0.50000000 vs 0.50000000, n 4 0.96592583 vs 0.96592583, n 64 0.99986614 vs 0.99986614. C3: gated 15771 16505, K 178018/0 199429/0, the vacuum alone gated 0 0 and 0 0 docks off. 72 s."
+}
+seconds 72.3
+exit=0

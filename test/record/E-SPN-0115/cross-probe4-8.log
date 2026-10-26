@@ -1,0 +1,65 @@
+n 8 reference at K 0.16854 E 0.09427247899270234 |d| 8.3151832998145 tail 3.6191191477451475e-7 ov 0.9992309364292725
+K 0.168540
+   E 0.0942725 res 1.5e-14 ov(ref) 1.0000 ov(prev) 1.0000 |d| 8.3 tail 7.4e-12 contact 0.075 klein 91.7
+   E 0.0953802 res 5.8e-10 ov(ref) 0.0003 ov(prev) 0.0003 |d| 879.8 tail 5.4e-1 contact 0.000 klein 92.0
+   E 0.0954646 res 1.8e-9 ov(ref) 0.0004 ov(prev) 0.0004 |d| 92.1 tail 7.2e-5 contact 0.000 klein 92.0
+   E 0.0915813 res 1.2e-5 ov(ref) 0.0000 ov(prev) 0.0000 |d| 91.0 tail 7.4e-6 contact 0.000 klein 91.0
+   E 0.0913875 res 1.0e-5 ov(ref) 0.0000 ov(prev) 0.0000 |d| 880.2 tail 5.4e-1 contact 0.000 klein 91.0
+   E 0.0993606 res 3.2e-4 ov(ref) 0.0000 ov(prev) 0.0000 |d| 621.0 tail 3.7e-1 contact 0.000 klein 93.0
+K 0.170225
+   E 0.0950682 res 3.0e-14 ov(ref) 1.0000 ov(prev) 1.0000 |d| 8.3 tail 4.8e-12 contact 0.075 klein 91.9
+   E 0.0953569 res 9.3e-10 ov(ref) 0.0002 ov(prev) 0.0000 |d| 880.1 tail 5.4e-1 contact 0.000 klein 92.0
+   E 0.0954646 res 1.5e-9 ov(ref) 0.0003 ov(prev) 0.0001 |d| 92.0 tail 4.5e-6 contact 0.000 klein 92.0
+   E 0.0915812 res 5.1e-6 ov(ref) 0.0017 ov(prev) 0.0015 |d| 91.0 tail 1.6e-5 contact 0.000 klein 91.0
+   E 0.0913655 res 4.5e-6 ov(ref) 0.0002 ov(prev) 0.0000 |d| 880.4 tail 5.4e-1 contact 0.000 klein 90.9
+   E 0.0993253 res 5.4e-4 ov(ref) 0.0004 ov(prev) 0.0005 |d| 405.7 tail 2.1e-1 contact 0.000 klein 93.0
+K 0.171910
+   E 0.0953337 res 6.6e-15 ov(ref) 0.0000 ov(prev) 0.0000 |d| 880.3 tail 5.4e-1 contact 0.000 klein 92.0
+   E 0.0954645 res 2.7e-13 ov(ref) 0.0036 ov(prev) 0.0028 |d| 92.0 tail 7.7e-6 contact 0.000 klein 92.0
+   E 0.0958700 res 7.8e-13 ov(ref) 0.9998 ov(prev) 0.9999 |d| 8.3 tail 1.7e-11 contact 0.075 klein 92.1
+   E 0.0916074 res 4.6e-4 ov(ref) 0.0024 ov(prev) 0.0007 |d| 97.1 tail 4.2e-3 contact 0.000 klein 91.0
+   E 0.0913592 res 3.3e-4 ov(ref) 0.0005 ov(prev) 0.0001 |d| 875.0 tail 5.4e-1 contact 0.000 klein 90.9
+   E 0.0993376 res 2.6e-5 ov(ref) 0.0009 ov(prev) 0.0006 |d| 534.3 tail 3.1e-1 contact 0.000 klein 93.0
+K 0.173595
+   E 0.0954645 res 3.5e-13 ov(ref) 0.0030 ov(prev) 0.0013 |d| 92.0 tail 2.7e-5 contact 0.000 klein 92.0
+   E 0.0953105 res 4.4e-12 ov(ref) 0.0000 ov(prev) 0.0000 |d| 880.5 tail 5.4e-1 contact 0.000 klein 92.0
+   E 0.0966779 res 9.1e-13 ov(ref) 0.9996 ov(prev) 1.0000 |d| 8.3 tail 9.3e-12 contact 0.075 klein 92.3
+   E 0.0992301 res 8.4e-4 ov(ref) 0.0013 ov(prev) 0.0013 |d| 593.1 tail 3.5e-1 contact 0.000 klein 93.0
+   E 0.0993282 res 1.8e-4 ov(ref) 0.0018 ov(prev) 0.0018 |d| 378.3 tail 2.0e-1 contact 0.000 klein 93.0
+   E 0.0913923 res 1.3e-4 ov(ref) 0.0016 ov(prev) 0.0005 |d| 668.1 tail 4.0e-1 contact 0.000 klein 91.0
+K 0.175280
+   E 0.0974919 res 2.5e-13 ov(ref) 0.9993 ov(prev) 0.9999 |d| 8.2 tail 2.7e-12 contact 0.075 klein 92.5
+   E 0.0954645 res 3.7e-9 ov(ref) 0.0026 ov(prev) 0.0012 |d| 92.0 tail 2.4e-5 contact 0.000 klein 92.0
+   E 0.0952874 res 1.2e-8 ov(ref) 0.0003 ov(prev) 0.0000 |d| 880.8 tail 5.5e-1 contact 0.000 klein 92.0
+   E 0.0992823 res 5.8e-6 ov(ref) 0.0000 ov(prev) 0.0000 |d| 880.4 tail 5.4e-1 contact 0.000 klein 93.0
+   E 0.0993478 res 1.2e-5 ov(ref) 0.0038 ov(prev) 0.0029 |d| 93.0 tail 8.8e-6 contact 0.000 klein 93.0
+   E 0.0915826 res 1.3e-3 ov(ref) 0.0011 ov(prev) 0.0004 |d| 499.1 tail 2.8e-1 contact 0.000 klein 91.0
+K 0.176965
+   E 0.0983117 res 1.8e-13 ov(ref) 0.9988 ov(prev) 0.9999 |d| 8.2 tail 1.2e-11 contact 0.075 klein 92.7
+   E 0.0992579 res 4.8e-7 ov(ref) 0.0001 ov(prev) 0.0001 |d| 880.7 tail 5.4e-1 contact 0.000 klein 93.0
+   E 0.0993253 res 5.6e-3 ov(ref) 0.0014 ov(prev) 0.0002 |d| 495.0 tail 3.2e-1 contact 0.000 klein 93.0
+   E 0.0993479 res 4.4e-5 ov(ref) 0.0073 ov(prev) 0.0050 |d| 93.3 tail 4.9e-5 contact 0.000 klein 93.0
+   E 0.0954645 res 4.1e-7 ov(ref) 0.0020 ov(prev) 0.0017 |d| 92.0 tail 7.7e-6 contact 0.000 klein 92.0
+   E 0.0952643 res 4.7e-7 ov(ref) 0.0004 ov(prev) 0.0000 |d| 881.0 tail 5.5e-1 contact 0.000 klein 91.9
+K 0.178650
+   E 0.0991374 res 1.7e-12 ov(ref) 0.9978 ov(prev) 0.9996 |d| 8.3 tail 9.0e-8 contact 0.076 klein 92.9
+   E 0.0992335 res 1.2e-10 ov(ref) 0.0009 ov(prev) 0.0007 |d| 880.9 tail 5.5e-1 contact 0.000 klein 93.0
+   E 0.0993481 res 5.3e-10 ov(ref) 0.0336 ov(prev) 0.0279 |d| 93.0 tail 6.0e-5 contact 0.000 klein 93.0
+   E 0.0954646 res 2.1e-5 ov(ref) 0.0011 ov(prev) 0.0026 |d| 92.0 tail 1.7e-6 contact 0.000 klein 92.0
+   E 0.0952414 res 2.8e-5 ov(ref) 0.0002 ov(prev) 0.0000 |d| 881.4 tail 5.5e-1 contact 0.000 klein 91.9
+   E 0.1032207 res 3.7e-4 ov(ref) 0.0019 ov(prev) 0.0004 |d| 556.0 tail 3.2e-1 contact 0.000 klein 94.0
+K 0.180335
+   E 0.0992092 res 1.9e-14 ov(ref) 0.0003 ov(prev) 0.0005 |d| 881.2 tail 5.5e-1 contact 0.000 klein 93.0
+   E 0.0990376 res 3.9e-3 ov(ref) 0.0006 ov(prev) 0.0029 |d| 681.8 tail 3.9e-1 contact 0.000 klein 92.9
+   E 0.0993478 res 1.3e-14 ov(ref) 0.0085 ov(prev) 0.0387 |d| 93.0 tail 2.4e-5 contact 0.000 klein 93.0
+   E 0.0999695 res 1.4e-10 ov(ref) 0.9977 ov(prev) 0.9991 |d| 8.2 tail 5.8e-11 contact 0.076 klein 93.2
+   E 0.0953696 res 1.7e-4 ov(ref) 0.0003 ov(prev) 0.0070 |d| 405.5 tail 2.2e-1 contact 0.000 klein 92.0
+   E 0.1032292 res 2.1e-5 ov(ref) 0.0035 ov(prev) 0.0070 |d| 152.5 tail 4.1e-2 contact 0.000 klein 94.0
+K 0.182020
+   E 0.0993479 res 9.2e-12 ov(ref) 0.0017 ov(prev) 0.0070 |d| 93.0 tail 1.2e-6 contact 0.000 klein 93.0
+   E 0.0991850 res 3.1e-11 ov(ref) 0.0002 ov(prev) 0.0000 |d| 881.4 tail 5.5e-1 contact 0.000 klein 93.0
+   E 0.1008071 res 1.6e-12 ov(ref) 0.9971 ov(prev) 0.9999 |d| 8.2 tail 1.4e-12 contact 0.076 klein 93.4
+   E 0.1031792 res 1.5e-4 ov(ref) 0.0002 ov(prev) 0.0001 |d| 879.9 tail 5.5e-1 contact 0.000 klein 94.0
+   E 0.1032305 res 7.2e-5 ov(ref) 0.0041 ov(prev) 0.0035 |d| 95.0 tail 6.6e-4 contact 0.000 klein 94.0
+   E 0.0953847 res 2.2e-4 ov(ref) 0.0002 ov(prev) 0.0017 |d| 335.4 tail 1.7e-1 contact 0.000 klein 92.0
+exit=0

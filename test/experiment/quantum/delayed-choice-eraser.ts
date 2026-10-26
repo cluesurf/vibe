@@ -44,10 +44,10 @@
 // mesh configuration runs it on its own); fail if E2 to E5 fail.
 //
 // PROBES before this file, disclosed: tmp/qf-probe1 (the gates on integer+0 and golden; (w U)^n for n = 1, 2, 3; the
-// erasing meeting's marker amplitudes: 01 R -1/2 L -1/2, 10 R (1 + 2w)/2 L -(1 + 2w)/2). tmp/qf-smoke-eraser.log ran
+// erasing meeting's marker amplitudes: 01 R -1/2 L -1/2, 10 R (1 + 2w)/2 L -(1 + 2w)/2). test/record/E-QTM-0159/qf-smoke-eraser.log ran
 // this file as written with its placeholder title; the gates did not move after it.
 //
-// FIRST RUN (1.9 s, tmp/qf-exp-eraser-run1.log): partial as derived, every gate held, title written after the run.
+// FIRST RUN (1.9 s, test/record/E-QTM-0159/qf-exp-eraser-run1.log): partial as derived, every gate held, title written after the run.
 // Visibility^2 on reading R: 9/25 unmarked, 9/100 marked (01 144/1369, 10 0), 9/25 and 9/25 erased with fringe phases
 // pi and 0; on reading L: 1, 1/4 (01 16/25, 10 0), 1 and 1 erased with phases 0 and pi.
 //

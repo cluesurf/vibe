@@ -1,0 +1,73 @@
+meson terms 11s
+vacuum 12s
+reads 30s
+census 30s
+stand-in rate 0 31s
+stand-in rate 3 77s
+stand-in cost off 130s
+status partial
+claim a line mixer gated on a dock's one single dragging string (M = (1 + w)/2 I + (1 - w)/2 G on its frame, move rate 21/64) leaves the vacuum untouched (0 vacuum docks gated, 0 readings off keyedRunner) but cascades: the meson fills at least 4089 of 4096 docks by beat 128 on 16 of 16 terms (0 bounded), a lone love 4095.25; every piece but the stream keeps the single count, and the stream's unpaired vacuum vibes pass the gate; in the stand-in the window at 6 links retains 0.0351 with the string and 0.0646 without it by beat 24
+  S1 0
+  S1a 1
+  S1b 0
+  S2 0
+  S2_decided 0
+  S3 0
+  S4 0
+  control_C0 0
+  boundedTerms 0
+  minFootprint128 4089
+  maxFootprint128 4096
+  cells 4096
+  minHalfBoxBeat 26
+  maxHalfBoxBeat 32
+  meanWake128 39128.1875
+  meanSingles32 7737.5
+  meanMoved 6958.875
+  meanUngated 10.5
+  vacuumSingles 0
+  vacuumGated 0
+  vacuumDiffer 0
+  windowWake4 0
+  windowWake8 0
+  stepperDiffer 0
+  trioAgrees 1
+  unboundAgrees 1
+  loveFootprint128 4095.25
+  loveFootprint128Rate0 6.25
+  loveHalfBoxBeat 26
+  twoHubFootprint128 4093.25
+  trioFootprint128 4094.25
+  rate1Footprint128 4093.75
+  rate1HalfBoxBeat 32
+  stringlessFootprint128 4094
+  side12Footprint128 20732
+  side12Cells 20736
+  toneLinesRate3 4738
+  toneLinesRate0 0
+  meshLines 6144
+  censusMix3 0
+  censusCoin3 0
+  censusMeet3 0
+  censusPair3 0
+  censusBounce3 0
+  censusStream3 942
+  censusStreamNet3 938
+  censusOther0 0
+  censusStream0 22
+  standEnergy0 0.3188654375223246
+  standResidual0 0
+  standTotal 1.7930065655020127
+  standERest 2.41326053991552
+  standTransverse 0
+  heldRetained8 0.4323082355753231
+  heldRetained24 0.035099853171565346
+  freeRetained8 0.3947863855355852
+  freeRetained24 0.06458882077800471
+  heldMeanString 3.9866429776518966
+  heldBent 0.8882952660801187
+  windowClasses 407601
+  seconds 130.422
+control {"stepperDiffer":0,"trioAgrees":1,"unboundAgrees":1,"standEnergy0":0.3188654375223246,"standTotal":1.7930065655020127,"loveFootprint128Rate0":6.25}
+notes L1 (S1) and L2 (stand-in). S1a true (vacuum singles 0, vacuum gated 0, windows side 4: wake 0, gated 0; side 8: wake 0, gated 0, keyedRunner vacuum differ 0); S1b false; S2 false (decided false: retained 0.9999 0.9983 0.9825 0.9224 0.8041 0.6666 0.5346 0.4323 0.3618 0.3080 0.2694 0.2370 0.2086 0.1802 0.1562 0.1373 0.1183 0.1011 0.0853 0.0709 0.0596 0.0493 0.0410 0.0351; cost off 0.9999 0.9982 0.9804 0.9196 0.8096 0.6724 0.5227 0.3948 0.3274 0.2900 0.2574 0.2281 0.2014 0.1790 0.1562 0.1371 0.1221 0.1109 0.1016 0.0937 0.0862 0.0784 0.0710 0.0646; mean string 3.987, bent 0.888, 407601 classes); S3, S4 not reached. C0 false (stepper 0, trio true, unbound true, stand-in E 0.3188654375223246 residual 0.00e+0, total 1.7930065655020127, transverse 0). Census over 24 beats of a lone love: rate 3 {"mix":0,"coin":0,"meet":0,"pair":0,"bounce":0,"stream":942,"streamNet":938}, rate 0 {"mix":0,"coin":0,"meet":0,"pair":0,"bounce":0,"stream":22,"streamNet":2}. Meson terms: p0: wake 21/232/30126/39151/39120, footprint 14/152/4095/4094/4089, K docks 1/10/3177/4096/4096, singles 12/94/10572/16670/16536, growth -0.0008; p1: wake 10/130/28833/39032/39060, footprint 6/87/4095/4094/4095, K docks 1/2/2944/4096/4096, singles 8/68/10204/16536/16458, growth 0.0007; p2: wake 41/109/11667/39052/39053, footprint 32/75/3606/4095/4095, K docks 2/4/704/4096/4096, singles 12/42/4138/16552/16494, growth 0.0000; p3: wake 10/56/19698/38985/39108, footprint 7/40/4026/4096/4095, K docks 0/1/1590/4096/4096, singles 4/30/7030/16542/16612, growth 0.0032; p4: wake 24/130/19823/38829/39223, footprint 14/96/3992/4096/4094, K docks 1/4/1621/4096/4096, singles 10/54/6972/16378/16662, growth 0.0101; p5: wake 6/37/6828/38997/39196, footprint 4/29/2719/4093/4094, K docks 0/1/375/4096/4096, singles 2/18/2614/16658/16604, growth 0.0051; p6: wake 26/225/30365/39121/39076, footprint 18/138/4095/4094/4096, K docks 0/7/3072/4096/4096, singles 16/98/10632/16710/16570, growth -0.0012; p7: wake 19/252/29282/39076/39068, footprint 12/177/4096/4095/4092, K docks 0/9/2941/4096/4096, singles 10/104/10278/16608/16542, growth -0.0002; p8: wake 21/301/31565/39012/39152, footprint 16/197/4096/4096/4094, K docks 0/11/3268/4096/4096, singles 16/134/11278/16480/16474, growth 0.0036; p9: wake 9/87/21280/39012/39110, footprint 7/56/4053/4096/4094, K docks 0/3/1778/4096/4096, singles 8/44/7476/16460/16560, growth 0.0025; p10: wake 32/180/26051/39010/39153, footprint 27/130/4089/4094/4096, K docks 1/6/2373/4096/4096, singles 8/70/9052/16626/16550, growth 0.0037; p11: wake 9/90/9326/38954/39137, footprint 6/64/3242/4094/4092, K docks 0/2/493/4096/4096, singles 4/34/3498/16426/16518, growth 0.0047; p12: wake 29/302/31923/38994/39106, footprint 20/206/4096/4093/4092, K docks 0/11/3275/4096/4096, singles 16/142/11408/16472/16410, growth 0.0029; p13: wake 6/25/5004/38870/39150, footprint 4/18/2206/4095/4095, K docks 0/0/264/4096/4096, singles 2/10/1868/16594/16666, growth 0.0072; p14: wake 17/62/16176/39023/39217, footprint 11/45/3935/4094/4096, K docks 1/1/1174/4096/4096, singles 10/24/5624/16570/16540, growth 0.0050; p15: wake 29/265/31816/39034/39122, footprint 18/174/4096/4093/4093, K docks 0/9/3302/4096/4096, singles 14/116/11156/16494/16484, growth 0.0023. Lone love rate 3: 9/108/4096/4094/4096; 4/61/4083/4090/4094; 6/45/3314/4093/4096; 5/51/3908/4094/4095; rate 0: 7/7/5/6/6; 3/7/7/6/7; 4/6/7/8/6; 6/5/7/7/6. Two-hub: 81/821/4096/4096/4095; 31/222/4095/4096/4092; 91/600/4096/4096/4092; 65/638/4096/4094/4094. Trio: 15/138/4096/4095/4093; 13/85/4076/4093/4094; 63/561/4096/4096/4096; 62/638/4096/4093/4094. Rate 1: 7/45/565/4096/4095; 8/31/2212/4092/4094; 31/49/274/4094/4094; 6/16/224/4095/4092. Stringless: 14/152/4095/4093/4094. Side 12: 14/131/15175/20723/20732 of 20736. Tone lines differing at 128: rate 3 4738, rate 0 0 of 6144. 130 s.
+exit=0

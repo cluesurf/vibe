@@ -62,20 +62,20 @@
 //     220, FF 1180) and its recorded chirality at h = 0.01 (1.9999999999856668), exactly.
 //  Status: pass needs N; partial when every other gate holds and N is false (as derived); fail otherwise.
 //
-// PROBES, disclosed: tmp/fs-probe1.log (a phase on Q_F in one beat: the far walk moves, but the reading mixed member
-//  and far levels). tmp/fs-probe2.log (one-beat Q_F phases on the heavy unit: the member band's gap closes, 0.0005 to
-//  0.037). tmp/fs-probe3.log (a phase on Q_V, the far walk's first-order partner: the walk's range unchanged, +-1.519
-//  and +-0.760; new flats at arg w). tmp/fs-probe4.log (the centered construction: the light far walk shifted rigidly to
-//  psi +- 0.7596, the member band [0.29, 0.65] clear of it; heavy overlaps). tmp/fs-probe5.log (the slab: chirality +-2
+// PROBES, disclosed: test/record/E-SPN-0172/fs-probe1.log (a phase on Q_F in one beat: the far walk moves, but the reading mixed member
+//  and far levels). test/record/E-SPN-0172/fs-probe2.log (one-beat Q_F phases on the heavy unit: the member band's gap closes, 0.0005 to
+//  0.037). test/record/E-SPN-0172/fs-probe3.log (a phase on Q_V, the far walk's first-order partner: the walk's range unchanged, +-1.519
+//  and +-0.760; new flats at arg w). test/record/E-SPN-0172/fs-probe4.log (the centered construction: the light far walk shifted rigidly to
+//  psi +- 0.7596, the member band [0.29, 0.65] clear of it; heavy overlaps). test/record/E-SPN-0172/fs-probe5.log (the slab: chirality +-2
 //  with and without w; the first census used a wrong M, 0.38, the next level up, since the wall pair moved below eps 0).
-//  tmp/fs-probe6.log (the in-gap levels: with w on both sides the pair at -0.088 / -0.027 (L 4), -0.078 / -0.038 (L 8),
+//  test/record/E-SPN-0172/fs-probe6.log (the in-gap levels: with w on both sides the pair at -0.088 / -0.027 (L 4), -0.078 / -0.038 (L 8),
 //  -0.065 / -0.051 (L 12); with w on the Wilson side only -0.089 / +0.036, -0.064 / +0.005, -0.043 / -0.016).
-//  tmp/fs-probe7.log (the census with the right M: without w L 6 3860 (MM 2760, FF 1100), L 8 7680 (MM 5208, FF 2472);
+//  test/record/E-SPN-0172/fs-probe7.log (the census with the right M: without w L 6 3860 (MM 2760, FF 1100), L 8 7680 (MM 5208, FF 2472);
 //  with w L 6 3028 (MM 2892, MF 136, FF 0), L 8 5672 (MM 5484, MF 188, FF 0); the light flow at window 0.2 incomplete).
-//  tmp/fs-probe8.log (the light flow at 32 loop steps, window 0.15, Lanczos 120: without w +1 / -1, 26 of 33 steps
+//  test/record/E-SPN-0172/fs-probe8.log (the light flow at 32 loop steps, window 0.15, Lanczos 120: without w +1 / -1, 26 of 33 steps
 //  complete, eigen residual 0.12; with w +4 / -4, 33 of 33, 8.4e-13).
 //
-// FIRST RUN (tmp/fs-exp-run1.log, 273 s): FAIL on B1, a tolerance set tighter than the construction holds. The far walk's
+// FIRST RUN (test/record/E-SPN-0172/fs-exp-run1.log, 273 s): FAIL on B1, a tolerance set tighter than the construction holds. The far walk's
 //  range with w is psi + [-0.759626, 0.759618] against [-0.759624, 0.759624] without: the shift is rigid to 6.3e-6, not
 //  to the 1e-9 the gate asked (probe 4 printed four places, which hid it). The rest levels are +-M to 2.0e-15. Every
 //  other gate held as derived: W1 unitary 4.2e-15, covariant under all 1,152 to 6.9e-18. B2 the far pair sums stay

@@ -1,0 +1,11 @@
+slots 98304, identity link moves 450
+frame 0 component 1 from dock 0: fewest inconsistent edges over start points 10846
+frame 0 component 2 from dock 8: fewest inconsistent edges over start points 10852
+frame 0: components 2
+frame 1 component 1 from dock 0: fewest inconsistent edges over start points 10860
+frame 1 component 2 from dock 1: fewest inconsistent edges over start points 10820
+frame 1: components 2
+frame 2 component 1 from dock 0: fewest inconsistent edges over start points 10856
+frame 2 component 2 from dock 1: fewest inconsistent edges over start points 10870
+frame 2: components 2
+exit=0

@@ -88,13 +88,13 @@
 // light Coulomb member leaks on the swap-coin rule, E-SPN-0155; the register closes the census, E-SPN-0160, but no
 // Coulomb hold on the register exists yet).
 //
-// PROBES, disclosed: tmp/dar-probe1.log (the light's eigenvalues and X at |k| 1e-3 to 2 in 4 directions, S at sigma 1,
+// PROBES, disclosed: test/record/E-SPN-0169/dar-probe1.log (the light's eigenvalues and X at |k| 1e-3 to 2 in 4 directions, S at sigma 1,
 // 2, 3), before any gate was fixed. It showed lambda / k^2 = 0.666665 at |k| 1e-2, X = 1 - k^2 / 18 + ..., and S 0.855,
 // 0.959, 0.982. The gates' tolerances were set from it.
 //
-// SMOKE (tmp/dar-smoke.log, 13 s): every path on the small plan, all as predicted; nothing changed after it.
+// SMOKE (test/record/E-SPN-0169/dar-smoke.log, 13 s): every path on the small plan, all as predicted; nothing changed after it.
 //
-// FIRST RUN (tmp/dar-exp-run1.log, 64 s): PARTIAL, as predicted, every gate and control held. G1 the coupled cycle is
+// FIRST RUN (test/record/E-SPN-0169/dar-exp-run1.log, 64 s): PARTIAL, as predicted, every gate and control held. G1 the coupled cycle is
 // the shifted free cycle to 2.2e-15; G2 the current the light reads is the group velocity to 7.8e-11; L0 1 gauge mode,
 // transverse lambda / k^2 = 2/3 to 1.9e-6, the pair degenerate to 1.6e-11; L1 |X - 1| 5.7e-8 at |k| 1e-3, X = 1 -
 // 0.055555 k^2 isotropic to 3.9e-6; L2 S 0.95945, 0.98217, 0.99001, 0.99362 at sigma 2 to 5, (S - 1) / <k^2> equal to
@@ -146,7 +146,7 @@ const FIELDS: readonly number[][] = [
 ]
 const CURRENT_STEP = 1e-5
 
-// E-SPN-0155's heavy member and its rule reading at a_c 3 (tmp/coul-exp-run1.log)
+// E-SPN-0155's heavy member and its rule reading at a_c 3 (test/record/E-SPN-0169/coul-exp-run1.log)
 const HEAVY_M = 0.857072
 const HEAVY_E = 1.67655404
 const HEAVY_R_RULE = 1.436549

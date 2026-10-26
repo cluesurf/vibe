@@ -1268,7 +1268,7 @@ export default experiment({
   depth: 'L2',
   paper: false,
   run() {
-    // hours: the stage runner deck/vibe/tmp/hloc.sh splits it (tmp/hloc-main.ts)
-    return verdict({ status: 'open', claim: 'run by tmp/hloc-main.ts stages', metrics: {}, control: {}, notes: '' })
+    // hours: the stage runner deck/vibe/tmp/hloc.sh splits it (test/record/E-FRC-0304/run/hloc-main.ts)
+    return verdict({ status: 'open', claim: 'run by test/record/E-FRC-0304/run/hloc-main.ts stages', metrics: {}, control: {}, notes: '' })
   },
 })

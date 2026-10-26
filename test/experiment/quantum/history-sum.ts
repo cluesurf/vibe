@@ -54,12 +54,12 @@
 // T = 3 shares 1 : -3 and 1 : 1), tmp/qf-probe3 (the walk to T = 512: E[v^2] 0.13445, 0.13411, 0.13400, 0.13398,
 // 0.13398 at T = 32..512 against I = 0.1339746; dephased T E[v^2] 0.347 to 0.334; argmax v 0.4375 to 0.492).
 //
-// FIRST RUN (78 s, tmp/qf-exp-history-run1.log): FAIL on C1 as then registered; every other gate held. H0 and H1 held on
+// FIRST RUN (78 s, test/record/E-QTM-0158/qf-exp-history-run1.log): FAIL on C1 as then registered; every other gate held. H0 and H1 held on
 // 17 of 17 (0 mismatches), H2, H3a to H3d held. C1 found the meeting-free sum mismatching on 15 of 17 starts; on
 // integer+9 and golden it matched, and tmp/qf-probe4 (after the run) found why: on those two starts all 23 meetings in 8
 // beats have equal points (0 unequal), so the meeting is the phase w alone and the control has no power there. The
 // control was amended as stated at C1 (the identity gates H0, H1 were not touched) and the file run again.
-// SECOND RUN (78 s, tmp/qf-exp-history-run2.log): pass, every gate held, title written after the run. C1: the
+// SECOND RUN (78 s, test/record/E-QTM-0158/qf-exp-history-run2.log): pass, every gate held, title written after the run. C1: the
 // meeting-free sum mismatches on 15 of the 15 starts with an unequal-point meeting; the 2 without one (integer+9, golden)
 // are reported. OPEN: the motion is along one line (the line law, E-SPN-0098), so the classical limit shown is 1d.
 //

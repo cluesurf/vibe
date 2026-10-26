@@ -59,13 +59,13 @@
 // stand-in search reaches lies in the closure; the vacuum's box has 0 star crossings at both sides.
 // Verdict: partial if a check or control fails; pass if G1, G2 and G3 hold (no fused mover, by census and theorem);
 // fail otherwise (a mover exists, and the F1 to F3 experiment of angle 2 is then owed).
-// PROBES, disclosed (instrument only): tmp/fuse-probe-hub.log and -hub16.log (one pair and one triple at 6 and 16
+// PROBES, disclosed (instrument only): test/record/E-SPN-0125/fuse-probe-hub.log and -hub16.log (one pair and one triple at 6 and 16
 // beats: 0 translations, fewest classes 2 and 3; the planted table finds fused translations along (1,0,1,0) with
-// period 3 steps), tmp/fuse-probe-census.log (the dock census, 0 fused), tmp/fuse-probe-vac.log (40 starts at side 4,
+// period 3 steps), test/record/E-SPN-0125/fuse-probe-census.log (the dock census, 0 fused), test/record/E-SPN-0125/fuse-probe-vac.log (40 starts at side 4,
 // 32 beats: 0 translations, fewest lines 2; a bare lone love gives 6 to 43 translations, 0 fused). They set the beat
 // horizons for speed only; no gate was set from them.
 //
-// FIRST RUN (tmp/fuse-exp-run1.log, 435 s): PASS, as predicted. The dock census: K fires on 172,032 of 270,336
+// FIRST RUN (test/record/E-SPN-0125/fuse-exp-run1.log, 435 s): PASS, as predicted. The dock census: K fires on 172,032 of 270,336
 // two-single docks (E-SPN-0119's number, a second method) and 507,904 of 901,120 three-single docks, with 0 split
 // lines, 0 changes of the single-line count and 0 fusions. The X-cube channel is real for ONE vibe: with three singles
 // a single lands on the line of the sum of two firing roots on 360,448 docks (and on a line no single held on

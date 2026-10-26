@@ -1,0 +1,22 @@
+E-QTM-0159 status partial
+claim a quantum eraser from the working rule's own gates (read bit for bit on 17 of 17 starts): a love's two arms, one shared with a second love, are marked by the meeting's point exchange, which drops the fringe's visibility^2 from 0.3600 to 0.0900 (reading R); a SECOND meeting of the two, after the love's direction is read, erases the mark: each marker reading then shows the full visibility^2 0.3600 and 0.3600, as a fringe and an anti-fringe that sum to the washed-out pattern, while the love's own probabilities are exactly unchanged by the later choice; the marker gate is a cube root of the identity, (w U)^3 = I
+  startsReadingTheGates 17
+  starts 17
+  gate_G0 1
+  gate_E1 1
+  gate_E2 1
+  gate_E3 1
+  gate_E4 1
+  gate_E5 1
+  V0sq_R 0.36
+  markedVsq_R 0.09
+  erased01Vsq_R 0.36
+  erased10Vsq_R 0.36
+  V0sq_L 1
+  markedVsq_L 0.25
+  erased01Vsq_L 1
+  erased10Vsq_L 1
+  seconds 1.874
+control {"noMarkVsqR":0.36,"noMarkUnchangedBySecondMeeting":1}
+notes L2. Gates G0 true, E1 true, E2 true, E3 true, E4 true, E5 true. Gates read: coin from R: keep (1 + 1w)/2, cross (1 - 1w)/2 | coin from L: keep (1 + 1w)/2, cross (1 - 1w)/2 | two unequal: keep -1/2, exchange (-1 - 2w)/2 | two equal: (-1 - 1w). f R: V0^2 9/25, marked unconditioned V^2 9/100, marked 01 144/1369, marked 10 0; f L: V0^2 1, marked unconditioned V^2 1/4, marked 01 16/25, marked 10 0; erased f R: 01 V^2 9/25 phase 3.141593, 10 V^2 9/25 phase 0.000000, P(01) by phase 1/16 13/64 13/64, P(10) by phase 3/4 21/64 21/64; erased f L: 01 V^2 1 phase 0.000000, 10 V^2 1 phase 3.141593, P(01) by phase 3/16 3/64 3/64, P(10) by phase 0 27/64 27/64. The schedule is arranged (which arm meets B, and when the second meeting comes); every gate is the rule's. 1.9 s.
+exit=0

@@ -1,0 +1,60 @@
+E-CSM-0058 {
+ "status": "pass",
+ "claim": "on the true {3,4,3,4} mesh the husk (the cusp layer of one ideal vertex) is flat by geometry: 833 cells to skin 8, every complete one with 6 layer neighbours, shells 1, 6, 18, 38, 66, 102, 146, 198, 258 (the cubic lattice's), one horosphere to 1.7e-12, inside a bulk whose shells are 1, 24, 456, 8376, 153192; the seed's reach on it is the cubic l1 ball (1, 7, 25, 63, 129 docks by beats 0 to 4, seed distance equal to skin at 129 of 129), and at every beat 1 to 4 every pair of reached docks shares a causal past (21 pairs at T 1, 0 disjoint; 300 pairs at T 2, 0 disjoint; 1953 pairs at T 3, 0 disjoint; 8256 pairs at T 4, 0 disjoint); a start everywhere at once instead leaves 171 of 300 pairs of the 25 docks of skin at most 2 with no shared past at beat 1, exactly those farther apart than 2",
+ "metrics": {
+  "gate_F1": 1,
+  "gate_F2": 1,
+  "gate_H1": 1,
+  "gate_H2": 1,
+  "gate_C1": 1,
+  "layerCells": 833,
+  "layerLevelSpread": 1.7331691637423319e-12,
+  "huskDocksInBall": 129,
+  "seedEqualsSkin": 129,
+  "reachBeat0": 1,
+  "reachBeat1": 7,
+  "reachBeat2": 25,
+  "reachBeat3": 63,
+  "reachBeat4": 129,
+  "disjointPairsBeat1": 0,
+  "disjointPairsBeat2": 0,
+  "disjointPairsBeat3": 0,
+  "disjointPairsBeat4": 0,
+  "sharedFewestBeat4": 1,
+  "sharedFewestFractionBeat4": 0.006237006237006237,
+  "controlPairs": 300,
+  "controlDisjoint": 171,
+  "seconds": 21.405
+ },
+ "notes": "L2. Gates F1 true, F2 true, H1 true, H2 true, C1 true. Ball radius 4: 162049 cells, closes exactly true, frame mismatch 3.9e-13. Per beat (reached docks, pairs, disjoint, fewest shared cells, smallest shared fraction of a's past): T 1: 7, 21, 0, 1, 0.5000; T 2: 25, 300, 0, 1, 0.0800; T 3: 63, 1953, 0, 1, 0.0417; T 4: 129, 8256, 0, 1, 0.0062. At T 4, by separation (fewest shared cells, smallest fraction): 1: 4, 0.0563; 2: 3, 0.0563; 3: 3, 0.0062; 4: 2, 0.0062; 5: 2, 0.0217; 6: 1, 0.0217; 7: 1, 0.1250; 8: 1, 0.0833. At the largest separation, 2T, the shared past is the seed alone: the two docks sit at opposite edges of the seed's reach. The control keeps the same distances and removes only the seed's timing. Not settled here: whether the reached docks agree in temperature (mixing, not causal access), and the husk's expansion history, which is not read. 21 s."
+}
+E-CSM-0059 {
+ "status": "pass",
+ "claim": "on the true {3,4,3,4} mesh the husk the seed reaches grows as the cubic l1 ball, not exponentially: 1, 7, 25, 63, 129, 231, 377, 575, 833 husk docks by beats 0 to 8 (measured in the radius-4 ball to beat 4, then by the cusp layer's cubic shells and E-NVG-0014's certificate), a per-beat growth of 1.946, 1.273, 0.924, 0.717, 0.583, 0.490, 0.422, 0.371 e-folds, above one e-fold per beat only at beats 1 to 2 (3.22 e-folds in all); the bulk seed cone in the same beats holds 1, 25, 481, 8857, 162049 cells, 3.219, 2.957, 2.913, 2.907 e-folds a beat against ln 18.278 = 2.906, so the exponential room is volume, off the husk",
+ "metrics": {
+  "gate_G1": 1,
+  "gate_G2": 1,
+  "gate_C1": 1,
+  "huskReachBeat0": 1,
+  "huskReachBeat1": 7,
+  "huskReachBeat2": 25,
+  "huskReachBeat3": 63,
+  "huskReachBeat4": 129,
+  "huskReachBeat5": 231,
+  "huskReachBeat6": 377,
+  "huskReachBeat7": 575,
+  "huskReachBeat8": 833,
+  "bulkConeBeat0": 1,
+  "bulkConeBeat1": 25,
+  "bulkConeBeat2": 481,
+  "bulkConeBeat3": 8857,
+  "bulkConeBeat4": 162049,
+  "huskRateBeat8": 0.37066360136949217,
+  "bulkRateBeat4": 2.9066906518061737,
+  "eFoldBeats": 2,
+  "eFolds": 3.2188758248682006,
+  "seconds": 15.502
+ },
+ "notes": "L2. Gates G1 true, G2 true, C1 true. The husk's rate falls as about 3 / t (a cubic), the bulk's holds at ln 18.28: after 4 beats the husk holds 129 docks and the cone 162049 cells, a ratio of 1256. What the model has in inflation's place: its start (one seed) and its geometry (a horosphere) do the horizon and flatness jobs (E-CSM-0058). The scale-invariant ripple spectrum is not read here. The continuum horospherical metric ds^2 = dz^2 + e^(2z) dx^2 has an exponential scale factor along the depth z, the flat slicing of de Sitter, but the cell graph realizes no shortcut along a cusp (E-NVG-0014), and depth is not the rule's time. 16 s."
+}
+exit=0

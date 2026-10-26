@@ -1,0 +1,30 @@
+{
+ "status": "open",
+ "claim": "I1 true, I2 true, I3 true; axis (2488 reps): heaviest line weight 0.8235 at K 0 and 0.2707 at K 0.32, shift 2.1090e-3 against a single band's 1.8369e-3 (one band false, branches true); twelve line branches through the same solve give 2.220e-16:0.5000 3.751e-3:0.5000; body (3136 reps): heaviest line weight 0.8235 at K 0 and 0.5685 at K 0.32, shift 1.7204e-3 against a single band's 1.8495e-3 (one band false, branches false); twelve line branches through the same solve give 6.661e-16:0.2500 1.250e-3:0.5000 5.002e-3:0.2500",
+ "metrics": {
+  "I1": 1,
+  "I2": 1,
+  "I3": 1,
+  "EL": 1.6133573497835847,
+  "aK2": 0.0018757429688444445,
+  "axisW0": 0.8235203008073189,
+  "axisW1": 0.2706930298310443,
+  "axisShift": 0.0021089587266740484,
+  "axisWant": 0.0018369456568444445,
+  "axisOneBand": 0,
+  "axisBranches": 1,
+  "bodyW0": 0.823520348619547,
+  "bodyW1": 0.5684713160874785,
+  "bodyShift": 0.0017204024858350486,
+  "bodyWant": 0.0018495285688444444,
+  "bodyOneBand": 0,
+  "bodyBranches": 0,
+  "seconds": 5525.811
+ },
+ "control": {
+  "I3": 1
+ },
+ "notes": "L2. Lines (shift from E_L : weight, weight >= 1e-3): axis K 0 [-3.097e-3:0.1139 1.057e-4:0.8235 4.144e-3:0.0599 8.437e-3:0.0023], K 0.32 [-3.138e-3:0.0085 -2.320e-3:0.1364 -2.652e-4:0.0105 7.656e-4:0.2670 2.215e-3:0.2707 3.186e-3:0.1430 5.546e-3:0.1144 6.701e-3:0.0020 8.988e-3:0.0044]; body K 0 [-3.097e-3:0.1139 1.057e-4:0.8235 4.144e-3:0.0599 8.437e-3:0.0023], K 0.32 [-3.143e-3:0.0011 -1.536e-3:0.1114 -9.690e-4:0.0044 1.826e-3:0.5685 2.029e-3:0.1984 3.929e-3:0.0012 5.374e-3:0.0945]. 5526 s."
+}
+done 264s
+exit=0

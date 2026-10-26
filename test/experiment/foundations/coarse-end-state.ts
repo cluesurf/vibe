@@ -41,7 +41,7 @@
 // 2.2e-3, and read against (B - 1) / (2E) with F = 1 it came out 0.75 to 0.87, which suggested the Fano factor below 1
 // (the knit's slots exclude, E-FND-0148). E3's form was derived after that probe; its band was set before this run.
 //
-// FIRST RUN (tmp/hc-exp34-run1.log, 133 s): pass, every gate, recorded as is. Late deficit over its start 0.00047 to
+// FIRST RUN (test/record/E-FND-0156/hc-exp34-run1.log, 133 s): pass, every gate, recorded as is. Late deficit over its start 0.00047 to
 // 0.00201, over the predicted floor 1.016 to 1.143 (side 8 the widest, the fewest blocks), Fano 0.613 to 0.790, a tenth
 // of the start by beat 3 to 4 at every size. Title written after the run.
 //

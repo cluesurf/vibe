@@ -1,0 +1,47 @@
+{
+ "status": "fail",
+ "claim": "stage 1 (a_B 3.5, R 16, E_L 1.613357350): I4 true (far bases spread 2.22e-16), W1 true (axis R 8.459326019 against 8.459326179870311), I1 true, I2 true (ratios 3.9990 to 3.9993); a over the 13 husk directions and one generic 0.0183178024 to 0.0183178442, spread 2.28e-6 (G1 true); at kappa 0.16 off every line (4 body diagonals, generic) shifts 4.01e-4 4.01e-4 4.01e-4 4.01e-4 4.03e-4, residuals 9.84e-4 9.84e-4 9.84e-4 9.84e-4 9.96e-4 against a kappa^2 4.69e-4 for twelve line branches (G2 false, stuck true); K^4 coefficient -0.0037 to -0.0025, spread 0.4054; stage 2 (a_B 6) W2 true (axis R 2.7194742443), I3 true, a 0.056032051 0.056063739 0.056117146 (axis, body, face, as landed), spread 1.52e-3 (G1' true); control lineon: massless group speed 0.35355, 0.41667, 0.40825 (axis, face, body), spread 0.1580 over the 13 and 0.1989 over the grid (0.3536 to 0.4410), massive drift spread 1.92e-16 but branch speed spread 0.1392, body-aligned weight 0, axis weight still 0.5000, branch residual over a kappa^2 0.9979 to 1.0000 (C1 true, C2 true, C3 true)",
+ "metrics": {
+  "W1": 1,
+  "I4": 1,
+  "farBaseSpread": 2.220446049250313e-16,
+  "I1": 1,
+  "I2": 1,
+  "G1": 1,
+  "G2": 0,
+  "stuck": 1,
+  "W2": 1,
+  "I3": 1,
+  "G1b": 1,
+  "stageTwoRun": 1,
+  "stageTwoDirections": 3,
+  "EL": 1.6133573497835847,
+  "levelResidual": 0.0015231080722836088,
+  "R1": 8.459326019221828,
+  "aMin": 0.018317802429381375,
+  "aMax": 0.018317844228445585,
+  "isotropy": 0.000002281880519222144,
+  "lineonResidual": 0.00046893605285582734,
+  "offLineResidualMax": 0.000995634065791193,
+  "offLineShiftMin": 0.00040129792390919405,
+  "axisFarResidual": 0.0010348763812736666,
+  "quarticMin": -0.003656931123659686,
+  "quarticMax": -0.0024898431696026195,
+  "quarticSpread": 0.40539497704869853,
+  "R2": 2.7194742442590423,
+  "isotropyTwo": 0.0015176264432049762,
+  "seconds": 25277.384000000002
+ },
+ "control": {
+  "C1": 1,
+  "C2": 1,
+  "C3": 1,
+  "masslessSpread": 0.1579760018405172,
+  "masslessGridSpread": 0.1989335145700953,
+  "branchSpread": 0.13922631949443545,
+  "driftSpread": 1.9229626895885013e-16,
+  "bodyAligned": 0
+ },
+ "notes": "L2. Stage 1: 489 O_h representatives, level residual 1.52e-3; per direction (little group, representatives, a, ratio, b, residual): 1.000,0.000,0.000 8 2488 0.0183178442 3.9990 -0.0037 1.51e-3; 0.000,1.000,0.000 8 2488 0.0183178442 3.9990 -0.0037 1.51e-3; 0.000,0.000,1.000 8 2488 0.0183178442 3.9990 -0.0037 1.51e-3; 0.707,0.707,0.000 4 4616 0.0183178085 3.9993 -0.0028 1.51e-3; 0.707,-0.707,0.000 4 4616 0.0183178085 3.9993 -0.0028 1.51e-3; 0.707,0.000,0.707 4 4616 0.0183178085 3.9993 -0.0028 1.51e-3; 0.707,0.000,-0.707 4 4616 0.0183178085 3.9993 -0.0028 1.51e-3; 0.000,0.707,0.707 4 4616 0.0183178085 3.9993 -0.0028 1.51e-3; 0.000,0.707,-0.707 4 4616 0.0183178085 3.9993 -0.0028 1.51e-3; 0.577,0.577,0.577 6 3136 0.0183178024 3.9993 -0.0025 1.51e-3; 0.577,0.577,-0.577 6 3136 0.0183178024 3.9993 -0.0025 1.51e-3; 0.577,-0.577,0.577 6 3136 0.0183178024 3.9993 -0.0025 1.51e-3; 0.577,-0.577,-0.577 6 3136 0.0183178024 3.9993 -0.0025 1.51e-3; 0.291,0.521,0.802 1 17077 0.0183178105 3.9993 -0.0028 1.51e-3. Far reads at kappa 0.16, filter 2048: 1.000,0.000,0.000 shift 4.06e-4 residual 1.03e-3; 0.577,0.577,0.577 shift 4.01e-4 residual 9.84e-4; 0.577,0.577,-0.577 shift 4.01e-4 residual 9.84e-4; 0.577,-0.577,0.577 shift 4.01e-4 residual 9.84e-4; 0.577,-0.577,-0.577 shift 4.01e-4 residual 9.84e-4; 0.291,0.521,0.802 shift 4.03e-4 residual 9.96e-4. Stage 2 K^4: -0.2554 -0.3193 -0.3640. Control branch speeds over the 13 (per unit kappa): 0.18420 0.18420 0.18420 0.21238 0.21238 0.21238 0.21238 0.21238 0.21238 0.20118 0.20118 0.20118 0.20118. 25277 s."
+}
+exit=0

@@ -1,0 +1,6 @@
+# Git LFS: experiment records over about 10 MB (a file, or a folder of saved configurations). One line per path.
+test/record/E-RLT-0118/rlt118.json filter=lfs diff=lfs merge=lfs -text
+test/record/E-FRC-0297/color-ens-bulk20/** filter=lfs diff=lfs merge=lfs -text
+test/record/E-FRC-0297/color-ens-bulk8/** filter=lfs diff=lfs merge=lfs -text
+test/record/E-FRC-0297/color-ens-slab8x8/** filter=lfs diff=lfs merge=lfs -text
+test/record/E-FRC-0297/color-ens-slab8x12/** filter=lfs diff=lfs merge=lfs -text

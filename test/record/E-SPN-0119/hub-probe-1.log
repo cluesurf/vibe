@@ -1,0 +1,20 @@
+side 4 cells 256 lines 768 star crossings 0 stores at X 1 -1 0 0 0 0 0 0 0 0 1 -1
+  trio {"offStar":0,"onStar":817,"firstOff":-1,"onStarLast":24,"onStarPeak":32,"vacuumSingles":0,"stepperDiffer":0,"reach":2,"offHub":0,"recruited":0,"vacuumEvents":0,"linesTouched":8,"centroidSpread":0.3049570458113374} events 3 first [{"beat":2,"dock":170,"singles":3,"recruited":0},{"beat":8,"dock":170,"singles":2,"recruited":0},{"beat":14,"dock":170,"singles":2,"recruited":0}]
+  two-hub {"offStar":799,"onStar":720,"firstOff":1,"onStarLast":25,"onStarPeak":32,"vacuumSingles":0,"stepperDiffer":0,"reach":2,"offHub":7,"recruited":20,"vacuumEvents":0,"linesTouched":5,"centroidSpread":0.5513160183402996} events 9 docks 2
+  0.913s
+/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/code/measure/dense-hub.ts:219
+  if (side % 4 !== 0) throw new Error('the oriented union has period 4 D4: the side must be divisible by 4')
+                            ^
+
+Error: the oriented union has period 4 D4: the side must be divisible by 4
+    at orientedUnionStore (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/code/measure/dense-hub.ts:219:29)
+    at storeOfKind (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/code/measure/dense-hub.ts:302:33)
+    at lockedFresh (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/code/measure/doublet-locked-readings.ts:46:70)
+    at contactFresh (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/code/measure/occupation-veto-readings.ts:31:13)
+    at <anonymous> (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/open-pieces/tmp/hub-probe.ts:22:13)
+    at ModuleJob.run (node:internal/modules/esm/module_job:430:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:661:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.13.1
+exit=1

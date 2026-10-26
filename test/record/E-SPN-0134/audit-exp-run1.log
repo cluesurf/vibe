@@ -1,0 +1,72 @@
+L1 5s
+L2 5s
+L3 79s
+L4 83s
+S1 to S3, S5, S7, S8 97s
+S5, S6 98s
+S4 127s
+S9 128s
+status fail
+claim A1 true (17 results checked: 10 changed, 6 unchanged, 1 not applicable; changed: E-SPN-0132 A3, superposed runs; E-SPN-0103; E-SPN-0104 Kab; E-SPN-0130 SW; E-RLT-0097 to 0101 (point, pairing), E-FRC-0248, 0249, E-GRV-0068, 0069, 0072, 0073; knit cone; E-GRV-0107, 0110, 0119, 0121, 0127; E-SPN-0098 on the candidate rule; E-SPN-0115; E-GRV-0081, 0082, 0085, 0086, E-FRC-0243); A2 false (cone ratio 0.5000, alpha ratio 1.0000); A3 true (both seas stationary true, C off 0); a hole's depth is the negative of a love's (shell 0 -0.0015 against 0.0015)
+  A1 1
+  A2 0
+  A3 1
+  instrument 1
+  items 17
+  itemsChanged 10
+  itemsUnchanged 6
+  itemsNotApplicable 1
+  blindOccupationOff 0
+  lawBrokenWorking 0
+  lawBrokenFlat 0
+  meetEqualWorking 37994
+  meetUnequalWorking 453324
+  meetEqualFlat 389747
+  meetUnequalFlat 101571
+  kWorking 0
+  kFlat 0
+  vetoApart 1761568
+  vetoedWorking 84567
+  vetoedFlat 15036
+  vetoOffApart 0
+  ringWorkingLeast 0.30172729912103696
+  ringFlatLeast 0.9996200472907231
+  ringFabLeast 0.9996200472907231
+  kabWorkingLeast 0.21022415182201148
+  kabFlatLeast 0.9996200472907231
+  ringSame 1
+  swWorking 0.03125
+  swFlat 1
+  seasStationary 1
+  conjugationOff 0
+  particleHoleOff 0
+  seaCharge 98304
+  workingCharge 0
+  seaFieldMax 0
+  alphaRatio 1
+  uHoles -0.0002940041043368452
+  uLoves -0.0002940041043368452
+  uLoveFear 0.0002940041043353603
+  pairR 4
+  cRatio 0.5
+  frontWorking8 8
+  frontHole8 4
+  frontLove8 4
+  coneKept 0
+  gaussOff 0
+  seaLineMax 0
+  linesOpposite 0
+  depthOpposite 0
+  holeDepth0 -0.0014837189754721514
+  loveDepth0 0.0014837189754721514
+  snapHoleDepth0 -0.049090167008705
+  snapLoveDepth0 0.049090167008705
+  lawBrokenMixer 2
+  lawBrokenNoMixer 0
+  fearsAfterBeat1 0
+  seaStoreChanges 0
+  workingStoreChanges 625152
+  seconds 128.163
+control {"vetoOffApart":0,"lawBrokenNoMixer":0,"blindOccupationOff":0}
+notes L1. The audit list: E-SPN-0098 L1 (the line law without a mixer): unchanged; lines broken working 0, flat 0, occupation off 0 over 4 paths x 48 beats | E-SPN-0119, 0120, 0128 (K and the star on the working beat): unchanged; K 0/0, 0/0, 0/0, 0/0 (working/flat), occupation off 0 | E-SPN-0132 A3, superposed runs (the like meetings' equal-point share (read only by amplitudes)): changed; equal 37994 of 491318 working, 389747 of 491318 flat | E-SPN-0103 (the ring form with both pieces holds the level): changed; least fidelity over 16 beats working 0.3017, flat 0.9996 (gate 0.9) | E-SPN-0104 Kab (the keep meeting at E-SPN-0103's placement): changed; least fidelity working 0.2102, flat 0.9996; flat equals Fab true | E-GRV-0119, 0121, 0127 (the held cluster's source (E-SPN-0104's parallel placement, which is the flat run)): unchanged; Fab least fidelity 0.9996, energy 0.3300 | E-SPN-0130 SW (a sea of the beat lets the mixer turn a hole): changed; gated share working 0.0313, flat 1.0000 (gate 0.5); lines 1/18, 1/20 | E-RLT-0097 to 0101 (point, pairing), E-FRC-0248, 0249, E-GRV-0068, 0069, 0072, 0073 (the point-veto knit's occupation): changed; trits apart 1761568 over 48 beats, vetoed 84567 working against 15036 flat, unmade 18607 against 62128; veto off 0 apart | E-SPN-0071 to 0073, 0106 to 0116 (stand-ins on one line): not applicable; one line carries no contractible loop (E-SPN-0132, derivation 4); E-SPN-0115 reads no mesh link | E-FRC-0203 to 0257 (the light, its c and alpha): unchanged; no knit configuration on its path (links not applicable); on the love sea alpha ratio 1.0000, interaction energies -2.94e-4 (two holes), -2.94e-4 (two loves), 2.94e-4 (love and fear) at husk r 4; the sea's own field 0.00e+0 | knit cone (the front moves at one dock a beat): changed; front envelopes over 8 paths: working vacuum 2 4 6 8 8 8 8 8, sea hole 2 2 2 2 4 2 4 4, empty love 2 2 2 2 4 2 4 4; ratio 0.5000 | E-GRV-0106 (Gauss's law for the rule's energy with dragged lines): unchanged; Gauss off 0; the sea's lines 0; hole lines up to 2, love 2 | E-GRV-0107, 0110, 0119, 0121, 0127 (depth sourced by energy): changed; sea field 0.00e+0; snapshot hole + love depth 0.00e+0; shells r 0..4 hole -0.0015 -0.0009 -0.0005 -0.0003 -0.0001, love 0.0015 0.0009 0.0005 0.0003 0.0001 | E-SPN-0098 on the candidate rule (the line law with the mixer): changed; lines broken with the mixer 2, 2, 2, 2, without 0, 0, 0, 0 | E-SPN-0115 (the love-fear meson and its Klein channel): changed; fears after beat 1 of a fear in the love sea 0, 0, 0, 0 | E-GRV-0081, 0082, 0085, 0086, E-FRC-0243 (the vacuum's stores and response): changed; store trits changed over 64 beats: love sea 0, working vacuum 625152; K 0 and 0 | charge conjugation (love sea and fear sea both vacua, C between them): unchanged; seas off 0/0/0/0, 0/0/0/0, moves 0, 0, K 0, 0; C off 0/0, 0/0, 0/0, 0/0; net charge 98304 (working vacuum 0). Particle-hole (hole in the sea against a love on the empty mesh, the same key): 0, 0, 0, 0 readings off; hole lines against the love's negated 0 links off. Snapshot depth shells hole -0.0491 -0.0071 -0.0025 -0.0010 -0.0004, love 0.0491 0.0071 0.0025 0.0010 0.0004. Seas blocked frames per path: 786432/786432/786432/786432, 786432/786432/786432/786432. 128 s.
+exit=0

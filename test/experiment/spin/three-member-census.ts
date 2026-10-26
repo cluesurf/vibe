@@ -23,7 +23,7 @@
 //    0). The quark row of charge 2/3 has no three-member state on this rule; two members carry it (read below).
 // 3. The prediction against the spec's gates: not killed, and PARTIAL, since PASS also asks for |Q| = 2/3 multiplets.
 //
-// PROBE BEFORE THE GATES, DISCLOSED. tmp/census-probe.log (under 10 s, the code module alone, before this file was written):
+// PROBE BEFORE THE GATES, DISCLOSED. test/record/E-SPN-0192/census-probe.log (under 10 s, the code module alone, before this file was written):
 //  every table as derived in 1, the twisted rotation integer spin only, the unprojected table 4096 states. The gates
 //  below were written after it and were not tuned to it: they are the spec's B1 gates and the brief's control.
 //
@@ -50,7 +50,7 @@
 // slot structure of a level beyond the register: the member's level is the register's 8-fold copy (E-SPN-0160), which
 // is what the spin acts on here.
 //
-// FIRST RUN 2026-10-08 (tmp/census.log, 3.2 s): PARTIAL, as derived. No gate moved, none rerun.
+// FIRST RUN 2026-10-08 (test/record/E-SPN-0192/census.log, 3.2 s): PARTIAL, as derived. No gate moved, none rerun.
 //  - The electron route lives: |Q| = 1, J = 1/2 in 10 doublets per tone (2, 8, 8, 2 at n+ = 3, 2, 1, 0), J = 3/2 in 2
 //    and 2 at n+ = 2, 1; 56 states per tone. Under Gauss (n+ even): 8 doublets at n+ = 2 and 2 at n+ = 0.
 //  - |Q| = 1/3: 448 states (J = 1/2 and 3/2 at every n+). |Q| = 2/3: 0 three-member states, the gap; two members carry

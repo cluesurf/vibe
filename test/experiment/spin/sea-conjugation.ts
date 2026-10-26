@@ -50,7 +50,7 @@
 //    full background with the empty one, and so could not see this.
 //    NOT A WITNESS: the between-halves comparison Y = A_S(-) - A_D(+). The + half's flavor label is fixed only by the
 //    vertex (E-FRC-0259: with no vertex, W = P+ (x) V + P- (x) 1 relabels it away), so at v = 1 the + member still shows
-//    a T-odd asymmetry in the - half's labels (-3.1e-4 at t = 1, tmp/csea-probe4.log), a labeling artifact. Y is read and
+//    a T-odd asymmetry in the - half's labels (-3.1e-4 at t = 1, test/record/E-SPN-0164/csea-probe4.log), a labeling artifact. Y is read and
 //    gates nothing.
 // 5. CPT FIXES THE D BRANCH'S MEETING PHASE (L1). The rest toy cannot say how the register exchange acts on two D-branch
 //    members (their register content is spread over the slots). CPT (C_b P_rot T, E-FRC-0258) requires Q_S(a -> b) =
@@ -98,25 +98,25 @@
 // instrument or a control fails; pass if all hold with a nonzero net transfer.
 //
 // PROBES BEFORE THE GATE RUN, disclosed (no gate moved after them).
-//  tmp/csea-probe1.log: on the 6-mode toy, A_T of two holes below the full background equals two particles' exactly
+//  test/record/E-SPN-0164/csea-probe1.log: on the 6-mode toy, A_T of two holes below the full background equals two particles' exactly
 //   (-2.8080e-4 ... -2.2396e-2), A_T is even in v, A_T(conj V, conj D, v) equals the holes', A_T(conj V, D, v) is the
 //   exact negative; Xi U Xi^dag proportional to the step of (conj V, conj D, v); Householder, V = 1, v = 1 give 0; the
 //   particle - hole difference 0 under 9 rephasings.
-//  tmp/csea-probe2.log: individual rates Q(a -> b), 18 transitions: particle = hole for 6 (palindrome) and exactly the
+//  test/record/E-SPN-0164/csea-probe2.log: individual rates Q(a -> b), 18 transitions: particle = hole for 6 (palindrome) and exactly the
 //   6 that are even in v; the largest particle - hole gap 1.1e-5. This is what showed Xi compares two backgrounds (rates
 //   under v against conj v), not a particle with its antiparticle.
-//  tmp/csea-probe3.log: the D branch as restToy(A+^dag, A-^dag): A_D = -A_S exactly on holes and on particles, with the
+//  test/record/E-SPN-0164/csea-probe3.log: the D branch as restToy(A+^dag, A-^dag): A_D = -A_S exactly on holes and on particles, with the
 //   D vertex v or conj v alike; A_S(+) = -9.5416e-7 at t = 1 against A_S(-) = -2.8080e-4; with the D vertex v, CPT
 //   rate by rate fails on all 18 (which led to point 5, derived after this probe and before the gate run); Householder,
 //   V = 1 and v = 1 give 0.
-//  tmp/csea-smoke.log: every code path on 3 beats. Two gates failed as first written, and both were corrected before
-//   the gate run. G3 had required Y = 0 at v = 1, and Y read -2.8e-4 there. tmp/csea-probe4.log traced it to the +
+//  test/record/E-SPN-0164/csea-smoke.log: every code path on 3 beats. Two gates failed as first written, and both were corrected before
+//   the gate run. G3 had required Y = 0 at v = 1, and Y read -2.8e-4 there. test/record/E-SPN-0164/csea-probe4.log traced it to the +
 //   member (-3.145e-4, -2.499e-3, -8.344e-3 at v = 1, the - member exactly 0), the labeling artifact of point 4, so Y
 //   left the gates and G was rewritten around A_CP and X, both on the - member. I1 computed lambda as a conj(b), which is
 //   lambda |b|^2, so its unit test failed; it now divides by b. Every other gate held as predicted (A1, A3, K, P, I2, C1
 //   to C3; A2 false as predicted).
 //
-// FIRST RUN (tmp/csea-exp-run1.log, 147 s, 12 beats): PARTIAL, as predicted. A1, A3, G, K and P hold, the instrument and
+// FIRST RUN (test/record/E-SPN-0164/csea-exp-run1.log, 147 s, 12 beats): PARTIAL, as predicted. A1, A3, G, K and P hold, the instrument and
 //  all three controls hold, A2 is false (route A impossible, as derived), and the pair table's net transfer is 0 at every
 //  beat. No gate moved and none was rerun.
 //  - A: C_v commutes with the two-tone rule on all 36 (1 love, 1 fear) states; love-sea and fear-sea hole rates equal on

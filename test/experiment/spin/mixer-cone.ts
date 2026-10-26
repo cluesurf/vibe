@@ -53,7 +53,7 @@
 // PREDICTED: fail on F2 alone, by the cone (the e13 speed at most c/2 at every theta and mass); F1 holds; the 0.5 is the
 // weight at the front, and the amplitude's box-step front equals the working lineon's.
 //
-// FIRST RUN (tmp/normal-spn-run1.log, 45 s): FAIL on F2 alone, as derived; F1, the instrument and both controls hold.
+// FIRST RUN (test/record/E-SPN-0136/normal-spn-run1.log, 45 s): FAIL on F2 alone, as derived; F1, the instrument and both controls hold.
 //  - Instrument: the float dock matrices equal the rule's to 1.6e-16; the exact walk equals the rule's superposed run on
 //    the side-4 torus at every branch for 3 beats (8, 64, 232 branches; the hole up to one Eisenstein unit per beat, the
 //    sea's phase), Hellmann-Feynman against a central difference 1.1e-10.

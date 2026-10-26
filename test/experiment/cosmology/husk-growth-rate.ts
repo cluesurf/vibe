@@ -32,7 +32,7 @@
 //
 // DISCLOSED: probe tmp/hc-probe1 read the reach counts 1, 7, 25, 63, 129 before this file.
 //
-// FIRST RUN (tmp/hc-exp12-run1.log, 16 s): pass, every gate, recorded as is. Husk rate at beat 8 0.371 e-folds, bulk
+// FIRST RUN (test/record/E-CSM-0059/hc-exp12-run1.log, 16 s): pass, every gate, recorded as is. Husk rate at beat 8 0.371 e-folds, bulk
 // rate at beat 4 2.907 against 2.906. Title written after the run.
 //
 // Depth L2. DETERMINISM: the mesh is exact and nothing is drawn. NOTHING MOVES: a slot takes its neighbor's value.

@@ -85,14 +85,14 @@
 // PREDICTED: H0 and H2 hold; H1 FAILS or sits at the edge (E-SPN-0173's main level failed it at 1.5e-3); H3 and H4 FAIL
 //  (R of order 8 at a_B 3.5); H5 holds; H6 FAILS (the split moves R by a fraction). VERDICT PREDICTED: FAIL.
 //
-// PROBES BEFORE THE GATE RUN, disclosed. tmp/rcs-probe1.log (a_B 3.5, ball 8, filters 64 and 256, K filter 128): P_SS U
+// PROBES BEFORE THE GATE RUN, disclosed. test/record/E-SPN-0176/rcs-probe1.log (a_B 3.5, ball 8, filters 64 and 256, K filter 128): P_SS U
 //  against V K P_SS 1.1e-15; the split with the light off equals the free cycle bit for bit; |V_h^2 x - V x| / max|x|
 //  8.9e-2 on the hydrogenic start and 9.8e-2 on a generic one; 0.44, 0.65 and 0.96 s a cycle unsplit, factored and split
 //  (under load); R static 26.69 unsplit, 26.16 factored (the same spectrum, a different filtered mixture), 27.00 split,
-//  against the formula 1.26 (the ball truncated). tmp/rcs-probe2.log: the D content's centroid 6.9e-18; the one- and
+//  against the formula 1.26 (the ball truncated). test/record/E-SPN-0176/rcs-probe2.log: the D content's centroid 6.9e-18; the one- and
 //  two-stencil means of G equal G to 8e-15 beyond one link, 0.79 off at contact and 0.28 at one link (two stencils).
-//  tmp/rcs-probe3.log (the true docks, ball 8, as probe 1): the S D count at contact 414 -> 87, 18 more D D sites
-//  re-counted; R static 31.42 against 1.25. tmp/rcs-smoke.log (every code path on a radius-6 ball, filters 16 and 32,
+//  test/record/E-SPN-0176/rcs-probe3.log (the true docks, ball 8, as probe 1): the S D count at contact 414 -> 87, 18 more D D sites
+//  re-counted; R static 31.42 against 1.25. test/record/E-SPN-0176/rcs-smoke.log (every code path on a radius-6 ball, filters 16 and 32,
 //  gating nothing): split against unsplit R 8.01 / 9.63 (a_B 3.5), 2.88 / 3.22 (3), 2.01 / 2.08 (5), the pieces'
 //  commutator on the levels 0.009 to 0.044, the true docks 9.26. It found two defects in the gates as first written,
 //  fixed before the gate run: I3 read the split norm on a radius-8 ball, where one split cycle (up to eight links) reaches
@@ -100,11 +100,11 @@
 //  norms to 6e-9) as E-SPN-0173's probe did, which is why the gate witnesses at 7 / 6. These probes set the prediction.
 //  A FIRST GATE START WAS STOPPED on its cost, not its numbers: planned on balls 14, 12 and 18 with filters to 2048 and K
 //  filter 256, it ran at 7.2 s a split cycle on the radius-12 ball (the machine shared with four other gate processes),
-//  about 13 hours for its longest point. Its witness part finished (tmp/rcs-part-parts.json, kept: the witness, the
+//  about 13 hours for its longest point. Its witness part finished (test/record/E-SPN-0176/rcs-part-parts.json, kept: the witness, the
 //  instrument and C1, C2 do not depend on the points) and one point had read one filter (a_B 3, split, filter 128: E
 //  1.5730, residual 3.5e-2). Nothing else was seen. The plan above is the one restarted, with smaller balls and filters.
 //
-// FIRST RUN (tmp/rcs-exp-run1.log, the points in five parallel processes, the longest 15,908 s): FAIL on H1, H3, H4, H5
+// FIRST RUN (test/record/E-SPN-0176/rcs-exp-run1.log, the points in five parallel processes, the longest 15,908 s): FAIL on H1, H3, H4, H5
 //  and H6. H0, H2, the instrument and every control hold. No gate moved and none was rerun.
 //  - H0: the free cycle and the half-phase pull pieces against the full 192 x 192 rule at 3.1e-17 to 1.1e-16, norms kept
 //    to 5e-14, S S weights equal to 15 digits. I2: P_SS U against V K P_SS 1.1e-15 (point 1's conjugacy, measured). I3:

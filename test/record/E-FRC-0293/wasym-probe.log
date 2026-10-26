@@ -1,0 +1,9 @@
+inv [0,0.000018202481592431925] realZero true conj [0,-0.000018202481592431925] aligned [0,0] 0s
+unitarity 4.8e-15 3.2e-15 2s
+leak 6.9e-18 3.9e-18 6.9e-18 3.9e-18 3s
+K 0.000,0.000,0.000,0.000: flats 264 union 264; cpt 1.3e-15; trivial vs union 2.7e-15; aligned vs union 4.4e-15; flavored vs union 1.9e-1; teeth cpt 1.1e+0 9s
+rest nonflat -1.9093 -1.9093 -1.9093 -1.9093 -2.2921 -2.2921 -2.2921 -2.2921 -2.5556 -2.5556 -2.5556 -2.5556 1.9093 1.9093 1.9093 1.9093 2.2921 2.2921 2.2921 2.2921 2.5556 2.5556 2.5556 2.5556 9s
+rest union nonflat -2.0944 -2.0944 -2.0944 -2.0944 -2.2815 -2.2815 -2.2815 -2.2815 -2.3811 -2.3811 -2.3811 -2.3811 2.0944 2.0944 2.0944 2.0944 2.2815 2.2815 2.2815 2.2815 2.3811 2.3811 2.3811 2.3811 9s
+K -0.901,-1.672,-2.333,-2.899: flats 240 union 240; cpt 2.9e-15; trivial vs union 4.0e-15; aligned vs union 2.7e-15; flavored vs union 3.3e-2; teeth cpt 1.2e+0 12s
+K -1.801,2.939,1.617,0.485: flats 240 union 240; cpt 3.3e-15; trivial vs union 2.7e-15; aligned vs union 2.2e-15; flavored vs union 1.1e-1; teeth cpt 1.3e+0 14s
+exit=0

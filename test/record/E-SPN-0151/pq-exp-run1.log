@@ -1,0 +1,50 @@
+I1 true {"types":32,"perLink":8,"perDock":32,"squares":144,"squaresFilled":144,"rhombi":384,"rhombiFilled":384,"linesDistinct":true,"classes":8,"classSizes":[4,4,4,4,4,4,4,4],"classesDisjoint":true}; I2 true 0s
+off off: patterns 13273, absorbed 0.00e+0 0.00e+0 0.00e+0, plain 1.000000 1.000000 1.000000, gauss bad 0, reach bad 0 0s
+controlled lambda 1: patterns 226969, absorbed 0.00e+0 0.00e+0 0.00e+0, plain 1.000000 1.000000 1.000000, gauss bad 0, reach bad 0 2s
+C1 treeBeat 955656 compared, 0 differ; lambda 1 same true 2s
+ks alpha: patterns 354483, absorbed 1.71e-14 3.54e-13 1.95e-12, plain 0.750891 0.666077 0.070278, gauss bad 0, reach bad 0 7s
+ks 2pi/3: patterns 354483, absorbed 4.22e-15 4.22e-15 1.70e-11, plain 0.055556 0.226521 1.000000, gauss bad 0, reach bad 0 10s
+ks pi: patterns 354483, absorbed 6.11e-15 2.84e-13 1.05e-12, plain 0.008230 1.000000 0.008076, gauss bad 0, reach bad 0 12s
+P1a alpha 6.25e-17, 2pi/3 2.08e-17, pi 2.78e-17 12s
+I3 [{"name":"alpha","kept":0.740632761040924,"want":0.740632761040924,"gap":0},{"name":"2pi/3","kept":0.03703703703703703,"want":0.037037037037037014,"gap":1.3877787807814457e-17},{"name":"pi","kept":0.0013717421124828531,"want":0.001371742112482853,"gap":2.168404344971009e-19}] 12s
+controlled 0.0936: patterns 427196, absorbed 8.05e-5 6.73e-4 2.98e-3, plain 0.992228 0.993770 0.965595, gauss bad 0, reach bad 0 100s
+controlled 0.187: patterns 427196, absorbed 1.33e-3 9.68e-3 2.56e-2, plain 0.968973 0.972092 0.895810, gauss bad 0, reach bad 0 184s
+controlled alpha: patterns 427196, absorbed 1.97e-1 5.29e-1 6.85e-1, plain 0.620250 0.436841 0.211904, gauss bad 0, reach bad 0 272s
+controlled pi/3: patterns 427196, absorbed 6.38e-1 8.84e-1 9.58e-1, plain 0.245383 0.113917 0.028795, gauss bad 0, reach bad 0 370s
+controlled 2pi/3: patterns 427196, absorbed 9.99e-1 1.00e+0 1.00e+0, plain 0.000572 0.000123 0.000000, gauss bad 0, reach bad 0 463s
+controlled pi: patterns 427196, absorbed 1.00e+0 1.00e+0 1.00e+0, plain 0.000000 0.000000 0.000000, gauss bad 0, reach bad 0 556s
+P1b 0.0936: I 0.02048 absorbed 2.98e-3 plain 0.9922 0.9938 0.9656; 0.187: I 0.25490 absorbed 2.56e-2 plain 0.9690 0.9721 0.8958; alpha: I 7.95167 absorbed 6.85e-1 plain 0.6203 0.4368 0.2119; pi/3: I 11.21563 absorbed 9.58e-1 plain 0.2454 0.1139 0.0288; 2pi/3: I 11.71892 absorbed 1.00e+0 plain 0.0006 0.0001 0.0000; pi: I 11.71893 absorbed 1.00e+0 plain 0.0000 0.0000 0.0000 556s
+P2 gauss bad 0, reach bad 0, vacuum [{"sea":0,"cells":256,"exact":true,"worstLinks":0,"crossings":0},{"sea":1,"cells":256,"exact":true,"worstLinks":0,"crossings":196608}] 556s
+{
+  "status": "fail",
+  "claim": "P1 false (P1a KS: reduced-state gap to the piece off 6.25e-17 at alpha, 2.08e-17 at 2pi/3, 2.78e-17 at pi; P1b controlled on the cost box 4: I(3) 0.0205 absorbed 2.98e-3 at 0.0936, I(3) 0.2549 absorbed 2.56e-2 at 0.187, I(3) 7.9517 absorbed 6.85e-1 at alpha, I(3) 11.2156 absorbed 9.58e-1 at pi/3, I(3) 11.7189 absorbed 1.00e+0 at 2pi/3, I(3) 11.7189 absorbed 1.00e+0 at pi); P2 true; P3, P4 not run; controls C1 true C2 true; instrument I1 true I2 true I3 true",
+  "metrics": {
+    "P1": 0,
+    "P1a": 0,
+    "P1b": 0,
+    "P2": 1,
+    "P3": 0,
+    "P4": 0,
+    "C1": 1,
+    "C2": 1,
+    "I1": 1,
+    "I2": 1,
+    "I3": 1,
+    "ksGap": 6.245004513516506e-17,
+    "smallI": 0.02048286508388413,
+    "smallAbsorbed": 0.0029836030460033774,
+    "d4TreeGap": 0.015855723761879843,
+    "patterns": 13273,
+    "controlledPatterns": 427196,
+    "c1Compared": 955656,
+    "seconds": 556.302
+  },
+  "control": {
+    "C1": 1,
+    "C2": 1,
+    "instrument": 1
+  },
+  "notes": "L1 and L2. Light unit m0 0.190126, sigma 0, 3 beats, cost box 4. |P_D4 - P_tree| at beat 3: 1.59e-2. Census {\"types\":32,\"perLink\":8,\"perDock\":32,\"squares\":144,\"squaresFilled\":144,\"rhombi\":384,\"rhombiFilled\":384,\"linesDistinct\":true,\"classes\":8,\"classSizes\":[4,4,4,4,4,4,4,4],\"classesDisjoint\":true}. Pieces alpha stay 0.857143,0.412393 move 0.071429,-0.206197; 2pi/3 stay 0.000000,0.577350 move 0.500000,-0.288675; pi stay -0.333333,0.000000 move 0.666667,0.000000; 0.0936 stay 0.997085,-0.062280 move 0.001458,0.031140; 0.187 stay 0.988364,0.124015 move 0.005818,-0.062007; alpha stay 0.857143,0.412393 move 0.071429,-0.206197; pi/3 stay 0.666667,0.577350 move 0.166667,-0.288675; 2pi/3 stay 0.000000,0.577350 move 0.500000,-0.288675; pi stay -0.333333,0.000000 move 0.666667,0.000000; one stay 1.000000,0.000000 move 0.000000,0.000000. KS alpha (theta 0.666946): gap 6.25e-17, patterns 354483; 2pi/3 (theta 2.094395): gap 2.08e-17, patterns 354483; pi (theta 3.141593): gap 2.78e-17, patterns 354483. I3 [{\"name\":\"alpha\",\"kept\":0.740632761040924,\"want\":0.740632761040924,\"gap\":0},{\"name\":\"2pi/3\",\"kept\":0.03703703703703703,\"want\":0.037037037037037014,\"gap\":1.3877787807814457e-17},{\"name\":\"pi\",\"kept\":0.0013717421124828531,\"want\":0.001371742112482853,\"gap\":2.168404344971009e-19}]. Controlled 0.0936 (theta -0.093556): I(3) 0.02048, |P - P_tree| 3.82e-4, reduced-state gap 2.03e-3, absorbed by beat 8.05e-5 6.73e-4 2.98e-3, plain-string weight 0.99223 0.99377 0.96560, cost profile at beat 3 1.06e-5 9.22e-1 2.25e-2 4.36e-2 8.51e-3, patterns 427196; 0.187 (theta 0.187112): I(3) 0.25490, |P - P_tree| 4.44e-3, reduced-state gap 3.47e-3, absorbed by beat 1.33e-3 9.68e-3 2.56e-2, plain-string weight 0.96897 0.97209 0.89581, cost profile at beat 3 3.68e-5 7.93e-1 8.27e-2 7.29e-2 2.59e-2, patterns 427196; alpha (theta 0.666946): I(3) 7.95167, |P - P_tree| 1.36e-1, reduced-state gap 2.27e-2, absorbed by beat 1.97e-1 5.29e-1 6.85e-1, plain-string weight 0.62025 0.43684 0.21190, cost profile at beat 3 2.12e-5 1.75e-1 2.65e-2 7.84e-2 3.50e-2, patterns 427196; pi/3 (theta 1.047198): I(3) 11.21563, |P - P_tree| 1.92e-1, reduced-state gap 3.36e-2, absorbed by beat 6.38e-1 8.84e-1 9.58e-1, plain-string weight 0.24538 0.11392 0.02879, cost profile at beat 3 4.03e-7 1.57e-2 8.97e-3 9.52e-3 7.78e-3, patterns 427196; 2pi/3 (theta 2.094395): I(3) 11.71892, |P - P_tree| 2.00e-1, reduced-state gap 4.16e-2, absorbed by beat 9.99e-1 1.00e+0 1.00e+0, plain-string weight 0.00057 0.00012 0.00000, cost profile at beat 3 2.90e-12 1.74e-8 2.91e-8 4.51e-8 4.94e-8, patterns 427196; pi (theta 3.141593): I(3) 11.71893, |P - P_tree| 2.00e-1, reduced-state gap 4.17e-2, absorbed by beat 1.00e+0 1.00e+0 1.00e+0, plain-string weight 0.00000 0.00000 0.00000, cost profile at beat 3 8.71e-19 1.15e-15 5.95e-15 1.22e-14 1.87e-14, patterns 427196. C1 955656 amplitudes compared with treeBeat, 0 differ; lambda 1 same true. P2 gauss bad 0, reach bad 0, vacuum [{\"sea\":0,\"cells\":256,\"exact\":true,\"worstLinks\":0,\"crossings\":0},{\"sea\":1,\"cells\":256,\"exact\":true,\"worstLinks\":0,\"crossings\":196608}]. 556 s."
+}
+seconds 556.3
+exit=0

@@ -1,0 +1,33 @@
+W1 4s
+B1 B2 8s
+S1 with w 44s
+S1 without w 79s
+K1 N 81s
+E1 253s
+C1 266s
+{
+ "status": "fail",
+ "claim": "W1 true (unitary 4.2e-15, covariant under 1152 6.9e-18); B1 false (far range without w [-0.759624, 0.759624], with w psi 1.333893 + [-0.759626, 0.759618]; rest levels +-M to 2.0e-15); B2 true (far pair sums from 0 mod 2 pi: with w 1.1485, without 0.0e+0); S1 true (with w, cut 0.85: L 6 (M -0.02897, in-gap -0.08627 -0.02897): 3028 crossings, MM 2892 MF 136 FF 0; L 8 (M -0.03821, in-gap -0.03821 -0.07801): 5672 crossings, MM 5484 MF 188 FF 0; without w: L 6 (M 0.02218, in-gap -0.02218 0.02218): 3860 crossings, MM 2760 MF 0 FF 1100; L 8 (M 0.01804, in-gap -0.01804 0.01804): 7680 crossings, MM 5208 MF 0 FF 2472); K1 true (in-gap 8, chirality 2.000000, -2.000000); E1 true (with w, qa 15: A 4 (up 4 down 0) B -4, complete 33/33, eigen 8.4e-13); N false (wall pair at L 12 -0.05139 -0.06525, center -0.05832); C1 true (heavy L 6: 3212 crossings, MM 1812 MF 220 FF 1180; chirality 1.9999999999856668); read: closure condition 2 a + e_max against pi, heavy 3.9892, light 2.3031",
+ "metrics": {
+  "W1": 1,
+  "B1": 0,
+  "B2": 1,
+  "S1": 1,
+  "K1": 1,
+  "E1": 1,
+  "N": 0,
+  "flowA": 4,
+  "flowB": -4,
+  "C1": 1,
+  "psi": 1.3338926890073284,
+  "halfWidth": 0.7596236814352171,
+  "clearance": 1.1485342194745647,
+  "nodeCenter12": -0.058318389400000004,
+  "FF6": 0,
+  "MM6": 2892,
+  "MF6": 136,
+  "seconds": 273.452
+ },
+ "notes": "L2. Light unit ringUnit(-1, 4) (M 0.380251), v = conj u^2, far phase w = ringUnit(1, 0) in both beats, psi 1.333893. The far walk's half-width is the inversion (route 1 closed by point 2); its center moves with w (route 2), clearing the resonance by 1.1485, at the cost of the wall node's displacement to -0.05832. Heavy unit: far half-width 1.5189, member band top 0.9514, 2 a + e_max 3.9892 > pi: no center clears it. 273 s."
+}
+exit=0

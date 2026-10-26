@@ -31,8 +31,8 @@
 // RP and outside R, so PARTIAL; the clock within C. A pass would say that, past the on-site well, the bound pair's
 // inertia equals its energy to 5% at a_B 12.
 //
-// FIRST RUN (2026-10-19 to 20, tmp/spn-core-soften-a12.log and .json, tmp/spn-core-part.ts on the native kernel at 12
-// threads, 4.6 hours; the verdict by this file's combineWeak in tmp/spn-0208-combine.ts, tmp/spn-0208-verdict.log):
+// FIRST RUN (2026-10-19 to 20, test/record/E-SPN-0208/spn-core-soften-a12.log and .json, test/record/E-SPN-0206/run/spn-core-part.ts on the native kernel at 12
+// threads, 4.6 hours; the verdict by this file's combineWeak in test/record/E-SPN-0208/run/spn-0208-combine.ts, test/record/E-SPN-0208/spn-0208-verdict.log):
 // FAIL, against the predicted partial. No gate moved and none was rerun.
 //  - I1 holds: the tracked line 1.6959015 (scaled E_b 1.601, the rule's 1.638), overlap 0.653 against the next 0.271.
 //    Its N / 2 read differs by 1.8e-6 in phase, so the motion ran at 8192 lags, as the rule's a_B 12 read did.
@@ -74,7 +74,7 @@ const IDENTITY = 0.2
 const AMBIGUOUS = 2
 const QUADRATIC = 0.1
 const R_BAND = 0.05
-// E-SPN-0200's a_B 12 R_full (tmp/track-a12.json), the rule's side
+// E-SPN-0200's a_B 12 R_full (test/record/E-SPN-0208/track-a12.json), the rule's side
 const RULE_RFULL = 1.2347344914386658
 const CLOCK_LINE = 0.02
 const CLOCK_BAND = [0.75, 1.25] as const

@@ -1,0 +1,49 @@
+pieces 1s
+K2 4s
+spectra 29s
+census trimaximal 187s
+census aligned 424s
+{
+ "status": "open",
+ "claim": "PART piece: K1 true (leak 6.9e-18, - half against the unflavored 1.1e-16) K2 true (Q_S P+, Q_D P+, Q_S P-, Q_D P- keep 576/576/576/576 of 576 rotations; Q_S P+, Q_D P+ keep 0/0 of 576 reflections) K3 true (flavor matrices unitary over Q(w) true; pieces 4.8e-15, 3.2e-15) K4 true (flats equal to the copies at 17 momenta true, CPT 4.9e-15) CP1 true (det[H_m, H_w] = 0 + 1.820248e-5 i, conj V the negative, aligned 0; the flavored half off the copies by at least 1.0e-3); controls C1 true (aligned against the copies 4.4e-15) C2 true (Y = Wv off CPT by at least 8.8e-1); instrument I1 true (V = 1 against the copies 4.2e-15). The dynamical-light run (at least three histories on the slab L 12, qa 15, 225 transverse momenta, 2000 beats): 51840 modes and 2160 band states a momentum, 2.3e+17 flops a history, 4.0e+11 bytes: not run. PART symmetry. Candidates 129 (16 sign maps x unitary/antiunitary x stream kept/inverted x beats kept/exchanged, and the magnetic step), each checked on the 288-mode dock blocks of both slab regions (12 x 12 operator solved, residual <= 1e-12), the one-dock cycle and the slab stream at 2 momenta with A2 in {0, 0.3, 0.7}, the field, the profile and N. Trimaximal survivors 5: (++++) [itself, E.B kept, N kept, flow kept, commutant 4, dock 2.9e-17, cycle 1.7e-16, dK (0.0000, 0.0000, 0.0000, 0.0000)]; (--++) [itself, E.B kept, N kept, flow kept, commutant 4, dock 2.9e-17, cycle 2.3e-16, dK (0.0000, 0.0000, 0.0000, 0.0000)]; (++--) [CP mirror, E.B flipped, N exchanged, flow minus, commutant 4, dock 2.9e-17, cycle 3.3e-16, dK (0.0000, 0.0000, 0.0000, 0.0000)]; (----) [CP mirror, E.B flipped, N exchanged, flow minus, commutant 4, dock 2.9e-17, cycle 3.4e-16, dK (0.0000, 0.0000, 0.0000, 0.0000)]; magnetic step x0 [itself, E.B kept, N kept, flow kept, commutant 4, dock 2.9e-17, cycle 1.7e-16, dK (-0.0000, 0.4189, 0.0000, 0.0000)]. Failures by first reason: dock 120, field 4. KILL false (no survivor maps every history to itself and the flow to minus itself). Instrument I1 true (identity survives on both, the magnetic step survives with dK = (-0.000000, 0.418879, 0.000000, 0.000000) = B e1 true). Orbits of the 15 x 15 (k0, k1) grid: 15 under the magnetic step, 8 under all 3 history-keeping unitaries (grid closed true), so 8 x 2160 = 17280 (momentum, band state) vectors and 8.26e+15 flops a history (from 2.32e+17). Histories H1 true: h1(t) = 0.01960358052 sin^2(pi t / 2000) [sin(0.3828723685 t) + 0.5 sin(0.2634901117 t + pi/3)], t = 0 .. 2000 beats, winding -2.8e-35; CP mirror -h1; h2(t) = 0.01732324845 sin^2(pi t / 2000) [sin(0.2634901117 t) + 0.5 sin(0.6463624802 t + pi/3)], t = 0 .. 2000 beats, winding -4.1e-35; CP mirror -h2; h3(t) = 0.01467925408 sin^2(pi t / 2000) [sin(0.3828723685 t) + 0.5 sin(0.6463624802 t + pi/3)], t = 0 .. 2000 beats, winding -3.5e-35; CP mirror -h3; nearest to self-mirror under a surviving non-identity map 2.000 of its peak. CONTROL C1 true: aligned survivors 9, E . B-flipping ones the trimaximal lacks: (-+-+) anti rev [time reverse, E.B flipped, N kept, flow no statement, commutant 12, dock 1.7e-16, cycle 5.0e-16, dK (0.0000, 0.0000, 0.0000, 0.0000)]; (+--+) anti rev [time reverse, E.B flipped, N kept, flow no statement, commutant 12, dock 1.7e-16, cycle 5.0e-16, dK (0.0000, 0.0000, 0.0000, 0.0000)]; trimaximal-only survivors: none",
+ "metrics": {
+  "K1": 1,
+  "K2": 1,
+  "K3": 1,
+  "K4": 1,
+  "CP1": 1,
+  "C1": 1,
+  "C2": 1,
+  "I1": 1,
+  "invariantIm": 0.000018202481592431925,
+  "leak": 6.938893903907228e-18,
+  "cpt": 4.884981308350689e-15,
+  "physical": 0.001000032798813777,
+  "teethMin": 0.8849716566129484,
+  "runFlops": 232190115840000000,
+  "runBytes": 403107840000,
+  "seconds": 28.821,
+  "symmetry_KILL": 0,
+  "symmetry_I1": 1,
+  "symmetry_C1": 1,
+  "symmetry_H1": 1,
+  "symmetry_candidates": 129,
+  "symmetry_survivorsTrimaximal": 5,
+  "symmetry_survivorsAligned": 9,
+  "symmetry_orbits": 8,
+  "symmetry_orbitsMagnetic": 15,
+  "symmetry_reducedFlops": 8255648563200000,
+  "symmetry_fullFlops": 232190115840000000,
+  "symmetry_selfMirror": 2,
+  "symmetry_seconds": 424.279
+ },
+ "control": {
+  "C1": 1,
+  "C2": 1,
+  "I1": 1,
+  "symmetryC1": 1,
+  "symmetryI1": 1
+ },
+ "notes": "L1 (the flavor algebra, exact) and L2 (the 576-mode pieces and the + half's spectra). Rest phases of the flavored half -2.5556 -2.2921 -1.9093 1.9093 2.2921 2.5556 against the copies -2.3811 -2.2815 -2.0944 2.0944 2.2815 2.3811 (read). 29 s. L2 (the dock blocks and the slab stream, the operators solved, never assumed). Frequencies: the flavored Wilson half's rest phases at K 0 (1.909253, 2.292125, 2.555615), spacings 0.382872, 0.263490, 0.263490, 0.646362, 0.382872, 0.646362. Per candidate (trimaximal): (++++): SURVIVES, null 4; (++++) swap: dock 1.2e-1, null 0; (++++) rev: dock 1.4e-1, null 0; (++++) rev swap: dock 1.5e-1, null 0; (++++) anti: dock 1.2e-1, null 0; (++++) anti swap: dock 1.4e-1, null 0; (++++) anti rev: dock 2.3e-3, null 0; (++++) anti rev swap: dock 1.0e-1, null 0; (-+++): dock 1.2e-1, null 0; (-+++) swap: dock singular, null 0; (-+++) rev: dock 1.5e-1, null 0; (-+++) rev swap: dock 1.4e-1, null 0; (-+++) anti: dock 1.3e-1, null 0; (-+++) anti swap: dock 1.5e-1, null 0; (-+++) anti rev: dock 1.1e-1, null 0; (-+++) anti rev swap: dock 1.1e-1, null 0; (+-++): dock 1.2e-1, null 0; (+-++) swap: dock singular, null 0; (+-++) rev: dock 1.5e-1, null 0; (+-++) rev swap: dock 1.4e-1, null 0; (+-++) anti: dock 1.3e-1, null 0; (+-++) anti swap: dock 1.5e-1, null 0; (+-++) anti rev: dock 1.1e-1, null 0; (+-++) anti rev swap: dock 1.1e-1, null 0; (--++): SURVIVES, null 4; (--++) swap: dock 1.2e-1, null 0; (--++) rev: dock 1.4e-1, null 0; (--++) rev swap: dock 1.5e-1, null 0; (--++) anti: dock 1.2e-1, null 0; (--++) anti swap: dock 1.4e-1, null 0; (--++) anti rev: dock 2.3e-3, null 0; (--++) anti rev swap: dock 1.0e-1, null 0; (++-+): dock 1.2e-1, null 0; (++-+) swap: dock singular, null 0; (++-+) rev: dock 1.5e-1, null 0; (++-+) rev swap: dock 1.4e-1, null 0; (++-+) anti: dock 1.3e-1, null 0; (++-+) anti swap: dock 1.5e-1, null 0; (++-+) anti rev: dock 1.1e-1, null 0; (++-+) anti rev swap: dock 1.1e-1, null 0; (-+-+): field holonomy 1.676, null 4; (-+-+) swap: dock 1.2e-1, null 0; (-+-+) rev: dock 1.4e-1, null 0; (-+-+) rev swap: dock 1.5e-1, null 0; (-+-+) anti: dock 1.2e-1, null 0; (-+-+) anti swap: dock 1.4e-1, null 0; (-+-+) anti rev: dock 2.3e-3, null 0; (-+-+) anti rev swap: dock 1.0e-1, null 0; (+--+): field holonomy 1.676, null 4; (+--+) swap: dock 1.2e-1, null 0; (+--+) rev: dock 1.4e-1, null 0; (+--+) rev swap: dock 1.5e-1, null 0; (+--+) anti: dock 1.2e-1, null 0; (+--+) anti swap: dock 1.4e-1, null 0; (+--+) anti rev: dock 2.3e-3, null 0; (+--+) anti rev swap: dock 1.0e-1, null 0; (---+): dock 1.2e-1, null 0; (---+) swap: dock singular, null 0; (---+) rev: dock 1.5e-1, null 0; (---+) rev swap: dock 1.4e-1, null 0; (---+) anti: dock 1.3e-1, null 0; (---+) anti swap: dock 1.5e-1, null 0; (---+) anti rev: dock 1.1e-1, null 0; (---+) anti rev swap: dock 1.1e-1, null 0; (+++-): dock 1.2e-1, null 0; (+++-) swap: dock singular, null 0; (+++-) rev: dock 1.5e-1, null 0; (+++-) rev swap: dock 1.4e-1, null 0; (+++-) anti: dock 1.3e-1, null 0; (+++-) anti swap: dock 1.5e-1, null 0; (+++-) anti rev: dock 1.1e-1, null 0; (+++-) anti rev swap: dock 1.1e-1, null 0; (-++-): field holonomy 1.676, null 4; (-++-) swap: dock 1.2e-1, null 0; (-++-) rev: dock 1.4e-1, null 0; (-++-) rev swap: dock 1.5e-1, null 0; (-++-) anti: dock 1.2e-1, null 0; (-++-) anti swap: dock 1.4e-1, null 0; (-++-) anti rev: dock 2.3e-3, null 0; (-++-) anti rev swap: dock 1.0e-1, null 0; (+-+-): field holonomy 1.676, null 4; (+-+-) swap: dock 1.2e-1, null 0; (+-+-) rev: dock 1.4e-1, null 0; (+-+-) rev swap: dock 1.5e-1, null 0; (+-+-) anti: dock 1.2e-1, null 0; (+-+-) anti swap: dock 1.4e-1, null 0; (+-+-) anti rev: dock 2.3e-3, null 0; (+-+-) anti rev swap: dock 1.0e-1, null 0; (--+-): dock 1.2e-1, null 0; (--+-) swap: dock singular, null 0; (--+-) rev: dock 1.5e-1, null 0; (--+-) rev swap: dock 1.4e-1, null 0; (--+-) anti: dock 1.3e-1, null 0; (--+-) anti swap: dock 1.5e-1, null 0; (--+-) anti rev: dock 1.1e-1, null 0; (--+-) anti rev swap: dock 1.1e-1, null 0; (++--): SURVIVES, null 4; (++--) swap: dock 1.2e-1, null 0; (++--) rev: dock 1.4e-1, null 0; (++--) rev swap: dock 1.5e-1, null 0; (++--) anti: dock 1.2e-1, null 0; (++--) anti swap: dock 1.4e-1, null 0; (++--) anti rev: dock 2.3e-3, null 0; (++--) anti rev swap: dock 1.0e-1, null 0; (-+--): dock 1.2e-1, null 0; (-+--) swap: dock singular, null 0; (-+--) rev: dock 1.5e-1, null 0; (-+--) rev swap: dock 1.4e-1, null 0; (-+--) anti: dock 1.3e-1, null 0; (-+--) anti swap: dock 1.5e-1, null 0; (-+--) anti rev: dock 1.1e-1, null 0; (-+--) anti rev swap: dock 1.1e-1, null 0; (+---): dock 1.2e-1, null 0; (+---) swap: dock singular, null 0; (+---) rev: dock 1.5e-1, null 0; (+---) rev swap: dock 1.4e-1, null 0; (+---) anti: dock 1.3e-1, null 0; (+---) anti swap: dock 1.5e-1, null 0; (+---) anti rev: dock 1.1e-1, null 0; (+---) anti rev swap: dock 1.1e-1, null 0; (----): SURVIVES, null 4; (----) swap: dock 1.2e-1, null 0; (----) rev: dock 1.4e-1, null 0; (----) rev swap: dock 1.5e-1, null 0; (----) anti: dock 1.2e-1, null 0; (----) anti swap: dock 1.4e-1, null 0; (----) anti rev: dock 2.3e-3, null 0; (----) anti rev swap: dock 1.0e-1, null 0; magnetic step x0: SURVIVES, null 4. 424 s."
+}
+exit=0

@@ -1,0 +1,4 @@
+side 8: blocks 8, build 2.379s, 3.1 ms/beat, E 32768, D0 0.1589, D/D0 every 10: 6.0e-2 2.4e-3 3.3e-4 4.1e-4 5.1e-4 5.2e-4 5.1e-4 6.8e-4 4.3e-5 4.0e-4 1.9e-4 1.4e-3, beta 3.6398, gap 1.0936
+side 12: blocks 27, build 0.623s, 16.4 ms/beat, E 136704, D0 0.0664, D/D0 every 10: 2.8e-3 3.5e-3 2.5e-3 1.0e-3 1.3e-3 1.3e-3 9.7e-4 9.3e-4 1.1e-3 1.5e-3 6.5e-4 8.9e-4, beta 3.8983, gap 1.1008
+side 16: blocks 64, build 1.487s, 57.8 ms/beat, E 409600, D0 0.0306, D/D0 every 10: 2.1e-1 7.8e-2 1.7e-3 2.5e-3 1.9e-3 1.8e-3 2.2e-3 2.8e-3 2.2e-3 2.2e-3 2.5e-3 2.1e-3, beta 3.9677, gap 1.0979
+exit=0

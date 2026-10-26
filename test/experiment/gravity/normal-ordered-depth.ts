@@ -62,7 +62,7 @@
 // PREDICTED: fail on N1 (the hole-and-fear start only; the charge register N1c holds everywhere); N2's sign and exact
 // clauses hold; its k clause below E-GRV-0119's by more than 5 percent (the free hole spreads); N3 holds.
 //
-// FIRST RUN (tmp/normal-grv-run1.log, 80 s): FAIL on N1 and on N2's k clause, as predicted; N3 and both controls hold.
+// FIRST RUN (test/record/E-GRV-0144/normal-grv-run1.log, 80 s): FAIL on N1 and on N2's k clause, as predicted; N3 and both controls hold.
 //  - N1: the asked register is kept exactly on the sea, a hole and two holes (drift 0, Gauss 0 off, 4 paths x 128 beats),
 //    and breaks on the hole and fear at beat 1 on 4 of 4 paths: the total jumps 1 -> 5 (drift 4) and Gauss is off on
 //    511 dock-beats, the dock of the unmaking. N1c: the charge register (1 + 4 = 5 at beat 0) holds on all four starts,

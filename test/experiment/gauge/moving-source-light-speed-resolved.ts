@@ -49,7 +49,7 @@
 // RUNTIME, estimated before the run: 0.33 s a beat on the loaded machine (tmp/frc315-time.ts, 60 beats, timing only),
 // so about 4,150 s for 5 x 2400 + 400 beats on one thread. No probe read a front or a period before these gates.
 //
-// FIRST RUN (2026-10-20, tmp/frc315-run.log, 8,278 s on one thread beside other runs): OPEN. M1, M2 and M3 hold; M4
+// FIRST RUN (2026-10-20, test/record/E-FRC-0315/frc315-run.log, 8,278 s on one thread beside other runs): OPEN. M1, M2 and M3 hold; M4
 // misses at the fastest source only.
 //  - M1: the 200-beat run reverses exactly; the largest flux 6.30 against q / 2 = 16.5.
 //  - M2: at rest the half-rise beats ahead and behind agree bit for bit; the rest front reads 0.9943 c (E-FRC-0314's

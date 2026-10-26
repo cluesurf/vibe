@@ -56,7 +56,7 @@
 // that the face's light levels are the whole light constituent content. It does not build that force, and it does not
 // decide which symmetries a real confining vacuum keeps: the three sets are frozen guesses.
 //
-// FIRST RUN 2026-10-08 (tmp/anomaly.log, 10.4 s): KILL (status fail), as derived. No gate moved, none rerun.
+// FIRST RUN 2026-10-08 (test/record/E-FRC-0289/anomaly.log, 10.4 s): KILL (status fail), as derived. No gate moved, none rerun.
 //  - Constituents: Tr Q^3 0, Tr Q 0, Tr Q T3^2 0, Witten 0 (S1, S2 vacuous); Tr Q^2 N 4/3, Tr Q N^2 0, Tr N^3 12, Tr N
 //    12, Tr N T3^2 3.
 //  - Composites as derived: Q +-1 (1/2, 1/2) x1, Q +-1/3 (1/2, 3/2) x1 and (1/2, 1/2) x2, 8 multiplets; the census's

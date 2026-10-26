@@ -355,10 +355,18 @@ export function littleGroup(
 
 // ---- the sector: representatives, orbits, neighbour tables ----
 
+// THE BOUNDARY. 'ball' (the default, every recorded run): the husk ball a^2 + b^2 + c^2 <= R^2, a neighbour outside it
+// read as absent, so amplitude stepping out is lost (the open edge). 'torus': every point of the cube [-R, R]^3 with
+// each coordinate taken mod 2R + 1, a closed boundary. The torus is O_h symmetric about 0 (x -> -x and every
+// permutation map the residues -R .. R onto themselves), every step stays in the domain, and the cycle is unitary on
+// it; its orbits are the cube's, so a sector, its unfolding and its inner product carry over unchanged.
+export type Boundary = 'ball' | 'torus'
+
 export type Sector = {
   group: CubicGroup
   members: number[]
   R: number
+  boundary: Boundary
   // representative coordinates (3 each) and their shell (rounded radius)
   reps: Int32Array
   shell: Int32Array
@@ -394,7 +402,11 @@ const cubeIndex = (
 // (1, 1, 1)'s G, k the flip of the third or the second coordinate, which commutes with the whole cycle. So their sectors
 // are built as the image of (1, 1, 1)'s (conjugateSector): representatives k y, elements k g k. That sector's cycle is
 // (1, 1, 1)'s with every site and element relabeled, so it is stable exactly when (1, 1, 1)'s is. Every other group is
-// built directly, its tables unchanged (so every result recorded on them stays bit for bit).
+// built directly, its tables unchanged (so every result recorded on them stays bit for bit). E-SPN-0216 measured it: the
+// direct (1, 1, -1) and (1, -1, 1) tables give spectral radius 1.046 on the stored space, the mode pure remainder, while
+// the step on invariant states is the same in both builds to 7e-16; built as now, all four body diagonals conserve the
+// norm to 7.1e-13 over 4,096 cycles on the torus. Projecting the remainder out after each cycle would make any table
+// choice stable, but it moves every sector's bits at rounding, so it is not done.
 
 // the index of the composition e_i e_j (apply e_j first)
 function composeIndex(group: CubicGroup, i: number, j: number): number {
@@ -440,17 +452,18 @@ function conjugateOf(
   return null
 }
 
-// the sector of subgroup `members` on the husk ball of radius R (a^2 + b^2 + c^2 <= R^2)
+// the sector of subgroup `members` on the husk ball of radius R (a^2 + b^2 + c^2 <= R^2), or on the closed torus
 export function sector(
   group: CubicGroup,
   members: readonly number[],
   R: number,
+  boundary: Boundary = 'ball',
 ): Sector {
   const via = conjugateOf(group, members)
 
   return via
-    ? conjugateSector(directSector(group, via.base, R), via.k, members)
-    : directSector(group, members, R)
+    ? conjugateSector(directSector(group, via.base, R, boundary), via.k, members)
+    : directSector(group, members, R, boundary)
 }
 
 // the image k S of a sector under the element k: representatives k y, the element for k q the conjugate k g k^-1 of
@@ -510,15 +523,23 @@ export function conjugateSector(
     group,
     members: [...members],
     R,
+    boundary: s.boundary,
     reps,
     shell: Int32Array.from(s.shell),
     orbit: Float64Array.from(s.orbit),
     count: s.count,
-    ...neighbourTables(R, reps, s.count, pointRep, pointG),
+    ...neighbourTables(R, reps, s.count, pointRep, pointG, s.boundary),
     pointRep,
     pointG,
     sites: s.sites,
   }
+}
+
+// a coordinate taken into the torus residues -R .. R
+const wrapTorus = (R: number, x: number): number => {
+  const L = 2 * R + 1
+
+  return ((((x + R) % L) + L) % L) - R
 }
 
 // per representative and root, the neighbour's representative and element (-1 outside the ball), plus and minus
@@ -528,8 +549,10 @@ function neighbourTables(
   count: number,
   pointRep: Int32Array,
   pointG: Int8Array,
+  boundary: Boundary,
 ): Pick<Sector, 'plusRep' | 'plusG' | 'minusRep' | 'minusG'> {
   const R2 = R * R
+  const torus = boundary === 'torus'
   const plusRep = sharedI32(count * NR)
   const plusG = sharedI8(count * NR)
   const minusRep = sharedI32(count * NR)
@@ -547,9 +570,10 @@ function neighbourTables(
         [1, plusRep, plusG],
         [-1, minusRep, minusG],
       ] as const) {
-        const q = [a + s * r[0]!, b + s * r[1]!, c + s * r[2]!]
+        const step = [a + s * r[0]!, b + s * r[1]!, c + s * r[2]!]
+        const q = torus ? step.map(x => wrapTorus(R, x)) : step
 
-        if (q[0]! ** 2 + q[1]! ** 2 + q[2]! ** 2 > R2) {
+        if (!torus && q[0]! ** 2 + q[1]! ** 2 + q[2]! ** 2 > R2) {
           repOut[i * NR + d] = -1
           gOut[i * NR + d] = -1
         } else {
@@ -570,6 +594,7 @@ export function directSector(
   group: CubicGroup,
   members: readonly number[],
   R: number,
+  boundary: Boundary = 'ball',
 ): Sector {
   const side = 2 * R + 1
   const pointRep = new Int32Array(side * side * side).fill(-1)
@@ -587,7 +612,7 @@ export function directSector(
   for (let c = -R; c <= R; c++) {
     for (let b = -R; b <= R; b++) {
       for (let a = -R; a <= R; a++) {
-        if (a * a + b * b + c * c > R2) {
+        if (boundary === 'ball' && a * a + b * b + c * c > R2) {
           continue
         }
 
@@ -651,11 +676,12 @@ export function directSector(
     group,
     members: [...members],
     R,
+    boundary,
     reps: Int32Array.from(reps),
     shell,
     orbit,
     count,
-    ...neighbourTables(R, reps, count, pointRep, pointG),
+    ...neighbourTables(R, reps, count, pointRep, pointG, boundary),
     pointRep,
     pointG,
     sites,

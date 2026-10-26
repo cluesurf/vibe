@@ -1,0 +1,6 @@
+covariance vacuum+meson off 0
+covariance vacuum+meson mix off 0
+blind path 0 occupation off 0 with points off 533271 meetings working {"equal":6087,"unequal":78362} flat {"equal":66927,"unequal":17522}
+blind path 1 occupation off 0 with points off 533629 meetings working {"equal":5945,"unequal":78501} flat {"equal":67026,"unequal":17420}
+pure-gauge hole off 0
+exit=0

@@ -1,0 +1,36 @@
+{
+  "code": "E-RLT-0120 (frozen 2026-10-23 before any run; the pre-registration is rlt120-preregistration.md beside this file)",
+  "read": {
+    "reference": "axis",
+    "group": {
+      "sigmas": [0.001, 0.0015, 0.002],
+      "halfWidths": [0.02, 0.015]
+    },
+    "lines": { "below": 0.008, "above": 0.012, "basis": 80, "S": 4096 },
+    "residualS": 6144,
+    "near": 0.0002,
+    "gridMax": 0.12,
+    "gateKappas": [0.12, 0.16],
+    "synthetic": [
+      { "dE": 0, "o": 0.53 },
+      { "dE": -0.0026, "o": 0.28 },
+      { "dE": 0.002, "o": 0.1 },
+      { "dE": 0.0037, "o": 0.04 },
+      { "dE": 0.04, "o": 0.05 }
+    ]
+  },
+  "gates": {
+    "witness": 0.01,
+    "synthCentroid": 1e-7,
+    "bounded": 1e-6,
+    "modulus": 1e-6,
+    "levelRelative": 1e-12,
+    "sameLag": 1e-12,
+    "groupWeight": 0.99,
+    "resolve": 3,
+    "precision": 0.005,
+    "significant": 10,
+    "isotropy": 0.02,
+    "stillUsed": 0.1
+  }
+}

@@ -1,0 +1,17 @@
+status pass
+claim m 0.2837 at a_B 12 with the contact well removed: tracked overlap 0.684 (next 0.253), ratio 3.989 at K 0.04, R 1.1278, R_full 1.0785 against the corrected reference 1.0244 (tan m / m 1.0277): remainder 0.0541 against the predicted 0.06 (a_B 8: 0.533). I true, P true, H true
+  I 1
+  P 1
+  H 1
+  overlap 0.6838837712968797
+  next 0.25272745185192935
+  scaled 1.7312923095437593
+  ratio 3.989489758337509
+  kappa 0.04
+  Rstatic 1.1277664307437179
+  Rfull 1.0785232103074023
+  reference 1.024445038979167
+  remainder 0.054078171328235225
+  tanOver 1.0277176753981718
+notes L2. Followed lines: E 1.131880 overlap 0.253 R 1.583 ratio 5.43.
+exit=0

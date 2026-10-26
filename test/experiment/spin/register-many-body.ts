@@ -112,19 +112,19 @@
 // Verdict: fail if R, V, H, W or N fails; partial if all hold and G fails (predicted), or if the instrument or a control
 // fails; pass if all hold with G.
 //
-// PROBES BEFORE THE GATE RUN, disclosed (no gate moved after them). tmp/mbr-probe1.log: H' eigenvalues {0, 2, 3, 4, 6, 8,
+// PROBES BEFORE THE GATE RUN, disclosed (no gate moved after them). test/record/E-SPN-0163/mbr-probe1.log: H' eigenvalues {0, 2, 3, 4, 6, 8,
 //  12}; Xi H' Xi^-1 - H' = 12 - 4 N exactly; the vertex (angle 1.333893) unitary; A_T for the one-sided step (0, -2.8e-4,
 //  ... -5.2e-2) and the palindrome (-2.8e-4, -1.5e-3, ... -3.0e-2), each the exact negative for conj(V), zero (to float
 //  summation) for Householder and exactly zero for V = 1 and v = 1; the palindrome's A_T unchanged by 36 rephasings;
 //  Xi Gamma(b) Xi^-1 = det(b) Gamma(conj b); Cauchy-Binet, unitarity, the full block and one-hole Jacobi on 8 modes; the
 //  characters 2, 2, 1 (rotations) and 3 (W(F4)). The probe summed probabilities in floats; the gate sums them exactly.
-//  tmp/mbr-probe2.log: the hole cycle's sorted phases equal the member's to 1.8e-15 at 16 momenta; the hole's massless
+//  test/record/E-SPN-0163/mbr-probe2.log: the hole cycle's sorted phases equal the member's to 1.8e-15 at 16 momenta; the hole's massless
 //  pairs 16 at c / 4 (to 8e-12) with |gamma| / c0 <= 2.7e-11; X 96 transpositions; R read with a hole frame at -theta
 //  tracked the wrong band (R - tan m / m = -1.01), which fixed the gate's reading to the member's frame (the hole's
-//  spectrum IS the member's set, point 3). tmp/mbr-smoke.log: every code path on a small plan (4 momenta, 4 beats, 2 sea
+//  spectrum IS the member's set, point 3). test/record/E-SPN-0163/mbr-smoke.log: every code path on a small plan (4 momenta, 4 beats, 2 sea
 //  beats), 11 s: every gate as predicted, G false (C-even), verdict partial; exact A_T(1) = -3047158125 / 10851569165584.
 //
-// FIRST RUN (tmp/mbr-exp-run1.log, 30 s): PARTIAL, as predicted. R, V, H, W and N hold, the instrument and all three
+// FIRST RUN (test/record/E-SPN-0163/mbr-exp-run1.log, 30 s): PARTIAL, as predicted. R, V, H, W and N hold, the instrument and all three
 //  controls hold, and G fails (the vertex is C-even). No gate moved and none was rerun.
 //  - R: Cauchy-Binet, unitarity, the full block det(AB) and the one-hole Jacobi identity exact on all 256 register Fock
 //    states; Gamma of the rank-one mixer equals E-SPN-0140's 1 + (l - 1) N_P exactly.

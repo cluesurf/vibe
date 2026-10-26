@@ -1,0 +1,18 @@
+{"huskOf":[0,1,2,3,4,4,5,6,7,7,8,8],"keys":["1,1,0","1,-1,0","1,0,1","1,0,-1","1,0,0","0,1,1","0,1,-1","0,1,0","0,0,1"],"members":[[0],[1],[2],[3],[4,5],[6],[7],[8,9],[10,11]],"depth":[0,0,0,0,1,-1,0,0,1,-1,1,-1]}
+X 2340 [ 4, 0, 4, 0 ]
+projection {"slots":98304,"off":0,"fiberMin":8,"fiberMax":8,"huskPoints":512}
+projection 0.897s
+husk lines {"bulkLines":6144,"huskLines":576,"off":0,"perHusk":[{"key":"1,1,0","bulkClasses":1,"huskLines":64,"bulkPerHusk":[8]},{"key":"1,-1,0","bulkClasses":1,"huskLines":64,"bulkPerHusk":[8]},{"key":"1,0,1","bulkClasses":1,"huskLines":64,"bulkPerHusk":[8]},{"key":"1,0,-1","bulkClasses":1,"huskLines":64,"bulkPerHusk":[8]},{"key":"1,0,0","bulkClasses":2,"huskLines":64,"bulkPerHusk":[16]},{"key":"0,1,1","bulkClasses":1,"huskLines":64,"bulkPerHusk":[8]},{"key":"0,1,-1","bulkClasses":1,"huskLines":64,"bulkPerHusk":[8]},{"key":"0,1,0","bulkClasses":2,"huskLines":64,"bulkPerHusk":[16]},{"key":"0,0,1","bulkClasses":2,"huskLines":64,"bulkPerHusk":[16]}]}
+husk lines 0.935s
+star {"huskLines":9,"huskCrossings":31,"fiber":[36,996,1444,1892,2788,3236,3684],"fiberCrossings":[12,6,6,6,6,6,6],"fiberOnStar":0}
+star 0.959s
+K 1,1 {"total":264,"fires":168,"lineChange":0,"shadowSetChange":0,"depthOnly":0,"vibeShadowChange":156,"offLines":0}
+K 1,-1 {"total":264,"fires":168,"lineChange":0,"shadowSetChange":0,"depthOnly":0,"vibeShadowChange":156,"offLines":0}
+K 1,1,1 {"total":1760,"fires":992,"lineChange":576,"shadowSetChange":552,"depthOnly":24,"vibeShadowChange":888,"offLines":0}
+K 1,1,-1 {"total":1760,"fires":992,"lineChange":576,"shadowSetChange":552,"depthOnly":24,"vibeShadowChange":888,"offLines":0}
+K 1,1,1,1 {"total":7920,"fires":4272,"lineChange":3696,"shadowSetChange":3432,"depthOnly":264,"vibeShadowChange":4050,"offLines":0}
+K census 0.97s
+level 1.216s
+boosted {"v":[-0.0010829658835565833,-0.0010829658835565836,0,-0.0021659317671131636],"husk":[-0.0010829658835565833,-0.0010829658835565836,0],"reach":0.6228251008904101,"tail":0.0021062538086961814,"size":56448,"least":0.03378755476413057}
+stand-in 13.782s
+exit=0

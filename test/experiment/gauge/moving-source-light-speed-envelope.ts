@@ -42,7 +42,7 @@
 // construction, so this confirms what the light is and decides against the slow-photon rule only as a model of this
 // light, not what a moving observer reads (E-SPN-0126). The source is a prescribed current, not matter.
 //
-// FIRST RUN (2026-10-21, tmp/frc316-run.log, 5,394 s, one thread): PASS. Every gate holds; nothing moved.
+// FIRST RUN (2026-10-21, test/record/E-FRC-0316/frc316-run.log, 5,394 s, one thread): PASS. Every gate holds; nothing moved.
 //  - M1: exact reversal, largest flux 6.30 against 16.5. M2: rest front 0.9943 c, ahead and behind equal.
 //  - M3: front off the rest front ahead +0.00002, -0.0004, +0.0012, +0.0072 c, behind +0.0003, +0.0011, +0.0024,
 //    -0.0009 c at v / c = 0.124, 0.249, 0.415, 0.622 (the same front readings as E-FRC-0315, bit for bit).

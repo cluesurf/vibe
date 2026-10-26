@@ -83,11 +83,11 @@
 // READ, NOT GATED: vacuum-born singles the gate refused that E-SPN-0121's gate would have turned; the beat of each term's
 // first matter turn, and its footprint then and at the first beat past half the box; K docks; lines off the vacuum's tone.
 // Verdict: partial if a control or check fails; pass if O1 .. O4 hold; fail otherwise.
-// PROBE, disclosed (instrument only): tmp/origin-probe1-8.log (meson and lone love on offsets 0 and 1 at rate 3: the
+// PROBE, disclosed (instrument only): test/record/E-SPN-0123/origin-probe1-8.log (meson and lone love on offsets 0 and 1 at rate 3: the
 // meson reaches 2,971 and 4,094 docks by beat 128, the lone love 173 and 3,337; 0 register mismatches, 0 drift, 0
 // reversal off; the gate refused 1,789 to 38,292 vacuum-born singles; gate 'none' equals mixTrack for 48 beats).
 //
-// FIRST RUN (tmp/origin-exp-run1.log, 90 s): FAIL on O1, as point 5 predicted; O2 passes; O3 is not decided on the
+// FIRST RUN (test/record/E-SPN-0123/origin-exp-run1.log, 90 s): FAIL on O1, as point 5 predicted; O2 passes; O3 is not decided on the
 // window, so O4 is not reached; every control and check passes.
 //  - O1 fails: the meson ends at 185 to 4,095 of 4,096 docks at beat 128 (mean 2,975), with 13 of 16 terms past half
 //    the box; 0 of 16 are bounded. A lone love ends at 37 to 4,096 (mean 1,752), 7 of 16 past half the box, 0 of 16

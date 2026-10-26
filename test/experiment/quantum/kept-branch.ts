@@ -66,7 +66,7 @@
 // tmp/kb-probe7 (K2 on the d1 = identity words). The first probe (tmp/kb-probe1) ran 'off' for 48 beats and did not
 // finish: 16 meetings give 2^16 records.
 //
-// FIRST RUN (795 s, tmp/qtm163-run1.log, run in the experiment/kept-branch worktree before the move to next-pieces): pass, every gate held, no gate moved,
+// FIRST RUN (795 s, test/record/E-QTM-0163/qtm163-run1.log, run in the experiment/kept-branch worktree before the move to next-pieces): pass, every gate held, no gate moved,
 // title written after the run. Side 4: meetings at beats 1, 4, 7, ... 46 on every start, 42 to 140 cross merges, L1 0.61
 // to 1.20 at beat 20, knot CHSH max 2.7945 to 2.8284 (integer+3, 5, 7, 14: Schmidt 0.5030, 0.4970, 2.4e-5 below
 // 2 sqrt 2, never reaching it). Side 8: every 6 beats on 16 starts, every 12 on integer+6 (4 cross merges, CHSH exactly

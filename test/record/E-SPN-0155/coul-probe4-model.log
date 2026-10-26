@@ -1,0 +1,7 @@
+m 0.8571 aB 4 S 1024 passes 2: E 1.6816180777 residual 1.73e-13  [115.8s]
+m 0.8571 aB 4 S 2048 passes 2: E 1.6816180777 residual 1.02e-13  [301.4s]
+m 0.8571 aB 3 S 1024 passes 2: E 1.6326372681 residual 2.03e-13  [413.5s]
+m 0.8571 aB 3 S 2048 passes 2: E 1.6326372681 residual 2.52e-13  [590.2s]
+m 0.5236 aB 4 S 1024 passes 2: E 0.9570862444 residual 7.88e-13  [664.3s]
+m 0.5236 aB 4 S 2048 passes 2: E 0.9570862444 residual 1.20e-10  [823.7s]
+exit=0

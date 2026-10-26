@@ -1,0 +1,114 @@
+meson terms 34s
+love terms 66s
+vacuum 69s
+control CK 85s
+control CA rule 100s
+star and hubs 126s
+stand-in rate 0 126s
+stand-in rate 3 238s
+stand-in read rates 401s
+status partial
+claim E-SPN-0123's origin-gated mixer with K gated on origin too (K only where two matter-born singles share a dock, B elsewhere): the vacuum runs bit for bit (0 vacuum docks reach the gate, 0 readings off keyedRunner); the meson ends at 59 to 132 of 4096 docks (16 of 16 under half the box, 0 bounded), a lone love at 31 to 60 (16 under half, 0 bounded); K fires 1 times over the meson terms; the stand-in keeps 0.0351 by beat 24 at rate 3 against 0.99977 at rate 0
+  O1 0
+  O2 1
+  O3 0
+  O3_held 0
+  O4 0
+  control_CK 0
+  control_CA 1
+  control_CW 1
+  checked 1
+  cells 4096
+  meshLines 6144
+  boundedMesons 0
+  boundedLoves 0
+  smallMesons 16
+  smallLoves 16
+  mesonMinFootprint128 59
+  mesonMaxFootprint128 132
+  mesonMeanFootprint128 88.875
+  mesonMeanFootprint64 49.375
+  mesonMinGrowth 0.18518518518518517
+  mesonMeanGrowth 0.837869291513423
+  loveMinFootprint128 31
+  loveMaxFootprint128 60
+  loveMeanFootprint128 44.8125
+  loveMeanFootprint64 24.8125
+  loveMinGrowth 0.19230769230769232
+  loveMeanGrowth 0.930062139888754
+  mesonMeanLines128 15.125
+  loveMeanLines128 7.4375
+  mesonMeanTurns 21.4375
+  loveMeanTurns 10.4375
+  mesonMeanTurnsLate 10.5
+  loveMeanTurnsLate 5.6875
+  mesonDocksPerLine 5.87603305785124
+  mesonMeanFirstTurn 5.3125
+  mesonK 1
+  loveK 0
+  mesonMeanRefusedK 173.6875
+  loveMeanRefusedK 66.4375
+  mesonBKept 476
+  mesonBSwapped 4960
+  mesonBLeft 0
+  loveBLeft 0
+  mesonMeanVacuumSingles128 57.75
+  mesonMaxMatterSingles 2
+  linesFellBeats 0
+  L0meson 1
+  L0love 1
+  ungatedMinFootprint128 185
+  ckOff 0
+  stepperDiffer 0
+  mesonGateReached0 0
+  loveFootprint128Rate0 6.25
+  mesonFootprint128Rate0 7.25
+  trioKGated 15
+  trioKOpen 244
+  trioRecruitedGated 5
+  trioRecruitedOpen 48
+  trioStarOffGated 0
+  trioStarOffOpen 0
+  trioVibesApart 195
+  trioBLeft 163
+  hubsFootprint128Gated 40
+  hubsFootprint128Open 4093.5
+  hubsKGated 8
+  hubsKOpen 292926
+  vacuumSingles 0
+  vacuumGated 0
+  vacuumMatter 0
+  vacuumCollide 0
+  vacuumDiffer 0
+  windowWake4 0
+  windowWake8 0
+  mismatch 0
+  drift 0
+  reversalDiffer 0
+  collideOff 0
+  boundOff 0
+  standEnergy0 0.3188654375223384
+  standTotal0 1.7930822459364377
+  standTransverse 0
+  window0Retained24 0.9997716637169166
+  heldRetained8 0.4323082355753231
+  heldRetained24 0.035099853171565346
+  heldMeanString 3.9866429776518966
+  heldBent 0.8882952660801187
+  windowClasses 407601
+  normGap 6.347367076386945e-12
+  curvedDirections 0
+  isotropy NaN
+  totalMixed NaN
+  seconds 401.458
+  rate1Retained8 0.8187110750299952
+  rate1Retained24 0.29339796621078446
+  rate1MeanString 4.025469767470452
+  rate1Bent 0.9234873960612622
+  rate0.25Retained8 0.9891079045982448
+  rate0.25Retained24 0.9545602633744172
+  rate0.25MeanString 2.299527648011197
+  rate0.25Bent 0.797163474329399
+control {"ckOff":0,"stepperDiffer":0,"window0Retained24":0.9997716637169166,"standEnergy0":0.3188654375223384,"standTotal0":1.7930822459364377}
+notes L1 (O1, O2, checks) and L2 (stand-in). O1 false; O2 true (windows side 4: wake 0, gated 0, singles 0, matter 0; side 8: wake 0, gated 0, singles 0, matter 0); O3 false (held false: retained 0.99991 0.99826 0.92244 0.43231 0.13734 0.03510; mean string 3.987, bent 0.888, 407601 classes); O4 false (not reached). CK false (off 0/0/0/0, ungated footprints 2971/4094/185/3363); CA true (stepper 0/0/0/0, gate reached 0, lone love rate 0 6/7/6/6, meson rate 0 7/7/7/8, E 0.3188654375223384, total 1.7930822459364377, transverse 0); CW true (rate 0 one-line on the window: 0.99999 0.99999 0.99997 0.99993 0.99985 0.99977). Checks: mismatch 0, drift 0, reversal 0, collide off 0, line bound over 0 (L0 meson 1, love 1), star off 0, norm gap 6.35e-12. Smaller angles from the one-line level: rate 1: 0.99997 0.99978 0.99281 0.81871 0.43814 0.29340, mean string 4.025, bent 0.923, 294861 classes; rate 0.25: 0.99999 0.99996 0.99959 0.98911 0.96982 0.95456, mean string 2.300, bent 0.797, 179637 classes. Star at rate 0 (trio, 4 paths): K 244 ungated -> 15 gated, recruited 48 -> 5, off the star 0 -> 0, vibes apart at 128 195, B-leaves 163. Two hubs at rate 0 (2 paths): footprint 4092/4095 ungated -> 41/39 gated, K 292926 -> 8. Meson terms: p0: footprint 11/19/31/47/79, lines 2/3/6/8/14, vacuum-born singles 9/13/14/26/54, turns 16 (8 after beat 64), K 0, K refused 203, B kept/swapped/left 19/388/0, growth 0.6809; p1: footprint 8/20/38/55/97, lines 2/4/7/10/18, vacuum-born singles 4/14/32/38/65, turns 25 (13 after beat 64), K 0, K refused 207, B kept/swapped/left 70/330/0, growth 0.7636; p2: footprint 7/11/14/46/59, lines 1/2/3/8/10, vacuum-born singles 3/10/10/32/42, turns 12 (3 after beat 64), K 0, K refused 142, B kept/swapped/left 4/274/0, growth 0.2826; p3: footprint 7/17/25/54/64, lines 1/4/5/8/11, vacuum-born singles 2/12/16/33/38, turns 20 (6 after beat 64), K 0, K refused 128, B kept/swapped/left 10/244/0, growth 0.1852; p4: footprint 13/16/26/54/84, lines 2/3/4/9/15, vacuum-born singles 7/8/15/36/52, turns 25 (13 after beat 64), K 1, K refused 232, B kept/swapped/left 63/378/0, growth 0.5556; p5: footprint 4/9/19/47/98, lines 1/2/4/8/16, vacuum-born singles 1/3/10/32/69, turns 23 (13 after beat 64), K 0, K refused 157, B kept/swapped/left 22/282/0, growth 1.0851; p6: footprint 12/25/29/61/132, lines 3/4/5/11/22, vacuum-born singles 8/9/14/41/89, turns 28 (16 after beat 64), K 0, K refused 294, B kept/swapped/left 63/514/0, growth 1.1639; p7: footprint 11/20/40/59/96, lines 3/4/7/9/17, vacuum-born singles 6/11/27/37/61, turns 25 (10 after beat 64), K 0, K refused 222, B kept/swapped/left 42/388/0, growth 0.6271; p8: footprint 11/19/28/50/100, lines 2/3/5/9/16, vacuum-born singles 6/14/17/29/60, turns 22 (11 after beat 64), K 0, K refused 178, B kept/swapped/left 40/312/0, growth 1.0000; p9: footprint 8/20/32/52/93, lines 2/4/6/9/15, vacuum-born singles 4/13/18/29/60, turns 28 (10 after beat 64), K 0, K refused 102, B kept/swapped/left 16/184/0, growth 0.7885; p10: footprint 7/6/16/41/90, lines 1/1/3/7/15, vacuum-born singles 4/2/8/23/60, turns 23 (14 after beat 64), K 0, K refused 163, B kept/swapped/left 18/296/0, growth 1.1951; p11: footprint 6/11/18/37/71, lines 1/2/3/6/13, vacuum-born singles 3/6/10/17/45, turns 19 (12 after beat 64), K 0, K refused 110, B kept/swapped/left 12/202/0, growth 0.9189; p12: footprint 10/15/17/33/76, lines 2/3/3/5/12, vacuum-born singles 7/8/6/22/46, turns 14 (8 after beat 64), K 0, K refused 94, B kept/swapped/left 14/174/0, growth 1.3030; p13: footprint 4/9/29/74/105, lines 1/2/5/12/19, vacuum-born singles 1/2/21/42/70, turns 24 (10 after beat 64), K 0, K refused 253, B kept/swapped/left 47/462/0, growth 0.4189; p14: footprint 10/18/23/43/99, lines 2/3/4/7/16, vacuum-born singles 6/10/17/30/62, turns 22 (13 after beat 64), K 0, K refused 169, B kept/swapped/left 24/302/0, growth 1.3023; p15: footprint 12/22/25/37/79, lines 3/4/4/6/13, vacuum-born singles 7/13/15/22/51, turns 17 (8 after beat 64), K 0, K refused 125, B kept/swapped/left 12/230/0, growth 1.1351. Lone love terms: p0: footprint 7/7/8/36/60, lines 1/1/2/5/9, vacuum-born singles 4/5/2/22/44, turns 17 (7 after beat 64), K 0, K refused 34, B kept/swapped/left 10/52/0, growth 0.6667; p1: footprint 3/10/24/38/55, lines 1/2/4/7/10, vacuum-born singles 0/7/19/25/30, turns 16 (7 after beat 64), K 0, K refused 83, B kept/swapped/left 28/136/0, growth 0.4474; p2: footprint 4/12/13/20/37, lines 1/2/2/3/6, vacuum-born singles 3/9/10/14/24, turns 8 (4 after beat 64), K 0, K refused 47, B kept/swapped/left 0/94/0, growth 0.8500; p3: footprint 6/9/13/25/36, lines 1/2/2/4/6, vacuum-born singles 3/7/7/11/16, turns 7 (4 after beat 64), K 0, K refused 65, B kept/swapped/left 0/128/0, growth 0.4400; p4: footprint 13/12/19/29/44, lines 2/2/3/5/8, vacuum-born singles 9/7/10/19/28, turns 10 (5 after beat 64), K 0, K refused 123, B kept/swapped/left 25/216/0, growth 0.5172; p5: footprint 5/11/12/26/31, lines 2/2/3/4/5, vacuum-born singles 2/7/8/15/18, turns 7 (3 after beat 64), K 0, K refused 70, B kept/swapped/left 4/134/0, growth 0.1923; p6: footprint 7/14/18/21/54, lines 2/2/3/4/9, vacuum-born singles 4/6/10/13/35, turns 12 (8 after beat 64), K 0, K refused 63, B kept/swapped/left 0/126/0, growth 1.5714; p7: footprint 7/13/20/27/44, lines 2/2/4/4/7, vacuum-born singles 4/6/14/16/27, turns 9 (4 after beat 64), K 0, K refused 89, B kept/swapped/left 18/154/0, growth 0.6296; p8: footprint 7/7/13/31/45, lines 1/1/2/5/7, vacuum-born singles 4/5/8/18/25, turns 12 (4 after beat 64), K 0, K refused 25, B kept/swapped/left 20/24/0, growth 0.4516; p9: footprint 3/10/14/21/46, lines 1/2/3/4/8, vacuum-born singles 0/7/8/12/31, turns 12 (6 after beat 64), K 0, K refused 57, B kept/swapped/left 16/94/0, growth 1.1905; p10: footprint 6/5/10/12/36, lines 1/1/2/2/6, vacuum-born singles 3/2/6/5/21, turns 10 (8 after beat 64), K 0, K refused 38, B kept/swapped/left 6/64/0, growth 2.0000; p11: footprint 6/6/6/25/46, lines 1/1/2/4/7, vacuum-born singles 3/3/2/15/27, turns 11 (7 after beat 64), K 0, K refused 38, B kept/swapped/left 12/58/0, growth 0.8400; p12: footprint 4/7/10/31/50, lines 1/1/2/5/9, vacuum-born singles 2/4/2/22/39, turns 11 (6 after beat 64), K 0, K refused 97, B kept/swapped/left 24/162/0, growth 0.6129; p13: footprint 5/8/11/18/38, lines 2/2/2/3/6, vacuum-born singles 2/5/8/11/27, turns 5 (3 after beat 64), K 0, K refused 62, B kept/swapped/left 2/120/0, growth 1.1111; p14: footprint 11/13/13/23/51, lines 2/2/3/4/9, vacuum-born singles 8/7/8/16/35, turns 10 (7 after beat 64), K 0, K refused 96, B kept/swapped/left 30/164/0, growth 1.2174; p15: footprint 6/13/11/14/44, lines 2/2/2/2/7, vacuum-born singles 2/9/8/8/27, turns 10 (8 after beat 64), K 0, K refused 76, B kept/swapped/left 8/138/0, growth 2.1429. 401 s.
+exit=0
