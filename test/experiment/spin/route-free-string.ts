@@ -207,7 +207,7 @@ type Level = {
 
 export default experiment({
   id: 'spin/route-free-string',
-  code: 'E-SPN-XXXX',
+  code: 'E-SPN-0131',
   title:
     "a string with no route record, the drift cost read as V = |n|_1 of the members' offset (the fewest frame links, the axial-gauge string), does not bind the mixed love-fear pair at the working mixer angle, fail (R1, R2): the beat is unitary (norm gap 6e-12) and on one line with the mixer off it is the recorded beat amplitude for amplitude (autocorrelation gap 0, E 0.3188654375, m*/E_rest 1.79308); at rate 3 the dominant level is not a level (start weight 0.225, residual 0.64) and keeps fidelity 0.26 with a tail of 0.68 at |n|_1 >= 10 by beat 128, its curvature negative in every direction (-0.32 to -0.28); no cost is worse (fidelity 0.048, tail 0.95) and the recorded register reproduces E-SPN-0128 (0.0351 by beat 24); read: at rate 1/4 the route-free pair keeps fidelity 0.9926 for 128 beats with a tail of 1.4e-3 (the recorded kept 0.955 by beat 24, still falling) and at rate 1 fidelity 0.83, so removing the route record removes most of the loss at small angles and not enough at rate 3; derived: no register stored on links, as a function of positions, updates locally in two or more dimensions, so a route-free string is nonlocal unless a dynamical flux relaxes to it",
   category: 'spin',
