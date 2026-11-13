@@ -258,6 +258,49 @@ the failure that would change my mind
 Then run. This kills hindsight. Once you have seen the number it is easy to tell
 yourself you expected it. The frozen note is the receipt that says whether you did.
 
+## Pre-registration of board experiments
+
+A board experiment is a checklist item under `note/project/vibe/roadmap/`. The
+rule is that no gate is ever set after a probe. Every gate, each number and each
+tolerance, goes into the item's `what` before any code is written, with
+
+```
+pnpm --silent --dir <cluesurf> checklist set vibe/roadmap/<project> <id> --set what="..." --commit
+```
+
+The checklist tool appends a line to the `checklist.ledger.jsonl` beside the
+checklist each time `what` changes, holding a hash of the text and the time. That
+line is the gate line. It dates the gate, and nobody can move the date by hand,
+because a `what` edited outside the tool no longer matches its hash.
+
+The tool in `task/pre-register/` is the only way a board experiment runs. It has
+three commands, each run from the deck:
+
+```
+pnpm call task/pre-register/index.ts gate <id>
+pnpm call task/pre-register/index.ts run <id> -- <probe...>
+pnpm call task/pre-register/index.ts history <id>
+```
+
+`gate` prints the gate line in force and the `what` it hashes. `run` runs one
+probe and appends a line to `test/probe-log/<id>.jsonl` with the time, the
+command, the gate hash and date, the exit code and the verdict the probe printed.
+A probe is an experiment file (one under `test/experiment/` runs through
+`task/run-experiment.ts`), any other TypeScript file, or any command, and its
+verdict is the `verdict` field of the JSON it prints or its last `verdict: <text>`
+line. `history` lists every probe of the item, with each verdict marked recorded
+or refused.
+
+A verdict is refused, with the reasons printed and exit code 3, when any probe of
+the item started before the gate line, or ran under a different gate hash, or
+when `what` changed while the probe ran. A refusal is permanent for that item,
+because a gate changed after a probe could have been chosen after seeing the
+number. The way forward is a new experiment item with its gate set first. An item
+with no ledger line, or whose `what` no longer matches its hash, has no dated
+gate, so no probe runs at all.
+
+The self-test is `node_modules/.bin/tsx --test task/pre-register/pre-register.test.ts`.
+
 ## Stage 17. Report the spread over one run
 
 Never rest a claim on one run.

@@ -78,7 +78,19 @@
 // sent the long way round) and B_X left the cluster's cut trit behind; both fixed (wrapped loves move c, B_X takes them
 // back). Run 3: I1 3.3e-16, I2 5.6e-16, C1 1.6e-5, alone 0.9941 to 0.9935 (C2), k = 3 on ring 10 (density 0.3, one
 // start, Pauli dropped 0.44): f 0.96, 0.49, 0.43, 0.41, 0.39 at beats 0, 4, 8, 12, 16, tau 4, bath alone 0 (floor
-// 0.009). Status open (smoke). The full sweep has not run.
+// 0.009). Status open (smoke).
+//
+// FULL RUN (M3, 2026-11-13, BATH_SWEEP=full, clone vibe-bath-b1, 5,317 s, light slot). Status OPEN. I1 2.9e-16, I2
+// 3.9e-16 (norm 3.1e-11), C1 exact (level off 0), C2 pass (alone 0.9939 to 0.9941 on ring 12, 0.9994 on ring 15).
+// C3 fails only at ring 12, k = 9 (density 0.75): the bath alone reads 1.92 against its floor 0.50, so that cell is
+// no evidence. Long-time fractions (mean past beat 128, max in brackets), keeping time tau:
+//   ring 12: k 3 0.246 (0.268) tau 8; k 6 0.159 (0.167) tau 8; k 9 1.02 (C3 fail)
+//   ring 15: k 3 0.309 (0.340) tau 32; k 6 0.397 (0.420) tau 16
+// The refutation (a plateau at 0.5 or more) fails on every ring: attraction alone does not keep the cluster; the
+// bath strips more than half its excess within 8 to 32 beats at every density. The prediction's strict fall with k
+// also fails, on ring 15 (k 6 above k 3), so the run is open by rule. Every series still falls slowly at beat 256
+// (ring 15 k 6: 0.420 at 136 to 0.375 at 256), so the long-time reading is erosion, not a floor: a plateau below 0.5
+// is not ruled out, and the fractions are not ordered by density, which a pure ionization picture predicts.
 //
 // Depth L2: the working knit's line sector with the two pieces of E-SPN-0103 on flat links (a rule with pieces chosen,
 // E-SPN-0104's), floats standing for the exact per-slice run (checked against it by I1), the level a float eigenvector
