@@ -6,16 +6,24 @@ import { beatInto, inverseBeat } from '@/code/rule/lattice-gas'
 import { disagreementFraction } from '@/code/measure/agreement'
 import { profileGradient } from '@/code/measure/profile'
 
-// Measurement as deterministic settling. A coherent body on the reversible lattice gas is coupled to the OPEN
-// growing edge (cells held at peace at a frontier slab, the bath that the fine phase leaks into) or run CLOSED
-// (no bath). The open system forms an irreversible, definite, stable coarse record (a pointer that settles),
-// the closed one stays coherent and recoverable (the Loschmidt echo recovers it exactly), no record. No special
-// collapse law is added, the record is deterministic relaxation plus loss of the fine phase to the wake.
+// Measurement as deterministic settling. A coherent body on the reversible lattice gas is run OPEN (one fixed
+// slab of the periodic box zeroed after every beat) or CLOSED (no slab zeroed). The closed one stays coherent
+// and recoverable (the Loschmidt echo recovers it exactly).
+//
+// UNDER REVIEW (decision 001, one present, note/project/vibe/roadmap/one-present/review.md). The open mode is
+// not growth and not part of the rule. Zeroing a slab is a non-invertible sink: it destroys information every
+// beat. It was once named the "growing edge" and its loss called the record, but there is one present (the
+// whole state at this beat) and a record is a correlation inside it, never information destroyed. So the
+// open mode's "irreversible record" is the echo error this erasure causes, and the occupancy gradient read as
+// the pointer is partly drawn by the zeroed slab itself. Item 0011 replaces it with a bath that stays part of
+// the present ('grow' and 'region') and keeps this erasure only as a control. Item 0010 supplies the inverse
+// growth step the 'grow' bath needs. The behavior below is unchanged until then.
 
 const sideOf = (mesh: Mesh): number =>
   Math.round(Math.pow(mesh.cellCount, 1 / 4))
 
-// Hold a frontier slab (cells at a fixed x-coordinate) at peace, the open bath the fine phase disperses into.
+// Zero one slab (cells at a fixed x-coordinate) of the periodic box. This erases what the slab held, so it is a
+// non-invertible sink, not a growing boundary and not a bath inside the present (item 0011).
 export function bornAtPeace(will: Will, frontierX: number): void {
   const mesh = will.mesh
   const side = sideOf(mesh)
@@ -56,7 +64,8 @@ export function slabOccupancy(will: Will, axis = 0): number[] {
   return sum.map((s, i) => s / Math.max(1, count[i]!))
 }
 
-// The coarse-POINTER trajectory, the occupancy gradient after each beat. Open holds the bath at the frontier.
+// The coarse-POINTER trajectory, the occupancy gradient after each beat. Open zeroes the slab each beat, and the
+// gradient it reads is over the whole box, zeroed slab included (item 0011 reads the body's own docks only).
 export function pointerTrajectory(input: {
   init: Will
   forward: Collision
@@ -101,10 +110,10 @@ export function pointerTrajectory(input: {
 
 // The per-beat coarse SLAB-OCCUPANCY field (not just its scalar gradient), the spatial
 // field a persistence measure reads. Same dynamics as pointerTrajectory (run the rule
-// `beats` beats, optionally holding the frontier slab at peace so the fine phase leaks to
-// the open edge), but it returns the whole occupancy profile each beat so its spatial
-// pattern can be autocorrelated over time. A settled classical record holds its profile
-// (high lag autocorrelation), a coherent closed system does not.
+// `beats` beats, optionally zeroing the slab each beat), but it returns the whole occupancy
+// profile each beat so its spatial pattern can be autocorrelated over time. In the open mode
+// the persistent profile is partly the zeroed slab's own shape, so a persistence read from it
+// is under review (item 0011).
 export function slabOccupancySeries(input: {
   init: Will
   forward: Collision
@@ -147,9 +156,9 @@ export function slabOccupancySeries(input: {
   return series
 }
 
-// The Loschmidt echo, forward `beats` then the exact inverse bulk backward `beats`, the recovery error. Zero for
-// the closed reversible bulk (the coherence is intact, no record), nonzero for the open one (the fine phase has
-// leaked to the bath, an irreversible record).
+// The Loschmidt echo, forward `beats` then the exact inverse backward `beats`, the recovery error. Zero for the
+// closed reversible run. Nonzero for the open one, but only because the slab zeroing destroyed information the
+// inverse cannot restore: this error measures the erasure, not a record (item 0011).
 export function loschmidtEcho(input: {
   init: Will
   forward: Collision
@@ -240,9 +249,10 @@ export function signedSlabPointer(will: Will, axis = 0): number {
   return total > 0 ? (lo - hi) / total : 0
 }
 
-// Hold every slab in `frontiers` (x-coordinates) at peace, the open drains the fine
-// phase disperses into. Generalises bornAtPeace to several drains, so a symmetric
-// two-drain detector (both ends open) can be built.
+// Zero every slab in `frontiers` (x-coordinates) each beat. Generalises bornAtPeace to
+// several drains, so a symmetric two-drain detector (both ends open) can be built. Like
+// bornAtPeace it is a non-invertible sink, so a one-sided drain's settled record rests on
+// erasure (item 0011 checks the experiments that call it).
 export function drainSlabs(
   will: Will,
   frontiers: readonly number[],
@@ -263,8 +273,8 @@ export function drainSlabs(
   }
 }
 
-// Run the committed reversible rule for `beats`, holding the given `drains` slabs at
-// peace each beat, and return the final SIGNED pointer. This is the settled outcome of
+// Run the committed reversible rule for `beats`, zeroing the given `drains` slabs each
+// beat, and return the final SIGNED pointer. This is the settled outcome of
 // a measurement with the chosen drain geometry (one-sided or symmetric two-sided).
 export function settledSignedPointer(input: {
   init: Will

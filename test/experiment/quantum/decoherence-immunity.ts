@@ -8,8 +8,9 @@
 // experience) by a discrete deterministic route that never banks on coherence.
 //
 // We measure this directly. A deterministic body on the committed reversible lattice
-// gas is coupled to the open growing edge (the wake the fine phase leaks into). Two
-// clocks run at once:
+// gas is run open (one fixed slab of the periodic box zeroed after every beat, once
+// named "the open growing edge", the sink the fine phase leaks into). Two clocks run
+// at once:
 //   - the COHERENCE clock: the Loschmidt echo, the error when the dynamics is run
 //     forward then exactly inverted. Closed (no wake) it is exactly zero, the phase is
 //     fully recoverable, coherence intact. Open (coupled to the wake) it jumps well
@@ -22,6 +23,13 @@
 // clock at all. And it holds at every mesh size from 256 to 4096 cells, so no
 // privileged hardware (no microtubule) is needed, the immunity is substrate scale
 // independent.
+//
+// UNDER REVIEW (decision 001 of the one-present roadmap). The open slab is not growth
+// and not part of the rule: zeroing it destroys information every beat. There is one
+// present, the whole state at this beat, and a record is a correlation inside it,
+// never information destroyed. So the persisting outcome here is the erasure's
+// pointer, and the rerun with a bath that stays in the present (item 0011, X4 in the
+// review) decides the verdict. The gates and verdict below are unchanged until then.
 //
 // The control is the CLOSED bulk: its echo is exactly zero (fully coherent, no record),
 // which proves the open bath genuinely destroys coherence rather than the measure being

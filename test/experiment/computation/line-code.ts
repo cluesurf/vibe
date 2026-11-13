@@ -215,7 +215,7 @@ export default experiment({
   id: 'computation/line-code',
   code: 'E-CMP-0019',
   title:
-    'the adopted knit protects a code, pass (classical): a trit written once on each of n mesh lines is a repetition code whose symbols are lines, and because a change never leaves its line the beat never carries an error between lines, so pulling back with the rule own inverse and taking the majority corrects any error on fewer than n/2 lines at any beat; on 17 link starts, 3 logical values, n = 3 and 5, errors of 3 trits at beats 0, 5 and 11, every case decodes and every difference stays on the errored lines, forward and pulled back, while an error on a majority decodes wrong (distance exact); the quantum code over lines is argued, not run, and the protection is the line law itself, which the candidate rule removes',
+    'an earlier knit protects a code, pass (classical): a trit written once on each of n mesh lines is a repetition code whose symbols are lines, and because a change never leaves its line the beat never carries an error between lines, so pulling back with the rule own inverse and taking the majority corrects any error on fewer than n/2 lines at any beat; on 17 link starts, 3 logical values, n = 3 and 5, errors of 3 trits at beats 0, 5 and 11, every case decodes and every difference stays on the errored lines, forward and pulled back, while an error on a majority decodes wrong (distance exact); the quantum code over lines is argued, not run, and the protection is the line law itself, which the candidate rule removes',
   category: 'computation',
   substrates: ['3434'],
   depth: 'L2',

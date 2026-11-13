@@ -12,14 +12,20 @@ Structures both theories **derive, not assume**, from different primitives. (An 
 here is anything that stays fixed: a conserved quantity, a forced structure, or a
 correspondence that holds across both theories.)
 
-- **Time = accumulated irreversible distinction.** Vibe: the wake (vibe's growing edge,
-  the new cells added each step) piles up records, count 1 to 8857, and its arc length
-  only ever rises ([`E-FND-0051`](../../test/experiment/foundations/record-accumulating-wake.ts)). TD: accumulated Fisher-Rao arc length. Neither assumes
-  time, both build it.
-- **Records are the arrow.** Vibe: the knit (vibe's one reversible update rule) run
+- **Time = accumulated irreversible distinction (under review).** Vibe used to read this
+  off the wake (the mesh's growth, the new cells added each step): a count of existing cells,
+  1 to 8857, whose arc length only ever rises ([`E-FND-0051`](../../test/experiment/foundations/record-accumulating-wake.ts)). Under one present
+  (note/project/vibe/roadmap/one-present, decision 001) that count is the mesh's size, not a
+  record: no state is evolved, the wake runs back exactly (item 0010 checks it), and the new docks join the
+  present rather than being it. The match is under review pending items 0012 and 0013 there,
+  which test a record as a correlation inside the present and the arrow as the second law.
+  TD: accumulated Fisher-Rao arc length.
+- **Records are kept.** Vibe: the knit (vibe's one reversible update rule) run
   forward then backward recovers the start exactly, zero cells differ ([`E-FND-0049`](../../test/experiment/foundations/record-preserving-paths.ts)). TD:
-  the recordability condition (a real path must keep its records). Kept records are what
-  give time a direction.
+  the recordability condition (a real path must keep its records). Nothing is erased, so
+  the past is what the present implies when the rule runs back. The direction of time is
+  the second law, coarse entropy rising away from a low-entropy start
+  ([`E-FND-0147`](../../test/experiment/foundations/husk-arrow-records.ts)).
 - **Fisher-Rao is forced.** Vibe: relabeling the 24 directions by a symmetry leaves the
   Fisher-Rao readout unchanged (deviation 6.7e-16) while a hand-weighted measure swings
   (0.99), so the geometry picks Fisher-Rao ([`E-FND-0057`](../../test/experiment/foundations/chentsov-forced-distinguishability.ts)). TD: Chentsov's theorem (the one
@@ -34,18 +40,18 @@ correspondence that holds across both theories.)
   (Saturn's moon Hyperion tumbles chaotically above a derived rate). This is the newest of
   the matches, and the best one to pursue next.
 
-Five shared survivors, more than any other theory.
+Five shared survivors, more than any other theory, one of them (time) under review.
 
 ## Correspondence
 
 | vibe | Timeless Dynamics | experiment&nbsp;&nbsp;&nbsp;&nbsp; | grade |
 |:--- |:--- |:--- |:--- |
-| the wake (growing edge) | time as Fisher-Rao arc length | [`E-FND-0051`](../../test/experiment/foundations/record-accumulating-wake.ts) | firm |
+| the wake (the mesh's growth) | time as Fisher-Rao arc length | [`E-FND-0051`](../../test/experiment/foundations/record-accumulating-wake.ts) | under review (item 0012) |
 | the knit erases nothing (exact reverse) | the recordability condition | [`E-FND-0049`](../../test/experiment/foundations/record-preserving-paths.ts) | firm |
-| fixed-mesh knit is a closed loop, no arrow | so time is the wake, not the knit | [`E-FND-0048`](../../test/experiment/foundations/emergent-time-distinguishability.ts) | firm |
+| fixed-mesh knit is a closed loop, no arrow | the rule alone gives no arrow. Time's arrow is the second law, not the wake | [`E-FND-0048`](../../test/experiment/foundations/emergent-time-distinguishability.ts) | firm, claim restated |
 | Fisher-Rao forced by relabeling | Fisher-Rao forced by Chentsov | [`E-FND-0057`](../../test/experiment/foundations/chentsov-forced-distinguishability.ts) | firm |
-| record axis and radial-scale axis kept distinct | the five-coordinate argument | [`E-FND-0052`](../../test/experiment/foundations/record-phase-scale-distinct.ts) | firm |
-| growth forced by recurrence (a finite reversible system must repeat) | records must accumulate for time | [`E-FND-0055`](../../test/experiment/foundations/recurrence-forces-wake.ts) | firm |
+| record axis and radial-scale axis kept distinct | the five-coordinate argument | [`E-FND-0052`](../../test/experiment/foundations/record-phase-scale-distinct.ts) | under review (item 0012) |
+| a finite reversible system must repeat (recurrence) | records must accumulate for time | [`E-FND-0055`](../../test/experiment/foundations/recurrence-forces-wake.ts) | recurrence half firm, the "only growth escapes it" half under review (item 0012) |
 | Lyapunov ceiling on record contrast | the Hyperion chaos threshold | [`E-QTM-0092`](../../test/experiment/quantum/lyapunov-recordability-ceiling.ts) | firm |
 | a coarse block window records at most ln(B) bits, the excess spills out | recordability capacity, records at most the local channel limit | [`E-FND-0072`](../../test/experiment/foundations/recordability-capacity-ceiling.ts) | structural |
 | the gravity potential is short-ranged in the curved interior | TD Poisson gravity from the information potential | [`E-GRV-0049`](../../test/experiment/gravity/td-log-density-gravity-screened.ts) | structural |

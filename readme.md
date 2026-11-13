@@ -1350,8 +1350,14 @@ simplest drawable face, the hyperbolic $\lbrace7,3\rbrace$ tiling, meant
 literally: each tile is a **vibe**, a unit of experience, and its tone
 is a felt charge (**red is pain, green is peace, blue is pleasure**).
 Touching tiles **note** (experience) one another. A patch of tiles is a
-thing or a mind, the whole mesh is the universe, and its growing edge is
-the present. The $\lbrace7,3\rbrace$ stands in for the
+thing or a mind, and the whole mesh is the universe. Physics is read
+on the husk, the 3d surface, and the 4d bulk inside it is experience.
+There is one present: the whole state of the model at this beat, every
+dock at once, bulk and husk alike.
+The past is not kept anywhere. It is what the present implies when the
+rule runs back. As the mesh grows, new docks join the present at the
+mesh's boundary. They are not the present, and the older docks are not the past.
+The $\lbrace7,3\rbrace$ stands in for the
 $\lbrace3,4,3,4\rbrace$, whose flat 3d cusp is the space we live in.
 Regular hyperbolic honeycombs run out by 5d, and $\lbrace3,4,3,4\rbrace$
 is the one whose docks are a crystallographic root system that carries

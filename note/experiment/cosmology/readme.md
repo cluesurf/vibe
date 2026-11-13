@@ -19,7 +19,7 @@ The mesh grows one shell per beat. The bulk is hyperbolic, so its shells grow ge
 - **[`E-CSM-0020`](../../../test/experiment/cosmology/expansion-rate.ts)** - the per-beat expansion factor is the growth ratio, a fixed eigenvalue of the shell map, greater than one for every hyperbolic symbol, not a free parameter.
 - **[`E-CSM-0027`](../../../test/experiment/cosmology/growth-expansion.ts)** - a pure local birth rule with net-positive births gives emergent expansion, and the static control at zero excess birth does not expand.
 - **[`E-CSM-0034`](../../../test/experiment/cosmology/p237-cosmology.ts)** - the hyperbolic `{3,4,3,4}` bulk grows exponentially with radius, the eternal expansion, with the flat cusp as the spatial slice.
-- **[`E-CSM-0043`](../../../test/experiment/cosmology/wake-expansion-scalar.ts)** - the wake is the expansion scalar, the conserved-current divergence equals the count of newly born edge cells exactly, and is integer-zero in the settled bulk and dead under the static control.
+- **[`E-CSM-0043`](../../../test/experiment/cosmology/wake-expansion-scalar.ts)** - the wake is the expansion scalar, the conserved-current divergence equals the count of docks joining the present at the boundary exactly, and is integer-zero in the interior, where no docks join, and dead under the static control. The interior is not a settled past: every dock is stepped by the rule every beat.
 
 ### The origin from nothing
 

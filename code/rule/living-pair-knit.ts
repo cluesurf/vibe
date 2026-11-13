@@ -59,7 +59,13 @@
 
 import { type ColorWeave } from '@/code/rule/color-weave'
 import { type BeatRecord } from '@/code/rule/fear-weave'
-import { LINE_FIRSTS, OPPOSITE } from '@/code/rule/isometric-knit'
+import {
+  LINE_FIRSTS,
+  LINE_OF,
+  OPPOSITE,
+  SIDE,
+} from '@/code/rule/isometric-knit'
+import { streamSource, streamTarget } from '@/code/rule/vibe-weave'
 import {
   applyCoinMap,
   dockCoinMap,
@@ -400,9 +406,37 @@ export function livingMotionReversal(
 
 // ---- the hot vacuum ----
 
+// The unit whose vibe meets the vibe streamed out of slot `from` at the veto beat: the vibe lands on one slot of a
+// line, and its partner is whatever streamed into the other slot of that line. Returns the partner's source slot and
+// its unit (dock * 12 + line), or undefined when the partner is not of the other kind (a fear leaves a line's first
+// slot, a love its second: two fears or two loves never pair). On the box this is (A)'s neighbour along the line,
+// x + 2r for the first slot and x - 2r for the second. On a mesh with a frontier the reflecting stream decides it
+// (code/rule/vibe-weave streamTarget and streamSource), so the condition reads the same in every case.
+function meetingPartner(
+  weave: ColorWeave,
+  from: number,
+): { slot: number; unit: number } | undefined {
+  const { mesh, opposite } = weave
+  const to = streamTarget(mesh, opposite, from)
+  const z = Math.floor(to / 24)
+  const other = z * 24 + (opposite[to - z * 24] ?? 0)
+  const slot = streamSource(mesh, opposite, other)
+  const u = Math.floor(slot / 24)
+  const e = slot - u * 24
+  const firstFrom = SIDE[from % 24] === 1
+  const firstPartner = SIDE[e] === 1
+
+  if (firstFrom === firstPartner) {
+    return undefined
+  }
+
+  return { slot, unit: u * 12 + LINE_OF[e]! }
+}
+
 // The separated point layout: one role point per line of every dock, chosen dock by dock (in dock order unless an
 // order is given) as the least point that breaks condition (A) with both neighbours along the line already chosen.
-// Always exists (two constraints, nine points)
+// Always exists (two constraints, nine points). On any mesh, the neighbours are the units whose vibes meet this
+// unit's two vibes at the veto beat (meetingPartner); a unit meeting itself, at a frontier, is not constrained
 export function separatedLayout(
   weave: ColorWeave,
   order?: readonly number[],
@@ -420,31 +454,27 @@ export function separatedLayout(
     for (let l = 0; l < 12; l++) {
       const f = LINE_FIRSTS[l]!
       const s = LINE_SECONDS[l]!
-      const up = mesh.neighbour(mesh.neighbour(x, f), f)
-      const down = mesh.neighbour(mesh.neighbour(x, s), s)
       const forbidden = new Set<number>()
 
-      // (A) at x: link(x, f) p(x) != link(up, s) p(up)
-      if (layout[up * 12 + l] !== -1) {
-        forbidden.add(
-          inverseAct(
-            links[x * 24 + f] ?? moves.identity,
-            act(
-              links[up * 24 + s] ?? moves.identity,
-              layout[up * 12 + l]!,
-            ),
-          ),
-        )
-      }
+      // (A) at x's fear: link(x, f) p(x) != link(up, s) p(up), and at x's love: link(down, f) p(down) != link(x, s)
+      // p(x). On the box up = x + 2r and down = x - 2r
+      for (const own of [f, s]) {
+        const partner = meetingPartner(weave, x * 24 + own)
 
-      // (A) at down: link(down, f) p(down) != link(x, s) p(x)
-      if (layout[down * 12 + l] !== -1) {
+        if (
+          !partner ||
+          partner.unit === x * 12 + l ||
+          layout[partner.unit] === -1
+        ) {
+          continue
+        }
+
         forbidden.add(
           inverseAct(
-            links[x * 24 + s] ?? moves.identity,
+            links[x * 24 + own] ?? moves.identity,
             act(
-              links[down * 24 + f] ?? moves.identity,
-              layout[down * 12 + l]!,
+              links[partner.slot] ?? moves.identity,
+              layout[partner.unit]!,
             ),
           ),
         )
@@ -463,7 +493,8 @@ export function separatedLayout(
   return layout
 }
 
-// the docks and lines where condition (A) fails for a layout (0 for a separated one)
+// the docks and lines where condition (A) fails for a layout (0 for a separated one). On a mesh with a frontier, a
+// unit whose two vibes meet each other (both reflected) counts too: no layout can separate it from itself
 export function layoutViolations(
   weave: ColorWeave,
   layout: Int8Array,
@@ -475,15 +506,19 @@ export function layoutViolations(
   for (let x = 0; x < mesh.cellCount; x++) {
     for (let l = 0; l < 12; l++) {
       const f = LINE_FIRSTS[l]!
-      const s = LINE_SECONDS[l]!
-      const up = mesh.neighbour(mesh.neighbour(x, f), f)
+      const partner = meetingPartner(weave, x * 24 + f)
+
+      if (!partner) {
+        continue
+      }
+
       const left =
         moves.act[links[x * 24 + f] ?? moves.identity]?.[
           layout[x * 12 + l]!
         ]
       const right =
-        moves.act[links[up * 24 + s] ?? moves.identity]?.[
-          layout[up * 12 + l]!
+        moves.act[links[partner.slot] ?? moves.identity]?.[
+          layout[partner.unit]!
         ]
 
       bad += left === right ? 1 : 0
