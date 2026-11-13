@@ -22,10 +22,12 @@
 ## The goal
 
 **Explore whether the universe could rest on a small discrete base.**
-The base tried here is five things: a 4d hyperbolic mesh, the honeycomb
-**$\lbrace3,4,3,4\rbrace$**, whose every site holds 24 values of three
-tones, one deterministic, reversible, integer perception rule, growth,
-and the arrow. Space and its dimension, time's arrow, relativity, spin,
+The base tried here is four things: a 4d hyperbolic mesh, the whole
+infinite honeycomb **$\lbrace3,4,3,4\rbrace$**, whose every site holds
+24 values of three tones, one deterministic, reversible, integer
+perception rule, and the arrow. Growth is not a base thing: what
+differs from the calm vacuum is a finite disturbance that spreads at
+most at the top speed. Space and its dimension, time's arrow, relativity, spin,
 light, the quantum, gravity and selves would each have to come out of
 that base, or the base is wrong. Nothing here shows yet that they all
 do. This repository tests one measurable claim at a time, reports each
@@ -34,8 +36,8 @@ as held, partial or failed, and keeps every result that said no.
 **The premise.** Vibe starts from an assumption, not a result:
 experience is at the base of reality. Everything is experiencing pain,
 peace or pleasure, the three tones −1, 0 and +1, across a vast mesh
-that keeps growing and changing. Consciousness is a network of
-integrated experience. The same model aims to hold physics and quantum
+that keeps changing. Consciousness is experience building systems to
+have integrated experiences. The same model aims to hold physics and quantum
 physics exactly, inside the one mesh and its one perception rule, not
 as a separate layer on top. What is tested is how far this
 experience-first base can reach into known physics and quantum physics.
@@ -44,10 +46,24 @@ experience-first base can reach into known physics and quantum physics.
 that can reach known physics, so the premise, the five base things and
 the rule itself are all open to change. When a test shows that a
 simpler or better choice works, or that a current choice cannot work,
-the base changes with it.
+the base changes with it. Each change is the author's, filed with what
+would falsify it, and every new run is registered before it runs, so
+the base cannot be changed after the fact to rescue a result.
 
-Some of it holds so far. Light on the husk is the same in every
-direction up to fourth order (exponent 4.001, E-RLT-0113), and a light
+**What a 2026-11-12 advisory board review withdrew.** Bell held in the
+model's records (only the amplitude state's knots exceed 2), the Born
+rule and measurement as held (open, and the Born rule is posited),
+gravity as solved (L2, from an added depth register), universal fall
+(failed), the area law and black hole thermodynamics (bookkeeping, the
+rule's own state is a volume law), dark energy, inflation and the
+Hubble rate (stand-ins), the Standard Model rows (algebra or earlier
+rules), and every held row above L2. No rule yet survives every gate.
+Every run is on a flat box whose results carry over to the honeycomb
+only for one dock over one beat. The scoreboard below is marked by
+these readings.
+
+Some of it holds so far, on the flat box. Light on the husk is the same
+in every direction up to fourth order (exponent 4.001, E-RLT-0113), and a light
 bound pair's inertia comes within mesh artifacts of its energy, with a
 continuum remainder of 0.012 ± 0.009 (E-MTR-0028). Some is still open:
 a moving pair's clock reads the wrong sign (E-SPN-0214), and matter on
@@ -76,24 +92,27 @@ not something else.
 | term | what it is | why |
 | :--- | :--- | :--- |
 | **tone** | one trit: +1, 0 or −1. The whole state is tones | three is the smallest alphabet with an empty value and a sign flip (charge conjugation) ([`E-FND-0038`](test/experiment/foundations/ternary-and-4d-forced.ts)) |
-| **vibe** | a slot holding +1 (a **love**) or −1 (a **fear**). A slot holding 0 is **calm** | the two signs are particle and antiparticle. **Charge** is love minus fear, **content** is love plus fear |
+| **vibe** | a slot holding +1 (a **love**) or −1 (a **fear**). A slot holding 0 is **calm** | the two signs are particle and antiparticle. **Charge** is love minus fear, **content** is love plus fear. A self's **valence** is not its net count, since net love minus fear is charge and is conserved: it is a C-odd reading with no net charge that belongs to a subject, never to a region, so the vacuum has none |
 | **dock** | one site of space: 24 **slots**, one per root of the D4 root system, which are the 24 vertices of a 24-cell. Opposite slots pair into 12 **lines** | D4 is the one 4d root system with triality ([`E-FND-0038`](test/experiment/foundations/ternary-and-4d-forced.ts)), and its 24 directions carry the spinor double cover, so a 2π turn gives −1 ([`E-SPN-0042`](test/experiment/spin/spinor-double-cover.ts)) |
-| **mesh** | the space of docks. In the model it is the $\lbrace3,4,3,4\rbrace$ honeycomb: 24-cells whose vertex figure is the flat cubic honeycomb $\lbrace4,3,4\rbrace$. In the experiments it is a flat periodic D4 box of side 8, 16 or 24, a disclosed stand-in | the box has the same 24 directions per dock and is finite and exact. The honeycomb unfolds from one 24-cell in shells of 1, 24, 456, 8,376 and 153,192 docks, a ratio settling at 18.278 ([`E-GMT-0027`](test/experiment/geometry/mesh-unfolds-exactly.ts)) |
-| **beat** | one tick of time. Every dock applies the rule at once | the rule is synchronous and deterministic, so a run is reproducible bit for bit |
+| **mesh** | the space of docks. In the model it is the whole infinite $\lbrace3,4,3,4\rbrace$ honeycomb: 24-cells whose vertex figure is the flat cubic honeycomb $\lbrace4,3,4\rbrace$. It does not grow. In the experiments it is a flat periodic D4 box of side 8, 16 or 24, a disclosed stand-in | the box has the same 24 directions per dock and is finite and exact, but its results agree with the honeycomb only for one dock over one beat. The honeycomb unfolds from one 24-cell in shells of 1, 24, 456, 8,376 and 153,192 docks, a ratio settling at 18.278 ([`E-GMT-0027`](test/experiment/geometry/mesh-unfolds-exactly.ts)). Runs on balls of the true honeycomb (up to 162,049 docks: E-SPN-0156 to 0158, 0181, 0182, 0184, E-NVG-0014, E-FRC-0281, E-RLT-0054, E-CSM-0058 to 0060) are mostly negative, and on its true surface nothing yet travels |
+| **beat** | one tick of time. The simulator applies the rule at every dock at once | a run is reproducible bit for bit. The global beat is bookkeeping: the present is the whole state on any slice inside the stream's cone, no slice preferred |
 | **take** | how anything gets anywhere: each beat a slot takes its neighbor's value along its direction (the **stream**). Nothing moves | a value is read and written, never carried, so the stream is a permutation and runs backward exactly |
-| **husk** | the 3d surface on which physics is read: the depth-even half of the 4d box, exactly closed ([`E-FRC-0168`](test/experiment/gauge/photon-husk.ts)). In the honeycomb it is the flat horosphere at a cusp | the vertex figure $\lbrace4,3,4\rbrace$ is flat 3d, so the mesh has flat 3d surfaces at infinity, and a spectral dimension near 3 is read there ([`E-GMT-0025`](test/experiment/geometry/why-3plus1.ts)) |
+| **husk** | the 3d surface on which physics is read: the depth-even half of the 4d box, exactly closed ([`E-FRC-0168`](test/experiment/gauge/photon-husk.ts)). In the honeycomb it is the flat horosphere at a cusp | the vertex figure $\lbrace4,3,4\rbrace$ is flat 3d, so the mesh has flat 3d surfaces at infinity. The spectral dimension near 3 ([`E-GMT-0025`](test/experiment/geometry/why-3plus1.ts)) was read on a cubic walk, at L1, not on the honeycomb |
 | **bulk**, **depth** | the 4d mesh behind the husk. A **husk column** is the stack of bulk docks behind one husk dock, and its size D is its **depth** | every husk field is a column sum of bulk trits, so the depth sets how finely the husk counts ([`E-FRC-0207`](test/experiment/gauge/trit-column-light.ts)) |
 | **role**, **link** | each vibe carries a point on a 3 by 3 grid (its role, a qutrit). A **link** between two docks holds a grid move, one of the 648 elements of the qutrit Clifford group Σ(648) | the links are exactly that group ([`E-QTM-0117`](test/experiment/quantum/links-are-the-clifford-group.ts)). A link stores no matter: it is the relation between the vibes on it |
 | **store** | a dock line's held love and fear pair, made from an empty line and released back to it | this is how the vacuum makes and unmakes pairs while its charge stays 0 |
-| **amplitude** | the state is a finite sum of classical configurations, each weighted by an exact number in $\mathbb{Z}[\omega][1/2]$, $\omega = e^{2\pi i/3}$ | every three in the model (charge in thirds, the knot $1 + \omega + \omega^2 = 0$) lives in this one ring, and it needs no rounding |
-| **path** | one measurement record of the quantum rule: at every split one branch, chosen by a deterministic key | a path is what one observer would record. A path can scramble while the sum it samples stays linear, so fields are read as averages over paths |
+| **amplitude** | the state is a sum of classical configurations, each weighted by an exact number, $\omega = e^{2\pi i/3}$. The ring is $\mathbb{Z}[\omega][1/6]$ or $\mathbb{Z}[\zeta_9][1/6]$, depending on how the links lift | Σ(648) as matrices needs $1/\sqrt{-3}$, so $\mathbb{Z}[\omega][1/2]$ is too small. No rounding |
+| **present** | the whole amplitude state, on any slice inside the stream's cone. No keyed path picks a history: an outcome, a record or a single history is a correlation inside the one present | a keyed path is a local hidden variable, so its records can never violate Bell's bound. Keyed paths stay as a sampling tool for averages, and a row whose outcome came from a path is a result about that sampling |
+| **subject** | the present is selfless experience, and subjects are record branches, each weighted by its squared amplitude | under this the Born rule is posited, not derived |
 
 ## The rule, as it stands
 
 Each beat applies the coin, then the meetings, then the collision, then
-the stream. Every piece is an exact, reversible map in
-$\mathbb{Z}[\omega][1/2]$, with no float, no rounding and no random
-number, and runs backward piece by piece.
+the stream. Every piece is an exact, reversible map in the model's
+ring, with no float, no rounding and no random number, and runs
+backward piece by piece. It is a working rule, not a final one: its
+matter moves only along lines, which fails isotropy, and on the true
+honeycomb's surface it moves nothing.
 
 | piece | what it does | why this one | code |
 | :--- | :--- | :--- | :--- |
@@ -141,8 +160,8 @@ not a fact to reproduce. On 51 of 51 gated cases
   phases dropped each beat, the occupation distance reads 0.69 to 0.71
   by beat 6 in the vacuum (0.60 on the husk columns), and exactly 0
   with the coin off
-  ([`E-QTM-0157`](test/experiment/quantum/position-interference.ts)).
-  The earlier reading that the kept branch does not interfere used a
+  ([`E-QTM-0157`](test/experiment/quantum/position-interference.ts)),
+  held for one open line, at L2. The earlier reading that the kept branch does not interfere used a
   configuration only one history reaches, so it could not see
   interference
 
@@ -165,10 +184,16 @@ derivation, a numerical match counted only through a pre-registered
 null ([`E-MTH-0010`](test/experiment/method/closed-forms-under-a-null.ts)),
 and the verdict judged over 17 link starts
 ([`E-MTH-0028`](test/experiment/method/multi-start-robustness.ts)).
+Those 17 starts vary only the link phases, at one size, on boxes of
+side 3 and 4. Held means L2 at best: no held row is L3 by the program's
+own rubric, and the experience rows are graded no higher than the
+substrate they ran on (choice and intention ran on toy layers). The
+tallies below date from 2026-09-29 and are being checked against the
+experiments each row cites.
 
 | status | meaning | facts |
 | :--- | :--- | ---: |
-| held | measured on the rule itself, with a control, over the start family | 38 |
+| held | measured on the rule itself, with a control, over the start family (L2 at best) | 38 |
 | partial | measured, but on a stand-in, one sector, one start, or with a gate failing | 67 |
 | stand-in | only a textbook calculation or a hand-built object the rule has not produced | 45 |
 | open | worked on and not reached | 24 |
@@ -210,22 +235,26 @@ is a part added to the rule rather than one the rule produces.
 
 ## What holds on the current rule
 
+On the flat box, at L2 at best. The quantum rows hold in the amplitude
+state: the rule's own share is that it makes the knot, and the rest are
+known theorems of any qutrit circuit, graded L1.
+
 | fact | measured | code |
 | :--- | :--- | :--- |
-| Bell violation | CHSH above 2 on exact algebraic values, never 2 on 17 of 17 starts | [`E-QTM-0140`](test/experiment/quantum/bell-values-exact.ts) |
-| Tsirelson's bound | the exact largest CHSH of a knot in closed form, and 2√2 reached by a finite history | [`E-QTM-0132`](test/experiment/quantum/tsirelson-closed-form.ts), [`E-QTM-0133`](test/experiment/quantum/tsirelson-reached-exactly.ts) |
-| contextuality is the fear | a knot is contextual for the model's own readings exactly when it holds a fear, with total deficit $18(e^{\text{mana}} - 1)$ | [`E-QTM-0149`](test/experiment/quantum/stabilizer-contextuality-is-fear.ts), [`E-QTM-0150`](test/experiment/quantum/state-independent-contextuality.ts) |
-| no-cloning, teleportation, GHZ | no beat duplicates an unknown signed state, a love and fear pair met once teleports and swaps exactly on 17 of 17 starts | [`E-QTM-0151`](test/experiment/quantum/no-cloning-on-the-knit.ts), [`E-QTM-0152`](test/experiment/quantum/teleportation-and-swapping.ts), [`E-QTM-0153`](test/experiment/quantum/ghz-mermin-and-monogamy.ts) |
+| entangled knots | the meeting leaves a knot whose best CHSH is √7 ([`E-RLT-0099`](test/experiment/relativity/doublet-locked-quantum.ts)). No record the model makes violates CHSH: on its own settings the gated run is partial on 2 starts and fails on 15 | [`E-QTM-0140`](test/experiment/quantum/bell-values-exact.ts) |
+| Tsirelson's bound (L1) | the exact largest CHSH of a knot in closed form. 2√2 is approached on the box only through its line wrap, with observables outside the ring: CHSH made from the ring's own gates is rational | [`E-QTM-0132`](test/experiment/quantum/tsirelson-closed-form.ts), [`E-QTM-0133`](test/experiment/quantum/tsirelson-reached-exactly.ts) |
+| contextuality (L1) | a knot is contextual for the model's own readings exactly when it holds a fear, with total deficit $18(e^{\text{mana}} - 1)$ | [`E-QTM-0149`](test/experiment/quantum/stabilizer-contextuality-is-fear.ts), [`E-QTM-0150`](test/experiment/quantum/state-independent-contextuality.ts) |
+| no-cloning, teleportation, GHZ (L1) | no beat duplicates an unknown signed state, a love and fear pair met once teleports and swaps exactly on 17 of 17 starts | [`E-QTM-0151`](test/experiment/quantum/no-cloning-on-the-knit.ts), [`E-QTM-0152`](test/experiment/quantum/teleportation-and-swapping.ts), [`E-QTM-0153`](test/experiment/quantum/ghz-mermin-and-monogamy.ts) |
 | spin statistics | a full turn is $(-1)^N$ with N the doublet count, so turn sign equals exchange sign | [`E-SPN-0071`](test/experiment/spin/locked-spin-statistics.ts) |
 | Pauli exclusion | one vibe per slot, in the base and in the dynamics | [`E-SPN-0045`](test/experiment/spin/exchange-fear-and-slot-exclusion.ts), [`E-SPN-0047`](test/experiment/spin/exclusion-in-the-dynamics.ts) |
 | Coulomb's law | a charge's potential is $1/(24\pi r)$ with no $1/r^3$ term, the quartic isotropic by an integer identity | [`E-FRC-0241`](test/experiment/gauge/husk-coulomb-green.ts) |
 | charge in whole units | counted locally on every beat, pair creation included | [`E-FRC-0243`](test/experiment/gauge/charge-count-every-beat.ts) |
 | two polarizations of light | exactly two per momentum on the husk, the bulk's third killed by the projection | [`E-FRC-0179`](test/experiment/gauge/photon-symbol.ts) |
 | isotropic transport | charge, trace, sound and shear equal in every direction, because the medium is blind to store signs | [`E-RLT-0094`](test/experiment/relativity/covering-vacuum-isotropy.ts), [`E-RLT-0096`](test/experiment/relativity/charge-blind-shear.ts) |
-| the second law and the arrow | coarse entropy rises a thousandfold forward and under the exact inverse alike, fine-grained entropy exactly constant, 17 starts | [`E-FND-0146`](test/experiment/foundations/husk-second-law.ts), [`E-FND-0147`](test/experiment/foundations/husk-arrow-records.ts) |
+| the second law and the arrow (partial) | coarse entropy rises forward and under the exact inverse alike, fine-grained entropy exactly constant, 17 starts. It ran on an earlier knit, from a start only 2 percent short of its ceiling, on a classical fragment, so it is not yet held on the working rule | [`E-FND-0146`](test/experiment/foundations/husk-second-law.ts), [`E-FND-0147`](test/experiment/foundations/husk-arrow-records.ts) |
 | one causal world | every husk dock descends from the seed by beat 10, 17 of 17 starts | [`E-RLT-0093`](test/experiment/relativity/coset-union-vacuum.ts) |
 | the working vacuum | balanced, bounded, reversible, covariant, 51 of 51 cases | [`E-RLT-0105`](test/experiment/relativity/coined-store-vacuum.ts) |
-| positions in superposition | a lone love's positions interfere, 17 of 17 starts, the coin-off control exactly 0 | [`E-QTM-0157`](test/experiment/quantum/position-interference.ts) |
+| positions in superposition | a lone love's positions interfere on one open line, 17 of 17 starts, the coin-off control exactly 0 | [`E-QTM-0157`](test/experiment/quantum/position-interference.ts) |
 | fluctuation-dissipation | a husk block's energy variance equals −dE/dβ on 17 of 17 starts (mean 1.001), an excess relaxes along the equilibrium autocorrelation, one bath at β ≈ 3.9, the non-Gibbs control off by 159 | [`E-FND-0156`](test/experiment/foundations/husk-fluctuation-dissipation.ts) |
 
 **Partial, and the step each needs.** The electron binds on one husk
@@ -291,7 +320,8 @@ vibe leaving its line, and ended with one reading of all four.
   full-period key takes 64 values in 64 beats on every line. Rerun on
   it, the findings hold and are slightly stronger: 16 pairs scramble on
   side 16 (576,000 trits) where the old key's run was only turning
-  (17,544).
+  (17,544). Since 2026-11-12 no keyed path is in the base: a key is a
+  sampling tool, and these readings are results about that sampling.
 - **The fracton rungs** ([`E-SPN-0100`](test/experiment/spin/fracton-hierarchy.ts),
   fail on F1 and F5). On the full-period key a lone love stays on its
   line but runs 8 dock steps, half the box. The immobile rung was the
@@ -399,12 +429,13 @@ once ([`E-GRV-0076`](test/experiment/gravity/even-sign.ts) to
 
 **The route that works: the husk's depth.** A husk column's depth, as a
 spin-0 wave sourced by content (the **radion**), attracts as 1/r with
-no chosen sign, is causal, falls alike and bends light toward mass
+no chosen sign, is causal and bends light toward mass
 ([`E-GRV-0079`](test/experiment/gravity/radion-static.ts),
 [`E-GRV-0080`](test/experiment/gravity/radion-causal.ts)). Why depth:
 a deeper column holds more docks, so the same count slows a clock and
 lengthens a span, which is the arena changing rather than a force on a
-charge, and that is what makes it the same on everything. What was
+charge, and that is what is meant to make it the same on everything
+(the universal-fall run below failed its gate). What was
 built since, in order:
 
 | step | result | codes |
@@ -434,15 +465,20 @@ dispersion leaves exactly at t = d/c. It reads the husk alone at
 stack at 1.003 c, and the unwarped stack at 1.126 c, so it does catch a
 faster bulk where there is one.
 
-**What this is, stated plainly.** A pull that attracts as 1/r with no
-chosen sign, travels at the speed of light, is the same on everything larger
-than a dock, bends light by 2 and keeps α constant, held in bounded
-registers with the depth found by summing. It is graded L2: the step
-field is an added part of the rule, and the factor 2 follows from the
-span change by construction, which the runs show the integer rule
-realizes.
+**What this is, stated plainly.** Gravity here is 1/r from an added
+depth register, graded L2. On the flat box the pull attracts as 1/r
+with no chosen sign, bends light by 2 and keeps α constant, held in
+bounded registers with the depth found by summing. The step field is
+an added part of the rule, the factor 2 follows from the span change by
+construction (which the runs show the integer rule realizes), and the
+pull's speed is a constant chosen to match light's. Universal fall
+failed its gate (E-GRV-0096, 6.1% against 3%), and inertia there is a
+stand-in. The honeycomb has no finite depth, so on the true mesh the
+depth, and with it α and light's speed, is not fixed, and the true
+mesh's static pull below a cusp is screened along the surface
+(E-GRV-0150).
 
-**Settled in the last rounds:**
+**Built in the last rounds, at L2 on the flat box:**
 
 1. **a horizon at 2GM.** Where the clock register runs out of room,
    time stops and light is trapped, exactly. Its radius grows as M once
@@ -458,13 +494,15 @@ realizes.
    forming horizon makes particles, exactly counted, with a power-law
    spectrum at the register sizes run
    ([`E-GRV-0132`](test/experiment/gravity/forming-headroom-horizon.ts))
-3. **an area law.** Carrying the infall onto the horizon's own surface
-   registers hides 18.18 nats per cut link at every size and every
-   stage of growth. A horizon forms only while what fell in fits on its
-   surface, which is Bekenstein's bound as dynamics. S/(A/4G) is a flat
-   1.44 to 1.47
+3. **a surface count, not an area law of the rule.** Carrying the
+   infall onto the horizon's own surface registers hides 18.18 nats per
+   cut link at every size and every stage of growth. A horizon forms
+   only while what fell in fits on its surface. S/(A/4G) is a flat 1.44
+   to 1.47, but this is bookkeeping of the surface registers: the
+   rule's own state reads a volume law
    ([`E-GRV-0131`](test/experiment/gravity/membrane-horizon-entropy.ts),
-   [`E-GRV-0135`](test/experiment/gravity/balanced-membrane-growth.ts)).
+   [`E-GRV-0135`](test/experiment/gravity/balanced-membrane-growth.ts),
+   [`E-GRV-0083`](test/experiment/gravity/knot-area-law.ts)).
    The torn husk alone gives a volume law
    ([`E-GRV-0124`](test/experiment/gravity/headroom-horizon-entropy.ts))
 4. **source and field.** The confining string is the energy-line
@@ -476,7 +514,8 @@ realizes.
    [`E-GRV-0133`](test/experiment/gravity/trio-stack-plaquette-depth.ts)),
    so the step field is gravity's own field, as the Coulomb field is
    light's, sourced by the rule's energy
-5. **matter that stays put, and falls alike.** The rule holds the
+5. **matter that stays put, and on a line falls alike.** Universal
+   fall in 3d failed its gate (E-GRV-0096). The rule holds the
    three-love level with a one-trit drift cost and a consistent fermion
    sign, and its energy sources the 1/r
    ([`E-SPN-0104`](test/experiment/spin/permutation-meeting.ts),
@@ -516,7 +555,10 @@ realizes.
    ([`E-GRV-0139`](test/experiment/gravity/spacetime-slide-spin-two.ts)).
    At cubic order the full slide fixes the wave speed at exactly c and
    λ at 1, which a foliation-preserving slide leaves free
-   ([`E-GRV-0141`](test/experiment/gravity/cubic-slide-speed.ts))
+   ([`E-GRV-0141`](test/experiment/gravity/cubic-slide-speed.ts)). The
+   full slide varies time by place, so it holds only if the present has
+   no preferred slice, untested on the adopted rule. Until then the
+   graviton's speed and λ remain free constants
 
 **Still open:**
 
@@ -555,7 +597,10 @@ realizes.
      and matter isotropy on the working rule, where every vibe is still
      a lineon ([`E-SPN-0126`](test/experiment/spin/line-anisotropy.ts))
 
-   **Motion works under the candidate.** It has four parts:
+   **Motion works under the candidate, one body at a time.** It is a
+   candidate only: its thresholds were set after a probe, and on
+   the working coin matter tops out at 1/2 a beat and
+   light at 0.408. It has four parts:
    - a filled love sea as the vacuum
    - a fermionic mixer over all 24 slots of a dock, which Pauli blocking
      keeps inert on the sea
@@ -1024,11 +1069,11 @@ not 2 ([`E-GRV-0088`](test/experiment/gravity/depth-arena-prediction.ts)).
 | one light speed | on the working rule a locked vibe's top speed is 1/2 a beat and every stable husk light is capped at $c \le 1/\sqrt6 = 0.408$, a theorem on each side. With the register, matter and the graviton share √2/4 husk docks a beat, which sits inside the stable cap. The quantum loop light meets it exactly at κ = 3/16 and the split ρ = 3 (the trit column never can: even against odd). But the split is fixed by equal filling, and at a balanced split exact equality holds only as a limit of the register's size, missing by 1/(2q²) at register 16q, which needs a register near 10¹⁰ to match the 1e-18 bound. The balance is exactly 3/8 counted on the bulk's registers and 0.4614 on the husk's weighted columns | [`E-FRC-0250`](test/experiment/gauge/one-light-split.ts), [`E-GRV-0145`](test/experiment/gravity/register-graviton-speed.ts), [`E-FRC-0260`](test/experiment/gauge/register-light-speed.ts), [`E-FRC-0261`](test/experiment/gauge/light-split-origin.ts), [`E-FRC-0262`](test/experiment/gauge/husk-balance.ts) |
 | composite light | a bound love and fear pair is massive by a theorem, with one polarization on the husk, not two. Light stays its own field | [`E-FRC-0246`](test/experiment/gauge/composite-locked-light.ts), [`E-FRC-0247`](test/experiment/gauge/composite-light-husk.ts) |
 | the electron in 3d, and g | bound on one husk line only. A general direction is a superposition over lines. g needs its coupling to the light, not a mixer | [`E-SPN-0093`](test/experiment/spin/passing-contact-cluster.ts), [`E-SPN-0089`](test/experiment/spin/knit-cluster-landau.ts) |
-| measurement | a frame-covariant rule depolarizes every basis at one rate, so a pointer basis must come from the environment, never the rule (a 2-design theorem) | [`E-QTM-0154`](test/experiment/quantum/pointer-basis-theorem.ts) |
+| measurement and the Born rule | open. A frame-covariant rule depolarizes every basis at one rate, so a pointer basis must come from the environment, never the rule (a 2-design theorem), and no redundant record is made yet. The Born rule is posited, not derived: subjects are record branches weighted by squared amplitude, and that weighting is part of the base's statement | [`E-QTM-0154`](test/experiment/quantum/pointer-basis-theorem.ts) |
 | the weak force | the locked rule keeps P, C, T, CP and CPT exactly. The register supplies what was missing, a spin apart from the slot: its two halves (J = right multiplication by vol) are kept by the 576 rotations and swapped by the 576 reflections, and a chiral mass breaks P and CP by 0.180 with CPT exact and no isotropy lost (Molien). The frames cannot be the three generations (anisotropic at fourth order). On the flat husk quotient parity survives exactly, so P violation needs an oriented depth, and the Wilson wall's chiral face breaks it by a whole chirality, +2 and −2 at the two faces, the rule's depth-keeping mirror reading −2 and +2, with rotations, spin one half (the untwisted rotation, exact) and CPT kept. The rule keeps an SU(2) on each register half exactly, and the full sea keeps it too, so no vacuum yet breaks it. All on the candidate rule | [`E-FRC-0248`](test/experiment/gauge/locked-parity-ledger.ts), [`E-FRC-0258`](test/experiment/gauge/chiral-register.ts), [`E-SPN-0167`](test/experiment/spin/husk-reading.ts), [`E-SPN-0168`](test/experiment/spin/wall-face.ts), [`E-FRC-0267`](test/experiment/gauge/register-handedness.ts), [`E-FRC-0268`](test/experiment/gauge/register-internal-su2.ts) |
 | CP and the asymmetry | three flavors keep every invariant, and the trimaximal mixing, exact in the ring with Jarlskog √3/18, is removable at one body (no one-body piece joins the halves, a theorem). A two-body register exchange makes it physical, and C and CP then break together inside one sea with no piece that tells love from fear, so the love-fear mirror stays exact. Member number is kept by every piece and by any gauge winding (Nielsen–Ninomiya in Floquet form), but flows through the Wilson wall under an exact E·B field, +4 per loop at one face and −4 at the other. So all three Sakharov conditions are in the rule. The flow is an index, blind to CP, so a CP-symmetric field history nets 0: a net asymmetry needs a dynamical light biased by the CP-odd currents, which is not built | [`E-FRC-0259`](test/experiment/gauge/flavor-register.ts), [`E-SPN-0163`](test/experiment/spin/register-many-body.ts), [`E-SPN-0164`](test/experiment/spin/sea-conjugation.ts), [`E-SPN-0165`](test/experiment/spin/chiral-flow.ts), [`E-SPN-0168`](test/experiment/spin/wall-face.ts), [`E-SPN-0171`](test/experiment/spin/wall-asymmetry.ts) |
-| the value of α | $\alpha = \sqrt{3/(2\rho)}/(12N)$, set by the split and the depth, not by the speed. A frozen prediction over depths 1 to 10,000 at ρ = 3 and 3/8, and at the husk's measured 0.4614, finds no hit within 1e-3 of 1/137.036 (nearest 138 at depth 11, 0.70% off, chance about 0.32 under the null), so nothing is claimed. The husk's split is narrowed to two readings of one set of fills, 0.4614 (average) or 0.4146 (worst register), and the ladder's Planck-optimal split cannot pick between them at N ≤ 13 (a fail). Its departure is a function of the ratio alone, but its spread stays above what separation needs at every N a dense spectrum reaches, and no sparse method computes it (a fail, the clean negative) | [`E-FRC-0242`](test/experiment/gauge/split-coulomb-coupling.ts), [`E-FRC-0261`](test/experiment/gauge/light-split-origin.ts), [`E-FRC-0262`](test/experiment/gauge/husk-balance.ts), [`E-FRC-0269`](test/experiment/gauge/quantum-balance.ts), [`E-FRC-0270`](test/experiment/gauge/ratio-balance.ts), [`E-MTH-0010`](test/experiment/method/closed-forms-under-a-null.ts) |
-| a bounded self | shared history gives one component of all 24,576 vibes or closed components of exactly 8 on one line, nothing in between | [`E-SLF-0177`](test/experiment/selves/shared-origin-components.ts), [`E-SLF-0178`](test/experiment/selves/shared-origin-integration.ts) |
+| the value of α | $\alpha = \sqrt{3/(2\rho)}/(12N)$, set by the split and the depth, not by the speed. A frozen prediction over depths 1 to 10,000 at ρ = 3 and 3/8, and at the husk's measured 0.4614, finds no hit within 1e-3 of 1/137.036 (nearest 138 at depth 11, 0.70% off, chance about 0.32 under the null), so nothing is claimed, and on the honeycomb the depth is free, so α is not fixed. The husk's split is narrowed to two readings of one set of fills, 0.4614 (average) or 0.4146 (worst register), and the ladder's Planck-optimal split cannot pick between them at N ≤ 13 (a fail). Its departure is a function of the ratio alone, but its spread stays above what separation needs at every N a dense spectrum reaches, and no sparse method computes it (a fail, the clean negative) | [`E-FRC-0242`](test/experiment/gauge/split-coulomb-coupling.ts), [`E-FRC-0261`](test/experiment/gauge/light-split-origin.ts), [`E-FRC-0262`](test/experiment/gauge/husk-balance.ts), [`E-FRC-0269`](test/experiment/gauge/quantum-balance.ts), [`E-FRC-0270`](test/experiment/gauge/ratio-balance.ts), [`E-MTH-0010`](test/experiment/method/closed-forms-under-a-null.ts) |
+| a bounded self | shared history gives one component of all 24,576 vibes or closed components of exactly 8 on one line, nothing in between. The 8 is the box's line period, so this says nothing yet about selves | [`E-SLF-0177`](test/experiment/selves/shared-origin-components.ts), [`E-SLF-0178`](test/experiment/selves/shared-origin-integration.ts) |
 | one rule for every row | the working vacuum and the electron share one rule. Most older rows ran on earlier rules, and a triage found the rest cannot be rerun usefully: most wait on motion across lines, the light's own quantum sector, CP violation or an energy ledger. The register results run on the candidate rule, which is not adopted | the ledger's section Q |
 
 ## Rows started this round
@@ -1046,11 +1091,11 @@ reason is stated.
 | Wigner's friend | the friend's record undoes with probability 1 and restores P(R) = 1/4, where the collapse account predicts 17/32. Once copied, it cannot be undone | the friend is one vibe's point, not a self | [`E-QTM-0162`](test/experiment/quantum/wigners-friend.ts) |
 | length contraction and simultaneity | one Lorentz factor for speed and energy, a moving packet the contracted rest packet, the tilt of "now", within 3e-4 at 0.5 c* and scaling as m² | candidate rule, lone excitations, thresholds set after a probe | [`E-RLT-0108`](test/experiment/relativity/husk-lorentz-kinematics.ts) |
 | relativistic collisions | four-momentum conserved exactly, and the outgoing shell is the boosted sphere to 7.3e-4 at boost 0.83 | candidate rule, kinematics only | [`E-RLT-0109`](test/experiment/relativity/husk-collision-kinematics.ts) |
-| Landauer's principle | erasing a trit puts exactly ln 3 into the box, 0.462 nats of it invisible to the husk coarse map | the energy side, kT ln 3, not measured | [`E-CMP-0018`](test/experiment/computation/landauer-line.ts) |
+| Landauer's principle (L1) | erasing a trit puts exactly ln 3 into the box, 0.462 nats of it invisible to the husk coarse map | known math restated (the equality case of the keeping theorem), and the energy side, kT ln 3, not measured | [`E-CMP-0018`](test/experiment/computation/landauer-line.ts) |
 | error correction | a repetition code over mesh lines, since no error crosses lines, 2,754 of 2,754 correctable cases decoded, distance exact | classical, and bought by the line law the candidate rule removes | [`E-CMP-0019`](test/experiment/computation/line-code.ts) |
 | the horizon and flatness problems | the husk is a horosphere, flat by geometry, and every pair of docks one seed reaches shares a causal past (0 of 8,256 disjoint), against 171 of 300 for a start everywhere at once | temperature agreement not read | [`E-CSM-0058`](test/experiment/cosmology/husk-horizon-flatness.ts) |
 | inflation or its replacement | the husk does not inflate: a cubic ball, 3.22 e-folds, the bulk's ×18.28 being volume off the husk | the ripple spectrum not addressed | [`E-CSM-0059`](test/experiment/cosmology/husk-growth-rate.ts) |
-| the end state | a fixed box reaches coarse maximum entropy in 4 beats and sits at the predicted fluctuation floor, with exact recurrence | a growing mesh argued, not run | [`E-FND-0155`](test/experiment/foundations/coarse-end-state.ts) |
+| the end state | a fixed box reaches coarse maximum entropy in 4 beats and sits at the predicted fluctuation floor, with exact recurrence | the infinite honeycomb is not a closed box, and its end state is not run | [`E-FND-0155`](test/experiment/foundations/coarse-end-state.ts) |
 | fluctuation-dissipation | **held**: variance equals −dE/dβ on 17 of 17 starts, relaxation along the equilibrium autocorrelation, one bath | | [`E-FND-0156`](test/experiment/foundations/husk-fluctuation-dissipation.ts) |
 | Compton and Thomson scattering | the shift is λ_C(1 − cos θ) to 5e-6, λ_C set by the member's inertia, the forward amplitude Thomson's with σ/σ_T = 1/R² → 1, the dipole response Dirac's | Klein–Nishina and the absolute cross section (α) not run | [`E-FRC-0263`](test/experiment/gauge/compton-thomson.ts) |
 | the photoelectric threshold | ionization above E_b at first order, following the intensity, and 4,300 times smaller below every bound line | a fail: the gate allowed no loss below E_b and missed hydrogen's own lines, and the pair is a stand-in | [`E-FRC-0264`](test/experiment/gauge/photoelectric-threshold.ts) |
@@ -1164,6 +1209,40 @@ experiment codes resolve in [test/catalog.csv](test/catalog.csv). Its
 marks are coarser than the 191-fact ledger above: many ✅ rows rest on
 stand-ins the ledger does not count as held, and the gravity rows rest
 on the depth register, an added part of the rule.
+
+**Read these marks through the 2026-11-12 review.** The table is
+generated and still carries its earlier marks until its ledger is
+regraded. Until then, these rows read as follows, whatever their mark:
+
+- **Born rule** and **measurement and definite outcome**: open. The
+  Born rule is posited, not derived, and no rule-made pointer basis or
+  redundant record exists.
+- **entanglement and Bell**: the rule makes knots whose best CHSH
+  exceeds 2 in the amplitude state. No record the model makes violates
+  CHSH. Contextuality, Tsirelson's bound, no-cloning and GHZ are L1.
+- **Lorentz invariance**: candidate rule only, thresholds set after a
+  probe. On the working coin matter tops out at 1/2 a beat and light at
+  0.408. Light isotropy, the light cone and one light speed are flat-box
+  results.
+- **gravity and Einstein equations**: 1/r from an added depth register,
+  L2, the factor 2 by construction, gravity's speed a chosen constant.
+- **equivalence principle**: withdrawn, E-GRV-0096 failed (6.1% against
+  3%) and inertia is a stand-in.
+- **black hole thermodynamics** and the area law: withdrawn. The rule's
+  own state reads a volume law, and the horizon count is bookkeeping at
+  1.44 to 1.47 of A/4G.
+- **dark energy**, **inflation and flatness**, **Hubble expansion and
+  redshift**, **Hubble tension**: stand-ins. The mesh does not grow, so
+  expansion is not mesh growth, and horosphere counting gives w = −1/3.
+- **second law thermalization**: a coarse rise on an earlier knit, from
+  a start 2% short of its ceiling, on a classical fragment.
+- **the gauge group, confinement, generations, Higgs, the g factor,
+  Cabibbo and CKM, strong CP, CP violation, baryon asymmetry**: algebra
+  only or earlier rules, none on the working rule.
+- No row is L3, and the marks are being checked against the experiments
+  they cite.
+- An experiment file named with `3434` ran on a flat box, not on the
+  honeycomb. The tag means nothing about the mesh.
 
 <!-- sm-scoreboard:start -->
 
@@ -1345,18 +1424,23 @@ on the depth register, an added part of the rule.
 ## The reading, and what is falsifiable
 
 [Vibe Theory](https://doi.org/10.5281/zenodo.20694262) reads reality as
-one thing, a growing mesh of experience. The image above is its
+one thing, a mesh of experience. The image above is its
 simplest drawable face, the hyperbolic $\lbrace7,3\rbrace$ tiling, meant
 literally: each tile is a **vibe**, a unit of experience, and its tone
 is a felt charge (**red is pain, green is peace, blue is pleasure**).
 Touching tiles **note** (experience) one another. A patch of tiles is a
 thing or a mind, and the whole mesh is the universe. Physics is read
 on the husk, the 3d surface, and the 4d bulk inside it is experience.
-There is one present: the whole state of the model at this beat, every
-dock at once, bulk and husk alike.
+There is one present: the whole amplitude state of the model, bulk and
+husk alike, on any slice inside the stream's cone, no slice preferred.
 The past is not kept anywhere. It is what the present implies when the
-rule runs back. As the mesh grows, new docks join the present at the
-mesh's boundary. They are not the present, and the older docks are not the past.
+rule runs back, and every slice implies the same past. The mesh is the
+whole infinite honeycomb and does not grow: what differs from the calm
+vacuum is a finite disturbance that spreads at most at the top speed.
+No keyed path picks a history. An outcome, a record or a single
+history is a correlation inside the one present. The present is
+selfless experience, and subjects are record branches, each weighted
+by its squared amplitude, so the Born rule is posited, not derived.
 The $\lbrace7,3\rbrace$ stands in for the
 $\lbrace3,4,3,4\rbrace$, whose flat 3d cusp is the space we live in.
 Regular hyperbolic honeycombs run out by 5d, and $\lbrace3,4,3,4\rbrace$
@@ -1401,11 +1485,11 @@ with the per-theory maps in [note/link/](note/link/).
 | momentum | exact on the knit without the coin. The coin gives up exactly this, to make a mass | [`E-RLT-0084`](test/experiment/relativity/lone-bounce-collision.ts), [`E-SPN-0090`](test/experiment/spin/covariant-coin-theorem.ts) |
 | the line law | the tone on every straight mesh line, 6,144 of 6,144, while no mixer acts | [`E-SPN-0098`](test/experiment/spin/line-law.ts) |
 | the vacuum's cycle | a 12-beat cycle with pairs made equal to pairs unmade, 466,944 each | [`E-RLT-0105`](test/experiment/relativity/coined-store-vacuum.ts) |
-| the arrow of time | the same cone both ways, so the arrow is the low-entropy slice plus the coarse map | [`E-FND-0147`](test/experiment/foundations/husk-arrow-records.ts) |
+| the arrow of time | the same cone both ways, so the arrow is the low-entropy slice plus the coarse map. On an earlier knit, a classical fragment |  [`E-FND-0147`](test/experiment/foundations/husk-arrow-records.ts) |
 | the distinguishability metric | Fisher-Rao is the one distance no relabeling of the 24 directions can change | [`E-FND-0057`](test/experiment/foundations/chentsov-forced-distinguishability.ts) |
-| the light cone | a fixed top speed, the same in every direction | [`E-RLT-0014`](test/experiment/relativity/light-cone.ts) |
-| spacetime dimension | the cusp reads a spectral dimension near 3, so space is 3d plus time | [`E-GMT-0025`](test/experiment/geometry/why-3plus1.ts) |
-| the growth ratio | each shell of the mesh larger than the last by a factor settling at 18.278 | [`E-GMT-0027`](test/experiment/geometry/mesh-unfolds-exactly.ts) |
+| the light cone | a fixed top speed on the flat box. The run is a shift map with an octahedral cone, graded L0, and on the true honeycomb nothing yet travels along the surface | [`E-RLT-0014`](test/experiment/relativity/light-cone.ts) |
+| spacetime dimension | a spectral dimension near 3, read on a cubic walk (L1), not on the honeycomb | [`E-GMT-0025`](test/experiment/geometry/why-3plus1.ts) |
+| the shell ratio | each shell of the honeycomb larger than the last by a factor settling at 18.278 | [`E-GMT-0027`](test/experiment/geometry/mesh-unfolds-exactly.ts) |
 | gravity's source | on the depth-step register (an added part), steps out minus steps in equals content at every dock, 0 off on 43,008 checks. There is no area law on the working vacuum ([`E-GRV-0083`](test/experiment/gravity/knot-area-law.ts)) | [`E-GRV-0090`](test/experiment/gravity/step-depth-static.ts) |
 
 Rows dropped since the last version, because they are no longer true
@@ -1499,11 +1583,12 @@ scientific negative.
   (`trit-radion`, `step-depth`, `depth-span-light`, `open-husk`), and
   the earlier rules kept as history and controls (`turningWeave`,
   `lineWeave` and `pairCollision` in `collision`), with streaming,
-  growth, and the discrete C, P, T transforms.
+  growth (kept as history, no longer a base thing), and the discrete C,
+  P, T transforms.
 - **measure**: dimension, distance, curvature, manifold-likeness,
   Lorentz isotropy, streaming BFS shells, navigation, CHSH, locality,
   Wilson loops, Aharonov-Bohm phase, the knot network, and the named
-  full-period path key (`full-key-paths`).
+  full-period path key (`full-key-paths`), a sampling tool.
 - **operator**: graph Laplacian, Kahler-Dirac and overlap fermions, the
   gauge-covariant Dirac, the cellular-automaton Hamiltonian, and the
   gauge index.
