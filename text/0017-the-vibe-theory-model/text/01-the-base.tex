@@ -13,21 +13,31 @@ a computed control. A result is graded by depth: L1 is algebra, L2 a model run o
 \item \textbf{Tone.} One trit, $+1$, $0$ or $-1$. The whole state is tones. Three is the smallest alphabet with an
 empty value and a sign flip, which is charge conjugation (\code{E-FND-0038}).
 \item \textbf{Vibe.} A slot holding $+1$ (a \emph{love}) or $-1$ (a \emph{fear}). A slot holding 0 is calm. Charge
-is love minus fear, content is love plus fear.
+is love minus fear, content is love plus fear. The sign of one vibe is its pleasure or pain, but a self's valence is
+not its net count: net love minus fear is electric charge, which is conserved, so a neutral self holds as many loves
+as fears. Valence is a C-odd reading with no net charge that belongs to a subject, never to a region, so the vacuum
+has none. Which reading it is, and its mirror parity, are open.
 \item \textbf{Dock.} One site: 24 slots, one per root of $D_4$, the 24 vertices of a 24-cell. Opposite slots pair
 into 12 \emph{lines}, and the lines fall into three \emph{frames} of four orthogonal lines. $D_4$ is the one 4d
 root system with triality, and its 24 directions carry the spinor double cover, so a $2\pi$ turn gives $-1$
 (\code{E-SPN-0042}).
-\item \textbf{Mesh.} The space of docks. In the model it is $\{3,4,3,4\}$, whose vertex figure is the flat cubic
-honeycomb $\{4,3,4\}$. It unfolds from one 24-cell in shells of 1, 24, 456, 8,376 and 153,192 docks, a ratio
-settling at 18.278 (\code{E-GMT-0027}). Experiments run on a flat periodic $D_4$ box of side 8, 16 or 24, a
-disclosed stand-in with the same 24 directions per dock.
-\item \textbf{Beat.} One tick. Every dock applies the rule at once, so a run is reproducible bit for bit.
+\item \textbf{Mesh.} The space of docks. In the model it is the whole infinite $\{3,4,3,4\}$ honeycomb, whose vertex
+figure is the flat cubic honeycomb $\{4,3,4\}$. It unfolds from one 24-cell in shells of 1, 24, 456, 8,376 and 153,192
+docks, a ratio settling at 18.278 (\code{E-GMT-0027}). The mesh does not grow: outside a finite region the present
+equals a known vacuum, and what differs from it is a finite disturbance that spreads at most at the top speed.
+Experiments run on a flat periodic $D_4$ box of side 8, 16 or 24, a disclosed stand-in with the same 24 directions per
+dock. Its results agree with the honeycomb only for one dock over one beat. Runs on balls of the true honeycomb, up to
+162,049 docks (\code{E-SPN-0156} to \code{E-SPN-0158}, \code{E-SPN-0181}, \code{E-SPN-0182}, \code{E-SPN-0184},
+\code{E-NVG-0014}, \code{E-FRC-0281}, \code{E-RLT-0054}, \code{E-CSM-0058} to \code{E-CSM-0060}), are mostly negative:
+on the true surface nothing yet travels.
+\item \textbf{Beat.} One tick. The simulator applies the rule at every dock at once, so a run is reproducible bit for
+bit. That is bookkeeping, not physics: the rule is a layer of local gates, and the state on any slice inside the
+stream's cone is as well defined as on one global beat.
 \item \textbf{Take.} Each beat a slot takes its neighbor's value along its root, the \emph{stream}. Nothing moves: a
 value is read and written, never carried, so the stream is a permutation and runs backward exactly.
 \item \textbf{Husk.} The three-dimensional surface where physics is read, the depth-even half of the box, exactly
-closed (\code{E-FRC-0168}). In the honeycomb it is the flat horosphere at a cusp, and a spectral dimension near 3 is
-read there (\code{E-GMT-0025}).
+closed (\code{E-FRC-0168}). In the honeycomb it is the flat horosphere at a cusp. The spectral dimension near 3
+(\code{E-GMT-0025}) was read on a cubic walk, at L1, not on the honeycomb.
 \item \textbf{Bulk, depth.} The 4d mesh behind the husk. A husk column is the stack of bulk docks behind one husk
 dock, and its size $D$ is its depth. Every husk field is a column sum of bulk trits (\code{E-FRC-0207}).
 \item \textbf{Role, link.} Each vibe carries a point on a 3 by 3 grid, a qutrit. A link between two docks holds one
@@ -35,11 +45,15 @@ of the 648 elements of the qutrit Clifford group $\Sigma(648)$ (\code{E-QTM-0117
 the relation between the vibes on it.
 \item \textbf{Store.} A dock line's held love and fear pair, made from an empty line and released back to it. This
 is how the vacuum makes and unmakes pairs with its charge fixed at 0.
-\item \textbf{Amplitude.} The state is a finite sum of configurations, each weighted by an exact number in
-$\mathbb{Z}[\omega][1/2]$, $\omega = e^{2\pi i/3}$. Every three in the model lives in this ring, and nothing is
-rounded.
-\item \textbf{Path.} One measurement record of the quantum rule: at every split one branch, chosen by a deterministic
-key. Fields are read as averages over paths.
+\item \textbf{Amplitude.} The state is a sum of configurations, each weighted by an exact number, $\omega = e^{2\pi
+i/3}$. The ring depends on how the links lift: $\mathbb{Z}[\omega][1/6]$ or $\mathbb{Z}[\zeta_9][1/6]$, since
+$\Sigma(648)$ as matrices needs $1/\sqrt{-3}$. Nothing is rounded.
+\item \textbf{The present.} The whole amplitude state, on any slice inside the stream's cone, no slice preferred. No
+keyed path picks a history: an outcome, a record or a single history is a correlation inside the one present. Keyed
+paths remain a sampling tool for reading averages, and every earlier row whose outcome came from a path is a result
+about that sampling, not a derivation.
+\item \textbf{Subjects.} The present is selfless experience, and subjects are record branches, each weighted by its
+squared amplitude. Under this the Born rule is posited, not derived.
 \end{itemize}
 
 \begin{figure}[ht]
@@ -83,5 +97,7 @@ the site the docks switch only on a beat while the projection flows. This is a s
 The working ledger lists 191 facts the model must produce, from the Born rule to the specious present, each graded
 under one set of rules: read on the husk, the rule integer and reversible, a stand-in labeled and never graded as a
 derivation, a numerical match counted only through a pre-registered null (\code{E-MTH-0010}), and the verdict judged
-over 17 link starts (\code{E-MTH-0028}). Today 36 are held, 52 partial, 45 stand-in, 26 open and 32 not started. No
-random number enters any run: starts, controls and nulls use Weyl sequences or enumeration.
+over 17 link starts (\code{E-MTH-0028}). Those 17 starts vary only the link phases, at one size, on boxes of side 3
+and 4. Held means L2 at best: no held fact is L3 by this rubric, and rows about experience are graded no higher than
+the substrate they ran on. The ledger's tallies are withheld until every mark is checked against the experiment it
+cites. No random number enters any run: starts, controls and nulls use Weyl sequences or enumeration.
