@@ -810,7 +810,7 @@ export default experiment({
   id: 'relativity/honeycomb-own-vacuum',
   code: 'E-RLT-0121',
   title:
-    'the honeycomb own vacuum from the working rule: candidates (empty mesh, love sea, class-line stores) read on the exact {3,4,3,4} ball under gates fixed before code',
+    "the honeycomb's own vacuum from the working rule, pass, winner the empty mesh: on the exact {3,4,3,4} ball at radius 4 (162,049 docks) under gates fixed before code, 34 of 35 candidates are lone-free orbits where the ball is exact (0 lone lines and 0 coin crosses on E_t, the class quotient matched dock for dock), keep the laws, C and 96 inverse beats, and stay unscrambled by 1, 3 and 24 vibes; every store that is a function of (class mod 2 D4, line) is such an orbit, period 4 (2 for the all-lines +1 store), made = unmade, one branch, entanglement 0; the love sea is one too but charged 24 a dock and splits 95,565 like meetings at beat 1; by the registered order (neutral, least lump wake 84 against 159 to 264, least density 0) the empty mesh wins; E-RLT-0105's store is not constructible here",
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L2',
