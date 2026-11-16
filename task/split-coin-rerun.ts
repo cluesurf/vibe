@@ -30,8 +30,11 @@ import '@/test/experiment/all'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const LEFT_OUT = new Set(['foundations/coin-reversal', 'foundations/split-coin'])
-// run last: the slowest (E-FND-0178's default run holds the R = 4 ball)
+// run last: the slowest (E-FND-0178's default run holds the R = 4 ball; E-FND-0171's V8 multi-modular null-space solve
+// ran past 46 hours on the M3 in clones split-coin and split-coin-2, 2026-11-14 to 11-16, with no line after its
+// "V8: 3908 A rows", and held up every candidate behind it)
 const LAST = new Set([
+  'foundations/pair-conserved-search',
   'geometry/cusp-neighborhood',
   'geometry/honeycomb-quotient',
   'geometry/honeycomb-subgroup-search',

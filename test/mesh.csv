@@ -1697,4 +1697,8 @@ E-RLT-0121,honeycomb-ball,mirrored,working,box-store,honeycomb-ball:exactBallMes
 E-FND-0178,d4-box honeycomb-ball honeycomb-quotient,box-specific honeycomb periodic,working,,d4-box:lockedFresh(side) honeycomb-ball:exactBallMesh honeycomb-quotient:enumerateFrames honeycomb-quotient:quotientMesh
 E-FND-0179,d4-box honeycomb-ball honeycomb-quotient,box-specific honeycomb periodic,working,,d4-box:lockedFresh(side) honeycomb-ball:exactBallMesh honeycomb-quotient:enumerateFrames honeycomb-quotient:quotientMesh
 E-FND-0180,d4-box honeycomb-ball honeycomb-quotient,box-specific honeycomb periodic,working,,d4-box:lockedFresh(side) honeycomb-ball:exactBallMesh honeycomb-quotient:enumerateFrames honeycomb-quotient:quotientMesh
-E-SLF-0184,honeycomb-line,honeycomb,working,,honeycomb-line:code/measure/cone-line ring:code/measure/cold-line
+E-FRC-0317,honeycomb-ball honeycomb-cusp cubic,unread periodic stand-in,other,,cubic:makeFiniteGaugeLattice honeycomb-ball:buildExactBall honeycomb-cusp:buildExactCusp
+E-SLF-0183,honeycomb-ball honeycomb-quotient honeycomb-line ring,mirrored periodic honeycomb stand-in,working,,honeycomb-ball:exactBallMesh honeycomb-line:lineEngine honeycomb-quotient:enumerateFrames honeycomb-quotient:quotientMesh ring:code/measure/drift-cost-bloch ring:code/measure/flux-store-bloch ring:code/measure/quantum-ladder ring:fitRing ring:lineEngine
+E-SLF-0184,honeycomb-line ring,honeycomb stand-in,other,,honeycomb-line:code/measure/cone-line honeycomb-line:lineEngine ring:code/measure/drift-cost-bloch ring:code/measure/flux-store-bloch ring:code/measure/quantum-ladder ring:fitRing ring:lineEngine
+E-FRC-0318,honeycomb-ball honeycomb-cusp,mirrored,other,,honeycomb-ball:buildExactBall honeycomb-cusp:buildExactCusp
+E-SLF-0185,honeycomb-line honeycomb-ball ring,honeycomb stand-in,other,,honeycomb-line:code/measure/cone-line honeycomb-ball:exactBallMesh ring:fitRing

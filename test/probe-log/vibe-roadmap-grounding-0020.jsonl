@@ -1,0 +1,2 @@
+{"at":"2026-11-16T22:55:05.185Z","item":"vibe-roadmap-grounding-0020","command":["sh","tmp/m3-mixer-export.sh","mixer-export","smoke"],"gate":{"hash":"31ab68bfe595","at":"2026-11-16T22:50:56.014Z"},"exit":0,"verdict":"open","recorded":true,"refused":[]}
+{"at":"2026-11-16T22:57:15.369Z","item":"vibe-roadmap-grounding-0020","command":["sh","tmp/m3-mixer-export.sh","mixer-export","full"],"gate":{"hash":"31ab68bfe595","at":"2026-11-16T22:50:56.014Z"},"exit":0,"verdict":"fail","recorded":true,"refused":[]}

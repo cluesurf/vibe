@@ -10,7 +10,8 @@
 //   honeycomb      a ball or a cusp region of the honeycomb read within its horizon (beats <= radius), or read for
 //                  geometry alone (shells, labels, distances)
 //   mirrored       a ball or a cusp region read past its horizon, where the frontier answers (decision 002)
-//   unread         a ball or a cusp region whose horizon nobody has checked yet
+//                  (an open honeycomb line read while no love reaches an end is honeycomb too: LINE_HORIZON)
+//   unread         a ball, a cusp region or an open honeycomb line whose horizon nobody has checked yet
 //   stand-in       a cubic grid, a ring or line, or another graph: not the model's mesh
 //   no-mesh        algebra, one dock, or a closed form: no mesh built
 //
@@ -58,13 +59,21 @@ const HORIZON: Record<string, [Grade, string]> = {
   'E-SPN-0181': ['mirrored', '8 beats on a finite cusp region with depth cuts'],
   'E-SPN-0182': ['honeycomb', 'ball reads are labels only; the bands are on the cusp quotient'],
   'E-SPN-0184': ['honeycomb', 'ball reads are labels only; the count is on the cusp quotient'],
-  'E-NVG-0014': ['mirrored', 'R = 4 ball, 8 beats, absorbing and reflecting frontiers'],
+  'E-SLF-0183': ['mirrored', 'L1 and O1: R 3 and R 2 balls, 4 beats, read past t = R through the frontier'],
+  'E-NVG-0014':['mirrored', 'R = 4 ball, 8 beats, absorbing and reflecting frontiers'],
   'E-CSM-0058': ['honeycomb', 'R = 4 ball, beats 0 to 4'],
   'E-CSM-0059': ['honeycomb', 'breadth-first counts, no rule'],
   'E-CSM-0060': ['honeycomb', 'horosphere counting, geometry only'],
 }
 
-const CUSP_QUOTIENT = /honeycomb-cusp:(cuspQuotient|buildCuspQuotient|buildExactCusp|cuspTranslations)\b/
+// open honeycomb-line runs whose beats were read against the line's length: the run is the infinite line of empty
+// docks, so honeycomb, only while no love reaches an end; past that the ends answer, so mirrored
+const LINE_HORIZON: Record<string, [Grade, string]> = {
+  'E-SLF-0183': ['honeycomb', 'open line of Lo docks run T = floor((Lo - width) / 2) beats; I3: the far-link weight is exactly 0 every beat'],
+  'E-SLF-0184': ['honeycomb', 'open line of max(256, width + 2 beats + 2) docks; E3: no love reaches an end (end hits 0)'],
+}
+
+const CUSP_QUOTIENT =/honeycomb-cusp:(cuspQuotient|buildCuspQuotient|buildExactCusp|cuspTranslations)\b/
 
 function gradeOf(code: string, mesh: MeshKind, reach: MeshReach): Grade {
   switch (mesh) {
@@ -80,6 +89,8 @@ function gradeOf(code: string, mesh: MeshKind, reach: MeshReach): Grade {
       return HORIZON[code]?.[0] ?? 'unread'
     case 'honeycomb-ball':
       return HORIZON[code]?.[0] ?? 'unread'
+    case 'honeycomb-line':
+      return LINE_HORIZON[code]?.[0] ?? 'unread'
     case 'cubic':
     case 'ring':
     case 'other':
@@ -170,7 +181,13 @@ const stale = Object.keys(HORIZON).filter(code => {
   const row = rows.find(r => r.code === code)
 
   return row === undefined || !/honeycomb-(ball|cusp)/.test(row.mesh)
-})
+}).concat(
+  Object.keys(LINE_HORIZON).filter(code => {
+    const row = rows.find(r => r.code === code)
+
+    return row === undefined || !/honeycomb-line/.test(row.mesh)
+  }),
+)
 
 if (showCounts || commit) {
   const perMesh = new Map<string, number>()

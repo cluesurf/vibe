@@ -503,6 +503,56 @@ function localPass(s: ConeStore, split: boolean, back: boolean): void {
   }
 }
 
+// A DOCK MIXER'S ON-LINE BLOCK (item vibe-roadmap-grounding-0020, note/line-confinement.md section 4), in place: every
+// lone dock takes [[keep, cross], [cross, keep]] on its two labels (coinBlock's form), every full dock the scalar
+// `full`. Not unitary: the weight a mixer sends off the line leaves the store, which is the P part Lemma W reads.
+export function mixPass(
+  s: ConeStore,
+  lone: Coin,
+  full: readonly [number, number],
+): void {
+  const pos = new Int32Array(s.n)
+
+  for (let i = 0; i < s.shapes; i++) {
+    positionsOf(s, i, pos)
+
+    const m = s.ms[i]!
+    const at = s.start[i]!
+    const c = Math.floor(at / CHUNK)
+    const o = at - c * CHUNK
+    const re = s.re[c]!
+    const im = s.im[c]!
+
+    coinBlock(re, im, o, m, lone, false)
+
+    let fr = 1
+    let fi = 0
+
+    for (let a = 0; a + 1 < s.n; a++) {
+      if (pos[a + 1] === pos[a]) {
+        const r = fr * full[0] - fi * full[1]
+
+        fi = fr * full[1] + fi * full[0]
+        fr = r
+      }
+    }
+
+    if (fr === 1 && fi === 0) {
+      continue
+    }
+
+    const size = 1 << m
+
+    for (let j = 0; j < size; j++) {
+      const ar = re[o + j]!
+      const ai = im[o + j]!
+
+      re[o + j] = fr * ar - fi * ai
+      im[o + j] = fr * ai + fi * ar
+    }
+  }
+}
+
 // the stream (or its inverse) of every stored configuration of `from` into the empty store `to`, with the line
 // block's sign: the parity of reordering the moved loves, ordered by their modes before the move. Exact zeros are not
 // carried (a label no stream reached); `floor` > 0 also leaves out amplitudes at most that large in both parts, and the
