@@ -1,0 +1,4 @@
+{"at":"2026-11-16T04:58:39.336Z","item":"vibe-roadmap-grounding-0007","command":["npx","tsx","tmp/run-cold-bulk.ts"],"gate":{"hash":"9ca51cc54bf9","at":"2026-11-16T04:52:06.333Z"},"exit":1,"verdict":null,"recorded":true,"refused":[]}
+{"at":"2026-11-16T04:59:40.581Z","item":"vibe-roadmap-grounding-0007","command":["npx","tsx","tmp/run-cold-bulk.ts"],"gate":{"hash":"9ca51cc54bf9","at":"2026-11-16T04:52:06.333Z"},"exit":0,"verdict":"open","recorded":true,"refused":[]}
+{"at":"2026-11-16T05:00:30.589Z","item":"vibe-roadmap-grounding-0007","command":["sh","tmp/m3-cold-bulk.sh","cold-bulk"],"gate":{"hash":"9ca51cc54bf9","at":"2026-11-16T04:52:06.333Z"},"exit":0,"verdict":null,"recorded":true,"refused":[]}
+{"at":"2026-11-16T05:10:35.538Z","item":"vibe-roadmap-grounding-0007","command":["sh","tmp/m3-cold-bulk.sh","cold-bulk-2"],"gate":{"hash":"9ca51cc54bf9","at":"2026-11-16T04:52:06.333Z"},"exit":0,"verdict":"open","recorded":true,"refused":[]}
