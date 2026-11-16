@@ -25,6 +25,17 @@
 // SETTINGS. Default SMOKE (box-8 level, W 10 k 3 start 0, Lo 24, CAP 2e6, 32 beats; seconds on the laptop).
 // CONE_SWEEP=full for the M3 (box-12 level, W 12 and W 15, k 3 and 6, 256 beats, CAP 1.5e8).
 //
+// SMOKE (laptop, 2026-11-15, no evidence): the first probe stopped at E3 (4 reversal beats pass the 2e6 smoke cap; the
+// smoke reversal is now 3 beats); the second ran, open by rule.
+//
+// FULL RUN (M3, 2026-11-15, clone cone-bulk, 5,653 s, light slot, gate e0f91c26f6f8): OPEN. C1 exact, E1 0 (all
+// 14,232,612 amplitudes bit for bit, F 1.2e-14), E2 6.4e-16 before each wrap (first differ at t_w exactly where a love
+// can wrap), E3 1.1e-15 and 9.6e-16 back (weight below the 1e-14 floor 3.1e-23), norm 3.1e-11, end hits 0, I4 tau 8,
+// C2 0.912 and 0.929 (lone runs 229 and 228 beats, cap). Growth: 3 loves p 2.8, 6 loves p 4.1 and 3.9 (last ratio
+// 1.45), 9 loves about 5. Reach: W 12 k 3 11 beats, W 15 k 3 9, k 6 3 and 2. The open g stays above 1/2 within the
+// reach (W 12: 0.518 at beat 9, 0.541 at 11; W 15: 0.625 at 9) where the closed ring crosses at 7 (W 12) and 48
+// (W 15); tau_open predicted 14.5 (W 12) and 22.1 (W 15) against 80 and 320: not measured, so open.
+//
 // Depth L2: B1's rule in floats on one sector; the line law and ODD rest on E-SLF-0183's exact ball checks.
 
 import { experiment } from '@/test/scaffold/suite'
