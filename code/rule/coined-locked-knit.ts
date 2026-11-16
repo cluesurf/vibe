@@ -34,6 +34,8 @@
 //
 // ONE BEAT t: the coin, then the locked knit's beat (meetings, collision, stream), with the fermion sign of the
 // collision and stream of each branch. The inverse: the locked knit's inverse beat, the same sign, the adjoint coin.
+// THE SPLIT COIN (opt-in, below coinBranch): the working beat coinedVetoBeat with half the coin on each side of the
+// meetings and collision, set by VIBE_COIN=split or setCoinPlace('split'). The default is unchanged.
 //
 // NOTHING MOVES: the coin copies a vibe to the other slot of its own line on its own dock, the stream copies each
 // slot's value one dock along; a link holds nothing. Exact in Z[w][1/2]; no float, no rounding, no random number.
@@ -53,6 +55,7 @@ import {
   lockedBeat,
   lockedBeatBack,
   mergeBranches,
+  streamConfiguration,
   times,
   type Branch,
   type Configuration,
@@ -61,6 +64,8 @@ import {
   type LockedTally,
 } from '@/code/rule/doublet-locked-knit'
 import {
+  collideVeto,
+  meetBranch,
   vetoBeat,
   vetoBeatBack,
   type VetoKind,
@@ -108,6 +113,18 @@ export const newCoinTally = (): CoinTally => ({
 
 // the coin on one branch: the list of branches it becomes
 export function coinBranch(
+  cells: number,
+  br: Branch,
+  adjoint: boolean,
+  tally?: CoinTally,
+): Branch[] {
+  COIN_USE.coinBranches++
+
+  return coinLines(cells, br, adjoint, tally)
+}
+
+// the coin itself, uncounted: the working beat's own coin
+function coinLines(
   cells: number,
   br: Branch,
   adjoint: boolean,
@@ -187,6 +204,216 @@ export function coinBranch(
   }
 
   return out
+}
+
+// ---- the split coin (grounding decision 004, item vibe-roadmap-grounding-0017) ----
+//
+// THE HALF COIN D = C^(1/2). On a line's doublet C = P+ + w P- (P+- the projectors on e0 +- e1), and D = P+ + zeta6 P-
+// with zeta6 = 1 + w (zeta6^2 = w): keep (2 + w)/2, cross -w/2, and on a line of two open vibes the pair's determinant
+// det D = zeta6. So D D = C on every line, exact in Z[w][1/2]. Of C's four square roots (+-1 on e0 + e1, +-zeta6 on
+// e0 - e1) D is the one that leaves C's fixed vector e0 + e1 fixed and is not a power of C (P+ + w^2 P- is C^2 = C^-1).
+// Closed vibes and lines with no open vibe are untouched, as under C.
+//
+// THE PLACE OF THE COIN in the working beat (coinedVetoBeat):
+//   'before'  U_t = S Y_t C      the coin, then the meetings and the collision Y_t, then the stream S (the default)
+//   'split'   U_t = S D Y_t D    half the coin on each side of Y_t: exactly time-reversible under T = K S R (E-FND-0179)
+// The place is read once from the environment variable VIBE_COIN ('before' or 'split', unset = 'before') and can be set
+// for a run with setCoinPlace, so a held result is rerun on the split rule with no edit to its file. With the default
+// every beat is bit for bit the coin-before rule.
+
+export type CoinPlace = 'before' | 'split'
+
+function placeFromEnvironment(): CoinPlace {
+  const raw = typeof process === 'undefined' ? undefined : process.env.VIBE_COIN
+
+  if (raw === undefined || raw === '' || raw === 'before') {
+    return 'before'
+  }
+
+  if (raw === 'split') {
+    return 'split'
+  }
+
+  throw new Error(`coined-locked-knit: VIBE_COIN is '${raw}', not 'before' or 'split'`)
+}
+
+let coinPlace: CoinPlace = placeFromEnvironment()
+
+export const currentCoinPlace = (): CoinPlace => coinPlace
+
+// how often a run used the working beat and the bare coin, so a rerun of the held results (task/split-coin-rerun.ts)
+// knows which ones the place reaches: workingBeats counts coinedVetoBeat and its back beat (which the place changes),
+// coinBranches counts coinBranch calls (a coin composed by hand, which the place does not change)
+const COIN_USE = { workingBeats: 0, coinBranches: 0 }
+
+export const coinUse = (): { workingBeats: number; coinBranches: number } => ({ ...COIN_USE })
+
+export function setCoinPlace(place: CoinPlace): void {
+  coinPlace = place
+}
+
+// D's coefficients over 2 (forward, adjoint): keep (2 + w), adjoint (1 - w); cross -w, adjoint (1 + w); the full open
+// line's det zeta6 = 1 + w (no scale), adjoint -w
+const HALF_KEEP: readonly [bigint, bigint][] = [
+  [2n, 1n],
+  [1n, -1n],
+]
+const HALF_CROSS: readonly [bigint, bigint][] = [
+  [0n, -1n],
+  [1n, 1n],
+]
+const HALF_DET: readonly [bigint, bigint][] = [
+  [1n, 1n],
+  [0n, -1n],
+]
+
+// the half coin on one branch: the list of branches it becomes
+export function halfCoinBranch(
+  cells: number,
+  br: Branch,
+  adjoint: boolean,
+  tally?: CoinTally,
+): Branch[] {
+  const side = adjoint ? 1 : 0
+  const halves: { from: number; to: number }[] = []
+
+  for (let x = 0; x < cells; x++) {
+    const base = x * 24
+
+    for (let l = 0; l < 12; l++) {
+      const i = base + LINE_FIRSTS[l]!
+      const j = base + LINE_SECONDS[l]!
+      const hi = br.vibe[i] !== 0
+      const hj = br.vibe[j] !== 0
+
+      if (hi && hj) {
+        if (br.open[i] && br.open[j]) {
+          const [u, v] = HALF_DET[side]!
+
+          times(br, u, v)
+
+          if (tally) {
+            tally.determinants++
+          }
+        }
+
+        continue
+      }
+
+      if (hi && br.open[i]) {
+        halves.push({ from: i, to: j })
+      } else if (hj && br.open[j]) {
+        halves.push({ from: j, to: i })
+      }
+    }
+  }
+
+  if (halves.length === 0) {
+    return [br]
+  }
+
+  if (halves.length > 20) {
+    throw new Error(
+      `coined-locked-knit: ${halves.length} half-full open lines in one branch, over the guard 20`,
+    )
+  }
+
+  if (tally) {
+    tally.splits += halves.length
+  }
+
+  const [ku, kv] = HALF_KEEP[side]!
+  const [cu, cv] = HALF_CROSS[side]!
+  const out: Branch[] = []
+
+  for (let mask = 0; mask < 1 << halves.length; mask++) {
+    const b = cloneBranch(br)
+
+    halves.forEach((h, n) => {
+      if ((mask >> n) & 1) {
+        b.vibe[h.to] = b.vibe[h.from]!
+        b.point[h.to] = b.point[h.from]!
+        b.open[h.to] = b.open[h.from]!
+        b.vibe[h.from] = 0
+        b.point[h.from] = 0
+        b.open[h.from] = 0
+        times(b, cu, cv)
+      } else {
+        times(b, ku, kv)
+      }
+    })
+
+    b.k += halves.length
+    out.push(b)
+  }
+
+  return out
+}
+
+function halfCoinAll(
+  t: LockedTables,
+  branches: readonly Branch[],
+  adjoint: boolean,
+  coinTally?: CoinTally,
+): Branch[] {
+  const out: Branch[] = []
+
+  for (const br of branches) {
+    out.push(...halfCoinBranch(t.cells, cloneBranch(br), adjoint, coinTally))
+  }
+
+  return mergeBranches(out)
+}
+
+// S D Y_t D: the half coin, the meetings and the veto's collision, the half coin, the stream
+function splitVetoBeat(
+  kind: VetoKind,
+  t: LockedTables,
+  s: LockedState,
+  beat: number,
+  tally?: LockedTally,
+  coinTally?: CoinTally,
+): LockedState {
+  const collided: Branch[] = []
+
+  for (const br of halfCoinAll(t, s.branches, false, coinTally)) {
+    for (const b of meetBranch(br, t.cells, false, tally)) {
+      collideVeto(kind, t, b, beat, false, tally)
+      collided.push(b)
+    }
+  }
+
+  const out = halfCoinAll(t, mergeBranches(collided, tally), false, coinTally)
+
+  for (const b of out) {
+    streamConfiguration(t, b, false)
+  }
+
+  return { branches: out }
+}
+
+// its exact inverse: D^-1 Y_t^-1 D^-1 S^-1
+function splitVetoBeatBack(
+  kind: VetoKind,
+  t: LockedTables,
+  s: LockedState,
+  beat: number,
+): LockedState {
+  const unstreamed = s.branches.map(br => {
+    const b = cloneBranch(br)
+
+    streamConfiguration(t, b, true)
+
+    return b
+  })
+  const met: Branch[] = []
+
+  for (const b of halfCoinAll(t, unstreamed, true)) {
+    collideVeto(kind, t, b, beat, true)
+    met.push(...meetBranch(b, t.cells, true))
+  }
+
+  return { branches: halfCoinAll(t, mergeBranches(met), true) }
 }
 
 // the order of fermion modes: dock-major, and in a dock line by line, the first slot before the second
@@ -320,7 +547,8 @@ export function coinedBeat(
 // THE COIN ON THE NO-VETO STORE (E-RLT-0104, E-RLT-0105): the same composition with the beat of code/rule/
 // occupation-veto-knit (a chosen veto, 'none' for the working vacuum) in place of the locked knit's, so the coin, then
 // the meetings, the veto's collision and the stream. No fermion sign: it is not written for a configuration holding a
-// store (fermionSign refuses), so this is the configuration code plus the coin ('native' in E-SPN-0091).
+// store (fermionSign refuses), so this is the configuration code plus the coin ('native' in E-SPN-0091). With the coin
+// place 'split' (currentCoinPlace) the beat is S D Y_t D instead.
 export function coinedVetoBeat(
   kind: VetoKind,
   t: LockedTables,
@@ -329,11 +557,17 @@ export function coinedVetoBeat(
   tally?: LockedTally,
   coinTally?: CoinTally,
 ): LockedState {
+  COIN_USE.workingBeats++
+
+  if (coinPlace === 'split') {
+    return splitVetoBeat(kind, t, s, beat, tally, coinTally)
+  }
+
   const coined: Branch[] = []
 
   for (const br of s.branches) {
     coined.push(
-      ...coinBranch(t.cells, cloneBranch(br), false, coinTally),
+      ...coinLines(t.cells, cloneBranch(br), false, coinTally),
     )
   }
 
@@ -352,10 +586,16 @@ export function coinedVetoBeatBack(
   s: LockedState,
   beat: number,
 ): LockedState {
+  COIN_USE.workingBeats++
+
+  if (coinPlace === 'split') {
+    return splitVetoBeatBack(kind, t, s, beat)
+  }
+
   const out: Branch[] = []
 
   for (const br of vetoBeatBack(kind, t, s, beat).branches) {
-    out.push(...coinBranch(t.cells, cloneBranch(br), true))
+    out.push(...coinLines(t.cells, cloneBranch(br), true))
   }
 
   return { branches: mergeBranches(out) }

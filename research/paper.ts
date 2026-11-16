@@ -90,6 +90,46 @@ export const PLANNED: Planned[] = [
   },
 ]
 
+// The one-present errata (2026-11-12). Seven older papers call the present the growing edge of the
+// mesh, or the interior a fixed and settled past. The author's ruling is that there is one present,
+// the current state of the whole model, so each paper gets one erratum here and its text stays as
+// published.
+const ONE_PRESENT_CODE =
+  'the rule carries the whole state of the mesh to the next whole state, every dock at once, and runs back exactly, so the present fixes every earlier state (E-FND-0049). There is one present, the current state of the whole model. The past is not kept in the interior: it is what the present implies when the rule runs back. Growth is something the present does at its boundary. New docks join the present, they are not the present, and the older docks are not the past'
+
+const ONE_PRESENT_LABEL = 'wrong picture of time, corrected by the one-present ruling of 2026-11-12'
+
+const ONE_PRESENT_CLAIMS: [string, string][] = [
+  [
+    '0005',
+    'the deep interior, the distant past, is fixed and never edited. The present and the growing edge of the mesh are the same thing',
+  ],
+  [
+    '0007',
+    'the past, the deep interior of the crystal, is fixed and finished. The present is the growing edge',
+  ],
+  [
+    '0010',
+    'the past is the settled interior, fixed and done. The present is the growing edge where new docks are born at peace',
+  ],
+  [
+    '0011',
+    'the past is small and few, the seed. The future is large and open, the growing edge',
+  ],
+  [
+    '0012',
+    'the past is the settled interior, fixed and done, the future is open at the wake, and the present is the growing edge',
+  ],
+  [
+    '0013',
+    'the divergence equals the newly born cells at the edge and is zero in the settled bulk',
+  ],
+  [
+    '0014',
+    'the growth is un-erasable, the wake is why the clock runs forward, and the growing edge, the wake, is the arrow',
+  ],
+]
+
 export const ERRATA: Erratum[] = [
   {
     paper: '0012',
@@ -150,4 +190,10 @@ export const ERRATA: Erratum[] = [
     code: "neither paper says the vacuum of the pair table, the committed knit when they were written, is a global period-three flash, so a lone vibe is a defect on a flashing background (E-FND-0080). The committed turning weave's vacuum recurs at beat 24 (E-FND-0118)",
     label: 'an omission, now measured',
   },
+  ...ONE_PRESENT_CLAIMS.map(([paper, claim]) => ({
+    paper,
+    claim,
+    code: ONE_PRESENT_CODE,
+    label: ONE_PRESENT_LABEL,
+  })),
 ]

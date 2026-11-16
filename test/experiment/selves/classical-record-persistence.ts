@@ -6,7 +6,7 @@
 // in decoherence-immunity (E-QTM-0049).
 //
 // A localized body is seeded (a deterministic pattern in a band, the rest at peace) and
-// coupled to the open growing edge, where it settles into a classical record with a
+// run open (a fixed slab zeroed every beat), where it settles into a classical record with a
 // definite spatial occupancy profile. Its per-beat slab-occupancy field has real spatial
 // structure (unlike a mesh-filling pattern, whose profile is flat), so the lag
 // autocorrelation of the field over time is a genuine measure of whether the spatial
@@ -16,8 +16,15 @@
 // The control is the SAME body run CLOSED (no wake): the reversible bulk keeps reshuffling
 // its fine phase, so its coarse profile does not lock into a stable pattern and its lag
 // autocorrelation is low or negative. So the persistent spatial structure is the classical
-// record made by the settling on the wake, not the coherent phase, which is exactly the
+// record made by the settling against the open slab, not the coherent phase, which is the
 // bridge's point that vibe's persistence carries no coherence bill.
+//
+// UNDER REVIEW (decision 001 of the one-present roadmap). The open slab is not growth and
+// not part of the rule: zeroing it destroys information every beat. There is one present,
+// the whole state at this beat, and a record is a correlation inside it, never information
+// destroyed. So the persistent pattern here is the erasure run's, and the rerun with a bath
+// that stays in the present (item 0011, X4 in the review) decides the verdict. The gates and
+// verdict below are unchanged until then.
 //
 // Depth L2. It measures the lag autocorrelation of the coarse field along the substrate's
 // own settling dynamics, with a closed control, and reads it against the Orch-OR bridge.

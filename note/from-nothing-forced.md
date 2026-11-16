@@ -88,7 +88,7 @@ The equipment is fixed. Now the beat acts.
 |:--- |:--- |:--- |:--- |
 | tones | the knit (collide then stream) on every cell at once | conserves charge exactly, reversible | [beat-computes-on-mesh](https://github.com/cluesurf/vibe/blob/make/test/experiment/foundations/beat-computes-on-mesh.ts) ([`E-FND-0046`](../test/experiment/foundations/beat-computes-on-mesh.ts)) |
 | mesh | the wake unfolds the honeycomb shell by shell | exact integers 1, 24, 456, 8376, deterministic | [mesh-unfolds-exactly](https://github.com/cluesurf/vibe/blob/make/test/experiment/geometry/mesh-unfolds-exactly.ts) ([`E-GMT-0027`](../test/experiment/geometry/mesh-unfolds-exactly.ts)) |
-| time | the beat count rises | the rise is the arrow | (the wake, above) |
+| time | the beat count rises | the count says the present's age. Time's arrow is the second law, coarse entropy rising away from a low-entropy start, both ways under the exact rule | [`E-FND-0147`](../test/experiment/foundations/husk-arrow-records.ts) |
 
 ### The exact numbers
 
@@ -238,16 +238,20 @@ then stream). So the mesh forces a unique law.
 associative core is 4D space, the 24-cell from the 81 directions, the mesh {3,4,3,4} from
 tiling it, and the mesh's one local reversible symmetric update is the knit.*
 
-**the law -> the wake.** Why growth: the arrow was already implied (distinctions accumulate,
-the count step), but the knit cannot carry it, because a reversible rule runs equally well
-backward and so has no built-in direction. Something must carry the accumulation, so the
-mesh grows, new cells born at the open edge, none removed. That monotone growth is the wake,
-and it is why the clock runs forward.
+**the law -> the wake.** Why growth: the count step says distinctions accumulate, and the
+mesh grows to hold them. Each beat new docks join at the mesh's boundary, each written in
+one fixed calm state, and from then on the knit moves them like every other dock. That
+growth is the wake. It is how the one present grows, not where the present lives: the
+present is the whole state of the model at this beat, every dock at once, the bulk and the
+husk alike, and the older docks are not a stored past. The wake is not time's arrow
+either. It is an injective map, so it runs back exactly (each newest shell returns to calm
+and leaves, which item 0010 of note/project/vibe/roadmap/one-present runs to check), and
+time's arrow is the second law, read from the present.
 
 *So far, from nothing: the ternary tone (its count is time), the octonions at 8, the
 associative core is 4D space, the 24-cell from the 81 directions, the mesh {3,4,3,4} from
-tiling it, the knit as its one lossless symmetric law, and the growing edge (the wake) as the
-arrow. The whole equipment stands: tone, cell, mesh, knit, wake.*
+tiling it, the knit as its one lossless symmetric law, and the wake as the way the one
+present grows. The whole equipment stands: tone, cell, mesh, knit, wake.*
 
 ## Register two: how each step follows the next
 
@@ -268,19 +272,24 @@ cell. Mesh: the wake births a fresh shell at the rim. The next beat runs the sam
 now-larger mesh with the now-advanced state, so state and extent co-evolve, driven by the
 count.
 
-**knit -> arrow (why the direction is real).** Why the knit cannot supply it: the knit is a
-reversible shuffle, run it backward and the prior state returns, so by itself it is symmetric
-in time. Why the wake supplies it: the cell count only rises, so the states form a one-way
-sequence, and to run a beat backward you would have to un-create a cell, which is itself a
-new distinction (making information while claiming to erase it). So the arrow is the
-un-erasable growth, not the knit.
+**knit -> arrow (why the direction is real).** The knit is a reversible shuffle: run it
+backward and the prior state returns, so the rule itself is symmetric in time, and so is
+the wake (it writes new docks in one fixed state, so run back, each newest shell returns to
+that state and leaves). The direction comes from the present instead. Started from a
+low-entropy state, coarse entropy rises away from it, forward and under the exact inverse
+alike ([`E-FND-0146`](../test/experiment/foundations/husk-second-law.ts),
+[`E-FND-0147`](../test/experiment/foundations/husk-arrow-records.ts)). So time's arrow is the
+second law, not the growth. The past is not kept anywhere: it is what the present implies
+when the rule runs back. (An earlier version of this step said the wake cannot be run
+backward. That is wrong, see note/project/vibe/roadmap/one-present/review.md.)
 
 **bulk -> cusp (where we live).** Why a boundary: the growing 4D interior (the bulk, curved)
 has a 3D outer surface (the cusp, flat), because the boundary of a 4D region is one dimension
 down. Why we are on it: stable structure and observers form on the flat cusp, not in the
 curved bulk, so of the four bulk dimensions three are in view and the radial fourth (depth
-into the bulk) is hidden. So perceived space is 3D and perceived time is the bulk's growth
-read from the cusp.
+into the bulk) is hidden. So perceived space is 3D. Physics is read on the husk, the 3D
+surface, and the 4D bulk inside it is experience. Perceived time's arrow is the second law
+read on the husk, while the mesh's growth gives the one present its size and age.
 
 ## The subtle parts, spelled out
 
@@ -346,7 +355,9 @@ triality orbit, one per generation, the coset index [F4:B4] = 3 ([`E-FND-0054`](
 Nothing forces one distinction, and one distinction is three-toned (vacuum + mirror). The
 tone across four slots gives 81 words whose unique self-dual spinful shell is the 24-cell.
 The 24-cell tiles into the mesh {3,4,3,4}. The one symmetric law (the knit) runs on it
-each beat, reversibly, while the wake grows the edge, and that growth is time.
+each beat, reversibly, on the whole present at once, while the wake grows the mesh at its
+boundary. The past is what the present implies run back, and time's arrow is the second
+law.
 
 ## The premises it rests on
 

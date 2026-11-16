@@ -12,11 +12,14 @@ import {
 } from '@/code/measure/graph-continuity'
 
 // The wake AS the expansion scalar, the one Chronoflux identity with no counterpart anywhere else: dark energy
-// is the growing edge. The continuity law says the divergence of the conserved current equals the source inside
-// a region. The wake (the atom "wake": new docks born at the growing edge) is exactly such a source, and only
-// at the edge. We grow the curved {3,4,3,4} mesh shell by shell, birthing a unit of charge on each newly born
-// frontier cell, run the reversible knit, and measure the discrete divergence (the per-region continuity
-// residual) at the growing edge versus in the settled bulk. The edge divergence is strictly positive and equals
+// is the growth at the boundary. The continuity law says the divergence of the conserved current equals the
+// source inside a region. The wake (the atom "wake": new docks joining the one present at its boundary) is
+// exactly such a source, and only at the boundary. There is one present, the whole state at this beat: the
+// boundary is where it grows, not where the now lives, and the interior is not a settled past (decision 001 of
+// the one-present roadmap). We grow the curved {3,4,3,4} mesh shell by shell, birthing a unit of charge on each
+// newly born frontier cell, run the reversible knit, and measure the discrete divergence (the per-region
+// continuity residual) at the boundary versus in the interior. The title's "settled bulk" means this fully
+// born interior, and the measured identity stands. The edge divergence is strictly positive and equals
 // exactly the number of newly born cells that beat (the expansion scalar), and it grows geometrically with the
 // shell counts (accelerating expansion). The bulk divergence is integer-exact zero (conservation, source-free).
 // The CONTROL is the static mesh with no births, where the edge divergence is also exactly zero. So "expansion
@@ -65,8 +68,8 @@ export default experiment({
       }
     }
 
-    // the settled bulk: a small interior ball that is fully born after the first few beats and never sees a
-    // birth again, so it must stay exactly source-free.
+    // the interior: a small ball that is fully born after the first few beats and never sees a birth again,
+    // so it must stay exactly source-free. It is not a settled past: the knit steps it every beat.
     const bulkRadius = 2
     const bulk = regionBall(adjacency, 0, bulkRadius)
 

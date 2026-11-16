@@ -1893,7 +1893,7 @@ export const RESULTS: Result[] = [
     candidate: null,
     paper: 'planned paper 2, the hyperbolic substrate',
     program:
-      'Almost all of the mesh sits at the skin. The skin is the wake, the growing edge where a new shell of docks is born every beat (1, 24, 456, 8,376 on {3,4,3,4}, E-FND-0051). Physical space is the wake, the bulk is the branches.',
+      'Almost all of the mesh sits in its outer shells, and each beat a new shell of docks joins the one present there (1, 24, 456, 8,376 on {3,4,3,4}, E-GMT-0027). Physics is read on the husk, the 3d surface, and the bulk, the 4d interior, is experience.',
     outputs: NO_OUTPUTS,
   },
   {

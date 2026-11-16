@@ -1,0 +1,274 @@
+// The mesh each experiment builds, and the grade its verdict can carry (vibe-roadmap-board-0024).
+//
+// Reads every row of test/registry.csv, finds the meshes the experiment's code builds (task/mesh-reach.ts, which
+// follows the code, never the title or the `3434` tag), and grades each mesh by honeycomb decisions 001 and 002:
+//
+//   box-specific   the flat D4 box (or the flat D4 lattice): a result there is box-specific until it is rerun on the
+//                  honeycomb (decision 001, keys 6)
+//   periodic       a finite quotient of the honeycomb, or the cusp modulo its translations: exact for any number of
+//                  beats, but only for states that repeat under the subgroup (decision 002)
+//   honeycomb      a ball or a cusp region of the honeycomb read within its horizon (beats <= radius), or read for
+//                  geometry alone (shells, labels, distances)
+//   mirrored       a ball or a cusp region read past its horizon, where the frontier answers (decision 002)
+//   unread         a ball or a cusp region whose horizon nobody has checked yet
+//   stand-in       a cubic grid, a ring or line, or another graph: not the model's mesh
+//   no-mesh        algebra, one dock, or a closed form: no mesh built
+//
+// The honeycomb and mirrored grades need a reading of the run's beats against its radius, so they come from the
+// HORIZON table below, each with its reason. Every other grade follows from the mesh.
+//
+// Writes test/mesh.csv (code, mesh, grade, rule, vacuum, evidence) only with --commit. Without it, checks that every
+// registry code has a row, that every row's mesh, grade and evidence equal what the code builds today, and that no row
+// names a code the registry lacks. Exit 1 on any difference.
+//
+//   pnpm exec tsx task/mesh-labels.ts            check
+//   pnpm exec tsx task/mesh-labels.ts --commit   write test/mesh.csv
+//   pnpm exec tsx task/mesh-labels.ts --counts   also print the counts per mesh and grade
+
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { MeshReader, type MeshKind, type MeshReach } from './mesh-reach'
+
+const root = process.cwd()
+const registryPath = join(root, 'test', 'registry.csv')
+const labelPath = join(root, 'test', 'mesh.csv')
+const commit = process.argv.includes('--commit')
+const showCounts = process.argv.includes('--counts')
+
+type Grade =
+  | 'box-specific'
+  | 'periodic'
+  | 'honeycomb'
+  | 'mirrored'
+  | 'unread'
+  | 'stand-in'
+  | 'no-mesh'
+
+// ball and cusp-region runs whose beats were read against their radius (decision 002: t <= R is honeycomb)
+const HORIZON: Record<string, [Grade, string]> = {
+  'E-GMT-0040': ['honeycomb', 'geometry only: shells, labels, triangles and squares'],
+  'E-GMT-0041': ['honeycomb', 'the cusp quotient is compared with the exact ball only while t <= F - depth'],
+  'E-RLT-0121': ['mirrored', 'R = 4 ball, 96 inverse beats and period-4 orbits read past t = 4 through the frontier'],
+  'E-FND-0178': ['honeycomb', 'R = 4 ball, 3 beats'],
+  'E-FND-0179': ['honeycomb', 'R = 3 and R = 4 balls, 3 beats'],
+  'E-FND-0180': ['honeycomb', "reruns E-FND-0179's ball gates, 3 beats"],
+  'E-SPN-0156': ['mirrored', 'balls of R = 3 and 4, 48 beats; the holonomy reads are geometry'],
+  'E-SPN-0157': ['mirrored', 'R = 4 ball, 96 beats'],
+  'E-SPN-0158': ['mirrored', 'an 8-beat walk on the ball; the shadow reads are geometry'],
+  'E-SPN-0181': ['mirrored', '8 beats on a finite cusp region with depth cuts'],
+  'E-SPN-0182': ['honeycomb', 'ball reads are labels only; the bands are on the cusp quotient'],
+  'E-SPN-0184': ['honeycomb', 'ball reads are labels only; the count is on the cusp quotient'],
+  'E-NVG-0014': ['mirrored', 'R = 4 ball, 8 beats, absorbing and reflecting frontiers'],
+  'E-CSM-0058': ['honeycomb', 'R = 4 ball, beats 0 to 4'],
+  'E-CSM-0059': ['honeycomb', 'breadth-first counts, no rule'],
+  'E-CSM-0060': ['honeycomb', 'horosphere counting, geometry only'],
+}
+
+const CUSP_QUOTIENT = /honeycomb-cusp:(cuspQuotient|buildCuspQuotient|buildExactCusp|cuspTranslations)\b/
+
+function gradeOf(code: string, mesh: MeshKind, reach: MeshReach): Grade {
+  switch (mesh) {
+    case 'd4-box':
+      return 'box-specific'
+    case 'honeycomb-quotient':
+      return 'periodic'
+    case 'honeycomb-cusp':
+      if (CUSP_QUOTIENT.test(reach.evidence.join(' '))) {
+        return 'periodic'
+      }
+
+      return HORIZON[code]?.[0] ?? 'unread'
+    case 'honeycomb-ball':
+      return HORIZON[code]?.[0] ?? 'unread'
+    case 'cubic':
+    case 'ring':
+    case 'other':
+      return 'stand-in'
+    case 'none':
+      return 'no-mesh'
+  }
+}
+
+type Row = {
+  code: string
+  mesh: string
+  grade: string
+  rule: string
+  vacuum: string
+  evidence: string
+}
+
+const HEADER = 'code,mesh,grade,rule,vacuum,evidence'
+const quote = (s: string): string => (/[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s)
+
+function parseCsvLine(line: string): string[] {
+  const out: string[] = []
+  let field = ''
+  let quoted = false
+
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i]!
+
+    if (quoted) {
+      if (c === '"' && line[i + 1] === '"') {
+        field += '"'
+        i++
+      } else if (c === '"') {
+        quoted = false
+      } else {
+        field += c
+      }
+    } else if (c === '"') {
+      quoted = true
+    } else if (c === ',') {
+      out.push(field)
+      field = ''
+    } else {
+      field += c
+    }
+  }
+
+  out.push(field)
+
+  return out
+}
+
+const reader = new MeshReader(root)
+const missing = reader.missingBuilders()
+
+if (missing.length > 0) {
+  console.error(`mesh-labels: builders not found (renamed or moved?): ${missing.join(', ')}`)
+  process.exit(1)
+}
+
+const registry = readFileSync(registryPath, 'utf8')
+  .trim()
+  .split('\n')
+  .slice(1)
+  .map(line => {
+    const cells = parseCsvLine(line)
+
+    return { code: cells[0]!, file: cells[cells.length - 1]!.trim() }
+  })
+
+const rows: Row[] = registry.map(({ code, file }) => {
+  const reach = reader.read(file)
+  const meshes = reach.meshes
+
+  return {
+    code,
+    mesh: meshes.join(' '),
+    grade: meshes.map(m => gradeOf(code, m, reach)).join(' '),
+    rule: reach.workingRule ? 'working' : reach.runsRule ? 'other' : 'none',
+    vacuum: reach.boxStore ? 'box-store' : '',
+    evidence: reach.evidence.join(' '),
+  }
+})
+
+// a HORIZON entry whose code no longer builds a ball or a cusp region is stale
+const stale = Object.keys(HORIZON).filter(code => {
+  const row = rows.find(r => r.code === code)
+
+  return row === undefined || !/honeycomb-(ball|cusp)/.test(row.mesh)
+})
+
+if (showCounts || commit) {
+  const perMesh = new Map<string, number>()
+  const perGrade = new Map<string, number>()
+  const perLabel = new Map<string, number>()
+
+  for (const row of rows) {
+    perLabel.set(`${row.mesh} | ${row.grade}`, (perLabel.get(`${row.mesh} | ${row.grade}`) ?? 0) + 1)
+
+    for (const m of new Set(row.mesh.split(' '))) {
+      perMesh.set(m, (perMesh.get(m) ?? 0) + 1)
+    }
+
+    for (const g of new Set(row.grade.split(' '))) {
+      perGrade.set(g, (perGrade.get(g) ?? 0) + 1)
+    }
+  }
+
+  const show = (m: Map<string, number>): string =>
+    [...m]
+      .sort((a, b) => b[1] - a[1])
+      .map(([k, v]) => `  ${String(v).padStart(5)}  ${k}`)
+      .join('\n')
+
+  console.log(`experiments per mesh (an experiment on two meshes counts in both):\n${show(perMesh)}`)
+  console.log(`experiments per grade:\n${show(perGrade)}`)
+  console.log(`experiments per exact label:\n${show(perLabel)}`)
+}
+
+if (commit) {
+  const text = [
+    HEADER,
+    ...rows.map(r =>
+      [r.code, r.mesh, r.grade, r.rule, r.vacuum, r.evidence].map(quote).join(','),
+    ),
+  ].join('\n')
+
+  writeFileSync(labelPath, `${text}\n`)
+  console.log(`mesh-labels  wrote ${rows.length} rows to test/mesh.csv${stale.length > 0 ? `, ${stale.length} stale HORIZON entries: ${stale.join(' ')}` : ''}`)
+  process.exit(stale.length > 0 ? 1 : 0)
+}
+
+if (!existsSync(labelPath)) {
+  console.error('mesh-labels: test/mesh.csv is missing (run with --commit)')
+  process.exit(1)
+}
+
+const written = new Map<string, Row>()
+
+for (const line of readFileSync(labelPath, 'utf8').trim().split('\n').slice(1)) {
+  const [code, mesh, grade, rule, vacuum, evidence] = parseCsvLine(line)
+
+  written.set(code!, {
+    code: code!,
+    mesh: mesh!,
+    grade: grade!,
+    rule: rule!,
+    vacuum: vacuum!,
+    evidence: evidence!,
+  })
+}
+
+let unlabeled = 0
+let differ = 0
+
+for (const row of rows) {
+  const have = written.get(row.code)
+
+  if (have === undefined) {
+    unlabeled++
+    console.log(`  unlabeled  ${row.code}  builds ${row.mesh}`)
+    continue
+  }
+
+  for (const field of ['mesh', 'grade', 'rule', 'vacuum', 'evidence'] as const) {
+    if (have[field] !== row[field]) {
+      differ++
+      console.log(`  differs    ${row.code}  ${field}: label '${have[field]}', code '${row[field]}'`)
+    }
+  }
+}
+
+const registryCodes = new Set(registry.map(r => r.code))
+const orphans = [...written.keys()].filter(code => !registryCodes.has(code))
+
+for (const code of orphans) {
+  console.log(`  orphan     ${code}  labeled but not in test/registry.csv`)
+}
+
+for (const code of stale) {
+  console.log(`  stale      ${code}  has a HORIZON grade but builds no ball or cusp region`)
+}
+
+const honeycomb = rows.filter(r => /honeycomb-/.test(r.mesh)).length
+const boxOnly = rows.filter(r => r.mesh === 'd4-box').length
+
+console.log(
+  `\nmesh-labels  ${rows.length} registry codes, ${written.size} labels, ${unlabeled} unlabeled, ${differ} fields differ from the code, ${orphans.length} orphans, ${stale.length} stale horizon grades; ${honeycomb} touch the honeycomb, ${boxOnly} run on the box alone`,
+)
+
+process.exit(unlabeled + differ + orphans.length + stale.length > 0 ? 1 : 0)

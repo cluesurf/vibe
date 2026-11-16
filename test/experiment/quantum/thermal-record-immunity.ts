@@ -8,15 +8,22 @@
 //
 // A deterministic body is heated by flipping a fraction (the temperature) of its tones,
 // using a seeded generator so the perturbation is deterministic, and the temperature is
-// swept, never the seed. Coupled to the open growing edge, the coarse pointer still
+// swept, never the seed. Run open (a slab zeroed every beat), the coarse pointer still
 // settles to a definite value and holds with near-zero late drift at every temperature,
 // even with 40 percent of the tones flipped. The record is immune to thermal noise.
 //
 // The control is the CLOSED run from the hottest body: with no wake to leak the fine
 // phase into, no stable definite record forms (the pointer holds far less gradient), so
-// the record comes from the arrow (the growing edge), not from the structure of the hot
-// body. That is why heating the body does not erase the outcome: the outcome is made by
-// the settling on the wake, which thermal noise in the body does not stop.
+// the record comes from the open slab, not from the structure of the hot body. That is
+// why heating the body does not erase the outcome: the outcome is made by the settling
+// against the slab, which thermal noise in the body does not stop.
+//
+// UNDER REVIEW (decision 001 of the one-present roadmap). The open slab was once called
+// the growing edge and the arrow, but it is not growth and not part of the rule:
+// zeroing it destroys information every beat. There is one present, the whole state at
+// this beat, and the arrow is the second law read from it. So the record gated here is
+// the erasure's, and the rerun with a bath that stays in the present (item 0011, X4 in
+// the review) decides the verdict. The gates and verdict below are unchanged until then.
 //
 // Depth L2. This reads the substrate's measurement-as-settling against the warm prong of
 // the Tegmark objection, with a control. It is a bridge statement about vibe's route to a

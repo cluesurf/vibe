@@ -142,6 +142,84 @@ export type VibeWeave = {
   readonly links: Int16Array
   readonly forward: (t: number) => Collision
   readonly backward: (t: number) => Collision
+  // on a mesh given directly: how many slots face out of it (neighbour -1). Absent on the box and on any mesh with
+  // none. A weave with a frontier runs only through the stream tables (lockedTables), which reflect it
+  readonly frontier?: number
+}
+
+// THE STREAM ON ANY MESH (vibe-roadmap-honeycomb-0007). A slot (x, d) streams into (neighbour(x, d), d). Where the
+// neighbour is missing (-1, a mesh with a frontier, such as a ball of the {3,4,3,4} honeycomb), it streams into its
+// own dock's opposite slot (x, -d): the reflecting frontier. That is the only frontier that keeps the stream one to
+// one, since the slot (x, -d) is exactly the one no neighbour streams into. On the box no neighbour is missing, so
+// both functions are the box's stream, slot for slot.
+export function streamTarget(
+  mesh: Mesh,
+  opposite: readonly number[],
+  slot: number,
+): number {
+  const x = Math.floor(slot / 24)
+  const d = slot - x * 24
+  const y = mesh.neighbour(x, d)
+
+  return y < 0 ? x * 24 + (opposite[d] ?? d) : y * 24 + d
+}
+
+// the slot that streams into `slot`: (neighbour(x, -d), d), or the reflected (x, -d) where that neighbour is missing
+export function streamSource(
+  mesh: Mesh,
+  opposite: readonly number[],
+  slot: number,
+): number {
+  const x = Math.floor(slot / 24)
+  const d = slot - x * 24
+  const y = mesh.neighbour(x, opposite[d] ?? d)
+
+  return y < 0 ? x * 24 + (opposite[d] ?? d) : y * 24 + d
+}
+
+// A mesh given directly must be a labeled 24-slot mesh whose neighbour relation is symmetric: slot d of x faces slot
+// -d of its neighbour, which faces back. Returns the number of slots that face out (neighbour -1).
+function frontierOf(mesh: Mesh, opposite: readonly number[]): number {
+  if (mesh.degree !== 24) {
+    throw new Error(`makeVibeWeave: a mesh of degree ${mesh.degree}, not 24`)
+  }
+
+  for (let d = 0; d < 24; d++) {
+    const o = opposite[d] ?? d
+
+    if (o === d || opposite[o] !== d) {
+      throw new Error('makeVibeWeave: opposite is not a fixed-point-free involution')
+    }
+  }
+
+  let frontier = 0
+
+  for (let x = 0; x < mesh.cellCount; x++) {
+    for (let d = 0; d < 24; d++) {
+      const y = mesh.neighbour(x, d)
+
+      if (y < 0) {
+        frontier++
+      } else if (
+        y >= mesh.cellCount ||
+        mesh.neighbour(y, opposite[d] ?? d) !== x
+      ) {
+        throw new Error(
+          `makeVibeWeave: slot ${d} of dock ${x} reaches ${y}, which does not face back (a phantom or an inconsistent label)`,
+        )
+      }
+    }
+  }
+
+  return frontier
+}
+
+function refuseFrontier(weave: VibeWeave, what: string): void {
+  if (weave.frontier) {
+    throw new Error(
+      `${what}: the weave has a frontier (${weave.frontier} slots); run it through lockedTables`,
+    )
+  }
 }
 
 export type VibeState = {
@@ -151,15 +229,23 @@ export type VibeState = {
   readonly flow: Int32Array
 }
 
-export function makeVibeWeave(input: {
-  side: number
-  start?: LinkStartOf
-}): VibeWeave {
+// The weave on the D4 box of a side, or on any labeled 24-slot mesh given directly (neighbour -1 where a slot faces
+// out of it, opposite the label of the facing slot, in rootsD4 order). Links start from the link start over the
+// mesh's slot index, and link(y, -d) is the inverse of link(x, d). A slot facing out gets the identity, an
+// involution, so the reflected stream keeps motion reversal (R S R = S^-1 needs the reflecting link to be its own
+// inverse).
+export function makeVibeWeave(
+  input:
+    | { side: number; start?: LinkStartOf }
+    | { mesh: Mesh; start?: LinkStartOf },
+): VibeWeave {
   const startOf = input.start ?? defaultStart
-  const mesh = d4BoxMesh({ side: input.side })
+  const mesh =
+    'mesh' in input ? input.mesh : d4BoxMesh({ side: input.side })
   const opposite = Array.from({ length: 24 }, (_, d) =>
     mesh.opposite(d),
   )
+  const frontier = 'mesh' in input ? frontierOf(mesh, opposite) : 0
   const moves = gridMoves()
   const slots = mesh.cellCount * 24
   const lines: [number, number][] = []
@@ -178,8 +264,14 @@ export function makeVibeWeave(input: {
         continue
       }
 
-      const g = startOf(x * 24 + d, moves.act.length)
       const y = mesh.neighbour(x, d)
+
+      if (y < 0) {
+        links[x * 24 + d] = moves.identity
+        continue
+      }
+
+      const g = startOf(x * 24 + d, moves.act.length)
 
       links[x * 24 + d] = g
       links[y * 24 + (opposite[d] ?? d)] =
@@ -195,6 +287,7 @@ export function makeVibeWeave(input: {
     links,
     forward: turningWeave({ opposite }),
     backward: turningWeave({ opposite, forward: false }),
+    ...(frontier > 0 ? { frontier } : {}),
   }
 }
 
@@ -220,6 +313,8 @@ export function vibeBeat(
   state: VibeState,
   t: number,
 ): VibeState {
+  refuseFrontier(weave, 'vibeBeat')
+
   const { mesh, moves, links } = weave
   const vibe = { mesh, data: Int8Array.from(state.vibe) }
   const role = Int8Array.from(state.role)
@@ -249,6 +344,8 @@ export function vibeBeatBack(
   state: VibeState,
   t: number,
 ): VibeState {
+  refuseFrontier(weave, 'vibeBeatBack')
+
   const { mesh, moves, links, opposite } = weave
   const back = streamInverse({ mesh, data: Int8Array.from(state.vibe) })
   const role = new Int8Array(state.role.length)
@@ -279,6 +376,8 @@ export function gaussHolds(
   start: VibeState,
   now: VibeState,
 ): boolean {
+  refuseFrontier(weave, 'gaussHolds')
+
   const { mesh, opposite } = weave
 
   for (let x = 0; x < mesh.cellCount; x++) {
@@ -306,6 +405,8 @@ export function gaussHolds(
 
 // how many undirected links carry a triality flux, net flow across them not a multiple of 3
 export function fluxLinks(weave: VibeWeave, state: VibeState): number {
+  refuseFrontier(weave, 'fluxLinks')
+
   const { mesh, opposite } = weave
 
   let count = 0

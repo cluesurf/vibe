@@ -33,6 +33,7 @@ import {
   TURN_SWAP_ORDER,
 } from '@/code/rule/collision'
 import { stream, streamInverse } from '@/code/rule/lattice-gas'
+import { type Mesh } from '@/code/tool/mesh'
 import {
   type VibeState,
   type VibeWeave,
@@ -59,11 +60,15 @@ const SWAP_MIRROR = [
   ...[...TURN_SWAP_ORDER].reverse(),
 ]
 
-export function makeColorWeave(input: {
-  side: number
-  table?: LineTable
-}): ColorWeave {
-  const weave = makeVibeWeave({ side: input.side })
+// on the D4 box of a side, or on any labeled 24-slot mesh given directly (code/rule/vibe-weave makeVibeWeave)
+export function makeColorWeave(
+  input:
+    | { side: number; table?: LineTable }
+    | { mesh: Mesh; table?: LineTable },
+): ColorWeave {
+  const weave = makeVibeWeave(
+    'mesh' in input ? { mesh: input.mesh } : { side: input.side },
+  )
   const side = Array.from({ length: 24 }, (_, d) =>
     d < (weave.opposite[d] ?? d) ? 1 : -1,
   )
@@ -81,6 +86,15 @@ export function makeColorWeave(input: {
   }
 
   return { ...weave, table: input.table ?? 'bind', side, positions }
+}
+
+// colorBeat streams through the lattice gas, which has no frontier: a weave with one runs through lockedTables
+function refuseColorFrontier(weave: ColorWeave, what: string): void {
+  if (weave.frontier) {
+    throw new Error(
+      `${what}: the weave has a frontier (${weave.frontier} slots); run it through lockedTables`,
+    )
+  }
 }
 
 // one cell's collision on vibes and role points together, forward or its exact inverse
@@ -174,6 +188,8 @@ export function colorBeat(
   state: VibeState,
   t: number,
 ): VibeState {
+  refuseColorFrontier(weave, 'colorBeat')
+
   const { mesh, moves, links } = weave
   const vibe = Int8Array.from(state.vibe)
   const role = Int8Array.from(state.role)
@@ -203,6 +219,8 @@ export function colorBeatBack(
   state: VibeState,
   t: number,
 ): VibeState {
+  refuseColorFrontier(weave, 'colorBeatBack')
+
   const { mesh, moves, links, opposite } = weave
   const vibe = streamInverse({
     mesh,

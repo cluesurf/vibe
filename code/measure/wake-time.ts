@@ -1,5 +1,23 @@
 // The wake as Timeless Dynamics emergent time, the record-ACCUMULATING half of the bridge.
 //
+// UNDER REVIEW (decision 001, one present, note/project/vibe/roadmap/one-present/review.md). The account below
+// is the wrong picture, kept as written so the experiments that call this module can be read. Three claims in
+// it fail under one present:
+//
+//   - "records" here are just the cells that exist. No state is evolved, so a count of cells is the mesh's size,
+//     which says its age, but it is not a record and not an arrow. A record is a correlation inside the present
+//     (one part of today's state matching another), and time's arrow is the second law (E-FND-0146, E-FND-0147).
+//   - the wake "cannot be run backward" is wrong. The growth law writes each new dock in one fixed state and the
+//     frontier reflects, so it is an injective map: run back, each newest shell returns to that state and leaves.
+//     Item 0010 writes the inverse step and runs it to check.
+//   - the wake is not time. It is how the one present grows: new docks join the present, they are not the
+//     present, and the older docks are not a stored past.
+//
+// The verdicts that read time or an arrow off these counts (E-FND-0051, E-FND-0052, E-FND-0055's wake half,
+// E-CSM-0001) are under review pending items 0012 and 0013. The arithmetic below is unchanged.
+//
+// The original account:
+//
 // TD makes time the accumulated Fisher-Rao arc length along RECORD-PRESERVING paths, and its
 // arrow is that records accumulate monotonically and are never erased. Vibe has two dynamics,
 // and they play two different TD roles. The knit is REVERSIBLE, so it PRESERVES records (a

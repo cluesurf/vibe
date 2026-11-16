@@ -107,9 +107,10 @@ one derives it**.
   record-preserving paths. Primitive: continuous distinguishability.
 - **Chronoflux.** Time's passage and cosmic expansion are one positive
   divergence of a conserved current, the current thinning out as it
-  spreads. Vibe measures the same thing: the wake registers as a
-  strictly positive edge divergence that equals the count of newly born
-  cells exactly and is zero in the settled bulk ([`E-CSM-0043`](../test/experiment/cosmology/wake-expansion-scalar.ts)). Primitive:
+  spreads. Vibe measures the expansion half: the wake registers as a
+  strictly positive divergence at the boundary that equals the count of
+  docks joining the present there exactly, and is zero in the interior,
+  where no docks join ([`E-CSM-0043`](../test/experiment/cosmology/wake-expansion-scalar.ts)). Primitive:
   a continuum temporal current.
 - **Barbour.** Time capsules, configurations that look like they hold a
   past. Primitive: relational configurations.

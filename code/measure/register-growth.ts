@@ -1,6 +1,6 @@
 // THE REGISTER RULE ON A GROWING REGION (E-FND-0168). The wake (E-GRV-0066, code/measure/gated-wake) gives every dock a
-// birth beat and takes no state; the adopted knit has no rule for the growing edge. The only growing dynamics written in
-// code is the lattice gas's (code/rule/lattice-gas growingBeat, E-FND-0086): an unborn dock holds peace, the frontier
+// birth beat and takes no state; the adopted knit has no rule for the boundary where the mesh grows. The only growing
+// dynamics written in code is the lattice gas's (code/rule/lattice-gas growingBeat, E-FND-0086): an unborn dock holds peace, the frontier
 // REFLECTS (a slot whose source dock is unborn takes its own dock's opposite slot, so the map stays a bijection on the
 // born slots), and a born dock enters in the state it was written in. The register rule (E-SPN-0175's one-body pieces)
 // has no growth rule at all. This module ports the lattice gas's to it, the least rule consistent with its pieces:
@@ -15,6 +15,12 @@
 //                   reflecting stream is a bijection on the born modes, so the growing rule is reversible from birth; it
 //                   reads only a dock and its root neighbors, so it is local; and a chi that is one Fock state keeps the
 //                   region one Slater determinant (one branch)
+//
+// ONE PRESENT (decision 001, note/project/vibe/roadmap/one-present/review.md). growthBeat steps every born dock every
+// beat, so the present is the whole born region at this beat, never its frontier. New docks join the present, they are
+// not the present, and the older docks are not the past. What E-FND-0168 calls a vacuum "chosen by history" means one
+// written by the growth law's birth state chi. "Reversible from birth" is argued above but no inverse growth step exists
+// in this module yet, so it is asserted, not run: item 0010 writes inverseGrowthBeat and checks it.
 //
 // A SLATER STATE IS RUN THROUGH ITS MINORITY ORBITALS. The rule is one-body, so a Slater determinant stays one. Relative
 // to a reference sea (the full sea, or the empty mesh) the state is spanned by the orbitals where it differs: holes of

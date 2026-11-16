@@ -1,11 +1,18 @@
 // Q5 of chunk 7, measurement as deterministic settling, no collapse law. A coherent body on the committed
-// reversible lattice gas is coupled to the OPEN growing edge (cells born at peace at a frontier slab, the bath
-// the fine phase leaks into) or run CLOSED. The OPEN system forms a definite, stable, IRREVERSIBLE coarse record,
+// reversible lattice gas is run OPEN (one fixed slab of the periodic box zeroed after every beat, the bath the
+// fine phase leaks into) or CLOSED. The OPEN system forms a definite, stable, IRREVERSIBLE coarse record,
 // the pointer (the occupancy gradient) rises and SETTLES to a fixed value with a measured settling time, and the
-// Loschmidt echo cannot recover the start (the fine phase is gone to the wake). The CLOSED system stays coherent,
-// the Loschmidt echo recovers it exactly (no record), and the pointer holds no gradient. So a single classical
-// record arises by settling plus loss of the fine phase to the open edge, no special collapse postulate added.
-// This is the acknowledged frontier, the honest level reached is L2.
+// Loschmidt echo cannot recover the start (the fine phase is erased with the slab). The CLOSED system stays
+// coherent, the Loschmidt echo recovers it exactly (no record), and the pointer holds no gradient. So a single
+// classical record arises by settling plus loss of the fine phase to the open slab, no special collapse
+// postulate added. This is the acknowledged frontier, the honest level reached is L2.
+//
+// UNDER REVIEW (decision 001 of the one-present roadmap). The open slab was once named the "open growing edge",
+// but it is not growth and not part of the rule: zeroing it destroys information every beat. There is one
+// present, the whole state at this beat, and a record is a correlation inside it, never information destroyed.
+// So the "irreversible record" gated here is the echo error the erasure causes, and the pointer gradient is
+// partly drawn by the zeroed slab. The rerun with a bath that stays in the present (item 0011, X4 in the
+// review) decides the verdict. The title, gates and verdict below are unchanged until then.
 
 import { d4Mesh, meshOpposites } from '@/code/tool/mesh'
 import { makeWill, fillWillPattern } from '@/code/tone/will'

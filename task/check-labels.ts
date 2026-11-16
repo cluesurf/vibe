@@ -5,6 +5,10 @@
 // in their import graph or their own source. This check walks each experiment's transitive `@/code/...`
 // imports and its own body for substrate evidence, and reports every label the evidence contradicts.
 //
+// Since 2026-11-15 (vibe-roadmap-board-0024) the evidence is the mesh the code builds (task/mesh-reach): a 3434 claim
+// holds only when the experiment builds a ball, a cusp or a quotient of the honeycomb. A D4 import, the D4 roots or a
+// rule module no longer count, because the flat D4 box has the same 24 directions and passed as the honeycomb.
+//
 // Reports by default. Rewrites the contradicted labels to 'any' only with --commit.
 //
 //   pnpm check:labels            report
@@ -18,6 +22,7 @@ import {
   writeFileSync,
 } from 'node:fs'
 import { join, relative } from 'node:path'
+import { MeshReader } from './mesh-reach'
 
 //   pnpm check:labels --strict   exit 1 while any contradicted label remains
 
@@ -128,8 +133,10 @@ function touchesAlgebra(file: string): boolean {
 
 const files = walk(join(root, 'test', 'experiment'))
 
+const meshReader = new MeshReader(root)
 let checked = 0
 let contradicted = 0
+let boxClaims = 0
 let review = 0
 let rewritten = 0
 
@@ -157,15 +164,54 @@ for (const file of files) {
     continue
   }
 
+  // the claim holds only when the code builds the honeycomb itself (a ball, a cusp or a quotient). The D4 roots, a
+  // D4 import, the flat D4 box or any rule module are NOT evidence: the box has the same 24 directions per dock and
+  // is a stand-in (keys 6, vibe-roadmap-board-0024). The mesh comes from task/mesh-reach, which follows the code
+  const reach = meshReader.read(relative(root, file))
+  const honeycomb = reach.meshes.filter(m => m.startsWith('honeycomb-'))
+
+  if (honeycomb.length > 0) {
+    if (showAll) {
+      console.log(
+        `  ok        ${relative(root, file)}  ${honeycomb.join(' ')}`,
+      )
+    }
+
+    continue
+  }
+
+  // a box run that claims 3434 is the case this check exists for, and is never held for review
+  if (reach.meshes.includes('d4-box')) {
+    contradicted++
+    boxClaims++
+    console.log(
+      `  box       ${relative(root, file)}  declares 3434, builds ${reach.meshes.join(' ')}, no honeycomb`,
+    )
+
+    if (commit) {
+      const fixed = source.replace(
+        /substrates: \['3434'\]/g,
+        "substrates: 'any'",
+      )
+
+      if (fixed !== source) {
+        writeFileSync(file, fixed)
+        rewritten++
+      }
+    }
+
+    continue
+  }
+
+  // the old evidence (a substrate or rule import, inline D4 tokens) is kept only to tell the remaining cases apart
   const evidence = touchesSubstrate(file)
   const inline = INLINE_3434.test(body)
 
   if (evidence.length > 0 || inline) {
-    if (showAll) {
-      console.log(
-        `  ok        ${relative(root, file)}  ${inline ? 'inline 3434 tokens' : evidence.slice(0, 2).join(' ')}`,
-      )
-    }
+    contradicted++
+    console.log(
+      `  false     ${relative(root, file)}  declares 3434, builds ${reach.meshes.join(' ')} (imports ${inline ? 'inline D4 tokens' : evidence.slice(0, 2).join(' ')}, no honeycomb)`,
+    )
 
     continue
   }
@@ -230,7 +276,7 @@ for (const row of registryRows) {
 }
 
 console.log(
-  `\ncheck:labels  ${checked} labeled experiments, ${contradicted} contradicted 3434 labels, ${review} held for review, ${unimported} registry rows not in the barrel${commit ? `, ${rewritten} rewritten to 'any'` : ' (pass --commit to rewrite the contradicted ones)'}`,
+  `\ncheck:labels  ${checked} labeled experiments, ${contradicted} contradicted 3434 labels (${boxClaims} of them box runs), ${review} held for review, ${unimported} registry rows not in the barrel${commit ? `, ${rewritten} rewritten to 'any'` : ' (pass --commit to rewrite the contradicted ones)'}`,
 )
 
 if (unimported > 0) {

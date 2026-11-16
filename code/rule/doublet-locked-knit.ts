@@ -84,7 +84,10 @@ export type LockedTables = {
   readonly back: Int8Array
 }
 
-// the rule's tables from a weave (the kernel's, with the inverse stream added); `links` replaces the weave's links
+// the rule's tables from a weave (the kernel's, with the inverse stream added); `links` replaces the weave's links.
+// On any mesh: a slot whose neighbour is missing (-1) streams into its own dock's opposite slot, the reflecting
+// frontier (code/rule/vibe-weave streamTarget). The stream must be one to one, so the rule runs back exactly: a target
+// that is out of range or hit twice throws (a phantom cell, which takes every outward slot, is refused here)
 export function lockedTables(
   weave: ColorWeave,
   collision: CollisionKind = 'lone',
@@ -95,19 +98,36 @@ export function lockedTables(
   const slots = cells * 24
   const target = new Int32Array(slots)
   const source = new Int32Array(slots)
+  const hit = new Uint8Array(slots)
   const move = new Int8Array(slots * 9)
   const back = new Int8Array(slots * 9)
   const use = links ?? weave.links
   const { act, inverse, identity } = weave.moves
 
+  for (let d = 0; d < 24; d++) {
+    if (weave.opposite[d] !== OPPOSITE[d]) {
+      throw new Error(
+        `lockedTables: the mesh's opposite of slot ${d} is ${weave.opposite[d]}, not the rule's ${OPPOSITE[d]} (labels not in rootsD4 order)`,
+      )
+    }
+  }
+
   for (let x = 0; x < cells; x++) {
     for (let d = 0; d < 24; d++) {
       const slot = x * 24 + d
-      const to = weave.mesh.neighbour(x, d) * 24 + d
+      const y = weave.mesh.neighbour(x, d)
+      const to = y < 0 ? x * 24 + OPPOSITE[d]! : y * 24 + d
       const g = use[slot] ?? identity
       const forward = act[g]!
       const reverse = act[inverse[g] ?? identity]!
 
+      if (to >= slots || hit[to]) {
+        throw new Error(
+          `lockedTables: the stream is not one to one (slot ${d} of dock ${x} streams into ${to}, ${to >= slots ? 'outside the mesh' : 'already taken'})`,
+        )
+      }
+
+      hit[to] = 1
       target[slot] = to
       source[to] = slot
 

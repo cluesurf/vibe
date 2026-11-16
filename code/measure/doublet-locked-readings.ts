@@ -55,6 +55,7 @@ import {
   type GridMatrix,
 } from '@/code/algebra/weil-representation'
 import { unitRotations } from '@/code/measure/token-gates'
+import { type Mesh } from '@/code/tool/mesh'
 
 const LINE_SECONDS: readonly number[] = LINE_FIRSTS.map(
   f => OPPOSITE[f] ?? f,
@@ -69,15 +70,42 @@ export type LockedFresh = {
   readonly store: Int8Array
   readonly layout: Int8Array
   readonly cells: number
+  // the box's side; 0 on a mesh given directly
   readonly side: number
+  // the box's hub; empty on a mesh given directly
   readonly hub: number[]
 }
 
+// On the box of a side: the coset-union vacuum. On any labeled 24-slot mesh given directly (neighbour -1 where a
+// slot faces out, code/rule/vibe-weave makeVibeWeave): the caller's store, one trit per line of every dock (cells *
+// 12), since the union store is built from box coordinates (code/measure/dense-hub); the tables reflect the frontier
 export function lockedFresh(
-  side: number,
+  on: number | { mesh: Mesh; store: Int8Array },
   anchor = 0,
   links?: Int16Array,
 ): LockedFresh {
+  if (typeof on !== 'number') {
+    const weave = makeColorWeave({ mesh: on.mesh, table: 'bind' })
+    const cells = weave.mesh.cellCount
+
+    if (on.store.length !== cells * 12) {
+      throw new Error(
+        `lockedFresh: a store of ${on.store.length} lines, the mesh has ${cells * 12}`,
+      )
+    }
+
+    return {
+      weave,
+      tables: lockedTables(weave, 'lone', links),
+      store: Int8Array.from(on.store),
+      layout: separatedLayout(weave),
+      cells,
+      side: 0,
+      hub: [],
+    }
+  }
+
+  const side = on
   const weave = makeColorWeave({ side, table: 'bind' })
   const hub = baseHub(side, anchor)
 
