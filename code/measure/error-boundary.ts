@@ -116,7 +116,7 @@ export function syndromeModes(lo: number, hi: number, L: number, d: number, isol
 
 // ---- sectors ----
 
-type Sector = {
+export type Sector = {
   readonly n: number
   // undefined for n = 0 (the empty line: three cut values, the phase only)
   readonly e: LineEngine | undefined
@@ -127,7 +127,7 @@ type Sector = {
 
 const EMPTY_SIZE = 3
 
-function makeSector(L: number, n: number): Sector {
+export function makeSector(L: number, n: number): Sector {
   if (n === 0) {
     return { n, e: undefined, size: EMPTY_SIZE, lo: new Int32Array(1), hi: new Int32Array(1) }
   }
@@ -151,14 +151,14 @@ function emptyBeat(L: number, a: Amp, out: Amp): void {
 
 // the export table of a sector for one piece: per configuration the read loves' key (0 none), their count, the
 // configuration left (its rank in sector n - k) and the sign of taking them out in ascending order
-type ExportTable = {
+export type ExportTable = {
   readonly key: Float64Array
   readonly k: Uint8Array
   readonly target: Int32Array
   readonly sign: Int8Array
 }
 
-function exportTable(s: Sector, L: number, d: number, isolatedOnly: boolean, binom: Float64Array[]): ExportTable {
+export function exportTable(s: Sector, L: number, d: number, isolatedOnly: boolean, binom: Float64Array[]): ExportTable {
   const M = s.n === 0 ? 1 : s.e!.sp.count
   const key = new Float64Array(M)
   const k = new Uint8Array(M)
