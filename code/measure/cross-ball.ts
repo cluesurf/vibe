@@ -11,7 +11,7 @@
 //
 // NOTHING MOVES the rule: exact in Z[w][1/2] per clock count, as the dense pieces; floats only in `physical`.
 
-import { modeIndex } from '@/code/rule/coined-locked-knit'
+import { FRAME_SLOTS, modeIndex } from '@/code/rule/coined-locked-knit'
 import { times, type LockedTables } from '@/code/rule/doublet-locked-knit'
 import { BOUNCE_TABLE, bouncePermutation } from '@/code/rule/bounce-pair-knit'
 import {
@@ -490,4 +490,100 @@ export function sparseNorm(s: SparseState): { total: bigint; unit: bigint } {
   }
 
   return { total, unit: 1n << BigInt(2 * K) }
+}
+
+// ---- E-SLF-0190's locked mixer on the sparse store (item vibe-roadmap-grounding-0032, additive) ----
+
+// the opened locks of a term: every (dock, frame) holding exactly one vibe (open, the store's scope) whose dock has an
+// occupied facet neighbour (read on all 24 facets through the stream's targets; a reflecting frontier slot has none)
+export function openedLocks(t: LockedTables, slots: Int32Array): { base: number; frame: number; q: number }[] {
+  const occupied = new Set(Array.from(slots, s => Math.floor(s / 24)))
+  const held = new Set(slots)
+  const out: { base: number; frame: number; q: number }[] = []
+
+  for (const x of occupied) {
+    let open = false
+
+    for (let d = 0; d < 24 && !open; d++) {
+      const y = Math.floor(t.target[x * 24 + d]! / 24)
+
+      open = y !== x && occupied.has(y)
+    }
+
+    if (!open) {
+      continue
+    }
+
+    const base = x * 24
+
+    for (let f = 0; f < 3; f++) {
+      const ss = FRAME_SLOTS[f]!
+
+      let n = 0
+      let at = -1
+
+      for (let q = 0; q < 8; q++) {
+        if (held.has(base + ss[q]!)) {
+          n++
+          at = q
+        }
+      }
+
+      if (n === 1) {
+        out.push({ base, frame: f, q: at })
+      }
+    }
+  }
+
+  return out
+}
+
+// LF-G on the sparse store: G of F-G (keep 3/4, -1/4 to each other slot of the frame) on every opened lock of each
+// term, exact in Z[w][1/2]. G keeps each dock's vibe count, so every lock it reads is kept, and it is its own inverse.
+// Equal to E-SLF-0190's lockedMixBranch on the branch code (the experiment's I1 gate)
+export function sparseLockedMix(t: LockedTables, s: SparseState): SparseState {
+  const out: SparseState = new Map()
+
+  for (const term of s.values()) {
+    const lone = openedLocks(t, term.slots)
+
+    if (lone.length === 0) {
+      put(out, term.slots, term.values, term.reg, term.amps)
+      continue
+    }
+
+    if (lone.length > 6) {
+      throw new Error(`cross-ball: ${lone.length} opened locks in one term, over the guard 6`)
+    }
+
+    const index = new Map<number, number>()
+
+    term.slots.forEach((x, i) => index.set(x, i))
+
+    for (let code = 0; code < 8 ** lone.length; code++) {
+      const slots = Int32Array.from(term.slots)
+
+      let rest = code
+      let sign = 1n
+
+      for (const { base, frame, q } of lone) {
+        const o = rest % 8
+        const ss = FRAME_SLOTS[frame]!
+
+        rest = (rest - o) / 8
+
+        if (o === 0) {
+          sign *= 3n
+          continue
+        }
+
+        slots[index.get(base + ss[q]!)!] = base + ss[q ^ o]!
+        sign *= -1n
+      }
+
+      put(out, slots, term.values, term.reg, scaled(term.amps, sign, 0n, 2 * lone.length))
+    }
+  }
+
+  return out
 }

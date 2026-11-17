@@ -62,14 +62,24 @@ const HORIZON: Record<string, [Grade, string]> = {
   'E-SLF-0183': ['mirrored', 'L1 and O1: R 3 and R 2 balls, 4 beats, read past t = R through the frontier'],
   'E-SLF-0186': ['honeycomb', 'X0: R = 4 ball, 2 beats from radius 1, 0 frontier hits; the R 1 to R 3 balls check the rule exactly (reversal, norm, sparse = dense, reduction), they are not read'],
   'E-SLF-0185': ['honeycomb', 'W0: R = 1 ball, 1 beat from the centre; X2: R = 2 ball, 2 beats from the centre, t <= R; X1 reverses 2 beats on the R = 1 ball exactly (reversal and norm), not read'],
+  'E-SLF-0187': ['honeycomb', 'R = 4 ball: a lone love from the centre 3 beats (N1, S3), the cut start and W0 dock 2 beats from radius 1 (I0, S4), the empty ball 3 beats (S2), r0 + t <= R - 1, 0 frontier hits'],
+  'E-SLF-0189': ['honeycomb', 'motion: one lone love from the centre of the R = 4 ball, beats 1 to 4, t <= R, 0 frontier hits (M0); V: the empty R = 4 ball, 4 beats; the R = 2 ball reads the kernel from the centre, 1 beat (K1); X1 reverses 2 beats on the R = 1 ball exactly (reversal and norm), not read'],
+  'E-SLF-0191': ['honeycomb', 'R = 4 ball: a lone love from the centre 3 beats (N1, and 0004 S3 reported), the cut start and W0 dock 2 beats from radius 1 (I0, S4), the empty ball 3 beats (S2), r0 + t <= R - 1, 0 frontier hits'],
+  'E-SLF-0197': ['honeycomb', "E-SLF-0191's ball gates under both readers: a lone love from the centre 3 beats (N1), the cut start and W0 dock 2 beats from radius 1 (I0, S4), the empty ball 3 beats (S2), r0 + t <= R - 1, 0 frontier hits"],
+  'E-SLF-0190': ['honeycomb', 'motion: a comoving pair from the centre and distance 1 of the R = 4 ball, beats 1 to 3, t + r0 <= R, and a lone love from the centre, beats 1 to 4, 0 frontier hits (K3); the R = 2 ball reads the kernels and checks the pair engine against the branch code, 1 beat from distance 1 or 2 beats from the centre (K1P); X1 reverses on the R = 1 ball exactly, V0 and V1 compare the R = 2 ball exactly, not read'],
+  'E-SLF-0192': ['honeycomb', 'R = 4 ball: the cut start and the hand starts from radius 1 for R - 1 beats and W0 dock from the centre for 3, r0 + t <= R, 0 frontier hits (I2); the R = 2 ball checks the sparse beats against the branch code, 1 beat from radius 1 (I1); the (sqrt 2)^6 quotient is coloured only, geometry, no rule runs'],
+  'E-SLF-0195': ['honeycomb', 'R = 4 ball: the cut start and the hand starts R - r0 beats from radius 0, 1 or 2, every held dock at distance <= R - 1 before every stream, 0 frontier hits (I2); the R = 2 ball checks the instrumented beat and lock against the branch code, 1 beat, not read'],
   'E-FRC-0317': ['honeycomb', 'geometry only: the plaquette slot patterns from the R = 2 ball; the ensembles run on the cusp quotient, where the floor is felt'],
   'E-FRC-0318': ['honeycomb', "geometry only: E-FRC-0317's plaquette slot patterns from the R = 2 ball; the ensembles run on the cusp quotient, where the floor is felt"],
+  'E-FRC-0321': ['honeycomb', 'rerun of E-FRC-0320 (same reads, same horizons); the two-body read and the C, P, CP table run 2 beats on the exact R = 2 ball from the base dock, t <= R, no frontier hits; the binding ensembles run on the cusp quotient, where the floor is felt'],
   'E-FRC-0320': ['honeycomb', 'motion: one lone love from the centre of the R = 4 ball, beats 1 to 4, t <= R, 0 frontier hits (K3); the R = 2 ball reads the kernel and checks it against the branch code (K1), 2 beats from the centre or 1 beat from distance 1, t + r0 <= R; the binding ensembles run on the cusp quotient, where the floor is felt'],
   'E-QTM-0199': ['honeycomb', 'R = 4 ball, 4 beats from the centre on one line, end hits 0 (I4); its LINE arm is an inline open line of 71 docks equal to the ball term for term over 4 beats (I5), 32 beats, end hits 0'],
   'E-NVG-0014':['mirrored', 'R = 4 ball, 8 beats, absorbing and reflecting frontiers'],
   'E-CSM-0058': ['honeycomb', 'R = 4 ball, beats 0 to 4'],
   'E-CSM-0059': ['honeycomb', 'breadth-first counts, no rule'],
   'E-CSM-0060': ['honeycomb', 'horosphere counting, geometry only'],
+  'E-GRV-0154': ['honeycomb', 'geometry only: the labelled region only builds the cusp column (a copy of buildCuspQuotient), no rule runs; the static solves are on the cusp quotient'],
+  'E-GRV-0155': ['honeycomb', 'E-GRV-0154 rerun with a relative residual gate: geometry only, the labelled region only builds the cusp column, no rule runs'],
 }
 
 // open honeycomb-line runs whose beats were read against the line's length: the run is the infinite line of empty
@@ -79,6 +89,14 @@ const LINE_HORIZON: Record<string, [Grade, string]> = {
   'E-SLF-0184': ['honeycomb', 'open line of max(256, width + 2 beats + 2) docks; E3: no love reaches an end (end hits 0)'],
   'E-SLF-0186': ['honeycomb', 'open line of max(64, width + 2 beats + 8) docks from offset 4, 2 beats: no love reaches an end'],
   'E-SLF-0185': ['honeycomb', 'open line of max(256, width + 2 beats + 2) docks from offset beats + 1; the mixers read beats 0 to 2 (Lemma W), the bare rule to beat 4 or 11: no love reaches an end'],
+  'E-SLF-0187': ['honeycomb', 'S1: open line of width + 2T + 12 docks from offset T + 5, T = 96 beats; the arms: max(64, width + 2 beats + 8) docks from offset 4, 2 beats (Lemma W): no love reaches an end (the free null throws if one does)'],
+  'E-SLF-0188': ['honeycomb', 'open line of 32 docks: E1 runs 6 beats from 7 docks off each end, the dark set reads windows at docks 11 to 19 to tau 10; D-exact: the end weight is exactly 0'],
+  'E-SLF-0189': ['honeycomb', 'open line of max(256, width + 2 beats + 2) docks from offset beats + 1: no love reaches an end; with a theta mixer the line self is honeycomb-exact to beat 2 (Lemma W) and line-restricted after (exported weight never returns)'],
+  'E-SLF-0191': ['honeycomb', "S1: open line of width + 2T + 12 docks from offset T + 5, T = 96 beats; S3': a lone love on an open line of 2T + 12 docks from dock T + 5, T = 96 beats; the arms: max(64, width + 2 beats + 8) docks from offset 4, 2 beats (Lemma W): no love reaches an end (the free null throws if one does)"],
+  'E-SLF-0190': ['honeycomb', 'open line of max(256, width + 2 beats + 2) docks from offset beats + 1: no love reaches an end; with the locked mixer the line self is honeycomb-exact to beat 2 (Lemma W) and line-restricted after (exported weight never returns)'],
+  'E-SLF-0193': ['honeycomb', 'E-SLF-0188 rerun with a size-scaled E4: open line of 32 docks, E1 runs 6 beats from 7 docks off each end, the dark set reads windows at docks 11 to 19 to tau 10; D-exact: the end weight is exactly 0'],
+  'E-SLF-0194': ['honeycomb', "the arms: open line of width + 2T + 12 docks from offset T + 5, T = 80 beats (E-SLF-0191's S1 line); the bath arm: max(256, width + 2 beats + 2) docks from offset beats + 1, 11 beats: no love reaches an end (the free null throws if one does); the register is a model piece beside the line"],
+  'E-SLF-0197': ['honeycomb', "S1: open line of width + 2T + 12 docks from offset T + 5, T = 96 beats; S3': a lone love on an open line of 2T + 12 docks from dock T + 5, T = 96 beats; E-SLF-0194's arms and their reference: width + 2T + 12 docks from offset T + 5, T = 80 beats; the two-beat arms and mixers: max(64, width + 2 beats + 8) docks from offset 4, 2 beats (Lemma W): no love reaches an end (the free null throws if one does); the register is a model piece beside the line"],
 }
 
 const CUSP_QUOTIENT =/honeycomb-cusp:(cuspQuotient|buildCuspQuotient|buildExactCusp|cuspTranslations)\b/

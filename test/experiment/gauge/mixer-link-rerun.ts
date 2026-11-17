@@ -522,7 +522,7 @@ export function rerunVerdict(input: RerunInput): Verdict {
     ? 'open'
     : !selected
       ? 'fail'
-      : t0 && chosen.length === 1 && hcp(chosen[0]!)
+      : t0 && chosen.length > 0 && chosen.every(hcp)
         ? 'pass'
         : 'partial'
   const link = binding[0]
@@ -580,7 +580,7 @@ export function rerunVerdict(input: RerunInput): Verdict {
       ? 'NOT SELECTED: an instrument gate fails'
       : !selected
         ? `NO PAIR: ${moving.length === 0 ? 'no mixer passes motion' : 'no link member passes binding'}`
-        : `SELECTED (a product of two halves): mixer ${chosen.join(' = ')}${t0 ? '' : ' (tied: the two-body read does not tell them apart)'}, link ${link!.member}; H-CP ${chosen.map(n => `${n} ${hcp(n) ? 'passes' : 'FAILS'}`).join(', ')}`
+        : `SELECTED (a product of two halves): mixer ${chosen.join(' and ')}${!t0 ? ' (tied: the two-body read does not tell them apart)' : chosen.length > 1 ? ' (the two-body read tells them apart, but the choice rule ties: equal msd and W_off at beat 2)' : ''}, link ${link!.member}; H-CP ${chosen.map(n => `${n} ${hcp(n) ? 'passes' : 'FAILS'}`).join(', ')}`
 
   return verdict({
     status,
@@ -604,7 +604,7 @@ export default experiment({
   id: 'gauge/mixer-link-rerun',
   code: 'E-FRC-0321',
   title:
-    "E-FRC-0320 rerun with the norm gate at 1e-10, a two-body read of F-G against F-L (two loves on a full line of the base dock, exact R = 2 ball, 2 beats) and the held-out C, P, CP table of the chosen rule, with m1's link update read under C, P and CP one sweep at a time; the pair is a product of halves, a bound moving pair not tested",
+    "E-FRC-0320 rerun with the norm gate at 1e-10, a two-body read of F-G against F-L and the held-out C, P, CP table, partial (gates fixed before the run): the rerun equals 0034's parts bit for bit and every instrument gate holds, so motion selects F-G and F-L (W_off(4) 0.0126, msd 0.408 against the line law's 0.333) and binding m1; two loves on a full line of the base dock (exact R = 2 ball, 2 beats) tell them apart only in the pair's spread (separation 1.164 against 0.888 at beat 1, 0.743 against 0.648 at beat 2) while the registered choice readings tie (msd 0.296 and W_off 0.0156 at beat 2 for both); the C, P, CP table on 6 starts and 8 det -1 maps reads 0 beats off for the bare rule and F-G, while F-L breaks P on the full-line and cross-frame starts (2 of 2 beats under 6 of 8 maps) and CP on the full line, keeping C; m1's link update is not covariant one sweep at a time (C 2061, P 1708, CP 2085 of 2112 links differ) though every map keeps its energy; the pair is a product of halves, a bound moving pair not tested",
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',

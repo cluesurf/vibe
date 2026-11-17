@@ -1,0 +1,2 @@
+{"at":"2026-11-17T11:29:51.217Z","item":"vibe-roadmap-grounding-0035","command":["sh","tmp/m3-self-reader-reference.sh","self-reference","smoke"],"gate":{"hash":"d8d782664d9a","at":"2026-11-17T11:25:04.267Z"},"exit":0,"verdict":"open","recorded":true,"refused":[]}
+{"at":"2026-11-17T11:31:07.961Z","item":"vibe-roadmap-grounding-0035","command":["sh","tmp/m3-self-reader-reference.sh","self-reference","full"],"gate":{"hash":"d8d782664d9a","at":"2026-11-17T11:25:04.267Z"},"exit":0,"verdict":"pass","recorded":true,"refused":[]}

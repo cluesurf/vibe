@@ -34,6 +34,7 @@ import { buildHyperbolicBall, labelTransports, labelledCoin, type LabelledCoin }
 import { identity, matMul, type Mat } from '@/code/substrate/coxeter/minkowski'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { meshPaths, type MeshPaths } from '@/code/measure/mesh-paths'
+import { makeWeyl } from '@/code/tool/weyl'
 
 export const SLOTS = 24
 export const MAX_HOPS = 32
@@ -368,7 +369,7 @@ export type Straight = {
   counter: { L: number; slot: number; geodesics: number } | null
   // controls with known counts
   controls: { name: string; word: Word; expect: number; geodesics: number; racg: number; closure: number }[]
-  // word.ts normalForm against the fast right-angled reducer on random words
+  // word.ts normalForm against the fast right-angled reducer on Kronecker-stream words
   reducerAgreement: { words: number; disagree: number }
   seconds: number
 }
@@ -441,14 +442,11 @@ export function straight(geo: Geometry): Straight {
     }
   })
 
-  // the fast reducer against word.ts on random words: same element, same ShortLex normal form
-  let seed = 89
+  // the fast reducer against word.ts on 3,000 words read off one Kronecker stream (code/tool/weyl, no draw): same
+  // element, same ShortLex normal form
+  const stream = makeWeyl({ start: 89 })
 
-  const rand = (n: number): number => {
-    seed = (seed * 1103515245 + 12345) % 2147483648
-
-    return seed % n
-  }
+  const rand = (n: number): number => stream.nextInt({ max: n })
 
   let disagree = 0
 

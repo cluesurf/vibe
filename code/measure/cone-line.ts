@@ -639,6 +639,118 @@ export function mixPass(
   }
 }
 
+// THE LOCKED BLOCK (opt-in, item vibe-roadmap-grounding-0026, future-models.md base possibility 5): mixPass with the
+// any-neighbour lock read on one line. A dock takes the block (`lone` on a lone dock's two labels, `full` on a full
+// dock) only when the dock x - 1 or x + 1 holds a love. The lock reads the shape alone and the block keeps the shape,
+// so every lock is kept and the pass is the P part of a product of commuting controlled blocks. Returns the number of
+// (shape, dock) locks opened. mixPass is unchanged.
+export function lockedMixPass(
+  s: ConeStore,
+  lone: Coin,
+  full: readonly [number, number],
+): number {
+  const pos = new Int32Array(s.n)
+  const n = s.n
+
+  let opened = 0
+
+  for (let i = 0; i < s.shapes; i++) {
+    positionsOf(s, i, pos)
+
+    const m = s.ms[i]!
+    const at = s.start[i]!
+    const c = Math.floor(at / CHUNK)
+    const o = at - c * CHUNK
+    const re = s.re[c]!
+    const im = s.im[c]!
+
+    let single = 0
+    let fr = 1
+    let fi = 0
+
+    for (let a = 0; a < n; a++) {
+      const x = pos[a]!
+      const isFull = a + 1 < n && pos[a + 1] === x
+      const last = isFull ? a + 1 : a
+      const open =
+        (a > 0 && pos[a - 1] === x - 1) || (last + 1 < n && pos[last + 1] === x + 1)
+
+      if (open) {
+        opened++
+      }
+
+      if (isFull) {
+        if (open) {
+          const r = fr * full[0] - fi * full[1]
+
+          fi = fr * full[1] + fi * full[0]
+          fr = r
+        }
+
+        a++
+        continue
+      }
+
+      if (open) {
+        coinBit(re, im, o, m, single, lone)
+      }
+
+      single++
+    }
+
+    if (fr === 1 && fi === 0) {
+      continue
+    }
+
+    const size = 1 << m
+
+    for (let j = 0; j < size; j++) {
+      const ar = re[o + j]!
+      const ai = im[o + j]!
+
+      re[o + j] = fr * ar - fi * ai
+      im[o + j] = fr * ai + fi * ar
+    }
+  }
+
+  return opened
+}
+
+// coinBlock on one lone dock only (bit i of the block)
+function coinBit(
+  re: Float64Array,
+  im: Float64Array,
+  o: number,
+  m: number,
+  i: number,
+  coin: Coin,
+): void {
+  const kr = coin[0][0]
+  const ki = coin[0][1]
+  const cr = coin[1][0]
+  const ci = coin[1][1]
+  const size = 1 << m
+  const bit = 1 << i
+
+  for (let j = 0; j < size; j++) {
+    if ((j & bit) === 0) {
+      continue
+    }
+
+    const u = o + j
+    const v = o + (j ^ bit)
+    const ar = re[u]!
+    const ai = im[u]!
+    const br = re[v]!
+    const bi = im[v]!
+
+    re[u] = kr * ar - ki * ai + (cr * br - ci * bi)
+    im[u] = kr * ai + ki * ar + (cr * bi + ci * br)
+    re[v] = cr * ar - ci * ai + (kr * br - ki * bi)
+    im[v] = cr * ai + ci * ar + (kr * bi + ki * br)
+  }
+}
+
 // the stream (or its inverse) of every stored configuration of `from` into the empty store `to`, with the line
 // block's sign: the parity of reordering the moved loves, ordered by their modes before the move. Exact zeros are not
 // carried (a label no stream reached); `floor` > 0 also leaves out amplitudes at most that large in both parts, and the
@@ -1283,4 +1395,231 @@ export function storeDifference(a: ConeStore, b: ConeStore): number {
   }
 
   return worst
+}
+
+// ---- the keel's pieces (opt-in, item vibe-roadmap-grounding-0027, code/measure/keel-flame.ts) ----
+
+// the shape index of packed key `key` in s, or -1 (nothing is made)
+function findShape(s: ConeStore, key: Int32Array): number {
+  const K = s.K
+  const mask = s.table.length - 1
+
+  let h = hashWords(key, 0, K) & mask
+
+  for (;;) {
+    const e = s.table[h]!
+
+    if (e === 0) {
+      return -1
+    }
+
+    const i = e - 1
+    let same = true
+
+    for (let w = 0; w < K; w++) {
+      if (s.keys[i * K + w] !== key[w]) {
+        same = false
+        break
+      }
+    }
+
+    if (same) {
+      return i
+    }
+
+    h = (h + 1) & mask
+  }
+}
+
+// A SHAPE PHASE, in place: every block takes the phase (cos, sin) that `phase` gives its shape's sorted positions, or
+// none when it gives null. Diagonal in the configurations, so exactly unitary; it keeps every shape
+export function shapePass(
+  s: ConeStore,
+  phase: (pos: Int32Array) => readonly [number, number] | null,
+): void {
+  const pos = new Int32Array(s.n)
+
+  for (let i = 0; i < s.shapes; i++) {
+    positionsOf(s, i, pos)
+
+    const p = phase(pos)
+
+    if (p === null) {
+      continue
+    }
+
+    const [pr, pi] = p
+    const at = s.start[i]!
+    const c = Math.floor(at / CHUNK)
+    const o = at - c * CHUNK
+    const re = s.re[c]!
+    const im = s.im[c]!
+    const size = 1 << s.ms[i]!
+
+    for (let j = 0; j < size; j++) {
+      const ar = re[o + j]!
+      const ai = im[o + j]!
+
+      re[o + j] = pr * ar - pi * ai
+      im[o + j] = pr * ai + pi * ar
+    }
+  }
+}
+
+// A REGISTER PASS. The stores from[h], h = 0..d - 1, hold the flame with a register of d values at h. Each shape S of
+// from[h] goes whole to to[(h + write(pos)) mod d], times phases[steer(h, pos) mod d] (the steer reads the register
+// before the write). A permutation of (register, configuration) times a phase, so exactly unitary and reversible; the
+// stores `to` are cleared first and must share the line and n of `from`
+export function registerPass(
+  from: readonly ConeStore[],
+  to: readonly ConeStore[],
+  write: (pos: Int32Array) => number,
+  steer: (h: number, pos: Int32Array) => number,
+  phases: readonly (readonly [number, number])[],
+): void {
+  const d = from.length
+
+  if (to.length !== d || phases.length !== d) {
+    throw new Error('cone-line: a register pass needs d stores in, d out and d phases')
+  }
+
+  for (const t of to) {
+    clearStore(t)
+  }
+
+  const n = from[0]!.n
+  const pos = new Int32Array(n)
+  const key = new Int32Array(MAX_N)
+
+  for (let h = 0; h < d; h++) {
+    const s = from[h]!
+    const K = s.K
+
+    to[h]!.clock = s.clock
+
+    for (let i = 0; i < s.shapes; i++) {
+      positionsOf(s, i, pos)
+
+      const g = (((write(pos) % d) + d) % d)
+      const q = (((steer(h, pos) % d) + d) % d)
+      const [pr, pi] = phases[q]!
+      const target = to[(h + g) % d]!
+
+      for (let w = 0; w < K; w++) {
+        key[w] = s.keys[i * K + w]!
+      }
+
+      const m = s.ms[i]!
+      const k = shapeOf(target, key, m)
+      const size = 1 << m
+      const at = s.start[i]!
+      const c = Math.floor(at / CHUNK)
+      const o = at - c * CHUNK
+      const tat = target.start[k]!
+      const tc = Math.floor(tat / CHUNK)
+      const to2 = tat - tc * CHUNK
+      const re = s.re[c]!
+      const im = s.im[c]!
+      const tre = target.re[tc]!
+      const tim = target.im[tc]!
+
+      for (let j = 0; j < size; j++) {
+        const ar = re[o + j]!
+        const ai = im[o + j]!
+
+        if (ar === 0 && ai === 0) {
+          continue
+        }
+
+        tre[to2 + j] = tre[to2 + j]! + (pr * ar - pi * ai)
+        tim[to2 + j] = tim[to2 + j]! + (pr * ai + pi * ar)
+        target.written++
+      }
+    }
+  }
+}
+
+// <a|b>: the sum over configurations of conj(a) b, shape by shape (a shape missing from b adds 0)
+export function coneInner(a: ConeStore, b: ConeStore): [number, number] {
+  let sr = 0
+  let si = 0
+
+  for (let i = 0; i < a.shapes; i++) {
+    const k = findShape(b, a.keys.subarray(i * a.K, (i + 1) * a.K))
+
+    if (k < 0) {
+      continue
+    }
+
+    const size = 1 << a.ms[i]!
+    const at = a.start[i]!
+    const c = Math.floor(at / CHUNK)
+    const o = at - c * CHUNK
+    const bt = b.start[k]!
+    const bc = Math.floor(bt / CHUNK)
+    const bo = bt - bc * CHUNK
+    const are = a.re[c]!
+    const aim = a.im[c]!
+    const bre = b.re[bc]!
+    const bim = b.im[bc]!
+
+    for (let j = 0; j < size; j++) {
+      const xr = are[o + j]!
+      const xi = aim[o + j]!
+      const yr = bre[bo + j]!
+      const yi = bim[bo + j]!
+
+      sr += xr * yr + xi * yi
+      si += xr * yi - xi * yr
+    }
+  }
+
+  return [sr, si]
+}
+
+// <P_A a | P_A b>, P_A every love on docks lo..hi (item vibe-roadmap-grounding-0035, the reference closure): coneInner
+// over the shapes of a whose positions all lie in the region (a block's configurations share their shape's positions)
+export function coneRegionInner(a: ConeStore, b: ConeStore, lo: number, hi: number): [number, number] {
+  const pos = new Int32Array(a.n)
+
+  let sr = 0
+  let si = 0
+
+  for (let i = 0; i < a.shapes; i++) {
+    positionsOf(a, i, pos)
+
+    if (pos[0]! < lo || pos[a.n - 1]! > hi) {
+      continue
+    }
+
+    const k = findShape(b, a.keys.subarray(i * a.K, (i + 1) * a.K))
+
+    if (k < 0) {
+      continue
+    }
+
+    const size = 1 << a.ms[i]!
+    const at = a.start[i]!
+    const c = Math.floor(at / CHUNK)
+    const o = at - c * CHUNK
+    const bt = b.start[k]!
+    const bc = Math.floor(bt / CHUNK)
+    const bo = bt - bc * CHUNK
+    const are = a.re[c]!
+    const aim = a.im[c]!
+    const bre = b.re[bc]!
+    const bim = b.im[bc]!
+
+    for (let j = 0; j < size; j++) {
+      const xr = are[o + j]!
+      const xi = aim[o + j]!
+      const yr = bre[bo + j]!
+      const yi = bim[bo + j]!
+
+      sr += xr * yr + xi * yi
+      si += xr * yi - xi * yr
+    }
+  }
+
+  return [sr, si]
 }

@@ -12,6 +12,7 @@
 // with the reflection's phase carried; the coins are E-FRC-0307's line coin (string-localize.ts:111-134).
 
 import { ringUnit, unitAngle } from '@/code/measure/swap-string'
+import { makeWeyl } from '@/code/tool/weyl'
 
 export type CoinName = 'hadamard' | 'rstar'
 export type Cross = 'reflect' | 'stay' | 'free'
@@ -30,16 +31,11 @@ const QIM = [0, 1, 0, -1] as const
 
 export const mod = (a: number, m: number): number => ((a % m) + m) % m
 
-export const fmix = (h0: number): number => {
-  let h = h0 | 0
+// a generic test vector: `length` values of the Kronecker stream at `start`, centred on 0 (code/tool/weyl, no draw)
+export const spread = (start: number, length: number): Float64Array => {
+  const stream = makeWeyl({ start })
 
-  h ^= h >>> 16
-  h = Math.imul(h, 0x85ebca6b)
-  h ^= h >>> 13
-  h = Math.imul(h, 0xc2b2ae35)
-  h ^= h >>> 16
-
-  return (h >>> 0) / 4294967296 - 0.5
+  return Float64Array.from({ length }, () => stream.next() - 0.5)
 }
 
 export function coinsOf(coin: CoinName): C2[] {
@@ -253,12 +249,12 @@ export function relBeat(rs: RelSector, C: C2, s: { re: Float64Array; im: Float64
   s.im.set(s.si)
 }
 
-// the whole-sector unitarity read: one cycle on two hashed vectors, max of |<U a, U b> - <a, b>| and the norm changes
+// the whole-sector unitarity read: one cycle on two Kronecker vectors, max of |<U a, U b> - <a, b>| and the norm changes
 export function unitarityRead(rs: RelSector, coin: CoinName): number {
   const D = rs.D
-  const vec = (seed: number): { re: Float64Array; im: Float64Array; sr: Float64Array; si: Float64Array } => ({
-    re: Float64Array.from({ length: D }, (_, i) => fmix(11 * i + seed)),
-    im: Float64Array.from({ length: D }, (_, i) => fmix(13 * i + seed + 1)),
+  const vec = (start: number): { re: Float64Array; im: Float64Array; sr: Float64Array; si: Float64Array } => ({
+    re: spread(start, D),
+    im: spread(start + 1, D),
     sr: new Float64Array(D),
     si: new Float64Array(D),
   })
@@ -426,7 +422,7 @@ export function momentGap(a: Moments, b: Moments, conj: boolean): number {
   return Math.max(...a.re.map((x, m) => Math.hypot(x - b.re[m]!, a.im[m]! - (conj ? -1 : 1) * b.im[m]!) / a.dim))
 }
 
-// J = (P_S^(x)n)^dag K on the rstar coin (P_S = X Q0), read |U J U phi - J phi| / |phi| on a hashed phi, and J0 = K alone
+// J = (P_S^(x)n)^dag K on the rstar coin (P_S = X Q0), read |U J U phi - J phi| / |phi| on a Kronecker phi, and J0 = K alone
 export function jRead(rs: RelSector): { residual: number; control: number; symmetry: number } {
   const [q0, q1] = coinsOf('rstar') as [C2, C2]
   // P_S[c][c'] = Q0[1 - c][c'], and its dagger
@@ -451,8 +447,8 @@ export function jRead(rs: RelSector): { residual: number; control: number; symme
     }
   }
   const read = (withB: boolean): number => {
-    const pr = Float64Array.from({ length: D }, (_, i) => fmix(7 * i + 3))
-    const pi = Float64Array.from({ length: D }, (_, i) => fmix(7 * i + 4))
+    const pr = spread(3, D)
+    const pi = spread(4, D)
     const ar = Float64Array.from(pr)
     const ai = Float64Array.from(pi)
 

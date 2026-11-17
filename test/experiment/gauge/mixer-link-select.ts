@@ -138,7 +138,7 @@ export function smallBall(radius: number): SmallBall {
   return { cells: m.cells, tables, table: m.ball.table, distance: m.ball.distance }
 }
 
-function oneLove(cells: number, dock: number, slot: number, point: number, open: number): Configuration {
+export function oneLove(cells: number, dock: number, slot: number, point: number, open: number): Configuration {
   const c: Configuration = {
     vibe: new Int8Array(cells * 24),
     point: new Int8Array(cells * 24),
@@ -168,7 +168,7 @@ function ratio(n: bigint, d: bigint): number {
 }
 
 // one vibe: (dock, slot, point, open) as a number
-const keyOf = (dock: number, slot: number, point: number, open: number): number =>
+export const keyOf = (dock: number, slot: number, point: number, open: number): number =>
   ((dock * SLOTS + slot) * 64 + (point + 32)) * 2 + open
 
 const unkey = (key: number): { dock: number; slot: number; point: number; open: number } => {
@@ -180,7 +180,7 @@ const unkey = (key: number): { dock: number; slot: number; point: number; open: 
   return { dock: Math.floor(ds / SLOTS), slot: ds % SLOTS, point: p - 32, open }
 }
 
-type Amplitudes = Map<number, [number, number]>
+export type Amplitudes = Map<number, [number, number]>
 
 type Shape = { exceptions: number }
 
@@ -221,15 +221,15 @@ function amplitudesOf(s: LockedState, cells: number, scale: bigint, beats: numbe
 // ---------------------------------------------------------------------------------------------------------------
 // the kernel, read from the member's code on the base dock of the R = 2 ball
 
-type Out = { dir: number; slot: number; point: number; open: number; re: number; im: number }
+export type Out = { dir: number; slot: number; point: number; open: number; re: number; im: number }
 
-type Kernel = {
+export type Kernel = {
   get: (beat: number, slot: number, point: number, open: number) => Out[]
   exceptions: () => number
   reads: () => number
 }
 
-function readKernel(m: Mixer, ball: SmallBall): Kernel {
+export function readKernel(m: Mixer, ball: SmallBall): Kernel {
   const cache = new Map<string, Out[]>()
   const dirOf = new Map<number, number>()
   const shape: Shape = { exceptions: 0 }
@@ -273,7 +273,7 @@ function readKernel(m: Mixer, ball: SmallBall): Kernel {
 }
 
 // one beat of the sparse engine on a table
-function sparseBeat(
+export function sparseBeat(
   kernel: Kernel,
   table: Int32Array,
   state: Amplitudes,
@@ -303,7 +303,7 @@ function sparseBeat(
   return next
 }
 
-function compare(a: Amplitudes, b: Amplitudes): { diff: number; mismatches: number } {
+export function compare(a: Amplitudes, b: Amplitudes): { diff: number; mismatches: number } {
   let diff = 0
   let mismatches = 0
 

@@ -1,0 +1,2 @@
+{"at":"2026-11-17T10:26:57.610Z","item":"vibe-roadmap-grounding-0033","command":["sh","tmp/m3-self-spectrum-scaled.sh","spectrum-scaled","smoke"],"gate":{"hash":"d99189b03149","at":"2026-11-17T10:24:07.966Z"},"exit":0,"verdict":"open","recorded":true,"refused":[]}
+{"at":"2026-11-17T10:29:13.953Z","item":"vibe-roadmap-grounding-0033","command":["sh","tmp/m3-self-spectrum-scaled.sh","spectrum-scaled","full"],"gate":{"hash":"d99189b03149","at":"2026-11-17T10:24:07.966Z"},"exit":0,"verdict":"pass","recorded":true,"refused":[]}

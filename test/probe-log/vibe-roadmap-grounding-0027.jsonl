@@ -1,0 +1,2 @@
+{"at":"2026-11-17T10:35:47.463Z","item":"vibe-roadmap-grounding-0027","command":["sh","tmp/m3-keel-and-flame.sh","keel-smoke","smoke"],"gate":{"hash":"8524483d7384","at":"2026-11-17T10:35:05.595Z"},"exit":0,"verdict":"open","recorded":true,"refused":[]}
+{"at":"2026-11-17T10:40:20.745Z","item":"vibe-roadmap-grounding-0027","command":["sh","tmp/m3-keel-and-flame.sh","keel-full","full"],"gate":{"hash":"8524483d7384","at":"2026-11-17T10:35:05.595Z"},"exit":0,"verdict":"fail","recorded":true,"refused":[]}

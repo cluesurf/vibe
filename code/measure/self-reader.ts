@@ -615,8 +615,8 @@ function startTensor(psi: readonly Config[]): { modes: number[]; n: number; re: 
         at = at * m + idx[p[a]!]!
       }
 
-      re[at] += sign * c.re
-      im[at] += sign * c.im
+      re[at] = re[at]! + sign * c.re
+      im[at] = im[at]! + sign * c.im
     }
   }
 

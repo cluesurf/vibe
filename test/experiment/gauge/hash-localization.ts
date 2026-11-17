@@ -28,7 +28,8 @@
 // DIFFUSE when <r> is at least 0.57 at every side in every window and g does not fall. OPEN otherwise. The brief's windows
 // (eps 0, pi/2, pi) hold no dispersive level of this cycle, so the windows are the band's rank quantiles (QUANTILES).
 //
-// DETERMINISM: no Math.random; the Lanczos start is a murmur3-finalizer hash of the index. FLOAT: measurement.
+// DETERMINISM: no random numbers; the Lanczos start and the witness vectors are Kronecker streams (code/tool/weyl), and
+// the continuous reference field is a quadratic Weyl sequence (quadraticLift). FLOAT: measurement.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict, type Verdict } from '@/test/scaffold/verdict'
@@ -41,6 +42,7 @@ import { d4BoxCoordinates, d4BoxMesh } from '@/code/substrate/d4-box-integer'
 import { gaugeField, ruleField, sigmaTable, type ColorField } from '@/code/measure/color-gates'
 import { bulkBox } from '@/code/measure/color-slab'
 import { cagingBeat, cagingEngine, type CagingState } from '@/code/measure/holonomy-caging'
+import { makeWeyl, weyl } from '@/code/tool/weyl'
 
 const SLOTS = 24
 const REG = 8
@@ -437,17 +439,18 @@ export function applyXd(op: SectorOp, vr: Float64Array, vi: Float64Array, or: Fl
 
 // ---- Lanczos without reorthogonalization, resumable ----
 
-const fmix = (h0: number): number => {
-  let h = h0 >>> 0
+// a generic vector: `length` values of the Kronecker stream at `start`, centred on 0 (code/tool/weyl, no draw)
+const spread = (start: number, length: number): Float64Array => {
+  const stream = makeWeyl({ start })
 
-  h ^= h >>> 16
-  h = Math.imul(h, 0x85ebca6b)
-  h ^= h >>> 13
-  h = Math.imul(h, 0xc2b2ae35)
-  h ^= h >>> 16
-
-  return (h >>> 0) / 2 ** 32 - 0.5
+  return Float64Array.from({ length }, () => stream.next() - 0.5)
 }
+
+// The continuous reference field: the lift at index n is floor(648 frac(n^2 a)), a the golden rotation. A quadratic
+// Weyl sequence is equidistributed (Weyl 1916) and its exponential sums along any arithmetic progression are o(N), so its
+// periodogram carries no Bragg peak, the flat reference an i.i.d. field gave, with nothing drawn. The indices stay below
+// 2^20, so n^2 a keeps at least 13 bits of fraction in a double, more than the 10 the 648 lifts need.
+const quadraticLift = (n: number): number => Math.floor(weyl(n * n) * 648)
 
 export type LanczosRun = {
   op: SectorOp
@@ -472,9 +475,12 @@ export function lanczosStart(op: SectorOp): LanczosRun {
 
   let s = 0
 
+  const vr = spread(1, n)
+  const vi = spread(2, n)
+
   for (let i = 0; i < n; i++) {
-    qr[i] = fmix(2 * i + 0x9e3779b9)
-    qi[i] = fmix(2 * i + 1 + 0x7f4a7c15)
+    qr[i] = vr[i]!
+    qi[i] = vi[i]!
     s += qr[i]! ** 2 + qi[i]! ** 2
   }
 
@@ -738,7 +744,7 @@ export type FieldSpectrum = {
   top1: number
   top10: number
   top100: number
-  // the same for a hashed i.i.d. field (murmur3 per slot), the continuous reference
+  // the same for the quadratic Weyl field (quadraticLift per slot), the continuous reference
   refTop10: number
   refTop100: number
   // the hash frequency per dock index and its basis-coordinate wave vector (cycles per dock)
@@ -821,7 +827,7 @@ export function fieldSpectrum(side: number): FieldSpectrum {
 
     tops.push(topFractions(p))
 
-    const g = Float64Array.from({ length: cells }, (_, x) => t.reTr[Math.floor((fmix(x * SLOTS + d + 77) + 0.5) * 648)]!)
+    const g = Float64Array.from({ length: cells }, (_, x) => t.reTr[quadraticLift(x * SLOTS + d + 77)]!)
 
     refs.push(topFractions(powerSpectrum(g, side)))
   }
@@ -880,7 +886,7 @@ export type HashHarmonics = {
   top100: number
   // participation 1 / sum p^2 of the non-mean power over the period's harmonics
   participation: number
-  // the same participation for a murmur3-hashed sequence of the same length (a continuous reference)
+  // the same participation for a quadratic Weyl sequence of the same length (a continuous reference)
   refParticipation: number
 }
 
@@ -925,7 +931,7 @@ export function hashHarmonics(d: number): HashHarmonics {
     return t.reTr[t.lifts.lifts[(w * 216) >>> 16]![(w2 * 3) >>> 16]!]!
   })
   const p = dft1Power(f)
-  const g = Float64Array.from({ length: period }, (_, x) => t.reTr[Math.floor((fmix(x * 31 + d + 5) + 0.5) * 648)]!)
+  const g = Float64Array.from({ length: period }, (_, x) => t.reTr[quadraticLift(x * 31 + d + 5)]!)
   const tot = p.slice(1).reduce((a, b) => a + b, 0)
   const order = Array.from(p.keys()).slice(1).sort((a, b) => p[b]! - p[a]!)
   const sum = (k: number): number => order.slice(0, k).reduce((a, i) => a + p[i]!, 0) / tot
@@ -942,7 +948,7 @@ export function hashHarmonics(d: number): HashHarmonics {
 
 // ---- witnesses ----
 
-// the cycle against (1 + (conj u - 1) F F^dag)(1 + (u - 1) S S^dag) on a hashed vector, and the sector X against
+// the cycle against (1 + (conj u - 1) F F^dag)(1 + (u - 1) S S^dag) on a Kronecker vector, and the sector X against
 // P^dag S^dag T E P, on the full 8-register colour carriage of the cage engine
 export function reductionWitness(side: number, field: ColorField, sector: Sector): { cycleGap: number; xGap: number; t2Gap: number } {
   const box = bulkBox(side)
@@ -958,10 +964,8 @@ export function reductionWitness(side: number, field: ColorField, sector: Sector
   const T = (s: CagingState): CagingState => cagingBeat(tEng, { re: Float64Array.from(s.re), im: Float64Array.from(s.im) }, 0)
   const v: CagingState = { re: new Float64Array(N), im: new Float64Array(N) }
 
-  for (let i = 0; i < N; i++) {
-    v.re[i] = fmix(3 * i + 11)
-    v.im[i] = fmix(3 * i + 12)
-  }
+  v.re.set(spread(11, N))
+  v.im.set(spread(12, N))
 
   const idx = (x: number, d: number, a: number, c: number): number => ((x * SLOTS + d) * REG + a) * 3 + c
   // S^dag v: (x, a, c) -> sum_d v / sqrt 24 ; E^dag v: (x, e, c) -> sum_m E[m][e] v
@@ -1059,8 +1063,8 @@ export function reductionWitness(side: number, field: ColorField, sector: Sector
 
   // the sector X against P^dag S^dag T E P: c (cells x 2 x 3) embedded by P into (x, e, c)
   const op = sectorOp({ side, link, sector, twist: [0, 0, 0, 0] })
-  const cr = Float64Array.from({ length: op.n }, (_, i) => fmix(5 * i + 1))
-  const ci = Float64Array.from({ length: op.n }, (_, i) => fmix(5 * i + 2))
+  const cr = spread(13, op.n)
+  const ci = spread(14, op.n)
   const c8: CagingState = { re: new Float64Array(cells * 24), im: new Float64Array(cells * 24) }
 
   for (let x = 0; x < cells; x++) {
