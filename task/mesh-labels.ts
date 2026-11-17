@@ -60,6 +60,7 @@ const HORIZON: Record<string, [Grade, string]> = {
   'E-SPN-0182': ['honeycomb', 'ball reads are labels only; the bands are on the cusp quotient'],
   'E-SPN-0184': ['honeycomb', 'ball reads are labels only; the count is on the cusp quotient'],
   'E-SLF-0183': ['mirrored', 'L1 and O1: R 3 and R 2 balls, 4 beats, read past t = R through the frontier'],
+  'E-SLF-0186': ['honeycomb', 'X0: R = 4 ball, 2 beats from radius 1, 0 frontier hits; the R 1 to R 3 balls check the rule exactly (reversal, norm, sparse = dense, reduction), they are not read'],
   'E-NVG-0014':['mirrored', 'R = 4 ball, 8 beats, absorbing and reflecting frontiers'],
   'E-CSM-0058': ['honeycomb', 'R = 4 ball, beats 0 to 4'],
   'E-CSM-0059': ['honeycomb', 'breadth-first counts, no rule'],
@@ -71,6 +72,7 @@ const HORIZON: Record<string, [Grade, string]> = {
 const LINE_HORIZON: Record<string, [Grade, string]> = {
   'E-SLF-0183': ['honeycomb', 'open line of Lo docks run T = floor((Lo - width) / 2) beats; I3: the far-link weight is exactly 0 every beat'],
   'E-SLF-0184': ['honeycomb', 'open line of max(256, width + 2 beats + 2) docks; E3: no love reaches an end (end hits 0)'],
+  'E-SLF-0186': ['honeycomb', 'open line of max(64, width + 2 beats + 8) docks from offset 4, 2 beats: no love reaches an end'],
 }
 
 const CUSP_QUOTIENT =/honeycomb-cusp:(cuspQuotient|buildCuspQuotient|buildExactCusp|cuspTranslations)\b/

@@ -272,6 +272,7 @@ import '@/test/code/operator/unitary-evolution'
 
 import '@/test/code/rule/asynchronous'
 import '@/test/code/rule/collision'
+import '@/test/code/rule/cross-line-pieces'
 import '@/test/code/rule/gauge'
 import '@/test/code/rule/lattice-gas'
 import '@/test/code/rule/perception-permutation'

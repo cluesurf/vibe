@@ -19,6 +19,12 @@
 //
 // NOTHING MOVES the rule: no amplitude is cut. A store that would pass its cap throws ConeCap and the run stops at the
 // last whole beat.
+//
+// THE CLOCK (opt-in, item vibe-roadmap-grounding-0021, board proposal 012): a store made with `clock` 2N charges
+// zeta_(2N)^(-1) a flux link in place of zeta_14^(-1) (clock 18 is pi/9, proposal 012's S1 coupling, exact in
+// Z[zeta9][1/6]). The phases run on a table of lcm(clock, 3) turns; the default clock 14 keeps the table of 42 and every
+// amplitude bit for bit. halfPass, phasePass and streamInto expose the split beat's three parts, so a dock block can be
+// put between the two half coins (code/measure/cross-line-dock).
 
 import type { Placed } from '@/code/measure/held-cluster'
 import {
@@ -31,13 +37,39 @@ import {
   type LineReader,
 } from '@/code/measure/cold-line'
 
-const TURN = 42
-const COS = Float64Array.from({ length: TURN }, (_, a) =>
-  Math.cos((2 * Math.PI * a) / TURN),
-)
-const SIN = Float64Array.from({ length: TURN }, (_, a) =>
-  Math.sin((2 * Math.PI * a) / TURN),
-)
+// the phase table of each clock: lcm(clock, 3) turns, a flux link -turn/clock, a full dock's w^2 2 turn/3
+type Turn = { turn: number; link: number; full: number; cos: Float64Array; sin: Float64Array }
+
+const TURNS = new Map<number, Turn>()
+
+function turnOf(clock: number): Turn {
+  const known = TURNS.get(clock)
+
+  if (known) {
+    return known
+  }
+
+  if (!Number.isInteger(clock) || clock < 2 || clock % 2 !== 0) {
+    throw new Error(`cone-line: clock ${clock} is not an even count`)
+  }
+
+  const turn = clock % 3 === 0 ? clock : 3 * clock
+  const made: Turn = {
+    turn,
+    link: turn / clock,
+    full: (2 * turn) / 3,
+    cos: Float64Array.from({ length: turn }, (_, a) =>
+      Math.cos((2 * Math.PI * a) / turn),
+    ),
+    sin: Float64Array.from({ length: turn }, (_, a) =>
+      Math.sin((2 * Math.PI * a) / turn),
+    ),
+  }
+
+  TURNS.set(clock, made)
+
+  return made
+}
 
 // positions and modes packed two to a 32-bit word, 15 bits each
 const FIELD = 15
@@ -73,9 +105,18 @@ export type ConeStore = {
   endHits: number
   // configurations written with a nonzero amplitude (the reached ones; `used` also counts a block's unreached labels)
   written: number
+  // the cost's clock 2N: zeta_(2N)^(-1) a flux link (14 by default)
+  clock: number
 }
 
-export function coneStore(n: number, line: number, cap: number): ConeStore {
+export function coneStore(
+  n: number,
+  line: number,
+  cap: number,
+  clock = 14,
+): ConeStore {
+  turnOf(clock)
+
   if (n < 1 || n > MAX_N) {
     throw new Error(`cone-line: n ${n} out of range`)
   }
@@ -103,6 +144,7 @@ export function coneStore(n: number, line: number, cap: number): ConeStore {
     line,
     endHits: 0,
     written: 0,
+    clock,
   }
 }
 
@@ -383,8 +425,9 @@ export function coneNorm(s: ConeStore): number {
 
 // ---- the beat ----
 
-// the cost's phase index of a shape (sorted positions with repeats): -3 links + 28 full, mod 42
-function phaseIndex(n: number, pos: Int32Array): number {
+// the cost's phase index of a shape (sorted positions with repeats): -link links + full full, mod turn (at clock 14:
+// -3 links + 28 full, mod 42)
+function phaseIndex(n: number, pos: Int32Array, tn: Turn): number {
   let links = 0
   let full = 0
   let Q = 0
@@ -408,7 +451,7 @@ function phaseIndex(n: number, pos: Int32Array): number {
     }
   }
 
-  return (((-3 * links + 28 * full) % TURN) + TURN) % TURN
+  return (((-tn.link * links + tn.full * full) % tn.turn) + tn.turn) % tn.turn
 }
 
 function coinBlock(
@@ -456,13 +499,14 @@ function phaseBlock(
   m: number,
   t: number,
   conjugate: boolean,
+  tn: Turn,
 ): void {
   if (t === 0) {
     return
   }
 
-  const pr = COS[t]!
-  const pi = conjugate ? -SIN[t]! : SIN[t]!
+  const pr = tn.cos[t]!
+  const pi = conjugate ? -tn.sin[t]! : tn.sin[t]!
   const size = 1 << m
 
   for (let j = 0; j < size; j++) {
@@ -477,6 +521,7 @@ function phaseBlock(
 // the dock-local part of the beat on every block of s, in place (forward: before the stream; back: after the unstream)
 function localPass(s: ConeStore, split: boolean, back: boolean): void {
   const pos = new Int32Array(s.n)
+  const tn = turnOf(s.clock)
 
   for (let i = 0; i < s.shapes; i++) {
     positionsOf(s, i, pos)
@@ -487,20 +532,61 @@ function localPass(s: ConeStore, split: boolean, back: boolean): void {
     const o = at - c * CHUNK
     const re = s.re[c]!
     const im = s.im[c]!
-    const t = phaseIndex(s.n, pos)
+    const t = phaseIndex(s.n, pos, tn)
 
     if (split) {
       coinBlock(re, im, o, m, HALF_COIN, back)
-      phaseBlock(re, im, o, m, t, back)
+      phaseBlock(re, im, o, m, t, back, tn)
       coinBlock(re, im, o, m, HALF_COIN, back)
     } else if (back) {
       coinBlock(re, im, o, m, FULL_COIN, true)
-      phaseBlock(re, im, o, m, t, true)
+      phaseBlock(re, im, o, m, t, true, tn)
     } else {
-      phaseBlock(re, im, o, m, t, false)
+      phaseBlock(re, im, o, m, t, false, tn)
       coinBlock(re, im, o, m, FULL_COIN, false)
     }
   }
+}
+
+// THE SPLIT BEAT IN PARTS (forward only): halfPass is the half coin D on every block, phasePass the cost and the full
+// docks' phase (diagonal in the shape, so its place among the dock-local pieces does not matter), streamInto the stream
+// with the line block's sign into the (cleared) store `to`. halfPass, phasePass, halfPass, streamInto is coneBeat with
+// `split` operation for operation
+export function halfPass(s: ConeStore): void {
+  for (let i = 0; i < s.shapes; i++) {
+    const at = s.start[i]!
+    const c = Math.floor(at / CHUNK)
+
+    coinBlock(s.re[c]!, s.im[c]!, at - c * CHUNK, s.ms[i]!, HALF_COIN, false)
+  }
+}
+
+export function phasePass(s: ConeStore): void {
+  const pos = new Int32Array(s.n)
+  const tn = turnOf(s.clock)
+
+  for (let i = 0; i < s.shapes; i++) {
+    positionsOf(s, i, pos)
+
+    const at = s.start[i]!
+    const c = Math.floor(at / CHUNK)
+
+    phaseBlock(
+      s.re[c]!,
+      s.im[c]!,
+      at - c * CHUNK,
+      s.ms[i]!,
+      phaseIndex(s.n, pos, tn),
+      false,
+      tn,
+    )
+  }
+}
+
+export function streamInto(from: ConeStore, to: ConeStore): void {
+  clearStore(to)
+  to.clock = from.clock
+  streamPass(from, to, false, 0)
 }
 
 // A DOCK MIXER'S ON-LINE BLOCK (item vibe-roadmap-grounding-0020, note/line-confinement.md section 4), in place: every
@@ -663,6 +749,7 @@ function streamPass(
 // one beat from `a` into the (cleared) store `b`; `a` is used up. Nothing is left out
 export function coneBeat(a: ConeStore, b: ConeStore, split: boolean): void {
   clearStore(b)
+  b.clock = a.clock
   localPass(a, split, false)
   streamPass(a, b, false, 0)
 }
@@ -675,6 +762,7 @@ export function coneBeatBack(
   floor: number,
 ): number {
   clearStore(b)
+  b.clock = a.clock
 
   const skipped = streamPass(a, b, true, floor)
 
@@ -717,6 +805,7 @@ export function coneStart(input: {
   placed: readonly Placed[] | undefined
   bath: readonly (readonly [number, number])[]
   offset: number
+  clock?: number
 }): { store: ConeStore; dropped: number } {
   const { n, line, cap, W, placed, bath, offset } = input
 
@@ -725,7 +814,7 @@ export function coneStart(input: {
     throw new Error(`cone-line: ${n} loves are not neutral mod 3`)
   }
 
-  const store = coneStore(n, line, cap)
+  const store = coneStore(n, line, cap, input.clock ?? 14)
   const bathHere = sortedModes(bath.map(([x, j]) => [x + offset, j] as const))
   const bathRing = new Set(
     bath.map(([x, j]) => (j === 0 ? 2 * (((x % W) + W) % W) + 1 : 2 * (((x % W) + W) % W))),
@@ -1162,7 +1251,7 @@ export function coneLovesOutside(s: ConeStore, from: number, to: number): number
 
 // a copy of a store (for the reversibility check)
 export function copyStore(s: ConeStore): ConeStore {
-  const c = coneStore(s.n, s.line, s.cap)
+  const c = coneStore(s.n, s.line, s.cap, s.clock)
 
   eachConfiguration(s, (modes, re, im) => {
     addAmp(c, modes, re, im)

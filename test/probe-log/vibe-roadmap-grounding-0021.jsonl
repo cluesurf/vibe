@@ -1,0 +1,3 @@
+{"at":"2026-11-16T23:47:01.714Z","item":"vibe-roadmap-grounding-0021","command":["sh","tmp/run-in-tree.sh","tmp/run-bulk-self.ts"],"gate":{"hash":"f30e4853d6f6","at":"2026-11-16T23:46:43.135Z"},"exit":0,"verdict":"open","recorded":true,"refused":[]}
+{"at":"2026-11-16T23:49:33.950Z","item":"vibe-roadmap-grounding-0021","command":["env","BULK_SWEEP=mid","sh","tmp/run-in-tree.sh","tmp/run-bulk-self.ts"],"gate":{"hash":"f30e4853d6f6","at":"2026-11-16T23:46:43.135Z"},"exit":0,"verdict":"open","recorded":true,"refused":[]}
+{"at":"2026-11-16T23:50:22.774Z","item":"vibe-roadmap-grounding-0021","command":["sh","tmp/m3-bulk-self.sh","bulk-self","full"],"gate":{"hash":"f30e4853d6f6","at":"2026-11-16T23:46:43.135Z"},"exit":0,"verdict":"fail","recorded":true,"refused":[]}
