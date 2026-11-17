@@ -1,0 +1,147 @@
+npm warn Unknown user config "min-release-age". This will stop working in the next major version of npm.
+m3: refused, load 33 is over 30. Wait and retry
+m3: refused, all 4 light slots are held: split-coin pid 18642,split-coin-2 pid 31590,b34-select pid 17312,odd-quotient-2 pid 84537,. Wait and retry
+m3: refused, load 33 is over 30. Wait and retry
+m3: refused, load 40 is over 30. Wait and retry
+m3: refused, load 40 is over 30. Wait and retry
+m3: refused, load 42 is over 30. Wait and retry
+m3: refused, load 45 is over 30. Wait and retry
+m3: refused, load 40 is over 30. Wait and retry
+m3: refused, load 45 is over 30. Wait and retry
+m3: refused, load 40 is over 30. Wait and retry
+m3: refused, load 37 is over 30. Wait and retry
+m3: refused, load 33 is over 30. Wait and retry
+m3: refused, load 35 is over 30. Wait and retry
+m3: refused, load 34 is over 30. Wait and retry
+m3: refused, load 40 is over 30. Wait and retry
+m3: refused, load 39 is over 30. Wait and retry
+m3: refused, load 38 is over 30. Wait and retry
+m3: refused, load 38 is over 30. Wait and retry
+m3: refused, load 35 is over 30. Wait and retry
+m3: refused, load 38 is over 30. Wait and retry
+m3: refused, load 38 is over 30. Wait and retry
+m3: refused, load 51 is over 30. Wait and retry
+m3: refused, load 50 is over 30. Wait and retry
+m3: refused, load 40 is over 30. Wait and retry
+m3: refused, load 39 is over 30. Wait and retry
+m3: refused, load 35 is over 30. Wait and retry
+m3: refused, load 37 is over 30. Wait and retry
+m3: refused, load 36 is over 30. Wait and retry
+started run/b09-bell (pid 77247), log run/b09-bell.job/box.log: m3 status b09-bell
+run/b09-bell: exit 0
+22:28:46 start b09-bell: env NODE_OPTIONS=--max-old-space-size=24576 npx tsx tmp/run-open-line-bell.ts 
+ball R=4: 162049 docks, line open true 18s
+ball integer+0 done 19s
+ball integer+1 done 19s
+ball integer+2 done 20s
+ball integer+3 done 20s
+ball integer+4 done 20s
+ball integer+5 done 20s
+ball integer+6 done 21s
+ball integer+7 done 21s
+ball integer+8 done 21s
+ball integer+9 done 22s
+ball integer+10 done 22s
+ball integer+11 done 23s
+ball integer+12 done 23s
+ball integer+13 done 24s
+ball integer+14 done 24s
+ball integer+15 done 25s
+ball golden done 25s
+ball identity done 26s
+line done 36s
+ring 4 done 36s
+ring 8 done 37s
+C0 integer+0 2.813788 41s
+C0 integer+1 2.821942 41s
+C0 integer+2 2.816462 41s
+C0 integer+3 2.828403 42s
+C0 integer+4 2.794550 42s
+C0 integer+5 2.828403 43s
+C0 integer+6 2.813788 43s
+C0 integer+7 2.828403 44s
+C0 integer+8 2.815863 45s
+C0 integer+9 2.815863 45s
+C0 integer+10 2.816462 46s
+C0 integer+11 2.821672 46s
+C0 integer+12 2.825057 48s
+C0 integer+13 2.825057 49s
+C0 integer+14 2.828403 50s
+C0 integer+15 2.825057 51s
+C0 golden 2.815863 52s
+{
+  "code": "E-QTM-0199",
+  "seconds": 52.04,
+  "verdict": {
+    "status": "partial",
+    "claim": "on the exact ball (R = 4, 4 beats, no frontier hit) the like pair meets again with no wrap (lineage 2 to 2 on 18 link fields) and its CHSH passes sqrt 7 on 18 of 18 (up to 2.810982); on an open line over 32 beats (lineage 3) it reaches 2.827297, 1.13e-3 under 2 sqrt 2; the closed rings reach 2.815563 and 2.826443; ring-made point observables reach 2.625000 at D 6, 2.638184 at D 36, 2.644470 at D 216 on the line; E-QTM-0163's box value reproduced 17 of 17",
+    "metrics": {
+      "ballRuns": 18,
+      "ballAboveSqrt7": 18,
+      "ballFullMax": 2.810982359803418,
+      "ballFullMin": 2.810982359803418,
+      "ballLineageMin": 2,
+      "ballLineageMax": 2,
+      "ballPointMax": 2.6457513110645907,
+      "lineFullMax": 2.8272972527052724,
+      "lineTsirelsonGap": 0.0011298720409178564,
+      "linePointMax": 2.6457513110645907,
+      "lineLineage": 3,
+      "lineCrossWritten": 9514,
+      "c0Min": 2.7945496234090297,
+      "c0Max": 2.8284025070562397,
+      "c0MeetsOk": 17,
+      "seconds": 52.037,
+      "reference_ringMade_6": 2.8125,
+      "line_ringMade_6": 2.625,
+      "ball_ringMade_6": 2.625,
+      "reference_ringMade_36": 2.82373046875,
+      "line_ringMade_36": 2.63818359375,
+      "ball_ringMade_36": 2.63818359375,
+      "reference_ringMade_216": 2.827423095703125,
+      "line_ringMade_216": 2.64447021484375,
+      "ball_ringMade_216": 2.64447021484375,
+      "ring4_period": 4,
+      "ring4_fullMax": 2.8155625659831305,
+      "ring4_pointMax": 2.6457513110645907,
+      "ring4_lineage": 16,
+      "ring4_crossWritten": 300,
+      "ring4_ringMade_6": 2.625,
+      "ring4_ringMade_36": 2.63818359375,
+      "ring4_ringMade_216": 2.64447021484375,
+      "ring8_period": 8,
+      "ring8_fullMax": 2.826442863682424,
+      "ring8_pointMax": 2.6457513110645907,
+      "ring8_lineage": 9,
+      "ring8_crossWritten": 2066,
+      "ring8_ringMade_6": 2.625,
+      "ring8_ringMade_36": 2.63818359375,
+      "ring8_ringMade_216": 2.64447021484375,
+      "gate_I0": 1,
+      "gate_I1": 1,
+      "gate_I2": 1,
+      "gate_I3": 1,
+      "gate_I4": 1,
+      "gate_I5": 1,
+      "gate_R0": 1,
+      "gate_C0": 1,
+      "gate_H1": 1,
+      "gate_H2": 1,
+      "gate_H3": 1,
+      "gate_T": 0,
+      "gate_C1": 0,
+      "gate_RM": 1
+    },
+    "control": {
+      "c0Reproduced": 1,
+      "offFullMax": 2.828427124746191,
+      "offPointMax": 2.8256690310319037
+    },
+    "notes": "L2. Gates I0 true, I1 true, I2 true, I3 true, I4 true, I5 true, R0 true, C0 true, H1 true, H2 true, H3 true, T false, C1 false, RM true. ball integer+0: meets 0,2,3, lineage 2, cross merges 22, end hits 0, off max full 2.799435 point 2.645751 | 0: full 2.645751 (2 weights), point 2.645751, knot 2.645751; 1: full 2.766453 (6 weights), point -; 2: full 2.810982 (10 weights), point -; 3: full 2.801300 (14 weights), point - || ball integer+1: meets 0,2,3, lineage 2, cross merges 22, end hits 0, off max full 2.799435 point 2.645751 | 0: full 2.645751 (2 weights), point 2.645751, knot 2.645751; 1: full 2.766453 (6 weights), point -; 2: full 2.810982 (10 weights), point -; 3: full 2.801300 (14 weights), point - || ball integer+2: meets 0,2,3, lineage 2, cross merges 22, end hits 0, off max full 2.799435 point 2.645751 | 0: full 2.645751 (2 weights), point 2.645751, knot 2.645751; 1: full 2.766453 (6 weights), point -; 2: full 2.810982 (10 weights), point -; 3: full 2.801300 (14 weights), point - || ball integer+3: meets 0,2,3, lineage 2, cross merges 22, end hits 0, off max full 2.799435 point 2.645751 | 0: full 2.645751 (2 weights), point 2.645751, knot 2.645751; 1: full 2.766453 (6 weights), point -; 2: full 2.810982 (10 weights), point -; 3: full 2.801300 (14 weights), point - || ball integer+4: meets 0,2,3, lineage 2, cross merges 22, end hits 0, off max full 2.799435 point 2.645751 | 0: full 2.645751 (2 weights), point 2.645751, knot 2.645751; 1: full 2.766453 (6 weights), point -; 2: full 2.810982 (10 weights), point -; 3: full 2.801300 (14 weights), point - || ball integer+5: meets 0,2,3, lineage 2, cross merges 22, end hits 0, off max full 2.799435 point 2.645751 | 0: full 2.645751 (2 weights), point 2.645751, knot 2.645751; 1: full 2.766453 (6 weights), point -; 2: full 2.810982 (10 weights), point -; 3: full 2.801300 (14 weights), point - || ball integer+6: meets 0,2,3, lineage 2, cross merges 22, end hits 0, off max full 2.799435 point 2.645751 | 0: full 2.645751 (2 weights), point 2.645751, knot 2.645751; 1: full 2.766453 (6 weights), point -; 2: full 2.810982 (10 weights), point -; 3: full 2.801300 (14 weights), point - || ball integer+7: meets 0,2,3, lineage 2, cross merges 22, end hits 0, off max full 2.799435 point 2.645751 | 0: full 2.645751 (2 weights), point 2.645751, knot 2.645751; 1: full 2.766453 (6 weights), point -; 2: full 2.810982 (10 weights), point -; 3: full 2.801300 (14 weights), point - || ball integer+8: meets 0,2,3, lineage 2, cross merges 22, end hits 0, off max full 2.799435 point 2.645751 | 0: full 2.645751 (2 weights), point 2.645751, knot 2.645751; 1: full 2.766453 (6 weights), point -; 2: full 2.810982 (10 weights), point -; 3: full 2.801300 (14 weights), point - || ball integer+9: meets 0,2,3, lineage 2, cross merges 22, end hits 0, off max full 2.799435 point 2.645751 | 0: full 2.645751 (2 weights), point 2.645751, knot 2.645751; 1: full 2.766453 (6 weights), point -; 2: full 2.810982 (10 weights), point -; 3: full 2.801300 (14 weights), point - || ball integer+10: meets 0,2,3, lineage 2, cross merges 22, end hits 0, off max full 2.799435 point 2.645751 | 0: full 2.645751 (2 weights), point 2.645751, knot 2.645751; 1: full 2.766453 (6 weights), point -; 2: full 2.810982 (10 weights), point -; 3: full 2.801300 (14 weights), point - || ball integer+11: meets 0,2,3, lineage 2, cross merges 22, end hits 0, off max full 2.799435 point 2.645751 | 0: full 2.645751 (2 weights), point 2.645751, knot 2.645751; 1: full 2.766453 (6 weights), point -; 2: full 2.810982 (10 weights), point -; 3: full 2.801300 (14 weights), point - || ball integer+12: meets 0,2,3, lineage 2, cross merges 22, end hits 0, off max full 2.799435 point 2.645751 | 0: full 2.645751 (2 weights), point 2.645751, knot 2.645751; 1: full 2.766453 (6 weights), point -; 2: full 2.810982 (10 weights), point -; 3: full 2.801300 (14 weights), point - || ball integer+13: meets 0,2,3, lineage 2, cross merges 22, end hits 0, off max full 2.799435 point 2.645751 | 0: full 2.645751 (2 weights), point 2.645751, knot 2.645751; 1: full 2.766453 (6 weights), point -; 2: full 2.810982 (10 weights), point -; 3: full 2.801300 (14 weights), point - || ball integer+14: meets 0,2,3, lineage 2, cross merges 22, end hits 0, off max full 2.799435 point 2.645751 | 0: full 2.645751 (2 weights), point 2.645751, knot 2.645751; 1: full 2.766453 (6 weights), point -; 2: full 2.810982 (10 weights), point -; 3: full 2.801300 (14 weights), point - || ball integer+15: meets 0,2,3, lineage 2, cross merges 22, end hits 0, off max full 2.799435 point 2.645751 | 0: full 2.645751 (2 weights), point 2.645751, knot 2.645751; 1: full 2.766453 (6 weights), point -; 2: full 2.810982 (10 weights), point -; 3: full 2.801300 (14 weights), point - || ball golden: meets 0,2,3, lineage 2, cross merges 22, end hits 0, off max full 2.799435 point 2.645751 | 0: full 2.645751 (2 weights), point 2.645751, knot 2.645751; 1: full 2.766453 (6 weights), point -; 2: full 2.810982 (10 weights), point -; 3: full 2.801300 (14 weights), point - || ball identity: meets 0,2,3, lineage 2, cross merges 22, end hits 0, off max full 2.799435 point 2.645751 | 0: full 2.645751 (2 weights), point 2.645751, knot 2.645751; 1: full 2.766453 (6 weights), point 2.011685; 2: full 2.810982 (10 weights), point 2.493106; 3: full 2.801300 (14 weights), point 2.409557 || line: meets 0,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31, lineage 3, cross merges 9514, end hits 0, off max full 2.824617 point 2.645751 | 0: full 2.645751 (2 weights), point 2.645751, knot 2.645751; 1: full 2.766453 (6 weights), point 2.011685; 2: full 2.810982 (10 weights), point 2.493106; 3: full 2.801300 (14 weights), point 2.409557; 4: full 2.821278 (18 weights), point 2.214552; 5: full 2.817821 (22 weights), point 2.320904; 6: full 2.812307 (26 weights), point 2.345169; 7: full 2.817775 (30 weights), point 2.270600; 8: full 2.823855 (34 weights), point 2.293374; 9: full 2.821416 (38 weights), point 2.313912; 10: full 2.816348 (42 weights), point 2.291521; 11: full 2.825002 (45 weights), point 2.323098; 12: full 2.826337 (47 weights), point 2.317225; 13: full 2.826044 (46 weights), point 2.292834; 14: full 2.822478 (50 weights), point 2.325170; 15: full 2.827076 (54 weights), point 2.313253; 16: full 2.826052 (57 weights), point 2.282628; 17: full 2.825238 (59 weights), point 2.300445; 18: full 2.824517 (58 weights), point 2.302015; 19: full 2.825172 (62 weights), point 2.283735; 20: full 2.826227 (66 weights), point 2.293379; 21: full 2.825693 (69 weights), point 2.302252; 22: full 2.824663 (70 weights), point 2.297459; 23: full 2.826041 (70 weights), point 2.308329; 24: full 2.826932 (73 weights), point 2.309866; 25: full 2.825400 (78 weights), point 2.303375; 26: full 2.825487 (81 weights), point 2.314624; 27: full 2.826765 (82 weights), point 2.308513; 28: full 2.826322 (82 weights), point 2.294876; 29: full 2.824913 (86 weights), point 2.302512; 30: full 2.826097 (90 weights), point 2.300071; 31: full 2.827297 (90 weights), point 2.288984 || ring 4: meets 0,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31, lineage 16, cross merges 300, end hits 0, off max full 2.828427 point 2.825669 | 0: full 2.645751 (2 weights), point 2.645751, knot 2.645751; 1: full 2.645751 (4 weights), point 2.179449; 2: full 2.788505 (6 weights), point 2.445500; 3: full 2.815563 (6 weights), point 2.071948; 4: full 2.722759 (6 weights), point 2.001647; 5: full 2.722897 (6 weights), point 2.001647; 6: full 2.812671 (6 weights), point 2.111342; 7: full 2.766734 (6 weights), point 2.100746; 8: full 2.723449 (6 weights), point 2.144183; 9: full 2.752639 (6 weights), point 2.193806; 10: full 2.202105 (6 weights), point 2.005314; 11: full 2.219950 (6 weights), point 2.005314; 12: full 2.625183 (6 weights), point 2.462406; 13: full 2.703833 (6 weights), point 2.125377; 14: full 2.714780 (6 weights), point 2.553762; 15: full 2.740416 (6 weights), point 2.082104; 16: full 2.479627 (6 weights), point 2.008169; 17: full 2.527463 (6 weights), point 2.008169; 18: full 2.783340 (6 weights), point 2.295439; 19: full 2.738960 (6 weights), point 2.155972; 20: full 2.794600 (6 weights), point 2.138768; 21: full 2.732744 (6 weights), point 2.153455; 22: full 2.572563 (6 weights), point 2.008018; 23: full 2.526263 (6 weights), point 2.008018; 24: full 2.685229 (6 weights), point 2.202951; 25: full 2.777631 (6 weights), point 2.080815; 26: full 2.622316 (6 weights), point 2.461266; 27: full 2.703215 (6 weights), point 2.127929; 28: full 2.178755 (6 weights), point 2.004975; 29: full 2.204541 (6 weights), point 2.004975; 30: full 2.719010 (6 weights), point 2.560117; 31: full 2.743513 (6 weights), point 2.194461 || ring 8: meets 0,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31, lineage 9, cross merges 2066, end hits 0, off max full 2.825758 point 2.645751 | 0: full 2.645751 (2 weights), point 2.645751, knot 2.645751; 1: full 2.645751 (6 weights), point 2.274176; 2: full 2.813566 (10 weights), point 2.593326; 3: full 2.819832 (14 weights), point 2.219524; 4: full 2.812359 (14 weights), point 2.151584; 5: full 2.813111 (14 weights), point 2.172103; 6: full 2.782621 (14 weights), point 2.060588; 7: full 2.818674 (14 weights), point 2.001051; 8: full 2.799226 (14 weights), point 2.030981; 9: full 2.797225 (14 weights), point 2.003797; 10: full 2.752848 (14 weights), point 2.007574; 11: full 2.772774 (14 weights), point 2.011078; 12: full 2.812143 (14 weights), point 2.005236; 13: full 2.749855 (14 weights), point 2.008475; 14: full 2.826443 (14 weights), point 2.002153; 15: full 2.799660 (14 weights), point 2.018368; 16: full 2.795553 (14 weights), point 2.007287; 17: full 2.808063 (14 weights), point 2.000187; 18: full 2.822895 (14 weights), point 2.076579; 19: full 2.804563 (14 weights), point 2.001687; 20: full 2.759716 (14 weights), point 2.053651; 21: full 2.758938 (14 weights), point 2.112417; 22: full 2.820295 (14 weights), point 2.000175; 23: full 2.816605 (14 weights), point 2.105450; 24: full 2.713771 (14 weights), point 2.001177; 25: full 2.729209 (14 weights), point 2.105048; 26: full 2.812978 (14 weights), point 2.008567; 27: full 2.805619 (14 weights), point 2.012181; 28: full 2.794132 (14 weights), point 2.000498; 29: full 2.759657 (14 weights), point 2.000226; 30: full 2.785348 (14 weights), point 2.014946; 31: full 2.789178 (14 weights), point 2.005560. C0 per start 2.813788, 2.821942, 2.816462, 2.828403, 2.794550, 2.828403, 2.813788, 2.828403, 2.815863, 2.815863, 2.816462, 2.821672, 2.825057, 2.825057, 2.828403, 2.825057, 2.815863. Reference ring-made 2.812500000, 2.823730469, 2.827423096 (heights 6, 36, 216, ring directions 44, 380, 1532). 52 s."
+  }
+}
+verdict: partial
+22:29:41 exit 0 b09-bell
+recorded vibe-roadmap-board-0009: verdict partial, exit 0, gate 6c1c3bd9a8e7 set 2026-11-17T05:55:20.324Z
+
+[exited with code 0]

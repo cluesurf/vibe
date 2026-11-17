@@ -1,0 +1,34 @@
+
+E-QTM-0193 quantum/ckw-roof-decided  L2  289.3s
+status   fail
+claim    CKW on the knit's 480 three-role readings (E-QTM-0153's, reproduced: 103 held, 377 undecided, 0 broken by its bounds): with each two-role roof bounded above by an optimized decomposition and below by Chen-Albeverio-Fei and Mintert-Buchleitner, 448 held (76 by structure, tau = 0), 0 broken and 32 undecided; the least held margin tau - (C_AB^2 + C_AC^2) is 6.328e-3 and the largest upper ratio (C_AB^2 + C_AC^2) / tau 1.142851; controls: the isotropic roof 0.831975 against the exact 0.808290 (eigen 0.973760), Ou's antisymmetric stand-in broken
+metrics
+  gateSameReadings  1
+  gateSound  0
+  gateControls  0
+  gateAllDecided  0
+  readings  480
+  eigenHeld  103
+  eigenUndecided  377
+  eigenBroken  0
+  held  448
+  heldByStructure  76
+  broken  0
+  undecided  32
+  leastHeldMargin  0.006327774880998893
+  largestUpperRatio  1.1428513549843549
+  largestUndecidedGap  1.0733555209514791
+  largestGainOverEigen  0.43086877747759444
+  readingsBothMarginalsRankThree  370
+  soundnessFailures  1
+  worstDecompositionResidual  1.3140808098610717e-13
+  worstPurityGap  6.994405055138486e-15
+control
+  isotropicExact  0.8082903768654761
+  isotropicOptimizedUpper  0.8319751267895836
+  isotropicEigenUpper  0.9737604307034017
+  isotropicLower  0.789514618821801
+  standInTau  1.333333333333333
+  standInConcurrenceSquaredSum  2
+notes    Gates fixed before the first run. 8 Weyl starts plus the eigen decomposition, 1500 Armijo steps each, K = r^2 + 1 members, decision margin 1e-9. Held is certified by a returned decomposition (any decomposition bounds the roof from above), broken by the two published lower bounds. Floats throughout: the margins are compared with the decomposition residual and the purity gap, both reported.
+exit 0

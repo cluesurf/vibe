@@ -41,6 +41,7 @@ import {
   type HoleFrame,
   type Vec,
 } from '@/code/measure/register-holes'
+import { reflectionLift, signOfSpecies } from '@/code/measure/role-reflection'
 
 const ROLE = 3
 
@@ -203,6 +204,10 @@ export type RoleRule = {
   // per member: 0 a pleasure-tone member (a hole of the pain sea), 1 a pain-tone member (a hole of the pleasure sea)
   species: readonly number[]
   compose: 'sum' | 'product'
+  // E-QTM-0197: the reflection R (code/measure/role-reflection) as a step. At a contact group of exactly three members
+  // whose charge is not 0 mod 3, R's unitary acts on their roles after the fear kernel: at every pair step ('every') or
+  // in beat 1 only ('first'). Absent: no R, the rule of E-QTM-0186
+  reflect?: 'every' | 'first'
 }
 
 export type RoleEngine = {
@@ -214,6 +219,8 @@ export type RoleEngine = {
   tuples: number
   size: number
   pairs: [number, number][]
+  // every contact mask that occurs (E-QTM-0197 reads the kernels on them)
+  masks: number[]
   states: { re: Float64Array; im: Float64Array }[]
   // one beat of rule `rule` on state x: the pair step, then the one-body transfer
   beat: (x: number, rule: number, beat: 1 | 2) => void
@@ -642,7 +649,58 @@ function kernelTable(input: {
   const cols: number[] = []
   const res: number[] = []
   const ims: number[] = []
+  const tables = roleKernels({ n, pairs, rule, fear, masks })
+
+  for (let key = 0; key < 2 * M; key++) {
+    const K = tables.get(key)
+
+    for (let r = 0; r < R; r++) {
+      start[key * R + r] = cols.length
+
+      if (!K) {
+        continue
+      }
+
+      for (let k = 0; k < R; k++) {
+        const kr = K.re[r * R + k]!
+        const ki = K.im[r * R + k]!
+
+        if (kr !== 0 || ki !== 0) {
+          cols.push(k)
+          res.push(kr)
+          ims.push(ki)
+        }
+      }
+    }
+  }
+
+  start[2 * M * R] = cols.length
+
+  return {
+    start: sharedInt(start),
+    col: sharedInt(cols),
+    re: sharedFloat(res),
+    im: sharedFloat(ims),
+  }
+}
+
+// the dense role kernels K_s(mask) of one rule (R x R, row-major), keyed sIdx * 2^P + mask, sIdx 0 for beat sign +1 and
+// 1 for -1. Empty for the form 'off'
+export function roleKernels(input: {
+  n: number
+  pairs: [number, number][]
+  rule: RoleRule
+  fear: number
+  masks: number[]
+}): Map<number, { re: Float64Array; im: Float64Array }> {
+  const { n, pairs, rule, fear, masks } = input
+  const R = ROLE ** n
+  const M = 1 << pairs.length
   const tables = new Map<number, { re: Float64Array; im: Float64Array }>()
+
+  if (rule.form === 'off') {
+    return tables
+  }
 
   for (const mask of masks) {
     for (const [sIdx, sign] of [
@@ -720,6 +778,14 @@ function kernelTable(input: {
           }
         }
 
+        if (rule.reflect && c === 3 && (rule.reflect === 'every' || sign === 1)) {
+          const lift = reflectionLift(support.map(m => signOfSpecies(rule.species[m]!)))
+
+          if (lift) {
+            G = complexProduct(lift, G, D)
+          }
+        }
+
         K = complexProduct(embedSupport(n, support, G), K, R)
       }
 
@@ -727,37 +793,7 @@ function kernelTable(input: {
     }
   }
 
-  for (let key = 0; key < 2 * M; key++) {
-    const K = tables.get(key)
-
-    for (let r = 0; r < R; r++) {
-      start[key * R + r] = cols.length
-
-      if (!K) {
-        continue
-      }
-
-      for (let k = 0; k < R; k++) {
-        const kr = K.re[r * R + k]!
-        const ki = K.im[r * R + k]!
-
-        if (kr !== 0 || ki !== 0) {
-          cols.push(k)
-          res.push(kr)
-          ims.push(ki)
-        }
-      }
-    }
-  }
-
-  start[2 * M * R] = cols.length
-
-  return {
-    start: sharedInt(start),
-    col: sharedInt(cols),
-    re: sharedFloat(res),
-    im: sharedFloat(ims),
-  }
+  return tables
 }
 
 export function roleEngine(input: {
@@ -969,6 +1005,7 @@ export function roleEngine(input: {
 
   return {
     frame: fr,
+    masks,
     n,
     total,
     R,

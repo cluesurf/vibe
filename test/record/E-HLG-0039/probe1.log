@@ -1,0 +1,79 @@
+floor 9: cells 207, husk cells 1, missing 0, inconsistent 0, floorLinks 4038, label bijection misses 174, 82 ms
+  husk slots of the husk dock: 0,1,4,5,8,9; opposites 3,2,7,6,11,10
+  slot 0: levels 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 | first pos 1.000 0.000 0.000 | second 2.000 0.000 0.000
+  slot 3: levels 5 -1 | first pos -0.200 0.000 0.000 | second 
+  slot 1: levels 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 | first pos -1.000 0.000 0.000 | second -2.000 0.000 0.000
+  slot 2: levels 5 -1 | first pos 0.200 0.000 -0.000 | second 
+  slot 4: levels 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 | first pos 0.000 1.000 0.000 | second 0.000 2.000 0.000
+  slot 7: levels 5 -1 | first pos 0.000 -0.200 0.000 | second 
+  slot 5: levels 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 | first pos 0.000 -1.000 0.000 | second 0.000 -2.000 0.000
+  slot 6: levels 5 -1 | first pos 0.000 0.200 -0.000 | second 
+  slot 8: levels 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 | first pos 0.000 0.000 1.000 | second 0.000 0.000 2.000
+  slot 11: levels 5 -1 | first pos 0.000 0.000 -0.200 | second 
+  slot 9: levels 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 | first pos 0.000 0.000 -1.000 | second 0.000 0.000 -2.000
+  slot 10: levels 5 -1 | first pos 0.000 0.000 0.200 | second 
+  slot 12: levels 3 -1 | first pos 0.333 0.333 0.000 | second 
+  slot 15: levels 3 -1 | first pos -0.333 -0.333 0.000 | second 
+  slot 13: levels 3 -1 | first pos 0.333 -0.333 0.000 | second 
+  slot 14: levels 3 -1 | first pos -0.333 0.333 0.000 | second 
+  slot 16: levels 3 -1 | first pos 0.333 0.000 0.333 | second 
+  slot 19: levels 3 -1 | first pos -0.333 0.000 -0.333 | second 
+  slot 17: levels 3 -1 | first pos 0.333 0.000 -0.333 | second 
+  slot 18: levels 3 -1 | first pos -0.333 -0.000 0.333 | second 
+  slot 20: levels 3 -1 | first pos 0.000 0.333 0.333 | second 
+  slot 23: levels 3 -1 | first pos 0.000 -0.333 -0.333 | second 
+  slot 21: levels 3 -1 | first pos 0.000 0.333 -0.333 | second 
+  slot 22: levels 3 -1 | first pos 0.000 -0.333 0.333 | second 
+floor 17: cells 1187, husk cells 1, missing 0, inconsistent 0, floorLinks 23310, label bijection misses 510, 153 ms
+  husk slots of the husk dock: 0,1,4,5,8,9; opposites 3,2,7,6,11,10
+  slot 0: levels 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 | first pos 1.000 0.000 0.000 | second 2.000 0.000 0.000
+  slot 3: levels 5 -1 | first pos -0.200 0.000 0.000 | second 
+  slot 1: levels 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 | first pos -1.000 0.000 0.000 | second -2.000 0.000 0.000
+  slot 2: levels 5 -1 | first pos 0.200 0.000 -0.000 | second 
+  slot 4: levels 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 | first pos 0.000 1.000 0.000 | second 0.000 2.000 0.000
+  slot 7: levels 5 -1 | first pos 0.000 -0.200 0.000 | second 
+  slot 5: levels 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 | first pos 0.000 -1.000 0.000 | second 0.000 -2.000 0.000
+  slot 6: levels 5 -1 | first pos 0.000 0.200 -0.000 | second 
+  slot 8: levels 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 | first pos 0.000 0.000 1.000 | second 0.000 0.000 2.000
+  slot 11: levels 5 -1 | first pos 0.000 0.000 -0.200 | second 
+  slot 9: levels 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 | first pos 0.000 0.000 -1.000 | second 0.000 0.000 -2.000
+  slot 10: levels 5 -1 | first pos 0.000 0.000 0.200 | second 
+  slot 12: levels 3 17 -1 | first pos 0.333 0.333 0.000 | second 0.353 0.353 0.000
+  slot 15: levels 3 17 -1 | first pos -0.333 -0.333 0.000 | second -0.353 -0.353 0.000
+  slot 13: levels 3 17 -1 | first pos 0.333 -0.333 0.000 | second 0.353 -0.353 0.000
+  slot 14: levels 3 17 -1 | first pos -0.333 0.333 0.000 | second -0.353 0.353 0.000
+  slot 16: levels 3 17 -1 | first pos 0.333 0.000 0.333 | second 0.353 0.000 0.353
+  slot 19: levels 3 17 -1 | first pos -0.333 0.000 -0.333 | second -0.353 0.000 -0.353
+  slot 17: levels 3 17 -1 | first pos 0.333 0.000 -0.333 | second 0.353 0.000 -0.353
+  slot 18: levels 3 17 -1 | first pos -0.333 -0.000 0.333 | second -0.353 -0.000 0.353
+  slot 20: levels 3 17 -1 | first pos 0.000 0.333 0.333 | second 0.000 0.353 0.353
+  slot 23: levels 3 17 -1 | first pos 0.000 -0.333 -0.333 | second 0.000 -0.353 -0.353
+  slot 21: levels 3 17 -1 | first pos 0.000 0.333 -0.333 | second 0.000 0.353 -0.353
+  slot 22: levels 3 17 -1 | first pos 0.000 -0.333 0.333 | second 0.000 -0.353 0.353
+floor 33: cells 7959, husk cells 1, missing 0, inconsistent 0, floorLinks 156318, label bijection misses 1950, 698 ms
+  husk slots of the husk dock: 0,1,4,5,8,9; opposites 3,2,7,6,11,10
+  slot 0: levels 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 | first pos 1.000 0.000 0.000 | second 2.000 0.000 0.000
+  slot 3: levels 5 29 -1 | first pos -0.200 0.000 0.000 | second -0.207 0.000 0.000
+  slot 1: levels 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 | first pos -1.000 0.000 0.000 | second -2.000 0.000 0.000
+  slot 2: levels 5 29 -1 | first pos 0.200 0.000 -0.000 | second 0.207 0.000 0.000
+  slot 4: levels 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 | first pos 0.000 1.000 0.000 | second 0.000 2.000 0.000
+  slot 7: levels 5 29 -1 | first pos 0.000 -0.200 0.000 | second 0.000 -0.207 0.000
+  slot 5: levels 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 | first pos 0.000 -1.000 0.000 | second 0.000 -2.000 0.000
+  slot 6: levels 5 29 -1 | first pos 0.000 0.200 -0.000 | second 0.000 0.207 0.000
+  slot 8: levels 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 | first pos 0.000 0.000 1.000 | second 0.000 0.000 2.000
+  slot 11: levels 5 29 -1 | first pos 0.000 0.000 -0.200 | second 0.000 0.000 -0.207
+  slot 9: levels 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 | first pos 0.000 0.000 -1.000 | second 0.000 0.000 -2.000
+  slot 10: levels 5 29 -1 | first pos 0.000 0.000 0.200 | second 0.000 0.000 0.207
+  slot 12: levels 3 17 -1 | first pos 0.333 0.333 0.000 | second 0.353 0.353 0.000
+  slot 15: levels 3 17 -1 | first pos -0.333 -0.333 0.000 | second -0.353 -0.353 0.000
+  slot 13: levels 3 17 -1 | first pos 0.333 -0.333 0.000 | second 0.353 -0.353 0.000
+  slot 14: levels 3 17 -1 | first pos -0.333 0.333 0.000 | second -0.353 0.353 0.000
+  slot 16: levels 3 17 -1 | first pos 0.333 0.000 0.333 | second 0.353 0.000 0.353
+  slot 19: levels 3 17 -1 | first pos -0.333 0.000 -0.333 | second -0.353 0.000 -0.353
+  slot 17: levels 3 17 -1 | first pos 0.333 0.000 -0.333 | second 0.353 0.000 -0.353
+  slot 18: levels 3 17 -1 | first pos -0.333 -0.000 0.333 | second -0.353 -0.000 0.353
+  slot 20: levels 3 17 -1 | first pos 0.000 0.333 0.333 | second 0.000 0.353 0.353
+  slot 23: levels 3 17 -1 | first pos 0.000 -0.333 -0.333 | second 0.000 -0.353 -0.353
+  slot 21: levels 3 17 -1 | first pos 0.000 0.333 -0.333 | second 0.000 0.353 -0.353
+  slot 22: levels 3 17 -1 | first pos 0.000 -0.333 0.333 | second 0.000 -0.353 0.353
+exit 0

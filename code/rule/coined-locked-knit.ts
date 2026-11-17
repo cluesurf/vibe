@@ -123,8 +123,9 @@ export function coinBranch(
   return coinLines(cells, br, adjoint, tally)
 }
 
-// the coin itself, uncounted: the working beat's own coin
-function coinLines(
+// the coin itself, uncounted: the working beat's own coin (exported for the sparse engine, code/rule/sparse-locked-knit,
+// which runs the same beat on a branch's occupied docks)
+export function coinLines(
   cells: number,
   br: Branch,
   adjoint: boolean,

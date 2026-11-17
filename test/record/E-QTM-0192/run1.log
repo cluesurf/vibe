@@ -1,0 +1,31 @@
+
+E-QTM-0192 quantum/fear-share-ceiling-certificate  L1  1120.5s
+status   pass
+claim    on two roles the Wigner norm s is at most 25/9, so the fear share at most 8/25, for every state whose sign pattern is invariant under the joint quarter turn F x F (2097152 of 2097152 patterns certified exactly over Z[omega], 25 attaining 25/9) or the opposite turn F x conj(F) (2097152 of 2097152, 25 attaining), and for every Clifford image of such a state; Strange x Strange attains it in both; outside the family the ascent from 20000 new starts reaches 2.777777778 (149 at 25/9, 0 above), so no state above 8/25 is known, but the ceiling over all states is not proven here
+metrics
+  gateExactOperators  1
+  gateFamilies  1
+  gateCertificate  1
+  gateControls  1
+  gateSearch  1
+  orbitsJointTurn  21
+  orbitsOppositeTurn  21
+  jointTurnPatterns  2097152
+  jointTurnCertified  2097152
+  jointTurnAttaining  25
+  oppositeTurnPatterns  2097152
+  oppositeTurnCertified  2097152
+  oppositeTurnAttaining  25
+  strangePairRankAt25  8
+  searchStarts  20000
+  searchBest  2.7777777777777803
+  searchAt25Over9  149
+  searchAbove25Over9  0
+  fearShareCeilingOnFamily  0.32
+control
+  oneRolePatternsAt5  512
+  oneRoleStrangeAt4Psd  0
+  twoRoleStrangeAt24Psd  0
+  cauchySchwarzTwoRoles  3
+notes    L1. Gates fixed before the first run. The certificate is exact (Bareiss elimination over Z[omega], integers only); floats enter only to find which point permutation F induces (checked to 1e-9 against the 81 operators) and in the G5 search. What the certificate does not reach: a state whose sign pattern has no symmetry. A proof over all 2^81 patterns, or a state above 25/9, is what remains of OPEN-QTM-18.
+exit 0

@@ -1,0 +1,2 @@
+{"at":"2026-11-17T05:55:29.624Z","item":"vibe-roadmap-board-0034","command":["sh","tmp/m3-mixer-link-select.sh","b34-select"],"gate":{"hash":"3abdc27af879","at":"2026-11-17T05:51:35.855Z"},"exit":0,"verdict":"m3-done","recorded":true,"refused":[]}
+{"at":"2026-11-17T06:21:12.631Z","item":"vibe-roadmap-board-0034","command":["node_modules/.bin/tsx","tmp/run-mixer-link-select.ts","verdict"],"gate":{"hash":"3abdc27af879","at":"2026-11-17T05:51:35.855Z"},"exit":0,"verdict":"open","recorded":true,"refused":[]}

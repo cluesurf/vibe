@@ -267,8 +267,9 @@ export function valueCensus(): Census {
 
 // ---- the readings ----
 
-// chi of one dock given its occupied slots (increasing) and their tones
-function chiOf(
+// chi of one dock given its occupied slots (increasing) and their tones (exported for the sparse engine,
+// code/measure/sparse-value-phase)
+export function chiOf(
   kind: ValueKind,
   slots: readonly number[],
   tones: readonly number[],

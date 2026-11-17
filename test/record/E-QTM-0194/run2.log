@@ -1,0 +1,23 @@
+
+E-QTM-0194 quantum/two-reflections-one-z2  L1  3.9s
+status   pass
+claim    the two 3 = 2 + 1 reflections are not one Z2: the 2 pi turn R = -P has trace -1 and determinant 1 on a role's 3 states (sign -1 on the 2-state doublet), while the depth reflection has trace 1.000000000000, 1.000000000000, 1.000000000000, 1.000000000000 and determinant -1 on the bulk's 3 photons at 4 husk wave vectors (it fixes the 2 husk photons); involutions with different traces are not conjugate, and the role group's phases 1, w, w^2 give traces -1, -w, -w^2, never +1, so no linear map carries one onto the other; the map sending the doublet to the husk photons and the Strange state to the depth photon carries R onto -D, which differs from D by the sign -1 that the role group does not hold
+metrics
+  gateTurn  1
+  gateDepthOnPhotons  1
+  gateNotConjugate  1
+  gateMapOntoMinusD  1
+  turnTrace  -1
+  turnDeterminant  1
+  turnDoubletDimension  2
+  depthTraceOnPhotonsLeast  0.9999999999999998
+  depthTraceOnPhotonsMost  1.000000000000001
+  depthDeterminantOnPhotons  -1.0000000000000007
+  depthCommutatorLargest  0
+  photonGapLeast  10.369562093553817
+  mapOntoMinusDGap  2.220446049250313e-16
+control
+  wavevectors  4
+  linkDirections  12
+notes    L1. Gates fixed before the first run. The photon space is E-FRC-0179s (the 3 smallest nonzero eigenvalues of the bulk curl-curl symbol, read near k = 0 where the band is separated) and D is depthMirror, the permutation of link directions under x4 -> -x4. Projectively, as elements of PGL(3), the two coincide, as every involution with a 2 + 1 split does; that identification forgets the relative sign between the 2 and the 1, which is what makes the doublet a spinor, so it is the matching count alone, which the-picture.md rules out as evidence.
+exit 0

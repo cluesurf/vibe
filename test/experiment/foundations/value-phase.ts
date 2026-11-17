@@ -16,7 +16,9 @@
 // R = 4, 3 beats, inside the exact horizon: nothing started within one step of the base dock reaches the frontier in
 // 3 beats; R = 2 and 3 are reported), and the (sqrt 2)^6 congruence quotient of the honeycomb (1,048,576 docks: a
 // state there is a periodic state of the honeycomb, 8 beats). Links are trivial everywhere (the identity grid move),
-// so a mirror carries the tables onto themselves.
+// so a mirror carries the tables onto themselves. The box and ball run on the rule's dense arrays; the quotient runs on
+// sparse branches (code/rule/sparse-locked-knit, item vibe-roadmap-grounding-0015: a branch holds its occupied docks
+// only), which engineAgreement checks against the dense rule beat by beat.
 //
 // DETERMINISM: no random numbers. Every comparison of states is exact (Z[w][1/2] in bigint); the occupation distances
 // and the CHSH value are the floats, reported.
@@ -27,11 +29,11 @@ import { LINE_FIRSTS, OPPOSITE } from '@/code/rule/isometric-knit'
 import {
   lockedState,
   lockedTables,
-  sameConfiguration,
   type Configuration,
   type LockedState,
   type LockedTables,
 } from '@/code/rule/doublet-locked-knit'
+import { currentCoinPlace } from '@/code/rule/coined-locked-knit'
 import {
   lockedFresh,
   registerKnot,
@@ -55,7 +57,27 @@ import {
   VALUE_KINDS,
   type ValueKind,
   type ValuePiece,
+  type ValueTally,
 } from '@/code/rule/value-phase'
+import {
+  sparseBranchOf,
+  sparseFromDense,
+  sparseKey,
+  type SparseBranch,
+  type SparseState,
+} from '@/code/rule/sparse-locked-knit'
+import {
+  mapSparse,
+  sparseCharge,
+  sparseKnotChsh,
+  sparseMirror,
+  sparseMotionReversal,
+  sparseOccupationDistance,
+  sparseSame,
+  sparseStateOf,
+  sparseValueBeat,
+  sparseValueBeatBack,
+} from '@/code/measure/sparse-value-phase'
 import {
   asMirror,
   composeMirrors,
@@ -135,9 +157,32 @@ function boxSetup(allOpen: boolean): Setup {
   }
 }
 
-// ---- starts ----
+// ---- the engines: dense (the rule's own arrays) and sparse (code/rule/sparse-locked-knit, item 0015) ----
+//
+// Every run below goes through one engine. The dense one is the rule's own code (valueBeat over coinedVetoBeat,
+// locked-parity's maps, sameStateFast); the sparse one holds a branch as its occupied docks only, for the (sqrt 2)^6
+// quotient, where one dense branch is 108 MB. The item's S0 gate checks they agree (engineAgreement below, and the
+// whole reading with each engine).
 
-type Start = { name: string; config: Configuration; fewBody: boolean }
+type Entry = { slot: number; tone: number; point: number; open: boolean }
+
+export type Engine<C, S> = {
+  readonly name: 'dense' | 'sparse'
+  config: (entries: readonly Entry[]) => C
+  state: (c: C) => S
+  beat: (piece: ValuePiece, s: S, t: number, tally?: ValueTally) => S
+  back: (piece: ValuePiece, s: S, t: number) => S
+  same: (x: S, y: S) => boolean
+  distance: (x: S, y: S) => number
+  mirror: (m: Mirror, c: C) => C
+  mirrorState: (m: Mirror, s: S) => S
+  charge: (c: C) => C
+  chargeState: (s: S) => S
+  reversal: (s: S) => S
+  // registerKnot's CHSH after the state, -1 when the branches do not share one occupation
+  knot: (s: S, slotA: number, slotB: number) => number
+  branches: (s: S) => number
+}
 
 function empty(cells: number): Configuration {
   return {
@@ -150,8 +195,64 @@ function empty(cells: number): Configuration {
   }
 }
 
+export function denseEngine(s: Setup): Engine<Configuration, LockedState> {
+  return {
+    name: 'dense',
+    config: entries => {
+      const c = empty(s.table.cells)
+
+      for (const e of entries) {
+        c.vibe[e.slot] = e.tone
+        c.point[e.slot] = e.point
+        c.open[e.slot] = e.open ? 1 : 0
+      }
+
+      return c
+    },
+    state: lockedState,
+    beat: (piece, x, t, tally) => valueBeat(piece, s.tables, x, t, undefined, tally),
+    back: (piece, x, t) => valueBeatBack(piece, s.tables, x, t),
+    same: sameStateFast,
+    distance: occupationDistance,
+    mirror: mirrorConfiguration,
+    mirrorState: (m, x) => mapState(x, c => mirrorConfiguration(m, c)),
+    charge: chargeConjugate,
+    chargeState: x => mapState(x, chargeConjugate),
+    reversal: x => motionReversal(s.tables, x),
+    knot: (x, a, b) => registerKnot(x, a, b)?.chsh ?? -1,
+    branches: x => x.branches.length,
+  }
+}
+
+export function sparseEngine(s: Setup): Engine<SparseBranch, SparseState> {
+  return {
+    name: 'sparse',
+    config: entries =>
+      sparseBranchOf(
+        entries.map(e => ({ slot: e.slot, vibe: e.tone, point: e.point, open: e.open ? 1 : 0 })),
+        [],
+      ),
+    state: sparseStateOf,
+    beat: (piece, x, t, tally) => sparseValueBeat(piece, s.tables, x, t, tally),
+    back: (piece, x, t) => sparseValueBeatBack(piece, s.tables, x, t),
+    same: sparseSame,
+    distance: sparseOccupationDistance,
+    mirror: sparseMirror,
+    mirrorState: (m, x) => mapSparse(x, b => sparseMirror(m, b)),
+    charge: sparseCharge,
+    chargeState: x => mapSparse(x, sparseCharge),
+    reversal: x => sparseMotionReversal(s.tables, x),
+    knot: (x, a, b) => sparseKnotChsh(x, a, b) ?? -1,
+    branches: x => x.branches.length,
+  }
+}
+
+// ---- starts ----
+
+type Start<C> = { name: string; config: C; fewBody: boolean }
+
 function put(
-  c: Configuration,
+  c: Entry[],
   x: number,
   d: number,
   tone: number,
@@ -162,20 +263,17 @@ function put(
     throw new Error('value-phase: a start leaves the mesh')
   }
 
-  c.vibe[x * 24 + d] = tone
-  c.point[x * 24 + d] = point
-  c.open[x * 24 + d] = open ? 1 : 0
+  c.push({ slot: x * 24 + d, tone, point, open })
 }
 
-function startsOf(s: Setup): Start[] {
-  const cells = s.table.cells
+function startsOf<C, S>(s: Setup, e: Engine<C, S>): Start<C>[] {
   const nb = s.table.neighbour
   const census = valueCensus()
-  const lone = empty(cells)
-  const head = empty(cells)
-  const knot = empty(cells)
-  const x1 = empty(cells)
-  const xa = empty(cells)
+  const lone: Entry[] = []
+  const head: Entry[] = []
+  const knot: Entry[] = []
+  const x1: Entry[] = []
+  const xa: Entry[] = []
 
   put(lone, 0, D0, 1, 0, true)
   put(head, nb(0, D0_BACK), D0, 1, 0, true)
@@ -188,22 +286,25 @@ function startsOf(s: Setup): Start[] {
     put(xa, nb(0, OPPOSITE[slot]!), slot, tone, 0, true)
   })
 
-  const base: Start[] = [
-    { name: 'L', config: lone, fewBody: true },
-    { name: 'H', config: head, fewBody: true },
-    { name: 'K', config: knot, fewBody: true },
-    { name: 'X1', config: x1, fewBody: false },
-    ...(s.kind === 'box' && s.allOpen ? [{ name: 'XA', config: xa, fewBody: false }] : []),
+  const base: Start<C>[] = [
+    { name: 'L', config: e.config(lone), fewBody: true },
+    { name: 'H', config: e.config(head), fewBody: true },
+    { name: 'K', config: e.config(knot), fewBody: true },
+    { name: 'X1', config: e.config(x1), fewBody: false },
+    ...(s.kind === 'box' && s.allOpen ? [{ name: 'XA', config: e.config(xa), fewBody: false }] : []),
   ]
 
   return [
     ...base.flatMap(st => [
       st,
-      { ...st, name: `${st.name}f`, config: chargeConjugate(st.config) },
+      { ...st, name: `${st.name}f`, config: e.charge(st.config) },
     ]),
-    { name: 'E', config: empty(cells), fewBody: true },
+    { name: 'E', config: e.config([]), fewBody: true },
   ]
 }
+
+// the number of starts of a setup (the G1 count)
+const startCountOf = (s: Setup): number => 9 + (s.kind === 'box' && s.allOpen ? 2 : 0)
 
 // ---- runs, compared beat by beat ----
 
@@ -218,54 +319,54 @@ type Compare = { off: number; distance: number }
 let branchesMax = 0
 
 // run a from `a0` and b from `b0` side by side; count beats where image(a_t) != b_t
-function compare(
+function compare<C, S>(
   s: Setup,
+  e: Engine<C, S>,
   pa: ValuePiece,
   pb: ValuePiece,
-  a0: Configuration,
-  b0: Configuration,
-  image: (x: LockedState) => LockedState,
+  a0: C,
+  b0: C,
+  image: (x: S) => S,
 ): Compare {
-  let a = lockedState(a0)
-  let b = lockedState(b0)
+  let a = e.state(a0)
+  let b = e.state(b0)
   let off = 0
   let distance = 0
 
   for (let t = 0; t < s.beats; t++) {
-    a = valueBeat(pa, s.tables, a, t)
-    b = valueBeat(pb, s.tables, b, t)
+    a = e.beat(pa, a, t)
+    b = e.beat(pb, b, t)
 
-    branchesMax = Math.max(branchesMax, a.branches.length, b.branches.length)
+    branchesMax = Math.max(branchesMax, e.branches(a), e.branches(b))
 
     const ia = image(a)
 
-    if (!sameStateFast(ia, b)) {
+    if (!e.same(ia, b)) {
       off++
-      distance = Math.max(distance, occupationDistance(ia, b))
+      distance = Math.max(distance, e.distance(ia, b))
     }
   }
 
   return { off, distance }
 }
 
-const identity = (x: LockedState): LockedState => x
-
 // theta(psi_(t+1)) = U_(t+1)^-1 theta(psi_t), beats off
-function reversalOff(
+function reversalOff<C, S>(
   s: Setup,
+  e: Engine<C, S>,
   piece: ValuePiece,
-  a0: Configuration,
-  theta: (x: LockedState) => LockedState,
+  a0: C,
+  theta: (x: S) => S,
 ): number {
-  let a = lockedState(a0)
+  let a = e.state(a0)
   let off = 0
 
   for (let t = 0; t < s.beats; t++) {
-    const next = valueBeat(piece, s.tables, a, t)
+    const next = e.beat(piece, a, t)
     const lhs = theta(next)
-    const rhs = valueBeatBack(piece, s.tables, theta(a), t + 1)
+    const rhs = e.back(piece, theta(a), t + 1)
 
-    if (!sameStateFast(lhs, rhs)) {
+    if (!e.same(lhs, rhs)) {
       off++
     }
 
@@ -275,36 +376,31 @@ function reversalOff(
   return off
 }
 
-function reverses(s: Setup, piece: ValuePiece, a0: Configuration): boolean {
-  let a = lockedState(a0)
+function reverses<C, S>(s: Setup, e: Engine<C, S>, piece: ValuePiece, a0: C): boolean {
+  let a = e.state(a0)
 
   for (let t = 0; t < s.beats; t++) {
-    a = valueBeat(piece, s.tables, a, t)
+    a = e.beat(piece, a, t)
   }
 
   for (let t = s.beats - 1; t >= 0; t--) {
-    a = valueBeatBack(piece, s.tables, a, t)
+    a = e.back(piece, a, t)
   }
 
-  return sameStateFast(a, lockedState(a0))
+  return e.same(a, e.state(a0))
 }
 
-function fires(s: Setup, piece: ValuePiece, a0: Configuration): number {
+function fires<C, S>(s: Setup, e: Engine<C, S>, piece: ValuePiece, a0: C): number {
   const tally = newValueTally()
 
-  let a = lockedState(a0)
+  let a = e.state(a0)
 
   for (let t = 0; t < s.beats; t++) {
-    a = valueBeat(piece, s.tables, a, t, undefined, tally)
+    a = e.beat(piece, a, t, tally)
   }
 
   return tally.fired
 }
-
-const mirrorImage = (m: Mirror) => (x: LockedState) =>
-  mapState(x, c => mirrorConfiguration(m, c))
-
-const chargeImage = (x: LockedState): LockedState => mapState(x, chargeConjugate)
 
 // ---- the P maps of each mesh ----
 
@@ -325,6 +421,8 @@ type Maps = {
   translation?: Mirror
   cellMap?: Mirror
   rotation?: Mirror
+  // the CPT re-read (quotient, item 0015 C1): the inversion cell map, slot d to its opposite, the base dock fixed
+  inversion?: Mirror
 }
 
 function boxMaps(): Maps {
@@ -386,6 +484,13 @@ function cellMaps(s: Setup): Maps {
     maps.translation = asMirror('L', ident, lt.cells, 1)
     maps.cellMap = odd[0]!
     maps.rotation = composeMirrors('L.g', odd[0]!, maps.translation)
+
+    if (!s.lite && !s.orientationOnly) {
+      const inv = labelMap(s.table, OPPOSITE, 0)
+
+      maps.reflectionConflicts += inv.conflicts
+      maps.inversion = asMirror('-1', OPPOSITE, inv.cells, 1)
+    }
   }
 
   return maps
@@ -409,6 +514,9 @@ type KindReading = {
   cptRotation: Record<string, number>
   chsh: Record<string, number>
   orientation: { translation: number; cellMap: number; rotation: number }
+  // the CPT re-read on the quotient's full set (item 0015 C1 to C3): beats off under CPT with the inversion cell map,
+  // with L.g and with L, per start
+  cptMaps: Record<string, Record<string, number>>
 }
 
 export type MeshReading = {
@@ -423,22 +531,42 @@ export type MeshReading = {
   reflectionConflicts: number
   kinds: Record<ValueKind, KindReading>
   seconds: number
+  engine: 'dense' | 'sparse'
 }
 
+// the reading of one mesh: the dense engine on the box and ball, the sparse one on the quotient
 export function readMesh(s: Setup, log: (line: string) => void = () => {}): MeshReading {
+  return s.kind === 'quotient'
+    ? readWith(s, sparseEngine(s), log)
+    : readWith(s, denseEngine(s), log)
+}
+
+export function readWith<C, S>(
+  s: Setup,
+  e: Engine<C, S>,
+  log: (line: string) => void = () => {},
+): MeshReading {
   const started = Date.now()
-  const starts = startsOf(s)
+  const starts = startsOf(s, e)
   const maps = s.kind === 'box' ? boxMaps() : cellMaps(s)
-  const theta = (x: LockedState): LockedState => motionReversal(s.tables, x)
-  const cpImage = (m: Mirror) => (x: LockedState): LockedState =>
-    mapState(x, c => chargeConjugate(mirrorConfiguration(m, c)))
+  const theta = (x: S): S => e.reversal(x)
+  const cpImage = (m: Mirror) => (x: S): S => e.chargeState(e.mirrorState(m, x))
+  const mirrorImage = (m: Mirror) => (x: S): S => e.mirrorState(m, x)
+  const chargeImage = (x: S): S => e.chargeState(x)
+  const identity = (x: S): S => x
   const knot = starts.filter(st => st.name === 'K' || st.name === 'Kf')
   const slotA = s.table.neighbour(0, D0) * 24 + D0
   const slotB = s.table.neighbour(0, D0_BACK) * 24 + D0_BACK
   const off: ValuePiece = { kind: 'off' }
   const kinds = {} as Record<ValueKind, KindReading>
+  const extra: [string, Mirror | undefined][] = [
+    ['inversion', maps.inversion],
+    ['lg', maps.rotation],
+    ['translation', maps.translation],
+  ]
 
-  log(`${s.name}: ${s.table.cells} docks, orientation conflicts ${s.orientationConflicts}, map conflicts ${maps.reflectionConflicts}`)
+  branchesMax = 0
+  log(`${s.name} (${e.name}): ${s.table.cells} docks, orientation conflicts ${s.orientationConflicts}, map conflicts ${maps.reflectionConflicts}`)
 
   for (const kind of VALUE_KINDS) {
     const piece = pieceOf(s, kind)
@@ -458,35 +586,35 @@ export function readMesh(s: Setup, log: (line: string) => void = () => {}): Mesh
       cptRotation: {},
       chsh: {},
       orientation: { translation: -1, cellMap: -1, rotation: -1 },
+      cptMaps: {},
     }
+    const under = (st: Start<C>, m: Mirror): Compare =>
+      compare(s, e, piece, piece, st.config, e.mirror(m, st.config), mirrorImage(m))
 
     for (const st of starts) {
       if (s.orientationOnly) {
         if (st.name === 'X1' && maps.translation && maps.cellMap && maps.rotation) {
-          const under = (m: Mirror): number =>
-            compare(s, piece, piece, st.config, mirrorConfiguration(m, st.config), mirrorImage(m)).off
-
           r.orientation = {
-            translation: under(maps.translation),
-            cellMap: under(maps.cellMap),
-            rotation: under(maps.rotation),
+            translation: under(st, maps.translation).off,
+            cellMap: under(st, maps.cellMap).off,
+            rotation: under(st, maps.rotation).off,
           }
         }
 
         continue
       }
 
-      r.reverses += reverses(s, piece, st.config) ? 1 : 0
+      r.reverses += reverses(s, e, piece, st.config) ? 1 : 0
 
-      const fired = fires(s, piece, st.config)
+      const fired = fires(s, e, piece, st.config)
 
       if (st.name === 'E') {
         r.vacuumFired = fired
-        r.vacuumOff = compare(s, piece, off, st.config, st.config, identity).off
+        r.vacuumOff = compare(s, e, piece, off, st.config, st.config, identity).off
       }
 
       if (st.name === 'L' || st.name === 'Lf') {
-        r.lightOff += compare(s, piece, off, st.config, st.config, identity).off
+        r.lightOff += compare(s, e, piece, off, st.config, st.config, identity).off
       }
 
       if (st.fewBody && (kind === 'odd' || kind === 'oddLabel')) {
@@ -494,24 +622,14 @@ export function readMesh(s: Setup, log: (line: string) => void = () => {}): Mesh
       }
 
       if (st.name !== 'E') {
-        r.c[st.name] = compare(
-          s,
-          piece,
-          piece,
-          st.config,
-          chargeConjugate(st.config),
-          chargeImage,
-        )
+        r.c[st.name] = compare(s, e, piece, piece, st.config, e.charge(st.config), chargeImage)
       }
 
       if (st.name === 'X1' && maps.translation && maps.cellMap && maps.rotation) {
-        const under = (m: Mirror): number =>
-          compare(s, piece, piece, st.config, mirrorConfiguration(m, st.config), mirrorImage(m)).off
-
         r.orientation = {
-          translation: under(maps.translation),
-          cellMap: under(maps.cellMap),
-          rotation: under(maps.rotation),
+          translation: under(st, maps.translation).off,
+          cellMap: under(st, maps.cellMap).off,
+          rotation: under(st, maps.rotation).off,
         }
       }
 
@@ -525,38 +643,42 @@ export function readMesh(s: Setup, log: (line: string) => void = () => {}): Mesh
       const evenMaps = many ? maps.even : maps.fewEven
 
       r.pOdd[st.name] = oddMaps.map(m => {
-        const c = compare(s, piece, piece, st.config, mirrorConfiguration(m, st.config), mirrorImage(m))
+        const c = under(st, m)
 
         r.pDistance = Math.max(r.pDistance, c.distance)
 
         return c.off
       })
-      r.pEven[st.name] = evenMaps.map(
-        m => compare(s, piece, piece, st.config, mirrorConfiguration(m, st.config), mirrorImage(m)).off,
-      )
+      r.pEven[st.name] = evenMaps.map(m => under(st, m).off)
       r.cp[st.name] = compare(
         s,
+        e,
         piece,
         piece,
         st.config,
-        chargeConjugate(mirrorConfiguration(maps.p, st.config)),
+        e.charge(e.mirror(maps.p, st.config)),
         cpImage(maps.p),
       )
-      r.t[st.name] = reversalOff(s, piece, st.config, theta)
-      r.cpt[st.name] = reversalOff(s, piece, st.config, x => cpImage(maps.p)(theta(x)))
+      r.t[st.name] = reversalOff(s, e, piece, st.config, theta)
+      r.cpt[st.name] = reversalOff(s, e, piece, st.config, x => cpImage(maps.p)(theta(x)))
 
       if (maps.pRotation) {
-        r.cptRotation[st.name] = reversalOff(s, piece, st.config, x =>
+        r.cptRotation[st.name] = reversalOff(s, e, piece, st.config, x =>
           cpImage(maps.pRotation!)(theta(x)),
         )
+      }
+
+      // the CPT re-read on the quotient (item 0015 C1 to C3)
+      for (const [name, m] of extra) {
+        if (m && maps.inversion) {
+          r.cptMaps[name] ??= {}
+          r.cptMaps[name]![st.name] = reversalOff(s, e, piece, st.config, x => cpImage(m)(theta(x)))
+        }
       }
     }
 
     for (const st of knot) {
-      const after = valueBeat(piece, s.tables, lockedState(st.config), 0)
-      const k = registerKnot(after, slotA, slotB)
-
-      r.chsh[st.name] = k ? k.chsh : -1
+      r.chsh[st.name] = e.knot(e.beat(piece, e.state(st.config), 0), slotA, slotB)
     }
 
     kinds[kind] = r
@@ -575,7 +697,88 @@ export function readMesh(s: Setup, log: (line: string) => void = () => {}): Mesh
     reflectionConflicts: maps.reflectionConflicts,
     kinds,
     seconds: (Date.now() - started) / 1000,
+    engine: e.name,
   }
+}
+
+// ---- S0: the sparse engine against the dense one, beat by beat (item 0015) ----
+
+export type Agreement = {
+  // runs compared (kind x start), beats compared, beats where the two states differ (as sets, exact amplitudes), beats
+  // where the branch lists differ in order or count, beats where the value tallies differ
+  runs: number
+  beats: number
+  differing: number
+  orderDiffering: number
+  tallyDiffering: number
+  branchesMax: number
+}
+
+// both engines from every start of a setup, every kind: `beats` forward, then back to beat 0, compared at every beat
+export function engineAgreement(s: Setup, log: (line: string) => void = () => {}): Agreement {
+  const dense = denseEngine(s)
+  const sparse = sparseEngine(s)
+  const ds = startsOf(s, dense)
+  const ss = startsOf(s, sparse)
+  const out: Agreement = { runs: 0, beats: 0, differing: 0, orderDiffering: 0, tallyDiffering: 0, branchesMax: 0 }
+
+  const check = (d: LockedState, p: SparseState, td: ValueTally, tp: ValueTally): void => {
+    const asSparse: SparseState = { branches: d.branches.map(sparseFromDense) }
+
+    out.beats++
+    out.branchesMax = Math.max(out.branchesMax, d.branches.length)
+
+    if (!sparseSame(asSparse, p)) {
+      out.differing++
+    }
+
+    const ordered =
+      asSparse.branches.length === p.branches.length &&
+      asSparse.branches.every((b, i) => {
+        const o = p.branches[i]!
+
+        return sparseKey(b) === sparseKey(o) && b.a === o.a && b.b === o.b && b.k === o.k
+      })
+
+    if (!ordered) {
+      out.orderDiffering++
+    }
+
+    if (td.fired !== tp.fired || td.maxExponent !== tp.maxExponent) {
+      out.tallyDiffering++
+    }
+  }
+
+  for (const kind of VALUE_KINDS) {
+    const piece = pieceOf(s, kind)
+
+    ds.forEach((st, i) => {
+      const td = newValueTally()
+      const tp = newValueTally()
+
+      let d = dense.state(st.config)
+      let p = sparse.state(ss[i]!.config)
+
+      out.runs++
+      check(d, p, td, tp)
+
+      for (let t = 0; t < s.beats; t++) {
+        d = dense.beat(piece, d, t, td)
+        p = sparse.beat(piece, p, t, tp)
+        check(d, p, td, tp)
+      }
+
+      for (let t = s.beats - 1; t >= 0; t--) {
+        d = dense.back(piece, d, t)
+        p = sparse.back(piece, p, t)
+        check(d, p, td, tp)
+      }
+    })
+
+    log(`${s.name} ${currentCoinPlace()} ${kind}: ${JSON.stringify(out)}`)
+  }
+
+  return out
 }
 
 // ---- the gates on one mesh's reading ----
@@ -736,7 +939,8 @@ export function meshSetup(kind: MeshKind, radius = 4): Setup {
 
   const q = quotientMesh(e.table, e.order, 'congruence-3434 (sqrt 2)^6')
 
-  // radius 1 on the quotient: the feasible subset (Setup.lite); radius 2: the orientation check alone
+  // radius 1 on the quotient: the subset G1 to G5, G10, G11 (Setup.lite); radius 2: the orientation check alone; any
+  // other radius: the full set (sparse branches make it feasible, item 0015)
   const lite = radius === 1
   const orientationOnly = radius === 2
   const tag = lite ? ' (G6 to G9 not run)' : orientationOnly ? ' (G11 only)' : ''
@@ -769,7 +973,7 @@ export function valuePhase(
   const readings = meshes.map(spec => {
     const s = meshSetup(spec.kind, spec.radius)
     const m = readMesh(s, log)
-    const gates = meshGates(m, startsOf(s).length)
+    const gates = meshGates(m, startCountOf(s))
 
     log(`${s.name} gates ${JSON.stringify(gates)}`)
 
@@ -832,7 +1036,7 @@ export default experiment({
   id: 'foundations/value-phase',
   code: 'E-FND-0178',
   title:
-    "the value phase, a C-odd rule piece that tells pleasure from pain, partial: a diagonal phase zeta6^n (zeta6 = 1 + w, exact in Z[w][1/2], reversible on 9 of 9 starts on every mesh) in two forms; EVEN (the tone of every full like line, mirror-even) breaks C, CP and CPT from two vibes (a head-on like pair: 2 of 3 beats on the R = 4 ball, 7 of 8 on the box, occupation distance 0.13 and 0.29) and keeps every mirror; ODD (a W(F4) pseudoscalar of 4 vibes, k* = 4 with 20 chiral classes of 180, read with each dock's orientation) fires on no dock of fewer than 4 vibes, breaks C and every det -1 cell map on a 4-vibe cluster (phases only, distance 0) and keeps CP and every det +1 map; on the (sqrt 2)^6 quotient ODD breaks the label translation and the cell mirror (7 of 8 beats) and keeps their product, a class-swapping rotation, while the label-written control does the reverse (0, 7, 7): it reads orientation; neither touches the empty vacuum, a lone vibe or the like knot's CHSH sqrt 7; partial because the box's predicted CPT break of ODD under the depth-reversing lift is masked (the rule without the piece already fails K S R reversal on that start, 2 of 8 beats) and the quotient's other gates were not run",
+    "the value phase, a C-odd rule piece that tells pleasure from pain, partial: a diagonal phase zeta6^n (zeta6 = 1 + w, exact in Z[w][1/2], reversible on 9 of 9 starts on every mesh) in two forms; EVEN (the tone of every full like line, mirror-even) breaks C, CP and CPT from two vibes (a head-on like pair: 2 of 3 beats on the R = 4 ball, 7 of 8 on the box, occupation distance 0.13 and 0.29) and keeps every mirror; ODD (a W(F4) pseudoscalar of 4 vibes, k* = 4 with 20 chiral classes of 180, read with each dock's orientation) fires on no dock of fewer than 4 vibes, breaks C and every det -1 cell map on a 4-vibe cluster (phases only, distance 0) and keeps CP and every det +1 map; on the (sqrt 2)^6 quotient ODD breaks the label translation and the cell mirror (7 of 8 beats) and keeps their product, a class-swapping rotation, while the label-written control does the reverse (0, 7, 7): it reads orientation; neither touches the empty vacuum, a lone vibe or the like knot's CHSH sqrt 7; on the quotient's full set (sparse branches, equal to the dense rule bit for bit on the box and the R = 4 ball) every gate G1 to G11 holds on both coin places, and on the split coin (the bare rule 0 beats off under T and CPT on every start) ODD keeps CPT under the det -1 cell map and the translation and breaks it on the 4-vibe cluster at 1 of 8 beats (phases only) under the orientation-keeping inversion and L.g; partial because on the default coin-before rule the box's predicted CPT break of ODD under the depth-reversing lift is masked (the rule without the piece already fails K S R reversal on that start, 2 of 8 beats)",
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',
@@ -840,10 +1044,11 @@ export default experiment({
   run() {
     return valuePhase(
       [
-        // the gated runs of 2026-11-14 (M3): the box without XA, the R = 4 ball, the quotient's orientation check
+        // the gated runs (M3): the box without XA and the R = 4 ball (2026-11-14, dense), the quotient's full set on
+        // sparse branches (item 0015, 2026-11-16; radius 0 = the full set)
         { kind: 'box', radius: 1, gated: true },
         { kind: 'ball', radius: 4, gated: true },
-        { kind: 'quotient', radius: 2, gated: true },
+        { kind: 'quotient', radius: 0, gated: true },
       ],
       line => console.error(line),
     )

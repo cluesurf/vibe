@@ -1,0 +1,50 @@
+
+E-QTM-0193 quantum/ckw-roof-decided  L2  484.8s
+status   fail
+claim    CKW on the knit's 480 three-role readings (E-QTM-0153's, reproduced: 103 held, 377 undecided, 0 broken by its bounds): with each two-role roof bounded above by an optimized decomposition and below by Chen-Albeverio-Fei and Mintert-Buchleitner, 448 held (76 by structure, tau = 0), 0 broken and 32 undecided; the least held margin tau - (C_AB^2 + C_AC^2) is 6.328e-3 and the largest upper ratio (C_AB^2 + C_AC^2) / tau 1.142851; controls: the isotropic roof 0.831975 against the exact 0.808290 (eigen 0.973760), Ou's antisymmetric stand-in broken
+metrics
+  gateSameReadings  1
+  gateSound  0
+  gateControls  0
+  gateAllDecided  0
+  readings  480
+  eigenHeld  103
+  eigenUndecided  377
+  eigenBroken  0
+  held  448
+  heldByStructure  76
+  broken  0
+  undecided  32
+  leastHeldMargin  0.006327774880999337
+  largestUpperRatio  1.1428513549843546
+  largestUndecidedGap  1.0733555209514787
+  largestGainOverEigen  0.4308687774775942
+  readingsBothMarginalsRankThree  370
+  soundnessFailures  1
+  worstDecompositionResidual  1.3140808098610717e-13
+  worstPurityGap  6.994405055138486e-15
+  secondPassReadings  32
+  diagnosisLowerAboveUpper  1
+  diagnosisLowerExcess  2.5809568279517847e-8
+  diagnosisLowerAboveRank  2
+  diagnosisLowerAboveFromChenAlbeverioFei  0
+  diagnosisLowerAboveFromMintertBuchleitner  1
+  diagnosisLowerAboveEigenUpper  0
+  diagnosisLowerAboveOldUpper  0
+  diagnosisUpperAboveEigen  0
+  leastUndecidedUpperRatio  0.9999999999999887
+  largestUndecidedLowerRatio  0.9999999999999999
+  isotropicLargerBudgetUpper  0.8233294849457282
+  undecidedPinnedAtTau  2
+  undecidedOpen  30
+  openUpperRatioLeast  0.9999999999999887
+  openLowerRatioMost  0.6313749964064282
+control
+  isotropicExact  0.8082903768654761
+  isotropicOptimizedUpper  0.8319751267895836
+  isotropicEigenUpper  0.9737604307034017
+  isotropicLower  0.789514618821801
+  standInTau  1.333333333333333
+  standInConcurrenceSquaredSum  2
+notes    FIRST RUN 2026-10-27 (test/record/E-QTM-0193/run1.log, 289 s): fail, gates unchanged. G1 passed (the same 480 readings, 103 / 377 / 0 by the old bounds). G4: 448 held (76 by structure), 0 broken, 32 undecided. G2 failed on 1 reading where a lower bound exceeded the optimized upper bound, and G3 failed on the isotropic control (optimized 0.83198 against the formula's 0.80829, eigen 0.97376, Mintert-Buchleitner lower 0.78951). On 60 Weyl-random three-qutrit pure states neither lower bound ever exceeded the optimized upper (tmp/q22-probe-b.ts). The second run adds, without changing a gate, a larger-budget second pass on readings the first budget leaves undecided, the same larger budget on the isotropic control, and diagnosis metrics that name which lower bound exceeded which upper. A held verdict rests on a returned decomposition alone, so it is unaffected by any fault in a lower bound. 8 Weyl starts plus the eigen decomposition, 1500 Armijo steps each, K = r^2 + 1 members, decision margin 1e-9. Held is certified by a returned decomposition (any decomposition bounds the roof from above), broken by the two published lower bounds. Floats throughout: the margins are compared with the decomposition residual and the purity gap, both reported.
+exit 0

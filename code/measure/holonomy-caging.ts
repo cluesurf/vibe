@@ -88,7 +88,7 @@ export function sigmaElements(): { elements: Ninth[][][]; closed: boolean } {
 }
 
 // the phase points A(a, b) = D(a, b) P D(a, b)^dag, D(a, b) = omega^(2 a b) X^a Z^b (E-FRC-0278)
-function phasePoints(): Ninth[][][] {
+export function phasePoints(): Ninth[][][] {
   const X: Ninth[][] = [0, 1, 2].map(r =>
     [0, 1, 2].map(c => ((c + 1) % 3 === r ? ONE : ZERO)),
   )

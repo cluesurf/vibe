@@ -36,6 +36,7 @@ import {
   commonAncestorGeneration,
   reachAtThreshold,
 } from '@/code/measure/cusp-distance'
+import { sweepSizes, familyStats } from '@/code/measure/sweep'
 import { laplacian, laplacianSpectrum } from '@/code/operator/laplacian'
 import { cellComplexOf, diracSpectrum } from '@/code/operator/dirac'
 import {
@@ -68,6 +69,10 @@ import { exactCausalSetAverages } from '@/code/dynamics/exact-enumeration'
 import { sampleUniform } from '@/code/dynamics/uniform-sampler'
 import { chiralCondensateSignal } from '@/code/operator/overlap-condensate'
 import { chiralCondensateSignalSU2 } from '@/code/operator/overlap-su2'
+import {
+  freeOverlapSpectrum,
+  overlapCondensateWithBoundary,
+} from '@/code/operator/overlap-boundary'
 import { makeDense } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 import { Graph } from '@/code/tool/graph'
@@ -755,55 +760,122 @@ export function runConformance(): { passed: number; failed: number } {
     })
   }
 
-  // 19. The Schwinger condensate: the chiral condensate signal is zero in the free
-  // theory and nonzero in a gauge background (the anomaly-induced condensate).
+  // 19. The Schwinger condensate. The shared operator is periodic in both
+  // directions, so the free massless overlap has exact zero modes at p = 0:
+  // density 2 / (2 L^2) = 1 / L^2 (E-FRC-0178). This check asked for free < 0.005
+  // and passed only while the eigenvector matrix sign was broken on degenerate
+  // eigenspaces; the Newton sign (2026-09-27) gives the exact 0.04. So: the
+  // periodic free density must equal the derived p = 0 density, and with the
+  // standard antiperiodic fermion (code/operator/overlap-boundary, the rebuilt
+  // control of E-FRC-0045) the free overlap has no near-zero mode while a gauge
+  // background gives a nonzero near-zero density.
   {
-    const free = chiralCondensateSignal({
+    const periodicFree = chiralCondensateSignal({
       length: 5,
       disorder: 0,
       configs: 4,
       rng: makeWeyl({ start: 1 }),
     })
-
-    const gauged = chiralCondensateSignal({
+    const derivedPeriodic = freeOverlapSpectrum({
+      length: 5,
+      m0: 1,
+      tolerance: 0.05,
+      time: 'periodic',
+    })
+    const free = overlapCondensateWithBoundary({
+      group: 'u1',
+      length: 5,
+      disorder: 0,
+      configs: 4,
+      m0: 1,
+      tolerance: 0.05,
+      time: 'antiperiodic',
+      rng: makeWeyl({ start: 1 }),
+    })
+    const gauged = overlapCondensateWithBoundary({
+      group: 'u1',
       length: 5,
       disorder: 0.6,
       configs: 6,
+      m0: 1,
+      tolerance: 0.05,
+      time: 'antiperiodic',
       rng: makeWeyl({ start: 2 }),
     })
 
     check({
-      name: 'chiral condensate: zero in free theory, nonzero with gauge field',
+      name: 'chiral condensate: periodic free = exact p = 0 modes; antiperiodic zero free, nonzero with gauge field',
       ok:
-        free.nearZeroDensity < 0.005 &&
+        Math.abs(periodicFree.nearZeroDensity - derivedPeriodic.density) <
+          1e-12 &&
+        Math.abs(derivedPeriodic.density - 1 / 25) < 1e-12 &&
+        free.nearZeroDensity === 0 &&
         gauged.nearZeroDensity > free.nearZeroDensity,
-      detail: `free ${free.nearZeroDensity.toFixed(4)}, gauged ${gauged.nearZeroDensity.toFixed(4)}`,
+      detail: `periodic free ${periodicFree.nearZeroDensity.toFixed(4)} (derived ${derivedPeriodic.density.toFixed(4)}), antiperiodic free ${free.nearZeroDensity.toFixed(4)}, gauged ${gauged.nearZeroDensity.toFixed(4)}`,
     })
   }
 
-  // 20. Non-Abelian (SU(2)) condensate: zero in the free theory, nonzero in a
-  // dynamical SU(2) field (the rung below chiral gauge theory).
+  // 20. Non-Abelian (SU(2)) condensate, the same repair as 19: the periodic free
+  // overlap has 2 spin x 2 color zero modes at p = 0 (density 4 / (4 L^2) =
+  // 1 / L^2, E-FRC-0178); the antiperiodic fermion (the rebuilt control of
+  // E-FRC-0048) has none free, its smallest |lambda| is the derived free gap,
+  // and a dynamical SU(2) field pulls the spectrum into that gap (the rung
+  // below chiral gauge theory). The gauged arm checks the gap, not a density
+  // at |lambda| < 0.05: on a 4 x 4 lattice with 5 configurations even
+  // Haar-random links leave the smallest |lambda| at 0.29 (measured
+  // 2026-11-16, free gap 0.77), so a density there reads 0 at any disorder
+  // and the old "gauged > free" had only ever read the periodic p = 0 modes.
   {
-    const free = chiralCondensateSignalSU2({
+    const periodicFree = chiralCondensateSignalSU2({
       length: 4,
       disorder: 0,
       configs: 3,
       rng: makeWeyl({ start: 1 }),
     })
-
-    const gauged = chiralCondensateSignalSU2({
+    const derivedPeriodic = freeOverlapSpectrum({
       length: 4,
-      disorder: 0.4,
+      m0: 1,
+      tolerance: 0.05,
+      time: 'periodic',
+    })
+    const free = overlapCondensateWithBoundary({
+      group: 'su2',
+      length: 4,
+      disorder: 0,
+      configs: 3,
+      m0: 1,
+      tolerance: 0.05,
+      time: 'antiperiodic',
+      rng: makeWeyl({ start: 1 }),
+    })
+    const derivedAnti = freeOverlapSpectrum({
+      length: 4,
+      m0: 1,
+      tolerance: 0.05,
+      time: 'antiperiodic',
+    })
+    // disorder 1: Haar-random links, the strongest field
+    const gauged = overlapCondensateWithBoundary({
+      group: 'su2',
+      length: 4,
+      disorder: 1,
       configs: 5,
+      m0: 1,
+      tolerance: 0.05,
+      time: 'antiperiodic',
       rng: makeWeyl({ start: 2 }),
     })
 
     check({
-      name: 'SU(2) condensate: zero free, nonzero in a dynamical non-Abelian field',
+      name: 'SU(2) condensate: periodic free = exact p = 0 modes; antiperiodic free has the derived gap, a dynamical non-Abelian field pulls the spectrum below half of it',
       ok:
-        free.nearZeroDensity < 0.005 &&
-        gauged.nearZeroDensity > free.nearZeroDensity,
-      detail: `free ${free.nearZeroDensity.toFixed(4)}, gauged ${gauged.nearZeroDensity.toFixed(4)}`,
+        Math.abs(periodicFree.nearZeroDensity - derivedPeriodic.density) <
+          1e-12 &&
+        Math.abs(derivedPeriodic.density - 1 / 16) < 1e-12 &&
+        free.nearZeroDensity === 0 &&
+        Math.abs(free.lowestEigenvalue - derivedAnti.lowest) < 1e-9 &&
+        gauged.lowestEigenvalue < 0.5 * free.lowestEigenvalue,
+      detail: `periodic free ${periodicFree.nearZeroDensity.toFixed(4)} (derived ${derivedPeriodic.density.toFixed(4)}), antiperiodic free lowest |lambda| ${free.lowestEigenvalue.toFixed(4)} (derived ${derivedAnti.lowest.toFixed(4)}), gauged lowest |lambda| ${gauged.lowestEigenvalue.toFixed(4)}, gauged density ${gauged.nearZeroDensity.toFixed(4)}`,
     })
   }
 
@@ -3405,6 +3477,59 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
           micro.links.some((v, k) => v !== microStartLinks[k]),
       })
     }
+  }
+
+  // the sweep harness: the centre, the spread, and the scaling trend of a measure over a size family
+  {
+    const sizes = [10, 100, 1000, 10000]
+
+    const constant = sweepSizes({ sizes, measure: () => 3 })
+    check({
+      name: 'sweepSizes: a constant measure has zero spread and converges',
+      ok:
+        Math.abs(constant.spread) < 1e-12 &&
+        Math.abs(constant.mean - 3) < 1e-12 &&
+        constant.trend === 'converges',
+    })
+
+    const decaying = sweepSizes({ sizes, measure: size => 1 / size })
+    check({
+      name: 'sweepSizes: a measure decaying to zero vanishes',
+      ok: decaying.trend === 'vanishes',
+      detail: `trend ${decaying.trend}`,
+    })
+
+    const settling = sweepSizes({
+      sizes,
+      measure: size => 1 - 1 / size,
+    })
+
+    check({
+      name: 'sweepSizes: a measure settling to a nonzero limit converges',
+      ok: settling.trend === 'converges',
+      detail: `trend ${settling.trend}`,
+    })
+
+    const growing = sweepSizes({
+      sizes,
+      measure: size => Math.log(size),
+    })
+
+    check({
+      name: 'sweepSizes: a measure that keeps growing drifts',
+      ok: growing.trend === 'drifts',
+      detail: `trend ${growing.trend}`,
+    })
+
+    const stats = familyStats([2, 4, 6])
+    check({
+      name: 'familyStats: centre and spread of an unordered family',
+      ok:
+        Math.abs(stats.mean - 4) < 1e-12 &&
+        stats.min === 2 &&
+        stats.max === 6 &&
+        stats.spread === 4,
+    })
   }
 
   return { passed, failed }

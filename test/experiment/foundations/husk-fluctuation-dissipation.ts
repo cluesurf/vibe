@@ -296,7 +296,7 @@ export default experiment({
   id: 'foundations/husk-fluctuation-dissipation',
   code: 'E-FND-0156',
   title:
-    "fluctuation and dissipation on the husk of the adopted knit, pass: a husk block's energy fluctuation is 0.941 to 1.045 of its response to temperature on 17 of 17 link starts (mean 1.001, beta 3.87 to 3.93 per unit), and the relaxation of an added excess follows the block's equilibrium autocorrelation lag by lag (within 0.025 to lag 4 and 0.085 to lag 24, 170 twins), so noise and drag come from one bath at one temperature; on the control where the depth step is exact and the husk is not Gibbs the static relation fails by a factor of 159",
+    "fluctuation and dissipation on the husk of the earlier bounce knit, pass: a husk block's energy fluctuation is 0.941 to 1.045 of its response to temperature on 17 of 17 link starts (mean 1.001, beta 3.87 to 3.93 per unit), and the relaxation of an added excess follows the block's equilibrium autocorrelation lag by lag (within 0.025 to lag 4 and 0.085 to lag 24, 170 twins), so noise and drag come from one bath at one temperature; on the control where the depth step is exact and the husk is not Gibbs the static relation fails by a factor of 159",
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',

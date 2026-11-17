@@ -1,0 +1,24 @@
+ahead 0 1 4 5 8 9 down 12 13 14 15 16 17 18 19 20 21 22 23
+two-ahead t1 br 4 share 0.2500 kept true reach 1.000 huskDocks 2 hconf 4 env 4 cohC 0.000 cohR 0.000 offStartLines 0 cells 94
+two-ahead t2 br 16 share 0.7500 kept true reach 0.000 huskDocks 1 hconf 9 env 9 cohC 0.000 cohR 0.757 offStartLines 0 cells 160
+two-ahead t3 br 36 share 0.6094 kept true reach 1.000 huskDocks 2 hconf 9 env 25 cohC 0.000 cohR 0.317 offStartLines 0 cells 251
+two-ahead t4 br 64 share 0.3281 kept true reach 0.000 huskDocks 1 hconf 9 env 49 cohC 0.000 cohR 0.189 offStartLines 0 cells 343
+two-ahead t5 br 100 share 0.5039 kept true reach 1.000 huskDocks 2 hconf 9 env 81 cohC 0.000 cohR 0.456 offStartLines 0 cells 435
+two-ahead t6 br 144 share 0.1523 kept true reach 0.000 huskDocks 1 hconf 9 env 121 cohC 0.000 cohR 0.338 offStartLines 0 cells 527
+two-ahead t7 br 196 share 0.1848 kept true reach 1.000 huskDocks 2 hconf 9 env 169 cohC 0.000 cohR 0.087 offStartLines 0 cells 619
+two-ahead t8 br 256 share 0.1485 kept true reach 0.000 huskDocks 1 hconf 9 env 225 cohC 0.000 cohR 0.169 offStartLines 0 cells 711
+two-ahead ever husk docks 3 ms 2129 {"likeMeetings":0,"splitMeetings":0,"phaseMeetings":0,"unlikeMeetings":0,"made":0,"unmade":0,"vetoed":0,"merged":0}
+two-down t1 br 4 share 0.0000 kept true reach 0.000 huskDocks 0 hconf 1 env 4 cohC NaN cohR NaN offStartLines 0 cells 711
+two-down t2 br 16 share 0.7500 kept true reach 0.000 huskDocks 1 hconf 9 env 9 cohC 0.000 cohR 0.757 offStartLines 0 cells 791
+two-down t3 br 36 share 0.0000 kept true reach 0.000 huskDocks 0 hconf 1 env 36 cohC NaN cohR NaN offStartLines 0 cells 883
+two-down t4 br 64 share 0.3281 kept true reach 0.000 huskDocks 1 hconf 9 env 49 cohC 0.000 cohR 0.189 offStartLines 0 cells 975
+two-down t5 br 100 share 0.0000 kept true reach 0.000 huskDocks 0 hconf 1 env 100 cohC NaN cohR NaN offStartLines 0 cells 1067
+two-down t6 br 144 share 0.1523 kept true reach 0.000 huskDocks 1 hconf 9 env 121 cohC 0.000 cohR 0.338 offStartLines 0 cells 1159
+two-down t7 br 196 share 0.0000 kept true reach 0.000 huskDocks 0 hconf 1 env 196 cohC NaN cohR NaN offStartLines 0 cells 1251
+two-down t8 br 256 share 0.1485 kept true reach 0.000 huskDocks 1 hconf 9 env 225 cohC 0.000 cohR 0.169 offStartLines 0 cells 1343
+two-down ever husk docks 1 ms 3853 {"likeMeetings":0,"splitMeetings":0,"phaseMeetings":0,"unlikeMeetings":0,"made":0,"unmade":0,"vetoed":0,"merged":0}
+four-ahead t1 br 16 share 0.1328 kept true reach 1.000 huskDocks 4 hconf 8 env 16 cohC 0.000 cohR 0.000 offStartLines 16 cells 1343
+four-ahead t2 br 256 share 0.7500 kept true reach 0.000 huskDocks 1 hconf 153 env 153 cohC 0.000 cohR 0.333 offStartLines 256 cells 1415
+four-ahead t3 br 2736 share 0.2150 kept true reach 1.000 huskDocks 4 hconf 81 env 1741 cohC 0.000 cohR 0.061 offStartLines 3136 cells 1507
+four-ahead t4 br 9896 share 0.3413 kept true reach 0.000 huskDocks 1 hconf 217 env 5521 cohC 0.000 cohR 0.041 offStartLines 12096 cells 1599
+four-ahead t5 br 26368 share 0.2536 kept true reach 1.000 huskDocks 4 hconf 81 env 19589 cohC 0.000 cohR 0.045 offStartLines 33408 cells 1691

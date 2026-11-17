@@ -61,6 +61,11 @@ const HORIZON: Record<string, [Grade, string]> = {
   'E-SPN-0184': ['honeycomb', 'ball reads are labels only; the count is on the cusp quotient'],
   'E-SLF-0183': ['mirrored', 'L1 and O1: R 3 and R 2 balls, 4 beats, read past t = R through the frontier'],
   'E-SLF-0186': ['honeycomb', 'X0: R = 4 ball, 2 beats from radius 1, 0 frontier hits; the R 1 to R 3 balls check the rule exactly (reversal, norm, sparse = dense, reduction), they are not read'],
+  'E-SLF-0185': ['honeycomb', 'W0: R = 1 ball, 1 beat from the centre; X2: R = 2 ball, 2 beats from the centre, t <= R; X1 reverses 2 beats on the R = 1 ball exactly (reversal and norm), not read'],
+  'E-FRC-0317': ['honeycomb', 'geometry only: the plaquette slot patterns from the R = 2 ball; the ensembles run on the cusp quotient, where the floor is felt'],
+  'E-FRC-0318': ['honeycomb', "geometry only: E-FRC-0317's plaquette slot patterns from the R = 2 ball; the ensembles run on the cusp quotient, where the floor is felt"],
+  'E-FRC-0320': ['honeycomb', 'motion: one lone love from the centre of the R = 4 ball, beats 1 to 4, t <= R, 0 frontier hits (K3); the R = 2 ball reads the kernel and checks it against the branch code (K1), 2 beats from the centre or 1 beat from distance 1, t + r0 <= R; the binding ensembles run on the cusp quotient, where the floor is felt'],
+  'E-QTM-0199': ['honeycomb', 'R = 4 ball, 4 beats from the centre on one line, end hits 0 (I4); its LINE arm is an inline open line of 71 docks equal to the ball term for term over 4 beats (I5), 32 beats, end hits 0'],
   'E-NVG-0014':['mirrored', 'R = 4 ball, 8 beats, absorbing and reflecting frontiers'],
   'E-CSM-0058': ['honeycomb', 'R = 4 ball, beats 0 to 4'],
   'E-CSM-0059': ['honeycomb', 'breadth-first counts, no rule'],
@@ -73,6 +78,7 @@ const LINE_HORIZON: Record<string, [Grade, string]> = {
   'E-SLF-0183': ['honeycomb', 'open line of Lo docks run T = floor((Lo - width) / 2) beats; I3: the far-link weight is exactly 0 every beat'],
   'E-SLF-0184': ['honeycomb', 'open line of max(256, width + 2 beats + 2) docks; E3: no love reaches an end (end hits 0)'],
   'E-SLF-0186': ['honeycomb', 'open line of max(64, width + 2 beats + 8) docks from offset 4, 2 beats: no love reaches an end'],
+  'E-SLF-0185': ['honeycomb', 'open line of max(256, width + 2 beats + 2) docks from offset beats + 1; the mixers read beats 0 to 2 (Lemma W), the bare rule to beat 4 or 11: no love reaches an end'],
 }
 
 const CUSP_QUOTIENT =/honeycomb-cusp:(cuspQuotient|buildCuspQuotient|buildExactCusp|cuspTranslations)\b/

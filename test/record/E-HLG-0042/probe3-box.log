@@ -1,0 +1,18 @@
+box lines 0.0* 0.1 0.4 0.5 0.8 0.9 1.2 1.6 1.7 1.10 1.11 5.3 5.6 5.7 5.10 5.11 9.2 9.3 9.6 9.10 9.11 13.2 13.3 13.7 13.10 13.11 17.2 17.3 17.6 17.7 17.10 21.2 21.3 21.6 21.7 21.11 A->C 2.0000000000000036 A->D 3.0000000000000555
+K ON count 1116 clashes 0 deepest fill depth 14.91
+t1 br 2 K 1 husk 0.2500 moved 0.00000 offLine 0.75000 reach 1.000 cen 1.000 spr 0.000 shadow 0.400 countHuskMoved 60.0000 kept true/true kDocks 14 moves 14 patch 1105 ratio 5.8284 turns 0 ms 12 | 1/0/0:0.2500
+t2 br 3 K 2 husk 0.8125 moved 0.00000 offLine 0.75000 reach 1.000 cen 0.308 spr 0.462 shadow 0.289 countHuskMoved 60.0000 kept true/true kDocks 35 moves 35 patch 1141 ratio 5.8284 turns 0 ms 25 | 0/0/0:0.5625 1/0/0:0.2500
+t3 br 4 K 3 husk 0.8125 moved 0.00000 offLine 0.75000 reach 1.000 cen 0.308 spr 0.462 shadow 0.288 countHuskMoved 60.0000 kept true/true kDocks 63 moves 63 patch 1141 ratio 5.8284 turns 144 ms 41 | 0/0/0:0.5625 1/0/0:0.2500
+t4 br 5 K 4 husk 0.8125 moved 0.00000 offLine 0.75000 reach 1.000 cen 0.308 spr 0.462 shadow 0.288 countHuskMoved 60.0000 kept true/true kDocks 98 moves 98 patch 1141 ratio 5.8284 turns 324 ms 58 | 0/0/0:0.5625 1/0/0:0.2500
+t5 br 6 K 5 husk 0.8125 moved 0.00000 offLine 0.75000 reach 1.000 cen 0.308 spr 0.462 shadow 0.288 countHuskMoved 60.0000 kept true/true kDocks 140 moves 140 patch 1141 ratio 5.8284 turns 540 ms 66 | 0/0/0:0.5625 1/0/0:0.2500
+t6 br 7 K 6 husk 0.8125 moved 0.00000 offLine 0.75000 reach 1.000 cen 0.308 spr 0.462 shadow 0.288 countHuskMoved 60.0000 kept true/true kDocks 189 moves 189 patch 1141 ratio 5.8284 turns 792 ms 76 | 0/0/0:0.5625 1/0/0:0.2500
+t7 br 8 K 7 husk 0.8125 moved 0.00000 offLine 0.75000 reach 1.000 cen 0.308 spr 0.462 shadow 0.288 countHuskMoved 60.0000 kept true/true kDocks 245 moves 245 patch 1141 ratio 5.8284 turns 1080 ms 86 | 0/0/0:0.5625 1/0/0:0.2500
+t8 br 9 K 8 husk 0.8125 moved 0.00000 offLine 0.75000 reach 1.000 cen 0.308 spr 0.462 shadow 0.288 countHuskMoved 60.0000 kept true/true kDocks 308 moves 308 patch 1141 ratio 5.8284 turns 1404 ms 97 | 0/0/0:0.5625 1/0/0:0.2500
+t9 br 10 K 9 husk 0.8125 moved 0.00000 offLine 0.75000 reach 1.000 cen 0.308 spr 0.462 shadow 0.288 countHuskMoved 60.0000 kept true/true kDocks 378 moves 378 patch 1141 ratio 5.8284 turns 1764 ms 109 | 0/0/0:0.5625 1/0/0:0.2500
+t10 br 11 K 10 husk 0.8125 moved 0.00000 offLine 0.75000 reach 1.000 cen 0.308 spr 0.462 shadow 0.288 countHuskMoved 60.0000 kept true/true kDocks 455 moves 455 patch 1141 ratio 5.8284 turns 2160 ms 122 | 0/0/0:0.5625 1/0/0:0.2500
+t11 br 11 K 10 husk 0.8125 moved 0.00000 offLine 0.75000 reach 1.000 cen 0.308 spr 0.462 shadow 0.288 countHuskMoved 60.0000 kept true/true kDocks 532 moves 532 patch 1141 ratio 5.8284 turns 2556 ms 136 | 0/0/0:0.5625 1/0/0:0.2500
+t12 br 11 K 10 husk 0.8125 moved 0.00000 offLine 0.75000 reach 1.000 cen 0.308 spr 0.462 shadow 0.288 countHuskMoved 60.0000 kept true/true kDocks 609 moves 609 patch 1141 ratio 5.8284 turns 2952 ms 148 | 0/0/0:0.5625 1/0/0:0.2500
+t13 br 11 K 10 husk 0.8125 moved 0.00000 offLine 0.75000 reach 1.000 cen 0.308 spr 0.462 shadow 0.288 countHuskMoved 60.0000 kept true/true kDocks 686 moves 686 patch 1141 ratio 5.8284 turns 3348 ms 161 | 0/0/0:0.5625 1/0/0:0.2500
+t14 br 11 K 10 husk 0.8125 moved 0.00000 offLine 0.75000 reach 1.000 cen 0.308 spr 0.462 shadow 0.288 countHuskMoved 60.0000 kept true/true kDocks 763 moves 763 patch 1141 ratio 5.8284 turns 3744 ms 173 | 0/0/0:0.5625 1/0/0:0.2500
+health {"reciprocityMisses":0,"offInteger":0,"deepestLevel":8822750406822} mesh 2013
+exit 0

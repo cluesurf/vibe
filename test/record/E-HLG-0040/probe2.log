@@ -1,0 +1,117 @@
+line spoint along the line 0 0 0 0 10 0 0 0 0 0 0 0 0 10 0 0
+tube vs box lone true first miss -1 branches 16
+tube vs box vacuum true first miss -1 branches 40
+tube vs box fear2 true first miss -1 branches 28
+tube vs box likepair true first miss -1 branches 240
+slot classes 0,1 | 0,1 | -1,0 | -1,0 | 0,1 | 0,1 | -1,0 | -1,0 | 0,1 | 0,1 | -1,0 | -1,0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+ahead slot 0 down slot 12 lines 0 6
+slot 0 lone: same true cells 385 ms 144 splits 0 like 0 unlike 0 made 0 unmade 0
+   t1 br 2 same true off 0 share 0.2500 open 0.2500 kept true reach 1.00 hconf 2 env 2 cohC 0.000 cohR NaN | tube open 0.2500 huskcount 1/4
+   t2 br 4 same true off 0 share 0.7500 open 0.7500 kept true reach 0.00 hconf 3 env 3 cohC 0.000 cohR 1.000 | tube open 0.7500 huskcount 12/16
+   t3 br 6 same true off 0 share 0.6094 open 0.6094 kept true reach 1.00 hconf 3 env 5 cohC 0.000 cohR 1.000 | tube open 0.6094 huskcount 39/64
+   t4 br 8 same true off 0 share 0.3281 open 0.3281 kept true reach 0.00 hconf 3 env 7 cohC 0.000 cohR 1.000 | tube open 0.3281 huskcount 84/256
+   t5 br 10 same true off 0 share 0.5039 open 0.5039 kept true reach 1.00 hconf 3 env 9 cohC 0.000 cohR 1.000 | tube open 0.5039 huskcount 516/1024
+   t6 br 12 same true off 0 share 0.1523 open 0.1523 kept true reach 0.00 hconf 3 env 11 cohC 0.000 cohR 1.000 | tube open 0.1523 huskcount 624/4096
+   t7 br 14 same true off 0 share 0.1848 open 0.1848 kept true reach 1.00 hconf 3 env 13 cohC 0.000 cohR 1.000 | tube open 0.1848 huskcount 3027/16384
+   t8 br 16 same true off 0 share 0.1485 open 0.1485 kept true reach 0.00 hconf 3 env 15 cohC 0.000 cohR 1.000 | tube open 0.1485 huskcount 9732/65536
+slot 0 pairAtHusk: same true cells 385 ms 93 splits 0 like 0 unlike 0 made 1 unmade 1
+   t1 br 1 same true off 0 share 1.0000 open 1.0000 kept true reach 0.00 hconf 1 env 1 cohC NaN cohR NaN | tube open 1.0000 huskcount 2/1
+   t2 br 1 same true off 0 share 0.5000 open 1.0000 kept true reach 1.00 hconf 1 env 1 cohC NaN cohR NaN | tube open 1.0000 huskcount 1/1
+   t3 br 2 same true off 0 share 0.3750 open 0.7500 kept true reach 0.00 hconf 2 env 2 cohC 0.000 cohR NaN | tube open 0.7500 huskcount 3/4
+   t4 br 4 same true off 0 share 0.3750 open 0.7500 kept true reach 1.00 hconf 3 env 3 cohC 0.000 cohR 1.000 | tube open 0.7500 huskcount 12/16
+   t5 br 6 same true off 0 share 0.1641 open 0.3281 kept true reach 0.00 hconf 3 env 5 cohC 0.000 cohR 1.000 | tube open 0.3281 huskcount 21/64
+   t6 br 8 same true off 0 share 0.1641 open 0.3281 kept true reach 1.00 hconf 3 env 7 cohC 0.000 cohR 1.000 | tube open 0.3281 huskcount 84/256
+   t7 br 10 same true off 0 share 0.0762 open 0.1523 kept true reach 0.00 hconf 3 env 9 cohC 0.000 cohR 1.000 | tube open 0.1523 huskcount 156/1024
+   t8 br 12 same true off 0 share 0.0762 open 0.1523 kept true reach 1.00 hconf 3 env 11 cohC 0.000 cohR 1.000 | tube open 0.1523 huskcount 624/4096
+slot 0 meet: same true cells 385 ms 116 splits 0 like 0 unlike 0 made 6 unmade 7
+   t1 br 2 same true off 0 share 0.6250 open 0.2500 kept true reach 1.00 hconf 2 env 2 cohC 0.000 cohR NaN | tube open 0.2500 huskcount 5/4
+   t2 br 3 same true off 0 share 0.9063 open 0.8125 kept true reach 1.00 hconf 3 env 2 cohC 0.000 cohR 1.000 | tube open 0.8125 huskcount 29/16
+   t3 br 4 same true off 0 share 0.6875 open 0.5625 kept true reach 0.00 hconf 3 env 4 cohC 0.000 cohR NaN | tube open 0.5625 huskcount 88/64
+   t4 br 6 same true off 0 share 0.3750 open 0.7500 kept true reach 1.00 hconf 3 env 5 cohC 0.000 cohR 1.000 | tube open 0.7500 huskcount 192/256
+   t5 br 8 same true off 0 share 0.1641 open 0.3281 kept true reach 0.00 hconf 3 env 7 cohC 0.000 cohR 1.000 | tube open 0.3281 huskcount 336/1024
+   t6 br 10 same true off 0 share 0.1641 open 0.3281 kept true reach 1.00 hconf 3 env 9 cohC 0.000 cohR 1.000 | tube open 0.3281 huskcount 1344/4096
+   t7 br 12 same true off 0 share 0.0762 open 0.1523 kept true reach 0.00 hconf 3 env 11 cohC 0.000 cohR 1.000 | tube open 0.1523 huskcount 2496/16384
+   t8 br 14 same true off 0 share 0.0762 open 0.1523 kept true reach 1.00 hconf 3 env 13 cohC 0.000 cohR 1.000 | tube open 0.1523 huskcount 9984/65536
+slot 0 fearStream: same false cells 385 ms 33 splits 0 like 0 unlike 0 made 1 unmade 7
+   t1 br 2 same false off 0 share 0.2813 open 0.2500 kept true reach 1.00 hconf 2 env 2 cohC 0.000 cohR NaN | tube open 0.2500 huskcount 9/4
+   t2 br 3 same false off 0 share 0.3516 open 0.8125 kept true reach 1.00 hconf 3 env 2 cohC 0.000 cohR 1.000 | tube open 0.8125 huskcount 45/16
+   t3 br 4 same false off 0 share 0.4531 open 0.8125 kept true reach 1.00 hconf 3 env 3 cohC 0.000 cohR 1.000 | tube open 0.8125 huskcount 232/64
+   t4 br 5 same false off 0 share 0.4531 open 0.8125 kept true reach 1.00 hconf 3 env 4 cohC 0.000 cohR 1.000 | tube open 0.8125 huskcount 928/256
+   t5 br 6 same false off 0 share 0.4531 open 0.8125 kept true reach 1.00 hconf 3 env 5 cohC 0.000 cohR 1.000 | tube open 0.8125 huskcount 3712/1024
+   t6 br 7 same false off 0 share 0.4531 open 0.8125 kept true reach 1.00 hconf 3 env 6 cohC 0.000 cohR 1.000 | tube open 0.8125 huskcount 14848/4096
+   t7 br 8 same false off 0 share 0.3281 open 0.8125 kept true reach 1.00 hconf 3 env 7 cohC 0.000 cohR 1.000 | tube open 0.8125 huskcount 59392/16384
+   t8 br 9 same false off 0 share 0.1719 open 0.8125 kept true reach 0.00 hconf 3 env 9 cohC 0.000 cohR NaN | tube open 0.8125 huskcount 237568/65536
+slot 0 likePair: same true cells 385 ms 1112 splits 43 like 43 unlike 0 made 0 unmade 0
+   t1 br 2 same true off 0 share 0.5000 open 0.5000 kept true reach 1.00 hconf 2 env 2 cohC NaN cohR 0.000 | tube open 0.5000 huskcount 4/4
+   t2 br 8 same true off 0 share 0.7500 open 0.7500 kept true reach 0.00 hconf 7 env 7 cohC 0.000 cohR 0.551 | tube open 0.7500 huskcount 96/64
+   t3 br 26 same true off 0 share 0.4688 open 0.4688 kept true reach 1.00 hconf 7 env 19 cohC 0.000 cohR 0.181 | tube open 0.4688 huskcount 960/1024
+   t4 br 52 same true off 0 share 0.3809 open 0.3809 kept true reach 0.00 hconf 7 env 39 cohC 0.000 cohR 0.069 | tube open 0.3809 huskcount 12480/16384
+   t5 br 86 same true off 0 share 0.3430 open 0.3430 kept true reach 1.00 hconf 7 env 69 cohC 0.000 cohR 0.154 | tube open 0.3430 huskcount 179808/262144
+   t6 br 128 same true off 0 share 0.2339 open 0.2339 kept true reach 0.00 hconf 7 env 107 cohC 0.000 cohR 0.181 | tube open 0.2339 huskcount 1962240/4194304
+   t7 br 178 same true off 0 share 0.2119 open 0.2119 kept true reach 1.00 hconf 7 env 153 cohC 0.000 cohR 0.032 | tube open 0.2119 huskcount 28441536/67108864
+   t8 br 236 same true off 0 share 0.2072 open 0.2072 kept true reach 0.00 hconf 7 env 207 cohC 0.000 cohR 0.050 | tube open 0.2072 huskcount 444869376/1073741824
+slot 0 vacuum: same false cells 693 ms 59 splits 0 like 0 unlike 0 made 98 unmade 65
+   t1 br 2 same false off 0 share 0.1694 open 0.2500 kept true reach 1.00 hconf 2 env 2 cohC 0.000 cohR NaN | tube open 0.2500 huskcount 21/4
+   t2 br 2 same false off 0 share 0.1371 open 0.0000 kept true reach 1.00 hconf 2 env 2 cohC 0.000 cohR NaN | tube open 0.0000 huskcount 17/4
+   t3 br 3 same false off 0 share 0.1028 open 0.1875 kept true reach 1.00 hconf 3 env 3 cohC 0.000 cohR 0.000 | tube open 0.1875 huskcount 51/16
+   t4 br 3 same false off 0 share 0.1270 open 0.1875 kept true reach 1.00 hconf 3 env 3 cohC 0.000 cohR 0.000 | tube open 0.1875 huskcount 63/16
+   t5 br 4 same false off 0 share 0.1109 open 0.1875 kept true reach 1.00 hconf 3 env 4 cohC 0.000 cohR NaN | tube open 0.1875 huskcount 220/64
+   t6 br 5 same false off 0 share 0.0806 open 0.1875 kept true reach 1.00 hconf 3 env 5 cohC 0.000 cohR 0.000 | tube open 0.1875 huskcount 160/64
+   t7 br 7 same false off 0 share 0.0956 open 0.1992 kept true reach 1.00 hconf 5 env 7 cohC 0.000 cohR 0.000 | tube open 0.1992 huskcount 759/256
+   t8 br 9 same false off 0 share 0.1182 open 0.0117 kept true reach 1.00 hconf 5 env 9 cohC 0.000 cohR 0.000 | tube open 0.0117 huskcount 938/256
+slot 12 lone: same true cells 1027 ms 413 splits 0 like 0 unlike 0 made 0 unmade 0
+   t1 br 2 same true off 0 share 0.0000 open 0.0000 kept true reach 0.00 hconf 1 env 2 cohC NaN cohR NaN | tube open 0.0000 huskcount 0/4
+   t2 br 4 same true off 0 share 0.7500 open 0.7500 kept true reach 0.00 hconf 3 env 3 cohC 0.000 cohR 1.000 | tube open 0.7500 huskcount 12/16
+   t3 br 6 same true off 0 share 0.0000 open 0.0000 kept true reach 0.00 hconf 1 env 6 cohC NaN cohR NaN | tube open 0.0000 huskcount 0/64
+   t4 br 8 same true off 0 share 0.3281 open 0.3281 kept true reach 0.00 hconf 3 env 7 cohC 0.000 cohR 1.000 | tube open 0.3281 huskcount 84/256
+   t5 br 10 same true off 0 share 0.0000 open 0.0000 kept true reach 0.00 hconf 1 env 10 cohC NaN cohR NaN | tube open 0.0000 huskcount 0/1024
+   t6 br 12 same true off 0 share 0.1523 open 0.1523 kept true reach 0.00 hconf 3 env 11 cohC 0.000 cohR 1.000 | tube open 0.1523 huskcount 624/4096
+   t7 br 14 same true off 0 share 0.0000 open 0.0000 kept true reach 0.00 hconf 1 env 14 cohC NaN cohR NaN | tube open 0.0000 huskcount 0/16384
+   t8 br 16 same true off 0 share 0.1485 open 0.1485 kept true reach 0.00 hconf 3 env 15 cohC 0.000 cohR 1.000 | tube open 0.1485 huskcount 9732/65536
+slot 12 pairAtHusk: same true cells 1027 ms 116 splits 0 like 0 unlike 0 made 1 unmade 1
+   t1 br 1 same true off 0 share 1.0000 open 1.0000 kept true reach 0.00 hconf 1 env 1 cohC NaN cohR NaN | tube open 1.0000 huskcount 2/1
+   t2 br 1 same true off 0 share 0.0000 open 0.0000 kept true reach 0.00 hconf 1 env 1 cohC NaN cohR NaN | tube open 0.0000 huskcount 0/1
+   t3 br 2 same true off 0 share 0.3750 open 0.7500 kept true reach 0.00 hconf 2 env 2 cohC 0.000 cohR NaN | tube open 0.7500 huskcount 3/4
+   t4 br 4 same true off 0 share 0.0000 open 0.0000 kept true reach 0.00 hconf 1 env 4 cohC NaN cohR NaN | tube open 0.0000 huskcount 0/16
+   t5 br 6 same true off 0 share 0.1641 open 0.3281 kept true reach 0.00 hconf 3 env 5 cohC 0.000 cohR 1.000 | tube open 0.3281 huskcount 21/64
+   t6 br 8 same true off 0 share 0.0000 open 0.0000 kept true reach 0.00 hconf 1 env 8 cohC NaN cohR NaN | tube open 0.0000 huskcount 0/256
+   t7 br 10 same true off 0 share 0.0762 open 0.1523 kept true reach 0.00 hconf 3 env 9 cohC 0.000 cohR 1.000 | tube open 0.1523 huskcount 156/1024
+   t8 br 12 same true off 0 share 0.0000 open 0.0000 kept true reach 0.00 hconf 1 env 12 cohC NaN cohR NaN | tube open 0.0000 huskcount 0/4096
+slot 12 meet: same true cells 1027 ms 111 splits 0 like 0 unlike 0 made 6 unmade 7
+   t1 br 2 same true off 0 share 0.0000 open 0.0000 kept true reach 0.00 hconf 1 env 2 cohC NaN cohR NaN | tube open 0.0000 huskcount 0/4
+   t2 br 3 same true off 0 share 0.6563 open 0.5625 kept true reach 0.00 hconf 3 env 3 cohC 0.000 cohR NaN | tube open 0.5625 huskcount 21/16
+   t3 br 4 same true off 0 share 0.6875 open 0.5625 kept true reach 0.00 hconf 3 env 4 cohC 0.000 cohR NaN | tube open 0.5625 huskcount 88/64
+   t4 br 6 same true off 0 share 0.0000 open 0.0000 kept true reach 0.00 hconf 1 env 6 cohC NaN cohR NaN | tube open 0.0000 huskcount 0/256
+   t5 br 8 same true off 0 share 0.1641 open 0.3281 kept true reach 0.00 hconf 3 env 7 cohC 0.000 cohR 1.000 | tube open 0.3281 huskcount 336/1024
+   t6 br 10 same true off 0 share 0.0000 open 0.0000 kept true reach 0.00 hconf 1 env 10 cohC NaN cohR NaN | tube open 0.0000 huskcount 0/4096
+   t7 br 12 same true off 0 share 0.0762 open 0.1523 kept true reach 0.00 hconf 3 env 11 cohC 0.000 cohR 1.000 | tube open 0.1523 huskcount 2496/16384
+   t8 br 14 same true off 0 share 0.0000 open 0.0000 kept true reach 0.00 hconf 1 env 14 cohC NaN cohR NaN | tube open 0.0000 huskcount 0/65536
+slot 12 fearStream: same false cells 1027 ms 108 splits 0 like 0 unlike 0 made 1 unmade 7
+   t1 br 2 same false off 0 share 0.1250 open 0.0000 kept true reach 0.00 hconf 1 env 2 cohC NaN cohR NaN | tube open 0.0000 huskcount 4/4
+   t2 br 3 same false off 0 share 0.1641 open 0.5625 kept true reach 0.00 hconf 3 env 3 cohC 0.000 cohR NaN | tube open 0.5625 huskcount 21/16
+   t3 br 4 same false off 0 share 0.2656 open 0.5625 kept true reach 0.00 hconf 2 env 4 cohC 0.000 cohR NaN | tube open 0.5625 huskcount 136/64
+   t4 br 5 same false off 0 share 0.2656 open 0.5625 kept true reach 0.00 hconf 2 env 5 cohC 0.000 cohR NaN | tube open 0.5625 huskcount 544/256
+   t5 br 6 same false off 0 share 0.2656 open 0.5625 kept true reach 0.00 hconf 2 env 6 cohC 0.000 cohR NaN | tube open 0.5625 huskcount 2176/1024
+   t6 br 7 same false off 0 share 0.2656 open 0.5625 kept true reach 0.00 hconf 2 env 7 cohC 0.000 cohR NaN | tube open 0.5625 huskcount 8704/4096
+   t7 br 8 same false off 0 share 0.2656 open 0.5625 kept true reach 0.00 hconf 2 env 8 cohC 0.000 cohR NaN | tube open 0.5625 huskcount 34816/16384
+   t8 br 9 same false off 0 share 0.1719 open 0.8125 kept true reach 0.00 hconf 3 env 9 cohC 0.000 cohR NaN | tube open 0.5625 huskcount 139264/65536
+slot 12 likePair: same true cells 1027 ms 2062 splits 43 like 43 unlike 0 made 0 unmade 0
+   t1 br 2 same true off 0 share 0.0000 open 0.0000 kept true reach 0.00 hconf 1 env 2 cohC NaN cohR NaN | tube open 0.0000 huskcount 0/4
+   t2 br 8 same true off 0 share 0.7500 open 0.7500 kept true reach 0.00 hconf 7 env 7 cohC 0.000 cohR 0.551 | tube open 0.7500 huskcount 96/64
+   t3 br 26 same true off 0 share 0.0000 open 0.0000 kept true reach 0.00 hconf 1 env 26 cohC NaN cohR NaN | tube open 0.0000 huskcount 0/1024
+   t4 br 52 same true off 0 share 0.3809 open 0.3809 kept true reach 0.00 hconf 7 env 39 cohC 0.000 cohR 0.069 | tube open 0.3809 huskcount 12480/16384
+   t5 br 86 same true off 0 share 0.0000 open 0.0000 kept true reach 0.00 hconf 1 env 86 cohC NaN cohR NaN | tube open 0.0000 huskcount 0/262144
+   t6 br 128 same true off 0 share 0.2339 open 0.2339 kept true reach 0.00 hconf 7 env 107 cohC 0.000 cohR 0.181 | tube open 0.2339 huskcount 1962240/4194304
+   t7 br 178 same true off 0 share 0.0000 open 0.0000 kept true reach 0.00 hconf 1 env 178 cohC NaN cohR NaN | tube open 0.0000 huskcount 0/67108864
+   t8 br 236 same true off 0 share 0.2072 open 0.2072 kept true reach 0.00 hconf 7 env 207 cohC 0.000 cohR 0.050 | tube open 0.2072 huskcount 444869376/1073741824
+slot 12 vacuum: same false cells 1335 ms 151 splits 0 like 0 unlike 0 made 98 unmade 65
+   t1 br 2 same false off 0 share 0.1290 open 0.0000 kept true reach 0.00 hconf 1 env 2 cohC NaN cohR NaN | tube open 0.0000 huskcount 16/4
+   t2 br 2 same false off 0 share 0.1048 open 0.0000 kept true reach 0.00 hconf 2 env 2 cohC 0.000 cohR NaN | tube open 0.0000 huskcount 13/4
+   t3 br 3 same false off 0 share 0.0645 open 0.0000 kept true reach 0.00 hconf 1 env 3 cohC NaN cohR NaN | tube open 0.0000 huskcount 32/16
+   t4 br 3 same false off 0 share 0.0625 open 0.1875 kept true reach 0.00 hconf 3 env 3 cohC 0.000 cohR 0.000 | tube open 0.1875 huskcount 31/16
+   t5 br 4 same false off 0 share 0.0766 open 0.1875 kept true reach 0.00 hconf 2 env 4 cohC 0.000 cohR NaN | tube open 0.1875 huskcount 152/64
+   t6 br 5 same false off 0 share 0.0706 open 0.1875 kept true reach 0.00 hconf 2 env 5 cohC 0.000 cohR NaN | tube open 0.1875 huskcount 140/64
+   t7 br 7 same false off 0 share 0.0383 open 0.1875 kept true reach 0.00 hconf 3 env 7 cohC 0.000 cohR 0.000 | tube open 0.1875 huskcount 304/256
+   t8 br 9 same false off 0 share 0.0060 open 0.0000 kept true reach 0.00 hconf 2 env 9 cohC 0.000 cohR NaN | tube open 0.0000 huskcount 48/256
+health {"reciprocityMisses":0,"offInteger":0,"deepestLevel":1513744654945}
+exit 0

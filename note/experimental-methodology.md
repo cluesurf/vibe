@@ -77,9 +77,11 @@ as long as they are LABELED as such.
 - **Controls.** Every positive claim needs a NEGATIVE control, a substrate, rule, or parameter where the
   answer should be NO, and the test must give NO there. A test that cannot fail proves nothing. The {5,3,4}
   no-spinor result is the model, it is what makes the {3,4,3,4} spinor result mean something.
-- **Robustness.** A result must survive perturbation, a different seed, a different lattice size, a nearby
-  parameter. A number that clears a threshold by a hair, or holds only at one hardcoded setting, is a knife
-  edge, and we say so.
+- **Robustness.** A result must survive perturbation, a different lattice size, a nearby parameter. A number
+  that clears a threshold by a hair, or holds only at one hardcoded setting, is a knife edge, and we say so.
+  The `sweepSizes` harness in `code/measure/sweep.ts` runs a measure over a family of sizes and returns its
+  centre, its spread, and a scaling verdict of converges, drifts, or vanishes, so the spread and the scaling
+  come from one call rather than by hand.
 - **Prior art.** Much of what we reproduce is established (the QCA to Dirac and Maxwell program, lattice gauge
   theory, classical group theory). We cite it. Reproducing known work is fine and valuable, dressing it as new
   is not.
