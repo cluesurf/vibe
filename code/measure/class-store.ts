@@ -25,17 +25,18 @@
 //
 // THE ORDER. One beat works the dense blocks first (each moved in place to the next beat; a sub-block bound for a
 // block not yet moved waits until it has), then runs every stored column through B1's beat, its readings, and the
-// next step's arrival and piece, into the next beat's store, so a column is dense in memory only while it is worked. Merges are error-boundary's
-// (mergeColumns, the same caps per class). At full rank this is the stream path exactly; checked to 1e-12 against it
+// next step's arrival and piece, into the next beat's store, so a column is dense in memory only while it is worked.
+// Merges are error-boundary's mergeColumns done in place (mergeInPlace, decision 010: bit-equal, the same caps per
+// class, no new columns held beside the old). At full rank this is the stream path exactly; checked to 1e-12 against it
 // (tmp/eb41-class-check.ts). The floor applies to every column put, as in the stream path; a dense sector has no floor.
 //
 // Measurement in floats, as cold-line. Nothing here moves the rule.
 
+import { hermitianEigenRows } from '@/code/algebra/linear/eig-hermitian-householder'
 import { boundCount, emptyAmp, lineBeat, popcount, rankOf, type Amp, type LineReader } from '@/code/measure/cold-line'
 import {
   exportTable,
   makeSector,
-  mergeColumns,
   takeMergeOff,
   TRACKED,
   type ExportTable,
@@ -321,6 +322,148 @@ export function choleskyColumns(
   return residual
 }
 
+// THE IN-PLACE MERGE (decision 010): error-boundary's mergeColumns with the kept columns written into the memory of
+// the columns they replace, so a merge never holds its `keep` new columns beside the cap + 1 old ones. The Gram matrix,
+// its eigen solve, the order, the kept set and the dropped weight are mergeColumns' own; the new column j is
+// sum_b V_b w_{kept j, b} summed over b in the same order with the same skip of a zero weight, so every amplitude is
+// bit-equal to mergeColumns'. The amplitudes are worked a block of rows at a time: the block's kept values are built
+// in a scratch of rows x kept, then written over the first kept columns' rows of that block, which no later block
+// reads. Returns the weight left out; the trace check is kept in `merged.off`.
+const MERGE_ROWS = 256
+
+export const merged = { off: 0 }
+
+function innerOf(a: Amp, b: Amp): [number, number] {
+  let sr = 0
+  let si = 0
+
+  for (let u = 0; u < a.re.length; u++) {
+    const ar = a.re[u]!
+    const ai = a.im[u]!
+    const br = b.re[u]!
+    const bi = b.im[u]!
+
+    sr += ar * br + ai * bi
+    si += ar * bi - ai * br
+  }
+
+  return [sr, si]
+}
+
+export function mergeInPlace(
+  c: { cols: Amp[]; orth: number },
+  keep: number,
+  seen?: (values: readonly number[]) => void,
+): number {
+  const k = c.cols.length
+
+  if (k === 0) {
+    return 0
+  }
+
+  const re = new Float64Array(k * k)
+  const im = new Float64Array(k * k)
+
+  for (let a = 0; a < k; a++) {
+    for (let b = a; b < k; b++) {
+      let g: [number, number]
+
+      if (a < c.orth && b < c.orth) {
+        g = a === b ? [weightOf(c.cols[a]!), 0] : [0, 0]
+      } else {
+        g = innerOf(c.cols[a]!, c.cols[b]!)
+      }
+
+      re[a * k + b] = g[0]
+      im[a * k + b] = g[1]
+      re[b * k + a] = g[0]
+      im[b * k + a] = -g[1]
+    }
+  }
+
+  const h = hermitianEigenRows(k, re, im)
+  const order = Array.from({ length: k }, (_, i) => i).sort((x, y) => h.values[y]! - h.values[x]!)
+
+  if (seen) {
+    seen(order.map(i => h.values[i]!))
+  }
+
+  const kept = order.slice(0, keep).filter(i => h.values[i]! > 0)
+  const isKept = new Uint8Array(k)
+
+  for (const i of kept) {
+    isKept[i] = 1
+  }
+
+  let dropped = 0
+
+  for (const i of order) {
+    if (!isKept[i]) {
+      dropped += Math.max(0, h.values[i]!)
+    }
+  }
+
+  const size = c.cols[0]!.re.length
+  const nk = kept.length
+  const sr = new Float64Array(MERGE_ROWS * nk)
+  const si = new Float64Array(MERGE_ROWS * nk)
+
+  for (let u0 = 0; u0 < size; u0 += MERGE_ROWS) {
+    const u1 = Math.min(size, u0 + MERGE_ROWS)
+    const rows = u1 - u0
+
+    sr.fill(0)
+    si.fill(0)
+
+    for (let b = 0; b < k; b++) {
+      const col = c.cols[b]!
+
+      for (let j = 0; j < nk; j++) {
+        const wr = h.vectorsRe[kept[j]! * k + b]!
+        const wi = h.vectorsIm[kept[j]! * k + b]!
+
+        if (wr === 0 && wi === 0) {
+          continue
+        }
+
+        const o = j * MERGE_ROWS - u0
+
+        for (let u = u0; u < u1; u++) {
+          const xr = col.re[u]!
+          const xi = col.im[u]!
+
+          sr[o + u]! += xr * wr - xi * wi
+          si[o + u]! += xr * wi + xi * wr
+        }
+      }
+    }
+
+    for (let j = 0; j < nk; j++) {
+      c.cols[j]!.re.set(sr.subarray(j * MERGE_ROWS, j * MERGE_ROWS + rows), u0)
+      c.cols[j]!.im.set(si.subarray(j * MERGE_ROWS, j * MERGE_ROWS + rows), u0)
+    }
+  }
+
+  c.cols.length = nk
+
+  // mergeColumns' own check: the kept columns' weight plus the dropped eigen weight is the trace it started with
+  let before = 0
+  let after = 0
+
+  for (let b = 0; b < k; b++) {
+    before += re[b * k + b]!
+  }
+
+  for (const v of c.cols) {
+    after += weightOf(v)
+  }
+
+  merged.off = Math.max(merged.off, Math.abs(before - after - dropped))
+  c.orth = nk
+
+  return dropped
+}
+
 export function runClassStore(
   set: ClassSettings,
   start: Amp,
@@ -339,6 +482,7 @@ export function runClassStore(
   }
 
   takeMergeOff()
+  merged.off = 0
 
   const sectors: Sector[] = []
 
@@ -412,7 +556,7 @@ export function runClassStore(
   const merge = (n: number, c: Columns): void => {
     if (c.cols.length > set.cap[n]!) {
       const spy = set.spectrum
-      const x = mergeColumns(c, set.keep[n]!, spy ? values => spy(n, beatNow, values) : undefined)
+      const x = mergeInPlace(c, set.keep[n]!, spy ? values => spy(n, beatNow, values) : undefined)
 
       if (n === TRACKED) {
         ledger.broken += x
@@ -1480,7 +1624,7 @@ export function runClassStore(
     tv,
     traceOff,
     maxColumns,
-    mergeOff: takeMergeOff(),
+    mergeOff: Math.max(takeMergeOff(), merged.off),
     reach: set.beats,
     seconds: (Date.now() - started) / 1000,
   }
