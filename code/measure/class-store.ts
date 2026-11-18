@@ -1389,11 +1389,28 @@ export function runClassStore(
     maxColumns = Math.max(maxColumns, columns.reduce((x, y) => x + y, 0))
     beatNow = t + 1
 
+    // the store this beat starts from, by (love number, residue): columns x amplitudes each, or a dense block's rows,
+    // and its bytes (16 a complex amplitude)
+    let storeBytes = 0
     const byResidue =
       set.every !== undefined && t % set.every === 0
         ? cur.cols
-            .flatMap((m, n) => [...m].map(([r, c]) => `${n}:${r}=${c.cols.length}`))
-            .concat(cur.dense.flatMap((m, n) => [...m.keys()].map(r => `${n}:${r}=dense`)))
+            .flatMap((m, n) =>
+              [...m].map(([r, c]) => {
+                const size = c.cols[0]?.re.length ?? 0
+
+                storeBytes += 16 * size * c.cols.length
+                return `${n}:${r}=${c.cols.length}x${size}`
+              }),
+            )
+            .concat(
+              cur.dense.flatMap((m, n) =>
+                [...m].map(([r, x]) => {
+                  storeBytes += 16 * x.D * x.D
+                  return `${n}:${r}=dense${x.D}`
+                }),
+              ),
+            )
             .join(' ')
         : ''
 
@@ -1448,7 +1465,7 @@ export function runClassStore(
     }
 
     if (set.every !== undefined && t % set.every === 0) {
-      log(`class-store ${arm}: beat ${t} columns ${columns.join(',')} trunc ${snap.truncBy.map(x => x.toExponential(1)).join(',')} by residue ${byResidue}`)
+      log(`class-store ${arm}: beat ${t} columns ${columns.join(',')} trunc ${snap.truncBy.map(x => x.toExponential(1)).join(',')} by residue ${byResidue} store ${(storeBytes / 2 ** 30).toFixed(2)} GiB`)
     }
 
     finish(t, acc, snap, columns, withF)
