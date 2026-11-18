@@ -1606,10 +1606,39 @@ export function runClassStore(
       }
 
       cur.cols[n]!.clear()
+
+      // this love number's full-sector scratch is let go once its columns are worked (item 0045's cut: the 5-love
+      // pair is 0.68 GiB on the ring of 32 and was held through every 4-love merge); a fresh one is zero, as fill(0)
+      // leaves a reused one, so no number changes
+      bufA.delete(n)
+      bufB.delete(n)
     }
 
+    // the arrival's lift buffers are let go after the beat that used them (item 0045's cut: the 5-love one is 0.34
+    // GiB and was held from beat 60 on); a fresh buffer is zero, as fill(0) leaves a reused one
+    upBuffers.clear()
+
     if (set.every !== undefined && t % set.every === 0) {
-      log(`class-store ${arm}: beat ${t} columns ${columns.join(',')} trunc ${snap.truncBy.map(x => x.toExponential(1)).join(',')} by residue ${byResidue} store ${(storeBytes / 2 ** 30).toFixed(2)} GiB`)
+      // the next beat's store, counted after this beat built it, so a caller reads its allocation beside the store
+      // it was measured with (item 0045: alloc read against the store at the START of the beat counted an arrival's
+      // new dense block twice)
+      let nextBytes = 0
+
+      if (next) {
+        for (const m of next.cols) {
+          for (const c of m.values()) {
+            nextBytes += 16 * (c.cols[0]?.re.length ?? 0) * c.cols.length
+          }
+        }
+
+        for (const m of next.dense) {
+          for (const x of m.values()) {
+            nextBytes += 16 * x.D * x.D
+          }
+        }
+      }
+
+      log(`class-store ${arm}: beat ${t} columns ${columns.join(',')} trunc ${snap.truncBy.map(x => x.toExponential(1)).join(',')} by residue ${byResidue} store ${(storeBytes / 2 ** 30).toFixed(2)} GiB next ${(nextBytes / 2 ** 30).toFixed(3)} GiB`)
     }
 
     finish(t, acc, snap, columns, withF)
