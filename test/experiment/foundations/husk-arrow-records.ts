@@ -124,7 +124,7 @@ export default experiment({
   id: 'foundations/husk-arrow-records',
   code: 'E-FND-0147',
   title:
-    'the arrow of time on the adopted knit, pass: a bijective beat keeps fine-grained information and has the same causal cone both ways, so the arrow is the low-entropy slice plus the coarse map; measured over 85 runs (17 link starts x 5 events), the energy of a husk region 4 steps from the slice event is the same integer in every run at the slice and, within a start, for every event until beat 4 in both directions (the cone, exact), then the record (its correlation with the event) reaches 1.00 at beat 4 and holds 0.985 to 0.993 from beat 60 to 120 forward and backward (bulk half 0.95 to 0.98); one branch dips to about -0.54 at beat 14 as the first front wraps the box',
+    'the arrow of time on the earlier bounce knit, pass: a bijective beat keeps fine-grained information and has the same causal cone both ways, so the arrow is the low-entropy slice plus the coarse map; measured over 85 runs (17 link starts x 5 events), the energy of a husk region 4 steps from the slice event is the same integer in every run at the slice and, within a start, for every event until beat 4 in both directions (the cone, exact), then the record (its correlation with the event) reaches 1.00 at beat 4 and holds 0.985 to 0.993 from beat 60 to 120 forward and backward (bulk half 0.95 to 0.98); one branch dips to about -0.54 at beat 14 as the first front wraps the box',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',

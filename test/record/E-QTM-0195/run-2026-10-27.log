@@ -1,0 +1,69 @@
+start integer+0 6s
+start integer+1 12s
+start integer+2 17s
+start integer+3 22s
+start integer+4 26s
+start integer+5 30s
+start integer+6 36s
+start integer+7 41s
+start integer+8 47s
+start integer+9 51s
+start integer+10 55s
+start integer+11 59s
+start integer+12 65s
+start integer+13 70s
+start integer+14 76s
+start integer+15 81s
+start golden 89s
+
+E-QTM-0195 quantum/weyl-uncertainty  L2  89.3s
+status   pass
+claim    on 612 lone-vibe runs (17 starts, L = 3, 6, 9, 27, 9 points, 2M beats) the T-momentum stays exactly flat (true), so H(K) = log M at every beat; H(X) + H(K) >= log L (worst excess 0.00e+0), met only at the start on c = 1 orbits (68 runs, 0 after beat 0); H(N) + H(K) >= log M (-7.11e-15); Schrodinger-Robertson holds (0.00e+0), met only trivially at the start, smallest ratio after it 1.7023; role and tilt bases mutually unbiased exactly (54 of 54), so H(role) + H(tilt) >= log 3
+metrics
+  starts  17
+  orbits  612
+  gate_I1  1
+  gate_I2  1
+  gate_C1  1
+  gate_C2  1
+  gate_H1  1
+  gate_H2  1
+  gate_H3  1
+  gate_H4  1
+  P1  0
+  flatWorst  1.6653345369377348e-16
+  muDockWorst  0
+  muFineWorst  -7.105427357601002e-15
+  srWorst  0
+  minRobertsonRatio  1.7023384443044178
+  refocusRuns  0
+  dockEqualRuns  68
+  dockEqualAfterStart  0
+  roleTiltMinAfterStart  0
+  roleTiltBelowBeats  2201
+  groundRatio27  1.0000000000000004
+  groundRatio81  0.9999999999999991
+  seconds  89.286
+  L3_cValues  12346
+  L3_cOne  16
+  L3_minRatio  1.7023384443044178
+  L3_roleTiltMin  0
+  L6_cValues  12346
+  L6_cOne  16
+  L6_minRatio  17.855653642866493
+  L6_roleTiltMin  0
+  L9_cValues  12346
+  L9_cOne  17
+  L9_minRatio  2.960545131466978
+  L9_roleTiltMin  0
+  L27_cValues  12346
+  L27_cOne  19
+  L27_minRatio  25.370076359048788
+  L27_roleTiltMin  0
+control
+  planeWaveHN  3.2958368660043296
+  planeWaveHK  1.1102230246251634e-15
+  groundRatio27  1.0000000000000004
+  groundRatio81  0.9999999999999991
+notes    L2. Gates I1 true, I2 true, C1 true, C2 true, H1 true, H2 true, H3 true, H4 true; P1 false. L 3: c in {1, 2, 3, 4, 6} (c = 1 on 16 of 153), dock bound met on beats {0}, refocus beats {}, min Robertson ratio after beat 0 1.7023, min H(role) + H(tilt) after beat 0 0.0000; L 6: c in {1, 2, 3, 4, 6} (c = 1 on 16 of 153), dock bound met on beats {0}, refocus beats {}, min Robertson ratio after beat 0 17.8557, min H(role) + H(tilt) after beat 0 0.0000; L 9: c in {1, 2, 3, 4, 6} (c = 1 on 17 of 153), dock bound met on beats {0}, refocus beats {}, min Robertson ratio after beat 0 2.9605, min H(role) + H(tilt) after beat 0 0.0000; L 27: c in {1, 2, 3, 4, 6} (c = 1 on 19 of 153), dock bound met on beats {0}, refocus beats {}, min Robertson ratio after beat 0 25.3701, min H(role) + H(tilt) after beat 0 0.0000. Lone vibe point weight below log 3 on 2201 run-beats (beat 0 is one point, 0). Ground state comm 1.000000000, 1.000000000. 89 s.
+exit 0

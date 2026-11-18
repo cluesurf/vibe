@@ -123,8 +123,9 @@ export function coinBranch(
   return coinLines(cells, br, adjoint, tally)
 }
 
-// the coin itself, uncounted: the working beat's own coin
-function coinLines(
+// the coin itself, uncounted: the working beat's own coin (exported for the sparse engine, code/rule/sparse-locked-knit,
+// which runs the same beat on a branch's occupied docks)
+export function coinLines(
   cells: number,
   br: Branch,
   adjoint: boolean,
@@ -767,6 +768,70 @@ export function mixBranch(
     }
 
     b.k += 2 * lone.length
+    out.push(b)
+  }
+
+  return out
+}
+
+// G AT STRENGTH theta (opt-in, item vibe-roadmap-grounding-0025): G_theta = I + (u - 1) P_u on each lone frame, P_u the
+// frame's uniform-mode projector and u = e^(i theta) = p + q w in Z[w], so keep (u + 7)/8 and each other frame slot
+// (u - 1)/8. u = -1 is G (mixBranch, same values), u = 1 the identity. Z[w] holds only the sixth roots of unity on the
+// unit circle, so theta is a multiple of pi/3 here. The adjoint is u's conjugate (p - q) - q w. mixBranch is unchanged.
+export function thetaMixBranch(
+  cells: number,
+  br: Branch,
+  u: readonly [bigint, bigint],
+  adjoint = false,
+): Branch[] {
+  const lone = loneFrames(cells, br)
+
+  if (lone.length === 0) {
+    return [br]
+  }
+
+  if (lone.length > 4) {
+    throw new Error(
+      `coined-locked-knit: ${lone.length} lone frames in one branch, over the guard 4`,
+    )
+  }
+
+  const [p, q] = adjoint ? [u[0] - u[1], -u[1]] : u
+  const out: Branch[] = []
+
+  for (let code = 0; code < 8 ** lone.length; code++) {
+    const b = cloneBranch(br)
+
+    let rest = code
+
+    for (const { base, frame, q: at } of lone) {
+      const o = rest % 8
+      const ss = FRAME_SLOTS[frame]!
+
+      rest = (rest - o) / 8
+
+      if (o === 0) {
+        times(b, p + 7n, q)
+        continue
+      }
+
+      const from = base + ss[at]!
+      const to = base + ss[at ^ o]!
+
+      b.vibe[to] = b.vibe[from]!
+      b.point[to] = b.point[from]!
+      b.open[to] = b.open[from]!
+      b.vibe[from] = 0
+      b.point[from] = 0
+      b.open[from] = 0
+      times(b, p - 1n, q)
+    }
+
+    if (b.a === 0n && b.b === 0n) {
+      continue
+    }
+
+    b.k += 3 * lone.length
     out.push(b)
   }
 

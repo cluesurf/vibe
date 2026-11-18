@@ -150,7 +150,7 @@ export default experiment({
   id: 'foundations/sea-reach',
   code: 'E-FND-0157',
   title:
-    'a disturbance of the full sea reaches every line and every dock under the dock-wide mixer, exactly: on the register rule (E-SPN-0160) and its chiral Wilson variant, one member (a hole of the sea, by E-SPN-0163) started on one slot holds a nonzero amplitude on all 12 lines of every dock of D4 boxes of side 4 and 6, proved mod p in the map Z[w][1/42] -> F_p, inside a cone of two root steps a cycle; the run reverses exactly, commutes with every translation (momentum as the Noether charge of translation is kept exactly, while the root sum, a velocity, is not), and keeps the full sea as one branch with unit amplitude; with no mixer the start returns to its slot and with a mixer inside one line the reach is one line, which is the line law of the adopted knit',
+    'a disturbance of the full sea reaches every line and every dock under the dock-wide mixer, exactly: on the register rule (E-SPN-0160) and its chiral Wilson variant, one member (a hole of the sea, by E-SPN-0163) started on one slot holds a nonzero amplitude on all 12 lines of every dock of D4 boxes of side 4 and 6, proved mod p in the map Z[w][1/42] -> F_p, inside a cone of two root steps a cycle; the run reverses exactly, commutes with every translation (momentum as the Noether charge of translation is kept exactly, while the root sum, a velocity, is not), and keeps the full sea as one branch with unit amplitude; with no mixer the start returns to its slot and with a mixer inside one line the reach is one line, which is the line law of the working rule',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',

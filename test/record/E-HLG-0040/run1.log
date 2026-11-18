@@ -1,0 +1,15 @@
+/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/quantum-resolve/code/measure/husk-content.ts:578
+  const K = Math.max(0, ...state.branches.map(b => b.k))
+                 ^
+
+RangeError: Maximum call stack size exceeded
+    at huskContent (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/quantum-resolve/code/measure/husk-content.ts:578:18)
+    at runLine (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/quantum-resolve/test/experiment/holography/husk-content.ts:371:15)
+    at huskContentRun (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/quantum-resolve/test/experiment/holography/husk-content.ts:570:17)
+    at <anonymous> (/Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/experiment/quantum-resolve/tmp/hlg40-run.ts:4:28)
+    at ModuleJob.run (node:internal/modules/esm/module_job:430:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:661:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.13.1
+exit 1

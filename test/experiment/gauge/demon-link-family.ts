@@ -1254,6 +1254,8 @@ export type RunReading = {
   energyDrift: number
   plaquette: number
   layerPlaquette: number
+  // the layer plaquette mean over the first and the second half of the measured sweeps (board-0041's S0)
+  layerHalves: [number, number]
   beta: number
   loops: { value: number; error: number }[]
   chi22: { value: number; error: number }
@@ -1317,6 +1319,11 @@ export function runPoint(input: {
     k => readings.reduce((a, r) => a + r.sectors[k]!, 0) / lines,
   ) as [number, number, number]
   const layerPlaquette = mean(readings.map(r => r.layerPlaquette))
+  const half = Math.floor(readings.length / 2)
+  const layerHalves: [number, number] = [
+    mean(readings.slice(0, half).map(r => r.layerPlaquette)),
+    mean(readings.slice(half).map(r => r.layerPlaquette)),
+  ]
   const reading: RunReading = {
     instrument: field.graph.name,
     member: member.name,
@@ -1329,6 +1336,7 @@ export function runPoint(input: {
     energyDrift: drift,
     plaquette: mean(readings.map(r => r.plaquette)),
     layerPlaquette,
+    layerHalves,
     beta: unitDemonBeta({ meanDemon: mean(readings.map(r => r.demonMean)), capacity: member.capacity }),
     loops,
     chi22,
@@ -1383,7 +1391,7 @@ export type LaptopPart = {
 
 export type GridPart = { part: 'grid' | 'floor'; instrument: Record<string, number>; runs: RunReading[] }
 
-function instrumentGates(graph: Graph, field: Field): Record<string, number> {
+export function instrumentGates(graph: Graph, field: Field): Record<string, number> {
   const layer = graph.layer!
   const depth = graph.depth!
   const floor = graph.floor ?? 0
@@ -1422,7 +1430,7 @@ function instrumentGates(graph: Graph, field: Field): Record<string, number> {
   }
 }
 
-function i2Holds(g: Record<string, number>): boolean {
+export function i2Holds(g: Record<string, number>): boolean {
   return (
     g.patterns === 192 &&
     g.firstCountMin === 8 &&

@@ -1,0 +1,2 @@
+{"at":"2026-11-17T05:28:14.345Z","item":"vibe-roadmap-board-0042","command":["sh","tmp/m3-demon-link-m1-beta.sh","b42-temp"],"gate":{"hash":"f7ed3bbfb661","at":"2026-11-17T05:25:46.949Z"},"exit":0,"verdict":"m3-done","recorded":true,"refused":[]}
+{"at":"2026-11-17T05:41:14.477Z","item":"vibe-roadmap-board-0042","command":["node_modules/.bin/tsx","tmp/run-demon-link-m1-beta.ts","verdict"],"gate":{"hash":"f7ed3bbfb661","at":"2026-11-17T05:25:46.949Z"},"exit":0,"verdict":"pass","recorded":true,"refused":[]}

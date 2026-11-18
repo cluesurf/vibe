@@ -112,7 +112,7 @@ symbols, it is not yet a claim.
 
 ## Stage 5. Predict before you code
 
-Write the prediction first. Then write the code. In that order, every time.
+For a claim that will be written up, write the prediction first, then the code.
 
 Because the base is deterministic, a Vibe prediction is a **number with a tolerance**,
 or a sign, or a scaling exponent. It is never a mood. Examples of the shape:
@@ -122,9 +122,15 @@ or a sign, or a scaling exponent. It is never a mood. Examples of the shape:
 - a correlation that decays as a stated power,
 - a control case that must return zero.
 
-If you code first and read the number off afterwards, you will fit the code to what
-you hoped for without noticing. The prediction written first is the guard against
-that. It is Stage 16 in miniature, applied to every single experiment.
+If you code first and read the number off afterwards, you will fit the code to what you
+hoped for without noticing. The prediction written first is the guard against that.
+
+This is a discipline for the **headline claims**, the ones that get sent to a stranger,
+not for every run. Most of the day-to-day work is tinkering to find what the rule
+produces, and freezing a prediction for each exploratory run is arbitrary overhead.
+Lock a prediction when a result graduates to a claim worth defending, not before. A
+board experiment is always such a claim: its gates are set first, as the section on
+pre-registration below requires, before any probe runs.
 
 ## Stage 6. Independent implementations
 

@@ -1,0 +1,23 @@
+{
+  "code": "E-CMP-0021",
+  "seconds": 0.033,
+  "verdict": {
+    "status": "pass",
+    "claim": "one locomotive on a circuit of fixed, flip-flop and memory switches ran 64 register-machine runs (add, double, parity, multiply) and halted with every register equal to direct evaluation in 64 of them. With the memory switches made fixed 12 of 64 came out right, with the flip-flops made fixed 43 of 64",
+    "metrics": {
+      "ruleCasesAgree": 18,
+      "ruleCases": 18,
+      "elementReadWriteOk": 1,
+      "runs": 64,
+      "runsCorrect": 64,
+      "forbiddenCrossings": 0,
+      "switchCrossings": 12567,
+      "largestCircuitNodes": 294
+    },
+    "control": {
+      "memoryAsFixedCorrect": 12,
+      "flipFlopAsFixedCorrect": 43
+    },
+    "notes": "L2, a known construction (Stewart 1994, Margenstern Vol II 4.2) reproduced and run. The switch rule, the one-bit element and the two-element register unit follow the sources. The control wiring (the toggle loop, the caller marks, the register exits) is rebuilt from the same three switches and is ours. The reference is a plain register-machine interpreter."
+  }
+}

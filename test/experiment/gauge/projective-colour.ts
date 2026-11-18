@@ -64,7 +64,7 @@
 // UNGATED: meson and baryon speed over the lepton's; the stay rule's reads.
 // Lead's prediction: VIABLE.
 //
-// DETERMINISM: no random numbers (hashed vectors from a murmur3 finalizer). EXACT: STEP 1. FLOAT: STEPS 2 and 3, each
+// DETERMINISM: no random numbers (the test vectors are Kronecker streams, code/tool/weyl). EXACT: STEP 1. FLOAT: STEPS 2 and 3, each
 // verdict a number against a fixed tolerance.
 
 import { experiment } from '@/test/scaffold/suite'
@@ -93,6 +93,7 @@ import {
   type Ninth,
   type NinthMatrix,
 } from '@/code/algebra/ninth-field'
+import { makeWeyl } from '@/code/tool/weyl'
 
 const SLOTS = 24
 const REG = 8
@@ -117,16 +118,11 @@ export const TEETH = 1e-3
 
 const MU = unitAngle(ringUnit(-1, 4))
 
-const fmix = (h0: number): number => {
-  let h = h0 | 0
+// a generic test vector: `length` values of the Kronecker stream at `start`, centred on 0 (code/tool/weyl, no draw)
+const spread = (start: number, length: number): Float64Array => {
+  const stream = makeWeyl({ start })
 
-  h ^= h >>> 16
-  h = Math.imul(h, 0x85ebca6b)
-  h ^= h >>> 13
-  h = Math.imul(h, 0xc2b2ae35)
-  h ^= h >>> 16
-
-  return (h >>> 0) / 4294967296 - 0.5
+  return Float64Array.from({ length }, () => stream.next() - 0.5)
 }
 
 // ---- STEP 1, exact ----
@@ -1018,8 +1014,8 @@ export function jRead(rs: RelSector): { residual: number; control: number; invol
     }
   }
   const read = (withB: boolean): number => {
-    const pr = Float64Array.from({ length: D }, (_, i) => fmix(7 * i + 3))
-    const pi = Float64Array.from({ length: D }, (_, i) => fmix(7 * i + 4))
+    const pr = spread(3, D)
+    const pi = spread(4, D)
     const ar = Float64Array.from(pr)
     const ai = Float64Array.from(pi)
 

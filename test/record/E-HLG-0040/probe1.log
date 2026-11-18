@@ -1,0 +1,6 @@
+blank vibe 0 point 0 open 0 store 0 spoint 0,10,20 sopen 0
+ring 4 line 0
+radius 3 cells 8857 base 0 mismatch 3.2646629955454674e-13 inconsistent 0 returns true built ms 587 4 beats ms 191 branches 8 levels 1:63 3:300 5:318 7:344 9:324 11:396 13:482 15:504
+radius 4 cells 162049 base 0 mismatch 3.852852405769759e-13 inconsistent 0 returns true built ms 16228 4 beats ms 3391 branches 8 levels 1:129 3:756 5:978 7:1256 9:1404 11:1644 13:2102 15:2496
+radius 5 cells 2962393 base 0 mismatch 4.904356057215379e-13 inconsistent 0 returns true built ms 295119 4 beats ms 518631 branches 8 levels 1:231 3:1548 5:2286 7:3224 9:4068 11:4692 13:6170 15:8088
+exit 0

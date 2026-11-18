@@ -1,0 +1,1 @@
+{"at":"2026-11-17T09:11:52.210Z","item":"vibe-roadmap-board-0052","command":["sh","tmp/m3-cusp-depth-relative.sh","cusp-relative"],"gate":{"hash":"b4faf9f61b44","at":"2026-11-17T09:10:21.324Z"},"exit":0,"verdict":"partial","recorded":true,"refused":[]}

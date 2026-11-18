@@ -1,0 +1,39 @@
+
+E-QTM-0196 quantum/role-berry-phase  L2  1.2s
+status   pass
+claim    a role turned round a loop of lines through one point by Sigma(648) reads gamma = - Omega/2 on 9828 of 9828 loops (lengths 2 to 6), face triangles |gamma| in units of pi/18 {9, 27} (spin-1/2 pi/2, spin-1 would be pi or 1.1677); loops that enclose nothing read 0 (108 of 108 back-and-forth, 4428 of 4428 with Omega 0); triangles not through one point differ from the concurrent one by 2 pi A/3 (432 plus, 0 minus of 432)
+metrics
+  gate_I1  1
+  gate_I2  1
+  gate_I3  1
+  gate_I4  1
+  gate_C1  1
+  gate_C2  1
+  gate_H1  1
+  gate_H2  1
+  gate_H3  1
+  gate_H4  1
+  P1  0
+  sign  -1
+  concurrentLoops  9828
+  loops  599508
+  backForth  108
+  zeroOmegaLoops  4428
+  worstLawPlus  3.141592653589793
+  worstLawMinus  3.552713678800501e-15
+  refineWorst  8.881784197001252e-16
+  faceTriangles  216
+  otherTriangles  432
+  fluxPlus  432
+  fluxMinus  0
+  omegaOne  1.1676603535096612
+  inSpace  0.9999999999999996
+  tetraOff  6.106226635438361e-16
+  seconds  1.205
+control
+  backForthZero  108
+  zeroOmegaZero  4428
+  spinHalfFace  1.5707963267948961
+  spinOneFace  3.1415926535897922
+notes    L2. Gates I1 true (covariant 2592 of 2592), I2 true (pencils 24/12/2/true 24/12/2/true 24/12/2/true 24/12/2/true 24/12/2/true 24/12/2/true 24/12/2/true 24/12/2/true 24/12/2/true), I3 true (216 of 216), I4 true, C1 true, C2 true, H1 true, H2 true (exact true, multiples of pi/6 true), H3 true, H4 true; P1 false. Loops by length 108, 648, 6804, 58320, 533628, concurrent 108, 216, 756, 2160, 6588. Concurrent gamma units (pi/18): 0:4428 9:1188 18:3024 27:1188. Other gamma units: 0:123120 3:13176 6:85104 9:8640 12:91800 15:6480 18:56160 21:6480 24:91800 27:8640 30:85104 33:13176. Omega -> gamma units: 0.000 pi -> 0 (4248); 1.000 pi -> 27 (1188); 2.000 pi -> 18 (3024); 3.000 pi -> 9 (1188); 4.000 pi -> 0 (180). Flux table: A 1 diff 12: 216; A 2 diff 24: 216. Spin-1/2 faces 1.570796 1.570796 1.570796 1.570796, spin-1 faces 3.141593 3.141593 3.141593 3.141593. 1 s.
+exit 0

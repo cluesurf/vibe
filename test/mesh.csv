@@ -1697,4 +1697,40 @@ E-RLT-0121,honeycomb-ball,mirrored,working,box-store,honeycomb-ball:exactBallMes
 E-FND-0178,d4-box honeycomb-ball honeycomb-quotient,box-specific honeycomb periodic,working,,d4-box:lockedFresh(side) honeycomb-ball:exactBallMesh honeycomb-quotient:enumerateFrames honeycomb-quotient:quotientMesh
 E-FND-0179,d4-box honeycomb-ball honeycomb-quotient,box-specific honeycomb periodic,working,,d4-box:lockedFresh(side) honeycomb-ball:exactBallMesh honeycomb-quotient:enumerateFrames honeycomb-quotient:quotientMesh
 E-FND-0180,d4-box honeycomb-ball honeycomb-quotient,box-specific honeycomb periodic,working,,d4-box:lockedFresh(side) honeycomb-ball:exactBallMesh honeycomb-quotient:enumerateFrames honeycomb-quotient:quotientMesh
-E-SLF-0184,honeycomb-line,honeycomb,working,,honeycomb-line:code/measure/cone-line ring:code/measure/cold-line
+E-FRC-0317,honeycomb-ball honeycomb-cusp cubic,honeycomb periodic stand-in,other,,cubic:makeFiniteGaugeLattice honeycomb-ball:buildExactBall honeycomb-cusp:buildExactCusp
+E-SLF-0183,honeycomb-ball honeycomb-quotient honeycomb-line ring,mirrored periodic honeycomb stand-in,working,,honeycomb-ball:exactBallMesh honeycomb-line:lineEngine honeycomb-quotient:enumerateFrames honeycomb-quotient:quotientMesh ring:code/measure/drift-cost-bloch ring:code/measure/flux-store-bloch ring:code/measure/quantum-ladder ring:fitRing ring:lineEngine
+E-SLF-0184,honeycomb-line ring,honeycomb stand-in,other,,honeycomb-line:code/measure/cone-line honeycomb-line:lineEngine ring:code/measure/drift-cost-bloch ring:code/measure/flux-store-bloch ring:code/measure/quantum-ladder ring:fitRing ring:lineEngine
+E-FRC-0318,honeycomb-ball honeycomb-cusp,honeycomb periodic,other,,honeycomb-ball:buildExactBall honeycomb-cusp:buildExactCusp
+E-SLF-0185,honeycomb-ball honeycomb-line ring,honeycomb honeycomb stand-in,working,,honeycomb-ball:exactBallMesh honeycomb-line:code/measure/cone-line ring:code/measure/drift-cost-bloch ring:code/measure/flux-store-bloch ring:code/measure/quantum-ladder ring:fitRing
+E-SLF-0186,honeycomb-ball honeycomb-line ring,honeycomb honeycomb stand-in,working,,honeycomb-ball:exactBallMesh honeycomb-line:code/measure/cone-line ring:code/measure/drift-cost-bloch ring:code/measure/flux-store-bloch ring:code/measure/quantum-ladder ring:fitRing
+E-HLG-0039,honeycomb-ball honeycomb-cusp,unread periodic,other,,honeycomb-ball:labelTransports honeycomb-cusp:buildCuspQuotient honeycomb-cusp:cuspLayer
+E-QTM-0195,d4-box ring,box-specific stand-in,working,,d4-box:makeColorWeave(side) ring:code/measure/quantum-ladder
+E-QTM-0196,none,no-mesh,other,,
+E-QTM-0192,none,no-mesh,none,,
+E-QTM-0193,d4-box,box-specific,other,,d4-box:makeColorWeave(side)
+E-QTM-0194,d4-box,box-specific,other,,d4-box:photonLatticeD4
+E-QTM-0197,d4-box,box-specific,working,,d4-box:d4Steps d4-box:makeColorWeave(side)
+E-HLG-0040,d4-box honeycomb-ball honeycomb-cusp,box-specific unread unread,working,,d4-box:lockedFresh(side) honeycomb-ball:labelTransports honeycomb-cusp:cuspLayer
+E-QTM-0191,none,no-mesh,none,,
+E-QTM-0198,honeycomb-ball honeycomb-cusp,unread unread,working,,honeycomb-ball:labelTransports honeycomb-cusp:cuspLayer
+E-HLG-0042,honeycomb-ball honeycomb-cusp,unread unread,working,,honeycomb-ball:labelTransports honeycomb-cusp:cuspLayer
+E-CMP-0021,none,no-mesh,none,,
+E-CMP-0022,other,stand-in,none,,other:buildCellGraph
+E-FRC-0319,honeycomb-ball honeycomb-cusp,unread periodic,other,,honeycomb-ball:buildExactBall honeycomb-cusp:buildExactCusp
+E-QTM-0199,d4-box honeycomb-ball,box-specific honeycomb,working,,d4-box:lockedFresh(side) d4-box:makeColorWeave(side) honeycomb-ball:exactBallMesh
+E-FRC-0320,honeycomb-ball honeycomb-cusp,honeycomb periodic,working,,honeycomb-ball:buildExactBall honeycomb-ball:exactBallMesh honeycomb-cusp:buildExactCusp honeycomb-cusp:cuspTranslations
+E-FRC-0321,honeycomb-ball honeycomb-cusp,honeycomb periodic,working,,honeycomb-ball:buildExactBall honeycomb-ball:exactBallMesh honeycomb-cusp:buildExactCusp honeycomb-cusp:cuspTranslations
+E-SLF-0187,honeycomb-ball honeycomb-line ring,honeycomb honeycomb stand-in,working,,honeycomb-ball:exactBallMesh honeycomb-line:code/measure/cone-line ring:code/measure/drift-cost-bloch ring:code/measure/flux-store-bloch ring:code/measure/quantum-ladder ring:fitRing
+E-SLF-0188,honeycomb-quotient honeycomb-line ring,periodic honeycomb stand-in,other,,honeycomb-line:lineEngine honeycomb-quotient:enumerateFrames ring:code/measure/drift-cost-bloch ring:code/measure/flux-store-bloch ring:code/measure/quantum-ladder ring:fitRing ring:lineEngine
+E-SLF-0189,honeycomb-ball honeycomb-cusp honeycomb-line ring,honeycomb periodic honeycomb stand-in,working,,honeycomb-ball:buildExactBall honeycomb-ball:exactBallMesh honeycomb-cusp:cuspTranslations honeycomb-line:code/measure/cone-line ring:code/measure/drift-cost-bloch ring:code/measure/flux-store-bloch ring:code/measure/quantum-ladder ring:fitRing
+E-SLF-0190,honeycomb-ball honeycomb-cusp honeycomb-line ring,honeycomb periodic honeycomb stand-in,working,,honeycomb-ball:buildExactBall honeycomb-ball:exactBallMesh honeycomb-cusp:cuspTranslations honeycomb-line:code/measure/cone-line ring:code/measure/drift-cost-bloch ring:code/measure/flux-store-bloch ring:code/measure/quantum-ladder ring:fitRing
+E-SLF-0191,honeycomb-ball honeycomb-line ring,honeycomb honeycomb stand-in,working,,honeycomb-ball:exactBallMesh honeycomb-line:code/measure/cone-line ring:code/measure/drift-cost-bloch ring:code/measure/flux-store-bloch ring:code/measure/quantum-ladder ring:fitRing
+E-SLF-0192,honeycomb-ball honeycomb-quotient ring,honeycomb periodic stand-in,working,,honeycomb-ball:exactBallMesh honeycomb-quotient:enumerateFrames ring:code/measure/drift-cost-bloch ring:code/measure/flux-store-bloch ring:code/measure/quantum-ladder
+E-GRV-0154,honeycomb-ball honeycomb-cusp,honeycomb periodic,none,,honeycomb-ball:buildLabelledRegion honeycomb-ball:labelTransports honeycomb-cusp:buildCuspQuotient honeycomb-cusp:buildExactCusp honeycomb-cusp:cuspLayer
+E-GRV-0155,honeycomb-ball honeycomb-cusp,honeycomb periodic,none,,honeycomb-ball:buildLabelledRegion honeycomb-ball:labelTransports honeycomb-cusp:buildCuspQuotient honeycomb-cusp:buildExactCusp honeycomb-cusp:cuspLayer
+E-GMT-0044,honeycomb-cusp honeycomb-quotient,periodic periodic,other,,honeycomb-cusp:buildExactCusp honeycomb-quotient:enumerateFrames
+E-SLF-0193,honeycomb-quotient honeycomb-line ring,periodic honeycomb stand-in,other,,honeycomb-line:lineEngine honeycomb-quotient:enumerateFrames ring:code/measure/drift-cost-bloch ring:code/measure/flux-store-bloch ring:code/measure/quantum-ladder ring:fitRing ring:lineEngine
+E-SLF-0194,honeycomb-line ring,honeycomb stand-in,other,,honeycomb-line:code/measure/cone-line ring:code/measure/drift-cost-bloch ring:code/measure/flux-store-bloch ring:code/measure/quantum-ladder ring:fitRing
+E-SLF-0195,honeycomb-ball ring,honeycomb stand-in,working,,honeycomb-ball:exactBallMesh ring:code/measure/drift-cost-bloch ring:code/measure/flux-store-bloch ring:code/measure/quantum-ladder
+E-SLF-0196,ring,stand-in,other,,ring:code/measure/drift-cost-bloch ring:code/measure/flux-store-bloch ring:code/measure/quantum-ladder ring:fitRing ring:lineEngine
+E-SLF-0197,honeycomb-ball honeycomb-line ring,honeycomb honeycomb stand-in,working,,honeycomb-ball:exactBallMesh honeycomb-line:code/measure/cone-line ring:code/measure/drift-cost-bloch ring:code/measure/flux-store-bloch ring:code/measure/quantum-ladder ring:fitRing

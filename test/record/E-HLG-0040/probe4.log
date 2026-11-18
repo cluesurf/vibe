@@ -1,0 +1,17 @@
+t4 branches 52 s 0.1
+t8 branches 236 s 0.3
+t12 branches 548 s 0.7
+t16 branches 988 s 1.8
+t20 branches 1556 s 3.7
+t24 branches 2252 s 6.3
+t28 branches 3076 s 10.1
+t32 branches 4028 s 15.1
+t36 branches 5108 s 20.7
+t40 branches 6316 s 28.3
+t44 branches 7652 s 38.7
+t48 branches 9116 s 51.4
+t52 branches 10708 s 65.1
+t56 branches 12428 s 80.0
+t60 branches 14276 s 98.0
+t64 branches 16252 s 118.5
+exit 0

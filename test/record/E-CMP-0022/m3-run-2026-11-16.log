@@ -1,0 +1,41 @@
+{
+  "code": "E-CMP-0022",
+  "seconds": 13.326,
+  "verdict": {
+    "status": "pass",
+    "claim": "4 of 4 railway circuits laid on {7,3} and {5,4} ran as a cellular automaton, one tile a step, crossed their switches in the same order as the switch-level run and ended equal to direct evaluation. With the memory switches made fixed 0 of 4 did",
+    "metrics": {
+      "add 1 + 2 on {7,3}: steps": 2643,
+      "add 1 + 2 on {7,3}: tiles": 2378,
+      "add 1 + 2 on {7,3}: crossings": 373,
+      "add 1 + 2 on {7,3}: side by side": 305,
+      "add 1 + 2 on {7,3}: correct": 1,
+      "add 1 + 2 on {7,3}: other inputs correct": 1,
+      "add 1 + 2 on {5,4}: steps": 8257,
+      "add 1 + 2 on {5,4}: tiles": 7443,
+      "add 1 + 2 on {5,4}: crossings": 1088,
+      "add 1 + 2 on {5,4}: side by side": 1208,
+      "add 1 + 2 on {5,4}: correct": 1,
+      "add 1 + 2 on {5,4}: other inputs correct": 1,
+      "double 2 on {7,3}: steps": 5718,
+      "double 2 on {7,3}: tiles": 3954,
+      "double 2 on {7,3}: crossings": 666,
+      "double 2 on {7,3}: side by side": 704,
+      "double 2 on {7,3}: correct": 1,
+      "double 2 on {7,3}: other inputs correct": 1,
+      "parity 3 on {7,3}: steps": 3481,
+      "parity 3 on {7,3}: tiles": 2247,
+      "parity 3 on {7,3}: crossings": 300,
+      "parity 3 on {7,3}: side by side": 293,
+      "parity 3 on {7,3}: correct": 1,
+      "parity 3 on {7,3}: other inputs correct": 1
+    },
+    "control": {
+      "add 1 + 2 on {7,3}: memory as fixed correct": 0,
+      "add 1 + 2 on {5,4}: memory as fixed correct": 0,
+      "double 2 on {7,3}: memory as fixed correct": 0,
+      "parity 3 on {7,3}: memory as fixed correct": 0
+    },
+    "notes": "L2, a known construction run on the tilings it was made for. The tiling is a band along a geodesic, built exactly by a translation of the tiling. Tile state holds the wiring, so the alphabet is larger than Margenstern's 4 states on {7,3} and 2 to 9 on {5,4}, and two tracks may share a tile side by side, which his automata never do. Both counts are reported."
+  }
+}

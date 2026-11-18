@@ -1,0 +1,2 @@
+{"at":"2026-11-17T10:17:55.045Z","item":"vibe-roadmap-grounding-0032","command":["sh","tmp/m3-parity-sector.sh","parity-sector","smoke"],"gate":{"hash":"adf123ac07d1","at":"2026-11-17T10:13:21.156Z"},"exit":0,"verdict":"open","recorded":true,"refused":[]}
+{"at":"2026-11-17T10:27:28.569Z","item":"vibe-roadmap-grounding-0032","command":["sh","tmp/m3-parity-sector.sh","parity-sector","full"],"gate":{"hash":"adf123ac07d1","at":"2026-11-17T10:13:21.156Z"},"exit":0,"verdict":"pass","recorded":true,"refused":[]}

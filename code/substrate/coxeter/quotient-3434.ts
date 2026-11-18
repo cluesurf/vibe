@@ -39,6 +39,7 @@ import {
 import { cuspTranslations } from '@/code/substrate/coxeter/exact-cusp'
 import { OPPOSITE } from '@/code/rule/isometric-knit'
 import { type Mesh } from '@/code/tool/mesh'
+import { GOLDEN, SILVER, weyl } from '@/code/tool/weyl'
 
 const DIM = 5
 const ENTRIES = DIM * DIM
@@ -263,19 +264,14 @@ export function schreierSims(generators: Residues[], prime: number): StabilizerC
     offer(g, 0)
   }
 
-  // warm up with random products (deterministic seed), so the verification below adds few generators
-  let seed = 0x2545f491
-  const random = (n: number): number => {
-    seed = (Math.imul(seed, 1103515245) + 12345) >>> 0
-
-    return seed % n
-  }
+  // warm up with products of pool members picked along the golden and silver Weyl rotations (code/tool/weyl, no
+  // draw), so the verification below adds few generators. The order is exact whatever the picks: they only speed it.
   const pool = generators.slice()
 
   if (pool.length > 0) {
     for (let k = 0; k < 400; k++) {
-      const i = random(pool.length)
-      const j = random(pool.length)
+      const i = Math.floor(weyl(k + 1, GOLDEN) * pool.length)
+      const j = Math.floor(weyl(k + 1, SILVER) * pool.length)
 
       if (i !== j) {
         pool[i] = reducedProduct(pool[i]!, pool[j]!, p)
