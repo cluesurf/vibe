@@ -1719,6 +1719,7 @@ E-CMP-0022,other,stand-in,none,,other:buildCellGraph
 E-FRC-0319,honeycomb-ball honeycomb-cusp,unread periodic,other,,honeycomb-ball:buildExactBall honeycomb-cusp:buildExactCusp
 E-QTM-0199,d4-box honeycomb-ball,box-specific honeycomb,working,,d4-box:lockedFresh(side) d4-box:makeColorWeave(side) honeycomb-ball:exactBallMesh
 E-QTM-0200,d4-box,box-specific,working,,d4-box:lockedFresh(side)
+E-QTM-0201,d4-box,box-specific,working,,d4-box:lockedFresh(side)
 E-FRC-0320,honeycomb-ball honeycomb-cusp,honeycomb periodic,working,,honeycomb-ball:buildExactBall honeycomb-ball:exactBallMesh honeycomb-cusp:buildExactCusp honeycomb-cusp:cuspTranslations
 E-FRC-0321,honeycomb-ball honeycomb-cusp,honeycomb periodic,working,,honeycomb-ball:buildExactBall honeycomb-ball:exactBallMesh honeycomb-cusp:buildExactCusp honeycomb-cusp:cuspTranslations
 E-SLF-0187,honeycomb-ball honeycomb-line ring,honeycomb honeycomb stand-in,working,,honeycomb-ball:exactBallMesh honeycomb-line:code/measure/cone-line ring:code/measure/drift-cost-bloch ring:code/measure/flux-store-bloch ring:code/measure/quantum-ladder ring:fitRing
