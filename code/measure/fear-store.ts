@@ -104,6 +104,10 @@ export type FearSector = {
   readonly codes: Uint8Array
   readonly chunks: number
   readonly keys: Float64Array
+  // the order the store scans the configurations in (decision 018): with no fear, class-store's (cold-line's colex rank
+  // of the love mask), so the two stores make the same buckets, residue lists and merges in the same order; with a fear,
+  // the sector's own order
+  readonly scan: Int32Array
 }
 
 // the codes of dock x: front (mode 2x + 1), back (mode 2x), store
@@ -173,7 +177,25 @@ export function makeFearSector(L: number, loves: number, fears: number): FearSec
     }
   }
 
-  return { L, loves, fears, M, size: 3 * M, codes, chunks, keys }
+  // colex on love masks is the masks' numeric order: compare docks from L - 1 down, and on a loves-only dock the code
+  // (front mode 2x + 1 above back mode 2x) ascends as the dock's two bits do
+  const scan = Int32Array.from({ length: M }, (_, r) => r)
+
+  if (fears === 0) {
+    scan.sort((a, b) => {
+      for (let x = L - 1; x >= 0; x--) {
+        const d = codes[a * L + x]! - codes[b * L + x]!
+
+        if (d !== 0) {
+          return d
+        }
+      }
+
+      return 0
+    })
+  }
+
+  return { L, loves, fears, M, size: 3 * M, codes, chunks, keys, scan }
 }
 
 export function cfgOf(s: FearSector, r: number): Cfg {
@@ -684,7 +706,10 @@ export function runFearStore(set: FearStoreSettings, start: FearStart, log: (wha
     const pos = new Int32Array(s.M).fill(-1)
     const counts = [0, 0, 0]
 
-    for (let r = 0; r < s.M; r++) {
+    // each residue's list in the scan order (decision 018), the basis of its columns and dense block
+    for (let i = 0; i < s.M; i++) {
+      const r = s.scan[i]!
+
       if (restrict && tb!.k[r] !== 0) {
         continue
       }
@@ -899,7 +924,9 @@ export function runFearStore(set: FearStoreSettings, start: FearStart, log: (wha
     const tb = table(id)
     const buckets = new Map<number, { fs: number; at: number[]; re: number[]; im: number[]; w: number }>()
 
-    for (let r = 0; r < s.M; r++) {
+    // the buckets made in the scan order (decision 018), so they reach the next store in class-store's order
+    for (let i = 0; i < s.M; i++) {
+      const r = s.scan[i]!
       const k = tb.k[r]!
 
       if (k === 0) {
