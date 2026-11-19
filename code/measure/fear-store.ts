@@ -43,12 +43,26 @@
 // TRACKED. A branch left with fewer than TRACKED loves (open or stored) has lost the self: its weight is ledgered as
 // broken and followed no further, as in error-boundary.
 //
+// THE READINGS (item 0059, decision 017), by option: given a `reader` (0039's level, cold-line lineReader), every read
+// beat also carries F (the bound count, fears and stores as bath), out_rel, R = F / F(0) and R_up, and given `tvAt`
+// the run returns I's TV means keyed by the love part, all from code/measure/fear-reader. With no reader and no tvAt
+// nothing is computed and no existing field changes. F(0) and I's beat-0 distribution are read on the start column
+// before the step of beat 1, as class-store reads them.
+//
 // Measurement in floats. The pieces are fear-line's, exact (signed permutations). Nothing here moves the rule.
 
 import { choleskyColumns, merged, mergeInPlace } from '@/code/measure/class-store'
-import type { Amp } from '@/code/measure/cold-line'
+import type { Amp, LineReader } from '@/code/measure/cold-line'
 import { emptyAmp } from '@/code/measure/cold-line'
 import { TRACKED, type Arm } from '@/code/measure/error-boundary'
+import {
+  fearBound,
+  fearBoundDense,
+  fearReaderTable,
+  lovePartIds,
+  splitColours,
+  type FearReaderTable,
+} from '@/code/measure/fear-reader'
 import {
   chargeClass,
   costLinks,
@@ -436,7 +450,22 @@ export type FearStoreSettings = {
   // the state after B1's beat at every beat, piece by piece (instruments only): a column (full sector, cut innermost)
   // or a dense block whose row a is the full index rows[a] with sign signs[a]
   readonly observe?: (t: number, s: FearSector, part: Observed) => void
+  // decision 017's readings (item 0059): the level's reader (F, out_rel, R, R_up at every read beat), the TV beats and
+  // window (I, as class-store's tvAt and tvWindow), and R_up's constants (FMAX, FBROKEN, FSTORE) for the schedule
+  readonly reader?: LineReader
+  readonly tvAt?: readonly number[]
+  readonly tvWindow?: number
+  readonly bounds?: FearBounds
 }
+
+export type FearBounds = { readonly fmax: number; readonly fbroken: number; readonly fstore: number }
+
+// decision 017 section 4: 0039's love schedule, and the fear schedule (BF, SF, NF)
+export const LOVE_BOUNDS: FearBounds = { fmax: 10, fbroken: 1, fstore: 1 }
+export const FEAR_BOUNDS: FearBounds = { fmax: 1, fbroken: 0, fstore: 1 }
+
+export const rUpOf = (b: FearBounds, F: number, ledger: FearLedger, rest: number, F0: number): number =>
+  (F + b.fmax * (ledger.trunc + ledger.cap) + b.fbroken * ledger.broken + b.fstore * rest) / F0
 
 export type Observed =
   | { readonly kind: 'column'; readonly v: Amp }
@@ -472,9 +501,20 @@ export type FearReading = {
   // kept weight and column count by sector, 'loves:fears'
   readonly weightBy: Readonly<Record<string, number>>
   readonly columns: Readonly<Record<string, number>>
+  // with a reader (decision 017): F, out_rel, R, R_up with the run's bounds (when given) and with LOVE_BOUNDS, and F
+  // and weight by block 'loves:fears:residue'
+  readonly F?: number
+  readonly outRel?: number
+  readonly R?: number
+  readonly Rup?: number
+  readonly RupLove?: number
+  readonly blocks?: Readonly<Record<string, { readonly F: number; readonly weight: number }>>
 }
 
 export type FearRunResult = {
+  // with a reader: F at the start (beat 0); with tvAt: I's TV means
+  readonly F0?: number
+  readonly tv?: { readonly beat: number; readonly mean: number }[]
   readonly readings: FearReading[]
   // the store rest weight at every beat 1 .. beats
   readonly rest: number[]
@@ -995,9 +1035,43 @@ export function runFearStore(set: FearStoreSettings, start: FearStart, log: (wha
   }
 
   // ---- readings, summed over the store as it is worked ----
-  type Acc = { weight: number; loves: number; fears: number; rest: number; weightBy: Map<number, number> }
+  type Acc = {
+    weight: number
+    loves: number
+    fears: number
+    rest: number
+    weightBy: Map<number, number>
+    // decision 017's readings: F and out_rel at read beats (withF), I's distribution at TV beats
+    withF: boolean
+    F: number
+    outRel: number
+    blocks: Map<string, { F: number; weight: number }>
+    dist: Map<number, number> | undefined
+  }
 
-  const newAcc = (): Acc => ({ weight: 0, loves: 0, fears: 0, rest: 0, weightBy: new Map() })
+  const rd = set.reader
+  const tvAt = set.tvAt ?? []
+  const tvWindow = set.tvWindow ?? 0
+  const tvStart = new Set<number>()
+
+  for (const t of tvAt) {
+    for (let s = t - tvWindow; s <= t; s++) {
+      tvStart.add(s)
+    }
+  }
+
+  const newAcc = (t: number): Acc => ({
+    weight: 0,
+    loves: 0,
+    fears: 0,
+    rest: 0,
+    weightBy: new Map(),
+    withF: rd !== undefined && set.readAt.includes(t),
+    F: 0,
+    outRel: 0,
+    blocks: new Map(),
+    dist: tvStart.has(t) ? new Map() : undefined,
+  })
 
   const addWeight = (acc: Acc, id: number, w: number, rest: number): void => {
     acc.weight += w
@@ -1005,6 +1079,146 @@ export function runFearStore(set: FearStoreSettings, start: FearStart, log: (wha
     acc.fears += fearsOf(id) * w
     acc.rest += rest
     acc.weightBy.set(id, (acc.weightBy.get(id) ?? 0) + w)
+  }
+
+  const readerTables = new Map<number, FearReaderTable>()
+  const readerOf = (id: number): FearReaderTable => {
+    let tb = readerTables.get(id)
+
+    if (!tb) {
+      tb = fearReaderTable(rd!, sector(id), sector(sid(lovesOf(id) - 3, fearsOf(id))))
+      readerTables.set(id, tb)
+    }
+
+    return tb
+  }
+  const intern = new Map<string, number>()
+  const partIds = new Map<number, Int32Array>()
+  const partsOf = (id: number): Int32Array => {
+    let x = partIds.get(id)
+
+    if (!x) {
+      x = lovePartIds(sector(id), intern)
+      partIds.set(id, x)
+    }
+
+    return x
+  }
+  const splits = new Map<number, Uint8Array>()
+  const splitOf = (id: number): Uint8Array => {
+    let x = splits.get(id)
+
+    if (!x) {
+      x = splitColours(sector(id))
+      splits.set(id, x)
+    }
+
+    return x
+  }
+
+  const addBlockReading = (acc: Acc, id: number, r: number, F: number, w: number): void => {
+    const k = `${label(id)}:${r}`
+    const b = acc.blocks.get(k) ?? { F: 0, weight: 0 }
+
+    b.F += F
+    b.weight += w
+    acc.blocks.set(k, b)
+  }
+
+  // the readings of one full column of sector id (configuration-major, cut innermost) after the beat
+  const readColumn = (acc: Acc, id: number, r: number, v: Amp, w: number): void => {
+    const s = sector(id)
+
+    if (acc.withF) {
+      const F = lovesOf(id) >= 3 ? fearBound(readerOf(id), v) : 0
+      const split = splitOf(id)
+
+      acc.F += F
+      addBlockReading(acc, id, r, F, w)
+
+      for (let q = 0; q < s.M; q++) {
+        if (split[q]) {
+          for (let c = 0; c < 3; c++) {
+            acc.outRel += v.re[q * 3 + c]! ** 2 + v.im[q * 3 + c]! ** 2
+          }
+        }
+      }
+    }
+
+    if (acc.dist && lovesOf(id) === 3) {
+      const ids = partsOf(id)
+
+      for (let q = 0; q < s.M; q++) {
+        let x = 0
+
+        for (let c = 0; c < 3; c++) {
+          x += v.re[q * 3 + c]! ** 2 + v.im[q * 3 + c]! ** 2
+        }
+
+        if (x !== 0) {
+          acc.dist.set(ids[q]!, (acc.dist.get(ids[q]!) ?? 0) + x)
+        }
+      }
+    }
+  }
+
+  // I: the TV between consecutive beats' 3-love distributions, meaned over the window (class-store's finish)
+  const tv: { beat: number; mean: number }[] = []
+  let prevDist: Map<number, number> | undefined
+  let tvSum = 0
+  let tvCount = 0
+
+  const finishTv = (t: number, acc: Acc): void => {
+    if (acc.dist) {
+      if (prevDist && tvStart.has(t - 1)) {
+        let s = 0
+
+        for (const [k, x] of acc.dist) {
+          s += Math.abs(x - (prevDist.get(k) ?? 0))
+        }
+
+        for (const [k, x] of prevDist) {
+          if (!acc.dist.has(k)) {
+            s += Math.abs(x)
+          }
+        }
+
+        tvSum += s / 2
+        tvCount++
+      }
+
+      prevDist = acc.dist
+    }
+
+    if (tvAt.includes(t)) {
+      tv.push({ beat: t, mean: tvCount > 0 ? tvSum / tvCount : Number.NaN })
+      tvSum = 0
+      tvCount = 0
+    }
+  }
+
+  let F0 = Number.NaN
+
+  // a read beat's decision-017 fields (none without a reader); the ledger is the one the beat's other fields read
+  const withReadings = (acc: Acc, lg: FearLedger, rest: number): Partial<FearReading> => {
+    if (!rd) {
+      return {}
+    }
+
+    const blocks: Record<string, { F: number; weight: number }> = {}
+
+    for (const [k, b] of acc.blocks) {
+      blocks[k] = { F: b.F, weight: b.weight }
+    }
+
+    return {
+      F: acc.F,
+      outRel: acc.outRel,
+      R: acc.F / F0,
+      ...(set.bounds ? { Rup: rUpOf(set.bounds, acc.F, lg, rest, F0) } : {}),
+      RupLove: rUpOf(LOVE_BOUNDS, acc.F, lg, rest, F0),
+      blocks,
+    }
   }
 
   // ---- a dense block: its beat, readings, the next step, moved in place ----
@@ -1256,6 +1470,28 @@ export function runFearStore(set: FearStoreSettings, start: FearStart, log: (wha
 
     addWeight(acc, id, w, rest)
 
+    if (acc.withF) {
+      const F = lovesOf(id) >= 3 ? fearBoundDense(readerOf(id), D, re, im, nc, ncut, sg) : 0
+      const split = splitOf(id)
+
+      acc.F += F
+      addBlockReading(acc, id, r, F, w)
+
+      for (let a = 0; a < D; a++) {
+        acc.outRel += split[nc[a]!] ? re[a * D + a]! : 0
+      }
+    }
+
+    if (acc.dist && lovesOf(id) === 3) {
+      const ids = partsOf(id)
+
+      for (let a = 0; a < D; a++) {
+        const k = ids[nc[a]!]!
+
+        acc.dist.set(k, (acc.dist.get(k) ?? 0) + re[a * D + a]!)
+      }
+    }
+
     if (set.observe) {
       const rowsAt = new Int32Array(D)
 
@@ -1487,6 +1723,33 @@ export function runFearStore(set: FearStoreSettings, start: FearStart, log: (wha
       throw new Error('fear-store: the start is not a full column of its sector')
     }
 
+    // beat 0: F(0) and I's first distribution on the start as given (class-store reads the start before its dust is cut)
+    if (rd || tvStart.has(0)) {
+      const acc = newAcc(0)
+
+      acc.withF = rd !== undefined
+      addWeight(acc, id, weightOf(v), 0)
+      readColumn(acc, id, -1, v, acc.weight)
+      F0 = rd ? acc.F : Number.NaN
+      finishTv(0, acc)
+
+      if (rd && set.readAt.includes(0)) {
+        const weightBy: Record<string, number> = { [label(id)]: acc.weight }
+
+        readings.push({
+          beat: 0,
+          weight: acc.weight,
+          loves: acc.loves,
+          fears: acc.fears,
+          rest: 0,
+          ledger: { ...ledger },
+          weightBy,
+          columns: { [label(id)]: 1 },
+          ...withReadings(acc, ledger, 0),
+        })
+      }
+    }
+
     // the start's weight off its main class (float dust of a solve) is ledgered as truncation
     const byClass = [0, 0, 0]
     const q = new Int8Array(s.M)
@@ -1526,7 +1789,7 @@ export function runFearStore(set: FearStoreSettings, start: FearStart, log: (wha
   for (let t = 1; t <= set.beats; t++) {
     // the ledgers as the store this beat starts from left them (its step of beat t done), as class-store's snapshot
     const snap: FearLedger = { ...ledger }
-    const acc = newAcc()
+    const acc = newAcc(t)
     const next = t < set.beats ? emptyStore() : undefined
     const columns: Record<string, number> = {}
 
@@ -1591,6 +1854,7 @@ export function runFearStore(set: FearStoreSettings, start: FearStart, log: (wha
           }
 
           addWeight(acc, id, w, rest)
+          readColumn(acc, id, r, b, w)
 
           if (set.observe) {
             set.observe(t, s, { kind: 'column', v: b })
@@ -1608,6 +1872,7 @@ export function runFearStore(set: FearStoreSettings, start: FearStart, log: (wha
 
     traceOff = Math.max(traceOff, Math.abs(acc.weight + snap.trunc + snap.cap + snap.broken - 1))
     restBy.push(acc.rest)
+    finishTv(t, acc)
 
     if (set.every !== undefined && t % set.every === 0) {
       log(
@@ -1633,6 +1898,7 @@ export function runFearStore(set: FearStoreSettings, start: FearStart, log: (wha
         ledger: snap,
         weightBy,
         columns,
+        ...withReadings(acc, snap, acc.rest),
       })
     }
 
@@ -1641,5 +1907,14 @@ export function runFearStore(set: FearStoreSettings, start: FearStart, log: (wha
     }
   }
 
-  return { readings, rest: restBy, traceOff, maxColumns, mergeOff: merged.off, seconds: (Date.now() - started) / 1000 }
+  return {
+    ...(rd ? { F0 } : {}),
+    ...(tvAt.length > 0 ? { tv } : {}),
+    readings,
+    rest: restBy,
+    traceOff,
+    maxColumns,
+    mergeOff: merged.off,
+    seconds: (Date.now() - started) / 1000,
+  }
 }
