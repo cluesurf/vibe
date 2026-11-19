@@ -1,0 +1,1 @@
+{"at":"2026-11-19T04:08:12.092Z","item":"vibe-roadmap-grounding-0053","command":["sh","tmp/run-remainder-smoke.sh"],"gate":{"hash":"0cbf7680783c","at":"2026-11-19T04:07:52.221Z"},"exit":0,"verdict":"open","recorded":true,"refused":[]}

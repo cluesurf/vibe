@@ -1,0 +1,2 @@
+{"at":"2026-11-19T04:06:54.315Z","item":"vibe-roadmap-grounding-0050","command":["sh","tmp/run-in-tree.sh","tmp/fear-f0.ts","2"],"gate":{"hash":"a71ff12ac13d","at":"2026-11-19T03:44:30.443Z"},"exit":0,"verdict":"pass","recorded":true,"refused":[]}
+{"at":"2026-11-19T04:08:20.530Z","item":"vibe-roadmap-grounding-0050","command":["sh","tmp/run-in-tree.sh","tmp/fear-f23.ts"],"gate":{"hash":"a71ff12ac13d","at":"2026-11-19T03:44:30.443Z"},"exit":0,"verdict":"pass","recorded":true,"refused":[]}
