@@ -21,7 +21,7 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { runInfiniteTimeProofs } from '@/code/measure/infinite-time-proofs'
 
-const MIN_THEOREM_COUNT = 145
+const MIN_THEOREM_COUNT = 180
 
 const REQUIRED_THEOREMS = [
   'thm1_v1_eternal_stationarity',
@@ -57,6 +57,22 @@ const REQUIRED_THEOREMS = [
   'thm10_thirteen_shells_exceed_hierarchy',
   'thm10_role_grid_spectrum_identities',
   'thm10_dyadic_pow2_mod3',
+  'thm11_georgi_jarlskog_su4_traceless',
+  'thm11_matter_parity_all_16_fermions_odd',
+  'thm11_matter_parity_preserved_by_126H',
+  'thm11_sphaleron_ratio_sm',
+  'thm11_cusp_97_shells_exceed_lambda_ratio',
+  'thm12_two_body_momentum_conserved_all_time',
+  'thm12_unitary_horizon_inner_preserved',
+  'thm12_unitary_horizon_orthogonality_preserved',
+  'thm12_unitary_horizon_injective',
+  'thm12_unitary_horizon_surjective',
+  'thm13_axion_e_over_n_eight_thirds',
+  'thm13_nuclear_magic_exact',
+  'thm13_ho_magic_without_spin_orbit',
+  'thm14_positive_mass_gap_all_time',
+  'thm14_spectral_gap_exp_suppression',
+  'thm14_block_spin_anisotropy_contraction',
 ] as const
 
 const scriptDir = dirname(fileURLToPath(import.meta.url))
