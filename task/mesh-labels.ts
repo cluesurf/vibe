@@ -95,6 +95,8 @@ const HORIZON: Record<string, [Grade, string]> = {
   'E-QTM-0203': ['honeycomb', 'exact R = 3 ball (8,857 docks), 3 beats from base dock inside proven window m + 2t <= L, 0 frontier hits'],
   'E-QTM-0205': ['honeycomb', 'exact R = 2 ball (481 docks), 1 beat from base dock, 0 frontier hits'],
   'E-SLF-0199': ['honeycomb', 'exact R = 3 ball (8,857 docks), 1 beat from base dock via slot-sparse engine, 0 frontier hits'],
+  'E-SLF-0200': ['honeycomb', 'exact R = 3 ball (8,857 docks), 3 beats from base dock (t <= R, 0 frontier hits), plus L = 32 sparse error-boundary bath check'],
+  'E-RLT-0123': ['honeycomb', 'exact R = 3 ball (8,857 docks), 3 beats from base dock projected to cusp chart (t <= R, 0 frontier hits), plus exact 24x24 cusp Bloch dispersion'],
 }
 
 // open honeycomb-line runs whose beats were read against the line's length: the run is the infinite line of empty
