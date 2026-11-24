@@ -1,5 +1,5 @@
 // EMERGENT COSMOLOGICAL EXPANSION a(t), H(t), q(t), w_eff(t) FROM A FINITE DISTURBANCE SPREADING
-// IN THE FIXED INFINITE {3,4,3,4} MESH WITHOUT MESH GROWTH (E-CSM-0061, gaps B-18, B-42).
+// IN THE FIXED INFINITE {3,4,3,4} MESH WITHOUT MESH GROWTH (E-CSM-0064, gaps B-18, B-42).
 //
 // Proves that under adopted Proposal 003 (fixed infinite {3,4,3,4} honeycomb, zero irreversible mesh growth),
 // a finite localized disturbance starting at the cusp (D = 0) and evolving under the exact reversible unitary
@@ -27,7 +27,7 @@ const MATCH_TOL = 1e-12
 
 export default experiment({
   id: 'cosmology/horosphere-cosmology',
-  code: 'E-CSM-0061',
+  code: 'E-CSM-0064',
   title:
     'Emergent de Sitter expansion a(t), H(t), q -> -1, w_eff -> -1 from a reversible unitary disturbance spreading into fixed infinite {3,4,3,4} horospheres without mesh growth (B-18, B-42)',
   category: 'cosmology',

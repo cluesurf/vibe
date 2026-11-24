@@ -1758,3 +1758,7 @@ E-SLF-0200,honeycomb-ball ring,honeycomb stand-in,working,,honeycomb-ball:exactB
 E-RLT-0123,honeycomb-ball honeycomb-cusp,honeycomb periodic,working,,honeycomb-ball:exactBallMesh honeycomb-cusp:buildExactCusp honeycomb-cusp:cuspTranslations,bijective
 E-GRV-0157,none,no-mesh,none,,,static
 E-SPN-0222,none,no-mesh,none,,,static
+E-FRC-0322,none,no-mesh,none,,,static
+E-RLT-0124,honeycomb-ball honeycomb-cusp,honeycomb periodic,other,,honeycomb-ball:exactBallMesh honeycomb-cusp:cuspTranslations,bijective
+E-CSM-0064,honeycomb-ball honeycomb-cusp,honeycomb periodic,working,,honeycomb-ball:coverBall honeycomb-ball:exactBallMesh honeycomb-cusp:buildExactCusp,bijective
+E-RLT-0125,none,no-mesh,none,,,static

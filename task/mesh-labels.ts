@@ -97,7 +97,8 @@ const HORIZON: Record<string, [Grade, string]> = {
   'E-SLF-0199': ['honeycomb', 'exact R = 3 ball (8,857 docks), 1 beat from base dock via slot-sparse engine, 0 frontier hits'],
   'E-SLF-0200': ['honeycomb', 'exact R = 3 ball (8,857 docks), 3 beats from base dock (t <= R, 0 frontier hits), plus L = 32 sparse error-boundary bath check'],
   'E-RLT-0123': ['honeycomb', 'exact R = 3 ball (8,857 docks), 3 beats from base dock projected to cusp chart (t <= R, 0 frontier hits), plus exact 24x24 cusp Bloch dispersion'],
-  'E-CSM-0061': ['honeycomb', 'exact R = 3 ball (8,857 docks) and exact cusp (51,064 docks), t = 0..3 beats from dock 0 (t <= R, 0 forward frontier hits), plus exact infinite 7-ary frame-tree solver t = 0..40'],
+  'E-RLT-0124': ['honeycomb', 'exact 24x24 cusp-husk Bloch unitary (inherits cusp chart from E-RLT-0123; zero finite-ball horizon crossing), testing relativistic dispersion, time dilation and boost covariance'],
+  'E-CSM-0064': ['honeycomb', 'exact R = 3 ball (8,857 docks) and exact cusp (51,064 docks), t = 0..3 beats from dock 0 (t <= R, 0 forward frontier hits), plus exact infinite 7-ary frame-tree solver t = 0..40'],
 }
 
 // open honeycomb-line runs whose beats were read against the line's length: the run is the infinite line of empty
