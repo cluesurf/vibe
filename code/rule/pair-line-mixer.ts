@@ -140,3 +140,31 @@ export function pairLineMixStateExact(cells: number, s: LockedState): LockedStat
 }
 
 export const PAIR_LINE_SCALE = 6n
+
+// Complex scattering amplitudes for M_pair(e^{i theta}) on 12 lines:
+//   keep = 1 + (u - 1) / 12, hop = (u - 1) / 12, where u = e^{i theta}.
+export function pairLineScatterAmps(theta: number): {
+  readonly keep: readonly [number, number]
+  readonly hop: readonly [number, number]
+} {
+  const ur = Math.cos(theta)
+  const ui = Math.sin(theta)
+  const hopR = (ur - 1) / LINES
+  const hopI = ui / LINES
+  return {
+    keep: [1 + hopR, hopI],
+    hop: [hopR, hopI],
+  }
+}
+
+// 12x12 unitary matrix for M_pair(e^{i theta}) in row-major order.
+export function pairLineMixMatrix(theta: number): (readonly [number, number])[] {
+  const { keep, hop } = pairLineScatterAmps(theta)
+  const out: (readonly [number, number])[] = new Array(LINES * LINES)
+  for (let i = 0; i < LINES; i++) {
+    for (let j = 0; j < LINES; j++) {
+      out[i * LINES + j] = i === j ? keep : hop
+    }
+  }
+  return out
+}

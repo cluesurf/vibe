@@ -174,14 +174,14 @@ export function sparseMergeColumns(
     return 0
   }
 
-  // 1. Build union index of all active keys across the k columns with a flat open-addressed table.
-  let maxColSize = 0
+  // Sort columns by descending size so every (a, b) pair scatters the larger column once and inner-loops over the
+  // smaller column. Track which columns came from the already-orthogonal prefix [0 .. c.orth - 1].
+  const perm = Array.from({ length: k }, (_, i) => i).sort((x, y) => c.cols[y]!.size - c.cols[x]!.size)
+  const cols = perm.map(i => c.cols[i]!)
+  const isOrth = Uint8Array.from(perm, i => (i < c.orth ? 1 : 0))
 
-  for (let b = 0; b < k; b++) {
-    if (c.cols[b]!.size > maxColSize) {
-      maxColSize = c.cols[b]!.size
-    }
-  }
+  // 1. Build union index of all active keys across the k columns with a flat open-addressed table.
+  const maxColSize = cols[0]!.size
 
   let htCap = nextPow2(Math.max(64, maxColSize * 4))
   let htMask = htCap - 1
@@ -232,7 +232,7 @@ export function sparseMergeColumns(
   const colIdx: Int32Array[] = new Array(k)
 
   for (let b = 0; b < k; b++) {
-    const col = c.cols[b]!
+    const col = cols[b]!
     const n = col.size
     const idx = new Int32Array(n)
     const { lo, hi, cut } = col
@@ -280,14 +280,26 @@ export function sparseMergeColumns(
   const im = new Float64Array(k * k)
 
   for (let a = 0; a < k; a++) {
-    const colA = c.cols[a]!
+    const colA = cols[a]!
 
     re[a * k + a] = sparseWeightOf(colA)
     im[a * k + a] = 0
 
-    const bStart = a < c.orth ? c.orth : a + 1
+    if (a + 1 >= k || colA.size === 0) {
+      continue
+    }
 
-    if (bStart >= k || colA.size === 0) {
+    const aOrth = isOrth[a] === 1
+    let needScatter = false
+
+    for (let b = a + 1; b < k; b++) {
+      if (!(aOrth && isOrth[b] === 1) && cols[b]!.size > 0) {
+        needScatter = true
+        break
+      }
+    }
+
+    if (!needScatter) {
       continue
     }
 
@@ -300,8 +312,17 @@ export function sparseMergeColumns(
       accIm[u] = colA.im[j]!
     }
 
-    for (let b = bStart; b < k; b++) {
-      const colB = c.cols[b]!
+    for (let b = a + 1; b < k; b++) {
+      if (aOrth && isOrth[b] === 1) {
+        continue
+      }
+
+      const colB = cols[b]!
+
+      if (colB.size === 0) {
+        continue
+      }
+
       const idxB = colIdx[b]!
       const bRe = colB.re
       const bIm = colB.im
@@ -364,7 +385,7 @@ export function sparseMergeColumns(
         continue
       }
 
-      const col = c.cols[b]!
+      const col = cols[b]!
       const idx = colIdx[b]!
       const cRe = col.re
       const cIm = col.im

@@ -147,7 +147,7 @@ function buildWorkerExecArgv(resolvedScript: string): string[] {
 }
 
 function isPlainObject(value: object): boolean {
-  const proto = Object.getPrototypeOf(value)
+  const proto: unknown = Object.getPrototypeOf(value)
 
   return proto === null || proto === Object.prototype
 }

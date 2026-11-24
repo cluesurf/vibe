@@ -27,10 +27,14 @@
 //   pnpm exec tsx task/mesh-labels.ts --counts   also print the counts per mesh and grade
 
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { MeshReader, type MeshKind, type MeshReach } from './mesh-reach'
 
-const root = process.cwd()
+const cwd = process.cwd()
+const root = existsSync(join(cwd, 'test', 'registry.csv'))
+  ? cwd
+  : resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const registryPath = join(root, 'test', 'registry.csv')
 const labelPath = join(root, 'test', 'mesh.csv')
 const commit = process.argv.includes('--commit')
@@ -80,6 +84,16 @@ const HORIZON: Record<string, [Grade, string]> = {
   'E-CSM-0060': ['honeycomb', 'horosphere counting, geometry only'],
   'E-GRV-0154': ['honeycomb', 'geometry only: the labelled region only builds the cusp column (a copy of buildCuspQuotient), no rule runs; the static solves are on the cusp quotient'],
   'E-GRV-0155': ['honeycomb', 'E-GRV-0154 rerun with a relative residual gate: geometry only, the labelled region only builds the cusp column, no rule runs'],
+  'E-SPN-0220': ['honeycomb', 'exact R = 3 ball (8,857 docks), 1 beat from radius <= 2, 0 frontier hits'],
+  'E-RLT-0122': ['honeycomb', 'exact R = 2 and R = 3 balls, V1 fixed point + cusp lateral link count m_D (geometry only)'],
+  'E-GMT-0045': ['honeycomb', 'exact R = 2 ball (481 docks), 1 beat from base dock, 24 exact Z[sqrt 2] cusps'],
+  'E-GMT-0046': ['honeycomb', 'exact R = 2 and R = 3 balls, geometry only (shell recurrence and loop holonomy)'],
+  'E-FND-0181': ['honeycomb', 'exact R = 2 ball (481 docks), 1 beat from base dock, 0 frontier hits'],
+  'E-FND-0182': ['mirrored', 'exact R = 2 and R = 3 balls evolved to t = R specifically to test boundary-condition crossover past horizon'],
+  'E-FND-0183': ['honeycomb', 'exact R = 2 ball (481 docks), 1 beat from base dock, 0 frontier hits'],
+  'E-QTM-0203': ['honeycomb', 'exact R = 3 ball (8,857 docks), 3 beats from base dock inside proven window m + 2t <= L, 0 frontier hits'],
+  'E-QTM-0205': ['honeycomb', 'exact R = 2 ball (481 docks), 1 beat from base dock, 0 frontier hits'],
+  'E-SLF-0199': ['honeycomb', 'exact R = 3 ball (8,857 docks), 1 beat from base dock via slot-sparse engine, 0 frontier hits'],
 }
 
 // open honeycomb-line runs whose beats were read against the line's length: the run is the infinite line of empty
@@ -126,6 +140,22 @@ function gradeOf(code: string, mesh: MeshKind, reach: MeshReach): Grade {
   }
 }
 
+type Bijectivity = 'bijective' | 'injective' | 'lossy' | 'static'
+
+const LOSSY_RE =
+  /\b(dephasedBeat|dephasedStart|THRESHOLD_BORN|fullKeyPaths|full-key-paths|lindblad|Lindblad|calm_open|absorbing|traceOut|partialTrace|collapse|error-boundary|runBoundary|runSparseBoundary)\b/
+const INJECTIVE_RE = /\b(growth-vacuum|growMesh|appendLayer|addShell|growBall)\b/
+
+function bijectivityOf(file: string, rule: string): Bijectivity {
+  if (rule === 'none') return 'static'
+  const full = join(root, file)
+  if (!existsSync(full)) return 'bijective'
+  const src = readFileSync(full, 'utf8')
+  if (LOSSY_RE.test(src)) return 'lossy'
+  if (INJECTIVE_RE.test(src)) return 'injective'
+  return 'bijective'
+}
+
 type Row = {
   code: string
   mesh: string
@@ -133,9 +163,10 @@ type Row = {
   rule: string
   vacuum: string
   evidence: string
+  bijectivity: Bijectivity
 }
 
-const HEADER = 'code,mesh,grade,rule,vacuum,evidence'
+const HEADER = 'code,mesh,grade,rule,vacuum,evidence,bijectivity'
 const quote = (s: string): string => (/[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s)
 
 function parseCsvLine(line: string): string[] {
@@ -191,14 +222,16 @@ const registry = readFileSync(registryPath, 'utf8')
 const rows: Row[] = registry.map(({ code, file }) => {
   const reach = reader.read(file)
   const meshes = reach.meshes
+  const rule = reach.workingRule ? 'working' : reach.runsRule ? 'other' : 'none'
 
   return {
     code,
     mesh: meshes.join(' '),
     grade: meshes.map(m => gradeOf(code, m, reach)).join(' '),
-    rule: reach.workingRule ? 'working' : reach.runsRule ? 'other' : 'none',
+    rule,
     vacuum: reach.boxStore ? 'box-store' : '',
     evidence: reach.evidence.join(' '),
+    bijectivity: bijectivityOf(file, rule),
   }
 })
 
@@ -219,9 +252,11 @@ if (showCounts || commit) {
   const perMesh = new Map<string, number>()
   const perGrade = new Map<string, number>()
   const perLabel = new Map<string, number>()
+  const perBij = new Map<string, number>()
 
   for (const row of rows) {
     perLabel.set(`${row.mesh} | ${row.grade}`, (perLabel.get(`${row.mesh} | ${row.grade}`) ?? 0) + 1)
+    perBij.set(row.bijectivity, (perBij.get(row.bijectivity) ?? 0) + 1)
 
     for (const m of new Set(row.mesh.split(' '))) {
       perMesh.set(m, (perMesh.get(m) ?? 0) + 1)
@@ -240,6 +275,7 @@ if (showCounts || commit) {
 
   console.log(`experiments per mesh (an experiment on two meshes counts in both):\n${show(perMesh)}`)
   console.log(`experiments per grade:\n${show(perGrade)}`)
+  console.log(`experiments per bijectivity (m-15):\n${show(perBij)}`)
   console.log(`experiments per exact label:\n${show(perLabel)}`)
 }
 
@@ -247,7 +283,7 @@ if (commit) {
   const text = [
     HEADER,
     ...rows.map(r =>
-      [r.code, r.mesh, r.grade, r.rule, r.vacuum, r.evidence].map(quote).join(','),
+      [r.code, r.mesh, r.grade, r.rule, r.vacuum, r.evidence, r.bijectivity].map(quote).join(','),
     ),
   ].join('\n')
 
@@ -264,7 +300,7 @@ if (!existsSync(labelPath)) {
 const written = new Map<string, Row>()
 
 for (const line of readFileSync(labelPath, 'utf8').trim().split('\n').slice(1)) {
-  const [code, mesh, grade, rule, vacuum, evidence] = parseCsvLine(line)
+  const [code, mesh, grade, rule, vacuum, evidence, bijectivity] = parseCsvLine(line)
 
   written.set(code!, {
     code: code!,
@@ -273,6 +309,7 @@ for (const line of readFileSync(labelPath, 'utf8').trim().split('\n').slice(1)) 
     rule: rule!,
     vacuum: vacuum!,
     evidence: evidence!,
+    bijectivity: (bijectivity ?? 'static') as Bijectivity,
   })
 }
 
@@ -288,7 +325,7 @@ for (const row of rows) {
     continue
   }
 
-  for (const field of ['mesh', 'grade', 'rule', 'vacuum', 'evidence'] as const) {
+  for (const field of ['mesh', 'grade', 'rule', 'vacuum', 'evidence', 'bijectivity'] as const) {
     if (have[field] !== row[field]) {
       differ++
       console.log(`  differs    ${row.code}  ${field}: label '${have[field]}', code '${row[field]}'`)

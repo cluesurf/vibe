@@ -153,7 +153,7 @@ export function runVertexSymmetryTable(): VertexTableResult {
 
   // Select 8 det -1 cell mirrors fixing dock 0 (exact automorphisms of the R = 2 ball!)
   const group = slotGroup()
-  const pMirrors = []
+  const pMirrors: ReturnType<typeof asMirror>[] = []
   for (let i = 0; i < group.elements.length && pMirrors.length < 8; i++) {
     if (group.det[i] !== -1) continue
     const g = group.elements[i]!
