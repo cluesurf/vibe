@@ -45,6 +45,10 @@ import {
   type ExactVector,
 } from '@/code/substrate/coxeter/exact-3434'
 import { SLOT_CLASS } from '@/code/substrate/coxeter/exact-ball-mesh'
+import {
+  readExactCuspCache,
+  writeExactCuspCache,
+} from '@/code/substrate/coxeter/mesh-cache'
 import { OPPOSITE } from '@/code/rule/isometric-knit'
 import { type Mesh } from '@/code/tool/mesh'
 
@@ -329,6 +333,7 @@ export function buildExactCusp(input: {
   cell?: ExactCell
   // the offset of the fundamental box, in lattice units (default -0.4686, away from the integers and half-integers)
   offset?: number
+  cache?: boolean
 }): ExactCusp {
   const { period, floor } = input
 
@@ -342,8 +347,21 @@ export function buildExactCusp(input: {
     throw new Error(`buildExactCusp: floor ${floor}`)
   }
 
-  const cell = input.cell ?? exactCell()
   const theta = input.offset ?? -0.4686
+  const useCache =
+    input.cache !== false &&
+    input.cell === undefined &&
+    Number.isFinite(theta)
+
+  if (useCache) {
+    const cached = readExactCuspCache({ period, floor, offset: theta })
+
+    if (cached !== null) {
+      return cached
+    }
+  }
+
+  const cell = input.cell ?? exactCell()
   const translations = cuspTranslations(cell)
   const translationsOk = Object.values(translations.gates).every(Boolean)
 
@@ -676,7 +694,7 @@ export function buildExactCusp(input: {
     )
   }
 
-  return {
+  const result: ExactCusp = {
     mesh: {
       id: `exact-3434-cusp-${period}-floor-${floor}`,
       degree: SLOTS,
@@ -702,6 +720,12 @@ export function buildExactCusp(input: {
     translations,
     gates,
   }
+
+  if (useCache) {
+    writeExactCuspCache(result, { offset: theta })
+  }
+
+  return result
 }
 
 // A sub-mesh: the docks `keep` marks, in their old relative order, every slot facing a dropped dock -1. Returns the

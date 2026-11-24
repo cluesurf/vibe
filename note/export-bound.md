@@ -177,13 +177,13 @@ husk-visible bound's form.
 **Argued, not proved.** That a short run's coarse entropy production with repair off is the eta of Theorem 2 under one
 pure present. The spectral radius bound (majorant grid-checked). The sampled minimum of L.
 
-**Needs a run (M3 brief).**
+**Landed (2026-11-24, item `vibe-roadmap-board-0047`, `E-RLT-0122`, pass):**
 
-- E1, s_in. On the exact radius-4 ball, the working vacuum: the entropy of one incoming slot value given the region,
-  for balls of radius 0 to 2 around the base dock, over beats 1 to 4. Report s_in and Delta = ln d - s_in for d = 3 and
-  d = 37.
-- E2, m_D. On the cusp neighborhood (board-0027), count the lateral links joining two adjacent columns down to each
-  depth D <= 4, and report m_D against the column's dock count.
+- **E1 (`V1` under `F-G` and `ODD`)**: `V1` (the empty mesh, `E-RLT-0121`) is an exact fixed point of `F-G`, `ODD`, and the working rule on both coin placements (`R = 2` and `R = 3` exact balls, 0 branches split, 0 occupied slots). Every incoming slot outside a finite lump's light cone is deterministically calm (`s_in = 0` exact, 0 exceptions), giving `Delta = ln 37 = 3.610918` (slot) and `ln 3 = 1.098612` (tone), and a honeycomb Cheeger export floor `h * Delta >= 12.33 * ln 37 = 44.5226` nats/dock/beat. Proposals 003 and 004 share one vacuum `V1` (gap `B-43` closed).
+- **E2 (`m_D` on `buildExactCusp`, period 2, floors 1 to 3)**: Symmetric across all 6 cubic neighbors of the base cusp column, lateral links between adjacent columns obey `m_D = 10, 50, 250` (`= 2 * 5^D`) against column docks `19, 349, 6383` (`m_D / colDocks = 0.5263, 0.1433, 0.0392`, decaying as `(5 / 18.28)^D`).
+
+**Still open:**
+
 - E3, eta. For each candidate bound pattern (none binds yet, E-SPN-0145), the coarse entropy production per dock over
   4 beats with repair off, against eta*(F) from this note. Gate fixed first: the pattern is falsified as keepable when
   eta exceeds eta*(F) with Delta from E1.

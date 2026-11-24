@@ -26,6 +26,10 @@ import {
   type ExactBall,
   type ExactCell,
 } from '@/code/substrate/coxeter/exact-3434'
+import {
+  readExactBallMeshCache,
+  writeExactBallMeshCache,
+} from '@/code/substrate/coxeter/mesh-cache'
 import { type Mesh } from '@/code/tool/mesh'
 
 const SLOTS = 24
@@ -63,7 +67,22 @@ export const SLOT_CLASS: readonly number[] = rootsD4().map(r =>
 export function exactBallMesh(input: {
   radius: number
   cell?: ExactCell
+  cache?: boolean
 }): ExactBallMesh {
+  const useCache =
+    input.cache !== false &&
+    input.cell === undefined &&
+    Number.isInteger(input.radius) &&
+    input.radius >= 0
+
+  if (useCache) {
+    const cached = readExactBallMeshCache(input.radius)
+
+    if (cached !== null) {
+      return cached
+    }
+  }
+
   const cell = input.cell ?? exactCell()
   const ball = buildExactBall({ radius: input.radius, cell })
   const cells = ball.cells
@@ -145,7 +164,7 @@ export function exactBallMesh(input: {
     },
   }
 
-  return {
+  const result: ExactBallMesh = {
     mesh,
     ball,
     cells,
@@ -155,4 +174,10 @@ export function exactBallMesh(input: {
     classConflicts,
     gates,
   }
+
+  if (useCache) {
+    writeExactBallMeshCache(result)
+  }
+
+  return result
 }
