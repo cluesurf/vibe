@@ -315,35 +315,15 @@ const singleFlip = new Int32Array(MAX_SINGLE)
 const singleFront = new Int32Array(MAX_SINGLE)
 const streamNbs = new Int32Array(32)
 
-// Growable flat grouping scratch for sparseLineBeat (avoids per-call allocations and BigInt hashing).
-let grpCap = 0
-let grpNext = new Int32Array(0)
-let grpHead = new Int32Array(0)
-let grpCanonLo = new Int32Array(0)
-let grpCanonHi = new Int32Array(0)
-let grpCut = new Uint8Array(0)
-let grpHtCap = 0
-let grpHt = new Int32Array(0)
-
-function ensureGroupScratch(N: number): void {
-  if (N > grpCap) {
-    const cap = nextPow2(Math.max(1024, N))
-
-    grpCap = cap
-    grpNext = new Int32Array(cap)
-    grpHead = new Int32Array(cap)
-    grpCanonLo = new Int32Array(cap)
-    grpCanonHi = new Int32Array(cap)
-    grpCut = new Uint8Array(cap)
-  }
-
-  const neededHt = nextPow2(Math.max(64, N * 2))
-
-  if (neededHt > grpHtCap) {
-    grpHtCap = neededHt
-    grpHt = new Int32Array(neededHt)
-  }
-}
+// Reusable small-call scratch for sparseLineBeat (N <= 65536); larger calls allocate right-sized local buffers
+// sized to the canonical group count (~N/8..N/32) so peak memory stays minimal and is immediately reclaimable.
+const SCRATCH_LIMIT = 65536
+const smallNext = new Int32Array(SCRATCH_LIMIT)
+const smallHead = new Int32Array(SCRATCH_LIMIT)
+const smallCanonLo = new Int32Array(SCRATCH_LIMIT)
+const smallCanonHi = new Int32Array(SCRATCH_LIMIT)
+const smallCut = new Uint8Array(SCRATCH_LIMIT)
+const smallHt = new Int32Array(SCRATCH_LIMIT * 2)
 
 function applyCoinButterfly(m: number, coin: Coin, adjoint: boolean): void {
   const kr = coin[0][0]
@@ -420,14 +400,57 @@ export function sparseLineBeat(
   const cuts = closed ? 3 : 1
   const { lo: inLo, hi: inHi, cut: inCut, re: inRe, im: inIm } = a
 
-  ensureGroupScratch(N)
-
-  const htSize = nextPow2(Math.max(64, N * 2))
-  const htMask = htSize - 1
+  const useSmall = N <= SCRATCH_LIMIT
+  const grpNext = useSmall ? smallNext : new Int32Array(N)
+  let htSize = useSmall ? nextPow2(Math.max(64, N * 2)) : nextPow2(Math.max(1024, Math.ceil(N / 2)))
+  let htMask = htSize - 1
+  let grpHt = useSmall ? smallHt : new Int32Array(htSize)
+  let gCap = useSmall ? SCRATCH_LIMIT : htSize >> 1
+  let grpHead = useSmall ? smallHead : new Int32Array(gCap)
+  let grpCanonLo = useSmall ? smallCanonLo : new Int32Array(gCap)
+  let grpCanonHi = useSmall ? smallCanonHi : new Int32Array(gCap)
+  let grpCut = useSmall ? smallCut : new Uint8Array(gCap)
 
   grpHt.fill(-1, 0, htSize)
 
   let numGroups = 0
+
+  const rehashGroups = (): void => {
+    const newHtSize = htSize * 2
+    const newMask = newHtSize - 1
+    const newHt = new Int32Array(newHtSize)
+
+    newHt.fill(-1)
+
+    for (let id = 0; id < numGroups; id++) {
+      let pos = hashKey3(grpCanonLo[id]!, grpCanonHi[id]!, grpCut[id]!) & newMask
+
+      while (newHt[pos]! !== -1) {
+        pos = (pos + 1) & newMask
+      }
+
+      newHt[pos] = id
+    }
+
+    const newGCap = newHtSize >> 1
+    const nHead = new Int32Array(newGCap)
+    const nLo = new Int32Array(newGCap)
+    const nHi = new Int32Array(newGCap)
+    const nCut = new Uint8Array(newGCap)
+
+    nHead.set(grpHead.subarray(0, numGroups))
+    nLo.set(grpCanonLo.subarray(0, numGroups))
+    nHi.set(grpCanonHi.subarray(0, numGroups))
+    nCut.set(grpCut.subarray(0, numGroups))
+    htSize = newHtSize
+    htMask = newMask
+    grpHt = newHt
+    gCap = newGCap
+    grpHead = nHead
+    grpCanonLo = nLo
+    grpCanonHi = nHi
+    grpCut = nCut
+  }
 
   for (let i = 0; i < N; i++) {
     const lo = inLo[i]!
@@ -445,6 +468,10 @@ export function sparseLineBeat(
     const bothHi = (oddHi >>> 1) & evenHi
     const anyHi = (oddHi >>> 1) | evenHi
     const canonHi = (anyHi | (bothHi << 1)) | 0
+
+    if (!useSmall && numGroups >= gCap) {
+      rehashGroups()
+    }
 
     let slot = hashKey3(canonLo, canonHi, c) & htMask
     let g = grpHt[slot]!
@@ -473,7 +500,7 @@ export function sparseLineBeat(
     }
   }
 
-  let cap = Math.max(16, Math.ceil(N * 1.25))
+  let cap = Math.max(16, Math.ceil(N * 1.15))
   let outLo = new Int32Array(cap)
   let outHi = new Int32Array(cap)
   let outCut = new Uint8Array(cap)
@@ -483,7 +510,7 @@ export function sparseLineBeat(
   let crossingWeight = 0
 
   const grow = (): void => {
-    const nextCap = cap * 2
+    const nextCap = Math.max(cap + 16, Math.ceil(cap * 1.5))
     const nLo = new Int32Array(nextCap)
     const nHi = new Int32Array(nextCap)
     const nCut = new Uint8Array(nextCap)
@@ -777,15 +804,15 @@ export function sparseLineBeat(
     }
   }
 
-  const trimmed = outSize === cap
+  const tight = outSize >= cap * 0.85
 
   return {
     amp: {
-      lo: trimmed ? outLo : outLo.slice(0, outSize),
-      hi: trimmed ? outHi : outHi.slice(0, outSize),
-      cut: trimmed ? outCut : outCut.slice(0, outSize),
-      re: trimmed ? outRe : outRe.slice(0, outSize),
-      im: trimmed ? outIm : outIm.slice(0, outSize),
+      lo: tight ? outLo.subarray(0, outSize) : outLo.slice(0, outSize),
+      hi: tight ? outHi.subarray(0, outSize) : outHi.slice(0, outSize),
+      cut: tight ? outCut.subarray(0, outSize) : outCut.slice(0, outSize),
+      re: tight ? outRe.subarray(0, outSize) : outRe.slice(0, outSize),
+      im: tight ? outIm.subarray(0, outSize) : outIm.slice(0, outSize),
       size: outSize,
     },
     crossing: crossingWeight,
