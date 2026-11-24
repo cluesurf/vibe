@@ -1,11 +1,11 @@
 // SPARSE COLD LINE (optimization #2 for cold-line / error-boundary).
 //
 // On-the-fly sparse state representation and beat/reading engine for B1's cold line (code/measure/cold-line).
-// Stores ONLY nonzero configurations as parallel typed arrays (lo, hi, cut, re, im), keyed by packed BigInt
-// `(BigInt(hi >>> 0) << 34n) | (BigInt(lo >>> 0) << 2n) | BigInt(cut & 3)`, without pre-allocating C(2L, n)
-// sector tables.
+// Stores ONLY nonzero configurations as parallel typed arrays (lo, hi, cut, re, im), with canonical BigInt key
+// `packKey(lo, hi, cut) = (BigInt(hi >>> 0) << 34n) | (BigInt(lo >>> 0) << 2n) | BigInt(cut & 3)`, without
+// pre-allocating C(2L, n) sector tables.
 //
-// Exact semantics match code/measure/cold-line:
+// Internal hot loops use flat Int32Array open-addressed hash tables (zero BigInt allocations, zero GC pressure):
 //   - drift-cost phase zeta_14^(-links) and full-dock phase w^2 (a = 28 of 42), constant across each dock-occupancy
 //     group;
 //   - half/full coin on every single-love dock, computed via an in-cache 2^m butterfly per canonical dock group;
@@ -46,6 +46,24 @@ export const packKey = (lo: number, hi: number, cut: number): bigint =>
 
 export const packMaskKey = (lo: number, hi: number): bigint =>
   (BigInt(hi >>> 0) << 32n) | BigInt(lo >>> 0)
+
+export const hashKey3 = (lo: number, hi: number, meta: number): number => {
+  let h = Math.imul(lo ^ 0x9e3779b9, 0x85ebca6b) ^ Math.imul(hi ^ Math.imul(meta + 1, 0x27d4eb2d), 0xc2b2ae35)
+
+  h ^= h >>> 16
+
+  return h
+}
+
+export const nextPow2 = (n: number): number => {
+  let p = 1
+
+  while (p < n) {
+    p <<= 1
+  }
+
+  return p
+}
 
 export const emptySparseAmp = (): SparseAmp => ({
   lo: new Int32Array(0),
@@ -92,19 +110,49 @@ export function sparseInner(a: SparseAmp, b: SparseAmp): [number, number] {
   const small = a.size <= b.size ? a : b
   const large = a.size <= b.size ? b : a
   const flipped = small === b
-  const index = new Map<bigint, number>()
+  const tableSize = nextPow2(Math.max(16, small.size * 2))
+  const mask = tableSize - 1
+  const ht = new Int32Array(tableSize)
+
+  ht.fill(-1)
+
+  const sLo = small.lo
+  const sHi = small.hi
+  const sCut = small.cut
 
   for (let i = 0; i < small.size; i++) {
-    index.set(packKey(small.lo[i]!, small.hi[i]!, small.cut[i]!), i)
+    let slot = hashKey3(sLo[i]!, sHi[i]!, sCut[i]!) & mask
+
+    while (ht[slot]! !== -1) {
+      slot = (slot + 1) & mask
+    }
+
+    ht[slot] = i
   }
 
+  const lLo = large.lo
+  const lHi = large.hi
+  const lCut = large.cut
   let sr = 0
   let si = 0
 
   for (let j = 0; j < large.size; j++) {
-    const i = index.get(packKey(large.lo[j]!, large.hi[j]!, large.cut[j]!))
+    const lo = lLo[j]!
+    const hi = lHi[j]!
+    const cut = lCut[j]!
+    let slot = hashKey3(lo, hi, cut) & mask
+    let i = ht[slot]!
 
-    if (i === undefined) {
+    while (i !== -1) {
+      if (sLo[i] === lo && sHi[i] === hi && sCut[i] === cut) {
+        break
+      }
+
+      slot = (slot + 1) & mask
+      i = ht[slot]!
+    }
+
+    if (i === -1) {
       continue
     }
 
@@ -257,7 +305,7 @@ function cyclic(lo: number, hi: number, modes: number, s: number, len: number): 
 
 const overlaps = (a: Mask, b: Mask): boolean => (a[0] & b[0]) !== 0 || (a[1] & b[1]) !== 0
 
-// ---- sparse beat (reusable scratch buffers, single-threaded deterministic) ----
+// ---- sparse beat (reusable flat scratch buffers, single-threaded deterministic) ----
 
 const BUF_MAX = 1 << MAX_SINGLE
 const bufRe = new Float64Array(BUF_MAX)
@@ -266,6 +314,36 @@ const singleWord = new Uint8Array(MAX_SINGLE)
 const singleFlip = new Int32Array(MAX_SINGLE)
 const singleFront = new Int32Array(MAX_SINGLE)
 const streamNbs = new Int32Array(32)
+
+// Growable flat grouping scratch for sparseLineBeat (avoids per-call allocations and BigInt hashing).
+let grpCap = 0
+let grpNext = new Int32Array(0)
+let grpHead = new Int32Array(0)
+let grpCanonLo = new Int32Array(0)
+let grpCanonHi = new Int32Array(0)
+let grpCut = new Uint8Array(0)
+let grpHtCap = 0
+let grpHt = new Int32Array(0)
+
+function ensureGroupScratch(N: number): void {
+  if (N > grpCap) {
+    const cap = nextPow2(Math.max(1024, N))
+
+    grpCap = cap
+    grpNext = new Int32Array(cap)
+    grpHead = new Int32Array(cap)
+    grpCanonLo = new Int32Array(cap)
+    grpCanonHi = new Int32Array(cap)
+    grpCut = new Uint8Array(cap)
+  }
+
+  const neededHt = nextPow2(Math.max(64, N * 2))
+
+  if (neededHt > grpHtCap) {
+    grpHtCap = neededHt
+    grpHt = new Int32Array(neededHt)
+  }
+}
 
 function applyCoinButterfly(m: number, coin: Coin, adjoint: boolean): void {
   const kr = coin[0][0]
@@ -323,7 +401,7 @@ export type SparseBeatResult = {
 }
 
 // One exact beat on a sparse state without pre-allocating C(2L, n) sector tables.
-// Groups entries by canonical dock occupancy (which is invariant under both phase and coin), runs the exact 2^m coin
+// Groups entries by canonical dock occupancy in a flat Int32Array open-addressed hash table, runs the exact 2^m coin
 // butterfly in L1 scratch buffers, applies the group phase, and streams each surviving state directly to its unique
 // target configuration.
 export function sparseLineBeat(
@@ -342,13 +420,14 @@ export function sparseLineBeat(
   const cuts = closed ? 3 : 1
   const { lo: inLo, hi: inHi, cut: inCut, re: inRe, im: inIm } = a
 
-  // Group occupied entries by canonical dock pattern (00 -> 00, 01/10 -> 01, 11 -> 11) and cut trit.
-  const next = new Int32Array(N)
-  const groupHead: number[] = []
-  const groupCanonLo: number[] = []
-  const groupCanonHi: number[] = []
-  const groupCut: number[] = []
-  const groupMap = new Map<bigint, number>()
+  ensureGroupScratch(N)
+
+  const htSize = nextPow2(Math.max(64, N * 2))
+  const htMask = htSize - 1
+
+  grpHt.fill(-1, 0, htSize)
+
+  let numGroups = 0
 
   for (let i = 0; i < N; i++) {
     const lo = inLo[i]!
@@ -367,21 +446,30 @@ export function sparseLineBeat(
     const anyHi = (oddHi >>> 1) | evenHi
     const canonHi = (anyHi | (bothHi << 1)) | 0
 
-    const key = packKey(canonLo, canonHi, c)
-    const g = groupMap.get(key)
+    let slot = hashKey3(canonLo, canonHi, c) & htMask
+    let g = grpHt[slot]!
 
-    if (g === undefined) {
-      const id = groupHead.length
+    while (g !== -1) {
+      if (grpCanonLo[g] === canonLo && grpCanonHi[g] === canonHi && grpCut[g] === c) {
+        break
+      }
 
-      groupMap.set(key, id)
-      groupHead.push(i)
-      groupCanonLo.push(canonLo)
-      groupCanonHi.push(canonHi)
-      groupCut.push(c)
-      next[i] = -1
+      slot = (slot + 1) & htMask
+      g = grpHt[slot]!
+    }
+
+    if (g === -1) {
+      const id = numGroups++
+
+      grpHt[slot] = id
+      grpHead[id] = i
+      grpCanonLo[id] = canonLo
+      grpCanonHi[id] = canonHi
+      grpCut[id] = c
+      grpNext[i] = -1
     } else {
-      next[i] = groupHead[g]!
-      groupHead[g] = i
+      grpNext[i] = grpHead[g]!
+      grpHead[g] = i
     }
   }
 
@@ -415,10 +503,10 @@ export function sparseLineBeat(
     cap = nextCap
   }
 
-  for (let g = 0; g < groupHead.length; g++) {
-    const canonLo = groupCanonLo[g]!
-    const canonHi = groupCanonHi[g]!
-    const c = groupCut[g]!
+  for (let g = 0; g < numGroups; g++) {
+    const canonLo = grpCanonLo[g]!
+    const canonHi = grpCanonHi[g]!
+    const c = grpCut[g]!
 
     // From canonical masks: even bits of canon are `any` (dock occupied), odd bits shifted right are `both` (full dock).
     const anyLo = canonLo & 0x55555555
@@ -521,7 +609,7 @@ export function sparseLineBeat(
     bufIm.fill(0, 0, total)
 
     // Scatter group entries into the 2^m buffer.
-    for (let i = groupHead[g]!; i !== -1; i = next[i]!) {
+    for (let i = grpHead[g]!; i !== -1; i = grpNext[i]!) {
       const elo = inLo[i]!
       const ehi = inHi[i]!
       let idx = 0
@@ -704,10 +792,8 @@ export function sparseLineBeat(
   }
 }
 
-// ---- sparse bound-trio reading ----
+// ---- sparse bound-trio reading (flat open-addressed accumulator, zero BigInt allocations) ----
 
-// Exact sparse equivalent of cold-line's boundCount: F = sum_X <B_X^dag B_X>, operating strictly on occupied entries
-// and allocating only the nonzero (X, remaining-modes, left-cut) accumulator slots.
 export function sparseBoundCount(
   L: number,
   n: number,
@@ -723,10 +809,62 @@ export function sparseBoundCount(
   const modesAll = 2 * L
   const anchors = rd.anchors
   const anchored = rd.anchored
-  const accMap = new Map<bigint, number>()
-  const accRe: number[] = []
-  const accIm: number[] = []
   const { lo: inLo, hi: inHi, cut: inCut, re: inRe, im: inIm, size } = a
+
+  // Flat open-addressed accumulator keyed by (olo, ohi, (X << 2) | left).
+  let htCap = nextPow2(Math.max(128, Math.min(size * 4, 1 << 18)))
+  let htMask = htCap - 1
+  let ht = new Int32Array(htCap)
+
+  ht.fill(-1)
+
+  let slotCap = htCap >> 1
+  let accLo = new Int32Array(slotCap)
+  let accHi = new Int32Array(slotCap)
+  let accMeta = new Uint8Array(slotCap)
+  let accRe = new Float64Array(slotCap)
+  let accIm = new Float64Array(slotCap)
+  let accCount = 0
+
+  const rehash = (): void => {
+    const newHtCap = htCap * 2
+    const newMask = newHtCap - 1
+    const newHt = new Int32Array(newHtCap)
+
+    newHt.fill(-1)
+
+    for (let i = 0; i < accCount; i++) {
+      let pos = hashKey3(accLo[i]!, accHi[i]!, accMeta[i]!) & newMask
+
+      while (newHt[pos]! !== -1) {
+        pos = (pos + 1) & newMask
+      }
+
+      newHt[pos] = i
+    }
+
+    const newSlotCap = newHtCap >> 1
+    const nLo = new Int32Array(newSlotCap)
+    const nHi = new Int32Array(newSlotCap)
+    const nMeta = new Uint8Array(newSlotCap)
+    const nRe = new Float64Array(newSlotCap)
+    const nIm = new Float64Array(newSlotCap)
+
+    nLo.set(accLo)
+    nHi.set(accHi)
+    nMeta.set(accMeta)
+    nRe.set(accRe)
+    nIm.set(accIm)
+    htCap = newHtCap
+    htMask = newMask
+    ht = newHt
+    slotCap = newSlotCap
+    accLo = nLo
+    accHi = nHi
+    accMeta = nMeta
+    accRe = nRe
+    accIm = nIm
+  }
 
   const visitAnchor = (lo: number, hi: number, c: number, ar: number, ai: number, X: number): void => {
     const w = rd.closed ? cyclic(lo, hi, modesAll, 2 * X, rd.width) : extract(lo, hi, 2 * X, rd.width)
@@ -736,7 +874,7 @@ export function sparseBoundCount(
       return
     }
 
-    const xPrefix = BigInt(X) << 66n
+    const xShift = X << 2
 
     for (let li = 0; li < list.length; li++) {
       const t = list[li]!
@@ -776,16 +914,35 @@ export function sparseBoundCount(
       const ti = rd.im[t]!
       const dre = s * (tr * ar - ti * ai)
       const dim = s * (tr * ai + ti * ar)
-      const key = xPrefix | packKey(olo, ohi, left)
-      const slot = accMap.get(key)
+      const meta = xShift | left
 
-      if (slot === undefined) {
-        accMap.set(key, accRe.length)
-        accRe.push(dre)
-        accIm.push(dim)
-      } else {
-        accRe[slot]! += dre
-        accIm[slot]! += dim
+      if (accCount >= slotCap) {
+        rehash()
+      }
+
+      let pos = hashKey3(olo, ohi, meta) & htMask
+      let idx = ht[pos]!
+
+      while (idx !== -1) {
+        if (accLo[idx] === olo && accHi[idx] === ohi && accMeta[idx] === meta) {
+          accRe[idx]! += dre
+          accIm[idx]! += dim
+          break
+        }
+
+        pos = (pos + 1) & htMask
+        idx = ht[pos]!
+      }
+
+      if (idx === -1) {
+        const id = accCount++
+
+        ht[pos] = id
+        accLo[id] = olo
+        accHi[id] = ohi
+        accMeta[id] = meta
+        accRe[id] = dre
+        accIm[id] = dim
       }
     }
   }
@@ -837,7 +994,7 @@ export function sparseBoundCount(
 
   let total = 0
 
-  for (let i = 0; i < accRe.length; i++) {
+  for (let i = 0; i < accCount; i++) {
     const r = accRe[i]!
     const m = accIm[i]!
 

@@ -7,8 +7,9 @@
 //   - No makeSector(L, n) or exportTable(s, ...): syndromes, removal signs, and beats are computed on-the-fly over
 //     occupied configurations only.
 //   - Sparse syndrome buckets become exact SparseAmp columns (25 B / nonzero entry instead of 366 MB dense at n = 5).
-//   - Sparse Gram-matrix merge assigns a compact union index across the k columns once, then computes Gram entries and
-//     eigenvector reconstructions in contiguous Float64Array scratch buffers with zero BigInt hashing in the inner loop.
+//   - Sparse Gram-matrix merge builds a compact union index across the k columns using a flat Int32Array open-addressed
+//     hash table (zero BigInt allocations), then computes Gram entries and eigenvector reconstructions in contiguous
+//     Float64Array scratch buffers.
 
 import { hermitianEigenRows } from '@/code/algebra/linear/eig-hermitian-householder'
 import { popcount, type LineReader } from '@/code/measure/cold-line'
@@ -23,8 +24,8 @@ import {
 import {
   cloneSparseAmp,
   emptySparseAmp,
-  packKey,
-  packMaskKey,
+  hashKey3,
+  nextPow2,
   sparseBoundCount,
   sparseBytes,
   sparseLineBeat,
@@ -158,9 +159,9 @@ export function takeSparseMergeOff(): number {
   return x
 }
 
-// Exact sparse Gram-matrix merge: builds a compact union index across the k columns once, computes the Hermitian Gram
-// matrix with zero BigInt hashing in the inner loop, diagonalizes via hermitianEigenRows, and reconstructs the `keep`
-// largest eigen-columns as SparseAmps.
+// Exact sparse Gram-matrix merge: builds a compact union index across the k columns once using a flat Int32Array
+// open-addressed hash table, computes the Hermitian Gram matrix with zero BigInt hashing, diagonalizes via
+// hermitianEigenRows, and reconstructs the `keep` largest eigen-columns as SparseAmps.
 export function sparseMergeColumns(
   c: SparseColumns,
   keep: number,
@@ -173,11 +174,61 @@ export function sparseMergeColumns(
     return 0
   }
 
-  // 1. Build union index of all active keys across the k columns.
-  const unionMap = new Map<bigint, number>()
-  const uLoList: number[] = []
-  const uHiList: number[] = []
-  const uCutList: number[] = []
+  // 1. Build union index of all active keys across the k columns with a flat open-addressed table.
+  let maxColSize = 0
+
+  for (let b = 0; b < k; b++) {
+    if (c.cols[b]!.size > maxColSize) {
+      maxColSize = c.cols[b]!.size
+    }
+  }
+
+  let htCap = nextPow2(Math.max(64, maxColSize * 4))
+  let htMask = htCap - 1
+  let ht = new Int32Array(htCap)
+
+  ht.fill(-1)
+
+  let uCap = htCap >> 1
+  let uLo = new Int32Array(uCap)
+  let uHi = new Int32Array(uCap)
+  let uCut = new Uint8Array(uCap)
+  let U = 0
+
+  const rehashUnion = (): void => {
+    const newHtCap = htCap * 2
+    const newMask = newHtCap - 1
+    const newHt = new Int32Array(newHtCap)
+
+    newHt.fill(-1)
+
+    for (let i = 0; i < U; i++) {
+      let pos = hashKey3(uLo[i]!, uHi[i]!, uCut[i]!) & newMask
+
+      while (newHt[pos]! !== -1) {
+        pos = (pos + 1) & newMask
+      }
+
+      newHt[pos] = i
+    }
+
+    const newUCap = newHtCap >> 1
+    const nLo = new Int32Array(newUCap)
+    const nHi = new Int32Array(newUCap)
+    const nCut = new Uint8Array(newUCap)
+
+    nLo.set(uLo)
+    nHi.set(uHi)
+    nCut.set(uCut)
+    htCap = newHtCap
+    htMask = newMask
+    ht = newHt
+    uCap = newUCap
+    uLo = nLo
+    uHi = nHi
+    uCut = nCut
+  }
+
   const colIdx: Int32Array[] = new Array(k)
 
   for (let b = 0; b < k; b++) {
@@ -190,15 +241,29 @@ export function sparseMergeColumns(
       const l = lo[j]!
       const h = hi[j]!
       const ct = cut[j]!
-      const key = packKey(l, h, ct)
-      let u = unionMap.get(key)
 
-      if (u === undefined) {
-        u = uLoList.length
-        unionMap.set(key, u)
-        uLoList.push(l)
-        uHiList.push(h)
-        uCutList.push(ct)
+      if (U >= uCap) {
+        rehashUnion()
+      }
+
+      let pos = hashKey3(l, h, ct) & htMask
+      let u = ht[pos]!
+
+      while (u !== -1) {
+        if (uLo[u] === l && uHi[u] === h && uCut[u] === ct) {
+          break
+        }
+
+        pos = (pos + 1) & htMask
+        u = ht[pos]!
+      }
+
+      if (u === -1) {
+        u = U++
+        ht[pos] = u
+        uLo[u] = l
+        uHi[u] = h
+        uCut[u] = ct
       }
 
       idx[j] = u
@@ -207,7 +272,6 @@ export function sparseMergeColumns(
     colIdx[b] = idx
   }
 
-  const U = uLoList.length
   const accRe = new Float64Array(U)
   const accIm = new Float64Array(U)
 
@@ -227,7 +291,6 @@ export function sparseMergeColumns(
       continue
     }
 
-    // Scatter colA into accRe/accIm.
     const idxA = colIdx[a]!
 
     for (let j = 0; j < colA.size; j++) {
@@ -262,7 +325,6 @@ export function sparseMergeColumns(
       im[b * k + a] = -si
     }
 
-    // Clear only the entries written by colA.
     for (let j = 0; j < colA.size; j++) {
       const u = idxA[j]!
 
@@ -343,9 +405,9 @@ export function sparseMergeColumns(
         continue
       }
 
-      lo[pos] = uLoList[u]!
-      hi[pos] = uHiList[u]!
-      cut[pos] = uCutList[u]!
+      lo[pos] = uLo[u]!
+      hi[pos] = uHi[u]!
+      cut[pos] = uCut[u]!
       oRe[pos] = r
       oIm[pos] = m
       pos++
@@ -382,16 +444,20 @@ function applyArrivalToColumn(
   keepUp: boolean,
 ): { stay: SparseAmp; up: SparseAmp | undefined; moved: number } {
   const { lo, hi, cut, re, im, size } = v
-  const stayLo: number[] = []
-  const stayHi: number[] = []
-  const stayCut: number[] = []
-  const stayRe: number[] = []
-  const stayIm: number[] = []
-  const upLo: number[] | undefined = keepUp ? [] : undefined
-  const upHi: number[] | undefined = keepUp ? [] : undefined
-  const upCut: number[] | undefined = keepUp ? [] : undefined
-  const upRe: number[] | undefined = keepUp ? [] : undefined
-  const upIm: number[] | undefined = keepUp ? [] : undefined
+  const stayLo = new Int32Array(size)
+  const stayHi = new Int32Array(size)
+  const stayCut = new Uint8Array(size)
+  const stayRe = new Float64Array(size)
+  const stayIm = new Float64Array(size)
+  let stayCount = 0
+
+  const upLo = keepUp ? new Int32Array(size) : undefined
+  const upHi = keepUp ? new Int32Array(size) : undefined
+  const upCut = keepUp ? new Uint8Array(size) : undefined
+  const upRe = keepUp ? new Float64Array(size) : undefined
+  const upIm = keepUp ? new Float64Array(size) : undefined
+  let upCount = 0
+
   const bitMask = m < 32 ? 1 << m : 1 << (m - 32)
   let moved = 0
 
@@ -408,11 +474,12 @@ function applyArrivalToColumn(
     const c = cut[i]!
 
     if (bit(l, h, m) === 1) {
-      stayLo.push(l)
-      stayHi.push(h)
-      stayCut.push(c)
-      stayRe.push(xr)
-      stayIm.push(xi)
+      stayLo[stayCount] = l
+      stayHi[stayCount] = h
+      stayCut[stayCount] = c
+      stayRe[stayCount] = xr
+      stayIm[stayCount] = xi
+      stayCount++
       continue
     }
 
@@ -421,30 +488,31 @@ function applyArrivalToColumn(
     if (keepUp) {
       const sg = (below(l, h, m) & 1) === 0 ? 1 : -1
 
-      upLo!.push(m < 32 ? l | bitMask : l)
-      upHi!.push(m < 32 ? h : h | bitMask)
-      upCut!.push(c)
-      upRe!.push(sg * xr)
-      upIm!.push(sg * xi)
+      upLo![upCount] = m < 32 ? l | bitMask : l
+      upHi![upCount] = m < 32 ? h : h | bitMask
+      upCut![upCount] = c
+      upRe![upCount] = sg * xr
+      upIm![upCount] = sg * xi
+      upCount++
     }
   }
 
   const stay: SparseAmp = {
-    lo: Int32Array.from(stayLo),
-    hi: Int32Array.from(stayHi),
-    cut: Uint8Array.from(stayCut),
-    re: Float64Array.from(stayRe),
-    im: Float64Array.from(stayIm),
-    size: stayLo.length,
+    lo: stayCount === size ? stayLo : stayLo.slice(0, stayCount),
+    hi: stayCount === size ? stayHi : stayHi.slice(0, stayCount),
+    cut: stayCount === size ? stayCut : stayCut.slice(0, stayCount),
+    re: stayCount === size ? stayRe : stayRe.slice(0, stayCount),
+    im: stayCount === size ? stayIm : stayIm.slice(0, stayCount),
+    size: stayCount,
   }
   const up: SparseAmp | undefined = keepUp
     ? {
-        lo: Int32Array.from(upLo!),
-        hi: Int32Array.from(upHi!),
-        cut: Uint8Array.from(upCut!),
-        re: Float64Array.from(upRe!),
-        im: Float64Array.from(upIm!),
-        size: upLo!.length,
+        lo: upCount === size ? upLo! : upLo!.slice(0, upCount),
+        hi: upCount === size ? upHi! : upHi!.slice(0, upCount),
+        cut: upCount === size ? upCut! : upCut!.slice(0, upCount),
+        re: upCount === size ? upRe! : upRe!.slice(0, upCount),
+        im: upCount === size ? upIm! : upIm!.slice(0, upCount),
+        size: upCount,
       }
     : undefined
 
@@ -468,16 +536,17 @@ function applyPieceToColumn(
   d: number,
   arm: 'boundary' | 'swap' | 'copy',
   ledger: Ledger,
-): { stay: SparseAmp; buckets: Map<bigint, SparseBucket> } {
+): { stay: SparseAmp; buckets: Map<number, SparseBucket> } {
   const isolatedOnly = arm !== 'swap'
   const isCopy = arm === 'copy'
   const { lo, hi, cut, re, im, size } = v
-  const stayLo: number[] = []
-  const stayHi: number[] = []
-  const stayCut: number[] = []
-  const stayRe: number[] = []
-  const stayIm: number[] = []
-  const buckets = new Map<bigint, SparseBucket>()
+  const stayLo = new Int32Array(size)
+  const stayHi = new Int32Array(size)
+  const stayCut = new Uint8Array(size)
+  const stayRe = new Float64Array(size)
+  const stayIm = new Float64Array(size)
+  let stayCount = 0
+  const buckets = new Map<number, SparseBucket>()
 
   for (let i = 0; i < size; i++) {
     const xr = re[i]!
@@ -493,11 +562,12 @@ function applyPieceToColumn(
     const k = findSyndromeModes(l, h, L, d, isolatedOnly)
 
     if (k === 0) {
-      stayLo.push(l)
-      stayHi.push(h)
-      stayCut.push(c)
-      stayRe.push(xr)
-      stayIm.push(xi)
+      stayLo[stayCount] = l
+      stayHi[stayCount] = h
+      stayCut[stayCount] = c
+      stayRe[stayCount] = xr
+      stayIm[stayCount] = xi
+      stayCount++
       continue
     }
 
@@ -510,21 +580,14 @@ function applyPieceToColumn(
       continue
     }
 
-    // Build syndrome mask key (uniquely identifies the sorted set of k syndrome modes for any k).
-    let synLo = 0
-    let synHi = 0
+    // Exact safe-integer syndrome key matching dense error-boundary.ts (exact up to k <= 8).
+    let kk = 0
 
     for (let j = 0; j < k; j++) {
-      const m = synModes[j]!
-
-      if (m < 32) {
-        synLo |= 1 << m
-      } else {
-        synHi |= 1 << (m - 32)
-      }
+      kk = kk * 64 + synModes[j]!
     }
 
-    const key = packMaskKey(synLo, synHi)
+    const key = kk * 8 + k
     let b = buckets.get(key)
 
     if (!b) {
@@ -570,12 +633,12 @@ function applyPieceToColumn(
   }
 
   const stay: SparseAmp = {
-    lo: Int32Array.from(stayLo),
-    hi: Int32Array.from(stayHi),
-    cut: Uint8Array.from(stayCut),
-    re: Float64Array.from(stayRe),
-    im: Float64Array.from(stayIm),
-    size: stayLo.length,
+    lo: stayCount === size ? stayLo : stayLo.slice(0, stayCount),
+    hi: stayCount === size ? stayHi : stayHi.slice(0, stayCount),
+    cut: stayCount === size ? stayCut : stayCut.slice(0, stayCount),
+    re: stayCount === size ? stayRe : stayRe.slice(0, stayCount),
+    im: stayCount === size ? stayIm : stayIm.slice(0, stayCount),
+    size: stayCount,
   }
 
   return { stay, buckets }
@@ -589,6 +652,160 @@ const bucketToSparseAmp = (b: SparseBucket): SparseAmp => ({
   im: Float64Array.from(b.im),
   size: b.lo.length,
 })
+
+// ---- flat sparse configuration distribution for TV distance ----
+
+type SparseDist = {
+  readonly lo: Int32Array
+  readonly hi: Int32Array
+  readonly w: Float64Array
+  readonly count: number
+  readonly ht: Int32Array
+  readonly mask: number
+}
+
+function buildSparseDist(cols: readonly SparseAmp[]): SparseDist {
+  let maxCol = 0
+
+  for (const v of cols) {
+    if (v.size > maxCol) {
+      maxCol = v.size
+    }
+  }
+
+  let htCap = nextPow2(Math.max(64, maxCol * 2))
+  let mask = htCap - 1
+  let ht = new Int32Array(htCap)
+
+  ht.fill(-1)
+
+  let cap = htCap >> 1
+  let dLo = new Int32Array(cap)
+  let dHi = new Int32Array(cap)
+  let dW = new Float64Array(cap)
+  let count = 0
+
+  const rehash = (): void => {
+    const nHtCap = htCap * 2
+    const nMask = nHtCap - 1
+    const nHt = new Int32Array(nHtCap)
+
+    nHt.fill(-1)
+
+    for (let i = 0; i < count; i++) {
+      let pos = hashKey3(dLo[i]!, dHi[i]!, 0) & nMask
+
+      while (nHt[pos]! !== -1) {
+        pos = (pos + 1) & nMask
+      }
+
+      nHt[pos] = i
+    }
+
+    const nCap = nHtCap >> 1
+    const nLo = new Int32Array(nCap)
+    const nHi = new Int32Array(nCap)
+    const nW = new Float64Array(nCap)
+
+    nLo.set(dLo)
+    nHi.set(dHi)
+    nW.set(dW)
+    htCap = nHtCap
+    mask = nMask
+    ht = nHt
+    cap = nCap
+    dLo = nLo
+    dHi = nHi
+    dW = nW
+  }
+
+  for (const v of cols) {
+    const { lo, hi, re, im, size } = v
+
+    for (let i = 0; i < size; i++) {
+      const w = re[i]! * re[i]! + im[i]! * im[i]!
+
+      if (w === 0) {
+        continue
+      }
+
+      const l = lo[i]!
+      const h = hi[i]!
+
+      if (count >= cap) {
+        rehash()
+      }
+
+      let pos = hashKey3(l, h, 0) & mask
+      let idx = ht[pos]!
+
+      while (idx !== -1) {
+        if (dLo[idx] === l && dHi[idx] === h) {
+          dW[idx]! += w
+          break
+        }
+
+        pos = (pos + 1) & mask
+        idx = ht[pos]!
+      }
+
+      if (idx === -1) {
+        const id = count++
+
+        ht[pos] = id
+        dLo[id] = l
+        dHi[id] = h
+        dW[id] = w
+      }
+    }
+  }
+
+  return { lo: dLo, hi: dHi, w: dW, count, ht, mask }
+}
+
+function tvDistance(a: SparseDist, b: SparseDist): number {
+  let s = 0
+
+  for (let i = 0; i < a.count; i++) {
+    const l = a.lo[i]!
+    const h = a.hi[i]!
+    let pos = hashKey3(l, h, 0) & b.mask
+    let j = b.ht[pos]!
+
+    while (j !== -1) {
+      if (b.lo[j] === l && b.hi[j] === h) {
+        break
+      }
+
+      pos = (pos + 1) & b.mask
+      j = b.ht[pos]!
+    }
+
+    s += Math.abs(a.w[i]! - (j === -1 ? 0 : b.w[j]!))
+  }
+
+  for (let j = 0; j < b.count; j++) {
+    const l = b.lo[j]!
+    const h = b.hi[j]!
+    let pos = hashKey3(l, h, 0) & a.mask
+    let i = a.ht[pos]!
+
+    while (i !== -1) {
+      if (a.lo[i] === l && a.hi[i] === h) {
+        break
+      }
+
+      pos = (pos + 1) & a.mask
+      i = a.ht[pos]!
+    }
+
+    if (i === -1) {
+      s += b.w[j]!
+    }
+  }
+
+  return s / 2
+}
 
 // ---- the sparse run ----
 
@@ -632,7 +849,7 @@ export function runSparseBoundary(
   let traceOff = 0
   let maxColumns = 1
   let stoppedAt: number | undefined
-  let prev: Map<bigint, number> | undefined
+  let prev: SparseDist | undefined
   let tvSum = 0
   let tvCount = 0
 
@@ -698,29 +915,6 @@ export function runSparseBoundary(
     }
   }
 
-  // Sparse n = 3 configuration distribution (summed over the cut trit).
-  const distribution = (): Map<bigint, number> => {
-    const p = new Map<bigint, number>()
-
-    for (const v of rho[3]!.cols) {
-      const { lo, hi, re, im, size } = v
-
-      for (let i = 0; i < size; i++) {
-        const w = re[i]! * re[i]! + im[i]! * im[i]!
-
-        if (w === 0) {
-          continue
-        }
-
-        const k = packMaskKey(lo[i]!, hi[i]!)
-
-        p.set(k, (p.get(k) ?? 0) + w)
-      }
-    }
-
-    return p
-  }
-
   const read = (t: number): void => {
     let F = 0
     let weight = 0
@@ -764,7 +958,7 @@ export function runSparseBoundary(
   }
 
   if (tvStart.has(0)) {
-    prev = distribution()
+    prev = buildSparseDist(rho[3]!.cols)
   }
 
   // ---- stream mode ----
@@ -1017,22 +1211,10 @@ export function runSparseBoundary(
     traceOff = Math.max(traceOff, Math.abs(kept + ledger.trunc + ledger.cap + ledger.broken - 1))
 
     if (tvStart.has(t)) {
-      const p = distribution()
+      const p = buildSparseDist(rho[3]!.cols)
 
       if (prev && tvStart.has(t - 1)) {
-        let s = 0
-
-        for (const [k, v] of p) {
-          s += Math.abs(v - (prev.get(k) ?? 0))
-        }
-
-        for (const [k, v] of prev) {
-          if (!p.has(k)) {
-            s += v
-          }
-        }
-
-        tvSum += s / 2
+        tvSum += tvDistance(p, prev)
         tvCount++
       }
 

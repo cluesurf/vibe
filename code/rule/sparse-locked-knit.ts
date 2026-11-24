@@ -2086,7 +2086,7 @@ export function sparseMixBranch(
   const out: SparseLockedBranch[] = new Array(total)
 
   for (let code = 0; code < total; code++) {
-    const b = code === total - 1 ? br : cloneSparseBranch(br)
+    const b = cloneSparseBranch(br)
 
     let rest = code
     let moved = false
@@ -2141,7 +2141,7 @@ export function sparseThetaMixBranch(
   const out: SparseLockedBranch[] = []
 
   for (let code = 0; code < total; code++) {
-    const b = code === total - 1 ? br : cloneSparseBranch(br)
+    const b = cloneSparseBranch(br)
 
     let rest = code
     let moved = false

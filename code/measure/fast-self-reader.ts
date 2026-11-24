@@ -1,7 +1,8 @@
 // PACKED INTEGER-KEY SELF-READER (optimization #4 over code/measure/self-reader.ts).
 // Replaces string keys (`${s}+`, `outside.join(',')`) and nested `Map<string, Map<string, Cx>>`
 // with zero-string packed canonical keys (`number` fast-path + `BigInt` arbitrary-width fallback),
-// flat typed-array bucket arenas, and a fused single/two-pass `fastBallClosure`.
+// unboxed Float64Array open-addressed hash tables, flat typed-array bucket arenas,
+// and a fused single/two-pass `fastBallClosure`.
 
 import { eachConfiguration, type ConeStore } from '@/code/measure/cone-line'
 import type { BallTerm, Closure, Cx } from '@/code/measure/self-reader'
@@ -27,6 +28,7 @@ const BALL_OFFSET_2 = 67108865 // 2^26 + 1
 const BALL_LIMIT_3 = 65536 // 2^16
 const BALL_BASE_3_1 = 131072 // 2^17
 const BALL_BASE_3_2 = 17179869184 // 2^34
+const BALL_MIN_3 = -2251799813685248 // -2^51
 
 const BALL_LIMIT_4 = 4096 // 2^12
 const BALL_BASE_4_1 = 8192 // 2^13
@@ -40,6 +42,165 @@ const MODE_LIMIT_3 = 131072 // 2^17
 const MODE_LIMIT_4 = 8192 // 2^13
 
 const BUCKET_INDEX_THRESHOLD = 12
+const INV_2_32 = 1 / 4294967296
+
+// ---- unboxed open-addressed hash table for FastKey -> int32 (>= 0, -1 = missing) ----
+
+export type FastKeyTable = {
+  keys: Float64Array
+  vals: Int32Array
+  mask: number
+  numCount: number
+  big: Map<bigint, number> | undefined
+}
+
+function nextPow2(n: number): number {
+  let p = 16
+
+  while (p < n) {
+    p <<= 1
+  }
+
+  return p
+}
+
+function hashNumKey(k: number): number {
+  const lo = k | 0
+  const hi = Math.floor(k * INV_2_32) | 0
+  let h = Math.imul(lo ^ Math.imul(hi, 0x9e3779b1), 0x85ebca6b)
+  h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35)
+
+  return h ^ (h >>> 16)
+}
+
+function createFastKeyTable(initialCap = 256): FastKeyTable {
+  const cap = nextPow2(initialCap)
+  const vals = new Int32Array(cap)
+
+  vals.fill(-1)
+
+  return {
+    keys: new Float64Array(cap),
+    vals,
+    mask: cap - 1,
+    numCount: 0,
+    big: undefined,
+  }
+}
+
+function growFastKeyTable(t: FastKeyTable): void {
+  const oldKeys = t.keys
+  const oldVals = t.vals
+  const oldCap = oldVals.length
+  const newCap = oldCap * 2
+  const newKeys = new Float64Array(newCap)
+  const newVals = new Int32Array(newCap)
+  const newMask = newCap - 1
+
+  newVals.fill(-1)
+
+  for (let i = 0; i < oldCap; i++) {
+    const v = oldVals[i]!
+
+    if (v === -1) {
+      continue
+    }
+
+    const k = oldKeys[i]!
+    let slot = hashNumKey(k) & newMask
+
+    while (newVals[slot] !== -1) {
+      slot = (slot + 1) & newMask
+    }
+
+    newKeys[slot] = k
+    newVals[slot] = v
+  }
+
+  t.keys = newKeys
+  t.vals = newVals
+  t.mask = newMask
+}
+
+function getNumKey(t: FastKeyTable, k: number): number {
+  const keys = t.keys
+  const vals = t.vals
+  const mask = t.mask
+  let slot = hashNumKey(k) & mask
+
+  while (true) {
+    const v = vals[slot]!
+
+    if (v === -1) {
+      return -1
+    }
+
+    if (keys[slot] === k) {
+      return v
+    }
+
+    slot = (slot + 1) & mask
+  }
+}
+
+function setNumKey(t: FastKeyTable, k: number, val: number): void {
+  if ((t.numCount + 1) * 10 >= (t.mask + 1) * 7) {
+    growFastKeyTable(t)
+  }
+
+  const keys = t.keys
+  const vals = t.vals
+  const mask = t.mask
+  let slot = hashNumKey(k) & mask
+
+  while (true) {
+    const v = vals[slot]!
+
+    if (v === -1) {
+      keys[slot] = k
+      vals[slot] = val
+      t.numCount++
+
+      return
+    }
+
+    if (keys[slot] === k) {
+      vals[slot] = val
+
+      return
+    }
+
+    slot = (slot + 1) & mask
+  }
+}
+
+function getFastKey(t: FastKeyTable, k: FastKey): number {
+  if (typeof k === 'number') {
+    return getNumKey(t, k)
+  }
+
+  if (t.big === undefined) {
+    return -1
+  }
+
+  const v = t.big.get(k)
+
+  return v === undefined ? -1 : v
+}
+
+function setFastKey(t: FastKeyTable, k: FastKey, val: number): void {
+  if (typeof k === 'number') {
+    setNumKey(t, k, val)
+
+    return
+  }
+
+  if (t.big === undefined) {
+    t.big = new Map()
+  }
+
+  t.big.set(k, val)
+}
 
 // ---- canonical key packing ----
 
@@ -99,14 +260,10 @@ function packBallKeyInt32(slots: Int32Array, vals: Int8Array, len: number): Fast
   }
 
   // Arbitrary length / arbitrary 32-bit slot fallback: 34-bit strictly positive lane per entry.
-  // Each lane holds ((uint32(slot) << 1) | signBit) + 1 in [1n, 2^33n], so length and values
-  // are uniquely encoded without colliding with empty or shorter sequences.
-  let acc = 0n
+  let acc = BigInt((slots[0]! >>> 0) * 2 + (vals[0]! > 0 ? 1 : 0) + 1)
 
-  for (let i = 0; i < len; i++) {
-    const code = ((BigInt(slots[i]! >>> 0) << 1n) | (vals[i]! > 0 ? 1n : 0n)) + 1n
-
-    acc = (acc << 34n) | code
+  for (let i = 1; i < len; i++) {
+    acc = (acc << 34n) | BigInt((slots[i]! >>> 0) * 2 + (vals[i]! > 0 ? 1 : 0) + 1)
   }
 
   return acc
@@ -185,12 +342,10 @@ export function packBallKey(
     }
   }
 
-  let acc = 0n
+  let acc = BigInt((slots[0]! >>> 0) * 2 + (values[0]! > 0 ? 1 : 0) + 1)
 
-  for (let i = 0; i < len; i++) {
-    const code = ((BigInt(slots[i]! >>> 0) << 1n) | (values[i]! > 0 ? 1n : 0n)) + 1n
-
-    acc = (acc << 34n) | code
+  for (let i = 1; i < len; i++) {
+    acc = (acc << 34n) | BigInt((slots[i]! >>> 0) * 2 + (values[i]! > 0 ? 1 : 0) + 1)
   }
 
   return acc
@@ -239,7 +394,6 @@ function packModesKeyInt32(modes: Int32Array, len: number): FastKey {
     }
   }
 
-  // Even BigInt (bit 0 = 0) so it never collides with envId > 0 keys (odd BigInt).
   let acc = 0n
 
   for (let i = 0; i < len; i++) {
@@ -329,18 +483,34 @@ function packEnvModesKeyInt32(envId: number, modes: Int32Array, len: number): Fa
   return (((acc << 32n) | BigInt(envId >>> 0)) << 1n) | 1n
 }
 
-// ---- flat arena parts store ----
+// Recover exact packed length (0..4) for any numeric FastKey.
+function fastNumKeyLen(k: number): number {
+  if (k === 0) {
+    return 0
+  }
+
+  if (k > 0) {
+    return k <= BALL_BASE_2 ? 1 : 2
+  }
+
+  return k >= BALL_MIN_3 ? 3 : 4
+}
+
+// ---- flat arena parts store (zero inner Maps, zero boxed HeapNumbers on fast path) ----
 
 export type FastParts = {
   // complement key -> dense bucket id (0 .. numBuckets - 1)
-  buckets: Map<FastKey, number>
+  buckets: FastKeyTable
   numBuckets: number
   bucketHead: Int32Array
   bucketLen: Int32Array
-  bucketIndex: (Map<FastKey, number> | undefined)[]
-  // flat entry arena (zero inner Maps for small buckets, zero [re, im] tuple allocations)
+  // lazy per-bucket lookup table, allocated only when a bucket exceeds BUCKET_INDEX_THRESHOLD
+  bucketIndex: Map<number, FastKeyTable> | undefined
+  // flat entry arena
   numEntries: number
-  entryRk: FastKey[]
+  // numeric rk stored unboxed; NaN sentinel indicates bigint key in entryRkBig
+  entryRkNum: Float64Array
+  entryRkBig: Map<number, bigint> | undefined
   entryRe: Float64Array
   entryIm: Float64Array
   entryNext: Int32Array
@@ -352,13 +522,14 @@ export type FastLineParts = FastParts & {
 
 function createFastParts(initialBuckets = 256, initialEntries = 512): FastParts {
   return {
-    buckets: new Map(),
+    buckets: createFastKeyTable(Math.max(256, initialBuckets * 2)),
     numBuckets: 0,
     bucketHead: new Int32Array(initialBuckets),
     bucketLen: new Int32Array(initialBuckets),
-    bucketIndex: [],
+    bucketIndex: undefined,
     numEntries: 0,
-    entryRk: [],
+    entryRkNum: new Float64Array(initialEntries),
+    entryRkBig: undefined,
     entryRe: new Float64Array(initialEntries),
     entryIm: new Float64Array(initialEntries),
     entryNext: new Int32Array(initialEntries),
@@ -378,29 +549,69 @@ function growBuckets(parts: FastParts): void {
 
 function growEntries(parts: FastParts): void {
   const nextCap = parts.entryRe.length * 2
+  const nextRkNum = new Float64Array(nextCap)
   const nextRe = new Float64Array(nextCap)
   const nextIm = new Float64Array(nextCap)
   const nextNext = new Int32Array(nextCap)
 
+  nextRkNum.set(parts.entryRkNum)
   nextRe.set(parts.entryRe)
   nextIm.set(parts.entryIm)
   nextNext.set(parts.entryNext)
+  parts.entryRkNum = nextRkNum
   parts.entryRe = nextRe
   parts.entryIm = nextIm
   parts.entryNext = nextNext
 }
 
-function addPartEntry(parts: FastParts, ek: FastKey, rk: FastKey, re: number, im: number): void {
-  let bid = parts.buckets.get(ek)
+function storeEntryRk(parts: FastParts, eid: number, rk: FastKey): void {
+  if (typeof rk === 'number') {
+    parts.entryRkNum[eid] = rk
+  } else {
+    parts.entryRkNum[eid] = Number.NaN
 
-  if (bid === undefined) {
+    if (parts.entryRkBig === undefined) {
+      parts.entryRkBig = new Map()
+    }
+
+    parts.entryRkBig.set(eid, rk)
+  }
+}
+
+function promoteBucketIndex(parts: FastParts, bid: number, headEid: number): void {
+  const tbl = createFastKeyTable(32)
+  const rkNum = parts.entryRkNum
+  const rkBig = parts.entryRkBig
+  const next = parts.entryNext
+
+  for (let cur = headEid; cur !== -1; cur = next[cur]!) {
+    const kn = rkNum[cur]!
+
+    if (kn === kn) {
+      setNumKey(tbl, kn, cur)
+    } else {
+      setFastKey(tbl, rkBig!.get(cur)!, cur)
+    }
+  }
+
+  if (parts.bucketIndex === undefined) {
+    parts.bucketIndex = new Map()
+  }
+
+  parts.bucketIndex.set(bid, tbl)
+}
+
+function addPartEntry(parts: FastParts, ek: FastKey, rk: FastKey, re: number, im: number): void {
+  let bid = getFastKey(parts.buckets, ek)
+
+  if (bid === -1) {
     bid = parts.numBuckets++
 
     if (bid >= parts.bucketHead.length) {
       growBuckets(parts)
     }
 
-    parts.buckets.set(ek, bid)
+    setFastKey(parts.buckets, ek, bid)
 
     const eid = parts.numEntries++
 
@@ -408,23 +619,22 @@ function addPartEntry(parts: FastParts, ek: FastKey, rk: FastKey, re: number, im
       growEntries(parts)
     }
 
-    parts.entryRk.push(rk)
+    storeEntryRk(parts, eid, rk)
     parts.entryRe[eid] = re
     parts.entryIm[eid] = im
     parts.entryNext[eid] = -1
     parts.bucketHead[bid] = eid
     parts.bucketLen[bid] = 1
-    parts.bucketIndex.push(undefined)
 
     return
   }
 
-  const idxMap = parts.bucketIndex[bid]
+  const idxTbl = parts.bucketIndex !== undefined ? parts.bucketIndex.get(bid) : undefined
 
-  if (idxMap !== undefined) {
-    const existing = idxMap.get(rk)
+  if (idxTbl !== undefined) {
+    const existing = getFastKey(idxTbl, rk)
 
-    if (existing !== undefined) {
+    if (existing !== -1) {
       parts.entryRe[existing] = parts.entryRe[existing]! + re
       parts.entryIm[existing] = parts.entryIm[existing]! + im
 
@@ -437,23 +647,43 @@ function addPartEntry(parts: FastParts, ek: FastKey, rk: FastKey, re: number, im
       growEntries(parts)
     }
 
-    parts.entryRk.push(rk)
+    storeEntryRk(parts, eid, rk)
     parts.entryRe[eid] = re
     parts.entryIm[eid] = im
     parts.entryNext[eid] = parts.bucketHead[bid]!
     parts.bucketHead[bid] = eid
     parts.bucketLen[bid] = parts.bucketLen[bid]! + 1
-    idxMap.set(rk, eid)
+    setFastKey(idxTbl, rk, eid)
 
     return
   }
 
-  for (let cur = parts.bucketHead[bid]!; cur !== -1; cur = parts.entryNext[cur]!) {
-    if (parts.entryRk[cur] === rk) {
-      parts.entryRe[cur] = parts.entryRe[cur]! + re
-      parts.entryIm[cur] = parts.entryIm[cur]! + im
+  const rkNum = parts.entryRkNum
+  const next = parts.entryNext
 
-      return
+  if (typeof rk === 'number') {
+    for (let cur = parts.bucketHead[bid]!; cur !== -1; cur = next[cur]!) {
+      if (rkNum[cur] === rk) {
+        parts.entryRe[cur] = parts.entryRe[cur]! + re
+        parts.entryIm[cur] = parts.entryIm[cur]! + im
+
+        return
+      }
+    }
+  } else {
+    const rkBig = parts.entryRkBig
+
+    if (rkBig !== undefined) {
+      for (let cur = parts.bucketHead[bid]!; cur !== -1; cur = next[cur]!) {
+        const kn = rkNum[cur]!
+
+        if (kn !== kn && rkBig.get(cur) === rk) {
+          parts.entryRe[cur] = parts.entryRe[cur]! + re
+          parts.entryIm[cur] = parts.entryIm[cur]! + im
+
+          return
+        }
+      }
     }
   }
 
@@ -463,7 +693,7 @@ function addPartEntry(parts: FastParts, ek: FastKey, rk: FastKey, re: number, im
     growEntries(parts)
   }
 
-  parts.entryRk.push(rk)
+  storeEntryRk(parts, eid, rk)
   parts.entryRe[eid] = re
   parts.entryIm[eid] = im
   parts.entryNext[eid] = parts.bucketHead[bid]!
@@ -472,20 +702,14 @@ function addPartEntry(parts: FastParts, ek: FastKey, rk: FastKey, re: number, im
   parts.bucketLen[bid] = newLen
 
   if (newLen > BUCKET_INDEX_THRESHOLD) {
-    const built = new Map<FastKey, number>()
-
-    for (let cur = eid; cur !== -1; cur = parts.entryNext[cur]!) {
-      built.set(parts.entryRk[cur]!, cur)
-    }
-
-    parts.bucketIndex[bid] = built
+    promoteBucketIndex(parts, bid, eid)
   }
 }
 
-// ---- flat complex vector accumulator ----
+// ---- flat unboxed complex vector accumulator ----
 
 type CxAccum = {
-  index: Map<FastKey, number>
+  table: FastKeyTable
   count: number
   re: Float64Array
   im: Float64Array
@@ -493,7 +717,7 @@ type CxAccum = {
 
 function createCxAccum(initialCap = 256): CxAccum {
   return {
-    index: new Map(),
+    table: createFastKeyTable(Math.max(256, initialCap * 2)),
     count: 0,
     re: new Float64Array(initialCap),
     im: new Float64Array(initialCap),
@@ -501,9 +725,9 @@ function createCxAccum(initialCap = 256): CxAccum {
 }
 
 function addCxAccum(acc: CxAccum, key: FastKey, re: number, im: number): void {
-  const existing = acc.index.get(key)
+  const existing = getFastKey(acc.table, key)
 
-  if (existing !== undefined) {
+  if (existing !== -1) {
     acc.re[existing] = acc.re[existing]! + re
     acc.im[existing] = acc.im[existing]! + im
 
@@ -523,7 +747,7 @@ function addCxAccum(acc: CxAccum, key: FastKey, re: number, im: number): void {
     acc.im = nextIm
   }
 
-  acc.index.set(key, idx)
+  setFastKey(acc.table, key, idx)
   acc.re[idx] = re
   acc.im[idx] = im
 }
@@ -533,18 +757,18 @@ function addCxAccum(acc: CxAccum, key: FastKey, re: number, im: number): void {
 // Closure of packed `FastParts` against optional self-free complement `eps`
 // (undefined: vacuum complement on VACUUM_KEY = 0 with amplitude [1, 0]).
 export function fastClosureOf(parts: FastParts, eps?: ReadonlyMap<FastKey, Cx>): Closure {
-  const { numBuckets, bucketHead, bucketIndex, entryRk, entryRe, entryIm, entryNext } = parts
+  const { numBuckets, bucketHead, bucketIndex, entryRkNum, entryRkBig, entryRe, entryIm, entryNext } = parts
 
   // Zero-copy fast path for vacuum complement.
   if (eps === undefined) {
-    const vacBid = parts.buckets.get(VACUUM_KEY)
+    const vacBid = getNumKey(parts.buckets, 0)
 
-    if (vacBid === undefined) {
+    if (vacBid === -1) {
       return { c: 0, r: 0 }
     }
 
     let r = 0
-    let vacLookup = bucketIndex[vacBid]
+    let vacLookup = bucketIndex !== undefined ? bucketIndex.get(vacBid) : undefined
 
     if (vacLookup !== undefined) {
       for (let eid = bucketHead[vacBid]!; eid !== -1; eid = entryNext[eid]!) {
@@ -554,14 +778,20 @@ export function fastClosureOf(parts: FastParts, eps?: ReadonlyMap<FastKey, Cx>):
         r += x * x + y * y
       }
     } else {
-      vacLookup = new Map<FastKey, number>()
+      vacLookup = createFastKeyTable(32)
 
       for (let eid = bucketHead[vacBid]!; eid !== -1; eid = entryNext[eid]!) {
         const x = entryRe[eid]!
         const y = entryIm[eid]!
 
         r += x * x + y * y
-        vacLookup.set(entryRk[eid]!, eid)
+        const kn = entryRkNum[eid]!
+
+        if (kn === kn) {
+          setNumKey(vacLookup, kn, eid)
+        } else {
+          setFastKey(vacLookup, entryRkBig!.get(eid)!, eid)
+        }
       }
     }
 
@@ -580,9 +810,10 @@ export function fastClosureOf(parts: FastParts, eps?: ReadonlyMap<FastKey, Cx>):
       let pi = 0
 
       for (let eid = bucketHead[b]!; eid !== -1; eid = entryNext[eid]!) {
-        const aeid = vacLookup.get(entryRk[eid]!)
+        const kn = entryRkNum[eid]!
+        const aeid = kn === kn ? getNumKey(vacLookup, kn) : getFastKey(vacLookup, entryRkBig!.get(eid)!)
 
-        if (aeid === undefined) {
+        if (aeid === -1) {
           continue
         }
 
@@ -606,9 +837,9 @@ export function fastClosureOf(parts: FastParts, eps?: ReadonlyMap<FastKey, Cx>):
   const aEps = createCxAccum(256)
 
   for (const [ek, ep] of eps) {
-    const bid = parts.buckets.get(ek)
+    const bid = getFastKey(parts.buckets, ek)
 
-    if (bid === undefined) {
+    if (bid === -1) {
       continue
     }
 
@@ -618,9 +849,11 @@ export function fastClosureOf(parts: FastParts, eps?: ReadonlyMap<FastKey, Cx>):
     for (let eid = bucketHead[bid]!; eid !== -1; eid = entryNext[eid]!) {
       const ar = entryRe[eid]!
       const ai = entryIm[eid]!
+      const kn = entryRkNum[eid]!
+      const rk: FastKey = kn === kn ? kn : entryRkBig!.get(eid)!
 
       // conj(eps_k) * a
-      addCxAccum(aEps, entryRk[eid]!, er * ar + ei * ai, er * ai - ei * ar)
+      addCxAccum(aEps, rk, er * ar + ei * ai, er * ai - ei * ar)
     }
   }
 
@@ -640,7 +873,7 @@ export function fastClosureOf(parts: FastParts, eps?: ReadonlyMap<FastKey, Cx>):
     return { c: 0, r: 0 }
   }
 
-  const aIndex = aEps.index
+  const aTable = aEps.table
   let c = 0
 
   for (let b = 0; b < numBuckets; b++) {
@@ -648,9 +881,10 @@ export function fastClosureOf(parts: FastParts, eps?: ReadonlyMap<FastKey, Cx>):
     let pi = 0
 
     for (let eid = bucketHead[b]!; eid !== -1; eid = entryNext[eid]!) {
-      const idx = aIndex.get(entryRk[eid]!)
+      const kn = entryRkNum[eid]!
+      const idx = kn === kn ? getNumKey(aTable, kn) : getFastKey(aTable, entryRkBig!.get(eid)!)
 
-      if (idx === undefined) {
+      if (idx === -1) {
         continue
       }
 
@@ -676,8 +910,10 @@ export function fastBallParts(
   terms: Iterable<BallTerm>,
   inRegion: (slot: number) => boolean,
 ): FastParts {
-  const hint = Array.isArray(terms) ? Math.max(256, terms.length >> 1) : 256
-  const parts = createFastParts(Math.min(hint, 65536), Math.min(hint * 2, 131072))
+  const isArr = Array.isArray(terms)
+  const hintEntries = isArr ? Math.min(Math.max(512, terms.length), 65536) : 512
+  const hintBuckets = isArr ? Math.min(Math.max(256, terms.length), 65536) : 256
+  const parts = createFastParts(hintBuckets, hintEntries)
 
   let cap = 16
   let inSlots = new Int32Array(cap)
@@ -732,7 +968,7 @@ export function fastBallParts(
 }
 
 // Fused ball closure directly from `Iterable<BallTerm>` without constructing nested maps.
-// For arrays (the common case), avoids intermediate bucket/entry storage entirely.
+// Uses unboxed typed-array hash tables and avoids intermediate bucket storage.
 export function fastBallClosure(
   terms: Iterable<BallTerm>,
   inRegion: (slot: number) => boolean,
@@ -748,7 +984,7 @@ export function fastBallClosure(
     let outSlots = new Int32Array(cap)
     let outVals = new Int8Array(cap)
 
-    const aEps = createCxAccum(256)
+    const aEps = createCxAccum(Math.min(Math.max(256, n >> 2), 16384))
     let aEpsLenMask = 0
     let hasLongInLen = false
 
@@ -806,7 +1042,7 @@ export function fastBallClosure(
       }
 
       // Pass 2 (vacuum): accumulate <aEps | a_e> linearly over non-vacuum terms.
-      const aIndex = aEps.index
+      const aTable = aEps.table
       let innerProd: CxAccum | undefined
 
       for (let ti = 0; ti < n; ti++) {
@@ -831,23 +1067,33 @@ export function fastBallClosure(
         }
 
         let inLen = 0
-        let outLen = 0
+        let inMask = 0
 
-        for (let i = 0; i < len; i++) {
-          const s = slots[i]!
+        if (len <= 31) {
+          for (let i = 0; i < len; i++) {
+            const s = slots[i]!
 
-          if (inRegion(s)) {
-            inSlots[inLen] = s
-            inVals[inLen] = vals[i]!
-            inLen++
-          } else {
-            outSlots[outLen] = s
-            outVals[outLen] = vals[i]!
-            outLen++
+            if (inRegion(s)) {
+              inMask |= 1 << i
+              inSlots[inLen] = s
+              inVals[inLen] = vals[i]!
+              inLen++
+            }
+          }
+        } else {
+          for (let i = 0; i < len; i++) {
+            const s = slots[i]!
+
+            if (inRegion(s)) {
+              inSlots[inLen] = s
+              inVals[inLen] = vals[i]!
+              inLen++
+            }
           }
         }
 
-        if (outLen === 0) {
+        // Skip vacuum terms (already accounted for by r * r).
+        if (inLen === len) {
           continue
         }
 
@@ -856,10 +1102,32 @@ export function fastBallClosure(
         }
 
         const rk = packBallKeyInt32(inSlots, inVals, inLen)
-        const idx = aIndex.get(rk)
+        const idx = getFastKey(aTable, rk)
 
-        if (idx === undefined) {
+        if (idx === -1) {
           continue
+        }
+
+        let outLen = 0
+
+        if (len <= 31) {
+          for (let i = 0; i < len; i++) {
+            if ((inMask & (1 << i)) === 0) {
+              outSlots[outLen] = slots[i]!
+              outVals[outLen] = vals[i]!
+              outLen++
+            }
+          }
+        } else {
+          for (let i = 0; i < len; i++) {
+            const s = slots[i]!
+
+            if (!inRegion(s)) {
+              outSlots[outLen] = s
+              outVals[outLen] = vals[i]!
+              outLen++
+            }
+          }
         }
 
         const ek = packBallKeyInt32(outSlots, outVals, outLen)
@@ -891,7 +1159,34 @@ export function fastBallClosure(
       return { c, r }
     }
 
-    // Pass 1 (non-vacuum eps): accumulate terms whose complement key is in eps.
+    // Index eps into an unboxed FastKeyTable + track possible outside lengths.
+    const epsCount = eps.size
+
+    if (epsCount === 0) {
+      return { c: 0, r: 0 }
+    }
+
+    const epsTable = createFastKeyTable(Math.max(32, epsCount * 4))
+    const epsRe = new Float64Array(epsCount)
+    const epsIm = new Float64Array(epsCount)
+    let epsOutMask = 0
+    let epsHasBig = false
+    let eiIdx = 0
+
+    for (const [ek, ep] of eps) {
+      setFastKey(epsTable, ek, eiIdx)
+      epsRe[eiIdx] = ep[0]
+      epsIm[eiIdx] = ep[1]
+      eiIdx++
+
+      if (typeof ek === 'number') {
+        epsOutMask |= 1 << fastNumKeyLen(ek)
+      } else {
+        epsHasBig = true
+      }
+    }
+
+    // Pass 1 (non-vacuum eps): collect only terms whose complement key exists in eps.
     for (let ti = 0; ti < n; ti++) {
       const t = list[ti]!
       const re = t.re
@@ -913,33 +1208,68 @@ export function fastBallClosure(
         outVals = new Int8Array(cap)
       }
 
-      let inLen = 0
       let outLen = 0
+      let outMask = 0
 
-      for (let i = 0; i < len; i++) {
-        const s = slots[i]!
+      if (len <= 31) {
+        for (let i = 0; i < len; i++) {
+          const s = slots[i]!
 
-        if (inRegion(s)) {
-          inSlots[inLen] = s
-          inVals[inLen] = vals[i]!
-          inLen++
-        } else {
-          outSlots[outLen] = s
-          outVals[outLen] = vals[i]!
-          outLen++
+          if (!inRegion(s)) {
+            outMask |= 1 << i
+            outSlots[outLen] = s
+            outVals[outLen] = vals[i]!
+            outLen++
+          }
+        }
+      } else {
+        for (let i = 0; i < len; i++) {
+          const s = slots[i]!
+
+          if (!inRegion(s)) {
+            outSlots[outLen] = s
+            outVals[outLen] = vals[i]!
+            outLen++
+          }
         }
       }
 
-      const ek = packBallKeyInt32(outSlots, outVals, outLen)
-      const ep = eps.get(ek)
-
-      if (ep === undefined) {
+      if (!epsHasBig && (outLen > 4 || (epsOutMask & (1 << outLen)) === 0)) {
         continue
       }
 
+      const ek = packBallKeyInt32(outSlots, outVals, outLen)
+      const eIdx = getFastKey(epsTable, ek)
+
+      if (eIdx === -1) {
+        continue
+      }
+
+      let inLen = 0
+
+      if (len <= 31) {
+        for (let i = 0; i < len; i++) {
+          if ((outMask & (1 << i)) === 0) {
+            inSlots[inLen] = slots[i]!
+            inVals[inLen] = vals[i]!
+            inLen++
+          }
+        }
+      } else {
+        for (let i = 0; i < len; i++) {
+          const s = slots[i]!
+
+          if (inRegion(s)) {
+            inSlots[inLen] = s
+            inVals[inLen] = vals[i]!
+            inLen++
+          }
+        }
+      }
+
       const rk = packBallKeyInt32(inSlots, inVals, inLen)
-      const er = ep[0]
-      const ei = ep[1]
+      const er = epsRe[eIdx]!
+      const ei = epsIm[eIdx]!
 
       addCxAccum(aEps, rk, er * re + ei * im, er * im - ei * re)
 
@@ -966,8 +1296,8 @@ export function fastBallClosure(
       return { c: 0, r: 0 }
     }
 
-    // Pass 2 (non-vacuum eps): accumulate <aEps | a_e> linearly into flat single-level map.
-    const aIndex = aEps.index
+    // Pass 2 (non-vacuum eps): accumulate <aEps | a_e> linearly into flat single-level table.
+    const aTable = aEps.table
     const innerProd = createCxAccum(256)
 
     for (let ti = 0; ti < n; ti++) {
@@ -992,19 +1322,28 @@ export function fastBallClosure(
       }
 
       let inLen = 0
-      let outLen = 0
+      let inMask = 0
 
-      for (let i = 0; i < len; i++) {
-        const s = slots[i]!
+      if (len <= 31) {
+        for (let i = 0; i < len; i++) {
+          const s = slots[i]!
 
-        if (inRegion(s)) {
-          inSlots[inLen] = s
-          inVals[inLen] = vals[i]!
-          inLen++
-        } else {
-          outSlots[outLen] = s
-          outVals[outLen] = vals[i]!
-          outLen++
+          if (inRegion(s)) {
+            inMask |= 1 << i
+            inSlots[inLen] = s
+            inVals[inLen] = vals[i]!
+            inLen++
+          }
+        }
+      } else {
+        for (let i = 0; i < len; i++) {
+          const s = slots[i]!
+
+          if (inRegion(s)) {
+            inSlots[inLen] = s
+            inVals[inLen] = vals[i]!
+            inLen++
+          }
         }
       }
 
@@ -1013,10 +1352,32 @@ export function fastBallClosure(
       }
 
       const rk = packBallKeyInt32(inSlots, inVals, inLen)
-      const idx = aIndex.get(rk)
+      const idx = getFastKey(aTable, rk)
 
-      if (idx === undefined) {
+      if (idx === -1) {
         continue
+      }
+
+      let outLen = 0
+
+      if (len <= 31) {
+        for (let i = 0; i < len; i++) {
+          if ((inMask & (1 << i)) === 0) {
+            outSlots[outLen] = slots[i]!
+            outVals[outLen] = vals[i]!
+            outLen++
+          }
+        }
+      } else {
+        for (let i = 0; i < len; i++) {
+          const s = slots[i]!
+
+          if (!inRegion(s)) {
+            outSlots[outLen] = s
+            outVals[outLen] = vals[i]!
+            outLen++
+          }
+        }
       }
 
       const ek = packBallKeyInt32(outSlots, outVals, outLen)
@@ -1058,8 +1419,10 @@ export function fastBallClosure(
 
   let stageCap = 256
   let stageCount = 0
-  const stageEk: FastKey[] = []
-  const stageRk: FastKey[] = []
+  let stageEkNum = new Float64Array(stageCap)
+  let stageRkNum = new Float64Array(stageCap)
+  let stageEkBig: Map<number, bigint> | undefined
+  let stageRkBig: Map<number, bigint> | undefined
   let stageInLen = new Int32Array(stageCap)
   let stageRe = new Float64Array(stageCap)
   let stageIm = new Float64Array(stageCap)
@@ -1117,20 +1480,48 @@ export function fastBallClosure(
 
       if (si >= stageCap) {
         stageCap *= 2
+        const nextEkNum = new Float64Array(stageCap)
+        const nextRkNum = new Float64Array(stageCap)
         const nextInLen = new Int32Array(stageCap)
         const nextRe = new Float64Array(stageCap)
         const nextIm = new Float64Array(stageCap)
 
+        nextEkNum.set(stageEkNum)
+        nextRkNum.set(stageRkNum)
         nextInLen.set(stageInLen)
         nextRe.set(stageRe)
         nextIm.set(stageIm)
+        stageEkNum = nextEkNum
+        stageRkNum = nextRkNum
         stageInLen = nextInLen
         stageRe = nextRe
         stageIm = nextIm
       }
 
-      stageEk.push(ek)
-      stageRk.push(rk)
+      if (typeof ek === 'number') {
+        stageEkNum[si] = ek
+      } else {
+        stageEkNum[si] = Number.NaN
+
+        if (stageEkBig === undefined) {
+          stageEkBig = new Map()
+        }
+
+        stageEkBig.set(si, ek)
+      }
+
+      if (typeof rk === 'number') {
+        stageRkNum[si] = rk
+      } else {
+        stageRkNum[si] = Number.NaN
+
+        if (stageRkBig === undefined) {
+          stageRkBig = new Map()
+        }
+
+        stageRkBig.set(si, rk)
+      }
+
       stageInLen[si] = inLen
       stageRe[si] = re
       stageIm[si] = im
@@ -1159,7 +1550,7 @@ export function fastBallClosure(
     return { c, r }
   }
 
-  const aIndex = aEps.index
+  const aTable = aEps.table
   let innerProd: CxAccum | undefined
 
   for (let i = 0; i < stageCount; i++) {
@@ -1169,9 +1560,10 @@ export function fastBallClosure(
       continue
     }
 
-    const idx = aIndex.get(stageRk[i]!)
+    const rkn = stageRkNum[i]!
+    const idx = rkn === rkn ? getNumKey(aTable, rkn) : getFastKey(aTable, stageRkBig!.get(i)!)
 
-    if (idx === undefined) {
+    if (idx === -1) {
       continue
     }
 
@@ -1179,12 +1571,14 @@ export function fastBallClosure(
     const bi = aIm[idx]!
     const re = stageRe[i]!
     const im = stageIm[i]!
+    const ekn = stageEkNum[i]!
+    const ek: FastKey = ekn === ekn ? ekn : stageEkBig!.get(i)!
 
     if (innerProd === undefined) {
       innerProd = createCxAccum(256)
     }
 
-    addCxAccum(innerProd, stageEk[i]!, br * re + bi * im, br * im - bi * re)
+    addCxAccum(innerProd, ek, br * re + bi * im, br * im - bi * re)
   }
 
   if (innerProd !== undefined) {
