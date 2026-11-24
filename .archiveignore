@@ -23,16 +23,21 @@ test/record/E-FRC-0297/color-ens-slab8x12/
 # editor and agent settings
 .vscode/
 .claude/
+.agents/
 .DS_Store
 *.bak
 
-# LaTeX byproducts
+# LaTeX and Lean byproducts
 *.aux
 *.bbl
 *.blg
 *.out
 *.thm
 *.log
+*.toc
+*.fls
+*.fdb_latexmk
+code/proof/.lake/
 
 # credentials
 .npmrc

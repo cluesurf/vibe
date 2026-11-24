@@ -1,0 +1,79 @@
+\section*{Scope and Methodology}
+\label{sec:scope}
+
+This paper documents the post-0017 state of the Vibe Theory research program \cite{pollard2026model, cluesurf2026repo}.
+In \emph{The Vibe Theory Model} (Paper 0017), every working experiment ran on a flat periodic $D_4$ stand-in box whose
+behavior matched the $\{3,4,3,4\}$ honeycomb only for one dock over one beat, matter remained trapped on
+one-dimensional lines under the working rule, gravity required an added depth register, the Born rule and pointer
+records remained posited rather than derived, no chiral weak sector reached the cusp, no cosmic expansion carrier
+existed on the fixed mesh, and finite honeycomb balls hit a 4-beat boundary horizon.
+
+The work reported here replaces those stand-ins and open barriers with exact cusp geometry, parameter-free operators in
+the algebraic ring $\mathbb{Z}[\zeta_9][1/6]$, infinite-time formal proofs, and a single coupled live simulation across
+five physical sectors.
+
+\subsection*{Verification discipline}
+
+Every quantitative claim in this paper is tied to a deterministic experiment identifier in the repository catalog
+\code{test/registry.csv}, which now records 1,768 experiments (up from 1,474 in Paper 0017). The methodology enforces
+four strict rules across every run.
+
+\begin{enumerate}
+\item \textbf{Zero pseudo-randomness.} No experiment calls \code{Math.random} or any stochastic sampler. Initial states,
+sector probes, and control sweeps are constructed by exact algebraic enumeration or deterministic sequences.
+\item \textbf{Exact cyclotomic arithmetic.} Core local gates and symbolic proof certificates execute over exact integer
+rings ($\mathbb{Z}$, $\mathbb{Z}[\omega]$, and $\mathbb{Z}[\zeta_9]$ with denominators dividing powers of $6$) using
+arbitrary-precision integers, eliminating rounding ambiguity from algebraic identities.
+\item \textbf{Pre-registered gates and mandatory negative controls.} Every experiment specifies numerical pass criteria
+before execution and runs explicit negative controls (bare line-law controls, unwarped flat-bulk controls, dephased
+classical controls, frozen $g^2 = 0$ gauge controls, and sector-by-sector ablations).
+\item \textbf{Honest accounting of failures and open limits.} Negative results remain in the catalog and are cited
+directly alongside positive theorems. In particular, open-line CHSH saturation without periodic wrap fails its
+convergence gate (\code{E-QTM-0202}), equal-$\chi_{\text{odd}}$ superpositions produce zero occupation-level
+$C$-asymmetry (\code{E-FND-0183}), unconditional lone-vibe frame mixers drain bound line selves on the exact honeycomb
+(\code{E-SLF-0189}, \code{E-SLF-0198}), the unweighted cusp Laplacian remains gapped (\code{E-GMT-0044}), and precision
+PDG mass ratios and nonlinear Einstein backreaction remain open (\code{E-FRC-0323}, Section~\ref{sec:open}).
+\end{enumerate}
+
+\subsection*{Summary of structural shifts since Paper 0017}
+
+Table~\ref{tab:shifts} contrasts the open barriers recorded in Paper 0017 with the verified results established in this
+paper. Following the program's depth rubric (L1 for pure algebra, L2 for exact model and sector simulations on
+$\{3,4,3,4\}$ cusp or ball geometry, and L3 for a single unfactored honeycomb engine), every computational verification
+below is graded honestly at L2, complemented by machine-formatted infinite-time formal theorems in Lean 4
+(\code{E-FND-0185}).
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.2cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+\toprule
+sector & status in Paper 0017 & verified result in this paper \\
+\midrule
+Quantum foundations & Born rule posited, no rule-made pointer records, no record-branch CHSH violation &
+Exact $SU(2)$ density by 2-adic parity (\code{E-QTM-0204}), Zurek envariance Born rule on $R = 2$ (\code{E-QTM-0205}),
+redundant records $R_{0.01} = 4$ and CHSH $2.8258$ (\code{E-QTM-0206}) \\
+3D motion and relativity & Bare rule trapped on 1D lines, light and matter speeds unequal, candidate rule uncoupled &
+Interaction-only $M_{\text{pair}}(\zeta_{18})$ breaks line law cleanly (\code{E-SLF-0199}), $O(k^{2.00})$ isotropy
+(\code{E-RLT-0123}), $0.024\%$ time dilation (\code{E-RLT-0124}), universal speed lock to $3.37 \times 10^{-16}$
+(\code{E-RLT-0125}) \\
+Gravity & Added depth register, screening without reflecting floor, static reads only &
+Parameter-free $1/N_D^2 = \ell^{-6}$ pair-density warp (\code{E-GRV-0156}), $1/r$ slope $-1.0029$ and
+$G_{\text{eff}} = 0.07716700$ (\code{E-GRV-0157}), live two-body infall, bound orbits, and deflection
+(\code{E-GRV-0158}) \\
+Gauge, chirality, flavor & Bulk chirality blocked from husk, $T = 0$ classical gauge freeze, generations open &
+$\mathbb{Z}[\zeta_9][1/6]$ unitary cusp wall with $10^{29}$ L/R ratio (\code{E-SPN-0222}), cold $T = 0$ $\mathbb{Z}_3$
+linear confinement (\code{E-FRC-0322}), 3 chiral $D_4$-triality generations and CKM + $J_{\text{CP}}$
+(\code{E-FRC-0323}) \\
+Cosmology & Fixed mesh lacked an expansion carrier, stand-in dark energy &
+Reversible $\{3,4,3,4\}$ horosphere de Sitter expansion (\code{E-CSM-0064}) and full 3-era radiation, matter,
+turnaround, and dark-energy history (\code{E-CSM-0065}) \\
+Time horizon and unification & 4-beat finite-ball horizon, separate sector runs &
+110 Lean 4 infinite-time theorems for $\forall t, \forall F$ (\code{E-FND-0185}) and coupled 5-sector live unitary
+simulation at $\dim = 259{,}200$ (\code{E-FND-0186}) \\
+\bottomrule
+\end{tabularx}
+\caption{Principal technical transitions between Paper 0017 and the present work. Every entry cites its gated experiment
+code in \code{test/registry.csv}.}
+\label{tab:shifts}
+\end{table}
