@@ -12,9 +12,8 @@
 
 <h3 align='center'>Vibe Theory</h3>
 <p align='center'>
-  A discrete possible universe Ω
+  <b>V</b>alenced <b>I</b>nformation of <b>B</b>eing and <b>E</b>xperience
 </p>
-
 <br/>
 <br/>
 <br/>
