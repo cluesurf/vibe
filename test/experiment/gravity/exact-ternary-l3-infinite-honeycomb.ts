@@ -105,8 +105,8 @@ export default experiment({
       uq.deltaXA1 > 0 &&
       uq.deltaXB1 < 0 &&
       uq.deltaDAB2 < uq.deltaDAB1 &&
-      Math.abs(uq.displacementRatio1 - 3.0) < 0.03 &&
-      Math.abs(uq.displacementRatio2 - 3.0) < 0.03 &&
+      Math.abs(uq.displacementRatio1 - 3.0) < 0.01 &&
+      Math.abs(uq.displacementRatio2 - 3.0) < 0.01 &&
       eq.relErrVsFloatRefBeat1 < 0.01 &&
       eq.relErrVsFloatRefBeat2 < 0.01 &&
       uq.relErrVsFloatRefBeat1 < 0.01 &&

@@ -754,6 +754,7 @@ function invertWord(word: readonly number[]): number[] {
 
 export type SynthesizedCoin = {
   readonly label: string
+  readonly word: readonly number[]
   readonly wordLength: number
   readonly mat: EisMat2
   readonly quat: Quat
@@ -984,8 +985,15 @@ class SU2EisSynthesizer {
 
   // Synthesize an exact BigInt Z[w][1/2] SU(2) word over {W1, W1^dag, W2, W2^dag} approximating
   // `target` to strictly better than `targetTol`, starting from L <= 16 MITM and applying
-  // balanced group commutator refinements until `opDist <= targetTol`.
-  synthesize(label: string, target: Quat, targetTol = 5e-4, maxIters = 4): SynthesizedCoin {
+  // balanced group commutator refinements (and 1 recursive SK level if needed for ultra-tight
+  // weak-field gravity coins) until `opDist <= targetTol`.
+  synthesize(
+    label: string,
+    target: Quat,
+    targetTol = 5e-4,
+    maxIters = 4,
+    allowRecursiveSK = false,
+  ): SynthesizedCoin {
     const idDist = quatDist([1, 0, 0, 0], target)
     let curWord: number[] = []
     let curQuat: Quat = [1, 0, 0, 0]
@@ -1003,17 +1011,33 @@ class SU2EisSynthesizer {
       }
     }
 
-    for (let iter = 0; iter < maxIters && curDist > targetTol; iter++) {
+    const applyCommutatorStep = (useSK1Factors: boolean): boolean => {
       const residual = quatMul(target, quatDag(curQuat))
       // Ensure residual has positive scalar part so balanced commutator stays near +I
       const resPos: Quat =
         residual[0] >= 0 ? residual : [-residual[0], -residual[1], -residual[2], -residual[3]]
       const [vTarget, wTarget] = factorBalancedCommutator(resPos)
-      const vFound = this.mitmLookup(vTarget)
-      const wFound = this.mitmLookup(wTarget)
 
-      const vMat = this.evalWordExact(vFound.word)
-      const wMat = this.evalWordExact(wFound.word)
+      let vMat: EisMat2
+      let wMat: EisMat2
+      let vWord: readonly number[]
+      let wWord: readonly number[]
+      if (useSK1Factors) {
+        const vCoin = this.synthesize(`${label}:v`, vTarget, 2.5e-4, 2, false)
+        const wCoin = this.synthesize(`${label}:w`, wTarget, 2.5e-4, 2, false)
+        vMat = vCoin.mat
+        wMat = wCoin.mat
+        vWord = vCoin.word
+        wWord = wCoin.word
+      } else {
+        const vFound = this.mitmLookup(vTarget)
+        const wFound = this.mitmLookup(wTarget)
+        vMat = this.evalWordExact(vFound.word)
+        wMat = this.evalWordExact(wFound.word)
+        vWord = vFound.word
+        wWord = wFound.word
+      }
+
       const commMat = mulEisMat2(
         mulEisMat2(vMat, wMat),
         mulEisMat2(dagEisMat2(vMat), dagEisMat2(wMat)),
@@ -1024,23 +1048,34 @@ class SU2EisSynthesizer {
 
       if (nextDist < curDist) {
         curWord = reduceWord([
-          ...vFound.word,
-          ...wFound.word,
-          ...invertWord(vFound.word),
-          ...invertWord(wFound.word),
+          ...vWord,
+          ...wWord,
+          ...invertWord(vWord),
+          ...invertWord(wWord),
           ...curWord,
         ])
         curMat = nextMat
         curQuat = nextQuat
         curDist = nextDist
-      } else {
-        break
+        return true
+      }
+      return false
+    }
+
+    for (let iter = 0; iter < maxIters && curDist > targetTol; iter++) {
+      if (!applyCommutatorStep(false)) break
+    }
+
+    if (allowRecursiveSK && curDist > targetTol) {
+      for (let iter = 0; iter < 2 && curDist > targetTol; iter++) {
+        if (!applyCommutatorStep(true)) break
       }
     }
 
     const cert = certifyExactSU2Eis(curMat)
     return {
       label,
+      word: curWord,
       wordLength: curWord.length,
       mat: curMat,
       quat: curQuat,
@@ -1051,11 +1086,11 @@ class SU2EisSynthesizer {
 }
 
 // Balanced-ternary exact BigInt Z[w][1/2] R_y(theta) coin synthesizer for live two-body gravity.
-// Pre-synthesizes ONLY 7 elementary base rotations G_k ~ R_y(3^k * 5e-5) (k = 0..6) in pure
-// {W1, W1^dag, W2, W2^dag} to < 3e-5 operator norm, then composes any weak-field gravity tilt
-// |theta| <= 0.0546 rad with exact antisymmetry U(-theta) = U(+theta)^dag and < 1.5e-4 operator norm!
+// Pre-synthesizes ONLY 9 elementary base rotations G_k ~ R_y(3^k * 6e-6) (k = 0..8) in pure
+// {W1, W1^dag, W2, W2^dag} to < 5e-6 operator norm, then composes any weak-field gravity tilt
+// |theta| <= 0.059 rad with exact antisymmetry U(-theta) = U(+theta)^dag and < 2e-5 operator norm!
 class TernaryRyGravityBank {
-  readonly deltaTheta = 5e-5
+  readonly deltaTheta = 6e-6
   readonly baseCoins: readonly SynthesizedCoin[]
   readonly baseDags: readonly EisMat2[]
   private readonly cache = new Map<number, EisMat2>()
@@ -1064,8 +1099,8 @@ class TernaryRyGravityBank {
     const coins: SynthesizedCoin[] = []
     const dags: EisMat2[] = []
     let step = this.deltaTheta
-    for (let k = 0; k < 7; k++) {
-      const c = synth.synthesize(`grav-ry-3^${k}`, quatRy(step), 3.5e-5, 5)
+    for (let k = 0; k < 9; k++) {
+      const c = synth.synthesize(`grav-ry-3^${k}`, quatRy(step), 5e-6, 3, true)
       coins.push(c)
       dags.push(dagEisMat2(c.mat))
       step *= 3

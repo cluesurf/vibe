@@ -1026,7 +1026,7 @@ export type InfiniteVolumeGapComparisonRow = {
 
 export type Part1COsterwalderSeilerReport = {
   readonly su3HaarNormErr: number
-  readonly su3QuadConvergence20vs28: number
+  readonly su3QuadConvergence28vs36: number
   readonly su3SmallBetaSeriesErrAt001: number
   readonly z3CrossCheckE188Err: number
   readonly radii: {
@@ -1049,13 +1049,13 @@ function runPart1COsterwalderSeiler(comb: Part1ACombinatoricsReport): Part1COste
   const dSq = Number(comb.d4SquareNeighborsDP) // 20
   const eVal = Math.E
 
-  // 1. Certify SU(3) Weyl quadrature precision (N=20 vs N=28) & small-beta exact series u_3 = beta/18 + beta^2/216 + O(beta^4)
-  const w20 = evalSu3WeylCharacter(0.3, 20)
+  // 1. Certify SU(3) Weyl quadrature precision (N=28 vs N=36) & small-beta exact series u_3 = beta/18 + beta^2/216 + O(beta^4)
   const w28 = evalSu3WeylCharacter(0.3, 28)
-  const su3HaarNormErr = Math.abs(w28.haarNorm - 1)
-  const su3QuadConvergence20vs28 = Math.abs(w28.u3 - w20.u3)
+  const w36 = evalSu3WeylCharacter(0.3, 36)
+  const su3HaarNormErr = Math.abs(w36.haarNorm - 1)
+  const su3QuadConvergence28vs36 = Math.abs(w36.u3 - w28.u3)
 
-  const wSmall = evalSu3WeylCharacter(0.01, 24)
+  const wSmall = evalSu3WeylCharacter(0.01, 28)
   const u3Series001 = 0.01 / 18 + (0.01 * 0.01) / 216
   const su3SmallBetaSeriesErrAt001 = Math.abs(wSmall.u3 - u3Series001)
 
@@ -1081,8 +1081,8 @@ function runPart1COsterwalderSeiler(comb: Part1ACombinatoricsReport): Part1COste
     dP: number,
   ): ConvergenceRadiusCert => {
     const uCrit = 1 / (eVal * dP)
-    const inv = invertBetaSu3(uCrit, 24)
-    const uCheck = evalSu3WeylCharacter(inv.beta, 24).u3
+    const inv = invertBetaSu3(uCrit, 28)
+    const uCheck = evalSu3WeylCharacter(inv.beta, 28).u3
     const criterionResidual = Math.abs(dP * uCheck * eVal - 1)
     return { group: 'SU(3)', lattice, dP, uCrit, betaOS: inv.beta, criterionResidual }
   }
@@ -1108,7 +1108,7 @@ function runPart1COsterwalderSeiler(comb: Part1ACombinatoricsReport): Part1COste
 
   for (const beta of testBetas) {
     const uZ3Val = uZ3(beta)
-    const uSu3Val = evalSu3WeylCharacter(beta, 24).u3
+    const uSu3Val = evalSu3WeylCharacter(beta, 28).u3
     const insideZ3OnePlaqRadius = beta < radii.z3D4Tri.betaOS
     const insideSu3OnePlaqRadius = beta < radii.su3D4Tri.betaOS
 
@@ -1184,7 +1184,7 @@ function runPart1COsterwalderSeiler(comb: Part1ACombinatoricsReport): Part1COste
 
   return {
     su3HaarNormErr,
-    su3QuadConvergence20vs28,
+    su3QuadConvergence28vs36,
     su3SmallBetaSeriesErrAt001,
     z3CrossCheckE188Err,
     radii,
@@ -1863,7 +1863,7 @@ function runPart3BalabanBlocking(): Part3BalabanBlockingReport {
   const gaugeSu3: Float64Array[] = []
   const gaugeZ3: (0 | 1 | 2)[] = []
   for (let v = 0; v < nVerts; v++) {
-    gaugeSu3.push(su3ExpGellMann(deterministicGellMannCoeffs(100 + v, 0.75)))
+    gaugeSu3.push(su3ExpGellMann(deterministicGellMannCoeffs(100 + v, 1.35)))
     gaugeZ3.push(((v * 2 + 1) % 3) as 0 | 1 | 2)
   }
 
