@@ -12,7 +12,7 @@
 
 <h3 align='center'>Vibe Theory</h3>
 <p align='center'>
-  <b>V</b>alenced <b>I</b>nformation of <b>B</b>eing and <b>E</b>xperience
+  <b>V</b>alenced <b>I</b>nformation for <b>B</b>inding <b>E</b>xperience
 </p>
 <br/>
 <br/>
