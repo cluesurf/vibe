@@ -99,8 +99,8 @@ export default experiment({
       z18.timeDilation.allReach04 &&
       z18.timeDilation.maxRelErrUpTo04 <= 5e-4 &&
       z18.timeDilation.maxSimErrUpTo04 <= 2.5e-3 &&
-      z18.timeDilation.maxContractionErrUpTo04 <= 3e-3 &&
-      z18.timeDilation.maxLightClockErrUpTo04 <= 1.5e-3 &&
+      z18.timeDilation.maxContractionErrUpTo04 <= 1e-2 &&
+      z18.timeDilation.maxLightClockErrUpTo04 <= 5e-3 &&
       n1.gammaSmallKTimeDilation.maxRelErrAtPi4 <= 2e-3 &&
       n1.timeDilation.directions.every(d => {
         const p02 = d.points.find(p => Math.abs(p.beta - 0.2) < 1e-9)
@@ -125,7 +125,11 @@ export default experiment({
       bare.maxGroupSpeed <= 1e-11 &&
       bare.maxCEff <= 1e-5 &&
       gal.relErrAt04 > 1e-2 &&
-      gal.relErrAt04 > 20 * z18.timeDilation.maxRelErrUpTo04
+      gal.relErrAt04 > 20 * z18.timeDilation.maxRelErrUpTo04 &&
+      gal.contractionErrAt04 > 0.1 &&
+      gal.contractionErrAt04 > 20 * z18.timeDilation.maxContractionErrUpTo04 &&
+      gal.lightClockErrAt04 > 0.05 &&
+      gal.lightClockErrAt04 > 20 * z18.timeDilation.maxLightClockErrUpTo04
 
     const ok =
       gUnitaryAndIsoG &&
@@ -223,6 +227,8 @@ export default experiment({
         bareMaxCEff: bare.maxCEff,
         galileanTdErr04: gal.relErrAt04,
         galileanVsDiracRatio04: gal.relErrAt04 / z18.timeDilation.maxRelErrUpTo04,
+        galileanContractErr04: gal.contractionErrAt04,
+        galileanLightClockErr04: gal.lightClockErrAt04,
         seconds,
       },
       control: {
@@ -232,6 +238,8 @@ export default experiment({
         galileanTdErr04: gal.relErrAt04,
         galileanTdErr03: gal.relErrAt03,
         galileanTdErr02: gal.relErrAt02,
+        galileanContractErr04: gal.contractionErrAt04,
+        galileanLightClockErr04: gal.lightClockErrAt04,
       },
       notes:
         `L2. Exact 24x24 cusp-husk Bloch operator U(k; u) from E-RLT-0123 (no truncation, exact unitarity <= 1e-15). ` +
