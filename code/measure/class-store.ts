@@ -18,20 +18,25 @@
 // outer product, so it is never merged and never truncated. Its beat is P C rho C^dag P^dag in place (the phase and the
 // coin keep the class and the support; the stream is a relabelling), its piece is a block extraction by the piece's
 // key, and where it must become columns (an arrival lifting it into a column sector) it is split by a pivoted Cholesky
-// whose residual trace is ledgered as truncation.
+// whose residual trace is ledgered as truncation. Decision 009 holds every 3-love residue dense (19,200 rows for
+// residues 1 and 2 on the ring of 32), and each block becomes the next beat's block IN PLACE: the rows that stay in
+// the block are signed and permuted by their stream-and-piece target in the block's own memory, the rows that leave
+// are taken out first, so no block is held twice.
 //
-// THE ORDER. One beat runs every stored column through B1's beat, its readings, and the next step's arrival and piece,
-// into the next beat's store, so a column is dense in memory only while it is worked. Merges are error-boundary's
-// (mergeColumns, the same caps per class). At full rank this is the stream path exactly; checked to 1e-12 against it
+// THE ORDER. One beat works the dense blocks first (each moved in place to the next beat; a sub-block bound for a
+// block not yet moved waits until it has), then runs every stored column through B1's beat, its readings, and the
+// next step's arrival and piece, into the next beat's store, so a column is dense in memory only while it is worked.
+// Merges are error-boundary's mergeColumns done in place (mergeInPlace, decision 010: bit-equal, the same caps per
+// class, no new columns held beside the old). At full rank this is the stream path exactly; checked to 1e-12 against it
 // (tmp/eb41-class-check.ts). The floor applies to every column put, as in the stream path; a dense sector has no floor.
 //
 // Measurement in floats, as cold-line. Nothing here moves the rule.
 
+import { hermitianEigenRows } from '@/code/algebra/linear/eig-hermitian-householder'
 import { boundCount, emptyAmp, lineBeat, popcount, rankOf, type Amp, type LineReader } from '@/code/measure/cold-line'
 import {
   exportTable,
   makeSector,
-  mergeColumns,
   takeMergeOff,
   TRACKED,
   type ExportTable,
@@ -143,6 +148,8 @@ function makeIndex(s: Sector, tb: ExportTable | undefined, parity: number, restr
   return { resid, pos, lists }
 }
 
+// a dense block's rows bound for one place (its target sector, the rows a, their targets at, their signs)
+type Group = { fs: number; a: number[]; at: number[]; sign: number[] }
 type Columns = { cols: Amp[]; orth: number }
 type Dense = { D: number; re: Float64Array; im: Float64Array }
 // per love number, per residue
@@ -315,6 +322,148 @@ export function choleskyColumns(
   return residual
 }
 
+// THE IN-PLACE MERGE (decision 010): error-boundary's mergeColumns with the kept columns written into the memory of
+// the columns they replace, so a merge never holds its `keep` new columns beside the cap + 1 old ones. The Gram matrix,
+// its eigen solve, the order, the kept set and the dropped weight are mergeColumns' own; the new column j is
+// sum_b V_b w_{kept j, b} summed over b in the same order with the same skip of a zero weight, so every amplitude is
+// bit-equal to mergeColumns'. The amplitudes are worked a block of rows at a time: the block's kept values are built
+// in a scratch of rows x kept, then written over the first kept columns' rows of that block, which no later block
+// reads. Returns the weight left out; the trace check is kept in `merged.off`.
+const MERGE_ROWS = 256
+
+export const merged = { off: 0 }
+
+function innerOf(a: Amp, b: Amp): [number, number] {
+  let sr = 0
+  let si = 0
+
+  for (let u = 0; u < a.re.length; u++) {
+    const ar = a.re[u]!
+    const ai = a.im[u]!
+    const br = b.re[u]!
+    const bi = b.im[u]!
+
+    sr += ar * br + ai * bi
+    si += ar * bi - ai * br
+  }
+
+  return [sr, si]
+}
+
+export function mergeInPlace(
+  c: { cols: Amp[]; orth: number },
+  keep: number,
+  seen?: (values: readonly number[]) => void,
+): number {
+  const k = c.cols.length
+
+  if (k === 0) {
+    return 0
+  }
+
+  const re = new Float64Array(k * k)
+  const im = new Float64Array(k * k)
+
+  for (let a = 0; a < k; a++) {
+    for (let b = a; b < k; b++) {
+      let g: [number, number]
+
+      if (a < c.orth && b < c.orth) {
+        g = a === b ? [weightOf(c.cols[a]!), 0] : [0, 0]
+      } else {
+        g = innerOf(c.cols[a]!, c.cols[b]!)
+      }
+
+      re[a * k + b] = g[0]
+      im[a * k + b] = g[1]
+      re[b * k + a] = g[0]
+      im[b * k + a] = -g[1]
+    }
+  }
+
+  const h = hermitianEigenRows(k, re, im)
+  const order = Array.from({ length: k }, (_, i) => i).sort((x, y) => h.values[y]! - h.values[x]!)
+
+  if (seen) {
+    seen(order.map(i => h.values[i]!))
+  }
+
+  const kept = order.slice(0, keep).filter(i => h.values[i]! > 0)
+  const isKept = new Uint8Array(k)
+
+  for (const i of kept) {
+    isKept[i] = 1
+  }
+
+  let dropped = 0
+
+  for (const i of order) {
+    if (!isKept[i]) {
+      dropped += Math.max(0, h.values[i]!)
+    }
+  }
+
+  const size = c.cols[0]!.re.length
+  const nk = kept.length
+  const sr = new Float64Array(MERGE_ROWS * nk)
+  const si = new Float64Array(MERGE_ROWS * nk)
+
+  for (let u0 = 0; u0 < size; u0 += MERGE_ROWS) {
+    const u1 = Math.min(size, u0 + MERGE_ROWS)
+    const rows = u1 - u0
+
+    sr.fill(0)
+    si.fill(0)
+
+    for (let b = 0; b < k; b++) {
+      const col = c.cols[b]!
+
+      for (let j = 0; j < nk; j++) {
+        const wr = h.vectorsRe[kept[j]! * k + b]!
+        const wi = h.vectorsIm[kept[j]! * k + b]!
+
+        if (wr === 0 && wi === 0) {
+          continue
+        }
+
+        const o = j * MERGE_ROWS - u0
+
+        for (let u = u0; u < u1; u++) {
+          const xr = col.re[u]!
+          const xi = col.im[u]!
+
+          sr[o + u]! += xr * wr - xi * wi
+          si[o + u]! += xr * wi + xi * wr
+        }
+      }
+    }
+
+    for (let j = 0; j < nk; j++) {
+      c.cols[j]!.re.set(sr.subarray(j * MERGE_ROWS, j * MERGE_ROWS + rows), u0)
+      c.cols[j]!.im.set(si.subarray(j * MERGE_ROWS, j * MERGE_ROWS + rows), u0)
+    }
+  }
+
+  c.cols.length = nk
+
+  // mergeColumns' own check: the kept columns' weight plus the dropped eigen weight is the trace it started with
+  let before = 0
+  let after = 0
+
+  for (let b = 0; b < k; b++) {
+    before += re[b * k + b]!
+  }
+
+  for (const v of c.cols) {
+    after += weightOf(v)
+  }
+
+  merged.off = Math.max(merged.off, Math.abs(before - after - dropped))
+  c.orth = nk
+
+  return dropped
+}
+
 export function runClassStore(
   set: ClassSettings,
   start: Amp,
@@ -333,6 +482,7 @@ export function runClassStore(
   }
 
   takeMergeOff()
+  merged.off = 0
 
   const sectors: Sector[] = []
 
@@ -406,7 +556,7 @@ export function runClassStore(
   const merge = (n: number, c: Columns): void => {
     if (c.cols.length > set.cap[n]!) {
       const spy = set.spectrum
-      const x = mergeColumns(c, set.keep[n]!, spy ? values => spy(n, beatNow, values) : undefined)
+      const x = mergeInPlace(c, set.keep[n]!, spy ? values => spy(n, beatNow, values) : undefined)
 
       if (n === TRACKED) {
         ledger.broken += x
@@ -965,7 +1115,6 @@ export function runClassStore(
     const parity = beat % 2
     const arrival = arrivalsAt.get(beat)
     const mode = arrival ? (arrival.label === 0 ? 2 * arrival.dock + 1 : 2 * arrival.dock) : -1
-    type Group = { fs: number; a: number[]; at: number[]; sign: number[] }
     const groups = new Map<number, Group>()
 
     for (let a = 0; a < D; a++) {
@@ -1036,8 +1185,11 @@ export function runClassStore(
     }
 
     // groups bound for a dense sector are added as blocks; those bound for columns are split by Cholesky, the
-    // largest last and in place
+    // largest last and in place. The largest group bound for this same block (n, r) is the PRIMARY: it is moved in
+    // place (decision 009), so the block for beat t + 1 lives in this block's memory and no block is held twice.
     const toColumns: Group[] = []
+    const toDense: { gr: Group; res: number; ii: Int32Array; size: number }[] = []
+    let primary: { gr: Group; ii: Int32Array } | undefined
 
     for (const gr of groups.values()) {
       const ixF = index(gr.fs, parity)
@@ -1054,14 +1206,7 @@ export function runClassStore(
         continue
       }
 
-      let dm = next.dense[gr.fs]!.get(res)
       const size = 3 * ixF.lists[res]!.length
-
-      if (!dm) {
-        dm = { D: size, re: new Float64Array(size * size), im: new Float64Array(size * size) }
-        next.dense[gr.fs]!.set(res, dm)
-      }
-
       const k = gr.a.length
       const ii = new Int32Array(k)
 
@@ -1069,16 +1214,48 @@ export function runClassStore(
         ii[i] = ixF.pos[Math.floor(gr.at[i]! / 3)]! * 3 + (gr.at[i]! % 3)
       }
 
+      if (gr.fs === n && res === r) {
+        if (size !== D) {
+          throw new Error(`class-store: the ${n}-love residue ${r} block changes size (${D} to ${size}) at beat ${beat}`)
+        }
+
+        if (!primary || k > primary.gr.a.length) {
+          if (primary) {
+            toDense.push({ gr: primary.gr, res, ii: primary.ii, size })
+          }
+
+          primary = { gr, ii }
+          continue
+        }
+      }
+
+      toDense.push({ gr, res, ii, size })
+    }
+
+    // every other dense-bound group: added at once into a block already moved to beat t + 1, else held as its small
+    // sub-block until its target has moved (pending), so nothing is added to a block still at beat t
+    for (const { gr, res, ii, size } of toDense) {
+      const k = gr.a.length
+      const br = new Float64Array(k * k)
+      const bi = new Float64Array(k * k)
+
       for (let i = 0; i < k; i++) {
         const row = gr.a[i]! * D
-        const out = ii[i]! * size
 
         for (let j = 0; j < k; j++) {
           const sj = gr.sign[i]! * gr.sign[j]!
 
-          dm.re[out + ii[j]!]! += sj * re[row + gr.a[j]!]!
-          dm.im[out + ii[j]!]! += sj * im[row + gr.a[j]!]!
+          br[i * k + j] = sj * re[row + gr.a[j]!]!
+          bi[i * k + j] = sj * im[row + gr.a[j]!]!
         }
+      }
+
+      const add = { n: gr.fs, res, size, ii, re: br, im: bi }
+
+      if (next.dense[gr.fs]!.has(res) || !waiting(gr.fs, res)) {
+        addBlock(next, add)
+      } else {
+        pending.push(add)
       }
     }
 
@@ -1133,11 +1310,158 @@ export function runClassStore(
       dropTrunc(gr.fs, residual)
       log(`class-store ${arm}: beat ${beat} a dense ${n}-love block of ${gr.a.length} went to ${pieces} ${gr.fs}-love columns, residual ${residual.toExponential(2)}`)
     })
+
+    // the primary group, in place: N[pi(a), pi(b)] = s_a s_b rho[a, b] on its rows, zero elsewhere
+    moveInPlace(m, primary)
+    next.dense[n]!.set(r, m)
   }
 
-  // ---- the run ----
-  let cur = emptyStore()
+  // the block m becomes the block for the next beat in its own memory: rows and columns off the primary group are
+  // zeroed, the signs applied, and the rows then the columns permuted by pi (the primary's target index, completed to
+  // a permutation by the unused targets in order), each with one row of scratch
+  const moveInPlace = (m: Dense, primary: { gr: Group; ii: Int32Array } | undefined): void => {
+    const D = m.D
+    const { re, im } = m
 
+    if (!primary) {
+      re.fill(0)
+      im.fill(0)
+      return
+    }
+
+    const pi = new Int32Array(D).fill(-1)
+    const sg = new Int8Array(D)
+    const used = new Uint8Array(D)
+    const { gr, ii } = primary
+
+    for (let i = 0; i < gr.a.length; i++) {
+      if (used[ii[i]!]) {
+        throw new Error('class-store: two rows of one group land on one target')
+      }
+
+      used[ii[i]!] = 1
+      pi[gr.a[i]!] = ii[i]!
+      sg[gr.a[i]!] = gr.sign[i]!
+    }
+
+    for (let a = 0; a < D; a++) {
+      const row = a * D
+
+      if (pi[a]! < 0) {
+        re.fill(0, row, row + D)
+        im.fill(0, row, row + D)
+        continue
+      }
+
+      const sa = sg[a]!
+
+      for (let b = 0; b < D; b++) {
+        if (pi[b]! < 0) {
+          re[row + b] = 0
+          im[row + b] = 0
+        } else if (sa * sg[b]! < 0) {
+          re[row + b] = -re[row + b]!
+          im[row + b] = -im[row + b]!
+        }
+      }
+    }
+
+    // complete pi to a permutation: the zeroed rows take the unused targets
+    let free = 0
+
+    for (let a = 0; a < D; a++) {
+      if (pi[a]! >= 0) {
+        continue
+      }
+
+      while (used[free]) {
+        free++
+      }
+
+      pi[a] = free
+      used[free] = 1
+    }
+
+    const inv = new Int32Array(D)
+
+    for (let a = 0; a < D; a++) {
+      inv[pi[a]!] = a
+    }
+
+    // rows: the new row p is the old row inv[p], by cycles
+    const tr = new Float64Array(D)
+    const ti = new Float64Array(D)
+    const seen = new Uint8Array(D)
+
+    for (let p0 = 0; p0 < D; p0++) {
+      if (seen[p0] || inv[p0] === p0) {
+        seen[p0] = 1
+        continue
+      }
+
+      tr.set(re.subarray(p0 * D, p0 * D + D))
+      ti.set(im.subarray(p0 * D, p0 * D + D))
+
+      let p = p0
+
+      while (inv[p] !== p0) {
+        const q = inv[p]!
+
+        re.copyWithin(p * D, q * D, q * D + D)
+        im.copyWithin(p * D, q * D, q * D + D)
+        seen[p] = 1
+        p = q
+      }
+
+      re.set(tr, p * D)
+      im.set(ti, p * D)
+      seen[p] = 1
+    }
+
+    // columns: in each row the entry at b moves to pi[b]
+    for (let a = 0; a < D; a++) {
+      const row = a * D
+
+      tr.set(re.subarray(row, row + D))
+      ti.set(im.subarray(row, row + D))
+
+      for (let b = 0; b < D; b++) {
+        re[row + pi[b]!] = tr[b]!
+        im[row + pi[b]!] = ti[b]!
+      }
+    }
+  }
+
+  // a dense-bound sub-block (its rows ii in the target's residue list, signs applied) into the next store
+  type Add = { n: number; res: number; size: number; ii: Int32Array; re: Float64Array; im: Float64Array }
+
+  const addBlock = (next: Store, x: Add): void => {
+    let dm = next.dense[x.n]!.get(x.res)
+
+    if (!dm) {
+      dm = { D: x.size, re: new Float64Array(x.size * x.size), im: new Float64Array(x.size * x.size) }
+      next.dense[x.n]!.set(x.res, dm)
+    }
+
+    const k = x.ii.length
+
+    for (let i = 0; i < k; i++) {
+      const out = x.ii[i]! * x.size
+
+      for (let j = 0; j < k; j++) {
+        dm.re[out + x.ii[j]!]! += x.re[i * k + j]!
+        dm.im[out + x.ii[j]!]! += x.im[i * k + j]!
+      }
+    }
+  }
+
+  // the dense blocks of the beat being worked that have not yet moved to the next beat, and the sub-blocks that wait
+  // on them
+  let cur = emptyStore()
+  const pending: Add[] = []
+  const waiting = (n: number, r: number): boolean => cur.dense[n]!.has(r)
+
+  // ---- the run ----
   {
     const withF = set.readAt.includes(0)
     const acc = newAcc(0)
@@ -1209,6 +1533,47 @@ export function runClassStore(
     maxColumns = Math.max(maxColumns, columns.reduce((x, y) => x + y, 0))
     beatNow = t + 1
 
+    // the store this beat starts from, by (love number, residue): columns x amplitudes each, or a dense block's rows,
+    // and its bytes (16 a complex amplitude)
+    let storeBytes = 0
+    const byResidue =
+      set.every !== undefined && t % set.every === 0
+        ? cur.cols
+            .flatMap((m, n) =>
+              [...m].map(([r, c]) => {
+                const size = c.cols[0]?.re.length ?? 0
+
+                storeBytes += 16 * size * c.cols.length
+                return `${n}:${r}=${c.cols.length}x${size}`
+              }),
+            )
+            .concat(
+              cur.dense.flatMap((m, n) =>
+                [...m].map(([r, x]) => {
+                  storeBytes += 16 * x.D * x.D
+                  return `${n}:${r}=dense${x.D}`
+                }),
+              ),
+            )
+            .join(' ')
+        : ''
+
+    // the dense blocks first, each moved in place to the next beat; then what waited on them; then the columns, which
+    // add only into blocks already moved
+    for (let n = nMax; n >= TRACKED; n--) {
+      for (const [r, m] of cur.dense[n]!) {
+        workDense(acc, n, r, m, t, next, withF)
+      }
+    }
+
+    for (const x of pending.splice(0)) {
+      addBlock(next!, x)
+    }
+
+    for (let n = nMax; n >= TRACKED; n--) {
+      cur.dense[n]!.clear()
+    }
+
     for (let n = nMax; n >= TRACKED; n--) {
       const e = sectors[n]!.e!
       const ix = index(n, t % 2)
@@ -1242,15 +1607,38 @@ export function runClassStore(
 
       cur.cols[n]!.clear()
 
-      for (const [r, m] of cur.dense[n]!) {
-        workDense(acc, n, r, m, t, next, withF)
-      }
-
-      cur.dense[n]!.clear()
+      // this love number's full-sector scratch is let go once its columns are worked (item 0045's cut: the 5-love
+      // pair is 0.68 GiB on the ring of 32 and was held through every 4-love merge); a fresh one is zero, as fill(0)
+      // leaves a reused one, so no number changes
+      bufA.delete(n)
+      bufB.delete(n)
     }
 
+    // the arrival's lift buffers are let go after the beat that used them (item 0045's cut: the 5-love one is 0.34
+    // GiB and was held from beat 60 on); a fresh buffer is zero, as fill(0) leaves a reused one
+    upBuffers.clear()
+
     if (set.every !== undefined && t % set.every === 0) {
-      log(`class-store ${arm}: beat ${t} columns ${columns.join(',')} trunc ${snap.truncBy.map(x => x.toExponential(1)).join(',')}`)
+      // the next beat's store, counted after this beat built it, so a caller reads its allocation beside the store
+      // it was measured with (item 0045: alloc read against the store at the START of the beat counted an arrival's
+      // new dense block twice)
+      let nextBytes = 0
+
+      if (next) {
+        for (const m of next.cols) {
+          for (const c of m.values()) {
+            nextBytes += 16 * (c.cols[0]?.re.length ?? 0) * c.cols.length
+          }
+        }
+
+        for (const m of next.dense) {
+          for (const x of m.values()) {
+            nextBytes += 16 * x.D * x.D
+          }
+        }
+      }
+
+      log(`class-store ${arm}: beat ${t} columns ${columns.join(',')} trunc ${snap.truncBy.map(x => x.toExponential(1)).join(',')} by residue ${byResidue} store ${(storeBytes / 2 ** 30).toFixed(2)} GiB next ${(nextBytes / 2 ** 30).toFixed(3)} GiB`)
     }
 
     finish(t, acc, snap, columns, withF)
@@ -1265,7 +1653,7 @@ export function runClassStore(
     tv,
     traceOff,
     maxColumns,
-    mergeOff: takeMergeOff(),
+    mergeOff: Math.max(takeMergeOff(), merged.off),
     reach: set.beats,
     seconds: (Date.now() - started) / 1000,
   }

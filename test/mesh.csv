@@ -1718,6 +1718,8 @@ E-CMP-0021,none,no-mesh,none,,,static
 E-CMP-0022,other,stand-in,none,,other:buildCellGraph,static
 E-FRC-0319,honeycomb-ball honeycomb-cusp,unread periodic,other,,honeycomb-ball:buildExactBall honeycomb-cusp:buildExactCusp,bijective
 E-QTM-0199,d4-box honeycomb-ball,box-specific honeycomb,working,,d4-box:lockedFresh(side) d4-box:makeColorWeave(side) honeycomb-ball:exactBallMesh,bijective
+E-QTM-0200,d4-box,box-specific,working,,d4-box:lockedFresh(side),bijective
+E-QTM-0201,d4-box,box-specific,working,,d4-box:lockedFresh(side),bijective
 E-FRC-0320,honeycomb-ball honeycomb-cusp,honeycomb periodic,working,,honeycomb-ball:buildExactBall honeycomb-ball:exactBallMesh honeycomb-cusp:buildExactCusp honeycomb-cusp:cuspTranslations,bijective
 E-FRC-0321,honeycomb-ball honeycomb-cusp,honeycomb periodic,working,,honeycomb-ball:buildExactBall honeycomb-ball:exactBallMesh honeycomb-cusp:buildExactCusp honeycomb-cusp:cuspTranslations,bijective
 E-SLF-0187,honeycomb-ball honeycomb-line ring,honeycomb honeycomb stand-in,working,,honeycomb-ball:exactBallMesh honeycomb-line:code/measure/cone-line ring:code/measure/drift-cost-bloch ring:code/measure/flux-store-bloch ring:code/measure/quantum-ladder ring:fitRing,bijective
@@ -1751,3 +1753,4 @@ E-QTM-0206,none,no-mesh,none,,,static
 E-GRV-0156,honeycomb-cusp,periodic,none,,honeycomb-cusp:buildExactCusp,static
 E-FND-0184,honeycomb-ball,honeycomb,working,,honeycomb-ball:exactBallMesh,bijective
 E-SPN-0221,none,no-mesh,none,,,static
+E-SLF-0198,honeycomb-line ring,unread stand-in,working,,honeycomb-line:code/measure/cone-line ring:code/measure/drift-cost-bloch ring:code/measure/flux-store-bloch ring:code/measure/quantum-ladder ring:fitRing,bijective
