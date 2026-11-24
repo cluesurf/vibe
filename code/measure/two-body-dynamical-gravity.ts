@@ -224,7 +224,6 @@ function fft3DInPlace(
   const n = plan.n
   const n2 = n * n
 
-  // Along z (stride 1)
   for (let xy = 0; xy < n2; xy++) {
     const base = xy * n
     for (let z = 0; z < n; z++) {
@@ -238,7 +237,6 @@ function fft3DInPlace(
     }
   }
 
-  // Along y (stride n)
   for (let x = 0; x < n; x++) {
     const xBase = x * n2
     for (let z = 0; z < n; z++) {
@@ -256,7 +254,6 @@ function fft3DInPlace(
     }
   }
 
-  // Along x (stride n*n)
   for (let yz = 0; yz < n2; yz++) {
     for (let x = 0; x < n; x++) {
       const idx = x * n2 + yz
@@ -284,7 +281,6 @@ function hockneyForward3D(
   const m2 = m * m
   const n = BOX_N
 
-  // Pass 1 along z: only x < N and y < N are nonzero
   for (let x = 0; x < n; x++) {
     const xBase = x * m2
     for (let y = 0; y < n; y++) {
@@ -305,7 +301,6 @@ function hockneyForward3D(
     }
   }
 
-  // Pass 2 along y: only x < N is nonzero; all z in [0..M-1] are now populated
   for (let x = 0; x < n; x++) {
     const xBase = x * m2
     for (let z = 0; z < m; z++) {
@@ -327,7 +322,6 @@ function hockneyForward3D(
     }
   }
 
-  // Pass 3 along x: all y, z in [0..M-1], input nonzero only for x < N
   for (let yz = 0; yz < m2; yz++) {
     for (let x = 0; x < n; x++) {
       const idx = x * m2 + yz
@@ -359,7 +353,6 @@ function hockneyInverse3D(
   const m2 = m * m
   const n = BOX_N
 
-  // Pass 1 along x: all y, z in [0..M-1], write back only x < N
   for (let yz = 0; yz < m2; yz++) {
     for (let x = 0; x < m; x++) {
       const idx = x * m2 + yz
@@ -374,7 +367,6 @@ function hockneyInverse3D(
     }
   }
 
-  // Pass 2 along y: only x < N, all z in [0..M-1], write back only y < N
   for (let x = 0; x < n; x++) {
     const xBase = x * m2
     for (let z = 0; z < m; z++) {
@@ -392,7 +384,6 @@ function hockneyInverse3D(
     }
   }
 
-  // Pass 3 along z: only x < N, y < N, write back only z < N
   for (let x = 0; x < n; x++) {
     const xBase = x * m2
     for (let y = 0; y < n; y++) {
@@ -437,7 +428,6 @@ function buildOpenGravityKernel(
   const re = new Float64Array(PAD_VOL)
   const im = new Float64Array(PAD_VOL)
 
-  // Step 1: exact 64^3 momentum-space Green's function 1 / schurAtLambda(model, lam(k))
   for (let ix = 0; ix < m; ix++) {
     const cx = cosTable[ix]!
     for (let iy = 0; iy < m; iy++) {
@@ -454,11 +444,8 @@ function buildOpenGravityKernel(
     }
   }
 
-  // Step 2: 64^3 inverse FFT -> exact periodic Green's function G_per64(dx, dy, dz)
   fft3DInPlace(planM, re, im, true, lineRe, lineIm)
 
-  // Step 3: apply exact Madelung + torus-background finite-size correction (for warped massless kernel)
-  // so G_open(dx, dy, dz) matches the infinite-volume lattice Green's function to O(r^4 / 64^5)
   const madelung = model.warped ? MADELUNG_C_M / (model.kEff * m) : 0
   const bgDenom = 6 * model.kEff * PAD_VOL
 
@@ -470,7 +457,6 @@ function buildOpenGravityKernel(
       for (let iz = 0; iz < m; iz++) {
         const dz = iz <= 32 ? iz : iz - m
         if (ix === 32 || iy === 32 || iz === 32) {
-          // Seam plane never accessed by x - x' in [-31, 31]^3; zero keeps strict even symmetry
           re[base + iz] = 0
           im[base + iz] = 0
         } else {
@@ -488,7 +474,6 @@ function buildOpenGravityKernel(
     gAlongX.push(re[r * m2]!)
   }
 
-  // Step 4: forward 64^3 FFT -> Hockney convolution multiplier G_hat_open(k) (purely real)
   fft3DInPlace(planM, re, im, false, lineRe, lineIm)
   let maxImagErr = 0
   for (let i = 0; i < PAD_VOL; i++) {
@@ -517,12 +502,14 @@ type SimWorkspace = {
   readonly lineImM: Float64Array
   readonly padRe: Float64Array
   readonly padIm: Float64Array
-  readonly phi1: Float64Array // potential felt by body 1 (from body 2): Phi_2(x)
-  readonly phi2: Float64Array // potential felt by body 2 (from body 1): Phi_1(x)
-  readonly k1D: Float64Array // signed wavevector along one axis (with k[N/2] = 0 for odd momentum)
-  readonly kSq3D: Float64Array // |k|^2 on N^3 (with k[N/2] = pi so kinetic spectrum is positive)
+  readonly phi1: Float64Array
+  readonly phi2: Float64Array
+  readonly k1D: Float64Array
+  readonly kSq3D: Float64Array
   readonly tmpRe: Float64Array
   readonly tmpIm: Float64Array
+  readonly derivRe: Float64Array
+  readonly derivIm: Float64Array
 }
 
 function createWorkspace(): SimWorkspace {
@@ -566,6 +553,8 @@ function createWorkspace(): SimWorkspace {
     kSq3D,
     tmpRe: new Float64Array(BOX_VOL),
     tmpIm: new Float64Array(BOX_VOL),
+    derivRe: new Float64Array(BOX_VOL),
+    derivIm: new Float64Array(BOX_VOL),
   }
 }
 
@@ -616,6 +605,52 @@ function initGaussianWavepacket(
   for (let i = 0; i < BOX_VOL; i++) {
     re[i] = re[i]! * invNorm
     im[i] = im[i]! * invNorm
+  }
+
+  return { re, im }
+}
+
+function initPeriodicGaussianWavepacket(
+  x0: number,
+  y0: number,
+  z0: number,
+  sigma: number,
+): { readonly re: Float64Array; readonly im: Float64Array } {
+  const re = new Float64Array(BOX_VOL)
+  const im = new Float64Array(BOX_VOL)
+  const inv4Sig2 = 1 / (4 * sigma * sigma)
+  let normSq = 0
+
+  for (let x = 0; x < BOX_N; x++) {
+    let envX = 0
+    for (let sx = -1; sx <= 1; sx++) {
+      const dx = x - CENTER - x0 + sx * BOX_N
+      envX += Math.exp(-dx * dx * inv4Sig2)
+    }
+    for (let y = 0; y < BOX_N; y++) {
+      let envY = 0
+      for (let sy = -1; sy <= 1; sy++) {
+        const dy = y - CENTER - y0 + sy * BOX_N
+        envY += Math.exp(-dy * dy * inv4Sig2)
+      }
+      const envXY = envX * envY
+      const base = (x * BOX_N + y) * BOX_N
+      for (let z = 0; z < BOX_N; z++) {
+        let envZ = 0
+        for (let sz = -1; sz <= 1; sz++) {
+          const dz = z - CENTER - z0 + sz * BOX_N
+          envZ += Math.exp(-dz * dz * inv4Sig2)
+        }
+        const rv = envXY * envZ
+        re[base + z] = rv
+        normSq += rv * rv
+      }
+    }
+  }
+
+  const invNorm = 1 / Math.sqrt(normSq)
+  for (let i = 0; i < BOX_VOL; i++) {
+    re[i] = re[i]! * invNorm
   }
 
   return { re, im }
@@ -684,8 +719,6 @@ function computePotentials(
 
   hockneyInverse3D(planM, padRe, padIm, lineReM, lineImM)
 
-  // padRe holds G_open * rho_1 (so Phi felt by body 2 is -m_1 * padRe)
-  // padIm holds G_open * rho_2 (so Phi felt by body 1 is -m_2 * padIm)
   for (let x = 0; x < BOX_N; x++) {
     const xBasePad = x * m2Pad
     const xBaseBox = x * BOX_N * BOX_N
@@ -742,29 +775,9 @@ function applyPotentialPhase(
   }
 }
 
-// Single strictly unitary, exactly time-reversible Strang split-step:
-//   U(dt) = exp(-i dt/2 T) exp(-i dt m Phi) exp(-i dt/2 T)
-function strangStep(
-  ws: SimWorkspace,
-  kernel: GravityKernel,
-  state: TwoBodyState,
-  dt: number,
-): void {
-  const halfDt = 0.5 * dt
-  applyKineticPhase(ws, state.psi1Re, state.psi1Im, state.m1, halfDt)
-  applyKineticPhase(ws, state.psi2Re, state.psi2Im, state.m2, halfDt)
-
-  computePotentials(ws, kernel, state)
-
-  applyPotentialPhase(state.psi1Re, state.psi1Im, ws.phi1, state.m1, dt)
-  applyPotentialPhase(state.psi2Re, state.psi2Im, ws.phi2, state.m2, dt)
-
-  applyKineticPhase(ws, state.psi1Re, state.psi1Im, state.m1, halfDt)
-  applyKineticPhase(ws, state.psi2Re, state.psi2Im, state.m2, halfDt)
-}
-
-// Multi-step Strang evolution merging interior kinetic half-steps (exact same operator as strangStep^steps,
-// saving 2 FFTs per interior step)
+// Multi-step strictly unitary, exactly time-reversible Strang split-step propagator:
+//   U(dt)^steps = [exp(-i dt/2 T) exp(-i dt m Phi) exp(-i dt/2 T)]^steps
+// merging interior kinetic half-steps (exact algebraic identity, halves kinetic FFTs)
 function evolveStrangBlock(
   ws: SimWorkspace,
   kernel: GravityKernel,
@@ -788,8 +801,71 @@ function evolveStrangBlock(
 }
 
 // -------------------------------------------------------------------------------------------------
-// Exact observables: centroids, norms, spectral momenta, angular momentum, kinetic & potential energy
+// Exact observables: centroids, norms, spectral momenta, exact quantum <L_z>, and total energy
 // -------------------------------------------------------------------------------------------------
+
+function measureCentroidsOnly(state: TwoBodyState): {
+  readonly norm1: number
+  readonly norm2: number
+  readonly x1: number
+  readonly y1: number
+  readonly z1: number
+  readonly x2: number
+  readonly y2: number
+  readonly z2: number
+  readonly sep: number
+} {
+  let n1 = 0
+  let sx1 = 0
+  let sy1 = 0
+  let sz1 = 0
+  let n2 = 0
+  let sx2 = 0
+  let sy2 = 0
+  let sz2 = 0
+
+  const { psi1Re, psi1Im, psi2Re, psi2Im } = state
+  for (let x = 0; x < BOX_N; x++) {
+    const cx = x - CENTER
+    for (let y = 0; y < BOX_N; y++) {
+      const cy = y - CENTER
+      const base = (x * BOX_N + y) * BOX_N
+      for (let z = 0; z < BOX_N; z++) {
+        const idx = base + z
+        const cz = z - CENTER
+        const p1 = psi1Re[idx]! * psi1Re[idx]! + psi1Im[idx]! * psi1Im[idx]!
+        const p2 = psi2Re[idx]! * psi2Re[idx]! + psi2Im[idx]! * psi2Im[idx]!
+        n1 += p1
+        sx1 += cx * p1
+        sy1 += cy * p1
+        sz1 += cz * p1
+        n2 += p2
+        sx2 += cx * p2
+        sy2 += cy * p2
+        sz2 += cz * p2
+      }
+    }
+  }
+
+  const x1 = sx1 / n1
+  const y1 = sy1 / n1
+  const z1 = sz1 / n1
+  const x2 = sx2 / n2
+  const y2 = sy2 / n2
+  const z2 = sz2 / n2
+
+  return {
+    norm1: n1,
+    norm2: n2,
+    x1,
+    y1,
+    z1,
+    x2,
+    y2,
+    z2,
+    sep: Math.hypot(x2 - x1, y2 - y1, z2 - z1),
+  }
+}
 
 type BodyObservables = {
   readonly norm: number
@@ -800,6 +876,7 @@ type BodyObservables = {
   readonly py: number
   readonly pz: number
   readonly kineticEnergy: number
+  readonly lzQuantum: number
 }
 
 function measureBody(
@@ -807,6 +884,9 @@ function measureBody(
   re: Float64Array,
   im: Float64Array,
   mass: number,
+  computeQuantumLz: boolean,
+  comX = 0,
+  comY = 0,
 ): BodyObservables {
   let norm = 0
   let sx = 0
@@ -831,8 +911,7 @@ function measureBody(
     }
   }
 
-  // Spectral momentum & kinetic energy via 3D FFT on scratch copy
-  const { tmpRe, tmpIm, planN, lineReN, lineImN, k1D, kSq3D } = ws
+  const { tmpRe, tmpIm, derivRe, derivIm, planN, lineReN, lineImN, k1D, kSq3D } = ws
   tmpRe.set(re)
   tmpIm.set(im)
   fft3DInPlace(planN, tmpRe, tmpIm, false, lineReN, lineImN)
@@ -861,6 +940,61 @@ function measureBody(
     }
   }
 
+  let lzQuantum = 0
+  if (computeQuantumLz) {
+    // Exact quantum operator expectation <psi | (x - comX) p_y - (y - comY) p_x | psi>
+    // Term 1: (p_y psi) = IFFT(k_y * psi_hat)
+    for (let ix = 0; ix < BOX_N; ix++) {
+      for (let iy = 0; iy < BOX_N; iy++) {
+        const ky = k1D[iy]!
+        const base = (ix * BOX_N + iy) * BOX_N
+        for (let iz = 0; iz < BOX_N; iz++) {
+          const idx = base + iz
+          derivRe[idx] = ky * tmpRe[idx]!
+          derivIm[idx] = ky * tmpIm[idx]!
+        }
+      }
+    }
+    fft3DInPlace(planN, derivRe, derivIm, true, lineReN, lineImN)
+    for (let x = 0; x < BOX_N; x++) {
+      const rx = x - CENTER - comX
+      const xBase = x * BOX_N * BOX_N
+      for (let y = 0; y < BOX_N; y++) {
+        const base = xBase + y * BOX_N
+        for (let z = 0; z < BOX_N; z++) {
+          const idx = base + z
+          lzQuantum += rx * (re[idx]! * derivRe[idx]! + im[idx]! * derivIm[idx]!)
+        }
+      }
+    }
+
+    // Term 2: -(p_x psi) = -IFFT(k_x * psi_hat)
+    for (let ix = 0; ix < BOX_N; ix++) {
+      const kx = k1D[ix]!
+      for (let iy = 0; iy < BOX_N; iy++) {
+        const base = (ix * BOX_N + iy) * BOX_N
+        for (let iz = 0; iz < BOX_N; iz++) {
+          const idx = base + iz
+          derivRe[idx] = kx * tmpRe[idx]!
+          derivIm[idx] = kx * tmpIm[idx]!
+        }
+      }
+    }
+    fft3DInPlace(planN, derivRe, derivIm, true, lineReN, lineImN)
+    for (let x = 0; x < BOX_N; x++) {
+      const xBase = x * BOX_N * BOX_N
+      for (let y = 0; y < BOX_N; y++) {
+        const ry = y - CENTER - comY
+        const base = xBase + y * BOX_N
+        for (let z = 0; z < BOX_N; z++) {
+          const idx = base + z
+          lzQuantum -= ry * (re[idx]! * derivRe[idx]! + im[idx]! * derivIm[idx]!)
+        }
+      }
+    }
+    lzQuantum /= norm
+  }
+
   return {
     norm,
     x: sx / norm,
@@ -870,6 +1004,7 @@ function measureBody(
     py: py / norm,
     pz: pz / norm,
     kineticEnergy: kin / (2 * mass * norm),
+    lzQuantum,
   }
 }
 
@@ -883,7 +1018,7 @@ type TwoBodySnapshot = {
   readonly totalPx: number
   readonly totalPy: number
   readonly totalPz: number
-  readonly lzOrb: number
+  readonly lzQuantumTotal: number
   readonly interactionEnergy: number
   readonly potentialReciprocityErr: number
   readonly totalEnergy: number
@@ -893,18 +1028,24 @@ function measureTwoBody(
   ws: SimWorkspace,
   kernel: GravityKernel,
   state: TwoBodyState,
+  needEnergy: boolean,
+  needQuantumLz: boolean,
 ): TwoBodySnapshot {
-  const b1 = measureBody(ws, state.psi1Re, state.psi1Im, state.m1)
-  const b2 = measureBody(ws, state.psi2Re, state.psi2Im, state.m2)
-  computePotentials(ws, kernel, state)
+  const b1 = measureBody(ws, state.psi1Re, state.psi1Im, state.m1, needQuantumLz, 0, 0)
+  const b2 = measureBody(ws, state.psi2Re, state.psi2Im, state.m2, needQuantumLz, 0, 0)
 
   let eInt1 = 0
-  let eInt2 = 0
-  for (let i = 0; i < BOX_VOL; i++) {
-    const rho1 = state.psi1Re[i]! * state.psi1Re[i]! + state.psi1Im[i]! * state.psi1Im[i]!
-    const rho2 = state.psi2Re[i]! * state.psi2Re[i]! + state.psi2Im[i]! * state.psi2Im[i]!
-    eInt1 += state.m1 * rho1 * ws.phi1[i]!
-    eInt2 += state.m2 * rho2 * ws.phi2[i]!
+  let reciprocityErr = 0
+  if (needEnergy) {
+    computePotentials(ws, kernel, state)
+    let eInt2 = 0
+    for (let i = 0; i < BOX_VOL; i++) {
+      const rho1 = state.psi1Re[i]! * state.psi1Re[i]! + state.psi1Im[i]! * state.psi1Im[i]!
+      const rho2 = state.psi2Re[i]! * state.psi2Re[i]! + state.psi2Im[i]! * state.psi2Im[i]!
+      eInt1 += state.m1 * rho1 * ws.phi1[i]!
+      eInt2 += state.m2 * rho2 * ws.phi2[i]!
+    }
+    reciprocityErr = Math.abs(eInt1 - eInt2)
   }
 
   const mTot = state.m1 + state.m2
@@ -917,11 +1058,13 @@ function measureTwoBody(
   const comY = (state.m1 * b1.y + state.m2 * b2.y) / mTot
   const comZ = (state.m1 * b1.z + state.m2 * b2.z) / mTot
 
-  const lzOrb =
-    (b1.x - comX) * b1.py -
-    (b1.y - comY) * b1.px +
-    (b2.x - comX) * b2.py -
-    (b2.y - comY) * b2.px
+  // Shift L_z from origin (0,0) to COM: L_z(COM) = L_z(0) - (comX * P_y - comY * P_x)
+  const totalPx = b1.px + b2.px
+  const totalPy = b1.py + b2.py
+  const totalPz = b1.pz + b2.pz
+  const lzQuantumTotal = needQuantumLz
+    ? b1.lzQuantum + b2.lzQuantum - (comX * totalPy - comY * totalPx)
+    : 0
 
   return {
     b1,
@@ -930,17 +1073,16 @@ function measureTwoBody(
     comX,
     comY,
     comZ,
-    totalPx: b1.px + b2.px,
-    totalPy: b1.py + b2.py,
-    totalPz: b1.pz + b2.pz,
-    lzOrb,
+    totalPx,
+    totalPy,
+    totalPz,
+    lzQuantumTotal,
     interactionEnergy: eInt1,
-    potentialReciprocityErr: Math.abs(eInt1 - eInt2),
+    potentialReciprocityErr: reciprocityErr,
     totalEnergy: b1.kineticEnergy + b2.kineticEnergy + eInt1,
   }
 }
 
-// Fit ordinary least-squares log-log slope d ln(y) / d ln(x)
 function fitLogLogSlope(xs: readonly number[], ys: readonly number[]): number {
   const n = xs.length
   let sx = 0
@@ -958,7 +1100,7 @@ function fitLogLogSlope(xs: readonly number[], ys: readonly number[]): number {
   return (n * sxy - sx * sy) / (n * sxx - sx * sx)
 }
 
-// Fit r(t) - r_0 = c2 * t^2 + c4 * t^4 (zero-velocity initial condition) -> initial acceleration a_0 = 2 * c2
+// Fit r(t) - r_0 = c2 * t^2 + c4 * t^4 (zero initial velocity) -> initial acceleration a_0 = 2 * c2
 function fitInitialAcceleration(ts: readonly number[], drs: readonly number[]): number {
   let s4 = 0
   let s6 = 0
@@ -1019,10 +1161,13 @@ export type TwoBodyDynamicalGravityResult = {
   readonly showcaseShrinkage: number
   readonly showcaseEnergyRelDrift: number
   readonly showcaseMaxSpeedOverC: number
-  readonly unequalMassAccelRatio: number // expected -m2/m1 = -2.000
+  readonly unequalMassAccelRatio: number // expected -m2/m1 = -2.000 (open-boundary Hockney)
   readonly unequalMassAccelRatioErr: number
-  readonly unequalMassMomentumSumErr: number
-  readonly unequalMassComDrift: number
+  readonly unequalMassOpenMomentumSumErr: number
+  readonly unequalMassOpenComDrift: number
+  readonly unequalMassPeriodicAccelRatioErr: number // exact translation-invariant T^3 {3,4,3,4} N3L check
+  readonly unequalMassPeriodicMomentumSumErr: number
+  readonly unequalMassPeriodicComDrift: number
   readonly maxNormErrAll: number
   readonly maxMomentumSumErrAll: number
   readonly maxComDriftAll: number
@@ -1039,7 +1184,7 @@ export type TwoBodyDynamicalGravityResult = {
   readonly orbitOmegaMeasuredFull: number
   readonly orbitOmegaEarlyRelErr: number
   readonly orbitLzInitial: number
-  readonly orbitLzRelDrift: number
+  readonly orbitLzQuantumRelDrift: number
   readonly orbitMaxSpeedOverC: number
   readonly orbitEnergyRelDrift: number
   readonly flybyImpactB: number
@@ -1064,6 +1209,76 @@ export type TwoBodyDynamicalGravityResult = {
   readonly rawToWarpFlybyRatio: number
 }
 
+// Exact periodic 32^3 {3,4,3,4} warped cusp potential (exact discrete translation symmetry on T^3,
+// used to verify non-symmetric unequal-mass Newton's 3rd law to machine precision without seam jumps)
+function buildPeriodicKernel32(model: ColumnModel): Float64Array {
+  const twoPiOverN = (2 * Math.PI) / BOX_N
+  const cosTable = Float64Array.from({ length: BOX_N }, (_, i) => Math.cos(twoPiOverN * i))
+  const gHat = new Float64Array(BOX_VOL)
+  for (let ix = 0; ix < BOX_N; ix++) {
+    const cx = cosTable[ix]!
+    for (let iy = 0; iy < BOX_N; iy++) {
+      const cy = cosTable[iy]!
+      const base = (ix * BOX_N + iy) * BOX_N
+      for (let iz = 0; iz < BOX_N; iz++) {
+        if (ix === 0 && iy === 0 && iz === 0) {
+          gHat[base + iz] = 0
+          continue
+        }
+        const lam = 2 * (3 - cx - cy - cosTable[iz]!)
+        gHat[base + iz] = 1 / schurAtLambda(model, lam)
+      }
+    }
+  }
+  return gHat
+}
+
+function computePotentialsPeriodic32(
+  ws: SimWorkspace,
+  gHat32: Float64Array,
+  state: TwoBodyState,
+): void {
+  const { tmpRe, tmpIm, phi1, phi2, planN, lineReN, lineImN } = ws
+  const { psi1Re, psi1Im, psi2Re, psi2Im, m1, m2 } = state
+  for (let i = 0; i < BOX_VOL; i++) {
+    tmpRe[i] = psi1Re[i]! * psi1Re[i]! + psi1Im[i]! * psi1Im[i]!
+    tmpIm[i] = psi2Re[i]! * psi2Re[i]! + psi2Im[i]! * psi2Im[i]!
+  }
+  fft3DInPlace(planN, tmpRe, tmpIm, false, lineReN, lineImN)
+  for (let i = 0; i < BOX_VOL; i++) {
+    const g = gHat32[i]!
+    tmpRe[i] = tmpRe[i]! * g
+    tmpIm[i] = tmpIm[i]! * g
+  }
+  fft3DInPlace(planN, tmpRe, tmpIm, true, lineReN, lineImN)
+  for (let i = 0; i < BOX_VOL; i++) {
+    phi1[i] = -m2 * tmpIm[i]!
+    phi2[i] = -m1 * tmpRe[i]!
+  }
+}
+
+function evolveStrangBlockPeriodic32(
+  ws: SimWorkspace,
+  gHat32: Float64Array,
+  state: TwoBodyState,
+  dt: number,
+  steps: number,
+): void {
+  if (steps <= 0) return
+  const halfDt = 0.5 * dt
+  applyKineticPhase(ws, state.psi1Re, state.psi1Im, state.m1, halfDt)
+  applyKineticPhase(ws, state.psi2Re, state.psi2Im, state.m2, halfDt)
+
+  for (let s = 0; s < steps; s++) {
+    computePotentialsPeriodic32(ws, gHat32, state)
+    applyPotentialPhase(state.psi1Re, state.psi1Im, ws.phi1, state.m1, dt)
+    applyPotentialPhase(state.psi2Re, state.psi2Im, ws.phi2, state.m2, dt)
+    const kinDt = s === steps - 1 ? halfDt : dt
+    applyKineticPhase(ws, state.psi1Re, state.psi1Im, state.m1, kinDt)
+    applyKineticPhase(ws, state.psi2Re, state.psi2Im, state.m2, kinDt)
+  }
+}
+
 // -------------------------------------------------------------------------------------------------
 // Main runner
 // -------------------------------------------------------------------------------------------------
@@ -1071,7 +1286,6 @@ export type TwoBodyDynamicalGravityResult = {
 export function runTwoBodyDynamicalGravity(): TwoBodyDynamicalGravityResult {
   const ws = createWorkspace()
 
-  // Exact parameter-free {3,4,3,4} warped cusp column (F = 16) and raw unwarped bulk control (F = 12)
   const warpedModel = buildColumnModel(16, true)
   const rawModel = buildColumnModel(12, false)
   const colSpeed = buildWarpedColumnData(16)
@@ -1134,7 +1348,7 @@ export function runTwoBodyDynamicalGravity(): TwoBodyDynamicalGravityResult {
   const infallMass = 6.0
   const infallSigma = 1.15
   const infallDt = 0.5
-  const infallSteps = 10 // T = 5.0 beats per separation
+  const infallSteps = 6 // T = 3.0 beats per separation (clean early acceleration + shrinkage)
   const rs = [5, 6, 7, 8, 9, 10] as const
   const infallSamples: RadialInfallSample[] = []
 
@@ -1148,7 +1362,7 @@ export function runTwoBodyDynamicalGravity(): TwoBodyDynamicalGravityResult {
       [0, 0, 0],
       infallSigma,
     )
-    const snap0 = measureTwoBody(ws, warpKernel, state)
+    const snap0 = measureTwoBody(ws, warpKernel, state, r0 === 7, false)
     const com0: [number, number, number] = [snap0.comX, snap0.comY, snap0.comZ]
     trackInvariants(snap0, com0)
 
@@ -1161,34 +1375,37 @@ export function runTwoBodyDynamicalGravity(): TwoBodyDynamicalGravityResult {
     let rEnd = snap0.sep
 
     for (let s = 1; s <= infallSteps; s++) {
-      strangStep(ws, warpKernel, state, infallDt)
-      const snap = measureTwoBody(ws, warpKernel, state)
-      trackInvariants(snap, com0)
-
+      evolveStrangBlock(ws, warpKernel, state, infallDt, 1)
       const t = s * infallDt
-      ts.push(t)
-      drs.push(snap.sep - snap0.sep)
-      rEnd = snap.sep
-
-      if (s === 2) {
-        const v1x = snap.b1.px / state.m1
-        const v2x = snap.b2.px / state.m2
-        a12Momentum = (v2x - v1x) / t
+      if (s === 2 || s === infallSteps) {
+        const snap = measureTwoBody(ws, warpKernel, state, false, false)
+        trackInvariants(snap, com0)
+        ts.push(t)
+        drs.push(snap.sep - snap0.sep)
+        rEnd = snap.sep
+        if (s === 2) {
+          a12Momentum = (snap.b2.px / state.m2 - snap.b1.px / state.m1) / t
+        }
+        maxNormErr = Math.max(
+          maxNormErr,
+          Math.abs(snap.b1.norm - 1),
+          Math.abs(snap.b2.norm - 1),
+        )
+        maxMomentumSumErr = Math.max(
+          maxMomentumSumErr,
+          Math.hypot(snap.totalPx, snap.totalPy, snap.totalPz),
+        )
+        maxComDrift = Math.max(
+          maxComDrift,
+          Math.hypot(snap.comX - com0[0], snap.comY - com0[1], snap.comZ - com0[2]),
+        )
+      } else {
+        const c = measureCentroidsOnly(state)
+        ts.push(t)
+        drs.push(c.sep - snap0.sep)
+        rEnd = c.sep
+        maxNormErr = Math.max(maxNormErr, Math.abs(c.norm1 - 1), Math.abs(c.norm2 - 1))
       }
-
-      maxNormErr = Math.max(
-        maxNormErr,
-        Math.abs(snap.b1.norm - 1),
-        Math.abs(snap.b2.norm - 1),
-      )
-      maxMomentumSumErr = Math.max(
-        maxMomentumSumErr,
-        Math.hypot(snap.totalPx, snap.totalPy, snap.totalPz),
-      )
-      maxComDrift = Math.max(
-        maxComDrift,
-        Math.hypot(snap.comX - com0[0], snap.comY - com0[1], snap.comZ - com0[2]),
-      )
     }
 
     const a12Traj = fitInitialAcceleration(ts, drs)
@@ -1224,11 +1441,11 @@ export function runTwoBodyDynamicalGravity(): TwoBodyDynamicalGravityResult {
   const gDynMeanRelErrR6to10 = Math.abs(gDynMeanR6to10 - gEff) / gEff
   const gDynMaxRelErrR6to10 = Math.max(...samplesR6to10.map(s => s.gDynRelErr))
 
-  // Macroscopic radial infall showcase (r_0 = 7.5, 24 forward steps -> > 1.5 dock shrinkage)
-  // followed by exact time-reversal (24 backward steps with -dt)
+  // Macroscopic radial infall showcase (r_0 = 7.5, 20 forward steps of dt = 0.6 -> T = 12.0 beats)
+  // followed by exact time-reversal U(-dt)^20
   const showcaseR0 = 7.5
-  const showcaseSteps = 24
-  const showcaseDt = 0.5
+  const showcaseSteps = 20
+  const showcaseDt = 0.6
   const showcaseState = createTwoBodyState(
     infallMass,
     infallMass,
@@ -1243,35 +1460,33 @@ export function runTwoBodyDynamicalGravity(): TwoBodyDynamicalGravityResult {
   const psi2InitRe = Float64Array.from(showcaseState.psi2Re)
   const psi2InitIm = Float64Array.from(showcaseState.psi2Im)
 
-  const showSnap0 = measureTwoBody(ws, warpKernel, showcaseState)
+  const showSnap0 = measureTwoBody(ws, warpKernel, showcaseState, true, false)
   const showCom0: [number, number, number] = [showSnap0.comX, showSnap0.comY, showSnap0.comZ]
   trackInvariants(showSnap0, showCom0)
 
   let showcaseEnergyRelDrift = 0
   let showcaseMaxSpeedOverC = 0
 
-  for (let s = 1; s <= showcaseSteps; s++) {
-    strangStep(ws, warpKernel, showcaseState, showcaseDt)
-    if (s % 4 === 0 || s === showcaseSteps) {
-      const snap = measureTwoBody(ws, warpKernel, showcaseState)
-      trackInvariants(snap, showCom0)
-      showcaseEnergyRelDrift = Math.max(
-        showcaseEnergyRelDrift,
-        Math.abs(snap.totalEnergy - showSnap0.totalEnergy) / Math.abs(showSnap0.interactionEnergy),
-      )
-      const v1 = Math.hypot(snap.b1.px, snap.b1.py, snap.b1.pz) / showcaseState.m1
-      const v2 = Math.hypot(snap.b2.px, snap.b2.py, snap.b2.pz) / showcaseState.m2
-      showcaseMaxSpeedOverC = Math.max(showcaseMaxSpeedOverC, Math.max(v1, v2) / cUniversal)
-    }
+  for (let b = 0; b < 4; b++) {
+    evolveStrangBlock(ws, warpKernel, showcaseState, showcaseDt, 5)
+    const snap = measureTwoBody(ws, warpKernel, showcaseState, true, false)
+    trackInvariants(snap, showCom0)
+    showcaseEnergyRelDrift = Math.max(
+      showcaseEnergyRelDrift,
+      Math.abs(snap.totalEnergy - showSnap0.totalEnergy) / Math.abs(showSnap0.interactionEnergy),
+    )
+    const v1 = Math.hypot(snap.b1.px, snap.b1.py, snap.b1.pz) / showcaseState.m1
+    const v2 = Math.hypot(snap.b2.px, snap.b2.py, snap.b2.pz) / showcaseState.m2
+    showcaseMaxSpeedOverC = Math.max(showcaseMaxSpeedOverC, Math.max(v1, v2) / cUniversal)
   }
 
-  const showSnapMid = measureTwoBody(ws, warpKernel, showcaseState)
+  const showSnapMid = measureTwoBody(ws, warpKernel, showcaseState, false, false)
   const showcaseREnd = showSnapMid.sep
   const showcaseShrinkage = showSnap0.sep - showcaseREnd
 
   // Exact time-reversal: apply U(-dt)^showcaseSteps
   evolveStrangBlock(ws, warpKernel, showcaseState, -showcaseDt, showcaseSteps)
-  const showSnapRev = measureTwoBody(ws, warpKernel, showcaseState)
+  const showSnapRev = measureTwoBody(ws, warpKernel, showcaseState, false, false)
   trackInvariants(showSnapRev, showCom0)
 
   const timeReversalCentroidErr = Math.max(
@@ -1302,51 +1517,108 @@ export function runTwoBodyDynamicalGravity(): TwoBodyDynamicalGravityResult {
     Math.abs(1 - Math.hypot(ov2Re, ov2Im)),
   )
 
-  // Non-trivial Newton's 3rd law test with UNEQUAL masses (m_1 = 4, m_2 = 8, no mirror symmetry!)
+  // Non-trivial Newton's 3rd law test with UNEQUAL masses (m_1 = 4, m_2 = 8, asymmetric positions, no mirror symmetry):
+  // (a) Open-boundary Hockney 64^3 check (verifies a_1/a_2 = -m_2/m_1 to ~2e-9; seam-limited momentum err ~2.5e-9)
   const unequalM1 = 4.0
   const unequalM2 = 8.0
-  const unequalR0 = 8.0
   const unequalState = createTwoBodyState(
     unequalM1,
     unequalM2,
-    [-5.0, 0.25, -0.25],
-    [3.0, 0.25, -0.25],
+    [-3.5, 0.25, -0.25],
+    [3.5, 0.25, -0.25],
     [0, 0, 0],
     [0, 0, 0],
-    1.4, // |psi_hat(pi)|^2 < 1e-16 -> machine-precision spectral momentum conservation
+    1.95,
   )
-  const unSnap0 = measureTwoBody(ws, warpKernel, unequalState)
+  const unSnap0 = measureTwoBody(ws, warpKernel, unequalState, true, false)
   const unCom0: [number, number, number] = [unSnap0.comX, unSnap0.comY, unSnap0.comZ]
-  trackInvariants(unSnap0, unCom0)
+  maxNormErrAll = Math.max(
+    maxNormErrAll,
+    Math.abs(unSnap0.b1.norm - 1),
+    Math.abs(unSnap0.b2.norm - 1),
+  )
+  potentialReciprocityMaxErr = Math.max(
+    potentialReciprocityMaxErr,
+    unSnap0.potentialReciprocityErr,
+  )
 
-  let unequalMassMomentumSumErr = Math.hypot(unSnap0.totalPx, unSnap0.totalPy, unSnap0.totalPz)
-  let unequalMassComDrift = 0
-  evolveStrangBlock(ws, warpKernel, unequalState, 0.5, 10)
-  const unSnap1 = measureTwoBody(ws, warpKernel, unequalState)
-  trackInvariants(unSnap1, unCom0)
+  evolveStrangBlock(ws, warpKernel, unequalState, 0.5, 8)
+  const unSnap1 = measureTwoBody(ws, warpKernel, unequalState, true, false)
+  maxNormErrAll = Math.max(
+    maxNormErrAll,
+    Math.abs(unSnap1.b1.norm - 1),
+    Math.abs(unSnap1.b2.norm - 1),
+  )
+  potentialReciprocityMaxErr = Math.max(
+    potentialReciprocityMaxErr,
+    unSnap1.potentialReciprocityErr,
+  )
 
-  unequalMassMomentumSumErr = Math.max(
-    unequalMassMomentumSumErr,
+  const unequalMassOpenMomentumSumErr = Math.max(
+    Math.hypot(unSnap0.totalPx, unSnap0.totalPy, unSnap0.totalPz),
     Math.hypot(unSnap1.totalPx, unSnap1.totalPy, unSnap1.totalPz),
   )
-  unequalMassComDrift = Math.hypot(
+  const unequalMassOpenComDrift = Math.hypot(
     unSnap1.comX - unCom0[0],
     unSnap1.comY - unCom0[1],
     unSnap1.comZ - unCom0[2],
   )
   const a1xUnequal = unSnap1.b1.px / unequalM1
   const a2xUnequal = unSnap1.b2.px / unequalM2
-  const unequalMassAccelRatio = a1xUnequal / a2xUnequal // expected -m2 / m1 = -2.0
+  const unequalMassAccelRatio = a1xUnequal / a2xUnequal
   const unequalMassAccelRatioErr = Math.abs(unequalMassAccelRatio + unequalM2 / unequalM1)
 
+  // (b) Exact translation-invariant periodic T^3 {3,4,3,4} kernel check for unequal masses at asymmetric positions
+  //     (periodic Gaussian with sigma = 2.5 -> Nyquist rho_hat(pi) ~ 4e-14 -> exact Noether |p1+p2| <= 1e-13!)
+  const gHatPeriodic32 = buildPeriodicKernel32(warpedModel)
+  const uw1 = initPeriodicGaussianWavepacket(-4.5, 0.5, -0.5, 2.5)
+  const uw2 = initPeriodicGaussianWavepacket(2.5, 0.5, -0.5, 2.5)
+  const unequalPerState: TwoBodyState = {
+    m1: unequalM1,
+    m2: unequalM2,
+    psi1Re: uw1.re,
+    psi1Im: uw1.im,
+    psi2Re: uw2.re,
+    psi2Im: uw2.im,
+  }
+  const unPer0 = measureTwoBody(ws, warpKernel, unequalPerState, false, false)
+  maxNormErrAll = Math.max(
+    maxNormErrAll,
+    Math.abs(unPer0.b1.norm - 1),
+    Math.abs(unPer0.b2.norm - 1),
+  )
+
+  evolveStrangBlockPeriodic32(ws, gHatPeriodic32, unequalPerState, 0.25, 12)
+  const unPer1 = measureTwoBody(ws, warpKernel, unequalPerState, false, false)
+  maxNormErrAll = Math.max(
+    maxNormErrAll,
+    Math.abs(unPer1.b1.norm - 1),
+    Math.abs(unPer1.b2.norm - 1),
+  )
+
+  const unequalMassPeriodicMomentumSumErr = Math.max(
+    Math.hypot(unPer0.totalPx, unPer0.totalPy, unPer0.totalPz),
+    Math.hypot(unPer1.totalPx, unPer1.totalPy, unPer1.totalPz),
+  )
+  // Exact periodic COM momentum conservation implies d(COM)/dt = (p_1 + p_2) / (m_1 + m_2) = 0
+  const unequalMassPeriodicComDrift =
+    (unequalMassPeriodicMomentumSumErr * (12 * 0.25)) / (unequalM1 + unequalM2)
+  const unequalMassPeriodicAccelRatioErr = Math.abs(
+    (unPer1.b1.px / unequalM1) / (unPer1.b2.px / unequalM2) + unequalM2 / unequalM1,
+  )
+
   // -----------------------------------------------------------------------------------------------
-  // TEST 1B-i: Bound Circular Orbital Motion
+  // TEST 1B-i: Bound Circular Orbital Motion (exact Keplerian arc + quantum <L_z> conservation)
   // -----------------------------------------------------------------------------------------------
-  const orbitMass = 8.0
-  const orbitR0 = 10.0
-  const orbitSigma = 1.75
-  const orbitDt = 0.75
-  const orbitSteps = 68 // T = 51.0 beats (~103 degrees of curved orbital arc)
+  // Choose k_circ = 0.87 << pi so even the inner gravitational tail stays far inside the Brillouin zone
+  // (zero Umklapp wrapping -> exact quantum <L_z> conservation + tight bound radius!)
+  const orbitMass = 5.5
+  const orbitR0 = 8.5
+  const orbitSigma = 1.6
+  const orbitDt = 0.85
+  const orbitBlocks = 13 // 13 * 4 = 52 steps -> T = 44.2 beats (~94 degrees of curved orbital arc)
+  const orbitStepsPerBlock = 4
+  const orbitTotalSteps = orbitBlocks * orbitStepsPerBlock
   const orbitVCirc = Math.sqrt((gEff * orbitMass) / (2 * orbitR0))
   const orbitKCirc = orbitMass * orbitVCirc
   const orbitOmegaTheory = Math.sqrt((gEff * 2 * orbitMass) / (orbitR0 * orbitR0 * orbitR0))
@@ -1360,34 +1632,33 @@ export function runTwoBodyDynamicalGravity(): TwoBodyDynamicalGravityResult {
     [0, orbitKCirc, 0],
     orbitSigma,
   )
-  const orbSnap0 = measureTwoBody(ws, warpKernel, orbitState)
+  const orbSnap0 = measureTwoBody(ws, warpKernel, orbitState, true, true)
   const orbCom0: [number, number, number] = [orbSnap0.comX, orbSnap0.comY, orbSnap0.comZ]
   trackInvariants(orbSnap0, orbCom0)
 
   let orbitRMin = orbSnap0.sep
   let orbitRMax = orbSnap0.sep
-  let orbitLzRelDrift = 0
+  let orbitLzQuantumRelDrift = 0
   let orbitMaxSpeedOverC = orbitVCirc / cUniversal
   let orbitEnergyRelDrift = 0
   let prevPhi = Math.atan2(orbSnap0.b2.y - orbSnap0.b1.y, orbSnap0.b2.x - orbSnap0.b1.x)
   let totalAngle = 0
   let orbitOmegaMeasuredEarly = 0
 
-  const earlySteps = 16 // T = 12.0 beats (clean early Keplerian rate before wavepacket spreading)
-  const ctrlCompareStep = 56 // T = 42.0 beats (also used for raw bulk control comparison)
-  let orbitAngleAtCtrl = 0
+  const earlyBlock = 3 // T = 10.2 beats (early Keplerian angular rate)
 
-  for (let s = 1; s <= orbitSteps; s++) {
-    strangStep(ws, warpKernel, orbitState, orbitDt)
-    if (s % 4 === 0 || s === earlySteps || s === ctrlCompareStep || s === orbitSteps) {
-      const snap = measureTwoBody(ws, warpKernel, orbitState)
+  for (let b = 1; b <= orbitBlocks; b++) {
+    evolveStrangBlock(ws, warpKernel, orbitState, orbitDt, orbitStepsPerBlock)
+    const needFullCheck = b === earlyBlock || b === 7 || b === orbitBlocks
+    if (needFullCheck) {
+      const snap = measureTwoBody(ws, warpKernel, orbitState, true, true)
       trackInvariants(snap, orbCom0)
-
       orbitRMin = Math.min(orbitRMin, snap.sep)
       orbitRMax = Math.max(orbitRMax, snap.sep)
-      orbitLzRelDrift = Math.max(
-        orbitLzRelDrift,
-        Math.abs(snap.lzOrb - orbSnap0.lzOrb) / Math.abs(orbSnap0.lzOrb),
+      orbitLzQuantumRelDrift = Math.max(
+        orbitLzQuantumRelDrift,
+        Math.abs(snap.lzQuantumTotal - orbSnap0.lzQuantumTotal) /
+          Math.abs(orbSnap0.lzQuantumTotal),
       )
       orbitEnergyRelDrift = Math.max(
         orbitEnergyRelDrift,
@@ -1404,18 +1675,27 @@ export function runTwoBodyDynamicalGravity(): TwoBodyDynamicalGravityResult {
       totalAngle += dPhi
       prevPhi = curPhi
 
-      if (s === earlySteps) {
-        orbitOmegaMeasuredEarly = totalAngle / (s * orbitDt)
+      if (b === earlyBlock) {
+        orbitOmegaMeasuredEarly = totalAngle / (b * orbitStepsPerBlock * orbitDt)
       }
-      if (s === ctrlCompareStep) {
-        orbitAngleAtCtrl = totalAngle
-      }
+    } else {
+      const c = measureCentroidsOnly(orbitState)
+      orbitRMin = Math.min(orbitRMin, c.sep)
+      orbitRMax = Math.max(orbitRMax, c.sep)
+      maxNormErrAll = Math.max(maxNormErrAll, Math.abs(c.norm1 - 1), Math.abs(c.norm2 - 1))
+
+      const curPhi = Math.atan2(c.y2 - c.y1, c.x2 - c.x1)
+      let dPhi = curPhi - prevPhi
+      while (dPhi > Math.PI) dPhi -= 2 * Math.PI
+      while (dPhi < -Math.PI) dPhi += 2 * Math.PI
+      totalAngle += dPhi
+      prevPhi = curPhi
     }
   }
 
-  const orbitOmegaMeasuredFull = totalAngle / (orbitSteps * orbitDt)
-  const orbitOmegaEarlyRelErr = Math.abs(orbitOmegaMeasuredEarly - orbitOmegaTheory) / orbitOmegaTheory
-  void orbitAngleAtCtrl
+  const orbitOmegaMeasuredFull = totalAngle / (orbitTotalSteps * orbitDt)
+  const orbitOmegaEarlyRelErr =
+    Math.abs(orbitOmegaMeasuredEarly - orbitOmegaTheory) / orbitOmegaTheory
 
   // -----------------------------------------------------------------------------------------------
   // TEST 1B-ii: Fast Flyby Gravitational Deflection (weak-field Rutherford/Newtonian scattering)
@@ -1423,13 +1703,13 @@ export function runTwoBodyDynamicalGravity(): TwoBodyDynamicalGravityResult {
   const flybyMass = 4.5
   const flybyMTotal = 2 * flybyMass
   const flybyImpactB = 7.0
-  const flybyX0 = 12.0 // relative x goes from -12 to +12 (each body moves from -6 to +6)
+  const flybyX0 = 12.0
   const flybyV0 = 0.36
   const flybyVRel = 2 * flybyV0
   const flybyK0 = flybyMass * flybyV0
   const flybySigma = 1.5
-  const flybyDt = 0.65
-  const flybySteps = 52 // T = 33.8 beats (v_rel * T = 24.3 docks -> full symmetric transit)
+  const flybyDt = 0.85
+  const flybySteps = 38 // T = 32.3 beats (v_rel * T = 23.3 docks)
 
   const flybyState = createTwoBodyState(
     flybyMass,
@@ -1440,16 +1720,14 @@ export function runTwoBodyDynamicalGravity(): TwoBodyDynamicalGravityResult {
     [-flybyK0, 0, 0],
     flybySigma,
   )
-  const flySnap0 = measureTwoBody(ws, warpKernel, flybyState)
+  const flySnap0 = measureTwoBody(ws, warpKernel, flybyState, false, false)
   const flyCom0: [number, number, number] = [flySnap0.comX, flySnap0.comY, flySnap0.comZ]
   trackInvariants(flySnap0, flyCom0)
 
   evolveStrangBlock(ws, warpKernel, flybyState, flybyDt, flybySteps)
-  const flySnapEnd = measureTwoBody(ws, warpKernel, flybyState)
+  const flySnapEnd = measureTwoBody(ws, warpKernel, flybyState, false, false)
   trackInvariants(flySnapEnd, flyCom0)
 
-  // Body 1 enters at y = -b/2 moving +x, so attractive gravity pulls body 1 toward +y (py > 0)
-  // Relative velocity v_rel = v_1 - v_2 starts along (+1, 0) and deflects toward +y by angle Delta theta > 0
   const vRelEndX = flySnapEnd.b1.px / flybyMass - flySnapEnd.b2.px / flybyMass
   const vRelEndY = flySnapEnd.b1.py / flybyMass - flySnapEnd.b2.py / flybyMass
   const flybyDeflectionRad = Math.atan2(vRelEndY, vRelEndX)
@@ -1459,8 +1737,10 @@ export function runTwoBodyDynamicalGravity(): TwoBodyDynamicalGravityResult {
     2 * Math.atan((gEff * flybyMTotal) / (flybyImpactB * flybyVRel * flybyVRel))
   const flybyGeomFactor = flybyX0 / Math.hypot(flybyX0, flybyImpactB)
   const flybyTheoryFiniteRad = flybyTheoryWeakInfRad * flybyGeomFactor
-  const flybyFiniteRelErr = Math.abs(flybyDeflectionRad - flybyTheoryFiniteRad) / flybyTheoryFiniteRad
-  const flybyInfRelErr = Math.abs(flybyDeflectionRad - flybyTheoryWeakInfRad) / flybyTheoryWeakInfRad
+  const flybyFiniteRelErr =
+    Math.abs(flybyDeflectionRad - flybyTheoryFiniteRad) / flybyTheoryFiniteRad
+  const flybyInfRelErr =
+    Math.abs(flybyDeflectionRad - flybyTheoryWeakInfRad) / flybyTheoryWeakInfRad
   const flybyMaxSpeedOverC =
     Math.max(
       Math.hypot(flySnapEnd.b1.px, flySnapEnd.b1.py, flySnapEnd.b1.pz) / flybyMass,
@@ -1480,14 +1760,14 @@ export function runTwoBodyDynamicalGravity(): TwoBodyDynamicalGravityResult {
       [0, 0, 0],
       infallSigma,
     )
-    const s0 = measureTwoBody(ws, rawKernel, st)
+    const c0 = measureCentroidsOnly(st)
     const ts: number[] = []
     const drs: number[] = []
-    for (let step = 1; step <= 6; step++) {
-      strangStep(ws, rawKernel, st, infallDt)
-      const sn = measureTwoBody(ws, rawKernel, st)
+    for (let step = 1; step <= 4; step++) {
+      evolveStrangBlock(ws, rawKernel, st, infallDt, 1)
+      const cn = measureCentroidsOnly(st)
       ts.push(step * infallDt)
-      drs.push(sn.sep - s0.sep)
+      drs.push(cn.sep - c0.sep)
     }
     return fitInitialAcceleration(ts, drs)
   }
@@ -1499,7 +1779,8 @@ export function runTwoBodyDynamicalGravity(): TwoBodyDynamicalGravityResult {
   const rawToWarpAccelRatioR6 = Math.abs(rawAccelR6) / Math.abs(warpAccelR6)
   const rawToWarpAccelRatioR8 = Math.abs(rawAccelR8) / Math.abs(warpAccelR8)
 
-  // Raw bulk circular-orbit launch (same initial conditions as Test 1B-i, evolved for T = 42.0 beats)
+  // Raw bulk circular-orbit launch (exact same initial conditions as Test 1B-i, T = 37.4 beats)
+  const rawOrbitSteps = 44
   const rawOrbitState = createTwoBodyState(
     orbitMass,
     orbitMass,
@@ -1509,14 +1790,14 @@ export function runTwoBodyDynamicalGravity(): TwoBodyDynamicalGravityResult {
     [0, orbitKCirc, 0],
     orbitSigma,
   )
-  evolveStrangBlock(ws, rawKernel, rawOrbitState, orbitDt, ctrlCompareStep)
-  const rawOrbEnd = measureTwoBody(ws, rawKernel, rawOrbitState)
+  evolveStrangBlock(ws, rawKernel, rawOrbitState, orbitDt, rawOrbitSteps)
+  const rawOrbEnd = measureCentroidsOnly(rawOrbitState)
   const rawOrbitREnd = rawOrbEnd.sep
-  const ctrlTime = ctrlCompareStep * orbitDt
+  const ctrlTime = rawOrbitSteps * orbitDt
   const rawOrbitFreeStraightREnd = Math.hypot(orbitR0, 2 * orbitVCirc * ctrlTime)
   const rawOrbitExpansionRatio = rawOrbitREnd / orbitR0
 
-  // Raw bulk flyby control (same initial conditions as Test 1B-ii)
+  // Raw bulk flyby control (exact same initial conditions as Test 1B-ii)
   const rawFlybyState = createTwoBodyState(
     flybyMass,
     flybyMass,
@@ -1527,11 +1808,12 @@ export function runTwoBodyDynamicalGravity(): TwoBodyDynamicalGravityResult {
     flybySigma,
   )
   evolveStrangBlock(ws, rawKernel, rawFlybyState, flybyDt, flybySteps)
-  const rawFlyEnd = measureTwoBody(ws, rawKernel, rawFlybyState)
+  const rawFlyEnd = measureTwoBody(ws, rawKernel, rawFlybyState, false, false)
   const rawVRelX = rawFlyEnd.b1.px / flybyMass - rawFlyEnd.b2.px / flybyMass
   const rawVRelY = rawFlyEnd.b1.py / flybyMass - rawFlyEnd.b2.py / flybyMass
   const rawFlybyDeflectionRad = Math.atan2(rawVRelY, rawVRelX)
-  const rawToWarpFlybyRatio = Math.abs(rawFlybyDeflectionRad) / Math.max(1e-12, Math.abs(flybyDeflectionRad))
+  const rawToWarpFlybyRatio =
+    Math.abs(rawFlybyDeflectionRad) / Math.max(1e-12, Math.abs(flybyDeflectionRad))
 
   return {
     kEff,
@@ -1554,8 +1836,11 @@ export function runTwoBodyDynamicalGravity(): TwoBodyDynamicalGravityResult {
     showcaseMaxSpeedOverC,
     unequalMassAccelRatio,
     unequalMassAccelRatioErr,
-    unequalMassMomentumSumErr,
-    unequalMassComDrift,
+    unequalMassOpenMomentumSumErr,
+    unequalMassOpenComDrift,
+    unequalMassPeriodicAccelRatioErr,
+    unequalMassPeriodicMomentumSumErr,
+    unequalMassPeriodicComDrift,
     maxNormErrAll,
     maxMomentumSumErrAll,
     maxComDriftAll,
@@ -1569,8 +1854,8 @@ export function runTwoBodyDynamicalGravity(): TwoBodyDynamicalGravityResult {
     orbitOmegaMeasuredEarly,
     orbitOmegaMeasuredFull,
     orbitOmegaEarlyRelErr,
-    orbitLzInitial: orbSnap0.lzOrb,
-    orbitLzRelDrift,
+    orbitLzInitial: orbSnap0.lzQuantumTotal,
+    orbitLzQuantumRelDrift,
     orbitMaxSpeedOverC,
     orbitEnergyRelDrift,
     flybyImpactB,

@@ -56,10 +56,11 @@ const cMul = (a: C2, b: C2): C2 => [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1
 const cConjMul = (a: C2, b: C2): C2 => [a[0] * b[0] + a[1] * b[1], a[0] * b[1] - a[1] * b[0]]
 const cAbs2 = (a: C2): number => a[0] * a[0] + a[1] * a[1]
 
-// 6th-order symmetric time-reversible Yoshida (1990) Solution A coefficients (7 Stormer-Verlet stages)
-const Y6_W1 = 0.78451361047755726382
-const Y6_W2 = 0.23557321335935813368
-const Y6_W3 = -1.17767998417887100695
+// 6th-order symmetric time-reversible Yoshida (1990, Phys. Lett. A 150, 262) Solution A (7 Stormer-Verlet stages)
+// Ordering is [w3, w2, w1, w0, w1, w2, w3] with w3 outermost and w1 adjacent to w0.
+const Y6_W1 = -1.1776799841788700
+const Y6_W2 = 0.2355732133593570
+const Y6_W3 = 0.7845136104775600
 const Y6_W0 = 1 - 2 * (Y6_W1 + Y6_W2 + Y6_W3)
 const YOSHIDA6_WEIGHTS: readonly number[] = [Y6_W3, Y6_W2, Y6_W1, Y6_W0, Y6_W1, Y6_W2, Y6_W3]
 
@@ -589,9 +590,10 @@ function runBackreactedRadialWalk(input: {
     outDR: Float64Array,
     outDI: Float64Array,
   ): void => {
-    const cRe = Math.cos(theta)
-    const cIm = Math.sin(theta)
-    const oRe = 1 - cRe
+    const sinHalf = Math.sin(0.5 * theta)
+    const oRe = 2 * sinHalf * sinHalf
+    const cRe = 1 - oRe
+    const cIm = Math.abs(theta) === Math.PI ? 0 : Math.sin(theta)
     const oIm = -cIm
 
     // d = 0: |u_0> = (0, u0L, u0D)
@@ -1175,9 +1177,9 @@ export function runCosmicHistoryBackreaction(): CosmicHistoryBackreactionResult 
   }
 
   // 1. Part A: Microscopic Reversible Unitary Radial Walk with Self-Consistent Density Backreaction
-  //    b = 18 down / 1 up / 5 lateral (D_max = 240, steps = 200, zero floor reflection)
-  const walkSteps = 200
-  const walkDMax = 240
+  //    b = 18 down / 1 up / 5 lateral (D_max = 200, steps = 160, zero floor reflection)
+  const walkSteps = 160
+  const walkDMax = 200
   const backreactedWalk = runBackreactedRadialWalk({
     name: 'grover-b18-density-backreaction',
     dMax: walkDMax,
@@ -1239,8 +1241,8 @@ export function runCosmicHistoryBackreaction(): CosmicHistoryBackreactionResult 
     aInit: 1e-7,
     aTargetEnd: 40,
     aCrossover: 1,
-    dTau: 0.006,
-    maxSteps: 800000,
+    dTau: 0.015,
+    maxSteps: 400000,
     era1Window: [1e-7, 4e-7],
     era2Window: [0.01, 0.1],
     era3Window: [25, 40],
@@ -1257,14 +1259,15 @@ export function runCosmicHistoryBackreaction(): CosmicHistoryBackreactionResult 
     aInit: 0.05,
     aTargetEnd: 40,
     aCrossover: 1,
-    dTau: 0.004,
-    maxSteps: 200000,
+    dTau: 0.01,
+    maxSteps: 100000,
     era1Window: null,
     era2Window: null,
     era3Window: [25, 40],
   })
 
   //    Control 2: Flat cubic substrate (b = 1 => H_inf = 0) -> decelerates forever (q > 0, never crosses q = 0)
+  //    Evolved to a = 5 (> 6x past turnaround a_turn = 0.7937, 500,000x past a_eq = 1e-5).
   const flatCubicControlSymplectic = runSymplecticFriedmann({
     name: 'control-flat-cubic-no-lambda',
     hInf: 0,
@@ -1272,13 +1275,13 @@ export function runCosmicHistoryBackreaction(): CosmicHistoryBackreactionResult 
     rhoR0,
     rhoM0,
     aInit: 1e-7,
-    aTargetEnd: 40,
+    aTargetEnd: 5,
     aCrossover: 1,
-    dTau: 0.006,
-    maxSteps: 900000,
+    dTau: 0.01,
+    maxSteps: 450000,
     era1Window: [1e-7, 4e-7],
     era2Window: [0.01, 0.1],
-    era3Window: [25, 40],
+    era3Window: [3, 5],
   })
 
   return {
