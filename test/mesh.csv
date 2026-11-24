@@ -1777,3 +1777,10 @@ E-QTM-0207,none,no-mesh,none,,,static
 E-GRV-0161,none,no-mesh,none,,,static
 E-FRC-0327,none,no-mesh,none,,,static
 E-FRC-0328,honeycomb-cusp,periodic,none,,honeycomb-cusp:cuspTranslations,static
+E-FRC-0329,d4-box honeycomb-cusp,box-specific periodic,none,,d4-box:bloch proveD4QuarticIsotropy honeycomb-cusp:cuspTranslations,static
+E-GRV-0162,honeycomb-ball honeycomb-cusp,honeycomb periodic,other,,honeycomb-ball:coverBall honeycomb-ball:exactBallMesh honeycomb-cusp:buildExactCusp,lossy
+E-CSM-0066,honeycomb-cusp,periodic,none,,honeycomb-cusp:cuspTranslations,static
+E-FRC-0331,honeycomb-cusp,periodic,none,,honeycomb-cusp:cuspTranslations,static
+E-CSM-0067,honeycomb-cusp,periodic,none,,honeycomb-cusp:cuspTranslations,static
+E-FND-0188,d4-box honeycomb-ball honeycomb-cusp,box-specific honeycomb periodic,other,,d4-box:bloch proveD4QuarticIsotropy d4-box:bloch runPart1CBlockSpinRg honeycomb-ball:coverBall honeycomb-ball:exactBallMesh honeycomb-cusp:buildExactCusp honeycomb-cusp:cuspTranslations,bijective
+E-FRC-0330,honeycomb-cusp,periodic,none,,honeycomb-cusp:cuspTranslations,static

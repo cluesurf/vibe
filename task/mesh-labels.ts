@@ -101,6 +101,8 @@ const HORIZON: Record<string, [Grade, string]> = {
   'E-CSM-0064': ['honeycomb', 'exact R = 3 ball (8,857 docks) and exact cusp (51,064 docks), t = 0..3 beats from dock 0 (t <= R, 0 forward frontier hits), plus exact infinite 7-ary frame-tree solver t = 0..40'],
   'E-FND-0185': ['honeycomb', 'exact R = 1 and R = 2 balls (506 docks total) checking 1-beat V1 stationarity base case (t <= R, 0 frontier hits) for infinite-time Lean 4 + BigInt formal proofs'],
   'E-FND-0187': ['honeycomb', 'exact R = 2 ball (481 docks, t = 1..2) and R = 3 ball (8,857 docks, t = 1..3), true L3 multi-sector coupled unitary evolution inside proven causal horizon (t <= R, 0 frontier hits)'],
+  'E-GRV-0162': ['honeycomb', 'exact R = 2 ball (481 docks) and R = 3 ball (8,857 docks, 212,568 slots), true L3 coupled two-body attraction and strong-field unitary horizon trapping inside causal horizon (t <= 2 from d_ball <= 1, 0 frontier hits)'],
+  'E-FND-0188': ['honeycomb', 'live dossier invokes E-GRV-0162 on exact R = 2 (481 docks) and R = 3 (8,857 docks) balls inside causal horizon (t <= 2, 0 frontier hits)'],
 }
 
 // open honeycomb-line runs whose beats were read against the line's length: the run is the infinite line of empty
