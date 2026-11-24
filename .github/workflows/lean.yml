@@ -1,0 +1,82 @@
+name: Lean 4 Proof Verification
+
+on:
+  push:
+    paths:
+      - 'code/proof/**'
+      - 'task/check-lean.ts'
+      - 'code/measure/infinite-time-proofs.ts'
+      - 'test/experiment/foundations/infinite-time-proofs.ts'
+      - '.github/workflows/lean.yml'
+  pull_request:
+    paths:
+      - 'code/proof/**'
+      - 'task/check-lean.ts'
+      - 'code/measure/infinite-time-proofs.ts'
+      - 'test/experiment/foundations/infinite-time-proofs.ts'
+      - '.github/workflows/lean.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: lean-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-lean:
+    name: Lean 4 Kernel Build & E-FND-0185 Proof Suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Read Lean 4 toolchain version
+        id: toolchain
+        shell: bash
+        run: |
+          TOOLCHAIN=$(tr -d '\r\n' < code/proof/lean-toolchain)
+          echo "spec=${TOOLCHAIN}" >> "$GITHUB_OUTPUT"
+          echo "Lean toolchain: ${TOOLCHAIN}"
+
+      - name: Cache elan toolchains and Lake build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.elan
+            code/proof/.lake
+          key: lean-${{ runner.os }}-${{ hashFiles('code/proof/lean-toolchain', 'code/proof/lakefile.toml', 'code/proof/lake-manifest.json') }}
+          restore-keys: |
+            lean-${{ runner.os }}-
+
+      - name: Install elan and Lean 4 toolchain
+        shell: bash
+        run: |
+          export ELAN_HOME="${HOME}/.elan"
+          if [ ! -x "${ELAN_HOME}/bin/elan" ]; then
+            curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          fi
+          echo "${ELAN_HOME}/bin" >> "$GITHUB_PATH"
+          "${ELAN_HOME}/bin/elan" toolchain install "${{ steps.toolchain.outputs.spec }}"
+
+      - name: Machine-check code/proof/Vibe.lean with Lean 4 kernel
+        working-directory: code/proof
+        shell: bash
+        run: |
+          lean --version
+          lake build
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install Node dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run check:lean (Lean 4 audit + lake build + E-FND-0185 BigInt certificates)
+        run: pnpm run check:lean
