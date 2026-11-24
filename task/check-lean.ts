@@ -21,9 +21,12 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { runInfiniteTimeProofs } from '@/code/measure/infinite-time-proofs'
 
-const MIN_THEOREM_COUNT = 180
+const MIN_THEOREM_COUNT = 205
 
 const REQUIRED_THEOREMS = [
+  'dual_dual',
+  'dual_balance',
+  'balanced_iff_dual',
   'thm1_v1_eternal_stationarity',
   'thm1_v1_full_rule_eternal',
   'thm1_light_cone_empty_outside',
@@ -73,6 +76,14 @@ const REQUIRED_THEOREMS = [
   'thm14_positive_mass_gap_all_time',
   'thm14_spectral_gap_exp_suppression',
   'thm14_block_spin_anisotropy_contraction',
+  'thm15_z9_z4_coprime_gives_z36',
+  'thm15_so10_tensor_decomposition',
+  'thm15_mat2eis_unitary_comp',
+  'thm15_gateM_pow_unitary_all_lengths',
+  'thm16_reflection_positivity_weighted',
+  'thm16_kotecky_preiss_strict_gap',
+  'thm16_holographic_shell_doubling',
+  'thm16_weinberg_window_under_two_shells',
 ] as const
 
 const scriptDir = dirname(fileURLToPath(import.meta.url))
@@ -139,7 +150,7 @@ function stripLeanComments(src: string): string {
   return out
 }
 
-function checkBalancedNamespaces(codeOnly: string): {
+function checkBalancedNamespaces(codeOnly: string, requireRootVibe: boolean): {
   readonly balanced: boolean
   readonly hasRootVibe: boolean
   readonly errors: string[]
@@ -180,7 +191,7 @@ function checkBalancedNamespaces(codeOnly: string): {
     errors.push(`unclosed namespace/section blocks: ${stack.join(', ')}`)
   }
 
-  if (!hasRootVibe) {
+  if (requireRootVibe && !hasRootVibe) {
     errors.push('missing root `namespace Vibe` / `end Vibe` block')
   }
 
@@ -259,16 +270,40 @@ function main(): void {
 
   const toolchainSpec = readFileSync(toolchainPath, 'utf8').trim()
   const lakefileSrc = readFileSync(lakefilePath, 'utf8')
-  const leanSrc = readFileSync(leanFile, 'utf8')
-  const codeOnly = stripLeanComments(leanSrc)
 
-  const theoremMatches = codeOnly.match(/\btheorem\s+[A-Za-z0-9_']+/g) ?? []
-  const sorryMatches = codeOnly.match(/\bsorry\b/g) ?? []
-  const axiomMatches = codeOnly.match(/\baxiom\b/g) ?? []
-  const hasAutoImplicitFalse = /\bset_option\s+autoImplicit\s+false\b/.test(codeOnly)
-  const nsCheck = checkBalancedNamespaces(codeOnly)
+  const vibeSubdir = join(proofDir, 'Vibe')
+  const leanFiles: Array<{ readonly label: string; readonly path: string }> = [
+    { label: 'Vibe.lean', path: leanFile },
+  ]
+  if (existsSync(vibeSubdir)) {
+    for (const entry of readdirSync(vibeSubdir).sort()) {
+      if (entry.endsWith('.lean')) {
+        leanFiles.push({ label: `Vibe/${entry}`, path: join(vibeSubdir, entry) })
+      }
+    }
+  }
+
+  const hasSubmodules = leanFiles.length > 1
+  let combinedCode = ''
+  for (const lf of leanFiles) {
+    const src = readFileSync(lf.path, 'utf8')
+    const stripped = stripLeanComments(src)
+    if (!/\bset_option\s+autoImplicit\s+false\b/.test(stripped)) {
+      failures.push(`${lf.label} missing \`set_option autoImplicit false\``)
+    }
+    const requireRoot = lf.label !== 'Vibe.lean' || !hasSubmodules
+    const ns = checkBalancedNamespaces(stripped, requireRoot)
+    if (!ns.balanced) {
+      failures.push(...ns.errors.map(e => `${lf.label}: ${e}`))
+    }
+    combinedCode += `\n${stripped}\n`
+  }
+
+  const theoremMatches = combinedCode.match(/\btheorem\s+[A-Za-z0-9_']+/g) ?? []
+  const sorryMatches = combinedCode.match(/\bsorry\b/g) ?? []
+  const axiomMatches = combinedCode.match(/\baxiom\b/g) ?? []
   const missingTheorems = REQUIRED_THEOREMS.filter(
-    name => !new RegExp(`\\btheorem\\s+${name}\\b`).test(codeOnly),
+    name => !new RegExp(`\\btheorem\\s+${name}\\b`).test(combinedCode),
   )
 
   if (!toolchainSpec.startsWith('leanprover/lean4:')) {
@@ -277,29 +312,23 @@ function main(): void {
   if (!lakefileSrc.includes('name = "Vibe"')) {
     failures.push('lakefile.toml missing `name = "Vibe"` lean_lib target')
   }
-  if (!hasAutoImplicitFalse) {
-    failures.push('Vibe.lean missing `set_option autoImplicit false`')
-  }
   if (sorryMatches.length !== 0) {
-    failures.push(`Vibe.lean contains ${sorryMatches.length} sorry occurrence(s)`)
+    failures.push(`Lean proof suite contains ${sorryMatches.length} sorry occurrence(s)`)
   }
   if (axiomMatches.length !== 0) {
-    failures.push(`Vibe.lean contains ${axiomMatches.length} axiom occurrence(s)`)
+    failures.push(`Lean proof suite contains ${axiomMatches.length} axiom occurrence(s)`)
   }
   if (theoremMatches.length < MIN_THEOREM_COUNT) {
     failures.push(
-      `Vibe.lean theorem count ${theoremMatches.length} is below required minimum ${MIN_THEOREM_COUNT}`,
+      `Lean proof suite theorem count ${theoremMatches.length} is below required minimum ${MIN_THEOREM_COUNT}`,
     )
-  }
-  if (!nsCheck.balanced) {
-    failures.push(...nsCheck.errors)
   }
   if (missingTheorems.length > 0) {
     failures.push(`missing required theorems: ${missingTheorems.join(', ')}`)
   }
 
   console.log(
-    `check:lean  structural audit: ${theoremMatches.length} theorems, ${sorryMatches.length} sorry, ${axiomMatches.length} axiom, toolchain=${toolchainSpec}`,
+    `check:lean  structural audit: ${leanFiles.length} files, ${theoremMatches.length} theorems, ${sorryMatches.length} sorry, ${axiomMatches.length} axiom, toolchain=${toolchainSpec}`,
   )
 
   if (failures.length > 0) {

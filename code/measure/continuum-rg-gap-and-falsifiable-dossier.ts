@@ -53,7 +53,7 @@
 //       assembles 12 concrete falsifiable experimental predictions with 0 current tensions, and
 //       runs a live Lean 4.35.0 + global parameter transparency and frontier honesty audit.
 
-import { readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { rootsD4 } from '@/code/algebra/group/root-system'
@@ -1532,7 +1532,14 @@ function auditLeanFormalProofs(): LeanFormalAuditReport {
   const here = dirname(fileURLToPath(import.meta.url))
   const proofDir = resolve(here, '..', 'proof')
   const toolchain = readFileSync(resolve(proofDir, 'lean-toolchain'), 'utf8').trim()
-  const rawSrc = readFileSync(resolve(proofDir, 'Vibe.lean'), 'utf8')
+  const leanFiles: string[] = [resolve(proofDir, 'Vibe.lean')]
+  const vibeSubdir = resolve(proofDir, 'Vibe')
+  if (existsSync(vibeSubdir)) {
+    for (const entry of readdirSync(vibeSubdir).sort()) {
+      if (entry.endsWith('.lean')) leanFiles.push(resolve(vibeSubdir, entry))
+    }
+  }
+  const rawSrc = leanFiles.map(p => readFileSync(p, 'utf8')).join('\n')
 
   // Strip nested Lean block comments /- ... -/ and line comments -- ...
   let codeOnly = ''

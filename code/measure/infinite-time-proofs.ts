@@ -28,7 +28,8 @@
 // NOTHING MOVES: pure deterministic exact BigInt algebra + Lean 4 source structural audit. Zero floats
 // enter any proof certificate. Zero random numbers.
 
-import { readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
   add as nAdd,
@@ -911,8 +912,15 @@ export type LeanAudit = {
 }
 
 function auditLeanFile(): LeanAudit {
-  const leanPath = fileURLToPath(new URL('../proof/Vibe.lean', import.meta.url))
-  const src = readFileSync(leanPath, 'utf8')
+  const proofDir = fileURLToPath(new URL('../proof', import.meta.url))
+  const leanFiles: string[] = [join(proofDir, 'Vibe.lean')]
+  const vibeSubdir = join(proofDir, 'Vibe')
+  if (existsSync(vibeSubdir)) {
+    for (const entry of readdirSync(vibeSubdir).sort()) {
+      if (entry.endsWith('.lean')) leanFiles.push(join(vibeSubdir, entry))
+    }
+  }
+  const src = leanFiles.map(p => readFileSync(p, 'utf8')).join('\n')
   // Strip block comments /- ... -/ and line comments -- ... before counting sorry/axiom/theorem
   const noBlock = src.replace(/\/-[\s\S]*?-\//g, '')
   const codeOnly = noBlock.replace(/--.*$/gm, '')
