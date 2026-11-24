@@ -1748,3 +1748,6 @@ E-FND-0182,honeycomb-ball,mirrored,working,,honeycomb-ball:exactBallMesh,lossy
 E-SLF-0199,honeycomb-ball,honeycomb,working,,honeycomb-ball:exactBallMesh,bijective
 E-FND-0183,d4-box honeycomb-ball,box-specific honeycomb,working,,d4-box:lockedFresh(side) honeycomb-ball:exactBallMesh,bijective
 E-QTM-0206,none,no-mesh,none,,,static
+E-GRV-0156,honeycomb-cusp,periodic,none,,honeycomb-cusp:buildExactCusp,static
+E-FND-0184,honeycomb-ball,honeycomb,working,,honeycomb-ball:exactBallMesh,bijective
+E-SPN-0221,none,no-mesh,none,,,static

@@ -91,6 +91,7 @@ const HORIZON: Record<string, [Grade, string]> = {
   'E-FND-0181': ['honeycomb', 'exact R = 2 ball (481 docks), 1 beat from base dock, 0 frontier hits'],
   'E-FND-0182': ['mirrored', 'exact R = 2 and R = 3 balls evolved to t = R specifically to test boundary-condition crossover past horizon'],
   'E-FND-0183': ['honeycomb', 'exact R = 2 ball (481 docks), 1 beat from base dock, 0 frontier hits'],
+  'E-FND-0184': ['honeycomb', 'exact R = 2 ball (481 docks), 1 beat from base dock, distinct chi_odd pair, 0 frontier hits'],
   'E-QTM-0203': ['honeycomb', 'exact R = 3 ball (8,857 docks), 3 beats from base dock inside proven window m + 2t <= L, 0 frontier hits'],
   'E-QTM-0205': ['honeycomb', 'exact R = 2 ball (481 docks), 1 beat from base dock, 0 frontier hits'],
   'E-SLF-0199': ['honeycomb', 'exact R = 3 ball (8,857 docks), 1 beat from base dock via slot-sparse engine, 0 frontier hits'],
