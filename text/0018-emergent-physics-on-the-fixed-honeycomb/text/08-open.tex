@@ -1,0 +1,50 @@
+\section{Open Problems and Honest Boundaries}
+\label{sec:open}
+
+A disciplined research program separates verified results from open problems without ambiguity. Closing the barriers
+documented in Sections~\ref{sec:one-rule} through~\ref{sec:unified} sharpens six concrete open problems, none of which
+is claimed solved here.
+
+\begin{enumerate}
+\item \textbf{Full nonlinear Einstein curvature and dynamical 4D spin-2 backreaction.} Experiment \code{E-RLT-0125}
+proves exact linearized spin-2 transverse-traceless propagation locked to $c_{\text{light}} = c_{\text{matter}}$,
+\code{E-GRV-0158} proves live unitary two-body Newtonian-regime dynamics from the parameter-free $1/N_D^2$ warped cusp
+kernel, and \code{E-GRV-0159} verifies gravitational clock redshift, Eddington $2\times$ light bending, Shapiro time
+delay, and Einstein perihelion precession on that warped cusp column. Deriving $\gamma_{\text{PPN}} = 1$ and
+$\beta_{\text{PPN}} = 1$ dynamically from full nonlinear 4D spin-2 self-interaction and the full Einstein field tensor
+$G_{\mu\nu} = 8\pi G T_{\mu\nu}$ on the live $\{3,4,3,4\}$ honeycomb remains open.
+\item \textbf{Precision PDG fermion mass ratios and Koide's $Q = 2/3$.} Experiments \code{E-FRC-0323} and
+\code{E-FRC-0324} obtain exact $N_{\text{gen}} = 3$, zero fourth light generation, spontaneous dynamical $S_3$ triality
+breaking selecting the staggered orbit $(0, 2, 3)$ without hand-picked anchors, exponential mass hierarchies
+($m_3/m_1 > 27{,}000$), and unitary CKM mixing with Jarlskog CP phase $J_{\text{CP}} = +9.48 \times 10^{-5}$. However,
+first-principles derivation of precision PDG lepton and quark mass ratios ($m_e : m_\mu : m_\tau$, up/down quark mass
+ratios) and Koide's relation $Q = 2/3$ (phase $\delta = 2/9$) remains open.
+\item \textbf{Dynamical electroweak symmetry-breaking scale and $\alpha$.} Experiment \code{E-FRC-0324} completes each
+generation to an exact 16-state $\mathrm{Spin}(10)$ multiplet ($48$ chiral Weyl fermions) with $6/6$ exact anomaly
+cancellation, exact charge quantization, and $\sin^2\theta_W|_{\text{GUT}} = 3/8$. Deriving the electroweak
+symmetry-breaking scale ($SU(2)_L \times U(1)_Y \to U(1)_{\text{em}}$) dynamically from the microscopic rule and fixing
+the fine-structure constant $\alpha \approx 1/137$ without free parameters remain open.
+\item \textbf{Scaling coupled multi-particle dynamics on full 4D $\{3,4,3,4\}$ balls to L3.} Every simulation in this
+paper sits honestly at depth L2: either exact finite $R = 2$ and $R = 3$ $\{3,4,3,4\}$ balls (up to 8,857 or 51,064
+docks, bounded by the 3 to 4 beat boundary horizon, \code{E-FND-0182}, \code{E-SLF-0198}) or exact $\{3,4,3,4\}$ cusp
+column reductions (\code{E-RLT-0125}, \code{E-GRV-0158}, \code{E-FND-0186}). Lifting the coupled five-sector evolution
+of \code{E-FND-0186} into a single unfactored L3 multi-particle engine directly on large 4D $\{3,4,3,4\}$ balls remains
+an open computational and theoretical frontier.
+\item \textbf{Horizon thermodynamics and open-line CHSH saturation.} Bounded-clock horizon benchmarks establish that a
+forming horizon emits a power-law quench spectrum ($\omega^{-1.43}$) and a settled horizon emits $10^{-7}$ of its
+initial burst with redshift capped at $\frac{1}{2}\ln C$ rather than steady Planckian Hawking evaporation
+(\code{E-GRV-0134}, \code{E-GRV-0136}, contextualized in \cite{pollard2026model}). Independently, raw single-line
+ballistic propagation without periodic wrap stalls CHSH around $2.8277$ rather than converging to $2\sqrt{2}$
+(\code{E-QTM-0202}), requiring composite rule-word measurements (\code{E-QTM-0206}).
+\item \textbf{Automated Lean 4 kernel CI verification of \code{code/proof/Vibe.lean}.} Experiment \code{E-FND-0185}
+verifies all 110 theorems in \code{code/proof/Vibe.lean} (module \code{Vibe}) through a zero-\code{sorry},
+zero-\code{axiom} structural audit paired with exact zero-float \code{BigInt} certificates in TypeScript. Integrating a
+live Lean 4 compiler check into the automated test pipeline so the Lean 4 kernel machine-checks every theorem on every
+commit remains an open engineering step.
+\end{enumerate}
+
+The next concrete milestones of the program are therefore well defined: machine-check \code{code/proof/Vibe.lean} under
+Lean 4 CI, lift the coupled five-sector operator $U_{\text{total}}$ directly onto multi-particle $\{3,4,3,4\}$ balls,
+and test whether dynamical backreaction of the pair-density warp $w(D) = 1/N_D^2$ generates full nonlinear 4D Einstein
+curvature ($\gamma_{\text{PPN}} = \beta_{\text{PPN}} = 1$) and precision PDG fermion mass ratios without introducing
+any new rule pieces.

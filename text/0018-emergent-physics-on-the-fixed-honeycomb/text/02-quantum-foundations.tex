@@ -1,0 +1,111 @@
+\section{Quantum Foundations and Records}
+\label{sec:quantum}
+
+A discrete reversible cellular automaton over a finite-generator cyclotomic ring must answer three foundational tests
+of quantum mechanics without invoking external axioms or continuous tuning: (1) whether its discrete local gates
+generate a dense subgroup of $SU(2)$ capable of arbitrary interference, (2) whether squared-amplitude Born
+probabilities are derived rather than postulated, and (3) whether observers internal to the unitary state form
+redundant classical-looking pointer records that still violate Bell's inequality without signaling. Four gated
+experiments (\code{E-QTM-0203} through \code{E-QTM-0206}) resolve these questions, alongside one honest open-line
+limitation (\code{E-QTM-0202}).
+
+\subsection{Honeycomb window and \texorpdfstring{$SU(2)$}{SU(2)} gate density}
+
+First, \code{E-QTM-0203} verifies the exact causal-window equivalence between a side-8 flat periodic $D_4$ lattice and
+the true $R = 3$ $\{3,4,3,4\}$ honeycomb ball inside the proven horizon $m + 2t \le L$. Through beat 3, box and
+honeycomb agree to exact $0$, producing interference distance $L_1 = 0, 0, 0.5625$ against $0$ with the coin off, while
+peace-slot leftovers move $0$ across lines and alter occupied amplitudes by $0$.
+
+Second, \code{E-QTM-0204} proves that the working rule's two-mode gate group inside $\mathbb{Z}[\omega][1/2]$ is
+infinite and dense in $SU(2)$. Composing the lone-vibe coin $C$ of Equation~\eqref{eq:coin} with the qutrit phase gate
+$P_\omega = \operatorname{diag}(1, \omega)$ gives the special-unitary operator
+\begin{equation}
+W = \omega^2\, C\, \operatorname{diag}(1, \omega)
+  = \frac{1}{2}\begin{pmatrix} -\omega & 1 - \omega \\ -2 - \omega & 1 + \omega \end{pmatrix} \in SU(2),
+\label{eq:su2-gen}
+\end{equation}
+which has exact $\det W = 1$ and $\operatorname{Tr}(W) = 1/2$ (rotation half-angle $\cos\theta = 1/4$).
+
+\begin{theorem}[Elementary 2-adic infinite order and $SU(2)$ density, \code{E-QTM-0204}, \code{E-FND-0185}]
+Set $M = 2W \in \mathrm{Mat}_2(\mathbb{Z}[\omega])$ and $W_2 = P_\omega W P_\omega^\dagger$. Then:
+\begin{enumerate}
+\item $M$ satisfies the exact Cayley--Hamilton identity $M^2 = M - 4I$, so the integer trace sequence
+$s_n = 2^n \operatorname{Tr}(W^n) = \operatorname{Tr}(M^n)$ obeys $s_0 = 2$, $s_1 = 1$, and
+$s_{n+2} = s_{n+1} - 4s_n$ for all $n \ge 0$.
+\item By induction on $n$, $s_n \equiv 1 \pmod 2$ for every $n \ge 1$. Because $W^n = \pm I$ implies
+$s_n = \pm 2^{n+1} \equiv 0 \pmod 2$, one has $W^n \neq \pm I$ for all $n \ge 1$ in both $SU(2)$ and $PSU(2) \cong SO(3)$.
+\item The conjugate $W_2$ does not commute with $W$, with exact Frobenius commutator norm squared
+$\|[W, W_2]\|_F^2 = 27/4$ ($\|[W, W_2]\|_F = 2.5981$), and satisfies $W_2 W \neq W^\dagger W_2$, excluding every
+abelian subgroup $U(1)$ and normalizer $\operatorname{Pin}(2)$.
+\end{enumerate}
+Therefore $\langle W, W_2 \rangle$ is dense in $SU(2)$.
+\end{theorem}
+
+This elementary 2-adic parity proof requires neither Kronecker's theorem nor Niven's theorem as an external black box
+and is formalized completely in Lean 4 (\code{E-FND-0185}, Section~\ref{sec:unified}). Even though $2$ has
+multiplicative order $6$ modulo $9$ and stays inert in $\mathbb{Z}[\zeta_9]$, short rule words of length $L = 14$
+achieve Hong--Ou--Mandel two-particle interference visibility \cite{hong1987} $V = 0.9999924$ in $\mathbb{Q}(\omega)$
+and $V = 0.9999996$ under $\Sigma(648)$ lifts, while a 3-step path-and-role splitter hits exact $1/2 = 1/4 + 1/4$
+(error $0$) directly inside $\mathbb{Z}[\omega][1/2]$ (\code{E-QTM-0204}).
+
+\subsection{Born rule via Zurek envariance}
+
+Rather than postulating squared-amplitude probabilities, \code{E-QTM-0205} derives the Born rule from
+entanglement-assisted invariance (envariance) \cite{zurek2005} directly on the exact $R = 2$ $\{3,4,3,4\}$ honeycomb
+ball. A single beat of the working-rule coin and stream evolves a lone vibe into an exact system-environment Schmidt
+state with unequal squared weights $(3/4, 1/4)$, zero frontier hits, and zero norm error.
+
+Under Zurek's locality and symmetry premises (E1)--(E4), \code{E-QTM-0205} verifies two exact algebraic steps:
+\begin{enumerate}
+\item \textbf{Phase envariance.} All $36/36$ local $\mathbb{Z}_6$ phase rotations on the system are reversed identically
+by counter-rotations on the environment, establishing that outcome probabilities cannot depend on relative phases.
+\item \textbf{Swap envariance via exact fine-graining.} Because the working ring satisfies the exact identity
+\begin{equation}
+\frac{1 - \omega}{2(1 + 2\omega)} = -\frac{1 + \omega}{2} \in \mathbb{Z}[\omega][1/2],
+\label{eq:envariance-split}
+\end{equation}
+a rule-made qutrit Clifford fine-graining splits the $3/4$ crossing branch into three orthogonal environment branches
+of exact equal norm $1/4$ each, producing four equal-amplitude branches overall. Exact $24/24$ $S_4$ swap envariance
+across those four branches forces equal probability $1/4$ per branch, hence $P(\text{cross}) = 3/4$ and
+$P(\text{keep}) = 1/4$. Iterating dyadic-4 fine-graining through depth $m = 4$ approximates arbitrary probabilities in
+$[0, 1]$ within $1.94 \times 10^{-3}$ (\code{E-QTM-0205}).
+\end{enumerate}
+
+\subsection{Redundant pointer records and Bell violation}
+
+Experiment \code{E-QTM-0206} tests whether macroscopic observers modeled strictly as redundant record branches inside
+the unitary state observe Bell inequality violations without signaling. Starting from a bank-invariant singlet, local
+analyzers execute $L = 14$ $\Sigma(648)$ rule-word measurement settings (unitarity error $1.78 \times 10^{-15}$, $100\%$
+branch-count conservation error $5.55 \times 10^{-16}$) coupled to disjoint environment probes.
+
+\begin{result}[Pointer decoherence, redundancy, and record-branch CHSH, \code{E-QTM-0206}]
+Under unitary environment record growth:
+\begin{itemize}
+\item Full-copy pointer coherence vanishes identically ($|\rho_{01}(4)| = 0$), while controlled-$C$ partial-copy
+probes damp off-diagonal coherence along the exact geometric curve $1/2^k$ ($1, 0.5, 0.25, 0.125, 0.0625$ for
+$k = 0..4$).
+\item Quantum Darwinism redundancy \cite{zurek2009} reaches $R_{0.01} = 4$ disjoint environment fragments, with each
+fragment storing exact mutual information $I(S:F_j) = 1.0000$ bit.
+\item Evaluating the Clauser--Horne--Shimony--Holt correlator \cite{clauser1969} strictly over the joint pointer-record
+branches yields $\mathrm{CHSH}_{\text{record}} = 2.825774$ (passing the $2.80$ gate), against a failable dephased
+classical control of $1.421875 \le 2.0$, with exact no-signaling marginal drift $1.67 \times 10^{-16}$.
+\end{itemize}
+\end{result}
+
+\subsection{Open-line CHSH saturation without wrap}
+
+Testing raw single-line propagation on an open non-wrapping line (\code{E-QTM-0202}) fails its registered Tsirelson
+convergence gate: although every instrument holds ($\max\text{NormErr} = 2.69 \times 10^{-14}$, beat 1 equals
+$\sqrt{7}$, beat 32 reads $2.827297$), the open-line CHSH values at beats $32, 64, 128, 256$ read $2.827297, 2.827760,
+2.827409, 2.827736$, stalling roughly $7 \times 10^{-4}$ short of $2\sqrt{2}$ because the two particles separate
+ballistically. Constructive $\mathbb{Z}[\omega][1/6]$ unit observables using off-$x$-$z$ Eisenstein triples surpass
+$\sqrt{7}$ on a singlet ($2.750000 = 11/4$ at denominator $D = 36$), showing that approaching Tsirelson's bound on an
+open domain requires composite rule-word analyzers as in \code{E-QTM-0206} rather than raw single-line ballistic
+separation.
+
+\paragraph{Why this matters in practice.}
+In practical terms, these results show that quantum behavior does not require bolting a random number generator or an
+unexplained wavefunction-collapse axiom onto a discrete lattice. The rule itself generates a dense set of quantum
+rotations from exact integer arithmetic, derives Born probabilities from exchange symmetry rather than assuming them,
+and lets observers inside the deterministic state agree on redundant classical records while still measuring genuine
+Bell correlations with zero faster-than-light signaling.

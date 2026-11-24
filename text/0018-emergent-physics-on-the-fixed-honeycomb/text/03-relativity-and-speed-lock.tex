@@ -1,0 +1,133 @@
+\section{Emergent Relativity and Speed Lock}
+\label{sec:relativity}
+
+Without cross-line coupling, every dock operator acts strictly within one of the 12 straight $D_4$ lines, conserving
+each line's tone individually and trapping excitations on one-dimensional rails (the bare \emph{line law}).
+One-dimensional rail motion contradicts three-dimensional rotational isotropy by roughly 17 orders of magnitude.
+Conversely, any viable cross-line coupling must avoid destabilizing the peace vacuum $V_1$ or draining bound localized
+states, and every massless sector (gravity, light, and chiral fermions) must lock to one universal limiting speed within
+the GW170817 multi-messenger constraint $|c_{\text{grav}} - c_{\text{light}}|/c < 6 \times 10^{-15}$
+\cite{abbott2017gw170817}.
+
+\subsection{Breaking the line law with \texorpdfstring{$M_{\text{pair}}(\zeta_{18})$}{M\_pair(zeta\_18)}}
+
+Direct honeycomb experiments first proved that unconditional lone-vibe mixers cannot solve the line law without
+destroying bound structures. Sweeping a lone-bank mixer $I + (e^{i\theta} - 1)P_u$ in \code{E-SLF-0189} revealed no
+prethermal plateau (log lifetime scales with $\log\theta$ at slope $-1.7$, $R^2 = 0.986$), and testing $\theta = 4\pi/9$
+on an exact $255{,}090$-dock $\{3,4,3,4\}$ tube in \code{E-SLF-0198} confirmed honeycomb-exact decay ($L(1) = 0.694$,
+$L(2) = 0.506$, $L(3) = 0.308$, lower than the line-restricted $0.324$). An any-neighbor lock (\code{E-SLF-0190})
+protected an isolated line self only because the dock graph is bipartite ($162{,}049$ docks, $0$ same-color edges,
+\code{E-SLF-0192}) so even separations never opened the lock, whereas bath arrivals or pair-store formation shifted
+parity and leaked $0.133$ by beat 3 (\code{E-SLF-0195}).
+
+Scale separation at Scale 2 breaks this deadlock cleanly: the interaction-only $W(F_4)$-isotropic Pair-Line Mixer
+$M_{\text{pair}}(u)$ of Equation~\eqref{eq:mpair} acts solely on full-line pairs (two vibes occupying opposite slots
+of one line), leaving $V_1$ and all $24/24$ lone-vibe slots untouched.
+
+\begin{result}[Exact properties of $M_{\text{pair}}(\zeta_{18})$, \code{E-SLF-0199}, \code{E-SLF-0200}]
+On the cached exact $R = 3$ $\{3,4,3,4\}$ ball via the slot-sparse engine:
+\begin{itemize}
+\item $V_1$ is strictly invariant and all $24/24$ lone-love slots show $0$ difference from the bare rule.
+\item A full-line pair scatters isotropically across all $12/12$ lines (spread $0$, reaching all $24/24$ neighbor docks
+in 1 beat, exact involution at $u = -1$).
+\item At $u = \zeta_{18} = -\zeta_9^5 \in \mathbb{Z}[\zeta_9]$, $M_{\text{pair}}(\zeta_{18})$ is exact unitary
+(error $2.22 \times 10^{-16}$, diagonal keep probability $0.990786$, off-line hop $0.000838$), fixes the 4D 12-line
+$s$-wave $|s\rangle = \frac{1}{\sqrt{12}}(1,\ldots,1)$ as an exact eigenstate (error $4.44 \times 10^{-16}$), and opens
+an exact spectral gap $|1 - \zeta_{18}| = 0.3473$ with $W(F_4)$ isotropy spread $1.39 \times 10^{-16}$ across all 24
+neighbors (\code{E-SLF-0200}).
+\item Phase-matched 2-shell 4D $s$-wave closure beats transverse and bare free nulls ($0.1090 > 0.1071 > 0.0612$ at
+$t = 2$, and $0.4582$ vs $0.4306$ at $t = 3$), while a fast $L = 32$, $n_{\max} = 5$ sparse reversible error boundary
+rejects bath arrivals ($E = 0.8685$, retained loves $3.87$ vs unguarded $4.91$, broken interior $2.61 \times 10^{-5}$
+vs plain swap $1.0$, \code{E-SLF-0200}).
+\end{itemize}
+\end{result}
+
+\subsection{3D isotropy, Dirac kinematics, and boosts}
+
+Diagonalizing the exact $24 \times 24$ 3D cusp-husk Bloch unitary $U(\mathbf{k}, u)$ induced by $M_{\text{pair}}(u)$
+against the bare control ($u = 1$) demonstrates emergent three-dimensional special relativity directly from the
+discrete lattice walk \cite{strauch2006}:
+
+\begin{itemize}
+\item \textbf{Isotropic 3D dispersion (\code{E-RLT-0123}).} Whereas the bare control stays line-confined
+($\text{maxShadow} = 1.207 \le \sqrt{2}$, $W_{\text{off}} = 0$, all 24 Bloch bands flat to $4 \times 10^{-15}$), both
+$M_{\text{pair}}(-1)$ and $M_{\text{pair}}(\zeta_{18})$ break the line law ($\text{maxShadow} = 2.20 > \sqrt{2}$,
+slot-sparse cross-check $2.33 \times 10^{-16}$) and yield emergent 3D rotational isotropy across $(1,0,0)$, $(1,1,0)$,
+and $(1,1,1)$ whose directional anisotropy vanishes quadratically as $O(k^{2.00})$ (spread $1.34 \times 10^{-4}$ at
+$k = \pi/64$, causal speed bound $\max |v_g| \le 1.0$).
+\item \textbf{Emergent Dirac pair and boost battery (\code{E-RLT-0124}).} All 24 Bloch bands satisfy the exact cubic
+structure-factor theorem $E_n(\mathbf{k}) = E_n(g(\mathbf{k}))$ with $g(\mathbf{k}) = (\cos k_x + \cos k_y + \cos k_z)/3$
+to $2.1 \times 10^{-15}$ (19 flat bands plus 5 dispersive bands). Under $M_{\text{pair}}(\zeta_{18})$, a light emergent
+Dirac pair forms at $R = (\pi, \pi, \pi)$ with rest mass $m_D = 0.004905$, limiting speed $c_{\text{eff}} = 0.021267$,
+directional isotropy $1.81 \times 10^{-7}$, and group velocities reaching $0.937\, c_{\text{eff}}$. Across boost speeds
+$v / c_{\text{eff}} \le 0.4$ along $(1,0,0)$, $(1,1,0)$, and $(1,1,1)$, internal clock dilation $m_D / E_D(q)$ matches
+exact $1/\gamma(v) = \sqrt{1 - v^2/c_{\text{eff}}^2}$ within $0.024\%$ ($42.8\times$ better than the Galilean control),
+relativity of simultaneity holds within $0.17\%$, dynamical wavepacket length contraction holds within $0.60\%$
+($31.7\times$ better than Galilean), boosted light-clock timing holds within $0.30\%$ ($30.3\times$ better than
+Galilean), and global causality obeys $\max |v_g| = 0.0341 \le 1$, whereas the bare control stays flat to
+$4 \times 10^{-15}$.
+\end{itemize}
+
+\subsection{Universal speed lock against GW170817}
+
+Emergent relativistic dispersion in one sector is physically falsified if gravity, light, and chiral matter travel at
+different limiting speeds. Experiment \code{E-RLT-0125} tests species universality directly against GW170817
+\cite{abbott2017gw170817}.
+
+In the decoupled negative control, unwarped husk light and chiral matter move at bare speed $c_{\text{raw}} = 1.0$
+while gravity propagates along the pair-density warped $\{3,4,3,4\}$ cusp column ($w(D) = 1/N_D^2$,
+Section~\ref{sec:gravity}) at $c_{\text{grav}} = 0.986916$. The resulting $1.3084\%$ mismatch violates GW170817's
+$6 \times 10^{-15}$ limit by a factor of $2.18 \times 10^{12}$ (and a naive site-local linear velocity coupling still
+fails by $0.231\%$, \code{E-RLT-0125}).
+
+Because all physical fields reside on the same $\{3,4,3,4\}$ bulk column and experience the same $1/N_D^2$ pair-density
+column weighting, the massless zero modes of all three spins share identical vertical mass weights
+$M_D = N_D w(D) = 1/N_D$ and lateral stiffnesses $K_D = l_D w(D)$ across every floor $D = 0..F$. The unique vertical
+zero mode $u_0$ satisfies $L_{\text{vert}} u_0 = 0$ (constant profile across depth), so its Rayleigh quotient cancels
+every polarization norm and momentum eigenvalue identically across spin-2, spin-1, and spin-$1/2$:
+\begin{equation}
+c_{\text{grav}} = c_{\text{light}} = c_{\text{matter}}
+= \sqrt{\frac{K_{\text{eff}}}{M_{\text{eff}}}}
+= \sqrt{\frac{\sum_{D=0}^{F} K_D}{\sum_{D=0}^{F} M_D}}
+= 0.9869161538 < 1.
+\label{eq:speed-lock}
+\end{equation}
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{4.8cm}>{\raggedright\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash}p{2.7cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+observable & shared warped column & decoupled control & gate / bound \\
+\midrule
+$c_{\text{grav}}$ (spin-2 TT, $6(F+1)$) & $0.9869161538$ & $0.986916$ & $< 1$ (causal) \\
+$c_{\text{light}}$ (spin-1 Maxwell, $3(F+1)$) & $0.9869161538$ & $1.000000$ & $< 1$ (causal) \\
+$c_{\text{matter}}$ (spin-$1/2$ Weyl, $2(F+1)$) & $0.9869161538$ & $1.000000$ & $< 1$ (causal) \\
+$\max |\Delta c|/c$ across species & $3.3748 \times 10^{-16}$ & $1.3084 \times 10^{-2}$ & $\le 10^{-15}$ (GW170817: $6 \times 10^{-15}$) \\
+3D directional isotropy spread & $2.78 \times 10^{-12}$ & -- & $\le 10^{-10}$ \\
+floor shift $F = 12$ vs $F = 16$ & $2.22 \times 10^{-16}$ & -- & $\le 10^{-14}$ \\
+heavy KK gap $m_{\text{KK}}$ & $3.2725$ & -- & $> 0.5$ (Ho\v{r}ava safe) \\
+discrete unitary wave err & $1.11 \times 10^{-15}$ & -- & $\le 10^{-14}$ \\
+\bottomrule
+\end{tabularx}
+\caption{Universal speed lock verification across spin-2, spin-1, and spin-$1/2$ zero modes on the shared
+$\{3,4,3,4\}$ $1/N_D^2$ warped cusp column (\code{E-RLT-0125}).}
+\label{tab:speed-lock}
+\end{table}
+
+Table~\ref{tab:speed-lock} records the full eigenproblem verification from \code{E-RLT-0125}: the $6(F+1)$ spin-2
+transverse-traceless graviton, $3(F+1)$ spin-1 curl-curl Maxwell photon, and $2(F+1)$ spin-$1/2$ chiral Weyl fermion
+lock to $3.3748 \times 10^{-16}$ across $(1,0,0)$, $(1,1,0)$, and $(1,1,1)$ (eighteen times tighter than GW170817),
+with unique zero mode and heavy Kaluza--Klein mass gap $m_{\text{KK}} = 3.2725$ excluding any light Ho\v{r}ava scalar
+mode \cite{horava2009}, and exact discrete-time unitary and symplectic wave evolution (unitarity error
+$1.11 \times 10^{-15}$). Section~\ref{sec:unified} proves Equation~\eqref{eq:speed-lock} formally in Lean 4 for all
+floors $F \ge 1$ and strict subluminal causality for all $F \ge 2$ (\code{E-FND-0185}).
+
+\paragraph{Why this matters in practice.}
+Discrete grid models normally fail two severe tests of modern physics: their underlying lattice axes remain visible at
+large scales, and different particle species end up with different top speeds. In 2017, astronomers watched light and
+gravitational waves from the neutron-star merger GW170817 cross 130 million light-years and arrive within 1.7 seconds
+of each other, constraining their speed difference to $6 \times 10^{-15}$. Here, an unwarped surface wave misses warped
+gravity by $1.3\%$, failing that observation by two trillion times. Routing gravity, light, and matter through the same
+warped cusp column locks all three onto one universal limiting speed to $3.37 \times 10^{-16}$ automatically, without
+tuning separate dials.
