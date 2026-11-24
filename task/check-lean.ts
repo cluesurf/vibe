@@ -21,7 +21,7 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { runInfiniteTimeProofs } from '@/code/measure/infinite-time-proofs'
 
-const MIN_THEOREM_COUNT = 110
+const MIN_THEOREM_COUNT = 145
 
 const REQUIRED_THEOREMS = [
   'thm1_v1_eternal_stationarity',
@@ -47,6 +47,16 @@ const REQUIRED_THEOREMS = [
   'thm6_universal_speed_lock',
   'thm6_strictly_subluminal',
   'thm6_cusp_lateral_lt_shell',
+  'thm7_weinberg_gut_three_eighths',
+  'thm8_koide_two_thirds_iff_f4_root_ratio',
+  'thm8_warp_koide_ge_two_thirds',
+  'thm9_photon_exact_zero_mode',
+  'thm9_custodial_rho_eq_one',
+  'thm10_ps16_matches_spin10',
+  'thm10_ps_matching_implies_unification',
+  'thm10_thirteen_shells_exceed_hierarchy',
+  'thm10_role_grid_spectrum_identities',
+  'thm10_dyadic_pow2_mod3',
 ] as const
 
 const scriptDir = dirname(fileURLToPath(import.meta.url))
