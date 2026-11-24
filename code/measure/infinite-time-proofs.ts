@@ -1,7 +1,7 @@
 // INFINITE-TIME FORMAL PROOFS BREAKING THE 4-BEAT HORIZON (E-FND-0185, gap B-35).
 //
 // Exact zero-float BigInt symbolic proof certificates mirroring every theorem in
-// code/proof/VibeTheorems.lean:
+// code/proof/Vibe.lean:
 //   Theorem 1: V1 eternal stationarity (forall t : Nat) + zero entropy export outside
 //              any finite lump light cone (verified on exact {3,4,3,4} balls R = 1, R = 2
 //              for bare, F-G, M_pair, ODD value phase, and combined rule, plus inductive proof).
@@ -911,7 +911,7 @@ export type LeanAudit = {
 }
 
 function auditLeanFile(): LeanAudit {
-  const leanPath = fileURLToPath(new URL('../proof/VibeTheorems.lean', import.meta.url))
+  const leanPath = fileURLToPath(new URL('../proof/Vibe.lean', import.meta.url))
   const src = readFileSync(leanPath, 'utf8')
   // Strip block comments /- ... -/ and line comments -- ... before counting sorry/axiom/theorem
   const noBlock = src.replace(/\/-[\s\S]*?-\//g, '')

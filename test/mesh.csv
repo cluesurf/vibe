@@ -1767,3 +1767,5 @@ E-FRC-0323,honeycomb-cusp,periodic,none,,honeycomb-cusp:cuspTranslations,static
 E-CSM-0065,none,no-mesh,none,,,static
 E-FND-0185,honeycomb-ball,honeycomb,working,,honeycomb-ball:exactBallMesh,bijective
 E-FND-0186,none,no-mesh,other,,,bijective
+E-GRV-0159,none,no-mesh,none,,,static
+E-FRC-0324,honeycomb-cusp,periodic,none,,honeycomb-cusp:cuspTranslations,static

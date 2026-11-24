@@ -1,0 +1,128 @@
+\section{Warped Gravity and Live Two-Body Orbits}
+\label{sec:gravity}
+
+A four-dimensional hyperbolic lattice faces an immediate obstacle for long-range gravity: exponential bulk volume
+growth causes an unweighted bulk Laplacian to leak flux into deep shells, exponentially screening any 3D boundary
+potential unless an artificial reflecting floor or auxiliary depth register is added. We show below that two-vibe pair
+density on the $\{3,4,3,4\}$ cusp removes screening with zero free parameters, zero reflecting floor, and zero depth
+register, fixing the geometric Newton constant $G_{\text{eff}}$ and driving live unitary two-body gravitational motion.
+
+\subsection{Bulk screening and pair-density warp \texorpdfstring{$p = 6$}{p = 6}}
+
+Because the cusp shells grow exponentially ($N_D = 1, 18, 330, 6{,}034$, Equation~\eqref{eq:cusp-shells}), an
+unweighted Laplacian on the cusp neighborhood retains a bulk spectral gap of at least $24 - 16.02$ (\code{E-GMT-0044}).
+Consequently, raw bulk diffusion screens sharply on the 3D husk: $G(2)/G(1) = 0.0460 < 0.25$ (\code{E-GRV-0156}),
+falsifying unweighted bulk diffusion without a reflecting boundary.
+
+To identify the exact threshold separating screened and unscreened infinite-depth columns, \code{E-GRV-0154} and
+\code{E-GRV-0155} sweep depth-weighted columns with conductance weight $\ell^{-p}$ at Busemann level $\ell$. Vertical
+resistance to floor $F$ scales as $F^q$ with $q = -3.51, -2.04, -0.85, +0.13, +1.09, +3.02$ for $p = 0, 1, 2, 3, 4, 6$
+(worst relative Bloch residual $3.5 \times 10^{-13}$ across 1,415 solves). The infinite honeycomb is therefore
+unscreened if and only if $p \ge 3$: the Randall--Sundrum II warp ($p = 1$) \cite{randall1999} stays screened
+($\xi = 0.35$ docks), the horosphere-area threshold ($p = 3$) sits on the logarithmic boundary ($\xi = 1.43$ docks at
+floor 49), and $p = 6$ delivers clean unscreened $1/r$ over the entire read window.
+
+The exponent $p = 6$ requires no tuning. Because 3D horosphere area scales as $N_D \sim \ell^3$, lone Scale-1 vibe
+density scales as $1/N_D \sim \ell^{-3}$, so Scale-2 two-vibe pair-interaction density scales as its exact square:
+\begin{equation}
+w(D) = \frac{1}{N_D^2} \sim \ell^{-6} \qquad (p = 6\ \text{exact}).
+\label{eq:pair-warp}
+\end{equation}
+Weighting column conductance by $w(D) = 1/N_D^2$ drives vertical resistance across a column of $F$ floors to
+\begin{equation}
+R(F) = \sum_{D=0}^{F-1} \frac{1}{N_D\, w(D)} = \sum_{D=0}^{F-1} N_D,
+\label{eq:col-resistance}
+\end{equation}
+reaching $R(12) = 1.48 \times 10^{15}$ by floor 12 (screening mass $6.75 \times 10^{-16}$, correlation length
+$\xi = 3.85 \times 10^7$ docks, \code{E-GRV-0156}), restoring unscreened 3D $1/r$ gravity with zero reflecting floor
+and zero depth register.
+
+\subsection{Unscreened \texorpdfstring{$1/r$}{1/r} slope and geometric \texorpdfstring{$G_{\text{eff}}$}{G\_eff}}
+
+Computing the exact Schur-complement husk Green function of the $w(D) = 1/N_D^2$ warped cusp on a $64^3$ cubic husk
+(\code{E-GRV-0157}) determines the static gravitational law and coupling directly from $\{3,4,3,4\}$ geometry:
+\begin{itemize}
+\item The warped cusp potential matches the exact massless 3D lattice Green function to $0.00125\%$ across $r = 2..10$,
+with continuum log-log slope $-1.0029$ over $r = 4..12$ (flatness $r G(r)$ within $0.77\%$) and inverse-square force
+slope $-2.0418$.
+\item Effective husk stiffness converges floor-independently by floor 12,
+$K_{\text{eff}}(12) = K_{\text{eff}}(16) = 1.0312370835$, fixing the parameter-free geometric Newton constant
+\begin{equation}
+G_{\text{eff}} = \frac{1}{4\pi K_{\text{eff}}} = 0.07716700.
+\label{eq:geff}
+\end{equation}
+\item The raw unwarped bulk negative control collapses to $G(5)/G(1) = 4.86 \times 10^{-6}$ (\code{E-GRV-0157}).
+\end{itemize}
+
+\subsection{Live two-body infall, orbits, and flyby}
+
+To verify genuine dynamical gravitational motion rather than static potentials alone, \code{E-GRV-0158} couples two
+quantum wavepackets directly to \code{E-GRV-0157}'s parameter-free warped-cusp kernel via strictly unitary,
+time-reversible Strang split-step two-species Schr\"odinger--Poisson evolution on a $32^3$ open-boundary domain
+embedded in a $64^3$ zero-padded Hockney FFT \cite{hockney1970}.
+
+\begin{result}[Live two-body $1/r$ gravity vs screened bulk control, \code{E-GRV-0158}]
+With zero fitted gravitational couplings, live two-body evolution under the $\{3,4,3,4\}$ $1/N_D^2$ kernel passes all
+four pre-registered gates:
+\begin{enumerate}
+\item \textbf{Inverse-square infall and dynamical $G_{\text{dyn}}$.} Across initial separations $r_0 = 6..10$, mutual
+radial attraction obeys log-log acceleration slope $-1.9957$ ($0.21\%$ from $-2.00$), yielding dynamical coupling
+$G_{\text{dyn}} = 0.077513$, matching the static geometric constant $G_{\text{eff}} = 0.07716700$ within $0.45\%$ mean
+error.
+\item \textbf{Unitarity, Newton's third law, and exact reversibility.} Global norm drift stays within $5.95 \times 10^{-14}$,
+unequal-mass accelerations obey Newton's third law $|a_1/a_2 + m_2/m_1| = 1.04 \times 10^{-14}$, and a 20-step forward
+and backward cycle $U(-\Delta t)^{20} U(\Delta t)^{20}$ returns wavepacket centroids to $4.75 \times 10^{-15}$.
+\item \textbf{Bound Keplerian orbit and flyby deflection.} A tangentially launched binary sweeps a bound orbital arc of
+$90.8^\circ$ ($7.51 \le r \le 8.50$), matching the Keplerian angular frequency $\omega$ to $0.071\%$, with quantum
+angular momentum $\langle L_z \rangle$ drift $0.21\%$ and total energy drift $0.0010\%$. An unbound hyperbolic flyby
+deflects inward by $18.5^\circ$ ($2.56\%$ from finite-domain weak-field theory).
+\item \textbf{Screened bulk negative control.} Replacing the $1/N_D^2$ warped kernel by the raw unwarped $\{3,4,3,4\}$
+bulk kernel collapses acceleration to $2.49 \times 10^{-5}$ at $r = 8$, and the identical orbital launch flies straight
+apart within $0.04\%$ of a free straight line.
+\end{enumerate}
+\end{result}
+
+\subsection{Post-Newtonian General Relativity tests}
+
+Beyond Newtonian two-body motion, \code{E-GRV-0159} tests all four classical post-Newtonian General Relativity
+observables directly on the $\{3,4,3,4\}$ $1/N_D^2$ warped cusp column using its parameter-free constants
+$G_{\text{eff}} = 0.07716700$ and $c_u = 0.9869161538$ (zero fitted gravity parameters), passing $5/5$ pre-registered
+gates:
+
+\begin{result}[Four post-Newtonian General Relativity tests on the warped cusp, \code{E-GRV-0159}]
+With zero free gravitational parameters:
+\begin{enumerate}
+\item \textbf{Gravitational clock redshift.} A live 4-component unitary chiral clock ($\max\text{NormErr} =
+1.91 \times 10^{-14}$, $U^\dagger$ reversal $3.66 \times 10^{-14}$) reproduces exact metric redshift
+$\sqrt{g_{00}(r_1)/g_{00}(r_2)} - 1$ to $1.24 \times 10^{-11}$ (and weak-field $\Delta\Phi/c_u^2$ to
+$4.45 \times 10^{-6}$), while flat and raw unwarped bulk controls read $0$.
+\item \textbf{Eddington $2\times$ light bending ($\gamma_{\text{PPN}} = 1$).} Sixth-order symplectic null geodesics
+match Einstein's deflection $4 G_{\text{eff}} M / (b c_u^2)$ within $0.428\%$ ($\gamma_{\text{PPN}} = 1.0051$, $1/b$
+slope $-1.0028$, ratio against the temporal-only Newtonian control $2.001..2.003$). Independently, a live
+$512 \times 256$ two-dimensional unitary optical wavepacket ($\max\text{NormErr} = 3.22 \times 10^{-15}$, reversal
+$1.22 \times 10^{-14}$) matches finite-path General Relativity to $0.482\%$ ($\gamma_{\text{PPN}} = 1.0074$, ratio
+$1.994..1.995$), whereas the raw unwarped bulk control collapses by more than $10^{13}\times$.
+\item \textbf{Shapiro time delay.} Exact endpoint shooting (residual $9.38 \times 10^{-13}$) matches Einstein's Shapiro
+delay within $0.225\%$ ($1.998..2.000\times$ the temporal-only control), while raw unwarped bulk screening collapses
+the delay by $1.86 \times 10^{29}\times$.
+\item \textbf{Relativistic perihelion precession.} Exact 6th-order Yoshida symplectic geodesic integration
+(Hamiltonian error $4.23 \times 10^{-13}$, 3-orbit time reversal $8.00 \times 10^{-12}$) reproduces Einstein's
+perihelion advance $6\pi G_{\text{eff}} M / (a(1 - e^2) c_u^2)$ within $0.060\%$ to $0.071\%$ across eccentricities
+$e = 0.2, 0.4, 0.6$, sharply separated from the Newtonian control ($\le 1.83 \times 10^{-12}$ rad), the temporal-only
+$(\gamma = 0, \beta = 1)$ control at $0.3331$ (exact Will fraction $1/3$), and flat-space special-relativistic Kepler
+precession at $0.1666$ (exact Sommerfeld fraction $1/6$).
+\end{enumerate}
+\end{result}
+
+Honest boundary: while \code{E-GRV-0158} and \code{E-GRV-0159} verify live two-body Newtonian motion and all four
+post-Newtonian General Relativity observables on the warped cusp column, deriving $\gamma_{\text{PPN}} = 1$ and
+$\beta_{\text{PPN}} = 1$ dynamically from full nonlinear 4D spin-2 self-interaction on the live $\{3,4,3,4\}$
+honeycomb remains open (Section~\ref{sec:open}).
+
+\paragraph{Why this matters in practice.}
+Trying to obtain ordinary 3D gravity from a curved 4D hyperbolic grid normally fails because hyperbolic volume expands
+exponentially, screening long-range $1/r$ attraction unless an artificial reflecting wall is inserted. Here, the
+natural dilution of two-vibe pair density down the widening cusp shells supplies the exact inverse-square weighting
+with zero free gravity parameters. That same geometry reproduces live two-body orbits, gravitational clock redshift,
+Eddington's factor-of-two light bending, Shapiro time delay, and Einstein's perihelion precession, while keeping the
+remaining nonlinear spin-2 derivation clearly separated as open work.

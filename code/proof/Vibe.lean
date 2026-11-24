@@ -20,7 +20,7 @@ Lean 4 core + prelude arithmetic over Z, Z[w], and Z[zeta_9]:
 
 set_option autoImplicit false
 
-namespace VibeTheorems
+namespace Vibe
 
 /-! ## Section 0: Iteration and Exact Algebraic Rings -/
 
@@ -1156,4 +1156,4 @@ theorem thm6_cusp_lateral_lt_shell (N : Nat → Nat)
       simp only [cuspLateralLinks]
       omega
 
-end VibeTheorems
+end Vibe

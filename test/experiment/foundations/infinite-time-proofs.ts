@@ -1,6 +1,6 @@
 // INFINITE-TIME FORMAL PROOFS BREAKING THE 4-BEAT HORIZON (E-FND-0185, gap B-35).
 // Verifies six infinite-time (forall t : Nat / forall F : Nat) theorems both in
-// self-contained zero-sorry Lean 4 (code/proof/VibeTheorems.lean) and via exact
+// self-contained zero-sorry Lean 4 (code/proof/Vibe.lean) and via exact
 // zero-float BigInt algebraic proof certificates (code/measure/infinite-time-proofs.ts):
 //   1. V1 eternal stationarity (forall t : Nat) + zero entropy export outside light cone
 //   2. forall t : Nat unitarity & exact reversibility + exact Z[zeta_9][1/6] gate unitarity

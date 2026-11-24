@@ -1,7 +1,7 @@
 name = "vibe-theorems"
 version = "0.1.0"
 keywords = ["math", "physics", "quantum"]
-defaultTargets = ["VibeTheorems"]
+defaultTargets = ["Vibe"]
 
 [leanOptions]
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`
@@ -9,5 +9,5 @@ autoImplicit = false
 maxSynthPendingDepth = 3
 
 [[lean_lib]]
-name = "VibeTheorems"
-roots = ["VibeTheorems"]
+name = "Vibe"
+roots = ["Vibe"]

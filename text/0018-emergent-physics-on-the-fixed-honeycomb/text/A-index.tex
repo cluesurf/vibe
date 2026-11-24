@@ -1,0 +1,69 @@
+\section{Master Index of Cited Experiments}
+\label{sec:index}
+
+Every experiment code cited in this paper is indexed below exactly as registered in \code{test/registry.csv} (total
+suite size: 1,770 deterministic runs, zero random numbers). Failed and partial gates are preserved and labeled
+explicitly. All sector and coupled verifications are graded honestly at depth L2 (exact $\{3,4,3,4\}$ ball, cusp
+column, or exact algebraic operator verification), with pure algebraic identities graded at L1.
+
+\begin{small}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{2.5cm}>{\raggedright\arraybackslash}p{2.1cm}>{\raggedright\arraybackslash}p{1.6cm}p{8.7cm}@{}}
+\toprule
+identifier & substrate / grade & verdict & key verified metric \\
+\midrule
+\endhead
+\multicolumn{4}{@{}l}{\emph{Geometry, vacuum, and experiential base (Section~\ref{sec:one-rule})}} \\
+\code{E-GMT-0044} & $\{3,4,3,4\}$ / L2 & open & unweighted cusp Laplacian retains gap $\ge 24 - 16.02$ \\
+\code{E-GMT-0045} & $\{3,4,3,4\}$ / L2 & pass & 24 exact $\mathbb{Z}[\sqrt{2}]$ cusps, $Q$ exact to $0$, $S_0$ spread $4.4 \times 10^{-16}$ \\
+\code{E-GMT-0046} & $\{3,4,3,4\}$ / L2 & pass & shells $1, 24, 456, 8{,}376$, $|W(F_4)| = 1{,}152$, 4-cycle holonomy $1$ \\
+\code{E-RLT-0122} & $\{3,4,3,4\}$ / L2 & pass & $V_1$ exact fixed point, $s_{\text{in}} = 0$, $m_D = 2 \cdot 5^D$, export $44.5226$ nats \\
+\code{E-HLG-0043} & $\{3,4,3,4\}$ / L2 & pass & identical husk $Q_c(0)$ bulk states diverge $L_1 = 0.5000$ at $t = 1$ \\
+\code{E-FND-0181} & $\{3,4,3,4\}$ / L2 & pass & \code{ODD} silent on $P_2$, breaks $C$ and $P$ on $X_1$, keeps $CP, T, CPT$ \\
+\code{E-FND-0182} & $\{3,4,3,4\}$ / L2 & pass & causal shield exact $0.00$ on $r \le 1$ for $t \le R - 1$, outer shell $94.57\%$ \\
+\code{E-FND-0183} & $\{3,4,3,4\}$ / L2 & fail & equal-$\chi_{\text{odd}}$ branches keep $0.00$ $C$-asymmetry (necessary condition) \\
+\code{E-FND-0184} & $\{3,4,3,4\}$ / L2 & pass & distinct-$\chi_{\text{odd}}$ coherent arrow $+1.50$ with exact $CP$-pairing $0$ \\
+\code{E-SPN-0220} & $\{3,4,3,4\}$ / L2 & pass & $R = 3$ ball ($8{,}857$ docks): $L \cdot P$ ($8/8$) and $L \cdot C$ ($1$) exact under \code{ODD} \\
+\multicolumn{4}{@{}l}{\emph{Quantum foundations (Section~\ref{sec:quantum})}} \\
+\code{E-QTM-0202} & open line / L2 & fail & ballistic open-line CHSH stalls at $2.8277$ (off-$x$-$z$ triple $11/4$) \\
+\code{E-QTM-0203} & $\{3,4,3,4\}$ / L2 & pass & box and $R = 3$ ball agree to $0$ inside $m + 2t \le L$, $L_1 = 0.5625$ \\
+\code{E-QTM-0204} & $\mathbb{Z}[\omega][1/2]$ / L2 & pass & $SU(2)$ density ($\operatorname{Tr} = 1/2$, $\|[U_1,U_2]\|_F = 2.5981$), HOM $0.9999996$ \\
+\code{E-QTM-0205} & $\{3,4,3,4\}$ / L2 & pass & Zurek envariance on $R = 2$: $36/36$ phase, $24/24$ $S_4$ swap, $(3/4, 1/4)$ \\
+\code{E-QTM-0206} & $\Sigma(648)$ / L2 & pass & $|\rho_{01}(4)| = 0$, decay $1/2^k$, $R_{0.01} = 4$, CHSH $2.8258$ vs $1.4219$, NS $1.67 \times 10^{-16}$ \\
+\multicolumn{4}{@{}l}{\emph{3D motion, emergent relativity, and universal speed lock (Section~\ref{sec:relativity})}} \\
+\code{E-SLF-0189} & $\{3,4,3,4\}$ / L2 & fail & lone-bank mixer sweep: log lifetime slope $-1.7$, no prethermal gap \\
+\code{E-SLF-0190} & $\{3,4,3,4\}$ / L2 & fail & any-neighbor lock keeps isolated self but leaks under bath arrival \\
+\code{E-SLF-0192} & $\{3,4,3,4\}$ / L2 & pass & bipartite dock graph ($162{,}049$ docks, $0$ same-color edges) explains parity \\
+\code{E-SLF-0195} & $\{3,4,3,4\}$ / L2 & partial & pair-store creation shifts bipartite parity sector ($0.133$ leak by $t = 3$) \\
+\code{E-SLF-0198} & $\{3,4,3,4\}$ / L2 & pass & $255{,}090$-dock exact tube confirms \code{E-SLF-0189} drain at $t = 3$ ($L = 0.308$) \\
+\code{E-SLF-0199} & $\{3,4,3,4\}$ / L2 & pass & $M_{\text{pair}}(\zeta_{18})$ fixes $V_1$ and 24 lone slots, isotropic 12-line scatter, $s$-wave exact \\
+\code{E-SLF-0200} & $\{3,4,3,4\}$ / L2 & pass & $M_{\text{pair}}$ gap $0.3473$, 4D $s$-wave closure beats null, sparse bath filter $E = 0.8685$ \\
+\code{E-RLT-0123} & $\{3,4,3,4\}$ / L2 & pass & $M_{\text{pair}}$ breaks line law ($\text{maxShadow} = 2.20$), 3D isotropy $O(k^{2.00})$ \\
+\code{E-RLT-0124} & $\{3,4,3,4\}$ / L2 & pass & Dirac pair ($m_D = 0.004905$), $1/\gamma$ err $0.024\%$, contraction $0.60\%$, clock $0.30\%$ \\
+\code{E-RLT-0125} & $\{3,4,3,4\}$ / L2 & pass & $c_{\text{grav}} = c_{\text{light}} = c_{\text{matter}} = 0.9869161538$ to $3.37 \times 10^{-16}$, $m_{\text{KK}} = 3.2725$ \\
+\multicolumn{4}{@{}l}{\emph{Warped gravity and live two-body dynamics (Section~\ref{sec:gravity})}} \\
+\code{E-GRV-0154} & $\{3,4,3,4\}$ / L2 & open & depth-weight sweep $p = 0..6$: unscreened iff $p \ge 3$, clean $1/r$ at $p = 6$ \\
+\code{E-GRV-0155} & $\{3,4,3,4\}$ / L2 & partial & relative-residual rerun of \code{E-GRV-0154}: worst residual $3.5 \times 10^{-13}$ \\
+\code{E-GRV-0156} & $\{3,4,3,4\}$ / L2 & pass & $N_D = 1, 18, 330, 6{,}034$, raw $G(2)/G(1) = 0.0460$, $1/N_D^2$ $R(12) = 1.48 \times 10^{15}$ \\
+\code{E-GRV-0157} & $\{3,4,3,4\}$ / L2 & pass & $1/r$ slope $-1.0029$, force $-2.0418$, $K_{\text{eff}} = 1.0312370835$, $G_{\text{eff}} = 0.07716700$ \\
+\code{E-GRV-0158} & $\{3,4,3,4\}$ / L2 & pass & live infall slope $-1.9957$, $G_{\text{dyn}} = 0.077513$, orbit $\omega$ $0.071\%$, flyby $18.5^\circ$ \\
+\code{E-GRV-0159} & $\{3,4,3,4\}$ / L2 & pass & PPN GR: redshift $1.24 \times 10^{-11}$, Eddington $\gamma = 1.0051$, Shapiro $0.225\%$, precession $0.060\%$ \\
+\multicolumn{4}{@{}l}{\emph{Chirality, cold confinement, and three generations (Section~\ref{sec:gauge})}} \\
+\code{E-SPN-0221} & $\{3,4,3,4\}$ / L2 & pass & Hermitian cusp wall: Left $63/64$ vs Right $2.09 \times 10^{-13}$, Weyl err $6.49 \times 10^{-15}$ \\
+\code{E-SPN-0222} & $\{3,4,3,4\}$ / L2 & pass & $\mathbb{Z}[\zeta_9][1/6]$ unitary wall: Left $0.999914$ vs Right $3.56 \times 10^{-29}$, gap $\pi/3$ \\
+\code{E-FRC-0322} & $\Sigma(648)$ / L2 & pass & $T = 0$ $\mathbb{Z}_3$ linear confinement ($R^2 = 0.999999999999999$), baryon triality, Gauss err $0$ \\
+\code{E-FRC-0323} & $\{3,4,3,4\}$ / L2 & pass & $N_{\text{gen}} = 3$, $0$ 4th gen, $m_3/m_1 > 27{,}000$, unitary CKM, $J_{\text{CP}} = +9.48 \times 10^{-5}$ \\
+\code{E-FRC-0324} & $\mathrm{Spin}(10)$ / L2 & pass & $3 \times 16 = 48$ Weyl fermions, $6/6$ \code{BigInt} anomalies, $\sin^2\theta_W|_{\text{GUT}} = 3/8$, dynamical $S_3$ \\
+\multicolumn{4}{@{}l}{\emph{Fixed-mesh horosphere cosmology (Section~\ref{sec:cosmology})}} \\
+\code{E-CSM-0064} & $\{3,4,3,4\}$ / L2 & pass & $51{,}064$-dock cusp theorem, de Sitter $q = -1.000, w = -1.000$, rev $5.33 \times 10^{-15}$ \\
+\code{E-CSM-0065} & $\{3,4,3,4\}$ / L2 & pass & full 3-era history: rad $w = +0.326$, mat $w = 0.000$, $\Omega_m/\Omega_\Lambda = 2.000$, $w = -1.000$ \\
+\multicolumn{4}{@{}l}{\emph{Infinite-time proofs and unified live five-sector simulation (Section~\ref{sec:unified})}} \\
+\code{E-FND-0185} & Lean 4 / L2 & pass & 110 Lean 4 theorems (\code{code/proof/Vibe.lean}, $0$ \code{sorry}, $0$ \code{axiom}) + \code{BigInt} certs \\
+\code{E-FND-0186} & $\{3,4,3,4\}$ / L2 & pass & $\dim = 259{,}200$ 5-sector live unitary run: $6/6$ gates, $6/6$ ablations, rev $1.45 \times 10^{-15}$ \\
+\multicolumn{4}{@{}l}{\emph{Baseline structural and horizon benchmarks}} \\
+\code{E-FND-0038} & algebra / L1 & pass & three ternary values and 4D $D_4$ forced as smallest signed alphabet with triality \\
+\code{E-QTM-0117} & algebra / L1 & pass & link operators carry the 648-element qutrit Clifford group $\Sigma(648)$ \\
+\code{E-GRV-0134} & flat box / L2 & fail & forming horizon emits power-law quench spectrum $\omega^{-1.43}$ rather than Planckian \\
+\code{E-GRV-0136} & flat box / L2 & fail & settled bounded-clock horizon emits $10^{-7}$ of initial burst (redshift cap $\frac{1}{2}\ln C$) \\
+\bottomrule
+\end{longtable}
+\end{small}
