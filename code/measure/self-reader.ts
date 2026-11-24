@@ -595,7 +595,7 @@ const permutations = (n: number): { p: number[]; sign: number }[] => {
 }
 
 // the n-fold tensor of a start over its distinct modes (index m^n, antisymmetric), and the mode list
-function startTensor(psi: readonly Config[]): { modes: number[]; n: number; re: Float64Array; im: Float64Array } {
+export function startTensor(psi: readonly Config[]): { modes: number[]; n: number; re: Float64Array; im: Float64Array } {
   const modes = [...new Set(psi.flatMap(c => c.modes))].sort((a, b) => a - b)
   const index = new Map(modes.map((q, i) => [q, i]))
   const n = psi[0]!.modes.length
@@ -624,7 +624,7 @@ function startTensor(psi: readonly Config[]): { modes: number[]; n: number; re: 
 }
 
 // M = u^dag P_A u on the start's modes: cols[i] the one-love vector (interleaved re, im) of start mode i at beat t
-function regionGram(cols: readonly Float64Array[], lo: number, hi: number): { re: Float64Array; im: Float64Array } {
+export function regionGram(cols: readonly Float64Array[], lo: number, hi: number): { re: Float64Array; im: Float64Array } {
   const m = cols.length
   const re = new Float64Array(m * m)
   const im = new Float64Array(m * m)
@@ -653,7 +653,7 @@ function regionGram(cols: readonly Float64Array[], lo: number, hi: number): { re
 }
 
 // <T| M^(x)n |T> / n!, with M applied along each axis in turn
-function tensorExpect(T: { n: number; re: Float64Array; im: Float64Array }, m: number, M: { re: Float64Array; im: Float64Array }): number {
+export function tensorExpect(T: { n: number; re: Float64Array; im: Float64Array }, m: number, M: { re: Float64Array; im: Float64Array }): number {
   let cr = Float64Array.from(T.re)
   let ci = Float64Array.from(T.im)
 

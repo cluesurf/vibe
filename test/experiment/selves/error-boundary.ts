@@ -43,6 +43,7 @@ import {
   type Arrival,
   type RunResult,
 } from '@/code/measure/error-boundary'
+import { runClassStore } from '@/code/measure/class-store'
 
 const RECORDED = { energy: 0.33001851839229945 }
 const L = 32
@@ -60,17 +61,70 @@ const GATE_BEATS = [80, 200, 1000] as const
 
 // budget: the copy-out control's dephasing makes one dense column per syndrome pattern of every column; past 4 GB of
 // new columns in one beat it ends and reports its reach (a control, not gated; logged as a deviation)
-type ArmRun = { name: string; arm: Arm; beats: number; arrivals: boolean; nMax: number; budget?: number }
+// dense: the (love number, residue) pairs the class store holds as density matrices (the scoped setting only)
+type ArmRun = {
+  name: string
+  arm: Arm
+  beats: number
+  arrivals: boolean
+  nMax: number
+  budget?: number
+  dense?: readonly (readonly [number, number])[]
+}
 
 type Setting = {
-  name: 'smoke' | 'full'
+  name: 'smoke' | 'full' | 'scoped' | 'scoped-smoke'
   runs: readonly ArmRun[]
   readAt: (beats: number) => number[]
   tvAt: (beats: number) => number[]
+  // the stream path of code/measure/error-boundary, or the class store of code/measure/class-store (item 0039)
+  engine: 'stream' | 'class'
+  arrivals: readonly Arrival[]
+  cap: readonly number[]
+  keep: readonly number[]
+  // the beats G1 chains (R(t1) >= HOLD, then R(t_i+1) >= R_up(t_i) - LEVEL), and whether the last must also hold HOLD
+  g1Beats: readonly number[]
+  holdLast: boolean
+  g2Beats: readonly number[]
+  tvBeats: readonly number[]
+  end: number
+  // log every beat with the run's allocation, and every merge's total (the scoped run, watched on the M3)
+  verbose: boolean
 }
+
+const ARRIVALS: Arrival[] = Array.from({ length: 24 }, (_, k) => ({ beat: 20 + 40 * k, dock: (16 + 7 * k) % L, label: k % 2 }))
+
+// columns per sector: merge past cap, keep keep (n = 0 .. 5; 0 and 1 are never followed)
+const CAP = [0, 0, 128, 128, 24, 8]
+const KEEP = [0, 0, 64, 64, 12, 4]
+
+// item vibe-roadmap-grounding-0039 (decision 007, gate 7934f4e93d0a): k = 0 and 1 only, caps 64/1024/1280/8 keeping
+// 32/512/1024/4 for 2/3/4/5 loves, dense 2- and 3-love residues for B, S and A0, none for A1 and N
+const ARRIVALS_TWO: Arrival[] = ARRIVALS.slice(0, 2)
+const CAP_SCOPED = [0, 0, 64, 1024, 1280, 8]
+const KEEP_SCOPED = [0, 0, 32, 512, 1024, 4]
+const DENSE_ALL: (readonly [number, number])[] = [
+  [2, 0],
+  [2, 1],
+  [2, 2],
+  [3, 0],
+  [3, 1],
+  [3, 2],
+]
+const CHOLESKY = 1e-14
 
 const SMOKE: Setting = {
   name: 'smoke',
+  engine: 'stream',
+  arrivals: ARRIVALS,
+  cap: CAP,
+  keep: KEEP,
+  g1Beats: [10, 20, 30],
+  holdLast: true,
+  g2Beats: [30],
+  tvBeats: [20, 30],
+  end: 30,
+  verbose: false,
   runs: [
     { name: 'B', arm: 'boundary', beats: 30, arrivals: true, nMax: 4 },
     { name: 'A1', arm: 'none', beats: 30, arrivals: false, nMax: 3 },
@@ -83,6 +137,16 @@ const SMOKE: Setting = {
 }
 const FULL: Setting = {
   name: 'full',
+  engine: 'stream',
+  arrivals: ARRIVALS,
+  cap: CAP,
+  keep: KEEP,
+  g1Beats: [80, 200, 1000],
+  holdLast: true,
+  g2Beats: [200, 1000],
+  tvBeats: [80, 200, 1000],
+  end: 1000,
+  verbose: false,
   runs: [
     // the controls first, so a failing control shows within the first hour; B last
     { name: 'S', arm: 'swap', beats: 80, arrivals: true, nMax: 3 },
@@ -98,12 +162,60 @@ const FULL: Setting = {
     ),
   tvAt: beats => [...GATE_BEATS, 99].filter(t => t <= beats),
 }
+// item 0039's gated run (BOUNDARY_SWEEP=scoped): the arms in the gate's stated order, each to beat 200, on the class
+// store; G1 on 80 and 200, G2 at 200, G3 at 80 and 200, X4 at 200
+const SCOPED: Setting = {
+  name: 'scoped',
+  engine: 'class',
+  arrivals: ARRIVALS_TWO,
+  cap: CAP_SCOPED,
+  keep: KEEP_SCOPED,
+  g1Beats: [80, 200],
+  holdLast: false,
+  g2Beats: [200],
+  tvBeats: [80, 200],
+  end: 200,
+  verbose: true,
+  runs: [
+    { name: 'B', arm: 'boundary', beats: 200, arrivals: true, nMax: 5, dense: DENSE_ALL },
+    { name: 'A0', arm: 'boundary', beats: 200, arrivals: false, nMax: 3, dense: DENSE_ALL },
+    { name: 'A1', arm: 'none', beats: 200, arrivals: false, nMax: 3, dense: [] },
+    { name: 'S', arm: 'swap', beats: 200, arrivals: true, nMax: 5, dense: DENSE_ALL },
+    { name: 'N', arm: 'none', beats: 200, arrivals: true, nMax: 5, dense: [] },
+  ],
+  readAt: beats => [0, 1, 2, 4, 10, 20, 40, 60, 80, 100, 120, 160, 200].filter(t => t <= beats),
+  tvAt: beats => [80, 200].filter(t => t <= beats),
+}
 
-const ARRIVALS: Arrival[] = Array.from({ length: 24 }, (_, k) => ({ beat: 20 + 40 * k, dock: (16 + 7 * k) % L, label: k % 2 }))
+// a SMOKE of the scoped path only, never the gated run: BOUNDARY_SMOKE_GATES="a,b" (a < b) runs every scoped arm to
+// beat b, reads G1 on a and b, G2 at b, G3 at a and b and X4 at b, so the end-of-run reading is run once before the
+// 28 h launch. Without it the scoped setting is the frozen one; tmp/m3-eb39-launch.sh never sets it
+function smokeScoped(gates: string | undefined): Setting {
+  if (gates === undefined) {
+    return SCOPED
+  }
 
-// columns per sector: merge past cap, keep keep (n = 0 .. 5; 0 and 1 are never followed)
-const CAP = [0, 0, 128, 128, 24, 8]
-const KEEP = [0, 0, 64, 64, 12, 4]
+  const [a, b] = gates.split(',').map(Number)
+
+  if (!Number.isInteger(a) || !Number.isInteger(b) || a! < 1 || b! <= a!) {
+    throw new Error(`BOUNDARY_SMOKE_GATES must be "a,b" with 1 <= a < b, got ${gates}`)
+  }
+
+  const reads = [...new Set([0, 1, 2, 4, 10, 20, 40, 60, 80, 100, 120, 160, 200, a!, b!])].sort((x, y) => x - y)
+
+  return {
+    ...SCOPED,
+    name: 'scoped-smoke',
+    g1Beats: [a!, b!],
+    g2Beats: [b!],
+    tvBeats: [a!, b!],
+    end: b!,
+    runs: SCOPED.runs.map(r => ({ ...r, beats: b! })),
+    readAt: beats => reads.filter(t => t <= beats),
+    tvAt: beats => [a!, b!].filter(t => t <= beats),
+  }
+}
+
 const FLOOR = 1e-12
 // the most F a unit of broken weight (at most 2 loves, then at most one arrival before its loves leave) can carry
 const FBROKEN = 1
@@ -243,8 +355,16 @@ export default experiment({
   paper: false,
   run() {
     const started = Date.now()
-    const setting = process.env.BOUNDARY_SWEEP === 'full' ? FULL : SMOKE
-    const log = (what: string): void => console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s`)
+    const sweep = process.env.BOUNDARY_SWEEP
+    const setting = sweep === 'full' ? FULL : sweep === 'scoped' ? smokeScoped(process.env.BOUNDARY_SMOKE_GATES) : SMOKE
+    // the allocation is V8's heap used plus external, which holds every typed array (T-0041a: never rss)
+    const alloc = (): string => {
+      const m = process.memoryUsage()
+
+      return setting.verbose ? ` alloc ${((m.heapUsed + m.external) / 2 ** 30).toFixed(2)} GiB` : ''
+    }
+    const log = (what: string): void =>
+      console.error(`${what} ${Math.round((Date.now() - started) / 1000)}s${alloc()}`)
 
     // ---- C1, the level ----
     const basis = lineBasis({ flavors: [0, 0, 0], statistics: 'fermion', D: 3, box: 12, unit: 0 })
@@ -282,27 +402,42 @@ export default experiment({
     const reads = new Map<string, Read>()
 
     for (const spec of setting.runs) {
-      const run = runBoundary(
-        {
-          L,
-          d: D,
-          nMax: spec.nMax,
-          arm: spec.arm,
-          arrivals: spec.arrivals ? ARRIVALS : [],
-          beats: spec.beats,
-          cap: CAP,
-          keep: KEEP,
-          floor: FLOOR,
-          readAt: setting.readAt(spec.beats),
-          tvAt: setting.tvAt(spec.beats),
-          tvWindow: 10,
-          every: 50,
-          byteBudget: spec.budget,
-        },
-        start,
-        reader,
-        log,
-      )
+      log(`arm ${spec.name} start`)
+
+      const base = {
+        L,
+        d: D,
+        nMax: spec.nMax,
+        arm: spec.arm,
+        arrivals: spec.arrivals ? setting.arrivals : [],
+        beats: spec.beats,
+        cap: setting.cap,
+        keep: setting.keep,
+        floor: FLOOR,
+        readAt: setting.readAt(spec.beats),
+        tvAt: setting.tvAt(spec.beats),
+        tvWindow: 10,
+        every: setting.verbose ? 1 : 50,
+        byteBudget: spec.budget,
+      }
+      const run =
+        setting.engine === 'class'
+          ? runClassStore(
+              {
+                ...base,
+                dense: spec.dense ?? [],
+                cholesky: CHOLESKY,
+                spectrum: (n, beat, values) => {
+                  const total = values.reduce((s, x) => s + Math.max(0, x), 0)
+
+                  log(`merge ${spec.name} n ${n} beat ${beat} k ${values.length} total ${e2(total)}`)
+                },
+              },
+              start,
+              reader,
+              log,
+            )
+          : runBoundary(base, start, reader, log)
 
       reads.set(spec.name, readRun(spec.name, run))
       log(`arm ${spec.name} done, ${run.seconds.toFixed(0)} s`)
@@ -317,15 +452,21 @@ export default experiment({
     const gX4 = bDrop <= DROP
 
     // ---- the gates on B ----
-    const Tend = setting.name === 'full' ? 1000 : 30
-    const g1Beats = setting.name === 'full' ? [80, 200, 1000] : [10, 20, 30]
-    const [t1, t2, t3] = g1Beats as [number, number, number]
+    const Tend = setting.end
+    const g1Beats = setting.g1Beats
+    const t1 = g1Beats[0]!
+    const tLast = g1Beats[g1Beats.length - 1]!
+    const steps = g1Beats.slice(1).map((t, i) => [g1Beats[i]!, t] as const)
     // decided pass on the pessimistic reading (R low where it must be high, R_up where it is subtracted); decided fail
     // when even the optimistic reading fails; otherwise undecided (the verdict is open)
     const g1Pass =
-      B.R(t1) >= HOLD && B.R(t2) >= B.Rup(t1) - LEVEL && B.R(t3) >= B.Rup(t2) - LEVEL && B.R(t3) >= HOLD
+      B.R(t1) >= HOLD &&
+      steps.every(([a, b]) => B.R(b) >= B.Rup(a) - LEVEL) &&
+      (!setting.holdLast || B.R(tLast) >= HOLD)
     const g1Fail =
-      B.Rup(t1) < HOLD || B.Rup(t2) < B.R(t1) - LEVEL || B.Rup(t3) < B.R(t2) - LEVEL || B.Rup(t3) < HOLD
+      B.Rup(t1) < HOLD ||
+      steps.some(([a, b]) => B.Rup(b) < B.R(a) - LEVEL) ||
+      (setting.holdLast && B.Rup(tLast) < HOLD)
     const gG1 = g1Pass
     const g1Decided = g1Pass || g1Fail
     const outflow = (t: number): number => {
@@ -333,15 +474,15 @@ export default experiment({
 
       return r ? r.exported - r.entered : NaN
     }
-    const g2Beats = setting.name === 'full' ? [200, 1000] : [30]
+    const g2Beats = setting.g2Beats
     const gG2 = g2Beats.every(t => Math.abs(outflow(t)) <= OUTFLOW)
-    const tvBeats = setting.name === 'full' ? [80, 200, 1000] : [20, 30]
+    const tvBeats = setting.tvBeats
     const gG3 = tvBeats.every(t => B.I(t) >= CHANGE)
 
     const instrument = gC1 && gX1 && gX2 && gX3
     const status: 'pass' | 'fail' | 'open' = !instrument
       ? 'fail'
-      : setting.name === 'smoke' || !gX4 || !g1Decided
+      : setting.name === 'smoke' || setting.name === 'scoped-smoke' || !gX4 || !g1Decided
         ? 'open'
         : gG1 && gG2 && gG3
           ? 'pass'
@@ -397,7 +538,7 @@ export default experiment({
       status,
       claim: `${setting.name} setting, ring of ${L} (periodic grade), radius ${D}. ${all.map(row).join(' || ')}. Gates on B: G1 retention levels off ${gG1}, G2 outflow equals arrivals ${gG2} (E - A ${g2Beats.map(t => `${t}: ${f4(outflow(t))}`).join(', ')}), G3 interior changes ${gG3}`,
       metrics,
-      notes: `L2. Gate in the item's what (vibe-roadmap-grounding-0024). Setting ${setting.name}${setting.name === 'smoke' ? ' (proves the file runs; not evidence, status open by rule)' : ''}. C1 ${gC1} (level off ${e2(levelOff)}). X1 ${gX1} (${checks.map(c => `${c.what}: ${c.configurations} configurations, order free ${c.orderFree}, injective ${c.injective}, signs ${c.signs}`).join('; ')}). X2 ${gX2} (trace off ${e2(metrics.traceOff!)}, merge off ${e2(metrics.mergeOff!)}). X3 ${gX3} (F ${e2(m.F)}, distribution ${e2(m.dist)}). X4 ${gX4} (B dropped ${e2(bDrop)} against ${DROP}). Opt-in: adoption is the author's base change.`,
+      notes: `L2. Gate in the item's what (${setting.name === 'scoped' ? 'vibe-roadmap-grounding-0039, gate 7934f4e93d0a, class store' : 'vibe-roadmap-grounding-0024'}). Setting ${setting.name}${setting.name === 'smoke' || setting.name === 'scoped-smoke' ? ' (proves the file runs; not evidence, status open by rule)' : ''}. C1 ${gC1} (level off ${e2(levelOff)}). X1 ${gX1} (${checks.map(c => `${c.what}: ${c.configurations} configurations, order free ${c.orderFree}, injective ${c.injective}, signs ${c.signs}`).join('; ')}). X2 ${gX2} (trace off ${e2(metrics.traceOff!)}, merge off ${e2(metrics.mergeOff!)}). X3 ${gX3} (F ${e2(m.F)}, distribution ${e2(m.dist)}). X4 ${gX4} (B dropped ${e2(bDrop)} against ${DROP}). Opt-in: adoption is the author's base change.`,
     })
   },
 })
