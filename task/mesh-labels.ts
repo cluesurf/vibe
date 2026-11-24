@@ -103,6 +103,7 @@ const HORIZON: Record<string, [Grade, string]> = {
   'E-FND-0187': ['honeycomb', 'exact R = 2 ball (481 docks, t = 1..2) and R = 3 ball (8,857 docks, t = 1..3), true L3 multi-sector coupled unitary evolution inside proven causal horizon (t <= R, 0 frontier hits)'],
   'E-GRV-0162': ['honeycomb', 'exact R = 2 ball (481 docks) and R = 3 ball (8,857 docks, 212,568 slots), true L3 coupled two-body attraction and strong-field unitary horizon trapping inside causal horizon (t <= 2 from d_ball <= 1, 0 frontier hits)'],
   'E-FND-0188': ['honeycomb', 'live dossier invokes E-GRV-0162 on exact R = 2 (481 docks) and R = 3 (8,857 docks) balls inside causal horizon (t <= 2, 0 frontier hits)'],
+  'E-GRV-0163': ['honeycomb', 'on-the-fly R = infinity exact Z[sqrt(2)] honeycomb (verified isomorphic to R = 2, 3 balls and evolved to r = 4, 5 with 0 frontier hits) running pure zero-decimal BigInt Z[w][1/2] L3 gravity and horizon trapping'],
 }
 
 // open honeycomb-line runs whose beats were read against the line's length: the run is the infinite line of empty
