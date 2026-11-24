@@ -18,6 +18,6 @@ tmp/
 test/site/node_modules/
 test/site/build/
 node_modules
-kernel/target/
+code/kernel/crate/target/
 .env
 .env.*

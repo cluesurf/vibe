@@ -16,7 +16,7 @@
 //                                                           "priority": true does the same at launch)
 //   burst sync   [--path <file or dir> ...] [--changed] --commit
 //                                                           copy files into the staged package of a live batch
-//                                                           (--changed: code/, test/, task/, kernel/src since the stage)
+//                                                           (--changed: code/, test/, task/ since the stage)
 //   burst status                                            every vibe-burst droplet, its age and cost, each job's state
 //   burst down   [--force] [--all] --commit                 fetch anything unfetched, then DESTROY the droplet
 //
@@ -329,6 +329,10 @@ function stage(d: Droplet): void {
       'tmp/droplet-run',
       '--exclude',
       'tmp/gpu-run',
+      '--exclude',
+      'code/kernel/crate/host',
+      '--exclude',
+      'code/kernel/crate/target',
       ...PACKAGE_PATHS,
       'tmp',
     ],
@@ -359,7 +363,7 @@ function stage(d: Droplet): void {
 }
 
 // the source trees `sync --changed` looks through. Never tmp/: running jobs write there
-const SYNC_TREES = ['code', 'test', 'task', 'research', 'kernel/src']
+const SYNC_TREES = ['code', 'test', 'task']
 
 // files of the package changed here since a time, relative to the package
 function changedSince(at: number): string[] {
@@ -376,7 +380,14 @@ function changedSince(at: number): string[] {
       const path = `${tree}/${rel}`
       const st = statSync(join(ROOT, path))
 
-      if (st.isFile() && st.mtimeMs > at && !path.includes('node_modules') && !path.endsWith('.DS_Store')) {
+      if (
+        st.isFile() &&
+        st.mtimeMs > at &&
+        !path.includes('node_modules') &&
+        !path.endsWith('.DS_Store') &&
+        !path.startsWith('code/kernel/crate/host/') &&
+        !path.startsWith('code/kernel/crate/target/')
+      ) {
         out.push(path)
       }
     }
@@ -419,7 +430,7 @@ function sync(): number {
   const files = [...new Set([...named, ...(opt.changed ? changedSince(since) : [])])]
 
   if (files.length === 0) {
-    console.error('burst sync: nothing to send (give --path <file or directory> ..., or --changed for code/, test/, task/, research/ and kernel/src changed since the stage)')
+    console.error('burst sync: nothing to send (give --path <file or directory> ..., or --changed for code/, test/ and task/ changed since the stage)')
 
     return 2
   }
@@ -759,7 +770,7 @@ function setup(d: Droplet): void {
     throw new Error(`the package path ${ROOT} has characters the link would need quoted`)
   }
 
-  ssh(d, `ln -sfn ${BASE}/tools/node_modules ${PKG}/node_modules && mkdir -p ${dirname(ROOT)} && ln -sfn ${PKG} ${ROOT} && test -f ${PKG}/kernel/host/vibe-kernel.node && echo ok`)
+  ssh(d, `ln -sfn ${BASE}/tools/node_modules ${PKG}/node_modules && mkdir -p ${dirname(ROOT)} && ln -sfn ${PKG} ${ROOT} && test -f ${PKG}/code/kernel/crate/host/vibe-kernel.node && echo ok`)
   log(`setup done: the native kernel is built, and the package is also at ${ROOT} on the droplet`)
 }
 

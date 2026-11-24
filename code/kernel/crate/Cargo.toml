@@ -2,7 +2,7 @@
 # reference operation for operation, built two ways from this one crate:
 #   native   a Node-API addon (cdylib) for the machine's own target, threads by std::thread, loaded in place by node
 #   wasm     wasm32-unknown-unknown with SIMD128, loaded by WebAssembly.instantiate
-# No dependencies. task/kernel/build.ts drives cargo and copies the artifacts to kernel/host/ (build output, gitignored).
+# No dependencies. task/kernel/build.ts drives cargo and copies the artifacts to code/kernel/crate/host/ (build output, gitignored).
 
 [package]
 name = "vibe-kernel"

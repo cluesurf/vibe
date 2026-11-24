@@ -1,6 +1,6 @@
 #!/bin/sh
 # Launch E-RLT-0120 on the work droplet, through mesh/work only. It packs the package the way task/kernel/droplet-run.ts
-# does (droplet-shell.ts PACKAGE_PATHS: never node_modules, kernel/host or tmp; of test/record only this experiment's
+# does (droplet-shell.ts PACKAGE_PATHS: never node_modules, code/kernel/crate/host or tmp; of test/record only this experiment's
 # folder and index.csv, since no other record is read, which takes the pack from 115 MB to a few) with a one-line
 # job-steps.tsv, and with
 # --commit it copies the pack to /root/vibe-runs/rlt120/pkg (refusing if that run folder exists) and starts
@@ -20,10 +20,11 @@ CAP=$(( ${CAP_HOURS:-120} * 3600 ))
 mkdir -p "$STAGE"
 printf 'rlt120\t0\tbash test/record/E-RLT-0120/run/droplet-step.sh\n' >"$STAGE/job-steps.tsv"
 COPYFILE_DISABLE=1 tar -czf "$STAGE/pkg.tgz" --exclude node_modules --exclude .DS_Store \
+  --exclude 'code/kernel/crate/host' --exclude 'code/kernel/crate/target' \
   --exclude 'test/record/E-RLT-0120/rlt120-axes.*' --exclude 'test/record/E-RLT-0120/rlt120-plane.*' \
   --exclude 'test/record/E-RLT-0120/rlt120-generic.*' \
-  package.json tsconfig.json tsconfig.check.json kernel/Cargo.toml kernel/Cargo.lock kernel/build.rs kernel/src \
-  code task research test/catalog.csv test/catalog.ts test/code test/codes.csv test/experiment test/registry.csv \
+  package.json tsconfig.json tsconfig.check.json \
+  code task test/catalog.csv test/catalog.ts test/code test/codes.csv test/experiment test/registry.csv \
   test/rerun.ts test/result.ts test/run.ts test/scaffold test/site test/suite test/test.ts \
   test/record/index.csv test/record/E-RLT-0120 -C "$STAGE" job-steps.tsv || exit 2
 echo "packed $(ls -l "$STAGE/pkg.tgz" | awk '{print $5}') bytes; files $(tar -tzf "$STAGE/pkg.tgz" | wc -l)"

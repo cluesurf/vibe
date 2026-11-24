@@ -1,5 +1,5 @@
-// THE KERNEL'S native BACKEND: the Rust crate kernel/ built as a Node-API addon (task/kernel/build.ts writes it to
-// kernel/host/vibe-kernel.node). code/kernel/
+// THE KERNEL'S native BACKEND: the Rust crate code/kernel/crate/ built as a Node-API addon (task/kernel/build.ts writes it to
+// code/kernel/crate/host/vibe-kernel.node). code/kernel/
 // The addon reads and writes the engine's own typed arrays in place, and splits every primitive's rows over a pool of
 // std::thread workers; the thread count is process-wide in the addon, set on each call here so two kernels with
 // different counts can share one process.
@@ -29,7 +29,7 @@ type Addon = {
 
 // VIBE_KERNEL_NATIVE names another build of the addon (the check's negative control loads a contracting build this way)
 export const NATIVE_PATH =
-  process.env.VIBE_KERNEL_NATIVE ?? fileURLToPath(new URL('../../kernel/host/vibe-kernel.node', import.meta.url))
+  process.env.VIBE_KERNEL_NATIVE ?? fileURLToPath(new URL('./crate/host/vibe-kernel.node', import.meta.url))
 
 let addon: Addon | null = null
 

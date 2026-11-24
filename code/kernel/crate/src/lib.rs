@@ -1,4 +1,4 @@
-// THE VIBE KERNEL, the crate root. kernel/
+// THE VIBE KERNEL, the crate root. code/kernel/crate/
 // prim     the arithmetic: each primitive computes a range of disjoint output rows, every floating-point operation the
 //          reference's operation on the reference's operands in the reference's order (see prim.rs for the rules)
 // pool     native only: a persistent std::thread pool that splits rows into contiguous ranges
@@ -15,7 +15,7 @@ mod node;
 #[cfg(not(target_arch = "wasm32"))]
 mod pool;
 
-// the GPU binding (kernel/src/gpu.rs, the kernels in gpu.cu), only with a cargo feature: hip (AMD, hiprtc at load),
+// the GPU binding (code/kernel/crate/src/gpu.rs, the kernels in gpu.cu), only with a cargo feature: hip (AMD, hiprtc at load),
 // cuda (NVIDIA, NVRTC at load) or emu (the same kernels compiled for the CPU, to check the GPU path where there is no
 // GPU). Each loads its runtime with dlopen at first use, so no feature needs a GPU toolkit to BUILD
 #[cfg(all(not(target_arch = "wasm32"), any(feature = "hip", feature = "cuda", feature = "emu")))]

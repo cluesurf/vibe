@@ -27,7 +27,7 @@ case "$1" in
     "$WORK" "mkdir -p $D/pkg" || exit 2
     # only what the parts import and run: code/ and the two run folders, never the 250 MB of saved records (the home
     # upload is slow, and the first full-package copy broke at 50 MB)
-    COPYFILE_DISABLE=1 tar -C "$W" --exclude='tmp' --exclude='node_modules' -cf - package.json tsconfig.json tsconfig.check.json kernel/Cargo.toml kernel/Cargo.lock kernel/build.rs kernel/src code task test/record/E-MTR-0034/run test/record/E-MTR-0034/gates.json test/record/E-SPN-0219/run test/record/E-SPN-0219/gates.json test/record/E-SPN-0219/gates-stage2.json | "$WORK" "tar -xf - -C $D/pkg" || exit 2
+    COPYFILE_DISABLE=1 tar -C "$W" --exclude='tmp' --exclude='node_modules' --exclude='code/kernel/crate/host' --exclude='code/kernel/crate/target' -cf - package.json tsconfig.json tsconfig.check.json code task test/record/E-MTR-0034/run test/record/E-MTR-0034/gates.json test/record/E-SPN-0219/run test/record/E-SPN-0219/gates.json test/record/E-SPN-0219/gates-stage2.json | "$WORK" "tar -xf - -C $D/pkg" || exit 2
     "$WORK" "printf 'queues\t0\tbash test/record/E-MTR-0034/run/droplet-queues.sh\n' > $D/pkg/job-steps.tsv" || exit 2
     "$WORK" "THREADS=1 bash $D/pkg/task/kernel/droplet-launch.sh $D 518400 5-7 $D/pkg/task/kernel/droplet-job.sh" ;;
   status)

@@ -8,19 +8,14 @@ import { execFileSync, spawnSync } from 'node:child_process'
 import { doctl } from './gpu-watchdog'
 
 // what of the package goes to a machine: everything tsconfig.check.json typechecks (so a typecheck there is the same
-// one as here), and the kernel's sources, never kernel/host (a build for this laptop's arch)
+// one as here), and the kernel's sources (under code/kernel/crate/), never code/kernel/crate/host or target
 export const PACKAGE_PATHS = [
   'package.json',
   'tsconfig.json',
   'tsconfig.check.json',
-  'kernel/Cargo.toml',
-  'kernel/Cargo.lock',
-  'kernel/build.rs',
-  'kernel/src',
   'code',
   'task',
   'test',
-  'research',
 ]
 
 export const pause = (seconds: number): void => {

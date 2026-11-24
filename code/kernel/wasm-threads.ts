@@ -1,5 +1,5 @@
-// THE KERNEL'S wasm BACKEND WITH THREADS: the Rust crate kernel/ built for wasm32 with atomics and a SHARED memory
-// (task/kernel/build.ts wasm-threads writes kernel/host/vibe-kernel-threads.wasm), one instance on this thread and one
+// THE KERNEL'S wasm BACKEND WITH THREADS: the Rust crate code/kernel/crate/ built for wasm32 with atomics and a SHARED memory
+// (task/kernel/build.ts wasm-threads writes code/kernel/crate/host/vibe-kernel-threads.wasm), one instance on this thread and one
 // on each worker_thread, every instance over the same memory. code/kernel/
 //
 // The route, since wasm32-unknown-unknown has no thread spawning of its own: the module imports its memory, so N
@@ -18,7 +18,7 @@ import { Worker } from 'node:worker_threads'
 import { holePairShape, holeRowsShape } from '@/code/kernel/holes'
 import type { Kernel, PairOp, PairTables } from '@/code/kernel/types'
 
-export const WASM_THREADS_PATH = fileURLToPath(new URL('../../kernel/host/vibe-kernel-threads.wasm', import.meta.url))
+export const WASM_THREADS_PATH = fileURLToPath(new URL('./crate/host/vibe-kernel-threads.wasm', import.meta.url))
 
 export const wasmThreadsAvailable = (): boolean => existsSync(WASM_THREADS_PATH)
 

@@ -1,5 +1,5 @@
-// THE KERNEL'S wasm BACKEND: the Rust crate kernel/ built for wasm32 with SIMD128 (task/kernel/build.ts writes it to
-// kernel/host/vibe-kernel.wasm). code/kernel/
+// THE KERNEL'S wasm BACKEND: the Rust crate code/kernel/crate/ built for wasm32 with SIMD128 (task/kernel/build.ts writes it to
+// code/kernel/crate/host/vibe-kernel.wasm). code/kernel/
 // One instance, one thread. A call copies its arrays into the module's memory, runs the primitive over all rows, and
 // copies the outputs back: an engine's arrays live on the JS heap, and a wasm module can only read its own memory.
 // That copy is part of the measured cost. The threaded form, several instances over one shared memory with no copy, is
@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url'
 import { holePairShape, holeRowsShape } from '@/code/kernel/holes'
 import type { Kernel, PairOp, PairTables } from '@/code/kernel/types'
 
-export const WASM_PATH = fileURLToPath(new URL('../../kernel/host/vibe-kernel.wasm', import.meta.url))
+export const WASM_PATH = fileURLToPath(new URL('./crate/host/vibe-kernel.wasm', import.meta.url))
 
 type Exports = {
   memory: WebAssembly.Memory

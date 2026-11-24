@@ -1,6 +1,6 @@
 // THE KERNEL LAYER'S ENTRY: pick a backend. code/kernel/
 // kernel('js') is the reference and always works. kernel('native', threads) and kernel('wasm') need the Rust crate
-// kernel/ built (pnpm call task/kernel/build.ts); they throw with that instruction when it is not. kernel('hip'),
+// code/kernel/crate/ built (pnpm call task/kernel/build.ts); they throw with that instruction when it is not. kernel('hip'),
 // kernel('cuda') and kernel('gpu-emu') need the addon built with that feature (task/kernel/build.ts native hip) and, for
 // hip and cuda, the GPU and its runtime. Every backend gives the bytes js gives, at every thread count (pnpm call
 // task/kernel/check.ts proves it). See note/project/vibe/kernel.md.
