@@ -5,14 +5,14 @@
 //   pnpm result reproduce R-HLG-0001         run the result's experiments, hold each check
 //   pnpm result audit R-HLG-0001 [--out f]   reproduce, plus environment, file hashes, every
 //                                            metric, written as result.json
-//   pnpm result audit R-HLG-0001 --commit    the same, frozen as research/capsule/R-HLG-0001.json
+//   pnpm result audit R-HLG-0001 --commit    the same, frozen as code/research/capsule/R-HLG-0001.json
 //
 // A capsule is the record of one audited run: the commit, the environment, the hash of every
 // experiment file, and each experiment's full verdict and time. The site reads the capsules, so
 // an experiment page shows the last recorded output and how long the run took, and a reader can
 // compare their own run against it. Capsules are only written on `--commit`.
 //
-// A result's `checks` in research/result.ts are what it claims in numbers. Reproduce runs the
+// A result's `checks` in code/research/result.ts are what it claims in numbers. Reproduce runs the
 // experiments (there is no seed, every experiment is deterministic), reads each named metric from the verdict, and compares it to the
 // recorded expectation within the recorded tolerance, so a record that drifts from the code
 // fails here rather than on a web page. The exit status is 1 when any check fails.
@@ -28,8 +28,8 @@ import {
   refusals,
   NODES,
   challengeId,
-} from '@/research/index'
-import type { Check, Result } from '@/research/index'
+} from '@/code/research/index'
+import type { Check, Result } from '@/code/research/index'
 import '@/test/experiment/all'
 
 const [command, ...rest] = process.argv.slice(2)
@@ -40,7 +40,7 @@ type Observed = {
   passed: boolean
 }
 
-const CAPSULE_DIRECTORY = 'research/capsule'
+const CAPSULE_DIRECTORY = 'code/research/capsule'
 
 function findResult(code: string | undefined): Result {
   const wanted = (code ?? '').toUpperCase()

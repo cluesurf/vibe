@@ -1,5 +1,5 @@
-// BUILD THE KERNEL: compile the Rust crate kernel/ into the native addon and the wasm module, and copy both to
-// kernel/host/ (build output, gitignored by the host/ rule: generated, never edited, rebuilt from the crate).
+// BUILD THE KERNEL: compile the Rust crate code/kernel/crate/ into the native addon and the wasm module, and copy both to
+// code/kernel/crate/host/ (build output, gitignored by the host/ rule: generated, never edited, rebuilt from the crate).
 //
 //   pnpm call task/kernel/build.ts            both
 //   pnpm call task/kernel/build.ts native     the addon only
@@ -18,7 +18,7 @@ import { homedir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const CRATE = fileURLToPath(new URL('../../kernel', import.meta.url))
+const CRATE = fileURLToPath(new URL('../../code/kernel/crate', import.meta.url))
 const HOST = join(CRATE, 'host')
 const TARGET_DIR = join(HOST, 'target')
 // CARGO_HOME wins when set: a run on a shared host installs rust inside its own run directory (droplet-job.sh), and
@@ -53,7 +53,7 @@ const installed = (): string[] =>
     .filter(x => x.length > 0)
 
 // the GPU features for the native addon: `build.ts native hip`, `native cuda`, `native emu`, or several joined by
-// commas. None needs a GPU toolkit to build (kernel/src/gpu.rs opens the runtime at load), so any machine builds any
+// commas. None needs a GPU toolkit to build (code/kernel/crate/src/gpu.rs opens the runtime at load), so any machine builds any
 const FEATURES = (process.argv[3] ?? '').split(',').filter(x => x.length > 0)
 
 for (const f of FEATURES) {

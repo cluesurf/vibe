@@ -23,8 +23,8 @@
 //       (only this run's own /root/vibe-runs/<id> directory, only with the marker it wrote; --keep leaves it)
 //
 // Then, either way:
-//   5. copy the package (kernel/ sources, code/, task/, test/, package.json and the tsconfig; never node_modules,
-//      kernel/host or tmp) as a tar stream over ssh into <run dir>/pkg, with the job's step list beside it
+//   5. copy the package (code/ including code/kernel/crate/ and code/research/, task/, test/, package.json and the tsconfig;
+//      never node_modules, code/kernel/crate/host, code/kernel/crate/target or tmp) as a tar stream over ssh into <run dir>/pkg, with the job's step list beside it
 //   6. start the job DETACHED on the machine through task/kernel/droplet-launch.sh, bounded there by `timeout` at the cap
 //      less a margin, and follow its log (reconnecting if the connection drops) until it exits
 //   7. bring the logs back to tmp/droplet-run/<time>/ and verify them: the job's start and end sentinels, its first and
@@ -334,7 +334,25 @@ function transfer(host: string, job: Job): void {
 
   writeFileSync(join(OUT, 'job-steps.tsv'), job.steps.map(s => `${s.name}\t${s.info ? 1 : 0}\t${s.command}\n`).join(''))
 
-  const tar = spawnSync('tar', ['-czf', '-', '--exclude', 'node_modules', '--exclude', '.DS_Store', ...paths, '-C', OUT, 'job-steps.tsv'], {
+  const tar = spawnSync(
+    'tar',
+    [
+      '-czf',
+      '-',
+      '--exclude',
+      'node_modules',
+      '--exclude',
+      '.DS_Store',
+      '--exclude',
+      'code/kernel/crate/host',
+      '--exclude',
+      'code/kernel/crate/target',
+      ...paths,
+      '-C',
+      OUT,
+      'job-steps.tsv',
+    ],
+    {
     cwd: ROOT,
     env: { ...process.env, COPYFILE_DISABLE: '1' },
     maxBuffer: 1 << 30,

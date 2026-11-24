@@ -1762,3 +1762,8 @@ E-FRC-0322,none,no-mesh,none,,,static
 E-RLT-0124,honeycomb-ball honeycomb-cusp,honeycomb periodic,other,,honeycomb-ball:exactBallMesh honeycomb-cusp:cuspTranslations,bijective
 E-CSM-0064,honeycomb-ball honeycomb-cusp,honeycomb periodic,working,,honeycomb-ball:coverBall honeycomb-ball:exactBallMesh honeycomb-cusp:buildExactCusp,bijective
 E-RLT-0125,none,no-mesh,none,,,static
+E-GRV-0158,none,no-mesh,none,,,static
+E-FRC-0323,honeycomb-cusp,periodic,none,,honeycomb-cusp:cuspTranslations,static
+E-CSM-0065,none,no-mesh,none,,,static
+E-FND-0185,honeycomb-ball,honeycomb,working,,honeycomb-ball:exactBallMesh,bijective
+E-FND-0186,none,no-mesh,other,,,bijective

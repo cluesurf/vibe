@@ -1,5 +1,5 @@
 // The static determinism audit: does any source file reach for a random number? Since 2026-09-25 the rule
-// is that nothing in code/, test/ or research/ calls Math.random, imports the retired seeded generator
+// is that nothing in code/ (including code/research/) or test/ calls Math.random, imports the retired seeded generator
 // code/tool/rng, imports the retired hash generator hashRand, carries the constants of a known
 // pseudo-random generator, or draws from a hand-rolled hash (scanHashDraw). Every spread-out value comes
 // from code/tool/weyl instead.
@@ -237,14 +237,14 @@ function walk(dir: string, out: string[]): void {
   }
 }
 
-// Scan code/, test/ and research/ under `base`. Returns every finding and the number of files read.
+// Scan code/ (including code/research/) and test/ under `base`. Returns every finding and the number of files read.
 export function scanRepository(base: string): {
   files: number
   findings: DeterminismFinding[]
 } {
   const paths: string[] = []
 
-  for (const top of ['code', 'test', 'research']) {
+  for (const top of ['code', 'test']) {
     walk(join(base, top), paths)
   }
 

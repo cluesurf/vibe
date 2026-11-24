@@ -7,10 +7,10 @@
 // threads gives the bytes the TypeScript does, at any thread count.
 //
 //   js       code/kernel/js.ts, the loops restated from the engines, always available, the reference
-//   native   the Rust crate kernel/ built as a Node-API addon, zero copy, std::thread over all cores
+//   native   the Rust crate code/kernel/crate/ built as a Node-API addon, zero copy, std::thread over all cores
 //   wasm     the same crate built for wasm32 with SIMD128, one instance, arrays copied in and out
 //   wasm-threads   the crate built for wasm32 with atomics, one instance per worker_thread over one shared memory
-//   hip      the crate's GPU binding on an AMD GPU (kernel/src/gpu.cu compiled by hiprtc at load), float64
+//   hip      the crate's GPU binding on an AMD GPU (code/kernel/crate/src/gpu.cu compiled by hiprtc at load), float64
 //   cuda     the same kernels on an NVIDIA GPU (NVRTC at load), float64
 //   gpu-emu  the same kernels compiled for the CPU, one thread: the GPU path checked byte for byte where there is no GPU
 //

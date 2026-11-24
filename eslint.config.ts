@@ -14,14 +14,14 @@ import LINT from '@cluesurf/wash/lint'
 // whose ESM interop can hand `LINT` back wrapped, so mutating it in place is
 // unreliable. Building a fresh array from the spread is stable.
 //
-// The determinism rule (2026-09-25): nothing in code/, test/ or research/ may
+// The determinism rule (2026-09-25): nothing in code/ (including code/research/) or test/ may
 // call Math.random or import the retired seeded generator code/tool/rng, or the
 // retired hash generator hashRand. Every spread-out value comes from
 // code/tool/weyl. E-MTH-0015 holds the same rule as an experiment, so it is
 // enforced whether or not the lint runs. The retired generator's own old
 // conformance file is exempt until it is deleted.
 const DETERMINISM = {
-  files: ['code/**/*.ts', 'test/**/*.ts', 'research/**/*.ts'],
+  files: ['code/**/*.ts', 'test/**/*.ts'],
   ignores: ['code/tool/rng.ts', 'test/code/tool/rng.ts'],
   rules: {
     'no-restricted-properties': [

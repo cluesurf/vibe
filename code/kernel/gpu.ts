@@ -1,6 +1,6 @@
 // THE KERNEL'S GPU BACKENDS: hip (AMD), cuda (NVIDIA) and gpu-emu (the same kernels on one CPU thread). code/kernel/
 // The native addon built with a cargo feature (pnpm call task/kernel/build.ts native hip, or cuda, or emu) carries a GPU
-// binding (kernel/src/gpu.rs) that compiles kernel/src/gpu.cu for the device at load and launches it. This file is the
+// binding (code/kernel/crate/src/gpu.rs) that compiles code/kernel/crate/src/gpu.cu for the device at load and launches it. This file is the
 // Kernel on top of it: which arrays live on the device, and when they move.
 //
 // THREE KINDS OF ARRAY, by what a primitive does with it:
@@ -28,8 +28,8 @@ import { fileURLToPath } from 'node:url'
 import { holePairShape, holeRowsShape } from '@/code/kernel/holes'
 import type { Device, GpuBackend, Kernel, PairOp, PairTables, Typed } from '@/code/kernel/types'
 
-const SOURCE = fileURLToPath(new URL('../../kernel/src/gpu.cu', import.meta.url))
-const HOST = fileURLToPath(new URL('../../kernel/host', import.meta.url))
+const SOURCE = fileURLToPath(new URL('./crate/src/gpu.cu', import.meta.url))
+const HOST = fileURLToPath(new URL('./crate/host', import.meta.url))
 
 // the FMA control: the kernels compiled WITH contraction, which the check must catch
 export const GPU_CONTRACT = process.env.VIBE_KERNEL_GPU_CONTRACT === '1'
@@ -66,7 +66,7 @@ let started: { kind: GpuBackend; info: string; addon: GpuAddon } | null = null
 // the addon built with a GPU feature is its own file (task/kernel/build.ts native hip writes vibe-kernel-gpu.node), so
 // the plain native addon is never rebuilt for it; VIBE_KERNEL_GPU_ADDON names another build (the check's controls)
 export const GPU_ADDON_PATH =
-  process.env.VIBE_KERNEL_GPU_ADDON ?? fileURLToPath(new URL('../../kernel/host/vibe-kernel-gpu.node', import.meta.url))
+  process.env.VIBE_KERNEL_GPU_ADDON ?? fileURLToPath(new URL('./crate/host/vibe-kernel-gpu.node', import.meta.url))
 
 let loaded: GpuAddon | null | undefined
 
