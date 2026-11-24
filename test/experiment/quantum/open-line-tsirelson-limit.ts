@@ -1,4 +1,4 @@
-// OPEN-LINE TSIRELSON LIMIT & RING-MADE OBSERVABLE BOUND (E-QTM-0200, item vibe-roadmap-board-0046, gap B-08).
+// OPEN-LINE TSIRELSON LIMIT & RING-MADE OBSERVABLE BOUND (E-QTM-0202, item vibe-roadmap-board-0046, gap B-08).
 // Extends E-QTM-0199's open-line two-love FULL CHSH series to beats 32, 64, 128, 256, and 512 without any wrap,
 // and tests constructive Z[w][1/6] unit observables on both the one-meeting point knot (ceiling sqrt 7) and a
 // maximally entangled singlet (ceiling 2 sqrt 2).
@@ -25,7 +25,7 @@ const CHECKPOINTS = [1, 4, 16, 32, 64, 128, 256] as const
 
 export default experiment({
   id: 'quantum/open-line-tsirelson-limit',
-  code: 'E-QTM-0200',
+  code: 'E-QTM-0202',
   title:
     'Open-line two-love FULL CHSH convergence toward 2 sqrt 2 without a wrap and constructive Z[w][1/6] ring observable bound',
   category: 'quantum',
