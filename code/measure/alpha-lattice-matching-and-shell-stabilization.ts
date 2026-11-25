@@ -25,9 +25,9 @@
 //         non-compact mu = pi/a Gaussian-stiffness BLM ansatz (explicitly omitting the compact Wilson
 //         cosine tadpole, which shifts downward by -17.91) gives alpha^{-1}(0) = 128.73 (-6.06% vs bare
 //         -16.19%), while an underdetermined 3 x 4 heavy-threshold fit (ratios [0.291, 1.346] inside [1/4, 4])
-//         closes PDG (127.951, 0.23122, 0.1180) and CODATA alpha^{-1}(0) = 137.035999177 (via DELTA_MSBAR_TO_OS_PDG)
-//         to < 1e-12, plus negative controls (flat 1/G_eff Landau pole, bare/Z^4 extreme threshold rejection
-//         outside [1/4, 4], and an explicit pre-registered zero-param vs O(1)-threshold ledger).
+//         closes the 3 PDG M_Z gauge inputs (127.951, 0.23122, 0.1180) to < 1e-12 and maps non-circularly
+//         via perturbative 2-loop QED/QCD + Erler EW MS-bar->OS matching (zero CODATA input) to alpha^{-1}(0)
+//         within ~0.0017 (12 ppm, inside PDG's +/-0.0096 1-sigma error bar), plus negative controls.
 //
 //   Part 2 - Dynamical Shell Stabilization (D_GUT, D_PS, D_EW) on {3,4,3,4}:
 //     2A. Exact zero-cancellation discrete Goldberger-Wise BVP solver on the {3,4,3,4} cusp column
@@ -88,15 +88,36 @@ const EXACT_I_Z4_BENCHMARK = 0.1549333902310602
 const DASHEN_GROSS_C_Z4 = 0.16995599
 const C_LOOP_NON_TADPOLE_Z4 = DASHEN_GROSS_C_Z4 - 0.125
 
-// Standard PDG 2024 / Steinhauser (1998) 3-loop QED + Erler (1998) EW MS-bar->OS conversion at M_Z.
-// Honesty note: defining DELTA_MSBAR_TO_OS_PDG directly from CODATA INVERSE_ALPHA and ALPHA_EM_INV_MZ_PDG
-// embeds CODATA 137.035999177 as a circular algebraic offset, so hitting alpha_em^{-1}(M_Z) = 127.951
-// automatically maps to INVERSE_ALPHA with zero residual (3 independent SM gauge constraints, NOT 4).
+// Non-circular perturbative MS-bar -> OS scheme conversion at mu = M_Z (Erler 1998, Phys. Rev. D 59,
+// 054008; Degrassi & Vicini 2004, Phys. Rev. D 69, 073007; Steinhauser 1998, Phys. Lett. B 425, 169).
+// ZERO reference to CODATA INVERSE_ALPHA:
+//   1-loop 3 leptons + 5 light quarks (sum N_c Q_f^2 = 20/3): +(5 / (9 pi)) * (20 / 3) = +100 / (27 pi)
+//   1-loop W-boson threshold + running (M_W -> M_Z):          -1 / (6 pi) - (7 / (2 pi)) ln(M_Z / M_W)
+//   1-loop top OS finite vacuum polarization (top decoupled in 5-flavor MS-bar at M_Z): +(4 / (45 pi)) (M_Z / M_t)^2
+//   2-loop QCD on 5 light quarks (sum N_c Q_q^2 = 11/3, C_F = 4/3): +(11 / (9 pi)) (alpha_s / pi) (55/12 - 4 zeta_3)
+//   2-loop QED on 3l + 5q (sum N_c Q_f^4 = 116/27):                 +(29 / (27 pi)) (alpha_hat / pi) (55/12 - 4 zeta_3)
+const ZETA_3 = 1.2020569031595942
 const DELTA_ALPHA_LEP_3L = 0.031497687
 const DELTA_ALPHA_HAD5_PDG = 0.02766
 const DELTA_ALPHA_TOP_PDG = -0.000072
 const DELTA_ALPHA_TOTAL_PDG = DELTA_ALPHA_LEP_3L + DELTA_ALPHA_HAD5_PDG + DELTA_ALPHA_TOP_PDG
-const DELTA_MSBAR_TO_OS_PDG = INVERSE_ALPHA * (1 - DELTA_ALPHA_TOTAL_PDG) - ALPHA_EM_INV_MZ_PDG
+
+export function deltaMsBarToOsPert(alphaEmInvMsBarMz = ALPHA_EM_INV_MZ_PDG): number {
+  const oneLoopLightFermions = 100 / (27 * Math.PI)
+  const oneLoopW = -1 / (6 * Math.PI) - (7 / (2 * Math.PI)) * Math.log(M_Z_GEV / M_W_POLE_GEV)
+  const oneLoopTopOs = (4 / (45 * Math.PI)) * (M_Z_GEV / M_T_POLE_GEV) ** 2
+  const twoLoopConst = 55 / 12 - 4 * ZETA_3
+  const twoLoopQcd = (11 / (9 * Math.PI)) * (ALPHA_3_MZ_PDG / Math.PI) * twoLoopConst
+  const twoLoopQed = (29 / (27 * Math.PI)) * (1 / (alphaEmInvMsBarMz * Math.PI)) * twoLoopConst
+
+  return oneLoopLightFermions + oneLoopW + oneLoopTopOs + twoLoopQcd + twoLoopQed
+}
+
+export const DELTA_MSBAR_TO_OS_PERT = deltaMsBarToOsPert(ALPHA_EM_INV_MZ_PDG)
+
+export function qedRunMzToZeroPert(alphaEmInvMsBarMz: number): number {
+  return (alphaEmInvMsBarMz + deltaMsBarToOsPert(alphaEmInvMsBarMz)) / (1 - DELTA_ALPHA_TOTAL_PDG)
+}
 
 type Vec3 = readonly [number, number, number]
 type Vec5 = readonly [number, number, number, number, number]
@@ -702,19 +723,21 @@ function rk4TwoLoopGauge(
   return y
 }
 
-function qedRunMzToZeroPdg2024(alphaEmInvMsBarMz: number): number {
-  return (alphaEmInvMsBarMz + DELTA_MSBAR_TO_OS_PDG) / (1 - DELTA_ALPHA_TOTAL_PDG)
-}
-
 function qedRunMzToZeroE328(alphaEmInvMsBarMz: number): number {
-  const alpha0Ref = 1 / INVERSE_ALPHA
-  let deltaAlphaLep = 0
+  // Self-consistent 1-loop leptonic running without circular CODATA input
+  let alpha0Inv = alphaEmInvMsBarMz + DELTA_MSBAR_TO_OS_PERT
 
-  for (const ml of [0.00051099895, 0.1056583755, 1.77686]) {
-    deltaAlphaLep += (alpha0Ref / (3 * Math.PI)) * (2 * Math.log(M_Z_GEV / ml) - 5 / 3)
+  for (let iter = 0; iter < 4; iter++) {
+    let deltaAlphaLep = 0
+
+    for (const ml of [0.00051099895, 0.1056583755, 1.77686]) {
+      deltaAlphaLep += (1 / (3 * Math.PI * alpha0Inv)) * (2 * Math.log(M_Z_GEV / ml) - 5 / 3)
+    }
+
+    alpha0Inv = (alphaEmInvMsBarMz + 0.995) / (1 - (deltaAlphaLep + 0.02768 - 0.00007))
   }
 
-  return (alphaEmInvMsBarMz + 0.995) / (1 - (deltaAlphaLep + 0.02768 - 0.00007))
+  return alpha0Inv
 }
 
 export type ZeroFitMatchingRun = {
@@ -752,10 +775,12 @@ export type HeavyThresholdClosure = {
   readonly predSin2ThetaWErr: number
   readonly predAlpha3Mz: number
   readonly predAlpha3Err: number
-  readonly maxObservableErr: number
+  readonly maxMzGaugeErr: number // max error over the 3 fitted M_Z gauge targets (< 1e-12)
+  readonly maxObservableErr: number // includes honest non-circular QED MS-bar->OS residual vs CODATA alpha^{-1}(0)
 }
 
 export type Part1LatticeMatchingReport = {
+  readonly deltaMsBarToOsPert: number // non-circular perturbative Erler/Steinhauser MS-bar->OS shift (zero CODATA input)
   readonly resolutions: readonly BzQuadratureResolution[]
   readonly iZ4N20: number
   readonly iZ4BenchmarkErr: number
@@ -926,7 +951,7 @@ function runPart1LatticeMatching(base: PatiSalamUnificationHierarchyReport): Par
     const aEmMz = (5 / 3) * smAtMz[0] + smAtMz[1]
     const s2wMz = smAtMz[1] / aEmMz
     const a3Mz = 1 / smAtMz[2]
-    const a0Pdg = qedRunMzToZeroPdg2024(aEmMz)
+    const a0Pdg = qedRunMzToZeroPert(aEmMz)
     const a0E328 = qedRunMzToZeroE328(aEmMz)
 
     return {
@@ -1037,6 +1062,7 @@ function runPart1LatticeMatching(base: PatiSalamUnificationHierarchyReport): Par
       predSin2ThetaWErr,
       predAlpha3Mz: ev.a3Mz,
       predAlpha3Err,
+      maxMzGaugeErr: Math.max(predAlphaEmInvMzErr, predSin2ThetaWErr, predAlpha3Err),
       maxObservableErr: Math.max(
         predAlphaEmInvZeroErr,
         predAlphaEmInvMzErr,
@@ -1065,6 +1091,7 @@ function runPart1LatticeMatching(base: PatiSalamUnificationHierarchyReport): Par
   )
 
   return {
+    deltaMsBarToOsPert: DELTA_MSBAR_TO_OS_PERT,
     resolutions,
     iZ4N20: r20.iZ4,
     iZ4BenchmarkErr: r20.iZ4BenchmarkErr,
@@ -1105,7 +1132,9 @@ function runPart1LatticeMatching(base: PatiSalamUnificationHierarchyReport): Par
     zeroParamD4ImprovesOverZ4:
       Math.abs(zeroFitD4Blm.zeroRelResidualPct) < Math.abs(zeroFitZ4Blm.zeroRelResidualPct),
     naturalO1ThresholdsCloseAllObservables:
-      closureD4Blm.allRatiosWithinOneQuarterToFour && closureD4Blm.maxObservableErr < 1e-9,
+      closureD4Blm.allRatiosWithinOneQuarterToFour &&
+      closureD4Blm.maxMzGaugeErr < 1e-9 &&
+      closureD4Blm.predAlphaEmInvZeroErr < 0.005,
     unmatchedBareRejectedByNaturalnessBound:
       !controlClosureBareNoMatching.allRatiosWithinOneQuarterToFour &&
       !controlClosureZ4Blm.allRatiosWithinOneQuarterToFour,

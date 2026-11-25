@@ -40,9 +40,10 @@
 //       210_H + 126_H + 10_H multiplet scales (NOT the full 472-component SO(10) tensor potential, and
 //       explicitly OMITTING the 120_H representation used in Part 3).
 //     - Runs 3D Newton to invert 3 free quartics (lambda_2, lambda_3, lambda_4) against 3 SM gauge targets
-//       (with DELTA_MSBAR_TO_OS_PDG mapping alpha_em^{-1}(M_Z) = 127.951 identically to CODATA 137.035999177
-//       by algebraic offset), verifying analytic vs finite-difference Hessian, 24 + 9 Goldstone zeros,
-//       degenerate control recovering E-FRC-0329 canonical zero-fit 128.73 (-6.06%), and tachyon control.
+//       at M_Z (mapping alpha_em^{-1}(M_Z) = 127.951 non-circularly via perturbative 2-loop QED/QCD + Erler EW
+//       MS-bar->OS matching with zero CODATA input to alpha^{-1}(0) within ~0.0017 / 12 ppm of CODATA),
+//       verifying analytic vs finite-difference Hessian, 24 + 9 Goldstone zeros, degenerate control recovering
+//       E-FRC-0329 canonical zero-fit 128.73 (-6.06%), and tachyon control.
 //
 //   Part 3 - SO(10) 10_H + 126bar_H + 120_H Yukawa EFT Consistency Fit (14 Continuous + 11 Discrete Z_9 Params):
 //     - Certifies in exact BigInt: 16 x 16 = 256 = 136_S + 120_A = 10_S + 126_S + 120_A, Pati-Salam
@@ -66,7 +67,11 @@ import {
   zetaPower,
   type Ninth,
 } from '@/code/algebra/ninth-field'
-import { analyzeAlphaLatticeMatchingAndShellStabilization } from '@/code/measure/alpha-lattice-matching-and-shell-stabilization'
+import {
+  analyzeAlphaLatticeMatchingAndShellStabilization,
+  DELTA_MSBAR_TO_OS_PERT,
+  qedRunMzToZeroPert,
+} from '@/code/measure/alpha-lattice-matching-and-shell-stabilization'
 import { INVERSE_ALPHA } from '@/code/measure/coupling-candidates'
 import { PDG_FERMION_DATA } from '@/code/measure/koide-precision-spectrum'
 import { PDG_FLAVOR_BENCHMARK } from '@/code/measure/koide-role-floquet-and-twelve-fermions'
@@ -98,10 +103,6 @@ const THETA_BAR_EXP_LIMIT = 1.0e-10
 const ALPHA_EM_INV_MZ_PDG = 127.951
 const SIN2_THETA_W_MZ_PDG = 0.23122
 const ALPHA_3_MZ_PDG = 0.118
-const DELTA_ALPHA_TOTAL_PDG = 0.031497687 + 0.02766 - 0.000072
-// Honesty note: DELTA_MSBAR_TO_OS_PDG embeds CODATA INVERSE_ALPHA directly as an algebraic offset,
-// so hitting ALPHA_EM_INV_MZ_PDG = 127.951 reproduces CODATA 137.035999177 identically (3 gauge constraints, NOT 4).
-const DELTA_MSBAR_TO_OS_PDG = INVERSE_ALPHA * (1 - DELTA_ALPHA_TOTAL_PDG) - ALPHA_EM_INV_MZ_PDG
 
 const B1_SM: readonly [number, number, number] = [41 / 10, -19 / 6, -7]
 const B2_SM: readonly (readonly [number, number, number])[] = [
@@ -712,10 +713,6 @@ function rk4TwoLoopGauge(
   return y
 }
 
-function qedRunMzToZeroPdg2024(alphaEmInvMsBarMz: number): number {
-  return (alphaEmInvMsBarMz + DELTA_MSBAR_TO_OS_PDG) / (1 - DELTA_ALPHA_TOTAL_PDG)
-}
-
 export type HiggsQuarticParams = {
   readonly lambda1: number // 210_H isotropic self-quartic -> M_{(1,1,1)}^2 = 2 lambda_1 v_GUT^2
   readonly lambda2: number // SO(10) anisotropic quartic -> base M^2 = (1/2) lambda_2 v_GUT^2
@@ -762,7 +759,9 @@ export type Part2HiggsHessianClosureReport = {
   readonly predSin2ThetaWErr: number
   readonly predAlpha3Mz: number
   readonly predAlpha3Err: number
-  readonly maxObservableErr: number // < 1e-12!
+  readonly deltaMsBarToOsPert: number // non-circular perturbative Erler/Steinhauser MS-bar->OS shift
+  readonly maxMzGaugeErr: number // < 1e-12 over the 3 fitted M_Z gauge observables
+  readonly maxObservableErr: number // includes honest non-circular QED residual vs CODATA alpha^{-1}(0)
   // Negative Control 1: Degenerate quartics (all heavy M_h = M_GUT) recovers E-FRC-0329 canonical zero-fit 128.73 (-6.06%)
   readonly controlDegenerateAlphaZero: number
   readonly controlDegenerateRelPct: number
@@ -774,7 +773,7 @@ export type Part2HiggsHessianClosureReport = {
 
 // 11-scalar diagonal toy Higgs-potential Hessian proxy (NOT the full 472-component SO(10) tensor potential,
 // and explicitly OMITTING the 120_H representation used in Part 3; performs a 3-for-3 quartic fit to 3 SM
-// gauge targets, with DELTA_MSBAR_TO_OS_PDG mapping 127.951 identically to CODATA 137.035999177):
+// gauge targets at M_Z, mapped non-circularly to q^2 = 0 via perturbative Erler/Steinhauser MS-bar->OS matching):
 // Coordinates x[0..10]:
 //   0: Phi_0      (1,1,1)_R   in 210_H   (VEV = v_GUT)
 //   1: G_24       (6,2,2)_R   in 210_H   (24 eaten SO(10)/PS Goldstones)
@@ -1239,7 +1238,7 @@ function runPart2HiggsHessianClosure(
     const aEmMz = (5 / 3) * smAtMz[0] + smAtMz[1]
     const s2wMz = smAtMz[1] / aEmMz
     const a3Mz = 1 / smAtMz[2]
-    const a0 = qedRunMzToZeroPdg2024(aEmMz)
+    const a0 = qedRunMzToZeroPert(aEmMz)
 
     return { aEmMz, s2wMz, a3Mz, a0 }
   }
@@ -1249,6 +1248,7 @@ function runPart2HiggsHessianClosure(
   const predAlphaEmInvMzErr = Math.abs(ev.aEmMz - ALPHA_EM_INV_MZ_PDG)
   const predSin2ThetaWErr = Math.abs(ev.s2wMz - SIN2_THETA_W_MZ_PDG)
   const predAlpha3Err = Math.abs(ev.a3Mz - ALPHA_3_MZ_PDG)
+  const maxMzGaugeErr = Math.max(predAlphaEmInvMzErr, predSin2ThetaWErr, predAlpha3Err)
   const maxObservableErr = Math.max(
     predAlphaEmInvZeroErr,
     predAlphaEmInvMzErr,
@@ -1400,6 +1400,8 @@ function runPart2HiggsHessianClosure(
     predSin2ThetaWErr,
     predAlpha3Mz: ev.a3Mz,
     predAlpha3Err,
+    deltaMsBarToOsPert: DELTA_MSBAR_TO_OS_PERT,
+    maxMzGaugeErr,
     maxObservableErr,
     controlDegenerateAlphaZero,
     controlDegenerateRelPct,

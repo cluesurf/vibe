@@ -12,8 +12,9 @@
 //
 // Part 2: 11-scalar diagonal toy Higgs-potential Hessian proxy (NOT the full 472-component SO(10) tensor
 //   potential, and explicitly omitting 120_H used in Part 3): 3-for-3 Newton quartic fit to 3 SM gauge targets
-//   (with DELTA_MSBAR_TO_OS_PDG mapping 127.951 identically to CODATA 137.035999177), under canonical
-//   single-face K_eff = 1.012532 (degenerate control recovering E-FRC-0329 zero-fit 128.73, -6.06%).
+//   at M_Z (mapped non-circularly to q^2 = 0 via perturbative Erler/Steinhauser MS-bar->OS matching, zero
+//   CODATA input), under canonical single-face K_eff = 1.012532 (degenerate control recovering E-FRC-0329
+//   zero-fit 128.73, -6.06%).
 //
 // Part 3: Continuum SO(10) 10_H + 126bar_H + 120_H Yukawa EFT fit using 14 continuous real parameters
 //   PLUS 11 discrete Z_9 exponent choices (9^11 = 3.14e10 basins) with synthetic 2%-12% residual weights
@@ -107,7 +108,9 @@ export default experiment({
       p2.zeroTachyons &&
       p2.minPhysicalScalarMassSqOverMGutSq > 0.05 &&
       p2.allHeavyRatiosWithinOneQuarterToFour &&
-      p2.maxObservableErr < 1e-12 &&
+      p2.maxMzGaugeErr < 1e-12 &&
+      p2.predAlphaEmInvZeroErr > 1e-5 &&
+      p2.predAlphaEmInvZeroErr < 0.005 &&
       p2.controlDegenerateMatchE329Err <= 1e-12 &&
       p2.controlDegenerateAlphaZero > 128.4 &&
       p2.controlDegenerateAlphaZero < 129.0 &&
@@ -171,8 +174,9 @@ export default experiment({
         `Part 2 (11-scalar diagonal toy Higgs Hessian proxy omitting 120_H, 3-for-3 quartic fit): quartics {l1=${p2.quartics.lambda1.toFixed(3)}, ` +
         `l2=${p2.quartics.lambda2.toFixed(4)}, l3=${p2.quartics.lambda3.toFixed(4)}, l4=${p2.quartics.lambda4.toFixed(4)}, ` +
         `aMix=${p2.quartics.alphaMix.toFixed(3)}} give 24+9 Goldstone zeros (<= ${p2.maxAbsGoldstoneMassSq.toExponential(1)}), ` +
-        `positive ratios in [${p2.minHeavyMassRatio.toFixed(3)}, ${p2.maxHeavyMassRatio.toFixed(3)}], matching PDG gauge targets & CODATA ` +
-        `alpha^-1(0)=${p2.predAlphaEmInvZero.toFixed(9)} (via circular DELTA_MSBAR_TO_OS_PDG offset) to ${p2.maxObservableErr.toExponential(2)} ` +
+        `positive ratios in [${p2.minHeavyMassRatio.toFixed(3)}, ${p2.maxHeavyMassRatio.toFixed(3)}], matching the 3 PDG M_Z gauge targets to ` +
+        `${p2.maxMzGaugeErr.toExponential(2)} and mapping non-circularly (perturbative Erler/Steinhauser Delta=+${p2.deltaMsBarToOsPert.toFixed(6)}) to ` +
+        `alpha^-1(0)=${p2.predAlphaEmInvZero.toFixed(6)} (honest residual ${p2.predAlphaEmInvZeroErr.toFixed(5)} vs CODATA) ` +
         `(degenerate control ${p2.controlDegenerateAlphaZero.toFixed(2)} [${p2.controlDegenerateRelPct.toFixed(2)}%], tachyon control ${p2.controlTachyonMinMassSqOverMGutSq.toFixed(3)} < 0). ` +
         `Part 3 (10_H + 126bar_H + 120_H Yukawa EFT fit, ${p3.nContinuousRealParams} continuous real params + ${p3.nDiscreteZeta9Exponents} discrete Z_9 exponents = 9^11 basins ` +
         `with synthetic 2%-12% weights over 18 genuinely measured SM observables, 22 listed quantities): pure (1,2,2) 120_H reduces E-FRC-0330 chi^2 from ` +
@@ -250,6 +254,8 @@ export default experiment({
         predAlphaEmInvMz: Number(p2.predAlphaEmInvMz.toFixed(6)),
         predSin2ThetaWMz: Number(p2.predSin2ThetaWMz.toFixed(7)),
         predAlpha3Mz: Number(p2.predAlpha3Mz.toFixed(6)),
+        deltaMsBarToOsPert: Number(p2.deltaMsBarToOsPert.toFixed(6)),
+        maxMzGaugeErr: p2.maxMzGaugeErr,
         maxGaugeObservableErr: p2.maxObservableErr,
         // Part 3: Full 10_H + 126bar_H + 120_H zero-pull Yukawa unification
         so10120HDecompositionExact: p3.groupCert.decomposition256Exact ? 1 : 0,
@@ -322,7 +328,9 @@ export default experiment({
         'For Z_36 q=+2, d_min = 18 survives mixed (126_H)^4 (Delta theta_grav = 10^-61.9 full M_Pl, 10^-52.1 reduced M_Pl_red). For Z_36 q=+1, naive singlet d_min = 36 is falsified by mixed dim-20 Phi_PQ^4 (126_H)^16. ' +
         'Directly anomaly-free Z_12 (singlet d = 12) fails nEDM at f_a = M_PS under M_Pl_red (10^-8.725 = 1.88e-9 > 1e-10), passing only for f_a <= M_PS/3 (10^-14.45), while mixed Phi_PQ^4 (126_H)^4 enters at dim 8 if q(126_H) = +2. ' +
         '(2) 11-scalar diagonal toy Higgs Hessian proxy (NOT the full 472-component SO(10) tensor potential, and explicitly omitting 120_H used in Part 3): 3-for-3 Newton quartic fit to 3 SM gauge targets ' +
-        `(ratios [${p2.minHeavyMassRatio.toFixed(3)}, ${p2.maxHeavyMassRatio.toFixed(3)}]), with DELTA_MSBAR_TO_OS_PDG mapping 127.951 identically to CODATA 137.035999177; degenerate control recovers E-FRC-0329 canonical ${p2.controlDegenerateAlphaZero.toFixed(2)} (${p2.controlDegenerateRelPct.toFixed(2)}%). ` +
+        `(ratios [${p2.minHeavyMassRatio.toFixed(3)}, ${p2.maxHeavyMassRatio.toFixed(3)}]), closing the 3 M_Z targets to ${p2.maxMzGaugeErr.toExponential(1)} ` +
+        `and mapping non-circularly via perturbative Erler/Steinhauser MS-bar->OS (Delta = +${p2.deltaMsBarToOsPert.toFixed(6)}, zero CODATA input) ` +
+        `to alpha^-1(0) = ${p2.predAlphaEmInvZero.toFixed(6)} (honest residual ${p2.predAlphaEmInvZeroErr.toFixed(5)} vs CODATA); degenerate control recovers E-FRC-0329 canonical ${p2.controlDegenerateAlphaZero.toFixed(2)} (${p2.controlDegenerateRelPct.toFixed(2)}%). ` +
         '(3) 10_H + 126bar_H + 120_H Yukawa EFT consistency fit: uses 14 continuous real parameters PLUS 11 discrete Z_9 exponent choices (9^11 = 3.14e10 basins) evaluated with synthetic 2%-12% residual weights against 18 genuinely measured SM observables ' +
         `(22 listed quantities including dependent Koide/unitarity checks), reducing E-FRC-0330 chi^2 from 87.97 to ${p3.chi2With120H.toFixed(3)} (${p3.chi2ImprovementFactor.toFixed(1)}x, max pull ${p3.maxIndividualPullPct.toFixed(2)}%, delta_CP ${p3.pmnsDeltaCpDeg.toFixed(2)} deg, J_PMNS ${p3.pmnsJarlskogCP.toExponential(3)}).`,
     })
