@@ -1,33 +1,33 @@
-\section{Quantum Foundations and Records}
+\section{Quantum Foundations, Scattering, and Bare-Rule Universality}
 \label{sec:quantum}
 
-Can a deterministic cellular automaton whose amplitudes belong strictly to a discrete cyclotomic ring reproduce
-universal single-qubit interference, satisfy the algebraic symmetry prerequisites compatible with Born probabilities,
-and exhibit multipartite pointer decoherence and Bell violation without signaling? This section audits those three
-foundational questions across six registered experiments (\coderange{E-QTM-0202}{0207}), separating bare Tier~A
-honeycomb theorems from Tier~B / L1 finite-qubit and gate-synthesis benchmarks.
+A single excitation on $\{3,4,3,4\}$ activates none of the multi-body layers in Equation~\eqref{eq:beat}: each beat
+applies only the two-slot coin $C = C_{1/2}^2$ along its line and streams amplitude one hop to each antipodal neighbor.
+That single-line sector already supports exact interference, bipartite envariance symmetry, and, when joined with one
+phase gate $P_\omega$ from $\Sigma(648)$, a gate algebra dense in $SU(2)$ (\code{E-QTM-0203}--\code{0205},
+\code{E-FND-0185}). Finite-register circuits built from the same gates exhibit pointer decoherence and non-signaling
+Bell violation (\code{E-QTM-0206}, \code{E-QTM-0207}), while open-line ballistic propagation stalls slightly below
+Tsirelson's bound (\code{E-QTM-0202}).
 
-\paragraph{Key findings.}
-Composing the bare $\mathbb{Z}[\omega][1/2]$ coin $C$ with the $\Sigma(648)$ phase gate $P_\omega$ yields two
-conjugates $W_1, W_2 \in SU(2)$ whose algebraic 2-adic infinite-order and $\operatorname{Pin}(2)$-exclusion hypotheses
-are machine-checked in Lean~4.35.0, implying density in $SU(2)$ (\code{E-QTM-0204}, \code{E-FND-0185}). Explicit
-bipartite state-vector arithmetic verifies exact $\mathbb{Z}_6 \times \mathbb{Z}_6$ phase envariance and (with the
-$\Sigma(648)$ qutrit Fourier gate $F_3$) exact $S_4$ swap envariance under operationally posited Born weights
-(\code{E-QTM-0205}). Standalone L1 multi-qubit circuit benchmarks verify pointer decoherence and non-signaling
-record-branch CHSH violation ($2.8258$, \code{E-QTM-0206}), while ballistic open-line propagation on the honeycomb
-stalls just below Tsirelson's bound (\code{E-QTM-0202}).
+Because an isolated excitation sees only the order-6 cyclic group $\langle C \rangle$, universal control without
+external phase gates requires multi-excitation collisions. Section~\ref{sec:bare-smatrix} solves the exact two-body
+scattering problem of bare $U$, showing that its 1D restriction lands on two of the three Yang--Baxter integrable
+phases on $U(1)$ before 4D $M_{\mathrm{pair}}(\zeta_{18})$ breaks integrability, and constructs two zero-external-gate
+universality proofs purely inside bare $U$: 3-full-line $\Phi_{\mathrm{odd}}$ catalysis (dense $SU(2)$) and
+exchange-only $M_{\mathrm{meet}}$ decoherence-free-subspace (DFS) collisions (universal $SU(4)$ and bare-analyzer
+Bell--CHSH up to $2.8262$).
 
-\subsection{Causal window and 2-adic \texorpdfstring{$SU(2)$}{SU(2)} gate density}
+\subsection{Causal window and \texorpdfstring{$SU(2)$}{SU(2)} gate density}
 
-Before analyzing interference gates, \code{E-QTM-0203} (Tier~A / L2) performs a 1D geodesic causal-window sanity check
-comparing a single lone excitation evolved by the bare coin $C$ along one antipodal line on a periodic flat $D_4$ box
-(side length $L = 8$, initial support diameter $m = 1$) and on the true $R = 3$ $\{3,4,3,4\}$ honeycomb ball. Inside
-the causal horizon $m + 2t \le L$ (through beat $t = 3 \le R$), both substrates agree to exact $0$ with beat-3 quantum
-interference difference $L_1 = 0.5625$ against the dephased classical walk, confirming that finite-ball boundaries do
-not disturb single-line interference before horizon crossing.
+A first check compares a finite ball with a flat box for this motion. Experiment \code{E-QTM-0203}
+(Tier~A / L2) evolves one excitation under the bare coin $C$ along one line, once in a periodic flat $D_4$ box
+($L = 8$, initial support $m = 1$) and once on the true $R = 3$ honeycomb ball. Inside the causal window
+$m + 2t \le L$ (through $t = 3 \le R$) the two agree exactly, and the beat-3 interference pattern differs from the
+dephased classical walk by $L_1 = 0.5625$. Ball boundaries do not disturb single-line interference before the light
+cone reaches them.
 
-On a single excitation in the bare Tier~A rule $U$, all multi-body layers are silent so bare single-excitation
-evolution alone generates only the order-6 cyclic group $\langle C \rangle$. Composing the bare coin $C$ of
+On its own, the coin generates only the order-6 cyclic group $\langle C \rangle$. Adding one phase gate enlarges it.
+Composing the bare coin $C$ of
 Equation~\eqref{eq:coin} with the diagonal phase gate $P_\omega = \operatorname{diag}(1, \omega)$ drawn from the
 Tier~B $\Sigma(648)$ qutrit Clifford and link-phase alphabet (and likewise $P_{\zeta_9} = \operatorname{diag}(1, \zeta_9)$
 in $\Sigma(648)$) produces one special-unitary two-mode generator inside $\mathbb{Z}[\omega][1/2]$:
@@ -36,9 +36,9 @@ W_1 = \omega^2\, C\, P_\omega
   = \frac{1}{2}\begin{pmatrix} -\omega & 1 - \omega \\ -2 - \omega & 1 + \omega \end{pmatrix} \in SU(2),
 \label{eq:su2-gen}
 \end{equation}
-which has exact $\det W_1 = 1$ and $\operatorname{Tr}(W_1) = 1/2$ (rotation half-angle $\cos\theta = 1/4$). An
-elementary parity argument proves that $W_1$ and its conjugate $W_2 = P_\omega W_1 P_\omega^\dagger$ already generate
-a dense subgroup of $SU(2)$ without invoking transcendental number theory.
+which has exact $\det W_1 = 1$ and $\operatorname{Tr}(W_1) = 1/2$ (rotation half-angle $\cos\theta = 1/4$). A
+rotation by this angle never returns exactly to the identity, and together with one conjugate copy it generates a dense
+subgroup of $SU(2)$. An elementary parity argument proves this without transcendental number theory.
 
 \needspace{7\baselineskip}
 \begin{theorem}[2-adic $SU(2)$ density, \code{E-QTM-0204}, \code{E-FND-0185}]
@@ -66,13 +66,13 @@ $PSU(2)$, non-commutativity, and $\operatorname{Pin}(2)$ exclusion) is machine-c
 (\code{Vibe/Rule.lean}, Section~\ref{sec:unified}). Topological density in $SU(2)$ then follows from the standard
 closed-subgroup classification of $SU(2)$.
 
-Experiment \code{E-QTM-0204} (graded L1) evaluates these finite-ring gates in two concrete benchmarks
-(Table~\ref{tab:quantum-a}):
+Density is a limit statement. Experiment \code{E-QTM-0204} (graded L1) checks how closely short words in these gates
+approach specific targets, in two benchmarks (Table~\ref{tab:quantum-a}):
 \begin{itemize}[itemsep=2pt]
 \item \textbf{Synthesized beamsplitter proxy:} Length-$\ell_w = 14$ words over $\{C, C_{1/2}, P_\omega\}$
 ($\mathbb{Q}(\omega)$) and $\{C, C_{1/2}, P_\omega, P_{\zeta_9}\}$ ($\Sigma(648)$) approach unity under the abstract
 two-mode balance formula $\mathcal{V}_{\mathrm{BS}} = 1 - |\operatorname{perm}(U)|^2 / (|U_{00}|^4 + |U_{01}|^4)$
-(modeled on the optical Hong--Ou--Mandel permanent \cite{hong1987}, noting that bare hard-core ternary slots exclude
+(modeled on the optical Hong--Ou--Mandel permanent \cite{hong1987}, noting that bare single-occupancy ternary slots exclude
 double bosonic occupation $|2, 0\rangle$).
 \item \textbf{Exact $6 \times 6$ unitary splitter:} On $\mathrm{path}(2) \otimes \mathrm{role}(3)$ in
 $\mathbb{Z}[\omega][1/6]$, the composite circuit $U_{\mathrm{tot}} = U_3 U_2 U_1$ pairs $U_1 = C \otimes I_3$, the
@@ -81,15 +81,15 @@ $U_3$ ($|1,0\rangle \leftrightarrow |0,1\rangle$). Its output $U_{\mathrm{tot}}|
 $\mathbb{Z}[\omega][1/2]$ with balanced port weights $(1/2, 1/2)$ and error $0$.
 \end{itemize}
 
-\subsection{Operational Born measure and Zurek envariance}
+\subsection{Born measure and envariance}
 
-We adopt an explicit, conservative postulate on probability: \textbf{operational Born weights} (squared-amplitude
-probabilities mapping complex amplitudes to measurement frequencies) over record branches are posited operationally
-rather than claimed as an unconditional derivation from unitary dynamics alone. Unitary evolution fixes amplitudes and
-entanglement symmetries, whereas assigning frequencies to branches still relies on symmetry and additivity axioms beyond
-bare state-vector evolution.
+When the coin splits an excitation $1/4$ keep and $3/4$ flip, the walk produces two branches of unequal weight.
+\textbf{Born weights}, squared amplitudes read as measurement
+frequencies, are posited operationally. Unitary evolution fixes amplitudes and the symmetries of entangled states, but
+turning those into frequencies still needs symmetry and additivity axioms beyond the state vector. What can be checked
+exactly is that the symmetries Zurek's envariance argument relies on are present.
 
-Within that boundary, \code{E-QTM-0205} (Tier~A / L2 for the bare ball beat, with Tier~B $\Sigma(648)$ fine-graining)
+Experiment \code{E-QTM-0205} (Tier~A / L2 for the bare ball beat, with Tier~B $\Sigma(648)$ fine-graining)
 verifies the algebraic symmetry prerequisites of Zurek's entanglement-assisted invariance (envariance) \cite{zurek2005}
 via explicit bipartite state vectors on $\mathcal{H}_S \otimes \mathcal{H}_E$. One beat of the bare coin and stream on
 the exact $R = 2$ $\{3,4,3,4\}$ honeycomb ball prepares a 4-component bipartite state
@@ -98,7 +98,7 @@ zero frontier hits, and zero norm error. Entry-by-entry state-vector multiplicat
 $\mathbb{Z}_6 \times \mathbb{Z}_6$ unitary phase pairs $U_S(p_0, p_1) \otimes U_E(-p_0, -p_1)$ leave $|\Psi_2\rangle$
 invariant.
 
-Because the Eisenstein ring satisfies
+The unequal weights $(3/4, 1/4)$ can be refined into equal ones. Because the Eisenstein ring satisfies
 \begin{equation}
 \frac{1 - \omega}{2(1 + 2\omega)} = -\frac{1 + \omega}{2} \in \mathbb{Z}[\omega][1/2],
 \label{eq:envariance-split}
@@ -131,18 +131,17 @@ Code & Test (depth) & Exact measurement & Control / note \\
 \end{tabularx}
 \end{table}
 
-\subsection{Pointer decoherence, Bell tests, and line separation}
+\subsection{Records and Bell correlations}
 
-To test whether synthesized ring-word analyzers reproduce pointer decoherence, Quantum Darwinism redundancy
-\cite{zurek2009}, and Clauser--Horne--Shimony--Holt (CHSH) Bell violation \cite{clauser1969, tsirelson1980} without
-signaling on finite registers, \code{E-QTM-0206} (Tier~B / L1) runs standalone multi-qubit circuit benchmarks (zero
-honeycomb dynamics) using explicit partial traces and a real Hermitian eigensolver under $\ell_w = 14$ $\Sigma(648)$
-synthesized analyzer words. Four disjoint environment copies suppress off-diagonal pointer coherence to zero, imprint
-one full bit of mutual information per fragment, and violate the classical CHSH bound well beyond $2$ with machine-zero
-signaling drift.
+The finite-register benchmarks \code{E-QTM-0206} and \code{E-QTM-0207} (Tier~B / L1, without honeycomb spatial
+dynamics) evaluate pointer decoherence and Bell correlations directly on multi-qubit circuits whose analyzers are
+$\ell_w = 14$ words in the $\Sigma(648)$ gate set, computing partial traces exactly. Four disjoint environment copies
+drive off-diagonal pointer coherence to zero while each fragment retains one full bit of mutual information about the
+system, matching Quantum Darwinism \cite{zurek2009}, and the Clauser--Horne--Shimony--Holt (CHSH) correlator
+\cite{clauser1969, tsirelson1980} reaches $2.825774$ with signaling drift at machine zero.
 
-By contrast, \code{E-QTM-0202} (Tier~A / L2, registered failure) reveals an explicit dynamical boundary on an open
-non-wrapping honeycomb line. Partitioning a two-excitation state by particle order ($k_1 < k_2$, leftmost versus
+On the honeycomb itself, \code{E-QTM-0202} (Tier~A / L2, registered failure) identifies a dynamical boundary on an
+open, non-wrapping line. Partitioning a two-excitation state by particle order ($k_1 < k_2$, leftmost versus
 rightmost particle) and evaluating the nonlocal Gisin--Peres multi-mode Schmidt CHSH upper bound shows that beat~1
 reaches the Horodecki ceiling $\sqrt{7} = 2\sqrt{1 + 3/4} \approx 2.6458$, whereas long ballistic separation
 ($t = 32, 64, 128, 256$) stalls at $2.8273$--$2.8278$, roughly $7 \times 10^{-4}$ below Tsirelson's bound
@@ -150,14 +149,13 @@ $2\sqrt{2} \approx 2.8284$ \cite{tsirelson1980}. An auxiliary abstract-singlet d
 shows that constructive Eisenstein-triple directions in $\mathbb{Z}[\omega][1/6]$ reach $11/4 = 2.75 > \sqrt{7}$ on an
 ideal singlet without closing the open-line dynamical stall.
 
-Separating algebraic gate synthesis from ballistic honeycomb propagation, \code{E-QTM-0207} (Tier~B / L1) runs two
-standalone finite-register benchmarks (zero honeycomb dynamics): a reversible $N = 10$ brickwork scrambler approaching
-the Page subsystem entropy peak \cite{page1993} while maintaining near-zero global von Neumann entropy
-$S_{\mathrm{vN}}$, and exact \code{BigInt} meet-in-the-middle (MITM) $SU(2)$ word synthesis ($\ell_w = 6, \ldots, 22$)
-measuring a prepared textbook singlet to $4.87 \times 10^{-10}$ below $2\sqrt{2}$. As a standalone L1 benchmark,
-\code{E-QTM-0207} does not close either dynamical open-line ballistic separation (\code{E-QTM-0202}) or bounded-clock
-horizon radiation (\code{E-GRV-0134}). Table~\ref{tab:quantum-b} collects all record-branch, open-line, and L1
-benchmark metrics.
+Experiment \code{E-QTM-0207} (Tier~B / L1) adds two standalone register checks: a reversible $N = 10$ brickwork
+scrambler approaching the Page subsystem entropy peak \cite{page1993} while maintaining near-zero global von Neumann
+entropy $S_{\mathrm{vN}}$, and exact \code{BigInt} meet-in-the-middle (MITM) $SU(2)$ word synthesis
+($\ell_w = 6, \ldots, 22$) measuring a prepared textbook singlet to $4.87 \times 10^{-10}$ below $2\sqrt{2}$. As a
+standalone L1 check, \code{E-QTM-0207} closes neither the open-line dynamical stall (\code{E-QTM-0202}) nor
+bounded-clock horizon radiation (\code{E-GRV-0134}). Table~\ref{tab:quantum-b} collects all record-branch, open-line,
+and L1 benchmark metrics.
 
 \begin{table}[htbp]
 \centering
@@ -182,9 +180,96 @@ Code & Tier & Observable & Verified measurement & Control / boundary \\
 \end{tabularx}
 \end{table}
 
-Pure integer cyclotomic arithmetic in $\mathbb{Z}[\omega][1/2]$ (paired with $\Sigma(648)$ phase and Fourier
-generators) thus satisfies the machine-checked algebraic hypotheses for $SU(2)$ density, verifies exact bipartite
-$\mathbb{Z}_6$ and $S_4$ envariance unitaries, and synthesizes non-signaling CHSH analyzers on L1 qubit registers,
-while keeping the operational Born postulate and open-line ballistic Tsirelson convergence explicitly marked. We turn
-next from local quantum interference to three-dimensional rotational isotropy, relativistic boost kinematics, and
-species-universal limiting speed across the honeycomb.
+\subsection{Two-body scattering, Yang--Baxter integrability, and bare-rule universality}
+\label{sec:bare-smatrix}
+
+Because $\Phi_{\mathrm{odd}}$ is silent for $k < 4$, the entire two-excitation sector of bare $U$ reduces exactly to
+$L_2 = C_{1/2} M_{\mathrm{meet}} M_{\mathrm{pair}}(\zeta_{18}) K C_{1/2}$. Eliminating non-propagating components on a
+single 1D antipodal line gives an exact $2 \times 2$ transfer matrix and closed-form two-body scattering amplitude
+$S_{12}(k_1, b_1; k_2, b_2) = \frac{1}{2}(S_S + 1)I + \frac{1}{2}(S_S - 1)P_{12}$ over the 9-role space
+$\mathbb{C}^9 \otimes \mathbb{C}^9$ (Tier~A, exact across all $U(1)$ contact phases $\eta$). Testing the
+spectral-parameter Yang--Baxter equation \cite{yang1967, baxter1972} across the entire unit circle reveals only three
+isolated integrable phases, $\eta \in \{1, \omega^2, -\omega\}$, and bare $U$'s two 1D collision channels land directly
+on two of them:
+\begin{itemize}[itemsep=2pt]
+\item \textbf{Like-sign distinct roles ($C_{1/2} M_{\mathrm{meet}} C_{1/2}$, $\eta = \omega^2$):} Satisfies the exact
+$SU(9)$ Yangian rational $R$-matrix $S_{12} = \frac{(\lambda_1 - \lambda_2)I - i P_{12}}{\lambda_1 - \lambda_2 + i}$
+with closed-form rapidity $\lambda(k, b) = \frac{2}{\sqrt{3}} \frac{\sin E_b(k)}{\sin k}$ (Yang--Baxter residual
+$6.7 \times 10^{-16}$, matching the rational formula to $6.9 \times 10^{-15}$). At total momentum $P = 0$, the bound
+pole solves algebraically in the Eisenstein ring as an exact molecule with decay factor $|u| = 1/13$:
+\begin{equation}
+e^{i E_{\mathrm{bound}}(0)} = \frac{4 + 3\omega}{1 - 3\omega} = \frac{7 + 15\omega}{13} \in \mathbb{Z}[\omega][1/13],
+\qquad E_{\mathrm{bound}}(0) = 1.609267\text{ rad},
+\label{eq:eisenstein-molecule}
+\end{equation}
+matching $L = 24$ exact diagonalization to $2.8 \times 10^{-13}$.
+\item \textbf{Opposite-sign bounce ($C_{1/2} K C_{1/2}$, $\eta = -\omega$):} Yields exact hard-core exchange
+$S_S \equiv -1$ identically ($S_{12} = -P_{12}$, Yang--Baxter residual $1.8 \times 10^{-15}$) with zero bound states at
+every momentum $P$.
+\item \textbf{4D non-integrability via $M_{\mathrm{pair}}(\zeta_{18})$:} Turning on cross-line scattering shifts the
+4D $s$-wave contact phase to $\eta_s = \omega^2 \zeta_{18}$ ($260^\circ$), breaking the spectral-parameter Yang--Baxter
+equation at $O(1)$ ($\|\mathrm{YBE}\|_F = 1.8420$), while local $M_{\mathrm{meet}}$ breaks the constant braid YBE with
+exact Frobenius norm $3/2$ on qutrits. Bare $U$ therefore exhibits a sharp transition from exact 1D Yang--Baxter
+integrability to genuine 4D non-integrability.
+\end{itemize}
+
+Every bare two-excitation collision gate is also strictly entangling and strictly non-Clifford (up to $96.98\%$ of CNOT
+entangling power over two bare $s$-wave beats), and exact \code{BigInt} evolution of an unentangled product state on
+$\{3,4,3,4\}$ yields Schmidt weights $(3/4, 1/4)$, concurrence $\sqrt{3}/2$, and entanglement entropy $0.8113$ bits in
+one beat (norm error $0$). While an isolated lone excitation is capped at $\langle C \rangle$ (limiting bare-coin CHSH
+strictly to $2.000000$), multi-excitation collisions inside bare $U$ establish \textbf{two independent zero-external-gate
+universality constructions} (with zero $P_\omega$ or $\Sigma(648)$ additions):
+\begin{enumerate}[itemsep=2pt]
+\item \textbf{Single-excitation dense $SU(2)$ via 3-full-line $\Phi_{\mathrm{odd}}$ catalysis:} No 2-full-line
+non-branching catalyst exists ($0/880$), because all $3{,}696/3{,}696$ 4-subsets of $D_4$ containing an antipodal pair
+span at most 3D and satisfy $\chi_{\mathrm{odd}} \equiv 0$. Adding a third full spectator line (7 excitations total at
+one dock, keeping $M_{\mathrm{pair}}$ silent with zero branching and zero spectator entanglement) induces the exact
+\code{BigInt} local gate
+\begin{equation}
+L_7 = \frac{1}{2}\begin{pmatrix} \omega & -1 - 2\omega \\ \omega - 1 & \omega \end{pmatrix} \in M_2(\mathbb{Z}[\omega][1/2]),
+\qquad \det(L_7 C) = 1,
+\qquad \operatorname{Tr}(L_7 C) = -\frac{5}{4}.
+\label{eq:catalyst-l7}
+\end{equation}
+By the 2-adic valuation proof ($M = -4 L_7 C$ satisfies $M^2 = 5M - 16I$, forcing $\operatorname{Tr}(M^n) \equiv 1
+\pmod 4$ for all $n \ge 1$), $L_7 C$ has infinite order and does not commute with $C$ ($\|[L_7, C]\|_F = 3\sqrt{6}/4$),
+making $\langle C, L_7 \rangle$ dense in $SU(2)$ purely inside bare $U$.
+\item \textbf{Universal $SU(4)$ and bare-analyzer Bell--CHSH from bare $M_{\mathrm{meet}}$:} Encoding each logical
+qubit in the 2D $S = 1/2$ decoherence-free subspace of three like-sign excitations carrying two roles, pure bare
+$M_{\mathrm{meet}}$ collisions on pairs $(1,2)$ and $(2,3)$ preserve the DFS with zero leakage and satisfy
+$\operatorname{Tr}(S_{12} S_{23}) = 5/4$ (dense in $SU(2)$ by the same 2-adic argument). Across two 3-excitation DFS
+qubits (six excitations in the 9D $S_{\mathrm{tot}} = 1$ irrep), exact commutator closure generates the full
+80-dimensional Lie algebra $\mathfrak{su}(9)$, containing universal $SU(4)$ with zero leakage. Using solely forward
+bare-$M_{\mathrm{meet}}$ analyzer words of length $\le 8$ at spatially separated docks violates Bell--CHSH to
+$2.6412$ ($99.83\%$ of $\sqrt{7}$) on a 1-beat bare pair and $2.8262$ ($99.92\%$ of Tsirelson's $2\sqrt{2}$) on a
+bare-DFS singlet, eliminating the need for external $\Sigma(648)$ gates in either state preparation or measurement
+(Table~\ref{tab:bare-smatrix}).
+\end{enumerate}
+
+\begin{table}[htbp]
+\centering
+\caption{Tier~A two-body scattering, Yang--Baxter classification, and zero-external-gate universality strictly inside
+the bare palindromic beat $U$ (zero $P_\omega$ or $\Sigma(648)$ additions).}
+\label{tab:bare-smatrix}
+\small
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.1cm}>{\raggedright\arraybackslash\hsize=1.22\hsize}X>{\raggedright\arraybackslash\hsize=0.78\hsize}X@{}}
+\toprule
+Bare-rule result (Tier~A) & Exact verification & Control / obstruction \\
+\midrule
+1D $C_{1/2} M_{\mathrm{meet}} C_{1/2}$ ($\eta = \omega^2$) & $SU(9)$ Yangian $R$-matrix ($\|\mathrm{YBE}\|_F = 6.7 \times 10^{-16}$), Eisenstein molecule $e^{iE(0)} = (7 + 15\omega)/13$ ($|u| = 1/13$, $L = 24$ ED err $2.8 \times 10^{-13}$) & only 3 YBE phases on $U(1)$: $\{1, \omega^2, -\omega\}$ \\
+\addlinespace[3pt]
+1D $C_{1/2} K C_{1/2}$ ($\eta = -\omega$) & exact hard-core exchange $S_S \equiv -1$ ($\|\mathrm{YBE}\|_F = 1.8 \times 10^{-15}$), $0$ bound states at all $P$ & $M_{\mathrm{meet}}$-off ($\eta = \omega$) breaks YBE by $1.77$ \\
+\addlinespace[3pt]
+4D $M_{\mathrm{pair}}(\zeta_{18})$ ($\eta_s = \omega^2\zeta_{18}$) & unique 4D $s$-wave pole $E_s(0) = 1.770647\text{ rad}$ ($|u_s| = 0.07402$), exact $SO(4)$ isotropy through $O(K^4)$ & breaks YBE at $O(1)$ ($\|\mathrm{YBE}\|_F = 1.8420$, non-integrable in 4D) \\
+\addlinespace[3pt]
+3-line $\Phi_{\mathrm{odd}}$ catalyst $L_7$ & live \code{BigInt} $L_7 \in M_2(\mathbb{Z}[\omega][1/2])$, $\det(L_7 C) = 1$, $\operatorname{Tr}(L_7 C) = -5/4$, 2-adic dense $SU(2)$ & no 2-line catalyst exists ($0/880$, all $3{,}696$ antipodal quads have $\chi_{\mathrm{odd}} \equiv 0$) \\
+\addlinespace[3pt]
+Bare $M_{\mathrm{meet}}$ DFS $SU(4)$ & $\operatorname{Tr}(S_{12} S_{23}) = 5/4$, 6-vibe $S_{\mathrm{tot}} = 1$ closure $\dim\mathrm{Lie} = 80 = \dim\mathfrak{su}(9)$, bare-analyzer CHSH $2.6412$ / $2.8262$ & bare coin $C$ alone caps CHSH at classical ceiling $2.000000$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Although the operational Born postulate and the open-line Tsirelson stall remain open, the bare multi-excitation beat
+is computationally universal and non-integrable in 4D. Because a lone excitation never leaves its initial line,
+three-dimensional spatial kinematics requires two excitations interacting through $M_{\mathrm{pair}}(\zeta_{18})$,
+which Section~\ref{sec:relativity} analyzes on flat 4D $D_4$ and on the 3D cusp husk.

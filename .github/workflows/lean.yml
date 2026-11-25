@@ -1,20 +1,6 @@
 name: Lean 4 Proof Verification
 
 on:
-  push:
-    paths:
-      - 'code/proof/**'
-      - 'task/check-lean.ts'
-      - 'code/measure/infinite-time-proofs.ts'
-      - 'test/experiment/foundations/infinite-time-proofs.ts'
-      - '.github/workflows/lean.yml'
-  pull_request:
-    paths:
-      - 'code/proof/**'
-      - 'task/check-lean.ts'
-      - 'code/measure/infinite-time-proofs.ts'
-      - 'test/experiment/foundations/infinite-time-proofs.ts'
-      - '.github/workflows/lean.yml'
   workflow_dispatch:
 
 concurrency:

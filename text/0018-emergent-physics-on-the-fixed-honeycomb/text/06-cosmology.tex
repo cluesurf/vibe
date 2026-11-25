@@ -1,27 +1,20 @@
 \section{Horosphere Cosmology and Downstream EFT Checks}
 \label{sec:cosmology}
 
-Because the $\{3,4,3,4\}$ honeycomb is completely fixed and never creates or destroys lattice sites, cosmic expansion
-cannot arise from a growing mesh. How does unitary radial propagation into exponentially widening horospheres produce
-apparent de Sitter expansion without adding sites, and how far does that bare geometric expansion sit from observed
-late-time cosmology? Below we separate Tier~B fixed-mesh horosphere walks (\code{E-CSM-0064}, \code{E-CSM-0065} Part~A)
-from Tier~C downstream continuum cosmological EFT checks (\code{E-CSM-0065} Part~B, \coderange{E-CSM-0066}{0068}),
-explicitly disclosing the $\sim 61$-decade bare Hubble gap ($122$ decades in vacuum energy $\Lambda \propto H^2$) and
-Weinberg's (1989) no-go theorem \cite{weinberg1989}.
-
-\paragraph{Key findings.}
-Ballistic radial propagation into the fixed $\{3,4,3,4\}$ cusp yields exact exponential de Sitter expansion
-($q_{\log} = w_{\mathrm{eff}} = -1$) at a lattice rate $H_{\mathrm{dS}} = 0.29808\text{ beat}^{-1}$ ($0.088\, M_{\mathrm{Pl}}$)
-for the $(18\text{ down}, 1\text{ up}, 5\text{ lateral})$ Grover tree and $0.51713\text{ beat}^{-1}$ ($0.153\, M_{\mathrm{Pl}}$)
-for the $\mathrm{F\text{-}G}(\pi)$ single-bank control (\code{E-CSM-0064}), a mean-field density-braked reversible walk
-transitions from decelerated to accelerated expansion (\code{E-CSM-0065} Part~A), and Tier~C EFT audits quantify the
-61-decade Hubble / 122-decade vacuum-energy hierarchy while verifying that dynamically stabilizing $D_\Lambda \approx 97$
-remains open (\code{E-CSM-0068}).
+On a fixed honeycomb where no docks are created or destroyed, cosmic expansion cannot arise from adding lattice sites.
+Instead, because each deeper horosphere floor in the $\{3,4,3,4\}$ cusp contains roughly $18.285$ times as many docks
+as the floor above it, an excitation drifting steadily inward occupies an exponentially expanding 3D horosphere volume,
+producing an effective de Sitter scale factor $a(t) \propto r_{\mathrm{vol}}^{\langle D(t)\rangle/3}$ on the husk
+(Tier~B, \code{E-CSM-0064}). Adding a prescribed mean-field braking density drives a reversible transition from early
+deceleration to late acceleration (Tier~B, \code{E-CSM-0065} Part~A). In the Planck units fixed by
+Section~\ref{sec:gravity}, the bare lattice Hubble rate sits about 61 decades above $H_0$ (122 decades in vacuum energy
+$\Lambda \propto H^2$), leaving Weinberg's no-go theorem \cite{weinberg1989} intact alongside continuum cosmology
+compatibility checks at Tier~C (\code{E-CSM-0065} Part~B, \coderange{E-CSM-0066}{0068}).
 
 \subsection{Fixed-mesh horosphere drift and reversible braking}
 
-As a localized quantum disturbance moves radially into the fixed $\{3,4,3,4\}$ cusp bulk at mean Busemann depth
-$\langle D(t) \rangle$, the 3D horosphere volume behind the wavefront grows exponentially as
+As a localized disturbance moves into the cusp at mean depth $\langle D(t) \rangle$, the 3D horosphere volume behind
+the wavefront grows exponentially as
 $V(D) \sim r_{\mathrm{vol}}^D$ ($r_{\mathrm{vol}} \approx 18.285$). Defining the effective 3D scale factor $a(t)$,
 ballistic radial drift at speed $v_D = d\langle D\rangle / dt$ yields a constant effective de Sitter Hubble rate
 $H_{\mathrm{dS}}$ (in $\text{beat}^{-1}$) with zero creation of new lattice sites:
@@ -48,15 +41,16 @@ $r_{\mathrm{vol}} = 6{,}034/330$ (or $0.51455\text{ beat}^{-1}$ at $b = 18$, $v_
 $w_{\mathrm{eff}} = -0.9996$, superseded at Scale~1 by $M_{\mathrm{pair}}(\zeta_{18})$ in Section~\ref{sec:relativity}).
 \end{itemize}
 
-Converting beats to Planck units via Section~\ref{sec:gravity}'s $t_{\mathrm{Pl}} = \sqrt{G_{\mathrm{eff}}/c_u^5} =
+The rates are in inverse beats. Converting to Planck units with Section~\ref{sec:gravity}'s $t_{\mathrm{Pl}} = \sqrt{G_{\mathrm{eff}}/c_u^5} =
 0.2964\text{ beats}$ ($M_{\mathrm{Pl}} = 3.373\text{ beat}^{-1}$) gives {\bfseries\boldmath $H_{\mathrm{dS}} =
 0.153\, M_{\mathrm{Pl}}$} for $\mathrm{F\text{-}G}(\pi)$ and {\bfseries\boldmath $0.088\, M_{\mathrm{Pl}}$} for the
-Grover tree. Crucially, both sit {\bfseries\boldmath $\sim 60\text{--}61$ orders of magnitude above the observed
+Grover tree. Both sit {\bfseries\boldmath $\sim 60\text{--}61$ orders of magnitude above the observed
 late-time Hubble constant $H_0$}, which corresponds to {\bfseries\boldmath $\sim 121\text{--}122$ orders of magnitude
 in vacuum energy density} ($\Lambda_{\mathrm{eff}}/\Lambda_{\mathrm{obs}} \propto (H_{\mathrm{dS}}/H_0)^2$,
 $\rho_{\mathrm{Pl}}/\rho_\Lambda = 8.83 \times 10^{122}$).
 
-Because a dilute walk remains permanently at $q_{\log} = w_{\mathrm{eff}} = -1$, Part~A of \code{E-CSM-0065} tests a
+A dilute walk stays at $q_{\log} = w_{\mathrm{eff}} = -1$ forever, while the observed universe decelerated before it
+accelerated. To see whether matter can brake the drift, Part~A of \code{E-CSM-0065} tests a
 160-beat reversible unitary braking walk on a 1-particle 1D radial chain where a prescribed global mean-field density
 $\rho(\langle D\rangle) = n_r a^{-4} + n_m a^{-3}$ ($n_r = 1{,}200$, $n_m = 400$, $\kappa = 1$, a mean-field ansatz rather
 than local multi-excitation scattering) slows the radial coin angle via
@@ -89,7 +83,8 @@ Code (Tier~B) & Test & Verified measurement & Control / scale boundary \\
 
 \subsection{Continuum cosmological EFT compatibility checks}
 
-Four downstream \textbf{Tier~C} continuum cosmological checks (\code{E-CSM-0065} Part~B and \coderange{E-CSM-0066}{0068},
+The Tier~C checks place standard continuum cosmology on the honeycomb's scales, using the shell ratio
+$b = 6{,}034/330$ and the grand-unified scales of Section~\ref{sec:gauge}. Four downstream \textbf{Tier~C} checks (\code{E-CSM-0065} Part~B and \coderange{E-CSM-0066}{0068},
 none derived from the bare QCA) audit standard three-era Friedmann dynamics, early-universe particle cosmology, and
 cosmological-constant bounds expressed in $\{3,4,3,4\}$ shell units ($b = 6{,}034/330$). In \code{E-CSM-0065} Part~B, a
 reversible 6th-order Yoshida symplectic integrator \cite{yoshida1990} benchmarks accuracy on the standard flat $\Lambda$CDM
@@ -140,7 +135,9 @@ Code (Tier~C) & Cosmological check & Verified measurement & Control / boundary \
 \end{tabularx}
 \end{table}
 
-Fixed-mesh horosphere drift produces exact unitary de Sitter expansion without creating lattice sites, while strict tier
-separation keeps the 61-decade bare Hubble gap ($122$ decades in vacuum energy $\Lambda$) and Weinberg's (1989)
-cosmological constant no-go fully visible. We now move from finite-horizon computational runs to machine-checked
-Lean~4.35.0 proofs, rigorous non-perturbative mass-gap bounds, and coupled multi-sector unitary runs.
+Inward horosphere drift on the fixed mesh thus produces exact unitary de Sitter expansion without site creation, while
+prescribed density braking recovers an early decelerating era. Both the 61-decade bare Hubble discrepancy (122 decades
+in $\Lambda$) and Weinberg's no-go theorem remain open. Because the simulations in
+Sections~\ref{sec:one-rule}--\ref{sec:cosmology} run for finite times on finite regions, Section~\ref{sec:unified}
+establishes which structural laws hold unconditionally for all times and depths through Lean~4 proofs, infinite-volume
+lattice mass-gap bounds, and coupled multi-sector runs.

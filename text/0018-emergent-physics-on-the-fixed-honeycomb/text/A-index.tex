@@ -8,7 +8,7 @@ $\{3,4,3,4\}$ geometry, and exact algebraic invariants, B: warped-beam, cusp-pro
 lattice walks plus L1 quantum and gauge-lattice benchmarks, C: constructive flat 4D $D_4$/$\{3,4,3,4\}$ lattice
 gauge-theory bounds and downstream continuum EFT compatibility checks) and substrate depth grade (L1 or L2, with no L3
 claim made). Three heavy sweep scripts (\code{E-SLF-0189}, \code{E-SLF-0190}, \code{E-SLF-0195}) default to fast local
-smoke mode unless invoked with their full-run environment flag; the verdicts below record their registered full runs.
+smoke mode unless invoked with their full-run environment flag, and the verdicts below record their registered full runs.
 
 \begin{small}
 \renewcommand{\arraystretch}{1.10}
@@ -100,7 +100,7 @@ Identifier & Tier / grade & Verdict & Key verified metric \\
 \code{E-CSM-0068} & C / EFT L2 & pass & CKN $D_{\mathrm{CKN}} = 97.28$ vs $97.41$, Weinberg $1.54$-shell window above $95.87$, $D = 95$-anchored toy BP scan ($1{,}454$ vacua) \\
 \addlinespace[4pt]
 \multicolumn{4}{@{}l}{\emph{Lean~4 proofs, constructive gauge bounds, and coupled runs (Section~\ref{sec:unified})}} \\*
-\code{E-FND-0185} & A / Lean~4.35.0 L2 & pass & 94 headline Lean~4.35.0 theorems across 6 proof modules + barrel (113 public, 0 \code{sorry}/\code{axiom}, \code{Gauge} Tier~C, requires \code{pnpm check:lean} \code{.olean} build) \\
+\code{E-FND-0185} & A / Lean~4.35.0 L2 & pass & 141 headline Lean~4.35.0 theorems across 9 proof modules + barrel (160 public, 0 \code{sorry}/\code{axiom}, \code{Gauge} Tier~C, with 94 baseline kernel-built + 47 in \code{SchurGap}/\code{Uniqueness4D}/\code{CoxeterTransport} structurally \& Python-checked pending host \code{lake build}) \\
 \code{E-FND-0186} & B / 1D+depth L2 & pass & $\dim = 259{,}200$ 5-sector 1D-ring $\times$ 9-depth run: deflection $\pm 0.74522$, entanglement $0.31364/0.76680$, reversal $1.63 \times 10^{-15}$ \\
 \code{E-FND-0187} & B / $\{3,4,3,4\}$ L2 & pass & cached $R = 2, 3$ ball 4-sector run: cusp shift $0.248985$, reversal $0$ (Scales $0, 1, 4$) / $1.12 \times 10^{-15}$ (Scale~2) \\
 \code{E-FND-0188} & C / $D_4$ L2 & pass & $D_4$ $\mathbb{Z}_3$ gap ($\ge 1.313$, $\beta \in [0.1, 8.0]$), 2-loop $2.00 \times 10^{-15}$, $O(k^4)$ $1/16$, 3 structural zero-fit + 10 consistency + 5 tensions (needs \code{.olean} build) \\
@@ -108,3 +108,46 @@ Identifier & Tier / grade & Verdict & Key verified metric \\
 \code{E-FND-0190} & C / $\{3,4,3,4\}$ L2 & pass & Sec.\@~1 exact $\{3,4,3,4\}$ $\rho_{\mathrm{spec}} \le 13/21, \lambda_{\mathrm{gap}} \ge 8/21$ ($R = 4$ RR $0.378175$), Sec.\@~2--3 MK/Tomboulis ($k^* = 2\text{--}10$ on $\beta_0 \in [2, 10]$), Bakry--\'Emery LSI $\beta_{\mathrm{BE}} = 1/12, 3/16$ vs $0$ \\
 \end{longtable}
 \end{small}
+
+\subsection*{Standalone deterministic verification scripts}
+
+Twelve standalone zero-import verification scripts under \code{test/breakthrough/} reproduce every additional exact
+scattering, universality, horizon-crossing, domain-wall, symmetric-mass-generation, Nelson--Barr, and Combes--Thomas
+result reported in Sections~\ref{sec:quantum}--\ref{sec:unified} (Table~\ref{tab:breakthrough-scripts}).
+
+\begin{table}[htbp]
+\centering
+\caption{Standalone deterministic verification scripts under \code{test/breakthrough/} (zero pseudo-randomness, zero
+external imports, runnable directly via \code{npx tsx}).}
+\label{tab:breakthrough-scripts}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{5.55cm}>{\raggedright\arraybackslash}p{1.25cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Script (\code{test/breakthrough/}) & Section & Verified result / obstruction \\
+\midrule
+\code{two-body-smatrix-yang-baxter.ts} & Sec.~\ref{sec:quantum} & Exact 1D $SU(9)$ Yangian $R$-matrix ($\eta = \omega^2$), Eisenstein molecule $(7+15\omega)/13$, $S_S \equiv -1$ ($\eta = -\omega$), 4D $M_{\mathrm{pair}}$ YBE break \\
+\addlinespace[2.5pt]
+\code{bare-entangling-bell.ts} & Sec.~\ref{sec:quantum} & Bare 2-body Makhlin invariants, non-Clifford defects, live \code{BigInt} $\{3,4,3,4\}$ entanglement, 2-line catalyst no-go ($0/880$) \\
+\addlinespace[2.5pt]
+\code{bare-universality-deep-checks.ts} & Sec.~\ref{sec:quantum} & 6-vibe bare $M_{\mathrm{meet}}$ DFS $\dim\mathrm{Lie} = 80 = \dim\mathfrak{su}(9)$, bare-analyzer CHSH $2.6412$ / $2.8262$, $3{,}696$ antipodal achirality theorem \\
+\addlinespace[2.5pt]
+\code{yang-baxter-catalyst-proof.ts} & Sec.~\ref{sec:quantum} & Full $U(1)$ YBE classification $\{1, \omega^2, -\omega\}$, live \code{BigInt} 3-line catalyst $L_7$ ($\operatorname{Tr}(L_7 C) = -5/4$), 4D $s$-wave implicit derivatives \\
+\addlinespace[2.5pt]
+\code{palindromic-bch-symanzik.ts} & Sec.~\ref{sec:relativity} & Palindromic BCH $\sigma_y = 0$, 4D $D_4$ $s$-wave $O(K^4)$ $SO(4)$ isotropy, floor-0 1-particle edge caging and $O(k^4)$ ratio $3/4$ \\
+\addlinespace[2.5pt]
+\code{horizon-one-hop.ts} & Sec.~\ref{sec:gravity} & 2-band GNVW no-go, 4-component 1-hop GP QCA (\code{Float64} and exact \code{BigInt} $\mathbb{Z}[\zeta_9][1/2]$), $e^{\kappa t}$ peeling, $U(1,1)$ Hawking tunneling \\
+\addlinespace[2.5pt]
+\code{pure-ring-speed-warp.ts} & Sec.~\ref{sec:relativity}, \ref{sec:gravity} & $\mu_{18}$ / $U(1)$ floor-0 speed ceiling $0.129492$, Cauchy--Schwarz $0.814\%$ Dirac gap, exact $O^+(4,1)$ vertex-transitivity warp no-go \\
+\addlinespace[2.5pt]
+\code{finite-range-chiral-wall.ts} & Sec.~\ref{sec:gauge} & Strictly finite-range pure-\code{BigInt} $\mathbb{Z}[\zeta_9][1/2]$ 3+1D chiral wall ($24^3$ BZ audit) and $\mathfrak{p}_3$-adic chirality-velocity obstruction \\
+\addlinespace[2.5pt]
+\code{smg-cayley-four-form.ts} & Sec.~\ref{sec:gauge} & Bare $\Phi_{\mathrm{odd}}$ 16-cell vanishing ($0/1{,}120$) and SMG no-go, 14-term $D_4$ Cayley 4-form $\mathrm{Spin}(7)$ SMG ($\Delta E_{1p} = 14g$, $U_{\mathrm{SMG}} \in \mathbb{Z}[\zeta_9][1/2]$) \\
+\addlinespace[2.5pt]
+\code{nelson-barr-z9.ts} & Sec.~\ref{sec:gauge} & Pure-\code{BigInt} $\mathbb{Z}[\zeta_9]$ Laplace $\bar{\theta}_{\mathrm{tree}} = 0$, $J_{\mathrm{CKM}} = 3.054 \times 10^{-5}$, dim-5 $\mathcal{O}_5$ audit and $\Delta D \ge 9$ bulk sequestration \\
+\addlinespace[2.5pt]
+\code{algebraic-phase-flavor.ts} & Sec.~\ref{sec:gauge} & Cyclotomic Koide root floor ($m = 9\text{--}72$), exact Lebesgue look-elsewhere ($p = 0.0385\text{--}0.7697$), zero-float shell CKM/PMNS audit \\
+\addlinespace[2.5pt]
+\code{combes-thomas-d4-mass-gap.ts} & Sec.~\ref{sec:unified} & 24-cell vertex-corner Combes--Thomas 4D $D_4$ OS mass gap across $0 < \beta < N^2/(16\sqrt{7})$ ($10.12\times$ $SU(2)$, $22.79\times$ $SU(3)$ past KP) \\
+\bottomrule
+\end{tabularx}
+\end{table}

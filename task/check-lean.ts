@@ -23,7 +23,7 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { runInfiniteTimeProofs } from '@/code/measure/infinite-time-proofs'
 
-const MIN_HEADLINE_THEOREM_COUNT = 94
+const MIN_HEADLINE_THEOREM_COUNT = 141
 const EXPECTED_LEAN_TOOLCHAIN = 'leanprover/lean4:v4.35.0'
 const EXPECTED_LEAN_VERSION = '4.35.0'
 
@@ -130,6 +130,56 @@ const REQUIRED_THEOREMS = [
   'thm15_eisWord_unitary_all_words',
   'thm16_gram_btb_positivity',
   'thm16_weighted_gram_positivity',
+  // Vibe.SchurGap (15 headline: global Busemann Schur bound rho <= 13/21, lambda_gap >= 8/21, resistance bridge)
+  'thm_schur_hermite_identity',
+  'thm_schur_hermite_nonneg',
+  'thm_schur_hermite_qpos',
+  'thm_schur_antipodal_pair_identity',
+  'thm_d4_root_lines_partition',
+  'thm_d4_exact_moments',
+  'thm_schur3_nonneg',
+  'thm_schur4_simplex_nonneg',
+  'thm_d4_moment3_le_9_S3',
+  'thm_schur_majorant_bound_13_over_21',
+  'thm_busemann_schur_global_bound',
+  'thm_busemann_schur_sharp_at_d4_root',
+  'thm_busemann_schur_cusp_axis_7_over_15',
+  'thm_busemann_spectral_gap_8_over_21',
+  'thm_col_resistance_code_bridge',
+  // Vibe.Uniqueness4D (17 headline: first-principles Coxeter 1956 4D classification & {3,4,3,4} uniqueness)
+  'isPos_neg_exclusive',
+  'thm_classify_spherical3',
+  'thm_classify_spherical4',
+  'thm_classify_euclidean4_unique',
+  'thm_coxeter_classify_compact_4d',
+  'thm_coxeter_classify_paracompact_4d',
+  'thm_coxeter_classify_euclidean_4d',
+  'thm_coxeter_classify_spherical5',
+  'thm_coxeter_complete_finite_covolume_4d',
+  'thm_coxeter_4d_counts',
+  'thm_cell16_fails_rank4_isotropy',
+  'thm_self_dual_regular_4polytopes',
+  'thm_uniqueness_4d_flat_cusp_finite_covolume',
+  'thm_uniqueness_4d_flat_cusp_and_self_dual_all_nat',
+  'thm_uniqueness_4d_flat_cusp_and_finite_cell_all_nat',
+  'thm_uniqueness_4d_all_four_invariants',
+  'thm_uniqueness_4d_negative_controls',
+  // Vibe.CoxeterTransport (15 headline: exact O^+(4,1; Z[sqrt(2)]) 5x5 transport, S R S = R, palindromic T/CP/CPT)
+  'thm_coxeter_gram_and_center',
+  'thm_central_inversion_properties',
+  'thm_orth_group_mul',
+  'thm_reflection_involution',
+  'thm_reflection_preserves_twiceGram',
+  'thm_conj_reflection',
+  'thm_24_facets_geometry',
+  'thm_24_facet_dirs_isomorphic_to_d4',
+  'thm_coxeter_transport_preserves_lorentz',
+  'thm_coxeter_transport_det_neg_one',
+  'thm_coxeter_transport_antipodal_inverse',
+  'thm_coxeter_word_lorentz_and_inverse',
+  'thm_honeycomb_stream_antipodal_reversal',
+  'thm_cusp_dock0_split_and_ratio',
+  'thm_palindromic_beat_T_CP_CPT',
 ] as const
 
 const scriptDir = dirname(fileURLToPath(import.meta.url))

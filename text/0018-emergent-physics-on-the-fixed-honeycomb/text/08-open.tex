@@ -1,46 +1,90 @@
 \section{Open Problems and Active Tensions}
 \label{sec:open}
 
-A disciplined mathematical-physics baseline places its verified foundations directly beside what the bare automaton has
-\emph{not} derived. Sections~\ref{sec:one-rule}--\ref{sec:unified} established the exact Tier~A QCA architecture,
-Lean~4 proof scope, and exploratory Tier~B/C benchmarks. Every remaining theoretical, computational, and
-phenomenological problem for follow-up work is gathered explicitly below.
+Across Sections~\ref{sec:one-rule}--\ref{sec:unified}, the bare Tier~A automaton establishes exact reversibility,
+$\{3,4,3,4\}$ uniqueness, $O^+(4,1; \mathbb{Z}[\sqrt{2}])$ transport, $\mathcal{T}/\mathcal{CP}/\mathcal{CPT}$ and
+$W(F_4)^+$ symmetry, husk non-closure, 1D Yang--Baxter integrability broken in 4D by $M_{\mathrm{pair}}(\zeta_{18})$,
+zero-external-gate universality inside bare $U$ (3-line catalysis and $M_{\mathrm{meet}}$ DFS reaching bare-analyzer
+CHSH $2.6412$ and $2.8262$), $O(K^4)$-isotropic 4D $s$-wave bound states on flat $D_4$, and the global spectral gap
+$\rho_{\mathrm{spec}} \le 13/21$. On prescribed backgrounds (Tier~B), the same geometry supports a shared limiting
+speed, $1/r$ orbits, strictly 1-hop-causal horizon crossing with $U(1,1)$ transfer-matrix Hawking tunneling, a
+finite-range $\mathbb{Z}[\zeta_9][1/2]$ chiral domain wall, 0+1D Cayley-4-form mirror gapping, cold $\mathbb{Z}_3$
+confinement, and de Sitter horosphere drift. At Tier~C, 24-cell Combes--Thomas bounds extend the flat-$D_4$ lattice
+Yang--Mills mass gap $10.1\times$ ($SU(2)$) and $22.8\times$ ($SU(3)$) past Koteck\'y--Preiss, while continuum EFT
+checks test compatibility against $\mathrm{Spin}(10)$, Nelson--Barr $\mathcal{CP}$, and $\Lambda$CDM cosmology.
+
+The remaining distance between Tier~A and Tiers~B--C is governed by six open problems and five tracked cross-sector
+EFT tensions, several of which are now bounded by exact no-go theorems.
 
 \subsection{Open theoretical and computational frontiers}
 
-Six substantive open problems separate the bare Tier~A microscopic automaton from a first-principles derivation of the
-exploratory Tier~B and Tier~C sectors:
+Six open problems separate the bare Tier~A automaton from a first-principles derivation of the Tier~B and Tier~C
+sectors:
 \begin{enumerate}[itemsep=3pt]
-\item \textbf{Dynamical non-Abelian gauge fields and chiral gauging:} While \code{E-FRC-0322} tests cold $T = 0$
-$\mathbb{Z}_3$ confinement on a quasi-(1+1)D ladder and \coderange{E-FRC-0324}{0332} audit Tier~C continuum
-$\mathrm{Spin}(10)$ / Pati--Salam EFT compatibility, deriving dynamical continuous $SU(3)_C$, $SU(2)_L$, and $U(1)_Y$
-gauge fields, dynamical chiral gauging, and spontaneous electroweak symmetry breaking from the bare Tier~A QCA remains
-open.
-\item \textbf{Dynamical $w(D) = 1/N_D^2$ warp and nonlinear 4D gravity:} Experiments \coderange{E-GRV-0156}{0163}
-operate at Tier~B (imposed effective warp, 2-beat instantaneous Hartree coupling, and spatially uniform 1D
-constant-river Gullstrand--Painlev\'e backgrounds) and Tier~C (continuum GR benchmarks in
-\coderange{E-GRV-0159}{0161}). Deriving the $p = 6$ warp measure, $\gamma_{\mathrm{PPN}} = \beta_{\mathrm{PPN}} = 1$,
-and $G_{\mu\nu} = 8\pi G T_{\mu\nu}$ from bare multi-excitation QCA scattering remains open.
-\item \textbf{The $46\times$ bare-versus-beam speed gap:} Bare Tier~A $M_{\mathrm{pair}}(\zeta_{18})$ floor-0 Dirac
-kinematics (\code{E-RLT-0124}) propagates at $c_{\mathrm{eff}} = 0.021267$, sitting $46.0\times$ below canonical Tier~B
-$c_u = 0.977925$ ($46.4\times$ below period-2 $0.986916$). Deriving species-universal minimal coupling directly from
-the bare QCA and testing nonlinear Ho\v{r}ava-type scalar stability beyond the linearized $m_{\mathrm{KK}} =
-3.2725\text{ rad/beat}$ gap remain open.
+\item \textbf{Dynamical non-Abelian gauge fields and interacting 3+1D chiral gauging:} While \code{E-FRC-0322} tests
+cold $T = 0$ $\mathbb{Z}_3$ confinement on a quasi-(1+1)D ladder, the finite-range $\mathbb{Z}[\zeta_9][1/2]$ wall
+fixes boundary chirality (with a $\mathfrak{p}_3$-adic obstruction forcing velocities $(1, \sqrt{3}, 1)$ inside
+$\mathbb{Q}(\zeta_9)$), and the 14-term $D_4$ Cayley 4-form achieves 0+1D mirror SMG (after proving bare diagonal
+$\Phi_{\mathrm{odd}}$ cannot), deriving continuous dynamical $SU(3)_C \times SU(2)_L \times U(1)_Y$ gauge fields,
+interacting 3+1D mirror gapping, and spontaneous electroweak symmetry breaking from bare $U$ remains open.
+\item \textbf{Symmetry-breaking origin of $w(D) = 1/N_D^2$ and nonlinear 4D gravity:} Exact $O^+(4,1)$
+vertex-transitivity proves that bare $U$ alone forces constant depth weighting ($\alpha = 0$) on every
+state-independent observable, while localized bare launches drift ballistically into the bulk. Deriving a
+self-consistent cusp-anchored conserved-flux background yielding $w(D) = 1/N_D^2$, dynamically sourcing the 1-hop
+horizon river profile $v_{\mathrm{river}}(r)$ from QCA stress-energy, and deriving $\gamma_{\mathrm{PPN}} =
+\beta_{\mathrm{PPN}} = 1$ and $G_{\mu\nu} = 8\pi G T_{\mu\nu}$ remain open.
+\item \textbf{The floor-0 bare-versus-beam speed ceiling:} Bare floor-0 $M_{\mathrm{pair}}(\zeta_{18})$ Dirac
+kinematics (\code{E-RLT-0124}) propagates at $c_{\mathrm{eff}} = 0.021267$ ($46.0\times$ below canonical Tier~B
+$c_u = 0.977925$), and sweeping all 18 roots $u \in \mu_{18}$ and all $U(1)$ caps floor-0 pair speed at $0.129492$
+($7.55\times$ below $c_u$) with zero linear cones. On the warped beam, Cauchy--Schwarz forces an irreducible $0.814\%$
+mismatch for any site-local linear Dirac operator unless shell speed $v_D$ is uniform. Deriving multi-floor
+species-universal minimal coupling and checking nonlinear Ho\v{r}ava-type scalar stability beyond the linearized
+$m_{\mathrm{KK}} = 3.2725\text{ rad/beat}$ gap remain open.
 \item \textbf{The 61-decade Hubble / 122-decade $\Lambda$ gap:} Bare fixed-mesh horosphere drift (\code{E-CSM-0064})
-gives a lattice de Sitter rate \mbox{$H_{\mathrm{dS}} = 0.51713\text{ beat}^{-1}$} ($0.153\, M_{\mathrm{Pl}}$ for
-$\mathrm{F\text{-}G}(\pi)$, or $0.29808\text{ beat}^{-1} = 0.088\, M_{\mathrm{Pl}}$ for the Grover tree), sitting
-$\sim 61$ decades above $H_0$ ($122$ decades in vacuum energy $\Lambda \propto H^2$). Neither CKN scaling nor a
-$D = 95$-anchored toy Bousso--Polchinski scan (\code{E-CSM-0068}) resolves Weinberg's (1989) no-go \cite{weinberg1989}.
-\item \textbf{Quantum foundations, horizons, and many-body scaling:} Four limits stay explicitly open: operational Born
-weights over record branches remain a postulate (\code{E-QTM-0205}), ballistic open-line propagation stalls CHSH
-slightly below Tsirelson's bound (\code{E-QTM-0202}), bounded-clock horizons emit power-law quenches rather than steady
-Planckian Hawking radiation (\code{E-GRV-0134}, \code{E-GRV-0136}), and scaling unfactored many-body L3 evolution across
-large 4D $\{3,4,3,4\}$ regions remains open.
-\item \textbf{Zero-parameter flavor masses and $\alpha(0)$:} Because $e^{i 2/9} \notin \mathbb{Z}[\zeta_9][1/6]$
-(\code{E-FRC-0327}) and the Tier~C $120_H$ fit (\code{E-FRC-0332}) uses 14 real parameters plus 11 $\mathbb{Z}_9$
-exponents ($9^{11}$ basins) alongside heavy thresholds for $\alpha(0)$, first-principles derivation of precision PDG
-mass ratios and $\alpha(0)$ remains open.
+gives $H_{\mathrm{dS}} = 0.51713\text{ beat}^{-1}$ ($0.153\, M_{\mathrm{Pl}}$ for $\mathrm{F\text{-}G}(\pi)$, or
+$0.29808\text{ beat}^{-1} = 0.088\, M_{\mathrm{Pl}}$ for the Grover tree), sitting $\sim 61$ decades above $H_0$
+($122$ decades in $\Lambda \propto H^2$). Neither CKN scaling nor the $D = 95$-anchored toy Bousso--Polchinski scan
+(\code{E-CSM-0068}) resolves Weinberg's (1989) no-go \cite{weinberg1989}.
+\item \textbf{Quantum foundations, lattice horizon prefactor, and L3 many-body scaling:} Although bare-rule
+universality and bare-analyzer Bell--CHSH ($2.6412 / 2.8262$) and 1-hop horizon thermal tunneling
+($T_{\mathrm{meas}}/T_H = 0.980 / 0.957$) are now established, four limits stay open: operational Born weights over
+record branches remain a postulate (\code{E-QTM-0205}), open-line ballistic propagation stalls slightly below
+$2\sqrt{2}$ (\code{E-QTM-0202}), the discrete half-integer horizon carries an $O(1)$ prefactor ($\approx 4$) at
+$\Delta r \sim O(1)$, and unfactored many-body L3 evolution across large 4D $\{3,4,3,4\}$ regions remains open.
+\item \textbf{Zero-parameter flavor masses and $\alpha(0)$:} Exact cyclotomic root floors ($0$ roots in $[0, \pi/12]$
+for $m = 9, 18$, $84\%\text{--}96\%$ mass error for $m = 27\text{--}72$) and Lebesgue look-elsewhere audits
+($p = 0.0385\text{--}0.7697$) confirm that neither Koide $\delta = 2/9$ nor $\alpha^{-1}(0) = 137.036$ has a
+zero-parameter algebraic derivation in $\mathbb{Z}[\zeta_9][1/6]$, while the Tier~C $120_H$ fit (\code{E-FRC-0332})
+uses 14 continuous parameters and 11 $\mathbb{Z}_9$ exponents. Deriving precision PDG flavor parameters and
+$\alpha(0)$ from first principles remains open.
 \end{enumerate}
+
+Table~\ref{tab:nogo-summary} gathers the six exact no-go theorems and algebraic obstructions proved across the study so
+the hard mathematical boundaries of the bare rule remain explicit beside its positive results.
+
+\begin{table}[htbp]
+\centering
+\caption{Exact no-go theorems and structural obstructions bounding the bare $\{3,4,3,4\}$ QCA across Tiers~A--C.}
+\label{tab:nogo-summary}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash\hsize=1.18\hsize}X>{\raggedright\arraybackslash\hsize=0.82\hsize}X@{}}
+\toprule
+No-go / obstruction & Exact mathematical statement & Required escape / implication \\
+\midrule
+2-line $\Phi_{\mathrm{odd}}$ catalyst no-go (Sec.~\ref{sec:quantum}) & $0/880$ 2-full-line catalysts ($0/3{,}696$ antipodal-containing $D_4$ 4-subsets have $\chi_{\mathrm{odd}} \neq 0$) & 3-full-line catalyst $L_7$ ($\operatorname{Tr}(L_7 C) = -5/4$) or bare $M_{\mathrm{meet}}$ DFS \\
+\addlinespace[3pt]
+Floor-0 speed ceiling \& Dirac mismatch (Sec.~\ref{sec:relativity}) & $0/18$ roots in $\mu_{18}$ yield a linear cone, $\max c_{\mathrm{eff}}(u) = 0.129492$ ($7.55\times$ below $c_u$), site-local Dirac misses $c_u$ by $0.814\%$ (Cauchy--Schwarz) & multi-floor bare coupling or uniform-$v_D$ bulk metric \\
+\addlinespace[3pt]
+$O^+(4,1)$ vertex-transitivity warp no-go (Sec.~\ref{sec:gravity}) & bare $U$ commutes identically with even-depth $T_g$ and odd-depth $\mathcal{C} T_g$ across all sectors $\implies \alpha = 0$ on state-independent observables & requires symmetry-breaking cusp flux ($\rho_1 \propto 1/N_D$) plus 2-body pair coupling \\
+\addlinespace[3pt]
+2-band GNVW horizon no-go (Sec.~\ref{sec:gravity}) & any 2-component zero-index 1-hop QCA has constant $\det U(k)$, forcing $v_1(k) = -v_2(k)$ everywhere & minimal 4-component $\mathbb{C}^2_{\mathrm{chiral}} \otimes \mathbb{C}^2_{\mathrm{hop}}$ 1-hop QCA \\
+\addlinespace[3pt]
+$\mathfrak{p}_3$-adic Weyl velocity \& bare SMG no-go (Sec.~\ref{sec:gauge}) & $\langle 1,1,3 \rangle$ anisotropic over $\mathbb{F}_3$ forbids cubic $(1,1,1)$ 2-band Weyl strictly in $\mathbb{Q}(\zeta_9)$, and bare $\chi_{\mathrm{odd}} \equiv 0$ on every 16-cell ($0/1{,}120$) & minimal pure-ring triad $(1,\sqrt{3},1)$ (or adjoin $i$), extend $\Phi_{\mathrm{odd}}$ by 14-term $D_4$ Cayley 4-form \\
+\addlinespace[3pt]
+Cyclotomic Koide / $\alpha(0)$ floor (Sec.~\ref{sec:gauge}) & $e^{i2/9} \notin \overline{\mathbb{Q}}$, $0$ roots in $[0,\pi/12]$ for $m = 9, 18$, look-elsewhere $p = 0.0385\text{--}0.7697$, zero-fit BLM $\alpha^{-1}(0) = 128.73$ ($-6.06\%$) & no zero-parameter cyclotomic derivation of $\delta = 2/9$ or $\alpha(0)$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 \subsection{Five active cross-sector EFT tensions}
 
@@ -58,7 +102,7 @@ checks and 10 fitted or continuum-GR consistency checks.}
 \toprule
 \# & Active tension & Codes & Quantitative conflict and current status \\
 \midrule
-1 & Inflation vs $N_{\mathrm{DW}} = 3$ axion isocurvature & \code{E-CSM-0067}, \code{E-FRC-0331} & Starobinsky inflation ($H_{\mathrm{infl}} = 1.50 \times 10^{13}\,\mathrm{GeV}$) exceeds the pre-inflationary $N_{\mathrm{DW}} = 3$ QCD axion isocurvature ceiling ($H_{\mathrm{infl}} < 9.9 \times 10^6\,\mathrm{GeV}$) by a factor of $1.51 \times 10^6$, while $N_{\mathrm{DW}} = 3 > 1$ blocks an unbiased post-inflationary escape. Unresolved. \\
+1 & Inflation vs $N_{\mathrm{DW}} = 3$ axion isocurvature & \code{E-CSM-0067}, \code{E-FRC-0331} & Starobinsky inflation ($H_{\mathrm{infl}} = 1.50 \times 10^{13}\,\mathrm{GeV}$) exceeds the pre-inflationary $N_{\mathrm{DW}} = 3$ QCD axion isocurvature ceiling ($H_{\mathrm{infl}} < 9.9 \times 10^6\,\mathrm{GeV}$) by $1.51 \times 10^6\times$, while $N_{\mathrm{DW}} = 3 > 1$ blocks post-inflationary escape. Unresolved in the DFSZ axion branch, and avoided if Strong-$\mathcal{CP}$ is instead closed via $\mathbb{Z}[\zeta_9]$ Nelson--Barr ($\Delta D \ge 9$ bulk sequestering, Section~\ref{sec:gauge}). \\
 \addlinespace[3pt]
 2 & Minimal $10_H + \overline{126}_H$ down-quark pull & \code{E-FRC-0330}, \code{E-FRC-0332} & Minimal non-supersymmetric $\mathrm{Spin}(10)$ Yukawa unification at $M_{\mathrm{GUT}}$ pulls $m_d$ by $-41\%$ and $m_s$ by $+70\%$ ($\chi^2 = 87.97$). Adding $120_H$ reduces $\chi^2$ to $0.565$ (max pull $2.92\%$) using 14 continuous parameters plus 11 discrete $\mathbb{Z}_9$ exponents ($9^{11}$ basins) and synthetic 2\%--12\% weights over 18 measured observables, while $120_H$ is omitted from Part~2's toy Hessian and 2-loop RGEs. \\
 \addlinespace[3pt]
@@ -73,9 +117,9 @@ checks and 10 fitted or continuum-GR consistency checks.}
 
 \subsection{Discrete UV finiteness and the Clay Yang--Mills problem}
 
-It is essential to state clearly how the constructive lattice gauge bounds of Section~\ref{sec:unified}
-(\code{E-FND-0189}, \code{E-FND-0190}, \code{Vibe/Geometry.lean}) stand relative to the Clay Millennium Yang--Mills
-Existence and Mass Gap problem \cite{jaffe2000ym}. A discrete $\{3,4,3,4\}$ / $D_4$ substrate does \textbf{not} require
+The constructive lattice gauge bounds of Section~\ref{sec:unified} (\code{E-FND-0189}, \code{E-FND-0190},
+\code{Vibe/Geometry.lean}) relate to the Clay Millennium Yang--Mills Existence and Mass Gap problem \cite{jaffe2000ym}
+as follows. A discrete $\{3,4,3,4\}$ / $D_4$ substrate does \textbf{not} require
 the flat-$\mathbb{R}^4$ continuum $a \to 0$ theorem to be mathematically well-defined: the honeycomb is
 ultraviolet-finite at lattice spacing $a = \ell_{\mathrm{Pl}}$ and already carries an unconditional global Busemann
 Schur-test spectral gap $\lambda_{\mathrm{gap}}(\{3,4,3,4\}) \ge 8/21 \approx 0.3810$ ($\rho_{\mathrm{spec}} \le 13/21
@@ -83,21 +127,27 @@ Schur-test spectral gap $\lambda_{\mathrm{gap}}(\{3,4,3,4\}) \ge 8/21 \approx 0.
 
 In parallel, flat 4D $D_4$ carries exact 256-component $O(a^4)$ rotational isotropy, exact infinite-volume
 site-hyperplane reflection positivity $\mathcal{S} = \mathcal{S}_+ + \mathcal{S}_0 + \Theta \mathcal{S}_+$ for all
-$\beta \ge 0$, certified multi-plaquette Koteck\'y--Preiss strong-coupling radii
+$\beta \ge 0$, multi-plaquette Koteck\'y--Preiss radii
 \mbox{$\beta_{\mathrm{OS}}^{\mathrm{KP}}(\mathbb{Z}_3) = 0.009348$} and
-\mbox{$\beta_{\mathrm{OS}}^{\mathrm{KP}}(SU(3)) = 0.009328$}, and exact Bakry--\'Emery Haar Ricci curvature thresholds
-\mbox{$\beta_{\mathrm{BE}}(SU(2)) = 1/12$} and \mbox{$\beta_{\mathrm{BE}}(SU(3)) = 3/16$} versus $U(1) = 0$.
+\mbox{$\beta_{\mathrm{OS}}^{\mathrm{KP}}(SU(3)) = 0.009328$}, and the sharpened 24-cell vertex-corner
+Combes--Thomas Osterwalder--Schrader mass gap $\Delta_{\mathrm{OS}}(\beta) \ge 2\operatorname{arccosh}(c^*(\beta)) > 0$
+extending across $0 < \beta < N^2/(16\sqrt{7})$ ($0.094491$ for $SU(2)$, $10.12\times$ past KP, and $0.212605$ for
+$SU(3)$, $22.79\times$ past KP, with $U(1) = 0$).
 
 At the same time, \textbf{two distinct mathematical problems remain open}: first, Clay's flat-$\mathbb{R}^4$ continuum
 $a \to 0$ construction across the intermediate-coupling crossover $g(\mu) \sim O(1)$ (which requires multi-scale
-Balaban-style block-spin renormalization \cite{balaban1989} far beyond single-step APE smearing or Migdal--Kadanoff
-bond-moving convexity bounds, leaving the Clay Millennium continuum problem explicitly unsolved), and second, deriving
-dynamical $SU(3)_C$ and $SU(2)_L$ gauge fields directly from the bare Tier~A ternary QCA.
+Balaban-style block-spin renormalization \cite{balaban1989} far beyond single-step APE smearing, Migdal--Kadanoff
+bond-moving convexity bounds, or strict-convexity Combes--Thomas bounds, leaving the Clay Millennium continuum problem
+explicitly unsolved), and second, deriving dynamical $SU(3)_C$ and $SU(2)_L$ gauge fields directly from the bare Tier~A
+ternary QCA.
 
 \paragraph{Acknowledgments and computational tooling.}
-Every formal theorem is independently verified by the Lean~4.35.0 kernel, every numerical audit runs deterministically
-from the public repository, and the author takes sole responsibility for all claims and any remaining errors. During
-software development, testing, adversarial auditing, and manuscript revision, large language models assisted as
-engineering and review tools: Claude Opus~5.5 supported the earlier months of exploratory modeling, experiment
-implementation, and initial proofs, and Gemini~4~Neon supported the final push of Lean~4 proof hardening, adversarial
-audits, bug remediation, and manuscript revision.
+The six baseline Lean~4.35.0 modules (94 headline theorems) passed full kernel compilation and \code{\#print axioms}
+verification, while the three newer modules (\code{SchurGap}, \code{Uniqueness4D}, \code{CoxeterTransport}, 47
+headline theorems) passed deterministic structural verification and independent exact Python arithmetic cross-checks
+pending host \code{lake build} execution. Every numerical audit runs deterministically from the public repository, and
+the author takes sole responsibility for all claims and any remaining errors. During software development, testing,
+adversarial auditing, and manuscript revision, large language models assisted as engineering and review tools: Claude
+Opus~5.5 supported the earlier months of exploratory modeling, experiment implementation, and initial proofs, and
+Gemini~4~Neon supported Lean~4 proof expansion, constructive lattice and scattering analyses, adversarial audits, bug
+remediation, and manuscript revision.
