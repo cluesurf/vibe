@@ -1656,7 +1656,7 @@ function runPart1(): void {
 
 // =================================================================================================
 // PART 2: EXACT 4D {3,4,3,4} k = 3 TRION (Z[omega][1/7]) & k = 4 TETRON BIC (Z[omega][1/49])
-//         (CHALLENGE 5b PART 2 — POSITIVE RESOLUTION!)
+//         (CHALLENGE 5b PART 2: POSITIVE RESOLUTION!)
 // =================================================================================================
 
 type Zw = readonly [bigint, bigint]
