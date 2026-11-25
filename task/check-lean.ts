@@ -23,7 +23,7 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { runInfiniteTimeProofs } from '@/code/measure/infinite-time-proofs'
 
-const MIN_HEADLINE_THEOREM_COUNT = 229
+const MIN_HEADLINE_THEOREM_COUNT = 301
 const EXPECTED_LEAN_TOOLCHAIN = 'leanprover/lean4:v4.35.0'
 const EXPECTED_LEAN_VERSION = '4.35.0'
 
@@ -273,6 +273,84 @@ const REQUIRED_THEOREMS = [
   'thm_bt4b_nelson_barr_5x5_symbolic',
   'thm_bt4b_nelson_barr_concrete_witnesses',
   'thm_bt4b_nelson_barr_cp_broken_jarlskog_witness',
+  // Vibe.Countermodels (14 headline: symmetry persistence, 0_D vs 0_V, rule census, octonion Degen 8-sq, 5-universe separation)
+  'thm_cm_general_stabilizer_preservation',
+  'thm_cm_two_site_symmetric_beat_fixes_zero',
+  'thm_cm_symmetric_totality_orbit_invariant',
+  'thm_cm_two_zeros_separation',
+  'thm_cm_central_trinomial_counts',
+  'thm_cm_two_site_rule_census',
+  'thm_cm_countermodel_singleton',
+  'thm_cm_countermodel_1d_c2',
+  'thm_cm_countermodel_free_tn_and_on',
+  'thm_cm_countermodel_octonion_nonassociative',
+  'thm_cm_countermodel_a4_and_b4_roots',
+  'thm_cm_countermodel_euclidean_3433',
+  'thm_cm_countermodel_static_vacuum_achiral',
+  'thm_cm_five_competing_universes_separation',
+  // Vibe.ParityUniqueness (14 headline: D_n self-duality n=4, {3,4,3,4} parity uniqueness, connected J=L o C, 2T polar duality, torsor)
+  'thm_pu_dn_self_dual_iff_four',
+  'thm_pu_dn_facet_vertex_uniformity_iff_four',
+  'thm_pu_coxeter_character_even_p',
+  'thm_pu_gram_det_343p',
+  'thm_pu_parity_and_finite_covolume_uniquely_force_3434',
+  'thm_pu_class_swap_left_involution_and_parity',
+  'thm_pu_infinite_mesh_J_config_neutrality',
+  'thm_pu_infinite_mesh_involutive_neutrality',
+  'thm_pu_witness_C_odd_and_L_breaks_PhiOdd',
+  'thm_pu_hurwitz_2t_closure_and_order_24',
+  'thm_pu_q8_and_h_generate_2t',
+  'thm_pu_2t_polar_facet_normal_duality',
+  'thm_pu_even_parity_t4_shortest_is_d4',
+  'thm_pu_torsor_chart_independence',
+  // Vibe.CausalFoliation (11 headline: S = R o E_swap, Tomonaga-Schwinger foliation invariance bridged to fockBeat, microcausality, Q & D)
+  'thm_cf_facet_pairing_free_involution',
+  'thm_cf_edge_swap_involution_and_comm',
+  'thm_cf_stream_eq_rev_comp_edge_swap',
+  'thm_cf_on_site_commutes_with_rev_and_disjoint_edge',
+  'thm_cf_beat_factorization_R_Eswap_W',
+  'thm_cf_tomonaga_schwinger_foliation_invariance',
+  'thm_cf_valid_cut_lipschitz_and_diamond',
+  'thm_cf_vibe_causal_foliation_invariance',
+  'thm_cf_spacelike_microcausality',
+  'thm_cf_activity_zero_iff_v1',
+  'thm_cf_edge_swap_conserves_Q_and_D',
+  // Vibe.SpectralSharp (12 headline: 217-clique RACG Schur bound rho <= 335/28 < 12, upward-only Rayleigh compression, (11,12) bracket)
+  'thm_ss_reciprocal_edge_amgm',
+  'thm_ss_finite_reciprocal_schur_bound',
+  'thm_ss_d4_comm_cliques_and_transitions',
+  'thm_ss_foata_detailed_balance',
+  'thm_ss_three_rational_row_sums',
+  'thm_ss_spectral_radius_lt_12',
+  'thm_ss_normalized_gap_gt_half',
+  'thm_ss_refined_3rat_bound',
+  'thm_ss_racg_subgraph_schur_bound',
+  'thm_ss_stratum_rayleigh_exact',
+  'thm_ss_rayleigh_lower_gt_11',
+  'thm_ss_spectral_bracket_11_12',
+  // Vibe.BallisticDoublon (12 headline: O^+(4,1) convexity, Cholesky H_2>=2, antipodal-free disjoint-support Gram, exact P=0 M_meet doublon)
+  'thm_bd_twiceForm_baseCenter_and_height',
+  'thm_bd_coxeter_antipodal_sum_six',
+  'thm_bd_hyperbolic_height_convexity',
+  'thm_bd_word_height_pure_even_integer',
+  'thm_bd_frontier_no_antipodal_arrival_pair',
+  'thm_bd_ballistic_recurrence_strict_growth',
+  'thm_bd_ballistic_no_periodic_compacton',
+  'thm_bd_coin_strict_outward_transmission',
+  'thm_bd_frontier_leakage_exact_eigenvalues',
+  'thm_bd_doublon_eigenvalue_unit_modulus',
+  'thm_bd_doublon_infinite_line_eigenstate',
+  'thm_bd_doublon_exact_norm_and_ipr',
+  // Vibe.HolographicCode (9 headline: S_3-triality W(F_4) covariance, [[24,1,8]]_3 & [[24,0,6]]_3 isotropy/rank/witnesses, D_4 CSS obstruction)
+  'thm_hc_wf4_generators_match_chirality',
+  'thm_hc_s3_clifford_homomorphism',
+  'thm_hc_orthogonal_block_decomposition',
+  'thm_hc_w9_weight4_vs_weight6_split',
+  'thm_hc_code_24_1_8_stabilizer_valid',
+  'thm_hc_code_24_1_8_wf4_covariant',
+  'thm_hc_code_24_1_8_triality_bulk_logical',
+  'thm_hc_code_24_0_6_lagrangian_wf4_covariant',
+  'thm_hc_native_d4_css_obstruction',
 ] as const
 
 const scriptDir = dirname(fileURLToPath(import.meta.url))

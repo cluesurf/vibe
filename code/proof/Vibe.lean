@@ -12,11 +12,17 @@ import Vibe.Chirality
 import Vibe.CuspGrowth
 import Vibe.Quantum
 import Vibe.BreakthroughAlgebra
+import Vibe.Countermodels
+import Vibe.ParityUniqueness
+import Vibe.CausalFoliation
+import Vibe.SpectralSharp
+import Vibe.BallisticDoublon
+import Vibe.HolographicCode
 
 /-!
 # Vibe Theory: Formal Lean 4 Proof Suite
 
-Root aggregator (0 theorems) re-exporting all fourteen zero-dependency Lean 4 proof modules (15 `.lean` files total):
+Root aggregator (0 theorems) re-exporting all twenty zero-dependency Lean 4 proof modules (21 `.lean` files total):
 - `Vibe.Tone`: Signed ternary state `{-1, 0, +1}`, 24-slot `DockState`, calm vacuum `v1Dock`, charge conjugation `conjDock`
 - `Vibe.Algebra`: Exact rings `ℤ[ω]`, `ℤ[ζ_9]`, `Mat2Eis`, involutive `StarCommRing`, cyclotomic `ℤ[ζ_9]` gap cubic
 - `Vibe.Rule`: Classical 24-slot `DockState` `V1` fixed-point & 1-hop Lipschitz light-cone lemmas, exact local gate-matrix/scalar unitarity (`2 × 2` `C`/`D`, `8 × 8` `F-G`, scalar `ζ_6^n`, symbolic `12 × 12` `M_pair(u)`), and algebraic 2-adic `SU(2)`/`PSU(2)` infinite-order & non-`Pin(2)` hypotheses for gate density
@@ -31,6 +37,12 @@ Root aggregator (0 theorems) re-exporting all fourteen zero-dependency Lean 4 pr
 - `Vibe.CuspGrowth`: Right-angled `O^+(4,1; ℤ[√2])` Cartier-Foata transfer proof of Steinberg cubic `x(n+4) + 51 x(n+2) = 21 x(n+3) + 23 x(n+1)`, `N_{D+1} ≥ 18 N_D`, `wallCusp D = cuspLateralLinks D`, `18.2787 < λ_{3434} < 18.2788`, unconditionally discharging `Vibe.Geometry`
 - `Vibe.Quantum`: Exact `C_{1/2}` & `M_meet^diff` Eisenstein identities, 2-adic `normSq ≠ 2`, `E-QTM-0204` `6 × 6` unitary splitter & Mach-Zehnder recombination, and `E-QTM-0205` `36/36` `ℤ_6 × ℤ_6` + `24/24` `S_4` bipartite envariance
 - `Vibe.BreakthroughAlgebra`: Exact `B_tri^T B_tri = 3(A_24 + 4 I_24)` SOS + Combes-Thomas cubic majorant + `D_4/ℤ^4` ratio `2`, `L_7` catalyst infinite order + Eisenstein molecule + `su(9)` Casimir, 14-term `D_4` Cayley 4-form `Spin(7)` SMG `{-14, 0, +2}` + `28/28` zero condensates, and un-shortcut symbolic `4 × 4` & `5 × 5` `ℤ[ζ_9]` Nelson-Barr `det(M_d) ∈ ℤ` with CP-broken Jarlskog witness
+- `Vibe.Countermodels`: Symmetry-persistence laws, `0_D` vs `0_V` separation, central trinomial counts, exhaustive 2-site rule census (`24` rules), Hurwitz / symbolic 8-square Degen octonion non-associativity, `A_4`/`B_4`/`{3,4,3,3}`/`k ≤ 3` countermodels, and uniform `Prop`-level 5-universe separation
+- `Vibe.ParityUniqueness`: Unconditional `D_n` self-duality (`n = 4`), zero-minimality `{3,4,3,4}` parity uniqueness, connected-honeycomb bipartite class-swap `L(g) = F_0 g Z` + `R` neutrality `J = L ∘ C` commuting with all 8 layers of `fockBeat` for all `t`, Hurwitz `2T = ⟨Q_8, h⟩`, polar octahedral facet duality, `Tone^4`, and `G`-torsor chart independence
+- `Vibe.CausalFoliation`: Fixed-point-free facet pairing, pairwise-commuting single-edge swaps, `S = R ∘ E_swap` factorization, discrete Tomonaga-Schwinger / Mazurkiewicz foliation invariance directly bridged to `Vibe.FockBeat.fockBeat` via `thm_fock_lieb_robinson_light_cone`, concrete `ValidCauchySchedule` diamond witness, microcausality, and per-event `Q` + `D` conservation
+- `Vibe.SpectralSharp`: Reciprocal edge AM-GM & Gabber-Galil-Nagnibeda Schur bound, 217-clique `Γ_24` transition census, all-depth Cartier-Foata detailed balance, structural RACG degree-to-Schur bounds (`ρ ≤ 335/28 < 12`, `λ_gap ≥ 337/672 > 1/2`), symmetric bipartite upward-only Rayleigh compression, and `(11, 12)` spectral bracket
+- `Vibe.BallisticDoublon`: Exact `O^+(4,1; ℤ[√2])` hyperbolic convexity `H_2(g k_a) + H_2(g k_{-a}) = 6 H_2(g)`, Cholesky `H_2(w) ≥ 2` positivity, ballistic Pell-Chebyshev no-compacton recurrence, antipodal-free disjoint-support frontier Gram diagonalization (`1 - (3/4)^m`), and exact `P = 0` infinite-line `ℤ[ω][1/13]` `M_meet` doublon (`p(0) = 6/13`, `IPR = 5118/14365`)
+- `Vibe.HolographicCode`: `W(F_4)` Bourbaki alignment & `S_3`-triality local-Clifford homomorphism (`det = +1` on `2T ∘ 2T`), orthogonal block decomposition (`R_8 ⊕ R_4` linked to `hcR4`), `W(F_4)`-orbit weight-4 exclusion from `W_9^(6)`, exact `23 × 48` (`[[24, 1, 8]]_3`) and `24 × 48` (`[[24, 0, 6]]_3`) isotropy/ranks/all-word covariance/weight witnesses, and native `D_4` CSS obstruction (`d_⊥(R_4) = 2`, `d_⊥(R_5) = 3`)
 
 Zero `sorry`, zero `axiom`, zero `native_decide`, zero external packages, machine-checked by Lean `4.35.0`.
 -/
