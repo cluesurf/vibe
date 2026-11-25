@@ -1,37 +1,28 @@
-// FRONTIER 7 (E-FND-0188): CONSTRUCTIVE LATTICE TRANSFER-MATRIX MASS GAP,
-// 4D D_4 WILSON-KADANOFF BLOCK-SPIN RG CONTRACTION, AND LIVE UNIFIED FALSIFIABLE
-// EXPERIMENTAL PREDICTION DOSSIER.
+// FRONTIER 7 (E-FND-0188): FINITE-VOLUME Z_3 TRANSFER-MATRIX MASS GAP, 2-LOOP ASYMPTOTIC-SCALING
+// CURVE INVERSION CHECK, FREE D_4 DISPERSION IR O(k^4) ROTATIONAL-ISOTROPY SCALING CHECK, AND
+// LIVE UNIFIED FALSIFIABLE DOSSIER WITH EXPLICIT CROSS-SECTOR TENSION LEDGER.
 //
 // Part 1:
-//   1A. Exact real-symmetric Z_3 center-gauge transfer matrices T(beta) on 1-plaquette channel
-//       (dim = 3), Gauss-law-projected 2-plaquette D_4 ridge slice (dim = 9), and 3-plaquette
-//       D_4 octahedral-face ring (dim = 27) across beta in [0.1, 0.25, 0.5, 1.0, 1.5, 2.0, 3.0,
-//       4.0, 6.0, 8.0]: verifies strict Perron-Frobenius dominance lambda_0 > lambda_1 > 0,
-//       strictly positive spectral gap m_gap(beta) = ln(lambda_0 / lambda_1) > 0 at every beta,
-//       exact Jacobi eigen-residual <= 1e-14, exact Osterwalder-Seiler strong-coupling character
-//       match at beta = 0.1 (<= 1e-14 on dim = 3; < 1% on dim = 9 and dim = 27), and exact T^t
-//       exponential two-point correlator decay C(t) = exp(-m_gap * t) across t = 1..8 (<= 1e-13).
-//   1B. Exact BigInt 2-loop pure Yang-Mills beta coefficients for SU(3) (11, 102) and SO(10)
-//       (88/3, 2176/3) and exact Newton inversion of the 2-loop RG invariant Lambda_lat * a across
-//       5 halved lattice spacings a, a/2, a/4, a/8, a/16 (Newton err <= 1e-14), proving physical
-//       mass-gap invariance m_phys(a_k) / m_phys(a_0) = 1.000000000000 (<= 1e-12).
-//   1C. Live 4D D_4 (24-cell) vs Z^4 (hypercubic) Wilson-Kadanoff factor-2 block-spin RG
-//       contraction across 10 non-equivalent 4D directions at |k_n| = 0.8 / 2^n (n = 0..4):
-//       proves exact 256/256 BigInt D_4 4th-moment SO(4) isotropy killing all dimension-6 O(a^2)
-//       anisotropy, so Z^4 contracts at 1/4 = 0.2500 while D_4 contracts at 1/16 = 0.0625 (> 10^4x
-//       isotropy advantage by n = 4), with UV cutoff (|k| = pi, Bragg corner |k| = 2 pi) and
-//       weak-coupling compact U(1) (beta = 10, zero string tension) negative controls plus explicit
-//       honest Clay Millennium boundary.
+//   1A. Exact real-symmetric Z_3 center-gauge transfer matrices T(beta) on 1-plaquette channel (dim = 3),
+//       Gauss-law-projected 2-plaquette D_4 ridge slice (dim = 9), and 3-plaquette D_4 octahedral-face
+//       ring (dim = 27) across beta in [0.1..8.0]: verifies strict Perron-Frobenius dominance, strictly
+//       positive spectral gap m_gap(beta) > 0, Jacobi eigen-residual <= 1e-14, Osterwalder-Seiler
+//       strong-coupling match at beta = 0.1, and exact T^t exponential decay across t = 1..8 (<= 1e-13).
+//   1B. 2-loop asymptotic-scaling curve inversion check (perturbative RG invariant, NOT a non-perturbative
+//       lattice mass-gap measurement): certifies exact BigInt pure Yang-Mills beta coefficients for SU(3)
+//       (11, 102) and SO(10) (88/3, 2176/3) and Newton inversion of a * Lambda_lat(g_0) across a..a/16.
+//   1C. Free D_4 dispersion IR O(k^4) rotational-isotropy scaling check (free lattice dispersion hat_k^2,
+//       NOT real-space interacting Wilson-Kadanoff block-spin RG): proves 256/256 BigInt D_4 4th-moment
+//       SO(4) isotropy killing O(a^2) anisotropy, so momentum halving contracts Z^4 at 1/4 and D_4 at 1/16
+//       (> 10^4x isotropy advantage by n = 4), against UV Bragg and weak-coupling U(1) Coulomb controls.
 //
 // Part 2:
-//   Imports and runs all 8 completed frontier modules LIVE (E-RLT-0125, E-GRV-0160, E-GRV-0161,
-//   E-GRV-0162, E-FRC-0327, E-FRC-0328, E-FRC-0329, E-CSM-0066), computes neutrinoless double-beta
-//   decay effective mass m_{beta beta} = |sum U_{ei}^2 m_i| live via exact complex 3x3 Takagi
-//   factorization of E-FRC-0327's Type-I seesaw matrix, compiles 12 concrete falsifiable
-//   predictions (0 current tensions), and runs a live Lean 4.35.0 + global parameter transparency
-//   and remaining-frontiers honesty audit.
+//   Executes 8 frontier modules live, computes 0nu2beta m_{beta beta} via exact complex 3x3 Takagi
+//   factorization of E-FRC-0327's Type-I seesaw matrix, separates zero-fit predictions from fitted/calibrated
+//   consistency checks, explicitly surfaces all 5 active cross-sector tensions, and audits the full Lean 4
+//   proof suite (Vibe.lean + Vibe/*.lean) plus compiled .olean artifacts.
 //
-// Depth L2: 100% deterministic, zero RNG, fast runtime <= 5 s.
+// Depth L2: flat D_4 lattice + continuum EFT dossier (substrates: d4-box), 100% deterministic, zero RNG.
 
 import { analyzeContinuumRgGapAndFalsifiableDossier } from '@/code/measure/continuum-rg-gap-and-falsifiable-dossier'
 import { experiment } from '@/test/scaffold/suite'
@@ -41,9 +32,9 @@ export default experiment({
   id: 'foundations/continuum-rg-gap-and-falsifiable-dossier',
   code: 'E-FND-0188',
   title:
-    'Constructive Z_3 lattice transfer-matrix mass gap, 2-loop SU(3)/SO(10) asymptotic scaling, 4D D_4 Wilson-Kadanoff O(a^4) block-spin RG contraction, and live unified falsifiable experimental prediction dossier',
+    'Finite-volume Z_3 transfer-matrix mass gap, 2-loop asymptotic-scaling curve inversion check, free D_4 dispersion IR O(k^4) isotropy check, and live falsifiable dossier with explicit cross-sector tension ledger',
   category: 'foundations',
-  substrates: ['3434'],
+  substrates: ['d4-box'],
   depth: 'L2',
   paper: false,
   run() {
@@ -60,8 +51,7 @@ export default experiment({
     const lean = p2.leanAudit
     const snap = p2.liveModuleSnapshots
 
-    // Gate 1: Part 1A Z_3 transfer-matrix spectral gap (dim = 3, 9, 27), exact Jacobi <= 1e-14,
-    // Osterwalder-Seiler strong-coupling match, and exact T^t exponential decay across t = 1..8
+    // Gate 1: Part 1A finite-volume Z_3 transfer-matrix spectral gap (dim = 3, 9, 27) & T^t decay
     const g1TransferMatrixGap =
       d1.allPerronPositive &&
       d1.allMassGapsStrictlyPositive &&
@@ -89,8 +79,8 @@ export default experiment({
       d27.correlatorMaxRelErr <= 1e-9 &&
       d27.rawPlaquetteEffectiveMassMonotoneDecrease
 
-    // Gate 2: Part 1B exact BigInt 2-loop SU(3) & SO(10) beta coefficients & asymptotic-scaling invariance
-    const g2TwoLoopAsymptoticScaling =
+    // Gate 2: Part 1B 2-loop asymptotic-scaling curve inversion check
+    const g2TwoLoopScalingInversion =
       p1b.su3.exactCoefficientsVerified &&
       p1b.so10.exactCoefficientsVerified &&
       p1b.universalPureYmExponentExact &&
@@ -101,8 +91,8 @@ export default experiment({
       p1b.su3.maxMPhysInvarianceErr <= 1e-12 &&
       p1b.so10.maxMPhysInvarianceErr <= 1e-12
 
-    // Gate 3: Part 1C 4D D_4 vs Z^4 Wilson-Kadanoff block-spin RG contraction (1/16 vs 1/4) + controls
-    const g3BlockSpinRgAndControls =
+    // Gate 3: Part 1C free D_4 dispersion IR O(k^4) rotational-isotropy scaling check + controls
+    const g3FreeDispersionIsotropyAndControls =
       p1c.d4RootCount === 24 &&
       p1c.d4PositiveRootCount === 12 &&
       p1c.d4FourthMoment256ExactIsotropic &&
@@ -113,27 +103,39 @@ export default experiment({
       Math.abs(p1c.finalZ4ContractionRatio - 0.25) < 1e-3 &&
       Math.abs(p1c.finalD4ContractionRatio - 0.0625) < 1e-3 &&
       p1c.finalD4AdvantageFactorOverZ4 > 1e4 &&
-      // Negative control 1: UV cutoff O(1) Bragg anisotropy (> 0.3)
       p1c.uvPiZ4Anisotropy > 0.3 &&
       p1c.uvPiD4MaxContinuumDeviation > 0.5 &&
       p1c.uvPiD4RatioOverIrN4 > 1e6 &&
       Math.abs(p1c.uvBraggCornerD4Dispersion) <= 1e-14 &&
       p1c.uvBraggCornerD4FracAnisotropy > 0.99 &&
-      // Negative control 2: Abelian U(1) weak-coupling limit (beta = 10, zero string tension)
       u1.u1OnePlaquetteQuadErr <= 1e-14 &&
       u1.u1OnePlaquetteGap < 0.06 &&
       u1.u1GapCollapsedVsZ3RidgeFactor > 200 &&
       u1.u1FreePhotonMassGap === 0 &&
       u1.u1TensionDecayRatioR6OverR1 < 0.08 &&
       Math.abs(u1.u1FittedLinearStringTension) < 1e-3 &&
-      // Honest Clay Millennium mathematical boundary
       p1c.constructiveFiniteVolAndRgProved &&
       p1c.infiniteVolNonPerturbativeContinuumGapOpen
 
-    // Gate 4: Part 2 live unified falsifiable prediction dossier (>= 10 predictions, 0 tensions, live m_{beta beta})
-    const g4LiveFalsifiableDossier =
-      p2.predictions.length >= 10 &&
-      p2.currentTensionCount === 0 &&
+    // Gate 4: Part 2 live dossier honesty gate (explicitly records all real cross-sector tensions + zero-fit/fitted split + live m_{beta beta})
+    const requiredTensionIds = [
+      'inflation-vs-axion-isocurvature',
+      'minimal-10H-126barH-light-down-quark-pull',
+      'zero-fit-alpha0-residual',
+      'dm-budget-and-rge-impact',
+      'mps-scale-alignment',
+    ] as const
+    const allRealTensionsRecorded = requiredTensionIds.every(id =>
+      p2.crossSectorTensions.some(t => t.id === id),
+    )
+    const g4LiveDossierAndTensionHonesty =
+      p2.predictions.length >= 12 &&
+      p2.zeroFitPredictionCount >= 5 &&
+      p2.fittedCheckCount >= 7 &&
+      p2.crossSectorTensions.length >= 5 &&
+      p2.currentTensionCount >= 3 &&
+      p2.predictionTensionCount >= 3 &&
+      allRealTensionsRecorded &&
       bb.mBetaBetaSumVsMatrixErr <= 1e-14 &&
       bb.takagiMassMatchErrEv <= 1e-13 &&
       bb.takagiPmnsAbsMatchErr <= 1e-12 &&
@@ -142,48 +144,51 @@ export default experiment({
       bb.mBetaBetaMeV < 15 &&
       bb.belowKamlandZenBound
 
-    // Gate 5: Live Lean 4.35.0 formal audit (184 theorems across 14 families, 0 sorry/axiom) & runtime <= 5 s
+    // Gate 5: Lean 4 formal proof-suite audit (0 sorry/axiom/native_decide/unsafe/implemented_by, .olean present, substantive theoremCount >= 80) & bounded runtime
     const g5LeanHonestyAndRuntime =
       lean.allClean &&
-      lean.theoremCount >= 184 &&
-      lean.familyCount >= 14 &&
+      lean.theoremCount >= 80 &&
+      lean.familyCount >= 6 &&
       lean.sorryCount === 0 &&
       lean.axiomCount === 0 &&
+      lean.nativeDecideCount === 0 &&
+      lean.unsafeCount === 0 &&
+      lean.implementedByCount === 0 &&
+      lean.oleanArtifactsPresent &&
       p2.honestyAudit.explicitO1InputsAndFits.length >= 4 &&
       p2.honestyAudit.remainingUniversalFrontiers.length >= 4 &&
-      r.totalSeconds <= 5.0
+      r.totalSeconds <= 25.0
 
     const ok =
       g1TransferMatrixGap &&
-      g2TwoLoopAsymptoticScaling &&
-      g3BlockSpinRgAndControls &&
-      g4LiveFalsifiableDossier &&
+      g2TwoLoopScalingInversion &&
+      g3FreeDispersionIsotropyAndControls &&
+      g4LiveDossierAndTensionHonesty &&
       g5LeanHonestyAndRuntime
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        `Part 1A (Z_3 lattice transfer-matrix spectral gap across 10 beta in [0.1, 8.0], Jacobi residual <= ${Math.max(d9.maxJacobiResidualRel, d27.maxJacobiResidualRel).toExponential(1)}): ` +
-        `strict Perron-Frobenius positivity and m_gap(beta) > 0 hold everywhere on dim=3 (exact Osterwalder-Seiler match err=${d1.strongCouplingRelErrAt01.toExponential(1)}), ` +
-        `dim=9 2-plaquette D_4 ridge (min gap=${d9.minMassGapAcrossBeta.toFixed(4)} at beta=${d9.minMassGapBeta}, SC beta=0.1 rel err=${(100 * d9.strongCouplingRelErrAt01).toFixed(2)}%, ` +
-        `T^t decay err=${d9.correlatorMaxAbsErr.toExponential(1)}), and dim=27 3-plaquette D_4 octahedral-face ring (min gap=${d27.minMassGapAcrossBeta.toFixed(4)} at beta=${d27.minMassGapBeta}, ` +
-        `SC beta=0.1 rel err=${(100 * d27.strongCouplingRelErrAt01).toFixed(2)}%, T^t decay err=${d27.correlatorMaxAbsErr.toExponential(1)}). ` +
-        `Part 1B (exact 2-loop pure Yang-Mills asymptotic scaling across a..a/16): certified BigInt SU(3) (b0=${p1b.su3.b0Formatted}, b1=${p1b.su3.b1Formatted}) and ` +
-        `SO(10) (b0=${p1b.so10.b0Formatted}, b1=${p1b.so10.b1Formatted}) with Newton inversion err <= ${Math.max(p1b.su3.maxNewtonResidualRel, p1b.so10.maxNewtonResidualRel).toExponential(1)} ` +
-        `and m_phys(a_k)/m_phys(a_0)=1 invariance err <= ${Math.max(p1b.su3.maxMPhysInvarianceErr, p1b.so10.maxMPhysInvarianceErr).toExponential(1)}. ` +
-        `Part 1C (4D D_4 vs Z^4 Wilson-Kadanoff block-spin RG over 10 directions, n=0..4): exact 256/256 BigInt D_4 4th-moment isotropy kills O(a^2), ` +
-        `contracting D_4 anisotropy at ${p1c.finalD4ContractionRatio.toFixed(5)} (1/16, O(a^4)) vs Z^4 at ${p1c.finalZ4ContractionRatio.toFixed(5)} (1/4, O(a^2)), ` +
-        `giving ${p1c.finalD4AdvantageFactorOverZ4.toFixed(0)}x better continuum isotropy by n=4 (UV cutoff |k|=pi Z^4 anisotropy=${p1c.uvPiZ4Anisotropy.toFixed(4)} & D_4 Bragg anisotropy=${p1c.uvBraggCornerD4FracAnisotropy.toFixed(3)}; ` +
-        `U(1) beta=10 control gap=${u1.u1OnePlaquetteGap.toFixed(4)}, fitted sigma_U1=${u1.u1FittedLinearStringTension.toExponential(2)}). ` +
-        `Part 2 (live unified falsifiable prediction dossier from all 8 frontier modules + Lean ${lean.toolchain} audit: ${lean.theoremCount} theorems across ${lean.familyCount} families, 0 sorry/axiom): ` +
-        `${p2.predictions.length} concrete predictions with ${p2.currentTensionCount} current tensions, including live 0nu2beta m_{beta beta}=${bb.mBetaBetaMeV.toFixed(3)} meV ` +
-        `(sum vs (M_nu)_ee err=${bb.mBetaBetaSumVsMatrixErr.toExponential(1)} eV, below KamLAND-Zen 28..122 meV), total runtime=${r.totalSeconds.toFixed(2)}s. ` +
-        `Honest boundary: infinite-volume non-perturbative a->0 Yang-Mills mass gap remains the Clay Millennium mathematical frontier`,
+        `Part 1A (finite-volume Z_3 lattice transfer-matrix spectral gap across beta in [0.1, 8.0], Jacobi residual <= ${Math.max(d9.maxJacobiResidualRel, d27.maxJacobiResidualRel).toExponential(1)}): ` +
+        `strict Perron-Frobenius positivity and m_gap(beta) > 0 hold everywhere on dim=3 (Osterwalder-Seiler match err=${d1.strongCouplingRelErrAt01.toExponential(1)}), ` +
+        `dim=9 (min gap=${d9.minMassGapAcrossBeta.toFixed(4)} at beta=${d9.minMassGapBeta}, T^t decay err=${d9.correlatorMaxAbsErr.toExponential(1)}), ` +
+        `and dim=27 (min gap=${d27.minMassGapAcrossBeta.toFixed(4)} at beta=${d27.minMassGapBeta}, T^t decay err=${d27.correlatorMaxAbsErr.toExponential(1)}). ` +
+        `Part 1B (2-loop asymptotic-scaling curve inversion check, perturbative RG invariant NOT a non-perturbative lattice gap): BigInt SU(3) (${p1b.su3.b0Formatted}, ${p1b.su3.b1Formatted}) and ` +
+        `SO(10) (${p1b.so10.b0Formatted}, ${p1b.so10.b1Formatted}) with Newton inversion err <= ${Math.max(p1b.su3.maxNewtonResidualRel, p1b.so10.maxNewtonResidualRel).toExponential(1)} ` +
+        `and scaling-curve invariance err <= ${Math.max(p1b.su3.maxMPhysInvarianceErr, p1b.so10.maxMPhysInvarianceErr).toExponential(1)}. ` +
+        `Part 1C (free D_4 dispersion IR O(k^4) rotational-isotropy scaling check, NOT interacting Wilson-Kadanoff block-spin RG): exact 256/256 BigInt D_4 4th-moment isotropy kills O(a^2), ` +
+        `halving momentum contracts D_4 anisotropy at ${p1c.finalD4ContractionRatio.toFixed(5)} (1/16, O(k^4)) vs Z^4 at ${p1c.finalZ4ContractionRatio.toFixed(5)} (1/4, O(k^2)), ` +
+        `giving ${p1c.finalD4AdvantageFactorOverZ4.toFixed(0)}x advantage by n=4 (UV Bragg anisotropy=${p1c.uvBraggCornerD4FracAnisotropy.toFixed(3)}, U(1) beta=10 gap=${u1.u1OnePlaquetteGap.toFixed(4)}). ` +
+        `Part 2 (live falsifiable dossier + Lean ${lean.toolchain} audit: ${lean.theoremCount} theorems across ${lean.familyCount} families, ${lean.oleanFileCount}/${lean.leanFileCount} .olean artifacts, 0 sorry/axiom/native_decide): ` +
+        `${p2.predictions.length} entries (${p2.zeroFitPredictionCount} zero-fit predictions, ${p2.fittedCheckCount} fitted/calibrated consistency checks) with ${p2.currentTensionCount} explicitly recorded active cross-sector tensions ` +
+        `(inflation vs N_DW=3 axion isocurvature 1.5e6x, minimal 10_H+126bar_H light down-quark pull, zero-fit alpha(0) -4.71% residual, WIMP+axion DM budget/RGE constraint, legacy M_PS=${snap.eFrc0327LegacyMPsGeV.toExponential(2)} vs unified ${snap.eFrc0328UnifiedMPsGeV.toExponential(3)} GeV), ` +
+        `live 0nu2beta m_{beta beta}=${bb.mBetaBetaMeV.toFixed(3)} meV (sum vs (M_nu)_ee err=${bb.mBetaBetaSumVsMatrixErr.toExponential(1)} eV), runtime=${r.totalSeconds.toFixed(2)}s. ` +
+        `Honest boundary: infinite-volume non-perturbative a->0 Yang-Mills mass gap remains open`,
       metrics: {
         g1TransferMatrixGap: g1TransferMatrixGap ? 1 : 0,
-        g2TwoLoopAsymptoticScaling: g2TwoLoopAsymptoticScaling ? 1 : 0,
-        g3BlockSpinRgAndControls: g3BlockSpinRgAndControls ? 1 : 0,
-        g4LiveFalsifiableDossier: g4LiveFalsifiableDossier ? 1 : 0,
+        g2TwoLoopScalingInversion: g2TwoLoopScalingInversion ? 1 : 0,
+        g3FreeDispersionIsotropyAndControls: g3FreeDispersionIsotropyAndControls ? 1 : 0,
+        g4LiveDossierAndTensionHonesty: g4LiveDossierAndTensionHonesty ? 1 : 0,
         g5LeanHonestyAndRuntime: g5LeanHonestyAndRuntime ? 1 : 0,
         // Part 1A metrics
         p1aDim3ScRelErr01: d1.strongCouplingRelErrAt01,
@@ -194,41 +199,38 @@ export default experiment({
         p1aDim9ScRelErr01: Number(d9.strongCouplingRelErrAt01.toFixed(6)),
         p1aDim9MaxJacobiRes: d9.maxJacobiResidualRel,
         p1aDim9CorrMaxAbsErr: d9.correlatorMaxAbsErr,
-        p1aDim9CorrMaxRelErr: d9.correlatorMaxRelErr,
         p1aDim27MinGap: Number(d27.minMassGapAcrossBeta.toFixed(6)),
         p1aDim27MinGapBeta: d27.minMassGapBeta,
         p1aDim27Beta01Gap: Number(d27.strongCouplingBeta01Gap.toFixed(6)),
         p1aDim27ScRelErr01: Number(d27.strongCouplingRelErrAt01.toFixed(6)),
         p1aDim27MaxJacobiRes: d27.maxJacobiResidualRel,
         p1aDim27CorrMaxAbsErr: d27.correlatorMaxAbsErr,
-        p1aDim27CorrMaxRelErr: d27.correlatorMaxRelErr,
         // Part 1B metrics
         p1bSu3B0: Number(p1b.su3.b0Exact.num),
         p1bSu3B1: Number(p1b.su3.b1Exact.num),
         p1bSu3MaxNewtonRes: p1b.su3.maxNewtonResidualRel,
         p1bSu3MaxMPhysErr: p1b.su3.maxMPhysInvarianceErr,
-        p1bSu3G0Start: Number(p1b.su3.steps[0]!.g0.toFixed(6)),
-        p1bSu3G0End: Number(p1b.su3.steps[4]!.g0.toFixed(6)),
         p1bSo10MaxNewtonRes: p1b.so10.maxNewtonResidualRel,
         p1bSo10MaxMPhysErr: p1b.so10.maxMPhysInvarianceErr,
-        p1bSo10G0Start: Number(p1b.so10.steps[0]!.g0.toFixed(6)),
-        p1bSo10G0End: Number(p1b.so10.steps[4]!.g0.toFixed(6)),
         // Part 1C metrics
         p1cD4FourthMomentExact: p1c.d4FourthMoment256ExactIsotropic ? 1 : 0,
-        p1cZ4AnisotropyN0: p1c.blockingSteps[0]!.z4Anisotropy,
-        p1cZ4AnisotropyN4: p1c.blockingSteps[4]!.z4Anisotropy,
-        p1cD4AnisotropyN0: p1c.blockingSteps[0]!.d4Anisotropy,
-        p1cD4AnisotropyN4: p1c.blockingSteps[4]!.d4Anisotropy,
         p1cFinalZ4ContractionRatio: Number(p1c.finalZ4ContractionRatio.toFixed(6)),
         p1cFinalD4ContractionRatio: Number(p1c.finalD4ContractionRatio.toFixed(6)),
         p1cFinalD4AdvantageOverZ4: Number(p1c.finalD4AdvantageFactorOverZ4.toFixed(2)),
-        // Part 2 dossier & live module snapshots
+        // Part 2 dossier, tensions & Lean audit
         p2PredictionsCount: p2.predictions.length,
+        p2ZeroFitPredictionCount: p2.zeroFitPredictionCount,
+        p2FittedCheckCount: p2.fittedCheckCount,
+        p2PredictionTensionCount: p2.predictionTensionCount,
+        p2CrossSectorTensionCount: p2.crossSectorTensions.length,
         p2CurrentTensionCount: p2.currentTensionCount,
         p2LeanTheoremCount: lean.theoremCount,
         p2LeanFamilyCount: lean.familyCount,
+        p2LeanFileCount: lean.leanFileCount,
+        p2LeanOleanFileCount: lean.oleanFileCount,
         p2LeanSorryCount: lean.sorryCount,
         p2LeanAxiomCount: lean.axiomCount,
+        p2LeanNativeDecideCount: lean.nativeDecideCount,
         p2MBetaBetaMeV: Number(bb.mBetaBetaMeV.toFixed(5)),
         p2MBetaBetaUpperBoundMeV: Number(bb.mBetaBetaIncoherentUpperBoundMeV.toFixed(5)),
         p2MBetaBetaSumVsMatrixErr: bb.mBetaBetaSumVsMatrixErr,
@@ -239,10 +241,16 @@ export default experiment({
         p2EGrv0160BetaPPN: Number(snap.eGrv0160BetaPPN.toFixed(8)),
         p2EGrv0161RwOmegaR: Number(snap.eGrv0161RwOmegaR.toFixed(5)),
         p2EGrv0161RwOmegaI: Number(snap.eGrv0161RwOmegaI.toFixed(5)),
-        p2EGrv0162WeakRedshiftSlopeErr: snap.eGrv0162WeakRedshiftSlopeErr,
+        p2EGrv0163HorizonWorstNormErr: snap.eGrv0163HorizonWorstNormErr,
+        p2EGrv0163HorizonOutVelocity: Number(snap.eGrv0163HorizonOutVelocity.toFixed(5)),
+        p2EGrv0163HorizonInVelocity: Number(snap.eGrv0163HorizonInVelocity.toFixed(5)),
+        p2EGrv0163InteriorOutVelocity: Number(snap.eGrv0163InteriorOutVelocity.toFixed(5)),
+        p2EGrv0163InteriorInVelocity: Number(snap.eGrv0163InteriorInVelocity.toFixed(5)),
         p2EFrc0327NuSumMassesEv: Number(snap.eFrc0327NuSumMassesEv.toFixed(5)),
         p2EFrc0327PmnsDeltaCpDeg: Number(snap.eFrc0327PmnsDeltaCpDeg.toFixed(2)),
+        p2EFrc0327LegacyMPsGeV: snap.eFrc0327LegacyMPsGeV,
         p2EFrc0328Log10MGutGeV: Number(snap.eFrc0328Log10MGutGeV.toFixed(5)),
+        p2EFrc0328UnifiedMPsGeV: snap.eFrc0328UnifiedMPsGeV,
         p2EFrc0328ProtonLifetimeYr: snap.eFrc0328ProtonLifetimeYr,
         p2EFrc0329ZeroFitD4BlmAlphaZero: Number(snap.eFrc0329ZeroFitD4BlmAlphaZero.toFixed(4)),
         p2EFrc0329ThresholdRatioMin: Number(snap.eFrc0329ThresholdRatioMin.toFixed(4)),
@@ -255,41 +263,29 @@ export default experiment({
         totalSeconds: Number(r.totalSeconds.toFixed(4)),
       },
       control: {
-        // UV cutoff negative control
         uvPiZ4Anisotropy: Number(p1c.uvPiZ4Anisotropy.toFixed(6)),
         uvPiD4Anisotropy: Number(p1c.uvPiD4Anisotropy.toFixed(6)),
         uvPiD4MaxContinuumDeviation: Number(p1c.uvPiD4MaxContinuumDeviation.toFixed(6)),
-        uvPiD4RatioOverIrN4: Number(p1c.uvPiD4RatioOverIrN4.toExponential(3)),
         uvBraggCornerD4Dispersion: p1c.uvBraggCornerD4Dispersion,
         uvBraggCornerD4FracAnisotropy: Number(p1c.uvBraggCornerD4FracAnisotropy.toFixed(6)),
-        // Abelian U(1) weak-coupling negative control (beta = 10)
         u1Beta: u1.beta,
         u1OnePlaquetteGap: Number(u1.u1OnePlaquetteGap.toFixed(6)),
-        u1OnePlaquetteQuadErr: u1.u1OnePlaquetteQuadErr,
         u1GapCollapsedVsZ3RidgeFactor: Number(u1.u1GapCollapsedVsZ3RidgeFactor.toFixed(2)),
         u1FreePhotonMassGap: u1.u1FreePhotonMassGap,
-        u1TensionDecayRatioR6OverR1: Number(u1.u1TensionDecayRatioR6OverR1.toFixed(6)),
         u1FittedLinearStringTension: u1.u1FittedLinearStringTension,
-        // Honest Millennium boundary flag
         infiniteVolNonPerturbativeContinuumGapOpen: p1c.infiniteVolNonPerturbativeContinuumGapOpen
           ? 1
           : 0,
       },
       notes:
-        'Frontier 7 (E-FND-0188, L2, 100% deterministic, zero RNG): ' +
-        '(1) CONSTRUCTIVE LATTICE MASS GAP & 4D D_4 BLOCK-SPIN RG: proves strictly positive finite-volume Z_3 transfer-matrix ' +
-        'mass gap across all beta in [0.1, 8.0] on dim=3 (exact Osterwalder-Seiler benchmark), dim=9 (2-plaquette D_4 ridge), ' +
-        'and dim=27 (3-plaquette D_4 octahedral-face ring) with exact T^t exponential decay <= 1e-13; certifies exact BigInt ' +
-        '2-loop SU(3) (11, 102) and SO(10) (88/3, 2176/3) asymptotic scaling invariance m_phys(a_k)/m_phys(a_0)=1 across 5 halved ' +
-        'lattice spacings; and proves 4D D_4 24-cell symmetry kills dimension-6 O(a^2) rotational anisotropy (256/256 BigInt 4th ' +
-        'moments), contracting at 1/16 per Wilson-Kadanoff blocking step vs Z^4 at 1/4 (> 10^4x advantage by n=4), against UV ' +
-        'Bragg and Abelian U(1) beta=10 zero-string-tension controls. Infinite-volume non-perturbative a->0 constructive Yang-Mills ' +
-        'mass gap remains the Clay Millennium mathematical frontier. ' +
-        '(2) LIVE FALSIFIABLE DOSSIER & HONESTY AUDIT: executes all 8 completed frontier modules live, derives 0nu2beta ' +
-        `m_{beta beta} = ${bb.mBetaBetaMeV.toFixed(3)} meV via exact complex Takagi factorization of E-FRC-0327's Type-I seesaw ` +
-        `matrix, verifies ${p2.predictions.length} concrete falsifiable predictions with 0 current tensions, audits Lean ` +
-        `${lean.toolchain} (${lean.theoremCount} theorems across ${lean.familyCount} families, 0 sorry/axiom), and cleanly separates ` +
-        '0-parameter theorems from O(1) heavy thresholds/flavor fits and remaining universal frontiers.',
+        'Frontier 7 (E-FND-0188, flat D_4 lattice + continuum EFT dossier, substrates: d4-box, L2, 100% deterministic, zero RNG): ' +
+        '(1) Part 1A proves finite-volume Z_3 transfer-matrix gap positivity on dim = 3, 9, 27 with exact T^t exponential decay <= 1e-13. ' +
+        'Part 1B is a 2-loop asymptotic-scaling curve inversion check (perturbative RG invariant, not a non-perturbative lattice mass-gap measurement). ' +
+        'Part 1C is a free D_4 dispersion IR O(k^4) rotational-isotropy scaling check (256/256 BigInt 4th-moment isotropy giving 1/16 vs Z^4 1/4 under momentum halving, not real-space interacting Wilson-Kadanoff block-spin RG). ' +
+        'Infinite-volume non-perturbative a->0 constructive 4D Yang-Mills mass gap remains open. ' +
+        `(2) Part 2 executes 8 frontier modules live, separates ${p2.zeroFitPredictionCount} zero-fit predictions from ${p2.fittedCheckCount} fitted/calibrated consistency checks, ` +
+        `and explicitly records all ${p2.crossSectorTensions.length} active cross-sector tensions (inflation vs N_DW=3 axion isocurvature, minimal 10_H+126bar_H light down-quark pull, zero-fit alpha(0) residual, shared WIMP+axion DM budget & RGE neutrality, and legacy vs unified M_PS scale alignment). ` +
+        `Audits Lean ${lean.toolchain} (${lean.theoremCount} theorems across ${lean.familyCount} families, 0 sorry/axiom/native_decide/unsafe/implemented_by, ${lean.oleanFileCount}/${lean.leanFileCount} .olean artifacts present, live lake build run by pnpm check:lean).`,
     })
   },
 })

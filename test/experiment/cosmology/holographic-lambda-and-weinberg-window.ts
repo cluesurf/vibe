@@ -1,29 +1,26 @@
-// E-CSM-0068: COHEN-KAPLAN-NELSON HOLOGRAPHIC D_Lambda = 2 D_H BOUND, EXACT NONLINEAR
-// SPHERICAL-COLLAPSE WEINBERG GALAXY-FORMATION WINDOW IN DISCRETE {3,4,3,4} SHELLS,
-// AND DISCRETE Z_3-FLUX BOUSSO-POLCHINSKI DISCRETUUM AUDIT.
+// E-CSM-0068: BASE-INDEPENDENT CKN HOLOGRAPHIC SCALING IN {3,4,3,4} SHELL UNITS,
+// NONLINEAR SPHERICAL-COLLAPSE WEINBERG WINDOW, AND PRIOR-SUPPRESSED BOUSSO-POLCHINSKI AUDIT.
 //
-// Part 1: Proves the Cohen-Kaplan-Nelson (CKN) holographic non-black-hole bound L^3 rho_vac <= 3 M_P^2 L
-//   enforces exact algebraic scaling D_CKN = 2 D_H + log_b(8 pi / 3) on {3,4,3,4} (b = 6034/330), landing at
-//   D_CKN(bare c=1, L=L_H0) = 97.2843 shells vs observed D_Lambda = 97.4146 shells (0.1303 shells apart =
-//   log_b(1 / Omega_Lambda)), exact 0 residual (<= 1e-13) in the asymptotic de Sitter limit connected to
-//   E-CSM-0065 (w = -0.999984, H -> H_inf = sqrt(Omega_Lambda) H_0), and slope d(D_CKN)/d(D_H) = 2 across
-//   60 decades while naive 3D QFT volume scaling fails by 122.95 decades (97.415 shells, S_QFT / S_BH ~ 2.7e60).
+// Part 1: Rewrites the Cohen-Kaplan-Nelson (CKN) holographic non-black-hole bound L^3 rho_vac <= 3 M_P^2 L
+//   in {3,4,3,4} shell units (b = 6034/330), noting D_CKN = 2 D_H + log_b(8 pi / 3) is a base-independent
+//   algebraic rewriting of CKN scaling. Explicitly notes the 122-decade gap between E-CSM-0065's bare
+//   Planck-scale horosphere drift H_inf = 0.517 M_Pl and observed late-time dark energy H_0: E-CSM-0065
+//   contributes only the asymptotic w = -1 equation of state, not observed H_0 or H_inf = sqrt(Omega_Lambda) H_0.
 //
 // Part 2: Integrates the exact nonlinear spherical top-hat collapse ODE d^2 y / d tau^2 = -(1/2) / y^2 +
 //   lambda_tilde * y via 4th-order RK4 (energy first integral <= 1e-12, step-halving <= 1e-10, direct-tau RK4
 //   cross-check <= 1e-10), verifies Weinberg's exact (500/729) analytic prefactor to < 0.1%, maps discrete
 //   {3,4,3,4} shells D in [92..100] for Milky-Way halos (showing D <= 95 is lifeless, collapse turns on at
-//   D_Weinberg = 95.873, and the entire upper habitable window spans Delta D = 1.542 < 2 integer shells),
+//   D_Weinberg = 95.873, and the upper habitable window spans Delta D = 1.542 < 2 integer shells),
 //   and passes both negative controls (Lambda = 0 cycloid t_coll = 2 t_ta <= 1e-10 and delta_i = 0 homogeneous).
 //
-// Part 3: Exhaustively scans a deterministic K = 8 {3,4,3,4} Z_3/4-form flux lattice (|n_k| <= 6, 7^8 =
-//   5,764,801 unsigned / 13^8 = 815,730,721 signed vectors) with O(1) mutually incommensurate {3,4,3,4}
-//   cusp-cycle charges, showing dense population of [96.0, 98.5] (>> 10 vacua, min |D(n) - D_obs| < 0.05)
-//   while equal commensurate charges and K = 1 controls both yield 0 vacua, and logs an honest Weinberg (1989)
-//   No-Go Ledger distinguishing verified holographic/collapse/discretuum physics from open dynamical selection.
+// Part 3: Exhaustively scans a deterministic K = 8 Bousso-Polchinski flux lattice (|n_k| <= 6, 7^8 =
+//   5,764,801 unsigned / 13^8 = 815,730,721 signed vectors) anchored at shell D = 95 (explicitly disclosing
+//   that this assumes 120 decades of prior warp suppression, whereas unwarped D = 0 requires K_Planck = 146
+//   channels), contrasting with equal commensurate charges and K = 1 controls (both 0 vacua), and logging an
+//   honest Weinberg (1989) No-Go Ledger.
 //
-// Depth L2: deterministic {3,4,3,4} algebra + 4th-order RK4 nonlinear collapse + exhaustive 4+4 meet-in-the-middle
-// flux lattice scan. Zero PRNGs.
+// Depth L2: deterministic continuum EFT compatibility check (CKN algebra + RK4 collapse + 4+4 MITM scan). Zero PRNGs.
 
 import { analyzeHolographicLambdaAndWeinbergWindow } from '@/code/measure/holographic-lambda-and-weinberg-window'
 import { experiment } from '@/test/scaffold/suite'
@@ -37,9 +34,9 @@ export default experiment({
   id: 'cosmology/holographic-lambda-and-weinberg-window',
   code: 'E-CSM-0068',
   title:
-    'Cohen-Kaplan-Nelson holographic D_Lambda = 2 D_H bound, exact nonlinear spherical-collapse Weinberg galaxy-formation window in discrete {3,4,3,4} shells, and discrete Z_3-flux Bousso-Polchinski discretuum audit',
+    'Base-independent CKN holographic D_Lambda = 2 D_H scaling in {3,4,3,4} shell units, nonlinear spherical-collapse Weinberg window, and prior-suppressed Bousso-Polchinski discretuum audit',
   category: 'cosmology',
-  substrates: ['3434'],
+  substrates: ['eft-continuum'],
   depth: 'L2',
   paper: false,
   run() {
@@ -143,31 +140,32 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        `Part 1 (CKN holographic bound on {3,4,3,4}, b=6034/330=${p1.cuspBranchingB.toFixed(6)}): ` +
+        `Part 1 (base-independent rewriting of CKN holographic scaling in {3,4,3,4} shell units, b=6034/330=${p1.cuspBranchingB.toFixed(6)}): ` +
         `naive 3D volume QFT cutoff rho_UV=M_Pl^4 sits at D=0 (${p1.naiveCatastropheRatioFullPl.toExponential(3)}x = ` +
         `${p1.naiveCatastropheLog10FullPl.toFixed(2)} decades off, violating Bekenstein entropy by ${p1.qftOverBekensteinEntropyRatio.toExponential(2)}x), ` +
-        `whereas CKN non-black-hole bound rho_CKN=3 c_HDE^2 M_P^2 H^2 enforces exact D_CKN=2 D_H+log_b(8pi/3) ` +
-        `(slope=${p1.cknSlopeDDLambdaOverDDH.toFixed(12)}): bare c=1 at L_H0 gives D_CKN=${p1.depthCknBareH0B.toFixed(4)} vs ` +
+        `whereas CKN bound rho_CKN=3 c_HDE^2 M_P^2 H^2 rewrites identically in any base b as D_CKN=2 D_H+log_b(8pi/3) ` +
+        `(slope=${p1.cknSlopeDDLambdaOverDDH.toFixed(12)}): bare c=1 at observed L_H0 gives D_CKN=${p1.depthCknBareH0B.toFixed(4)} vs ` +
         `observed D_Lambda=${p1.depthLambdaObsB.toFixed(4)} (offset=${p1.depthCknBareOffsetFromObsB.toFixed(4)} shells = log_b(1/Omega_Lambda), ` +
-        `H_0 identity err=${p1.identityH0ErrB.toExponential(1)}), and in E-CSM-0065's asymptotic de Sitter limit ` +
-        `(w=${p1.cosmicHistoryLateWEff.toFixed(6)}, H->H_inf, c_HDE=${p1.cHdeDeSitter.toFixed(4)}) D_Lambda=2 D_Hinf+log_b(8pi/3) ` +
-        `holds with ${p1.identityDeSitterErrB.toExponential(1)} residual. ` +
+        `H_0 identity err=${p1.identityH0ErrB.toExponential(1)}), and at observed asymptotic de Sitter H_inf=sqrt(Omega_Lambda) H_0 ` +
+        `(c_HDE=${p1.cHdeDeSitter.toFixed(4)}, with w=${p1.cosmicHistoryLateWEff.toFixed(6)} from E-CSM-0065, explicitly noting the 122-decade gap ` +
+        `between E-CSM-0065's Planck-scale bare horosphere drift H_inf=${p1.cosmicHistoryHInfRVol.toFixed(3)} M_Pl and observed H_0) ` +
+        `D_Lambda=2 D_Hinf+log_b(8pi/3) holds with ${p1.identityDeSitterErrB.toExponential(1)} residual. ` +
         `Part 2 (exact RK4 nonlinear spherical collapse & Weinberg window): RK4 integrates y''=-1/(2y^2)+lambda_tilde*y ` +
         `(max |Delta E|=${p2.maxEnergyDriftAcrossSweep.toExponential(1)}, step-halving err=${p2.rk4StepHalvingRelErrAtObs.toExponential(1)}, ` +
         `direct-tau cross-check=${p2.directTauCrossCheckMaxErr.toExponential(1)}), reproducing Weinberg's exact 500/729=${p2.weinbergAnalyticPrefactor.toFixed(7)} ` +
         `prefactor to relErr=${p2.weinbergPrefactorRelErr.toExponential(2)} (RK4=${p2.weinbergRk4Prefactor.toFixed(7)}). ` +
         `For Milky-Way halos (M=1e12 M_sun, sigma(z_rec=1089)=2.4e-3, 2.5-sigma peak delta_i=6.0e-3), every shell D<=95 ` +
         `(rho>=${p2.rhoAtShell95OverObs.toFixed(1)}x obs) is strictly lifeless, collapse turns on at D_Weinberg=${p2.depthWeinbergCanonicalB.toFixed(4)} ` +
-        `(${p2.rhoLambdaMaxOverObsCanonical.toFixed(2)}x obs), and the entire upper habitable window [D_Weinberg, D_obs] spans only ` +
-        `Delta D=${p2.windowWidthCanonicalShells.toFixed(4)} discrete shells (<2 integer shells), while Lambda=0 verifies cycloid ` +
+        `(${p2.rhoLambdaMaxOverObsCanonical.toFixed(2)}x obs), and the upper habitable window [D_Weinberg, D_obs] spans ` +
+        `Delta D=${p2.windowWidthCanonicalShells.toFixed(4)} shells (<2 integer shells), while Lambda=0 verifies cycloid ` +
         `t_coll=2 t_ta (err=${p2.control1EdSTCollOver2TTaRelErr.toExponential(1)}) and delta_i=0 never collapses. ` +
-        `Part 3 (K=${p3.numChannelsK} Z_3-flux Bousso-Polchinski discretuum & Weinberg 1989 No-Go ledger): exhaustive scan of ` +
-        `${p3.unsignedFluxStatesSearched} unsigned (${p3.signedFluxStatesRepresented} signed) O(1) flux vectors |n_k|<=6 with O(1) ` +
-        `incommensurate {3,4,3,4} charges from lifeless bare scale |rho_bare|=${p3.absRhoBareOverObs.toExponential(2)}x obs populates ` +
-        `[96.0, 98.5] with ${p3.vacuaCountInTargetBand} distinct vacua (closest n=[${p3.closestVacuum.nVector.join(',')}], ` +
-        `D=${p3.closestVacuum.shellDepthB.toFixed(4)}, |Delta D|=${p3.closestVacuum.absDepthErrFromObs.toExponential(2)} shells), ` +
-        `while commensurate q_k=1 and K=1 controls yield 0 vacua, unwarped D=0 requires K_Planck=${p3.planckScaleChannelsNeededK} channels, ` +
-        `and Weinberg's 1989 zero-input dynamical selection boundary is explicitly recorded as open`,
+        `Part 3 (K=${p3.numChannelsK} Bousso-Polchinski discretuum anchored at D=95, assuming 120 decades of prior warp suppression): ` +
+        `exhaustive scan of ${p3.unsignedFluxStatesSearched} unsigned (${p3.signedFluxStatesRepresented} signed) flux vectors |n_k|<=6 ` +
+        `from |rho_bare|=${p3.absRhoBareOverObs.toExponential(2)}x obs populates [96.0, 98.5] with ${p3.vacuaCountInTargetBand} distinct vacua ` +
+        `(closest n=[${p3.closestVacuum.nVector.join(',')}], D=${p3.closestVacuum.shellDepthB.toFixed(4)}, ` +
+        `|Delta D|=${p3.closestVacuum.absDepthErrFromObs.toExponential(2)} shells), while commensurate q_k=1 and K=1 controls yield 0 vacua, ` +
+        `scanning from unwarped D=0 requires K_Planck=${p3.planckScaleChannelsNeededK} channels, and Weinberg's 1989 zero-input ` +
+        `dynamical selection boundary remains explicitly open`,
       metrics: {
         gPart1CknIdentities: gPart1CknIdentities ? 1 : 0,
         gPart1NaiveQftControl: gPart1NaiveQftControl ? 1 : 0,
@@ -261,18 +259,18 @@ export default experiment({
         part3Ctrl2SingleChannelVacuaInBand: p3.control2SingleChannelVacuaInBand,
       },
       notes:
-        'L2, 100% deterministic, zero PRNGs. Reuses E-FRC-0328, E-CSM-0065, and E-CSM-0066 directly. ' +
-        '(1) CKN holography on {3,4,3,4} closes the 122.95-decade (97.415-shell) naive 3D QFT catastrophe to ' +
-        '0.1303 shells at c_HDE = 1, L = L_H0 and 0 residual (<= 1e-13) in E-CSM-0065 asymptotic de Sitter ' +
-        '(H -> H_inf, w = -1), proving exact D_Lambda = 2 D_H + log_b(8 pi / 3). ' +
-        '(2) Exact 4th-order RK4 spherical top-hat collapse reproduces Weinberg (1987) 500/729 prefactor, proves ' +
-        'all shells D <= 95 are strictly lifeless for Milky-Way halos, and compresses the entire upper Weinberg ' +
-        'galaxy-formation window into Delta D = 1.542 discrete {3,4,3,4} shells (< 2 integer shells), passing both ' +
-        'Lambda = 0 cycloid and delta_i = 0 homogeneous controls. ' +
-        '(3) Exhaustive 4+4 meet-in-the-middle scan over a deterministic K = 8 {3,4,3,4} Z_3-flux lattice (|n_k| <= 6) ' +
-        'densely populates [96.0, 98.5] using O(1) charges while equal-charge and K = 1 controls fail with 0 vacua, ' +
-        'and an honest Weinberg (1989) No-Go Ledger records that zero-input dynamical derivation of D_Lambda = 97.415 ' +
-        'without holographic IR cutoff or environmental selection remains open.',
+        'L2 continuum EFT compatibility check (100% deterministic, zero PRNGs). ' +
+        '(1) Part 1 (D_Lambda = 2 D_Hinf + log_b(8 pi / 3)) is a base-independent algebraic rewriting of Cohen-Kaplan-Nelson ' +
+        'holographic scaling in {3,4,3,4} shell units (verified in both b and lambda). E-CSM-0065 bare horosphere drift ' +
+        'H_inf = 0.517 M_Pl is Planck-scale and separated by 122 decades from observed late-time dark energy H_0: E-CSM-0065 ' +
+        'provides only the asymptotic w = -1 equation of state, not the observed Hubble scale. ' +
+        '(2) Exact 4th-order RK4 spherical top-hat collapse reproduces Weinberg (1987) 500/729 prefactor, shows ' +
+        'all shells D <= 95 are lifeless for Milky-Way halos, and maps the upper Weinberg galaxy-formation window ' +
+        'to Delta D = 1.542 shells (< 2 integer shells), passing both Lambda = 0 cycloid and delta_i = 0 homogeneous controls. ' +
+        '(3) Exhaustive 4+4 meet-in-the-middle scan over a K = 8 Bousso-Polchinski flux lattice (|n_k| <= 6) anchored at ' +
+        'shell D = 95 explicitly assumes 120 decades of prior warp suppression M_Pl^4 b^{-95} (unwarped scanning from D = 0 ' +
+        'requires K_Planck = 146 channels), while commensurate and K = 1 controls fail with 0 vacua, and Weinberg (1989) ' +
+        'zero-input dynamical selection of D_Lambda = 97.415 remains explicitly open.',
     })
   },
 })

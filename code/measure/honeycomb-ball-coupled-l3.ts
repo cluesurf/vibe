@@ -15,7 +15,7 @@
 //   1. Exact 4D {3,4,3,4} geometry + cusp depth D(dock) and 3D husk coordinate x(dock) via
 //      coverBall + buildExactCusp (0 conflicts, 0 missing on both R = 2 and R = 3).
 //   2. Parameter-free 1/N_D^2 warped gravitational potential Phi(dock) from E-GRV-0157
-//      (G_eff = 0.07716700, c_universal = 0.986916) localized at a cusp-layer source dock x_src.
+//      (G_eff = 0.07859254, c_universal = 0.977925) localized at a cusp-layer source dock x_src.
 //   3. Exact Z_3-center gauge link phases U_e = omega^(a_e) in Z[omega] subset Z[zeta_9][1/6]
 //      carrying nonzero gauge-invariant magnetic flux on the actual 4D octahedral-face 4-cycles
 //      (ridges) of {3,4,3,4}, with exact local Z_3 gauge covariance G U_L3(A) G^dag = U_L3(A')
@@ -502,7 +502,7 @@ export function buildBallCuspGeometry(
 
 // Evaluate E-GRV-0157's 1/N_D^2 warped gravitational potential Phi(dock) on every dock of a 4D ball
 // from a localized source dock x_src.
-// Uses exact gWarpedByR (G_eff = 0.07716700) interpolated smoothly in 3D cusp-husk distance r
+// Uses exact gWarpedByR (G_eff = 0.07859254) interpolated smoothly in 3D cusp-husk distance r
 // weighted by the exact 1/N_D^2 warped column depth profile (1 at D = 0, attenuating via cVert(D)).
 export function buildWarpedBallPotential(
   geom: BallCuspGeometry,

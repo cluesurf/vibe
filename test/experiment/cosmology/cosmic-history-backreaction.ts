@@ -8,7 +8,7 @@
 //   adjoint reversal (<= 1e-12), early high-density braking and deceleration, and late-time relaxation to the
 //   exact E-CSM-0064 dilute de Sitter limit (q -> -1, w_eff -> -1).
 // Part B: Exact reversible 6th-order Yoshida symplectic Friedmann-Horosphere closure coupling E-CSM-0064's
-//   H_inf = (ln(r_vol) / 3) * v_D and E-GRV-0157's G_eff = 0.07716700 to radiation (w = +1/3) and matter
+//   H_inf = (ln(r_vol) / 3) * v_D and E-GRV-0157's G_eff = 0.07859254 to radiation (w = +1/3) and matter
 //   (w = 0). Verifies all four landmarks in one continuous run: Radiation (w = +1/3, q = +1, a ~ t^{1/2}),
 //   exact matter-radiation equality a_eq = rho_r0 / rho_m0, Matter (w = 0, q = +1/2, a ~ t^{2/3}), clean
 //   deceleration-to-acceleration turnaround q = 0 at Omega_m / Omega_Lambda = 2 (<= 1e-4), and late-time
@@ -53,13 +53,13 @@ export default experiment({
     const cDil = ctrl.diluteControlSymplectic
     const cFlat = ctrl.flatCubicControlSymplectic
 
-    // Gate 1: Upstream {3,4,3,4} constants match E-GRV-0157 (G_eff = 0.07716700) and E-CSM-0064 (v_D, H_inf)
+    // Gate 1: Upstream {3,4,3,4} constants match E-GRV-0157 (G_eff = 0.07859254) and E-CSM-0064 (v_D, H_inf)
     const gUpstream =
       c.shellCountsD0to3[0] === 1 &&
       c.shellCountsD0to3[1] === 18 &&
       c.shellCountsD0to3[2] === 330 &&
       c.shellCountsD0to3[3] === 6034 &&
-      Math.abs(c.gEff - 0.077167) < 1e-6 &&
+      Math.abs(c.gEff - 0.07859254) < 1e-6 &&
       Math.abs(c.diluteFgPiVelD - 0.53384199) < 1e-5 &&
       Math.abs(c.hInfB18 - 0.51433394) < 1e-5 &&
       Math.abs(c.hInfRVol - 0.51712789) < 1e-5

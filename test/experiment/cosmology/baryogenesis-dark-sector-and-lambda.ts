@@ -1,26 +1,23 @@
-// FRONTIER 4 (E-CSM-0066): SAKHAROV 3-CONDITION BARYOGENESIS, SPIN(10) THERMAL LEPTOGENESIS AT M_PS,
-// EXACT SO(10) MATTER-PARITY DARK SECTOR & HONEST {3,4,3,4} COSMOLOGICAL CONSTANT SHELL AUDIT.
+// FRONTIER 4 (E-CSM-0066): 5-STATE NON-QCA SAKHAROV TOY WALK WITH Z[zeta_9] PHASES,
+// CONTINUUM SO(10) THERMAL LEPTOGENESIS, MATTER-PARITY WIMP DARK-SECTOR CHECK, AND LAMBDA SHELL AUDIT.
 //
-// Part 1: Microscopic reversible unitary walk U_baryo built in Vibe's exact cyclotomic ring Z[zeta_9][1/6]
-//   coupled to E-CSM-0065's fixed reversible {3,4,3,4} b = 18/1/5 branching horosphere expansion. Verifies
-//   exact BigInt Q(zeta_9) unitarity and symmetry identities, dense matrix ||U^dag U - I||_inf <= 1e-14,
-//   exact T-step U^dag reversal <= 1e-14, net nonzero freeze-out asymmetry Delta B(T) > 0 from exact B(0) = 0,
-//   exact CPT/CP phase conjugation Delta B(zeta_9^*) = -Delta B(zeta_9) (<= 1e-14), and exact 0 (<= 1e-14)
-//   across all three Sakharov ablation negative controls (g_BL = 0, zeta_9 -> 1, static closed equilibrium box).
+// Part 1: 5-state non-QCA Sakharov toy unitary walk built with Z[zeta_9][1/6] phases coupled to a
+//   1D branching depth register (NOT the 4D {3,4,3,4} QCA). Verifies Q(zeta_9) unitarity, reversal,
+//   nonzero freeze-out asymmetry Delta B(T) > 0 from B(0) = 0, CPT/CP phase flip, and all three
+//   Sakharov ablation negative controls (g_BL = 0, zeta_9 -> 1, static closed equilibrium box).
 //
-// Part 2: Quantitative Spin(10) thermal leptogenesis at E-FRC-0328's M_PS = 1.434e11 GeV using E-FRC-0324's
-//   exact BigInt sphaleron conversion C_sph = 28/79, E-FRC-0327's seesaw neutrino spectrum, Z[zeta_9] CP phase
-//   sin(2pi/9), full-precision deterministic Bessel K_nu(z) (recurrence <= 1e-12), and 4th-order RK4 coupled
-//   Boltzmann ODEs (step-halving <= 1e-9). Verifies strict Davidson-Ibarra bound compliance, strong-washout
-//   initial-condition insensitivity (< 1%), Planck eta_B = (6.12 +/- 0.04) x 10^-10 match, and 3 controls.
+// Part 2: Continuum Spin(10) EFT thermal leptogenesis compatibility check at E-FRC-0328's M_PS =
+//   1.434e11 GeV using C_sph = 28/79, E-FRC-0327's seesaw neutrino spectrum, sin(2pi/9) phase,
+//   Bessel K_nu(z), and RK4 Boltzmann ODEs. Checks Davidson-Ibarra compliance, strong-washout
+//   initial-condition insensitivity, Planck eta_B = (6.12 +/- 0.04) x 10^-10 match, and 3 controls.
 //
-// Part 3: Exact BigInt Z_2 matter parity P_M = (-1)^{3(B-L)} and P_DM = (-1)^{3(B-L)+2s} on E-FRC-0324's
-//   16-state Spin(10) spinor + 10_H/126_H/45_G bilinears, exact Lee-Weinberg thermal freeze-out RK4 ODE
-//   (step-halving <= 1e-9) at E-FRC-0328's D_EW = 13 scale (484.3 GeV) matching Planck Omega_DM h^2 = 0.1200,
-//   and an honest {3,4,3,4} cosmological constant shell audit compressing 122 decades into < 100 shells while
-//   refusing zero-parameter numerology claims for H_0 or D_Lambda.
+// Part 3: Continuum SO(10) EFT matter-parity check P_M = (-1)^{3(B-L)} on the 16 spinor, Lee-Weinberg
+//   thermal WIMP freeze-out RK4 ODE at m_DM = 484.3 GeV (explicitly noting WIMP dark matter here and
+//   axion dark matter in E-FRC-0331 share the total Planck Omega_DM h^2 = 0.1200 budget rather than
+//   double-counting 200%), and a logarithmic {3,4,3,4} cosmological constant shell audit keeping
+//   dynamical selection of D_Lambda open.
 //
-// Depth L2: deterministic BigInt Q(zeta_9) + BigInt rationals + unitary walk + RK4 Boltzmann ODEs. Zero RNG.
+// Depth L2: deterministic continuum EFT compatibility check + 5-state toy walk. Zero RNG.
 
 import {
   PLANCK_ETA_B,
@@ -38,9 +35,9 @@ export default experiment({
   id: 'cosmology/baryogenesis-dark-sector-and-lambda',
   code: 'E-CSM-0066',
   title:
-    'Sakharov 3-condition reversible unitary baryogenesis (ODD + Z[zeta_9] + {3,4,3,4} expansion), Spin(10) thermal leptogenesis at M_PS to Planck eta_B, exact SO(10) matter-parity dark sector, and honest {3,4,3,4} cosmological constant shell audit',
+    '5-state non-QCA Sakharov toy walk with Z[zeta_9] phases, continuum SO(10) EFT leptogenesis and WIMP dark-sector checks (shared budget with axion), and Lambda shell audit',
   category: 'cosmology',
-  substrates: ['3434'],
+  substrates: ['eft-continuum'],
   depth: 'L2',
   paper: false,
   run() {
@@ -149,29 +146,28 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        `Part 1 (microscopic Sakharov unitary walk in Z[zeta_9][1/6] on {3,4,3,4} b=18/1/5): ` +
-        `exact BigInt Q(zeta_9) unitary core + coupled walk (dense dim=${p1.coupledDenseDim} ||U^dag U-I||=${p1.coupledDenseUnitarityErr.toExponential(1)}, ` +
+        `Part 1 (5-state non-QCA Sakharov toy walk using Z[zeta_9][1/6] phases and 1D branching depth register): ` +
+        `Q(zeta_9) unitary core + coupled walk (dense dim=${p1.coupledDenseDim} ||U^dag U-I||=${p1.coupledDenseUnitarityErr.toExponential(1)}, ` +
         `T=${p1.steps} reversal=${p1.reversalMaxAmpErr.toExponential(1)}) starting at B(0)=0 generates frozen-out ` +
-        `Delta B(T)=+${p1.finalDeltaB.toFixed(6)} (beat-1 exact formula err=${p1.exactBeat1FormulaErr.toExponential(1)}, ` +
-        `P_N(T)=${p1.finalProbHeavyN.toExponential(2)}, <D_light>=${p1.finalMeanDLight.toFixed(2)}), flips sign identically under ` +
-        `zeta_9 -> zeta_9^* (max err=${p1.cptPhaseFlipMaxErr.toExponential(1)}), and gives exact 0 across all 3 Sakharov ablations ` +
+        `Delta B(T)=+${p1.finalDeltaB.toFixed(6)} (beat-1 formula err=${p1.exactBeat1FormulaErr.toExponential(1)}, ` +
+        `P_N(T)=${p1.finalProbHeavyN.toExponential(2)}, <D_light>=${p1.finalMeanDLight.toFixed(2)}), flips sign under ` +
+        `zeta_9 -> zeta_9^* (max err=${p1.cptPhaseFlipMaxErr.toExponential(1)}), and gives 0 across all 3 Sakharov ablations ` +
         `(g_BL=0: ${p1.control1NoBlMaxAbsDeltaB.toExponential(1)}, zeta_9->1: ${p1.control2RealCpMaxAbsDeltaB.toExponential(1)}, ` +
         `closed equilibrium box: ${p1.control3EquilibriumBoxMaxAbsDeltaB.toExponential(1)}). ` +
-        `Part 2 (Spin(10) thermal leptogenesis at E-FRC-0328 M_PS=${p2.mPsGeV.toExponential(3)} GeV): ` +
-        `exact BigInt C_sph=${ratFormat(p2.sphaleron.cSphFromFormula)} (d_BDP=${ratToNumber(p2.sphaleron.conversionFactorBdp).toFixed(6)}), ` +
+        `Part 2 (continuum Spin(10) EFT thermal leptogenesis check at M_PS=${p2.mPsGeV.toExponential(3)} GeV): ` +
+        `C_sph=${ratFormat(p2.sphaleron.cSphFromFormula)} (d_BDP=${ratToNumber(p2.sphaleron.conversionFactorBdp).toFixed(6)}), ` +
         `Bessel recurrence err=${p2.besselRecurrenceMaxRelErr.toExponential(1)}, RK4 step-halving err=${p2.planckMatchAtMPs.rk4StepHalvingRelErr.toExponential(1)}, ` +
-        `zero-fit M_1=M_PS benchmark at tilde_m_1=m_3 gives eta_B=${p2.naturalBenchmarkAtM3.etaBBdp.toExponential(3)}, ` +
+        `M_1=M_PS benchmark at tilde_m_1=m_3 gives eta_B=${p2.naturalBenchmarkAtM3.etaBBdp.toExponential(3)}, ` +
         `and strong-washout tilde_m_1=${p2.planckMatchAtMPs.tildeM1Ev.toFixed(4)} eV (K=${p2.planckMatchAtMPs.kWashout.toFixed(2)}) matches Planck ` +
         `eta_B=${p2.planckMatchAtMPs.etaBZeroInit.toExponential(3)} (relErr=${p2.planckMatchAtMPs.planckRelErr.toExponential(1)}, ` +
         `zero-vs-thermal diff=${p2.planckMatchAtMPs.initConditionRelDiff.toExponential(1)}) while eps_1=0 gives 0 and M_1=1e7 GeV gives ${p2.controlLowM1EtaB.toExponential(2)}. ` +
-        `Part 3A (SO(10) Z_2 matter parity & Lee-Weinberg freeze-out): exact BigInt P_M=(-1)^{3(B-L)} stays unbroken under <126_H> (3(B-L)=${mp.deltaR126VevThreeBlExact}) ` +
-        `while broken by <16_H> (3(B-L)=${mp.control16HVevThreeBlExact}), stabilizing P_DM=-1 dark matter; at E-FRC-0328 D_EW=13 shell scale ` +
-        `m_DM=${dm.mDmShell13GeV.toFixed(1)} GeV, canonical <sigma v>=2.2e-26 cm^3/s gives Omega_DM h^2=${dm.canonicalOmegaDmH2.toFixed(4)} ` +
-        `and <sigma v>=${dm.planckMatchedSigmaVCm3S.toExponential(3)} cm^3/s matches Planck 0.1200 (RK4 err=${dm.rk4StepHalvingRelErr.toExponential(1)}). ` +
-        `Part 3B (honest {3,4,3,4} Lambda shell audit): w=${lam.cosmicHistoryLateWEff.toFixed(5)} from E-CSM-0065 and all 122 decades from M_Pl to rho_Lambda ` +
-        `fit inside D_Lambda=${lam.depthLambdaFromRhoB.toFixed(2)} discrete shells (D_H0=${lam.depthH0B.toFixed(2)}, 2*D_Hinf=${lam.depthLambdaFromHInfB.toFixed(2)} vs ` +
-        `${lam.euclidean3DShellsForRhoLambda.toExponential(2)} Euclidean 3D shells), explicitly refusing any zero-parameter H_0=48 shell claim ` +
-        `(offset=${lam.depthH0OffsetFrom48.toFixed(2)} shells = ${lam.factorErrorAtShell48.toFixed(2)}x error, dynamical selection of D_Lambda remains open)`,
+        `Part 3A (continuum SO(10) EFT matter-parity WIMP check, sharing the Omega_DM h^2=0.1200 budget with axions in E-FRC-0331 rather than 200%): ` +
+        `P_M=(-1)^{3(B-L)} stays unbroken under <126_H> (3(B-L)=${mp.deltaR126VevThreeBlExact}) while broken by <16_H> (${mp.control16HVevThreeBlExact}), ` +
+        `and at m_DM=${dm.mDmShell13GeV.toFixed(1)} GeV canonical <sigma v>=2.2e-26 cm^3/s gives Omega_DM h^2=${dm.canonicalOmegaDmH2.toFixed(4)} ` +
+        `and <sigma v>=${dm.planckMatchedSigmaVCm3S.toExponential(3)} cm^3/s saturates 0.1200 (RK4 err=${dm.rk4StepHalvingRelErr.toExponential(1)}). ` +
+        `Part 3B (logarithmic {3,4,3,4} Lambda shell audit): w=${lam.cosmicHistoryLateWEff.toFixed(5)} from E-CSM-0065 and 122 decades from M_Pl to rho_Lambda ` +
+        `span D_Lambda=${lam.depthLambdaFromRhoB.toFixed(2)} shells (D_H0=${lam.depthH0B.toFixed(2)}, 2*D_Hinf=${lam.depthLambdaFromHInfB.toFixed(2)}), ` +
+        `refusing any zero-parameter H_0=48 claim (offset=${lam.depthH0OffsetFrom48.toFixed(2)} shells, dynamical selection of D_Lambda remains open)`,
       metrics: {
         gPart1ExactAlgebra: gPart1ExactAlgebra ? 1 : 0,
         gPart1BaryogenesisAndControls: gPart1BaryogenesisAndControls ? 1 : 0,
@@ -263,18 +259,14 @@ export default experiment({
         part3ACtrlWeakAnnihOmegaDmH2: Number(dm.controlWeakAnnihilationOmegaDmH2.toFixed(4)),
       },
       notes:
-        'Frontier 4 (L2, 100% deterministic, zero Math.random): ' +
-        '(1) MICROSCOPIC SAKHAROV WALK: proves all three Sakharov conditions simultaneously in a live reversible ' +
-        'unitary walk in Z[zeta_9][1/6] coupled to E-CSM-0065 b = 18/1/5 {3,4,3,4} expansion, freezing out net ' +
-        'Delta B > 0 from B(0) = 0 with exact CPT/CP phase reversal and exact 0 (<= 1e-14) on all three ablations. ' +
-        '(2) THERMAL LEPTOGENESIS AT M_PS: reuses E-FRC-0328 M_PS = 1.434e11 GeV, E-FRC-0324 exact BigInt C_sph = 28/79, ' +
-        'E-FRC-0327 seesaw neutrino spectrum, and Z[zeta_9] phase sin(2pi/9) to hit Planck eta_B = 6.12e-10 in the ' +
-        'strong-washout regime (zero-vs-thermal initial condition insensitivity < 1%) strictly within the Davidson-Ibarra bound. ' +
-        '(3) SO(10) MATTER-PARITY DARK SECTOR & HONEST LAMBDA SHELL AUDIT: proves exact BigInt Z_2 matter parity ' +
-        'P_M = (-1)^{3(B-L)} survives <126_H> breaking (stabilizing P_DM = -1 dark matter), reproduces Planck ' +
-        'Omega_DM h^2 = 0.1200 via exact Lee-Weinberg freeze-out at E-FRC-0328 D_EW = 13 (484 GeV), shows all 122 decades ' +
-        'from M_Pl to rho_Lambda fit in < 100 discrete {3,4,3,4} shells with exact w = -1 from E-CSM-0065, and honestly ' +
-        'refuses any zero-parameter claim for H_0 = 48 shells while keeping dynamical selection of D_Lambda ~ 97 open.',
+        'L2 continuum EFT compatibility check and 5-state non-QCA toy walk (100% deterministic, zero Math.random): ' +
+        '(1) Part 1 is a 5-state non-QCA Sakharov toy walk using Z[zeta_9][1/6] phases coupled to a 1D branching depth ' +
+        'register (not the 4D {3,4,3,4} QCA), checking net Delta B > 0 from B(0) = 0 with CPT/CP sign flip and 0 on all three ablations. ' +
+        '(2) Part 2 is a continuum Spin(10) EFT thermal leptogenesis compatibility check at M_PS = 1.434e11 GeV matching ' +
+        'Planck eta_B = 6.12e-10 in strong washout within the Davidson-Ibarra bound. ' +
+        '(3) Part 3 is a continuum SO(10) EFT matter-parity WIMP freeze-out check at m_DM = 484 GeV and a logarithmic ' +
+        'Lambda shell audit. Budget disclosure: WIMP dark matter here and QCD axion dark matter in E-FRC-0331 share the ' +
+        'single observed budget Omega_DM h^2 = 0.1200 (not 200%), and dynamical selection of D_Lambda ~ 97 remains open.',
     })
   },
 })

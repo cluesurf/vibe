@@ -1,265 +1,407 @@
-\section{Base, Geometry, and Reversible Rule}
+\section{Automaton, Honeycomb Geometry, and Beat Rule}
 \label{sec:one-rule}
 
-This section defines the model from scratch so that every subsequent section can be followed with zero external
-prerequisites.
+What is the smallest self-contained discrete mathematical structure that is strictly reversible, free of floating-point
+arithmetic, isotropic to fourth order in four dimensions, and equipped with flat three-dimensional spatial slices?
+This section defines the bare Tier~A microscopic automaton completely from scratch so that every subsequent section can
+be read with zero outside prerequisites.
 
-\subsection{Tones, vibes, docks, lines, and banks}
+\paragraph{Key findings.}
+All seven layers of the beat rule $U$ close identically in $\mathbb{Z}[\zeta_9][1/6]$ with exact $W(D_4)$ covariance,
+the neutral mesh state $|V_1\rangle$ is an exact fixed point, 3D husk column sums are not dynamically closed because
+distinct 4D bulk states diverge on the husk in one beat (\code{E-HLG-0043}), and coherent 4-body interference through
+$\Phi_{\mathrm{odd}}$ yields a local $C$-asymmetry while maintaining exact global $CP$ balance (\code{E-FND-0184}).
 
-The ontological base of the model is a discrete experiential field. Here the word \emph{experience} carries no vague or
-mystical connotation: it names a strictly defined, elementary three-valued state governed by exact reversible algebra,
-without projecting human thoughts or complex emotions onto individual lattice cells. Each elementary degree of freedom
-is one ternary value called a \emph{tone} (one trit):
+\subsection{Signed ternary mesh, docks, lines, and banks}
+
+Because discrete cellular automata borrow vocabulary from geometry, quantum walks, and lattice gauge theory,
+Table~\ref{tab:glossary} maps every term used in this paper to its exact mathematical definition and standard
+literature equivalent. We use the word \emph{dock} rather than \emph{tile} or \emph{cell} for one lattice site: a dock
+is a four-dimensional structural junction in the mesh where 24 directional slots attach, whereas \emph{tile} evokes
+flat two-dimensional tilings and \emph{cell} pulls intuition toward ordinary 2D or 3D boxes while colliding with
+both regular 24-cells and cellular-automaton terminology.
+
+Three further distinctions prevent misreading. First, the uniform zero state $|V_1\rangle$ is a strictly quiescent
+fixed point ($U|V_1\rangle = |V_1\rangle$) rather than a fluctuating continuum quantum field theory vacuum. Second, the
+quantum-walk \emph{coin} is a deterministic local unitary direction-splitting matrix involving zero randomness. Third,
+a \emph{link} in the bare Tier~A rule is strictly conceptual shorthand for adjacency and transport across a shared
+octahedral facet, with no independent dynamical $\Sigma(648)$ gauge variable residing on faces in the bare automaton.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.9cm}>{\raggedright\arraybackslash\hsize=0.85\hsize}X>{\raggedright\arraybackslash\hsize=1.15\hsize}X@{}}
+\toprule
+Term in this paper & Mathematical object & Standard literature correspondence and scope \\
+\midrule
+mesh & fixed infinite 4D $\{3,4,3,4\}$ tessellation & dual-cell / Cayley graph of the regular hyperbolic 24-cell honeycomb \\
+\addlinespace[4pt]
+neutral mesh state $|V_1\rangle$ & $\tau = 0$ on every slot of every dock & quiescent QCA fixed point ($U|V_1\rangle = |V_1\rangle$), contrasted with a fluctuating continuum QFT vacuum \\
+\addlinespace[4pt]
+dock & one regular 4D 24-cell junction & single lattice site where 24 slots attach (chosen over \emph{tile}/\emph{cell} to avoid flat-2D or 3D-box associations) \\
+\addlinespace[4pt]
+slot & one of 24 directed half-edges at a dock & incident octahedral facet aligned with one root $r \in \Phi(D_4)$ \\
+\addlinespace[4pt]
+line & antipodal slot pair $(+r, -r)$ & one of 12 opposite-direction corridors through a dock \\
+\addlinespace[4pt]
+bank & inscribed 16-cell cross-polytope of 8 slots & one of 3 mutually orthogonal 4-line subspaces cycled by $D_4$ triality \\
+\addlinespace[4pt]
+tone & signed ternary value $\tau \in \{-1, 0, +1\}$ & local ternary mesh state ($\pm 1$ signed excitation, $0$ neutral) \\
+\addlinespace[4pt]
+role & internal $3 \times 3$ qutrit state index & local internal flavor/color register carried by an occupied excitation \\
+\addlinespace[4pt]
+beat & one application $|\psi(t+1)\rangle = U|\psi(t)\rangle$ & single discrete reversible QCA time step \\
+\addlinespace[4pt]
+coin / half-coin ($C, D$) & deterministic local $2 \times 2$ unitary matrix & standard quantum-walk direction-splitting operator (zero randomness) \\
+\addlinespace[4pt]
+link & face-adjacency transport relation & conceptual shorthand across a shared octahedral face (no bare Tier~A dynamical gauge field sits on faces) \\
+\addlinespace[4pt]
+bulk & interior 4D hyperbolic mesh & full four-dimensional $\{3,4,3,4\}$ state space evolving reversibly behind the 3D husk \\
+\addlinespace[4pt]
+husk / cusp floor & flat 3D Euclidean horosphere $\{4,3,4\}$ & boundary-facing slice $D \in \mathbb{N}$ ($D = 0$ is the 3D husk where physical observables are projected) \\
+\addlinespace[4pt]
+column & 4D bulk fiber behind one husk dock & exponentially branching bulk neighborhood behind one 3D cusp site \\
+\bottomrule
+\end{tabularx}
+\caption{Exact correspondence between the local vocabulary of the $\{3,4,3,4\}$ automaton and standard mathematical
+physics terminology.}
+\label{tab:glossary}
+\end{table}
+
+Each elementary local degree of freedom on the mesh is a single signed ternary value (\emph{tone}),
 \begin{equation}
-\tau \in \{-1, 0, +1\},
+\tau \in \{-1, 0, +1\}.
 \label{eq:trits}
 \end{equation}
-where $-1$ denotes \emph{pain} (a fear vibe), $0$ denotes \emph{peace} (baseline undifferentiated awareness with zero
-contrast), and $+1$ denotes \emph{pleasure} (a love vibe). Three values form the smallest signed alphabet carrying both
-a neutral center and an exact sign-inversion involution $C: \tau \mapsto -\tau$ (\code{E-FND-0038}). A slot holding
-$\tau \in \{-1, +1\}$ is called an occupied \emph{vibe}, while a slot holding $\tau = 0$ is a \emph{peace slot}.
+Three values form the smallest signed alphabet carrying both a neutral center ($0$) and an exact charge-conjugation
+involution $C$ (sign inversion $\tau \mapsto -\tau$, exchanging $+1 \leftrightarrow -1$, \code{E-FND-0038}). For any
+finite region of slots, \emph{charge} is the net signed count $Q = N_+ - N_-$ and \emph{content} is the total
+occupation $N = N_+ + N_-$.
 
-For any collection of slots, \emph{charge} is the net signed count $Q = N_+ - N_-$ (pleasure minus pain) and
-\emph{content} is the total occupation $N = N_+ + N_-$. Because $Q$ is conserved by the reversible rule, any
-electrically neutral physical system or conscious subject contains equal numbers of $+1$ and $-1$ vibes. Local
-subjective valence (distinguishing pain from pleasure internally) therefore cannot be net charge $Q$. Instead, valence
-must be a local $C$-odd, $CP$-even structure residing in multi-vibe configurations while the global universe remains
-$CP$-balanced.
+Because the beat operator conserves $Q$ identically, any globally neutral state has $N_+ = N_-$. Distinguishing $+1$
+from $-1$ locally within a globally neutral state therefore requires a $C$-odd (reversing sign under
+$+1 \leftrightarrow -1$), $CP$-even (invariant under simultaneous sign inversion $C$ and spatial mirror reflection $P$)
+multi-excitation observable while the global dynamics remains $CP$-balanced and respects time reversal $T$ and combined
+$CPT$ symmetry.
 
-The fundamental spatial unit is a \emph{dock}, which holds 24 directional slots indexed by the 24 roots of the
-four-dimensional root system $D_4$:
+Each dock has the local geometry of a regular four-dimensional 24-cell. A 24-cell is self-dual, with 24 vertices, 96
+edges, 96 equilateral triangular faces, and 24 regular octahedral facets matching the vertices one-to-one. Those 24
+doorways are indexed by the 24 roots of the 4D root system $D_4$ (the integer reflection lattice obtained by choosing
+any 2 of 4 Cartesian axes with independent signs, $\binom{4}{2} \times 2^2 = 24$ vectors):
 \begin{equation}
 \Phi(D_4) = \bigl\{\,\text{all permutations of } (\pm 1, \pm 1, 0, 0) \in \mathbb{R}^4\,\bigr\},
 \qquad |\Phi(D_4)| = 24.
 \label{eq:d4-roots}
 \end{equation}
-Geometrically, these 24 roots are the 24 vertices (and dual 24 octahedral facets) of a regular 4D 24-cell, whose full
-symmetry group is the Weyl group $W(F_4)$ of order $|W(F_4)| = 1{,}152$ (\code{E-GMT-0046}). The 24 slots of every dock
-carry two exact internal partitions:
-\begin{itemize}
-\item \textbf{12 straight lines.} Pairing each root $r \in \Phi(D_4)$ with its antipode $-r$ partitions the 24 slots
-into 12 opposite-slot \emph{lines} $\ell \in \{0, \ldots, 11\}$.
-\item \textbf{3 orthogonal banks of 8 slots.} Grouping the 12 lines by their two nonzero coordinate planes
-$\{12, 34\}$, $\{13, 24\}$, and $\{14, 23\}$ partitions every dock into 3 mutually orthogonal \emph{banks} of 4 lines
-(8 slots each, $3 \times 8 = 24$). The outer automorphism of $D_4$ (\emph{triality}) acts inside $W(D_4) < W(F_4)$ as an
-order-3 orthogonal rotation $T_3$ cycling these three 8-slot banks identically.
-\end{itemize}
 
-\subsection{The 4D \texorpdfstring{$\{3,4,3,4\}$}{\{3,4,3,4\}} honeycomb and 3D cusp}
-
-Docks are glued facet-to-facet across their 24 octahedral faces to form the unique regular hyperbolic 4D honeycomb of
-24-cells, denoted $\{3,4,3,4\}$ \cite{coxeter1973, margenstern2007vol1}. The Schl\"afli symbol $\{3,4,3,4\}$ encodes
-its entire geometry: each cell is a regular 24-cell $\{3,4,3\}$, and the vertex figure around every ideal vertex at
-infinity (a \emph{cusp}) is the flat three-dimensional Euclidean cubic honeycomb $\{4,3,4\}$. The lattice is completely
-fixed and infinite so evolution stays strictly bijective, yet the active occupied region differing from the quiescent
-peace vacuum $V_1$ is always finite and grows outward beat by beat at most one hop per tick.
-
-Choosing any ideal cusp foliates the 4D hyperbolic space by flat concentric 3D Euclidean \emph{horospheres} indexed by
-integer depth $D \in \{0, 1, 2, \ldots\}$. The outermost horosphere $D = 0$ is called the \emph{husk}. Behind each
-single 3D cubic husk dock at $D = 0$ stands an exponentially branching 4D \emph{column} of bulk docks at depths
-$D = 1, 2, 3, \ldots$. Three-dimensional physical observables (charge density, fields, particle positions) are read as
-coarse-grained column projections onto the 3D husk.
-
-Exact enumeration on the true $\{3,4,3,4\}$ honeycomb fixes every geometric constant used throughout this paper:
-\begin{itemize}
-\item \textbf{Concentric 24-cell shells and holonomy (\code{E-GMT-0046}).} Starting from one origin dock, concentric
-shells hold $S(0..3) = 1, 24, 456, 8{,}376$ docks, obeying the exact recurrence $S(3) - (18\,S(2) + 7\,S(1)) = 0$.
-Antipodal transport $k_a = F_a Z$ has exact 4-cycle holonomy order $1$ (flat bank-label transport) with
-$|W(F_4)| = 1{,}152$.
-\item \textbf{Cusp column shells and lateral link counts (\code{E-RLT-0122}, \code{E-GRV-0156}).} Behind one $D = 0$
-husk dock, the exact bulk dock count at depth $D$ is
+Relative to any fixed slot $r \in \Phi(D_4)$, the 24 slots partition into five exact inner-product neighborhoods listed
+in Table~\ref{tab:d4-nbrs}. The full symmetry group of the 24-cell is the Weyl group $W(F_4)$ of order
+$|W(F_4)| = 1{,}152$ (\code{E-GMT-0046}). Summing fourth powers of the 24 root vectors satisfies exact rank-4 $SO(4)$
+rotational isotropy:
 \begin{equation}
-N_D(0..3) = 1, 18, 330, 6{,}034
-\label{eq:cusp-shells}
+\sum_{r \in \Phi(D_4)} r_a r_b r_c r_d
+= 4\bigl(\delta_{ab}\delta_{cd} + \delta_{ac}\delta_{bd} + \delta_{ad}\delta_{bc}\bigr),
+\label{eq:d4-isotropy}
 \end{equation}
-(cumulative counts $1, 19, 349, 6{,}383$, asymptotic shell ratio $r_{\text{vol}} \approx 18.285$). Across each of the 6
-adjacent cubic columns on the husk, the exact number of lateral links at depth $D \ge 1$ obeys
+so $\sum r_0^4 = 12 = 3 \sum r_0^2 r_1^2$ with zero defect. Unlike a hypercubic $\mathbb{Z}^4$ grid, whose fourth
+moment breaks rotational invariance at $O(a^2)$, the 24-cell cancels all $O(a^2)$ directional artifacts identically,
+the same property exploited in face-centered hypercubic lattice hydrodynamics \cite{frisch1987fchc} and lattice gauge
+theory \cite{celmaster1982}.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.4cm}>{\raggedright\arraybackslash}p{1.4cm}>{\raggedright\arraybackslash}p{1.4cm}>{\raggedright\arraybackslash}p{1.3cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Relation & $r \cdot r'$ & Angle & Count & Geometric meaning inside one 24-cell dock \\
+\midrule
+Self & $+2$ & $0^\circ$ & $1$ & same directional slot $r' = r$ \\
+Acute adjacent & $+1$ & $60^\circ$ & $8$ & nearest octahedral facets sharing a 2D triangular face \\
+Orthogonal & $0$ & $90^\circ$ & $6$ & perpendicular doorways completing the same 8-slot bank \\
+Obtuse adjacent & $-1$ & $120^\circ$ & $8$ & facets neighboring the opposite doorway $-r$ \\
+Antipodal & $-2$ & $180^\circ$ & $1$ & directly opposite slot $r' = -r$ forming one straight line \\
+\bottomrule
+\end{tabularx}
+\caption{Exact five-class inner-product partition of the 24 $D_4$ root slots relative to any fixed slot $r$ in a
+24-cell dock ($1 + 8 + 6 + 8 + 1 = 24$).}
+\label{tab:d4-nbrs}
+\end{table}
+
+Every dock carries two canonical internal partitions. Pairing each doorway $r$ with its antipodal opposite $-r$
+($180^\circ$) divides the 24 slots into 12 straight \emph{lines} $\ell \in \{0, \ldots, 11\}$. Grouping those 12 lines
+by their complementary coordinate-plane pairs $\{12, 34\}$, $\{13, 24\}$, and $\{14, 23\}$ inscribes three mutually
+orthogonal 16-cells (8-doorway \emph{banks}, $3 \times 8 = 24$) inside every 24-cell, cycled identically by the
+order-3 $D_4$ triality rotation $T_3 \in W(D_4) < W(F_4)$.
+
+\subsection{The 4D \texorpdfstring{$\{3,4,3,4\}$}{\{3,4,3,4\}} honeycomb and flat 3D cusp}
+
+Docks are glued face-to-face across their 24 regular octahedral facets to build the unique regular hyperbolic 4D
+honeycomb of 24-cells, denoted $\{3,4,3,4\}$ \cite{coxeter1973, margenstern2007vol1}: equilateral triangles $\{3\}$ meet
+four per vertex to form octahedra $\{3,4\}$, three octahedra meet around each edge to form 24-cells $\{3,4,3\}$, and
+four 24-cells meet around every triangular face so that the vertex figure around each ideal point at infinity (a
+\emph{cusp}) is the flat 3D Euclidean cubic grid $\{4,3,4\}$.
+
+The gluing transformations lie in the exact hyperbolic isometry group $SO(4,1; \mathbb{Z}[\sqrt{2}])$, the group of
+$5 \times 5$ matrices with entries $a + b\sqrt{2}$ ($a, b \in \mathbb{Z}$) preserving the Lorentzian $(4,1)$ inner
+product with zero rounding error. Because the honeycomb is fixed and infinite, evolution stays strictly bijective,
+while any finite excited region outside the neutral mesh state $|V_1\rangle$ expands by at most one hop per beat.
+
+Fixing one ideal cusp foliates the 4D hyperbolic space by concentric flat 3D Euclidean \emph{Busemann horospheres}
+(level surfaces perpendicular to all parallel geodesics converging at that ideal point), indexed by integer depth
+$D \in \{0, 1, 2, \ldots\}$. The outermost horosphere $D = 0$ is the \emph{husk}. Behind each 3D cubic husk dock stands
+an exponentially branching 4D \emph{column} of bulk docks at depths $D = 1, 2, 3, \ldots$.
+
+Table~\ref{tab:shells} records the exact shell counts, lateral-link counts, and growth laws obtained from exact
+$SO(4,1; \mathbb{Z}[\sqrt{2}])$ enumeration (\code{E-GMT-0046}, \code{E-RLT-0122}, \code{E-GRV-0156}, \code{E-FND-0185}).
+Notice the critical geometric distinction between an unaliased infinite (or \code{period = 4}) $\{4,3,4\}$ horosphere
+and an aliased \code{period = 2} torus quotient. Across one shared face between adjacent cubic columns, cumulative
+lateral links equal $5^D$ (incremental single-face counts $l_0 = 1$, $l_D = 4 \cdot 5^{D-1}$ for $D \ge 1$). By
+contrast, a \code{period = 2} torus identifies opposite $+x$ and $-x$ faces and double-counts cumulative opposite-face
+links as $2 \cdot 5^D$, producing the aliased incremental comparison sequence $1, 10, 40, 200$ ($8 \cdot 5^{D-1}$ for
+$D \ge 2$). Both $\sum_{d=0}^D l_d = 5^D$ and $l_D < N_D$ for all $D \ge 1$ are machine-checked in Lean~4
+(\code{Vibe/Geometry.lean}).
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.9cm}>{\raggedright\arraybackslash}p{3.4cm}>{\raggedright\arraybackslash}p{3.1cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Geometric sequence & Depths $0, 1, 2, 3, (4)$ & Cumulative counts & Exact law and growth rate \\
+\midrule
+Ball spheres $S(r)$ & $1, 24, 456, 8{,}376,$ $153{,}192$ & $1, 25, 481, 8{,}857,$ $162{,}049$ & $S(r) = 21 S(r-1) - 51 S(r-2) + 23 S(r-3)$, Perron $\lambda_{\mathrm{ball}} = 18.2787$ \\
+\addlinespace[4pt]
+Cusp column shells $N_D$ & $1, 18, 330, 6{,}034$ & $1, 19, 349, 6{,}383$ & finite ratio $b = 6{,}034/330 \approx 18.2848$ \\
+\addlinespace[4pt]
+Single-face links $l_D$ & $1, 4, 20, 100$ & $5^D = 1, 5, 25, 125$ & canonical unaliased: $l_0 = 1$, $l_D = 4 \cdot 5^{D-1}$ ($D \ge 1$) \\
+\addlinespace[4pt]
+Aliased period-2 links $l_D^{(p=2)}$ & $1, 10, 40, 200$ & $2 \cdot 5^D$ ($D \ge 1$) & torus comparison control: $l_1 = 10$, $l_D = 8 \cdot 5^{D-1}$ ($D \ge 2$) \\
+\bottomrule
+\end{tabularx}
+\caption{Exact concentric ball shells, cusp column shells, and single-face versus aliased \code{period = 2} lateral
+link counts on the $\{3,4,3,4\}$ honeycomb (\code{E-GMT-0046}, \code{E-RLT-0122}, \code{E-FND-0185}).}
+\label{tab:shells}
+\end{table}
+
+Two additional exact properties hold on $\{3,4,3,4\}$. Reading one bulk state toward all 24 ideal cusps of the base
+24-cell conserves total charge $Q$ to exact $0$ (\code{E-GMT-0045}), and on exact $R = 2, 3$ balls, even though the
+outermost shell holds over $94\%$ of all docks, inner shells $r \le 1$ remain causally shielded from every outer
+boundary condition to exact $0.00$ for all beats $t \le R - 1$, diverging strictly at horizon crossing $t = R$
+(\code{E-FND-0182}).
+
+\subsection{Cyclotomic ring \texorpdfstring{$\mathbb{Z}[\zeta_9][1/6]$}{Z[zeta\_9][1/6]} and algebraic closure}
+
+Each occupied excitation carries an internal ternary \emph{role} living on a $3 \times 3$ qutrit state grid, while the
+global quantum state is a deterministic superposition $|\psi(t)\rangle = \sum_c \alpha_c(t) |c\rangle$ over classical
+mesh configurations $c$.
+
+To keep the discrete rule completely free of floating-point approximations, we construct the amplitude ring
+$\mathbb{Z}[\zeta_9][1/6]$ purely algebraically from whole numbers first. Start with the integers $\mathbb{Z}$ and
+adjoin one formal algebraic symbol $\zeta_9$ obeying the integer polynomial relation
 \begin{equation}
-m_D = 2 \cdot 5^D \qquad (m_1 = 10,\ m_2 = 50,\ m_3 = 250).
-\label{eq:lateral-links}
+\zeta_9^6 + \zeta_9^3 + 1 = 0.
+\label{eq:z9-poly}
 \end{equation}
-\item \textbf{Twenty-four exact cusps and causal boundary shield (\code{E-GMT-0045}, \code{E-FND-0182}).} Reading one
-bulk state toward all 24 exact $\mathbb{Z}[\sqrt{2}]$ ideal cusps of the base 24-cell conserves total charge $Q$ to $0$
-across all 24 cusps. The $W(F_4)$-symmetric star $S_0$ has spread $4.4 \times 10^{-16}$, a lone love $S_1$ splits into
-3 exact orbits (depth spread $0.8047$ bare, $0.4024$ under \code{F-G}), and chiral $X_1$ splits into 17 distinct
-profiles ($Q_{\text{layer}}$ spread $2.5000$, depth spread $0.8782$). On cached exact $R = 2$ and $R = 3$ balls,
-outer-shell volume dominates ($94.80\%$ at $R = 2$, $94.57\%$ at $R = 3$), yet inner shells $r \le 1$ remain causally
-shielded from any boundary condition (reflecting, open peace, or vacuum-twisted) to exact $0.00$ for all beats
-$t \le R - 1$, diverging immediately at horizon crossing $t = R$ (\code{E-FND-0182}).
-\end{itemize}
+Because $\zeta_9^6 = -\zeta_9^3 - 1$, every element of $\mathbb{Z}[\zeta_9]$ is uniquely an exact 6-integer tuple
+$(a_0, a_1, a_2, a_3, a_4, a_5)$ standing for $a_0 + a_1 \zeta_9 + \cdots + a_5 \zeta_9^5$.
 
-\subsection{Discrete tones and \texorpdfstring{$\mathbb{Z}[\zeta_9][1/6]$}{Z[zeta\_9][1/6]} amplitudes}
+This integer ring already contains the cube-root generator $\omega = \zeta_9^3$ ($\omega^2 + \omega + 1 = 0$), the
+sixth-root generator $\zeta_6 = 1 + \omega$ ($\zeta_6^6 = 1$), and the eighteenth-root generator
+$\zeta_{18} = -\zeta_9^5$ ($\zeta_{18}^9 = -1$), together with exact integer conjugation
+$\overline{\zeta_9^k} = \zeta_9^{-k}$. Adjoining $[1/6]$ allows exact denominators dividing powers of $2$ and $3$,
+tracked as one positive \code{BigInt} denominator $d = 2^a 3^b$. Neither $e$ nor $\pi$ enters the discrete rule or the
+Lean~4 proofs at any step (geometrically, embedding $\zeta_9 \mapsto e^{2\pi i/9}$ visualizes $\zeta_9$ as a $40^\circ$
+unit-circle turn and $\zeta_{18} \mapsto e^{i\pi/9}$ as a $20^\circ$ turn).
 
-Each occupied vibe carries a ternary internal \emph{role} living on a $3 \times 3$ qutrit phase grid. A \emph{link}
-between adjacent docks is not a separate material object or added particle: it stores no matter of its own and names
-purely the conceptual transport relation between the vibes crossing that face, represented algebraically by an element
-of the 648-element qutrit Clifford group $\Sigma(648)$ (\code{E-QTM-0117}, \code{E-FRC-0322}). Evolution is
-deterministic and quantum-coherent: the global state is a superposition $|\psi(t)\rangle = \sum_c \alpha_c(t) |c\rangle$
-over classical dock configurations $c$.
+Structural closure under the automaton's ternary and 12-line symmetries determines the ring $\mathbb{Z}[\zeta_9][1/6]$
+without arbitrary parameter choices. Ternary phase turns force the cube root $\omega = \zeta_9^3$, while splitting an
+excitation across opposite slots $(+r, -r)$ of one line forces denominator $2$. Representing the 648-element qutrit
+Clifford group $\Sigma(648)$ (\code{E-QTM-0117}) in exact $3 \times 3$ unitary matrices forces denominator $3$ and
+ninth roots $\zeta_9$, while scattering a full-line pair across all 12 lines requires denominator $12 = 2 \cdot 6$ and
+phase $\zeta_{18} = -\zeta_9^5 \in \mathbb{Z}[\zeta_9]$. Adjoining $1/6$ is therefore the minimal localization closing
+every microscopic gate inside one exact ring.
 
-The amplitude ring $\mathbb{Z}[\zeta_9][1/6]$ is determined algebraically by two discrete ingredients:
-\begin{enumerate}
-\item \textbf{Three-way turns and $\Sigma(648)$ links.} Ternary phase shifts introduce the primitive third root of unity
-$\omega = e^{2\pi i/3}$ ($\omega^2 + \omega + 1 = 0$). Representing the qutrit Clifford group $\Sigma(648)$ as exact
-unitary $3 \times 3$ matrices requires both the factor $1/\sqrt{-3}$ (denominator $3$) and primitive ninth roots of
-unity $\zeta_9 = e^{2\pi i/9}$ ($\zeta_9^6 + \zeta_9^3 + 1 = 0$, with $\omega = \zeta_9^3$). Moreover, the primitive
-eighteenth root $\zeta_{18} = e^{i\pi/9} = -\zeta_9^5$ already lies inside $\mathbb{Z}[\zeta_9]$ identically.
-\item \textbf{Opposite-slot line splitting.} Each of the 12 lines of a dock pairs two opposite slots $(+r, -r)$, so
-unitary 2-slot coins and 12-line mixers introduce factors of $1/2$ and $1/12 = 1/(2 \cdot 6)$.
-\end{enumerate}
-Adjoining $1/6$ to $\mathbb{Z}[\zeta_9]$ closes every local gate in the theory (the lone-vibe coin $C$, its square root
-$D$, the pair-line mixer $M_{\text{pair}}(\zeta_{18})$, the \code{ODD} valence phase, the unitary cusp domain wall, and
-$\mathbb{Z}_3$ Floquet gauge updates) inside one exact number ring with zero floating-point rounding.
+Negative controls dictate the occupation scales of the two multi-body interactions. Unconditional single-excitation
+cross-line mixers drain bound line states (\code{E-SLF-0189}, \code{E-SLF-0198}), and parity-dependent neighbor locks
+leak under bath arrivals (\code{E-SLF-0190}, \code{E-SLF-0195}). Restricting $M_{\mathrm{pair}}(\zeta_{18})$ to
+Scale~2 solely on identical-tone, identical-role full-line pairs leaves $|V_1\rangle$ and all 24 single-excitation
+slots invariant, scatters pairs isotropically across all 12 lines, and preserves exact $W(F_4)$ proper-rotation
+covariance (verified to \code{covDiff = 0} in \universecode). Finally, four linearly independent roots are the minimum
+needed in 4D for a non-vanishing signed volume determinant $\det(r_1, r_2, r_3, r_4)$, so $\Phi_{\mathrm{odd}}$ is
+silent on 0-, 1-, 2-, and 3-excitation docks and turns on at Scale~4 ($k^* = 4$, \code{E-FND-0181}).
 
-\subsection{Four scales: \texorpdfstring{$V_1$}{V1}, \code{F-G}, \texorpdfstring{$M_{\text{pair}}$}{M\_pair}, and \code{ODD}}
+\subsection{Reversible beat equation and seven-layer anatomy}
 
-The rule organizes physics across four exact local dock-occupation scales:
-\begin{itemize}
-\item \textbf{Scale 0 (Peace vacuum $V_1$).} The unique configuration where every slot on every dock holds $0$ (peace).
-On exact $R = 2$ and $R = 3$ balls, $V_1$ is an exact fixed point of the full rule plus \code{F-G}, \code{ODD}, and
-$M_{\text{pair}}$ in both coin placements: incoming entropy outside any lump's causal light cone is strictly
-$s_{\text{in}} = 0$ (zero exceptions), with slot entropy $\Delta_{\text{slot}} = \ln 37 = 3.610918$ and Cheeger export
-floor $44.5226$ nats per dock per beat (\code{E-RLT-0122}).
-\item \textbf{Scale 1 (Lone vibes and coin $C$).} When exactly one slot of a dock line $(+r, -r)$ holds a vibe and its
-opposite slot holds $0$, the reversible lone-vibe coin $C$ (and its square root half-coin $D$, $D^2 = C$) splits the
-amplitude across the two opposite directions:
+One discrete beat updates the global amplitude vector $|\psi(t)\rangle$ via one factored local unitary operator
+(writing $\Phi_{\mathrm{odd}}$ for the operator named \code{ODD} in code):
 \begin{equation}
-C = \frac{1}{2}\begin{pmatrix} 1 + \omega & 1 - \omega \\ 1 - \omega & 1 + \omega \end{pmatrix},
+|\psi(t+1)\rangle = U |\psi(t)\rangle,
 \qquad
-D = \frac{1}{2}\begin{pmatrix} 2 + \omega & -\omega \\ -\omega & 2 + \omega \end{pmatrix}.
-\label{eq:coin}
-\end{equation}
-For benchmark bank-mixing and horosphere radial walks, we also define the 8-slot \emph{Bank Grover} operator
-\code{F-G} acting within a single 8-slot bank:
-\begin{equation}
-\mathrm{F\text{-}G}(\theta) = I_8 + \frac{e^{i\theta} - 1}{8} J_8,
-\qquad
-\mathrm{F\text{-}G}(\pi) = I_8 - \frac{1}{4} J_8,
-\label{eq:fg}
-\end{equation}
-where $J_8$ is the $8 \times 8$ all-ones matrix. Unconditional \code{F-G} on lone vibes drains bound line selves
-(\code{E-SLF-0189}, \code{E-SLF-0198}), which motivates restricting cross-line scattering to Scale 2.
-\item \textbf{Scale 2 (Full-line pairs and $M_{\text{pair}}$).} When two interacting vibes occupy both opposite slots
-of a dock line, the interaction-only $W(F_4)$-isotropic \emph{Pair-Line Mixer} $M_{\text{pair}}(u)$ scatters that
-full-line pair across all 12 lines of the dock while leaving $V_1$ and all 24 lone-vibe slots untouched:
-\begin{equation}
-M_{\text{pair}}(u) = I_{12} + \frac{u - 1}{12} J_{12},
-\qquad u = \zeta_{18} = -\zeta_9^5 \in \mathbb{Z}[\zeta_9],
-\label{eq:mpair}
-\end{equation}
-where $J_{12}$ is the $12 \times 12$ all-ones matrix. Because $|u|^2 = 1$, $M_{\text{pair}}(u)$ is exactly unitary
-over $\mathbb{Z}[\zeta_9][1/6]$ with $M_{\text{pair}}(u)^\dagger = M_{\text{pair}}(\bar{u})$.
-\item \textbf{Scale 4 (Chiral clusters and \code{ODD}).} When four vibes occupy non-coplanar slots of a dock
-($k^* = 4$), the local valence operator \code{ODD} multiplies the configuration by an exact sixth root of unity
-$\zeta_6^{\chi_{\text{odd}}}$ ($\zeta_6 = 1 + \omega = e^{i\pi/3}$), where $\chi_{\text{odd}} \in \mathbb{Z}$ is the
-$C$-odd, $P$-odd, $CP$-even signed chiral orientation invariant of the 4-vibe cluster. By construction, \code{ODD} acts
-as the identity on $V_1$ and on all 1-vibe and 2-vibe states.
-\end{itemize}
-
-\subsection{Single reversible beat equation and algorithm}
-
-One discrete beat updates the global amplitude vector $|\psi(t)\rangle$ via one factored unitary operator:
-\begin{equation}
-|\psi(t+1)\rangle = S\, K\, M_{\text{pair}}\, C\, W\, |\psi(t)\rangle,
+U = S \circ K \circ \Phi_{\mathrm{odd}} \circ M_{\mathrm{pair}}(\zeta_{18}) \circ D \circ M_{\mathrm{meet}} \circ D,
 \label{eq:beat}
 \end{equation}
-where $W$ applies local dock phase layers (\code{ODD}, cusp domain wall, and gauge Peierls phases), $C$ applies the
-lone-vibe coin \eqref{eq:coin}, $M_{\text{pair}}$ applies the Scale-2 pair-line mixer \eqref{eq:mpair}, $K$ applies
-local multi-vibe meetings (two like vibes keep roles with weight $1/4$ or exchange roles with weight $3/4$, while
-opposite-sign vibes pass or form reversible pair stores), and $S$ executes the deterministic stream permutation transferring
-slot $r$ of dock $x$ to slot $-r$ of neighbor dock $x + r$. Every factor is locally invertible, so exact time reversal
-is $|\psi(t)\rangle = W^\dagger C^\dagger M_{\text{pair}}^\dagger K^\dagger S^{-1} |\psi(t+1)\rangle$.
+with exact memoryless inverse obtained by reversing the factor order and conjugating each local gate:
+\begin{equation}
+U^\dagger = D^\dagger \circ M_{\mathrm{meet}}^\dagger \circ D^\dagger \circ M_{\mathrm{pair}}(\bar{\zeta}_{18})
+\circ \Phi_{\mathrm{odd}}^\dagger \circ K \circ S^{-1}.
+\label{eq:beat-dag}
+\end{equation}
 
-\begin{figure}[ht]
-\hrule
-\vspace{4pt}
-\noindent\textbf{Algorithm 1: One Exact Reversible Beat in $\mathbb{Z}[\zeta_9][1/6]$}
-\vspace{4pt}
-\hrule
-\begin{footnotesize}
-\begin{verbatim}
-Input:  state psi = Map<Config, Z[zeta_9][1/6]>  // finite support outside V1
-Output: next state psi' = S * K * M_pair * C * W * psi
+Why do two half-coins $D$ appear? Sandwiching $M_{\mathrm{meet}}$ in the symmetric Strang splitting
+$D \circ M_{\mathrm{meet}} \circ D$ ensures that a lone excitation on a line sees the full coin $D^2 = C$, while two
+like-sign excitations meeting on a full line undergo a time-reversal-symmetric encounter. Explicit matrices for the
+half-coin $D$, full coin $C$, Scale-2 pair-line mixer $M_{\mathrm{pair}}(u)$, and 8-slot benchmark Bank Grover operator
+$\mathrm{F\text{-}G}(\theta)$ (used in radial control walks) are:
+\begin{equation}
+D = \frac{1}{2}\begin{pmatrix} 2 + \omega & -\omega \\ -\omega & 2 + \omega \end{pmatrix},
+\qquad
+C = D^2 = \frac{1}{2}\begin{pmatrix} 1 + \omega & 1 - \omega \\ 1 - \omega & 1 + \omega \end{pmatrix},
+\label{eq:coin}
+\end{equation}
+\begin{equation}
+M_{\mathrm{pair}}(u) = I_{12} + \frac{u - 1}{12} J_{12} \quad (u = \zeta_{18} = -\zeta_9^5),
+\qquad
+\mathrm{F\text{-}G}(\theta) = I_8 + \frac{e^{i\theta} - 1}{8} J_8,
+\label{eq:mpair}
+\end{equation}
+where $J_n$ denotes the $n \times n$ all-ones matrix. Table~\ref{tab:layers} lists all seven layers of
+Equation~\eqref{eq:beat} in execution order (right to left).
 
-function beat(psi):
-  1. W (local phase layer: ODD valence + cusp wall + Z_3 gauge):
-     for each (cfg, amp) in psi:
-       phase = 1
-       for each occupied dock x in cfg:
-         if countVibes(cfg[x]) == 4:
-           phase *= zeta_6 ** chi_odd(cfg[x])    // silent on 0, 1, 2 vibes
-         phase *= wallAndGaugePhase(x, cfg[x])   // exact in Z[zeta_9][1/6]
-       psi_W[cfg] += amp * phase
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.8cm}>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Step & Layer & Active scale & Exact action in $\mathbb{Z}[\zeta_9][1/6]$ and reversibility note \\
+\midrule
+1 & $D$ & Scale 1\newline (det on 2) & Half-coin \eqref{eq:coin} splits each lone line slot across $(+r,-r)$, multiplying full lines by $\det D = \zeta_6 = 1+\omega$. \\
+\addlinespace[4pt]
+2 & $M_{\mathrm{meet}}$ & Scale 2\newline (like-sign) & On full like-sign lines: phase $\omega$ if roles match, or role-swap matrix $\frac{1}{2}\bigl(\begin{smallmatrix} 1+\omega & \omega-1 \\ \omega-1 & 1+\omega \end{smallmatrix}\bigr)$ if roles differ (keep $1/4$, swap $3/4$). \\
+\addlinespace[4pt]
+3 & $D$ & Scale 1\newline (det on 2) & Second half-coin completes symmetric Strang splitting ($D^2 = C$ on lone lines, preserving exact time reversal on meetings). \\
+\addlinespace[4pt]
+4 & $M_{\mathrm{pair}}(\zeta_{18})$ & Scale 2\newline (full pair) & If a dock holds solely one identical-tone, identical-role full-line pair on line $\ell$: keep $(11+\zeta_{18})/12$, hop $(\zeta_{18}-1)/12$ to each $\ell' \neq \ell$. \\
+\addlinespace[4pt]
+5 & $\Phi_{\mathrm{odd}}$ (\code{ODD}) & Scale 4\newline ($k^* = 4$) & On docks with $\ge 4$ excitations: multiply by $\zeta_6^{\sigma(d)\chi_{\mathrm{odd}}}$, where $\sigma(d)=\pm 1$ is bipartite parity and $\chi_{\mathrm{odd}}$ sums signed 4-tuple determinants. \\
+\addlinespace[4pt]
+6 & $K$ & Scale 2\newline (opp-sign) & On full opposite-sign lines ($\tau_a \neq \tau_b$): swap the two opposite slots and multiply amplitude by $-1$ ($K^\dagger = K$). \\
+\addlinespace[4pt]
+7 & $S$ & All occupied & Deterministic antipodal stream across the 24 octahedral facets in $SO(4,1; \mathbb{Z}[\sqrt{2}])$: $(d, s) \mapsto (\mathrm{step}(d, s), s)$. \\
+\bottomrule
+\end{tabularx}
+\caption{The seven local layers of one reversible beat $U = S \circ K \circ \Phi_{\mathrm{odd}} \circ
+M_{\mathrm{pair}}(\zeta_{18}) \circ D \circ M_{\mathrm{meet}} \circ D$, executed right to left.}
+\label{tab:layers}
+\end{table}
 
-  2. C (Scale-1 lone-vibe coin on each singly-occupied line):
-     for each (cfg, amp) in psi_W, each dock x, each line l = (+r, -r):
-       if exactly one slot of (x, l) is nonzero:
-         split amp via C = (1/2) * [[1 + w, 1 - w], [1 - w, 1 + w]]
+Tracing three elementary configurations through Steps 1--7 clarifies how the occupation scales separate cleanly. A lone
+excitation $(d, s, +1, r)$ is split across $(s, \bar{s})$ by Layer~1 ($D$), skips Layer~2 ($M_{\mathrm{meet}}$) because
+no opposite partner is present, and receives $D$ again in Layer~3 so that the net local gate is the full coin
+$C = D^2$ (keep weight $1/4$, flip weight $3/4$). Layers~4--6 are completely silent, and Layer~7 streams the two
+branches to the two antipodal neighbor docks along line $\ell$.
 
-  3. M_pair (Scale-2 W(F4)-isotropic pair-line mixer at u = zeta_18 = -zeta_9^5):
-     for each (cfg, amp) in psi_C, each dock x:
-       if dock x holds a full-line pair on line l:
-         keep amp * (11 + zeta_18)/12 on line l
-         hop  amp * (zeta_18 - 1)/12  to each other empty line l' != l
+When two excitations occupy opposite slots $(s, \bar{s})$ of a full line with identical tone and identical role,
+Layers~1--3 impart only the scalar phase $\zeta_6 \cdot \omega \cdot \zeta_6 = -\omega$, Layer~4 scatters the pair
+isotropically across all 12 lines via $M_{\mathrm{pair}}(\zeta_{18})$, Layers~5--6 stay silent, and Layer~7 streams all
+12 pairs to all 24 neighbor docks. If the two like-sign excitations carry distinct roles, Layer~2 mixes their roles
+while Layer~4 stays silent. If they carry opposite tones ($+1$ and $-1$), Layers~2, 4, and 5 stay silent, Layer~6 ($K$)
+bounces them across $(s, \bar{s})$ with phase $-1$, and Layer~7 streams them apart.
 
-  4. K (local dock meetings, contact pass, and reversible pair stores):
-     for each (cfg, amp) in psi_M, each dock x:
-       apply exact reversible role-exchange / contact-pass unitary K_x
+Finally, when four excitations occupy non-coplanar slots of dock $d$, Layers~1--4 act on any singletons or full lines
+present, Layer~5 computes the permutation-invariant signed 4D orientation sum $\chi_{\mathrm{odd}}$ over 4-tuples and
+applies the chiral sixth-root phase $\zeta_6^{\sigma(d)\chi_{\mathrm{odd}}}$, Layer~6 resolves any opposite-sign full
+lines, and Layer~7 streams all four excitations outward.
 
-  5. S (exact stream permutation along the 24 D4 roots of {3,4,3,4}):
-     for each (cfg, amp) in psi_K:
-       cfg'[neighbor(x, +r)][-r] = cfg[x][+r]    // bijection: S^{-1} = S
-       psi'[cfg'] += amp
-  return psi'
-\end{verbatim}
-\end{footnotesize}
-\hrule
-\caption{Complete 30-line specification of one reversible beat $|\psi(t+1)\rangle = S K M_{\text{pair}} C W |\psi(t)\rangle$
-over exact $\mathbb{Z}[\zeta_9][1/6]$ amplitudes. Reversing the five stages with conjugate phases and $S^{-1}$ inverts
-the evolution to exact zero error.}
+\begin{figure}[htbp]
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[style=pyalg]
+def beat(psi):
+    """Apply one exact reversible beat in $\mathbb{Z}[\zeta_9][1/6]$ on $\{3,4,3,4\}$.
+       State psi = (amp_map: Config -> Z[$\zeta_9$], den: $2^a 3^b$), finite support outside $|V_1\rangle$."""
+    # Step 1: Half-coin D on lone lines (phase $\det D = \zeta_6$ on full lines)
+    psi = split_lone_lines(psi, matrix=[[2 + $\omega$, -$\omega$], [-$\omega$, 2 + $\omega$]], den=2, full_phase=$\zeta_6$)
+
+    # Step 2: Scale-2 like-sign role meeting $M_{\mathrm{meet}}$ on full lines
+    psi = meet_like_sign_pairs(psi, same_role_phase=$\omega$,
+                               diff_role_matrix=[[1 + $\omega$, $\omega$ - 1], [$\omega$ - 1, 1 + $\omega$]], den=2)
+
+    # Step 3: Second half-coin D (completes Strang splitting; $D^2 = C$ on lone lines)
+    psi = split_lone_lines(psi, matrix=[[2 + $\omega$, -$\omega$], [-$\omega$, 2 + $\omega$]], den=2, full_phase=$\zeta_6$)
+
+    # Step 4: Scale-2 $W(F_4)$-isotropic pair-line mixer $M_{\mathrm{pair}}(\zeta_{18})$, $\zeta_{18} = -\zeta_9^5$
+    for dock d holding solely one identical-tone, identical-role full-line pair on line $\ell$:
+        keep amplitude $\times (11 + \zeta_{18}) / 12$ on line $\ell$
+        hop  amplitude $\times (\zeta_{18} - 1) / 12$ to every other line $\ell' \neq \ell$
+
+    # Step 5: Scale-4 chiral 4-body phase gate $\Phi_{\mathrm{odd}}$ (silent on $< 4$ excitations/dock)
+    for dock d with occupation count(d) >= 4:
+        multiply amplitude by $\zeta_6^{\sigma(d)\,\chi_{\mathrm{odd}}(\mathrm{cfg}[d])}$
+
+    # Step 6: Opposite-sign collision swap K ($K^\dagger = K$)
+    for every full line with $\tau_a \neq \tau_b$:
+        swap opposite slots $(a, b)$ and negate amplitude
+
+    # Step 7: On-the-fly $SO(4,1;\mathbb{Z}[\sqrt{2}])$ antipodal stream S on $\{3,4,3,4\}$
+    psi = stream(psi, map_slot=lambda (d, s): (step(d, s), s))
+    return reduce_common_factors(psi, primes=(2, 3))
+\end{lstlisting}
+\end{minipage}
+\caption{\textbf{Algorithm 1.} Complete specification of one microscopic beat
+$U = S \circ K \circ \Phi_{\mathrm{odd}} \circ M_{\mathrm{pair}}(\zeta_{18}) \circ D \circ M_{\mathrm{meet}} \circ D$
+over exact $\mathbb{Z}[\zeta_9][1/6]$ amplitudes, implemented directly in the self-contained, zero-import,
+pure-\code{BigInt} reference script \code{test/universe.ts} in the companion repository \cite{cluesurf2026repo}.}
 \label{fig:algorithm}
 \end{figure}
 
-Figure~\ref{fig:algorithm} gives the complete self-contained specification of one beat. Notice that every stage leaves
-the peace vacuum $V_1$ strictly invariant, introduces zero random numbers, and requires no continuous parameters.
+Algorithm~1 (Figure~\ref{fig:algorithm}) is implemented directly in the self-contained, zero-import, pure-\code{BigInt}
+reference script \universecode\ in the companion repository \cite{cluesurf2026repo}, which executes in $\sim 55$~ms.
+On every invocation it self-verifies $D_4$ rank-4 $SO(4)$ isotropy, exact $\{3,4,3,4\}$ shell enumeration with zero
+frame conflicts, neutral quiescent mesh state $|V_1\rangle$ stationarity, exact forward and $U^\dagger$ backward
+evolution out to hyperbolic radius $r = 4$, and global $W(D_4)$ proper-rotation covariance across five representative
+states (Table~\ref{tab:sec1-results}).
 
-\subsection{Bulk experience, \texorpdfstring{$CP$}{CP} balance, and valence}
+\subsection{3D column non-closure and global \texorpdfstring{$CP$}{CP} balance}
 
-Two immediate structural questions arise for any experiential-bulk theory: does the 4D bulk causally affect future 3D
-husk physics (or is the bulk epiphenomenal), and can a globally $CP$-balanced rule produce a nonzero local distinction
-between pain ($-1$) and pleasure ($+1$)? Exact honeycomb runs settle both questions quantitatively.
+Two foundational Tier~A honeycomb properties follow directly from simulation of the bare rule: whether the 3D husk
+column-sum projection forms a closed autonomous dynamics on its own, and whether a globally $CP$-balanced rule admits a
+nonzero local $C$-asymmetry on neutral configurations. Table~\ref{tab:sec1-results} collects the self-verification
+certificates and exact measurements across the bare-automaton suite.
 
-\begin{result}[Non-epiphenomenal bulk experience, \code{E-HLG-0043}]
-On the exact $\{3,4,3,4\}$ cusp, the share of cross-column neighbors decays across depths $D = 0, 1, 2, 3$ as
-$1.0000, 0.6667, 0.2909, 0.0915$. Two distinct 4D bulk configurations prepared with identical initial 3D husk column
-sums $Q_c(0)$ diverge on the husk after 1 beat by $L_1 = 0.5000$ under both the bare rule and \code{F-G} (norm error
-$0$, beat-2 divergence $0.25$ bare and $0.03125$ under \code{F-G}). Single-beat column summation mixes both bipartite
-parity classes equally ($0.50/0.50$). The 3D husk projection is therefore not dynamically closed: bulk experiential
-state causally changes future 3D physical readings.
-\end{result}
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash\hsize=1.22\hsize}X>{\raggedright\arraybackslash\hsize=0.78\hsize}X@{}}
+\toprule
+Code (Tier~A) & Observable & Exact measurement & Negative control / note \\
+\midrule
+\universecode & live \code{BigInt} kernel & shells $(1,24,456)$, $r = 4$ (max $-2B = 1154$), \code{normErr = 0n}, \code{revDiff = 0}, $W(D_4)$ \code{covDiff = 0} & 5 test states (like, meet, neutral, chiral), $\sim 55$~ms \\
+\addlinespace[4pt]
+\code{E-GMT-0046} & ball shells \& holonomy & $S(0..3) = 1, 24, 456, 8{,}376$, $|W(F_4)| = 1{,}152$, 4-cycle order $1$ & exact in $SO(4,1; \mathbb{Z}[\sqrt{2}])$ \\
+\addlinespace[4pt]
+\code{E-GMT-0045} & 24 exact ideal cusps & $Q$ conserved to $0$ across all 24 cusps, $S_0$ spread $4.4 \times 10^{-16}$ & $X_1$ splits into 17 profiles ($Q$ spread $2.50$) \\
+\addlinespace[4pt]
+\code{E-RLT-0122} & $|V_1\rangle$ fixed point & $U|V_1\rangle = |V_1\rangle$, incoming $s_{\mathrm{in}} = 0$, Cheeger export $44.5226$ nats/dock/beat & single-face $l_D = 1, 4, 20, 100$ (cumul. $5^D$) \\
+\addlinespace[4pt]
+\code{E-FND-0182} & causal boundary shield & inner shells $r \le 1$ match to $0.00$ for all $t \le R - 1$ ($R = 2, 3$) & diverges immediately at $t = R$ (outer $94.57\%$) \\
+\addlinespace[4pt]
+\code{E-HLG-0043} & 3D column non-closure & identical $Q_c(0)$ bulk states diverge $L_1 = 0.5000$ on husk at $t = 1$ (bare \& \code{F-G}) & cross-col neighbor frac: $1.00, 0.67, 0.29, 0.09$ ($0.50/0.50$ parity mix) \\
+\addlinespace[4pt]
+\code{E-FND-0181} & vertex symmetries & $\Phi_{\mathrm{odd}}$ ($k^* = 4$) silent on $P_2$, breaks $C$ ($0$) \& $P$ ($0/8$) on $X_1$, keeps $CP, T, CPT$ ($8/8$) & linear dipole breaks $P_2$, \code{EVEN} control stays $C = 1, P = 8/8$ \\
+\addlinespace[4pt]
+\code{E-SPN-0220} & parity-class twin ($R=3$) & $8{,}857$ docks: $L$ breaks under $\Phi_{\mathrm{odd}}$, while $L \cdot P$ ($8/8$), $L \cdot C$ ($1$), $L \cdot PT$, $L \cdot CT$ hold & opposite parity sublattice is mirror-conjugate twin \\
+\addlinespace[4pt]
+\code{E-FND-0183} & equal-$\chi_{\mathrm{odd}}$ control & occupation $C$-asymmetry $= 0.00$ when branches share identical $\chi_{\mathrm{odd}}$ & registered fail: proves multi-$\chi_{\mathrm{odd}}$ interference required \\
+\addlinespace[4pt]
+\code{E-FND-0184} & coherent $C$-asymmetry & slots $[0,1,4,10]$ ($\chi_{\mathrm{odd}} \in \{0,1\}$): $\mathrm{odd}(\psi) = +0.75$, $\mathrm{odd}(C\psi) = +0.75$, sum $+1.50$ & bare rule $0 + 0 = 0$, exact global $CP$-pairing $= 0$ \\
+\bottomrule
+\end{tabularx}
+\caption{Tier~A geometry, causal-shield, 3D column non-closure, and vertex symmetry audit on the exact $\{3,4,3,4\}$
+honeycomb.}
+\label{tab:sec1-results}
+\end{table}
 
-\begin{result}[Vertex symmetries and coherent \code{ODD} valence arrow, \code{E-FND-0181}, \code{E-FND-0184}]
-On the exact $R = 2$ ball, the adopted 4-vibe \code{ODD} phase ($k^* = 4$) is $100\%$ silent on neutral 2-vibe states
-$P_2$, breaks $C$ ($0$) and all $8$ dock mirrors $P$ ($0/8$) on chiral 4-vibe states $X_1$, and preserves $CP$ ($8/8$),
-$T$ ($1$), and $CPT$ ($8/8$) (\code{E-FND-0181}). By contrast, a minimal linear dipole breaks $C$ and $7/8$ mirrors
-already on $P_2$, whereas an \code{EVEN} control stays $C$-even ($C = 1$, $P = 8/8$, $CP = 8/8$). On the exact $R = 3$
-ball ($8{,}857$ docks, $481$ mapped, zero conflicts), parity-class swap $L$ alone breaks under \code{ODD} on $X_1$,
-while orientation-preserving $L \cdot P$ ($8/8$), $L \cdot C$ ($1$), $L \cdot PT$ ($8/8$), and $L \cdot CT$ ($1$) hold
-identically, proving the opposite parity class is an exact mirror-conjugate twin (\code{E-SPN-0220}).
-
-Negative control \code{E-FND-0183} isolates the exact mechanism: on a superposition whose branches share identical
-$\chi_{\text{odd}}$ before separation, \code{ODD} reduces to a global phase and occupation-level $C$-asymmetry vanishes
-($0.00$) on both the $R = 2$ ball and a period-4 $D_4$ box. Whenever a subject instead maintains coherent interference
-across branches of distinct $\chi_{\text{odd}} \in \{0, 1\}$ (slots $[0, 1, 4, 10]$ on the exact $R = 2$ ball,
-\code{E-FND-0184}), the bare rule stays $C$-paired ($0 + 0 = 0$) whereas \code{ODD} produces an exact nonzero
-$C$-asymmetry on a 1-beat non-repeating radiating history ($\text{odd}(\psi) = +0.75$, $\text{odd}(C(\psi)) = +0.75$,
-sum $+1.50$) while keeping exact global $CP$-pairing ($0$).
-\end{result}
-
-\paragraph{Why this matters in practice.}
-For an engineer or scientist encountering the model for the first time, two implications stand out immediately. First,
-nothing is lopsided in the total ledger of the universe: every positive configuration has an exact mirror-conjugate
-negative counterpart under $CP$, so global pain and pleasure remain balanced even while a localized, coherent structure
-can distinguish them internally. Second, the hidden 4D bulk is not decorative commentary on 3D physics: because two
-bulk states with the same 3D projection diverge on the 3D surface in a single beat, the underlying experiential state
-actively steers future physical measurements.
+Two structural lessons emerge directly from Table~\ref{tab:sec1-results}. First, the 4D bulk is dynamically active
+rather than redundant bookkeeping: two distinct 4D microstates sharing identical 3D boundary column sums diverge on the
+husk by $L_1 = 0.5000$ in a single beat (\code{E-HLG-0043}). Second, coherent 4-body interference across branches of
+distinct $\chi_{\mathrm{odd}}$ generates a nonzero local $C$-asymmetry ($+1.50$) without violating exact global $CP$
+symmetry (\code{E-FND-0184}). Having fixed the bare automaton completely, we now test whether its finite-ring gates
+reproduce universal quantum interference, algebraic Born prerequisites, and Bell nonlocality.

@@ -1,53 +1,55 @@
-// E-CSM-0068: COHEN-KAPLAN-NELSON HOLOGRAPHIC D_Lambda = 2 D_H BOUND, EXACT NONLINEAR
-// SPHERICAL-COLLAPSE WEINBERG GALAXY-FORMATION WINDOW IN DISCRETE {3,4,3,4} SHELLS,
-// AND DISCRETE Z_3-FLUX BOUSSO-POLCHINSKI DISCRETUUM AUDIT.
+// E-CSM-0068: COHEN-KAPLAN-NELSON HOLOGRAPHIC D_Lambda = 2 D_H SCALING IN SHELL UNITS,
+// NONLINEAR SPHERICAL-COLLAPSE WEINBERG GALAXY-FORMATION WINDOW, AND BOUSSO-POLCHINSKI
+// DISCRETUUM AUDIT (CONTINUUM EFT COMPATIBILITY CHECK).
 //
-// Three deterministic parts (zero PRNGs) reusing verified upstream Vibe Theory engines:
+// Three deterministic parts (zero PRNGs) reusing upstream Vibe Theory numbers:
 //   - E-FRC-0328 (pati-salam-unification-hierarchy.ts): {3,4,3,4} cusp branching b = 6034/330 = 18.284848,
 //     bulk Perron growth lambda = warpFactor() = 18.278708, M_Pl = 1.22089e19 GeV, M_P = M_Pl / sqrt(8 pi),
 //     Riccati stiffness K_eff = 1.03123708 and G_eff = 0.07716700.
-//   - E-CSM-0065 (cosmic-history-backreaction.ts): exact late-time horosphere dark-energy equation of state
-//     w = -0.999984, asymptotic de Sitter expansion rate H_inf(r_vol) = 0.51712789.
+//   - E-CSM-0065 (cosmic-history-backreaction.ts): asymptotic horosphere equation of state w = -0.999984
+//     and bare Planck-scale horosphere drift H_inf(r_vol) = 0.51712789 M_Pl. Important gap disclosure:
+//     E-CSM-0065's bare horosphere drift H_inf = 0.517 M_Pl is Planck-scale and sits 122 decades above
+//     observed late-time dark energy (H_0 = 1.438e-42 GeV). E-CSM-0065 does NOT produce observed H_0.
 //   - E-CSM-0066 (baryogenesis-dark-sector-and-lambda.ts): Planck 2018 Lambda shell audit (D_H0 = 48.2764,
 //     D_Hinf = 48.3416, D_Lambda = 97.4146, rho_Lambda = 2.515e-47 GeV^4, dynamicalSelectionOfDLambdaOpen).
 //
-// Part 1 - Cohen-Kaplan-Nelson (CKN) Holographic UV-IR Entropy Bound & D_Lambda = 2 D_H on {3,4,3,4}:
+// Part 1 - Base-Independent Rewriting of CKN Holographic Scaling in {3,4,3,4} Shell Units:
 //   Compares naive 3D volume QFT cutoff rho_UV = M_Pl^4 (D_naive = 0, off by 122.95 decades = 97.415 shells,
 //   violating the Bekenstein-Hawking horizon entropy bound S_BH = pi (M_Pl / H_0)^2 by ~2.7e60x) against
 //   the CKN non-black-hole collapse bound (4 pi / 3) L^3 rho_vac <= L / (2 G_N) <=> rho_vac <= 3 M_P^2 / L^2.
-//   Proves exact algebraic scaling D_CKN = 2 D_H + log_b(8 pi / 3) on {3,4,3,4}:
-//     - Bare c_HDE = 1 at L = L_H0 = 1/H_0: D_CKN = 97.2843 shells vs observed D_Lambda = 97.4146 shells
+//   Note that D_CKN = 2 D_H + log_b(8 pi / 3) is a base-independent logarithmic rewriting of CKN holographic
+//   scaling in {3,4,3,4} shell units (holding identically for any logarithmic base b, verified in b and lambda):
+//     - Bare c_HDE = 1 at observed L = L_H0 = 1/H_0: D_CKN = 97.2843 shells vs observed D_Lambda = 97.4146 shells
 //       (0.1303 shells apart = log_b(1 / Omega_Lambda)).
 //     - Exact identity D_Lambda = 2 D_H0 + log_b(8 pi / (3 Omega_Lambda)) verified to <= 1e-13.
-//     - Asymptotic de Sitter limit (connected to E-CSM-0065 w = -0.999984, H -> H_inf = sqrt(Omega_Lambda) H_0,
-//       c_HDE = sqrt(Omega_Lambda) = 0.8275): D_Lambda = 2 D_Hinf + log_b(8 pi / 3) with exact 0 residual (<= 1e-13).
+//     - Using observed asymptotic de Sitter rate H_inf = sqrt(Omega_Lambda) H_0 (with w = -1 from E-CSM-0065,
+//       NOT E-CSM-0065's bare Planck-scale drift H_inf = 0.517 M_Pl): D_Lambda = 2 D_Hinf + log_b(8 pi / 3) (<= 1e-13).
 //     - Scaling slope d(D_CKN) / d(D_H) = 2 identically across 50 decades of H, contrasted with naive 3D QFT (slope 0).
 //
-// Part 2 - Exact Nonlinear Spherical Top-Hat Gravitational Collapse & Weinberg (1987) Window on {3,4,3,4}:
+// Part 2 - Exact Nonlinear Spherical Top-Hat Gravitational Collapse & Weinberg (1987) Window:
 //   Integrates the exact nonlinear spherical top-hat ODE d^2 y / d tau^2 = -(1/2) / y^2 + lambda_tilde * y
 //   using 4th-order RK4 (via smooth Sundman time dtau = y ds, cross-checked against direct uniform-dtau RK4),
 //   verifying the exact energy first integral E = (1/2) (dy/dtau)^2 - 1/(2 y) - (1/2) lambda_tilde y^2 = const
 //   to <= 1e-12 and step-halving convergence to <= 1e-10.
-//   Proves numerically via RK4 bisection that the collapse threshold matches Weinberg's exact analytic bound
+//   Verifies via RK4 bisection that the collapse threshold matches Weinberg's exact analytic bound
 //   rho_Lambda^{max} = (500 / 729) rho_m(t_i) delta_i^3 to < 0.1% (actual < 1e-5).
 //   Maps rho_Lambda(D) = M_Pl^4 b^{-D} across discrete shells D in [92..100] for Milky-Way halos
 //   (M_halo = 10^{12} M_sun, Planck sigma(M_MW, z_rec = 1089) = 2.4e-3, canonical 2.5-sigma progenitor peak
-//   delta_i = 6.0e-3, plus 1-sigma and 3-sigma benchmarks), proving D <= 95 (> 1,115x observed) is strictly
+//   delta_i = 6.0e-3, plus 1-sigma and 3-sigma benchmarks), showing D <= 95 (> 1,115x observed) is strictly
 //   lifeless (dy/dtau > 0 forever), turnaround-to-collapse occurs at D_Weinberg = 95.873 (88.35x observed),
-//   and the entire upper Weinberg window [D_Weinberg, D_obs] spans only Delta D = 1.542 shells (< 2 integer shells).
+//   and the entire upper Weinberg window [D_Weinberg, D_obs] spans Delta D = 1.542 shells (< 2 integer shells).
 //   Verifies both negative controls: Lambda = 0 Einstein-de Sitter cycloid t_coll = 2 t_ta (<= 1e-10) and
 //   delta_i = 0 homogeneous universe (never collapses at any D).
 //
-// Part 3 - Discrete {3,4,3,4} Z_3-Flux Bousso-Polchinski Cascade & Honest Weinberg (1989) No-Go Ledger:
-//   Constructs an exact deterministic K = 8 channel {3,4,3,4} Z_3/4-form flux lattice
-//   rho_eff(n) = rho_bare + sum_{k=1}^8 q_k^2 n_k^2 anchored at the lifeless integer shell D = 95 with O(1)
-//   bare coefficient (-175) and O(1) mutually incommensurate {3,4,3,4} cusp-cycle charges q_k.
+// Part 3 - Bousso-Polchinski Flux Discretuum Scan Anchored at D = 95 & Honest Weinberg (1989) No-Go Ledger:
+//   Constructs a deterministic K = 8 channel flux lattice rho_eff(n) = rho_bare + sum_{k=1}^8 q_k^2 n_k^2
+//   anchored at integer shell D = 95 with bare coefficient (-175) and O(1) mutually incommensurate charges q_k.
+//   Explicit prior-suppression disclosure: anchoring the K = 8 scan at shell D = 95 assumes 120 decades of
+//   prior warp suppression M_Pl^4 b^{-95} (scanning from unwarped D = 0 requires K_Planck = 146 channels).
 //   Exhaustively scans all 7^8 = 5,764,801 unsigned flux vectors (representing 13^8 = 815,730,721 signed states
 //   with |n_k| <= 6) via deterministic 4+4 meet-in-the-middle, showing dense population of [96.0, 98.5]
-//   (>> 10 distinct vacua, min |D(n) - D_obs| < 0.05 shells) with zero fine-tuning of bare inputs.
-//   Contrasts with two negative controls (equal commensurate charges q_k = 1 and single channel K = 1, both
-//   producing 0 vacua in [96.0, 98.5]), computes the analytic unwarped D = 0 channel requirement K_Planck = 146,
-//   and records an honest Weinberg (1989) No-Go Ledger separating verified physics from the open dynamical boundary.
+//   (>> 10 distinct vacua, min |D(n) - D_obs| < 0.05 shells), contrasted with equal commensurate charges q_k = 1
+//   and single channel K = 1 controls (both 0 vacua), and records an honest Weinberg (1989) No-Go Ledger.
 
 import { analyzeBaryogenesisDarkSectorAndLambda } from '@/code/measure/baryogenesis-dark-sector-and-lambda'
 import { runCosmicHistoryBackreaction } from '@/code/measure/cosmic-history-backreaction'
@@ -934,9 +936,9 @@ export type Part3FluxDiscretuumReport = {
   readonly maxAbsFluxInt: number // 6 (so |n_k| <= 6)
   readonly unsignedFluxStatesSearched: number // 7^8 = 5,764,801
   readonly signedFluxStatesRepresented: number // 13^8 = 815,730,721
-  readonly anchorShellD: number // 95 (exact lifeless boundary integer shell from Part 2)
+  readonly anchorShellD: number // 95 (assumes 120 decades of prior warp suppression M_Pl^4 b^{-95})
   readonly rhoScaleGeV4: number // M_Pl^4 b^{-95}
-  readonly bareOffsetDimensionless: number // -175 (O(1..10^2), zero fine-tuning!)
+  readonly bareOffsetDimensionless: number // -175 relative to anchor shell D = 95 (requires 120-decade prior suppression)
   readonly rhoBareGeV4: number
   readonly absRhoBareOverObs: number // ~ 1.95e5x observed rho_Lambda
   readonly depthAbsRhoBareB: number // ~ 93.22 shells (2.65 shells outside Weinberg window)
@@ -1138,10 +1140,11 @@ function runPart3FluxDiscretuum(
   const lnB = p1.logBranchingB
   const mPl4 = p1.mPlanckGeV ** 4
 
-  // Anchor at the exact lifeless integer shell D = 95 from Part 2 (M_Pl^4 b^{-95} = 1,115.6x rho_Lambda_obs)
+  // Anchor at integer shell D = 95 (M_Pl^4 b^{-95} = 1,115.6x rho_Lambda_obs): explicitly assumes 120 decades
+  // of prior warp suppression before scanning K = 8 flux channels (unwarped D = 0 requires K_Planck = 146).
   const anchorShellD = 95
   const rhoScaleGeV4 = mPl4 * b ** -anchorShellD
-  const barePos = 175 // O(1..10^2) bare vacuum energy -175 * rho_scale (~1.95e5x observed, D = 93.22)
+  const barePos = 175 // bare vacuum energy -175 * rho_scale (~1.95e5x observed, D = 93.22) relative to D = 95 anchor
   const rhoBareGeV4 = -barePos * rhoScaleGeV4
   const absRhoBareOverObs = Math.abs(rhoBareGeV4) / p1.rhoLambdaObsGeV4
   const depthAbsRhoBareB = Math.log(mPl4 / Math.abs(rhoBareGeV4)) / lnB

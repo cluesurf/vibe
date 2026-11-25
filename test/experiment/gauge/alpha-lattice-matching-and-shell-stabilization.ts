@@ -1,29 +1,22 @@
-// FRONTIER 1: EXACT 4D D_4 (24-CELL) LATTICE-TO-MS-BAR GAUGE MATCHING, HEAVY SO(10)/PATI-SALAM
-// THRESHOLDS, DYNAMICAL SHELL STABILIZATION ON {3,4,3,4}, AND HONEST alpha(0) CLOSURE AUDIT
-// (E-FRC-0329).
+// FRONTIER 1 (E-FRC-0329): CONTINUUM EFT AUDIT OF D_4 LATTICE MATCHING ANSATZ, UNDERDETERMINED
+// HEAVY SO(10)/PS THRESHOLD FIT, AND GOLDBERGER-WISE / HIGGS-PORTAL SHELL STABILIZATION.
 //
-// Part 1: Direct 4D Brillouin-zone quadrature at N = 12, 16, 20 reproduces the exact hypercubic Z^4
-// tadpole I_{Z4} = 0.15493339 to < 1e-6, computes the exact 24-cell D_4 tadpole I_{D4} and IR-finite
-// 1-loop bubble shift Delta F_0(D_4 vs Z^4) = +1.91834 (Celmaster scale ratio 2.61), proves exact
-// O(k^4) SO(4) isotropy of D_4 on all 256 4th-moment tensor components (vs Z^4's 4:1 anisotropy),
-// verifies all heavy SO(10) and Pati-Salam Dynkin indices in exact BigInt rationals, and runs the
-// full coupled 2-loop SO(10) -> PS -> SM -> QED flow to M_Z and q^2 = 0 with 100% honesty:
-//   - Zero-fit D_4 BLM matching alone (all heavy thresholds degenerate) lifts bare 116.73 (-14.8%)
-//     to alpha^{-1}(0) = 130.58 (-4.71%, cutting the residual more than 3x over bare and Z^4).
-//   - Natural O(1) heavy-multiplet mass ratios strictly inside [0.39, 1.28] (within [1/3, 3])
-//     simultaneously hit CODATA alpha^{-1}(0) = 137.035999177 and PDG (127.951, 0.23122, 0.1180)
-//     to < 1e-12, while bare 37.6552 and Z^4 BLM require unphysical extreme ratios rejected by [1/3, 3].
+// Part 1: 4D Brillouin-zone quadrature at N = 12, 16, 20 reproduces I_{Z4} = 0.15493339 (< 1e-6),
+// computes I_{D4} and Delta F_0(D_4 vs Z^4) = +1.91834, verifies O(k^4) SO(4) isotropy of D_4 on
+// 256 4th-moment components, checks heavy SO(10)/PS Dynkin indices in BigInt rationals, and audits
+// 2-loop SO(10) -> PS -> SM -> QED running honestly:
+//   - Zero-fit D_4 matching under the mu = pi/a Gaussian-stiffness BLM ansatz (without the compact
+//     Wilson tadpole, which shifts downward) still misses CODATA alpha^{-1}(0) by -4.71% (130.58 vs 137.036).
+//   - CODATA alpha^{-1}(0) closure uses an underdetermined 3 x 4 heavy-threshold fit (4 mass ratios
+//     fitting 3 gauge constraints) with ratios in [0.39, 1.28] (inside [1/3, 3]).
 //
-// Part 2: Dynamical shell stabilization on {3,4,3,4}:
-//   - Zero-cancellation discrete Goldberger-Wise BVP on the cusp column stabilizes D_* = 13.15..13.23
-//     shells (integer minimum strictly at D = 13, V''(D_*) > 0) for natural m_phi^2 = 0.18
-//     (epsilon_eff = 0.0595) and O(1) boundary ratio v_UV/v_IR = 9.7..9.84, matching the analytic
-//     GW formula to < 1e-12, while flat b = 1 and massless epsilon = 0 controls fail cleanly.
-//   - Coupled 2-loop SM Higgs quartic lambda_H(mu) (PDG 2024 M_H = 125.20, M_t = 172.69 GeV) crosses
-//     zero at 10^10.33 GeV (D = 6.94, within 0.65 shells of Pati-Salam D_PS = 6.28), where the
-//     perturbative (10,1,3)_C portal jump Delta lambda_H = +0.0484 stabilizes the vacuum to M_GUT.
+// Part 2: Continuum EFT stabilization mechanisms:
+//   - Goldberger-Wise BVP on the warped column stabilizes D_* = 13.15..13.23 (integer min at D = 13)
+//     for m_phi^2 = 0.18 and v_UV/v_IR = 9.7..9.84 (continuum EFT mechanism, contrasted with b = 1 and eps = 0).
+//   - Continuum 2-loop SM Higgs quartic lambda_H(mu) crosses zero at 10^10.33 GeV, where a perturbative
+//     (10,1,3)_C scalar portal jump Delta lambda_H = +0.0484 stabilizes the vacuum to M_GUT.
 //
-// Depth L2: deterministic 4D BZ quadrature, BigInt Dynkin algebra, 2-loop RK4, discrete Thomas BVP.
+// Depth L2: deterministic continuum EFT compatibility check. Zero RNG.
 
 import { analyzeAlphaLatticeMatchingAndShellStabilization } from '@/code/measure/alpha-lattice-matching-and-shell-stabilization'
 import { experiment } from '@/test/scaffold/suite'
@@ -33,9 +26,9 @@ export default experiment({
   id: 'gauge/alpha-lattice-matching-and-shell-stabilization',
   code: 'E-FRC-0329',
   title:
-    'Exact 4D D_4 (24-cell) lattice-to-MS-bar gauge matching, heavy SO(10)/Pati-Salam thresholds, dynamical Goldberger-Wise and Higgs-quartic shell stabilization on {3,4,3,4}, and honest alpha(0) closure audit',
+    'Continuum EFT audit of D_4 Gaussian-stiffness matching (-4.71% zero-fit miss), underdetermined 3x4 heavy-threshold closure of alpha(0), and Goldberger-Wise / Higgs-portal stabilization',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: ['eft-continuum'],
   depth: 'L2',
   paper: false,
   run() {
@@ -208,25 +201,18 @@ export default experiment({
         pureSmUnstableAtMGut: h.smOnlyUnstableAtMGut ? 1 : 0,
       },
       notes:
-        'Honest Frontier 1 audit (L2, zero random numbers): ' +
-        '(1) ZERO-PARAMETER DERIVED RESULTS: exact 4D D_4 24-cell tadpole I_D4_raw = 0.138231 (I_D4_vol1 = 0.195488, ' +
-        'benchmarked against I_Z4 = 0.154933 to 1.7e-7), exact O(k^4) SO(4) isotropy of D_4 (256/256 BigInt tensor ' +
-        'identities vs Z^4 4:1 anisotropy), exact 1-loop bubble constant shift Delta F_0(D_4 - Z^4) = +1.9183 ' +
-        '(Celmaster scale ratio 2.61, suppressing non-tadpole gluon-loop lattice artifacts by >100x), and exact BigInt ' +
-        'Dynkin indices for 45_V, 10_H, 126_H, 210_H, 45_H, PS coset vectors, and (10,1,3)_C scalars. Applying D_4 ' +
-        'tadpole-improved BLM matching at mu = pi/a (matching K_eff as Gaussian link stiffness, whereas an un-improved ' +
-        'compact cosine Wilson action shifts downward) raises alpha_GUT^-1 from 37.6552 to 42.9579 and lifts zero-fit ' +
-        'alpha^-1(0) from 116.73 (-14.82%) to 130.58 (-4.71% vs CODATA 137.036). ' +
-        '(2) O(1) THRESHOLD CLOSURE AND HONEST OPEN BOUNDARY: closing the remaining -4.71% gap to hit CODATA ' +
-        '137.035999177 and PDG (127.951, 0.23122, 0.1180) to < 1e-12 requires natural perturbative O(1) heavy SO(10) ' +
-        'multiplet mass ratios [1.277, 0.866, 0.623, 0.392] (all inside [1/3, 3]), whereas unmatched bare 37.6552 and ' +
-        'Z^4 BLM fail the [1/3, 3] bound. Exact 9-digit zero-parameter derivation of alpha(0) remains genuinely open ' +
-        'until the heavy SO(10) scalar mass spectrum is computed dynamically from the live {3,4,3,4} rule. ' +
-        '(3) DYNAMICAL SHELL STABILIZATION: the discrete Goldberger-Wise BVP on {3,4,3,4} stabilizes D_* = 13.15..13.23 ' +
-        'shells (integer minimum strictly at D = 13, V\'\' > 0) for natural m_phi^2 = 0.18 and v_UV/v_IR = 9.7..9.84 ' +
-        'without 10^16 fine-tuning (flat b = 1 and massless eps = 0 fail cleanly), and the 2-loop SM Higgs quartic ' +
-        'crosses zero at 10^10.33 GeV (D = 6.94, within 0.65 shells of Pati-Salam D_PS = 6.28), where the perturbative ' +
-        '(10,1,3)_C portal jump restores vacuum stability all the way to M_GUT (D_GUT = 2.52).',
+        'Continuum EFT compatibility audit (L2, zero random numbers): ' +
+        '(1) 4D D_4 lattice integrals and zero-fit alpha(0) miss: BZ quadrature gives I_D4_raw = 0.138231 ' +
+        '(benchmarked against I_Z4 = 0.154933), exact O(k^4) SO(4) isotropy of D_4 (256/256 BigInt components), ' +
+        'and Delta F_0(D_4 - Z^4) = +1.9183. Under the mu = pi/a Gaussian-stiffness BLM ansatz (omitting the ' +
+        'compact Wilson cosine tadpole, which shifts downward), zero-fit alpha^-1(0) = 130.58 still misses CODATA ' +
+        '137.036 by -4.71%. ' +
+        '(2) Underdetermined 3 x 4 heavy-threshold closure: hitting CODATA 137.035999177 and PDG (127.951, 0.23122, ' +
+        '0.1180) to < 1e-12 uses an underdetermined 3 x 4 heavy-threshold fit (4 mass ratios [1.277, 0.866, 0.623, ' +
+        '0.392] in [1/3, 3] against 3 gauge constraints). Zero-parameter derivation of alpha(0) remains open. ' +
+        '(3) Continuum EFT stabilization mechanisms: both the Goldberger-Wise scalar BVP (stabilizing D_* = 13.15..13.23 ' +
+        'for m_phi^2 = 0.18, v_UV/v_IR = 9.7..9.84) and the (10,1,3)_C Higgs-quartic portal jump (+0.0484 near ' +
+        '10^10.33 GeV) are standard continuum EFT mechanisms rather than microscopic QCA derivations.',
     })
   },
 })

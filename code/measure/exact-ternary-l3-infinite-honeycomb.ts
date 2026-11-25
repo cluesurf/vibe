@@ -1,23 +1,37 @@
-// E-GRV-0163: TRUE L3 -- PURE ZERO-DECIMAL BigInt Z[w][1/2] TWO-BODY MUTUAL GRAVITY &
-// STRONG-FIELD EVENT-HORIZON TRAPPING ON AN ON-THE-FLY R = INFINITY 4D {3,4,3,4} HONEYCOMB.
+// E-GRV-0163: L2 BACKGROUND-FIELD QUANTUM WALK IN EXACT BigInt Z[w][1/2] ON AN ON-THE-FLY
+// R = INFINITY 4D {3,4,3,4} HONEYCOMB WITH PRESCRIBED HARTREE TWO-BODY AND GULLSTRAND-PAINLEVE HORIZON COINS.
 //
-// Eliminates BOTH remaining approximations of E-GRV-0162 (code/measure/honeycomb-ball-l3-two-body-and-horizon.ts):
+// Builds on E-GRV-0162 (code/measure/honeycomb-ball-l3-two-body-and-horizon.ts) while fixing two
+// modeling bugs (GR-1 and GR-8) and grading the physics honestly at L2:
 //   1. Replaces pre-built finite static balls (R = 2: 481 docks, R = 3: 8,857 docks) with an on-the-fly
 //      InfiniteHoneycomb engine over exact SO(4,1; Z[sqrt(2)]) BigInt group generators (zero float geometry
 //      drift, zero outer boundary, 0 frontier hits at any t, verified 100% isomorphic to coverBall(2) and
-//      coverBall(3) and pushed strictly beyond R = 3 to exact graph radii r = 4 and r = 5 at t = 4, 5).
-//   2. Replaces every Float64 base coin angle cos(2 theta) with explicit exact BigInt Z[w][1/2] 2x2 SU(2)
-//      rule words over Vibe's exact generators {W_1, W_1^dag, W_2, W_2^dag} (deterministic L <= 16
+//      coverBall(3), exact Busemann-level graph depth beyond floor = 3 so stepping up from depth = 4 returns 3,
+//      and a constant-flat-coin evolution strictly beyond R = 3 to exact graph radii r = 4 and r = 5 at t = 4, 5).
+//   2. Compiles every prescribed coin angle (looked up via Float64 external forces/metrics) into explicit
+//      exact BigInt Z[w][1/2] 2x2 SU(2) gate words over {W_1, W_1^dag, W_2, W_2^dag} (deterministic L <= 16
 //      Meet-in-the-Middle + balanced group commutator refinement, < 1e-3 operator norm, 0n BigInt det
 //      residual and 0n BigInt unitarity residual U^dag U = 4^p I_2).
-//   3. Evolves the full multi-slot 4D honeycomb quantum state psi in PURE EXACT BigInt Z[w][1/2]
-//      (Map<slotKey, [a, b]> with shared power-of-2 denominator denomPow, zero Float64 anywhere in state
-//      evolution or reversal), proving literally 0n exact BigInt norm error, 0 exact BigInt memoryless
-//      U^dag reversal diff slots, 0n exact BigInt equal-mass mirror weight difference, and literally
-//      0n + 0n * w exact BigInt orthogonality of distinct probes even behind the trapped event horizon
-//      (chi = 1.35).
+//   3. Replaces static-shift-only horizon coins (where any 2x2 unitary Rx(theta) on a static symmetric
+//      lattice shift enforces v_r(out) + v_r(in) = 0, sending inward rays outward inside the horizon) with
+//      a genuine exact bijective Gullstrand-Painleve split-step QCA on InfiniteHoneycomb:
+//        U_b = (S_river)^{m_b} * S_light * W(theta_cU)
+//      combining the Equivalence-Principle local flat warped-column coin W(theta_cU) in exact BigInt Z[w][1/2]
+//      (c_local = c_u = 0.977925 from canonical single-face [1, 4, 20, 100] lateral links), the exact bijective
+//      +-1 lightcone shift S_light = sigma_0 * S_4D along the depth-0 radial geodesic chain, and the exact
+//      bijective SO(4,1; Z[sqrt(2)]) parabolic cusp river drift S_river: |g, s> -> |u_0^{-1} g h_0, sigma_0(s)>
+//      scheduled on K out of P = 45 beats (v_river = -K / P ~ -c_u sqrt(r_s / r_0)). Verifies BOTH orthogonal
+//      polarizations (rayAOut and rayAIn): flat +-c_u, redshifted exterior (|v_in| > |v_out|), exact horizon
+//      freeze |v_out| < 5e-3 while v_in < -1.9 (never stalls!), and genuine trapped interior at r_s / r_0 = 1.44
+//      (r_areal = 0.6944 r_s < r_s) where BOTH v_out < 0 AND v_in < 0, with 0n norm err, 0 exact memoryless U^dag
+//      reversal diff, and (0n, 0n) orthogonality <rayAOut | rayAIn> = 0 at EVERY beat b = 1..P.
+//   4. Honest L2 scope: this is a prescribed background-field / Hartree mean-field quantum walk (NOT emergent
+//      GR from a bare QCA), external force/angle lookup is Float64, Busemann depth descent is empirically
+//      verified 0/8,857 on B_3 plus 0 mismatches on depth-4 -> 3 probes (not a general arbitrary-depth proof),
+//      the r = 4, 5 walk uses a constant flat coin, and single-particle norm/orthogonality preservation is NOT
+//      Hawking evaporation or Page-curve entropy.
 //
-// NOTHING MOVES: 100% deterministic pure BigInt Z[sqrt(2)] and Z[w][1/2] algebra. Zero Math.random.
+// NOTHING MOVES: 100% deterministic BigInt Z[sqrt(2)] and Z[w][1/2] algebra + Float64 angle lookup. Zero Math.random.
 
 import { buildWarpedGravityTable, type WarpedGravityTable } from '@/code/measure/unified-coupled-sectors'
 import { OPPOSITE } from '@/code/rule/isometric-knit'
@@ -153,9 +167,13 @@ export class InfiniteHoneycomb {
   readonly stepChamber: readonly ExactVector[]
   readonly docks: DockRecord[] = []
   readonly keyToId: Map<string, number> = new Map()
+  readonly axis0TwistPerm: Uint8Array
   inconsistentSteps = 0
 
+  private readonly riverInCache: Map<number, number> = new Map()
+  private readonly riverOutCache: Map<number, number> = new Map()
   private readonly rowV: readonly [bigint, bigint][]
+  private readonly rowVUnitNeg0: boolean
   private readonly rowA0: readonly [bigint, bigint][]
   private readonly rowA1: readonly [bigint, bigint][]
   private readonly rowA2: readonly [bigint, bigint][]
@@ -178,10 +196,28 @@ export class InfiniteHoneycomb {
     this.stepCenter = cell.transports.map(k => fastMatrixVector(k, cell.center))
     this.stepChamber = cell.transports.map(k => fastMatrixVector(k, cell.chamberPoint))
 
+    // Exact W(F_4) involution sigma_0 on the 24 slots induced by cusp axis-0 twist h_0: h_0 k_s h_0 = k_{sigma_0(s)}
+    const h0 = cusp.translations.axes[0]!.twist
+    const transportKeys = cell.transports.map(t => keyOfExact(t))
+    const perm = new Uint8Array(SLOTS)
+    for (let s = 0; s < SLOTS; s++) {
+      const conj = fastMatrixProduct(fastMatrixProduct(h0, cell.transports[s]!), h0)
+      const idx = transportKeys.indexOf(keyOfExact(conj))
+      if (idx < 0) {
+        throw new Error(`InfiniteHoneycomb: axis-0 twist failed to conjugate slot ${s}`)
+      }
+      perm[s] = idx
+    }
+    this.axis0TwistPerm = perm
+
     const formRow = (target: ExactVector): readonly [bigint, bigint][] =>
       Array.from({ length: DIM }, (_, i) => twiceForm(unitExactVec(i), target))
 
     this.rowV = formRow(CUSP_VERTEX)
+    this.rowVUnitNeg0 =
+      this.rowV[0]![0] === -1n &&
+      this.rowV[0]![1] === 0n &&
+      this.rowV.slice(1).every(([x, y]) => x === 0n && y === 0n)
     this.rowA0 = formRow(unitExactVec(1))
     this.rowA1 = formRow(unitExactVec(2))
     this.rowA2 = formRow(unitExactVec(3))
@@ -267,6 +303,72 @@ export class InfiniteHoneycomb {
     ]
   }
 
+  private exactBusemannIntLevel(
+    center: ExactVector,
+    precomputed?: readonly [bigint, bigint],
+  ): bigint {
+    const lv = precomputed ?? this.exactDotRow(this.rowV, center)
+    if (lv[1] !== 0n || lv[0] >= 0n || (lv[0] & 1n) !== 0n) {
+      throw new Error(`InfiniteHoneycomb: unexpected cuspLevel [${lv[0]}, ${lv[1]}]`)
+    }
+    return -lv[0] >> 1n
+  }
+
+  private exactStepBusemannLevel(frame: ExactMatrix, slot: number): bigint {
+    const sc = this.stepCenter[slot]!
+    if (this.rowVUnitNeg0) {
+      let x = 0n
+      let y = 0n
+      for (let k = 0; k < DIM; k++) {
+        const p = 2 * k
+        const mx = frame[p]!
+        const my = frame[p + 1]!
+        const vx = sc[2 * k]!
+        const vy = sc[2 * k + 1]!
+        if ((mx === 0n && my === 0n) || (vx === 0n && vy === 0n)) continue
+        x += mx * vx + 2n * my * vy
+        y += mx * vy + my * vx
+      }
+      if (y !== 0n || x <= 0n || (x & 1n) !== 0n) {
+        throw new Error(`InfiniteHoneycomb: unexpected step cuspLevel [${-x}, ${-y}]`)
+      }
+      return x >> 1n
+    }
+    const nbC = fastMatrixVector(frame, sc)
+    return this.exactBusemannIntLevel(nbC)
+  }
+
+  // Exact BigInt graph depth from the cusp layer (Busemann level L = 1) via steepest descent on L.
+  // Empirically verified 0/8,857 mismatches on B_3 plus 0 mismatches stepping depth 4 -> 3 (eliminates
+  // GR-8 past floor = 3; not a general convexity proof for arbitrary depth).
+  exactDepthFromBusemann(
+    frame: ExactMatrix,
+    center: ExactVector,
+    precomputedLevel?: readonly [bigint, bigint],
+  ): number {
+    let curF = frame
+    let curL = this.exactBusemannIntLevel(center, precomputedLevel)
+    let steps = 0
+    while (curL > 1n) {
+      let bestS = -1
+      let bestL = curL
+      for (let s = 0; s < SLOTS; s++) {
+        const candL = this.exactStepBusemannLevel(curF, s)
+        if (candL < bestL) {
+          bestL = candL
+          bestS = s
+        }
+      }
+      if (bestS < 0 || steps >= 128) {
+        throw new Error(`InfiniteHoneycomb: Busemann descent stalled at L=${curL}, steps=${steps}`)
+      }
+      curF = fastMatrixProduct(curF, this.cell.transports[bestS]!)
+      curL = bestL
+      steps++
+    }
+    return steps
+  }
+
   // Generate or retrieve neighbor across slot s in exact SO(4,1; Z[sqrt(2)]) BigInt arithmetic.
   step(dockId: number, slot: number): number {
     const dock = this.docks[dockId]!
@@ -294,7 +396,10 @@ export class InfiniteHoneycomb {
     const hDot = twiceForm(nbCenter, this.cell.center)
     const nbPos = this.positionOfExactCenter(nbCenter)
     const nbCuspPi = dock.cuspPi >= 0 ? this.cusp.table[dock.cuspPi * SLOTS + slot]! : -1
-    const nbDepth = nbCuspPi >= 0 ? this.cusp.depth[nbCuspPi]! : dock.depth + 1
+    const nbDepth =
+      nbCuspPi >= 0
+        ? this.cusp.depth[nbCuspPi]!
+        : this.exactDepthFromBusemann(nbFrame, nbCenter, nbLevel)
 
     const id = this.docks.length
     const neighbors = new Int32Array(SLOTS).fill(-1)
@@ -316,6 +421,63 @@ export class InfiniteHoneycomb {
     this.docks.push(record)
     this.keyToId.set(nbKey, id)
     dock.neighbors[slot] = id
+    return id
+  }
+
+  // Exact bijective SO(4,1; Z[sqrt(2)]) parabolic cusp translation along axis 0:
+  //   g -> u_0^{dir} * g * h_0   (dir = +1 shifts pos by (+1,0,0), dir = -1 shifts pos by (-1,0,0))
+  // Preserves frame group membership K (since phi(u_0^{+-1}) = h_0 and h_0^2 = 1), cuspLevel, and depth
+  // identically on ALL docks of the infinite {3,4,3,4} honeycomb (at every depth D >= 0).
+  translateAxisX(dockId: number, dir: 1 | -1): number {
+    const cache = dir > 0 ? this.riverOutCache : this.riverInCache
+    const cached = cache.get(dockId)
+    if (cached !== undefined) return cached
+
+    const dock = this.docks[dockId]!
+    const ax0 = this.cusp.translations.axes[0]!
+    const u = dir > 0 ? ax0.translation : ax0.inverse
+    const nbFrame = fastMatrixProduct(fastMatrixProduct(u, dock.frame), ax0.twist)
+    const nbCenter = fastMatrixVector(nbFrame, this.cell.center)
+    const nbKey = keyOfExact(nbCenter)
+    const nbChamber = keyOfExact(fastMatrixVector(nbFrame, this.cell.chamberPoint))
+
+    const existingId = this.keyToId.get(nbKey)
+    if (existingId !== undefined) {
+      const existing = this.docks[existingId]!
+      if (existing.chamberKey !== nbChamber) {
+        this.inconsistentSteps++
+      }
+      cache.set(dockId, existingId)
+      const revCache = dir > 0 ? this.riverInCache : this.riverOutCache
+      revCache.set(existingId, dockId)
+      return existingId
+    }
+
+    const nbLevel = this.exactDotRow(this.rowV, nbCenter)
+    if (nbLevel[0] !== dock.cuspLevel[0] || nbLevel[1] !== dock.cuspLevel[1]) {
+      this.inconsistentSteps++
+    }
+    const hDot = twiceForm(nbCenter, this.cell.center)
+    const nbPos = this.positionOfExactCenter(nbCenter)
+    const id = this.docks.length
+    const record: DockRecord = {
+      id,
+      key: nbKey,
+      chamberKey: nbChamber,
+      frame: nbFrame,
+      center: nbCenter,
+      cuspLevel: nbLevel,
+      hyperbolicDotOrigin: [-hDot[0], -hDot[1]],
+      pos: nbPos,
+      cuspPi: -1,
+      depth: dock.depth,
+      neighbors: new Int32Array(SLOTS).fill(-1),
+    }
+    this.docks.push(record)
+    this.keyToId.set(nbKey, id)
+    cache.set(dockId, id)
+    const revCache = dir > 0 ? this.riverInCache : this.riverOutCache
+    revCache.set(id, dockId)
     return id
   }
 
@@ -1145,7 +1307,7 @@ class TernaryRyGravityBank {
 }
 
 // ============================================================================================================
-// PART 3: PURE ZERO-DECIMAL BigInt Z[w][1/2] L3 MULTI-SLOT QUANTUM STATE & EVOLUTION OPERATORS
+// PART 3: PURE ZERO-DECIMAL BigInt Z[w][1/2] L2 PRESCRIBED-BACKGROUND MULTI-SLOT QUANTUM STATE & OPERATORS
 // ============================================================================================================
 
 export type ExactEisState = {
@@ -1327,6 +1489,121 @@ function applyStreamInfiniteExact(
     out.set(nb * SLOTS + d, v)
   }
   return { slots: out, denomPow: s.denomPow, normScale: s.normScale }
+}
+
+// Exact bijective symmetric +-1 lightcone shift S_light = sigma_0 * S_4D on InfiniteHoneycomb:
+//   forward: |dock, d> -> |hc.step(dock, d), sigma_0(d)>
+//   inverse: |dock, d> -> |hc.step(dock, OPPOSITE[sigma_0(d)]), sigma_0(d)>
+// Keeps the depth-0 radial geodesic chain D_x = (x, 0, 0) strictly closed across all beats (out -> x+1, in -> x-1).
+function applyLightconeShiftInfiniteExact(
+  hc: InfiniteHoneycomb,
+  s: ExactEisState,
+  inverse: boolean,
+): ExactEisState {
+  const sig0 = hc.axis0TwistPerm
+  const out = new Map<number, Eis>()
+  if (!inverse) {
+    for (const [slotKey, v] of s.slots) {
+      const dock = Math.floor(slotKey / SLOTS)
+      const d = slotKey - dock * SLOTS
+      const nb = hc.step(dock, d)
+      out.set(nb * SLOTS + sig0[d]!, v)
+    }
+  } else {
+    for (const [slotKey, v] of s.slots) {
+      const dock = Math.floor(slotKey / SLOTS)
+      const d = slotKey - dock * SLOTS
+      const dOrig = sig0[d]!
+      const nb = hc.step(dock, OPPOSITE_U8[dOrig]!)
+      out.set(nb * SLOTS + dOrig, v)
+    }
+  }
+  return { slots: out, denomPow: s.denomPow, normScale: s.normScale }
+}
+
+// Exact bijective Gullstrand-Painleve river drift shift S_river on InfiniteHoneycomb:
+//   forward: |g, d> -> |u_0^{-1} g h_0, sigma_0(d)>  (translates BOTH chiralities inward by (-1, 0, 0))
+//   inverse: |g, d> -> |u_0      g h_0, sigma_0(d)>  (translates BOTH chiralities outward by (+1, 0, 0))
+// Globally bijective on all docks and all 24 slots, strictly preserving norm (0n), orthogonality (0n, 0n),
+// depth, and every slot's 3D displacement vector.
+function applyRiverShiftInfiniteExact(
+  hc: InfiniteHoneycomb,
+  s: ExactEisState,
+  inverse: boolean,
+): ExactEisState {
+  const sig0 = hc.axis0TwistPerm
+  const dir: 1 | -1 = inverse ? 1 : -1
+  const out = new Map<number, Eis>()
+  for (const [slotKey, v] of s.slots) {
+    const dock = Math.floor(slotKey / SLOTS)
+    const d = slotKey - dock * SLOTS
+    const nb = hc.translateAxisX(dock, dir)
+    out.set(nb * SLOTS + sig0[d]!, v)
+  }
+  return { slots: out, denomPow: s.denomPow, normScale: s.normScale }
+}
+
+// Identify the depth-0 radial geodesic pair (dr = +-1.0 along +x) at a depth-0 dock on the +x ray.
+function depth0RadialPairAt(hc: InfiniteHoneycomb, dockId: number): readonly [number, number] | null {
+  const dock = hc.docks[dockId]!
+  if (dock.depth !== 0) return null
+  const plan = hc.getPairPlan(dockId)
+  for (let p = 0; p < PAIRS_PER_DOCK; p++) {
+    if (plan.pairURad[p]! > 0.99 && Math.abs(plan.pairDx[p]!) > 0.5) {
+      return [plan.pairOut[p]!, plan.pairIn[p]!]
+    }
+  }
+  return null
+}
+
+// Pure exact BigInt local Equivalence-Principle coin W(theta_cU) on the depth-0 radial pair (identity elsewhere).
+function applyGpRadialCoinExact(
+  hc: InfiniteHoneycomb,
+  s: ExactEisState,
+  coin: EisMat2,
+  adjoint: boolean,
+): ExactEisState {
+  const byDock = new Map<number, Map<number, Eis>>()
+  for (const [slotKey, v] of s.slots) {
+    const dock = Math.floor(slotKey / SLOTS)
+    const d = slotKey - dock * SLOTS
+    let m = byDock.get(dock)
+    if (!m) {
+      m = new Map<number, Eis>()
+      byDock.set(dock, m)
+    }
+    m.set(d, v)
+  }
+  const u = adjoint ? dagEisMat2(coin) : coin
+  const sh = BigInt(u.denPow2)
+  const out = new Map<number, Eis>()
+
+  for (const [dockId, localMap] of byDock) {
+    const base = dockId * SLOTS
+    const radPair = depth0RadialPairAt(hc, dockId)
+    if (radPair) {
+      const [a, b] = radPair
+      const va = localMap.get(a)
+      const vb = localMap.get(b)
+      if (va || vb) {
+        const za = va ?? EIS_ZERO
+        const zb = vb ?? EIS_ZERO
+        const outA = eAdd(eMul(u.m00, za), eMul(u.m01, zb))
+        const outB = eAdd(eMul(u.m10, za), eMul(u.m11, zb))
+        if (outA[0] !== 0n || outA[1] !== 0n) out.set(base + a, outA)
+        if (outB[0] !== 0n || outB[1] !== 0n) out.set(base + b, outB)
+      }
+      for (const [d, v] of localMap) {
+        if (d === a || d === b) continue
+        out.set(base + d, sh > 0n ? [v[0] << sh, v[1] << sh] : v)
+      }
+    } else {
+      for (const [d, v] of localMap) {
+        out.set(base + d, sh > 0n ? [v[0] << sh, v[1] << sh] : v)
+      }
+    }
+  }
+  return reduceEisState(out, s.denomPow + u.denPow2, s.normScale)
 }
 
 // Pure exact stream S_4D on a finite static ball table (for negative-control frontier-hit & convergence check)
@@ -1521,23 +1798,86 @@ function evaluateLiveAccelOnInfinite(
   return out
 }
 
-function isotropicSchwarzschildCRad(r: number, rH: number, cUniversal: number): number {
-  if (rH <= 0) return cUniversal
-  if (r <= 1e-12) return -cUniversal
-  const u = rH / r
-  const alpha = (1 - u) / (1 + u)
-  const psi = 1 + u
-  return (cUniversal * alpha) / (psi * psi)
+// Horizon-penetrating Gullstrand-Painleve radial null velocities in the river model:
+// radial coordinate r is the exact areal radius r_areal = r, free-fall river inflow velocity is
+// v_river(r) = -c_u * sqrt(r_s / r), outgoing null speed is c_out(r) = c_u * (1 - sqrt(r_s / r)),
+// and ingoing null speed is c_in(r) = -c_u * (1 + sqrt(r_s / r)) < 0.
+// Outside r_s: c_out > 0, c_in < 0 with |c_in| > |c_out|.
+// At event horizon r = r_s: c_out = 0 (freezes!), c_in = -2 c_u < 0 (falls swiftly inward, never stalls).
+// Inside trapped interior r < r_s: BOTH c_out < 0 AND c_in < 0 (genuine trapped light cone!).
+const GP_RIVER_PERIOD = 45
+
+function flatSplitStepMeanSpeed(theta: number, periodP: number): number {
+  const c = Math.cos(theta)
+  const sn = Math.sin(theta)
+  const n = 2 * periodP + 1
+  let re0 = new Float64Array(n)
+  let im0 = new Float64Array(n)
+  let re1 = new Float64Array(n)
+  let im1 = new Float64Array(n)
+  re0[periodP] = 1
+  for (let t = 0; t < periodP; t++) {
+    const nRe0 = new Float64Array(n)
+    const nIm0 = new Float64Array(n)
+    const nRe1 = new Float64Array(n)
+    const nIm1 = new Float64Array(n)
+    for (let i = 0; i < n; i++) {
+      const aR = re0[i]!
+      const aI = im0[i]!
+      const bR = re1[i]!
+      const bI = im1[i]!
+      if (aR === 0 && aI === 0 && bR === 0 && bI === 0) continue
+      const oR = c * aR + sn * bI
+      const oI = c * aI - sn * bR
+      const iR = sn * aI + c * bR
+      const iI = -sn * aR + c * bI
+      if (i + 1 < n) {
+        nRe0[i + 1] = oR
+        nIm0[i + 1] = oI
+      }
+      if (i - 1 >= 0) {
+        nRe1[i - 1] = iR
+        nIm1[i - 1] = iI
+      }
+    }
+    re0 = nRe0
+    im0 = nIm0
+    re1 = nRe1
+    im1 = nIm1
+  }
+  let meanX = 0
+  for (let i = 0; i < n; i++) {
+    const p = re0[i]! * re0[i]! + im0[i]! * im0[i]! + re1[i]! * re1[i]! + im1[i]! * im1[i]!
+    meanX += p * (i - periodP)
+  }
+  return meanX / periodP
 }
 
-// Fast Float64 reference evolution on InfiniteHoneycomb (matches E-GRV-0162 continuum formulas exactly)
+// Deterministic 60-step bisection finding the Equivalence-Principle local coin angle theta in (0, pi/4)
+// whose P-beat flat-space split-step mean velocity equals c_u (0.977925) to < 1e-12.
+function solveGpLocalCoinAngle(targetSpeed: number, periodP: number): number {
+  let lo = 0
+  let hi = Math.PI / 4
+  for (let it = 0; it < 60; it++) {
+    const mid = 0.5 * (lo + hi)
+    if (flatSplitStepMeanSpeed(mid, periodP) > targetSpeed) {
+      lo = mid
+    } else {
+      hi = mid
+    }
+  }
+  return 0.5 * (lo + hi)
+}
+
+// Fast Float64 reference evolution on InfiniteHoneycomb for the exact bijective Gullstrand-Painleve split-step QCA:
+//   U_b = (S_river)^{m_b} * S_light * R_x(thetaLocal)
 type FloatState = Map<number, [number, number]>
 
-function stepHorizonFloatRef(
+function stepGpSplitStepFloatRef(
   hc: InfiniteHoneycomb,
   s: FloatState,
-  rH: number,
-  cUniversal: number,
+  thetaLocal: number,
+  riverStepsM: number,
 ): FloatState {
   const byDock = new Map<number, Map<number, [number, number]>>()
   for (const [slotKey, amp] of s) {
@@ -1550,40 +1890,53 @@ function stepHorizonFloatRef(
     }
     m.set(d, amp)
   }
+  const c = Math.cos(thetaLocal)
+  const sn = Math.sin(thetaLocal)
   const coined: FloatState = new Map()
   for (const [dockId, local] of byDock) {
-    const [px, py, pz] = hc.docks[dockId]!.pos
-    const rx = Math.hypot(px, py, pz)
-    const cRad = isotropicSchwarzschildCRad(rx, rH, cUniversal)
-    const plan = hc.getPairPlan(dockId)
     const base = dockId * SLOTS
-    for (let p = 0; p < PAIRS_PER_DOCK; p++) {
-      const a = plan.pairOut[p]!
-      const b = plan.pairIn[p]!
+    const radPair = depth0RadialPairAt(hc, dockId)
+    if (radPair) {
+      const [a, b] = radPair
       const za = local.get(a)
       const zb = local.get(b)
-      if (!za && !zb) continue
-      const uRad = plan.pairURad[p]!
-      const cEff = cUniversal * (1 - uRad * uRad) + uRad * uRad * cRad
-      const theta = 0.5 * Math.acos(Math.max(-1, Math.min(1, cEff)))
-      const c = Math.cos(theta)
-      const sn = Math.sin(theta)
-      const ar = za ? za[0] : 0
-      const ai = za ? za[1] : 0
-      const br = zb ? zb[0] : 0
-      const bi = zb ? zb[1] : 0
-      coined.set(base + a, [c * ar + sn * bi, c * ai - sn * br])
-      coined.set(base + b, [sn * ai + c * br, -sn * ar + c * bi])
+      if (za || zb) {
+        const ar = za ? za[0] : 0
+        const ai = za ? za[1] : 0
+        const br = zb ? zb[0] : 0
+        const bi = zb ? zb[1] : 0
+        coined.set(base + a, [c * ar + sn * bi, c * ai - sn * br])
+        coined.set(base + b, [sn * ai + c * br, -sn * ar + c * bi])
+      }
+      for (const [d, amp] of local) {
+        if (d === a || d === b) continue
+        coined.set(base + d, amp)
+      }
+    } else {
+      for (const [d, amp] of local) {
+        coined.set(base + d, amp)
+      }
     }
   }
-  const streamed: FloatState = new Map()
+  const sig0 = hc.axis0TwistPerm
+  let cur: FloatState = new Map()
   for (const [slotKey, amp] of coined) {
     const dock = Math.floor(slotKey / SLOTS)
     const d = slotKey - dock * SLOTS
     const nb = hc.step(dock, d)
-    streamed.set(nb * SLOTS + d, amp)
+    cur.set(nb * SLOTS + sig0[d]!, amp)
   }
-  return streamed
+  for (let j = 0; j < riverStepsM; j++) {
+    const next: FloatState = new Map()
+    for (const [slotKey, amp] of cur) {
+      const dock = Math.floor(slotKey / SLOTS)
+      const d = slotKey - dock * SLOTS
+      const nb = hc.translateAxisX(dock, -1)
+      next.set(nb * SLOTS + sig0[d]!, amp)
+    }
+    cur = next
+  }
+  return cur
 }
 
 function meanRadiusFloat(hc: InfiniteHoneycomb, s: FloatState): number {
@@ -1757,17 +2110,27 @@ export type ExactTwoBodySummary = {
 }
 
 export type ExactHorizonSweepRow = {
-  readonly chi: number
+  readonly rsOverR0: number
+  readonly rArealOverRs: number
+  readonly vFallOverCU: number
+  readonly riverStepsK: number
+  readonly riverPeriodP: number
+  readonly vRiverExact: number
+  readonly cOutExpected: number
+  readonly cInExpected: number
   readonly coinOpDistAtLaunch: number
   readonly coinDenPow2AtLaunch: number
   readonly coinExactSU2Ok: boolean
-  readonly vRadial1: number
-  readonly vRadial1FloatRef: number
-  readonly vRadial1AbsDiffVsRef: number
-  readonly deltaR1: number
-  readonly deltaR2: number
-  readonly deltaR2FloatRef: number
-  readonly deltaR2AbsDiffVsRef: number
+  readonly vOut: number
+  readonly vIn: number
+  readonly vOutFloatRef: number
+  readonly vInFloatRef: number
+  readonly vOutAbsDiffVsRef: number
+  readonly vInAbsDiffVsRef: number
+  readonly vOutAbsDiffVsContinuumGP: number
+  readonly vInAbsDiffVsContinuumGP: number
+  readonly deltaROut: number
+  readonly deltaRIn: number
   readonly frontierHits: number
   readonly visitedDocksOnInfinite: number
   readonly exactBigIntNormErrMax: bigint
@@ -1775,12 +2138,14 @@ export type ExactHorizonSweepRow = {
   readonly exactBigIntInnerInA: readonly [bigint, bigint]
   readonly exactBigIntInnerAB: readonly [bigint, bigint]
   readonly exactBigIntInnerSup: readonly [bigint, bigint]
+  readonly allBeatsInOutOrthogonalExactZero: boolean
   readonly allOrthogonalExactZero: boolean
 }
 
 export type ExactTernaryL3InfiniteHoneycombResult = {
   readonly elapsedSeconds: number
   readonly constants: {
+    readonly kEff: number
     readonly gEff: number
     readonly cUniversal: number
   }
@@ -1794,7 +2159,13 @@ export type ExactTernaryL3InfiniteHoneycombResult = {
     readonly inconsistentSteps: number
     readonly involutiveEdgesChecked: number
     readonly involutiveEdgeFailures: number
-    // Strictly beyond R = 3 (t = 4 and t = 5 beats on R = infinity vs static R = 3)
+    // GR-8 exact Busemann depth verification on B_3 and beyond floor = 3
+    readonly b3BusemannDepthMismatches: number
+    readonly beyondR3DepthLipschitzFailures: number
+    readonly beyondR3DepthZeroLevelFailures: number
+    readonly beyondR3Depth4StepUpTo3Checks: number
+    readonly beyondR3Depth4StepUpWrongDepthCount: number
+    // Strictly beyond R = 3 (t = 4 and t = 5 beats on R = infinity vs static R = 3, constant flat coin)
     readonly beyondR3T4ActiveDocks: number
     readonly beyondR3T4VisitedDocks: number
     readonly beyondR3T4ReachedExactRadius4Count: number
@@ -1827,15 +2198,22 @@ export type ExactTernaryL3InfiniteHoneycombResult = {
   }
   readonly part3Horizon: {
     readonly launchR0: number
+    readonly riverPeriodP: number
+    readonly gpLocalCoinTheta: number
     readonly sweep: readonly ExactHorizonSweepRow[]
-    readonly strictlyMonotonicVRadial1: boolean
-    readonly strictlyMonotonicDeltaR2: boolean
-    readonly maxVRadial1DiffVsRef: number
-    readonly maxDeltaR2DiffVsRef: number
+    readonly strictlyMonotonicVOut: boolean
+    readonly strictlyMonotonicVIn: boolean
+    readonly strictlyMonotonicDeltaROut: boolean
+    readonly strictlyMonotonicDeltaRIn: boolean
+    readonly maxVOutDiffVsRef: number
+    readonly maxVInDiffVsRef: number
+    readonly maxVOutDiffVsContinuumGP: number
+    readonly maxVInDiffVsContinuumGP: number
     readonly totalFrontierHits: number
     readonly worstExactBigIntNormErr: bigint
     readonly worstExactBigIntReversalDiffSlots: number
     readonly allProbesExactBigIntOrthogonal: boolean
+    readonly allBeatsInOutExactBigIntOrthogonal: boolean
   }
   readonly part3CrossRadiusControls: {
     readonly r2VsR3VsInfTwoBody1BeatDiffSlots: number
@@ -1848,9 +2226,10 @@ export type ExactTernaryL3InfiniteHoneycombResult = {
 export function runExactTernaryL3InfiniteHoneycomb(): ExactTernaryL3InfiniteHoneycombResult {
   const startedMs = Date.now()
 
-  // 0. Parameter-free {3,4,3,4} constants & exact cell/cusp data
+  // 0. Parameter-free {3,4,3,4} canonical single-face [1, 4, 20, 100] constants & exact cell/cusp data
   const gravity = buildWarpedGravityTable(8, 17)
   const kernel = buildWarpedKernel(gravity)
+  const kEff = gravity.kEff
   const cU = gravity.cUniversal
   const gEff = gravity.gEff
 
@@ -1864,6 +2243,8 @@ export function runExactTernaryL3InfiniteHoneycomb(): ExactTernaryL3InfiniteHone
   // ========================================================================================================
   const isoHc = new InfiniteHoneycomb(cell, cusp)
   const distIso: number[] = [0]
+  const parentDockIso: number[] = [-1]
+  const parentSlotIso: number[] = [-1]
 
   // BFS shells 0, 1, 2 (481 docks) in exact Z[sqrt(2)] discovers ALL 8,857 docks of R = 3
   for (let head = 0; head < isoHc.visitedDockCount; head++) {
@@ -1873,7 +2254,18 @@ export function runExactTernaryL3InfiniteHoneycomb(): ExactTernaryL3InfiniteHone
       const nb = isoHc.step(head, s)
       if (nb === distIso.length) {
         distIso.push(d + 1)
+        parentDockIso.push(head)
+        parentSlotIso.push(s)
       }
+    }
+  }
+
+  // GR-8 certificate on B_3: exact Busemann-level descent agrees with cusp.depth on all 8,857 docks
+  let b3BusemannDepthMismatches = 0
+  for (let x = 0; x < isoHc.visitedDockCount; x++) {
+    const dk = isoHc.docks[x]!
+    if (isoHc.exactDepthFromBusemann(dk.frame, dk.center, dk.cuspLevel) !== dk.depth) {
+      b3BusemannDepthMismatches++
     }
   }
 
@@ -1952,13 +2344,22 @@ export function runExactTernaryL3InfiniteHoneycomb(): ExactTernaryL3InfiniteHone
   // Balanced-ternary R_y gravity coin bank (7 exact BigInt base words -> all weak-field two-body angles)
   const gravBank = new TernaryRyGravityBank(synth)
 
-  // Synthesize all 5 strong-field Schwarzschild horizon coins at launch radius r_0 = 1.0
-  const chiValues = [0.0, 0.4, 0.75, 1.0, 1.35] as const
-  const horizonLaunchCoins = new Map<number, SynthesizedCoin>()
-  const horizonCoinRows: CoinCertRow[] = []
+  // Synthesize the Equivalence-Principle local flat warped-column coin W(theta_cU) for the P = 45
+  // Gullstrand-Painleve split-step QCA (where local free-falling light moves at +-c_u across all 5
+  // r_s / r_0 values and gravity enters strictly via the exact bijective SO(4,1) river shift S_river),
+  // plus the 1-beat flat warped-column coin for Part 1B (beyond R = 3) and Part 3C cross-radius control.
+  const rsOverR0Values = [0.0, 0.25, 0.64, 1.0, 1.44] as const
+  const gpLocalCoinTheta = solveGpLocalCoinAngle(cU, GP_RIVER_PERIOD)
+  const gpLocalCoin = synth.synthesize('horizon-gp-local-cU', quatRx(gpLocalCoinTheta), 4e-4, 4)
+  const flatCoin1Beat = synth.synthesize(
+    'flat-1beat-cU',
+    quatRx(0.5 * Math.acos(Math.max(-1, Math.min(1, cU)))),
+    4e-4,
+    4,
+  )
 
-  const toCertRow = (c: SynthesizedCoin): CoinCertRow => ({
-    label: c.label,
+  const toCertRow = (c: SynthesizedCoin, overrideLabel?: string): CoinCertRow => ({
+    label: overrideLabel ?? c.label,
     wordLength: c.wordLength,
     denPow2: c.mat.denPow2,
     opDist: c.opDist,
@@ -1968,13 +2369,13 @@ export function runExactTernaryL3InfiniteHoneycomb(): ExactTernaryL3InfiniteHone
     unitarityResidualMax: c.cert.unitarityResidualMax,
   })
 
-  for (const chi of chiValues) {
-    const cRad = isotropicSchwarzschildCRad(1.0, chi, cU)
-    const theta = 0.5 * Math.acos(Math.max(-1, Math.min(1, cRad)))
-    const coin = synth.synthesize(`horizon-chi-${chi.toFixed(2)}`, quatRx(theta), 4e-4, 4)
-    horizonLaunchCoins.set(chi, coin)
-    horizonCoinRows.push(toCertRow(coin))
-  }
+  const horizonCoinRows: CoinCertRow[] = rsOverR0Values.map(rsOverR0 => {
+    const kSteps = Math.round(GP_RIVER_PERIOD * cU * Math.sqrt(rsOverR0))
+    return toCertRow(
+      gpLocalCoin,
+      `horizon-gp-rs-${rsOverR0.toFixed(2)}-k${kSteps}of${GP_RIVER_PERIOD}`,
+    )
+  })
 
   // Also synthesize direct headline two-body Beat-1 deflection coins for 1:1 and 1:3 (for Part 2 certificate)
   const gDerivAt2 = kernel.evalNegDeriv(2.0)
@@ -1986,7 +2387,7 @@ export function runExactTernaryL3InfiniteHoneycomb(): ExactTernaryL3InfiniteHone
   const gravityCoinRows: CoinCertRow[] = [
     toCertRow(coinTwoBody1to1),
     toCertRow(coinTwoBody1to3),
-    ...gravBank.baseCoins.map(toCertRow),
+    ...gravBank.baseCoins.map(c => toCertRow(c)),
   ]
 
   // ========================================================================================================
@@ -1994,7 +2395,7 @@ export function runExactTernaryL3InfiniteHoneycomb(): ExactTernaryL3InfiniteHone
   // ========================================================================================================
   // Fresh on-the-fly InfiniteHoneycomb (NEVER pre-builds B_3!)
   const beyondHc = new InfiniteHoneycomb(cell, cusp)
-  const flatCoin = horizonLaunchCoins.get(0.0)!.mat
+  const flatCoin = flatCoin1Beat.mat
   const ax0 = cusp.translations.axes[0]!
   const launchOriginSlot = ax0.slot // depth-0 cusp axis slot (+1, 0, 0) from dock 0
 
@@ -2077,8 +2478,78 @@ export function runExactTernaryL3InfiniteHoneycomb(): ExactTernaryL3InfiniteHone
   }
   const beyondR3T5ExactBigIntReversalDiffSlots = exactStateDiffSlots(beyondRev, beyondInit)
 
+  // GR-8 depth consistency checks on beyondHc (r = 4, 5) and unvisited depth-4 -> depth-3 step-up probe
+  let beyondR3DepthLipschitzFailures = 0
+  let beyondR3DepthZeroLevelFailures = 0
+  for (const dk of beyondHc.docks) {
+    const isLevelOne = dk.cuspLevel[0] === -2n && dk.cuspLevel[1] === 0n
+    if ((dk.depth === 0) !== isLevelOne) beyondR3DepthZeroLevelFailures++
+    for (let s = 0; s < SLOTS; s++) {
+      const nbId = dk.neighbors[s]!
+      if (nbId >= 0) {
+        const nbDepth = beyondHc.docks[nbId]!.depth
+        if (Math.abs(dk.depth - nbDepth) > 1) beyondR3DepthLipschitzFailures++
+      }
+    }
+  }
+
+  // Non-tautological GR-8 probe: walk a single unbranched chain 0 -> d1 -> d2 -> d3 -> d4 on a fresh
+  // InfiniteHoneycomb (so d4.cuspPi === -1 and other depth-3 neighbors are unvisited), then step across
+  // all 24 slots from d4. Every unvisited depth-3 neighbor MUST get depth === 3 (never 5).
+  let beyondR3Depth4StepUpTo3Checks = 0
+  let beyondR3Depth4StepUpWrongDepthCount = 0
+  const tracePathFromOrigin = (targetIsoId: number): number[] => {
+    const rev: number[] = []
+    let cur = targetIsoId
+    while (cur > 0) {
+      rev.push(parentSlotIso[cur]!)
+      cur = parentDockIso[cur]!
+    }
+    rev.reverse()
+    return rev
+  }
+  let probedD4Chains = 0
+  for (let x = 0; x < isoHc.visitedDockCount && probedD4Chains < 15; x++) {
+    const d3Rec = isoHc.docks[x]!
+    if (d3Rec.depth !== 3) continue
+    const pathToD3 = tracePathFromOrigin(x)
+    const probeHc = new InfiniteHoneycomb(cell, cusp)
+    let cur = 0
+    for (const s of pathToD3) {
+      cur = probeHc.step(cur, s)
+    }
+    const d3ProbeId = cur
+    let d4ProbeId = -1
+    for (let s = 0; s < SLOTS; s++) {
+      const cand = probeHc.step(d3ProbeId, s)
+      const candRec = probeHc.docks[cand]!
+      if (candRec.cuspPi < 0 && candRec.depth === 4) {
+        d4ProbeId = cand
+        break
+      }
+    }
+    if (d4ProbeId < 0) continue
+    probedD4Chains++
+    const preVisited = probeHc.visitedDockCount
+    for (let s = 0; s < SLOTS; s++) {
+      const nb = probeHc.step(d4ProbeId, s)
+      const nbRec = probeHc.docks[nb]!
+      const exactD = probeHc.exactDepthFromBusemann(nbRec.frame, nbRec.center, nbRec.cuspLevel)
+      if (nbRec.depth !== exactD || Math.abs(nbRec.depth - 4) > 1) {
+        beyondR3Depth4StepUpWrongDepthCount++
+      }
+      if (nb >= preVisited && exactD === 3) {
+        if (nbRec.depth === 3) {
+          beyondR3Depth4StepUpTo3Checks++
+        } else {
+          beyondR3Depth4StepUpWrongDepthCount++
+        }
+      }
+    }
+  }
+
   // ========================================================================================================
-  // PART 3A: PURE ZERO-DECIMAL BigInt L3 TWO-BODY MUTUAL ATTRACTION & NEWTON'S 3RD LAW ON R = INFINITY
+  // PART 3A: PURE ZERO-DECIMAL BigInt L2 PRESCRIBED-HARTREE TWO-BODY ATTRACTION & NEWTON'S 3RD LAW ON R = INF
   // ========================================================================================================
   const runExactTwoBodyCase = (
     label: string,
@@ -2351,81 +2822,71 @@ export function runExactTernaryL3InfiniteHoneycomb(): ExactTernaryL3InfiniteHone
   const tbFreeG0 = runExactTwoBodyCase('exact-bigint-control-G0', 1, 1, 0.0)
 
   // ========================================================================================================
-  // PART 3B: PURE ZERO-DECIMAL BigInt L3 STRONG-FIELD EVENT-HORIZON TRAPPING + UNITARY INFO PRESERVATION
+  // PART 3B: GENUINE EXACT BIJECTIVE GULLSTRAND-PAINLEVE SPLIT-STEP QCA HORIZON SWEEP ON InfiniteHoneycomb
   // ========================================================================================================
+  // U_b = (S_river)^{m_b} * S_light * W(theta_cU), where:
+  //   - W(theta_cU) is the Equivalence-Principle exact BigInt Z[w][1/2] local coin (flat speed = c_u),
+  //   - S_light = sigma_0 * S_4D is the exact bijective +-1 lightcone shift on the depth-0 radial geodesic,
+  //   - S_river: |g, d> -> |u_0^{-1} g h_0, sigma_0(d)> is the exact bijective SO(4,1; Z[sqrt(2)]) parabolic
+  //     river inflow shift translating BOTH chiralities inward on K out of P = 45 beats (v_river = -K / P).
   const horizonSweep: ExactHorizonSweepRow[] = []
-  let maxVRadial1DiffVsRef = 0
-  let maxDeltaR2DiffVsRef = 0
+  let maxVOutDiffVsRef = 0
+  let maxVInDiffVsRef = 0
+  let maxVOutDiffVsContinuumGP = 0
+  let maxVInDiffVsContinuumGP = 0
   let worstHorizonNormErr = 0n
   let worstHorizonRevDiff = 0
   let allProbesExactBigIntOrthogonal = true
-  let launchR0 = 1.0
+  let allBeatsInOutExactBigIntOrthogonal = true
+  let launchR0 = 120.0
+  let horizonInconsistentSteps = 0
 
-  // Cache synthesized Beat-2 neighbor horizon coins by quantized cEff to avoid duplicate MITM lookups
-  const horizonAuxCoinCache = new Map<string, SynthesizedCoin>()
-  const getHorizonCoinForCEff = (label: string, cEff: number): SynthesizedCoin => {
-    const key = `${Math.round(cEff * 1e9)}`
-    let found = horizonAuxCoinCache.get(key)
-    if (!found) {
-      const theta = 0.5 * Math.acos(Math.max(-1, Math.min(1, cEff)))
-      found = synth.synthesize(label, quatRx(theta), 4e-4, 4)
-      horizonAuxCoinCache.set(key, found)
-    }
-    return found
-  }
-  // Seed aux cache with the 5 headline horizon coins
-  for (const chi of chiValues) {
-    const cRad = isotropicSchwarzschildCRad(1.0, chi, cU)
-    horizonAuxCoinCache.set(`${Math.round(cRad * 1e9)}`, horizonLaunchCoins.get(chi)!)
-  }
+  const ax1 = cusp.translations.axes[1]! // orthogonal transverse +y depth-0 slot at even x
+  const launchXSteps = 120 // even x_0 = 120 >> P * 2.2 so r = x > 0 strictly throughout all 45 beats
 
-  for (const chi of chiValues) {
+  for (const rsOverR0 of rsOverR0Values) {
     const hc = new InfiniteHoneycomb(cell, cusp)
-    const launchDock = hc.step(0, ax0.slot) // (+1, 0, 0), r_0 = 1.0
+    let launchDock = 0
+    for (let stepIdx = 0; stepIdx < launchXSteps; stepIdx++) {
+      launchDock = hc.translateAxisX(launchDock, 1)
+    }
     launchR0 = Math.hypot(...hc.docks[launchDock]!.pos)
-    const rH = chi * launchR0
-    const launchPlan = hc.getPairPlan(launchDock)
+    const rS = rsOverR0 * launchR0
+    const rArealOverRs = rS > 0 ? launchR0 / rS : Number.POSITIVE_INFINITY
+    const vFallOverCU = -Math.sqrt(rsOverR0)
+    const riverStepsK = Math.round(GP_RIVER_PERIOD * cU * Math.sqrt(rsOverR0))
+    const vRiverExact = -riverStepsK / GP_RIVER_PERIOD
+    const cOutExpected = cU * (1 - Math.sqrt(rsOverR0))
+    const cInExpected = -cU * (1 + Math.sqrt(rsOverR0))
 
-    // Identify Ray A (bulk-coupled radial ray, delta r = +-0.2) and Ray B (depth-0 husk ray, delta r = +-1.0)
-    let rayAOut = -1
-    let rayAIn = -1
-    let rayBOut = -1
-    let rayAStepDr = 0
-    for (let p = 0; p < PAIRS_PER_DOCK; p++) {
-      if (launchPlan.pairURad[p]! <= 0.99) continue
-      const sOut = launchPlan.pairOut[p]!
-      const sIn = launchPlan.pairIn[p]!
-      const yOut = hc.step(launchDock, sOut)
-      const rOut = Math.hypot(...hc.docks[yOut]!.pos)
-      const dr = rOut - launchR0
-      if (dr > 0.5) {
-        rayBOut = sOut
-      } else if (dr > 0.05) {
-        rayAOut = sOut
-        rayAIn = sIn
-        rayAStepDr = dr
-      }
+    // Depth-0 radial geodesic pair (dr = +-1.0 along +x) and orthogonal depth-0 transverse +y probe
+    const radPair = depth0RadialPairAt(hc, launchDock)
+    if (!radPair) {
+      throw new Error('exact-ternary-l3-infinite-honeycomb: failed to identify depth-0 radial pair')
     }
-    if (rayAOut < 0 || rayBOut < 0) {
-      throw new Error('exact-ternary-l3-infinite-honeycomb: failed to identify radial launch pairs')
-    }
+    const [rayAOut, rayAIn] = radPair
+    const rayBOut = ax1.slot
 
-    const coinLookup = (dockId: number, pairIdx: number): EisMat2 => {
-      const [px, py, pz] = hc.docks[dockId]!.pos
-      const rx = Math.hypot(px, py, pz)
-      const cRad = isotropicSchwarzschildCRad(rx, rH, cU)
-      const uRad = hc.getPairPlan(dockId).pairURad[pairIdx]!
-      const cEff = cU * (1 - uRad * uRad) + uRad * uRad * cRad
-      return getHorizonCoinForCEff(`horizon-chi-${chi.toFixed(2)}-r${rx.toFixed(2)}`, cEff).mat
-    }
+    const riverSchedule = (beatIdx: number): number =>
+      Math.floor(((beatIdx + 1) * riverStepsK) / GP_RIVER_PERIOD) -
+      Math.floor((beatIdx * riverStepsK) / GP_RIVER_PERIOD)
 
-    const stepH = (s: ExactEisState, adjoint: boolean): ExactEisState => {
+    const stepGpBeat = (s: ExactEisState, beatIdx: number, adjoint: boolean): ExactEisState => {
+      const m = riverSchedule(beatIdx)
       if (!adjoint) {
-        const coined = applyDockPairCoinsExact(hc, s, coinLookup, false)
-        return applyStreamInfiniteExact(hc, coined, false)
+        let cur = applyGpRadialCoinExact(hc, s, gpLocalCoin.mat, false)
+        cur = applyLightconeShiftInfiniteExact(hc, cur, false)
+        for (let j = 0; j < m; j++) {
+          cur = applyRiverShiftInfiniteExact(hc, cur, false)
+        }
+        return cur
       } else {
-        const unstreamed = applyStreamInfiniteExact(hc, s, true)
-        return applyDockPairCoinsExact(hc, unstreamed, coinLookup, true)
+        let cur = s
+        for (let j = 0; j < m; j++) {
+          cur = applyRiverShiftInfiniteExact(hc, cur, true)
+        }
+        cur = applyLightconeShiftInfiniteExact(hc, cur, true)
+        return applyGpRadialCoinExact(hc, cur, gpLocalCoin.mat, true)
       }
     }
 
@@ -2435,24 +2896,41 @@ export function runExactTernaryL3InfiniteHoneycomb(): ExactTernaryL3InfiniteHone
     const psiSupPlus = makeSuperpositionEisState(launchDock, rayAOut, rayBOut, false)
     const psiSupMinus = makeSuperpositionEisState(launchDock, rayAOut, rayBOut, true)
 
-    // 2 full beats on R = infinity in pure exact BigInt Z[w][1/2]
-    const sA1 = stepH(psiLaunchA, false)
-    const sA2 = stepH(sA1, false)
-    const oIn1 = stepH(psiOrthInA, false)
-    const oIn2 = stepH(oIn1, false)
-    const sB1 = stepH(psiLaunchB, false)
-    const sB2 = stepH(sB1, false)
-    const sp1 = stepH(psiSupPlus, false)
-    const sp2 = stepH(sp1, false)
-    const sm1 = stepH(psiSupMinus, false)
-    const sm2 = stepH(sm1, false)
+    // Evolve ALL 5 probes over P = 45 beats in pure exact BigInt Z[w][1/2], checking exact (0n, 0n)
+    // orthogonality <rayAOut(b) | rayAIn(b)> = 0 at EVERY beat b = 1..P!
+    let sOut = psiLaunchA
+    let sIn = psiOrthInA
+    let sTrans = psiLaunchB
+    let sSp = psiSupPlus
+    let sSm = psiSupMinus
+    let allBeatsInOutOrthogonalExactZero = true
 
-    // Memoryless exact BigInt 2-beat U^dag reversal from behind the horizon back to t = 0
-    const revA1 = stepH(sA2, true)
-    const revA0 = stepH(revA1, true)
-    const revDiff = exactStateDiffSlots(revA0, psiLaunchA)
+    for (let b = 0; b < GP_RIVER_PERIOD; b++) {
+      sOut = stepGpBeat(sOut, b, false)
+      sIn = stepGpBeat(sIn, b, false)
+      sTrans = stepGpBeat(sTrans, b, false)
+      sSp = stepGpBeat(sSp, b, false)
+      sSm = stepGpBeat(sSm, b, false)
+      const ipBeat = exactStateInnerProduct(sOut, sIn)
+      if (ipBeat.innerA !== 0n || ipBeat.innerB !== 0n) {
+        allBeatsInOutOrthogonalExactZero = false
+      }
+    }
+    if (!allBeatsInOutOrthogonalExactZero) {
+      allBeatsInOutExactBigIntOrthogonal = false
+    }
 
-    const normErrs = [sA1, sA2, oIn2, sB2, sp2, sm2].map(st =>
+    // Memoryless exact BigInt P = 45-beat U^dag reversal on BOTH outgoing AND ingoing polarizations!
+    let revOut = sOut
+    let revIn = sIn
+    for (let b = GP_RIVER_PERIOD - 1; b >= 0; b--) {
+      revOut = stepGpBeat(revOut, b, true)
+      revIn = stepGpBeat(revIn, b, true)
+    }
+    const revDiff =
+      exactStateDiffSlots(revOut, psiLaunchA) + exactStateDiffSlots(revIn, psiOrthInA)
+
+    const normErrs = [sOut, sIn, sTrans, sSp, sSm].map(st =>
       absBig(exactStateNormCheck(st).normErr),
     )
     let exactBigIntNormErrMax = 0n
@@ -2460,11 +2938,12 @@ export function runExactTernaryL3InfiniteHoneycomb(): ExactTernaryL3InfiniteHone
       if (e > exactBigIntNormErrMax) exactBigIntNormErrMax = e
     }
 
-    // Exact BigInt orthogonality certificates at t = 2 (zero floating-point rounding!)
-    const ipIn = exactStateInnerProduct(sA2, oIn2)
-    const ipAB = exactStateInnerProduct(sA2, sB2)
-    const ipSup = exactStateInnerProduct(sp2, sm2)
+    // Exact BigInt single-particle probe orthogonality certificates at t = P
+    const ipIn = exactStateInnerProduct(sOut, sIn)
+    const ipAB = exactStateInnerProduct(sOut, sTrans)
+    const ipSup = exactStateInnerProduct(sSp, sSm)
     const orthOk =
+      allBeatsInOutOrthogonalExactZero &&
       ipIn.innerA === 0n &&
       ipIn.innerB === 0n &&
       ipAB.innerA === 0n &&
@@ -2473,37 +2952,60 @@ export function runExactTernaryL3InfiniteHoneycomb(): ExactTernaryL3InfiniteHone
       ipSup.innerB === 0n
     if (!orthOk) allProbesExactBigIntOrthogonal = false
 
-    const deltaR1 = meanRadius3DExact(hc, sA1) - launchR0
-    const deltaR2 = meanRadius3DExact(hc, sA2) - launchR0
-    const vRadial1 = deltaR1 / rayAStepDr
+    const deltaROut = meanRadius3DExact(hc, sOut) - launchR0
+    const deltaRIn = meanRadius3DExact(hc, sIn) - launchR0
+    const vOut = deltaROut / GP_RIVER_PERIOD
+    const vIn = deltaRIn / GP_RIVER_PERIOD
 
-    // Exact continuum Float64 reference (E-GRV-0162) on the same active docks
-    const fInit: FloatState = new Map([[launchDock * SLOTS + rayAOut, [1, 0]]])
-    const f1 = stepHorizonFloatRef(hc, fInit, rH, cU)
-    const f2 = stepHorizonFloatRef(hc, f1, rH, cU)
-    const vRadial1FloatRef = (meanRadiusFloat(hc, f1) - launchR0) / rayAStepDr
-    const deltaR2FloatRef = meanRadiusFloat(hc, f2) - launchR0
-    const vRadial1AbsDiffVsRef = Math.abs(vRadial1 - vRadial1FloatRef)
-    const deltaR2AbsDiffVsRef = Math.abs(deltaR2 - deltaR2FloatRef)
+    // Exact Float64 split-step Gullstrand-Painleve reference on BOTH rayAOut and rayAIn
+    let fOut: FloatState = new Map([[launchDock * SLOTS + rayAOut, [1, 0]]])
+    let fIn: FloatState = new Map([[launchDock * SLOTS + rayAIn, [1, 0]]])
+    for (let b = 0; b < GP_RIVER_PERIOD; b++) {
+      const m = riverSchedule(b)
+      fOut = stepGpSplitStepFloatRef(hc, fOut, gpLocalCoinTheta, m)
+      fIn = stepGpSplitStepFloatRef(hc, fIn, gpLocalCoinTheta, m)
+    }
+    const vOutFloatRef = (meanRadiusFloat(hc, fOut) - launchR0) / GP_RIVER_PERIOD
+    const vInFloatRef = (meanRadiusFloat(hc, fIn) - launchR0) / GP_RIVER_PERIOD
+    const vOutAbsDiffVsRef = Math.abs(vOut - vOutFloatRef)
+    const vInAbsDiffVsRef = Math.abs(vIn - vInFloatRef)
+    const vOutAbsDiffVsContinuumGP = Math.abs(vOut - cOutExpected)
+    const vInAbsDiffVsContinuumGP = Math.abs(vIn - cInExpected)
 
-    if (vRadial1AbsDiffVsRef > maxVRadial1DiffVsRef) maxVRadial1DiffVsRef = vRadial1AbsDiffVsRef
-    if (deltaR2AbsDiffVsRef > maxDeltaR2DiffVsRef) maxDeltaR2DiffVsRef = deltaR2AbsDiffVsRef
+    if (vOutAbsDiffVsRef > maxVOutDiffVsRef) maxVOutDiffVsRef = vOutAbsDiffVsRef
+    if (vInAbsDiffVsRef > maxVInDiffVsRef) maxVInDiffVsRef = vInAbsDiffVsRef
+    if (vOutAbsDiffVsContinuumGP > maxVOutDiffVsContinuumGP) {
+      maxVOutDiffVsContinuumGP = vOutAbsDiffVsContinuumGP
+    }
+    if (vInAbsDiffVsContinuumGP > maxVInDiffVsContinuumGP) {
+      maxVInDiffVsContinuumGP = vInAbsDiffVsContinuumGP
+    }
     if (exactBigIntNormErrMax > worstHorizonNormErr) worstHorizonNormErr = exactBigIntNormErrMax
     if (revDiff > worstHorizonRevDiff) worstHorizonRevDiff = revDiff
+    horizonInconsistentSteps += hc.inconsistentSteps
 
-    const launchCoin = horizonLaunchCoins.get(chi)!
     horizonSweep.push({
-      chi,
-      coinOpDistAtLaunch: launchCoin.opDist,
-      coinDenPow2AtLaunch: launchCoin.mat.denPow2,
-      coinExactSU2Ok: launchCoin.cert.exactSU2Ok,
-      vRadial1,
-      vRadial1FloatRef,
-      vRadial1AbsDiffVsRef,
-      deltaR1,
-      deltaR2,
-      deltaR2FloatRef,
-      deltaR2AbsDiffVsRef,
+      rsOverR0,
+      rArealOverRs,
+      vFallOverCU,
+      riverStepsK,
+      riverPeriodP: GP_RIVER_PERIOD,
+      vRiverExact,
+      cOutExpected,
+      cInExpected,
+      coinOpDistAtLaunch: gpLocalCoin.opDist,
+      coinDenPow2AtLaunch: gpLocalCoin.mat.denPow2,
+      coinExactSU2Ok: gpLocalCoin.cert.exactSU2Ok,
+      vOut,
+      vIn,
+      vOutFloatRef,
+      vInFloatRef,
+      vOutAbsDiffVsRef,
+      vInAbsDiffVsRef,
+      vOutAbsDiffVsContinuumGP,
+      vInAbsDiffVsContinuumGP,
+      deltaROut,
+      deltaRIn,
       frontierHits: 0,
       visitedDocksOnInfinite: hc.visitedDockCount,
       exactBigIntNormErrMax,
@@ -2511,27 +3013,37 @@ export function runExactTernaryL3InfiniteHoneycomb(): ExactTernaryL3InfiniteHone
       exactBigIntInnerInA: [ipIn.innerA, ipIn.innerB],
       exactBigIntInnerAB: [ipAB.innerA, ipAB.innerB],
       exactBigIntInnerSup: [ipSup.innerA, ipSup.innerB],
+      allBeatsInOutOrthogonalExactZero,
       allOrthogonalExactZero: orthOk,
     })
   }
 
-  let strictlyMonotonicVRadial1 = true
-  let strictlyMonotonicDeltaR2 = true
+  let strictlyMonotonicVOut = true
+  let strictlyMonotonicVIn = true
+  let strictlyMonotonicDeltaROut = true
+  let strictlyMonotonicDeltaRIn = true
   for (let i = 1; i < horizonSweep.length; i++) {
-    if (!(horizonSweep[i]!.vRadial1 < horizonSweep[i - 1]!.vRadial1)) {
-      strictlyMonotonicVRadial1 = false
+    if (!(horizonSweep[i]!.vOut < horizonSweep[i - 1]!.vOut)) {
+      strictlyMonotonicVOut = false
     }
-    if (!(horizonSweep[i]!.deltaR2 < horizonSweep[i - 1]!.deltaR2)) {
-      strictlyMonotonicDeltaR2 = false
+    if (!(horizonSweep[i]!.vIn < horizonSweep[i - 1]!.vIn)) {
+      strictlyMonotonicVIn = false
+    }
+    if (!(horizonSweep[i]!.deltaROut < horizonSweep[i - 1]!.deltaROut)) {
+      strictlyMonotonicDeltaROut = false
+    }
+    if (!(horizonSweep[i]!.deltaRIn < horizonSweep[i - 1]!.deltaRIn)) {
+      strictlyMonotonicDeltaRIn = false
     }
   }
 
-  // Aggregate Part 2 synthesis audit over ALL synthesized coins (gravity + horizon + Beat-2 auxiliary coins)
+  // Aggregate Part 2 synthesis audit over ALL synthesized coins (gravity + flat + GP local)
   const allSynthCoins: SynthesizedCoin[] = [
     coinTwoBody1to1,
     coinTwoBody1to3,
     ...gravBank.baseCoins,
-    ...horizonAuxCoinCache.values(),
+    gpLocalCoin,
+    flatCoin1Beat,
   ]
   let allCoinsExactSU2 = allGeneratorsExactSU2
   let maxDetResidual = 0n
@@ -2556,54 +3068,52 @@ export function runExactTernaryL3InfiniteHoneycomb(): ExactTernaryL3InfiniteHone
   // On isoHc, dock indices 0..480 match ballR2 and 0..8856 match ballR3 1-to-1!
   const sharedFrontier = { hits: 0 }
 
-  // (1) Origin 2-beat evolution under exact BigInt horizon coin (chi = 0.75) on R = 2 vs R = 3 vs R = inf
+  // (1) Origin 2-beat evolution under exact BigInt GP local coin on R = 2 vs R = 3 vs R = inf
   const origInit = makeIsotropic24EisState(0)
-  const chi075Mat = horizonLaunchCoins.get(0.75)!.mat
-  const constChi075 = (_d: number, _p: number): EisMat2 => chi075Mat
+  const constGpLocal = (_d: number, _p: number): EisMat2 => gpLocalCoin.mat
 
   const oInf1 = applyStreamInfiniteExact(
     isoHc,
-    applyDockPairCoinsExact(isoHc, origInit, constChi075, false),
+    applyDockPairCoinsExact(isoHc, origInit, constGpLocal, false),
     false,
   )
   const oInf2 = applyStreamInfiniteExact(
     isoHc,
-    applyDockPairCoinsExact(isoHc, oInf1, constChi075, false),
+    applyDockPairCoinsExact(isoHc, oInf1, constGpLocal, false),
     false,
   )
   const oR2_1 = applyStreamStaticBallExact(
     ballR2.ball.table,
-    applyDockPairCoinsExact(isoHc, origInit, constChi075, false),
+    applyDockPairCoinsExact(isoHc, origInit, constGpLocal, false),
     false,
     sharedFrontier,
   )
   const oR2_2 = applyStreamStaticBallExact(
     ballR2.ball.table,
-    applyDockPairCoinsExact(isoHc, oR2_1, constChi075, false),
+    applyDockPairCoinsExact(isoHc, oR2_1, constGpLocal, false),
     false,
     sharedFrontier,
   )
   const oR3_1 = applyStreamStaticBallExact(
     ballR3.ball.table,
-    applyDockPairCoinsExact(isoHc, origInit, constChi075, false),
+    applyDockPairCoinsExact(isoHc, origInit, constGpLocal, false),
     false,
     sharedFrontier,
   )
   const oR3_2 = applyStreamStaticBallExact(
     ballR3.ball.table,
-    applyDockPairCoinsExact(isoHc, oR3_1, constChi075, false),
+    applyDockPairCoinsExact(isoHc, oR3_1, constGpLocal, false),
     false,
     sharedFrontier,
   )
   const r2VsR3VsInfOrigin2BeatDiffSlots =
     exactStateDiffSlots(oInf2, oR2_2) + exactStateDiffSlots(oInf2, oR3_2)
 
-  // (2) 1-beat horizon probe from dB (d_ball = 1, chi = 1.35) on R = 2 vs R = 3 vs R = inf
+  // (2) 1-beat horizon-coin probe from dB (d_ball = 1) on R = 2 vs R = 3 vs R = inf
   const dBIdx = isoHc.step(0, ax0.slot)
   const hInit = makeSingleSlotEisState(dBIdx, 0)
-  const chi135Mat = horizonLaunchCoins.get(1.35)!.mat
-  const constChi135 = (_d: number, _p: number): EisMat2 => chi135Mat
-  const hCoined = applyDockPairCoinsExact(isoHc, hInit, constChi135, false)
+  const constFlat1Beat = (_d: number, _p: number): EisMat2 => flatCoin1Beat.mat
+  const hCoined = applyDockPairCoinsExact(isoHc, hInit, constFlat1Beat, false)
   const hInf1 = applyStreamInfiniteExact(isoHc, hCoined, false)
   const hR2_1 = applyStreamStaticBallExact(ballR2.ball.table, hCoined, false, sharedFrontier)
   const hR3_1 = applyStreamStaticBallExact(ballR3.ball.table, hCoined, false, sharedFrontier)
@@ -2630,6 +3140,7 @@ export function runExactTernaryL3InfiniteHoneycomb(): ExactTernaryL3InfiniteHone
   return {
     elapsedSeconds,
     constants: {
+      kEff,
       gEff,
       cUniversal: cU,
     },
@@ -2640,9 +3151,14 @@ export function runExactTernaryL3InfiniteHoneycomb(): ExactTernaryL3InfiniteHone
       r2BijectionMismatches,
       r3BijectionMissing,
       r3BijectionMismatches,
-      inconsistentSteps: isoHc.inconsistentSteps + beyondHc.inconsistentSteps,
+      inconsistentSteps: isoHc.inconsistentSteps + beyondHc.inconsistentSteps + horizonInconsistentSteps,
       involutiveEdgesChecked,
       involutiveEdgeFailures,
+      b3BusemannDepthMismatches,
+      beyondR3DepthLipschitzFailures,
+      beyondR3DepthZeroLevelFailures,
+      beyondR3Depth4StepUpTo3Checks,
+      beyondR3Depth4StepUpWrongDepthCount,
       beyondR3T4ActiveDocks,
       beyondR3T4VisitedDocks,
       beyondR3T4ReachedExactRadius4Count,
@@ -2675,15 +3191,22 @@ export function runExactTernaryL3InfiniteHoneycomb(): ExactTernaryL3InfiniteHone
     },
     part3Horizon: {
       launchR0,
+      riverPeriodP: GP_RIVER_PERIOD,
+      gpLocalCoinTheta,
       sweep: horizonSweep,
-      strictlyMonotonicVRadial1,
-      strictlyMonotonicDeltaR2,
-      maxVRadial1DiffVsRef,
-      maxDeltaR2DiffVsRef,
+      strictlyMonotonicVOut,
+      strictlyMonotonicVIn,
+      strictlyMonotonicDeltaROut,
+      strictlyMonotonicDeltaRIn,
+      maxVOutDiffVsRef,
+      maxVInDiffVsRef,
+      maxVOutDiffVsContinuumGP,
+      maxVInDiffVsContinuumGP,
       totalFrontierHits: 0,
       worstExactBigIntNormErr: worstHorizonNormErr,
       worstExactBigIntReversalDiffSlots: worstHorizonRevDiff,
       allProbesExactBigIntOrthogonal,
+      allBeatsInOutExactBigIntOrthogonal,
     },
     part3CrossRadiusControls: {
       r2VsR3VsInfTwoBody1BeatDiffSlots,
@@ -2693,3 +3216,6 @@ export function runExactTernaryL3InfiniteHoneycomb(): ExactTernaryL3InfiniteHone
     },
   }
 }
+
+// Honest L2 export alias (retaining runExactTernaryL3InfiniteHoneycomb for backwards compatibility)
+export const runExactTernaryInfiniteHoneycomb = runExactTernaryL3InfiniteHoneycomb

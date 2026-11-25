@@ -3,10 +3,10 @@
 //
 // Parameter-free {3,4,3,4} foundation:
 //   - E-GRV-0157 (pair-density-gravity-slope.ts): exact shell counts N_D = [1, 18, 330, 6034]
-//     with parameter-free pair-density warp w(D) = 1 / N_D^2 yields K_eff = 1.0312370835 and
-//     Newtonian coupling G_eff = 1 / (4 * pi * K_eff) = 0.07716700 (zero free gravity parameters).
+//     with parameter-free pair-density warp w(D) = 1 / N_D^2 (canonical single-face [1, 4, 20, 100])
+//     yields K_eff = 1.0125321220 and Newtonian coupling G_eff = 1 / (4 * pi * K_eff) = 0.07859254.
 //   - E-RLT-0125 (universal-speed-lock.ts): shared warped-cusp column yields universal limiting
-//     speed c_u = sqrt(K_eff / M_eff) = 0.9869161538 docks/beat for spin-2, spin-1, and spin-1/2.
+//     speed c_u = sqrt(K_eff / M_eff) = 0.9779246684 docks/beat for spin-2, spin-1, and spin-1/2.
 //
 // Isotropic warped-cusp PPN metric with Phi(r) = -G_eff * M / r and u(r) = -Phi(r) / c_u^2:
 //   ds^2 = -(1 + 2 Phi / c_u^2 + 2 beta_PPN (Phi / c_u^2)^2) c_u^2 dt^2
@@ -47,7 +47,10 @@
 //
 // DETERMINISM: zero Math.random, pure deterministic floating-point physics.
 
-import { EXACT_COLUMN_SHELL_COUNTS } from '@/code/measure/pair-density-gravity-slope'
+import {
+  EXACT_COLUMN_SHELL_COUNTS,
+  singleFaceLateralLinksPerNeighbor,
+} from '@/code/measure/pair-density-gravity-slope'
 import { buildWarpedColumnData } from '@/code/measure/universal-speed-lock'
 
 const R_VOL = EXACT_COLUMN_SHELL_COUNTS[3] / EXACT_COLUMN_SHELL_COUNTS[2]
@@ -55,12 +58,6 @@ const R_VOL = EXACT_COLUMN_SHELL_COUNTS[3] / EXACT_COLUMN_SHELL_COUNTS[2]
 // -------------------------------------------------------------------------------------------------
 // Exact {3,4,3,4} raw unwarped bulk screened column model (control, w(D) = 1, F = 12)
 // -------------------------------------------------------------------------------------------------
-
-function lateralLinksPerNeighbor(d: number): number {
-  if (d === 0) return 1
-  if (d === 1) return 10
-  return 8 * 5 ** (d - 1)
-}
 
 type RawScreenedBulkModel = {
   readonly floorF: number
@@ -85,7 +82,7 @@ function buildRawScreenedBulkModel(floorF: number): RawScreenedBulkModel {
   const cLat = new Float64Array(floorF + 1)
   const cVert = new Float64Array(floorF + 1)
   for (let d = 0; d <= floorF; d++) {
-    cLat[d] = lateralLinksPerNeighbor(d)
+    cLat[d] = singleFaceLateralLinksPerNeighbor(d)
     cVert[d] = 18 * nShell[d]!
   }
 

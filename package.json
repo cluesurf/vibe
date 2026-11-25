@@ -6,14 +6,14 @@
   "repository": "github:cluesurf/vibe",
   "keywords": [
     "physics",
-    "consciousness",
+    "quantum-cellular-automaton",
     "research",
     "math"
   ],
   "archive": {
     "identifier": "vibe-theory",
-    "title": "Vibe Theory",
-    "cover": "view/vibe-mesh-{7,3}.png",
+    "title": "Vibe",
+    "cover": "view/vibe.png",
     "preview": "text/0018-emergent-physics-on-the-fixed-honeycomb/vibe.pdf"
   },
   "main": "./host/code/index.js",

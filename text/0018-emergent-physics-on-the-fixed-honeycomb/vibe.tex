@@ -2,7 +2,7 @@
 % Guarded so the same source also builds under lualatex, where \pdfoutput does not exist.
 \ifdefined\pdfoutput\pdfoutput=1\fi
 
-\documentclass{article}
+\documentclass[11pt]{article}
 
 \input{text/package}
 
@@ -23,11 +23,14 @@
 \input{text/07-unified-and-lean4}
 \input{text/08-open}
 
+\FloatBarrier
+\clearpage
 \appendix
 \input{text/A-index}
 
+\FloatBarrier
+\clearpage
 \addcontentsline{toc}{section}{References}
-\nocite{*}
 \bibliographystyle{vibefirst}
 \bibliography{vibe}
 

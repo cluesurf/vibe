@@ -1,14 +1,15 @@
-// BORN RULE BY ENVARIANCE ON THE WORKING RULE (item vibe-roadmap-board-0007, gap B-05).
-// Uses ONLY the working rule's own moves on the exact R = 2 {3,4,3,4} ball (no THRESHOLD_BORN, no keyed path, no
-// ad-hoc swap gate; every permutation of 3 role states is already in the Clifford group Sigma(648)).
+// ZUREK ENVARIANCE SYMMETRY PREREQUISITES ON THE WORKING RULE (E-QTM-0205, gap B-05).
+// Under Decision 007 C / Key 8, the Born measure over record branches is posited operationally, not unconditionally
+// derived. This experiment verifies the algebraic Zurek envariance symmetry prerequisites (Z_6 phase invariance and
+// exact Z[w][1/2] Clifford fine-graining identity) on the single-beat branching amplitudes of R = 2 {3,4,3,4}.
+// Uses only the working rule's own moves on the exact R = 2 {3,4,3,4} ball (no keyed path, no ad-hoc swap gate,
+// and every permutation of 3 role states lies inside the Clifford group Sigma(648)).
 //
-// Envariance extra premises (stated explicitly per board-0007):
+// Conditional Zurek envariance premises (stated explicitly per Decision 007 C / Key 8):
 //   (E1) Probabilities of outcomes on S are fixed by the joint state |psi_SE>.
 //   (E2) A unitary U_E acting strictly on the environment E does not change probabilities on S (no-signaling).
 //   (E3) Schmidt basis states correspond to mutually exclusive outcomes.
 //   (E4) Disjoint fine-grained outcome probabilities add (finite additivity).
-// Under Decision 007 C, the Born rule remains posited as a definition; this experiment verifies the exact envariance
-// derivation under (E1)-(E4) on the working rule's own Z[w][1/2] amplitudes.
 //
 // NOTHING MOVES: exact Z[w][1/2] branch arithmetic on the exact R = 2 ball.
 

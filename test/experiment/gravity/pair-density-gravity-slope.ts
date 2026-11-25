@@ -1,7 +1,8 @@
 // EXACT UNSCREENED 1/r SLOPE & GEOMETRIC NEWTON COUPLING G_eff FROM PARAMETER-FREE PAIR-DENSITY WARP 1/N_D^2
 // (E-GRV-0157, gaps B-52, m-10; resolves the small-box G(L/2) subtraction bias in E-GRV-0156).
 //
-// Depth L2: exact {3,4,3,4} column counts (N_D = 1, 18, 330, 6034; m_D = 2 * 5^D), exact Riccati Schur complement,
+// Depth L2: exact {3,4,3,4} column counts (N_D = 1, 18, 330, 6034; canonical unaliased single-face lateral links
+// [1, 4, 20, 100], cumulative m_D = 5^D), exact Riccati Schur complement,
 // exact 1/48 octahedral-wedge momentum sum on side = 32 & 64 with Madelung finite-size correction. Zero random numbers.
 
 import { experiment } from '@/test/scaffold/suite'
@@ -115,6 +116,9 @@ export default experiment({
         warpedResF16: rList[3]!,
       },
       control: {
+        period2TorusKEffF16: res.period2TorusComparison.kEffF16,
+        period2TorusGEffF16: res.period2TorusComparison.gEffF16,
+        period2TorusKEffRelShiftVsCanonical: res.period2TorusComparison.kEffRelShiftVsCanonical,
         rawResistanceF12: res.rawResistanceF12,
         rawHuskG1: res.rawHuskG1,
         rawHuskG2: res.rawHuskG2,

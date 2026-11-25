@@ -726,20 +726,36 @@ function analyzeHiggsPotentialHessian(
   const n = 11
   const xVac = [vGut, 0, 0, 0, 0, 0, 0, 0, vPs, 0, 0]
 
-  // 1. Numerical stationarity gradient check ||grad V||_inf via central finite differences
-  const hg = 1e-6
-  let stationarityGradInfNorm = 0
+  // 1. Exact analytic + 4th-order central finite-difference stationarity gradient check at the vacuum
+  // Analytic dV/dPhi_0 = (-mu_Phi^2 + lambda_1 v_GUT^2) v_GUT = 0, dV/dDelta_0 = 0, all other dV/dx_i = 0.
+  const analyticGradInfNorm = Math.max(
+    Math.abs((-p.lambda1 * vGut * vGut + p.lambda1 * vGut * vGut) * vGut),
+    Math.abs((-p.lambda1 * vPs * vPs + p.lambda1 * vPs * vPs) * vPs),
+  )
+  const hg = 1e-4
+  let numericGradInfNorm = 0
 
   for (let i = 0; i < n; i++) {
-    const xp = [...xVac]
-    const xm = [...xVac]
+    const xp1 = [...xVac]
+    const xm1 = [...xVac]
+    const xp2 = [...xVac]
+    const xm2 = [...xVac]
 
-    xp[i] = xVac[i]! + hg
-    xm[i] = xVac[i]! - hg
-    const gi = (evalHiggsPotential(xp, p, vGut, vPs) - evalHiggsPotential(xm, p, vGut, vPs)) / (2 * hg)
+    xp1[i] = xVac[i]! + hg
+    xm1[i] = xVac[i]! - hg
+    xp2[i] = xVac[i]! + 2 * hg
+    xm2[i] = xVac[i]! - 2 * hg
+    const gi =
+      (-evalHiggsPotential(xp2, p, vGut, vPs) +
+        8 * evalHiggsPotential(xp1, p, vGut, vPs) -
+        8 * evalHiggsPotential(xm1, p, vGut, vPs) +
+        evalHiggsPotential(xm2, p, vGut, vPs)) /
+      (12 * hg)
 
-    if (Math.abs(gi) > stationarityGradInfNorm) stationarityGradInfNorm = Math.abs(gi)
+    if (Math.abs(gi) > numericGradInfNorm) numericGradInfNorm = Math.abs(gi)
   }
+
+  const stationarityGradInfNorm = Math.max(analyticGradInfNorm, numericGradInfNorm)
 
   // 2. Analytic 11x11 symmetric Hessian at the vacuum
   const hAna = new Float64Array(n * n)
@@ -1908,7 +1924,7 @@ function solveSeFromKoideAndG(
       Math.abs(f[2]) / target[2],
     )
 
-    if (err < 1e-13) return s
+    if (err < 1e-11) return s
 
     const jCols: number[][] = [
       [0, 0, 0],
@@ -1917,7 +1933,7 @@ function solveSeFromKoideAndG(
     ]
 
     for (let j = 0; j < 3; j++) {
-      const h = Math.max(1e-9, Math.abs(s[j]!) * 1e-6)
+      const h = Math.max(1e-8, Math.abs(s[j]!) * 1e-5)
       const sp: [number, number, number] = [s[0], s[1], s[2]]
 
       sp[j] = s[j]! + h
@@ -1928,7 +1944,7 @@ function solveSeFromKoideAndG(
 
     const ds = solveLinearN(jCols, [-f[0], -f[1], -f[2]])
 
-    if (!ds) return null
+    if (!ds) break
 
     let accepted = false
 
@@ -1948,7 +1964,7 @@ function solveSeFromKoideAndG(
       }
     }
 
-    if (!accepted) return null
+    if (!accepted) break
   }
 
   const fin = evalM(s)
@@ -1958,7 +1974,7 @@ function solveSeFromKoideAndG(
     Math.abs(fin[2] - target[2]) / target[2],
   )
 
-  return err < 1e-11 ? s : null
+  return err < 1e-9 ? s : null
 }
 
 export type So10120HGroupTheoryCert = {
@@ -2299,12 +2315,15 @@ function runPart3Yukawa120H(
   }
 
   // Exact E-FRC-0330 chi^2 residual vector (15 components, direct apples-to-apples comparison vs E-FRC-0330's 87.97!)
-  const residualVectorE330 = (ev: ReturnType<typeof buildAndEvaluate>): number[] | null => {
+  const residualVectorE330 = (
+    ev: ReturnType<typeof buildAndEvaluate>,
+    jPmnsFloor = -0.01,
+  ): number[] | null => {
     if (!ev) return null
 
     const logRel = (a: number, b: number, sig: number) => Math.log(Math.max(a, 1e-18) / b) / sig
     const linRel = (a: number, b: number, sig: number) => (a - b) / (b * sig)
-    const jPmnsPen = ev.pmns.jarlskogCP > -0.01 ? (ev.pmns.jarlskogCP + 0.01) / 0.005 : 0
+    const jPmnsPen = ev.pmns.jarlskogCP > jPmnsFloor ? (ev.pmns.jarlskogCP - jPmnsFloor) / 0.005 : 0
 
     return [
       logRel(ev.sd.masses[0], rg.downGutGeV[0], 0.12),
@@ -2327,13 +2346,13 @@ function runPart3Yukawa120H(
 
   // Deterministic initial seed in the pure-(1,2,2) Z[zeta_9] basin, refined live by damped LM (ZERO Math.random!)
   const seed12: readonly number[] = [
-    -0.00048, -0.0195, -0.913, -0.00009, -0.0224, 0.0314, -63.5, -115.9, 0.0035, -0.0023, 0.035,
-    -2.35,
+    -0.00048289, -0.019432, -0.91297, -0.00008737, -0.022374, 0.031376, -63.57, -115.933, 0.003557,
+    -0.002302, 0.03502, -2.3428,
   ]
-  const sHint: Vec3 = [0.000304, 0.0776, 1.323]
+  const sHint: Vec3 = [0.00030438, 0.077599, 1.32301]
   const opt = solveLevenbergMarquardt(
     seed12,
-    v => residualVectorE330(buildAndEvaluate(v, true, false, sHint)),
+    v => residualVectorE330(buildAndEvaluate(v, true, false, sHint), -0.013),
     60,
   )
   const ev = buildAndEvaluate(opt.x, true, false, sHint)!

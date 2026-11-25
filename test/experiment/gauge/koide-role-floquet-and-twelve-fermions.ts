@@ -46,7 +46,7 @@ export default experiment({
   title:
     'Algebraic obstruction for e^{i 2/9}, exact 9-state qutrit role Floquet synthesis in Z[w][1/2], and full 12-fermion + CKM + PMNS unified texture audit with strict parameter-count honesty',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: ['eft-continuum'],
   depth: 'L2',
   paper: false,
   run() {

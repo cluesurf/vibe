@@ -1,32 +1,21 @@
-// FRONTIER 6 (E-CSM-0067): {3,4,3,4} HOROSPHERE-PLATEAU PRIMORDIAL INFLATION (n_s, r, alpha_s),
-// QUANTITATIVE BIG BANG NUCLEOSYNTHESIS (Y_p & D/H), AND EXACT NUCLEAR SHELL MAGIC NUMBERS
-// (2, 8, 20, 28, 50, 82, 126).
+// FRONTIER 6 (E-CSM-0067): DOWNSTREAM CONTINUUM COMPATIBILITY CHECKS: STAROBINSKY PLATEAU INFLATION
+// (alpha = 1), STANDARD SDIRK4 BBN (PDG/AME2020 INPUTS), AND TEXTBOOK 1D WOODS-SAXON NUCLEAR SHELL
+// BENCHMARK (INDEPENDENT OF THE {3,4,3,4} QCA).
 //
-// Part 1: Exact coupled Friedmann-Klein-Gordon RK4 ODEs on the {3,4,3,4} warped horosphere / R+R^2
-//   Starobinsky plateau V(phi) = V_0 (1 - exp(-sqrt(2/(3 alpha)) phi / M_Pl))^2 across N_e = 50, 55, 60
-//   e-folds (plus {3,4,3,4} cusp curvature scales alpha_cusp = 1/(ln b)^2, 3/(2 (ln b)^2), 2/(3 (ln b)^2)),
-//   verifying step-halving <= 1e-9, Friedmann constraint <= 1e-12, Planck n_s = 0.964..0.966 (< 0.3 sigma),
-//   BICEP/Keck-safe LiteBIRD/CMB-S4-testable r = 0.0034..0.0040, running alpha_s ~ -6e-4, Planck A_s = 2.10e-9
-//   matching E-FRC-0328 M_GUT within 5%, horizon/flatness closure |Omega_K(end)| < 10^{-45} in 18.9..20.6
-//   {3,4,3,4} shells, and two negative controls (quadratic m^2 phi^2 falsified r ~ 0.145 >> 0.036; pure
-//   radiation w = +1/3 growing |Omega_K| ~ a^2).
+// Part 1: Standard continuum Starobinsky R+R^2 plateau inflation V(phi) = V_0 (1 - exp(-sqrt(2/(3 alpha)) phi / M_Pl))^2
+//   (alpha = 1 plus comparison alpha-attractor scales) integrated via coupled Friedmann-Klein-Gordon RK4 ODEs
+//   across N_e = 50, 55, 60 e-folds (independent of the {3,4,3,4} QCA), checking Planck n_s, BICEP/Keck-safe r,
+//   running alpha_s, horizon/flatness closure, and quadratic m^2 phi^2 and pure-radiation controls.
 //
-// Part 2: Live coupled thermal weak + 6-species nuclear network (n, p, D, T, ^3He, ^4He) Boltzmann ODEs
-//   from T = 5 MeV down to T = 0.01 MeV integrated by 5-stage 4th-order L-stable SDIRK (step-halving <= 1e-8,
-//   nucleon conservation <= 1e-12), with exact Fermi-Dirac e^+ e^- entropy reheating (T_gamma/T_nu)^3 -> 11/4,
-//   exact 3-channel weak rates anchored to E-FRC-0326 v_EW = 246.22 GeV (G_F) and tau_n = 878.4 s, live weak
-//   freeze-out (T_f ~ 0.72 MeV) and Saha deuterium bottleneck (T_nuc ~ 0.070..0.075 MeV) driven by
-//   eta_B = 6.12e-10, reproducing PDG Y_p = 0.244..0.249 (<= 2%) and D/H = 2.3..2.8e-5 (<= 10%), plus all
-//   3 mandatory negative controls (N_eff = 4 shifting Y_p by +0.012..+0.014, eta_B / 10 blowing up D/H > 10x,
-//   and tau_n -> infinity pushing Y_p > 0.30).
+// Part 2: Standard continuum 6-species (n, p, D, T, ^3He, ^4He) BBN Boltzmann network from T = 5 MeV to 0.01 MeV
+//   integrated via 5-stage 4th-order L-stable SDIRK using PDG/AME2020 nuclear and weak inputs (v_EW = 246.22 GeV,
+//   tau_n = 878.4 s, eta_B = 6.12e-10, independent of the {3,4,3,4} QCA), checking Y_p, D/H, and 3 controls.
 //
-// Part 3: Live 3D radial Schrodinger Woods-Saxon + Thomas spin-orbit eigenproblem solved via symmetric
-//   tridiagonal finite differences (N_r = 200 on r in (0, 14 fm), grid-refinement <= 1e-3 vs N_r = 400) across
-//   l = 0..7 and j = l +/- 1/2, automatically extracting all 7 empirical nuclear magic numbers
-//   [2, 8, 20, 28, 50, 82, 126] from the largest energy gaps with exact BigInt degeneracy certificates,
-//   while the V_so = 0 control collapses to harmonic-oscillator closures [2, 8, 20, 40, 70, 112].
+// Part 3: Textbook 1D radial Schrodinger Woods-Saxon + Thomas spin-orbit nuclear shell eigenproblem
+//   (N_r = 200 on (0, 14 fm), independent of the {3,4,3,4} QCA), extracting magic numbers [2, 8, 20, 28, 50, 82, 126]
+//   and contrasting with the V_so = 0 harmonic-oscillator control [2, 8, 20, 40, 70, 112].
 //
-// Depth L2: deterministic Float64 RK4 / SDIRK4 / Gauss-Legendre / tridiagonal QL + exact BigInt. Zero RNG.
+// Depth L2: deterministic downstream continuum compatibility checks. Zero RNG.
 
 import {
   BICEP_KECK_R_UPPER,
@@ -43,9 +32,9 @@ export default experiment({
   id: 'cosmology/inflation-bbn-and-nuclear-shells',
   code: 'E-CSM-0067',
   title:
-    'Primordial horosphere-plateau inflation (n_s, r, alpha_s, horizon/flatness) on {3,4,3,4}, live Boltzmann Big Bang Nucleosynthesis (Y_p & D/H from eta_B and E-FRC-0326), and live Woods-Saxon + spin-orbit nuclear shell magic numbers (2, 8, 20, 28, 50, 82, 126)',
+    'Downstream continuum compatibility checks: Starobinsky plateau inflation (alpha = 1), standard SDIRK4 BBN (PDG/AME2020 inputs), and textbook 1D Woods-Saxon nuclear shell benchmark (independent of {3,4,3,4} QCA)',
   category: 'cosmology',
-  substrates: ['3434'],
+  substrates: ['eft-continuum'],
   depth: 'L2',
   paper: false,
   run() {
@@ -163,27 +152,27 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        `Part 1 ({3,4,3,4} horosphere-plateau inflation, b=${p1.cuspBranchingB.toFixed(6)}, ln b=${p1.lnB.toFixed(6)}): ` +
-        `exact coupled FKG RK4 (Friedmann err=${st.maxFriedmannRelErr.toExponential(1)}, step-halving ns=${st.rk4StepHalvingErrNs.toExponential(1)}) ` +
+        `Downstream continuum compatibility checks (independent of the {3,4,3,4} QCA): ` +
+        `Part 1 (Starobinsky plateau inflation alpha=1 + alpha-attractor comparison): ` +
+        `coupled FKG RK4 (Friedmann err=${st.maxFriedmannRelErr.toExponential(1)}, step-halving ns=${st.rk4StepHalvingErrNs.toExponential(1)}) ` +
         `at alpha=1, N_e=55 gives n_s=${st55.ns.toFixed(5)} (${st55.nsSigmaFromPlanck.toFixed(2)} sigma from Planck ${PLANCK_NS}), ` +
         `r=${st55.r.toFixed(5)} (< BICEP/Keck ${BICEP_KECK_R_UPPER}), alpha_s=${st55.alphaS.toExponential(2)}, ` +
-        `horizon/flatness shrink |Omega_K(end)|/|Omega_K(start)|=${st55.omegaKShrinkFactor.toExponential(2)} across ${st55.cuspShellsForNe.toFixed(2)}..${st60.cuspShellsForNe.toFixed(2)} shells, ` +
+        `|Omega_K(end)|/|Omega_K(start)|=${st55.omegaKShrinkFactor.toExponential(2)} (${st55.cuspShellsForNe.toFixed(2)}..${st60.cuspShellsForNe.toFixed(2)} log-b units), ` +
         `and Planck A_s yields H_inf=${st55.hInfGeV.toExponential(2)} GeV, V_0^{1/4}=${st55.v0QuarterGeV.toExponential(3)} GeV ` +
-        `(${(st55.v0QuarterRelDiffFromMGut * 100).toFixed(2)}% from E-FRC-0328 M_GUT=${p1.upstreamMGutGeV.toExponential(3)} GeV); ` +
-        `cusp scales alpha=1/(ln b)^2 and 3/(2(ln b)^2) keep n_s=${c1.ns.toFixed(5)}/${c2.ns.toFixed(5)} (r=${c1.r.toExponential(2)}/${c2.r.toExponential(2)}); ` +
-        `controls: chaotic m^2 phi^2 fails with r=${q55.r.toFixed(4)} (>4x BICEP/Keck), pure radiation w=+1/3 grows |Omega_K| by ${rad.omegaKGrowthFactor.toExponential(2)}. ` +
-        `Part 2 (live SDIRK4 BBN from T=5..0.01 MeV driven by eta_B=${PLANCK_ETA_B.toExponential(2)} and E-FRC-0326 v_EW=${p2.upstreamVEwGeV.toFixed(2)} GeV): ` +
+        `(${(st55.v0QuarterRelDiffFromMGut * 100).toFixed(2)}% from E-FRC-0328 M_GUT=${p1.upstreamMGutGeV.toExponential(3)} GeV). ` +
+        `Comparison alpha scales give n_s=${c1.ns.toFixed(5)}/${c2.ns.toFixed(5)} (r=${c1.r.toExponential(2)}/${c2.r.toExponential(2)}), ` +
+        `while quadratic m^2 phi^2 fails with r=${q55.r.toFixed(4)} and pure radiation grows |Omega_K| by ${rad.omegaKGrowthFactor.toExponential(2)}. ` +
+        `Part 2 (standard SDIRK4 BBN with PDG/AME2020 inputs, eta_B=${PLANCK_ETA_B.toExponential(2)}, v_EW=${p2.upstreamVEwGeV.toFixed(2)} GeV): ` +
         `detailed balance err=${p2.weakDetailedBalanceMaxErr.toExponential(1)}, (T_gamma/T_nu)^3-11/4=${p2.entropyReheatingRatioCubedErr.toExponential(1)}, ` +
         `step-halving Y_p=${p2.sdirk4StepHalvingErrYp.toExponential(1)}, nucleon err=${bbn.maxNucleonConservationErr.toExponential(1)}, ` +
-        `live T_f=${bbn.tFreezeOutMeV.toFixed(3)} MeV (X_n=${bbn.xNeutronAtFreezeOut.toFixed(4)}), T_nuc=${bbn.tNucPeakBurnMeV.toFixed(4)} MeV, ` +
+        `T_f=${bbn.tFreezeOutMeV.toFixed(3)} MeV (X_n=${bbn.xNeutronAtFreezeOut.toFixed(4)}), T_nuc=${bbn.tNucPeakBurnMeV.toFixed(4)} MeV, ` +
         `Y_p=${bbn.helium4MassFractionYp.toFixed(5)} (PDG ${PDG_YP}, ${(p2.ypRelErrFromPdg * 100).toFixed(2)}%), ` +
-        `D/H=${bbn.deuteriumToHydrogen.toExponential(3)} (obs ${OBS_D_OVER_H.toExponential(3)}, ${(p2.dhRelErrFromObs * 100).toFixed(2)}%); ` +
-        `controls: N_eff=4 shifts Y_p by +${p2.controlNeff4DeltaYp.toFixed(4)} (${p2.controlNeff4SigmaFromPdg.toFixed(1)} sigma), ` +
-        `eta_B/10 boosts D/H by ${p2.controlLowEtaBDHRatio.toFixed(1)}x, tau_n->inf gives Y_p=${p2.controlNoNeutronDecay.helium4MassFractionYp.toFixed(4)}. ` +
-        `Part 3 (live 3D radial Woods-Saxon + Thomas spin-orbit N_r=200 vs 400 maxRelErr=${p3.gridRefinementMaxRelErr.toExponential(2)}): ` +
-        `top 7 energy gaps automatically yield exact empirical magic numbers [${p3.withSpinOrbit.detectedMagicNumbers.join(', ')}] ` +
+        `D/H=${bbn.deuteriumToHydrogen.toExponential(3)} (obs ${OBS_D_OVER_H.toExponential(3)}, ${(p2.dhRelErrFromObs * 100).toFixed(2)}%), ` +
+        `with controls N_eff=4 (+${p2.controlNeff4DeltaYp.toFixed(4)}), eta_B/10 (${p2.controlLowEtaBDHRatio.toFixed(1)}x D/H), and tau_n->inf (Y_p=${p2.controlNoNeutronDecay.helium4MassFractionYp.toFixed(4)}). ` +
+        `Part 3 (textbook 1D radial Woods-Saxon + Thomas spin-orbit benchmark, N_r=200 vs 400 maxRelErr=${p3.gridRefinementMaxRelErr.toExponential(2)}): ` +
+        `top 7 energy gaps reproduce empirical magic numbers [${p3.withSpinOrbit.detectedMagicNumbers.join(', ')}] ` +
         `(BigInt exact=${p3.bigIntMagicSumsExact}, gap prominence=${p3.withSpinOrbit.gapProminenceRatio.toFixed(2)}x), ` +
-        `while V_so=0 collapses to harmonic-oscillator closures [${p3.controlNoSpinOrbit.detectedMagicNumbers.join(', ')}] missing 28, 50, 82, 126`,
+        `while V_so=0 collapses to harmonic-oscillator closures [${p3.controlNoSpinOrbit.detectedMagicNumbers.join(', ')}]`,
       metrics: {
         gPart1Numer: gPart1Numer ? 1 : 0,
         gPart1PhysicsAndControls: gPart1PhysicsAndControls ? 1 : 0,
@@ -283,19 +272,15 @@ export default experiment({
         p3CtrlNoSoClosure6: p3.controlNoSpinOrbit.detectedMagicNumbers[5] ?? 0,
       },
       notes:
-        'Frontier 6 (L2, 100% deterministic, zero Math.random): ' +
-        '(1) PRIMORDIAL INFLATION ON {3,4,3,4}: integrates exact coupled Friedmann-Klein-Gordon ODEs via RK4 ' +
-        '(step-halving <= 1e-9, Friedmann <= 1e-12) for the Starobinsky alpha=1 plateau and {3,4,3,4} cusp curvature ' +
-        'scales, reproducing Planck n_s, BICEP/Keck-safe LiteBIRD/CMB-S4-testable r, running alpha_s, horizon/flatness ' +
-        'closure in 18.9..20.6 shells, and Planck A_s -> V_0^{1/4} within 5% of E-FRC-0328 M_GUT, while chaotic ' +
-        'm^2 phi^2 fails r by >4x and pure radiation grows |Omega_K| ~ a^2. ' +
-        '(2) BIG BANG NUCLEOSYNTHESIS: integrates the full coupled 6-species (n, p, D, T, ^3He, ^4He) weak + nuclear ' +
-        'Boltzmann network from 5 MeV to 0.01 MeV by 5-stage 4th-order L-stable SDIRK with exact Fermi-Dirac entropy ' +
-        'reheating (11/4), E-FRC-0326 electroweak G_F, and Gamow-averaged nuclear rates, reproducing PDG Y_p and ' +
-        'observed D/H while all 3 controls (N_eff=4, eta_B/10, tau_n->inf) fail sharply. ' +
-        '(3) NUCLEAR SHELL MAGIC NUMBERS: live 3D radial Woods-Saxon + Thomas spin-orbit tridiagonal eigenproblem ' +
-        'automatically recovers all 7 empirical magic numbers [2, 8, 20, 28, 50, 82, 126] (with exact BigInt sums) ' +
-        'while V_so = 0 collapses to harmonic-oscillator closures [2, 8, 20, 40, 70, 112].',
+        'Downstream continuum compatibility checks (L2, 100% deterministic, zero Math.random, independent of the {3,4,3,4} QCA): ' +
+        '(1) Standard Starobinsky plateau inflation (alpha = 1) integrated via coupled Friedmann-Klein-Gordon RK4 ODEs ' +
+        '(step-halving <= 1e-9, Friedmann <= 1e-12), checking Planck n_s, r, alpha_s, horizon/flatness closure, and ' +
+        'quadratic/radiation negative controls (note high-scale H_inf ~ 10^13 GeV sits in tension with the pre-inflationary ' +
+        'N_DW = 3 axion isocurvature bound H_inf < 9.9e6 GeV noted in E-FRC-0331). ' +
+        '(2) Standard 6-species SDIRK4 BBN using PDG/AME2020 nuclear and weak inputs, reproducing PDG Y_p and observed D/H ' +
+        'and checking N_eff = 4, eta_B / 10, and tau_n -> inf controls. ' +
+        '(3) Textbook 1D radial Woods-Saxon + Thomas spin-orbit nuclear shell eigenproblem reproducing magic numbers ' +
+        '[2, 8, 20, 28, 50, 82, 126] vs V_so = 0 closures [2, 8, 20, 40, 70, 112].',
     })
   },
 })

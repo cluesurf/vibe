@@ -43,7 +43,7 @@ export default experiment({
   title:
     'Complete 16-state Spin(10) generation x 3 D4 triality frames (48 Weyl fermions), exact 6/6 BigInt-rational anomaly cancellation, sin^2(theta_W) = 3/8, and spontaneous dynamical S_3 triality breaking on {3,4,3,4} cusp shells (B-25, m-11)',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: ['eft-continuum'],
   depth: 'L2',
   paper: false,
   run() {

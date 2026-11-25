@@ -1,25 +1,22 @@
-// FRONTIER 2 (E-FRC-0330): DYNAMICAL SELECTION OF (r = sqrt(2), delta = +2/9) ON THE Sigma(648) ROLE GRID
-// AND MINIMAL SO(10) 10_H + 126bar_H GEORGI-JARLSKOG YUKAWA UNIFICATION ACROSS ALL 12 FERMIONS + CKM + PMNS.
+// FRONTIER 2 (E-FRC-0330): PHENOMENOLOGICAL V(S, P_3) ROLE-COUPLING MODEL FOR (r = sqrt(2), delta = +2/9)
+// AND CONTINUUM SO(10) 10_H + 126bar_H GEORGI-JARLSKOG YUKAWA EFT COMPATIBILITY CHECK.
 //
-// Part 1: Dynamical Selection Theorem for (r = sqrt(2), delta = +2/9) (Zero Hand-Picking):
-//   1A. Exact 9x9 BigInt + Q(zeta_9) spectral uniqueness of H_role = (1/9)(X_3 (x) I_3 + X_3^dag (x) I_3):
-//       quadratic minimal polynomial (H_role - 2/9 I)(H_role + 1/9 I) = 0 leaves ONLY +2/9 (mult 3 = N_gen,
-//       single irreducible 3-generation multiplet under commuting Z_3 clock I_3 (x) X_3) and -1/9 (mult 6 = 2 x 3).
-//       Audits all 7 discrete candidates {+2/9, -1/9, 0, pi/9, 2pi/9, 1/9, 1/3}: proves +2/9 is uniquely selected
-//       (honestly noting -1/9 is inside S > 0 yet fails both multiplicity 6 != 3 and PDG m_mu/m_e by 96.5%).
-//   1B. Explicit S_3 x Z_3-invariant Landau free energy V(S, P_3) minimized deterministically from all 9 x 9 = 81
-//       grid starts over [0.5, 2.5] x [-pi/3, pi/3]: 100% converge to (sqrt(2), +2/9) (err <= 1e-12), yielding
-//       Q = 2/3 (err <= 1e-14), m_mu/m_e (0.00098%), m_tau/m_mu (0.00605%), and linking to E-FRC-0327's L = 22
-//       exact BigInt Z[w][1/2] MITM word (5.01e-8 rad), plus P_6 and kappa_role = 0 negative controls.
+// Part 1: Spectral audit of H_role and illustrative phenomenological V(S, P_3) coupling model:
+//   1A. Exact 9x9 BigInt + Q(zeta_9) spectral check of H_role = (1/9)(X_3 (x) I_3 + X_3^dag (x) I_3):
+//       quadratic minimal polynomial (H_role - 2/9 I)(H_role + 1/9 I) = 0 with eigenvalues +2/9 (mult 3)
+//       and -1/9 (mult 6), auditing 7 discrete candidates.
+//   1B. Illustrative phenomenological S_3 x Z_3-invariant Landau coupling model V(S, P_3) (NOT a
+//       first-principles dynamical derivation from the QCA) minimized from 81 grid starts to (sqrt(2), +2/9),
+//       linked to E-FRC-0327's L = 22 Z[w][1/2] MITM word, plus P_6 and kappa_role = 0 controls.
 //
-// Part 2: Minimal SO(10) 10_H + 126bar_H Georgi-Jarlskog Yukawa Unification (Slashing Free Parameters 14 -> 10):
-//   2A. Exact BigInt Clebsch-Gordan certificate on E-FRC-0324's 16: 16 (x)_S 16 = 10_S + 126_S, Tr_{SU(4)_C}(B - L) = 0,
-//       forcing exact -3 lepton-to-quark Clebsch factor and unified (M_d, M_e, M_u, M_D, M_R, M_nu) relations.
-//   2B. Exact 2-loop gauge + 1-loop/2-loop-QCD SM+PS Yukawa RG running M_Z -> M_PS -> M_GUT = 7.95e15 GeV (E-FRC-0328).
-//   2C. 10-parameter Koide-locked Z[zeta_9] SO(10) 10_H + 126bar_H fit across all 22 SM flavor observables (+12 net
-//       overdetermination vs E-FRC-0327's +8, ZERO continuous CP phases) plus 11-parameter companion and 4 negative controls.
+// Part 2: Continuum SO(10) 10_H + 126bar_H Georgi-Jarlskog Yukawa EFT check:
+//   2A. Exact BigInt Clebsch-Gordan check 16 (x)_S 16 = 10_S + 126_S, Tr_{SU(4)_C}(B - L) = 0 (-3 Clebsch).
+//   2B. Continuum 2-loop gauge + Yukawa RG running M_Z -> M_PS -> M_GUT = 7.95e15 GeV (E-FRC-0328).
+//   2C. 10 continuous real parameters PLUS discrete Z_9 exponent and sign search choices (disclosed explicitly)
+//       fitted across SM flavor observables, explicitly reporting the known non-SUSY minimal 10_H + 126bar_H
+//       light down-quark pull (-41% m_d / +70% m_s), plus 11-parameter companion and 4 negative controls.
 //
-// Depth L2: exact BigInt rationals, symbolic Q(zeta_9), dense Hermitian / Takagi solvers, RK4, trust-region LM. Zero RNG.
+// Depth L2: deterministic continuum EFT compatibility check. Zero RNG.
 
 import {
   analyzeSo10YukawaUnificationAndRoleSelection,
@@ -34,9 +31,9 @@ export default experiment({
   id: 'gauge/so10-yukawa-unification-and-role-selection',
   code: 'E-FRC-0330',
   title:
-    'Dynamical selection of (r = sqrt(2), delta = +2/9) on the Sigma(648) role grid and minimal SO(10) 10_H + 126bar_H Georgi-Jarlskog Yukawa unification across all 12 fermions + CKM + PMNS',
+    'Illustrative phenomenological V(S, P_3) coupling model for (r = sqrt(2), delta = +2/9) and continuum SO(10) 10_H + 126bar_H Yukawa EFT check (10 continuous params + discrete Z_9/sign choices, -41% m_d / +70% m_s pull)',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: ['eft-continuum'],
   depth: 'L2',
   paper: false,
   run() {
@@ -185,40 +182,31 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        `Part 1A (exact BigInt + Q(zeta_9) spectral uniqueness on 9-state Sigma(648) role grid): ` +
-        `H_role = (1/9)(X_3 (x) I_3 + X_3^dag (x) I_3) satisfies exact quadratic minimal polynomial ` +
-        `(H_role - 2/9 I_9)(H_role + 1/9 I_9) = 0, leaving ONLY lambda_+ = ${ratFormat(p1a.lambdaPlusExact)} ` +
-        `(mult ${ratFormat(p1a.multiplicityPlusExact)} = N_gen, single irreducible 3-generation multiplet under ` +
-        `commuting Z_3 clock I_3 (x) X_3) and lambda_- = ${ratFormat(p1a.lambdaMinusExact)} ` +
-        `(mult ${ratFormat(p1a.multiplicityMinusExact)}, doubled 2 x 3 multiplet). Across all 7 discrete candidates ` +
-        `{+2/9, -1/9, 0, pi/9, 2pi/9, 1/9, 1/3}, ONLY delta = ${p1a.uniqueSelectedCandidateLabel} satisfies ` +
-        `H_role eigenvalue + mult 3 + positive-definite non-degenerate S > 0 (-1/9 sits inside S > 0 yet fails ` +
-        `mult 6 != 3 and misses PDG m_mu/m_e by ${(p1a.minusOneNinthRelErrMuOverE * 100).toFixed(2)}%). ` +
-        `Part 1B (S_3 x Z_3-invariant Landau free energy V(S, P_3)): ${p1b.convergedCount}/${p1b.gridSizeTotal} ` +
-        `(100%) deterministic grid starts over [0.5,2.5] x [-pi/3,pi/3] converge to unique strictly convex minimum ` +
-        `(r_* = sqrt(2), delta_* = +2/9) (max err ${Math.max(p1b.maxRErrFromSqrt2, p1b.maxDeltaErrFromTwoNinths).toExponential(2)}), ` +
+        `Part 1A (exact BigInt + Q(zeta_9) spectral check on 9-state Sigma(648) role grid): ` +
+        `H_role = (1/9)(X_3 (x) I_3 + X_3^dag (x) I_3) satisfies quadratic minimal polynomial ` +
+        `(H_role - 2/9 I_9)(H_role + 1/9 I_9) = 0 with lambda_+ = ${ratFormat(p1a.lambdaPlusExact)} ` +
+        `(mult ${ratFormat(p1a.multiplicityPlusExact)}) and lambda_- = ${ratFormat(p1a.lambdaMinusExact)} ` +
+        `(mult ${ratFormat(p1a.multiplicityMinusExact)}). Across 7 discrete candidates ` +
+        `{+2/9, -1/9, 0, pi/9, 2pi/9, 1/9, 1/3}, delta = ${p1a.uniqueSelectedCandidateLabel} matches ` +
+        `mult 3 and S > 0 (-1/9 sits inside S > 0 yet has mult 6 and misses PDG m_mu/m_e by ${(p1a.minusOneNinthRelErrMuOverE * 100).toFixed(2)}%). ` +
+        `Part 1B (illustrative phenomenological V(S, P_3) coupling model, not a QCA derivation): ${p1b.convergedCount}/${p1b.gridSizeTotal} ` +
+        `grid starts converge to (r_* = sqrt(2), delta_* = +2/9) (max err ${Math.max(p1b.maxRErrFromSqrt2, p1b.maxDeltaErrFromTwoNinths).toExponential(2)}), ` +
         `giving Q = 2/3 (err ${p1b.lockedKoideQErr.toExponential(1)}), m_mu/m_e = ${p1b.lockedMuOverE.toFixed(4)} ` +
         `(${(p1b.lockedMuOverERelErr * 100).toFixed(5)}%), m_tau/m_mu = ${p1b.lockedTauOverMu.toFixed(4)} ` +
-        `(${(p1b.lockedTauOverMuRelErr * 100).toFixed(5)}%), linked to E-FRC-0327 L = ${p1b.mitmWordLength} exact ` +
+        `(${(p1b.lockedTauOverMuRelErr * 100).toFixed(5)}%), linked to E-FRC-0327 L = ${p1b.mitmWordLength} ` +
         `Z[w][1/2] MITM word (${p1b.mitmDeltaAbsErrFromLockedRad.toExponential(2)} rad), while P_6 locks to -1/9 ` +
-        `(${(p1b.controlP6MuOverERelErr * 100).toFixed(2)}% m_mu/m_e miss) and kappa_role = 0 leaves delta flat. ` +
-        `Part 2 (minimal SO(10) 10_H + 126bar_H Georgi-Jarlskog Yukawa unification at M_GUT = ${p2.rgTargets.mGutGeV.toExponential(3)} GeV): ` +
-        `exact BigInt 16 (x)_S 16 = 10_S + 126_S and Tr_{SU(4)_C}(B - L) = 0 prove exact -3 Clebsch factor. ` +
-        `With ONLY ${s10.nContinuousRealParams} continuous real parameters (slashing E-FRC-0327's 14 by 4, net ` +
-        `overdetermination +${p2.ledger.netOverdeterminationContinuous} across 22 observables, ZERO continuous CP phases, ` +
-        `100% Z[zeta_9] CP), unified (H, F) yields charged leptons to ${(s10.leptonPoleMaxRelErr * 100).toFixed(4)}% ` +
+        `and kappa_role = 0 leaves delta flat. ` +
+        `Part 2 (continuum SO(10) 10_H + 126bar_H Yukawa EFT check at M_GUT = ${p2.rgTargets.mGutGeV.toExponential(3)} GeV): ` +
+        `exact BigInt 16 (x)_S 16 = 10_S + 126_S and Tr_{SU(4)_C}(B - L) = 0 verify the -3 Clebsch factor. ` +
+        `Using ${s10.nContinuousRealParams} continuous real parameters alongside ${p2.ledger.nDiscreteStructuralInputs} discrete Z_9/sign phase choices ` +
+        `(no continuous CP phases), unified (H, F) gives charged leptons to ${(s10.leptonPoleMaxRelErr * 100).toFixed(4)}% ` +
         `(pole Q_e = 2/3), up quarks (u ${(s10.upGutRelErrs[0] * 100).toFixed(1)}%, c ${(s10.upGutRelErrs[1] * 100).toFixed(1)}%, ` +
-        `t ${(s10.upGutRelErrs[2] * 100).toFixed(1)}%), m_b (${(s10.downGutRelErrs[2] * 100).toFixed(1)}%, ` +
-        `m_b/m_tau = ${s10.mbOverMtauGut.toFixed(3)}, m_mu/m_s = ${s10.mmuOverMsGut.toFixed(2)}), unitary CKM ` +
-        `(err ${s10.ckmUnitarityErr.toExponential(1)}, |V_us|=${s10.ckmMzVus.toFixed(4)}, |V_cb|=${s10.ckmMzVcb.toFixed(4)}, ` +
-        `|V_ub|=${s10.ckmMzVub.toFixed(5)}, J_CP=${s10.ckmMzJarlskog.toExponential(3)}), and Type-I seesaw neutrinos ` +
-        `from the SAME Y_126 (normal ordering, sum m_nu=${s10.sumNeutrinoMassesEv.toFixed(4)} eV < 0.12 eV, ` +
-        `dm21/dm31=${s10.dmRatio21Over31.toFixed(5)}, Q_nu=${s10.koideQNu.toFixed(4)} < 2/3, ` +
-        `sin^2 t12=${s10.pmnsSin2Theta12.toFixed(4)}, sin^2 t23=${s10.pmnsSin2Theta23.toFixed(4)}, ` +
-        `sin^2 t13=${s10.pmnsSin2Theta13.toFixed(5)}, delta_CP=${s10.pmnsDeltaCpDeg.toFixed(1)} deg, ` +
-        `J_PMNS=${s10.pmnsJarlskogCP.toExponential(3)}, unitarity err ${s10.pmnsUnitarityErr.toExponential(1)}), ` +
-        `honestly reporting the known non-SUSY minimal 10_H + 126bar_H light down-quark pull (m_d ${(s10.downGutRelErrs[0] * 100).toFixed(1)}%, ` +
-        `m_s +${(s10.downGutRelErrs[1] * 100).toFixed(1)}%) and passing all 4 negative controls`,
+        `t ${(s10.upGutRelErrs[2] * 100).toFixed(1)}%), m_b (${(s10.downGutRelErrs[2] * 100).toFixed(1)}%), unitary CKM ` +
+        `(|V_us|=${s10.ckmMzVus.toFixed(4)}, |V_cb|=${s10.ckmMzVcb.toFixed(4)}, |V_ub|=${s10.ckmMzVub.toFixed(5)}, ` +
+        `J_CP=${s10.ckmMzJarlskog.toExponential(3)}), and Type-I seesaw neutrinos (normal ordering, sum m_nu=${s10.sumNeutrinoMassesEv.toFixed(4)} eV, ` +
+        `sin^2 t12=${s10.pmnsSin2Theta12.toFixed(4)}, t23=${s10.pmnsSin2Theta23.toFixed(4)}, t13=${s10.pmnsSin2Theta13.toFixed(5)}, ` +
+        `J_PMNS=${s10.pmnsJarlskogCP.toExponential(3)}), while explicitly showing the known light down-quark pull ` +
+        `(m_d ${(s10.downGutRelErrs[0] * 100).toFixed(1)}%, m_s +${(s10.downGutRelErrs[1] * 100).toFixed(1)}%) and passing all 4 negative controls`,
       metrics: {
         // Part 1A
         minimalPolyQuadraticExact: p1a.minimalPolyQuadraticExact ? 1 : 0,
@@ -330,22 +318,15 @@ export default experiment({
         realYukawaPmnsJarlskog: ctrl.realYukawaPmnsJarlskog,
       },
       notes:
-        'Frontier 2 (E-FRC-0330, L2, zero random numbers) scientific honesty ledger: ' +
-        '(1) DYNAMICAL SELECTION OF (r = sqrt(2), delta = +2/9): closes E-FRC-0327 open dynamical question via ' +
-        'exact 9x9 BigInt minimal polynomial (H_role - 2/9 I)(H_role + 1/9 I) = 0, exact Q(zeta_9) Z_3 generation ' +
-        'clock decomposition separating the unique 3-gen multiplet P_3 (lambda_+ = +2/9) from the doubled 6-gen ' +
-        'subspace P_6 (lambda_- = -1/9), and explicit S_3 x Z_3-invariant Landau free energy V(S, P_3) whose 81/81 ' +
-        'grid trajectories converge to (sqrt(2), +2/9) to <= 1e-12. Honestly notes that delta = -1/9 also yields ' +
-        'positive S > 0 eigenvalues, yet is ruled out both by multiplicity (6 != 3) and mass ratio (96.5% m_mu/m_e error). ' +
-        '(2) MINIMAL SO(10) 10_H + 126bar_H YUKAWA UNIFICATION: exact BigInt 16 (x)_S 16 = 10_S + 126_S and ' +
-        'Tr_{SU(4)_C}(B - L) = 0 certify the -3 Georgi-Jarlskog Clebsch factor. Slashes continuous real parameters ' +
-        'from E-FRC-0327 14 down to 10 (1 lepton scale v_e + 6 real M_d magnitudes + real r_1 + real r_2 + c_R) with ' +
-        '7 discrete Z[zeta_9] phase exponents and ZERO continuous CP phases (+12 net overdetermination across 22 SM ' +
-        'observables), generating Type-I seesaw neutrinos and large PMNS mixing from the SAME Y_126. Honestly reports ' +
-        'the classic non-SUSY minimal 10_H + 126bar_H Type-I light down-quark pull (m_d -41%, m_s +70% at 10 params, ' +
-        `m_d ${(s11.downGutRelErrs[0] * 100).toFixed(1)}%, m_s +${(s11.downGutRelErrs[1] * 100).toFixed(1)}% at 11 params, ` +
-        'consistent with Dueck-Rodejohann 2013 & Ohlsson-Pernow 2018), which points toward small 120_H or threshold ' +
-        'corrections in future work without inflating parameter count here.',
+        'Continuum EFT compatibility check (E-FRC-0330, L2, zero random numbers): ' +
+        '(1) Part 1A checks the 9x9 BigInt minimal polynomial (H_role - 2/9 I)(H_role + 1/9 I) = 0 on the Sigma(648) role grid. ' +
+        'Part 1B is an illustrative phenomenological S_3 x Z_3-invariant Landau coupling model V(S, P_3) whose minimum lies at ' +
+        '(sqrt(2), +2/9) by construction of the coupling signs (NOT a first-principles dynamical selection theorem from the QCA). ' +
+        '(2) Part 2 is a continuum SO(10) 10_H + 126bar_H Georgi-Jarlskog Yukawa EFT fit using 10 continuous real parameters ' +
+        'PLUS a disclosed discrete Z_9 exponent and sign search space (7 discrete Z[zeta_9] phase exponents and discrete sign choices) ' +
+        'against SM flavor observables. Explicitly reports the classic non-SUSY minimal 10_H + 126bar_H light down-quark pull ' +
+        `(m_d -41%, m_s +70% at 10 continuous params, m_d ${(s11.downGutRelErrs[0] * 100).toFixed(1)}%, ` +
+        `m_s +${(s11.downGutRelErrs[1] * 100).toFixed(1)}% at 11 params, consistent with Dueck-Rodejohann 2013 and Ohlsson-Pernow 2018).`,
     })
   },
 })

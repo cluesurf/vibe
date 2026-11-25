@@ -1,6 +1,7 @@
-// BORN RULE BY ENVARIANCE ON THE WORKING RULE (E-QTM-0205, item vibe-roadmap-board-0007, gap B-05).
-// Exact Z[w][1/2] verification of Zurek's envariance derivation on the exact R = 2 {3,4,3,4} ball using only the
-// working rule's own moves and Clifford qutrit fine-graining (no THRESHOLD_BORN, no keyed path, no ad-hoc swap gate).
+// ZUREK ENVARIANCE SYMMETRY PREREQUISITES ON THE WORKING RULE (E-QTM-0205, gap B-05).
+// Under Decision 007 C / Key 8, the Born measure over record branches is posited operationally, not unconditionally
+// derived. This experiment verifies the algebraic Zurek envariance symmetry prerequisites (Z_6 phase invariance and
+// exact Z[w][1/2] Clifford fine-graining identity) on the single-beat branching amplitudes of R = 2 {3,4,3,4}.
 //
 // Depth L2: exact Z[w][1/2] branch arithmetic on the exact R = 2 ball. Zero random numbers.
 
@@ -12,7 +13,7 @@ export default experiment({
   id: 'quantum/envariance-born',
   code: 'E-QTM-0205',
   title:
-    'Exact Zurek envariance derivation of the Born rule on the R = 2 {3,4,3,4} ball from the working rule and Clifford fine-graining',
+    'Algebraic Zurek envariance symmetry prerequisites (Z_6 phase invariance and Z[w][1/2] Clifford fine-graining) on single-beat R = 2 {3,4,3,4} branching amplitudes',
   category: 'quantum',
   substrates: ['3434'],
   depth: 'L2',
@@ -36,12 +37,13 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        `On exact R = 2 ball (${res.ballCells} docks, 0 frontier hits, normErr=0): 1 working-rule coin+stream beat makes ` +
-        `exact entangled S-E Schmidt weights (${res.schmidtWeights[0]}, ${res.schmidtWeights[1]}); all 36 Z_6 phase shifts ` +
-        `are exactly phase-envariant (36/36, err 0); exact qutrit Clifford fine-graining splits the 3/4 branch into three ` +
-        `exact Z[w][1/2] branches of norm 1/4 ((1-w)/(2*(1+2w)) = -(1+w)/2), giving 4 equal-norm branches (1/4,1/4,1/4,1/4) ` +
-        `with all 24/24 S_4 swaps undone exactly on E => P(cross)=3/4, P(keep)=1/4 under Zurek premises (E1)-(E4); ` +
-        `iterated m=1..4 dyadic-4 weights approximate [0,1] within 1/4^m (max err m=4: ${res.dyadicMaxErrByM[3]!.toExponential(2)})`,
+        `Under Decision 007 C / Key 8, the Born measure over record branches is posited operationally, not unconditionally derived. ` +
+        `On the exact R = 2 {3,4,3,4} ball (${res.ballCells} docks, 0 frontier hits, normErr=0), 1 working-rule coin+stream beat produces ` +
+        `exact single-beat Schmidt weights (${res.schmidtWeights[0]}, ${res.schmidtWeights[1]}). ` +
+        `All 36/36 Z_6 phase shifts are exactly phase-envariant (err 0), and exact qutrit Clifford fine-graining splits the 3/4 branch into three ` +
+        `exact Z[w][1/2] branches of norm 1/4 ((1-w)/(2*(1+2w)) = -(1+w)/2), giving 4 equal-norm branches (1/4, 1/4, 1/4, 1/4) ` +
+        `with all 24/24 S_4 swaps undone exactly on E (symmetry-assigned weights P(cross)=3/4, P(keep)=1/4 conditional on Zurek premises (E1)-(E4)). ` +
+        `Iterated m=1..4 dyadic-4 partitions approximate [0,1] within 1/4^m (max err m=4: ${res.dyadicMaxErrByM[3]!.toExponential(2)})`,
       metrics: {
         i0: i0 ? 1 : 0,
         g1: g1 ? 1 : 0,
@@ -57,6 +59,10 @@ export default experiment({
         derivedKeepProb: res.derivedKeepProb,
         dyadicMaxErrM4: res.dyadicMaxErrByM[3]!,
       },
+      notes:
+        'Under Decision 007 C / Key 8, the Born measure over record branches is posited operationally, not unconditionally derived. ' +
+        'This experiment verifies the algebraic Zurek envariance symmetry prerequisites (Z_6 phase invariance and exact Z[w][1/2] ' +
+        'Clifford fine-graining identity) on the single-beat branching amplitudes of R = 2 {3,4,3,4}.',
     })
   },
 })

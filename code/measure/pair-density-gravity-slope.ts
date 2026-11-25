@@ -5,8 +5,9 @@
 // Why E-GRV-0156 saw a raw log-log slope of -1.82 on side = 16:
 //   Subtracting G(L/2 = 8) on a small L = 16 periodic box turns 1/r into 1/r - 1/8, which drops steeply to 0 at r = 8.
 //
-// Here we solve the exact same parameter-free pair-density warped cusp column (N_D = 1, 18, 330, 6034; m_D = 2 * 5^D;
-// w(D) = 1 / N_D^2) on large periodic 3D husks (side = 32 and side = 64) using a fast exact 1/48 octahedral-wedge
+// Here we solve the exact same parameter-free pair-density warped cusp column (N_D = 1, 18, 330, 6034;
+// canonical unaliased single-face lateral links [1, 4, 20, 100], cumulative 5^D = [1, 5, 25, 125], matching
+// Vibe/Geometry.lean and E-FND-0185; w(D) = 1 / N_D^2) on large periodic 3D husks (side = 32 and side = 64) using a fast exact 1/48 octahedral-wedge
 // momentum sum (0 <= ix <= iy <= iz <= side/2), WITHOUT subtracting G(L/2). Instead we apply the exact periodic
 // simple-cubic finite-size relation for -Delta G_per = delta - 1/L^3:
 //   G_inf(r) = G_per(r) + c_M / (K_eff * L) - r^2 / (6 * K_eff * L^3) + O(r^4 / L^5),
@@ -44,17 +45,24 @@ type ColumnModel = {
   readonly gEff: number
 }
 
-// Incremental lateral inter-column links per cubic neighbor at depth d:
+// Canonical unaliased single-face {4,3,4} cusp lateral inter-column links per cubic neighbor at depth d:
 //   d = 0: 1 link per cubic neighbor (6 total)
-//   d = 1: 10 links (cumulative m_1 = 2 * 5^1 = 10)
-//   d >= 2: 8 * 5^(d - 1) links (incremental shell of cumulative m_d = 2 * 5^d)
-function lateralLinksPerNeighbor(d: number): number {
+//   d >= 1: 4 * 5^(d - 1) links -> sequence [1, 4, 20, 100, ...], cumulative 5^D = [1, 5, 25, 125, ...]
+// Matches Vibe/Geometry.lean (cuspLateralLinks / thm5_cusp_lateral_cumulative) and E-FND-0185.
+export function singleFaceLateralLinksPerNeighbor(d: number): number {
+  if (d === 0) return 1
+  return 4 * 5 ** (d - 1)
+}
+
+// Aliased period = 2 torus control lateral link count (double-counts opposite faces on period = 2):
+//   d = 0: 1, d = 1: 10, d >= 2: 8 * 5^(d - 1) -> sequence [1, 10, 40, 200, ...], cumulative 2 * 5^D
+export function period2TorusLateralLinksPerNeighbor(d: number): number {
   if (d === 0) return 1
   if (d === 1) return 10
   return 8 * 5 ** (d - 1)
 }
 
-function buildColumnModel(floorF: number, warped: boolean): ColumnModel {
+function buildColumnModel(floorF: number, warped: boolean, aliasedPeriod2 = false): ColumnModel {
   const nLen = floorF + 2
   const nShell = new Float64Array(nLen)
   for (let d = 0; d < EXACT_COLUMN_SHELL_COUNTS.length && d < nLen; d++) {
@@ -67,16 +75,19 @@ function buildColumnModel(floorF: number, warped: boolean): ColumnModel {
   const cLat = new Float64Array(floorF + 1)
   const cVert = new Float64Array(floorF + 1)
   let resistanceToFloor = 0
+  const latFn = aliasedPeriod2
+    ? period2TorusLateralLinksPerNeighbor
+    : singleFaceLateralLinksPerNeighbor
 
   for (let d = 0; d <= floorF; d++) {
     const nd = nShell[d]!
     const nd1 = nShell[d + 1]!
     if (warped) {
       // w(d) = 1 / N(d)^2 (= l^-6); geometric mean sqrt(w(d) w(d+1)) = 1 / (N(d) N(d+1))
-      cLat[d] = lateralLinksPerNeighbor(d) / (nd * nd)
+      cLat[d] = latFn(d) / (nd * nd)
       cVert[d] = 18 / nd1
     } else {
-      cLat[d] = lateralLinksPerNeighbor(d)
+      cLat[d] = latFn(d)
       cVert[d] = 18 * nd
     }
     resistanceToFloor += 1 / cVert[d]!
@@ -331,6 +342,13 @@ export type PairDensityGravitySlopeResult = {
   readonly forceSlopeMidR5to12: number
   readonly maxForceLatticeMatchErrR2to10: number
 
+  // Control: aliased period = 2 torus comparison ([1, 10, 40, 200] -> K_eff = 1.031237, G_eff = 0.077167)
+  readonly period2TorusComparison: {
+    readonly kEffF16: number
+    readonly gEffF16: number
+    readonly kEffRelShiftVsCanonical: number
+  }
+
   // Control: unweighted raw bulk w(D) = 1 on exact same side = 64 grid (F = 12)
   readonly rawResistanceF12: number
   readonly rawHuskG1: number
@@ -565,7 +583,13 @@ export function runPairDensityGravitySlope(): PairDensityGravitySlopeResult {
     )
   }
 
-  // 7. Control: unweighted raw bulk w(D) = 1 on exact same side = 64 grid (F = 12)
+  // 7. Control: unweighted raw bulk w(D) = 1 on exact same side = 64 grid (F = 12), plus aliased period = 2 torus control
+  const period2ModelF16 = buildColumnModel(16, true, true)
+  const period2TorusComparison = {
+    kEffF16: period2ModelF16.kEff,
+    gEffF16: period2ModelF16.gEff,
+    kEffRelShiftVsCanonical: Math.abs(period2ModelF16.kEff - modelF16.kEff) / modelF16.kEff,
+  }
   const rawModel = buildColumnModel(12, false)
   const raw64 = solveWedgeAlongX(
     64,
@@ -619,6 +643,7 @@ export function runPairDensityGravitySlope(): PairDensityGravitySlopeResult {
     forceSlopeCtrR6to12,
     forceSlopeMidR5to12,
     maxForceLatticeMatchErrR2to10,
+    period2TorusComparison,
     rawResistanceF12: rawModel.resistanceToFloor,
     rawHuskG1,
     rawHuskG2,

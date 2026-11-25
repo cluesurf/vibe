@@ -2,128 +2,59 @@ import Vibe.Rule
 import Vibe.Gauge
 
 /-!
-# Vibe Theory: Unitary Horizons, Mass Gap, RG Contraction & Cosmological Limits (Theorems 12, 14 to 16)
+# Vibe Theory: Transfer-Matrix Gap, Modular PQ Quality, `ℤ[ω]` Word Unitarity & Gram Positivity
 
-- Theorem 12: `∀ t` two-body action-reaction momentum conservation & unitary horizon information conservation.
-- Theorem 14: Constructive lattice transfer-matrix mass-gap decay & `4^n` block-spin RG contraction.
-- Theorem 15: Exact `Z_18`/`Z_36` PQ quality, `SO(10)` `16 ⊗ 16 = 10 + 126 + 120` & zero-decimal `ℤ[ω][1/2]` closure.
-- Theorem 16: Weighted reflection positivity `⟨Θ F, F⟩ ≥ 0`, Kotecky-Preiss polymer gap & holographic `D_Λ = 2 D_H`.
+- Theorem 14: Exact `3 × 3` `Z_3` transfer-matrix eigenmodes (`a + 2b`, `a - b`) and all-time
+  strict spectral-gap decay for all `a > b > 0` and all `t ≥ 1`.
+- Theorem 15: Modular divisibility lower bound `d ≥ N / gcd(N, q)` for `Z_N`-invariant
+  Peccei-Quinn operators (with `Z_36` corollaries `d ≥ 18`, `d ≥ 36`), plus arbitrary-word
+  zero-decimal `Mat2Eis` unitarity closure over `{M, M2, M†, M2†}`.
+- Theorem 16: Explicit `B^T B` Gram reflection positivity `v^T (B^T B) v = ∑_i (B_i · v)^2 ≥ 0`
+  and weighted Gram positivity for arbitrary integer matrices `B` and vectors `v`.
 -/
 
 set_option autoImplicit false
 
 namespace Vibe
 
-/-! ## Theorem 12: `∀ t` Two-Body Action-Reaction & Exact Unitary Horizon Information Conservation -/
+/-! ## Theorem 14: Concrete `3 × 3` `Z_3` Transfer-Matrix Spectral Gap (`a > b > 0`, `∀ t ≥ 1`) -/
 
-/-- Exact pairwise Newton's 3rd law: equal and opposite mutual impulse sums to `0`. -/
-theorem thm12_newton_third_law (f : Int) : f + (-f) = 0 := by omega
+/-- Exact `3 × 3` `Z_3` single-plaquette transfer matrix `T_{ij} = a` if `i = j`, else `b`. -/
+def z3TransferMat (a b : Int) (i j : Fin 3) : Int :=
+  if i = j then a else b
 
-/-- Single-beat two-body center-of-mass momentum conservation for arbitrary mutual force `f`. -/
-theorem thm12_two_body_momentum_step (pA pB f : Int) :
-    (pA + f) + (pB - f) = pA + pB := by
-  omega
+/-- Matrix-vector action `(T v)_i = ∑_{j : Fin 3} T_{ij} v_j`. -/
+def z3MatVec (a b : Int) (v : Fin 3 → Int) (i : Fin 3) : Int :=
+  z3TransferMat a b i 0 * v 0 + z3TransferMat a b i 1 * v 1 + z3TransferMat a b i 2 * v 2
 
-/-- Exact `∀ t : Nat` two-body momentum trajectory under an arbitrary time-varying pairwise
-    force schedule `f : Nat → Int`. -/
-def twoBodyMom (f : Nat → Int) : Nat → Int × Int → Int × Int
-  | 0, state => state
-  | t + 1, state =>
-    let prev := twoBodyMom f t state
-    (prev.1 + f t, prev.2 - f t)
+/-- Uniform vacuum eigenvector `v_0 = (1, 1, 1)`. -/
+def z3VacVec : Fin 3 → Int := fun _ => 1
 
-/-- Theorem 12a (`E-GRV-0162`): Exact `∀ t : Nat` conservation of total two-body momentum
-    `pA(t) + pB(t) = pA(0) + pB(0)` for ALL time steps and ANY force schedule `f`. -/
-theorem thm12_two_body_momentum_conserved_all_time (f : Nat → Int) (pA0 pB0 : Int) :
-    ∀ t : Nat, (twoBodyMom f t (pA0, pB0)).1 + (twoBodyMom f t (pA0, pB0)).2 = pA0 + pB0 := by
-  intro t
-  induction t with
-  | zero => rfl
-  | succ k ih =>
-    simp only [twoBodyMom]
+/-- Charged excited eigenvector `v_1 = (1, -1, 0)` orthogonal to `v_0`. -/
+def z3ExcVec : Fin 3 → Int
+  | ⟨0, _⟩ => 1
+  | ⟨1, _⟩ => -1
+  | ⟨2, _⟩ => 0
+
+/-- Theorem 14a: `v_0 = (1, 1, 1)` is an exact eigenvector of the `3 × 3` `Z_3` transfer matrix
+    with eigenvalue `λ_0 = a + 2 b` for ALL `a, b : Int`. -/
+theorem thm14_z3_transfer_vacuum_eigenmode (a b : Int) (i : Fin 3) :
+    z3MatVec a b z3VacVec i = (a + 2 * b) * z3VacVec i := by
+  match i with
+  | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ =>
+    simp [z3MatVec, z3TransferMat, z3VacVec]
     omega
 
-section UnitaryHorizon
+/-- Theorem 14b: `v_1 = (1, -1, 0)` is an exact eigenvector of the `3 × 3` `Z_3` transfer matrix
+    with eigenvalue `λ_1 = a - b` for ALL `a, b : Int` (and is orthogonal to `v_0`). -/
+theorem thm14_z3_transfer_excited_eigenmode (a b : Int) (i : Fin 3) :
+    z3MatVec a b z3ExcVec i = (a - b) * z3ExcVec i := by
+  match i with
+  | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ =>
+    simp [z3MatVec, z3TransferMat, z3ExcVec]
+    omega
 
-variable {H K : Type}
-
-/-- Theorem 12b (`E-GRV-0162`, `E-QTM-0207`): For ANY inner-product-preserving horizon step
-    `U : H → H` (`∀ x y, inner (U x) (U y) = inner x y`), ALL inner products — including norms
-    and transition amplitudes — are preserved identically for ALL `t : Nat`, even behind a
-    trapped event horizon. -/
-theorem thm12_unitary_horizon_inner_preserved
-    (inner : H → H → K) (U : H → H)
-    (hIso : ∀ x y : H, inner (U x) (U y) = inner x y) :
-    ∀ t : Nat, ∀ x y : H, inner (iter U t x) (iter U t y) = inner x y := by
-  intro t
-  induction t with
-  | zero =>
-    intro x y
-    rfl
-  | succ k ih =>
-    intro x y
-    rw [iter_succ, iter_succ, hIso, ih]
-
-/-- Theorem 12c: Exact `∀ t : Nat` preservation of state orthogonality behind an event horizon:
-    two orthogonal initial states (`inner x y = zero`) can NEVER merge or lose distinguishability
-    at any beat `t`. -/
-theorem thm12_unitary_horizon_orthogonality_preserved
-    (inner : H → H → K) (zeroK : K) (U : H → H)
-    (hIso : ∀ x y : H, inner (U x) (U y) = inner x y)
-    (x y : H) (hOrth : inner x y = zeroK) :
-    ∀ t : Nat, inner (iter U t x) (iter U t y) = zeroK := by
-  intro t
-  rw [thm12_unitary_horizon_inner_preserved inner U hIso t x y, hOrth]
-
-private theorem iter_shift {α : Type} (f : α → α) :
-    ∀ t : Nat, ∀ x : α, iter f t (f x) = f (iter f t x) := by
-  intro t
-  induction t with
-  | zero => intro x; rfl
-  | succ k ih =>
-    intro x
-    rw [iter_succ, ih x]
-    rfl
-
-/-- Theorem 12d: Exact `∀ t : Nat` memoryless recovery behind an event horizon:
-    `iter Udag t (iter U t x) = x` for every state `x` and every horizon depth `t`. -/
-theorem thm12_unitary_horizon_exact_recovery
-    (U Udag : H → H) (hLeft : ∀ x : H, Udag (U x) = x) :
-    ∀ t : Nat, ∀ x : H, iter Udag t (iter U t x) = x := by
-  intro t
-  induction t with
-  | zero => intro x; rfl
-  | succ k ih =>
-    intro x
-    rw [iter_succ, ← iter_shift Udag k, iter_succ U k, hLeft, ih x]
-
-/-- Theorem 12e: Exact `∀ t : Nat` injectivity (zero information erasure) of any reversible
-    horizon evolution: distinct initial states remain distinct forever. -/
-theorem thm12_unitary_horizon_injective
-    (U Udag : H → H) (hLeft : ∀ x : H, Udag (U x) = x)
-    (t : Nat) (x y : H) (hEq : iter U t x = iter U t y) : x = y := by
-  have h1 := thm12_unitary_horizon_exact_recovery U Udag hLeft t x
-  have h2 := thm12_unitary_horizon_exact_recovery U Udag hLeft t y
-  rw [hEq] at h1
-  rw [← h1, h2]
-
-/-- Theorem 12f: Exact `∀ t : Nat` surjectivity of any reversible horizon evolution:
-    every late-time horizon state `y` has an exact pre-image `x = (U†)^t y` (`U^t x = y`). -/
-theorem thm12_unitary_horizon_surjective
-    (U Udag : H → H) (hRight : ∀ y : H, U (Udag y) = y)
-    (t : Nat) (y : H) : ∃ x : H, iter U t x = y := by
-  refine ⟨iter Udag t y, ?_⟩
-  exact thm12_unitary_horizon_exact_recovery Udag U hRight t y
-
-end UnitaryHorizon
-
-
-/-! ## Theorem 14: Constructive Lattice Mass-Gap Decay & Block-Spin RG Contraction (`∀ t ≥ 1`) -/
-
-/-- Exact integer monotonicity lemma: for ANY strictly positive transfer-matrix eigenvalues
-    `0 < λ₁ < λ₀`, the excited-to-vacuum ratio decays strictly as `λ₁^t < λ₀^t` for ALL `t ≥ 1`
-    (strictly positive finite-volume spectral mass gap `m_gap = ln(λ₀ / λ₁) > 0`, `E-FND-0188`). -/
-theorem thm14_positive_mass_gap_all_time (l0 l1 : Nat) (hGap : l1 < l0) :
+private theorem nat_pow_lt_of_lt (l0 l1 : Nat) (hGap : l1 < l0) :
     ∀ t : Nat, t ≥ 1 → l1 ^ t < l0 ^ t := by
   intro t ht
   cases t with
@@ -145,9 +76,7 @@ theorem thm14_positive_mass_gap_all_time (l0 l1 : Nat) (hGap : l1 < l0) :
       rw [Nat.pow_succ l1 (m + 1), Nat.pow_succ l0 (m + 1)]
       exact Nat.lt_of_le_of_lt h1 h2
 
-/-- Exact exponential dominance of a strict spectral gap: whenever `2 * l1 ≤ l0` (mass gap
-    `m_gap ≥ ln 2`), `2^t * l1^t ≤ l0^t` for ALL `t : Nat`. -/
-theorem thm14_spectral_gap_exp_suppression (l0 l1 : Nat) (hGap : 2 * l1 ≤ l0) :
+private theorem nat_pow_mul_le (l0 l1 : Nat) (hGap : 2 * l1 ≤ l0) :
     ∀ t : Nat, 2 ^ t * l1 ^ t ≤ l0 ^ t := by
   intro t
   induction t with
@@ -166,108 +95,83 @@ theorem thm14_spectral_gap_exp_suppression (l0 l1 : Nat) (hGap : 2 * l1 ≤ l0) 
     rw [hLhs, hRhs]
     exact Nat.mul_le_mul ih hGap
 
-/-- Exact Wilson-Kadanoff 4D block-spin RG contraction for dimension-6 `O(a²)` lattice
-    anisotropy operators (`E-FND-0188`, `E-RLT-0123`): each factor-2 blocking `a → 2a` contracts
-    the dimensionless anisotropy coupling by `1/4`, so `4^n ≥ 4 * n` for ALL `n ≥ 1`
-    (strictly unbounded suppression `1 / 4^n → 0`). -/
-theorem thm14_block_spin_anisotropy_contraction :
-    ∀ n : Nat, n ≥ 1 → 4 ^ n ≥ 4 * n := by
-  intro n hn
-  cases n with
-  | zero => omega
-  | succ k =>
-    induction k with
-    | zero => decide
-    | succ m ih =>
-      have hPrev : 4 ^ (m + 1) ≥ 4 * (m + 1) := ih (by omega)
-      have hPow : 4 ^ (m + 2) = 4 ^ (m + 1) * 4 := Nat.pow_succ 4 (m + 1)
-      omega
+/-- Theorem 14c: Exact strict spectral gap for EVERY `a > b > 0` in the `3 × 3` `Z_3` transfer matrix:
+    `0 < λ_1 = a - b < a + 2 b = λ_0` implies `(a - b)^t < (a + 2 b)^t` for ALL `t ≥ 1`. -/
+theorem thm14_z3_transfer_mass_gap_all_time (a b : Nat) (hb : b > 0) (hab : a > b) :
+    0 < a - b ∧ ∀ t : Nat, t ≥ 1 → (a - b) ^ t < (a + 2 * b) ^ t := by
+  refine ⟨by omega, ?_⟩
+  exact nat_pow_lt_of_lt (a + 2 * b) (a - b) (by omega)
 
-/-- Exact `D_4` 4D isotropy advantage over hypercubic `ℤ^4` (`E-FRC-0329`):
-    the `D_4` 24-cell has `24 = 3 × 8` nearest neighbors (zero cubic `∑ k_i^4` anisotropy in the
-    24-cell `W(F_4)` tensor invariant at rank 2, 3x the coordination of `ℤ^4`). -/
-theorem thm14_d4_triple_coordination_over_z4 : (24 : Nat) = 3 * 8 := by decide
-
-/-- Exact strong-coupling Wilson area law positivity: for ANY string tension `σ`
-    and any Wilson loop area `R * T ≥ 1`, `σ * (R * T) ≥ σ` (strictly linear confinement). -/
-theorem thm14_wilson_area_law_positive (sigma R T : Nat) (hR : R ≥ 1) (hT : T ≥ 1) :
-    sigma * (R * T) ≥ sigma := by
-  have hArea : R * T ≥ 1 := Nat.mul_pos hR hT
-  have hMul : sigma * 1 ≤ sigma * (R * T) := Nat.mul_le_mul_left sigma hArea
-  omega
+/-- Theorem 14d: Exponential factor-`2^t` suppression of the `Z_3` excited mode whenever `b < a ≤ 4 b`
+    (`2 (a - b) ≤ a + 2 b`, mass gap `≥ ln 2`): `2^t (a - b)^t ≤ (a + 2 b)^t` for ALL `t : Nat`. -/
+theorem thm14_z3_transfer_exp_suppression (a b : Nat) (hab : a > b) (hStrong : a ≤ 4 * b) :
+    ∀ t : Nat, 2 ^ t * (a - b) ^ t ≤ (a + 2 * b) ^ t :=
+  nat_pow_mul_le (a + 2 * b) (a - b) (by omega)
 
 
-/-! ## Theorem 15: Exact `Z_18`/`Z_36` PQ Quality, `SO(10)` `16 ⊗ 16 = 10 + 126 + 120` & Zero-Decimal `Z[ω][1/2]` Closure -/
+/-! ## Theorem 15: Modular `Z_N` PQ Operator-Dimension Bound & Arbitrary-Word `Mat2Eis` Unitarity -/
 
-/-- Exact discrete gauge symmetry order combining Vibe's native `Z_9` (`ζ_9`) and `Spin(10)`
-    center `Z_4`: `gcd(9, 4) = 1` and `lcm(9, 4) = 36` (`E-FRC-0332`). -/
-theorem thm15_z9_z4_coprime_gives_z36 :
-    Nat.gcd 9 4 = 1 ∧ Nat.lcm 9 4 = 36 := by
-  decide
+/-- Theorem 15a: Exact modular divisibility theorem for discrete `Z_N` gauge protection of a
+    Peccei-Quinn scalar of charge `q`: ANY `Z_N`-invariant singlet operator `Φ^d` (`d ≥ 1`,
+    `(d * q) % N = 0`) must have operator dimension `d ≥ N / gcd(N, q)`. -/
+theorem thm15_zn_pq_min_operator_dim (N q d : Nat) (hN : N ≥ 1) (hd : d ≥ 1)
+    (hInv : (d * q) % N = 0) : d ≥ N / Nat.gcd N q := by
+  let g := Nat.gcd N q
+  let n' := N / g
+  let q' := q / g
+  have hgPos : 0 < g := Nat.gcd_pos_of_pos_left q hN
+  have hN_eq : g * n' = N := Nat.mul_div_cancel' (Nat.gcd_dvd_left N q)
+  have hq_eq : g * q' = q := Nat.mul_div_cancel' (Nat.gcd_dvd_right N q)
+  have hCoprime : Nat.gcd n' q' = 1 := by
+    have hMul : g * Nat.gcd n' q' = g * 1 := by
+      calc g * Nat.gcd n' q'
+          = Nat.gcd (g * n') (g * q') := (Nat.gcd_mul_left g n' q').symm
+        _ = Nat.gcd N q := by rw [hN_eq, hq_eq]
+        _ = g * 1 := (Nat.mul_one g).symm
+    exact Nat.eq_of_mul_eq_mul_left hgPos hMul
+  have hNdvd : N ∣ d * q := Nat.dvd_of_mod_eq_zero hInv
+  cases hNdvd with
+  | intro k hk =>
+  have hn'dvd_dq' : n' ∣ d * q' := by
+    refine ⟨k, ?_⟩
+    have hMul : g * (d * q') = g * (n' * k) := by
+      calc g * (d * q')
+          = d * (g * q') := Nat.mul_left_comm g d q'
+        _ = d * q := by rw [hq_eq]
+        _ = N * k := hk
+        _ = (g * n') * k := by rw [hN_eq]
+        _ = g * (n' * k) := Nat.mul_assoc g n' k
+    exact Nat.eq_of_mul_eq_mul_left hgPos hMul
+  have hn'dvd_dn' : n' ∣ d * n' := ⟨d, Nat.mul_comm d n'⟩
+  have hn'dvd_gcd : n' ∣ Nat.gcd (d * n') (d * q') := Nat.dvd_gcd hn'dvd_dn' hn'dvd_dq'
+  have hGcdEq : Nat.gcd (d * n') (d * q') = d := by
+    rw [Nat.gcd_mul_left, hCoprime, Nat.mul_one]
+  rw [hGcdEq] at hn'dvd_gcd
+  exact Nat.le_of_dvd hd hn'dvd_gcd
 
-/-- Exact PQ quality dimension threshold: under `Z_12`, `Z_18`, and `Z_36`, the lowest allowed
-    Planck-suppressed PQ-breaking singlet operator `Φ^d / M_Pl^{d-4}` strictly exceeds the
-    `d ≥ 11` gravitational neutron-EDM bound (`E-FRC-0331`, `E-FRC-0332`). -/
-theorem thm15_pq_quality_exceeds_dim11 :
-    (12 : Nat) ≥ 11 ∧ (18 : Nat) ≥ 11 ∧ (36 : Nat) ≥ 11 := by
-  decide
+/-- Corollary 15b: Under `Z_36` with PQ scalar charge `q = 2`, every invariant `Φ^d` has `d ≥ 18`. -/
+theorem thm15_z36_pq_dim_ge_18 (d : Nat) (hd : d ≥ 1) (hInv : (d * 2) % 36 = 0) : d ≥ 18 :=
+  thm15_zn_pq_min_operator_dim 36 2 d (by decide) hd hInv
 
-/-- Exact `SO(10)` tensor-product decomposition (`E-FRC-0332`):
-    `16 × 16 = 256 = 136_S + 120_A`, where `136_S = 10_S + 126_S` (symmetric) and
-    `120_A = 16 * 15 / 2` (antisymmetric `120_H` eliminating the minimal `m_d/m_s` pull). -/
-theorem thm15_so10_tensor_decomposition :
-    (16 : Nat) * 16 = 256 ∧
-    (16 : Nat) * 17 / 2 = 136 ∧
-    (16 : Nat) * 15 / 2 = 120 ∧
-    (10 : Nat) + 126 = 136 ∧
-    (10 : Nat) + 126 + 120 = 256 := by
-  decide
+/-- Corollary 15c: Under `Z_36` with fundamental charge `q = 1`, every invariant `Φ^d` has `d ≥ 36`. -/
+theorem thm15_z36_pq_dim_ge_36 (d : Nat) (hd : d ≥ 1) (hInv : (d * 1) % 36 = 0) : d ≥ 36 :=
+  thm15_zn_pq_min_operator_dim 36 1 d (by decide) hd hInv
 
-/-- Exact `Z[ω][1/2]` zero-decimal L3 composition closure (`E-GRV-0163`):
-    if two scaled Eisenstein `2 × 2` matrices `A, B ∈ Mat_2(ℤ[ω])` satisfy exact unitarity
-    `A† A = sA I` and `B† B = sB I`, then their product `A B` satisfies `(A B)† (A B) = (sA sB) I`
-    identically with ZERO floating-point error. -/
-private theorem eis_conj_add (x y : Eis) :
-    Eis.conj (Eis.add x y) = Eis.add (Eis.conj x) (Eis.conj y) := by
-  cases x; cases y
-  simp only [Eis.conj, Eis.add, Eis.mk.injEq]
-  exact ⟨by omega, by omega⟩
-
-private theorem eis_conj_mul (x y : Eis) :
-    Eis.conj (Eis.mul x y) = Eis.mul (Eis.conj y) (Eis.conj x) := by
-  cases x with
-  | mk xa xb =>
-    cases y with
-    | mk ya yb =>
-      simp only [Eis.conj, Eis.mul, Eis.mk.injEq]
-      have h1 : ya * xa = xa * ya := Int.mul_comm ya xa
-      have h2 : yb * xb = xb * yb := Int.mul_comm yb xb
-      have h3 : ya * xb = xb * ya := Int.mul_comm ya xb
-      have h4 : yb * xa = xa * yb := Int.mul_comm yb xa
-      have hL : (ya - yb) * (xa - xb) = ya * xa - ya * xb - yb * xa + yb * xb := by
-        rw [Int.sub_mul, Int.mul_sub, Int.mul_sub]
-        omega
-      have hR1 : (ya - yb) * (-xb) = yb * xb - ya * xb := by
-        rw [Int.sub_mul, Int.mul_neg, Int.mul_neg]
-        omega
-      have hR2 : (-yb) * (xa - xb) = yb * xb - yb * xa := by
-        rw [Int.mul_sub, Int.neg_mul, Int.neg_mul]
-        omega
-      have hR3 : (-yb) * (-xb) = yb * xb := by
-        rw [Int.neg_mul, Int.mul_neg, Int.neg_neg]
-      rw [hL, hR1, hR2, hR3, h1, h2, h3, h4]
-      exact ⟨by omega, by omega⟩
-
+/-- Exact anti-homomorphism `(A B)† = B† A†` on `Mat_2(ℤ[ω])` using `StarCommRing Eis`. -/
 theorem thm15_mat2eis_dag_mul (A B : Mat2Eis) :
     Mat2Eis.dag (Mat2Eis.mul A B) = Mat2Eis.mul (Mat2Eis.dag B) (Mat2Eis.dag A) := by
-  cases A with
-  | mk a00 a01 a10 a11 =>
-    cases B with
-    | mk b00 b01 b10 b11 =>
-      simp only [Mat2Eis.dag, Mat2Eis.mul, Mat2Eis.mk.injEq]
-      refine ⟨?_, ?_, ?_, ?_⟩ <;>
-        rw [eis_conj_add, eis_conj_mul, eis_conj_mul]
+  have hAdd : ∀ x y : Eis, Eis.conj (Eis.add x y) = Eis.add (Eis.conj x) (Eis.conj y) :=
+    StarCommRing.conj_add
+  have hMul : ∀ x y : Eis, Eis.conj (Eis.mul x y) = Eis.mul (Eis.conj y) (Eis.conj x) := by
+    intro x y
+    exact Eq.trans (StarCommRing.conj_mul (R := Eis) x y)
+      (StarCommRing.mul_comm (R := Eis) (Eis.conj x) (Eis.conj y))
+  cases A; cases B
+  simp only [Mat2Eis.dag, Mat2Eis.mul, Mat2Eis.mk.injEq]
+  refine ⟨?_, ?_, ?_, ?_⟩ <;> rw [hAdd, hMul, hMul]
 
+/-- Exact `ℤ[ω][1/2]` unitary composition closure:
+    if `A† A = sA I` and `B† B = sB I`, then `(A B)† (A B) = (sA sB) I` with zero rounding error. -/
 theorem thm15_mat2eis_unitary_comp (A B : Mat2Eis) (sA sB : Int)
     (hA : Mat2Eis.mul (Mat2Eis.dag A) A = Mat2Eis.scale sA Mat2Eis.id)
     (hB : Mat2Eis.mul (Mat2Eis.dag B) B = Mat2Eis.scale sB Mat2Eis.id) :
@@ -293,8 +197,7 @@ theorem thm15_mat2eis_unitary_comp (A B : Mat2Eis) (sA sB : Int)
         rw [Int.mul_assoc]
   rw [hScaleL sA B, Mat2Eis.mul_scale, hB, hScaleScale]
 
-/-- Exact `Z[ω][1/2]` generator `gateM` preserves exact zero-decimal unitarity for ALL word lengths
-    `n : Nat`: `(M^n)† (M^n) = 4^n I` identically (`E-GRV-0163`, `E-QTM-0207`, `E-FRC-0327`). -/
+/-- Exact integer powers of 4: `pow4Int n = 4^n`. -/
 def pow4Int : Nat → Int
   | 0 => 1
   | n + 1 => 4 * pow4Int n
@@ -316,8 +219,6 @@ theorem thm15_gateM_pow_unitary_all_lengths :
       exact Int.mul_comm (pow4Int k) 4
     rw [hComm]
 
-/-- Exact zero-decimal unitarity of the second dense `Z[ω][1/2]` generator `gateM2 = P_ω M P_ω†`
-    and ALL its powers `(M2^n)† (M2^n) = 4^n I` (`E-GRV-0163`, `E-QTM-0207`, `E-FRC-0327`). -/
 theorem thm15_gateM2_unitary_left :
     Mat2Eis.mul (Mat2Eis.dag gateM2) gateM2 = Mat2Eis.scale 4 Mat2Eis.id := by
   decide
@@ -339,16 +240,62 @@ theorem thm15_gateM2_pow_unitary_all_lengths :
       exact Int.mul_comm (pow4Int k) 4
     rw [hComm]
 
+/-- Four-generator dense `SU(2)` gate alphabet `{M, M2, M†, M2†}` inside `Mat_2(ℤ[ω])`. -/
+inductive EisGen where
+  | m1
+  | m2
+  | m1Dag
+  | m2Dag
+  deriving DecidableEq, Repr
 
-/-! ## Theorem 16: Exact Reflection Positivity, Osterwalder-Seiler Polymer Bound & Holographic `D_Λ = 2 D_H` -/
+/-- Interpret a single alphabet letter as a `Mat2Eis` gate. -/
+def evalEisGen : EisGen → Mat2Eis
+  | .m1    => gateM
+  | .m2    => gateM2
+  | .m1Dag => Mat2Eis.dag gateM
+  | .m2Dag => Mat2Eis.dag gateM2
 
-/-- Sum of squares of an arbitrary integer vector (`∑ x_i²`): exact algebraic core of
-    Osterwalder-Schrader reflection positivity `⟨Θ F, F⟩ ≥ 0` (`E-FND-0189`). -/
+/-- Evaluate any arbitrary finite word `w : List EisGen` as the exact matrix product in `Mat_2(ℤ[ω])`. -/
+def evalEisWord : List EisGen → Mat2Eis
+  | []      => Mat2Eis.id
+  | g :: gs => Mat2Eis.mul (evalEisGen g) (evalEisWord gs)
+
+private theorem evalEisGen_unitary_left (g : EisGen) :
+    Mat2Eis.mul (Mat2Eis.dag (evalEisGen g)) (evalEisGen g) = Mat2Eis.scale 4 Mat2Eis.id := by
+  cases g <;> decide
+
+/-- Theorem 15d: Arbitrary-word zero-decimal unitarity closure in `ℤ[ω][1/2]`:
+    for EVERY finite word `w : List EisGen` over `{M, M2, M†, M2†}`,
+    `(evalEisWord w)† (evalEisWord w) = 4^(w.length) I` identically. -/
+theorem thm15_eisWord_unitary_all_words (w : List EisGen) :
+    Mat2Eis.mul (Mat2Eis.dag (evalEisWord w)) (evalEisWord w)
+      = Mat2Eis.scale (pow4Int w.length) Mat2Eis.id := by
+  induction w with
+  | nil => decide
+  | cons g gs ih =>
+    simp only [evalEisWord, List.length_cons, pow4Int]
+    exact thm15_mat2eis_unitary_comp (evalEisGen g) (evalEisWord gs) 4 (pow4Int gs.length)
+      (evalEisGen_unitary_left g) ih
+
+
+/-! ## Theorem 16: Explicit `B^T B` Gram Reflection Positivity (`v^T (B^T B) v ≥ 0`) -/
+
+/-- Exact integer inner product `u · v = ∑_j u_j v_j`. -/
+def dotInt : List Int → List Int → Int
+  | [], _ => 0
+  | _, [] => 0
+  | x :: xs, y :: ys => x * y + dotInt xs ys
+
+/-- Matrix-vector product `B v` for an arbitrary integer matrix `B` represented as a list of rows. -/
+def matVecInt (B : List (List Int)) (v : List Int) : List Int :=
+  B.map (fun row => dotInt row v)
+
+/-- Sum of squares `∑_i y_i^2` of an integer vector. -/
 def sumSqInt : List Int → Int
   | [] => 0
   | x :: xs => x * x + sumSqInt xs
 
-theorem thm16_reflection_positivity_sum_sq (xs : List Int) : 0 ≤ sumSqInt xs := by
+private theorem sumSqInt_nonneg (xs : List Int) : 0 ≤ sumSqInt xs := by
   induction xs with
   | nil => decide
   | cons x rest ih =>
@@ -356,59 +303,87 @@ theorem thm16_reflection_positivity_sum_sq (xs : List Int) : 0 ≤ sumSqInt xs :
     have hx := int_sq_nonneg x
     omega
 
-/-- Weighted reflection-positivity Gram form `∑ w_i x_i² ≥ 0` for arbitrary nonnegative transfer
-    weights `w_i ≥ 0` (`E-FND-0189`). -/
-def weightedSumSq : List (Int × Int) → Int
-  | [] => 0
-  | (w, x) :: rest => w * (x * x) + weightedSumSq rest
+/-- Inner bilinear sum `∑_j (v_j r_j) (r_k v_k)` for one fixed `k`-term. -/
+def rowGramInner (rk vk : Int) : List Int → List Int → Int
+  | [], _ => 0
+  | _, [] => 0
+  | rj :: rs, vj :: vs => (rj * vj) * (rk * vk) + rowGramInner rk vk rs vs
 
-theorem thm16_reflection_positivity_weighted (pairs : List (Int × Int))
-    (hPos : ∀ p ∈ pairs, 0 ≤ p.1) : 0 ≤ weightedSumSq pairs := by
-  induction pairs with
-  | nil => decide
+/-- Outer bilinear sum `∑_k ∑_j (r_j v_j) (r_k v_k) = v^T (r^T r) v`. -/
+def rowGramOuter (r v : List Int) : List Int → List Int → Int
+  | [], _ => 0
+  | _, [] => 0
+  | rk :: rs, vk :: vs => rowGramInner rk vk r v + rowGramOuter r v rs vs
+
+/-- Full explicit `B^T B` Gram quadratic form `v^T (B^T B) v = ∑_{row ∈ B} ∑_k ∑_j B_{ij} v_j B_{ik} v_k`. -/
+def gramQuadForm (B : List (List Int)) (v : List Int) : Int :=
+  match B with
+  | [] => 0
+  | row :: rest => rowGramOuter row v row v + gramQuadForm rest v
+
+private theorem rowGramInner_eq (rk vk : Int) (xs ys : List Int) :
+    rowGramInner rk vk xs ys = dotInt xs ys * (rk * vk) := by
+  induction xs generalizing ys with
+  | nil =>
+    simp only [rowGramInner, dotInt, Int.zero_mul]
+  | cons x rest ih =>
+    cases ys with
+    | nil =>
+      simp only [rowGramInner, dotInt, Int.zero_mul]
+    | cons y resty =>
+      simp only [rowGramInner, dotInt]
+      rw [ih resty, Int.add_mul]
+
+private theorem rowGramOuter_eq (r v xs ys : List Int) :
+    rowGramOuter r v xs ys = dotInt r v * dotInt xs ys := by
+  induction xs generalizing ys with
+  | nil =>
+    simp only [rowGramOuter, dotInt, Int.mul_zero]
+  | cons x rest ih =>
+    cases ys with
+    | nil =>
+      simp only [rowGramOuter, dotInt, Int.mul_zero]
+    | cons y resty =>
+      simp only [rowGramOuter, dotInt]
+      rw [rowGramInner_eq, ih resty, Int.mul_add]
+
+/-- Theorem 16a: Exact `B^T B` Gram reflection positivity for EVERY integer matrix `B`
+    and EVERY integer vector `v`:
+    `v^T (B^T B) v = ∑_i (∑_j B_{ij} v_j)^2 ≥ 0`. -/
+theorem thm16_gram_btb_positivity (B : List (List Int)) (v : List Int) :
+    gramQuadForm B v = sumSqInt (matVecInt B v) ∧ 0 ≤ gramQuadForm B v := by
+  have hEq : gramQuadForm B v = sumSqInt (matVecInt B v) := by
+    induction B with
+    | nil => rfl
+    | cons row rest ih =>
+      simp only [gramQuadForm, matVecInt, List.map_cons, sumSqInt]
+      rw [rowGramOuter_eq, ih]
+      rfl
+  exact ⟨hEq, hEq ▸ sumSqInt_nonneg (matVecInt B v)⟩
+
+/-- Weighted Gram quadratic form `∑_i w_i (v^T (r_i^T r_i) v)` with per-row weights `w_i`. -/
+def weightedGramQuadForm (weightedRows : List (Int × List Int)) (v : List Int) : Int :=
+  match weightedRows with
+  | [] => 0
+  | (w, row) :: rest => w * rowGramOuter row v row v + weightedGramQuadForm rest v
+
+/-- Theorem 16b: Weighted `B^T W B` Gram reflection positivity: whenever all transfer weights
+    satisfy `w_i ≥ 0`, `v^T (B^T W B) v = ∑_i w_i (B_i · v)^2 ≥ 0` for EVERY vector `v`. -/
+theorem thm16_weighted_gram_positivity (weightedRows : List (Int × List Int)) (v : List Int)
+    (hPos : ∀ p ∈ weightedRows, 0 ≤ p.1) : 0 ≤ weightedGramQuadForm weightedRows v := by
+  induction weightedRows with
+  | nil =>
+    simp only [weightedGramQuadForm]
+    decide
   | cons p rest ih =>
     cases p with
-    | mk w x =>
-      simp only [weightedSumSq]
-      have hw : 0 ≤ w := hPos (w, x) (List.Mem.head rest)
-      have hx : 0 ≤ x * x := int_sq_nonneg x
-      have hTerm : 0 ≤ w * (x * x) := Int.mul_nonneg hw hx
-      have hRest : 0 ≤ weightedSumSq rest := ih (fun q hq => hPos q (List.Mem.tail _ hq))
+    | mk w row =>
+      simp only [weightedGramQuadForm]
+      rw [rowGramOuter_eq]
+      have hw : 0 ≤ w := hPos (w, row) (List.Mem.head rest)
+      have hx : 0 ≤ dotInt row v * dotInt row v := int_sq_nonneg (dotInt row v)
+      have hTerm : 0 ≤ w * (dotInt row v * dotInt row v) := Int.mul_nonneg hw hx
+      have hRest : 0 ≤ weightedGramQuadForm rest v := ih (fun q hq => hPos q (List.Mem.tail _ hq))
       omega
-
-/-- Exact 4D hypercubic `ℤ^4` plaquette-sharing coordination `d_p(ℤ^4) = 4 × (6 - 1) = 20`
-    and Kotecky-Preiss / Osterwalder-Seiler strong-coupling convergence criterion (`e · d_p · u < 1`,
-    cleared with rational upper bound `e < 3`: `3 * d_p * u_num < u_den` implies strict infinite-volume
-    polymer convergence and strict positive mass gap `E-FND-0189`). -/
-theorem thm16_z4_plaquette_coordination : (4 : Nat) * (6 - 1) = 20 := by decide
-
-theorem thm16_kotecky_preiss_strict_gap (dP uNum uDen : Nat)
-    (hConv : 3 * dP * uNum < uDen) (hdP : dP ≥ 1) :
-    uNum < uDen := by
-  have h1 : 1 ≤ 3 * dP := by omega
-  have h2 : uNum * 1 ≤ uNum * (3 * dP) := Nat.mul_le_mul_left uNum h1
-  rw [Nat.mul_comm uNum (3 * dP)] at h2
-  omega
-
-/-- Exact Cohen-Kaplan-Nelson holographic scaling identity on `{3,4,3,4}` (`E-CSM-0068`):
-    `(b ^ D) ^ 2 = b ^ (2 * D)` for ALL shell branching `b : Nat` and ALL Hubble shell depths `D : Nat`,
-    proving `ρ_Λ / M_Pl^4 = (H / M_Pl)^2 = b^{-2 D_H}` identically (`D_Λ = 2 D_H`). -/
-theorem thm16_holographic_shell_doubling (b D : Nat) :
-    (b ^ D) ^ 2 = b ^ (2 * D) := by
-  rw [← Nat.pow_mul, Nat.mul_comm D 2]
-
-/-- Exact Weinberg (1987) spherical-collapse prefactor `500 / 729` irreducibility and
-    narrow `{3,4,3,4}` shell width: `b^2 = (6034/330)^2 > 334` exceeds the entire `~100x`
-    Weinberg galaxy-formation window in strictly LESS than `2` discrete 24-cell shells (`E-CSM-0068`). -/
-theorem thm16_weinberg_prefactor_coprime : Nat.gcd 500 729 = 1 := by decide
-
-theorem thm16_weinberg_window_under_two_shells :
-    6034 ^ 2 > 330 * (330 ^ 2) := by
-  decide
-
-/-- Exact 4D `D_4` 24-cell triangular plaquette count: every link in `D_4` belongs to `8`
-    equilateral triangles (`24` roots, each sharing `8` inner-product `+1` neighbors -> `8` triangles
-    per link, `24 * 8 / 3 = 64` triangles per vertex). -/
-theorem thm16_d4_triangles_per_vertex : (24 : Nat) * 8 = 3 * 64 := by decide
 
 end Vibe

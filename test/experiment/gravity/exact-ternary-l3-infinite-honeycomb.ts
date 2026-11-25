@@ -1,47 +1,51 @@
-// E-GRV-0163: TRUE L3 -- PURE ZERO-DECIMAL BigInt Z[w][1/2] TWO-BODY MUTUAL GRAVITY &
-// STRONG-FIELD EVENT-HORIZON TRAPPING ON AN ON-THE-FLY R = INFINITY 4D {3,4,3,4} HONEYCOMB.
+// E-GRV-0163: EXACT BigInt R = INFINITY {3,4,3,4} HONEYCOMB QUANTUM WALK WITH Z[w][1/2]
+// GATE COMPILATION ON PRESCRIBED HARTREE TWO-BODY AND GULLSTRAND-PAINLEVE HORIZON BACKGROUNDS.
 //
-// Depth L3: combines an on-the-fly R = infinity exact SO(4,1; Z[sqrt(2)]) {3,4,3,4} honeycomb
-// neighbor engine (zero pre-built static ball, zero outer boundary, 0 frontier hits through t = 4, 5
-// strictly beyond R = 3) with pure zero-decimal BigInt Z[w][1/2] SU(2) rule-word synthesis over
-// {W_1, W_1^dag, W_2, W_2^dag} (< 1e-3 operator norm, 0n det & unitarity residuals) and pure exact
-// BigInt Z[w][1/2] multi-slot quantum evolution:
+// Depth L2: prescribed background-field / Hartree mean-field encoding (NOT emergent GR from a bare QCA).
+// Combines an on-the-fly R = infinity exact SO(4,1; Z[sqrt(2)]) {3,4,3,4} honeycomb neighbor engine
+// (zero outer boundary, 0 frontier hits through t = 4, 5 using a constant flat coin, exact BigInt
+// Busemann-level graph depth beyond floor = 3) with exact BigInt Z[w][1/2] SU(2) gate compilation
+// over {W_1, W_1^dag, W_2, W_2^dag} (< 1e-3 operator norm, 0n det and unitarity residuals) and exact
+// BigInt Z[w][1/2] multi-slot quantum walk evolution (external force/angle lookup is Float64):
 //   1. Exact 100% isomorphism of InfiniteHoneycomb with coverBall(2) (481 docks) and coverBall(3)
-//      (8,857 docks), exact algebraic involutive adjacency step(step(d, s), opp(s)) === d, and
-//      sparse evolution strictly beyond R = 3 to exact graph radii r = 4 (t = 4) and r = 5 (t = 5)
-//      with 0 frontier hits (where static R = 3 hits its frontier at t = 4).
-//   2. Pure BigInt Z[w][1/2] synthesis of all two-body gravity coins (1:1 & 1:3) and all 5
-//      strong-field Schwarzschild horizon coins (chi in {0.0, 0.4, 0.75, 1.0, 1.35}) to < 1e-3
-//      operator norm with 0n BigInt det and unitarity residuals.
-//   3. Pure BigInt L3 two-body mutual attraction & Newton's 3rd law (1:1 & 1:3 matching E-GRV-0162
-//      to < 1%, 0n BigInt mirror-weight asymmetry, 0n norm error, 0 diff-slot memoryless reversal,
-//      exact 0 drift at G = 0) and strong-field event-horizon trapping (strictly monotonic v_r from
-//      > +0.98 through |v_r(1.0)| < 5e-3 stall to < -0.02 inward fall at chi = 1.35, matching
-//      E-GRV-0162 to < 1e-2) with literally 0n exact BigInt norm, reversal, and orthogonality behind
-//      the horizon. Zero Math.random.
+//      (8,857 docks), exact algebraic involutive adjacency step(step(d, s), opp(s)) === d, exact
+//      Busemann-level depth verification on B_3 and beyond floor = 3 (stepping up from depth = 4
+//      returns 3, never 5), and sparse constant-flat-coin evolution beyond R = 3 to r = 4, 5.
+//   2. Exact BigInt Z[w][1/2] gate compilation of prescribed Hartree two-body coins (1:1 and 1:3)
+//      and all 5 horizon-penetrating Gullstrand-Painleve coins (r_s / r_0 in {0.00, 0.25, 0.64,
+//      1.00, 1.44}) to < 1e-3 operator norm with 0n BigInt det and unitarity residuals.
+//   3. Hartree two-body mutual attraction and action-reaction (1:1 and 1:3 matching Float64 ref to
+//      < 1%, 0n mirror weight difference, 0n norm error, 0 diff-slot reversal, 0 drift at G = 0)
+//      and genuine exact bijective Gullstrand-Painleve split-step QCA sweep (U_b = S_river^{m_b} * S_light * W(theta_cU),
+//      r = r_areal, verifying BOTH orthogonal polarizations rayAOut AND rayAIn: symmetric flat +-c_u,
+//      redshifted exterior with |v_in| > |v_out|, exact horizon freeze |v_out| < 5e-3 while v_in < -1.0
+//      never stalls, and genuine trapped interior r_areal = 0.6944 r_s < r_s where BOTH v_out < 0 AND v_in < 0),
+//      with 0n single-particle norm, 0 reversal diff slots, and (0n, 0n) orthogonality <rayAOut | rayAIn> = 0
+//      at EVERY beat (unitary walk certificate, NOT Hawking evaporation or Page-curve entropy).
+// Zero Math.random.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { runExactTernaryL3InfiniteHoneycomb } from '@/code/measure/exact-ternary-l3-infinite-honeycomb'
+import { runExactTernaryInfiniteHoneycomb } from '@/code/measure/exact-ternary-l3-infinite-honeycomb'
 
 export default experiment({
   id: 'gravity/exact-ternary-l3-infinite-honeycomb',
   code: 'E-GRV-0163',
   title:
-    'True L3 pure zero-decimal BigInt Z[w][1/2] two-body mutual gravity and strong-field event-horizon trapping on an on-the-fly R = infinity 4D {3,4,3,4} honeycomb',
+    'Exact BigInt R = infinity {3,4,3,4} honeycomb quantum walk with Z[w][1/2] gate compilation on prescribed Hartree two-body and bijective Gullstrand-Painleve split-step horizon backgrounds (L2)',
   category: 'gravity',
   substrates: ['3434'],
-  depth: 'L3',
+  depth: 'L2',
   paper: false,
   run() {
-    const r = runExactTernaryL3InfiniteHoneycomb()
+    const r = runExactTernaryInfiniteHoneycomb()
     const p1 = r.part1InfiniteHoneycomb
     const p2 = r.part2Synthesis
     const tb = r.part3TwoBody
     const hor = r.part3Horizon
     const cr = r.part3CrossRadiusControls
 
-    // Gate 0: Exact Z[sqrt(2)] on-the-fly R = infinity isomorphism with R = 2 & R = 3 + strictly beyond R = 3
+    // Gate 0: Exact Z[sqrt(2)] on-the-fly R = infinity isomorphism, GR-8 Busemann depth, and beyond R = 3
     const g0InfiniteHoneycombAndBeyondR3 =
       p1.nBall0to3[0] === 1 &&
       p1.nBall0to3[1] === 25 &&
@@ -54,6 +58,11 @@ export default experiment({
       p1.inconsistentSteps === 0 &&
       p1.involutiveEdgesChecked > 10000 &&
       p1.involutiveEdgeFailures === 0 &&
+      p1.b3BusemannDepthMismatches === 0 &&
+      p1.beyondR3DepthLipschitzFailures === 0 &&
+      p1.beyondR3DepthZeroLevelFailures === 0 &&
+      p1.beyondR3Depth4StepUpTo3Checks > 0 &&
+      p1.beyondR3Depth4StepUpWrongDepthCount === 0 &&
       p1.beyondR3T4ReachedExactRadius4Count > 0 &&
       p1.beyondR3T4InfiniteFrontierHits === 0 &&
       p1.beyondR3T4StaticR3FrontierHits > 0 &&
@@ -65,7 +74,7 @@ export default experiment({
       p1.beyondR3T5ExactBigIntReversalDiffSlots === 0 &&
       r.elapsedSeconds <= 8
 
-    // Gate 1: Pure zero-decimal BigInt Z[w][1/2] SU(2) synthesis (< 1e-3 op norm, 0n det & unitarity residuals)
+    // Gate 1: Exact BigInt Z[w][1/2] SU(2) gate compilation (< 1e-3 op norm, 0n det & unitarity residuals)
     const g1ExactBigIntSynthesis =
       p2.allGeneratorsExactSU2 &&
       p2.allCoinsExactSU2 &&
@@ -75,7 +84,7 @@ export default experiment({
       p2.horizonCoins.length === 5 &&
       p2.gravityCoins.length >= 2
 
-    // Gate 2: Pure BigInt L3 two-body mutual attraction, Newton's 3rd law, exact 0n norm/reversal/symmetry & G = 0
+    // Gate 2: Prescribed Hartree two-body mutual attraction, action-reaction, exact 0n norm/reversal/symmetry & G = 0
     const eq = tb.equalMass
     const uq = tb.unequalMass1to3
     const g0 = tb.controlFreeG0
@@ -101,7 +110,7 @@ export default experiment({
       eq.exactBigIntSymmetricWeightMaxDiff === 0n &&
       eq.comSum2 <= 1e-14 &&
       eq.maxTransverseDrift <= 1e-14 &&
-      // Unequal-mass 1:3 Newton's 3rd law matching E-GRV-0162 within < 1%
+      // Unequal-mass 1:3 action-reaction matching Float64 reference within < 1%
       uq.deltaXA1 > 0 &&
       uq.deltaXB1 < 0 &&
       uq.deltaDAB2 < uq.deltaDAB1 &&
@@ -119,28 +128,56 @@ export default experiment({
       g0.deltaXB2 === 0 &&
       g0.deltaDAB2 === 0
 
-    // Gate 3: Pure BigInt L3 event-horizon trapping + exact 0n norm/reversal/orthogonality + cross-radius control
-    const sw0 = hor.sweep[0]! // chi = 0.0
-    const sw1 = hor.sweep[1]! // chi = 0.4
-    const sw2 = hor.sweep[2]! // chi = 0.75
-    const sw3 = hor.sweep[3]! // chi = 1.0
-    const sw4 = hor.sweep[4]! // chi = 1.35
+    // Gate 3: Genuine exact bijective Gullstrand-Painleve split-step QCA sweep verifying BOTH orthogonal
+    // polarizations (rayAOut AND rayAIn) through flat, exterior, event horizon, and trapped interior
+    // (r_areal = 0.6944 r_s < r_s where BOTH v_out < 0 AND v_in < 0), plus exact 0n norm, reversal,
+    // beat-by-beat (0n, 0n) orthogonality, and cross-radius convergence controls.
+    const sw0 = hor.sweep[0]! // r_s / r_0 = 0.00 (flat)
+    const sw1 = hor.sweep[1]! // r_s / r_0 = 0.25 (r_areal = 4.0 r_s)
+    const sw2 = hor.sweep[2]! // r_s / r_0 = 0.64 (r_areal = 1.5625 r_s)
+    const sw3 = hor.sweep[3]! // r_s / r_0 = 1.00 (r_areal = 1.0 r_s, exact event horizon)
+    const sw4 = hor.sweep[4]! // r_s / r_0 = 1.44 (r_areal = 0.6944 r_s < r_s, genuine trapped interior)
 
     const g3ExactBigIntHorizonAndControls =
       hor.totalFrontierHits === 0 &&
-      hor.strictlyMonotonicVRadial1 &&
-      hor.strictlyMonotonicDeltaR2 &&
-      sw0.vRadial1 > 0.98 &&
-      sw1.vRadial1 > 0.15 &&
-      sw2.vRadial1 > 0.02 &&
-      Math.abs(sw3.vRadial1) < 5e-3 &&
-      sw4.vRadial1 < -0.02 &&
-      sw4.deltaR2 < -0.002 &&
-      hor.maxVRadial1DiffVsRef < 1e-2 &&
-      hor.maxDeltaR2DiffVsRef < 1e-2 &&
+      hor.strictlyMonotonicVOut &&
+      hor.strictlyMonotonicVIn &&
+      hor.strictlyMonotonicDeltaROut &&
+      hor.strictlyMonotonicDeltaRIn &&
+      Math.abs(sw1.rArealOverRs - 4.0) < 1e-12 &&
+      Math.abs(sw2.rArealOverRs - 1.5625) < 1e-12 &&
+      Math.abs(sw3.rArealOverRs - 1.0) < 1e-12 &&
+      sw4.rArealOverRs < 0.7 &&
+      Math.abs(sw4.rArealOverRs - 1 / 1.44) < 1e-12 &&
+      // Flat: exact symmetric +-c_u
+      sw0.vOut > 0.9 &&
+      sw0.vIn < -0.9 &&
+      Math.abs(sw0.vOut + sw0.vIn) < 1e-3 &&
+      // Exterior: outgoing escapes redshifted (vOut > 0), ingoing falls faster inward (|vIn| > |vOut|)
+      sw1.vOut > 0.45 &&
+      sw1.vIn < -1.4 &&
+      Math.abs(sw1.vIn) > sw1.vOut &&
+      sw2.vOut > 0.15 &&
+      sw2.vIn < -1.7 &&
+      Math.abs(sw2.vIn) > sw2.vOut &&
+      // Event horizon (r_s / r_0 = 1.00): outgoing ray freezes (|vOut| < 5e-3) while ingoing ray falls swiftly inward (vIn < -1.0)
+      Math.abs(sw3.vOut) < 5e-3 &&
+      sw3.vIn < -1.0 &&
+      // Genuine trapped interior (r_s / r_0 = 1.44, r_areal = 0.6944 r_s < r_s): BOTH orthogonal null rays fall strictly inward!
+      sw4.vOut < -0.15 &&
+      sw4.vIn < -2.0 &&
+      sw4.deltaROut < -5 &&
+      sw4.deltaRIn < -90 &&
+      // Tight match against Float64 split-step GP reference & continuum GP c_out/c_in
+      hor.maxVOutDiffVsRef < 1e-2 &&
+      hor.maxVInDiffVsRef < 1e-2 &&
+      hor.maxVOutDiffVsContinuumGP < 1e-2 &&
+      hor.maxVInDiffVsContinuumGP < 1e-2 &&
+      // Pure exact BigInt unitarity, memoryless U^dag reversal, and beat-by-beat (0n, 0n) orthogonality
       hor.worstExactBigIntNormErr === 0n &&
       hor.worstExactBigIntReversalDiffSlots === 0 &&
       hor.allProbesExactBigIntOrthogonal &&
+      hor.allBeatsInOutExactBigIntOrthogonal &&
       // Exact 0-diff-slot equivalence across R = 2, R = 3, and R = infinity inside shared causal window
       cr.sharedWindowFrontierHits === 0 &&
       cr.r2VsR3VsInfOrigin2BeatDiffSlots === 0 &&
@@ -156,37 +193,49 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        `Pure zero-decimal BigInt Z[w][1/2] L3 quantum gravity and event-horizon trapping directly on an on-the-fly ` +
-        `R = infinity exact SO(4,1; Z[sqrt(2)]) 4D {3,4,3,4} honeycomb (${r.elapsedSeconds.toFixed(2)}s): ` +
+        `L2 exact BigInt R = infinity {3,4,3,4} honeycomb quantum walk with Z[w][1/2] gate compilation on prescribed ` +
+        `Hartree two-body and bijective Gullstrand-Painleve split-step horizon backgrounds (${r.elapsedSeconds.toFixed(2)}s, not emergent GR, ` +
+        `external force/angle lookup is Float64, canonical single-face [1, 4, 20, 100] K_eff = ${r.constants.kEff.toFixed(8)}, ` +
+        `G_eff = ${r.constants.gEff.toFixed(8)}, c_u = ${r.constants.cUniversal.toFixed(8)}): ` +
         `(1) InfiniteHoneycomb matches coverBall(0..3) = [${p1.nBall0to3.join(', ')}] with 0 missing, 0 mismatches, ` +
-        `0 inconsistent steps, and ${p1.involutiveEdgesChecked} algebraic Z[sqrt(2)] involutive edges (0 failures), ` +
-        `then evolves strictly beyond R = 3 to exact graph radii r = 4 (t = 4, ${p1.beyondR3T4ReachedExactRadius4Count} docks at r=4) ` +
-        `and r = 5 (t = 5, ${p1.beyondR3T5ReachedExactRadius5Count} docks at r=5, max cosh d_H4 = ${p1.beyondR3T5MaxHyperbolicCosh.toFixed(2)}) ` +
-        `using only ${p1.beyondR3T5VisitedDocks} sparse visited docks with 0 frontier hits (static R = 3 suffers ` +
-        `${p1.beyondR3T4StaticR3FrontierHits} frontier hits at t = 4 and ${p1.beyondR3T5StaticR3FrontierHits} at t = 5), ` +
+        `0 inconsistent steps, ${p1.involutiveEdgesChecked} algebraic Z[sqrt(2)] involutive edges (0 failures), ` +
+        `Busemann-level descent empirically verified 0/8,857 on B_3 (${p1.b3BusemannDepthMismatches} mismatches) ` +
+        `plus ${p1.beyondR3Depth4StepUpTo3Checks} depth-4->3 step-up checks (${p1.beyondR3Depth4StepUpWrongDepthCount} wrong depths, ` +
+        `${p1.beyondR3DepthLipschitzFailures} Lipschitz failures; not a general arbitrary-depth proof), ` +
+        `and evolves a constant-flat-coin wavepacket beyond R = 3 to r = 4 (t = 4, ${p1.beyondR3T4ReachedExactRadius4Count} docks) ` +
+        `and r = 5 (t = 5, ${p1.beyondR3T5ReachedExactRadius5Count} docks, max cosh d_H4 = ${p1.beyondR3T5MaxHyperbolicCosh.toFixed(2)}) ` +
+        `using ${p1.beyondR3T5VisitedDocks} sparse visited docks with 0 frontier hits (static R = 3 hits its frontier ` +
+        `${p1.beyondR3T4StaticR3FrontierHits} times at t = 4 and ${p1.beyondR3T5StaticR3FrontierHits} at t = 5), ` +
         `0n norm error, and 0 reversal diff slots. ` +
-        `(2) All gravity and horizon SU(2) coins are synthesized from Vibe's exact Z[w][1/2] generators {W1, W1^dag, W2, W2^dag} ` +
-        `to max operator norm ${p2.maxOpDistAllCoins.toExponential(2)} (< 1e-3) with 0n BigInt det and unitarity residuals. ` +
-        `(3) Pure BigInt two-body evolution on R = infinity yields strict mutual attraction (1:1 Delta d_AB = ${eq.deltaDAB1.toFixed(6)} at t=1, ` +
-        `${eq.deltaDAB2.toFixed(6)} at t=2, matching E-GRV-0162 to ${(100 * eq.relErrVsFloatRefBeat2).toFixed(3)}%), ` +
-        `exact 0n BigInt mirror weight symmetry (|Delta x_A + Delta x_B| = ${eq.comSum2.toExponential(2)}), ` +
-        `1:3 Newton 3rd law ratio ${uq.displacementRatio1.toFixed(5)} (t=1) / ${uq.displacementRatio2.toFixed(5)} (t=2) ` +
-        `(matching E-GRV-0162 to ${(100 * uq.relErrVsFloatRefBeat2).toFixed(3)}%), exact 0 drift at G = 0, ` +
+        `(2) All prescribed gravity and Equivalence-Principle GP local SU(2) coins compile into exact Z[w][1/2] words over ` +
+        `{W1, W1^dag, W2, W2^dag} to max operator norm ${p2.maxOpDistAllCoins.toExponential(2)} (< 1e-3) with 0n det and unitarity residuals. ` +
+        `(3) Prescribed Hartree two-body walk yields mutual attraction (1:1 Delta d_AB = ${eq.deltaDAB1.toFixed(6)} at t=1, ` +
+        `${eq.deltaDAB2.toFixed(6)} at t=2, matching Float64 ref to ${(100 * eq.relErrVsFloatRefBeat2).toFixed(3)}%), ` +
+        `0n BigInt mirror weight symmetry (|Delta x_A + Delta x_B| = ${eq.comSum2.toExponential(2)}), ` +
+        `1:3 action-reaction ratio ${uq.displacementRatio1.toFixed(5)} (t=1) / ${uq.displacementRatio2.toFixed(5)} (t=2) ` +
+        `(matching Float64 ref to ${(100 * uq.relErrVsFloatRefBeat2).toFixed(3)}%), exact 0 drift at G = 0, ` +
         `0n norm error, and 0 reversal diff slots. ` +
-        `(4) Pure BigInt horizon sweep across chi in {0.0, 0.4, 0.75, 1.0, 1.35} on R = infinity slows strictly monotonically ` +
-        `from v_r(0) = +${sw0.vRadial1.toFixed(5)} through v_r(0.4) = +${sw1.vRadial1.toFixed(5)} and v_r(0.75) = +${sw2.vRadial1.toFixed(5)} ` +
-        `to horizon stall v_r(1.0) = ${sw3.vRadial1.toFixed(5)} and trapped inward fall v_r(1.35) = ${sw4.vRadial1.toFixed(5)} ` +
-        `(Delta r_2 = ${sw4.deltaR2.toFixed(5)} < 0, max diff vs E-GRV-0162 ${hor.maxVRadial1DiffVsRef.toExponential(2)}), ` +
-        `while certifying literally 0n BigInt norm error, 0 reversal diff slots, and 0n + 0n * w orthogonality behind the horizon`,
+        `(4) Genuine bijective Gullstrand-Painleve split-step QCA (P = ${hor.riverPeriodP} beats, S_river^{m_b} * S_light * W(theta_cU)) ` +
+        `across r_s / r_0 in {0.00, 0.25, 0.64, 1.00, 1.44} (r_areal / r_s = [inf, ${sw1.rArealOverRs.toFixed(4)}, ` +
+        `${sw2.rArealOverRs.toFixed(4)}, ${sw3.rArealOverRs.toFixed(4)}, ${sw4.rArealOverRs.toFixed(4)}]) tracks BOTH orthogonal ` +
+        `null polarizations: flat (+${sw0.vOut.toFixed(5)}, ${sw0.vIn.toFixed(5)}), exterior 0.25 (+${sw1.vOut.toFixed(5)}, ${sw1.vIn.toFixed(5)}), ` +
+        `exterior 0.64 (+${sw2.vOut.toFixed(5)}, ${sw2.vIn.toFixed(5)}), event horizon 1.00 (v_out = ${sw3.vOut.toFixed(5)} freeze, ` +
+        `v_in = ${sw3.vIn.toFixed(5)} swift infall), and genuine trapped interior 1.44 (r_areal = ${sw4.rArealOverRs.toFixed(4)} r_s < r_s: ` +
+        `BOTH v_out = ${sw4.vOut.toFixed(5)} < 0 AND v_in = ${sw4.vIn.toFixed(5)} < 0, max diff vs Float64 GP ref ` +
+        `${Math.max(hor.maxVOutDiffVsRef, hor.maxVInDiffVsRef).toExponential(2)}, vs continuum GP ` +
+        `${Math.max(hor.maxVOutDiffVsContinuumGP, hor.maxVInDiffVsContinuumGP).toExponential(2)}), with 0n norm error, ` +
+        `0 reversal diff slots on both polarizations, and (0n, 0n) orthogonality at every beat ` +
+        `(unitary walk certificate, not Hawking evaporation or Page-curve entropy)`,
       metrics: {
         g0InfiniteHoneycombAndBeyondR3: g0InfiniteHoneycombAndBeyondR3 ? 1 : 0,
         g1ExactBigIntSynthesis: g1ExactBigIntSynthesis ? 1 : 0,
         g2ExactBigIntTwoBody: g2ExactBigIntTwoBody ? 1 : 0,
         g3ExactBigIntHorizonAndControls: g3ExactBigIntHorizonAndControls ? 1 : 0,
         elapsedSeconds: r.elapsedSeconds,
+        kEff: r.constants.kEff,
         gEff: r.constants.gEff,
         cUniversal: r.constants.cUniversal,
-        // Part 1: On-the-fly R = infinity engine & beyond R = 3
+        // Part 1: On-the-fly R = infinity engine, GR-8 Busemann depth & beyond R = 3
         nBallR0: p1.nBall0to3[0],
         nBallR1: p1.nBall0to3[1],
         nBallR2: p1.nBall0to3[2],
@@ -198,6 +247,11 @@ export default experiment({
         inconsistentSteps: p1.inconsistentSteps,
         involutiveEdgesChecked: p1.involutiveEdgesChecked,
         involutiveEdgeFailures: p1.involutiveEdgeFailures,
+        b3BusemannDepthMismatches: p1.b3BusemannDepthMismatches,
+        beyondR3DepthLipschitzFailures: p1.beyondR3DepthLipschitzFailures,
+        beyondR3DepthZeroLevelFailures: p1.beyondR3DepthZeroLevelFailures,
+        beyondR3Depth4StepUpTo3Checks: p1.beyondR3Depth4StepUpTo3Checks,
+        beyondR3Depth4StepUpWrongDepthCount: p1.beyondR3Depth4StepUpWrongDepthCount,
         beyondR3T4ActiveDocks: p1.beyondR3T4ActiveDocks,
         beyondR3T4VisitedDocks: p1.beyondR3T4VisitedDocks,
         beyondR3T4ExactRadius4Docks: p1.beyondR3T4ReachedExactRadius4Count,
@@ -217,7 +271,7 @@ export default experiment({
         p2MaxDetResidual: Number(p2.maxDetResidual),
         p2MaxUnitarityResidual: Number(p2.maxUnitarityResidual),
         p2MaxOpDistAllCoins: p2.maxOpDistAllCoins,
-        // Part 3A: Exact BigInt two-body gravity
+        // Part 3A: Exact BigInt two-body Hartree walk
         tbEqualFrontierHits: eq.frontierHits,
         tbEqualVisitedDocks: eq.visitedDocksOnInfinite,
         tbEqualDeltaXA1: eq.deltaXA1,
@@ -243,27 +297,37 @@ export default experiment({
         tbUnequalRelErrVsFloatRef2: uq.relErrVsFloatRefBeat2,
         tbUnequalExactNormErr: Number(uq.exactBigIntNormErrMax),
         tbUnequalExactRevDiffSlots: uq.exactBigIntReversalDiffSlots,
-        // Part 3B: Exact BigInt event-horizon trapping
+        // Part 3B: Genuine bijective Gullstrand-Painleve split-step QCA sweep (BOTH out and in polarizations)
         horTotalFrontierHits: hor.totalFrontierHits,
-        horVRadialFlat: sw0.vRadial1,
-        horVRadialChi040: sw1.vRadial1,
-        horVRadialChi075: sw2.vRadial1,
-        horVRadialChi100: sw3.vRadial1,
-        horVRadialChi135: sw4.vRadial1,
-        horDeltaR2Flat: sw0.deltaR2,
-        horDeltaR2Chi040: sw1.deltaR2,
-        horDeltaR2Chi075: sw2.deltaR2,
-        horDeltaR2Chi100: sw3.deltaR2,
-        horDeltaR2Chi135: sw4.deltaR2,
-        horMaxVRadial1DiffVsRef: hor.maxVRadial1DiffVsRef,
-        horMaxDeltaR2DiffVsRef: hor.maxDeltaR2DiffVsRef,
+        horRiverPeriodP: hor.riverPeriodP,
+        horRArealOverRsWeak025: sw1.rArealOverRs,
+        horRArealOverRsStrong064: sw2.rArealOverRs,
+        horRArealOverRsHorizon100: sw3.rArealOverRs,
+        horRArealOverRsInterior144: sw4.rArealOverRs,
+        horVOutFlat: sw0.vOut,
+        horVInFlat: sw0.vIn,
+        horVOutRs025: sw1.vOut,
+        horVInRs025: sw1.vIn,
+        horVOutRs064: sw2.vOut,
+        horVInRs064: sw2.vIn,
+        horVOutRs100: sw3.vOut,
+        horVInRs100: sw3.vIn,
+        horVOutRs144: sw4.vOut,
+        horVInRs144: sw4.vIn,
+        horDeltaROutRs144: sw4.deltaROut,
+        horDeltaRInRs144: sw4.deltaRIn,
+        horMaxVOutDiffVsRef: hor.maxVOutDiffVsRef,
+        horMaxVInDiffVsRef: hor.maxVInDiffVsRef,
+        horMaxVOutDiffVsContinuumGP: hor.maxVOutDiffVsContinuumGP,
+        horMaxVInDiffVsContinuumGP: hor.maxVInDiffVsContinuumGP,
         horWorstExactNormErr: Number(hor.worstExactBigIntNormErr),
         horWorstExactRevDiffSlots: hor.worstExactBigIntReversalDiffSlots,
         horAllProbesExactOrthogonal: hor.allProbesExactBigIntOrthogonal ? 1 : 0,
-        horChi135InnerInA0: Number(sw4.exactBigIntInnerInA[0]),
-        horChi135InnerInA1: Number(sw4.exactBigIntInnerInA[1]),
-        horChi135InnerSup0: Number(sw4.exactBigIntInnerSup[0]),
-        horChi135InnerSup1: Number(sw4.exactBigIntInnerSup[1]),
+        horAllBeatsInOutExactOrthogonal: hor.allBeatsInOutExactBigIntOrthogonal ? 1 : 0,
+        horInterior144InnerInA0: Number(sw4.exactBigIntInnerInA[0]),
+        horInterior144InnerInA1: Number(sw4.exactBigIntInnerInA[1]),
+        horInterior144InnerSup0: Number(sw4.exactBigIntInnerSup[0]),
+        horInterior144InnerSup1: Number(sw4.exactBigIntInnerSup[1]),
         // Cross-radius R = 2 vs R = 3 vs R = infinity exact convergence
         crSharedWindowFrontierHits: cr.sharedWindowFrontierHits,
         crOrigin2BeatDiffSlots: cr.r2VsR3VsInfOrigin2BeatDiffSlots,
@@ -283,7 +347,7 @@ export default experiment({
         beyondR3T5StaticR3FrontierHits: p1.beyondR3T5StaticR3FrontierHits,
       },
       notes:
-        'Part 1 builds the reusable on-the-fly InfiniteHoneycomb engine over exact BigInt SO(4,1; Z[sqrt(2)]) frames, certifies 100% bijection and algebraic involutive adjacency against coverBall(2) (481 docks) and coverBall(3) (8,857 docks), and evolves a pure BigInt Z[w][1/2] wavepacket strictly beyond R = 3 to exact graph radii r = 4 (t = 4) and r = 5 (t = 5) with 0 frontier hits while static R = 3 hits its frontier at t = 4. Part 2 eliminates all Float64 coin angles by synthesizing explicit BigInt Z[w][1/2] SU(2) words over {W1, W1^dag, W2, W2^dag} via deterministic L <= 16 MITM + balanced group commutator refinement to < 1e-3 operator norm with 0n det and unitarity residuals. Part 3 evolves two-body mutual gravity (1:1, 1:3, G = 0) and all 5 nonlinear Schwarzschild horizon compactness values (chi in {0.0, 0.4, 0.75, 1.0, 1.35}) in pure BigInt Z[w][1/2] on InfiniteHoneycomb, matching E-GRV-0162 while certifying exact 0n BigInt norm preservation, exact 0 diff-slot memoryless U^dag reversal, exact 0n equal-mass mirror symmetry, and exact 0n + 0n * w orthogonality behind the trapped event horizon.',
+        'L2 prescribed-background exact BigInt R = infinity {3,4,3,4} honeycomb quantum walk with Z[w][1/2] gate compilation (NOT emergent GR from a bare QCA; external force/angle lookup is Float64; r = 4, 5 beyond-R=3 walk uses a constant flat coin; single-particle norm/orthogonality preservation is NOT Hawking evaporation or Page-curve entropy). Part 1 certifies exact SO(4,1; Z[sqrt(2)]) bijection against coverBall(2) and coverBall(3), empirically verifies Busemann-level descent 0/8,857 on B_3 plus 0 mismatches stepping depth 4 -> 3 (eliminating GR-8 past floor = 3; not a general arbitrary-depth convexity proof), and runs a constant-flat-coin walk to r = 4, 5 with 0 frontier hits. Part 2 compiles all prescribed SU(2) coins into exact BigInt Z[w][1/2] words over {W1, W1^dag, W2, W2^dag} (< 1e-3 operator norm, 0n det and unitarity residuals). Part 3 runs the Hartree two-body walk (1:1, 1:3, G = 0) and a genuine exact bijective Gullstrand-Painleve split-step QCA (U_b = S_river^{m_b} * S_light * W(theta_cU), P = 45 beats) using canonical single-face [1, 4, 20, 100] constants (K_eff = 1.012532, G_eff = 0.078593, c_u = 0.977925), verifying BOTH orthogonal null polarizations (rayAOut and rayAIn): symmetric flat +-c_u, redshifted exterior (|v_in| > |v_out|), exact horizon freeze |v_out| < 5e-3 while v_in < -1.0 never stalls, and genuine trapped interior r_areal = 0.6944 r_s < r_s where BOTH v_out < 0 AND v_in < 0, with 0n norm error, 0 memoryless reversal diff slots, and (0n, 0n) orthogonality at every beat.',
     })
   },
 })

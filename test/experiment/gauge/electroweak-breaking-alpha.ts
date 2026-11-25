@@ -40,7 +40,7 @@ export default experiment({
   title:
     'Dynamical electroweak symmetry breaking SU(2)_L x U(1)_Y -> U(1)_em inside Spin(10), exact massless photon + custodial rho = 1, 16-state Yukawa + type-I seesaw, and 2-loop SM RG running / honest alpha audit under the pre-registered null',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: ['eft-continuum'],
   depth: 'L2',
   paper: false,
   run() {

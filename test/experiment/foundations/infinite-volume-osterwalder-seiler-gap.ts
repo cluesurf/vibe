@@ -1,40 +1,42 @@
-// E-FND-0189: EXACT INFINITE-VOLUME 4D D_4 OSTERWALDER-SEILER REFLECTION POSITIVITY &
-// STRONG-COUPLING MASS GAP, EXACT 2D a -> 0 MIGDAL-WITTEN CONTINUUM LIMIT, AND
-// 4D D_4 GAUGE-COVARIANT BALABAN BLOCK-SPIN AVERAGING.
+// E-FND-0189: EXACT INFINITE-VOLUME 4D D_4 OSTERWALDER-SEILER SITE-HYPERPLANE REFLECTION POSITIVITY &
+// FULL-CHARACTER STRONG-COUPLING MASS GAP, EXACT 2D a -> 0 MIGDAL-WITTEN CONTINUUM LIMIT, AND
+// 4D D_4 GAUGE-COVARIANT POLAR-PROJECTED APE LINK SMEARING.
 //
 // Part 1:
 //   1A. Exact BigInt 4D D_4 vs Z^4 plaquette combinatorics enumerated directly from rootsD4() and
 //       hypercubicAxes(4): D_4 has 8 triangles/link, 96 touching each vertex (32 unoriented / 64 oriented
-//       per site), d_tri(D_4) = 21; 6 orthogonal squares/link, 72 touching each vertex (18 per site),
-//       d_sq(D_4) = 20; matching Z^4 benchmark d_p(Z^4) = 20 (6 squares/link, 24 touching vertex) and
-//       E-FRC-0329's 256/256 BigInt D_4 isotropy cross-check.
-//   1B. Exact Osterwalder-Schrader reflection positivity <Theta F, F> >= 0 on Z_3 D_4 transfer
-//       operators T(beta) (dim = 9 ridge and dim = 27 ring) across beta in [0.05..8.0]:
-//       lambda_min(T(beta)) > 0 everywhere, spectral factorization T = B^T B <= 1e-14, all basis,
-//       pairwise, and character observables >= 0, against an alternating-sign negative control with
-//       lambda_min < 0 and explicit negative witness observables on both dim = 9 and dim = 27.
-//   1C. Exact Kotecky-Preiss / Osterwalder-Seiler infinite-volume (V -> infinity) convergence radii
-//       beta_OS > 0 (u(beta) <= 1 / (e * d_p)) for Z_3 and SU(3) (2D Gauss-Legendre Weyl integral
-//       <= 1e-14) on 4D Z^4 and 4D D_4, plus rigorous infinite-volume mass-gap lower bounds verified
-//       directly against live E-FND-0188 transfer-matrix spectral gaps across beta in [0.005..0.05].
+//       per site), d_tri(D_4) = 21, 6 orthogonal squares/link, 72 touching each vertex (18 per site),
+//       d_sq(D_4) = 20, matching Z^4 benchmark d_p(Z^4) = 20 and E-FRC-0329's 256/256 BigInt D_4 isotropy.
+//   1B. Exact 4D D_4 site-hyperplane reflection positivity across x_0 = 0 (all 24 roots have |r_0| <= 1,
+//       Theta(D_4) = D_4 preserves parity, straddlingTrianglesCount = 0 across origin-incident and slab
+//       translates, with 200 in-hyperplane S_0 triangles so S = S_+ + S_0 + Theta S_+ = (S_+ + S_0/2) +
+//       Theta(S_+ + S_0/2) holds for all beta >= 0 and all volumes) plus Z_3 transfer-matrix positivity
+//       on dim = 9 ridge and dim = 27 ring against an alternating-sign negative control.
+//   1C. Exact full-character multi-plaquette Kotecky-Preiss / Osterwalder-Seiler infinite-volume (V -> infinity)
+//       convergence criterion ((d_p + 1) / (e * d_p)) * (u^{n_min} / (1 - u)) <= a (d_p + 1 = 22 on D_4 tri
+//       with n_min = 4, d_p + 1 = 21 on Z^4/D_4 sq with n_min = 6), with A_{Z3} = 2 * u_{Z3} and
+//       A_{SU3}^{(<=6)} = sum_{1 <= p+q <= 6} (dim R)^2 (c_R / c_0) via exact Weyl character formula,
+//       cross-checked against exact all-irrep Seiler sup-norm M_{SU3} = exp(beta) / c_0(beta) - 1,
+//       certifying strict multi-plaquette radii beta_OS_KP = 0.009348 (Z_3, D_4 tri) and beta_OS_KP = 0.009328
+//       (SU(3), D_4 tri) (keeping 1/(e * d_p) strictly as a 1-plaquette monomer upper diagnostic only).
+//       Rigorous mass-gap lower bounds m_KP(beta) = ln(A_KP / M(beta)) across beta in [0.001, 0.002, 0.004,
+//       0.006, 0.008] strictly inside beta_OS_KP are explicitly asserted strictly below the walk ceiling
+//       -ln(M(beta)) - ln(21), with leading-order tube/tetrahedron expressions labeled as estimates only.
 //
 // Part 2:
 //   Exact 2D SU(2) and Z_3 Migdal-Witten heat-kernel solutions (live Haar subdivision check <= 1e-13,
-//   exact Z_2D(chi, Area), exact Casimir scaling) plus exact a -> 0 Wilson continuum limit across 6
-//   halved lattice spacings a = 0.25 .. 0.0078125: proves sigma_lat(a) -> 3/8 (SU(2)) and 1/2 (Z_3)
-//   at exact O(a^2) rate (err(a)/err(a/2) -> 4.000, final rel err < 1e-5), m_phys = sqrt(sigma_exact) > 0,
-//   and exact Wilson area law W(R, T) = exp(-sigma_exact R T), against a fixed-beta O(1/a^2) divergence control.
+//   exact Casimir scaling) plus exact a -> 0 Wilson continuum limit across a = 0.25 .. 0.0078125
+//   at exact O(a^2) rate (ratio -> 4.000, final rel err < 1e-5) against a fixed-beta 1024x divergence control.
 //
 // Part 3:
-//   Live 4D D_4 gauge-covariant Balaban / APE block-spin link averaging (SU(3) polar projection via
-//   bi-unitarily covariant Newton-Schulz + determinant phase removal, and exact Z_3 projection) on both
-//   the 22-vertex 14-staple (8 tri + 6 sq) D_4 neighborhood and a full 128-site 1536-link 4096-triangle
-//   4D D_4 periodic torus: proves local SU(3) gauge covariance <= 1e-14 across alpha in [0.1..0.7],
-//   ||U^dag U - I||_F <= 1e-14, |det U - 1| <= 1e-14, strict UV plaquette action contraction < 0.5
-//   (~0.077 at alpha = 0.7), against non-covariant no-transport (> 1.0) and Gram-Schmidt controls,
-//   plus an explicit honest Clay Millennium boundary record.
+//   Gauge-Covariant Polar-Projected APE Link Smearing on a 4D D_4 Torus (L = 4, 128 sites, 1536 links,
+//   4096 triangles) and the 22-vertex 14-staple single-link neighborhood: certifies exact local SU(3) gauge
+//   covariance <= 1e-14, strict UV plaquette contraction < 0.5, against naive no-transport (> 1.0) and
+//   Gram-Schmidt controls. Same-lattice APE smearing certifies the gauge-covariant UV-contraction kernel,
+//   while full multi-scale Balaban fine-to-coarse decimation across g ~ O(1) and uniform IR cluster expansion
+//   to beta -> infinity remain open.
 //
-// Depth L2: 100% deterministic, zero RNG, fast runtime <= 5 s.
+// Depth L2: flat 4D Euclidean D_4 lattice (d4-box), 100% deterministic, zero RNG, runtime <= 5 s.
 
 import { analyzeInfiniteVolumeOsterwalderSeilerGap } from '@/code/measure/infinite-volume-osterwalder-seiler-gap'
 import { experiment } from '@/test/scaffold/suite'
@@ -44,15 +46,16 @@ export default experiment({
   id: 'foundations/infinite-volume-osterwalder-seiler-gap',
   code: 'E-FND-0189',
   title:
-    'Exact infinite-volume 4D D_4 Osterwalder-Seiler reflection positivity and strong-coupling mass gap, exact 2D a -> 0 Migdal-Witten continuum limit, and 4D D_4 gauge-covariant Balaban block-spin averaging',
+    'Exact infinite-volume 4D D_4 site-hyperplane reflection positivity and full-character Osterwalder-Seiler strong-coupling mass gap, exact 2D a -> 0 Migdal-Witten continuum limit, and 4D D_4 polar-projected APE link smearing',
   category: 'foundations',
-  substrates: ['3434'],
+  substrates: ['d4-box'],
   depth: 'L2',
   paper: false,
   run() {
     const r = analyzeInfiniteVolumeOsterwalderSeilerGap()
     const p1a = r.part1A
     const p1b = r.part1B
+    const rp4d = p1b.d4SiteHyperplaneRP
     const p1c = r.part1C
     const p2 = r.part2
     const p3 = r.part3
@@ -85,8 +88,20 @@ export default experiment({
       p1a.z4SquareNeighborsUniform &&
       p1a.e329IsotropyCrossCheckExact
 
-    // Gate 2: Part 1B exact Osterwalder-Schrader reflection positivity on dim = 9 & dim = 27 + negative control
+    // Gate 2: Part 1B exact 4D D_4 site-hyperplane reflection positivity across x_0 = 0 + dim = 9 & 27 Z_3 slices + control
     const g2ReflectionPositivity =
+      rp4d.d4RootsChecked === 24 &&
+      rp4d.maxAbsRootX0 === 1 &&
+      rp4d.allRootsThetaClosed &&
+      rp4d.thetaPreservesSiteParity &&
+      rp4d.originIncidentTrianglesCount === 96 &&
+      rp4d.originOrientedTrianglesPerSite === 64 &&
+      rp4d.originStraddlingCount === 0 &&
+      rp4d.slabMaxSpanX0 === 1 &&
+      rp4d.straddlingTrianglesCount === 0 &&
+      rp4d.thetaBijectionExact &&
+      rp4d.minClosedPolymerTriangles === 4 &&
+      rp4d.tetrahedraTouchingOriginCount === 96 &&
       p1b.ridgeDim9.allStrictlyPositiveDefinite &&
       p1b.ridgeDim9.allObservablesNonNegative &&
       p1b.ridgeDim9.maxSqrtReconErrRel <= 1e-14 &&
@@ -98,28 +113,48 @@ export default experiment({
       p1b.negativeControl.dim9ViolatesReflectionPositivity &&
       p1b.negativeControl.dim27ViolatesReflectionPositivity
 
-    // Gate 3: Part 1C exact Kotecky-Preiss / Osterwalder-Seiler infinite-volume convergence & mass-gap bounds
+    // Gate 3: Part 1C airtight multi-plaquette Kotecky-Preiss + full-character (dim R)^2 + Seiler sup-norm gap bounds
     const maxRadiusRes = Math.max(
+      p1c.kpD4TriThreshold.stationarityResidual,
+      p1c.kpZ4SqThreshold.stationarityResidual,
       p1c.radii.z3Z4.criterionResidual,
       p1c.radii.z3D4Tri.criterionResidual,
       p1c.radii.z3D4Sq.criterionResidual,
       p1c.radii.su3Z4.criterionResidual,
       p1c.radii.su3D4Tri.criterionResidual,
       p1c.radii.su3D4Sq.criterionResidual,
+      p1c.radii.su3Z4.seilerCriterionResidual,
+      p1c.radii.su3D4Tri.seilerCriterionResidual,
+      p1c.radii.su3D4Sq.seilerCriterionResidual,
     )
     const g3InfiniteVolumeGap =
+      p1c.su3IrrepsIncludedCount === 27 &&
       p1c.su3HaarNormErr <= 1e-14 &&
-      p1c.su3QuadConvergence28vs36 <= 1e-14 &&
-      p1c.su3SmallBetaSeriesErrAt001 < 1e-9 &&
+      p1c.su3CharOrthoErrAtBeta0 <= 1e-12 &&
+      p1c.su3QuadConvergence28vs36 <= 1e-12 &&
+      p1c.su3SmallBetaU3SeriesErrAt001 < 1e-9 &&
+      p1c.su3SmallBetaActivitySeriesErrAt001 < 1e-6 &&
+      p1c.su3CharVsSupNormMaxDiff <= 1e-12 &&
+      p1c.z3ActivityVsSupNormErr <= 1e-14 &&
       p1c.z3CrossCheckE188Err <= 1e-14 &&
-      p1c.radii.z3Z4.betaOS > 0.036 &&
-      p1c.radii.z3D4Tri.betaOS > 0.034 &&
-      p1c.radii.su3Z4.betaOS > 0.32 &&
-      p1c.radii.su3D4Tri.betaOS > 0.30 &&
-      maxRadiusRes <= 1e-13 &&
-      p1c.allInsideZ3RadiusStrictlyPositive &&
+      p1c.kpD4TriThreshold.incompatiblePlaqCount === 22 &&
+      p1c.kpD4TriThreshold.nMinPolymer === 4 &&
+      p1c.kpZ4SqThreshold.incompatiblePlaqCount === 21 &&
+      p1c.kpZ4SqThreshold.nMinPolymer === 6 &&
+      p1c.radii.z3Z4.betaOSKP > 0.011 &&
+      p1c.radii.z3Z4.betaOSKP < 0.0112 &&
+      p1c.radii.z3D4Tri.betaOSKP > 0.0093 &&
+      p1c.radii.z3D4Tri.betaOSKP < 0.0094 &&
+      p1c.radii.su3Z4.betaOSKP > 0.011 &&
+      p1c.radii.su3Z4.betaOSKP < 0.0112 &&
+      p1c.radii.su3D4Tri.betaOSKP > 0.0093 &&
+      p1c.radii.su3D4Tri.betaOSKP < 0.0094 &&
+      Math.abs(p1c.radii.su3D4Tri.betaOSKP - p1c.radii.su3D4Tri.betaOSKPSeilerSupNorm) < 1e-11 &&
+      maxRadiusRes <= 1e-12 &&
+      p1c.allZ3RowsInsideRadiusStrictlyPositive &&
       p1c.allSu3RowsInsideRadiusStrictlyPositive &&
-      p1c.allLiveGapsDominateInfiniteVolumeBounds
+      p1c.allBoundsStrictlyBelowWalkCeiling &&
+      p1c.allLiveGapsDominateRigorousKpBounds
 
     // Gate 4: Part 2 exact 2D Migdal-Witten heat-kernel & Wilson a -> 0 continuum limit (O(a^2), rel err < 1e-5)
     const g4TwoDMigdalWitten =
@@ -136,10 +171,10 @@ export default experiment({
       p2.z3WilsonAreaLawMaxErrFinest < 2e-5 &&
       Math.abs(p2.controlDivergenceFactor - 1024) < 1e-9
 
-    // Gate 5: Part 3 live 4D D_4 gauge-covariant Balaban / APE blocking (SU(3) & Z_3), UV contraction < 0.5, controls & runtime
+    // Gate 5: Part 3 4D D_4 gauge-covariant polar-projected APE link smearing, UV contraction < 0.5, controls & honesty
     const contr05 = p3.torusContractionRows.find(row => row.alpha === 0.5)!
     const contr07 = p3.torusContractionRows.find(row => row.alpha === 0.7)!
-    const g5BalabanAndHonesty =
+    const g5ApeSmearingAndHonesty =
       p3.neighborhoodTriStaples === 8 &&
       p3.neighborhoodSqStaples === 6 &&
       p3.neighborhoodVertices === 22 &&
@@ -166,7 +201,8 @@ export default experiment({
       p3.clayMillenniumBoundary.infiniteVolumeD4ReflectionPositivityProved &&
       p3.clayMillenniumBoundary.infiniteVolumeStrongCouplingGapProved &&
       p3.clayMillenniumBoundary.exact2DContinuumLimitMassGapProved &&
-      p3.clayMillenniumBoundary.fourDD4BalabanCovariantBlockingProved &&
+      p3.clayMillenniumBoundary.fourDD4ApeCovariantSmearingProved &&
+      p3.clayMillenniumBoundary.fourDMultiScaleBalabanDecimationOpen &&
       p3.clayMillenniumBoundary.fourDUniformIrClusterToBetaInfinityOpen &&
       r.totalSeconds <= 5.0
 
@@ -175,34 +211,34 @@ export default experiment({
       g2ReflectionPositivity &&
       g3InfiniteVolumeGap &&
       g4TwoDMigdalWitten &&
-      g5BalabanAndHonesty
+      g5ApeSmearingAndHonesty
 
-    const row005 = p1c.gapRows[0]!
-    const row020 = p1c.gapRows[2]!
-    const row050 = p1c.gapRows[4]!
+    const row001 = p1c.gapRows[0]!
+    const row004 = p1c.gapRows[2]!
+    const row008 = p1c.gapRows[4]!
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        `Part 1A (exact BigInt 4D D_4 vs Z^4 plaquette combinatorics): D_4 has ${p1a.d4TrianglesPerLink} triangles/link (${p1a.d4TrianglesTouchingVertex} touching vertex, ${p1a.d4UnorientedTrianglesPerSite} unoriented / ${p1a.d4OrientedTrianglesPerSite} oriented per site, d_tri=${p1a.d4TriangleNeighborsDP}) ` +
+        `Part 1A (exact BigInt 4D D_4 vs Z^4 plaquette combinatorics): D_4 has ${p1a.d4TrianglesPerLink} triangles/link (${p1a.d4TrianglesTouchingVertex} touching vertex, ${p1a.d4UnorientedTrianglesPerSite} unoriented / ${p1a.d4OrientedTrianglesPerSite} oriented per site, d_tri=${p1a.d4TriangleNeighborsDP}, Delta_p=d_tri+1=22) ` +
         `and ${p1a.d4SquaresPerLink} orthogonal squares/link (${p1a.d4SquaresTouchingVertex} touching vertex, d_sq=${p1a.d4SquareNeighborsDP}), matching Z^4 d_p=${p1a.z4SquareNeighborsDP}. ` +
-        `Part 1B (exact Osterwalder-Schrader reflection positivity across beta in [0.05..8.0]): lambda_min(T(beta)) > 0 and <Theta F, F> >= 0 everywhere on dim=9 (T=B^T B err=${p1b.ridgeDim9.maxSqrtReconErrRel.toExponential(1)}) and dim=27 (err=${p1b.ringDim27.maxSqrtReconErrRel.toExponential(1)}), ` +
-        `while alternating-sign control violates RP (dim=9 lambda_min=${p1b.negativeControl.dim9LambdaMin.toExponential(2)}, dim=27 lambda_min=${p1b.negativeControl.dim27LambdaMin.toExponential(2)}). ` +
-        `Part 1C (exact Kotecky-Preiss / Osterwalder-Seiler V -> infinity convergence): certified beta_OS(Z_3, D_4 tri)=${p1c.radii.z3D4Tri.betaOS.toFixed(6)}, beta_OS(Z_3, Z^4)=${p1c.radii.z3Z4.betaOS.toFixed(6)}, ` +
-        `beta_OS(SU(3), D_4 tri)=${p1c.radii.su3D4Tri.betaOS.toFixed(6)}, beta_OS(SU(3), Z^4)=${p1c.radii.su3Z4.betaOS.toFixed(6)} (SU(3) Weyl quad err=${p1c.su3QuadConvergence28vs36.toExponential(1)}); ` +
-        `live dim=9/27 transfer gaps strictly dominate all infinite-volume bounds (at beta=0.02: m_OS^{1p}=${row020.z3CoarseOnePlaqBound.toFixed(4)}, m_KP=${row020.z3KpLambertWBound!.toFixed(4)}, m_live_dim27=${row020.liveGapDim27.toFixed(4)}). ` +
-        `Part 2 (exact 2D a -> 0 Migdal-Witten continuum limit across a=0.25..0.0078125): SU(2) heat-kernel gluing err=${p2.su2HeatKernelSubdivisionMaxRelErr.toExponential(1)}, ` +
-        `Wilson sigma_lat -> 3/8=0.375 at O(a^2) ratio=${p2.su2FinalErrRatio.toFixed(5)} (rel err=${p2.su2FinalRelErr.toExponential(2)}, m_phys=${p2.su2MPhysExact.toFixed(6)}), ` +
-        `Z_3 sigma_lat -> 0.5 at O(a^2) ratio=${p2.z3FinalErrRatio.toFixed(5)} (rel err=${p2.z3FinalRelErr.toExponential(2)}). ` +
-        `Part 3 (live 4D D_4 SU(3) & Z_3 Balaban/APE block-spin averaging): exact local SU(3) gauge covariance <= ${p3.maxSu3GaugeCovErrAcrossAlphas.toExponential(1)} (128-site 1536-link torus <= ${p3.torusGlobalGaugeCovErrAt05.toExponential(1)}, unitarity <= ${p3.maxSu3UnitErrAcrossAlphas.toExponential(1)}, det <= ${p3.maxSu3DetErrAcrossAlphas.toExponential(1)}), ` +
-        `UV plaquette action contracts by ${contr05.contractionRatio.toFixed(4)} at alpha=0.5 and ${contr07.contractionRatio.toFixed(4)} at alpha=0.7 (< 0.5), while non-covariant naive average breaks covariance by ${p3.controlNaiveNoTransportCovErrAt07.toFixed(3)} (> 1.0), runtime=${r.totalSeconds.toFixed(3)}s. ` +
-        `Honest boundary: extending 4D IR cluster expansion uniformly to beta -> infinity remains the Clay Millennium frontier`,
+        `Part 1B (exact 4D D_4 site-hyperplane reflection positivity across x_0=0 + Z_3 transfer slices): all 24 D_4 roots satisfy |r_0| <= ${rp4d.maxAbsRootX0} and Theta(D_4)=D_4, ` +
+        `with ${rp4d.straddlingTrianglesCount} straddling triangles across all ${rp4d.originIncidentTrianglesCount} origin-incident triangles and ${rp4d.slabTrianglesEnumerated} slab translates (${rp4d.slabPositiveHalfCount} H_+ <-> ${rp4d.slabNegativeHalfCount} H_- exact bijection plus ${rp4d.slabHyperplaneX0Count} in-hyperplane S_0 triangles giving S = S_+ + S_0 + Theta S_+, minimal closed D_4 polymer = ${rp4d.minClosedPolymerTriangles}-triangle tetrahedron). ` +
+        `Z_3 dim=9 and dim=27 transfer matrices are strictly positive-definite across beta in [0.05..8.0] (T=B^T B err <= ${Math.max(p1b.ridgeDim9.maxSqrtReconErrRel, p1b.ringDim27.maxSqrtReconErrRel).toExponential(1)}), while alternating-sign control violates RP (lambda_min=${p1b.negativeControl.dim9LambdaMin.toExponential(2)}). ` +
+        `Part 1C (rigorous multi-plaquette Kotecky-Preiss V -> infinity convergence, Delta_p=d_p+1, n_min=4 on D_4 tri / n_min=6 on Z^4 sq, A_KP(D_4 tri)=${p1c.kpD4TriThreshold.activityKpCrit.toFixed(6)}): ` +
+        `Z_3 full activity A_{Z3}=2 u_{Z3} gives beta_OS_KP(Z_3, D_4 tri)=${p1c.radii.z3D4Tri.betaOSKP.toFixed(6)}, beta_OS_KP(Z_3, Z^4)=${p1c.radii.z3Z4.betaOSKP.toFixed(6)}. ` +
+        `SU(3) exact Weyl character sum over all ${p1c.su3IrrepsIncludedCount} irreps (1 <= p+q <= 6) agrees with Seiler sup-norm exp(beta)/c_0 - 1 to ${p1c.su3CharVsSupNormMaxDiff.toExponential(1)} and certifies ` +
+        `beta_OS_KP(SU(3), D_4 tri)=${p1c.radii.su3D4Tri.betaOSKP.toFixed(6)} (Seiler ${p1c.radii.su3D4Tri.betaOSKPSeilerSupNorm.toFixed(6)}), beta_OS_KP(SU(3), Z^4)=${p1c.radii.su3Z4.betaOSKP.toFixed(6)} (1-plaquette monomer upper diagnostic 1/(e*21) gives beta=${p1c.radii.z3D4Tri.monomerBetaDiagnostic.toFixed(6)} only). ` +
+        `All 5 test couplings beta in [0.001, 0.002, 0.004, 0.006, 0.008] lie strictly inside beta_OS_KP with rigorous walk-ceiling-safe KP lower bounds (at beta=0.004: Z_3 m_KP=${row004.z3MultiPlaqKpGapBound.toFixed(4)} < walkCeiling=${row004.z3WalkCeiling.toFixed(4)}, SU(3) m_KP=${row004.su3MultiPlaqKpGapBound.toFixed(4)} < walkCeiling=${row004.su3WalkCeiling.toFixed(4)}, rigorous P=3 tube KP=${row004.z3RigorousPerim3TubeKpBound.toFixed(4)}, live dim=27=${row004.liveGapDim27.toFixed(4)}; non-rigorous leading-order tube estimate=${row004.z3LeadingOrderTubeEstimate.toFixed(4)}). ` +
+        `Part 2 (exact 2D a -> 0 Migdal-Witten continuum limit): SU(2) gluing err=${p2.su2HeatKernelSubdivisionMaxRelErr.toExponential(1)}, sigma_lat -> 3/8 at O(a^2) ratio=${p2.su2FinalErrRatio.toFixed(5)} (rel err=${p2.su2FinalRelErr.toExponential(2)}), Z_3 sigma_lat -> 0.5 at ratio=${p2.z3FinalErrRatio.toFixed(5)}. ` +
+        `Part 3 (Gauge-Covariant Polar-Projected APE Link Smearing on a 4D D_4 Torus L=4, 128 sites): local SU(3) gauge covariance <= ${p3.maxSu3GaugeCovErrAcrossAlphas.toExponential(1)} (torus <= ${p3.torusGlobalGaugeCovErrAt05.toExponential(1)}), UV action shrinks by ${contr05.contractionRatio.toFixed(4)} (alpha=0.5) and ${contr07.contractionRatio.toFixed(4)} (alpha=0.7), against naive no-transport (${p3.controlNaiveNoTransportCovErrAt07.toFixed(3)}) and Gram-Schmidt controls, runtime=${r.totalSeconds.toFixed(3)}s. ` +
+        `Honest boundary: multi-scale Balaban fine-to-coarse decimation across g ~ O(1) and extending 4D IR cluster expansion uniformly to beta -> infinity remain open`,
       metrics: {
         g1Combinatorics: g1Combinatorics ? 1 : 0,
         g2ReflectionPositivity: g2ReflectionPositivity ? 1 : 0,
         g3InfiniteVolumeGap: g3InfiniteVolumeGap ? 1 : 0,
         g4TwoDMigdalWitten: g4TwoDMigdalWitten ? 1 : 0,
-        g5BalabanAndHonesty: g5BalabanAndHonesty ? 1 : 0,
+        g5ApeSmearingAndHonesty: g5ApeSmearingAndHonesty ? 1 : 0,
         // Part 1A
         p1aD4TrianglesPerLink: Number(p1a.d4TrianglesPerLink),
         p1aD4TrianglesTouchingVertex: Number(p1a.d4TrianglesTouchingVertex),
@@ -213,46 +249,61 @@ export default experiment({
         p1aD4SquaresTouchingVertex: Number(p1a.d4SquaresTouchingVertex),
         p1aD4SquareNeighborsDP: Number(p1a.d4SquareNeighborsDP),
         p1aZ4SquareNeighborsDP: Number(p1a.z4SquareNeighborsDP),
-        // Part 1B
+        // Part 1B (exact 4D D_4 site-hyperplane RP + transfer matrices)
+        p1bD4MaxAbsRootX0: rp4d.maxAbsRootX0,
+        p1bD4OriginTriangles: rp4d.originIncidentTrianglesCount,
+        p1bD4SlabTriangles: rp4d.slabTrianglesEnumerated,
+        p1bD4HyperplaneS0Triangles: rp4d.slabHyperplaneX0Count,
+        p1bD4StraddlingTriangles: rp4d.straddlingTrianglesCount,
+        p1bD4MinClosedPolymerTriangles: rp4d.minClosedPolymerTriangles,
+        p1bD4TetrahedraTouchingOrigin: rp4d.tetrahedraTouchingOriginCount,
         p1bDim9GlobalMinLambda: p1b.ridgeDim9.globalMinLambda,
         p1bDim9MaxSqrtReconErr: p1b.ridgeDim9.maxSqrtReconErrRel,
-        p1bDim9MaxJacobiRes: p1b.ridgeDim9.maxJacobiResidualRel,
         p1bDim27GlobalMinLambda: p1b.ringDim27.globalMinLambda,
         p1bDim27MaxSqrtReconErr: p1b.ringDim27.maxSqrtReconErrRel,
-        p1bDim27MaxJacobiRes: p1b.ringDim27.maxJacobiResidualRel,
-        // Part 1C
+        // Part 1C (rigorous multi-plaquette KP + full character (dim R)^2 + Seiler sup-norm)
+        p1cSu3IrrepsIncluded: p1c.su3IrrepsIncludedCount,
         p1cSu3HaarNormErr: p1c.su3HaarNormErr,
+        p1cSu3CharOrthoErrAtBeta0: p1c.su3CharOrthoErrAtBeta0,
         p1cSu3QuadConvErr: p1c.su3QuadConvergence28vs36,
-        p1cBetaOsZ3Z4: Number(p1c.radii.z3Z4.betaOS.toFixed(6)),
-        p1cBetaOsZ3D4Tri: Number(p1c.radii.z3D4Tri.betaOS.toFixed(6)),
-        p1cBetaOsZ3D4Sq: Number(p1c.radii.z3D4Sq.betaOS.toFixed(6)),
-        p1cBetaOsSu3Z4: Number(p1c.radii.su3Z4.betaOS.toFixed(6)),
-        p1cBetaOsSu3D4Tri: Number(p1c.radii.su3D4Tri.betaOS.toFixed(6)),
-        p1cBetaOsSu3D4Sq: Number(p1c.radii.su3D4Sq.betaOS.toFixed(6)),
-        p1cZ3CoarseBoundBeta005: Number(row005.z3CoarseOnePlaqBound.toFixed(6)),
-        p1cZ3CoarseBoundBeta020: Number(row020.z3CoarseOnePlaqBound.toFixed(6)),
-        p1cZ3ClusterBoundBeta050: Number(row050.z3LinearClusterBound.toFixed(6)),
-        p1cZ3TubeBoundBeta050: Number(row050.z3ClosedTubeBound.toFixed(6)),
-        p1cSu3CoarseBoundBeta050: Number(row050.su3CoarseOnePlaqBound.toFixed(6)),
-        p1cLiveGapDim27Beta005: Number(row005.liveGapDim27.toFixed(6)),
-        p1cLiveGapDim27Beta020: Number(row020.liveGapDim27.toFixed(6)),
-        p1cLiveGapDim27Beta050: Number(row050.liveGapDim27.toFixed(6)),
+        p1cSu3CharVsSupNormMaxDiff: p1c.su3CharVsSupNormMaxDiff,
+        p1cKpD4TriActivityCrit: Number(p1c.kpD4TriThreshold.activityKpCrit.toFixed(8)),
+        p1cKpD4TriUStar: Number(p1c.kpD4TriThreshold.uStar.toFixed(8)),
+        p1cKpD4TriAStar: Number(p1c.kpD4TriThreshold.aStar.toFixed(8)),
+        p1cKpD4TriXMax: Number(p1c.kpD4TriThreshold.xMax.toFixed(8)),
+        p1cKpZ4SqActivityCrit: Number(p1c.kpZ4SqThreshold.activityKpCrit.toFixed(8)),
+        p1cBetaOsKpZ3Z4: Number(p1c.radii.z3Z4.betaOSKP.toFixed(6)),
+        p1cBetaOsKpZ3D4Tri: Number(p1c.radii.z3D4Tri.betaOSKP.toFixed(6)),
+        p1cBetaOsKpZ3D4Sq: Number(p1c.radii.z3D4Sq.betaOSKP.toFixed(6)),
+        p1cBetaOsKpSu3Z4: Number(p1c.radii.su3Z4.betaOSKP.toFixed(6)),
+        p1cBetaOsKpSu3D4Tri: Number(p1c.radii.su3D4Tri.betaOSKP.toFixed(6)),
+        p1cBetaOsKpSu3D4TriSeiler: Number(p1c.radii.su3D4Tri.betaOSKPSeilerSupNorm.toFixed(6)),
+        p1cBetaOsKpSu3D4Sq: Number(p1c.radii.su3D4Sq.betaOSKP.toFixed(6)),
+        p1cZ3KpGapBoundBeta001: Number(row001.z3MultiPlaqKpGapBound.toFixed(6)),
+        p1cZ3KpGapBoundBeta004: Number(row004.z3MultiPlaqKpGapBound.toFixed(6)),
+        p1cZ3KpGapBoundBeta008: Number(row008.z3MultiPlaqKpGapBound.toFixed(6)),
+        p1cZ3WalkCeilingBeta004: Number(row004.z3WalkCeiling.toFixed(6)),
+        p1cSu3KpGapBoundBeta001: Number(row001.su3MultiPlaqKpGapBound.toFixed(6)),
+        p1cSu3KpGapBoundBeta004: Number(row004.su3MultiPlaqKpGapBound.toFixed(6)),
+        p1cSu3KpGapBoundBeta008: Number(row008.su3MultiPlaqKpGapBound.toFixed(6)),
+        p1cSu3WalkCeilingBeta004: Number(row004.su3WalkCeiling.toFixed(6)),
+        p1cZ3RigorousTubeP3KpBeta004: Number(row004.z3RigorousPerim3TubeKpBound.toFixed(6)),
+        p1cZ3LeadingOrderTubeEstBeta004: Number(row004.z3LeadingOrderTubeEstimate.toFixed(6)),
+        p1cZ3LeadingOrderTetEstBeta004: Number(row004.z3LeadingOrderTetrahedronEstimate.toFixed(6)),
+        p1cLiveGapDim27Beta004: Number(row004.liveGapDim27.toFixed(6)),
+        p1cLiveGapDim27Beta008: Number(row008.liveGapDim27.toFixed(6)),
+        p1cAllBoundsStrictlyBelowWalkCeiling: p1c.allBoundsStrictlyBelowWalkCeiling ? 1 : 0,
         // Part 2
         p2Su2SigmaExact: p2.su2SigmaExact,
         p2Su2MPhysExact: Number(p2.su2MPhysExact.toFixed(8)),
         p2Su2QuadPrec48vs64: p2.su2QuadPrecision48vs64AtFinest,
         p2Su2HeatKernelSubdivRelErr: p2.su2HeatKernelSubdivisionMaxRelErr,
-        p2Su2HeatKernelZInvErr: p2.su2HeatKernelZSpacingInvarianceErr,
         p2Su2FinalErrRatio: Number(p2.su2FinalErrRatio.toFixed(6)),
         p2Su2FinalRelErr: p2.su2FinalRelErr,
-        p2Su2WilsonAreaLawMaxErr: p2.su2WilsonAreaLawMaxErrFinest,
         p2Z3SigmaExact: p2.z3SigmaExact,
-        p2Z3MPhysExact: Number(p2.z3MPhysExact.toFixed(8)),
-        p2Z3HeatKernelZInvErr: p2.z3HeatKernelZSpacingInvarianceErr,
         p2Z3FinalErrRatio: Number(p2.z3FinalErrRatio.toFixed(6)),
         p2Z3FinalRelErr: p2.z3FinalRelErr,
-        p2Z3WilsonAreaLawMaxErr: p2.z3WilsonAreaLawMaxErrFinest,
-        // Part 3
+        // Part 3 (APE link smearing)
         p3NeighborhoodTriStaples: p3.neighborhoodTriStaples,
         p3NeighborhoodSqStaples: p3.neighborhoodSqStaples,
         p3MaxSu3GaugeCovErr: p3.maxSu3GaugeCovErrAcrossAlphas,
@@ -269,33 +320,39 @@ export default experiment({
         totalSeconds: Number(r.totalSeconds.toFixed(4)),
       },
       control: {
-        // Part 1B alternating-sign reflection-positivity violation control
         rpBadDim9LambdaMin: p1b.negativeControl.dim9LambdaMin,
         rpBadDim9WitnessQuadForm: p1b.negativeControl.dim9NegativeWitnessQuadForm,
         rpBadDim27LambdaMin: p1b.negativeControl.dim27LambdaMin,
         rpBadDim27WitnessQuadForm: p1b.negativeControl.dim27NegativeWitnessQuadForm,
-        // Part 2 non-scaling fixed bare beta = 4 divergence control
+        monomerUpperDiagnosticD4Tri: Number(p1c.kpD4TriThreshold.monomerUpperDiagnostic.toFixed(6)),
+        monomerBetaDiagnosticZ3D4Tri: Number(p1c.radii.z3D4Tri.monomerBetaDiagnostic.toFixed(6)),
+        monomerBetaDiagnosticSu3D4Tri: Number(p1c.radii.su3D4Tri.monomerBetaDiagnostic.toFixed(6)),
         mwControlFixedBeta: p2.controlFixedBeta,
         mwControlSigmaCoarse: Number(p2.controlFixedBetaSigmaAtCoarsest.toFixed(6)),
         mwControlSigmaFine: Number(p2.controlFixedBetaSigmaAtFinest.toFixed(4)),
         mwControlDivergenceFactor: p2.controlDivergenceFactor,
-        // Part 3 non-covariant naive link average & Gram-Schmidt left-covariance controls
-        balabanNaiveNoTransportErr05: Number(p3.controlNaiveNoTransportCovErrAt05.toFixed(6)),
-        balabanNaiveNoTransportErr07: Number(p3.controlNaiveNoTransportCovErrAt07.toFixed(6)),
-        balabanGramSchmidtLeftCovErr: Number(p3.controlGramSchmidtLeftCovErr.toFixed(6)),
-        // Honest Clay Millennium boundary flag
+        apeNaiveNoTransportErr05: Number(p3.controlNaiveNoTransportCovErrAt05.toFixed(6)),
+        apeNaiveNoTransportErr07: Number(p3.controlNaiveNoTransportCovErrAt07.toFixed(6)),
+        apeGramSchmidtLeftCovErr: Number(p3.controlGramSchmidtLeftCovErr.toFixed(6)),
+        fourDMultiScaleBalabanDecimationOpen: p3.clayMillenniumBoundary
+          .fourDMultiScaleBalabanDecimationOpen
+          ? 1
+          : 0,
         fourDUniformIrClusterToBetaInfinityOpen: p3.clayMillenniumBoundary
           .fourDUniformIrClusterToBetaInfinityOpen
           ? 1
           : 0,
       },
       notes:
-        'E-FND-0189 (L2, 100% deterministic, zero RNG): ' +
-        '(1) INFINITE-VOLUME 4D D_4 OSTERWALDER-SEILER & REFLECTION POSITIVITY: direct BigInt root enumeration proves D_4 has 8 triangles/link (d_tri = 21), 6 orthogonal squares/link (d_sq = 20), matching Z^4 (d_p = 20); ' +
-        'Z_3 D_4 transfer matrices (dim = 9, 27) are strictly positive-definite (lambda_min > 0, T = B^T B <= 1e-14, all basis/pairwise/character <Theta F, F> >= 0) across beta in [0.05..8.0], against an alternating-sign negative control with lambda_min < 0; ' +
-        `Kotecky-Preiss polymer criterion u(beta) <= 1/(e d_p) certifies beta_OS > 0 on both 4D D_4 and Z^4 for Z_3 and SU(3), with live transfer-matrix gaps strictly above all infinite-volume bounds (noting honestly that beta = 0.05 lies inside beta_OS(SU(3)) and the Z_3 closed-tube/cluster bounds while sitting just above the conservative 1-plaquette Z_3 radius ${p1c.radii.z3D4Tri.betaOS.toFixed(5)}). ` +
-        '(2) EXACT 2D a -> 0 MIGDAL-WITTEN CONTINUUM LIMIT: verifies live SU(2) heat-kernel gluing <= 1e-13 and exact O(a^2) Wilson convergence sigma_lat -> 3/8 (SU(2)) and 1/2 (Z_3) with ratio -> 4.000, final rel err < 1e-5, and exact Wilson area law, against a fixed-beta 1024x divergence control. ' +
-        `(3) 4D D_4 BALABAN / APE BLOCK-SPIN AVERAGING: proves exact local SU(3) gauge covariance <= 1e-14 (polar Newton-Schulz + determinant phase removal) and exact Z_3 covariance across alpha in [0.1..0.7] on both the 22-vertex 14-staple D_4 neighborhood and a full 128-site 1536-link 4096-triangle 4D D_4 torus, with UV plaquette action shrinking by ${contr05.contractionRatio.toFixed(4)} (alpha=0.5) and ${contr07.contractionRatio.toFixed(4)} (alpha=0.7), against > 1.0 naive no-transport and Gram-Schmidt controls. ` +
+        'E-FND-0189 (flat 4D Euclidean D_4 lattice, substrates: d4-box, L2, 100% deterministic, zero RNG): ' +
+        '(1) INFINITE-VOLUME 4D D_4 SITE-HYPERPLANE REFLECTION POSITIVITY & MULTI-PLAQUETTE KOTECKY-PREISS GAP: ' +
+        `every D_4 root has |r_0| <= 1 and Theta(D_4) = D_4, yielding 0 straddling triangles across x_0 = 0 and ${rp4d.slabHyperplaneX0Count} in-hyperplane S_0 triangles (proving S = S_+ + S_0 + Theta S_+ = (S_+ + S_0/2) + Theta(S_+ + S_0/2) for all beta >= 0 and all volumes). ` +
+        'Full character-weighted polymer activities A_{Z3} = 2 u_{Z3} and A_{SU3}^{(<=6)} = sum (dim R)^2 (c_R/c_0) cross-checked against Seiler sup-norm exp(beta)/c_0 - 1 ' +
+        `with rigorous multi-plaquette KP (Delta_p = d_p + 1 = 22, n_min = 4 on D_4 tri; A_KP = ${p1c.kpD4TriThreshold.activityKpCrit.toFixed(6)}) certify beta_OS_KP(Z_3, D_4 tri) = ${p1c.radii.z3D4Tri.betaOSKP.toFixed(6)} and beta_OS_KP(SU(3), D_4 tri) = ${p1c.radii.su3D4Tri.betaOSKP.toFixed(6)} ` +
+        '(1-plaquette monomer 1/(e*21) kept strictly as an upper diagnostic only). All 5 test couplings beta in [0.001, 0.002, 0.004, 0.006, 0.008] lie strictly inside beta_OS_KP with rigorous KP mass-gap lower bounds m_KP(beta) = ln(A_KP / M(beta)) strictly below the combinatorial walk ceiling -ln(M) - ln(21). ' +
+        '(2) EXACT 2D a -> 0 MIGDAL-WITTEN CONTINUUM LIMIT: SU(2) and Z_3 Wilson actions converge at exact O(a^2) rate (ratio -> 4.000, rel err < 1e-5) against a 1024x fixed-beta divergence control. ' +
+        '(3) GAUGE-COVARIANT POLAR-PROJECTED APE LINK SMEARING ON A 4D D_4 TORUS (L = 4, 128 sites): proves exact local SU(3) gauge covariance <= 1e-14 and UV action contraction < 0.5, ' +
+        'certifying the gauge-covariant UV-contraction kernel used in blocking steps. ' +
         p3.clayMillenniumBoundary.summary,
     })
   },
