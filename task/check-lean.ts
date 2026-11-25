@@ -23,7 +23,7 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { runInfiniteTimeProofs } from '@/code/measure/infinite-time-proofs'
 
-const MIN_HEADLINE_THEOREM_COUNT = 301
+const MIN_HEADLINE_THEOREM_COUNT = 332
 const EXPECTED_LEAN_TOOLCHAIN = 'leanprover/lean4:v4.35.0'
 const EXPECTED_LEAN_VERSION = '4.35.0'
 
@@ -351,6 +351,40 @@ const REQUIRED_THEOREMS = [
   'thm_hc_code_24_1_8_triality_bulk_logical',
   'thm_hc_code_24_0_6_lagrangian_wf4_covariant',
   'thm_hc_native_d4_css_obstruction',
+  // Vibe.HolographicCodeExt (9 headline: Darboux completeness, W(F_4) orbit collapse, 5-uniformity, d=6, 536,155 erasures, d=8, |In_H|<=3, HaPPY pushing/tower)
+  'thm_hce_darboux_dual_basis_and_completeness',
+  'thm_hce_wf4_orbit_collapse_5_and_7',
+  'thm_hce_5uniform_bulk23_and_pure24',
+  'thm_hce_pure24_exact_distance_6',
+  'thm_hce_bulk23_all_7erasure_recovery',
+  'thm_hce_bulk23_exact_distance_8',
+  'thm_hce_3434_height_parity_and_inward_le_3',
+  'thm_hce_bulk23_dock_isometric_pushing',
+  'thm_hce_infinite_radius_happy_isometry_and_greedy_reconstruction',
+  // Vibe.D4MassGap (13 headline: D_4 1D-axial RP & Perron 4+4sqrt(7), SU(2) vMF & W_1 > 2.51x BE, H_12 arboricity 32/11, BFS ratio, A_2 Pieri SU(3) W_1 & axial contraction)
+  'thm_mg_d4_pos_roots_and_frozen_rp',
+  'thm_mg_unfixed_L12_and_axial_M11_blocks',
+  'thm_mg_axial_perron_eigenvector_and_bracket',
+  'thm_mg_su2_vmf_spectral_gap_and_variance_identities',
+  'thm_mg_su2_thresholds_and_be_ratios',
+  'thm_mg_dobrushin_power_and_geometric_decay',
+  'thm_mg_d4_axial_dobrushin_instantiation',
+  'thm_mg_h12_graph_and_3forest_partition',
+  'thm_mg_h12_exact_fractional_arboricity_32_over_11',
+  'thm_mg_bfs_polymer_step_ratio_all_n',
+  'thm_mg_d4_tetrahedra_per_triangle_eq_3',
+  'thm_mg_su3_closed_form_w1_beyond_be',
+  'thm_mg_su3_axial_dobrushin_instantiation',
+  // Vibe.CompositeTrion (9 headline: Z[omega][1/7] k=3 Sym^3 trion IPR=9/32, Z[zeta_9] cot^2(pi/18) cubic, flat-D_4 excision pocket, depressed-cubic holographic rate)
+  'thm_ct_trion_eigenvalue_and_ratio',
+  'thm_ct_trion_gate_and_collision_modes',
+  'thm_ct_trion_shift_pullback_exact',
+  'thm_ct_trion_infinite_line_eigenstate',
+  'thm_ct_trion_norm_contact_and_ipr',
+  'thm_ct_trion_gap_separation',
+  'thm_ct_mpair_gap_margin',
+  'thm_ct_hyperbolic_excision_pocket',
+  'thm_ct_holographic_rate_depressed_cubic',
 ] as const
 
 const scriptDir = dirname(fileURLToPath(import.meta.url))
@@ -762,12 +796,20 @@ function main(): void {
   const leanFiles: Array<{ readonly label: string; readonly path: string }> = [
     { label: 'Vibe.lean', path: leanFile },
   ]
-  if (existsSync(vibeSubdir)) {
-    for (const entry of readdirSync(vibeSubdir).sort()) {
-      if (entry.endsWith('.lean')) {
-        leanFiles.push({ label: `Vibe/${entry}`, path: join(vibeSubdir, entry) })
+  const collectLeanFiles = (dirPath: string, relPrefix: string): void => {
+    for (const entry of readdirSync(dirPath).sort()) {
+      const fullPath = join(dirPath, entry)
+      const relLabel = `${relPrefix}/${entry}`
+      const st = statSync(fullPath)
+      if (st.isDirectory()) {
+        collectLeanFiles(fullPath, relLabel)
+      } else if (entry.endsWith('.lean')) {
+        leanFiles.push({ label: relLabel, path: fullPath })
       }
     }
+  }
+  if (existsSync(vibeSubdir)) {
+    collectLeanFiles(vibeSubdir, 'Vibe')
   }
 
   const hasSubmodules = leanFiles.length > 1
