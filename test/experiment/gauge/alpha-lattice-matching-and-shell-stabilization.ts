@@ -8,9 +8,10 @@
 //   - Zero-fit D_4 matching under the canonical single-face K_eff = 1.012532 (alpha_lat^{-1} = 36.9722)
 //     non-compact mu = pi/a Gaussian-stiffness BLM ansatz (explicitly omitting the compact Wilson cosine
 //     tadpole, which shifts downward by -17.91) misses CODATA alpha^{-1}(0) by -6.06% (128.73 vs 137.036).
-//   - Matching PDG (127.951, 0.23122, 0.1180) and CODATA alpha^{-1}(0) uses an underdetermined 3 x 4
-//     heavy-threshold fit (4 mass ratios [0.291, 1.346] in [1/4, 4] fitting 3 gauge constraints;
-//     DELTA_MSBAR_TO_OS_PDG maps 127.951 to CODATA 137.035999177 by algebraic offset).
+//   - Matching PDG M_Z gauge inputs (127.951, 0.23122, 0.1180) uses an underdetermined 3 x 4
+//     heavy-threshold fit (4 mass ratios [0.291, 1.346] in [1/4, 4] fitting 3 gauge constraints);
+//     non-circular perturbative Erler/Steinhauser MS-bar->OS matching (zero CODATA input) maps
+//     127.951 to alpha^{-1}(0) within ~0.0017 (12 ppm, inside PDG's +/-0.0096 1-sigma error bar).
 //
 // Part 2: Continuum EFT stabilization mechanisms:
 //   - Goldberger-Wise BVP on the warped column stabilizes D_* = 13.15..13.23 (integer min at D = 13)
@@ -66,7 +67,9 @@ export default experiment({
       !p1.zeroParamCodataExactHit &&
       p1.exactZeroParamAlphaRemainsOpen &&
       p1.closureD4Blm.allRatiosWithinOneQuarterToFour &&
-      p1.closureD4Blm.maxObservableErr < 1e-6 &&
+      p1.closureD4Blm.maxMzGaugeErr < 1e-9 &&
+      p1.closureD4Blm.predAlphaEmInvZeroErr > 1e-5 &&
+      p1.closureD4Blm.predAlphaEmInvZeroErr < 0.005 &&
       p1.unmatchedBareRejectedByNaturalnessBound &&
       p1.controlFlatInvGEffHitsLandauAboveMz
 
@@ -109,7 +112,9 @@ export default experiment({
         `(${p1.zeroFitBare.zeroRelResidualPct.toFixed(2)}%) to ${p1.zeroFitD4Blm.predAlphaEmInvZeroPdg2024.toFixed(2)} ` +
         `(${p1.zeroFitD4Blm.zeroRelResidualPct.toFixed(2)}%, omitting compact Wilson tadpole ${p1.compactWilsonShiftD4At1OverA.toFixed(2)}). Adding O(1) heavy SO(10) thresholds in ` +
         `[${p1.closureD4Blm.minMassRatio.toFixed(3)}, ${p1.closureD4Blm.maxMassRatio.toFixed(3)}] (inside [1/4, 4]; r_SLR = ${p1.closureD4Blm.massRatios.rScalarLr.toFixed(3)} sits slightly below 1/3) closes ` +
-        `PDG (127.951, 0.23122, 0.1180) and CODATA alpha^-1(0)=137.035999177 (via DELTA_MSBAR_TO_OS_PDG offset) to ${p1.closureD4Blm.maxObservableErr.toExponential(1)}, ` +
+        `PDG M_Z inputs (127.951, 0.23122, 0.1180) to ${p1.closureD4Blm.maxMzGaugeErr.toExponential(1)} and maps non-circularly ` +
+        `(perturbative Erler/Steinhauser Delta_MS->OS=+${p1.deltaMsBarToOsPert.toFixed(6)}, zero CODATA input) to ` +
+        `alpha^-1(0)=${p1.closureD4Blm.predAlphaEmInvZero.toFixed(6)} (honest residual ${p1.closureD4Blm.predAlphaEmInvZeroErr.toFixed(5)} vs CODATA 137.035999), ` +
         `while bare ${p1.zeroFitBare.alphaGutMsBarInv.toFixed(4)} and Z^4 BLM fail the [1/4, 4] bound (min ratio ${p1.controlClosureBareNoMatching.minMassRatio.toFixed(3)}). ` +
         `Part 2 (dynamical shell stabilization on {3,4,3,4}): discrete Goldberger-Wise BVP with natural m_phi^2=${gw.mPhiSqLat} ` +
         `(eps_eff=${gw.epsilonEff.toFixed(4)}) and v_UV/v_IR=${gw.vUvOverVIrNatural} stabilizes D_*=${gw.dStarNatural.toFixed(3)} shells ` +
@@ -155,6 +160,9 @@ export default experiment({
         closureD4BlmRScalarLr: Number(p1.closureD4Blm.massRatios.rScalarLr.toFixed(4)),
         closureD4BlmAllInNaturalBand: p1.closureD4Blm.allRatiosWithinOneThirdToThree ? 1 : 0,
         closureD4BlmAllInOneQuarterToFour: p1.closureD4Blm.allRatiosWithinOneQuarterToFour ? 1 : 0,
+        deltaMsBarToOsPert: Number(p1.deltaMsBarToOsPert.toFixed(6)),
+        closureD4BlmMaxMzGaugeErr: p1.closureD4Blm.maxMzGaugeErr,
+        closureD4BlmAlphaZeroErr: Number(p1.closureD4Blm.predAlphaEmInvZeroErr.toFixed(6)),
         closureD4BlmMaxObservableErr: p1.closureD4Blm.maxObservableErr,
         zeroParamCodataExactHit: p1.zeroParamCodataExactHit ? 1 : 0,
         exactZeroParamAlphaRemainsOpen: p1.exactZeroParamAlphaRemainsOpen ? 1 : 0,
@@ -211,8 +219,10 @@ export default experiment({
         `and Delta F_0(D_4 - Z^4) = +${p1.deltaF0D4VsZ4M1e5.toFixed(4)}. Under the non-compact mu = pi/a Gaussian-stiffness BLM ansatz (explicitly omitting the ` +
         `compact Wilson cosine tadpole, which reverses sign and shifts downward by ${p1.compactWilsonShiftD4At1OverA.toFixed(2)}), zero-fit alpha^-1(0) = ${p1.zeroFitD4Blm.predAlphaEmInvZeroPdg2024.toFixed(2)} ` +
         `misses CODATA 137.036 by ${p1.zeroFitD4Blm.zeroRelResidualPct.toFixed(2)}%. ` +
-        '(2) Underdetermined 3 x 4 heavy-threshold closure: hitting PDG (127.951, 0.23122, 0.1180) and CODATA 137.035999177 ' +
-        `(via the circular DELTA_MSBAR_TO_OS_PDG offset mapping 127.951 identically to 137.035999177) to < 1e-12 uses an underdetermined ` +
+        '(2) Underdetermined 3 x 4 heavy-threshold closure: hitting the 3 PDG M_Z gauge targets (127.951, 0.23122, 0.1180) ' +
+        `to ${p1.closureD4Blm.maxMzGaugeErr.toExponential(1)} and mapping non-circularly via perturbative Erler/Steinhauser MS-bar->OS ` +
+        `(Delta = +${p1.deltaMsBarToOsPert.toFixed(6)}, zero CODATA input) to alpha^-1(0) = ${p1.closureD4Blm.predAlphaEmInvZero.toFixed(6)} ` +
+        `(residual ${p1.closureD4Blm.predAlphaEmInvZeroErr.toFixed(5)} vs CODATA, inside PDG +/-0.0096 1-sigma uncertainty) uses an underdetermined ` +
         `3 x 4 heavy-threshold fit (4 mass ratios [${p1.closureD4Blm.massRatios.rVectorGut.toFixed(3)}, ${p1.closureD4Blm.massRatios.rScalarLeft.toFixed(3)}, ${p1.closureD4Blm.massRatios.rScalarRight.toFixed(3)}, ${p1.closureD4Blm.massRatios.rScalarLr.toFixed(3)}] against 3 gauge constraints). Zero-parameter derivation of alpha(0) remains open. ` +
         '(3) Continuum EFT stabilization mechanisms: both the Goldberger-Wise scalar BVP (stabilizing D_* = 13.15..13.23 ' +
         'for tuned m_phi^2 = 0.18, v_UV/v_IR = 9.7..9.84) and the (10,1,3)_C Higgs-quartic portal jump (+0.0484 near ' +
