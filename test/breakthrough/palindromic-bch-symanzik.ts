@@ -635,7 +635,7 @@ function complexEigenvalues(M: CMat): C[] {
       const mu1 = cScale(0.5, cAdd(tr, sq)), mu2 = cScale(0.5, cSub(tr, sq))
       shift = cAbs(cSub(mu1, d)) < cAbs(cSub(mu2, d)) ? mu1 : mu2
     }
-    for (let i = l; i < m; i++) { Hr[i * n + i] -= shift[0]; Hi[i * n + i] = Hi[i * n + i]! - (shift[1]) }
+    for (let i = l; i < m; i++) { Hr[i * n + i] = Hr[i * n + i]! - shift[0]; Hi[i * n + i] = Hi[i * n + i]! - (shift[1]) }
     const cs = new Float64Array(m - l - 1), snR = new Float64Array(m - l - 1), snI = new Float64Array(m - l - 1)
     for (let i = l; i < m - 1; i++) {
       const xr = Hr[i * n + i]!, xi = Hi[i * n + i]!, yr = Hr[(i + 1) * n + i]!, yi = Hi[(i + 1) * n + i]!
@@ -660,7 +660,7 @@ function complexEigenvalues(M: CMat): C[] {
         Hr[row * n + (i + 1)] = -(sr * ar - si * ai) + cV * br; Hi[row * n + (i + 1)] = -(sr * ai + si * ar) + cV * bi
       }
     }
-    for (let i = l; i < m; i++) { Hr[i * n + i] += shift[0]; Hi[i * n + i] = Hi[i * n + i]! + (shift[1]) }
+    for (let i = l; i < m; i++) { Hr[i * n + i] = Hr[i * n + i]! + shift[0]; Hi[i * n + i] = Hi[i * n + i]! + (shift[1]) }
     iter++
   }
   return eigs
