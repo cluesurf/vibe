@@ -4,88 +4,107 @@
 Every experiment code cited in this paper is indexed below as registered in \code{test/registry.csv}
 \cite{cluesurf2026repo} (total suite size: 1,790 deterministic runs, zero pseudo-randomness). Failed and partial gates
 are preserved and labeled explicitly. Each entry records its canonical tier (A: bare microscopic QCA, exact
-$\{3,4,3,4\}$ geometry, and exact algebraic invariants, B: warped-column, cusp-projection, or prescribed-background
+$\{3,4,3,4\}$ geometry, and exact algebraic invariants, B: warped-beam, cusp-projection, or prescribed-background
 lattice walks plus L1 quantum and gauge-lattice benchmarks, C: constructive flat 4D $D_4$/$\{3,4,3,4\}$ lattice
 gauge-theory bounds and downstream continuum EFT compatibility checks) and substrate depth grade (L1 or L2, with no L3
-claim made).
+claim made). Three heavy sweep scripts (\code{E-SLF-0189}, \code{E-SLF-0190}, \code{E-SLF-0195}) default to fast local
+smoke mode unless invoked with their full-run environment flag, and the verdicts below record their registered full runs.
 
 \begin{small}
-\begin{longtable}{@{}>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}p{2.7cm}>{\raggedright\arraybackslash}p{1.2cm}>{\raggedright\arraybackslash}p{7.8cm}@{}}
+\renewcommand{\arraystretch}{1.10}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{2.1cm}>{\raggedright\arraybackslash}p{3.25cm}>{\raggedright\arraybackslash}p{1.2cm}>{\raggedright\arraybackslash}p{7.25cm}@{}}
+\caption{Master index of all 64 cited deterministic experiments.}
+\label{tab:master-index} \\
+\toprule
+Identifier & Tier / grade & Verdict & Key verified metric \\
+\midrule
+\endfirsthead
+\multicolumn{4}{@{}l}{\footnotesize\emph{Table~\thetable\ (continued)}} \\
 \toprule
 Identifier & Tier / grade & Verdict & Key verified metric \\
 \midrule
 \endhead
-\multicolumn{4}{@{}l}{\emph{Geometry, neutral mesh state, and bare microscopic QCA (Section~\ref{sec:one-rule})}} \\
-\code{E-FND-0038} & A / algebra L1 & pass & three ternary values and 4D $D_4$ selected as smallest signed alphabet with triality \\
-\code{E-QTM-0117} & A / algebra L1 & pass & pure algebraic structure of the 648-element qutrit Clifford group $\Sigma(648)$ \\
-\code{E-GMT-0044} & A / $\{3,4,3,4\}$ L2 & open & unweighted cusp Laplacian retains spectral gap $\ge 24 - 16.02$ \\
-\code{E-GMT-0045} & A / $\{3,4,3,4\}$ L2 & pass & 24 exact $\mathbb{Z}[\sqrt{2}]$ cusps, $Q$ exact to $0$, $S_0$ spread $4.4 \times 10^{-16}$ \\
+\midrule
+\multicolumn{4}{@{}r@{}}{\footnotesize\emph{Continued on next page}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+\multicolumn{4}{@{}l}{\emph{Geometry, neutral mesh state, and bare microscopic QCA (Section~\ref{sec:one-rule})}} \\*
+\code{E-FND-0038} & A / algebra L2 & pass & three ternary values and 4D $D_4$ selected as smallest signed alphabet with triality \\
+\code{E-QTM-0117} & A / algebra L1 & pass & pure algebraic structure of the 648-element qutrit Clifford group $\Sigma(648) \subset SU(3)$ \\
+\code{E-GMT-0044} & A / $\{3,4,3,4\}$ L1 & open & unweighted cusp Laplacian retains spectral gap $\ge 24 - 16.02$ \\
+\code{E-GMT-0045} & A / $\{3,4,3,4\}$ L2 & pass & 24 exact $\mathbb{Z}[\sqrt{2}]$ cusps, $Q$ exact to $0$, isotropic star spread $4.4 \times 10^{-16}$ \\
 \code{E-GMT-0046} & A / $\{3,4,3,4\}$ L2 & pass & shells $1, 24, 456, 8{,}376$, $|W(F_4)| = 1{,}152$, 4-cycle holonomy order $1$ \\
-\code{E-RLT-0122} & A / $\{3,4,3,4\}$ L2 & pass & $|V_1\rangle$ exact fixed point, $s_{\mathrm{in}} = 0$, export $44.5226$ nats, single-face $l_D = 1, 4, 20, 100$ \\
-\code{E-HLG-0043} & A / $\{3,4,3,4\}$ L2 & pass & 3D column-sum non-closure: identical $Q_c(0)$ bulk states diverge $L_1 = 0.5000$ at $t = 1$ \\
-\code{E-FND-0181} & A / $\{3,4,3,4\}$ L2 & pass & $\Phi_{\mathrm{odd}}$ silent on $P_2$, breaks $C$ and $P$ on $X_1$, preserves $CP, T, CPT$ \\
-\code{E-FND-0182} & A / $\{3,4,3,4\}$ L2 & pass & causal shield exact $0.00$ on $r \le 1$ for $t \le R - 1$, outer shell $94.57\%$ \\
-\code{E-FND-0183} & A / $\{3,4,3,4\}$ L2 & fail & equal-$\chi_{\mathrm{odd}}$ branches keep $0.00$ $C$-asymmetry (interference requirement) \\
-\code{E-FND-0184} & A / $\{3,4,3,4\}$ L2 & pass & distinct-$\chi_{\mathrm{odd}}$ coherent $C$-asymmetry $+1.50$ with exact $CP$-pairing $0$ \\
-\code{E-SPN-0220} & A / $\{3,4,3,4\}$ L2 & pass & $R = 3$ ball ($8{,}857$ docks): $L \cdot P$ ($8/8$) and $L \cdot C$ ($1$) exact under $\Phi_{\mathrm{odd}}$ \\
-\multicolumn{4}{@{}l}{\emph{Quantum foundations and records (Section~\ref{sec:quantum})}} \\
+\code{E-RLT-0122} & A / $\{3,4,3,4\}$ L2 & pass & $|V_1\rangle$ exact fixed point, $s_{\mathrm{in}} = 0$, export $44.5226$ nats, period-2 $m_D = 10, 50, 250$ \\
+\code{E-HLG-0043} & A / $\{3,4,3,4\}$ L2 & fail & 3D beam-sum non-closure ($L_1 = 0.5000$ at $t = 1$), fails $i_0$ ($3{,}000$ period-2 cusp class conflicts) \\
+\code{E-FND-0181} & A / $\{3,4,3,4\}$ L2 & fail & $\Phi_{\mathrm{odd}}$ breaks $\mathcal{C}, \mathcal{P}$ and keeps $\mathcal{CP}$ on $X_1$, fails $i_2$ ($P_2$ $\mathcal{T}$) and $g_3$ (silent \code{EVEN}) \\
+\code{E-FND-0182} & A / $\{3,4,3,4\}$ L2 & fail & causal shield exact $0.00$ on $r \le 1$, outer shell $94.57\%$, fails $i_1$ ($1.28 \times 10^{-12}$) and $g_2$ ($7.61 \times 10^{-4}$) \\
+\code{E-FND-0183} & A / $\{3,4,3,4\}$ L2 & fail & equal-$\chi_{\mathrm{odd}}$ branches keep $0.00$ $\mathcal{C}$-asymmetry (interference requirement) \\
+\code{E-FND-0184} & A / $\{3,4,3,4\}$ L2 & pass & distinct-$\chi_{\mathrm{odd}}$ coherent $\mathcal{C}$-asymmetry $+1.50$ with exact $\mathcal{CP}$-pairing $0$ \\
+\code{E-SPN-0220} & A / $\{3,4,3,4\}$ L2 & pass & $R = 3$ ball ($8{,}857$ docks): $\Pi_{\mathrm{par}}\mathcal{P}$ ($8/8$) and $\Pi_{\mathrm{par}}\mathcal{C}$ ($1$) exact under $\Phi_{\mathrm{odd}}$ \\
+\addlinespace[4pt]
+\multicolumn{4}{@{}l}{\emph{Quantum foundations and records (Section~\ref{sec:quantum})}} \\*
 \code{E-QTM-0202} & A / open line L2 & fail & ballistic open-line CHSH stalls at $2.8277$ (off-$x$-$z$ triple $11/4$) \\
 \code{E-QTM-0203} & A / $\{3,4,3,4\}$ L2 & pass & box and $R = 3$ ball agree to $0$ inside $m + 2t \le L$, $L_1 = 0.5625$ \\
-\code{E-QTM-0204} & A / $\mathbb{Z}[\omega][1/2]$ L2 & pass & 2-adic $SU(2)$ density ($\operatorname{Tr} = 1/2$, $\|[W,W_2]\|_F = 2.5981$), HOM $0.9999996$ \\
-\code{E-QTM-0205} & A / $\{3,4,3,4\}$ L2 & pass & algebraic envariance prerequisites ($36/36$ phase, $24/24$ $S_4$ swap, operational Born measure) \\
+\code{E-QTM-0204} & A / $\mathbb{Z}[\omega][1/2]$ L1 & pass & 2-adic $SU(2)$ density ($\operatorname{Tr} = 1/2$, $\|[W_1, W_2]\|_F = 2.5981$), exact $6 \times 6$ splitter, HOM $0.9999996$ \\
+\code{E-QTM-0205} & A / $\{3,4,3,4\}$ L2 & pass & explicit bipartite envariance ($36/36$ phase, $24/24$ $S_4$ swap, operational Born measure) \\
 \code{E-QTM-0206} & B / multi-qubit L1 & pass & explicit $(1+4)$/$(2+8)$-qubit partial trace: $|\rho_{01}(4)| = 0$, $R_{0.01} = 4$, CHSH $2.8258$ \\
-\code{E-QTM-0207} & B / benchmark L1 & pass & $N=10$ scrambler Page $4.2480$, Bogoliubov $2.44 \times 10^{-15}$, MITM CHSH $2.828427124$ \\
-\multicolumn{4}{@{}l}{\emph{3D kinematics, isotropy, and universal speed lock (Section~\ref{sec:relativity})}} \\
+\code{E-QTM-0207} & B / benchmark L1 & pass & $N = 10$ scrambler Page $4.2480$, Bogoliubov $2.44 \times 10^{-15}$, MITM CHSH $2.828427124$ \\
+\addlinespace[4pt]
+\multicolumn{4}{@{}l}{\emph{3D kinematics, isotropy, and universal speed lock (Section~\ref{sec:relativity})}} \\*
 \code{E-SLF-0189} & A / $\{3,4,3,4\}$ L2 & fail & single-bank mixer sweep: log lifetime slope $-1.7$, no prethermal gap \\
 \code{E-SLF-0190} & A / $\{3,4,3,4\}$ L2 & fail & any-neighbor lock keeps isolated line state but leaks under bath arrival \\
 \code{E-SLF-0192} & A / $\{3,4,3,4\}$ L2 & pass & bipartite dock graph ($162{,}049$ docks, $0$ same-color edges) explains parity \\
 \code{E-SLF-0195} & A / $\{3,4,3,4\}$ L2 & partial & pair-store creation shifts bipartite parity sector ($0.133$ leak by $t = 3$) \\
 \code{E-SLF-0198} & A / $\{3,4,3,4\}$ L2 & pass & $255{,}090$-dock exact tube confirms \code{E-SLF-0189} drain at $t = 3$ ($L = 0.308$) \\
-\code{E-SLF-0199} & A / $\{3,4,3,4\}$ L2 & pass & $M_{\mathrm{pair}}(\zeta_{18})$ fixes $|V_1\rangle$ and 24 single slots, isotropic 12-line scatter, $s$-wave exact \\
-\code{E-SLF-0200} & A / $\{3,4,3,4\}$ L2 & pass & $M_{\mathrm{pair}}$ gap $0.3473$, 4D $s$-wave closure beats null, sparse bath filter $E = 0.8685$ \\
-\code{E-RLT-0123} & A / $\{3,4,3,4\}$ L2 & pass & $M_{\mathrm{pair}}$ breaks line law ($\mathrm{maxShadow} = 2.20$), 3D isotropy $O(k^{2.00})$ \\
-\code{E-RLT-0124} & A / $\{3,4,3,4\}$ L2 & pass & bare floor-0 Dirac ($m_D = 0.004905, c_{\mathrm{eff}} = 0.021267$), $1/\gamma$ $0.024\%$, contraction $0.60\%$ \\
-\code{E-RLT-0125} & B / $\{3,4,3,4\}$ L2 & pass & canonical single-face lock $c_u = 0.977925$ (period-2 control $0.986916$) to $3.37 \times 10^{-16}$, $m_{\mathrm{KK}} = 3.2725$ \\
-\multicolumn{4}{@{}l}{\emph{Warped gravity, infinite-honeycomb walks, and GR checks (Section~\ref{sec:gravity})}} \\
+\code{E-SLF-0199} & A / $\{3,4,3,4\}$ L2 & pass & $M_{\mathrm{pair}}(-1/\zeta_{18})$ fixes $|V_1\rangle$ and 24 single slots, isotropic 12-line scatter, $s$-wave err $4.44 \times 10^{-16}$ \\
+\code{E-SLF-0200} & A / $\{3,4,3,4\}$ L2 & pass & $M_{\mathrm{pair}}$ gap $0.3473$, $s$-wave err $2.22 \times 10^{-16}$, 1D $L = 32$ sparse bath filter $E_{\mathrm{out}} = 0.8685$ \\
+\code{E-RLT-0123} & A / $\{3,4,3,4\}$ L2 & pass & $M_{\mathrm{pair}}$ breaks line law (max displacement $2.20$), 3D isotropy $O(k^{2.00})$ \\
+\code{E-RLT-0124} & A / $\{3,4,3,4\}$ L2 & pass & bare floor-0 Dirac ($m_D = 0.004905, c_{\mathrm{eff}} = 0.021267$), $1/\gamma$ $0.024\%$, Hessian contraction $0.60\%$ \\
+\code{E-RLT-0125} & B / $\{3,4,3,4\}$ L2 & pass & canonical single-face $c_u = 0.977925$ (period-2 $0.986916$) to $2.27 \times 10^{-16}$ vs light ($3.41 \times 10^{-16}$ grav vs matter), $m_{\mathrm{KK}} = 3.2725$ \\
+\addlinespace[4pt]
+\multicolumn{4}{@{}l}{\emph{Warped gravity, infinite-honeycomb walks, and GR checks (Section~\ref{sec:gravity})}} \\*
 \code{E-GRV-0134} & B / flat box L2 & fail & forming bounded-clock horizon emits power-law quench $\omega^{-1.43}$ rather than Planckian \\
-\code{E-GRV-0136} & B / flat box L2 & fail & settled bounded-clock horizon emits $10^{-7}$ of initial burst (redshift cap $\frac{1}{2}\ln C$) \\
-\code{E-GRV-0154} & B / $\{3,4,3,4\}$ L2 & open & depth-weight sweep $p = 0..6$: unscreened iff $p \ge 3$, clean $1/r$ at $p = 6$ \\
-\code{E-GRV-0155} & B / $\{3,4,3,4\}$ L2 & partial & relative-residual rerun of \code{E-GRV-0154}: worst residual $3.5 \times 10^{-13}$ \\
-\code{E-GRV-0156} & B / $\{3,4,3,4\}$ L2 & pass & $N_D = 1, 18, 330, 6{,}034$, raw $G(2)/G(1) = 0.0460$, $1/N_D^2$ $R(12) = 1.48 \times 10^{15}$ \\
-\code{E-GRV-0157} & B / $\{3,4,3,4\}$ L2 & pass & canonical $K_{\mathrm{eff}} = 1.012532$, $G_{\mathrm{eff}} = 0.078593$ (period-2 $1.031237 / 0.077167$), slope $-1.0029$ \\
-\code{E-GRV-0158} & B / $\{3,4,3,4\}$ L2 & pass & live infall slope $-1.9957$, $G_{\mathrm{dyn}}$ err $0.45\%$, orbit $\omega$ $0.071\%$, flyby $18.5^\circ$ \\
-\code{E-GRV-0159} & B / $\{3,4,3,4\}$ L2 & pass & PPN GR: redshift $1.24 \times 10^{-11}$, Eddington $\gamma = 1.0051$, Shapiro $0.225\%$, precession $0.060\%$ \\
-\code{E-GRV-0160} & C / continuum L2 & pass & Fierz--Pauli $\gamma = 1$, Lichnerowicz star ($\gamma, \beta \approx 1$), Regge $O(h^{2.00})$ (not from bare QCA) \\
-\code{E-GRV-0161} & C / continuum L2 & pass & 1PN/2.5PN inspiral to $6.98\,r_g$, warped TT $0.176\%$, Schwarzschild $\ell=2$ QNM $0.263\%$ \\
-\code{E-GRV-0162} & B / $\{3,4,3,4\}$ L2 & pass & cached $R=2,3$ Hartree two-body ($-4.044 \times 10^{-3}$) and isotropic mirror-sheet sweep \\
-\code{E-GRV-0163} & B / $R=\infty$ L2 & pass & exact \code{BigInt} $R=\infty$ bijective GP split-step QCA: both rays inward $(-0.19984, -2.15572)$ at $0.6944\, r_s$, \code{0n} norm, $0$ rev, \code{(0n,0n)} $\langle\mathrm{out}|\mathrm{in}\rangle$ \\
-\multicolumn{4}{@{}l}{\emph{Chirality, cold confinement, generations, and gauge EFTs (Section~\ref{sec:gauge})}} \\
-\code{E-SPN-0221} & B / $\{3,4,3,4\}$ L2 & pass & Hermitian cusp wall: Left $63/64$ vs Right $2.09 \times 10^{-13}$, Weyl err $6.49 \times 10^{-15}$ \\
-\code{E-SPN-0222} & B / $\{3,4,3,4\}$ L2 & pass & $\mathbb{Z}[\zeta_9][1/6]$ unitary wall: Left $0.999914$ vs Right $3.56 \times 10^{-29}$, gap $\pi/3$ \\
-\code{E-FRC-0322} & B / $\Sigma(648)$ L2 & pass & $T = 0$ $\mathbb{Z}_3$ ladder confinement ($R^2 = 0.999999999999999$), baryon triality, Gauss err $0$ \\
-\code{E-FRC-0323} & B / $\{3,4,3,4\}$ L2 & pass & $N_{\mathrm{gen}} = 3$, $0$ 4th gen, $m_3/m_1 > 27{,}000$, unitary CKM, $J_{\mathrm{CP}} = +9.48 \times 10^{-5}$ \\
-\code{E-FRC-0324} & C / $\mathrm{Spin}(10)$ L2 & pass & $3 \times 16 = 48$ Weyl fermions, $6/6$ \code{BigInt} anomalies, $\sin^2\theta_W|_{\mathrm{GUT}} = 3/8$, $S_3$ free energy \\
-\code{E-FRC-0325} & C / $\mathrm{Spin}(10)$ L2 & pass & Koide $Q = 2/3 \iff r^2 = 2$, warp bound $Q \ge 2/3$, $\delta = 2/9$ audit (direct $2\pi/9$ fails) \\
-\code{E-FRC-0326} & C / $SO(10)$ L2 & pass & $10_H$ EW breaking ($m_\gamma^2 = 0$, $\rho = 1$), Type-I seesaw, 2-loop SM RG null audit \\
-\code{E-FRC-0327} & C / $SO(10)$ L2 & pass & Lindemann--Weierstrass obstruction for $e^{i2/9}$, $9 \times 9$ role Floquet, standalone $M_{\mathrm{PS}}$ texture \\
-\code{E-FRC-0328} & C / Pati--Salam L2 & pass & 2-loop unification $M_{\mathrm{PS}} = 1.434 \times 10^{11}$ GeV, $M_{\mathrm{GUT}} = 7.946 \times 10^{15}$ GeV, $D_{\mathrm{EW}} = 13.23$ \\
-\code{E-FRC-0329} & C / $D_4$ EFT L2 & pass & 4D $D_4$ BLM matching leaves $-4.71\%$ zero-fit $\alpha^{-1}(0)$ residual, GW $D_* = 13.15$, portal stability \\
-\code{E-FRC-0330} & C / $SO(10)$ L2 & pass & minimal $10_H + \overline{126}_H$ Yukawa exposes $m_d$ $-41\%$, $m_s$ $+70\%$, $\chi^2 = 87.97$ \\
-\code{E-FRC-0331} & C / $SO(10)$ L2 & pass & DFSZ QCD axion: $E/N = 8/3$, $N_{\mathrm{DW}} = 3$, $m_a = 39.7..238.1\,\mu\mathrm{eV}$, flags $H_{\mathrm{inf}}$ tension \\
-\code{E-FRC-0332} & C / $SO(10)$ L2 & pass & $\mathbb{Z}_{36}$ PQ ($d_{\min} = 18/36$), tachyon-free Higgs Hessian, $120_H$ $\chi^2 = 0.565$ ($< 3\%$ pull, 14 params) \\
-\multicolumn{4}{@{}l}{\emph{Horosphere cosmology and downstream EFT checks (Section~\ref{sec:cosmology})}} \\
-\code{E-CSM-0064} & B / $\{3,4,3,4\}$ L2 & pass & $51{,}064$-dock cusp theorem, bare Planck-scale drift $H_\infty = 0.51713\, M_{\mathrm{Pl}}$ ($q = w = -1$) \\
-\code{E-CSM-0065} & B+C / $\{3,4,3,4\}$ L2 & pass & 160-beat reversible braking walk (Tier~B) + Yoshida 3-era Friedmann closure (Tier~C) \\
-\code{E-CSM-0066} & C / EFT L2 & pass & 5-state Sakharov walk, $\mathrm{Spin}(10)$ leptogenesis, $484.35$ GeV WIMP, $D_\Lambda = 97.41$ \\
-\code{E-CSM-0067} & C / EFT L2 & pass & Starobinsky ($n_s = 0.9644$, $H_{\mathrm{inf}} = 1.52 \times 10^{13}$ GeV), SDIRK4 BBN, Woods--Saxon magic numbers \\
-\code{E-CSM-0068} & C / EFT L2 & pass & CKN $D_{\mathrm{CKN}} = 97.28$ vs $97.41$, Weinberg $< 2$-shell window, $D=95$-anchored BP scan + No-Go ledger \\
-\multicolumn{4}{@{}l}{\emph{Lean~4 proofs, constructive gauge bounds, and coupled runs (Section~\ref{sec:unified})}} \\
-\code{E-FND-0185} & A / Lean~4.35.0 L2 & pass & 94 substantive Lean~4.35.0 theorems across 7 modules (113 public, 0 \code{sorry}/\code{axiom}, \code{Gauge.lean} Tier~C) \\
-\code{E-FND-0186} & B / $\{3,4,3,4\}$ L2 & pass & $\dim = 259{,}200$ 5-sector warped-column run: $6/6$ gates, $6/6$ ablations, rev $1.45 \times 10^{-15}$ \\
-\code{E-FND-0187} & B / $\{3,4,3,4\}$ L2 & pass & cached $R=2,3$ ball 4-sector prescribed-background run: $6/6$ gates, $4/4$ ablations, rev $0$ \\
-\code{E-FND-0188} & C / $D_4$ L2 & pass & $D_4$ $\mathbb{Z}_3$ transfer gap ($\ge 1.313$), 2-loop inversion, $O(k^4)$ $1/16$, 5 zero-fit + 8 consistency + 5 tensions \\
-\code{E-FND-0189} & C / 4D $D_4$ L2 & pass & site-RP $S = S_+ + S_0 + \Theta S_+$ (0 straddling), $\beta_{\mathrm{OS}}^{\mathrm{KP}}(\mathbb{Z}_3) = 0.009348$, $\beta_{\mathrm{OS}}^{\mathrm{KP}}(SU(3)) = 0.009328$, $m_{\mathrm{KP}} \in [0.156, 2.237]$ \\
-\code{E-FND-0190} & C / $\{3,4,3,4\}$ L2 & pass & Sec.~1 exact $\{3,4,3,4\}$ $\rho \le 13/21, \lambda_{\mathrm{gap}} \ge 8/21$ ($R=4$ RR $0.3782$), Sec.~2--3 MK/Tomboulis upper-bound RG vs $U(1)$, Bakry--\'Emery $\beta_{\mathrm{BE}} = 1/12, 3/16$ vs $0$ \\
-\bottomrule
+\code{E-GRV-0136} & B / flat box L2 & fail & settled bounded-clock horizon emits $10^{-7}$ of initial burst (redshift cap $\frac{1}{2}\ln N_{\mathrm{clk}}$) \\
+\code{E-GRV-0154} & B / $\{3,4,3,4\}$ L1 & open & depth-weight sweep $p = 0, \dots, 6$: unscreened iff $p \ge 3$, $1/r$ at $p = 6$ ($\xi = 184$) \\
+\code{E-GRV-0155} & B / $\{3,4,3,4\}$ L1 & partial & relative-residual rerun of \code{E-GRV-0154}: worst residual $3.5 \times 10^{-13}$ \\
+\code{E-GRV-0156} & B / $\{3,4,3,4\}$ L2 & fail & $N_D = 1, 18, 330, 6{,}034$, raw $0.0460$, $\mathcal{R}(12) = 1.48 \times 10^{15}$, fails $g_2$ on side-16 slope $-1.8177$ (resolved in \code{0157}) \\
+\code{E-GRV-0157} & B / $\{3,4,3,4\}$ L2 & pass & canonical $K_{\mathrm{eff}} = 1.012532$, $G_{\mathrm{eff}} = 0.078593$ (period-2 $1.031237 / 0.077167$), Green err $0.000044\%$, slope $-1.0029$ \\
+\code{E-GRV-0158} & B / $\{3,4,3,4\}$ L2 & pass & live infall slope $-1.9957$, $G_{\mathrm{dyn}}$ err $0.45\%$, orbit $91.6^\circ$ ($\omega$ $0.073\%$), flyby $18.8^\circ$ \\
+\code{E-GRV-0159} & C / continuum L2 & pass & prescribed isotropic PPN ($\gamma = \beta = 1$): redshift $1.89 \times 10^{-11}$, Eddington $\gamma = 1.0053$, Shapiro $0.234\%$, precession $0.073\%$ \\
+\code{E-GRV-0160} & C / continuum L2 & pass & Fierz--Pauli $\gamma = 1$ ($1.42 \times 10^{-13}$), Lichnerowicz star (21 steps, $\gamma, \beta \approx 1$), Regge $O(h^{2.00})$ \\
+\code{E-GRV-0161} & C / continuum L2 & pass & 1PN/2.5PN inspiral to $6.98\, r_g$ (no merger), warped TT $0.175\%$ (raw bulk $2.86 \times 10^{-87}$), independent BH $\ell = 2$ QNM $0.262\%$ \\
+\code{E-GRV-0162} & B / $\{3,4,3,4\}$ L2 & pass & cached $R = 2, 3$ 2-beat Hartree ($-4.117 \times 10^{-3}$) and isotropic mirror-sheet sweep \\
+\code{E-GRV-0163} & B / $R = \infty$ L2 & pass & exact \code{BigInt} $R = \infty$ 1D constant-river GP benchmark: both rays inward $(-0.19984, -2.15572)$ at $0.6944\, r_s$, exact $0$ norm, reversal, and $\langle\mathrm{out}|\mathrm{in}\rangle$ \\
+\addlinespace[4pt]
+\multicolumn{4}{@{}l}{\emph{Chirality, cold confinement, generations, and gauge EFTs (Section~\ref{sec:gauge})}} \\*
+\code{E-SPN-0221} & B / 1D wall L1 & pass & Hermitian depth-24 wall: Left $63/64$ vs Right $2.09 \times 10^{-13}$, 1D Weyl err $5.61 \times 10^{-15}$ \\
+\code{E-SPN-0222} & B / 1D wall L2 & pass & TRIM-exact $\mathbb{Z}[\zeta_9][1/6]$ depth-24 wall: Left $0.999914$ vs Right $3.56 \times 10^{-29}$ (mirror on $D \ge 21$), gap $\pi/3$ \\
+\code{E-FRC-0322} & B / $\Sigma(648)$ L2 & pass & quasi-(1+1)D $T = 0$ $\mathbb{Z}_3$ ladder ($R^2 = 1 - 10^{-15}$), baryon triality, Floquet survival $0.00137$, loop-basis Gauss err $0$ \\
+\code{E-FRC-0323} & B / 3-bank L2 & pass & 3 inscribed 16-cell banks ($I_3 \otimes U$, $\nu_{\mathrm{total}} = 3$), toy hierarchy $m_3/m_1 = 27{,}598 / 62{,}598$, $J_{\mathrm{CP}} = +9.48 \times 10^{-5}$ \\
+\code{E-FRC-0324} & C / $\mathrm{Spin}(10)$ L2 & pass & textbook $\mathrm{Cl}(10) \times 3$ ($48$ Weyl states), $6/6$ \code{BigInt} anomalies, $\sin^2\theta_W|_{\mathrm{GUT}} = 3/8$, tuned $S_3$ toy free energy \\
+\code{E-FRC-0325} & C / $\mathrm{Spin}(10)$ L2 & pass & Koide $Q_{\mathrm{Koide}} = 2/3 \iff r^2 = 2$, warp bound $Q_{\mathrm{Koide}} \ge 2/3$, $\delta = 2/9$ audit (direct $2\pi/9$ fails) \\
+\code{E-FRC-0326} & C / $\mathrm{Spin}(10)$ L2 & pass & $10_H$ EW breaking ($m_\gamma^2 = 0$, $\rho_{\mathrm{EW}} = 1$), Type-I seesaw, canonical $K_{\mathrm{eff}}$ 2-loop SM RG null audit ($0/10$ $\alpha$ hits) \\
+\code{E-FRC-0327} & C / $\mathrm{Spin}(10)$ L2 & pass & Lindemann--Weierstrass obstruction for $e^{i 2/9}$, $9 \times 9$ role Floquet, standalone $M_{\mathrm{PS}} = 1.44 \times 10^{16}\,\mathrm{GeV}$ texture \\
+\code{E-FRC-0328} & C / Pati--Salam L2 & pass & canonical $K_{\mathrm{eff}} = 1.012532$, 3-for-3 2-loop inversion $M_{\mathrm{PS}} = 1.434 \times 10^{11}\,\mathrm{GeV}$, $M_{\mathrm{GUT}} = 7.946 \times 10^{15}\,\mathrm{GeV}$, $D_{\mathrm{EW}} = 13.23$ \\
+\code{E-FRC-0329} & C / $D_4$ EFT L2 & pass & non-compact $D_4$ BLM ansatz (omitting $-17.91$ Wilson tadpole): zero-fit $\alpha^{-1}(0) = 128.73$ ($-6.06\%$), tuned GW $D_* = 13.15$ \\
+\code{E-FRC-0330} & C / $\mathrm{Spin}(10)$ L2 & pass & minimal $10_H + \overline{126}_H$ Yukawa at $M_{\mathrm{GUT}}$ exposes $m_d$ $-41\%$, $m_s$ $+70\%$, $\chi^2 = 87.97$ \\
+\code{E-FRC-0331} & C / $\mathrm{Spin}(10)$ L2 & pass & DFSZ QCD axion: $E/N = 8/3$, $N_{\mathrm{DW}} = 3$, $m_a = 39.7\text{--}238.1\,\mu\mathrm{eV}$, flags $H_{\mathrm{infl}}$ and $N_{\mathrm{DW}} = 3$ wall tensions \\
+\code{E-FRC-0332} & C / $\mathrm{Spin}(10)$ L2 & pass & GS-anomalous $\mathbb{Z}_{36}$ PQ ($d_{\min} = 18$), 11-scalar toy Hessian proxy, $120_H$ $\chi^2 = 0.565$ (14 real + 11 $\mathbb{Z}_9$ params) \\
+\addlinespace[4pt]
+\multicolumn{4}{@{}l}{\emph{Horosphere cosmology and downstream EFT checks (Section~\ref{sec:cosmology})}} \\*
+\code{E-CSM-0064} & B / $\{3,4,3,4\}$ L2 & pass & $51{,}064$-dock cusp check ($D \le 3$), $H_{\mathrm{dS}} = 0.29808\text{ beat}^{-1}$ (18/1/5 tree) and $0.51713\text{ beat}^{-1}$ ($0.153\, M_{\mathrm{Pl}}$, $\mathrm{F\text{-}G}(\pi)$) \\
+\code{E-CSM-0065} & B+C / $\{3,4,3,4\}$ L2 & pass & 160-beat mean-field braking walk ($4.91\%$, Tier~B) + Yoshida Friedmann ODE benchmark (Tier~C) \\
+\code{E-CSM-0066} & C / EFT L2 & pass & 5-state Sakharov walk ($t = 1$: $+0.2749$, $T = 40$: $+0.1913$), $\mathrm{Spin}(10)$ leptogenesis, $484.35\,\mathrm{GeV}$ WIMP, $D_\Lambda = 97.41$ \\
+\code{E-CSM-0067} & C / EFT L2 & pass & Starobinsky ($n_s = 0.9644$, $r_T = 0.00364$, $H_{\mathrm{infl}} = 1.50 \times 10^{13}\,\mathrm{GeV}$), SDIRK4 BBN, Woods--Saxon magic numbers \\
+\code{E-CSM-0068} & C / EFT L2 & pass & CKN $D_{\mathrm{CKN}} = 97.28$ vs $97.41$, Weinberg $1.54$-shell window above $95.87$, $D = 95$-anchored toy BP scan ($1{,}454$ vacua) \\
+\addlinespace[4pt]
+\multicolumn{4}{@{}l}{\emph{Lean~4 proofs, constructive gauge bounds, and coupled runs (Section~\ref{sec:unified})}} \\*
+\code{E-FND-0185} & A / Lean~4.35.0 L2 & pass & 94 headline Lean~4.35.0 theorems across 6 proof modules + barrel (113 public, 0 \code{sorry}/\code{axiom}, \code{Gauge} Tier~C, requires \code{pnpm check:lean} \code{.olean} build) \\
+\code{E-FND-0186} & B / 1D+depth L2 & pass & $\dim = 259{,}200$ 5-sector 1D-ring $\times$ 9-depth run: deflection $\pm 0.74522$, entanglement $0.31364/0.76680$, reversal $1.63 \times 10^{-15}$ \\
+\code{E-FND-0187} & B / $\{3,4,3,4\}$ L2 & pass & cached $R = 2, 3$ ball 4-sector run: cusp shift $0.248985$, reversal $0$ (Scales $0, 1, 4$) / $1.12 \times 10^{-15}$ (Scale~2) \\
+\code{E-FND-0188} & C / $D_4$ L2 & pass & $D_4$ $\mathbb{Z}_3$ gap ($\ge 1.313$, $\beta \in [0.1, 8.0]$), 2-loop $2.00 \times 10^{-15}$, $O(k^4)$ $1/16$, 3 structural zero-fit + 10 consistency + 5 tensions (needs \code{.olean} build) \\
+\code{E-FND-0189} & C / 4D $D_4$ L2 & pass & site-RP $\mathcal{S} = \mathcal{S}_+ + \mathcal{S}_0 + \Theta \mathcal{S}_+$ (0 straddling), $\beta_{\mathrm{OS}}^{\mathrm{KP}}(\mathbb{Z}_3) = 0.009348$, $\beta_{\mathrm{OS}}^{\mathrm{KP}}(SU(3)) = 0.009328$, $m_{\mathrm{KP}} \in [0.156, 2.237]$ ($\mathbb{Z}_3$) / $[0.154, 2.237]$ ($SU(3)$) \\
+\code{E-FND-0190} & C / $\{3,4,3,4\}$ L2 & pass & Sec.\@~1 exact $\{3,4,3,4\}$ $\rho_{\mathrm{spec}} \le 13/21, \lambda_{\mathrm{gap}} \ge 8/21$ ($R = 4$ RR $0.378175$), Sec.\@~2--3 MK/Tomboulis ($k^* = 2\text{--}10$ on $\beta_0 \in [2, 10]$), Bakry--\'Emery LSI $\beta_{\mathrm{BE}} = 1/12, 3/16$ vs $0$ \\
 \end{longtable}
 \end{small}

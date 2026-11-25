@@ -1,116 +1,112 @@
-\section{Open Problems, Tensions, and Interpretive Note}
+\section{Open Problems and Active Tensions}
 \label{sec:open}
 
-A disciplined mathematical-physics report places its verified results directly beside what the bare rule has
-\emph{not} derived. Sections~\ref{sec:one-rule}--\ref{sec:unified} established the verified quantum, relativistic,
-gravitational, gauge, cosmological, Lean~4, and lattice mass-gap results. Every remaining theoretical, computational,
-and phenomenological boundary of the $\{3,4,3,4\}$ honeycomb program is gathered explicitly below.
+The paper began with one dock and one rule. Collected in order, the results are as follows. The bare rule is exactly
+reversible, keeps $\mathcal{T}$, $\mathcal{CP}$, and $\mathcal{CPT}$, and cannot be reduced to its 3D husk
+(Section~\ref{sec:one-rule}). One excitation on one line carries a gate set dense in $SU(2)$ and the symmetry behind
+the Born rule (Section~\ref{sec:quantum}). Pairs in one dock turn twelve lines into isotropic, relativistic 3D motion
+(Section~\ref{sec:relativity}). A depth warp stops the bulk from screening gravity, gives $1/r$ orbits and a horizon,
+and locks every species to one speed (Sections~\ref{sec:relativity} and~\ref{sec:gravity}). The one-sided husk, the
+three banks, and the $\mathbb{Z}_3$ center give chirality, three copies, and confinement on simplified models
+(Section~\ref{sec:gauge}). Inward drift on the fixed mesh reads as de Sitter expansion (Section~\ref{sec:cosmology}).
+Lean~4 proofs and spectral bounds extend the laws used along the way to all times and depths, and coupled runs show
+the sectors share one state (Section~\ref{sec:unified}).
+
+The first of these results are Tier~A. The later ones depend increasingly on structure supplied by hand, and that
+dependence is the list of open problems below.
 
 \subsection{Open theoretical and computational frontiers}
 
-Six substantive open problems separate the bare Tier~A microscopic automaton from a complete first-principles
-derivation of downstream Tier~B and Tier~C physics.
-
-First, microscopic emergence of dynamical non-Abelian gauge fields remains open. While \code{E-FRC-0322} demonstrates
-cold $T = 0$ $\mathbb{Z}_3$ center confinement on a Kogut--Susskind ladder and \code{E-FRC-0324}--\code{E-FRC-0332}
-audit Tier~C continuum $\mathrm{Spin}(10)$ / Pati--Salam EFT compatibility, deriving dynamical continuous $SU(3)_C$,
-$SU(2)_L$, and $U(1)_Y$ gauge fields and spontaneous electroweak symmetry breaking directly from the bare Tier~A
-ternary QCA has not yet been achieved.
-
-Second, dynamical derivation of the pair-density warp $w(D) = 1/N_D^2$ and nonlinear 4D Einstein curvature remains
-open. Experiments \code{E-GRV-0156}--\code{E-GRV-0163} operate at Tier~B (imposed effective warp or prescribed Hartree
-and bijective Gullstrand--Painlev\'e backgrounds) and Tier~C (continuum GR consistency benchmarks). Deriving the
-$p = 6$ warp measure, $\gamma_{\mathrm{PPN}} = \beta_{\mathrm{PPN}} = 1$, and $G_{\mu\nu} = 8\pi G T_{\mu\nu}$ from
-bare Tier~A multi-excitation scattering on $\{3,4,3,4\}$ remains an open problem.
-
-Third, the $46\times$ bare-versus-column speed gap remains open. Bare Tier~A $M_{\mathrm{pair}}(\zeta_{18})$ floor-0
-Dirac kinematics (\code{E-RLT-0124}) propagates at $c_{\mathrm{eff}} = 0.021267$, sitting $46.0\times$ below the
-canonical single-face Tier~B shared-column speed $c_u = 0.977925$ ($46.4\times$ below the \code{period = 2} control
-$0.986916$). Deriving species-universal minimal coupling directly from the bare QCA and testing nonlinear
-Ho\v{r}ava-type scalar stability beyond the linearized $m_{\mathrm{KK}} = 3.2725$ gap remain open.
-
-Fourth, the 122-decade cosmological constant gap and Weinberg's (1989) no-go remain unresolved. Bare fixed-mesh
-horosphere drift in \code{E-CSM-0064} produces a Planck-scale Hubble rate $H_\infty = 0.51713\, M_{\mathrm{Pl}}$, 122
-orders of magnitude above $H_0$. Expressing CKN holographic scaling or scanning a $D = 95$-anchored Bousso--Polchinski
-landscape (\code{E-CSM-0068}) does not derive the observed $\Lambda$ dynamically without Weinberg (1989) fine-tuning
-\cite{weinberg1989}.
-
-Fifth, four quantum and computational limits stay explicitly open: operational Born weights over record branches remain
-a postulate (\code{E-QTM-0205}), ballistic open-line propagation stalls CHSH slightly below Tsirelson's bound
-(\code{E-QTM-0202}), bounded-clock horizons emit power-law quenches rather than steady Planckian Hawking radiation
-(\code{E-GRV-0134}, \code{E-GRV-0136}, not closed by \code{E-QTM-0207} or \code{E-GRV-0163}), and scaling unfactored
-many-body L3 evolution across large 4D $\{3,4,3,4\}$ regions remains an open computational frontier.
-
-Sixth, zero-parameter fermion masses, the Koide phase $\delta = 2/9$, and $\alpha(0)$ remain open. Because
-$e^{i 2/9} \notin \mathbb{Z}[\zeta_9][1/6]$ (\code{E-FRC-0327}) and the Tier~C $120_H$ flavor fit (\code{E-FRC-0332})
-still uses 14 continuous real parameters alongside $O(1)$ heavy Higgs thresholds for $\alpha(0)$, first-principles
-microscopic derivation of precision Particle Data Group (PDG) experimental mass ratios and $\alpha(0)$ remains open.
+Six open problems separate the bare Tier~A automaton from a first-principles derivation of the Tier~B and Tier~C
+results:
+\begin{enumerate}[itemsep=3pt]
+\item \textbf{Dynamical non-Abelian gauge fields and chiral gauging:} While \code{E-FRC-0322} tests cold $T = 0$
+$\mathbb{Z}_3$ confinement on a quasi-(1+1)D ladder and \coderange{E-FRC-0324}{0332} audit Tier~C continuum
+$\mathrm{Spin}(10)$ / Pati--Salam EFT compatibility, deriving dynamical continuous $SU(3)_C$, $SU(2)_L$, and $U(1)_Y$
+gauge fields, dynamical chiral gauging, and spontaneous electroweak symmetry breaking from the bare Tier~A QCA remains
+open.
+\item \textbf{Dynamical $w(D) = 1/N_D^2$ warp and nonlinear 4D gravity:} Experiments \coderange{E-GRV-0156}{0163}
+operate at Tier~B (imposed effective warp, 2-beat instantaneous Hartree coupling, and spatially uniform 1D
+constant-river Gullstrand--Painlev\'e backgrounds) and Tier~C (continuum GR benchmarks in
+\coderange{E-GRV-0159}{0161}). Deriving the $p = 6$ warp measure, $\gamma_{\mathrm{PPN}} = \beta_{\mathrm{PPN}} = 1$,
+and $G_{\mu\nu} = 8\pi G T_{\mu\nu}$ from bare multi-excitation QCA scattering remains open.
+\item \textbf{The $46\times$ bare-versus-beam speed gap:} Bare Tier~A $M_{\mathrm{pair}}(\zeta_{18})$ floor-0 Dirac
+kinematics (\code{E-RLT-0124}) propagates at $c_{\mathrm{eff}} = 0.021267$, sitting $46.0\times$ below canonical Tier~B
+$c_u = 0.977925$ ($46.4\times$ below period-2 $0.986916$). Deriving species-universal minimal coupling directly from
+the bare QCA and testing nonlinear Ho\v{r}ava-type scalar stability beyond the linearized $m_{\mathrm{KK}} =
+3.2725\text{ rad/beat}$ gap remain open.
+\item \textbf{The 61-decade Hubble / 122-decade $\Lambda$ gap:} Bare fixed-mesh horosphere drift (\code{E-CSM-0064})
+gives a lattice de Sitter rate \mbox{$H_{\mathrm{dS}} = 0.51713\text{ beat}^{-1}$} ($0.153\, M_{\mathrm{Pl}}$ for
+$\mathrm{F\text{-}G}(\pi)$, or $0.29808\text{ beat}^{-1} = 0.088\, M_{\mathrm{Pl}}$ for the Grover tree), sitting
+$\sim 61$ decades above $H_0$ ($122$ decades in vacuum energy $\Lambda \propto H^2$). Neither CKN scaling nor a
+$D = 95$-anchored toy Bousso--Polchinski scan (\code{E-CSM-0068}) resolves Weinberg's (1989) no-go \cite{weinberg1989}.
+\item \textbf{Quantum foundations, horizons, and many-body scaling:} Four limits stay explicitly open: operational Born
+weights over record branches remain a postulate (\code{E-QTM-0205}), ballistic open-line propagation stalls CHSH
+slightly below Tsirelson's bound (\code{E-QTM-0202}), bounded-clock horizons emit power-law quenches rather than steady
+Planckian Hawking radiation (\code{E-GRV-0134}, \code{E-GRV-0136}), and scaling unfactored many-body L3 evolution across
+large 4D $\{3,4,3,4\}$ regions remains open.
+\item \textbf{Zero-parameter flavor masses and $\alpha(0)$:} Because $e^{i 2/9} \notin \mathbb{Z}[\zeta_9][1/6]$
+(\code{E-FRC-0327}) and the Tier~C $120_H$ fit (\code{E-FRC-0332}) uses 14 real parameters plus 11 $\mathbb{Z}_9$
+exponents ($9^{11}$ basins) alongside heavy thresholds for $\alpha(0)$, first-principles derivation of precision PDG
+mass ratios and $\alpha(0)$ remains open.
+\end{enumerate}
 
 \subsection{Five active cross-sector EFT tensions}
 
-The live falsifiable experimental dossier in \code{E-FND-0188} audits 13 checks split strictly into \textbf{5 zero-fit
-predictions} and \textbf{8 fitted or continuum-GR consistency checks}, and explicitly records \textbf{5 active
+The live falsifiable experimental dossier in \code{E-FND-0188} audits 13 checks split strictly into \textbf{3 structural
+zero-fit checks} and \textbf{10 fitted or continuum-GR consistency checks}, and explicitly records \textbf{5 active
 cross-sector Tier~C EFT tensions} summarized in Table~\ref{tab:tensions}.
 
 \begin{table}[htbp]
 \centering
-\small
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.6cm}>{\raggedright\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}X@{}}
+\caption{Five active cross-sector Tier~C EFT tensions tracked live in \code{E-FND-0188} alongside 3 structural zero-fit
+checks and 10 fitted or continuum-GR consistency checks.}
+\label{tab:tensions}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.55cm}>{\raggedright\arraybackslash}p{2.75cm}>{\raggedright\arraybackslash}p{2.25cm}>{\raggedright\arraybackslash}X@{}}
 \toprule
 \# & Active tension & Codes & Quantitative conflict and current status \\
 \midrule
-1 & Inflation vs $N_{\mathrm{DW}} = 3$ axion isocurvature & \code{E-CSM-0067}, \code{E-FRC-0331} & Starobinsky inflation ($H_{\mathrm{inf}} = 1.52 \times 10^{13}$ GeV) exceeds the pre-inflationary $N_{\mathrm{DW}} = 3$ QCD axion isocurvature ceiling ($H_{\mathrm{inf}} < 9.9 \times 10^6$ GeV) by $1.5 \times 10^6\times$. Unresolved. \\
+1 & Inflation vs $N_{\mathrm{DW}} = 3$ axion isocurvature & \code{E-CSM-0067}, \code{E-FRC-0331} & Starobinsky inflation ($H_{\mathrm{infl}} = 1.50 \times 10^{13}\,\mathrm{GeV}$) exceeds the pre-inflationary $N_{\mathrm{DW}} = 3$ QCD axion isocurvature ceiling ($H_{\mathrm{infl}} < 9.9 \times 10^6\,\mathrm{GeV}$) by a factor of $1.51 \times 10^6$, while $N_{\mathrm{DW}} = 3 > 1$ blocks an unbiased post-inflationary escape. Unresolved. \\
 \addlinespace[3pt]
-2 & Minimal $10_H + \overline{126}_H$ down-quark pull & \code{E-FRC-0330}, \code{E-FRC-0332} & Minimal non-supersymmetric $SO(10)$ Yukawa unification pulls $m_d$ by $-41\%$ and $m_s$ by $+70\%$ ($\chi^2 = 87.97$). Adding $120_H$ reduces $\chi^2$ to $0.565$ (max pull $2.92\%$) at the cost of 14 continuous real parameters plus discrete $\mathbb{Z}_9$/sign choices over 18--19 observables. \\
+2 & Minimal $10_H + \overline{126}_H$ down-quark pull & \code{E-FRC-0330}, \code{E-FRC-0332} & Minimal non-supersymmetric $\mathrm{Spin}(10)$ Yukawa unification at $M_{\mathrm{GUT}}$ pulls $m_d$ by $-41\%$ and $m_s$ by $+70\%$ ($\chi^2 = 87.97$). Adding $120_H$ reduces $\chi^2$ to $0.565$ (max pull $2.92\%$) using 14 continuous parameters plus 11 discrete $\mathbb{Z}_9$ exponents ($9^{11}$ basins) and synthetic 2\%--12\% weights over 18 measured observables, while $120_H$ is omitted from Part~2's toy Hessian and 2-loop RGEs. \\
 \addlinespace[3pt]
-3 & Zero-fit $\alpha^{-1}(0)$ matching residual & \code{E-FRC-0329}, \code{E-FRC-0332} & Zero-fit 4D $D_4$ BLM matching gives $\alpha^{-1}(0) = 130.58$ ($-4.71\%$ below CODATA $137.036$), requiring $O(1)$ heavy $SO(10)$ Higgs threshold splittings rather than a zero-parameter determination. \\
+3 & Zero-fit $\alpha^{-1}(0)$ matching residual & \code{E-FRC-0329}, \code{E-FRC-0332} & Under canonical $K_{\mathrm{eff}} = 1.012532$, the non-compact $\mu = \pi/a$ $D_4$ BLM ansatz (omitting the negative compact Wilson cosine tadpole $-17.91$) gives zero-fit $\alpha^{-1}(0) = 128.73$ ($-6.06\%$ below CODATA $137.036$), requiring heavy $\mathrm{Spin}(10)$ Higgs threshold splittings in $[0.291, 1.346]$ rather than a zero-parameter determination. \\
 \addlinespace[3pt]
-4 & WIMP plus axion dark-matter budget & \code{E-CSM-0066}, \code{E-FRC-0331} & Combining the $484.35$ GeV $\mathbb{Z}_2$ WIMP and the DFSZ QCD axion requires partitioning $\Omega_{\mathrm{DM}} h^2 \approx 0.12$ without double-counting and auditing extra threshold feedback in 2-loop RGEs. \\
+4 & WIMP plus axion dark-matter budget & \code{E-CSM-0066}, \code{E-FRC-0331} & Combining the $484.35\,\mathrm{GeV}$ $\mathbb{Z}_2$ WIMP and the DFSZ QCD axion requires partitioning $\Omega_{\mathrm{DM}} h^2 \approx 0.12$ without double-counting and auditing extra threshold feedback in 2-loop RGEs. \\
 \addlinespace[3pt]
-5 & Standalone vs unified $M_{\mathrm{PS}}$ scale & \code{E-FRC-0327}, \code{0328}, \code{0330}, \code{0331}, \code{0332} & The standalone role-Floquet texture in \code{E-FRC-0327} uses $M_{\mathrm{PS}} = 1.44 \times 10^{16}$ GeV, whereas the unified 2-loop Pati--Salam sector in \code{E-FRC-0328}, \code{E-FRC-0330}, \code{E-FRC-0331}, and \code{E-FRC-0332} locks to $M_{\mathrm{PS}} = 1.434 \times 10^{11}$ GeV. \\
+5 & Standalone vs unified $M_{\mathrm{PS}}$ scale & \code{E-FRC-0327}, \code{0328}, \code{0330}, \code{0331}, \code{0332} & The standalone role-Floquet texture in \code{E-FRC-0327} uses $M_{\mathrm{PS}} = 1.44 \times 10^{16}\,\mathrm{GeV}$, whereas the unified 2-loop Pati--Salam sector in \code{E-FRC-0328}, \code{E-FRC-0330}, \code{E-FRC-0331}, and \code{E-FRC-0332} locks to $M_{\mathrm{PS}} = 1.434 \times 10^{11}\,\mathrm{GeV}$. \\
 \bottomrule
 \end{tabularx}
-\caption{Five active cross-sector Tier~C EFT tensions tracked live in \code{E-FND-0188} alongside 5 zero-fit
-predictions and 8 fitted or continuum-GR consistency checks.}
-\label{tab:tensions}
 \end{table}
 
 \subsection{Discrete UV finiteness and the Clay Yang--Mills problem}
 
-It is essential to state clearly how the constructive lattice gauge bounds of Section~\ref{sec:unified}
-(\code{E-FND-0189}, \code{E-FND-0190}, \code{Vibe/Geometry.lean}) stand relative to the Clay Millennium Yang--Mills
-Existence and Mass Gap problem \cite{jaffe2000ym}. A discrete $\{3,4,3,4\}$ / $D_4$ substrate does \textbf{not} require
+The constructive lattice gauge bounds of Section~\ref{sec:unified} (\code{E-FND-0189}, \code{E-FND-0190},
+\code{Vibe/Geometry.lean}) relate to the Clay Millennium Yang--Mills Existence and Mass Gap problem \cite{jaffe2000ym}
+as follows. A discrete $\{3,4,3,4\}$ / $D_4$ substrate does \textbf{not} require
 the flat-$\mathbb{R}^4$ continuum $a \to 0$ theorem to be mathematically well-defined: the honeycomb is
 ultraviolet-finite at lattice spacing $a = \ell_{\mathrm{Pl}}$ and already carries an unconditional global Busemann
-Schur-test spectral gap $\lambda_{\mathrm{gap}}(\{3,4,3,4\}) \ge 8/21 \approx 0.3810$ ($\rho \le 13/21 \approx 0.6190$,
-$m_{\mathrm{geom}} \ge 0.4796$).
+Schur-test spectral gap $\lambda_{\mathrm{gap}}(\{3,4,3,4\}) \ge 8/21 \approx 0.3810$ ($\rho_{\mathrm{spec}} \le 13/21
+\approx 0.6190$, $m_{\mathrm{geom}} \ge 0.4796$).
 
 In parallel, flat 4D $D_4$ carries exact 256-component $O(a^4)$ rotational isotropy, exact infinite-volume
-site-hyperplane reflection positivity $S = S_+ + S_0 + \Theta S_+$ for all $\beta \ge 0$, certified multi-plaquette
-Koteck\'y--Preiss strong-coupling radii $\beta_{\mathrm{OS}}^{\mathrm{KP}}(\mathbb{Z}_3) = 0.009348$ and
-$\beta_{\mathrm{OS}}^{\mathrm{KP}}(SU(3)) = 0.009328$, and exact Bakry--\'Emery Haar Ricci curvature thresholds
-$\beta_{\mathrm{BE}}(SU(2)) = 1/12$ and $\beta_{\mathrm{BE}}(SU(3)) = 3/16$ versus $U(1) = 0$.
+site-hyperplane reflection positivity $\mathcal{S} = \mathcal{S}_+ + \mathcal{S}_0 + \Theta \mathcal{S}_+$ for all
+$\beta \ge 0$, certified multi-plaquette Koteck\'y--Preiss strong-coupling radii
+\mbox{$\beta_{\mathrm{OS}}^{\mathrm{KP}}(\mathbb{Z}_3) = 0.009348$} and
+\mbox{$\beta_{\mathrm{OS}}^{\mathrm{KP}}(SU(3)) = 0.009328$}, and exact Bakry--\'Emery Haar Ricci curvature thresholds
+\mbox{$\beta_{\mathrm{BE}}(SU(2)) = 1/12$} and \mbox{$\beta_{\mathrm{BE}}(SU(3)) = 3/16$} versus $U(1) = 0$.
 
-At the same time, \textbf{two distinct mathematical problems remain genuinely open}: first, Clay's flat-$\mathbb{R}^4$
-continuum $a \to 0$ construction across the intermediate-coupling crossover $g(\mu) \sim O(1)$ (which requires
-multi-scale Balaban-style block-spin renormalization far beyond single-step APE smearing or Migdal--Kadanoff
-bond-moving convexity bounds, \code{clayMillenniumSolved = false}), and second, deriving dynamical $SU(3)_C$ and
-$SU(2)_L$ gauge fields directly from the bare Tier~A ternary QCA.
-
-\subsection{Interpretive note: Vibe Theory and Russellian monism}
-
-Sections~\ref{sec:one-rule}--\ref{sec:unified} stand strictly on their own algebraic, geometric, and computational
-definitions, independent of any metaphysical interpretation. Outside this mathematical audit, the author explores the
-same discrete automaton under a wider philosophical framework termed \emph{Vibe Theory}, aligned with Russellian monism
-\cite{russell1927}: the signed ternary state $\tau \in \{-1, 0, +1\}$ on the mesh is interpreted as an elementary
-carrier of intrinsic valence, and localized, globally $CP$-balanced coherent $C$-odd configurations are hypothesized to
-correspond to phenomenal experience. This interpretive framing is explicitly an \textbf{unfalsifiable philosophical
-hypothesis}: no theorem, cyclotomic calculation, or physical experiment can distinguish an experiential discrete
-substrate from an isomorphic non-experiential quantum cellular automaton.
+At the same time, \textbf{two distinct mathematical problems remain open}: first, Clay's flat-$\mathbb{R}^4$ continuum
+$a \to 0$ construction across the intermediate-coupling crossover $g(\mu) \sim O(1)$ (which requires multi-scale
+Balaban-style block-spin renormalization \cite{balaban1989} far beyond single-step APE smearing or Migdal--Kadanoff
+bond-moving convexity bounds, leaving the Clay Millennium continuum problem explicitly unsolved), and second, deriving
+dynamical $SU(3)_C$ and $SU(2)_L$ gauge fields directly from the bare Tier~A ternary QCA.
 
 \paragraph{Acknowledgments and computational tooling.}
-Large language models assisted throughout development, testing, validation, and drafting: Claude Opus~5.5 supported the
-earlier months of exploratory modeling, experiment implementation, and initial proofs, and Gemini~4~Neon supported the
-final push of Lean~4 proof hardening, adversarial audits, bug remediation, and manuscript revision. Every formal
-theorem is independently verified by the Lean~4.35.0 kernel, every audit runs deterministically from the public
-repository, and the author takes sole responsibility for all claims and any remaining errors.
+Every formal theorem is independently verified by the Lean~4.35.0 kernel, every numerical audit runs deterministically
+from the public repository, and the author takes sole responsibility for all claims and any remaining errors. During
+software development, testing, adversarial auditing, and manuscript revision, large language models assisted as
+engineering and review tools: Claude Opus~5.5 supported the earlier months of exploratory modeling, experiment
+implementation, and initial proofs, and Gemini~4~Neon supported the final push of Lean~4 proof hardening, adversarial
+audits, bug remediation, and manuscript revision.

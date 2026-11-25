@@ -1,113 +1,146 @@
 \section{Horosphere Cosmology and Downstream EFT Checks}
 \label{sec:cosmology}
 
-Because the $\{3,4,3,4\}$ honeycomb is completely fixed and never creates or destroys lattice sites, cosmic expansion
-cannot arise from a growing mesh. How does unitary radial propagation into exponentially widening horospheres produce
-apparent de Sitter expansion without adding sites, and how far does that bare geometric expansion sit from observed
-late-time cosmology? Below we separate Tier~B fixed-mesh horosphere walks (\code{E-CSM-0064}, \code{E-CSM-0065} Part~A)
-from Tier~C downstream continuum cosmological EFT checks (\code{E-CSM-0065} Part~B, \code{E-CSM-0066}--\code{E-CSM-0068}),
-explicitly disclosing the 122-decade bare Hubble gap and Weinberg's (1989) no-go theorem \cite{weinberg1989}.
+Sections~\ref{sec:relativity}--\ref{sec:gauge} built local physics on the husk. This section asks about the husk as a
+whole. The honeycomb is fixed and never gains or loses a dock, so cosmic expansion cannot come from a growing mesh.
+It can come from depth. Each floor of the cusp is about eighteen times larger than the one above it, so an excitation
+that drifts steadily inward occupies a 3D volume that grows exponentially, and an observer who measures distances in
+units of that volume sees expansion. Section~\ref{sec:gravity} supplies the Planck units in which the rate is compared
+with observation.
 
-\paragraph{Key findings.}
-Ballistic radial propagation into the fixed $\{3,4,3,4\}$ cusp yields exact exponential de Sitter expansion
-($q = w = -1$) at a Planck-scale rate $H_\infty = 0.51713\, M_{\mathrm{Pl}}$ (\code{E-CSM-0064}), a density-braked
-reversible walk transitions cleanly from decelerated to accelerated expansion (\code{E-CSM-0065} Part~A), and Tier~C
-EFT audits quantify the 122-decade Hubble hierarchy and confirm that stabilizing $D_\Lambda \approx 97$ dynamically
-remains open (\code{E-CSM-0068}).
+Steady inward drift gives exact de Sitter expansion ($q_{\log} = w_{\mathrm{eff}} = -1$) at a lattice rate of order
+$0.1\, M_{\mathrm{Pl}}$ (Tier~B, \code{E-CSM-0064}), and a reversible walk braked by a prescribed density passes from
+deceleration to acceleration (Tier~B, \code{E-CSM-0065} Part~A). The bare rate sits about 61 decades above the
+observed Hubble rate, or 122 decades in vacuum energy $\Lambda \propto H^2$, and Weinberg's no-go theorem
+\cite{weinberg1989} stands. Continuum cosmology checks follow at Tier~C (\code{E-CSM-0065} Part~B,
+\coderange{E-CSM-0066}{0068}).
 
 \subsection{Fixed-mesh horosphere drift and reversible braking}
 
-As a localized quantum disturbance moves radially into the fixed $\{3,4,3,4\}$ cusp bulk at mean Busemann depth
-$\langle D(t) \rangle$, the 3D horosphere volume behind the wavefront grows exponentially as
+As a localized disturbance moves into the cusp at mean depth $\langle D(t) \rangle$, the 3D horosphere volume behind
+the wavefront grows exponentially as
 $V(D) \sim r_{\mathrm{vol}}^D$ ($r_{\mathrm{vol}} \approx 18.285$). Defining the effective 3D scale factor $a(t)$,
-ballistic radial drift at speed $v_D = d\langle D\rangle / dt$ yields a constant effective Hubble rate with zero
-creation of new lattice sites:
+ballistic radial drift at speed $v_D = d\langle D\rangle / dt$ yields a constant effective de Sitter Hubble rate
+$H_{\mathrm{dS}}$ (in $\text{beat}^{-1}$) with zero creation of new lattice sites:
 \begin{equation}
 a(t) = V\bigl(\langle D(t)\rangle\bigr)^{1/3} \propto r_{\mathrm{vol}}^{\langle D(t)\rangle / 3},
 \qquad
-H_\infty = \frac{\dot{a}}{a} = \frac{\ln r_{\mathrm{vol}}}{3}\, v_D.
+H_{\mathrm{dS}} = \frac{\dot{a}}{a} = \frac{\ln r_{\mathrm{vol}}}{3}\, v_D.
 \label{eq:horosphere-hubble}
 \end{equation}
+Here $q_{\log} = -a\ddot{a}/\dot{a}^2$ denotes the logarithmic deceleration parameter and
+$w_{\mathrm{eff}} = (2 q_{\log} - 1)/3$ the effective equation-of-state parameter.
 
-Direct enumeration of 51,064 exact cusp docks (\code{E-CSM-0064}) proves uniform bank connectivity across the cusp,
-exact reversibility under $U^\dagger$, and convergence onto a de Sitter attractor (exponential expansion at constant
-Hubble rate with $w = -1$), whereas a flat 3D cubic control ($b = 1$) gives zero expansion identically. Crucially, the
-bare drift rate in lattice Planck units sits at \textbf{$H_\infty = 0.51713\, M_{\mathrm{Pl}}$}, which is \textbf{122
-orders of magnitude above the observed late-time Hubble constant $H_0$}.
+Direct enumeration of 51,064 exact cusp docks (\code{E-CSM-0064}) verifies uniform bank connectivity across depths
+$D = 0, \dots, 3$, exact reversibility under $U^\dagger$, and convergence onto a de Sitter attractor ($w_{\mathrm{eff}} = -1$),
+whereas a flat 3D cubic control ($b = 1$) gives zero expansion. The three radial walks tested in \code{E-CSM-0064} give:
+\begin{itemize}[itemsep=2pt]
+\item \textbf{$(18\text{ down}, 1\text{ up}, 5\text{ lateral})$ Grover tree:} $H_{\mathrm{dS}} = 0.29808\text{ beat}^{-1}$
+at leading branching base $b = 18$ (or $0.29983\text{ beat}^{-1}$ at $r_{\mathrm{vol}} = 6{,}034/330$, $v_D = 0.30952$,
+$q_{\log} = -1.0000$, $w_{\mathrm{eff}} = -1.0000$, reversal $5.33 \times 10^{-15}$).
+\item \textbf{Bare walk without $\mathrm{F\text{-}G}$:} $H_{\mathrm{dS}} = 0.32047\text{ beat}^{-1}$ at $b = 18$ (or
+$0.32236\text{ beat}^{-1}$ at $r_{\mathrm{vol}} = 6{,}034/330$, $v_D = 0.33278$).
+\item \textbf{$\mathrm{F\text{-}G}(\pi)$ single-bank control:} $H_{\mathrm{dS}} = 0.51713\text{ beat}^{-1}$ at
+$r_{\mathrm{vol}} = 6{,}034/330$ (or $0.51455\text{ beat}^{-1}$ at $b = 18$, $v_D = 0.53384$, $q_{\log} = -0.9994$,
+$w_{\mathrm{eff}} = -0.9996$, superseded at Scale~1 by $M_{\mathrm{pair}}(\zeta_{18})$ in Section~\ref{sec:relativity}).
+\end{itemize}
 
-Because a dilute walk remains permanently at $q = w = -1$, Part~A of \code{E-CSM-0065} tests a 160-beat reversible
-unitary braking walk where local density slows the radial coin angle via
-$\theta(\rho) = \pi/(1 + \kappa G_{\mathrm{eff}} \rho)$. Early drift brakes strongly ($q > 0$) before relaxing onto
-the late-time de Sitter attractor as expansion dilutes $\rho(t)$, while preserving memoryless $U^\dagger$ reversal.
-Table~\ref{tab:cosmo-b} collects all Tier~B horosphere measurements.
+The rates are in inverse beats. Converting to Planck units with Section~\ref{sec:gravity}'s $t_{\mathrm{Pl}} = \sqrt{G_{\mathrm{eff}}/c_u^5} =
+0.2964\text{ beats}$ ($M_{\mathrm{Pl}} = 3.373\text{ beat}^{-1}$) gives {\bfseries\boldmath $H_{\mathrm{dS}} =
+0.153\, M_{\mathrm{Pl}}$} for $\mathrm{F\text{-}G}(\pi)$ and {\bfseries\boldmath $0.088\, M_{\mathrm{Pl}}$} for the
+Grover tree. Both sit {\bfseries\boldmath $\sim 60\text{--}61$ orders of magnitude above the observed
+late-time Hubble constant $H_0$}, which corresponds to {\bfseries\boldmath $\sim 121\text{--}122$ orders of magnitude
+in vacuum energy density} ($\Lambda_{\mathrm{eff}}/\Lambda_{\mathrm{obs}} \propto (H_{\mathrm{dS}}/H_0)^2$,
+$\rho_{\mathrm{Pl}}/\rho_\Lambda = 8.83 \times 10^{122}$).
+
+A dilute walk stays at $q_{\log} = w_{\mathrm{eff}} = -1$ forever, while the observed universe decelerated before it
+accelerated. To see whether matter can brake the drift, Part~A of \code{E-CSM-0065} tests a
+160-beat reversible unitary braking walk on a 1-particle 1D radial chain where a prescribed global mean-field density
+$\rho(\langle D\rangle) = n_r a^{-4} + n_m a^{-3}$ ($n_r = 1{,}200$, $n_m = 400$, $\kappa = 1$, a mean-field ansatz rather
+than local multi-excitation scattering) slows the radial coin angle via
+\begin{equation}
+\theta(\rho) = \frac{\pi}{1 + \kappa G_{\mathrm{eff}} \rho}.
+\label{eq:braking-angle}
+\end{equation}
+Early drift brakes strongly ($q_{\log} > 0$) before relaxing onto the late-time de Sitter attractor as expansion dilutes
+$\rho$, while preserving memoryless $U^\dagger$ reversal because the depth-preserving coin leaves $\langle D\rangle$
+invariant. Table~\ref{tab:cosmo-b} collects all Tier~B horosphere measurements.
 
 \begin{table}[htbp]
 \centering
+\caption{Tier~B fixed-mesh horosphere drift and reversible mean-field braking walk (\code{E-CSM-0064}, \code{E-CSM-0065}
+Part~A).}
+\label{tab:cosmo-b}
 \small
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}p{2.5cm}>{\raggedright\arraybackslash\hsize=1.22\hsize}X>{\raggedright\arraybackslash\hsize=0.78\hsize}X@{}}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}p{2.4cm}>{\raggedright\arraybackslash\hsize=1.24\hsize}X>{\raggedright\arraybackslash\hsize=0.76\hsize}X@{}}
 \toprule
 Code (Tier~B) & Test & Verified measurement & Control / scale boundary \\
 \midrule
-\code{E-CSM-0064} & 51,064-dock cusp & $0/2/6$ husk and $1/0/7$ bulk bank split, 3-beat $U^\dagger$ rev $5.01 \times 10^{-16}$, 7-ary solver match $2.36 \times 10^{-15}$ & norm err $2.20 \times 10^{-14}$ \\
+\code{E-CSM-0064} & 51,064-dock cusp ($D \le 3$) & $0/2/6$ husk and $1/0/7$ bulk bank split, 3-beat $U^\dagger$ reversal $5.01 \times 10^{-16}$, 7-ary solver match $2.36 \times 10^{-15}$ & norm err $2.20 \times 10^{-14}$ \\
 \addlinespace[4pt]
-\code{E-CSM-0064} & de Sitter drift ($t = 40$) & $b = 18/1/5$ gives $q_{\log} = -1.0000$, $w_{\mathrm{eff}} = -1.0000$, $H_\infty = 0.51713\, M_{\mathrm{Pl}}$, rev $5.33 \times 10^{-15}$ & flat $b = 1$ gives $a(40) = 1$, $H = 0$, bare rate $10^{122}\times H_0$ \\
+\code{E-CSM-0064} & de Sitter drift ($t = 40$) & $(18\text{ down}, 1\text{ up}, 5\text{ lateral})$ Grover tree ($b = 18$): $H_{\mathrm{dS}} = 0.29808\text{ beat}^{-1}$ ($0.088\, M_{\mathrm{Pl}}$), $q_{\log} = -1.0000$, $w_{\mathrm{eff}} = -1.0000$, reversal $5.33 \times 10^{-15}$. Bare walk ($b = 18$): $0.32047\text{ beat}^{-1}$. $\mathrm{F\text{-}G}(\pi)$ control ($r_{\mathrm{vol}} = 6{,}034/330$): $H_{\mathrm{dS}} = 0.51713\text{ beat}^{-1}$ ($0.153\, M_{\mathrm{Pl}}$), $q_{\log} = -0.9994$, $w_{\mathrm{eff}} = -0.9996$ & flat $b = 1$ gives $a(40) = 1$, $H_{\mathrm{dS}} = 0$, bare rate $\sim 10^{60\text{--}61}\times H_0$ ($\sim 10^{121\text{--}122}$ in $\Lambda$) \\
 \addlinespace[4pt]
-\code{E-CSM-0065} (A) & 160-beat braking walk & early drift braked to $4.95\%$ ($q > 0$), late $q = -1.00017$, $w = -1.00011$, norm $1.28 \times 10^{-14}$, rev $7.30 \times 10^{-13}$ & dilute control stays locked at $q = -1$ \\
+\code{E-CSM-0065} (A) & 160-beat mean-field braking & early drift braked to $4.91\%$ ($q_{\log} > 0$), late $q_{\log} = -0.99998$, $w_{\mathrm{eff}} = -0.99999$, norm $9.88 \times 10^{-15}$, reversal $4.21 \times 10^{-13}$ & prescribed global $\rho(\langle D\rangle)$, dilute control locked at $q_{\log} = -1$ \\
 \bottomrule
 \end{tabularx}
-\caption{Tier~B fixed-mesh horosphere drift and reversible braking walk (\code{E-CSM-0064}, \code{E-CSM-0065} Part~A).}
-\label{tab:cosmo-b}
 \end{table}
 
 \subsection{Continuum cosmological EFT compatibility checks}
 
-Four downstream \textbf{Tier~C} continuum cosmological checks (\code{E-CSM-0065} Part~B and \code{E-CSM-0066}--\code{0068},
+The Tier~C checks place standard continuum cosmology on the honeycomb's scales, using the shell ratio
+$b = 6{,}034/330$ and the grand-unified scales of Section~\ref{sec:gauge}. Four downstream \textbf{Tier~C} checks (\code{E-CSM-0065} Part~B and \coderange{E-CSM-0066}{0068},
 none derived from the bare QCA) audit standard three-era Friedmann dynamics, early-universe particle cosmology, and
 cosmological-constant bounds expressed in $\{3,4,3,4\}$ shell units ($b = 6{,}034/330$). In \code{E-CSM-0065} Part~B, a
-reversible 6th-order Yoshida symplectic integrator (a time-reversible Hamiltonian solver preserving energy,
-\cite{yoshida1990}) parameterized by $(G_{\mathrm{eff}}, H_\infty)$ traverses radiation domination, matter-radiation
-equality, matter domination, turnaround $q = 0$, and late-time de Sitter with machine-precision conservation.
+reversible 6th-order Yoshida symplectic integrator \cite{yoshida1990} benchmarks accuracy on the standard flat $\Lambda$CDM
+Friedmann ODE (with prescribed $a_{\mathrm{eq}} = 10^{-5}$ and $H_{\mathrm{dS}}$ as the de Sitter asymptote), traversing
+radiation domination, matter-radiation equality, matter domination, turnaround $q = 0$, and late-time de Sitter with
+machine-precision Hamiltonian conservation.
 
-Experiment \code{E-CSM-0066} pairs a standalone 5-state $\mathbb{Z}[\zeta_9]$ Sakharov toy walk (verifying the three
-necessary conditions for matter-antimatter baryogenesis) with standard $\mathrm{Spin}(10)$ thermal leptogenesis at
-$M_{\mathrm{PS}} = 1.434 \times 10^{11}$ GeV and an unbroken $\mathbb{Z}_2$-parity weakly interacting massive particle
-(WIMP) dark-matter candidate (which must share the relic dark-matter budget with the QCD axion of
-Section~\ref{sec:gauge}).
-
-Experiment \code{E-CSM-0067} checks Starobinsky plateau inflation \cite{starobinsky1980} (explicitly flagging the
-$1.5 \times 10^6\times$ pre-inflationary axion isocurvature tension), a fourth-order stiff implicit solver (SDIRK4) for
-Big Bang Nucleosynthesis (BBN, primordial light-element synthesis), and a textbook 1D Woods--Saxon nuclear magic-number
-benchmark (standard continuum physics independent of the QCA).
-
-Finally, \code{E-CSM-0068} expresses the base-independent Cohen--Kaplan--Nelson (CKN) holographic bound (an
-infrared-to-ultraviolet, IR--UV, entropy bound linking horizon size to vacuum energy, \cite{cohen1999}) in $\{3,4,3,4\}$
-shells, confirms Weinberg's $500/729$ spherical-collapse galaxy window ($< 2$ shells above $D = 95$), and runs a
-$D = 95$-anchored 8-channel $\mathbb{Z}_3$-flux Bousso--Polchinski (BP) scan (multi-flux vacuum-energy landscape search
-\cite{bousso2000}, explicitly assuming 120 decades of prior warp suppression, versus $K = 146$ channels from $D = 0$)
-alongside an explicit Weinberg (1989) No-Go ledger. Table~\ref{tab:cosmology} collects all Tier~C cosmological metrics.
+Three further Tier~C scripts (\coderange{E-CSM-0066}{0068}) audit early-universe particle cosmology and holographic
+$\Lambda$ bounds in $\{3,4,3,4\}$ shell units (Table~\ref{tab:cosmology}):
+\begin{itemize}[itemsep=2pt]
+\item \textbf{Baryogenesis and WIMP relic density (\code{E-CSM-0066}):} Pairs a standalone 5-state $\mathbb{Z}[\zeta_9]$
+Sakharov toy walk \cite{sakharov1967} ($\Delta B = +0.2749$ at $t = 1$, $+0.1913$ at $T = 40$) with standard
+$\mathrm{Spin}(10)$ thermal leptogenesis at $M_{\mathrm{PS}} = 1.434 \times 10^{11}\,\mathrm{GeV}$ (bisecting
+$\tilde{m}_1 \in [m_2, m_3]$ to match $\eta_B = 6.12 \times 10^{-10}$) and a $\mathbb{Z}_2$-protected WIMP benchmark at
+$m_{\mathrm{DM}} = M_{\mathrm{Pl}}/N_{13} = 484.35\,\mathrm{GeV}$ ($\Omega h^2 = 0.1147$ at canonical
+$\langle\sigma v\rangle = 2.2 \times 10^{-26}\,\mathrm{cm}^3/\mathrm{s}$, sharing the dark-matter budget with
+Section~\ref{sec:gauge}'s axion).
+\item \textbf{Inflation, BBN, and nuclear shells (\code{E-CSM-0067}):} Benchmarks textbook Starobinsky $\alpha = 1$
+plateau inflation \cite{starobinsky1980} ($H_{\mathrm{infl}} = 1.50 \times 10^{13}\,\mathrm{GeV}$, flagging the
+$1.51 \times 10^6\times$ axion isocurvature tension), a stiff SDIRK4 Big Bang Nucleosynthesis solver with PDG inputs,
+and a 1D Woods--Saxon nuclear magic-number control.
+\item \textbf{Holographic and flux-landscape bounds (\code{E-CSM-0068}):} Expresses the Cohen--Kaplan--Nelson bound
+\cite{cohen1999} in shell units ($D_\Lambda - D_{\mathrm{CKN}} = \log_b(1/\Omega_\Lambda) = 0.13$, a base-independent
+Friedmann identity), verifies Weinberg's $500/729$ collapse window \cite{weinberg1989} ($1.54$ shells above $D_{\mathrm{Weinberg}} = 95.87$),
+and runs a $D = 95$-anchored toy $N_{\mathrm{flux}} = 8$ Bousso--Polchinski scan \cite{bousso2000} (assuming 120 decades
+of prior warp suppression, versus $N_{\mathrm{flux}} = 146$ from $D = 0$) alongside an explicit Weinberg (1989) No-Go
+ledger.
+\end{itemize}
 
 \begin{table}[htbp]
 \centering
+\caption{Tier~C downstream continuum cosmological EFT checks (\code{E-CSM-0065} Part~B,
+\coderange{E-CSM-0066}{0068}, not derived from the bare QCA).}
+\label{tab:cosmology}
 \small
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}p{2.5cm}>{\raggedright\arraybackslash\hsize=1.22\hsize}X>{\raggedright\arraybackslash\hsize=0.78\hsize}X@{}}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}p{2.4cm}>{\raggedright\arraybackslash\hsize=1.22\hsize}X>{\raggedright\arraybackslash\hsize=0.78\hsize}X@{}}
 \toprule
 Code (Tier~C) & Cosmological check & Verified measurement & Control / boundary \\
 \midrule
-\code{E-CSM-0065} (B) & Yoshida 3-era closure & rad $t^{0.5017}$, $a_{\mathrm{eq}}$ $1.69 \times 10^{-16}$, mat $t^{0.66645}$, $\Omega_m/\Omega_\Lambda = 1.999955$, dS $H_\infty$ & Ham err $1.94 \times 10^{-15}$, rev $7.32 \times 10^{-18}$ \\
+\code{E-CSM-0065} (B) & Yoshida Friedmann ODE benchmark & radiation $t^{0.5017}$, $a_{\mathrm{eq}}$ err $1.69 \times 10^{-16}$, matter $t^{0.66645}$, $\Omega_m/\Omega_\Lambda = 1.999955$, de Sitter $H_{\mathrm{dS}}$ & Hamiltonian err $1.94 \times 10^{-15}$, reversal $7.32 \times 10^{-18}$ (prescribed $a_{\mathrm{eq}} = 10^{-5}$) \\
 \addlinespace[4pt]
-\code{E-CSM-0066} & baryogenesis \& WIMP & $\Delta B = +0.2749$, $\eta_B \in [4.11, 11.3] \times 10^{-10}$, $484.35$ GeV WIMP ($\Omega h^2 = 0.115..0.120$), $D_\Lambda = 97.41$ & 3 Sakharov ablations $0$, shares DM with axion \\
+\code{E-CSM-0066} & baryogenesis \& WIMP & $\Delta B = +0.2749$ ($t = 1$) / $+0.1913$ ($T = 40$), $\eta_B \in [4.11, 11.3] \times 10^{-10}$, $484.35\,\mathrm{GeV}$ WIMP ($\Omega h^2 \in [0.115, 0.120]$), $D_\Lambda = 97.41$ & 3 Sakharov ablations $0$, $\tilde{m}_1$ and $\langle\sigma v\rangle$ bisected, shares DM with axion \\
 \addlinespace[4pt]
-\code{E-CSM-0067} & inflation, BBN, nuclear & Starobinsky $n_s = 0.9644$, $r = 0.00364$, $H_{\mathrm{inf}} = 1.52 \times 10^{13}$ GeV, $Y_p = 0.2454$, $\mathrm{D/H} = 2.583 \times 10^{-5}$ & flags $1.5 \times 10^6\times$ axion tension, textbook Woods--Saxon $[2..126]$ \\
+\code{E-CSM-0067} & inflation, BBN, nuclear & Starobinsky $n_s = 0.9644$, $r_T = 0.00364$, $H_{\mathrm{infl}} = 1.50 \times 10^{13}\,\mathrm{GeV}$, $Y_p = 0.2454$, $\mathrm{D/H} = 2.583 \times 10^{-5}$ & flags $1.51 \times 10^6\times$ axion tension, textbook Woods--Saxon $2, 8, 20, 28, 50, 82, 126$ \\
 \addlinespace[4pt]
-\code{E-CSM-0068} & CKN, Weinberg, BP scan & $D_{\mathrm{CKN}} = 97.28$ vs $D_\Lambda = 97.41$, Weinberg $500/729$ ($9.64 \times 10^{-7}$), 1,496 vacua (closest $97.4117$) & $D=95$-anchored (120 decades assumed), Weinberg 1989 unsolved \\
+\code{E-CSM-0068} & CKN, Weinberg, toy BP scan & $D_{\mathrm{CKN}} = 97.28$ vs $D_\Lambda = 97.41$ ($\Delta D = 0.13$ Friedmann identity), Weinberg $500/729$ ($9.64 \times 10^{-7}$, window $1.54$ shells above $95.87$), $1{,}454$ vacua (closest $97.4218$, $|\Delta D| = 7.18 \times 10^{-3}$) & toy $N_{\mathrm{flux}} = 8$ ad-hoc charges anchored at $D = 95$ (120 decades assumed), Weinberg 1989 unsolved \\
 \bottomrule
 \end{tabularx}
-\caption{Tier~C downstream continuum cosmological EFT checks (\code{E-CSM-0065} Part~B,
-\code{E-CSM-0066}--\code{0068}, not derived from the bare QCA).}
-\label{tab:cosmology}
 \end{table}
 
-Fixed-mesh horosphere drift produces exact unitary de Sitter expansion without creating lattice sites, while strict
-tier separation keeps the 122-decade bare Hubble gap and Weinberg's (1989) cosmological constant no-go fully visible.
-We now move from finite-horizon computational runs to machine-checked Lean~4.35.0 proofs, rigorous non-perturbative
-mass-gap bounds, and coupled multi-sector unitary runs.
+Inward drift on a fixed mesh thus gives exact unitary de Sitter expansion with no sites created, and density braking
+gives a decelerating early era. The 61-decade gap in the bare rate ($122$ decades in $\Lambda$) and Weinberg's no-go
+stay open. Every result so far rests on finite runs over finite times. Section~\ref{sec:unified} turns to results that
+hold for all times and depths, and to runs in which the separate sectors of Sections~\ref{sec:one-rule}--\ref{sec:cosmology}
+share one state.
