@@ -12,7 +12,7 @@
 
 <h3 align='center'>Vibe Theory</h3>
 <p align='center'>
-  <b>V</b>alenced <b>I</b>nformation as <b>B</b>ase <b>E</b>xperience
+  Valenced Information as Base Experience
 </p>
 <br/>
 <br/>
@@ -60,14 +60,14 @@ invariant $\chi_{\mathrm{odd}}$ (matching `code/rule/value-phase.ts`),
 and $C_{1/2}$ symmetrically splits the commuting central collision block
 so lone excitations see $C_{1/2}^2 = C$.
 [`test/universe.ts`](test/universe.ts) runs this exact trivial-gauge
-core Tier A QCA kernel (Tier B `Σ(648)` gauge links and multi-line
-$w_P$ dock stores live in [`code/rule/`](code/rule/)).
+core Tier A QCA kernel (Tier B `Σ(648)` gauge links and multi-line $w_P$
+dock stores live in [`code/rule/`](code/rule/)).
 
 Running `npx tsx test/universe.ts` executes the entire zero-import,
 Prettier- and ESLint-formatted core kernel in `< 0.2 s` with pure
 `BigInt` arithmetic, verifying `D₄` rank-4 `SO(4)` isotropy
-(`12 = 3 × 4`, defect `0`), exact `{3,4,3,4}` `O⁺(4,1; ℤ[√2])`
-Coxeter shells `[1, 24, 456]` (`det(Tₛ) = −1` on `24/24` slots,
+(`12 = 3 × 4`, defect `0`), exact `{3,4,3,4}` `O⁺(4,1; ℤ[√2])` Coxeter
+shells `[1, 24, 456]` (`det(Tₛ) = −1` on `24/24` slots,
 `parity = det(frame)` on `481/481` docks, `inconsistentSteps = 0`),
 stationarity of the neutral mesh state $|V_1\rangle$, 1-vibe and
 identical-tone/identical-role 2-vibe evolution strictly past `R = 3` to
@@ -82,8 +82,8 @@ exact memoryless reversal (`0`).
 
 [`test/universe.ts`](test/universe.ts) is structured top-down so the
 entry point, palindromic 8-layer beat, and six physical operators appear
-right at the top, followed by verification checks and the pure
-`ℤ[ζ₉]` and `O⁺(4,1; ℤ[√2])` helpers:
+right at the top, followed by verification checks and the pure `ℤ[ζ₉]`
+and `O⁺(4,1; ℤ[√2])` helpers:
 
 ```ts
 // Execution order (right-to-left of U = S o Phi_odd o D o M_meet o M_pair(zeta_18) o K o D o Phi_odd):
@@ -180,10 +180,17 @@ pnpm format
 
 Typical dev workflow:
 
-1. Edit rules, geometry, or measurement helpers in [`code/`](code/) or add/update a deterministic experiment in [`test/experiment/`](test/experiment/).
-2. Run `pnpm rerun <CODE>` to verify gates and negative controls, and `pnpm test` to confirm `tsc --noEmit` and core tests stay clean.
-3. For formal proofs in [`code/proof/Vibe/`](code/proof/Vibe/), run `pnpm check:lean` to verify `lake build` (`0` warnings) and `#print axioms`.
-4. Rebuild the paper PDF with `make` inside [`text/0018-emergent-physics-on-the-fixed-honeycomb/`](text/0018-emergent-physics-on-the-fixed-honeycomb/) when manuscript figures or tables change.
+1. Edit rules, geometry, or measurement helpers in [`code/`](code/) or
+   add/update a deterministic experiment in
+   [`test/experiment/`](test/experiment/).
+2. Run `pnpm rerun <CODE>` to verify gates and negative controls, and
+   `pnpm test` to confirm `tsc --noEmit` and core tests stay clean.
+3. For formal proofs in [`code/proof/Vibe/`](code/proof/Vibe/), run
+   `pnpm check:lean` to verify `lake build` (`0` warnings) and
+   `#print axioms`.
+4. Rebuild the paper PDF with `make` inside
+   [`text/0018-emergent-physics-on-the-fixed-honeycomb/`](text/0018-emergent-physics-on-the-fixed-honeycomb/)
+   when manuscript figures or tables change.
 
 ## License
 

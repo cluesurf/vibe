@@ -1,7 +1,7 @@
 {
   "name": "@cluesurf/vibe",
   "version": "2.2.0",
-  "description": "A discrete possible universe",
+  "description": "Valenced Information as Base Experience",
   "license": "MIT",
   "repository": "github:cluesurf/vibe",
   "keywords": [
@@ -42,7 +42,7 @@
     "check:lean": "npx tsx --no-warnings=ExperimentalWarning task/check-lean.ts",
     "kernel:parity": "npx tsx --no-warnings=ExperimentalWarning task/kernel/parity.ts",
     "burst": "npx tsx --no-warnings=ExperimentalWarning task/burst/index.ts",
-    "droplet:run":"npx tsx --no-warnings=ExperimentalWarning task/kernel/droplet-run.ts",
+    "droplet:run": "npx tsx --no-warnings=ExperimentalWarning task/kernel/droplet-run.ts",
     "gpu:run": "npx tsx --no-warnings=ExperimentalWarning task/kernel/gpu-run.ts",
     "gpu:watchdog": "npx tsx --no-warnings=ExperimentalWarning task/kernel/gpu-watchdog.ts"
   },
