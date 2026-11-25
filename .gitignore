@@ -22,3 +22,4 @@ code/kernel/crate/target/
 code/proof/.lake/
 .env
 .env.*
+.agents/

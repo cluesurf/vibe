@@ -9,6 +9,7 @@ make/
 out/
 tmp/
 code/kernel/crate/target/
+kernel/
 test/site/build/
 test/site/node_modules/
 .react-router/
