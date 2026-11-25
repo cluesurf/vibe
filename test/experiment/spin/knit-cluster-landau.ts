@@ -158,7 +158,6 @@ export default experiment({
       ),
     )
     const z1 = localized[1]! > 0 && localized[2]! > 0
-    const z2 = false
     const sameLengths = rows.every(r =>
       r.byField.every(
         f => lengths(f.cycles) === lengths(r.byField[0]!.cycles),
@@ -213,15 +212,17 @@ export default experiment({
     })
     const c = Math.abs(control.gLo - 2) < 1e-6
 
-    const ok = z1 && z2 && z3 && c
+    // Z2 (|g - 2| < 0.05 on the ladder from Z1) is only evaluable when Z1 finds localized cycles.
+    // If Z1, Z3 and C ever all hold, status stays partial rather than claiming Z2 passed.
+    const status = !z1 || !z3 || !c ? 'fail' : 'partial'
     const spinAll = rows.flatMap(r => r.spin)
 
     return verdict({
-      status: ok ? 'pass' : 'fail',
+      status,
       claim: `the knit's lightest charge-one levels (${rows.length} one-column levels at column depth ${DEPTH}, from ${family.starts.toLocaleString('en-US')} one-column starts) in a uniform field on a ${LH} x ${LH} x ${LZ} husk torus: at b = ${FIELDS.join(', ')} the cycles are the same (lengths identical: ${sameLengths}) and ${localized.join(', ')} of ${inPlaneCycles.join(', ')} in-plane cycles are localized in the plane (extents ${extents.join(', ')}), so there is no Landau level and no ladder: g is undefined, not 2; the ${staticCycles.length / FIELDS.length} cycles that do not move in the plane have holonomy 0 at every b (${staticShift} shifted), so no Zeeman shift (g_spin = 0); the field gives in-plane movers ${holonomies.join(', ')} distinct Aharonov-Bohm holonomies; spin one half share ${Math.min(...spinAll).toFixed(4)} to ${Math.max(...spinAll).toFixed(4)}; the stand-in control reads g_lo = ${control.gLo.toFixed(9)}`,
       metrics: {
         gate_Z1: z1 ? 1 : 0,
-        gate_Z2: z2 ? 1 : 0,
+        gate_Z2: 0,
         gate_Z3: z3 ? 1 : 0,
         gate_C: c ? 1 : 0,
         levels: rows.length,
@@ -243,7 +244,7 @@ export default experiment({
         seconds: (Date.now() - started) / 1000,
       },
       control: { controlMiss: Math.abs(control.gLo - 2) },
-      notes: `L2. Gates Z1 ${z1}, Z2 ${z2} (not evaluable without a ladder), Z3 ${z3}, C ${c}. Levels grouped (count x period, husk shadow, torus cycles at b = 0 as length x count): ${grouped(rows.map(r => `T ${r.level.period} s (${r.shadow.join(',')}) [${[...new Set(r.byField[0]!.cycles.map(x => x.length))].map(L => `${L} x ${r.byField[0]!.cycles.filter(x => x.length === L).length}`).join(', ')}]`))}. Holonomy exponents of zeta_${2 * LH} for in-plane cycles at b = 1: ${[...new Set(rows.flatMap(r => r.byField[1]!.cycles.filter(x => x.inPlane).map(x => x.exponent)))].sort((a, b) => a - b).join(' ')}. The field is the Landau-gauge line integral of the light's husk angle along each copy, exact in zeta_${2 * LH}; the torus is measurement (the rule has no period in the husk).`,
+      notes: `L2. Gates Z1 ${z1}, Z2 ${z1 ? 'unrun' : 'false'} (not evaluable without a ladder), Z3 ${z3}, C ${c}. Levels grouped (count x period, husk shadow, torus cycles at b = 0 as length x count): ${grouped(rows.map(r => `T ${r.level.period} s (${r.shadow.join(',')}) [${[...new Set(r.byField[0]!.cycles.map(x => x.length))].map(L => `${L} x ${r.byField[0]!.cycles.filter(x => x.length === L).length}`).join(', ')}]`))}. Holonomy exponents of zeta_${2 * LH} for in-plane cycles at b = 1: ${[...new Set(rows.flatMap(r => r.byField[1]!.cycles.filter(x => x.inPlane).map(x => x.exponent)))].sort((a, b) => a - b).join(' ')}. The field is the Landau-gauge line integral of the light's husk angle along each copy, exact in zeta_${2 * LH}; the torus is measurement (the rule has no period in the husk).`,
     })
   },
 })

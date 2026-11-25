@@ -25,7 +25,7 @@ type Vibe = readonly [
   role: number,
 ]
 
-type State = {
+interface State {
   readonly amp: Map<string, Z9>
   readonly den: bigint
 }
@@ -39,24 +39,24 @@ type ActiveLine = readonly [
 
 type LayerOp = (state: State, dag: boolean) => State
 
-type TrajectorySummary = {
+interface TrajectorySummary {
   readonly branches: number
   readonly maxCosh2: bigint
   readonly docks: number
 }
 
-type WF4Group = {
+interface WF4Group {
   readonly elements: readonly Uint8Array[]
   readonly det: readonly number[]
 }
 
-type CovarianceSummary = {
+interface CovarianceSummary {
   readonly generatorCount: number
   readonly closureOrder: number
   readonly covDiff: number
 }
 
-type DiscreteSymmetrySummary = {
+interface DiscreteSymmetrySummary {
   readonly tDiff: number
   readonly cpDiff: number
   readonly cptDiff: number
@@ -406,7 +406,7 @@ function applyOddChiralPhase(state: State, dag: boolean): State {
 }
 
 // Opposite-sign collision bounce K (self-adjoint involution K^dag = K; commutes with M_meet and M_pair).
-function applyOppositeSignBounce(state: State, _dag: boolean): State {
+function applyOppositeSignBounce(state: State): State {
   return mapConfigurations(state, (vibes, amp) => {
     let negate = false
 

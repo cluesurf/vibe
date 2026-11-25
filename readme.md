@@ -97,13 +97,18 @@ A/B/C runs above.
 - [`test/universe.ts`](test/universe.ts): standalone, zero-import,
   pure-`BigInt` core Tier A microscopic QCA (Prettier- and
   ESLint-formatted top-down, `< 0.2 s`)
-- [`code/proof/Vibe/`](code/proof/Vibe/): 14 zero-dependency Lean
-  `4.35.0` proof modules plus root aggregator `Vibe.lean` (`229`
-  headline / `249` public theorems, `pnpm check:lean`, fail-closed)
-- [`test/breakthrough/`](test/breakthrough/): 20 standalone zero-import
-  verification scripts for scattering, bare universality, 1-hop horizon
-  crossing, finite-range domain wall, Cayley-4-form SMG, Nelson-Barr CP,
-  and 24-cell Combes-Thomas mass-gap audits
+- [`code/proof/Vibe/`](code/proof/Vibe/): zero-dependency Lean `4.35.0`
+  proof suite (`29` `.lean` files including `Vibe/Fock/{Ring,State,Gates,Beat}.lean`
+  and root `Vibe.lean`, `341` substantive headline / `451` public theorems,
+  `0` `sorry`, `0` `axiom`, `0` `native_decide`, `pnpm check:lean`, fail-closed)
+- [`test/breakthrough/`](test/breakthrough/): `30` deterministic
+  verification scripts (`27` standalone zero-import plus `3` importing
+  `@/code/`) covering the `{3,4,3,4}` spectral collapse (`[11.439047, 11.443713]`),
+  unconditional zero-truncation 4D `D_4` mass gap (`SU(2): 0.277274`,
+  `SU(3): 0.546000`), all-radius `{3,4,3,4}` `[[24, 1, 8]]_3` HaPPY
+  holography (`d = 8 -> 40 -> >= 98`), ballistic no-compacton &
+  `Z[omega][1/7]` `k = 3` trion, scattering, universality, 1-hop horizon,
+  finite-range chiral wall, Cayley-4-form SMG, and Nelson-Barr CP audits
 - [`code/`](code/): Coxeter `{3,4,3,4}` engine, exact cyclotomic QCA
   rules, operators, and measurement library
 - [`test/experiment/`](test/experiment/): deterministic registered
@@ -137,7 +142,7 @@ pnpm result E-FND-0188
 npx tsx test/breakthrough/combes-thomas-d4-mass-gap.ts
 npx tsx test/breakthrough/horizon-one-hop.ts
 
-# Verify the Lean 4.35.0 proof suite (14 modules, 229 headline theorems)
+# Verify the Lean 4.35.0 proof suite (29 files, 341 headline theorems)
 pnpm check:lean
 pnpm check:lean -- --no-build   # structural + BigInt audit without Lean installed
 

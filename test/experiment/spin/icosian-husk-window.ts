@@ -736,15 +736,11 @@ export function icosianWindowRun(plan: WindowPlan): Verdict {
   )
 
   // ---------------- verdict ----------------
-  const H4 = false
   const instrument = I1 && I2 && I3 && I4
   const controls = C1 && C2 && C3
+  // H4 is only run if H1 to H3 all hold; if prerequisites pass without an H4 run, status stays partial.
   const status =
-    !instrument || !controls
-      ? 'partial'
-      : H1 && H2 && H3 && H4
-        ? 'pass'
-        : 'fail'
+    !instrument || !controls || (H1 && H2 && H3) ? 'partial' : 'fail'
   const r = h2i.reading
 
   return verdict({

@@ -761,15 +761,11 @@ export function hurwitzRegisterRun(plan: RegisterPlan): Verdict {
 
   const G2 = G2a && G2b && G2c && G2d
   const G3 = G3c
-  const G4 = false
   const instrument = I1 && I2 && I3
   const controls = C1 && C2 && C3
+  // G4 is only run if G1 to G3 all hold; if prerequisites pass without a G4 run, status stays partial.
   const status =
-    !instrument || !controls
-      ? 'partial'
-      : G1 && G2 && G3 && G4
-        ? 'pass'
-        : 'fail'
+    !instrument || !controls || (G1 && G2 && G3) ? 'partial' : 'fail'
   const hamText = (rs: typeof hamD4): string =>
     rs
       .map(
