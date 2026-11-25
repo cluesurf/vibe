@@ -1142,8 +1142,8 @@ private theorem mat4Vec_evenSign (e : Fin 8) (v : Vec4) :
       match i with
       | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ =>
         rw [ih]
-        simp only [negCoordVec, coord4, sum4, Int.neg_mul, Prod.mk.injEq]
-        exact ⟨by omega, by omega, by omega, by omega⟩
+        simp only [negCoordVec, coord4, sum4, Int.neg_mul, Prod.mk.injEq, true_and, and_true]
+        omega
   have hE := hLin (evenSignNegs e)
   unfold mat4Vec evenSignMat2 evenSignVec scaleVec4
   rw [hE]
@@ -1233,7 +1233,12 @@ private theorem perm4Vec_mul (p1 p2 : Fin 24) (v : Vec4) :
   cases v with | mk v0 r =>
   cases r with | mk v1 r =>
   cases r with | mk v2 v3 =>
-  let f : Int → Int := fun k => if k = 0 then v0 else if k = 1 then v1 else if k = 2 then v2 else v3
+  let f : Int → Int := fun k =>
+    match k with
+    | Int.ofNat 0 => v0
+    | Int.ofNat 1 => v1
+    | Int.ofNat 2 => v2
+    | _ => v3
   have hv : (v0, v1, v2, v3) = mapVec4 f (0, 1, 2, 3) := rfl
   rw [hv]
   unfold perm4Vec
@@ -1393,7 +1398,8 @@ private theorem conj_mat2ToWD4_eq (c : Fin 6) (A : Mat4) (w : WD4Elem)
       have m3 := int_mul_even_left (wd4Mat2 w i ⟨3, by decide⟩) (s3Mat2 c ⟨3, by decide⟩ j)
         (wd4_entry_even w i ⟨3, by decide⟩)
       have hSum : ∀ a b c0 d0 : Int, a % 2 = 0 → b % 2 = 0 → c0 % 2 = 0 → d0 % 2 = 0 →
-          (a + b + c0 + d0) % 2 = 0 := by omega
+          (a + b + c0 + d0) % 2 = 0 := by
+        intro a b c0 d0 ha hb hc hd; omega
       simp only [mat4Mul, sum4]
       exact hSum _ _ _ _ m0 m1 m2 m3
     have hA : mat4Mul (s3Mat2 c) A i j % 2 = 0 := by
@@ -1484,7 +1490,7 @@ private theorem conj_closed_s3_comp (c1 c2 : Fin 6) (A : Mat4) (w2 w1 : WD4Elem)
     exact (int_mul_left_comm_chir 2 (wd4Mat2 w1 i k) (s3Mat2 (s3Mul c1 c2) k j)).symm
   have hMid : mat4Mul (mat4Mul (s3Mat2 c1) (s3Mat2 c2)) A =
       mat4Mul (wd4Mat2 w1) (mat4Mul (s3Mat2 c1) (s3Mat2 c2)) := by
-    rw [mat4Mul_assoc, h2, ← mat4Mul_assoc, h1, mat4Mul_assoc]
+    rw [mat4Mul_assoc (s3Mat2 c1), h2, ← mat4Mul_assoc (s3Mat2 c1), h1, mat4Mul_assoc (wd4Mat2 w1)]
   apply mat4_ext; intro i j
   have hij := h2L i j
   rw [hMid, h2R i j] at hij
@@ -1652,7 +1658,7 @@ private theorem conj_closed_all_s3 (c : Fin 6) :
     have hIdL : ∀ M : Mat4, ∀ i j : Fin 4, mat4Mul mat4Id2 M i j = 2 * M i j := by
       intro M i j
       match i with
-      | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ => simp [mat4Id2, mat4Mul, sum4]; omega
+      | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ => simp [mat4Id2, mat4Mul, sum4]
     have hIdR : ∀ M : Mat4, ∀ i j : Fin 4, mat4Mul M mat4Id2 i j = 2 * M i j := by
       intro M i j
       match j with
@@ -2041,8 +2047,8 @@ private theorem mat4Vec_s3_1 (v : Vec4) :
   cases v with | mk x0 r =>
   cases r with | mk x1 r =>
   cases r with | mk x2 x3 =>
-  simp only [mat4Vec, s3Mat2, mkMat4, sum4, coord4, negCoordVec, Prod.mk.injEq]
-  exact ⟨by omega, by omega, by omega, by omega⟩
+  simp only [mat4Vec, s3Mat2, mkMat4, sum4, coord4, negCoordVec, Prod.mk.injEq, true_and]
+  omega
 
 private theorem mat4Vec_s3_3 (v : Vec4) :
     mat4Vec (s3Mat2 ⟨3, by decide⟩) v = scaleVec4 2 (negCoordVec ⟨3, by decide⟩ v) := by
