@@ -172,7 +172,8 @@ private theorem add_same_den_le_right {a b : QPos} {x y d : Int} (hd : 0 < d)
 
 private theorem divPos_le {a b : QPos} (k : Int) (hk : 0 < k) (h : le a b) :
     le (divPos a k hk) (divPos b k hk) := by
-  unfold le divPos at h ⊢
+  unfold le at h
+  change a.num * (k * b.den) ≤ b.num * (k * a.den)
   rw [int_mul_left_comm a.num k b.den, int_mul_left_comm b.num k a.den]
   rw [Int.mul_comm k (a.num * b.den), Int.mul_comm k (b.num * a.den)]
   exact int_mul_le_mul_of_nonneg_right _ _ k h (by omega)
@@ -483,8 +484,8 @@ private theorem symS4_sq (y0 y1 y2 y3 : Int) :
       y0 * y0 + y1 * y1 + y2 * y2 + y3 * y3 + 2 * symE2 y0 y1 y2 y3 := by
   unfold symS4 symE2
   have hSplit : y0 + y1 + y2 + y3 = (y0 + y1) + (y2 + y3) := by omega
-  rw [hSplit, int_add_sq (y0 + y1) (y2 + y3), int_add_sq y0 y1, int_add_sq y2 y3,
-      Int.add_mul, Int.mul_add, Int.mul_add]
+  rw [hSplit, int_add_sq (y0 + y1) (y2 + y3), int_add_sq y0 y1, int_add_sq y2 y3]
+  simp only [Int.add_mul, Int.mul_add]
   omega
 
 private theorem symS4_mul_e2 (y0 y1 y2 y3 : Int) :
@@ -602,18 +603,30 @@ theorem thm_d4_exact_moments (x0 x1 x2 x3 : Int) :
     d4Moment2 x = 6 * (S * S) ∧
     d4Moment3 x = 6 * (S * (S * S)) + 12 * (S * symE2 y0 y1 y2 y3) - 72 * symE3 y0 y1 y2 y3 := by
   intro x y0 y1 y2 y3 S
-  have d0 : dot4 (d4RootLine ⟨0, by decide⟩) x = x0 + x1 := by unfold d4RootLine dot4; omega
-  have d1 : dot4 (d4RootLine ⟨1, by decide⟩) x = x0 - x1 := by unfold d4RootLine dot4; omega
-  have d2 : dot4 (d4RootLine ⟨2, by decide⟩) x = x0 + x2 := by unfold d4RootLine dot4; omega
-  have d3 : dot4 (d4RootLine ⟨3, by decide⟩) x = x0 - x2 := by unfold d4RootLine dot4; omega
-  have d4 : dot4 (d4RootLine ⟨4, by decide⟩) x = x0 + x3 := by unfold d4RootLine dot4; omega
-  have d5 : dot4 (d4RootLine ⟨5, by decide⟩) x = x0 - x3 := by unfold d4RootLine dot4; omega
-  have d6 : dot4 (d4RootLine ⟨6, by decide⟩) x = x1 + x2 := by unfold d4RootLine dot4; omega
-  have d7 : dot4 (d4RootLine ⟨7, by decide⟩) x = x1 - x2 := by unfold d4RootLine dot4; omega
-  have d8 : dot4 (d4RootLine ⟨8, by decide⟩) x = x1 + x3 := by unfold d4RootLine dot4; omega
-  have d9 : dot4 (d4RootLine ⟨9, by decide⟩) x = x1 - x3 := by unfold d4RootLine dot4; omega
-  have d10 : dot4 (d4RootLine ⟨10, by decide⟩) x = x2 + x3 := by unfold d4RootLine dot4; omega
-  have d11 : dot4 (d4RootLine ⟨11, by decide⟩) x = x2 - x3 := by unfold d4RootLine dot4; omega
+  have d0 : dot4 (d4RootLine ⟨0, by decide⟩) x = x0 + x1 := by
+    change 1 * x0 + 1 * x1 + 0 * x2 + 0 * x3 = x0 + x1; omega
+  have d1 : dot4 (d4RootLine ⟨1, by decide⟩) x = x0 - x1 := by
+    change 1 * x0 + (-1) * x1 + 0 * x2 + 0 * x3 = x0 - x1; omega
+  have d2 : dot4 (d4RootLine ⟨2, by decide⟩) x = x0 + x2 := by
+    change 1 * x0 + 0 * x1 + 1 * x2 + 0 * x3 = x0 + x2; omega
+  have d3 : dot4 (d4RootLine ⟨3, by decide⟩) x = x0 - x2 := by
+    change 1 * x0 + 0 * x1 + (-1) * x2 + 0 * x3 = x0 - x2; omega
+  have d4 : dot4 (d4RootLine ⟨4, by decide⟩) x = x0 + x3 := by
+    change 1 * x0 + 0 * x1 + 0 * x2 + 1 * x3 = x0 + x3; omega
+  have d5 : dot4 (d4RootLine ⟨5, by decide⟩) x = x0 - x3 := by
+    change 1 * x0 + 0 * x1 + 0 * x2 + (-1) * x3 = x0 - x3; omega
+  have d6 : dot4 (d4RootLine ⟨6, by decide⟩) x = x1 + x2 := by
+    change 0 * x0 + 1 * x1 + 1 * x2 + 0 * x3 = x1 + x2; omega
+  have d7 : dot4 (d4RootLine ⟨7, by decide⟩) x = x1 - x2 := by
+    change 0 * x0 + 1 * x1 + (-1) * x2 + 0 * x3 = x1 - x2; omega
+  have d8 : dot4 (d4RootLine ⟨8, by decide⟩) x = x1 + x3 := by
+    change 0 * x0 + 1 * x1 + 0 * x2 + 1 * x3 = x1 + x3; omega
+  have d9 : dot4 (d4RootLine ⟨9, by decide⟩) x = x1 - x3 := by
+    change 0 * x0 + 1 * x1 + 0 * x2 + (-1) * x3 = x1 - x3; omega
+  have d10 : dot4 (d4RootLine ⟨10, by decide⟩) x = x2 + x3 := by
+    change 0 * x0 + 0 * x1 + 1 * x2 + 1 * x3 = x2 + x3; omega
+  have d11 : dot4 (d4RootLine ⟨11, by decide⟩) x = x2 - x3 := by
+    change 0 * x0 + 0 * x1 + 1 * x2 + (-1) * x3 = x2 - x3; omega
   have hM1 : d4Moment1 x = 6 * S := by
     simp only [d4Moment1, sum12Int, d4LineSq, d0, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11]
     have p01 := pair_pow1 x0 x1
@@ -682,26 +695,31 @@ private theorem schurPoly3_factored (a b c : Int) :
     rw [Int.mul_add, Int.mul_comm b c]
     omega
   have hr : a * b * c = c * v := Int.mul_comm (a * b) c
-  have hCube : (u + c) * ((u + c) * (u + c)) =
-      u * (u * u) + 3 * (c * (u * u)) + 3 * (u * (c * c)) + c * (c * c) := by
-    rw [int_add_sq u c, Int.add_mul, Int.mul_add, Int.mul_add, Int.mul_add, Int.mul_add]
-    have c1 : u * (2 * (u * c)) = 2 * (c * (u * u)) := by
-      rw [int_mul_left_comm u 2 (u * c), Int.mul_comm u c, ← Int.mul_assoc u c u,
-          Int.mul_comm u c, Int.mul_assoc c u u]
-    have c2 : c * (2 * (u * c)) = 2 * (u * (c * c)) := by
-      rw [int_mul_left_comm c 2 (u * c), int_mul_left_comm c u c]
+  have hCubeGen : ∀ x y : Int, (x + y) * ((x + y) * (x + y)) =
+      x * (x * x) + 3 * (y * (x * x)) + 3 * (x * (y * y)) + y * (y * y) := by
+    intro x y
+    rw [int_add_sq x y, Int.add_mul, Int.mul_add, Int.mul_add, Int.mul_add, Int.mul_add]
+    have c1 : x * (2 * (x * y)) = 2 * (y * (x * x)) := by
+      rw [int_mul_left_comm x 2 (x * y), Int.mul_comm x y, ← Int.mul_assoc x y x,
+          Int.mul_comm x y, Int.mul_assoc y x x]
+    have c2 : y * (2 * (x * y)) = 2 * (x * (y * y)) := by
+      rw [int_mul_left_comm y 2 (x * y), int_mul_left_comm y x y]
     rw [c1, c2]
     omega
-  have hMid : (u + c) * (v + c * u) = u * v + c * (u * u) + c * v + u * (c * c) := by
+  have hCube := hCubeGen u c
+  have hMidGen : ∀ x w y : Int, (x + y) * (w + y * x) = x * w + y * (x * x) + y * w + x * (y * y) := by
+    intro x w y
     rw [Int.add_mul, Int.mul_add, Int.mul_add]
-    have m1 : u * (c * u) = c * (u * u) := int_mul_left_comm u c u
-    have m2 : c * (c * u) = u * (c * c) := by
-      rw [Int.mul_comm c u, int_mul_left_comm c u c]
+    have m1 : x * (y * x) = y * (x * x) := int_mul_left_comm x y x
+    have m2 : y * (y * x) = x * (y * y) := by
+      rw [Int.mul_comm y x, int_mul_left_comm y x y]
     rw [m1, m2]
     omega
+  have hMid := hMidGen u v c
   have hLHS : schurPoly3 a b c =
       u * (u * u) - 4 * (u * v) - c * (u * u) - u * (c * c) + c * (c * c) + 5 * (c * v) := by
-    unfold schurPoly3
+    change (a + b + c) * ((a + b + c) * (a + b + c)) -
+        4 * ((a + b + c) * (a * b + b * c + c * a)) + 9 * (a * b * c) = _
     rw [hs, hq, hr, hCube, hMid]
     omega
   have hDiffSq : (a - b) * (a - b) = u * u - 4 * v := by
@@ -802,19 +820,11 @@ private theorem schurPoly4_shift_identity (d a b c : Int) :
   have hS : symS4 (d + a) (d + b) (d + c) d = 4 * d + p1 := by
     unfold symS4; omega
   have hE2 : symE2 (d + a) (d + b) (d + c) d = 6 * d2 + 3 * (d * p1) + q2 := by
-    unfold symE2
-    rw [Int.add_mul, Int.add_mul, Int.add_mul, Int.add_mul, Int.add_mul, Int.add_mul,
-        Int.mul_add, Int.mul_add, Int.mul_add, Int.mul_add, Int.mul_add, Int.mul_add]
-    have ca : a * d = d * a := Int.mul_comm a d
-    have cb : b * d = d * b := Int.mul_comm b d
-    have cc : c * d = d * c := Int.mul_comm c d
-    have cba : c * a = a * c := Int.mul_comm c a
-    have hp : d * p1 = d * a + d * b + d * c := by
-      change d * (a + b + c) = _
-      rw [Int.mul_add, Int.mul_add]
-    rw [ca, cb, cc, hp]
-    change _ = 6 * (d * d) + 3 * (d * a + d * b + d * c) + (a * b + b * c + c * a)
-    rw [cba]
+    change (d + a) * (d + b) + (d + a) * (d + c) + (d + a) * d +
+        (d + b) * (d + c) + (d + b) * d + (d + c) * d =
+      6 * (d * d) + 3 * (d * (a + b + c)) + (a * b + b * c + c * a)
+    simp only [Int.add_mul, Int.mul_add]
+    rw [Int.mul_comm a d, Int.mul_comm b d, Int.mul_comm c d, Int.mul_comm c a]
     omega
   have hPairShift : ∀ x y : Int,
       (d + x) * (d + y) * d = d3 + d2 * x + d2 * y + d * (x * y) := by
@@ -866,7 +876,6 @@ private theorem schurPoly4_shift_identity (d a b c : Int) :
     have s2 : 2 * (4 * d * p1) = 8 * (d * p1) := by
       rw [Int.mul_assoc 4 d p1, ← Int.mul_assoc 2 4 (d * p1)]; rfl
     rw [s1, s2]
-    simp only [Int.mul_add, Int.add_mul]
     have c1 : (4 * d) * (16 * d2) = 64 * d3 := by
       rw [Int.mul_assoc 4 d (16 * d2), int_mul_left_comm d 16 d2, ← Int.mul_assoc 4 16 d3]; rfl
     have c2 : (4 * d) * (8 * (d * p1)) = 32 * (d2 * p1) := by
@@ -1012,12 +1021,12 @@ theorem thm_d4_moment3_le_9_S3 (x0 x1 x2 x3 : Int) :
   let y1 := x1 * x1
   let y2 := x2 * x2
   let y3 := x3 * x3
-  have hS : S = symS4 y0 y1 y2 y3 := rfl
-  have hMom := (thm_d4_exact_moments x0 x1 x2 x3).2.2
-  have hPos := thm_schur4_simplex_nonneg y0 y1 y2 y3
-    (int_sq_nonneg x0) (int_sq_nonneg x1) (int_sq_nonneg x2) (int_sq_nonneg x3)
-  unfold schurPoly4 at hPos
-  rw [hS]
+  have hMom : d4Moment3 x =
+      6 * (S * (S * S)) + 12 * (S * symE2 y0 y1 y2 y3) - 72 * symE3 y0 y1 y2 y3 :=
+    (thm_d4_exact_moments x0 x1 x2 x3).2.2
+  have hPos : 0 ≤ S * (S * S) - 4 * (S * symE2 y0 y1 y2 y3) + 24 * symE3 y0 y1 y2 y3 :=
+    thm_schur4_simplex_nonneg y0 y1 y2 y3
+      (int_sq_nonneg x0) (int_sq_nonneg x1) (int_sq_nonneg x2) (int_sq_nonneg x3)
   omega
 
 
@@ -1030,12 +1039,14 @@ private theorem d4HermiteSum_expand (x : Vec4) :
         48 * (S * d4Moment2 x) + 64 * d4Moment3 x := by
   intro S
   have hTerm : ∀ k : Fin 12,
-      hermiteP3Hom (d4LineSq k x) S =
+      hermiteP3Hom (d4LineSq k x) (dot4 x x) =
         49 * (S * (S * S)) + 36 * (S * S * d4LineSq k x) -
           48 * (S * (d4LineSq k x * d4LineSq k x)) +
           64 * (d4LineSq k x * (d4LineSq k x * d4LineSq k x)) := by
     intro k
-    unfold hermiteP3Hom
+    change 49 * (S * (S * S)) + 36 * (d4LineSq k x * (S * S)) -
+        48 * (d4LineSq k x * (d4LineSq k x * S)) +
+        64 * (d4LineSq k x * (d4LineSq k x * d4LineSq k x)) = _
     have a1 : d4LineSq k x * (S * S) = S * S * d4LineSq k x := Int.mul_comm _ _
     have a2 : d4LineSq k x * (d4LineSq k x * S) = S * (d4LineSq k x * d4LineSq k x) := by
       rw [← Int.mul_assoc, Int.mul_comm _ S]
@@ -1060,7 +1071,10 @@ theorem thm_schur_majorant_bound_13_over_21 (x0 x1 x2 x3 : Int) :
     d4HermiteSum x ≤ 1092 * (S * (S * S)) ∧
     21 * d4HermiteSum x ≤ 13 * (4 * 441 * (S * (S * S))) := by
   intro x y0 y1 y2 y3 S
-  have hExp := d4HermiteSum_expand x
+  have hExp : d4HermiteSum x =
+      588 * (S * (S * S)) + 36 * (S * S * d4Moment1 x) -
+        48 * (S * d4Moment2 x) + 64 * d4Moment3 x :=
+    d4HermiteSum_expand x
   have hMom := thm_d4_exact_moments x0 x1 x2 x3
   have hS : S = symS4 y0 y1 y2 y3 := rfl
   have hM1 : d4Moment1 x = 6 * S := by rw [hS]; exact hMom.1
@@ -1070,10 +1084,10 @@ theorem thm_schur_majorant_bound_13_over_21 (x0 x1 x2 x3 : Int) :
   have hA1 : S * S * (6 * S) = 6 * (S * (S * S)) := by
     rw [int_mul_left_comm (S * S) 6 S, Int.mul_comm (S * S) S]
   have hA2 : S * (6 * (S * S)) = 6 * (S * (S * S)) := int_mul_left_comm S 6 (S * S)
+  have hP4 : schurPoly4 y0 y1 y2 y3 =
+      S * (S * S) - 4 * (S * symE2 y0 y1 y2 y3) + 24 * symE3 y0 y1 y2 y3 := rfl
   have hEq : d4HermiteSum x = 1092 * (S * (S * S)) - 192 * schurPoly4 y0 y1 y2 y3 := by
-    rw [hExp, hM1, hM2, hM3, hA1, hA2]
-    unfold schurPoly4
-    rw [← hS]
+    rw [hExp, hM1, hM2, hM3, hA1, hA2, hP4]
     omega
   have hNonneg : 0 ≤ schurPoly4 y0 y1 y2 y3 :=
     thm_schur4_simplex_nonneg y0 y1 y2 y3
@@ -1096,53 +1110,77 @@ private theorem d4LineSq_bounds (k : Fin 12) (x : Vec4) :
     have hx3 := int_sq_nonneg x3
     match k with
     | ⟨0, _⟩ =>
-      have hd : dot4 (d4RootLine ⟨0, by decide⟩) (x0, x1, x2, x3) = x0 + x1 := by unfold d4RootLine dot4; omega
+      have hd : 1 * x0 + 1 * x1 + 0 * x2 + 0 * x3 = x0 + x1 := by omega
       have hb := int_two_sq_add_le x0 x1
-      unfold d4LineSq dot4; rw [hd]; omega
+      change (1 * x0 + 1 * x1 + 0 * x2 + 0 * x3) * (1 * x0 + 1 * x1 + 0 * x2 + 0 * x3) ≤
+        2 * (x0 * x0 + x1 * x1 + x2 * x2 + x3 * x3)
+      rw [hd]; omega
     | ⟨1, _⟩ =>
-      have hd : dot4 (d4RootLine ⟨1, by decide⟩) (x0, x1, x2, x3) = x0 - x1 := by unfold d4RootLine dot4; omega
+      have hd : 1 * x0 + (-1) * x1 + 0 * x2 + 0 * x3 = x0 - x1 := by omega
       have hb := int_two_sq_sub_le x0 x1
-      unfold d4LineSq dot4; rw [hd]; omega
+      change (1 * x0 + (-1) * x1 + 0 * x2 + 0 * x3) * (1 * x0 + (-1) * x1 + 0 * x2 + 0 * x3) ≤
+        2 * (x0 * x0 + x1 * x1 + x2 * x2 + x3 * x3)
+      rw [hd]; omega
     | ⟨2, _⟩ =>
-      have hd : dot4 (d4RootLine ⟨2, by decide⟩) (x0, x1, x2, x3) = x0 + x2 := by unfold d4RootLine dot4; omega
+      have hd : 1 * x0 + 0 * x1 + 1 * x2 + 0 * x3 = x0 + x2 := by omega
       have hb := int_two_sq_add_le x0 x2
-      unfold d4LineSq dot4; rw [hd]; omega
+      change (1 * x0 + 0 * x1 + 1 * x2 + 0 * x3) * (1 * x0 + 0 * x1 + 1 * x2 + 0 * x3) ≤
+        2 * (x0 * x0 + x1 * x1 + x2 * x2 + x3 * x3)
+      rw [hd]; omega
     | ⟨3, _⟩ =>
-      have hd : dot4 (d4RootLine ⟨3, by decide⟩) (x0, x1, x2, x3) = x0 - x2 := by unfold d4RootLine dot4; omega
+      have hd : 1 * x0 + 0 * x1 + (-1) * x2 + 0 * x3 = x0 - x2 := by omega
       have hb := int_two_sq_sub_le x0 x2
-      unfold d4LineSq dot4; rw [hd]; omega
+      change (1 * x0 + 0 * x1 + (-1) * x2 + 0 * x3) * (1 * x0 + 0 * x1 + (-1) * x2 + 0 * x3) ≤
+        2 * (x0 * x0 + x1 * x1 + x2 * x2 + x3 * x3)
+      rw [hd]; omega
     | ⟨4, _⟩ =>
-      have hd : dot4 (d4RootLine ⟨4, by decide⟩) (x0, x1, x2, x3) = x0 + x3 := by unfold d4RootLine dot4; omega
+      have hd : 1 * x0 + 0 * x1 + 0 * x2 + 1 * x3 = x0 + x3 := by omega
       have hb := int_two_sq_add_le x0 x3
-      unfold d4LineSq dot4; rw [hd]; omega
+      change (1 * x0 + 0 * x1 + 0 * x2 + 1 * x3) * (1 * x0 + 0 * x1 + 0 * x2 + 1 * x3) ≤
+        2 * (x0 * x0 + x1 * x1 + x2 * x2 + x3 * x3)
+      rw [hd]; omega
     | ⟨5, _⟩ =>
-      have hd : dot4 (d4RootLine ⟨5, by decide⟩) (x0, x1, x2, x3) = x0 - x3 := by unfold d4RootLine dot4; omega
+      have hd : 1 * x0 + 0 * x1 + 0 * x2 + (-1) * x3 = x0 - x3 := by omega
       have hb := int_two_sq_sub_le x0 x3
-      unfold d4LineSq dot4; rw [hd]; omega
+      change (1 * x0 + 0 * x1 + 0 * x2 + (-1) * x3) * (1 * x0 + 0 * x1 + 0 * x2 + (-1) * x3) ≤
+        2 * (x0 * x0 + x1 * x1 + x2 * x2 + x3 * x3)
+      rw [hd]; omega
     | ⟨6, _⟩ =>
-      have hd : dot4 (d4RootLine ⟨6, by decide⟩) (x0, x1, x2, x3) = x1 + x2 := by unfold d4RootLine dot4; omega
+      have hd : 0 * x0 + 1 * x1 + 1 * x2 + 0 * x3 = x1 + x2 := by omega
       have hb := int_two_sq_add_le x1 x2
-      unfold d4LineSq dot4; rw [hd]; omega
+      change (0 * x0 + 1 * x1 + 1 * x2 + 0 * x3) * (0 * x0 + 1 * x1 + 1 * x2 + 0 * x3) ≤
+        2 * (x0 * x0 + x1 * x1 + x2 * x2 + x3 * x3)
+      rw [hd]; omega
     | ⟨7, _⟩ =>
-      have hd : dot4 (d4RootLine ⟨7, by decide⟩) (x0, x1, x2, x3) = x1 - x2 := by unfold d4RootLine dot4; omega
+      have hd : 0 * x0 + 1 * x1 + (-1) * x2 + 0 * x3 = x1 - x2 := by omega
       have hb := int_two_sq_sub_le x1 x2
-      unfold d4LineSq dot4; rw [hd]; omega
+      change (0 * x0 + 1 * x1 + (-1) * x2 + 0 * x3) * (0 * x0 + 1 * x1 + (-1) * x2 + 0 * x3) ≤
+        2 * (x0 * x0 + x1 * x1 + x2 * x2 + x3 * x3)
+      rw [hd]; omega
     | ⟨8, _⟩ =>
-      have hd : dot4 (d4RootLine ⟨8, by decide⟩) (x0, x1, x2, x3) = x1 + x3 := by unfold d4RootLine dot4; omega
+      have hd : 0 * x0 + 1 * x1 + 0 * x2 + 1 * x3 = x1 + x3 := by omega
       have hb := int_two_sq_add_le x1 x3
-      unfold d4LineSq dot4; rw [hd]; omega
+      change (0 * x0 + 1 * x1 + 0 * x2 + 1 * x3) * (0 * x0 + 1 * x1 + 0 * x2 + 1 * x3) ≤
+        2 * (x0 * x0 + x1 * x1 + x2 * x2 + x3 * x3)
+      rw [hd]; omega
     | ⟨9, _⟩ =>
-      have hd : dot4 (d4RootLine ⟨9, by decide⟩) (x0, x1, x2, x3) = x1 - x3 := by unfold d4RootLine dot4; omega
+      have hd : 0 * x0 + 1 * x1 + 0 * x2 + (-1) * x3 = x1 - x3 := by omega
       have hb := int_two_sq_sub_le x1 x3
-      unfold d4LineSq dot4; rw [hd]; omega
+      change (0 * x0 + 1 * x1 + 0 * x2 + (-1) * x3) * (0 * x0 + 1 * x1 + 0 * x2 + (-1) * x3) ≤
+        2 * (x0 * x0 + x1 * x1 + x2 * x2 + x3 * x3)
+      rw [hd]; omega
     | ⟨10, _⟩ =>
-      have hd : dot4 (d4RootLine ⟨10, by decide⟩) (x0, x1, x2, x3) = x2 + x3 := by unfold d4RootLine dot4; omega
+      have hd : 0 * x0 + 0 * x1 + 1 * x2 + 1 * x3 = x2 + x3 := by omega
       have hb := int_two_sq_add_le x2 x3
-      unfold d4LineSq dot4; rw [hd]; omega
+      change (0 * x0 + 0 * x1 + 1 * x2 + 1 * x3) * (0 * x0 + 0 * x1 + 1 * x2 + 1 * x3) ≤
+        2 * (x0 * x0 + x1 * x1 + x2 * x2 + x3 * x3)
+      rw [hd]; omega
     | ⟨11, _⟩ =>
-      have hd : dot4 (d4RootLine ⟨11, by decide⟩) (x0, x1, x2, x3) = x2 - x3 := by unfold d4RootLine dot4; omega
+      have hd : 0 * x0 + 0 * x1 + 1 * x2 + (-1) * x3 = x2 - x3 := by omega
       have hb := int_two_sq_sub_le x2 x3
-      unfold d4LineSq dot4; rw [hd]; omega
+      change (0 * x0 + 0 * x1 + 1 * x2 + (-1) * x3) * (0 * x0 + 0 * x1 + 1 * x2 + (-1) * x3) ≤
+        2 * (x0 * x0 + x1 * x1 + x2 * x2 + x3 * x3)
+      rw [hd]; omega
 
 /-- Single exact rational term `S / (9 S - 4 t_k)` in the Busemann Schur sum. -/
 def busemannTerm (k : Fin 12) (x : Vec4) (hS : 0 < dot4 x x) : QPos :=
@@ -1222,17 +1260,20 @@ theorem thm_busemann_schur_global_bound (x0 x1 x2 x3 : Int)
     `F_1(1, 1, 0, 0) = 13 / 21` identically, proving the `13/21` Schur bound is sharp over `S^3`. -/
 theorem thm_busemann_schur_sharp_at_d4_root :
     QPos.eq (busemannF1 (1, 1, 0, 0) (by decide)) ⟨13, 21, by decide⟩ := by
+  unfold QPos.eq
   decide
 
 /-- Exact cusp-axis evaluation at `x = (1, 0, 0, 0)`:
     `F_1(1, 0, 0, 0) = 7 / 15 < 13 / 21` (matching dock 0's `[0, 6, 18]` cusp split in `CoxeterTransport`). -/
 theorem thm_busemann_schur_cusp_axis_7_over_15 :
     QPos.eq (busemannF1 (1, 0, 0, 0) (by decide)) ⟨7, 15, by decide⟩ := by
+  unfold QPos.eq
   decide
 
 /-- Certified spectral gap arithmetic: `1 - 13/21 = 8/21 > 0` (`21 - 13 = 8`). -/
 theorem thm_busemann_spectral_gap_8_over_21 :
     QPos.eq (QPos.add ⟨13, 21, by decide⟩ ⟨8, 21, by decide⟩) ⟨1, 1, by decide⟩ := by
+  unfold QPos.eq
   decide
 
 
@@ -1266,7 +1307,8 @@ theorem thm_col_resistance_code_bridge (N : Nat → Nat) (F : Nat) :
       17 * colResistanceCode18 N F + 18 ≥ 18 ^ (F + 2)) := by
   have hShift : colResistanceCode18 N F + N 0 = colResistance N (F + 2) := by
     unfold colResistanceCode18 colResistance
-    have hs := sumNat_shift N (F + 1)
+    have hs : N 0 + sumNat (F + 1) (fun d => N (d + 1)) = sumNat (F + 2) N :=
+      sumNat_shift N (F + 1)
     omega
   refine ⟨hShift, ?_, ?_⟩
   · intro h0

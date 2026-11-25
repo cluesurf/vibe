@@ -182,10 +182,10 @@ private theorem sum6Eis_bij_delta (f fInv : Fin 6 → Fin 6)
     funext k
     if hk : k = fInv a then
       have hfk : a = f k := ((bij_eq_iff f fInv hL hR a k).mpr hk).symm
-      rw [if_pos hfk, if_pos hk]
+      rw [ite_eq_left hfk, ite_eq_left hk]
     else
       have hfk : ¬(a = f k) := fun h => hk ((bij_eq_iff f fInv hL hR a k).mp h.symm)
-      rw [if_neg hfk, if_neg hk]
+      rw [ite_eq_right hfk, ite_eq_right hk]
   rw [hFun, sum6Eis_delta]
 
 
@@ -276,7 +276,7 @@ theorem thm_qtm_two_inert_mod9 :
 theorem thm_qtm_no_eis_normSq_eq_two (x : Eis) : Eis.normSq x ≠ 2 := by
   cases x with
   | mk a b =>
-    unfold Eis.normSq
+    change a * a - a * b + b * b ≠ 2
     intro h
     have hId : (2 * a - b) * (2 * a - b) + 3 * (b * b) = 4 * (a * a - a * b + b * b) := by
       rw [Int.sub_mul, Int.mul_sub, Int.mul_sub]
@@ -289,7 +289,11 @@ theorem thm_qtm_no_eis_normSq_eq_two (x : Eis) : Eis.normSq x ≠ 2 := by
         rw [← Int.mul_assoc b 2 a, Int.mul_comm b 2, Int.mul_assoc 2 b a, Int.mul_comm b a]
       rw [h1, h2, h3]
       omega
-    have h8 : (2 * a - b) * (2 * a - b) + 3 * (b * b) = 8 := by omega
+    have h8 : (2 * a - b) * (2 * a - b) + 3 * (b * b) = 8 :=
+      calc (2 * a - b) * (2 * a - b) + 3 * (b * b)
+          = 4 * (a * a - a * b + b * b) := hId
+        _ = 4 * 2 := congrArg (fun z : Int => 4 * z) h
+        _ = 8 := by decide
     have hSq : 0 ≤ (2 * a - b) * (2 * a - b) := int_sq_nonneg (2 * a - b)
     have hBbound : b * b ≤ 2 := by omega
     have hAbs : -1 ≤ b ∧ b ≤ 1 := by
@@ -569,13 +573,13 @@ theorem thm_qtm_0205_psi2_schmidt_and_z6x6_envariance :
   match s, e with
   | ⟨0, _⟩, ⟨0, _⟩ =>
     simp [bipartiteApply2, envPhaseMat2, envPsi2, sum2Eis,
-      qEis_mul_zero, qEis_zero_mul, qEis_add_zero, qEis_zero_add, zeta6Pow6_mul_inv, qEis_one_mul]
+      qEis_mul_zero, qEis_zero_mul, qEis_add_zero, zeta6Pow6_mul_inv, qEis_one_mul]
   | ⟨1, _⟩, ⟨1, _⟩ =>
     simp [bipartiteApply2, envPhaseMat2, envPsi2, sum2Eis,
       qEis_mul_zero, qEis_zero_mul, qEis_add_zero, qEis_zero_add, zeta6Pow6_mul_inv, qEis_one_mul]
   | ⟨0, _⟩, ⟨1, _⟩ | ⟨1, _⟩, ⟨0, _⟩ =>
     simp [bipartiteApply2, envPhaseMat2, envPsi2, sum2Eis,
-      qEis_mul_zero, qEis_zero_mul, qEis_add_zero, qEis_zero_add]
+      qEis_mul_zero, qEis_zero_mul, qEis_add_zero]
 
 /-- Initial 2-branch bipartite state embedded into `H_S^(6) ⊗ H_E^(6)` at `role = 0` (`den = 2`). -/
 def envPsi6Init : Fin 6 → Fin 6 → Eis :=
@@ -723,16 +727,16 @@ theorem thm_qtm_0205_s4_envariance_general (f fInv : Fin 6 → Fin 6)
         (fun k => if k = f i then (if k = f j then Eis.one else Eis.zero) else Eis.zero) := by
       funext k
       if hk : k = f i then
-        rw [if_pos hk, qEis_conj_one, qEis_one_mul]
+        rw [ite_eq_left hk, ite_eq_left hk, qEis_conj_one, qEis_one_mul]
       else
-        rw [if_neg hk, qEis_conj_zero, qEis_zero_mul]
+        rw [ite_eq_right hk, ite_eq_right hk, qEis_conj_zero, qEis_zero_mul]
     rw [hTerm, sum6Eis_delta]
     if hij : i = j then
-      rw [hij, if_pos rfl, if_pos rfl]
+      rw [hij, ite_eq_left rfl, ite_eq_left rfl]
       rfl
     else
       have hne : f i ≠ f j := fun h => hij (by rw [← hL i, h, hL j])
-      rw [if_neg hne, if_neg hij]
+      rw [ite_eq_right hne, ite_eq_right hij]
   · -- U_S U_S† = I
     intro i j
     unfold mat6Mul mat6Dag envSwapUS mat6Id
@@ -741,21 +745,21 @@ theorem thm_qtm_0205_s4_envariance_general (f fInv : Fin 6 → Fin 6)
         (fun k => if i = f k then (if j = f k then Eis.one else Eis.zero) else Eis.zero) := by
       funext k
       if hjk : j = f k then
-        rw [if_pos hjk, qEis_conj_one]
+        rw [ite_eq_left hjk, qEis_conj_one]
         if hik : i = f k then
-          rw [if_pos hik, qEis_one_mul]
+          rw [ite_eq_left hik, qEis_one_mul]
         else
-          rw [if_neg hik, qEis_zero_mul]
+          rw [ite_eq_right hik, qEis_zero_mul]
       else
-        rw [if_neg hjk, qEis_conj_zero, qEis_mul_zero]
-        if hik : i = f k then rw [if_pos hik] else rw [if_neg hik]
+        rw [ite_eq_right hjk, qEis_conj_zero, qEis_mul_zero]
+        if hik : i = f k then rw [ite_eq_left hik] else rw [ite_eq_right hik]
     rw [hTerm, sum6Eis_bij_delta f fInv hL hR i, hR i]
     if hij : i = j then
-      rw [hij, if_pos rfl, if_pos rfl]
+      rw [hij, ite_eq_left rfl, ite_eq_left rfl]
       rfl
     else
       have hne : j ≠ i := fun h => hij h.symm
-      rw [if_neg hne, if_neg hij]
+      rw [ite_eq_right hne, ite_eq_right hij]
   · -- U_E† U_E = I
     intro i j
     unfold mat6Mul mat6Dag envSwapUE mat6Id
@@ -766,20 +770,20 @@ theorem thm_qtm_0205_s4_envariance_general (f fInv : Fin 6 → Fin 6)
           else Eis.zero) := by
       funext k
       if hk : k = f i then
-        rw [if_pos hk]
+        rw [ite_eq_left hk, ite_eq_left hk]
         if hkj : k = f j then
-          rw [if_pos hkj]
+          rw [ite_eq_left hkj, ite_eq_left hkj]
         else
-          rw [if_neg hkj, qEis_mul_zero]
+          rw [ite_eq_right hkj, ite_eq_right hkj, qEis_mul_zero]
       else
-        rw [if_neg hk, qEis_conj_zero, qEis_zero_mul]
+        rw [ite_eq_right hk, ite_eq_right hk, qEis_conj_zero, qEis_zero_mul]
     rw [hTerm, sum6Eis_delta]
     if hij : i = j then
-      rw [hij, if_pos rfl, if_pos rfl, envSwapPhase_unit_left f hAct j]
+      rw [hij, ite_eq_left rfl, ite_eq_left rfl, envSwapPhase_unit_left f hAct j]
       rfl
     else
       have hne : f i ≠ f j := fun h => hij (by rw [← hL i, h, hL j])
-      rw [if_neg hne, if_neg hij]
+      rw [ite_eq_right hne, ite_eq_right hij]
   · -- U_E U_E† = I
     intro i j
     unfold mat6Mul mat6Dag envSwapUE mat6Id
@@ -790,20 +794,20 @@ theorem thm_qtm_0205_s4_envariance_general (f fInv : Fin 6 → Fin 6)
           else Eis.zero) := by
       funext k
       if hik : i = f k then
-        rw [if_pos hik]
+        rw [ite_eq_left hik, ite_eq_left hik]
         if hjk : j = f k then
-          rw [if_pos hjk]
+          rw [ite_eq_left hjk, ite_eq_left hjk]
         else
-          rw [if_neg hjk, qEis_conj_zero, qEis_mul_zero]
+          rw [ite_eq_right hjk, ite_eq_right hjk, qEis_conj_zero, qEis_mul_zero]
       else
-        rw [if_neg hik, qEis_zero_mul]
+        rw [ite_eq_right hik, ite_eq_right hik, qEis_zero_mul]
     rw [hTerm, sum6Eis_bij_delta f fInv hL hR i, hR i]
     if hij : i = j then
-      rw [hij, if_pos rfl, if_pos rfl, envSwapPhase_unit_right f hAct (fInv j)]
+      rw [hij, ite_eq_left rfl, ite_eq_left rfl, envSwapPhase_unit_right f hAct (fInv j)]
       rfl
     else
       have hne : j ≠ i := fun h => hij h.symm
-      rw [if_neg hne, if_neg hij]
+      rw [ite_eq_right hne, ite_eq_right hij]
   · -- (U_S ⊗ U_E) |Ψ_4⟩ = |Ψ_4⟩
     intro s e
     unfold bipartiteApply6 envSwapUS envSwapUE
@@ -815,7 +819,7 @@ theorem thm_qtm_0205_s4_envariance_general (f fInv : Fin 6 → Fin 6)
         if s = f s' then Eis.mul (envSwapPhase f (fInv e)) (envPsi4 s' (fInv e)) else Eis.zero := by
       intro s'
       if hs : s = f s' then
-        rw [if_pos hs]
+        rw [ite_eq_left hs, ite_eq_left hs]
         have hF : (fun e' =>
             Eis.mul (Eis.mul Eis.one (if e = f e' then envSwapPhase f e' else Eis.zero))
                     (envPsi4 s' e')) =
@@ -823,12 +827,12 @@ theorem thm_qtm_0205_s4_envariance_general (f fInv : Fin 6 → Fin 6)
           funext e'
           rw [qEis_one_mul]
           if he : e = f e' then
-            rw [if_pos he]
+            rw [ite_eq_left he, ite_eq_left he]
           else
-            rw [if_neg he, qEis_zero_mul]
+            rw [ite_eq_right he, ite_eq_right he, qEis_zero_mul]
         rw [hF, sum6Eis_bij_delta f fInv hL hR e]
       else
-        rw [if_neg hs]
+        rw [ite_eq_right hs, ite_eq_right hs]
         have hF : (fun e' =>
             Eis.mul (Eis.mul Eis.zero (if e = f e' then envSwapPhase f e' else Eis.zero))
                     (envPsi4 s' e')) = (fun _ => Eis.zero) := by
@@ -855,10 +859,10 @@ theorem thm_qtm_0205_s4_envariance_general (f fInv : Fin 6 → Fin 6)
     rw [hOuter]
     unfold envPsi4
     if hse : s = e then
-      rw [hse, if_pos rfl, if_pos rfl, envSwapPhase_mul_diag f hAct (fInv e), hR e]
+      rw [hse, ite_eq_left rfl, ite_eq_left rfl, envSwapPhase_mul_diag f hAct (fInv e), hR e]
     else
       have hne : fInv s ≠ fInv e := fun h => hse (by rw [← hR s, h, hR e])
-      rw [if_neg hne, if_neg hse, qEis_mul_zero]
+      rw [ite_eq_right hne, ite_eq_right hse, qEis_mul_zero]
 
 /-- Explicit list of all `4! = 24` permutations of `Fin 4` as 4-tuples `(π(0), π(1), π(2), π(3))`. -/
 def s4Perms : List (Fin 4 × Fin 4 × Fin 4 × Fin 4) :=

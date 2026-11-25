@@ -118,35 +118,35 @@ theorem isPos_neg_exclusive (x : ZSqrt5) : ¬ (isPos x = true ∧ isNeg x = true
     unfold isPos at hp
     unfold isNeg isPos at hn
     if h1 : a ≥ 0 ∧ b ≥ 0 then
-      rw [if_pos h1] at hp
+      rw [ite_eq_left h1] at hp
       have hPosOr : a > 0 ∨ b > 0 := decide_true_mp hp
       if h2 : -a ≥ 0 ∧ -b ≥ 0 then
         omega
       else
-        rw [if_neg h2] at hn
+        rw [ite_eq_right h2] at hn
         have h3 : -a ≤ 0 ∧ -b ≤ 0 := by omega
-        rw [if_pos h3] at hn
+        rw [ite_eq_left h3] at hn
         exact absurd hn (by decide)
     else if h2 : a ≤ 0 ∧ b ≤ 0 then
-      rw [if_neg h1, if_pos h2] at hp
+      rw [ite_eq_right h1, ite_eq_left h2] at hp
       exact absurd hp (by decide)
     else
-      rw [if_neg h1, if_neg h2] at hp
+      rw [ite_eq_right h1, ite_eq_right h2] at hp
       have hn1 : ¬ (-a ≥ 0 ∧ -b ≥ 0) := by omega
       have hn2 : ¬ (-a ≤ 0 ∧ -b ≤ 0) := by omega
-      rw [if_neg hn1, if_neg hn2] at hn
+      rw [ite_eq_right hn1, ite_eq_right hn2] at hn
       if ha : a > 0 then
         have hna : ¬ (-a > 0) := by omega
-        rw [if_pos ha] at hp
-        rw [if_neg hna] at hn
+        rw [ite_eq_left ha] at hp
+        rw [ite_eq_right hna] at hn
         have hA : a * a > 5 * b * b := decide_true_mp hp
         have hB : 5 * (-b) * (-b) > (-a) * (-a) := decide_true_mp hn
         rw [int_five_neg_sq, int_neg_sq] at hB
         omega
       else
         have hna : -a > 0 := by omega
-        rw [if_neg ha] at hp
-        rw [if_pos hna] at hn
+        rw [ite_eq_right ha] at hp
+        rw [ite_eq_left hna] at hn
         have hA : 5 * b * b > a * a := decide_true_mp hp
         have hB : (-a) * (-a) > 5 * (-b) * (-b) := decide_true_mp hn
         rw [int_five_neg_sq, int_neg_sq] at hB
@@ -439,7 +439,8 @@ theorem thm_coxeter_classify_compact_4d (h : Schlafli4D) :
   · intro hc
     cases h with
     | mk p q r s =>
-      have hb := schlafli4D_bounds_of_compact ⟨p, q, r, s⟩ hc
+      have hb : (3 ≤ p ∧ p ≤ 5) ∧ (3 ≤ q ∧ q ≤ 5) ∧ (3 ≤ r ∧ r ≤ 5) ∧ (3 ≤ s ∧ s ≤ 5) :=
+        schlafli4D_bounds_of_compact ⟨p, q, r, s⟩ hc
       have hAll : ∀ a b c d : Fin 3,
           isCompactHyp4D ⟨a.val + 3, b.val + 3, c.val + 3, d.val + 3⟩ = true →
           ⟨a.val + 3, b.val + 3, c.val + 3, d.val + 3⟩ ∈ compactHyp4DList := by
@@ -465,7 +466,8 @@ theorem thm_coxeter_classify_paracompact_4d (h : Schlafli4D) :
   · intro hp
     cases h with
     | mk p q r s =>
-      have hb := schlafli4D_bounds_of_paracompact ⟨p, q, r, s⟩ hp
+      have hb : (3 ≤ p ∧ p ≤ 5) ∧ (3 ≤ q ∧ q ≤ 5) ∧ (3 ≤ r ∧ r ≤ 5) ∧ (3 ≤ s ∧ s ≤ 5) :=
+        schlafli4D_bounds_of_paracompact ⟨p, q, r, s⟩ hp
       have hAll : ∀ a b c d : Fin 3,
           isParacompactHyp4D ⟨a.val + 3, b.val + 3, c.val + 3, d.val + 3⟩ = true →
           ⟨a.val + 3, b.val + 3, c.val + 3, d.val + 3⟩ ∈ paracompactHyp4DList := by
@@ -490,7 +492,8 @@ theorem thm_coxeter_classify_euclidean_4d (h : Schlafli4D) :
   · intro he
     cases h with
     | mk p q r s =>
-      have hb := schlafli4D_bounds_of_euclidean ⟨p, q, r, s⟩ he
+      have hb : (3 ≤ p ∧ p ≤ 5) ∧ (3 ≤ q ∧ q ≤ 5) ∧ (3 ≤ r ∧ r ≤ 5) ∧ (3 ≤ s ∧ s ≤ 5) :=
+        schlafli4D_bounds_of_euclidean ⟨p, q, r, s⟩ he
       have hAll : ∀ a b c d : Fin 3,
           isEuclidean4D ⟨a.val + 3, b.val + 3, c.val + 3, d.val + 3⟩ = true →
           ⟨a.val + 3, b.val + 3, c.val + 3, d.val + 3⟩ ∈ euclidean4DList := by
@@ -515,7 +518,8 @@ theorem thm_coxeter_classify_spherical5 (h : Schlafli4D) :
   · intro hs
     cases h with
     | mk p q r s =>
-      have hb := schlafli4D_bounds_of_spherical5 ⟨p, q, r, s⟩ hs
+      have hb : (3 ≤ p ∧ p ≤ 5) ∧ (3 ≤ q ∧ q ≤ 5) ∧ (3 ≤ r ∧ r ≤ 5) ∧ (3 ≤ s ∧ s ≤ 5) :=
+        schlafli4D_bounds_of_spherical5 ⟨p, q, r, s⟩ hs
       have hAll : ∀ a b c d : Fin 3,
           isSpherical5 ⟨a.val + 3, b.val + 3, c.val + 3, d.val + 3⟩ = true →
           ⟨a.val + 3, b.val + 3, c.val + 3, d.val + 3⟩ ∈ spherical5List := by

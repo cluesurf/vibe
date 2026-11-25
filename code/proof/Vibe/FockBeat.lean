@@ -805,10 +805,10 @@ private theorem memBool_eq_true_iff {α : Type} [DecidableEq α] (a : α) (xs : 
   | cons x rest ih =>
     simp only [memBool]
     if hx : x = a then
-      rw [if_pos hx, hx]
+      rw [ite_eq_left hx, hx]
       exact ⟨fun _ => List.Mem.head rest, fun _ => rfl⟩
     else
-      rw [if_neg hx]
+      rw [ite_eq_right hx]
       constructor
       · intro h
         exact List.Mem.tail x (ih.mp h)
@@ -938,7 +938,7 @@ private theorem mem_eraseOne_iff {α : Type} [DecidableEq α] (a y : α)
   | @cons x rest hnot _ ih =>
     simp only [eraseOne]
     if hxa : x = a then
-      rw [if_pos hxa]
+      rw [ite_eq_left hxa]
       constructor
       · intro hy
         refine ⟨List.Mem.tail x hy, ?_⟩
@@ -950,7 +950,7 @@ private theorem mem_eraseOne_iff {α : Type} [DecidableEq α] (a y : α)
         | head => exact absurd hxa hne
         | tail _ h' => exact h'
     else
-      rw [if_neg hxa]
+      rw [ite_eq_right hxa]
       constructor
       · intro h
         cases h with
@@ -970,10 +970,10 @@ private theorem isNodup_eraseOne {α : Type} [DecidableEq α] (a : α)
   | @cons x rest hnot hndRest ih =>
     simp only [eraseOne]
     if hxa : x = a then
-      rw [if_pos hxa]
+      rw [ite_eq_left hxa]
       exact hndRest
     else
-      rw [if_neg hxa]
+      rw [ite_eq_right hxa]
       refine IsNodup.cons ?_ ih
       intro hm
       exact hnot ((mem_eraseOne_iff a x hndRest).mp hm).1
@@ -995,7 +995,7 @@ private theorem mem_nodupUnion {α : Type} [DecidableEq α] (xs ys : List α) (a
     simp only [nodupUnion]
     cases hm : memBool y (nodupUnion xs rest) with
     | true =>
-      rw [if_pos rfl]
+      rw [ite_eq_left rfl]
       constructor
       · intro ha
         rcases ih.mp ha with h1 | h2
@@ -1008,7 +1008,7 @@ private theorem mem_nodupUnion {α : Type} [DecidableEq α] (xs ys : List α) (a
           | head => exact (memBool_eq_true_iff y _).mp hm
           | tail _ h' => exact ih.mpr (Or.inr h')
     | false =>
-      rw [if_neg (by decide : false ≠ true)]
+      rw [ite_eq_right (by decide : false ≠ true)]
       constructor
       · intro ha
         cases ha with
@@ -1032,10 +1032,10 @@ private theorem isNodup_nodupUnion {α : Type} [DecidableEq α] {xs : List α} (
     simp only [nodupUnion]
     cases hm : memBool y (nodupUnion xs rest) with
     | true =>
-      rw [if_pos rfl]
+      rw [ite_eq_left rfl]
       exact ih
     | false =>
-      rw [if_neg (by decide : false ≠ true)]
+      rw [ite_eq_right (by decide : false ≠ true)]
       refine IsNodup.cons ?_ ih
       intro hmem
       have ht := (memBool_eq_true_iff y _).mpr hmem
@@ -1261,9 +1261,9 @@ private theorem sumList_eraseOne [DecidableEq α] (a : α) (xs : List α) (f : �
   | cons x rest ih =>
     simp only [eraseOne, sumList]
     if hxa : x = a then
-      rw [if_pos hxa, hxa]
+      rw [ite_eq_left hxa, hxa]
     else
-      rw [if_neg hxa]
+      rw [ite_eq_right hxa]
       simp only [sumList]
       cases hmem with
       | head => exact absurd rfl hxa
@@ -1393,8 +1393,8 @@ theorem thm_fock_inner_sesquilinear [DecidableEq α]
       apply sumList_zero_of_all_zero
       intro c hc
       have hne := ((mem_eraseOne_iff a c hnd).mp hc).2
-      rw [if_neg hne, star_conj_zero, zero_mul]
-    rw [hRest, add_zero, if_pos rfl, conj_one, one_mul]
+      rw [ite_eq_right hne, star_conj_zero, zero_mul]
+    rw [hRest, add_zero, ite_eq_left rfl, conj_one, one_mul]
 
 /-- Exact unitary operator on finite-support Fock space `FockVec R α`. -/
 structure FockUnitary (R α : Type) [StarCommRing R] where
@@ -1567,7 +1567,7 @@ def block2Unitary [DecidableEq α] (flip : α → α) (act : α → Bool) (a b :
       simp only [ite_bool_false]
     | true =>
       have hfa : act (flip c) = true := by rw [hAct c, ha]
-      simp only [ite_bool_true, if_pos hfa, hFlip c]
+      simp only [ite_bool_true, ite_eq_left hfa, hFlip c]
       rw [mul_add, mul_add, ← mul_assoc, ← mul_assoc, ← mul_assoc, ← mul_assoc]
       have swap4 : ∀ p q r s : R, add (add p q) (add r s) = add (add p s) (add q r) := by
         intro p q r s
@@ -1581,7 +1581,7 @@ def block2Unitary [DecidableEq α] (flip : α → α) (act : α → Bool) (a b :
       simp only [ite_bool_false]
     | true =>
       have hfa : act (flip c) = true := by rw [hAct c, ha]
-      simp only [ite_bool_true, if_pos hfa, hFlip c]
+      simp only [ite_bool_true, ite_eq_left hfa, hFlip c]
       rw [mul_add, mul_add, ← mul_assoc, ← mul_assoc, ← mul_assoc, ← mul_assoc]
       have hDiag' : add (mul a (conj a)) (mul b (conj b)) = one := by
         rw [mul_comm a (conj a), mul_comm b (conj b), hDiag]
@@ -1653,7 +1653,7 @@ def block2Unitary [DecidableEq α] (flip : α → α) (act : α → Bool) (a b :
         intro c hc
         have hca : act c = true := ((mem_filter_iff act u c).mp hc).2
         unfold block2Op
-        simp only [if_pos hca]
+        simp only [ite_eq_left hca]
         exact block2_expand a b (ψ c) (ψ (flip c)) (φ c) (φ (flip c))
       rw [hStep, sumList_add, sumList_add, sumList_add,
           sumList_mul_left, sumList_mul_left, sumList_mul_left, sumList_mul_left]
@@ -1797,7 +1797,7 @@ private theorem block12_comp
           else ψ (moveTo m c)) =
         (fun m => add (ψ (moveTo m c)) (mul (mul (sub v₁ one) inv12) (sumFin12 (fun m' => ψ (moveTo m' c))))) := by
         funext m
-        rw [if_pos (hActMove m c ha)]
+        rw [ite_eq_left (hActMove m c ha)]
         apply congrArg (add (ψ (moveTo m c)))
         apply congrArg (mul (mul (sub v₁ one) inv12))
         apply sumFin12_congr
@@ -1857,7 +1857,7 @@ private theorem block12_expand_supp [DecidableEq α]
       have hInFM : c ∈ flatMapList (fun x => (List.finRange 12).map (fun k => if act x then moveTo k x else x)) s := by
         refine (mem_flatMapList_iff _ s c).mpr ⟨moveTo m c, hmS, ?_⟩
         refine (mem_map_iff _ (List.finRange 12) c).mpr ⟨curLine c, mem_finRange12 (curLine c), ?_⟩
-        rw [if_pos (hActMove m c ha), hMoveBack]
+        rw [ite_eq_left (hActMove m c ha), hMoveBack]
       exact hc ((mem_dedupList _ c).mpr ((mem_append_iff _ _ c).mpr (Or.inr hInFM)))
     rw [hS0, mul_zero]
 
@@ -1896,7 +1896,7 @@ def block12Unitary [DecidableEq α]
       | false => rw [ite_bool_false, ha, ite_bool_false]
       | true =>
         have hm := hActMove (addMod12 (curLine c) k) c ha
-        rw [ite_bool_true, if_pos hm, hCurMove _ c ha, addMod12_subMod12, hMoveMove _ _ c ha, hMoveCur c ha]
+        rw [ite_bool_true, ite_eq_left hm, hCurMove _ c ha, addMod12_subMod12, hMoveMove _ _ c ha, hMoveCur c ha]
     have hRotInv2 : ∀ (k : Fin 12) (c : α), rot k (rotInv k c) = c := by
       intro k c
       change (if act (if act c then moveTo (subMod12 (curLine c) k) c else c) then
@@ -1907,7 +1907,7 @@ def block12Unitary [DecidableEq α]
       | false => rw [ite_bool_false, ha, ite_bool_false]
       | true =>
         have hm := hActMove (subMod12 (curLine c) k) c ha
-        rw [ite_bool_true, if_pos hm, hCurMove _ c ha, subMod12_addMod12, hMoveMove _ _ c ha, hMoveCur c ha]
+        rw [ite_bool_true, ite_eq_left hm, hCurMove _ c ha, subMod12_addMod12, hMoveMove _ _ c ha, hMoveCur c ha]
     let uL := dedupList (s ++ flatMapList (fun c => (List.finRange 12).map (fun m => if act c then moveTo m c else c)) s)
     have huNd : IsNodup uL := isNodup_dedupList _
     have huClosedMove : ∀ (c : α) (m : Fin 12), c ∈ uL → act c = true → moveTo m c ∈ uL := by
@@ -1916,7 +1916,7 @@ def block12Unitary [DecidableEq α]
       refine (mem_dedupList _ _).mpr ((mem_append_iff _ _ _).mpr (Or.inr ?_))
       rcases hMem with hS | hFM
       · refine (mem_flatMapList_iff _ s _).mpr ⟨c, hS, (mem_map_iff _ _ _).mpr ⟨m, mem_finRange12 m, ?_⟩⟩
-        rw [if_pos hca]
+        rw [ite_eq_left hca]
       · obtain ⟨x, hxS, hmx⟩ := (mem_flatMapList_iff _ s c).mp hFM
         obtain ⟨k, _, hkx⟩ := (mem_map_iff _ _ c).mp hmx
         cases hxa : act x with
@@ -1925,9 +1925,9 @@ def block12Unitary [DecidableEq α]
           rw [← hkx, hxa] at hca
           exact Bool.noConfusion hca
         | true =>
-          rw [if_pos hxa] at hkx
+          rw [ite_eq_left hxa] at hkx
           refine (mem_flatMapList_iff _ s _).mpr ⟨x, hxS, (mem_map_iff _ _ _).mpr ⟨m, mem_finRange12 m, ?_⟩⟩
-          rw [if_pos hxa, ← hkx, hMoveMove m k x hxa]
+          rw [ite_eq_left hxa, ← hkx, hMoveMove m k x hxa]
     have huψ : SuppIn uL ψ :=
       ⟨huNd, fun c hc => hsψ.2 c (fun h => hc ((mem_dedupList _ c).mpr ((mem_append_iff _ _ c).mpr (Or.inl h))))⟩
     have huOpψ : SuppIn uL (block12Op act moveTo u inv12 ψ) := by
@@ -1959,14 +1959,14 @@ def block12Unitary [DecidableEq α]
         intro k c hc
         have ⟨hcu, hca⟩ := (mem_filter_iff act uL c).mp hc
         exact (mem_filter_iff act uL _).mpr
-          ⟨by change (if act c then moveTo (addMod12 (curLine c) k) c else c) ∈ uL; rw [if_pos hca]; exact huClosedMove c _ hcu hca,
-           by change act (if act c then moveTo (addMod12 (curLine c) k) c else c) = true; rw [if_pos hca]; exact hActMove _ c hca⟩
+          ⟨by change (if act c then moveTo (addMod12 (curLine c) k) c else c) ∈ uL; rw [ite_eq_left hca]; exact huClosedMove c _ hcu hca,
+           by change act (if act c then moveTo (addMod12 (curLine c) k) c else c) = true; rw [ite_eq_left hca]; exact hActMove _ c hca⟩
       have huaRotInvCl : ∀ (k : Fin 12) (c : α), c ∈ ua → rotInv k c ∈ ua := by
         intro k c hc
         have ⟨hcu, hca⟩ := (mem_filter_iff act uL c).mp hc
         exact (mem_filter_iff act uL _).mpr
-          ⟨by change (if act c then moveTo (subMod12 (curLine c) k) c else c) ∈ uL; rw [if_pos hca]; exact huClosedMove c _ hcu hca,
-           by change act (if act c then moveTo (subMod12 (curLine c) k) c else c) = true; rw [if_pos hca]; exact hActMove _ c hca⟩
+          ⟨by change (if act c then moveTo (subMod12 (curLine c) k) c else c) ∈ uL; rw [ite_eq_left hca]; exact huClosedMove c _ hcu hca,
+           by change act (if act c then moveTo (subMod12 (curLine c) k) c else c) = true; rw [ite_eq_left hca]; exact hActMove _ c hca⟩
       let hop := mul (sub u one) inv12
       let Sψ : α → R := fun c => sumFin12 (fun m => ψ (moveTo m c))
       let Sφ : α → R := fun c => sumFin12 (fun m => φ (moveTo m c))
@@ -1976,7 +1976,7 @@ def block12Unitary [DecidableEq α]
         have hEq : (fun k => χ (rot k c)) = (fun k => (fun m => χ (moveTo m c)) (addMod12 (curLine c) k)) := by
           funext k
           change χ (if act c then moveTo (addMod12 (curLine c) k) c else c) = _
-          rw [if_pos hca]
+          rw [ite_eq_left hca]
         rw [hEq]
         exact sumFin12_bijection (addMod12 (curLine c)) (fun m => subMod12 m (curLine c)) _
           (fun k => by
@@ -1991,7 +1991,7 @@ def block12Unitary [DecidableEq α]
         apply sumFin12_congr
         intro m
         change χ (moveTo m (if act c then moveTo (addMod12 (curLine c) k) c else c)) = _
-        rw [if_pos hca, hMoveMove m _ c hca]
+        rw [ite_eq_left hca, hMoveMove m _ c hca]
       have hCross1 : sumList ua (fun c => mul (conj (Sψ c)) (Sφ c)) =
           mul (ofNatR 12) (sumList ua (fun c => mul (conj (ψ c)) (Sφ c))) := by
         have h1 : sumList ua (fun c => mul (conj (Sψ c)) (Sφ c)) =
@@ -2056,7 +2056,7 @@ def block12Unitary [DecidableEq α]
           intro c hc
           have hca := ((mem_filter_iff act uL c).mp hc).2
           unfold block12Op
-          simp only [if_pos hca]
+          simp only [ite_eq_left hca]
           change mul (conj (add (ψ c) (mul hop (Sψ c)))) (add (φ c) (mul hop (Sφ c))) = _
           rw [conj_add, conj_mul, add_mul, mul_add, mul_add, add_assoc]
           apply congrArg (add (mul (conj (ψ c)) (φ c)))
@@ -2757,7 +2757,7 @@ private theorem listIntLt_irrefl (xs : List Int) : listIntLt xs xs = false := by
   | cons x rest ih =>
     simp only [listIntLt]
     have hxx : ¬ (x < x) := by omega
-    simp only [if_neg hxx]
+    simp only [ite_eq_right hxx]
     exact ih
 
 private theorem listIntLt_trans (xs ys zs : List Int)
@@ -2775,24 +2775,24 @@ private theorem listIntLt_trans (xs ys zs : List Int)
         simp only [listIntLt] at h1 h2 ⊢
         if hxy : x < y then
           if hyz : y < z then
-            rw [if_pos (by omega)]
+            rw [ite_eq_left (by omega)]
           else if hzy : z < y then
-            rw [if_neg hyz, if_pos hzy] at h2; exact Bool.noConfusion h2
+            rw [ite_eq_right hyz, ite_eq_left hzy] at h2; exact Bool.noConfusion h2
           else
-            rw [if_pos (by omega)]
+            rw [ite_eq_left (by omega)]
         else if hyx : y < x then
-          rw [if_neg hxy, if_pos hyx] at h1; exact Bool.noConfusion h1
+          rw [ite_eq_right hxy, ite_eq_left hyx] at h1; exact Bool.noConfusion h1
         else
-          rw [if_neg hxy, if_neg hyx] at h1
+          rw [ite_eq_right hxy, ite_eq_right hyx] at h1
           if hyz : y < z then
-            rw [if_pos (by omega)]
+            rw [ite_eq_left (by omega)]
           else if hzy : z < y then
-            rw [if_neg hyz, if_pos hzy] at h2; exact Bool.noConfusion h2
+            rw [ite_eq_right hyz, ite_eq_left hzy] at h2; exact Bool.noConfusion h2
           else
-            rw [if_neg hyz, if_neg hzy] at h2
+            rw [ite_eq_right hyz, ite_eq_right hzy] at h2
             have hxz : ¬ (x < z) := by omega
             have hzx : ¬ (z < x) := by omega
-            simp only [if_neg hxz, if_neg hzx]
+            simp only [ite_eq_right hxz, ite_eq_right hzx]
             exact ih yr zr h1 h2
 
 private theorem listIntLt_trichotomy (xs ys : List Int) (hlen : xs.length = ys.length) :
@@ -2808,15 +2808,15 @@ private theorem listIntLt_trichotomy (xs ys : List Int) (hlen : xs.length = ys.l
     | cons y yr =>
       simp only [List.length_cons] at hlen
       if hxy : x < y then
-        exact Or.inl (by simp only [listIntLt, if_pos hxy])
+        exact Or.inl (by simp only [listIntLt, ite_eq_left hxy])
       else if hyx : y < x then
-        exact Or.inr (Or.inr (by simp only [listIntLt, if_pos hyx]))
+        exact Or.inr (Or.inr (by simp only [listIntLt, ite_eq_left hyx]))
       else
         have hEq : x = y := by omega
         rcases ih yr (by omega) with h1 | h2 | h3
-        · exact Or.inl (by simp only [listIntLt, if_neg hxy, if_neg hyx]; exact h1)
+        · exact Or.inl (by simp only [listIntLt, ite_eq_right hxy, ite_eq_right hyx]; exact h1)
         · exact Or.inr (Or.inl (by rw [hEq, h2]))
-        · exact Or.inr (Or.inr (by simp only [listIntLt, if_neg hyx, if_neg hxy]; exact h3))
+        · exact Or.inr (Or.inr (by simp only [listIntLt, ite_eq_right hyx, ite_eq_right hxy]; exact h3))
 
 private def vec5Key (v : Vec5) : List Int :=
   [ (v ⟨0, by decide⟩).a, (v ⟨0, by decide⟩).b,
@@ -2951,7 +2951,7 @@ private theorem lookupEntries_not_lt (g : Mat5) (es : List (Mat5 × FullDock))
     have hlt : mat5Lt g k = true := hgt (k, d) (List.Mem.head rest)
     have hne : k ≠ g := by
       intro heq; rw [heq, mat5Lt_irrefl] at hlt; exact Bool.noConfusion hlt
-    rw [if_neg hne]
+    rw [ite_eq_right hne]
     exact ih (fun q hq => hgt q (List.Mem.tail _ hq))
 
 private theorem sortedEntries_ext (es₁ es₂ : List (Mat5 × FullDock))
@@ -2966,29 +2966,29 @@ private theorem sortedEntries_ext (es₁ es₂ : List (Mat5 × FullDock))
     | cons p rest =>
       cases p with | mk k d =>
       have h0 := hlk k
-      simp only [lookupEntries, if_pos rfl] at h0
+      simp only [lookupEntries, ite_eq_left rfl] at h0
       exact absurd h0.symm (hne₂ (k, d) (List.Mem.head rest))
   | cons p₁ r₁ ih =>
     cases p₁ with | mk k₁ d₁ =>
     cases es₂ with
     | nil =>
       have h0 := hlk k₁
-      simp only [lookupEntries, if_pos rfl] at h0
+      simp only [lookupEntries, ite_eq_left rfl] at h0
       exact absurd h0 (hne₁ (k₁, d₁) (List.Mem.head r₁))
     | cons p₂ r₂ =>
       cases p₂ with | mk k₂ d₂ =>
       rcases mat5Lt_trichotomy k₁ k₂ with hlt | heq | hgt
       · have h0 := hlk k₁
-        simp only [lookupEntries, if_pos rfl] at h0
+        simp only [lookupEntries, ite_eq_left rfl] at h0
         have hne12 : k₂ ≠ k₁ := fun h => by rw [h, mat5Lt_irrefl] at hlt; exact Bool.noConfusion hlt
-        rw [if_neg hne12] at h0
+        rw [ite_eq_right hne12] at h0
         have hvan : lookupEntries k₁ r₂ = v1FullDock :=
           lookupEntries_not_lt k₁ r₂ (fun q hq => mat5Lt_trans k₁ k₂ q.1 hlt (hs₂.1 q hq))
         rw [hvan] at h0
         exact absurd h0 (hne₁ (k₁, d₁) (List.Mem.head r₁))
       · have hd : d₁ = d₂ := by
           have h0 := hlk k₁
-          simp only [lookupEntries, if_pos rfl, heq] at h0
+          simp only [lookupEntries, ite_eq_left rfl, heq] at h0
           exact h0
         have hr : r₁ = r₂ := by
           apply ih r₂ hs₁.2 hs₂.2
@@ -3001,13 +3001,13 @@ private theorem sortedEntries_ext (es₁ es₂ : List (Mat5 × FullDock))
                 lookupEntries_not_lt k₁ r₂ (by rw [heq]; exact hs₂.1)]
           else
             have h0 := hlk g
-            simp only [lookupEntries, if_neg hgk, ← heq] at h0
+            simp only [lookupEntries, ite_eq_right hgk, ← heq] at h0
             exact h0
         rw [heq, hd, hr]
       · have h0 := hlk k₂
-        simp only [lookupEntries, if_pos rfl] at h0
+        simp only [lookupEntries, ite_eq_left rfl] at h0
         have hne21 : k₁ ≠ k₂ := fun h => by rw [h, mat5Lt_irrefl] at hgt; exact Bool.noConfusion hgt
-        rw [if_neg hne21] at h0
+        rw [ite_eq_right hne21] at h0
         have hvan : lookupEntries k₂ r₁ = v1FullDock :=
           lookupEntries_not_lt k₂ r₁ (fun q hq => mat5Lt_trans k₂ k₁ q.1 hgt (hs₁.1 q hq))
         rw [hvan] at h0
@@ -3051,10 +3051,10 @@ private theorem mem_activeDocks_iff (c : HoneycombConfig) (g : Mat5) :
       cases p with | mk k d =>
       simp only [List.map, lookupEntries]
       if hkg : k = g then
-        rw [if_pos hkg, hkg]
+        rw [ite_eq_left hkg, hkg]
         exact ⟨fun _ => hne (g, d) (by rw [← hkg]; exact List.Mem.head rest), fun _ => List.Mem.head _⟩
       else
-        rw [if_neg hkg]
+        rw [ite_eq_right hkg]
         have hih := ih hs.2 (fun q hq => hne q (List.Mem.tail _ hq))
         constructor
         · intro hm
@@ -3082,9 +3082,9 @@ private theorem mem_setEntries_keys (g : Mat5) (d : FullDock) (es : List (Mat5 �
   | nil =>
     simp only [setEntries] at hp
     if hd : d = v1FullDock then
-      rw [if_pos hd] at hp; cases hp
+      rw [ite_eq_left hd] at hp; cases hp
     else
-      rw [if_neg hd] at hp
+      rw [ite_eq_right hd] at hp
       cases hp with
       | head => exact Or.inl rfl
       | tail _ h' => cases h'
@@ -3092,29 +3092,29 @@ private theorem mem_setEntries_keys (g : Mat5) (d : FullDock) (es : List (Mat5 �
     cases q with | mk k dk =>
     simp only [setEntries] at hp
     if hlt : mat5Lt g k = true then
-      rw [if_pos hlt] at hp
+      rw [ite_eq_left hlt] at hp
       if hd : d = v1FullDock then
-        rw [if_pos hd] at hp
+        rw [ite_eq_left hd] at hp
         exact Or.inr ⟨p, hp, rfl⟩
       else
-        rw [if_neg hd] at hp
+        rw [ite_eq_right hd] at hp
         cases hp with
         | head => exact Or.inl rfl
         | tail _ h' => exact Or.inr ⟨p, h', rfl⟩
     else
-      rw [if_neg hlt] at hp
+      rw [ite_eq_right hlt] at hp
       if hkg : k = g then
-        rw [if_pos hkg] at hp
+        rw [ite_eq_left hkg] at hp
         if hd : d = v1FullDock then
-          rw [if_pos hd] at hp
+          rw [ite_eq_left hd] at hp
           exact Or.inr ⟨p, List.Mem.tail _ hp, rfl⟩
         else
-          rw [if_neg hd] at hp
+          rw [ite_eq_right hd] at hp
           cases hp with
           | head => exact Or.inl rfl
           | tail _ h' => exact Or.inr ⟨p, List.Mem.tail _ h', rfl⟩
       else
-        rw [if_neg hkg] at hp
+        rw [ite_eq_right hkg] at hp
         cases hp with
         | head => exact Or.inr ⟨(k, dk), List.Mem.head rest, rfl⟩
         | tail _ h' =>
@@ -3128,33 +3128,33 @@ private theorem setEntries_sorted (g : Mat5) (d : FullDock) (es : List (Mat5 × 
   | nil =>
     simp only [setEntries]
     if hd : d = v1FullDock then
-      rw [if_pos hd]; trivial
+      rw [ite_eq_left hd]; trivial
     else
-      rw [if_neg hd]; exact ⟨fun _ h => nomatch h, trivial⟩
+      rw [ite_eq_right hd]; exact ⟨fun _ h => nomatch h, trivial⟩
   | cons q rest ih =>
     cases q with | mk k dk =>
     simp only [setEntries]
     if hlt : mat5Lt g k = true then
-      rw [if_pos hlt]
+      rw [ite_eq_left hlt]
       if hd : d = v1FullDock then
-        rw [if_pos hd]; exact hs
+        rw [ite_eq_left hd]; exact hs
       else
-        rw [if_neg hd]
+        rw [ite_eq_right hd]
         refine ⟨?_, hs⟩
         intro p hp
         cases hp with
         | head => exact hlt
         | tail _ h' => exact mat5Lt_trans g k p.1 hlt (hs.1 p h')
     else
-      rw [if_neg hlt]
+      rw [ite_eq_right hlt]
       if hkg : k = g then
-        rw [if_pos hkg]
+        rw [ite_eq_left hkg]
         if hd : d = v1FullDock then
-          rw [if_pos hd]; exact hs.2
+          rw [ite_eq_left hd]; exact hs.2
         else
-          rw [if_neg hd]; exact ⟨fun p hp => by rw [← hkg]; exact hs.1 p hp, hs.2⟩
+          rw [ite_eq_right hd]; exact ⟨fun p hp => by rw [← hkg]; exact hs.1 p hp, hs.2⟩
       else
-        rw [if_neg hkg]
+        rw [ite_eq_right hkg]
         have hklg : mat5Lt k g = true := by
           rcases mat5Lt_trichotomy g k with h1 | h2 | h3
           · exact absurd h1 hlt
@@ -3174,9 +3174,9 @@ private theorem setEntries_nonEmpty (g : Mat5) (d : FullDock) (es : List (Mat5 �
     intro p hp
     simp only [setEntries] at hp
     if hd : d = v1FullDock then
-      rw [if_pos hd] at hp; cases hp
+      rw [ite_eq_left hd] at hp; cases hp
     else
-      rw [if_neg hd] at hp
+      rw [ite_eq_right hd] at hp
       cases hp with
       | head => exact hd
       | tail _ h' => cases h'
@@ -3185,27 +3185,27 @@ private theorem setEntries_nonEmpty (g : Mat5) (d : FullDock) (es : List (Mat5 �
     intro p hp
     simp only [setEntries] at hp
     if hlt : mat5Lt g k = true then
-      rw [if_pos hlt] at hp
+      rw [ite_eq_left hlt] at hp
       if hd : d = v1FullDock then
-        rw [if_pos hd] at hp; exact hne p hp
+        rw [ite_eq_left hd] at hp; exact hne p hp
       else
-        rw [if_neg hd] at hp
+        rw [ite_eq_right hd] at hp
         cases hp with
         | head => exact hd
         | tail _ h' => exact hne p h'
     else
-      rw [if_neg hlt] at hp
+      rw [ite_eq_right hlt] at hp
       if hkg : k = g then
-        rw [if_pos hkg] at hp
+        rw [ite_eq_left hkg] at hp
         if hd : d = v1FullDock then
-          rw [if_pos hd] at hp; exact hne p (List.Mem.tail _ hp)
+          rw [ite_eq_left hd] at hp; exact hne p (List.Mem.tail _ hp)
         else
-          rw [if_neg hd] at hp
+          rw [ite_eq_right hd] at hp
           cases hp with
           | head => exact hd
           | tail _ h' => exact hne p (List.Mem.tail _ h')
       else
-        rw [if_neg hkg] at hp
+        rw [ite_eq_right hkg] at hp
         cases hp with
         | head => exact hne (k, dk) (List.Mem.head rest)
         | tail _ h' => exact ih (fun r hr => hne r (List.Mem.tail _ hr)) p h'
@@ -3217,65 +3217,65 @@ private theorem lookupEntries_setEntries (g h : Mat5) (d : FullDock) (es : List 
   | nil =>
     simp only [setEntries]
     if hd : d = v1FullDock then
-      rw [if_pos hd]; simp only [lookupEntries]
-      if hhg : h = g then rw [if_pos hhg, hd] else rw [if_neg hhg]
+      rw [ite_eq_left hd]; simp only [lookupEntries]
+      if hhg : h = g then rw [ite_eq_left hhg, hd] else rw [ite_eq_right hhg]
     else
-      rw [if_neg hd]; simp only [lookupEntries]
-      if hhg : h = g then rw [if_pos hhg, if_pos hhg.symm]
+      rw [ite_eq_right hd]; simp only [lookupEntries]
+      if hhg : h = g then rw [ite_eq_left hhg, ite_eq_left hhg.symm]
       else
         have hgh : g ≠ h := fun e => hhg e.symm
-        rw [if_neg hhg, if_neg hgh]
+        rw [ite_eq_right hhg, ite_eq_right hgh]
   | cons q rest ih =>
     cases q with | mk k dk =>
     simp only [setEntries]
     if hlt : mat5Lt g k = true then
-      rw [if_pos hlt]
+      rw [ite_eq_left hlt]
       if hd : d = v1FullDock then
-        rw [if_pos hd]
+        rw [ite_eq_left hd]
         if hhg : h = g then
-          rw [if_pos hhg, hd, hhg]
+          rw [ite_eq_left hhg, hd, hhg]
           have hkg : k ≠ g := fun e => by rw [e, mat5Lt_irrefl] at hlt; exact Bool.noConfusion hlt
-          simp only [lookupEntries, if_neg hkg]
+          simp only [lookupEntries, ite_eq_right hkg]
           exact lookupEntries_not_lt g rest (fun p hp => mat5Lt_trans g k p.1 hlt (hs.1 p hp))
         else
-          rw [if_neg hhg]
+          rw [ite_eq_right hhg]
       else
-        rw [if_neg hd]
+        rw [ite_eq_right hd]
         simp only [lookupEntries]
         if hhg : h = g then
-          rw [if_pos hhg, if_pos hhg.symm]
+          rw [ite_eq_left hhg, ite_eq_left hhg.symm]
         else
           have hgh : g ≠ h := fun e => hhg e.symm
-          rw [if_neg hhg, if_neg hgh]
+          rw [ite_eq_right hhg, ite_eq_right hgh]
     else
-      rw [if_neg hlt]
+      rw [ite_eq_right hlt]
       if hkg : k = g then
-        rw [if_pos hkg]
+        rw [ite_eq_left hkg]
         if hd : d = v1FullDock then
-          rw [if_pos hd]
+          rw [ite_eq_left hd]
           if hhg : h = g then
-            rw [if_pos hhg, hd, hhg]
+            rw [ite_eq_left hhg, hd, hhg]
             exact lookupEntries_not_lt g rest (by rw [← hkg]; exact hs.1)
           else
             have hkh : k ≠ h := by rw [hkg]; exact fun e => hhg e.symm
-            rw [if_neg hhg]; simp only [lookupEntries, if_neg hkh]
+            rw [ite_eq_right hhg]; simp only [lookupEntries, ite_eq_right hkh]
         else
-          rw [if_neg hd]
+          rw [ite_eq_right hd]
           simp only [lookupEntries]
           if hhg : h = g then
-            rw [if_pos hhg, if_pos hhg.symm]
+            rw [ite_eq_left hhg, ite_eq_left hhg.symm]
           else
             have hgh : g ≠ h := fun e => hhg e.symm
             have hkh : k ≠ h := by rw [hkg]; exact hgh
-            rw [if_neg hhg, if_neg hgh, if_neg hkh]
+            rw [ite_eq_right hhg, ite_eq_right hgh, ite_eq_right hkh]
       else
-        rw [if_neg hkg]
+        rw [ite_eq_right hkg]
         simp only [lookupEntries]
         if hkh : k = h then
           have hhg : h ≠ g := by rw [← hkh]; exact hkg
-          rw [if_pos hkh, if_neg hhg]
+          rw [ite_eq_left hkh, ite_eq_right hhg]
         else
-          rw [if_neg hkh, ih hs.2]
+          rw [ite_eq_right hkh, ih hs.2]
 
 /-- Update dock `g` of `c` to `d` (deleting `g` if `d = v1FullDock`). -/
 def HoneycombConfig.setDock (c : HoneycombConfig) (g : Mat5) (d : FullDock) : HoneycombConfig :=
@@ -3289,12 +3289,12 @@ private theorem lookup_setDock (c : HoneycombConfig) (g h : Mat5) (d : FullDock)
 private theorem setDock_lookup_self (c : HoneycombConfig) (g : Mat5) :
     c.setDock g (c.lookup g) = c := by
   apply honeycombConfig_ext; intro h; rw [lookup_setDock]
-  if hhg : h = g then rw [if_pos hhg, hhg] else rw [if_neg hhg]
+  if hhg : h = g then rw [ite_eq_left hhg, hhg] else rw [ite_eq_right hhg]
 
 private theorem setDock_setDock_same (c : HoneycombConfig) (g : Mat5) (d₁ d₂ : FullDock) :
     (c.setDock g d₁).setDock g d₂ = c.setDock g d₂ := by
   apply honeycombConfig_ext; intro h; rw [lookup_setDock, lookup_setDock, lookup_setDock]
-  if hhg : h = g then rw [if_pos hhg] else rw [if_neg hhg]
+  if hhg : h = g then rw [ite_eq_left hhg] else rw [ite_eq_right hhg]
 
 private theorem setDock_setDock_comm (c : HoneycombConfig) (g₁ g₂ : Mat5) (d₁ d₂ : FullDock)
     (hne : g₁ ≠ g₂) :
@@ -3303,10 +3303,10 @@ private theorem setDock_setDock_comm (c : HoneycombConfig) (g₁ g₂ : Mat5) (d
   rw [lookup_setDock, lookup_setDock, lookup_setDock, lookup_setDock]
   if h2 : h = g₂ then
     have h1 : h ≠ g₁ := by rw [h2]; exact fun e => hne e.symm
-    simp only [if_pos h2, if_neg h1]
+    simp only [ite_eq_left h2, ite_eq_right h1]
   else
-    rw [if_neg h2]
-    if h1 : h = g₁ then simp only [if_pos h1] else simp only [if_neg h1, if_neg h2]
+    rw [ite_eq_right h2]
+    if h1 : h = g₁ then simp only [ite_eq_left h1] else simp only [ite_eq_right h1, ite_eq_right h2]
 
 private theorem sortedEntries_map_fst_eq (es₁ es₂ : List (Mat5 × FullDock))
     (hs₁ : SortedEntries es₁) (hs₂ : SortedEntries es₂)
@@ -3374,10 +3374,10 @@ private theorem activeDocks_setDock_eq (c : HoneycombConfig) (g : Mat5) (d : Ful
   change h ∈ (c.setDock g d).activeDocks ↔ h ∈ c.activeDocks
   rw [mem_activeDocks_iff, mem_activeDocks_iff, lookup_setDock]
   if hhg : h = g then
-    rw [if_pos hhg, hhg]
+    rw [ite_eq_left hhg, hhg]
     exact ⟨fun hne h0 => hne (hSame.mpr h0), fun hne h0 => hne (hSame.mp h0)⟩
   else
-    rw [if_neg hhg]
+    rw [ite_eq_right hhg]
 
 /-- Build a canonical `HoneycombConfig` from a finite candidate site list `cand` and dock assignment `f`. -/
 def ofSites (cand : List Mat5) (f : Mat5 → FullDock) : HoneycombConfig :=
@@ -3393,18 +3393,18 @@ private theorem lookup_ofSites_foldl (cand : List Mat5) (f : Mat5 → FullDock)
     simp only [List.foldl, memBool]
     rw [ih (init.setDock k (f k))]
     if hkg : k = g then
-      rw [if_pos hkg]
+      rw [ite_eq_left hkg]
       cases hm : memBool g rest with
-      | true => rw [if_pos rfl]
+      | true => rw [ite_eq_left rfl]
       | false =>
-        rw [if_neg (by decide : false ≠ true), lookup_setDock, if_pos hkg.symm]
+        rw [ite_eq_right (by decide : false ≠ true), lookup_setDock, ite_eq_left hkg.symm]
     else
-      rw [if_neg hkg]
+      rw [ite_eq_right hkg]
       cases hm : memBool g rest with
-      | true => rw [if_pos rfl]
+      | true => rw [ite_eq_left rfl]
       | false =>
         have hgk : g ≠ k := fun e => hkg e.symm
-        rw [if_neg (by decide : false ≠ true), lookup_setDock, if_neg hgk]
+        rw [ite_eq_right (by decide : false ≠ true), lookup_setDock, ite_eq_right hgk]
 
 private theorem lookup_ofSites (cand : List Mat5) (f : Mat5 → FullDock)
     (hvan : ∀ g : Mat5, g ∉ cand → f g = v1FullDock) (g : Mat5) :
@@ -3474,9 +3474,9 @@ private theorem fockSumInt_eraseOne {α : Type} [DecidableEq α] (a : α) (xs : 
   | cons x rest ih =>
     simp only [eraseOne, fockSumInt]
     if hxa : x = a then
-      rw [if_pos hxa, hxa]
+      rw [ite_eq_left hxa, hxa]
     else
-      rw [if_neg hxa]; simp only [fockSumInt]
+      rw [ite_eq_right hxa]; simp only [fockSumInt]
       cases hmem with
       | head => exact absurd rfl hxa
       | tail _ h' => rw [ih h']; omega
@@ -3554,7 +3554,7 @@ private theorem totalCharge_setDock (c : HoneycombConfig) (g : Mat5) (d : FullDo
   apply fockSumInt_congr
   intro x _
   rw [lookup_setDock]
-  if hxg : x = g then rw [if_pos hxg, hxg, hSame] else rw [if_neg hxg]
+  if hxg : x = g then rw [ite_eq_left hxg, hxg, hSame] else rw [ite_eq_right hxg]
 
 /-! ### Exact Global Configuration Maps (`S`, `S⁻¹`, `R`, `C`, `P`, `CP`) on Infinite `{3,4,3,4}` -/
 
@@ -3950,9 +3950,9 @@ private theorem applySites_erase (F : LocalSiteFamily) (g : Mat5) (gs : List Mat
   | cons x rest ih =>
     simp only [eraseOne, applySites]
     if hxg : x = g then
-      rw [if_pos hxg, hxg]
+      rw [ite_eq_left hxg, hxg]
     else
-      rw [if_neg hxg]
+      rw [ite_eq_right hxg]
       simp only [applySites]
       cases hmem with
       | head => exact absurd rfl hxg
@@ -3967,9 +3967,9 @@ private theorem applySitesDag_erase (F : LocalSiteFamily) (g : Mat5) (gs : List 
   | cons x rest ih =>
     simp only [eraseOne, applySitesDag]
     if hxg : x = g then
-      rw [if_pos hxg, hxg]
+      rw [ite_eq_left hxg, hxg]
     else
-      rw [if_neg hxg]
+      rw [ite_eq_right hxg]
       simp only [applySitesDag]
       cases hmem with
       | head => exact absurd rfl hxg
@@ -4202,11 +4202,11 @@ private theorem swapLineSlotsDock_inv (l : Fin 12) (d : FullDock) :
   have hne : lineA l ≠ lineB l := (line_geom_facts.1 l).2.2
   funext s; unfold swapLineSlotsDock
   if hA : s = lineA l then
-    simp only [if_pos hA, if_neg hne.symm, if_pos rfl, hA]
+    simp only [ite_eq_left hA, ite_eq_right hne.symm, ite_eq_left rfl, hA]
   else if hB : s = lineB l then
-    simp only [if_neg hA, if_pos hB, if_pos rfl, hB]
+    simp only [ite_eq_right hA, ite_eq_left hB, ite_eq_left rfl, hB]
   else
-    simp only [if_neg hA, if_neg hB]
+    simp only [ite_eq_right hA, ite_eq_right hB]
 
 private theorem swapLineRolesDock_inv (l : Fin 12) (d : FullDock) :
     swapLineRolesDock l (swapLineRolesDock l d) = d := by
@@ -4218,19 +4218,19 @@ private theorem swapLineRolesDock_inv (l : Fin 12) (d : FullDock) :
     cases hB : d (lineB l) with
     | empty => simp only [hA, hB]
     | occ sB rB =>
-      simp only [if_pos rfl, if_neg hne.symm]
+      simp only [ite_eq_left rfl, ite_eq_right hne.symm]
       funext s
-      if hsA : s = lineA l then simp only [if_pos hsA, hsA, hA]
-      else if hsB : s = lineB l then simp only [if_neg hsA, if_pos hsB, hsB, hB]
-      else simp only [if_neg hsA, if_neg hsB]
+      if hsA : s = lineA l then simp only [ite_eq_left hsA, hsA, hA]
+      else if hsB : s = lineB l then simp only [ite_eq_right hsA, ite_eq_left hsB, hsB, hB]
+      else simp only [ite_eq_right hsA, ite_eq_right hsB]
 
 private theorem swapLineSlotsDock_empty_iff (l : Fin 12) (d : FullDock) :
     swapLineSlotsDock l d = v1FullDock ↔ d = v1FullDock := by
   have hV1 : swapLineSlotsDock l v1FullDock = v1FullDock := by
     funext s; unfold swapLineSlotsDock
-    if hA : s = lineA l then rw [if_pos hA]; rfl
-    else if hB : s = lineB l then rw [if_neg hA, if_pos hB]; rfl
-    else rw [if_neg hA, if_neg hB]
+    if hA : s = lineA l then rw [ite_eq_left hA]; rfl
+    else if hB : s = lineB l then rw [ite_eq_right hA, ite_eq_left hB]; rfl
+    else rw [ite_eq_right hA, ite_eq_right hB]
   constructor
   · intro h; rw [← swapLineSlotsDock_inv l d, h, hV1]
   · intro h; rw [h, hV1]
@@ -4250,14 +4250,14 @@ private theorem fullDockCharge_swapLineSlots (l : Fin 12) (d : FullDock) :
     intro s; change (if (if s = lineA l then lineB l else if s = lineB l then lineA l else s) = lineA l then lineB l
       else if (if s = lineA l then lineB l else if s = lineB l then lineA l else s) = lineB l then lineA l
       else (if s = lineA l then lineB l else if s = lineB l then lineA l else s)) = s
-    if hA : s = lineA l then simp only [if_pos hA, if_neg hne.symm, if_pos rfl, hA]
-    else if hB : s = lineB l then simp only [if_neg hA, if_pos hB, if_pos rfl, hB]
-    else simp only [if_neg hA, if_neg hB]
+    if hA : s = lineA l then simp only [ite_eq_left hA, ite_eq_right hne.symm, ite_eq_left rfl, hA]
+    else if hB : s = lineB l then simp only [ite_eq_right hA, ite_eq_left hB, ite_eq_left rfl, hB]
+    else simp only [ite_eq_right hA, ite_eq_right hB]
   have hEq : (fun s => (swapLineSlotsDock l d s).charge) = (fun s => (d (swapF s)).charge) := by
     funext s; unfold swapLineSlotsDock
-    if hA : s = lineA l then simp only [swapF, if_pos hA]
-    else if hB : s = lineB l then simp only [swapF, if_neg hA, if_pos hB]
-    else simp only [swapF, if_neg hA, if_neg hB]
+    if hA : s = lineA l then simp only [swapF, ite_eq_left hA]
+    else if hB : s = lineB l then simp only [swapF, ite_eq_right hA, ite_eq_left hB]
+    else simp only [swapF, ite_eq_right hA, ite_eq_right hB]
   rw [hEq]
   rw [← fockSumInt_map (List.finRange 24) swapF (fun s => (d s).charge)]
   have hMapNd : IsNodup ((List.finRange 24).map swapF) :=
@@ -4278,9 +4278,9 @@ private theorem fullDockCharge_swapLineRoles (l : Fin 12) (d : FullDock) :
     cases hB : d (lineB l) with
     | empty => rfl
     | occ sB rB =>
-      if hsA : s = lineA l then rw [if_pos hsA, hsA, hA]
-      else if hsB : s = lineB l then rw [if_neg hsA, if_pos hsB, hsB, hB]
-      else rw [if_neg hsA, if_neg hsB]
+      if hsA : s = lineA l then rw [ite_eq_left hsA, hsA, hA]
+      else if hsB : s = lineB l then rw [ite_eq_right hsA, ite_eq_left hsB, hsB, hB]
+      else rw [ite_eq_right hsA, ite_eq_right hsB]
 
 /-- Line classification predicates on a 24-slot `FullDock`. -/
 def isLoneLine (d : FullDock) (l : Fin 12) : Bool :=
@@ -4402,7 +4402,7 @@ private theorem isSoleIdentPairAt_move (d : FullDock) (l m : Fin 12)
     unfold isSoleIdentPairAt isSameSignEqRoleLine
     rw [Bool.and_eq_true]
     refine ⟨?_, ?_⟩
-    · simp only [if_pos (Or.inl rfl), if_pos (Or.inr rfl)]
+    · simp only [ite_eq_left (Or.inl rfl), ite_eq_left (Or.inr rfl)]
       decide
     · refine (list_all_eq_true_iff _ _).mpr ?_
       intro s' _
@@ -4411,7 +4411,7 @@ private theorem isSoleIdentPairAt_move (d : FullDock) (l m : Fin 12)
         · exact decide_eq_true (Or.inl h1)
         · exact decide_eq_true (Or.inr (Or.inl h2))
       else
-        exact decide_eq_true (Or.inr (Or.inr (if_neg hs)))
+        exact decide_eq_true (Or.inr (Or.inr (ite_eq_right hs)))
 
 private theorem moveSolePairDock_spec (d : FullDock) (hAct : isSoleIdentPairDock d = true) :
     (∀ m : Fin 12, isSoleIdentPairDock (moveSolePairDock m d) = true) ∧
@@ -4449,14 +4449,14 @@ private theorem moveSolePairDock_spec (d : FullDock) (hAct : isSoleIdentPairDock
       funext s
       unfold moveSolePairDock
       rw [hMoveFind m₂, hf]
-      simp only [if_pos (Or.inl rfl)]
+      simp only [ite_eq_left (Or.inl rfl)]
     · rw [hSole]
       funext s
       unfold moveSolePairDock; rw [hf]
-      if hsA : s = lineA l then rw [if_pos (Or.inl hsA), hsA]
-      else if hsB : s = lineB l then rw [if_pos (Or.inr hsB), hsB, hA0, hB0]
+      if hsA : s = lineA l then rw [ite_eq_left (Or.inl hsA), hsA]
+      else if hsB : s = lineB l then rw [ite_eq_left (Or.inr hsB), hsB, hA0, hB0]
       else
-        rw [if_neg (fun h => match h with | Or.inl h1 => hsA h1 | Or.inr h2 => hsB h2)]
+        rw [ite_eq_right (fun h => match h with | Or.inl h1 => hsA h1 | Or.inr h2 => hsB h2)]
         have := of_decide_eq_true (hAll s (mem_finRange24 s))
         rcases this with h1 | h2 | h3
         · exact absurd h1 hsA
@@ -4465,7 +4465,7 @@ private theorem moveSolePairDock_spec (d : FullDock) (hAct : isSoleIdentPairDock
     · intro m heq
       have h0 := congrFun heq (lineA m)
       unfold moveSolePairDock at h0
-      rw [hf, if_pos (Or.inl rfl), hA0] at h0
+      rw [hf, ite_eq_left (Or.inl rfl), hA0] at h0
       exact SlotState.noConfusion h0
     · intro m
       have hDockQ : ∀ (k : Fin 12) (dk : FullDock),
@@ -4490,9 +4490,9 @@ private theorem moveSolePairDock_spec (d : FullDock) (hAct : isSoleIdentPairDock
         simp only [SlotState.charge]; omega
       have hQ1 : fullDockCharge (moveSolePairDock m d) = s₀.value + s₀.value := by
         apply hDockQ m
-        · unfold moveSolePairDock; rw [hf, if_pos (Or.inl rfl), hA0]
-        · unfold moveSolePairDock; rw [hf, if_pos (Or.inr rfl), hA0]
-        · intro s hA hB; unfold moveSolePairDock; rw [hf, if_neg (fun h => match h with | Or.inl e => hA e | Or.inr e => hB e)]
+        · unfold moveSolePairDock; rw [hf, ite_eq_left (Or.inl rfl), hA0]
+        · unfold moveSolePairDock; rw [hf, ite_eq_left (Or.inr rfl), hA0]
+        · intro s hA hB; unfold moveSolePairDock; rw [hf, ite_eq_right (fun h => match h with | Or.inl e => hA e | Or.inr e => hB e)]
       have hQ2 : fullDockCharge d = s₀.value + s₀.value := by
         apply hDockQ l d hA0 hB0
         intro s hA hB
@@ -4511,21 +4511,21 @@ private theorem lineBounceKPerm_inv (g : Mat5) (l : Fin 12) (c : HoneycombConfig
     lineBounceKPerm g l (lineBounceKPerm g l c) = c := by
   unfold lineBounceKPerm
   cases h : isOppSignLine (c.lookup g) l with
-  | false => rw [if_neg (by decide : false ≠ true), if_neg (by rw [h]; decide)]
+  | false => rw [ite_eq_right (by decide : false ≠ true), ite_eq_right (by rw [h]; decide)]
   | true =>
-    rw [if_pos rfl]
+    rw [ite_eq_left rfl]
     have hSwap : isOppSignLine ((swapLineSlotsConfig g l c).lookup g) l = true := by
       unfold swapLineSlotsConfig
-      rw [lookup_setDock, if_pos rfl]
+      rw [lookup_setDock, ite_eq_left rfl]
       unfold isOppSignLine swapLineSlotsDock at h ⊢
       have hne := (line_geom_facts.1 l).2.2
-      simp only [if_pos rfl, if_neg hne.symm]
+      simp only [ite_eq_left rfl, ite_eq_right hne.symm]
       cases hA : c.lookup g (lineA l) <;> cases hB : c.lookup g (lineB l) <;> rw [hA, hB] at h
       all_goals try exact Bool.noConfusion h
       exact decide_eq_true (fun e => (of_decide_eq_true h) e.symm)
-    rw [if_pos hSwap]
+    rw [ite_eq_left hSwap]
     unfold swapLineSlotsConfig
-    rw [lookup_setDock, if_pos rfl, setDock_setDock_same, swapLineSlotsDock_inv, setDock_lookup_self]
+    rw [lookup_setDock, ite_eq_left rfl, setDock_setDock_same, swapLineSlotsDock_inv, setDock_lookup_self]
 
 private def lineBounceKUnit (g : Mat5) (l : Fin 12) : FockUnitary NinthLoc6 HoneycombConfig :=
   FockUnitary.comp
@@ -4562,13 +4562,13 @@ private def lineHalfCoinUnit (g : Mat5) (l : Fin 12) : FockUnitary NinthLoc6 Hon
       NinthLoc6.coinDiag NinthLoc6.coinOff
       (fun c => by
         unfold swapLineSlotsConfig
-        rw [lookup_setDock, if_pos rfl, setDock_setDock_same, swapLineSlotsDock_inv, setDock_lookup_self])
+        rw [lookup_setDock, ite_eq_left rfl, setDock_setDock_same, swapLineSlotsDock_inv, setDock_lookup_self])
       (fun c => by
         unfold swapLineSlotsConfig
-        rw [lookup_setDock, if_pos rfl]
+        rw [lookup_setDock, ite_eq_left rfl]
         unfold isLoneLine swapLineSlotsDock
         have hne := (line_geom_facts.1 l).2.2
-        simp only [if_pos rfl, if_neg hne.symm]
+        simp only [ite_eq_left rfl, ite_eq_right hne.symm]
         cases c.lookup g (lineA l) <;> cases c.lookup g (lineB l) <;> rfl)
       thm_fock_ring_and_gate_identities.2.2.2.2.2.2.2.2.1
       thm_fock_ring_and_gate_identities.2.2.2.2.2.2.2.2.2.1)
@@ -4592,10 +4592,10 @@ private def lineMeetUnit (g : Mat5) (l : Fin 12) : FockUnitary NinthLoc6 Honeyco
       NinthLoc6.meetKeep NinthLoc6.meetSwap
       (fun c => by
         unfold swapLineRolesConfig
-        rw [lookup_setDock, if_pos rfl, setDock_setDock_same, swapLineRolesDock_inv, setDock_lookup_self])
+        rw [lookup_setDock, ite_eq_left rfl, setDock_setDock_same, swapLineRolesDock_inv, setDock_lookup_self])
       (fun c => by
         unfold swapLineRolesConfig
-        rw [lookup_setDock, if_pos rfl]
+        rw [lookup_setDock, ite_eq_left rfl]
         unfold isSameSignDiffRoleLine swapLineRolesDock
         have hne := (line_geom_facts.1 l).2.2
         cases hA : c.lookup g (lineA l) with
@@ -4604,7 +4604,7 @@ private def lineMeetUnit (g : Mat5) (l : Fin 12) : FockUnitary NinthLoc6 Honeyco
           cases hB : c.lookup g (lineB l) with
           | empty => rfl
           | occ sB rB =>
-            simp only [if_pos rfl, if_neg hne.symm]
+            simp only [ite_eq_left rfl, ite_eq_right hne.symm]
             cases sA <;> cases sB <;> cases rA <;> cases rB <;> decide)
       thm_fock_ring_and_gate_identities.2.2.2.2.2.2.2.2.2.2.2.2.1
       thm_fock_ring_and_gate_identities.2.2.2.2.2.2.2.2.2.2.2.2.2.1)
@@ -4621,17 +4621,17 @@ private def siteMPairUnit (g : Mat5) : FockUnitary NinthLoc6 HoneycombConfig :=
     (fun m c => moveSolePairConfig g m c)
     NinthLoc6.zeta18 NinthLoc6.inv12
     (fun m c h => by
-      unfold moveSolePairConfig; rw [lookup_setDock, if_pos rfl]
+      unfold moveSolePairConfig; rw [lookup_setDock, ite_eq_left rfl]
       exact (moveSolePairDock_spec (c.lookup g) h).1 m)
     (fun m₁ m₂ c h => by
       unfold moveSolePairConfig
-      rw [lookup_setDock, if_pos rfl, setDock_setDock_same]
+      rw [lookup_setDock, ite_eq_left rfl, setDock_setDock_same]
       rw [(moveSolePairDock_spec (c.lookup g) h).2.2.1 m₁ m₂])
     (fun c h => by
       unfold moveSolePairConfig
       rw [(moveSolePairDock_spec (c.lookup g) h).2.2.2.1, setDock_lookup_self])
     (fun m c h => by
-      unfold moveSolePairConfig; rw [lookup_setDock, if_pos rfl]
+      unfold moveSolePairConfig; rw [lookup_setDock, ite_eq_left rfl]
       exact (moveSolePairDock_spec (c.lookup g) h).2.1 m)
     thm_fock_ring_and_gate_identities.2.2.1
     thm_fock_ring_and_gate_identities.2.2.2.1
@@ -4901,7 +4901,7 @@ private theorem lineBounceK_local_eq (g : Mat5) (l : Fin 12)
     unfold lineBounceKPerm
     cases isOppSignLine (c.lookup g) l with
     | false => rfl
-    | true => unfold swapLineSlotsConfig; rw [lookup_setDock, if_neg hx]
+    | true => unfold swapLineSlotsConfig; rw [lookup_setDock, ite_eq_right hx]
 
 private theorem lineBounceK_self_adj (g : Mat5) (l : Fin 12) (ψ : FockVec NinthLoc6 HoneycombConfig) :
     (lineBounceKUnit g l).dag ψ = (lineBounceKUnit g l).op ψ := by
@@ -4914,11 +4914,11 @@ private theorem lineBounceK_self_adj (g : Mat5) (l : Fin 12) (ψ : FockVec Ninth
     exact congrArg (fun z => NinthLoc6.mul z (ψ c)) (Quot.sound (by decide))
   | true =>
     have hSwap : isOppSignLine ((lineBounceKPerm g l c).lookup g) l = true := by
-      unfold lineBounceKPerm; rw [if_pos h]
-      unfold swapLineSlotsConfig; rw [lookup_setDock, if_pos rfl]
+      unfold lineBounceKPerm; rw [ite_eq_left h]
+      unfold swapLineSlotsConfig; rw [lookup_setDock, ite_eq_left rfl]
       unfold isOppSignLine swapLineSlotsDock at h ⊢
       have hne := (line_geom_facts.1 l).2.2
-      simp only [if_pos rfl, if_neg hne.symm]
+      simp only [ite_eq_left rfl, ite_eq_right hne.symm]
       cases hA : c.lookup g (lineA l) <;> cases hB : c.lookup g (lineB l) <;> rw [hA, hB] at h
       all_goals try exact Bool.noConfusion h
       exact decide_eq_true (fun e => (of_decide_eq_true h) e.symm)
@@ -4934,11 +4934,11 @@ private theorem lineBounceK_comm_sites (g₁ g₂ : Mat5) (l₁ l₂ : Fin 12) (
   have hLk1 : (lineBounceKPerm g₁ l₁ c).lookup g₂ = c.lookup g₂ := by
     unfold lineBounceKPerm; cases isOppSignLine (c.lookup g₁) l₁ with
     | false => rfl
-    | true => unfold swapLineSlotsConfig; rw [lookup_setDock, if_neg hne.symm]
+    | true => unfold swapLineSlotsConfig; rw [lookup_setDock, ite_eq_right hne.symm]
   have hLk2 : (lineBounceKPerm g₂ l₂ c).lookup g₁ = c.lookup g₁ := by
     unfold lineBounceKPerm; cases isOppSignLine (c.lookup g₂) l₂ with
     | false => rfl
-    | true => unfold swapLineSlotsConfig; rw [lookup_setDock, if_neg hne]
+    | true => unfold swapLineSlotsConfig; rw [lookup_setDock, ite_eq_right hne]
   have hPerm : lineBounceKPerm g₂ l₂ (lineBounceKPerm g₁ l₁ c) =
       lineBounceKPerm g₁ l₁ (lineBounceKPerm g₂ l₂ c) := by
     unfold lineBounceKPerm
@@ -4948,7 +4948,7 @@ private theorem lineBounceK_comm_sites (g₁ g₂ : Mat5) (l₁ l₂ : Fin 12) (
     · rfl
     · rfl
     · unfold swapLineSlotsConfig
-      rw [lookup_setDock, if_neg hne.symm, lookup_setDock, if_neg hne]
+      rw [lookup_setDock, ite_eq_right hne.symm, lookup_setDock, ite_eq_right hne]
       exact (setDock_setDock_comm c g₁ g₂ _ _ hne).symm
   rw [hLk1, hLk2, hPerm, ← NinthLoc6.mul_assoc, ← NinthLoc6.mul_assoc,
       NinthLoc6.mul_comm (if isOppSignLine (c.lookup g₁) l₁ = true then NinthLoc6.neg NinthLoc6.one else NinthLoc6.one)]
@@ -4989,7 +4989,7 @@ private theorem lineHalfCoin_local_eq (g : Mat5) (l : Fin 12)
   have hSwapAct : (swapLineSlotsConfig g l c).activeDocks = c.activeDocks :=
     activeDocks_setDock_eq c g _ (swapLineSlotsDock_empty_iff l (c.lookup g))
   have hSwapOth : ∀ x, x ≠ g → (swapLineSlotsConfig g l c).lookup x = c.lookup x :=
-    fun x hx => by unfold swapLineSlotsConfig; rw [lookup_setDock, if_neg hx]
+    fun x hx => by unfold swapLineSlotsConfig; rw [lookup_setDock, ite_eq_right hx]
   refine ⟨?_, ?_⟩
   · rw [lineHalfCoinUnit_op, lineHalfCoinUnit_op]
     apply congrArg (NinthLoc6.mul _)
@@ -5011,13 +5011,13 @@ private theorem lineHalfCoin_comm_sites (g₁ g₂ : Mat5) (l₁ l₂ : Fin 12) 
   funext c
   simp only [lineHalfCoinUnit_op]
   have hLk1 : (swapLineSlotsConfig g₁ l₁ c).lookup g₂ = c.lookup g₂ := by
-    unfold swapLineSlotsConfig; rw [lookup_setDock, if_neg hne.symm]
+    unfold swapLineSlotsConfig; rw [lookup_setDock, ite_eq_right hne.symm]
   have hLk2 : (swapLineSlotsConfig g₂ l₂ c).lookup g₁ = c.lookup g₁ := by
-    unfold swapLineSlotsConfig; rw [lookup_setDock, if_neg hne]
+    unfold swapLineSlotsConfig; rw [lookup_setDock, ite_eq_right hne]
   have hSw : swapLineSlotsConfig g₂ l₂ (swapLineSlotsConfig g₁ l₁ c) =
       swapLineSlotsConfig g₁ l₁ (swapLineSlotsConfig g₂ l₂ c) := by
     unfold swapLineSlotsConfig
-    rw [lookup_setDock, if_neg hne.symm, lookup_setDock, if_neg hne]
+    rw [lookup_setDock, ite_eq_right hne.symm, lookup_setDock, ite_eq_right hne]
     exact (setDock_setDock_comm c g₁ g₂ _ _ hne).symm
   rw [hLk1, hLk2, hSw]
   set p1 := if isFullLine (c.lookup g₁) l₁ = true then NinthLoc6.zeta6 else NinthLoc6.one
@@ -5073,7 +5073,7 @@ private theorem lineMeet_local_eq (g : Mat5) (l : Fin 12)
   have hSwapAct : (swapLineRolesConfig g l c).activeDocks = c.activeDocks :=
     activeDocks_setDock_eq c g _ (swapLineRolesDock_empty_iff l (c.lookup g))
   have hSwapOth : ∀ x, x ≠ g → (swapLineRolesConfig g l c).lookup x = c.lookup x :=
-    fun x hx => by unfold swapLineRolesConfig; rw [lookup_setDock, if_neg hx]
+    fun x hx => by unfold swapLineRolesConfig; rw [lookup_setDock, ite_eq_right hx]
   refine ⟨?_, ?_⟩
   · rw [lineMeetUnit_op, lineMeetUnit_op]
     apply congrArg (NinthLoc6.mul _)
@@ -5092,13 +5092,13 @@ private theorem lineMeet_comm_sites (g₁ g₂ : Mat5) (l₁ l₂ : Fin 12) (hne
   funext c
   simp only [lineMeetUnit_op]
   have hLk1 : (swapLineRolesConfig g₁ l₁ c).lookup g₂ = c.lookup g₂ := by
-    unfold swapLineRolesConfig; rw [lookup_setDock, if_neg hne.symm]
+    unfold swapLineRolesConfig; rw [lookup_setDock, ite_eq_right hne.symm]
   have hLk2 : (swapLineRolesConfig g₂ l₂ c).lookup g₁ = c.lookup g₁ := by
-    unfold swapLineRolesConfig; rw [lookup_setDock, if_neg hne]
+    unfold swapLineRolesConfig; rw [lookup_setDock, ite_eq_right hne]
   have hSw : swapLineRolesConfig g₂ l₂ (swapLineRolesConfig g₁ l₁ c) =
       swapLineRolesConfig g₁ l₁ (swapLineRolesConfig g₂ l₂ c) := by
     unfold swapLineRolesConfig
-    rw [lookup_setDock, if_neg hne.symm, lookup_setDock, if_neg hne]
+    rw [lookup_setDock, ite_eq_right hne.symm, lookup_setDock, ite_eq_right hne]
     exact (setDock_setDock_comm c g₁ g₂ _ _ hne).symm
   rw [hLk1, hLk2, hSw]
   set p1 := if isSameSignEqRoleLine (c.lookup g₁) l₁ = true then NinthLoc6.omega else NinthLoc6.one
@@ -5166,7 +5166,7 @@ private theorem siteMPair_local_eq (g : Mat5) (u : NinthLoc6)
       have hne2 : c.lookup g ≠ v1FullDock := by
         intro h0; rw [h0] at ha; exact Bool.noConfusion ha
       exact ⟨fun h1 => absurd h1 hne1, fun h2 => absurd h2 hne2⟩
-    · intro x hx; unfold moveSolePairConfig; rw [lookup_setDock, if_neg hx]
+    · intro x hx; unfold moveSolePairConfig; rw [lookup_setDock, ite_eq_right hx]
 
 private theorem siteMPair_comm_sites (g₁ g₂ : Mat5) (u₁ u₂ : NinthLoc6) (hne : g₁ ≠ g₂)
     (ψ : FockVec NinthLoc6 HoneycombConfig) :
@@ -5177,13 +5177,13 @@ private theorem siteMPair_comm_sites (g₁ g₂ : Mat5) (u₁ u₂ : NinthLoc6) 
   funext c
   simp only [nloc_block12Op]
   have hLk1 : ∀ m, (moveSolePairConfig g₁ m c).lookup g₂ = c.lookup g₂ :=
-    fun m => by unfold moveSolePairConfig; rw [lookup_setDock, if_neg hne.symm]
+    fun m => by unfold moveSolePairConfig; rw [lookup_setDock, ite_eq_right hne.symm]
   have hLk2 : ∀ m, (moveSolePairConfig g₂ m c).lookup g₁ = c.lookup g₁ :=
-    fun m => by unfold moveSolePairConfig; rw [lookup_setDock, if_neg hne]
+    fun m => by unfold moveSolePairConfig; rw [lookup_setDock, ite_eq_right hne]
   have hSw : ∀ m₁ m₂, moveSolePairConfig g₂ m₂ (moveSolePairConfig g₁ m₁ c) =
       moveSolePairConfig g₁ m₁ (moveSolePairConfig g₂ m₂ c) := by
     intro m₁ m₂; unfold moveSolePairConfig
-    rw [lookup_setDock, if_neg hne.symm, lookup_setDock, if_neg hne]
+    rw [lookup_setDock, ite_eq_right hne.symm, lookup_setDock, ite_eq_right hne]
     exact (setDock_setDock_comm c g₁ g₂ _ _ hne).symm
   cases h1 : isSoleIdentPairDock (c.lookup g₁) <;> cases h2 : isSoleIdentPairDock (c.lookup g₂)
   · simp only [ite_bool_false]
@@ -5334,17 +5334,17 @@ private theorem lineBounceK_comm_same_site (g : Mat5) (l₁ l₂ : Fin 12)
       unfold lineBounceKPerm; cases isOppSignLine (c.lookup g) l₁ with
       | false => exact ⟨rfl, rfl⟩
       | true =>
-        unfold swapLineSlotsConfig; rw [lookup_setDock, if_pos rfl]; unfold swapLineSlotsDock
-        exact ⟨by simp only [if_neg hDisj.1.symm, if_neg hDisj.2.2.1.symm],
-               by simp only [if_neg hDisj.2.1.symm, if_neg hDisj.2.2.2.symm]⟩
+        unfold swapLineSlotsConfig; rw [lookup_setDock, ite_eq_left rfl]; unfold swapLineSlotsDock
+        exact ⟨by simp only [ite_eq_right hDisj.1.symm, ite_eq_right hDisj.2.2.1.symm],
+               by simp only [ite_eq_right hDisj.2.1.symm, ite_eq_right hDisj.2.2.2.symm]⟩
     have hLk2 : (lineBounceKPerm g l₂ c).lookup g (lineA l₁) = c.lookup g (lineA l₁) ∧
                 (lineBounceKPerm g l₂ c).lookup g (lineB l₁) = c.lookup g (lineB l₁) := by
       unfold lineBounceKPerm; cases isOppSignLine (c.lookup g) l₂ with
       | false => exact ⟨rfl, rfl⟩
       | true =>
-        unfold swapLineSlotsConfig; rw [lookup_setDock, if_pos rfl]; unfold swapLineSlotsDock
-        exact ⟨by simp only [if_neg hDisj.1, if_neg hDisj.2.1],
-               by simp only [if_neg hDisj.2.2.1, if_neg hDisj.2.2.2]⟩
+        unfold swapLineSlotsConfig; rw [lookup_setDock, ite_eq_left rfl]; unfold swapLineSlotsDock
+        exact ⟨by simp only [ite_eq_right hDisj.1, ite_eq_right hDisj.2.1],
+               by simp only [ite_eq_right hDisj.2.2.1, ite_eq_right hDisj.2.2.2]⟩
     have hO1 : isOppSignLine ((lineBounceKPerm g l₂ c).lookup g) l₁ = isOppSignLine (c.lookup g) l₁ := by
       unfold isOppSignLine; rw [hLk2.1, hLk2.2]
     have hO2 : isOppSignLine ((lineBounceKPerm g l₁ c).lookup g) l₂ = isOppSignLine (c.lookup g) l₂ := by
@@ -5356,20 +5356,20 @@ private theorem lineBounceK_comm_same_site (g : Mat5) (l₁ l₂ : Fin 12)
       · rfl
       · rfl
       · unfold swapLineSlotsConfig
-        simp only [lookup_setDock, if_pos rfl, setDock_setDock_same]
+        simp only [lookup_setDock, ite_eq_left rfl, setDock_setDock_same]
         apply congrArg (c.setDock g); funext s; unfold swapLineSlotsDock
         if hsA1 : s = lineA l₁ then
-          simp only [if_pos hsA1, if_neg (by rw [hsA1]; exact hDisj.1), if_neg (by rw [hsA1]; exact hDisj.2.1),
-            if_neg hDisj.2.2.1, if_neg hDisj.2.2.2]
+          simp only [ite_eq_left hsA1, ite_eq_right (by rw [hsA1]; exact hDisj.1), ite_eq_right (by rw [hsA1]; exact hDisj.2.1),
+            ite_eq_right hDisj.2.2.1, ite_eq_right hDisj.2.2.2]
         else if hsB1 : s = lineB l₁ then
-          simp only [if_neg hsA1, if_pos hsB1, if_neg (by rw [hsB1]; exact hDisj.2.2.1),
-            if_neg (by rw [hsB1]; exact hDisj.2.2.2), if_neg hDisj.1, if_neg hDisj.2.1]
+          simp only [ite_eq_right hsA1, ite_eq_left hsB1, ite_eq_right (by rw [hsB1]; exact hDisj.2.2.1),
+            ite_eq_right (by rw [hsB1]; exact hDisj.2.2.2), ite_eq_right hDisj.1, ite_eq_right hDisj.2.1]
         else if hsA2 : s = lineA l₂ then
-          simp only [if_neg hsA1, if_neg hsB1, if_pos hsA2, if_neg hDisj.2.1.symm, if_neg hDisj.2.2.2.symm]
+          simp only [ite_eq_right hsA1, ite_eq_right hsB1, ite_eq_left hsA2, ite_eq_right hDisj.2.1.symm, ite_eq_right hDisj.2.2.2.symm]
         else if hsB2 : s = lineB l₂ then
-          simp only [if_neg hsA1, if_neg hsB1, if_neg hsA2, if_pos hsB2, if_neg hDisj.1.symm, if_neg hDisj.2.2.1.symm]
+          simp only [ite_eq_right hsA1, ite_eq_right hsB1, ite_eq_right hsA2, ite_eq_left hsB2, ite_eq_right hDisj.1.symm, ite_eq_right hDisj.2.2.1.symm]
         else
-          simp only [if_neg hsA1, if_neg hsB1, if_neg hsA2, if_neg hsB2]
+          simp only [ite_eq_right hsA1, ite_eq_right hsB1, ite_eq_right hsA2, ite_eq_right hsB2]
     rw [hO1, hO2, hPerm, ← NinthLoc6.mul_assoc, ← NinthLoc6.mul_assoc,
         NinthLoc6.mul_comm (if isOppSignLine (c.lookup g) l₁ = true then NinthLoc6.neg NinthLoc6.one else NinthLoc6.one)]
 
@@ -5394,10 +5394,10 @@ private theorem lineBounceK_comm_lineMeet_same_site (g : Mat5) (l₁ l₂ : Fin 
         all_goals try rfl
         exact decide_eq_false (fun ⟨hs, _⟩ => (of_decide_eq_true hOpp) hs)
       have hSwapOpp : isOppSignLine ((lineBounceKPerm g l₂ c).lookup g) l₂ = true := by
-        unfold lineBounceKPerm; rw [if_pos hOpp]; unfold swapLineSlotsConfig; rw [lookup_setDock, if_pos rfl]
+        unfold lineBounceKPerm; rw [ite_eq_left hOpp]; unfold swapLineSlotsConfig; rw [lookup_setDock, ite_eq_left rfl]
         unfold isOppSignLine swapLineSlotsDock at hOpp ⊢
         have hne := (line_geom_facts.1 l₂).2.2
-        simp only [if_pos rfl, if_neg hne.symm]
+        simp only [ite_eq_left rfl, ite_eq_right hne.symm]
         cases hA : c.lookup g (lineA l₂) <;> cases hB : c.lookup g (lineB l₂) <;> rw [hA, hB] at hOpp
         all_goals try exact Bool.noConfusion hOpp
         exact decide_eq_true (fun e => (of_decide_eq_true hOpp) e.symm)
@@ -5418,12 +5418,12 @@ private theorem lineBounceK_comm_lineMeet_same_site (g : Mat5) (l₁ l₂ : Fin 
     | false =>
       have hPermId : lineBounceKPerm g l₂ c = c := by unfold lineBounceKPerm; rw [hOpp, ite_bool_false]
       have hSwapRoleOpp : isOppSignLine ((swapLineRolesConfig g l₂ c).lookup g) l₂ = false := by
-        unfold swapLineRolesConfig; rw [lookup_setDock, if_pos rfl]
+        unfold swapLineRolesConfig; rw [lookup_setDock, ite_eq_left rfl]
         unfold isOppSignLine swapLineRolesDock at hOpp ⊢
         have hne := (line_geom_facts.1 l₂).2.2
         cases hA : c.lookup g (lineA l₂) <;> cases hB : c.lookup g (lineB l₂) <;> rw [hA, hB] at hOpp ⊢
         all_goals try rfl
-        simp only [if_pos rfl, if_neg hne.symm]; exact hOpp
+        simp only [ite_eq_left rfl, ite_eq_right hne.symm]; exact hOpp
       have hSwapRolePerm : lineBounceKPerm g l₂ (swapLineRolesConfig g l₂ c) = swapLineRolesConfig g l₂ c := by
         unfold lineBounceKPerm; rw [hSwapRoleOpp, ite_bool_false]
       rw [hPermId, hSwapRoleOpp, hSwapRolePerm]
@@ -5436,18 +5436,18 @@ private theorem lineBounceK_comm_lineMeet_same_site (g : Mat5) (l₁ l₂ : Fin 
       cases isOppSignLine (c.lookup g) l₁ with
       | false => exact ⟨rfl, rfl⟩
       | true =>
-        unfold swapLineSlotsConfig; rw [lookup_setDock, if_pos rfl]
+        unfold swapLineSlotsConfig; rw [lookup_setDock, ite_eq_left rfl]
         unfold swapLineSlotsDock
-        exact ⟨by simp only [if_neg hDisj.1.symm, if_neg hDisj.2.2.1.symm],
-               by simp only [if_neg hDisj.2.1.symm, if_neg hDisj.2.2.2.symm]⟩
+        exact ⟨by simp only [ite_eq_right hDisj.1.symm, ite_eq_right hDisj.2.2.1.symm],
+               by simp only [ite_eq_right hDisj.2.1.symm, ite_eq_right hDisj.2.2.2.symm]⟩
     have hLkM : (swapLineRolesConfig g l₂ c).lookup g (lineA l₁) = c.lookup g (lineA l₁) ∧
                 (swapLineRolesConfig g l₂ c).lookup g (lineB l₁) = c.lookup g (lineB l₁) := by
-      unfold swapLineRolesConfig; rw [lookup_setDock, if_pos rfl]
+      unfold swapLineRolesConfig; rw [lookup_setDock, ite_eq_left rfl]
       unfold swapLineRolesDock
       cases c.lookup g (lineA l₂) <;> cases c.lookup g (lineB l₂)
       all_goals try exact ⟨rfl, rfl⟩
-      exact ⟨by simp only [if_neg hDisj.1, if_neg hDisj.2.1],
-             by simp only [if_neg hDisj.2.2.1, if_neg hDisj.2.2.2]⟩
+      exact ⟨by simp only [ite_eq_right hDisj.1, ite_eq_right hDisj.2.1],
+             by simp only [ite_eq_right hDisj.2.2.1, ite_eq_right hDisj.2.2.2]⟩
     have hEqM : isSameSignEqRoleLine ((lineBounceKPerm g l₁ c).lookup g) l₂ = isSameSignEqRoleLine (c.lookup g) l₂ := by
       unfold isSameSignEqRoleLine; rw [hLkK.1, hLkK.2]
     have hDiffM : isSameSignDiffRoleLine ((lineBounceKPerm g l₁ c).lookup g) l₂ = isSameSignDiffRoleLine (c.lookup g) l₂ := by
@@ -5461,29 +5461,29 @@ private theorem lineBounceK_comm_lineMeet_same_site (g : Mat5) (l₁ l₂ : Fin 
       | false => rfl
       | true =>
         unfold swapLineRolesConfig swapLineSlotsConfig
-        simp only [lookup_setDock, if_pos rfl, setDock_setDock_same]
+        simp only [lookup_setDock, ite_eq_left rfl, setDock_setDock_same]
         apply congrArg (c.setDock g)
         funext s
         unfold swapLineRolesDock swapLineSlotsDock
         have hA2 : (if lineA l₂ = lineA l₁ then c.lookup g (lineB l₁) else if lineA l₂ = lineB l₁ then c.lookup g (lineA l₁) else c.lookup g (lineA l₂)) = c.lookup g (lineA l₂) := by
-          simp only [if_neg hDisj.1.symm, if_neg hDisj.2.2.1.symm]
+          simp only [ite_eq_right hDisj.1.symm, ite_eq_right hDisj.2.2.1.symm]
         have hB2 : (if lineB l₂ = lineA l₁ then c.lookup g (lineB l₁) else if lineB l₂ = lineB l₁ then c.lookup g (lineA l₁) else c.lookup g (lineB l₂)) = c.lookup g (lineB l₂) := by
-          simp only [if_neg hDisj.2.1.symm, if_neg hDisj.2.2.2.symm]
+          simp only [ite_eq_right hDisj.2.1.symm, ite_eq_right hDisj.2.2.2.symm]
         rw [hA2, hB2]
         cases c.lookup g (lineA l₂) <;> cases c.lookup g (lineB l₂)
         all_goals try rfl
         if hsA1 : s = lineA l₁ then
-          simp only [if_pos hsA1, if_neg (by rw [hsA1]; exact hDisj.1), if_neg (by rw [hsA1]; exact hDisj.2.1),
-            if_neg hDisj.2.2.1, if_neg hDisj.2.2.2]
+          simp only [ite_eq_left hsA1, ite_eq_right (by rw [hsA1]; exact hDisj.1), ite_eq_right (by rw [hsA1]; exact hDisj.2.1),
+            ite_eq_right hDisj.2.2.1, ite_eq_right hDisj.2.2.2]
         else if hsB1 : s = lineB l₁ then
-          simp only [if_neg hsA1, if_pos hsB1, if_neg (by rw [hsB1]; exact hDisj.2.2.1),
-            if_neg (by rw [hsB1]; exact hDisj.2.2.2), if_neg hDisj.1, if_neg hDisj.2.1]
+          simp only [ite_eq_right hsA1, ite_eq_left hsB1, ite_eq_right (by rw [hsB1]; exact hDisj.2.2.1),
+            ite_eq_right (by rw [hsB1]; exact hDisj.2.2.2), ite_eq_right hDisj.1, ite_eq_right hDisj.2.1]
         else if hsA2 : s = lineA l₂ then
-          simp only [if_neg hsA1, if_neg hsB1, if_pos hsA2]
+          simp only [ite_eq_right hsA1, ite_eq_right hsB1, ite_eq_left hsA2]
         else if hsB2 : s = lineB l₂ then
-          simp only [if_neg hsA1, if_neg hsB1, if_neg hsA2, if_pos hsB2]
+          simp only [ite_eq_right hsA1, ite_eq_right hsB1, ite_eq_right hsA2, ite_eq_left hsB2]
         else
-          simp only [if_neg hsA1, if_neg hsB1, if_neg hsA2, if_neg hsB2]
+          simp only [ite_eq_right hsA1, ite_eq_right hsB1, ite_eq_right hsA2, ite_eq_right hsB2]
     rw [hEqM, hDiffM, hOppK, hSw]
     set pK := if isOppSignLine (c.lookup g) l₁ = true then NinthLoc6.neg NinthLoc6.one else NinthLoc6.one
     set pM := if isSameSignEqRoleLine (c.lookup g) l₂ = true then NinthLoc6.omega else NinthLoc6.one
@@ -5534,7 +5534,7 @@ private theorem lineBounceK_comm_siteMPair (g₁ g₂ : Mat5) (l : Fin 12)
       apply congrArg (NinthLoc6.mul _)
       apply sumFin12_congr; intro m
       have hPairM : isSoleIdentPairDock ((moveSolePairConfig g₂ m c).lookup g₂) = true := by
-        unfold moveSolePairConfig; rw [lookup_setDock, if_pos rfl]
+        unfold moveSolePairConfig; rw [lookup_setDock, ite_eq_left rfl]
         exact (moveSolePairDock_spec (c.lookup g₂) hPair).1 m
       have hOppM := hOppFalse _ hPairM
       have hPermM : lineBounceKPerm g₂ l (moveSolePairConfig g₂ m c) = moveSolePairConfig g₂ m c := by
@@ -5547,14 +5547,14 @@ private theorem lineBounceK_comm_siteMPair (g₁ g₂ : Mat5) (l : Fin 12)
         | false => rw [ite_bool_false]; exact hPair
         | true =>
           rw [ite_bool_true]
-          unfold swapLineSlotsConfig; rw [lookup_setDock, if_pos rfl]
+          unfold swapLineSlotsConfig; rw [lookup_setDock, ite_eq_left rfl]
           cases hP : isSoleIdentPairDock (swapLineSlotsDock l (c.lookup g₂)) with
           | false => rfl
           | true =>
             have hSwapOpp : isOppSignLine (swapLineSlotsDock l (c.lookup g₂)) l = true := by
               unfold isOppSignLine swapLineSlotsDock at hOpp ⊢
               have hne := (line_geom_facts.1 l).2.2
-              simp only [if_pos rfl, if_neg hne.symm]
+              simp only [ite_eq_left rfl, ite_eq_right hne.symm]
               cases hA : c.lookup g₂ (lineA l) <;> cases hB : c.lookup g₂ (lineB l) <;> rw [hA, hB] at hOpp
               all_goals try exact Bool.noConfusion hOpp
               exact decide_eq_true (fun e => (of_decide_eq_true hOpp) e.symm)
@@ -5587,9 +5587,9 @@ private theorem lineBounceK_comm_siteMPair (g₁ g₂ : Mat5) (l : Fin 12)
       unfold lineBounceKPerm
       cases isOppSignLine (c.lookup g₁) l with
       | false => rfl
-      | true => unfold swapLineSlotsConfig; rw [lookup_setDock, if_neg (fun e => hg e.symm)]
+      | true => unfold swapLineSlotsConfig; rw [lookup_setDock, ite_eq_right (fun e => hg e.symm)]
     have hLkP : ∀ m, (moveSolePairConfig g₂ m c).lookup g₁ = c.lookup g₁ :=
-      fun m => by unfold moveSolePairConfig; rw [lookup_setDock, if_neg hg]
+      fun m => by unfold moveSolePairConfig; rw [lookup_setDock, ite_eq_right hg]
     have hSw : ∀ m, moveSolePairConfig g₂ m (lineBounceKPerm g₁ l c) =
         lineBounceKPerm g₁ l (moveSolePairConfig g₂ m c) := by
       intro m; unfold lineBounceKPerm; rw [hLkP m]
@@ -5597,7 +5597,7 @@ private theorem lineBounceK_comm_siteMPair (g₁ g₂ : Mat5) (l : Fin 12)
       | false => rfl
       | true =>
         unfold moveSolePairConfig swapLineSlotsConfig
-        rw [lookup_setDock, if_neg (fun e => hg e.symm), lookup_setDock, if_neg hg]
+        rw [lookup_setDock, ite_eq_right (fun e => hg e.symm), lookup_setDock, ite_eq_right hg]
         exact (setDock_setDock_comm c g₁ g₂ _ _ hg).symm
     rw [hLkK]
     cases isSoleIdentPairDock (c.lookup g₂) with
@@ -5658,14 +5658,14 @@ private theorem siteMeet_on_soleIdentPair (g : Mat5) (ψ : FockVec NinthLoc6 Hon
         simp only [composeLines, FockUnitary.comp, memBool]
         rw [lineMeetUnit_op, hDiffFalse l, ite_bool_false]
         if hll : l = l0 then
-          rw [if_pos hll, hll, hEqL0, ite_bool_true, ite_bool_true, ih]
+          rw [ite_eq_left hll, hll, hEqL0, ite_bool_true, ite_bool_true, ih]
           have hNotMem : memBool l0 rest = false := by
             cases hm : memBool l0 rest with
             | false => rfl
             | true => rw [← hll] at hm; exact absurd ((memBool_eq_true_iff l rest).mp hm) hnot
           rw [hNotMem, ite_bool_false]
         else
-          rw [if_neg hll, hEqOth l hll, ite_bool_false, NinthLoc6.one_mul, ih]
+          rw [ite_eq_right hll, hEqOth l hll, ite_bool_false, NinthLoc6.one_mul, ih]
     unfold siteMeetUnit
     rw [hEval (List.finRange 12) finRange12_nodup, (memBool_eq_true_iff l0 _).mpr (mem_finRange12 l0),
         ite_bool_true]
@@ -5673,7 +5673,7 @@ private theorem siteMeet_on_soleIdentPair (g : Mat5) (ψ : FockVec NinthLoc6 Hon
 private theorem lineMeet_preserves_not_solePair (g : Mat5) (l : Fin 12) (c : HoneycombConfig)
     (hF : isSoleIdentPairDock (c.lookup g) = false) :
     isSoleIdentPairDock ((swapLineRolesConfig g l c).lookup g) = false := by
-  unfold swapLineRolesConfig; rw [lookup_setDock, if_pos rfl]
+  unfold swapLineRolesConfig; rw [lookup_setDock, ite_eq_left rfl]
   cases hSw : isSoleIdentPairDock (swapLineRolesDock l (c.lookup g)) with
   | false => rfl
   | true =>
@@ -5695,12 +5695,12 @@ private theorem lineMeet_preserves_not_solePair (g : Mat5) (l : Fin 12) (c : Hon
               unfold isSameSignEqRoleLine swapLineRolesDock at hSame
               have hne := (line_geom_facts.1 l).2.2
               rw [← hll, hA, hB] at hSame
-              simp only [if_pos rfl, if_neg hne.symm] at hSame
+              simp only [ite_eq_left rfl, ite_eq_right hne.symm] at hSame
               have ⟨_, hrEq⟩ := of_decide_eq_true hSame
               funext s
-              if hsA : s = lineA l then simp only [if_pos hsA, hsA, hA, hrEq]
-              else if hsB : s = lineB l then simp only [if_neg hsA, if_pos hsB, hsB, hB, hrEq]
-              else simp only [if_neg hsA, if_neg hsB]
+              if hsA : s = lineA l then simp only [ite_eq_left hsA, hsA, hA, hrEq]
+              else if hsB : s = lineB l then simp only [ite_eq_right hsA, ite_eq_left hsB, hsB, hB, hrEq]
+              else simp only [ite_eq_right hsA, ite_eq_right hsB]
             else
               have hAll := (list_all_eq_true_iff _ _).mp ((Bool.and_eq_true _ _).mp hl0).2 (lineA l) (mem_finRange24 _)
               have hDisj := line_geom_facts.2.2.2.1 l0 l (fun e => hll e.symm)
@@ -5709,7 +5709,7 @@ private theorem lineMeet_preserves_not_solePair (g : Mat5) (l : Fin 12) (c : Hon
                 · exact absurd h1.symm hDisj.1
                 · exact absurd h2.symm hDisj.2.2.1
                 · exact h3
-              unfold swapLineRolesDock at hE; rw [hA, hB, if_pos rfl] at hE
+              unfold swapLineRolesDock at hE; rw [hA, hB, ite_eq_left rfl] at hE
               exact SlotState.noConfusion hE
     rw [hId, hF] at hSw
     exact Bool.noConfusion hSw
@@ -5732,7 +5732,7 @@ private theorem siteMPair_comm_siteMeet (g₁ g₂ : Mat5) (ψ : FockVec NinthLo
       apply congrArg (NinthLoc6.mul _)
       apply sumFin12_congr; intro m
       have hPairM : isSoleIdentPairDock ((moveSolePairConfig g₂ m c).lookup g₂) = true := by
-        unfold moveSolePairConfig; rw [lookup_setDock, if_pos rfl]
+        unfold moveSolePairConfig; rw [lookup_setDock, ite_eq_left rfl]
         exact (moveSolePairDock_spec (c.lookup g₂) hPair).1 m
       exact (siteMeet_on_soleIdentPair g₂ ψ _ hPairM).symm
     | false =>
@@ -5766,13 +5766,13 @@ private theorem siteMPair_comm_siteMeet (g₁ g₂ : Mat5) (ψ : FockVec NinthLo
       intro l φ; funext c
       simp only [siteMPairUnit_op, lineMeetUnit_op]
       have hLkM : (swapLineRolesConfig g₂ l c).lookup g₁ = c.lookup g₁ := by
-        unfold swapLineRolesConfig; rw [lookup_setDock, if_neg hg]
+        unfold swapLineRolesConfig; rw [lookup_setDock, ite_eq_right hg]
       have hLkP : ∀ m, (moveSolePairConfig g₁ m c).lookup g₂ = c.lookup g₂ :=
-        fun m => by unfold moveSolePairConfig; rw [lookup_setDock, if_neg (fun e => hg e.symm)]
+        fun m => by unfold moveSolePairConfig; rw [lookup_setDock, ite_eq_right (fun e => hg e.symm)]
       have hSw : ∀ m, swapLineRolesConfig g₂ l (moveSolePairConfig g₁ m c) =
           moveSolePairConfig g₁ m (swapLineRolesConfig g₂ l c) := by
         intro m; unfold swapLineRolesConfig moveSolePairConfig
-        rw [lookup_setDock, if_neg (fun e => hg e.symm), lookup_setDock, if_neg hg]
+        rw [lookup_setDock, ite_eq_right (fun e => hg e.symm), lookup_setDock, ite_eq_right hg]
         exact (setDock_setDock_comm c g₁ g₂ _ _ hg).symm
       rw [hLkM]
       set pM := if isSameSignEqRoleLine (c.lookup g₂) l = true then NinthLoc6.omega else NinthLoc6.one
@@ -5864,9 +5864,9 @@ theorem thm_fock_scale2_K_MMeet_comm (ψ : FockVec NinthLoc6 HoneycombConfig) :
     have hLkK : (lineBounceKPerm g₁ l₁ c).lookup g₂ = c.lookup g₂ := by
       unfold lineBounceKPerm; cases isOppSignLine (c.lookup g₁) l₁ with
       | false => rfl
-      | true => unfold swapLineSlotsConfig; rw [lookup_setDock, if_neg (fun e => hg e.symm)]
+      | true => unfold swapLineSlotsConfig; rw [lookup_setDock, ite_eq_right (fun e => hg e.symm)]
     have hLkM : (swapLineRolesConfig g₂ l₂ c).lookup g₁ = c.lookup g₁ := by
-      unfold swapLineRolesConfig; rw [lookup_setDock, if_neg hg]
+      unfold swapLineRolesConfig; rw [lookup_setDock, ite_eq_right hg]
     have hSw : swapLineRolesConfig g₂ l₂ (lineBounceKPerm g₁ l₁ c) =
         lineBounceKPerm g₁ l₁ (swapLineRolesConfig g₂ l₂ c) := by
       unfold lineBounceKPerm; rw [hLkM]
@@ -5874,7 +5874,7 @@ theorem thm_fock_scale2_K_MMeet_comm (ψ : FockVec NinthLoc6 HoneycombConfig) :
       | false => rfl
       | true =>
         unfold swapLineRolesConfig swapLineSlotsConfig
-        rw [lookup_setDock, if_neg (fun e => hg e.symm), lookup_setDock, if_neg hg]
+        rw [lookup_setDock, ite_eq_right (fun e => hg e.symm), lookup_setDock, ite_eq_right hg]
         exact (setDock_setDock_comm c g₁ g₂ _ _ hg).symm
     rw [hLkK, hLkM, hSw]
     set pK := if isOppSignLine (c.lookup g₁) l₁ = true then NinthLoc6.neg NinthLoc6.one else NinthLoc6.one
@@ -6048,9 +6048,9 @@ private theorem globalOp_fixes_v1Ket (F : LocalSiteFamily) :
             have hm : g ∈ c.activeDocks := (mem_activeDocks_iff c g).mpr h
             rw [← hc'] at hm; cases hm
         exact hc hC0
-      unfold ket zeroVec; rw [if_neg hne']
+      unfold ket zeroVec; rw [ite_eq_right hne']
     rw [applySites_local_eq F c.activeDocks _ zeroVec c hVan, applySites_zero]
-    unfold ket zeroVec; rw [if_neg hc]
+    unfold ket zeroVec; rw [ite_eq_right hc]
 
 /-- Headline Theorem 14 (True Quantum Fock-Space Vacuum `|V_1⟩` Eternal Stationarity `∀ t : Nat`):
     for EVERY `ChiralInvariant χ` and ALL `t : Nat`, `U |V_1⟩ = |V_1⟩`, `U^t |V_1⟩ = |V_1⟩`,
@@ -6068,7 +6068,7 @@ theorem thm_fock_v1_quantum_stationarity (χ : ChiralInvariant) :
         have h := (thm_fock_honeycomb_config_symmetries v1Config).1
         rw [(thm_fock_honeycomb_config_symmetries v1Config).2.2.2.2.2.2.2.2.2.1] at h
         exact h
-      rw [hc, hInvV1, if_pos rfl]
+      rw [hc, hInvV1, ite_eq_left rfl]
     else
       have hne : streamConfigInv c ≠ v1Config := by
         intro h0
@@ -6076,7 +6076,7 @@ theorem thm_fock_v1_quantum_stationarity (χ : ChiralInvariant) :
         rw [(thm_fock_honeycomb_config_symmetries c).2.1,
             (thm_fock_honeycomb_config_symmetries v1Config).2.2.2.2.2.2.2.2.2.1] at this
         exact hc this
-      rw [if_neg hne, if_neg hc]
+      rw [ite_eq_right hne, ite_eq_right hc]
   have hOne : fockBeat χ (ket (R := NinthLoc6) v1Config) = ket (R := NinthLoc6) v1Config := by
     change fockStream (fockPhiOdd χ (fockHalfCoin (fockMeet (fockMPair (fockBounceK (fockHalfCoin (fockPhiOdd χ (ket v1Config)))))))) = _
     rw [globalOp_fixes_v1Ket, globalOp_fixes_v1Ket, globalOp_fixes_v1Ket, globalOp_fixes_v1Ket,
@@ -6089,7 +6089,7 @@ theorem thm_fock_v1_quantum_stationarity (χ : ChiralInvariant) :
   refine ⟨hOne, fun t => ⟨hIter t, ?_⟩⟩
   rw [hIter t]
   unfold normSqOn innerOn sumList
-  rw [ket_nloc, if_pos rfl]
+  rw [ket_nloc, ite_eq_left rfl]
   change NinthLoc6.add (NinthLoc6.mul (NinthLoc6.conj NinthLoc6.one) NinthLoc6.one) NinthLoc6.zero = NinthLoc6.one
   rw [NinthLoc6.conj_one, NinthLoc6.one_mul, NinthLoc6.add_zero]
 
@@ -6326,13 +6326,13 @@ private theorem revFullDock_swapLineSlots (l : Fin 12) (d : FullDock) :
   have ⟨hAB, hBA, hne⟩ := line_geom_facts.1 l
   funext s; unfold revFullDock swapLineSlotsDock
   if hsA : s = lineA l then
-    simp only [if_pos hsA, hsA, hAB, if_neg hne.symm, if_pos rfl, hBA]
+    simp only [ite_eq_left hsA, hsA, hAB, ite_eq_right hne.symm, ite_eq_left rfl, hBA]
   else if hsB : s = lineB l then
-    simp only [if_neg hsA, if_pos hsB, hsB, hBA, if_pos rfl, hAB]
+    simp only [ite_eq_right hsA, ite_eq_left hsB, hsB, hBA, ite_eq_left rfl, hAB]
   else
     have hO1 : oppSlot s ≠ lineA l := fun e => hsB (by rw [← (thm_24_facets_geometry.2.1 s).1, e, hAB])
     have hO2 : oppSlot s ≠ lineB l := fun e => hsA (by rw [← (thm_24_facets_geometry.2.1 s).1, e, hBA])
-    simp only [if_neg hsA, if_neg hsB, if_neg hO1, if_neg hO2]
+    simp only [ite_eq_right hsA, ite_eq_right hsB, ite_eq_right hO1, ite_eq_right hO2]
 
 private theorem revFullDock_swapLineRoles (l : Fin 12) (d : FullDock) :
     revFullDock (swapLineRolesDock l d) = swapLineRolesDock l (revFullDock d) := by
@@ -6346,29 +6346,29 @@ private theorem revFullDock_swapLineRoles (l : Fin 12) (d : FullDock) :
     | empty => rfl
     | occ sB rB =>
       if hsA : s = lineA l then
-        simp only [if_pos hsA, hsA, hAB, if_neg hne.symm, if_pos rfl]
+        simp only [ite_eq_left hsA, hsA, hAB, ite_eq_right hne.symm, ite_eq_left rfl]
       else if hsB : s = lineB l then
-        simp only [if_neg hsA, if_pos hsB, hsB, hBA, if_pos rfl]
+        simp only [ite_eq_right hsA, ite_eq_left hsB, hsB, hBA, ite_eq_left rfl]
       else
         have hO1 : oppSlot s ≠ lineA l := fun e => hsB (by rw [← (thm_24_facets_geometry.2.1 s).1, e, hAB])
         have hO2 : oppSlot s ≠ lineB l := fun e => hsA (by rw [← (thm_24_facets_geometry.2.1 s).1, e, hBA])
-        simp only [if_neg hsA, if_neg hsB, if_neg hO1, if_neg hO2]
+        simp only [ite_eq_right hsA, ite_eq_right hsB, ite_eq_right hO1, ite_eq_right hO2]
 
 private theorem revConfig_setDock (c : HoneycombConfig) (g : Mat5) (d : FullDock) :
     revConfig (c.setDock g d) = (revConfig c).setDock g (revFullDock d) := by
   apply honeycombConfig_ext; intro h
   rw [lookup_revConfig, lookup_setDock, lookup_setDock]
-  if hhg : h = g then simp only [if_pos hhg] else simp only [if_neg hhg, lookup_revConfig]
+  if hhg : h = g then simp only [ite_eq_left hhg] else simp only [ite_eq_right hhg, lookup_revConfig]
 
 private theorem cpConfig_setDock (c : HoneycombConfig) (g : Mat5) (d : FullDock) :
     cpConfig (c.setDock g d) = (cpConfig c).setDock (conjMatP g) (cpFullDock d) := by
   apply honeycombConfig_ext; intro h
   rw [lookup_cpConfig, lookup_setDock, lookup_setDock]
   if hhg : h = conjMatP g then
-    simp only [if_pos hhg, hhg, conjMatP_involutive, if_pos rfl]
+    simp only [ite_eq_left hhg, hhg, conjMatP_involutive, ite_eq_left rfl]
   else
     have hne : conjMatP h ≠ g := fun e => hhg (by rw [← e, conjMatP_involutive])
-    simp only [if_neg hhg, if_neg hne, lookup_cpConfig]
+    simp only [ite_eq_right hhg, ite_eq_right hne, lookup_cpConfig]
 
 private theorem globalOp_tau_of_site_tau (F : LocalSiteFamily)
     (hSite : ∀ g ψ, fockTau ((F.unit g).op (fockTau ψ)) = (F.unit g).dag ψ) :
@@ -6492,9 +6492,9 @@ private theorem composeLines_cp {f₁ f₂ : Fin 12 → FockUnitary NinthLoc6 Ho
     | nil => intro _ h; cases h
     | cons x rest ih =>
       intro φ hm; simp only [eraseOne, composeLines, FockUnitary.comp]
-      if hxa : x = a then rw [if_pos hxa, hxa]
+      if hxa : x = a then rw [ite_eq_left hxa, hxa]
       else
-        rw [if_neg hxa]; simp only [composeLines, FockUnitary.comp]
+        rw [ite_eq_right hxa]; simp only [composeLines, FockUnitary.comp]
         cases hm with
         | head => exact absurd rfl hxa
         | tail _ h' => rw [ih φ h', hComm₂ x a]
@@ -6541,14 +6541,14 @@ private theorem lineHalfCoin_comm_same_site (g : Mat5) (l₁ l₂ : Fin 12)
     simp only [lineHalfCoinUnit_op]
     have hLk1 : (swapLineSlotsConfig g l₁ c).lookup g (lineA l₂) = c.lookup g (lineA l₂) ∧
                 (swapLineSlotsConfig g l₁ c).lookup g (lineB l₂) = c.lookup g (lineB l₂) := by
-      unfold swapLineSlotsConfig; rw [lookup_setDock, if_pos rfl]; unfold swapLineSlotsDock
-      exact ⟨by simp only [if_neg hDisj.1.symm, if_neg hDisj.2.2.1.symm],
-             by simp only [if_neg hDisj.2.1.symm, if_neg hDisj.2.2.2.symm]⟩
+      unfold swapLineSlotsConfig; rw [lookup_setDock, ite_eq_left rfl]; unfold swapLineSlotsDock
+      exact ⟨by simp only [ite_eq_right hDisj.1.symm, ite_eq_right hDisj.2.2.1.symm],
+             by simp only [ite_eq_right hDisj.2.1.symm, ite_eq_right hDisj.2.2.2.symm]⟩
     have hLk2 : (swapLineSlotsConfig g l₂ c).lookup g (lineA l₁) = c.lookup g (lineA l₁) ∧
                 (swapLineSlotsConfig g l₂ c).lookup g (lineB l₁) = c.lookup g (lineB l₁) := by
-      unfold swapLineSlotsConfig; rw [lookup_setDock, if_pos rfl]; unfold swapLineSlotsDock
-      exact ⟨by simp only [if_neg hDisj.1, if_neg hDisj.2.1],
-             by simp only [if_neg hDisj.2.2.1, if_neg hDisj.2.2.2]⟩
+      unfold swapLineSlotsConfig; rw [lookup_setDock, ite_eq_left rfl]; unfold swapLineSlotsDock
+      exact ⟨by simp only [ite_eq_right hDisj.1, ite_eq_right hDisj.2.1],
+             by simp only [ite_eq_right hDisj.2.2.1, ite_eq_right hDisj.2.2.2]⟩
     have hF1 : isFullLine ((swapLineSlotsConfig g l₂ c).lookup g) l₁ = isFullLine (c.lookup g) l₁ := by
       unfold isFullLine; rw [hLk2.1, hLk2.2]
     have hF2 : isFullLine ((swapLineSlotsConfig g l₁ c).lookup g) l₂ = isFullLine (c.lookup g) l₂ := by
@@ -6560,20 +6560,20 @@ private theorem lineHalfCoin_comm_same_site (g : Mat5) (l₁ l₂ : Fin 12)
     have hSw : swapLineSlotsConfig g l₂ (swapLineSlotsConfig g l₁ c) =
         swapLineSlotsConfig g l₁ (swapLineSlotsConfig g l₂ c) := by
       unfold swapLineSlotsConfig
-      simp only [lookup_setDock, if_pos rfl, setDock_setDock_same]
+      simp only [lookup_setDock, ite_eq_left rfl, setDock_setDock_same]
       apply congrArg (c.setDock g); funext s; unfold swapLineSlotsDock
       if hsA1 : s = lineA l₁ then
-        simp only [if_pos hsA1, if_neg (by rw [hsA1]; exact hDisj.1), if_neg (by rw [hsA1]; exact hDisj.2.1),
-          if_neg hDisj.2.2.1, if_neg hDisj.2.2.2]
+        simp only [ite_eq_left hsA1, ite_eq_right (by rw [hsA1]; exact hDisj.1), ite_eq_right (by rw [hsA1]; exact hDisj.2.1),
+          ite_eq_right hDisj.2.2.1, ite_eq_right hDisj.2.2.2]
       else if hsB1 : s = lineB l₁ then
-        simp only [if_neg hsA1, if_pos hsB1, if_neg (by rw [hsB1]; exact hDisj.2.2.1),
-          if_neg (by rw [hsB1]; exact hDisj.2.2.2), if_neg hDisj.1, if_neg hDisj.2.1]
+        simp only [ite_eq_right hsA1, ite_eq_left hsB1, ite_eq_right (by rw [hsB1]; exact hDisj.2.2.1),
+          ite_eq_right (by rw [hsB1]; exact hDisj.2.2.2), ite_eq_right hDisj.1, ite_eq_right hDisj.2.1]
       else if hsA2 : s = lineA l₂ then
-        simp only [if_neg hsA1, if_neg hsB1, if_pos hsA2, if_neg hDisj.2.1.symm, if_neg hDisj.2.2.2.symm]
+        simp only [ite_eq_right hsA1, ite_eq_right hsB1, ite_eq_left hsA2, ite_eq_right hDisj.2.1.symm, ite_eq_right hDisj.2.2.2.symm]
       else if hsB2 : s = lineB l₂ then
-        simp only [if_neg hsA1, if_neg hsB1, if_neg hsA2, if_pos hsB2, if_neg hDisj.1.symm, if_neg hDisj.2.2.1.symm]
+        simp only [ite_eq_right hsA1, ite_eq_right hsB1, ite_eq_right hsA2, ite_eq_left hsB2, ite_eq_right hDisj.1.symm, ite_eq_right hDisj.2.2.1.symm]
       else
-        simp only [if_neg hsA1, if_neg hsB1, if_neg hsA2, if_neg hsB2]
+        simp only [ite_eq_right hsA1, ite_eq_right hsB1, ite_eq_right hsA2, ite_eq_right hsB2]
     rw [hF1, hF2, hL1, hL2, hSw]
     set p1 := if isFullLine (c.lookup g) l₁ = true then NinthLoc6.zeta6 else NinthLoc6.one
     set p2 := if isFullLine (c.lookup g) l₂ = true then NinthLoc6.zeta6 else NinthLoc6.one
@@ -6598,18 +6598,18 @@ private theorem lineMeet_comm_same_site (g : Mat5) (l₁ l₂ : Fin 12)
     simp only [lineMeetUnit_op]
     have hLk1 : (swapLineRolesConfig g l₁ c).lookup g (lineA l₂) = c.lookup g (lineA l₂) ∧
                 (swapLineRolesConfig g l₁ c).lookup g (lineB l₂) = c.lookup g (lineB l₂) := by
-      unfold swapLineRolesConfig; rw [lookup_setDock, if_pos rfl]; unfold swapLineRolesDock
+      unfold swapLineRolesConfig; rw [lookup_setDock, ite_eq_left rfl]; unfold swapLineRolesDock
       cases c.lookup g (lineA l₁) <;> cases c.lookup g (lineB l₁)
       all_goals try exact ⟨rfl, rfl⟩
-      exact ⟨by simp only [if_neg hDisj.1.symm, if_neg hDisj.2.2.1.symm],
-             by simp only [if_neg hDisj.2.1.symm, if_neg hDisj.2.2.2.symm]⟩
+      exact ⟨by simp only [ite_eq_right hDisj.1.symm, ite_eq_right hDisj.2.2.1.symm],
+             by simp only [ite_eq_right hDisj.2.1.symm, ite_eq_right hDisj.2.2.2.symm]⟩
     have hLk2 : (swapLineRolesConfig g l₂ c).lookup g (lineA l₁) = c.lookup g (lineA l₁) ∧
                 (swapLineRolesConfig g l₂ c).lookup g (lineB l₁) = c.lookup g (lineB l₁) := by
-      unfold swapLineRolesConfig; rw [lookup_setDock, if_pos rfl]; unfold swapLineRolesDock
+      unfold swapLineRolesConfig; rw [lookup_setDock, ite_eq_left rfl]; unfold swapLineRolesDock
       cases c.lookup g (lineA l₂) <;> cases c.lookup g (lineB l₂)
       all_goals try exact ⟨rfl, rfl⟩
-      exact ⟨by simp only [if_neg hDisj.1, if_neg hDisj.2.1],
-             by simp only [if_neg hDisj.2.2.1, if_neg hDisj.2.2.2]⟩
+      exact ⟨by simp only [ite_eq_right hDisj.1, ite_eq_right hDisj.2.1],
+             by simp only [ite_eq_right hDisj.2.2.1, ite_eq_right hDisj.2.2.2]⟩
     have hE1 : isSameSignEqRoleLine ((swapLineRolesConfig g l₂ c).lookup g) l₁ = isSameSignEqRoleLine (c.lookup g) l₁ := by
       unfold isSameSignEqRoleLine; rw [hLk2.1, hLk2.2]
     have hE2 : isSameSignEqRoleLine ((swapLineRolesConfig g l₁ c).lookup g) l₂ = isSameSignEqRoleLine (c.lookup g) l₂ := by
@@ -6621,16 +6621,16 @@ private theorem lineMeet_comm_same_site (g : Mat5) (l₁ l₂ : Fin 12)
     have hSw : swapLineRolesConfig g l₂ (swapLineRolesConfig g l₁ c) =
         swapLineRolesConfig g l₁ (swapLineRolesConfig g l₂ c) := by
       unfold swapLineRolesConfig
-      simp only [lookup_setDock, if_pos rfl, setDock_setDock_same]
+      simp only [lookup_setDock, ite_eq_left rfl, setDock_setDock_same]
       apply congrArg (c.setDock g); funext s; unfold swapLineRolesDock
       have hA1 : swapLineRolesDock l₂ (c.lookup g) (lineA l₁) = c.lookup g (lineA l₁) := by
-        have := hLk2.1; unfold swapLineRolesConfig at this; rw [lookup_setDock, if_pos rfl] at this; exact this
+        have := hLk2.1; unfold swapLineRolesConfig at this; rw [lookup_setDock, ite_eq_left rfl] at this; exact this
       have hB1 : swapLineRolesDock l₂ (c.lookup g) (lineB l₁) = c.lookup g (lineB l₁) := by
-        have := hLk2.2; unfold swapLineRolesConfig at this; rw [lookup_setDock, if_pos rfl] at this; exact this
+        have := hLk2.2; unfold swapLineRolesConfig at this; rw [lookup_setDock, ite_eq_left rfl] at this; exact this
       have hA2 : swapLineRolesDock l₁ (c.lookup g) (lineA l₂) = c.lookup g (lineA l₂) := by
-        have := hLk1.1; unfold swapLineRolesConfig at this; rw [lookup_setDock, if_pos rfl] at this; exact this
+        have := hLk1.1; unfold swapLineRolesConfig at this; rw [lookup_setDock, ite_eq_left rfl] at this; exact this
       have hB2 : swapLineRolesDock l₁ (c.lookup g) (lineB l₂) = c.lookup g (lineB l₂) := by
-        have := hLk1.2; unfold swapLineRolesConfig at this; rw [lookup_setDock, if_pos rfl] at this; exact this
+        have := hLk1.2; unfold swapLineRolesConfig at this; rw [lookup_setDock, ite_eq_left rfl] at this; exact this
       change (match swapLineRolesDock l₁ (c.lookup g) (lineA l₂), swapLineRolesDock l₁ (c.lookup g) (lineB l₂) with
         | .occ sA rA, .occ sB rB => if s = lineA l₂ then .occ sA rB else if s = lineB l₂ then .occ sB rA else swapLineRolesDock l₁ (c.lookup g) s
         | _, _ => swapLineRolesDock l₁ (c.lookup g) s) =
@@ -6641,15 +6641,15 @@ private theorem lineMeet_comm_same_site (g : Mat5) (l₁ l₂ : Fin 12)
       cases c.lookup g (lineA l₁) <;> cases c.lookup g (lineB l₁) <;> cases c.lookup g (lineA l₂) <;> cases c.lookup g (lineB l₂)
       all_goals try rfl
       if hsA1 : s = lineA l₁ then
-        simp only [if_pos hsA1, if_neg (by rw [hsA1]; exact hDisj.1), if_neg (by rw [hsA1]; exact hDisj.2.1)]
+        simp only [ite_eq_left hsA1, ite_eq_right (by rw [hsA1]; exact hDisj.1), ite_eq_right (by rw [hsA1]; exact hDisj.2.1)]
       else if hsB1 : s = lineB l₁ then
-        simp only [if_neg hsA1, if_pos hsB1, if_neg (by rw [hsB1]; exact hDisj.2.2.1), if_neg (by rw [hsB1]; exact hDisj.2.2.2)]
+        simp only [ite_eq_right hsA1, ite_eq_left hsB1, ite_eq_right (by rw [hsB1]; exact hDisj.2.2.1), ite_eq_right (by rw [hsB1]; exact hDisj.2.2.2)]
       else if hsA2 : s = lineA l₂ then
-        simp only [if_neg hsA1, if_neg hsB1, if_pos hsA2]
+        simp only [ite_eq_right hsA1, ite_eq_right hsB1, ite_eq_left hsA2]
       else if hsB2 : s = lineB l₂ then
-        simp only [if_neg hsA1, if_neg hsB1, if_neg hsA2, if_pos hsB2]
+        simp only [ite_eq_right hsA1, ite_eq_right hsB1, ite_eq_right hsA2, ite_eq_left hsB2]
       else
-        simp only [if_neg hsA1, if_neg hsB1, if_neg hsA2, if_neg hsB2]
+        simp only [ite_eq_right hsA1, ite_eq_right hsB1, ite_eq_right hsA2, ite_eq_right hsB2]
     rw [hE1, hE2, hD1, hD2, hSw]
     set p1 := if isSameSignEqRoleLine (c.lookup g) l₁ = true then NinthLoc6.omega else NinthLoc6.one
     set p2 := if isSameSignEqRoleLine (c.lookup g) l₂ = true then NinthLoc6.omega else NinthLoc6.one
@@ -6738,14 +6738,14 @@ private theorem rev_preserves_solePair (d : FullDock) :
         rcases hs with h1 | h2
         · exact Or.inr (by rw [h1, hmAB])
         · exact Or.inl (by rw [h2, hmBA])
-      simp only [if_pos hO, if_pos hs]
+      simp only [ite_eq_left hO, ite_eq_left hs]
     else
       have hO : ¬ (oppSlot s = lineA m ∨ oppSlot s = lineB m) := by
         intro h; apply hs
         rcases h with h1 | h2
         · exact Or.inr (by rw [← (thm_24_facets_geometry.2.1 s).1, h1, hmAB])
         · exact Or.inl (by rw [← (thm_24_facets_geometry.2.1 s).1, h2, hmBA])
-      simp only [if_neg hO, if_neg hs]
+      simp only [ite_eq_right hO, ite_eq_right hs]
 
 private theorem cp_preserves_solePair (d : FullDock) :
     (∀ l : Fin 12, isSoleIdentPairAt (cpFullDock d) (parityLine l) = isSoleIdentPairAt d l) ∧
@@ -6847,14 +6847,14 @@ private theorem cp_preserves_solePair (d : FullDock) :
         rcases hs with h1 | h2
         · exact Or.inl (by rw [h1, hMA])
         · exact Or.inr (by rw [h2, hMB])
-      simp only [if_pos hP, if_pos hs]
+      simp only [ite_eq_left hP, ite_eq_left hs]
     else
       have hP : ¬ (paritySlot s = lineA m ∨ paritySlot s = lineB m) := by
         intro h; apply hs
         rcases h with h1 | h2
         · exact Or.inl (by rw [← (line_geom_facts.2.2.2.2.1 s).1, h1, (line_geom_facts.2.2.2.2.2 m).2.1])
         · exact Or.inr (by rw [← (line_geom_facts.2.2.2.2.1 s).1, h2, (line_geom_facts.2.2.2.2.2 m).2.2])
-      simp only [if_neg hP, if_neg hs]; rfl
+      simp only [ite_eq_right hP, ite_eq_right hs]; rfl
 
 /-- Headline Theorem 17 (Concrete Quantum Fock-Space Instantiation of `CoxeterTransport.thm_palindromic_beat_T_CP_CPT`):
     instantiates `CoxeterTransport.thm_palindromic_beat_T_CP_CPT` directly with the concrete infinite-honeycomb
@@ -6901,9 +6901,9 @@ theorem thm_fock_beat_T_CP_CPT (χ : ChiralInvariant) :
       rw [lookup_revConfig]; unfold isLoneLine revFullDock; rw [hAB, hBA]
       cases c.lookup g (lineA l) <;> cases c.lookup g (lineB l) <;> rfl
     have hFullSw : isFullLine ((swapLineSlotsConfig g l c).lookup g) l = isFullLine (c.lookup g) l := by
-      unfold swapLineSlotsConfig; rw [lookup_setDock, if_pos rfl]
+      unfold swapLineSlotsConfig; rw [lookup_setDock, ite_eq_left rfl]
       unfold isFullLine swapLineSlotsDock
-      have hne := (line_geom_facts.1 l).2.2; simp only [if_pos rfl, if_neg hne.symm]
+      have hne := (line_geom_facts.1 l).2.2; simp only [ite_eq_left rfl, ite_eq_right hne.symm]
       cases c.lookup g (lineA l) <;> cases c.lookup g (lineB l) <;> rfl
     have hSwRev : revConfig (swapLineSlotsConfig g l (revConfig c)) = swapLineSlotsConfig g l c := by
       unfold swapLineSlotsConfig
@@ -7011,7 +7011,7 @@ theorem thm_fock_beat_T_CP_CPT (χ : ChiralInvariant) :
         | empty => rfl
         | occ sB rB => cases sA <;> cases sB <;> cases rA <;> cases rB <;> decide
     have hEqSw : isSameSignEqRoleLine ((swapLineRolesConfig g l c).lookup g) l = isSameSignEqRoleLine (c.lookup g) l := by
-      unfold swapLineRolesConfig; rw [lookup_setDock, if_pos rfl]
+      unfold swapLineRolesConfig; rw [lookup_setDock, ite_eq_left rfl]
       unfold isSameSignEqRoleLine swapLineRolesDock
       have hne := (line_geom_facts.1 l).2.2
       cases c.lookup g (lineA l) with
@@ -7020,7 +7020,7 @@ theorem thm_fock_beat_T_CP_CPT (χ : ChiralInvariant) :
         cases c.lookup g (lineB l) with
         | empty => rfl
         | occ sB rB =>
-          simp only [if_pos rfl, if_neg hne.symm]
+          simp only [ite_eq_left rfl, ite_eq_right hne.symm]
           cases sA <;> cases sB <;> cases rA <;> cases rB <;> decide
     have hSwRev : revConfig (swapLineRolesConfig g l (revConfig c)) = swapLineRolesConfig g l c := by
       unfold swapLineRolesConfig
@@ -7087,14 +7087,14 @@ theorem thm_fock_beat_T_CP_CPT (χ : ChiralInvariant) :
       apply congrArg ((cpConfig c).setDock g)
       funext s; unfold swapLineSlotsDock cpFullDock conjFullDock parityFullDock
       if hsA : s = lineA l then
-        simp only [if_pos hsA, hsA, hPA, hPB, if_pos rfl]
+        simp only [ite_eq_left hsA, hsA, hPA, hPB, ite_eq_left rfl]
       else if hsB : s = lineB l then
         have hne := (line_geom_facts.1 (parityLine l)).2.2
-        simp only [if_neg hsA, if_pos hsB, hsB, hPB, hPA, if_neg hne.symm, if_pos rfl]
+        simp only [ite_eq_right hsA, ite_eq_left hsB, hsB, hPB, hPA, ite_eq_right hne.symm, ite_eq_left rfl]
       else
         have hP1 : paritySlot s ≠ lineA (parityLine l) := fun e => hsA (by rw [← (line_geom_facts.2.2.2.2.1 s).1, e, ← hPA, (line_geom_facts.2.2.2.2.1 _).1])
         have hP2 : paritySlot s ≠ lineB (parityLine l) := fun e => hsB (by rw [← (line_geom_facts.2.2.2.2.1 s).1, e, ← hPB, (line_geom_facts.2.2.2.2.1 _).1])
-        simp only [if_neg hsA, if_neg hsB, if_neg hP1, if_neg hP2]
+        simp only [ite_eq_right hsA, ite_eq_right hsB, ite_eq_right hP1, ite_eq_right hP2]
     rw [hFull, hLone, hSwCP]
   have hCPK : ∀ ψ, fockCP (fockBounceK ψ) = fockBounceK (fockCP ψ) := by
     apply globalOp_cp_of_site_cp bounceKFamily
@@ -7122,14 +7122,14 @@ theorem thm_fock_beat_T_CP_CPT (χ : ChiralInvariant) :
         rw [cpConfig_setDock, conjMatP_involutive, lookup_cpConfig]
         apply congrArg ((cpConfig c).setDock g)
         funext s; unfold swapLineSlotsDock cpFullDock conjFullDock parityFullDock
-        if hsA : s = lineA l then simp only [if_pos hsA, hsA, hPA, hPB, if_pos rfl]
+        if hsA : s = lineA l then simp only [ite_eq_left hsA, hsA, hPA, hPB, ite_eq_left rfl]
         else if hsB : s = lineB l then
           have hne := (line_geom_facts.1 (parityLine l)).2.2
-          simp only [if_neg hsA, if_pos hsB, hsB, hPB, hPA, if_neg hne.symm, if_pos rfl]
+          simp only [ite_eq_right hsA, ite_eq_left hsB, hsB, hPB, hPA, ite_eq_right hne.symm, ite_eq_left rfl]
         else
           have hP1 : paritySlot s ≠ lineA (parityLine l) := fun e => hsA (by rw [← (line_geom_facts.2.2.2.2.1 s).1, e, ← hPA, (line_geom_facts.2.2.2.2.1 _).1])
           have hP2 : paritySlot s ≠ lineB (parityLine l) := fun e => hsB (by rw [← (line_geom_facts.2.2.2.2.1 s).1, e, ← hPB, (line_geom_facts.2.2.2.2.1 _).1])
-          simp only [if_neg hsA, if_neg hsB, if_neg hP1, if_neg hP2]
+          simp only [ite_eq_right hsA, ite_eq_right hsB, ite_eq_right hP1, ite_eq_right hP2]
     rw [hOpp, hPermCP]
   have hCPMeet : ∀ ψ, fockCP (fockMeet ψ) = fockMeet (fockCP ψ) := by
     apply globalOp_cp_of_site_cp meetFamily
@@ -7168,14 +7168,14 @@ theorem thm_fock_beat_T_CP_CPT (χ : ChiralInvariant) :
         cases hB : c.lookup (conjMatP g) (lineB (parityLine l)) with
         | empty => rfl
         | occ sB rB =>
-          if hsA : s = lineA l then simp only [if_pos hsA, hsA, hPA, if_pos rfl]
+          if hsA : s = lineA l then simp only [ite_eq_left hsA, hsA, hPA, ite_eq_left rfl]
           else if hsB : s = lineB l then
             have hne := (line_geom_facts.1 (parityLine l)).2.2
-            simp only [if_neg hsA, if_pos hsB, hsB, hPB, if_neg hne.symm, if_pos rfl]
+            simp only [ite_eq_right hsA, ite_eq_left hsB, hsB, hPB, ite_eq_right hne.symm, ite_eq_left rfl]
           else
             have hP1 : paritySlot s ≠ lineA (parityLine l) := fun e => hsA (by rw [← (line_geom_facts.2.2.2.2.1 s).1, e, ← hPA, (line_geom_facts.2.2.2.2.1 _).1])
             have hP2 : paritySlot s ≠ lineB (parityLine l) := fun e => hsB (by rw [← (line_geom_facts.2.2.2.2.1 s).1, e, ← hPB, (line_geom_facts.2.2.2.2.1 _).1])
-            simp only [if_neg hsA, if_neg hsB, if_neg hP1, if_neg hP2]
+            simp only [ite_eq_right hsA, ite_eq_right hsB, ite_eq_right hP1, ite_eq_right hP2]
     rw [hEqR, hDiffR, hSwCP]
   have hCPMPair : ∀ ψ, fockCP (fockMPair ψ) = fockMPair (fockCP ψ) := by
     apply globalOp_cp_of_site_cp mpairFamily
@@ -7438,16 +7438,16 @@ theorem thm_fock_chiral_witness_C_P_violation :
     intro h0; have := congrFun h0 ⟨0, by decide⟩; exact SlotState.noConfusion this
   have hActW : chiralWitnessConfig.activeDocks = [mat5Id] := by
     unfold chiralWitnessConfig HoneycombConfig.setDock HoneycombConfig.activeDocks v1Config
-    simp only [setEntries, if_neg hWNeV1, List.map]
+    simp only [setEntries, ite_eq_right hWNeV1, List.map]
   have hActCW : (conjConfig chiralWitnessConfig).activeDocks = [mat5Id] := by
     have hEq : conjConfig chiralWitnessConfig = v1Config.setDock mat5Id (conjFullDock chiralWitnessDock) := by
       apply honeycombConfig_ext; intro g
       rw [lookup_conjConfig, lookup_setDock]
       unfold chiralWitnessConfig; rw [lookup_setDock]
-      if hg : g = mat5Id then simp only [if_pos hg] else simp only [if_neg hg]; rfl
+      if hg : g = mat5Id then simp only [ite_eq_left hg] else simp only [ite_eq_right hg]; rfl
     rw [hEq]
     unfold HoneycombConfig.setDock HoneycombConfig.activeDocks v1Config
-    simp only [setEntries, if_neg hCWNeV1, List.map]
+    simp only [setEntries, ite_eq_right hCWNeV1, List.map]
   have hConjId : conjMatP mat5Id = mat5Id := by
     unfold conjMatP
     rw [fb_mat5Mul_id_right, thm_fock_coxeter_parity_equivariance.1]
@@ -7456,13 +7456,13 @@ theorem thm_fock_chiral_witness_C_P_violation :
       apply honeycombConfig_ext; intro g
       rw [lookup_parityConfig, lookup_setDock]
       unfold chiralWitnessConfig; rw [lookup_setDock]
-      if hg : g = mat5Id then simp only [if_pos hg, hg, hConjId, if_pos rfl]
+      if hg : g = mat5Id then simp only [ite_eq_left hg, hg, hConjId, ite_eq_left rfl]
       else
         have hne : conjMatP g ≠ mat5Id := fun e => hg (by rw [← conjMatP_involutive g, e, hConjId])
-        simp only [if_neg hg, if_neg hne]; rfl
+        simp only [ite_eq_right hg, ite_eq_right hne]; rfl
     rw [hEq]
     unfold HoneycombConfig.setDock HoneycombConfig.activeDocks v1Config
-    simp only [setEntries, if_neg hPWNeV1, List.map]
+    simp only [setEntries, ite_eq_right hPWNeV1, List.map]
   have hZetaNe : NinthLoc6.zeta6 ≠ NinthLoc6.neg NinthLoc6.omega :=
     NinthLoc6.ne_of_raw_ne ⟨1, 0, 0, 1, 0, 0⟩ ⟨0, 0, 0, -1, 0, 0⟩ (by decide)
   have hmod1 : (1 * 1 : Int) % 6 = 1 := by decide
@@ -7472,7 +7472,7 @@ theorem thm_fock_chiral_witness_C_P_violation :
   have hZ2 : NinthLoc6.zeta6Pow (1 * -1) = NinthLoc6.neg NinthLoc6.omega := by
     unfold NinthLoc6.zeta6Pow; rw [hmod2]
   have hLkW : chiralWitnessConfig.lookup mat5Id = chiralWitnessDock := by
-    unfold chiralWitnessConfig; rw [lookup_setDock, if_pos rfl]
+    unfold chiralWitnessConfig; rw [lookup_setDock, ite_eq_left rfl]
   have hCViol : fockChargeConj (fockPhiOdd witnessChiralInvariant (ket (R := NinthLoc6) chiralWitnessConfig)) ≠
       fockPhiOdd witnessChiralInvariant (fockChargeConj (ket (R := NinthLoc6) chiralWitnessConfig)) := by
     intro hEq
@@ -7487,11 +7487,11 @@ theorem thm_fock_chiral_witness_C_P_violation :
     simp only [applySites, phiOddFamily] at hAt
     rw [sitePhiOddUnit_op, sitePhiOddUnit_op] at hAt
     have hKetL : ket (R := NinthLoc6) chiralWitnessConfig chiralWitnessConfig = NinthLoc6.one := by
-      rw [ket_nloc, if_pos rfl]
+      rw [ket_nloc, ite_eq_left rfl]
     have hKetR : fockChargeConj (ket (R := NinthLoc6) chiralWitnessConfig) (conjConfig chiralWitnessConfig) =
         NinthLoc6.one := by
       unfold fockChargeConj
-      rw [(thm_fock_honeycomb_config_symmetries chiralWitnessConfig).2.2.2.2.1, ket_nloc, if_pos rfl]
+      rw [(thm_fock_honeycomb_config_symmetries chiralWitnessConfig).2.2.2.2.1, ket_nloc, ite_eq_left rfl]
     have hLkCW : (conjConfig chiralWitnessConfig).lookup mat5Id = conjFullDock chiralWitnessDock := by
       rw [lookup_conjConfig, hLkW]
     rw [hKetL, hKetR, hLkW, hLkCW, hD0, hW1, hWC, NinthLoc6.mul_one, NinthLoc6.mul_one, hZ1, hZ2] at hAt
@@ -7510,11 +7510,11 @@ theorem thm_fock_chiral_witness_C_P_violation :
     simp only [applySites, phiOddFamily] at hAt
     rw [sitePhiOddUnit_op, sitePhiOddUnit_op] at hAt
     have hKetL : ket (R := NinthLoc6) chiralWitnessConfig chiralWitnessConfig = NinthLoc6.one := by
-      rw [ket_nloc, if_pos rfl]
+      rw [ket_nloc, ite_eq_left rfl]
     have hKetR : fockParity (ket (R := NinthLoc6) chiralWitnessConfig) (parityConfig chiralWitnessConfig) =
         NinthLoc6.one := by
       unfold fockParity
-      rw [(thm_fock_honeycomb_config_symmetries chiralWitnessConfig).2.2.2.2.2.1, ket_nloc, if_pos rfl]
+      rw [(thm_fock_honeycomb_config_symmetries chiralWitnessConfig).2.2.2.2.2.1, ket_nloc, ite_eq_left rfl]
     have hLkPW : (parityConfig chiralWitnessConfig).lookup mat5Id = parityFullDock chiralWitnessDock := by
       rw [lookup_parityConfig, hConjId, hLkW]
     rw [hKetL, hKetR, hLkW, hLkPW, hD0, hW1, hWP, NinthLoc6.mul_one, NinthLoc6.mul_one, hZ1, hZ2] at hAt

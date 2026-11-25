@@ -146,7 +146,9 @@ private theorem mul_assoc (x y z : ZSqrt2) : mul (mul x y) z = mul x (mul y z) :
   simp only [mul, ZSqrt2.mk.injEq, Int.add_mul, Int.mul_add, Int.mul_assoc]
   have h1 : xa * (2 * (yb * zb)) = 2 * (xa * (yb * zb)) := by
     rw [← Int.mul_assoc xa 2 (yb * zb), Int.mul_comm xa 2, Int.mul_assoc 2 xa (yb * zb)]
-  rw [h1]
+  have h2 : xb * (2 * (yb * zb)) = 2 * (xb * (yb * zb)) := by
+    rw [← Int.mul_assoc xb 2 (yb * zb), Int.mul_comm xb 2, Int.mul_assoc 2 xb (yb * zb)]
+  rw [h1, h2]
   exact ⟨by omega, by omega⟩
 
 private theorem sub_two_add_two (a b : ZSqrt2) :
@@ -251,15 +253,33 @@ private theorem vec5_ext (u v : Vec5) (h : ∀ i : Fin 5, u i = v i) : u = v :=
 private theorem mat5_ext (A B : Mat5) (h : ∀ i j : Fin 5, A i j = B i j) : A = B :=
   funext (fun i => funext (fun j => h i j))
 
-private theorem sum5_add (f g : Fin 5 → ZSqrt2) :
-    sum5 (fun k => ZSqrt2.add (f k) (g k)) = ZSqrt2.add (sum5 f) (sum5 g) := by
-  unfold sum5
+private theorem sum5_add_aux (f0 f1 f2 f3 f4 g0 g1 g2 g3 g4 : ZSqrt2) :
+    ZSqrt2.add
+      (ZSqrt2.add
+        (ZSqrt2.add
+          (ZSqrt2.add (ZSqrt2.add f0 g0) (ZSqrt2.add f1 g1))
+          (ZSqrt2.add f2 g2))
+        (ZSqrt2.add f3 g3))
+      (ZSqrt2.add f4 g4) =
+    ZSqrt2.add
+      (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add f0 f1) f2) f3) f4)
+      (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add g0 g1) g2) g3) g4) := by
   have swap4 : ∀ a b c d : ZSqrt2,
       ZSqrt2.add (ZSqrt2.add a b) (ZSqrt2.add c d) = ZSqrt2.add (ZSqrt2.add a c) (ZSqrt2.add b d) := by
     intro a b c d
     rw [ZSqrt2.add_assoc a b (ZSqrt2.add c d), ← ZSqrt2.add_assoc b c d, ZSqrt2.add_comm b c,
         ZSqrt2.add_assoc c b d, ← ZSqrt2.add_assoc a c (ZSqrt2.add b d)]
-  rw [swap4, swap4, swap4, swap4]
+  rw [swap4 f0 g0 f1 g1,
+      swap4 (ZSqrt2.add f0 f1) (ZSqrt2.add g0 g1) f2 g2,
+      swap4 (ZSqrt2.add (ZSqrt2.add f0 f1) f2) (ZSqrt2.add (ZSqrt2.add g0 g1) g2) f3 g3,
+      swap4 (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add f0 f1) f2) f3)
+            (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add g0 g1) g2) g3) f4 g4]
+
+private theorem sum5_add (f g : Fin 5 → ZSqrt2) :
+    sum5 (fun k => ZSqrt2.add (f k) (g k)) = ZSqrt2.add (sum5 f) (sum5 g) :=
+  sum5_add_aux
+    (f ⟨0, by decide⟩) (f ⟨1, by decide⟩) (f ⟨2, by decide⟩) (f ⟨3, by decide⟩) (f ⟨4, by decide⟩)
+    (g ⟨0, by decide⟩) (g ⟨1, by decide⟩) (g ⟨2, by decide⟩) (g ⟨3, by decide⟩) (g ⟨4, by decide⟩)
 
 private theorem sum5_sub (f g : Fin 5 → ZSqrt2) :
     sum5 (fun k => ZSqrt2.sub (f k) (g k)) = ZSqrt2.sub (sum5 f) (sum5 g) := by
@@ -523,9 +543,9 @@ theorem thm_central_inversion_properties :
   refine ⟨mat5_ext _ _ (by decide), mat5_ext _ _ (by decide), by decide,
     vec5_ext _ _ (by decide), ?_⟩
   intro k
-  match k with
-  | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ =>
-    exact mat5_ext _ _ (by decide)
+  exact mat5_ext _ _ ((by decide : ∀ (x : Fin 4) (i j : Fin 5),
+    mat5Mul (simpleRefl ⟨x.val, Nat.lt_trans x.isLt (by decide)⟩) centralInversion i j =
+      mat5Mul centralInversion (simpleRefl ⟨x.val, Nat.lt_trans x.isLt (by decide)⟩) i j) k)
 
 
 /-! ## Section 4: General Symbolic `O(4,1; ℤ[√2])` Reflection & Conjugation Algebra -/
@@ -635,7 +655,7 @@ theorem thm_reflection_preserves_twiceGram (n : Vec5) (hn : twiceForm n n = ZSqr
       unfold mat5Id
       if heq : p = i then rw [heq] else
         have hne : i ≠ p := fun h => heq h.symm
-        rw [if_neg heq, if_neg hne]
+        rw [ite_eq_right heq, ite_eq_right hne]
     rw [hid, ZSqrt2.sub_mul, ZSqrt2.mul_sub, ZSqrt2.mul_sub]
     have hA : ZSqrt2.mul (ZSqrt2.mul (n p) (r i)) (twiceGram p j) =
         ZSqrt2.mul (r i) (ZSqrt2.mul (n p) (twiceGram p j)) := by
@@ -761,6 +781,7 @@ def facetNormal : Fin 24 → Vec5
   | ⟨21, _⟩ => mkVec5 ⟨2, 0⟩ ⟨4, 0⟩ ⟨0, 2⟩ ⟨0, 2⟩ ⟨1, 0⟩
   | ⟨22, _⟩ => mkVec5 ⟨2, 0⟩ ⟨4, 0⟩ ⟨0, 4⟩ ⟨0, 2⟩ ⟨1, 0⟩
   | ⟨23, _⟩ => mkVec5 ⟨2, 0⟩ ⟨6, 0⟩ ⟨0, 4⟩ ⟨0, 2⟩ ⟨1, 0⟩
+  | ⟨n + 24, h⟩ => absurd h (by omega)
 
 /-- Exact `rootsD4()` vector indexed by `Fin 24`, matching `Vibe.Geometry.d4Roots`. -/
 def d4RootOf : Fin 24 → Vec4
@@ -788,6 +809,7 @@ def d4RootOf : Fin 24 → Vec4
   | ⟨21, _⟩ => ( 0,  0,  1, -1)
   | ⟨22, _⟩ => ( 0,  0, -1,  1)
   | ⟨23, _⟩ => ( 0,  0, -1, -1)
+  | ⟨n + 24, h⟩ => absurd h (by omega)
 
 /-- Exact antipodal slot involution (`a ↦ opp(a)` in `rootsD4()` blocks of 4: `4q + r ↦ 4q + (3 - r)`). -/
 def oppSlot (a : Fin 24) : Fin 24 :=
@@ -869,7 +891,6 @@ theorem thm_coxeter_transport_preserves_lorentz :
       rw [mat5Vec_mul, thm_central_inversion_properties.2.2.2.1]
       apply vec5_ext
       intro i
-      unfold faceReflection reflectionIn mat5Vec
       have hDot : sum5 (fun k => ZSqrt2.mul (mat5Vec twiceGram (facetNormal a) k) (baseCenter k)) =
           ZSqrt2.ofInt (-2) := by
         have hSym := thm_coxeter_gram_and_center.1
@@ -896,6 +917,9 @@ theorem thm_coxeter_transport_preserves_lorentz :
           (fun k => ZSqrt2.sub (ZSqrt2.mul (mat5Id i k) (baseCenter k))
                                (ZSqrt2.mul (facetNormal a i) (ZSqrt2.mul (mat5Vec twiceGram (facetNormal a) k) (baseCenter k)))) := by
         funext k; rw [ZSqrt2.sub_mul, ZSqrt2.mul_assoc]
+      change sum5 (fun k => ZSqrt2.mul
+            (ZSqrt2.sub (mat5Id i k) (ZSqrt2.mul (facetNormal a i) (mat5Vec twiceGram (facetNormal a) k)))
+            (baseCenter k)) = ZSqrt2.add (baseCenter i) (ZSqrt2.scale 2 (facetNormal a i))
       rw [hFun, sum5_sub, sum5_kron_left i baseCenter, sum5_mul_left, hDot]
       exact ZSqrt2.sub_mul_neg2 (baseCenter i) (facetNormal a i)
     rw [hStep]
@@ -941,19 +965,19 @@ private theorem transport_eq_fast (a : Fin 24) : transport a = transportFast a :
   unfold transport faceReflection reflectionIn transportFast mat5Mul
   rw [mat5Vec_twiceGram_eq_fast] at hDot2C ⊢
   if hj : j = ⟨4, by decide⟩ then
-    rw [if_pos hj]
+    rw [ite_eq_left hj]
     have hZcol : ∀ k : Fin 5,
         centralInversion k j =
         ZSqrt2.sub (ZSqrt2.scale 2 (baseCenter k)) (mat5Id k ⟨4, by decide⟩) := by
       intro k
       unfold centralInversion
-      rw [hj, if_pos rfl]
+      rw [hj, ite_eq_left rfl]
       unfold mat5Id
       if hk : k = ⟨4, by decide⟩ then
-        rw [if_pos hk, if_pos hk]
+        rw [ite_eq_left hk, ite_eq_left hk]
         exact ZSqrt2.add_negOne_scale2 (baseCenter k)
       else
-        rw [if_neg hk, if_neg hk]
+        rw [ite_eq_right hk, ite_eq_right hk]
         exact ZSqrt2.add_zero_scale2 (baseCenter k)
     have hFun : (fun k => ZSqrt2.mul
           (ZSqrt2.sub (mat5Id i k) (ZSqrt2.mul (facetNormal a i) (twiceGramVecFast (facetNormal a) k)))
@@ -973,14 +997,14 @@ private theorem transport_eq_fast (a : Fin 24) : transport a = transportFast a :
     exact ZSqrt2.transport_col4_rearrange (baseCenter i) (facetNormal a i)
       (twiceGramVecFast (facetNormal a) ⟨4, by decide⟩) (mat5Id i ⟨4, by decide⟩)
   else
-    rw [if_neg hj]
+    rw [ite_eq_right hj]
     have hZcol : ∀ k : Fin 5, centralInversion k j = ZSqrt2.neg (mat5Id k j) := by
       intro k
       unfold centralInversion
-      rw [if_neg hj, ZSqrt2.add_zero]
+      rw [ite_eq_right hj, ZSqrt2.add_zero]
       unfold mat5Id
-      if hk : k = j then rw [if_pos hk, if_pos hk]; decide
-      else rw [if_neg hk, if_neg hk]; decide
+      if hk : k = j then rw [ite_eq_left hk, ite_eq_left hk]; decide
+      else rw [ite_eq_right hk, ite_eq_right hk]; decide
     have hFun : (fun k => ZSqrt2.mul
           (ZSqrt2.sub (mat5Id i k) (ZSqrt2.mul (facetNormal a i) (twiceGramVecFast (facetNormal a) k)))
           (centralInversion k j)) =
@@ -1109,6 +1133,7 @@ theorem thm_honeycomb_stream_antipodal_reversal {α : Type} (ψ : Mat5 → Fin 2
     rw [(thm_24_facets_geometry.2.1 a).1]
   · funext g a
     unfold honeycombStream slotReverse
+    dsimp only
     rw [(thm_24_facets_geometry.2.1 a).1, mat5Mul_assoc]
     have hInv : mat5Mul (transport (oppSlot a)) (transport a) = mat5Id := by
       have h := thm_coxeter_transport_antipodal_inverse.2 (oppSlot a)

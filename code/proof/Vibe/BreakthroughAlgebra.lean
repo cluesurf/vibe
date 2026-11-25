@@ -127,7 +127,7 @@ private theorem sumFinAux_delta {n : Nat} (k : Nat) (hk : k ≤ n) (a : Fin n) (
   | zero =>
     simp only [sumFinAux]
     have h0 : ¬(a.val < 0) := by omega
-    rw [if_neg h0]
+    rw [ite_eq_right h0]
   | succ m ih =>
     simp only [sumFinAux]
     rw [ih (by omega)]
@@ -137,23 +137,23 @@ private theorem sumFinAux_delta {n : Nat} (k : Nat) (hk : k ≤ n) (a : Fin n) (
         intro hEq
         have hv : m = a.val := congrArg Fin.val hEq
         omega
-      rw [if_pos hlt, if_neg hne, if_pos hlt2, Int.zero_mul, Int.add_zero]
+      rw [ite_eq_left hlt, ite_eq_right hne, ite_eq_left hlt2, Int.zero_mul, Int.add_zero]
     else if heq : a.val = m then
       have hlt2 : a.val < m + 1 := by omega
       have hfeq : (⟨m, by omega⟩ : Fin n) = a := Fin.ext heq.symm
-      rw [if_neg hlt, if_pos hfeq, if_pos hlt2, Int.one_mul, Int.zero_add, hfeq]
+      rw [ite_eq_right hlt, ite_eq_left hfeq, ite_eq_left hlt2, Int.one_mul, Int.zero_add, hfeq]
     else
       have hlt2 : ¬(a.val < m + 1) := by omega
       have hne : (⟨m, by omega⟩ : Fin n) ≠ a := by
         intro hEq
         have hv : m = a.val := congrArg Fin.val hEq
         omega
-      rw [if_neg hlt, if_neg hne, if_neg hlt2, Int.zero_mul, Int.add_zero]
+      rw [ite_eq_right hlt, ite_eq_right hne, ite_eq_right hlt2, Int.zero_mul, Int.add_zero]
 
 private theorem sumFin_delta {n : Nat} (a : Fin n) (f : Fin n → Int) :
     sumFin (fun i => (if i = a then (1 : Int) else 0) * f i) = f a := by
   unfold sumFin
-  rw [sumFinAux_delta, if_pos a.isLt]
+  rw [sumFinAux_delta, ite_eq_left a.isLt]
 
 private theorem bt_mul4_swap (a b c d : Int) : (a * b) * (c * d) = (a * c) * (b * d) := by
   calc
@@ -260,57 +260,77 @@ def a24Shift4 (i j : Fin 24) : Int :=
 def a24MatVec (v : Fin 24 → Int) (i : Fin 24) : Int :=
   sumFin (fun j => a24Entry i j * v j)
 
-/-- Exact list of all 96 equilateral triangular faces `(a, b, c)` (`a < b < c`, pairwise `r · r' = 1`)
-    of the 24-cell. -/
-def cell24Tris : List (Fin 24 × Fin 24 × Fin 24) :=
+/-- Eight 12-triangle chunks of the 96 equilateral triangular faces of the 24-cell
+    (balanced tree keeps kernel WHNF recursion depth at 15 instead of 96). -/
+private def cell24Chunk0 : List (Fin 24 × Fin 24 × Fin 24) :=
   [ (⟨0, by decide⟩, ⟨4, by decide⟩, ⟨8, by decide⟩),   (⟨0, by decide⟩, ⟨4, by decide⟩, ⟨9, by decide⟩),
     (⟨0, by decide⟩, ⟨4, by decide⟩, ⟨12, by decide⟩),  (⟨0, by decide⟩, ⟨5, by decide⟩, ⟨8, by decide⟩),
     (⟨0, by decide⟩, ⟨5, by decide⟩, ⟨9, by decide⟩),   (⟨0, by decide⟩, ⟨5, by decide⟩, ⟨13, by decide⟩),
     (⟨0, by decide⟩, ⟨8, by decide⟩, ⟨16, by decide⟩),  (⟨0, by decide⟩, ⟨9, by decide⟩, ⟨17, by decide⟩),
     (⟨0, by decide⟩, ⟨12, by decide⟩, ⟨16, by decide⟩), (⟨0, by decide⟩, ⟨12, by decide⟩, ⟨17, by decide⟩),
-    (⟨0, by decide⟩, ⟨13, by decide⟩, ⟨16, by decide⟩), (⟨0, by decide⟩, ⟨13, by decide⟩, ⟨17, by decide⟩),
-    (⟨1, by decide⟩, ⟨4, by decide⟩, ⟨8, by decide⟩),   (⟨1, by decide⟩, ⟨4, by decide⟩, ⟨9, by decide⟩),
+    (⟨0, by decide⟩, ⟨13, by decide⟩, ⟨16, by decide⟩), (⟨0, by decide⟩, ⟨13, by decide⟩, ⟨17, by decide⟩) ]
+
+private def cell24Chunk1 : List (Fin 24 × Fin 24 × Fin 24) :=
+  [ (⟨1, by decide⟩, ⟨4, by decide⟩, ⟨8, by decide⟩),   (⟨1, by decide⟩, ⟨4, by decide⟩, ⟨9, by decide⟩),
     (⟨1, by decide⟩, ⟨4, by decide⟩, ⟨14, by decide⟩),  (⟨1, by decide⟩, ⟨5, by decide⟩, ⟨8, by decide⟩),
     (⟨1, by decide⟩, ⟨5, by decide⟩, ⟨9, by decide⟩),   (⟨1, by decide⟩, ⟨5, by decide⟩, ⟨15, by decide⟩),
     (⟨1, by decide⟩, ⟨8, by decide⟩, ⟨18, by decide⟩),  (⟨1, by decide⟩, ⟨9, by decide⟩, ⟨19, by decide⟩),
     (⟨1, by decide⟩, ⟨14, by decide⟩, ⟨18, by decide⟩), (⟨1, by decide⟩, ⟨14, by decide⟩, ⟨19, by decide⟩),
-    (⟨1, by decide⟩, ⟨15, by decide⟩, ⟨18, by decide⟩), (⟨1, by decide⟩, ⟨15, by decide⟩, ⟨19, by decide⟩),
-    (⟨2, by decide⟩, ⟨6, by decide⟩, ⟨10, by decide⟩),  (⟨2, by decide⟩, ⟨6, by decide⟩, ⟨11, by decide⟩),
+    (⟨1, by decide⟩, ⟨15, by decide⟩, ⟨18, by decide⟩), (⟨1, by decide⟩, ⟨15, by decide⟩, ⟨19, by decide⟩) ]
+
+private def cell24Chunk2 : List (Fin 24 × Fin 24 × Fin 24) :=
+  [ (⟨2, by decide⟩, ⟨6, by decide⟩, ⟨10, by decide⟩),  (⟨2, by decide⟩, ⟨6, by decide⟩, ⟨11, by decide⟩),
     (⟨2, by decide⟩, ⟨6, by decide⟩, ⟨12, by decide⟩),  (⟨2, by decide⟩, ⟨7, by decide⟩, ⟨10, by decide⟩),
     (⟨2, by decide⟩, ⟨7, by decide⟩, ⟨11, by decide⟩),  (⟨2, by decide⟩, ⟨7, by decide⟩, ⟨13, by decide⟩),
     (⟨2, by decide⟩, ⟨10, by decide⟩, ⟨16, by decide⟩), (⟨2, by decide⟩, ⟨11, by decide⟩, ⟨17, by decide⟩),
     (⟨2, by decide⟩, ⟨12, by decide⟩, ⟨16, by decide⟩), (⟨2, by decide⟩, ⟨12, by decide⟩, ⟨17, by decide⟩),
-    (⟨2, by decide⟩, ⟨13, by decide⟩, ⟨16, by decide⟩), (⟨2, by decide⟩, ⟨13, by decide⟩, ⟨17, by decide⟩),
-    (⟨3, by decide⟩, ⟨6, by decide⟩, ⟨10, by decide⟩),  (⟨3, by decide⟩, ⟨6, by decide⟩, ⟨11, by decide⟩),
+    (⟨2, by decide⟩, ⟨13, by decide⟩, ⟨16, by decide⟩), (⟨2, by decide⟩, ⟨13, by decide⟩, ⟨17, by decide⟩) ]
+
+private def cell24Chunk3 : List (Fin 24 × Fin 24 × Fin 24) :=
+  [ (⟨3, by decide⟩, ⟨6, by decide⟩, ⟨10, by decide⟩),  (⟨3, by decide⟩, ⟨6, by decide⟩, ⟨11, by decide⟩),
     (⟨3, by decide⟩, ⟨6, by decide⟩, ⟨14, by decide⟩),  (⟨3, by decide⟩, ⟨7, by decide⟩, ⟨10, by decide⟩),
     (⟨3, by decide⟩, ⟨7, by decide⟩, ⟨11, by decide⟩),  (⟨3, by decide⟩, ⟨7, by decide⟩, ⟨15, by decide⟩),
     (⟨3, by decide⟩, ⟨10, by decide⟩, ⟨18, by decide⟩), (⟨3, by decide⟩, ⟨11, by decide⟩, ⟨19, by decide⟩),
     (⟨3, by decide⟩, ⟨14, by decide⟩, ⟨18, by decide⟩), (⟨3, by decide⟩, ⟨14, by decide⟩, ⟨19, by decide⟩),
-    (⟨3, by decide⟩, ⟨15, by decide⟩, ⟨18, by decide⟩), (⟨3, by decide⟩, ⟨15, by decide⟩, ⟨19, by decide⟩),
-    (⟨4, by decide⟩, ⟨8, by decide⟩, ⟨20, by decide⟩),  (⟨4, by decide⟩, ⟨9, by decide⟩, ⟨21, by decide⟩),
+    (⟨3, by decide⟩, ⟨15, by decide⟩, ⟨18, by decide⟩), (⟨3, by decide⟩, ⟨15, by decide⟩, ⟨19, by decide⟩) ]
+
+private def cell24Chunk4 : List (Fin 24 × Fin 24 × Fin 24) :=
+  [ (⟨4, by decide⟩, ⟨8, by decide⟩, ⟨20, by decide⟩),  (⟨4, by decide⟩, ⟨9, by decide⟩, ⟨21, by decide⟩),
     (⟨4, by decide⟩, ⟨12, by decide⟩, ⟨20, by decide⟩), (⟨4, by decide⟩, ⟨12, by decide⟩, ⟨21, by decide⟩),
     (⟨4, by decide⟩, ⟨14, by decide⟩, ⟨20, by decide⟩), (⟨4, by decide⟩, ⟨14, by decide⟩, ⟨21, by decide⟩),
     (⟨5, by decide⟩, ⟨8, by decide⟩, ⟨22, by decide⟩),  (⟨5, by decide⟩, ⟨9, by decide⟩, ⟨23, by decide⟩),
     (⟨5, by decide⟩, ⟨13, by decide⟩, ⟨22, by decide⟩), (⟨5, by decide⟩, ⟨13, by decide⟩, ⟨23, by decide⟩),
-    (⟨5, by decide⟩, ⟨15, by decide⟩, ⟨22, by decide⟩), (⟨5, by decide⟩, ⟨15, by decide⟩, ⟨23, by decide⟩),
-    (⟨6, by decide⟩, ⟨10, by decide⟩, ⟨20, by decide⟩), (⟨6, by decide⟩, ⟨11, by decide⟩, ⟨21, by decide⟩),
+    (⟨5, by decide⟩, ⟨15, by decide⟩, ⟨22, by decide⟩), (⟨5, by decide⟩, ⟨15, by decide⟩, ⟨23, by decide⟩) ]
+
+private def cell24Chunk5 : List (Fin 24 × Fin 24 × Fin 24) :=
+  [ (⟨6, by decide⟩, ⟨10, by decide⟩, ⟨20, by decide⟩), (⟨6, by decide⟩, ⟨11, by decide⟩, ⟨21, by decide⟩),
     (⟨6, by decide⟩, ⟨12, by decide⟩, ⟨20, by decide⟩), (⟨6, by decide⟩, ⟨12, by decide⟩, ⟨21, by decide⟩),
     (⟨6, by decide⟩, ⟨14, by decide⟩, ⟨20, by decide⟩), (⟨6, by decide⟩, ⟨14, by decide⟩, ⟨21, by decide⟩),
     (⟨7, by decide⟩, ⟨10, by decide⟩, ⟨22, by decide⟩), (⟨7, by decide⟩, ⟨11, by decide⟩, ⟨23, by decide⟩),
     (⟨7, by decide⟩, ⟨13, by decide⟩, ⟨22, by decide⟩), (⟨7, by decide⟩, ⟨13, by decide⟩, ⟨23, by decide⟩),
-    (⟨7, by decide⟩, ⟨15, by decide⟩, ⟨22, by decide⟩), (⟨7, by decide⟩, ⟨15, by decide⟩, ⟨23, by decide⟩),
-    (⟨8, by decide⟩, ⟨16, by decide⟩, ⟨20, by decide⟩), (⟨8, by decide⟩, ⟨16, by decide⟩, ⟨22, by decide⟩),
+    (⟨7, by decide⟩, ⟨15, by decide⟩, ⟨22, by decide⟩), (⟨7, by decide⟩, ⟨15, by decide⟩, ⟨23, by decide⟩) ]
+
+private def cell24Chunk6 : List (Fin 24 × Fin 24 × Fin 24) :=
+  [ (⟨8, by decide⟩, ⟨16, by decide⟩, ⟨20, by decide⟩), (⟨8, by decide⟩, ⟨16, by decide⟩, ⟨22, by decide⟩),
     (⟨8, by decide⟩, ⟨18, by decide⟩, ⟨20, by decide⟩), (⟨8, by decide⟩, ⟨18, by decide⟩, ⟨22, by decide⟩),
     (⟨9, by decide⟩, ⟨17, by decide⟩, ⟨21, by decide⟩), (⟨9, by decide⟩, ⟨17, by decide⟩, ⟨23, by decide⟩),
     (⟨9, by decide⟩, ⟨19, by decide⟩, ⟨21, by decide⟩), (⟨9, by decide⟩, ⟨19, by decide⟩, ⟨23, by decide⟩),
     (⟨10, by decide⟩, ⟨16, by decide⟩, ⟨20, by decide⟩), (⟨10, by decide⟩, ⟨16, by decide⟩, ⟨22, by decide⟩),
-    (⟨10, by decide⟩, ⟨18, by decide⟩, ⟨20, by decide⟩), (⟨10, by decide⟩, ⟨18, by decide⟩, ⟨22, by decide⟩),
-    (⟨11, by decide⟩, ⟨17, by decide⟩, ⟨21, by decide⟩), (⟨11, by decide⟩, ⟨17, by decide⟩, ⟨23, by decide⟩),
+    (⟨10, by decide⟩, ⟨18, by decide⟩, ⟨20, by decide⟩), (⟨10, by decide⟩, ⟨18, by decide⟩, ⟨22, by decide⟩) ]
+
+private def cell24Chunk7 : List (Fin 24 × Fin 24 × Fin 24) :=
+  [ (⟨11, by decide⟩, ⟨17, by decide⟩, ⟨21, by decide⟩), (⟨11, by decide⟩, ⟨17, by decide⟩, ⟨23, by decide⟩),
     (⟨11, by decide⟩, ⟨19, by decide⟩, ⟨21, by decide⟩), (⟨11, by decide⟩, ⟨19, by decide⟩, ⟨23, by decide⟩),
     (⟨12, by decide⟩, ⟨16, by decide⟩, ⟨20, by decide⟩), (⟨12, by decide⟩, ⟨17, by decide⟩, ⟨21, by decide⟩),
     (⟨13, by decide⟩, ⟨16, by decide⟩, ⟨22, by decide⟩), (⟨13, by decide⟩, ⟨17, by decide⟩, ⟨23, by decide⟩),
     (⟨14, by decide⟩, ⟨18, by decide⟩, ⟨20, by decide⟩), (⟨14, by decide⟩, ⟨19, by decide⟩, ⟨21, by decide⟩),
     (⟨15, by decide⟩, ⟨18, by decide⟩, ⟨22, by decide⟩), (⟨15, by decide⟩, ⟨19, by decide⟩, ⟨23, by decide⟩) ]
+
+/-- Exact list of all 96 equilateral triangular faces `(a, b, c)` (`a < b < c`, pairwise `r · r' = 1`)
+    of the 24-cell. -/
+def cell24Tris : List (Fin 24 × Fin 24 × Fin 24) :=
+  ((cell24Chunk0 ++ cell24Chunk1) ++ (cell24Chunk2 ++ cell24Chunk3)) ++
+  ((cell24Chunk4 ++ cell24Chunk5) ++ (cell24Chunk6 ++ cell24Chunk7))
 
 /-- Fast `Bool` membership test of vertex `i : Fin 24` in a 24-cell triangle `(a, b, c)`. -/
 def inTri24 (t : Fin 24 × Fin 24 × Fin 24) (i : Fin 24) : Bool :=
@@ -347,9 +367,116 @@ private theorem triGram24_symm (ts : List (Fin 24 × Fin 24 × Fin 24)) (i j : F
 private theorem a24Shift4_symm (i j : Fin 24) : a24Shift4 i j = a24Shift4 j i := by
   revert i j; decide
 
+private def triGram24Nat : List (Fin 24 × Fin 24 × Fin 24) → Fin 24 → Fin 24 → Nat
+  | [], _, _ => 0
+  | t :: rest, i, j => (if inTri24 t i && inTri24 t j then 1 else 0) + triGram24Nat rest i j
+
+private def triGram24Fast (i j : Fin 24) : Nat :=
+  ((triGram24Nat cell24Chunk0 i j + triGram24Nat cell24Chunk1 i j) +
+   (triGram24Nat cell24Chunk2 i j + triGram24Nat cell24Chunk3 i j)) +
+  ((triGram24Nat cell24Chunk4 i j + triGram24Nat cell24Chunk5 i j) +
+   (triGram24Nat cell24Chunk6 i j + triGram24Nat cell24Chunk7 i j))
+
+private theorem triGram24_eq_ofNat (ts : List (Fin 24 × Fin 24 × Fin 24)) (i j : Fin 24) :
+    triGram24 ts i j = Int.ofNat (triGram24Nat ts i j) := by
+  induction ts with
+  | nil => rfl
+  | cons t rest ih =>
+    simp only [triGram24, triGram24Nat, ih]
+    cases (inTri24 t i && inTri24 t j) <;> rfl
+
+private theorem triGram24Nat_append (ts1 ts2 : List (Fin 24 × Fin 24 × Fin 24)) (i j : Fin 24) :
+    triGram24Nat (ts1 ++ ts2) i j = triGram24Nat ts1 i j + triGram24Nat ts2 i j := by
+  induction ts1 with
+  | nil =>
+    simp only [List.nil_append, triGram24Nat, Nat.zero_add]
+  | cons t rest ih =>
+    simp only [List.cons_append, triGram24Nat]
+    rw [ih, Nat.add_assoc]
+
+private theorem triGram24_cell24_eq_fast (i j : Fin 24) :
+    triGram24 cell24Tris i j = Int.ofNat (triGram24Fast i j) := by
+  rw [triGram24_eq_ofNat]
+  apply congrArg Int.ofNat
+  unfold cell24Tris triGram24Fast
+  simp only [triGram24Nat_append]
+
+private theorem triGram24Fast_band0 :
+    ∀ k : Fin 3, ∀ j : Fin 24, k.val ≤ j.val →
+      Int.ofNat (triGram24Fast ⟨k.val, by have := k.isLt; omega⟩ j) =
+        3 * a24Shift4 ⟨k.val, by have := k.isLt; omega⟩ j := by
+  decide
+
+private theorem triGram24Fast_band1 :
+    ∀ k : Fin 3, ∀ j : Fin 24, k.val + 3 ≤ j.val →
+      Int.ofNat (triGram24Fast ⟨k.val + 3, by have := k.isLt; omega⟩ j) =
+        3 * a24Shift4 ⟨k.val + 3, by have := k.isLt; omega⟩ j := by
+  decide
+
+private theorem triGram24Fast_band2 :
+    ∀ k : Fin 3, ∀ j : Fin 24, k.val + 6 ≤ j.val →
+      Int.ofNat (triGram24Fast ⟨k.val + 6, by have := k.isLt; omega⟩ j) =
+        3 * a24Shift4 ⟨k.val + 6, by have := k.isLt; omega⟩ j := by
+  decide
+
+private theorem triGram24Fast_band3 :
+    ∀ k : Fin 3, ∀ j : Fin 24, k.val + 9 ≤ j.val →
+      Int.ofNat (triGram24Fast ⟨k.val + 9, by have := k.isLt; omega⟩ j) =
+        3 * a24Shift4 ⟨k.val + 9, by have := k.isLt; omega⟩ j := by
+  decide
+
+private theorem triGram24Fast_band4 :
+    ∀ k : Fin 5, ∀ j : Fin 24, k.val + 12 ≤ j.val →
+      Int.ofNat (triGram24Fast ⟨k.val + 12, by have := k.isLt; omega⟩ j) =
+        3 * a24Shift4 ⟨k.val + 12, by have := k.isLt; omega⟩ j := by
+  decide
+
+private theorem triGram24Fast_band5 :
+    ∀ k : Fin 7, ∀ j : Fin 24, k.val + 17 ≤ j.val →
+      Int.ofNat (triGram24Fast ⟨k.val + 17, by have := k.isLt; omega⟩ j) =
+        3 * a24Shift4 ⟨k.val + 17, by have := k.isLt; omega⟩ j := by
+  decide
+
 private theorem triGram24_cell24_upper :
     ∀ i j : Fin 24, i.val ≤ j.val → triGram24 cell24Tris i j = 3 * a24Shift4 i j := by
-  decide
+  intro i j hij
+  rw [triGram24_cell24_eq_fast]
+  if h0 : i.val < 3 then
+    let k : Fin 3 := ⟨i.val, h0⟩
+    have h := triGram24Fast_band0 k j hij
+    have heq : (⟨k.val, by have := k.isLt; omega⟩ : Fin 24) = i := Fin.ext rfl
+    rw [heq] at h
+    exact h
+  else if h1 : i.val < 6 then
+    let k : Fin 3 := ⟨i.val - 3, by omega⟩
+    have h := triGram24Fast_band1 k j (by dsimp [k]; omega)
+    have heq : (⟨k.val + 3, by have := k.isLt; omega⟩ : Fin 24) = i := Fin.ext (by dsimp [k]; omega)
+    rw [heq] at h
+    exact h
+  else if h2 : i.val < 9 then
+    let k : Fin 3 := ⟨i.val - 6, by omega⟩
+    have h := triGram24Fast_band2 k j (by dsimp [k]; omega)
+    have heq : (⟨k.val + 6, by have := k.isLt; omega⟩ : Fin 24) = i := Fin.ext (by dsimp [k]; omega)
+    rw [heq] at h
+    exact h
+  else if h3 : i.val < 12 then
+    let k : Fin 3 := ⟨i.val - 9, by omega⟩
+    have h := triGram24Fast_band3 k j (by dsimp [k]; omega)
+    have heq : (⟨k.val + 9, by have := k.isLt; omega⟩ : Fin 24) = i := Fin.ext (by dsimp [k]; omega)
+    rw [heq] at h
+    exact h
+  else if h4 : i.val < 17 then
+    let k : Fin 5 := ⟨i.val - 12, by omega⟩
+    have h := triGram24Fast_band4 k j (by dsimp [k]; omega)
+    have heq : (⟨k.val + 12, by have := k.isLt; omega⟩ : Fin 24) = i := Fin.ext (by dsimp [k]; omega)
+    rw [heq] at h
+    exact h
+  else
+    let k : Fin 7 := ⟨i.val - 17, by have := i.isLt; omega⟩
+    have h := triGram24Fast_band5 k j (by dsimp [k]; omega)
+    have heq : (⟨k.val + 17, by have := k.isLt; omega⟩ : Fin 24) = i := Fin.ext (by dsimp [k]; omega)
+    rw [heq] at h
+    exact h
 
 private theorem cell24Tris_valid :
     (List.finRange 24).map d4RootAt = d4Roots ∧
@@ -390,25 +517,25 @@ private theorem inTri24_eq_sum_delta (a b c : Fin 24) (hab : a ≠ b) (hac : a �
     have h2 : i ≠ b := fun h => hab (h1.symm.trans h)
     have h3 : i ≠ c := fun h => hac (h1.symm.trans h)
     have hb1 : (i == a) = true := (fin24_beq_iff i a).mpr h1
-    rw [if_pos h1, if_neg h2, if_neg h3, hb1]
+    rw [ite_eq_left h1, ite_eq_right h2, ite_eq_right h3, hb1]
     rfl
   else if h2 : i = b then
     have h3 : i ≠ c := fun h => hbc (h2.symm.trans h)
     have hb1 : (i == a) = false := fin24_beq_false i a h1
     have hb2 : (i == b) = true := (fin24_beq_iff i b).mpr h2
-    rw [if_neg h1, if_pos h2, if_neg h3, hb1, hb2]
+    rw [ite_eq_right h1, ite_eq_left h2, ite_eq_right h3, hb1, hb2]
     rfl
   else if h3 : i = c then
     have hb1 : (i == a) = false := fin24_beq_false i a h1
     have hb2 : (i == b) = false := fin24_beq_false i b h2
     have hb3 : (i == c) = true := (fin24_beq_iff i c).mpr h3
-    rw [if_neg h1, if_neg h2, if_pos h3, hb1, hb2, hb3]
+    rw [ite_eq_right h1, ite_eq_right h2, ite_eq_left h3, hb1, hb2, hb3]
     rfl
   else
     have hb1 : (i == a) = false := fin24_beq_false i a h1
     have hb2 : (i == b) = false := fin24_beq_false i b h2
     have hb3 : (i == c) = false := fin24_beq_false i c h3
-    rw [if_neg h1, if_neg h2, if_neg h3, hb1, hb2, hb3]
+    rw [ite_eq_right h1, ite_eq_right h2, ite_eq_right h3, hb1, hb2, hb3]
     rfl
 
 private theorem bool_and_ite_mul (p q : Bool) :
@@ -418,7 +545,7 @@ private theorem bool_and_ite_mul (p q : Bool) :
 private theorem sumTriSq24_nonneg (ts : List (Fin 24 × Fin 24 × Fin 24)) (v : Fin 24 → Int) :
     0 ≤ sumTriSq24 ts v := by
   induction ts with
-  | nil => decide
+  | nil => simp only [sumTriSq24]; omega
   | cons t rest ih =>
     cases t with
     | mk a bc =>
@@ -595,7 +722,10 @@ theorem thm_bt2_combes_thomas_cubic_majorant (p q : Int) (hp : q ≤ p) :
     omega
   have hDiff : 0 ≤ 16 * (q2 * (p - q)) :=
     Int.mul_nonneg (by decide) (Int.mul_nonneg (int_sq_nonneg q) (by omega))
-  exact ⟨hId, by omega⟩
+  have hLe : 16 * ctCubic24c p q ≤ ((8 * p + 13 * q) * (8 * p + 13 * q) + 7 * q2) * p := by
+    rw [hId]
+    omega
+  exact ⟨hId, hLe⟩
 
 private theorem bt_mul_lt_right (x y p : Int) (hxy : x < y) (hp : 0 < p) : x * p < y * p := by
   have h : 0 ≤ (y - x - 1) * (p - 1) := Int.mul_nonneg (by omega) (by omega)
@@ -683,8 +813,9 @@ theorem thm_bt2_combes_thomas_mass_gap_margin (N b d : Int)
     bt_mul_lt_right (4 * B2 * Q) (M4 * (q * q)) p hQuadStrict (by omega)
   have hRhsEq : (M4 * (q * q)) * p = M4 * (p * (q * q)) := by
     rw [Int.mul_assoc, Int.mul_comm (q * q) p]
-  rw [← hRhsEq]
-  omega
+  rw [hRhsEq] at hStep2
+  have hFinal : 64 * B2 * ctCubic24c p q < M4 * (p * (q * q)) := by omega
+  exact hFinal
 
 /-- The 6 coordinate 2-planes `(μ, ν)` (`0 ≤ μ < ν < 4`) indexed by `Fin 6`. -/
 def planePair6 (p : Fin 6) : Fin 4 × Fin 4 :=
@@ -800,14 +931,14 @@ private theorem mat_ch5_trace_pow_pair (M : Mat2Eis)
   intro n
   induction n with
   | zero =>
-    refine ⟨by decide, ?_⟩
+    refine ⟨by change Mat2Eis.trace Mat2Eis.id = Eis.ofInt (trSeq5 0); decide, ?_⟩
     change Mat2Eis.trace (Mat2Eis.mul Mat2Eis.id M) = Eis.ofInt 5
     have hIdL : Mat2Eis.mul Mat2Eis.id M = M := by
       cases M with
       | mk m00 m01 m10 m11 =>
         cases m00; cases m01; cases m10; cases m11
         simp only [Mat2Eis.mul, Mat2Eis.id, Eis.one, Eis.zero, Eis.mul, Eis.add,
-          Int.one_mul, Int.zero_mul, Int.mul_zero, Int.add_zero, Int.zero_add, Int.sub_zero]
+          Int.one_mul, Int.zero_mul, Int.add_zero, Int.zero_add, Int.sub_zero]
     rw [hIdL]
     exact hTr
   | succ n ih =>
@@ -1342,6 +1473,7 @@ theorem thm_bt4a_smg_sos_positivity_and_unique_ground_state (x : Fin 16 → Int)
       8 * ((e6 + e9) * (e6 + e9)) := by
     rw [smgHamShift14_eq_sos_mat]
     simp only [quadFormFin_matAdd, quadFormFin_matScale, quadFormFin_diagEntry16, quadFormFin_pair69Entry16]
+    rfl
   have s0  := int_sq_nonneg e0;  have s1  := int_sq_nonneg e1
   have s2  := int_sq_nonneg e2;  have s3  := int_sq_nonneg e3
   have s4  := int_sq_nonneg e4;  have s5  := int_sq_nonneg e5
@@ -1373,6 +1505,7 @@ theorem thm_bt4a_smg_sos_positivity_and_unique_ground_state (x : Fin 16 → Int)
     | ⟨7, _⟩  => exact z7  | ⟨8, _⟩  => exact z8  | ⟨9, _⟩  => exact absurd rfl hi9
     | ⟨10, _⟩ => exact z10 | ⟨11, _⟩ => exact z11 | ⟨12, _⟩ => exact z12 | ⟨13, _⟩ => exact z13
     | ⟨14, _⟩ => exact z14 | ⟨15, _⟩ => exact z15
+    | ⟨n + 16, h⟩ => exact absurd (show 16 ≤ n + 16 by omega) (by omega)
   · rintro ⟨h69, hRest⟩
     rw [hId]
     have z0  : e0  = 0 := hRest ⟨0, by decide⟩  (by decide) (by decide)
@@ -1581,6 +1714,11 @@ private theorem det3Ninth_block21_ofInt (a00 a01 a10 a11 q : Int)
   apply congrArg Ninth.ofInt
   rw [Int.sub_mul, Int.mul_assoc, Int.mul_assoc]
 
+private theorem bt_det3_factor_right (a00 a01 a02 d0 d1 d2 k : Int) :
+    a00 * (d0 * k) - a01 * (d1 * k) + a02 * (d2 * k) =
+      (a00 * d0 - a01 * d1 + a02 * d2) * k := by
+  rw [Int.add_mul, Int.sub_mul, Int.mul_assoc, Int.mul_assoc, Int.mul_assoc]
+
 /-- Symbolic Breakthrough 4B (`4 × 4` BBP Nelson-Barr Strong-CP Theorem):
     for EVERY integer `m_q ∈ M_3(ℤ)`, EVERY integer `M_VL ∈ ℤ`, and EVERY arbitrary complex
     cyclotomic mixing row `B ∈ M_{1×3}(ℤ[ζ_9])`, the full 24-term Laplace determinant satisfies
@@ -1617,7 +1755,7 @@ theorem thm_bt4b_nelson_barr_4x4_symbolic
         ninth_ofInt_sub, ninth_ofInt_add]
     apply congrArg Ninth.ofInt
     dsimp only [nbDet3Int]
-    rw [Int.add_mul, Int.sub_mul, Int.mul_assoc, Int.mul_assoc, Int.mul_assoc]
+    exact bt_det3_factor_right _ _ _ _ _ _ mVL
   exact ⟨hDet, by change ninthIsRational (det4Ninth M); rw [hDet]; exact ⟨rfl, rfl, rfl, rfl, rfl⟩⟩
 
 private theorem det3Ninth_block12_ofInt (a q00 q01 q10 q11 : Int)
@@ -1716,7 +1854,7 @@ theorem thm_bt4b_nelson_barr_5x5_symbolic
         ninth_ofInt_sub, ninth_ofInt_add]
     apply congrArg Ninth.ofInt
     dsimp only [nbDet3Int]
-    rw [Int.add_mul, Int.sub_mul, Int.mul_assoc, Int.mul_assoc, Int.mul_assoc]
+    exact bt_det3_factor_right _ _ _ _ _ _ dVL
   exact ⟨hDet, by change ninthIsRational (det5Ninth M); rw [hDet]; exact ⟨rfl, rfl, rfl, rfl, rfl⟩⟩
 
 /-- Concrete `nelson-barr-z9.ts` real bare down-quark block `m_q` (`det = 3,796,608`). -/
@@ -1808,6 +1946,176 @@ def nbWitJarlskogDet (b : Fin 3 → Ninth) : Ninth :=
   let ba := mat3NinthMul hD nbWitHu
   det3Ninth (fun r c => Ninth.sub (ab r c) (ba r c))
 
+private def nbWitBZ9Lit (c : Fin 3) : Ninth :=
+  match c.val with
+  | 0 => ⟨1, 0, 0, 0, 0, 0⟩
+  | 1 => ⟨0, 0, 1, 0, 0, 0⟩
+  | _ => ⟨0, 0, 0, 0, 0, 1⟩
+
+private def nbWitIpBBZ9Lit (r c : Fin 3) : Ninth :=
+  match r.val, c.val with
+  | 0, 0 => ⟨2, 0, 0, 0, 0, 0⟩
+  | 0, 1 => ⟨0, 0, 1, 0, 0, 0⟩
+  | 0, 2 => ⟨0, 0, 0, 0, 0, 1⟩
+  | 1, 0 => ⟨0, -1, 0, 0, -1, 0⟩
+  | 1, 1 => ⟨2, 0, 0, 0, 0, 0⟩
+  | 1, 2 => ⟨0, 0, 0, 1, 0, 0⟩
+  | 2, 0 => ⟨0, 0, 0, 0, 1, 0⟩
+  | 2, 1 => ⟨-1, 0, 0, -1, 0, 0⟩
+  | _, _ => ⟨2, 0, 0, 0, 0, 0⟩
+
+private def nbWitK4Z9Lit (r c : Fin 3) : Ninth :=
+  match r.val, c.val with
+  | 0, 0 => ⟨3, 0, 0, 0, 0, 0⟩
+  | 0, 1 => ⟨0, 0, -1, 0, 0, 0⟩
+  | 0, 2 => ⟨0, 0, 0, 0, 0, -1⟩
+  | 1, 0 => ⟨0, 1, 0, 0, 1, 0⟩
+  | 1, 1 => ⟨3, 0, 0, 0, 0, 0⟩
+  | 1, 2 => ⟨0, 0, 0, -1, 0, 0⟩
+  | 2, 0 => ⟨0, 0, 0, 0, -1, 0⟩
+  | 2, 1 => ⟨1, 0, 0, 1, 0, 0⟩
+  | _, _ => ⟨3, 0, 0, 0, 0, 0⟩
+
+private def nbWitMDK4Z9Lit (r c : Fin 3) : Ninth :=
+  match r.val, c.val with
+  | 0, 0 => ⟨3, 1, 0, 0, 1, 0⟩
+  | 0, 1 => ⟨3, 0, -1, 0, 0, 0⟩
+  | 0, 2 => ⟨0, 0, 0, -1, 0, -1⟩
+  | 1, 0 => ⟨0, 2, 0, 0, 1, 0⟩
+  | 1, 1 => ⟨7, 0, 0, 1, 0, 0⟩
+  | 1, 2 => ⟨3, 0, 0, -2, 0, 0⟩
+  | 2, 0 => ⟨3, 0, 0, 0, -3, 0⟩
+  | 2, 1 => ⟨3, 0, -1, 3, 0, 0⟩
+  | _, _ => ⟨9, 0, 0, 0, 0, -1⟩
+
+private def nbWitHd4Z9Lit (r c : Fin 3) : Ninth :=
+  match r.val, c.val with
+  | 0, 0 => ⟨6, 1, -1, 0, 1, 0⟩
+  | 0, 1 => ⟨6, 0, -2, -1, 0, -1⟩
+  | 0, 2 => ⟨3, 1, 0, -3, 1, -3⟩
+  | 1, 0 => ⟨7, 2, 0, 1, 1, 0⟩
+  | 1, 1 => ⟨17, 0, 0, 0, 0, 0⟩
+  | 1, 2 => ⟨9, 2, 0, -6, 1, 0⟩
+  | 2, 0 => ⟨6, 0, -1, 3, -3, 0⟩
+  | 2, 1 => ⟨15, 0, -2, 6, 0, -1⟩
+  | _, _ => ⟨30, 0, 0, 0, -3, -3⟩
+
+private def nbWitCommZ9Lit (r c : Fin 3) : Ninth :=
+  match r.val, c.val with
+  | 0, 0 => ⟨0, 0, 0, 0, 0, 0⟩
+  | 0, 1 => ⟨-18, 0, 6, 3, 0, 3⟩
+  | 0, 2 => ⟨-24, -8, 0, 24, -8, 24⟩
+  | 1, 0 => ⟨21, 6, 0, 3, 3, 0⟩
+  | 1, 1 => ⟨0, 0, 0, 0, 0, 0⟩
+  | 1, 2 => ⟨-45, -10, 0, 30, -5, 0⟩
+  | 2, 0 => ⟨48, 0, -8, 24, -24, 0⟩
+  | 2, 1 => ⟨75, 0, -10, 30, 0, -5⟩
+  | _, _ => ⟨0, 0, 0, 0, 0, 0⟩
+
+private def nbWitK4RealLit (r c : Fin 3) : Ninth :=
+  match r.val, c.val with
+  | 0, 0 => ⟨3, 0, 0, 0, 0, 0⟩
+  | 0, 1 => ⟨-1, 0, 0, 0, 0, 0⟩
+  | 0, 2 => ⟨-1, 0, 0, 0, 0, 0⟩
+  | 1, 0 => ⟨-1, 0, 0, 0, 0, 0⟩
+  | 1, 1 => ⟨3, 0, 0, 0, 0, 0⟩
+  | 1, 2 => ⟨-1, 0, 0, 0, 0, 0⟩
+  | 2, 0 => ⟨-1, 0, 0, 0, 0, 0⟩
+  | 2, 1 => ⟨-1, 0, 0, 0, 0, 0⟩
+  | _, _ => ⟨3, 0, 0, 0, 0, 0⟩
+
+private def nbWitMDK4RealLit (r c : Fin 3) : Ninth :=
+  match r.val, c.val with
+  | 0, 0 => ⟨2, 0, 0, 0, 0, 0⟩
+  | 0, 1 => ⟨2, 0, 0, 0, 0, 0⟩
+  | 0, 2 => ⟨-2, 0, 0, 0, 0, 0⟩
+  | 1, 0 => ⟨-3, 0, 0, 0, 0, 0⟩
+  | 1, 1 => ⟨5, 0, 0, 0, 0, 0⟩
+  | 1, 2 => ⟨1, 0, 0, 0, 0, 0⟩
+  | 2, 0 => ⟨0, 0, 0, 0, 0, 0⟩
+  | 2, 1 => ⟨-4, 0, 0, 0, 0, 0⟩
+  | _, _ => ⟨8, 0, 0, 0, 0, 0⟩
+
+private def nbWitHd4RealLit (r c : Fin 3) : Ninth :=
+  match r.val, c.val with
+  | 0, 0 => ⟨4, 0, 0, 0, 0, 0⟩
+  | 0, 1 => ⟨2, 0, 0, 0, 0, 0⟩
+  | 0, 2 => ⟨-4, 0, 0, 0, 0, 0⟩
+  | 1, 0 => ⟨2, 0, 0, 0, 0, 0⟩
+  | 1, 1 => ⟨11, 0, 0, 0, 0, 0⟩
+  | 1, 2 => ⟨0, 0, 0, 0, 0, 0⟩
+  | 2, 0 => ⟨-4, 0, 0, 0, 0, 0⟩
+  | 2, 1 => ⟨0, 0, 0, 0, 0, 0⟩
+  | _, _ => ⟨24, 0, 0, 0, 0, 0⟩
+
+private def nbWitCommRealLit (r c : Fin 3) : Ninth :=
+  match r.val, c.val with
+  | 0, 0 => ⟨0, 0, 0, 0, 0, 0⟩
+  | 0, 1 => ⟨-6, 0, 0, 0, 0, 0⟩
+  | 0, 2 => ⟨32, 0, 0, 0, 0, 0⟩
+  | 1, 0 => ⟨6, 0, 0, 0, 0, 0⟩
+  | 1, 1 => ⟨0, 0, 0, 0, 0, 0⟩
+  | 1, 2 => ⟨0, 0, 0, 0, 0, 0⟩
+  | 2, 0 => ⟨-32, 0, 0, 0, 0, 0⟩
+  | 2, 1 => ⟨0, 0, 0, 0, 0, 0⟩
+  | _, _ => ⟨0, 0, 0, 0, 0, 0⟩
+
+private theorem nbWitBZ9_eq_lit : nbWitBZ9 = nbWitBZ9Lit := by
+  funext c; revert c; decide
+
+private theorem nbWitIpBB_z9_eq : nbWitIpBB nbWitBZ9 = nbWitIpBBZ9Lit := by
+  rw [nbWitBZ9_eq_lit]
+  funext r c; revert r c; decide
+
+private theorem nbWitK4_z9_eq : nbWitK4 nbWitBZ9 = nbWitK4Z9Lit := by
+  rw [nbWitBZ9_eq_lit]
+  funext r c; revert r c; decide
+
+private theorem nbWitHd4_z9_eq : nbWitHd4 nbWitBZ9 = nbWitHd4Z9Lit := by
+  unfold nbWitHd4
+  dsimp only
+  rw [nbWitK4_z9_eq]
+  have hMid : mat3NinthMul (fun r c => Ninth.ofInt (nbWitMd r c)) nbWitK4Z9Lit = nbWitMDK4Z9Lit := by
+    funext r c; revert r c; decide
+  rw [hMid]
+  funext r c; revert r c; decide
+
+private theorem nbWitJarlskogDet_z9_eq :
+    nbWitJarlskogDet nbWitBZ9 = ⟨-9600, -31680, -31680, -19200, -41760, 10080⟩ := by
+  unfold nbWitJarlskogDet
+  dsimp only
+  rw [nbWitHd4_z9_eq]
+  have hComm :
+      (fun r c => Ninth.sub (mat3NinthMul nbWitHu nbWitHd4Z9Lit r c)
+        (mat3NinthMul nbWitHd4Z9Lit nbWitHu r c)) = nbWitCommZ9Lit := by
+    funext r c; revert r c; decide
+  rw [hComm]
+  decide
+
+private theorem nbWitK4_real_eq : nbWitK4 nbWitBReal = nbWitK4RealLit := by
+  funext r c; revert r c; decide
+
+private theorem nbWitHd4_real_eq : nbWitHd4 nbWitBReal = nbWitHd4RealLit := by
+  unfold nbWitHd4
+  dsimp only
+  rw [nbWitK4_real_eq]
+  have hMid : mat3NinthMul (fun r c => Ninth.ofInt (nbWitMd r c)) nbWitK4RealLit = nbWitMDK4RealLit := by
+    funext r c; revert r c; decide
+  rw [hMid]
+  funext r c; revert r c; decide
+
+private theorem nbWitJarlskogDet_real_eq :
+    nbWitJarlskogDet nbWitBReal = Ninth.zero := by
+  unfold nbWitJarlskogDet
+  dsimp only
+  rw [nbWitHd4_real_eq]
+  have hComm :
+      (fun r c => Ninth.sub (mat3NinthMul nbWitHu nbWitHd4RealLit r c)
+        (mat3NinthMul nbWitHd4RealLit nbWitHu r c)) = nbWitCommRealLit := by
+    funext r c; revert r c; decide
+  rw [hComm]
+  decide
+
 /-- Exact zero-float `ℤ[ζ_9]` Nelson-Barr CP-violation witness (`θ̄_tree = 0` AND `J_CKM ≠ 0`):
     for `b = [1, ζ_9^2, ζ_9^5]` and strictly real `m_u = diag(1, 2, 3)`, `m_d = [[1,1,0],[0,2,1],[1,0,3]]`:
     1. Full `4 × 4` determinant `det(M_d) = 7 ∈ ℤ_{>0}` (`θ̄_tree = 0` identically!),
@@ -1823,6 +2131,8 @@ theorem thm_bt4b_nelson_barr_cp_broken_jarlskog_witness :
     nbWitJarlskogDet nbWitBZ9 ≠ Ninth.zero ∧
     Ninth.conj (nbWitJarlskogDet nbWitBZ9) = Ninth.neg (nbWitJarlskogDet nbWitBZ9) ∧
     nbWitJarlskogDet nbWitBReal = Ninth.zero := by
+  rw [(thm_bt4b_nelson_barr_4x4_symbolic nbWitMd nbWitBZ9 1).1,
+      nbWitIpBB_z9_eq, nbWitK4_z9_eq, nbWitJarlskogDet_z9_eq, nbWitJarlskogDet_real_eq]
   decide
 
 end Vibe

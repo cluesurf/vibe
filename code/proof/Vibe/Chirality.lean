@@ -283,8 +283,8 @@ private theorem mat4_orth_mul_half (A B : Mat4)
       apply congrArg sum4; funext k
       exact Int.mul_assoc 4 (mat4Transpose B i k) (B k j)
     rw [hSc, hB]
-    if hij : i = j then rw [if_pos hij, if_pos hij]; decide
-    else rw [if_neg hij, if_neg hij]; decide
+    if hij : i = j then rw [ite_eq_left hij, ite_eq_left hij]; decide
+    else rw [ite_eq_right hij, ite_eq_right hij]; decide
   apply mat4_ext; intro i j
   have hScaled : 4 * mat4Mul (mat4Transpose (mat4MulHalf A B)) (mat4MulHalf A B) i j =
       mat4Mul (mat4Transpose (mat4Mul A B)) (mat4Mul A B) i j := by
@@ -296,10 +296,10 @@ private theorem mat4_orth_mul_half (A B : Mat4)
   have h2ij := congrFun (congrFun h2 i) j
   rw [h2ij] at hScaled
   if hij : i = j then
-    rw [if_pos hij] at hScaled ⊢
+    rw [ite_eq_left hij] at hScaled ⊢
     omega
   else
-    rw [if_neg hij] at hScaled ⊢
+    rw [ite_eq_right hij] at hScaled ⊢
     omega
 
 private theorem mat4_orth_mul_half_right (A B : Mat4)
@@ -326,8 +326,8 @@ private theorem mat4_orth_mul_half_right (A B : Mat4)
       apply congrArg sum4; funext k
       exact Int.mul_assoc 4 (A i k) (mat4Transpose A k j)
     rw [hSc, hA]
-    if hij : i = j then rw [if_pos hij, if_pos hij]; decide
-    else rw [if_neg hij, if_neg hij]; decide
+    if hij : i = j then rw [ite_eq_left hij, ite_eq_left hij]; decide
+    else rw [ite_eq_right hij, ite_eq_right hij]; decide
   apply mat4_ext; intro i j
   have hScaled : 4 * mat4Mul (mat4MulHalf A B) (mat4Transpose (mat4MulHalf A B)) i j =
       mat4Mul (mat4Mul A B) (mat4Transpose (mat4Mul A B)) i j := by
@@ -339,10 +339,10 @@ private theorem mat4_orth_mul_half_right (A B : Mat4)
   have h2ij := congrFun (congrFun h2 i) j
   rw [h2ij] at hScaled
   if hij : i = j then
-    rw [if_pos hij] at hScaled ⊢
+    rw [ite_eq_left hij] at hScaled ⊢
     omega
   else
-    rw [if_neg hij] at hScaled ⊢
+    rw [ite_eq_right hij] at hScaled ⊢
     omega
 
 
@@ -534,10 +534,10 @@ private theorem det4Vecs_applySwaps (ws : List (Fin 3)) (a b c d : Vec4) :
     rw [det4Vecs_adjSwap, ih]
     if h : rest.length % 2 = 0 then
       have h1 : (rest.length + 1) % 2 ≠ 0 := by omega
-      rw [if_pos h, if_neg h1]; omega
+      rw [ite_eq_left h, ite_eq_right h1]; omega
     else
       have h1 : (rest.length + 1) % 2 = 0 := by omega
-      rw [if_neg h, if_pos h1]; omega
+      rw [ite_eq_right h, ite_eq_left h1]; omega
 
 private theorem det4Vecs_applyNegs (ns : List (Fin 4)) (a b c d : Vec4) :
     det4Vecs (applyNegsVec ns a) (applyNegsVec ns b) (applyNegsVec ns c) (applyNegsVec ns d) =
@@ -549,10 +549,10 @@ private theorem det4Vecs_applyNegs (ns : List (Fin 4)) (a b c d : Vec4) :
     rw [det4Vecs_negCoord, ih]
     if h : rest.length % 2 = 0 then
       have h1 : (rest.length + 1) % 2 ≠ 0 := by omega
-      rw [if_pos h, if_neg h1]; omega
+      rw [ite_eq_left h, ite_eq_right h1]; omega
     else
       have h1 : (rest.length + 1) % 2 = 0 := by omega
-      rw [if_neg h, if_pos h1]; omega
+      rw [ite_eq_right h, ite_eq_left h1]; omega
 
 
 /-! ## Section 3: Exact Bourbaki Simple Reflections & Semidirect Product `W(F_4) = W(D_4) ⋊ S_3` -/
@@ -1113,13 +1113,13 @@ private theorem wd4_det_and_s3_det_mul :
 private theorem wf4Det_pm_one (g : WF4Elem) : wf4Det g = 1 ∨ wf4Det g = -1 := by
   unfold wf4Det perm4Det s3Det
   if hp : (perm4Word g.1).length % 2 = 0 then
-    rw [if_pos hp]
-    if hc : g.2.2.val < 3 then rw [if_pos hc]; exact Or.inl rfl
-    else rw [if_neg hc]; exact Or.inr rfl
+    rw [ite_eq_left hp]
+    if hc : g.2.2.val < 3 then rw [ite_eq_left hc]; exact Or.inl rfl
+    else rw [ite_eq_right hc]; exact Or.inr rfl
   else
-    rw [if_neg hp]
-    if hc : g.2.2.val < 3 then rw [if_pos hc]; exact Or.inr rfl
-    else rw [if_neg hc]; exact Or.inl rfl
+    rw [ite_eq_right hp]
+    if hc : g.2.2.val < 3 then rw [ite_eq_left hc]; exact Or.inr rfl
+    else rw [ite_eq_right hc]; exact Or.inl rfl
 
 private theorem wf4Det_mul (g1 g2 : WF4Elem) :
     wf4Det (wf4Mul g1 g2) = wf4Det g1 * wf4Det g2 := by
@@ -1336,8 +1336,8 @@ theorem thm_wf4_semidirect_order_1152 :
       apply mat4_ext; intro i j
       rw [← h1 i j]
       simp only [s3Mat2, mat4Id2]
-      if hij : i = j then rw [if_pos hij, if_pos hij]; decide
-      else rw [if_neg hij, if_neg hij]; decide
+      if hij : i = j then rw [ite_eq_left hij, ite_eq_left hij]; decide
+      else rw [ite_eq_right hij, ite_eq_right hij]; decide
     have hProd :
         mat4Mul (mat4Mul (wd4Mat2 (wd4Inv (g2.1, g2.2.1))) (wd4Mat2 (g1.1, g1.2.1)))
                 (mat4Mul (s3Mat2 g1.2.2) (s3Mat2 (s3Inv g1.2.2))) =
@@ -1388,8 +1388,8 @@ theorem thm_wf4_semidirect_order_1152 :
         apply mat4_ext; intro i j
         rw [← h1 i j]
         simp only [s3Mat2, mat4Id2]
-        if hij : i = j then rw [if_pos hij, if_pos hij]; decide
-        else rw [if_neg hij, if_neg hij]; decide
+        if hij : i = j then rw [ite_eq_left hij, ite_eq_left hij]; decide
+        else rw [ite_eq_right hij, ite_eq_right hij]; decide
       rw [mat4Mul_assoc, mat4Mul_assoc, hS2inv] at hCancel
       intro i j
       have hij := congrFun (congrFun hCancel i) j
@@ -1616,7 +1616,7 @@ private theorem det4Vecs_evenSignSlot (e : Fin 8) (a b c d : Fin 24) :
     (by decide : ∀ k : Fin 8, (evenSignNegs k).length % 2 = 0) e
   rw [hEq a, hEq b, hEq c, hEq d]
   have hD := det4Vecs_applyNegs (evenSignNegs e) (d4RootOf a) (d4RootOf b) (d4RootOf c) (d4RootOf d)
-  rw [if_pos hEven, Int.one_mul] at hD
+  rw [ite_eq_left hEven, Int.one_mul] at hD
   exact hD
 
 /-- Headline Theorem 6: Exact symbolic `4 × 4` determinant transformation law across ALL 1,152
@@ -2036,12 +2036,12 @@ private theorem inList24_erase_of_ne (a x : Fin 24) (l : List (Fin 24))
   | cons y ys ih =>
     simp only [inList24] at h
     if hya : y = a then
-      simp only [erase24, if_pos hya]
+      simp only [erase24, ite_eq_left hya]
       have hxy : decide (y = x) = false := decide_eq_false (fun eq => hne (eq.symm.trans hya))
       rw [hxy, Bool.false_or] at h
       exact h
     else
-      simp only [erase24, if_neg hya, inList24]
+      simp only [erase24, ite_eq_right hya, inList24]
       cases hdy : decide (y = x)
       · rw [hdy] at h
         simp only [Bool.false_or] at h ⊢
@@ -2054,10 +2054,10 @@ private theorem inList24_of_erase (a x : Fin 24) (l : List (Fin 24))
   | nil => exact absurd h (by decide)
   | cons y ys ih =>
     if hya : y = a then
-      simp only [erase24, if_pos hya] at h
+      simp only [erase24, ite_eq_left hya] at h
       simp only [inList24, h, Bool.or_true]
     else
-      simp only [erase24, if_neg hya, inList24] at h
+      simp only [erase24, ite_eq_right hya, inList24] at h
       simp only [inList24]
       cases hdy : decide (y = x)
       · rw [hdy] at h
@@ -2081,11 +2081,11 @@ private theorem not_inList24_erase_of_noDup (a : Fin 24) (l : List (Fin 24))
   | cons y ys ih =>
     simp only [noDup24, bool_not_and_eq_true] at hnd
     if hya : y = a then
-      simp only [erase24, if_pos hya]
+      simp only [erase24, ite_eq_left hya]
       rw [← hya]
       exact hnd.1
     else
-      simp only [erase24, if_neg hya, inList24]
+      simp only [erase24, ite_eq_right hya, inList24]
       have hne : decide (y = a) = false := decide_eq_false hya
       rw [hne, ih hnd.2]
       rfl
@@ -2097,10 +2097,10 @@ private theorem noDup24_erase (a : Fin 24) (l : List (Fin 24))
   | cons y ys ih =>
     simp only [noDup24, bool_not_and_eq_true] at hnd
     if hya : y = a then
-      simp only [erase24, if_pos hya]
+      simp only [erase24, ite_eq_left hya]
       exact hnd.2
     else
-      simp only [erase24, if_neg hya, noDup24, bool_not_and_eq_true]
+      simp only [erase24, ite_eq_right hya, noDup24, bool_not_and_eq_true]
       refine ⟨?_, ih hnd.2⟩
       cases hin : inList24 y (erase24 a ys)
       · rfl
@@ -2114,12 +2114,12 @@ private theorem sumList24_erase (f : Fin 24 → Int) (a : Fin 24) (l : List (Fin
   | nil => exact absurd h (by decide)
   | cons y ys ih =>
     if hya : y = a then
-      simp only [erase24, if_pos hya, sumList24, hya]
+      simp only [erase24, ite_eq_left hya, sumList24, hya]
     else
       simp only [inList24] at h
       have hne : decide (y = a) = false := decide_eq_false hya
       rw [hne, Bool.false_or] at h
-      simp only [erase24, if_neg hya, sumList24]
+      simp only [erase24, ite_eq_right hya, sumList24]
       rw [ih h]
       omega
 
@@ -2721,15 +2721,15 @@ private theorem intSign_neg (n : Int) : intSign (-n) = -intSign n := by
   if hPos : n > 0 then
     have h1 : ¬ (-n > 0) := by omega
     have h2 : -n < 0 := by omega
-    rw [if_pos hPos, if_neg h1, if_pos h2]
+    rw [ite_eq_left hPos, ite_eq_right h1, ite_eq_left h2]
   else if hNeg : n < 0 then
     have h1 : -n > 0 := by omega
-    rw [if_neg hPos, if_pos hNeg, if_pos h1]
+    rw [ite_eq_right hPos, ite_eq_left hNeg, ite_eq_left h1]
     decide
   else
     have h1 : ¬ (-n > 0) := by omega
     have h2 : ¬ (-n < 0) := by omega
-    rw [if_neg hPos, if_neg hNeg, if_neg h1, if_neg h2]
+    rw [ite_eq_right hPos, ite_eq_right hNeg, ite_eq_right h1, ite_eq_right h2]
     decide
 
 /-- Headline Theorem 17 (Exact `ℤ[ζ_9]` Unit Modulus, `C`/`P`/`CP` Laws & Global Order-576 `W(F_4)^+`
