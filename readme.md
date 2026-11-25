@@ -26,11 +26,8 @@ check, and negative control stays in git under a strict three-tier
 boundary separating bare QCA runs from background-field bridges and
 continuum EFT benchmarks.
 
-- **[Paper (Zenodo)](https://zenodo.org/records/24503628)**: _A
-  Reversible Ternary Quantum Cellular Automaton on the 4D `{3,4,3,4}`
-  Honeycomb_ (Nov 24, 2026)
-- **[clue.surf/vibe](https://clue.surf/vibe)**: Project site and
-  interactive notes
+- [**A Reversible Ternary Quantum Cellular Automaton on the 4D `{3,4,3,4}` Honeycomb**](https://zenodo.org/records/24503628)
+  (Nov 24, 2026)
 
 ## 5-Second Quick Start
 
