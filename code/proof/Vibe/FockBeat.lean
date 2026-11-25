@@ -135,36 +135,30 @@ private theorem ninth_add_mul (x y z : Ninth) :
 
 private theorem ninth_scale_one (x : Ninth) : Ninth.scale 1 x = x := by
   cases x
-  simp only [Ninth.scale, Ninth.mk.injEq, Int.one_mul]
-  exact ⟨rfl, rfl, rfl, rfl, rfl, rfl⟩
+  simp only [Ninth.scale, Int.one_mul]
 
 private theorem ninth_scale_zero (k : Int) : Ninth.scale k Ninth.zero = Ninth.zero := by
-  simp only [Ninth.scale, Ninth.zero, Ninth.mk.injEq, Int.mul_zero]
-  exact ⟨rfl, rfl, rfl, rfl, rfl, rfl⟩
+  simp only [Ninth.scale, Ninth.zero, Int.mul_zero]
 
 private theorem ninth_scale_add (k : Int) (x y : Ninth) :
     Ninth.scale k (Ninth.add x y) = Ninth.add (Ninth.scale k x) (Ninth.scale k y) := by
   cases x; cases y
-  simp only [Ninth.scale, Ninth.add, Ninth.mk.injEq, Int.mul_add]
-  exact ⟨rfl, rfl, rfl, rfl, rfl, rfl⟩
+  simp only [Ninth.scale, Ninth.add, Int.mul_add]
 
 private theorem ninth_scale_neg (k : Int) (x : Ninth) :
     Ninth.scale k (Ninth.neg x) = Ninth.neg (Ninth.scale k x) := by
   cases x
-  simp only [Ninth.scale, Ninth.neg, Ninth.mk.injEq, Int.mul_neg]
-  exact ⟨rfl, rfl, rfl, rfl, rfl, rfl⟩
+  simp only [Ninth.scale, Ninth.neg, Int.mul_neg]
 
 private theorem ninth_scale_scale (k m : Int) (x : Ninth) :
     Ninth.scale k (Ninth.scale m x) = Ninth.scale (k * m) x := by
   cases x
-  simp only [Ninth.scale, Ninth.mk.injEq, Int.mul_assoc]
-  exact ⟨rfl, rfl, rfl, rfl, rfl, rfl⟩
+  simp only [Ninth.scale, Int.mul_assoc]
 
 private theorem ninth_mul_scale_left (k : Int) (x y : Ninth) :
     Ninth.mul (Ninth.scale k x) y = Ninth.scale k (Ninth.mul x y) := by
   cases x; cases y
-  simp only [Ninth.mul, Ninth.scale, Ninth.mk.injEq, Int.mul_add, Int.mul_sub, Int.mul_assoc]
-  exact ⟨by omega, by omega, by omega, by omega, by omega, by omega⟩
+  simp only [Ninth.mul, Ninth.scale, Int.mul_add, Int.mul_sub, Int.mul_assoc]
 
 private theorem ninth_conj_conj (x : Ninth) : Ninth.conj (Ninth.conj x) = x := by
   cases x
@@ -180,8 +174,7 @@ private theorem ninth_conj_add (x y : Ninth) :
 private theorem ninth_conj_scale (k : Int) (x : Ninth) :
     Ninth.conj (Ninth.scale k x) = Ninth.scale k (Ninth.conj x) := by
   cases x
-  simp only [Ninth.conj, Ninth.scale, Ninth.mk.injEq, Int.mul_sub, Int.mul_neg]
-  exact ⟨by omega, by omega, by omega, by omega, by omega, by omega⟩
+  simp only [Ninth.conj, Ninth.scale, Int.mul_sub, Int.mul_neg]
 
 private theorem ninth_conj_one : Ninth.conj Ninth.one = Ninth.one := by decide
 
@@ -215,17 +208,40 @@ private theorem ninth_conj_sum6 (f : Fin 6 → Ninth) :
 private theorem ninth_sum6_swap (f : Fin 6 → Fin 6 → Ninth) :
     sum6Ninth (fun i => sum6Ninth (fun j => f i j)) =
       sum6Ninth (fun j => sum6Ninth (fun i => f i j)) := by
-  have sum6_add : ∀ u v : Fin 6 → Ninth,
-      sum6Ninth (fun k => Ninth.add (u k) (v k)) = Ninth.add (sum6Ninth u) (sum6Ninth v) := by
-    intro u v
-    unfold sum6Ninth
+  have sum6_add_aux : ∀ u0 u1 u2 u3 u4 u5 v0 v1 v2 v3 v4 v5 : Ninth,
+      Ninth.add
+        (Ninth.add
+          (Ninth.add
+            (Ninth.add
+              (Ninth.add (Ninth.add u0 v0) (Ninth.add u1 v1))
+              (Ninth.add u2 v2))
+            (Ninth.add u3 v3))
+          (Ninth.add u4 v4))
+        (Ninth.add u5 v5) =
+      Ninth.add
+        (Ninth.add (Ninth.add (Ninth.add (Ninth.add (Ninth.add u0 u1) u2) u3) u4) u5)
+        (Ninth.add (Ninth.add (Ninth.add (Ninth.add (Ninth.add v0 v1) v2) v3) v4) v5) := by
+    intro u0 u1 u2 u3 u4 u5 v0 v1 v2 v3 v4 v5
     have swap4 : ∀ a b c d : Ninth,
         Ninth.add (Ninth.add a b) (Ninth.add c d) =
           Ninth.add (Ninth.add a c) (Ninth.add b d) := by
       intro a b c d
       rw [ninth_add_assoc a b (Ninth.add c d), ← ninth_add_assoc b c d, ninth_add_comm b c,
           ninth_add_assoc c b d, ← ninth_add_assoc a c (Ninth.add b d)]
-    rw [swap4, swap4, swap4, swap4, swap4]
+    rw [swap4 u0 v0 u1 v1,
+        swap4 (Ninth.add u0 u1) (Ninth.add v0 v1) u2 v2,
+        swap4 (Ninth.add (Ninth.add u0 u1) u2) (Ninth.add (Ninth.add v0 v1) v2) u3 v3,
+        swap4 (Ninth.add (Ninth.add (Ninth.add u0 u1) u2) u3)
+              (Ninth.add (Ninth.add (Ninth.add v0 v1) v2) v3) u4 v4,
+        swap4 (Ninth.add (Ninth.add (Ninth.add (Ninth.add u0 u1) u2) u3) u4)
+              (Ninth.add (Ninth.add (Ninth.add (Ninth.add v0 v1) v2) v3) v4) u5 v5]
+  have sum6_add : ∀ u v : Fin 6 → Ninth,
+      sum6Ninth (fun k => Ninth.add (u k) (v k)) = Ninth.add (sum6Ninth u) (sum6Ninth v) :=
+    fun u v => sum6_add_aux
+      (u ⟨0, by decide⟩) (u ⟨1, by decide⟩) (u ⟨2, by decide⟩)
+      (u ⟨3, by decide⟩) (u ⟨4, by decide⟩) (u ⟨5, by decide⟩)
+      (v ⟨0, by decide⟩) (v ⟨1, by decide⟩) (v ⟨2, by decide⟩)
+      (v ⟨3, by decide⟩) (v ⟨4, by decide⟩) (v ⟨5, by decide⟩)
   change sum6Ninth (fun i => sum6Ninth (fun j => f i j)) =
     Ninth.add (Ninth.add (Ninth.add (Ninth.add (Ninth.add
       (sum6Ninth (fun i => f i ⟨0, by decide⟩))
@@ -242,33 +258,27 @@ private theorem ninth_mul_scale_right (k : Int) (x y : Ninth) :
   cases x; cases y
   have hkm : ∀ a b : Int, a * (k * b) = k * (a * b) := fun a b => by
     rw [← Int.mul_assoc, Int.mul_comm a k, Int.mul_assoc]
-  simp only [Ninth.mul, Ninth.scale, Ninth.mk.injEq, hkm, Int.mul_add, Int.mul_sub]
-  exact ⟨by omega, by omega, by omega, by omega, by omega, by omega⟩
+  simp only [Ninth.mul, Ninth.scale, hkm, Int.mul_add, Int.mul_sub]
+
+private theorem ninth_mul_expand (x y : Ninth) :
+    Ninth.mul x y =
+      sum6Ninth (fun i => sum6Ninth (fun j =>
+        Ninth.scale (ninthCoord x i * ninthCoord y j)
+          (Ninth.mul (ninthBasis i) (ninthBasis j)))) := by
+  have hxy : Ninth.mul x y =
+      Ninth.mul (sum6Ninth (fun i => Ninth.scale (ninthCoord x i) (ninthBasis i)))
+                (sum6Ninth (fun j => Ninth.scale (ninthCoord y j) (ninthBasis j))) := by
+    rw [← ninth_basis_decomp x, ← ninth_basis_decomp y]
+  rw [hxy, ninth_mul_sum6_left]
+  apply congrArg sum6Ninth; funext i
+  rw [ninth_mul_sum6_right]
+  apply congrArg sum6Ninth; funext j
+  rw [ninth_mul_scale_left, ninth_mul_scale_right, ninth_scale_scale]
 
 private theorem ninth_mul_comm (x y : Ninth) : Ninth.mul x y = Ninth.mul y x := by
   have hB : ∀ i j : Fin 6, Ninth.mul (ninthBasis i) (ninthBasis j) =
       Ninth.mul (ninthBasis j) (ninthBasis i) := by decide
-  have hL : Ninth.mul x y =
-      sum6Ninth (fun i => sum6Ninth (fun j =>
-        Ninth.scale (ninthCoord x i * ninthCoord y j)
-          (Ninth.mul (ninthBasis i) (ninthBasis j)))) := by
-    conv_lhs => rw [ninth_basis_decomp x, ninth_basis_decomp y]
-    rw [ninth_mul_sum6_left]
-    apply congrArg sum6Ninth; funext i
-    rw [ninth_mul_sum6_right]
-    apply congrArg sum6Ninth; funext j
-    rw [ninth_mul_scale_left, ninth_mul_scale_right, ninth_scale_scale]
-  have hR : Ninth.mul y x =
-      sum6Ninth (fun j => sum6Ninth (fun i =>
-        Ninth.scale (ninthCoord y j * ninthCoord x i)
-          (Ninth.mul (ninthBasis j) (ninthBasis i)))) := by
-    conv_lhs => rw [ninth_basis_decomp y, ninth_basis_decomp x]
-    rw [ninth_mul_sum6_left]
-    apply congrArg sum6Ninth; funext j
-    rw [ninth_mul_sum6_right]
-    apply congrArg sum6Ninth; funext i
-    rw [ninth_mul_scale_left, ninth_mul_scale_right, ninth_scale_scale]
-  rw [hL, hR, ninth_sum6_swap]
+  rw [ninth_mul_expand x y, ninth_mul_expand y x, ninth_sum6_swap]
   apply congrArg sum6Ninth; funext j
   apply congrArg sum6Ninth; funext i
   rw [Int.mul_comm (ninthCoord x i) (ninthCoord y j), hB i j]
@@ -282,8 +292,12 @@ private theorem ninth_mul_assoc (x y z : Ninth) :
       sum6Ninth (fun i => sum6Ninth (fun j => sum6Ninth (fun k =>
         Ninth.scale ((ninthCoord x i * ninthCoord y j) * ninthCoord z k)
           (Ninth.mul (Ninth.mul (ninthBasis i) (ninthBasis j)) (ninthBasis k))))) := by
-    conv_lhs => rw [ninth_basis_decomp x, ninth_basis_decomp y, ninth_basis_decomp z]
-    rw [ninth_mul_sum6_left (fun i => Ninth.scale (ninthCoord x i) (ninthBasis i)),
+    have hxyz : Ninth.mul (Ninth.mul x y) z =
+        Ninth.mul (Ninth.mul (sum6Ninth (fun i => Ninth.scale (ninthCoord x i) (ninthBasis i)))
+                             (sum6Ninth (fun j => Ninth.scale (ninthCoord y j) (ninthBasis j))))
+                  (sum6Ninth (fun k => Ninth.scale (ninthCoord z k) (ninthBasis k))) := by
+      rw [← ninth_basis_decomp x, ← ninth_basis_decomp y, ← ninth_basis_decomp z]
+    rw [hxyz, ninth_mul_sum6_left (fun i => Ninth.scale (ninthCoord x i) (ninthBasis i)),
         ninth_mul_sum6_left]
     apply congrArg sum6Ninth; funext i
     rw [ninth_mul_sum6_right (Ninth.scale (ninthCoord x i) (ninthBasis i)),
@@ -298,8 +312,12 @@ private theorem ninth_mul_assoc (x y z : Ninth) :
       sum6Ninth (fun i => sum6Ninth (fun j => sum6Ninth (fun k =>
         Ninth.scale (ninthCoord x i * (ninthCoord y j * ninthCoord z k))
           (Ninth.mul (ninthBasis i) (Ninth.mul (ninthBasis j) (ninthBasis k)))))) := by
-    conv_lhs => rw [ninth_basis_decomp x, ninth_basis_decomp y, ninth_basis_decomp z]
-    rw [ninth_mul_sum6_left]
+    have hxyz : Ninth.mul x (Ninth.mul y z) =
+        Ninth.mul (sum6Ninth (fun i => Ninth.scale (ninthCoord x i) (ninthBasis i)))
+                  (Ninth.mul (sum6Ninth (fun j => Ninth.scale (ninthCoord y j) (ninthBasis j)))
+                             (sum6Ninth (fun k => Ninth.scale (ninthCoord z k) (ninthBasis k)))) := by
+      rw [← ninth_basis_decomp x, ← ninth_basis_decomp y, ← ninth_basis_decomp z]
+    rw [hxyz, ninth_mul_sum6_left]
     apply congrArg sum6Ninth; funext i
     rw [ninth_mul_sum6_left, ninth_mul_sum6_right]
     apply congrArg sum6Ninth; funext j
@@ -324,18 +342,20 @@ private theorem ninth_conj_mul (x y : Ninth) :
       sum6Ninth (fun i => sum6Ninth (fun j =>
         Ninth.scale (ninthCoord x i * ninthCoord y j)
           (Ninth.conj (Ninth.mul (ninthBasis i) (ninthBasis j))))) := by
-    conv_lhs => rw [ninth_basis_decomp x, ninth_basis_decomp y]
-    rw [ninth_mul_sum6_left, ninth_conj_sum6]
+    rw [ninth_mul_expand x y, ninth_conj_sum6]
     apply congrArg sum6Ninth; funext i
-    rw [ninth_mul_sum6_right, ninth_conj_sum6]
+    rw [ninth_conj_sum6]
     apply congrArg sum6Ninth; funext j
-    rw [ninth_mul_scale_left, ninth_mul_scale_right, ninth_scale_scale, ninth_conj_scale]
+    rw [ninth_conj_scale]
   have hR : Ninth.mul (Ninth.conj x) (Ninth.conj y) =
       sum6Ninth (fun i => sum6Ninth (fun j =>
         Ninth.scale (ninthCoord x i * ninthCoord y j)
           (Ninth.mul (Ninth.conj (ninthBasis i)) (Ninth.conj (ninthBasis j))))) := by
-    conv_lhs => rw [ninth_basis_decomp x, ninth_basis_decomp y]
-    rw [ninth_conj_sum6, ninth_conj_sum6, ninth_mul_sum6_left]
+    have hxy : Ninth.mul (Ninth.conj x) (Ninth.conj y) =
+        Ninth.mul (Ninth.conj (sum6Ninth (fun i => Ninth.scale (ninthCoord x i) (ninthBasis i))))
+                  (Ninth.conj (sum6Ninth (fun j => Ninth.scale (ninthCoord y j) (ninthBasis j)))) := by
+      rw [← ninth_basis_decomp x, ← ninth_basis_decomp y]
+    rw [hxy, ninth_conj_sum6, ninth_conj_sum6, ninth_mul_sum6_left]
     apply congrArg sum6Ninth; funext i
     rw [ninth_mul_sum6_right]
     apply congrArg sum6Ninth; funext j
@@ -465,7 +485,9 @@ private theorem rawAdd_resp (a₁ a₂ b₁ b₂ : NinthRaw6)
     (ha : NinthRaw6.equiv a₁ a₂) (hb : NinthRaw6.equiv b₁ b₂) :
     Quot.mk NinthRaw6.equiv (rawAdd a₁ b₁) = Quot.mk NinthRaw6.equiv (rawAdd a₂ b₂) := by
   apply Quot.sound
-  unfold NinthRaw6.equiv rawAdd at ha hb ⊢
+  unfold NinthRaw6.equiv at ha hb ⊢
+  unfold rawAdd
+  dsimp only
   rw [ninth_scale_add, ninth_scale_add, ninth_scale_scale, ninth_scale_scale,
       ninth_scale_scale, ninth_scale_scale, pow6_add, pow6_add]
   have h1 : Ninth.scale (pow6 a₂.exp * pow6 b₂.exp * pow6 b₁.exp) a₁.num =
@@ -495,22 +517,33 @@ private theorem rawAdd_resp (a₁ a₂ b₁ b₂ : NinthRaw6)
 private theorem rawNeg_resp (a₁ a₂ : NinthRaw6) (ha : NinthRaw6.equiv a₁ a₂) :
     Quot.mk NinthRaw6.equiv (rawNeg a₁) = Quot.mk NinthRaw6.equiv (rawNeg a₂) := by
   apply Quot.sound
-  unfold NinthRaw6.equiv rawNeg at ha ⊢
+  unfold NinthRaw6.equiv at ha ⊢
+  unfold rawNeg
+  dsimp only
   rw [ninth_scale_neg, ninth_scale_neg, ha]
 
 private theorem rawMul_resp (a₁ a₂ b₁ b₂ : NinthRaw6)
     (ha : NinthRaw6.equiv a₁ a₂) (hb : NinthRaw6.equiv b₁ b₂) :
     Quot.mk NinthRaw6.equiv (rawMul a₁ b₁) = Quot.mk NinthRaw6.equiv (rawMul a₂ b₂) := by
   apply Quot.sound
-  unfold NinthRaw6.equiv rawMul at ha hb ⊢
-  rw [pow6_add, pow6_add, ← ninth_scale_scale, ← ninth_scale_scale,
-      ← ninth_mul_scale_left, ← ninth_mul_scale_right, ha, hb,
-      ninth_mul_scale_left, ninth_mul_scale_right]
+  unfold NinthRaw6.equiv at ha hb ⊢
+  unfold rawMul
+  dsimp only
+  rw [pow6_add, pow6_add,
+      ← ninth_scale_scale (pow6 a₂.exp) (pow6 b₂.exp),
+      ← ninth_scale_scale (pow6 a₁.exp) (pow6 b₁.exp),
+      ← ninth_mul_scale_right (pow6 b₂.exp),
+      ← ninth_mul_scale_left (pow6 a₂.exp),
+      ha, hb,
+      ninth_mul_scale_left (pow6 a₁.exp),
+      ninth_mul_scale_right (pow6 b₁.exp)]
 
 private theorem rawConj_resp (a₁ a₂ : NinthRaw6) (ha : NinthRaw6.equiv a₁ a₂) :
     Quot.mk NinthRaw6.equiv (rawConj a₁) = Quot.mk NinthRaw6.equiv (rawConj a₂) := by
   apply Quot.sound
-  unfold NinthRaw6.equiv rawConj at ha ⊢
+  unfold NinthRaw6.equiv at ha ⊢
+  unfold rawConj
+  dsimp only
   rw [← ninth_conj_scale, ← ninth_conj_scale, ha]
 
 def add : NinthLoc6 → NinthLoc6 → NinthLoc6 :=
@@ -527,28 +560,47 @@ def mul : NinthLoc6 → NinthLoc6 → NinthLoc6 :=
 def conj : NinthLoc6 → NinthLoc6 :=
   Quot.lift (fun x => Quot.mk NinthRaw6.equiv (rawConj x)) rawConj_resp
 
+private theorem ind1 (P : NinthLoc6 → Prop)
+    (h : ∀ a : NinthRaw6, P (Quot.mk NinthRaw6.equiv a)) (x : NinthLoc6) : P x :=
+  Quot.ind h x
+
+private theorem ind2 (P : NinthLoc6 → NinthLoc6 → Prop)
+    (h : ∀ a b : NinthRaw6, P (Quot.mk NinthRaw6.equiv a) (Quot.mk NinthRaw6.equiv b))
+    (x y : NinthLoc6) : P x y :=
+  Quot.ind (fun a => Quot.ind (fun b => h a b) y) x
+
+private theorem ind3 (P : NinthLoc6 → NinthLoc6 → NinthLoc6 → Prop)
+    (h : ∀ a b c : NinthRaw6,
+      P (Quot.mk NinthRaw6.equiv a) (Quot.mk NinthRaw6.equiv b) (Quot.mk NinthRaw6.equiv c))
+    (x y z : NinthLoc6) : P x y z :=
+  Quot.ind (fun a => Quot.ind (fun b => Quot.ind (fun c => h a b c) z) y) x
+
 private theorem add_zero (x : NinthLoc6) : add x zero = x := by
-  refine quot_ind_prop (fun a => ?_) x
+  refine ind1 (fun x => add x zero = x) (fun a => ?_) x
   apply Quot.sound
   unfold NinthRaw6.equiv rawAdd
+  dsimp only
   simp only [Nat.add_zero, pow6, ninth_scale_one, ninth_scale_zero, ninth_add_zero]
 
 private theorem zero_add (x : NinthLoc6) : add zero x = x := by
-  refine quot_ind_prop (fun a => ?_) x
+  refine ind1 (fun x => add zero x = x) (fun a => ?_) x
   apply Quot.sound
   unfold NinthRaw6.equiv rawAdd
+  dsimp only
   simp only [Nat.zero_add, pow6, ninth_scale_one, ninth_scale_zero, ninth_zero_add]
 
 private theorem add_comm (x y : NinthLoc6) : add x y = add y x := by
-  refine quot_ind_prop (fun a => quot_ind_prop (fun b => ?_) y) x
+  refine ind2 (fun x y => add x y = add y x) (fun a b => ?_) x y
   apply Quot.sound
   unfold NinthRaw6.equiv rawAdd
+  dsimp only
   rw [Nat.add_comm b.exp a.exp, ninth_add_comm]
 
 private theorem add_assoc (x y z : NinthLoc6) : add (add x y) z = add x (add y z) := by
-  refine quot_ind_prop (fun a => quot_ind_prop (fun b => quot_ind_prop (fun c => ?_) z) y) x
+  refine ind3 (fun x y z => add (add x y) z = add x (add y z)) (fun a b c => ?_) x y z
   apply Quot.sound
   unfold NinthRaw6.equiv rawAdd
+  dsimp only
   rw [Nat.add_assoc a.exp b.exp c.exp]
   apply congrArg (Ninth.scale (pow6 (a.exp + (b.exp + c.exp))))
   rw [ninth_scale_add, ninth_scale_add, ninth_scale_scale, ninth_scale_scale,
@@ -558,52 +610,59 @@ private theorem add_assoc (x y z : NinthLoc6) : add (add x y) z = add x (add y z
   rw [h1, h2]
 
 private theorem add_neg (x : NinthLoc6) : add x (neg x) = zero := by
-  refine quot_ind_prop (fun a => ?_) x
+  refine ind1 (fun x => add x (neg x) = zero) (fun a => ?_) x
   apply Quot.sound
   unfold NinthRaw6.equiv rawAdd rawNeg
-  simp only [pow6, ninth_scale_one, ninth_scale_zero, ninth_scale_neg, ← ninth_scale_add,
-    ninth_add_neg]
+  dsimp only
+  simp only [pow6, ninth_scale_one, ninth_scale_zero, ninth_scale_neg, ninth_add_neg]
 
 private theorem mul_one (x : NinthLoc6) : mul x one = x := by
-  refine quot_ind_prop (fun a => ?_) x
+  refine ind1 (fun x => mul x one = x) (fun a => ?_) x
   apply Quot.sound
   unfold NinthRaw6.equiv rawMul
+  dsimp only
   simp only [Nat.add_zero, ninth_mul_one]
 
 private theorem one_mul (x : NinthLoc6) : mul one x = x := by
-  refine quot_ind_prop (fun a => ?_) x
+  refine ind1 (fun x => mul one x = x) (fun a => ?_) x
   apply Quot.sound
   unfold NinthRaw6.equiv rawMul
+  dsimp only
   simp only [Nat.zero_add, ninth_one_mul]
 
 private theorem mul_zero (x : NinthLoc6) : mul x zero = zero := by
-  refine quot_ind_prop (fun a => ?_) x
+  refine ind1 (fun x => mul x zero = zero) (fun a => ?_) x
   apply Quot.sound
   unfold NinthRaw6.equiv rawMul
+  dsimp only
   simp only [ninth_mul_zero, ninth_scale_zero]
 
 private theorem zero_mul (x : NinthLoc6) : mul zero x = zero := by
-  refine quot_ind_prop (fun a => ?_) x
+  refine ind1 (fun x => mul zero x = zero) (fun a => ?_) x
   apply Quot.sound
   unfold NinthRaw6.equiv rawMul
+  dsimp only
   simp only [ninth_zero_mul, ninth_scale_zero]
 
 private theorem mul_comm (x y : NinthLoc6) : mul x y = mul y x := by
-  refine quot_ind_prop (fun a => quot_ind_prop (fun b => ?_) y) x
+  refine ind2 (fun x y => mul x y = mul y x) (fun a b => ?_) x y
   apply Quot.sound
   unfold NinthRaw6.equiv rawMul
+  dsimp only
   rw [Nat.add_comm b.exp a.exp, ninth_mul_comm]
 
 private theorem mul_assoc (x y z : NinthLoc6) : mul (mul x y) z = mul x (mul y z) := by
-  refine quot_ind_prop (fun a => quot_ind_prop (fun b => quot_ind_prop (fun c => ?_) z) y) x
+  refine ind3 (fun x y z => mul (mul x y) z = mul x (mul y z)) (fun a b c => ?_) x y z
   apply Quot.sound
   unfold NinthRaw6.equiv rawMul
+  dsimp only
   rw [Nat.add_assoc a.exp b.exp c.exp, ninth_mul_assoc]
 
 private theorem mul_add (x y z : NinthLoc6) : mul x (add y z) = add (mul x y) (mul x z) := by
-  refine quot_ind_prop (fun a => quot_ind_prop (fun b => quot_ind_prop (fun c => ?_) z) y) x
+  refine ind3 (fun x y z => mul x (add y z) = add (mul x y) (mul x z)) (fun a b c => ?_) x y z
   apply Quot.sound
   unfold NinthRaw6.equiv rawMul rawAdd
+  dsimp only
   have hexp : a.exp + b.exp + (a.exp + c.exp) = (a.exp + (b.exp + c.exp)) + a.exp := by omega
   rw [hexp, pow6_add (a.exp + (b.exp + c.exp)) a.exp, ← ninth_scale_scale]
   apply congrArg (Ninth.scale (pow6 (a.exp + (b.exp + c.exp))))
@@ -614,21 +673,24 @@ private theorem add_mul (x y z : NinthLoc6) : mul (add x y) z = add (mul x z) (m
   rw [mul_comm, mul_add, mul_comm z x, mul_comm z y]
 
 private theorem conj_conj (x : NinthLoc6) : conj (conj x) = x := by
-  refine quot_ind_prop (fun a => ?_) x
+  refine ind1 (fun x => conj (conj x) = x) (fun a => ?_) x
   apply Quot.sound
   unfold NinthRaw6.equiv rawConj
+  dsimp only
   rw [ninth_conj_conj]
 
 private theorem conj_add (x y : NinthLoc6) : conj (add x y) = add (conj x) (conj y) := by
-  refine quot_ind_prop (fun a => quot_ind_prop (fun b => ?_) y) x
+  refine ind2 (fun x y => conj (add x y) = add (conj x) (conj y)) (fun a b => ?_) x y
   apply Quot.sound
   unfold NinthRaw6.equiv rawConj rawAdd
+  dsimp only
   rw [ninth_conj_add, ninth_conj_scale, ninth_conj_scale]
 
 private theorem conj_mul (x y : NinthLoc6) : conj (mul x y) = mul (conj x) (conj y) := by
-  refine quot_ind_prop (fun a => quot_ind_prop (fun b => ?_) y) x
+  refine ind2 (fun x y => conj (mul x y) = mul (conj x) (conj y)) (fun a b => ?_) x y
   apply Quot.sound
   unfold NinthRaw6.equiv rawConj rawMul
+  dsimp only
   rw [ninth_conj_mul]
 
 private theorem conj_one : conj one = one := by
@@ -839,7 +901,7 @@ private theorem list_all_eq_true_iff {α : Type} (p : α → Bool) (xs : List α
   induction xs with
   | nil =>
     simp only [List.all]
-    exact ⟨fun _ _ h => nomatch h, fun _ => rfl⟩
+    exact ⟨fun _ _ h => (nomatch h), fun _ => rfl⟩
   | cons x rest ih =>
     simp only [List.all, Bool.and_eq_true]
     constructor
@@ -855,7 +917,7 @@ private theorem mem_filter_iff {α : Type} (p : α → Bool) (xs : List α) (a :
   induction xs with
   | nil =>
     simp only [List.filter]
-    exact ⟨fun h => nomatch h, fun h => nomatch h.1⟩
+    exact ⟨fun h => (nomatch h), fun h => nomatch h.1⟩
   | cons x rest ih =>
     simp only [List.filter]
     cases hp : p x with
@@ -883,7 +945,7 @@ private theorem mem_map_iff {α β : Type} (f : α → β) (xs : List α) (b : �
   induction xs with
   | nil =>
     simp only [List.map]
-    exact ⟨fun h => nomatch h, fun ⟨_, ha, _⟩ => nomatch ha⟩
+    exact ⟨fun h => (nomatch h), fun ⟨_, ha, _⟩ => nomatch ha⟩
   | cons x rest ih =>
     simp only [List.map]
     constructor
@@ -934,7 +996,7 @@ private theorem mem_eraseOne_iff {α : Type} [DecidableEq α] (a y : α)
   induction hnd with
   | nil =>
     simp only [eraseOne]
-    exact ⟨fun h => nomatch h, fun h => nomatch h.1⟩
+    exact ⟨fun h => (nomatch h), fun h => nomatch h.1⟩
   | @cons x rest hnot _ ih =>
     simp only [eraseOne]
     if hxa : x = a then
@@ -1005,7 +1067,7 @@ private theorem mem_nodupUnion {α : Type} [DecidableEq α] (xs ys : List α) (a
         rcases h with h1 | h2
         · exact ih.mpr (Or.inl h1)
         · cases h2 with
-          | head => exact (memBool_eq_true_iff y _).mp hm
+          | head => exact (memBool_eq_true_iff a _).mp hm
           | tail _ h' => exact ih.mpr (Or.inr h')
     | false =>
       rw [ite_eq_right (by decide : false ≠ true)]
@@ -1089,7 +1151,7 @@ private theorem mem_flatMapList_iff {α β : Type} (f : α → List β) (xs : Li
   induction xs with
   | nil =>
     simp only [flatMapList]
-    exact ⟨fun h => nomatch h, fun ⟨_, ha, _⟩ => nomatch ha⟩
+    exact ⟨fun h => (nomatch h), fun ⟨_, ha, _⟩ => nomatch ha⟩
   | cons x rest ih =>
     simp only [flatMapList]
     rw [mem_append_iff, ih]
@@ -1150,7 +1212,7 @@ private theorem star_conj_zero : conj (zero : R) = zero := by
     rw [← conj_add, add_zero]
   have h2 : add (add (conj (zero : R)) (conj (zero : R))) (neg (conj (zero : R))) =
       add (conj (zero : R)) (neg (conj (zero : R))) := congrArg (fun z => add z (neg (conj (zero : R)))) h1
-  rw [add_assoc, add_neg, add_zero, add_neg] at h2
+  rw [add_assoc, add_neg, add_zero] at h2
   exact h2
 
 private theorem star_neg_mul (a b : R) : mul (neg a) b = neg (mul a b) := by
@@ -1567,7 +1629,7 @@ def block2Unitary [DecidableEq α] (flip : α → α) (act : α → Bool) (a b :
       simp only [ite_bool_false]
     | true =>
       have hfa : act (flip c) = true := by rw [hAct c, ha]
-      simp only [ite_bool_true, ite_eq_left hfa, hFlip c]
+      simp only [ite_true, hfa, hFlip c]
       rw [mul_add, mul_add, ← mul_assoc, ← mul_assoc, ← mul_assoc, ← mul_assoc]
       have swap4 : ∀ p q r s : R, add (add p q) (add r s) = add (add p s) (add q r) := by
         intro p q r s
@@ -1581,7 +1643,7 @@ def block2Unitary [DecidableEq α] (flip : α → α) (act : α → Bool) (a b :
       simp only [ite_bool_false]
     | true =>
       have hfa : act (flip c) = true := by rw [hAct c, ha]
-      simp only [ite_bool_true, ite_eq_left hfa, hFlip c]
+      simp only [ite_true, hfa, hFlip c]
       rw [mul_add, mul_add, ← mul_assoc, ← mul_assoc, ← mul_assoc, ← mul_assoc]
       have hDiag' : add (mul a (conj a)) (mul b (conj b)) = one := by
         rw [mul_comm a (conj a), mul_comm b (conj b), hDiag]
@@ -1636,7 +1698,7 @@ def block2Unitary [DecidableEq α] (flip : α → α) (act : α → Bool) (a b :
     rw [← (thm_fock_inner_support_indep u s ψ φ huψ hsψ).1]
     unfold innerOn
     rw [sumList_filter_add u act, sumList_filter_add u act (fun c => mul (conj (ψ c)) (φ c))]
-    apply congrArg₂ add
+    refine congr (congrArg add ?_) ?_
     · let ua := u.filter act
       have huaNd : IsNodup ua := isNodup_filter act huNd
       have huaClosed : ∀ c : α, c ∈ ua → flip c ∈ ua := by
@@ -1783,7 +1845,7 @@ private theorem block12_comp
       block12Op act moveTo (mul v₂ v₁) inv12 ψ c := by
   unfold block12Op
   cases ha : act c with
-  | false => rw [ite_bool_false, ite_bool_false]
+  | false => rw [ite_bool_false, ite_bool_false, ite_bool_false]
   | true =>
     rw [ite_bool_true, ite_bool_true]
     have hS1 : sumFin12 (fun m =>
@@ -1952,7 +2014,7 @@ def block12Unitary [DecidableEq α]
     rw [← (thm_fock_inner_support_indep uL s ψ φ huψ hsψ).1]
     unfold innerOn
     rw [sumList_filter_add uL act, sumList_filter_add uL act (fun c => mul (conj (ψ c)) (φ c))]
-    apply congrArg₂ add
+    refine congr (congrArg add ?_) ?_
     · let ua := uL.filter act
       have huaNd : IsNodup ua := isNodup_filter act huNd
       have huaRotCl : ∀ (k : Fin 12) (c : α), c ∈ ua → rot k c ∈ ua := by
@@ -2227,24 +2289,28 @@ private theorem slotState_dual_dual (x : SlotState) : x.dual.dual = x := by
   | occ s r => cases s <;> rfl
 
 /-- Constructive `DecidableEq (Fin n → α)` for any `[DecidableEq α]`. -/
-private def decEqFinAux {α : Type} [DecidableEq α] :
-    (n : Nat) → (f g : Fin n → α) → Decidable (∀ i : Fin n, f i = g i)
-  | 0, _, _ => isTrue (fun i => absurd i.isLt (Nat.not_lt_zero i.val))
-  | n + 1, f, g =>
-    match decEqFinAux n (fun i => f ⟨i.val, Nat.lt_succ_of_lt i.isLt⟩)
-                        (fun i => g ⟨i.val, Nat.lt_succ_of_lt i.isLt⟩) with
-    | isFalse hne =>
-      isFalse (fun hall => hne (fun i => hall ⟨i.val, Nat.lt_succ_of_lt i.isLt⟩))
-    | isTrue hprev =>
-      if hlast : f ⟨n, Nat.lt_succ_self n⟩ = g ⟨n, Nat.lt_succ_self n⟩ then
-        isTrue (fun i => by
-          if hlt : i.val < n then
-            exact hprev ⟨i.val, hlt⟩
+private def decEqFinGo {α : Type} [DecidableEq α] {N : Nat} (f g : Fin N → α) :
+    (k : Nat) → (hk : k ≤ N) → Decidable (∀ i : Fin N, i.val < k → f i = g i)
+  | 0, _ => isTrue (fun i hi => absurd hi (Nat.not_lt_zero i.val))
+  | k + 1, hk =>
+    if hlast : f ⟨k, hk⟩ = g ⟨k, hk⟩ then
+      match decEqFinGo f g k (Nat.le_of_succ_le hk) with
+      | isTrue hprev =>
+        isTrue (fun i hi =>
+          if hlt : i.val < k then hprev i hlt
           else
-            have heq : i = ⟨n, Nat.lt_succ_self n⟩ := Fin.ext (by have := i.isLt; omega)
-            rw [heq]; exact hlast)
-      else
-        isFalse (fun hall => hlast (hall ⟨n, Nat.lt_succ_self n⟩))
+            have heq : i = ⟨k, hk⟩ := Fin.ext (by dsimp only; omega)
+            heq ▸ hlast)
+      | isFalse hne =>
+        isFalse (fun hall => hne (fun i hi => hall i (Nat.lt_succ_of_lt hi)))
+    else
+      isFalse (fun hall => hlast (hall ⟨k, hk⟩ (Nat.lt_succ_self k)))
+
+private def decEqFinAux {α : Type} [DecidableEq α] (n : Nat) (f g : Fin n → α) :
+    Decidable (∀ i : Fin n, f i = g i) :=
+  match decEqFinGo f g n (Nat.le_refl n) with
+  | isTrue h => isTrue (fun i => h i i.isLt)
+  | isFalse h => isFalse (fun hall => h (fun i _ => hall i))
 
 private def decEqFin {n : Nat} {α : Type} [DecidableEq α] (f g : Fin n → α) : Decidable (f = g) :=
   match decEqFinAux n f g with
@@ -2285,7 +2351,8 @@ def lineB (l : Fin 12) : Fin 24 := oppSlot (lineA l)
 
 /-- Line index `0..11` containing slot `s : Fin 24`. -/
 def lineOfSlot (s : Fin 24) : Fin 12 :=
-  ⟨(s.val / 4) * 2 + (if s.val % 4 < 2 then s.val % 4 else 3 - s.val % 4), by have := s.isLt; omega⟩
+  ⟨(s.val / 4) * 2 + (if s.val % 4 < 2 then s.val % 4 else 3 - s.val % 4),
+   by have := s.isLt; split <;> omega⟩
 
 /-- Exact improper `W(F_4)^-` spatial parity reflection `M_P = simpleRefl 0` (`det = -1`) in `O^+(4,1; ℤ[√2])`. -/
 def parityMat5 : Mat5 := simpleRefl ⟨0, by decide⟩
@@ -2405,7 +2472,9 @@ private theorem z2_mul_assoc (x y z : ZSqrt2) :
   simp only [ZSqrt2.mul, ZSqrt2.mk.injEq, Int.add_mul, Int.mul_add, Int.mul_assoc]
   have h1 : xa * (2 * (yb * zb)) = 2 * (xa * (yb * zb)) := by
     rw [← Int.mul_assoc xa 2 (yb * zb), Int.mul_comm xa 2, Int.mul_assoc 2 xa (yb * zb)]
-  rw [h1]
+  have h2 : xb * (2 * (yb * zb)) = 2 * (xb * (yb * zb)) := by
+    rw [← Int.mul_assoc xb 2 (yb * zb), Int.mul_comm xb 2, Int.mul_assoc 2 xb (yb * zb)]
+  rw [h1, h2]
   exact ⟨by omega, by omega⟩
 
 private theorem z2_mul_one (x : ZSqrt2) : ZSqrt2.mul x ZSqrt2.one = x := by
@@ -2422,16 +2491,34 @@ private theorem z2_mul_zero (x : ZSqrt2) : ZSqrt2.mul x ZSqrt2.zero = ZSqrt2.zer
 private theorem z2_zero_mul (x : ZSqrt2) : ZSqrt2.mul ZSqrt2.zero x = ZSqrt2.zero := by
   rw [z2_mul_comm, z2_mul_zero]
 
-private theorem fb_sum5_add (f g : Fin 5 → ZSqrt2) :
-    sum5 (fun k => ZSqrt2.add (f k) (g k)) = ZSqrt2.add (sum5 f) (sum5 g) := by
-  unfold sum5
+private theorem fb_sum5_add_aux (f0 f1 f2 f3 f4 g0 g1 g2 g3 g4 : ZSqrt2) :
+    ZSqrt2.add
+      (ZSqrt2.add
+        (ZSqrt2.add
+          (ZSqrt2.add (ZSqrt2.add f0 g0) (ZSqrt2.add f1 g1))
+          (ZSqrt2.add f2 g2))
+        (ZSqrt2.add f3 g3))
+      (ZSqrt2.add f4 g4) =
+    ZSqrt2.add
+      (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add f0 f1) f2) f3) f4)
+      (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add g0 g1) g2) g3) g4) := by
   have swap4 : ∀ a b c d : ZSqrt2,
       ZSqrt2.add (ZSqrt2.add a b) (ZSqrt2.add c d) =
         ZSqrt2.add (ZSqrt2.add a c) (ZSqrt2.add b d) := by
     intro a b c d
     rw [z2_add_assoc a b (ZSqrt2.add c d), ← z2_add_assoc b c d, z2_add_comm b c,
         z2_add_assoc c b d, ← z2_add_assoc a c (ZSqrt2.add b d)]
-  rw [swap4, swap4, swap4, swap4]
+  rw [swap4 f0 g0 f1 g1,
+      swap4 (ZSqrt2.add f0 f1) (ZSqrt2.add g0 g1) f2 g2,
+      swap4 (ZSqrt2.add (ZSqrt2.add f0 f1) f2) (ZSqrt2.add (ZSqrt2.add g0 g1) g2) f3 g3,
+      swap4 (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add f0 f1) f2) f3)
+            (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add g0 g1) g2) g3) f4 g4]
+
+private theorem fb_sum5_add (f g : Fin 5 → ZSqrt2) :
+    sum5 (fun k => ZSqrt2.add (f k) (g k)) = ZSqrt2.add (sum5 f) (sum5 g) :=
+  fb_sum5_add_aux
+    (f ⟨0, by decide⟩) (f ⟨1, by decide⟩) (f ⟨2, by decide⟩) (f ⟨3, by decide⟩) (f ⟨4, by decide⟩)
+    (g ⟨0, by decide⟩) (g ⟨1, by decide⟩) (g ⟨2, by decide⟩) (g ⟨3, by decide⟩) (g ⟨4, by decide⟩)
 
 private theorem fb_sum5_mul_left (c : ZSqrt2) (f : Fin 5 → ZSqrt2) :
     sum5 (fun k => ZSqrt2.mul c (f k)) = ZSqrt2.mul c (sum5 f) := by
@@ -2458,14 +2545,14 @@ private theorem fb_mat5Mul_id_left (A : Mat5) : mat5Mul mat5Id A = A := by
   unfold mat5Mul sum5
   match i with
   | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ | ⟨4, _⟩ =>
-    simp only [mat5Id, z2_one_mul, z2_zero_mul, z2_add_zero, z2_zero_add]
+    simp [mat5Id, z2_one_mul, z2_zero_mul, z2_add_zero, z2_zero_add]
 
 private theorem fb_mat5Mul_id_right (A : Mat5) : mat5Mul A mat5Id = A := by
   funext i j
   unfold mat5Mul sum5
   match j with
   | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ | ⟨4, _⟩ =>
-    simp only [mat5Id, z2_mul_one, z2_mul_zero, z2_add_zero, z2_zero_add]
+    simp [mat5Id, z2_mul_one, z2_mul_zero, z2_add_zero, z2_zero_add]
 
 private theorem fb_mat5Mul_assoc (A B C : Mat5) :
     mat5Mul (mat5Mul A B) C = mat5Mul A (mat5Mul B C) := by
@@ -2495,7 +2582,7 @@ private theorem parityMat5_eq_fast : parityMat5 = parityMat5Fast :=
 private theorem parityMat5_mul_row0 (g : Mat5) (j : Fin 5) :
     mat5Mul parityMat5 g ⟨0, by decide⟩ j = ZSqrt2.sub (g ⟨1, by decide⟩ j) (g ⟨0, by decide⟩ j) := by
   rw [parityMat5_eq_fast]; unfold mat5Mul sum5
-  simp only [parityMat5Fast, z2_one_mul, z2_zero_mul, z2_add_zero, z2_zero_add]
+  simp only [parityMat5Fast, z2_one_mul, z2_zero_mul, z2_add_zero]
   cases g ⟨0, by decide⟩ j; cases g ⟨1, by decide⟩ j
   simp only [ZSqrt2.negOne, ZSqrt2.mul, ZSqrt2.add, ZSqrt2.sub, ZSqrt2.mk.injEq,
     Int.mul_zero, Int.zero_mul, Int.neg_mul, Int.one_mul]
@@ -2504,27 +2591,27 @@ private theorem parityMat5_mul_row0 (g : Mat5) (j : Fin 5) :
 private theorem parityMat5_mul_row1 (g : Mat5) (j : Fin 5) :
     mat5Mul parityMat5 g ⟨1, by decide⟩ j = g ⟨1, by decide⟩ j := by
   rw [parityMat5_eq_fast]; unfold mat5Mul sum5
-  simp only [parityMat5Fast, mat5Id, z2_one_mul, z2_zero_mul, z2_add_zero, z2_zero_add]
+  simp [parityMat5Fast, mat5Id, z2_one_mul, z2_zero_mul, z2_add_zero, z2_zero_add]
 
 private theorem parityMat5_mul_row2 (g : Mat5) (j : Fin 5) :
     mat5Mul parityMat5 g ⟨2, by decide⟩ j = g ⟨2, by decide⟩ j := by
   rw [parityMat5_eq_fast]; unfold mat5Mul sum5
-  simp only [parityMat5Fast, mat5Id, z2_one_mul, z2_zero_mul, z2_add_zero, z2_zero_add]
+  simp [parityMat5Fast, mat5Id, z2_one_mul, z2_zero_mul, z2_add_zero, z2_zero_add]
 
 private theorem parityMat5_mul_row3 (g : Mat5) (j : Fin 5) :
     mat5Mul parityMat5 g ⟨3, by decide⟩ j = g ⟨3, by decide⟩ j := by
   rw [parityMat5_eq_fast]; unfold mat5Mul sum5
-  simp only [parityMat5Fast, mat5Id, z2_one_mul, z2_zero_mul, z2_add_zero, z2_zero_add]
+  simp [parityMat5Fast, mat5Id, z2_one_mul, z2_zero_mul, z2_add_zero, z2_zero_add]
 
 private theorem parityMat5_mul_row4 (g : Mat5) (j : Fin 5) :
     mat5Mul parityMat5 g ⟨4, by decide⟩ j = g ⟨4, by decide⟩ j := by
   rw [parityMat5_eq_fast]; unfold mat5Mul sum5
-  simp only [parityMat5Fast, mat5Id, z2_one_mul, z2_zero_mul, z2_add_zero, z2_zero_add]
+  simp [parityMat5Fast, mat5Id, z2_one_mul, z2_zero_mul, z2_zero_add]
 
 private theorem mul_parityMat5_col0 (g : Mat5) (i : Fin 5) :
     mat5Mul g parityMat5 i ⟨0, by decide⟩ = ZSqrt2.neg (g i ⟨0, by decide⟩) := by
   rw [parityMat5_eq_fast]; unfold mat5Mul sum5
-  simp only [parityMat5Fast, mat5Id, z2_mul_zero, z2_add_zero, z2_zero_add]
+  simp [parityMat5Fast, mat5Id, z2_mul_zero, z2_add_zero]
   cases g i ⟨0, by decide⟩
   simp only [ZSqrt2.negOne, ZSqrt2.mul, ZSqrt2.neg, ZSqrt2.mk.injEq,
     Int.mul_zero, Int.mul_neg, Int.mul_one]
@@ -2533,22 +2620,22 @@ private theorem mul_parityMat5_col0 (g : Mat5) (i : Fin 5) :
 private theorem mul_parityMat5_col1 (g : Mat5) (i : Fin 5) :
     mat5Mul g parityMat5 i ⟨1, by decide⟩ = ZSqrt2.add (g i ⟨0, by decide⟩) (g i ⟨1, by decide⟩) := by
   rw [parityMat5_eq_fast]; unfold mat5Mul sum5
-  simp only [parityMat5Fast, mat5Id, z2_mul_one, z2_mul_zero, z2_add_zero, z2_zero_add]
+  simp [parityMat5Fast, mat5Id, z2_mul_one, z2_mul_zero, z2_add_zero]
 
 private theorem mul_parityMat5_col2 (g : Mat5) (i : Fin 5) :
     mat5Mul g parityMat5 i ⟨2, by decide⟩ = g i ⟨2, by decide⟩ := by
   rw [parityMat5_eq_fast]; unfold mat5Mul sum5
-  simp only [parityMat5Fast, mat5Id, z2_mul_one, z2_mul_zero, z2_add_zero, z2_zero_add]
+  simp [parityMat5Fast, mat5Id, z2_mul_one, z2_mul_zero, z2_add_zero, z2_zero_add]
 
 private theorem mul_parityMat5_col3 (g : Mat5) (i : Fin 5) :
     mat5Mul g parityMat5 i ⟨3, by decide⟩ = g i ⟨3, by decide⟩ := by
   rw [parityMat5_eq_fast]; unfold mat5Mul sum5
-  simp only [parityMat5Fast, mat5Id, z2_mul_one, z2_mul_zero, z2_add_zero, z2_zero_add]
+  simp [parityMat5Fast, mat5Id, z2_mul_one, z2_mul_zero, z2_add_zero, z2_zero_add]
 
 private theorem mul_parityMat5_col4 (g : Mat5) (i : Fin 5) :
     mat5Mul g parityMat5 i ⟨4, by decide⟩ = g i ⟨4, by decide⟩ := by
   rw [parityMat5_eq_fast]; unfold mat5Mul sum5
-  simp only [parityMat5Fast, mat5Id, z2_mul_one, z2_mul_zero, z2_add_zero, z2_zero_add]
+  simp [parityMat5Fast, mat5Id, z2_mul_one, z2_mul_zero, z2_zero_add]
 
 private theorem det2Z2_row0_op (a0 a1 b0 b1 : ZSqrt2) :
     det2Z2 (ZSqrt2.sub b0 a0) (ZSqrt2.sub b1 a1) b0 b1 = ZSqrt2.neg (det2Z2 a0 a1 b0 b1) := by
@@ -2659,9 +2746,11 @@ private theorem mat5Det_mul_parityMat5 (g : Mat5) :
   unfold mat5Det
   dsimp only
   simp only [mul_parityMat5_col0, mul_parityMat5_col1, mul_parityMat5_col2,
-    mul_parityMat5_col3, mul_parityMat5_col4,
-    det2Z2_col01_op, det2Z2_col0q_op, det2Z2_col1q_op,
-    det3_col01_op, det3_col0_op, det3_col1_op]
+    mul_parityMat5_col3, mul_parityMat5_col4]
+  simp only [det2Z2_col01_op]
+  simp only [det2Z2_col0q_op, det2Z2_col1q_op]
+  simp only [det3_col01_op]
+  simp only [det3_col0_op, det3_col1_op]
   exact det5_col01_sum_rearrange _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 /-- Exact Coxeter parity conjugation on cell frames: `g ↦ M_P * g * M_P`. -/
@@ -2700,7 +2789,7 @@ theorem thm_fock_coxeter_parity_equivariance :
     unfold transport faceReflection
     calc mat5Mul (mat5Mul parityMat5 (mat5Mul (reflectionIn (facetNormal a)) centralInversion)) parityMat5
         = mat5Mul (mat5Mul (mat5Mul parityMat5 (reflectionIn (facetNormal a))) centralInversion) parityMat5 := by
-            rw [fb_mat5Mul_assoc]
+            rw [← fb_mat5Mul_assoc parityMat5 (reflectionIn (facetNormal a)) centralInversion]
       _ = mat5Mul (mat5Mul parityMat5 (reflectionIn (facetNormal a))) (mat5Mul centralInversion parityMat5) := by
             rw [fb_mat5Mul_assoc]
       _ = mat5Mul (mat5Mul parityMat5 (reflectionIn (facetNormal a))) (mat5Mul parityMat5 centralInversion) := by
@@ -2864,10 +2953,21 @@ private theorem mat5Key_inj (g₁ g₂ : Mat5) (h : mat5Key g₁ = mat5Key g₂)
         have ⟨hxs, hbs⟩ := ih ys b₁ b₂ (by omega) heq.2
         exact ⟨by rw [heq.1, hxs], hbs⟩
   unfold mat5Key at h
-  have ⟨h0, h1234⟩ := append_eq_of_len _ _ _ _ rfl h
-  have ⟨h1, h234⟩ := append_eq_of_len _ _ _ _ rfl h1234
-  have ⟨h2, h34⟩ := append_eq_of_len _ _ _ _ rfl h234
-  have ⟨h3, h4⟩ := append_eq_of_len _ _ _ _ rfl h34
+  have hlen4 : (vec5Key (g₁ ⟨0, by decide⟩) ++ vec5Key (g₁ ⟨1, by decide⟩) ++
+      vec5Key (g₁ ⟨2, by decide⟩) ++ vec5Key (g₁ ⟨3, by decide⟩)).length =
+      (vec5Key (g₂ ⟨0, by decide⟩) ++ vec5Key (g₂ ⟨1, by decide⟩) ++
+      vec5Key (g₂ ⟨2, by decide⟩) ++ vec5Key (g₂ ⟨3, by decide⟩)).length := rfl
+  have hlen3 : (vec5Key (g₁ ⟨0, by decide⟩) ++ vec5Key (g₁ ⟨1, by decide⟩) ++
+      vec5Key (g₁ ⟨2, by decide⟩)).length =
+      (vec5Key (g₂ ⟨0, by decide⟩) ++ vec5Key (g₂ ⟨1, by decide⟩) ++
+      vec5Key (g₂ ⟨2, by decide⟩)).length := rfl
+  have hlen2 : (vec5Key (g₁ ⟨0, by decide⟩) ++ vec5Key (g₁ ⟨1, by decide⟩)).length =
+      (vec5Key (g₂ ⟨0, by decide⟩) ++ vec5Key (g₂ ⟨1, by decide⟩)).length := rfl
+  have hlen1 : (vec5Key (g₁ ⟨0, by decide⟩)).length = (vec5Key (g₂ ⟨0, by decide⟩)).length := rfl
+  have ⟨h0123, h4⟩ := append_eq_of_len _ _ _ _ hlen4 h
+  have ⟨h012, h3⟩ := append_eq_of_len _ _ _ _ hlen3 h0123
+  have ⟨h01, h2⟩ := append_eq_of_len _ _ _ _ hlen2 h012
+  have ⟨h0, h1⟩ := append_eq_of_len _ _ _ _ hlen1 h01
   funext i
   match i with
   | ⟨0, _⟩ => exact vec5Key_inj _ _ h0
@@ -2966,20 +3066,20 @@ private theorem sortedEntries_ext (es₁ es₂ : List (Mat5 × FullDock))
     | cons p rest =>
       cases p with | mk k d =>
       have h0 := hlk k
-      simp only [lookupEntries, ite_eq_left rfl] at h0
+      simp only [lookupEntries, ite_true] at h0
       exact absurd h0.symm (hne₂ (k, d) (List.Mem.head rest))
   | cons p₁ r₁ ih =>
     cases p₁ with | mk k₁ d₁ =>
     cases es₂ with
     | nil =>
       have h0 := hlk k₁
-      simp only [lookupEntries, ite_eq_left rfl] at h0
+      simp only [lookupEntries, ite_true] at h0
       exact absurd h0 (hne₁ (k₁, d₁) (List.Mem.head r₁))
     | cons p₂ r₂ =>
       cases p₂ with | mk k₂ d₂ =>
       rcases mat5Lt_trichotomy k₁ k₂ with hlt | heq | hgt
       · have h0 := hlk k₁
-        simp only [lookupEntries, ite_eq_left rfl] at h0
+        simp only [lookupEntries, ite_true] at h0
         have hne12 : k₂ ≠ k₁ := fun h => by rw [h, mat5Lt_irrefl] at hlt; exact Bool.noConfusion hlt
         rw [ite_eq_right hne12] at h0
         have hvan : lookupEntries k₁ r₂ = v1FullDock :=
@@ -2988,7 +3088,7 @@ private theorem sortedEntries_ext (es₁ es₂ : List (Mat5 × FullDock))
         exact absurd h0 (hne₁ (k₁, d₁) (List.Mem.head r₁))
       · have hd : d₁ = d₂ := by
           have h0 := hlk k₁
-          simp only [lookupEntries, ite_eq_left rfl, heq] at h0
+          simp only [lookupEntries, heq, ite_true] at h0
           exact h0
         have hr : r₁ = r₂ := by
           apply ih r₂ hs₁.2 hs₂.2
@@ -3005,7 +3105,7 @@ private theorem sortedEntries_ext (es₁ es₂ : List (Mat5 × FullDock))
             exact h0
         rw [heq, hd, hr]
       · have h0 := hlk k₂
-        simp only [lookupEntries, ite_eq_left rfl] at h0
+        simp only [lookupEntries, ite_true] at h0
         have hne21 : k₁ ≠ k₂ := fun h => by rw [h, mat5Lt_irrefl] at hgt; exact Bool.noConfusion hgt
         rw [ite_eq_right hne21] at h0
         have hvan : lookupEntries k₂ r₁ = v1FullDock :=
@@ -3046,7 +3146,7 @@ private theorem mem_activeDocks_iff (c : HoneycombConfig) (g : Mat5) :
     induction es with
     | nil =>
       simp only [List.map, lookupEntries]
-      exact ⟨fun h => nomatch h, fun h => absurd rfl h⟩
+      exact ⟨fun h => (nomatch h), fun h => absurd rfl h⟩
     | cons p rest ih =>
       cases p with | mk k d =>
       simp only [List.map, lookupEntries]
@@ -3130,7 +3230,7 @@ private theorem setEntries_sorted (g : Mat5) (d : FullDock) (es : List (Mat5 × 
     if hd : d = v1FullDock then
       rw [ite_eq_left hd]; trivial
     else
-      rw [ite_eq_right hd]; exact ⟨fun _ h => nomatch h, trivial⟩
+      rw [ite_eq_right hd]; exact ⟨fun _ h => (nomatch h), trivial⟩
   | cons q rest ih =>
     cases q with | mk k dk =>
     simp only [setEntries]
@@ -3273,9 +3373,9 @@ private theorem lookupEntries_setEntries (g h : Mat5) (d : FullDock) (es : List 
         simp only [lookupEntries]
         if hkh : k = h then
           have hhg : h ≠ g := by rw [← hkh]; exact hkg
-          rw [ite_eq_left hkh, ite_eq_right hhg]
+          rw [ite_eq_left hkh, ite_eq_right hhg, ite_eq_left hkh]
         else
-          rw [ite_eq_right hkh, ih hs.2]
+          rw [ite_eq_right hkh, ite_eq_right hkh, ih hs.2]
 
 /-- Update dock `g` of `c` to `d` (deleting `g` if `d = v1FullDock`). -/
 def HoneycombConfig.setDock (c : HoneycombConfig) (g : Mat5) (d : FullDock) : HoneycombConfig :=
@@ -3294,7 +3394,8 @@ private theorem setDock_lookup_self (c : HoneycombConfig) (g : Mat5) :
 private theorem setDock_setDock_same (c : HoneycombConfig) (g : Mat5) (d₁ d₂ : FullDock) :
     (c.setDock g d₁).setDock g d₂ = c.setDock g d₂ := by
   apply honeycombConfig_ext; intro h; rw [lookup_setDock, lookup_setDock, lookup_setDock]
-  if hhg : h = g then rw [ite_eq_left hhg] else rw [ite_eq_right hhg]
+  if hhg : h = g then rw [ite_eq_left hhg, ite_eq_left hhg]
+  else rw [ite_eq_right hhg, ite_eq_right hhg, ite_eq_right hhg]
 
 private theorem setDock_setDock_comm (c : HoneycombConfig) (g₁ g₂ : Mat5) (d₁ d₂ : FullDock)
     (hne : g₁ ≠ g₂) :
@@ -3320,48 +3421,50 @@ private theorem sortedEntries_map_fst_eq (es₁ es₂ : List (Mat5 × FullDock))
       have hc := (hm p.1).mpr (List.Mem.head _)
       cases hc
   | cons p₁ r₁ ih =>
+    cases p₁ with | mk k₁ _d₁ =>
     cases es₂ with
     | nil =>
-      have hc := (hm p₁.1).mp (List.Mem.head _)
+      have hc := (hm k₁).mp (List.Mem.head _)
       cases hc
     | cons p₂ r₂ =>
+      cases p₂ with | mk k₂ _d₂ =>
       simp only [List.map]
-      have h12 : p₁.1 = p₂.1 := by
-        have h1in2 : p₁.1 ∈ (p₂ :: r₂).map Prod.fst := (hm p₁.1).mp (List.Mem.head _)
-        have h2in1 : p₂.1 ∈ (p₁ :: r₁).map Prod.fst := (hm p₂.1).mpr (List.Mem.head _)
+      have h12 : k₁ = k₂ := by
+        have h1in2 : k₁ ∈ k₂ :: r₂.map Prod.fst := (hm k₁).mp (List.Mem.head _)
+        have h2in1 : k₂ ∈ k₁ :: r₁.map Prod.fst := (hm k₂).mpr (List.Mem.head _)
         cases h1in2 with
         | head => rfl
         | tail _ h1r =>
-          obtain ⟨q2, hq2, hq2k⟩ := (mem_map_iff Prod.fst r₂ p₁.1).mp h1r
-          have hlt1 : mat5Lt p₂.1 p₁.1 = true := by rw [← hq2k]; exact hs₂.1 q2 hq2
+          obtain ⟨q2, hq2, hq2k⟩ := (mem_map_iff Prod.fst r₂ k₁).mp h1r
+          have hlt1 : mat5Lt k₂ k₁ = true := by rw [← hq2k]; exact hs₂.1 q2 hq2
           cases h2in1 with
           | head => rw [mat5Lt_irrefl] at hlt1; exact Bool.noConfusion hlt1
           | tail _ h2r =>
-            obtain ⟨q1, hq1, hq1k⟩ := (mem_map_iff Prod.fst r₁ p₂.1).mp h2r
-            have hlt2 : mat5Lt p₁.1 p₂.1 = true := by rw [← hq1k]; exact hs₁.1 q1 hq1
-            have hcontra := mat5Lt_trans p₁.1 p₂.1 p₁.1 hlt2 hlt1
+            obtain ⟨q1, hq1, hq1k⟩ := (mem_map_iff Prod.fst r₁ k₂).mp h2r
+            have hlt2 : mat5Lt k₁ k₂ = true := by rw [← hq1k]; exact hs₁.1 q1 hq1
+            have hcontra := mat5Lt_trans k₁ k₂ k₁ hlt2 hlt1
             rw [mat5Lt_irrefl] at hcontra
             exact Bool.noConfusion hcontra
       rw [h12]
-      apply congrArg (List.cons p₂.1)
+      apply congrArg (List.cons k₂)
       apply ih r₂ hs₁.2 hs₂.2
       intro k
       constructor
       · intro hk
-        have hne : k ≠ p₂.1 := by
+        have hne : k ≠ k₂ := by
           obtain ⟨q1, hq1, hq1k⟩ := (mem_map_iff Prod.fst r₁ k).mp hk
           intro heq; have hlt := hs₁.1 q1 hq1
           rw [hq1k, heq, h12, mat5Lt_irrefl] at hlt; exact Bool.noConfusion hlt
-        have hin := (hm k).mp (List.Mem.tail p₁.1 hk)
+        have hin := (hm k).mp (List.Mem.tail k₁ hk)
         cases hin with
         | head => exact absurd rfl hne
         | tail _ h' => exact h'
       · intro hk
-        have hne : k ≠ p₁.1 := by
+        have hne : k ≠ k₁ := by
           obtain ⟨q2, hq2, hq2k⟩ := (mem_map_iff Prod.fst r₂ k).mp hk
           intro heq; have hlt := hs₂.1 q2 hq2
           rw [hq2k, heq, h12, mat5Lt_irrefl] at hlt; exact Bool.noConfusion hlt
-        have hin := (hm k).mpr (List.Mem.tail p₂.1 hk)
+        have hin := (hm k).mpr (List.Mem.tail k₂ hk)
         cases hin with
         | head => exact absurd rfl hne
         | tail _ h' => exact h'

@@ -147,7 +147,9 @@ private theorem vec4_cancel_scale2 (u v : Vec4) (h : scaleVec4 2 u = scaleVec4 2
   cases vr with | mk v1 vr =>
   cases vr with | mk v2 v3 =>
   simp only [scaleVec4, Prod.mk.injEq] at h
-  exact Prod.ext (by omega) (Prod.ext (by omega) (Prod.ext (by omega) (by omega)))
+  obtain ⟨h0, h1, h2, h3⟩ := h
+  simp only [Prod.mk.injEq]
+  exact ⟨by omega, by omega, by omega, by omega⟩
 
 private theorem sum4_mul_left (c : Int) (f : Fin 4 → Int) :
     sum4 (fun k => c * f k) = c * sum4 f := by
@@ -161,7 +163,7 @@ private theorem sum4_mul_right (f : Fin 4 → Int) (c : Int) :
 
 private theorem sum4_comm (f : Fin 4 → Fin 4 → Int) :
     sum4 (fun i => sum4 (fun j => f i j)) = sum4 (fun j => sum4 (fun i => f i j)) := by
-  unfold sum4; omega
+  simp only [sum4]; omega
 
 private theorem mat4Mul_assoc (A B C : Mat4) : mat4Mul (mat4Mul A B) C = mat4Mul A (mat4Mul B C) := by
   apply mat4_ext
@@ -283,12 +285,14 @@ private theorem mat4_orth_mul_half (A B : Mat4)
       apply congrArg sum4; funext k
       exact Int.mul_assoc 4 (mat4Transpose B i k) (B k j)
     rw [hSc, hB]
+    dsimp only
     if hij : i = j then rw [ite_eq_left hij, ite_eq_left hij]; decide
     else rw [ite_eq_right hij, ite_eq_right hij]; decide
   apply mat4_ext; intro i j
   have hScaled : 4 * mat4Mul (mat4Transpose (mat4MulHalf A B)) (mat4MulHalf A B) i j =
       mat4Mul (mat4Transpose (mat4Mul A B)) (mat4Mul A B) i j := by
-    unfold mat4Mul mat4Transpose
+    change 4 * sum4 (fun k => mat4MulHalf A B k i * mat4MulHalf A B k j) =
+           sum4 (fun k => mat4Mul A B k i * mat4Mul A B k j)
     rw [← sum4_mul_left]
     apply congrArg sum4; funext k
     rw [← hEven k i, ← hEven k j]
@@ -326,12 +330,14 @@ private theorem mat4_orth_mul_half_right (A B : Mat4)
       apply congrArg sum4; funext k
       exact Int.mul_assoc 4 (A i k) (mat4Transpose A k j)
     rw [hSc, hA]
+    dsimp only
     if hij : i = j then rw [ite_eq_left hij, ite_eq_left hij]; decide
     else rw [ite_eq_right hij, ite_eq_right hij]; decide
   apply mat4_ext; intro i j
   have hScaled : 4 * mat4Mul (mat4MulHalf A B) (mat4Transpose (mat4MulHalf A B)) i j =
       mat4Mul (mat4Mul A B) (mat4Transpose (mat4Mul A B)) i j := by
-    unfold mat4Mul mat4Transpose
+    change 4 * sum4 (fun k => mat4MulHalf A B i k * mat4MulHalf A B j k) =
+           sum4 (fun k => mat4Mul A B i k * mat4Mul A B j k)
     rw [← sum4_mul_left]
     apply congrArg sum4; funext k
     rw [← hEven i k, ← hEven j k]
@@ -528,7 +534,7 @@ private theorem det4Vecs_applySwaps (ws : List (Fin 3)) (a b c d : Vec4) :
     det4Vecs (applySwapsVec ws a) (applySwapsVec ws b) (applySwapsVec ws c) (applySwapsVec ws d) =
       (if ws.length % 2 = 0 then 1 else -1) * det4Vecs a b c d := by
   induction ws with
-  | nil => simp only [applySwapsVec, List.length_nil]; omega
+  | nil => simp only [applySwapsVec, List.length_nil, ite_true, Int.one_mul]
   | cons s rest ih =>
     simp only [applySwapsVec, List.length_cons]
     rw [det4Vecs_adjSwap, ih]
@@ -543,7 +549,7 @@ private theorem det4Vecs_applyNegs (ns : List (Fin 4)) (a b c d : Vec4) :
     det4Vecs (applyNegsVec ns a) (applyNegsVec ns b) (applyNegsVec ns c) (applyNegsVec ns d) =
       (if ns.length % 2 = 0 then 1 else -1) * det4Vecs a b c d := by
   induction ns with
-  | nil => simp only [applyNegsVec, List.length_nil]; omega
+  | nil => simp only [applyNegsVec, List.length_nil, ite_true, Int.one_mul]
   | cons i rest ih =>
     simp only [applyNegsVec, List.length_cons]
     rw [det4Vecs_negCoord, ih]
@@ -662,6 +668,7 @@ def perm4Word : Fin 24 → List (Fin 3)
   | ⟨21, _⟩ => [⟨0, by decide⟩, ⟨1, by decide⟩, ⟨2, by decide⟩, ⟨1, by decide⟩, ⟨0, by decide⟩]
   | ⟨22, _⟩ => [⟨0, by decide⟩, ⟨1, by decide⟩, ⟨2, by decide⟩, ⟨0, by decide⟩, ⟨1, by decide⟩]
   | ⟨23, _⟩ => [⟨0, by decide⟩, ⟨1, by decide⟩, ⟨2, by decide⟩, ⟨0, by decide⟩, ⟨1, by decide⟩, ⟨0, by decide⟩]
+  | _ => []
 
 /-- O(1) lookup of a coordinate permutation tuple `(p0, p1, p2, p3)` into `Fin 24`. -/
 def perm4OfTuple : Vec4 → Fin 24
@@ -792,6 +799,7 @@ def s3Mul : Fin 6 → Fin 6 → Fin 6
   | ⟨5, _⟩, ⟨3, _⟩ => ⟨1, by decide⟩
   | ⟨5, _⟩, ⟨4, _⟩ => ⟨2, by decide⟩
   | ⟨5, _⟩, ⟨5, _⟩ => ⟨0, by decide⟩
+  | _, _ => ⟨0, by decide⟩
 
 /-- O(1) exact `S_4` inverse on `Fin 24`. -/
 def perm4Inv : Fin 24 → Fin 24
@@ -819,6 +827,7 @@ def perm4Inv : Fin 24 → Fin 24
   | ⟨21, _⟩ => ⟨21, by decide⟩
   | ⟨22, _⟩ => ⟨17, by decide⟩
   | ⟨23, _⟩ => ⟨23, by decide⟩
+  | _ => ⟨0, by decide⟩
 
 /-- Exact `W(D_4)` element `(p, e) ∈ S_4 × (ℤ_2)^3` (order `24 × 8 = 192`), representing `evenSign(e) ∘ perm(p)`. -/
 abbrev WD4Elem := Fin 24 × Fin 8
@@ -963,19 +972,19 @@ private theorem wd4_even_entries (p : Fin 24) (e : Fin 8) (i j : Fin 4) :
 private theorem wd4_entry_even (d : WD4Elem) (i j : Fin 4) : wd4Mat2 d i j % 2 = 0 := by
   exact (by decide : ∀ (p : Fin 24) (e : Fin 8) (i j : Fin 4), wd4Mat2 (p, e) i j % 2 = 0) d.1 d.2 i j
 
+private theorem int_two_mul_div_two_of_sum4_even (a b c d : Int)
+    (ha : a % 2 = 0) (hb : b % 2 = 0) (hc : c % 2 = 0) (hd : d % 2 = 0) :
+    2 * ((a + b + c + d) / 2) = a + b + c + d := by
+  omega
+
 private theorem wf4_even_entries (g : WF4Elem) (i j : Fin 4) :
     2 * wf4Mat2 g i j = mat4Mul (wd4Mat2 (g.1, g.2.1)) (s3Mat2 g.2.2) i j := by
-  unfold wf4Mat2 mat4MulHalf mat4Mul
-  have m0 := int_mul_even_left (wd4Mat2 (g.1, g.2.1) i ⟨0, by decide⟩) (s3Mat2 g.2.2 ⟨0, by decide⟩ j)
-    (wd4_entry_even (g.1, g.2.1) i ⟨0, by decide⟩)
-  have m1 := int_mul_even_left (wd4Mat2 (g.1, g.2.1) i ⟨1, by decide⟩) (s3Mat2 g.2.2 ⟨1, by decide⟩ j)
-    (wd4_entry_even (g.1, g.2.1) i ⟨1, by decide⟩)
-  have m2 := int_mul_even_left (wd4Mat2 (g.1, g.2.1) i ⟨2, by decide⟩) (s3Mat2 g.2.2 ⟨2, by decide⟩ j)
-    (wd4_entry_even (g.1, g.2.1) i ⟨2, by decide⟩)
-  have m3 := int_mul_even_left (wd4Mat2 (g.1, g.2.1) i ⟨3, by decide⟩) (s3Mat2 g.2.2 ⟨3, by decide⟩ j)
-    (wd4_entry_even (g.1, g.2.1) i ⟨3, by decide⟩)
-  unfold sum4
-  omega
+  simp only [wf4Mat2, mat4MulHalf, mat4Mul, sum4]
+  exact int_two_mul_div_two_of_sum4_even _ _ _ _
+    (int_mul_even_left _ _ (wd4_entry_even (g.1, g.2.1) i ⟨0, by decide⟩))
+    (int_mul_even_left _ _ (wd4_entry_even (g.1, g.2.1) i ⟨1, by decide⟩))
+    (int_mul_even_left _ _ (wd4_entry_even (g.1, g.2.1) i ⟨2, by decide⟩))
+    (int_mul_even_left _ _ (wd4_entry_even (g.1, g.2.1) i ⟨3, by decide⟩))
 
 private theorem mat4Vec_scale2 (M : Mat4) (v : Vec4) :
     mat4Vec M (scaleVec4 2 v) = scaleVec4 2 (mat4Vec M v) := by
@@ -984,8 +993,8 @@ private theorem mat4Vec_scale2 (M : Mat4) (v : Vec4) :
   cases vr with | mk v2 v3 =>
   have hcomm : ∀ x y : Int, x * (2 * y) = 2 * (x * y) :=
     fun x y => int_mul_left_comm_chir x 2 y
-  simp only [mat4Vec, scaleVec4, sum4, coord4, hcomm]
-  exact Prod.ext (by omega) (Prod.ext (by omega) (Prod.ext (by omega) (by omega)))
+  simp only [mat4Vec, scaleVec4, sum4, coord4, hcomm, Prod.mk.injEq]
+  exact ⟨by omega, by omega, by omega, by omega⟩
 
 private theorem wf4Mat2_eq_mat4Vec_action (g : WF4Elem) (a : Fin 24) :
     mat4Vec (wf4Mat2 g) (d4RootOf a) = scaleVec4 2 (d4RootOf (wf4Perm g a)) := by
@@ -1085,6 +1094,612 @@ theorem thm_wf4_action_orthogonal_and_bijective (g : WF4Elem) :
     unfold wf4Perm
     rw [factor_opp_comm.1 g.2.2 a, factor_opp_comm.2.1 g.1, factor_opp_comm.2.2 g.2.1]
 
+private theorem mat4Vec_perm4 (p : Fin 24) (v : Vec4) :
+    mat4Vec (perm4Mat2 p) v = scaleVec4 2 (perm4Vec p v) := by
+  cases v with | mk x0 r =>
+  cases r with | mk x1 r =>
+  cases r with | mk x2 x3 =>
+  have hLin : ∀ ws : List (Fin 3),
+      applySwapsVec ws (x0, x1, x2, x3) =
+        ( sum4 (fun k => coord4 (applySwapsVec ws (stdBasis4 k)) ⟨0, by decide⟩ * coord4 (x0, x1, x2, x3) k),
+          sum4 (fun k => coord4 (applySwapsVec ws (stdBasis4 k)) ⟨1, by decide⟩ * coord4 (x0, x1, x2, x3) k),
+          sum4 (fun k => coord4 (applySwapsVec ws (stdBasis4 k)) ⟨2, by decide⟩ * coord4 (x0, x1, x2, x3) k),
+          sum4 (fun k => coord4 (applySwapsVec ws (stdBasis4 k)) ⟨3, by decide⟩ * coord4 (x0, x1, x2, x3) k) ) := by
+    intro ws
+    induction ws with
+    | nil =>
+      simp only [applySwapsVec, sum4, stdBasis4, coord4, Prod.mk.injEq]
+      exact ⟨by omega, by omega, by omega, by omega⟩
+    | cons s rest ih =>
+      simp only [applySwapsVec]
+      match s with
+      | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ =>
+        rw [ih]
+        simp only [adjSwapVec, coord4]
+  have hP := hLin (perm4Word p)
+  unfold mat4Vec perm4Mat2 perm4Vec scaleVec4
+  rw [hP]
+  simp only [sum4, coord4, Int.mul_add, Int.mul_assoc]
+
+private theorem mat4Vec_evenSign (e : Fin 8) (v : Vec4) :
+    mat4Vec (evenSignMat2 e) v = scaleVec4 2 (evenSignVec e v) := by
+  cases v with | mk x0 r =>
+  cases r with | mk x1 r =>
+  cases r with | mk x2 x3 =>
+  have hLin : ∀ ns : List (Fin 4),
+      applyNegsVec ns (x0, x1, x2, x3) =
+        ( sum4 (fun k => coord4 (applyNegsVec ns (stdBasis4 k)) ⟨0, by decide⟩ * coord4 (x0, x1, x2, x3) k),
+          sum4 (fun k => coord4 (applyNegsVec ns (stdBasis4 k)) ⟨1, by decide⟩ * coord4 (x0, x1, x2, x3) k),
+          sum4 (fun k => coord4 (applyNegsVec ns (stdBasis4 k)) ⟨2, by decide⟩ * coord4 (x0, x1, x2, x3) k),
+          sum4 (fun k => coord4 (applyNegsVec ns (stdBasis4 k)) ⟨3, by decide⟩ * coord4 (x0, x1, x2, x3) k) ) := by
+    intro ns
+    induction ns with
+    | nil =>
+      simp only [applyNegsVec, sum4, stdBasis4, coord4, Prod.mk.injEq]
+      exact ⟨by omega, by omega, by omega, by omega⟩
+    | cons i rest ih =>
+      simp only [applyNegsVec]
+      match i with
+      | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ =>
+        rw [ih]
+        simp only [negCoordVec, coord4, sum4, Int.neg_mul, Prod.mk.injEq]
+        exact ⟨by omega, by omega, by omega, by omega⟩
+  have hE := hLin (evenSignNegs e)
+  unfold mat4Vec evenSignMat2 evenSignVec scaleVec4
+  rw [hE]
+  simp only [sum4, coord4, Int.mul_add, Int.mul_assoc]
+
+private def mapVec4 (f : Int → Int) (v : Vec4) : Vec4 :=
+  (f v.1, f v.2.1, f v.2.2.1, f v.2.2.2)
+
+private def mulVec4 (u v : Vec4) : Vec4 :=
+  (u.1 * v.1, u.2.1 * v.2.1, u.2.2.1 * v.2.2.1, u.2.2.2 * v.2.2.2)
+
+private theorem applySwapsVec_mapVec4 (f : Int → Int) (ws : List (Fin 3)) (v : Vec4) :
+    applySwapsVec ws (mapVec4 f v) = mapVec4 f (applySwapsVec ws v) := by
+  induction ws with
+  | nil => rfl
+  | cons s rest ih =>
+    simp only [applySwapsVec, ih]
+    match s with
+    | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ => rfl
+
+private theorem applySwapsVec_mulVec4 (ws : List (Fin 3)) (u v : Vec4) :
+    applySwapsVec ws (mulVec4 u v) = mulVec4 (applySwapsVec ws u) (applySwapsVec ws v) := by
+  induction ws with
+  | nil => rfl
+  | cons s rest ih =>
+    simp only [applySwapsVec, ih]
+    match s with
+    | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ => rfl
+
+private theorem applyNegsVec_eq_mulVec4 (ns : List (Fin 4)) (v : Vec4) :
+    applyNegsVec ns v = mulVec4 (applyNegsVec ns (1, 1, 1, 1)) v := by
+  cases v with | mk v0 r =>
+  cases r with | mk v1 r =>
+  cases r with | mk v2 v3 =>
+  induction ns with
+  | nil =>
+    simp only [applyNegsVec, mulVec4, Int.one_mul]
+  | cons i rest ih =>
+    simp only [applyNegsVec, ih]
+    match i with
+    | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ =>
+      simp only [negCoordVec, mulVec4, Int.neg_mul]
+
+private theorem mulVec4_assoc (u v w : Vec4) :
+    mulVec4 (mulVec4 u v) w = mulVec4 u (mulVec4 v w) := by
+  simp only [mulVec4, Int.mul_assoc]
+
+private theorem mat4Mul_eq_coord4_mat4Vec (A B : Mat4) (i j : Fin 4) :
+    mat4Mul A B i j =
+      coord4 (mat4Vec A (B ⟨0, by decide⟩ j, B ⟨1, by decide⟩ j, B ⟨2, by decide⟩ j, B ⟨3, by decide⟩ j)) i := by
+  match i with
+  | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ => rfl
+
+private theorem perm4Mat2_col (p : Fin 24) (j : Fin 4) :
+    (perm4Mat2 p ⟨0, by decide⟩ j, perm4Mat2 p ⟨1, by decide⟩ j,
+     perm4Mat2 p ⟨2, by decide⟩ j, perm4Mat2 p ⟨3, by decide⟩ j) =
+    scaleVec4 2 (perm4Vec p (stdBasis4 j)) := rfl
+
+private theorem evenSignMat2_col (e : Fin 8) (j : Fin 4) :
+    (evenSignMat2 e ⟨0, by decide⟩ j, evenSignMat2 e ⟨1, by decide⟩ j,
+     evenSignMat2 e ⟨2, by decide⟩ j, evenSignMat2 e ⟨3, by decide⟩ j) =
+    scaleVec4 2 (evenSignVec e (stdBasis4 j)) := rfl
+
+private theorem perm4Vec_mul (p1 p2 : Fin 24) (v : Vec4) :
+    perm4Vec (perm4Mul p1 p2) v = perm4Vec p1 (perm4Vec p2 v) := by
+  have hBase : ∀ q : Fin 24,
+      perm4Vec (perm4OfTuple (perm4Vec q (0, 1, 2, 3))) (0, 1, 2, 3) = perm4Vec q (0, 1, 2, 3) := by
+    decide
+  have hStep : ∀ (s : Fin 3) (q : Fin 24),
+      perm4Vec (perm4OfTuple (adjSwapVec s (perm4Vec q (0, 1, 2, 3)))) (0, 1, 2, 3) =
+      adjSwapVec s (perm4Vec q (0, 1, 2, 3)) := by
+    decide
+  have hInd : ∀ (ws : List (Fin 3)) (q : Fin 24),
+      perm4Vec (perm4OfTuple (applySwapsVec ws (perm4Vec q (0, 1, 2, 3)))) (0, 1, 2, 3) =
+      applySwapsVec ws (perm4Vec q (0, 1, 2, 3)) := by
+    intro ws
+    induction ws with
+    | nil => exact hBase
+    | cons s rest ih =>
+      intro q
+      simp only [applySwapsVec]
+      have hr := ih q
+      rw [← hr]
+      exact hStep s (perm4OfTuple (applySwapsVec rest (perm4Vec q (0, 1, 2, 3))))
+  have hTup : perm4Vec (perm4Mul p1 p2) (0, 1, 2, 3) = perm4Vec p1 (perm4Vec p2 (0, 1, 2, 3)) :=
+    hInd (perm4Word p1) p2
+  cases v with | mk v0 r =>
+  cases r with | mk v1 r =>
+  cases r with | mk v2 v3 =>
+  let f : Int → Int := fun k => if k = 0 then v0 else if k = 1 then v1 else if k = 2 then v2 else v3
+  have hv : (v0, v1, v2, v3) = mapVec4 f (0, 1, 2, 3) := rfl
+  rw [hv]
+  unfold perm4Vec
+  rw [applySwapsVec_mapVec4, applySwapsVec_mapVec4, applySwapsVec_mapVec4]
+  exact congrArg (mapVec4 f) hTup
+
+private theorem perm4_mul_mat2 (p1 p2 : Fin 24) (i j : Fin 4) :
+    2 * perm4Mat2 (perm4Mul p1 p2) i j = mat4Mul (perm4Mat2 p1) (perm4Mat2 p2) i j := by
+  rw [mat4Mul_eq_coord4_mat4Vec, perm4Mat2_col, mat4Vec_scale2, mat4Vec_perm4, ← perm4Vec_mul]
+  match i with
+  | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ => rfl
+
+private theorem evenSignVec_mul (e1 e2 : Fin 8) (v : Vec4) :
+    evenSignVec (evenSignMul e1 e2) v = evenSignVec e1 (evenSignVec e2 v) := by
+  have hTup : evenSignVec (evenSignMul e1 e2) (1, 1, 1, 1) =
+      mulVec4 (evenSignVec e1 (1, 1, 1, 1)) (evenSignVec e2 (1, 1, 1, 1)) :=
+    (by decide : ∀ a b : Fin 8,
+      evenSignVec (evenSignMul a b) (1, 1, 1, 1) =
+      mulVec4 (evenSignVec a (1, 1, 1, 1)) (evenSignVec b (1, 1, 1, 1))) e1 e2
+  unfold evenSignVec
+  rw [applyNegsVec_eq_mulVec4 (evenSignNegs (evenSignMul e1 e2)) v,
+      applyNegsVec_eq_mulVec4 (evenSignNegs e2) v,
+      applyNegsVec_eq_mulVec4 (evenSignNegs e1),
+      ← mulVec4_assoc]
+  exact congrArg (fun u => mulVec4 u v) hTup
+
+private theorem evenSign_mul_mat2 (e1 e2 : Fin 8) (i j : Fin 4) :
+    2 * evenSignMat2 (evenSignMul e1 e2) i j = mat4Mul (evenSignMat2 e1) (evenSignMat2 e2) i j := by
+  rw [mat4Mul_eq_coord4_mat4Vec, evenSignMat2_col, mat4Vec_scale2, mat4Vec_evenSign, ← evenSignVec_mul]
+  match i with
+  | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ => rfl
+
+private theorem conjPermSign_vec (p : Fin 24) (e : Fin 8) (v : Vec4) :
+    perm4Vec p (evenSignVec e v) = evenSignVec (conjPermSign p e) (perm4Vec p v) := by
+  have hBase : ∀ f : Fin 8,
+      evenSignVec (evenSignOfTuple (evenSignVec f (1, 1, 1, 1))) (1, 1, 1, 1) =
+      evenSignVec f (1, 1, 1, 1) := by
+    decide
+  have hStep : ∀ (s : Fin 3) (f : Fin 8),
+      evenSignVec (evenSignOfTuple (adjSwapVec s (evenSignVec f (1, 1, 1, 1)))) (1, 1, 1, 1) =
+      adjSwapVec s (evenSignVec f (1, 1, 1, 1)) := by
+    decide
+  have hInd : ∀ (ws : List (Fin 3)) (f : Fin 8),
+      evenSignVec (evenSignOfTuple (applySwapsVec ws (evenSignVec f (1, 1, 1, 1)))) (1, 1, 1, 1) =
+      applySwapsVec ws (evenSignVec f (1, 1, 1, 1)) := by
+    intro ws
+    induction ws with
+    | nil => exact hBase
+    | cons s rest ih =>
+      intro f
+      simp only [applySwapsVec]
+      have hr := ih f
+      rw [← hr]
+      exact hStep s (evenSignOfTuple (applySwapsVec rest (evenSignVec f (1, 1, 1, 1))))
+  have hTup : evenSignVec (conjPermSign p e) (1, 1, 1, 1) = perm4Vec p (evenSignVec e (1, 1, 1, 1)) :=
+    hInd (perm4Word p) e
+  unfold perm4Vec evenSignVec
+  rw [applyNegsVec_eq_mulVec4 (evenSignNegs e) v,
+      applySwapsVec_mulVec4,
+      applyNegsVec_eq_mulVec4 (evenSignNegs (conjPermSign p e))]
+  exact congrArg (fun u => mulVec4 u (applySwapsVec (perm4Word p) v)) hTup.symm
+
+private theorem conjPermSign_mat2 (p : Fin 24) (e : Fin 8) (i j : Fin 4) :
+    mat4Mul (perm4Mat2 p) (evenSignMat2 e) i j =
+      mat4Mul (evenSignMat2 (conjPermSign p e)) (perm4Mat2 p) i j := by
+  rw [mat4Mul_eq_coord4_mat4Vec (perm4Mat2 p) (evenSignMat2 e), evenSignMat2_col,
+      mat4Vec_scale2, mat4Vec_perm4, conjPermSign_vec,
+      mat4Mul_eq_coord4_mat4Vec (evenSignMat2 (conjPermSign p e)) (perm4Mat2 p), perm4Mat2_col,
+      mat4Vec_scale2, mat4Vec_evenSign]
+
+private theorem wd4Mul_mat2 (d1 d2 : WD4Elem) :
+    mat4Mul (wd4Mat2 d1) (wd4Mat2 d2) = fun i j => 2 * wd4Mat2 (wd4Mul d1 d2) i j := by
+  have hL : ∀ i j : Fin 4,
+      4 * mat4Mul (wd4Mat2 d1) (wd4Mat2 d2) i j =
+      mat4Mul (mat4Mul (evenSignMat2 d1.2) (perm4Mat2 d1.1))
+              (mat4Mul (evenSignMat2 d2.2) (perm4Mat2 d2.1)) i j := by
+    intro i j
+    change 4 * sum4 (fun k => wd4Mat2 d1 i k * wd4Mat2 d2 k j) =
+           sum4 (fun k => mat4Mul (evenSignMat2 d1.2) (perm4Mat2 d1.1) i k *
+                          mat4Mul (evenSignMat2 d2.2) (perm4Mat2 d2.1) k j)
+    rw [← sum4_mul_left]
+    apply congrArg sum4; funext k
+    rw [← wd4_even_entries d1.1 d1.2 i k, ← wd4_even_entries d2.1 d2.2 k j]
+    exact int_four_mul_pair (wd4Mat2 d1 i k) (wd4Mat2 d2 k j)
+  have hRearr : mat4Mul (mat4Mul (evenSignMat2 d1.2) (perm4Mat2 d1.1))
+                        (mat4Mul (evenSignMat2 d2.2) (perm4Mat2 d2.1)) =
+      fun i j => 4 * mat4Mul (evenSignMat2 (evenSignMul d1.2 (conjPermSign d1.1 d2.2)))
+                              (perm4Mat2 (perm4Mul d1.1 d2.1)) i j := by
+    rw [mat4Mul_assoc (evenSignMat2 d1.2) (perm4Mat2 d1.1),
+        ← mat4Mul_assoc (perm4Mat2 d1.1) (evenSignMat2 d2.2) (perm4Mat2 d2.1)]
+    have hConj : mat4Mul (perm4Mat2 d1.1) (evenSignMat2 d2.2) =
+        mat4Mul (evenSignMat2 (conjPermSign d1.1 d2.2)) (perm4Mat2 d1.1) :=
+      mat4_ext _ _ (conjPermSign_mat2 d1.1 d2.2)
+    rw [hConj, mat4Mul_assoc (evenSignMat2 (conjPermSign d1.1 d2.2)) (perm4Mat2 d1.1) (perm4Mat2 d2.1),
+        ← mat4Mul_assoc (evenSignMat2 d1.2) (evenSignMat2 (conjPermSign d1.1 d2.2))]
+    have hE : mat4Mul (evenSignMat2 d1.2) (evenSignMat2 (conjPermSign d1.1 d2.2)) =
+        fun i j => 2 * evenSignMat2 (evenSignMul d1.2 (conjPermSign d1.1 d2.2)) i j :=
+      mat4_ext _ _ (fun i j => (evenSign_mul_mat2 d1.2 (conjPermSign d1.1 d2.2) i j).symm)
+    have hP : mat4Mul (perm4Mat2 d1.1) (perm4Mat2 d2.1) =
+        fun i j => 2 * perm4Mat2 (perm4Mul d1.1 d2.1) i j :=
+      mat4_ext _ _ (fun i j => (perm4_mul_mat2 d1.1 d2.1 i j).symm)
+    rw [hE, hP]
+    apply mat4_ext; intro i j
+    unfold mat4Mul
+    rw [← sum4_mul_left]
+    apply congrArg sum4; funext k
+    exact (int_four_mul_pair _ _).symm
+  apply mat4_ext; intro i j
+  have h1 := hL i j
+  rw [hRearr] at h1
+  dsimp only at h1
+  have h2 := wd4_even_entries (perm4Mul d1.1 d2.1) (evenSignMul d1.2 (conjPermSign d1.1 d2.2)) i j
+  rw [← h2] at h1
+  unfold wd4Mul
+  omega
+
+private theorem s3_basic_tables :
+    (∀ c1 c2 : Fin 6, ∀ i j : Fin 4,
+      2 * s3Mat2 (s3Mul c1 c2) i j = mat4Mul (s3Mat2 c1) (s3Mat2 c2) i j) ∧
+    (∀ c : Fin 6, ∀ i j : Fin 4,
+      s3Mat2 (s3Inv c) i j = mat4Transpose (s3Mat2 c) i j) ∧
+    (∀ c : Fin 6, s3Mul c (s3Inv c) = ⟨0, by decide⟩ ∧ s3Mul (s3Inv c) c = ⟨0, by decide⟩) := by
+  decide
+
+private theorem s3_mul_inv_eq (c : Fin 6) :
+    mat4Mul (s3Mat2 c) (s3Mat2 (s3Inv c)) = fun i j => if i = j then 4 else 0 := by
+  have h1 := s3_basic_tables.1 c (s3Inv c)
+  have h2 := (s3_basic_tables.2.2 c).1
+  rw [h2] at h1
+  apply mat4_ext; intro i j
+  rw [← h1 i j]
+  simp only [s3Mat2, mat4Id2]
+  if hij : i = j then rw [ite_eq_left hij, ite_eq_left hij]; decide
+  else rw [ite_eq_right hij, ite_eq_right hij]; decide
+
+private theorem mat4Mul_scale4_right (M : Mat4) :
+    mat4Mul M (fun i j => if i = j then 4 else 0) = fun i j => 4 * M i j := by
+  apply mat4_ext; intro i j
+  match j with
+  | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ => simp [mat4Mul, sum4]; omega
+
+private theorem wd4_mat2ToWD4_left_inv (d : WD4Elem) : mat2ToWD4 (wd4Mat2 d) = d :=
+  (by decide : ∀ (p : Fin 24) (e : Fin 8), mat2ToWD4 (wd4Mat2 (p, e)) = (p, e)) d.1 d.2
+
+private theorem conj_mat2ToWD4_eq (c : Fin 6) (A : Mat4) (w : WD4Elem)
+    (hEq : mat4Mul (s3Mat2 c) A = mat4Mul (wd4Mat2 w) (s3Mat2 c)) :
+    mat2ToWD4 (mat4MulHalf (mat4MulHalf (s3Mat2 c) A) (s3Mat2 (s3Inv c))) = w := by
+  have hHalf1 : ∀ i j : Fin 4, 2 * mat4MulHalf (s3Mat2 c) A i j = mat4Mul (s3Mat2 c) A i j := by
+    intro i j
+    have hW : mat4Mul (wd4Mat2 w) (s3Mat2 c) i j % 2 = 0 := by
+      have m0 := int_mul_even_left (wd4Mat2 w i ⟨0, by decide⟩) (s3Mat2 c ⟨0, by decide⟩ j)
+        (wd4_entry_even w i ⟨0, by decide⟩)
+      have m1 := int_mul_even_left (wd4Mat2 w i ⟨1, by decide⟩) (s3Mat2 c ⟨1, by decide⟩ j)
+        (wd4_entry_even w i ⟨1, by decide⟩)
+      have m2 := int_mul_even_left (wd4Mat2 w i ⟨2, by decide⟩) (s3Mat2 c ⟨2, by decide⟩ j)
+        (wd4_entry_even w i ⟨2, by decide⟩)
+      have m3 := int_mul_even_left (wd4Mat2 w i ⟨3, by decide⟩) (s3Mat2 c ⟨3, by decide⟩ j)
+        (wd4_entry_even w i ⟨3, by decide⟩)
+      have hSum : ∀ a b c0 d0 : Int, a % 2 = 0 → b % 2 = 0 → c0 % 2 = 0 → d0 % 2 = 0 →
+          (a + b + c0 + d0) % 2 = 0 := by omega
+      simp only [mat4Mul, sum4]
+      exact hSum _ _ _ _ m0 m1 m2 m3
+    have hA : mat4Mul (s3Mat2 c) A i j % 2 = 0 := by
+      rw [congrFun (congrFun hEq i) j]; exact hW
+    change 2 * (mat4Mul (s3Mat2 c) A i j / 2) = mat4Mul (s3Mat2 c) A i j
+    omega
+  have hMul2 : mat4Mul (mat4MulHalf (s3Mat2 c) A) (s3Mat2 (s3Inv c)) = fun i j => 2 * wd4Mat2 w i j := by
+    have h4 : ∀ i j : Fin 4,
+        2 * mat4Mul (mat4MulHalf (s3Mat2 c) A) (s3Mat2 (s3Inv c)) i j =
+        mat4Mul (mat4Mul (s3Mat2 c) A) (s3Mat2 (s3Inv c)) i j := by
+      intro i j
+      change 2 * sum4 (fun k => mat4MulHalf (s3Mat2 c) A i k * s3Mat2 (s3Inv c) k j) =
+             sum4 (fun k => mat4Mul (s3Mat2 c) A i k * s3Mat2 (s3Inv c) k j)
+      rw [← sum4_mul_left]
+      apply congrArg sum4; funext k
+      rw [← Int.mul_assoc, hHalf1 i k]
+    have hR : mat4Mul (mat4Mul (s3Mat2 c) A) (s3Mat2 (s3Inv c)) = fun i j => 4 * wd4Mat2 w i j := by
+      rw [hEq, mat4Mul_assoc, s3_mul_inv_eq, mat4Mul_scale4_right]
+    apply mat4_ext; intro i j
+    have hij := h4 i j
+    rw [hR] at hij
+    dsimp only at hij
+    omega
+  have hM : mat4MulHalf (mat4MulHalf (s3Mat2 c) A) (s3Mat2 (s3Inv c)) = wd4Mat2 w := by
+    apply mat4_ext; intro i j
+    change mat4Mul (mat4MulHalf (s3Mat2 c) A) (s3Mat2 (s3Inv c)) i j / 2 = wd4Mat2 w i j
+    rw [hMul2]
+    dsimp only
+    omega
+  rw [hM, wd4_mat2ToWD4_left_inv]
+
+private theorem conj_closed_mul_half (c : Fin 6) (A B C : Mat4) (w1 w2 : WD4Elem)
+    (hA : mat4Mul (s3Mat2 c) A = mat4Mul (wd4Mat2 w1) (s3Mat2 c))
+    (hB : mat4Mul (s3Mat2 c) B = mat4Mul (wd4Mat2 w2) (s3Mat2 c))
+    (hC : ∀ i j : Fin 4, 2 * C i j = mat4Mul A B i j) :
+    mat4Mul (s3Mat2 c) C = mat4Mul (wd4Mat2 (wd4Mul w1 w2)) (s3Mat2 c) := by
+  have h2L : ∀ i j : Fin 4,
+      2 * mat4Mul (s3Mat2 c) C i j = mat4Mul (s3Mat2 c) (mat4Mul A B) i j := by
+    intro i j
+    change 2 * sum4 (fun k => s3Mat2 c i k * C k j) =
+           sum4 (fun k => s3Mat2 c i k * mat4Mul A B k j)
+    rw [← sum4_mul_left]
+    apply congrArg sum4; funext k
+    rw [← hC k j]
+    exact int_mul_left_comm_chir 2 (s3Mat2 c i k) (C k j)
+  have hMid : mat4Mul (s3Mat2 c) (mat4Mul A B) =
+      mat4Mul (fun i j => 2 * wd4Mat2 (wd4Mul w1 w2) i j) (s3Mat2 c) := by
+    rw [← mat4Mul_assoc, hA, mat4Mul_assoc, hB, ← mat4Mul_assoc, wd4Mul_mat2]
+  have h2R : ∀ i j : Fin 4,
+      mat4Mul (fun p q => 2 * wd4Mat2 (wd4Mul w1 w2) p q) (s3Mat2 c) i j =
+      2 * mat4Mul (wd4Mat2 (wd4Mul w1 w2)) (s3Mat2 c) i j := by
+    intro i j
+    change sum4 (fun k => (2 * wd4Mat2 (wd4Mul w1 w2) i k) * s3Mat2 c k j) =
+           2 * sum4 (fun k => wd4Mat2 (wd4Mul w1 w2) i k * s3Mat2 c k j)
+    rw [← sum4_mul_left]
+    apply congrArg sum4; funext k
+    exact Int.mul_assoc 2 (wd4Mat2 (wd4Mul w1 w2) i k) (s3Mat2 c k j)
+  apply mat4_ext; intro i j
+  have hij := h2L i j
+  rw [hMid, h2R i j] at hij
+  omega
+
+private theorem conj_closed_s3_comp (c1 c2 : Fin 6) (A : Mat4) (w2 w1 : WD4Elem)
+    (h2 : mat4Mul (s3Mat2 c2) A = mat4Mul (wd4Mat2 w2) (s3Mat2 c2))
+    (h1 : mat4Mul (s3Mat2 c1) (wd4Mat2 w2) = mat4Mul (wd4Mat2 w1) (s3Mat2 c1)) :
+    mat4Mul (s3Mat2 (s3Mul c1 c2)) A = mat4Mul (wd4Mat2 w1) (s3Mat2 (s3Mul c1 c2)) := by
+  have hS3 : mat4Mul (s3Mat2 c1) (s3Mat2 c2) = fun i j => 2 * s3Mat2 (s3Mul c1 c2) i j :=
+    mat4_ext _ _ (fun i j => (s3_basic_tables.1 c1 c2 i j).symm)
+  have h2L : ∀ i j : Fin 4,
+      2 * mat4Mul (s3Mat2 (s3Mul c1 c2)) A i j =
+      mat4Mul (mat4Mul (s3Mat2 c1) (s3Mat2 c2)) A i j := by
+    intro i j
+    rw [hS3]
+    change 2 * sum4 (fun k => s3Mat2 (s3Mul c1 c2) i k * A k j) =
+           sum4 (fun k => (2 * s3Mat2 (s3Mul c1 c2) i k) * A k j)
+    rw [← sum4_mul_left]
+    apply congrArg sum4; funext k
+    exact (Int.mul_assoc 2 (s3Mat2 (s3Mul c1 c2) i k) (A k j)).symm
+  have h2R : ∀ i j : Fin 4,
+      mat4Mul (wd4Mat2 w1) (mat4Mul (s3Mat2 c1) (s3Mat2 c2)) i j =
+      2 * mat4Mul (wd4Mat2 w1) (s3Mat2 (s3Mul c1 c2)) i j := by
+    intro i j
+    rw [hS3]
+    change sum4 (fun k => wd4Mat2 w1 i k * (2 * s3Mat2 (s3Mul c1 c2) k j)) =
+           2 * sum4 (fun k => wd4Mat2 w1 i k * s3Mat2 (s3Mul c1 c2) k j)
+    rw [← sum4_mul_left]
+    apply congrArg sum4; funext k
+    exact (int_mul_left_comm_chir 2 (wd4Mat2 w1 i k) (s3Mat2 (s3Mul c1 c2) k j)).symm
+  have hMid : mat4Mul (mat4Mul (s3Mat2 c1) (s3Mat2 c2)) A =
+      mat4Mul (wd4Mat2 w1) (mat4Mul (s3Mat2 c1) (s3Mat2 c2)) := by
+    rw [mat4Mul_assoc, h2, ← mat4Mul_assoc, h1, mat4Mul_assoc]
+  apply mat4_ext; intro i j
+  have hij := h2L i j
+  rw [hMid, h2R i j] at hij
+  omega
+
+private def adjSwapPerm : Fin 3 → Fin 24
+  | ⟨0, _⟩ => ⟨6, by decide⟩
+  | ⟨1, _⟩ => ⟨2, by decide⟩
+  | ⟨2, _⟩ => ⟨1, by decide⟩
+
+private def permWordMat2 (ws : List (Fin 3)) : Mat4 :=
+  fun i j => 2 * coord4 (applySwapsVec ws (stdBasis4 j)) i
+
+private theorem permWordMat2_cons (s : Fin 3) (rest : List (Fin 3)) (i j : Fin 4) :
+    2 * permWordMat2 (s :: rest) i j = mat4Mul (perm4Mat2 (adjSwapPerm s)) (permWordMat2 rest) i j := by
+  have hCol : (permWordMat2 rest ⟨0, by decide⟩ j, permWordMat2 rest ⟨1, by decide⟩ j,
+               permWordMat2 rest ⟨2, by decide⟩ j, permWordMat2 rest ⟨3, by decide⟩ j) =
+      scaleVec4 2 (applySwapsVec rest (stdBasis4 j)) := rfl
+  have hSwap : ∀ v : Vec4, perm4Vec (adjSwapPerm s) v = adjSwapVec s v := by
+    intro v
+    match s with
+    | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ => rfl
+  rw [mat4Mul_eq_coord4_mat4Vec, hCol, mat4Vec_scale2, mat4Vec_perm4, hSwap]
+  match i with
+  | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ => rfl
+
+private theorem conj_closed_id2 (c : Fin 6) :
+    mat4Mul (s3Mat2 c) mat4Id2 = mat4Mul (wd4Mat2 (⟨0, by decide⟩, ⟨0, by decide⟩)) (s3Mat2 c) := by
+  apply mat4_ext; intro i j
+  exact (by decide : ∀ c : Fin 6, ∀ i j : Fin 4,
+    mat4Mul (s3Mat2 c) mat4Id2 i j =
+      mat4Mul (wd4Mat2 (⟨0, by decide⟩, ⟨0, by decide⟩)) (s3Mat2 c) i j) c i j
+
+private theorem s3_gen_conj_witnesses :
+    (∀ i j : Fin 4, mat4Mul (s3Mat2 ⟨1, by decide⟩) (perm4Mat2 ⟨6, by decide⟩) i j =
+      mat4Mul (wd4Mat2 (⟨1, by decide⟩, ⟨0, by decide⟩)) (s3Mat2 ⟨1, by decide⟩) i j) ∧
+    (∀ i j : Fin 4, mat4Mul (s3Mat2 ⟨1, by decide⟩) (perm4Mat2 ⟨2, by decide⟩) i j =
+      mat4Mul (wd4Mat2 (⟨2, by decide⟩, ⟨0, by decide⟩)) (s3Mat2 ⟨1, by decide⟩) i j) ∧
+    (∀ i j : Fin 4, mat4Mul (s3Mat2 ⟨1, by decide⟩) (perm4Mat2 ⟨1, by decide⟩) i j =
+      mat4Mul (wd4Mat2 (⟨1, by decide⟩, ⟨1, by decide⟩)) (s3Mat2 ⟨1, by decide⟩) i j) ∧
+    (∀ i j : Fin 4, mat4Mul (s3Mat2 ⟨1, by decide⟩) (evenSignMat2 ⟨1, by decide⟩) i j =
+      mat4Mul (wd4Mat2 (⟨7, by decide⟩, ⟨1, by decide⟩)) (s3Mat2 ⟨1, by decide⟩) i j) ∧
+    (∀ i j : Fin 4, mat4Mul (s3Mat2 ⟨1, by decide⟩) (evenSignMat2 ⟨2, by decide⟩) i j =
+      mat4Mul (wd4Mat2 (⟨16, by decide⟩, ⟨2, by decide⟩)) (s3Mat2 ⟨1, by decide⟩) i j) ∧
+    (∀ i j : Fin 4, mat4Mul (s3Mat2 ⟨1, by decide⟩) (evenSignMat2 ⟨4, by decide⟩) i j =
+      mat4Mul (wd4Mat2 (⟨23, by decide⟩, ⟨3, by decide⟩)) (s3Mat2 ⟨1, by decide⟩) i j) ∧
+    (∀ i j : Fin 4, mat4Mul (s3Mat2 ⟨3, by decide⟩) (perm4Mat2 ⟨6, by decide⟩) i j =
+      mat4Mul (wd4Mat2 (⟨6, by decide⟩, ⟨0, by decide⟩)) (s3Mat2 ⟨3, by decide⟩) i j) ∧
+    (∀ i j : Fin 4, mat4Mul (s3Mat2 ⟨3, by decide⟩) (perm4Mat2 ⟨2, by decide⟩) i j =
+      mat4Mul (wd4Mat2 (⟨2, by decide⟩, ⟨0, by decide⟩)) (s3Mat2 ⟨3, by decide⟩) i j) ∧
+    (∀ i j : Fin 4, mat4Mul (s3Mat2 ⟨3, by decide⟩) (perm4Mat2 ⟨1, by decide⟩) i j =
+      mat4Mul (wd4Mat2 (⟨1, by decide⟩, ⟨1, by decide⟩)) (s3Mat2 ⟨3, by decide⟩) i j) ∧
+    (∀ i j : Fin 4, mat4Mul (s3Mat2 ⟨3, by decide⟩) (evenSignMat2 ⟨1, by decide⟩) i j =
+      mat4Mul (wd4Mat2 (⟨0, by decide⟩, ⟨1, by decide⟩)) (s3Mat2 ⟨3, by decide⟩) i j) ∧
+    (∀ i j : Fin 4, mat4Mul (s3Mat2 ⟨3, by decide⟩) (evenSignMat2 ⟨2, by decide⟩) i j =
+      mat4Mul (wd4Mat2 (⟨0, by decide⟩, ⟨2, by decide⟩)) (s3Mat2 ⟨3, by decide⟩) i j) ∧
+    (∀ i j : Fin 4, mat4Mul (s3Mat2 ⟨3, by decide⟩) (evenSignMat2 ⟨4, by decide⟩) i j =
+      mat4Mul (wd4Mat2 (⟨0, by decide⟩, ⟨4, by decide⟩)) (s3Mat2 ⟨3, by decide⟩) i j) := by
+  decide
+
+private theorem conj_closed_all_of_gens (c : Fin 6)
+    (hSwap : ∀ s : Fin 3, ∃ w : WD4Elem,
+      mat4Mul (s3Mat2 c) (perm4Mat2 (adjSwapPerm s)) = mat4Mul (wd4Mat2 w) (s3Mat2 c))
+    (hE1 : ∃ w : WD4Elem, mat4Mul (s3Mat2 c) (evenSignMat2 ⟨1, by decide⟩) = mat4Mul (wd4Mat2 w) (s3Mat2 c))
+    (hE2 : ∃ w : WD4Elem, mat4Mul (s3Mat2 c) (evenSignMat2 ⟨2, by decide⟩) = mat4Mul (wd4Mat2 w) (s3Mat2 c))
+    (hE4 : ∃ w : WD4Elem, mat4Mul (s3Mat2 c) (evenSignMat2 ⟨4, by decide⟩) = mat4Mul (wd4Mat2 w) (s3Mat2 c)) :
+    (∀ p : Fin 24, ∃ w : WD4Elem, mat4Mul (s3Mat2 c) (perm4Mat2 p) = mat4Mul (wd4Mat2 w) (s3Mat2 c)) ∧
+    (∀ e : Fin 8, ∃ w : WD4Elem, mat4Mul (s3Mat2 c) (evenSignMat2 e) = mat4Mul (wd4Mat2 w) (s3Mat2 c)) ∧
+    (∀ d : WD4Elem, ∃ w : WD4Elem, mat4Mul (s3Mat2 c) (wd4Mat2 d) = mat4Mul (wd4Mat2 w) (s3Mat2 c)) := by
+  have hWord : ∀ ws : List (Fin 3), ∃ w : WD4Elem,
+      mat4Mul (s3Mat2 c) (permWordMat2 ws) = mat4Mul (wd4Mat2 w) (s3Mat2 c) := by
+    intro ws
+    induction ws with
+    | nil =>
+      have hNil : permWordMat2 [] = mat4Id2 :=
+        mat4_ext _ _ (by decide : ∀ i j : Fin 4, permWordMat2 [] i j = mat4Id2 i j)
+      rw [hNil]
+      exact ⟨(⟨0, by decide⟩, ⟨0, by decide⟩), conj_closed_id2 c⟩
+    | cons s rest ih =>
+      obtain ⟨w1, hw1⟩ := hSwap s
+      obtain ⟨w2, hw2⟩ := ih
+      exact ⟨wd4Mul w1 w2, conj_closed_mul_half c _ _ _ w1 w2 hw1 hw2 (permWordMat2_cons s rest)⟩
+  have hP : ∀ p : Fin 24, ∃ w : WD4Elem, mat4Mul (s3Mat2 c) (perm4Mat2 p) = mat4Mul (wd4Mat2 w) (s3Mat2 c) :=
+    fun p => hWord (perm4Word p)
+  have hE : ∀ e : Fin 8, ∃ w : WD4Elem, mat4Mul (s3Mat2 c) (evenSignMat2 e) = mat4Mul (wd4Mat2 w) (s3Mat2 c) := by
+    intro e
+    have hE0 : ∃ w : WD4Elem, mat4Mul (s3Mat2 c) (evenSignMat2 ⟨0, by decide⟩) = mat4Mul (wd4Mat2 w) (s3Mat2 c) := by
+      have h0 : evenSignMat2 ⟨0, by decide⟩ = mat4Id2 :=
+        mat4_ext _ _ (by decide : ∀ i j : Fin 4, evenSignMat2 ⟨0, by decide⟩ i j = mat4Id2 i j)
+      rw [h0]
+      exact ⟨(⟨0, by decide⟩, ⟨0, by decide⟩), conj_closed_id2 c⟩
+    have hE3 : ∃ w : WD4Elem, mat4Mul (s3Mat2 c) (evenSignMat2 ⟨3, by decide⟩) = mat4Mul (wd4Mat2 w) (s3Mat2 c) := by
+      obtain ⟨w1, hw1⟩ := hE1; obtain ⟨w2, hw2⟩ := hE2
+      have hMul : evenSignMul ⟨1, by decide⟩ ⟨2, by decide⟩ = ⟨3, by decide⟩ := by decide
+      refine ⟨wd4Mul w1 w2, conj_closed_mul_half c _ _ _ w1 w2 hw1 hw2 ?_⟩
+      intro i j; rw [← hMul]; exact evenSign_mul_mat2 ⟨1, by decide⟩ ⟨2, by decide⟩ i j
+    have hE5 : ∃ w : WD4Elem, mat4Mul (s3Mat2 c) (evenSignMat2 ⟨5, by decide⟩) = mat4Mul (wd4Mat2 w) (s3Mat2 c) := by
+      obtain ⟨w1, hw1⟩ := hE1; obtain ⟨w4, hw4⟩ := hE4
+      have hMul : evenSignMul ⟨1, by decide⟩ ⟨4, by decide⟩ = ⟨5, by decide⟩ := by decide
+      refine ⟨wd4Mul w1 w4, conj_closed_mul_half c _ _ _ w1 w4 hw1 hw4 ?_⟩
+      intro i j; rw [← hMul]; exact evenSign_mul_mat2 ⟨1, by decide⟩ ⟨4, by decide⟩ i j
+    have hE6 : ∃ w : WD4Elem, mat4Mul (s3Mat2 c) (evenSignMat2 ⟨6, by decide⟩) = mat4Mul (wd4Mat2 w) (s3Mat2 c) := by
+      obtain ⟨w2, hw2⟩ := hE2; obtain ⟨w4, hw4⟩ := hE4
+      have hMul : evenSignMul ⟨2, by decide⟩ ⟨4, by decide⟩ = ⟨6, by decide⟩ := by decide
+      refine ⟨wd4Mul w2 w4, conj_closed_mul_half c _ _ _ w2 w4 hw2 hw4 ?_⟩
+      intro i j; rw [← hMul]; exact evenSign_mul_mat2 ⟨2, by decide⟩ ⟨4, by decide⟩ i j
+    have hE7 : ∃ w : WD4Elem, mat4Mul (s3Mat2 c) (evenSignMat2 ⟨7, by decide⟩) = mat4Mul (wd4Mat2 w) (s3Mat2 c) := by
+      obtain ⟨w1, hw1⟩ := hE1; obtain ⟨w6, hw6⟩ := hE6
+      have hMul : evenSignMul ⟨1, by decide⟩ ⟨6, by decide⟩ = ⟨7, by decide⟩ := by decide
+      refine ⟨wd4Mul w1 w6, conj_closed_mul_half c _ _ _ w1 w6 hw1 hw6 ?_⟩
+      intro i j; rw [← hMul]; exact evenSign_mul_mat2 ⟨1, by decide⟩ ⟨6, by decide⟩ i j
+    match e with
+    | ⟨0, _⟩ => exact hE0
+    | ⟨1, _⟩ => exact hE1
+    | ⟨2, _⟩ => exact hE2
+    | ⟨3, _⟩ => exact hE3
+    | ⟨4, _⟩ => exact hE4
+    | ⟨5, _⟩ => exact hE5
+    | ⟨6, _⟩ => exact hE6
+    | ⟨7, _⟩ => exact hE7
+  have hD : ∀ d : WD4Elem, ∃ w : WD4Elem, mat4Mul (s3Mat2 c) (wd4Mat2 d) = mat4Mul (wd4Mat2 w) (s3Mat2 c) := by
+    intro d
+    obtain ⟨we, hwe⟩ := hE d.2
+    obtain ⟨wp, hwp⟩ := hP d.1
+    exact ⟨wd4Mul we wp, conj_closed_mul_half c _ _ _ we wp hwe hwp (wd4_even_entries d.1 d.2)⟩
+  exact ⟨hP, hE, hD⟩
+
+private theorem conj_closed_all_s3 (c : Fin 6) :
+    (∀ p : Fin 24, ∃ w : WD4Elem, mat4Mul (s3Mat2 c) (perm4Mat2 p) = mat4Mul (wd4Mat2 w) (s3Mat2 c)) ∧
+    (∀ e : Fin 8, ∃ w : WD4Elem, mat4Mul (s3Mat2 c) (evenSignMat2 e) = mat4Mul (wd4Mat2 w) (s3Mat2 c)) := by
+  have h1 := conj_closed_all_of_gens ⟨1, by decide⟩
+    (fun s => match s with
+      | ⟨0, _⟩ => ⟨(⟨1, by decide⟩, ⟨0, by decide⟩), mat4_ext _ _ s3_gen_conj_witnesses.1⟩
+      | ⟨1, _⟩ => ⟨(⟨2, by decide⟩, ⟨0, by decide⟩), mat4_ext _ _ s3_gen_conj_witnesses.2.1⟩
+      | ⟨2, _⟩ => ⟨(⟨1, by decide⟩, ⟨1, by decide⟩), mat4_ext _ _ s3_gen_conj_witnesses.2.2.1⟩)
+    ⟨(⟨7, by decide⟩, ⟨1, by decide⟩), mat4_ext _ _ s3_gen_conj_witnesses.2.2.2.1⟩
+    ⟨(⟨16, by decide⟩, ⟨2, by decide⟩), mat4_ext _ _ s3_gen_conj_witnesses.2.2.2.2.1⟩
+    ⟨(⟨23, by decide⟩, ⟨3, by decide⟩), mat4_ext _ _ s3_gen_conj_witnesses.2.2.2.2.2.1⟩
+  have h3 := conj_closed_all_of_gens ⟨3, by decide⟩
+    (fun s => match s with
+      | ⟨0, _⟩ => ⟨(⟨6, by decide⟩, ⟨0, by decide⟩), mat4_ext _ _ s3_gen_conj_witnesses.2.2.2.2.2.2.1⟩
+      | ⟨1, _⟩ => ⟨(⟨2, by decide⟩, ⟨0, by decide⟩), mat4_ext _ _ s3_gen_conj_witnesses.2.2.2.2.2.2.2.1⟩
+      | ⟨2, _⟩ => ⟨(⟨1, by decide⟩, ⟨1, by decide⟩), mat4_ext _ _ s3_gen_conj_witnesses.2.2.2.2.2.2.2.2.1⟩)
+    ⟨(⟨0, by decide⟩, ⟨1, by decide⟩), mat4_ext _ _ s3_gen_conj_witnesses.2.2.2.2.2.2.2.2.2.1⟩
+    ⟨(⟨0, by decide⟩, ⟨2, by decide⟩), mat4_ext _ _ s3_gen_conj_witnesses.2.2.2.2.2.2.2.2.2.2.1⟩
+    ⟨(⟨0, by decide⟩, ⟨4, by decide⟩), mat4_ext _ _ s3_gen_conj_witnesses.2.2.2.2.2.2.2.2.2.2.2⟩
+  have h2P : ∀ p : Fin 24, ∃ w : WD4Elem,
+      mat4Mul (s3Mat2 ⟨2, by decide⟩) (perm4Mat2 p) = mat4Mul (wd4Mat2 w) (s3Mat2 ⟨2, by decide⟩) := by
+    intro p
+    obtain ⟨w2, hw2⟩ := h1.1 p
+    obtain ⟨w1, hw1⟩ := h1.2.2 w2
+    exact ⟨w1, conj_closed_s3_comp ⟨1, by decide⟩ ⟨1, by decide⟩ (perm4Mat2 p) w2 w1 hw2 hw1⟩
+  have h2E : ∀ e : Fin 8, ∃ w : WD4Elem,
+      mat4Mul (s3Mat2 ⟨2, by decide⟩) (evenSignMat2 e) = mat4Mul (wd4Mat2 w) (s3Mat2 ⟨2, by decide⟩) := by
+    intro e
+    obtain ⟨w2, hw2⟩ := h1.2.1 e
+    obtain ⟨w1, hw1⟩ := h1.2.2 w2
+    exact ⟨w1, conj_closed_s3_comp ⟨1, by decide⟩ ⟨1, by decide⟩ (evenSignMat2 e) w2 w1 hw2 hw1⟩
+  match c with
+  | ⟨0, _⟩ =>
+    have hE0 : evenSignMat2 ⟨0, by decide⟩ = mat4Id2 :=
+      mat4_ext _ _ (by decide : ∀ i j : Fin 4, evenSignMat2 ⟨0, by decide⟩ i j = mat4Id2 i j)
+    have hP0 : perm4Mat2 ⟨0, by decide⟩ = mat4Id2 :=
+      mat4_ext _ _ (by decide : ∀ i j : Fin 4, perm4Mat2 ⟨0, by decide⟩ i j = mat4Id2 i j)
+    have hIdL : ∀ M : Mat4, ∀ i j : Fin 4, mat4Mul mat4Id2 M i j = 2 * M i j := by
+      intro M i j
+      match i with
+      | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ => simp [mat4Id2, mat4Mul, sum4]; omega
+    have hIdR : ∀ M : Mat4, ∀ i j : Fin 4, mat4Mul M mat4Id2 i j = 2 * M i j := by
+      intro M i j
+      match j with
+      | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ => simp [mat4Id2, mat4Mul, sum4]; omega
+    refine ⟨fun p => ⟨(p, ⟨0, by decide⟩), ?_⟩, fun e => ⟨(⟨0, by decide⟩, e), ?_⟩⟩
+    · have hW : wd4Mat2 (p, ⟨0, by decide⟩) = perm4Mat2 p := by
+        apply mat4_ext; intro i j
+        have h := wd4_even_entries p ⟨0, by decide⟩ i j
+        rw [hE0, hIdL (perm4Mat2 p) i j] at h
+        omega
+      rw [hW]
+      apply mat4_ext; intro i j
+      change mat4Mul mat4Id2 (perm4Mat2 p) i j = mat4Mul (perm4Mat2 p) mat4Id2 i j
+      rw [hIdL, hIdR]
+    · have hW : wd4Mat2 (⟨0, by decide⟩, e) = evenSignMat2 e := by
+        apply mat4_ext; intro i j
+        have h := wd4_even_entries ⟨0, by decide⟩ e i j
+        rw [hP0, hIdR (evenSignMat2 e) i j] at h
+        omega
+      rw [hW]
+      apply mat4_ext; intro i j
+      change mat4Mul mat4Id2 (evenSignMat2 e) i j = mat4Mul (evenSignMat2 e) mat4Id2 i j
+      rw [hIdL, hIdR]
+  | ⟨1, _⟩ => exact ⟨h1.1, h1.2.1⟩
+  | ⟨2, _⟩ => exact ⟨h2P, h2E⟩
+  | ⟨3, _⟩ => exact ⟨h3.1, h3.2.1⟩
+  | ⟨4, _⟩ =>
+    refine ⟨?_, ?_⟩
+    · intro p
+      obtain ⟨w2, hw2⟩ := h1.1 p
+      obtain ⟨w1, hw1⟩ := h3.2.2 w2
+      exact ⟨w1, conj_closed_s3_comp ⟨3, by decide⟩ ⟨1, by decide⟩ (perm4Mat2 p) w2 w1 hw2 hw1⟩
+    · intro e
+      obtain ⟨w2, hw2⟩ := h1.2.1 e
+      obtain ⟨w1, hw1⟩ := h3.2.2 w2
+      exact ⟨w1, conj_closed_s3_comp ⟨3, by decide⟩ ⟨1, by decide⟩ (evenSignMat2 e) w2 w1 hw2 hw1⟩
+  | ⟨5, _⟩ =>
+    refine ⟨?_, ?_⟩
+    · intro p
+      obtain ⟨w2, hw2⟩ := h2P p
+      obtain ⟨w1, hw1⟩ := h3.2.2 w2
+      exact ⟨w1, conj_closed_s3_comp ⟨3, by decide⟩ ⟨2, by decide⟩ (perm4Mat2 p) w2 w1 hw2 hw1⟩
+    · intro e
+      obtain ⟨w2, hw2⟩ := h2E e
+      obtain ⟨w1, hw1⟩ := h3.2.2 w2
+      exact ⟨w1, conj_closed_s3_comp ⟨3, by decide⟩ ⟨2, by decide⟩ (evenSignMat2 e) w2 w1 hw2 hw1⟩
+
 private theorem s3_and_wd4_closure_tables :
     (∀ c1 c2 : Fin 6, ∀ i j : Fin 4,
       2 * s3Mat2 (s3Mul c1 c2) i j = mat4Mul (s3Mat2 c1) (s3Mat2 c2) i j) ∧
@@ -1101,7 +1716,18 @@ private theorem s3_and_wd4_closure_tables :
       2 * evenSignMat2 (evenSignMul e1 e2) i j = mat4Mul (evenSignMat2 e1) (evenSignMat2 e2) i j) ∧
     (∀ p : Fin 24, ∀ e : Fin 8, ∀ i j : Fin 4,
       mat4Mul (perm4Mat2 p) (evenSignMat2 e) i j = mat4Mul (evenSignMat2 (conjPermSign p e)) (perm4Mat2 p) i j) := by
-  decide
+  refine ⟨s3_basic_tables.1, s3_basic_tables.2.1, s3_basic_tables.2.2, ?_, ?_,
+          perm4_mul_mat2, evenSign_mul_mat2, conjPermSign_mat2⟩
+  · intro c e i j
+    obtain ⟨w, hw⟩ := (conj_closed_all_s3 c).2 e
+    have hEqW : conjS3Sign c e = w := conj_mat2ToWD4_eq c (evenSignMat2 e) w hw
+    rw [hEqW]
+    exact congrFun (congrFun hw i) j
+  · intro c p i j
+    obtain ⟨w, hw⟩ := (conj_closed_all_s3 c).1 p
+    have hEqW : conjS3Perm c p = w := conj_mat2ToWD4_eq c (perm4Mat2 p) w hw
+    rw [hEqW]
+    exact congrFun (congrFun hw i) j
 
 private theorem wd4_det_and_s3_det_mul :
     (∀ p1 p2 : Fin 24, perm4Det (perm4Mul p1 p2) = perm4Det p1 * perm4Det p2) ∧
@@ -1123,7 +1749,7 @@ private theorem wf4Det_pm_one (g : WF4Elem) : wf4Det g = 1 ∨ wf4Det g = -1 := 
 
 private theorem wf4Det_mul (g1 g2 : WF4Elem) :
     wf4Det (wf4Mul g1 g2) = wf4Det g1 * wf4Det g2 := by
-  unfold wf4Det wf4Mul wd4Mul conjS3WD4
+  simp only [wf4Det, wf4Mul, wd4Mul, conjS3WD4]
   rw [wd4_det_and_s3_det_mul.1, wd4_det_and_s3_det_mul.1,
       wd4_det_and_s3_det_mul.2.2.1, wd4_det_and_s3_det_mul.2.2.2,
       wd4_det_and_s3_det_mul.2.1, Int.one_mul]
@@ -1137,9 +1763,8 @@ private theorem wd4_inj_and_disjoint_s3 :
   refine ⟨?_, ?_⟩
   · intro p1 p2 e1 e2 hEq
     have hMat : wd4Mat2 (p1, e1) = wd4Mat2 (p2, e2) := mat4_ext _ _ hEq
-    have hBack : ∀ p : Fin 24, ∀ e : Fin 8, mat2ToWD4 (wd4Mat2 (p, e)) = (p, e) := by decide
-    have h1 := hBack p1 e1
-    have h2 := hBack p2 e2
+    have h1 := wd4_mat2ToWD4_left_inv (p1, e1)
+    have h2 := wd4_mat2ToWD4_left_inv (p2, e2)
     rw [hMat] at h1
     rw [h1] at h2
     exact Prod.mk.inj h2
@@ -1156,48 +1781,6 @@ private theorem wd4_inj_and_disjoint_s3 :
           (∀ i j : Fin 4, wd4Mat2 (q, f) i j = s3Mat2 ⟨3, by decide⟩ i j) → False := by decide
       exact hProd p e hEq
 
-private theorem wd4Mul_mat2 (d1 d2 : WD4Elem) :
-    mat4Mul (wd4Mat2 d1) (wd4Mat2 d2) = fun i j => 2 * wd4Mat2 (wd4Mul d1 d2) i j := by
-  have hL : ∀ i j : Fin 4,
-      4 * mat4Mul (wd4Mat2 d1) (wd4Mat2 d2) i j =
-      mat4Mul (mat4Mul (evenSignMat2 d1.2) (perm4Mat2 d1.1))
-              (mat4Mul (evenSignMat2 d2.2) (perm4Mat2 d2.1)) i j := by
-    intro i j
-    unfold mat4Mul
-    rw [← sum4_mul_left]
-    apply congrArg sum4; funext k
-    rw [← wd4_even_entries d1.1 d1.2 i k, ← wd4_even_entries d2.1 d2.2 k j]
-    exact int_four_mul_pair (wd4Mat2 d1 i k) (wd4Mat2 d2 k j)
-  have hRearr : mat4Mul (mat4Mul (evenSignMat2 d1.2) (perm4Mat2 d1.1))
-                        (mat4Mul (evenSignMat2 d2.2) (perm4Mat2 d2.1)) =
-      fun i j => 4 * mat4Mul (evenSignMat2 (evenSignMul d1.2 (conjPermSign d1.1 d2.2)))
-                              (perm4Mat2 (perm4Mul d1.1 d2.1)) i j := by
-    rw [mat4Mul_assoc (evenSignMat2 d1.2) (perm4Mat2 d1.1),
-        ← mat4Mul_assoc (perm4Mat2 d1.1) (evenSignMat2 d2.2) (perm4Mat2 d2.1)]
-    have hConj : mat4Mul (perm4Mat2 d1.1) (evenSignMat2 d2.2) =
-        mat4Mul (evenSignMat2 (conjPermSign d1.1 d2.2)) (perm4Mat2 d1.1) :=
-      mat4_ext _ _ (s3_and_wd4_closure_tables.2.2.2.2.2.2.2 d1.1 d2.2)
-    rw [hConj, mat4Mul_assoc (evenSignMat2 (conjPermSign d1.1 d2.2)) (perm4Mat2 d1.1) (perm4Mat2 d2.1),
-        ← mat4Mul_assoc (evenSignMat2 d1.2) (evenSignMat2 (conjPermSign d1.1 d2.2))]
-    have hE : mat4Mul (evenSignMat2 d1.2) (evenSignMat2 (conjPermSign d1.1 d2.2)) =
-        fun i j => 2 * evenSignMat2 (evenSignMul d1.2 (conjPermSign d1.1 d2.2)) i j :=
-      mat4_ext _ _ (fun i j => (s3_and_wd4_closure_tables.2.2.2.2.2.2.1 d1.2 (conjPermSign d1.1 d2.2) i j).symm)
-    have hP : mat4Mul (perm4Mat2 d1.1) (perm4Mat2 d2.1) =
-        fun i j => 2 * perm4Mat2 (perm4Mul d1.1 d2.1) i j :=
-      mat4_ext _ _ (fun i j => (s3_and_wd4_closure_tables.2.2.2.2.2.1 d1.1 d2.1 i j).symm)
-    rw [hE, hP]
-    apply mat4_ext; intro i j
-    unfold mat4Mul
-    rw [← sum4_mul_left]
-    apply congrArg sum4; funext k
-    exact (int_four_mul_pair _ _).symm
-  apply mat4_ext; intro i j
-  have h1 := hL i j
-  rw [hRearr] at h1
-  have h2 := wd4_even_entries (perm4Mul d1.1 d2.1) (evenSignMul d1.2 (conjPermSign d1.1 d2.2)) i j
-  unfold wd4Mul
-  omega
-
 private theorem conjS3WD4_mat2 (c : Fin 6) (d : WD4Elem) :
     mat4Mul (s3Mat2 c) (wd4Mat2 d) = mat4Mul (wd4Mat2 (conjS3WD4 c d)) (s3Mat2 c) := by
   have h2 : ∀ i j : Fin 4,
@@ -1206,7 +1789,8 @@ private theorem conjS3WD4_mat2 (c : Fin 6) (d : WD4Elem) :
     intro i j
     have hL : 2 * mat4Mul (s3Mat2 c) (wd4Mat2 d) i j =
         mat4Mul (s3Mat2 c) (mat4Mul (evenSignMat2 d.2) (perm4Mat2 d.1)) i j := by
-      unfold mat4Mul
+      change 2 * sum4 (fun k => s3Mat2 c i k * wd4Mat2 d k j) =
+             sum4 (fun k => s3Mat2 c i k * mat4Mul (evenSignMat2 d.2) (perm4Mat2 d.1) k j)
       rw [← sum4_mul_left]
       apply congrArg sum4; funext k
       rw [← wd4_even_entries d.1 d.2 k j]
@@ -1222,7 +1806,8 @@ private theorem conjS3WD4_mat2 (c : Fin 6) (d : WD4Elem) :
     unfold conjS3WD4 mat4Mul
     rw [← sum4_mul_left]
     apply congrArg sum4; funext k
-    exact (Int.mul_assoc 2 (wd4Mat2 (wd4Mul (conjS3Sign c d.2) (conjS3Perm c d.1)) i k) (s3Mat2 c k j)).symm
+    dsimp only
+    exact Int.mul_assoc 2 (wd4Mat2 (wd4Mul (conjS3Sign c d.2) (conjS3Perm c d.1)) i k) (s3Mat2 c k j)
   apply mat4_ext; intro i j
   have hij := h2 i j
   omega
@@ -1236,7 +1821,9 @@ private theorem wf4Mul_mat2 (g1 g2 : WF4Elem) :
     have hL : 4 * mat4Mul (wf4Mat2 g1) (wf4Mat2 g2) i j =
         mat4Mul (mat4Mul (wd4Mat2 (g1.1, g1.2.1)) (s3Mat2 g1.2.2))
                 (mat4Mul (wd4Mat2 (g2.1, g2.2.1)) (s3Mat2 g2.2.2)) i j := by
-      unfold mat4Mul
+      change 4 * sum4 (fun k => wf4Mat2 g1 i k * wf4Mat2 g2 k j) =
+             sum4 (fun k => mat4Mul (wd4Mat2 (g1.1, g1.2.1)) (s3Mat2 g1.2.2) i k *
+                            mat4Mul (wd4Mat2 (g2.1, g2.2.1)) (s3Mat2 g2.2.2) k j)
       rw [← sum4_mul_left]
       apply congrArg sum4; funext k
       rw [← wf4_even_entries g1 i k, ← wf4_even_entries g2 k j]
@@ -1260,7 +1847,9 @@ private theorem wf4Mul_mat2 (g1 g2 : WF4Elem) :
       rw [← sum4_mul_left]
       apply congrArg sum4; funext k
       exact (int_four_mul_pair _ _).symm
-    rw [hL, hM, ← wf4_even_entries (wf4Mul g1 g2) i j]
+    rw [hL, hM]
+    dsimp only
+    rw [← wf4_even_entries (wf4Mul g1 g2) i j]
   apply mat4_ext; intro i j
   have hij := h4 i j
   omega
@@ -1439,84 +2028,29 @@ theorem thm_wf4_generated_by_simples_and_proper_gens :
 
 /-! ## Section 4: Exact Symbolic `det4` Transformation Law Across ALL 1,152 Elements of `W(F_4)` -/
 
-private theorem mat4Vec_perm4 (p : Fin 24) (v : Vec4) :
-    mat4Vec (perm4Mat2 p) v = scaleVec4 2 (perm4Vec p v) := by
-  cases v with | mk x0 r =>
-  cases r with | mk x1 r =>
-  cases r with | mk x2 x3 =>
-  have hLin : ∀ ws : List (Fin 3),
-      applySwapsVec ws (x0, x1, x2, x3) =
-        ( sum4 (fun k => coord4 (applySwapsVec ws (stdBasis4 k)) ⟨0, by decide⟩ * coord4 (x0, x1, x2, x3) k),
-          sum4 (fun k => coord4 (applySwapsVec ws (stdBasis4 k)) ⟨1, by decide⟩ * coord4 (x0, x1, x2, x3) k),
-          sum4 (fun k => coord4 (applySwapsVec ws (stdBasis4 k)) ⟨2, by decide⟩ * coord4 (x0, x1, x2, x3) k),
-          sum4 (fun k => coord4 (applySwapsVec ws (stdBasis4 k)) ⟨3, by decide⟩ * coord4 (x0, x1, x2, x3) k) ) := by
-    intro ws
-    induction ws with
-    | nil =>
-      simp only [applySwapsVec, sum4, stdBasis4, coord4]
-      exact Prod.ext (by omega) (Prod.ext (by omega) (Prod.ext (by omega) (by omega)))
-    | cons s rest ih =>
-      simp only [applySwapsVec]
-      match s with
-      | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ =>
-        rw [ih]
-        simp only [adjSwapVec, coord4]
-  have hP := hLin (perm4Word p)
-  unfold mat4Vec perm4Mat2 perm4Vec scaleVec4
-  rw [hP]
-  simp only [sum4, coord4, Int.mul_add, Int.mul_assoc]
-
-private theorem mat4Vec_evenSign (e : Fin 8) (v : Vec4) :
-    mat4Vec (evenSignMat2 e) v = scaleVec4 2 (evenSignVec e v) := by
-  cases v with | mk x0 r =>
-  cases r with | mk x1 r =>
-  cases r with | mk x2 x3 =>
-  have hLin : ∀ ns : List (Fin 4),
-      applyNegsVec ns (x0, x1, x2, x3) =
-        ( sum4 (fun k => coord4 (applyNegsVec ns (stdBasis4 k)) ⟨0, by decide⟩ * coord4 (x0, x1, x2, x3) k),
-          sum4 (fun k => coord4 (applyNegsVec ns (stdBasis4 k)) ⟨1, by decide⟩ * coord4 (x0, x1, x2, x3) k),
-          sum4 (fun k => coord4 (applyNegsVec ns (stdBasis4 k)) ⟨2, by decide⟩ * coord4 (x0, x1, x2, x3) k),
-          sum4 (fun k => coord4 (applyNegsVec ns (stdBasis4 k)) ⟨3, by decide⟩ * coord4 (x0, x1, x2, x3) k) ) := by
-    intro ns
-    induction ns with
-    | nil =>
-      simp only [applyNegsVec, sum4, stdBasis4, coord4]
-      exact Prod.ext (by omega) (Prod.ext (by omega) (Prod.ext (by omega) (by omega)))
-    | cons i rest ih =>
-      simp only [applyNegsVec]
-      match i with
-      | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ =>
-        rw [ih]
-        simp only [negCoordVec, coord4, sum4, Int.neg_mul]
-        exact Prod.ext (by omega) (Prod.ext (by omega) (Prod.ext (by omega) (by omega)))
-  have hE := hLin (evenSignNegs e)
-  unfold mat4Vec evenSignMat2 evenSignVec scaleVec4
-  rw [hE]
-  simp only [sum4, coord4, Int.mul_add, Int.mul_assoc]
-
 private theorem mat4Vec_s3_4 (v : Vec4) :
     mat4Vec (s3Mat2 ⟨4, by decide⟩) v = hadamardStep1 (adjSwapVec ⟨1, by decide⟩ (hadamardStep1 v)) := by
   cases v with | mk x0 r =>
   cases r with | mk x1 r =>
   cases r with | mk x2 x3 =>
-  simp only [mat4Vec, s3Mat2, mkMat4, sum4, coord4, hadamardStep1, adjSwapVec]
-  exact Prod.ext (by omega) (Prod.ext (by omega) (Prod.ext (by omega) (by omega)))
+  simp only [mat4Vec, s3Mat2, mkMat4, sum4, coord4, hadamardStep1, adjSwapVec, Prod.mk.injEq]
+  exact ⟨by omega, by omega, by omega, by omega⟩
 
 private theorem mat4Vec_s3_1 (v : Vec4) :
     mat4Vec (s3Mat2 ⟨1, by decide⟩) v = negCoordVec ⟨3, by decide⟩ (mat4Vec (s3Mat2 ⟨4, by decide⟩) v) := by
   cases v with | mk x0 r =>
   cases r with | mk x1 r =>
   cases r with | mk x2 x3 =>
-  simp only [mat4Vec, s3Mat2, mkMat4, sum4, coord4, negCoordVec]
-  exact Prod.ext (by omega) (Prod.ext (by omega) (Prod.ext (by omega) (by omega)))
+  simp only [mat4Vec, s3Mat2, mkMat4, sum4, coord4, negCoordVec, Prod.mk.injEq]
+  exact ⟨by omega, by omega, by omega, by omega⟩
 
 private theorem mat4Vec_s3_3 (v : Vec4) :
     mat4Vec (s3Mat2 ⟨3, by decide⟩) v = scaleVec4 2 (negCoordVec ⟨3, by decide⟩ v) := by
   cases v with | mk x0 r =>
   cases r with | mk x1 r =>
   cases r with | mk x2 x3 =>
-  simp only [mat4Vec, s3Mat2, mkMat4, sum4, coord4, scaleVec4, negCoordVec]
-  exact Prod.ext (by omega) (Prod.ext (by omega) (Prod.ext (by omega) (by omega)))
+  simp only [mat4Vec, s3Mat2, mkMat4, sum4, coord4, scaleVec4, negCoordVec, Prod.mk.injEq]
+  exact ⟨by omega, by omega, by omega, by omega⟩
 
 private theorem det4Vecs_s3Slot (c : Fin 6) (a b c0 d : Fin 24) :
     det4Vecs (d4RootOf (s3Slot c a)) (d4RootOf (s3Slot c b))
@@ -1658,6 +2192,7 @@ def f4Hyperplane : Fin 24 → Vec4
   | ⟨21, _⟩ => (1, -1,  1, -1)
   | ⟨22, _⟩ => (1, -1, -1,  1)
   | ⟨23, _⟩ => (1, -1, -1, -1)
+  | _ => (0, 0, 0, 0)
 
 /-- Explicit embedding of all 24 `F_4` root reflections into `WF4Elem` (`det = -1` involutions). -/
 def f4ReflWF4 : Fin 24 → WF4Elem
@@ -1685,6 +2220,7 @@ def f4ReflWF4 : Fin 24 → WF4Elem
   | ⟨21, _⟩ => (⟨7, by decide⟩,  ⟨0, by decide⟩, ⟨5, by decide⟩)
   | ⟨22, _⟩ => (⟨0, by decide⟩,  ⟨0, by decide⟩, ⟨5, by decide⟩)
   | ⟨23, _⟩ => (⟨0, by decide⟩,  ⟨0, by decide⟩, ⟨4, by decide⟩)
+  | _ => wf4Id
 
 /-- Explicit `W(D_4)` element mapping any `D_4` slot `a : Fin 24` to slot `0` (`(1, 1, 0, 0)`). -/
 def mapToSlot0 : Fin 24 → WF4Elem
@@ -1712,6 +2248,7 @@ def mapToSlot0 : Fin 24 → WF4Elem
   | ⟨21, _⟩ => (⟨16, by decide⟩, ⟨2, by decide⟩, ⟨0, by decide⟩)
   | ⟨22, _⟩ => (⟨16, by decide⟩, ⟨4, by decide⟩, ⟨0, by decide⟩)
   | ⟨23, _⟩ => (⟨16, by decide⟩, ⟨6, by decide⟩, ⟨0, by decide⟩)
+  | _ => wf4Id
 
 /-- Exact doubled reflection matrix `2 R_α` of hyperplane normal `α = f4Hyperplane h`. -/
 def f4HyperplaneReflMat2 (h : Fin 24) : Mat4 :=
@@ -1751,7 +2288,7 @@ private theorem k3_mirror_at_slot0 :
 private theorem any_true_exists {α : Type} (p : α → Bool) (xs : List α)
     (h : anyList p xs = true) : ∃ x : α, p x = true := by
   induction xs with
-  | nil => exact absurd h (by decide)
+  | nil => exact Bool.noConfusion h
   | cons a rest ih =>
     simp only [anyList] at h
     cases hp : p a
@@ -2032,7 +2569,7 @@ def sumFin24 (f : Fin 24 → Int) : Int := sumList24 f allSlots24
 private theorem inList24_erase_of_ne (a x : Fin 24) (l : List (Fin 24))
     (hne : x ≠ a) (h : inList24 x l = true) : inList24 x (erase24 a l) = true := by
   induction l with
-  | nil => exact absurd h (by decide)
+  | nil => exact Bool.noConfusion h
   | cons y ys ih =>
     simp only [inList24] at h
     if hya : y = a then
@@ -2051,7 +2588,7 @@ private theorem inList24_erase_of_ne (a x : Fin 24) (l : List (Fin 24))
 private theorem inList24_of_erase (a x : Fin 24) (l : List (Fin 24))
     (h : inList24 x (erase24 a l) = true) : inList24 x l = true := by
   induction l with
-  | nil => exact absurd h (by decide)
+  | nil => exact Bool.noConfusion h
   | cons y ys ih =>
     if hya : y = a then
       simp only [erase24, ite_eq_left hya] at h
@@ -2111,10 +2648,10 @@ private theorem noDup24_erase (a : Fin 24) (l : List (Fin 24))
 private theorem sumList24_erase (f : Fin 24 → Int) (a : Fin 24) (l : List (Fin 24))
     (h : inList24 a l = true) : sumList24 f l = f a + sumList24 f (erase24 a l) := by
   induction l with
-  | nil => exact absurd h (by decide)
+  | nil => exact Bool.noConfusion h
   | cons y ys ih =>
     if hya : y = a then
-      simp only [erase24, ite_eq_left hya, sumList24, hya]
+      simp only [erase24, sumList24, hya, ite_true]
     else
       simp only [inList24] at h
       have hne : decide (y = a) = false := decide_eq_false hya
@@ -2134,7 +2671,7 @@ private theorem sumList24_eq_of_equiv (f : Fin 24 → Int) (l1 l2 : List (Fin 24
     | cons y ys =>
       have hy := heq y
       rw [inList24_head] at hy
-      exact absurd hy (by decide)
+      exact Bool.noConfusion hy
   | cons x xs ih =>
     simp only [noDup24, bool_not_and_eq_true] at hnd1
     have hx2 : inList24 x l2 = true := by
@@ -2667,6 +3204,85 @@ def applyPhiOdd18 (ψ : DockFock) : DockFock :=
 def applyPhiOdd6 (ψ : DockFock) : DockFock :=
   fun d => Ninth.mul (phiOddPhase6 d) (ψ d)
 
+private def zeta18Tab : Nat → Ninth
+  | 0  => ⟨ 1,  0,  0,  0,  0,  0⟩
+  | 1  => ⟨ 0,  0,  0,  0,  0, -1⟩
+  | 2  => ⟨ 0,  1,  0,  0,  0,  0⟩
+  | 3  => ⟨ 1,  0,  0,  1,  0,  0⟩
+  | 4  => ⟨ 0,  0,  1,  0,  0,  0⟩
+  | 5  => ⟨ 0,  1,  0,  0,  1,  0⟩
+  | 6  => ⟨ 0,  0,  0,  1,  0,  0⟩
+  | 7  => ⟨ 0,  0,  1,  0,  0,  1⟩
+  | 8  => ⟨ 0,  0,  0,  0,  1,  0⟩
+  | 9  => ⟨-1,  0,  0,  0,  0,  0⟩
+  | 10 => ⟨ 0,  0,  0,  0,  0,  1⟩
+  | 11 => ⟨ 0, -1,  0,  0,  0,  0⟩
+  | 12 => ⟨-1,  0,  0, -1,  0,  0⟩
+  | 13 => ⟨ 0,  0, -1,  0,  0,  0⟩
+  | 14 => ⟨ 0, -1,  0,  0, -1,  0⟩
+  | 15 => ⟨ 0,  0,  0, -1,  0,  0⟩
+  | 16 => ⟨ 0,  0, -1,  0,  0, -1⟩
+  | 17 => ⟨ 0,  0,  0,  0, -1,  0⟩
+  | _  => Ninth.one
+
+private theorem zeta18_pow_eq_tab (k : Nat) (hk : k < 18) :
+    Ninth.pow Ninth.zeta18 k = zeta18Tab k := by
+  have h0  : Ninth.pow Ninth.zeta18 0  = zeta18Tab 0  := rfl
+  have h1  : Ninth.pow Ninth.zeta18 1  = zeta18Tab 1  := by
+    change Ninth.mul (Ninth.pow Ninth.zeta18 0) Ninth.zeta18 = zeta18Tab 1; rw [h0]; decide
+  have h2  : Ninth.pow Ninth.zeta18 2  = zeta18Tab 2  := by
+    change Ninth.mul (Ninth.pow Ninth.zeta18 1) Ninth.zeta18 = zeta18Tab 2; rw [h1]; decide
+  have h3  : Ninth.pow Ninth.zeta18 3  = zeta18Tab 3  := by
+    change Ninth.mul (Ninth.pow Ninth.zeta18 2) Ninth.zeta18 = zeta18Tab 3; rw [h2]; decide
+  have h4  : Ninth.pow Ninth.zeta18 4  = zeta18Tab 4  := by
+    change Ninth.mul (Ninth.pow Ninth.zeta18 3) Ninth.zeta18 = zeta18Tab 4; rw [h3]; decide
+  have h5  : Ninth.pow Ninth.zeta18 5  = zeta18Tab 5  := by
+    change Ninth.mul (Ninth.pow Ninth.zeta18 4) Ninth.zeta18 = zeta18Tab 5; rw [h4]; decide
+  have h6  : Ninth.pow Ninth.zeta18 6  = zeta18Tab 6  := by
+    change Ninth.mul (Ninth.pow Ninth.zeta18 5) Ninth.zeta18 = zeta18Tab 6; rw [h5]; decide
+  have h7  : Ninth.pow Ninth.zeta18 7  = zeta18Tab 7  := by
+    change Ninth.mul (Ninth.pow Ninth.zeta18 6) Ninth.zeta18 = zeta18Tab 7; rw [h6]; decide
+  have h8  : Ninth.pow Ninth.zeta18 8  = zeta18Tab 8  := by
+    change Ninth.mul (Ninth.pow Ninth.zeta18 7) Ninth.zeta18 = zeta18Tab 8; rw [h7]; decide
+  have h9  : Ninth.pow Ninth.zeta18 9  = zeta18Tab 9  := by
+    change Ninth.mul (Ninth.pow Ninth.zeta18 8) Ninth.zeta18 = zeta18Tab 9; rw [h8]; decide
+  have h10 : Ninth.pow Ninth.zeta18 10 = zeta18Tab 10 := by
+    change Ninth.mul (Ninth.pow Ninth.zeta18 9) Ninth.zeta18 = zeta18Tab 10; rw [h9]; decide
+  have h11 : Ninth.pow Ninth.zeta18 11 = zeta18Tab 11 := by
+    change Ninth.mul (Ninth.pow Ninth.zeta18 10) Ninth.zeta18 = zeta18Tab 11; rw [h10]; decide
+  have h12 : Ninth.pow Ninth.zeta18 12 = zeta18Tab 12 := by
+    change Ninth.mul (Ninth.pow Ninth.zeta18 11) Ninth.zeta18 = zeta18Tab 12; rw [h11]; decide
+  have h13 : Ninth.pow Ninth.zeta18 13 = zeta18Tab 13 := by
+    change Ninth.mul (Ninth.pow Ninth.zeta18 12) Ninth.zeta18 = zeta18Tab 13; rw [h12]; decide
+  have h14 : Ninth.pow Ninth.zeta18 14 = zeta18Tab 14 := by
+    change Ninth.mul (Ninth.pow Ninth.zeta18 13) Ninth.zeta18 = zeta18Tab 14; rw [h13]; decide
+  have h15 : Ninth.pow Ninth.zeta18 15 = zeta18Tab 15 := by
+    change Ninth.mul (Ninth.pow Ninth.zeta18 14) Ninth.zeta18 = zeta18Tab 15; rw [h14]; decide
+  have h16 : Ninth.pow Ninth.zeta18 16 = zeta18Tab 16 := by
+    change Ninth.mul (Ninth.pow Ninth.zeta18 15) Ninth.zeta18 = zeta18Tab 16; rw [h15]; decide
+  have h17 : Ninth.pow Ninth.zeta18 17 = zeta18Tab 17 := by
+    change Ninth.mul (Ninth.pow Ninth.zeta18 16) Ninth.zeta18 = zeta18Tab 17; rw [h16]; decide
+  match k, hk with
+  | 0,  _ => exact h0
+  | 1,  _ => exact h1
+  | 2,  _ => exact h2
+  | 3,  _ => exact h3
+  | 4,  _ => exact h4
+  | 5,  _ => exact h5
+  | 6,  _ => exact h6
+  | 7,  _ => exact h7
+  | 8,  _ => exact h8
+  | 9,  _ => exact h9
+  | 10, _ => exact h10
+  | 11, _ => exact h11
+  | 12, _ => exact h12
+  | 13, _ => exact h13
+  | 14, _ => exact h14
+  | 15, _ => exact h15
+  | 16, _ => exact h16
+  | 17, _ => exact h17
+  | _ + 18, hk => omega
+
 private theorem zeta18IntPow_unit (n : Int) :
     Ninth.mul (Ninth.conj (zeta18IntPow n)) (zeta18IntPow n) = Ninth.one := by
   unfold zeta18IntPow
@@ -2679,9 +3295,12 @@ private theorem zeta18IntPow_unit (n : Int) :
     have hm : m < 18 := by
       have hLt : n % 18 < 18 := by omega
       rw [h] at hLt
+      change (m : Int) < 18 at hLt
       omega
+    change Ninth.mul (Ninth.conj (Ninth.pow Ninth.zeta18 m)) (Ninth.pow Ninth.zeta18 m) = Ninth.one
+    rw [zeta18_pow_eq_tab m hm]
     exact (by decide : ∀ k : Fin 18,
-      Ninth.mul (Ninth.conj (Ninth.pow Ninth.zeta18 k.val)) (Ninth.pow Ninth.zeta18 k.val) = Ninth.one) ⟨m, hm⟩
+      Ninth.mul (Ninth.conj (zeta18Tab k.val)) (zeta18Tab k.val) = Ninth.one) ⟨m, hm⟩
 
 private theorem zeta18IntPow_neg (n : Int) :
     zeta18IntPow (-n) = Ninth.conj (zeta18IntPow n) := by
@@ -2695,6 +3314,7 @@ private theorem zeta18IntPow_neg (n : Int) :
     have hm : m < 18 := by
       have hLt : n % 18 < 18 := by omega
       rw [h] at hLt
+      change (m : Int) < 18 at hLt
       omega
     cases hNeg : ((-n) % 18) with
     | negSucc _ =>
@@ -2705,16 +3325,20 @@ private theorem zeta18IntPow_neg (n : Int) :
       have hm2Lt : m2 < 18 := by
         have hLt : (-n) % 18 < 18 := by omega
         rw [hNeg] at hLt
+        change (m2 : Int) < 18 at hLt
         omega
       have hDiv1 : 18 * (n / 18) + n % 18 = n := by omega
       have hDiv2 : 18 * ((-n) / 18) + (-n) % 18 = -n := by omega
       rw [h] at hDiv1
       rw [hNeg] at hDiv2
+      change 18 * (n / 18) + (m : Int) = n at hDiv1
+      change 18 * ((-n) / 18) + (m2 : Int) = -n at hDiv2
       have hm2 : m2 = (18 - m) % 18 := by omega
+      have h18mLt : (18 - m) % 18 < 18 := by omega
       change Ninth.pow Ninth.zeta18 m2 = Ninth.conj (Ninth.pow Ninth.zeta18 m)
-      rw [hm2]
+      rw [hm2, zeta18_pow_eq_tab ((18 - m) % 18) h18mLt, zeta18_pow_eq_tab m hm]
       exact (by decide : ∀ k : Fin 18,
-        Ninth.pow Ninth.zeta18 ((18 - k.val) % 18) = Ninth.conj (Ninth.pow Ninth.zeta18 k.val)) ⟨m, hm⟩
+        zeta18Tab ((18 - k.val) % 18) = Ninth.conj (zeta18Tab k.val)) ⟨m, hm⟩
 
 private theorem intSign_neg (n : Int) : intSign (-n) = -intSign n := by
   unfold intSign
@@ -2774,9 +3398,11 @@ theorem thm_phiOdd_phase_unit_and_covariance :
     refine ⟨?_, ?_⟩
     · funext d
       unfold applyPhiOdd18 wf4FockAct phiOddPhase18
+      dsimp only
       rw [hChiInv d]
     · funext d
       unfold applyPhiOdd6 wf4FockAct phiOddPhase6 zeta6IntPow
+      dsimp only
       rw [hChiInv d]
 
 end Vibe
