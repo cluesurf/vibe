@@ -2103,7 +2103,7 @@ function runPart2LiveFalsifiableDossier(): Part2DossierReport {
       title: 'Inflation H_inf vs pre-inflationary N_DW = 3 axion CMB isocurvature',
       modules: 'E-CSM-0067 vs E-FRC-0331',
       summary:
-        'E-CSM-0067 Starobinsky/cusp inflation gives H_inf ~ 1.52e13 GeV, exceeding E-FRC-0331 pre-inflationary N_DW = 3 axion CMB isocurvature bound H_inf < 9.9e6 GeV by 1.5e6x.',
+        'E-CSM-0067 Starobinsky/cusp inflation gives H_inf = 1.50e13 GeV, exceeding E-FRC-0331 pre-inflationary N_DW = 3 axion CMB isocurvature bound H_inf < 9.9e6 GeV by 1.51e6x.',
       resolutionPath:
         'Requires post-inflationary PQ breaking with explicit N_DW = 1 or domain-wall decay bias, or lower-scale inflation.',
     },
@@ -2227,7 +2227,7 @@ function runPart2LiveFalsifiableDossier(): Part2DossierReport {
       name: 'SO(10) axion anomaly ratio E/N = 8/3 & inflation H_inf vs N_DW = 3 isocurvature constraint',
       sourceCode: 'E-FRC-0331 / E-CSM-0067',
       kind: 'zero-fit-prediction',
-      predictedValue: 'Exact E/N = 8/3 (g_{a gamma gamma} DFSZ band), pre-inflationary N_DW = 3 isocurvature requires H_inf < 9.9e6 GeV vs E-CSM-0067 H_inf ~ 1.52e13 GeV',
+      predictedValue: 'Exact E/N = 8/3 (g_{a gamma gamma} DFSZ band), pre-inflationary N_DW = 3 isocurvature requires H_inf < 9.9e6 GeV vs E-CSM-0067 H_inf = 1.50e13 GeV',
       currentBound: 'Planck 2018 CMB isocurvature beta_iso < 0.038 (95% CL), ADMX / MADMAX haloscope bounds',
       nextGenDetector: 'ADMX-G2 + MADMAX + DMRadio + CMB-S4 / LiteBIRD (tensor-to-scalar r and isocurvature)',
       status: 'tension',

@@ -15,7 +15,7 @@ export default experiment({
   id: 'relativity/universal-speed-lock',
   code: 'E-RLT-0125',
   title:
-    'Universal limiting speed c_light = c_matter = c_grav to <= 1e-15 (beating GW170817 6e-15) on the shared {3,4,3,4} 1/N_D^2 warped cusp column, with decoupled negative control and exact unitary wave evolution',
+    'Universal limiting speed c_light = c_matter = c_grav to <= 1e-15 (inside GW170817 [-3e-15, +7e-16]) on the shared {3,4,3,4} 1/N_D^2 warped cusp beam, with decoupled negative control and exact unitary wave evolution',
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L2',
@@ -98,12 +98,12 @@ export default experiment({
       claim:
         `Decoupled unwarped husk light/matter (c_raw = ${res.cRawUnwarpedWeyl.toFixed(10)}) vs warped {3,4,3,4} graviton ` +
         `(c_grav = sqrt(K_eff/M_eff) = ${res.cGravWarpedAnalytical.toFixed(10)}) yields a ${(res.decoupledMismatchFrac * 100).toFixed(4)}% ` +
-        `mismatch (${res.decoupledViolationFactorVsGW170817.toExponential(2)}x past GW170817 6e-15). ` +
+        `mismatch (${res.decoupledViolationFactorVsGW170817.toExponential(2)}x past GW170817 reference ${GW170817_BOUND.toExponential(0)}; Abbott et al. 2017 [-3e-15, +7e-16]). ` +
         `Placing spin-2 TT graviton, spin-1 lattice Maxwell photon, and spin-1/2 chiral Weyl fermion on the EXACT SAME ` +
-        `1/N_D^2 warped cusp column (F = 16, K_eff = ${res.kEffF16.toFixed(10)}, M_eff = ${res.mEffF16.toFixed(10)}) locks ` +
+        `1/N_D^2 warped cusp beam (F = 16, K_eff = ${res.kEffF16.toFixed(10)}, M_eff = ${res.mEffF16.toFixed(10)}) locks ` +
         `|c_grav - c_light|/c_light <= ${res.maxGravVsLightRelDiff.toExponential(2)} and ` +
         `|c_matter - c_light|/c_light <= ${res.maxMatterVsLightRelDiff.toExponential(2)} across (1,0,0), (1,1,0), (1,1,1) ` +
-        `(beating GW170817 6e-15), with 3D isotropy spread ${res.maxIsotropySpread.toExponential(2)}, ` +
+        `(algebraic identity at Float64 eps, consistent with GW170817 [-3e-15, +7e-16]), with 3D isotropy spread ${res.maxIsotropySpread.toExponential(2)}, ` +
         `floor convergence |c(16)-c(12)| <= ${res.maxFloorDiffF16VsF12.toExponential(2)}, unique k=0 zero mode ` +
         `(m_KK_min = ${res.mKKMinF16.toFixed(4)} > 0.5, no light Horava scalar), strict causality c_universal < 1 dock/beat, ` +
         `unitary norm drift ${u.uWarpNormDrift1Beat.toExponential(2)} (1 beat) / ${u.uWarpNormDrift10Beats.toExponential(2)} (10 beats) / ${u.uWarpNormDrift1000Beats.toExponential(2)} (1000 beats), and static E-GRV-0157 K_eff match ` +
@@ -188,7 +188,7 @@ export default experiment({
         naiveLinearDiracMismatchFrac: res.naiveLinearDiracMismatchFrac,
       },
       notes:
-        'All three physical species are explicitly constructed and diagonalized on the exact same {3,4,3,4} 1/N_D^2 warped cusp column: 6*(F+1) symmetric metric with TT spin-2 projector, 3*(F+1) complex Hermitian lattice Maxwell curl-curl operator, and 2*(F+1) complex Hermitian square-root chiral Weyl operator. The bonus naiveLinearDirac control also proves that a site-local linear velocity <v_0|V_lat|v_0> misses sqrt(K_eff/M_eff) by 0.23% via Cauchy-Schwarz; exact speed lock requires the shared warped-column operator H_warp(k) = M_warp^{-1/2} L_warp(k) M_warp^{-1/2}.',
+        `All three physical species are explicitly constructed and diagonalized on the exact same {3,4,3,4} 1/N_D^2 warped cusp beam: 6*(F+1) symmetric metric with TT spin-2 projector, 3*(F+1) complex Hermitian lattice Maxwell curl-curl operator, and 2*(F+1) complex Hermitian square-root chiral Weyl operator. The bonus naiveLinearDirac control also proves that a site-local linear velocity <v_0|V_lat|v_0> misses sqrt(K_eff/M_eff) by ${(res.naiveLinearDiracMismatchFrac * 100).toFixed(3)}% (canonical single-face; 0.231% on period 2) via Cauchy-Schwarz; exact speed lock requires the shared warped-beam operator H_warp(k) = M_warp^{-1/2} L_warp(k) M_warp^{-1/2}.`,
     })
   },
 })
