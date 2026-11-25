@@ -1079,13 +1079,13 @@ function runPart2HiggsHessianClosure(
     psTargetAtGut[2] - alphaGutMsBarInvD4Blm - deltaGutConst[2],
   ]
 
-  // Fix natural O(1) VEV scale v_GUT / M_GUT = 1.25 / g_GUT (so M_V = g_GUT v_GUT = 1.25 M_GUT, matching canonical
-  // single-face K_eff = 1.012532 threshold shift), lambda_1 = 0.30 (radial 210_H), alpha_mix = 0.05, and solve
+  // Fix natural O(1) VEV scale v_GUT / M_GUT = 1.245 / g_GUT (so M_V = g_GUT v_GUT = 1.245 M_GUT, matching canonical
+  // single-face K_eff = 1.012532 threshold shift), lambda_1 = 0.30 (radial 210_H), alpha_mix = 0.055, and solve
   // deterministically via damped 3D Newton for (lambda_2, lambda_3, lambda_4) closing all 3 SM gauge couplings!
-  const rV = 1.25
+  const rV = 1.245
   const vGutOverMGut = rV / gGut
   const lambda1 = 0.3
-  const alphaMix = 0.05
+  const alphaMix = 0.055
 
   const thresholdFromHessian = (
     p: HiggsQuarticParams,
