@@ -64,6 +64,31 @@ trace matching, $\mathbb{Z}_2$ matter parity, axion $E/N = 8/3$, and $\mathbb{Z}
 $d \ge N/\gcd(N, q)$.
 \end{itemize}
 
+\begin{table}[htbp]
+\centering
+\caption{Zero-dependency Lean~4.35.0 proof suite (\code{code/proof/Vibe/}, 10 \code{.lean} files including root
+aggregator \code{Vibe.lean}, 0 \code{sorry}, 0 \code{axiom}, 0 \code{native\_decide}).}
+\label{tab:lean-modules}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.65cm}>{\raggedright\arraybackslash}p{1.05cm}>{\raggedright\arraybackslash}p{1.5cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Module (\code{Vibe/}) & Tier & Headline & Scope and verification status \\
+\midrule
+\code{Tone.lean} & A & 5 & Signed ternary dock involution and charge bounds (kernel-built) \\
+\code{Algebra.lean} & A & 4 & $\mathbb{Z}[\omega]$, $\mathbb{Z}[\zeta_9]$, $\mathrm{Mat}_2$, cyclotomic gap cubic (+19 helpers, kernel-built) \\
+\code{Rule.lean} & A & 29 & Classical $V_1$/light-cone, gate unitarity, 2-adic $SU(2)$ hypotheses, symbolic $M_{\mathrm{pair}}$ (kernel-built) \\
+\code{Geometry.lean} & A & 14 & Conditional beam resistance, subluminality, $D_4$ isotropy, zero-straddling RP premise (kernel-built) \\
+\code{Gauge.lean} & C & 27 & $\mathrm{Spin}(10)$ anomalies, Weinberg $3/8$, warped Koide, EW, Pati--Salam, axion $8/3$ (kernel-built) \\
+\code{Limits.lean} & A/C & 15 & $\mathbb{Z}_3$ gap, modular $\mathbb{Z}_N$ PQ divisibility, arbitrary-word $\mathrm{Mat}_2$ unitarity, $B^T B$ Gram (kernel-built) \\
+\code{SchurGap.lean} & A & 15 & Global $\rho_{\mathrm{spec}}(\{3,4,3,4\}) \le 13/21$, $\lambda_{\mathrm{gap}} \ge 8/21$, $18\mathcal{R}$ bridge (struct.\ \& Python-checked) \\
+\code{Uniqueness4D.lean} & A & 17 & Coxeter 1956 4D classification over $\mathbb{Z}[\sqrt{5}]$ and $\{3,4,3,4\}$ uniqueness (struct.\ \& Python-checked) \\
+\code{CoxeterTransport.lean} & A & 15 & $O^+(4,1; \mathbb{Z}[\sqrt{2}])$ $5 \times 5$ transport, $S R S = R$, palindromic $\mathcal{T}/\mathcal{CP}/\mathcal{CPT}$ (struct.\ \& Python-checked) \\
+\midrule
+\textbf{Total (9 modules)} & A--C & \textbf{141} & \textbf{160 public} (141 headline + 19 exported) + 170 private helpers, \code{check:lean --no-build} PASS \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
 \subsection{Constructive lattice gauge and mass-gap bounds}
 
 Three \textbf{Tier~C} studies (\coderange{E-FND-0188}{0190}) together with an explicit 24-cell Combes--Thomas
