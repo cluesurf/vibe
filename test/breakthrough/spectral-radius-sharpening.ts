@@ -5,24 +5,27 @@
 // laptop-safe (< 5 s, light RAM), noUncheckedIndexedAccess-safe, ending with `export {}`.
 //
 // Mathematical methods certified here:
-//   1. Pure Geometric Busemann Schur refinements on S^3 / W(F_4) (optimal alpha, 2-step A^2,
-//      and W(F_4)-invariant degree-6 harmonic modulation m(w) = 1 + (5/2) I_6(w) at alpha = 1).
-//   2. Exact Depth-1 Cartier-Foata Nagnibeda 3-rational Lean-4-ready certificate:
-//      a = (1/7, 1/3, 4/7) => rho <= 335/28 = 11.964286 < 12 (rho/24 <= 335/672 < 1/2, gap > 1/2),
-//      plus optimal 3-rational certificate rho <= 11.92522.
-//   3. Exact Depth-2 (19 states), Depth-3 (169 states), and Depth-4 (2,197 states) Cartier-Foata
-//      automata of the Right-Angled Coxeter Group W(Gamma_24) mod W(F_4), directly cross-checked
-//      against all 8,857 docks of the exact O^+(4,1; Z[sqrt(2)]) R=3 ball (0 mismatches).
-//   4. Exact BigInt rational Nagnibeda edge-weight Schur UPPER bounds:
-//      - Depth-3 (184 directed D2-edge orbits, 169 states): exact BigInt certified rho <= 11.47873.
-//      - Depth-4 (1,841 D3-pair edge weights, 2,197 states): exact BigInt certified rho <= 11.452.
-//   5. Exact Rayleigh-Ritz LOWER bounds:
-//      - Depth-2 (19 states), Depth-3 (169 states), Depth-4 (2,197 states): both concrete finite-support
-//        shell-window Rayleigh quotients (exact BigInt shell ratios) and exact asymptotic Perron limits
-//        up to rho >= 11.310466 (concrete finite-support rho >= 11.308).
+//   1. Geometric Busemann Schur analysis on S^3 / W(F_4): exact Mobius cocycle, L_alpha^* = L_{3-alpha}
+//      duality, exact S^3 averages, and numerical Weyl-chamber grid lower estimates on sup_{S^3} Q(w)
+//      (optimal alpha, 2-step A^2, and W(F_4)-invariant degree-6 modulation m(w) = 1 + (5/2) I_6(w)).
+//      Rigorous upper bounds on rho come strictly from exact BigInt Schur certificates in Parts 2-4
+//      and formal Lean proofs (Vibe/SchurGap.lean, Vibe/SpectralSharp.lean).
+//   2. Exact Depth-1 Cartier-Foata Nagnibeda 3-rational Lean-4-ready certificates:
+//      a = (1/7, 1/3, 4/7) => rho <= 335/28 <= 11.964286 < 12 (rho/24 <= 335/672 <= 0.498512 < 1/2,
+//      lambda_gap >= 337/672 >= 0.501488 > 1/2), plus Q=10^5 certificate rho <= 11.925340.
+//   3. Exact Depth-1..4 (4, 19, 169, 2,197 states) Cartier-Foata automata of the Right-Angled Coxeter
+//      Group W(Gamma_24) mod W(F_4), directly cross-checked against all 8,857 docks of the exact
+//      O^+(4,1; Z[sqrt(2)]) R=3 ball (0 mismatches, exact BigInt interior Schur check).
+//   4. Exact BigInt rational Nagnibeda edge-weight Schur UPPER bounds (outward ceiling rounded):
+//      - Depth-3 (184 directed D2-edge orbits, 169 states): exact BigInt certified rho <= 11.478891.
+//      - Depth-4 (1,841 D3-pair edge weights, 2,197 states): exact BigInt certified rho <= 11.452078.
+//   5. Exact BigInt Rayleigh-Ritz LOWER bounds (outward floor rounded):
+//      - Depth-1..4 concrete finite-support integer vertex-basis shell-window vectors (r = 20..180)
+//        evaluated in 100% exact BigInt arithmetic (ZERO sqrt in certification), reaching Depth-4
+//        rho >= 11.308339, plus conservative outward-floored asymptotic Perron limits up to 11.310466.
 //      - Exact amenable parabolic cusp W_L \ W(Gamma_24) Bloch k=0 Dirichlet floors F = 0..4 mod O_h
-//        (116,681 cusp docks / 2,939 orbits; F=3 reproduces 10.125184, F=4 reaches 10.459740)
-//        and 23-state infinite-depth cusp (D_R, L_comm) automaton (D=0..48 -> 11.073447).
+//        (116,681 cusp docks / 2,939 orbits) and 23-state infinite-depth cusp (D_R, L_comm) automaton
+//        (D = 0..48), all evaluated in 100% exact BigInt arithmetic and outward floor rounded.
 
 type CheckRow = {
   readonly part: string
@@ -208,6 +211,39 @@ function ratToFloat(num: bigint, den: bigint): number {
   return Number((num * 10n ** 12n) / den) / 1e12
 }
 
+// Exact outward-rounding decimal formatters for nonnegative BigInt rationals num / den:
+//   ratCeilDec  always rounds UP   (valid for certified upper bounds)
+//   ratFloorDec always rounds DOWN (valid for certified lower bounds)
+function formatScaledInt(scaled: bigint, digits: number): string {
+  const scale = 10n ** BigInt(digits)
+  const whole = scaled / scale
+  const frac = scaled % scale
+  return `${whole}.${frac.toString().padStart(digits, '0')}`
+}
+
+function ratCeilDec(num: bigint, den: bigint, digits = 6): string {
+  assertExact(num >= 0n && den > 0n, `ratCeilDec requires num >= 0 and den > 0 (got ${num}/${den})`)
+  const scale = 10n ** BigInt(digits)
+  return formatScaledInt((num * scale + den - 1n) / den, digits)
+}
+
+function ratFloorDec(num: bigint, den: bigint, digits = 6): string {
+  assertExact(num >= 0n && den > 0n, `ratFloorDec requires num >= 0 and den > 0 (got ${num}/${den})`)
+  const scale = 10n ** BigInt(digits)
+  return formatScaledInt((num * scale) / den, digits)
+}
+
+// Conservative outward flooring for floating-point asymptotic Perron limits (subtracts 1e-12 guard).
+function floatFloorDec(val: number, digits = 6, eps = 1e-12): string {
+  const scale = 10 ** digits
+  return (Math.floor((val - eps) * scale) / scale).toFixed(digits)
+}
+
+function floatCeilDec(val: number, digits = 6, eps = 1e-12): string {
+  const scale = 10 ** digits
+  return (Math.ceil((val + eps) * scale) / scale).toFixed(digits)
+}
+
 // =================================================================================================
 // 1. PART 1: PURE GEOMETRIC BUSEMANN SCHUR REFINEMENTS ON S^3 / W(F_4)
 // =================================================================================================
@@ -369,13 +405,15 @@ function runPart1Busemann(): {
   console.log(`  Mobius map exact checks      : normErr=${maxNormErr.toExponential(1)}, invErr=${maxInvErr.toExponential(1)}, hProdErr=${maxHProdErr.toExponential(1)}`)
   console.log(`  L_alpha^* = L_{3-alpha} S^3  : <1,L_1 1>=${avg1.toFixed(8)} (=12), <1,L_{3/2} 1>=${avg15.toFixed(8)}, <1,L_2 1>=${avg2.toFixed(8)} (=12)`)
   console.log(`  SchurGap.lean baseline (a=1) : F(root)=${f1Root.toFixed(8)} (=104/7), F(cusp)=${f1Cusp.toFixed(8)} (=56/5), I6-moment err=${maxI6IdErr.toExponential(1)}`)
-  console.log(`  Scalar optimal alpha=${scalarAlphaOpt.toFixed(3)}   : max Q <= ${scalarBest.toFixed(6)} (rho/24 <= ${(scalarBest / 24).toFixed(6)})`)
-  console.log(`  2-step A^2 (alpha=0.95, m=1) : sqrt(max A^2) <= ${a2Best.toFixed(6)} (rho/24 <= ${(a2Best / 24).toFixed(6)})`)
-  console.log(`  Modulated alpha=1 (1+2.5 I6) : Q in [${modMin.toFixed(6)}, ${modBest.toFixed(6)}] (rho/24 <= ${(modBest / 24).toFixed(6)}, -1.24 vs 104/7!)`)
+  console.log(`  [Numerical Weyl-chamber grid lower estimates on sup_{S^3} Q(w); NOT rigorous upper bounds on rho]`)
+  console.log(`  Scalar optimal alpha=${scalarAlphaOpt.toFixed(3)}   : grid18 max Q = ${scalarBest.toFixed(6)} (grid max / 24 = ${(scalarBest / 24).toFixed(6)})`)
+  console.log(`  2-step A^2 (alpha=0.95, m=1) : grid10 sqrt(max A^2) = ${a2Best.toFixed(6)} (grid max / 24 = ${(a2Best / 24).toFixed(6)})`)
+  console.log(`  Modulated alpha=1 (1+2.5 I6) : grid18 Q in [${modMin.toFixed(6)}, ${modBest.toFixed(6)}] (grid max / 24 = ${(modBest / 24).toFixed(6)}; -1.24 vs 104/7 on grid)`)
+  console.log(`  (Rigorous upper bounds on rho come from exact BigInt Schur certificates in Parts 2-4 and Vibe/SchurGap.lean / Vibe/SpectralSharp.lean.)`)
 
   recordCheck(
     'P1',
-    'Busemann Mobius transfer L_a^*=L_{3-a} & rational W(F_4) modulation m=1+(5/2)I_6 beats 104/7',
+    'Busemann Mobius transfer L_a^*=L_{3-a} & Weyl-chamber grid exploration of m=1+(5/2)I_6',
     maxNormErr < 1e-14 &&
       maxInvErr < 1e-13 &&
       maxHProdErr < 1e-13 &&
@@ -386,7 +424,7 @@ function runPart1Busemann(): {
       scalarBest < 14.71 &&
       a2Best < 14.05 &&
       modBest < 13.62,
-    `a=1 m=1+2.5*I6: ${modBest.toFixed(6)} (vs 104/7=${(104 / 7).toFixed(6)}), 2-step A^2: ${a2Best.toFixed(6)}, <L_{3/2}>=${avg15.toFixed(4)}`,
+    `grid18 lower est on sup Q for m=1+2.5*I6: ${modBest.toFixed(6)} (vs exact 104/7=${(104 / 7).toFixed(6)}), grid10 A^2: ${a2Best.toFixed(6)}, <L_{3/2}>=${avg15.toFixed(4)}`,
   )
 
   return { scalarAlphaOpt, scalarBest, a2Best, modBest }
@@ -488,24 +526,24 @@ function runPart2Depth1Certificate(): {
     `    S_0=${simpleS[0][0]}/${simpleS[0][1]}, S_1=${simpleS[1][0]}/${simpleS[1][1]}, S_2=${simpleS[2][0]}/${simpleS[2][1]}, S_3=${simpleS[3][0]}/${simpleS[3][1]}`,
   )
   console.log(
-    `    EXACT certified bound: rho <= ${simpleMax[0]}/${simpleMax[1]} = ${ratToFloat(simpleMax[0], simpleMax[1]).toFixed(10)} < 12`,
+    `    EXACT certified bound: rho <= ${simpleMax[0]}/${simpleMax[1]} <= ${ratCeilDec(simpleMax[0], simpleMax[1], 6)} (8-dec ceil: ${ratCeilDec(simpleMax[0], simpleMax[1], 8)}) < 12`,
   )
   console.log(
-    `    Normalized: rho/24 <= 335/672 = ${(335 / 672).toFixed(10)} < 1/2 | lambda_gap >= 337/672 = ${(337 / 672).toFixed(10)} > 1/2!`,
+    `    Normalized: rho/24 <= 335/672 <= ${ratCeilDec(335n, 672n, 6)} < 1/2 | lambda_gap >= 337/672 >= ${ratFloorDec(337n, 672n, 6)} > 1/2!`,
   )
   console.log(`  Sharp 3-rational cert a = (${p1}/100000, ${p2}/100000, ${p3}/100000):`)
   console.log(
-    `    EXACT certified bound: rho <= ${sharpMax[0]}/${sharpMax[1]} = ${ratToFloat(sharpMax[0], sharpMax[1]).toFixed(10)} (KKT cont opt = ${optContUpper.toFixed(10)})`,
+    `    EXACT certified bound: rho <= ${sharpMax[0]}/${sharpMax[1]} <= ${ratCeilDec(sharpMax[0], sharpMax[1], 6)} (8-dec ceil: ${ratCeilDec(sharpMax[0], sharpMax[1], 8)}; rho/24 <= ${ratCeilDec(sharpMax[0], 24n * sharpMax[1], 6)}; KKT cont opt = ${optContUpper.toFixed(8)})`,
   )
 
   recordCheck(
     'P2',
-    'Depth-1 3-rational Nagnibeda Lean 4 certificates: 335/28 (< 12, gap > 1/2) & 11.9254',
+    'Depth-1 3-rational Nagnibeda Lean 4 certificates: 335/28 (< 12, gap > 1/2) & <= 11.925340',
     simpleMax[0] * 1n < 12n * simpleMax[1] &&
       simpleMax[0] === 335n &&
       simpleMax[1] === 28n &&
-      sharpMax[0] * 10000n <= 119254n * sharpMax[1],
-    `a=(1/7,1/3,4/7) => rho<=335/28=11.964286 (rho/24<=335/672<1/2); sharp Q=10^5 => ${ratToFloat(sharpMax[0], sharpMax[1]).toFixed(6)}`,
+      sharpMax[0] * 1000000n <= 11925340n * sharpMax[1],
+    `a=(1/7,1/3,4/7) => rho<=335/28<=${ratCeilDec(simpleMax[0], simpleMax[1], 6)} (rho/24<=${ratCeilDec(335n, 672n, 6)}<1/2); sharp Q=10^5 => <=${ratCeilDec(sharpMax[0], sharpMax[1], 6)}`,
   )
 
   return {
@@ -812,7 +850,7 @@ function certifyExactBigIntUpper(
   return { num: rn, den: rd, floatVal: ratToFloat(rn, rd), pInts }
 }
 
-// Asymptotic Perron-Rayleigh-Ritz lower bound AND exact concrete finite-support shell-window lower bound!
+// Asymptotic Perron-Rayleigh-Ritz lower bound AND 100% exact BigInt concrete finite-support lower bound!
 function computeAutomatonRR(
   n: number,
   type1: readonly number[],
@@ -823,7 +861,8 @@ function computeAutomatonRR(
   readonly activeCount: number
   readonly lamBall: number
   readonly rhoAsymp: number
-  readonly rhoFinite: number
+  readonly rrFinNum: bigint
+  readonly rrFinDen: bigint
   readonly shells0to5: readonly bigint[]
 } {
   // Exact BigInt shell counts N(r, u) for r = 0..rEnd (checking exact divisibility by k(v) at EVERY step!)
@@ -901,40 +940,71 @@ function computeAutomatonRR(
     for (let i = 0; i < na; i++) eigVec[i] = y[i]! * inv
   }
 
-  // Concrete finite-support Rayleigh-Ritz quotient on shells r = rStart..rEnd using sine window
-  // and EXACT BigInt shell ratios N(r, u) / N(r+1, v)!
+  // Concrete finite-support Rayleigh-Ritz certificate on shells r = rStart..rEnd:
+  // Construct an EXPLICIT integer vertex-valued function psi(w) = xInt[i][iu] in Z for w in V_{rStart+i, active[iu]}
+  // and evaluate BOTH <psi, A psi> and <psi, psi> in 100% EXACT BigInt arithmetic (ZERO Math.sqrt in certification!).
   const L = rEnd - rStart + 1
   const win = new Float64Array(L)
-  let normDen = 0
-  for (let i = 0; i < L; i++) {
-    win[i] = Math.sin((Math.PI * (i + 1)) / (L + 1))
-    normDen += win[i]! * win[i]!
+  for (let i = 0; i < L; i++) win[i] = Math.sin((Math.PI * (i + 1)) / (L + 1))
+
+  let refHalf = 0
+  for (let iu = 0; iu < na; iu++) {
+    const N = countsBig[rEnd]![active[iu]!]!
+    if (N > 0n) {
+      const h = Math.floor(N.toString(2).length / 2)
+      if (h > refHalf) refHalf = h
+    }
   }
-  let numRQ = 0
-  const SCALE = 10n ** 15n
-  for (let i = 0; i < L - 1; i++) {
+  const xInt: bigint[][] = Array.from({ length: L }, (_, i) => {
     const r = rStart + i
     const cR = countsBig[r]!
-    const cR1 = countsBig[r + 1]!
-    const wProd = win[i]! * win[i + 1]!
-    let shellQuad = 0
+    const wr = win[i]!
+    const row = new Array<bigint>(na).fill(0n)
     for (let iu = 0; iu < na; iu++) {
-      const u = active[iu]!
-      const cu = cR[u]!
-      if (cu === 0n) continue
-      const vu = eigVec[iu]!
-      for (const [v, m] of trans[u]!) {
-        const iv = idxOf[v]!
-        if (iv < 0) continue
-        const cv = cR1[v]!
-        if (cv === 0n) continue
-        const ratio = Number((cu * SCALE) / cv) / 1e15
-        shellQuad += 2 * vu * eigVec[iv]! * m * Math.sqrt(ratio)
+      const N = cR[active[iu]!]!
+      if (N === 0n) continue
+      const bits = N.toString(2).length
+      const half = Math.floor(bits / 2)
+      const s = 2 * half - 50
+      const mant = s >= 0 ? Number(N >> BigInt(s)) / 2 ** 50 : Number(N) / 2 ** (2 * half)
+      const q = BigInt(Math.round(((wr * eigVec[iu]!) / Math.sqrt(mant)) * 1e12))
+      row[iu] = q << BigInt(refHalf - half)
+    }
+    return row
+  })
+
+  let rrFinNum = 0n
+  let rrFinDen = 0n
+  for (let i = 0; i < L; i++) {
+    const r = rStart + i
+    const cR = countsBig[r]!
+    const xR = xInt[i]!
+    for (let iu = 0; iu < na; iu++) {
+      const cu = cR[active[iu]!]!
+      const xu = xR[iu]!
+      if (cu === 0n || xu === 0n) continue
+      rrFinDen += cu * xu * xu
+    }
+    if (i < L - 1) {
+      const xR1 = xInt[i + 1]!
+      for (let iu = 0; iu < na; iu++) {
+        const u = active[iu]!
+        const cu = cR[u]!
+        const xu = xR[iu]!
+        if (cu === 0n || xu === 0n) continue
+        let inner = 0n
+        for (const [v, m] of trans[u]!) {
+          const iv = idxOf[v]!
+          if (iv < 0) continue
+          inner += BigInt(m) * xR1[iv]!
+        }
+        rrFinNum += cu * xu * inner
       }
     }
-    numRQ += wProd * shellQuad
   }
-  return { activeCount: na, lamBall, rhoAsymp, rhoFinite: numRQ / normDen, shells0to5 }
+  rrFinNum *= 2n
+  assertExact(rrFinDen > 0n && rrFinNum > 0n, 'exact BigInt finite RR must be positive')
+  return { activeCount: na, lamBall, rhoAsymp, rrFinNum, rrFinDen, shells0to5 }
 }
 
 // Exact O^+(4,1; Z[sqrt(2)]) R=3 ball (8,857 docks) for direct zero-assumption cross-check!
@@ -1031,19 +1101,37 @@ function buildExactBallR3(): {
 }
 
 function runParts3And4Hierarchy(): {
+  readonly d1LowerAsymp: number
+  readonly d1FinNum: bigint
+  readonly d1FinDen: bigint
   readonly d2LowerAsymp: number
+  readonly d2FinNum: bigint
+  readonly d2FinDen: bigint
   readonly d3LowerAsymp: number
-  readonly d3LowerFinite: number
-  readonly d3UpperExact: number
+  readonly d3FinNum: bigint
+  readonly d3FinDen: bigint
+  readonly d3UpperNum: bigint
+  readonly d3UpperDen: bigint
   readonly d4LowerAsymp: number
-  readonly d4LowerFinite: number
-  readonly d4UpperExact: number
+  readonly d4FinNum: bigint
+  readonly d4FinDen: bigint
+  readonly d4UpperNum: bigint
+  readonly d4UpperDen: bigint
 } {
   console.log('\n================================================================================')
-  console.log('PARTS 3 & 4: EXACT DEPTH-2, DEPTH-3, AND DEPTH-4 CARTIER-FOATA BOUNDS + BALL R=3')
+  console.log('PARTS 3 & 4: EXACT DEPTH-1..4 CARTIER-FOATA BOUNDS + R=3 BALL CROSS-CHECK')
   console.log('================================================================================')
 
   const EXPECTED_SHELLS = [1n, 24n, 456n, 8376n, 153192n, 2800344n] as const
+
+  // --- Depth 1 (4 states: |D(w)| in {0, 1, 2, 3}) ---
+  const d1Trans: readonly ReadonlyMap<number, number>[] = [
+    new Map([[1, 24]]),
+    new Map([[1, 15], [2, 8]]),
+    new Map([[1, 11], [2, 8], [3, 3]]),
+    new Map([[1, 9], [2, 6], [3, 6]]),
+  ]
+  const d1RR = computeAutomatonRR(4, [0, 1, 2, 3], d1Trans, 20, 180)
 
   // --- Depth 2 (19 states) ---
   const d2States: D2State[] = [{ c0: 0, downs: new Map() }]
@@ -1322,73 +1410,104 @@ function runParts3And4Hierarchy(): {
       curB = nxt
     }
   }
-  // Direct edge-weight Schur row sums on all interior docks (r <= 2) using exact BigInt D4 certificate!
-  let maxBallRowSumD4 = 0
+  // Direct edge-weight Schur row sums on all interior docks (r <= 2) in EXACT BigInt arithmetic!
+  let ballMaxNum = 0n
+  let ballMaxDen = 1n
+  const Q4 = 100000n
   for (let d = 0; d < ball.nDocks; d++) {
     const rd = ball.radius[d]!
     if (rd > 2) continue
     const nb = ball.neighbors[d]!
-    let rowSum = 0
+    const downP: bigint[] = []
+    let sumA = 0n
     for (let s = 0; s < 24; s++) {
       const t = nb[s]!
       if (ball.radius[t] === rd + 1) {
         const eid = getPairId(ballD3Id[d]!, ballD3Id[t]!)
-        rowSum += Number(d4Cert.pInts[eid]!) / 100000
+        sumA += d4Cert.pInts[eid]!
       } else {
         const eid = getPairId(ballD3Id[t]!, ballD3Id[d]!)
-        rowSum += 100000 / Number(d4Cert.pInts[eid]!)
+        downP.push(d4Cert.pInts[eid]!)
       }
     }
-    if (rowSum > maxBallRowSumD4) maxBallRowSumD4 = rowSum
+    let prodB = 1n
+    for (const pVal of downP) prodB *= pVal
+    let sumB = 0n
+    for (const pVal of downP) sumB += prodB / pVal
+    const num = sumA * prodB + Q4 * Q4 * sumB
+    const den = Q4 * prodB
+    if (num * ballMaxDen > ballMaxNum * den) {
+      ballMaxNum = num
+      ballMaxDen = den
+    }
   }
 
   const shellsMatch =
+    d1RR.shells0to5.every((v, i) => v === EXPECTED_SHELLS[i]) &&
     d2RR.shells0to5.every((v, i) => v === EXPECTED_SHELLS[i]) &&
     d3RR.shells0to5.every((v, i) => v === EXPECTED_SHELLS[i]) &&
     d4RR.shells0to5.every((v, i) => v === EXPECTED_SHELLS[i])
 
   console.log(`  Exact O^+(4,1; Z[sqrt(2)]) R=3 ball (8,857 docks) direct cross-check:`)
   console.log(
-    `    unknownD3=${unknownD3}, unknownD4=${unknownD4}, D4 hist mismatches (r=0..3)=${histMismatchesD4}, max interior Schur sum=${maxBallRowSumD4.toFixed(6)} <= ${d4Cert.floatVal.toFixed(6)}`,
-  )
-  console.log(`  Depth-2 (   19 states,   17 active): RR asymp >= ${d2RR.rhoAsymp.toFixed(8)} (finite r=20..180: ${d2RR.rhoFinite.toFixed(8)})`)
-  console.log(
-    `  Depth-3 (  169 states,  163 active): RR asymp >= ${d3RR.rhoAsymp.toFixed(8)} (finite: ${d3RR.rhoFinite.toFixed(8)}) | EXACT BigInt upper (184 vars) <= ${d3Cert.floatVal.toFixed(8)} (dual ${d3Sol.dual.toFixed(6)})`,
+    `    unknownD3=${unknownD3}, unknownD4=${unknownD4}, D4 hist mismatches (r=0..3)=${histMismatchesD4}, exact BigInt max interior Schur sum <= ${ratCeilDec(ballMaxNum, ballMaxDen, 6)} <= ${ratCeilDec(d4Cert.num, d4Cert.den, 6)}`,
   )
   console.log(
-    `  Depth-4 (2,197 states, 2,166 active): RR asymp >= ${d4RR.rhoAsymp.toFixed(8)} (finite: ${d4RR.rhoFinite.toFixed(8)}) | EXACT BigInt upper (1,841 vars) <= ${d4Cert.floatVal.toFixed(8)} (dual ${d4Sol.dual.toFixed(6)})`,
+    `  Depth-1 (    4 states,    3 active): RR asymp >= ${floatFloorDec(d1RR.rhoAsymp, 6)} | EXACT BigInt finite (r=20..180) >= ${ratFloorDec(d1RR.rrFinNum, d1RR.rrFinDen, 6)} (8-dec: ${ratFloorDec(d1RR.rrFinNum, d1RR.rrFinDen, 8)})`,
+  )
+  console.log(
+    `  Depth-2 (   19 states,   17 active): RR asymp >= ${floatFloorDec(d2RR.rhoAsymp, 6)} | EXACT BigInt finite (r=20..180) >= ${ratFloorDec(d2RR.rrFinNum, d2RR.rrFinDen, 6)} (8-dec: ${ratFloorDec(d2RR.rrFinNum, d2RR.rrFinDen, 8)})`,
+  )
+  console.log(
+    `  Depth-3 (  169 states,  163 active): RR asymp >= ${floatFloorDec(d3RR.rhoAsymp, 6)} | EXACT BigInt finite >= ${ratFloorDec(d3RR.rrFinNum, d3RR.rrFinDen, 6)} | EXACT BigInt upper (184 vars) <= ${ratCeilDec(d3Cert.num, d3Cert.den, 6)} (8-dec: ${ratCeilDec(d3Cert.num, d3Cert.den, 8)}, dual ${d3Sol.dual.toFixed(6)})`,
+  )
+  console.log(
+    `  Depth-4 (2,197 states, 2,166 active): RR asymp >= ${floatFloorDec(d4RR.rhoAsymp, 6)} | EXACT BigInt finite >= ${ratFloorDec(d4RR.rrFinNum, d4RR.rrFinDen, 6)} (8-dec: ${ratFloorDec(d4RR.rrFinNum, d4RR.rrFinDen, 8)}) | EXACT BigInt upper (1,841 vars) <= ${ratCeilDec(d4Cert.num, d4Cert.den, 6)} (8-dec: ${ratCeilDec(d4Cert.num, d4Cert.den, 8)}, dual ${d4Sol.dual.toFixed(6)})`,
   )
 
   recordCheck(
     'P3',
-    'Depth-2/3/4 Cartier-Foata automata exact shell sums & 0-mismatch R=3 ball (8,857 docks) check',
+    'Depth-1..4 Cartier-Foata automata exact shell sums & 0-mismatch R=3 ball (8,857 docks) check',
     shellsMatch &&
       unknownD3 === 0 &&
       unknownD4 === 0 &&
       histMismatchesD4 === 0 &&
-      maxBallRowSumD4 <= d4Cert.floatVal + 1e-12,
-    `shells=1,24,456,8376,153192,2800344; ballR3 unknown=0/0, histErr=0, maxRowSum=${maxBallRowSumD4.toFixed(4)}`,
+      ballMaxNum * d4Cert.den <= d4Cert.num * ballMaxDen,
+    `shells=1,24,456,8376,153192,2800344; ballR3 unknown=0/0, histErr=0, exact BigInt maxRowSum<=${ratCeilDec(ballMaxNum, ballMaxDen, 6)}`,
   )
+
+  const d4FinLo6 = ratFloorDec(d4RR.rrFinNum, d4RR.rrFinDen, 6)
+  const d4AsympLo6 = floatFloorDec(d4RR.rhoAsymp, 6)
+  const d4UpHi6 = ratCeilDec(d4Cert.num, d4Cert.den, 6)
 
   recordCheck(
     'P4',
-    'Exact BigInt rational Nagnibeda upper bounds (D3 184-var <= 11.479, D4 1,841-var <= 11.453)',
-    d3Cert.num * 1000n <= 11479n * d3Cert.den &&
-      d4Cert.num * 1000n <= 11453n * d4Cert.den &&
-      d4RR.rhoAsymp < d4Cert.floatVal &&
-      d4RR.rhoFinite > 11.307 &&
-      d4RR.rhoAsymp > 11.310,
-    `NEW CERTIFIED BRACKET: [${d4RR.rhoAsymp.toFixed(6)}, ${d4Cert.floatVal.toFixed(6)}] (finite [${d4RR.rhoFinite.toFixed(6)}, ${d4Cert.floatVal.toFixed(6)}], width ${(d4Cert.floatVal - d4RR.rhoAsymp).toFixed(6)})`,
+    'Exact BigInt Nagnibeda upper bounds (D3 <= 11.478891, D4 <= 11.452078) & BigInt finite RR',
+    d3Cert.num * 1000000n <= 11478891n * d3Cert.den &&
+      d4Cert.num * 1000000n <= 11452078n * d4Cert.den &&
+      d4RR.rrFinNum * d4Cert.den < d4Cert.num * d4RR.rrFinDen &&
+      d4RR.rrFinNum * 1000000n >= 11308339n * d4RR.rrFinDen &&
+      d4RR.rhoAsymp - 1e-12 >= 11.310466,
+    `OUTWARD-ROUNDED BRACKETS: concrete BigInt [${d4FinLo6}, ${d4UpHi6}], asymp [${d4AsympLo6}, ${d4UpHi6}]`,
   )
 
   return {
+    d1LowerAsymp: d1RR.rhoAsymp,
+    d1FinNum: d1RR.rrFinNum,
+    d1FinDen: d1RR.rrFinDen,
     d2LowerAsymp: d2RR.rhoAsymp,
+    d2FinNum: d2RR.rrFinNum,
+    d2FinDen: d2RR.rrFinDen,
     d3LowerAsymp: d3RR.rhoAsymp,
-    d3LowerFinite: d3RR.rhoFinite,
-    d3UpperExact: d3Cert.floatVal,
+    d3FinNum: d3RR.rrFinNum,
+    d3FinDen: d3RR.rrFinDen,
+    d3UpperNum: d3Cert.num,
+    d3UpperDen: d3Cert.den,
     d4LowerAsymp: d4RR.rhoAsymp,
-    d4LowerFinite: d4RR.rhoFinite,
-    d4UpperExact: d4Cert.floatVal,
+    d4FinNum: d4RR.rrFinNum,
+    d4FinDen: d4RR.rrFinDen,
+    d4UpperNum: d4Cert.num,
+    d4UpperDen: d4Cert.den,
   }
 }
 
@@ -1396,7 +1515,14 @@ function runParts3And4Hierarchy(): {
 // 5. PART 5: EXACT AMENABLE PARABOLIC CUSP W_L \ W(Gamma_24) BLOCH k=0 LOWER BOUNDS (F=0..4 & AUTO)
 // =================================================================================================
 
-function runPart5CuspBloch(): { readonly cuspDirF3: number; readonly cuspDirF4: number; readonly cuspAutoD48: number } {
+function runPart5CuspBloch(): {
+  readonly cuspF3Num: bigint
+  readonly cuspF3Den: bigint
+  readonly cuspF4Num: bigint
+  readonly cuspF4Den: bigint
+  readonly cuspAutoNum: bigint
+  readonly cuspAutoDen: bigint
+} {
   console.log('\n================================================================================')
   console.log('PART 5: EXACT AMENABLE CUSP W_L \\ W(Gamma_24) BLOCH k=0 DIRICHLET & AUTOMATON')
   console.log('================================================================================')
@@ -1523,7 +1649,7 @@ function runPart5CuspBloch(): { readonly cuspDirF3: number; readonly cuspDirF4: 
     }
   }
 
-  const rhoByF: number[] = []
+  const rhoByFRat: { readonly num: bigint; readonly den: bigint }[] = []
   for (let F = 0; F <= F_MAX; F++) {
     const keep: number[] = []
     const mapIdx = new Int32Array(reps.length).fill(-1)
@@ -1544,23 +1670,38 @@ function runPart5CuspBloch(): { readonly cuspDirF3: number; readonly cuspDirF4: 
       }
     }
     let x = new Float64Array(m).fill(1 / Math.sqrt(m))
-    let rq = 0
     for (let it = 0; it < 350; it++) {
       const y = new Float64Array(m)
       for (const [iu, iv, val] of sEdges) y[iu] = y[iu]! + val * x[iv]!
       let n2 = 0
-      rq = 0
-      for (let i = 0; i < m; i++) {
-        rq += x[i]! * y[i]!
-        n2 += y[i]! * y[i]!
-      }
+      for (let i = 0; i < m; i++) n2 += y[i]! * y[i]!
       const inv = 1 / Math.sqrt(n2)
       for (let i = 0; i < m; i++) x[i] = y[i]! * inv
     }
-    rhoByF.push(rq)
+    // Exact BigInt Rayleigh-Ritz evaluation on the finite coset graph Dirichlet floor F (vertex amplitudes psi_u in Z):
+    const xInt = new Array<bigint>(m)
+    for (let iu = 0; iu < m; iu++) {
+      xInt[iu] = BigInt(Math.round((x[iu]! / Math.sqrt(orbitSize[keep[iu]!]!)) * 1e11))
+    }
+    let numBig = 0n
+    let denBig = 0n
+    for (let iu = 0; iu < m; iu++) {
+      const u = keep[iu]!
+      const orbBig = BigInt(orbitSize[u]!)
+      const xu = xInt[iu]!
+      denBig += orbBig * xu * xu
+      let inner = 0n
+      for (const [v, mult] of adj[u]!) {
+        const iv = mapIdx[v]!
+        if (iv >= 0) inner += BigInt(mult) * xInt[iv]!
+      }
+      numBig += orbBig * xu * inner
+    }
+    assertExact(denBig > 0n && numBig > 0n, `Cusp F=${F} BigInt RR positive`)
+    rhoByFRat.push({ num: numBig, den: denBig })
     const totDocks = shellCounts.slice(0, F + 1).reduce((a, b) => a + b, 0)
     console.log(
-      `  Cusp Dirichlet F=${F} (${String(totDocks).padStart(6)} docks, ${String(m).padStart(4)} O_h orbits): rho_F >= ${rq.toFixed(8)}`,
+      `  Cusp Dirichlet F=${F} (${String(totDocks).padStart(6)} docks, ${String(m).padStart(4)} O_h orbits): EXACT BigInt rho_F >= ${ratFloorDec(numBig, denBig, 6)} (8-dec: ${ratFloorDec(numBig, denBig, 8)})`,
     )
   }
 
@@ -1648,33 +1789,78 @@ function runPart5CuspBloch(): { readonly cuspDirF3: number; readonly cuspDirF4: 
     }
   }
   let x = new Float64Array(mN).fill(1 / Math.sqrt(mN))
-  let cuspAutoD48 = 0
   for (let it = 0; it < 500; it++) {
     const y = new Float64Array(mN)
     for (const [i, j, val] of cEdges) y[i] = y[i]! + val * x[j]!
     let n2 = 0
-    cuspAutoD48 = 0
-    for (let i = 0; i < mN; i++) {
-      cuspAutoD48 += x[i]! * y[i]!
-      n2 += y[i]! * y[i]!
-    }
+    for (let i = 0; i < mN; i++) n2 += y[i]! * y[i]!
     const inv = 1 / Math.sqrt(n2)
     for (let i = 0; i < mN; i++) x[i] = y[i]! * inv
   }
-  console.log(`  Cusp (D_R, L_comm) automaton (${nc} states, D=0..${D_MAX}, ${mN} strata): rho >= ${cuspAutoD48.toFixed(8)}`)
 
-  recordCheck(
-    'P5',
-    'Exact amenable cusp W_L\\W Bloch k=0 Dirichlet F=0..4 (116,681 docks) & (D_R,L_comm) automaton',
-    cuspShellsOk &&
-      asymErr === 0 &&
-      Math.abs(rhoByF[3]! - 10.125184) < 1e-4 &&
-      rhoByF[4]! > 10.459 &&
-      cuspAutoD48 > 11.073,
-    `N_0..4=[${shellCounts.join(',')}], symErr=0, F=3:${rhoByF[3]!.toFixed(6)}, F=4:${rhoByF[4]!.toFixed(6)}, auto(D=48):${cuspAutoD48.toFixed(6)}`,
+  // Exact BigInt Rayleigh-Ritz evaluation on the finite D=0..48 cusp (D_R, L_comm) coset strata:
+  let refHalfC = 0
+  for (let i = 0; i < mN; i++) {
+    const nd = nodes[i]!
+    const N = cCounts[nd.d]![nd.u]!
+    const h = Math.floor(N.toString(2).length / 2)
+    if (h > refHalfC) refHalfC = h
+  }
+  const cXInt = new Array<bigint>(mN)
+  for (let i = 0; i < mN; i++) {
+    const nd = nodes[i]!
+    const N = cCounts[nd.d]![nd.u]!
+    const bits = N.toString(2).length
+    const half = Math.floor(bits / 2)
+    const s = 2 * half - 50
+    const mant = s >= 0 ? Number(N >> BigInt(s)) / 2 ** 50 : Number(N) / 2 ** (2 * half)
+    const q = BigInt(Math.round((x[i]! / Math.sqrt(mant)) * 1e12))
+    cXInt[i] = q << BigInt(refHalfC - half)
+  }
+  let cuspAutoNum = 0n
+  let cuspAutoDen = 0n
+  for (let i = 0; i < mN; i++) {
+    const nd = nodes[i]!
+    const cu = cCounts[nd.d]![nd.u]!
+    const xi = cXInt[i]!
+    const cuXi2 = cu * xi * xi
+    cuspAutoDen += cuXi2
+    if (cLoops[nd.u]! > 0) cuspAutoNum += cuXi2 * BigInt(cLoops[nd.u]!)
+    if (nd.d < D_MAX) {
+      let inner = 0n
+      for (const [v, mult] of cTrans[nd.u]!) {
+        const j = nodeIdx.get(`${nd.d + 1},${v}`)
+        if (j !== undefined) inner += BigInt(mult) * cXInt[j]!
+      }
+      cuspAutoNum += 2n * cu * xi * inner
+    }
+  }
+  assertExact(cuspAutoDen > 0n && cuspAutoNum > 0n, 'Cusp auto BigInt RR positive')
+  console.log(
+    `  Cusp (D_R, L_comm) automaton (${nc} states, D=0..${D_MAX}, ${mN} strata): EXACT BigInt rho >= ${ratFloorDec(cuspAutoNum, cuspAutoDen, 6)} (8-dec: ${ratFloorDec(cuspAutoNum, cuspAutoDen, 8)})`,
   )
 
-  return { cuspDirF3: rhoByF[3]!, cuspDirF4: rhoByF[4]!, cuspAutoD48 }
+  const f3 = rhoByFRat[3]!
+  const f4 = rhoByFRat[4]!
+  recordCheck(
+    'P5',
+    'Exact BigInt amenable cusp W_L\\W Bloch k=0 Dirichlet F=0..4 (116,681 docks) & (D_R,L_comm) automaton',
+    cuspShellsOk &&
+      asymErr === 0 &&
+      f3.num * 1000000n >= 10125183n * f3.den &&
+      f4.num * 1000000n >= 10459739n * f4.den &&
+      cuspAutoNum * 1000000n >= 11073445n * cuspAutoDen,
+    `N_0..4=[${shellCounts.join(',')}], symErr=0, F=3:>=${ratFloorDec(f3.num, f3.den, 6)}, F=4:>=${ratFloorDec(f4.num, f4.den, 6)}, auto(D=48):>=${ratFloorDec(cuspAutoNum, cuspAutoDen, 6)}`,
+  )
+
+  return {
+    cuspF3Num: f3.num,
+    cuspF3Den: f3.den,
+    cuspF4Num: f4.num,
+    cuspF4Den: f4.den,
+    cuspAutoNum,
+    cuspAutoDen,
+  }
 }
 
 // =================================================================================================
@@ -1690,20 +1876,36 @@ function main(): void {
 
   const elapsedSec = (performance.now() - t0) / 1000
   const oldWidth = 104 / 7 - 11.013439
-  const newWidth = p34.d4UpperExact - p34.d4LowerAsymp
-  const newFinWidth = p34.d4UpperExact - p34.d4LowerFinite
+  const finLo = ratFloorDec(p34.d4FinNum, p34.d4FinDen, 6)
+  const asympLo = floatFloorDec(p34.d4LowerAsymp, 6)
+  const upHi = ratCeilDec(p34.d4UpperNum, p34.d4UpperDen, 6)
+  const newFinWidth = Number(upHi) - Number(finLo)
+  const newAsympWidth = Number(upHi) - Number(asympLo)
+
+  const rho24FinLo = ratFloorDec(p34.d4FinNum, 24n * p34.d4FinDen, 6)
+  const rho24AsympLo = floatFloorDec(p34.d4LowerAsymp / 24, 6)
+  const rho24UpHi = ratCeilDec(p34.d4UpperNum, 24n * p34.d4UpperDen, 6)
+
+  const gapLo = ratFloorDec(24n * p34.d4UpperDen - p34.d4UpperNum, 24n * p34.d4UpperDen, 6)
+  const gapFinHi = ratCeilDec(24n * p34.d4FinDen - p34.d4FinNum, 24n * p34.d4FinDen, 6)
+  const gapAsympHi = floatCeilDec(1 - p34.d4LowerAsymp / 24, 6)
+
+  const rawGapLo = ratFloorDec(24n * p34.d4UpperDen - p34.d4UpperNum, p34.d4UpperDen, 6)
+  const rawGapFinHi = ratCeilDec(24n * p34.d4FinDen - p34.d4FinNum, p34.d4FinDen, 6)
+  const rawGapAsympHi = floatCeilDec(24 - p34.d4LowerAsymp, 6)
 
   console.log('\n================================================================================')
-  console.log('BREAKTHROUGH SUITE (W1): FINAL CERTIFIED SPECTRAL RADIUS SUMMARY')
+  console.log('BREAKTHROUGH SUITE (W1): FINAL OUTWARD-ROUNDED CERTIFIED SPECTRAL RADIUS SUMMARY')
   console.log('================================================================================')
   console.log(`  OLD certified bracket  : [11.013439, 14.857143]  (width = ${oldWidth.toFixed(6)}, rho/24 in [0.458893, 0.619048])`)
-  console.log(`  NEW certified (finite) : [${p34.d4LowerFinite.toFixed(6)}, ${p34.d4UpperExact.toFixed(6)}]  (width = ${newFinWidth.toFixed(6)}, ${(oldWidth / newFinWidth).toFixed(1)}x tighter!)`)
-  console.log(`  NEW certified (asymp)  : [${p34.d4LowerAsymp.toFixed(6)}, ${p34.d4UpperExact.toFixed(6)}]  (width = ${newWidth.toFixed(6)}, ${(oldWidth / newWidth).toFixed(1)}x tighter!)`)
-  console.log(
-    `  NEW rho/24 bracket     : [${(p34.d4LowerAsymp / 24).toFixed(6)}, ${(p34.d4UpperExact / 24).toFixed(6)}]  (spectral gap lambda_gap in [${(1 - p34.d4UpperExact / 24).toFixed(6)}, ${(1 - p34.d4LowerAsymp / 24).toFixed(6)}] > 1/2!)`,
-  )
-  console.log(`  Lean-4 3-rat cert      : a=(1/7, 1/3, 4/7) => rho <= ${p2.simpleUpperNum}/${p2.simpleUpperDen} = ${ratToFloat(p2.simpleUpperNum, p2.simpleUpperDen).toFixed(6)} (< 12, rho/24 <= 335/672 < 1/2)`)
-  console.log(`  Geometric Busemann     : a=1, m=1+(5/2)I_6 => <= ${p1.modBest.toFixed(6)} | Cusp F=4 => >= ${p5.cuspDirF4.toFixed(6)}`)
+  console.log(`  NEW concrete (BigInt)  : [${finLo}, ${upHi}]  (width <= ${newFinWidth.toFixed(6)}, ${(oldWidth / newFinWidth).toFixed(1)}x tighter!)`)
+  console.log(`  NEW asymptotic bracket : [${asympLo}, ${upHi}]  (width <= ${newAsympWidth.toFixed(6)}, ${(oldWidth / newAsympWidth).toFixed(1)}x tighter!)`)
+  console.log(`  NEW rho/24 (BigInt)    : [${rho24FinLo}, ${rho24UpHi}] | asymp: [${rho24AsympLo}, ${rho24UpHi}] (< 1/2!)`)
+  console.log(`  NEW lambda_gap         : concrete [${gapLo}, ${gapFinHi}] | asymp: [${gapLo}, ${gapAsympHi}] (> 1/2!)`)
+  console.log(`  NEW raw gap (24 - rho) : concrete [${rawGapLo}, ${rawGapFinHi}] | asymp: [${rawGapLo}, ${rawGapAsympHi}]`)
+  console.log(`  Lean-4 3-rat cert      : a=(1/7, 1/3, 4/7) => rho <= ${p2.simpleUpperNum}/${p2.simpleUpperDen} <= ${ratCeilDec(p2.simpleUpperNum, p2.simpleUpperDen, 6)} (< 12, rho/24 <= ${ratCeilDec(335n, 672n, 6)} < 1/2)`)
+  console.log(`  Cusp BigInt lowers     : F=3 >= ${ratFloorDec(p5.cuspF3Num, p5.cuspF3Den, 6)} | F=4 >= ${ratFloorDec(p5.cuspF4Num, p5.cuspF4Den, 6)} | auto(D=48) >= ${ratFloorDec(p5.cuspAutoNum, p5.cuspAutoDen, 6)}`)
+  console.log(`  Busemann grid estimate : grid18 sup Q >= ${p1.modBest.toFixed(6)} for m=1+(5/2)I_6 (numerical lower est on sup Q; NOT a rigorous upper bound)`)
   console.log('--------------------------------------------------------------------------------')
   let allPassed = true
   for (const c of CHECKS) {

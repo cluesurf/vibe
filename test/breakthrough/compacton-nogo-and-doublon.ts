@@ -960,7 +960,7 @@ const applyBeatInv = (s: ExactState): ExactState =>
 
 function runPart1(): void {
   console.log('================================================================================')
-  console.log('PART 1: EXACT HYPERBOLIC CONVEXITY H_2(k_a g) + H_2(k_{-a} g) = 6 H_2(g) & FRONTIER')
+  console.log('PART 1: EXACT HYPERBOLIC CONVEXITY H_2(g k_a) + H_2(g k_{-a}) = 6 H_2(g) & FRONTIER')
   console.log('================================================================================')
 
   // Build exact R=3 ball (1, 24, 456, 8376 -> 8,857 docks) and also discover all neighbors of shell 3.
@@ -986,7 +986,7 @@ function runPart1(): void {
 
   // For every dock in the R=2 ball (481 docks) AND every dock in shell 3 (checking all 24 neighbors via
   // direct O^+(4,1) transport WITHOUT blowing up cache, or caching up to R=3 + computing H_2 directly):
-  // Let's check exact H_2(k_a g) + H_2(k_{-a} g) = 6 H_2(g) on ALL 8,857 docks * 12 antipodal lines = 106,284 pairs!
+  // Let's check exact H_2(g k_a) + H_2(g k_{-a}) = 6 H_2(g) on ALL 8,857 docks * 12 antipodal lines = 106,284 pairs!
   let convexityDefects = 0
   let sqrt2Defects = 0
   let antipodalInHDefects = 0
@@ -1067,7 +1067,7 @@ function runPart1(): void {
 
   recordCheck(
     'P1',
-    'Hyperbolic convexity H_2(k_a g)+H_2(k_{-a} g)=6 H_2(g) & zero antipodal inward pairs on R=3 (8,857 docks)',
+    'Hyperbolic convexity H_2(g k_a)+H_2(g k_{-a})=6 H_2(g) & zero antipodal inward pairs on R=3 (8,857 docks)',
     baseIdentityDefects === 0 &&
       convexityDefects === 0 &&
       sqrt2Defects === 0 &&
@@ -1171,7 +1171,7 @@ function runPart2(): void {
       `In=[${frontierIn.join(',')}], Arr=-In=[${arrSlots3.join(',')}]`,
   )
 
-  // (a) Full-line k=2 interacting sectors (N_full = 1) at frontierDock — ALL 100% outward leakage!
+  // (a) Full-line k=2 interacting sectors (N_full = 1) at frontierDock: ALL give 100% outward leakage!
   const [line0A, line0B] = LINES[0]!
   const secK = analyzeSector(
     'k=2 K-bounce full line (opp tone)',
@@ -1679,11 +1679,12 @@ function runPart5(): void {
   //   (+, -) -> ((m+1) mod M, +-), phase e^{-i P}
   //   (-, +) -> ((m-1+M) mod M, -+), phase e^{+i P}
   //
-  // On-site collision matrix L_0 (2x2 on {|0;+->, |0;-+>}) for each bare U channel:
-  //   1. K-bounce (opp tone):           L_K = -omega [[0, 1], [1, 0]] (eigs: sym -omega, antisym +omega)
-  //   2. M_meet (same tone, diff role): L_meet = (omega/2) [[zeta_6, omega-1], [omega-1, zeta_6]] (eigs: sym omega^2, antisym +omega)
-  //   3. M_pair 11D zero-sum (id pair): L_pair11 = omega^2 I_2 (sym eig = omega^2, identical on sym subspace to M_meet sym!)
-  //   4. M_pair 1D isotropic channel:   L_pair1D = omega^2 * zeta_18 I_2 (sym eig = omega^2 * zeta_18)
+  // On-site collision matrix L_0 (2x2 on {|0;+->, |0;-+>}) for each 1D Bloch channel:
+  //   1. K-bounce (opp tone):           L_K = -omega [[0, 1], [1, 0]] (EXACT 4D geodesic reduction, eigs: sym -omega, antisym +omega)
+  //   2. M_meet (same tone, diff role): L_meet = (omega/2) [[zeta_6, omega-1], [omega-1, zeta_6]] (EXACT 4D geodesic reduction, eigs: sym omega^2, antisym +omega)
+  //   3. M_pair 11D zero-sum (flat P=0 Bloch plane-wave reduction on Euclidean D_4/Z^d, NOT 4D hyperbolic l^2): sym eig = omega^2
+  //   4. M_pair 1D isotropic (flat P=0 Bloch plane-wave reduction on Euclidean D_4/Z^d, NOT 4D hyperbolic l^2): sym eig = omega^2 * zeta_18
+  //      (For identical bosons only sym(+) is physical; Part 7 proves directly that localized 4D {3,4,3,4} M_pair packets scatter across all 12 lines at t=3->4!)
   const zeta6C = z9ToComplex(Z9_ZETA6)
   const zeta18C = z9ToComplex(Z9_ZETA18)
   const meetSwapC = z9ToComplex(Z9_MEET_SWAP)
@@ -1698,9 +1699,6 @@ function runPart5(): void {
   ]
   const w2z18 = cMul(w2C, zeta18C)
   const L0_PAIR_ISO: Mat2C = [w2z18, [0, 0], [0, 0], w2z18]
-  // Control: standard free collision phase +1 on {|+->, |-+>} (hard-core with phase +1 vs +i)
-  const L0_HARDCORE_ONE: Mat2C = [[1, 0], [0, 1], [0, 0], [0, 0]] // placeholder, fixed below:
-  void L0_HARDCORE_ONE
 
   const buildU2 = (L: number, P: number, L0: Mat2C): { readonly dim: number; readonly re: Float64Array; readonly im: Float64Array } => {
     const M = L / 2
@@ -1869,63 +1867,74 @@ function runPart5(): void {
   }
 
   const pGrid = [0, Math.PI / 4, Math.PI / 2, (3 * Math.PI) / 4, Math.PI]
-  const resK24 = scanChannel('K-bounce (opp tone)', L0_K, 24, pGrid)
-  const resK40 = scanChannel('K-bounce (opp tone)', L0_K, 40, pGrid)
-  const resM24 = scanChannel('M_meet (diff role)', L0_MEET, 24, pGrid)
-  const resM40 = scanChannel('M_meet (diff role)', L0_MEET, 40, pGrid)
-  const resP24 = scanChannel('M_pair 1D iso (zeta_18)', L0_PAIR_ISO, 24, pGrid)
-  const resP40 = scanChannel('M_pair 1D iso (zeta_18)', L0_PAIR_ISO, 40, pGrid)
+  const resK24 = scanChannel('K-bounce (4D exact)', L0_K, 24, pGrid)
+  const resK40 = scanChannel('K-bounce (4D exact)', L0_K, 40, pGrid)
+  const resM24 = scanChannel('M_meet (4D exact)', L0_MEET, 24, pGrid)
+  const resM40 = scanChannel('M_meet (4D exact)', L0_MEET, 40, pGrid)
+  const resP24 = scanChannel('M_pair 1D iso (flat Bloch)', L0_PAIR_ISO, 24, pGrid)
+  const resP40 = scanChannel('M_pair 1D iso (flat Bloch)', L0_PAIR_ISO, 40, pGrid)
 
-  // Check if any genuine bound state persists from L=24 to L=40 with exponential midpoint decay!
+  // Check if any genuine physical sym(+) bound state persists from L=24 to L=40 with exponential midpoint decay.
+  // Filtering c.sym === 'sym(+)' ensures bosonic M_pair-iso certifies the physical sym(+) state (E = +0.563615pi),
+  // never the unphysical anti(-) state of the distinguishable-coordinate matrix!
   const verifyDecay = (
     label: string,
     c24: readonly BoundCandidate[],
     c40: readonly BoundCandidate[],
   ) => {
-    const atP0_24 = c24.filter(c => Math.abs(c.P) < 1e-12 && c.outsideBand)
-    const atP0_40 = c40.filter(c => Math.abs(c.P) < 1e-12 && c.outsideBand)
+    const atP0_24 = c24.filter(c => Math.abs(c.P) < 1e-12 && c.outsideBand && c.sym === 'sym(+)')
+    const atP0_40 = c40.filter(c => Math.abs(c.P) < 1e-12 && c.outsideBand && c.sym === 'sym(+)')
     if (atP0_24.length > 0 && atP0_40.length > 0) {
       const b24 = atP0_24[0]!
       const b40 = atP0_40[0]!
       console.log(
-        `  >>> INFINITE-SUPPORT l^2 DOUBLON CONFIRMED in ${label} at P=0: ` +
+        `  >>> INFINITE-SUPPORT l^2 DOUBLON CONFIRMED in ${label} at P=0 (${b40.sym}): ` +
           `E=${(b40.E / Math.PI).toFixed(6)}pi, IPR(24->40)=${b24.ipr.toFixed(5)}->${b40.ipr.toFixed(5)}, ` +
           `p(mid, 24->40)=${b24.pMid.toExponential(2)}->${b40.pMid.toExponential(2)} (EXPONENTIAL TAIL, NOT COMPACTON!)`,
       )
-      return true
+      return { found: true, b24, b40 } as const
     }
-    return false
+    return { found: false, b24: undefined, b40: undefined } as const
   }
 
-  const hasDoublonK = verifyDecay('K-bounce', resK24.found, resK40.found)
-  const hasDoublonM = verifyDecay('M_meet', resM24.found, resM40.found)
-  const hasDoublonP = verifyDecay('M_pair-iso', resP24.found, resP40.found)
+  const doublonK = verifyDecay('K-bounce (4D exact)', resK24.found, resK40.found)
+  const doublonM = verifyDecay('M_meet (4D exact)', resM24.found, resM40.found)
+  const doublonP = verifyDecay('M_pair-iso (1D flat Bloch)', resP24.found, resP40.found)
 
-  // If doublons exist, check their EXACT exponential decay rate and time-evolution on a long chain!
-  // Also scan a finer P grid at L=24 for K and M_meet to map the full bound-state dispersion band E_bound(P)!
-  if (hasDoublonK || hasDoublonM || hasDoublonP) {
-    console.log('\n  [Doublon Dispersion Scan E_bound(P) at L=32 across P in [0, pi]]:')
+  // Map the physical sym(+) bound-state dispersion band E_bound(P) at L=32 across P in [0, pi].
+  if (doublonK.found || doublonM.found || doublonP.found) {
+    console.log('\n  [Doublon Dispersion Scan E_bound(P) at L=32 across P in [0, pi] (physical sym(+) highlighted)]:')
     const fineP = [0, 0.25, 0.5, 0.75, 1.0].map(x => x * Math.PI)
-    for (const [label, mat] of [['K-bounce', L0_K], ['M_meet', L0_MEET], ['M_pair-1D', L0_PAIR_ISO]] as const) {
+    for (const [label, mat] of [['K-bounce', L0_K], ['M_meet', L0_MEET], ['M_pair-1D-flat', L0_PAIR_ISO]] as const) {
       const scan = scanChannel(`${label} dispersion`, mat, 32, fineP)
-      // Group by P
       const summary = fineP.map(P => {
-        const bs = scan.found.filter(b => Math.abs(b.P - P) < 1e-9 && b.outsideBand)
+        const bs = scan.found.filter(b => Math.abs(b.P - P) < 1e-9 && b.outsideBand && b.sym === 'sym(+)')
         return `P=${(P / Math.PI).toFixed(2)}pi:[${bs.map(b => `${(b.E / Math.PI).toFixed(4)}pi(${b.sym},IPR=${b.ipr.toFixed(2)})`).join(',')}]`
       })
-      console.log(`    ${label}: ${summary.join(' | ')}`)
+      console.log(`    ${label} (sym+): ${summary.join(' | ')}`)
     }
   }
 
+  const mMeetSym40 = resM40.found.filter(x => x.outsideBand && x.sym === 'sym(+)')
+  const mPairSym40 = resP40.found.filter(x => x.outsideBand && x.sym === 'sym(+)')
   const allUniOk =
     Math.max(resK24.maxUniErr, resK40.maxUniErr, resM24.maxUniErr, resM40.maxUniErr, resP24.maxUniErr, resP40.maxUniErr) < 1e-12 &&
-    Math.max(resK24.maxEigRes, resK40.maxEigRes, resM24.maxEigRes, resM40.maxEigRes, resP24.maxEigRes, resP40.maxEigRes) < 1e-10
+    Math.max(resK24.maxEigRes, resK40.maxEigRes, resM24.maxEigRes, resM40.maxEigRes, resP24.maxEigRes, resP40.maxEigRes) < 1e-10 &&
+    !doublonK.found &&
+    doublonM.found &&
+    doublonM.b40.sym === 'sym(+)' &&
+    Math.abs(doublonM.b40.E / Math.PI - 0.512246) < 1e-4 &&
+    doublonM.b40.pMid < 1e-18 &&
+    doublonP.found &&
+    doublonP.b40.sym === 'sym(+)' &&
+    Math.abs(doublonP.b40.E / Math.PI - 0.563615) < 1e-4 &&
+    doublonP.b40.pMid < 1e-18
 
   recordCheck(
     'P5',
-    'Exact k=2 collinear Bloch operator U_2(P) unitarity, eigensolver & l^2 bound-state classification',
+    'Exact k=2 collinear Bloch operator U_2(P) unitarity, eigensolver & physical sym(+) l^2 doublon classification',
     allUniOk,
-    `uniErr<1e-12, eigRes<1e-10; l^2 doublons: K=${hasDoublonK}(${resK40.found.filter(x => x.outsideBand).length}), M_meet=${hasDoublonM}(${resM40.found.filter(x => x.outsideBand).length}), M_pair1D=${hasDoublonP}(${resP40.found.filter(x => x.outsideBand).length})`,
+    `uniErr<1e-12, eigRes<1e-10; physical sym(+) doublons: K=${doublonK.found}(0), M_meet_4D=${doublonM.found}(${mMeetSym40.length}, E=0.512246pi), M_pair_1D_flat=${doublonP.found}(${mPairSym40.length}, E=0.563615pi)`,
   )
 }
 
@@ -1933,7 +1942,7 @@ function runPart5(): void {
 // PART 6: EXACT ANALYTIC DOUBLON QUANTIZATION FORMULA, PHASE WINDOWS & REAL-SPACE L=160 DYNAMICS
 // =================================================================================================
 
-function runPart6(): void {
+function runPart6(): { readonly meet1D: readonly number[]; readonly pair1D: readonly number[] } {
   console.log('\n================================================================================')
   console.log('PART 6: ANALYTIC DOUBLON QUANTIZATION, PHASE WINDOWS & REAL-SPACE BOUND-PAIR DYNAMICS')
   console.log('================================================================================')
@@ -1945,19 +1954,17 @@ function runPart6(): void {
   //   where Phi_-(theta) = pi - 2 theta - 2 atan(2 sin(theta) / sqrt(4 cos^2(theta) - 1)),
   //   and mu_0 = lambda_0 / omega is the collision phase relative to det(C) = omega.
   //   As theta runs over (0, pi/3), Phi_-(theta) decreases strictly from +pi down to -2 pi/3!
-  //   Wait: at mu_0 = omega = e^{+2 i pi/3} (M_meet sym(+), M_pair 11D zero-sum):
-  //     Solve Phi_-(theta) = +2 pi/3!
-  //   At mu_0 = omega * zeta_18 = e^{+7 i pi/9} (M_pair 1D isotropic sym(+)):
-  //     Solve Phi_-(theta) = +7 pi/9!
-  //   At mu_0 = -1 = e^{i pi} (K-bounce sym(+)):
-  //     Phi_-(theta) = pi hits theta = 0 (E = 2 pi/3, absorbed into the flat (+,-) continuum!) -> NO isolated doublon!
-  //   And for anti(-): a_0 = -u_{-+} negates the RHS, so anti(-) needs mu_0 = -e^{i Phi_-(theta)} = e^{i (Phi_- - pi)},
-  //   whose open image on (0, pi/3) is (-5 pi/3, 0) = (pi/3, 2 pi) mod 2 pi -> wait: at mu_0 = +1 (K & M_meet anti(-)),
-  //   Phi_-(theta) - pi = 0 requires Phi_-(theta) = pi -> theta = 0 (absorbed into the (+,-) continuum!) -> NO doublon!
-  //   Wait: check why M_pair 1D isotropic had TWO anti(-) states in Part 5:
-  //   Because for M_pair, identical particles are BOSONS (symmetric only, NO anti(-) state exists at r=0!),
-  //   whereas if a distinguishable pair hypothetically had L_0 = omega^2 zeta_18 I_2, its anti(-) eigenvalue mu_0 = e^{7i pi/9}
-  //   lies inside the anti(-) bound window (pi/3, pi) U (-pi, 0)!
+  //   - At mu_0 = omega = e^{+2 i pi/3}: M_meet sym(+) (EXACT 4D {3,4,3,4} geodesic l^2 doublon!) and
+  //     M_pair 11D zero-sum (flat Euclidean D_4/Z^d P=0 Bloch plane-wave reduction ONLY, NOT 4D hyperbolic l^2).
+  //   - At mu_0 = omega * zeta_18 = e^{+7 i pi/9}: M_pair 1D isotropic sym(+) (flat Euclidean D_4/Z^d P=0
+  //     Bloch plane-wave reduction ONLY, NOT 4D hyperbolic l^2).
+  //   - At mu_0 = -1 = e^{i pi} (K-bounce sym(+)): Phi_-(theta) = pi hits theta = 0 (E = 2 pi/3, absorbed into
+  //     the (+,-) continuum) -> NO isolated doublon!
+  //   - For anti(-): a_0 = -u_{-+} negates the RHS, so anti(-) needs mu_0 = -e^{i Phi_-(theta)} = e^{i (Phi_- - pi)}.
+  //     At mu_0 = +1 (K & M_meet anti(-)), Phi_-(theta) = pi hits theta = 0 -> NO doublon!
+  //     For identical bosons M_pair, ONLY sym(+) is physical (no anti(-) state exists at r=0); the extra anti(-)
+  //     eigenvalues of the distinguishable-coordinate matrix U_2(P) with L_0 = omega^2 zeta_18 I_2 are unphysical,
+  //     so Part 5's verifyDecay filters to c.sym === 'sym(+)' and certifies E = +0.563615pi.
   const phiMinus = (th: number): number => {
     const sh = Math.sqrt(Math.max(0, 4 * Math.cos(th) ** 2 - 1))
     return Math.PI - 2 * th - 2 * Math.atan2(2 * Math.sin(th), sh)
@@ -2022,8 +2029,8 @@ function runPart6(): void {
     return { E, kap, p0Exact, iprExact, phaseErr }
   }
 
-  const anaMeet = checkAnalyticDoublon('M_meet sym(+) / M_pair 11D', thMeet, (2 * Math.PI) / 3)
-  const anaPair = checkAnalyticDoublon('M_pair 1D iso sym(+)', thPairIso, (7 * Math.PI) / 9)
+  const anaMeet = checkAnalyticDoublon('M_meet sym(+) (4D exact)', thMeet, (2 * Math.PI) / 3)
+  const anaPair = checkAnalyticDoublon('M_pair 1D iso (flat Bloch)', thPairIso, (7 * Math.PI) / 9)
 
   // Verify the exact closed-form algebraic identities:
   //   A = sqrt(3) sin(phi/2), cos(theta) = (A+2)/sqrt(4A+7), z = e^{-2 kappa} = 1/(4A+7), p0 = (2A+3)/(4A+7)!
@@ -2242,9 +2249,174 @@ function runPart6(): void {
 
   recordCheck(
     'P6',
-    'Closed-form doublon (z=1/13, p0=6/13, lam=(7+15w)/13), 4D cross-check & T=60 binding proof',
+    'Closed-form doublon (M_meet 4D exact z=1/13, p0=6/13, lam=(7+15w)/13), 4D cross-check & T=60 binding proof',
     ok,
-    `closedErr=${closedFormErr.toExponential(1)}, 4D<->1D err=${cross4DErr.toExponential(1)}; late P(r=0): M_meet_sym=${dynMeetSym.lateAvg.toFixed(4)}, M_pair=${dynPairIso.lateAvg.toFixed(4)} vs K=${dynKSym.lateAvg.toFixed(4)}`,
+    `closedErr=${closedFormErr.toExponential(1)}, 4D<->1D M_meet err=${cross4DErr.toExponential(1)}; late P(r=0): M_meet_sym=${dynMeetSym.lateAvg.toFixed(4)}, M_pair_1D_flat=${dynPairIso.lateAvg.toFixed(4)} vs K=${dynKSym.lateAvg.toFixed(4)}`,
+  )
+
+  return { meet1D: dynMeetSym.pSameHist, pair1D: dynPairIso.pSameHist }
+}
+
+// =================================================================================================
+// PART 7: EXACT 4D {3,4,3,4} COXETER M_PAIR CROSS-LINE SCATTERING CHECK (t=0..5)
+// =================================================================================================
+
+function runPart7(meet1D: readonly number[], pair1D: readonly number[]): void {
+  console.log('\n================================================================================')
+  console.log('PART 7: EXACT 4D {3,4,3,4} COXETER M_PAIR CROSS-LINE SCATTERING VERIFICATION (t=0..5)')
+  console.log('================================================================================')
+
+  // Precompute the 1D geodesic dock set within distance <= 5 of d_0 = 0 along each of the 12 antipodal lines.
+  const geoDocksByLine: Set<number>[] = LINES.map(([sA, sB]) => {
+    const s = new Set<number>([0])
+    let curA = 0
+    let curB = 0
+    for (let step = 0; step < 5; step++) {
+      curA = stepDock(curA, sA)
+      curB = stepDock(curB, sB)
+      s.add(curA)
+      s.add(curB)
+    }
+    return s
+  })
+
+  const track4D = (
+    label: string,
+    init: ExactState,
+    normScale: number,
+    initLines: ReadonlySet<number>,
+    steps: number,
+  ) => {
+    let st = init
+    const pSame: number[] = []
+    const pInitL: number[] = []
+    const pCollinear: number[] = []
+    const activeLines: number[] = []
+    let maxNormErr = 0
+
+    for (let t = 0; t <= steps; t++) {
+      let norm = 0
+      let ps = 0
+      let pil = 0
+      let pcol = 0
+      const lSet = new Set<number>()
+      for (const [k, amp] of st.amp) {
+        const vs = decodeConfig(k)
+        const v0 = vs[0]!
+        const v1 = vs[1]!
+        const l0 = LINE_OF_SLOT[v0[1]]!
+        const l1 = LINE_OF_SLOT[v1[1]]!
+        lSet.add(l0)
+        lSet.add(l1)
+        const w = normScale * cAbs2(z9ToComplex(amp, st.den))
+        norm += w
+        if (v0[0] === v1[0]) ps += w
+        if (initLines.has(l0) && initLines.has(l1)) pil += w
+        if (l0 === l1 && geoDocksByLine[l0]!.has(v0[0]) && geoDocksByLine[l0]!.has(v1[0])) pcol += w
+      }
+      const nErr = Math.abs(norm - 1)
+      if (nErr > maxNormErr) maxNormErr = nErr
+      pSame.push(ps)
+      pInitL.push(pil)
+      pCollinear.push(pcol)
+      activeLines.push(lSet.size)
+      if (t < steps) st = applyBeat(st)
+    }
+
+    console.log(`  ${label.padEnd(28)}: P(r=0)=[${pSame.map(x => x.toFixed(6)).join(', ')}]`)
+    console.log(
+      `  ${' '.repeat(28)}  P_initL=[${pInitL.map(x => x.toFixed(6)).join(', ')}], ` +
+        `P_geo=[${pCollinear.map(x => x.toFixed(6)).join(', ')}], activeLines=[${activeLines.join(',')}]`,
+    )
+    return { pSame, pInitL, pCollinear, activeLines, maxNormErr }
+  }
+
+  // 1. Exact 4D M_meet sym(+) (distinguishable roles): ZERO cross-line scattering for all t!
+  const [l0A, l0B] = LINES[0]!
+  const [l1A, l1B] = LINES[1]!
+  const initMeet4D = stateFromEntries(
+    [
+      [[[0, l0A, 1, 0], [0, l0B, 1, 1]], Z9_ONE],
+      [[[0, l0A, 1, 1], [0, l0B, 1, 0]], Z9_ONE],
+    ],
+    2n, // norm^2 = 2/4 = 1/2 -> normScale = 2
+  )
+  // 2. Exact 4D M_pair(zeta_18) 11D zero-sum packet: (|d0, L0> - |d0, L1>) / sqrt(2)
+  const initZeroSum4D = stateFromEntries(
+    [
+      [[[0, l0A, 1, 0], [0, l0B, 1, 0]], Z9_ONE],
+      [[[0, l1A, 1, 0], [0, l1B, 1, 0]], scaleZ9(-1n, Z9_ONE)],
+    ],
+    1n, // norm^2 = 2 -> normScale = 0.5
+  )
+  // 3. Exact 4D M_pair(zeta_18) 12-line isotropic packet: (1/sqrt(12)) sum_{l=0}^{11} |d0, L_l>
+  const initIso4D = stateFromEntries(
+    LINES.map(([a, b]) => [[[0, a, 1, 0], [0, b, 1, 0]], Z9_ONE] as const),
+    1n, // norm^2 = 12 -> normScale = 1/12
+  )
+
+  const resMeet4D = track4D('4D COXETER M_meet sym(+)', initMeet4D, 2, new Set([0]), 5)
+  const resZeroSum4D = track4D('4D COXETER M_pair 11D 0-sum', initZeroSum4D, 0.5, new Set([0, 1]), 5)
+  const resIso4D = track4D(
+    '4D COXETER M_pair 12-iso',
+    initIso4D,
+    1 / 12,
+    new Set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]),
+    5,
+  )
+
+  let meetErr05 = 0
+  let zeroSumErr04 = 0
+  let isoErr04 = 0
+  for (let t = 0; t <= 5; t++) {
+    const em = Math.abs(resMeet4D.pSame[t]! - meet1D[t]!)
+    if (em > meetErr05) meetErr05 = em
+    if (t <= 4) {
+      const ez = Math.abs(resZeroSum4D.pSame[t]! - meet1D[t]!)
+      const ei = Math.abs(resIso4D.pSame[t]! - pair1D[t]!)
+      if (ez > zeroSumErr04) zeroSumErr04 = ez
+      if (ei > isoErr04) isoErr04 = ei
+    }
+  }
+  const diffZeroSumT5 = resZeroSum4D.pSame[5]! - meet1D[5]!
+  const diffIsoT5 = resIso4D.pSame[5]! - pair1D[5]!
+
+  console.log(
+    `  4D vs 1D M_meet sym(+) (t=0..5): maxErr=${meetErr05.toExponential(2)} (EXACT 1D geodesic invariance)`,
+  )
+  console.log(
+    `  4D vs 1D M_pair 11D 0-sum      : t=0..4 maxErr=${zeroSumErr04.toExponential(2)}, ` +
+      `t=5 delta P(r=0)=${diffZeroSumT5.toExponential(2)} (activeLines 2->12 at t=4, P_initL(4)=${resZeroSum4D.pInitL[4]!.toFixed(6)})`,
+  )
+  console.log(
+    `  4D vs 1D M_pair 12-line iso    : t=0..4 maxErr=${isoErr04.toExponential(2)}, ` +
+      `t=5 delta P(r=0)=${diffIsoT5.toExponential(2)} (P_geo(3)=${resIso4D.pCollinear[3]!.toFixed(6)} -> P_geo(4)=${resIso4D.pCollinear[4]!.toFixed(6)})`,
+  )
+
+  const ok =
+    resMeet4D.maxNormErr < 1e-12 &&
+    resZeroSum4D.maxNormErr < 1e-12 &&
+    resIso4D.maxNormErr < 1e-12 &&
+    meetErr05 < 1e-14 &&
+    resMeet4D.activeLines.every(n => n === 1) &&
+    resMeet4D.pCollinear.every(p => Math.abs(p - 1) < 1e-12) &&
+    zeroSumErr04 < 1e-14 &&
+    isoErr04 < 1e-14 &&
+    resZeroSum4D.activeLines.slice(0, 4).every(n => n === 2) &&
+    resZeroSum4D.activeLines[4] === 12 &&
+    resZeroSum4D.activeLines[5] === 12 &&
+    resZeroSum4D.pInitL[4]! < 0.9995 &&
+    resZeroSum4D.pInitL[5]! < 0.9994 &&
+    Math.abs(diffZeroSumT5 - -6.90e-4) < 5e-6 &&
+    Math.abs(resIso4D.pCollinear[3]! - 1) < 1e-12 &&
+    resIso4D.pCollinear[4]! < 0.9995 &&
+    Math.abs(diffIsoT5 - -1.16e-3) < 1e-5
+
+  recordCheck(
+    'P7',
+    '4D {3,4,3,4} Coxeter M_pair cross-line scattering (t=0..5): M_meet stays 1D; M_pair scatters at t=3->4 & diverges at t=5',
+    ok,
+    `M_meet 4D-1D err=${meetErr05.toExponential(1)}; M_pair 11D 0-sum lines=[${resZeroSum4D.activeLines.join(',')}], dP(5)=${diffZeroSumT5.toExponential(2)}; M_pair 12-iso P_geo(4)=${resIso4D.pCollinear[4]!.toFixed(6)}, dP(5)=${diffIsoT5.toExponential(2)}`,
   )
 }
 
@@ -2259,7 +2431,8 @@ function main(): void {
   const { ringDocks, slotA, slotB } = runPart3()
   runPart4(ringDocks, slotA, slotB)
   runPart5()
-  runPart6()
+  const { meet1D, pair1D } = runPart6()
+  runPart7(meet1D, pair1D)
   const elapsedSec = (performance.now() - t0) / 1000
 
   console.log('\n================================================================================')

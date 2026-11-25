@@ -297,6 +297,11 @@ function buildExactCausalHull(input: {
 // ============================================================================
 // 3. Exact Chiral Pseudoscalar chiOddPoly (bit-for-bit match with Vibe/Chirality.lean)
 // ============================================================================
+// Convention equivalence note: `dockChi` uses `sign(chiOddPoly)` (matching `Vibe/Chirality.lean`),
+// whereas `test/universe.ts` (and W3's `compacton-nogo-and-doublon.ts`) uses the canonical
+// `W(F_4) x Z_2^C` orbit-minimum sign `chiral4Sign`. Both satisfy the exact same `ChiralInvariant`
+// laws (`W(F_4)^+`-invariant, `R`-even, `C`-odd, `P`-odd, `CP`-even, vanishing on `k <= 3`,
+// non-vanishing on `k = 4` chiral quads), and Theorem 1 holds for every `ChiralInvariant`.
 
 function dot4(a: readonly number[], b: readonly number[]): number {
   return a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]! + a[3]! * b[3]!
@@ -1571,7 +1576,9 @@ function main(): void {
       const coneCheck = checkCauchyCutValid(sector.hull, coneCut)
       const chaoticPrio = specs[4]!.priority
 
-      // Stage 1: advance ONLY the localized causal cone of g0 to proper time T (distant docks stay at tau=0!)
+      // Stage 1: advance ONLY the localized causal cone of g0 to proper time T.
+      // On B_2(g_0) (Sectors 1-4, max d = 2), outer shell d = 2 sits at tauV = 1 < 2 so docksFrozenAtTau0 = 0/481.
+      // Distant docks with d >= T + 1 = 3 freeze at tauV = 0 on hulls reaching d >= 3 (Sector 5: 433/914, Part C: 479/960).
       const stage1 = runAsynchronousSchedule({
         hull: sector.hull,
         initialTildeState: initTilde,
@@ -1580,9 +1587,9 @@ function main(): void {
         priority: chaoticPrio,
       })
 
-      // Check reduced density matrix rho_{g0} on warped bubble slice Sigma_cone vs final flat slice U^T!
-      // Note: applying local R_{g0} on the bubble slice gives exact g0 state at proper time T
-      // even though distant docks at d >= T+1 are still at proper time 0!
+      // Check reduced density matrix rho_{g0} on warped bubble slice Sigma_cone vs final flat slice U^T.
+      // Applying local R_{g0} on the bubble slice reproduces the exact g0 state at proper time T while outer shells
+      // lag behind (tauV = 1 on B_2 shell d = 2 in Sectors 1-4, and tauV = 0 on d >= 3 in Sector 5 and Part C).
       const bubbleLocalR = applySiteR(stage1.state, sector.hull, g0)
       const rdmBubble = reducedDensityMatrix(bubbleLocalR, g0)
       const rdmFlat = reducedDensityMatrix(refSync.state, g0)
