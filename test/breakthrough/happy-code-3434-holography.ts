@@ -15,8 +15,10 @@
 //         M = K (|Phi+>: X_1 X_2, Z_1 Z_2^2) or M = -K (|Psi->: X_1 X_2^2, Z_1 Z_2).
 //       - Exact Gamma_24 clique f-vector [1, 24, 96, 96, 0] (216 non-empty cliques, zero 4-cliques).
 //       - ALL 216/216 cliques define exact single-dock isometries W_g : (C^3)^{m+1} -> (C^3)^{24-m}
-//         for T_+, T_-, T_+^{pure}, T_-^{pure} (with explicit operator pushing), PLUS brute-force
-//         42,504/42,504 5-subsets (m = 5, +2-facet safety margin over max |In_R| = 3; sharp at m = 6).
+//         for T_+, T_-, T_+^{pure}, T_-^{pure} (with explicit operator pushing), PLUS standalone
+//         brute-force 42,504/42,504 5-subsets (d_pure >= 6, +2-facet safety margin over max |In_R| = 3;
+//         sharp at m = 6) AND brute-force ALL C(24, 7) = 346,104/346,104 7-subsets (self-certifying
+//         d(T_+) >= 8 standalone via zero logical support on every |E| <= 7, sharp on wt-8 [0..7]).
 //   H2. Exact Infinite-Radius All-R Isometry Theorem & Algebraic Asymptotic Rate:
 //       - Exact O^+(4,1; Z[sqrt(2)]) Coxeter balls B_0..B_3 (1, 25, 481, 8,857 docks): 0 inconsistent
 //         steps, det(k_a) = -1, ZERO intra-shell edges, every non-origin dock has In_R(g) a clique of
@@ -42,10 +44,10 @@
 //       - Adversarial erasures: 100% bulk_0 recovery I(b_0 : E^c) = 2 ln 3 for all |E| = 39 witnesses;
 //         drops to 1 ln 3 on the weight-40 logical support.
 //   H5. Exact Ryu-Takayanagi S(A) = |gamma_A| ln 3, Sub-Leading Quantum Corrections, & MI Phase Transition:
-//       - On [[552, 0]]_3: exact RT (0 error) for all k = 1..5 cone regions (55,455 subsets) & contiguous k = 6,
-//         exact bulk-snapping RT inside a single cone (m = 1..6 and m = 17..23), exact non-perfect stabilizer
-//         deficits at large regions (k = 8, 10, 12), and sharp connected/disconnected MI phase transition
-//         I(A_1 : A_2) jumping from 0 to 16 ln 3 (multi-cone) and 0 to 17 ln 3 (intra-cone).
+//       - On [[552, 0]]_3: exact RT (0 error) for all k = 0..5 cone regions (55,455 subsets; 55,454 nonempty) &
+//         contiguous k = 6, exact bulk-snapping RT inside a single cone (m = 1..6 and m = 17..23), exact non-perfect
+//         stabilizer deficits at large regions (k = 8, 10, 12), and sharp connected/disconnected MI phase transition
+//         I(A_1 : A_2) jumping from 0 to 16 ln 3 (multi-cone) and 0 to 16 ln 3 (intra-cone).
 //   H6. Exact FLM Formula S(A) = |gamma_A| ln 3 + S_bulk(EW(A)) & Origin Black Hole Entropy Jump:
 //       - On [[552, 25]]_3: exact FLM S(A) = 2k (k <= 5, I(b_0:A) = 0), classical horizon I(b_0:A) = 1
 //         (k = 8..16), and full quantum bulk_0 capture I(b_0:A) = 2 with S(A) = (24-k) + (k+1) = 25 (k >= 17).
@@ -603,13 +605,28 @@ for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) for (let c = 0; c < 3; c
   }
 }
 
-// Verify T_+ and T_- single-dock ranks, isotropy, and full W(F_4) covariance
+// Verify T_+ and T_- single-dock ranks, isotropy, and full W(F_4) covariance (plus vertex-transitivity)
 const tPlusIso = countIsoDefects(T.choiPlus.map(gf3FromUint8), 25)
 const tMinusIso = countIsoDefects(T.choiMinus.map(gf3FromUint8), 25)
 const tPureIso = countIsoDefects(T.purePlus.map(gf3FromUint8), 24)
 const tPlusRank = gf3Rank(T.choiPlus.map(gf3FromUint8), 50)
 const tMinusRank = gf3Rank(T.choiMinus.map(gf3FromUint8), 50)
 const tPureRank = gf3Rank(T.purePlus.map(gf3FromUint8), 48)
+const tPlusBulk23GF3 = T.bulk23.map(gf3FromUint8)
+const tPlusWF4Cov = S_GENS.every((p, gi) => {
+  const A = S3_AS[gi]!
+  const imgs = T.bulk23.map(r => {
+    const out = new Uint8Array(48)
+    for (let i = 0; i < 24; i++) {
+      const dst = p[i]!, xi = r[i]!, zi = r[24 + i]!
+      out[dst] = mod3(A[0] * xi + A[1] * zi)
+      out[24 + dst] = mod3(A[2] * xi + A[3] * zi)
+    }
+    return gf3FromUint8(out)
+  })
+  return gf3Rank([...tPlusBulk23GF3, ...imgs], 48) === 23
+})
+const wf4Transitive24 = new Set(WF4_FULL.map(w => w.perm[0]!)).size === 24
 
 // Enumerate ALL cliques of Gamma_24
 const cliques1: number[][] = Array.from({ length: 24 }, (_, a) => [a])
@@ -666,42 +683,125 @@ for (const cl of allCliques) {
   }
 }
 
-// Brute-force ALL C(24, 5) = 42,504 5-subsets (+ bulk = 6 qutrits) exact isometry!
-let brute5Iso = 0, brute5Total = 0
-const s5 = [0, 0, 0, 0, 0, 24]
-for (let a = 0; a < 24; a++) {
-  s5[0] = a
-  for (let b = a + 1; b < 24; b++) {
-    s5[1] = b
-    for (let c = b + 1; c < 24; c++) {
-      s5[2] = c
-      for (let d = c + 1; d < 24; d++) {
-        s5[3] = d
-        for (let e = d + 1; e < 24; e++) {
-          s5[4] = e; brute5Total++
-          if (restrictRankU8(T.choiPlus, 25, s5) === 12) brute5Iso++
-        }
-      }
+// Standalone brute-force self-certification of BOTH d_pure(T_+) >= 6 (ALL C(24,5) = 42,504 5-subsets)
+// AND d(T_+) >= 8 (ALL C(24,7) = 346,104 7-subsets: exact rk(S_0|_{E U {b}}) = rk(S_0|_E) + 2, i.e., I(b:E) = 0)
+// via zero-allocation incremental 25-bit column-space GF(3) Gaussian elimination (plus sharpness on wt-8 [0..7])!
+const MASK23 = (1 << 23) - 1
+const colX_A = new Int32Array(24), colX_B = new Int32Array(24)
+const colZ_A = new Int32Array(24), colZ_B = new Int32Array(24)
+for (let s = 0; s < 24; s++) {
+  let xa = 0, xb = 0, za = 0, zb = 0
+  for (let ri = 0; ri < 25; ri++) {
+    const row = T.choiPlus[ri]!
+    const vx = row[s]!, vz = row[25 + s]!
+    if (vx === 1) xa |= 1 << ri
+    else if (vx === 2) xb |= 1 << ri
+    if (vz === 1) za |= 1 << ri
+    else if (vz === 2) zb |= 1 << ri
+  }
+  colX_A[s] = xa; colX_B[s] = xb; colZ_A[s] = za; colZ_B[s] = zb
+}
+
+const pivA = new Int32Array(16)
+const pivB = new Int32Array(16)
+const pivBit = new Int32Array(16)
+function pushCol25(ca: number, cb: number, nPiv: number): number {
+  // Returns new nPiv (>= 0) if consistent with rows 23..24 (zero logical support), or -1 if logical detected!
+  for (let k = 0; k < nPiv; k++) {
+    const bit = pivBit[k]!
+    if ((ca & bit) !== 0) {
+      // col = col - piv = col + (pivB, pivA)
+      const pa = pivB[k]!, pb = pivA[k]!
+      const z1 = ~(ca | cb), z2 = ~(pa | pb)
+      const na = (ca & z2) | (z1 & pa) | (cb & pb)
+      const nb = (cb & z2) | (z1 & pb) | (ca & pa)
+      ca = na; cb = nb
+    } else if ((cb & bit) !== 0) {
+      // col = col + piv
+      const pa = pivA[k]!, pb = pivB[k]!
+      const z1 = ~(ca | cb), z2 = ~(pa | pb)
+      const na = (ca & z2) | (z1 & pa) | (cb & pb)
+      const nb = (cb & z2) | (z1 & pb) | (ca & pa)
+      ca = na; cb = nb
     }
+  }
+  const nz23 = (ca | cb) & MASK23
+  if (nz23 === 0) {
+    // Dependency in L_bulk^{(23)}|_E: fails logical independence iff bit 23 or 24 is nonzero!
+    return (ca | cb) !== 0 ? -1 : nPiv
+  }
+  const lb = nz23 & -nz23
+  if ((cb & lb) !== 0) { const t = ca; ca = cb; cb = t }
+  pivA[nPiv] = ca; pivB[nPiv] = cb; pivBit[nPiv] = lb
+  return nPiv + 1
+}
+
+let brute5Iso = 0, brute5Total = 0
+let brute7Total = 0, brute7ZeroLog = 0
+// Run full brute-force over all C(24, 5) = 42,504 5-subsets (d_pure >= 6) and all C(24, 7) = 346,104 7-subsets (d(T_+) >= 8)!
+function dfs5Only(start: number, depth: number, nPiv: number): void {
+  if (depth === 5) {
+    brute5Total++
+    if (nPiv === 10) brute5Iso++
+    return
+  }
+  for (let s = start; s <= 24 - (5 - depth); s++) {
+    const p1 = pushCol25(colX_A[s]!, colX_B[s]!, nPiv)
+    if (p1 < 0) continue
+    const p2 = pushCol25(colZ_A[s]!, colZ_B[s]!, p1)
+    if (p2 < 0) continue
+    dfs5Only(s + 1, depth + 1, p2)
+  }
+}
+function dfs7Only(start: number, depth: number, nPiv: number): void {
+  if (depth === 7) {
+    brute7Total++
+    brute7ZeroLog++
+    return
+  }
+  for (let s = start; s <= 24 - (7 - depth); s++) {
+    const p1 = pushCol25(colX_A[s]!, colX_B[s]!, nPiv)
+    if (p1 < 0) continue
+    const p2 = pushCol25(colZ_A[s]!, colZ_B[s]!, p1)
+    if (p2 < 0) continue
+    dfs7Only(s + 1, depth + 1, p2)
+  }
+}
+const tDistCert = Date.now()
+dfs5Only(0, 0, 0)
+dfs7Only(0, 0, 0)
+const dtDistCert = Date.now() - tDistCert
+// Verify non-vacuous sharpness on the known weight-8 logical support [0,1,2,3,4,5,6,7]: MUST detect logical (return -1)!
+let wt8LogicalDetected = false
+{
+  let np = 0
+  for (let s = 0; s < 8; s++) {
+    np = pushCol25(colX_A[s]!, colX_B[s]!, np)
+    if (np < 0) { wt8LogicalDetected = true; break }
+    np = pushCol25(colZ_A[s]!, colZ_B[s]!, np)
+    if (np < 0) { wt8LogicalDetected = true; break }
   }
 }
 const LAYER_SLOTS = [0, 1, 4, 5, 8, 9]
 const m6SharpRank = restrictRankU8(T.choiPlus, 25, [...LAYER_SLOTS, 24])
 
 console.log(`  GL_2(3) Bell-pair audit: |GL_2(3)|=${gl23Count}, valid Bell pairs (det=2)=${det2Count} (${det2InvCount} involutions + ${det2Ord8Count} ord-8), commuting with P=${det2CommP}/24`)
-console.log(`  Single-dock tensors: T_+ (rk=${tPlusRank}, isoDef=${tPlusIso}), T_- (rk=${tMinusRank}, isoDef=${tMinusIso}), T_pure (rk=${tPureRank}, isoDef=${tPureIso})`)
+console.log(`  Single-dock tensors: T_+ (rk=${tPlusRank}, isoDef=${tPlusIso}, W(F_4)=${tPlusWF4Cov}, trans24=${wf4Transitive24}), T_- (rk=${tMinusRank}, isoDef=${tMinusIso}), T_pure (rk=${tPureRank}, isoDef=${tPureIso})`)
 console.log(`  Gamma_24 clique f-vector: [1, ${cliques1.length}, ${cliques2.length}, ${cliques3.length}, ${cliques4}] (216 non-empty cliques, 0 4-cliques)`)
 console.log(`  All 216 cliques exact isometry (T_+, T_-, pure+, pure-): ${cliqueIsoAll4}/216, explicit operator pushing: ${cliqueOpPushVerified}/216`)
-console.log(`  Brute-force m=5 (+bulk=6 qutrits) exact isometry: ${brute5Iso}/${brute5Total} (+2-facet margin over {3,4,3,4} max m=3); sharp m=6 on L: rk=${m6SharpRank}/14`)
+console.log(`  Standalone brute-force (${dtDistCert} ms): m=5 isometry ${brute5Iso}/${brute5Total} (d_pure>=6, m=6 sharp rk=${m6SharpRank}/14); m=7 zero-logical ${brute7ZeroLog}/${brute7Total} (d(T_+)>=8, wt-8 [0..7] detected=${wt8LogicalDetected})`)
 
 recordCheck(
   'H1',
-  'Bipartite K-alternation necessity (0/24 Bell pairs commute w/ P) & 216/216 clique + 42,504/42,504 5-set isometry',
+  'Bipartite K-alternation, 216/216 cliques, brute-force 42,504 5-sets (d_pure=6) & 346,104 7-sets (d=8)',
   gl23Count === 48 && det2Count === 24 && det2InvCount === 12 && det2Ord8Count === 12 && det2CommP === 0 &&
     tPlusIso === 0 && tMinusIso === 0 && tPureIso === 0 && tPlusRank === 25 && tMinusRank === 25 && tPureRank === 24 &&
+    tPlusWF4Cov && wf4Transitive24 &&
     cliques1.length === 24 && cliques2.length === 96 && cliques3.length === 96 && cliques4 === 0 &&
-    cliqueIsoAll4 === 216 && cliqueOpPushVerified === 216 && brute5Iso === 42504 && m6SharpRank === 13,
-  `0/24 det=2 Bell pairs (12 invol + 12 ord-8) commute with P; 216/216 cliques & 42,504/42,504 5-sets exact isometry`,
+    cliqueIsoAll4 === 216 && cliqueOpPushVerified === 216 &&
+    brute5Total === 42504 && brute5Iso === 42504 && m6SharpRank === 13 &&
+    brute7Total === 346104 && brute7ZeroLog === 346104 && wt8LogicalDetected,
+  `0/24 det=2 Bell pairs comm w/ P; 216/216 cliques; brute-force 42,504 5-sets & 346,104 7-sets exact (d_pure=6, d=8)`,
 )
 
 // ============================================================================
@@ -932,13 +1032,57 @@ const covB1NegK = checkWF4Cov552(b1ExtNegK.hStabs, S3_AS_ODD)
 const covB1Pure = checkWF4Cov552(cB1Pure.basis, S3_AS_ODD)
 const covB1NoAltSame = checkWF4Cov552(b1ExtNoAlt.hStabs, S3_AS)
 const covB1NoAltOdd = checkWF4Cov552(b1ExtNoAlt.hStabs, S3_AS_ODD)
+// Also verify full 577-qutrit Choi state W(F_4) covariance (552 boundary + 25 bulk qutrits simultaneously!)
+const covB1Choi577 = (() => {
+  const w577 = (2 * 577 + 31) >>> 5
+  const frameSgn: readonly number[] = [2, 2, 1, 1] // s_0,s_1 negate (1_{F_0} - 1_{F_1}) mod span(1); s_2,s_3 fix frames
+  return S_GENS.map((p, gi) => {
+    const Abnd = S3_AS_ODD[gi]!
+    const sgn = frameSgn[gi]!
+    const scaleM = (M: Mat2): Mat2 => [mod3(sgn * M[0]), mod3(sgn * M[1]), mod3(sgn * M[2]), mod3(sgn * M[3])]
+    const AbulkEven = scaleM(S3_AS_ODD[gi]!) // Choi leg of even dock 0 transforms by sgn * K A K
+    const AbulkOdd = scaleM(S3_AS[gi]!)      // Choi leg of odd shell-1 docks transforms by sgn * A
+    const imgs = cB1BulkK.basis.map(r => {
+      const out = gf3RowZero(w577)
+      for (let q = 0; q < 552; q++) {
+        const xv = gf3Get(r, q), zv = gf3Get(r, 577 + q)
+        if (xv === 0 && zv === 0) continue
+        const [a, s] = b1BndToAS[q]!, dst = b1ASToBnd[p[a]! * 24 + p[s]!]!
+        const nx = mod3(Abnd[0] * xv + Abnd[1] * zv), nz = mod3(Abnd[2] * xv + Abnd[3] * zv)
+        if (nx) gf3Set(out, dst, nx)
+        if (nz) gf3Set(out, 577 + dst, nz)
+      }
+      // Bulk qutrit 0 (even dock 0 -> dock 0)
+      {
+        const xv = gf3Get(r, 552), zv = gf3Get(r, 577 + 552)
+        if (xv || zv) {
+          const nx = mod3(AbulkEven[0] * xv + AbulkEven[1] * zv), nz = mod3(AbulkEven[2] * xv + AbulkEven[3] * zv)
+          if (nx) gf3Set(out, 552, nx)
+          if (nz) gf3Set(out, 577 + 552, nz)
+        }
+      }
+      // Bulk qutrits 1..24 (odd shell-1 docks a -> p[a])
+      for (let a = 0; a < 24; a++) {
+        const srcQ = 553 + a, dstQ = 553 + p[a]!
+        const xv = gf3Get(r, srcQ), zv = gf3Get(r, 577 + srcQ)
+        if (xv || zv) {
+          const nx = mod3(AbulkOdd[0] * xv + AbulkOdd[1] * zv), nz = mod3(AbulkOdd[2] * xv + AbulkOdd[3] * zv)
+          if (nx) gf3Set(out, dstQ, nx)
+          if (nz) gf3Set(out, 577 + dstQ, nz)
+        }
+      }
+      return out
+    })
+    return gf3Rank([...cB1BulkK.basis, ...imgs], 2 * 577) === 577
+  })
+})()
 const hKMatchesNegK = gf3Rank([...b1ExtK.hStabs, ...b1ExtNegK.hStabs], 1104) === 527
 const sBulk25 = stabEntropy(cB1BulkK.basis, 577, Array.from({ length: 25 }, (_, i) => 552 + i))
 
 console.log(`  B_1 [[552, 25]]_3 (M=K  |Phi+>): eqRank=${cB1BulkK.eqRank}/48, rk=${cB1BulkK.basis.length}/577, isoDef=${cB1BulkK.isoDefects}, |H|=${b1ExtK.hStabs.length}, 25 pairs=${b1ExtK.pairOk}, S(bulk_25)=${sBulk25}/25`)
 console.log(`  B_1 [[552, 25]]_3 (M=-K |Psi->): eqRank=${cB1BulkNegK.eqRank}/48, rk=${cB1BulkNegK.basis.length}/577, isoDef=${cB1BulkNegK.isoDefects}, H(M=-K)==H(M=K)=${hKMatchesNegK}`)
 console.log(`  B_1 [[552,  0]]_3 (pure state) : eqRank=${cB1Pure.eqRank}/48, rk=${cB1Pure.basis.length}/552, isoDef=${cB1Pure.isoDefects}`)
-console.log(`  W(F_4) covariance [s0,s1,s2,s3]: M=K -> [${covB1K}], M=-K -> [${covB1NegK}], pure -> [${covB1Pure}]`)
+console.log(`  W(F_4) covariance [s0,s1,s2,s3]: M=K -> [${covB1K}], M=-K -> [${covB1NegK}], pure -> [${covB1Pure}], full-577 Choi -> [${covB1Choi577}]`)
 console.log(`  NEGATIVE CONTROL (no K-alt)    : sameCliff -> [${covB1NoAltSame}], oddCliff -> [${covB1NoAltOdd}] (s_3 FAILS!)`)
 
 recordCheck(
@@ -948,9 +1092,9 @@ recordCheck(
     b1ExtK.bulkIsoExact && b1ExtK.hStabs.length === 527 && b1ExtK.pairOk && sBulk25 === 25 &&
     cB1BulkNegK.isoDefects === 0 && hKMatchesNegK &&
     cB1Pure.eqRank === 48 && cB1Pure.basis.length === 552 && cB1Pure.isoDefects === 0 &&
-    covB1K.every(Boolean) && covB1NegK.every(Boolean) && covB1Pure.every(Boolean) &&
+    covB1K.every(Boolean) && covB1NegK.every(Boolean) && covB1Pure.every(Boolean) && covB1Choi577.every(Boolean) &&
     !covB1NoAltSame[3] && !covB1NoAltOdd[3],
-  `527x1104 H(B_1), 25 logical pairs exact, W(F_4) [4/4] for M=+-K & pure, no-alt fails s_3`,
+  `527x1104 H(B_1), 25 logical pairs exact, W(F_4) [4/4] for M=+-K, pure & full-577 Choi; no-alt fails s_3`,
 )
 
 // ============================================================================
@@ -1185,21 +1329,21 @@ const miIntra = [1, 2, 5, 9, 10, 11].map(m => {
 })
 
 console.log(`  Multi-cone RT (S_B1 == S_B0 exact): ${rtMultiTable.map(x => `k=${x.k}:${x.sB1}/${x.rtCut}`).join(', ')} | non-contig 5-cone: ${sNonContig5}/5`)
-console.log(`  Pure 5-uniformity: ${pure5Unif}/42504 => EXACT RT for all 55,455 multi-cone subsets with k <= 5`)
+console.log(`  Pure 5-uniformity: ${pure5Unif}/42504 => EXACT RT for all 55,455 multi-cone subsets with k = 0..5 (55,454 nonempty)`)
 console.log(`  Partial cone 0 (m=1..23): ${partialCone.map(x => `${x.m}:${x.s}(${x.rt})`).join(', ')}`)
 console.log(`  Multi-cone MI phase transition I(k:k): ${miMulti.map(x => `k=${x.k}:${x.I}`).join(', ')}`)
 console.log(`  Intra-cone MI phase transition I(m:m): ${miIntra.map(x => `m=${x.m}:${x.I}`).join(', ')}`)
 
 recordCheck(
   'H5',
-  'Exact Ryu-Takayanagi on [[552,0]]_3 (55,455 k<=5 cone regions & partial-cone snap) + MI phase transition',
+  'Exact Ryu-Takayanagi on [[552,0]]_3 (55,455 k=0..5 cone regions & partial-cone snap) + MI phase transition',
   pure5Unif === 42504 && sNonContig5 === 5 &&
     rtMultiTable.every(x => x.sB1 === x.sB0) &&
     rtMultiTable.filter(x => x.k <= 6).every(x => x.sB1 === x.rtCut) &&
     partialExactEnds &&
     miMulti[0]!.I === 0 && miMulti[2]!.I === 0 && miMulti[miMulti.length - 1]!.I === 16 &&
     miIntra[0]!.I === 0 && miIntra[1]!.I === 0 && miIntra[miIntra.length - 1]!.I >= 16,
-  `all k<=5 (55,455 sets) & partial m<=6,m>=17 exact RT; MI jumps 0->16 (multi-cone) & 0->${miIntra[miIntra.length - 1]!.I} (intra-cone)`,
+  `all k=0..5 (55,455 sets, 55,454 nonempty) & partial m<=6,m>=17 exact RT; MI jumps 0->16 (multi-cone) & 0->${miIntra[miIntra.length - 1]!.I} (intra-cone)`,
 )
 
 // ============================================================================
@@ -1243,6 +1387,12 @@ const buildProjState = (mode: 'BH' | 'vacZ' | 'vacX'): { basis: GF3Row[]; nQ: nu
 const stBH = buildProjState('BH')
 const stVacZ = buildProjState('vacZ')
 const stVacX = buildProjState('vacX')
+const stBHIso = countIsoDefects(stBH.basis, 553)
+const stVacZIso = countIsoDefects(stVacZ.basis, 552)
+const stVacXIso = countIsoDefects(stVacX.basis, 552)
+assertExact(stBH.basis.length === 553 && stBHIso === 0, 'stBH Lagrangian rank 553 & isotropic')
+assertExact(stVacZ.basis.length === 552 && stVacZIso === 0, 'stVacZ Lagrangian rank 552 & isotropic')
+assertExact(stVacX.basis.length === 552 && stVacXIso === 0, 'stVacX Lagrangian rank 552 & isotropic')
 const bhTable = [1, 5, 7, 8, 12, 16, 17, 19, 20, 23].map(k => {
   const A = conesUnion(Array.from({ length: k }, (_, i) => i))
   const sBH = stabEntropy(stBH.basis, 553, A)
@@ -1252,18 +1402,21 @@ const bhTable = [1, 5, 7, 8, 12, 16, 17, 19, 20, 23].map(k => {
 })
 
 console.log(`  FLM S_full(A) & I(b_0:A): ${flmTable.map(x => `k=${x.k}:S=${x.sA},I=${x.ib0}`).join(' | ')}`)
+console.log(`  Projected Lagrangians: stBH (rk=${stBH.basis.length}/553, isoDef=${stBHIso}), stVacZ (rk=${stVacZ.basis.length}/552, isoDef=${stVacZIso}), stVacX (rk=${stVacX.basis.length}/552, isoDef=${stVacXIso})`)
 console.log(`  Origin BH vs |0>/|+> vac: ${bhTable.map(x => `k=${x.k}:BH=${x.sBH}(+Z:${x.dZ},+X:${x.dX})`).join(' | ')}`)
 
 recordCheck(
   'H6',
   'Exact FLM formula S(A)=|gamma_A|+S_bulk(EW) & origin Black Hole +1 ln 3 entropy jump across |0>/|+> vacua',
-  flmTable.filter(x => x.k <= 5).every(x => x.sA === 2 * x.k && x.ib0 === 0) &&
+  stBH.basis.length === 553 && stBHIso === 0 && stVacZ.basis.length === 552 && stVacZIso === 0 &&
+    stVacX.basis.length === 552 && stVacXIso === 0 &&
+    flmTable.filter(x => x.k <= 5).every(x => x.sA === 2 * x.k && x.ib0 === 0) &&
     flmTable.filter(x => x.k >= 17).every(x => x.sA === 25 && x.ib0 === 2) &&
     bhTable.filter(x => x.k <= 7).every(x => x.dZ === 0 && x.dX === 0) &&
     bhTable.find(x => x.k === 8)!.dZ === 1 && bhTable.find(x => x.k === 8)!.dX === 0 &&
     bhTable.filter(x => x.k >= 17).every(x => x.dZ === 1 && x.dX === 1) &&
     bhTable.filter(x => x.k >= 19).every(x => x.sBH === 24 - x.k + 1),
-  `FLM exact: S=2k (k<=5), S=25 (k>=17); BH jump: +0 (k<=7), classical horizon k=8 (+1/+0), +1 universal (k>=17)`,
+  `FLM exact: S=2k (k<=5), S=25 (k>=17); BH/vac Lagrangians iso=0; BH jump: +0 (k<=7), k=8 (+1/+0), +1 (k>=17)`,
 )
 
 // ============================================================================
@@ -1453,6 +1606,7 @@ function pushB1ToB2(activeAS: readonly (readonly [number, number, number, number
   readonly hitS2Docks: number
   readonly hitM2Docks: number
   readonly commAllS2: boolean
+  readonly inSpanBulk23: boolean
   readonly zeroInternalLeak: boolean
 } {
   const byS2 = new Map<number, Map<number, readonly [number, number]>>()
@@ -1465,14 +1619,17 @@ function pushB1ToB2(activeAS: readonly (readonly [number, number, number, number
     byS2.set(d2, mp)
   }
   const bndMap = new Map<number, [number, number]>()
-  let hitM2Docks = 0, commAllS2 = true, zeroInternalLeak = true
+  let hitM2Docks = 0, commAllS2 = true, inSpanBulk23 = true, zeroInternalLeak = true
   for (const [d2, activeMap] of byS2) {
     const allInSlots: number[] = []
     for (let s = 0; s < 24; s++) if (B2.nb[d2]![s]! >= 0) allInSlots.push(s)
     if (activeMap.size === 2) hitM2Docks++
     const st = findPushEvenExact(allInSlots, activeMap)
-    const stRow = toSympRow(gf3FromUint8(st), 24)
+    const stGF3 = gf3FromUint8(st)
+    const stRow = toSympRow(stGF3, 24)
     for (const h of T.bulk23) if (sympDotBit(stRow, toSympRow(gf3FromUint8(h), 24)) !== 0) commAllS2 = false
+    // Directly certify st in span(T.bulk23) (not merely in T.bulk23^perp), ensuring zero bulk-leg activation on S_2!
+    if (gf3Rank([...tPlusBulk23GF3, stGF3], 48) !== 23) inSpanBulk23 = false
     // Verify exact match on EVERY inward slot of d2 (including (0,0) on inactive inward slots!)
     for (const s of allInSlots) {
       const exp = activeMap.get(s) ?? [0, 0]
@@ -1484,7 +1641,7 @@ function pushB1ToB2(activeAS: readonly (readonly [number, number, number, number
       if (st[s] || st[24 + s]) bndMap.set(bq, [st[s]!, st[24 + s]!])
     }
   }
-  return { bndMap, hitS2Docks: byS2.size, hitM2Docks, commAllS2, zeroInternalLeak }
+  return { bndMap, hitS2Docks: byS2.size, hitM2Docks, commAllS2, inSpanBulk23, zeroInternalLeak }
 }
 
 const xB2 = pushB1ToB2(xl40.activeLegsAS)
@@ -1500,16 +1657,17 @@ console.log(`  B_2 greedy (481 cells, 10,392 legs): stratum (5-m) erasure ${gB2O
 console.log(`  B_3 greedy (8,857 cells, 190,632 legs): stratum (5-m) erasure ${gB3Opt.erasedBnd}/${gB3Opt.totalBnd} (${(100 * gB3Opt.erasedBnd / gB3Opt.totalBnd).toFixed(2)}%) => ${gB3Opt.total}/${B3.n} recovered!`)
 console.log(`  B_2 structured erasure (7 sectors + 5-m): ${gB2Combo40.erasedBnd}/${gB2Combo40.totalBnd} (${(100 * gB2Combo40.erasedBnd / gB2Combo40.totalBnd).toFixed(2)}%) => b_0 recovered=${gB2Combo40.originRecovered} (origKnown=${gB2Combo40.originKnown}/24)`)
 console.log(`  Exact Gamma_24 max induced edges: M_8=${M8}, M_9=${M9}, M_10=${M10} => unconditional d^(0)(B_2) >= ${dB2SharpLB} (elementary 2*40=80)`)
-console.log(`  Explicit pushed B_2 origin logicals: wt(X_L)=${xB2.bndMap.size} (S2 docks=${xB2.hitS2Docks}, m2=${xB2.hitM2Docks}), wt(Z_L)=${zB2.bndMap.size} (S2 docks=${zB2.hitS2Docks}, m2=${zB2.hitM2Docks}), commS2=${xB2.commAllS2 && zB2.commAllS2}, zeroLeak=${xB2.zeroInternalLeak && zB2.zeroInternalLeak}, <X,Z>=${dotB2}`)
+console.log(`  Explicit pushed B_2 origin logicals: wt(X_L)=${xB2.bndMap.size} (S2 docks=${xB2.hitS2Docks}, m2=${xB2.hitM2Docks}), wt(Z_L)=${zB2.bndMap.size} (S2 docks=${zB2.hitS2Docks}, m2=${zB2.hitM2Docks}), inSpan(T_+)=${xB2.inSpanBulk23 && zB2.inSpanBulk23}, zeroLeak=${xB2.zeroInternalLeak && zB2.zeroInternalLeak}, <X,Z>=${dotB2}`)
 
 recordCheck(
   'H7',
   'B_2 & B_3 greedy wedge (16.63%/16.52% full bulk, >40% origin) & explicit B_2 origin logicals + lower bound',
   gB2Opt.total === 481 && gB3Opt.total === 8857 && gB2Sec17.originRecovered && gB2Combo40.originRecovered &&
     gB2Combo40.erasedBnd / gB2Combo40.totalBnd > 0.40 &&
-    dB2SharpLB === 98 && xB2.commAllS2 && zB2.commAllS2 && xB2.zeroInternalLeak && zB2.zeroInternalLeak && dotB2 === 1 &&
+    dB2SharpLB === 98 && xB2.commAllS2 && zB2.commAllS2 && xB2.inSpanBulk23 && zB2.inSpanBulk23 &&
+    xB2.zeroInternalLeak && zB2.zeroInternalLeak && dotB2 === 1 &&
     xB2.bndMap.size >= dB2SharpLB && zB2.bndMap.size >= dB2SharpLB,
-  `B_2 16.63% & B_3 16.52% full recovery; ${(100 * gB2Combo40.erasedBnd / gB2Combo40.totalBnd).toFixed(2)}% B_2 origin; d^(0)(B_2) in [${dB2SharpLB}, ${Math.min(xB2.bndMap.size, zB2.bndMap.size)}], <X,Z>=1`,
+  `B_2 16.63% & B_3 16.52% full recovery; ${(100 * gB2Combo40.erasedBnd / gB2Combo40.totalBnd).toFixed(2)}% B_2 origin; d^(0)(B_2) in [${dB2SharpLB}, ${Math.min(xB2.bndMap.size, zB2.bndMap.size)}], inSpan & <X,Z>=1`,
 )
 
 // ============================================================================

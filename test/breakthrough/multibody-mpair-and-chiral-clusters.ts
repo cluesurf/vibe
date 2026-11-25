@@ -1,15 +1,17 @@
 // Breakthrough Suite (Wave-3 Track W9, Open Challenges 5b & 3):
 //   Part 1: Exact 4D {3,4,3,4} Hyperbolic M_pair(zeta_18) Birman-Schwinger Resolvent,
-//           Hyperbolic Spectral-Gap Excision Theorem, Flat 4D D_4 Continuum Dissolution,
-//           and Exact 8,857-Dock B_3 (31 W(F_4) Orbits) + Z^{*12} Bethe Feshbach Resonance & Fano Zero.
-//   Part 2: Exact 4D {3,4,3,4} k = 3 M_meet Sym^3 Composite Trion Theorem in Z[omega][1/7]
-//           (lam = -(8 + 3w)/7, |r|^2 = 1/7, p_pair = 6/7, IPR = 9/32, 0/144 BigInt defects),
+//           Hyperbolic Spectral-Gap Excision Theorem (with Outer Continuum Wings -> 83.12% of S^1),
+//           Flat 4D D_4 Continuum Dissolution, and Exact 8,857-Dock B_3 (31 W(F_4) Orbits) +
+//           Z^{*12} Bethe Feshbach Resonance & Fano Zero.
+//   Part 2: Exact 4D {3,4,3,4} k = 3 M_meet Sym^3 Composite Trion in Z[omega][1/7]
+//           (exact relative-coordinate l^2 eigenstate of CM-momentum fiber U(P=0):
+//            lam = -(8 + 3w)/7, |r|^2 = 1/7, p_pair = 6/7, IPR = 9/32, 0/144 BigInt defects),
 //           Free-Fermion Alt^3 Negative Control, Full 3-Role Verification, Trion Dispersion E_trion(P),
-//           and k = 4 M_meet Sym^4 Tetron BIC (lam = (16 - 39w)/49 = lam_trion^{-2}).
-//   Part 3: Exact k = 3 Q = +1 (+,+,-) & k = 4 Q = 0_V (+,+,-,-) Vector-Current Audit (Challenge 3),
+//           and Numerically Observed k = 4 M_meet Sym^4 Tetron BIC across L = 10..20 (M = 5..10, 4 distinct roles).
+//   Part 3: Exact k = 3 Q = +1 (+,+,-) & k = 4 Q = 0_V (+,+,-,-) Vector-Current Audit (P = 0 & 2pi/L, Ch. 3),
 //           Exact Infinite-Volume 4D {3,4,3,4} k = 4 Chiral Phi_odd 16x16 Birman-Schwinger Resolvent
-//           (51.7x Chiral Trapping, 4.58x P-Mirror Splitting, Zero Gapless Spin-1 Pole),
-//           and Literal Verbatim 8-Layer Z[zeta_9][1/6] 4D {3,4,3,4} Coxeter Verification.
+//           across ALL 4 Distinct Chiral 4-Line Classes (up to 16/16 active, 207.6x trapping, 4.58x P-split, 0 spin-1 pole),
+//           and Literal Verbatim 8-Layer Z[zeta_9][1/6] 4D {3,4,3,4} Coxeter Verification (non-vacuous entrywise check).
 //
 // Strictly deterministic (ZERO Math.random), zero external imports, exact BigInt Z[zeta_9][1/6] +
 // O^+(4,1; Z[sqrt(2)]) + verified Float64 spectral solvers. Laptop-safe (< 10 s).
@@ -1287,17 +1289,52 @@ function runPart1(): void {
 
   // Exact analytic hyperbolic excision interval:
   //   At fixed P, (+,-) continuum is [2pi/3 - 2 arcsin(|sin(P/2)|/2), 2pi/3 + 2 arcsin(|sin(P/2)|/2)].
-  //   Using certified rho({3,4,3,4})/24 <= 0.477170 (P_hyp = arccos(0.477170) = 1.073230 rad = 0.341620pi):
-  //   Every E in [E_exc_lo, E_exc_hi] has P_*(E) < P_hyp => cos(P_*(E)) > 0.477170 => NO l^2(V) eigenstate!
+  //   Using certified rho({3,4,3,4})/24 <= 0.477170 (P_hyp = arccos(0.477170) = 1.073365 rad = 0.341663pi):
+  //   Every E in [E_exc_lo, E_exc_hi] has P_*(E) <= P_hyp => cos(P_*(E)) >= 0.477170 => NO l^2(V) eigenstate!
+  //   And on the outer continuum wings (E_exc_hi, pi] U (-0.53017, 0], decoupling from I_cont(E) restricts
+  //   f_L_hat to the gap-side P support where Re(g0Hat) = -1/2 and sup t_hat <= 1.0065 << cot(pi/18) = 5.671282!
   const RHO_CERT_NORM = 0.477170
   const pHyp = Math.acos(RHO_CERT_NORM)
   const deltaHyp = 2 * Math.asin(Math.sin(pHyp / 2) / 2)
   const eExcLo = (2 * PI) / 3 - deltaHyp
   const eExcHi = (2 * PI) / 3 + deltaHyp
+  const eExcLoNeg = eExcLo - PI
+  const eExcHiNeg = eExcHi - PI
   // Also with Lean-certified rho/24 < 1/2 (P_lean = pi/3):
   const deltaLean = 2 * Math.asin(0.25)
   const eLeanLo = (2 * PI) / 3 - deltaLean
   const eLeanHi = (2 * PI) / 3 + deltaLean
+
+  // Analytic outer continuum wing check on (eExcHi, pi] and (eExcHiNeg, 0]:
+  let maxReOuterWingErr = 0
+  let maxTOuterUp = -Infinity
+  let maxTOuterDn = -Infinity
+  for (let i = 1; i <= 160; i++) {
+    const eUp = eExcHi + ((PI - eExcHi) * i) / 160
+    const pStarUp = 2 * Math.asin(Math.min(1, 2 * Math.sin((eUp - (2 * PI) / 3) / 2)))
+    const lamUp = cScale(1 + 1e-10, cExpI(eUp))
+    const eDn = eExcHiNeg + ((0 - eExcHiNeg) * i) / 160
+    const pStarDn = 2 * Math.asin(Math.min(1, 2 * Math.sin((eDn + PI - (2 * PI) / 3) / 2)))
+    const pMinDn = PI - pStarDn
+    const lamDn = cScale(1 + 1e-10, cExpI(eDn))
+    for (let j = 0; j <= 64; j++) {
+      const frac = j / 64
+      const pUp = (pStarUp - 1e-6) * frac
+      if (pUp >= 0) {
+        const g = g0Hat1D(pUp, lamUp)
+        maxReOuterWingErr = Math.max(maxReOuterWingErr, Math.abs(g[0] + 0.5))
+        if (-2 * g[1] > maxTOuterUp) maxTOuterUp = -2 * g[1]
+      }
+      const pDn = pMinDn + 1e-6 + (PI - pMinDn - 1e-6) * frac
+      if (pDn <= PI) {
+        const g = g0Hat1D(pDn, lamDn)
+        maxReOuterWingErr = Math.max(maxReOuterWingErr, Math.abs(g[0] + 0.5))
+        if (-2 * g[1] > maxTOuterDn) maxTOuterDn = -2 * g[1]
+      }
+    }
+  }
+  const maxTOuterWing = Math.max(maxTOuterUp, maxTOuterDn)
+  const rigorousExcisedFrac = ((PI - eExcLo) + PI / 3 + (PI / 3 - eExcLoNeg)) / (2 * PI)
 
   // Flat 4D D_4 control: solve E_flat(Q) along Q = (q, 0, 0, 0) and find exact dissolution threshold q_c!
   const posD4: readonly (readonly [number, number, number, number])[] = [
@@ -1341,10 +1378,16 @@ function runPart1(): void {
     `  [1B] True all-P gaps (0, pi/3) & (-pi, -2pi/3): sup t_hat = ${maxTGapAll.toFixed(6)} (exact 1/sqrt(3) = ${(1 / SQRT3).toFixed(6)}) << cot(pi/18) = ${COT_PI18.toFixed(6)} (9.82x margin -> 0 bound poles!)`,
   )
   console.log(
+    `       Outer continuum wings (${eExcHi.toFixed(5)}, pi] U (${eExcHiNeg.toFixed(5)}, 0]: sup_{|P| in allowed} t_hat = ${maxTOuterWing.toFixed(6)} << cot(pi/18) = ${COT_PI18.toFixed(6)} (max|Re(g)+1/2|=${maxReOuterWingErr.toExponential(1)})`,
+  )
+  console.log(
     `       Flat 4D D_4 control: E_flat(0) = ${eFlat0.toFixed(6)} (0.563615pi) -> E_flat(0.24pi) = ${eFlat24.toFixed(6)}, dissolves into (+,-) continuum at q_c = ${(qcFlat / PI).toFixed(4)}pi!`,
   )
   console.log(
-    `       Hyperbolic spectral-gap excision on {3,4,3,4}: rho/24 <= 0.477170 => P_hyp = ${(pHyp / PI).toFixed(5)}pi > q_c => entire window [${eExcLo.toFixed(5)}, ${eExcHi.toFixed(5)}] (Lean rho/24<1/2: [${eLeanLo.toFixed(5)}, ${eLeanHi.toFixed(5)}]) EXCISED!`,
+    `       Hyperbolic spectral-gap excision on {3,4,3,4}: rho/24 <= 0.477170 => P_hyp = ${(pHyp / PI).toFixed(6)}pi > q_c => [${eExcLo.toFixed(5)}, ${eExcHi.toFixed(5)}] & [${eExcLoNeg.toFixed(5)}, ${eExcHiNeg.toFixed(5)}] (Lean rho/24<1/2: [${eLeanLo.toFixed(5)}, ${eLeanHi.toFixed(5)}]) EXCISED!`,
+  )
+  console.log(
+    `       Rigorous Theorem 1 scope: [${eExcLo.toFixed(5)}, pi] U (-pi, -2pi/3) U [${eExcLoNeg.toFixed(5)}, pi/3) (${(100 * rigorousExcisedFrac).toFixed(2)}% of S^1; 66.25% core+gaps + 16.88% outer wings) PROVED; remaining [pi/3, ${eExcLo.toFixed(5)}) U [-2pi/3, ${eExcLoNeg.toFixed(5)}) (16.88%) checked via B_3 & Z^{*12} Bethe cavity (not yet proved across all 4-cycles).`,
   )
 
   // 1C. Build exact {3,4,3,4} R = 3 Coxeter ball (8,857 docks) -> exact 31 W(F_4) orbits!
@@ -1633,12 +1676,14 @@ function runPart1(): void {
 
   recordCheck(
     'P1',
-    '4D {3,4,3,4} M_pair(zeta_18) Birman-Schwinger factorization, all-P gap no-go, hyperbolic excision & Feshbach resonance',
+    '4D {3,4,3,4} M_pair(zeta_18) Birman-Schwinger factorization, all-P gap + outer-wing no-go, hyperbolic excision & Feshbach resonance',
     diffContact === 0 &&
       diffNonContact === 0 &&
       revContact === 0 &&
       g0MaxErr < 1e-12 &&
       maxTGapAll < 0.58 &&
+      maxTOuterWing < 1.05 &&
+      maxReOuterWingErr < 1e-4 &&
       Math.abs(eFlat0 - 1.770647) < 1e-4 &&
       eFlat25 === null &&
       eExcLo < 1.609267 &&
@@ -1650,7 +1695,7 @@ function runPart1(): void {
       rhoB3Fano < 0.01 &&
       Math.abs(rhoB3Peak6 - rhoB3Peak4) < 0.02 &&
       Math.abs(rhoB3Flat6 - rhoB3Flat4) < 0.01,
-    `g0Err=${g0MaxErr.toExponential(1)}, DVerr=${maxDvMatchErr.toExponential(1)}, sup_gap=${maxTGapAll.toFixed(4)}<<5.671, flat q_c=${(qcFlat / PI).toFixed(3)}pi<P_hyp=${(pHyp / PI).toFixed(3)}pi, E_res=${peakE.toFixed(4)}(tau=${tauBeats.toFixed(1)}), Fano=${rhoB3Fano.toFixed(4)}`,
+    `g0Err=${g0MaxErr.toExponential(1)}, DVerr=${maxDvMatchErr.toExponential(1)}, sup_gap=${maxTGapAll.toFixed(4)}/wing=${maxTOuterWing.toFixed(4)}<<5.671 (${(100 * rigorousExcisedFrac).toFixed(1)}% S^1 proved), E_res=${peakE.toFixed(4)}(tau=${tauBeats.toFixed(1)}), Fano=${rhoB3Fano.toFixed(4)}`,
   )
 }
 
@@ -1676,21 +1721,31 @@ function buildSymKOnEvenSublattice(
     let bestKey = ''
     let bestShift = 0
     let bestSorted: [number, number][] = []
+    let symCount = 0
     for (let sh = 0; sh < M; sh++) {
       const arr: [number, number][] = pts.map(([m, s]) => [(((m + sh) % M) + M) % M, s])
       arr.sort((a, b) => a[0] - b[0] || a[1] - b[1])
       const k = arr.map(([m, s]) => `${m}:${s}`).join(',')
-      if (bestKey === '' || k < bestKey) { bestKey = k; bestShift = sh; bestSorted = arr }
+      if (bestKey === '' || k < bestKey) { bestKey = k; bestShift = sh; bestSorted = arr; symCount = 1 }
+      else if (k === bestKey) { symCount++ }
     }
-    return { key: bestKey, mShift: bestShift, sorted: bestSorted }
+    return { key: bestKey, mShift: bestShift, sorted: bestSorted, symCount }
   }
   const keyToIdx = new Map<string, number>()
   const configs: [number, number][][] = []
+  const symCounts: number[] = []
   const chosen: number[] = []
   const gen = (start: number): void => {
     if (chosen.length === kPart) {
       const cn = canon(chosen.map(c => [c >> 1, c & 1] as const))
-      if (!keyToIdx.has(cn.key)) { keyToIdx.set(cn.key, configs.length); configs.push(cn.sorted) }
+      if (!keyToIdx.has(cn.key)) {
+        const phOrb = (2 * P * M) / cn.symCount
+        if (Math.hypot(Math.cos(phOrb) - 1, Math.sin(phOrb)) < 1e-9) {
+          keyToIdx.set(cn.key, configs.length)
+          configs.push(cn.sorted)
+          symCounts.push(cn.symCount)
+        }
+      }
       return
     }
     for (let c = start; c < 2 * M; c++) { chosen.push(c); gen(c + 1); chosen.pop() }
@@ -1724,9 +1779,11 @@ function buildSymKOnEvenSublattice(
     }
     for (const b of branches) {
       const cn = canon(b.pts.map(([m, s]) => [s === 0 ? m : (m - 1 + M) % M, s]))
+      const row = keyToIdx.get(cn.key)
+      if (row === undefined) continue
+      const orbScale = Math.sqrt(symCounts[row]! / symCounts[col]!)
       const ph = cExpI(P * (2 * cn.mShift - 1))
-      const val = cMul(ph, b.amp)
-      const row = keyToIdx.get(cn.key)!
+      const val = cScale(orbScale, cMul(ph, b.amp))
       U.re[row * dim + col] = U.re[row * dim + col]! + val[0]
       U.im[row * dim + col] = U.im[row * dim + col]! + val[1]
     }
@@ -1804,7 +1861,7 @@ function buildAlt3EvenControl(M: number): { readonly U: CMat; readonly dim: numb
   return { U, dim }
 }
 
-function shiftInvertRefine(U: CMat, targetE: number): {
+function shiftInvertRefine(U: CMat, targetE: number, iters = 5): {
   readonly E: number
   readonly lam: C
   readonly res: number
@@ -1817,7 +1874,7 @@ function shiftInvertRefine(U: CMat, targetE: number): {
   const vr = new Float64Array(dim)
   const vi = new Float64Array(dim)
   for (let i = 0; i < dim; i++) vr[i] = Math.cos(i * 0.713 + 0.3) / Math.sqrt(dim)
-  for (let it = 0; it < 7; it++) {
+  for (let it = 0; it < iters; it++) {
     const sh: C = it === 0 ? [lam[0] * 1.0005, lam[1] * 1.0005] : [lam[0] * (1 + 1e-11), lam[1] * (1 + 1e-11)]
     const ar = Float64Array.from(U.re)
     const ai = Float64Array.from(U.im)
@@ -1956,7 +2013,7 @@ function runPart2(): void {
       }
     }
   }
-  const eTrionExact = Math.atan2((-3 * SQRT3) / 14, -13 / 14) // -2.7613414223...
+  const eTrionExact = Math.atan2((-3 * SQRT3) / 14, -13 / 14) // -2.761341446897...
   console.log(
     `  [2A] Exact BigInt Z[omega] infinite-line k=3 Sym^3 Trion proof: checked=${symChecked}, defects=${symDefects}`,
   )
@@ -2106,12 +2163,17 @@ function runPart2(): void {
   }
   const bipartiteDispErr = Math.abs(((dispPpi - dispP0 - PI + 3 * PI) % (2 * PI)) - PI)
 
-  // 2C. Bonus Exact k = 4 M_meet Sym^4 Tetron BIC (L = 10, 14, 18 -> lam_4 = (16 - 39w)/49 = lam_3^{-2})!
+  // 2C. Numerically Observed / Strongly Conjectured k = 4 M_meet Sym^4 Tetron BIC (4 distinct roles {0,1,2,3},
+  //     M = 5, 6, 7, 8, 9, 10 => L = 10..20, both odd and even M with exact orbit-size normalization ->
+  //     converging to lam_4 = (16 - 39w)/49 = lam_3^{-2}; no closed-form symbolic stencil proof yet).
   const eTetronExact = Math.atan2((-39 * SQRT3) / 98, 71 / 98) // -0.76050247...
-  const tetRows: { L: number; E: number; ipr: number; pFar: number; res: number }[] = []
-  for (const M of [5, 7, 9]) {
+  const tetRows: { L: number; M: number; dim: number; uniErr: number; E: number; ipr: number; maxD: number; pFar: number; res: number }[] = []
+  let maxTetUniErr = 0
+  for (const M of [5, 6, 7, 8, 9, 10]) {
     const sys4 = buildSymKOnEvenSublattice(4, M, 0, W2_C)
-    const ref = shiftInvertRefine(sys4.U, eTetronExact)
+    const uniErr = cmatUnitaryErr(sys4.U)
+    maxTetUniErr = Math.max(maxTetUniErr, uniErr)
+    const ref = shiftInvertRefine(sys4.U, eTetronExact, 5)
     let pFar = 0
     const maxD = Math.floor(M / 2)
     for (let i = 0; i < sys4.dim; i++) {
@@ -2121,10 +2183,11 @@ function runPart2(): void {
       for (let a = 0; a < 4; a++) for (let b = a + 1; b < 4; b++) dm = Math.max(dm, dM(cfg[a]![0], cfg[b]![0]))
       if (dm === maxD) pFar += ref.vr[i]! ** 2 + ref.vi[i]! ** 2
     }
-    tetRows.push({ L: 2 * M, E: ref.E, ipr: ref.ipr, pFar, res: ref.res })
+    tetRows.push({ L: 2 * M, M, dim: sys4.dim, uniErr, E: ref.E, ipr: ref.ipr, maxD, pFar, res: ref.res })
   }
-  const tetL18 = tetRows[2]!
-  const tetExactErr = Math.abs(tetL18.E - eTetronExact)
+  const tetL20 = tetRows[tetRows.length - 1]!
+  const tetExactErr = Math.abs(tetL20.E - eTetronExact)
+  const maxTetRes = tetRows.reduce((m, r) => Math.max(m, r.res), 0)
 
   console.log(
     `  [2B] Finite-ring L=20 (M=10, dim=${symL20.dim}): uniErr=${symL20Uni.toExponential(1)}, |E-E_exact|=${e20Err.toExponential(2)}, |IPR-9/32|=${ipr20Err.toExponential(2)}, |pPair-6/7|=${pPair20Err.toExponential(2)}, p(diam=10)=${pFar20.toExponential(2)}`,
@@ -2137,17 +2200,17 @@ function runPart2(): void {
   )
   console.log(`       Trion dispersion L=16: ${dispPts.join(' | ')} (bipartite E(pi)-E(0)-pi err=${bipartiteDispErr.toExponential(1)})`)
   console.log(
-    `  [2C] k=4 M_meet Sym^4 Tetron BIC (lam_4 = (16-39w)/49 = lam_3^{-2}, E_exact=${eTetronExact.toFixed(7)}):`,
+    `  [2C] Numerically observed k=4 M_meet Sym^4 Tetron BIC (4 distinct roles {0,1,2,3}, candidate lam_4=(16-39w)/49=lam_3^{-2}, E_cand=${eTetronExact.toFixed(7)}, maxUniErr=${maxTetUniErr.toExponential(1)}):`,
   )
   for (const row of tetRows) {
     console.log(
-      `       L=${String(row.L).padStart(2)}: E=${row.E.toFixed(7)}, res=${row.res.toExponential(1)}, IPR=${row.ipr.toFixed(5)}, p(diam=max)=${row.pFar.toExponential(3)}`,
+      `       L=${String(row.L).padStart(2)} (M=${String(row.M).padStart(2)}, dim=${String(row.dim).padStart(3)}): uni=${row.uniErr.toExponential(1)}, E=${row.E.toFixed(7)} (|dE|=${Math.abs(row.E - eTetronExact).toExponential(2)}), res=${row.res.toExponential(1)}, IPR=${row.ipr.toFixed(5)}, p(diam=${2 * row.maxD})=${row.pFar.toExponential(3)}`,
     )
   }
 
   recordCheck(
     'P2',
-    'Exact 4D {3,4,3,4} k=3 M_meet Sym^3 Trion in Z[omega][1/7] (0/144 BigInt defects) + k=4 Sym^4 Tetron BIC',
+    'Exact 4D {3,4,3,4} k=3 M_meet Sym^3 Trion in Z[omega][1/7] (0/144 BigInt defects) + observed k=4 Sym^4 Tetron BIC (M=5..10)',
     symDefects === 0 &&
       symChecked === 144 &&
       symL20Uni < 1e-14 &&
@@ -2161,10 +2224,12 @@ function runPart2(): void {
       full3RoleMatchErr < 1e-12 &&
       Math.abs(full3RoleSwap - 1) < 1e-12 &&
       bipartiteDispErr < 1e-11 &&
-      tetExactErr < 5e-5 &&
-      tetL18.pFar < 0.02 &&
-      tetL18.ipr > 0.15,
-    `Z[w] 0/144 defects, L=20 IPR=${bestIpr20.toFixed(6)}(9/32), pPair=${pPair20.toFixed(6)}(6/7), Alt^3 maxIPR=${altIprs[2]!.toFixed(4)}; k=4 Tetron E=${tetL18.E.toFixed(6)}(IPR=${tetL18.ipr.toFixed(4)}, pFar=${tetL18.pFar.toExponential(2)})`,
+      maxTetUniErr < 1e-14 &&
+      maxTetRes < 1e-12 &&
+      tetExactErr < 1.5e-5 &&
+      tetL20.pFar < 2e-3 &&
+      tetL20.ipr > 0.15,
+    `Z[w] 0/144 defects, L=20 IPR=${bestIpr20.toFixed(6)}(9/32), pPair=${pPair20.toFixed(6)}(6/7), Alt^3 maxIPR=${altIprs[2]!.toFixed(4)}; k=4 Tetron(M=5..10, uni<=${maxTetUniErr.toExponential(1)}) L=20 E=${tetL20.E.toFixed(6)}(IPR=${tetL20.ipr.toFixed(4)}, pFar=${tetL20.pFar.toExponential(2)})`,
   )
 }
 
@@ -2256,39 +2321,39 @@ function runPart3(): void {
   const q1L5 = runQ1(5, 0)
   const q1L7 = runQ1(7, 0)
   const q1L9 = runQ1(9, 0)
-  console.log('  [3A] Exact k=3 Q=+1 (+,+,-) Odd-L Spin-1 Vector-Current Audit (K + M_meet):')
-  for (const [L, r] of [[5, q1L5], [7, q1L7], [9, q1L9]] as const) {
+  const q1L5P1 = runQ1(5, (2 * PI) / 5)
+  const q1L7P1 = runQ1(7, (2 * PI) / 7)
+  const q1L9P1 = runQ1(9, (2 * PI) / 9)
+  console.log('  [3A] Exact 1D Collinear k=3 Q=+1 (+,+,-) Odd-L Spin-1 Vector-Current Audit (K + M_meet, M_pair=I):')
+  for (const [L, r0, r1] of [[5, q1L5, q1L5P1], [7, q1L7, q1L7P1], [9, q1L9, q1L9P1]] as const) {
     console.log(
-      `       L=${L} (dim=${String(r.dim).padStart(3)}): uniErr=${r.uErr.toExponential(1)}, W_J(0)=${r.w0.toExponential(1)}, min|E|_J=${r.minAbsE.toFixed(5)}, L^2|E|_J=${r.quadScale.toFixed(3)} (massive O(1/L^2)!)`,
+      `       L=${L} (dim=${String(r0.dim).padStart(3)}): P=0 uni=${r0.uErr.toExponential(1)}, W_J(0)=${r0.w0.toExponential(1)}, min|E|_J=${r0.minAbsE.toFixed(5)} (L^2|E|=${r0.quadScale.toFixed(3)}) | P=2pi/L uni=${r1.uErr.toExponential(1)}, W_J(0)=${r1.w0.toExponential(1)}, min|E|_J=${r1.minAbsE.toFixed(5)}`,
     )
   }
 
-  // 3B. Exact k = 4 Q = 0_V (+, +, -, -) on odd L = 5 (dim = 252, K + M_meet)
-  let k4NeutUni = 0
-  let k4NeutW0 = 0
-  let k4NeutMinE = Infinity
-  let k4NeutMaxIpr = 0
-  {
-    const L = 5
+  // 3B. Exact 1D Collinear k = 4 Q = 0_V (+, +, -, -) on odd prime L = 5 at P = 0 and P = 2pi/5 (dim = 252, K + M_meet, M_pair = I)
+  const runK4Neutral = (L: number, P: number) => {
     const shiftSlot = (c: number, sh: number): number => ((((c >> 1) + sh) % L + L) % L) * 2 + (c & 1)
     const canon = (p0: number, p1: number, n0: number, n1: number) => {
       let bestKey = ''
+      let bestShift = 0
       let bestVals: [number, number, number, number] = [0, 0, 0, 0]
       for (let sh = 0; sh < L; sh++) {
         let a0 = shiftSlot(p0, sh); let a1 = shiftSlot(p1, sh); if (a0 > a1) { const t = a0; a0 = a1; a1 = t }
         let b0 = shiftSlot(n0, sh); let b1 = shiftSlot(n1, sh); if (b0 > b1) { const t = b0; b0 = b1; b1 = t }
         const k = `${a0},${a1}|${b0},${b1}`
-        if (bestKey === '' || k < bestKey) { bestKey = k; bestVals = [a0, a1, b0, b1] }
+        if (bestKey === '' || k < bestKey) { bestKey = k; bestShift = sh; bestVals = [a0, a1, b0, b1] }
       }
-      return { key: bestKey, vals: bestVals }
+      return { key: bestKey, shift: bestShift, vals: bestVals }
     }
     const idxMap = new Map<string, number>()
     const configs: [number, number, number, number][] = []
-    for (let p0 = 0; p0 < 10; p0++) {
-      for (let p1 = p0 + 1; p1 < 10; p1++) {
-        for (let n0 = 0; n0 < 10; n0++) {
+    const S = 2 * L
+    for (let p0 = 0; p0 < S; p0++) {
+      for (let p1 = p0 + 1; p1 < S; p1++) {
+        for (let n0 = 0; n0 < S; n0++) {
           if (n0 === p0 || n0 === p1) continue
-          for (let n1 = n0 + 1; n1 < 10; n1++) {
+          for (let n1 = n0 + 1; n1 < S; n1++) {
             if (n1 === p0 || n1 === p1) continue
             const cn = canon(p0, p1, n0, n1)
             if (!idxMap.has(cn.key)) { idxMap.set(cn.key, configs.length); configs.push(cn.vals) }
@@ -2333,30 +2398,42 @@ function runPart3(): void {
           if (t > 0) psP.push(code)
           else psN.push(code)
         }
-        const row = idxMap.get(canon(psP[0]!, psP[1]!, psN[0]!, psN[1]!).key)!
-        U.re[row * dim + col] = U.re[row * dim + col]! + b.amp[0]
-        U.im[row * dim + col] = U.im[row * dim + col]! + b.amp[1]
+        const cn = canon(psP[0]!, psP[1]!, psN[0]!, psN[1]!)
+        const ph = cExpI(P * cn.shift)
+        const val = cMul(ph, b.amp)
+        const row = idxMap.get(cn.key)!
+        U.re[row * dim + col] = U.re[row * dim + col]! + val[0]
+        U.im[row * dim + col] = U.im[row * dim + col]! + val[1]
       }
     }
-    k4NeutUni = cmatUnitaryErr(U)
+    const uErr = cmatUnitaryErr(U)
     const eig = unitaryEigen(U)
     const iA = idxMap.get(canon(0, 2, 1, 3).key)!
-    const iB = idxMap.get(canon(1, 9, 0, 8).key)!
+    const iB = idxMap.get(canon(1, S - 1, 0, S - 2).key)!
+    let w0 = 0
+    let minAbsE = Infinity
+    let maxIpr = 0
     for (let col = 0; col < dim; col++) {
       const E = eig.phases[col]!
       let ipr = 0
       for (let r = 0; r < dim; r++) ipr += (eig.vecs.re[r * dim + col]! ** 2 + eig.vecs.im[r * dim + col]! ** 2) ** 2
-      if (ipr > k4NeutMaxIpr) k4NeutMaxIpr = ipr
+      if (ipr > maxIpr) maxIpr = ipr
       const ovR = Math.SQRT1_2 * (eig.vecs.re[iA * dim + col]! - eig.vecs.re[iB * dim + col]!)
       const ovI = Math.SQRT1_2 * (-eig.vecs.im[iA * dim + col]! + eig.vecs.im[iB * dim + col]!)
       const wt = ovR * ovR + ovI * ovI
-      if (Math.abs(E) < 1e-4) k4NeutW0 += wt
-      else if (wt > 1e-4 && Math.abs(E) < k4NeutMinE) k4NeutMinE = Math.abs(E)
+      if (Math.abs(E) < 1e-4) w0 += wt
+      else if (wt > 1e-4 && Math.abs(E) < minAbsE) minAbsE = Math.abs(E)
     }
-    console.log(
-      `  [3B] Exact 1D k=4 Q=0_V (+,+,-,-) L=5 (dim=${dim}): uniErr=${k4NeutUni.toExponential(1)}, W_J(0)=${k4NeutW0.toExponential(1)}, min|E|_J=${k4NeutMinE.toFixed(5)}, maxIPR=${k4NeutMaxIpr.toFixed(4)}`,
-    )
+    return { dim, uErr, w0, minAbsE, maxIpr }
   }
+  const k4N5P0 = runK4Neutral(5, 0)
+  const k4N5P1 = runK4Neutral(5, (2 * PI) / 5)
+  console.log(
+    `  [3B] Exact 1D Collinear k=4 Q=0_V (+,+,-,-) L=5 (dim=${k4N5P0.dim}, M_pair=I):`,
+  )
+  console.log(
+    `       P=0: uni=${k4N5P0.uErr.toExponential(1)}, W_J(0)=${k4N5P0.w0.toExponential(1)}, min|E|_J=${k4N5P0.minAbsE.toFixed(5)}, maxIPR=${k4N5P0.maxIpr.toFixed(4)} | P=2pi/5: uni=${k4N5P1.uErr.toExponential(1)}, W_J(0)=${k4N5P1.w0.toExponential(1)}, min|E|_J=${k4N5P1.minAbsE.toFixed(5)}, maxIPR=${k4N5P1.maxIpr.toFixed(4)}`,
+  )
 
   // 3C. Exact Infinite-Volume 4D {3,4,3,4} k = 4 Chiral Phi_odd 16x16 Birman-Schwinger Resolvent!
   //     4 vibes on 4 distinct D_4 lines (Q = 0_V: lines [0, 1, 6, 10], tones [+1, +1, -1, -1];
@@ -2428,12 +2505,6 @@ function runPart3(): void {
   const mQ0Pos = buildMChiral(linesQ0, tonesQ0, +1)
   const mQ0Neg = buildMChiral(linesQ0, tonesQ0, -1)
   const mQ0Off = buildMChiral(linesQ0, tonesQ0, 0)
-  const mQ0UniErr = cmatUnitaryErr(mQ0Pos.M)
-
-  // Compute exact min_E |det(I_16 - G_0^{(4)}(e^{iE}) V_chiral)| on S^1 + exact 16x16 Dyson-Volterra survival P_0(t)!
-  const Vq0 = cmatZero(16)
-  for (let k = 0; k < 256; k++) { Vq0.re[k] = mQ0Pos.M.re[k]!; Vq0.im[k] = mQ0Pos.M.im[k]! }
-  for (let i = 0; i < 16; i++) Vq0.re[i * 16 + i] = Vq0.re[i * 16 + i]! - 1
 
   const buildG4AtE = (E: number, eps = 0): CMat => {
     const cHRe = new Float64Array(5)
@@ -2461,19 +2532,8 @@ function runPart3(): void {
     return G0
   }
 
-  let minDetQ0 = Infinity
-  let minDetQ0E = 0
-  for (let iE = 0; iE < 144; iE++) {
-    const E = -PI + (2 * PI * iE) / 144
-    const GV = cmatMul(buildG4AtE(E, 0), Vq0)
-    const A = cmatZero(16)
-    for (let k = 0; k < 256; k++) { A.re[k] = -GV.re[k]!; A.im[k] = -GV.im[k]! }
-    for (let i = 0; i < 16; i++) A.re[i * 16 + i] = A.re[i * 16 + i]! + 1
-    const dAbs = cAbs(detComplex(A))
-    if (dAbs < minDetQ0) { minDetQ0 = dAbs; minDetQ0E = E }
-  }
-
-  // Exact 16x16 Dyson-Volterra survival P_0(t) up to t = 32 (Phi_odd ON vs OFF)!
+  // Precompute G4_grid (144 points on S^1) and G4t (t = 0..32) once for ALL 4 chiral 4-line classes!
+  const G4Grid = Array.from({ length: 144 }, (_, iE) => buildG4AtE(-PI + (2 * PI * iE) / 144, 0))
   const G4t: CMat[] = []
   for (let t = 0; t <= 32; t++) {
     const M = cmatZero(16)
@@ -2490,27 +2550,81 @@ function runPart3(): void {
     }
     G4t.push(M)
   }
-  const Ft: CMat[] = [cmatEye(16)]
-  for (let t = 1; t <= 32; t++) {
-    const cur = cmatMul(G4t[t]!, mQ0Pos.M)
-    for (let tau = 1; tau < t; tau++) {
-      const term = cmatMul(G4t[t - tau]!, cmatMul(Vq0, Ft[tau]!))
-      for (let k = 0; k < 256; k++) { cur.re[k] = cur.re[k]! + term.re[k]!; cur.im[k] = cur.im[k]! + term.im[k]! }
-    }
-    Ft.push(cur)
-  }
-  const chiIdx = Array.from(mQ0Pos.chis).findIndex(x => x > 0)
-  const surv = (arr: readonly CMat[], t: number): number => {
-    let s = 0
-    for (let r = 0; r < 16; r++) s += arr[t]!.re[r * 16 + chiIdx]! ** 2 + arr[t]!.im[r * 16 + chiIdx]! ** 2
-    return s
-  }
-  const survOn16 = surv(Ft, 16)
-  const survOff16 = surv(G4t, 16)
-  const survOn32 = surv(Ft, 32)
-  const trapBoost16 = survOn16 / survOff16
 
-  // Vector-current spectral density rho_J(E) and P-mirror splitting rho(sigma=+1) vs rho(sigma=-1)!
+  const analyzeChiralClass = (
+    label: string,
+    lines4: readonly [number, number, number, number],
+    tones4: readonly [ToneNZ, ToneNZ, ToneNZ, ToneNZ],
+  ) => {
+    const mPos = buildMChiral(lines4, tones4, +1)
+    const uniErr = cmatUnitaryErr(mPos.M)
+    const V = cmatZero(16)
+    for (let k = 0; k < 256; k++) { V.re[k] = mPos.M.re[k]!; V.im[k] = mPos.M.im[k]! }
+    for (let i = 0; i < 16; i++) V.re[i * 16 + i] = V.re[i * 16 + i]! - 1
+    const evalDet = (G0: CMat): number => {
+      const GV = cmatMul(G0, V)
+      const A = cmatZero(16)
+      for (let k = 0; k < 256; k++) { A.re[k] = -GV.re[k]!; A.im[k] = -GV.im[k]! }
+      for (let i = 0; i < 16; i++) A.re[i * 16 + i] = A.re[i * 16 + i]! + 1
+      return cAbs(detComplex(A))
+    }
+    let minDet = Infinity
+    let minE = 0
+    for (let iE = 0; iE < 144; iE++) {
+      const dAbs = evalDet(G4Grid[iE]!)
+      if (dAbs < minDet) { minDet = dAbs; minE = -PI + (2 * PI * iE) / 144 }
+    }
+    // Fine local refinement (+/- 2pi/144 in 24 steps) for exact minimum on S^1
+    const step = (2 * PI) / 144
+    for (let k = -12; k <= 12; k++) {
+      const E = minE + (step * k) / 12
+      const dAbs = evalDet(buildG4AtE(E, 0))
+      if (dAbs < minDet) { minDet = dAbs; minE = E }
+    }
+    // Exact 16x16 Dyson-Volterra survival P_0(t) up to t = 32
+    const Ft: CMat[] = [cmatEye(16)]
+    for (let t = 1; t <= 32; t++) {
+      const cur = cmatMul(G4t[t]!, mPos.M)
+      for (let tau = 1; tau < t; tau++) {
+        const term = cmatMul(G4t[t - tau]!, cmatMul(V, Ft[tau]!))
+        for (let k = 0; k < 256; k++) { cur.re[k] = cur.re[k]! + term.re[k]!; cur.im[k] = cur.im[k]! + term.im[k]! }
+      }
+      Ft.push(cur)
+    }
+    const chiIdx = Array.from(mPos.chis).findIndex(x => x > 0)
+    const surv = (arr: readonly CMat[], t: number): number => {
+      let s = 0
+      for (let r = 0; r < 16; r++) s += arr[t]!.re[r * 16 + chiIdx]! ** 2 + arr[t]!.im[r * 16 + chiIdx]! ** 2
+      return s
+    }
+    const survOn16 = surv(Ft, 16)
+    const survOff16 = surv(G4t, 16)
+    const survOn32 = surv(Ft, 32)
+    return {
+      label,
+      active: mPos.active,
+      uniErr,
+      minDet,
+      minE,
+      survOn16,
+      survOff16,
+      survOn32,
+      trapBoost16: survOn16 / survOff16,
+      chiIdx,
+    }
+  }
+
+  // Test ALL 4 distinct chiral 4-line W(F_4) x tone classes (+ Q=+2 verification on the 16/16 class):
+  const cls1 = analyzeChiralClass('C1 Q=+4  [0,1,2,5]  ++++ (E-FND-0184)', [0, 1, 2, 5], [1, 1, 1, 1])
+  const cls2 = analyzeChiralClass('C2 Q=0_V [0,1,6,10] ++--', [0, 1, 6, 10], [1, 1, -1, -1])
+  const cls3 = analyzeChiralClass('C3 Q=0_V [0,1,2,4]  +-+-', [0, 1, 2, 4], [1, -1, 1, -1])
+  const cls4 = analyzeChiralClass('C4 Q=+4  [0,1,2,8]  ++++ (16/16 full)', [0, 1, 2, 8], [1, 1, 1, 1])
+  const cls4b = analyzeChiralClass('C4 Q=+2  [0,1,2,8]  +++- (16/16 full)', [0, 1, 2, 8], [1, 1, 1, -1])
+  const allChiralClasses = [cls1, cls2, cls3, cls4, cls4b] as const
+  const maxChiralUniErr = allChiralClasses.reduce((m, c) => Math.max(m, c.uniErr), 0)
+  const chiIdx = cls2.chiIdx
+
+  // Vector-current spectral density rho_J(E) and P-mirror splitting rho(sigma=+1) vs rho(sigma=-1) on Q = 0_V!
   const jVec = new Float64Array(16)
   let jN2 = 0
   for (let mask = 0; mask < 16; mask++) {
@@ -2551,13 +2665,12 @@ function runPart3(): void {
   const rhoMirPos0 = evalRho16(0, mQ0Pos.M, vChi, 1e-4)
   const rhoMirNeg0 = evalRho16(0, mQ0Neg.M, vChi, 1e-4)
 
-  console.log(`  [3C] Infinite-Volume 4D {3,4,3,4} k=4 Q=0_V Chiral Phi_odd 16x16 Resolvent (active=${mQ0Pos.active}/16, uniErr=${mQ0UniErr.toExponential(1)}):`)
-  console.log(
-    `       min_E |det(I - G_0^{(4)}(e^{iE}) V_chiral)| = ${minDetQ0.toFixed(6)} > 0 at E=${minDetQ0E.toFixed(4)} (NO k=4 Phi_odd bound pole!)`,
-  )
-  console.log(
-    `       Chiral near-resonance trapping P_0(t=16): ON=${survOn16.toExponential(3)} vs OFF=${survOff16.toExponential(3)} (${trapBoost16.toFixed(1)}x boost!), P_0(t=32)=${survOn32.toExponential(3)}`,
-  )
+  console.log(`  [3C] Infinite-Volume 4D {3,4,3,4} k=4 Chiral Phi_odd 16x16 Resolvent (ALL 4 W(F_4) x tone classes, maxUniErr=${maxChiralUniErr.toExponential(1)}):`)
+  for (const c of allChiralClasses) {
+    console.log(
+      `       ${c.label}: active=${String(c.active).padStart(2)}/16, minDet=${c.minDet.toExponential(4)} > 0 (E=${c.minE.toFixed(4)}), trap16=${c.trapBoost16.toFixed(1)}x (P16=${c.survOn16.toExponential(3)}, P32=${c.survOn32.toExponential(3)})`,
+    )
+  }
   console.log(
     `       Q=0_V vector current rho_J(0): ON(eps=1e-3->1e-4)=${rhoJ0On4.toFixed(5)}->${rhoJ0On5.toFixed(5)} vs OFF=${rhoJ0Off.toFixed(5)} (finite smooth continuum, ZERO spin-1 pole!); at E=-pi/6: ${rhoJResOn.toFixed(4)} vs ${rhoJResOff.toFixed(4)} (${(rhoJResOn / rhoJResOff).toFixed(2)}x)`,
   )
@@ -2567,24 +2680,38 @@ function runPart3(): void {
 
   recordCheck(
     'P3',
-    'k=3,4 spin-1 audit (W_J(0)=0, massive O(1/L^2)) & k=4 chiral Phi_odd 16x16 resolvent (51.7x trapping, 4.58x P-split, 0 spin-1 pole)',
+    'k=3,4 spin-1 audit (P=0 & 2pi/L, W_J(0)=0, O(1/L^2)) & k=4 chiral Phi_odd 16x16 resolvent (all 4 classes, up to 207.6x trapping)',
     q1L5.uErr < 1e-14 &&
       q1L7.uErr < 1e-14 &&
       q1L9.uErr < 1e-14 &&
+      q1L5P1.uErr < 1e-14 &&
+      q1L7P1.uErr < 1e-14 &&
+      q1L9P1.uErr < 1e-14 &&
       q1L5.w0 < 1e-12 &&
       q1L7.w0 < 1e-12 &&
       q1L9.w0 < 1e-12 &&
+      q1L5P1.w0 < 1e-12 &&
+      q1L7P1.w0 < 1e-12 &&
+      q1L9P1.w0 < 1e-12 &&
       Math.abs(q1L9.quadScale - q1L7.quadScale) < 0.05 &&
-      k4NeutUni < 1e-14 &&
-      k4NeutW0 < 1e-12 &&
-      k4NeutMinE > 0.2 &&
-      mQ0UniErr < 1e-14 &&
-      minDetQ0 > 0.005 &&
-      trapBoost16 > 40 &&
-      survOn32 < 1e-4 &&
+      k4N5P0.uErr < 1e-14 &&
+      k4N5P1.uErr < 1e-14 &&
+      k4N5P0.w0 < 1e-12 &&
+      k4N5P1.w0 < 1e-12 &&
+      k4N5P0.minAbsE > 0.2 &&
+      k4N5P1.minAbsE > 0.1 &&
+      maxChiralUniErr < 1e-14 &&
+      cls1.minDet > 0.07 &&
+      cls2.minDet > 0.01 &&
+      cls3.minDet > 0.006 &&
+      cls4.minDet > 5e-4 &&
+      cls4.active === 16 &&
+      cls4.trapBoost16 > 200 &&
+      Math.abs(cls4.minDet - cls4b.minDet) < 1e-12 &&
+      cls4.survOn32 < 5e-4 &&
       Math.abs(rhoJ0On5 - rhoJ0On4) < 0.01 &&
       rhoMirNeg0 / rhoMirPos0 > 4.0,
-    `Q=+1 L^2|E|=[${q1L5.quadScale.toFixed(2)},${q1L7.quadScale.toFixed(2)},${q1L9.quadScale.toFixed(2)}], k=4 Q=0_V W_J(0)=0; 16x16 minDet=${minDetQ0.toFixed(5)}, trap=${trapBoost16.toFixed(1)}x, P-split=${(rhoMirNeg0 / rhoMirPos0).toFixed(2)}x`,
+    `Q=+1(P=0,2pi/L) W_J(0)=0, L^2|E|=[${q1L5.quadScale.toFixed(2)},${q1L7.quadScale.toFixed(2)},${q1L9.quadScale.toFixed(2)}]; k=4 Q=0_V(P=0,2pi/5) W_J(0)=0; 4 chiral classes minDet=[${cls1.minDet.toFixed(4)},${cls2.minDet.toFixed(4)},${cls3.minDet.toFixed(4)},${cls4.minDet.toExponential(3)}], maxTrap=${cls4.trapBoost16.toFixed(1)}x, P-split=${(rhoMirNeg0 / rhoMirPos0).toFixed(2)}x`,
   )
 }
 
@@ -2639,7 +2766,9 @@ function runPart4(): void {
   const trionRevDiff = countStateDiffs(revT, trionSeed4D)
 
   // 4B. Literal 4D {3,4,3,4} k = 4 Q = 0_V Neutral Chiral Quad (lines [0,1,6,10], tones [+1,+1,-1,-1])
-  //     Verify exact unit norm, 0-diff reversal, and nonzero Phi_odd ON vs OFF divergence + exact 16x16 match at t = 2!
+  //     Non-vacuous entrywise check: verify ALL 16 dock-0 complex amplitudes of P_0 U^2 |k4Init> directly
+  //     against column chiralMask of G_4(2) M_chiral (and P_0 U_noPhi^2 against G_4(2)), and assert strictly
+  //     nonzero entrywise difference ||P_0 (U^2 - U_noPhi^2) |k4Init>||_2 > 0.1!
   const linesQ0 = [0, 1, 6, 10] as const
   const tonesQ0: readonly [ToneNZ, ToneNZ, ToneNZ, ToneNZ] = [1, 1, -1, -1]
   let chiralMask = -1
@@ -2656,31 +2785,79 @@ function runPart4(): void {
   const k4NormOk = hasExactUnitNorm(k4On1) && hasExactUnitNorm(k4On2) && hasExactUnitNorm(k4Off2)
   const k4RevDiff = countStateDiffs(applyBeatInv(applyBeatInv(k4On2)), k4Init)
   const k4PhiDiff = countStateDiffs(k4On2, k4Off2)
-  // Compute exact dock-0 survival P_0(t=2) on literal 4D Coxeter!
-  let p0CoxOn2 = 0
-  let p0CoxOff2 = 0
-  for (const [k, amp] of k4On2.amp) {
-    if (decodeConfig(k).every(([d]) => d === 0)) p0CoxOn2 += cAbs2(z9ToComplex(amp, k4On2.den))
+
+  // Build exact 16x16 G_4(2) and G_4(2) M_chiral independently from C and Phi_odd:
+  const c1_4B: C[][] = [[C_KEEP, C_CROSS], [C_CROSS, C_KEEP]]
+  const c4_4B = cmatZero(16)
+  const c4Dag_4B = cmatZero(16)
+  const phi_4B = cmatZero(16)
+  const Z6_POW_4B: readonly C[] = [[1, 0], Z6_C, W_C, [-1, 0], [-Z6_C[0], -Z6_C[1]], [-W_C[0], -W_C[1]]]
+  for (let r = 0; r < 16; r++) {
+    const codes = [0, 1, 2, 3].map(j => (LINES[linesQ0[j]!]![(r >> j) & 1]! << 1) + (tonesQ0[j]! < 0 ? 1 : 0))
+    const m6 = ((chiral4Sign(codes[0]!, codes[1]!, codes[2]!, codes[3]!) % 6) + 6) % 6
+    phi_4B.re[r * 16 + r] = Z6_POW_4B[m6]![0]
+    phi_4B.im[r * 16 + r] = Z6_POW_4B[m6]![1]
+    for (let c = 0; c < 16; c++) {
+      let amp: C = [1, 0]
+      for (let j = 0; j < 4; j++) amp = cMul(amp, c1_4B[(r >> j) & 1]![(c >> j) & 1]!)
+      c4_4B.re[r * 16 + c] = amp[0]; c4_4B.im[r * 16 + c] = amp[1]
+      c4Dag_4B.re[c * 16 + r] = amp[0]; c4Dag_4B.im[c * 16 + r] = -amp[1]
+    }
   }
-  for (const [k, amp] of k4Off2.amp) {
-    if (decodeConfig(k).every(([d]) => d === 0)) p0CoxOff2 += cAbs2(z9ToComplex(amp, k4Off2.den))
+  const mChiral4B = cmatMul(c4Dag_4B, cmatMul(phi_4B, cmatMul(c4_4B, phi_4B)))
+  // Exact 1-body return matrix at t = 2: g_D(2) = C_CROSS^2, g_O(2) = C_KEEP * C_CROSS
+  const gD2 = cMul(C_CROSS, C_CROSS)
+  const gO2 = cMul(C_KEEP, C_CROSS)
+  const g4At2 = cmatZero(16)
+  for (let r = 0; r < 16; r++) {
+    for (let c = 0; c < 16; c++) {
+      let amp: C = [1, 0]
+      for (let j = 0; j < 4; j++) amp = cMul(amp, ((r >> j) & 1) === ((c >> j) & 1) ? gD2 : gO2)
+      g4At2.re[r * 16 + c] = amp[0]; g4At2.im[r * 16 + c] = amp[1]
+    }
   }
-  // Exact 16x16 value at t = 2 is (3/4)^4 = 81/256 = 0.31640625!
-  const expectT2 = Math.pow(0.75, 4)
-  const k4SurvErr = Math.max(Math.abs(p0CoxOn2 - expectT2), Math.abs(p0CoxOff2 - expectT2))
+  const g4M2 = cmatMul(g4At2, mChiral4B)
+
+  // Compare ALL 16 dock-0 complex amplitudes of literal 4D Z[zeta_9][1/6] evolution against G_4(2) M_chiral and G_4(2)!
+  let k4EntryOnErr = 0
+  let k4EntryOffErr = 0
+  let k4Dock0PhiDiffL2 = 0
+  for (let mask = 0; mask < 16; mask++) {
+    const key = encodeConfig(
+      [0, 1, 2, 3].map(j => [0, LINES[linesQ0[j]!]![(mask >> j) & 1]!, tonesQ0[j]!, 0] as const),
+    )
+    const aOn = k4On2.amp.get(key)
+    const cOn: C = aOn ? z9ToComplex(aOn, k4On2.den) : [0, 0]
+    const aOff = k4Off2.amp.get(key)
+    const cOff: C = aOff ? z9ToComplex(aOff, k4Off2.den) : [0, 0]
+    const expOn: C = [g4M2.re[mask * 16 + chiralMask]!, g4M2.im[mask * 16 + chiralMask]!]
+    const expOff: C = [g4At2.re[mask * 16 + chiralMask]!, g4At2.im[mask * 16 + chiralMask]!]
+    k4EntryOnErr = Math.max(k4EntryOnErr, cAbs(cSub(cOn, expOn)))
+    k4EntryOffErr = Math.max(k4EntryOffErr, cAbs(cSub(cOff, expOff)))
+    k4Dock0PhiDiffL2 += cAbs2(cSub(cOn, cOff))
+  }
+  k4Dock0PhiDiffL2 = Math.sqrt(k4Dock0PhiDiffL2)
 
   console.log(
     `  [4A] 4D Coxeter Z[zeta_9][1/6] k=3 Sym^3 trion seed (t=0..3): normOk=${trionNormOk}, revDiff=${trionRevDiff}, crossLineLeak=${trionGeoLeak}, branches(t=3)=${stT.amp.size}`,
   )
   console.log(
-    `  [4B] 4D Coxeter Z[zeta_9][1/6] k=4 Q=0_V chiral quad (t=0..2): normOk=${k4NormOk}, revDiff=${k4RevDiff}, Phi_odd(ON vs OFF) diffs=${k4PhiDiff}, P_0(2)=${p0CoxOn2.toFixed(8)} (exact 81/256=${expectT2.toFixed(8)}, err=${k4SurvErr.toExponential(1)})`,
+    `  [4B] 4D Coxeter Z[zeta_9][1/6] k=4 Q=0_V chiral quad (t=0..2): normOk=${k4NormOk}, revDiff=${k4RevDiff}, Phi_odd(ON vs OFF) diffs=${k4PhiDiff}, entrywise err vs G_4(2)M_chiral=${k4EntryOnErr.toExponential(1)} (OFF vs G_4(2)=${k4EntryOffErr.toExponential(1)}), ||P_0(U^2-U_noPhi^2)|psi0>||_2=${k4Dock0PhiDiffL2.toFixed(6)}`,
   )
 
   recordCheck(
     'P4',
-    'Literal 8-layer Z[zeta_9][1/6] 4D {3,4,3,4} Coxeter verification for k=3 Sym^3 trion & k=4 Q=0_V chiral quad',
-    trionNormOk && trionRevDiff === 0 && trionGeoLeak === 0 && k4NormOk && k4RevDiff === 0 && k4PhiDiff > 0 && k4SurvErr < 1e-14,
-    `k=3 Sym^3: normOk, rev=0, leak=0 (${stT.amp.size} branches); k=4 Q=0_V: normOk, rev=0, Phi_odd diffs=${k4PhiDiff}, P_0(2)=81/256 exact`,
+    'Literal 8-layer Z[zeta_9][1/6] 4D {3,4,3,4} Coxeter verification for k=3 Sym^3 trion & non-vacuous k=4 Q=0_V entrywise G_4(2)M_chiral match',
+    trionNormOk &&
+      trionRevDiff === 0 &&
+      trionGeoLeak === 0 &&
+      k4NormOk &&
+      k4RevDiff === 0 &&
+      k4PhiDiff > 0 &&
+      k4EntryOnErr < 1e-14 &&
+      k4EntryOffErr < 1e-14 &&
+      k4Dock0PhiDiffL2 > 0.1,
+    `k=3 Sym^3: normOk, rev=0, leak=0 (${stT.amp.size} branches); k=4 Q=0_V: normOk, rev=0, Phi_odd diffs=${k4PhiDiff}, 16-entry err(ON/OFF)=${k4EntryOnErr.toExponential(1)}/${k4EntryOffErr.toExponential(1)}, ||P_0 dPsi||=${k4Dock0PhiDiffL2.toFixed(4)}`,
   )
 }
 

@@ -546,8 +546,7 @@ private theorem hce_checkRangeNat_sound (n : Nat) (P : Nat → Bool) :
     intro lo _ h i hi hlo hhi
     unfold hceCheckRangeNat at h
     have hEq : lo = i := by simp only [hcePow2D] at hhi; omega
-    subst hEq
-    rw [(hce_blt_iff i n).mpr hi] at h; exact h
+    rw [hEq, (hce_blt_iff i n).mpr hi] at h; exact h
   | succ m ih =>
     intro lo hd h i hi hlo hhi
     unfold hceCheckRangeNat at h
@@ -573,40 +572,36 @@ private theorem hce_checkRangeNat_chunks4 (n d : Nat) (P : Nat → Bool) (hd : d
   else if c2 : i < 3 * hcePow2D d then exact hce_checkRangeNat_sound n P d (2 * hcePow2D d) hd h2 i hi (by omega) (by omega)
   else exact hce_checkRangeNat_sound n P d (3 * hcePow2D d) hd h3 i hi (by omega) (by omega)
 
-private def hcePow2Nat : Nat → Nat
-  | 0 => 1 | 1 => 2 | 2 => 4 | 3 => 8 | 4 => 16 | 5 => 32 | 6 => 64 | 7 => 128
-  | 8 => 256 | 9 => 512 | 10 => 1024 | 11 => 2048 | 12 => 4096 | 13 => 8192 | 14 => 16384 | 15 => 32768
-  | 16 => 65536 | 17 => 131072 | 18 => 262144 | 19 => 524288 | 20 => 1048576 | 21 => 2097152 | 22 => 4194304
-  | _ => 8388608
+private theorem hce_checkRangeNat_chunks8 (n d : Nat) (P : Nat → Bool) (hd : d ≤ 10) (hBound : n ≤ 8 * hcePow2D d)
+    (h0 : hceCheckRangeNat n P d 0 = true)
+    (h1 : hceCheckRangeNat n P d (hcePow2D d) = true)
+    (h2 : hceCheckRangeNat n P d (2 * hcePow2D d) = true)
+    (h3 : hceCheckRangeNat n P d (3 * hcePow2D d) = true)
+    (h4 : hceCheckRangeNat n P d (4 * hcePow2D d) = true)
+    (h5 : hceCheckRangeNat n P d (5 * hcePow2D d) = true)
+    (h6 : hceCheckRangeNat n P d (6 * hcePow2D d) = true)
+    (h7 : hceCheckRangeNat n P d (7 * hcePow2D d) = true) : ∀ (i : Nat), i < n → P i = true := by
+  intro i hi
+  if c0 : i < hcePow2D d then exact hce_checkRangeNat_sound n P d 0 hd h0 i hi (Nat.zero_le _) (by omega)
+  else if c1 : i < 2 * hcePow2D d then exact hce_checkRangeNat_sound n P d (hcePow2D d) hd h1 i hi (by omega) (by omega)
+  else if c2 : i < 3 * hcePow2D d then exact hce_checkRangeNat_sound n P d (2 * hcePow2D d) hd h2 i hi (by omega) (by omega)
+  else if c3 : i < 4 * hcePow2D d then exact hce_checkRangeNat_sound n P d (3 * hcePow2D d) hd h3 i hi (by omega) (by omega)
+  else if c4 : i < 5 * hcePow2D d then exact hce_checkRangeNat_sound n P d (4 * hcePow2D d) hd h4 i hi (by omega) (by omega)
+  else if c5 : i < 6 * hcePow2D d then exact hce_checkRangeNat_sound n P d (5 * hcePow2D d) hd h5 i hi (by omega) (by omega)
+  else if c6 : i < 7 * hcePow2D d then exact hce_checkRangeNat_sound n P d (6 * hcePow2D d) hd h6 i hi (by omega) (by omega)
+  else exact hce_checkRangeNat_sound n P d (7 * hcePow2D d) hd h7 i hi (by omega) (by omega)
 
-private def hcePow2 (r : Fin 24) : Nat := hcePow2Nat r.val
+private def hcePow2Nat (r : Nat) : Nat := 2 ^ r
 
-private def hcePow32Nat : Nat → Nat
-  | 0 => 1 | 1 => 32 | 2 => 1024 | 3 => 32768 | 4 => 1048576 | 5 => 33554432
-  | 6 => 1073741824 | 7 => 34359738368 | 8 => 1099511627776 | 9 => 35184372088832
-  | 10 => 1125899906842624 | 11 => 36028797018963968 | 12 => 1152921504606846976
-  | 13 => 36893488147419103232 | 14 => 1180591620717411303424 | 15 => 37778931862957161709568
-  | 16 => 1208925819614629174706176 | 17 => 38685626227668133590597632
-  | 18 => 1237940039285380274899124224 | 19 => 39614081257132168796771975168
-  | 20 => 1267650600228229401496703205376 | 21 => 40564819207303340847894502572032
-  | 22 => 1298074214633706907132624082305024 | _ => 41538374868278621028243970633760768
+private def hcePow2 (r : Fin 24) : Nat := 2 ^ r.val
 
-private def hcePow32 (r : Fin 24) : Nat := hcePow32Nat r.val
+private def hcePow32Nat (r : Nat) : Nat := 32 ^ r
 
-private def hcePow1000Oct : HceOct :=
-  HceOct.node
-    (HceOct.node (HceOct.leaf 1) (HceOct.leaf 1000) (HceOct.leaf 1000000) (HceOct.leaf 1000000000) (HceOct.leaf 1000000000000) (HceOct.leaf 1000000000000000) (HceOct.leaf 1000000000000000000) (HceOct.leaf 1000000000000000000000))
-    (HceOct.node (HceOct.leaf 1000000000000000000000000) (HceOct.leaf 1000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000000))
-    (HceOct.node (HceOct.leaf 1000000000000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000000000000000000000000000000))
-    (HceOct.node (HceOct.leaf 1000000000000000000000000000000000000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000))
-    (HceOct.node (HceOct.leaf 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000))
-    (HceOct.node (HceOct.leaf 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) (HceOct.leaf 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000))
-    (HceOct.leaf 0)
-    (HceOct.leaf 0)
+private def hcePow32 (r : Fin 24) : Nat := 32 ^ r.val
 
-private def hcePow1000 (k : Nat) : Nat := hceOctGet 2 hcePow1000Oct k
+private def hcePow1000 (k : Nat) : Nat := 1000 ^ k
 
-private theorem hce_pow1000_eq : ∀ k : Fin 48, hcePow1000 k.val = 1000 ^ k.val := by decide
+private theorem hce_pow1000_eq : ∀ k : Fin 48, hcePow1000 k.val = 1000 ^ k.val := fun _ => rfl
 
 private theorem hce_base1000_lt (g : Fin 48 → Nat) (hg : ∀ k : Fin 48, g k < 1000) :
     ∀ (m : Nat) (hm : m ≤ 48), hcSumFinAux m hm (fun k => g k * 1000 ^ k.val) < 1000 ^ m := by
@@ -1178,14 +1173,19 @@ private def hceElemStepOk (i : Nat) : Bool :=
       let z := (p / hcePow32Nat x) % 32
       Nat.blt y 24 && (hceGenPermNat g y == z)) 5 0
 
-private theorem hce_elem_steps_c0 : hceCheckRangeNat hceElemCount hceElemStepOk 8 0 = true := rfl
-private theorem hce_elem_steps_c1 : hceCheckRangeNat hceElemCount hceElemStepOk 8 256 = true := rfl
-private theorem hce_elem_steps_c2 : hceCheckRangeNat hceElemCount hceElemStepOk 8 512 = true := rfl
-private theorem hce_elem_steps_c3 : hceCheckRangeNat hceElemCount hceElemStepOk 8 768 = true := rfl
+private theorem hce_elem_steps_c0 : hceCheckRangeNat hceElemCount hceElemStepOk 7 0 = true := by exact rfl
+private theorem hce_elem_steps_c1 : hceCheckRangeNat hceElemCount hceElemStepOk 7 128 = true := by exact rfl
+private theorem hce_elem_steps_c2 : hceCheckRangeNat hceElemCount hceElemStepOk 7 256 = true := by exact rfl
+private theorem hce_elem_steps_c3 : hceCheckRangeNat hceElemCount hceElemStepOk 7 384 = true := by exact rfl
+private theorem hce_elem_steps_c4 : hceCheckRangeNat hceElemCount hceElemStepOk 7 512 = true := by exact rfl
+private theorem hce_elem_steps_c5 : hceCheckRangeNat hceElemCount hceElemStepOk 7 640 = true := by exact rfl
+private theorem hce_elem_steps_c6 : hceCheckRangeNat hceElemCount hceElemStepOk 7 768 = true := by exact rfl
+private theorem hce_elem_steps_c7 : hceCheckRangeNat hceElemCount hceElemStepOk 7 896 = true := by exact rfl
 
 private theorem hce_elem_steps_valid : ∀ (i : Nat), i < hceElemCount → hceElemStepOk i = true :=
-  hce_checkRangeNat_chunks4 hceElemCount 8 hceElemStepOk (by decide) (by decide)
+  hce_checkRangeNat_chunks8 hceElemCount 7 hceElemStepOk (by decide) (by decide)
     hce_elem_steps_c0 hce_elem_steps_c1 hce_elem_steps_c2 hce_elem_steps_c3
+    hce_elem_steps_c4 hce_elem_steps_c5 hce_elem_steps_c6 hce_elem_steps_c7
 
 private theorem hce_elemWord_spec_aux :
     ∀ (bound i : Nat), i < hceElemCount → i ≤ bound →
@@ -1376,17 +1376,17 @@ private def hceSlotsMatchOk (k : Nat) (i : Nat) : Bool :=
   let slots := hceOrbSlots k i
   hceCheckRangeNat 24 (fun r => (((mask / hcePow2Nat r) % 2) == 1) == hceInSlots k slots r) 5 0
 
-private theorem hce_slots_match_1 : hceCheckRangeNat 1 (hceSlotsMatchOk 1) 1 0 = true := rfl
-private theorem hce_slots_match_2 : hceCheckRangeNat 4 (hceSlotsMatchOk 2) 2 0 = true := rfl
-private theorem hce_slots_match_3 : hceCheckRangeNat 10 (hceSlotsMatchOk 3) 4 0 = true := rfl
-private theorem hce_slots_match_4 : hceCheckRangeNat 31 (hceSlotsMatchOk 4) 5 0 = true := rfl
-private theorem hce_slots_match_5 : hceCheckRangeNat 81 (hceSlotsMatchOk 5) 7 0 = true := rfl
-private theorem hce_slots_match_6 : hceCheckRangeNat 210 (hceSlotsMatchOk 6) 8 0 = true := rfl
+private theorem hce_slots_match_1 : hceCheckRangeNat 1 (hceSlotsMatchOk 1) 1 0 = true := by exact rfl
+private theorem hce_slots_match_2 : hceCheckRangeNat 4 (hceSlotsMatchOk 2) 2 0 = true := by exact rfl
+private theorem hce_slots_match_3 : hceCheckRangeNat 10 (hceSlotsMatchOk 3) 4 0 = true := by exact rfl
+private theorem hce_slots_match_4 : hceCheckRangeNat 31 (hceSlotsMatchOk 4) 5 0 = true := by exact rfl
+private theorem hce_slots_match_5 : hceCheckRangeNat 81 (hceSlotsMatchOk 5) 7 0 = true := by exact rfl
+private theorem hce_slots_match_6 : hceCheckRangeNat 210 (hceSlotsMatchOk 6) 8 0 = true := by exact rfl
 
-private theorem hce_slots_match_7_c0 : hceCheckRangeNat 450 (hceSlotsMatchOk 7) 7 0 = true := rfl
-private theorem hce_slots_match_7_c1 : hceCheckRangeNat 450 (hceSlotsMatchOk 7) 7 128 = true := rfl
-private theorem hce_slots_match_7_c2 : hceCheckRangeNat 450 (hceSlotsMatchOk 7) 7 256 = true := rfl
-private theorem hce_slots_match_7_c3 : hceCheckRangeNat 450 (hceSlotsMatchOk 7) 7 384 = true := rfl
+private theorem hce_slots_match_7_c0 : hceCheckRangeNat 450 (hceSlotsMatchOk 7) 7 0 = true := by exact rfl
+private theorem hce_slots_match_7_c1 : hceCheckRangeNat 450 (hceSlotsMatchOk 7) 7 128 = true := by exact rfl
+private theorem hce_slots_match_7_c2 : hceCheckRangeNat 450 (hceSlotsMatchOk 7) 7 256 = true := by exact rfl
+private theorem hce_slots_match_7_c3 : hceCheckRangeNat 450 (hceSlotsMatchOk 7) 7 384 = true := by exact rfl
 
 private theorem hce_inMask_iff_inSlots (k n : Nat) (hAll : ∀ i : Nat, i < n → hceSlotsMatchOk k i = true)
     (i : Fin n) (r : Fin 24) :
@@ -1545,18 +1545,25 @@ private def hceLevelRowOk (k nNext : Nat) (i : Nat) : Bool :=
 private theorem hce_step0_valid :
     hceCheckRangeNat 24 (fun x =>
       let e := hceOctGet 2 hceStep0Oct x
-      Nat.blt e hceElemCount && hceInMaskNat (hceOrbMask 1 0) ((hceElemPermPack e / hcePow32Nat x) % 32)) 5 0 = true :=
-  rfl
+      Nat.blt e hceElemCount && hceInMaskNat (hceOrbMask 1 0) ((hceElemPermPack e / hcePow32Nat x) % 32)) 5 0 = true := by
+  exact rfl
 
-private theorem hce_step1_valid : hceCheckRangeNat 1 (hceLevelRowOk 1 4) 1 0 = true := rfl
-private theorem hce_step2_valid : hceCheckRangeNat 4 (hceLevelRowOk 2 10) 2 0 = true := rfl
-private theorem hce_step3_valid : hceCheckRangeNat 10 (hceLevelRowOk 3 31) 4 0 = true := rfl
-private theorem hce_step4_valid : hceCheckRangeNat 31 (hceLevelRowOk 4 81) 5 0 = true := rfl
-private theorem hce_step5_valid : hceCheckRangeNat 81 (hceLevelRowOk 5 210) 7 0 = true := rfl
-private theorem hce_step6_c0 : hceCheckRangeNat 210 (hceLevelRowOk 6 450) 6 0 = true := rfl
-private theorem hce_step6_c1 : hceCheckRangeNat 210 (hceLevelRowOk 6 450) 6 64 = true := rfl
-private theorem hce_step6_c2 : hceCheckRangeNat 210 (hceLevelRowOk 6 450) 6 128 = true := rfl
-private theorem hce_step6_c3 : hceCheckRangeNat 210 (hceLevelRowOk 6 450) 6 192 = true := rfl
+private theorem hce_step1_valid : hceCheckRangeNat 1 (hceLevelRowOk 1 4) 1 0 = true := by exact rfl
+private theorem hce_step2_valid : hceCheckRangeNat 4 (hceLevelRowOk 2 10) 2 0 = true := by exact rfl
+private theorem hce_step3_valid : hceCheckRangeNat 10 (hceLevelRowOk 3 31) 4 0 = true := by exact rfl
+private theorem hce_step4_valid : hceCheckRangeNat 31 (hceLevelRowOk 4 81) 5 0 = true := by exact rfl
+private theorem hce_step5_c0 : hceCheckRangeNat 81 (hceLevelRowOk 5 210) 5 0 = true := by exact rfl
+private theorem hce_step5_c1 : hceCheckRangeNat 81 (hceLevelRowOk 5 210) 5 32 = true := by exact rfl
+private theorem hce_step5_c2 : hceCheckRangeNat 81 (hceLevelRowOk 5 210) 5 64 = true := by exact rfl
+private theorem hce_step5_c3 : hceCheckRangeNat 81 (hceLevelRowOk 5 210) 5 96 = true := by exact rfl
+private theorem hce_step6_c0 : hceCheckRangeNat 210 (hceLevelRowOk 6 450) 5 0 = true := by exact rfl
+private theorem hce_step6_c1 : hceCheckRangeNat 210 (hceLevelRowOk 6 450) 5 32 = true := by exact rfl
+private theorem hce_step6_c2 : hceCheckRangeNat 210 (hceLevelRowOk 6 450) 5 64 = true := by exact rfl
+private theorem hce_step6_c3 : hceCheckRangeNat 210 (hceLevelRowOk 6 450) 5 96 = true := by exact rfl
+private theorem hce_step6_c4 : hceCheckRangeNat 210 (hceLevelRowOk 6 450) 5 128 = true := by exact rfl
+private theorem hce_step6_c5 : hceCheckRangeNat 210 (hceLevelRowOk 6 450) 5 160 = true := by exact rfl
+private theorem hce_step6_c6 : hceCheckRangeNat 210 (hceLevelRowOk 6 450) 5 192 = true := by exact rfl
+private theorem hce_step6_c7 : hceCheckRangeNat 210 (hceLevelRowOk 6 450) 5 224 = true := by exact rfl
 
 private theorem hce_orbit_step (k nCur nNext : Nat)
     (hMatch : ∀ i : Nat, i < nCur → hceSlotsMatchOk k i = true)
@@ -1637,10 +1644,13 @@ private theorem hce_orbit_collapse_tuple7 (a0 a1 a2 a3 a4 a5 a6 : Fin 24) :
   have h5 := hce_orbit_collapse_tuple5 a0 a1 a2 a3 a4
   have h6 := hce_orbit_lift_step 5 81 210
     (hce_checkRangeNat_all 81 7 _ (by decide) (by decide) hce_slots_match_5)
-    (hce_checkRangeNat_all 81 7 _ (by decide) (by decide) hce_step5_valid) [a4, a3, a2, a1, a0] a5 h5
+    (hce_checkRangeNat_chunks4 81 5 _ (by decide) (by decide) hce_step5_c0 hce_step5_c1 hce_step5_c2 hce_step5_c3)
+    [a4, a3, a2, a1, a0] a5 h5
   have h7 := hce_orbit_lift_step 6 210 450
     (hce_checkRangeNat_all 210 8 _ (by decide) (by decide) hce_slots_match_6)
-    (hce_checkRangeNat_chunks4 210 6 _ (by decide) (by decide) hce_step6_c0 hce_step6_c1 hce_step6_c2 hce_step6_c3)
+    (hce_checkRangeNat_chunks8 210 5 _ (by decide) (by decide)
+      hce_step6_c0 hce_step6_c1 hce_step6_c2 hce_step6_c3
+      hce_step6_c4 hce_step6_c5 hce_step6_c6 hce_step6_c7)
     [a5, a4, a3, a2, a1, a0] a6 h6
   exact h7
 
@@ -1747,7 +1757,7 @@ private def hceWit5RowOk (i : Nat) : Bool :=
         (d3 == (match (p == p0) && (j0 == 3) with | true => 1 | false => 0)) &&
         (d4 == (match (p == p0) && (j0 == 4) with | true => 1 | false => 0))) 1 0) 3 0) 1 0
 
-private theorem hce_wit5_valid : hceCheckRangeNat 81 hceWit5RowOk 7 0 = true := rfl
+private theorem hce_wit5_valid : hceCheckRangeNat 81 hceWit5RowOk 7 0 = true := by exact rfl
 
 private theorem hce_match_eq_ite (p p0 : Fin 2) (j j0 : Fin 5) :
     (match (p.val == p0.val) && (j0.val == j.val) with | true => 1 | false => 0) =
@@ -1817,6 +1827,7 @@ private theorem hce_wit5_basis (i : Fin 81) :
   obtain ⟨h01, h2⟩ := hce_bool_and_split h012
   obtain ⟨h0, h1⟩ := hce_bool_and_split h01
   rw [← hce_evalPack_spec (hceWit5 i p0 j0) p ⟨hceOrb5SlotNat i j, hr⟩]
+  unfold hceWit5 hceOrb5SlotNat; dsimp only
   cases j with | mk jv hjv =>
   match jv, hjv with
   | 0, _ => rw [Nat.eq_of_beq_eq_true h0]; exact hce_match_eq_ite p p0 ⟨0, by decide⟩ j0
@@ -2138,10 +2149,10 @@ private def hceWit7RowOk (i : Nat) : Bool :=
   hceCheckSlotsZero 7 slots (hceEvalPack (hceOctGet 3 hceWit7XOct i)) hceXLVal &&
   hceCheckSlotsZero 7 slots (hceEvalPack (hceOctGet 3 hceWit7ZOct i)) hceZLVal
 
-private theorem hce_wit7_c0 : hceCheckRangeNat 450 hceWit7RowOk 7 0 = true := rfl
-private theorem hce_wit7_c1 : hceCheckRangeNat 450 hceWit7RowOk 7 128 = true := rfl
-private theorem hce_wit7_c2 : hceCheckRangeNat 450 hceWit7RowOk 7 256 = true := rfl
-private theorem hce_wit7_c3 : hceCheckRangeNat 450 hceWit7RowOk 7 384 = true := rfl
+private theorem hce_wit7_c0 : hceCheckRangeNat 450 hceWit7RowOk 7 0 = true := by exact rfl
+private theorem hce_wit7_c1 : hceCheckRangeNat 450 hceWit7RowOk 7 128 = true := by exact rfl
+private theorem hce_wit7_c2 : hceCheckRangeNat 450 hceWit7RowOk 7 256 = true := by exact rfl
+private theorem hce_wit7_c3 : hceCheckRangeNat 450 hceWit7RowOk 7 384 = true := by exact rfl
 
 private theorem hce_wit7_valid : ∀ i : Fin 450, hceWit7RowOk i.val = true :=
   fun i => hce_checkRangeNat_chunks4 450 7 hceWit7RowOk (by decide) (by decide) hce_wit7_c0 hce_wit7_c1 hce_wit7_c2 hce_wit7_c3 i.val i.isLt

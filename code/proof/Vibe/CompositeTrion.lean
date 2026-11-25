@@ -61,6 +61,21 @@ namespace Vibe
 
 /-! ## Section 0: Private `Int` & `Eis` Algebraic Helpers -/
 
+private theorem ct_ite_pos {α : Type} {c : Prop} [h : Decidable c] (hc : c) (a b : α) :
+    (if c then a else b) = a :=
+  match h with
+  | isTrue _ => rfl
+  | isFalse hnc => absurd hc hnc
+
+private theorem ct_ite_neg {α : Type} {c : Prop} [h : Decidable c] (hnc : ¬ c) (a b : α) :
+    (if c then a else b) = b :=
+  match h with
+  | isTrue hc => absurd hc hnc
+  | isFalse _ => rfl
+
+private theorem ct_bool_ite_true {α : Type} (a b : α) : (if true = true then a else b) = a := rfl
+private theorem ct_bool_ite_false {α : Type} (a b : α) : (if false = true then a else b) = b := rfl
+
 private theorem ct_int_mul_left_comm (a b c : Int) : a * (b * c) = b * (a * c) := by
   rw [← Int.mul_assoc, Int.mul_comm a b, Int.mul_assoc]
 
@@ -377,7 +392,7 @@ private theorem ct_forwardShift_ordered (e1 e2 : Nat) (t1 t2 t3 : Fin 2)
   have b23 : ctLePt ((e1 : Int) - (t2.val : Int), t2) (((e1 + e2 : Nat) : Int) - (t3.val : Int), t3) = true :=
     decide_eq_true h23
   dsimp only
-  rw [b12, if_pos rfl, b23, if_pos rfl, b12, if_pos rfl]
+  rw [b12, ct_bool_ite_true, b23, ct_bool_ite_true, b12, ct_bool_ite_true]
 
 private theorem ct_forwardShift_swap12 (e1 e2 : Nat) (t1 t2 t3 : Fin 2)
     (h12 : ¬ ((0 : Int) - (t1.val : Int) < (e1 : Int) - (t2.val : Int) ∨
@@ -398,7 +413,7 @@ private theorem ct_forwardShift_swap12 (e1 e2 : Nat) (t1 t2 t3 : Fin 2)
   have b21 : ctLePt ((e1 : Int) - (t2.val : Int), t2) ((0 : Int) - (t1.val : Int), t1) = true :=
     decide_eq_true h21
   dsimp only
-  rw [b12, if_neg (by decide), b13, if_pos rfl, b21, if_pos rfl]
+  rw [b12, ct_bool_ite_false, b13, ct_bool_ite_true, b21, ct_bool_ite_true]
 
 private theorem ct_forwardShift_swap23 (e1 e2 : Nat) (t1 t2 t3 : Fin 2)
     (h12 : (0 : Int) - (t1.val : Int) < (e1 : Int) - (t2.val : Int) ∨
@@ -419,7 +434,7 @@ private theorem ct_forwardShift_swap23 (e1 e2 : Nat) (t1 t2 t3 : Fin 2)
   have b13 : ctLePt ((0 : Int) - (t1.val : Int), t1) (((e1 + e2 : Nat) : Int) - (t3.val : Int), t3) = true :=
     decide_eq_true h13
   dsimp only
-  rw [b12, if_pos rfl, b23, if_neg (by decide), b13, if_pos rfl]
+  rw [b12, ct_bool_ite_true, b23, ct_bool_ite_false, b13, ct_bool_ite_true]
 
 private theorem ct_fin2_cases (x : Fin 2) : x = ⟨0, by decide⟩ ∨ x = ⟨1, by decide⟩ := by
   rcases x with ⟨v, hv⟩
@@ -464,203 +479,179 @@ theorem thm_ct_trion_shift_pullback_exact (d1 d2 : Nat) (t1 t2 t3 : Fin 2)
       cases d1 with | zero => exact absurd (hZ1 rfl).2 (by decide) | succ _ => omega
     have hd2 : d2 ≥ 1 := by
       cases d2 with | zero => exact absurd (hZ2 rfl).2 (by decide) | succ _ => omega
+    dsimp only
     have h1 : d1 + 0 - 0 = d1 := by omega
     have h2 : d2 + 0 - 0 = d2 := by omega
-    change _ ∧ _ ∧ _ ∧ _ ∧ _
     rw [h1, h2]
     have hne1 : ¬ (d1 = 0) := by omega
     have hne2 : ¬ (d2 = 0) := by omega
-    simp only [hne1, hne2, ↓reduceIte]
+    rw [ct_ite_neg hne1, ct_ite_neg hne1, ct_ite_neg hne2, ct_ite_neg hne2]
     refine ⟨by omega, by omega, by omega, ⟨by omega, fun h => absurd h hne1, fun h => absurd h hne2⟩, ?_⟩
     rw [ct_forwardShift_ordered d1 d2 _ _ _ (Or.inl (by omega)) (Or.inl (by omega))]
-    have hs1 : (((d1 : Int) - (0 : Int)) - ((0 : Int) - (0 : Int))).toNat = d1 := by omega
-    have hs2 : ((((d1 + d2 : Nat) : Int) - (0 : Int)) - ((d1 : Int) - (0 : Int))).toNat = d2 := by omega
-    rw [hs1, hs2]
+    exact Prod.ext (by dsimp only; omega) (Prod.ext (by dsimp only; omega) rfl)
   · -- (0, 0, 1)
     have hd1 : d1 ≥ 1 := by
       cases d1 with | zero => exact absurd (hZ1 rfl).2 (by decide) | succ _ => omega
+    dsimp only
     have h1 : d1 + 0 - 0 = d1 := by omega
     have h2 : d2 + 1 - 0 = d2 + 1 := by omega
-    change _ ∧ _ ∧ _ ∧ _ ∧ _
     rw [h1, h2]
     have hne1 : ¬ (d1 = 0) := by omega
     have hne2 : ¬ (d2 + 1 = 0) := by omega
-    simp only [hne1, hne2, ↓reduceIte]
+    rw [ct_ite_neg hne1, ct_ite_neg hne1, ct_ite_neg hne2, ct_ite_neg hne2]
     refine ⟨by omega, by omega, by omega, ⟨by omega, fun h => absurd h hne1, fun h => absurd h hne2⟩, ?_⟩
     have h23 : (d1 : Int) - (0 : Int) < ((d1 + (d2 + 1) : Nat) : Int) - (1 : Int) ∨
         ((d1 : Int) - (0 : Int) = ((d1 + (d2 + 1) : Nat) : Int) - (1 : Int) ∧ (0 : Nat) ≤ 1) := by
       cases d2 with | zero => exact Or.inr ⟨by omega, by omega⟩ | succ _ => exact Or.inl (by omega)
     rw [ct_forwardShift_ordered d1 (d2 + 1) _ _ _ (Or.inl (by omega)) h23]
-    have hs1 : (((d1 : Int) - (0 : Int)) - ((0 : Int) - (0 : Int))).toNat = d1 := by omega
-    have hs2 : ((((d1 + (d2 + 1) : Nat) : Int) - (1 : Int)) - ((d1 : Int) - (0 : Int))).toNat = d2 := by omega
-    rw [hs1, hs2]
+    exact Prod.ext (by dsimp only; omega) (Prod.ext (by dsimp only; omega) rfl)
   · -- (0, 1, 0)
     have hd2 : d2 ≥ 1 := by
       cases d2 with | zero => exact absurd (hZ2 rfl).1 (by decide) | succ _ => omega
+    dsimp only
     have h1 : d1 + 1 - 0 = d1 + 1 := by omega
     have h2 : d2 + 0 - 1 = d2 - 1 := by omega
-    change _ ∧ _ ∧ _ ∧ _ ∧ _
     rw [h1, h2]
     have hne1 : ¬ (d1 + 1 = 0) := by omega
-    simp only [hne1, ↓reduceIte]
+    rw [ct_ite_neg hne1, ct_ite_neg hne1]
     cases d2 with
     | zero => omega
     | succ k =>
       cases k with
       | zero =>
         have h2z : (1 : Nat) - 1 = 0 := rfl
-        rw [h2z]; simp only [↓reduceIte]
+        rw [h2z, ct_ite_pos rfl, ct_ite_pos rfl]
         refine ⟨by omega, by omega, by omega, ⟨by omega, fun h => absurd h hne1, fun _ => ⟨rfl, rfl⟩⟩, ?_⟩
         have h13 : (0 : Int) - (0 : Int) < ((d1 + 1 + 0 : Nat) : Int) - (1 : Int) ∨
             ((0 : Int) - (0 : Int) = ((d1 + 1 + 0 : Nat) : Int) - (1 : Int) ∧ (0 : Nat) ≤ 1) := by
           cases d1 with | zero => exact Or.inr ⟨by omega, by omega⟩ | succ _ => exact Or.inl (by omega)
-        rw [ct_forwardShift_swap23 (d1 + 1) 0 _ _ _ (Or.inl (by omega)) (by omega) h13]
-        have hs1 : ((((d1 + 1 + 0 : Nat) : Int) - (1 : Int)) - ((0 : Int) - (0 : Int))).toNat = d1 := by omega
-        have hs2 : ((((d1 + 1 : Nat) : Int) - (0 : Int)) - (((d1 + 1 + 0 : Nat) : Int) - (1 : Int))).toNat = 1 := by omega
-        rw [hs1, hs2]
+        rw [ct_forwardShift_swap23 (d1 + 1) 0 _ _ _ (Or.inl (by omega)) (by dsimp only; omega) h13]
+        exact Prod.ext (by dsimp only; omega) (Prod.ext (by dsimp only; omega) rfl)
       | succ j =>
         have hne2 : ¬ (j + 2 - 1 = 0) := by omega
-        simp only [hne2, ↓reduceIte]
+        rw [ct_ite_neg hne2, ct_ite_neg hne2]
         refine ⟨by omega, by omega, by omega, ⟨by omega, fun h => absurd h hne1, fun h => absurd h hne2⟩, ?_⟩
         have h12 : (0 : Int) - (0 : Int) < ((d1 + 1 : Nat) : Int) - (1 : Int) ∨
             ((0 : Int) - (0 : Int) = ((d1 + 1 : Nat) : Int) - (1 : Int) ∧ (0 : Nat) ≤ 1) := by
           cases d1 with | zero => exact Or.inr ⟨by omega, by omega⟩ | succ _ => exact Or.inl (by omega)
-        rw [ct_forwardShift_ordered (d1 + 1) (j + 2 - 1) _ _ _ h12 (Or.inl (by omega))]
-        have hs1 : ((((d1 + 1 : Nat) : Int) - (1 : Int)) - ((0 : Int) - (0 : Int))).toNat = d1 := by omega
-        have hs2 : ((((d1 + 1 + (j + 2 - 1) : Nat) : Int) - (0 : Int)) - (((d1 + 1 : Nat) : Int) - (1 : Int))).toNat = j + 2 := by omega
-        rw [hs1, hs2]
+        rw [ct_forwardShift_ordered (d1 + 1) (j + 2 - 1) _ _ _ h12 (Or.inl (by dsimp only; omega))]
+        exact Prod.ext (by dsimp only; omega) (Prod.ext (by dsimp only; omega) rfl)
   · -- (0, 1, 1)
     have hd2 : d2 ≥ 1 := by
       cases d2 with | zero => exact absurd (hZ2 rfl).1 (by decide) | succ _ => omega
+    dsimp only
     have h1 : d1 + 1 - 0 = d1 + 1 := by omega
     have h2 : d2 + 1 - 1 = d2 := by omega
-    change _ ∧ _ ∧ _ ∧ _ ∧ _
     rw [h1, h2]
     have hne1 : ¬ (d1 + 1 = 0) := by omega
     have hne2 : ¬ (d2 = 0) := by omega
-    simp only [hne1, hne2, ↓reduceIte]
+    rw [ct_ite_neg hne1, ct_ite_neg hne1, ct_ite_neg hne2, ct_ite_neg hne2]
     refine ⟨by omega, by omega, by omega, ⟨by omega, fun h => absurd h hne1, fun h => absurd h hne2⟩, ?_⟩
     have h12 : (0 : Int) - (0 : Int) < ((d1 + 1 : Nat) : Int) - (1 : Int) ∨
         ((0 : Int) - (0 : Int) = ((d1 + 1 : Nat) : Int) - (1 : Int) ∧ (0 : Nat) ≤ 1) := by
       cases d1 with | zero => exact Or.inr ⟨by omega, by omega⟩ | succ _ => exact Or.inl (by omega)
-    rw [ct_forwardShift_ordered (d1 + 1) d2 _ _ _ h12 (Or.inl (by omega))]
-    have hs1 : ((((d1 + 1 : Nat) : Int) - (1 : Int)) - ((0 : Int) - (0 : Int))).toNat = d1 := by omega
-    have hs2 : ((((d1 + 1 + d2 : Nat) : Int) - (1 : Int)) - (((d1 + 1 : Nat) : Int) - (1 : Int))).toNat = d2 := by omega
-    rw [hs1, hs2]
+    rw [ct_forwardShift_ordered (d1 + 1) d2 _ _ _ h12 (Or.inl (by dsimp only; omega))]
+    exact Prod.ext (by dsimp only; omega) (Prod.ext (by dsimp only; omega) rfl)
   · -- (1, 0, 0)
     have hd1 : d1 ≥ 1 := by
       cases d1 with | zero => exact absurd (hZ1 rfl).1 (by decide) | succ _ => omega
     have hd2 : d2 ≥ 1 := by
       cases d2 with | zero => exact absurd (hZ2 rfl).2 (by decide) | succ _ => omega
+    dsimp only
     have h1 : d1 + 0 - 1 = d1 - 1 := by omega
     have h2 : d2 + 0 - 0 = d2 := by omega
-    change _ ∧ _ ∧ _ ∧ _ ∧ _
     rw [h1, h2]
     have hne2 : ¬ (d2 = 0) := by omega
-    simp only [hne2, ↓reduceIte]
+    rw [ct_ite_neg hne2]
     cases d1 with
     | zero => omega
     | succ k =>
       cases k with
       | zero =>
         have h1z : (1 : Nat) - 1 = 0 := rfl
-        rw [h1z]; simp only [↓reduceIte]
+        rw [h1z, ct_ite_pos rfl, ct_ite_pos rfl, ct_ite_neg hne2]
         refine ⟨by omega, by omega, by omega, ⟨by omega, fun _ => ⟨rfl, rfl⟩, fun h => absurd h hne2⟩, ?_⟩
-        rw [ct_forwardShift_swap12 0 d2 _ _ _ (by omega) (Or.inl (by omega)) (Or.inl (by omega))]
-        have hs1 : (((0 : Int) - (0 : Int)) - (((0 : Nat) : Int) - (1 : Int))).toNat = 1 := by omega
-        have hs2 : ((((0 + d2 : Nat) : Int) - (0 : Int)) - ((0 : Int) - (0 : Int))).toNat = d2 := by omega
-        rw [hs1, hs2]
+        rw [ct_forwardShift_swap12 0 d2 _ _ _ (by dsimp only; omega) (Or.inl (by dsimp only; omega)) (Or.inl (by dsimp only; omega))]
+        exact Prod.ext (by dsimp only; omega) (Prod.ext (by dsimp only; omega) rfl)
       | succ j =>
         have hne1 : ¬ (j + 2 - 1 = 0) := by omega
-        simp only [hne1, ↓reduceIte]
+        rw [ct_ite_neg hne1, ct_ite_neg hne1, ct_ite_neg hne2]
         refine ⟨by omega, by omega, by omega, ⟨by omega, fun h => absurd h hne1, fun h => absurd h hne2⟩, ?_⟩
-        rw [ct_forwardShift_ordered (j + 2 - 1) d2 _ _ _ (Or.inl (by omega)) (Or.inl (by omega))]
-        have hs1 : ((((j + 2 - 1 : Nat) : Int) - (0 : Int)) - ((0 : Int) - (1 : Int))).toNat = j + 2 := by omega
-        have hs2 : ((((j + 2 - 1 + d2 : Nat) : Int) - (0 : Int)) - (((j + 2 - 1 : Nat) : Int) - (0 : Int))).toNat = d2 := by omega
-        rw [hs1, hs2]
+        rw [ct_forwardShift_ordered (j + 2 - 1) d2 _ _ _ (Or.inl (by dsimp only; omega)) (Or.inl (by dsimp only; omega))]
+        exact Prod.ext (by dsimp only; omega) (Prod.ext (by dsimp only; omega) rfl)
   · -- (1, 0, 1)
     have hd1 : d1 ≥ 1 := by
       cases d1 with | zero => exact absurd (hZ1 rfl).1 (by decide) | succ _ => omega
+    dsimp only
     have h1 : d1 + 0 - 1 = d1 - 1 := by omega
     have h2 : d2 + 1 - 0 = d2 + 1 := by omega
-    change _ ∧ _ ∧ _ ∧ _ ∧ _
     rw [h1, h2]
     have hne2 : ¬ (d2 + 1 = 0) := by omega
-    simp only [hne2, ↓reduceIte]
+    rw [ct_ite_neg hne2]
     cases d1 with
     | zero => omega
     | succ k =>
       cases k with
       | zero =>
         have h1z : (1 : Nat) - 1 = 0 := rfl
-        rw [h1z]; simp only [↓reduceIte]
+        rw [h1z, ct_ite_pos rfl, ct_ite_pos rfl, ct_ite_neg hne2]
         refine ⟨by omega, by omega, by omega, ⟨by omega, fun _ => ⟨rfl, rfl⟩, fun h => absurd h hne2⟩, ?_⟩
         have h13 : (0 : Int) - (0 : Int) < ((0 + (d2 + 1) : Nat) : Int) - (1 : Int) ∨
             ((0 : Int) - (0 : Int) = ((0 + (d2 + 1) : Nat) : Int) - (1 : Int) ∧ (0 : Nat) ≤ 1) := by
           cases d2 with | zero => exact Or.inr ⟨by omega, by omega⟩ | succ _ => exact Or.inl (by omega)
-        rw [ct_forwardShift_swap12 0 (d2 + 1) _ _ _ (by omega) h13 (Or.inl (by omega))]
-        have hs1 : (((0 : Int) - (0 : Int)) - (((0 : Nat) : Int) - (1 : Int))).toNat = 1 := by omega
-        have hs2 : ((((0 + (d2 + 1) : Nat) : Int) - (1 : Int)) - ((0 : Int) - (0 : Int))).toNat = d2 := by omega
-        rw [hs1, hs2]
+        rw [ct_forwardShift_swap12 0 (d2 + 1) _ _ _ (by dsimp only; omega) h13 (Or.inl (by dsimp only; omega))]
+        exact Prod.ext (by dsimp only; omega) (Prod.ext (by dsimp only; omega) rfl)
       | succ j =>
         have hne1 : ¬ (j + 2 - 1 = 0) := by omega
-        simp only [hne1, ↓reduceIte]
+        rw [ct_ite_neg hne1, ct_ite_neg hne1, ct_ite_neg hne2]
         refine ⟨by omega, by omega, by omega, ⟨by omega, fun h => absurd h hne1, fun h => absurd h hne2⟩, ?_⟩
         have h23 : ((j + 2 - 1 : Nat) : Int) - (0 : Int) < ((j + 2 - 1 + (d2 + 1) : Nat) : Int) - (1 : Int) ∨
             (((j + 2 - 1 : Nat) : Int) - (0 : Int) = ((j + 2 - 1 + (d2 + 1) : Nat) : Int) - (1 : Int) ∧ (0 : Nat) ≤ 1) := by
           cases d2 with | zero => exact Or.inr ⟨by omega, by omega⟩ | succ _ => exact Or.inl (by omega)
-        rw [ct_forwardShift_ordered (j + 2 - 1) (d2 + 1) _ _ _ (Or.inl (by omega)) h23]
-        have hs1 : ((((j + 2 - 1 : Nat) : Int) - (0 : Int)) - ((0 : Int) - (1 : Int))).toNat = j + 2 := by omega
-        have hs2 : ((((j + 2 - 1 + (d2 + 1) : Nat) : Int) - (1 : Int)) - (((j + 2 - 1 : Nat) : Int) - (0 : Int))).toNat = d2 := by omega
-        rw [hs1, hs2]
+        rw [ct_forwardShift_ordered (j + 2 - 1) (d2 + 1) _ _ _ (Or.inl (by dsimp only; omega)) h23]
+        exact Prod.ext (by dsimp only; omega) (Prod.ext (by dsimp only; omega) rfl)
   · -- (1, 1, 0)
     have hd1 : d1 ≥ 1 := by
       cases d1 with | zero => exact absurd (hZ1 rfl).1 (by decide) | succ _ => omega
     have hd2 : d2 ≥ 1 := by
       cases d2 with | zero => exact absurd (hZ2 rfl).1 (by decide) | succ _ => omega
+    dsimp only
     have h1 : d1 + 1 - 1 = d1 := by omega
     have h2 : d2 + 0 - 1 = d2 - 1 := by omega
-    change _ ∧ _ ∧ _ ∧ _ ∧ _
     rw [h1, h2]
     have hne1 : ¬ (d1 = 0) := by omega
-    simp only [hne1, ↓reduceIte]
+    rw [ct_ite_neg hne1, ct_ite_neg hne1]
     cases d2 with
     | zero => omega
     | succ k =>
       cases k with
       | zero =>
         have h2z : (1 : Nat) - 1 = 0 := rfl
-        rw [h2z]; simp only [↓reduceIte]
+        rw [h2z, ct_ite_pos rfl, ct_ite_pos rfl]
         refine ⟨by omega, by omega, by omega, ⟨by omega, fun h => absurd h hne1, fun _ => ⟨rfl, rfl⟩⟩, ?_⟩
-        rw [ct_forwardShift_swap23 d1 0 _ _ _ (Or.inl (by omega)) (by omega) (Or.inl (by omega))]
-        have hs1 : ((((d1 + 0 : Nat) : Int) - (1 : Int)) - ((0 : Int) - (1 : Int))).toNat = d1 := by omega
-        have hs2 : (((d1 : Int) - (0 : Int)) - (((d1 + 0 : Nat) : Int) - (1 : Int))).toNat = 1 := by omega
-        rw [hs1, hs2]
+        rw [ct_forwardShift_swap23 d1 0 _ _ _ (Or.inl (by dsimp only; omega)) (by dsimp only; omega) (Or.inl (by dsimp only; omega))]
+        exact Prod.ext (by dsimp only; omega) (Prod.ext (by dsimp only; omega) rfl)
       | succ j =>
         have hne2 : ¬ (j + 2 - 1 = 0) := by omega
-        simp only [hne2, ↓reduceIte]
+        rw [ct_ite_neg hne2, ct_ite_neg hne2]
         refine ⟨by omega, by omega, by omega, ⟨by omega, fun h => absurd h hne1, fun h => absurd h hne2⟩, ?_⟩
-        rw [ct_forwardShift_ordered d1 (j + 2 - 1) _ _ _ (Or.inl (by omega)) (Or.inl (by omega))]
-        have hs1 : (((d1 : Int) - (1 : Int)) - ((0 : Int) - (1 : Int))).toNat = d1 := by omega
-        have hs2 : ((((d1 + (j + 2 - 1) : Nat) : Int) - (0 : Int)) - ((d1 : Int) - (1 : Int))).toNat = j + 2 := by omega
-        rw [hs1, hs2]
+        rw [ct_forwardShift_ordered d1 (j + 2 - 1) _ _ _ (Or.inl (by dsimp only; omega)) (Or.inl (by dsimp only; omega))]
+        exact Prod.ext (by dsimp only; omega) (Prod.ext (by dsimp only; omega) rfl)
   · -- (1, 1, 1)
     have hd1 : d1 ≥ 1 := by
       cases d1 with | zero => exact absurd (hZ1 rfl).1 (by decide) | succ _ => omega
     have hd2 : d2 ≥ 1 := by
       cases d2 with | zero => exact absurd (hZ2 rfl).1 (by decide) | succ _ => omega
+    dsimp only
     have h1 : d1 + 1 - 1 = d1 := by omega
     have h2 : d2 + 1 - 1 = d2 := by omega
-    change _ ∧ _ ∧ _ ∧ _ ∧ _
     rw [h1, h2]
     have hne1 : ¬ (d1 = 0) := by omega
     have hne2 : ¬ (d2 = 0) := by omega
-    simp only [hne1, hne2, ↓reduceIte]
+    rw [ct_ite_neg hne1, ct_ite_neg hne1, ct_ite_neg hne2, ct_ite_neg hne2]
     refine ⟨by omega, by omega, by omega, ⟨by omega, fun h => absurd h hne1, fun h => absurd h hne2⟩, ?_⟩
-    rw [ct_forwardShift_ordered d1 d2 _ _ _ (Or.inl (by omega)) (Or.inl (by omega))]
-    have hs1 : (((d1 : Int) - (1 : Int)) - ((0 : Int) - (1 : Int))).toNat = d1 := by omega
-    have hs2 : ((((d1 + d2 : Nat) : Int) - (1 : Int)) - ((d1 : Int) - (1 : Int))).toNat = d2 := by omega
-    rw [hs1, hs2]
+    rw [ct_forwardShift_ordered d1 d2 _ _ _ (Or.inl (by dsimp only; omega)) (Or.inl (by dsimp only; omega))]
+    exact Prod.ext (by dsimp only; omega) (Prod.ext (by dsimp only; omega) rfl)
 
 /-- Exact unit-cell trion amplitude `7^(d1 + d2) * ψ(d1, d2, s1, s2, s3) ∈ ℤ[ω]`,
     depending only on boundary contact flags `(d1 == 0, d2 == 0)` and outer spins `(s1, s3)`. -/
@@ -751,7 +742,7 @@ private theorem ct_trionStep8_factor (M d1 d2 : Nat) (t1 t2 t3 : Fin 2)
   · have h2 : trionPullE2 d2 t2 t3 ≠ 0 := fun hz => hNotBoth ⟨h1, hz⟩
     have hb1 : (trionPullE1 d1 t1 t2 == 0) = true := by rw [h1]; rfl
     have hb2 : (trionPullE2 d2 t2 t3 == 0) = false := ct_beq_zero_false _ h2
-    rw [if_pos h1, hb1, if_pos rfl, h1]
+    rw [ct_ite_pos h1, hb1, ct_bool_ite_true, h1]
     unfold trionState
     simp only [Nat.zero_add, beq_self_eq_true, hb2]
     rw [ct_eis_mul_scale_right, ct_eis_mul_scale_right, ct_eis_scale_add,
@@ -759,13 +750,13 @@ private theorem ct_trionStep8_factor (M d1 d2 : Nat) (t1 t2 t3 : Fin 2)
   · have hb1 : (trionPullE1 d1 t1 t2 == 0) = false := ct_beq_zero_false _ h1
     by_cases h2 : trionPullE2 d2 t2 t3 = 0
     · have hb2 : (trionPullE2 d2 t2 t3 == 0) = true := by rw [h2]; rfl
-      rw [if_neg h1, if_pos h2, hb1, if_neg (by decide), hb2, if_pos rfl, h2]
+      rw [ct_ite_neg h1, ct_ite_pos h2, hb1, ct_bool_ite_false, hb2, ct_bool_ite_true, h2]
       unfold trionState
       simp only [Nat.add_zero, beq_self_eq_true, hb1]
       rw [ct_eis_mul_scale_right, ct_eis_mul_scale_right, ct_eis_scale_add,
           ct_eis_mul_scale_right, ct_eis_scale_comm 4]
     · have hb2 : (trionPullE2 d2 t2 t3 == 0) = false := ct_beq_zero_false _ h2
-      rw [if_neg h1, if_neg h2, hb1, if_neg (by decide), hb2, if_neg (by decide)]
+      rw [ct_ite_neg h1, ct_ite_neg h2, hb1, ct_bool_ite_false, hb2, ct_bool_ite_false]
       unfold trionState
       simp only [hb1, hb2]
       exact ct_tensorCoin8Vec_scale (ctPowInt 7 (M + 1 - (trionPullE1 d1 t1 t2 + trionPullE2 d2 t2 t3)))
@@ -833,18 +824,19 @@ theorem thm_ct_trion_infinite_line_eigenstate (M : Nat) (_hM : M ≥ 2)
       cases d2 with | zero => rfl | succ k => cases k <;> simp [r2] at hr
     exact hV.2.2 hd2
   have hStencil := ct_cellStep8_all_stencils r1 r2 t1 t2 t3 hRepSum hRepZ1 hRepZ2
+  dsimp only at hStencil
   rw [← hE1Z, ← hE2Z, ← hD1Z, ← hD2Z] at hStencil
   rw [hFac]
   unfold trionState
   rw [ct_eis_mul_scale_right, ct_eis_scale_comm 8]
   have hv1 := t1.isLt; have hv3 := t3.isLt
   by_cases hEqT : t1.val = t3.val
-  · rw [if_pos hEqT] at hStencil
+  · rw [ct_ite_pos hEqT] at hStencil
     have hExpEq : M + 1 - (trionPullE1 d1 t1 t2 + trionPullE2 d2 t2 t3) = M + 1 - (d1 + d2) := by omega
     rw [hExpEq, ct_eis_scale_comm 7]
     exact congrArg (Eis.scale (ctPowInt 7 (M + 1 - (d1 + d2)))) hStencil
   · by_cases hT10 : t1.val = 0
-    · rw [if_neg hEqT, if_pos hT10] at hStencil
+    · rw [ct_ite_neg hEqT, ct_ite_pos hT10] at hStencil
       have hT31 : t3.val = 1 := by omega
       have hExpStep : (M + 1 - (trionPullE1 d1 t1 t2 + trionPullE2 d2 t2 t3)) + 1 = M + 1 - (d1 + d2) := by omega
       rw [ct_eis_scale_scale 7]
@@ -859,7 +851,7 @@ theorem thm_ct_trion_infinite_line_eigenstate (M : Nat) (_hM : M ≥ 2)
         simp only [Eis.scale, Int.one_mul]
       rw [hOne] at hStencil
       exact congrArg (Eis.scale (ctPowInt 7 (M + 1 - (d1 + d2)))) hStencil
-    · rw [if_neg hEqT, if_neg hT10] at hStencil
+    · rw [ct_ite_neg hEqT, ct_ite_neg hT10] at hStencil
       have hT11 : t1.val = 1 := by omega
       have hT30 : t3.val = 0 := by omega
       have hd1Ge : d1 ≥ 1 := by
