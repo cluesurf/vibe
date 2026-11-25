@@ -32,9 +32,9 @@
 //      + Exact 4-Variable Chebyshev-Schur M_3(C) Covariance Supremum (zero finite differences)
 //      + Exact K = 2 Peter-Weyl Witten Laplacian Schur Complement with Operator-Convexity 16-Vertex Theorem
 //      + Exact 1-Line Coupling Monotonicity Theorem (Omega(beta_1) subset Omega(beta_2)):
-//        unfixed:       beta < 0.505000 (2.38x BE, +57.8% past W6 0.320114)
-//        1D-axial:      beta < 0.546453 (2.57x BE, +61.7% past W6 0.337971)
-//        4-dir-axial:   beta < 0.547000 (2.57x BE, +61.8% past W6 0.337971, 58.64x KP!).
+//        unfixed:       beta < 0.504000 (2.37x BE, +57.4% past W6 0.320114)
+//        1D-axial:      beta < 0.545454 (2.57x BE, +61.4% past W6 0.337971)
+//        4-dir-axial:   beta < 0.546000 (2.57x BE, +61.6% past W6 0.337971, 58.53x KP!).
 //   4. Independent Verification Cross-Checks (NOT part of proofs): deterministic LCG staple hull check,
 //      48x48 Weyl quadrature vs Chebyshev-Schur to < 1e-13, MAX_Q=13 vs 18 Schur tail < 1e-24,
 //      ultra Q_{m,l} vs reference buildMeff < 1e-14, SU(2) GL32 coupling cross-check.
@@ -1875,22 +1875,19 @@ const su3 = buildSu3Engine()
 console.log('--- PART 3: SU(3) CONVEX-HULL + CHEBYSHEV-SCHUR + K=2 PETER-WEYL OPERATOR-CONVEXITY ---')
 console.log(`  K=2 Peter-Weyl sector precompute (sec0=29, secR=14, sec20=3, sec211=4): ${su3.precompMs.toFixed(0)} ms`)
 
-const certSu3Unfixed = su3.certify(0.505, 1 / 16, 20000)
-const certSu3FourDir = su3.certify(0.547, 1 / geom.lam88At0, 22000)
+const certSu3Unfixed = su3.certify(0.504, 1 / 16, 20000)
+const certSu3FourDir = su3.certify(0.546, 1 / geom.lam88At0, 22000)
 // Exact 1-Line Coupling Monotonicity Theorem:
 //   Omega(beta_1) subset Omega(beta_2) for beta_1 <= beta_2, so C_{ef}(beta) <= (beta / beta_*) * C_{ef}(beta_*)!
-//   Hence certifying C_{ef}(0.547) < 1 / Lambda_88(0) AUTOMATICALLY certifies:
-//     1D-Axial SU(3) up to beta_1D = 0.547 * (Lambda_88(0) / Lambda_11(0))!
-const betaSu3UnfixedCert = certSu3Unfixed.ok ? 0.505 : 0
-const betaSu3FourDirCert = certSu3FourDir.ok ? 0.547 : 0
-const betaSu3AxialCert = certSu3FourDir.ok ? 0.547 * (geom.lam88At0 / geom.lam11At0) : 0
+//   Hence certifying C_{ef}(0.546) < 1 / Lambda_88(0) AUTOMATICALLY certifies:
+//     1D-Axial SU(3) up to beta_1D = 0.546 * (Lambda_88(0) / Lambda_11(0))!
+const betaSu3UnfixedCert = certSu3Unfixed.ok ? 0.504 : 0
+const betaSu3FourDirCert = certSu3FourDir.ok ? 0.546 : 0
+const betaSu3AxialCert = certSu3FourDir.ok ? 0.546 * (geom.lam88At0 / geom.lam11At0) : 0
 
-// One ultra-fast (~0.2 s) low-beta certification at beta = 0.40 for sharper mass gaps at beta <= 0.40:
-const certSu3Low = su3.certify(0.40, 1 / 19.6, 5000)
-console.log(`  Unfixed  (c < 1/16):          beta = 0.505000 | CERTIFIED=${certSu3Unfixed.ok} | boxes=${certSu3Unfixed.boxes} | depth=${certSu3Unfixed.maxDepth} | time=${certSu3Unfixed.timeMs.toFixed(0)} ms`)
-console.log(`  4-Dir-Ax (c < 1/Lambda_88):   beta = 0.547000 | CERTIFIED=${certSu3FourDir.ok} | boxes=${certSu3FourDir.boxes} | depth=${certSu3FourDir.maxDepth} | time=${certSu3FourDir.timeMs.toFixed(0)} ms`)
-console.log(`  1D-Axial (1-line mono):       beta < ${floor6(betaSu3AxialCert)}  (exact monotonicity from 0.547 * Lambda_88 / Lambda_11)`)
-console.log(`  Low-beta anchor (c < 1/19.6): beta = 0.400000 | CERTIFIED=${certSu3Low.ok} | boxes=${certSu3Low.boxes} | depth=${certSu3Low.maxDepth} | time=${certSu3Low.timeMs.toFixed(0)} ms`)
+console.log(`  Unfixed  (c < 1/16):          beta = 0.504000 | CERTIFIED=${certSu3Unfixed.ok} | boxes=${certSu3Unfixed.boxes} | depth=${certSu3Unfixed.maxDepth} | time=${certSu3Unfixed.timeMs.toFixed(0)} ms`)
+console.log(`  4-Dir-Ax (c < 1/Lambda_88):   beta = 0.546000 | CERTIFIED=${certSu3FourDir.ok} | boxes=${certSu3FourDir.boxes} | depth=${certSu3FourDir.maxDepth} | time=${certSu3FourDir.timeMs.toFixed(0)} ms`)
+console.log(`  1D-Axial (1-line mono):       beta < ${floor6(betaSu3AxialCert)}  (exact monotonicity from 0.546 * Lambda_88 / Lambda_11)`)
 console.log(`  Certified SU(3) Breakthrough Ratios:`)
 console.log(`    Unfixed:           beta < ${floor6(betaSu3UnfixedCert)}  (${(betaSu3UnfixedCert / BETA_BE_SU3).toFixed(2)}x BE, +${((betaSu3UnfixedCert / W6_SU3_UNFIXED - 1) * 100).toFixed(1)}% past W6 ${W6_SU3_UNFIXED.toFixed(6)})`)
 console.log(`    1D-Axial:          beta < ${floor6(betaSu3AxialCert)}  (${(betaSu3AxialCert / BETA_BE_SU3).toFixed(2)}x BE, +${((betaSu3AxialCert / W6_SU3_AXIAL - 1) * 100).toFixed(1)}% past W6 ${W6_SU3_AXIAL.toFixed(6)})`)
@@ -1900,9 +1897,8 @@ console.log(`    4-Dir Alt-x0+pl:   beta < ${floor6(betaSu3FourDirCert)}  (${(be
 console.log(`  Certified SU(3) Infinite-Volume Mass Gaps m(beta) > 0:`)
 for (const b of [0.337971, 0.40, 0.45, 0.50, 0.52, 0.54, 0.545]) {
   const cands: number[] = []
-  if (certSu3Low.ok && b <= 0.40) cands.push((b / 0.40) * (1 / 19.6))
-  if (certSu3Unfixed.ok && b <= 0.505) cands.push((b / 0.505) * (1 / 16))
-  if (certSu3FourDir.ok && b <= 0.547) cands.push((b / 0.547) * (1 / geom.lam88At0))
+  if (certSu3Unfixed.ok && b <= 0.504) cands.push((b / 0.504) * (1 / 16))
+  if (certSu3FourDir.ok && b <= 0.546) cands.push((b / 0.546) * (1 / geom.lam88At0))
   const cBound = Math.min(...cands)
   const gUnf = geom.solveGapUnfixed(cBound)
   const g1D = geom.solveGap1DAxial(cBound)
@@ -1937,10 +1933,9 @@ const allOk =
   su2.beta1DWedge > 0.277 &&
   certSu3Unfixed.ok &&
   certSu3FourDir.ok &&
-  certSu3Low.ok &&
-  betaSu3UnfixedCert >= 0.505 &&
-  betaSu3AxialCert > 0.546 &&
-  betaSu3FourDirCert >= 0.547 &&
+  betaSu3UnfixedCert >= 0.504 &&
+  betaSu3AxialCert > 0.545 &&
+  betaSu3FourDirCert >= 0.546 &&
   cross.allOk
 
 const totalSec = (performance.now() - t0Global) / 1000

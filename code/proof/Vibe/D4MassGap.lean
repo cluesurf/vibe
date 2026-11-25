@@ -1807,10 +1807,15 @@ def h12EdgeToTri (e : Fin 12 × Fin 12) : Vec4 × Vec4 :=
   let v := mgPosRoot e.2
   if mgLexPos (sub4 v u) then (u, v) else (v, u)
 
-private theorem h12_tri_bijection_check :
-    d4LexMinTrisAtZero.length = 32 ∧
-    d4LexMinTrisAtZero.Nodup ∧
-    (h12Edges.map h12EdgeToTri).Nodup ∧
+private theorem h12_tri_len_nodup :
+    d4LexMinTrisAtZero.length = 32 ∧ d4LexMinTrisAtZero.Nodup := by
+  decide
+
+private theorem h12_tri_map_nodup :
+    (h12Edges.map h12EdgeToTri).Nodup := by
+  decide
+
+private theorem h12_tri_cov_and_sub :
     ((h12Edges.map h12EdgeToTri).all fun t => d4LexMinTrisAtZero.contains t) = true ∧
     (d4LexMinTrisAtZero.all fun t => (h12Edges.map h12EdgeToTri).contains t) = true ∧
     (d4LexMinTrisAtZero.all fun t =>
@@ -1874,8 +1879,9 @@ theorem thm_mg_h12_graph_and_3forest_partition :
       (¬ ∀ i : Fin L, edgeListAdj h12Forest0 (w i) (w ⟨(i.val + 1) % L, Nat.mod_lt _ (by omega)⟩) = true) ∧
       (¬ ∀ i : Fin L, edgeListAdj h12Forest1 (w i) (w ⟨(i.val + 1) % L, Nat.mod_lt _ (by omega)⟩) = true) ∧
       (¬ ∀ i : Fin L, edgeListAdj h12Forest2 (w i) (w ⟨(i.val + 1) % L, Nat.mod_lt _ (by omega)⟩) = true)) := by
-  rcases h12_tri_bijection_check with
-    ⟨hTriLen, hTriNodup, hMapNodup, hMapSub, hTriSub, hTriProp, hEdgeSub⟩
+  rcases h12_tri_len_nodup with ⟨hTriLen, hTriNodup⟩
+  have hMapNodup := h12_tri_map_nodup
+  rcases h12_tri_cov_and_sub with ⟨hMapSub, hTriSub, hTriProp, hEdgeSub⟩
   rcases h12_structure_and_forests_check with
     ⟨hLen, hNodup, hDegs, hDegSum, hF0Len, hF1Len, hF2Len, hFNodup, hFSub, hECov,
      hP0, hD0, hP1, hD1, hP2, hD2⟩
@@ -2542,7 +2548,8 @@ private theorem su3_tail_partial_bound (a : Nat → Nat)
       intro m hm
       have h11Den : 11 * su3C0Den10 = natFact 11 * 375 ^ 10 := by
         unfold su3C0Den10
-        change 11 * (natFact 10 * 375 ^ 10) = (11 * natFact 10) * 375 ^ 10
+        have h : natFact 11 = 11 * natFact 10 := rfl
+        rw [h]
         exact (Nat.mul_assoc 11 (natFact 10) (375 ^ 10)).symm
       have hPow750 : 750 ^ M = 750 ^ (M - 1 - m) * (2 ^ m * 375 ^ m) * (2 * 375) := by
         have hExp1 : M = (M - 1 - m) + m + 1 := by omega
@@ -2562,8 +2569,8 @@ private theorem su3_tail_partial_bound (a : Nat → Nat)
         have hE : 11 + m = 10 + 1 + m := by omega
         rw [hE, Nat.pow_add, Nat.pow_succ]
       have hPow375 : 375 ^ 10 * 375 ^ (M - m) * 375 ^ m * 375 = 375 ^ (11 + M) := by
-        have hE : 10 + (M - m) + m + 1 = 11 + M := by omega
-        rw [← Nat.pow_add, ← Nat.pow_add, ← Nat.pow_succ, hE]
+        rw [← Nat.pow_add, ← Nat.pow_add, ← Nat.pow_succ]
+        exact congrArg (375 ^ ·) (by omega)
       have hFacCancel : natFact (11 + m) * (natFact (11 + M) / natFact (11 + m)) = natFact (11 + M) :=
         Nat.mul_div_cancel' (natFact_dvd_of_le (11 + m) (11 + M) (by omega))
       have h3804 : (3804 : Nat) = 6 * 2 * 317 := by decide
@@ -2611,8 +2618,7 @@ private theorem su3_tail_partial_bound (a : Nat → Nat)
         rw [hFacCancel] at hF
         have hM := Nat.mul_le_mul_right
           (3804 * (a 10 * 317 ^ 10) * 375 ^ (11 + M) * (317 ^ (0 + m) * 750 ^ (M - 1 - m))) hF
-        rw [nat_rearrange_tail3] at hM
-        exact hM
+        exact Nat.le_of_le_of_eq hM (nat_rearrange_tail3 _ _ _ _ _)
       rw [hRearrange] at hStep1
       exact Nat.le_trans hStep1 hStep2
     have hSum :
@@ -3054,7 +3060,8 @@ theorem thm_mg_su3_closed_form_w1_beyond_be :
     have hDPos : 0 < D := Nat.mul_pos (natFact_pos (11 + M)) (Nat.pow_pos (by decide : 0 < 375))
     have hTail := su3_tail_partial_bound a hDom M
     rw [ha10] at hTail
-    change 4763 * su3C0Den10 * su3TailPartialNum a M ≤ 3804 * su3C0Term10Num * D at hTail
+    have hT10 : su3C0Term10Num = su3PieriMoment 10 * 317 ^ 10 := rfl
+    rw [← hT10] at hTail
     have hStep1 :
         4763 * (su3C0PartialNum10 * D + su3C0Den10 * su3TailPartialNum a M) ≤
           (4763 * su3C0PartialNum10 + 3804 * su3C0Term10Num) * D := by

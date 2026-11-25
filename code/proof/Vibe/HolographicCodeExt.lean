@@ -5,21 +5,22 @@ import Vibe.CuspGrowth
 /-!
 # Vibe Theory: Unconditional Quantum Distance `d = 8` / `d_pure = 6`, All-536,155 Erasure Recovery & Infinite-Radius `{3,4,3,4}` HaPPY Isometry
 
-Zero-dependency Lean 4.35.0 formalization of Milestone P8-A, closing EVERY remaining external
-computational verification in `Vibe.HolographicCode` inside Lean's kernel (zero `sorry`,
-zero `axiom`, zero `native_decide`, zero `unsafe`) and connecting it unconditionally to the
-infinite `{3,4,3,4}` hyperbolic honeycomb:
+Zero-dependency Lean 4.35.0 formalization of Milestone P8-A, closing the **code-performance**
+external computational verifications of `hcBulk23` and `hcPure24` in `Vibe.HolographicCode`
+inside Lean's kernel (`d = 8`, `d_pure = 6`, all `42,504` 5-uniformity, and all `536,155`
+erasure recovery `|E| ≤ 7`; zero `sorry`, zero `axiom`, zero `native_decide`, zero `unsafe`)
+and connecting them unconditionally to the infinite `{3,4,3,4}` hyperbolic honeycomb:
 
 1. **Exact Symplectic Darboux Dual Basis & Completeness (`thm_hce_darboux_dual_basis_and_completeness`):**
    - Explicit 24-vector isotropic complement `hceDual24` to `hcPure24` with `hceDual24 23 = hcZLFrame`,
      `⟨P_i, D_j⟩_ω = δ_{ij}`, `⟨D_i, D_j⟩_ω = 0`, and universal Darboux expansion for EVERY `v : HcVec48`.
    - Proves `hcPure24^⊥ = span(hcPure24)` and `hcBulk23^⊥ = span(hcBulk23) ⊕ ⟨hcXLFrame, hcZLFrame⟩`.
-2. **Inductive `W(F_4)` Orbit-Collapse Chain Across All 42,504 5-Subsets & 346,104 7-Subsets
+2. **Inductive `W(F_4)` Covering Collapse Across All 42,504 5-Subsets & 346,104 7-Subsets
    (`thm_hce_wf4_orbit_collapse_5_and_7`):**
-   - BFS-parent-compressed `W(F_4)` generator table (823 elements) and 7-level inductive orbit
-     reduction `O_1 (1) → O_2 (4) → O_3 (10) → O_4 (31) → O_5 (81) → O_6 (210) → O_7 (450)`.
-   - Maps EVERY subset of size `≤ 5` (resp. `≤ 7`) under an explicit `W(F_4)` word into one of the
-     81 5-orbit (resp. 450 7-orbit) representatives.
+   - BFS-parent-compressed `W(F_4)` generator table (823 elements) and 7-level inductive covering
+     chain `O_1 (1) → O_2 (4) → O_3 (10) → O_4 (31) → O_5 (81) → O_6 (210) → O_7 (450)`.
+   - Maps EVERY subset of size `≤ 5` (resp. `≤ 7`) under an explicit `W(F_4)` word into a covering
+     set of 81 exact 5-masks (popcount 5) and 450 exact 7-masks (popcount 7).
 3. **Unconditional 5-Uniformity (`42,504 / 42,504`) & Exact Minimum Distance `d = 6`
    (`thm_hce_5uniform_bulk23_and_pure24`, `thm_hce_pure24_exact_distance_6`):**
    - SWAR base-1000 kernel verification of all `81 × 10 = 810` left-inverse stabilizer witnesses
@@ -28,22 +29,41 @@ infinite `{3,4,3,4}` hyperbolic honeycomb:
 4. **Unconditional All-536,155 Boundary Erasure Recovery (`|E| ≤ 7`) & Exact Logical Distance `d = 8`
    (`thm_hce_bulk23_all_7erasure_recovery`, `thm_hce_bulk23_exact_distance_8`):**
    - Certifies the exact subset count `∑_{k=0}^7 C(24, k) = 536,155` (correcting the earlier manual
-     addition typo `553,276` in comments!) and SWAR base-1000 kernel verification of all `450 × 2 = 900`
+     addition typo `553,276` in comments) and SWAR base-1000 kernel verification of all `450 × 2 = 900`
      logical cleaning witnesses mod `hcBulk23`, pulled back via `W(F_4)` covariance and Darboux
      `GL_2(3)` inversion to recover BOTH `hcXLFrame` and `hcZLFrame` strictly on `E^c` for EVERY
      erasure set `|E| ≤ 7`, proving `d(hcBulk23) = 8`.
-5. **Unconditional Infinite-`{3,4,3,4}` Inward-Facet Bound `|In_H(w)| ≤ 3`, Exact `hcBulk23` Isometric
-   Pushing & Infinite-Radius HaPPY Shell Composition + Greedy Bulk Reconstruction
+5. **Unconditional Infinite-`{3,4,3,4}` Inward-Facet Bound `|In_H(w)| ≤ 3`, Single-Dock Symplectic
+   Pushing & Abstract Shell-Composition / Greedy-Push Schema
    (`thm_hce_3434_height_parity_and_inward_le_3`, `thm_hce_bulk23_dock_isometric_pushing`,
    `thm_hce_infinite_radius_happy_isometry_and_greedy_reconstruction`):**
    - Directly from `O^+(4,1; ℤ[√2])` Cholesky positivity and `Γ_24` zero-4-cliques (ZERO external
-     Coxeter-Exchange assumptions!): proves `(H_2(g k_a) - H_2(g)) % 8 = 4` (zero equal-height edges),
+     Coxeter-Exchange assumptions): proves `(H_2(g k_a) - H_2(g)) % 8 = 4` (zero equal-height edges),
      non-adjacent convexity `H_2(g k_a) + H_2(g k_b) ≥ 2 H_2(g) + 2`, and `|In_H(w)| ≤ 3` (`|Out_H(w)| ≥ 21`)
      for EVERY finite Coxeter word `w : List (Fin 24)`.
-   - Combines `|In_H(w)| ≤ 3 ≤ 5` with 5-uniformity to prove the 25-qutrit Choi stabilizer isometry
-     criterion and exact bent-symplectic operator pushing at every `{3,4,3,4}` dock, followed by
-     concrete `StarCommRing` Kronecker tensor-product isometry closure and all-radius (`∀ R : Nat`)
-     HaPPY shell-composition isometry and greedy bulk reconstruction.
+   - Combines `|In_H(w)| ≤ 3 ≤ 5` with 5-uniformity to prove the `GF(3)` 25-qutrit Choi stabilizer
+     support criterion and exact bent-symplectic operator pushing at every `{3,4,3,4}` dock.
+
+**Verification Scope Note (Concrete Lean Kernel Proofs vs Abstract Schema vs External TS Verifiers):**
+- **Concrete `{3,4,3,4}` / `hcBulk23` / `hcPure24` proofs inside Lean 4.35.0:** Theorems 1–8
+  (`GF(3)` Darboux completeness, `W(F_4)` covering collapse with verified popcounts 5 and 7,
+  all-`42,504` 5-uniformity, exact `d(hcPure24) = 6` and `d_pure(hcBulk23) = 6`, all-`536,155`
+  erasure recovery `|E| ≤ 7`, exact `d(hcBulk23) = 8`, unconditional infinite-`{3,4,3,4}` height-parity
+  and `|In_H(w)| ≤ 3`, and single-dock Choi stabilizer support criterion + bent-symplectic pushing).
+- **Concrete `StarCommRing` monoidal lemma:** Theorem 9.1–9.2 proves exact isometry composition and
+  Kronecker bipartite tensor-product closure (`hceTensorMap`) over any `StarCommRing R` (note that
+  unit-norm qutrit stabilizer isometries require `1/3` and `1/√3` normalization factors beyond bare
+  `Eis = ℤ[ω]`).
+- **Abstract shell-composition & greedy-push induction schema:** Theorem 9.3–9.5 proves all-radius
+  (`∀ R : Nat`) isometry composition and greedy outward intertwining for any `HceHappyTower` /
+  `HceGreedyPush`. Complex-Hilbert-space stabilizer state realization, concrete `{3,4,3,4}`
+  multi-level shell-graph carry wiring, parallel multi-dock pushing, and bipartite `K`-alternation
+  `W(F_4)` covariance on the glued tower live in `test/breakthrough/happy-code-3434-holography.ts`
+  and are not instantiated inside Lean.
+- **Remaining external verifications from `Vibe.HolographicCode`:** Artin-Wedderburn `U_9 ⊗ F_3^2`
+  `3^9` weight census, global uniqueness/optimality across all `13` `W(F_4)` and `9` `W(F_4)^+`
+  local-Clifford classes, and the 32-submodule CSS `d ≤ 3` ceiling remain in
+  `test/breakthrough/covariant-gf3-holographic-tensors.ts`.
 -/
 
 set_option autoImplicit false
@@ -1343,9 +1363,9 @@ private def hceOrb7SlotsOct : HceOct :=
     (HceOct.node (HceOct.node (HceOct.leaf 17695969312) (HceOct.leaf 19843452960) (HceOct.leaf 21990936608) (HceOct.leaf 24138420256) (HceOct.leaf 19877007392) (HceOct.leaf 23098232864) (HceOct.leaf 24171974688) (HceOct.leaf 25312825376)) (HceOct.node (HceOct.leaf 25447043104) (HceOct.leaf 17697017888) (HceOct.leaf 21991985184) (HceOct.leaf 24139468832) (HceOct.leaf 19878055968) (HceOct.leaf 23166390304) (HceOct.leaf 24240132128) (HceOct.leaf 25448091680)) (HceOct.node (HceOct.leaf 24209723424) (HceOct.leaf 23169536032) (HceOct.leaf 24243277856) (HceOct.leaf 25317019680) (HceOct.leaf 21852557344) (HceOct.leaf 22926299168) (HceOct.leaf 25073782816) (HceOct.leaf 15443660832)) (HceOct.node (HceOct.leaf 16550957088) (HceOct.leaf 25140891680) (HceOct.leaf 23228289056) (HceOct.leaf 24302030880) (HceOct.leaf 25409327136) (HceOct.leaf 25442881568) (HceOct.leaf 13264719904) (HceOct.leaf 14338461728)) (HceOct.node (HceOct.leaf 15445757984) (HceOct.leaf 24035692576) (HceOct.leaf 25109434400) (HceOct.leaf 16553054240) (HceOct.leaf 23230386208) (HceOct.leaf 24304128032) (HceOct.leaf 25411424288) (HceOct.leaf 25444978720)) (HceOct.node (HceOct.leaf 24138453024) (HceOct.leaf 23031189536) (HceOct.leaf 18770825248) (HceOct.leaf 25213276192) (HceOct.leaf 25280385056) (HceOct.leaf 25347493920) (HceOct.leaf 15446904864) (HceOct.leaf 19741872160)) (HceOct.node (HceOct.leaf 24036839456) (HceOct.leaf 16554201120) (HceOct.leaf 19775426592) (HceOct.leaf 21922910240) (HceOct.leaf 24171057184) (HceOct.leaf 23231533088) (HceOct.leaf 25446125600) (HceOct.leaf 24104996896)) (HceOct.node (HceOct.leaf 25178738720) (HceOct.leaf 24239214624) (HceOct.leaf 25447174176) (HceOct.leaf 21992116256) (HceOct.leaf 25351753760) (HceOct.leaf 25312860192) (HceOct.leaf 23169570848) (HceOct.leaf 18770892832)))
     (HceOct.node (HceOct.node (HceOct.leaf 21992118304) (HceOct.leaf 22059227168) (HceOct.leaf 0) (HceOct.leaf 0) (HceOct.leaf 0) (HceOct.leaf 0) (HceOct.leaf 0) (HceOct.leaf 0)) (HceOct.leaf 0) (HceOct.leaf 0) (HceOct.leaf 0) (HceOct.leaf 0) (HceOct.leaf 0) (HceOct.leaf 0) (HceOct.leaf 0))
 
-/-- Canonical 24-bit masks of all 81 `W(F_4)`-orbits of 5-subsets of `Fin 24`. -/
+/-- Covering set of 81 24-bit 5-masks under the `W(F_4)` action on `Fin 24` (each of popcount `5`). -/
 def hceOrb5Mask (i : Fin 81) : Nat := hceOctGet 3 hceOrb5MaskOct i.val
-/-- Canonical 24-bit masks of all 450 `W(F_4)`-orbits of 7-subsets of `Fin 24`. -/
+/-- Covering set of 450 24-bit 7-masks under the `W(F_4)` action on `Fin 24` (each of popcount `7`). -/
 def hceOrb7Mask (i : Fin 450) : Nat := hceOctGet 3 hceOrb7MaskOct i.val
 
 private def hceOrbMask : Nat → Nat → Nat
@@ -1654,18 +1674,56 @@ private theorem hce_orbit_collapse_tuple7 (a0 a1 a2 a3 a4 a5 a6 : Fin 24) :
     [a5, a4, a3, a2, a1, a0] a6 h6
   exact h7
 
-/-- Headline Theorem 2 (Inductive `W(F_4)` Orbit Collapse Across All `C(24,5) = 42,504` and `C(24,7) = 346,104` Subsets):
-    1. EVERY subset `A : List (Fin 24)` of size `≤ 5` maps under an explicit `W(F_4)` word `w` into one of
-       the 81 canonical 5-orbit representatives `hceOrb5Mask i`.
-    2. EVERY subset `E : List (Fin 24)` of size `≤ 7` maps under an explicit `W(F_4)` word `w` into one of
-       the 450 canonical 7-orbit representatives `hceOrb7Mask i`. -/
+/-- Exact popcount (number of set sites in `Fin 24`) of a 24-bit subset mask. -/
+def hceMaskPopcount (mask : Nat) : Nat :=
+  hcSumFin (fun r : Fin 24 => if hceInMask mask r = true then 1 else 0)
+
+private def hceMaskPopcountAux (mask : Nat) : Nat → Nat
+  | 0 => 0
+  | m + 1 => hceMaskPopcountAux mask m + (mask / 2 ^ m) % 2
+
+private theorem hce_maskPopcount_eq (mask : Nat) :
+    hceMaskPopcount mask = hceMaskPopcountAux mask 24 := by
+  unfold hceMaskPopcount hcSumFin
+  suffices ∀ (k : Nat) (hk : k ≤ 24),
+      hcSumFinAux k hk (fun r : Fin 24 => if hceInMask mask r = true then 1 else 0) = hceMaskPopcountAux mask k from
+    this 24 (Nat.le_refl 24)
+  intro k hk; induction k with
+  | zero => rfl
+  | succ m ih =>
+    simp only [hcSumFinAux, hceMaskPopcountAux]
+    rw [ih (Nat.le_of_succ_le hk)]
+    apply congrArg (hceMaskPopcountAux mask m + ·)
+    unfold hceInMask hcePow2; dsimp only
+    have hMod : (mask / 2 ^ m) % 2 = 0 ∨ (mask / 2 ^ m) % 2 = 1 := by omega
+    rcases hMod with h0 | h1
+    · rw [h0]; rfl
+    · rw [h1]; rfl
+
+private theorem hce_orb5_popcount_ok :
+    hceCheckRangeNat 81 (fun i => hceMaskPopcountAux (hceOrbMask 5 i) 24 == 5) 7 0 = true := by exact rfl
+
+private theorem hce_orb7_popcount_c0 :
+    hceCheckRangeNat 450 (fun i => hceMaskPopcountAux (hceOrbMask 7 i) 24 == 7) 8 0 = true := by exact rfl
+
+private theorem hce_orb7_popcount_c1 :
+    hceCheckRangeNat 450 (fun i => hceMaskPopcountAux (hceOrbMask 7 i) 24 == 7) 8 256 = true := by exact rfl
+
+/-- Headline Theorem 2 (Inductive `W(F_4)` Covering Collapse Across All `C(24,5) = 42,504` and `C(24,7) = 346,104` Subsets):
+    1. EVERY subset `A : List (Fin 24)` of size `≤ 5` maps under an explicit `W(F_4)` word `w` into a
+       covering set of 81 5-masks `hceOrb5Mask i`.
+    2. EVERY subset `E : List (Fin 24)` of size `≤ 7` maps under an explicit `W(F_4)` word `w` into a
+       covering set of 450 7-masks `hceOrb7Mask i`.
+    3. Every `hceOrb5Mask i` has exact popcount `5` and every `hceOrb7Mask i` has exact popcount `7`. -/
 theorem thm_hce_wf4_orbit_collapse_5_and_7 :
     (∀ A : List (Fin 24), A.length ≤ 5 →
       ∃ (i : Fin 81) (w : List (Fin 4)), ∀ r ∈ A, hceInMask (hceOrb5Mask i) (hceFwdWord w r) = true) ∧
     (∀ E : List (Fin 24), E.length ≤ 7 →
-      ∃ (i : Fin 450) (w : List (Fin 4)), ∀ r ∈ E, hceInMask (hceOrb7Mask i) (hceFwdWord w r) = true) := by
+      ∃ (i : Fin 450) (w : List (Fin 4)), ∀ r ∈ E, hceInMask (hceOrb7Mask i) (hceFwdWord w r) = true) ∧
+    (∀ i : Fin 81, hceMaskPopcount (hceOrb5Mask i) = 5) ∧
+    (∀ i : Fin 450, hceMaskPopcount (hceOrb7Mask i) = 7) := by
   let z : Fin 24 := ⟨0, by decide⟩
-  refine ⟨?_, ?_⟩
+  refine ⟨?_, ?_, ?_, ?_⟩
   · intro A hLen
     match A, hLen with
     | [], _ => exact ⟨⟨0, by decide⟩, [], fun _ h => by cases h⟩
@@ -1710,6 +1768,18 @@ theorem thm_hce_wf4_orbit_collapse_5_and_7 :
       rcases hce_orbit_collapse_tuple7 a0 a1 a2 a3 a4 a5 a6 with ⟨i, w, hw⟩
       exact ⟨i, w, fun r hr => hw r (by simp only [List.mem_cons, List.not_mem_nil, or_false] at hr ⊢; rcases hr with h | h | h | h | h | h | h <;> simp [h])⟩
     | _ :: _ :: _ :: _ :: _ :: _ :: _ :: _ :: _, h => simp only [List.length_cons] at h; omega
+  · intro i
+    rw [hce_maskPopcount_eq]
+    exact Nat.eq_of_beq_eq_true (hce_checkRangeNat_all 81 7 _ (by decide) (by decide) hce_orb5_popcount_ok i.val i.isLt)
+  · intro i
+    rw [hce_maskPopcount_eq]
+    have hOk : (hceMaskPopcountAux (hceOrbMask 7 i.val) 24 == 7) = true := by
+      if hlt : i.val < 256 then
+        exact hce_checkRangeNat_sound 450 _ 8 0 (by decide) hce_orb7_popcount_c0 i.val i.isLt (Nat.zero_le _) hlt
+      else
+        exact hce_checkRangeNat_sound 450 _ 8 256 (by decide) hce_orb7_popcount_c1 i.val i.isLt (by omega)
+          (by change i.val < 256 + 256; have := i.isLt; omega)
+    exact Nat.eq_of_beq_eq_true hOk
 
 
 /-! ## Section 4: Unconditional 5-Uniformity (`42,504 / 42,504`) & Exact Minimum Distance `d = 6` -/
@@ -2272,7 +2342,7 @@ theorem thm_hce_bulk23_all_7erasure_recovery :
         (∀ p : Fin 2, ∀ r ∈ E, X_rec p r % 3 = 0 ∧ Z_rec p r % 3 = 0) ∧
         hcSymp48 X_rec Z_rec = 1) := by
   refine ⟨by decide, fun E hLen => ?_⟩
-  rcases thm_hce_wf4_orbit_collapse_5_and_7.2 E hLen with ⟨i, w, hw⟩
+  rcases thm_hce_wf4_orbit_collapse_5_and_7.2.1 E hLen with ⟨i, w, hw⟩
   let u0 : HcVec48 := fun p r => (hcXLFrame p r + hcLinComb (hceDecodeRev3 (hceWit7X i)) hcBulk23 p r) % 3
   let v0 : HcVec48 := fun p r => (hcZLFrame p r + hcLinComb (hceDecodeRev3 (hceWit7Z i)) hcBulk23 p r) % 3
   have hClean := hce_wit7_clean_orb7 i
@@ -2463,15 +2533,20 @@ theorem thm_hce_bulk23_all_7erasure_recovery :
 
 /-- Headline Theorem 6 (Unconditional Exact Logical Minimum Distance `d = 8` of `[[24, 1, 8]]_3`):
     1. Every non-trivial logical operator `L ∈ hcBulk23^⊥ \ hcBulk23` has `hcPauliWeight L ≥ 8`,
-    2. Explicit weight-8 logical witnesses `hcXLWt8, hcZLWt8 ∈ hcBulk23^⊥ \ hcBulk23` with `⟨X_L, Z_L⟩_ω = 1`,
-    3. Complete `[[24, 1, 8]]_3` parameter certification (rank 23, `k = 1`, `d = 8`, `d_pure = 6`). -/
+    2. Explicit weight-8 logical witnesses `hcXLWt8, hcZLWt8 ∈ hcBulk23^⊥ \ hcBulk23` commuting with
+       all 23 generators of `hcBulk23` and satisfying `⟨hcXLWt8, hcZLWt8⟩_ω = 1`
+       (together with `Vibe.HolographicCode.thm_hc_code_24_1_8_stabilizer_valid` for rank 23,
+       `Vibe.HolographicCode.thm_hc_code_24_1_8_triality_bulk_logical` for `k = 1`, and
+       `thm_hce_pure24_exact_distance_6` for `d_pure = 6`, completing the `[[24, 1, 8]]_3` parameters). -/
 theorem thm_hce_bulk23_exact_distance_8 :
     (∀ L : HcVec48, (∀ i : Fin 23, hcSymp48 (hcBulk23 i) L = 0) → ¬ hcInSpan hcBulk23 L →
       hcPauliWeight L ≥ 8) ∧
-    (hcPauliWeight hcXLWt8 = 8 ∧ hcPauliWeight hcZLWt8 = 8 ∧
+    ((∀ i : Fin 23, hcSymp48 (hcBulk23 i) hcXLWt8 = 0 ∧ hcSymp48 (hcBulk23 i) hcZLWt8 = 0) ∧
+     hcPauliWeight hcXLWt8 = 8 ∧ hcPauliWeight hcZLWt8 = 8 ∧
      ¬ hcInSpan hcBulk23 hcXLWt8 ∧ ¬ hcInSpan hcBulk23 hcZLWt8 ∧
      hcSymp48 hcXLWt8 hcZLWt8 = 1) := by
-  refine ⟨?_, thm_hc_code_24_1_8_triality_bulk_logical.2.2.2.1,
+  refine ⟨?_, fun i => (thm_hc_code_24_1_8_triality_bulk_logical.1 i).2.2,
+    thm_hc_code_24_1_8_triality_bulk_logical.2.2.2.1,
     thm_hc_code_24_1_8_triality_bulk_logical.2.2.2.2.1,
     thm_hc_code_24_1_8_triality_bulk_logical.2.2.2.2.2.2.2.2.2.1,
     thm_hc_code_24_1_8_triality_bulk_logical.2.2.2.2.2.2.2.2.2.2,
@@ -3222,18 +3297,23 @@ def hceInChoiStab (phys : HcVec48) (bulkX bulkZ : Fin 3) : Prop :=
   hcSymp48 phys hcZLFrame = bulkX.val ∧
   (2 * hcSymp48 phys hcXLFrame) % 3 = bulkZ.val
 
-/-- Headline Theorem 8 (Exact `hcBulk23` 25-Qutrit Choi Isometry Criterion & Bent-Symplectic Operator Pushing on Every `{3,4,3,4}` Dock):
-    1. **25-Qutrit Choi Isometry Criterion (`|I| ≤ 5`):** For ANY leg subset `I` of size `≤ 5`, ZERO non-identity
-       elements of the 25-qutrit Choi stabilizer group `S_Choi(hcBulk23)` are supported on `I ∪ {bulk}`
-       (so `Tr_{I^c}(|Φ_V⟩⟨Φ_V|) ∝ I_{bulk ⊗ I}` and the bent tensor `W_I : (ℂ^3)^{1+|I|} → (ℂ^3)^{24-|I|}` is an exact isometry).
-    2. **Exact Local Operator Pushing & Bent Symplectic Algebra Isomorphism (`|I| ≤ 5`):**
+/-- Headline Theorem 8 (Exact `hcBulk23` 25-Qutrit Choi Stabilizer Criterion & Bent-Symplectic Operator Pushing on Every `{3,4,3,4}` Dock):
+    1. **Conjunct 1 — 25-Qutrit Choi Stabilizer Support Criterion & Exact Injectivity (`|I| ≤ 5`):**
+       For ANY leg subset `I` of size `≤ 5`, ZERO non-identity elements of the 25-qutrit Choi stabilizer
+       group `S_Choi(hcBulk23)` are supported on `I ∪ {bulk}`; in particular `O|_{I^c} = 0` forces
+       `a = b = 0` and `O = 0` identically (including `P_in|_I = 0`).
+       *(Standard complex Hilbert-space stabilizer corollary, not formalized over `ℂ` in Lean:
+       `Tr_{I^c}(|Φ_V⟩⟨Φ_V|) ∝ I_{bulk ⊗ I}` and the bent tensor `W_I : (ℂ^3)^{1+|I|} → (ℂ^3)^{24-|I|}` is an exact isometry.)*
+    2. **Conjunct 2 — Exact Local Operator Pushing (`|I| ≤ 5`):**
        For EVERY `I` of size `≤ 5`, EVERY bulk logical charge `(a, b)`, and EVERY inward Pauli `P_in`,
-       there exists a Choi stabilizer `O` matching `(a, b)` on bulk and `P_in` on `I`; any two such
-       pushed operators obey `⟨O_1|_{I^c}, O_2|_{I^c}⟩_ω = (a_1 b_2 + 2 b_1 a_2) - ⟨P_1|_I, P_2|_I⟩_ω (mod 3)`,
-       and `O|_{I^c} = 0` forces `a = b = 0` and `P_in|_I = 0` (exact injectivity).
-    3. **Universal `{3,4,3,4}` Dock Instantiation:** At EVERY dock `w : List (Fin 24)` of infinite `{3,4,3,4}`,
-       `|In_H(w)| ≤ 3 ≤ 5` (2 full qutrits of 5-uniformity margin, `≥ 21` strictly outward legs), so EVERY
-       dock tensor satisfies exact isometric pushing from `{bulk} ∪ In_H(w)` to `Out_H(w)`! -/
+       there exists a Choi stabilizer `O` matching `(a, b)` on bulk and `P_in` on `I`.
+    3. **Conjunct 3 — Exact Bent-Symplectic Algebra Identity:**
+       Any two Choi stabilizers `O_1, O_2` with bulk charges `(a_1, b_1), (a_2, b_2)` obey
+       `⟨O_1|_{I^c}, O_2|_{I^c}⟩_ω = (a_1 b_2 + 2 b_1 a_2) + 2 ⟨O_1|_I, O_2|_I⟩_ω (mod 3)`.
+    4. **Conjunct 4 — Universal `{3,4,3,4}` Dock Instantiation:**
+       At EVERY dock `w : List (Fin 24)` of infinite `{3,4,3,4}`, `|In_H(w)| ≤ 3 ≤ 5` (2 full qutrits of
+       5-uniformity margin, `≥ 21` strictly outward legs), so EVERY dock satisfies exact symplectic
+       operator pushing from `{bulk} ∪ In_H(w)` to `Out_H(w)`. -/
 theorem thm_hce_bulk23_dock_isometric_pushing :
     (∀ (I : List (Fin 24)), I.length ≤ 5 →
       ∀ (phys : HcVec48) (bx bz : Fin 3),
@@ -3396,12 +3476,12 @@ private theorem hce_ringSumAux_swap {R : Type} [StarCommRing R] {n m : Nat}
   | succ s ih =>
     simp only [hceRingSumAux]; rw [ih (Nat.le_of_succ_le hkn), ← hAdd km hkm]
 
-/-- Abstract recursive HaPPY holographic shell-network tower over any inner-product ring `K`. -/
+/-- Abstract recursive HaPPY holographic shell-network tower schema over any inner-product ring `K`.
+    (Abstract induction interface; concrete complex-Hilbert stabilizer state realization and `{3,4,3,4}`
+    multi-level shell-graph carry wiring live in `test/breakthrough/happy-code-3434-holography.ts`.) -/
 structure HceHappyTower (K : Type) where
-  Bulk : Nat → Type
   Bdy : Nat → Type
   BallBulk : Nat → Type
-  ipBulk : ∀ r, Bulk r → Bulk r → K
   ipBdy : ∀ r, Bdy r → Bdy r → K
   ipBall : ∀ R, BallBulk R → BallBulk R → K
   /-- Tensor-pairing step space `Bdy r ⊗ Bulk (r + 1)`. -/
@@ -3451,18 +3531,23 @@ def hceGreedyBoundaryOp {K : Type} {T : HceHappyTower K} (G : HceGreedyPush T)
     else
       G.stepPush R' (hceGreedyBoundaryOp G r R' (by omega) O)
 
-/-- Headline Theorem 9 (Concrete `StarCommRing` Tensor-Product Isometry Closure & Infinite-Radius HaPPY Shell Composition + Greedy Reconstruction):
-    1. **Concrete `StarCommRing` Monoidal Isometry Closure (including `Eis = ℤ[ω]`):**
-       - Composition of isometries on `Fin n → R` is an exact isometry,
-       - The explicit bipartite tensor product `hceTensorMap f g` of ANY two isometries `f, g`
+/-- Headline Theorem 9 (Concrete `StarCommRing` Kronecker Isometry Closure & Abstract All-Radius HaPPY Shell-Composition / Greedy-Push Schema):
+    1. **Concrete `StarCommRing` Monoidal Isometry Closure (Conjuncts 1–2):**
+       - Composition of isometries on `Fin n → R` is an exact isometry over any `StarCommRing R`,
+       - The explicit bipartite Kronecker tensor product `hceTensorMap f g` of ANY two isometries `f, g`
          is an exact isometry (`hceBipartiteInner (f ⊗ g x) (f ⊗ g y) = hceBipartiteInner x y`).
-    2. **All-Radius (`∀ R : Nat`) HaPPY Shell-Composition Isometry:**
-       For EVERY radius `R : Nat`, `hceHappyEncode T R : BallBulk R → Bdy R` is an exact isometry!
-    3. **All-Radius Exact Greedy Bulk Operator Reconstruction (`∀ R : Nat, ∀ r ≤ R`):**
-       EVERY bulk operator `O` at ANY interior shell `r ≤ R` pushes greedily outward layer-by-layer
-       to an exact boundary operator `B := hceGreedyBoundaryOp G r R h O` intertwining `V_R`
-       (`V_R (O ψ) = B (V_R ψ)`), and intertwining boundary representations automatically preserve
-       operator composition and products on the entire holographic code subspace `im(V_R)`! -/
+       *(Scope note: applies directly to any `StarCommRing` including `Eis = ℤ[ω]`; unit-norm qutrit
+       stabilizer isometries require `1/3` and `1/√3` normalization factors beyond bare `ℤ[ω]`.)*
+    2. **Abstract All-Radius (`∀ R : Nat`) HaPPY Shell-Composition & Greedy-Push Schema (Conjuncts 3–5):**
+       - For EVERY `T : HceHappyTower K` and radius `R : Nat`, `hceHappyEncode T R : BallBulk R → Bdy R`
+         is an exact isometry,
+       - For EVERY `G : HceGreedyPush T`, shell `r ≤ R`, and interior bulk operator `O`, the recursively
+         pushed boundary operator `B := hceGreedyBoundaryOp G r R h O` intertwines `V_R`
+         (`V_R (O ψ) = B (V_R ψ)`), and intertwining boundary maps preserve operator composition on `im(V_R)`.
+       *(Scope note: Conjuncts 3–5 are an abstract induction schema; complex-Hilbert-space stabilizer state
+       realization, concrete `{3,4,3,4}` multi-level shell-graph carry wiring, parallel multi-dock pushing,
+       and bipartite `K`-alternation `W(F_4)` covariance on the glued tower live in
+       `test/breakthrough/happy-code-3434-holography.ts` and are not instantiated inside Lean.)* -/
 theorem thm_hce_infinite_radius_happy_isometry_and_greedy_reconstruction :
     (∀ {R : Type} [StarCommRing R] {a b c : Nat}
       (f : (Fin a → R) → (Fin b → R)) (g : (Fin b → R) → (Fin c → R)),

@@ -10,12 +10,13 @@ import Vibe.BallisticDoublon
 
 Zero-dependency Lean 4.35.0 formalization of Wave-3 Tracks W9 & W10 (Milestone P8-D):
 
-1. **Exact `ℤ[ω][1/7]` `k = 3` Composite Trion Eigenvalue, Decay Ratio & `k = 4` Tetron BIC (`thm_ct_trion_eigenvalue_and_ratio`):**
+1. **Exact `ℤ[ω][1/7]` `k = 3` Composite Trion Eigenvalue, Decay Ratio & `k = 4` Tetron Numerical BIC Candidate (`thm_ct_trion_eigenvalue_and_ratio`):**
    - Exact unit-modulus eigenvalue `λ_3 = -(8 + 3 ω) / 7 = (-13 - 3 i √3) / 14` (`|-(8 + 3 ω)|^2 = 49 = 7^2`),
    - Exact spatial/spin decay ratio `r = (-3 - 2 ω) / 7` (`|-3 - 2 ω|^2 = 7`, `|r|^2 = 1/7 < 1`) with
      conjugate `r̄ = (-1 + 2 ω) / 7` satisfying `r * r̄ = 1/7`,
-   - Exact `k = 4` `Sym^4` tetron candidate `λ_4 = (16 - 39 ω) / 49 = conj(λ_3)^2` (`|16 - 39 ω|^2 = 49^2 = 2401`,
-     `λ_4 * λ_3^2 = 1` in `ℤ[ω][1/7]`).
+   - Exact `k = 4` `Sym^4` tetron numerical BIC candidate `λ_4 = (16 - 39 ω) / 49 = conj(λ_3)^2`
+     (`|16 - 39 ω|^2 = 49^2 = 2401`, `λ_4 * λ_3^2 = 1` in `ℤ[ω][1/7]`; Lean verifies unit modulus and
+     `conj(λ_3)^2`, not a `k = 4` operator).
 2. **Microscopic `D ∘ M_meet ∘ D` Collision Modes, Infinite-Line Shift Pullback & Exact `Sym^3` Eigenstate
    (`thm_ct_trion_gate_and_collision_modes`, `thm_ct_trion_shift_pullback_exact`, `thm_ct_trion_infinite_line_eigenstate`):**
    - Derived directly from `Vibe.Rule.halfCoin2` (`2 D`), `Vibe.Rule.coin2` (`2 C = 2 D^2`), and `M_meet`:
@@ -23,36 +24,63 @@ Zero-dependency Lean 4.35.0 formalization of Wave-3 Tracks W9 & W10 (Milestone P
      versus `Alt^3` contact eigenvalue `ζ_6 * 1 * ζ_6 = ω`, and exact `8 × 8` 3-vibe coin unitarity.
    - Proves the exact forward-shift-to-pullback bijection for the geodesic sublattice shift `S : (m, t) ↦ (m - t, t)`
      for ALL valid relative separations `d1, d2 : Nat` (`d1 + d2 ≥ 1`).
-   - Proves the literal cleared infinite-line `P = 0` eigenvalue equation
+   - Proves the literal cleared infinite-line `P = 0` relative-coordinate fiber eigenvalue equation
      `7 * (8 U_trion ψ)(d1, d2, t1, t2, t3) = 8 * (7 λ_3) * ψ(d1, d2, t1, t2, t3)`
-     for EVERY truncation depth `M ≥ 2`, EVERY `d1, d2 : Nat` with `1 ≤ d1 + d2 ≤ M`, and EVERY valid spin triple!
-3. **Exact Finite-Box Geometric Series, Contact Probability `6/7` & `IPR = 9/32` (`thm_ct_trion_norm_contact_and_ipr`):**
+     for EVERY truncation depth `M ≥ 2`, EVERY `d1, d2 : Nat` with `1 ≤ d1 + d2 ≤ M`, and EVERY valid spin triple.
+3. **Exact Finite-Box Geometric Series, Contact Probability `6/7` & Spin-Resolved `IPR = 9/32` (`thm_ct_trion_norm_contact_and_ipr`):**
    - Exact finite partial sums for `r = 7`, `r = 49`, and `r = 2401` (`∀ N : Nat`),
    - Exact 1D pair-contact and 2D separated box sums tied directly to `Eis.normSq (trionState (2 * N) ...)`
      and `(Eis.normSq (trionState (2 * N) ...))^2` for ALL `N : Nat`, certifying `N_pair = 7/3`, `N_sep = 7/18`,
-     `N_tot = 49/18`, **`p_pair = 6/7`**, **`p((0,+)(0,-)(2,+)) = 18/49`**, and **`IPR = 9/32`**.
+     `N_tot = 49/18`, **`p_pair = 6/7`**, canonical top-cluster weight **`p((0,+)(0,-)(2,+)) = 18/49`**
+     (even-sublattice index `d2 = 1`, `x = 2 d2`) and mirror weight, and spin-resolved configuration-basis
+     **`IPR = 9/32`**.
 4. **Exact `P = 0` Spectral-Gap Separation (`thm_ct_trion_gap_separation`):**
    - Exact 1-body dispersion `det(2 C) = 4 ω`, `tr(2 C) = 2 ζ_6`; exact `3-free` `P = 0` threshold
-     `cos(-π/2 - 3 arcsin(1/4)) = -11/16` (with exact cubic extremality on `[0, 1/4]`); exact `doublon(0) + free(0)`
-     threshold `ω λ_2 = (-15 - 8 ω) / 13` from `Vibe.BallisticDoublon.doublonLam13` (`Re = -11/13`,
-     `|λ_3 - ω λ_2|^2 = 3/91`, `|λ_3 + 1|^2 = 1/7`); and exact Taylor cosine separation
+     `cos(-π/2 - 3 arcsin(1/4)) = -11/16` (with 1D cubic monotonicity of `sin(3 θ)` on `0 ≤ sin θ ≤ 1/4`);
+     exact `doublon(0) + free(0)` threshold `ω λ_2 = (-15 - 8 ω) / 13` from `Vibe.BallisticDoublon.doublonLam13`
+     (`Re = -11/13`, `|λ_3 - ω λ_2|^2 = 3/91`, `|λ_3 + 1|^2 = 1/7`); and exact Taylor cosine separation at
+     conservative buffer `-2.5813 < arg(ω λ_2(0)) ≈ -2.579523`:
      `-1 < Re(λ_3) = -13/14 < -17/20 < -11/13 < -11/16`.
 5. **Hyperbolic Spectral-Gap Excision Algebra (`thm_ct_mpair_gap_margin`, `thm_ct_hyperbolic_excision_pocket`):**
    - Exact `cotSqZeta18 = 4 g^2 - 24 g + 35 ∈ ℤ[ζ_9]` from `Vibe.Algebra.Ninth.gapSqZeta18` satisfying
      `g * (cotSqZeta18 + 1) = 4` and `v^3 - 33 v^2 + 27 v - 3 = 0`, exact triple-angle identities,
      strict monotonicity & root brackets `0 < tan^2(π/18) < 1/32 < 1/25` (`tan(π/18) < 1/5`) and
      `32 < 32163/1000 < cot^2(π/18) < 32164/1000 < 33`, certifying `1/3 < 25 < 32 < cot^2(π/18)` (`> 8.6×` and
-     `> 9.79×` Parseval gap margins ruling out bound poles in `(0, π/3)` and `(-π, -2π/3)`).
+     `> 9.79×` margins against the external analytic Parseval supremum `sup |t_hat| = 1 / √3`).
    - Imports `Vibe.SpectralSharp.thm_ss_normalized_gap_gt_half` (`ρ / 24 ≤ 335 / 672 < 1 / 2`) and
      `Vibe.BallisticDoublon.doublonLam13`, proves `cos(P_*(E_meet(0))) = 4 Re(ω^2 λ_2) - 3 = 7/13 > 1/2 > 335/672`,
-     exact flat-`D_4` pocket boundary bounds `cos(q_c) > 7/10 > 7/13 > 1/2 > 335/672`, and the exact Rayleigh-Ritz
-     spectral-gap excision contradiction.
+     exact flat-`D_4` pocket boundary bounds using the upward upper bound `q_c = 0.24413393... π < (2442/10000) π < π/4`
+     (`cos(q_c) > 7/10 > 7/13 > 1/2 > 335/672`), and the abstract rational ceiling-vs-floor excision contradiction.
 6. **Exact Depressed-Cubic Holographic Asymptotic Rate (`thm_ct_holographic_rate_depressed_cubic`):**
    - Exact integer and homogeneous rational polynomial transformations linking `Vibe.CuspGrowth`'s Steinberg cubic
      `λ^3 - 21 λ^2 + 51 λ - 23` directly to W10's depressed cubic `u^3 - 12 u + 12` (`u = 24 r_∞`) and
      `1152 r_∞^3 - 24 r_∞ + 1`, strict decreasing monotonicity on `[1, 2]` (uniqueness of the root in `[1, 2]`),
      and exact sign-change brackets `1115749/1000000 < u < 1115750/1000000` and
      `464895/10000000 < r_∞ < 464896/10000000`.
+
+## Honest Scope Boundary
+
+This file machine-checks the exact finite/algebraic/symbolic statements above in zero-dependency Lean 4.
+The following analytic and full-Fock bridge steps lie **outside** this Lean module and remain external
+results of the companion derivations (`note/project/vibe/research/wave3/03-multibody-mpair-and-chiral-clusters.md`,
+`04-happy-code-3434-holography.md`, and `test/breakthrough/multibody-mpair-and-chiral-clusters.ts`):
+
+- **4D-to-1D Fock-beat reduction**: Reduction of the full 8-layer 4D `{3,4,3,4}` Fock beat `U` (`Vibe.FockBeat`)
+  to the 1D geodesic-line `P = 0` relative-coordinate transfer operator `trionStep8` with zero cross-line
+  leakage (and the nonzero-`P` composite-particle Bloch dispersion `E_trion(P)`).
+- **Analytic Parseval & Birman-Schwinger criterion**: The Fourier/Parseval bound `sup |t_hat| = 1 / √3`
+  for the `M_pair(ζ_18)` pole equation in `(0, π/3)` and `(-π, -2π/3)` (Lean proves `cot^2(π/18) > 32.163 > 32 > 1/3`
+  and the exact minimal/triple-angle cubics).
+- **Global 2D `3-free` minimization**: Minimizing `∑_{i=1}^3 arcsin((1/2) cos p_i)` over the 2D plane
+  `p_1 + p_2 + p_3 = 0` (Lean certifies the exact 1D cubic monotonicity `sin(3 θ) ≤ 11/16` on `0 ≤ sin θ ≤ 1/4`).
+- **Infinite-graph Rayleigh-Ritz operator bridge & flat-`D_4` bisection input**: Lifting the finite
+  Depth-1 Schur row-sum ceiling `335/672` (`Vibe.SpectralSharp`) to the infinite-graph `{3,4,3,4}` two-body
+  continuum, the external bisection value `q_c = 0.24413393... π < (2442/10000) π`, and the unexcised lower
+  overlap window `[π/3, 1.58824)` (at `335/672`) / `[π/3, 1.57737)` (at `0.477170`) (W9-M1 boundary).
+- **Bipartite shell-counting formula**: Derivation of `r_∞ = (λ + 1) / (24 (λ - 1))` connecting the Steinberg
+  Perron root `λ` (`Vibe.CuspGrowth`) to the W10 holographic asymptotic encoding rate `r_∞`.
+- **`k = 4` tetron operator**: `tetronLam49` is checked algebraically for unit modulus and `conj(λ_3)^2`;
+  no `k = 4` `Sym^4` transfer operator is formalized here.
 -/
 
 set_option autoImplicit false
@@ -240,7 +268,7 @@ private theorem ct_eis_normSq_scale (c : Int) (x : Eis) :
   rw [h1, h2, h3, Int.mul_add, Int.mul_sub]
 
 
-/-! ## Section 1: Exact `ℤ[ω][1/7]` Composite Trion Eigenvalue, Decay Ratio & `k = 4` Tetron BIC -/
+/-! ## Section 1: Exact `ℤ[ω][1/7]` Composite Trion Eigenvalue, Decay Ratio & `k = 4` Tetron Numerical BIC Candidate -/
 
 /-- Exact `k = 3` `M_meet` `Sym^3` trion eigenvalue numerator `7 λ_3 = -(8 + 3 ω) ∈ ℤ[ω]`. -/
 def trionLam7 : Eis := ⟨-8, -3⟩
@@ -251,17 +279,19 @@ def trionR7 : Eis := ⟨-3, -2⟩
 /-- Exact conjugate decay numerator `7 r̄ = conj(7 r) = -1 + 2 ω ∈ ℤ[ω]`. -/
 def trionRBar7 : Eis := Eis.conj trionR7
 
-/-- Exact `k = 4` `M_meet` `Sym^4` tetron BIC eigenvalue numerator `49 λ_4 = 16 - 39 ω ∈ ℤ[ω]`. -/
+/-- Exact `k = 4` `Sym^4` tetron numerical BIC candidate numerator `49 λ_4 = 16 - 39 ω ∈ ℤ[ω]`
+    (Lean checks exact unit modulus and `conj(λ_3)^2`, not a `k = 4` transfer operator). -/
 def tetronLam49 : Eis := ⟨16, -39⟩
 
-/-- Headline Theorem 1 (Exact `ℤ[ω][1/7]` `k = 3` Trion Eigenvalue, Decay Ratio & `k = 4` Tetron BIC):
+/-- Headline Theorem 1 (Exact `ℤ[ω][1/7]` `k = 3` Trion Eigenvalue, Decay Ratio & `k = 4` Tetron Numerical BIC Candidate):
     1. `λ_3 = -(8 + 3 ω) / 7 = (-13 - 3 i √3) / 14` lies identically on the unit circle:
        `normSq (-(8 + 3 ω)) = 49 = 7^2`, `conj(7 λ_3) * (7 λ_3) = 49`, `(-13)^2 + 3(-3)^2 = 14^2`.
     2. Decay ratio `r = (-3 - 2 ω) / 7` satisfies `normSq (-3 - 2 ω) = 7` (`|r|^2 = 7/49 = 1/7 < 1`),
        `conj(7 r) = -1 + 2 ω`, and `(7 r̄)(7 r) = 7`.
-    3. `k = 4` tetron eigenvalue `λ_4 = (16 - 39 ω) / 49 = conj(λ_3)^2` satisfies exact unit modulus
-       `normSq (16 - 39 ω) = 2401 = 49^2`, `conj(7 λ_3)^2 = 49 λ_4`, and `(7 λ_3)^2 * (49 λ_4) = 2401`
-       (exact `λ_4 * λ_3^2 = 1` in `ℤ[ω][1/7]`). -/
+    3. `k = 4` `Sym^4` tetron numerical BIC candidate `λ_4 = (16 - 39 ω) / 49 = conj(λ_3)^2` satisfies
+       exact unit modulus `normSq (16 - 39 ω) = 2401 = 49^2`, `conj(7 λ_3)^2 = 49 λ_4`, and
+       `(7 λ_3)^2 * (49 λ_4) = 2401` (exact `λ_4 * λ_3^2 = 1` in `ℤ[ω][1/7]`; algebraic check only,
+       not a `k = 4` operator proof). -/
 theorem thm_ct_trion_eigenvalue_and_ratio :
     (Eis.normSq trionLam7 = 49 ∧
      Eis.mul (Eis.conj trionLam7) trionLam7 = Eis.ofInt 49 ∧
@@ -762,8 +792,11 @@ private theorem ct_trionStep8_factor (M d1 d2 : Nat) (t1 t2 t3 : Fin 2)
       exact ct_tensorCoin8Vec_scale (ctPowInt 7 (M + 1 - (trionPullE1 d1 t1 t2 + trionPullE2 d2 t2 t3)))
         (fun s1 _s2 s3 => trionCell false false s1 s3) t1 t2 t3
 
-/-- Headline Theorem 4 (Exact Infinite-Line `k = 3` `Sym^3` Composite Trion Eigenstate):
-    for EVERY truncation depth `M ≥ 2`, EVERY pair of relative separations `d1, d2 : Nat`
+/-- Headline Theorem 4 (Exact Infinite-Line `P = 0` Fiber `k = 3` `Sym^3` Composite Trion Eigenstate):
+    `trionState` is a **relative-coordinate `l^2` bound eigenstate of the fixed center-of-mass momentum
+    `P = 0` fiber** (a dispersing 1D composite-particle Bloch band `E_trion(P)` along a single geodesic
+    line embedded in 4D `{3,4,3,4}`), NOT an isolated point-spectrum eigenvalue in `l^2(V^3)`.
+    For EVERY truncation depth `M ≥ 2`, EVERY pair of relative separations `d1, d2 : Nat`
     satisfying `1 ≤ d1 + d2 ≤ M`, and EVERY valid spin triple `(t1, t2, t3) : Fin 2`
     (covering ALL contact boundaries `d1 = 0`, `d2 = 0`, `d1 = 1`, `d2 = 1`, and ALL bulk
     separations `d1 ≥ 2, d2 ≥ 2` across the infinite 1D geodesic line of `{3,4,3,4}`):
@@ -1073,7 +1106,7 @@ private theorem ct_sepNorm4_eq (M d1 d2 : Nat) (h1 : d1 ≥ 1) (h2 : d2 ≥ 1) :
          ((p * (343 * 343) + p * (49 * 49)) + (p * (343 * 343) + p * (49 * 49))) = p * 245000
   omega
 
-/-- Headline Theorem 5 (Exact Geometric-Series Normalization, Contact Probability `6/7`, Top Weight `18/49`, & `IPR = 9/32`):
+/-- Headline Theorem 5 (Exact Geometric-Series Normalization, Contact Probability `6/7`, Top Weight `18/49`, & Spin-Resolved `IPR = 9/32`):
     1. Exact finite geometric-series identities for ALL `N : Nat` at ratios `1/7`, `1/49`, and `1/2401`:
        `6 * S_7(N) = 7^N - 1`, `48 * S_49(N) = 49^N - 1`, `2400 * S_2401(N) = 2401^N - 1`.
     2. Exact finite-box (`1 ≤ d1, d2 ≤ N`) norm^2 and norm^4 sums tied directly to `Eis.normSq (trionState (2 * N) ...)`:
@@ -1081,11 +1114,18 @@ private theorem ct_sepNorm4_eq (M d1 d2 : Nat) (h1 : d1 ≥ 1) (h2 : d2 ≥ 1) :
        - Separated 2D box `|ψ|^2` sum satisfies `2304 * SepSum(N) = 896 * 49 * (49^N - 1)^2` (`→ 7/18`),
        - Left and right pair-contact `|ψ|^4` sums satisfy `2400 * PairIpr(N) = 2450 * 2401^(N + 1) * (2401^N - 1)` (`→ 49/48` each),
        - Separated 2D box `|ψ|^4` sum satisfies `5760000 * SepIpr(N) = 245000 * 2401 * (2401^N - 1)^2` (`→ 49/1152`).
-    3. Exact infinite-line rational observables (in `QPos` and cleared `Int`):
+    3. Exact `∀ N : Nat` canonical top-cluster & mirror amplitude ties directly on `trionState (2 * N)`:
+       - Canonical cluster `(0,+)(0,-)(2,+)` (even-sublattice index `d2 = 1`, `x = 2 d2`) at
+         `(d1 = 0, d2 = 1, ⟨0,_⟩, ⟨1,_⟩, ⟨0,_⟩)` and its mirror `(-2,-)(0,+)(0,-)` at
+         `(d1 = 1, d2 = 0, ⟨1,_⟩, ⟨0,_⟩, ⟨1,_⟩)` both satisfy `Eis.normSq (trionState (2 * N) ...) = 49^(2*N + 1)`
+         (normalizing to unnormalized weight `Eis.normSq (trionCell ...) / 49 = 1` in units of `49^(2*N + 1)`).
+    4. Exact infinite-line rational observables (in `QPos` and cleared `Int`):
        - `N_pair = 7/3`, `N_sep = 7/18`, `N_tot = 49/18`,
        - Exact pair-contact probability **`p_pair = 6/7`**,
-       - Exact canonical 3-body top-cluster weight **`p((0,+)(0,-)(2,+)) = 18/49`**,
-       - Exact Inverse Participation Ratio **`IPR = (2401/1152) / (2401/324) = 9/32`**! -/
+       - Exact canonical 3-body top-cluster weight **`p((0,+)(0,-)(2,+)) = (49/49) / (49/18) = 18/49`**
+         (tied directly to `Eis.normSq (trionCell true false ⟨0,_⟩ ⟨0,_⟩)`),
+       - Exact **spin-resolved configuration-basis** Inverse Participation Ratio
+         **`IPR = (2401/1152) / (2401/324) = 9/32`**! -/
 theorem thm_ct_trion_norm_contact_and_ipr :
     (∀ N : Nat,
       6 * ctGeomScaled 7 1 N = ctPowInt 7 N - 1 ∧
@@ -1101,18 +1141,49 @@ theorem thm_ct_trion_norm_contact_and_ipr :
       2400 * ctSum1To (trionRightPairNorm4 (2 * N)) N = 2450 * ctPowInt 2401 (N + 1) * (ctPowInt 2401 N - 1) ∧
       5760000 * ctSumBox1To (trionSepNorm4 (2 * N)) N =
         245000 * 2401 * (ctPowInt 2401 N - 1) * (ctPowInt 2401 N - 1)) ∧
-    (QPos.eq (QPos.add ⟨56, 48, by decide⟩ ⟨56, 48, by decide⟩) ⟨7, 3, by decide⟩ ∧
+    ((∀ N : Nat,
+        Eis.normSq (trionState (2 * N) 0 1 ⟨0, by decide⟩ ⟨1, by decide⟩ ⟨0, by decide⟩) =
+          ctPowInt 49 (2 * N + 1) ∧
+        Eis.normSq (trionState (2 * N) 1 0 ⟨1, by decide⟩ ⟨0, by decide⟩ ⟨1, by decide⟩) =
+          ctPowInt 49 (2 * N + 1)) ∧
+     Eis.normSq (trionCell true false ⟨0, by decide⟩ ⟨0, by decide⟩) = 49 ∧
+     Eis.normSq (trionCell false true ⟨1, by decide⟩ ⟨1, by decide⟩) = 49 ∧
+     QPos.eq (QPos.add ⟨56, 48, by decide⟩ ⟨56, 48, by decide⟩) ⟨7, 3, by decide⟩ ∧
      QPos.eq ⟨896, 2304, by decide⟩ ⟨7, 18, by decide⟩ ∧
      QPos.eq (QPos.add ⟨7, 3, by decide⟩ ⟨7, 18, by decide⟩) ⟨49, 18, by decide⟩ ∧
-     (7 * 18 * 7 = 6 * 3 * 49) ∧
-     (1 * 18 * 49 = 18 * 1 * 49) ∧
+     QPos.eq ⟨7 * 18, 3 * 49, by decide⟩ ⟨6, 7, by decide⟩ ∧
+     QPos.eq ⟨Eis.normSq (trionCell true false ⟨0, by decide⟩ ⟨0, by decide⟩) * 18, 49 * 49, by decide⟩
+             ⟨18, 49, by decide⟩ ∧
      QPos.eq (QPos.add (QPos.add ⟨2450, 2400, by decide⟩ ⟨2450, 2400, by decide⟩) ⟨245000, 5760000, by decide⟩)
              ⟨2401, 1152, by decide⟩ ∧
-     (32 * (2401 * 324) = 9 * (1152 * 2401))) := by
+     QPos.eq ⟨2401 * 324, 1152 * 2401, by decide⟩ ⟨9, 32, by decide⟩) := by
+  have hTop : ∀ N : Nat,
+      Eis.normSq (trionState (2 * N) 0 1 ⟨0, by decide⟩ ⟨1, by decide⟩ ⟨0, by decide⟩) =
+        ctPowInt 49 (2 * N + 1) ∧
+      Eis.normSq (trionState (2 * N) 1 0 ⟨1, by decide⟩ ⟨0, by decide⟩ ⟨1, by decide⟩) =
+        ctPowInt 49 (2 * N + 1) := by
+    intro N
+    constructor
+    · unfold trionState
+      have hExp : 2 * N + 1 - (0 + 1) = 2 * N := by omega
+      have hne : (1 == 0) = false := rfl
+      have hc : Eis.normSq (trionCell true false ⟨0, by decide⟩ ⟨0, by decide⟩) = 49 := by decide
+      rw [hExp]
+      simp only [beq_self_eq_true, hne, ct_eis_normSq_scale, ct_powInt_sq]
+      rw [hc, Int.mul_comm]
+      rfl
+    · unfold trionState
+      have hExp : 2 * N + 1 - (1 + 0) = 2 * N := by omega
+      have hne : (1 == 0) = false := rfl
+      have hc : Eis.normSq (trionCell false true ⟨1, by decide⟩ ⟨1, by decide⟩) = 49 := by decide
+      rw [hExp]
+      simp only [beq_self_eq_true, hne, ct_eis_normSq_scale, ct_powInt_sq]
+      rw [hc, Int.mul_comm]
+      rfl
   refine ⟨fun N => ⟨by simpa using ct_geom_series_closed 7 1 N,
                      by simpa using ct_geom_series_closed 49 1 N,
                      by simpa using ct_geom_series_closed 2401 1 N⟩,
-          ?_, ?_, by unfold QPos.eq QPos.add; decide⟩
+          ?_, ?_, ⟨hTop, by unfold QPos.eq QPos.add; decide⟩⟩
   · intro N
     have hL : ctSum1To (trionLeftPairNormSq (2 * N)) N =
         ctPowInt 49 (N + 1) * ctGeomScaled 49 56 N := by
@@ -1202,14 +1273,18 @@ def ctSin3Hom (p q : Int) : Int := 3 * p * (q * q) - 4 * (p * (p * p))
 /-- Headline Theorem 6 (Exact `P = 0` Trion Gap Separation Below `3-Free` and `Doublon + Free` Thresholds):
     1. Exact 1-body coin invariants `det(2 C) = 4 ω` and `tr(2 C) = 2 ζ_6` fix the 1-body dispersion
        `E_1^±(p) = π/3 ± arccos((1/2) cos p)`, placing the `P = 0` `3-free` lower threshold at
-       `-π/2 - 3 arcsin(1/4)` with exact algebraic cosine `-sin(3 arcsin(1/4)) = -11/16` (extremal for
-       ALL `0 ≤ p / q ≤ 1/4`, proved symbolically via `11 q^3 - 16 (3 p q^2 - 4 p^3) = (q - 4 p)(11 q^2 - 4 p q - 16 p^2)`).
+       `-π/2 - 3 arcsin(1/4)` with exact algebraic cosine `-sin(3 arcsin(1/4)) = -11/16`.
+       Lean certifies the exact 1D cubic monotonicity `16 * ctSin3Hom p q ≤ 11 * q^3` for ALL
+       `0 ≤ p / q ≤ 1/4` (i.e. `sin(3 θ) ≤ 11/16` on `0 ≤ sin θ ≤ 1/4`, via
+       `11 q^3 - 16 (3 p q^2 - 4 p^3) = (q - 4 p)(11 q^2 - 4 p q - 16 p^2)`); the global 2D
+       minimization of `∑_{i=1}^3 arcsin((1/2) cos p_i)` over `p_1 + p_2 + p_3 = 0` is external.
     2. Exact `P = 0` `doublon(0) + free(0)` edge `ω λ_2(0) = (-15 - 8 ω) / 13` (bridged directly to
        `Vibe.BallisticDoublon.doublonLam13`) has unit modulus (`normSq = 169`), lower-left quadrant
        `Im < 0`, exact `Re(ω λ_2(0)) = -11/13`, and exact chord distance squared
        `|λ_3 - ω λ_2(0)|^2 = 273 / 8281 = 3 / 91` (`|λ_3 - (-1)|^2 = 7 / 49 = 1 / 7`).
-    3. Exact polynomial Taylor cosine bound at `t = 14/25 < π - 2.5813` (`1 - t^2/2 + t^4/24 < 17/20`,
-       giving `cos(-2.5813) > -17/20`) certifies the strict gap chain:
+    3. Taking `-2.5813` as a conservative buffer strictly below `arg(ω λ_2(0)) ≈ -2.579523`,
+       the exact polynomial Taylor cosine bound at `t = 14/25 = 0.56 < π - 2.5813 ≈ 0.56029`
+       (`1 - t^2/2 + t^4/24 < 17/20`, giving `cos(-2.5813) > -17/20`) certifies the strict gap chain:
        `-1 < Re(λ_3) = -13/14 < -17/20 < Re(ω λ_2(0)) = -11/13 < cos(E_{3-free}) = -11/16 < 0`! -/
 theorem thm_ct_trion_gap_separation :
     (Mat2Eis.det coin2 = Eis.scale 4 Eis.omega ∧
@@ -1433,8 +1508,9 @@ private theorem ct_tanSqCubic_strict_inc_unit (p1 q1 p2 q2 : Int)
     3. Strict monotonicity + exact root brackets:
        - Unique root `u = tan^2(π/18)` of `P_tanSq` on `[0, 1/2]` satisfies `0 < u < 1/32 < 1/25` (`tan(π/18) < 1/5`),
        - Unique root `v = cot^2(π/18)` of `Q_cotSq` on `[22, ∞)` satisfies `32 < 32163/1000 < v < 32164/1000 < 33`,
-       - Hence `1/3 < 25 < 32 < cot^2(π/18)` (`3 * 25 = 75 > (86/10)^2` and `3 * 32 = 96 > (979/100)^2`),
-         providing a `> 8.6×` (sharp `> 9.79×`) Parseval gap margin ruling out bound poles in `(0, π/3)` and `(-π, -2π/3)`! -/
+       - Hence `1/3 < 25 < 32 < cot^2(π/18)` (`3 * 25 = 75 > (86/10)^2` and `3 * 32 = 96 > (979/100)^2`).
+         Combined with the external analytic Parseval bound `sup |t_hat| = 1 / √3`, this yields a
+         `> 8.6×` (sharp `> 9.79×`) gap margin ruling out bound poles in `(0, π/3)` and `(-π, -2π/3)`! -/
 theorem thm_ct_mpair_gap_margin :
     (Ninth.mul Ninth.gapSqZeta18 (Ninth.add cotSqZeta18 Ninth.one) = Ninth.ofInt 4 ∧
      Ninth.sub (Ninth.add (Ninth.sub (Ninth.pow cotSqZeta18 3) (Ninth.scale 33 (Ninth.pow cotSqZeta18 2)))
@@ -1547,12 +1623,18 @@ def doublonShift2Pi3Lam13 : Eis := Eis.mul Eis.omega2 doublonLam13
     2. At the exact 1D `M_meet` doublon band edge `E_meet(0) = arg((7 + 15 ω) / 13)`,
        `ω^2 λ_2(0) = (8 - 7 ω) / 13` has exact cosine `cos(E_meet(0) - 2π/3) = 23 / 26 > 7 / 8 > 2351 / 2688`,
        so the 1D `(+, -)` continuum threshold satisfies `cos(P_*(E_meet(0))) = 4 * (23/26) - 3 = 7 / 13 > 1 / 2 > 335 / 672`!
-    3. At the flat 4D `D_4` pole dissolution boundary `q_c = 0.2441 π < π/4` (`767/1000 > 0.2441 * 3.1416`):
-       - `cos^2(π/4) = 1/2 > (7/10)^2 = 49/100` and Taylor lower bound `1 - (767/1000)^2 / 2 > 7/10`,
+    3. Using the external numerical bisection value `q_c = 0.24413393... π` for the flat 4D `D_4` pole
+       dissolution boundary and rounding **upward** to `2442 / 10000`:
+       - `q_c < (2442/10000) π < π/4` ALREADY yields `cos(q_c) > cos(π/4) = 1/√2 > 7/10` directly via
+         `(7/10)^2 = 49/100 < 1/2`,
+       - Independently, `q_c < (2442/10000) * (31416/10000) < 768/1000` with Taylor lower bound
+         `1 - (768/1000)^2 / 2 = 0.705088 > 7/10`,
        - Giving the strict excision chain `335 / 672 < 1 / 2 < 7 / 13 < 7 / 10` (`< cos(q_c)`).
-    4. Abstract Rayleigh-Ritz excision contradiction: NO positive-norm vector `f` obeying the Lean-certified
-       hyperbolic ceiling `R_A(f) ≤ 335 / 672` can have geodesic-line spectral support restricted to
-       `cos(P) ≥ 7 / 13` (covering the entire flat `M_pair` window `[E_meet(0), 2π/3]`) or `cos(P) ≥ 7 / 10`! -/
+    4. Abstract rational ceiling-vs-floor contradiction: NO rational Rayleigh quotient `rayNum / rayDen`
+       obeying the ceiling `≤ 335 / 672` can satisfy `≥ 7 / 13` or `≥ 7 / 10`. (Lifting this rational
+       contradiction to infinite-graph `l^2` vectors uses the external Rayleigh-Ritz bridge. Honest W9-M1
+       boundary: the lower continuum-overlap window `[π/3, 1.58824)` at `335/672`, or `[π/3, 1.57737)` at
+       `0.477170`, remains unexcised by this spectral-gap argument alone.) -/
 theorem thm_ct_hyperbolic_excision_pocket :
     ((∀ k : Fin 4, QPos.le (QPos.divPos (ssSimpleRowSum k) 24 (by decide)) ⟨335, 672, by decide⟩) ∧
      QPos.le ⟨335, 672, by decide⟩ ⟨1, 2, by decide⟩ ∧ (335 * 2 < 1 * 672) ∧
@@ -1562,10 +1644,10 @@ theorem thm_ct_hyperbolic_excision_pocket :
      2 * doublonShift2Pi3Lam13.a - doublonShift2Pi3Lam13.b = 23 ∧
      4 * 23 - 3 * 26 = 14 ∧ 14 * 13 = 7 * 26 ∧
      23 * 8 > 7 * 26 ∧ 7 * 2 > 13 ∧ 7 * 672 > 335 * 13) ∧
-    (2441 * 4 < 10000 ∧
-     2441 * 31416 < 767 * 100000 ∧
+    (2442 * 4 < 10000 ∧
+     2442 * 31416 < 768 * 100000 ∧
      (49 : Int) * 2 < 100 ∧
-     10 * (2 * (1000 ^ 2 : Int) - 767 ^ 2) > 7 * (2 * (1000 ^ 2 : Int)) ∧
+     10 * (2 * (1000 ^ 2 : Int) - 768 ^ 2) > 7 * (2 * (1000 ^ 2 : Int)) ∧
      (335 : Int) * 2 < 672 ∧ 1 * 13 < 7 * 2 ∧ 7 * 10 < 7 * 13 ∧
      QPos.le ⟨335, 672, by decide⟩ ⟨7, 13, by decide⟩ ∧
      QPos.le ⟨7, 13, by decide⟩ ⟨7, 10, by decide⟩) ∧
