@@ -499,7 +499,8 @@ private theorem rawAdd_resp (a₁ a₂ b₁ b₂ : NinthRaw6)
     have hs2 : pow6 a₁.exp * pow6 b₁.exp * pow6 b₂.exp =
         (pow6 b₁.exp * pow6 b₂.exp) * pow6 a₁.exp := by
       rw [Int.mul_assoc, Int.mul_comm (pow6 a₁.exp) (pow6 b₁.exp * pow6 b₂.exp)]
-    rw [hs1, hs2, ← ninth_scale_scale, ← ninth_scale_scale, ha]
+    rw [hs1, hs2, ← ninth_scale_scale (pow6 b₁.exp * pow6 b₂.exp),
+        ← ninth_scale_scale (pow6 b₁.exp * pow6 b₂.exp), ha]
   have h2 : Ninth.scale (pow6 a₂.exp * pow6 b₂.exp * pow6 a₁.exp) b₁.num =
       Ninth.scale (pow6 a₁.exp * pow6 b₁.exp * pow6 a₂.exp) b₂.num := by
     have hs1 : pow6 a₂.exp * pow6 b₂.exp * pow6 a₁.exp =
@@ -511,7 +512,8 @@ private theorem rawAdd_resp (a₁ a₂ b₁ b₂ : NinthRaw6)
         (pow6 a₁.exp * pow6 a₂.exp) * pow6 b₁.exp := by
       rw [Int.mul_comm (pow6 a₁.exp) (pow6 b₁.exp), Int.mul_assoc,
           Int.mul_comm (pow6 b₁.exp) (pow6 a₁.exp * pow6 a₂.exp)]
-    rw [hs1, hs2, ← ninth_scale_scale, ← ninth_scale_scale, hb]
+    rw [hs1, hs2, ← ninth_scale_scale (pow6 a₁.exp * pow6 a₂.exp),
+        ← ninth_scale_scale (pow6 a₁.exp * pow6 a₂.exp), hb]
   rw [h1, h2]
 
 private theorem rawNeg_resp (a₁ a₂ : NinthRaw6) (ha : NinthRaw6.equiv a₁ a₂) :
@@ -567,13 +569,16 @@ private theorem ind1 (P : NinthLoc6 → Prop)
 private theorem ind2 (P : NinthLoc6 → NinthLoc6 → Prop)
     (h : ∀ a b : NinthRaw6, P (Quot.mk NinthRaw6.equiv a) (Quot.mk NinthRaw6.equiv b))
     (x y : NinthLoc6) : P x y :=
-  Quot.ind (fun a => Quot.ind (fun b => h a b) y) x
+  @Quot.ind _ _ (fun a => P a y)
+    (fun a => @Quot.ind _ _ (fun b => P (Quot.mk NinthRaw6.equiv a) b) (h a) y) x
 
 private theorem ind3 (P : NinthLoc6 → NinthLoc6 → NinthLoc6 → Prop)
     (h : ∀ a b c : NinthRaw6,
       P (Quot.mk NinthRaw6.equiv a) (Quot.mk NinthRaw6.equiv b) (Quot.mk NinthRaw6.equiv c))
     (x y z : NinthLoc6) : P x y z :=
-  Quot.ind (fun a => Quot.ind (fun b => Quot.ind (fun c => h a b c) z) y) x
+  @Quot.ind _ _ (fun a => P a y z) (fun a =>
+    @Quot.ind _ _ (fun b => P (Quot.mk NinthRaw6.equiv a) b z) (fun b =>
+      @Quot.ind _ _ (fun c => P (Quot.mk NinthRaw6.equiv a) (Quot.mk NinthRaw6.equiv b) c) (h a b) z) y) x
 
 private theorem add_zero (x : NinthLoc6) : add x zero = x := by
   refine ind1 (fun x => add x zero = x) (fun a => ?_) x
@@ -614,7 +619,7 @@ private theorem add_neg (x : NinthLoc6) : add x (neg x) = zero := by
   apply Quot.sound
   unfold NinthRaw6.equiv rawAdd rawNeg
   dsimp only
-  simp only [pow6, ninth_scale_one, ninth_scale_zero, ninth_scale_neg, ninth_add_neg]
+  simp only [pow6, ninth_scale_zero, ninth_scale_neg, ninth_add_neg]
 
 private theorem mul_one (x : NinthLoc6) : mul x one = x := by
   refine ind1 (fun x => mul x one = x) (fun a => ?_) x
@@ -901,7 +906,7 @@ private theorem list_all_eq_true_iff {α : Type} (p : α → Bool) (xs : List α
   induction xs with
   | nil =>
     simp only [List.all]
-    exact ⟨fun _ _ h => (nomatch h), fun _ => rfl⟩
+    exact ⟨fun _ _ h => (nomatch h), fun _ => trivial⟩
   | cons x rest ih =>
     simp only [List.all, Bool.and_eq_true]
     constructor
@@ -1726,7 +1731,7 @@ def block2Unitary [DecidableEq α] (flip : α → α) (act : α → Bool) (a b :
           sumList ua (fun c => mul (conj (ψ c)) (φ (flip c))) := by
         have hEq : (fun c => mul (conj (ψ (flip c))) (φ c)) =
             (fun c => (fun x => mul (conj (ψ x)) (φ (flip x))) (flip c)) := by
-          funext c; rw [hFlip c]
+          funext c; dsimp only; rw [hFlip c]
         rw [hEq]
         exact sumList_bijection ua flip flip (fun x => mul (conj (ψ x)) (φ (flip x))) hFlip hFlip huaNd huaClosed huaClosed
       rw [hB1, hB2, ← add_mul, ← add_mul, hDiag, hOff, one_mul, zero_mul, add_zero]
@@ -2040,7 +2045,8 @@ def block12Unitary [DecidableEq α]
           change χ (if act c then moveTo (addMod12 (curLine c) k) c else c) = _
           rw [ite_eq_left hca]
         rw [hEq]
-        exact sumFin12_bijection (addMod12 (curLine c)) (fun m => subMod12 m (curLine c)) _
+        exact sumFin12_bijection (R := R) (addMod12 (curLine c)) (fun m => subMod12 m (curLine c))
+          (fun m => χ (moveTo m c))
           (fun k => by
             have : ∀ a b : Fin 12, subMod12 (addMod12 a b) a = b := by decide
             exact this (curLine c) k)
@@ -2171,7 +2177,7 @@ def block12Unitary [DecidableEq α]
         | false => rfl
         | true => rw [ha] at hnot; exact Bool.noConfusion hnot
       unfold block12Op
-      rw [hcf, ite_bool_false]
+      rw [hcf, ite_bool_false, ite_bool_false]
 
 /-- Headline Theorem 4 (Universal Fock Unitary Constructors):
     over ANY `StarCommRing R` and discrete configuration space `α`, bijections (`permUnitary`),
@@ -2611,8 +2617,10 @@ private theorem parityMat5_mul_row4 (g : Mat5) (j : Fin 5) :
 private theorem mul_parityMat5_col0 (g : Mat5) (i : Fin 5) :
     mat5Mul g parityMat5 i ⟨0, by decide⟩ = ZSqrt2.neg (g i ⟨0, by decide⟩) := by
   rw [parityMat5_eq_fast]; unfold mat5Mul sum5
+  have h0 : parityMat5Fast 0 ⟨0, by decide⟩ = ZSqrt2.negOne := by decide
+  rw [h0]
   simp [parityMat5Fast, mat5Id, z2_mul_zero, z2_add_zero]
-  cases g i ⟨0, by decide⟩
+  cases g i 0
   simp only [ZSqrt2.negOne, ZSqrt2.mul, ZSqrt2.neg, ZSqrt2.mk.injEq,
     Int.mul_zero, Int.mul_neg, Int.mul_one]
   exact ⟨by omega, by omega⟩
@@ -2620,21 +2628,29 @@ private theorem mul_parityMat5_col0 (g : Mat5) (i : Fin 5) :
 private theorem mul_parityMat5_col1 (g : Mat5) (i : Fin 5) :
     mat5Mul g parityMat5 i ⟨1, by decide⟩ = ZSqrt2.add (g i ⟨0, by decide⟩) (g i ⟨1, by decide⟩) := by
   rw [parityMat5_eq_fast]; unfold mat5Mul sum5
+  have h0 : parityMat5Fast 0 ⟨1, by decide⟩ = ZSqrt2.one := by decide
+  rw [h0]
   simp [parityMat5Fast, mat5Id, z2_mul_one, z2_mul_zero, z2_add_zero]
 
 private theorem mul_parityMat5_col2 (g : Mat5) (i : Fin 5) :
     mat5Mul g parityMat5 i ⟨2, by decide⟩ = g i ⟨2, by decide⟩ := by
   rw [parityMat5_eq_fast]; unfold mat5Mul sum5
+  have h0 : parityMat5Fast 0 ⟨2, by decide⟩ = ZSqrt2.zero := by decide
+  rw [h0]
   simp [parityMat5Fast, mat5Id, z2_mul_one, z2_mul_zero, z2_add_zero, z2_zero_add]
 
 private theorem mul_parityMat5_col3 (g : Mat5) (i : Fin 5) :
     mat5Mul g parityMat5 i ⟨3, by decide⟩ = g i ⟨3, by decide⟩ := by
   rw [parityMat5_eq_fast]; unfold mat5Mul sum5
+  have h0 : parityMat5Fast 0 ⟨3, by decide⟩ = ZSqrt2.zero := by decide
+  rw [h0]
   simp [parityMat5Fast, mat5Id, z2_mul_one, z2_mul_zero, z2_add_zero, z2_zero_add]
 
 private theorem mul_parityMat5_col4 (g : Mat5) (i : Fin 5) :
     mat5Mul g parityMat5 i ⟨4, by decide⟩ = g i ⟨4, by decide⟩ := by
   rw [parityMat5_eq_fast]; unfold mat5Mul sum5
+  have h0 : parityMat5Fast 0 ⟨4, by decide⟩ = ZSqrt2.zero := by decide
+  rw [h0]
   simp [parityMat5Fast, mat5Id, z2_mul_one, z2_mul_zero, z2_zero_add]
 
 private theorem det2Z2_row0_op (a0 a1 b0 b1 : ZSqrt2) :
@@ -3438,7 +3454,7 @@ private theorem sortedEntries_map_fst_eq (es₁ es₂ : List (Mat5 × FullDock))
           obtain ⟨q2, hq2, hq2k⟩ := (mem_map_iff Prod.fst r₂ k₁).mp h1r
           have hlt1 : mat5Lt k₂ k₁ = true := by rw [← hq2k]; exact hs₂.1 q2 hq2
           cases h2in1 with
-          | head => rw [mat5Lt_irrefl] at hlt1; exact Bool.noConfusion hlt1
+          | head => rfl
           | tail _ h2r =>
             obtain ⟨q1, hq1, hq1k⟩ := (mem_map_iff Prod.fst r₁ k₂).mp h2r
             have hlt2 : mat5Lt k₁ k₂ = true := by rw [← hq1k]; exact hs₁.1 q1 hq1
@@ -3886,7 +3902,6 @@ theorem thm_fock_honeycomb_config_symmetries (c : HoneycombConfig) :
     apply honeycombConfig_ext; intro g; funext a
     rw [lookup_cpConfig, lookup_revConfig]
     unfold cpFullDock conjFullDock parityFullDock revFullDock
-    dsimp only
     rw [lookup_revConfig, lookup_cpConfig]
     unfold cpFullDock conjFullDock parityFullDock revFullDock
     dsimp only
@@ -4389,9 +4404,12 @@ private theorem fullDockCharge_swapLineRoles (l : Fin 12) (d : FullDock) :
     | empty => rfl
     | occ sB rB =>
       dsimp only
-      if hsA : s = lineA l then rw [ite_eq_left hsA, hsA, hA]
-      else if hsB : s = lineB l then rw [ite_eq_right hsA, ite_eq_left hsB, hsB, hB]
-      else rw [ite_eq_right hsA, ite_eq_right hsB]
+      if hsA : s = lineA l then
+        rw [ite_eq_left hsA, hsA, hA]; rfl
+      else if hsB : s = lineB l then
+        rw [ite_eq_right hsA, ite_eq_left hsB, hsB, hB]; rfl
+      else
+        rw [ite_eq_right hsA, ite_eq_right hsB]
 
 /-- Line classification predicates on a 24-slot `FullDock`. -/
 def isLoneLine (d : FullDock) (l : Fin 12) : Bool :=
@@ -4449,7 +4467,7 @@ def moveSolePairConfig (g : Mat5) (m : Fin 12) (c : HoneycombConfig) : Honeycomb
 private theorem find?_eq_some_iff {α : Type} (p : α → Bool) (xs : List α) (a : α) :
     xs.find? p = some a → a ∈ xs ∧ p a = true := by
   induction xs with
-  | nil => simp only [List.find?]; intro h; exact Option.noConfusion h
+  | nil => simp only [List.find?]; intro h; exact (nomatch h)
   | cons x rest ih =>
     simp only [List.find?]
     cases hpx : p x with
@@ -4515,7 +4533,7 @@ private theorem isSoleIdentPairAt_move (d : FullDock) (l m : Fin 12)
     refine ⟨?_, ?_⟩
     · dsimp only
       rw [ite_eq_left (Or.inl rfl), ite_eq_left (Or.inr rfl)]
-      exact decide_eq_true ⟨rfl, rfl⟩
+      exact decide_eq_true (And.intro rfl rfl)
     · refine (list_all_eq_true_iff _ _).mpr ?_
       intro s' _
       if hs : s' = lineA m ∨ s' = lineB m then
@@ -4558,9 +4576,16 @@ private theorem moveSolePairDock_spec (d : FullDock) (hAct : isSoleIdentPairDock
     · intro m; unfold isSoleIdentPairDock; rw [hMoveFind m]; rfl
     · intro m; unfold solePairLine; rw [hMoveFind m]; rfl
     · intro m₁ m₂
+      have h1 : moveSolePairDock m₁ (moveSolePairDock m₂ d) =
+          fun s => if s = lineA m₁ ∨ s = lineB m₁ then (moveSolePairDock m₂ d) (lineA m₂) else .empty := by
+        change (match findSolePairLine (moveSolePairDock m₂ d) with
+          | none => moveSolePairDock m₂ d
+          | some k => fun s => if s = lineA m₁ ∨ s = lineB m₁ then (moveSolePairDock m₂ d) (lineA k) else .empty) = _
+        rw [hMoveFind m₂]
+      rw [h1]
       funext s
       unfold moveSolePairDock
-      rw [hMoveFind m₂, hf]
+      rw [hf]
       dsimp only
       rw [ite_eq_left (Or.inl rfl)]
     · rw [hSole]
@@ -4713,11 +4738,11 @@ private def lineMeetUnit (g : Mat5) (l : Fin 12) : FockUnitary NinthLoc6 Honeyco
         rw [lookup_setDock, ite_eq_left rfl]
         unfold isSameSignDiffRoleLine swapLineRolesDock
         have hne := (line_geom_facts.1 l).2.2
-        cases c.lookup g (lineA l) with
-        | empty => rfl
+        cases hA : c.lookup g (lineA l) with
+        | empty => dsimp only; rw [hA]
         | occ sA rA =>
-          cases c.lookup g (lineB l) with
-          | empty => rfl
+          cases hB : c.lookup g (lineB l) with
+          | empty => dsimp only; rw [hA, hB]
           | occ sB rB =>
             simp only [ite_true, ite_eq_right hne.symm]
             cases sA <;> cases sB <;> cases rA <;> cases rB <;> decide)
