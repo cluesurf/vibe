@@ -4,10 +4,10 @@
 //
 // Scientific progression from E-GRV-0157, E-RLT-0125, and E-GRV-0160:
 //   - E-GRV-0157 (pair-density-gravity-slope.ts): exact {3,4,3,4} shell counts N_D = [1, 18, 330, 6034]
-//     with parameter-free pair-density warp w(D) = 1 / N_D^2 give K_eff = 1.0312370835 and
-//     G_eff = 1 / (4 pi K_eff) = 0.07716700.
+//     with parameter-free pair-density warp w(D) = 1 / N_D^2 (canonical single-face [1, 4, 20, 100])
+//     give K_eff = 1.0125321220 and G_eff = 1 / (4 pi K_eff) = 0.07859254.
 //   - E-RLT-0125 (universal-speed-lock.ts): shared warped-cusp column locks spin-2 gravitons, spin-1
-//     photons, and spin-1/2 Weyl fermions onto c_u = sqrt(K_eff / M_eff) = 0.9869161538 docks/beat
+//     photons, and spin-1/2 Weyl fermions onto c_u = sqrt(K_eff / M_eff) = 0.9779246684 docks/beat
 //     with a unique k = 0 zero mode and gapped KK tower m_KK = 3.2725.
 //   - E-GRV-0160 (nonlinear-einstein-curvature.ts): derives gamma_PPN = 1, beta_PPN = 1, and full
 //     nonlinear 4D Einstein equations G_{mu nu} = (8 pi G_eff / c_u^4) T_{mu nu} converging to exact

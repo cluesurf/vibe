@@ -10,19 +10,21 @@
 \usepackage{enumitem}
 \usepackage{parskip}
 \usepackage{microtype}
-\usepackage[htt]{hyphenat}
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{tabularx}
 \usepackage{longtable}
-\usepackage[margin=1in]{geometry}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{placeins}
+\usepackage[margin=1.12in]{geometry}
 \usepackage{fancyhdr}
 \usepackage{titlesec}
 \usepackage[
     pdfauthor={Lance Pollard},
-    pdftitle={Emergent Physics from One Reversible Rule on the \{3,4,3,4\} Honeycomb},
-    pdfsubject={Four-scale unification on the fixed \{3,4,3,4\} hyperbolic 24-cell honeycomb: universal SU(2) gates, envariance Born rule, universal speed lock, dynamical 1/r gravity, post-Newtonian GR, chiral Spin(10) three-generation fermions, three-era cosmology, 110 Lean 4 infinite-time theorems, and a five-sector live unitary simulation},
-    pdfkeywords={hyperbolic honeycomb, 24-cell, D4 triality, reversible quantum walk, envariance, universal speed lock, emergent gravity, chiral domain wall, lattice confinement, horosphere cosmology, Lean 4 formal proofs},
+    pdftitle={A Reversible Ternary Quantum Cellular Automaton on the 4D \{3,4,3,4\} Honeycomb},
+    pdfsubject={Exact reversible ternary quantum cellular automaton on the 4D \{3,4,3,4\} 24-cell honeycomb in Z[zeta\_9][1/6], self-contained pure-BigInt reference kernel (test/universe.ts), Lean 4 machine-checked proofs, deterministic computational audits, bijective Gullstrand-Painleve horizon walks, constructive lattice gauge bounds, and open problems},
+    pdfkeywords={hyperbolic honeycomb, 24-cell, D4 root system, reversible quantum cellular automaton, cyclotomic ring, SU(2) gate density, universal speed lock, Gullstrand-Painleve quantum walk, Kotecky-Preiss mass gap, Bakry-Emery curvature, Lean 4 formal proofs},
     pdfcreator={Lance Pollard},
     pdfproducer={pdfLaTeX},
     colorlinks=true,
@@ -43,10 +45,41 @@
 \graphicspath{{figure/}}
 \apptocmd{\thebibliography}{\interlinepenalty=10000}{}{}
 
+\definecolor{codeframe}{gray}{0.72}
+\definecolor{codecomment}{gray}{0.44}
+\definecolor{codekey}{rgb}{0.10,0.18,0.34}
+
+\lstdefinestyle{pyalg}{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize\setstretch{1.08},
+  keywordstyle=\color{codekey},
+  commentstyle=\color{codecomment},
+  frame=tb,
+  framesep=8pt,
+  rulecolor=\color{codeframe},
+  framerule=0.5pt,
+  xleftmargin=4pt,
+  xrightmargin=4pt,
+  aboveskip=10pt,
+  belowskip=10pt,
+  columns=fullflexible,
+  keepspaces=true,
+  mathescape=true,
+  showstringspaces=false,
+  morekeywords={def,for,if,else,return,in,and,or,not}
+}
+
 \widowpenalty=10000
 \clubpenalty=10000
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\bottomfraction}{0.85}
+\renewcommand{\textfraction}{0.06}
+\renewcommand{\floatpagefraction}{0.75}
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{4}
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{0.9em}
+\setlength{\parskip}{0.95em}
 \tolerance=1500
 \emergencystretch=3em
 \setlength{\parfillskip}{0pt plus 1fil}
@@ -66,6 +99,8 @@
 \BeforeBeginEnvironment{equation}{\vspace{4pt}}
 \AfterEndEnvironment{equation}{\vspace{4pt}}
 \setlist[itemize]{before=\vspace{0pt},after=\vspace{-2pt},itemsep=1pt}
+\renewcommand{\arraystretch}{1.22}
+\setlength{\tabcolsep}{7pt}
 
 \titleformat{\section}{\Large\bfseries}{\thesection.}{0.5em}{}
 \titleformat{\subsection}{\normalsize\bfseries}{\thesubsection.}{0.5em}{}
@@ -94,9 +129,10 @@
 \makeatother
 
 \newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\universecode}{\code{test/universe.ts}}
 
 \title{
-  {\huge \textbf{Emergent Physics from One Reversible Rule on the $\{3,4,3,4\}\;$ Honeycomb}}
+  {\huge \textbf{A Reversible Ternary Quantum Cellular Automaton on the 4D $\{3,4,3,4\}$ Honeycomb}}
 }
 \author{Lance Pollard \\ \small lancejpollard@gmail.com}
-\date{November 2026}
+\date{November 24, 2026}

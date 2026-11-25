@@ -1,0 +1,236 @@
+\section{Pure-\code{BigInt} Beat Kernel Excerpt (\code{test/universe.ts})}
+\label{sec:refcode}
+
+To make the exact microscopic evolution directly inspectable without external packages or floating-point arithmetic,
+the listing below excerpts verbatim lines 143--363 of the self-contained, zero-import, pure-\code{BigInt} reference
+script \code{test/universe.ts} \cite{cluesurf2026repo}: the reversible 7-layer beat composition (\code{applyBeat},
+\code{applyBeatAdjoint}) and all six local unitary operators (\code{applyHalfCoinD}, \code{applyRoleMeet},
+\code{applyPairLineMixer}, \code{applyOddChiralPhase}, \code{applyOppositeSignBounce}, and \code{applyStream}). The
+complete self-contained file, including the cyclotomic $\mathbb{Z}[\zeta_9]$ ring arithmetic, 24-root $D_4$ geometry,
+on-the-fly $SO(4,1; \mathbb{Z}[\sqrt{2}])$ Coxeter traversal, and exact self-verification harness, resides at
+\code{test/universe.ts} in the companion repository and executes in $\sim 55$~ms under \code{npx tsx test/universe.ts}
+(\code{normErr = 0n}, \code{revDiff = 0}, \code{covDiff = 0}).
+
+\begin{lstlisting}[style=tsref,firstnumber=143]
+function applyBeat(state: State): State {
+  return BEAT_LAYERS.reduce((cur, layer) => layer(cur, false), state)
+}
+
+function applyBeatAdjoint(state: State): State {
+  return [...BEAT_LAYERS]
+    .reverse()
+    .reduce((cur, layer) => layer(cur, true), state)
+}
+
+// =================================================================================================
+// 2. The six unitary operators composing one reversible beat
+// =================================================================================================
+
+// Layer 1 & 3: Half-coin D (Strang-splits M_meet symmetrically; reduces to D^2 = C on lone lines).
+function applyHalfCoinD(state: State, dag: boolean): State {
+  const detPhase = adjointZ9(Z9_ZETA6, dag)
+  const diagCoeff = adjointZ9(Z9_COIN_DIAG, dag)
+  const offCoeff = adjointZ9(Z9_COIN_OFF, dag)
+
+  return applyBranchingLayer<readonly [number, number]>(
+    state,
+    2n,
+    (vibes, amp) => {
+      const loneSplits: (readonly [number, number])[] = []
+
+      let phased = amp
+
+      for (const [idxA, idxB, slotA, slotB] of collectActiveLines(
+        vibes,
+      )) {
+        if (idxA !== undefined && idxB !== undefined) {
+          phased = mulZ9(phased, detPhase)
+        } else if (idxA !== undefined) {
+          loneSplits.push([idxA, slotB])
+        } else {
+          loneSplits.push([idxB!, slotA])
+        }
+      }
+
+      return [loneSplits, phased]
+    },
+    (cfg, amp, [idx, oppSlot]) => {
+      const [dock, , tone, role] = cfg[idx]!
+      const flipped = cfg.slice()
+
+      flipped[idx] = [dock, oppSlot, tone, role]
+
+      return [
+        [cfg, mulZ9(amp, diagCoeff)],
+        [flipped, mulZ9(amp, offCoeff)],
+      ]
+    },
+  )
+}
+
+// Layer 2: Same-sign role meeting M_meet on doubly-occupied antipodal lines.
+function applyRoleMeet(state: State, dag: boolean): State {
+  const equalRolePhase = adjointZ9(Z9_OMEGA, dag)
+  const keepCoeff = adjointZ9(Z9_ZETA6, dag)
+  const swapCoeff = adjointZ9(Z9_MEET_SWAP, dag)
+
+  return applyBranchingLayer<readonly [number, number]>(
+    state,
+    2n,
+    (vibes, amp) => {
+      const swaps: (readonly [number, number])[] = []
+
+      let phased = amp
+
+      for (const [idxA, idxB] of collectActiveLines(vibes)) {
+        if (idxA === undefined || idxB === undefined) {
+          continue
+        }
+
+        if (vibes[idxA]![2] !== vibes[idxB]![2]) {
+          continue
+        }
+
+        if (vibes[idxA]![3] === vibes[idxB]![3]) {
+          phased = mulZ9(phased, equalRolePhase)
+        } else {
+          swaps.push([idxA, idxB])
+        }
+      }
+
+      return [swaps, phased]
+    },
+    (cfg, amp, [idxA, idxB]) => {
+      const [dockA, slotA, toneA, roleA] = cfg[idxA]!
+      const [dockB, slotB, toneB, roleB] = cfg[idxB]!
+      const swapped = cfg.slice()
+
+      swapped[idxA] = [dockA, slotA, toneA, roleB]
+      swapped[idxB] = [dockB, slotB, toneB, roleA]
+
+      return [
+        [cfg, mulZ9(amp, keepCoeff)],
+        [swapped, mulZ9(amp, swapCoeff)],
+      ]
+    },
+  )
+}
+
+// Layer 4: W(F_4)-isotropic pair-line mixer M_pair(zeta_18) on identical-tone, identical-role pairs.
+function applyPairLineMixer(state: State, dag: boolean): State {
+  const hopCoeff = subZ9(adjointZ9(Z9_ZETA18, dag), Z9_ONE)
+  const keepCoeff = addZ9([12n, 0n, 0n, 0n, 0n, 0n], hopCoeff)
+
+  return applyBranchingLayer<readonly [number, number, number]>(
+    state,
+    12n,
+    (vibes, amp) => {
+      const pairs: (readonly [number, number, number])[] = []
+
+      for (const indices of groupByDock(vibes).values()) {
+        if (indices.length !== 2) {
+          continue
+        }
+
+        const [i0, i1] = [indices[0]!, indices[1]!]
+        const v0 = vibes[i0]!
+        const v1 = vibes[i1]!
+        const isIdenticalFullLine =
+          OPPOSITE_SLOT[v0[1]] === v1[1] &&
+          v0[2] === v1[2] &&
+          v0[3] === v1[3]
+
+        if (isIdenticalFullLine) {
+          pairs.push([i0, i1, LINE_OF_SLOT[v0[1]]!])
+        }
+      }
+
+      return [pairs, amp]
+    },
+    (cfg, amp, [i0, i1, currentLine]) =>
+      LINES.map(([slotA, slotB], targetLine) => {
+        if (targetLine === currentLine) {
+          return [cfg, mulZ9(amp, keepCoeff)] as const
+        }
+
+        const [dock, , tone, role] = cfg[i0]!
+        const hopped = cfg.slice()
+
+        hopped[i0] = [dock, slotA, tone, role]
+        hopped[i1] = [dock, slotB, tone, role]
+
+        return [hopped, mulZ9(amp, hopCoeff)] as const
+      }),
+  )
+}
+
+// Layer 5: Scale-4 chiral 4-body phase Phi_odd (silent on fewer than 4 excitations per dock).
+function applyOddChiralPhase(state: State, dag: boolean): State {
+  return mapConfigurations(state, (vibes, amp) => {
+    let exponent = 0
+
+    for (const [dock, indices] of groupByDock(vibes)) {
+      if (indices.length >= 4) {
+        exponent +=
+          dockParity[dock]! * chiralOrientationDock(vibes, indices)
+      }
+    }
+
+    const signedExp = dag ? -exponent : exponent
+    const mod6 = ((signedExp % 6) + 6) % 6
+    const phased = mod6 === 0 ? amp : mulZ9(amp, ZETA6_POWERS[mod6]!)
+
+    return [vibes, phased]
+  })
+}
+
+// Layer 6: Opposite-sign collision bounce K (self-adjoint involution K^dag = K).
+function applyOppositeSignBounce(state: State, _dag: boolean): State {
+  return mapConfigurations(state, (vibes, amp) => {
+    let negate = false
+
+    for (const [idxA, idxB, slotA, slotB] of collectActiveLines(
+      vibes,
+    )) {
+      if (idxA === undefined || idxB === undefined) {
+        continue
+      }
+
+      if (vibes[idxA]![2] === vibes[idxB]![2]) {
+        continue
+      }
+
+      const vA = vibes[idxA]!
+      const vB = vibes[idxB]!
+
+      vibes[idxA] = [vA[0], slotB, vA[2], vA[3]]
+      vibes[idxB] = [vB[0], slotA, vB[2], vB[3]]
+      negate = !negate
+    }
+
+    return [vibes, negate ? scaleZ9(-1n, amp) : amp]
+  })
+}
+
+// Layer 7: Deterministic antipodal stream S across the 24 octahedral facets of {3,4,3,4}.
+function applyStream(state: State, dag: boolean): State {
+  return mapConfigurations(state, (vibes, amp) => [
+    vibes.map(([dock, slot, tone, role]) => {
+      const dir = dag ? OPPOSITE_SLOT[slot]! : slot
+
+      return [stepDock(dock, dir), slot, tone, role] as const
+    }),
+    amp,
+  ])
+}
+
+const BEAT_LAYERS: readonly LayerOp[] = [
+  applyHalfCoinD,
+  applyRoleMeet,
+  applyHalfCoinD,
+  applyPairLineMixer,
+  applyOddChiralPhase,
+  applyOppositeSignBounce,
+  applyStream,
+]
+\end{lstlisting}

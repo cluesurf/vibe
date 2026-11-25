@@ -5,7 +5,7 @@
 //
 // Builds directly on the exact 4D {3,4,3,4} infrastructure of E-FND-0187
 // (code/measure/honeycomb-ball-coupled-l3.ts), E-GRV-0157 (1/N_D^2 warped cusp gravity,
-// G_eff = 0.07716700), E-RLT-0125 (shared warped-column speed c_u = 0.9869161538), and
+// G_eff = 0.07859254), E-RLT-0125 (shared warped-column speed c_u = 0.9779246684), and
 // E-GRV-0160 (nonlinear isotropic Schwarzschild lapse alpha(r) and conformal factor psi(r)):
 //
 //   Part 1 -- True L3 Two-Body Mutual Gravitational Attraction & Action-Reaction on Exact R = 3:
@@ -67,7 +67,10 @@ import {
   type ComplexSparseBranch,
   type ComplexSparseState,
 } from '@/code/measure/honeycomb-ball-coupled-l3'
-import { EXACT_COLUMN_SHELL_COUNTS } from '@/code/measure/pair-density-gravity-slope'
+import {
+  EXACT_COLUMN_SHELL_COUNTS,
+  singleFaceLateralLinksPerNeighbor,
+} from '@/code/measure/pair-density-gravity-slope'
 import {
   buildWarpedGravityTable,
   type WarpedGravityTable,
@@ -108,12 +111,6 @@ type RawBulkTable = {
   readonly mGap: number
 }
 
-function lateralLinksPerNeighbor(d: number): number {
-  if (d === 0) return 1
-  if (d === 1) return 10
-  return 8 * 5 ** (d - 1)
-}
-
 function buildDepthWeightFromCVert(cVert: Float64Array, floorF: number): Float64Array {
   const rRem = new Float64Array(floorF + 1)
   let acc = 0
@@ -142,7 +139,7 @@ function buildRawBulkTable(floorF = 8, maxR = 17): RawBulkTable {
   const cLat = new Float64Array(floorF + 1)
   const cVert = new Float64Array(floorF + 1)
   for (let d = 0; d <= floorF; d++) {
-    cLat[d] = lateralLinksPerNeighbor(d)
+    cLat[d] = singleFaceLateralLinksPerNeighbor(d)
     cVert[d] = 18 * nShell[d]!
   }
 

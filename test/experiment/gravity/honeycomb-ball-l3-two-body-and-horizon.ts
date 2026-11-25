@@ -1,24 +1,23 @@
-// FRONTIER 3 (E-GRV-0162): TRUE L3 TWO-BODY MUTUAL GRAVITATIONAL ATTRACTION, ACTION-REACTION,
-// AND STRONG-FIELD EVENT-HORIZON TRAPPING WITH EXACT UNITARY INFORMATION PRESERVATION
-// DIRECTLY ON EXACT 4D {3,4,3,4} HONEYCOMB BALLS (R = 2: 481 DOCKS, R = 3: 8,857 DOCKS).
+// FRONTIER 3 (E-GRV-0162): L2 PRESCRIBED-BACKGROUND / HARTREE MEAN-FIELD QUANTUM WALK FOR
+// TWO-BODY ATTRACTION AND ISOTROPIC HORIZON COINS ON EXACT 4D {3,4,3,4} HONEYCOMB BALLS
+// (R = 2: 481 DOCKS, R = 3: 8,857 DOCKS).
 //
-// Depth L3: runs directly on the exact 4D {3,4,3,4} honeycomb balls (R = 2: 481 docks / 11,544
-// slots, R = 3: 8,857 docks / 212,568 slots, 0 frontier hits, 0 coordinate/cover conflicts) using
-// parameter-free constants G_eff = 0.07716700 (E-GRV-0157), c_u = 0.9869161538 (E-RLT-0125), and
-// E-GRV-0160's nonlinear isotropic Schwarzschild lapse alpha(r) and conformal factor psi(r):
-//   1. Coupled live two-body Strang-split reversible unitary attraction & Newton's 3rd law
-//      (equal mass 1:1 and unequal mass 1:3) directly on the 8,857-dock 4D ball, with G = 0 null
-//      control, raw unwarped w(D) = 1 & Cheeger-screened bulk controls (> 100x collapse), and
-//      exact memoryless U_2body^dag reversal <= 1e-13.
-//   2. Nonlinear strong-field event-horizon trapping across chi = r_H / r_0 = r_s / (4 r_0) in
-//      {0.0, 0.4, 0.75, 1.0, 1.35} on the 8,857-dock 4D ball: strictly monotonic slowdown from
-//      v_r = +c_u -> 0 (exact horizon stall) -> negative (inward fall inside trapped interior),
-//      with simultaneous proof of exact unitary information preservation behind the horizon
-//      (norm <= 1e-13, purity Tr(rho^2) = 1 <= 1e-13, memoryless U_horizon^dag reversal <= 1e-13,
-//      and orthogonality preservation |<psi_1(t) | psi_2(t)>| <= 1e-13).
-//   3. Exact R = 2 vs R = 3 zero-contamination convergence (<= 1e-14), < 1% weak-field bridge to
-//      E-GRV-0160 L2 predictions, and certified {3,4,3,4} N_ball(0..3) = [1, 25, 481, 8857]
-//      ~ 18^R hardware scaling law. Zero Math.random.
+// Depth L2: executes a prescribed-background / Hartree mean-field quantum walk directly on the exact
+// 4D {3,4,3,4} honeycomb balls (R = 2: 481 docks / 11,544 slots, R = 3: 8,857 docks / 212,568 slots,
+// 0 frontier hits, 0 coordinate/cover conflicts) using warped-column constants G_eff = 0.07859254
+// (E-GRV-0157), c_u = 0.9779246684 (E-RLT-0125), and prescribed isotropic Schwarzschild coin angles:
+//   1. Coupled two-body Hartree mean-field Strang-split reversible unitary walk (equal mass 1:1 and
+//      unequal mass 1:3) on the 8,857-dock 4D ball, with G = 0 null control, raw unwarped w(D) = 1 and
+//      Cheeger-screened bulk controls (> 100x collapse), and memoryless U_2body^dag reversal <= 1e-13.
+//   2. Prescribed isotropic Schwarzschild radial coin sweep chi = r_H / r_0 = r_s / (4 r_0) in
+//      {0.0, 0.4, 0.75, 1.0, 1.35} on the 8,857-dock 4D ball. Important coordinate caveat: isotropic
+//      chi = 1.35 sits at r_areal = 1.0227 r_s > r_s on the mirror sheet across the Einstein-Rosen
+//      bridge (superseded by horizon-penetrating Gullstrand-Painleve coordinates in E-GRV-0163).
+//      Single-particle norm, purity, reversal, and orthogonality checks verify unitarity of the walk
+//      and are NOT Hawking evaporation or Page-curve entropy.
+//   3. Exact R = 2 vs R = 3 convergence (<= 1e-14), Part 3B discretization self-consistency of the
+//      weak-field coin encoding (< 1% slope match), and N_ball(0..3) = [1, 25, 481, 8857] ~ 18^R
+//      scaling law. Zero Math.random.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -28,10 +27,10 @@ export default experiment({
   id: 'gravity/honeycomb-ball-l3-two-body-and-horizon',
   code: 'E-GRV-0162',
   title:
-    'True L3 two-body mutual gravitational attraction, action-reaction, and strong-field event-horizon trapping with exact unitary information preservation directly on exact 4D {3,4,3,4} honeycomb balls',
+    'L2 prescribed-background and Hartree mean-field quantum walk on exact 4D {3,4,3,4} honeycomb balls (R = 2, 3) with two-body attraction and isotropic Schwarzschild radial coins',
   category: 'gravity',
   substrates: ['3434'],
-  depth: 'L3',
+  depth: 'L2',
   paper: false,
   run() {
     const r = runHoneycombBallL3TwoBodyAndHorizon()
@@ -42,8 +41,8 @@ export default experiment({
 
     // Gate 0: Exact 4D {3,4,3,4} ball geometry, cusp chart consistency, zero conflicts, constants & runtime
     const g0GeometryAndConstants =
-      Math.abs(r.constants.gEff - 0.077167) < 1e-6 &&
-      Math.abs(r.constants.cUniversal - 0.9869161538) < 1e-8 &&
+      Math.abs(r.constants.gEff - 0.07859254) < 1e-6 &&
+      Math.abs(r.constants.cUniversal - 0.9779246684) < 1e-8 &&
       g.nBall0to3[0] === 1 &&
       g.nBall0to3[1] === 25 &&
       g.nBall0to3[2] === 481 &&
@@ -176,30 +175,33 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        `Directly on the exact 4D {3,4,3,4} honeycomb balls (N_ball(0..3) = [${g.nBall0to3.join(', ')}], ` +
-        `R = 3: ${g.r3Cells} docks / ${g.r3TotalSlots} slots, 0 cover/chart/orientation conflicts, 0 frontier hits everywhere, ` +
-        `G_eff = ${r.constants.gEff.toFixed(8)}, c_u = ${r.constants.cUniversal.toFixed(10)}): ` +
-        `(1) Live coupled two-body Strang-split reversible unitary evolution on R = 3 yields strict mutual attraction ` +
+        `L2 prescribed-background / Hartree mean-field quantum walk on exact 4D {3,4,3,4} honeycomb balls ` +
+        `(N_ball(0..3) = [${g.nBall0to3.join(', ')}], R = 3: ${g.r3Cells} docks / ${g.r3TotalSlots} slots, ` +
+        `0 cover/chart/orientation conflicts, 0 frontier hits everywhere, G_eff = ${r.constants.gEff.toFixed(8)}, ` +
+        `c_u = ${r.constants.cUniversal.toFixed(10)}): ` +
+        `(1) Coupled Hartree two-body Strang-split reversible unitary walk on R = 3 yields mutual attraction ` +
         `(Delta d_AB = ${eq.deltaDAB1.toFixed(6)} at t=1, ${eq.deltaDAB2.toFixed(6)} at t=2, Delta x_A = +${eq.deltaXA2.toFixed(6)}, ` +
-        `Delta x_B = ${eq.deltaXB2.toFixed(6)}), exact equal-mass COM conservation (|Delta x_A + Delta x_B| = ` +
-        `${Math.abs(eq.deltaXA2 + eq.deltaXB2).toExponential(2)}), unequal-mass (1:3) Newton 3rd law ` +
+        `Delta x_B = ${eq.deltaXB2.toFixed(6)}), equal-mass COM conservation (|Delta x_A + Delta x_B| = ` +
+        `${Math.abs(eq.deltaXA2 + eq.deltaXB2).toExponential(2)}), unequal-mass (1:3) action-reaction ratio ` +
         `(Delta x_A / (-Delta x_B) = ${uq.displacementRatio1.toFixed(8)} at t=1 with rel err ${uq.newton3RelErr1.toExponential(2)}, ` +
         `${uq.displacementRatio2.toFixed(6)} at t=2, linear-response ${uqLin.displacementRatio2.toFixed(7)}), ` +
-        `exact norm (${eq.maxNormErr.toExponential(2)}) and memoryless 2-beat U^dag reversal (${eq.reversalErr2Beats.toExponential(2)}), ` +
+        `norm err (${eq.maxNormErr.toExponential(2)}) and memoryless 2-beat U^dag reversal (${eq.reversalErr2Beats.toExponential(2)}), ` +
         `zero drift at G = 0 (${Math.abs(free.deltaDAB2).toExponential(2)}), and > 100x collapse in raw unwarped {3,4,3,4} bulk ` +
         `(${p1.rawSchurCollapseFactorBeat2.toFixed(1)}x raw Schur, ${p1.rawCheegerCollapseFactorBeat2.toFixed(1)}x Cheeger exp(-m_gap r)). ` +
-        `(2) Nonlinear isotropic Schwarzschild unitary radial coin U_horizon(M) at dock 0 sweeps chi = r_H / r_0 = r_s / (4 r_0) ` +
-        `across {0.0, 0.4, 0.75, 1.0, 1.35} on R = 3 (0 frontier hits), slowing strictly monotonically from v_r(0) = +${sw0.vRadial1.toFixed(6)} ` +
-        `(= c_u) through v_r(0.4) = +${sw1.vRadial1.toFixed(6)} and v_r(0.75) = +${sw2.vRadial1.toFixed(6)} to exact horizon stall ` +
-        `v_r(1.0) = ${sw3.vRadial1.toFixed(6)} and inward trapped fall v_r(1.35) = ${sw4.vRadial1.toFixed(6)} (Delta r_2 = ${sw4.deltaR2.toFixed(6)} < 0, ` +
-        `2*theta = ${sw4.coinAngle2ThetaRad.toFixed(4)} > pi/2), while proving exact unitary information preservation behind the horizon ` +
+        `(2) Prescribed isotropic Schwarzschild radial coin sweep chi = r_H / r_0 = r_s / (4 r_0) across ` +
+        `{0.0, 0.4, 0.75, 1.0, 1.35} on R = 3 (0 frontier hits) slows monotonically from v_r(0) = +${sw0.vRadial1.toFixed(6)} ` +
+        `(= c_u) through v_r(0.4) = +${sw1.vRadial1.toFixed(6)} and v_r(0.75) = +${sw2.vRadial1.toFixed(6)} to horizon stall ` +
+        `v_r(1.0) = ${sw3.vRadial1.toFixed(6)} and v_r(1.35) = ${sw4.vRadial1.toFixed(6)} (Delta r_2 = ${sw4.deltaR2.toFixed(6)} < 0, ` +
+        `note isotropic chi = 1.35 lies on the Einstein-Rosen mirror sheet at r_areal = 1.023 r_s > r_s, superseded by ` +
+        `horizon-penetrating Gullstrand-Painleve coordinates in E-GRV-0163), while preserving single-particle unitarity ` +
         `(norm err ${p2.worstNormErr.toExponential(2)}, purity err ${p2.worstPurityErr.toExponential(2)}, memoryless U^dag reversal ` +
-        `${p2.worstReversalErr.toExponential(2)}, orthogonality |<psi_1|psi_2>| = ${p2.worstOrthogonalityErr.toExponential(2)}). ` +
+        `${p2.worstReversalErr.toExponential(2)}, orthogonality |<psi_1|psi_2>| = ${p2.worstOrthogonalityErr.toExponential(2)}, ` +
+        `which is NOT Hawking evaporation or Page-curve entropy). ` +
         `(3) Exact R = 2 vs R = 3 agreement inside the shared causal window is ${p3.r2VsR3Origin2BeatDiff.toExponential(2)} (origin 2-beat) ` +
-        `and ${p3.r2VsR3TwoBody1BeatDiff.toExponential(2)} (two-body 1-beat), L3 weak-field radial speed and redshift slopes match E-GRV-0160 L2 ` +
-        `to ${(100 * p3.l3WeakSpeedSlopeRelErr).toFixed(3)}% and ${(100 * p3.l3WeakRedshiftSlopeRelErr).toFixed(3)}% (exact nonlinear match ` +
-        `${p3.weakFieldMaxSpeedDiffVsExactL2.toExponential(2)}), and N_ball(R) ~ 18^R scaling certifies > ${p3.docksAtR8LowerBound.toExponential(2)} ` +
-        `docks at R = 8 for unfactored multi-orbit mergers`,
+        `and ${p3.r2VsR3TwoBody1BeatDiff.toExponential(2)} (two-body 1-beat), Part 3B discretization self-consistency of the weak-field ` +
+        `coin encoding matches to ${(100 * p3.l3WeakSpeedSlopeRelErr).toFixed(3)}% and ${(100 * p3.l3WeakRedshiftSlopeRelErr).toFixed(3)}% ` +
+        `(max pointwise diff ${p3.weakFieldMaxSpeedDiffVsExactL2.toExponential(2)}), and N_ball(R) ~ 18^R scaling gives ` +
+        `> ${p3.docksAtR8LowerBound.toExponential(2)} docks at R = 8`,
       metrics: {
         g0GeometryAndConstants: g0GeometryAndConstants ? 1 : 0,
         g1TwoBodyAttractionAndNewton3: g1TwoBodyAttractionAndNewton3 ? 1 : 0,
@@ -304,7 +306,7 @@ export default experiment({
         p2InteriorHuskVRadial1: sw4.huskVRadial1,
       },
       notes:
-        'Part 1 runs coupled two-body Strang-split reversible unitary evolution U_2body = V_half * S_4D * V_half directly on the exact 8,857-dock (212,568-slot) R = 3 4D {3,4,3,4} honeycomb ball from symmetric d_ball = 1 cusp-husk docks d_A = (-1, 0, 0) and d_B = (+1, 0, 0) with 0 frontier hits through t = 1..2. Because V_half is strictly dock-local unitary on all 12 opposite-displacement pairs of each dock, dock densities rho_A and rho_B are identically invariant across each kick, guaranteeing strict norm preservation and exact memoryless time-reversal U_2body^dag without storing potential history. Part 2 encodes E-GRV-0160 nonlinear isotropic Schwarzschild lapse alpha(r) = (1 - r_s/(4r))/(1 + r_s/(4r)) and conformal factor psi(r) = 1 + r_s/(4r) via local SU(2) radial coins cos(2 theta) = c_u (1 - u_rad^2) + u_rad^2 c_rad(r) across all 8,857 docks, demonstrating monotonic light-cone tipping from flat escape at c_u through exact stalling at the isotropic horizon chi = r_H/r_0 = 1.0 to inward fall inside the trapped surface chi = 1.35 while preserving global norm, pure-state purity, memoryless reversibility, and inner products of orthogonal states to <= 1e-13. Part 3 verifies zero boundary contamination between R = 2 and R = 3 inside the shared causal window, < 1% weak-field slope match to E-GRV-0160, and the exact N_ball(0..3) = [1, 25, 481, 8857] ~ 18^R hardware scaling boundary for unfactored multi-orbit L3 mergers.',
+        'Graded L2 (prescribed-background / Hartree mean-field quantum walk on the exact R = 3 4D {3,4,3,4} honeycomb ball, not emergent GR from a bare QCA). Part 1 runs coupled Hartree two-body Strang-split reversible unitary evolution U_2body = V_half * S_4D * V_half on the 8,857-dock (212,568-slot) R = 3 ball from d_A = (-1, 0, 0) and d_B = (+1, 0, 0) with 0 frontier hits through t = 1..2, preserving dock densities across each kick for strict norm conservation and memoryless time-reversal U_2body^dag. Part 2 encodes prescribed isotropic Schwarzschild lapse alpha(r) = (1 - r_s/(4r))/(1 + r_s/(4r)) and conformal factor psi(r) = 1 + r_s/(4r) via local SU(2) radial coins cos(2 theta) = c_u (1 - u_rad^2) + u_rad^2 c_rad(r) across all 8,857 docks. Important coordinate note: isotropic chi = 1.35 probes the Einstein-Rosen mirror sheet at r_areal = 1.023 r_s > r_s rather than a trapped interior (superseded by horizon-penetrating Gullstrand-Painleve coordinates in E-GRV-0163), and single-particle norm, purity, reversal, and orthogonality preservation verify walk unitarity and are NOT Hawking evaporation or Page-curve entropy. Part 3 checks zero boundary contamination between R = 2 and R = 3 inside the shared causal window, discretization self-consistency of the weak-field coin encoding (< 1% slope match), and the N_ball(0..3) = [1, 25, 481, 8857] ~ 18^R scaling.',
     })
   },
 })

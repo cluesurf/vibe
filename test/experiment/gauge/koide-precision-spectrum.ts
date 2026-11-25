@@ -46,7 +46,7 @@ export default experiment({
   title:
     'Exact Koide Q = 2/3 theorem from F4 sqrt(2) root ratio and D4 triality T_3, Z[zeta_9] phase analysis (arg(zeta_9)/pi = 2/9) with strict look-elsewhere null controls, and exact Koide + {3,4,3,4} warp-shell upward-shift theorem across leptons, quarks, and neutrinos',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: ['eft-continuum'],
   depth: 'L2',
   paper: false,
   run() {

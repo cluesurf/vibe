@@ -1,19 +1,20 @@
-// OPEN PROBLEM #4 (E-FND-0187): TRUE L3 MULTI-SECTOR BRIDGE DIRECTLY ON THE CACHED EXACT 4D
-// {3,4,3,4} HONEYCOMB BALLS (R = 2, 481 DOCKS, 11,544 SLOTS; R = 3, 8,857 DOCKS, 212,568 SLOTS).
+// OPEN PROBLEM #4 (E-FND-0187): L2 EXACT 4D {3,4,3,4} HONEYCOMB BALL EXECUTION WITH PRESCRIBED
+// CLASSICAL FLOAT64 PHI AND STATIC Z_3 LINKS (R = 2 WITH 481 DOCKS, R = 3 WITH 8,857 DOCKS).
 //
-// Depth L3: Lifts the coupled five-sector reversible unitary rule of E-FND-0186 DIRECTLY onto the
-// exact cached 4D {3,4,3,4} honeycomb balls inside the proven zero-frontier-hit causal horizon
-// (t <= R, 0 frontier hits), using the actual 24-slot 4D dock geometry and the slot-sparse engine:
+// Depth L2: executes 4 coupled sectors (bare walk + M_pair + ODD + static Z_3 links + prescribed
+// classical Float64 gravitational potential Phi) directly on the cached exact 4D {3,4,3,4} honeycomb
+// balls inside the zero-frontier-hit causal window (t <= R, 0 frontier hits), omitting E-FND-0186's
+// chiral domain wall:
 //   - Exact cusp depth D(dock) and 3D husk coordinate x(dock) via coverBall + buildExactCusp
 //     (0 conflicts, 0 missing on both R = 2 and R = 3).
-//   - Exact 1/N_D^2 warped gravitational potential Phi(dock) (G_eff = 0.07716700 from E-GRV-0157)
-//     and exact Z_3 gauge link phases U_e in Z[omega] subset Z[zeta_9][1/6] on actual 4D octahedral
-//     faces (96 origin 4-cycles).
-//   - Scale 0 (V1 vacuum on 8,857 docks / 212,568 slots), Scale 1 (lone vibe + Z_3 gauge + gravity
-//     on R = 3, t = 1..3), Scale 2 (2-vibe M_pair(zeta_18) + Z_3 gauge + gravity on R = 3, t = 1..3,
-//     12/12 lines, 24/24 neighbor docks), Scale 4 (4-vibe ODD slots [0,1,4,10] + M_pair + Z_3 gauge
-//     + gravity on R = 2, t = 1..2, nonzero C-asymmetry with exact global CP balance), and all 4
-//     sector-by-sector ablations directly on the 4D honeycomb balls. Zero Math.random.
+//   - Prescribed classical Float64 warped potential Phi(dock) (G_eff = 0.07859254 from E-GRV-0157)
+//     and static Z_3 gauge link phases U_e in Z[omega] subset Z[zeta_9][1/6] on 4D octahedral
+//     faces (96 origin 4-cycles). The bare-rule BigInt cross-check runs with external sectors disabled.
+//   - Scale 0 (V1 vacuum on 8,857 docks / 212,568 slots), Scale 1 (lone vibe + static Z_3 links +
+//     prescribed Phi on R = 3, t = 1..3), Scale 2 (2-vibe M_pair(zeta_18) + static Z_3 + Phi on
+//     R = 3, t = 1..3, 12/12 lines, 24/24 neighbor docks), Scale 4 (4-vibe ODD slots [0,1,4,10] +
+//     M_pair + static Z_3 + Phi on R = 2, t = 1..2, nonzero C-asymmetry with exact global CP balance),
+//     and all 4 sector-by-sector ablations directly on the 4D honeycomb balls. Zero Math.random.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -23,10 +24,10 @@ export default experiment({
   id: 'foundations/honeycomb-ball-coupled-l3',
   code: 'E-FND-0187',
   title:
-    'True L3 multi-sector bridge running the coupled five-sector reversible unitary rule directly on cached exact 4D {3,4,3,4} honeycomb balls (R = 2, 481 docks; R = 3, 8,857 docks) with zero frontier hits',
+    'L2 exact R = 2, 3 {3,4,3,4} honeycomb ball execution of 4 coupled sectors with prescribed classical Float64 Phi and static Z_3 links (omitting chiral domain wall)',
   category: 'foundations',
   substrates: ['3434'],
-  depth: 'L3',
+  depth: 'L2',
   paper: false,
   run() {
     const r = runHoneycombBallCoupledL3()
@@ -35,7 +36,7 @@ export default experiment({
     const g0GeometryAndAlgebra =
       r.algebraic.allExact &&
       r.sparseEngineCrossCheckMaxDiff <= 1e-14 &&
-      Math.abs(r.gravity.gEff - 0.077167) < 1e-6 &&
+      Math.abs(r.gravity.gEff - 0.07859254) < 1e-6 &&
       r.geomR2.cells === 481 &&
       r.geomR2.totalSlots === 11544 &&
       r.geomR2.coverConflicts === 0 &&
@@ -124,31 +125,32 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        `True L3 multi-sector bridge runs the coupled 5-sector reversible unitary rule U_L3 directly on ` +
-        `cached exact 4D {3,4,3,4} honeycomb balls (R = 2: ${r.geomR2.cells} docks / ${r.geomR2.totalSlots} slots; ` +
-        `R = 3: ${r.geomR3.cells} docks / ${r.geomR3.totalSlots} slots; 0 coverBall conflicts/missing, ` +
-        `96/96 octahedral-face 4-cycles with ${r.geomR3.nonzeroFluxOriginPlaquettes} nonzero Z_3 flux plaquettes, ` +
-        `G_eff = ${r.gravity.gEff.toFixed(8)}): ` +
-        `Scale 0 V1 vacuum stays an exact fixed point (drift ${r.scale0VacuumR3.driftErr}, 0 frontier hits); ` +
+        `L2 exact R = 2, 3 {3,4,3,4} honeycomb ball execution of 4 coupled sectors (omitting E-FND-0186's chiral ` +
+        `domain wall) with prescribed classical Float64 gravitational potential Phi and static Z_3 gauge links ` +
+        `(R = 2: ${r.geomR2.cells} docks / ${r.geomR2.totalSlots} slots, R = 3: ${r.geomR3.cells} docks / ` +
+        `${r.geomR3.totalSlots} slots, 0 coverBall conflicts/missing, 96/96 octahedral-face 4-cycles with ` +
+        `${r.geomR3.nonzeroFluxOriginPlaquettes} nonzero Z_3 flux plaquettes, G_eff = ${r.gravity.gEff.toFixed(8)}, ` +
+        `bare-rule BigInt cross-check with external sectors disabled <= ${r.sparseEngineCrossCheckMaxDiff.toExponential(2)}): ` +
+        `Scale 0 V1 vacuum stays an exact fixed point (drift ${r.scale0VacuumR3.driftErr}, 0 frontier hits). ` +
         `Scale 1 lone vibe on R = 3 (t = 1..3, 0 frontier hits) keeps norm err ${r.scale1LoneR3.maxNormErr.toExponential(2)}, ` +
-        `3-beat U_L3^dag reversal err ${r.scale1LoneR3.reversalErr.toExponential(2)}, ` +
+        `3-beat reversal err ${r.scale1LoneR3.reversalErr.toExponential(2)}, ` +
         `Z_3 gauge covariance err ${r.scale1LoneR3.gaugeCovErr.toExponential(2)} across all 8,857 docks, ` +
         `exact octahedral-face AB phase ${r.scale1LoneR3.abPhaseRadOn.toFixed(12)} rad ` +
-        `(err ${r.scale1LoneR3.abPhaseErrOn.toExponential(2)}, 0 off/pure-gauge), and 1/N_D^2 gravitational centroid shift ` +
-        `${r.scale1LoneR3.gravCentroidShiftNorm.toFixed(6)} docks (0 zero-source); ` +
+        `(err ${r.scale1LoneR3.abPhaseErrOn.toExponential(2)}, 0 off/pure-gauge), and prescribed-Phi centroid shift ` +
+        `${r.scale1LoneR3.gravCentroidShiftNorm.toFixed(6)} docks (0 zero-source). ` +
         `Scale 2 2-vibe M_pair(zeta_18) on R = 3 (t = 1..3, 0 frontier hits) breaks the 1D line law ` +
         `(${r.scale2PairR3.linesReachedBeat1}/12 lines, ${r.scale2PairR3.originNeighborsReachedBeat1}/24 neighbors, ` +
         `${r.scale2PairR3.distinctDocksBeat3} distinct docks vs 4 bare, off-line weight = ${r.scale2PairR3.offInitialLineWeightBeat3.toFixed(5)}) ` +
         `with quantum interference TV = ${r.scale2PairR3.quantumInterferenceTV.toFixed(5)}, ` +
-        `gravitational centroid shift ${r.scale2PairR3.gravCentroidShiftNorm.toFixed(6)} (TV ${r.scale2PairR3.gravDockDistTV.toFixed(6)}, 0 zero-source), ` +
+        `prescribed-Phi centroid shift ${r.scale2PairR3.gravCentroidShiftNorm.toFixed(6)} (TV ${r.scale2PairR3.gravDockDistTV.toFixed(6)}, 0 zero-source), ` +
         `norm err ${r.scale2PairR3.maxNormErr.toExponential(2)}, reversal err ${r.scale2PairR3.reversalErr.toExponential(2)}, ` +
-        `gauge cov err ${r.scale2PairR3.gaugeCovErr.toExponential(2)}; ` +
+        `gauge cov err ${r.scale2PairR3.gaugeCovErr.toExponential(2)}. ` +
         `Scale 4 4-vibe ODD (slots [${r.scale4OddR2.slots.join(',')}], chi_odd = ${r.scale4OddR2.chiA} vs ${r.scale4OddR2.chiB}) ` +
         `on R = 2 (t = 1..2, 0 frontier hits) produces C-asymmetry ${r.scale4OddR2.cAsymmetrySumT1.toFixed(6)} (t=1) / ` +
-        `${r.scale4OddR2.cAsymmetrySumT2.toFixed(6)} (t=2) with exact global CP balance ` +
+        `${r.scale4OddR2.cAsymmetrySumT2.toFixed(6)} (t=2) with global CP balance ` +
         `${r.scale4OddR2.cpBalanceErrT1.toExponential(2)} / ${r.scale4OddR2.cpBalanceErrT2.toExponential(2)}, ` +
         `gauge cov err ${r.scale4OddR2.gaugeCovErr.toExponential(2)}, and 2-beat reversal err ` +
-        `${r.scale4OddR2.reversalErr.toExponential(2)}; all 4/4 sector ablations eliminate only their own observable`,
+        `${r.scale4OddR2.reversalErr.toExponential(2)}, and all 4/4 sector ablations eliminate only their own observable`,
       metrics: {
         g0GeometryAndAlgebra: g0GeometryAndAlgebra ? 1 : 0,
         g1Scale0Vacuum: g1Scale0Vacuum ? 1 : 0,
@@ -227,7 +229,7 @@ export default experiment({
         ablationOddOffCAsymT2: r.ablations[3]!.oddCAsymT2Scale4,
       },
       notes:
-        'True L3 multi-sector bridge running U_L3 = S_4D * U_grav(Phi) * U_gauge(A) * W_ODD * D_coin * M_pair(zeta_18) * K_collide * M_meet * D_coin * W_ODD directly on cached exact R = 2 (481 docks, 11,544 slots) and R = 3 (8,857 docks, 212,568 slots) 4D {3,4,3,4} honeycomb balls via the slot-sparse state layout of sparse-locked-knit.ts. Every discrete gate is certified unitary inside Z[zeta_9][1/6] in exact Q(zeta_9) arithmetic, bare slot-sparse evolution matches exact BigInt sparseCoinedVetoBeat to <= 1e-14, and all four sector-by-sector ablations confirm zero cross-sector contamination.',
+        'Graded L2: exact R = 2 (481 docks, 11,544 slots) and R = 3 (8,857 docks, 212,568 slots) 4D {3,4,3,4} honeycomb ball execution of 4 coupled sectors (bare walk + M_pair + ODD + static Z_3 gauge links + prescribed classical Float64 gravitational potential Phi) via U = S_4D * U_grav(Phi) * U_gauge(A) * W_ODD * D_coin * M_pair(zeta_18) * K_collide * M_meet * D_coin * W_ODD. Explicitly omits E-FND-0186 chiral domain wall, uses static non-dynamical Z_3 links and prescribed classical Float64 Phi, and runs the bare-rule BigInt sparseCoinedVetoBeat cross-check (<= 1e-14) with external sectors disabled. Discrete gates are verified unitary inside Z[zeta_9][1/6] in Q(zeta_9) arithmetic, and all four sector-by-sector ablations confirm zero cross-sector contamination.',
     })
   },
 })

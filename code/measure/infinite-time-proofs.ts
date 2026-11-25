@@ -1,7 +1,8 @@
 // INFINITE-TIME FORMAL PROOFS BREAKING THE 4-BEAT HORIZON (E-FND-0185, gap B-35).
 //
-// Exact zero-float BigInt symbolic proof certificates mirroring every theorem in
-// code/proof/Vibe.lean:
+// Exact zero-float BigInt symbolic proof certificates mirroring the core infinite-time theorems (T1-T6)
+// in code/proof/Vibe/Rule.lean and code/proof/Vibe/Geometry.lean, paired with a structural and build-artifact
+// audit of the full Lean 4 proof suite (code/proof/Vibe.lean + code/proof/Vibe/*.lean):
 //   Theorem 1: V1 eternal stationarity (forall t : Nat) + zero entropy export outside
 //              any finite lump light cone (verified on exact {3,4,3,4} balls R = 1, R = 2
 //              for bare, F-G, M_pair, ODD value phase, and combined rule, plus inductive proof).
@@ -28,7 +29,8 @@
 // NOTHING MOVES: pure deterministic exact BigInt algebra + Lean 4 source structural audit. Zero floats
 // enter any proof certificate. Zero random numbers.
 
-import { readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
   add as nAdd,
@@ -780,8 +782,7 @@ export type Theorem6Certificate = {
 
 function lateralLinksBig(d: number): bigint {
   if (d === 0) return 1n
-  if (d === 1) return 10n
-  return 8n * 5n ** BigInt(d - 1)
+  return 4n * 5n ** BigInt(d - 1)
 }
 
 function proveTheorem6(): Theorem6Certificate {
@@ -900,31 +901,131 @@ function proveTheorem6(): Theorem6Certificate {
   }
 }
 
-// ---- Lean 4 source structural audit (zero sorry, all 6 theorems present) ----
+// ---- Lean 4 source and compiled artifact audit (Vibe.lean + Vibe/*.lean) ----
 
 export type LeanAudit = {
   readonly passed: boolean
   readonly theoremCount: number
   readonly sorryCount: number
   readonly axiomCount: number
+  readonly nativeDecideCount: number
+  readonly unsafeCount: number
+  readonly implementedByCount: number
+  readonly leanFileCount: number
+  readonly oleanFileCount: number
+  readonly oleanArtifactsPresent: boolean
   readonly allSixFamiliesPresent: boolean
 }
 
+function stripLeanComments(rawSrc: string): string {
+  let codeOnly = ''
+  let i = 0
+  let blockDepth = 0
+  let inLine = false
+  while (i < rawSrc.length) {
+    const ch = rawSrc[i]!
+    const nxt = rawSrc[i + 1]
+    if (inLine) {
+      if (ch === '\n') {
+        inLine = false
+        codeOnly += '\n'
+      }
+      i++
+      continue
+    }
+    if (blockDepth > 0) {
+      if (ch === '/' && nxt === '-') {
+        blockDepth++
+        i += 2
+        continue
+      }
+      if (ch === '-' && nxt === '/') {
+        blockDepth--
+        i += 2
+        continue
+      }
+      if (ch === '\n') codeOnly += '\n'
+      i++
+      continue
+    }
+    if (ch === '/' && nxt === '-') {
+      blockDepth = 1
+      i += 2
+      continue
+    }
+    if (ch === '-' && nxt === '-') {
+      inLine = true
+      i += 2
+      continue
+    }
+    codeOnly += ch
+    i++
+  }
+  return codeOnly
+}
+
 function auditLeanFile(): LeanAudit {
-  const leanPath = fileURLToPath(new URL('../proof/Vibe.lean', import.meta.url))
-  const src = readFileSync(leanPath, 'utf8')
-  // Strip block comments /- ... -/ and line comments -- ... before counting sorry/axiom/theorem
-  const noBlock = src.replace(/\/-[\s\S]*?-\//g, '')
-  const codeOnly = noBlock.replace(/--.*$/gm, '')
-  const theoremMatches = codeOnly.match(/\btheorem\s+[A-Za-z0-9_']+/g) ?? []
+  const proofDir = fileURLToPath(new URL('../proof', import.meta.url))
+  const leanFiles: string[] = [join(proofDir, 'Vibe.lean')]
+  const vibeSubdir = join(proofDir, 'Vibe')
+  const subModuleBases: string[] = []
+  if (existsSync(vibeSubdir)) {
+    for (const entry of readdirSync(vibeSubdir).sort()) {
+      if (entry.endsWith('.lean')) {
+        leanFiles.push(join(vibeSubdir, entry))
+        subModuleBases.push(entry.slice(0, -5))
+      }
+    }
+  }
+  const src = leanFiles.map(p => readFileSync(p, 'utf8')).join('\n')
+  const codeOnly = stripLeanComments(src)
+  let substantiveCount = 0
+  for (const p of leanFiles) {
+    const lines = readFileSync(p, 'utf8').split('\n')
+    let pendingHelper = false
+    for (const line of lines) {
+      const trimmed = line.trim()
+      if (trimmed.includes('[helper]')) {
+        pendingHelper = true
+        continue
+      }
+      if (/^private\s+theorem\s+[A-Za-z0-9_']+/.test(trimmed)) {
+        pendingHelper = false
+        continue
+      }
+      if (/^theorem\s+[A-Za-z0-9_']+/.test(trimmed)) {
+        if (!pendingHelper) substantiveCount++
+        pendingHelper = false
+        continue
+      }
+      if (trimmed.length > 0 && !trimmed.startsWith('--') && !trimmed.startsWith('/--')) {
+        pendingHelper = false
+      }
+    }
+  }
   const sorryMatches = codeOnly.match(/\bsorry\b/g) ?? []
   const axiomMatches = codeOnly.match(/\baxiom\b/g) ?? []
+  const nativeDecideMatches = codeOnly.match(/\bnative_decide\b/g) ?? []
+  const unsafeMatches = codeOnly.match(/\bunsafe\b/g) ?? []
+  const implementedByMatches = codeOnly.match(/\bimplemented_by\b/g) ?? []
 
-  const requiredNames = [
+  // Verify compiled .olean artifacts exist in code/proof/.lake/build/lib/lean/ (pnpm check:lean runs live lake build)
+  const oleanRoot = join(proofDir, '.lake', 'build', 'lib', 'lean')
+  const expectedOleans: string[] = [join(oleanRoot, 'Vibe.olean')]
+  for (const base of subModuleBases) {
+    expectedOleans.push(join(oleanRoot, 'Vibe', `${base}.olean`))
+  }
+  let oleanFileCount = 0
+  for (const p of expectedOleans) {
+    if (existsSync(p)) oleanFileCount++
+  }
+  const oleanArtifactsPresent = oleanFileCount === expectedOleans.length && oleanFileCount >= 2
+
+  const requiredFamilies = [1, 2, 3, 4, 5, 6] as const
+  const coreBenchmarks = [
     'thm1_v1_eternal_stationarity',
-    'thm1_zero_incoming_entropy',
-    'thm2_iter_left_inv',
-    'thm2_iter_norm_preserved',
+    'thm1_light_cone_empty_outside',
+    'thm2_coin_unitary_left',
     'thm3_traceSeq_odd',
     'thm3_W_infinite_order_su2',
     'thm3_noncommuting_conjugate',
@@ -933,16 +1034,33 @@ function auditLeanFile(): LeanAudit {
     'thm4_mpair12_transverse_iter',
     'thm5_resistance_exp_lower_bound',
     'thm5_resistance_unbounded',
-    'thm6_universal_speed_lock',
     'thm6_strictly_subluminal',
-  ]
-  const allSixFamiliesPresent = requiredNames.every(name => codeOnly.includes(`theorem ${name}`))
+  ] as const
+  const allSixFamiliesPresent =
+    requiredFamilies.every(n => new RegExp(`\\btheorem\\s+thm${n}_`).test(codeOnly)) &&
+    coreBenchmarks.every(name => new RegExp(`\\btheorem\\s+${name}\\b`).test(codeOnly))
+
+  const passed =
+    sorryMatches.length === 0 &&
+    axiomMatches.length === 0 &&
+    nativeDecideMatches.length === 0 &&
+    unsafeMatches.length === 0 &&
+    implementedByMatches.length === 0 &&
+    substantiveCount >= 35 &&
+    oleanArtifactsPresent &&
+    allSixFamiliesPresent
 
   return {
-    passed: sorryMatches.length === 0 && axiomMatches.length === 0 && allSixFamiliesPresent,
-    theoremCount: theoremMatches.length,
+    passed,
+    theoremCount: substantiveCount,
     sorryCount: sorryMatches.length,
     axiomCount: axiomMatches.length,
+    nativeDecideCount: nativeDecideMatches.length,
+    unsafeCount: unsafeMatches.length,
+    implementedByCount: implementedByMatches.length,
+    leanFileCount: leanFiles.length,
+    oleanFileCount,
+    oleanArtifactsPresent,
     allSixFamiliesPresent,
   }
 }

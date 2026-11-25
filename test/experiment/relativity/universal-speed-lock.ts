@@ -2,7 +2,7 @@
 // VS GW170817 (6e-15 BOUND) (E-RLT-0125, gaps B-41, m-29).
 //
 // Depth L2: exact {3,4,3,4} pair-density warped column (N_D = 1, 18, 330, 6034; w(D) = 1/N_D^2;
-// K_eff = 1.0312370835 from E-GRV-0157; M_eff = sum 1/N_D = 1.0587611...), explicit multi-component
+// canonical single-face [1, 4, 20, 100]: K_eff = 1.0125321220 from E-GRV-0157; M_eff = sum 1/N_D = 1.0587611742...), explicit multi-component
 // spin-2 TT graviton (6*(F+1)), spin-1 lattice curl-curl Maxwell photon (3*(F+1)), and spin-1/2
 // square-root chiral Weyl fermion (2*(F+1)) eigenproblems across (1,0,0), (1,1,0), (1,1,1), plus
 // exact discrete-time unitary wave evolution and CFL-stable symplectic leapfrog. Zero random numbers.
@@ -41,11 +41,11 @@ export default experiment({
       res.maxMatterSquareMatchErr < 1e-13 &&
       res.maxMatterHelicityErr < 1e-14
 
-    // Gate 1: Decoupled negative control fails GW170817 by > 12 orders of magnitude (~1.3% mismatch)
+    // Gate 1: Decoupled negative control fails GW170817 by > 12 orders of magnitude (~2.21% mismatch)
     const g1Control =
       Math.abs(res.cRawUnwarpedWeyl - 1) < 1e-14 &&
       res.decoupledMismatchFrac > 0.01 &&
-      res.decoupledMismatchFrac < 0.02 &&
+      res.decoupledMismatchFrac < 0.03 &&
       res.decoupledViolationFactorVsGW170817 > 1e12
 
     // Gate 2: Shared warped-cusp column universality c_grav = c_light = c_matter to <= 1e-15 (< 6e-15)
@@ -176,6 +176,11 @@ export default experiment({
         cSqMVsEGrv0157Diff: u.cSqMVsEGrv0157Diff,
       },
       control: {
+        period2TorusKEffF16: res.period2TorusComparison.kEffF16,
+        period2TorusGEffF16: res.period2TorusComparison.gEffF16,
+        period2TorusCUniversalF16: res.period2TorusComparison.cUniversalF16,
+        period2TorusCUniversalRelShiftVsCanonical:
+          res.period2TorusComparison.cUniversalRelShiftVsCanonical,
         cRawUnwarpedWeyl: res.cRawUnwarpedWeyl,
         decoupledMismatchFrac: res.decoupledMismatchFrac,
         decoupledViolationFactorVsGW170817: res.decoupledViolationFactorVsGW170817,

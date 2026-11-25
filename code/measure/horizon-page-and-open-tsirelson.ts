@@ -1,33 +1,21 @@
-// UNITARY HORIZON PAGE CURVE, THERMAL HAWKING SPECTRUM ON {3,4,3,4} WARPED CUSP,
-// AND OPEN-LINE NON-WRAPPING TSIRELSON CONVERGENCE TO 2 SQRT 2 VIA COMOVING SIGMA(648) RULE WORDS
-// (E-QTM-0207, closing E-GRV-0134 information paradox & E-QTM-0202 open-line Tsirelson stall).
+// L1 10-QUBIT BRICKWORK SCRAMBLER PAGE-CURVE BENCHMARK, BOSONIC BOGOLIUBOV TWO-MODE-SQUEEZER
+// THERMAL-CONSISTENCY CHECK, AND L1 Z[w][1/2] SU(2) MITM GATE-SYNTHESIS BENCHMARK ON A PREPARED BELL SINGLET
+// (E-QTM-0207).
 //
-// Part A: Unitary Horizon Page Curve & Hawking-like Thermal Emission on {3,4,3,4} Warped Cusp
-//   1. Evaporating black-hole Hilbert space (N_tot = 10 qubits = 1024 dim) split into radiation R (k modes)
-//      and interior B (N_tot - k modes), driven by a strictly reversible unitary Z[zeta_9][1/6] circuit built
-//      from E-QTM-0204's dense SU(2) generators {W_1, W_2, C, D, P_z9} and M_pair(zeta_18) 2-body entanglers
-//      (seeded deterministically from EXACT_COLUMN_SHELL_COUNTS = [1, 18, 330, 6034]). Zero RNG.
-//      Verifies global purity (norm error <= 1e-13, S_global <= 1e-13), exact backward U^dag reversal (<= 1e-13),
-//      exact Page curve S_R(0) = 0 -> early thermal rise S_R(k) ~ k -> Page turnover at k_Page = 5 near
-//      N_tot/2 - 1/(2 ln 2) -> exact return S_R(10) = 0 (<= 1e-12), and non-scrambling control S_R(k) = 0.
-//   2. Coupled bosonic acoustic-horizon / Unruh-Rindler unitary two-mode squeezing U_sq(r) = exp(r (a^dag b^dag - a b))
-//      across the {3,4,3,4} warped cusp redshift profile f(D) = 1/N_D ~ exp(-kappa D) with exact surface gravity
-//      kappa = ln(6034 / 330) and Hawking temperature T_H = kappa / (2 pi). Verified explicitly on the pair Fock space
-//      {|m_R, m_B>, m = 0..96} for exact Bose-Einstein occupation n(omega) = 1 / (exp(omega / T_H) - 1) to <= 1e-12
-//      (R^2 > 0.999999), symplectic unitarity |alpha|^2 - |beta|^2 = 1, Fock reversal U_sq(-r) U_sq(r) = I,
-//      and flat-horizon control (kappa = 0) emitting strictly 0 particles.
+// Scope and honest boundaries:
+//   - Part A.1 is an L1 10-qubit unitary brickwork scrambler Page-curve benchmark using Z[zeta_9][1/6] gates
+//     and M_pair(zeta_18) entanglers (deterministic schedule from [1, 18, 330, 6034]). It is a generic 10-qubit
+//     scrambler, NOT a {3,4,3,4} honeycomb black hole, and does NOT resolve E-GRV-0134.
+//   - Part A.2 is a bosonic Bogoliubov two-mode-squeezer thermal-consistency check verifying that Fock-space
+//     unitary squeezing U_sq(r) = exp(r (a^dag b^dag - a b)) satisfies sinh^2(r) = 1 / (exp(omega / T_H) - 1)
+//     when r = atanh(exp(-omega / (2 T_H))), evaluated at the benchmark input parameter kappa = ln(6034 / 330).
+//     It does NOT derive Hawking temperature from {3,4,3,4} dynamics.
+//   - Part B is an L1 Z[w][1/2] SU(2) Meet-in-the-Middle gate-synthesis convergence benchmark on a prepared Bell
+//     singlet transported along an open 128-dock line. Because the spatial line walk commutes with uniform spin
+//     analyzers uA (x) uB, this tests SU(2) gate approximation accuracy over L_word in {6, 10, 14, 18, 22}, while
+//     dynamical open-line entanglement saturation (E-QTM-0202 / B-08) remains open.
 //
-// Part B: Open-Line Non-Wrapping Tsirelson Convergence to 2 sqrt 2 (< 1e-6)
-//   Places an entangled Bell singlet pair on a strictly open, non-wrapping honeycomb line (L = 128, 0 boundary hits,
-//   0 periodic wrap), separates Alice and Bob across disjoint open-line segments via ballistic stream + working-rule
-//   coin walk, and applies comoving local Z[w][1/2] subset Z[zeta_9][1/6] rule-word analyzers synthesized
-//   deterministically via Meet-in-the-Middle exact search over {W_1, W_1^dag, W_2, W_2^dag} at word lengths
-//   L_word in {6, 10, 14, 18, 22}, verified in exact BigInt Z[w][1/2] arithmetic (det = 1, U^dag U = I).
-//   Proves strict monotonic convergence to 2 sqrt 2 with |2 sqrt 2 - CHSH_open| < 1e-6, 0 end hits,
-//   exact unitarity (<= 1e-14), exact U^dag reversal (<= 1e-14), exact no-signaling (<= 1e-15),
-//   and failable classical dephased control <= 2.0.
-//
-// NOTHING MOVES: pure deterministic unitary state evolution and exact ring algebra. Zero Math.random.
+// Zero Math.random, zero PRNGs, pure deterministic unitary state evolution and exact BigInt Z[w][1/2] arithmetic.
 
 import { EXACT_COLUMN_SHELL_COUNTS } from '@/code/measure/pair-density-gravity-slope'
 
@@ -275,7 +263,7 @@ function vonNeumannBits(evals: readonly number[]): number {
 }
 
 // ============================================================================================================
-// PART A: UNITARY HORIZON PAGE CURVE & HAWKING THERMAL EMISSION ON {3,4,3,4} WARPED CUSP
+// PART A: L1 10-QUBIT BRICKWORK SCRAMBLER PAGE-CURVE BENCHMARK & BOGOLIUBOV TWO-MODE-SQUEEZER CHECK
 // ============================================================================================================
 
 type GateOp =
@@ -720,7 +708,9 @@ function runHorizonPageAndHawking(ruleGens: ReturnType<typeof buildRuleSU2Genera
     if (!(pageCurve[k + 1]!.entropyBits < pageCurve[k]!.entropyBits)) lateMonotoneFall = false
   }
 
-  // ---- Part A.2: Hawking-like Thermal Emission on {3,4,3,4} Warped Cusp Horizon ----
+  // ---- Part A.2: Bosonic Bogoliubov Two-Mode-Squeezer Thermal-Consistency Check ----
+  // Evaluates Fock squeezing at r = atanh(exp(-omega / (2 T_H))) for the benchmark input kappa = ln(6034 / 330),
+  // verifying sinh^2(r) = 1 / (exp(omega / T_H) - 1) (not a dynamical derivation of T_H from {3,4,3,4}).
   const cuspVolumeRatio = EXACT_COLUMN_SHELL_COUNTS[3] / EXACT_COLUMN_SHELL_COUNTS[2]
   const surfaceGravityKappa = Math.log(cuspVolumeRatio)
   const hawkingTempTH = surfaceGravityKappa / (2 * Math.PI)
@@ -856,7 +846,7 @@ function runHorizonPageAndHawking(ruleGens: ReturnType<typeof buildRuleSU2Genera
 }
 
 // ============================================================================================================
-// PART B: OPEN-LINE NON-WRAPPING TSIRELSON CONVERGENCE (< 1e-6) VIA COMOVING SIGMA(648) RULE-WORD ANALYZERS
+// PART B: L1 Z[w][1/2] SU(2) MITM GATE-SYNTHESIS CONVERGENCE BENCHMARK ON A PREPARED BELL SINGLET
 // ============================================================================================================
 
 type SU2Tree = {

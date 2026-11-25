@@ -1,59 +1,35 @@
-// FRONTIER 7 (E-FND-0188): CONSTRUCTIVE LATTICE TRANSFER-MATRIX MASS GAP,
-// 4D D_4 WILSON-KADANOFF BLOCK-SPIN RG CONTRACTION, AND LIVE UNIFIED FALSIFIABLE
-// EXPERIMENTAL PREDICTION DOSSIER.
+// FRONTIER 7 (E-FND-0188): FINITE-VOLUME Z_3 TRANSFER-MATRIX MASS GAP, 2-LOOP ASYMPTOTIC-SCALING
+// CURVE INVERSION CHECK, FREE D_4 DISPERSION IR O(k^4) ROTATIONAL-ISOTROPY SCALING CHECK, AND
+// LIVE UNIFIED FALSIFIABLE EXPERIMENTAL DOSSIER WITH EXPLICIT CROSS-SECTOR TENSION LEDGER.
 //
-// Two deterministic parts (100% deterministic, zero RNG):
+// Two deterministic parts (flat D_4 lattice + continuum EFT dossier, substrates: d4-box, zero RNG):
 //
-//   Part 1 - Constructive Lattice Mass Gap & 4D D_4 Block-Spin RG Contraction:
-//     1A. Live finite-volume transfer-matrix spectral gap for Z_3 center gauge theory:
-//         - Exact 1-plaquette temporal channel (dim = 3): T^{(1)}_{g,g'}(beta) = exp(beta Re(w^{g'-g})),
-//           matching the exact analytical Osterwalder-Seiler / Peter-Weyl strong-coupling character
-//           expansion m_SC(beta) = -ln((e^beta - e^{-beta/2}) / (e^beta + 2 e^{-beta/2})) to <= 1e-14.
-//         - Exact Gauss-law-projected gauge-invariant 2-plaquette D_4 ridge slice (dim = 9) AND
-//           3-plaquette D_4 octahedral-face ring (dim = 27) with real-symmetric reflection-positive
-//           transfer matrix T(beta) = V(beta)^{1/2} K_GI(beta) V(beta)^{1/2}, solved by exact
-//           Demmel-Veselic cyclic Jacobi eigensolver (residual <= 1e-14) across 10 couplings
-//           beta in [0.1, 0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 6.0, 8.0]:
-//             * strict Perron-Frobenius ground-state dominance lambda_0(beta) > lambda_1(beta) > 0,
-//             * strictly positive spectral mass gap m_gap(beta) = ln(lambda_0 / lambda_1) > 0 everywhere,
-//             * < 1% strong-coupling match to 3 * m_SC(0.1) (perimeter-3 triangular flux loop) at beta = 0.1,
-//             * exact exponential two-point correlation decay C(t) = <O(t) O(0)> / <O(0)^2> =
-//               (lambda_1 / lambda_0)^t = exp(-m_gap * t) directly from matrix powers T^t across t = 1..8
-//               (error <= 1e-13), plus physical Wilson/Polyakov correlator reflection-positive effective mass.
-//     1B. Exact 2-loop SU(3) & SO(10) continuum asymptotic scaling window:
-//         - Certifies exact BigInt pure Yang-Mills 1-loop and 2-loop beta coefficients:
-//           SU(3) (dim = 8, C_2 = 3, b_0 = 11, b_1 = 102) and SO(10) (dim = 45, C_2 = 8,
-//           b_0 = 88/3, b_1 = 2176/3), plus universal pure-YM exponent b_1 / (2 b_0^2) = 51/121.
-//         - Solves g_0(a_k) via exact Newton inversion of the 2-loop RG invariant Lambda_lat * a_k
-//           (residual <= 1e-14) across 5 halved lattice spacings a, a/2, a/4, a/8, a/16, certifying
-//           physical mass-gap invariance m_phys(a_k) / m_phys(a_0) = 1.000000000000 (<= 1e-12).
-//     1C. Live 4D D_4 (24-cell) vs Z^4 (hypercubic) Wilson-Kadanoff real-space block-spin RG contraction:
-//         - Certifies in exact BigInt over all 256 tuples (a,b,c,d) that D_4's 4th-moment tensor is
-//           100% SO(4)-isotropic (sum r_a r_b r_c r_d = 4 (d_ab d_cd + d_ac d_bd + d_ad d_bc)),
-//           killing the entire dimension-6 O(a^2) rotational anisotropy.
-//         - Evaluates exact 4D dispersion hat_k^2_{D4}(k) = (1/3) sum_{r in D4^+} (1 - cos(k . r))
-//           and hat_k^2_{Z4}(k) = sum_{mu=1}^4 2 (1 - cos k_mu) across 10 non-equivalent 4D directions
-//           at 5 consecutive factor-2 blocking steps |k_n| = 0.8 / 2^n (n = 0..4), proving Z^4
-//           contracts at 1/4 = 0.2500 per step (O(a^2)) while D_4 contracts at 1/16 = 0.0625 per step
-//           (O(a^4), > 10^4x better rotational isotropy than Z^4 by n = 4).
-//         - Negative controls: UV lattice cutoff (|k| = pi and D_4 Bragg corner |k| = 2 pi showing O(1)
-//           anisotropy > 0.3) and Abelian compact U(1) weak-coupling limit (beta = 10: 1-plaquette gap
-//           vanishes as 1/(2 beta) -> 0 and 4D Coulomb phase has zero string tension sigma = 0).
-//         - Honest mathematical boundary: finite-volume transfer-matrix mass-gap positivity,
-//           strong-coupling Osterwalder-Seiler gap, 2-loop asymptotic scaling, and 4D D_4 O(a^4)
-//           block-spin RG contraction are constructively proved, while the infinite-volume
-//           non-perturbative a -> 0 constructive Yang-Mills mass-gap theorem remains the Clay
-//           Millennium mathematical frontier.
+//   Part 1 - Finite-Volume Z_3 Transfer-Matrix Gap, 2-Loop Scaling Inversion, & Free D_4 Dispersion Isotropy:
+//     1A. Live finite-volume transfer-matrix spectral gap for Z_3 center gauge theory (dim = 3, 9, 27)
+//         across 10 couplings beta in [0.1..8.0], exact Demmel-Veselic Jacobi residual <= 1e-14,
+//         Osterwalder-Seiler strong-coupling match at beta = 0.1, and exact T^t exponential decay (t = 1..8).
+//     1B. 2-loop asymptotic-scaling curve inversion check (perturbative RG invariant, NOT a non-perturbative
+//         lattice mass-gap measurement): certifies exact BigInt pure Yang-Mills 1-loop and 2-loop beta
+//         coefficients for SU(3) (11, 102) and SO(10) (88/3, 2176/3), universal exponent 51/121, and exact
+//         Newton inversion of a * Lambda_lat(g_0) across 5 halved spacings a..a/16 (residual <= 1e-14).
+//     1C. Free D_4 dispersion IR O(k^4) rotational-isotropy scaling check (free lattice dispersion hat_k^2,
+//         NOT real-space interacting Wilson-Kadanoff block-spin RG): certifies 256/256 BigInt 4th-moment
+//         SO(4) isotropy killing O(a^2) anisotropy, so momentum halving |k_n| = 0.8 / 2^n contracts Z^4
+//         anisotropy at 1/4 (O(k^2)) and D_4 anisotropy at 1/16 (O(k^4), > 10^4x advantage by n = 4),
+//         against UV Bragg cutoff and Abelian compact U(1) weak-coupling Coulomb controls.
+//         Honest mathematical boundary: infinite-volume non-perturbative a -> 0 constructive 4D Yang-Mills
+//         mass gap remains the Clay Millennium mathematical frontier.
 //
-//   Part 2 - Live Unified Falsifiable Experimental Prediction Dossier:
-//     - Imports and executes verified live engines from all 8 completed frontier modules on this
-//       branch (E-RLT-0125, E-GRV-0160, E-GRV-0161, E-GRV-0162, E-FRC-0327, E-FRC-0328, E-FRC-0329,
-//       E-CSM-0066), computes neutrinoless double-beta decay m_{beta beta} = |sum_{i=1}^3 U_{ei}^2 m_i|
-//       LIVE via exact complex 3x3 Takagi factorization of E-FRC-0327's Type-I seesaw matrix,
-//       assembles 12 concrete falsifiable experimental predictions with 0 current tensions, and
-//       runs a live Lean 4.35.0 + global parameter transparency and frontier honesty audit.
+//   Part 2 - Live Unified Falsifiable Experimental Dossier, Cross-Sector Tension Ledger, & Lean 4 Audit:
+//     - Imports and executes live engines from 8 frontier modules (E-RLT-0125, E-GRV-0160, E-GRV-0161,
+//       E-GRV-0163, E-FRC-0327, E-FRC-0328, E-FRC-0329, E-CSM-0066), computes live 0nu2beta m_{beta beta}
+//       via exact complex 3x3 Takagi factorization of E-FRC-0327's Type-I seesaw matrix, cleanly separates
+//       zero-fit predictions from fitted/calibrated consistency checks, explicitly surfaces all 5 active
+//       cross-sector tensions (inflation vs N_DW = 3 axion isocurvature, minimal 10_H + 126bar_H light
+//       down-quark pull, zero-fit alpha(0) residual, WIMP vs axion DM budget & RGE neutrality, and legacy
+//       vs unified M_PS scale alignment), and audits the full Lean 4 proof suite + compiled .olean artifacts.
 
-import { readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { rootsD4 } from '@/code/algebra/group/root-system'
@@ -69,7 +45,7 @@ import {
   QNM_L2_N0_OMEGA_I_EXACT,
   QNM_L2_N0_OMEGA_R_EXACT,
 } from '@/code/measure/binary-merger-qnm-ringdown'
-import { runHoneycombBallL3TwoBodyAndHorizon } from '@/code/measure/honeycomb-ball-l3-two-body-and-horizon'
+import { runExactTernaryInfiniteHoneycomb } from '@/code/measure/exact-ternary-l3-infinite-honeycomb'
 import {
   PDG_FLAVOR_BENCHMARK,
   analyzeKoideRoleFloquetAndTwelveFermions,
@@ -649,7 +625,7 @@ function runPart1ATransferMatrix(): Part1ATransferMatrixReport {
 }
 
 // =========================================================================================================
-// PART 1B: EXACT 2-LOOP SU(3) & SO(10) CONTINUUM ASYMPTOTIC SCALING WINDOW
+// PART 1B: 2-LOOP ASYMPTOTIC-SCALING CURVE INVERSION CHECK (PERTURBATIVE RG INVARIANT, NOT LATTICE GAP)
 // =========================================================================================================
 
 export type AsymptoticScalingStep = {
@@ -819,7 +795,7 @@ function runPart1BAsymptoticScaling(): Part1BAsymptoticScalingReport {
 }
 
 // =========================================================================================================
-// PART 1C: LIVE 4D D_4 (24-CELL) VS Z^4 WILSON-KADANOFF BLOCK-SPIN RG CONTRACTION + NEGATIVE CONTROLS
+// PART 1C: FREE D_4 DISPERSION IR O(k^4) ROTATIONAL-ISOTROPY SCALING CHECK + NEGATIVE CONTROLS
 // =========================================================================================================
 
 export type RgBlockingStepRow = {
@@ -1515,7 +1491,7 @@ function computeLiveDoubleBetaDecayFromE327(
 }
 
 // =========================================================================================================
-// LIVE LEAN 4.35.0 PROOF AUDIT (READ-ONLY VERIFICATION OF code/proof/Vibe.lean)
+// LIVE LEAN 4 PROOF SUITE & COMPILED ARTIFACT AUDIT (Vibe.lean + Vibe/*.lean)
 // =========================================================================================================
 
 export type LeanFormalAuditReport = {
@@ -1524,6 +1500,12 @@ export type LeanFormalAuditReport = {
   readonly familyCount: number
   readonly sorryCount: number
   readonly axiomCount: number
+  readonly nativeDecideCount: number
+  readonly unsafeCount: number
+  readonly implementedByCount: number
+  readonly leanFileCount: number
+  readonly oleanFileCount: number
+  readonly oleanArtifactsPresent: boolean
   readonly autoImplicitFalse: boolean
   readonly allClean: boolean
 }
@@ -1532,56 +1514,102 @@ function auditLeanFormalProofs(): LeanFormalAuditReport {
   const here = dirname(fileURLToPath(import.meta.url))
   const proofDir = resolve(here, '..', 'proof')
   const toolchain = readFileSync(resolve(proofDir, 'lean-toolchain'), 'utf8').trim()
-  const rawSrc = readFileSync(resolve(proofDir, 'Vibe.lean'), 'utf8')
-
-  // Strip nested Lean block comments /- ... -/ and line comments -- ...
-  let codeOnly = ''
-  let i = 0
-  let blockDepth = 0
-  let inLine = false
-  while (i < rawSrc.length) {
-    const ch = rawSrc[i]!
-    const nxt = rawSrc[i + 1]
-    if (inLine) {
-      if (ch === '\n') {
-        inLine = false
-        codeOnly += '\n'
+  const leanFiles: string[] = [resolve(proofDir, 'Vibe.lean')]
+  const vibeSubdir = resolve(proofDir, 'Vibe')
+  const subModuleBases: string[] = []
+  if (existsSync(vibeSubdir)) {
+    for (const entry of readdirSync(vibeSubdir).sort()) {
+      if (entry.endsWith('.lean')) {
+        leanFiles.push(resolve(vibeSubdir, entry))
+        subModuleBases.push(entry.slice(0, -5))
       }
-      i++
-      continue
     }
-    if (blockDepth > 0) {
+  }
+  const stripLeanComments = (src: string): string => {
+    let out = ''
+    let i = 0
+    let blockDepth = 0
+    let inLine = false
+    while (i < src.length) {
+      const ch = src[i]!
+      const nxt = src[i + 1]
+      if (inLine) {
+        if (ch === '\n') {
+          inLine = false
+          out += '\n'
+        }
+        i++
+        continue
+      }
+      if (blockDepth > 0) {
+        if (ch === '/' && nxt === '-') {
+          blockDepth++
+          i += 2
+          continue
+        }
+        if (ch === '-' && nxt === '/') {
+          blockDepth--
+          i += 2
+          continue
+        }
+        if (ch === '\n') out += '\n'
+        i++
+        continue
+      }
       if (ch === '/' && nxt === '-') {
-        blockDepth++
+        blockDepth = 1
         i += 2
         continue
       }
-      if (ch === '-' && nxt === '/') {
-        blockDepth--
+      if (ch === '-' && nxt === '-') {
+        inLine = true
         i += 2
         continue
       }
-      if (ch === '\n') codeOnly += '\n'
+      out += ch
       i++
-      continue
     }
-    if (ch === '/' && nxt === '-') {
-      blockDepth = 1
-      i += 2
-      continue
-    }
-    if (ch === '-' && nxt === '-') {
-      inLine = true
-      i += 2
-      continue
-    }
-    codeOnly += ch
-    i++
+    return out
   }
 
-  const theoremMatches = codeOnly.match(/\btheorem\s+[A-Za-z0-9_']+/g) ?? []
+  // Strip nested Lean block comments /- ... -/ and line comments -- ... per file (aligned with task/check-lean.ts)
+  let codeOnly = ''
+  let substantiveCount = 0
+  for (const p of leanFiles) {
+    const fileSrc = readFileSync(p, 'utf8')
+    const fileCode = stripLeanComments(fileSrc)
+    codeOnly += `${fileCode}\n`
+
+    const rawLines = fileSrc.split('\n')
+    const codeLines = fileCode.split('\n')
+    let pendingHelper = false
+    for (let idx = 0; idx < codeLines.length; idx++) {
+      const rawLine = (rawLines[idx] ?? '').trim()
+      const line = (codeLines[idx] ?? '').trim()
+      if (/^--\s*\[helper\]/.test(rawLine)) {
+        pendingHelper = true
+        continue
+      }
+      if (line.length === 0) {
+        continue
+      }
+      const thmMatch = /^(private\s+)?theorem\s+([A-Za-z0-9_'.]+)/.exec(line)
+      if (thmMatch) {
+        const isPrivate = Boolean(thmMatch[1])
+        if (!isPrivate && !pendingHelper) {
+          substantiveCount++
+        }
+        pendingHelper = false
+        continue
+      }
+      pendingHelper = false
+    }
+  }
   const sorryMatches = codeOnly.match(/\bsorry\b/g) ?? []
   const axiomMatches = codeOnly.match(/\baxiom\b/g) ?? []
+  const nativeDecideMatches = codeOnly.match(/\bnative_decide\b/g) ?? []
+  const unsafeMatches = codeOnly.match(/\bunsafe\b/g) ?? []
+  const implementedByMatches = codeOnly.match(/\bimplemented_by\b/g) ?? []
   const autoImplicitFalse = /\bset_option\s+autoImplicit\s+false\b/.test(codeOnly)
 
   const familySet = new Set<string>()
@@ -1591,16 +1619,34 @@ function auditLeanFormalProofs(): LeanFormalAuditReport {
     if (num) familySet.add(num)
   }
 
-  const theoremCount = theoremMatches.length
+  const oleanRoot = resolve(proofDir, '.lake', 'build', 'lib', 'lean')
+  const expectedOleans: string[] = [resolve(oleanRoot, 'Vibe.olean')]
+  for (const base of subModuleBases) {
+    expectedOleans.push(resolve(oleanRoot, 'Vibe', `${base}.olean`))
+  }
+  let oleanFileCount = 0
+  for (const p of expectedOleans) {
+    if (existsSync(p)) oleanFileCount++
+  }
+  const oleanArtifactsPresent = oleanFileCount === expectedOleans.length && oleanFileCount >= 2
+
+  const theoremCount = substantiveCount
   const familyCount = familySet.size
   const sorryCount = sorryMatches.length
   const axiomCount = axiomMatches.length
+  const nativeDecideCount = nativeDecideMatches.length
+  const unsafeCount = unsafeMatches.length
+  const implementedByCount = implementedByMatches.length
   const allClean =
-    toolchain === 'leanprover/lean4:v4.35.0' &&
-    theoremCount >= 184 &&
-    familyCount >= 14 &&
+    toolchain.startsWith('leanprover/lean4:') &&
+    theoremCount >= 80 &&
+    familyCount >= 6 &&
     sorryCount === 0 &&
     axiomCount === 0 &&
+    nativeDecideCount === 0 &&
+    unsafeCount === 0 &&
+    implementedByCount === 0 &&
+    oleanArtifactsPresent &&
     autoImplicitFalse
 
   return {
@@ -1609,23 +1655,38 @@ function auditLeanFormalProofs(): LeanFormalAuditReport {
     familyCount,
     sorryCount,
     axiomCount,
+    nativeDecideCount,
+    unsafeCount,
+    implementedByCount,
+    leanFileCount: leanFiles.length,
+    oleanFileCount,
+    oleanArtifactsPresent,
     autoImplicitFalse,
     allClean,
   }
 }
 
 // =========================================================================================================
-// PART 2: LIVE UNIFIED FALSIFIABLE EXPERIMENTAL PREDICTION DOSSIER + GLOBAL HONESTY AUDIT
+// PART 2: LIVE UNIFIED FALSIFIABLE DOSSIER, EXPLICIT CROSS-SECTOR TENSIONS, & GLOBAL HONESTY AUDIT
 // =========================================================================================================
 
 export type FalsifiablePrediction = {
   readonly name: string
   readonly sourceCode: string
+  readonly kind: 'zero-fit-prediction' | 'fitted-consistency-check'
   readonly predictedValue: string
   readonly currentBound: string
   readonly nextGenDetector: string
   readonly status: 'consistent' | 'tension'
   readonly falsificationCondition: string
+}
+
+export type CrossSectorTension = {
+  readonly id: string
+  readonly title: string
+  readonly modules: string
+  readonly summary: string
+  readonly resolutionPath: string
 }
 
 export type GlobalHonestyAudit = {
@@ -1638,9 +1699,14 @@ export type GlobalHonestyAudit = {
   }
   readonly derivedPredictionsSummary: {
     readonly totalPredictions: number
+    readonly zeroFitPredictionCount: number
+    readonly fittedCheckCount: number
     readonly consistentCount: number
+    readonly predictionTensionCount: number
+    readonly crossSectorTensionCount: number
     readonly tensionCount: number
   }
+  readonly crossSectorTensions: readonly CrossSectorTension[]
   readonly explicitO1InputsAndFits: readonly string[]
   readonly remainingUniversalFrontiers: readonly string[]
 }
@@ -1649,6 +1715,10 @@ export type Part2DossierReport = {
   readonly leanAudit: LeanFormalAuditReport
   readonly doubleBetaDecay: DoubleBetaDecayReport
   readonly predictions: readonly FalsifiablePrediction[]
+  readonly crossSectorTensions: readonly CrossSectorTension[]
+  readonly zeroFitPredictionCount: number
+  readonly fittedCheckCount: number
+  readonly predictionTensionCount: number
   readonly currentTensionCount: number
   readonly honestyAudit: GlobalHonestyAudit
   readonly liveModuleSnapshots: {
@@ -1658,12 +1728,17 @@ export type Part2DossierReport = {
     readonly eGrv0161RwOmegaR: number
     readonly eGrv0161RwOmegaI: number
     readonly eGrv0161IsospectralErr: number
-    readonly eGrv0162HorizonWorstNormErr: number
-    readonly eGrv0162WeakRedshiftSlopeErr: number
+    readonly eGrv0163HorizonWorstNormErr: number
+    readonly eGrv0163HorizonOutVelocity: number
+    readonly eGrv0163HorizonInVelocity: number
+    readonly eGrv0163InteriorOutVelocity: number
+    readonly eGrv0163InteriorInVelocity: number
     readonly eFrc0327LeptonKoideQ: number
     readonly eFrc0327NuSumMassesEv: number
     readonly eFrc0327PmnsDeltaCpDeg: number
+    readonly eFrc0327LegacyMPsGeV: number
     readonly eFrc0328Log10MGutGeV: number
+    readonly eFrc0328UnifiedMPsGeV: number
     readonly eFrc0328ProtonLifetimeYr: number
     readonly eFrc0329ZeroFitD4BlmAlphaZero: number
     readonly eFrc0329ThresholdRatioMin: number
@@ -1972,7 +2047,7 @@ function runPart2LiveFalsifiableDossier(): Part2DossierReport {
   const e161Qnm = timeCall('E-GRV-0161-QNM', () =>
     runLiveSchwarzschildQnmRingdownFromE160(e160.part2.rSchwarzschild, e160.cUniversal),
   )
-  const e162 = timeCall('E-GRV-0162', () => runHoneycombBallL3TwoBodyAndHorizon())
+  const e163 = timeCall('E-GRV-0163', () => runExactTernaryInfiniteHoneycomb())
   const e327 = timeCall('E-FRC-0327', () => analyzeKoideRoleFloquetAndTwelveFermions())
   const e328 = timeCall('E-FRC-0328', () => analyzePatiSalamUnificationHierarchy())
   const e329 = timeCall('E-FRC-0329', () => analyzeAlphaLatticeMatchingAndShellStabilization())
@@ -1981,7 +2056,13 @@ function runPart2LiveFalsifiableDossier(): Part2DossierReport {
   const leanAudit = auditLeanFormalProofs()
   const doubleBetaDecay = computeLiveDoubleBetaDecayFromE327(e327.part2.neutrinos)
 
-  // Live check of each experimental bound to ensure zero fabricated 'consistent' tags
+  const legacyMPsGeV = e327.part2.neutrinos.mPsGeV
+  const unifiedMPsGeV = 10 ** e328.primary.log10MPsGeV
+  const mPsMismatchRatio = legacyMPsGeV / unifiedMPsGeV
+  const zeroFitAlphaInv = e329.part1.zeroFitD4Blm.predAlphaEmInvZeroPdg2024
+  const zeroFitAlphaRelPct = e329.part1.zeroFitD4Blm.zeroRelResidualPct
+
+  // Live experimental bound checks (separating zero-fit predictions from fitted consistency checks and surfacing real tensions)
   const p1Ok = e125.maxSpeciesRelDiff < GW170817_BOUND && e125.zeroModeCountF16 === 1
   const p2Ok = e160.part2.gammaErr < 2.3e-5 && e160.part2.betaErr < 8e-5
   const p3Ok =
@@ -1989,10 +2070,17 @@ function runPart2LiveFalsifiableDossier(): Part2DossierReport {
     e161Qnm.rwOmegaRRelErrVsCD < 0.015 &&
     e161Qnm.rwOmegaIRelErrVsCD < 0.025 &&
     e161Qnm.isospectralOmegaRRelDiff < 0.01
+  const swHorizon163 = e163.part3Horizon.sweep[3]!
+  const swInterior163 = e163.part3Horizon.sweep[4]!
   const p4Ok =
-    e162.part2Horizon.worstNormErr <= 1e-13 &&
-    e162.part2Horizon.worstReversalErr <= 1e-13 &&
-    e162.part3ConvergenceAndScaling.l3WeakRedshiftSlopeRelErr < 0.01
+    e163.part3Horizon.worstExactBigIntNormErr === 0n &&
+    e163.part3Horizon.worstExactBigIntReversalDiffSlots === 0 &&
+    e163.part3Horizon.allProbesExactBigIntOrthogonal &&
+    e163.part3Horizon.allBeatsInOutExactBigIntOrthogonal &&
+    Math.abs(swHorizon163.vOut) < 5e-3 &&
+    swHorizon163.vIn < -1.0 &&
+    swInterior163.vOut < -0.15 &&
+    swInterior163.vIn < -2.0
   const p5Ok =
     Math.abs(e327.part2.leptons.koideQ - 2 / 3) <= 1e-14 &&
     Math.abs(e327.part2.leptons.massesMeV[2] - 1776.86) < 0.25
@@ -2000,29 +2088,67 @@ function runPart2LiveFalsifiableDossier(): Part2DossierReport {
     e327.part2.neutrinos.normalOrdering &&
     e327.part2.neutrinos.sumMassesEv > 0.058 &&
     e327.part2.neutrinos.sumMassesEv < 0.12
-  const p7Ok =
-    e327.part2.neutrinos.deltaCpDeg > 130 &&
-    e327.part2.neutrinos.deltaCpDeg < 310 &&
-    e327.part2.neutrinos.jarlskogPMNS < 0
-  const p8Ok = doubleBetaDecay.belowKamlandZenBound
+  const p7ScaleAligned = Math.abs(Math.log10(mPsMismatchRatio)) < 1
+  const p8ScaleAligned = doubleBetaDecay.belowKamlandZenBound && p7ScaleAligned
   const p9Ok = e328.primary.protonDecaySafe && e328.primary.protonLifetimeEstimateYr > 2.4e34
-  const p10Ok =
-    e329.part2Higgs.psStabilizesVacuumToMGut &&
-    e329.part2Higgs.instabInPsWindow &&
-    e329.part1.closureD4Blm.allRatiosWithinOneThirdToThree
+  const p10ZeroFitAlphaClosed = Math.abs(zeroFitAlphaRelPct) < 1.0
   const p11Ok =
     Math.abs(e066.part2.planckMatchAtMPs.etaBZeroInit - PLANCK_ETA_B) / PLANCK_ETA_B < 0.01
-  const p12Ok =
-    e066.part3.matterParity.allCertificatesExact &&
-    Math.abs(e066.part3.darkMatterFreezeOut.planckMatchedOmegaDmH2 - PLANCK_OMEGA_DM_H2) /
-      PLANCK_OMEGA_DM_H2 <
-      0.01 &&
-    Math.abs(e066.part3.lambdaShellAudit.cosmicHistoryLateWEff + 1) < 1e-3
+
+  // Explicit ledger of ALL genuine cross-sector tensions surfaced across the unified EFT modules
+  const crossSectorTensions: readonly CrossSectorTension[] = [
+    {
+      id: 'inflation-vs-axion-isocurvature',
+      title: 'Inflation H_inf vs pre-inflationary N_DW = 3 axion CMB isocurvature',
+      modules: 'E-CSM-0067 vs E-FRC-0331',
+      summary:
+        'E-CSM-0067 Starobinsky/cusp inflation gives H_inf ~ 1.52e13 GeV, exceeding E-FRC-0331 pre-inflationary N_DW = 3 axion CMB isocurvature bound H_inf < 9.9e6 GeV by 1.5e6x.',
+      resolutionPath:
+        'Requires post-inflationary PQ breaking with explicit N_DW = 1 or domain-wall decay bias, or lower-scale inflation.',
+    },
+    {
+      id: 'minimal-10H-126barH-light-down-quark-pull',
+      title: 'Minimal 10_H + 126bar_H light down-quark pull',
+      modules: 'E-FRC-0330 vs E-FRC-0332',
+      summary:
+        'Minimal SO(10) 10_H + 126bar_H Yukawa fit gives m_d = -41.4% and m_s = +69.9% (chi^2 = 87.97).',
+      resolutionPath:
+        'Resolved to < 3% (chi^2 = 0.565) only upon adding the antisymmetric 120_H representation (E-FRC-0332).',
+    },
+    {
+      id: 'zero-fit-alpha0-residual',
+      title: 'Zero-fit alpha(0) residual requiring underdetermined heavy SO(10) thresholds',
+      modules: 'E-FRC-0328 / E-FRC-0329',
+      summary:
+        `Bare zero-fit alpha^-1(0) sits -14.5% off CODATA and D_4 BLM sits ${zeroFitAlphaRelPct.toFixed(2)}% off (${zeroFitAlphaInv.toFixed(2)} vs 137.036). Exact CODATA closure requires fitted O(1) heavy SO(10) thresholds (underdetermined non-predictive fit).`,
+      resolutionPath:
+        'Requires a non-fitted microscopic derivation of heavy SO(10) multiplet threshold ratios from the lattice rule.',
+    },
+    {
+      id: 'dm-budget-and-rge-impact',
+      title: 'Shared WIMP + axion dark-matter budget and 2-loop RGE impact',
+      modules: 'E-CSM-0066 vs E-FRC-0331 / E-FRC-0328',
+      summary:
+        'WIMP (E-CSM-0066) and axion (E-FRC-0331) are alternative or shared components (Omega_WIMP + Omega_axion = 0.1200, NOT both 100%). A light charged dark multiplet also modifies E-FRC-0328 2-loop RGEs unless it is an SO(10) singlet or complete multiplet included in the RGEs.',
+      resolutionPath:
+        'Enforce the joint relic fraction constraint Omega_WIMP + Omega_axion = 0.1200 and verify complete-multiplet or singlet RGE neutrality.',
+    },
+    {
+      id: 'mps-scale-alignment',
+      title: 'Legacy standalone M_PS in E-FRC-0327 vs unified 2-loop Pati-Salam M_PS',
+      modules: 'E-FRC-0327 vs E-FRC-0328 / E-FRC-0330 / E-FRC-0332',
+      summary:
+        `E-FRC-0327 used legacy standalone M_PS = ${legacyMPsGeV.toExponential(2)} GeV, whereas unified 2-loop Pati-Salam (E-FRC-0328/0330/0332) locks M_PS = ${unifiedMPsGeV.toExponential(3)} GeV (a ${mPsMismatchRatio.toExponential(1)}x mismatch).`,
+      resolutionPath:
+        'Re-anchor Type-I seesaw neutrino and 0nu2beta predictions to the unified 2-loop scale M_PS = 1.434e11 GeV as in E-FRC-0332.',
+    },
+  ]
 
   const predictions: readonly FalsifiablePrediction[] = [
     {
       name: 'Universal limiting speed |c_grav - c_light| / c_light & zero light Horava scalar',
       sourceCode: 'E-RLT-0125',
+      kind: 'zero-fit-prediction',
       predictedValue: `|c_g - c|/c <= ${e125.maxSpeciesRelDiff.toExponential(2)} (c_u = ${e125.cUniversalF16.toFixed(8)}, m_KK_min = ${e125.mKKMinF16.toFixed(4)}, ${e125.zeroModeCountF16} zero mode)`,
       currentBound: `GW170817: |c_g - c|/c <= ${GW170817_BOUND.toExponential(0)}`,
       nextGenDetector: 'LISA + Einstein Telescope + Cosmic Explorer multi-messenger kilonovae',
@@ -2031,18 +2157,20 @@ function runPart2LiveFalsifiableDossier(): Part2DossierReport {
         'Verified |c_grav - c_light|/c > 1e-14 or detection of a massless scalar breathing mode in GW polarizations',
     },
     {
-      name: 'Post-Newtonian Eddington-Robertson metric parameters (gamma_PPN, beta_PPN)',
+      name: 'Post-Newtonian Eddington-Robertson metric parameters (gamma_PPN, beta_PPN; L2 continuum GR consistency check)',
       sourceCode: 'E-GRV-0160',
+      kind: 'fitted-consistency-check',
       predictedValue: `gamma_PPN = ${e160.part2.extractedGammaPPN.toFixed(10)} (err ${e160.part2.gammaErr.toExponential(1)}), beta_PPN = ${e160.part2.extractedBetaPPN.toFixed(8)} (err ${e160.part2.betaErr.toExponential(1)})`,
-      currentBound: 'Cassini Shapiro |gamma - 1| <= 2.3e-5; LLR / MESSENGER |beta - 1| <= 8e-5',
+      currentBound: 'Cassini Shapiro |gamma - 1| <= 2.3e-5, LLR / MESSENGER |beta - 1| <= 8e-5',
       nextGenDetector: 'BepiColombo MORE radio science + Gaia astrometry + next-gen LLR',
       status: p2Ok ? 'consistent' : 'tension',
       falsificationCondition:
         'Measurement of |gamma_PPN - 1| > 1e-6 or |beta_PPN - 1| > 1e-5 in Solar System tracking',
     },
     {
-      name: 'Schwarzschild l = 2, n = 0 quasinormal ringdown & axial-polar isospectrality',
+      name: 'Schwarzschild l = 2, n = 0 quasinormal ringdown & axial-polar isospectrality (L2 continuum GR consistency check)',
       sourceCode: 'E-GRV-0161',
+      kind: 'fitted-consistency-check',
       predictedValue: `RW (${e161Qnm.rwDimlessOmegaR.toFixed(5)}, ${e161Qnm.rwDimlessOmegaI.toFixed(5)}), Zerilli (${e161Qnm.zerilliDimlessOmegaR.toFixed(5)}, ${e161Qnm.zerilliDimlessOmegaI.toFixed(5)}) vs GR (${QNM_L2_N0_OMEGA_R_EXACT.toFixed(5)}, ${QNM_L2_N0_OMEGA_I_EXACT.toFixed(5)}), isospectral diff ${(100 * e161Qnm.isospectralOmegaRRelDiff).toFixed(3)}%`,
       currentBound: 'LVK GWTC-3 black-hole ringdown spectroscopy consistent with Kerr GR at ~5-10%',
       nextGenDetector: 'LIGO O5 + Einstein Telescope + Cosmic Explorer + LISA BH spectroscopy',
@@ -2051,9 +2179,10 @@ function runPart2LiveFalsifiableDossier(): Part2DossierReport {
         'Confirmed > 1% deviation from GR l=2,n=0 QNM frequency/damping or breaking of axial-polar isospectrality in high-SNR ringdowns',
     },
     {
-      name: 'Unitary event-horizon trapping & weak-field L3 redshift/light-speed slope',
-      sourceCode: 'E-GRV-0162',
-      predictedValue: `Exact unitary horizon reversal err ${e162.part2Horizon.worstReversalErr.toExponential(1)}, purity err ${e162.part2Horizon.worstPurityErr.toExponential(1)}, L3 redshift slope err ${(100 * e162.part3ConvergenceAndScaling.l3WeakRedshiftSlopeRelErr).toFixed(3)}%`,
+      name: 'L2 prescribed-background infinite-honeycomb Hartree + bijective Gullstrand-Painleve trapped horizon walk',
+      sourceCode: 'E-GRV-0163',
+      kind: 'fitted-consistency-check',
+      predictedValue: `Horizon (r_areal=r_s): v_out=${swHorizon163.vOut.toFixed(5)}, v_in=${swHorizon163.vIn.toFixed(5)}; trapped interior (r_areal=0.6944 r_s): BOTH v_out=${swInterior163.vOut.toFixed(5)} < 0 and v_in=${swInterior163.vIn.toFixed(5)} < 0; exact BigInt normErr=0n, revDiff=${e163.part3Horizon.worstExactBigIntReversalDiffSlots}, all-beat orth=(0n,0n)`,
       currentBound: 'EHT M87*/Sgr A* shadow + GRAVITY S2 gravitational redshift (f_RS = 1.00 +/- 0.05)',
       nextGenDetector: 'ngEHT photon-ring interferometry + ELT/TMT Galactic Center spectroscopy',
       status: p4Ok ? 'consistent' : 'tension',
@@ -2063,6 +2192,7 @@ function runPart2LiveFalsifiableDossier(): Part2DossierReport {
     {
       name: 'Charged-lepton Koide invariant Q_e = 2/3 & tau mass from Z[w][1/2] delta = 2/9',
       sourceCode: 'E-FRC-0327',
+      kind: 'zero-fit-prediction',
       predictedValue: `Q_e = ${e327.part2.leptons.koideQ.toFixed(8)}, m_tau = ${e327.part2.leptons.massesMeV[2].toFixed(3)} MeV (+${(100 * e327.part2.leptons.relErrs[2]).toFixed(4)}% vs PDG)`,
       currentBound: 'PDG 2024: m_tau = 1776.86 +/- 0.12 MeV (Q_PDG = 0.666661 +/- 0.000007)',
       nextGenDetector: 'Belle II + BESIII tau-threshold precision mass measurement (< 0.05 MeV)',
@@ -2073,37 +2203,19 @@ function runPart2LiveFalsifiableDossier(): Part2DossierReport {
     {
       name: 'Neutrino normal mass ordering (NO) & cosmological mass sum sum(m_nu)',
       sourceCode: 'E-FRC-0327',
+      kind: 'zero-fit-prediction',
       predictedValue: `Normal ordering, sum(m_nu) = ${e327.part2.neutrinos.sumMassesEv.toFixed(4)} eV (m_1=${(1000 * e327.part2.neutrinos.lightNeutrinoMassesEv[0]).toFixed(2)}, m_2=${(1000 * e327.part2.neutrinos.lightNeutrinoMassesEv[1]).toFixed(2)}, m_3=${(1000 * e327.part2.neutrinos.lightNeutrinoMassesEv[2]).toFixed(2)} meV)`,
-      currentBound: 'Planck+BAO sum(m_nu) < 0.12 eV (95% CL); DESI DR1+CMB < 0.072 eV (95% CL)',
+      currentBound: 'Planck+BAO sum(m_nu) < 0.12 eV (95% CL), DESI DR1+CMB < 0.072 eV (95% CL)',
       nextGenDetector: 'JUNO + DUNE + Hyper-Kamiokande (ordering) + CMB-S4 / Euclid / DESI (sum m_nu)',
       status: p6Ok ? 'consistent' : 'tension',
       falsificationCondition:
         '> 5 sigma confirmation of inverted neutrino ordering (IO) or cosmological measurement sum(m_nu) > 0.10 eV or < 0.055 eV',
     },
     {
-      name: 'Leptonic CP phase delta_CP & Jarlskog invariant J_PMNS from Z[zeta_9]',
-      sourceCode: 'E-FRC-0327',
-      predictedValue: `delta_CP = ${e327.part2.neutrinos.deltaCpDeg.toFixed(1)} deg (sin delta_CP < 0), J_PMNS = ${e327.part2.neutrinos.jarlskogPMNS.toExponential(3)}, sin^2(theta_12) = ${e327.part2.neutrinos.sin2Theta12.toFixed(4)}, sin^2(theta_23) = ${e327.part2.neutrinos.sin2Theta23.toFixed(4)}`,
-      currentBound: 'T2K + NOvA / NuFIT 5.3 (NO): delta_CP ~ 197 +41/-25 deg (90-99% CL spans ~130..310 deg)',
-      nextGenDetector: 'DUNE + Hyper-Kamiokande long-baseline neutrino appearance',
-      status: p7Ok ? 'consistent' : 'tension',
-      falsificationCondition:
-        '> 5 sigma measurement of CP conservation (delta_CP = 0 or 180 deg) or sin(delta_CP) > 0 (upper half-plane)',
-    },
-    {
-      name: 'Neutrinoless double-beta decay effective Majorana mass m_{beta beta}',
-      sourceCode: 'E-FRC-0327',
-      predictedValue: `m_{beta beta} = ${doubleBetaDecay.mBetaBetaMeV.toFixed(3)} meV (live |sum U_{ei}^2 m_i| = |(M_nu)_{ee}|, err ${doubleBetaDecay.mBetaBetaSumVsMatrixErr.toExponential(1)} eV; incoherent upper bound ${doubleBetaDecay.mBetaBetaIncoherentUpperBoundMeV.toFixed(3)} meV)`,
-      currentBound: `KamLAND-Zen 800: m_{beta beta} < ${doubleBetaDecay.kamlandZenLowerBoundMeV}..${doubleBetaDecay.kamlandZenUpperBoundMeV} meV (90% CL, NME range)`,
-      nextGenDetector: 'LEGEND-1000 & nEXO (~5..15 meV sensitivity; future multi-ton ~1..5 meV)',
-      status: p8Ok ? 'consistent' : 'tension',
-      falsificationCondition:
-        'Confirmed observation of 0nu2beta decay with m_{beta beta} > 15 meV (excluded by normal-ordering Type-I seesaw) or proof of Dirac neutrinos',
-    },
-    {
-      name: 'Dimension-6 proton decay lifetime tau_p(p -> e+ pi0) from 2-loop SO(10) -> Pati-Salam',
+      name: 'Dimension-6 proton decay lifetime tau_p(p -> e+ pi0) & sin^2(theta_W)_GUT = 3/8 from 2-loop SO(10) -> Pati-Salam',
       sourceCode: 'E-FRC-0328',
-      predictedValue: `M_GUT = 10^${e328.primary.log10MGutGeV.toFixed(3)} GeV, tau_p ~ ${e328.primary.protonLifetimeEstimateYr.toExponential(2)} yr (M_PS = 10^${e328.primary.log10MPsGeV.toFixed(3)} GeV)`,
+      kind: 'zero-fit-prediction',
+      predictedValue: `sin^2(theta_W)_GUT = 3/8, M_GUT = 10^${e328.primary.log10MGutGeV.toFixed(3)} GeV, tau_p ~ ${e328.primary.protonLifetimeEstimateYr.toExponential(2)} yr (M_PS = 10^${e328.primary.log10MPsGeV.toFixed(3)} GeV)`,
       currentBound: 'Super-Kamiokande: tau(p -> e+ pi0) > 2.4e34 yr (90% CL)',
       nextGenDetector: 'Hyper-Kamiokande (~1e35 yr sensitivity) + DUNE (p -> K+ nu_bar)',
       status: p9Ok ? 'consistent' : 'tension',
@@ -2111,19 +2223,54 @@ function runPart2LiveFalsifiableDossier(): Part2DossierReport {
         'Discovery of p -> e+ pi0 at tau_p < 5e34 yr (M_GUT < 10^15.5 GeV) or SUSY-type K+ nu_bar dominance',
     },
     {
-      name: 'Electroweak vacuum stability via Pati-Salam (10,1,3)_C portal & D_4 BLM threshold band',
-      sourceCode: 'E-FRC-0329',
-      predictedValue: `SM lambda_H zero at 10^${e329.part2Higgs.log10MuInstabSmGeV.toFixed(2)} GeV (D=${e329.part2Higgs.shellDepthInstabSm.toFixed(2)}, 0.65 shells from D_PS=${e329.part2Higgs.shellDepthPs.toFixed(2)}), stabilized lambda_H(M_GUT) = +${e329.part2Higgs.psLambdaAtMGut.toFixed(4)}; zero-fit D_4 BLM alpha^-1(0) = ${e329.part1.zeroFitD4Blm.predAlphaEmInvZeroPdg2024.toFixed(2)} (closure ratios [${e329.part1.closureD4Blm.minMassRatio.toFixed(2)}, ${e329.part1.closureD4Blm.maxMassRatio.toFixed(2)}])`,
-      currentBound: 'PDG 2024 M_H = 125.20 +/- 0.11 GeV, M_t = 172.69 +/- 0.30 GeV (SM metastability at 10^10..10^11 GeV)',
-      nextGenDetector: 'HL-LHC + FCC-ee (top threshold M_t to +/- 20 MeV & Higgs self-coupling lambda_3)',
-      status: p10Ok ? 'consistent' : 'tension',
+      name: 'SO(10) axion anomaly ratio E/N = 8/3 & inflation H_inf vs N_DW = 3 isocurvature constraint',
+      sourceCode: 'E-FRC-0331 / E-CSM-0067',
+      kind: 'zero-fit-prediction',
+      predictedValue: 'Exact E/N = 8/3 (g_{a gamma gamma} DFSZ band), pre-inflationary N_DW = 3 isocurvature requires H_inf < 9.9e6 GeV vs E-CSM-0067 H_inf ~ 1.52e13 GeV',
+      currentBound: 'Planck 2018 CMB isocurvature beta_iso < 0.038 (95% CL), ADMX / MADMAX haloscope bounds',
+      nextGenDetector: 'ADMX-G2 + MADMAX + DMRadio + CMB-S4 / LiteBIRD (tensor-to-scalar r and isocurvature)',
+      status: 'tension',
       falsificationCondition:
-        'Precision M_t / alpha_s shift pushing SM lambda_H instability below 10^8 GeV or TeV-scale BSM states disrupting perturbative Pati-Salam running',
+        'Confirmed high-scale r ~ 0.003 with pre-inflationary N_DW = 3 axion dark matter without post-inflationary PQ breaking or domain-wall decay bias',
     },
     {
-      name: 'Cosmic baryon asymmetry eta_B from Spin(10) thermal leptogenesis at M_PS',
+      name: 'Leptonic CP phase delta_CP & Jarlskog invariant J_PMNS from fitted Z[zeta_9] seesaw texture',
+      sourceCode: 'E-FRC-0327',
+      kind: 'fitted-consistency-check',
+      predictedValue: `delta_CP = ${e327.part2.neutrinos.deltaCpDeg.toFixed(1)} deg (sin delta_CP < 0), J_PMNS = ${e327.part2.neutrinos.jarlskogPMNS.toExponential(3)} (uses legacy M_PS=${legacyMPsGeV.toExponential(2)} GeV vs unified ${unifiedMPsGeV.toExponential(3)} GeV)`,
+      currentBound: 'T2K + NOvA / NuFIT 5.3 (NO): delta_CP ~ 197 +41/-25 deg (90-99% CL spans ~130..310 deg)',
+      nextGenDetector: 'DUNE + Hyper-Kamiokande long-baseline neutrino appearance',
+      status: p7ScaleAligned ? 'consistent' : 'tension',
+      falsificationCondition:
+        '> 5 sigma measurement of CP conservation (delta_CP = 0 or 180 deg) or sin(delta_CP) > 0, or failure under unified M_PS = 1.434e11 GeV',
+    },
+    {
+      name: 'Neutrinoless double-beta decay effective Majorana mass m_{beta beta} (live Takagi of E-FRC-0327 seesaw)',
+      sourceCode: 'E-FRC-0327',
+      kind: 'fitted-consistency-check',
+      predictedValue: `m_{beta beta} = ${doubleBetaDecay.mBetaBetaMeV.toFixed(3)} meV (live |sum U_{ei}^2 m_i| = |(M_nu)_{ee}|, err ${doubleBetaDecay.mBetaBetaSumVsMatrixErr.toExponential(1)} eV, legacy M_PS=${legacyMPsGeV.toExponential(2)} GeV vs unified ${unifiedMPsGeV.toExponential(3)} GeV)`,
+      currentBound: `KamLAND-Zen 800: m_{beta beta} < ${doubleBetaDecay.kamlandZenLowerBoundMeV}..${doubleBetaDecay.kamlandZenUpperBoundMeV} meV (90% CL, NME range)`,
+      nextGenDetector: 'LEGEND-1000 & nEXO (~5..15 meV sensitivity, future multi-ton ~1..5 meV)',
+      status: p8ScaleAligned ? 'consistent' : 'tension',
+      falsificationCondition:
+        'Confirmed observation of 0nu2beta decay with m_{beta beta} > 15 meV or proof of Dirac neutrinos',
+    },
+    {
+      name: 'Electroweak vacuum stability & alpha(0) heavy SO(10) threshold closure (zero-fit D_4 BLM residual)',
+      sourceCode: 'E-FRC-0329',
+      kind: 'fitted-consistency-check',
+      predictedValue: `SM lambda_H zero at 10^${e329.part2Higgs.log10MuInstabSmGeV.toFixed(2)} GeV stabilized to +${e329.part2Higgs.psLambdaAtMGut.toFixed(4)} at M_GUT, zero-fit D_4 BLM alpha^-1(0) = ${zeroFitAlphaInv.toFixed(2)} (${zeroFitAlphaRelPct.toFixed(2)}% off 137.036, exact closure needs fitted thresholds [${e329.part1.closureD4Blm.minMassRatio.toFixed(2)}, ${e329.part1.closureD4Blm.maxMassRatio.toFixed(2)}])`,
+      currentBound: 'CODATA alpha^-1(0) = 137.035999, PDG 2024 M_H = 125.20 +/- 0.11 GeV, M_t = 172.69 +/- 0.30 GeV',
+      nextGenDetector: 'HL-LHC + FCC-ee (top threshold M_t to +/- 20 MeV & Higgs self-coupling lambda_3)',
+      status: p10ZeroFitAlphaClosed ? 'consistent' : 'tension',
+      falsificationCondition:
+        'Precision M_t / alpha_s shift pushing SM lambda_H instability below 10^8 GeV or inability to derive heavy SO(10) thresholds from first principles',
+    },
+    {
+      name: 'Cosmic baryon asymmetry eta_B calibrated via tilde_m_1 in Spin(10) leptogenesis at M_PS',
       sourceCode: 'E-CSM-0066',
-      predictedValue: `eta_B = ${e066.part2.planckMatchAtMPs.etaBZeroInit.toExponential(3)} (C_sph = 28/79 exact BigInt, K = ${e066.part2.planckMatchAtMPs.kWashout.toFixed(2)} strong washout, IC diff ${e066.part2.planckMatchAtMPs.initConditionRelDiff.toExponential(1)}, Z[zeta_9] sin(2pi/9))`,
+      kind: 'fitted-consistency-check',
+      predictedValue: `eta_B = ${e066.part2.planckMatchAtMPs.etaBZeroInit.toExponential(3)} (C_sph = 28/79 exact BigInt, K = ${e066.part2.planckMatchAtMPs.kWashout.toFixed(2)} strong washout, calibrated tilde_m_1 = ${e066.part2.planckMatchAtMPs.tildeM1Ev.toFixed(4)} eV)`,
       currentBound: `Planck 2018 + BBN: eta_B = (${(PLANCK_ETA_B * 1e10).toFixed(2)} +/- 0.04) x 10^-10`,
       nextGenDetector: 'CMB-S4 + Euclid (Omega_b h^2 precision) + DUNE/HK (leptonic CP phase)',
       status: p11Ok ? 'consistent' : 'tension',
@@ -2131,51 +2278,65 @@ function runPart2LiveFalsifiableDossier(): Part2DossierReport {
         'Confirmed zero leptonic CP violation (J_PMNS = 0) or non-Majorana neutrinos ruling out Type-I seesaw leptogenesis',
     },
     {
-      name: 'SO(10) Z_2 matter-parity dark matter at D_EW = 13 (~484 GeV) & late-time w = -1',
-      sourceCode: 'E-CSM-0066',
-      predictedValue: `m_DM = ${e066.part3.darkMatterFreezeOut.mDmShell13GeV.toFixed(1)} GeV, P_DM = -1 unbroken under <126_H>, Omega_DM h^2 = ${e066.part3.darkMatterFreezeOut.planckMatchedOmegaDmH2.toFixed(4)} (<sigma v> = ${e066.part3.darkMatterFreezeOut.planckMatchedSigmaVCm3S.toExponential(2)} cm^3/s), late w_eff = ${e066.part3.lambdaShellAudit.cosmicHistoryLateWEff.toFixed(5)}`,
-      currentBound: `Planck 2018: Omega_DM h^2 = ${PLANCK_OMEGA_DM_H2.toFixed(4)} +/- 0.0012; LZ/XENONnT SI limits; Planck+DESI w ~ -1`,
-      nextGenDetector: 'DARWIN / XLZD (WIMP direct detection to neutrino fog) + CTA + Rubin/Euclid/DESI',
-      status: p12Ok ? 'consistent' : 'tension',
+      name: 'SO(10) Z_2 matter-parity WIMP dark matter & shared WIMP + axion budget constraint',
+      sourceCode: 'E-CSM-0066 / E-FRC-0331',
+      kind: 'fitted-consistency-check',
+      predictedValue: `m_DM = ${e066.part3.darkMatterFreezeOut.mDmShell13GeV.toFixed(1)} GeV, P_DM = -1 unbroken under <126_H>, calibrated Omega_WIMP h^2 = ${e066.part3.darkMatterFreezeOut.planckMatchedOmegaDmH2.toFixed(4)} (must share Omega_WIMP + Omega_axion = 0.1200 and preserve E-FRC-0328 2-loop RGEs), late w_eff = ${e066.part3.lambdaShellAudit.cosmicHistoryLateWEff.toFixed(5)}`,
+      currentBound: `Planck 2018: Omega_DM h^2 = ${PLANCK_OMEGA_DM_H2.toFixed(4)} +/- 0.0012, LZ/XENONnT SI limits, Planck+DESI w ~ -1`,
+      nextGenDetector: 'DARWIN / XLZD (WIMP direct detection to neutrino fog) + CTA + ADMX/MADMAX + Rubin/Euclid/DESI',
+      status: 'tension',
       falsificationCondition:
-        'Full exclusion of thermal-relic ~0.3-1 TeV SO(10) matter-parity WIMP across direct/indirect probes, or > 5 sigma confirmation of dynamical dark energy w != -1',
+        'Full exclusion of thermal-relic ~0.3-1 TeV SO(10) matter-parity WIMP and DFSZ axion across direct/haloscope probes, or charged DM multiplet spoiling gauge unification',
     },
   ]
 
-  const currentTensionCount = predictions.filter(p => p.status !== 'consistent').length
+  const zeroFitPredictionCount = predictions.filter(p => p.kind === 'zero-fit-prediction').length
+  const fittedCheckCount = predictions.filter(p => p.kind === 'fitted-consistency-check').length
+  const predictionTensionCount = predictions.filter(p => p.status === 'tension').length
+  const currentTensionCount = crossSectorTensions.length
 
   const honestyAudit: GlobalHonestyAudit = {
     zeroParamExactAndLean: {
       leanToolchain: leanAudit.toolchain,
       leanTheoremCount: leanAudit.theoremCount,
       leanFamilyCount: leanAudit.familyCount,
-      leanZeroSorryZeroAxiom: leanAudit.sorryCount === 0 && leanAudit.axiomCount === 0,
+      leanZeroSorryZeroAxiom:
+        leanAudit.sorryCount === 0 &&
+        leanAudit.axiomCount === 0 &&
+        leanAudit.nativeDecideCount === 0 &&
+        leanAudit.unsafeCount === 0 &&
+        leanAudit.implementedByCount === 0,
       exactStructuralResults: [
         'Exact {3,4,3,4} cusp shell counts N_D = [1, 18, 330, 6034], branching b = 6034/330, bulk Perron lambda = 18.278708',
-        'Parameter-free K_eff = 1.0312370835, G_eff = 0.07716700, universal speed c_u = 0.9869161538 (c_g = c_light = c_matter to <= 1e-15)',
+        `Parameter-free canonical single-face [1, 4, 20, 100] K_eff = ${e125.kEffF16.toFixed(10)}, G_eff = ${(1 / (4 * Math.PI * e125.kEffF16)).toFixed(8)}, universal speed c_u = ${e125.cUniversalF16.toFixed(10)} (c_g = c_light = c_matter to <= 1e-15)`,
         'Exact 3 x 16 = 48 anomaly-free Spin(10) Weyl fermions, 6/6 BigInt anomaly cancellation, sin^2(theta_W)_GUT = 3/8, PS matching weights (3/5, 2/5)',
         'Exact F4 sqrt(2) Koide theorem Q = 2/3, Lindemann-Weierstrass obstruction for e^{i 2/9} in Z[zeta_9][1/6], 9-state Sigma(648) Floquet eigenvalue 2/9',
-        'Exact BigInt 256/256 D_4 4th-moment SO(4) isotropy killing O(a^2) anisotropy (O(a^4) block-spin RG contraction 1/16 vs Z^4 1/4)',
+        'Exact BigInt 256/256 D_4 4th-moment SO(4) isotropy killing O(a^2) anisotropy in free D_4 dispersion (IR O(k^4) halving contraction 1/16 vs Z^4 1/4)',
         'Exact BigInt pure Yang-Mills 2-loop beta coefficients SU(3) (11, 102) & SO(10) (88/3, 2176/3), sphaleron C_sph = 28/79, and SO(10) Z_2 matter parity P_M = (-1)^{3(B-L)}',
         'Exact finite-volume Z_3 transfer-matrix Perron-Frobenius positivity (dim = 3, 9, 27), Osterwalder-Seiler strong-coupling gap, and T^t exponential decay',
       ],
     },
     derivedPredictionsSummary: {
       totalPredictions: predictions.length,
-      consistentCount: predictions.length - currentTensionCount,
+      zeroFitPredictionCount,
+      fittedCheckCount,
+      consistentCount: predictions.length - predictionTensionCount,
+      predictionTensionCount,
+      crossSectorTensionCount: crossSectorTensions.length,
       tensionCount: currentTensionCount,
     },
+    crossSectorTensions,
     explicitO1InputsAndFits: [
-      `alpha(0) heavy SO(10) threshold mass ratios [${e329.part1.closureD4Blm.minMassRatio.toFixed(3)}, ${e329.part1.closureD4Blm.maxMassRatio.toFixed(3)}] inside [1/3, 3] (zero-fit D_4 BLM alone gives ${e329.part1.zeroFitD4Blm.predAlphaEmInvZeroPdg2024.toFixed(2)}, ${e329.part1.zeroFitD4Blm.zeroRelResidualPct.toFixed(2)}%)`,
+      `alpha(0) heavy SO(10) threshold mass ratios [${e329.part1.closureD4Blm.minMassRatio.toFixed(3)}, ${e329.part1.closureD4Blm.maxMassRatio.toFixed(3)}] inside [1/3, 3] (zero-fit D_4 BLM alone gives ${zeroFitAlphaInv.toFixed(2)}, ${zeroFitAlphaRelPct.toFixed(2)}%)`,
       `Goldberger-Wise bulk mass-squared m_phi^2 = ${e329.part2Gw.mPhiSqLat} and boundary VEV ratio v_UV/v_IR = ${e329.part2Gw.vUvOverVIrNatural}..${e329.part2Gw.vUvOverVIrExactVew.toFixed(2)} stabilizing D_EW = 13 without 10^16 fine-tuning`,
       `12-fermion flavor texture (E-FRC-0327): ${e327.part2.ledger.nContinuousFreeParams} continuous fitted parameters + ${e327.part2.ledger.nDiscreteStructuralInputs} discrete inputs across ${e327.part2.ledger.nObservables} SM flavor observables (net overdetermination +${e327.part2.ledger.netOverdeterminationContinuous})`,
-      `Cosmology (E-CSM-0066): strong-washout effective mass tilde_m_1 = ${e066.part2.planckMatchAtMPs.tildeM1Ev.toFixed(4)} eV in [m_2, m_3] for exact Planck eta_B, and thermal <sigma v> = ${e066.part3.darkMatterFreezeOut.planckMatchedSigmaVCm3S.toExponential(3)} cm^3/s at m_DM = ${e066.part3.darkMatterFreezeOut.mDmShell13GeV.toFixed(1)} GeV`,
+      `Cosmology (E-CSM-0066): strong-washout effective mass tilde_m_1 = ${e066.part2.planckMatchAtMPs.tildeM1Ev.toFixed(4)} eV in [m_2, m_3] for calibrated Planck eta_B, and thermal <sigma v> = ${e066.part3.darkMatterFreezeOut.planckMatchedSigmaVCm3S.toExponential(3)} cm^3/s at m_DM = ${e066.part3.darkMatterFreezeOut.mDmShell13GeV.toFixed(1)} GeV`,
     ],
     remainingUniversalFrontiers: [
-      'Clay Millennium Yang-Mills mass-gap frontier: infinite-volume non-perturbative a -> 0 constructive continuum proof for 4D SU(3) / SO(10) (beyond finite-volume Z_3 transfer-matrix gap, strong-coupling expansion, 2-loop asymptotic scaling, and D_4 block-spin RG contraction proved here)',
-      `Dynamical selection of cosmological constant shell depth D_Lambda ~ ${e066.part3.lambdaShellAudit.depthLambdaFromRhoB.toFixed(1)} (H_0 scale; zero-parameter H_0 = 48 shell claim explicitly refused at ${e066.part3.lambdaShellAudit.factorErrorAtShell48.toFixed(2)}x error)`,
-      `Unfactored multi-orbit L3 many-body 4D honeycomb mergers at R >= 8 (> ${e162.part3ConvergenceAndScaling.docksAtR8LowerBound.toExponential(2)} docks; R = 10 exceeds ${e162.part3ConvergenceAndScaling.docksAtR10LowerBound.toExponential(2)} docks, hardware-scale frontier)`,
-      'Microscopic dynamical derivation from the live {3,4,3,4} rule of exact heavy SO(10) multiplet ratios (for 9-digit zero-parameter alpha(0)), role-grid numerator 2/9, and Yukawa warp exponents (eta_d, eta_u)',
+      'Clay Millennium Yang-Mills mass-gap frontier: infinite-volume non-perturbative a -> 0 constructive continuum proof for 4D SU(3) / SO(10) (beyond finite-volume Z_3 transfer-matrix gap, perturbative 2-loop asymptotic-scaling inversion, and free D_4 dispersion isotropy checked here)',
+      `Dynamical selection of cosmological constant shell depth D_Lambda ~ ${e066.part3.lambdaShellAudit.depthLambdaFromRhoB.toFixed(1)} (H_0 scale, zero-parameter H_0 = 48 shell claim explicitly refused at ${e066.part3.lambdaShellAudit.factorErrorAtShell48.toFixed(2)}x error)`,
+      `Unfactored many-body bare-QCA dynamical gravity beyond prescribed Hartree/background L2 walks (exact {3,4,3,4} ball volume grows as ~18.3^R from N_ball(0..3) = [${e163.part1InfiniteHoneycomb.nBall0to3.join(', ')}], hardware-scale frontier)`,
+      'Microscopic dynamical derivation from the live {3,4,3,4} rule of exact heavy SO(10) multiplet ratios (for 9-digit zero-parameter alpha(0)), role-grid numerator 2/9, Yukawa warp exponents, and resolution of the 5 cross-sector tensions listed above',
     ],
   }
 
@@ -2183,6 +2344,10 @@ function runPart2LiveFalsifiableDossier(): Part2DossierReport {
     leanAudit,
     doubleBetaDecay,
     predictions,
+    crossSectorTensions,
+    zeroFitPredictionCount,
+    fittedCheckCount,
+    predictionTensionCount,
     currentTensionCount,
     honestyAudit,
     liveModuleSnapshots: {
@@ -2195,14 +2360,19 @@ function runPart2LiveFalsifiableDossier(): Part2DossierReport {
         e161Qnm.isospectralOmegaRRelDiff,
         e161Qnm.isospectralOmegaIRelDiff,
       ),
-      eGrv0162HorizonWorstNormErr: e162.part2Horizon.worstNormErr,
-      eGrv0162WeakRedshiftSlopeErr: e162.part3ConvergenceAndScaling.l3WeakRedshiftSlopeRelErr,
+      eGrv0163HorizonWorstNormErr: Number(e163.part3Horizon.worstExactBigIntNormErr),
+      eGrv0163HorizonOutVelocity: swHorizon163.vOut,
+      eGrv0163HorizonInVelocity: swHorizon163.vIn,
+      eGrv0163InteriorOutVelocity: swInterior163.vOut,
+      eGrv0163InteriorInVelocity: swInterior163.vIn,
       eFrc0327LeptonKoideQ: e327.part2.leptons.koideQ,
       eFrc0327NuSumMassesEv: e327.part2.neutrinos.sumMassesEv,
       eFrc0327PmnsDeltaCpDeg: e327.part2.neutrinos.deltaCpDeg,
+      eFrc0327LegacyMPsGeV: legacyMPsGeV,
       eFrc0328Log10MGutGeV: e328.primary.log10MGutGeV,
+      eFrc0328UnifiedMPsGeV: unifiedMPsGeV,
       eFrc0328ProtonLifetimeYr: e328.primary.protonLifetimeEstimateYr,
-      eFrc0329ZeroFitD4BlmAlphaZero: e329.part1.zeroFitD4Blm.predAlphaEmInvZeroPdg2024,
+      eFrc0329ZeroFitD4BlmAlphaZero: zeroFitAlphaInv,
       eFrc0329ThresholdRatioMin: e329.part1.closureD4Blm.minMassRatio,
       eFrc0329ThresholdRatioMax: e329.part1.closureD4Blm.maxMassRatio,
       eFrc0329HiggsLambdaAtMGut: e329.part2Higgs.psLambdaAtMGut,

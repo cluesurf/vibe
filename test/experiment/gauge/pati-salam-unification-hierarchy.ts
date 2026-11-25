@@ -1,32 +1,21 @@
-// BOUNDARY #2: {3,4,3,4} GEOMETRIC ELECTROWEAK HIERARCHY (D_EW ~ 13 SHELLS),
-// EXACT 2-LOOP SO(10) -> PATI-SALAM -> SM GAUGE UNIFICATION, NEUTRINO SEESAW SCALE M_R = M_PS,
-// AND HONEST BARE-LATTICE ALPHA(0) PREDICTION TEST (E-FRC-0328).
+// BOUNDARY #2 (E-FRC-0328): DOWNSTREAM CONTINUUM 2-LOOP PATI-SALAM / SO(10) EFT COMPATIBILITY
+// CHECK WITH {3,4,3,4} SHELL HIERARCHY b = 6034/330 AND BARE-LATTICE ALPHA(0) TEST.
 //
-// Part 1: Uses the exact {3,4,3,4} cusp shell counts N_D = [1, 18, 330, 6034, ...], branching
-// factor b = 6034/330 = 18.28484848, and bulk Perron growth lambda = 18.27870777 to show that
-// M_Planck / v_EW = 4.9585e16 corresponds to D_EW = 13.23 discrete {3,4,3,4} cusp shells
-// (b^13 = 2.55e16, N_13 = 2.52e16, M_Pl / N_13 = 484 GeV), replacing 10^16 (10^33 quadratic)
-// fine-tuning with 13 integer hyperbolic shells. Decomposes D_EW = D(Pl->GUT) + D(GUT->PS) +
-// D(PS->EW) across the Part 2 scales and verifies the flat-mesh (b = 1) negative control.
+// Part 1: Uses the {3,4,3,4} cusp shell counts N_D = [1, 18, 330, 6034, ...], branching factor
+// b = 6034/330 = 18.28484848, and bulk Perron growth lambda = 18.27870777 to map M_Planck / v_EW
+// onto D_EW = 13.23 discrete shells (contrasted with the flat-mesh b = 1 control).
 //
-// Part 2: Proves exact BigInt Pati-Salam embedding 16 = (4,2,1) + (4bar,1,2) and matching
-// weights alpha_1^{-1}(M_PS) = (3/5) alpha_{2R}^{-1}(M_PS) + (2/5) alpha_{4C}^{-1}(M_PS)
-// directly on E-FRC-0324's Spin(10) spinor. Derives exact 1-loop and 2-loop beta coefficients
-// for minimal Pati-Salam ((1,2,2) bidoublet + (10,1,3) SU(2)_R-breaking scalar) in exact BigInt
-// rationals and solves the coupled 2-loop SO(10) -> PS -> SM boundary-value problem to <= 1e-12:
-//   1. Exact 3-coupling unification <= 1e-12 (closing E-FRC-0326's 4.91 non-SUSY mismatch)
-//   2. Exact backward running from sin^2(theta_W)_GUT = 3/8 to PDG 0.23122 (<= 1e-10)
-//   3. Proton-decay safe M_GUT = 10^{15.90} GeV (> 10^{15.5} GeV) and seesaw scale
-//      M_PS = 10^{11.16} GeV in 10^{11..13.8} GeV giving realistic m_nu ~ 0.02..0.12 eV
-//   4. 2-loop RK4 round-trip M_Z -> M_PS -> M_GUT -> M_PS -> M_Z exact to <= 1e-11
-// plus the no-PS negative control (M_PS = M_GUT) recovering E-FRC-0326's 4.91 mismatch.
+// Part 2: Continuum 2-loop SO(10) -> Pati-Salam -> SM EFT compatibility check: verifies exact BigInt
+// 16 = (4,2,1) + (4bar,1,2) matching weights and 1-loop/2-loop beta coefficients for minimal PS
+// ((1,2,2) + (10,1,3)), checks 3-coupling unification (<= 1e-12), backward sin^2(theta_W) = 0.23122,
+// proton-decay safe M_GUT = 10^{15.90} GeV, seesaw scale M_PS = 10^{11.16} GeV, RK4 round-trip, and
+// the no-PS control recovering the 4.91 non-SUSY mismatch.
 //
-// Part 3: Tests Vibe Theory's parameter-free {3,4,3,4} bare stiffness invariant
-// alpha_lat^{-1} = 4 pi K_eff ln(lambda) = 37.6552 (and 1 / G_eff = 12.9589) by running down
-// through the exact Part 2 2-loop chain to M_Z and q^2 = 0 with zero tuning, reporting exact
-// percent residuals transparently and stating honestly what is solved vs what remains open.
+// Part 3: Tests running bare alpha_lat^{-1} = 4 pi K_eff ln(lambda) = 37.6552 (and 1 / G_eff = 12.9589)
+// down through the continuum 2-loop chain to M_Z and q^2 = 0, reporting residuals transparently and
+// noting that deriving CODATA alpha(0) and selecting D_GUT, D_PS, D_EW dynamically remain open.
 //
-// Depth L2: deterministic BigInt rational algebra + 2-loop RK4 + 2D Newton solver. Zero RNG.
+// Depth L2: deterministic continuum EFT compatibility check (BigInt rationals + 2-loop RK4). Zero RNG.
 
 import { analyzePatiSalamUnificationHierarchy } from '@/code/measure/pati-salam-unification-hierarchy'
 import { ratFormat } from '@/code/measure/so10-three-generations'
@@ -37,9 +26,9 @@ export default experiment({
   id: 'gauge/pati-salam-unification-hierarchy',
   code: 'E-FRC-0328',
   title:
-    '{3,4,3,4} geometric electroweak hierarchy (D_EW ~ 13 shells), exact 2-loop SO(10) -> Pati-Salam -> SM gauge unification, neutrino seesaw scale M_R = M_PS, and honest bare-lattice alpha(0) prediction',
+    'Downstream continuum 2-loop Pati-Salam / SO(10) EFT compatibility check with {3,4,3,4} shell hierarchy b = 6034/330',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: ['eft-continuum'],
   depth: 'L2',
   paper: false,
   run() {
@@ -237,27 +226,18 @@ export default experiment({
         invGEffHitsLandauPoleAboveMz: lat.invGEffHitsLandauPoleAboveMz ? 1 : 0,
       },
       notes:
-        'Honest Boundary #2 audit (L2, zero random numbers): ' +
-        '(1) SOLVED GEOMETRICALLY: the {3,4,3,4} cusp branching factor b = 6034/330 = 18.284848 (bulk Perron ' +
-        'lambda = 18.278708) generates the entire M_Planck/v_EW = 4.96e16 electroweak hierarchy in D_EW = 13.23 ' +
-        'discrete shells (N_13 = 2.52e16, M_Pl/N_13 = 484 GeV, RS warp exponent k*pi*r_c = 38.44), replacing 10^16 ' +
-        'linear / 10^33 quadratic fine-tuning with 13 integer shells, while flat b = 1 produces zero hierarchy. ' +
-        '(2) SOLVED AT 2-LOOP RG: inserting the exact Pati-Salam subgroup SU(4)_C x SU(2)_L x SU(2)_R already ' +
-        'present inside E-FRC-0324 Spin(10) with minimal (1,2,2)_C + (10,1,3)_C Higgs closes E-FRC-0326 non-SUSY ' +
-        `4.91 mismatch to ${p.unificationMaxResidual.toExponential(1)}, reproduces sin^2(theta_W)(M_Z) = 0.23122 from ` +
-        `3/8 to ${p.backwardSin2ThetaWErr.toExponential(1)}, places M_GUT = 10^${p.log10MGutGeV.toFixed(3)} GeV safely above ` +
-        `the 10^15.5 GeV Super-Kamiokande proton-decay bound, and puts M_R = M_PS = 10^${p.log10MPsGeV.toFixed(3)} GeV ` +
-        `inside the Type-I seesaw window (m_nu = 0.022..0.122 eV for m_D = m_tau..m_b, while full top m_D = 85 GeV ` +
-        'requires Yukawa suppression or D-parity G_422D where M_PS = 10^13.64 GeV but M_GUT = 10^14.92 GeV drops ' +
-        'below Super-K). ' +
-        '(3) HONEST BARE-LATTICE ALPHA(0) BOUNDARY: parameter-free alpha_lat^-1 = 4 pi K_eff ln(lambda) = 37.6552 ' +
-        `runs down with zero tuning to alpha^-1(0) = ${lat.primaryMinimalPsRun.predAlphaEmInvZero.toFixed(2)} ` +
-        `(${lat.primaryMinimalPsRun.zeroRelResidualPct.toFixed(2)}% vs CODATA 137.036) in minimal PS and ` +
-        `${lat.georgiJarlskogPsRun.predAlphaEmInvZero.toFixed(2)} (${lat.georgiJarlskogPsRun.zeroRelResidualPct.toFixed(2)}%) ` +
-        'in Georgi-Jarlskog PS (+(15,2,2)_R), proving the right O(1/120..1/140) order of magnitude while unlogged ' +
-        '1/G_eff = 12.9589 confines QCD well above M_Z. What remains genuinely OPEN is deriving the exact 9-digit ' +
-        'CODATA value alpha^-1(0) = 137.035999177 (i.e. alpha_GUT^-1 = 45.1271 vs 37.6552) and selecting the exact ' +
-        'discrete symmetry-breaking shell depths D_GUT ~ 2.5, D_PS ~ 6.3, D_EW ~ 13.2 dynamically from the live microscopic rule.',
+        'Downstream continuum 2-loop Pati-Salam / SO(10) EFT compatibility check with {3,4,3,4} shell hierarchy b = 6034/330 (L2, zero random numbers, EFT continuum rather than QCA dynamics): ' +
+        '(1) Shell hierarchy mapping: b = 6034/330 = 18.284848 (bulk Perron lambda = 18.278708) maps M_Planck/v_EW = 4.96e16 ' +
+        'to D_EW = 13.23 discrete shells (N_13 = 2.52e16, M_Pl/N_13 = 484 GeV), contrasted with flat b = 1. ' +
+        '(2) Continuum 2-loop RG compatibility: minimal Pati-Salam (1,2,2)_C + (10,1,3)_C inside SO(10) closes the non-SUSY ' +
+        `4.91 mismatch to ${p.unificationMaxResidual.toExponential(1)}, reproduces sin^2(theta_W)(M_Z) = 0.23122 from 3/8 ` +
+        `to ${p.backwardSin2ThetaWErr.toExponential(1)}, places M_GUT = 10^${p.log10MGutGeV.toFixed(3)} GeV above Super-K, ` +
+        `and puts M_PS = 10^${p.log10MPsGeV.toFixed(3)} GeV in the Type-I seesaw window (m_nu = 0.022..0.122 eV for m_D = m_tau..m_b). ` +
+        '(3) Bare-lattice alpha(0) boundary: running alpha_lat^-1 = 4 pi K_eff ln(lambda) = 37.6552 downward yields ' +
+        `alpha^-1(0) = ${lat.primaryMinimalPsRun.predAlphaEmInvZero.toFixed(2)} (${lat.primaryMinimalPsRun.zeroRelResidualPct.toFixed(2)}% vs CODATA 137.036) ` +
+        `in minimal PS and ${lat.georgiJarlskogPsRun.predAlphaEmInvZero.toFixed(2)} (${lat.georgiJarlskogPsRun.zeroRelResidualPct.toFixed(2)}%) ` +
+        'with (15,2,2)_R, while unlogged 1/G_eff = 12.9589 hits a QCD Landau pole above M_Z. Deriving CODATA alpha(0) and ' +
+        'dynamically selecting symmetry-breaking scales D_GUT, D_PS, D_EW from the live QCA remain open.',
     })
   },
 })

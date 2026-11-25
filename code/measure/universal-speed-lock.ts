@@ -4,12 +4,13 @@
 // Physics & mathematical structure:
 //   1. Negative control (decoupled layers fail GW170817 by 12 orders of magnitude):
 //      From E-GRV-0157, the {3,4,3,4} cusp column with parameter-free pair-density warp w(D) = 1 / N_D^2
-//      (N_D = 1, 18, 330, 6034, then geometric ratio R_VOL = 6034/330; lateral links per cubic neighbor
-//      1, 10, 8*5^(D-1)) has total lateral stiffness K_eff = sum c_lat(D) = 1.0312370835... and total
-//      depth-column inertia M_eff = sum N_D * w(D) = sum 1/N_D = 1.0587611..., giving warped graviton
-//      speed c_grav = sqrt(K_eff / M_eff) = 0.9869156... docks/beat. By contrast, a raw unwarped D = 0
+//      (N_D = 1, 18, 330, 6034, then geometric ratio R_VOL = 6034/330; canonical unaliased single-face
+//      lateral links per cubic neighbor [1, 4, 20, 100] = 1, 4*5^(D-1), matching Vibe/Geometry.lean and
+//      E-FND-0185) has total lateral stiffness K_eff = sum c_lat(D) = 1.0125321220... and total
+//      depth-column inertia M_eff = sum N_D * w(D) = sum 1/N_D = 1.0587611742..., giving warped graviton
+//      speed c_grav = sqrt(K_eff / M_eff) = 0.9779246684... docks/beat. By contrast, a raw unwarped D = 0
 //      husk Weyl fermion / photon (E-SPN-0222 weylHuskStep2) propagates at c_raw = 1.0000 docks/beat.
-//      The resulting mismatch |c_grav / c_raw - 1| = 0.013084 (~1.31%) exceeds GW170817's 6e-15 bound by
+//      The resulting mismatch |c_grav / c_raw - 1| = 0.022075 (~2.21%) exceeds GW170817's 6e-15 bound by
 //      more than 12 orders of magnitude: light, matter, and gravity CANNOT ride on uncoupled kinetic metrics.
 //
 //   2. Shared warped-cusp column universality (c_light = c_matter = c_grav to <= 1e-15 < 6e-15):
@@ -41,19 +42,16 @@
 //
 // DETERMINISM: zero random numbers; pure deterministic floating-point linear algebra.
 
-import { EXACT_COLUMN_SHELL_COUNTS } from '@/code/measure/pair-density-gravity-slope'
+import {
+  EXACT_COLUMN_SHELL_COUNTS,
+  period2TorusLateralLinksPerNeighbor,
+  singleFaceLateralLinksPerNeighbor,
+} from '@/code/measure/pair-density-gravity-slope'
 import { weylHuskStep2 } from '@/code/measure/unitary-cusp-wall'
 
 const R_VOL = EXACT_COLUMN_SHELL_COUNTS[3] / EXACT_COLUMN_SHELL_COUNTS[2]
 
 export const GW170817_BOUND = 6e-15
-
-// Incremental lateral inter-column links per cubic neighbor at depth d (exact match to E-GRV-0157)
-function lateralLinksPerNeighbor(d: number): number {
-  if (d === 0) return 1
-  if (d === 1) return 10
-  return 8 * 5 ** (d - 1)
-}
 
 export type WarpedColumnData = {
   readonly floorF: number
@@ -246,7 +244,9 @@ function realSymmetricJacobiEigen(
 }
 
 // Build the exact {3,4,3,4} warped cusp column model and its k = 0 spectral decomposition.
-export function buildWarpedColumnData(floorF: number): WarpedColumnData {
+// Defaults to canonical unaliased single-face lateral links [1, 4, 20, 100]; set aliasedPeriod2 = true
+// only for the period = 2 torus comparison control ([1, 10, 40, 200]).
+export function buildWarpedColumnData(floorF: number, aliasedPeriod2 = false): WarpedColumnData {
   const dim = floorF + 1
   const nShell = new Float64Array(floorF + 2)
   for (let d = 0; d < EXACT_COLUMN_SHELL_COUNTS.length && d < nShell.length; d++) {
@@ -261,6 +261,9 @@ export function buildWarpedColumnData(floorF: number): WarpedColumnData {
   const cVert = new Float64Array(floorF + 1)
   const mass = new Float64Array(dim)
   const vLatSq = new Float64Array(dim)
+  const latFn = aliasedPeriod2
+    ? period2TorusLateralLinksPerNeighbor
+    : singleFaceLateralLinksPerNeighbor
 
   let kEffNeumann = 0
   let mEff = 0
@@ -269,7 +272,7 @@ export function buildWarpedColumnData(floorF: number): WarpedColumnData {
     const nd = nShell[d]!
     const nd1 = nShell[d + 1]!
     const wd = 1 / (nd * nd)
-    const latCount = lateralLinksPerNeighbor(d)
+    const latCount = latFn(d)
 
     w[d] = wd
     cLat[d] = latCount * wd
@@ -1211,6 +1214,14 @@ export type UniversalSpeedLockResult = {
   readonly maxMatterSquareMatchErr: number
   readonly maxMatterHelicityErr: number
 
+  // Control: aliased period = 2 torus comparison ([1, 10, 40, 200] -> K_eff = 1.031237, c_u = 0.986916)
+  readonly period2TorusComparison: {
+    readonly kEffF16: number
+    readonly gEffF16: number
+    readonly cUniversalF16: number
+    readonly cUniversalRelShiftVsCanonical: number
+  }
+
   // Test 3: Exact discrete-time unitary wave equation & symplectic leapfrog
   readonly unitaryCheck: UnitaryWaveCheckResult
 }
@@ -1218,6 +1229,14 @@ export type UniversalSpeedLockResult = {
 export function runUniversalSpeedLock(): UniversalSpeedLockResult {
   const colF16 = buildWarpedColumnData(16)
   const colF12 = buildWarpedColumnData(12)
+  const colPeriod2F16 = buildWarpedColumnData(16, true)
+  const period2TorusComparison = {
+    kEffF16: colPeriod2F16.kEffNeumann,
+    gEffF16: 1 / (4 * Math.PI * colPeriod2F16.kEffNeumann),
+    cUniversalF16: colPeriod2F16.cUniversal,
+    cUniversalRelShiftVsCanonical:
+      Math.abs(colPeriod2F16.cUniversal - colF16.cUniversal) / colF16.cUniversal,
+  }
 
   // Test 1: Unwarped D = 0 husk Weyl fermion speed directly from E-SPN-0222 weylHuskStep2.
   // Use atan2(sin E, cos E) to avoid float64 acos(1 - x) cancellation near E = 0.
@@ -1329,6 +1348,7 @@ export function runUniversalSpeedLock(): UniversalSpeedLockResult {
     maxMatterChiralSymErr: Math.max(...directionsF16.map(d => d.matterChiralSymErr)),
     maxMatterSquareMatchErr: Math.max(...directionsF16.map(d => d.matterSquareMatchErr)),
     maxMatterHelicityErr: Math.max(...directionsF16.map(d => d.matterHelicityErr)),
+    period2TorusComparison,
     unitaryCheck,
   }
 }

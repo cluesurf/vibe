@@ -348,7 +348,7 @@ E-QTM-0008,other,stand-in,none,,other:code/substrate/coxeter/cell-scale,static
 E-QTM-0009,none,no-mesh,none,,,static
 E-QTM-0010,none,no-mesh,none,,,static
 E-QTM-0011,none,no-mesh,none,,,static
-E-QTM-0012,honeycomb-ball,unread,working,,honeycomb-ball:exactBallMesh,lossy
+E-QTM-0012,honeycomb-ball,unread,working,,honeycomb-ball:exactBallMesh,bijective
 E-QTM-0013,ring,stand-in,none,,ring:conservingChainSweep,static
 E-QTM-0014,other,stand-in,none,,other:buildCellGraph other:buildHorosphere other:code/substrate/proximity-graph,static
 E-QTM-0015,none,no-mesh,none,,,static
@@ -1744,7 +1744,7 @@ E-HLG-0043,honeycomb-cusp,periodic,working,,honeycomb-cusp:buildExactCusp,biject
 E-FND-0181,honeycomb-ball,honeycomb,working,,honeycomb-ball:exactBallMesh,bijective
 E-QTM-0203,d4-box honeycomb-ball,box-specific honeycomb,working,,d4-box:lockedFresh(side) honeycomb-ball:exactBallMesh,bijective
 E-QTM-0204,none,no-mesh,none,,,static
-E-QTM-0205,honeycomb-ball,honeycomb,working,,honeycomb-ball:exactBallMesh,lossy
+E-QTM-0205,honeycomb-ball,honeycomb,working,,honeycomb-ball:exactBallMesh,bijective
 E-GMT-0046,honeycomb-ball,honeycomb,none,,honeycomb-ball:buildExactBall,static
 E-FND-0182,honeycomb-ball,mirrored,working,,honeycomb-ball:exactBallMesh,lossy
 E-SLF-0199,honeycomb-ball,honeycomb,working,,honeycomb-ball:exactBallMesh,bijective
@@ -1782,5 +1782,10 @@ E-GRV-0162,honeycomb-ball honeycomb-cusp,honeycomb periodic,other,,honeycomb-bal
 E-CSM-0066,honeycomb-cusp,periodic,none,,honeycomb-cusp:cuspTranslations,static
 E-FRC-0331,honeycomb-cusp,periodic,none,,honeycomb-cusp:cuspTranslations,static
 E-CSM-0067,honeycomb-cusp,periodic,none,,honeycomb-cusp:cuspTranslations,static
-E-FND-0188,d4-box honeycomb-ball honeycomb-cusp,box-specific honeycomb periodic,other,,d4-box:bloch proveD4QuarticIsotropy d4-box:bloch runPart1CBlockSpinRg honeycomb-ball:coverBall honeycomb-ball:exactBallMesh honeycomb-cusp:buildExactCusp honeycomb-cusp:cuspTranslations,bijective
+E-FND-0188,d4-box honeycomb-ball honeycomb-cusp,box-specific honeycomb periodic,other,,d4-box:bloch proveD4QuarticIsotropy d4-box:bloch runPart1CBlockSpinRg honeycomb-ball:exactBallMesh honeycomb-cusp:buildExactCusp honeycomb-cusp:cuspTranslations,bijective
 E-FRC-0330,honeycomb-cusp,periodic,none,,honeycomb-cusp:cuspTranslations,static
+E-CSM-0068,honeycomb-cusp,periodic,none,,honeycomb-cusp:cuspTranslations,static
+E-FND-0189,d4-box honeycomb-cusp,box-specific periodic,none,,d4-box:bloch proveD4QuarticIsotropy d4-box:inline runPart3BalabanBlocking honeycomb-cusp:cuspTranslations,static
+E-GRV-0163,honeycomb-ball honeycomb-cusp,honeycomb periodic,other,,honeycomb-ball:exactBallMesh honeycomb-cusp:buildExactCusp,bijective
+E-FRC-0332,d4-box honeycomb-cusp,box-specific periodic,none,,d4-box:bloch proveD4QuarticIsotropy honeycomb-cusp:cuspTranslations,static
+E-FND-0190,honeycomb-ball,honeycomb,none,,honeycomb-ball:buildExactBall honeycomb-ball:code/substrate/mesh-unfolding,static

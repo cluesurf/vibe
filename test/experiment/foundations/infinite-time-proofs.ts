@@ -1,7 +1,8 @@
 // INFINITE-TIME FORMAL PROOFS BREAKING THE 4-BEAT HORIZON (E-FND-0185, gap B-35).
-// Verifies six infinite-time (forall t : Nat / forall F : Nat) theorems both in
-// self-contained zero-sorry Lean 4 (code/proof/Vibe.lean) and via exact
-// zero-float BigInt algebraic proof certificates (code/measure/infinite-time-proofs.ts):
+// Verifies the six core infinite-time (forall t : Nat / forall F : Nat) BigInt algebraic proof certificates
+// (T1-T6) in code/measure/infinite-time-proofs.ts alongside an audit of the full Lean 4 proof suite
+// (code/proof/Vibe.lean + code/proof/Vibe/*.lean) and its compiled .olean build artifacts (pnpm check:lean
+// executes live lake build):
 //   1. V1 eternal stationarity (forall t : Nat) + zero entropy export outside light cone
 //   2. forall t : Nat unitarity & exact reversibility + exact Z[zeta_9][1/6] gate unitarity
 //      for C, D, F-G, M_pair(zeta_18), ODD value phase, and ODD-octet G_8
@@ -13,7 +14,7 @@
 //   6. Universal speed lock c_grav^2 = c_light^2 = c_matter^2 = K_eff / M_eff (forall F >= 1,
 //      B-41, m-29) and strict subluminal causality for all F >= 2 on the {3,4,3,4} cusp.
 //
-// Depth L2: pure exact BigInt algebra + Lean 4 zero-sorry structural audit. Zero floats, zero RNG.
+// Depth L2: pure exact BigInt algebra + Lean 4 source and .olean build-artifact audit. Zero floats, zero RNG.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -23,7 +24,7 @@ export default experiment({
   id: 'foundations/infinite-time-proofs',
   code: 'E-FND-0185',
   title:
-    'Infinite-time formal proofs breaking the 4-beat horizon: Lean 4 zero-sorry proofs and exact BigInt certificates for V1 stationarity, unitarity, 2-adic SU(2) infinite order, M_pair s-wave eigenstate, 1/N_D^2 resistance divergence, and universal speed lock',
+    'Infinite-time formal proofs breaking the 4-beat horizon: exact BigInt certificates T1-T6 and Lean 4 proof-suite audit (Vibe.lean + Vibe/*.lean and compiled .olean artifacts)',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',
@@ -35,7 +36,11 @@ export default experiment({
     return verdict({
       status: res.allPassed ? 'pass' : 'fail',
       claim:
-        `All six infinite-time theorems (forall t : Nat / forall F : Nat) hold identically with zero floats and zero Lean 4 sorrys (${leanAudit.theoremCount} formal Lean theorems, ${leanAudit.sorryCount} sorrys, ${leanAudit.axiomCount} axioms): ` +
+        `Core infinite-time BigInt certificates T1-T6 (forall t : Nat / forall F : Nat) pass with zero floats, ` +
+        `and the Lean 4 proof suite across ${leanAudit.leanFileCount} source files (Vibe.lean + Vibe/*.lean) passes cleanly ` +
+        `(${leanAudit.theoremCount} formal Lean theorems, ${leanAudit.sorryCount} sorry, ${leanAudit.axiomCount} axiom, ` +
+        `${leanAudit.nativeDecideCount} native_decide, ${leanAudit.unsafeCount} unsafe, ${leanAudit.implementedByCount} implemented_by, ` +
+        `${leanAudit.oleanFileCount}/${leanAudit.leanFileCount} compiled .olean artifacts present, full live compilation run by pnpm check:lean): ` +
         `T1 V1 eternal stationarity and s_in = 0 outside light cone (${theorem1.ballDocksChecked} ball docks, ${theorem1.lightConeOutsideExceptions} exceptions), ` +
         `T2 exact Z[zeta_9][1/6] unitarity of C, D, F-G, M_pair(zeta_18), ODD and forall-t reversibility (checked through t = ${theorem2.iteratedHorizonChecked}), ` +
         `T3 elementary 2-adic SU(2) infinite order 2^n Tr(W^n) = 1 (mod 2) through n = ${theorem3.maxPowerChecked} with non-commuting conjugate ||[W, W2]||_F^2 = ${theorem3.commFrobNormSqNum}/${theorem3.commFrobNormSqDen} outside Pin(2), ` +
@@ -52,8 +57,13 @@ export default experiment({
         theorem6Passed: theorem6.passed ? 1 : 0,
         leanAuditPassed: leanAudit.passed ? 1 : 0,
         leanTheoremCount: leanAudit.theoremCount,
+        leanFileCount: leanAudit.leanFileCount,
+        leanOleanFileCount: leanAudit.oleanFileCount,
         leanSorryCount: leanAudit.sorryCount,
         leanAxiomCount: leanAudit.axiomCount,
+        leanNativeDecideCount: leanAudit.nativeDecideCount,
+        leanUnsafeCount: leanAudit.unsafeCount,
+        leanImplementedByCount: leanAudit.implementedByCount,
         t1BallDocksChecked: theorem1.ballDocksChecked,
         t1LightConeExceptions: theorem1.lightConeOutsideExceptions,
         t1IncomingEntropyOutside: theorem1.incomingEntropyOutside,
@@ -76,6 +86,10 @@ export default experiment({
         t6CuspF1ExactUnity: theorem6.cuspF1ExactUnity ? 1 : 0,
         t6ArbitraryWarpExactLock: theorem6.arbitraryPositiveWarpLockExact ? 1 : 0,
       },
+      notes:
+        'Verifies exact BigInt certificates T1-T6 and audits all Lean 4 source files (code/proof/Vibe.lean + code/proof/Vibe/*.lean) ' +
+        'for zero sorry, zero axiom, zero native_decide, zero unsafe, and zero implemented_by, plus presence of compiled .olean artifacts ' +
+        'under code/proof/.lake/build/lib/lean/. Live Lean 4 compilation is enforced separately by pnpm check:lean (lake build).',
     })
   },
 })

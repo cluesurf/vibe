@@ -3,9 +3,9 @@
 //
 // Builds directly on:
 //   - E-GRV-0157 (pair-density-gravity-slope.ts): exact {3,4,3,4} shell counts N_D = [1, 18, 330, 6034],
-//     parameter-free pair-density warp w(D) = 1 / N_D^2, K_eff = 1.0312370835, G_eff = 0.07716700,
-//     and raw unwarped bulk screened control w(D) = 1.
-//   - E-RLT-0125 (universal-speed-lock.ts): shared warped-column universal speed c_universal = 0.9869161538.
+//     parameter-free pair-density warp w(D) = 1 / N_D^2 (canonical single-face [1, 4, 20, 100]),
+//     K_eff = 1.0125321220, G_eff = 0.07859254, and raw unwarped bulk screened control w(D) = 1.
+//   - E-RLT-0125 (universal-speed-lock.ts): shared warped-column universal speed c_universal = 0.9779246684.
 //
 // Dynamical method (deterministic, zero RNG):
 //   Two distinct localized composite wavepackets (psi_1, psi_2) of masses (m_1, m_2) evolve on a 3D cubic
@@ -25,6 +25,7 @@
 import {
   EXACT_COLUMN_SHELL_COUNTS,
   MADELUNG_C_M,
+  singleFaceLateralLinksPerNeighbor,
 } from '@/code/measure/pair-density-gravity-slope'
 import { buildWarpedColumnData } from '@/code/measure/universal-speed-lock'
 
@@ -49,12 +50,6 @@ type ColumnModel = {
   readonly gEff: number
 }
 
-function lateralLinksPerNeighbor(d: number): number {
-  if (d === 0) return 1
-  if (d === 1) return 10
-  return 8 * 5 ** (d - 1)
-}
-
 function buildColumnModel(floorF: number, warped: boolean): ColumnModel {
   const nLen = floorF + 2
   const nShell = new Float64Array(nLen)
@@ -72,10 +67,10 @@ function buildColumnModel(floorF: number, warped: boolean): ColumnModel {
     const nd = nShell[d]!
     const nd1 = nShell[d + 1]!
     if (warped) {
-      cLat[d] = lateralLinksPerNeighbor(d) / (nd * nd)
+      cLat[d] = singleFaceLateralLinksPerNeighbor(d) / (nd * nd)
       cVert[d] = 18 / nd1
     } else {
-      cLat[d] = lateralLinksPerNeighbor(d)
+      cLat[d] = singleFaceLateralLinksPerNeighbor(d)
       cVert[d] = 18 * nd
     }
   }

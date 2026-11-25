@@ -1,28 +1,20 @@
-// FRONTIER 5 (E-FRC-0331): STRONG CP PROBLEM (|theta_bar| < 10^{-10}), SO(10) PECCEI-QUINN U(1)_PQ
-// INSIDE 10_H + 126bar_H, EXACT BIGINT E/N = 8/3 ANOMALY RATIO, QCD AXION MASS m_a AT f_a ~ M_PS,
-// AND COSMOLOGICAL MISALIGNMENT DARK MATTER OMEGA_a h^2.
+// FRONTIER 5 (E-FRC-0331): CONTINUUM SO(10) DFSZ AXION EFT COMPATIBILITY CHECK: E/N = 8/3 ANOMALY
+// RATIO, QCD AXION RELAXATION AT f_a ~ M_PS, MISALIGNMENT DM, AND N_DW = 3 / H_inf TENSION DISCLOSURE.
 //
-// Part 1: Certifies in exact BigInt rationals on E-FRC-0324's 3 x 16 = 48 chiral Spin(10) fermions
-//   that q_PQ(16) = +1, q_PQ(10_H) = -2, q_PQ(126bar_H) = -2 leaves EVERY Yukawa term 16*16*10_H
-//   and 16*16*126bar_H invariant (while forbidding 16*16*10_H^* with charge +4), yields exact color
-//   anomaly N = 2 N_g = 6, electromagnetic anomaly E = (16/3) N_g = 16, exact ratio E/N = 8/3 =
-//   1 / sin^2(theta_W)_GUT identically for all N_g >= 1, and exact Spin(10) center quotient
-//   X = 3(B-L) - 4 T_3^R === 1 (mod 4) reducing N_DW from 6 to 3. Audits E-FRC-0327's Z[zeta_9]
-//   quark textures, proving SO(10)-symmetric complex Yukawas generate |theta_Yukawa| ~ O(1) >> 10^{-10}.
+// Part 1: Exact BigInt SO(10) Peccei-Quinn anomaly check on 3 x 16 = 48 Weyl fermions: q_PQ(16) = +1,
+//   q_PQ(10_H) = -2, q_PQ(126bar_H) = -2 gives N = 6, E = 16, E/N = 8/3, and Spin(10) center quotient
+//   N_DW = 3 (reduced from 6), plus strong-CP audit of complex SO(10) Yukawa textures.
 //
-// Part 2: Constructs the exact 2-flavor chiral QCD axion potential (chi_top^{1/4} ~ 76.0 MeV matching
-//   lattice QCD 75.5 MeV to < 1%), evolves the live cosmological axion oscillator ODE with RK4
-//   step-halving <= 1e-9 (cross-checked against the exact Bessel harmonic invariant 2.2111), proves
-//   relaxation from arbitrary O(1) bare theta_0 + theta_Yukawa to < 10^{-18} today, and links f_a
-//   directly to E-FRC-0328's 2-loop Pati-Salam scale M_PS = 1.434e11 GeV (m_a = 39.68, 119.05,
-//   238.10 micro-eV for f_a = M_PS, M_PS/3, M_PS/6 -- all inside the live 10..400 micro-eV haloscope
-//   window, safe from SN1987A and overclosure, achieving Omega_a h^2 = 0.120 at natural O(1) theta_i).
+// Part 2: Continuum 2-flavor chiral QCD axion potential and RK4 cosmological oscillator relaxation ODE
+//   evaluated at E-FRC-0328's Pati-Salam scale M_PS = 1.434e11 GeV (m_a = 39.68, 119.05, 238.10 micro-eV
+//   for f_a = M_PS, M_PS/3, M_PS/6), checking misalignment abundance Omega_a h^2 (note: shares the total
+//   Omega_DM h^2 = 0.120 budget with WIMP dark matter in E-CSM-0066 rather than double-counting 200%).
 //
-// Part 3: Three negative controls (no-PQ bare Z[zeta_9] nEDM violation > 10^9x, f_a = M_GUT severe
-//   overclosure Omega_a h^2 >> 100 requiring theta_i << 1, and wrong E/N = 0 KSVZ vs SO(10) E/N = 8/3
-//   giving 2.57x coupling separation) plus honest gravitational PQ-quality and domain-wall boundary audit.
+// Part 3: Negative controls (no-PQ nEDM violation, f_a = M_GUT overclosure, KSVZ E/N = 0 vs DFSZ E/N = 8/3)
+//   plus explicit disclosure of the N_DW = 3 pre-inflationary CMB isocurvature bound H_inf < 9.9e6 GeV
+//   tension with high-scale inflation (H_inf ~ 10^13 GeV in E-CSM-0067) and the gravitational PQ-quality bound.
 //
-// Depth L2: deterministic BigInt rational algebra + 2-stage RK4 ODE with step-halving. Zero RNG.
+// Depth L2: deterministic continuum SO(10) DFSZ axion EFT compatibility check. Zero RNG.
 
 import {
   analyzeStrongCpAxionAndPqWindow,
@@ -37,9 +29,9 @@ export default experiment({
   id: 'gauge/strong-cp-axion-and-pq-window',
   code: 'E-FRC-0331',
   title:
-    'Strong CP resolution via SO(10) Peccei-Quinn U(1)_PQ inside 10_H + 126bar_H, exact BigInt E/N = 8/3 anomaly ratio, live QCD axion relaxation at f_a ~ M_PS, and misalignment dark matter',
+    'Continuum SO(10) DFSZ axion EFT compatibility check (E/N = 8/3, f_a ~ M_PS, misalignment DM, and N_DW = 3 pre-inflationary H_inf < 9.9e6 GeV tension with E-CSM-0067)',
   category: 'gauge',
-  substrates: ['3434'],
+  substrates: ['eft-continuum'],
   depth: 'L2',
   paper: false,
   run() {
@@ -245,28 +237,17 @@ export default experiment({
         control3So10GAgammaAtMPsGeVInv: ctrl.control3So10GAgammaAtMPsGeVInv,
       },
       notes:
-        'Frontier 5 Strong-CP & SO(10) Peccei-Quinn audit (L2, zero random numbers): ' +
-        '(1) EXACT BIGINT GROUP THEORY: U(1)_PQ charges q_PQ(16)=+1, q_PQ(10_H)=-2, q_PQ(126bar_H)=-2 ' +
-        'preserve every Dirac and Majorana Yukawa in 16*16*(10_H + 126bar_H), forbid 16*16*10_H^* (charge +4), ' +
-        'and preserve the scalar portal (10_H)^2(126_H)^2. Summing directly over E-FRC-0324 3x16=48 Weyl states ' +
-        'certifies N = 6, E = 16, and E/N = 8/3 = 1/sin^2(theta_W)_GUT identically for all N_g >= 1, while the ' +
-        'exact Spin(10) gauge center X = 3(B-L) - 4 T_3^R === 1 (mod 4) quotients N_DW from 6 to 3. ' +
-        '(2) UNIFIED PATI-SALAM AXION WINDOW: E-FRC-0328 2-loop Pati-Salam scale M_PS = 1.434e11 GeV breaks ' +
-        'SU(2)_R x U(1)_{B-L} and U(1)_PQ simultaneously through <Delta_R^0> in 126bar_H, placing f_a in ' +
-        '{M_PS, M_PS/3, M_PS/6} at m_a = 39.68, 119.05, 238.10 micro-eV (9.60, 28.79, 57.57 GHz), every point ' +
-        'inside the live 10..400 micro-eV haloscope window (MADMAX, ALPHA, ADMX-high-freq, ORGAN), safe above ' +
-        'SN1987A (f_a > 4e8 GeV), and achieving Omega_a h^2 = 0.120 naturally at O(1) misalignment angle ' +
-        `theta_i = ${b1.thetaStarForPlanckDmRad.toFixed(3)} rad at f_a = M_PS (${b3.thetaStarForPlanckDmRad.toFixed(3)} rad ` +
-        'with mild anharmonicity at f_a = M_PS/3) without anthropic fine-tuning (whereas f_a = M_GUT = 7.95e15 GeV ' +
-        'overcloses with Omega_a h^2 >> 100). ' +
-        '(3) HONEST OPEN BOUNDARIES: (a) Domain walls: since minimal Z_2-quotiented N_DW = 3 > 1 (or 6 > 1), ' +
-        'post-inflationary PQ breaking would form stable domain walls unless explicitly biased, whereas ' +
-        'pre-inflationary PQ breaking (H_inf < 2 pi f_a and CMB isocurvature bound H_inf < ' +
-        `${b1.preInflationaryMaxHInfGeV.toExponential(2)} GeV) inflates all walls away cleanly. ` +
-        '(b) Gravitational PQ quality problem: protecting |theta_bar| < 10^{-10} against O(1) Planck-suppressed ' +
-        `operators Phi_PQ^d / M_Pl^{d-4} requires suppressing all PQ-violating operators up to dimension ` +
-        `d >= ${ctrl.pqQualityMinSafeDimAtMPsOver3FullPl}..${ctrl.pqQualityMinSafeDimAtMPsFullPl} (e.g. via a discrete ` +
-        'gauge symmetry Z_N or hyperbolic {3,4,3,4} cusp-depth localization), which remains an explicit open theoretical target.',
+        'Continuum SO(10) DFSZ axion EFT compatibility check (L2, zero random numbers, not derived from the QCA): ' +
+        '(1) Exact BigInt group theory on 3 x 16 = 48 Weyl states verifies N = 6, E = 16, E/N = 8/3 = 1/sin^2(theta_W)_GUT, ' +
+        'and Spin(10) center quotient N_DW = 3 (from 6). ' +
+        '(2) At E-FRC-0328 Pati-Salam scale M_PS = 1.434e11 GeV, f_a in {M_PS, M_PS/3, M_PS/6} gives m_a = 39.68, 119.05, ' +
+        `238.10 micro-eV and misalignment Omega_a h^2 = 0.120 at theta_i = ${b1.thetaStarForPlanckDmRad.toFixed(3)} rad ` +
+        '(sharing the total dark-matter budget with WIMP dark matter in E-CSM-0066 rather than double-counting 200%). ' +
+        '(3) Explicit tensions and open boundaries: (a) Domain walls and inflation tension: because N_DW = 3 > 1, ' +
+        'post-inflationary PQ breaking produces stable domain walls unless explicitly biased, while pre-inflationary ' +
+        `PQ breaking faces the CMB isocurvature bound H_inf < ${b1.preInflationaryMaxHInfGeV.toExponential(2)} GeV ` +
+        '(~9.9e6 GeV), in direct tension with high-scale Starobinsky inflation (H_inf ~ 10^13 GeV in E-CSM-0067). ' +
+        `(b) Gravitational PQ quality requires suppressing operators up to d >= ${ctrl.pqQualityMinSafeDimAtMPsOver3FullPl}..${ctrl.pqQualityMinSafeDimAtMPsFullPl}.`,
     })
   },
 })

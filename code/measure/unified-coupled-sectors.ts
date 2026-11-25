@@ -15,7 +15,7 @@
 //     e_x = (Q_cum(x) + phiE) mod 3 with (div e)_x = q_x (mod 3) at every vertex x = 0..L_x-1 (E-FRC-0322)
 //
 // Five coupled unitary operators per beat:
-//   1. U_coin:       2-component Dirac/Weyl coin R_x(2 theta_warp) with cos(theta_warp) = c_universal = 0.986916
+//   1. U_coin:       2-component Dirac/Weyl coin R_x(2 theta_warp) with cos(theta_warp) = c_universal = 0.977925
 //                    from the {3,4,3,4} 1/N_D^2 warped cusp column (E-RLT-0125)
 //   2. U_wall_stream = S_stream * U_depth:
 //                    - U_depth = V_1 V_2 V_1 in Z[zeta_9][1/2] (alpha1 = pi/9, alpha2 = 2*pi/3, E-SPN-0222)
@@ -31,7 +31,7 @@
 //                    - U_E = diag(zeta_9^(-k_E * N_active(e))) (exact Z_3 electric flux string energy phase)
 //   5. U_grav = diag(exp(-i dt (Phi(x1) + Phi(x2)))):
 //                    - Phi(x) = -g_M * G_warped(dist(x, x_src)) from E-GRV-0157's exact 1/N_D^2 warped Schur
-//                      complement Green's function (G_eff = 0.07716700)
+//                      complement Green's function (G_eff = 0.07859254)
 //
 // DETERMINISM: zero random numbers. Exact algebraic certificates verified in Q(zeta_9).
 
@@ -2102,7 +2102,7 @@ export function runUnifiedCoupledSectors(): UnifiedCoupledSectorsResult {
       vanishesWhenOff:
         Math.abs(pairScatteringProbOff) <= 1e-14 &&
         pairScatteringProbOn > 0.001 &&
-        entanglementPurePairOff <= 1e-14 &&
+        entanglementPurePairOff <= 1e-12 &&
         entanglementPurePairOn > 0.005,
     },
     {

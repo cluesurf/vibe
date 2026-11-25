@@ -1,7 +1,10 @@
-// COLUMN-SUM HUSK CLOSURE, FREEZING AND PARITY MIXING (E-HLG-0043, item vibe-roadmap-board-0028, gaps B-36, B-55).
+// NON-CLOSURE OF 3D COLUMN-SUM PROJECTION AND ACTIVE 4D BULK DYNAMICS ON {3,4,3,4}
+// (E-HLG-0043, item vibe-roadmap-board-0028, gaps B-36, B-55).
 // Tests proposal 005 on buildExactCusp (period 2, floors 1 to 3) under split coin with bare rule and F-G:
 // measures cross-column neighbor share by depth D = 0..3, L1 husk divergence of two bulk states sharing identical
 // initial column charge Q_c(0), and bipartite parity-class mixing in a single-beat column sum.
+// Scope note (HN-7): demonstrates non-closure of the flat 3D column-sum projection due to active 4D bulk dynamics
+// on {3,4,3,4}, and makes no claim of non-epiphenomenal bulk experience steering physics.
 //
 // Depth L2: exact cusp geometry + exact split-coin and F-G dynamics. Zero random numbers.
 
@@ -13,7 +16,7 @@ export default experiment({
   id: 'holography/column-husk-closure',
   code: 'E-HLG-0043',
   title:
-    'Column-sum husk freezing by depth, non-closure under bulk shifts (C2-7), and parity-class mixing on the exact cusp',
+    'Non-closure of 3D column-sum projection (active 4D bulk dynamics on {3,4,3,4})',
   category: 'holography',
   substrates: ['3434'],
   depth: 'L2',
@@ -37,11 +40,11 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        `On exact cusp (period 2, floor 3, ${res.totalDocks} docks): cross-column neighbor share collapses with depth ` +
-        `D=0..3: ${s0.toFixed(4)}, ${s1.toFixed(4)}, ${s2.toFixed(4)}, ${s3.toFixed(4)} (structural freezing under flat sum); ` +
-        `two bulk states with identical Q_c(0) diverge on the husk at t=1 by L1=${res.bareDiv1.toFixed(4)} (bare) and ` +
-        `${res.fgDiv1.toFixed(4)} (F-G) (non-closed: bulk changes future 3D husk); column sum mixes both parity classes ` +
-        `(even=${res.evenWeightAt1.toFixed(3)}, odd=${res.oddWeightAt1.toFixed(3)})`,
+        `On exact {3,4,3,4} cusp (period 2, floor 3, ${res.totalDocks} docks): cross-column neighbor share drops with depth ` +
+        `D=0..3 (${s0.toFixed(4)}, ${s1.toFixed(4)}, ${s2.toFixed(4)}, ${s3.toFixed(4)}), ` +
+        `two 4D bulk states sharing identical initial 3D column sum Q_c(0) diverge at t=1 by L1=${res.bareDiv1.toFixed(4)} (bare) and ` +
+        `${res.fgDiv1.toFixed(4)} (F-G), demonstrating non-closure of the flat 3D column-sum projection under active 4D bulk dynamics, ` +
+        `and the column sum mixes both bipartite parity classes (even=${res.evenWeightAt1.toFixed(3)}, odd=${res.oddWeightAt1.toFixed(3)})`,
       metrics: {
         i0: i0 ? 1 : 0,
         i1: i1 ? 1 : 0,
@@ -61,6 +64,8 @@ export default experiment({
         evenWeightAt1: res.evenWeightAt1,
         oddWeightAt1: res.oddWeightAt1,
       },
+      notes:
+        'Measures non-closure of the flat 3D column-sum projection and depth-dependent cross-column freezing on the exact {3,4,3,4} cusp (period 2, floor 3). This is a dynamical projection property of active 4D bulk degrees of freedom under the bare and F-G walks, and does NOT claim non-epiphenomenal bulk experience steering physics.',
     })
   },
 })

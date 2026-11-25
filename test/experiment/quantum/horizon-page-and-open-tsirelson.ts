@@ -1,23 +1,18 @@
-// UNITARY HORIZON PAGE CURVE, THERMAL HAWKING SPECTRUM ON {3,4,3,4} WARPED CUSP,
-// AND OPEN-LINE NON-WRAPPING TSIRELSON CONVERGENCE TO 2 SQRT 2 (< 1e-6) (E-QTM-0207).
+// L1 10-QUBIT BRICKWORK SCRAMBLER PAGE-CURVE BENCHMARK, BOSONIC BOGOLIUBOV TWO-MODE-SQUEEZER
+// THERMAL-CONSISTENCY CHECK, AND L1 Z[w][1/2] SU(2) MITM GATE-SYNTHESIS BENCHMARK (E-QTM-0207).
 //
-// Part A resolves E-GRV-0134 / information paradox on the {3,4,3,4} warped cusp:
-//   - N_tot = 10 qubit unitary Z[zeta_9][1/6] scrambler (E-QTM-0204 dense SU(2) gates + M_pair(zeta_18) entangler)
-//     reproduces the exact Page curve S_R(0) = 0 -> early thermal rise -> Page turnover at k = 5 near
-//     N_tot/2 - 1/(2 ln 2) -> exact return S_R(10) = 0 with exact global purity and U^dag reversal (<= 1e-13),
-//     while the non-scrambling control gives S_R(k) = 0.
-//   - Unitary Fock-space horizon squeezing across the {3,4,3,4} cusp redshift profile (kappa = ln(6034/330),
-//     T_H = kappa / (2 pi)) matches exact Bose-Einstein / Planck thermal occupation to <= 1e-12 (R^2 > 0.999999),
-//     while the flat-horizon control (kappa = 0) emits strictly 0 particles.
+// Honest scope:
+//   - Part A.1: L1 10-qubit unitary brickwork scrambler Page-curve benchmark using Z[zeta_9][1/6] gates
+//     and M_pair(zeta_18) entanglers. This is a generic 10-qubit scrambler, NOT a {3,4,3,4} honeycomb black hole,
+//     and does NOT resolve E-GRV-0134.
+//   - Part A.2: Bosonic Bogoliubov two-mode-squeezer thermal-consistency check confirming that Fock-space unitary
+//     squeezing U_sq(r) satisfies sinh^2(r) = 1/(exp(omega/T_H) - 1) when r = atanh(exp(-omega / (2 T_H))),
+//     evaluated at the benchmark input kappa = ln(6034/330). Does NOT derive Hawking temperature from {3,4,3,4}.
+//   - Part B: L1 Z[w][1/2] SU(2) MITM gate-synthesis convergence benchmark on a prepared Bell singlet transported
+//     along an open 128-dock line. The spatial line walk commutes with uniform uA (x) uB, so this benchmarks SU(2)
+//     gate synthesis while dynamical open-line entanglement saturation (E-QTM-0202 / B-08) remains open.
 //
-// Part B closes E-QTM-0202's ~7e-4 open-line Tsirelson stall:
-//   - Entangled Bell singlet on a strictly open, non-wrapping honeycomb line (0 boundary hits, 0 wrap)
-//     measured by deterministic Meet-in-the-Middle Z[w][1/2] subset Z[zeta_9][1/6] rule-word analyzers
-//     at word lengths L in {6, 10, 14, 18, 22} converges strictly monotonically to 2 sqrt 2 with
-//     |2 sqrt 2 - CHSH_open| < 1e-6, exact unitarity (<= 1e-14), exact U^dag reversal (<= 1e-14),
-//     exact no-signaling (<= 1e-15), and failable classical dephased control <= 2.0.
-//
-// Depth L2: exact deterministic unitary evolution and exact BigInt Z[w][1/2] verification. Zero Math.random.
+// Depth L1: exact deterministic unitary benchmarks and BigInt Z[w][1/2] arithmetic. Zero Math.random.
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -27,19 +22,19 @@ export default experiment({
   id: 'quantum/horizon-page-and-open-tsirelson',
   code: 'E-QTM-0207',
   title:
-    'Unitary Z[zeta_9][1/6] horizon Page curve, exact Hawking-Planck spectrum on {3,4,3,4} warped cusp, and open-line non-wrapping Tsirelson convergence to 2 sqrt 2 (< 1e-6)',
+    'L1 10-qubit brickwork scrambler Page-curve benchmark, bosonic Bogoliubov two-mode-squeezer thermal-consistency check, and L1 Z[w][1/2] SU(2) MITM gate-synthesis benchmark on a prepared Bell singlet',
   category: 'quantum',
-  substrates: ['3434'],
-  depth: 'L2',
+  substrates: ['none'],
+  depth: 'L1',
   paper: false,
   run() {
     const { partA, partB } = runHorizonPageAndOpenTsirelson()
 
     // Part A gates:
     //   a0: global purity, exact norm conservation, exact backward U^dag reversal, exact gate unitarity
-    //   a1: exact Page curve (S_R(0) = 0, early rise, turnover at k = N/2 within 0.5 bits of Page peak, S_R(N) = 0)
-    //   a2: exact Hawking-Planck thermal spectrum on {3,4,3,4} warped cusp (absErr <= 1e-12, R^2 > 0.999999)
-    //   a3: failable controls (flat horizon kappa = 0 emits 0, non-scrambling interior gives S_R = 0)
+    //   a1: L1 10-qubit brickwork scrambler Page curve (S_R(0) = 0, rise, turnover at k = N/2, S_R(N) = 0)
+    //   a2: bosonic Bogoliubov two-mode-squeezer thermal-consistency check (sinh^2(r) = 1/(e^{omega/T_H} - 1))
+    //   a3: controls (r = 0 vacuum squeezer emits 0, non-scrambling identity circuit gives S_R = 0)
     const a0 =
       partA.maxGlobalNormErr <= 1e-13 &&
       partA.maxGlobalEntropyBits <= 1e-13 &&
@@ -66,9 +61,9 @@ export default experiment({
       partA.maxFlatControlOccupation <= 1e-14 && partA.maxControlEntropyBits <= 1e-14
 
     // Part B gates:
-    //   b0: strictly open non-wrapping line (0 boundary hits, disjoint Alice/Bob packets), exact unitarity & BigInt ring
-    //   b1: strict monotonic convergence across L = 6, 10, 14, 18, 22 and |2 sqrt 2 - CHSH_open| < 1e-6
-    //   b2: exact U^dag reversal (<= 1e-14), exact no-signaling (<= 1e-15), failable classical dephased control <= 2.0
+    //   b0: open 128-dock transport (0 boundary hits, disjoint A/B packets), exact unitarity & BigInt Z[w][1/2] ring
+    //   b1: strict monotonic MITM SU(2) gate-synthesis convergence across L = 6..22 to |2 sqrt 2 - CHSH| < 1e-6
+    //   b2: exact U^dag reversal (<= 1e-14), exact no-signaling (<= 1e-15), classical dephased control <= 2.0
     const b0 =
       partB.boundaryHits === 0 &&
       partB.separationGapDocks > 0 &&
@@ -93,20 +88,19 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        `Part A (Unitary Horizon Page Curve & Hawking-Planck Spectrum on {3,4,3,4} Cusp): ` +
-        `N=${partA.nQubits} Z[zeta_9][1/6] scrambler + M_pair(zeta_18) yields exact Page curve S_R(0..10)=[${pageSeriesStr}] ` +
+        `Part A.1 (L1 10-qubit unitary brickwork scrambler Page-curve benchmark, generic scrambler NOT a {3,4,3,4} black hole, does not resolve E-GRV-0134): ` +
+        `N=${partA.nQubits} Z[zeta_9][1/6] scrambler + M_pair(zeta_18) gives S_R(0..10)=[${pageSeriesStr}] ` +
         `(peak S_R(5)=${partA.sRadAtPage.toFixed(4)} vs Page ${partA.asymptoticPagePeakBits.toFixed(4)}, ` +
         `S_R(10)=${partA.sRadAtEnd.toExponential(2)}, normErr=${partA.maxGlobalNormErr.toExponential(2)}, ` +
-        `U^dag revErr=${partA.backwardReversalErr.toExponential(2)}, identity control=${partA.maxControlEntropyBits.toExponential(2)}); ` +
-        `warped-cusp squeezing at kappa=ln(6034/330)=${partA.surfaceGravityKappa.toFixed(6)}, T_H=${partA.hawkingTempTH.toFixed(6)} ` +
-        `matches exact Planck occupation to ${partA.maxPlanckAbsErr.toExponential(2)} (R^2=${partA.planckFitR2.toFixed(12)}, ` +
-        `T_fit relErr=${partA.planckTempRelErr.toExponential(2)}, flat kappa=0 control=${partA.maxFlatControlOccupation.toExponential(2)}). ` +
-        `Part B (Open-Line Non-Wrapping Tsirelson Convergence): ` +
-        `${partB.lineLen}-dock open line (0 boundary hits, separation=${partB.separationGapDocks} docks) with Meet-in-the-Middle ` +
-        `Z[w][1/2] rule-word analyzers converges strictly monotonically: ${chshSeriesStr}, ` +
-        `reaching gap ${partB.bestGapToTsirelson.toExponential(2)} (< 1e-6, ${partB.improvementOverE0202.toFixed(0)}x better than E-QTM-0202), ` +
+        `U^dag revErr=${partA.backwardReversalErr.toExponential(2)}, identity control=${partA.maxControlEntropyBits.toExponential(2)}). ` +
+        `Part A.2 (bosonic Bogoliubov two-mode-squeezer thermal-consistency check at input parameter kappa=ln(6034/330)=${partA.surfaceGravityKappa.toFixed(6)}, T_H=${partA.hawkingTempTH.toFixed(6)}, NOT derived from {3,4,3,4}): ` +
+        `Fock squeezing at r=atanh(exp(-omega/(2 T_H))) matches sinh^2(r)=1/(exp(omega/T_H)-1) to ${partA.maxPlanckAbsErr.toExponential(2)} ` +
+        `(R^2=${partA.planckFitR2.toFixed(12)}, T_fit relErr=${partA.planckTempRelErr.toExponential(2)}, r=0 control=${partA.maxFlatControlOccupation.toExponential(2)}). ` +
+        `Part B (L1 Z[w][1/2] SU(2) MITM gate-synthesis convergence benchmark on a prepared Bell singlet, spatial walk commutes with uniform uA (x) uB, dynamical E-QTM-0202 / B-08 remains open): ` +
+        `${partB.lineLen}-dock line (0 boundary hits, separation=${partB.separationGapDocks} docks) MITM Z[w][1/2] synthesis gives ${chshSeriesStr}, ` +
+        `reaching gap ${partB.bestGapToTsirelson.toExponential(2)} (< 1e-6), ` +
         `unitarity=${partB.maxUnitarityErr.toExponential(2)}, U^dag revErr=${partB.fullReversalErr.toExponential(2)}, ` +
-        `no-signaling=${partB.maxNoSignalingDrift.toExponential(2)}, classical dephased control=${partB.maxClassicalControlChsh.toFixed(6)}`,
+        `no-signaling=${partB.maxNoSignalingDrift.toExponential(2)}, dephased control=${partB.maxClassicalControlChsh.toFixed(6)}`,
       metrics: {
         a0: a0 ? 1 : 0,
         a1: a1 ? 1 : 0,
@@ -162,6 +156,16 @@ export default experiment({
         openMaxNoSignalingDrift: partB.maxNoSignalingDrift,
         openMaxClassicalControlChsh: partB.maxClassicalControlChsh,
       },
+      control: {
+        pageControlMaxEntropyBits: partA.maxControlEntropyBits,
+        squeezerZeroControlOcc: partA.maxFlatControlOccupation,
+        openMaxClassicalControlChsh: partB.maxClassicalControlChsh,
+      },
+      notes:
+        'L1 abstract benchmarks (substrates: none, matching test/mesh.csv no-mesh). ' +
+        'Part A.1 is a generic 10-qubit unitary brickwork scrambler Page-curve benchmark, not a {3,4,3,4} honeycomb black hole, and does not resolve E-GRV-0134. ' +
+        'Part A.2 is a bosonic Bogoliubov two-mode-squeezer thermal-consistency check verifying sinh^2(r) = 1/(e^{omega/T_H} - 1) when r = atanh(exp(-omega/(2 T_H))), not a derivation of Hawking temperature from {3,4,3,4}. ' +
+        'Part B is an L1 Z[w][1/2] SU(2) MITM gate-synthesis convergence benchmark on a prepared Bell singlet whose spatial line walk commutes with uniform uA (x) uB. Dynamical open-line entanglement saturation (E-QTM-0202 / B-08) remains open.',
     })
   },
 })

@@ -5,7 +5,7 @@
 // In E-CSM-0064, a single dilute disturbance on the fixed infinite {3,4,3,4} honeycomb (N_D = 1, 18, 330, 6034;
 // r_vol = 6034/330 = 18.28485; zero mesh growth) immediately enters pure de Sitter expansion (H_inf, q = -1,
 // w_eff = -1) while staying 100% unitary and time-reversible. Here we turn on multi-vibe density backreaction
-// coupled via E-GRV-0157's geometric Newton coupling G_eff = 0.07716700 and demonstrate the complete 3-era
+// coupled via E-GRV-0157's geometric Newton coupling G_eff = 0.07859254 and demonstrate the complete 3-era
 // cosmological transition (Radiation -> Matter -> Dark Energy) on the same fixed, reversible {3,4,3,4} substrate:
 //
 // Part A (Microscopic Reversible Unitary Radial Walk with Self-Consistent Density Backreaction):
@@ -24,7 +24,7 @@
 // Part B (Exact Reversible Symplectic Friedmann-Horosphere Closure: Radiation -> Matter -> Dark Energy):
 //   - Couples the {3,4,3,4} horosphere vacuum expansion rate H_inf = (ln(r_vol) / 3) * v_D (E-CSM-0064,
 //     yielding Lambda_eff = 3 H_inf^2 and rho_Lambda = 3 H_inf^2 / (8 pi G_eff)) to radiation (w = +1/3,
-//     rho_r ~ a^-4) and matter (w = 0, rho_m ~ a^-3) with E-GRV-0157's G_eff = 0.07716700.
+//     rho_r ~ a^-4) and matter (w = 0, rho_m ~ a^-3) with E-GRV-0157's G_eff = 0.07859254.
 //   - Formulates the flat Friedmann system as an exact separable Hamiltonian H_ham(Q, P) = P^2 / 2 + V(Q) = 0
 //     in Q = ln(a) with smooth geometric time lapse dt = f(Q) dtau, f(Q) = a^2 / (a_c^2 + a^2) (conformal time
 //     at small a smoothly joining cosmic time at large a, zero singularities across 8+ decades of a).
@@ -41,7 +41,10 @@
 //
 // NOTHING MOVES: deterministic Float64 unitary and symplectic linear algebra. Zero Math.random.
 
-import { EXACT_COLUMN_SHELL_COUNTS } from '@/code/measure/pair-density-gravity-slope'
+import {
+  EXACT_COLUMN_SHELL_COUNTS,
+  singleFaceLateralLinksPerNeighbor,
+} from '@/code/measure/pair-density-gravity-slope'
 
 const SQRT3 = Math.sqrt(3)
 const C_KEEP_RE = 0.25
@@ -185,12 +188,6 @@ export type CosmicHistoryBackreactionResult = {
 
 // ---- Exact upstream constants directly from {3,4,3,4} geometry (E-GRV-0157 & E-CSM-0064) ----
 
-function lateralLinksPerNeighbor(d: number): number {
-  if (d === 0) return 1
-  if (d === 1) return 10
-  return 8 * 5 ** (d - 1)
-}
-
 function deriveGEffF16(): { kEff: number; gEff: number; rVol: number } {
   const floorF = 16
   const rVol = EXACT_COLUMN_SHELL_COUNTS[3] / EXACT_COLUMN_SHELL_COUNTS[2]
@@ -209,7 +206,7 @@ function deriveGEffF16(): { kEff: number; gEff: number; rVol: number } {
   for (let d = 0; d <= floorF; d++) {
     const nd = nShell[d]!
     const nd1 = nShell[d + 1]!
-    cLat[d] = lateralLinksPerNeighbor(d) / (nd * nd)
+    cLat[d] = singleFaceLateralLinksPerNeighbor(d) / (nd * nd)
     cVert[d] = 18 / nd1
   }
 

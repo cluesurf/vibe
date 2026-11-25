@@ -100,9 +100,11 @@ const HORIZON: Record<string, [Grade, string]> = {
   'E-RLT-0124': ['honeycomb', 'exact 24x24 cusp-husk Bloch unitary (inherits cusp chart from E-RLT-0123; zero finite-ball horizon crossing), testing relativistic dispersion, time dilation and boost covariance'],
   'E-CSM-0064': ['honeycomb', 'exact R = 3 ball (8,857 docks) and exact cusp (51,064 docks), t = 0..3 beats from dock 0 (t <= R, 0 forward frontier hits), plus exact infinite 7-ary frame-tree solver t = 0..40'],
   'E-FND-0185': ['honeycomb', 'exact R = 1 and R = 2 balls (506 docks total) checking 1-beat V1 stationarity base case (t <= R, 0 frontier hits) for infinite-time Lean 4 + BigInt formal proofs'],
-  'E-FND-0187': ['honeycomb', 'exact R = 2 ball (481 docks, t = 1..2) and R = 3 ball (8,857 docks, t = 1..3), true L3 multi-sector coupled unitary evolution inside proven causal horizon (t <= R, 0 frontier hits)'],
-  'E-GRV-0162': ['honeycomb', 'exact R = 2 ball (481 docks) and R = 3 ball (8,857 docks, 212,568 slots), true L3 coupled two-body attraction and strong-field unitary horizon trapping inside causal horizon (t <= 2 from d_ball <= 1, 0 frontier hits)'],
-  'E-FND-0188': ['honeycomb', 'live dossier invokes E-GRV-0162 on exact R = 2 (481 docks) and R = 3 (8,857 docks) balls inside causal horizon (t <= 2, 0 frontier hits)'],
+  'E-FND-0187': ['honeycomb', 'exact R = 2 ball (481 docks, t = 1..2) and R = 3 ball (8,857 docks, t = 1..3), L2 prescribed-background 4-sector coupled unitary evolution inside causal horizon (t <= R, 0 frontier hits)'],
+  'E-GRV-0162': ['honeycomb', 'exact R = 2 ball (481 docks) and R = 3 ball (8,857 docks, 212,568 slots), L2 prescribed Hartree two-body and isotropic background-metric quantum walk inside causal horizon (t <= 2 from d_ball <= 1, 0 frontier hits)'],
+  'E-FND-0188': ['honeycomb', 'live dossier invokes E-GRV-0162 on exact R = 2 (481 docks) and R = 3 (8,857 docks) balls inside causal horizon (t <= 2, 0 frontier hits); flat 4D D_4 lattice checks'],
+  'E-GRV-0163': ['honeycomb', 'on-the-fly R = infinity exact Z[sqrt(2)] honeycomb (verified isomorphic to R = 2, 3 balls and evolved to r = 4, 5 with 0 frontier hits) running pure BigInt Z[w][1/2] L2 quantum walks on prescribed Hartree and Gullstrand-Painleve backgrounds'],
+  'E-FND-0190': ['honeycomb', 'exact coverBall shell cross-check [1, 24, 456, 8376, 153192] (geometry only) for Callan-Wilczek spectral gap, plus flat 4D D_4 / SU(2) / SU(3) constructive gauge checks'],
 }
 
 // open honeycomb-line runs whose beats were read against the line's length: the run is the infinite line of empty

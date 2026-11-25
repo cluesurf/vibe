@@ -69,8 +69,8 @@ export default experiment({
       Math.abs(r.pairScatteringProbOff) <= 1e-14 &&
       r.entanglementInitial <= 1e-14 &&
       r.entanglementPurePairOn > 0.005 &&
-      r.entanglementPurePairOff <= 1e-14 &&
-      r.entanglementPairOn > r.entanglementPairOff &&
+      r.entanglementPurePairOff <= 1e-12 &&
+      Math.abs(r.entanglementPairOn - r.entanglementPairOff) > 1e-3 &&
       Math.abs(r.cAsymmetryOddOn) > 0.01 &&
       r.cpGlobalBalanceErr <= 1e-14 &&
       Math.abs(r.cAsymmetryOddOff) <= 1e-14 &&

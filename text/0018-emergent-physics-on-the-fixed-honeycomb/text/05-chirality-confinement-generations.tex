@@ -1,152 +1,154 @@
-\section{Chirality, Confinement, and Generations}
+\section{Chirality, Confinement, and Gauge EFT Checks}
 \label{sec:gauge}
 
-Any lattice formulation of the Standard Model must overcome three classical obstructions: lattice fermion doubling
-(Nielsen--Ninomiya pairing of Left- and Right-handed modes), zero-temperature ($T = 0$) linear confinement with exact
-color triality and Gauss-law invariance, and the existence of exactly three chiral fermion generations with
-hierarchical Yukawa masses and CP-violating quark mixing. Experiments \code{E-SPN-0221}, \code{E-SPN-0222},
-\code{E-FRC-0322}, and \code{E-FRC-0323} establish these mechanisms directly inside $\mathbb{Z}[\zeta_9][1/6]$ on the
-$\{3,4,3,4\}$ cusp while documenting their remaining open boundaries.
+Any discrete lattice framework that aims to interface with particle physics faces three classical obstacles: lattice
+fermion doubling (spurious opposite-chirality partners created by naive lattice discretization), zero-temperature
+($T = 0$) linear confinement with exact color triality and Gauss-law invariance, and three chiral fermion generations
+with hierarchical masses and $CP$-violating mixing. This section separates Tier~B discrete $\{3,4,3,4\}$ and
+lattice-ladder mechanisms (\code{E-SPN-0221}, \code{E-SPN-0222}, \code{E-FRC-0322}, \code{E-FRC-0323}) from downstream
+\textbf{Tier~C continuum $\mathrm{Spin}(10)$ / Pati--Salam EFT compatibility checks} (\code{E-FRC-0324}--\code{0332}),
+which are explicitly not derived from the bare microscopic automaton.
 
-\subsection{Unitary \texorpdfstring{$\mathbb{Z}[\zeta_9][1/6]$}{Z[zeta\_9][1/6]} cusp domain wall}
+\paragraph{Key findings.}
+A split-step unitary cusp domain wall inside $\mathbb{Z}[\zeta_9][1/6]$ traps one chiral 3D Weyl mode with 29 orders
+of magnitude mirror suppression (\code{E-SPN-0222}), cold $T = 0$ $\mathbb{Z}_3$ ladder dynamics confines linearly with
+exact Gauss-law conservation (\code{E-FRC-0322}), and Tier~C $\mathrm{Spin}(10)$ EFT checks accommodate anomaly-free
+generations, $\mathbb{Z}_{36}$ axion quality, and $120_H$ flavor fitting ($\chi^2 = 0.565$, \code{E-FRC-0332}), while
+microscopic emergence of dynamical gauge bosons from the bare automaton remains open.
 
-Unlike a periodic lattice, the $\{3,4,3,4\}$ cusp provides a natural one-sided boundary: every $D = 0$ husk dock
+\subsection{Cusp domain wall, three generations, and confinement}
+
+Unlike a periodic cubic lattice, the $\{3,4,3,4\}$ cusp provides a natural one-sided boundary: every $D = 0$ husk dock
 connects downward into 18 bulk neighbors and upward into 0. Following Kaplan and Shamir \cite{kaplan1992, shamir1993},
-\code{E-SPN-0221} first constructs a Hermitian domain wall on a depth-24 cusp column ($m_0 = 0.5$), finding a
-$\mathbf{k} = \mathbf{0}$ zero mode with gap $4.47 \times 10^{-8}$, Left-handed husk weight on $D \le 2$ equal to
-$63/64 = 0.984375$ versus Right-handed mirror weight $2.09 \times 10^{-13}$ (chirality asymmetry $+1.0000000000$), all
-3D doublers gapped at $0.5200$, and an exact massless 3D Weyl cone ($|E(0.1) - \sin(0.1)| = 6.49 \times 10^{-15}$).
+\code{E-SPN-0221} (Tier~B) first establishes a Hermitian domain wall on a depth-24 cusp column, trapping a Left-handed
+husk zero mode while gapping all seven 3D Brillouin-zone doublers and recovering a massless 3D Weyl cone.
 
-To make chiral trapping native to the discrete-time reversible rule, \code{E-SPN-0222} lifts this boundary mechanism
-into a true split-step unitary quantum walk \cite{asboth2013} built strictly inside $\mathbb{Z}[\zeta_9][1/6]$ from the
-working-rule coin $C$, half-coin $D$, and $\zeta_{18} = -\zeta_9^5$ rotations:
+To realize chiral trapping directly inside the discrete-time cyclotomic ring of the automaton, \code{E-SPN-0222}
+(Tier~B) builds a split-step unitary quantum walk \cite{asboth2013} strictly in $\mathbb{Z}[\zeta_9][1/6]$ from $C$,
+$D$, and $\zeta_{18} = -\zeta_9^5$ rotations:
 \begin{equation}
-U(\mathbf{k}) = \bigl(V_1(\mathbf{k})\, V_2(\mathbf{k})\, V_1(\mathbf{k}) \otimes I_2\bigr)\, S_{\text{husk}}(\mathbf{k}),
+U(\mathbf{k}) = \bigl(V_1(\mathbf{k})\, V_2(\mathbf{k})\, V_1(\mathbf{k}) \otimes I_2\bigr)\, S_{\mathrm{husk}}(\mathbf{k}),
 \label{eq:unitary-wall}
 \end{equation}
 with $C_1 = R_x(2\pi/9)$ and $C_2 = R_x(4\pi/3) = \omega^2 C^\dagger$ at $\mathbf{k} = \mathbf{0}$, and
-$C_1 = R_x(2\pi/3) = (-\omega) C$, $C_2 = I$ at all 7 3D Brillouin-zone doublers.
+$C_1 = R_x(2\pi/3) = (-\omega) C$, $C_2 = I$ at all 7 Brillouin-zone doublers. Bulk topological winding
+$(\nu_0, \nu_\pi) = (1, 0)$ traps a Left-handed zero mode near the husk while burying the Right-handed mirror twin by
+29 orders of magnitude into the deep bulk, and every 3D doubler stays trivially gapped at $\pi/3$.
 
-\begin{result}[Unitary {$\mathbb{Z}[\zeta_9][1/6]$} cusp chirality, \code{E-SPN-0222}]
-On a depth-24 cusp column ($\dim = 96$):
-\begin{itemize}
-\item All $10/10$ symbolic $\mathbb{Q}(\zeta_9)$ unitarity and chiral-symmetry proofs hold identically
-($\max\|U^\dagger U - I\|_\infty = 8.88 \times 10^{-16}$).
-\item At $\mathbf{k} = \mathbf{0}$, bulk topological winding $(\nu_0, \nu_\pi) = (1, 0)$ traps a pure Left-handed
-zero mode on $D \le 2$ with weight $0.999914$ against Right-handed mirror weight $3.56 \times 10^{-29}$ (29 orders of
-magnitude suppression, chirality asymmetry $1.000000000000$), pushing the mirror twin exponentially into the deep bulk.
-\item All 7 3D Brillouin-zone doublers carry trivial winding $(0, 0)$ and are gapped from both $E = 0$ and $E = \pi$ by
-$\pi/3 = 1.0472$ rad.
-\item At small momenta along $(1,0,0)$, $(1,1,0)$, and $(1,1,1)$, the cusp mode traces an isotropic massless 3D Weyl
-cone (discrete-cone error $4.36 \times 10^{-15}$, directional isotropy spread $5.56 \times 10^{-4}$).
-\end{itemize}
-\end{result}
+Lifting Equation~\eqref{eq:unitary-wall} across the three mutually orthogonal 8-slot $D_4$ triality banks of every
+24-cell dock (cycled by $T_3 \in W(D_4) < W(F_4)$, commuting with the $\mathbb{Z}_3$ center $\omega = \zeta_9^3$ of
+$\Sigma(648)$) produces \code{E-FRC-0323} (Tier~B). Total topological winding equals $W_{\mathrm{total}} = 3$, trapping
+exactly three chiral generations with zero fourth light mode, while warped-shell overlap matrices with $w(D) = 1/N_D^2$
+and $\zeta_9$ phases generate exponential mass hierarchies, a unitary Cabibbo--Kobayashi--Maskawa (CKM) quark mixing
+matrix, and a nonzero Jarlskog $CP$ invariant (basis-independent measure of quark mixing $CP$ violation,
+\cite{jarlskog1985}).
 
-\subsection{Cold \texorpdfstring{$T = 0$}{T = 0} unitary \texorpdfstring{$\mathbb{Z}_3/\Sigma(648)$}{Z\_3/Sigma(648)} confinement}
-
-Classical microcanonical link updates on $\Sigma(648)$ freeze at zero temperature ($T = 0$) because zero kinetic energy
-prevents tunneling out of $U_p = 1$. Experiment \code{E-FRC-0322} evaluates the exact zero-temperature quantum
-Kogut--Susskind Hamiltonian \cite{kogut1975} and discrete-time Floquet unitary for the exact $\mathbb{Z}_3$ center
-$\{1, \omega, \omega^2\}$ of $\Sigma(648)$ ($|\Sigma(648)| = 648$, $|Z| = 3$ in $\mathbb{Z}[\omega][1/6]$, obeying the
-exact Weyl algebra $EU = \omega UE$) on an open 6-plaquette ladder (14 vertices, 19 links, exact gauge-invariant
-Hilbert space $\dim = 3^6 = 729$):
+In the gauge sector, classical microcanonical link updates freeze at $T = 0$ because zero kinetic energy blocks
+tunneling out of $U_p = 1$. Experiment \code{E-FRC-0322} (Tier~B) evaluates the exact zero-temperature quantum
+Kogut--Susskind Hamiltonian (continuous-time lattice gauge operator balancing electric flux and magnetic plaquettes,
+\cite{kogut1975}) and discrete-time Floquet unitary for the $\mathbb{Z}_3$ center $\{1, \omega, \omega^2\}$ of
+$\Sigma(648)$ ($EU = \omega UE$) on an open 6-plaquette ladder (14 vertices, 19 links, gauge-invariant $\dim = 729$):
 \begin{equation}
 H = g^2 \sum_{\ell} \bigl(1 - \operatorname{Re} E_\ell\bigr) - \frac{1}{g^2} \sum_p \operatorname{Re} U_p,
 \qquad
 U_{\Delta t} = e^{-i\Delta t H_E} e^{-i\Delta t H_B}.
 \label{eq:ks-z3}
 \end{equation}
+Exact diagonalization confirms linear confinement across $R = 1..5$, exact $\mathbb{Z}_3$ baryon triality (three like
+charges bind cleanly while two like charges have empty physical Hilbert space and adjoint pairs have zero string
+tension), and exact $\mathbb{Z}[\zeta_9][1/6]$ Floquet quantum tunneling with zero Gauss-law error at $T = 0$.
+Table~\ref{tab:gauge-b} collects all Tier~B chirality, generation, and confinement metrics.
 
-\begin{result}[Cold $T = 0$ linear confinement and baryon triality, \code{E-FRC-0322}]
-With zero temperature and zero thermal bath:
-\begin{itemize}
-\item Exact diagonalization (matching Lanczos to $3.1 \times 10^{-14}$) yields clean linear confinement across
-separations $R = 1..5$ at every tested coupling:
-$g^2 = 2.0$ gives $\sigma = 2.9927$ ($R^2 = 0.999999999999999$),
-$g^2 = 1.0$ gives $\sigma = 1.4269$ ($R^2 = 0.99999991$), and
-$g^2 = 0.5$ gives $\sigma = 0.2474$ ($R^2 = 0.99959$).
-\item Exact $\mathbb{Z}_3$ triality holds: three like charges $(+1, +1, +1)$ form a gauge-invariant color-neutral
-baryon bound at $E_{\text{baryon}} = 6.7099$ (zero Gauss violations), two like charges $(+1, +1)$ have empty physical
-Hilbert space ($\dim = 0$), and an adjoint $\mathbb{Z}_3$-neutral pair ($q \equiv 0 \pmod 3$) has zero string tension
-($\sigma_{\text{adj}} = 0$).
-\item At $g^2 = 1$ and $\Delta t = 4\pi/9$, the Floquet unitary $U_{\Delta t}$ lies strictly in
-$\mathbb{Z}[\zeta_9][1/6]$ with unitarity error $1.11 \times 10^{-16}$, exact Gauss-law commutation error $0$ across
-all 14 vertices, and quantum tunneling survival $0.5625$ out of $|U_p = 1\rangle$, whereas the frozen $g^2 = 0$
-classical control stays locked at survival $1.0$ with $\sigma = 0$.
-\end{itemize}
-\end{result}
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}p{2.5cm}>{\raggedright\arraybackslash\hsize=1.25\hsize}X>{\raggedright\arraybackslash\hsize=0.75\hsize}X@{}}
+\toprule
+Code (Tier~B) & Mechanism & Verified measurement & Control / ablation \\
+\midrule
+\code{E-SPN-0221} & Hermitian cusp wall & Left $D \le 2$: $63/64 = 0.9844$, Right $2.09 \times 10^{-13}$, Weyl err $6.49 \times 10^{-15}$ & 7 doublers gapped at $0.5200$ \\
+\addlinespace[4pt]
+\code{E-SPN-0222} & $\mathbb{Z}[\zeta_9][1/6]$ unitary wall & $10/10$ symbolic proofs ($\|U^\dagger U - I\| = 8.88 \times 10^{-16}$), Left $0.999914$ vs Right $3.56 \times 10^{-29}$, Weyl err $4.36 \times 10^{-15}$ & 7 doublers gapped at $\pi/3$, isotropy $5.56 \times 10^{-4}$ \\
+\addlinespace[4pt]
+\code{E-FRC-0323} & 3 triality banks & $W_{\mathrm{total}} = 3$, 0 4th gen (gap $1.4014$), $m_3/m_1 = 27{,}598$ (down) / $62{,}598$ (up), $J_{\mathrm{CP}} = +9.48 \times 10^{-5}$ & flat $2.33$, $S_3$ $1.000$, real $J_{\mathrm{CP}} = 0$, CKM unitarity $6.66 \times 10^{-16}$ \\
+\addlinespace[4pt]
+\code{E-FRC-0322} & $T = 0$ $\mathbb{Z}_3$ ladder & $\sigma = 2.9927$ ($g^2=2$, $R^2 = 1 - 10^{-15}$), $1.4269$ ($g^2=1$), $0.2474$ ($g^2=0.5$), baryon $6.7099$, Floquet surv. $0.5625$, Gauss err $0$ & $g^2 = 0$ frozen (surv. $1.0$, $\sigma = 0$), $\sigma_{\mathrm{adj}} = 0$, $(+1,+1)$ $\dim = 0$ \\
+\bottomrule
+\end{tabularx}
+\caption{Tier~B discrete $\{3,4,3,4\}$ cusp chirality, three triality generations, and zero-temperature $\mathbb{Z}_3$
+lattice-ladder confinement (\code{E-SPN-0221}--\code{0222}, \code{E-FRC-0322}--\code{0323}).}
+\label{tab:gauge-b}
+\end{table}
 
-\subsection{Three generations, hierarchy, and CKM mixing}
+\subsection{Downstream continuum \texorpdfstring{$\mathrm{Spin}(10)$}{Spin(10)} EFT checks}
 
-As defined in Section~\ref{sec:one-rule}, every 24-cell dock decomposes canonically into 3 mutually orthogonal 8-slot
-$D_4$ triality banks ($3 \times 8 = 24$), cycled by an order-3 triality operator $T_3 \in W(D_4) < W(F_4)$ that
-commutes identically with the $\mathbb{Z}_3$ center $\omega = \zeta_9^3$ of $\Sigma(648)$ ($[T_3, \mathbb{Z}_3] = 0$).
-Lifting \code{E-SPN-0222}'s unitary cusp domain wall across these three banks in \code{E-FRC-0323} yields three chiral
-Standard Model generations directly from 24-cell geometry:
-\begin{itemize}
-\item \textbf{Exact $N_{\text{gen}} = 3$ and zero fourth generation.} On the full $288 \times 288$ unitary Floquet
-operator ($\|U^\dagger U - I\| = 2.22 \times 10^{-16}$), total topological winding equals $W_{\text{total}} = 3$,
-yielding exactly 3 Left-handed zero modes on $D \le 2$ (weight $0.999914$ per generation versus Right-handed mirror
-$3.56 \times 10^{-29}$), strictly $0$ fourth light generation (bulk gap $1.4014$ rad), and all 7 3D doublers gapped at
-$\pi/3$.
-\item \textbf{Exponential $\{3,4,3,4\}$ warp-shell mass hierarchy.} Computing $3 \times 3$ Yukawa overlap matrices
-$Y_{ij} = K_{ij}\langle \psi_{L,i} | w(D) | \psi_{R,j} \rangle$ weighted by the exact $\{3,4,3,4\}$ pair-density cusp
-warp $w(D) = 1/N_D^2$ ($N_D = 1, 18, 330, 6{,}034$) and $F_4$ short/long bank couplings carrying exact $\zeta_9$
-phases generates exponential mass hierarchies of $m_3/m_1 = 27{,}598$ (down sector) and $m_3/m_1 = 62{,}598$ (up
-sector), against a flat unwarped bulk control ($N_D = 1$) that collapses to $2.33$ and an unbroken $S_3$ triality
-control at $1.000$.
-\item \textbf{Unitary CKM mixing and Jarlskog CP violation.} Singular-value diagonalization yields a unitary,
-hierarchical CKM matrix ($\|V^\dagger V - I\| = 6.66 \times 10^{-16}$, $|V_{ud}| = 0.981$, $|V_{us}| = 0.192$,
-$|V_{cb}| = 0.0714$, $|V_{ub}| = 0.00754$) with nonzero Jarlskog CP invariant \cite{jarlskog1985}
-$J_{\text{CP}} = +9.48 \times 10^{-5}$ driven directly by $\zeta_9$ phases ($J_{\text{CP}} = 0$ identically in the real
-Yukawa control).
-\end{itemize}
+Nine downstream \textbf{Tier~C} continuum EFT scripts (\code{E-FRC-0324} through \code{E-FRC-0332}) test whether
+standard $\mathrm{Spin}(10)$ / Pati--Salam \cite{pati1974} grand unified theory (GUT), electroweak (EW), Yukawa, and
+quantum chromodynamics (QCD) axion EFTs are compatible with geometric and algebraic invariants read off from
+$\{3,4,3,4\}$ (the three 8-slot banks, the $F_4$ root ratio $\sqrt{2}$, shell ratio $b = 6{,}034/330$, and
+$\mathbb{Q}(\zeta_9)$ phases). They are \textbf{not} claimed as derivations of the Standard Model gauge group or
+couplings from the bare automaton.
 
-\subsection{Complete 48-state \texorpdfstring{$\mathrm{Spin}(10)$}{Spin(10)} and \texorpdfstring{$S_3$}{S\_3} breaking}
+Algebraically, exact \code{BigInt} calculations certify the 48-state $3 \times 16$ $\mathrm{Spin}(10)$ fermion
+decomposition with $6/6$ zero-float perturbative gauge and Witten anomaly (non-perturbative $SU(2)$ topological
+consistency) cancellations and $\sin^2\theta_W|_{\mathrm{GUT}} = 3/8$ (\code{E-FRC-0324}). Exact algebra also proves
+Koide's relation \cite{koide1983} $Q = (2 + r^2)/6 = 2/3 \iff r^2 = 2$ and the warped-shell lower bound
+$Q((WSW)^2) \ge 2/3$ (\code{E-FRC-0325}), while showing cleanly that direct $\arg(\zeta_9) = 2\pi/9$ fails ($93\%$
+error) and $e^{i 2/9} \notin \mathbb{Z}[\zeta_9][1/6]$ by Lindemann--Weierstrass (\code{E-FRC-0327}).
 
-Two open questions left by \code{E-FRC-0323} were completing each 8-slot $D_4$ bank to a full 16-state chiral Standard
-Model generation and deriving the generation shell offsets dynamically rather than specifying them by hand. Experiment
-\code{E-FRC-0324} resolves both using exact zero-float \code{BigInt} algebra over $\mathbb{Q}(i, \sqrt{3})$ paired with
-an $S_3$-symmetric cusp free energy:
+Two-loop Machacek--Vaughn renormalization-group equations (RGEs, governing coupling running with energy,
+\code{E-FRC-0328}) unify Standard Model couplings cleanly via an intermediate Pati--Salam scale:
+\begin{equation}
+M_{\mathrm{PS}} = 1.434 \times 10^{11}\ \mathrm{GeV},
+\qquad
+M_{\mathrm{GUT}} = 7.946 \times 10^{15}\ \mathrm{GeV},
+\qquad
+\alpha_{\mathrm{GUT}}^{-1} = 45.1271,
+\label{eq:ps-gut}
+\end{equation}
+placing $M_{\mathrm{Pl}}/v_{\mathrm{EW}}$ at $D_{\mathrm{EW}} = 13.23$ shells under $b = 6{,}034/330$ (matching a
+continuum Goldberger--Wise stabilization at $D_* = 13.15$ in \code{E-FRC-0329}). Computing 4D $D_4$ Brillouin-zone
+tadpoles via Brodsky--Lepage--Mackenzie (BLM) lattice-to-continuum matching leaves an explicit $-4.71\%$ zero-fit
+$\alpha^{-1}(0)$ residual against the CODATA recommended value $137.036$, closing only with $O(1)$ heavy $SO(10)$ Higgs
+threshold splittings.
 
-\begin{result}[$\mathrm{Spin}(10)$ generations, anomalies, and $S_3$ breaking, \code{E-FRC-0324}]
-All algebraic, anomaly, and symmetry-breaking gates pass identically:
-\begin{enumerate}
-\item \textbf{Exact $3 \times 16 = 48$ $\mathrm{Spin}(10)$ chiral fermions.} Exact \code{BigInt} verification confirms
-$100/100$ Clifford algebra $\mathrm{Cl}(10)$ relations and $990/990$ $\mathfrak{so}(10)$ Lie brackets, decomposing each
-generation as $16 = 8_+ \oplus 8_-$ into the exact Standard Model multiplet
-$Q_L(6) \oplus u_R^c(3) \oplus d_R^c(3) \oplus L_L(2) \oplus e_R^c(1) \oplus \nu_R^c(1)$ ($48$ chiral Weyl fermions
-across the 3 $D_4$ triality banks), with exact Gell-Mann--Nishijima charge quantization $Q = T_3 + Y \in
-\{-1, -2/3, -1/3, 0, +1/3, +2/3, +1\}$ and zero exotic charges.
-\item \textbf{Exact zero-float $6/6$ anomaly cancellation and $\sin^2\theta_W|_{\text{GUT}} = 3/8$.} Exact integer
-traces verify all six gauge and global anomaly conditions identically:
-$\operatorname{Tr} Y = 0$, $\operatorname{Tr} Y^3 = 0$, $\operatorname{Tr}(T_a^2 Y) = 0$ ($SU(2)_L^2 U(1)_Y$),
-$\operatorname{Tr}(\lambda_A^2 Y) = 0$ ($SU(3)_C^2 U(1)_Y$), $512/512$ $SU(3)_C^3$ cubic color traces vanish, and the
-Witten $SU(2)_L$ global anomaly count equals $4$ doublets per generation ($12$ total, even). The unified weak mixing
-angle evaluates exactly to $\sin^2\theta_W|_{\text{GUT}} = 3/8 = 0.375$ (matching standard textbook 1-loop Standard
-Model renormalization-group running toward $\sin^2\theta_W(M_Z)$).
-\item \textbf{Spontaneous dynamical $S_3$ triality breaking.} Minimizing an explicitly $S_3$-symmetric free energy
-($\max S_3\text{ err} = 0$ across all $216$ shell-offset configurations) that combines $\{3,4,3,4\}$ cusp binding with
-\code{E-SPN-0222} Pauli overlap and $1/N_D$ cusp crowding destabilizes the degenerate $(0, 0, 0)$ vacuum and
-spontaneously selects the 6-fold staggered orbit $\{\text{permutations of } (0, 2, 3)\}$ with zero hand-picked anchors.
-Feeding this dynamically selected orbit directly into \code{E-FRC-0323} reproduces $m_3/m_1 = 27{,}598$ (down) and
-$62{,}598$ (up), unitary CKM ($6.66 \times 10^{-16}$), and $J_{\text{CP}} = +9.48 \times 10^{-5}$, whereas turning off
-crowding repulsion ($V_{\text{rep}} = 0$ control) collapses back to $(0, 0, 0)$ with $m_3/m_1 = 1$ and
-$J_{\text{CP}} = 0$.
-\end{enumerate}
-\end{result}
+Minimal non-supersymmetric $10_H + \overline{126}_H$ Yukawa unification at $M_{\mathrm{PS}}$ (\code{E-FRC-0330}) exposes
+the known light down-quark pull ($\chi^2 = 87.97$). Adding the antisymmetric $120_H$ representation (\code{E-FRC-0332})
+reduces $\chi^2$ by $155.6\times$ to $0.565$ ($< 3\%$ maximum pull), at the explicitly disclosed cost of 14 continuous
+real parameters plus discrete $\mathbb{Z}_9$/sign choices over 18--19 independent SM observables.
 
-Honest boundary: while \code{E-FRC-0323} and \code{E-FRC-0324} establish $3 \times 16 = 48$ anomaly-free
-$\mathrm{Spin}(10)$ chiral fermions, $\sin^2\theta_W|_{\text{GUT}} = 3/8$, and spontaneous dynamical $S_3$ breaking
-generating exponential hierarchies and CKM CP violation, deriving precision PDG lepton and quark mass ratios
-($m_e : m_\mu : m_\tau$, Koide's $Q = 2/3$) and the electroweak symmetry-breaking scale directly from the microscopic
-rule remains open (Section~\ref{sec:open}).
+Finally, \code{E-FRC-0331} and \code{E-FRC-0332} audit the Dine--Fischler--Srednicki--Zhitnitsky (DFSZ, a standard
+invisible strong-$CP$ axion model) QCD axion (flagging the $1.5 \times 10^6\times$ pre-inflationary isocurvature tension
+with Section~\ref{sec:cosmology}), certify native $\mathbb{Z}_{36} = \mathbb{Z}_9 \times \mathbb{Z}_4$ discrete
+Peccei--Quinn (PQ) quality (protection of the axion potential against Planck-scale operators), and verify a tachyon-free
+$210_H + 126_H + 10_H$ Higgs Hessian. Table~\ref{tab:gauge} summarizes all nine Tier~C studies.
 
-\paragraph{Why this matters in practice.}
-Three of the strangest structural features of particle physics are that the weak force acts only on left-handed
-particles, that quarks never appear alone even in a cold vacuum, and that nature repeats the same 16-particle family
-exactly three times with widely separated masses. In this model, all three features trace back to one finite geometric
-object, the 24-cell: its one-sided cusp boundary traps left-handed modes while burying their mirror twins deep in the
-bulk, its $\mathbb{Z}_3$ phase center binds quarks into color-neutral baryons at zero temperature, and its three
-orthogonal 8-slot banks pair with their antipodes to produce 48 anomaly-free Weyl fermions whose spontaneous crowding
-separates their mass scales.
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}p{2.5cm}>{\raggedright\arraybackslash\hsize=1.22\hsize}X>{\raggedright\arraybackslash\hsize=0.78\hsize}X@{}}
+\toprule
+Code (Tier~C) & EFT check & Verified measurement & Tension / disclosure \\
+\midrule
+\code{E-FRC-0324} & 48-state $\mathrm{Spin}(10)$ & $100/100$ $\mathrm{Cl}(10)$, $990/990$ $\mathfrak{so}(10)$, $6/6$ anomalies, $\sin^2\theta_W = 3/8$ & $S_3$ free energy selects $(0,2,3)$ (off: $(0,0,0)$) \\
+\addlinespace[4pt]
+\code{E-FRC-0325}, \code{0327} & Koide \& role Floquet & $Q = 2/3 \iff r^2 = 2$, warp $Q \ge 2/3$, MITM $e^{i2/9}$ err $5.01 \times 10^{-8}$ & direct $2\pi/9$ fails ($93\%$), $e^{i2/9} \notin \mathbb{Z}[\zeta_9][1/6]$ \\
+\addlinespace[4pt]
+\code{E-FRC-0326}, \code{0328} & EW \& 2-loop RGEs & $m_\gamma^2 = 0$, $\rho = 1$, $M_{\mathrm{PS}} = 1.434 \times 10^{11}$, $M_{\mathrm{GUT}} = 7.946 \times 10^{15}$ GeV & $D_{\mathrm{EW}} = 13.23$ shells, zero-fit $\alpha(0)$ open \\
+\addlinespace[4pt]
+\code{E-FRC-0329} & $D_4$ BLM \& portal & $I_{D_4} = 0.195488$, Goldberger--Wise $D_* = 13.15$, portal keeps $\lambda_H > 0$ to $M_{\mathrm{GUT}}$ & zero-fit $\alpha^{-1}(0) = 130.58$ ($-4.71\%$ vs CODATA) \\
+\addlinespace[4pt]
+\code{E-FRC-0330}, \code{0332} & Yukawa unification & $120_H$ cuts $\chi^2: 87.97 \to 0.565$, $m_d +0.40\%$, $m_s +2.92\%$, $\sum m_\nu = 0.0683$ eV & 14 real params + discrete choices / 18--19 obs. \\
+\addlinespace[4pt]
+\code{E-FRC-0331}, \code{0332} & DFSZ axion \& $\mathbb{Z}_{36}$ PQ & $E/N = 8/3$, $N_{\mathrm{DW}} = 3$, $m_a = 39.7..238.1\,\mu\mathrm{eV}$, $\mathbb{Z}_{36}$ $d_{\min} = 18/36$ ($10^{-61.9}$), tachyon-free Higgs Hessian & flags $1.5 \times 10^6\times$ $H_{\mathrm{inf}}$ isocurvature tension, $\mathbb{Z}_6$ fails ($10^{+33.3}$) \\
+\bottomrule
+\end{tabularx}
+\caption{Tier~C downstream continuum $\mathrm{Spin}(10)$ / Pati--Salam EFT compatibility checks
+(\code{E-FRC-0324}--\code{0332}, explicitly not derived from the bare microscopic QCA).}
+\label{tab:gauge}
+\end{table}
+
+Separating Tier~B from Tier~C clarifies both what the discrete $\{3,4,3,4\}$ cusp already achieves (29-decade chiral
+suppression in $\mathbb{Z}[\zeta_9][1/6]$, three triality generations, and $T = 0$ $\mathbb{Z}_3$ linear confinement)
+and what remains open (microscopic emergence of continuous non-Abelian gauge fields and zero-parameter fermion masses
+and $\alpha(0)$). We next examine large-scale cosmological expansion on the fixed hyperbolic honeycomb.
