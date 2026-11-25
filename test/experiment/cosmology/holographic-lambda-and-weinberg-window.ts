@@ -3,9 +3,10 @@
 //
 // Part 1: Rewrites the Cohen-Kaplan-Nelson (CKN) holographic non-black-hole bound L^3 rho_vac <= 3 M_P^2 L
 //   in {3,4,3,4} shell units (b = 6034/330), noting D_CKN = 2 D_H + log_b(8 pi / 3) is a base-independent
-//   algebraic rewriting of CKN scaling. Explicitly notes the 122-decade gap between E-CSM-0065's bare
-//   Planck-scale horosphere drift H_inf = 0.517 M_Pl and observed late-time dark energy H_0: E-CSM-0065
-//   contributes only the asymptotic w = -1 equation of state, not observed H_0 or H_inf = sqrt(Omega_Lambda) H_0.
+//   algebraic rewriting of CKN scaling. Explicitly notes the ~61-decade Hubble gap (~122 decades in vacuum
+//   energy Lambda ~ H^2) between E-CSM-0064's bare Planck-scale horosphere drift H_dS = 0.51713 beat^-1
+//   (0.153 M_Pl) and observed late-time dark energy H_0: E-CSM-0065 contributes only the asymptotic w = -1
+//   equation of state, not observed H_0 or H_inf = sqrt(Omega_Lambda) H_0.
 //
 // Part 2: Integrates the exact nonlinear spherical top-hat collapse ODE d^2 y / d tau^2 = -(1/2) / y^2 +
 //   lambda_tilde * y via 4th-order RK4 (energy first integral <= 1e-12, step-halving <= 1e-10, direct-tau RK4
@@ -147,8 +148,9 @@ export default experiment({
         `(slope=${p1.cknSlopeDDLambdaOverDDH.toFixed(12)}): bare c=1 at observed L_H0 gives D_CKN=${p1.depthCknBareH0B.toFixed(4)} vs ` +
         `observed D_Lambda=${p1.depthLambdaObsB.toFixed(4)} (offset=${p1.depthCknBareOffsetFromObsB.toFixed(4)} shells = log_b(1/Omega_Lambda), ` +
         `H_0 identity err=${p1.identityH0ErrB.toExponential(1)}), and at observed asymptotic de Sitter H_inf=sqrt(Omega_Lambda) H_0 ` +
-        `(c_HDE=${p1.cHdeDeSitter.toFixed(4)}, with w=${p1.cosmicHistoryLateWEff.toFixed(6)} from E-CSM-0065, explicitly noting the 122-decade gap ` +
-        `between E-CSM-0065's Planck-scale bare horosphere drift H_inf=${p1.cosmicHistoryHInfRVol.toFixed(3)} M_Pl and observed H_0) ` +
+        `(c_HDE=${p1.cHdeDeSitter.toFixed(4)}, with w=${p1.cosmicHistoryLateWEff.toFixed(6)} from E-CSM-0065, explicitly noting the ~61-decade Hubble gap ` +
+        `(~122 decades in vacuum energy Lambda ~ H^2) between E-CSM-0064's bare horosphere drift H_dS=${p1.cosmicHistoryHInfRVol.toFixed(5)} beat^-1 ` +
+        `(${(p1.cosmicHistoryHInfRVol / 3.373442).toFixed(3)} M_Pl) and observed H_0) ` +
         `D_Lambda=2 D_Hinf+log_b(8pi/3) holds with ${p1.identityDeSitterErrB.toExponential(1)} residual. ` +
         `Part 2 (exact RK4 nonlinear spherical collapse & Weinberg window): RK4 integrates y''=-1/(2y^2)+lambda_tilde*y ` +
         `(max |Delta E|=${p2.maxEnergyDriftAcrossSweep.toExponential(1)}, step-halving err=${p2.rk4StepHalvingRelErrAtObs.toExponential(1)}, ` +
@@ -261,9 +263,10 @@ export default experiment({
       notes:
         'L2 continuum EFT compatibility check (100% deterministic, zero PRNGs). ' +
         '(1) Part 1 (D_Lambda = 2 D_Hinf + log_b(8 pi / 3)) is a base-independent algebraic rewriting of Cohen-Kaplan-Nelson ' +
-        'holographic scaling in {3,4,3,4} shell units (verified in both b and lambda). E-CSM-0065 bare horosphere drift ' +
-        'H_inf = 0.517 M_Pl is Planck-scale and separated by 122 decades from observed late-time dark energy H_0: E-CSM-0065 ' +
-        'provides only the asymptotic w = -1 equation of state, not the observed Hubble scale. ' +
+        'holographic scaling in {3,4,3,4} shell units (verified in both b and lambda). E-CSM-0064 bare horosphere drift ' +
+        'H_dS = 0.51713 beat^-1 (0.153 M_Pl) is Planck-scale and separated by ~61 decades in Hubble rate (~122 decades in ' +
+        'vacuum energy Lambda ~ H^2) from observed late-time dark energy H_0: E-CSM-0065 provides only the asymptotic w = -1 ' +
+        'equation of state, not the observed Hubble scale. ' +
         '(2) Exact 4th-order RK4 spherical top-hat collapse reproduces Weinberg (1987) 500/729 prefactor, shows ' +
         'all shells D <= 95 are lifeless for Milky-Way halos, and maps the upper Weinberg galaxy-formation window ' +
         'to Delta D = 1.542 shells (< 2 integer shells), passing both Lambda = 0 cycloid and delta_i = 0 homogeneous controls. ' +

@@ -1,12 +1,12 @@
 \usepackage[english]{babel}
 \usepackage{graphicx}
 \usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,decorations.pathreplacing}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsfonts}
 \usepackage[thmmarks, amsmath]{ntheorem}
 \usepackage{setspace}
-\usepackage{csquotes}
 \usepackage{enumitem}
 \usepackage{parskip}
 \usepackage{microtype}
@@ -17,13 +17,16 @@
 \usepackage{xcolor}
 \usepackage{listings}
 \usepackage{placeins}
-\usepackage[margin=1.12in]{geometry}
+\usepackage{float}
+\usepackage{needspace}
+\usepackage[labelfont=bf]{caption}
+\usepackage[margin=1.00in]{geometry}
 \usepackage{fancyhdr}
 \usepackage{titlesec}
 \usepackage[
     pdfauthor={Lance Pollard},
     pdftitle={A Reversible Ternary Quantum Cellular Automaton on the 4D \{3,4,3,4\} Honeycomb},
-    pdfsubject={Exact reversible ternary quantum cellular automaton on the 4D \{3,4,3,4\} 24-cell honeycomb in Z[zeta\_9][1/6], self-contained pure-BigInt reference kernel (test/universe.ts), Lean 4 machine-checked proofs, deterministic computational audits, bijective Gullstrand-Painleve horizon walks, constructive lattice gauge bounds, and open problems},
+    pdfsubject={Exact reversible ternary quantum cellular automaton on the 4D \{3,4,3,4\} 24-cell honeycomb in Z[zeta\_9][1/6], self-contained pure-BigInt reference kernel (test/universe.ts), Lean 4 machine-checked proofs, deterministic computational audits, constant-river Gullstrand-Painleve radial walks, constructive lattice gauge bounds, and open problems},
     pdfkeywords={hyperbolic honeycomb, 24-cell, D4 root system, reversible quantum cellular automaton, cyclotomic ring, SU(2) gate density, universal speed lock, Gullstrand-Painleve quantum walk, Kotecky-Preiss mass gap, Bakry-Emery curvature, Lean 4 formal proofs},
     pdfcreator={Lance Pollard},
     pdfproducer={pdfLaTeX},
@@ -42,17 +45,28 @@
 }
 
 \usepackage{etoolbox}
-\graphicspath{{figure/}}
-\apptocmd{\thebibliography}{\interlinepenalty=10000}{}{}
+\apptocmd{\thebibliography}{\small\setlength{\itemsep}{5pt plus 1pt}\interlinepenalty=10000}{}{}
+\frenchspacing
 
-\definecolor{codeframe}{gray}{0.72}
-\definecolor{codecomment}{gray}{0.44}
-\definecolor{codekey}{rgb}{0.10,0.18,0.34}
+\definecolor{codeframe}{HTML}{D4D4D8}
+\definecolor{codecomment}{HTML}{71717A}
+\definecolor{codekey}{HTML}{27272A}
+\definecolor{twViolet}{HTML}{6D28D9}
+\definecolor{twBlue}{HTML}{1D4ED8}
+\definecolor{twEmerald}{HTML}{047857}
+\definecolor{twPink}{HTML}{BE185D}
+\definecolor{twZincInk}{HTML}{27272A}
+\definecolor{twZinc}{HTML}{52525B}
+\definecolor{twZincRule}{HTML}{D4D4D8}
+\definecolor{twZincTint}{HTML}{F4F4F5}
+
+\newfloat{algorithm}{htbp}{loa}
+\floatname{algorithm}{Algorithm}
 
 \lstdefinestyle{pyalg}{
   language=Python,
   basicstyle=\ttfamily\footnotesize\setstretch{1.08},
-  keywordstyle=\color{codekey},
+  keywordstyle=\color{codekey}\bfseries,
   commentstyle=\color{codecomment},
   frame=tb,
   framesep=8pt,
@@ -60,13 +74,14 @@
   framerule=0.5pt,
   xleftmargin=4pt,
   xrightmargin=4pt,
-  aboveskip=10pt,
-  belowskip=10pt,
+  aboveskip=6pt,
+  belowskip=6pt,
   columns=fullflexible,
   keepspaces=true,
   mathescape=true,
   showstringspaces=false,
-  morekeywords={def,for,if,else,return,in,and,or,not}
+  deletekeywords={with,and},
+  morekeywords={def,for,if,else,return,in,or,not}
 }
 
 \widowpenalty=10000
@@ -79,11 +94,11 @@
 \setcounter{bottomnumber}{2}
 \setcounter{totalnumber}{4}
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{0.95em}
-\tolerance=1500
-\emergencystretch=3em
+\setlength{\parskip}{0.44em}
+\tolerance=1000
+\emergencystretch=1.5em
+\relpenalty=9000
 \setlength{\parfillskip}{0pt plus 1fil}
-\sloppy
 
 \pagestyle{fancy}
 \fancyhf{}
@@ -99,40 +114,26 @@
 \BeforeBeginEnvironment{equation}{\vspace{4pt}}
 \AfterEndEnvironment{equation}{\vspace{4pt}}
 \setlist[itemize]{before=\vspace{0pt},after=\vspace{-2pt},itemsep=1pt}
-\renewcommand{\arraystretch}{1.22}
+\renewcommand{\arraystretch}{1.14}
 \setlength{\tabcolsep}{7pt}
 
-\titleformat{\section}{\Large\bfseries}{\thesection.}{0.5em}{}
-\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection.}{0.5em}{}
+\titleformat{\section}{\Large\bfseries\boldmath}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries\boldmath}{\thesubsection.}{0.5em}{}
 
-\onehalfspacing
+\setstretch{1.115}
 
 \theoremheaderfont{\bfseries}
 \theorembodyfont{\normalfont}
+\theoremseparator{.}
 \theoremindent0pt
-\newtheorem{definition}{Definition}
 \newtheorem{theorem}{Theorem}
-\newtheorem{result}{Result}
-
-\makeatletter
-\def\@begintheorem#1#2#3{%
-  \par\addvspace{0.5em}%
-  \noindent\textbf{#1 #2.}
-  \ifx\@empty#3\relax
-    \quad
-  \else
-    \ \textbf{#3:}
-  \fi
-  \hspace{0.5em}
-}
-\def\@endtheorem{\par}
-\makeatother
 
 \newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\coderange}[2]{\mbox{\code{#1}\kern0.5pt--\kern0.5pt\code{#2}}}
 \newcommand{\universecode}{\code{test/universe.ts}}
 
 \title{
-  {\huge \textbf{A Reversible Ternary Quantum Cellular Automaton on the 4D $\{3,4,3,4\}$ Honeycomb}}
+  {\huge\bfseries\boldmath A Reversible Ternary Quantum Cellular Automaton on the 4D $\{3,4,3,4\}$ Honeycomb}
 }
 \author{Lance Pollard \\ \small lancejpollard@gmail.com}
 \date{November 24, 2026}

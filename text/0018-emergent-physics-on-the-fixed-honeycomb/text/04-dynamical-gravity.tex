@@ -3,203 +3,337 @@
 
 Exponential volume growth on a four-dimensional hyperbolic lattice creates an immediate obstruction to long-range
 gravity: an unweighted bulk Laplacian drains flux into deep shells and screens any 3D boundary potential exponentially.
-How does imposing a pair-density depth warp restore unscreened $1/r$ gravity and post-Newtonian orbits without a
-reflecting bulk floor, and how does an exact infinite-honeycomb quantum walk behave when crossing a black-hole horizon
-into a genuinely trapped interior?
-
-We audit three sharply separated layers: the Tier~B imposed $w(D) = 1/N_D^2$ warped cusp column, live two-body orbits,
-and parameterized post-Newtonian (PPN, weak-field relativistic gravity) observables (\code{E-GRV-0154}--\code{E-GRV-0159}),
-the Tier~B / L2 exact \code{BigInt} $R = \infty$ $\{3,4,3,4\}$ walks on prescribed Hartree (mean-field self-consistent
-gravitational) and bijective Gullstrand--Painlev\'e backgrounds (\code{E-GRV-0162}, \code{E-GRV-0163}), and the Tier~C
-continuum General Relativity consistency benchmarks (\code{E-GRV-0160}, \code{E-GRV-0161}).
+How does imposing a pair-density depth warp restore unscreened $1/r$ gravity and Newtonian orbits without a reflecting
+bulk floor, and how does an exact infinite-honeycomb radial quantum walk behave under prescribed constant-river
+Gullstrand--Painlev\'e drift velocities spanning exterior, horizon, and trapped-interior regimes?
 
 \paragraph{Key findings.}
 Imposing $w(D) = 1/N_D^2$ restores an unscreened $1/r$ potential with canonical single-face $G_{\mathrm{eff}} = 0.078593$
-that reproduces Newtonian orbits and PPN tests (\code{E-GRV-0156}--\code{0159}), while an exact bijective
-Gullstrand--Painlev\'e split-step walk on infinite $\{3,4,3,4\}$ sends both orthogonal null rays strictly inward inside
-$r_{\mathrm{areal}} = 0.6944\, r_s < r_s$ with zero norm or reversal error (\code{E-GRV-0163}, prescribed background,
-not dynamically derived General Relativity).
+that reproduces Newtonian two-body orbits (\code{E-GRV-0157}, \code{E-GRV-0158}), while downstream Tier~C continuum GR
+checks reproduce prescribed PPN observables, Fierz--Pauli structure, pre-ISCO inspiral, and independent vacuum
+quasinormal ringdown (\coderange{E-GRV-0159}{0161}). On the infinite $\{3,4,3,4\}$ honeycomb, an exact pure-\code{BigInt}
+constant-river Gullstrand--Painlev\'e 1D radial-chain benchmark sends both orthogonal null rays strictly inward at the
+interior tangent-space drift rate corresponding to $r_{\mathrm{areal}} = 0.6944\, r_s < r_s$ with zero norm or reversal
+error (\code{E-GRV-0163}, prescribed spatially uniform drift rather than dynamically derived General Relativity).
+
+We audit three separated layers: the Tier~B imposed $w(D) = 1/N_D^2$ warped cusp beam and live two-body orbits
+(\coderange{E-GRV-0154}{0158}), the Tier~B / L2 exact \code{BigInt} $R = \infty$ $\{3,4,3,4\}$ walks on prescribed
+2-beat instantaneous Hartree and constant-river Gullstrand--Painlev\'e tangent-space backgrounds (\code{E-GRV-0162},
+\code{E-GRV-0163}), and the Tier~C prescribed PPN metric and continuum General Relativity consistency benchmarks
+(\coderange{E-GRV-0159}{0161}).
 
 \subsection{Bulk screening and imposed pair-density warp}
 
 Because cusp shells grow exponentially ($N_D = 1, 18, 330, 6{,}034$, Table~\ref{tab:shells}), an unweighted cusp
 Laplacian retains a bulk spectral gap of at least $24 - 16.02$ (\code{E-GMT-0044}) and screens 3D husk potentials
-sharply (\code{E-GRV-0156}). Sweeping depth conductance weights $\ell^{-p}$ at Busemann level $\ell$ across 1,415
-Bloch solves (\code{E-GRV-0154}, \code{E-GRV-0155}, worst relative residual $3.5 \times 10^{-13}$) determines the exact
-threshold separating screened and unscreened columns (Table~\ref{tab:warp-sweep}): the infinite honeycomb is unscreened
-if and only if $p \ge 3$, leaving the Randall--Sundrum~II exponent ($p = 1$) \cite{randall1999} screened while $p = 6$
-restores clean $1/r$ potentials over the full 3D window.
+exponentially (\code{E-GRV-0156}). Sweeping depth conductance weights $\ell^{-p}$ across odd Busemann levels
+$\ell \in \{1, 3, \ldots, 49\}$ over 1,415 Bloch solves (\code{E-GRV-0154}, \code{E-GRV-0155}, worst relative residual
+$3.5 \times 10^{-13}$) determines the exact polynomial resistance scaling $\mathcal{R}(F) \sim F^{q_{\mathcal{R}}}$
+separating screened and unscreened beams (Table~\ref{tab:warp-sweep}): the infinite honeycomb is unscreened if and
+only if $p \ge 3$, leaving the Randall--Sundrum~II exponent ($p = 1$) \cite{randall1999} screened while $p = 6$ gives
+$q_{\mathcal{R}} = +3.02$ and correlation length $\xi = 184$ docks at Busemann level $49$.
 
-Heuristically, because horosphere volume scales as $N_D \sim \ell^3$, single-excitation density dilutes as
-$1/N_D \sim \ell^{-3}$ and Scale-2 pair-interaction density dilutes as its square:
+Heuristically, because horosphere volume scales asymptotically as $N_D \sim \ell^3$, single-excitation density dilutes
+as $1/N_D \sim \ell^{-3}$ and Scale-2 pair-interaction density dilutes as its square $w(D) = 1/N_D^2 \sim \ell^{-6}$.
+With 18 downward vertical bonds per dock at depth $D$ weighted by the geometric mean
+$\sqrt{w(D)\, w(D+1)} = 1/(N_D N_{D+1})$, the exact vertical link conductance $c_{\mathrm{vert}}(D)$ and cumulative
+beam resistance $\mathcal{R}(F)$ implemented in \code{E-GRV-0156} and \code{E-GRV-0157} are
 \begin{equation}
-w(D) = \frac{1}{N_D^2} \sim \ell^{-6} \qquad (p = 6),
+\begin{aligned}
+w(D) &= \frac{1}{N_D^2},
 \qquad
-R(F) = \sum_{D=0}^{F-1} \frac{1}{N_D\, w(D)} = \sum_{D=0}^{F-1} N_D.
+c_{\mathrm{vert}}(D) = 18 N_D \sqrt{w(D)\, w(D+1)} = \frac{18}{N_{D+1}}, \\
+\mathcal{R}(F) &= \sum_{D=0}^{F} \frac{1}{c_{\mathrm{vert}}(D)} = \frac{1}{18} \sum_{D=0}^{F} N_{D+1},
+\end{aligned}
 \label{eq:pair-warp}
 \end{equation}
-We grade $w(D) = 1/N_D^2$ explicitly as a \textbf{Tier~B imposed effective measure}, not yet derived dynamically from
-the bare Tier~A QCA. Under Equation~\eqref{eq:pair-warp}, vertical resistance grows exponentially with floor depth,
-restoring unscreened 3D $1/r$ potentials with zero reflecting bulk floor and zero added depth register.
+giving $\mathcal{R}(12) = 1.48 \times 10^{15}$ and $\xi = \sqrt{\mathcal{R}(12)} \approx 3.85 \times 10^7$ docks at
+graph depth $F = 12$. Defining the unnormalized integer sum $\tilde{\mathcal{R}}(F) = \sum_{D=0}^{F-1} N_D$ certified
+by $17\tilde{\mathcal{R}}(F) + 1 \ge 18^F$ in \code{Vibe/Geometry.lean} (Section~\ref{sec:unified}), the two conventions
+are linked identically by $18\mathcal{R}(F) = \tilde{\mathcal{R}}(F+2) - 1$. We grade $w(D) = 1/N_D^2$ explicitly as a
+\textbf{Tier~B imposed effective measure}, not yet derived dynamically from the bare Tier~A QCA. Under
+Equation~\eqref{eq:pair-warp}, vertical resistance grows exponentially with graph depth $F$, restoring unscreened 3D
+$1/r$ potentials with zero reflecting bulk floor and zero added depth register.
 
 \begin{table}[htbp]
 \centering
+\caption{Depth-conductance sweep across Busemann levels $\ell \in \{1, 3, \ldots, 49\}$ (\code{E-GRV-0154},
+\code{E-GRV-0155}, 1,415 Bloch solves, worst residual $3.5 \times 10^{-13}$) separated from the exponential
+graph-depth beam $w(D) = 1/N_D^2$ (\code{E-GRV-0156}, Tier~B).}
+\label{tab:warp-sweep}
 \small
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.9cm}>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}p{3.1cm}>{\raggedright\arraybackslash}X@{}}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{1.2cm}>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}p{1.8cm}>{\raggedright\arraybackslash}p{3.5cm}>{\raggedright\arraybackslash}X@{}}
 \toprule
-$p$ & Weight $\ell^{-p}$ & Resistance $q$ & Correlation length $\xi$ & Physical regime (\code{E-GRV-0154}--\code{0156}) \\
+Model & Weight & Exponent $q_{\mathcal{R}}$ & Correlation length $\xi$ & Physical regime \\
 \midrule
-$0$ & $1$ (unwarped) & $-3.51$ & screened ($G(2)/G(1) = 0.046$) & raw bulk leaks flux exponentially \\
+$p = 0$ & $1$ (unwarped) & $-3.51$ & screened ($G(2)/G(1) = 0.046$) & raw bulk leaks flux exponentially \\
 \addlinespace[3pt]
-$1$ & $\ell^{-1}$ (RS-II) & $-2.04$ & $0.35$ docks & Randall--Sundrum~II warp stays screened \\
+$p = 1$ & $\ell^{-1}$ (RS-II) & $-2.04$ & $0.35$ docks & Randall--Sundrum~II warp stays screened \\
 \addlinespace[3pt]
-$2$ & $\ell^{-2}$ & $-0.85$ & screened & sub-threshold bulk leakage \\
+$p = 2$ & $\ell^{-2}$ & $-0.85$ & screened & sub-threshold bulk leakage \\
 \addlinespace[3pt]
-$3$ & $\ell^{-3} \sim 1/N_D$ & $+0.13$ & $1.43$ docks (floor 49) & logarithmic horosphere-area threshold \\
+$p = 3$ & $\ell^{-3} \sim 1/N_D$ & $+0.13$ & $1.43$ docks (level $49$) & logarithmic horosphere-area threshold \\
 \addlinespace[3pt]
-$4$ & $\ell^{-4}$ & $+1.09$ & power-law growth & weakly unscreened regime \\
+$p = 4$ & $\ell^{-4}$ & $+1.09$ & power-law growth & weakly unscreened regime \\
 \addlinespace[3pt]
-$6$ & $\ell^{-6} = 1/N_D^2$ & $+3.02$ & $3.85 \times 10^7$ docks & $R(12) = 1.48 \times 10^{15}$, clean unscreened $1/r$ \\
+$p = 6$ & $\ell^{-6}$ & $+3.02$ & $184$ docks (level $49$) & unscreened Busemann-level sweep (\code{0154}, \code{0155}) \\
+\midrule
+Graph $D$ & $1/N_D^2 \sim \ell^{-6}$ & exp.\ ($b^F$) & $3.85 \times 10^7$ docks ($F = 12$) & $\mathcal{R}(12) = 1.48 \times 10^{15}$ (\code{E-GRV-0156}, fails $L = 16$ slope gate, resolved in \code{0157}) \\
 \bottomrule
 \end{tabularx}
-\caption{Depth-conductance sweep across $\ell^{-p}$ on the $\{3,4,3,4\}$ cusp column (\code{E-GRV-0154}--\code{0156},
-Tier~B, 1,415 Bloch solves, worst relative residual $3.5 \times 10^{-13}$).}
-\label{tab:warp-sweep}
 \end{table}
 
 \subsection{Static \texorpdfstring{$1/r$}{1/r} kernel, live orbits, and GR benchmarks}
 
-Evaluating the exact Schur-complement husk Green function (the boundary potential obtained by integrating out the bulk
-columns) of the $w(D) = 1/N_D^2$ column on a $64^3$ cubic husk (\code{E-GRV-0157}, Tier~B) converges floor-independently
-by floor~12. Under the canonical unaliased single-face lateral links $l_D = 1, 4, 20, 100$ (cumulative $5^D$,
-Table~\ref{tab:shells}), the effective husk stiffness and geometric Newton coupling are
+While \code{E-GRV-0156} establishes exponential resistance $\mathcal{R}(12) = 1.48 \times 10^{15}$, its \mbox{\code{side = 16}}
+torus midpoint-subtraction slope fails its pre-registered gate ($-1.8177$, still using aliased period-2 lateral links).
+Evaluating the exact Schur-complement husk Green function (Dirichlet floor at $D = F + 1$, resolved by Madelung
+correction on a $64^3$ cubic husk in \code{E-GRV-0157}, Tier~B) converges floor-independently by floor~12. Under the
+canonical unaliased single-face lateral links \mbox{$l_D = 1, 4, 20, 100$} (cumulative $5^D$, Table~\ref{tab:shells}),
+the effective husk stiffness and geometric Newton coupling are
 \begin{equation}
 K_{\mathrm{eff}} = 1.012532,
 \qquad
 G_{\mathrm{eff}} = \frac{1}{4\pi K_{\mathrm{eff}}} = 0.078593,
 \label{eq:geff}
 \end{equation}
-while the aliased \code{period = 2} torus comparison control ($1, 10, 40, 200$, cumulative $2 \cdot 5^D$) shifts both
-constants by $1.85\%$ to $K_{\mathrm{eff}}^{(p=2)} = 1.031237$ and $G_{\mathrm{eff}}^{(p=2)} = 0.077167$. Both match
-the massless 3D cubic lattice Green function tightly across $r = 2..10$, whereas the raw unwarped bulk control
-collapses exponentially.
+while the aliased \mbox{\code{period = 2}} torus comparison control ($1, 10, 40, 200$, cumulative $2 \cdot 5^D$) shifts
+$K_{\mathrm{eff}}$ by $+1.85\%$ to $1.031237$ and $G_{\mathrm{eff}}$ by $-1.81\%$ to $0.077167$. Across $r = 2\text{--}10$,
+the warped husk matches the massless 3D cubic lattice Green function within $0.000044\%$ ($4.41 \times 10^{-7}$),
+whereas the raw unwarped bulk control collapses to \mbox{$G(5)/G(1) = 4.35 \times 10^{-6}$}.
 
-Coupling two quantum wavepackets to this warped-cusp kernel via unitary, time-reversible Strang split-step
-Schr\"odinger--Poisson evolution (symmetrically factored self-gravitating wavepacket propagation) on an open $32^3$
-domain embedded in a $64^3$ zero-padded Hockney FFT \cite{hockney1970} (\code{E-GRV-0158}, Tier~B) recovers
-inverse-square mutual infall, exact Newton's third law, a bound Keplerian orbit, and hyperbolic flyby deflection, while
-the raw bulk control sends the binary straight apart. Using $(G_{\mathrm{eff}}, c_u)$, \code{E-GRV-0159} (Tier~B)
-passes all four classical post-Newtonian tests (leading relativistic corrections to Newtonian gravity and light
-propagation): live unitary chiral clock redshift, Eddington $2\times$ light bending, Shapiro time delay, and 6th-order
-Yoshida symplectic perihelion precession \cite{yoshida1990}.
+Coupling two quantum wavepackets (evolving under continuum non-relativistic $k^2/(2m)$ kinetics) to this warped-cusp
+kernel via unitary, time-reversible Strang split-step Schr\"odinger--Poisson evolution on an open $32^3$ domain
+embedded in a $64^3$ zero-padded Hockney FFT \cite{hockney1970} (\code{E-GRV-0158}, Tier~B) recovers inverse-square
+mutual infall, unequal-mass Newton's third law ($2.17 \times 10^{-9}$ on open Hockney, $2.04 \times 10^{-14}$ on the
+separate periodic $T^3$ control), a bound $91.6^\circ$ Keplerian orbit ($\omega_{\mathrm{orb}}$ error $0.073\%$), and
+$18.8^\circ$ hyperbolic flyby deflection, while the raw bulk control sends the binary straight apart.
 
-Downstream, two \textbf{Tier~C} continuum GR benchmarks (\code{E-GRV-0160}, \code{E-GRV-0161}, explicitly not derived
-from the bare automaton) check Fierz--Pauli $\gamma_{\mathrm{PPN}} = 1$, a Lichnerowicz--Einstein star exterior,
-Regge--Einstein deficit convergence, a 4,168-orbit 1PN/2.5PN inspiral stopping before the innermost stable circular
-orbit (ISCO), warped-column TT wave propagation, and vacuum Schwarzschild $\ell = 2, n = 0$ quasinormal ringdown (QNM,
-damped black-hole horizon oscillation modes). Table~\ref{tab:gravity} collects all verified metrics and controls.
+Downstream, three \textbf{Tier~C} continuum GR benchmarks (\coderange{E-GRV-0159}{0161}, explicitly not derived from
+the bare automaton) test relativistic gravity consistency using $(G_{\mathrm{eff}}, c_u)$ from Equation~\eqref{eq:geff}
+and Equation~\eqref{eq:speed-lock}. First, \code{E-GRV-0159} (reclassified to Tier~C) prescribes the continuum
+isotropic parameterized post-Newtonian (PPN) metric $A(r) = 1 - 2u + 2\beta_{\mathrm{PPN}} u^2$,
+$B(r) = 1 + 2\gamma_{\mathrm{PPN}} u$ with $\gamma_{\mathrm{PPN}} = \beta_{\mathrm{PPN}} = 1$ imposed by hand (scaling
+the single-site clock phase directly by $\sqrt{A(r)}$ by hand) and verifies numerical recovery of gravitational clock
+redshift, Eddington $2\times$ light bending, Shapiro time delay, and 6th-order Yoshida symplectic perihelion precession
+\cite{yoshida1990} against temporal-only ($\gamma_{\mathrm{PPN}} = 0$) and Newtonian controls, without deriving
+$\gamma_{\mathrm{PPN}} = \beta_{\mathrm{PPN}} = 1$. Second, \code{E-GRV-0160} checks linearized Fierz--Pauli
+$\gamma_{\mathrm{PPN}} = 1$ \cite{fierz1939}, a 21-step Lichnerowicz--Einstein diffuse star exterior
+($r_s / R_* = 0.054$), and Regge--Einstein deficit convergence \cite{regge1961}. Third, \code{E-GRV-0161} checks a
+4,168-orbit 1PN/2.5PN inspiral stopping at $6.98\, r_g$ before the innermost stable circular orbit (ISCO, with no
+plunge or merger), warped-beam TT wave propagation (with raw bulk suppression $2.86 \times 10^{-87}$), and an
+independent vacuum Schwarzschild $\ell = 2, n = 0$ Regge--Wheeler/Zerilli quasinormal ringdown (QNM) benchmark
+evaluated separately from Part~1's pre-ISCO binary and \code{E-GRV-0160}'s diffuse star. Table~\ref{tab:gravity}
+collects all verified canonical single-face metrics and controls.
 
 \begin{table}[htbp]
 \centering
-\small
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}p{1.3cm}>{\raggedright\arraybackslash}p{2.5cm}>{\raggedright\arraybackslash\hsize=1.22\hsize}X>{\raggedright\arraybackslash\hsize=0.78\hsize}X@{}}
+\caption{Tier~B warped-cusp gravity and live two-body orbits alongside Tier~C prescribed-PPN and continuum GR
+consistency benchmarks (\coderange{E-GRV-0157}{0162}).}
+\label{tab:gravity}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.05cm}>{\raggedright\arraybackslash}p{1.15cm}>{\raggedright\arraybackslash}p{2.25cm}>{\raggedright\arraybackslash\hsize=1.18\hsize}X>{\raggedright\arraybackslash\hsize=0.82\hsize}X@{}}
 \toprule
 Code & Tier & Study & Verified measurement & Negative control / note \\
 \midrule
-\code{E-GRV-0157} & B (L2) & $64^3$ static $1/r$ kernel & canonical $K_{\mathrm{eff}} = 1.012532$, $G_{\mathrm{eff}} = 0.078593$, slope $-1.0029$, force $-2.0418$, Green err $0.00125\%$ & period-2 control $1.031237 / 0.077167$ ($1.85\%$ shift), raw $G(5)/G(1) = 4.86 \times 10^{-6}$ \\
+\code{E-GRV-0157} & B (L2) & $64^3$ static $1/r$ kernel & canonical $K_{\mathrm{eff}} = 1.012532$, $G_{\mathrm{eff}} = 0.078593$, slope $-1.0029$, force $-2.0418$, Green err $0.000044\%$ & period-2 $+1.85\%$ / $-1.81\%$ ($1.031237 / 0.077167$), raw $G(5)/G(1) = 4.35 \times 10^{-6}$ \\
 \addlinespace[4pt]
-\code{E-GRV-0158} & B (L2) & live two-body orbits & infall slope $-1.9957$, $G_{\mathrm{dyn}}$ err $0.45\%$, 3rd law $1.04 \times 10^{-14}$, $90.8^\circ$ orbit $\omega$ $0.071\%$, flyby $18.5^\circ$, rev $4.75 \times 10^{-15}$ & raw bulk accel $2.49 \times 10^{-5}$, free-line drift $0.04\%$ \\
+\code{E-GRV-0158} & B (L2) & live two-body orbits & infall slope $-1.9957$, $G_{\mathrm{dyn}}$ err $0.45\%$, unequal-mass 3rd law $2.17 \times 10^{-9}$ (open) / $2.04 \times 10^{-14}$ ($T^3$), $91.6^\circ$ orbit $\omega_{\mathrm{orb}}$ $0.073\%$, flyby $18.8^\circ$, reversal $5.62 \times 10^{-15}$ & continuum $k^2/(2m)$ kinetics, raw bulk accel $2.41 \times 10^{-5}$, free-line drift $0.04\%$ \\
 \addlinespace[4pt]
-\code{E-GRV-0159} & B (L2) & PPN GR observables & clock redshift $1.24 \times 10^{-11}$, Eddington $\gamma = 1.0051 / 1.0074$, Shapiro $0.225\%$, precession $0.060\%$ & Newtonian $\le 1.83 \times 10^{-12}$, temp-only $1/3$, special-relativity $1/6$, raw $> 10^{13}\times$ \\
+\code{E-GRV-0162} & B (L2) & cached $R = 2, 3$ Hartree & 2-beat instantaneous shrink $-4.117 \times 10^{-3}$, center-of-mass $7.77 \times 10^{-16}$, 1:3 ratio $3.0000000000$, reversal $0$ & isotropic $\chi = r_s/(4 r_0) = 1.35$ probes mirror sheet ($r_{\mathrm{areal}} = 1.023\, r_s$) \\
 \addlinespace[4pt]
-\code{E-GRV-0162} & B (L2) & cached $R = 2, 3$ Hartree & shrink $-4.044 \times 10^{-3}$, center-of-mass $8.88 \times 10^{-16}$, 1:3 ratio $3.0000000000$, rev $0$ & isotropic $\chi = 1.35$ probes mirror sheet ($r_{\mathrm{areal}} = 1.023\, r_s$) \\
+\code{E-GRV-0159} & C (L2) & prescribed PPN GR & clock redshift $1.89 \times 10^{-11}$, Eddington $\gamma = 1.0053 / 1.0072$, Shapiro $0.234\%$, precession $0.073\%$ & isotropic $\gamma_{\mathrm{PPN}} = \beta_{\mathrm{PPN}} = 1$ imposed by hand, temporal-only $1/3$, raw $> 10^{13}\times$ \\
 \addlinespace[4pt]
-\code{E-GRV-0160} & C (L2) & continuum static GR & Fierz--Pauli $\gamma = 1$ ($1.33 \times 10^{-13}$), Lichnerowicz $\gamma, \beta \approx 1$, Regge $O(h^{2.00})$ & continuum GR check, not from bare QCA \\
+\code{E-GRV-0160} & C (L2) & continuum static GR & Fierz--Pauli $\gamma = 1$ ($1.42 \times 10^{-13}$), 21-step Lichnerowicz $\gamma, \beta \approx 1$, Regge $O(h^{2.00})$ & continuum GR check, diffuse star $r_s / R_* = 0.054$, not from bare QCA \\
 \addlinespace[4pt]
-\code{E-GRV-0161} & C (L2) & inspiral, TT, QNM & 4,168-orbit 1PN/2.5PN ($135 \to 6.98\, r_g$), TT $0.176\%$, $\ell=2$ QNM $0.263\% / 0.225\%$ & rad-off flat $\le 8.3 \times 10^{-12}$, raw bulk $1.02 \times 10^{-68}$ \\
+\code{E-GRV-0161} & C (L2) & inspiral, TT, QNM & 4,168-orbit 1PN/2.5PN ($135 \to 6.98\, r_g$), TT $0.175\%$, $\ell = 2$ QNM $0.262\% / 0.225\%$ & no merger, independent vacuum BH QNM, radiation-off drift $3.56 \times 10^{-12}$, raw bulk $2.86 \times 10^{-87}$ \\
 \bottomrule
 \end{tabularx}
-\caption{Tier~B warped-cusp gravity, live two-body orbits, and PPN tests alongside Tier~C continuum GR consistency
-benchmarks (\code{E-GRV-0157}--\code{E-GRV-0162}).}
-\label{tab:gravity}
 \end{table}
 
-\subsection{Exact infinite-honeycomb Gullstrand--Painlev\'e walk}
+\subsection{Infinite-honeycomb engine and constant-river Gullstrand--Painlev\'e walk}
 
 Static finite balls impose an artificial outer horizon at $t = R$, and any $2 \times 2$ unitary coin on a static
-symmetric shift enforces $v_r(\mathrm{out}) + v_r(\mathrm{in}) = 0$, preventing both light rays from falling inward
-inside a black-hole horizon (as seen in the cached-ball isotropic sweep \code{E-GRV-0162}). Experiment
-\code{E-GRV-0163} removes both limitations at \textbf{Tier~B / L2} via an on-the-fly exact $R = \infty$
-$SO(4,1; \mathbb{Z}[\sqrt{2}])$ honeycomb engine paired with exact \code{BigInt} $\mathbb{Z}[\omega][1/2]$ $SU(2)$ gate
-compilation (with external force and metric angle lookup in \code{Float64}).
+symmetric shift enforces $v_r(\mathrm{out}) + v_r(\mathrm{in}) = 0$, preventing both null rays from tilting inward
+(as observed in the cached-ball isotropic sweep \code{E-GRV-0162}). Experiment \code{E-GRV-0163} addresses those
+finite-ball limits at \textbf{Tier~B / L2} via an on-the-fly exact $R = \infty$ $O^+(4,1; \mathbb{Z}[\sqrt{2}])$
+honeycomb engine paired with exact \code{BigInt} $\mathbb{Z}[\omega][1/2]$ $SU(2)$ gate compilation (with external
+force and metric angle lookup in \code{Float64}).
 
-First, on-the-fly $SO(4,1; \mathbb{Z}[\sqrt{2}])$ neighbor generation reproduces static ball geometry identically and
+First, on-the-fly $O^+(4,1; \mathbb{Z}[\sqrt{2}])$ neighbor generation reproduces static ball geometry identically and
 computes exact \code{BigInt} Busemann depths without a pre-allocated boundary, allowing a constant flat-coin walk to
-traverse smoothly beyond $R = 3$ to radii $r = 4, 5$ with zero frontier hits. Second, every Hartree and local
-flat-coin operator compiles into exact \code{BigInt} words over $\{W_1, W_1^\dagger, W_2, W_2^\dagger\}$ with zero
-determinant or unitarity residual, reproducing cached-ball two-body attraction cleanly (Table~\ref{tab:inf-engine}).
+traverse beyond $R = 3$ to radii $r = 4, 5$ with zero frontier hits. Second, every Hartree and local flat-coin operator
+compiles into exact \code{BigInt} words over $\{W_1, W_1^\dagger, W_2, W_2^\dagger\}$ (matching Section~\ref{sec:quantum})
+with zero determinant or unitarity residual and maximum operator distance $3.96 \times 10^{-4}$, reproducing the
+2-beat instantaneous Hartree mean-field two-body attraction of \code{E-GRV-0162} within $0.028\%$ (equal mass) and
+$0.029\%$ ($1:3$ mass ratio), explicitly testing instantaneous pairwise static-kernel coupling rather than retarded
+bulk gravitational mediation (Table~\ref{tab:inf-engine}).
 
 \begin{table}[htbp]
 \centering
+\caption{Exact \code{BigInt} $R = \infty$ $\{3,4,3,4\}$ engine, $\mathbb{Z}[\omega][1/2]$ gate compilation, and
+2-beat instantaneous prescribed Hartree two-body benchmarks (\code{E-GRV-0163}, Tier~B / L2). All zero residuals hold
+identically in pure \code{BigInt} arithmetic.}
+\label{tab:inf-engine}
 \small
 \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.1cm}>{\raggedright\arraybackslash\hsize=1.22\hsize}X>{\raggedright\arraybackslash\hsize=0.78\hsize}X@{}}
 \toprule
 Check (\code{E-GRV-0163}) & Exact \code{BigInt} measurement & Baseline / control \\
 \midrule
-On-the-fly $SO(4,1)$ traversal & $0$ edge mismatches across 12,859 edges of \code{coverBall(0..3)}, $0/8{,}857$ Busemann depth errors on $B_3$ ($0$ errors depth $4 \to 3$) & reaches $r = 4, 5$ in 63 visited docks (vs $\sim 3 \times 10^6$ static), \code{0n} norm, $0$ rev \\
+On-the-fly $O^+(4,1)$ traversal & $0$ edge mismatches across all 12,859 edges of $B_3$ ($r = 0, \ldots, 3$), $0/8{,}857$ Busemann depth errors ($0$ errors depth $4 \to 3$) & reaches $r = 4, 5$ in 63 visited docks (vs $\sim 3 \times 10^6$ static), norm err $0$, reversal $0$ \\
 \addlinespace[4pt]
-$\mathbb{Z}[\omega][1/2]$ $SU(2)$ compilation & all Hartree and GP coins compiled: \code{maxDetResidual = 0n}, \code{maxUnitarityResidual = 0n}, \code{maxOpDist} $= 3.63 \times 10^{-4}$ & exact algebra over $\{W_1, W_2\}$ \\
+$\mathbb{Z}[\omega][1/2]$ $SU(2)$ compilation & all Hartree and GP coins compiled: exact determinant residual $0$, unitarity residual $0$, \mbox{operator distance $3.96 \times 10^{-4}$} & exact algebra over $\{W_1, W_2\}$ \\
 \addlinespace[4pt]
-Prescribed Hartree two-body & equal-mass and 1:3 walks match \code{E-GRV-0162} to $0.089\%$ and $0.050\%$, \code{0n} norm err, $0$ rev diff & $G = 0$ control drift: exact $0$ \\
+2-beat instantaneous Hartree & equal-mass and 1:3 walks match \code{E-GRV-0162} to $0.028\%$ and $0.029\%$, norm err $0$, reversal defect $0$ & $G = 0$ control drift: exact $0$ (instantaneous static kernel) \\
 \bottomrule
 \end{tabularx}
-\caption{Exact \code{BigInt} $R = \infty$ $\{3,4,3,4\}$ engine, $\mathbb{Z}[\omega][1/2]$ gate compilation, and
-prescribed Hartree two-body benchmarks (\code{E-GRV-0163}, Tier~B / L2).}
-\label{tab:inf-engine}
 \end{table}
 
-Third, in Gullstrand--Painlev\'e coordinates (horizon-penetrating coordinates modeling gravity as an inward-flowing
-river), space flows inward at speed $v_{\mathrm{river}} = -c_u \sqrt{r_s/r_0}$ while light moves locally at $\pm c_u$
-relative to the river. Realizing this directly on the infinite $\{3,4,3,4\}$ honeycomb yields the exact bijective
-split-step QCA over $P = 45$ beats:
+Third, in the acoustic / river formulation of Gullstrand--Painlev\'e (GP) coordinates \cite{unruh1981, hamilton2008river},
+the radial coordinate $r_0$ equals the areal radius $r_{\mathrm{areal}}$ (so $r_s / r_0 = 1.44$ gives
+$r_{\mathrm{areal}} = 0.6944\, r_s$), space flows inward locally at river velocity $v_{\mathrm{river}} = -c_u \sqrt{r_s / r_0}$,
+and light propagates locally at $\pm c_u$ relative to the river. Part~4 of \code{E-GRV-0163} implements a \textbf{local
+tangent-space / spatially uniform constant-river-velocity 1D radial-chain benchmark} testing five separate fixed drift
+rates $v_{\mathrm{river}} = -n_{\mathrm{drift}} / N_{\mathrm{beats}}$ sampled at the local GP velocities of
+$r_s / r_0 \in \{0, 0.25, 0.64, 1.00, 1.44\}$. Over $N_{\mathrm{beats}} = 45$ composite beats, each beat applies
 \begin{equation}
-U_b = (S_{\mathrm{river}})^{m_b} \circ S_{\mathrm{light}} \circ W(\theta_{c_u}),
+U_b = (S_{\mathrm{river}})^{m_b} \circ S_{\mathrm{light}} \circ W_{\mathrm{GP}}(\theta_{c_u}),
 \label{eq:gp-walk}
 \end{equation}
-where $W(\theta_{c_u})$ is the exact \code{BigInt} $\mathbb{Z}[\omega][1/2]$ local flat warped-column coin at canonical
-single-face $c_u = 0.977925$, $S_{\mathrm{light}}$ is the bijective $\pm 1$ lightcone shift along the depth-0 radial
-geodesic chain, and $S_{\mathrm{river}}$ is the exact bijective $SO(4,1; \mathbb{Z}[\sqrt{2}])$ parabolic cusp river
-drift scheduled on $K$ of $P = 45$ beats ($m_b \in \{0, 1, 2\}$).
+where $W_{\mathrm{GP}}(\theta_{c_u})$ is the exact \code{BigInt} $\mathbb{Z}[\omega][1/2]$ local flat warped-beam coin
+at canonical single-face $c_u = 0.977925$, $S_{\mathrm{light}}$ is the bijective $\pm 1$ lightcone shift along the
+2-slot depth-0 $+x$ geodesic chain (leaving the remaining 22 slots untouched), and $S_{\mathrm{river}}$ is a spatially
+uniform global parabolic $O^+(4,1; \mathbb{Z}[\sqrt{2}])$ cusp translation distributing
+$n_{\mathrm{drift}} \in \{0, 22, 35, 44, 53\}$ total shifts across $N_{\mathrm{beats}} = 45$ composite beats via
+Bresenham scheduling ($m_b \in \{0, 1, 2\}$ shifts on beat $b$).
+
+Three explicit structural boundaries govern Equation~\eqref{eq:gp-walk}:
+\begin{itemize}[itemsep=2pt]
+\item \textbf{1D geodesic support:} Both $W_{\mathrm{GP}}(\theta_{c_u})$ and $S_{\mathrm{light}}, S_{\mathrm{river}}$
+keep amplitude strictly on the 2-slot depth-0 $+x$ geodesic chain $\{(x, 0, 0) : x \in \mathbb{Z}\}$.
+\item \textbf{No spatial horizon crossing:} Each row of Table~\ref{tab:gp-walk} runs an independent spatially uniform
+drift rate $v_{\mathrm{river}} = -n_{\mathrm{drift}} / 45$ rather than a spatially varying $r$-dependent horizon
+metric, so no wavepacket crosses dynamically from exterior ($r > r_s$) into interior ($r < r_s$) inside one run (and
+$N_{\mathrm{beats}} = 45$ closely approximates $44/45 = 0.977778 \approx c_u = 0.977925$ at $r_s / r_0 = 1.00$).
+\item \textbf{Multi-substep composite causality:} Because $c_u = 0.977925$ sits near $1$, attaining
+$|v_r(\mathrm{in})| = c_u + |v_{\mathrm{river}}| > 1$ applies $m_b \in \{1, 2\}$ river shifts inside one composite beat
+(up to 3 lattice hops per composite beat when $n_{\mathrm{drift}} = 53 > 45$ at $r_s / r_0 = 1.44$). Thus $U_b$ is a
+strictly bijective multi-substep coordinate-frame composition rather than a single 1-hop bare QCA beat.
+\end{itemize}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  font=\footnotesize,
+  rayout/.style={-{Stealth[length=4.2pt]}, line width=0.95pt, draw=twBlue},
+  rayin/.style={-{Stealth[length=4.2pt]}, line width=0.95pt, draw=twPink},
+  axis/.style={-{Stealth[length=3.8pt]}, line width=0.6pt, draw=twZincInk}
+]
+% Subtle neutral shading for trapped interior up to horizon line x = 4.35
+\fill[twZincTint] (0.0,0.45) rectangle (4.35,3.45);
+\draw[densely dashed, line width=0.85pt, draw=twPink] (4.35,0.45) -- (4.35,3.48);
+\node[above, font=\scriptsize\bfseries, color=twPink] at (4.35,3.50) {Horizon $r_{\mathrm{areal}} = r_s$};
+\node[font=\scriptsize\bfseries, color=twPink] at (2.15,3.20) {Trapped interior};
+\node[font=\scriptsize\bfseries, color=twZincInk] at (8.75,3.20) {Exterior constant-river tangent regimes};
+
+% Baseline and vertical time axis
+\draw[axis] (0.0,0.45) -- (13.15,0.45) node[right, font=\scriptsize, color=twZincInk] {$r_{\mathrm{areal}}/r_s$};
+\draw[axis] (0.0,0.45) -- (0.0,3.50) node[above, font=\scriptsize, color=twZincInk] {composite time $t$};
+
+% Five light cones: vertical dt = 1.50 cm, horizontal scale = 0.68 cm per (dock/beat)
+\begin{scope}[shift={(2.05,0.45)}]
+  \fill[twViolet!10] (0,0) -- (-0.14,1.50) -- (-1.47,1.50) -- cycle;
+  \draw[rayout] (0,0) -- (-0.14,1.50);
+  \draw[rayin] (0,0) -- (-1.47,1.50);
+  \fill[twZincInk] (0,0) circle (1.5pt);
+  \node[below, font=\scriptsize, align=center] at (0,-0.06) {$0.6944\, r_s$\\($r_s/r_0 = 1.44$)};
+  \node[above, font=\scriptsize, color=twBlue] at (-0.08,1.54) {$-0.20$};
+  \node[above, font=\scriptsize, color=twPink] at (-1.47,1.54) {$-2.16$};
+\end{scope}
+
+\begin{scope}[shift={(4.35,0.45)}]
+  \fill[twViolet!10] (0,0) -- (0.00,1.50) -- (-1.33,1.50) -- cycle;
+  \draw[rayout] (0,0) -- (0.00,1.50);
+  \draw[rayin] (0,0) -- (-1.33,1.50);
+  \fill[twZincInk] (0,0) circle (1.5pt);
+  \node[below, font=\scriptsize, align=center] at (0,-0.06) {$1.0000\, r_s$\\($r_s/r_0 = 1.00$)};
+  \node[anchor=south west, font=\scriptsize, color=twBlue, inner sep=1pt] at (0.06,1.56) {$+0.0002$};
+  \node[above, font=\scriptsize, color=twPink] at (-1.33,1.54) {$-1.96$};
+\end{scope}
+
+\begin{scope}[shift={(7.18,0.45)}]
+  \fill[twViolet!10] (0,0) -- (0.14,1.50) -- (-1.19,1.50) -- cycle;
+  \draw[rayout] (0,0) -- (0.14,1.50);
+  \draw[rayin] (0,0) -- (-1.19,1.50);
+  \fill[twZincInk] (0,0) circle (1.5pt);
+  \node[below, font=\scriptsize, align=center] at (0,-0.06) {$1.5625\, r_s$\\($r_s/r_0 = 0.64$)};
+  \node[above, font=\scriptsize, color=twBlue] at (0.20,1.54) {$+0.20$};
+  \node[above, font=\scriptsize, color=twPink] at (-1.12,1.54) {$-1.76$};
+\end{scope}
+
+\begin{scope}[shift={(9.60,0.45)}]
+  \fill[twViolet!10] (0,0) -- (0.33,1.50) -- (-1.00,1.50) -- cycle;
+  \draw[rayout] (0,0) -- (0.33,1.50);
+  \draw[rayin] (0,0) -- (-1.00,1.50);
+  \fill[twZincInk] (0,0) circle (1.5pt);
+  \node[below, font=\scriptsize, align=center] at (0,-0.06) {$4.0000\, r_s$\\($r_s/r_0 = 0.25$)};
+  \node[above, font=\scriptsize, color=twBlue] at (0.40,1.54) {$+0.49$};
+  \node[above, font=\scriptsize, color=twPink] at (-1.00,1.54) {$-1.47$};
+\end{scope}
+
+\begin{scope}[shift={(11.90,0.45)}]
+  \fill[twViolet!10] (0,0) -- (0.66,1.50) -- (-0.66,1.50) -- cycle;
+  \draw[rayout] (0,0) -- (0.66,1.50);
+  \draw[rayin] (0,0) -- (-0.66,1.50);
+  \fill[twZincInk] (0,0) circle (1.5pt);
+  \node[below, font=\scriptsize, align=center] at (0,-0.06) {$\infty$ (flat)\\($r_s/r_0 = 0.00$)};
+  \node[above, font=\scriptsize, color=twBlue] at (0.68,1.54) {$+0.98$};
+  \node[above, font=\scriptsize, color=twPink] at (-0.68,1.54) {$-0.98$};
+\end{scope}
+
+% Legend
+\draw[rayout] (4.70,2.74) -- (5.25,2.74) node[right, font=\scriptsize, color=twZincInk] {outgoing null ray $v_r(\mathrm{out})$};
+\draw[rayin] (9.35,2.74) -- (9.90,2.74) node[right, font=\scriptsize, color=twZincInk] {ingoing null ray $v_r(\mathrm{in})$};
+\end{tikzpicture}
+\caption{Gullstrand--Painlev\'e light-cone tipping across the five audited spatially uniform constant-river tangent-space
+regimes of \code{E-GRV-0163} (Table~\ref{tab:gp-walk}, $N_{\mathrm{beats}} = 45$ composite beats). As the prescribed
+river drift increases from $n_{\mathrm{drift}} = 0$ (flat space) to $44$ (horizon) and $53$ (interior), the outgoing
+null ray freezes near $0$ at $r_{\mathrm{areal}} = r_s$ ($+0.00016$) and both rays tilt strictly inward
+($-0.19984, -2.15572$) at $r_{\mathrm{areal}} = 0.6944\, r_s$.}
+\label{fig:gp-lightcones}
+\end{figure}
 
 \begin{table}[htbp]
 \centering
+\caption{Exact pure-\code{BigInt} constant-river Gullstrand--Painlev\'e 1D radial-chain tangent-space benchmark
+(\code{E-GRV-0163}, Tier~B / L2, $N_{\mathrm{beats}} = 45$ composite beats). Maximum deviation against the reference
+\code{Float64} split-step evolution is $1.62 \times 10^{-5}$. All zero norm, reversal, and inner-product residuals hold
+identically in exact \code{BigInt} arithmetic across all 45 beats.}
+\label{tab:gp-walk}
 \small
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{1.4cm}>{\raggedright\arraybackslash}p{2.7cm}>{\raggedright\arraybackslash}p{2.0cm}>{\raggedright\arraybackslash}p{2.0cm}>{\raggedright\arraybackslash}p{1.9cm}>{\raggedright\arraybackslash}X@{}}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{1.2cm}>{\raggedright\arraybackslash}p{2.4cm}>{\raggedright\arraybackslash}p{1.1cm}>{\raggedright\arraybackslash}p{1.8cm}>{\raggedright\arraybackslash}p{1.8cm}>{\raggedright\arraybackslash}p{1.6cm}>{\raggedright\arraybackslash}X@{}}
 \toprule
-$r_s / r_0$ & Regime ($r_{\mathrm{areal}}$) & $v_r(\mathrm{out})$ & $v_r(\mathrm{in})$ & Norm / rev & Exact $\langle \mathrm{out} | \mathrm{in} \rangle$ \\
+$r_s / r_0$ & Regime ($r_{\mathrm{areal}}$) & $n_{\mathrm{drift}}$ & $v_r(\mathrm{out})$ & $v_r(\mathrm{in})$ & Norm / rev & Exact $\langle \mathrm{out} | \mathrm{in} \rangle$ ($45/45$ beats) \\
 \midrule
-$0.00$ & flat space ($\infty$) & $+0.97794$ & $-0.97794$ & \code{0n} / $0$ & \code{(0n, 0n)} ($45/45$ beats) \\
-$0.25$ & exterior ($4.0000\, r_s$) & $+0.48905$ & $-1.46683$ & \code{0n} / $0$ & \code{(0n, 0n)} ($45/45$ beats) \\
-$0.64$ & exterior ($1.5625\, r_s$) & $+0.20016$ & $-1.75572$ & \code{0n} / $0$ & \code{(0n, 0n)} ($45/45$ beats) \\
-$1.00$ & horizon ($1.0000\, r_s$) & $+0.00016$ & $-1.95572$ & \code{0n} / $0$ & \code{(0n, 0n)} ($45/45$ beats) \\
-$1.44$ & trapped ($0.6944\, r_s$) & $-0.19984$ & $-2.15572$ & \code{0n} / $0$ & \code{(0n, 0n)} ($45/45$ beats) \\
+$0.00$ & flat space ($\infty$) & $0$ & $+0.97794$ & $-0.97794$ & $0$ / $0$ & $0$ \\
+$0.25$ & exterior ($4.0000\, r_s$) & $22$ & $+0.48905$ & $-1.46683$ & $0$ / $0$ & $0$ \\
+$0.64$ & exterior ($1.5625\, r_s$) & $35$ & $+0.20016$ & $-1.75572$ & $0$ / $0$ & $0$ \\
+$1.00$ & horizon ($1.0000\, r_s$) & $44$ & $+0.00016$ & $-1.95572$ & $0$ / $0$ & $0$ \\
+$1.44$ & trapped ($0.6944\, r_s$) & $53$ & $-0.19984$ & $-2.15572$ & $0$ / $0$ & $0$ \\
 \bottomrule
 \end{tabularx}
-\caption{Exact bijective Gullstrand--Painlev\'e split-step QCA (\code{E-GRV-0163}, Tier~B / L2, $P = 45$ beats) on the
-infinite $\{3,4,3,4\}$ honeycomb. Maximum deviation against the reference \code{Float64} split-step evolution is
-$1.62 \times 10^{-5}$. At $r_{\mathrm{areal}} = 0.6944\, r_s < r_s$, both outgoing and ingoing rays move strictly
-inward while exact \code{BigInt} unitarity, memoryless reversal, and orthogonality hold on every beat.}
-\label{tab:gp-walk}
 \end{table}
 
-Table~\ref{tab:gp-walk} confirms the full horizon-crossing kinematics of both orthogonal polarizations: flat space is
-symmetric, exterior redshift slows the outgoing ray while accelerating the ingoing ray, the horizon freezes the
-outgoing ray while the ingoing ray crosses cleanly, and inside the genuine trapped interior ($r_{\mathrm{areal}} =
-0.6944\, r_s < r_s$) \textbf{both rays move strictly inward}. As an honest boundary, \code{E-GRV-0163} is strictly a
-Tier~B / L2 prescribed-background walk rather than a microscopic derivation of Einstein's equations or Hawking
-evaporation.
+Table~\ref{tab:gp-walk} and Figure~\ref{fig:gp-lightcones} reproduce the local tangent-space light-cone tipping of both
+orthogonal polarizations across all five constant-river regimes: flat space is symmetric, exterior drift slows the
+outgoing ray while accelerating the ingoing ray, the horizon drift ($n_{\mathrm{drift}} = 44$) freezes the outgoing ray
+near zero, and at the trapped-interior drift ($n_{\mathrm{drift}} = 53$, $r_{\mathrm{areal}} = 0.6944\, r_s < r_s$)
+\textbf{both rays move strictly inward} while exact \code{BigInt} unitarity, memoryless reversal, and orthogonality
+hold on every composite beat. As an explicit boundary, \code{E-GRV-0163} is strictly a Tier~B / L2 prescribed
+constant-river radial benchmark rather than a spatially varying horizon crossing or a microscopic derivation of
+Einstein's equations or Hawking evaporation.
 
-Separating Tier~B warped-column and prescribed-background walks from Tier~C continuum GR checks keeps the gravitational
+Separating Tier~B warped-beam and prescribed-background walks from Tier~C continuum GR checks keeps the gravitational
 scope transparent while leaving the dynamical derivation of $w(D) = 1/N_D^2$ and nonlinear 4D curvature open
 (Section~\ref{sec:open}). We turn next to the matter and gauge sector: cusp chirality without fermion doubling,
 zero-temperature confinement, three generations, and grand-unified EFT checks.

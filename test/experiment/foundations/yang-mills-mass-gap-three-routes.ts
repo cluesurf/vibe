@@ -313,7 +313,7 @@ const yangMillsThreeRoutesExperiment = experiment({
         `E-FND-0190 (L2, 100% deterministic, zero RNG): ` +
         `(1) ${s1.honestFlatLimitVerdict} ` +
         `(2) ${s2.honestTomboulisObstruction} ` +
-        `(3) Exact Bakry-Emery Ricci LSI (multi-link plaquette Hessians verified against 4th-order central finite differences to ${maxHessFdErr.toExponential(2)}) proves infinite-volume gap for beta < N^2 / 48 on 4D D_4 and Z^4 (SU(2) = 1/12, SU(3) = 3/16) while breaking down at theta = pi for beta > beta_BE and failing at all beta > 0 for flat U(1), and 4D D_4 kills all O(a^2) rank-4 anisotropy (256/256 isotropic). ` +
+        `(3) Exact Bakry-Emery Ricci+Hessian positivity in Tr(X^dagger Y) (multi-link plaquette Hessians verified against 4th-order central finite differences to ${maxHessFdErr.toExponential(2)}) proves a uniform Log-Sobolev inequality (LSI) / Langevin spectral gap for beta < N^2 / 48 on 4D D_4 and Z^4 (SU(2) = 1/12, SU(3) = 3/16) (implying Euclidean spatial correlation decay via Helffer-Sjostrand 1994 / Combes-Thomas Witten-Laplacian tilting) while breaking down at theta = pi for beta > beta_BE and failing at all beta > 0 for flat U(1), and 4D D_4 kills all O(a^2) rank-4 anisotropy (256/256 isotropic). ` +
         `(4) Open Clay Millennium walls: ${cs.openClayObstructions.join(' | ')}`,
     })
   },

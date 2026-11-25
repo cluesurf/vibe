@@ -1,15 +1,16 @@
-// OPEN PROBLEM #4 (E-FND-0187): TRUE L3 MULTI-SECTOR BRIDGE DIRECTLY ON CACHED EXACT 4D {3,4,3,4}
-// HONEYCOMB BALLS (R = 2, 481 DOCKS, 11,544 SLOTS; R = 3, 8,857 DOCKS, 212,568 SLOTS).
+// OPEN PROBLEM #4 (E-FND-0187): L2 PRESCRIBED-BACKGROUND 4-SECTOR BRIDGE (LEGACY FILENAME RETAINS -l3)
+// DIRECTLY ON CACHED EXACT 4D {3,4,3,4} HONEYCOMB BALLS (R = 2, 481 DOCKS, 11,544 SLOTS; R = 3, 8,857 DOCKS, 212,568 SLOTS).
 //
-// Paper 0018 Section 8 item 4 honestly noted that E-FND-0186 ran the coupled five-sector operator
+// Paper 0018 Section 8 item 4 honestly noted that E-FND-0186 ran the coupled sectors
 // on a 1D+depth cusp reduction (L2) rather than directly on the exact 4D {3,4,3,4} honeycomb ball.
-// Here we lift the coupled multi-sector reversible unitary rule DIRECTLY onto the cached exact 4D
-// {3,4,3,4} honeycomb balls inside the proven zero-frontier-hit causal horizon (t <= R, 0 frontier
-// hits), using the actual 24-slot 4D dock geometry and the O(active slots) slot-sparse state layout
-// of code/rule/sparse-locked-knit.ts:
+// Here we lift the prescribed-background coupled reversible unitary rule (legacy symbol U_L3; graded L2
+// because Phi and A are static prescribed backgrounds rather than self-consistent many-body backreaction)
+// DIRECTLY onto the cached exact 4D {3,4,3,4} honeycomb balls inside the proven zero-frontier-hit causal
+// horizon (t <= R, 0 frontier hits), using the actual 24-slot 4D dock geometry and the O(active slots)
+// slot-sparse state layout of code/rule/sparse-locked-knit.ts:
 //
-//   U_L3(t) = S_4D * U_grav(Phi) * U_gauge(A) * W_ODD * D_coin * M_pair(zeta_18)
-//             * K_collide(t) * M_meet * D_coin * W_ODD
+//   U_L2_ball(t) = S_4D * U_grav(Phi) * U_gauge(A) * W_ODD * D_coin * M_pair(zeta_18)
+//                  * K_collide(t) * M_meet * D_coin * W_ODD
 //
 // Sectors active simultaneously inside one live reversible unitary state on the exact 4D balls:
 //   1. Exact 4D {3,4,3,4} geometry + cusp depth D(dock) and 3D husk coordinate x(dock) via
@@ -18,7 +19,7 @@
 //      (G_eff = 0.07859254, c_universal = 0.977925) localized at a cusp-layer source dock x_src.
 //   3. Exact Z_3-center gauge link phases U_e = omega^(a_e) in Z[omega] subset Z[zeta_9][1/6]
 //      carrying nonzero gauge-invariant magnetic flux on the actual 4D octahedral-face 4-cycles
-//      (ridges) of {3,4,3,4}, with exact local Z_3 gauge covariance G U_L3(A) G^dag = U_L3(A')
+//      (ridges) of {3,4,3,4}, with exact local Z_3 gauge covariance G U(A) G^dag = U(A')
 //      across all 8,857 docks of R = 3 and all 481 docks of R = 2.
 //   4. W(F4)-isotropic Pair-Line Mixer M_pair(zeta_18) in Z[zeta_9][1/6] breaking the 1D line law
 //      directly on the 8,857-dock 4D honeycomb (12/12 lines, 24/24 neighbor docks reached).
@@ -26,7 +27,7 @@
 //      producing exact nonzero local C-asymmetry across distinct-chi_odd branches (slots [0,1,4,10])
 //      while preserving exact global CP balance across the coupled 4D ball.
 //
-// Scales verified inside one unified L3 engine:
+// Scales verified inside one L2 prescribed-background 4D ball bridge:
 //   - Scale 0: V1 peace vacuum on all 8,857 docks (212,568 slots) of R = 3 (exact fixed point).
 //   - Scale 1: Lone vibe + Z_3 gauge + 1/N_D^2 gravity on R = 3, t = 1..3 (0 frontier hits).
 //   - Scale 2: 2-vibe M_pair(zeta_18) + Z_3 gauge + gravity on R = 3, t = 1..3 (0 frontier hits).
@@ -1910,6 +1911,8 @@ export function runHoneycombBallCoupledL3(): HoneycombBallCoupledL3Result {
 
   // 1. Load cached exact 4D {3,4,3,4} honeycomb balls (R = 2, 481 docks; R = 3, 8,857 docks)
   //    and map every dock onto its exact cusp depth D(dock) and 3D husk coordinate x(dock)
+  // Note: period: 2 is used solely for the coordinate chart helper (cusp.chart) to assign D(dock) and x(dock);
+  // it never aliases the exact R = 2, 3 ball neighbor links or G_eff (which comes from canonical buildWarpedGravityTable).
   const cusp = buildExactCusp({ period: 2, floor: 3 })
   const cell = exactCell()
   const geomR2 = buildBallCuspGeometry(2, cusp, cell)

@@ -37,7 +37,7 @@
 //   3. Exact discrete-time unitary wave evolution & symplectic leapfrog:
 //      Both the 1-beat unitary wave propagator U_warp(k) = exp(-i H_1st(k)) and the CFL-stable
 //      discrete-time symplectic leapfrog U_leap(k) preserve unitarity and norm/energy to <= 1e-14,
-//      satisfy strict causality c_universal = 0.9869... < 1 dock/beat, and match E-GRV-0157's static
+//      satisfy strict causality c_universal = 0.977925... < 1 dock/beat (canonical single-face K_eff = 1.012532), and match E-GRV-0157's static
 //      Riccati stiffness K_eff to <= 1e-14.
 //
 // DETERMINISM: zero random numbers; pure deterministic floating-point linear algebra.

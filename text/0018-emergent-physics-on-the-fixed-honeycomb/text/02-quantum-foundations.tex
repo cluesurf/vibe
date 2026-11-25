@@ -4,54 +4,82 @@
 Can a deterministic cellular automaton whose amplitudes belong strictly to a discrete cyclotomic ring reproduce
 universal single-qubit interference, satisfy the algebraic symmetry prerequisites compatible with Born probabilities,
 and exhibit multipartite pointer decoherence and Bell violation without signaling? This section audits those three
-foundational questions across six registered experiments (\code{E-QTM-0202} through \code{E-QTM-0207}), separating bare
-Tier~A honeycomb theorems from Tier~B finite-qubit benchmarks.
+foundational questions across six registered experiments (\coderange{E-QTM-0202}{0207}), separating bare Tier~A
+honeycomb theorems from Tier~B / L1 finite-qubit and gate-synthesis benchmarks.
 
 \paragraph{Key findings.}
-Two conjugates of the bare $\mathbb{Z}[\omega][1/2]$ coin generate a provably dense subgroup of $SU(2)$ via an
-elementary 2-adic parity proof (\code{E-QTM-0204}), the bare rule satisfies exact $\mathbb{Z}_6$ phase and $S_4$ swap
-envariance prerequisites on $\{3,4,3,4\}$ under operationally posited Born weights (\code{E-QTM-0205}), and explicit
-multi-qubit partial traces verify pointer decoherence and non-signaling record-branch CHSH violation ($2.8258$,
-\code{E-QTM-0206}), while ballistic open-line propagation stalls just below Tsirelson's bound (\code{E-QTM-0202}).
+Composing the bare $\mathbb{Z}[\omega][1/2]$ coin $C$ with the $\Sigma(648)$ phase gate $P_\omega$ yields two
+conjugates $W_1, W_2 \in SU(2)$ whose algebraic 2-adic infinite-order and $\operatorname{Pin}(2)$-exclusion hypotheses
+are machine-checked in Lean~4.35.0, implying density in $SU(2)$ (\code{E-QTM-0204}, \code{E-FND-0185}). Explicit
+bipartite state-vector arithmetic verifies exact $\mathbb{Z}_6 \times \mathbb{Z}_6$ phase envariance and (with the
+$\Sigma(648)$ qutrit Fourier gate $F_3$) exact $S_4$ swap envariance under operationally posited Born weights
+(\code{E-QTM-0205}). Standalone L1 multi-qubit circuit benchmarks verify pointer decoherence and non-signaling
+record-branch CHSH violation ($2.8258$, \code{E-QTM-0206}), while ballistic open-line propagation on the honeycomb
+stalls just below Tsirelson's bound (\code{E-QTM-0202}).
 
 \subsection{Causal window and 2-adic \texorpdfstring{$SU(2)$}{SU(2)} gate density}
 
-Before analyzing interference gates, \code{E-QTM-0203} (Tier~A) verifies exact causal-window agreement between a
-periodic flat $D_4$ box and the true $R = 3$ $\{3,4,3,4\}$ honeycomb ball inside the horizon $m + 2t \le L$. Through
-beat~3, both substrates agree identically while neutral-slot remainders leave occupied amplitudes unchanged.
+Before analyzing interference gates, \code{E-QTM-0203} (Tier~A / L2) performs a 1D geodesic causal-window sanity check
+comparing a single lone excitation evolved by the bare coin $C$ along one antipodal line on a periodic flat $D_4$ box
+(side length $L = 8$, initial support diameter $m = 1$) and on the true $R = 3$ $\{3,4,3,4\}$ honeycomb ball. Inside
+the causal horizon $m + 2t \le L$ (through beat $t = 3 \le R$), both substrates agree to exact $0$ with beat-3 quantum
+interference difference $L_1 = 0.5625$ against the dephased classical walk, confirming that finite-ball boundaries do
+not disturb single-line interference before horizon crossing.
 
-Within this discrete rule, composing the single-excitation coin $C$ of Equation~\eqref{eq:coin} with the qutrit phase
-gate $P_\omega = \operatorname{diag}(1, \omega)$ produces one special-unitary two-mode generator inside
-$\mathbb{Z}[\omega][1/2]$:
+On a single excitation in the bare Tier~A rule $U$, all multi-body layers are silent so bare single-excitation
+evolution alone generates only the order-6 cyclic group $\langle C \rangle$. Composing the bare coin $C$ of
+Equation~\eqref{eq:coin} with the diagonal phase gate $P_\omega = \operatorname{diag}(1, \omega)$ drawn from the
+Tier~B $\Sigma(648)$ qutrit Clifford and link-phase alphabet (and likewise $P_{\zeta_9} = \operatorname{diag}(1, \zeta_9)$
+in $\Sigma(648)$) produces one special-unitary two-mode generator inside $\mathbb{Z}[\omega][1/2]$:
 \begin{equation}
-W = \omega^2\, C\, \operatorname{diag}(1, \omega)
+W_1 = \omega^2\, C\, P_\omega
   = \frac{1}{2}\begin{pmatrix} -\omega & 1 - \omega \\ -2 - \omega & 1 + \omega \end{pmatrix} \in SU(2),
 \label{eq:su2-gen}
 \end{equation}
-which has exact $\det W = 1$ and $\operatorname{Tr}(W) = 1/2$ (rotation half-angle $\cos\theta = 1/4$). An elementary
-parity argument proves that two conjugates of $W$ already generate a dense subgroup of $SU(2)$ without invoking
-transcendental number theory.
+which has exact $\det W_1 = 1$ and $\operatorname{Tr}(W_1) = 1/2$ (rotation half-angle $\cos\theta = 1/4$). An
+elementary parity argument proves that $W_1$ and its conjugate $W_2 = P_\omega W_1 P_\omega^\dagger$ already generate
+a dense subgroup of $SU(2)$ without invoking transcendental number theory.
 
+\needspace{7\baselineskip}
 \begin{theorem}[2-adic $SU(2)$ density, \code{E-QTM-0204}, \code{E-FND-0185}]
-Set $M = 2W \in \mathrm{Mat}_2(\mathbb{Z}[\omega])$ and $W_2 = P_\omega W P_\omega^\dagger$. Then:
+Set $M = 2 W_1 \in \mathrm{Mat}_2(\mathbb{Z}[\omega])$ and $W_2 = P_\omega W_1 P_\omega^\dagger$. Then:
 \begin{enumerate}
 \item $M$ obeys the exact Cayley--Hamilton identity $M^2 = M - 4I$, so the integer trace sequence
-$s_n = 2^n \operatorname{Tr}(W^n) = \operatorname{Tr}(M^n)$ satisfies $s_0 = 2$, $s_1 = 1$, and
-$s_{n+2} = s_{n+1} - 4s_n$ for all $n \ge 0$.
-\item By induction, $s_n \equiv 1 \pmod 2$ for every $n \ge 1$. Because $W^n = \pm I$ implies
-$s_n = \pm 2^{n+1} \equiv 0 \pmod 2$, one has $W^n \neq \pm I$ for all $n \ge 1$ in both $SU(2)$ and
+$s_n = 2^n \operatorname{Tr}(W_1^n) = \operatorname{Tr}(M^n)$ satisfies
+\[
+s_0 = 2, \qquad s_1 = 1, \qquad s_{n+2} = s_{n+1} - 4 s_n \qquad (n \ge 0).
+\]
+\item By induction, $s_n \equiv 1 \pmod 2$ for every $n \ge 1$. Because $W_1^n = \pm I$ implies
+$s_n = \pm 2^{n+1} \equiv 0 \pmod 2$, one has $W_1^n \neq \pm I$ for all $n \ge 1$ in both $SU(2)$ and
 $PSU(2) \cong SO(3)$.
-\item The conjugate $W_2$ does not commute with $W$, with exact Frobenius commutator norm squared
-$\|[W, W_2]\|_F^2 = 27/4$, and satisfies $W_2 W \neq W^\dagger W_2$, excluding every abelian $U(1)$ and normalizer
-$\operatorname{Pin}(2)$ subgroup.
+\item The conjugate $W_2$ does not commute with $W_1$, with exact Frobenius commutator norm squared
+$\|[W_1, W_2]\|_F^2 = 27/4$, and satisfies $W_2 W_1 \neq W_1^\dagger W_2$, excluding every abelian $U(1)$ and
+normalizer $\operatorname{Pin}(2)$ subgroup.
 \end{enumerate}
-Therefore $\langle W, W_2 \rangle$ is dense in $SU(2)$.
+Because any closed subgroup of $SU(2)$ containing an infinite-order element has identity component either $SU(2)$ or a
+maximal torus $U(1)$ whose normalizer is $\operatorname{Pin}(2)$ (acting on $U(1)$ only by $W_1 \mapsto W_1^{\pm 1}$),
+the topological closure satisfies $\overline{\langle W_1, W_2 \rangle} = SU(2)$.
 \end{theorem}
 
-Every step of this 2-adic proof is machine-checked in Lean~4.35.0 (\code{Vibe/Rule.lean}, Section~\ref{sec:unified}).
-Short rule words of length $L = 14$ already approach unit Hong--Ou--Mandel (HOM) two-particle quantum interference
-visibility \cite{hong1987}, while a 3-step path-and-role splitter achieves an exact balanced $1/2 = 1/4 + 1/4$ split
-directly inside $\mathbb{Z}[\omega][1/2]$ (Table~\ref{tab:quantum-a}).
+Every algebraic step of items~(1)--(3) (the Cayley--Hamilton recurrence, 2-adic oddness, infinite order in $SU(2)$ and
+$PSU(2)$, non-commutativity, and $\operatorname{Pin}(2)$ exclusion) is machine-checked in Lean~4.35.0
+(\code{Vibe/Rule.lean}, Section~\ref{sec:unified}). Topological density in $SU(2)$ then follows from the standard
+closed-subgroup classification of $SU(2)$.
+
+Experiment \code{E-QTM-0204} (graded L1) evaluates these finite-ring gates in two concrete benchmarks
+(Table~\ref{tab:quantum-a}):
+\begin{itemize}[itemsep=2pt]
+\item \textbf{Synthesized beamsplitter proxy:} Length-$\ell_w = 14$ words over $\{C, C_{1/2}, P_\omega\}$
+($\mathbb{Q}(\omega)$) and $\{C, C_{1/2}, P_\omega, P_{\zeta_9}\}$ ($\Sigma(648)$) approach unity under the abstract
+two-mode balance formula $\mathcal{V}_{\mathrm{BS}} = 1 - |\operatorname{perm}(U)|^2 / (|U_{00}|^4 + |U_{01}|^4)$
+(modeled on the optical Hong--Ou--Mandel permanent \cite{hong1987}, noting that bare hard-core ternary slots exclude
+double bosonic occupation $|2, 0\rangle$).
+\item \textbf{Exact $6 \times 6$ unitary splitter:} On $\mathrm{path}(2) \otimes \mathrm{role}(3)$ in
+$\mathbb{Z}[\omega][1/6]$, the composite circuit $U_{\mathrm{tot}} = U_3 U_2 U_1$ pairs $U_1 = C \otimes I_3$, the
+Tier~B $\Sigma(648)$ qutrit Fourier layer $U_2 = \operatorname{diag}(I_3, Z_3 F_3)$, and the controlled swap
+$U_3$ ($|1,0\rangle \leftrightarrow |0,1\rangle$). Its output $U_{\mathrm{tot}}|0,0\rangle$ reduces into
+$\mathbb{Z}[\omega][1/2]$ with balanced port weights $(1/2, 1/2)$ and error $0$.
+\end{itemize}
 
 \subsection{Operational Born measure and Zurek envariance}
 
@@ -61,87 +89,102 @@ rather than claimed as an unconditional derivation from unitary dynamics alone. 
 entanglement symmetries, whereas assigning frequencies to branches still relies on symmetry and additivity axioms beyond
 bare state-vector evolution.
 
-Within that boundary, \code{E-QTM-0205} (Tier~A) verifies the exact algebraic symmetry prerequisites of Zurek's
-entanglement-assisted invariance (envariance, a symmetry test linking equal-norm entangled branches to equal weights)
-\cite{zurek2005} on the exact $R = 2$ $\{3,4,3,4\}$ honeycomb ball. One beat of the coin and stream maps a single
-excitation to a system-environment Schmidt state (bipartite entangled decomposition pairing system and environment
-branches) with unequal squared weights $(3/4, 1/4)$, zero frontier hits, and zero norm error.
+Within that boundary, \code{E-QTM-0205} (Tier~A / L2 for the bare ball beat, with Tier~B $\Sigma(648)$ fine-graining)
+verifies the algebraic symmetry prerequisites of Zurek's entanglement-assisted invariance (envariance) \cite{zurek2005}
+via explicit bipartite state vectors on $\mathcal{H}_S \otimes \mathcal{H}_E$. One beat of the bare coin and stream on
+the exact $R = 2$ $\{3,4,3,4\}$ honeycomb ball prepares a 4-component bipartite state
+$|\Psi_2\rangle \in \mathcal{H}_S^{(2)} \otimes \mathcal{H}_E^{(2)}$ with unequal squared Schmidt weights $(3/4, 1/4)$,
+zero frontier hits, and zero norm error. Entry-by-entry state-vector multiplication confirms all $36/36$ exact
+$\mathbb{Z}_6 \times \mathbb{Z}_6$ unitary phase pairs $U_S(p_0, p_1) \otimes U_E(-p_0, -p_1)$ leave $|\Psi_2\rangle$
+invariant.
 
-Two exact algebraic symmetries hold directly in $\mathbb{Z}[\omega][1/2]$. Every local $\mathbb{Z}_6$ phase rotation on
-the system is reversed identically by a counter-rotation on the environment (phase envariance), and because the ring
-satisfies
+Because the Eisenstein ring satisfies
 \begin{equation}
 \frac{1 - \omega}{2(1 + 2\omega)} = -\frac{1 + \omega}{2} \in \mathbb{Z}[\omega][1/2],
 \label{eq:envariance-split}
 \end{equation}
-a rule-native qutrit Clifford fine-graining splits the $3/4$ crossing branch into three orthogonal equal-norm
-environment branches of weight $1/4$ each. Exact $S_4$ swap envariance across the resulting four equal-amplitude
-branches links permutation symmetry directly to $P(\text{cross}) = 3/4$ and $P(\text{keep}) = 1/4$, with all numerical
-certificates listed in Table~\ref{tab:quantum-a}.
+applying the actual $6 \times 6$ $\Sigma(648)$ fine-graining unitary $\operatorname{diag}(I_3, Z_3 F_3)$ on
+$\mathrm{path}(2) \otimes \mathrm{role}(3)$ (explicitly noted as a Tier~B role-register extension beyond bare
+single-excitation $U$) together with controlled environment-role entanglement maps $|\Psi_2\rangle$ to a 36-component
+bipartite state $|\Psi_4\rangle \in \mathcal{H}_S^{(6)} \otimes \mathcal{H}_E^{(6)}$ whose amplitudes reduce exactly
+into $\mathbb{Z}[\omega][1/2]$ with four equal squared moduli $(1/4, 1/4, 1/4, 1/4)$. All $24/24$ explicit $6 \times 6$
+$S_4$ swap-and-phase unitaries $U_S(\pi) \otimes U_E(\pi)$ are verified entry-by-entry on $|\Psi_4\rangle$, linking
+equal-modulus branch counts $(3, 1)$ directly to $\Pr(\text{cross}) = 3/4$ and $\Pr(\text{keep}) = 1/4$
+(Table~\ref{tab:quantum-a}).
 
 \begin{table}[htbp]
 \centering
+\caption{Causal window, algebraic 2-adic $SU(2)$ gate-density hypotheses, beamsplitter proxy, and explicit bipartite
+algebraic envariance prerequisites (\coderange{E-QTM-0203}{0205}, \code{E-FND-0185}).}
+\label{tab:quantum-a}
 \small
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}p{2.5cm}>{\raggedright\arraybackslash\hsize=1.25\hsize}X>{\raggedright\arraybackslash\hsize=0.75\hsize}X@{}}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}p{2.4cm}>{\raggedright\arraybackslash\hsize=1.25\hsize}X>{\raggedright\arraybackslash\hsize=0.75\hsize}X@{}}
 \toprule
-Code (Tier~A) & Test & Exact measurement & Control / note \\
+Code & Test (depth) & Exact measurement & Control / note \\
 \midrule
-\code{E-QTM-0203} & box vs $R = 3$ ball & exact $0$ difference inside $m + 2t \le L$, beat-3 interference $L_1 = 0.5625$ & coin-off control: $0$, neutral shift: $0$ \\
+\code{E-QTM-0203} & 1D box vs $R = 3$ ball (A / L2) & exact $0$ difference inside $m + 2t \le L$ ($m = 1, L = 8$), beat-3 interference $L_1 = 0.5625$ & coin-off control: $0$ (1D geodesic sanity check) \\
 \addlinespace[4pt]
-\code{E-QTM-0204} & 2-adic $SU(2)$ density & $s_n \equiv 1 \pmod 2$, $\|[W,W_2]\|_F = 2.5981$, HOM $V = 0.9999924$ ($\mathbb{Q}(\omega)$) and $0.9999996$ ($\Sigma(648)$) & 3-step exact $1/2 = 1/4 + 1/4$ split (err $0$) \\
+\code{E-QTM-0204}, \code{E-FND-0185} & 2-adic $SU(2)$ & $s_n \equiv 1 \pmod 2$ (\code{0185}), $\|[W_1,W_2]\|_F = 2.5981$, beamsplitter $\mathcal{V}_{\mathrm{BS}} = 0.9999924$ ($\mathbb{Q}(\omega)$) and $0.9999996$ ($\Sigma(648)$) at $\ell_w = 14$ & exact $6 \times 6$ unitary $\mathrm{path}\otimes\mathrm{role}$ circuit gives $(1/2, 1/2)$ (err $0$, L1) \\
 \addlinespace[4pt]
-\code{E-QTM-0205} & algebraic envariance & $36/36$ $\mathbb{Z}_6$ phase and $24/24$ $S_4$ swap envariance on $R = 2$ ball, dyadic-4 err $1.94 \times 10^{-3}$ & operational Born measure posited \\
+\code{E-QTM-0205} & bipartite envariance (A / L2 + $F_3$) & explicit $\mathcal{H}_S \otimes \mathcal{H}_E$ vectors: $36/36$ $\mathbb{Z}_6 \times \mathbb{Z}_6$ phase and $24/24$ $S_4$ swap unitaries exact, $(3, 1)$ branches give $(3/4, 1/4)$ & $R = 2$ ball beat exact, $F_3 \in \Sigma(648)$ Tier~B, Born measure posited \\
 \bottomrule
 \end{tabularx}
-\caption{Tier~A honeycomb causal window, 2-adic $SU(2)$ gate density, and algebraic envariance prerequisites
-(\code{E-QTM-0203}--\code{0205}).}
-\label{tab:quantum-a}
 \end{table}
 
 \subsection{Pointer decoherence, Bell tests, and line separation}
 
-To test whether unitary record copying induces pointer decoherence, Quantum Darwinism redundancy (redundant storage of
-pointer states across independent environment fragments) \cite{zurek2009}, and Clauser--Horne--Shimony--Holt (CHSH)
-Bell violation (a correlation bound separating entanglement from local hidden variables) \cite{clauser1969} without
-signaling, \code{E-QTM-0206} (Tier~B / L1) evolves explicit multi-qubit state vectors with full partial traces and a
-real Hermitian eigensolver under $L = 14$ $\Sigma(648)$ rule-word analyzers. Four disjoint environment copies suppress
-off-diagonal pointer coherence cleanly to zero, imprint one full bit of mutual information per fragment, and violate
-the classical CHSH bound well beyond 2 with machine-zero signaling drift.
+To test whether synthesized ring-word analyzers reproduce pointer decoherence, Quantum Darwinism redundancy
+\cite{zurek2009}, and Clauser--Horne--Shimony--Holt (CHSH) Bell violation \cite{clauser1969, tsirelson1980} without
+signaling on finite registers, \code{E-QTM-0206} (Tier~B / L1) runs standalone multi-qubit circuit benchmarks (zero
+honeycomb dynamics) using explicit partial traces and a real Hermitian eigensolver under $\ell_w = 14$ $\Sigma(648)$
+synthesized analyzer words. Four disjoint environment copies suppress off-diagonal pointer coherence to zero, imprint
+one full bit of mutual information per fragment, and violate the classical CHSH bound well beyond $2$ with machine-zero
+signaling drift.
 
-By contrast, \code{E-QTM-0202} (Tier~A, registered failure) reveals a genuine dynamical boundary on an open
-non-wrapping line: although unitarity holds tightly and beat~1 reaches $\sqrt{7}$, ballistic spatial separation stalls
-open-line CHSH slightly short of Tsirelson's bound $2\sqrt{2}$ across long runs. Separating algebraic gate synthesis
-from ballistic propagation, \code{E-QTM-0207} (Tier~B / L1) benchmarks a reversible brickwork scrambler, the bosonic
-Bogoliubov thermal identity, and exact \code{BigInt} meet-in-the-middle (MITM) $SU(2)$ word synthesis on a prepared
-singlet. As a standalone L1 benchmark, \code{E-QTM-0207} does not close either dynamical open-line ballistic separation
-(\code{E-QTM-0202}) or bounded-clock horizon radiation (\code{E-GRV-0134}). Table~\ref{tab:quantum-b} collects all
-record-branch, open-line, and L1 benchmark metrics.
+By contrast, \code{E-QTM-0202} (Tier~A / L2, registered failure) reveals an explicit dynamical boundary on an open
+non-wrapping honeycomb line. Partitioning a two-excitation state by particle order ($k_1 < k_2$, leftmost versus
+rightmost particle) and evaluating the nonlocal Gisin--Peres multi-mode Schmidt CHSH upper bound shows that beat~1
+reaches the Horodecki ceiling $\sqrt{7} = 2\sqrt{1 + 3/4} \approx 2.6458$, whereas long ballistic separation
+($t = 32, 64, 128, 256$) stalls at $2.8273$--$2.8278$, roughly $7 \times 10^{-4}$ below Tsirelson's bound
+$2\sqrt{2} \approx 2.8284$ \cite{tsirelson1980}. An auxiliary abstract-singlet direction search in \code{E-QTM-0202}
+shows that constructive Eisenstein-triple directions in $\mathbb{Z}[\omega][1/6]$ reach $11/4 = 2.75 > \sqrt{7}$ on an
+ideal singlet without closing the open-line dynamical stall.
+
+Separating algebraic gate synthesis from ballistic honeycomb propagation, \code{E-QTM-0207} (Tier~B / L1) runs two
+standalone finite-register benchmarks (zero honeycomb dynamics): a reversible $N = 10$ brickwork scrambler approaching
+the Page subsystem entropy peak \cite{page1993} while maintaining near-zero global von Neumann entropy
+$S_{\mathrm{vN}}$, and exact \code{BigInt} meet-in-the-middle (MITM) $SU(2)$ word synthesis ($\ell_w = 6, \ldots, 22$)
+measuring a prepared textbook singlet to $4.87 \times 10^{-10}$ below $2\sqrt{2}$. As a standalone L1 benchmark,
+\code{E-QTM-0207} does not close either dynamical open-line ballistic separation (\code{E-QTM-0202}) or bounded-clock
+horizon radiation (\code{E-GRV-0134}). Table~\ref{tab:quantum-b} collects all record-branch, open-line, and L1
+benchmark metrics.
 
 \begin{table}[htbp]
 \centering
+\caption{Standalone L1 multi-qubit pointer decoherence, record-branch Bell correlations, open-line ballistic CHSH
+stall, and gate-synthesis benchmarks (\code{E-QTM-0202}, \code{E-QTM-0206}, \code{E-QTM-0207}).}
+\label{tab:quantum-b}
 \small
 \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}p{1.3cm}>{\raggedright\arraybackslash}p{2.5cm}>{\raggedright\arraybackslash\hsize=1.25\hsize}X>{\raggedright\arraybackslash\hsize=0.75\hsize}X@{}}
 \toprule
 Code & Tier & Observable & Verified measurement & Control / boundary \\
 \midrule
-\code{E-QTM-0206} & B (L1) & $(1+4)$-qubit decoherence & $|\rho_{01}(4)| = 0$, partial-copy curve $[1, 0.5, 0.25, 0.125, 0.0625]$ ($2.22 \times 10^{-16}$), $I(S:F_j) = 1.000000$, $R_{0.01} = 4$ & exact Hermitian partial trace \\
+\code{E-QTM-0206} & B (L1) & $(1+4)$-qubit decoherence & $|\rho_{01}(4)| = 0$, partial-copy curve $[1, 0.5, 0.25, 0.125, 0.0625]$ ($2.22 \times 10^{-16}$), $I(S:F_j) = 1.000000$, $R_{0.01} = 4$ & L1 circuit benchmark, exact Hermitian partial trace \\
 \addlinespace[4pt]
-\code{E-QTM-0206} & B (L1) & $(2+8)$-qubit record CHSH & $\mathrm{CHSH}_{\mathrm{record}} = 2.825774$, consensus err $0$, no-signaling drift $3.33 \times 10^{-16}$ & dephased control: $1.421875 \le 2.0$ \\
+\code{E-QTM-0206} & B (L1) & $(2+8)$-qubit record CHSH & $\mathrm{CHSH}_{\mathrm{record}} = 2.825774$, consensus err $0$, no-signaling drift $3.33 \times 10^{-16}$ & dephased control: $1.421875 \le 2.0$, L1 circuit \\
 \addlinespace[4pt]
-\code{E-QTM-0202} & A (L2) & open-line ballistic CHSH & registered fail: $t = 32..256$ stalls at $2.8273, 2.8278, 2.8274, 2.8277$ ($7 \times 10^{-4}$ below $2\sqrt{2}$) & off-$x$-$z$ triple hits $11/4 = 2.75$, norm $2.69 \times 10^{-14}$ \\
+\code{E-QTM-0202} & A (L2) & open-line Schmidt CHSH & registered fail: left/right Gisin--Peres upper bound at $t = 32, 64, 128, 256$ stalls at $2.8273, 2.8278, 2.8274, 2.8277$ ($7 \times 10^{-4}$ below $2\sqrt{2}$) & beat-1 $\sqrt{7}$, abstract-singlet Eisenstein triple $11/4 = 2.75$, norm $2.69 \times 10^{-14}$ \\
 \addlinespace[4pt]
-\code{E-QTM-0207} & B (L1) & $N=10$ scrambler & Page peak $4.2480$ (vs $4.2787$), global $S \le 4.15 \times 10^{-14}$, $U^\dagger$ rev $2.96 \times 10^{-14}$ & identity control: $0$ \\
+\code{E-QTM-0207} & B (L1) & $N=10$ scrambler & Page peak $S_{\mathrm{vN}} = 4.2480$ (vs $4.2787$), global $S_{\mathrm{vN}} \le 4.15 \times 10^{-14}$, $U^\dagger$ rev $2.96 \times 10^{-14}$ & identity control: $0$, L1 register benchmark \\
 \addlinespace[4pt]
-\code{E-QTM-0207} & B (L1) & Bogoliubov \& MITM CHSH & thermal identity err $2.44 \times 10^{-15}$, MITM ($L=6..22$) CHSH $2.828427124$ (gap $4.87 \times 10^{-10}$) & dephased $1.414441$, L1 benchmark only \\
+\code{E-QTM-0207} & B (L1) & MITM singlet CHSH & synthesized words ($\ell_w = 6, \ldots, 22$) reach $\mathrm{CHSH} = 2.828427124$ (gap $4.87 \times 10^{-10}$) & dephased $1.414441$, L1 gate-synthesis benchmark only \\
 \bottomrule
 \end{tabularx}
-\caption{Pointer decoherence, record-branch Bell correlations, open-line ballistic stall, and standalone L1 benchmarks
-(\code{E-QTM-0202}, \code{E-QTM-0206}, \code{E-QTM-0207}).}
-\label{tab:quantum-b}
 \end{table}
 
-Pure integer cyclotomic arithmetic in $\mathbb{Z}[\omega][1/2]$ thus generates a provably dense subgroup of $SU(2)$,
-meets exact algebraic envariance prerequisites on $\{3,4,3,4\}$, and supports non-signaling record-branch Bell
-violation, while keeping the operational Born postulate and open-line ballistic Tsirelson convergence cleanly marked.
-We turn next from local quantum interference to three-dimensional rotational isotropy, relativistic boost kinematics,
-and species-universal limiting speed across the honeycomb.
+Pure integer cyclotomic arithmetic in $\mathbb{Z}[\omega][1/2]$ (paired with $\Sigma(648)$ phase and Fourier
+generators) thus satisfies the machine-checked algebraic hypotheses for $SU(2)$ density, verifies exact bipartite
+$\mathbb{Z}_6$ and $S_4$ envariance unitaries, and synthesizes non-signaling CHSH analyzers on L1 qubit registers,
+while keeping the operational Born postulate and open-line ballistic Tsirelson convergence explicitly marked. We turn
+next from local quantum interference to three-dimensional rotational isotropy, relativistic boost kinematics, and
+species-universal limiting speed across the honeycomb.

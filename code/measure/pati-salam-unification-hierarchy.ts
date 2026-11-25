@@ -34,12 +34,13 @@
 //     three companion SO(10) Pati-Salam scalar variants for complete scientific transparency.
 //
 //   Part 3 - Honest Bare-Lattice alpha(0) Prediction Test (Zero Numerology):
-//     Computes Vibe Theory's parameter-free {3,4,3,4} Riccati stiffness K_eff = 1.0312370835,
-//     G_eff = 0.07716700, 1/G_eff = 4 pi K_eff = 12.9589, and bare lattice invariant
-//     alpha_lat^{-1} = 4 pi K_eff ln(lambda) = 37.6552 (and 4 pi K_eff ln(b_cusp) = 37.6595).
+//     Computes Vibe Theory's canonical unaliased single-face {3,4,3,4} Riccati stiffness
+//     K_eff = 1.0125321220 (lateral links [1, 4, 20, 100], cumulative 5^D, matching E-GRV-0157 & Vibe/Geometry.lean),
+//     G_eff = 0.07859254, 1/G_eff = 4 pi K_eff = 12.7239, and bare lattice invariant
+//     alpha_lat^{-1} = 4 pi K_eff ln(lambda) = 36.9722 (and 4 pi K_eff ln(b_cusp) = 36.9765).
 //     Runs alpha_lat^{-1} downward through the exact Part 2 2-loop SO(10) -> PS -> SM -> QED chain
 //     to M_Z and q^2 = 0 with zero tuning, compares against PDG 127.951 and CODATA 137.035999177,
-//     demonstrates that unlogged 1/G_eff = 12.9589 hits a QCD Landau pole well above M_Z, and
+//     demonstrates that unlogged 1/G_eff = 12.7239 hits a QCD Landau pole well above M_Z, and
 //     reports transparently what is solved vs what remains open.
 
 import {
@@ -47,7 +48,10 @@ import {
   INVERSE_ALPHA_DELTA,
   warpFactor,
 } from '@/code/measure/coupling-candidates'
-import { EXACT_COLUMN_SHELL_COUNTS } from '@/code/measure/pair-density-gravity-slope'
+import {
+  EXACT_COLUMN_SHELL_COUNTS,
+  singleFaceLateralLinksPerNeighbor,
+} from '@/code/measure/pair-density-gravity-slope'
 import {
   analyzeSo10ThreeGenerations,
   rat,
@@ -944,8 +948,9 @@ function analyzeGeometricHierarchy(
 // ---------------------------------------------------------------------------------------------------------
 // Part 3: Honest Bare-Lattice alpha(0) Prediction Test (Zero Numerology)
 
-// Compute exact {3,4,3,4} pair-density Riccati stiffness K_eff and G_eff = 1 / (4 pi K_eff)
-// identical to pair-density-gravity-slope.ts and electroweak-breaking-alpha.ts
+// Compute canonical unaliased single-face {3,4,3,4} pair-density Riccati stiffness K_eff = 1.01253212
+// and G_eff = 1 / (4 pi K_eff) = 0.07859254, identical to pair-density-gravity-slope.ts (E-GRV-0157)
+// and electroweak-breaking-alpha.ts (E-FRC-0326).
 function computeLatticeKEffGEff(floorF = 24): {
   readonly kEff: number
   readonly gEff: number
@@ -967,7 +972,7 @@ function computeLatticeKEffGEff(floorF = 24): {
   for (let d = 0; d <= floorF; d++) {
     const nd = nShell[d]!
     const nd1 = nShell[d + 1]!
-    const lat = d === 0 ? 1 : d === 1 ? 10 : 8 * 5 ** (d - 1)
+    const lat = singleFaceLateralLinksPerNeighbor(d)
 
     cLat[d] = lat / (nd * nd)
     cVert[d] = 18 / nd1
@@ -1007,14 +1012,14 @@ export type BareLatticeRunEntry = {
 export type BareLatticeAlphaReport = {
   readonly latticeKEff: number
   readonly latticeGEff: number
-  readonly invGEff4PiKEff: number // 12.958907...
-  readonly alphaLatInvLambda: number // 4 pi K_eff ln(lambda) = 37.655175...
-  readonly alphaLatInvCuspB: number // 4 pi K_eff ln(6034/330) = 37.659528...
+  readonly invGEff4PiKEff: number // 12.723854...
+  readonly alphaLatInvLambda: number // 4 pi K_eff ln(lambda) = 36.972213...
+  readonly alphaLatInvCuspB: number // 4 pi K_eff ln(6034/330) = 36.976487...
   readonly primaryMinimalPsRun: BareLatticeRunEntry
   readonly primaryCuspBRun: BareLatticeRunEntry
   readonly georgiJarlskogPsRun: BareLatticeRunEntry
   readonly dParityPsRun: BareLatticeRunEntry
-  // Unlogged 1 / G_eff = 12.9589 1-loop QCD Landau-pole control
+  // Unlogged 1 / G_eff = 12.7239 1-loop QCD Landau-pole control
   readonly invGEffOneLoopAlpha3InvAtMPs: number
   readonly invGEffOneLoopAlpha3InvAtMz: number
   readonly invGEffOneLoopLandauLog10GeV: number
@@ -1112,35 +1117,35 @@ function analyzeBareLatticeAlpha(
   const alphaLatInvCuspB = invGEff4PiKEff * Math.log(cuspB)
 
   const primaryMinimalPsRun = runBareLatticeThroughChain(
-    'alpha_lat(lambda)=37.6552 -> Primary Minimal PS',
+    `alpha_lat(lambda)=${alphaLatInvLambda.toFixed(4)} -> Primary Minimal PS`,
     alphaLatInvLambda,
     primarySol,
     b1Sm,
     b2Sm,
   )
   const primaryCuspBRun = runBareLatticeThroughChain(
-    'alpha_lat(b_cusp)=37.6595 -> Primary Minimal PS',
+    `alpha_lat(b_cusp)=${alphaLatInvCuspB.toFixed(4)} -> Primary Minimal PS`,
     alphaLatInvCuspB,
     primarySol,
     b1Sm,
     b2Sm,
   )
   const georgiJarlskogPsRun = runBareLatticeThroughChain(
-    'alpha_lat(lambda)=37.6552 -> Georgi-Jarlskog PS (+(15,2,2)_R)',
+    `alpha_lat(lambda)=${alphaLatInvLambda.toFixed(4)} -> Georgi-Jarlskog PS (+(15,2,2)_R)`,
     alphaLatInvLambda,
     gjSol,
     b1Sm,
     b2Sm,
   )
   const dParityPsRun = runBareLatticeThroughChain(
-    'alpha_lat(lambda)=37.6552 -> D-parity PS (G_422D)',
+    `alpha_lat(lambda)=${alphaLatInvLambda.toFixed(4)} -> D-parity PS (G_422D)`,
     alphaLatInvLambda,
     dParitySol,
     b1Sm,
     b2Sm,
   )
 
-  // Control: unlogged 1 / G_eff = 4 pi K_eff = 12.9589 at 1-loop (avoids 2-loop 1/0 pole)
+  // Control: unlogged 1 / G_eff = 4 pi K_eff = 12.7239 at 1-loop (avoids 2-loop 1/0 pole)
   // Running DOWN by dt: alpha^{-1}(low) = alpha^{-1}(high) + b * dt / (2 pi) (since b_4C < 0, b_3 < 0)
   const b4C = primarySol.betaCert.b1Num[0]
   const b3Sm = b1Sm[2]

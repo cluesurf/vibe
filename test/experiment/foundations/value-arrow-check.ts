@@ -31,11 +31,12 @@ export default experiment({
       claim:
         `On cached exact R = 2 ball (${res.ballCells} docks, split coin, reversible=${res.reversibleAll ? 1 : 0}, ` +
         `frontierHits=${res.frontierHits}): bare rule keeps exact C-pairing on radiating history ` +
-        `(bare(X1)+bare(C(X1))=${res.bareCPairingSum.toExponential(2)}); adopted ODD breaks C-pairing on the ` +
+        `(bare(X1)+bare(C(X1))=${res.bareCPairingSum.toExponential(2)}); adopted ODD ` +
+        `${g2 ? 'breaks C-pairing' : 'preserves C-pairing (zero asymmetry, gate g2 fail; multi-chi_odd interference required)'} on the ` +
         `non-repeating radiating history (odd(X1)=${res.oddRadX1.toFixed(6)}, odd(C(X1))=${res.oddRadCX1.toFixed(6)}, ` +
         `sum=${res.oddCPairingSum.toFixed(6)}) while keeping exact CP-pairing (sum=${res.oddCPPairingSum.toExponential(2)}); ` +
         `on the period-4 D4 box, 4-beat cycle-mean C-pairing sum is ${res.boxBareCPairingSum.toExponential(2)} (bare) ` +
-        `vs ${res.boxOddCPairingSum.toFixed(6)} (ODD)`,
+        `vs ${res.boxOddCPairingSum.toFixed(6)} (ODD, g3=${g3 ? 1 : 0})`,
       metrics: {
         i0: i0 ? 1 : 0,
         g1: g1 ? 1 : 0,

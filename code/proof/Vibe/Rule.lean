@@ -2,19 +2,27 @@ import Vibe.Tone
 import Vibe.Algebra
 
 /-!
-# Vibe Theory: Core Microscopic Rule Proofs (Theorems 1 to 4)
+# Vibe Theory: Core Microscopic Algebraic & Configuration-Space Proofs (Theorems 1 to 4)
 
-- Theorem 1: Concrete 24-slot `DockState` `V1` eternal stationarity and 1-hop graph-stream causal light cone (`∀ t`).
-- Theorem 2: Exact gate unitarity in `ℤ[ω]`, `ℤ[ζ_9]`, and full `8 × 8` Frame-Grover matrix unitarity.
-- Theorem 3: Elementary 2-adic `SU(2)` and `PSU(2)` infinite order, non-abelian and non-`Pin(2)` density (`∀ n ≥ 1`).
-- Theorem 4: Symbolic `M_pair(u)` exact unitarity, `∀ t` 4D `s`-wave eigenstate, and transverse fixation.
+- Theorem 1: Classical 24-slot configuration-space `DockState` `V1` fixed-point stationarity and 1-hop
+  Lipschitz graph-stream causal light-cone lemmas (`∀ t`, for arbitrary local dock maps fixing `v1Dock`;
+  quantum `|V_1⟩` invariance under the full multi-layer QCA is verified in exact `BigInt` in `E-RLT-0122`
+  and `E-FND-0185`).
+- Theorem 2: Exact local gate-matrix and scalar unitarity in `ℤ[ω]` and `ℤ[ζ_9]` (`2 × 2` `C` and `D`,
+  full `8 × 8` Frame-Grover `F-G`, unit-modulus phase scalar `|ζ_6^n|^2 = 1` entering `Φ_odd`, and
+  `12 × 12` `M_pair(ζ_18)`; the composite multi-layer QCA `U` on `{3,4,3,4}` Fock space is verified in
+  exact `BigInt` rather than formalized globally here).
+- Theorem 3: Elementary algebraic 2-adic `SU(2)` and `PSU(2)` infinite-order, non-commutativity, and
+  non-`Pin(2)` hypotheses in `Mat2Eis` (`∀ n ≥ 1`; topological density in `SU(2)` follows externally via
+  the standard closed-subgroup classification of `SU(2)`).
+- Theorem 4: Symbolic `12 × 12` `M_pair(u)` exact unitarity, `∀ t` 4D `s`-wave eigenstate, and transverse fixation.
 -/
 
 set_option autoImplicit false
 
 namespace Vibe
 
-/-! ## Theorem 1: Concrete 24-Slot `DockState` `V1` Stationarity & 1-Hop Causal Light Cone (`∀ t`) -/
+/-! ## Theorem 1: Classical 24-Slot `DockState` `V1` Fixed-Point & 1-Hop Causal Light-Cone Skeleton (`∀ t`) -/
 
 /-- Lattice configuration assigning a concrete 24-slot `DockState` to every lattice site. -/
 abbrev LatticeState := Nat → DockState
@@ -47,9 +55,11 @@ private theorem applyLocalGate_fixes_v1 (g : DockState → DockState) (hg : g v1
   funext x
   exact hg
 
-/-- Theorem 1a: Concrete 24-slot `V1` eternal stationarity (`∀ t : Nat`): whenever the four
-    local dock layers fix `v1Dock`, iterating the composite four-layer + 24-port graph-stream
-    rule preserves `v1Lattice` and exact zero charge `dockCharge = 0` at every site for ALL `t`. -/
+/-- Theorem 1a: Classical 24-slot configuration-space `V1` fixed-point stationarity (`∀ t : Nat`):
+    for any four uninterpreted classical dock maps fixing the all-zero state `v1Dock`, iterating the
+    composite four-layer + 24-port graph-stream step preserves `v1Lattice` and exact zero charge
+    `dockCharge = 0` at every site for ALL `t`. (Quantum Fock-space `|V_1⟩` invariance under the full
+    multi-layer QCA is verified in exact `BigInt` in `test/universe.ts` and `E-FND-0185`.) -/
 theorem thm1_v1_eternal_stationarity
     (gBare gFG gMPair gODD : DockState → DockState)
     (nbr : Nat → Fin 24 → Nat) (port : Fin 24 → Fin 24)
@@ -77,10 +87,10 @@ theorem thm1_v1_eternal_stationarity
   rw [hIter t]
   exact dockCharge_v1
 
-/-- Theorem 1b: Concrete 1-hop graph-stream causal light cone (`∀ t : Nat`):
-    for ANY graph distance `dist` obeying the 1-hop neighbor bound `dist x ≤ dist (nbr x i) + 1`,
-    ANY local dock gate `g` fixing `v1Dock`, and ANY initial state `psi0` calm outside `R0`,
-    every site at distance `> R0 + t` remains strictly `v1Dock` with exact zero charge for ALL `t`. -/
+/-- Theorem 1b: Classical 1-hop graph-stream causal light-cone skeleton (`∀ t : Nat`):
+    for ANY graph distance `dist` obeying the 1-hop Lipschitz neighbor bound `dist x ≤ dist (nbr x i) + 1`,
+    ANY classical local dock map `g` fixing `v1Dock`, and ANY initial `LatticeState` `psi0` equal to `v1Dock`
+    outside `R0`, every site at distance `> R0 + t` remains strictly `v1Dock` with exact zero charge for ALL `t`. -/
 theorem thm1_light_cone_empty_outside
     (g : DockState → DockState) (hg : g v1Dock = v1Dock)
     (nbr : Nat → Fin 24 → Nat) (port : Fin 24 → Fin 24)
@@ -112,7 +122,7 @@ theorem thm1_light_cone_empty_outside
   exact ⟨hDock, by rw [hDock]; exact dockCharge_v1⟩
 
 
-/-! ## Theorem 2: Exact Unitarity, Reversibility & Full `8 × 8` Frame-Grover Matrix Unitarity -/
+/-! ## Theorem 2: Local Gate-Matrix & Scalar Unitarity (`C`, `D`, `8 × 8` `F-G`, `ζ_6^n`, `M_pair(ζ_18)`) -/
 
 /-- A reversible, norm-preserving discrete unitary evolution step on a state space `H`. -/
 structure UnitaryStep (H : Type) (Norm : Type) where
@@ -201,7 +211,9 @@ theorem thm2_fg_matrix_unitary :
     (∀ i j : Fin 8, fgSqEntry i j = if i = j then 16 else 0) := by
   decide
 
-/-- Exact ODD value phase (`ζ_6 = 1 + ω`): `|ζ_6^n|^2 = 1` for ALL `n : Nat`. -/
+/-- Scalar unit-modulus identity for the phase `ζ_6 = 1 + ω` entering `Φ_odd`:
+    `|ζ_6^n|^2 = 1` for ALL `n : Nat`. (The 4-body `χ_odd` orbit invariant and full Fock-space
+    operator `Φ_odd` are verified in exact `BigInt` in `test/universe.ts` and `code/rule/value-phase.ts`.) -/
 theorem thm2_odd_value_phase_unit :
     ∀ n : Nat, Eis.mul (Eis.conj (Eis.pow Eis.zeta6 n)) (Eis.pow Eis.zeta6 n) = Eis.one :=
   Eis.pow_unit Eis.zeta6 Eis.zeta6_unit
@@ -226,7 +238,7 @@ theorem thm2_mpair_zeta18_unitary_off :
   decide
 
 
-/-! ## Theorem 3: Elementary 2-Adic `SU(2)` & `PSU(2)` Infinite Order and Density (`∀ n ≥ 1`) -/
+/-! ## Theorem 3: Algebraic 2-Adic `SU(2)` / `PSU(2)` Infinite-Order & Non-`Pin(2)` Hypotheses (`∀ n ≥ 1`) -/
 
 /-- Phase gate `P_ω = diag(1, ω)` and its adjoint `P_{ω^2} = diag(1, ω^2)`. -/
 def phaseW : Mat2Eis := ⟨Eis.one, Eis.zero, Eis.zero, Eis.omega⟩
@@ -338,7 +350,8 @@ theorem thm3_W_infinite_order_psu2 (n : Nat) (hn : n ≥ 1) :
 theorem thm3_noncommuting_conjugate :
     Mat2Eis.mul gateM gateM2 ≠ Mat2Eis.mul gateM2 gateM := by decide
 
-/-- `M2 M ≠ M† M2`, ruling out `Pin(2) = N(U(1))`: together with infinite order, proves `SU(2)` density. -/
+/-- `M2 M ≠ M† M2`, ruling out `Pin(2) = N(U(1))`: together with infinite order and non-commutativity,
+    proves the algebraic hypotheses implying topological `SU(2)` density via closed-subgroup classification. -/
 theorem thm3_not_in_pin2 :
     Mat2Eis.mul gateM2 gateM ≠ Mat2Eis.mul (Mat2Eis.dag gateM) gateM2 := by decide
 

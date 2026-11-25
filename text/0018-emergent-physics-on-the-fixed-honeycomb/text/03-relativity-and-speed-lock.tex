@@ -6,32 +6,39 @@ excitations on one-dimensional rails (the bare \emph{line law}) and breaking 3D 
 can the automaton break rail confinement without destroying localized bound structures, recover isotropic relativistic
 kinematics in three dimensions, and keep gravity, light, and chiral matter locked to one universal limiting speed
 within the binary neutron-star merger observation GW170817 \cite{abbott2017gw170817}, which constrained the speed
-difference between gravitational waves and light to $|\Delta c / c| < 6 \times 10^{-15}$?
+difference between gravitational waves and light to $-3 \times 10^{-15} \le \Delta c / c \le +7 \times 10^{-16}$?
 
 \paragraph{Key findings.}
 Restricting cross-line scattering to Scale~2 via $M_{\mathrm{pair}}(\zeta_{18})$ eliminates single-excitation drain
-while breaking 1D rail confinement and recovering $O(k^{2.00})$ 3D isotropy plus boosted Dirac time dilation and length
-contraction at bare speed $c_{\mathrm{eff}} = 0.021267$ (\code{E-RLT-0123}, \code{E-RLT-0124}). At Tier~B, shared-column
-minimal coupling locks all massless species to a single speed $c_u = 0.977925$ to $3.37 \times 10^{-16}$
-(\code{E-RLT-0125}), leaving a $46.0\times$ bare-versus-column speed gap explicitly open.
+while breaking 1D rail confinement and recovering $O(k^{2.00})$ 3D isotropy plus relativistic dispersion-relation boost
+ratios on the reflecting floor-0 cusp slab at bare speed $c_{\mathrm{eff}} = 0.021267$ (\code{E-RLT-0123},
+\code{E-RLT-0124}). At Tier~B, shared-beam minimal coupling locks all massless species algebraically to a single
+speed $c_u = 0.977925$, verified to IEEE-754 machine precision ($3.41 \times 10^{-16}$ gravity vs.\ matter,
+$2.27 \times 10^{-16}$ vs.\ light, \code{E-RLT-0125}), leaving a $46.0\times$ bare-versus-beam speed gap explicitly
+open.
 
 \subsection{Why Scale-2 \texorpdfstring{$M_{\mathrm{pair}}(\zeta_{18})$}{M\_pair(zeta\_18)} breaks the line law}
 
 Direct Tier~A negative controls establish why cross-line mixing cannot be applied unconditionally to single excitations.
-Sweeping a single-bank mixer drains bound states with no prethermal plateau (\code{E-SLF-0189}, \code{E-SLF-0198}),
-while a parity-sensitive neighbor lock protects isolated line states only because the dock graph is bipartite and
-immediately leaks once external bath arrivals or pair-store creation flip local parity (\code{E-SLF-0190},
-\code{E-SLF-0192}, \code{E-SLF-0195}).
+Sweeping a single-bank mixer $\mathrm{F\text{-}G}(\theta) = I_8 + \frac{e^{i\theta}-1}{8} J_8$ drains bound states with
+no prethermal plateau (\code{E-SLF-0189}, \code{E-SLF-0198}), while a parity-sensitive neighbor lock protects isolated
+line states only because the dock graph is bipartite and immediately leaks once external bath arrivals or pair-store
+creation flip local parity (\code{E-SLF-0190}, \code{E-SLF-0192}, \code{E-SLF-0195}).
 
 Restricting cross-line scattering to Scale~2 via the $W(F_4)$-isotropic Pair-Line Mixer $M_{\mathrm{pair}}(\zeta_{18})$
-of Equation~\eqref{eq:mpair} resolves both obstructions cleanly (\code{E-SLF-0199}, \code{E-SLF-0200}). On the exact
-$R = 3$ $\{3,4,3,4\}$ ball, $M_{\mathrm{pair}}(\zeta_{18})$ leaves $|V_1\rangle$ and all 24 single-excitation slots
-untouched, scatters an identical full-line pair isotropically across all 12 lines in one beat, fixes the 12-line 4D
-$s$-wave as an exact eigenstate, opens a finite spectral gap, and supports a sparse reversible boundary filter that
-rejects bath arrivals. Table~\ref{tab:mpair-bench} collects every negative control and positive metric.
+of Equation~\eqref{eq:mpair} resolves both obstructions (\code{E-SLF-0199}, \code{E-SLF-0200}). It leaves $|V_1\rangle$
+and all 24 single-excitation slots untouched, scatters an identical full-line pair isotropically across all 12 lines in
+one beat (verified at the exact involution $u = -1$ on the $R = 3$ ball in \code{E-SLF-0199} and at $u = \zeta_{18}$ in
+\universecode), fixes the 12-line 4D $s$-wave as an exact eigenstate, opens a finite spectral gap $|1 - \zeta_{18}| =
+0.3473$, and supports a sparse reversible boundary filter on a 1D $L = 32$ periodic-line bath engine.
+Table~\ref{tab:mpair-bench} collects every negative control and positive metric across the seven cited \code{E-SLF}
+runs.
 
 \begin{table}[htbp]
 \centering
+\caption{Tier~A negative controls isolating single-excitation drain and exact properties of the Scale-2 pair-line mixer
+$M_{\mathrm{pair}}$ (\code{E-SLF-0189}, \code{0190}, \code{0192}, \code{0195}, \coderange{0198}{0200}).}
+\label{tab:mpair-bench}
 \small
 \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash\hsize=1.25\hsize}X>{\raggedright\arraybackslash\hsize=0.75\hsize}X@{}}
 \toprule
@@ -39,79 +46,85 @@ Code (Tier~A) & Test / mechanism & Verified measurement & Verdict / contrast \\
 \midrule
 \code{E-SLF-0189} & single-bank mixer sweep & log lifetime slope $-1.7$ vs $\log\theta$ ($R^2 = 0.986$), no prethermal plateau & registered fail: drains bound states \\
 \addlinespace[4pt]
-\code{E-SLF-0198} & $255{,}090$-dock exact tube & $\theta = 4\pi/9$ drain $L(1..3) = 0.694, 0.506, 0.308$ (below line-restricted $0.324$) & confirms exact-honeycomb drain \\
+\code{E-SLF-0198} & $255{,}090$-dock exact tube & $\theta = 4\pi/9$ bound-line retention $L_{\mathrm{ret}}(1, 2, 3) = 0.694, 0.506, 0.308$ (below line-restricted $0.324$) & exact-honeycomb drain check \\
 \addlinespace[4pt]
 \code{E-SLF-0190}, \code{0192}, \code{0195} & any-neighbor lock \& bipartite parity & $162{,}049$ docks ($0$ same-color edges), pair-store parity flip leaks $0.133$ by $t = 3$ & fails under bath arrivals \\
 \addlinespace[4pt]
-\code{E-SLF-0199} & $M_{\mathrm{pair}}(\zeta_{18})$ invariance \& scatter & $0$ diff on $|V_1\rangle$ and $24/24$ singletons, $12/12$-line scatter (spread $0$, all $24/24$ neighbors in 1 beat) & exact involution at $u = -1$, unitarity err $2.22 \times 10^{-16}$ \\
+\code{E-SLF-0199} & $M_{\mathrm{pair}}(-1 / \zeta_{18})$ scatter \& spectrum & at $u = -1$: $0$ diff on $|V_1\rangle$ and $24/24$ singletons, $12/12$-line scatter ($24/24$ neighbors in 1 beat). At $u = \zeta_{18}$: $|s\rangle$ err $4.44 \times 10^{-16}$, gap $0.3473$, keep $0.990786$, hop $0.000838$ & unitarity err $2.22 \times 10^{-16}$ ($u = \zeta_{18}$ scatter also verified in \universecode) \\
 \addlinespace[4pt]
-\code{E-SLF-0200} & $s$-wave gap \& spectral weights & $|s\rangle$ eigenstate err $4.44 \times 10^{-16}$, gap $|1 - \zeta_{18}| = 0.3473$, keep $0.990786$, hop $0.000838$, $W(F_4)$ spread $1.39 \times 10^{-16}$ & exact spectral separation \\
-\addlinespace[4pt]
-\code{E-SLF-0200} & 2-shell closure \& bath filter & closure beats transverse and bare nulls ($0.1090 > 0.1071 > 0.0612$ at $t = 2$, $0.4582$ vs $0.4306$ at $t = 3$), filter $E = 0.8685$, retained $3.87$ vs $4.91$ & broken interior $2.61 \times 10^{-5}$ vs plain swap $1.0$ \\
+\code{E-SLF-0200} & $R = 3$ closure \& 1D bath filter & $|s\rangle$ err $2.22 \times 10^{-16}$, $W(F_4)$ spread $1.39 \times 10^{-16}$, 2-shell closure $0.1090 > 0.1071 > 0.0612$ ($t = 2$), $0.4582$ vs $0.4306$ ($t = 3$). 1D $L = 32$ ring filter: exported bath weight $E_{\mathrm{out}} = 0.8685$, retained $3.87$ vs $4.91$ & broken interior $2.61 \times 10^{-5}$ vs plain swap $1.0$ (bath runs on 1D $L = 32$ ring) \\
 \bottomrule
 \end{tabularx}
-\caption{Tier~A negative controls isolating single-excitation drain and exact properties of the Scale-2 pair-line mixer
-$M_{\mathrm{pair}}(\zeta_{18})$ (\code{E-SLF-0189}--\code{0200}).}
-\label{tab:mpair-bench}
 \end{table}
 
 \subsection{Bare 3D isotropy and relativistic boost kinematics}
 
-Diagonalizing the exact $24 \times 24$ 3D cusp-husk Bloch unitary $U(\mathbf{k}, u)$ (the momentum-space evolution
-matrix determining wave dispersion) induced by $M_{\mathrm{pair}}(u)$ tests long-wavelength relativistic kinematics
-directly at Tier~A \cite{strauch2006}. Whereas the bare control ($u = 1$) stays line-confined with flat Bloch bands,
-$M_{\mathrm{pair}}(\zeta_{18})$ breaks the line law and restores 3D rotational isotropy across $(1,0,0)$, $(1,1,0)$,
-and $(1,1,1)$ with directional anisotropy vanishing quadratically as $O(k^{2.00})$ (\code{E-RLT-0123}).
+Diagonalizing the exact $24 \times 24$ 3D Bloch unitary $U(\mathbf{k}, u)$ on the \textbf{reflecting floor-0 ($D = 0$)
+cusp slab} (closing bulk-directed lines at $D = 0$, matching \mbox{\code{period = 4}}, \mbox{\code{floor = 0}}) induced
+by $M_{\mathrm{pair}}(u)$ tests long-wavelength relativistic kinematics directly at Tier~A \cite{strauch2006}. Whereas
+the bare control ($u = 1$) stays line-confined with flat Bloch bands, $M_{\mathrm{pair}}(\zeta_{18})$ breaks the line
+law and restores 3D rotational isotropy across $(1,0,0)$, $(1,1,0)$, and $(1,1,1)$ with directional anisotropy
+vanishing quadratically as $O(k^{2.00})$ (\code{E-RLT-0123}).
 
-All 24 Bloch bands obey the exact cubic structure-factor theorem $E_n(\mathbf{k}) = E_n(g(\mathbf{k}))$, where
+All 24 floor-0 Bloch bands obey the exact cubic structure-factor theorem $E_n(\mathbf{k}) = E_n(g(\mathbf{k}))$, where
 \begin{equation}
 g(\mathbf{k}) = \frac{\cos k_x + \cos k_y + \cos k_z}{3}
 \label{eq:cubic-structure-factor}
 \end{equation}
-separates the spectrum into 19 flat bands and 5 dispersive bands (\code{E-RLT-0124}). Near
-the zone corner $R = (\pi, \pi, \pi)$, a light Dirac pair emerges with bare limiting speed $c_{\mathrm{eff}} = 0.021267$.
-Across boosts $v / c_{\mathrm{eff}} \le 0.4$ along all three crystal axes, internal clock dilation, relativity of
-simultaneity, dynamical wavepacket length contraction, and boosted light-clock timing all track special relativity
-cleanly against Galilean controls (Table~\ref{tab:dirac-boosts}).
+separates the spectrum into 19 flat bands and 5 dispersive bands (\code{E-RLT-0124}). Near the Brillouin-zone corner
+$\mathbf{R} = (\pi, \pi, \pi)$, the light Dirac dispersion is the \textbf{avoided-crossing half-splitting}
+$E_D(\mathbf{q}) = \frac{1}{2}(d_4(\mathbf{R}-\mathbf{q}) - d_3(\mathbf{R}-\mathbf{q}))$ around the nonzero rest
+quasi-energy midpoint $E_{\mathrm{mid}} \approx +1.6515\text{ rad/beat}$ (where $d_3 = +1.6466$ touches two flat bands
+and $d_4 = +1.6564$ at $\mathbf{q} = \mathbf{0}$), yielding $m_D = 0.004905$ and bare limiting speed
+$c_{\mathrm{eff}} = 0.021267$. Across boosts $v / c_{\mathrm{eff}} \le 0.4$ along all three crystal axes, all four
+boost checks in Table~\ref{tab:dirac-boosts} evaluate \textbf{algebraic dispersion-relation and Hessian curvature
+ratios} on $E_D(\mathbf{q})$ (internal rate $m_D / E_D$, simultaneity ratio $(E_D/q)\, v_g / c_{\mathrm{eff}}^2$,
+longitudinal-to-transverse Hessian curvature ratio $H_\parallel / H_\perp$ giving $0.60\%$, and its algebraic
+square-root proxy $\gamma\sqrt{H_\parallel / H_\perp} - 1$ giving $0.30\%$), rather than real-space boosted wavepacket
+or physical light-clock simulations.
 
 \begin{table}[htbp]
 \centering
+\caption{Tier~A bare reflecting floor-0 3D rotational isotropy and algebraic dispersion-relation boost battery under
+$M_{\mathrm{pair}}(\zeta_{18})$ (\code{E-RLT-0123}, \code{E-RLT-0124}).}
+\label{tab:dirac-boosts}
 \small
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.2cm}>{\raggedright\arraybackslash\hsize=1.20\hsize}X>{\raggedright\arraybackslash\hsize=0.90\hsize}X>{\raggedright\arraybackslash\hsize=0.90\hsize}X@{}}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.4cm}>{\raggedright\arraybackslash\hsize=1.20\hsize}X>{\raggedright\arraybackslash\hsize=0.90\hsize}X>{\raggedright\arraybackslash\hsize=0.90\hsize}X@{}}
 \toprule
 Observable (Tier~A) & $M_{\mathrm{pair}}(\zeta_{18})$ reading & Negative control & Precision / note \\
 \midrule
-Line-law break (\code{E-RLT-0123}) & $\mathrm{maxShadow} = 2.20 > \sqrt{2}$, isotropy $O(k^{2.00})$ ($1.34 \times 10^{-4}$ at $\pi/64$) & bare $u=1$: $1.207 \le \sqrt{2}$, bands flat to $4 \times 10^{-15}$ & slot-sparse match $2.33 \times 10^{-16}$, $\max |v_g| \le 1$ \\
+Line-law break (\code{E-RLT-0123}) & maximum transverse 3D spread $2.20 > \sqrt{2}$, isotropy $O(k^{2.00})$ ($1.34 \times 10^{-4}$ at $\pi/64$) & bare $u=1$: $1.207 \le \sqrt{2}$, bands flat to $4.00 \times 10^{-15}$ & $u = -1$ slot-sparse match $2.33 \times 10^{-16}$, $\max |v_g| \le 1$ \\
 \addlinespace[4pt]
-Dirac cone (\code{E-RLT-0124}) & $m_D = 0.004905$, $c_{\mathrm{eff}} = 0.021267$, isotropy $1.81 \times 10^{-7}$ & bare $u=1$: flat to $4 \times 10^{-15}$ & $E_n(g(\mathbf{k}))$ err $2.1 \times 10^{-15}$, $v_g \le 0.937\, c_{\mathrm{eff}}$ \\
+Avoided-crossing Dirac pair (\code{E-RLT-0124}) & $E_D = (d_4 - d_3)/2$ around $E_{\mathrm{mid}} \approx +1.6515$: $m_D = 0.004905$, $c_{\mathrm{eff}} = 0.021267$, isotropy $1.81 \times 10^{-7}$ & bare $u=1$: flat to $2.33 \times 10^{-15}$ & $E_n(g(\mathbf{k}))$ err $2.22 \times 10^{-15}$ ($u = \zeta_{18}$), $v_g \le 0.937\, c_{\mathrm{eff}}$ \\
 \addlinespace[4pt]
-Clock dilation $1/\gamma$ (\code{0124}) & agrees within $0.024\%$ across $v/c_{\mathrm{eff}} \le 0.4$ & $42.8\times$ better than Galilean & along $(1,0,0)$, $(1,1,0)$, $(1,1,1)$ \\
+Dispersion dilation $1/\gamma$ (\code{E-RLT-0124}) & $m_D / E_D$ agrees within $0.024\%$ across $v/c_{\mathrm{eff}} \le 0.4$ & $42.8\times$ better than Galilean & along $(1,0,0)$, $(1,1,0)$, $(1,1,1)$ \\
 \addlinespace[4pt]
-Simultaneity \& contraction & simultaneity $0.17\%$, wavepacket contraction $0.60\%$, light-clock $0.30\%$ & $31.7\times$ / $30.3\times$ better than Galilean & global causality $\max |v_g| = 0.0341 \le 1$ \\
+Dispersion simultaneity \& Hessian (\code{E-RLT-0124}) & simultaneity $0.17\%$, Hessian ratio $(H_\parallel/H_\perp)\gamma^2$ $0.60\%$ (square-root proxy $0.30\%$) & $31.7\times$ / $30.3\times$ better than Galilean & algebraic ratios on $E_D(\mathbf{q})$, $\max |v_g| = 0.0341 \le 1$ \\
 \bottomrule
 \end{tabularx}
-\caption{Tier~A bare floor-0 3D rotational isotropy and relativistic boost battery under $M_{\mathrm{pair}}(\zeta_{18})$
-(\code{E-RLT-0123}, \code{E-RLT-0124}).}
-\label{tab:dirac-boosts}
 \end{table}
 
-\subsection{Shared-column speed lock and the bare speed gap}
+\subsection{Shared-beam speed lock and the bare speed gap}
 
 Relativistic kinematics in one sector is observationally ruled out if gravity, light, and chiral matter propagate at
 different limiting speeds. Experiment \code{E-RLT-0125} audits species universality as a strict \textbf{Tier~B
-shared-column kinematic minimal-coupling identity} rather than a bare Tier~A derivation.
+shared-beam kinematic minimal-coupling identity} rather than a bare Tier~A derivation.
 
-On the $\{3,4,3,4\}$ cusp column equipped with the Tier~B pair-density warp $w(D) = 1/N_D^2$ (Section~\ref{sec:gravity}),
-each floor $D = 0..F$ carries vertical inertia $M_D = N_D w(D) = 1/N_D$ and lateral stiffness $K_D = l_D w(D)$. Using
-the canonical unaliased single-face lateral links $l_D = 1, 4, 20, 100$ of Table~\ref{tab:shells} gives
-$K_{\mathrm{eff}} = 1.012532$ and $M_{\mathrm{eff}} = 1.058761$. In the decoupled negative control, unwarped husk light
-and Weyl fermions travel at $c_{\mathrm{raw}} = 1.0$ while warped gravity travels at $c_{\mathrm{grav}} = 0.977925$,
-creating a $2.21\%$ mismatch that exceeds GW170817 by over 12 orders of magnitude.
+On the $\{3,4,3,4\}$ cusp beam equipped with the Tier~B pair-density warp $w(D) = 1/N_D^2$ (Section~\ref{sec:gravity}),
+each floor $D = 0, \ldots, F$ carries vertical inertia $M_D = N_D w(D) = 1/N_D$ and lateral stiffness
+$K_D = l_D w(D)$. Using the canonical unaliased single-face lateral links \mbox{$l_D = 1, 4, 20, 100$} of
+Table~\ref{tab:shells} gives $K_{\mathrm{eff}} = 1.012532$ and $M_{\mathrm{eff}} = 1.058761$. In the decoupled
+negative control, unwarped husk light and Weyl fermions travel at $c_{\mathrm{raw}} = 1.0$ while warped gravity travels
+at $c_{\mathrm{grav}} = 0.977925$, creating a $2.21\%$ mismatch that exceeds the GW170817 upper bound ($+7 \times
+10^{-16}$) by more than 13 orders of magnitude.
 
-When spin-2 transverse-traceless (TT) gravitons (the two physical spin-2 gravitational-wave polarizations, $6(F+1)$
-Voigt operator), spin-1 curl-curl Maxwell photons ($3(F+1)$), and spin-$1/2$ chiral Weyl fermions ($2(F+1)$) are
-minimally coupled to the same warped column, the unique vertical zero mode $u_0$ obeys $L_{\mathrm{vert}} u_0 = 0$ and
-cancels every polarization norm and momentum factor identically across all three species:
+When spin-2 transverse-traceless (TT) gravitons ($6(F+1)$ Voigt operator), spin-1 curl-curl Maxwell photons ($3(F+1)$),
+and spin-$1/2$ chiral Weyl fermions ($2(F+1)$) are minimally coupled via Kronecker products to the exact same warped
+beam operator $H_{\mathrm{warp}}(\mathbf{k})$ with vertical Laplacian $L_{\mathrm{vert}}$ obeying a \textbf{reflecting
+Neumann floor} at $D = F$, the unique vertical zero mode $u_0$ satisfies $L_{\mathrm{vert}} u_0 = 0$ identically
+(agreeing with the Dirichlet floor used in \code{E-GRV-0157} to $< 10^{-15}$ by $F = 12$ because
+$c_{\mathrm{vert}}(12) \sim 10^{-15}$) and cancels every polarization norm and momentum factor algebraically across all
+three species:
 \begin{equation}
 c_{\mathrm{grav}} = c_{\mathrm{light}} = c_{\mathrm{matter}}
 = \sqrt{\frac{K_{\mathrm{eff}}}{M_{\mathrm{eff}}}}
@@ -120,46 +133,59 @@ c_{\mathrm{grav}} = c_{\mathrm{light}} = c_{\mathrm{matter}}
 \label{eq:speed-lock}
 \end{equation}
 
-Two quantitative disclosures qualify Equation~\eqref{eq:speed-lock}. First, canonical single-face links
-$l_D = 1, 4, 20, 100$ (cumulative $5^D$) give $c_u = 0.977925$, whereas the aliased \code{period = 2} torus incremental
-sequence $1, 10, 40, 200$ (cumulative $2 \cdot 5^D$) gives comparison control $c_u^{(p=2)} = 0.986916$. Both obey the
-identical Rayleigh-quotient cancellation (matching stiffness-to-inertia ratios fixing wave speed), remain strictly
-subluminal ($c_u < 1$, proven in Lean~4 for all $F \ge 2$ in Section~\ref{sec:unified}), and separate the unique
-vertical zero mode from a gapped vertical Kaluza--Klein (KK) tower (massive bulk excitations gapped above the 3D mode,
-noting that linearized KK gapping does not by itself exclude nonlinear Ho\v{r}ava--Lifshitz scalar modes
-\cite{horava2009}).
-
-Second, the bare Tier~A floor-0 Dirac speed $c_{\mathrm{eff}} = 0.021267$ (\code{E-RLT-0124}) sits $46.0\times$ below
-the canonical Tier~B warped-column speed $c_u = 0.977925$ ($46.4\times$ below the \code{period = 2} control). Bridging
-this $46\times$ speed gap and deriving species-universal minimal coupling directly from the bare QCA remains an open
-problem (Section~\ref{sec:open}). Table~\ref{tab:speed-lock} records the full eigenproblem audit.
+Four quantitative disclosures qualify Equation~\eqref{eq:speed-lock}:
+\begin{enumerate}[itemsep=2pt]
+\item \textbf{Algebraic identity at machine precision:} Because all three species share the same Kronecker-product
+beam operator by construction, $\Delta c / c = 0$ is an exact algebraic identity verified to IEEE-754 \code{Float64}
+precision ($3.41 \times 10^{-16}$ gravity vs.\ matter, $2.27 \times 10^{-16}$ vs.\ light, consistent with GW170817
+$-3 \times 10^{-15} \le \Delta c / c \le +7 \times 10^{-16}$ \cite{abbott2017gw170817}) rather than a physical
+measurement outperforming an astrophysical bound.
+\item \textbf{Nonlocal square-root Weyl operator:} The chiral Weyl operator $D_{\mathrm{Weyl}}(\mathbf{k}) =
+\hat{\Sigma}(\mathbf{k}) \otimes H_{\mathrm{warp}}(\mathbf{k})^{1/2}$ is spatially nonlocal in position space via the
+matrix square root. In the site-local linear Dirac control inside \code{E-RLT-0125}, Cauchy--Schwarz causes
+$\langle v_0 | V_{\mathrm{lat}} | v_0 \rangle$ to miss $c_u$ by $0.814\%$ ($0.231\%$ on period~2), failing GW170817 by
+over 11 orders of magnitude.
+\item \textbf{Single-face vs.\ period-2 links and super-Nyquist KK gap:} Canonical single-face links
+\mbox{$l_D = 1, 4, 20, 100$} give $c_u = 0.977925$, while aliased \mbox{\code{period = 2}} links ($1, 10, 40, 200$)
+give control $c_u^{(p=2)} = 0.986916$. Both stay strictly subluminal (canonical $c_u < 1$ is machine-checked
+conditionally in Lean~4 for all $F \ge 2$ in Section~\ref{sec:unified}) and gap the vertical Kaluza--Klein tower at
+$m_{\mathrm{KK}} = 3.2725\text{ rad/beat}$ (linearized only, not excluding nonlinear Ho\v{r}ava--Lifshitz scalar modes
+\cite{horava2009}). Because $m_{\mathrm{KK}} > \pi$ sits above the 1-beat Nyquist frequency, the symplectic leapfrog
+verifier runs at sub-beat resolution $\Delta t = 1/6\text{ beat}$.
+\item \textbf{Open $46\times$ bare-to-beam speed gap:} The bare Tier~A floor-0 Dirac speed $c_{\mathrm{eff}} =
+0.021267$ (\code{E-RLT-0124}) sits $46.0\times$ below canonical Tier~B $c_u = 0.977925$ ($46.4\times$ below the
+\mbox{\code{period = 2}} control). Closing this speed gap and deriving species-universal minimal coupling from the bare
+QCA remains open (Section~\ref{sec:open}).
+\end{enumerate}
+Table~\ref{tab:speed-lock} records the full eigenproblem audit.
 
 \begin{table}[htbp]
 \centering
+\caption{Tier~B shared-beam universal speed lock across spin-2 gravitons, spin-1 photons, and nonlocal square-root
+spin-$1/2$ Weyl fermions on the $\{3,4,3,4\}$ $1/N_D^2$ warped cusp beam (\code{E-RLT-0125}).}
+\label{tab:speed-lock}
 \small
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{4.0cm}>{\raggedright\arraybackslash}p{2.9cm}>{\raggedright\arraybackslash}p{2.7cm}>{\raggedright\arraybackslash}X@{}}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.6cm}>{\raggedright\arraybackslash}p{3.3cm}>{\raggedright\arraybackslash}p{2.7cm}>{\raggedright\arraybackslash}X@{}}
 \toprule
 Observable (\code{E-RLT-0125}, Tier~B) & Canonical single-face & Period-2 control & Gate / structural note \\
 \midrule
-Shared-column stiffness $K_{\mathrm{eff}}$ & $1.012532$ & $1.031237$ & $M_{\mathrm{eff}} = 1.058761$ (both) \\
+Shared-beam stiffness $K_{\mathrm{eff}}$ & $1.012532$ & $1.031237$ & $M_{\mathrm{eff}} = 1.058761$ (both), Neumann agrees with Dirichlet to $< 10^{-15}$ \\
 \addlinespace[3pt]
-Universal wave speed $c_u$ & $0.977925 < 1$ & $0.986916 < 1$ & strictly causal (subluminal) \\
+Universal wave speed $c_u$ & $0.977925 < 1$ & $0.986916 < 1$ & strictly causal (canonical $c_u < 1$ in Lean~4 given $N_{D+1} \ge 18 N_D$) \\
 \addlinespace[3pt]
-Species lock $\max |\Delta c|/c$ & $3.37 \times 10^{-16}$ & $3.37 \times 10^{-16}$ & $18\times$ tighter than GW170817 ($6 \times 10^{-15}$) \\
+Species lock $\max |\Delta c|/c$ & $3.41 \times 10^{-16}$ grav/mat ($2.27 \times 10^{-16}$ vs light) & $3.37 \times 10^{-16}$ & algebraic identity at \code{Float64} eps, inside GW170817 $[-3 \times 10^{-15}, +7 \times 10^{-16}]$ \\
 \addlinespace[3pt]
-Decoupled Weyl mismatch & $2.21\%$ (fails) & $1.31\%$ (fails) & exceeds GW170817 by $> 10^{12}\times$ \\
+Decoupled / local-Dirac controls & decoupled $2.21\%$, site-local linear Dirac $0.814\%$ (fail) & decoupled $1.31\%$, local Dirac $0.231\%$ (fail) & both fail GW170817 by $> 10^{11}\times$ (Cauchy--Schwarz gap) \\
 \addlinespace[3pt]
-3D isotropy / floor $F=12$ vs $16$ & $2.78 \times 10^{-12}$ / $2.22 \times 10^{-16}$ & same & discrete unitary err $1.11 \times 10^{-15}$ \\
+3D isotropy / floor $F = 12$ vs $16$ & $2.78 \times 10^{-12}$ / $2.22 \times 10^{-16}$ & same & unitary err $8.88 \times 10^{-16}$ ($U_{\mathrm{warp}}$), $1.33 \times 10^{-15}$ ($U_{\mathrm{leap}}$, $\Delta t = 1/6$) \\
 \addlinespace[3pt]
-Vertical KK gap / bare gap & $m_{\mathrm{KK}} = 3.2725 > 3.2$ & same & $46.0\times$ bare-to-column gap open \\
+Vertical KK gap / bare gap & $m_{\mathrm{KK}} = 3.2725\text{ rad/beat} > 0.5$ & same & super-Nyquist ($> \pi$), $46.0\times$ bare-to-beam gap open \\
 \bottomrule
 \end{tabularx}
-\caption{Tier~B shared-column universal speed lock across spin-2 gravitons, spin-1 photons, and spin-$1/2$ Weyl
-fermions on the $\{3,4,3,4\}$ $1/N_D^2$ warped cusp column (\code{E-RLT-0125}).}
-\label{tab:speed-lock}
 \end{table}
 
-Scale-2 pair scattering thus yields isotropic 3D relativistic boosts directly at Tier~A, while shared warped-column
-minimal coupling locks spin-2, spin-1, and spin-$1/2$ wave speeds to $3.37 \times 10^{-16}$ at Tier~B with the
-$46\times$ bare-to-column speed gap explicitly recorded. We next audit how that same warped $\{3,4,3,4\}$ cusp column
-governs long-range gravity, live two-body orbits, and horizon-penetrating quantum walks.
+Scale-2 pair scattering thus yields isotropic 3D relativistic dispersion ratios directly at Tier~A on the reflecting
+floor-0 slab, while shared warped-beam minimal coupling locks spin-2, spin-1, and nonlocal square-root spin-$1/2$
+wave speeds to machine precision ($3.41 \times 10^{-16}$) at Tier~B with the $46\times$ bare-to-beam speed gap
+explicitly recorded. We next audit how that same warped $\{3,4,3,4\}$ cusp beam governs long-range gravity, live
+two-body orbits, and constant-river radial quantum walks.

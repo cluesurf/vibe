@@ -1,5 +1,5 @@
-// DYNAMICAL SELECTION OF (r = sqrt(2), delta = +2/9) ON THE Sigma(648) ROLE GRID
-// AND MINIMAL SO(10) 10_H + 126bar_H GEORGI-JARLSKOG YUKAWA UNIFICATION ACROSS ALL 12 FERMIONS + CKM + PMNS
+// ILLUSTRATIVE PHENOMENOLOGICAL S_3 x Z_3 LANDAU MODEL FOR (r = sqrt(2), delta = +2/9) ON THE Sigma(648) ROLE GRID
+// (NOT A BARE QCA DERIVATION) AND MINIMAL SO(10) 10_H + 126bar_H GEORGI-JARLSKOG YUKAWA UNIFICATION ACROSS ALL 12 FERMIONS + CKM + PMNS
 // (E-FRC-0330, Frontier 2).
 //
 // Builds directly on verified Vibe Theory modules:
@@ -10,7 +10,7 @@
 //   - E-FRC-0328 (pati-salam-unification-hierarchy.ts): exact 2-loop SO(10) -> Pati-Salam -> SM unification at
 //     M_PS = 1.434e11 GeV and M_GUT = 7.946e15 GeV.
 //
-// Part 1: Dynamical Selection Theorem for (r = sqrt(2), delta = +2/9) (Zero Hand-Picking)
+// Part 1: Illustrative phenomenological S_3 x Z_3 Landau model for (r = sqrt(2), delta = +2/9) (not a bare QCA derivation)
 //   1A. Exact Spectral Uniqueness on the 9-State Sigma(648) Role Grid (BigInt + Q(zeta_9)):
 //       - Proves algebraically in exact 9x9 BigInt rational arithmetic that H_role obeys the quadratic minimal
 //         polynomial (H_role - 2/9 I_9)(H_role + 1/9 I_9) = 0, leaving ONLY TWO eigenspaces:

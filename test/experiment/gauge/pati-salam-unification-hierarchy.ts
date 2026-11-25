@@ -11,7 +11,7 @@
 // proton-decay safe M_GUT = 10^{15.90} GeV, seesaw scale M_PS = 10^{11.16} GeV, RK4 round-trip, and
 // the no-PS control recovering the 4.91 non-SUSY mismatch.
 //
-// Part 3: Tests running bare alpha_lat^{-1} = 4 pi K_eff ln(lambda) = 37.6552 (and 1 / G_eff = 12.9589)
+// Part 3: Tests running canonical single-face bare alpha_lat^{-1} = 4 pi K_eff ln(lambda) = 36.9722 (and 1 / G_eff = 12.7239)
 // down through the continuum 2-loop chain to M_Z and q^2 = 0, reporting residuals transparently and
 // noting that deriving CODATA alpha(0) and selecting D_GUT, D_PS, D_EW dynamically remain open.
 //
@@ -88,18 +88,22 @@ export default experiment({
       gj.unificationMaxResidual <= 1e-12 &&
       dp.unificationMaxResidual <= 1e-12
 
-    // Part 3 gates: honest bare-lattice alpha(0) running (zero numerology), step convergence,
-    // unlogged 1/G_eff Landau-pole control, and explicit openness of exact 9-digit CODATA alpha(0)
+    // Part 3 gates: honest canonical single-face bare-lattice alpha(0) running (zero numerology):
+    //   - bare unmatched alpha_lat^{-1} = 36.9722 hits a 2-loop QCD Landau pole slightly above M_Z in minimal PS,
+    //     while remaining perturbative to M_Z in Georgi-Jarlskog PS (129.52, -5.48%) and D-parity PS (127.01, -7.32%)
+    //   - unlogged 1/G_eff = 12.7239 hits a 1-loop QCD Landau pole well above M_Z
+    //   - exact 9-digit CODATA alpha(0) remains explicitly open
     const part3Ok =
-      Math.abs(lat.alphaLatInvLambda - 37.6552) < 0.001 &&
-      Math.abs(lat.invGEff4PiKEff - 12.9589) < 0.001 &&
-      lat.primaryMinimalPsRun.perturbativeToMz &&
-      lat.primaryMinimalPsRun.stepConvergenceErr <= 1e-6 &&
-      lat.primaryMinimalPsRun.predAlphaEmInvZero > 100 &&
-      lat.primaryMinimalPsRun.predAlphaEmInvZero < 150 &&
+      Math.abs(lat.alphaLatInvLambda - 36.9722) < 0.001 &&
+      Math.abs(lat.invGEff4PiKEff - 12.7239) < 0.001 &&
+      !lat.primaryMinimalPsRun.perturbativeToMz &&
+      lat.primaryMinimalPsRun.predAlpha3InvMz < 0 &&
       lat.georgiJarlskogPsRun.perturbativeToMz &&
+      lat.georgiJarlskogPsRun.stepConvergenceErr <= 1e-6 &&
       lat.georgiJarlskogPsRun.predAlphaEmInvZero > 125 &&
       lat.georgiJarlskogPsRun.predAlphaEmInvZero < 140 &&
+      lat.dParityPsRun.perturbativeToMz &&
+      lat.dParityPsRun.stepConvergenceErr <= 1e-6 &&
       lat.invGEffHitsLandauPoleAboveMz &&
       !lat.anyZeroParamCodataHit &&
       lat.exactAlphaRemainsOpen
@@ -123,11 +127,10 @@ export default experiment({
         `and M_PS=10^${p.log10MPsGeV.toFixed(3)} GeV (Type-I seesaw m_nu=${p.seesawNuMassFromMTauEV.toFixed(3)}..${p.seesawNuMassFromMbEV.toFixed(3)} eV ` +
         `for m_D=m_tau..m_b), backward sin^2(theta_W)(M_Z)=${p.backwardSin2ThetaWMz.toFixed(5)} (err=${p.backwardSin2ThetaWErr.toExponential(1)}), ` +
         `RK4 round-trip err=${p.roundTripMaxErr.toExponential(1)}, while removing PS recovers E-FRC-0326's ${ctrl.unificationMismatchNoPS.toFixed(2)} failure. ` +
-        `Part 3 (honest bare-lattice alpha(0) test): running parameter-free alpha_lat^-1=4pi*K_eff*ln(lambda)=${lat.alphaLatInvLambda.toFixed(4)} ` +
-        `downward with zero tuning yields alpha^-1(M_Z)=${lat.primaryMinimalPsRun.predAlphaEmInvMz.toFixed(2)} (${lat.primaryMinimalPsRun.mzRelResidualPct.toFixed(2)}%) ` +
-        `and alpha^-1(0)=${lat.primaryMinimalPsRun.predAlphaEmInvZero.toFixed(2)} (${lat.primaryMinimalPsRun.zeroRelResidualPct.toFixed(2)}% vs CODATA 137.036) ` +
-        `in minimal PS, and alpha^-1(0)=${lat.georgiJarlskogPsRun.predAlphaEmInvZero.toFixed(2)} (${lat.georgiJarlskogPsRun.zeroRelResidualPct.toFixed(2)}%) ` +
-        `with the 126_H Georgi-Jarlskog (15,2,2)_R multiplet, while unlogged 1/G_eff=${lat.invGEff4PiKEff.toFixed(4)} hits a QCD Landau pole ` +
+        `Part 3 (honest canonical single-face bare-lattice alpha(0) test): running parameter-free alpha_lat^-1=4pi*K_eff*ln(lambda)=${lat.alphaLatInvLambda.toFixed(4)} ` +
+        `downward with zero matching hits a 2-loop QCD Landau pole slightly above M_Z in minimal PS (alpha_3^-1(M_Z)=${lat.primaryMinimalPsRun.predAlpha3InvMz.toFixed(2)} < 0), ` +
+        `while staying perturbative in Georgi-Jarlskog PS with alpha^-1(0)=${lat.georgiJarlskogPsRun.predAlphaEmInvZero.toFixed(2)} (${lat.georgiJarlskogPsRun.zeroRelResidualPct.toFixed(2)}% vs CODATA 137.036) ` +
+        `and D-parity PS with ${lat.dParityPsRun.predAlphaEmInvZero.toFixed(2)} (${lat.dParityPsRun.zeroRelResidualPct.toFixed(2)}%), while unlogged 1/G_eff=${lat.invGEff4PiKEff.toFixed(4)} hits a QCD Landau pole ` +
         `at 10^${lat.invGEffOneLoopLandauLog10GeV.toFixed(2)} GeV (exact 9-digit alpha(0) and discrete shell indices D_PS, D_GUT remain open)`,
       metrics: {
         // Part 1: {3,4,3,4} geometric hierarchy
@@ -233,10 +236,10 @@ export default experiment({
         `4.91 mismatch to ${p.unificationMaxResidual.toExponential(1)}, reproduces sin^2(theta_W)(M_Z) = 0.23122 from 3/8 ` +
         `to ${p.backwardSin2ThetaWErr.toExponential(1)}, places M_GUT = 10^${p.log10MGutGeV.toFixed(3)} GeV above Super-K, ` +
         `and puts M_PS = 10^${p.log10MPsGeV.toFixed(3)} GeV in the Type-I seesaw window (m_nu = 0.022..0.122 eV for m_D = m_tau..m_b). ` +
-        '(3) Bare-lattice alpha(0) boundary: running alpha_lat^-1 = 4 pi K_eff ln(lambda) = 37.6552 downward yields ' +
-        `alpha^-1(0) = ${lat.primaryMinimalPsRun.predAlphaEmInvZero.toFixed(2)} (${lat.primaryMinimalPsRun.zeroRelResidualPct.toFixed(2)}% vs CODATA 137.036) ` +
-        `in minimal PS and ${lat.georgiJarlskogPsRun.predAlphaEmInvZero.toFixed(2)} (${lat.georgiJarlskogPsRun.zeroRelResidualPct.toFixed(2)}%) ` +
-        'with (15,2,2)_R, while unlogged 1/G_eff = 12.9589 hits a QCD Landau pole above M_Z. Deriving CODATA alpha(0) and ' +
+        `(3) Bare-lattice alpha(0) boundary: running canonical single-face alpha_lat^-1 = 4 pi K_eff ln(lambda) = ${lat.alphaLatInvLambda.toFixed(4)} downward without lattice matching ` +
+        `hits a 2-loop QCD Landau pole slightly above M_Z in minimal PS (alpha_3^-1(M_Z) = ${lat.primaryMinimalPsRun.predAlpha3InvMz.toFixed(2)} < 0), ` +
+        `while staying perturbative at alpha^-1(0) = ${lat.georgiJarlskogPsRun.predAlphaEmInvZero.toFixed(2)} (${lat.georgiJarlskogPsRun.zeroRelResidualPct.toFixed(2)}%) ` +
+        `with (15,2,2)_R and ${lat.dParityPsRun.predAlphaEmInvZero.toFixed(2)} (${lat.dParityPsRun.zeroRelResidualPct.toFixed(2)}%) in D-parity PS, while unlogged 1/G_eff = ${lat.invGEff4PiKEff.toFixed(4)} hits a QCD Landau pole above M_Z. Deriving CODATA alpha(0) and ` +
         'dynamically selecting symmetry-breaking scales D_GUT, D_PS, D_EW from the live QCA remain open.',
     })
   },

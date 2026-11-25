@@ -19,8 +19,8 @@ pdf: clean
 arxiv: pdf
 	@rm -rf arxiv-submission arxiv-submission.zip
 	@mkdir -p arxiv-submission/text
-	@cp vibe.tex vibe.bib vibefirst.bst vibe.bbl arxiv-submission/
-	@cp text/*.tex arxiv-submission/text/
+	@cp vibe.tex vibe.bib vibe.bbl arxiv-submission/
+	@cp text/package.tex text/abstract.tex text/00-scope.tex text/01-one-rule.tex text/02-quantum-foundations.tex text/03-relativity-and-speed-lock.tex text/04-dynamical-gravity.tex text/05-chirality-confinement-generations.tex text/06-cosmology.tex text/07-unified-and-lean4.tex text/08-open.tex text/A-index.tex arxiv-submission/text/
 	@cd arxiv-submission && zip -r -X ../arxiv-submission.zip . > /dev/null
 	@echo "arXiv bundle ready: arxiv-submission.zip"
 .PHONY: arxiv
