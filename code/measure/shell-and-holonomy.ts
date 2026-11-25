@@ -154,7 +154,7 @@ export function runShellAndHolonomy(): ShellAndHolonomyResult {
   const evenFaceSquareOrder = groupClosure(faceLoopsInH, 2000)
 
   // m-02: Exact {3,4,3,4} cell-graph growth recurrence:
-  // Known exact shell counts S(0)=1, S(1)=24, S(2)=456, S(3)=8376, S(4)=153168...
+  // Known exact shell counts S(0)=1, S(1)=24, S(2)=456, S(3)=8376, S(4)=153192...
   // Notice:
   //   S(1) = 24
   //   S(2) = 19 * 24 = 456

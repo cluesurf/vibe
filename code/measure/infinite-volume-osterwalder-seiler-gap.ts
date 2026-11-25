@@ -1436,7 +1436,12 @@ export type InfiniteVolumeGapComparisonRow = {
   readonly su3WalkCeiling: number // -ln(M_{SU3}) - ln(21)
   // RIGOROUS infinite-volume multi-plaquette KP mass-gap lower bounds on 4D D_4 (d_tri = 21, d_tri + 1 = 22, n_min = 4)
   readonly z3MultiPlaqKpGapBound: number // -ln(A_{Z3}) - ln(e * 21) + ln(x_max) = ln(A_KP / A_{Z3}) > 0
-  readonly z3RigorousPerim3TubeKpBound: number // 3 * z3MultiPlaqKpGapBound (Gauss's law |C| >= 3 t triangles)
+  // Geometric proof of |Gamma| >= 3 t for closed gauge-invariant 2-chains bridging x_0 = 0 to x_0 = t on D_4:
+  //   (1) Every D_4 triangle has x_0-span <= 1, so bridging t unit slabs x_0 in [k, k+1] requires slab-crossing edges in each slab.
+  //   (2) By Z_3 Gauss's law (closed mod-3 2-chain), every crossing edge in a slab must be incident to >= 2 triangles inside that slab.
+  //   (3) On the simplicial D_4 root graph no two distinct triangles share 2 edges, so closing all crossing edges requires >= 3 triangles per slab.
+  //   (4) Summing over all t disjoint unit slabs yields |Gamma| >= 3 t triangles, giving 3 * z3MultiPlaqKpGapBound.
+  readonly z3RigorousPerim3TubeKpBound: number // 3 * z3MultiPlaqKpGapBound (Gauss's law |Gamma| >= 3 t triangles)
   readonly su3MultiPlaqKpGapBound: number // -ln(M_{SU3}) - ln(e * 21) + ln(x_max) = ln(A_KP / M_{SU3}) > 0
   readonly z3StrictlyBelowWalkCeiling: boolean // z3MultiPlaqKpGapBound < z3WalkCeiling
   readonly su3StrictlyBelowWalkCeiling: boolean // su3MultiPlaqKpGapBound < su3WalkCeiling

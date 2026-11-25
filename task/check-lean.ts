@@ -23,34 +23,43 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { runInfiniteTimeProofs } from '@/code/measure/infinite-time-proofs'
 
-const MIN_HEADLINE_THEOREM_COUNT = 65
+const MIN_HEADLINE_THEOREM_COUNT = 94
 const EXPECTED_LEAN_TOOLCHAIN = 'leanprover/lean4:v4.35.0'
 const EXPECTED_LEAN_VERSION = '4.35.0'
 
 const ALLOWED_AXIOMS = new Set(['propext', 'Quot.sound', 'Classical.choice'])
 
 const REQUIRED_THEOREMS = [
-  // Vibe.Tone (24-slot ternary dock algebra)
+  // Vibe.Tone (5 headline: 24-slot ternary dock algebra)
   'conjDock_involutive',
   'conjDock_fixes_v1',
   'dockCharge_v1',
   'dockCharge_conj',
   'dockCharge_bounded',
-  // Vibe.Algebra (cyclotomic Z[zeta_9] gap cubic)
+  // Vibe.Algebra (4 headline: cyclotomic Z[zeta_9] gap cubic)
   'zeta18_pow18_eq_one',
   'zeta18_unit_left',
   'gapSqZeta18_ne_zero',
   'gapSqZeta18_minpoly',
-  // Vibe.Rule (concrete V1, 1-hop light cone, 8x8 F-G, 2-adic SU(2), symbolic M_pair)
+  // Vibe.Rule (29 headline: classical V1/light-cone, local gate unitarity, 2-adic SU(2) hypotheses, symbolic M_pair)
   'thm1_v1_eternal_stationarity',
   'thm1_light_cone_empty_outside',
   'thm2_coin_unitary_left',
+  'thm2_coin_unitary_right',
   'thm2_halfCoin_sq_eq_coin',
+  'thm2_halfCoin_unitary_left',
+  'thm2_halfCoin_unitary_right',
   'thm2_fg_matrix_unitary',
   'thm2_odd_value_phase_unit',
   'thm2_mpair_zeta18_unitary_diag',
   'thm2_mpair_zeta18_unitary_off',
+  'thm3_M_unitary_left',
+  'thm3_M_unitary_right',
+  'thm3_M_det_eq_four',
+  'thm3_M_trace_eq_one',
   'thm3_M_cayley_hamilton',
+  'thm3_M_pow_recurrence',
+  'thm3_trace_M_pow',
   'thm3_traceSeq_odd',
   'thm3_W_infinite_order_su2',
   'thm3_W_infinite_order_psu2',
@@ -62,7 +71,7 @@ const REQUIRED_THEOREMS = [
   'thm4_mpair12_unitary_right',
   'thm4_mpair12_swave_iter',
   'thm4_mpair12_transverse_iter',
-  // Vibe.Geometry (cusp resistance, Rayleigh scale invariance, subluminality, explicit D_4 geometry + RP)
+  // Vibe.Geometry (14 headline: conditional cusp resistance & subluminality, explicit D_4 geometry + zero-straddling premise)
   'thm5_shell_exp_lower_bound',
   'thm5_resistance_exp_lower_bound',
   'thm5_resistance_strictly_increasing',
@@ -77,7 +86,7 @@ const REQUIRED_THEOREMS = [
   'thm_d4_triangular_plaquette_geometry',
   'thm_d4_no_straddling_triangles',
   'thm_d4_triangle_halfspace_decomposition',
-  // Vibe.Gauge (Spin(10), 3x3 Koide warp, EW m_gamma = 0 & rho = 1, Pati-Salam traces, Z_2 parity, color-weight axion 8/3)
+  // Vibe.Gauge (27 headline: Tier-C Spin(10), 3x3 Koide warp, EW m_gamma=0 & rho=1, Pati-Salam traces, Z_2 parity, axion 8/3)
   'thm7_charge_quantization',
   'thm7_anomaly_grav_u1',
   'thm7_anomaly_u1_cubic',
@@ -94,12 +103,18 @@ const REQUIRED_THEOREMS = [
   'thm9_z_boson_eigenmode',
   'thm9_custodial_rho_eq_one',
   'thm10_ps16_matches_spin10',
+  'thm10_ps_trace_bl_zero',
+  'thm10_ps_trace_t3L_sq',
+  'thm10_ps_trace_t3R_sq',
+  'thm10_ps_trace_bl_sq',
+  'thm10_ps_trace_bl_t3R_orthogonal',
+  'thm10_ps_trace_y_sq',
   'thm10_ps_matching_weights_from_traces',
   'thm10_dyadic_pow2_mod3',
   'thm11_matter_parity_all_16_fermions_odd',
   'thm11_matter_parity_preserved_by_126H',
   'thm13_axion_e_over_n_eight_thirds',
-  // Vibe.Limits (3x3 Z_3 transfer gap, modular Z_N PQ dim, arbitrary-word Mat2Eis unitarity, B^T B Gram RP)
+  // Vibe.Limits (15 headline: 3x3 Z_3 transfer gap, modular Z_N PQ dim, arbitrary-word Mat2Eis unitarity, B^T B Gram positivity)
   'thm14_z3_transfer_vacuum_eigenmode',
   'thm14_z3_transfer_excited_eigenmode',
   'thm14_z3_transfer_mass_gap_all_time',

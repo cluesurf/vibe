@@ -4,11 +4,12 @@ import Vibe.Algebra
 # Vibe Theory: `Spin(10)`, Koide, Electroweak & Pati-Salam Algebraic Proofs (Theorems 7 to 11, 13)
 
 Scope disclosure: Theorems 7, 9, 10 (Pati-Salam traces), 11 (`Z_2` parity), and 13 (`E/N = 8/3`)
-formalize exact finite-table and symbolic representation-theory / electroweak algebra of the
-Standard Model and `Spin(10)` / Pati-Salam GUTs (standard GUT/EW algebra verified machine-checked
-over exact integers, NOT claimed as standalone derivations from the microscopic QCA).
+formalize exact finite-table (`by decide`) and symbolic/inductive representation-theory / electroweak
+algebra of the Standard Model and `Spin(10)` / Pati-Salam GUTs (standard Tier-C GUT/EW algebra verified
+machine-checked over exact integers, NOT claimed as standalone derivations from the microscopic QCA).
 Theorem 8 formalizes exact `3 × 3` matrix trace identities for warped circulant Koide operators,
 and `thm10_dyadic_pow2_mod3` formalizes the exact Eisenstein dyadic mod-3 congruence.
+(Numbering note: `thm12` was retired during refactoring, so numbering skips directly from `thm11` to `thm13`.)
 -/
 
 set_option autoImplicit false
@@ -416,7 +417,7 @@ theorem thm11_matter_parity_preserved_by_126H (bl : Int) :
   omega
 
 
-/-! ## Theorem 13: `SO(10)` Axion `E/N = 8/3` from Direct Color-Weight Anomaly Sum -/
+/-! ## Theorem 13: `SO(10)` Axion `E/N = 8/3` from Direct Color-Weight Anomaly Sum (`thm12` retired) -/
 
 private theorem thm13_color_weight_sum :
     sumIntList (spin10Gen16.map (fun s => s.colorWeight)) = 12 := by decide

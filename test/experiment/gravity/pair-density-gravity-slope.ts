@@ -127,7 +127,7 @@ export default experiment({
         rawRatio5to1: res.rawRatio5to1,
       },
       notes:
-        'At r = 1..2 along the cubic axis (r,0,0), even the exact massless 3D simple cubic lattice Green function G_3D has an O(1/r^2) quadrupole UV correction (+8.15% at r=1, +7.79% at r=2) and centered difference -(V(r+1)-V(r-1))/2 of 1/r equals 1/(r^2-1). G_warped matches exact G_3D/K_eff to 0.0013% across r=2..10 and enters the <1% continuum 1/r and 1/r^2 regime for r >= 6.',
+        `At r = 1..2 along the cubic axis (r,0,0), even the exact massless 3D simple cubic lattice Green function G_3D has an O(1/r^2) quadrupole UV correction (+8.15% at r=1, +7.79% at r=2) and centered difference -(V(r+1)-V(r-1))/2 of 1/r equals 1/(r^2-1). G_warped matches exact G_3D/K_eff to ${(res.maxLatticeMatchErrR2to10 * 100).toFixed(6)}% across r=2..10 and enters the <1% continuum 1/r and 1/r^2 regime for r >= 6.`,
     })
   },
 })

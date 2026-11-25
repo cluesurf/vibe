@@ -1,16 +1,16 @@
 code,test,category,depth,paper,substrates,title
 E-CMP-0001,computation/computation-73,computation,L1,false,any,"COMPARATIVE ({7,3}): the heptagrid carries the railway prerequisites (canonical substrate is {3,4,3,4})"
-E-CMP-0002,computation/direction-intention,computation,L2,false,any,"a goal-directed search solves in K steps while an un-goaled one fails"
+E-CMP-0002,computation/direction-intention,computation,L2,false,any,a goal-directed search solves in K steps while an un-goaled one fails
 E-CMP-0003,computation/discrete-rule-endtoend,computation,L2,true,any,"one discrete directional rule conserves charge and momentum exactly, is exactly reversible, and coarse-grains smooth"
-E-CMP-0004,computation/hierarchical-solving,computation,L2,true,534,"the global coordination distance is O(log N) and tiny"
+E-CMP-0004,computation/hierarchical-solving,computation,L2,true,534,the global coordination distance is O(log N) and tiny
 E-CMP-0005,computation/means-computation,computation,L2,true,534,"the {5,3,4} hosts universal computation via a Minsky machine"
 E-CMP-0006,computation/p213-universality,computation,L2,true,any,"the flat {4,3,4} cusp runs the reversible Margolus billiard-ball CA (ballistic wire plus exact reversibility)"
 E-CMP-0007,computation/reversible-universality,computation,L2,true,534,"COMPARATIVE ({5,3,4}): the reversible rule is universal on the dodecagrid (canonical claim is reversible-universality-3434)"
 E-CMP-0008,computation/reversible-universality-3434,computation,L2,true,3434,"the committed reversible knit rule on the {3,4,3,4} 24-cell is computationally universal"
 E-CMP-0009,computation/self-replication,computation,L2,true,any,"a deterministic constructor makes a growing population of bit-identical copies, while a lossy one breaks heredity"
-E-CMP-0010,computation/substrate-computer,computation,L2,true,534,"a programmable register machine runs on the charge dynamics"
+E-CMP-0010,computation/substrate-computer,computation,L2,true,534,a programmable register machine runs on the charge dynamics
 E-CMP-0011,computation/turing-3434,computation,L2,true,3434,"{3,4,3,4} is computationally universal via railway structure, ternary NAND and Rule 110, a register machine, and cusp Life"
-E-CMP-0012,computation/universality,computation,L2,true,any,"the rule is functionally complete and runs gates on the live dynamics"
+E-CMP-0012,computation/universality,computation,L2,true,any,the rule is functionally complete and runs gates on the live dynamics
 E-CMP-0013,computation/walk-complexity,computation,L2,false,any,"vibe's emergent quantum walk profile is above the Morse-Hedlund complexity line (genuine interference, Ord and Kauffman), the classical diffusive walk below it"
 E-CMP-0014,computation/sparse-attention-update,computation,L1,false,3434,"the reversible rule is a sparse one-hot local-attention update, with exact activity pruning on vacuum-fixed rules (speedup vanishes on a dense state, and the creating rule has a live vacuum)"
 E-CSM-0001,cosmology/arrow-from-the-wake,cosmology,L2,true,534,"the arrow derived from growth, the wake gradient alone creates a living universe with no arrow parameter"
@@ -21,8 +21,8 @@ E-CSM-0005,cosmology/contact-with-data,cosmology,L0,false,any,"adopted everprese
 E-CSM-0006,cosmology/cosmological-constant,cosmology,L2,false,any,"the action fluctuation scales as the square root of volume, the everpresent-Lambda law"
 E-CSM-0007,cosmology/cosmology-and-anisotropy,cosmology,L1,true,3434,"the {3,4,3,4} bulk grows exponentially (de Sitter) and the cusp cubic anisotropy passes Lorentz bounds"
 E-CSM-0008,cosmology/curvature-arrow,cosmology,L3,true,73,"only negative curvature sustains the arrow, a spherical orbit closes and dies, a hyperbolic orbit grows and lives"
-E-CSM-0009,cosmology/dark-energy-4d,cosmology,L1,false,any,"the 4D action fluctuation scaling is measured"
-E-CSM-0010,cosmology/dark-energy-smeared,cosmology,L2,false,any,"4D smeared kernel tames the fluctuation (toward everpresent Lambda)"
+E-CSM-0009,cosmology/dark-energy-4d,cosmology,L1,false,any,the 4D action fluctuation scaling is measured
+E-CSM-0010,cosmology/dark-energy-smeared,cosmology,L2,false,any,4D smeared kernel tames the fluctuation (toward everpresent Lambda)
 E-CSM-0011,cosmology/deterministic-growth,cosmology,L2,true,any,"resumable, append-only, faithful, geometry emerges (golden ratio)"
 E-CSM-0012,cosmology/dimension-selection,cosmology,L1,true,any,"only d=3 gives stable closed orbits (d=2 precesses, d>=4 unstable)"
 E-CSM-0013,cosmology/discrete-genesis,cosmology,L3,true,3434,"genesis on purely ternary integer {3,4,3,4} structures, no decimals, no randomness, no hash"
@@ -31,29 +31,29 @@ E-CSM-0015,cosmology/emergent-spatial-geometry,cosmology,L2,true,any,"slice dime
 E-CSM-0016,cosmology/eternal-bootstrap,cosmology,L2,true,any,"the reversible rule churns forever from a generic state and is exactly reversible, an irreversible rule decays"
 E-CSM-0017,cosmology/eternal-ladder,cosmology,L2,true,any,"grows without bound, stays Lorentz-safe, model always runs"
 E-CSM-0018,cosmology/everpresent-dynamical,cosmology,L2,true,any,"genuine Poisson statistics give V^-0.5, adopted scaling matches the observed order of magnitude"
-E-CSM-0019,cosmology/expansion,cosmology,L2,false,any,"expanding geometry gives an expanding causal order"
+E-CSM-0019,cosmology/expansion,cosmology,L2,false,any,expanding geometry gives an expanding causal order
 E-CSM-0020,cosmology/expansion-rate,cosmology,L2,true,534,"the per-beat expansion is the growth-ratio invariant of the symbol, fixed and greater than 1, not a free knob"
 E-CSM-0021,cosmology/first-distinction,cosmology,L1,true,534,"the first distinction is a single balanced adjacent (+1,-1) pair born from peace, conserving zero"
-E-CSM-0022,cosmology/free-energy,cosmology,L2,false,any,"the manifold phase wins the sum over histories above a finite coupling"
+E-CSM-0022,cosmology/free-energy,cosmology,L2,false,any,the manifold phase wins the sum over histories above a finite coupling
 E-CSM-0023,cosmology/genesis-basin,cosmology,L3,true,534,"the initial state is irrelevant, every start converges to the same living balance, the universe is an attractor"
 E-CSM-0024,cosmology/genesis-forgetting,cosmology,L2,true,534,"the deep past washes out, two different starts converge to the same macroscopic state under the arrow"
 E-CSM-0025,cosmology/genesis-genericity,cosmology,L2,true,534,"genesis is generic, the peace void self-creates a living universe at every lattice size, not a finite-size fluke"
 E-CSM-0026,cosmology/growing-mesh-genesis,cosmology,L3,true,73,"the full prize, a growing mesh self-creates a living universe with no arrow parameter at all"
-E-CSM-0027,cosmology/growth-expansion,cosmology,L3,true,any,"net-positive DETERMINISTIC birth gives emergent expansion (static control at q=0)"
+E-CSM-0027,cosmology/growth-expansion,cosmology,L3,true,any,net-positive DETERMINISTIC birth gives emergent expansion (static control at q=0)
 E-CSM-0028,cosmology/inflation,cosmology,L2,true,any,"slow-roll derived (w ~ -1, e-folds = phi0^2/4 computed, graceful exit emerges)"
 E-CSM-0029,cosmology/knife-edge,cosmology,L2,true,534,"the genesis threshold is exactly arrow zero at every lattice size, the void is a scale-free measure-zero dead point"
 E-CSM-0030,cosmology/large-n-crossing,cosmology,L1,false,any,"cluster move traverses heights, single-pair stuck"
 E-CSM-0031,cosmology/minimal-seed,cosmology,L2,true,534,"the minimal seed is nothing, every seed boots the same attractor, and the rule is non-injective (Garden-of-Eden)"
 E-CSM-0032,cosmology/open-cusp-settling,cosmology,L2,true,3434,"matter does not dynamically settle onto the flat cusp under the pure reversible rule, an honest negative"
-E-CSM-0033,cosmology/p13-cosmology,cosmology,L2,true,any,"growth gives a monotone arrow of time and a finite dimension"
+E-CSM-0033,cosmology/p13-cosmology,cosmology,L2,true,any,growth gives a monotone arrow of time and a finite dimension
 E-CSM-0034,cosmology/p237-cosmology,cosmology,L1,true,3434,"the hyperbolic {3,4,3,4} bulk grows exponentially with radius, the eternal expansion"
 E-CSM-0035,cosmology/primordial-spectrum,cosmology,L1,false,any,"scale-free Poisson density contrast, exponent -1/2"
 E-CSM-0036,cosmology/rarity-measures,cosmology,L3,true,any,"three independent measures confirm life is a rare, thin, threshold-gated tail of matter"
-E-CSM-0037,cosmology/scaling,cosmology,L2,false,any,"the manifold and layered phases coexist with a wide gap that persists as size grows"
+E-CSM-0037,cosmology/scaling,cosmology,L2,false,any,the manifold and layered phases coexist with a wide gap that persists as size grows
 E-CSM-0038,cosmology/singularity-resolution,cosmology,L2,true,any,"discreteness caps the curvature (finite, density-set)"
-E-CSM-0039,cosmology/study,cosmology,L1,false,any,"the smeared causal-set action drives the order parameter toward a 2D manifold reference"
+E-CSM-0039,cosmology/study,cosmology,L1,false,any,the smeared causal-set action drives the order parameter toward a 2D manifold reference
 E-CSM-0040,cosmology/time-symmetry,cosmology,L2,true,534,"the arrow as broken time-reversal symmetry, the symmetric point is the unique dead one"
-E-CSM-0041,cosmology/transition,cosmology,L2,false,any,"the manifold phase is a stable basin under the smeared action and decays under the sharp action"
+E-CSM-0041,cosmology/transition,cosmology,L2,false,any,the manifold phase is a stable basin under the smeared action and decays under the sharp action
 E-CSM-0042,cosmology/vacuum-genesis,cosmology,L2,true,534,"the peace vacuum is unstable under the arrow, a living charge-zero universe self-creates from the void"
 E-CSM-0043,cosmology/wake-expansion-scalar,cosmology,L2,true,3434,"the wake is the expansion scalar: the conserved-current divergence is exactly the count of newly born edge cells (positive, geometrically growing) and integer-exact zero in the settled bulk, dead under the static control"
 E-CSM-0044,cosmology/spectral-index-tensor,cosmology,L2,true,any,"the slow-roll inflaton gives the CMB spectral index n_s about 0.96 (matching the observed 0.965) but a tensor ratio r about 0.14 that exceeds the bound r < 0.06, matching the tilt and in tension on tensors, exactly as quadratic inflation is in standard cosmology"
@@ -64,30 +64,30 @@ E-CSM-0048,cosmology/starobinsky-from-r-squared,cosmology,L1,true,any,"if the in
 E-DST-0001,data-structure/addressing,data-structure,L1,true,3434,"DS2: the hyperbolic bulk gives unique cell addresses of logarithmic length, far shorter than flat"
 E-DST-0002,data-structure/associative-memory,data-structure,L2,true,any,"DS10: associative-memory capacity scales with dimension, exponential in the bulk radius"
 E-DST-0003,data-structure/bfs-traversal,data-structure,L1,true,3434,"SS8: BFS frontier IS the growth shell, traversal is free with no explicit queue"
-E-DST-0004,data-structure/boundary-sketch,data-structure,L1,true,3434,"DS12: a Bloom filter on the exponential boundary has a false-positive rate that falls with radius"
+E-DST-0004,data-structure/boundary-sketch,data-structure,L1,true,3434,DS12: a Bloom filter on the exponential boundary has a false-positive rate that falls with radius
 E-DST-0005,data-structure/btree-descent,data-structure,L2,true,3434,"SS1: a B-tree point query on {3,4,3,4} is a logarithmic-depth descent with no stored child pointers"
-E-DST-0006,data-structure/capacity,data-structure,L1,true,3434,"DS1: the 4D hyperbolic bulk holds exponentially more cells per radius than the flat honeycomb"
+E-DST-0006,data-structure/capacity,data-structure,L1,true,3434,DS1: the 4D hyperbolic bulk holds exponentially more cells per radius than the flat honeycomb
 E-DST-0007,data-structure/cell-coordination,data-structure,L1,true,all,"phase 3: the exact B-tree order (cell coordination) of every tessellation, computed from its symbol"
 E-DST-0008,data-structure/cusp-array,data-structure,L1,true,534,"SS14: a dense array belongs on the flat horosphere, the bulk interior is too sparse to be an array"
 E-DST-0009,data-structure/dht-routing,data-structure,L2,true,3434,"DS5: DHT key lookup routes up to the common prefix and down in O(log N) hops, O(1) state"
-E-DST-0010,data-structure/greedy-routing,data-structure,L2,true,534,"DS4: greedy routing delivers on the hyperbolic metric and degrades on the Euclidean control"
+E-DST-0010,data-structure/greedy-routing,data-structure,L2,true,534,DS4: greedy routing delivers on the hyperbolic metric and degrades on the Euclidean control
 E-DST-0011,data-structure/hash-table,data-structure,L1,true,any,"SS2: keys hash to exact cell addresses, lookup is O(1) probes at a reasonable load"
 E-DST-0012,data-structure/horoball-rtree,data-structure,L2,true,534,"SS12: nested horoballs are an R-tree hierarchy, a query descends logarithmically many bounding volumes"
 E-DST-0013,data-structure/implicit-neighbors,data-structure,L1,true,3434,"DS3: {3,4,3,4} neighbours are computed from the D4 coordinate, zero stored adjacency"
 E-DST-0014,data-structure/interior-empty,data-structure,L1,true,3434,"DS13: the hyperbolic bulk is boundary-dominated, almost all cells lie in the outermost shell"
 E-DST-0015,data-structure/inverted-index,data-structure,L1,true,any,"SS13: terms hash to boundary cells, retrieval is output-sensitive, not corpus-sized"
-E-DST-0016,data-structure/lsm-levels,data-structure,L2,true,3434,"SS5: the radial shells are geometric LSM levels with a stable fan-out and logarithmic level count"
-E-DST-0017,data-structure/merkle-proof,data-structure,L1,true,3434,"DS11: a Merkle inclusion proof on the bulk tree is a logarithmic-length path to the root"
+E-DST-0016,data-structure/lsm-levels,data-structure,L2,true,3434,SS5: the radial shells are geometric LSM levels with a stable fan-out and logarithmic level count
+E-DST-0017,data-structure/merkle-proof,data-structure,L1,true,3434,DS11: a Merkle inclusion proof on the bulk tree is a logarithmic-length path to the root
 E-DST-0018,data-structure/path-structures,data-structure,L1,true,3434,"SS10: a list is a cell path and a stack is a radial ray, O(1) per step, depth is the height"
 E-DST-0019,data-structure/radial-heap,data-structure,L2,true,3434,"SS4: the radial depth is a heap order, peek-min is the root in O(1)"
 E-DST-0020,data-structure/radial-mipmap,data-structure,L2,true,534,"DS7: the radial Busemann levels form a multiresolution pyramid, fine levels hold geometrically more cells"
-E-DST-0021,data-structure/range-scan,data-structure,L1,true,3434,"DS14: a range scan in the hyperbolic bulk visits exponentially many cells (the caveat)"
+E-DST-0021,data-structure/range-scan,data-structure,L1,true,3434,DS14: a range scan in the hyperbolic bulk visits exponentially many cells (the caveat)
 E-DST-0022,data-structure/skip-list-shortcut,data-structure,L2,true,73,"DS9: the bulk diameter is logarithmic, every cell is a short path away (the skip-list shortcut)"
 E-DST-0023,data-structure/sorting-by-address,data-structure,L1,true,3434,"SS7: the canonical address is a total order, sorting is reading cells in address order"
 E-DST-0024,data-structure/tree-embedding,data-structure,L2,true,73,"DS6: a tree embeds in the hyperbolic disk at low distortion, the Euclidean plane cannot"
 E-DST-0025,data-structure/trie-prefix,data-structure,L1,true,3434,"SS3: cell addresses form a trie, every address extends its parent by one digit"
-E-DST-0026,data-structure/union-find,data-structure,L2,true,3434,"SS15: union-find on the cell tree has logarithmic find depth from short bulk paths"
-E-DST-0027,data-structure/universal-geometric-profile,data-structure,L2,true,all,"phase 2: greedy routing and the Busemann mipmap run on every tessellation via the Coxeter embedding"
+E-DST-0026,data-structure/union-find,data-structure,L2,true,3434,SS15: union-find on the cell tree has logarithmic find depth from short bulk paths
+E-DST-0027,data-structure/universal-geometric-profile,data-structure,L2,true,all,phase 2: greedy routing and the Busemann mipmap run on every tessellation via the Coxeter embedding
 E-DST-0028,data-structure/universal-profile,data-structure,L1,true,all,"one module gives the data-structure profile of every 2D-to-5D tessellation, all have exponential capacity and logarithmic tree depth"
 E-FLD-0001,fluids/chaotic-collision-ballistic,fluids,L2,true,3434,"a configuration-controlled (chaotic) reversible collision is still ballistic, deterministic chaos does not give viscosity"
 E-FLD-0002,fluids/charge-diffusion-bath,fluids,L2,true,3434,"the conserved charge wave recurs in the reversible bulk (not diffusive), real charge diffusion needs the bath"
@@ -102,83 +102,83 @@ E-FLD-0010,fluids/coarse-runaway,fluids,L2,true,3434,"the coarse velocity-gradie
 E-FLD-0011,fluids/emergent-shear-viscosity,fluids,L2,true,any,"the momentum-conserving gas has a finite shear viscosity, the shear-mode decay rate scales as k squared with one nu across wavenumbers and sizes, while the pinning pair table has no shear mode at all"
 E-FLD-0012,fluids/poiseuille-channel-profile,fluids,L2,true,any,"a decaying plug in a bounce-back channel develops a parabola-like Poiseuille profile under the momentum-conserving bulk, and stays flat (ohmic) under the momentum-losing pair table"
 E-FLD-0013,fluids/emergent-sound-speed,fluids,L2,true,any,"a density bump in the momentum-conserving gas radiates a ballistic pulse with one well-defined sound speed near 1/sqrt(2), while the pinning pair table leaves the bump frozen"
-E-FND-0001,foundations/absolute-limits,foundations,L2,true,534,"net charge cannot be minted and the lightcone cannot be outrun at any coarse-graining level"
+E-FND-0001,foundations/absolute-limits,foundations,L2,true,534,net charge cannot be minted and the lightcone cannot be outrun at any coarse-graining level
 E-FND-0002,foundations/arrow-from-integer-order,foundations,L2,false,3434,"the arrow is the order of the INTEGERS (the discrete beat-count), the unique ordered discrete normed ring, the discrete geometry rings (i^2=-1) unordered"
 E-FND-0003,foundations/arrow-from-real-order,foundations,L2,false,3434,"the arrow is the order of the reals (the unique ordered division algebra), time = the 1 real axis (ordered), space = the 7 imaginary axes (unordered)"
 E-FND-0004,foundations/auto-selection,foundations,L2,true,534,"ternary plus minimal eternal closure forces {5,3,4}"
 E-FND-0005,foundations/base-uniqueness-theorem,foundations,L1,false,3434,"the 24-cell is the unique self-dual, crystallographic, triality-carrying regular 4-polytope, so the dock is forced"
-E-FND-0006,foundations/capstone,foundations,L2,true,534,"the committed model runs end-to-end with all structures from one instantiation"
+E-FND-0006,foundations/capstone,foundations,L2,true,534,the committed model runs end-to-end with all structures from one instantiation
 E-FND-0007,foundations/coin-algebra,foundations,L1,true,3434,"the 24 coin directions are the D4 roots with triality, the spin algebra"
 E-FND-0008,foundations/conserved-dynamics,foundations,L2,true,534,"conserved exchange on {5,3,4} keeps Q exact while charge diffuses, pumps, and pairs"
-E-FND-0009,foundations/continuum-limit,foundations,L1,false,any,"the dimension estimate agrees with the continuum value at all N"
+E-FND-0009,foundations/continuum-limit,foundations,L1,false,any,the dimension estimate agrees with the continuum value at all N
 E-FND-0010,foundations/controls-battery,foundations,L1,false,any,"a negative-control battery, each property test catches a deliberately broken rule"
 E-FND-0011,foundations/cpt-theorem,foundations,L2,false,3434,"the discrete CPT theorem, the reversible knit has C, P, T symmetries and the combined CPT is a symmetry of the dynamics, the no-T case the control"
-E-FND-0012,foundations/design-signature,foundations,L2,true,534,"the rich regime is broad so there is no fine-tuning signature"
-E-FND-0013,foundations/directional-rule,foundations,L1,true,3434,"the directional lattice-gas conserves charge and is exactly reversible"
-E-FND-0014,foundations/doi-peliti-check,foundations,L1,false,any,"the rule is a spin-1 charge-conserving reversible exchange model"
-E-FND-0015,foundations/dsl,foundations,L1,false,534,"the DSL builds the committed model and expresses variants"
+E-FND-0012,foundations/design-signature,foundations,L2,true,534,the rich regime is broad so there is no fine-tuning signature
+E-FND-0013,foundations/directional-rule,foundations,L1,true,3434,the directional lattice-gas conserves charge and is exactly reversible
+E-FND-0014,foundations/doi-peliti-check,foundations,L1,false,any,the rule is a spin-1 charge-conserving reversible exchange model
+E-FND-0015,foundations/dsl,foundations,L1,false,534,the DSL builds the committed model and expresses variants
 E-FND-0016,foundations/dynamics-73,foundations,L2,false,any,"the directional rule on the {7,3} cell graph conserves charge exactly and gives a z=1 light cone"
 E-FND-0017,foundations/dynamics-forces-octonions,foundations,L2,false,3434,"the dynamics forces the octonions (reversibility caps dim at 8, fermions require dim 8, they meet at exactly 8), so the base is one root, the dynamics"
-E-FND-0018,foundations/emergent,foundations,L2,true,any,"the emergent-mesh Hamiltonian (graph Laplacian) is local and bounded below at once"
-E-FND-0019,foundations/exact,foundations,L1,false,any,"exact Boltzmann averages over every causal set on six elements"
+E-FND-0018,foundations/emergent,foundations,L2,true,any,the emergent-mesh Hamiltonian (graph Laplacian) is local and bounded below at once
+E-FND-0019,foundations/exact,foundations,L1,false,any,exact Boltzmann averages over every causal set on six elements
 E-FND-0020,foundations/fermions-from-octonions,foundations,L2,false,3434,"one generation of fermions (with exact color and charges 0, 1/3, 2/3, 1) from the complexified octonions, the Furey construction"
 E-FND-0021,foundations/gauge-group-from-octonions,foundations,L2,false,3434,"the Standard-Model gauge group SU(3)xSU(2)xU(1) (dims 8+3+1=12) descends from the division-algebra tower, C->U(1), H->SU(2), O->SU(3)"
 E-FND-0022,foundations/generator-packing-optimum,foundations,L1,true,3434,"the dock is the optimal 4D kissing shell and admits no 25th direction, including against half-integer candidates"
-E-FND-0023,foundations/generator-quaternion-spinor,foundations,L1,true,3434,"the 24 Hurwitz quaternions are the group 2T with a genuine spinor (nonsplit double cover)"
+E-FND-0023,foundations/generator-quaternion-spinor,foundations,L1,true,3434,the 24 Hurwitz quaternions are the group 2T with a genuine spinor (nonsplit double cover)
 E-FND-0024,foundations/generator-tone-shell,foundations,L1,true,3434,"the 24-cell dock is the norm-2 shell of {-1,0,+1}^4, the geometry is the tone"
 E-FND-0025,foundations/generator-triality-unique,foundations,L1,true,3434,"D4 is the unique simple root system with triality, which forces the {3,4,3,4} dock"
-E-FND-0026,foundations/hamiltonian,foundations,L2,false,any,"a reversible cellular automaton gives a permutation Hamiltonian bounded below"
+E-FND-0026,foundations/hamiltonian,foundations,L2,false,any,a reversible cellular automaton gives a permutation Hamiltonian bounded below
 E-FND-0027,foundations/higgs-from-octonions,foundations,L2,false,3434,"the Higgs is the quaternionic SU(2) doublet (the internal connection), forced by custodial rho=1, completing the Standard Model from the octonion seed"
 E-FND-0028,foundations/knit-rule-forced,foundations,L2,false,3434,"the knit is one of 10395 by conservation alone, and the crystallographic B4 symmetry (verified order-192 on the lines) forces it UNIQUE along a descending curve 10395 to 75 to 3 to 1, while the full F4 (triality) over-constrains to ZERO, so the knit respects B4 but breaks triality"
-E-FND-0029,foundations/large-n-hardening,foundations,L1,false,any,"the sampled dimension estimator matches exact and sharpens at large N"
+E-FND-0029,foundations/large-n-hardening,foundations,L1,false,any,the sampled dimension estimator matches exact and sharpens at large N
 E-FND-0030,foundations/lattice-gas-reversible-logic,foundations,L2,false,3434,"vibe's knit is conservative reversible logic, no fan-out, a conserved tone census, and an invertible step (Toffoli, Fredkin, Bennett-Landauer), where a lossy rule fails all three"
-E-FND-0031,foundations/law,foundations,L2,true,any,"scanning reversible rules for a local bounded-below Hamiltonian"
+E-FND-0031,foundations/law,foundations,L2,true,any,scanning reversible rules for a local bounded-below Hamiltonian
 E-FND-0032,foundations/locality,foundations,L2,false,any,"the Pauli locality profile of a reversible Hamiltonian, validated by a provable control"
 E-FND-0033,foundations/monism-forces-eight,foundations,L1,true,any,"monism (vector = spinor) forces dimension eight uniquely, the pinch-point floor from the base not from observed families; three generations emerge as the three faces 8v 8s 8c"
-E-FND-0034,foundations/naturalness-shared-past,foundations,L2,true,any,"an aligned shared past violates CHSH while a generic one does not"
+E-FND-0034,foundations/naturalness-shared-past,foundations,L2,true,any,an aligned shared past violates CHSH while a generic one does not
 E-FND-0035,foundations/octonion-base-generator,foundations,L2,false,3434,"the base substrate ({3,4,3,4}/24-cell) and the three generations descend from the octonions (the unique maximal division algebra) by triality"
 E-FND-0036,foundations/one-rule-all-sectors,foundations,L2,true,534,"matter, force, and radiation all appear from one operator on one mesh"
 E-FND-0037,foundations/s534-dynamics,foundations,L2,true,534,"the directional rule streams and conserves charge exactly on the {5,3,4} bulk and the wave churns"
-E-FND-0038,foundations/ternary-and-4d-forced,foundations,L2,false,any,"the ternary tone (minimal with a vacuum and charge conjugation) and the four dimensions (the unique triality D4) are forced"
+E-FND-0038,foundations/ternary-and-4d-forced,foundations,L2,false,any,the ternary tone (minimal with a vacuum and charge conjugation) and the four dimensions (the unique triality D4) are forced
 E-FND-0039,foundations/ternary-not-triality,foundations,L2,false,any,"the ternary three (vacuum + pair, Z2, partition 1+2) is NOT the triality three (symmetric, S3, partition 3), so the tone is the irreducible atom of distinction"
-E-FND-0040,foundations/unified-model,foundations,L2,true,534,"one mesh and one rule produce all the key phenomena together in one run"
-E-FND-0041,foundations/uniform,foundations,L1,false,any,"the uniform-measure sampler reproduces the exact manifold fraction at small size"
-E-FND-0042,foundations/validation,foundations,L2,false,any,"the reversible even-odd rule is local with a bounded interaction radius"
+E-FND-0040,foundations/unified-model,foundations,L2,true,534,one mesh and one rule produce all the key phenomena together in one run
+E-FND-0041,foundations/uniform,foundations,L1,false,any,the uniform-measure sampler reproduces the exact manifold fraction at small size
+E-FND-0042,foundations/validation,foundations,L2,false,any,the reversible even-odd rule is local with a bounded interaction radius
 E-FND-0043,foundations/forced-derivation-ladder,foundations,L1,true,3434,"the from-nothing derivation run as one chain, current: seven rungs (tone, arrow, eight, census, cell, mesh, law) each recompute their canonical number by exhaustive enumeration, with the arrow squares computed, the dimension-eight floor forced by triality, the cell faces derived, the law forced to exactly one by the crystallographic B4, and the honest residual leap map (the hyperbolic tiling choice over the flat {3,4,3,3} included) stated rather than glossed"
 E-FND-0044,foundations/cell-is-forced,foundations,L1,true,3434,"the 24-cell emerges from integer arithmetic: the ternary tone on four slots gives 81 words partitioned exactly 1+8+24+32+16, among the stepping shells only the 24 spans a self-dual polytope (corners equal faces, DERIVED by facet enumeration, the 16-cell and tesseract fail), and the 24 vertices form the binary tetrahedral group 2T carrying the belt-trick spinor, while the tesseract carries no spinor, the control"
 E-FND-0045,foundations/tone-is-forced,foundations,L1,true,any,"the ternary tone emerges from integer arithmetic: over EVERY subset of {-3..3} the unique smallest set with a vacuum (a 0) and a mirror (nontrivial negation closure) is {-1,0,+1}, size three, where a vacuum alone forces only size one and a mirror alone only size two, so both requirements together force the three"
 E-FND-0046,foundations/beat-computes-on-mesh,foundations,L2,true,3434,"the beat computes on the forced mesh: the knit (collide then stream, applied synchronously to every cell) conserves charge exactly and is reversible (forward then backward recovers the start bit for bit) on the {3,4,3,4} d4 mesh, while an erasing rule conserves neither, so the beat is a lawful reversible computation and the arrow lives in the wake, not the knit"
 E-FRC-0001,gauge/actual-rule-soliton,gauge,L2,false,any,"a 1D fermion sea does not settle the 3D Skyrme stabilizing sign, an honest open gate"
 E-FRC-0002,gauge/anomaly-cancellation-octonion,gauge,L2,true,any,"the octonion construction delivers a COMPLETE anomaly-free generation: all six gauge, gravitational, and Witten anomalies cancel on the derived charges, with no exotic extras"
-E-FRC-0003,gauge/anomaly-charge-quantization,gauge,L0,true,any,"anomaly cancellation forces the Standard Model hypercharges and quantized electric charges"
-E-FRC-0004,gauge/chiral-gauge,gauge,L0,false,any,"naive lattice fermions double to 2^d species whose chiralities cancel and a Wilson term leaves one"
+E-FRC-0003,gauge/anomaly-charge-quantization,gauge,L0,true,any,anomaly cancellation forces the Standard Model hypercharges and quantized electric charges
+E-FRC-0004,gauge/chiral-gauge,gauge,L0,false,any,naive lattice fermions double to 2^d species whose chiralities cancel and a Wilson term leaves one
 E-FRC-0005,gauge/coemergence-dynamical-3434,gauge,L2,true,any,"one coupled rule binds the photon and fermion sectors both ways, and decoupling kills both together"
 E-FRC-0006,gauge/coemergence-structural-3434,gauge,L1,true,3434,"the rotation subgroup forces the photon 8v and fermion 8s, 8c sectors as invariant subspaces"
 E-FRC-0007,gauge/confinement,gauge,L2,false,any,"3D SU(2) confines with a string tension that, measured in units of the coupling at three lattice spacings, extrapolates to the continuum sqrt(sigma) / g^2 = 0.335"
 E-FRC-0008,gauge/coupled-qed-3434,gauge,L2,true,any,"one coupled rule conserves charge, stays gauge invariant, and back-reacts, lattice QED"
-E-FRC-0009,gauge/coupling-not-fixed-3434,gauge,L1,true,any,"the bare rule treats the gauge coupling as a free multiplicative constant and fixes no value for it"
+E-FRC-0009,gauge/coupling-not-fixed-3434,gauge,L1,true,any,the bare rule treats the gauge coupling as a free multiplicative constant and fixes no value for it
 E-FRC-0010,gauge/d5-coin-search,gauge,L1,true,3434,"no regular honeycomb coin carries D5 = so(10), the geometry tops out at D4"
-E-FRC-0011,gauge/dynamic-dispersion,gauge,L2,true,any,"the conserved charge has a gapless hydrodynamic mode but it is diffusive not relativistic"
+E-FRC-0011,gauge/dynamic-dispersion,gauge,L2,true,any,the conserved charge has a gapless hydrodynamic mode but it is diffusive not relativistic
 E-FRC-0012,gauge/electroweak-boson-masses,gauge,L2,false,any,"the W and Z masses, M_W/M_Z = cos(theta_W) near the observed value and the custodial rho = 1 from the Higgs doublet, a triplet the control"
-E-FRC-0013,gauge/electroweak-prediction,gauge,L1,true,any,"sin squared of the weak mixing angle is 3/8 at unification from the so(10) charges"
+E-FRC-0013,gauge/electroweak-prediction,gauge,L1,true,any,sin squared of the weak mixing angle is 3/8 at unification from the so(10) charges
 E-FRC-0014,gauge/emergent-gauge,gauge,L2,false,3434,"the bare rule locally conserves charge, a U(1) Gauss law, but not a generic internal current"
 E-FRC-0015,gauge/emergent-symmetry,gauge,L1,true,3434,"triality kills the degree-4 anisotropy, so the F4 coin symmetry is continuous to order 6"
 E-FRC-0016,gauge/emergent-u1-gauge,gauge,L2,true,any,"a U(1) Wilson loop equals the enclosed flux and is gauge invariant, the Aharonov-Bohm phase"
 E-FRC-0017,gauge/exceptional-jordan-generations,gauge,L1,true,3434,"the rank-3 Albert algebra is forced with an S_3 slot symmetry, but its three 8-dim pieces are not three 16-fermion generations"
-E-FRC-0018,gauge/exceptional-ladder,gauge,L1,false,3434,"the 24-cell D4 sits at the bottom of the forced exceptional ladder D4 < D5 < E6 < E7 < E8"
+E-FRC-0018,gauge/exceptional-ladder,gauge,L1,false,3434,the 24-cell D4 sits at the bottom of the forced exceptional ladder D4 < D5 < E6 < E7 < E8
 E-FRC-0019,gauge/fine-structure-not-geometric,gauge,L2,false,any,"the fine-structure constant is not geometric (it runs), the geometry fixes the weak angle 3/8 and the GUT normalization 5/3, leaving exactly one free gauge coupling"
 E-FRC-0020,gauge/flavor-mixing-pattern,gauge,L2,false,any,"flavor mixing tracks the mass hierarchy, the Cabibbo angle from sqrt(m_d/m_s) and small hierarchical quark mixing versus large lepton mixing, anarchy the control"
 E-FRC-0021,gauge/g-factor-3434,gauge,L2,true,any,"the spinor g-factor is measured as 2 from the Dirac Landau spectrum, not assumed"
-E-FRC-0022,gauge/gauge-embedding,gauge,L1,true,3434,"the Standard Model algebra does not fit in D4 = so(8) but does fit in D5 = so(10)"
-E-FRC-0023,gauge/gauge-fermion,gauge,L2,false,any,"a covariant Kahler-Dirac fermion in a relaxed U(1) gauge background has a clean spectrum"
-E-FRC-0024,gauge/gauge-from-action,gauge,L1,false,any,"the Maxwell operator is derived from the Wilson gauge action in the small-field limit"
-E-FRC-0025,gauge/gauge-from-coin-tone,gauge,L1,true,3434,"the coin D4 plus the tone as a fifth axis builds D5 = so(10) and embeds the Standard Model"
-E-FRC-0026,gauge/gut-breaking,gauge,L1,false,3434,"so(10) breaks to su(5) to the Standard Model with the 16-spinor carrying a singlet"
-E-FRC-0027,gauge/higgs,gauge,L0,false,any,"symmetry breaking gives a nonzero vacuum value and a massive photon while the symmetric phase stays massless"
+E-FRC-0022,gauge/gauge-embedding,gauge,L1,true,3434,the Standard Model algebra does not fit in D4 = so(8) but does fit in D5 = so(10)
+E-FRC-0023,gauge/gauge-fermion,gauge,L2,false,any,a covariant Kahler-Dirac fermion in a relaxed U(1) gauge background has a clean spectrum
+E-FRC-0024,gauge/gauge-from-action,gauge,L1,false,any,the Maxwell operator is derived from the Wilson gauge action in the small-field limit
+E-FRC-0025,gauge/gauge-from-coin-tone,gauge,L1,true,3434,the coin D4 plus the tone as a fifth axis builds D5 = so(10) and embeds the Standard Model
+E-FRC-0026,gauge/gut-breaking,gauge,L1,false,3434,so(10) breaks to su(5) to the Standard Model with the 16-spinor carrying a singlet
+E-FRC-0027,gauge/higgs,gauge,L0,false,any,symmetry breaking gives a nonzero vacuum value and a massive photon while the symmetric phase stays massless
 E-FRC-0028,gauge/index-theorem,gauge,L2,true,any,"the overlap fermion zero-mode count equals the gauge topological charge, the lattice index theorem"
 E-FRC-0029,gauge/kpm-sea-energy,gauge,L2,false,any,"the 3D Dirac sea energy of a texture soliton, probed for an interior minimum, the Skyrme sign"
 E-FRC-0030,gauge/localization-mechanism,gauge,L3,false,3434,"the bound state on {3,4,3,4} decays as a power of lambda per shell, the marginal floor lambda^(-1/2), verifying the mass-hierarchy mechanism, the flat D4 lattice (no decay) the control"
-E-FRC-0031,gauge/mass-hierarchy,gauge,L3,true,any,"unfitted geometric spacing gives a multi-decade exponential mass hierarchy beating a power law"
+E-FRC-0031,gauge/mass-hierarchy,gauge,L3,true,any,unfitted geometric spacing gives a multi-decade exponential mass hierarchy beating a power law
 E-FRC-0032,gauge/mass-hierarchy-floor,gauge,L3,false,3434,"the marginal floor lambda^(1/2) about 4.3 is the parameter-free minimum inter-generation mass ratio, respected by all fermions, the neutrinos closest, the intra-generation splittings the control"
 E-FRC-0033,gauge/mass-hierarchy-localization,gauge,L3,false,3434,"the fermion mass hierarchy scale from the {3,4,3,4} growth rate, inter-generation ratios are powers of lambda about 18.4, the flat lattice (no hierarchy) the control"
 E-FRC-0034,gauge/mass-relations,gauge,L1,false,any,"the hypercharge is traceless over the 16, giving the GUT determinant mass relation"
@@ -188,13 +188,13 @@ E-FRC-0037,gauge/neutrino-seesaw,gauge,L2,false,any,"the neutrino seesaw, the so
 E-FRC-0038,gauge/non-abelian-3434,gauge,L2,true,3434,"the {3,4,3,4} vector sector can carry a non-abelian gauge field, the self-interaction vertex"
 E-FRC-0039,gauge/nonabelian-gauge,gauge,L2,true,3434,"a non-abelian SO(3) Wilson loop is gauge invariant, curved, and order-dependent"
 E-FRC-0040,gauge/ph-magnetism-3434,gauge,L2,true,any,"a charged wavepacket deflects in a magnetic field, the lattice Lorentz force, with a B = 0 control"
-E-FRC-0041,gauge/ph-photon-3434,gauge,L2,true,any,"the 8v sector is a gauge-invariant massless photon with a linear gapless dispersion"
-E-FRC-0042,gauge/photon,gauge,L1,false,any,"the free U(1) gauge field is massless and gauge-invariant with about a third gauge zero modes"
+E-FRC-0041,gauge/ph-photon-3434,gauge,L2,true,any,the 8v sector is a gauge-invariant massless photon with a linear gapless dispersion
+E-FRC-0042,gauge/photon,gauge,L1,false,any,the free U(1) gauge field is massless and gauge-invariant with about a third gauge zero modes
 E-FRC-0043,gauge/proton-lifetime,gauge,L2,true,any,"the proton lifetime is fixed by the GUT scale at about 1e36 years, above the bound and falsifiable"
-E-FRC-0044,gauge/rg-unification,gauge,L2,false,any,"running the measured couplings up unifies in the MSSM but misses in the bare Standard Model"
+E-FRC-0044,gauge/rg-unification,gauge,L2,false,any,running the measured couplings up unifies in the MSSM but misses in the bare Standard Model
 E-FRC-0045,gauge/schwinger,gauge,L2,false,any,"the Schwinger chiral condensate signal with an antiperiodic fermion: the free overlap has no near-zero mode, and the near-zero density rises above it with gauge disorder"
 E-FRC-0046,gauge/skyrme-sign,gauge,L2,true,any,"on a real 3D texture the exchange energy grows with size and the Skyrme energy falls, the Derrick scaling"
-E-FRC-0047,gauge/soliton-matter,gauge,L2,true,any,"two solitons bind in the attractive channel at a finite separation and the rest mass is additive in topological charge"
+E-FRC-0047,gauge/soliton-matter,gauge,L2,true,any,two solitons bind in the attractive channel at a finite separation and the rest mass is additive in topological charge
 E-FRC-0048,gauge/su2-condensate,gauge,L2,false,any,"a chiral condensate in a non-abelian SU(2) gauge field with an antiperiodic fermion: the free overlap has no near-zero mode, and the near-zero density exceeds it with the field"
 E-FRC-0049,gauge/two-charge-binding,gauge,L2,true,any,"the 1D gauge force confines two opposite charges (bound at any energy), zero coupling lets them escape"
 E-FRC-0050,gauge/unified-wave,gauge,L2,true,any,"one charge-conserving reversible ballistic isotropic wave rule on the {5,3,4}"
@@ -203,7 +203,7 @@ E-FRC-0052,gauge/warp-dictionary,gauge,L3,false,3434,"the fermion mass suppressi
 E-FRC-0053,gauge/warped-cusp-hierarchy,gauge,L3,false,3434,"the fermion mass hierarchy is the warped-cusp (Randall-Sundrum) mechanism, brane Yukawas suppressed by powers of the bulk warp factor lambda per depth, the flat bulk (degenerate) the control"
 E-FRC-0054,gauge/weak-angle-prediction,gauge,L2,true,any,"the weak mixing angle at M_Z from 3/8 unification via the known Georgi-Quinn-Weinberg one-loop running, near 0.231 with MSSM-like beta coefficients typed in as a discrete content choice (the choice is what selects 0.231 over the SM 0.207, a one-bit fit)"
 E-FRC-0055,gauge/weinberg-angle-geometric,gauge,L1,true,any,"the weak mixing angle sin^2(theta_W) = 3/8 is pinned by the discrete charge content, and an altered charge breaks it"
-E-FRC-0056,gauge/yukawa-rg,gauge,L2,false,any,"running b-tau unification down gives the observed mass ratio and determinant relation"
+E-FRC-0056,gauge/yukawa-rg,gauge,L2,false,any,running b-tau unification down gives the observed mass ratio and determinant relation
 E-FRC-0057,gauge/koide-lepton-relation,gauge,L1,true,any,"the charged leptons satisfy the Koide relation Q = 2/3 to one part in a hundred thousand, equivalently the square-root-mass vector at 45 degrees to the triality-symmetric axis, a sharp lepton coincidence whose geometric origin is the open target"
 E-FRC-0058,gauge/koide-sqrt2-decomposition,gauge,L1,true,any,"the Koide 45 degrees decomposes exactly into b/a = sqrt(2) (the traceless part of the square-root-mass vector has equal norm to its democratic part, and sqrt(2) is the 24-cell / D4 characteristic ratio) plus a free phase delta = 2/9 radian, isolating the two numbers a geometric derivation must produce"
 E-FRC-0059,gauge/koide-coupling-f4-angle,gauge,L1,true,3434,"the Koide amplitude b/a = sqrt(2) reduces exactly to a Z3 mass-coupling of 1/sqrt(2) = cos(45 degrees), and that 45 degrees is the long-short root angle of the two-length (non-simply-laced) root families generally (B2 also has it, the cross control), with F4 being the theory instance (the long-long angle is 60 degrees, the control), locating the Koide sqrt(2) at the two-length root angle rather than as a free parameter"
@@ -223,7 +223,7 @@ E-GMT-0004,geometry/coxeter-engine,geometry,L1,false,any,"Coxeter engine, full f
 E-GMT-0005,geometry/coxeter-unification,geometry,L1,false,any,"one machine yields all the tessellations, all Lorentz-safe"
 E-GMT-0006,geometry/crystal-hidden-hierarchical,geometry,L2,true,any,"crystal is indistinguishable from foam inside, tree-like, unlike a flat lattice"
 E-GMT-0007,geometry/cusp-convergence,geometry,L2,true,3434,"a finite cubic cusp chunk becomes continuum-like (dim 3, settled gravity) within a few dozen cells"
-E-GMT-0008,geometry/dimension,geometry,L2,false,any,"the 2D smeared path integral stays on near-2-dimensional causal orders"
+E-GMT-0008,geometry/dimension,geometry,L2,false,any,the 2D smeared path integral stays on near-2-dimensional causal orders
 E-GMT-0009,geometry/dimension-window,geometry,L1,true,any,"compact hyperbolic crystals only in dimensions 2, 3, 4 (H3 = 4, H4 = 5, H5 plus = 0)"
 E-GMT-0010,geometry/dodecagrid,geometry,L2,true,534,"the 3D hyperbolic honeycomb {5,3,4} is Lorentz-safe, a flat cubic lattice is not"
 E-GMT-0011,geometry/emergent-dimension,geometry,L2,true,any,"emergent dimension, flat grids unbiased (2/3/4), curved meshes exponential"
@@ -251,17 +251,17 @@ E-GRV-0004,gravity/black-hole-shadow,gravity,L2,false,any,"the strong-field Schw
 E-GRV-0005,gravity/braneworld,gravity,L2,true,any,"3D substrate inverse-square at all scales, 4D bulk deviates to -3 at short range"
 E-GRV-0006,gravity/curvature-focusing,gravity,L2,false,3434,"gravity as curvature, positive curvature focuses geodesics (2A works, the emergent metric sourced by 3A, no base change), the negative bulk defocuses (2B fails locally)"
 E-GRV-0007,gravity/curved-bulk-gravity,gravity,L2,true,534,"curved-bulk gravity is exponentially screened, the 1/r Newton tail is a flat-cusp property not a bulk one"
-E-GRV-0008,gravity/dark-matter,gravity,L0,false,any,"nonlocal gravity flattens the rotation curve (no dark particle)"
+E-GRV-0008,gravity/dark-matter,gravity,L0,false,any,nonlocal gravity flattens the rotation curve (no dark particle)
 E-GRV-0009,gravity/discrete-graviton,gravity,L2,true,any,"discrete graviton is gauge-invariant, massless, two polarizations verified as eigenmodes"
 E-GRV-0010,gravity/effective-metric,gravity,L0,false,any,"rays bend toward matter (lensing) scaling with mass, curvature sourced by matter"
-E-GRV-0011,gravity/einstein-equations,gravity,L0,false,any,"conservation (transverse G) and a c-speed graviton"
+E-GRV-0011,gravity/einstein-equations,gravity,L0,false,any,conservation (transverse G) and a c-speed graviton
 E-GRV-0012,gravity/emergent-metric,gravity,L2,false,any,"gravity is one emergent metric, the area-law potential gives the matter inverse-square law and the light factor-two bending, no new field"
 E-GRV-0013,gravity/entropic-newton,gravity,L2,false,any,"the static Newtonian 1/r force from the measured area law, the Verlinde route, no new field"
 E-GRV-0014,gravity/gr-black-hole-thermo,gravity,L1,false,any,"on the measured area-law entropy, the horizon first law, Smarr, Bekenstein, and M cubed evaporation follow"
 E-GRV-0015,gravity/gr-einstein-equations,gravity,L2,true,any,"the measured area law forces the Einstein equation as an equation of state, with a measured 1/r limit"
-E-GRV-0016,gravity/gr-gravitational-waves,gravity,L0,false,any,"the assumed general-relativistic waveform formulas are internally self-consistent"
+E-GRV-0016,gravity/gr-gravitational-waves,gravity,L0,false,any,the assumed general-relativistic waveform formulas are internally self-consistent
 E-GRV-0017,gravity/gravitational-wave,gravity,L2,false,any,"the propagating spin-2 graviton, helicity two (period 180), massless (front speed one), reversible, the gravitational wave"
-E-GRV-0018,gravity/graviton,gravity,L2,true,any,"two graviton polarizations measured from the derived operator spectrum"
+E-GRV-0018,gravity/graviton,gravity,L2,true,any,two graviton polarizations measured from the derived operator spectrum
 E-GRV-0019,gravity/graviton-from-action,gravity,L2,true,any,"graviton operator derived from the action, not typed in"
 E-GRV-0020,gravity/gravity-3434,gravity,L1,false,3434,"the naive screened-diffusion gravity propagator is confounded, the gravity law is open"
 E-GRV-0021,gravity/gravity-boundary,gravity,L1,false,any,"the flat cusp Poisson Green function falls as 1/r in three dimensions and as log r in two, the dimension-correct Newton potentials"
@@ -272,13 +272,13 @@ E-GRV-0025,gravity/gravity-treepath,gravity,L1,false,3434,"a common-ancestor tre
 E-GRV-0026,gravity/hawking,gravity,L2,true,any,"thermal spectrum derived from the Unruh response, T = kappa/2pi, Page curve turns over"
 E-GRV-0027,gravity/le-sage-shadow,gravity,L2,false,any,"Le Sage shadow gravity, isotropic flux gives the inverse-square force, but the measured first-order drag rules it out as fundamental"
 E-GRV-0028,gravity/newton-constant-scale,gravity,L2,false,any,"Newton G is the single scale, the bounded area-law bit density fixes G in lattice units, the volume law has no definite G"
-E-GRV-0029,gravity/newtonian,gravity,L1,false,any,"3D static potential is Newtonian (1/r is the best fit)"
+E-GRV-0029,gravity/newtonian,gravity,L1,false,any,3D static potential is Newtonian (1/r is the best fit)
 E-GRV-0030,gravity/nonlinear-einstein,gravity,L2,true,any,"a(t) integrated forward, power laws emerge, deceleration to acceleration transition"
 E-GRV-0031,gravity/propagating-curved-gravity,gravity,L3,true,534,"a stable, reversible, nonlinear propagating gravity in the curved {5,3,4} bulk, finite speed, exact echo, bounded"
 E-GRV-0032,gravity/s534-physics,gravity,L1,false,534,"the {5,3,4} suite, a Bethe 1/r squared correlator, exponential shell growth, and exact icosahedral 4th-moment isotropy"
 E-GRV-0033,gravity/schwarzschild-from-bootstrap,gravity,L2,false,any,"the Schwarzschild metric derived by the gravity-gravitates bootstrap, the resummed spatial metric giving the factor-two light bending"
 E-GRV-0034,gravity/shadow-pressure-not-newtonian,gravity,L2,false,3434,"the bare shadow pressure is a distance-independent ballistic deficit, not a 1/r Newtonian tail"
-E-GRV-0035,gravity/tempering,gravity,L2,false,any,"parallel tempering finds a susceptibility peak and order-parameter coexistence in the causal-set action"
+E-GRV-0035,gravity/tempering,gravity,L2,false,any,parallel tempering finds a susceptibility peak and order-parameter coexistence in the causal-set action
 E-GRV-0036,gravity/ternary-field,gravity,L2,false,3434,"the gravity field as a stack of tones, three balanced-ternary trits bind, a single trit is too coarse"
 E-GRV-0037,gravity/time-dilation-optical,gravity,L2,false,any,"gravity as time dilation, the clock-rate well bends light (the temporal half), the full metric gives the GR factor-two deflection, no new field"
 E-GRV-0038,gravity/trace-singlet,gravity,L2,false,3434,"gravity is the forced F4-invariant trace, the unique symmetric scalar the 24-cell already carries"
@@ -291,31 +291,31 @@ E-GRV-0044,gravity/quadrupole-amplitude-scale,gravity,L1,true,any,"the standard 
 E-GRV-0045,gravity/quadrupole-coefficient-closure,gravity,L2,true,any,"the gravitational-wave quadrupole prefactor 2 factorises as (16 pi)(1/4 pi)(1/2), with the 16 pi written as algebra from the linearised Einstein coupling, the Green-function coefficient 1/(4 pi) measured in-file on the lattice in k-space, and the tensor virial 1/2 computed in-file from conservation, so the assembled product matches 2 within the measurement tolerance and omitting the virial factor gives 4 (the control)"
 E-GRV-0046,gravity/continuum-limit-of-tone-current,gravity,L2,true,3434,"the coarse-grained tone density is Cauchy in scale at the self-averaging rate (measured convergence exponent near minus two), so a continuum density exists and it is the field that inherits the exact continuity law of E-GRV-0039, completing the discrete-to-continuum half of the Chronoflux bridge, with a scale-free Cantor control decaying far more shallowly"
 E-GRV-0047,gravity/coarse-stress-closure,gravity,L2,true,3434,"the momentum transport law closes integer-exactly at every coarse block scale under the momentum-conserving rule (block momentum change equals minus the boundary momentum flux, all four components, every beat), while the pair-table control leaves a nonzero residual, so both halves of the Chronoflux covariant transport closure, the scalar law and the momentum law, emerge exactly from the discrete substrate"
-E-HLG-0001,holography/area-law,holography,L2,true,any,"the emergent field ground state is area-law while a thermal state is volume-law"
-E-HLG-0002,holography/bethe-gravity,holography,L1,false,any,"the exact Bethe bulk-mediated boundary correlator is a clean universal 1/r^2"
+E-HLG-0001,holography/area-law,holography,L2,true,any,the emergent field ground state is area-law while a thermal state is volume-law
+E-HLG-0002,holography/bethe-gravity,holography,L1,false,any,the exact Bethe bulk-mediated boundary correlator is a clean universal 1/r^2
 E-HLG-0003,holography/black-hole,holography,L2,true,any,"the entanglement entropy of a cubic region of a free-fermion ground state on a 3D torus scales with the region area, not its volume"
-E-HLG-0004,holography/bulk-nonlocality,holography,L3,true,534,"distant surface points are joined by a short hidden path through the bulk"
+E-HLG-0004,holography/bulk-nonlocality,holography,L3,true,534,distant surface points are joined by a short hidden path through the bulk
 E-HLG-0005,holography/bulk-to-cusp-rt,holography,L2,false,3434,"the 3D and committed-4D hyperbolic bulks carry a geodesic shortcut whose length grows as log L between cusp points, the flat control is linear"
-E-HLG-0006,holography/entanglement,holography,L2,true,any,"free-fermion entanglement follows a 1D conformal log law and a 2D area law"
-E-HLG-0007,holography/growing-code,holography,L3,true,534,"the growing holographic code raises its erasure threshold with shell age"
+E-HLG-0006,holography/entanglement,holography,L2,true,any,free-fermion entanglement follows a 1D conformal log law and a 2D area law
+E-HLG-0007,holography/growing-code,holography,L3,true,534,the growing holographic code raises its erasure threshold with shell age
 E-HLG-0008,holography/happy-code-534,holography,L2,true,534,"the quantum HaPPY [[5,1,3]] perfect code on {5,3,4}, any 2 erasures recover the bulk logical qubit"
 E-HLG-0009,holography/happy-tiling-534,holography,L2,true,534,"the HaPPY code tiled on the {5,3,4} bulk, the code distance protecting a bulk self grows as 3^depth"
 E-HLG-0010,holography/hierarchy-bulk-tree,holography,L1,false,3434,"the {3,4,3,4} bulk radial tree is a self-similar hierarchy with constant branching"
 E-HLG-0011,holography/holographic-3434,holography,L2,true,3434,"the committed {3,4,3,4} substrate is boundary-dominated: the outermost shell holds about 94 percent of the cells, matching (lambda - 1) / lambda for the measured growth ratio, where a flat lattice is volume-dominated"
 E-HLG-0012,holography/holographic-code-534,holography,L2,true,534,"persistence via a holographic code on {5,3,4}, the boundary reconstructs the bulk self after local damage"
-E-HLG-0013,holography/holographic-memory,holography,L3,true,534,"a spread-encoded bit survives a bounded erasure while a localized blob is destroyed"
+E-HLG-0013,holography/holographic-memory,holography,L3,true,534,a spread-encoded bit survives a bounded erasure while a localized blob is destroyed
 E-HLG-0014,holography/holography-from-rule,holography,L2,true,534,"the bare reversible rule derives the causal wedge, but the erasure code needs the perfect-tensor constraint"
-E-HLG-0015,holography/p212-holography,holography,L1,false,534|3434,"finite-patch shell extraction cannot read a clean holographic screen dimension"
+E-HLG-0015,holography/p212-holography,holography,L1,false,534|3434,finite-patch shell extraction cannot read a clean holographic screen dimension
 E-HLG-0016,holography/p91-holography,holography,L2,true,534,"geodesic-shortcut log law, boundary-arc shortcut, and depth-as-scale on the {7,3} crystal"
-E-HLG-0017,holography/planar-vs-tree-534,holography,L2,true,73,"the planar tiling loops keep more boundary reachable after a cut than the bulk tree (the HaPPY refinement)"
+E-HLG-0017,holography/planar-vs-tree-534,holography,L2,true,73,the planar tiling loops keep more boundary reachable after a cut than the bulk tree (the HaPPY refinement)
 E-HLG-0018,holography/rt-geodesic-3434,holography,L2,true,3434,"the geodesic-shortcut log law on the committed {3,4,3,4}: the bulk radius D grows as log_lambda(cells), so a bulk geodesic between boundary points is logarithmic in their boundary separation, with a flat lattice as the control"
 E-HLG-0019,holography/ryu-takayanagi-73,holography,L2,true,73,"on {7,3} the boundary-interval geodesic length follows the logarithmic law a Ryu-Takayanagi entropy would, while the flat control is linear"
-E-HLG-0020,holography/signaling,holography,L3,true,534,"a signal crosses the whole universe through the bulk to a far self"
+E-HLG-0020,holography/signaling,holography,L3,true,534,a signal crosses the whole universe through the bulk to a far self
 E-HLG-0021,holography/entanglement-geometry-covaries,holography,L2,false,any,"vibe's emergent entanglement and geometric connectivity across a tunable throat rise and fall together (Van Raamsdonk), while an untouched far bond does not track it"
-E-MMR-0001,associative/capacity-scaling,associative,L2,true,3434,"bulk associative capacity grows exponentially with radius while a flat cubic memory grows polynomially"
+E-MMR-0001,associative/capacity-scaling,associative,L2,true,3434,bulk associative capacity grows exponentially with radius while a flat cubic memory grows polynomially
 E-MMR-0002,associative/capacity-vs-curvature,associative,L3,true,any,"associative capacity rises and search latency falls with curvature across the tessellation catalog, the flat cubic lattice being the worst on both"
 E-MMR-0003,associative/chaining,associative,L2,true,3434,"free association as a content-cued walk, each recalled word cues the next nearest memory"
-E-MMR-0004,associative/dense-vs-classical-capacity,associative,L2,true,any,"a dense higher-order energy stores more patterns than the classical Hopfield at matched recall"
+E-MMR-0004,associative/dense-vs-classical-capacity,associative,L2,true,any,a dense higher-order energy stores more patterns than the classical Hopfield at matched recall
 E-MMR-0005,associative/exact-recall,associative,L1,true,3434,"a content-addressable memory on the {3,4,3,4} bulk recalls every stored word exactly with no false positives"
 E-MMR-0006,associative/graded-recall,associative,L2,true,3434,"graceful, graded recall, fidelity degrades smoothly as the cue shrinks"
 E-MMR-0007,associative/hopfield-emergent-recall,associative,L3,true,3434,"attractor recall works on the dissipative Hopfield layer and fails on the bare reversible rule, the honest negative"
@@ -327,44 +327,44 @@ E-MMR-0012,associative/priming,associative,L2,true,3434,"priming as residual act
 E-MMR-0013,associative/search-latency,associative,L3,true,3434,"bulk associative search latency scales logarithmically with size, sub-polynomially, versus N^(1/3) for a flat cubic memory"
 E-MMR-0014,associative/sequence-recall,associative,L2,true,3434,"episodic and sequence memory as stored temporal chains, replayed in order from the first cue"
 E-MMR-0015,associative/spreading-activation,associative,L3,true,3434,"spreading activation through semantic memory IS the bulk query wave, made logarithmic by hyperbolic geometry"
-E-MMR-0016,associative/tessellation-sweep,associative,L2,true,any,"the content-addressable memory recalls every stored word exactly on every buildable regular hyperbolic tessellation"
-E-MSC-0001,general/open-rg-flow,renormalization,L2,false,any,"block-spin decimation reproduces the exact 1D Ising beta function and runs to its fixed point"
+E-MMR-0016,associative/tessellation-sweep,associative,L2,true,any,the content-addressable memory recalls every stored word exactly on every buildable regular hyperbolic tessellation
+E-MSC-0001,general/open-rg-flow,renormalization,L2,false,any,block-spin decimation reproduces the exact 1D Ising beta function and runs to its fixed point
 E-MTH-0001,method/consistency-matrix,method,L2,true,3434,"vibe's substrate closes Herbert's consistency matrix: one committed assignment passes conservation, reversibility, isotropy, and continuity at once, while perturbing either shared lever breaks a whole cluster"
 E-NVG-0001,addressing/addressing-3434,addressing,L1,true,3434,"the {3,4,3,4} cells carry unique O(log n) tree addresses with no cousin edges and exact neighbour reconstruction"
 E-NVG-0002,addressing/addressing-3434-scale,addressing,L1,false,3434,"the {3,4,3,4} addressing invariants survive growth, clean at two build sizes"
-E-NVG-0003,addressing/dodecagrid-navigation,addressing,L2,true,534,"greedy hyperbolic-address routing delivers at low stretch on the dodecagrid"
-E-NVG-0004,addressing/fibonacci-navigation,addressing,L2,true,any,"address arithmetic routes every signal exactly and efficiently on the heptagrid"
-E-NVG-0005,addressing/lazy-neighbors,addressing,L1,false,534,"on-demand neighbor computation reproduces the exact dodecagrid graph with no stored adjacency"
+E-NVG-0003,addressing/dodecagrid-navigation,addressing,L2,true,534,greedy hyperbolic-address routing delivers at low stretch on the dodecagrid
+E-NVG-0004,addressing/fibonacci-navigation,addressing,L2,true,any,address arithmetic routes every signal exactly and efficiently on the heptagrid
+E-NVG-0005,addressing/lazy-neighbors,addressing,L1,false,534,on-demand neighbor computation reproduces the exact dodecagrid graph with no stored adjacency
 E-NVG-0006,addressing/study,addressing,L2,false,any,"the addressing-versus-Lorentz fork, can one substrate have reach, isotropy, and navigability at once"
-E-NVG-0007,addressing/word-engine,addressing,L1,false,any,"ShortLex normal forms give exact finite group orders and exact cell facet counts"
+E-NVG-0007,addressing/word-engine,addressing,L1,false,any,ShortLex normal forms give exact finite group orders and exact cell facet counts
 E-QTM-0001,quantum/alignment,quantum,L2,true,any,"aligned bits, not bits, buy a CHSH violation"
-E-QTM-0002,quantum/bell,quantum,L0,false,any,"an engineered superdeterministic model climbs CHSH past 2 as setting-state correlation rises"
+E-QTM-0002,quantum/bell,quantum,L0,false,any,an engineered superdeterministic model climbs CHSH past 2 as setting-state correlation rises
 E-QTM-0003,quantum/bell-nonlocality,quantum,L1,false,any,"the local CHSH bound is 2 and the quantum value is 2 sqrt 2, a restated gap"
-E-QTM-0004,quantum/born-interference,quantum,L2,true,any,"the unitary rule interferes and gives a genuine Born probability"
+E-QTM-0004,quantum/born-interference,quantum,L2,true,any,the unitary rule interferes and gives a genuine Born probability
 E-QTM-0005,quantum/born-rule,quantum,L1,true,any,"given the amplitude-equals-sqrt-count postulate, the exponent 2 is the unique self-consistent power among the tested family, p = 1 and p = 3 are rejected by additivity"
-E-QTM-0006,quantum/bound-composite,quantum,L2,true,any,"two attracting particles form a true bound state with discrete levels"
-E-QTM-0007,quantum/contextuality-peres-mermin,quantum,L2,true,3434,"the Peres-Mermin square reaches quantum value 6 against the noncontextual bound 4 on the cell spin algebra"
-E-QTM-0008,quantum/cycle-reversibility,quantum,L2,true,534,"no persistent charge circulation around closed loops"
-E-QTM-0009,quantum/deterministic-spatial-rp,quantum,L2,true,any,"the deterministic field is long-range and reflection-positive"
+E-QTM-0006,quantum/bound-composite,quantum,L2,true,any,two attracting particles form a true bound state with discrete levels
+E-QTM-0007,quantum/contextuality-peres-mermin,quantum,L2,true,3434,the Peres-Mermin square reaches quantum value 6 against the noncontextual bound 4 on the cell spin algebra
+E-QTM-0008,quantum/cycle-reversibility,quantum,L2,true,534,no persistent charge circulation around closed loops
+E-QTM-0009,quantum/deterministic-spatial-rp,quantum,L2,true,any,the deterministic field is long-range and reflection-positive
 E-QTM-0010,quantum/dynamics,quantum,L1,true,any,"in a natural mesh the CHSH violation decays with separation, unlike flat quantum violation"
-E-QTM-0011,quantum/entanglement-bell,quantum,L1,true,any,"the exchange dynamics violates CHSH at the Tsirelson bound"
+E-QTM-0011,quantum/entanglement-bell,quantum,L1,true,any,the exchange dynamics violates CHSH at the Tsirelson bound
 E-QTM-0012,quantum/envariance-born,quantum,L2,false,3434,"Algebraic Zurek envariance symmetry prerequisites (Z_6 phase invariance and Z[w][1/2] Clifford fine-graining) on single-beat R = 2 {3,4,3,4} branching amplitudes"
 E-QTM-0013,quantum/flat-spatial-rp,quantum,L2,true,any,"the field is generically massive on flat too, the rule not geometry"
-E-QTM-0014,quantum/horosphere-dynamics,quantum,L2,true,534,"the field is massive on the emergent flat layer too"
+E-QTM-0014,quantum/horosphere-dynamics,quantum,L2,true,534,the field is massive on the emergent flat layer too
 E-QTM-0015,quantum/leggett-garg,quantum,L2,true,3434,"a coherent qubit reaches the Leggett-Garg value 3/2, violating the macrorealist bound 1"
 E-QTM-0016,quantum/measurement-settling,quantum,L2,true,3434,"measurement as deterministic settling, the open edge forms a definite irreversible record, the closed system stays coherent"
 E-QTM-0017,quantum/near-critical-rp,quantum,L2,true,534,"spatial RP belongs to the emergent flat layer, not the scaffold"
-E-QTM-0018,quantum/path-integral,quantum,L2,true,any,"a 2D Lorentzian causal-set path integral recovers a mean dimension near two"
+E-QTM-0018,quantum/path-integral,quantum,L2,true,any,a 2D Lorentzian causal-set path integral recovers a mean dimension near two
 E-QTM-0019,quantum/pointer-basis-selection,quantum,L1,true,3434,"a drain coupled along one spatial axis writes a record along that axis and not the orthogonal one, an axis-selection consistency result for the coupling direction"
 E-QTM-0020,quantum/purification,quantum,L2,false,3434,"vibe's reversible knit realizes purification, a mixed local marginal is the recoverable view of a pure reversible whole (Chiribella, D'Ariano), with a lossy control that fails"
-E-QTM-0021,quantum/quantum-field,quantum,L2,true,534,"the vacuum is field-like with virtual pairs and a causal cone"
+E-QTM-0021,quantum/quantum-field,quantum,L2,true,534,the vacuum is field-like with virtual pairs and a causal cone
 E-QTM-0022,quantum/quantum-formalism,quantum,L2,true,any,"unitarity, the Born rule, and interference of amplitudes"
-E-QTM-0023,quantum/quantum-walk,quantum,L2,true,any,"a quantum walk is ballistic while a classical walk is diffusive"
-E-QTM-0024,quantum/quantum-walk-field,quantum,L2,true,any,"the unitary completion is relativistic and reflection-positive"
-E-QTM-0025,quantum/reflection-positivity,quantum,L2,true,534,"in the massive regime spatial reflection positivity is undecided"
-E-QTM-0026,quantum/reversible-point,quantum,L2,true,534,"local detailed balance holds at all arrow rates"
-E-QTM-0027,quantum/synchronicity,quantum,L2,true,any,"diverged-but-related subsystems correlate without a link"
-E-QTM-0028,quantum/time-reflection-positivity,quantum,L2,true,any,"the beat-autocorrelation Hankel is PSD within noise"
+E-QTM-0023,quantum/quantum-walk,quantum,L2,true,any,a quantum walk is ballistic while a classical walk is diffusive
+E-QTM-0024,quantum/quantum-walk-field,quantum,L2,true,any,the unitary completion is relativistic and reflection-positive
+E-QTM-0025,quantum/reflection-positivity,quantum,L2,true,534,in the massive regime spatial reflection positivity is undecided
+E-QTM-0026,quantum/reversible-point,quantum,L2,true,534,local detailed balance holds at all arrow rates
+E-QTM-0027,quantum/synchronicity,quantum,L2,true,any,diverged-but-related subsystems correlate without a link
+E-QTM-0028,quantum/time-reflection-positivity,quantum,L2,true,any,the beat-autocorrelation Hankel is PSD within noise
 E-QTM-0029,quantum/shared-past-curvature,quantum,L2,true,any,"measured: on the {3,4,3,4} substrate curvature collapses the local shared past with separation, so a spacelike Bell correlation needs a seed-anchored common cause"
 E-QTM-0030,quantum/seed-correlation-dynamics,quantum,L2,true,any,"run from a seed, the rule preserves a seed-anchored spacelike correlation but manufactures none from a local seed, the superdeterminism picture from the actual dynamics"
 E-QTM-0031,quantum/boundary-shared-past,quantum,L2,true,any,"the bulk shared past is bulk-mediated, not boundary-mediated: an honest negative for the spatial-holographic escape, the surviving channel is the past-boundary seed"
@@ -385,43 +385,43 @@ E-QTM-0045,quantum/selection-at-the-selves-layer,quantum,L1,true,any,"the sharp 
 E-QTM-0046,quantum/born-weight-from-conservation,quantum,L1,true,any,"given the orthogonal rotation coin (an inserted ingredient that conserves the L2 norm by construction), the quadratic intensity a^2+b^2 is the only conserved measure among the tested candidates (quadratic, L1, signed) on the emergent-i walk, a conservation consistency check on the Born-weight form, with a non-orthogonal coin control that breaks the conservation"
 E-QTM-0047,quantum/continuous-phase-from-discrete-coin,quantum,L2,true,any,"the continuous U(1) phase of quantum mechanics emerges from the discrete-COIN walk: the local phase densely fills the circle (about 126 distinct values, 34 of 36 histogram bins) even though the coin angle is a single discrete pi/4, because the amplitude is an interfering sum, while the degenerate coin pi/2 collapses the field to one phase, the amplitude continuum itself being an input of the walk layer, completing the emergent-i-and-continuous-phase piece of frontier 1"
 E-RLT-0001,relativity/addressing-lorentz,relativity,L2,true,any,"a regular lattice singles out a frame, a Minkowski sprinkling does not"
-E-RLT-0002,relativity/boost-invariance,relativity,L2,true,any,"the massless mode has an exact boost-invariant lightcone with massive modes invariant in the IR window"
-E-RLT-0003,relativity/boost-velocity-addition,relativity,L2,true,534,"boosts are genuine Lorentz transformations"
-E-RLT-0004,relativity/deterministic-perception,relativity,L2,true,any,"the perception rule as a reversible block CA is charge-conserving and ballistic"
-E-RLT-0005,relativity/deterministic-rp,relativity,L2,true,any,"the wave dispersion is real linear and massless so spatial reflection positivity is positive"
-E-RLT-0006,relativity/deterministic-substrate,relativity,L2,true,any,"a deterministic sunflower substrate is as Lorentz-safe as the random sprinkle"
-E-RLT-0007,relativity/deterministic-wave,relativity,L3,true,any,"a deterministic reversible rule propagates ballistically so momentum emerges"
+E-RLT-0002,relativity/boost-invariance,relativity,L2,true,any,the massless mode has an exact boost-invariant lightcone with massive modes invariant in the IR window
+E-RLT-0003,relativity/boost-velocity-addition,relativity,L2,true,534,boosts are genuine Lorentz transformations
+E-RLT-0004,relativity/deterministic-perception,relativity,L2,true,any,the perception rule as a reversible block CA is charge-conserving and ballistic
+E-RLT-0005,relativity/deterministic-rp,relativity,L2,true,any,the wave dispersion is real linear and massless so spatial reflection positivity is positive
+E-RLT-0006,relativity/deterministic-substrate,relativity,L2,true,any,a deterministic sunflower substrate is as Lorentz-safe as the random sprinkle
+E-RLT-0007,relativity/deterministic-wave,relativity,L3,true,any,a deterministic reversible rule propagates ballistically so momentum emerges
 E-RLT-0008,relativity/dirac-from-discrete,relativity,L2,true,any,"the discrete walk dispersion measured by DFT, massless light cone and massive Dirac"
 E-RLT-0009,relativity/discreteness-signature,relativity,L2,true,3434,"the discrete dispersion bends below the continuum at a leading order in momentum, vanishing in the infrared"
 E-RLT-0010,relativity/doubly-special-dispersion,relativity,L2,false,any,"vibe's fixed-lattice dispersion recovers Lorentz at low momentum and deforms to a doubly-special form with a cell-scale maximum frequency (D'Ariano), absent in the continuum"
-E-RLT-0011,relativity/emergent-boost-3434,relativity,L1,false,any,"boosts preserve E^2 - p^2 = m^2 in the infrared and break it in the ultraviolet"
+E-RLT-0011,relativity/emergent-boost-3434,relativity,L1,false,any,boosts preserve E^2 - p^2 = m^2 in the infrared and break it in the ultraviolet
 E-RLT-0012,relativity/growth,relativity,L2,true,any,"an expanding hyperbolic mesh keeps exponential reach, isotropy, and navigability"
 E-RLT-0013,relativity/isotropy-24dir,relativity,L2,true,3434,"the 24 D4 directions give a wave dispersion isotropic to order four, the cubic does not"
-E-RLT-0014,relativity/light-cone,relativity,L2,true,3434,"Ballistic z = 1 light cone on the cubic cusp"
+E-RLT-0014,relativity/light-cone,relativity,L2,true,3434,Ballistic z = 1 light cone on the cubic cusp
 E-RLT-0015,relativity/light-cone-3434,relativity,L2,true,3434,"a finite ballistic light cone (z = 1) on the 24-direction {3,4,3,4} coin, with a causal interacting rule"
-E-RLT-0016,relativity/lorentz,relativity,L1,false,any,"the Dirac dispersion is boost-invariant at small k with a massless light-speed mode"
-E-RLT-0017,relativity/lorentz-boost,relativity,L2,true,any,"sprinkle rapidity is flat and boost-covariant while a lattice peaks at a rest frame"
+E-RLT-0016,relativity/lorentz,relativity,L1,false,any,the Dirac dispersion is boost-invariant at small k with a massless light-speed mode
+E-RLT-0017,relativity/lorentz-boost,relativity,L2,true,any,sprinkle rapidity is flat and boost-covariant while a lattice peaks at a rest frame
 E-RLT-0018,relativity/lorentz-bound-3434,relativity,L3,true,3434,"the deterministic {3,4,3,4} substrate passes the GRB Lorentz bound by D4 symmetry (xi1 = 0, anisotropy order >= 4), with no random sprinkling"
-E-RLT-0019,relativity/lorentz-dynamics,relativity,L2,true,any,"the long-wavelength wavefront is nearly isotropic on both a random mesh and a lattice"
-E-RLT-0020,relativity/lorentz-flow,relativity,L2,true,534,"higher-order angular anisotropy washes out under coarse-graining"
-E-RLT-0021,relativity/lorentz-isotropy,relativity,L2,true,534,"the one-step diffusion tensor is isotropic from the icosahedral cell symmetry"
-E-RLT-0022,relativity/lorentz-violation,relativity,L2,true,any,"a lattice violates Lorentz invariance while a sprinkling is Lorentz-safe"
-E-RLT-0023,relativity/lorentz-violation-scale,relativity,L2,true,3434,"the D4 substrate suppresses Lorentz violation to a higher order in momentum than a hypercubic substrate"
-E-RLT-0024,relativity/mass-dispersion,relativity,L0,false,any,"mass gives a gap = m and a relativistic dispersion b ~ m^2"
+E-RLT-0019,relativity/lorentz-dynamics,relativity,L2,true,any,the long-wavelength wavefront is nearly isotropic on both a random mesh and a lattice
+E-RLT-0020,relativity/lorentz-flow,relativity,L2,true,534,higher-order angular anisotropy washes out under coarse-graining
+E-RLT-0021,relativity/lorentz-isotropy,relativity,L2,true,534,the one-step diffusion tensor is isotropic from the icosahedral cell symmetry
+E-RLT-0022,relativity/lorentz-violation,relativity,L2,true,any,a lattice violates Lorentz invariance while a sprinkling is Lorentz-safe
+E-RLT-0023,relativity/lorentz-violation-scale,relativity,L2,true,3434,the D4 substrate suppresses Lorentz violation to a higher order in momentum than a hypercubic substrate
+E-RLT-0024,relativity/mass-dispersion,relativity,L0,false,any,mass gives a gap = m and a relativistic dispersion b ~ m^2
 E-RLT-0025,relativity/measured-dispersion-3434,relativity,L1,false,any,"the walk dispersion gives rest energy = mass, Lorentz at long wave, and a massless light-speed mode"
 E-RLT-0026,relativity/measured-emergent-mass-3434,relativity,L2,true,3434,"the fermion mass is the 8s-8c chirality coupling, measured two agreeing ways, vanishing into a massless Weyl fermion when off"
-E-RLT-0027,relativity/one-rule-propagation,relativity,L2,true,any,"the ternary rule carries a causal light-cone at finite speed"
+E-RLT-0027,relativity/one-rule-propagation,relativity,L2,true,any,the ternary rule carries a causal light-cone at finite speed
 E-RLT-0028,relativity/physics-on-real-space,relativity,L2,true,3434,"the flat-layer physics holds on the {4,3,4} cubic cusp and degrades on a generic slice"
-E-RLT-0029,relativity/predictions-vs-bounds,relativity,L2,true,any,"the model passes the GRB Lorentz bound that excludes a lattice"
+E-RLT-0029,relativity/predictions-vs-bounds,relativity,L2,true,any,the model passes the GRB Lorentz bound that excludes a lattice
 E-RLT-0030,relativity/propagating-mode-3434,relativity,L3,true,3434,"the momentum-conserving knit carries a propagating massless mode omega = c k, the charge-only rule does not"
 E-RLT-0031,relativity/rf-relativity-3434,relativity,L2,true,3434,"a ballistic light cone, 24-direction isotropy, the Dirac dispersion, and a rising arrow on {3,4,3,4}"
-E-RLT-0032,relativity/second-conservation-search,relativity,L2,false,any,"the stochastic rule conserves only the U(1) charge with no spontaneous order"
+E-RLT-0032,relativity/second-conservation-search,relativity,L2,false,any,the stochastic rule conserves only the U(1) charge with no spontaneous order
 E-RLT-0033,relativity/second-conserved-quantity-3434,relativity,L2,true,3434,"the momentum-conserving knit has a second conserved current (momentum) deterministically, the pair table does not"
-E-RLT-0034,relativity/sliver-transport,relativity,L2,true,534,"a long geodesic tube shows ballistic transport with a finite escape speed"
+E-RLT-0034,relativity/sliver-transport,relativity,L2,true,534,a long geodesic tube shows ballistic transport with a finite escape speed
 E-RLT-0035,relativity/swerves,relativity,L2,true,any,"momentum diffusion from discreteness, variance grows with proper time"
 E-RLT-0036,relativity/symmetry-restoration-3434,relativity,L2,true,3434,"discrete F4 restores to continuous rotational isotropy in the infrared on {3,4,3,4}"
 E-RLT-0037,relativity/transverse-mode-frozen,relativity,L2,false,3434,"the bare knit propagates the spin-0 mode but freezes the transverse spin-2 graviton, so the graviton is emergent"
-E-RLT-0038,relativity/wave-isotropy,relativity,L2,true,534,"the deterministic reversible wave on the dodecagrid has an isotropic speed"
+E-RLT-0038,relativity/wave-isotropy,relativity,L2,true,534,the deterministic reversible wave on the dodecagrid has an isotropic speed
 E-RLT-0039,relativity/momentum-current-and-cone,relativity,L2,true,3434,"the knit conserves a momentum current exactly and carries a sharp causal speed of one cell per beat, the second conserved current relativity needs, where a lossy rule loses the momentum"
 E-RLT-0040,relativity/honeycomb-dirac-cones,relativity,L1,true,any,"the honeycomb two-site cell gives exactly two isolated linear Dirac cones with v = 3/2, the square lattice gives a Fermi line and a staggered mass gaps them out"
 E-SBT-0001,substrate-survey/2d-tessellations,substrate-survey,L1,false,any,"a sweep of 2D hyperbolic regular tilings, all give 1D physical space, the most degenerate"
@@ -432,16 +432,16 @@ E-SBT-0005,substrate-survey/5d-tessellations,substrate-survey,L1,false,any,"a sw
 E-SBT-0006,substrate-survey/closed-manifold,substrate-survey,L1,false,any,"a boundary-free closed hyperbolic lattice, the Cayley graph of PSL(2,7), removes the all-boundary confound"
 E-SBT-0007,substrate-survey/coarse-substrate-comparison,substrate-survey,L2,false,flat-horosphere|square-horosphere|534-bulk,"flat and square horospheres support compact low-leak selves, the hyperbolic bulk does not"
 E-SBT-0008,substrate-survey/comprehensive-comparison,substrate-survey,L1,false,any,"the same battery on one substrate per dimension, only {3,4,3,4} scores on every physics row"
-E-SBT-0009,substrate-survey/epsilon,substrate-survey,L2,false,any,"the smeared Benincasa-Dowker action approaches the 2D reference in a manifold window as the smearing rises"
+E-SBT-0009,substrate-survey/epsilon,substrate-survey,L2,false,any,the smeared Benincasa-Dowker action approaches the 2D reference in a manifold window as the smearing rises
 E-SBT-0010,substrate-survey/exact-scale,substrate-survey,L2,true,534,"the exact {5,3,4} modular-fingerprint engine matches the float engine, exceeds the precision wall, and round-trips through disk"
 E-SBT-0011,substrate-survey/fd-foundational-3434,substrate-survey,L1,true,3434,"the D4 lattice-gas rule closes on 24 neighbours and is exactly reversible, conserving count and momentum"
-E-SBT-0012,substrate-survey/full-ladder,substrate-survey,L2,true,any,"from integer generator data a deterministic automaton grows a Lorentz-safe substrate the model runs on"
-E-SBT-0013,substrate-survey/generic-tessellation-engine,substrate-survey,L2,true,any,"one generic front-end classifies and builds any regular honeycomb from 2D to 4D with correct facet degrees"
+E-SBT-0012,substrate-survey/full-ladder,substrate-survey,L2,true,any,from integer generator data a deterministic automaton grows a Lorentz-safe substrate the model runs on
+E-SBT-0013,substrate-survey/generic-tessellation-engine,substrate-survey,L2,true,any,one generic front-end classifies and builds any regular honeycomb from 2D to 4D with correct facet degrees
 E-SBT-0014,substrate-survey/margenstern-tilings,substrate-survey,L2,true,any,"all the Margenstern {p,4} and {p,3} tilings are Lorentz-safe with exponential reach"
 E-SBT-0015,substrate-survey/million-scale,substrate-survey,L2,true,any,"the perception dynamics conserve charge, create life, and hold a dynamic balance at scale"
-E-SBT-0016,substrate-survey/non-random-substrates,substrate-survey,L3,true,any,"every hyperbolic substrate is Lorentz-safe while the flat lattice is not"
+E-SBT-0016,substrate-survey/non-random-substrates,substrate-survey,L3,true,any,every hyperbolic substrate is Lorentz-safe while the flat lattice is not
 E-SBT-0017,substrate-survey/pentacomb-geometric,substrate-survey,L2,true,53334,"the 5D pentacomb has a genuine hyperbolic embedding, greedy routing on H^5 delivers"
-E-SBT-0018,substrate-survey/pentacomb-mesh-rule,substrate-survey,L2,true,53334,"the 5D pentacomb is a curved mesh that runs the reversible conserving rule on its real generated geometry"
+E-SBT-0018,substrate-survey/pentacomb-mesh-rule,substrate-survey,L2,true,53334,the 5D pentacomb is a curved mesh that runs the reversible conserving rule on its real generated geometry
 E-SBT-0019,substrate-survey/pentacomb-propagation,substrate-survey,L2,true,53334,"a fermion propagates on the 5D D4 pentacomb, which has the spinor coin AND curvature, resolving the spin-versus-curvature trade"
 E-SBT-0020,substrate-survey/pentacomb-spin-curvature,substrate-survey,L1,true,53334,"the 5D pentacomb {3,4,3,3,4} carries the D4 spinor directions AND negative curvature, spin plus curvature from the bare rule"
 E-SBT-0021,substrate-survey/ports-3434,substrate-survey,L2,false,any,"the {5,3,4} behaviours port to the {4,3,4} cubic cusp, a z=1 light cone, churn, and self annihilation"
@@ -455,92 +455,92 @@ E-SBT-0028,substrate-survey/s73-structure,substrate-survey,L1,false,73,"the 7 di
 E-SBT-0029,substrate-survey/tessellation-survey,substrate-survey,L2,true,any,"one battery across the whole regular hyperbolic catalog: matter propagates on every one, the spinor coin is exactly the 24-cell-faceted few"
 E-SBT-0030,substrate-survey/unified-emergence-3434,substrate-survey,L1,true,any,"one 24-direction substrate splits into 8v+8s+8c, a boson sector and two fermion sectors under one 2pi rotation"
 E-SCL-0001,renormalization/avalanche-criticality,renormalization,L2,false,any,"no scale-free avalanches at any background, perturbations spread ballistically to a fixed size"
-E-SCL-0002,renormalization/coarse-graining-chain,renormalization,L2,true,any,"charge is exactly preserved at every level and the effective parameter is a fixed point across the tower"
-E-SCL-0003,renormalization/coarse-graining-fixed-point,renormalization,L2,true,any,"a measured block-spin coupling matches the decimation recursion and flows to the fixed point"
-E-SCL-0004,renormalization/criticality-scan,renormalization,L2,true,any,"an absorbing critical point at arrow zero with mean-field exponent beta near one half"
-E-SCL-0005,renormalization/cross-domain-chain,renormalization,L2,true,any,"field to particle and particle to composite rungs commute as the kind of variable changes"
+E-SCL-0002,renormalization/coarse-graining-chain,renormalization,L2,true,any,charge is exactly preserved at every level and the effective parameter is a fixed point across the tower
+E-SCL-0003,renormalization/coarse-graining-fixed-point,renormalization,L2,true,any,a measured block-spin coupling matches the decimation recursion and flows to the fixed point
+E-SCL-0004,renormalization/criticality-scan,renormalization,L2,true,any,an absorbing critical point at arrow zero with mean-field exponent beta near one half
+E-SCL-0005,renormalization/cross-domain-chain,renormalization,L2,true,any,field to particle and particle to composite rungs commute as the kind of variable changes
 E-SCL-0006,renormalization/dirac-maxwell-propagators,renormalization,L1,true,any,"the continuum limit is Dirac plus Maxwell, the fermion and photon propagator poles and the conserved-current vertex match QED, broken by an anisotropic rule"
-E-SCL-0007,renormalization/emergent-macro-rule,renormalization,L3,true,any,"a renormalized macro-rule emerges on tone-independent blocks in the ordered regime and fails when frustrated"
-E-SCL-0008,renormalization/form-tower-3434,renormalization,L2,false,3434,"coarse-grained form-persistence rises with scale and beats a spatial-shuffle null on the 3D cusp"
+E-SCL-0007,renormalization/emergent-macro-rule,renormalization,L3,true,any,a renormalized macro-rule emerges on tone-independent blocks in the ordered regime and fails when frustrated
+E-SCL-0008,renormalization/form-tower-3434,renormalization,L2,false,3434,coarse-grained form-persistence rises with scale and beats a spatial-shuffle null on the 3D cusp
 E-SCL-0009,renormalization/gapless-search,renormalization,L2,false,any,"no static gapless critical point over the arrow-share plane, the conserved-exchange field is robustly massive"
 E-SCL-0010,renormalization/radial-coherence,renormalization,L2,false,534,"coarse-graining up the {5,3,4} reflection tree does not build a persistence tower the fine scale lacks"
-E-SCL-0011,renormalization/renormalization-keystone,renormalization,L3,true,any,"the effective field parameters measured on a small slice match those of a much larger field"
-E-SCL-0012,renormalization/rg-from-coarse-graining,renormalization,L1,false,any,"the 1D decimation RG shows a coupling flows with a beta function under coarse-graining"
-E-SCL-0013,renormalization/rg-step,renormalization,L2,false,any,"the first inter-layer transform enriches the alphabet and conserves charge"
-E-SCL-0014,renormalization/wang-landau,renormalization,L2,false,any,"Wang-Landau measures the entropy gap and a roughly N-independent crossing beta-star in the causal-set action"
-E-SCL-0015,renormalization/wave-chain,renormalization,L2,true,any,"the wave equation commutes up the coarse-graining tower with an invariant speed"
+E-SCL-0011,renormalization/renormalization-keystone,renormalization,L3,true,any,the effective field parameters measured on a small slice match those of a much larger field
+E-SCL-0012,renormalization/rg-from-coarse-graining,renormalization,L1,false,any,the 1D decimation RG shows a coupling flows with a beta function under coarse-graining
+E-SCL-0013,renormalization/rg-step,renormalization,L2,false,any,the first inter-layer transform enriches the alphabet and conserves charge
+E-SCL-0014,renormalization/wang-landau,renormalization,L2,false,any,Wang-Landau measures the entropy gap and a roughly N-independent crossing beta-star in the causal-set action
+E-SCL-0015,renormalization/wave-chain,renormalization,L2,true,any,the wave equation commutes up the coarse-graining tower with an invariant speed
 E-SCL-0016,renormalization/screen-renderer,renormalization,L3,false,3434,"the block-population screen of the committed rule hides 1.58 of the log2 3 bits per slot at the whole-mesh scale against a visible 0.00003, and it has its own law to the accuracy of the law of large numbers: two microstates with the same screen disagree later by a block distance falling as b^-2.1 at L = 15 and b^-2.0 at L = 9, no more than two independent draws of the macrostate, while a hidden variable the rule reads (a gated calibration, or coherent line correlations under the committed rule itself) breaks the law until the rule erases it. On a gradient inside a block the populations alone have no law (a reversed first moment adds a disagreement that grows with b, in proportion to the slope), and populations plus the first moment along the gradient restore b^-2"
 E-SLF-0001,selves/abiogenesis-threshold,selves,L2,true,any,"a self-maintaining region nucleates above a critical seed size and dies below it, the abiogenesis transition"
 E-SLF-0002,selves/active-persistence,selves,L2,false,flat-horosphere,"the apparent refuge relocation is a refuge halo, the self dies where it is and none of its charge ever reaches the refuge, an honest negative"
 E-SLF-0003,selves/alignment-lowers-conflict,selves,L1,true,any,"an aligned self has low internal conflict and a decisive urge, a fragmented self is in conflict and torn"
-E-SLF-0004,selves/arbitrary-structure,selves,L0,false,any,"the goal-directed builder reaches and holds several arbitrary balanced targets"
+E-SLF-0004,selves/arbitrary-structure,selves,L0,false,any,the goal-directed builder reaches and holds several arbitrary balanced targets
 E-SLF-0005,selves/arrow-binds-but-seals,selves,L2,true,3434,"the arrow binds a body but seals radiation, the momentum rule radiates but will not bind, binding and radiation are disjoint"
 E-SLF-0006,selves/attention-workspace,selves,L2,true,534,"the deterministic hub-workspace attention differential is consistently positive but does not robustly clear the bars, open"
 E-SLF-0007,selves/autonomous-self,selves,L2,true,534,"a purely local repair rule raises the self fidelity over the unmaintained control, but not robustly over a 0.6 bar"
-E-SLF-0008,selves/bare-rule-persistence-3434,selves,L2,false,any,"a linear diffusion rule disperses a winding defect while an amplitude-preserving nonlinear rule locks it"
-E-SLF-0009,selves/bath-coupled-self,selves,L2,true,any,"coupling a captured body to the bath gives it an attractor (identity) and a corrective response (agency)"
+E-SLF-0008,selves/bare-rule-persistence-3434,selves,L2,false,any,a linear diffusion rule disperses a winding defect while an amplitude-preserving nonlinear rule locks it
+E-SLF-0009,selves/bath-coupled-self,selves,L2,true,any,coupling a captured body to the bath gives it an attractor (identity) and a corrective response (agency)
 E-SLF-0010,selves/bath-damps-soft-mode,selves,L1,true,3434,"the absorbing boundary absorbs everything and the closed torus recurs exactly, the arrow of openness, not healing"
 E-SLF-0011,selves/bath-from-open-boundary,selves,L2,true,3434,"an absorbing boundary is a bath (the burst radiates away and relaxes), the torus is not (it recurs)"
-E-SLF-0012,selves/bind-and-move-collision,selves,L2,true,3434,"no single-speed local reversible collision both binds and moves: mobility and the binding engine are mutually exclusive"
-E-SLF-0013,selves/binding-improves-model,selves,L2,false,flat-horosphere,"a bound self carries more predictive information about its environment than an unbound gas"
+E-SLF-0012,selves/bind-and-move-collision,selves,L2,true,3434,no single-speed local reversible collision both binds and moves: mobility and the binding engine are mutually exclusive
+E-SLF-0013,selves/binding-improves-model,selves,L2,false,flat-horosphere,a bound self carries more predictive information about its environment than an unbound gas
 E-SLF-0014,selves/bulk-curvature-disperses,selves,L2,true,bethe|3434,"bulk curvature disperses, it does not bind: hyperbolic shells grow exponentially, the flat cusp polynomially"
 E-SLF-0015,selves/bulk-persistence,selves,L2,false,flat-horosphere,"a stored pattern decays, but redundancy extends its survival and maintenance makes it permanent"
 E-SLF-0016,selves/capture-needs-dissipation,selves,L2,true,3434,"a reversible collision cannot capture, sticky reflection scatters elastically, so binding needs the bath"
 E-SLF-0017,selves/casimir-capture-mobile,selves,L2,true,3434,"the vacuum Casimir pressure drives two mobile plates together (capture), the inert vacuum leaves them fixed"
 E-SLF-0018,selves/casimir-vacuum-attraction,selves,L2,true,3434,"the active vacuum exerts a Casimir attraction, the gap between two walls is suppressed and the force falls with distance"
-E-SLF-0019,selves/causal-emergence,selves,L2,false,any,"a coarse-grained macro has more effective information than the degenerate micro"
+E-SLF-0019,selves/causal-emergence,selves,L2,false,any,a coarse-grained macro has more effective information than the degenerate micro
 E-SLF-0020,selves/choice-determined-yet-irreducible,selves,L2,true,any,"a choice replays exactly yet resists a one-step shortcut, and the self structure is what makes it irreducible"
-E-SLF-0021,selves/co-motion-not-bound,selves,L2,true,3434,"co-moving charges are NOT a bound self: a hit to the body is never healed (no restoring force)"
+E-SLF-0021,selves/co-motion-not-bound,selves,L2,true,3434,co-moving charges are NOT a bound self: a hit to the body is never healed (no restoring force)
 E-SLF-0022,selves/coarse-autopoietic-closure,selves,L2,false,flat-horosphere,"the self maintains a stable organization while its cells turn over, the cohesion-off control does not"
 E-SLF-0023,selves/coarse-causal-emergence,selves,L2,false,flat-horosphere,"a structured coarse map keeps more effective information than a random one, measured on real self dynamics"
 E-SLF-0024,selves/coarse-causal-emergence-mobile,selves,L2,true,3434,"mobility alone yields no causal-emergent self-level, the mobile gas has no metastable coarse mode (honest negative)"
-E-SLF-0025,selves/coarse-commuting-square,selves,L2,false,flat-horosphere,"the learned effective rule commutes with one micro beat far better than a random rule"
+E-SLF-0025,selves/coarse-commuting-square,selves,L2,false,flat-horosphere,the learned effective rule commutes with one micro beat far better than a random rule
 E-SLF-0026,selves/coarse-implied-timescale,selves,L2,false,flat-horosphere,"the self slow timescale plateaus across lags, the shuffled control has no timescale"
 E-SLF-0027,selves/coarse-individuality-transition,selves,L1,false,effective-model,"the transition signatures appear only with imposed group selection and a single-cell bottleneck, not from the base rule"
 E-SLF-0028,selves/coarse-light-cone,selves,L2,false,flat-horosphere,"a self contains and corrects an interior perturbation, the medium spreads it"
-E-SLF-0029,selves/coarse-markov-blanket,selves,L2,false,flat-horosphere,"an emergent self screens interior from exterior through its shell more cleanly than medium"
+E-SLF-0029,selves/coarse-markov-blanket,selves,L2,false,flat-horosphere,an emergent self screens interior from exterior through its shell more cleanly than medium
 E-SLF-0030,selves/coarse-size-robustness,selves,L2,false,flat-horosphere,"the self slow-mode survives across lattice sizes, and the shuffled control fails at every size"
-E-SLF-0031,selves/coarse-spectral-gap,selves,L2,false,flat-horosphere,"the Markov model of a real self has a slow mode the time-shuffled control lacks"
-E-SLF-0032,selves/cohesive-memory,selves,L2,true,any,"a cohesive hop roughly doubles imprint memory versus the churning rule"
+E-SLF-0031,selves/coarse-spectral-gap,selves,L2,false,flat-horosphere,the Markov model of a real self has a slow mode the time-shuffled control lacks
+E-SLF-0032,selves/cohesive-memory,selves,L2,true,any,a cohesive hop roughly doubles imprint memory versus the churning rule
 E-SLF-0033,selves/composite-self-level,selves,L2,true,3434,"a captured composite has the metastable slow mode the self-level needs, a dispersing packet does not"
 E-SLF-0034,selves/conflict-resolves-toward-peace,selves,L2,true,any,"opposed tones resolve toward peace while agreeing tones persist, so the base valence arrow points at the center, not the pleasure pole"
-E-SLF-0035,selves/cooperation-tower,selves,L2,true,any,"integration wins on total order and recurs into a tower"
+E-SLF-0035,selves/cooperation-tower,selves,L2,true,any,integration wins on total order and recurs into a tower
 E-SLF-0036,selves/deliberation-depth-hides-the-outcome,selves,L2,true,any,"the deeper a self must deliberate, the more its determined outcome hides from a cheap predictor"
-E-SLF-0037,selves/derrick-stabilizer,selves,L1,false,any,"Derrick scaling needs a Skyrme term in 3D and only a direction field carries winding"
-E-SLF-0038,selves/detour-planning,selves,L0,false,any,"lookahead beats greedy on a barrier when the horizon spans it"
+E-SLF-0037,selves/derrick-stabilizer,selves,L1,false,any,Derrick scaling needs a Skyrme term in 3D and only a direction field carries winding
+E-SLF-0038,selves/detour-planning,selves,L0,false,any,lookahead beats greedy on a barrier when the horizon spans it
 E-SLF-0039,selves/discrete-kink-unstable,selves,L2,true,integer-field,"the discrete sine-Gordon kink is unstable: a bounded force shatters it, an unbounded force blows it up"
 E-SLF-0040,selves/dm-skyrmion-bound-self,selves,L2,true,spin-field,"a DM-stabilized topological soliton is a stable reversibly-bound self: Q conserved, fixed size, robust to perturbation"
-E-SLF-0041,selves/dreaming-and-waking,selves,L2,true,any,"waking is pinned to one veridical memory while dreaming roams the landscape"
+E-SLF-0041,selves/dreaming-and-waking,selves,L2,true,any,waking is pinned to one veridical memory while dreaming roams the landscape
 E-SLF-0042,selves/effort-is-a-cause,selves,L2,true,any,"more goal-directed effort gives a better determined outcome and zero effort a worse one, so it does not happen anyway"
 E-SLF-0043,selves/emergent-attraction-search,selves,L2,true,3434,"the bare reversible rule has no emergent attraction, two separated charges obey exact superposition"
-E-SLF-0044,selves/emergent-self-robust,selves,L3,true,534,"a self emerges by cohesion and conserving maintenance holds it against decay"
+E-SLF-0044,selves/emergent-self-robust,selves,L3,true,534,a self emerges by cohesion and conserving maintenance holds it against decay
 E-SLF-0045,selves/emergent-soft-radiation,selves,L2,true,3434,"a soft (gapless) sound mode emerges from discrete ternary tones: period grows linearly with wavelength, no real numbers"
 E-SLF-0046,selves/equivalence-principle,selves,L2,false,3434,"a self sources gravity in proportion to its mass and falls universally, the equivalence principle on the substrate"
-E-SLF-0047,selves/evolving-ecology,selves,L2,true,any,"a population of planning agents evolves better problem-solving and adapts its foresight"
+E-SLF-0047,selves/evolving-ecology,selves,L2,true,any,a population of planning agents evolves better problem-solving and adapts its foresight
 E-SLF-0048,selves/fine-group-too-coarse,selves,L2,true,spin-field,"no finite direction group (not even the 600-cell) is fine enough for a stable discrete dynamics, the self is forced emergent"
-E-SLF-0049,selves/fission-flat-layer,selves,L2,true,any,"a self divides on the flat layer where the hyperbolic bulk cannot"
-E-SLF-0050,selves/flat-intention,selves,L2,true,any,"directed intention works on the flat layer"
-E-SLF-0051,selves/freedom-choice,selves,L2,true,any,"a choice is determined yet self-authored and irreducible"
+E-SLF-0049,selves/fission-flat-layer,selves,L2,true,any,a self divides on the flat layer where the hyperbolic bulk cannot
+E-SLF-0050,selves/flat-intention,selves,L2,true,any,directed intention works on the flat layer
+E-SLF-0051,selves/freedom-choice,selves,L2,true,any,a choice is determined yet self-authored and irreducible
 E-SLF-0052,selves/full-self-positive-control,selves,L2,true,3434-rest,"positive control: rest slot plus an (explicit, cheat) attraction give a full self (identity, self-repair, radiation)"
-E-SLF-0053,selves/gravity-bound-self,selves,L2,true,3434-rest,"the full self on legitimate ingredients: a discrete gravity field (at the cusp) binds and self-repairs while disturbances radiate"
+E-SLF-0053,selves/gravity-bound-self,selves,L2,true,3434-rest,the full self on legitimate ingredients: a discrete gravity field (at the cusp) binds and self-repairs while disturbances radiate
 E-SLF-0054,selves/growth-arrow-irreversibility,selves,L2,true,3434,"a growing open mesh carries an arrow of time (broken echo, steady gradient) that the closed reversible bulk does not"
-E-SLF-0055,selves/heredity,selves,L2,true,534,"a daughter inherits the parent with tunable variation as conserving creation"
-E-SLF-0056,selves/horosphere-self,selves,L3,true,any,"selves are compact-possible and far more persistent on the flat horosphere than in the bulk"
+E-SLF-0055,selves/heredity,selves,L2,true,534,a daughter inherits the parent with tunable variation as conserving creation
+E-SLF-0056,selves/horosphere-self,selves,L3,true,any,selves are compact-possible and far more persistent on the flat horosphere than in the bulk
 E-SLF-0057,selves/identity-persists-through-turnover,selves,L2,true,any,"a self keeps its identity by repair through total substance turnover, while a structureless self dies"
 E-SLF-0058,selves/inner-bulk-capacity,selves,L2,false,3434,"the hyperbolic bulk grows exponentially, the flat cusp polynomially, room for the inner experiencer"
 E-SLF-0059,selves/inspiral-capture,selves,L2,true,any,"attraction plus a bath captures (inspiral and settle), removing either one prevents capture"
 E-SLF-0060,selves/integrable-breather,selves,L2,true,3434,"a reversible breather (bound oscillating state) exists on the D4 coin, but it is pinned, no moving breather"
-E-SLF-0061,selves/integrated-information,selves,L3,true,any,"selves are tone-integration local maxima and the measure reads the dynamics"
-E-SLF-0062,selves/integration,selves,L0,false,any,"a configuration has a Markov-blanket score and an integration proxy"
+E-SLF-0061,selves/integrated-information,selves,L3,true,any,selves are tone-integration local maxima and the measure reads the dynamics
+E-SLF-0062,selves/integration,selves,L0,false,any,a configuration has a Markov-blanket score and an integration proxy
 E-SLF-0063,selves/integration-amplifies-agency,selves,L2,true,any,"a coherent self reaches its goal while a fragmented self of the same parts cannot, so integration amplifies agency"
-E-SLF-0064,selves/intention-at-scale,selves,L2,true,534,"the will coherently biases the whole self but directed action is geometrically frustrated"
-E-SLF-0065,selves/l3-breather-self-criteria,selves,L2,true,square,"the base-rule breather screens through its shell and contains an interior perturbation more than the vacuum"
+E-SLF-0064,selves/intention-at-scale,selves,L2,true,534,the will coherently biases the whole self but directed action is geometrically frustrated
+E-SLF-0065,selves/l3-breather-self-criteria,selves,L2,true,square,the base-rule breather screens through its shell and contains an interior perturbation more than the vacuum
 E-SLF-0066,selves/l3-causal-emergence-needs-loss,selves,L2,true,square,"the reversible base rule is a permutation with no degeneracy, so causal emergence needs information loss"
 E-SLF-0067,selves/l3-self-from-base-rule,selves,L2,true,square,"the pure reversible base rule confines a packet into a persistent bounded structure, streaming alone spreads it"
-E-SLF-0068,selves/leaky-confiner,selves,L2,true,3434,"the leaky confiner holds a body but seals its radiation (the perturbation never reaches the bath)"
-E-SLF-0069,selves/lossy-self-model-feeds-back,selves,L2,true,any,"detail a self cannot see in its coarse model still feeds back into its determined choice"
+E-SLF-0068,selves/leaky-confiner,selves,L2,true,3434,the leaky confiner holds a body but seals its radiation (the perturbation never reaches the bath)
+E-SLF-0069,selves/lossy-self-model-feeds-back,selves,L2,true,any,detail a self cannot see in its coarse model still feeds back into its determined choice
 E-SLF-0070,selves/maintenance-threshold,selves,L1,true,any,"a self lives only while repair keeps pace with decay, and dies below that threshold"
-E-SLF-0071,selves/many-self-models,selves,L2,true,534,"every self forms its own self-model at its own hub"
+E-SLF-0071,selves/many-self-models,selves,L2,true,534,every self forms its own self-model at its own hub
 E-SLF-0072,selves/memory-vs-conservation,selves,L3,true,534,"charge is conserved while the pattern decays, and maintenance holds it at a work cost"
 E-SLF-0073,selves/metacognition,selves,L3,true,534,"the self-model predicts the self next state, beating local regions"
 E-SLF-0074,selves/minimal-attraction-field,selves,L2,true,3434-rest,"the attraction needs only a few bounded bits, not arbitrary integers: ternary is too coarse, about four bits repair a self"
@@ -551,7 +551,7 @@ E-SLF-0078,selves/nested-bath-selves,selves,L2,true,any,"two bath-coupled bodies
 E-SLF-0079,selves/nested-self-tower,selves,L3,true,flat-horosphere,"a self of selves, the structured causal map keeps effective information across TWO recursive coarse-grainings, a random tower loses it"
 E-SLF-0080,selves/nested-selves,selves,L2,true,any,"small wounds heal, whole-cell flips persist, body stays intact"
 E-SLF-0081,selves/nested-selves-form-a-higher-self,selves,L2,true,any,"coupled sub-selves bind into one higher self that repairs its own parts, the upward step on the ladder"
-E-SLF-0082,selves/nesting-controls,selves,L2,false,3434,"the flat-cusp form-tower against a pure-diffusion control"
+E-SLF-0082,selves/nesting-controls,selves,L2,false,3434,the flat-cusp form-tower against a pure-diffusion control
 E-SLF-0083,selves/no-emergent-bound-body,selves,L2,true,square,"no emergent bound body: even a vortex disperses, its persistence is only reversible recurrence"
 E-SLF-0084,selves/no-restoring-pressure,selves,L2,true,3434,"no restoring pressure: no committed rule contracts a diffuse cloud, so the bound body does not emerge from the pure gas"
 E-SLF-0085,selves/no-self-storage,selves,L2,false,any,"lossless self-record needs the whole, lossy regress converges, no infinite mirror"
@@ -559,7 +559,7 @@ E-SLF-0086,selves/p121-recursion,selves,L3,true,534,"hub2 represents hub1, the c
 E-SLF-0087,selves/p152-evolution,selves,L1,true,any,"heredity plus variation plus selection drives mean fitness up, beating drift"
 E-SLF-0088,selves/p153-integrated-agent,selves,L1,true,any,"the closed perceive-plan-act loop crosses a sequence of barriers, beating reactive and one-shot"
 E-SLF-0089,selves/p161-evolution,selves,L1,true,any,"selection raises fitness, drift does not, and the population re-adapts to a new environment"
-E-SLF-0090,selves/p162-integrated-agent,selves,L1,true,any,"multi-step lookahead through the forward model solves a detour the reactive agent cannot"
+E-SLF-0090,selves/p162-integrated-agent,selves,L1,true,any,multi-step lookahead through the forward model solves a detour the reactive agent cannot
 E-SLF-0091,selves/p57-recursion,selves,L2,true,any,"higher vibes are aggregate views (no stored layer), self-similar, inherited-stable, towering"
 E-SLF-0092,selves/per-cell-radiation-obstruction,selves,L2,true,ternary-z3,"per-cell ternary has no self: a radiating rule shatters the kink, a static rule traps the hit (the corrective self is emergent)"
 E-SLF-0093,selves/perception-dynamics,selves,L2,true,534,"Q conserved, arrow creates life from peace, no-arrow relaxes, dynamic balance, diffuse and pump"
@@ -568,48 +568,48 @@ E-SLF-0095,selves/persistence-problem,selves,L2,true,any,"a pattern lasts only i
 E-SLF-0096,selves/persistent-self,selves,L3,true,534,"a self-maintaining integrated region keeps its identity and boundary, the unmaintained pattern dissolves"
 E-SLF-0097,selves/planning-no-additions,selves,L2,true,any,"a planner built only from the arrow, the rule, and the will crosses a barrier greedy cannot"
 E-SLF-0098,selves/quaternion-twist-binding,selves,L2,true,spin-field,"the DM stabilizer is a pure quaternion rotation (a twist angle, the coin handedness), no real coupling: it binds a stable Skyrmion"
-E-SLF-0099,selves/reincarnation,selves,L2,true,any,"self persists through total turnover and reconstitutes from a seed"
-E-SLF-0100,selves/renormalization-tower,renormalization,L1,false,flat-horosphere,"the measured level-0 compression composes into the effective vibe count N_top times C to the L"
+E-SLF-0099,selves/reincarnation,selves,L2,true,any,self persists through total turnover and reconstitutes from a seed
+E-SLF-0100,selves/renormalization-tower,renormalization,L1,false,flat-horosphere,the measured level-0 compression composes into the effective vibe count N_top times C to the L
 E-SLF-0101,selves/reproduction,selves,L2,true,534,"fission is suppressed on hyperbolic geometry, a self stays one"
-E-SLF-0102,selves/resonance-between-selves,selves,L2,true,any,"two aligned selves lock into resonance while two anti-aligned selves frustrate each other"
+E-SLF-0102,selves/resonance-between-selves,selves,L2,true,any,two aligned selves lock into resonance while two anti-aligned selves frustrate each other
 E-SLF-0103,selves/rest-slot-identity,selves,L2,true,3434-rest,"a rest slot gives a persistent bound identity that radiates free disturbances (0C), self-repair still needs attraction"
 E-SLF-0104,selves/reversible-dynamics-step-threshold,selves,L2,true,spin-field,"reversible discrete dynamics conserves the Skyrmion charge at small steps, chaotic at large (coarse) steps"
 E-SLF-0105,selves/reversible-radiation-pressure,selves,L2,true,b4,"reversible radiation pressure on B4 is sub-critical: a slow mass oscillates and disperses, it does not coherently drift toward depletion"
-E-SLF-0106,selves/s53333-selves,selves,L1,false,53333,"topological solitons exist on the 4D horosphere but are over-dimensional"
+E-SLF-0106,selves/s53333-selves,selves,L1,false,53333,topological solitons exist on the 4D horosphere but are over-dimensional
 E-SLF-0107,selves/s534-selves,selves,L1,false,534,"solitons on the 2D horosphere are anyonic, not the 3D fermions of {3,4,3,4}"
-E-SLF-0108,selves/s73-selves,selves,L1,false,73,"solitons on the 1D horocycle are kinks with no exchange statistics"
+E-SLF-0108,selves/s73-selves,selves,L1,false,73,solitons on the 1D horocycle are kinks with no exchange statistics
 E-SLF-0109,selves/scatter-d4,selves,L2,true,3434,"a head-on pair is deflected onto a rotated axis by the momentum-conserving collision, not passed through"
 E-SLF-0110,selves/selection-by-persistence,selves,L2,true,any,"deterministic variation plus persistence-selection adapts a population toward its environment, with no randomness"
-E-SLF-0111,selves/self-contained-shadow-self,selves,L2,true,d4,"a self-contained body binds itself by the shadow of its OWN active vacuum on the 24-direction D4 coin"
+E-SLF-0111,selves/self-contained-shadow-self,selves,L2,true,d4,a self-contained body binds itself by the shadow of its OWN active vacuum on the 24-direction D4 coin
 E-SLF-0112,selves/self-emergence,selves,L3,true,any,"fixed fills do not self-organize selves, adaptive fills do"
 E-SLF-0113,selves/self-emergence-perception,selves,L2,true,534,"living balance is structureless churn, no durable selves from tones alone"
 E-SLF-0114,selves/self-maintenance,selves,L3,true,534,"a self heals its own damage by the rule alone, control with no surround does not"
 E-SLF-0115,selves/self-model,selves,L3,true,534,"a localized hub represents the self global state, beating local regions and a shuffle"
 E-SLF-0116,selves/self-nesting-73,selves,L2,false,73,"the {7,3} hyperbolic bulk has no radial nesting tower"
-E-SLF-0117,selves/self-organized-criticality,selves,L2,false,534,"demand-driven creation self-tunes the activity to one interior set-point from any start"
+E-SLF-0117,selves/self-organized-criticality,selves,L2,false,534,demand-driven creation self-tunes the activity to one interior set-point from any start
 E-SLF-0118,selves/selves-as-attractors,selves,L2,false,any,"stable basin, persistent identity, capacity grows with size"
-E-SLF-0119,selves/selves-as-propagating-structures-3434,selves,L2,false,3434,"identity-through-turnover scores a glider as a self and the perception-rule seed as churn"
+E-SLF-0119,selves/selves-as-propagating-structures-3434,selves,L2,false,3434,identity-through-turnover scores a glider as a self and the perception-rule seed as churn
 E-SLF-0120,selves/selves-at-scale,selves,L3,true,534,"coherent self-patches emerge on the exact {5,3,4}, far larger than random, with a size hierarchy"
 E-SLF-0121,selves/selves-dynamics,selves,L2,true,534,"the largest self grows while a hierarchy of patches persists on the exact {5,3,4}"
 E-SLF-0122,selves/selves-interacting,selves,L3,true,534,"opposite selves annihilate at contact, same selves merge into one"
 E-SLF-0123,selves/selves-tower-3434,selves,L2,false,3434,"the coarse-grained form-tower on {3,4,3,4} does not beat a pure-diffusion control"
-E-SLF-0124,selves/shadow-confines-single-speed,selves,L2,true,lattice-gas,"shadow pressure confines a single-speed body at short range (the rest slot is not required for binding)"
+E-SLF-0124,selves/shadow-confines-single-speed,selves,L2,true,lattice-gas,shadow pressure confines a single-speed body at short range (the rest slot is not required for binding)
 E-SLF-0125,selves/shadow-pressure-attraction,selves,L2,true,lattice-gas,"a vacuum-excluding body attracts a test mass by discrete radiation-pressure shadow (correct sign, reversible bulk)"
-E-SLF-0126,selves/shadow-pressure-d4,selves,L2,true,d4,"shadow-pressure attraction on the real 24-direction D4 coin (net momentum points toward a vacuum-excluding body)"
-E-SLF-0127,selves/soliton-persistence-3434,selves,L2,false,any,"a reversible conserving box-ball rule produces persistent solitons that survive collisions"
+E-SLF-0126,selves/shadow-pressure-d4,selves,L2,true,d4,shadow-pressure attraction on the real 24-direction D4 coin (net momentum points toward a vacuum-excluding body)
+E-SLF-0127,selves/soliton-persistence-3434,selves,L2,false,any,a reversible conserving box-ball rule produces persistent solitons that survive collisions
 E-SLF-0128,selves/soliton-search-d4,selves,L2,true,3434,"free gliders are solitons (persist and move), but head-on collisions disperse rather than bind"
 E-SLF-0129,selves/steering-changes-the-trajectory,selves,L2,true,any,"the same deterministic life steered versus unsteered ends in a different place, and that gap is the impact"
-E-SLF-0130,selves/structural-attention,selves,L2,false,flat-horosphere,"a self attends to its slow meaningful input far above an equal-size fast-noise input"
+E-SLF-0130,selves/structural-attention,selves,L2,false,flat-horosphere,a self attends to its slow meaningful input far above an equal-size fast-noise input
 E-SLF-0131,selves/substrate-self-obstruction,selves,L2,true,3434,"on the committed coin confinement and radiation conflict, no rule gives a confined body that radiates to the bath"
-E-SLF-0132,selves/subtle-layer-urges,selves,L2,false,any,"deep layer steers the surface and reasserts after disorder"
+E-SLF-0132,selves/subtle-layer-urges,selves,L2,false,any,deep layer steers the surface and reasserts after disorder
 E-SLF-0133,selves/surrogate-conservation,selves,L2,false,flat-horosphere,"the base conserves total charge exactly, the local re-estimate drifts, a leaking rule breaks it"
 E-SLF-0134,selves/surrogate-fidelity,selves,L2,false,flat-horosphere,"a learned surrogate of a self forward-predicts its held-out coarse future, the controls do not"
 E-SLF-0135,selves/surrogate-patch-test,selves,L2,false,flat-horosphere,"a patch test detects surrogate drift after a regime change, the stationary self gives no false alarm"
 E-SLF-0136,selves/surrogate-speedup,selves,L2,false,flat-horosphere,"the surrogate tower speedup grows geometrically at bounded fidelity, over-compression collapses it"
-E-SLF-0137,selves/surrogate-tower-climb,selves,L2,false,flat-horosphere,"a temporal surrogate tower climbs several levels with forward accuracy bounded above chance and the control"
+E-SLF-0137,selves/surrogate-tower-climb,selves,L2,false,flat-horosphere,a temporal surrogate tower climbs several levels with forward accuracy bounded above chance and the control
 E-SLF-0138,selves/ternary-field-attraction,selves,L2,true,3434-rest,"the attraction field is ternary tones: one trit per cell repairs range 2, three trits range 3 (no bits, no unbounded integers)"
-E-SLF-0139,selves/ternary-skyrmion-charge,selves,L2,true,spin-field,"a 3-trit-per-cell direction field encodes the Skyrmion charge exactly (the topological state is fully ternary)"
-E-SLF-0140,selves/topological-persistence-3434,selves,L2,false,any,"a winding-1 defect persists under relaxation while a winding-0 bump decays"
+E-SLF-0139,selves/ternary-skyrmion-charge,selves,L2,true,spin-field,a 3-trit-per-cell direction field encodes the Skyrmion charge exactly (the topological state is fully ternary)
+E-SLF-0140,selves/topological-persistence-3434,selves,L2,false,any,a winding-1 defect persists under relaxation while a winding-0 bump decays
 E-SLF-0141,selves/topological-winding-identity,selves,L2,true,clock-ring,"the self identity is a topological winding, reversibly protected at the 24-cell resolution but not at coarse ternary"
 E-SLF-0142,selves/tower-of-selves,selves,L2,false,any,"clean multi-level hierarchy to one top, rule holds every level"
 E-SLF-0143,selves/two-field-self,selves,L2,true,any,"a confined body becomes a self only when coupled to a PROPAGATING field (the photon), not a local one"
@@ -621,7 +621,7 @@ E-SLF-0148,selves/valence-approach,selves,L2,false,flat-horosphere,"a self drift
 E-SLF-0149,selves/valence-mirror-symmetry,selves,L2,true,any,"flipping pain and pleasure mirrors the dynamics exactly, so the base has no drive toward pleasure"
 E-SLF-0150,selves/will-fork,selves,L2,false,any,"delays gratification with willpower, relapses when depleted, field overrides, sharp threshold"
 E-SLF-0151,selves/will-steering,selves,L2,true,534,"with the will a self moves toward a target and away from a threat, unbiased does not"
-E-SLF-0152,selves/willpower-grounded,selves,L1,false,534,"a charge reserve depletes when a self pumps against a draining field"
+E-SLF-0152,selves/willpower-grounded,selves,L1,false,534,a charge reserve depletes when a self pumps against a draining field
 E-SLF-0153,selves/world-model,selves,L2,false,flat-horosphere,"a self interior carries predictive information about its future environment, the controls do not"
 E-SLF-0154,selves/navigation-not-base-emergent,selves,L2,true,3434,"the bare committed rule does not navigate: a structured body beside a charge-rich resource shows no consistent centroid drift toward it in either orientation, while the selves-layer valence machinery (the declared added lean) shows a large approach differential, so goal-directed movement is not base-emergent and lives at the emergent selves layer"
 E-SLF-0155,selves/plan-vs-tracking-crossover,selves,L1,false,any,"a frozen-snapshot planner and a local gradient tracker pursue a drifting peak: in a static world the plan is optimal (the control), and past a measured drift-rate crossover the locally-sensed tracker wins because its error stays bounded while the stale plan error grows, the plan-versus-signal trade made exact and deterministic"
@@ -629,15 +629,15 @@ E-SLF-0156,selves/coherence-route-beats-shortest,selves,L2,false,any,"the cohere
 E-SLF-0157,selves/field-coupling-at-range,selves,L2,true,any,"a body-hit on one body changes the field record at a distant body through nothing but the shared mesh under the committed deterministic rule, the severed-mesh control gives an exact dynamical zero, and the response attenuates with separation, so influence between bodies is carried by the shared medium and only by it"
 E-SPN-0001,spin/anyon-deconfinement,spin,L1,false,any,"the gauged ternary tone is a deconfined Z_3 topological phase, the ground-state degeneracy a size-independent topological invariant N^(2g), nine free anyons, log 3 entropy, the trivial phase the control"
 E-SPN-0002,spin/atoms-shell-filling,spin,L2,true,any,"fermions bound to a central well fill discrete shells in order with periodic magic numbers, where bosons all collapse to the lowest level"
-E-SPN-0003,spin/bulk-cusp-interface,spin,L1,false,3434,"the 4D bulk D4 spinor structure projects to 3D Pauli spinors on the cusp"
-E-SPN-0004,spin/chirality,spin,L2,true,any,"the overlap lattice Dirac operator gives one species with exact lattice chiral symmetry"
+E-SPN-0003,spin/bulk-cusp-interface,spin,L1,false,3434,the 4D bulk D4 spinor structure projects to 3D Pauli spinors on the cusp
+E-SPN-0004,spin/chirality,spin,L2,true,any,the overlap lattice Dirac operator gives one species with exact lattice chiral symmetry
 E-SPN-0005,spin/cocycle-534,spin,L1,true,534,"the {5,3,4} spinor cover is genuine (nonsplit), the cocycle is nontrivial, a 2pi loop is minus one"
 E-SPN-0006,spin/collective-spinor-534,spin,L2,true,534,"a delocalized collective mode carries the disclination spinor sign for every mode, the topological spin is a field property"
 E-SPN-0007,spin/continuum-holonomy-534,spin,L2,true,534,"the {5,3,4} curvature-driven spin holonomy, a loop of hyperbolic area 2pi flips spinors not vectors"
-E-SPN-0008,spin/defect-particles-3434,spin,L2,true,any,"topological defects annihilate in opposite-charge pairs and persist as like charges"
+E-SPN-0008,spin/defect-particles-3434,spin,L2,true,any,topological defects annihilate in opposite-charge pairs and persist as like charges
 E-SPN-0009,spin/dirac-3plus1-3434,spin,L2,true,3434,"the full 3+1D Dirac equation, the Clifford algebra and the relativistic dispersion"
-E-SPN-0010,spin/dirac-lanczos,spin,L2,true,any,"a 3D hedgehog binds near-zero Dirac modes that the uniform vacuum lacks"
-E-SPN-0011,spin/directional-rule,spin,L2,false,any,"a charge with a direction streams ballistically while a memoryless scalar diffuses"
+E-SPN-0010,spin/dirac-lanczos,spin,L2,true,any,a 3D hedgehog binds near-zero Dirac modes that the uniform vacuum lacks
+E-SPN-0011,spin/directional-rule,spin,L2,false,any,a charge with a direction streams ballistically while a memoryless scalar diffuses
 E-SPN-0012,spin/disclination-spin-534,spin,L2,true,534,"a half-winding disclination in the {5,3,4} director field gives the spinor a minus sign while the vector is blind, spin from topology"
 E-SPN-0013,spin/exchange-phase,spin,L0,false,any,"an analytic consistency check that the assumed spin-statistics formulas agree, not an emergent result"
 E-SPN-0014,spin/fermi-exclusion,spin,L1,true,any,"two identical fermions cannot share a state (the antisymmetric amplitude vanishes) while bosons pile up, the Pauli principle measured"
@@ -652,7 +652,7 @@ E-SPN-0022,spin/lattice-gas-spinor-534,spin,L2,true,534,"the bare {5,3,4} lattic
 E-SPN-0023,spin/molecular-bond,spin,L1,false,any,"the H2+ molecular bond, a stable molecule at the observed 2.0-Bohr length from the shared electron, the antibonding and no-resonance cases the controls"
 E-SPN-0024,spin/nuclear-binding-curve,spin,L1,false,any,"the nuclear binding curve peaks at iron (about 8.8 MeV per nucleon) and declines for heavy nuclei, the no-Coulomb monotonic curve the control"
 E-SPN-0025,spin/nuclei-binding-saturation,spin,L1,true,any,"several bound fermions form a composite with a saturating binding energy (a nucleus), where bosons collapse instead"
-E-SPN-0026,spin/persistent-spinor-defect-3434,spin,L2,true,any,"a half-integer disclination is a persistent topological defect carrying the spinor minus sign"
+E-SPN-0026,spin/persistent-spinor-defect-3434,spin,L2,true,any,a half-integer disclination is a persistent topological defect carrying the spinor minus sign
 E-SPN-0027,spin/projective-spinor-73,spin,L1,true,73,"the {7,3} symmetry PSL(2,7) has a spinor double cover SL(2,7), spin in the projective rep"
 E-SPN-0028,spin/propagating-spinor-534,spin,L2,true,534,"a propagating spinor on curved {5,3,4}, streaming coupled to the spin connection returns minus itself per 2pi loop"
 E-SPN-0029,spin/rotation-2pi,spin,L1,true,3434,"a spinor on the 24-cell coin gains a minus sign at 2pi, returning only at 4pi"
@@ -660,7 +660,7 @@ E-SPN-0030,spin/sp-spinor-field-3434,spin,L2,true,any,"a 2-component Dirac walk 
 E-SPN-0031,spin/sp1-spin-double-cover,spin,L1,false,3434,"the 24 directions of {3,4,3,4} are the binary tetrahedral group, the spin-1/2 double cover"
 E-SPN-0032,spin/spin-and-curvature-534,spin,L2,true,534,"{5,3,4} carries spin AND negative curvature, the trade-off flat {3,4,3,4} cannot resolve"
 E-SPN-0033,spin/spin-connection-534,spin,L2,true,534,"the {5,3,4} spin connection, the edge-loop holonomy is the spinor double cover (minus one once, plus one twice)"
-E-SPN-0034,spin/spinor,spin,L2,false,any,"the Kahler-Dirac operator on a 2D mesh has near-zero modes in the middle of its spectrum"
+E-SPN-0034,spin/spinor,spin,L2,false,any,the Kahler-Dirac operator on a 2D mesh has near-zero modes in the middle of its spectrum
 E-SPN-0035,spin/spinor-73,spin,L1,false,any,"the {7,3} heptagonal coin carries no spinor, only integer-spin reps of D7"
 E-SPN-0036,spin/spinor-triality,spin,L1,true,534|3434,"{5,3,4} carries no spinor while {3,4,3,4} splits 8v + 8s + 8c with triality"
 E-SPN-0037,spin/sy-discrete-symmetries,spin,L2,true,3434,"C, P, T, and CPT are exact on the {3,4,3,4} substrate"
@@ -681,7 +681,7 @@ E-HLG-0022,holography/celestial-conformal-boundary,holography,L1,false,3434,"the
 E-HLG-0023,holography/celestial-two-point-covariance,holography,L2,false,any,"a boundary two-point function transforms as a celestial correlator under a substrate boost, the seed of celestial amplitudes"
 E-HLG-0024,holography/celestial-infinite-symmetry,holography,L1,false,3434,"the boundary conformal family is unbounded while the substrate point symmetry is finite, the seed of infinite-dimensional celestial symmetry"
 E-HLG-0025,holography/celestial-boost-group,holography,L2,false,3434,"same-axis boundary boosts compose by adding rapidity, the dilation group the Mellin boost-weight basis diagonalizes"
-E-HLG-0026,holography/celestial-three-point,holography,L2,false,any,"a boundary three-point of primaries transforms as a celestial three-point under a substrate boost"
+E-HLG-0026,holography/celestial-three-point,holography,L2,false,any,a boundary three-point of primaries transforms as a celestial three-point under a substrate boost
 E-HLG-0027,holography/celestial-symmetry-algebra,holography,L1,false,3434,"the boundary conformal symmetry closes into so(4,1), the algebraic seed of the celestial symmetry algebra"
 E-HLG-0028,holography/celestial-memory-continuity,holography,L1,false,any,"the memory corner is held open, the boundary shift equals the integrated flux by continuity, which is not yet an emergent memory"
 E-HLG-0029,holography/celestial-horosphere-slice,holography,L2,false,3434,"the horocyclic projection to the flat boundary chart preserves the conformal cross-ratio, the seed of the hyperbolic slicing"
@@ -751,14 +751,14 @@ E-QTM-0063,quantum/hong-ou-mandel,quantum,L1,false,any,"bosons never coincide at
 E-QTM-0064,quantum/fock-structure,quantum,L2,false,any,"the N-fermion walk amplitude is the Slater determinant of propagator entries (matched to brute force at machine precision), giving exact Pauli exclusion and unit norm at six particles, while bosons bunch by the permanent"
 E-QTM-0065,quantum/lindblad-collisions,quantum,L2,false,any,"fresh-environment collisions give exact exponential Lindblad decay at the collision-angle rate while a reused environment revives (non-Markov), Markovianity from causal freshness"
 E-QTM-0066,quantum/measurement-chain,quantum,L2,false,any,"the copy chain turns a micro superposition into a macroscopic record: coherence decays exponentially in the copies, a twenty-cell fragment of two hundred carries the full pointer information, and ten disjoint fragments each suffice (redundant objectivity)"
-E-QTM-0067,quantum/born-norm-concentration,quantum,L1,false,any,"the conserved norm concentrates branch weight on the Born frequency (deviant norm falling ten orders across the copy sweep) while branch counting concentrates at one half for every state and breaks under unitary refinement"
+E-QTM-0067,quantum/born-norm-concentration,quantum,L1,false,any,the conserved norm concentrates branch weight on the Born frequency (deviant norm falling ten orders across the copy sweep) while branch counting concentrates at one half for every state and breaks under unitary refinement
 E-RLT-0043,relativity/massive-shell-lorentz,relativity,L2,false,any,"the massive walk shell is exactly Lorentz invariant in deformed variables: E^2 - P^2 = sin^2(mass) at every momentum, boosts map dynamical modes to dynamical modes, and the group velocity is P/E"
 E-GMT-0032,geometry/dimensional-shadow,geometry,L2,false,3434,"the 24 substrate directions project to 3-space as 12 D3 (FCC) spatial roots plus 6 octahedral axes each carrying a two-valued internal label (24 = 12 + 6x2), so the reduced fourth dimension becomes an internal doublet, while a generic projection gives 24 structureless shadows"
 E-NVG-0008,addressing/routing-depth-is-scale,addressing,L2,false,any,"the bulk depth a route reaches equals the logarithm of the boundary separation (penetration = floor log_b s + 1, route = twice that, incrementing by one per branching factor), the holographic depth-is-RG-scale law, while a flat chain routes linearly"
 E-NVG-0009,addressing/bulk-cusp-navigation-split,addressing,L2,false,any,"the bulk region diameter grows logarithmically (exponent decaying to zero, global access) while the cusp region diameter grows as N^(1/3) (locality), the one substrate splitting into mind-fast and physics-local navigation regimes"
 E-CSM-0049,cosmology/horosphere-flatness,cosmology,L2,false,any,"the physical cubic slice grows with polynomial exponent three and zero exponential rate (flat E^3, a horosphere) while the bulk tree grows with exponential rate exactly log(branching) and unbounded polynomial exponent (hyperbolic), so our flat space is a horosphere of the curved bulk"
 E-HLG-0033,holography/bulk-shortcut-reachability,holography,L2,false,any,"a far cusp signal arrives through the bulk in logarithmic time (break-even separation six, speedup unbounded to sixty-eight-fold at separation 1024) with the bulk route the graph geodesic (no light-cone violation), while the along-cusp route is linear"
-E-NVG-0010,addressing/greedy-walkway,addressing,L2,false,3434,"local greedy descent in hyperbolic coordinates routes with 100 percent success and unit stretch (the exact walkway a self can follow with only local information) while a scrambled-coordinate map stalls in local minima"
+E-NVG-0010,addressing/greedy-walkway,addressing,L2,false,3434,local greedy descent in hyperbolic coordinates routes with 100 percent success and unit stretch (the exact walkway a self can follow with only local information) while a scrambled-coordinate map stalls in local minima
 E-NVG-0011,addressing/hierarchical-recall,addressing,L2,false,any,"recalling a memory is a coarse-to-fine descent of the bulk hierarchy in log(N) steps (100 percent from a clean cue, robust to noise) while scrambling the coarse patterns collapses recall to chance, the mental walkway"
 E-GMT-0033,geometry/horocyclic-step-isometry,geometry,L2,false,any,"a physical horospheric step is an exact bulk isometry (every hyperbolic distance preserved to machine precision) that composes as a group (step t then s equals step t+s, inverse returns home), so walking 3D applies a symmetry of the 4D bulk, while a naive shear breaks the metric"
 E-GMT-0034,geometry/geodesic-divergence,geometry,L2,false,any,"two straight bulk walks on nearly the same heading separate as sinh(arc length) (exponential rate one, the curvature) so a bearing cannot be held, while on the flat cusp they separate linearly"
@@ -921,7 +921,7 @@ E-FRC-0082,gauge/su3-deconfinement,gauge,L2,false,any,"SU(3) at finite temperatu
 E-FRC-0083,gauge/asymptotic-freedom,gauge,L2,false,any,"the coupling grows with distance at a rate proportional to the gluon color charge C_A, the same per unit C_A in SU(2), SU(3) and SU(4), and the same for adjoint and fundamental sources, on top of the color-blind U(1) lattice artifact"
 E-FRC-0084,gauge/pion-goldstone,gauge,L2,false,any,"in quenched SU(3) the pion mass goes like the square root of the quark mass (a Goldstone boson of broken chiral symmetry), while the same code with the gluons off gives a pion mass proportional to the quark mass"
 E-FRC-0085,gauge/nucleon-mass-generation,gauge,L2,false,any,"three quarks bound by SU(3) gluons into a nucleon weigh many times three free quarks, and the nucleon stays heavy as the quark mass goes to zero while the pion becomes light"
-E-FRC-0086,gauge/chiral-condensate,gauge,L2,false,any,"quenched SU(3) breaks chiral symmetry below T_c (the condensate survives the chiral limit) and restores it above T_c at the same coupling (the condensate goes to zero with the quark mass)"
+E-FRC-0086,gauge/chiral-condensate,gauge,L2,false,any,quenched SU(3) breaks chiral symmetry below T_c (the condensate survives the chiral limit) and restores it above T_c at the same coupling (the condensate goes to zero with the quark mass)
 E-FRC-0087,gauge/static-potential,gauge,L2,false,any,"the SU(3) static potential rises linearly (a string tension) with a Coulomb coefficient compatible with the pi / 12 of a vibrating string, while the U(1) photon through the same code has no string tension"
 E-FRC-0088,gauge/scale-setting,gauge,L2,false,any,"the Sommer scale r0 / a at beta 5.7 and 5.9 matches the published Necco-Sommer values, and two-loop running reproduces how fast the spacing shrinks once the coupling is read off the plaquette, where the bare coupling falls short"
 E-FRC-0089,gauge/scalar-glueball,gauge,L2,false,any,"pure SU(3) gauge theory has a mass gap: the variational 0++ glueball mass, on a plateau from t = 0 to 2, matches the published Wilson-action lattice mass at beta 5.7, and sits below the continuum m r0 = 4.21 by the known scalar dip of a coarse lattice"
@@ -1282,12 +1282,12 @@ E-MTH-0029,method/full-period-key,method,L1,false,3434,"the registered path key 
 E-FND-0146,foundations/husk-second-law,foundations,L2,false,3434,"the second law on the earlier bounce knit, read on the husk, pass: on the coset-union vacuum under the lone bounce collision (side 12, 27 husk blocks, 17 starts) a start with 12,288 extra vibes in one husk block (deficit ln 27 - H = 0.0664) relaxes to 0.0010 to 0.0012 of that deficit over the last 60 of 240 beats, a tenth of it by beat 4, and the rule's exact inverse from the same start does the same (0.0010 to 0.0012, beat 4): the arrow is the start, not the rule; energy and charge exact, both runs return the start bit for bit, the deficit rises on 105 to 121 of 240 beats (fluctuations); 32 starts under one rule stay 32 distinct states at every beat (fine-grained entropy ln 32 exactly) while their mean deficit falls 860-fold; bulk halves beside 0.0021 to 0.0024; exact recurrence on the side-4 box: 6 beats (vacuum), 360 (one vibe), 18,000 (two to four), over 524,288 (six and eight)"
 E-FND-0147,foundations/husk-arrow-records,foundations,L2,false,3434,"the arrow of time on the earlier bounce knit, pass: a bijective beat keeps fine-grained information and has the same causal cone both ways, so the arrow is the low-entropy slice plus the coarse map; measured over 85 runs (17 link starts x 5 events), the energy of a husk region 4 steps from the slice event is the same integer in every run at the slice and, within a start, for every event until beat 4 in both directions (the cone, exact), then the record (its correlation with the event) reaches 1.00 at beat 4 and holds 0.985 to 0.993 from beat 60 to 120 forward and backward (bulk half 0.95 to 0.98); one branch dips to about -0.54 at beat 14 as the first front wraps the box"
 E-FND-0148,foundations/depth-bath-entropy,foundations,L2,false,3434,"the depth as the husk heat bath, fail as gated (D4, D5 on the dilute control; one D3 sign moved after run 1, disclosed): on the adopted knit (coset-union vacuum, lone bounce, side 12, 17 starts) the vacuum store (31,104 lines off its depth image) and the link start break the depth step, so a depth-uniform fill leaves its sector and both fills reach the husk exclusive-slot Gibbs law (Fano 0.994 to 1.005 of 1 - f, binomial to 0.0036) with the slot and store thermometers apart by 1.095 to 1.105 against (1/2) ln 9 = 1.099 once the 9 role points are counted, beta = 3.898 per unit (T = 0.257); in a control where the depth step is exact the depth-uniform fill stays in its sector at every beat with husk Fano 12 times Fermi-Dirac (L = 12); on the dilute empty-vacuum control the depth-broken fill is not Gibbs either (1.67 to 1.76), so D4 and D5 fail, while on a dense all-line control (reported, added after run 1) it is (0.997 to 1.004) and the coarse floor is 10.6 to 13.2 times higher without the depth; the depth does not make the rise faster (tenfold at beat 4 and 7 either way)"
-E-FND-0149,foundations/generator-binary-code,foundations,L1,true,3434,"the even-weight binary code gives the D4 lattice (Construction A) whose minimal vectors are the dock"
-E-FND-0150,foundations/generator-coxeter-closure,foundations,L1,true,3434,"reflecting the four F4 simple roots rebuilds the 24-cell dock and its dual (48 roots)"
+E-FND-0149,foundations/generator-binary-code,foundations,L1,true,3434,the even-weight binary code gives the D4 lattice (Construction A) whose minimal vectors are the dock
+E-FND-0150,foundations/generator-coxeter-closure,foundations,L1,true,3434,reflecting the four F4 simple roots rebuilds the 24-cell dock and its dual (48 roots)
 E-FND-0151,foundations/generator-graph-rewrite,foundations,L1,true,3434,"a content-free graph rewrite gives a definite geometry but not the dock (the long shot, honest open)"
 E-FND-0152,foundations/generator-octonion-triality,foundations,L1,true,3434,"octonion (SO(8)) triality splits the dock into 8v + 8s + 8c, a vector and two spinors"
-E-FND-0153,foundations/generator-self-assembly,foundations,L1,true,3434,"a generic start does not self-assemble the dock under local energy minimization (honest open)"
-E-FND-0154,foundations/naturalness-separation-decay,foundations,L2,true,any,"the CHSH violation decays with measurement separation"
+E-FND-0153,foundations/generator-self-assembly,foundations,L1,true,3434,a generic start does not self-assemble the dock under local energy minimization (honest open)
+E-FND-0154,foundations/naturalness-separation-decay,foundations,L2,true,any,the CHSH violation decays with measurement separation
 E-SPN-0079,spin/g-two-forced,spin,L2,false,any,"what forces the spinor token's g = 2, a STAND-IN: exactly, in Eisenstein integers, over every schedule of up to 16 beats, neither the husk's turns (a covariant schedule is massless), nor isotropy, nor CPT with the shortest period fixes g (isotropic classes read g = 4, 0, 4/3, 2, 1, the shortest g = 4 at 7 beats); the Dirac square root, no ordering term T = 0, forces g = 2 by theorem, and with CPT and the shortest period it forces the schedule: the 16-beat nested palindrome, the one class"
 E-SPN-0080,spin/g-two-zero-mode,spin,L2,false,3434,"g on the forced schedule, and what the Dirac square root adds beyond second order, a STAND-IN: the 16-beat nested palindrome's Landau zero mode is measured at the rest energy at every field in all three planes, and the prediction that every ordering-free (T = 0) schedule's zero mode is exact while a T != 0 schedule with second-order g = 2 misses at finite field is tested on E-SPN-0079's 14-beat classes"
 E-FRC-0244,gauge/photon-seam-law,gauge,L2,false,3434,"the linear light's seam is compact U(1): E-FRC-0185's shadow obeys the Villain leapfrog exactly, E~_t - E~_(t-1) = -kappa C^T (C A~_t - N n_t) up to its 1/(2q) rounding, with n_t an integer string field, so every departure from the noncompact leapfrog is a Dirac string moving; but the rule reads the branch on the raw flux, off its own light by the carried integers' offset"
@@ -1626,23 +1626,23 @@ E-FRC-0296,gauge/color-gates,gauge,L2,false,3434,"explores whether one harness r
 E-FRC-0297,gauge/color-ensemble,gauge,L2,false,3434,"explores whether Sigma(648) colour with the Wilson triangle action on R*'s own D4 lattice has a first-order freezing point beta_f, the coupling decision 012 candidate (b) lets the rule fix, and stores the ensemble on both branches for the colour gates"
 E-FRC-0298,gauge/color-window,gauge,L2,false,3434,"explores whether the Sigma(648) Wilson ensemble on the rule's triangles holds its chiral walls and cages lone thirds at the rule-fixed freeze point beta_f, on either branch"
 E-FRC-0299,gauge/center-flux,gauge,L2,false,3434,"explores whether a coherent Z3 centre flux, the most frustrated periodic pattern, could cage lone thirds by interference while keeping the chiral walls"
-E-SPN-0201,spin/member-dressing,spin,L2,false,3434,"One member dressed by one husk photon: explores whether the R* member's one-photon self-energy at a_B 8 and 12's couplings moves its M2 / M1 far enough from tan m / m to reach item 0008's kill"
+E-SPN-0201,spin/member-dressing,spin,L2,false,3434,One member dressed by one husk photon: explores whether the R* member's one-photon self-energy at a_B 8 and 12's couplings moves its M2 / M1 far enough from tan m / m to reach item 0008's kill
 E-FRC-0300,gauge/center-pump,gauge,L2,false,3434,"explores whether the fully frustrated Z3 centre flux cf0 keeps chiral wall members that its bulk levels only pushed out of the window: a Laughlin pump of one colour-singlet flux quantum and a closed x2 twist counts the wall levels crossing pi, an index no box size can fake"
 E-FRC-0301,gauge/cage-velocity,gauge,L2,false,3434,"explores whether the centre field cf0 could stop a lone third for ever, or only slows it, from its Bloch band velocities"
-E-FRC-0302,gauge/cage-spacetime,gauge,L2,false,3434,"explores whether centre phases that change with the half-beat could stop a lone third exactly where cf0 only slows it"
+E-FRC-0302,gauge/cage-spacetime,gauge,L2,false,3434,explores whether centre phases that change with the half-beat could stop a lone third exactly where cf0 only slows it
 E-FRC-0303,gauge/cage-cells,gauge,L2,false,3434,"explores whether a static centre field on a 2- or 3-dock cell, or a grid-move field, could stop a lone third exactly"
 E-FRC-0304,gauge/hash-localization,gauge,L2,false,3434,"explores whether R*'s own colour hash could localize a lone third, or only slows it, from level statistics and the Thouless number"
 E-SPN-0202,spin/singlet-crossing,spin,L2,false,3434,"does binding make three like-tone register members cross one link together (candidate A'): the register-symmetric (color singlet) contact start on the register rule, its bound fraction and the same-slot crossing share of its bound level, against 0080's color error on R*'s hash"
 E-FRC-0305,gauge/cage-front,gauge,L2,false,3434,"explores whether any colour field could cage a lone third on R*s cycle, from the straight-through front block"
 E-FRC-0310,gauge/front-mesh,gauge,L2,false,3434,"explores whether the straight transport tau_d^L is reached by exactly one geodesic dock path for every L on the true {3,4,3,4} mesh"
-E-FRC-0309,gauge/coin-census,gauge,L2,false,3434,"explores whether any constant-free coin from R*s slot-harmonic and Clifford projectors could give a cageable front"
+E-FRC-0309,gauge/coin-census,gauge,L2,false,3434,explores whether any constant-free coin from R*s slot-harmonic and Clifford projectors could give a cageable front
 E-FRC-0306,gauge/charge-three,gauge,L2,false,3434,"explores whether the one-walker electron (the colour-blind Lambda^3 walker, det R = 1) keeps its chiral wall at its own charge 3: R*'s domain-wall slab under a U(1) probe with every phase tripled, read for the Laughlin pump and wall index, the Landau g and the leak, against the same reads at charge 1"
 E-SPN-0204,spin/weak-doublet,spin,L1,false,3434,"explores whether the weak doublet could be the tone-flipping Hodge star of the one-walker reading: how R*'s colour links act on the fear tone, star from love Lambda^k to fear Lambda^(3-k) as an exact Sigma(648) intertwiner, the commutant census of the 16 internal states, and the conserved numbers of the pair piece P_+ + w P_-"
-E-FRC-0307,gauge/string-localize,gauge,L2,false,line,"explores whether a pair phase linear in separation at R*s own angle could localize two walkers separation"
-E-FRC-0308,gauge/beat-reversal,gauge,L1,false,3434,"explores whether R*s beat-2 reversal of the pair angle is forced by a property the rule already has"
+E-FRC-0307,gauge/string-localize,gauge,L2,false,line,explores whether a pair phase linear in separation at R*s own angle could localize two walkers separation
+E-FRC-0308,gauge/beat-reversal,gauge,L1,false,3434,explores whether R*s beat-2 reversal of the pair angle is forced by a property the rule already has
 E-SPN-0205,spin/walker-species,spin,L1,false,3434,"explores whether the one-walker state space keeps the register rule's statistics species by species: on 0002's exact box, every walker species (grades 0 to 3, both tones, the link acting as Lambda^k of a non-monomial det-1 colour) keeps minors over walker modes reversible, composing, covariant, with the full sea one branch and one walker a mode, while permanents fail; the exchange sign is -1 and the 2 pi turn of the one register a walker carries is -1 on every grade; R*'s member pair piece on co-located members lifts to 1 + (e^(i j k phi) - 1) Q_A Q_B on all 16 (j, k), with self-phase C(k, 2) phi(0)"
 E-FRC-0312,gauge/projective-colour,gauge,L1,false,3434,"explores whether a link that moves only triality-0 content, forced by the unforced lift of R*s links, could leave lone thirds still while colour-neutral clusters move"
-E-FRC-0311,gauge/scalar-string,gauge,L2,false,line,"explores whether a pair piece linear in separation in the coins mixing angle could keep the mirror and localize two walkers separation"
+E-FRC-0311,gauge/scalar-string,gauge,L2,false,line,explores whether a pair piece linear in separation in the coins mixing angle could keep the mirror and localize two walkers separation
 E-FRC-0313,gauge/projective-phase,gauge,L1,false,3434,"explores whether the lift-free rule, with each reflected walker turned by i F as R*s mirror forces, could keep the E -> -E mirror at fixed momentum, time reversal and moving colour-neutral clusters"
 E-MTR-0026,matter/counting-clock,relativity,L2,false,3434,"the counting clock against the band clock on the working rule's lone vibe, pass: the share of a take history's steps that cancel falls linearly, 1 - v, reading 1/2 at the top group speed c* = 1/2, while the band's clock (W - q W') / W(0) has no linear term, follows sqrt(1 - v^2 / c_rest^2) with the band's own c_rest^2 = W(0) W''(0) = 0.6046 to 0.016 up to c*, and reads 3/4 there; the history weights put the vibe on the band's rays (mean counting share 0.66667 at T = 1024 against 2/3); with the coin off both clocks read 0"
 E-MTR-0027,matter/self-port-quadrature,relativity,L2,false,3434,"quadrature from the lazy root token's self ports (a STAND-IN), pass: the band eigenvector's weight on the ports that copy nowhere is exactly (1 - 24/Q) cos(mu) tan((mu + E)/2) / sin(E); at the light mass its excess over the massless half, normalized at rest, is mu / E, so x^2 + (v/c0)^2 = 1 to 1.04e-3 at D = 2 to 6 over 13 directions (spread 7.6e-7), not linear (miss 0.41) and not mu^2/E^2 (miss 0.35); at the coin's own phase mu = pi/3 the self share rises with speed (to 1.049 of rest) and the quadrature misses by 6.5 to 28 percent; the whole-copy token has no self port at all"
@@ -1737,37 +1737,37 @@ E-SLF-0195,selves/store-parity,selves,L2,false,3434,"the parity sector with stor
 E-SLF-0196,selves/error-boundary,selves,L2,false,3434,"a boundary that hands only errors outward: an opt-in exactly reversible piece that hands a love with no other love within 8 docks to the passing vacuum, around B1's self on the 32-dock quotient line under bath arrivals, against a plain swap, no boundary and a copy-out (controlled shift mod 3) variant, read for retention at 80, 200 and 1000 beats, outflow against arrivals and interior change"
 E-SLF-0197,selves/self-reader-reference,selves,L2,false,3434,"the self reader read against a reference rule (trap T-0027a): the closure's run back made with the rule the reading names, so a state run under an opt-in piece is read against the start's own run without it; every gate of E-SLF-0191 rerun under the amended reader, and E-SLF-0194's keel-and-flame arms read again, the old reader printed beside"
 E-SPN-0220,spin/class-swap-symmetry,spin,L2,false,3434,"Parity-class swap L composed with P, C, CP and T on the exact {3,4,3,4} ball under bare, ODD and F-G"
-E-QTM-0202,quantum/open-line-tsirelson-limit,quantum,L2,false,3434,"Open-line two-love FULL CHSH convergence toward 2 sqrt 2 without a wrap and constructive Z[w][1/6] ring observable bound"
+E-QTM-0202,quantum/open-line-tsirelson-limit,quantum,L2,false,3434,Open-line two-love FULL CHSH convergence toward 2 sqrt 2 without a wrap and constructive Z[w][1/6] ring observable bound
 E-RLT-0122,relativity/vacuum-mixer-export,relativity,L2,false,3434,"Empty vacuum V1 stationarity and s_in = 0 under F-G and ODD (B-38, B-43), plus exact cusp lateral link count m_D (B-59)"
 E-GMT-0045,geometry/twenty-four-cusps,geometry,L2,false,3434,"One bulk state read toward all 24 cusps of the base 24-cell: scalar agreement, symmetric invariance, and seed-driven cusp breaking"
 E-HLG-0043,holography/column-husk-closure,holography,L2,false,3434,"Non-closure of 3D column-sum projection (active 4D bulk dynamics on {3,4,3,4})"
 E-FND-0181,foundations/vertex-symmetry-table,foundations,L2,false,3434,"Exact C, P, CP, T and CPT table on the R = 2 {3,4,3,4} ball for bare, ODD (k* = 4), linear dipole, and EVEN"
-E-QTM-0203,quantum/window-interference-check,quantum,L2,false,3434,"Lone-love interference strictly inside proven honeycomb window m + 2t <= L (box vs exact ball) and B-piece calm-slot leftover check"
-E-QTM-0204,quantum/gate-group-hom,quantum,L2,false,any,"Exact proof that the two-mode gate group is infinite and dense in SU(2), HOM visibility vs word length, and exact 3-step path+role 50:50 split"
-E-QTM-0205,quantum/envariance-born,quantum,L2,false,3434,"Algebraic Zurek envariance symmetry prerequisites (Z_6 phase invariance and Z[w][1/2] Clifford fine-graining) on single-beat R = 2 {3,4,3,4} branching amplitudes"
+E-QTM-0203,quantum/window-interference-check,quantum,L2,false,3434,Lone-love interference strictly inside proven honeycomb window m + 2t <= L (box vs exact ball) and B-piece calm-slot leftover check
+E-QTM-0204,quantum/gate-group-hom,quantum,L1,false,any,"Exact proof that the two-mode gate group is infinite and dense in SU(2), HOM visibility vs word length, and exact 6x6 unitary path+role 50:50 circuit (L1)"
+E-QTM-0205,quantum/envariance-born,quantum,L2,false,3434,"Algebraic Zurek envariance symmetry prerequisites via explicit bipartite state vectors (36/36 phase, 24/24 S_4 swap) on single-beat R = 2 {3,4,3,4} branching amplitudes"
 E-GMT-0046,geometry/shell-and-holonomy,geometry,L2,false,3434,"Exact {3,4,3,4} shell counts S(0)..S(3) recurrence check (m-02) and loop holonomy of transports vs facet reflections (m-03)"
 E-FND-0182,foundations/ball-boundary-stats,foundations,L2,false,3434,"Interior shell statistics on exact R = 2 and R = 3 {3,4,3,4} balls under reflecting, calm-open, and vacuum-twisted boundaries"
 E-SLF-0199,selves/pair-line-mixer-check,selves,L2,false,3434,"Interaction-only W(F4)-isotropic Pair-Line Mixer M_pair(zeta_18 / -1): V1 and lone-vibe invariance, 12-line 4D scattering, and 4D s-wave eigenstate on cached R = 3 ball"
-E-FND-0183,foundations/value-arrow-check,foundations,L2,false,3434,"Key 5 value arrow on a non-repeating radiating history on the exact R = 2 ball and period-4 box cycle-mean fingerprint under ODD"
+E-FND-0183,foundations/value-arrow-check,foundations,L2,false,3434,Key 5 value arrow on a non-repeating radiating history on the exact R = 2 ball and period-4 box cycle-mean fingerprint under ODD
 E-QTM-0206,quantum/record-branch-chsh,quantum,L1,false,none,"L1 multi-qubit partial-trace decoherence (1/2^k), Quantum Darwinism redundancy (R_0.01 = 4), and (2+8)-qubit record-branch CHSH (> 2.80 vs dephased control <= 2)"
-E-GRV-0156,gravity/cusp-column-gravity,gravity,L2,false,3434,"Exact {3,4,3,4} cusp column counts, raw bulk screening (Option A fails), and parameter-free pair-density 1/N_D^2 (= l^-6) warped 1/r gravity without a floor"
-E-FND-0184,foundations/coherent-value-arrow,foundations,L2,false,3434,"Coherent interference between distinct chi_odd branches produces a large nonzero Key 5 C-asymmetry arrow under ODD on a non-repeating radiating history while keeping exact CP-pairing"
-E-SPN-0221,spin/cusp-domain-wall,spin,L1,false,3434,"One-sided cusp domain wall (Kaplan/Shamir) localizes one handedness on the 3D cusp husk while pushing its mirror twin into the deep bulk and gapping all doublers (B-23, B-55)"
+E-GRV-0156,gravity/cusp-column-gravity,gravity,L2,false,3434,"Exact {3,4,3,4} cusp column counts, raw bulk screening, and pair-density 1/N_D^2 resistance R(12) = 1.48e15 (fails g2 on side-16 slope -1.8177, resolved in E-GRV-0157)"
+E-FND-0184,foundations/coherent-value-arrow,foundations,L2,false,3434,Coherent interference between distinct chi_odd branches produces a large nonzero Key 5 C-asymmetry arrow under ODD on a non-repeating radiating history while keeping exact CP-pairing
+E-SPN-0221,spin/cusp-domain-wall,spin,L1,false,3434,"One-sided flat 1D depth-24 Hermitian domain wall (Kaplan/Shamir) localizing Left mode on D<=2, checking 1D Weyl dispersion and W=2 doubler class (L1)"
 E-SLF-0198,selves/honeycomb-beat-three,selves,L2,false,3434,"the line self at 4pi/9 on the honeycomb at beat 3: B1's line self under the frame mixer at strength 4pi/9, the one theta of E-SLF-0189 whose verdict rested on the line-restricted engine, run on the exact {3,4,3,4} tube around its 23 docks with proposal 012's sign and cost, exact per power of u, so weight the mixer sends off the line can come back, and read for L(3) against 1/2"
 E-SLF-0200,selves/four-d-swave-self-filter,selves,L2,false,3434,"4D M_pair(zeta_18) s-wave self, spectral error filter on cached exact R = 3 ball (8,857 docks), and fast L = 32 nMax = 5 sparse error-boundary bath survival check"
 E-RLT-0123,relativity/mpair-cusp-dispersion,relativity,L2,false,3434,"3D cusp-husk motion, Bloch dispersion E(k), group speed, and isotropy under M_pair(-1 / zeta_18) vs bare line law on exact {3,4,3,4} cusp and cached R = 3 ball"
 E-GRV-0157,gravity/pair-density-gravity-slope,gravity,L2,false,3434,"Exact unscreened 1/r slope, floor-independent geometric Newton coupling G_eff, and 1/r^2 2-body force from parameter-free pair-density warp w(D) = 1/N_D^2 on side = 64"
-E-SPN-0222,spin/unitary-cusp-domain-wall,spin,L2,false,3434,"Exact discrete-time split-step unitary cusp domain wall in Z[zeta_9][1/6] localizes one chiral Weyl cone at D=0, gaps all 7 3D doublers, and verifies symbolic Q(zeta_9) unitarity (B-23, B-55)"
-E-FRC-0322,gauge/cold-z3-confinement,gauge,L2,false,3434,"Cold-vacuum T = 0 quantum unitary Z_3-center confinement in Sigma(648)"
+E-SPN-0222,spin/unitary-cusp-domain-wall,spin,L2,false,3434,"Tier B flat 1D depth-24 split-step unitary domain wall in Z[zeta_9][1/6] at the 8 TRIM points (exact Right mirror on D=23, net chirality 0 per Nielsen-Ninomiya)"
+E-FRC-0322,gauge/cold-z3-confinement,gauge,L2,false,3434,"Quasi-(1+1)D cold-vacuum T = 0 quantum unitary Z_3-center confinement on 6-plaquette ladder (Floquet survival 1/729 = 0.00137, loop-basis Gauss err 0)"
 E-RLT-0124,relativity/cusp-boost-battery,relativity,L2,false,3434,"Relativistic dispersion E^2 = m^2 + c_eff^2 k^2, time dilation 1/gamma(v), wavepacket contraction, and two-way round-trip isotropy on the exact 24x24 cusp-husk Bloch operator under M_pair(-1 / zeta_18) vs bare and Galilean controls"
 E-CSM-0064,cosmology/horosphere-cosmology,cosmology,L2,false,3434,"Emergent de Sitter expansion a(t), H(t), q -> -1, w_eff -> -1 from a reversible unitary disturbance spreading into fixed infinite {3,4,3,4} horospheres without mesh growth (B-18, B-42)"
 E-RLT-0125,relativity/universal-speed-lock,relativity,L2,false,3434,"Universal limiting speed c_light = c_matter = c_grav to <= 1e-15 (beating GW170817 6e-15) on the shared {3,4,3,4} 1/N_D^2 warped cusp column, with decoupled negative control and exact unitary wave evolution"
 E-GRV-0158,gravity/two-body-dynamical-gravity,gravity,L2,false,3434,"Live two-body dynamical 1/r^2 gravitational attraction, bound Keplerian orbit, and flyby deflection under exact {3,4,3,4} warped-cusp unitary Schrodinger-Poisson evolution"
-E-FRC-0323,gauge/three-generation-spectrum,gauge,L2,false,3434,"Three chiral fermion generations from 24-cell D4 triality + Z[zeta_9][1/6] unitary cusp wall, with exponential {3,4,3,4} warp-shell mass hierarchy, hierarchical unitary CKM + Jarlskog CP phase, and honest boundary audit (B-25, m-11)"
-E-CSM-0065,cosmology/cosmic-history-backreaction,cosmology,L2,false,3434,"Full 3-era cosmic history (Radiation w = +1/3 -> Matter w = 0 -> Dark Energy w = -1) via reversible multi-vibe density backreaction on the fixed {3,4,3,4} honeycomb (B-18, B-42)"
-E-FND-0185,foundations/infinite-time-proofs,foundations,L2,false,3434,"Infinite-time formal proofs breaking the 4-beat horizon: exact BigInt certificates T1-T6 and Lean 4 proof-suite audit (Vibe.lean + Vibe/*.lean and compiled .olean artifacts)"
-E-FND-0186,foundations/unified-coupled-sectors,foundations,L2,false,3434,"Unified live 4D unitary simulation coupling {3,4,3,4} 1/N_D^2 warped gravity, Z[zeta_9][1/6] chiral cusp domain wall, exact Z_3-center Gauss-law gauge transport, and two-body M_pair(zeta_18) + ODD interference inside one reversible state vector"
-E-GRV-0159,gravity/post-newtonian-gr,gravity,L2,false,3434,"Post-Newtonian General Relativity on the {3,4,3,4} 1/N_D^2 warped cusp metric: gravitational redshift, Eddington 2x light bending (null rays + live 2D unitary optical wavepacket), Shapiro delay, and relativistic perihelion precession"
+E-FRC-0323,gauge/three-generation-spectrum,gauge,L2,false,3434,"Three-bank tensor-product model I_3 (x) U(k) over inscribed 16-cells cycled by T_3 in S_4 < W(D_4), plus qualitative toy warp-shell hierarchy and CKM check"
+E-CSM-0065,cosmology/cosmic-history-backreaction,cosmology,L2,false,3434,Tier B 160-beat mean-field density-braked horosphere walk + Tier C 6th-order Yoshida flat-LambdaCDM Friedmann ODE benchmark
+E-FND-0185,foundations/infinite-time-proofs,foundations,L2,false,3434,"Infinite-time formal proofs: exact BigInt certificates T1-T6 and 6-module (+ Vibe.lean) Lean 4.35.0 proof-suite audit (94 headline / 113 public theorems, requires pnpm check:lean .olean build)"
+E-FND-0186,foundations/unified-coupled-sectors,foundations,L2,false,3434,"Tier B 1D-ring (L_x = 20) x 9-depth warped-column unitary simulation coupling gravity, chirality, Z_3 gauge flux, M_pair(zeta_18), and ODD inside one reversible state vector"
+E-GRV-0159,gravity/post-newtonian-gr,gravity,L2,false,3434,"Tier C continuum post-Newtonian GR benchmark on prescribed isotropic PPN metric (gamma = beta = 1 imposed; canonical G_eff, c_u): redshift, light bending, Shapiro delay, and perihelion precession"
 E-FRC-0324,gauge/so10-three-generations,gauge,L2,false,eft-continuum,"Complete 16-state Spin(10) generation x 3 D4 triality frames (48 Weyl fermions), exact 6/6 BigInt-rational anomaly cancellation, sin^2(theta_W) = 3/8, and spontaneous dynamical S_3 triality breaking on {3,4,3,4} cusp shells (B-25, m-11)"
 E-GRV-0160,gravity/nonlinear-einstein-curvature,gravity,L2,false,eft-continuum,"L2 continuum GR consistency benchmark parameterized by warped-column (G_eff, c_u): linearized Fierz-Pauli, Lichnerowicz-Einstein star, and Regge convergence (not derived from QCA)"
 E-FRC-0325,gauge/koide-precision-spectrum,gauge,L2,false,eft-continuum,"Exact Koide Q = 2/3 theorem from F4 sqrt(2) root ratio and D4 triality T_3, Z[zeta_9] phase analysis (arg(zeta_9)/pi = 2/9) with strict look-elsewhere null controls, and exact Koide + {3,4,3,4} warp-shell upward-shift theorem across leptons, quarks, and neutrinos"
@@ -1776,16 +1776,16 @@ E-FND-0187,foundations/honeycomb-ball-coupled-l3,foundations,L2,false,3434,"L2 e
 E-QTM-0207,quantum/horizon-page-and-open-tsirelson,quantum,L1,false,none,"L1 10-qubit brickwork scrambler Page-curve benchmark, bosonic Bogoliubov two-mode-squeezer thermal-consistency check, and L1 Z[w][1/2] SU(2) MITM gate-synthesis benchmark on a prepared Bell singlet"
 E-GRV-0161,gravity/binary-merger-qnm-ringdown,gravity,L2,false,eft-continuum,"L2 GR benchmarks: 1PN/2.5PN inspiral to 7 r_g, warped-column TT wave propagation, and vacuum Schwarzschild QNM ringdown"
 E-FRC-0327,gauge/koide-role-floquet-and-twelve-fermions,gauge,L2,false,eft-continuum,"Algebraic obstruction for e^{i 2/9}, exact 9-state qutrit role Floquet synthesis in Z[w][1/2], and full 12-fermion + CKM + PMNS unified texture audit with strict parameter-count honesty"
-E-FRC-0328,gauge/pati-salam-unification-hierarchy,gauge,L2,false,eft-continuum,"Downstream continuum 2-loop Pati-Salam / SO(10) EFT compatibility check with {3,4,3,4} shell hierarchy b = 6034/330"
-E-FRC-0329,gauge/alpha-lattice-matching-and-shell-stabilization,gauge,L2,false,eft-continuum,"Continuum EFT audit of D_4 Gaussian-stiffness matching (-4.71% zero-fit miss), underdetermined 3x4 heavy-threshold closure of alpha(0), and Goldberger-Wise / Higgs-portal stabilization"
+E-FRC-0328,gauge/pati-salam-unification-hierarchy,gauge,L2,false,eft-continuum,Downstream continuum 2-loop Pati-Salam / Spin(10) EFT 3-for-3 RGE inversion and canonical single-face K_eff = 1.012532 bare-coupling audit
+E-FRC-0329,gauge/alpha-lattice-matching-and-shell-stabilization,gauge,L2,false,eft-continuum,"Continuum EFT audit of non-compact D_4 Gaussian-stiffness BLM ansatz (omitting -17.91 Wilson tadpole; canonical -6.06% zero-fit miss), underdetermined 3x4 thresholds, and tuned GW/portal stabilization"
 E-GRV-0162,gravity/honeycomb-ball-l3-two-body-and-horizon,gravity,L2,false,3434,"L2 prescribed-background and Hartree mean-field quantum walk on exact 4D {3,4,3,4} honeycomb balls (R = 2, 3) with two-body attraction and isotropic Schwarzschild radial coins"
 E-CSM-0066,cosmology/baryogenesis-dark-sector-and-lambda,cosmology,L2,false,eft-continuum,"5-state non-QCA Sakharov toy walk with Z[zeta_9] phases, continuum SO(10) EFT leptogenesis and WIMP dark-sector checks (shared budget with axion), and Lambda shell audit"
 E-FRC-0331,gauge/strong-cp-axion-and-pq-window,gauge,L2,false,eft-continuum,"Continuum SO(10) DFSZ axion EFT compatibility check (E/N = 8/3, f_a ~ M_PS, misalignment DM, and N_DW = 3 pre-inflationary H_inf < 9.9e6 GeV tension with E-CSM-0067)"
 E-CSM-0067,cosmology/inflation-bbn-and-nuclear-shells,cosmology,L2,false,eft-continuum,"Downstream continuum compatibility checks: Starobinsky plateau inflation (alpha = 1), standard SDIRK4 BBN (PDG/AME2020 inputs), and textbook 1D Woods-Saxon nuclear shell benchmark (independent of {3,4,3,4} QCA)"
-E-FND-0188,foundations/continuum-rg-gap-and-falsifiable-dossier,foundations,L2,false,d4-box,"Finite-volume Z_3 transfer-matrix mass gap, 2-loop asymptotic-scaling curve inversion check, free D_4 dispersion IR O(k^4) isotropy check, and live falsifiable dossier with explicit cross-sector tension ledger"
+E-FND-0188,foundations/continuum-rg-gap-and-falsifiable-dossier,foundations,L2,false,d4-box,"Finite-volume Z_3 transfer-matrix gap (beta in [0.1, 8.0]), 2-loop scaling inversion, free D_4 O(k^4) isotropy, and live dossier (3 structural zero-fit + 10 consistency checks + 5 active tensions)"
 E-FRC-0330,gauge/so10-yukawa-unification-and-role-selection,gauge,L2,false,eft-continuum,"Illustrative phenomenological V(S, P_3) coupling model for (r = sqrt(2), delta = +2/9) and continuum SO(10) 10_H + 126bar_H Yukawa EFT check (10 continuous params + discrete Z_9/sign choices, -41% m_d / +70% m_s pull)"
-E-CSM-0068,cosmology/holographic-lambda-and-weinberg-window,cosmology,L2,false,eft-continuum,"Base-independent CKN holographic D_Lambda = 2 D_H scaling in {3,4,3,4} shell units, nonlinear spherical-collapse Weinberg window, and prior-suppressed Bousso-Polchinski discretuum audit"
-E-FND-0189,foundations/infinite-volume-osterwalder-seiler-gap,foundations,L2,false,d4-box,"Exact infinite-volume 4D D_4 site-hyperplane reflection positivity and full-character Osterwalder-Seiler strong-coupling mass gap, exact 2D a -> 0 Migdal-Witten continuum limit, and 4D D_4 polar-projected APE link smearing"
-E-GRV-0163,gravity/exact-ternary-l3-infinite-honeycomb,gravity,L2,false,3434,"Exact BigInt R = infinity {3,4,3,4} honeycomb quantum walk with Z[w][1/2] gate compilation on prescribed Hartree two-body and bijective Gullstrand-Painleve split-step horizon backgrounds (L2)"
-E-FRC-0332,gauge/z36-pq-quality-higgs-hessian-and-120h-flavor,gauge,L2,false,eft-continuum,"Continuum SO(10) Z_36 PQ-quality, Higgs-potential Hessian, and 10_H + 126bar_H + 120_H Yukawa EFT compatibility check (14 continuous params + discrete Z_9/sign choices over 18-19 independent SM observables)"
-E-FND-0190,foundations/yang-mills-mass-gap-three-routes,foundations,L2,false,3434,"Three constructive Yang-Mills mass-gap routes on 4D D_4 / {3,4,3,4} (Callan-Wilczek hyperbolic gap, Tomboulis SU(2) vs U(1) 4D RG, Bakry-Emery Ricci LSI and D_4 isotropy) with honest Clay obstruction ledger"
+E-CSM-0068,cosmology/holographic-lambda-and-weinberg-window,cosmology,L2,false,eft-continuum,"Base-independent CKN holographic D_Lambda = 2 D_H scaling, RK4 Weinberg 1.54-shell window above 95.87, and D=95-anchored toy N_flux=8 integer-flux Bousso-Polchinski scan (1,454 vacua)"
+E-FND-0189,foundations/infinite-volume-osterwalder-seiler-gap,foundations,L2,false,d4-box,"Infinite-volume 4D D_4 site-hyperplane reflection positivity (S = S_+ + S_0 + Theta S_+) and multi-plaquette Kotecky-Preiss mass gap (beta_OS_KP 0.009348 / 0.009328), 2D Migdal-Witten limit, and APE smearing"
+E-GRV-0163,gravity/exact-ternary-l3-infinite-honeycomb,gravity,L2,false,3434,"Exact BigInt R = infinity {3,4,3,4} honeycomb quantum walk with Z[w][1/2] gate compilation on 2-beat Hartree and spatially uniform 1D constant-river Gullstrand-Painleve benchmark (L2)"
+E-FRC-0332,gauge/z36-pq-quality-higgs-hessian-and-120h-flavor,gauge,L2,false,eft-continuum,"Continuum Spin(10) GS-anomalous Z_36 PQ quality (d_min = 18; dim-20 kills d_min = 36), 11-scalar diagonal toy Higgs Hessian proxy, and 10_H + 126bar_H + 120_H Yukawa fit (14 real + 11 Z_9 params)"
+E-FND-0190,foundations/yang-mills-mass-gap-three-routes,foundations,L2,false,3434,"Three constructive Yang-Mills mass-gap routes on {3,4,3,4} and flat 4D D_4 (global Busemann Schur rho <= 13/21, 29-irrep MK/Tomboulis RG, Bakry-Emery Ricci LSI + Helffer-Sjostrand) with honest Clay obstruction ledger"

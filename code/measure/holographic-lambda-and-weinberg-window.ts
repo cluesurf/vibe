@@ -5,7 +5,7 @@
 // Three deterministic parts (zero PRNGs) reusing upstream Vibe Theory numbers:
 //   - E-FRC-0328 (pati-salam-unification-hierarchy.ts): {3,4,3,4} cusp branching b = 6034/330 = 18.284848,
 //     bulk Perron growth lambda = warpFactor() = 18.278708, M_Pl = 1.22089e19 GeV, M_P = M_Pl / sqrt(8 pi),
-//     Riccati stiffness K_eff = 1.03123708 and G_eff = 0.07716700.
+//     canonical single-face Riccati stiffness K_eff = 1.01253212 and G_eff = 0.07859254 ([1, 4, 20, 100]).
 //   - E-CSM-0065 (cosmic-history-backreaction.ts): asymptotic horosphere equation of state w = -0.999984
 //     and bare Planck-scale horosphere drift H_inf(r_vol) = 0.51712789 M_Pl. Important gap disclosure:
 //     E-CSM-0065's bare horosphere drift H_inf = 0.517 M_Pl is Planck-scale and sits 122 decades above

@@ -914,6 +914,7 @@ export type LeanAudit = {
   readonly leanFileCount: number
   readonly oleanFileCount: number
   readonly oleanArtifactsPresent: boolean
+  readonly oleanNote: string
   readonly allSixFamiliesPresent: boolean
 }
 
@@ -1019,7 +1020,14 @@ function auditLeanFile(): LeanAudit {
   for (const p of expectedOleans) {
     if (existsSync(p)) oleanFileCount++
   }
+
   const oleanArtifactsPresent = oleanFileCount === expectedOleans.length && oleanFileCount >= 2
+  const oleanNote =
+    oleanFileCount === 0
+      ? 'Run pnpm run check:lean (Lean 4.35.0) to build .olean artifacts first'
+      : oleanArtifactsPresent
+        ? `All ${oleanFileCount}/${expectedOleans.length} .olean artifacts present`
+        : `Incomplete .olean build (${oleanFileCount}/${expectedOleans.length}); run pnpm run check:lean (Lean 4.35.0) to rebuild .olean artifacts`
 
   const requiredFamilies = [1, 2, 3, 4, 5, 6] as const
   const coreBenchmarks = [
@@ -1061,6 +1069,7 @@ function auditLeanFile(): LeanAudit {
     leanFileCount: leanFiles.length,
     oleanFileCount,
     oleanArtifactsPresent,
+    oleanNote,
     allSixFamiliesPresent,
   }
 }

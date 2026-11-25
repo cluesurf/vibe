@@ -2059,6 +2059,7 @@ function runPart2LiveFalsifiableDossier(): Part2DossierReport {
   const legacyMPsGeV = e327.part2.neutrinos.mPsGeV
   const unifiedMPsGeV = 10 ** e328.primary.log10MPsGeV
   const mPsMismatchRatio = legacyMPsGeV / unifiedMPsGeV
+  const bareAlphaRelPct = e329.part1.zeroFitBare.zeroRelResidualPct
   const zeroFitAlphaInv = e329.part1.zeroFitD4Blm.predAlphaEmInvZeroPdg2024
   const zeroFitAlphaRelPct = e329.part1.zeroFitD4Blm.zeroRelResidualPct
 
@@ -2102,7 +2103,7 @@ function runPart2LiveFalsifiableDossier(): Part2DossierReport {
       title: 'Inflation H_inf vs pre-inflationary N_DW = 3 axion CMB isocurvature',
       modules: 'E-CSM-0067 vs E-FRC-0331',
       summary:
-        'E-CSM-0067 Starobinsky/cusp inflation gives H_inf ~ 1.52e13 GeV, exceeding E-FRC-0331 pre-inflationary N_DW = 3 axion CMB isocurvature bound H_inf < 9.9e6 GeV by 1.5e6x.',
+        'E-CSM-0067 Starobinsky/cusp inflation gives H_inf = 1.50e13 GeV, exceeding E-FRC-0331 pre-inflationary N_DW = 3 axion CMB isocurvature bound H_inf < 9.9e6 GeV by 1.51e6x.',
       resolutionPath:
         'Requires post-inflationary PQ breaking with explicit N_DW = 1 or domain-wall decay bias, or lower-scale inflation.',
     },
@@ -2120,7 +2121,7 @@ function runPart2LiveFalsifiableDossier(): Part2DossierReport {
       title: 'Zero-fit alpha(0) residual requiring underdetermined heavy SO(10) thresholds',
       modules: 'E-FRC-0328 / E-FRC-0329',
       summary:
-        `Bare zero-fit alpha^-1(0) sits -14.5% off CODATA and D_4 BLM sits ${zeroFitAlphaRelPct.toFixed(2)}% off (${zeroFitAlphaInv.toFixed(2)} vs 137.036). Exact CODATA closure requires fitted O(1) heavy SO(10) thresholds (underdetermined non-predictive fit).`,
+        `Bare zero-fit alpha^-1(0) sits ${bareAlphaRelPct.toFixed(1)}% off CODATA and non-compact D_4 BLM (omitting compact Wilson tadpole -17.91) sits ${zeroFitAlphaRelPct.toFixed(2)}% off (${zeroFitAlphaInv.toFixed(2)} vs 137.036). Exact CODATA closure requires fitted O(1) heavy SO(10) thresholds (underdetermined non-predictive fit).`,
       resolutionPath:
         'Requires a non-fitted microscopic derivation of heavy SO(10) multiplet threshold ratios from the lattice rule.',
     },
@@ -2190,10 +2191,10 @@ function runPart2LiveFalsifiableDossier(): Part2DossierReport {
         'Confirmed > 1% departure from Schwarzschild gravitational redshift/photon-ring scaling or verified non-unitary black-hole information loss',
     },
     {
-      name: 'Charged-lepton Koide invariant Q_e = 2/3 & tau mass from Z[w][1/2] delta = 2/9',
+      name: 'Charged-lepton Koide invariant Q_e = 2/3 & tau mass using un-derived phase delta = 2/9',
       sourceCode: 'E-FRC-0327',
-      kind: 'zero-fit-prediction',
-      predictedValue: `Q_e = ${e327.part2.leptons.koideQ.toFixed(8)}, m_tau = ${e327.part2.leptons.massesMeV[2].toFixed(3)} MeV (+${(100 * e327.part2.leptons.relErrs[2]).toFixed(4)}% vs PDG)`,
+      kind: 'fitted-consistency-check',
+      predictedValue: `Q_e = ${e327.part2.leptons.koideQ.toFixed(8)}, m_tau = ${e327.part2.leptons.massesMeV[2].toFixed(3)} MeV (+${(100 * e327.part2.leptons.relErrs[2]).toFixed(4)}% vs PDG; uses empirical un-derived delta = 2/9 not in Z[zeta_9][1/6])`,
       currentBound: 'PDG 2024: m_tau = 1776.86 +/- 0.12 MeV (Q_PDG = 0.666661 +/- 0.000007)',
       nextGenDetector: 'Belle II + BESIII tau-threshold precision mass measurement (< 0.05 MeV)',
       status: p5Ok ? 'consistent' : 'tension',
@@ -2201,15 +2202,15 @@ function runPart2LiveFalsifiableDossier(): Part2DossierReport {
         'Precision tau mass shifting > 5 sigma away from 1776.97 MeV (breaking Q_e = 2/3 beyond radiative QED shifts)',
     },
     {
-      name: 'Neutrino normal mass ordering (NO) & cosmological mass sum sum(m_nu)',
+      name: 'Neutrino normal mass ordering (NO) & cosmological mass sum sum(m_nu) from fitted legacy seesaw texture',
       sourceCode: 'E-FRC-0327',
-      kind: 'zero-fit-prediction',
-      predictedValue: `Normal ordering, sum(m_nu) = ${e327.part2.neutrinos.sumMassesEv.toFixed(4)} eV (m_1=${(1000 * e327.part2.neutrinos.lightNeutrinoMassesEv[0]).toFixed(2)}, m_2=${(1000 * e327.part2.neutrinos.lightNeutrinoMassesEv[1]).toFixed(2)}, m_3=${(1000 * e327.part2.neutrinos.lightNeutrinoMassesEv[2]).toFixed(2)} meV)`,
+      kind: 'fitted-consistency-check',
+      predictedValue: `Normal ordering, sum(m_nu) = ${e327.part2.neutrinos.sumMassesEv.toFixed(4)} eV (m_1=${(1000 * e327.part2.neutrinos.lightNeutrinoMassesEv[0]).toFixed(2)}, m_2=${(1000 * e327.part2.neutrinos.lightNeutrinoMassesEv[1]).toFixed(2)}, m_3=${(1000 * e327.part2.neutrinos.lightNeutrinoMassesEv[2]).toFixed(2)} meV; uses legacy M_PS=${legacyMPsGeV.toExponential(2)} GeV vs unified ${unifiedMPsGeV.toExponential(3)} GeV)`,
       currentBound: 'Planck+BAO sum(m_nu) < 0.12 eV (95% CL), DESI DR1+CMB < 0.072 eV (95% CL)',
       nextGenDetector: 'JUNO + DUNE + Hyper-Kamiokande (ordering) + CMB-S4 / Euclid / DESI (sum m_nu)',
-      status: p6Ok ? 'consistent' : 'tension',
+      status: p6Ok && p7ScaleAligned ? 'consistent' : 'tension',
       falsificationCondition:
-        '> 5 sigma confirmation of inverted neutrino ordering (IO) or cosmological measurement sum(m_nu) > 0.10 eV or < 0.055 eV',
+        '> 5 sigma confirmation of inverted neutrino ordering (IO) or cosmological measurement sum(m_nu) > 0.10 eV or < 0.055 eV, or failure under unified M_PS = 1.434e11 GeV',
     },
     {
       name: 'Dimension-6 proton decay lifetime tau_p(p -> e+ pi0) & sin^2(theta_W)_GUT = 3/8 from 2-loop SO(10) -> Pati-Salam',
@@ -2226,7 +2227,7 @@ function runPart2LiveFalsifiableDossier(): Part2DossierReport {
       name: 'SO(10) axion anomaly ratio E/N = 8/3 & inflation H_inf vs N_DW = 3 isocurvature constraint',
       sourceCode: 'E-FRC-0331 / E-CSM-0067',
       kind: 'zero-fit-prediction',
-      predictedValue: 'Exact E/N = 8/3 (g_{a gamma gamma} DFSZ band), pre-inflationary N_DW = 3 isocurvature requires H_inf < 9.9e6 GeV vs E-CSM-0067 H_inf ~ 1.52e13 GeV',
+      predictedValue: 'Exact E/N = 8/3 (g_{a gamma gamma} DFSZ band), pre-inflationary N_DW = 3 isocurvature requires H_inf < 9.9e6 GeV vs E-CSM-0067 H_inf = 1.50e13 GeV',
       currentBound: 'Planck 2018 CMB isocurvature beta_iso < 0.038 (95% CL), ADMX / MADMAX haloscope bounds',
       nextGenDetector: 'ADMX-G2 + MADMAX + DMRadio + CMB-S4 / LiteBIRD (tensor-to-scalar r and isocurvature)',
       status: 'tension',

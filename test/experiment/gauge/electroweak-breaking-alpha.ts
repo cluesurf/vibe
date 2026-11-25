@@ -224,7 +224,7 @@ export default experiment({
         '(3) HONEST ALPHA AUDIT (ZERO NUMEROLOGY): running from a natural O(1) lattice bare stiffness ' +
         'K_gauge = 3.35 (alpha_bare^-1 = 4 pi * 3.35 = 42.10) across ~15 decades lands at alpha^-1(M_Z) ~ 128 ' +
         'and alpha^-1(0) ~ 137, demonstrating naturalness without fine-tuning, while 0 of 10 zero-parameter ' +
-        'lattice invariants (G_eff = 0.077167, K_eff = 1.031237, |W(F4)| = 1152, |Sigma(648)| = 648, unrun or ' +
+        `lattice invariants (canonical single-face G_eff = ${rg.latticeGEff.toFixed(6)}, K_eff = ${rg.latticeKEff.toFixed(6)}, |W(F4)| = 1152, |Sigma(648)| = 648, unrun or ` +
         '2-loop run) pass E-MTH-0021 pre-registered CODATA null judge and both numerology controls (4 pi^3 + pi^2 + pi ' +
         'and Wyler) are refused. Fixing M_GUT / M_EW and alpha(0) = 1/137.035999177 with zero free parameters remains open.',
     })

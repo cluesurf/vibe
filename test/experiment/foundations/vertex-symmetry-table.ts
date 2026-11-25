@@ -60,10 +60,11 @@ export default experiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        `R = 2 ball (${res.ballCells} docks, split coin, 0 frontier hits, all reversible): bare keeps C/P/CP/T/CPT on all starts; ` +
-        `ODD is exactly silent on neutral 2-vibe P2 (0 break) and breaks C (0) + P (0/8) while keeping CP (8/8) on 4-vibe X1; ` +
-        `linear dipole breaks C (0) and P (${dipP2.P_kept}/${dipP2.P_total}) already on neutral 2-vibe P2; ` +
-        `EVEN control breaks C (0) and CP (0/8) while keeping P (8/8)`,
+        `R = 2 ball (${res.ballCells} docks, split coin, ${totalHits} frontier hits, reversible=${i0 ? 1 : 0}): ` +
+        `bare symmetry gate i2=${i2 ? 1 : 0} (bareP2 T=${bareP2.T ? 1 : 0}, bareX1 T=${bareX1.T ? 1 : 0}); ` +
+        `ODD is silent=${oddP2.silentVsBare ? 1 : 0} on neutral 2-vibe P2 and on 4-vibe X1 gives C=${oddX1.C ? 1 : 0}, P=${oddX1.P_kept}/${oddX1.P_total}, CP=${oddX1.CP_kept}/${oddX1.CP_total} (g1=${g1 ? 1 : 0}); ` +
+        `linear dipole on P2 gives C=${dipP2.C ? 1 : 0}, P=${dipP2.P_kept}/${dipP2.P_total} (g2=${g2 ? 1 : 0}); ` +
+        `EVEN control on X1 gives C=${evenX1.C ? 1 : 0}, P=${evenX1.P_kept}/${evenX1.P_total}, CP=${evenX1.CP_kept}/${evenX1.CP_total} (g3=${g3 ? 1 : 0})`,
       metrics: {
         i0: i0 ? 1 : 0,
         i1: i1 ? 1 : 0,

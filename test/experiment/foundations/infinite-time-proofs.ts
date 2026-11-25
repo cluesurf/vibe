@@ -37,7 +37,8 @@ export default experiment({
       status: res.allPassed ? 'pass' : 'fail',
       claim:
         `Core infinite-time BigInt certificates T1-T6 (forall t : Nat / forall F : Nat) pass with zero floats, ` +
-        `and the Lean 4 proof suite across ${leanAudit.leanFileCount} source files (Vibe.lean + Vibe/*.lean) passes cleanly ` +
+        `and the Lean 4 proof suite across ${leanAudit.leanFileCount} source files (Vibe.lean + Vibe/*.lean) ` +
+        `${leanAudit.passed ? 'passes cleanly' : 'fails artifact gate (run pnpm check:lean to compile .olean files)'} ` +
         `(${leanAudit.theoremCount} formal Lean theorems, ${leanAudit.sorryCount} sorry, ${leanAudit.axiomCount} axiom, ` +
         `${leanAudit.nativeDecideCount} native_decide, ${leanAudit.unsafeCount} unsafe, ${leanAudit.implementedByCount} implemented_by, ` +
         `${leanAudit.oleanFileCount}/${leanAudit.leanFileCount} compiled .olean artifacts present, full live compilation run by pnpm check:lean): ` +
