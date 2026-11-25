@@ -403,37 +403,41 @@ function certifySu2(geom: D4Geometry): Su2Results {
     b * s < 1e-5 ? 2 * s * (1 + (b * s) ** 2 / 6 + (b * s) ** 4 / 120) : (2 * Math.sinh(b * s)) / b
 
   function certifiedSu2BoxUpper(kL: number, kR: number, pL: number, pR: number, N: number): number {
+    const ULP = 1 + 1e-13, ULP_LO = 1 - 1e-13
     const i1L = besselI(1, kL), i2L = besselI(2, kL), RL = i2L / i1L, zL = (2 * i1L) / kL
     const i1R = besselI(1, kR), i2R = besselI(2, kR), RR = i2R / i1R, zR = (2 * i1R) / kR
-    const varPerpHi = (RL / kL) * (1 + 1e-13)
-    const psiSlope = Math.sqrt(varPerpHi / 3)
-    const pi2Anchor = varPerpHi + psiSlope * (0.5 * Math.PI - pL)
+    const varPerpHi = (RL / kL) * ULP + 1e-15
+    const psiSlope = Math.sqrt(varPerpHi / 3) * ULP
+    const pi2Anchor = varPerpHi + psiSlope * Math.max(0, 0.5 * Math.PI - pL) * ULP + 1e-14
     if (pi2Anchor < 0.24999) return pi2Anchor
 
-    const varParHi = Math.min(varPerpHi, Math.max(0, 1 - (3 * RR) / kR - RL * RL) + 1e-13)
-    const cPR = Math.cos(pR), sPR = Math.sin(pR), cPL = Math.cos(pL), sPL = Math.sin(pL)
-    const varHi = cPR * cPR * varParHi + sPR * sPR * varPerpHi
-    const poincUb = Math.sqrt(varHi / 3)
+    const varParHi = Math.min(varPerpHi, Math.max(0, 1 - (3 * RR) / kR * ULP_LO - RL * RL * ULP_LO) * ULP + 1e-13)
+    const cPR = Math.max(0, Math.cos(pR) - 1e-14), sPR = Math.min(1, Math.sin(pR) + 1e-14)
+    const cPL = Math.min(1, Math.cos(pL) + 1e-14), sPL = Math.max(0, Math.sin(pL) - 1e-14)
+    const varHi = (cPR * cPR * varParHi + sPR * sPR * varPerpHi) * ULP + 1e-14
+    const poincUb = Math.sqrt(varHi / 3) * ULP
     if (poincUb < 0.24999) return poincUb
 
-    const aLo = kL * cPR, aHi = kR * cPL, bLo = kL * sPL, bHi = kR * sPR
-    const s0Lo = RL * cPR * (1 - 1e-13), s0Hi = Math.min(1 - 1e-15, RR * cPL * (1 + 1e-13))
-    const th0Lo = Math.acos(s0Hi), th0Hi = Math.acos(s0Lo)
-    const zInvLo = (1 / (Math.PI * zR)) * (1 - 1e-13), zInvHi = (1 / (Math.PI * zL)) * (1 + 1e-13)
+    const aLo = Math.max(0, kL * cPR * ULP_LO), aHi = kR * cPL * ULP + 1e-15
+    const bLo = Math.max(0, kL * sPL * ULP_LO), bHi = kR * sPR * ULP + 1e-15
+    const s0Lo = Math.max(0, RL * cPR * ULP_LO - 1e-15), s0Hi = Math.min(1 - 1e-15, RR * cPL * ULP + 1e-15)
+    const th0Lo = Math.max(0, Math.acos(s0Hi) - 1e-14), th0Hi = Math.min(Math.PI, Math.acos(s0Lo) + 1e-14)
+    const zInvLo = (1 / (Math.PI * zR)) * ULP_LO, zInvHi = (1 / (Math.PI * zL)) * ULP
 
     const hU = 1 / N
     const fmLo = new Float64Array(N + 1), fmHi = new Float64Array(N + 1), dmHi = new Float64Array(N)
     const thmLoArr = new Float64Array(N), thmHiArr = new Float64Array(N)
     for (let i = 0; i < N; i++) {
       const u0 = i * hU, u1 = (i + 1) * hU
-      const tLo = (1 - u0) * th0Lo + u0 * Math.PI, tHi = (1 - u1) * th0Hi + u1 * Math.PI
+      const tLo = Math.max(0, (1 - u0) * th0Lo + u0 * Math.PI - 1e-14)
+      const tHi = Math.min(Math.PI, (1 - u1) * th0Hi + u1 * Math.PI + 1e-14)
       thmLoArr[i] = tLo; thmHiArr[i] = tHi
-      const cLo = Math.cos(tHi), cHi = Math.cos(tLo)
-      const sLo = Math.min(Math.sin(tLo), Math.sin(tHi))
-      const sHi = tLo <= 0.5 * Math.PI && tHi >= 0.5 * Math.PI ? 1 : Math.max(Math.sin(tLo), Math.sin(tHi))
+      const cLo = Math.max(-1, Math.cos(tHi) - 1e-14), cHi = Math.min(1, Math.cos(tLo) + 1e-14)
+      const sLo = Math.max(0, Math.min(Math.sin(tLo), Math.sin(tHi)) - 1e-14)
+      const sHi = Math.min(1, (tLo <= 0.5 * Math.PI && tHi >= 0.5 * Math.PI ? 1 : Math.max(Math.sin(tLo), Math.sin(tHi))) + 1e-14)
       const diffLo = Math.max(0, s0Lo - cHi), diffHi = Math.max(0, s0Hi - cLo)
       const expLo = Math.exp(cLo >= 0 ? aLo * cLo : aHi * cLo), expHi = Math.exp(cHi >= 0 ? aHi * cHi : aLo * cHi)
-      const lo = hU * (Math.PI - th0Hi) * zInvLo * diffLo * expLo * ztFn(bLo, sLo) * sLo * (1 - 1e-12)
+      const lo = hU * Math.max(0, Math.PI - th0Hi) * zInvLo * diffLo * expLo * ztFn(bLo, sLo) * sLo * (1 - 1e-12)
       const hi = hU * (Math.PI - th0Lo) * zInvHi * diffHi * expHi * ztFn(bHi, sHi) * sHi * (1 + 1e-12) + 1e-15
       fmLo[i + 1] = fmLo[i]! + lo; fmHi[i + 1] = fmHi[i]! + hi; dmHi[i] = hi
     }
@@ -442,11 +446,12 @@ function certifySu2(geom: D4Geometry): Su2Results {
     const thpLoArr = new Float64Array(N), thpHiArr = new Float64Array(N)
     for (let j = 0; j < N; j++) {
       const v0 = j * hU, v1 = (j + 1) * hU
-      const tLo = (1 - v1) * th0Lo, tHi = (1 - v0) * th0Hi
+      const tLo = Math.max(0, (1 - v1) * th0Lo - 1e-14)
+      const tHi = Math.min(Math.PI, (1 - v0) * th0Hi + 1e-14)
       thpLoArr[j] = tLo; thpHiArr[j] = tHi
-      const cLo = Math.cos(tHi), cHi = Math.cos(tLo)
-      const sLo = Math.min(Math.sin(tLo), Math.sin(tHi))
-      const sHi = tLo <= 0.5 * Math.PI && tHi >= 0.5 * Math.PI ? 1 : Math.max(Math.sin(tLo), Math.sin(tHi))
+      const cLo = Math.max(-1, Math.cos(tHi) - 1e-14), cHi = Math.min(1, Math.cos(tLo) + 1e-14)
+      const sLo = Math.max(0, Math.min(Math.sin(tLo), Math.sin(tHi)) - 1e-14)
+      const sHi = Math.min(1, (tLo <= 0.5 * Math.PI && tHi >= 0.5 * Math.PI ? 1 : Math.max(Math.sin(tLo), Math.sin(tHi))) + 1e-14)
       const diffLo = Math.max(0, cLo - s0Hi), diffHi = Math.max(0, cHi - s0Lo)
       const expLo = Math.exp(cLo >= 0 ? aLo * cLo : aHi * cLo), expHi = Math.exp(cHi >= 0 ? aHi * cHi : aLo * cHi)
       const lo = hU * th0Lo * zInvLo * diffLo * expLo * ztFn(bLo, sLo) * sLo * (1 - 1e-12)
@@ -454,8 +459,8 @@ function certifySu2(geom: D4Geometry): Su2Results {
       fpLo[j + 1] = fpLo[j]! + lo; fpHi[j + 1] = fpHi[j]! + hi
     }
 
-    const cAlpha = cAlphaFn(bHi)
-    const cAlpha2b2 = cAlpha * cAlpha * bHi * bHi
+    const cAlpha = cAlphaFn(bHi) * ULP
+    const cAlpha2b2 = cAlpha * cAlpha * bHi * bHi * ULP
     let eExHi = 0
     for (let i = 0; i < N; i++) {
       const uMin = fmLo[i]!, uMax = fmHi[i + 1]!
@@ -467,24 +472,25 @@ function certifySu2(geom: D4Geometry): Su2Results {
       if (jEnd <= jStart) jEnd = jStart + 1
       if (jEnd > N) jEnd = N
       const thmL = thmLoArr[i]!, thmR = thmHiArr[i]!, thpL = thpLoArr[jEnd - 1]!, thpR = thpHiArr[jStart]!
-      const smLo = Math.cos(thmR), smHi = Math.cos(thmL), spLo = Math.cos(thpR), spHi = Math.cos(thpL)
-      const LmLo = Math.min(Math.sin(thmL), Math.sin(thmR))
-      const LmHi = thmL <= 0.5 * Math.PI && thmR >= 0.5 * Math.PI ? 1 : Math.max(Math.sin(thmL), Math.sin(thmR))
-      const LpLo = Math.min(Math.sin(thpL), Math.sin(thpR))
-      const LpHi = thpL <= 0.5 * Math.PI && thpR >= 0.5 * Math.PI ? 1 : Math.max(Math.sin(thpL), Math.sin(thpR))
-      const dsMax = Math.max(0, spHi - smLo)
-      const dLMax = Math.max(Math.abs(LpHi - LmLo), Math.abs(LmHi - LpLo))
-      const sumAbsMax = Math.max(Math.abs(spHi + smHi), Math.abs(spLo + smLo))
-      const lSumMin = LpLo + LmLo
-      const bFac = 1 + cAlpha2b2 * LmHi * LpHi
-      let exMax = Math.sqrt(bFac) * dLMax
+      const smLo = Math.max(-1, Math.cos(thmR) - 1e-14), smHi = Math.min(1, Math.cos(thmL) + 1e-14)
+      const spLo = Math.max(-1, Math.cos(thpR) - 1e-14), spHi = Math.min(1, Math.cos(thpL) + 1e-14)
+      const LmLo = Math.max(0, Math.min(Math.sin(thmL), Math.sin(thmR)) - 1e-14)
+      const LmHi = Math.min(1, (thmL <= 0.5 * Math.PI && thmR >= 0.5 * Math.PI ? 1 : Math.max(Math.sin(thmL), Math.sin(thmR))) + 1e-14)
+      const LpLo = Math.max(0, Math.min(Math.sin(thpL), Math.sin(thpR)) - 1e-14)
+      const LpHi = Math.min(1, (thpL <= 0.5 * Math.PI && thpR >= 0.5 * Math.PI ? 1 : Math.max(Math.sin(thpL), Math.sin(thpR))) + 1e-14)
+      const dsMax = Math.max(0, spHi - smLo) * ULP
+      const dLMax = Math.max(Math.abs(LpHi - LmLo), Math.abs(LmHi - LpLo)) * ULP
+      const sumAbsMax = Math.max(Math.abs(spHi + smHi), Math.abs(spLo + smLo)) * ULP
+      const lSumMin = (LpLo + LmLo) * ULP_LO
+      const bFac = (1 + cAlpha2b2 * LmHi * LpHi) * ULP
+      let exMax = Math.sqrt(bFac) * dLMax * ULP
       if (lSumMin > 1e-6) {
-        const quad = 0.5 * bFac * dsMax * (sumAbsMax / lSumMin) ** 2
+        const quad = 0.5 * bFac * dsMax * (sumAbsMax / lSumMin) ** 2 * ULP
         if (quad < exMax) exMax = quad
       }
       eExHi += dmHi[i]! * exMax
     }
-    return Math.min(pi2Anchor, poincUb, varHi + eExHi)
+    return Math.min(pi2Anchor, poincUb, (varHi + eExHi * ULP) * ULP)
   }
 
   const stack: [number, number, number, number, number][] = [[0.35, 3.53, 0, 0.5 * Math.PI, 0]]
@@ -758,7 +764,7 @@ function makeSu3HessEvaluator(maxN: number, maxQ: number): (i1: number, i2: numb
           const a10 = cf(0, q1), a11 = cf(1, q1), a12 = cf(2, q1)
           const a20 = cf(0, q2), a21 = cf(1, q2), a22 = cf(2, q2)
           const cDet = a00 * (a11 * a22 - a12 * a21) - a01 * (a10 * a22 - a12 * a20) + a02 * (a10 * a21 - a11 * a20)
-          if (Math.abs(cDet) > 1e-24) {
+          if (cDet !== 0) {
             coeffs[n] = cDet
             any = true
           }
@@ -843,7 +849,60 @@ function makeSu3HessEvaluator(maxN: number, maxQ: number): (i1: number, i2: numb
   }
 }
 
-const evalZSu3Hess9 = makeSu3HessEvaluator(9, 13)
+const SCHUR_MAX_N = 9
+const SCHUR_MAX_Q = 14
+const evalZSu3Hess = makeSu3HessEvaluator(SCHUR_MAX_N, SCHUR_MAX_Q)
+
+// Explicit Analytic Factorial Tail Bound for Z_{SU(3)} on the Complex Polydisk (Rouche + Cauchy):
+// For any real singular values 0 <= m_k <= mMax (u_k <= U_* = mMax^2) and complex perturbation |Delta I_k|, |Delta D| <= delta:
+//   1. If (r - U_*)^3 > delta * (r^2 + r + 1), Rouche's theorem guarantees all 3 roots satisfy |u_k| < r (set x = r / 4).
+//   2. With D_max = mMax^3 + delta, I3_max = U_*^3 + delta, and tau = (D_max + sqrt(D_max^2 + 4 I3_max)) / 8,
+//      induction on T_n = (D/4) T_{n-1} - (I_3/64) T_{n-2} gives |T_n| <= tau^n for all n >= 0.
+//   3. Zero coefficients are dropped inside n <= maxN, q_2 <= maxQ (cDet !== 0), so the remainder splits cleanly into:
+//      - B_Q (all q_2 >= maxQ + 1, all n >= 0), and
+//      - B_N (all n >= maxN + 1, all 0 <= q_0 < q_1 < q_2).
+//   4. Cauchy's integral formula on radius delta gives |R| <= B, |d_a R| <= B / delta, |d_a d_b R| <= 2 B / delta^2.
+type AnalyticSchurTail = {
+  readonly mMax: number
+  readonly delta: number
+  readonly rootRadius: number
+  readonly tauPlus: number
+  readonly bQ: number
+  readonly bN: number
+  readonly bTotal: number
+  readonly roucheOk: boolean
+}
+
+function computeSu3SchurAnalyticTail(mMax: number, maxN = SCHUR_MAX_N, maxQ = SCHUR_MAX_Q, delta = 0.25): AnalyticSchurTail {
+  const uMax = mMax * mMax
+  const rootRadius = Math.ceil((uMax + 2.15) * 20) / 20
+  const roucheOk = (rootRadius - uMax) ** 3 > delta * (rootRadius * rootRadius + rootRadius + 1) * (1 + 1e-6)
+  const x = rootRadius / 4
+  const dMax = mMax * mMax * mMax + delta
+  const i3Max = uMax * uMax * uMax + delta
+  const tauPlus = (dMax + Math.sqrt(dMax * dMax + 4 * i3Max)) / 8
+
+  // Exact positive-term upper sums with analytic geometric tail caps (strictly verified ratio < 1/2):
+  const sumCap = (startQ: number, fn: (q: number) => number): number => {
+    let s = 0, last = 0
+    for (let q = startQ; q <= startQ + 40; q++) { last = fn(q); s += last }
+    const next = fn(startQ + 41)
+    if (next >= 0.5 * last && last > 0) throw new Error('Tail series did not converge rapidly')
+    return (s + 2 * next) * (1 + 1e-12)
+  }
+  const s0 = sumCap(0, q => Math.pow(x, q) / (FACT[Math.max(0, q - 2)]! * FACT[q]!))
+  const s1 = sumCap(1, q => Math.pow(x, q - 1) / (FACT[Math.max(0, q - 2)]! * FACT[q]!))
+  const s1N = sumCap(1, q => Math.pow(x, q - 1) / (FACT[Math.max(0, q - 2)]! * FACT[q - 1]!))
+  const s2N = sumCap(2, q => (q * q * q * Math.pow(x, q - 2)) / (FACT[q - 2]! * FACT[q - 2]!))
+  const tailQ = sumCap(maxQ + 1, q => (q * q * q * Math.pow(x, q - 2)) / (FACT[q - 2]! * FACT[q]!))
+  const tailN = sumCap(maxN + 1, n => Math.pow(tauPlus, n) / (FACT[n]! * FACT[n + 1]! * FACT[n + 2]!))
+  const sumExpTau = 4 * Math.exp(tauPlus)
+  const bQ = sumExpTau * 3 * s0 * s1 * tailQ
+  const bN = 4 * 3 * s0 * s1N * s2N * tailN
+  return { mMax, delta, rootRadius, tauPlus, bQ, bN, bTotal: (bQ + bN) * (1 + 1e-12), roucheOk }
+}
+
+const SU3_ANALYTIC_TAIL = computeSu3SchurAnalyticTail(1.46, SCHUR_MAX_N, SCHUR_MAX_Q, 0.25)
 
 function realSymMaxEig6(matIn: Float64Array): number {
   const a = Float64Array.from(matIn)
@@ -886,22 +945,35 @@ function exactSu3VarAndMeans(
   zr1: number,
   zr2: number,
   zi2: number,
-): { readonly zVal: number; readonly vMax: number; readonly eu0: number; readonly eu1: number; readonly eu2: number } {
+  tailB = SU3_ANALYTIC_TAIL.bTotal,
+  tailDelta = SU3_ANALYTIC_TAIL.delta,
+): {
+  readonly zVal: number
+  readonly vMax: number
+  readonly maxOff: number
+  readonly maxDiag: number
+  readonly eu0: number
+  readonly eu1: number
+  readonly eu2: number
+  readonly errVmax: number
+  readonly errEu: number
+} {
   const zr = [zr0, zr1, zr2], zi = [0, 0, zi2]
   const u0 = zr0 * zr0, u1 = zr1 * zr1, u2 = zr2 * zr2 + zi2 * zi2
   const I1 = u0 + u1 + u2, I2 = u0 * u1 + u0 * u2 + u1 * u2, I3 = u0 * u1 * u2
   const detR = zr0 * zr1 * zr2, detI = zr0 * zr1 * zi2
-  const J = evalZSu3Hess9(I1, I2, I3, detR)
+  const J = evalZSu3Hess(I1, I2, I3, detR)
   const zVal = J[0]!, invZ = 1 / zVal
   const f10 = J[1]! * invZ, f11 = J[2]! * invZ, f12 = J[3]! * invZ, f13 = J[4]! * invZ
   const f1 = [f10, f11, f12, f13]
   for (let a = 0; a < 4; a++) for (let b = 0; b < 4; b++) F2_SCR[a * 4 + b] = J[H4_IDX[a]![b]!]! * invZ - f1[a]! * f1[b]!
 
-  // Exact closed-form maximum over the three 2x2 off-diagonal M_3(C) blocks
+  // Exact closed-form maximum over the three 2x2 off-diagonal M_3(C) blocks:
+  //   I_3''(0) = -4 Re(conj(det M) z_l y_1 y_2) => 2 f_{I_3} conj(det M) z_l + f_D z_l!
   let maxOff = 0
   const pairs: readonly [number, number, number][] = [[0, 1, 2], [0, 2, 1], [1, 2, 0]]
   const us = [u0, u1, u2]
-  const cr0 = f12 * detR + f13, ci0 = -f12 * detI
+  const cr0 = 2 * f12 * detR + f13, ci0 = -2 * f12 * detI
   for (let idx = 0; idx < 3; idx++) {
     const [j, k, l] = pairs[idx]!
     const bpr = zr[j]! * zr[k]! - zi[j]! * zi[k]!, bpi = -(zr[j]! * zi[k]! + zi[j]! * zr[k]!)
@@ -948,12 +1020,43 @@ function exactSu3VarAndMeans(
       S6_SCR[p * 6 + q] = S6_SCR[q * 6 + p] = acc
     }
   }
+  const maxDiag = realSymMaxEig6(S6_SCR)
+
+  // Propagate exact analytic Cauchy polydisk tail B through Z >= 1 (Jensen) to errEu and errVmax:
+  const d1B = tailB / tailDelta, d2B = (2 * tailB) / (tailDelta * tailDelta)
+  const eF1 = [d1B + Math.abs(f10) * tailB, d1B + Math.abs(f11) * tailB, d1B + Math.abs(f12) * tailB, d1B + Math.abs(f13) * tailB]
+  let maxEF2 = 0
+  for (let a = 0; a < 4; a++) {
+    for (let b = 0; b < 4; b++) {
+      const hRatio = Math.abs(J[H4_IDX[a]![b]!]! * invZ)
+      const eH = d2B + hRatio * tailB
+      const eab = eH + Math.abs(f1[a]!) * eF1[b]! + Math.abs(f1[b]!) * eF1[a]! + eF1[a]! * eF1[b]!
+      if (eab > maxEF2) maxEF2 = eab
+    }
+  }
+  const maxU = Math.max(u0, u1, u2), maxM = Math.sqrt(maxU)
+  const absDet = Math.hypot(detR, detI)
+  const errOff = 2 * (eF1[0]! + maxU * eF1[1]!) + 2 * eF1[1]! * maxU + (2 * eF1[2]! * absDet + eF1[3]!) * maxM
+  let maxRowJac = 0
+  for (let p = 0; p < 6; p++) {
+    let rs = 0
+    for (let a = 0; a < 4; a++) rs += Math.abs(JAC_SCR[a]![p]!)
+    if (rs > maxRowJac) maxRowJac = rs
+  }
+  const errDiagEntry = maxEF2 * maxRowJac * maxRowJac + 2 * eF1[0]! + 4 * (I1 + maxU) * eF1[1]! + 4 * (maxU * maxU) * eF1[2]! + maxM * eF1[3]!
+  const errVmax = Math.max(errOff, 6 * errDiagEntry) * (1 + 1e-12)
+  const errEu = Math.SQRT2 * maxRowJac * Math.max(eF1[0]!, eF1[1]!, eF1[2]!, eF1[3]!) * (1 + 1e-12)
+
   return {
     zVal,
-    vMax: Math.max(maxOff, realSymMaxEig6(S6_SCR)),
+    vMax: Math.max(maxOff, maxDiag),
+    maxOff,
+    maxDiag,
     eu0: Math.hypot(GQ_SCR[0]!, GQ_SCR[3]!),
     eu1: Math.hypot(GQ_SCR[1]!, GQ_SCR[4]!),
     eu2: Math.hypot(GQ_SCR[2]!, GQ_SCR[5]!),
+    errVmax,
+    errEu,
   }
 }
 
@@ -1352,13 +1455,18 @@ const LRE = new Float64Array(MAX_NN), LIM = new Float64Array(MAX_NN)
 const AL0 = new Float64Array(27), ALV = new Float64Array(27)
 const V0R = new Float64Array(29), V0I = new Float64Array(29), NR = new Float64Array(29), NI = new Float64Array(29)
 
-function buildMeffUltra(sec: UltraSector, al: Float64Array, vMin: number, mu: number): boolean {
+const CHOLESKY_BACKWARD_PAD = 1e-9
+const CHOLESKY_MIN_PIVOT = 1e-8
+let trackedMinPivot = Infinity
+
+function buildMeffUltra(sec: UltraSector, al: Float64Array, vMin: number, mu: number, diagPad = CHOLESKY_BACKWARD_PAD): boolean {
   const gapQ = 32 / 3 + vMin - mu
   if (gapQ <= 1e-9) return false
   const negInvG = -1 / gapQ, n = sec.n, nn = n * n
   MRE.set(sec.h0Upper.subarray(0, nn))
   MIM.fill(0, 0, nn)
-  for (let a = 0; a < n; a++) MRE[a * n + a] = MRE[a * n + a]! - mu
+  const diagShift = mu + diagPad
+  for (let a = 0; a < n; a++) MRE[a * n + a] = MRE[a * n + a]! - diagShift
   const v1 = sec.v1
   for (let p = 0; p < v1.length; p++) {
     const e = v1[p]!, c = al[e.m]!
@@ -1379,6 +1487,7 @@ function buildMeffUltra(sec: UltraSector, al: Float64Array, vMin: number, mu: nu
 }
 
 function choleskyPDUltra(n: number): boolean {
+  let localMin = Infinity
   for (let i = 0; i < n; i++) {
     const in0 = i * n
     for (let j = 0; j <= i; j++) {
@@ -1390,7 +1499,8 @@ function choleskyPDUltra(n: number): boolean {
         si -= r1 * i2 + i1 * r2
       }
       if (i === j) {
-        if (sr <= 1e-11 || !Number.isFinite(sr)) return false
+        if (sr <= CHOLESKY_MIN_PIVOT || !Number.isFinite(sr)) return false
+        if (sr < localMin) localMin = sr
         LRE[in0 + i] = Math.sqrt(sr)
         LIM[in0 + i] = 0
       } else {
@@ -1400,6 +1510,7 @@ function choleskyPDUltra(n: number): boolean {
       }
     }
   }
+  if (localMin < trackedMinPivot) trackedMinPivot = localMin
   return true
 }
 
@@ -1438,7 +1549,16 @@ function addRank1ShiftAndCheckUltra(n: number): boolean {
   return choleskyPDUltra(n)
 }
 
-type Su3Cert = { readonly beta: number; readonly cTarget: number; readonly ok: boolean; readonly boxes: number; readonly maxDepth: number; readonly timeMs: number }
+type Su3Cert = {
+  readonly beta: number
+  readonly cTarget: number
+  readonly ok: boolean
+  readonly boxes: number
+  readonly maxDepth: number
+  readonly timeMs: number
+  readonly minPivot: number
+  readonly maxTailErrVmax: number
+}
 
 type Su3Engine = {
   readonly precompMs: number
@@ -1458,26 +1578,28 @@ function buildSu3Engine(): Su3Engine {
   const precompMs = performance.now() - tPre
 
   function certifyGap(a1: number, b1: number, a2: number, b2: number, xLo: number, xHi: number, yLo: number, yHi: number, mu: number, eV: number): boolean {
+    const ULP = 1 + 1e-13
     const z0r0 = 0.5 * (a1 + b1), z0r1 = 0.5 * (a2 + b2), z0r2 = 0.5 * (xLo + xHi), z0i2 = 0.5 * (yLo + yHi)
-    const d1 = 0.5 * (b1 - a1), d2 = 0.5 * (b2 - a2), dx = 0.5 * (xHi - xLo), dy = 0.5 * (yHi - yLo)
-    const maxAbsZ3 = Math.hypot(Math.max(Math.abs(xLo), Math.abs(xHi)), Math.max(Math.abs(yLo), Math.abs(yHi)))
-    const vMinCenter = -(4 / 3) * (z0r0 + z0r1 + Math.hypot(z0r2, z0i2))
-    const vMinLin = -(4 / 3) * (b1 + b2 + maxAbsZ3) - 0.25 * (d1 * d1 + d2 * d2 + dx * dx + dy * dy)
+    const d1 = 0.5 * (b1 - a1) * ULP + 1e-15, d2 = 0.5 * (b2 - a2) * ULP + 1e-15
+    const dx = 0.5 * (xHi - xLo) * ULP + 1e-15, dy = 0.5 * (yHi - yLo) * ULP + 1e-15
+    const maxAbsZ3 = Math.hypot(Math.max(Math.abs(xLo), Math.abs(xHi)), Math.max(Math.abs(yLo), Math.abs(yHi))) * ULP
+    const vMinCenter = -(4 / 3) * (z0r0 + z0r1 + Math.hypot(z0r2, z0i2)) * ULP - 1e-14
+    const vMinLin = (-(4 / 3) * (b1 + b2 + maxAbsZ3) - 0.25 * (d1 * d1 + d2 * d2 + dx * dx + dy * dy)) * ULP - 1e-14
     if (32 / 3 + vMinLin <= mu + 1e-6) return false
 
     fillAlpha27(AL0, z0r0, z0r1, z0r2, 0, 0, z0i2, z0r0, z0r1, z0r2, 0, 0, z0i2)
-    if (!buildMeffUltra(sec0, AL0, vMinCenter, 0)) return false
+    if (!buildMeffUltra(sec0, AL0, vMinCenter, 0, 0)) return false
     findGroundVecUltra(sec0.n)
 
     let sec0Ok = false
-    const muWeyl = mu + eV
+    const muWeyl = (mu + eV) * ULP
     if (muWeyl < 2.665 && 32 / 3 + vMinCenter > muWeyl + 1e-6) {
       if (buildMeffUltra(sec0, AL0, vMinCenter, muWeyl) && addRank1ShiftAndCheckUltra(sec0.n)) sec0Ok = true
     }
-    const v1s = b1 - a1 > 1e-14 ? [a1, b1] : [z0r0]
-    const v2s = b2 - a2 > 1e-14 ? [a2, b2] : [z0r1]
-    const vxs = xHi - xLo > 1e-14 ? [xLo, xHi] : [z0r2]
-    const vys = yHi - yLo > 1e-14 ? [yLo, yHi] : [z0i2]
+    const v1s = b1 > a1 ? [a1, b1] : [z0r0]
+    const v2s = b2 > a2 ? [a2, b2] : [z0r1]
+    const vxs = xHi > xLo ? [xLo, xHi] : [z0r2]
+    const vys = yHi > yLo ? [yLo, yHi] : [z0i2]
 
     if (!sec0Ok) {
       if (!buildMeffUltra(sec0, AL0, vMinLin, mu) || !addRank1ShiftAndCheckUltra(sec0.n)) return false
@@ -1512,40 +1634,53 @@ function buildSu3Engine(): Su3Engine {
 
   function certify(beta: number, cTarget: number, maxBoxes = 25000): Su3Cert {
     const t0 = performance.now()
+    const ULP = 1 + 1e-13, ULP_LO = 1 - 1e-13
     const mMax = (8 * beta) / 3
-    const stack: [number, number, number, number, number, number, number, number, number][] = [[0, mMax, 0, mMax, 0, mMax, 0, Math.PI, 0]]
+    if (mMax > SU3_ANALYTIC_TAIL.mMax || !SU3_ANALYTIC_TAIL.roucheOk) {
+      throw new Error('SU(3) beta exceeds analytic Schur tail envelope')
+    }
+    trackedMinPivot = Infinity
+    let maxTailErrVmax = 0
+    const stack: [number, number, number, number, number, number, number, number, number][] = [[0, mMax * ULP, 0, mMax * ULP, 0, mMax * ULP, 0, Math.PI, 0]]
     let boxes = 0, maxDepth = 0
-    const scaleSq = ((beta / 3) / cTarget) ** 2
+    const scaleSq = (((beta / 3) / cTarget) ** 2) * ULP
     while (stack.length > 0) {
       const [a1, b1, a2, b2, a3, b3, ap, bp, depth] = stack.pop()!
       if (a3 > b2 + 1e-15 || a2 > b1 + 1e-15 || a3 > b1 + 1e-15) continue
       // Exact SU(3) Staple Convex-Hull Theorem: m_1 + m_2 + m_3 <= 8 beta cos(phi / 3)
-      if (a1 + a2 + a3 > 8 * beta * Math.cos(ap / 3) + 1e-14) continue
+      if (a1 + a2 + a3 > 8 * beta * Math.cos(ap / 3) * ULP + 1e-14) continue
       boxes++
       if (depth > maxDepth) maxDepth = depth
-      if (boxes > maxBoxes) return { beta, cTarget, ok: false, boxes, maxDepth, timeMs: performance.now() - t0 }
+      if (boxes > maxBoxes) {
+        return { beta, cTarget, ok: false, boxes, maxDepth, timeMs: performance.now() - t0, minPivot: trackedMinPivot, maxTailErrVmax }
+      }
 
       const m1 = 0.5 * (a1 + b1), d1 = 0.5 * (b1 - a1)
       const m2 = 0.5 * (a2 + b2), d2 = 0.5 * (b2 - a2)
       const m3 = 0.5 * (a3 + b3), d3 = 0.5 * (b3 - a3)
       const phi = 0.5 * (ap + bp), dp = 0.5 * (bp - ap)
 
-      const cHi = Math.cos(ap), cLo = Math.cos(bp)
-      const xLo = cLo >= 0 ? a3 * cLo : b3 * cLo, xHi = cHi >= 0 ? b3 * cHi : a3 * cHi
-      const sLo = Math.min(Math.sin(ap), Math.sin(bp))
-      const sHi = ap <= 0.5 * Math.PI && bp >= 0.5 * Math.PI ? 1 : Math.max(Math.sin(ap), Math.sin(bp))
-      const yLo = a3 * sLo, yHi = b3 * sHi
+      const cHi = Math.min(1, Math.cos(ap) + 1e-14), cLo = Math.max(-1, Math.cos(bp) - 1e-14)
+      const xLo = (cLo >= 0 ? a3 * cLo * ULP_LO : b3 * cLo * ULP) - 1e-15
+      const xHi = (cHi >= 0 ? b3 * cHi * ULP : a3 * cHi * ULP_LO) + 1e-15
+      const sLo = Math.max(0, Math.min(Math.sin(ap), Math.sin(bp)) - 1e-14)
+      const sHi = Math.min(1, (ap <= 0.5 * Math.PI && bp >= 0.5 * Math.PI ? 1 : Math.max(Math.sin(ap), Math.sin(bp))) + 1e-14)
+      const yLo = Math.max(0, a3 * sLo * ULP_LO - 1e-15), yHi = b3 * sHi * ULP + 1e-15
       const x0 = 0.5 * (xLo + xHi), dx = 0.5 * (xHi - xLo), y0 = 0.5 * (yLo + yHi), dy = 0.5 * (yHi - yLo)
 
-      const dz1 = d1, dz2 = d2, dz3 = Math.hypot(dx, dy)
-      const delta = dz1 + dz2 + dz3, deltaF = Math.hypot(dz1, dz2, dz3)
-      const maxAbsZ3 = Math.hypot(Math.max(Math.abs(xLo), Math.abs(xHi)), Math.max(Math.abs(yLo), Math.abs(yHi)))
-      const eV = (4 / 3) * delta + 0.25 * (Math.hypot(b1, b2, maxAbsZ3) + Math.hypot(m1, m2, x0, y0)) * deltaF
+      const dz1 = d1 * ULP + 1e-15, dz2 = d2 * ULP + 1e-15, dz3 = Math.hypot(dx, dy) * ULP + 1e-15
+      const delta = (dz1 + dz2 + dz3) * ULP, deltaF = Math.hypot(dz1, dz2, dz3) * ULP
+      const maxAbsZ3 = Math.hypot(Math.max(Math.abs(xLo), Math.abs(xHi)), Math.max(Math.abs(yLo), Math.abs(yHi))) * ULP
+      const eV = ((4 / 3) * delta + 0.25 * (Math.hypot(b1, b2, maxAbsZ3) + Math.hypot(m1, m2, x0, y0)) * deltaF) * ULP + 1e-14
 
-      const { vMax, eu0, eu1, eu2 } = exactSu3VarAndMeans(m1, m2, x0, y0)
-      const muNeed = scaleSq * Math.exp(delta + eu0 * dz1 + eu1 * dz2 + eu2 * dz3) * (vMax + 1e-9) + 1e-8
+      const { vMax, eu0, eu1, eu2, errVmax, errEu } = exactSu3VarAndMeans(m1, m2, x0, y0)
+      if (errVmax > maxTailErrVmax) maxTailErrVmax = errVmax
+      const expArg = (delta + (eu0 + errEu) * dz1 + (eu1 + errEu) * dz2 + (eu2 + errEu) * dz3) * ULP
+      const muNeed = scaleSq * Math.exp(expArg) * (vMax + errVmax + 1e-9) * ULP + 1e-8
       if (muNeed < 2.666 && certifyGap(a1, b1, a2, b2, xLo, xHi, yLo, yHi, muNeed, eV)) continue
-      if (depth >= 24) return { beta, cTarget, ok: false, boxes, maxDepth, timeMs: performance.now() - t0 }
+      if (depth >= 24) {
+        return { beta, cTarget, ok: false, boxes, maxDepth, timeMs: performance.now() - t0, minPivot: trackedMinPivot, maxTailErrVmax }
+      }
 
       const wp = m3 * 2 * Math.sin(0.5 * dp)
       if (d1 >= d2 && d1 >= d3 && d1 >= wp) stack.push([a1, m1, a2, b2, a3, b3, ap, bp, depth + 1], [m1, b1, a2, b2, a3, b3, ap, bp, depth + 1])
@@ -1553,7 +1688,7 @@ function buildSu3Engine(): Su3Engine {
       else if (d3 >= wp) stack.push([a1, b1, a2, b2, a3, m3, ap, bp, depth + 1], [a1, b1, a2, b2, m3, b3, ap, bp, depth + 1])
       else stack.push([a1, b1, a2, b2, a3, b3, ap, phi, depth + 1], [a1, b1, a2, b2, a3, b3, phi, bp, depth + 1])
     }
-    return { beta, cTarget, ok: true, boxes, maxDepth, timeMs: performance.now() - t0 }
+    return { beta, cTarget, ok: true, boxes, maxDepth, timeMs: performance.now() - t0, minPivot: trackedMinPivot, maxTailErrVmax }
   }
 
   return { precompMs, sec0, secR, sec20, sec211, certify }
@@ -1567,12 +1702,15 @@ function runIndependentCrossChecks(su3: Su3Engine): {
   readonly allOk: boolean
   readonly schurTailRelDiff: number
   readonly weylZRelErr: number
+  readonly su2SymOffDiagErr: number
+  readonly richardsonOffDiagErr: number
   readonly meffEquivErr: number
   readonly hullViolations: number
+  readonly extremeStapleErr: number
   readonly weingartenDetErr: number
   readonly su2GlMaxVal: number
 } {
-  // 4A. Schur truncation check: MAX_N=9, MAX_Q=13 vs MAX_N=14, MAX_Q=18 at worst-case m <= 1.50
+  // 4A. Schur truncation check: MAX_N=9, MAX_Q=14 vs MAX_N=14, MAX_Q=18 at worst-case m <= 1.50
   const evalZ14 = makeSu3HessEvaluator(14, 18)
   let schurTailRelDiff = 0
   for (const [m1, m2, m3, phi] of [
@@ -1582,15 +1720,15 @@ function runIndependentCrossChecks(su3: Su3Engine): {
   ] as const) {
     const u0 = m1 * m1, u1 = m2 * m2, u2 = m3 * m3
     const I1 = u0 + u1 + u2, I2 = u0 * u1 + u0 * u2 + u1 * u2, I3 = u0 * u1 * u2, D = m1 * m2 * m3 * Math.cos(phi)
-    const j9 = Float64Array.from(evalZSu3Hess9(I1, I2, I3, D))
+    const jCur = Float64Array.from(evalZSu3Hess(I1, I2, I3, D))
     const j14 = evalZ14(I1, I2, I3, D)
     for (let i = 0; i < 15; i++) {
-      schurTailRelDiff = Math.max(schurTailRelDiff, Math.abs(j9[i]! - j14[i]!) / Math.max(1, Math.abs(j14[i]!)))
+      schurTailRelDiff = Math.max(schurTailRelDiff, Math.abs(jCur[i]! - j14[i]!) / Math.max(1, Math.abs(j14[i]!)))
     }
   }
 
-  // 4B. Independent 48x48 Weyl quadrature for Z_{SU(3)}(diag(m, m, m e^{i phi})) vs Chebyshev-Schur
-  //   For M = diag(m, m, m e^{i phi}), Z(M) = (1 / 6 (2pi)^2) int exp(m (cos(t1) + cos(t2) + cos(phi - t1 - t2))) |Delta|^2 dt1 dt2
+  // 4B. Independent 48x48 Weyl quadrature + SU(2)-symmetry off-diagonal vs diagonal regression test
+  //     + generic non-isotropic off-diagonal Richardson FD test!
   const GL48 = gaussLegendre(48)
   const testM = 1.2, testPhi = 0.7
   let zWeyl = 0
@@ -1601,9 +1739,6 @@ function runIndependentCrossChecks(su3: Su3Engine): {
       const t3 = -t1 - t2
       const s12 = Math.sin(0.5 * (t1 - t2)), s13 = Math.sin(0.5 * (t1 - t3)), s23 = Math.sin(0.5 * (t2 - t3))
       const vand2 = 64 * (s12 * s12) * (s13 * s13) * (s23 * s23)
-      // For M = diag(m, m, m e^{i phi}), U in SU(3) with diagonal eigenvalues e^{i t1}, e^{i t2}, e^{i t3}:
-      //   Only at M = m e^{i phi/3} I (isotropic) is Re Tr(U M^dag) a class function!
-      //   Check isotropic M = m * diag(e^{i phi/3}, e^{i phi/3}, e^{i phi/3}) ~ diag(m, m, m e^{i phi}) (same invariants I1, I2, I3, D)!
       const th = testPhi / 3
       const reTr = testM * (Math.cos(t1 - th) + Math.cos(t2 - th) + Math.cos(t3 - th))
       zWeyl += w1 * w2 * vand2 * Math.exp(reTr)
@@ -1613,12 +1748,77 @@ function runIndependentCrossChecks(su3: Su3Engine): {
   const zSchur = exactSu3VarAndMeans(testM, testM, testM * Math.cos(testPhi), testM * Math.sin(testPhi)).zVal
   const weylZRelErr = Math.abs(zWeyl - zSchur) / zWeyl
 
+  // 4B-ii. Exact SU(2)-symmetry regression check at M = diag(2.222, 1.111, 1.111 e^{i*0.79}):
+  //   The (1, 2) sub-block is SU(2)-equivalent to 1.111 I_2 (after shifting phase onto z_0), so the (1, 2) off-diagonal
+  //   variance max MUST identically equal the max of the 6x6 diagonal block on the (1, 2) traceless subspace!
+  //   At this point the (1, 2) block dominates both maxOff and maxDiag, so |maxOff - maxDiag| must be < 1e-14!
+  const symRes = exactSu3VarAndMeans(2.222, 1.111, 1.111 * Math.cos(0.79), 1.111 * Math.sin(0.79))
+  // Extract exact (1, 2) off-diagonal max vs exact 2D traceless diagonal projection (Y = (1/sqrt(2)) diag(0, 1, -e^{i phi}) * e^{i alpha})
+  // Note: S6_SCR still holds the 6x6 diagonal covariance matrix from symRes!
+  // Basis vectors for traceless (1,2) subspace in (Re Y_0, Re Y_1, Re Y_2, Im Y_0, Im Y_1, Im Y_2):
+  //   v1 = (0, 1, -cos(0.79), 0, 0, -sin(0.79)) / sqrt(2),  v2 = (0, 0, sin(0.79), 0, 1, -cos(0.79)) / sqrt(2)
+  const cp79 = Math.cos(0.79), sp79 = Math.sin(0.79), invS2 = Math.SQRT1_2
+  const b1 = [0, invS2, -invS2 * cp79, 0, 0, -invS2 * sp79]
+  const b2 = [0, 0, invS2 * sp79, 0, invS2, -invS2 * cp79]
+  const qForm = (u: readonly number[], v: readonly number[]) => {
+    let s = 0
+    for (let i = 0; i < 6; i++) for (let j = 0; j < 6; j++) s += u[i]! * S6_SCR[i * 6 + j]! * v[j]!
+    return s
+  }
+  const d11 = qForm(b1, b1), d22 = qForm(b2, b2), d12 = qForm(b1, b2)
+  const diagSubMax = 0.5 * (d11 + d22) + Math.hypot(0.5 * (d11 - d22), d12)
+  const su2SymOffDiagErr = Math.abs(symRes.maxOff - diagSubMax)
+
+  // 4B-iii. Generic asymmetric off-diagonal Richardson FD check at M = diag(1.42, 1.07, 0.63 e^{i*0.79}):
+  //   Verify all three 2x2 off-diagonal blocks directly against 4th-order Richardson 2nd FD of ln Z(M + eps Y)!
+  const zrT = [1.42, 1.07, 0.63 * Math.cos(0.79)], ziT = [0, 0, 0.63 * Math.sin(0.79)]
+  const lnZOff = (j: number, k: number, l: number, yr1: number, yi1: number, yr2: number, yi2: number, eps: number): number => {
+    // M + eps (y1 E_{jk} + y2 E_{kj}) has exact invariants:
+    //   I1 = sum |z|^2 + eps^2 (|y1|^2 + |y2|^2)
+    //   det = z0 z1 z2 - eps^2 z_l y1 y2  =>  D = Re(det), I3 = |det|^2
+    //   I2 = |z_j z_k - eps^2 y1 y2|^2 + |z_j z_l|^2 + |z_k z_l|^2 + eps^2 |z_l|^2 (|y1|^2 + |y2|^2)
+    const e2 = eps * eps
+    const y12r = yr1 * yr2 - yi1 * yi2, y12i = yr1 * yi2 + yi1 * yr2
+    const u0 = zrT[0]! ** 2, u1 = zrT[1]! ** 2, u2 = zrT[2]! ** 2 + ziT[2]! ** 2
+    const us = [u0, u1, u2]
+    const I1e = u0 + u1 + u2 + e2 * (yr1 * yr1 + yi1 * yi1 + yr2 * yr2 + yi2 * yi2)
+    const det0r = zrT[0]! * zrT[1]! * zrT[2]!, det0i = zrT[0]! * zrT[1]! * ziT[2]!
+    const dtr = det0r - e2 * (zrT[l]! * y12r - ziT[l]! * y12i)
+    const dti = det0i - e2 * (zrT[l]! * y12i + ziT[l]! * y12r)
+    const I3e = dtr * dtr + dti * dti
+    const mJKr = zrT[j]! * zrT[k]! - ziT[j]! * ziT[k]! - e2 * y12r
+    const mJKi = zrT[j]! * ziT[k]! + ziT[j]! * zrT[k]! - e2 * y12i
+    const I2e = mJKr * mJKr + mJKi * mJKi + us[j]! * us[l]! + us[k]! * us[l]! + e2 * us[l]! * (yr1 * yr1 + yi1 * yi1 + yr2 * yr2 + yi2 * yi2)
+    return Math.log(evalZSu3Hess(I1e, I2e, I3e, dtr)[0]!)
+  }
+  const u0T = zrT[0]! ** 2, u1T = zrT[1]! ** 2, u2T = zrT[2]! ** 2 + ziT[2]! ** 2
+  const jT = evalZSu3Hess(u0T + u1T + u2T, u0T * u1T + u0T * u2T + u1T * u2T, u0T * u1T * u2T, zrT[0]! * zrT[1]! * zrT[2]!)
+  const fT = [jT[1]! / jT[0]!, jT[2]! / jT[0]!, jT[3]! / jT[0]!, jT[4]! / jT[0]!]
+  const detRT = zrT[0]! * zrT[1]! * zrT[2]!, detIT = zrT[0]! * zrT[1]! * ziT[2]!
+  const cr0T = 2 * fT[2]! * detRT + fT[3]!, ci0T = -2 * fT[2]! * detIT
+  let richardsonOffDiagErr = 0
+  const usT = [u0T, u1T, u2T]
+  for (const [j, k, l] of [[0, 1, 2], [0, 2, 1], [1, 2, 0]] as const) {
+    const bpr = zrT[j]! * zrT[k]! - ziT[j]! * ziT[k]!, bpi = -(zrT[j]! * ziT[k]! + ziT[j]! * zrT[k]!)
+    const tr = 2 * fT[1]! * bpr + (cr0T * zrT[l]! - ci0T * ziT[l]!)
+    const ti = 2 * fT[1]! * bpi + (cr0T * ziT[l]! + ci0T * zrT[l]!)
+    const analyticMax = 2 * (fT[0]! + usT[l]! * fT[1]!) + Math.hypot(tr, ti)
+    // Optimal unit pair (y1, y2) maximizing -2 Re((tr + i ti) y1 y2): y1 = 1/sqrt(2), y2 = -(tr - i ti)/(sqrt(2) * |t|)
+    const mag = Math.hypot(tr, ti), y1r = invS2, y1i = 0, y2r = -invS2 * (tr / mag), y2i = invS2 * (ti / mag)
+    const f0 = lnZOff(j, k, l, y1r, y1i, y2r, y2i, 0)
+    const h1 = 2e-2, h2 = 1e-2
+    const d2h1 = (2 * (lnZOff(j, k, l, y1r, y1i, y2r, y2i, h1) - f0)) / (h1 * h1)
+    const d2h2 = (2 * (lnZOff(j, k, l, y1r, y1i, y2r, y2i, h2) - f0)) / (h2 * h2)
+    const rich = (4 * d2h2 - d2h1) / 3
+    richardsonOffDiagErr = Math.max(richardsonOffDiagErr, Math.abs(analyticMax - rich))
+  }
+
   // 4C. Algebraic equivalence check: buildMeffUltra vs reference VEFF_OPS complex buildMeff on generic complex (z0, z1, z2)
   const z0r: [number, number, number] = [0.9, 0.6, 0.3], z0i: [number, number, number] = [0, 0, 0.4]
   const zr: [number, number, number] = [1.05, 0.55, 0.25], zi: [number, number, number] = [0, 0, 0.52]
   fillAlpha27(AL0, z0r[0], z0r[1], z0r[2], z0i[0], z0i[1], z0i[2], zr[0], zr[1], zr[2], zi[0], zi[1], zi[2])
   const vMinTest = -3.0, muTest = 1.8
-  buildMeffUltra(sec0RefCheck(su3), AL0, vMinTest, muTest)
+  buildMeffUltra(sec0RefCheck(su3), AL0, vMinTest, muTest, 0)
   const uRe = Float64Array.from(MRE.subarray(0, su3.sec0.n * su3.sec0.n))
   const uIm = Float64Array.from(MIM.subarray(0, su3.sec0.n * su3.sec0.n))
 
@@ -1683,12 +1883,54 @@ function runIndependentCrossChecks(su3: Su3Engine): {
   const eDet2 = polyInnerReal(onePoly, pMul(detPoly, detPoly))
   const weingartenDetErr = Math.max(Math.abs(eDet - 1), Math.abs(eDet2 - 1))
 
-  // 4E. Deterministic LCG check of SU(3) Staple Convex-Hull Theorem on 5,000 random 8-staple sums W = sum_{k=1}^8 P_k
+  // 4E. Deterministic LCG check of SU(3) Staple Convex-Hull Theorem on 2,000 random 8-staple sums W = sum_{k=1}^8 P_k
+  //     plus explicit verification of the corrected Cardano cubic on extreme 8-staple sum W = 4 I + 4 diag(-i, -i, -1)
+  const svSumAndPhi = (wr: Float64Array, wi: Float64Array): { readonly sSum: number; readonly phi: number } => {
+    const hr = new Float64Array(9), hi = new Float64Array(9)
+    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) {
+      let rr = 0, ii = 0
+      for (let k = 0; k < 3; k++) {
+        rr += wr[k * 3 + i]! * wr[k * 3 + j]! + wi[k * 3 + i]! * wi[k * 3 + j]!
+        ii += wr[k * 3 + i]! * wi[k * 3 + j]! - wi[k * 3 + i]! * wr[k * 3 + j]!
+      }
+      hr[i * 3 + j] = rr; hi[i * 3 + j] = ii
+    }
+    const tr = hr[0]! + hr[4]! + hr[8]!
+    const q1 = hr[0]! * hr[4]! - (hr[1]! ** 2 + hi[1]! ** 2) + hr[0]! * hr[8]! - (hr[2]! ** 2 + hi[2]! ** 2) + hr[4]! * hr[8]! - (hr[5]! ** 2 + hi[5]! ** 2)
+    const cm = (r1: number, i1: number, r2: number, i2: number): [number, number] => [r1 * r2 - i1 * i2, r1 * i2 + i1 * r2]
+    const m0 = cm(wr[4]!, wi[4]!, wr[8]!, wi[8]!), n0 = cm(wr[5]!, wi[5]!, wr[7]!, wi[7]!)
+    const m1 = cm(wr[3]!, wi[3]!, wr[8]!, wi[8]!), n1 = cm(wr[5]!, wi[5]!, wr[6]!, wi[6]!)
+    const m2 = cm(wr[3]!, wi[3]!, wr[7]!, wi[7]!), n2 = cm(wr[4]!, wi[4]!, wr[6]!, wi[6]!)
+    const t0 = cm(wr[0]!, wi[0]!, m0[0] - n0[0], m0[1] - n0[1])
+    const t1 = cm(wr[1]!, wi[1]!, m1[0] - n1[0], m1[1] - n1[1])
+    const t2 = cm(wr[2]!, wi[2]!, m2[0] - n2[0], m2[1] - n2[1])
+    const detWR = t0[0] - t1[0] + t2[0], detWI = t0[1] - t1[1] + t2[1]
+    const detH = detWR * detWR + detWI * detWI
+    const phi = Math.abs(Math.atan2(detWI, detWR))
+    // Solve lambda^3 - tr lambda^2 + q1 lambda - detH = 0:
+    //   With t = lambda - tr/3: t^3 + p t - q = 0 where p = q1 - tr^2/3, q = 2 tr^3/27 - tr q1/3 + detH
+    //   => cos(3 th) = +q / (2 r^3) with r = sqrt(-p / 3)!
+    const p = q1 - (tr * tr) / 3, q = (2 * tr * tr * tr) / 27 - (tr * q1) / 3 + detH
+    const r = Math.sqrt(Math.max(0, -p / 3))
+    const arg = r > 1e-15 ? Math.max(-1, Math.min(1, q / (2 * r * r * r))) : 0
+    const th = Math.acos(arg) / 3
+    const sSum =
+      Math.sqrt(Math.max(0, tr / 3 + 2 * r * Math.cos(th))) +
+      Math.sqrt(Math.max(0, tr / 3 + 2 * r * Math.cos(th + (2 * Math.PI) / 3))) +
+      Math.sqrt(Math.max(0, tr / 3 + 2 * r * Math.cos(th + (4 * Math.PI) / 3)))
+    return { sSum, phi }
+  }
+
+  // Test extreme valid 8-staple sum W = 4 I + 4 diag(-i, -i, -1) = diag(4 - 4i, 4 - 4i, 0): exact sSum = 8 sqrt(2) < 12!
+  const wExtR = Float64Array.from([4, 0, 0, 0, 4, 0, 0, 0, 0])
+  const wExtI = Float64Array.from([-4, 0, 0, 0, -4, 0, 0, 0, 0])
+  const extRes = svSumAndPhi(wExtR, wExtI)
+  const extremeStapleErr = Math.abs(extRes.sSum - 8 * Math.SQRT2)
+
   let seed = 123456789
   const rand = (): number => { seed = (1664525 * seed + 1013904223) >>> 0; return seed / 4294967296 }
   const randSu3 = (): [Float64Array, Float64Array] => {
     const gr = new Float64Array(9), gi = new Float64Array(9)
-    // Generate 3x3 complex Gaussian via Box-Muller then Gram-Schmidt + phase normalize det = 1
     for (let i = 0; i < 9; i++) {
       const r = Math.sqrt(-2 * Math.log(Math.max(1e-12, rand()))), th = 2 * Math.PI * rand()
       gr[i] = r * Math.cos(th); gi[i] = r * Math.sin(th)
@@ -1710,7 +1952,6 @@ function runIndependentCrossChecks(su3: Su3Engine): {
       const inv = 1 / Math.sqrt(n2)
       for (let r = 0; r < 3; r++) { gr[r * 3 + c] = gr[r * 3 + c]! * inv; gi[r * 3 + c] = gi[r * 3 + c]! * inv }
     }
-    // Complex 3x3 det -> divide column 2 by det
     const cm = (r1: number, i1: number, r2: number, i2: number): [number, number] => [r1 * r2 - i1 * i2, r1 * i2 + i1 * r2]
     const detC = (ar: Float64Array, ai: Float64Array): [number, number] => {
       const m0 = cm(ar[4]!, ai[4]!, ar[8]!, ai[8]!), n0 = cm(ar[5]!, ai[5]!, ar[7]!, ai[7]!)
@@ -1736,38 +1977,7 @@ function runIndependentCrossChecks(su3: Su3Engine): {
       const [pr, pi] = randSu3()
       for (let i = 0; i < 9; i++) { wr[i] = wr[i]! + pr[i]!; wi[i] = wi[i]! + pi[i]! }
     }
-    // Singular values s_i = sqrt(eig_i(W^H W)) via Cardano cubic on Hermitian 3x3 H = W^H W
-    const hr = new Float64Array(9), hi = new Float64Array(9)
-    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) {
-      let rr = 0, ii = 0
-      for (let k = 0; k < 3; k++) {
-        rr += wr[k * 3 + i]! * wr[k * 3 + j]! + wi[k * 3 + i]! * wi[k * 3 + j]!
-        ii += wr[k * 3 + i]! * wi[k * 3 + j]! - wi[k * 3 + i]! * wr[k * 3 + j]!
-      }
-      hr[i * 3 + j] = rr; hi[i * 3 + j] = ii
-    }
-    const tr = hr[0]! + hr[4]! + hr[8]!
-    const q1 = hr[0]! * hr[4]! - (hr[1]! ** 2 + hi[1]! ** 2) + hr[0]! * hr[8]! - (hr[2]! ** 2 + hi[2]! ** 2) + hr[4]! * hr[8]! - (hr[5]! ** 2 + hi[5]! ** 2)
-    // Det(W)
-    const cm = (r1: number, i1: number, r2: number, i2: number): [number, number] => [r1 * r2 - i1 * i2, r1 * i2 + i1 * r2]
-    const m0 = cm(wr[4]!, wi[4]!, wr[8]!, wi[8]!), n0 = cm(wr[5]!, wi[5]!, wr[7]!, wi[7]!)
-    const m1 = cm(wr[3]!, wi[3]!, wr[8]!, wi[8]!), n1 = cm(wr[5]!, wi[5]!, wr[6]!, wi[6]!)
-    const m2 = cm(wr[3]!, wi[3]!, wr[7]!, wi[7]!), n2 = cm(wr[4]!, wi[4]!, wr[6]!, wi[6]!)
-    const t0 = cm(wr[0]!, wi[0]!, m0[0] - n0[0], m0[1] - n0[1])
-    const t1 = cm(wr[1]!, wi[1]!, m1[0] - n1[0], m1[1] - n1[1])
-    const t2 = cm(wr[2]!, wi[2]!, m2[0] - n2[0], m2[1] - n2[1])
-    const detWR = t0[0] - t1[0] + t2[0], detWI = t0[1] - t1[1] + t2[1]
-    const detH = detWR * detWR + detWI * detWI
-    const phi = Math.abs(Math.atan2(detWI, detWR))
-    // Solve lambda^3 - tr lambda^2 + q1 lambda - detH = 0
-    const p = q1 - (tr * tr) / 3, q = (2 * tr * tr * tr) / 27 - (tr * q1) / 3 + detH
-    const r = Math.sqrt(Math.max(0, -p / 3))
-    const arg = r > 1e-15 ? Math.max(-1, Math.min(1, -q / (2 * r * r * r))) : 0
-    const th = Math.acos(arg) / 3
-    const sSum =
-      Math.sqrt(Math.max(0, tr / 3 + 2 * r * Math.cos(th))) +
-      Math.sqrt(Math.max(0, tr / 3 + 2 * r * Math.cos(th + (2 * Math.PI) / 3))) +
-      Math.sqrt(Math.max(0, tr / 3 + 2 * r * Math.cos(th + (4 * Math.PI) / 3)))
+    const { sSum, phi } = svSumAndPhi(wr, wi)
     if (sSum > 24 * Math.cos(phi / 3) + 1e-9) hullViolations++
   }
 
@@ -1815,12 +2025,26 @@ function runIndependentCrossChecks(su3: Su3Engine): {
   const allOk =
     schurTailRelDiff < 1e-12 &&
     weylZRelErr < 1e-12 &&
+    su2SymOffDiagErr < 1e-14 &&
+    richardsonOffDiagErr < 1e-10 &&
     meffEquivErr < 1e-13 &&
     weingartenDetErr < 1e-14 &&
     hullViolations === 0 &&
+    extremeStapleErr < 1e-12 &&
     su2GlMaxVal < 0.25
 
-  return { allOk, schurTailRelDiff, weylZRelErr, meffEquivErr, hullViolations, weingartenDetErr, su2GlMaxVal }
+  return {
+    allOk,
+    schurTailRelDiff,
+    weylZRelErr,
+    su2SymOffDiagErr,
+    richardsonOffDiagErr,
+    meffEquivErr,
+    hullViolations,
+    extremeStapleErr,
+    weingartenDetErr,
+    su2GlMaxVal,
+  }
 }
 
 function sec0RefCheck(su3: Su3Engine): UltraSector {
@@ -1874,19 +2098,25 @@ console.log('')
 const su3 = buildSu3Engine()
 console.log('--- PART 3: SU(3) CONVEX-HULL + CHEBYSHEV-SCHUR + K=2 PETER-WEYL OPERATOR-CONVEXITY ---')
 console.log(`  K=2 Peter-Weyl sector precompute (sec0=29, secR=14, sec20=3, sec211=4): ${su3.precompMs.toFixed(0)} ms`)
+console.log(
+  `  Analytic Schur tail (N=${SCHUR_MAX_N}, Q=${SCHUR_MAX_Q}, Rouche r=${SU3_ANALYTIC_TAIL.rootRadius.toFixed(2)}, delta=${SU3_ANALYTIC_TAIL.delta}): Rouche=${SU3_ANALYTIC_TAIL.roucheOk} | B_Q=${SU3_ANALYTIC_TAIL.bQ.toExponential(2)} | B_N=${SU3_ANALYTIC_TAIL.bN.toExponential(2)} | B=${SU3_ANALYTIC_TAIL.bTotal.toExponential(2)}`,
+)
 
 const certSu3Unfixed = su3.certify(0.504, 1 / 16, 20000)
 const certSu3FourDir = su3.certify(0.546, 1 / geom.lam88At0, 22000)
-// Exact 1-Line Coupling Monotonicity Theorem:
-//   Omega(beta_1) subset Omega(beta_2) for beta_1 <= beta_2, so C_{ef}(beta) <= (beta / beta_*) * C_{ef}(beta_*)!
-//   Hence certifying C_{ef}(0.546) < 1 / Lambda_88(0) AUTOMATICALLY certifies:
-//     1D-Axial SU(3) up to beta_1D = 0.546 * (Lambda_88(0) / Lambda_11(0))!
+// Exact 1-Line Coupling Monotonicity Theorem (via linear homogeneity of outer polytope Omega_tilde(beta)):
+//   Omega(beta_1) subset Omega_tilde(beta_1) subset Omega_tilde(beta_2) for 0 <= beta_1 <= beta_2,
+//   so C_{ef}(beta) <= (beta / beta_*) * C_{ef}(beta_*)!
 const betaSu3UnfixedCert = certSu3Unfixed.ok ? 0.504 : 0
 const betaSu3FourDirCert = certSu3FourDir.ok ? 0.546 : 0
 const betaSu3AxialCert = certSu3FourDir.ok ? 0.546 * (geom.lam88At0 / geom.lam11At0) : 0
 
-console.log(`  Unfixed  (c < 1/16):          beta = 0.504000 | CERTIFIED=${certSu3Unfixed.ok} | boxes=${certSu3Unfixed.boxes} | depth=${certSu3Unfixed.maxDepth} | time=${certSu3Unfixed.timeMs.toFixed(0)} ms`)
-console.log(`  4-Dir-Ax (c < 1/Lambda_88):   beta = 0.546000 | CERTIFIED=${certSu3FourDir.ok} | boxes=${certSu3FourDir.boxes} | depth=${certSu3FourDir.maxDepth} | time=${certSu3FourDir.timeMs.toFixed(0)} ms`)
+console.log(
+  `  Unfixed  (c < 1/16):          beta = 0.504000 | CERTIFIED=${certSu3Unfixed.ok} | boxes=${certSu3Unfixed.boxes} | depth=${certSu3Unfixed.maxDepth} | minPivot=${certSu3Unfixed.minPivot.toExponential(2)} | maxTailV=${certSu3Unfixed.maxTailErrVmax.toExponential(2)} | time=${certSu3Unfixed.timeMs.toFixed(0)} ms`,
+)
+console.log(
+  `  4-Dir-Ax (c < 1/Lambda_88):   beta = 0.546000 | CERTIFIED=${certSu3FourDir.ok} | boxes=${certSu3FourDir.boxes} | depth=${certSu3FourDir.maxDepth} | minPivot=${certSu3FourDir.minPivot.toExponential(2)} | maxTailV=${certSu3FourDir.maxTailErrVmax.toExponential(2)} | time=${certSu3FourDir.timeMs.toFixed(0)} ms`,
+)
 console.log(`  1D-Axial (1-line mono):       beta < ${floor6(betaSu3AxialCert)}  (exact monotonicity from 0.546 * Lambda_88 / Lambda_11)`)
 console.log(`  Certified SU(3) Breakthrough Ratios:`)
 console.log(`    Unfixed:           beta < ${floor6(betaSu3UnfixedCert)}  (${(betaSu3UnfixedCert / BETA_BE_SU3).toFixed(2)}x BE, +${((betaSu3UnfixedCert / W6_SU3_UNFIXED - 1) * 100).toFixed(1)}% past W6 ${W6_SU3_UNFIXED.toFixed(6)})`)
@@ -1912,10 +2142,13 @@ console.log('')
 // --- PART 4 ---
 const cross = runIndependentCrossChecks(su3)
 console.log('--- PART 4: INDEPENDENT VERIFICATION CROSS-CHECKS (SANITY CHECKS ONLY — NOT PART OF PROOF) ---')
-console.log(`  Schur truncation (MAX_N=9,Q=13 vs 14,18 at m<=1.50): max rel diff = ${cross.schurTailRelDiff.toExponential(3)} (< 1e-12)`)
+console.log(`  Schur truncation (MAX_N=${SCHUR_MAX_N},Q=${SCHUR_MAX_Q} vs 14,18 at m<=1.50): max rel diff = ${cross.schurTailRelDiff.toExponential(3)} (< 1e-12)`)
 console.log(`  48x48 Weyl quadrature vs Chebyshev-Schur Z_{SU(3)}:  rel err      = ${cross.weylZRelErr.toExponential(3)} (< 1e-12)`)
+console.log(`  SU(2)-symmetry off-diag vs diag at (2.222,1.111):    abs err      = ${cross.su2SymOffDiagErr.toExponential(3)} (< 1e-14)`)
+console.log(`  Non-isotropic off-diag Richardson FD (1.42,1.07,.63):max err      = ${cross.richardsonOffDiagErr.toExponential(3)} (< 1e-10)`)
 console.log(`  Ultra Q_{m,l} vs reference VEFF_OPS M_eff (complex): max abs err  = ${cross.meffEquivErr.toExponential(3)} (< 1e-13)`)
 console.log(`  Weingarten SU(3) E[det U]=E[(det U)^2]=1 identity:   max err      = ${cross.weingartenDetErr.toExponential(3)} (< 1e-14)`)
+console.log(`  Cardano extreme 8-staple 4I+4diag(-i,-i,-1) check:   abs err      = ${cross.extremeStapleErr.toExponential(3)} (< 1e-12)`)
 console.log(`  Deterministic LCG 2,000 random 8-staples hull check: violations   = ${cross.hullViolations} (expect 0)`)
 console.log(`  Independent SU(2) GL32 coupling grid max value:      max Cost     = ${cross.su2GlMaxVal.toFixed(6)} (< 0.250000)\n`)
 
@@ -1931,8 +2164,13 @@ const allOk =
   su2.wedgeCoverageOk &&
   su2.beta4DirAxialChordal > 0.274291 &&
   su2.beta1DWedge > 0.277 &&
+  SU3_ANALYTIC_TAIL.roucheOk &&
   certSu3Unfixed.ok &&
   certSu3FourDir.ok &&
+  certSu3Unfixed.maxTailErrVmax < 1e-9 &&
+  certSu3FourDir.maxTailErrVmax < 1e-9 &&
+  certSu3Unfixed.minPivot > CHOLESKY_MIN_PIVOT &&
+  certSu3FourDir.minPivot > CHOLESKY_MIN_PIVOT &&
   betaSu3UnfixedCert >= 0.504 &&
   betaSu3AxialCert > 0.545 &&
   betaSu3FourDirCert >= 0.546 &&

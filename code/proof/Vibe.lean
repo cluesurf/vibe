@@ -18,11 +18,14 @@ import Vibe.CausalFoliation
 import Vibe.SpectralSharp
 import Vibe.BallisticDoublon
 import Vibe.HolographicCode
+import Vibe.HolographicCodeExt
+import Vibe.D4MassGap
+import Vibe.CompositeTrion
 
 /-!
 # Vibe Theory: Formal Lean 4 Proof Suite
 
-Root aggregator (0 theorems) re-exporting all twenty zero-dependency Lean 4 proof modules (21 `.lean` files total):
+Root aggregator (0 theorems) re-exporting all zero-dependency Lean 4 proof modules (`Vibe/FockBeat.lean` is a thin re-export facade over `Vibe/Fock/{Ring,State,Gates,Beat}.lean`):
 - `Vibe.Tone`: Signed ternary state `{-1, 0, +1}`, 24-slot `DockState`, calm vacuum `v1Dock`, charge conjugation `conjDock`
 - `Vibe.Algebra`: Exact rings `ℤ[ω]`, `ℤ[ζ_9]`, `Mat2Eis`, involutive `StarCommRing`, cyclotomic `ℤ[ζ_9]` gap cubic
 - `Vibe.Rule`: Classical 24-slot `DockState` `V1` fixed-point & 1-hop Lipschitz light-cone lemmas, exact local gate-matrix/scalar unitarity (`2 × 2` `C`/`D`, `8 × 8` `F-G`, scalar `ζ_6^n`, symbolic `12 × 12` `M_pair(u)`), and algebraic 2-adic `SU(2)`/`PSU(2)` infinite-order & non-`Pin(2)` hypotheses for gate density

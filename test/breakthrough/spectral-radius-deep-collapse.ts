@@ -24,8 +24,8 @@
 //      plus a concrete 100% exact BigInt finite-support witness psi in Z^V on CF shells k = 10..420
 //      certifying rho >= 11.4390+ (ZERO sqrt, ZERO asymptotic limit) and asymptotic rho >= 11.4392+.
 //   5. Exact spherical-shell Krylov-moment cross-check (m_0..m_4 verified to 0 BigInt error on B_3,
-//      V_1..V_4 and ||A(V_4 + A(V_4))|| = 11.341754) explaining the clique-mass bottleneck overcome
-//      by the Cartier-Foata Markov product measure.
+//      D4 V_4 + A(V_4) = 11.333660 and ||A phi*||/||phi*|| = 11.338516) explaining the clique-mass
+//      bottleneck overcome by the Cartier-Foata Markov product measure.
 
 type CheckRow = {
   readonly part: string
@@ -904,14 +904,18 @@ type UpperPartResult = {
   readonly d5UpperDen: bigint
   readonly d5FloatUpper: number
   readonly d5FloatDual: number
+  readonly d5DualMass: readonly [number, number, number]
   readonly d4St3xNum: bigint
   readonly d4St3xDen: bigint
   readonly d4St4yNum: bigint
   readonly d4St4yDen: bigint
+  readonly d2LeanQ100: { readonly num: bigint; readonly den: bigint; readonly pInts: Int32Array }
   readonly d2LeanQ1000: { readonly num: bigint; readonly den: bigint; readonly pInts: Int32Array }
   readonly d2LeanQ10000: { readonly num: bigint; readonly den: bigint; readonly pInts: Int32Array }
+  readonly d2Q1M: { readonly num: bigint; readonly den: bigint }
   readonly d3LeanQ1000: { readonly num: bigint; readonly den: bigint }
   readonly d3LeanQ10000: { readonly num: bigint; readonly den: bigint }
+  readonly d3Q1M: { readonly num: bigint; readonly den: bigint }
 }
 
 function runParts1And2Upper(): UpperPartResult {
@@ -1009,8 +1013,9 @@ function runParts1And2Upper(): UpperPartResult {
   const d2Q100 = certifyAndPolishQ(19, 23, aOff2, aE2, aM2, bOff2, bE2, bM2, sol2.f, 100, 1000)
   const d2Q1000 = certifyAndPolishQ(19, 23, aOff2, aE2, aM2, bOff2, bE2, bM2, sol2.f, 1000, 1000)
   const d2Q10000 = certifyAndPolishQ(19, 23, aOff2, aE2, aM2, bOff2, bE2, bM2, sol2.f, 10000, 1000)
+  const d2Q1M = certifyAndPolishQ(19, 23, aOff2, aE2, aM2, bOff2, bE2, bM2, sol2.f, 1_000_000, 0)
   console.log(
-    `  D2 [St_2(y), b] (   19 states,    23 vars): opt=${sol2.upper.toFixed(8)} dual=${sol2.dual.toFixed(8)} gap=${(sol2.upper - sol2.dual).toExponential(2)} | curl=${curl2.dualWeightedAvg.toFixed(6)}`,
+    `  D2 [St_2(y), b] (   19 states,    23 vars): opt=${sol2.upper.toFixed(8)} dual=${sol2.dual.toFixed(8)} gap=${(sol2.upper - sol2.dual).toExponential(2)} | BigInt Q=10^6 <= ${ratCeilDec(d2Q1M.num, d2Q1M.den, 6)} | curl=${curl2.dualWeightedAvg.toFixed(6)}`,
   )
   console.log(
     `    Lean-ready D2 certs: Q=100 <= ${ratCeilDec(d2Q100.num, d2Q100.den, 6)} (${d2Q100.num}/${d2Q100.den}), Q=1000 <= ${ratCeilDec(d2Q1000.num, d2Q1000.den, 6)} (${d2Q1000.num}/${d2Q1000.den}), Q=10000 <= ${ratCeilDec(d2Q10000.num, d2Q10000.den, 6)} (< 11.5!)`,
@@ -1101,8 +1106,9 @@ function runParts1And2Upper(): UpperPartResult {
   const d3Q100 = certifyAndPolishQ(169, 220, aOff3, aE3, aM3, bOff3, bE3, bM3, sol3.f, 100, 1200)
   const d3Q1000 = certifyAndPolishQ(169, 220, aOff3, aE3, aM3, bOff3, bE3, bM3, sol3.f, 1000, 1200)
   const d3Q10000 = certifyAndPolishQ(169, 220, aOff3, aE3, aM3, bOff3, bE3, bM3, sol3.f, 10000, 1200)
+  const d3Q1M = certifyAndPolishQ(169, 220, aOff3, aE3, aM3, bOff3, bE3, bM3, sol3.f, 1_000_000, 0)
   console.log(
-    `  D3 [St_3(y), b] (  169 states,   220 vars): opt=${sol3.upper.toFixed(8)} dual=${sol3.dual.toFixed(8)} gap=${(sol3.upper - sol3.dual).toExponential(2)} | curl=${curl3.dualWeightedAvg.toFixed(6)}`,
+    `  D3 [St_3(y), b] (  169 states,   220 vars): opt=${sol3.upper.toFixed(8)} dual=${sol3.dual.toFixed(8)} gap=${(sol3.upper - sol3.dual).toExponential(2)} | BigInt Q=10^6 <= ${ratCeilDec(d3Q1M.num, d3Q1M.den, 6)} | curl=${curl3.dualWeightedAvg.toFixed(6)}`,
   )
   console.log(
     `    Lean-ready D3 certs: Q=100 <= ${ratCeilDec(d3Q100.num, d3Q100.den, 6)} (${d3Q100.num}/${d3Q100.den}), Q=1000 <= ${ratCeilDec(d3Q1000.num, d3Q1000.den, 6)} (${d3Q1000.num}/${d3Q1000.den}), Q=10000 <= ${ratCeilDec(d3Q10000.num, d3Q10000.den, 6)} (${d3Q10000.num}/${d3Q10000.den})`,
@@ -1282,7 +1288,7 @@ function runParts1And2Upper(): UpperPartResult {
   const sol4x = solveGeneralPosynomialMinimax(2197, 2636, aOff4x, aE4x, aM4x, bOff4x, bE4x, bM4x, fWarmX)
   const c4x = certifyAndPolishQ(2197, 2636, aOff4x, aE4x, aM4x, bOff4x, bE4x, bM4x, sol4x.f, 1_000_000, 0)
   console.log(
-    `  D4 [St_3(x), b] ( 2197 states,  2636 vars): opt=${sol4x.upper.toFixed(8)} dual=${sol4x.dual.toFixed(8)} | BigInt Q=10^6 <= ${ratCeilDec(c4x.num, c4x.den, 6)}`,
+    `  D4 [St_3(x), b] ( 2197 states,  2636 vars): lbfgs=${sol4x.upper.toFixed(8)} dual=${sol4x.dual.toFixed(8)} (unconverged gap=${(sol4x.upper - sol4x.dual).toExponential(2)}) | BigInt Q=10^6 <= ${ratCeilDec(c4x.num, c4x.den, 6)}`,
   )
   console.log(
     `  D4 [St_4(y), b] ( 2197 states,  2801 vars): opt=${sol4.upper.toFixed(8)} dual=${sol4.dual.toFixed(8)} gap=${(sol4.upper - sol4.dual).toExponential(2)} | BigInt Q=10^6 <= ${ratCeilDec(c4.num, c4.den, 6)} | curl=${curl4.dualWeightedAvg.toFixed(6)}`,
@@ -1628,8 +1634,15 @@ function runParts1And2Upper(): UpperPartResult {
   const sol5 = solveNonlinearPerron(nD5, nD5Flags, aOff5, aE5, aM5, bOff5, bE5, bM5, 1200)
   const Q5 = 1_000_000
   const c5 = certifyAndPolishQ(nD5, nD5Flags, aOff5, aE5, aM5, bOff5, bE5, bM5, sol5.f, Q5, 0)
+  const d5DualByK = [0, 0, 0]
+  for (let u = 1; u < nD5; u++) {
+    const ku = d5K[u]!
+    if (ku >= 1 && ku <= 3) d5DualByK[ku - 1] = d5DualByK[ku - 1]! + sol5.w[u]!
+  }
+  const d5DualTot = d5DualByK[0]! + d5DualByK[1]! + d5DualByK[2]!
+  const d5DualMass: readonly [number, number, number] = [d5DualByK[0]! / d5DualTot, d5DualByK[1]! / d5DualTot, d5DualByK[2]! / d5DualTot]
   console.log(
-    `  D5 [St_5(y), b] (34523 states, 43312 vars): opt=${sol5.upper.toFixed(8)} dual=${sol5.dual.toFixed(8)} gap=${(sol5.upper - sol5.dual).toExponential(2)} | BigInt Q=10^6 <= ${ratCeilDec(c5.num, c5.den, 6)} (${((performance.now() - tD5) / 1000).toFixed(2)}s)`,
+    `  D5 [St_5(y), b] (34523 states, 43312 vars): opt=${sol5.upper.toFixed(8)} dual=${sol5.dual.toFixed(8)} gap=${(sol5.upper - sol5.dual).toExponential(2)} | BigInt Q=10^6 <= ${ratCeilDec(c5.num, c5.den, 6)} | dualMass=[${d5DualMass.map(x => x.toFixed(4)).join(', ')}] (${((performance.now() - tD5) / 1000).toFixed(2)}s)`,
   )
 
   // --- Direct 8,857-dock O^+(4,1; Z[sqrt(2)]) R=3 ball cross-check of S_5 & D5 reciprocity ---
@@ -1770,14 +1783,18 @@ function runParts1And2Upper(): UpperPartResult {
     d5UpperDen: c5.den,
     d5FloatUpper: sol5.upper,
     d5FloatDual: sol5.dual,
+    d5DualMass,
     d4St3xNum: c4x.num,
     d4St3xDen: c4x.den,
     d4St4yNum: c4.num,
     d4St4yDen: c4.den,
+    d2LeanQ100: d2Q100,
     d2LeanQ1000: d2Q1000,
     d2LeanQ10000: d2Q10000,
+    d2Q1M: { num: d2Q1M.num, den: d2Q1M.den },
     d3LeanQ1000: { num: d3Q1000.num, den: d3Q1000.den },
     d3LeanQ10000: { num: d3Q10000.num, den: d3Q10000.den },
+    d3Q1M: { num: d3Q1M.num, den: d3Q1M.den },
   }
 }
 
@@ -3081,11 +3098,72 @@ function runPart3CartierFoataLower(ball: ExactBall): CFLowerResult {
   for (let t = 0; t < N_TRIPLE; t++) omScratch[t] = Math.exp(res2Step4440.x[t]!)
   const fin4440 = eval2StepV4440(omScratch, false, warmV4440)
   const rho2Step4440 = fin4440.rho
+  // Exact spectral radius rho(T_{Q_3}) and spectral 2-norm ||T_{Q_3}||_2 of the 212-state Q_3 resolvent matrix!
+  let rhoTQ3 = 0
+  let norm2TQ3 = 0
+  {
+    const M2 = new Float64Array(N_PAIR * N_PAIR)
+    for (let t = 0; t < N_TRIPLE; t++) {
+      const tr = TRIPLE_ORBITS[t]!
+      const w = omScratch[t]!
+      const idx = tr.oIn * N_PAIR + tr.oOut
+      M2[idx] = M2[idx]! + tr.multFromOIn * w * w
+    }
+    const pL = new Float64Array(N_PAIR).fill(1 / N_PAIR)
+    const tmp = new Float64Array(N_PAIR)
+    let lam = 1
+    for (let it = 0; it < 200; it++) {
+      tmp.fill(0)
+      for (let i = 0; i < N_PAIR; i++) {
+        const pi = pL[i]!
+        const base = i * N_PAIR
+        for (let j = 0; j < N_PAIR; j++) tmp[j] = tmp[j]! + pi * M2[base + j]!
+      }
+      let s = 0
+      for (let j = 0; j < N_PAIR; j++) s += tmp[j]!
+      lam = s
+      let diff = 0
+      for (let j = 0; j < N_PAIR; j++) {
+        const nv = tmp[j]! / s
+        diff += Math.abs(nv - pL[j]!)
+        pL[j] = nv
+      }
+      if (diff < 1e-14) break
+    }
+    const wSq = new Float64Array(N_Q3T)
+    for (let i = 0; i < N_Q3T; i++) {
+      const w = omScratch[Q3T_TID[i]!]!
+      wSq[i] = (w * w) / lam
+    }
+    let v = new Float64Array(N_Q3P).fill(1 / Math.sqrt(N_Q3P))
+    const nxt = new Float64Array(N_Q3P)
+    for (let it = 0; it < 80; it++) {
+      nxt.fill(0)
+      for (let i = 0; i < N_Q3T; i++) nxt[Q3T_TO[i]!] = nxt[Q3T_TO[i]!]! + v[Q3T_FROM[i]!]! * wSq[i]!
+      let n2 = 0
+      for (let p = 0; p < N_Q3P; p++) n2 += nxt[p]! * nxt[p]!
+      rhoTQ3 = Math.sqrt(n2)
+      for (let p = 0; p < N_Q3P; p++) v[p] = nxt[p]! / rhoTQ3
+    }
+    v = new Float64Array(N_Q3P).fill(1 / Math.sqrt(N_Q3P))
+    const mid = new Float64Array(N_Q3P)
+    for (let it = 0; it < 80; it++) {
+      mid.fill(0)
+      for (let i = 0; i < N_Q3T; i++) mid[Q3T_TO[i]!] = mid[Q3T_TO[i]!]! + v[Q3T_FROM[i]!]! * wSq[i]!
+      nxt.fill(0)
+      for (let i = 0; i < N_Q3T; i++) nxt[Q3T_FROM[i]!] = nxt[Q3T_FROM[i]!]! + mid[Q3T_TO[i]!]! * wSq[i]!
+      let n2 = 0
+      for (let p = 0; p < N_Q3P; p++) n2 += nxt[p]! * nxt[p]!
+      const sv2 = Math.sqrt(n2)
+      norm2TQ3 = Math.sqrt(sv2)
+      for (let p = 0; p < N_Q3P; p++) v[p] = nxt[p]! / sv2
+    }
+  }
   console.log(`  CF 0-step (3 bulk params, 57-dim bdy)      : rho >= ${rho0Step.toFixed(8)}`)
   console.log(`  CF 1-step (57 pair weights, 57-dim bdy)    : rho >= ${rho1Step57.toFixed(8)}`)
   console.log(`  CF 2-step (4,440 triple weights, 57-dim)   : rho >= ${rho2Step57.toFixed(8)}`)
   console.log(
-    `  CF 2-step (4,440 triple weights, 4440-dim) : rho >= ${rho2Step4440.toFixed(8)} (gradErr=${maxGradErr.toExponential(2)}, ${((performance.now() - t0) / 1000).toFixed(2)}s)`,
+    `  CF 2-step (4,440 triple weights, 4440-dim) : rho >= ${rho2Step4440.toFixed(8)} (gradErr=${maxGradErr.toExponential(2)}, rho(T_Q3)=${rhoTQ3.toFixed(6)}, ||T_Q3||_2=${norm2TQ3.toFixed(6)}, ${((performance.now() - t0) / 1000).toFixed(2)}s)`,
   )
 
   // 5. Concrete 100% exact BigInt finite-support witness psi in Z^V on CF shells k = 10..420 (ZERO sqrt!)
@@ -4175,11 +4253,18 @@ function runPart4SphericalKrylovAudit(p12: UpperPartResult): { readonly v4Av4: n
   const qcA = a00 * a11 - a01 * a01
   const normAV4Av4 = Math.sqrt((-qbA + Math.sqrt(Math.max(0, qbA * qbA - 4 * qaR * qcA))) / (2 * qaR))
 
+  const shellMass = [0, 0, 0]
+  for (let u = 1; u < n; u++) {
+    const ku = kOf[u]!
+    if (ku >= 1 && ku <= 3) shellMass[ku - 1] = shellMass[ku - 1]! + p[u]!
+  }
   console.log(`  Ball m_4 = ||A^2 psi||^2 audit (8,857 docks): ball=${ballM4} == auto=${autoM4} (diff=0)`)
   console.log(
     `  Spherical D4 Krylov diagnostic (${na} active states, ${((performance.now() - t0) / 1000).toFixed(2)}s): V_4+A(V_4) >= ${v4Av4.toFixed(6)}, ||A phi*||/||phi*|| >= ${normAV4Av4.toFixed(6)}`,
   )
-  console.log(`  (Spherical shells stall near ~11.356 because they lock clique mass at [0.72, 0.25, 0.03] vs CF Markov 11.4392!)`)
+  console.log(
+    `  (Spherical shells lock clique mass at [${shellMass.map(x => x.toFixed(4)).join(', ')}] vs D5 optimal dual [${p12.d5DualMass.map(x => x.toFixed(4)).join(', ')}])`,
+  )
 
   recordCheck(
     'P4',
@@ -4243,8 +4328,10 @@ function main(): void {
   console.log(`  Wave-3 rho/24          : concrete [${rho24FinLo}, ${rho24UpHi}] | asymp [${rho24AsympLo}, ${rho24UpHi}]`)
   console.log(`  Wave-3 lambda_gap      : concrete [${gapLo}, ${gapFinHi}] | asymp [${gapLo}, ${gapAsympHi}]`)
   console.log(`  Wave-3 raw gap (24-rho): concrete [${rawGapLo}, ${rawGapFinHi}] | asymp [${rawGapLo}, ${rawGapAsympHi}]`)
-  console.log(`  Lean-4 D2 (19 st, 23v) : Q=1000 <= ${ratCeilDec(p12.d2LeanQ1000.num, p12.d2LeanQ1000.den, 6)} | Q=10000 <= ${ratCeilDec(p12.d2LeanQ10000.num, p12.d2LeanQ10000.den, 6)}`)
+  console.log(`  Lean-4 D2 (19 st, 23v) : Q=100 <= ${ratCeilDec(p12.d2LeanQ100.num, p12.d2LeanQ100.den, 6)} | Q=1000 <= ${ratCeilDec(p12.d2LeanQ1000.num, p12.d2LeanQ1000.den, 6)} | Q=10000 <= ${ratCeilDec(p12.d2LeanQ10000.num, p12.d2LeanQ10000.den, 6)}`)
   console.log(`  Lean-4 D3 (169st,220v) : Q=1000 <= ${ratCeilDec(p12.d3LeanQ1000.num, p12.d3LeanQ1000.den, 6)} | Q=10000 <= ${ratCeilDec(p12.d3LeanQ10000.num, p12.d3LeanQ10000.den, 6)}`)
+  console.log(`  D2 Q=100   p[0..22]    : [${Array.from(p12.d2LeanQ100.pInts).join(',')}]`)
+  console.log(`  D2 Q=1000  p[0..22]    : [${Array.from(p12.d2LeanQ1000.pInts).join(',')}]`)
   console.log(`  D2 Q=10000 p[0..22]    : [${Array.from(p12.d2LeanQ10000.pInts).join(',')}]`)
   console.log('--------------------------------------------------------------------------------')
   let allPassed = true

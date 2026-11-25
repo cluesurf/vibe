@@ -2569,44 +2569,50 @@ private theorem su3_tail_rearrange (a : Nat → Nat) (M m : Nat) (hm : m < M) :
             (317 ^ m * 750 ^ (M - 1 - m))) :=
           nat_rearrange_tail2 _ _ _ _ _ _ _ _ _
 
+private theorem su3_tail_fac_cancel (M m : Nat) (hm : m < M) :
+    natFact (11 + m) * (natFact (11 + M) / natFact (11 + m)) = natFact (11 + M) :=
+  Nat.mul_div_cancel' (natFact_dvd_of_le (11 + m) (11 + M) (by omega))
+
+private theorem su3_tail_step1 (a : Nat → Nat)
+    (hDom : ∀ m : Nat, a (11 + m) ≤ 6 ^ (1 + m) * a 10) (M m : Nat) :
+    11 * su3C0Den10 *
+        (a (11 + m) * (317 ^ (11 + m)) * (natFact (11 + M) / natFact (11 + m)) * (375 ^ (M - m))) *
+        750 ^ M ≤
+      natFact 11 * 375 ^ 10 *
+        ((6 ^ (1 + m) * a 10) * (317 ^ (11 + m)) * (natFact (11 + M) / natFact (11 + m)) * (375 ^ (M - m))) *
+        750 ^ M := by
+  have h11Den : 11 * su3C0Den10 = natFact 11 * 375 ^ 10 := by
+    unfold su3C0Den10
+    have h : natFact 11 = 11 * natFact 10 := rfl
+    rw [h]
+    exact (Nat.mul_assoc 11 (natFact 10) (375 ^ 10)).symm
+  rw [h11Den]
+  have h1 := Nat.mul_le_mul_right (317 ^ (11 + m)) (hDom m)
+  have h2 := Nat.mul_le_mul_right (natFact (11 + M) / natFact (11 + m)) h1
+  have h3 := Nat.mul_le_mul_right (375 ^ (M - m)) h2
+  have h4 := Nat.mul_le_mul_left (natFact 11 * 375 ^ 10) h3
+  exact Nat.mul_le_mul_right (750 ^ M) h4
+
+private theorem su3_tail_step2 (a : Nat → Nat) (M m : Nat) (hm : m < M) :
+    (natFact 11 * 12 ^ m) * (natFact (11 + M) / natFact (11 + m)) *
+        (3804 * (a 10 * 317 ^ 10) * 375 ^ (11 + M) * (317 ^ (0 + m) * 750 ^ (M - 1 - m))) ≤
+      3804 * (a 10 * 317 ^ 10) * (natFact (11 + M) * 375 ^ (11 + M)) *
+        (317 ^ (0 + m) * 750 ^ (M - 1 - m)) := by
+  have hF := Nat.mul_le_mul_right (natFact (11 + M) / natFact (11 + m)) (natFact_tail_dom m)
+  rw [su3_tail_fac_cancel M m hm] at hF
+  have hM := Nat.mul_le_mul_right
+    (3804 * (a 10 * 317 ^ 10) * 375 ^ (11 + M) * (317 ^ (0 + m) * 750 ^ (M - 1 - m))) hF
+  exact Nat.le_trans hM (Nat.le_of_eq (nat_rearrange_tail3 _ _ _ _ _))
+
 private theorem su3_tail_term_le (a : Nat → Nat)
     (hDom : ∀ m : Nat, a (11 + m) ≤ 6 ^ (1 + m) * a 10) (M m : Nat) (hm : m < M) :
     11 * su3C0Den10 *
         (a (11 + m) * (317 ^ (11 + m)) * (natFact (11 + M) / natFact (11 + m)) * (375 ^ (M - m))) *
         750 ^ M ≤
       3804 * (a 10 * 317 ^ 10) * (natFact (11 + M) * 375 ^ (11 + M)) *
-        (317 ^ (0 + m) * 750 ^ (M - 1 - m)) := by
-  have h11Den : 11 * su3C0Den10 = natFact 11 * 375 ^ 10 := by
-    unfold su3C0Den10
-    have h : natFact 11 = 11 * natFact 10 := rfl
-    rw [h]
-    exact (Nat.mul_assoc 11 (natFact 10) (375 ^ 10)).symm
-  have hFacCancel : natFact (11 + m) * (natFact (11 + M) / natFact (11 + m)) = natFact (11 + M) :=
-    Nat.mul_div_cancel' (natFact_dvd_of_le (11 + m) (11 + M) (by omega))
-  have hStep1 :
-      11 * su3C0Den10 *
-          (a (11 + m) * (317 ^ (11 + m)) * (natFact (11 + M) / natFact (11 + m)) * (375 ^ (M - m))) *
-          750 ^ M ≤
-      natFact 11 * 375 ^ 10 *
-          ((6 ^ (1 + m) * a 10) * (317 ^ (11 + m)) * (natFact (11 + M) / natFact (11 + m)) * (375 ^ (M - m))) *
-          750 ^ M := by
-    rw [h11Den]
-    have h1 := Nat.mul_le_mul_right (317 ^ (11 + m)) (hDom m)
-    have h2 := Nat.mul_le_mul_right (natFact (11 + M) / natFact (11 + m)) h1
-    have h3 := Nat.mul_le_mul_right (375 ^ (M - m)) h2
-    have h4 := Nat.mul_le_mul_left (natFact 11 * 375 ^ 10) h3
-    exact Nat.mul_le_mul_right (750 ^ M) h4
-  have hStep2 :
-      (natFact 11 * 12 ^ m) * (natFact (11 + M) / natFact (11 + m)) *
-          (3804 * (a 10 * 317 ^ 10) * 375 ^ (11 + M) * (317 ^ (0 + m) * 750 ^ (M - 1 - m))) ≤
-      3804 * (a 10 * 317 ^ 10) * (natFact (11 + M) * 375 ^ (11 + M)) *
-          (317 ^ (0 + m) * 750 ^ (M - 1 - m)) := by
-    have hF := Nat.mul_le_mul_right (natFact (11 + M) / natFact (11 + m)) (natFact_tail_dom m)
-    rw [hFacCancel] at hF
-    have hM := Nat.mul_le_mul_right
-      (3804 * (a 10 * 317 ^ 10) * 375 ^ (11 + M) * (317 ^ (0 + m) * 750 ^ (M - 1 - m))) hF
-    exact Nat.le_trans hM (Nat.le_of_eq (nat_rearrange_tail3 _ _ _ _ _))
-  exact Nat.le_trans (Nat.le_trans hStep1 (Nat.le_of_eq (su3_tail_rearrange a M m hm))) hStep2
+        (317 ^ (0 + m) * 750 ^ (M - 1 - m)) :=
+  Nat.le_trans (Nat.le_trans (su3_tail_step1 a hDom M m) (Nat.le_of_eq (su3_tail_rearrange a M m hm)))
+    (su3_tail_step2 a M m hm)
 
 /-- Symbolic `∀ M : Nat` partial-tail bound connecting `natFact_tail_dom` and
     `geomTailNum_telescoping 317 750 0 M` directly to the algebraic tail constants
@@ -3073,10 +3079,9 @@ theorem thm_mg_su3_closed_form_w1_beyond_be :
       exact Nat.add_le_add_left hTail _
     have hStep2 :
         5 * (4763 * (su3C0PartialNum10 * D + su3C0Den10 * su3TailPartialNum a M)) ≤
-          5 * (4763 * su3C0PartialNum10 + 3804 * su3C0Term10Num) * D := by
-      have h := Nat.mul_le_mul_left 5 hStep1
-      rw [← Nat.mul_assoc 5] at h
-      exact h
+          5 * (4763 * su3C0PartialNum10 + 3804 * su3C0Term10Num) * D :=
+      Nat.le_trans (Nat.mul_le_mul_left 5 hStep1)
+        (Nat.le_of_eq (Nat.mul_assoc 5 (4763 * su3C0PartialNum10 + 3804 * su3C0Term10Num) D).symm)
     have hStep3 :
         5 * (4763 * su3C0PartialNum10 + 3804 * su3C0Term10Num) * D <
           12 * (4763 * su3C0Den10) * D :=
