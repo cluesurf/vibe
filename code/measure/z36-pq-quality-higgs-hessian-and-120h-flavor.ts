@@ -1,64 +1,60 @@
-// EXACT Z_18 / Z_36 PECCEI-QUINN QUALITY FROM Z[zeta_9] x Spin(10) CENTER,
-// MINIMAL SO(10) 210_H + 126_H + 10_H HIGGS-POTENTIAL HESSIAN CLOSURE OF CODATA alpha(0),
-// AND FULL SO(10) 10_H + 126bar_H + 120_H ZERO-PULL YUKAWA UNIFICATION
-// (E-FRC-0332).
+// CONTINUUM SO(10) POSTULATED Z_36 / Z_18 / Z_12 PECCEI-QUINN QUALITY AUDIT,
+// 11-MODE TOY HIGGS-POTENTIAL HESSIAN PROXY FOR ALPHA(0) (3-FOR-3 QUARTIC FIT, OMITTING 120_H),
+// AND SO(10) 10_H + 126bar_H + 120_H YUKAWA EFT COMPATIBILITY FIT
+// (E-FRC-0332, Tier C continuum EFT compatibility check, NOT derived from the bare QCA).
 //
-// Builds directly on verified Vibe Theory modules with ZERO new ad-hoc symmetries and ZERO continuous CP phases:
+// Builds directly on upstream Vibe Theory modules (canonical single-face K_eff = 1.012532):
 //   - E-FRC-0324 (so10-three-generations.ts): 3 x 16 = 48 chiral Spin(10) Weyl states and exact BigInt charges.
 //   - E-FRC-0328 (pati-salam-unification-hierarchy.ts): exact 2-loop M_PS = 1.434e11 GeV and M_GUT = 7.946e15 GeV.
-//   - E-FRC-0329 (alpha-lattice-matching-and-shell-stabilization.ts): exact 4D D_4 BLM alpha_GUT^{-1} = 42.9578
+//   - E-FRC-0329 (alpha-lattice-matching-and-shell-stabilization.ts): canonical single-face non-compact D_4 BLM
+//     alpha_GUT^{-1} = 42.2748 (zero-fit alpha^{-1}(0) = 128.73, -6.06%, omitting compact Wilson tadpole -17.91)
 //     and exact BigInt heavy multiplet Dynkin indices.
-//   - E-FRC-0330 (so10-yukawa-unification-and-role-selection.ts): dynamically selected (r = sqrt(2), delta = +2/9),
+//   - E-FRC-0330 (so10-yukawa-unification-and-role-selection.ts): illustrative phenomenological (r = sqrt(2), delta = +2/9),
 //     2-loop SM+PS Yukawa RG targets at M_GUT, and 10-param 10_H + 126bar_H baseline (chi^2 = 87.97).
 //   - E-FRC-0331 (strong-cp-axion-and-pq-window.ts): SO(10) U(1)_PQ anomaly E/N = 8/3 and gravitational PQ-quality audit.
 //
 // Three deterministic parts (ZERO Math.random, ZERO PRNGs):
 //
-//   Part 1 - Exact BigInt Z_18 / Z_36 PQ Quality Solution from Native Z[zeta_9] + Spin(10) Center:
-//     - Proves in exact Q(zeta_9) and BigInt CRT that Z_9 (order 9 from zeta_9) x Z_4 (order 4 from Spin(10)
-//       center X = 3(B-L) - 4 T_3^R === 1 mod 4, gcd(9,4)=1) = exact cyclic discrete gauge symmetry Z_36
-//       (lcm(9,4)=36), containing native Z_18 (exact unit zeta_18 = -zeta_9^5 in Z[zeta_9]) and Z_12 subgroups.
-//     - Assigns exact Z_N charges (N = 12, 18, 36): q(16) = +1, q(10_H) = q(126bar_H) = q(120_H) = -2,
-//       q(126_H) = +2, q(210_H) = 0, and q(Phi_PQ) in {+1, +2}, certifying every renormalizable Yukawa
-//       16*16*(10_H, 126bar_H, 120_H) and scalar portal (Phi_PQ^2 10_H^2 for q=2; Phi_PQ^4 10_H^2 for q=1;
-//       10_H^2 126_H^2) is exact 0 (mod N) while conjugate Yukawas 16*16*10_H^* (+4 != 0 mod N) are forbidden.
-//     - Certifies exact BigInt Ibanez-Ross / Krauss-Wilczek discrete gauge anomaly conditions on E-FRC-0324's
-//       48 Weyl fermions: A_{Z_N - SU(3)^2} = A_{Z_N - SU(2)^2} = A_{Z_N - U(1)_Y^2} = 6 (2 A_i = 12),
-//       exact SO(10) universality (k_3 = k_2 = k_1 = 1 Green-Schwarz compatible for all N, and directly
-//       anomaly-free 12 === 0 mod 12 for Z_12).
-//     - Exhaustively scans all Planck-suppressed PQ-breaking operators Phi_PQ^p (Phi_PQ^*)^q / M_Pl^{p+q-4}
-//       (p != q, p + q <= 20 and up to 36): certifies d_min = 12 (Z_12 q=1), d_min = 18 (Z_18 q=1 and Z_36 q=2),
-//       and d_min = 36 (Z_36 q=1). At E-FRC-0328 f_a in {M_PS, M_PS/3}, d_min = 18 yields Delta theta_grav < 1e-50
-//       (beating nEDM 1e-10 by > 52 orders of magnitude), d_min = 12 yields < 1e-12, while negative control Z_6
-//       (d_min = 6) yields Delta theta_grav >> 1e30 (catastrophic nEDM violation).
+//   Part 1 - Postulated Z_36 / Z_18 / Z_12 PQ Quality Audit (BigInt + Mixed (126_H)^4 Operator Scan):
+//     - Checks CRT order lcm(9,4) = 36 matching Z_9 x Z_4 (Spin(10) center X = 3(B-L) - 4 T_3^R === 1 mod 4),
+//       with postulated discrete gauge charges q(16) = +1, q(10_H) = q(126bar_H) = q(120_H) = -2, q(126_H) = +2,
+//       q(210_H) = 0, and q(Phi_PQ) in {+1, +2}. (Not a native symmetry of the bare QCA.)
+//     - Certifies BigInt Ibanez-Ross anomaly traces over 48 Weyl fermions: 2 A_3 = 2 A_2 = 2 A_1 = 12 and
+//       A_grav = 48. Explicitly flags that Z_36 and Z_18 are ANOMALOUS (12 != 0 mod 36, 18) and require a
+//       Green-Schwarz cancellation mechanism, whereas ONLY Z_12 is directly anomaly-free (12 === 0 mod 12).
+//     - Exhaustively scans BOTH pure-singlet operators Phi_PQ^p (Phi_PQ^*)^q AND mixed SO(10)-invariant
+//       operators Phi_PQ^p (Phi_PQ^*)^q (126_H)^{4r} (126bar_H)^{4s} (since (126_H)^4 is a dim-4 SO(10)
+//       singlet of charge +8 with VEV ~ M_PS):
+//         * Z_36, q(Phi_PQ) = +2: d_min = 18 survives mixed operators (Delta theta_grav = 10^-61.9 at M_Pl,
+//           10^-52.1 at M_Pl_red), Green-Schwarz anomalous.
+//         * Z_36, q(Phi_PQ) = +1: pure-singlet d_min = 36 is FALSIFIED by mixed dim-20 Phi_PQ^4 (126_H)^16
+//           (charge 4 + 32 = 36 === 0 mod 36; Delta theta_grav = 10^-77.8 at M_Pl, 10^-66.6 at M_Pl_red).
+//         * Z_18, q(Phi_PQ) = +1: pure-singlet d_min = 18 is falsified by mixed dim-10 Phi_PQ^2 (126_H)^8.
+//         * Z_12, q(Phi_PQ) = +1 (only directly anomaly-free subgroup): even pure-singlet d_min = 12 FAILS
+//           nEDM at f_a = M_PS under M_Pl_red (10^-8.73 = 1.87e-9 > 1e-10, 19x above bound), passing only
+//           for f_a <= M_PS / 3 (10^-14.45), and mixed Phi_PQ^4 (126_H)^4 enters at dim 8 if q(126_H) = +2.
+//         * Negative control Z_6 (d_min = 6) fails catastrophically at Delta theta_grav ~ 10^+33.3.
 //
-//   Part 2 - Explicit Minimal SO(10) 210_H + 126_H + 10_H Higgs-Potential Hessian Closure of CODATA alpha(0):
-//     - Constructs the explicit gauge-invariant multi-field scalar potential V(210_H, 126_H, 126bar_H, 10_H) in
-//       the Pati-Salam vacuum (<210_H> = v_GUT along (1,1,1)_R, <126_H> = v_PS along (10,1,3)_C) with five
-//       perturbative O(1) quartic couplings {lambda_1, lambda_2, lambda_3, lambda_4, alpha_mix} strictly in
-//       [0.05, 1.5] and exact coset vector mass M_V^2 = g_GUT^2 v_GUT^2.
-//     - Computes and diagonalizes the full physical mass-squared Hessian (analytic vs 4th-order numerical
-//       finite-difference check), verifying stationarity ||grad V|| <= 1e-13, exact zero mass for all 24
-//       SO(10)/PS + 9 PS/SM eaten Goldstone modes (<= 1e-14), strictly positive physical scalar masses
-//       (min M_phys^2 > 0, zero tachyons), and every heavy ratio M_h / M_GUT inside [1/3, 3].
-//     - Feeds those exact Hessian eigenmasses directly into E-FRC-0329's 4D D_4 BLM + 2-loop SO(10)->PS->SM->QED
-//       flow, closing CODATA alpha^{-1}(0) = 137.035999177 and PDG (127.951, 0.23122, 0.1180) simultaneously to
-//       < 1e-12, while degenerate quartics recover E-FRC-0329's exact zero-fit 130.58 (-4.71%) and flipping a
-//       quartic sign creates a tachyon (min M^2 < 0) rejected by vacuum stability.
+//   Part 2 - 11-Mode Toy Diagonal Scalar-Potential Hessian Proxy (3-for-3 Quartic Fit, Omitting 120_H):
+//     - Evaluates an 11-scalar diagonal toy potential proxy evalHiggsPotential(x[0..10]) representing the
+//       210_H + 126_H + 10_H multiplet scales (NOT the full 472-component SO(10) tensor potential, and
+//       explicitly OMITTING the 120_H representation used in Part 3).
+//     - Runs 3D Newton to invert 3 free quartics (lambda_2, lambda_3, lambda_4) against 3 SM gauge targets
+//       (with DELTA_MSBAR_TO_OS_PDG mapping alpha_em^{-1}(M_Z) = 127.951 identically to CODATA 137.035999177
+//       by algebraic offset), verifying analytic vs finite-difference Hessian, 24 + 9 Goldstone zeros,
+//       degenerate control recovering E-FRC-0329 canonical zero-fit 128.73 (-6.06%), and tachyon control.
 //
-//   Part 3 - Full SO(10) 10_H + 126bar_H + 120_H Zero-Pull Yukawa Unification (14 Real Params, 0 Continuous Phases):
-//     - Certifies in exact BigInt: 16 x 16 = 256 = 136_S + 120_A = 10_S + 126_S + 120_A, exact Pati-Salam
-//       decomposition and Dynkin index S_2(120_H) = (28, 28, 28), and exact absence of (10bar,1,3) in 120_H
-//       so Majorana M_R = c_R F remains 100% pure 126bar_H.
-//     - Solves the exact unified equations M_d = H + F + G, M_e = H - 3F + G, M_u = r_1 H + r_2 F + r_3 G,
-//       M_D = r_1 H - 3 r_2 F + r_3 G, M_R = c_R F, M_nu = -M_D^T M_R^{-1} M_D (pure (1,2,2) bidoublet inside
-//       120_H: c_e = c_D = +1, zero extra Clebsch parameters) with ONLY 14 continuous real parameters across
-//       22 SM flavor observables (+8 net overdetermination) and ZERO continuous CP phases (100% discrete Z[zeta_9]).
-//     - Slashes E-FRC-0330's chi^2 from 87.97 DOWN to chi^2 = 0.616 (chi^2/dof = 0.077 << 1, 143x reduction),
-//       eliminating the m_d (-41.4%) / m_s (+69.9%) pull down to m_d (+0.52%) / m_s (+2.85%), with max pull
-//       < 2.9% across all 22 observables, charged leptons < 0.01% (exact pole Q_e = 2/3), normal-ordering
-//       neutrinos (sum m_nu = 0.068 eV < 0.12 eV, Q_nu = 0.400 < 2/3), accurate CKM and PMNS (delta_CP = 205.8 deg,
-//       J_PMNS = -0.0146 < 0), plus all 3 mandatory negative controls (G = 0, real Yukawas, symmetry/unitarity).
+//   Part 3 - SO(10) 10_H + 126bar_H + 120_H Yukawa EFT Consistency Fit (14 Continuous + 11 Discrete Z_9 Params):
+//     - Certifies in exact BigInt: 16 x 16 = 256 = 136_S + 120_A = 10_S + 126_S + 120_A, Pati-Salam
+//       decomposition and Dynkin index S_2(120_H) = (28, 28, 28), and absence of (10bar,1,3) in 120_H.
+//     - Solves M_d = H + F + G, M_e = H - 3F + G, M_u = r_1 H + r_2 F + r_3 G, M_D = r_1 H - 3 r_2 F + r_3 G,
+//       M_R = c_R F, M_nu = -M_D^T M_R^{-1} M_D with 14 continuous real parameters PLUS 11 discrete Z_9
+//       exponent choices (9^11 = 3.14e10 discrete basins, including r_3 = 0) and synthetic 2%-12% residual
+//       weights against 18 genuinely measured SM observables (22 listed quantities including dependent checks).
+//     - Reduces E-FRC-0330's chi^2 from 87.97 to chi^2 = 0.565 (155.6x reduction under synthetic weights),
+//       with m_d (+0.40%) / m_s (+2.92%), max pull 2.92%, normal-ordering neutrinos (sum m_nu = 0.0683 eV,
+//       Q_nu = 0.400 < 2/3), delta_CP = 202.33 deg, J_PMNS = -0.01274, plus all 3 negative controls.
+//       Explicit internal EFT tension: 120_H (S_2 = (28,28,28)) is not yet included in Part 2 RGEs or Hessian.
 
 import { hermitianEigenRows } from '@/code/algebra/linear/eig-hermitian-householder'
 import {
@@ -103,6 +99,8 @@ const ALPHA_EM_INV_MZ_PDG = 127.951
 const SIN2_THETA_W_MZ_PDG = 0.23122
 const ALPHA_3_MZ_PDG = 0.118
 const DELTA_ALPHA_TOTAL_PDG = 0.031497687 + 0.02766 - 0.000072
+// Honesty note: DELTA_MSBAR_TO_OS_PDG embeds CODATA INVERSE_ALPHA directly as an algebraic offset,
+// so hitting ALPHA_EM_INV_MZ_PDG = 127.951 reproduces CODATA 137.035999177 identically (3 gauge constraints, NOT 4).
 const DELTA_MSBAR_TO_OS_PDG = INVERSE_ALPHA * (1 - DELTA_ALPHA_TOTAL_PDG) - ALPHA_EM_INV_MZ_PDG
 
 const B1_SM: readonly [number, number, number] = [41 / 10, -19 / 6, -7]
@@ -162,21 +160,37 @@ export type DiscreteOperatorAuditRow = {
   readonly portalZeroModN: boolean
   readonly gsAnomalyUniversalExact: boolean
   readonly directNonGsAnomalyFree: boolean
+  readonly requiresGreenSchwarz: boolean
   readonly scanMaxDim: number
   readonly forbiddenPqBreakingOpsBelowDMin: number
-  readonly dMinAllowed: number
+  readonly dMinSingletOnly: number // naive pure-singlet Phi_PQ^p (Phi_PQ^*)^q bound
   readonly witnessPairPQ: readonly [number, number]
+  readonly dMinMixedWith126H: number // true gauge-invariant min dim including SO(10)-singlet (126_H)^4 (dim 4, q = +8)
+  readonly mixedWitnessExponents: readonly [number, number, number, number] // [p, q, r, s] for Phi_PQ^p (Phi_PQ^*)^q (126_H)^{4r} (126bar_H)^{4s}
+  readonly mixedWitnessOp: string
+  readonly dMinAllowed: number // equals dMinMixedWith126H (true gauge-invariant minimum dimension)
   readonly deltaThetaAtMPsFullPl: number
   readonly deltaThetaAtMPsOver3FullPl: number
   readonly deltaThetaAtMPsReducedPl: number
+  readonly deltaThetaAtMPsOver3ReducedPl: number
   readonly log10DeltaThetaAtMPsFullPl: number
   readonly log10DeltaThetaAtMPsOver3FullPl: number
+  readonly log10DeltaThetaAtMPsReducedPl: number
+  readonly log10DeltaThetaAtMPsOver3ReducedPl: number
+  readonly singletLog10DeltaThetaAtMPsFullPl: number
+  readonly singletLog10DeltaThetaAtMPsReducedPl: number
+  readonly singletLog10DeltaThetaAtMPsOver3FullPl: number
+  readonly singletLog10DeltaThetaAtMPsOver3ReducedPl: number
   readonly beatsNedmAtMPs: boolean
   readonly beatsNedmAtMPsOver3: boolean
+  readonly beatsNedmAtMPsReducedPl: boolean
+  readonly beatsNedmAtMPsOver3ReducedPl: boolean
+  readonly singletBeatsNedmAtMPsReducedPl: boolean
+  readonly singletBeatsNedmAtMPsOver3ReducedPl: boolean
 }
 
 export type Part1Z36PqQualityReport = {
-  // Exact BigInt + Q(zeta_9) native group structure (zero new symmetries!)
+  // Exact BigInt + Q(zeta_9) CRT order audit (postulated Tier C discrete gauge symmetry, NOT native to bare QCA)
   readonly zeta9ExactOrder: number // 9
   readonly zeta18ElementInZeta9ExactOrder: number // 18 via -zeta_9^5
   readonly spin10CenterExactOrder: number // 4 via X = 3(B-L) - 4 T_3^R === 1 (mod 4)
@@ -200,16 +214,19 @@ export type Part1Z36PqQualityReport = {
   readonly twoA2_3GenExact: bigint // 12n
   readonly twoA1_3GenExact: bigint // 12n
   readonly so10AnomalyUniversalityExact: boolean // A_3 === A_2 === A_1 === 6 (k_3 = k_2 = k_1 = 1)
+  readonly z36RequiresGreenSchwarz: boolean // true: 12 != 0 (mod 36)
+  readonly z18RequiresGreenSchwarz: boolean // true: 12 != 0 (mod 18)
   readonly z12DirectAnomalyFreeExact: boolean // 12 === 0 (mod 12) and 48 === 0 (mod 12)
   // Upstream E-FRC-0328 scales
   readonly mPsGeV: number
   readonly mPsOver3GeV: number
-  // Exhaustive PQ-breaking operator scans & gravitational theta shifts
-  readonly z36Q2RenormalizablePortal: DiscreteOperatorAuditRow // d_min = 18, dim-4 portal Phi_PQ^2 10_H^2
-  readonly z36Q1MaxProtection: DiscreteOperatorAuditRow // d_min = 36, dim-6 portal Phi_PQ^4 10_H^2
-  readonly z18Q1NativeSubgroup: DiscreteOperatorAuditRow // d_min = 18
-  readonly z12Q1AnomalyFreeSubgroup: DiscreteOperatorAuditRow // d_min = 12
+  // Exhaustive PQ-breaking operator scans (pure singlet AND mixed with (126_H)^4) & full/reduced M_Pl shifts
+  readonly z36Q2RenormalizablePortal: DiscreteOperatorAuditRow // d_min = 18 (survives mixed operators), GS anomalous
+  readonly z36Q1MaxProtection: DiscreteOperatorAuditRow // singlet 36 FALSIFIED by mixed dim-20 Phi_PQ^4 (126_H)^16
+  readonly z18Q1NativeSubgroup: DiscreteOperatorAuditRow // singlet 18 falsified by mixed dim-10 Phi_PQ^2 (126_H)^8, GS anomalous
+  readonly z12Q1AnomalyFreeSubgroup: DiscreteOperatorAuditRow // only directly anomaly-free subgroup; singlet d=12 fails nEDM at M_PS under M_Pl_red
   readonly controlZ6Q1FailsCatastrophically: DiscreteOperatorAuditRow // d_min = 6, Delta theta >> 10^30
+  readonly z12SingletFailsNedmAtMPsReducedPl: boolean // true: 10^-8.73 = 1.87e-9 > 1e-10 (passes only for f_a <= M_PS/3)
   readonly pure126Bar4kDMinZ36: number // 36 (SO(10)-invariant (126bar_H)^{4k} carries q = -8k)
   readonly pure126Bar4kDMinZ18: number // 36
   readonly pure126Bar4kDMinZ12: number // 12
@@ -273,15 +290,13 @@ function auditDiscretePqSymmetry(
   const directNonGsAnomalyFree =
     modBig(twoA3, N) === 0n && modBig(twoA2, N) === 0n && modBig(twoA1, N) === 0n && modBig(aGrav, N) === 0n
 
-  // Exhaustive scan over ALL PQ-breaking singlet operators Phi_PQ^p (Phi_PQ^*)^q with p != q, p + q <= scanMaxDim
-  let dMinAllowed = -1
+  // Exhaustive scan (A): pure-singlet PQ-breaking operators Phi_PQ^p (Phi_PQ^*)^q with p != q, p + q <= scanMaxDim
+  let dMinSingletOnly = -1
   let witnessPairPQ: [number, number] = [0, 0]
   let forbiddenPqBreakingOpsBelowDMin = 0
 
   for (let d = 1; d <= scanMaxDim; d++) {
-    let foundAtD = false
-
-    for (let p = 0; p <= d; p++) {
+    for (let p = d; p >= 0; p--) {
       const q = d - p
 
       if (p === q) continue
@@ -289,28 +304,95 @@ function auditDiscretePqSymmetry(
       const netCharge = qPhi * BigInt(p - q)
 
       if (modBig(netCharge, N) === 0n) {
-        if (dMinAllowed === -1) {
-          dMinAllowed = d
+        if (dMinSingletOnly === -1) {
+          dMinSingletOnly = d
           witnessPairPQ = [p, q]
         }
-
-        foundAtD = true
-      } else if (dMinAllowed === -1) {
+      } else if (dMinSingletOnly === -1) {
         forbiddenPqBreakingOpsBelowDMin++
       }
     }
+  }
 
-    if (foundAtD && dMinAllowed === d) {
-      // Count remaining ops at d > dMin not needed; break once d_min is certified? No, finish cleanly.
+  // Exhaustive scan (B): mixed SO(10) gauge-invariant operators including (126_H)^4 (dim 4, charge +8, VEV ~ M_PS):
+  //   O_{p,q,r,s} = Phi_PQ^p (Phi_PQ^*)^q ((126_H)^4)^r ((126bar_H)^4)^s, dim = p + q + 4*(r + s),
+  //   net PQ charge = qPhi*(p - q) + 8*(r - s) != 0 and === 0 (mod N).
+  const formatMixedWitnessOp = (p: number, q: number, r: number, s: number): string => {
+    const parts: string[] = []
+
+    if (p > 0) parts.push(p === 1 ? 'Phi_PQ' : `Phi_PQ^${p}`)
+    if (q > 0) parts.push(q === 1 ? 'Phi_PQ^*' : `(Phi_PQ^*)^${q}`)
+    if (r > 0) parts.push(`(126_H)^${4 * r}`)
+    if (s > 0) parts.push(`(126bar_H)^${4 * s}`)
+    return parts.join(' * ')
+  }
+
+  let dMinMixedWith126H = -1
+  let mixedWitnessExponents: [number, number, number, number] = [0, 0, 0, 0]
+
+  for (let d = 1; d <= scanMaxDim && dMinMixedWith126H === -1; d++) {
+    const maxQuad = Math.floor(d / 4)
+
+    for (let rPlusS = 0; rPlusS <= maxQuad && dMinMixedWith126H === -1; rPlusS++) {
+      const pqSum = d - 4 * rPlusS
+
+      for (let r = rPlusS; r >= 0 && dMinMixedWith126H === -1; r--) {
+        const s = rPlusS - r
+
+        for (let p = pqSum; p >= 0 && dMinMixedWith126H === -1; p--) {
+          const q = pqSum - p
+          const netCharge = qPhi * BigInt(p - q) + 8n * BigInt(r - s)
+
+          if (netCharge === 0n) continue
+
+          if (modBig(netCharge, N) === 0n) {
+            dMinMixedWith126H = d
+            mixedWitnessExponents = [p, q, r, s]
+          }
+        }
+      }
     }
   }
 
+  const mixedWitnessOp = formatMixedWitnessOp(
+    mixedWitnessExponents[0],
+    mixedWitnessExponents[1],
+    mixedWitnessExponents[2],
+    mixedWitnessExponents[3],
+  )
+  const dMinAllowed = dMinMixedWith126H
+  const requiresGreenSchwarz = !directNonGsAnomalyFree
+
   const mPsOver3 = mPsGeV / 3
+  const log10ExpLimit = Math.log10(THETA_BAR_EXP_LIMIT)
   const deltaThetaAtMPsFullPl = deltaThetaGrav(mPsGeV, dMinAllowed, M_PLANCK_GEV)
   const deltaThetaAtMPsOver3FullPl = deltaThetaGrav(mPsOver3, dMinAllowed, M_PLANCK_GEV)
   const deltaThetaAtMPsReducedPl = deltaThetaGrav(mPsGeV, dMinAllowed, M_PLANCK_REDUCED_GEV)
+  const deltaThetaAtMPsOver3ReducedPl = deltaThetaGrav(mPsOver3, dMinAllowed, M_PLANCK_REDUCED_GEV)
   const log10DeltaThetaAtMPsFullPl = log10DeltaThetaGrav(mPsGeV, dMinAllowed, M_PLANCK_GEV)
   const log10DeltaThetaAtMPsOver3FullPl = log10DeltaThetaGrav(mPsOver3, dMinAllowed, M_PLANCK_GEV)
+  const log10DeltaThetaAtMPsReducedPl = log10DeltaThetaGrav(mPsGeV, dMinAllowed, M_PLANCK_REDUCED_GEV)
+  const log10DeltaThetaAtMPsOver3ReducedPl = log10DeltaThetaGrav(
+    mPsOver3,
+    dMinAllowed,
+    M_PLANCK_REDUCED_GEV,
+  )
+  const singletLog10DeltaThetaAtMPsFullPl = log10DeltaThetaGrav(mPsGeV, dMinSingletOnly, M_PLANCK_GEV)
+  const singletLog10DeltaThetaAtMPsReducedPl = log10DeltaThetaGrav(
+    mPsGeV,
+    dMinSingletOnly,
+    M_PLANCK_REDUCED_GEV,
+  )
+  const singletLog10DeltaThetaAtMPsOver3FullPl = log10DeltaThetaGrav(
+    mPsOver3,
+    dMinSingletOnly,
+    M_PLANCK_GEV,
+  )
+  const singletLog10DeltaThetaAtMPsOver3ReducedPl = log10DeltaThetaGrav(
+    mPsOver3,
+    dMinSingletOnly,
+    M_PLANCK_REDUCED_GEV,
+  )
 
   return {
     label,
@@ -322,17 +404,33 @@ function auditDiscretePqSymmetry(
     portalZeroModN,
     gsAnomalyUniversalExact,
     directNonGsAnomalyFree,
+    requiresGreenSchwarz,
     scanMaxDim,
     forbiddenPqBreakingOpsBelowDMin,
-    dMinAllowed,
+    dMinSingletOnly,
     witnessPairPQ,
+    dMinMixedWith126H,
+    mixedWitnessExponents,
+    mixedWitnessOp,
+    dMinAllowed,
     deltaThetaAtMPsFullPl,
     deltaThetaAtMPsOver3FullPl,
     deltaThetaAtMPsReducedPl,
+    deltaThetaAtMPsOver3ReducedPl,
     log10DeltaThetaAtMPsFullPl,
     log10DeltaThetaAtMPsOver3FullPl,
-    beatsNedmAtMPs: log10DeltaThetaAtMPsFullPl < Math.log10(THETA_BAR_EXP_LIMIT),
-    beatsNedmAtMPsOver3: log10DeltaThetaAtMPsOver3FullPl < Math.log10(THETA_BAR_EXP_LIMIT),
+    log10DeltaThetaAtMPsReducedPl,
+    log10DeltaThetaAtMPsOver3ReducedPl,
+    singletLog10DeltaThetaAtMPsFullPl,
+    singletLog10DeltaThetaAtMPsReducedPl,
+    singletLog10DeltaThetaAtMPsOver3FullPl,
+    singletLog10DeltaThetaAtMPsOver3ReducedPl,
+    beatsNedmAtMPs: log10DeltaThetaAtMPsFullPl < log10ExpLimit,
+    beatsNedmAtMPsOver3: log10DeltaThetaAtMPsOver3FullPl < log10ExpLimit,
+    beatsNedmAtMPsReducedPl: log10DeltaThetaAtMPsReducedPl < log10ExpLimit,
+    beatsNedmAtMPsOver3ReducedPl: log10DeltaThetaAtMPsOver3ReducedPl < log10ExpLimit,
+    singletBeatsNedmAtMPsReducedPl: singletLog10DeltaThetaAtMPsReducedPl < log10ExpLimit,
+    singletBeatsNedmAtMPsOver3ReducedPl: singletLog10DeltaThetaAtMPsOver3ReducedPl < log10ExpLimit,
   }
 }
 
@@ -423,7 +521,7 @@ function runPart1Z36PqQuality(
 
   // 4. Exhaustive Planck-suppressed PQ-breaking operator audits
   const z36Q2RenormalizablePortal = auditDiscretePqSymmetry(
-    'Z_36 (Z_9 x Z_4) with q(Phi_PQ) = +2 (renormalizable dim-4 portal Phi_PQ^2 10_H^2)',
+    'Z_36 (postulated, GS anomalous) with q(Phi_PQ) = +2 (d_min = 18 survives mixed (126_H)^4)',
     36,
     2,
     mPsGeV,
@@ -434,7 +532,7 @@ function runPart1Z36PqQuality(
     24,
   )
   const z36Q1MaxProtection = auditDiscretePqSymmetry(
-    'Z_36 (Z_9 x Z_4) with q(Phi_PQ) = +1 (maximal d_min = 36 protection)',
+    'Z_36 (postulated, GS anomalous) with q(Phi_PQ) = +1 (singlet d=36 FALSIFIED by mixed dim-20 Phi_PQ^4 (126_H)^16)',
     36,
     1,
     mPsGeV,
@@ -445,7 +543,7 @@ function runPart1Z36PqQuality(
     36,
   )
   const z18Q1NativeSubgroup = auditDiscretePqSymmetry(
-    'Z_18 (zeta_18 = -zeta_9^5 subgroup) with q(Phi_PQ) = +1',
+    'Z_18 (postulated, GS anomalous) with q(Phi_PQ) = +1 (singlet d=18 falsified by mixed dim-10 Phi_PQ^2 (126_H)^8)',
     18,
     1,
     mPsGeV,
@@ -456,7 +554,7 @@ function runPart1Z36PqQuality(
     24,
   )
   const z12Q1AnomalyFreeSubgroup = auditDiscretePqSymmetry(
-    'Z_12 (Z_3 x Z_4 direct anomaly-free subgroup) with q(Phi_PQ) = +1',
+    'Z_12 (only directly anomaly-free subgroup) with q(Phi_PQ) = +1 (singlet d=12 fails nEDM at M_PS under M_Pl_red; mixed dim-8)',
     12,
     1,
     mPsGeV,
@@ -490,6 +588,11 @@ function runPart1Z36PqQuality(
   const pure126Bar4kDMinZ36 = minPure126Dim(36n) // 36
   const pure126Bar4kDMinZ18 = minPure126Dim(18n) // 36
   const pure126Bar4kDMinZ12 = minPure126Dim(12n) // 12
+  const z36RequiresGreenSchwarz = z36Q2RenormalizablePortal.requiresGreenSchwarz
+  const z18RequiresGreenSchwarz = z18Q1NativeSubgroup.requiresGreenSchwarz
+  const z12SingletFailsNedmAtMPsReducedPl =
+    !z12Q1AnomalyFreeSubgroup.singletBeatsNedmAtMPsReducedPl &&
+    z12Q1AnomalyFreeSubgroup.singletBeatsNedmAtMPsOver3ReducedPl
 
   const allQualityGatesPassed =
     zeta9ExactOrder === 9 &&
@@ -499,16 +602,26 @@ function runPart1Z36PqQuality(
     z18SubgroupOrderExact === 18 &&
     z12SubgroupOrderExact === 12 &&
     so10AnomalyUniversalityExact &&
+    z36RequiresGreenSchwarz &&
+    z18RequiresGreenSchwarz &&
     z12DirectAnomalyFreeExact &&
+    z36Q2RenormalizablePortal.dMinSingletOnly === 18 &&
+    z36Q2RenormalizablePortal.dMinMixedWith126H === 18 &&
     z36Q2RenormalizablePortal.dMinAllowed === 18 &&
     z36Q2RenormalizablePortal.portalZeroModN &&
     z36Q2RenormalizablePortal.log10DeltaThetaAtMPsFullPl < -50 &&
-    z36Q1MaxProtection.dMinAllowed === 36 &&
-    z36Q1MaxProtection.log10DeltaThetaAtMPsFullPl < -200 &&
-    z18Q1NativeSubgroup.dMinAllowed === 18 &&
-    z18Q1NativeSubgroup.log10DeltaThetaAtMPsFullPl < -50 &&
-    z12Q1AnomalyFreeSubgroup.dMinAllowed === 12 &&
-    z12Q1AnomalyFreeSubgroup.log10DeltaThetaAtMPsOver3FullPl < -12 &&
+    z36Q2RenormalizablePortal.log10DeltaThetaAtMPsReducedPl < -50 &&
+    z36Q1MaxProtection.dMinSingletOnly === 36 &&
+    z36Q1MaxProtection.dMinMixedWith126H === 20 &&
+    z36Q1MaxProtection.dMinAllowed === 20 &&
+    z36Q1MaxProtection.mixedWitnessOp === 'Phi_PQ^4 * (126_H)^16' &&
+    z36Q1MaxProtection.log10DeltaThetaAtMPsFullPl < -70 &&
+    z36Q1MaxProtection.log10DeltaThetaAtMPsReducedPl < -60 &&
+    z18Q1NativeSubgroup.dMinSingletOnly === 18 &&
+    z18Q1NativeSubgroup.dMinMixedWith126H === 10 &&
+    z12Q1AnomalyFreeSubgroup.dMinSingletOnly === 12 &&
+    z12Q1AnomalyFreeSubgroup.dMinMixedWith126H === 8 &&
+    z12SingletFailsNedmAtMPsReducedPl &&
     controlZ6Q1FailsCatastrophically.dMinAllowed === 6 &&
     controlZ6Q1FailsCatastrophically.log10DeltaThetaAtMPsFullPl > 30
 
@@ -535,6 +648,8 @@ function runPart1Z36PqQuality(
     twoA2_3GenExact,
     twoA1_3GenExact,
     so10AnomalyUniversalityExact,
+    z36RequiresGreenSchwarz,
+    z18RequiresGreenSchwarz,
     z12DirectAnomalyFreeExact,
     mPsGeV,
     mPsOver3GeV: mPsGeV / 3,
@@ -543,6 +658,7 @@ function runPart1Z36PqQuality(
     z18Q1NativeSubgroup,
     z12Q1AnomalyFreeSubgroup,
     controlZ6Q1FailsCatastrophically,
+    z12SingletFailsNedmAtMPsReducedPl,
     pure126Bar4kDMinZ36,
     pure126Bar4kDMinZ18,
     pure126Bar4kDMinZ12,
@@ -635,6 +751,7 @@ export type Part2HiggsHessianClosureReport = {
   readonly minHeavyMassRatio: number
   readonly maxHeavyMassRatio: number
   readonly allHeavyRatiosWithinOneThirdToThree: boolean
+  readonly allHeavyRatiosWithinOneQuarterToFour: boolean
   // 2-loop SO(10) -> PS -> SM -> QED closure predictions from exact Hessian eigenmasses
   readonly deltaGutApplied: Vec3
   readonly predAlphaEmInvZero: number
@@ -646,7 +763,7 @@ export type Part2HiggsHessianClosureReport = {
   readonly predAlpha3Mz: number
   readonly predAlpha3Err: number
   readonly maxObservableErr: number // < 1e-12!
-  // Negative Control 1: Degenerate quartics (all heavy M_h = M_GUT) recovers E-FRC-0329 zero-fit 130.58 (-4.71%)
+  // Negative Control 1: Degenerate quartics (all heavy M_h = M_GUT) recovers E-FRC-0329 canonical zero-fit 128.73 (-6.06%)
   readonly controlDegenerateAlphaZero: number
   readonly controlDegenerateRelPct: number
   readonly controlDegenerateMatchE329Err: number // <= 1e-12
@@ -655,8 +772,9 @@ export type Part2HiggsHessianClosureReport = {
   readonly controlTachyonDetected: boolean
 }
 
-// Explicit dimensionless scalar potential V(x) (in units of M_GUT^4 = 1 for the GUT sector and M_PS^4 = 1 for
-// the decoupled PS sector, with exact gauge-invariant SO(10) 210_H + 126_H + 10_H structure):
+// 11-scalar diagonal toy Higgs-potential Hessian proxy (NOT the full 472-component SO(10) tensor potential,
+// and explicitly OMITTING the 120_H representation used in Part 3; performs a 3-for-3 quartic fit to 3 SM
+// gauge targets, with DELTA_MSBAR_TO_OS_PDG mapping 127.951 identically to CODATA 137.035999177):
 // Coordinates x[0..10]:
 //   0: Phi_0      (1,1,1)_R   in 210_H   (VEV = v_GUT)
 //   1: G_24       (6,2,2)_R   in 210_H   (24 eaten SO(10)/PS Goldstones)
@@ -777,7 +895,8 @@ function analyzeHiggsPotentialHessian(
   hAna[10 * n + 10] = 0.5 * p.lambda2 * vp2 // Delta_c charged/colored PS scalars
 
   // 3. Numerical 11x11 Hessian via 4th-order central finite differences (diagonal & off-diagonal)
-  const hh = 1e-4
+  // Using hh = 1e-3 has identically zero truncation error for this degree-4 polynomial while cutting roundoff by 100x.
+  const hh = 1e-3
   const hNum = new Float64Array(n * n)
   const v0 = evalHiggsPotential(xVac, p, vGut, vPs)
 
@@ -960,13 +1079,13 @@ function runPart2HiggsHessianClosure(
     psTargetAtGut[2] - alphaGutMsBarInvD4Blm - deltaGutConst[2],
   ]
 
-  // Fix natural O(1) VEV scale v_GUT / M_GUT = 1.22 / g_GUT (so M_V = g_GUT v_GUT = 1.22 M_GUT),
-  // lambda_1 = 0.30 (radial 210_H), alpha_mix = 0.06 (210_H * 126_H * 10_H mixing of the two (6,1,1)_C),
-  // and solve deterministically via damped 3D Newton for (lambda_2, lambda_3, lambda_4) closing all 3 gauge couplings!
-  const rV = 1.22
+  // Fix natural O(1) VEV scale v_GUT / M_GUT = 1.25 / g_GUT (so M_V = g_GUT v_GUT = 1.25 M_GUT, matching canonical
+  // single-face K_eff = 1.012532 threshold shift), lambda_1 = 0.30 (radial 210_H), alpha_mix = 0.05, and solve
+  // deterministically via damped 3D Newton for (lambda_2, lambda_3, lambda_4) closing all 3 SM gauge couplings!
+  const rV = 1.25
   const vGutOverMGut = rV / gGut
   const lambda1 = 0.3
-  const alphaMix = 0.06
+  const alphaMix = 0.05
 
   const thresholdFromHessian = (
     p: HiggsQuarticParams,
@@ -1271,6 +1390,7 @@ function runPart2HiggsHessianClosure(
     minHeavyMassRatio,
     maxHeavyMassRatio,
     allHeavyRatiosWithinOneThirdToThree: minHeavyMassRatio >= 1 / 3 && maxHeavyMassRatio <= 3,
+    allHeavyRatiosWithinOneQuarterToFour: minHeavyMassRatio >= 0.25 && maxHeavyMassRatio <= 4,
     deltaGutApplied,
     predAlphaEmInvZero: ev.a0,
     predAlphaEmInvZeroErr,
@@ -2060,18 +2180,18 @@ export type Part3Yukawa120HReport = {
   readonly r3: number
   readonly cR: number
   readonly seDiagSolvedFromKoideAndG: Vec3
-  // Chi^2 improvement over E-FRC-0330
+  // Chi^2 improvement over E-FRC-0330 (evaluated with synthetic 2%-12% residual weights, NOT raw PDG sigma)
   readonly chi2E330Baseline: number // 87.9664
-  readonly chi2With120H: number // ~0.616 (< 5!)
-  readonly chi2PerDof: number // ~0.077 (< 1!)
-  readonly chi2ImprovementFactor: number // ~143x
-  readonly maxIndividualPullPct: number // ~2.85% (< 5%!)
+  readonly chi2With120H: number // ~0.565 (< 5!)
+  readonly chi2PerDof: number // ~0.071 (< 1!)
+  readonly chi2ImprovementFactor: number // ~155.6x
+  readonly maxIndividualPullPct: number // ~2.92% (< 5%!)
   // Sector observables
   readonly leptonPoleMaxRelErr: number // < 1e-4 (0.006%)
   readonly leptonPoleKoideQ: number // exact 2/3
   readonly leptonGutMaxRelErrFromKoide: number // <= 1e-13
   readonly downGutGeV: Vec3
-  readonly downGutRelErrPct: Vec3 // (+0.52%, +2.85%, -0.29%)
+  readonly downGutRelErrPct: Vec3 // (+0.40%, +2.92%, -0.25%)
   readonly upGutGeV: Vec3
   readonly upGutRelErrPct: Vec3 // (+0.03%, +0.15%, -0.02%)
   readonly ckmMzVus: number
@@ -2420,21 +2540,23 @@ function runPart3Yukawa120H(
   // Negative Control 2: Real Yukawa control (zeta_9 -> 1, real H, F, G, r_2, r_3) -> exact J_CKM = 0, J_PMNS = 0!
   const evReal = buildAndEvaluate(opt.x, false, false, [meKoideGut[0], meKoideGut[1], meKoideGut[2]])!
 
-  // Honest 100%-transparent parameter ledger (14 continuous real params across 22 observables -> +8 overdetermination!)
+  // Transparent parameter ledger: 14 continuous real params PLUS 11 discrete Z_9 exponents (9^11 = 3.14e10 basins)
+  // fitted with synthetic 2%-12% residual weights against 18 genuinely measured SM observables (22 listed quantities
+  // including dependent Koide/unitarity relations). Internal EFT tension: 120_H (S_2=(28,28,28)) is absent from Part 2.
   const ledgerEntries: readonly FlavorParameterLedgerRow[] = [
     {
       sector: 'so10_and_koide_role_theorems',
       tier: 'zero_param_theorem',
       count: 0,
       description:
-        '3 x 16 = 48 chiral Spin(10) fermions (E-FRC-0324), dynamically locked (r = sqrt(2), delta = +2/9) Koide spectrum (E-FRC-0330 Part 1), 16 x 16 = 10_S + 126_S + 120_A with pure (1,2,2) Clebsch c_e = c_D = +1 and M_R = c_R F pure 126bar_H, and 2-loop M_GUT = 7.95e15 GeV RG running',
+        '3 x 16 = 48 chiral Spin(10) fermions (E-FRC-0324), illustrative phenomenological (r = sqrt(2), delta = +2/9) Koide spectrum (E-FRC-0330 Part 1), 16 x 16 = 10_S + 126_S + 120_A with pure (1,2,2) Clebsch c_e = c_D = +1 and M_R = c_R F pure 126bar_H, and 2-loop M_GUT = 7.95e15 GeV RG running (120_H omitted from Part 2 RGEs/Hessian)',
     },
     {
       sector: 'discrete_zeta9_cp_phases',
       tier: 'discrete_structural_input',
-      count: 10,
+      count: 11,
       description:
-        'Ten nontrivial discrete Z[zeta_9] ninth-root phase exponents (6 on symmetric S_d [5,6,8,3,7,3], 1 on r_2 [1], 3 on antisymmetric G [8,1,8]; r_3 is real [0]) generating 100% of CKM and PMNS CP violation with ZERO continuous CP phases',
+        'Eleven discrete Z[zeta_9] ninth-root phase exponents (6 on symmetric S_d [5,6,8,3,7,3], 1 on r_2 [1], 3 on antisymmetric G [8,1,8], 1 on r_3 [0], spanning 9^11 = 3.14e10 discrete basins) generating CKM and PMNS CP violation without continuous phase parameters',
     },
     {
       sector: 'charged_lepton_koide_scale',
@@ -2492,7 +2614,7 @@ function runPart3Yukawa120H(
     nObservables,
     nContinuousRealParams,
     nContinuousCpPhases: 0,
-    nDiscreteZeta9Exponents: 10,
+    nDiscreteZeta9Exponents: 11,
     netOverdetermination,
     dof: netOverdetermination,
     clebschCe,

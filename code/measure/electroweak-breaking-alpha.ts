@@ -36,7 +36,7 @@
 //     SM RGE via RK4 from M_Z = 91.1876 GeV up to M_GUT and back down from sin^2(theta_W)_GUT = 3/8,
 //     certifies round-trip reversibility (<= 1e-12), reports the famous non-SUSY 1-Higgs meeting
 //     mismatch transparently, and audits alpha against Vibe Theory's own lattice invariants
-//     (G_eff = 0.077167, K_eff = 1.031237, |W(F4)| = 1152, |Sigma(648)| = 648) using E-MTH-0021's
+//     (G_eff = 0.078593, K_eff = 1.012532 canonical single-face [1, 4, 20, 100], |W(F4)| = 1152, |Sigma(648)| = 648) using E-MTH-0021's
 //     pre-registered null judge (refusing both numerology controls and reporting honestly that
 //     zero free-parameter lattice candidates hit CODATA 1/137.035999177, while natural bare
 //     alpha_bare ~ 1/(4 pi * 3.35) ~ 1/42 runs across ~15 decades to alpha(M_Z) ~ 1/128 and alpha(0) ~ 1/137).
@@ -57,7 +57,10 @@ import {
   namedFormChance,
   weylPoint,
 } from '@/code/measure/integer-relation'
-import { EXACT_COLUMN_SHELL_COUNTS } from '@/code/measure/pair-density-gravity-slope'
+import {
+  EXACT_COLUMN_SHELL_COUNTS,
+  singleFaceLateralLinksPerNeighbor,
+} from '@/code/measure/pair-density-gravity-slope'
 import {
   analyzeSo10ThreeGenerations,
   rat,
@@ -1209,7 +1212,8 @@ export type TwoLoopRgAndAlphaReport = {
   readonly exactAlphaRemainsOpen: boolean
 }
 
-// Compute exact {3,4,3,4} pair-density Riccati stiffness K_eff and G_eff = 1 / (4 pi K_eff)
+// Compute canonical unaliased single-face {3,4,3,4} pair-density Riccati stiffness K_eff = 1.01253212
+// and G_eff = 1 / (4 pi K_eff) = 0.07859254 (lateral links [1, 4, 20, 100], cumulative 5^D, matching E-GRV-0157)
 function computeLatticeKEffGEff(floorF = 24): { readonly kEff: number; readonly gEff: number } {
   const rVol = EXACT_COLUMN_SHELL_COUNTS[3] / EXACT_COLUMN_SHELL_COUNTS[2]
   const nShell = new Float64Array(floorF + 2)
@@ -1228,7 +1232,7 @@ function computeLatticeKEffGEff(floorF = 24): { readonly kEff: number; readonly 
   for (let d = 0; d <= floorF; d++) {
     const nd = nShell[d]!
     const nd1 = nShell[d + 1]!
-    const lat = d === 0 ? 1 : d === 1 ? 10 : 8 * 5 ** (d - 1)
+    const lat = singleFaceLateralLinksPerNeighbor(d)
 
     cLat[d] = lat / (nd * nd)
     cVert[d] = 18 / nd1

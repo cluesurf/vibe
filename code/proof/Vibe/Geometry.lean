@@ -1,16 +1,21 @@
 import Vibe.Algebra
 
 /-!
-# Vibe Theory: `{3,4,3,4}` Warped Cusp Geometry, Causality & 4D `D_4` Lattice Theorems
+# Vibe Theory: Conditional Warped Cusp Geometry, Causality & 4D `D_4` Lattice Theorems
 
-- Theorem 5: `1/N_D^2` column resistance divergence `17 R(F) + 1 ≥ 18^F` (`∀ F`) and
-  exact `{3,4,3,4}` single-face lateral link bound `cuspLateralLinks D < N D` (`∀ D ≥ 1`).
+- Theorem 5: Conditioned on the shell-growth hypotheses `h0 : N 0 ≥ 1`, `hstep : ∀ D, N (D + 1) ≥ 18 * N D`
+  (verified by exact `{3,4,3,4}` enumeration through `D = 3`, not derived from the Coxeter group inside Lean)
+  and the canonical single-face formula `cuspLateralLinks` (`1, 4, 20, 100, ...`, excluding the aliased
+  `period = 2` sequence): `1/N_D^2` column resistance divergence `17 R(F) + 1 ≥ 18^F` (`∀ F`) and
+  single-face lateral link bound `cuspLateralLinks D < N D` (`∀ D ≥ 1`).
 - Theorem 6: Shared-column Rayleigh-quotient scale invariance `(s K_eff)/(s M_eff) = K_eff / M_eff`
-  and direct derivation of strict subluminality `K_eff < M_eff` for EVERY weighted `{3,4,3,4}`
-  column at depth `F ≥ 2` (NOT assumed as an external hypothesis).
+  and conditional derivation of strict subluminality `K_eff < M_eff` for every canonical single-face
+  weighted column at depth `F ≥ 2` (given `h0`, `hstep`, and positive cleared-integer weights `w : Nat → Nat`).
 - Explicit 24-vector `D_4` root-system geometry: exact 256-component Celmaster (1982) rank-4
   `SO(4)` isotropy (with `ℤ^4` negative control), exact triangular plaquette enumeration, and
-  infinite-volume 4D `D_4` site-hyperplane reflection positivity (zero straddling triangles).
+  the combinatorial zero-straddling-triangle geometric premise for infinite-volume 4D `D_4`
+  site-hyperplane reflection positivity (compact gauge groups, Haar measure, and Osterwalder-Seiler
+  measure-theoretic reflection positivity follow externally via Osterwalder & Seiler 1978, Theorem 2.1).
 -/
 
 set_option autoImplicit false
@@ -235,9 +240,12 @@ def cuspWarpedColumn (N w : Nat → Nat) (F : Nat) (hF : F ≥ 1)
     exact Nat.mul_pos (hw D) hND
   hK := fun D _ => Nat.mul_pos (hw D) (cuspLateralLinks_pos D)
 
-/-- Theorem 6b: Direct `{3,4,3,4}` strict subluminality (`K_eff < M_eff`, hence `cUniversalSq < 1`
-    and every rescaled Rayleigh quotient `< 1`) for EVERY floor `F ≥ 2` and EVERY positive weight
-    profile `w D > 0`, proved directly from `thm5_cusp_lateral_lt_shell` without assuming `K_eff < M_eff`. -/
+/-- Theorem 6b: Conditional canonical single-face strict subluminality (`K_eff < M_eff`, hence
+    `cUniversalSq < 1` and every rescaled Rayleigh quotient `< 1`) for EVERY floor `F ≥ 2` and EVERY
+    positive cleared-integer weight profile `w D > 0` (covering any positive rational warp profile
+    after clearing denominators), proved directly from `thm5_cusp_lateral_lt_shell` conditioned on
+    `h0 : N 0 ≥ 1`, `hstep : ∀ D, N (D + 1) ≥ 18 * N D`, and canonical single-face `cuspLateralLinks`
+    (does not cover the aliased `period = 2` sequence). -/
 theorem thm6_strictly_subluminal (N w : Nat → Nat) (F : Nat) (hF : F ≥ 2)
     (h0 : N 0 ≥ 1) (hstep : ∀ D : Nat, N (D + 1) ≥ 18 * N D)
     (hw : ∀ D : Nat, w D > 0) (s : Nat) (hs : s > 0) :
@@ -262,7 +270,7 @@ theorem thm6_strictly_subluminal (N w : Nat → Nat) (F : Nat) (hF : F ≥ 2)
   exact ⟨hSub, hSub, PosRat.ltOne_of_scale s _ _ hs (cuspWarpedColumn N w F (by omega) h0 hstep hw).mEff_pos hSub⟩
 
 
-/-! ## Explicit 4D `D_4` Root System: Rank-4 `SO(4)` Isotropy, Triangles & Reflection Positivity -/
+/-! ## Explicit 4D `D_4` Root System: Rank-4 `SO(4)` Isotropy, Triangles & Zero-Straddling Premise -/
 
 /-- Exact 4D integer lattice coordinate vector `(x_0, x_1, x_2, x_3) ∈ ℤ^4`. -/
 abbrev Vec4 := Int × Int × Int × Int
@@ -346,15 +354,15 @@ private theorem d4Roots_abs_x0_le_one :
     ∀ r ∈ d4Roots, -1 ≤ r.1 ∧ r.1 ≤ 1 := by
   decide
 
-/-- Exact infinite-volume 4D `D_4` site-hyperplane reflection positivity (Osterwalder-Seiler):
-    for ANY three 4D lattice sites `v0, v1, v2 ∈ ℤ^4` forming a `D_4` triangular plaquette
-    (`v1 - v0 ∈ d4Roots`, `v2 - v0 ∈ d4Roots`, `v2 - v1 ∈ d4Roots`), NO two vertices lie on
-    strictly opposite sides of the `x_0 = 0` reflection hyperplane.
-    Hence ZERO triangles straddle `x_0 = 0` in the entire infinite 4D `D_4` lattice, giving
-    exact action decomposition `S = S_+ + S_0 + Θ S_+ = (S_+ + (1/2) S_0) + Θ (S_+ + (1/2) S_0)`
-    for all gauge couplings `β ≥ 0`, where `S_0` sums the in-hyperplane triangles lying wholly
-    inside `x_0 = 0` (`200` in the `L = 4` slab enumeration), which are real and `Θ`-fixed and
-    therefore preserve exact site-reflection positivity. -/
+/-- Combinatorial zero-straddling-triangle geometric premise for infinite-volume 4D `D_4`
+    site-hyperplane reflection positivity: for ANY three 4D lattice sites `v0, v1, v2 ∈ ℤ^4` forming
+    a `D_4` triangular plaquette (`v1 - v0 ∈ d4Roots`, `v2 - v0 ∈ d4Roots`, `v2 - v1 ∈ d4Roots`),
+    NO two vertices lie on strictly opposite sides of the `x_0 = 0` reflection hyperplane.
+    Hence ZERO triangles straddle `x_0 = 0` in the entire infinite 4D `D_4` lattice, establishing the
+    geometric half-space action partition `S = S_+ + S_0 + Θ S_+ = (S_+ + (1/2) S_0) + Θ (S_+ + (1/2) S_0)`
+    from which measure-theoretic Osterwalder-Seiler site-reflection positivity follows externally by
+    Osterwalder & Seiler (1978, Theorem 2.1). (Compact gauge groups, Haar measure, and gauge functionals
+    are not formalized inside Lean.) -/
 theorem thm_d4_no_straddling_triangles (v0 v1 v2 : Vec4)
     (h01 : sub4 v1 v0 ∈ d4Roots)
     (h02 : sub4 v2 v0 ∈ d4Roots)
