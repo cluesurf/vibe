@@ -38,61 +38,38 @@ pnpm install
 pnpm check:lean
 ```
 
-## The Core Tier A Microscopic Model in One Exact File (`test/universe.ts`)
+## The Core Model (`test/universe.ts`)
 
-Every dock of `{3,4,3,4}` carries 24 directional slots along the roots
-of $D_4$ (12 antipodal lines), each holding a signed ternary tone in
-`{−1, 0, +1}` with a 9-state role index above the neutral (quiescent)
-mesh state $|V_1\rangle$. One reversible beat advances exact
-`ℤ[ζ₉][1/6]` amplitudes by the palindromic 8-layer operator (six
-distinct unitary gates, with $C_{1/2}^2 = C$ implemented as
-`applyHalfCoinD` and pairwise-commuting $M_{\mathrm{meet}}$,
-$M_{\mathrm{pair}}(\zeta_{18})$, and $K$):
+[`test/universe.ts`](test/universe.ts) is the standalone, zero-import
+core kernel for the bare QCA (the trivial-gauge sector, while gauge
+links and extended stores live in [`code/rule/`](code/rule/)). It runs
+in under `0.2 s` with exact `BigInt` arithmetic in `ℤ[ζ₉][1/6]`, zero
+floats, and zero PRNGs.
 
-$$U = S \circ \Phi_{\mathrm{odd}} \circ C_{1/2} \circ M_{\mathrm{meet}} \circ M_{\mathrm{pair}}(\zeta_{18}) \circ K \circ C_{1/2} \circ \Phi_{\mathrm{odd}}$$
-
-Here $\Phi_{\mathrm{odd}}$ is applied palindromically at layers 1 and 7
-with the canonical $W(F_4) \times \mathbb{Z}_2^{\mathcal{C}}$ orbit
-invariant $\chi_{\mathrm{odd}}$ (matching `code/rule/value-phase.ts`),
-and $C_{1/2}$ symmetrically splits the commuting central collision block
-so lone excitations see $C_{1/2}^2 = C$.
-[`test/universe.ts`](test/universe.ts) runs this exact trivial-gauge
-core Tier A QCA kernel (Tier B `Σ(648)` gauge links and multi-line $w_P$
-dock stores live in [`code/rule/`](code/rule/)).
-
-Running `npx tsx test/universe.ts` executes the entire zero-import,
-Prettier- and ESLint-formatted core kernel in `< 0.2 s` with pure
-`BigInt` arithmetic, verifying `D₄` rank-4 `SO(4)` isotropy
-(`12 = 3 × 4`, defect `0`), exact `{3,4,3,4}` `O⁺(4,1; ℤ[√2])` Coxeter
-shells `[1, 24, 456]` (`det(Tₛ) = −1` on `24/24` slots,
-`parity = det(frame)` on `481/481` docks, `inconsistentSteps = 0`),
-stationarity of the neutral mesh state $|V_1\rangle$, 1-vibe and
-identical-tone/identical-role 2-vibe evolution strictly past `R = 3` to
-`r = 4` (`−2B = 1154 > 198`), $M_{\mathrm{pair}}(\zeta_{18})$ with its
-equal-tone and equal-role guard, canonical $\chi_{\mathrm{odd}}$ under
-$W(F_4) \times \mathbb{Z}_2^{\mathcal{C}}$ (`|W(F₄)| = 1,152`,
-`k = 1..3` orbits `[1, 8, 29]` with `0` chiral and `k* = 4`), full
-proper `W(F₄)⁺` covariance (4 generators, closure order `576`, 7 states,
-`covDiff = 0`), exact discrete `T`, `CP`, and `CPT` invariance (`0`)
-alongside genuine `C` and `P` violation (`12/8`), exact unit norm, and
-exact memoryless reversal (`0`).
-
-[`test/universe.ts`](test/universe.ts) is structured top-down so the
-entry point, palindromic 8-layer beat, and six physical operators appear
-right at the top, followed by verification checks and the pure `ℤ[ζ₉]`
-and `O⁺(4,1; ℤ[√2])` helpers:
+- **Space:** Each dock on the 4D `{3,4,3,4}` honeycomb has 24
+  directional slots (12 antipodal lines along the roots of `D₄`). Each
+  slot holds a ternary tone in `{-1, 0, +1}` plus a 9-state role index,
+  where `0` is the neutral quiescent mesh.
+- **One beat:** A single reversible step applies 8 layers (6 distinct
+  unitary gates) in palindromic order, with `applyBeatInverse` running
+  their exact adjoints in reverse.
+- **Self-checks:** Running `npx tsx test/universe.ts` verifies `D₄`
+  isotropy, `{3,4,3,4}` Coxeter shell counts `[1, 24, 456]`, neutral
+  mesh stationarity, exact `W(F₄)⁺` covariance, exact `T`, `CP`, and
+  `CPT` invariance alongside genuine `C` and `P` breaking, exact unit
+  norm, and exact memoryless reversal.
 
 ```ts
-// Execution order (right-to-left of U = S o Phi_odd o D o M_meet o M_pair(zeta_18) o K o D o Phi_odd):
+// One reversible beat (applied top to bottom):
 const BEAT_LAYERS: readonly LayerOp[] = [
-  applyOddChiralPhase, // 1. Scale-4 chiral 4-body phase Phi_odd (canonical W(F_4) x Z_2^C chi_odd)
-  applyHalfCoinD, // 2. Half-coin C_{1/2} (Strang split)
-  applyOppositeSignBounce, // 3. Opposite-sign bounce K (K^dag = K)
-  applyPairLineMixer, // 4. W(F_4)-isotropic M_pair(zeta_18)
-  applyRoleMeet, // 5. Like-sign role meeting M_meet
-  applyHalfCoinD, // 6. Second half-coin C_{1/2} (C_{1/2}^2 = C on lone lines)
-  applyOddChiralPhase, // 7. Palindromic Scale-4 chiral 4-body phase Phi_odd
-  applyStream, // 8. Exact O^+(4,1; Z[sqrt(2)]) stream S
+  applyOddChiralPhase,     // 1. Scale-4 chiral 4-body phase (Phi_odd)
+  applyHalfCoinD,          // 2. First half-coin (Strang split)
+  applyOppositeSignBounce, // 3. Opposite-sign bounce (K)
+  applyPairLineMixer,      // 4. Pair line mixer (M_pair)
+  applyRoleMeet,           // 5. Like-sign role meeting (M_meet)
+  applyHalfCoinD,          // 6. Second half-coin
+  applyOddChiralPhase,     // 7. Palindromic chiral phase (Phi_odd)
+  applyStream,             // 8. Exact hyperbolic stream across docks (S)
 ]
 
 function applyBeat(state: State): State {
@@ -105,8 +82,6 @@ function applyBeatInverse(state: State): State {
     .reduce((cur, layer) => layer(cur, true), state)
 }
 ```
-
-Complete [`test/universe.ts`](test/universe.ts) code.
 
 ## Repository Layout and Negative-Result Discipline
 
@@ -122,13 +97,13 @@ A/B/C runs above.
 - [`test/universe.ts`](test/universe.ts): standalone, zero-import,
   pure-`BigInt` core Tier A microscopic QCA (Prettier- and
   ESLint-formatted top-down, `< 0.2 s`)
-- [`code/proof/Vibe/`](code/proof/Vibe/): 9 zero-dependency Lean
-  `4.35.0` proof modules plus root aggregator `Vibe.lean` (`141`
-  headline / `160` public theorems, `pnpm check:lean`, fail-closed)
-- [`test/breakthrough/`](test/breakthrough/): 12 standalone zero-import
+- [`code/proof/Vibe/`](code/proof/Vibe/): 20 zero-dependency Lean
+  `4.35.0` proof modules plus root aggregator `Vibe.lean` (`301`
+  headline / `321` public theorems, `pnpm check:lean`, fail-closed)
+- [`test/breakthrough/`](test/breakthrough/): 26 standalone zero-import
   verification scripts for scattering, bare universality, 1-hop horizon
   crossing, finite-range domain wall, Cayley-4-form SMG, Nelson-Barr CP,
-  and 24-cell Combes-Thomas mass-gap audits
+  holographic codes, causal foliations, and 24-cell `D₄` mass-gap audits
 - [`code/`](code/): Coxeter `{3,4,3,4}` engine, exact cyclotomic QCA
   rules, operators, and measurement library
 - [`test/experiment/`](test/experiment/): deterministic registered
@@ -162,7 +137,7 @@ pnpm result E-FND-0188
 npx tsx test/breakthrough/combes-thomas-d4-mass-gap.ts
 npx tsx test/breakthrough/horizon-one-hop.ts
 
-# Verify the Lean 4.35.0 proof suite (9 modules, 141 headline theorems)
+# Verify the Lean 4.35.0 proof suite (20 modules, 301 headline theorems)
 pnpm check:lean
 pnpm check:lean -- --no-build   # structural + BigInt audit without Lean installed
 
