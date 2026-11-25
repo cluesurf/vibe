@@ -151,7 +151,9 @@ private theorem cg_z2_mul_assoc (x y z : ZSqrt2) :
   simp only [ZSqrt2.mul, ZSqrt2.mk.injEq, Int.add_mul, Int.mul_add, Int.mul_assoc]
   have h1 : xa * (2 * (yb * zb)) = 2 * (xa * (yb * zb)) := by
     rw [← Int.mul_assoc xa 2 (yb * zb), Int.mul_comm xa 2, Int.mul_assoc 2 xa (yb * zb)]
-  rw [h1]
+  have h2 : xb * (2 * (yb * zb)) = 2 * (xb * (yb * zb)) := by
+    rw [← Int.mul_assoc xb 2 (yb * zb), Int.mul_comm xb 2, Int.mul_assoc 2 xb (yb * zb)]
+  rw [h1, h2]
   exact ⟨by omega, by omega⟩
 
 private theorem cg_z2_scale_eq_mul_ofInt (k : Int) (x : ZSqrt2) :
@@ -164,15 +166,33 @@ private theorem cg_z2_mul_ofInt_right (x : ZSqrt2) (k : Int) :
     ZSqrt2.mul x (ZSqrt2.ofInt k) = ZSqrt2.scale k x := by
   rw [cg_z2_mul_comm, ← cg_z2_scale_eq_mul_ofInt]
 
-private theorem cg_sum5_add (f g : Fin 5 → ZSqrt2) :
-    sum5 (fun k => ZSqrt2.add (f k) (g k)) = ZSqrt2.add (sum5 f) (sum5 g) := by
-  unfold sum5
+private theorem cg_sum5_add_aux (f0 f1 f2 f3 f4 g0 g1 g2 g3 g4 : ZSqrt2) :
+    ZSqrt2.add
+      (ZSqrt2.add
+        (ZSqrt2.add
+          (ZSqrt2.add (ZSqrt2.add f0 g0) (ZSqrt2.add f1 g1))
+          (ZSqrt2.add f2 g2))
+        (ZSqrt2.add f3 g3))
+      (ZSqrt2.add f4 g4) =
+    ZSqrt2.add
+      (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add f0 f1) f2) f3) f4)
+      (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add g0 g1) g2) g3) g4) := by
   have swap4 : ∀ a b c d : ZSqrt2,
       ZSqrt2.add (ZSqrt2.add a b) (ZSqrt2.add c d) = ZSqrt2.add (ZSqrt2.add a c) (ZSqrt2.add b d) := by
     intro a b c d
     rw [cg_z2_add_assoc a b (ZSqrt2.add c d), ← cg_z2_add_assoc b c d, cg_z2_add_comm b c,
         cg_z2_add_assoc c b d, ← cg_z2_add_assoc a c (ZSqrt2.add b d)]
-  rw [swap4, swap4, swap4, swap4]
+  rw [swap4 f0 g0 f1 g1,
+      swap4 (ZSqrt2.add f0 f1) (ZSqrt2.add g0 g1) f2 g2,
+      swap4 (ZSqrt2.add (ZSqrt2.add f0 f1) f2) (ZSqrt2.add (ZSqrt2.add g0 g1) g2) f3 g3,
+      swap4 (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add f0 f1) f2) f3)
+            (ZSqrt2.add (ZSqrt2.add (ZSqrt2.add g0 g1) g2) g3) f4 g4]
+
+private theorem cg_sum5_add (f g : Fin 5 → ZSqrt2) :
+    sum5 (fun k => ZSqrt2.add (f k) (g k)) = ZSqrt2.add (sum5 f) (sum5 g) :=
+  cg_sum5_add_aux
+    (f ⟨0, by decide⟩) (f ⟨1, by decide⟩) (f ⟨2, by decide⟩) (f ⟨3, by decide⟩) (f ⟨4, by decide⟩)
+    (g ⟨0, by decide⟩) (g ⟨1, by decide⟩) (g ⟨2, by decide⟩) (g ⟨3, by decide⟩) (g ⟨4, by decide⟩)
 
 private theorem cg_sum5_sub (f g : Fin 5 → ZSqrt2) :
     sum5 (fun k => ZSqrt2.sub (f k) (g k)) = ZSqrt2.sub (sum5 f) (sum5 g) := by
@@ -316,8 +336,7 @@ theorem thm_facet_gram_right_angled :
     have hBound : dot4 (d4RootOf a) (d4RootOf b) ≤ 0 := by
       have hAll : ∀ x y : Fin 24, x ≠ y → adj24 x y = false → dot4 (d4RootOf x) (d4RootOf y) ≤ 0 := by decide
       exact hAll a b hne hna
-    simp only [ZSqrt2.ofInt]
-    exact ⟨by omega, rfl⟩
+    exact ⟨by change 2 * dot4 (d4RootOf a) (d4RootOf b) - 2 ≤ -2; omega, rfl⟩
 
 /-- Headline Theorem 2 (Symbolic Orthogonal Reflection Commutation in `O^+(4,1; ℤ[√2])`):
     for ANY two vectors `n, m : Vec5` with `2 B(n, m) = 0`, their `5 × 5` reflections commute
@@ -677,7 +696,10 @@ theorem thm_direct_o41_ball_shells_0_1_2 :
       intro i
       have hi := congrFun hEq i
       unfold step1Center at hi
-      cases baseCenter i; cases facetNormal a i; cases facetNormal b i
+      cases hc : baseCenter i
+      cases ha : facetNormal a i
+      cases hb : facetNormal b i
+      rw [hc, ha, hb] at hi
       simp only [ZSqrt2.add, ZSqrt2.scale, ZSqrt2.mk.injEq] at hi ⊢
       exact ⟨by omega, by omega⟩
     exact (by decide : ∀ x y : Fin 24, (∀ i : Fin 5, facetNormal x i = facetNormal y i) → x = y) a b hN
@@ -691,7 +713,7 @@ theorem thm_direct_o41_ball_shells_0_1_2 :
         have hd : decide (a ≠ b) = true := decide_eq_true hne
         rw [hd, Bool.true_and] at hc
         cases ha : adj24 a b
-        · rw [ha] at hc; exact absurd hc (by decide)
+        · rw [ha, Bool.not_false, Bool.true_or] at hc; exact absurd rfl hc
         · rw [ha] at hc
           simp only [Bool.not_true, Bool.false_or] at hc
           have hNotLt : ¬ (a.val < b.val) := fun hlt => hc (decide_eq_true hlt)
@@ -719,12 +741,12 @@ theorem thm_direct_o41_ball_shells_0_1_2 :
     have hne : a ≠ b := by
       unfold isCanonLen2 at hC
       cases hd : decide (a ≠ b)
-      · rw [hd] at hC; exact absurd hC (by decide)
+      · rw [hd, Bool.false_and] at hC; exact absurd hC (by decide)
       · exact of_decide_eq_true hd
     have hne' : a' ≠ b' := by
       unfold isCanonLen2 at hC'
       cases hd : decide (a' ≠ b')
-      · rw [hd] at hC'; exact absurd hC' (by decide)
+      · rw [hd, Bool.false_and] at hC'; exact absurd hC' (by decide)
       · exact of_decide_eq_true hd
     have hDotEq : dot4 (d4RootOf a) (d4RootOf b) = dot4 (d4RootOf a') (d4RootOf b') := by
       have hD := congrArg (fun v => (twiceForm v baseCenter).a) hEq
@@ -748,12 +770,26 @@ theorem thm_direct_o41_ball_shells_0_1_2 :
           fun y => Int.mul_assoc 2 k y
         rw [h2k, h2k] at hX
         omega
+      have hd0 : ∀ u : Vec4, dot4 u (d4RootOf ⟨0, by decide⟩) = u.1 + u.2.1 := fun u => by
+        change u.1 * 1 + u.2.1 * 1 + u.2.2.1 * 0 + u.2.2.2 * 0 = u.1 + u.2.1
+        simp only [Int.mul_one, Int.mul_zero]; omega
+      have hd1 : ∀ u : Vec4, dot4 u (d4RootOf ⟨1, by decide⟩) = u.1 - u.2.1 := fun u => by
+        change u.1 * 1 + u.2.1 * (-1) + u.2.2.1 * 0 + u.2.2.2 * 0 = u.1 - u.2.1
+        simp only [Int.mul_one, Int.mul_zero, Int.mul_neg]; omega
+      have hd20 : ∀ u : Vec4, dot4 u (d4RootOf ⟨20, by decide⟩) = u.2.2.1 + u.2.2.2 := fun u => by
+        change u.1 * 0 + u.2.1 * 0 + u.2.2.1 * 1 + u.2.2.2 * 1 = u.2.2.1 + u.2.2.2
+        simp only [Int.mul_one, Int.mul_zero]; omega
+      have hd21 : ∀ u : Vec4, dot4 u (d4RootOf ⟨21, by decide⟩) = u.2.2.1 - u.2.2.2 := fun u => by
+        change u.1 * 0 + u.2.1 * 0 + u.2.2.1 * 1 + u.2.2.2 * (-1) = u.2.2.1 - u.2.2.2
+        simp only [Int.mul_one, Int.mul_zero, Int.mul_neg]; omega
       have p0 := hP ⟨0, by decide⟩
       have p1 := hP ⟨1, by decide⟩
       have p20 := hP ⟨20, by decide⟩
       have p21 := hP ⟨21, by decide⟩
-      simp only [d4RootOf, dot4, Int.mul_one, Int.mul_zero, Int.mul_neg,
-        Int.add_zero, Int.zero_add, Int.mul_add] at p0 p1 p20 p21
+      simp only [hd0, Int.mul_add] at p0
+      simp only [hd1, Int.mul_sub] at p1
+      simp only [hd20, Int.mul_add] at p20
+      simp only [hd21, Int.mul_sub] at p21
       exact ⟨by omega, by omega, by omega, by omega⟩
     if hAdj : adj24 a b = true then
       have hDot1 : dot4 (d4RootOf a) (d4RootOf b) = 1 := of_decide_eq_true hAdj
@@ -1067,6 +1103,21 @@ private theorem foata_shift_eqs (r : Nat) :
     foataA3 (r + 3) = foataA0 r + 21 * foataA1 r + 75 * foataA2 r + 68 * foataA3 r :=
   ⟨rfl, rfl, rfl, rfl⟩
 
+private theorem foata_lin_comb_3 (c1 c2 c3 x4 x3 x2 x1 y4 y3 y2 y1 z4 z3 z2 z1 : Nat)
+    (hx : x4 + 51 * x2 = 21 * x3 + 23 * x1)
+    (hy : y4 + 51 * y2 = 21 * y3 + 23 * y1)
+    (hz : z4 + 51 * z2 = 21 * z3 + 23 * z1) :
+    (0 + c1 * x4 + c2 * y4 + c3 * z4) + 51 * (0 + c1 * x2 + c2 * y2 + c3 * z2) =
+      21 * (0 + c1 * x3 + c2 * y3 + c3 * z3) + 23 * (0 + c1 * x1 + c2 * y1 + c3 * z1) := by
+  have h1 : c1 * (x4 + 51 * x2) = c1 * (21 * x3 + 23 * x1) := congrArg (fun t => c1 * t) hx
+  have h2 : c2 * (y4 + 51 * y2) = c2 * (21 * y3 + 23 * y1) := congrArg (fun t => c2 * t) hy
+  have h3 : c3 * (z4 + 51 * z2) = c3 * (21 * z3 + 23 * z1) := congrArg (fun t => c3 * t) hz
+  simp only [Nat.mul_add] at h1 h2 h3
+  rw [Nat.mul_left_comm c1 51 x2, Nat.mul_left_comm c1 21 x3, Nat.mul_left_comm c1 23 x1] at h1
+  rw [Nat.mul_left_comm c2 51 y2, Nat.mul_left_comm c2 21 y3, Nat.mul_left_comm c2 23 y1] at h2
+  rw [Nat.mul_left_comm c3 51 z2, Nat.mul_left_comm c3 21 z3, Nat.mul_left_comm c3 23 z1] at h3
+  omega
+
 private theorem foata_cubic_step_bundle :
     ∀ n : Nat,
       (foataA1 (n + 4) + 51 * foataA1 (n + 2) = 21 * foataA1 (n + 3) + 23 * foataA1 (n + 1) ∧
@@ -1083,29 +1134,25 @@ private theorem foata_cubic_step_bundle :
   | zero => decide
   | succ m ih =>
     obtain ⟨⟨h0a, h0b, h0c⟩, ⟨h1a, h1b, h1c⟩, ⟨h2a, h2b, h2c⟩⟩ := ih
-    refine ⟨⟨h1a, h1b, h1c⟩, ⟨h2a, h2b, h2c⟩, ?_⟩
-    have s1_7 := (foata_shift_eqs (m + 6)).2.1
-    have s1_6 := (foata_shift_eqs (m + 5)).2.1
-    have s1_5 := (foata_shift_eqs (m + 4)).2.1
-    have s1_4 := (foata_shift_eqs (m + 3)).2.1
-    have z6 := (foata_shift_eqs (m + 5)).1
-    have z5 := (foata_shift_eqs (m + 4)).1
-    have z4 := (foata_shift_eqs (m + 3)).1
-    have z3 := (foata_shift_eqs (m + 2)).1
-    have z2 := (foata_shift_eqs (m + 1)).1
-    have z1 := (foata_shift_eqs m).1
-    have s2_7 := (foata_shift_eqs (m + 5)).2.2.1
-    have s2_6 := (foata_shift_eqs (m + 4)).2.2.1
-    have s2_5 := (foata_shift_eqs (m + 3)).2.2.1
-    have s2_4 := (foata_shift_eqs (m + 2)).2.2.1
-    have s3_7 := (foata_shift_eqs (m + 4)).2.2.2
-    have s3_6 := (foata_shift_eqs (m + 3)).2.2.2
-    have s3_5 := (foata_shift_eqs (m + 2)).2.2.2
-    have s3_4 := (foata_shift_eqs (m + 1)).2.2.2
-    refine ⟨?_, ?_, ?_⟩
-    · rw [s1_7, s1_6, s1_5, s1_4, z6, z5, z4, z3]; omega
-    · rw [s2_7, s2_6, s2_5, s2_4, z5, z4, z3, z2]; omega
-    · rw [s3_7, s3_6, s3_5, s3_4, z4, z3, z2, z1]; omega
+    refine ⟨⟨h1a, h1b, h1c⟩, ⟨h2a, h2b, h2c⟩, ⟨?_, ?_, ?_⟩⟩
+    · change foataA1 (m + 7) + 51 * foataA1 (m + 5) = 21 * foataA1 (m + 6) + 23 * foataA1 (m + 4)
+      rw [(foata_shift_eqs (m + 6)).2.1, (foata_shift_eqs (m + 5)).2.1,
+          (foata_shift_eqs (m + 4)).2.1, (foata_shift_eqs (m + 3)).2.1,
+          (foata_shift_eqs (m + 5)).1, (foata_shift_eqs (m + 4)).1,
+          (foata_shift_eqs (m + 3)).1, (foata_shift_eqs (m + 2)).1]
+      exact foata_lin_comb_3 15 44 36 _ _ _ _ _ _ _ _ _ _ _ _ h2a h2b h2c
+    · change foataA2 (m + 7) + 51 * foataA2 (m + 5) = 21 * foataA2 (m + 6) + 23 * foataA2 (m + 4)
+      rw [(foata_shift_eqs (m + 5)).2.2.1, (foata_shift_eqs (m + 4)).2.2.1,
+          (foata_shift_eqs (m + 3)).2.2.1, (foata_shift_eqs (m + 2)).2.2.1,
+          (foata_shift_eqs (m + 4)).1, (foata_shift_eqs (m + 3)).1,
+          (foata_shift_eqs (m + 2)).1, (foata_shift_eqs (m + 1)).1]
+      exact foata_lin_comb_3 19 63 54 _ _ _ _ _ _ _ _ _ _ _ _ h1a h1b h1c
+    · change foataA3 (m + 7) + 51 * foataA3 (m + 5) = 21 * foataA3 (m + 6) + 23 * foataA3 (m + 4)
+      rw [(foata_shift_eqs (m + 4)).2.2.2, (foata_shift_eqs (m + 3)).2.2.2,
+          (foata_shift_eqs (m + 2)).2.2.2, (foata_shift_eqs (m + 1)).2.2.2,
+          (foata_shift_eqs (m + 3)).1, (foata_shift_eqs (m + 2)).1,
+          (foata_shift_eqs (m + 1)).1, (foata_shift_eqs m).1]
+      exact foata_lin_comb_3 21 75 68 _ _ _ _ _ _ _ _ _ _ _ _ h0a h0b h0c
 
 /-- Headline Theorem 9 (Exact Steinberg Cubic Recurrence & Inclusion-Exclusion Identities for ALL `n : Nat`):
     derived unconditionally from the 24-cell Cartier-Foata transfer matrix `M_24`:
@@ -1157,20 +1204,17 @@ private theorem wall_quad_step_bundle :
   | zero => decide
   | succ m ih =>
     obtain ⟨⟨h0a, h0b⟩, ⟨h1a, h1b⟩⟩ := ih
-    refine ⟨⟨h1a, h1b⟩, ?_⟩
-    have s1_5 := (wall_shift_eqs (m + 4)).2.1
-    have s1_4 := (wall_shift_eqs (m + 3)).2.1
-    have s1_3 := (wall_shift_eqs (m + 2)).2.1
-    have s2_5 := (wall_shift_eqs (m + 3)).2.2
-    have s2_4 := (wall_shift_eqs (m + 2)).2.2
-    have s2_3 := (wall_shift_eqs (m + 1)).2.2
-    have z4 := (wall_shift_eqs (m + 3)).1
-    have z3 := (wall_shift_eqs (m + 2)).1
-    have z2 := (wall_shift_eqs (m + 1)).1
-    have z1 := (wall_shift_eqs m).1
-    refine ⟨?_, ?_⟩
-    · rw [s1_5, s1_4, s1_3, z4, z3, z2]; omega
-    · rw [s2_5, s2_4, s2_3, z3, z2, z1]; omega
+    refine ⟨⟨h1a, h1b⟩, ⟨?_, ?_⟩⟩
+    · have s1_5 : wallW1 (m + 5) = 0 + 4 * wallW1 (m + 4) + 3 * wallW2 (m + 4) := rfl
+      have s1_4 : wallW1 (m + 4) = 0 + 4 * wallW1 (m + 3) + 3 * wallW2 (m + 3) := rfl
+      have s1_3 : wallW1 (m + 3) = 0 + 4 * wallW1 (m + 2) + 3 * wallW2 (m + 2) := rfl
+      change wallW1 (m + 5) + 5 * wallW1 (m + 3) = 6 * wallW1 (m + 4)
+      omega
+    · have s2_5 : wallW2 (m + 5) = 0 + 6 * wallW1 (m + 3) + 7 * wallW2 (m + 3) := rfl
+      have s2_4 : wallW2 (m + 4) = 0 + 6 * wallW1 (m + 2) + 7 * wallW2 (m + 2) := rfl
+      have s2_3 : wallW2 (m + 3) = 0 + 6 * wallW1 (m + 1) + 7 * wallW2 (m + 1) := rfl
+      change wallW2 (m + 5) + 5 * wallW2 (m + 3) = 6 * wallW2 (m + 4)
+      omega
 
 /-- Headline Theorem 10 (Unconditional Derivation of Single-Face Lateral Links `l_D = 4 * 5^{D-1}`):
     directly from the 8-facet wall cube Foata matrix `M_wall = [[1, 4, 3], [1, 6, 7]]`,
@@ -1190,14 +1234,16 @@ theorem thm_wall_cusp_eq_cuspLateralLinks :
       obtain ⟨hR1, hR2⟩ := (wall_quad_step_bundle k).1
       have h1 := ih.1
       have h2 := ih.2
-      rw [Nat.pow_succ] at h2 ⊢
+      change wallW1 (k + 3) + wallW2 (k + 3) = 5 ^ (k + 2)
+      rw [Nat.pow_succ, Nat.pow_succ]
+      rw [Nat.pow_succ] at h2
       omega
   refine ⟨fun d => (hPair d).1, ?_⟩
   intro D
   cases D with
   | zero => decide
   | succ d =>
-    unfold wallCusp cuspLateralLinks
+    change wallW0 (d + 1) + 4 * wallW1 (d + 1) + 4 * wallW2 (d + 1) = 4 * 5 ^ d
     have hz := (wall_shift_eqs d).1
     have hS := (hPair d).1
     rw [hz]
@@ -1221,6 +1267,7 @@ theorem thm_cusp_growth_ge_18 :
       refine ⟨ih.2.1, ih.2.2, ?_⟩
       have hRec := (thm_foata_cubic_recurrence.1 m).2
       have hPrev := ih.2.2
+      change cuspShell (m + 4) ≥ 18 * cuspShell (m + 3)
       omega
   exact ⟨by decide, fun D => (hPair D).1⟩
 
@@ -1253,6 +1300,8 @@ theorem thm_cusp_and_ball_growth_rate_bounds :
       have h1U := ih.1.2
       have h2L := ih.2.1
       have h2U := ih.2.2
+      change 1827 * cuspShell (m + 3) ≤ 100 * cuspShell (m + 4) ∧
+             100 * cuspShell (m + 4) ≤ 1834 * cuspShell (m + 3)
       exact ⟨by omega, by omega⟩
   have hBall : ∀ n : Nat,
       (1827 * ballShell (n + 1) ≤ 100 * ballShell (n + 2) ∧
@@ -1269,6 +1318,8 @@ theorem thm_cusp_and_ball_growth_rate_bounds :
       have h1U := ih.1.2
       have h2L := ih.2.1
       have h2U := ih.2.2
+      change 1827 * ballShell (m + 3) ≤ 100 * ballShell (m + 4) ∧
+             100 * ballShell (m + 4) ≤ 1900 * ballShell (m + 3)
       exact ⟨by omega, by omega⟩
   refine ⟨?_, ?_, by decide⟩
   · intro D hD
