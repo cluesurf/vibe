@@ -7,7 +7,7 @@
 <br/>
 
 <p align='center'>
-  <a href="https://www.youtube.com/watch?v=IE2uHC0qX1o"><img src='https://github.com/cluesurf/vibe/blob/make/view/vibe-mesh-{7,3}.png?raw=true' height='256'/></a>
+  <a href="https://www.youtube.com/watch?v=9ftVzOO9Y2I"><img src='https://github.com/cluesurf/vibe/blob/make/view/vibe-mesh-{7,3}.png?raw=true' height='256'/></a>
 </p>
 
 <h3 align='center'>Vibe Theory</h3>
