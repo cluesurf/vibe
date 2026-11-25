@@ -99,6 +99,33 @@ private theorem ct_int_sq_le_sq (a b : Int) (ha : 0 ≤ a) (hab : a ≤ b) : a *
   rw [Int.sub_mul, Int.mul_add, Int.mul_add, Int.mul_comm a b] at h1
   omega
 
+private theorem ct_mul_sq_comm (k A B : Int) :
+    (k * k) * (A * B * B) = A * (k * B) * (k * B) := by
+  calc
+    (k * k) * (A * B * B) = (k * k) * (A * (B * B)) := by rw [Int.mul_assoc A B B]
+    _ = A * ((k * k) * (B * B)) := ct_int_mul_left_comm (k * k) A (B * B)
+    _ = A * (k * (k * (B * B))) := by rw [Int.mul_assoc k k (B * B)]
+    _ = A * (k * (B * (k * B))) := by rw [ct_int_mul_left_comm k B B]
+    _ = A * ((k * B) * (k * B)) := by rw [← Int.mul_assoc k B (k * B)]
+    _ = A * (k * B) * (k * B) := (Int.mul_assoc A (k * B) (k * B)).symm
+
+private theorem ct_triple_mul_cube (a b c d : Int) :
+    (a * (b * c)) * (d * (d * d)) = (a * d) * ((b * d) * (c * d)) := by
+  have s1 : (b * c) * (d * d) = (b * d) * (c * d) := by
+    rw [Int.mul_assoc b c (d * d), ct_int_mul_left_comm c d d, ← Int.mul_assoc b d (c * d)]
+  rw [Int.mul_assoc a (b * c) (d * (d * d)), ct_int_mul_left_comm (b * c) d (d * d), s1,
+      ← Int.mul_assoc a d ((b * d) * (c * d))]
+
+private theorem ct_diff_cubes (x y : Int) :
+    (y - x) * (y * y + y * x + x * x) = y * (y * y) - x * (x * x) := by
+  simp only [Int.mul_add, Int.sub_mul]
+  have h1 : x * (y * y) = y * (y * x) := by
+    rw [ct_int_mul_left_comm x y y, Int.mul_comm x y]
+  have h2 : y * (x * x) = x * (y * x) := by
+    rw [ct_int_mul_left_comm y x x, Int.mul_comm y x]
+  rw [h1, h2]
+  omega
+
 /-- Exact integer exponentiation `b ^ n` (self-contained in `Vibe.CompositeTrion`). -/
 def ctPowInt (b : Int) : Nat → Int
   | 0 => 1
@@ -113,6 +140,7 @@ private theorem ct_powInt_add (b : Int) (m n : Nat) :
     ctPowInt b (m + n) = ctPowInt b m * ctPowInt b n := by
   induction m with
   | zero =>
+    rw [Nat.zero_add]
     change ctPowInt b n = 1 * ctPowInt b n
     rw [Int.one_mul]
   | succ k ih =>
@@ -124,7 +152,9 @@ private theorem ct_powInt_add (b : Int) (m n : Nat) :
 private theorem ct_powInt_sq (b : Int) (k : Nat) :
     ctPowInt b k * ctPowInt b k = ctPowInt (b * b) k := by
   induction k with
-  | zero => decide
+  | zero =>
+    change (1 : Int) * 1 = 1
+    decide
   | succ m ih =>
     change (b * ctPowInt b m) * (b * ctPowInt b m) = (b * b) * ctPowInt (b * b) m
     rw [Int.mul_assoc b (ctPowInt b m) (b * ctPowInt b m),
@@ -144,7 +174,8 @@ private theorem ct_geom_series_closed (r c : Int) (N : Nat) :
       rw [Int.mul_add, ct_int_mul_left_comm (r - 1) r (ctGeomScaled r c k)]
     rw [h1, ih]
     have hL1 : r * (c * (ctPowInt r k - 1)) = c * (r * ctPowInt r k) - c * r := by
-      rw [Int.mul_sub, Int.mul_one, Int.mul_sub, ct_int_mul_left_comm r c (ctPowInt r k)]
+      rw [Int.mul_sub, Int.mul_one, Int.mul_sub, ct_int_mul_left_comm r c (ctPowInt r k),
+          Int.mul_comm r c]
     have hL2 : (r - 1) * c = c * r - c := by rw [Int.sub_mul, Int.one_mul, Int.mul_comm r c]
     have hR : c * (r * ctPowInt r k - 1) = c * (r * ctPowInt r k) - c := by
       rw [Int.mul_sub, Int.mul_one]
@@ -315,20 +346,94 @@ def ValidTrionCfg (d1 d2 : Nat) (s1 s2 s3 : Fin 2) : Prop :=
 def trionPullE1 (d1 : Nat) (t1 t2 : Fin 2) : Nat := d1 + t2.val - t1.val
 def trionPullE2 (d2 : Nat) (t2 t3 : Fin 2) : Nat := d2 + t3.val - t2.val
 
+private def ctLePt (a b : Int × Fin 2) : Bool :=
+  decide (a.1 < b.1 ∨ (a.1 = b.1 ∧ a.2.val ≤ b.2.val))
+
 /-- Forward geodesic even-sublattice shift `S : (m, t) ↦ (m - t, t)` on three ordered particles
     `(0, t1), (e1, t2), (e1 + e2, t3)`, returning sorted relative coordinates `(d1', d2', s1', s2', s3')`
     (with `Int` dock positions normalized by subtracting the leftmost shifted dock). -/
 def trionForwardShift (e1 e2 : Nat) (t1 t2 t3 : Fin 2) :
     Nat × Nat × Fin 2 × Fin 2 × Fin 2 :=
-  let p1 : Int × Fin 2 := ((0 : Int) - Int.ofNat t1.val, t1)
-  let p2 : Int × Fin 2 := (Int.ofNat e1 - Int.ofNat t2.val, t2)
-  let p3 : Int × Fin 2 := (Int.ofNat (e1 + e2) - Int.ofNat t3.val, t3)
-  let lePt (a b : Int × Fin 2) : Bool :=
-    decide (a.1 < b.1 ∨ (a.1 = b.1 ∧ a.2.val ≤ b.2.val))
-  let (q1, q2) := if lePt p1 p2 then (p1, p2) else (p2, p1)
-  let (r2, r3) := if lePt q2 p3 then (q2, p3) else (p3, q2)
-  let (s1, s2) := if lePt q1 r2 then (q1, r2) else (r2, q1)
+  let p1 : Int × Fin 2 := ((0 : Int) - (t1.val : Int), t1)
+  let p2 : Int × Fin 2 := ((e1 : Int) - (t2.val : Int), t2)
+  let p3 : Int × Fin 2 := (((e1 + e2 : Nat) : Int) - (t3.val : Int), t3)
+  let (q1, q2) := if ctLePt p1 p2 then (p1, p2) else (p2, p1)
+  let (r2, r3) := if ctLePt q2 p3 then (q2, p3) else (p3, q2)
+  let (s1, s2) := if ctLePt q1 r2 then (q1, r2) else (r2, q1)
   ((s2.1 - s1.1).toNat, (r3.1 - s2.1).toNat, s1.2, s2.2, r3.2)
+
+private theorem ct_forwardShift_ordered (e1 e2 : Nat) (t1 t2 t3 : Fin 2)
+    (h12 : (0 : Int) - (t1.val : Int) < (e1 : Int) - (t2.val : Int) ∨
+           ((0 : Int) - (t1.val : Int) = (e1 : Int) - (t2.val : Int) ∧ t1.val ≤ t2.val))
+    (h23 : (e1 : Int) - (t2.val : Int) < ((e1 + e2 : Nat) : Int) - (t3.val : Int) ∨
+           ((e1 : Int) - (t2.val : Int) = ((e1 + e2 : Nat) : Int) - (t3.val : Int) ∧ t2.val ≤ t3.val)) :
+    trionForwardShift e1 e2 t1 t2 t3 =
+      ((((e1 : Int) - (t2.val : Int)) - ((0 : Int) - (t1.val : Int))).toNat,
+       ((((e1 + e2 : Nat) : Int) - (t3.val : Int)) - ((e1 : Int) - (t2.val : Int))).toNat,
+       t1, t2, t3) := by
+  unfold trionForwardShift
+  have b12 : ctLePt ((0 : Int) - (t1.val : Int), t1) ((e1 : Int) - (t2.val : Int), t2) = true :=
+    decide_eq_true h12
+  have b23 : ctLePt ((e1 : Int) - (t2.val : Int), t2) (((e1 + e2 : Nat) : Int) - (t3.val : Int), t3) = true :=
+    decide_eq_true h23
+  dsimp only
+  rw [b12, if_pos rfl, b23, if_pos rfl, b12, if_pos rfl]
+
+private theorem ct_forwardShift_swap12 (e1 e2 : Nat) (t1 t2 t3 : Fin 2)
+    (h12 : ¬ ((0 : Int) - (t1.val : Int) < (e1 : Int) - (t2.val : Int) ∨
+              ((0 : Int) - (t1.val : Int) = (e1 : Int) - (t2.val : Int) ∧ t1.val ≤ t2.val)))
+    (h13 : (0 : Int) - (t1.val : Int) < ((e1 + e2 : Nat) : Int) - (t3.val : Int) ∨
+           ((0 : Int) - (t1.val : Int) = ((e1 + e2 : Nat) : Int) - (t3.val : Int) ∧ t1.val ≤ t3.val))
+    (h21 : (e1 : Int) - (t2.val : Int) < (0 : Int) - (t1.val : Int) ∨
+           ((e1 : Int) - (t2.val : Int) = (0 : Int) - (t1.val : Int) ∧ t2.val ≤ t1.val)) :
+    trionForwardShift e1 e2 t1 t2 t3 =
+      ((((0 : Int) - (t1.val : Int)) - ((e1 : Int) - (t2.val : Int))).toNat,
+       ((((e1 + e2 : Nat) : Int) - (t3.val : Int)) - ((0 : Int) - (t1.val : Int))).toNat,
+       t2, t1, t3) := by
+  unfold trionForwardShift
+  have b12 : ctLePt ((0 : Int) - (t1.val : Int), t1) ((e1 : Int) - (t2.val : Int), t2) = false :=
+    decide_eq_false h12
+  have b13 : ctLePt ((0 : Int) - (t1.val : Int), t1) (((e1 + e2 : Nat) : Int) - (t3.val : Int), t3) = true :=
+    decide_eq_true h13
+  have b21 : ctLePt ((e1 : Int) - (t2.val : Int), t2) ((0 : Int) - (t1.val : Int), t1) = true :=
+    decide_eq_true h21
+  dsimp only
+  rw [b12, if_neg (by decide), b13, if_pos rfl, b21, if_pos rfl]
+
+private theorem ct_forwardShift_swap23 (e1 e2 : Nat) (t1 t2 t3 : Fin 2)
+    (h12 : (0 : Int) - (t1.val : Int) < (e1 : Int) - (t2.val : Int) ∨
+           ((0 : Int) - (t1.val : Int) = (e1 : Int) - (t2.val : Int) ∧ t1.val ≤ t2.val))
+    (h23 : ¬ ((e1 : Int) - (t2.val : Int) < ((e1 + e2 : Nat) : Int) - (t3.val : Int) ∨
+              ((e1 : Int) - (t2.val : Int) = ((e1 + e2 : Nat) : Int) - (t3.val : Int) ∧ t2.val ≤ t3.val)))
+    (h13 : (0 : Int) - (t1.val : Int) < ((e1 + e2 : Nat) : Int) - (t3.val : Int) ∨
+           ((0 : Int) - (t1.val : Int) = ((e1 + e2 : Nat) : Int) - (t3.val : Int) ∧ t1.val ≤ t3.val)) :
+    trionForwardShift e1 e2 t1 t2 t3 =
+      (((((e1 + e2 : Nat) : Int) - (t3.val : Int)) - ((0 : Int) - (t1.val : Int))).toNat,
+       (((e1 : Int) - (t2.val : Int)) - (((e1 + e2 : Nat) : Int) - (t3.val : Int))).toNat,
+       t1, t3, t2) := by
+  unfold trionForwardShift
+  have b12 : ctLePt ((0 : Int) - (t1.val : Int), t1) ((e1 : Int) - (t2.val : Int), t2) = true :=
+    decide_eq_true h12
+  have b23 : ctLePt ((e1 : Int) - (t2.val : Int), t2) (((e1 + e2 : Nat) : Int) - (t3.val : Int), t3) = false :=
+    decide_eq_false h23
+  have b13 : ctLePt ((0 : Int) - (t1.val : Int), t1) (((e1 + e2 : Nat) : Int) - (t3.val : Int), t3) = true :=
+    decide_eq_true h13
+  dsimp only
+  rw [b12, if_pos rfl, b23, if_neg (by decide), b13, if_pos rfl]
+
+private theorem ct_fin2_cases (x : Fin 2) : x = ⟨0, by decide⟩ ∨ x = ⟨1, by decide⟩ := by
+  rcases x with ⟨v, hv⟩
+  cases v with
+  | zero => exact Or.inl rfl
+  | succ k =>
+    cases k with
+    | zero => exact Or.inr rfl
+    | succ _ => omega
+
+private theorem ct_beq_zero_false (n : Nat) (hn : n ≠ 0) : (n == 0) = false := by
+  cases n with
+  | zero => exact absurd rfl hn
+  | succ _ => rfl
 
 /-- Headline Theorem 3 (Exact Infinite-Line Geodesic Shift Pullback & Forward Roundtrip):
     for EVERY valid `k = 3` configuration `(d1, d2, t1, t2, t3)` across ALL `d1, d2 : Nat`:
@@ -348,68 +453,54 @@ theorem thm_ct_trion_shift_pullback_exact (d1 d2 : Nat) (t1 t2 t3 : Fin 2)
      e1 + e2 + t1.val = d1 + d2 + t3.val ∧
      ValidTrionCfg e1 e2 u1 u2 u3 ∧
      trionForwardShift e1 e2 u1 u2 u3 = (d1, d2, t1, t2, t3)) := by
+  dsimp only
+  unfold trionPullE1 trionPullE2
   obtain ⟨hSum, hZ1, hZ2⟩ := hV
-  rcases t1 with ⟨v1, hv1⟩; rcases t2 with ⟨v2, hv2⟩; rcases t3 with ⟨v3, hv3⟩
-  have hv1' : v1 = 0 ∨ v1 = 1 := by omega
-  have hv2' : v2 = 0 ∨ v2 = 1 := by omega
-  have hv3' : v3 = 0 ∨ v3 = 1 := by omega
-  have hCheck : ∀ (a b : Nat) (ha : a = 0 ∨ a = 1) (hb : b = 0 ∨ b = 1),
-      a = 0 → b = 0 → True := fun _ _ _ _ _ _ => trivial
-  clear hCheck
-  rcases hv1' with rfl | rfl <;> rcases hv2' with rfl | rfl <;> rcases hv3' with rfl | rfl
-  · -- (0, 0, 0): d1 ≥ 1, d2 ≥ 1, e1 = d1, e2 = d2
+  rcases ct_fin2_cases t1 with rfl | rfl <;>
+    rcases ct_fin2_cases t2 with rfl | rfl <;>
+    rcases ct_fin2_cases t3 with rfl | rfl
+  · -- (0, 0, 0)
     have hd1 : d1 ≥ 1 := by
       cases d1 with | zero => exact absurd (hZ1 rfl).2 (by decide) | succ _ => omega
     have hd2 : d2 ≥ 1 := by
       cases d2 with | zero => exact absurd (hZ2 rfl).2 (by decide) | succ _ => omega
-    have he1 : trionPullE1 d1 ⟨0, hv1⟩ ⟨0, hv2⟩ = d1 := by unfold trionPullE1; omega
-    have he2 : trionPullE2 d2 ⟨0, hv2⟩ ⟨0, hv3⟩ = d2 := by unfold trionPullE2; omega
-    simp only [he1, he2]
+    have h1 : d1 + 0 - 0 = d1 := by omega
+    have h2 : d2 + 0 - 0 = d2 := by omega
+    change _ ∧ _ ∧ _ ∧ _ ∧ _
+    rw [h1, h2]
     have hne1 : ¬ (d1 = 0) := by omega
     have hne2 : ¬ (d2 = 0) := by omega
     simp only [hne1, hne2, ↓reduceIte]
     refine ⟨by omega, by omega, by omega, ⟨by omega, fun h => absurd h hne1, fun h => absurd h hne2⟩, ?_⟩
-    unfold trionForwardShift
-    have h12 : decide (((0 : Int) - Int.ofNat 0 < Int.ofNat d1 - Int.ofNat 0) ∨
-        ((0 : Int) - Int.ofNat 0 = Int.ofNat d1 - Int.ofNat 0 ∧ (0 : Nat) ≤ 0)) = true :=
-      decide_eq_true (Or.inl (by omega))
-    have h23 : decide ((Int.ofNat d1 - Int.ofNat 0 < Int.ofNat (d1 + d2) - Int.ofNat 0) ∨
-        (Int.ofNat d1 - Int.ofNat 0 = Int.ofNat (d1 + d2) - Int.ofNat 0 ∧ (0 : Nat) ≤ 0)) = true :=
-      decide_eq_true (Or.inl (by omega))
-    simp only [h12, h23, ↓reduceIte]
-    have hs1 : (Int.ofNat d1 - Int.ofNat 0 - ((0 : Int) - Int.ofNat 0)).toNat = d1 := by omega
-    have hs2 : (Int.ofNat (d1 + d2) - Int.ofNat 0 - (Int.ofNat d1 - Int.ofNat 0)).toNat = d2 := by omega
+    rw [ct_forwardShift_ordered d1 d2 _ _ _ (Or.inl (by omega)) (Or.inl (by omega))]
+    have hs1 : (((d1 : Int) - (0 : Int)) - ((0 : Int) - (0 : Int))).toNat = d1 := by omega
+    have hs2 : ((((d1 + d2 : Nat) : Int) - (0 : Int)) - ((d1 : Int) - (0 : Int))).toNat = d2 := by omega
     rw [hs1, hs2]
-  · -- (0, 0, 1): d1 ≥ 1, d2 ≥ 0, e1 = d1 ≥ 1, e2 = d2 + 1 ≥ 1
+  · -- (0, 0, 1)
     have hd1 : d1 ≥ 1 := by
       cases d1 with | zero => exact absurd (hZ1 rfl).2 (by decide) | succ _ => omega
-    have he1 : trionPullE1 d1 ⟨0, hv1⟩ ⟨0, hv2⟩ = d1 := by unfold trionPullE1; omega
-    have he2 : trionPullE2 d2 ⟨0, hv2⟩ ⟨1, hv3⟩ = d2 + 1 := by unfold trionPullE2; omega
-    simp only [he1, he2]
+    have h1 : d1 + 0 - 0 = d1 := by omega
+    have h2 : d2 + 1 - 0 = d2 + 1 := by omega
+    change _ ∧ _ ∧ _ ∧ _ ∧ _
+    rw [h1, h2]
     have hne1 : ¬ (d1 = 0) := by omega
     have hne2 : ¬ (d2 + 1 = 0) := by omega
     simp only [hne1, hne2, ↓reduceIte]
     refine ⟨by omega, by omega, by omega, ⟨by omega, fun h => absurd h hne1, fun h => absurd h hne2⟩, ?_⟩
-    unfold trionForwardShift
-    have h12 : decide (((0 : Int) - Int.ofNat 0 < Int.ofNat d1 - Int.ofNat 0) ∨
-        ((0 : Int) - Int.ofNat 0 = Int.ofNat d1 - Int.ofNat 0 ∧ (0 : Nat) ≤ 0)) = true :=
-      decide_eq_true (Or.inl (by omega))
-    have h23 : decide ((Int.ofNat d1 - Int.ofNat 0 < Int.ofNat (d1 + (d2 + 1)) - Int.ofNat 1) ∨
-        (Int.ofNat d1 - Int.ofNat 0 = Int.ofNat (d1 + (d2 + 1)) - Int.ofNat 1 ∧ (0 : Nat) ≤ 1)) = true := by
-      apply decide_eq_true
-      cases d2 with
-      | zero => exact Or.inr ⟨by omega, by omega⟩
-      | succ k => exact Or.inl (by omega)
-    simp only [h12, h23, ↓reduceIte]
-    have hs1 : (Int.ofNat d1 - Int.ofNat 0 - ((0 : Int) - Int.ofNat 0)).toNat = d1 := by omega
-    have hs2 : (Int.ofNat (d1 + (d2 + 1)) - Int.ofNat 1 - (Int.ofNat d1 - Int.ofNat 0)).toNat = d2 := by omega
+    have h23 : (d1 : Int) - (0 : Int) < ((d1 + (d2 + 1) : Nat) : Int) - (1 : Int) ∨
+        ((d1 : Int) - (0 : Int) = ((d1 + (d2 + 1) : Nat) : Int) - (1 : Int) ∧ (0 : Nat) ≤ 1) := by
+      cases d2 with | zero => exact Or.inr ⟨by omega, by omega⟩ | succ _ => exact Or.inl (by omega)
+    rw [ct_forwardShift_ordered d1 (d2 + 1) _ _ _ (Or.inl (by omega)) h23]
+    have hs1 : (((d1 : Int) - (0 : Int)) - ((0 : Int) - (0 : Int))).toNat = d1 := by omega
+    have hs2 : ((((d1 + (d2 + 1) : Nat) : Int) - (1 : Int)) - ((d1 : Int) - (0 : Int))).toNat = d2 := by omega
     rw [hs1, hs2]
-  · -- (0, 1, 0): d1 ≥ 0, d2 ≥ 1, e1 = d1 + 1 ≥ 1, e2 = d2 - 1 (can be 0 if d2 = 1!)
+  · -- (0, 1, 0)
     have hd2 : d2 ≥ 1 := by
       cases d2 with | zero => exact absurd (hZ2 rfl).1 (by decide) | succ _ => omega
-    have he1 : trionPullE1 d1 ⟨0, hv1⟩ ⟨1, hv2⟩ = d1 + 1 := by unfold trionPullE1; omega
-    have he2 : trionPullE2 d2 ⟨1, hv2⟩ ⟨0, hv3⟩ = d2 - 1 := by unfold trionPullE2; omega
-    simp only [he1, he2]
+    have h1 : d1 + 1 - 0 = d1 + 1 := by omega
+    have h2 : d2 + 0 - 1 = d2 - 1 := by omega
+    change _ ∧ _ ∧ _ ∧ _ ∧ _
+    rw [h1, h2]
     have hne1 : ¬ (d1 + 1 = 0) := by omega
     simp only [hne1, ↓reduceIte]
     cases d2 with
@@ -417,78 +508,54 @@ theorem thm_ct_trion_shift_pullback_exact (d1 d2 : Nat) (t1 t2 t3 : Fin 2)
     | succ k =>
       cases k with
       | zero =>
-        -- d2 = 1: e2 = 0 (right contact pair!)
-        have he2z : (1 : Nat) - 1 = 0 := rfl
-        simp only [he2z, ↓reduceIte]
+        have h2z : (1 : Nat) - 1 = 0 := rfl
+        rw [h2z]; simp only [↓reduceIte]
         refine ⟨by omega, by omega, by omega, ⟨by omega, fun h => absurd h hne1, fun _ => ⟨rfl, rfl⟩⟩, ?_⟩
-        unfold trionForwardShift
-        have h12 : decide (((0 : Int) - Int.ofNat 0 < Int.ofNat (d1 + 1) - Int.ofNat 0) ∨
-            ((0 : Int) - Int.ofNat 0 = Int.ofNat (d1 + 1) - Int.ofNat 0 ∧ (0 : Nat) ≤ 0)) = true :=
-          decide_eq_true (Or.inl (by omega))
-        have h23 : decide ((Int.ofNat (d1 + 1) - Int.ofNat 0 < Int.ofNat (d1 + 1 + 0) - Int.ofNat 1) ∨
-            (Int.ofNat (d1 + 1) - Int.ofNat 0 = Int.ofNat (d1 + 1 + 0) - Int.ofNat 1 ∧ (0 : Nat) ≤ 1)) = false :=
-          decide_eq_false (by omega)
-        have h13 : decide (((0 : Int) - Int.ofNat 0 < Int.ofNat (d1 + 1 + 0) - Int.ofNat 1) ∨
-            ((0 : Int) - Int.ofNat 0 = Int.ofNat (d1 + 1 + 0) - Int.ofNat 1 ∧ (0 : Nat) ≤ 1)) = true := by
-          apply decide_eq_true
-          cases d1 with
-          | zero => exact Or.inr ⟨by omega, by omega⟩
-          | succ m => exact Or.inl (by omega)
-        simp only [h12, h23, h13, ↓reduceIte, Bool.false_eq_true]
-        have hs1 : (Int.ofNat (d1 + 1 + 0) - Int.ofNat 1 - ((0 : Int) - Int.ofNat 0)).toNat = d1 := by omega
-        have hs2 : (Int.ofNat (d1 + 1) - Int.ofNat 0 - (Int.ofNat (d1 + 1 + 0) - Int.ofNat 1)).toNat = 1 := by omega
+        have h13 : (0 : Int) - (0 : Int) < ((d1 + 1 + 0 : Nat) : Int) - (1 : Int) ∨
+            ((0 : Int) - (0 : Int) = ((d1 + 1 + 0 : Nat) : Int) - (1 : Int) ∧ (0 : Nat) ≤ 1) := by
+          cases d1 with | zero => exact Or.inr ⟨by omega, by omega⟩ | succ _ => exact Or.inl (by omega)
+        rw [ct_forwardShift_swap23 (d1 + 1) 0 _ _ _ (Or.inl (by omega)) (by omega) h13]
+        have hs1 : ((((d1 + 1 + 0 : Nat) : Int) - (1 : Int)) - ((0 : Int) - (0 : Int))).toNat = d1 := by omega
+        have hs2 : ((((d1 + 1 : Nat) : Int) - (0 : Int)) - (((d1 + 1 + 0 : Nat) : Int) - (1 : Int))).toNat = 1 := by omega
         rw [hs1, hs2]
       | succ j =>
-        -- d2 = j + 2: e2 = j + 1 ≥ 1
         have hne2 : ¬ (j + 2 - 1 = 0) := by omega
         simp only [hne2, ↓reduceIte]
         refine ⟨by omega, by omega, by omega, ⟨by omega, fun h => absurd h hne1, fun h => absurd h hne2⟩, ?_⟩
-        unfold trionForwardShift
-        have h12 : decide (((0 : Int) - Int.ofNat 0 < Int.ofNat (d1 + 1) - Int.ofNat 1) ∨
-            ((0 : Int) - Int.ofNat 0 = Int.ofNat (d1 + 1) - Int.ofNat 1 ∧ (0 : Nat) ≤ 1)) = true := by
-          apply decide_eq_true
-          cases d1 with
-          | zero => exact Or.inr ⟨by omega, by omega⟩
-          | succ m => exact Or.inl (by omega)
-        have h23 : decide ((Int.ofNat (d1 + 1) - Int.ofNat 1 < Int.ofNat (d1 + 1 + (j + 2 - 1)) - Int.ofNat 0) ∨
-            (Int.ofNat (d1 + 1) - Int.ofNat 1 = Int.ofNat (d1 + 1 + (j + 2 - 1)) - Int.ofNat 0 ∧ (1 : Nat) ≤ 0)) = true :=
-          decide_eq_true (Or.inl (by omega))
-        simp only [h12, h23, ↓reduceIte]
-        have hs1 : (Int.ofNat (d1 + 1) - Int.ofNat 1 - ((0 : Int) - Int.ofNat 0)).toNat = d1 := by omega
-        have hs2 : (Int.ofNat (d1 + 1 + (j + 2 - 1)) - Int.ofNat 0 - (Int.ofNat (d1 + 1) - Int.ofNat 1)).toNat = j + 2 := by omega
+        have h12 : (0 : Int) - (0 : Int) < ((d1 + 1 : Nat) : Int) - (1 : Int) ∨
+            ((0 : Int) - (0 : Int) = ((d1 + 1 : Nat) : Int) - (1 : Int) ∧ (0 : Nat) ≤ 1) := by
+          cases d1 with | zero => exact Or.inr ⟨by omega, by omega⟩ | succ _ => exact Or.inl (by omega)
+        rw [ct_forwardShift_ordered (d1 + 1) (j + 2 - 1) _ _ _ h12 (Or.inl (by omega))]
+        have hs1 : ((((d1 + 1 : Nat) : Int) - (1 : Int)) - ((0 : Int) - (0 : Int))).toNat = d1 := by omega
+        have hs2 : ((((d1 + 1 + (j + 2 - 1) : Nat) : Int) - (0 : Int)) - (((d1 + 1 : Nat) : Int) - (1 : Int))).toNat = j + 2 := by omega
         rw [hs1, hs2]
-  · -- (0, 1, 1): d1 ≥ 0, d2 ≥ 1, e1 = d1 + 1 ≥ 1, e2 = d2 ≥ 1
+  · -- (0, 1, 1)
     have hd2 : d2 ≥ 1 := by
       cases d2 with | zero => exact absurd (hZ2 rfl).1 (by decide) | succ _ => omega
-    have he1 : trionPullE1 d1 ⟨0, hv1⟩ ⟨1, hv2⟩ = d1 + 1 := by unfold trionPullE1; omega
-    have he2 : trionPullE2 d2 ⟨1, hv2⟩ ⟨1, hv3⟩ = d2 := by unfold trionPullE2; omega
-    simp only [he1, he2]
+    have h1 : d1 + 1 - 0 = d1 + 1 := by omega
+    have h2 : d2 + 1 - 1 = d2 := by omega
+    change _ ∧ _ ∧ _ ∧ _ ∧ _
+    rw [h1, h2]
     have hne1 : ¬ (d1 + 1 = 0) := by omega
     have hne2 : ¬ (d2 = 0) := by omega
     simp only [hne1, hne2, ↓reduceIte]
     refine ⟨by omega, by omega, by omega, ⟨by omega, fun h => absurd h hne1, fun h => absurd h hne2⟩, ?_⟩
-    unfold trionForwardShift
-    have h12 : decide (((0 : Int) - Int.ofNat 0 < Int.ofNat (d1 + 1) - Int.ofNat 1) ∨
-        ((0 : Int) - Int.ofNat 0 = Int.ofNat (d1 + 1) - Int.ofNat 1 ∧ (0 : Nat) ≤ 1)) = true := by
-      apply decide_eq_true
-      cases d1 with
-      | zero => exact Or.inr ⟨by omega, by omega⟩
-      | succ m => exact Or.inl (by omega)
-    have h23 : decide ((Int.ofNat (d1 + 1) - Int.ofNat 1 < Int.ofNat (d1 + 1 + d2) - Int.ofNat 1) ∨
-        (Int.ofNat (d1 + 1) - Int.ofNat 1 = Int.ofNat (d1 + 1 + d2) - Int.ofNat 1 ∧ (1 : Nat) ≤ 1)) = true :=
-      decide_eq_true (Or.inl (by omega))
-    simp only [h12, h23, ↓reduceIte]
-    have hs1 : (Int.ofNat (d1 + 1) - Int.ofNat 1 - ((0 : Int) - Int.ofNat 0)).toNat = d1 := by omega
-    have hs2 : (Int.ofNat (d1 + 1 + d2) - Int.ofNat 1 - (Int.ofNat (d1 + 1) - Int.ofNat 1)).toNat = d2 := by omega
+    have h12 : (0 : Int) - (0 : Int) < ((d1 + 1 : Nat) : Int) - (1 : Int) ∨
+        ((0 : Int) - (0 : Int) = ((d1 + 1 : Nat) : Int) - (1 : Int) ∧ (0 : Nat) ≤ 1) := by
+      cases d1 with | zero => exact Or.inr ⟨by omega, by omega⟩ | succ _ => exact Or.inl (by omega)
+    rw [ct_forwardShift_ordered (d1 + 1) d2 _ _ _ h12 (Or.inl (by omega))]
+    have hs1 : ((((d1 + 1 : Nat) : Int) - (1 : Int)) - ((0 : Int) - (0 : Int))).toNat = d1 := by omega
+    have hs2 : ((((d1 + 1 + d2 : Nat) : Int) - (1 : Int)) - (((d1 + 1 : Nat) : Int) - (1 : Int))).toNat = d2 := by omega
     rw [hs1, hs2]
-  · -- (1, 0, 0): d1 ≥ 1, d2 ≥ 1, e1 = d1 - 1 (can be 0 if d1 = 1!), e2 = d2 ≥ 1
+  · -- (1, 0, 0)
     have hd1 : d1 ≥ 1 := by
       cases d1 with | zero => exact absurd (hZ1 rfl).1 (by decide) | succ _ => omega
     have hd2 : d2 ≥ 1 := by
       cases d2 with | zero => exact absurd (hZ2 rfl).2 (by decide) | succ _ => omega
-    have he1 : trionPullE1 d1 ⟨1, hv1⟩ ⟨0, hv2⟩ = d1 - 1 := by unfold trionPullE1; omega
-    have he2 : trionPullE2 d2 ⟨0, hv2⟩ ⟨0, hv3⟩ = d2 := by unfold trionPullE2; omega
-    simp only [he1, he2]
+    have h1 : d1 + 0 - 1 = d1 - 1 := by omega
+    have h2 : d2 + 0 - 0 = d2 := by omega
+    change _ ∧ _ ∧ _ ∧ _ ∧ _
+    rw [h1, h2]
     have hne2 : ¬ (d2 = 0) := by omega
     simp only [hne2, ↓reduceIte]
     cases d1 with
@@ -496,46 +563,28 @@ theorem thm_ct_trion_shift_pullback_exact (d1 d2 : Nat) (t1 t2 t3 : Fin 2)
     | succ k =>
       cases k with
       | zero =>
-        -- d1 = 1: e1 = 0 (left contact pair!)
-        have he1z : (1 : Nat) - 1 = 0 := rfl
-        simp only [he1z, ↓reduceIte]
+        have h1z : (1 : Nat) - 1 = 0 := rfl
+        rw [h1z]; simp only [↓reduceIte]
         refine ⟨by omega, by omega, by omega, ⟨by omega, fun _ => ⟨rfl, rfl⟩, fun h => absurd h hne2⟩, ?_⟩
-        unfold trionForwardShift
-        have h12 : decide (((0 : Int) - Int.ofNat 0 < Int.ofNat 0 - Int.ofNat 1) ∨
-            ((0 : Int) - Int.ofNat 0 = Int.ofNat 0 - Int.ofNat 1 ∧ (0 : Nat) ≤ 1)) = false :=
-          decide_eq_false (by omega)
-        have h23 : decide (((0 : Int) - Int.ofNat 0 < Int.ofNat (0 + d2) - Int.ofNat 0) ∨
-            ((0 : Int) - Int.ofNat 0 = Int.ofNat (0 + d2) - Int.ofNat 0 ∧ (0 : Nat) ≤ 0)) = true :=
-          decide_eq_true (Or.inl (by omega))
-        have h13 : decide ((Int.ofNat 0 - Int.ofNat 1 < (0 : Int) - Int.ofNat 0) ∨
-            (Int.ofNat 0 - Int.ofNat 1 = (0 : Int) - Int.ofNat 0 ∧ (1 : Nat) ≤ 0)) = true :=
-          decide_eq_true (Or.inl (by omega))
-        simp only [h12, h23, h13, ↓reduceIte, Bool.false_eq_true]
-        have hs1 : ((0 : Int) - Int.ofNat 0 - (Int.ofNat 0 - Int.ofNat 1)).toNat = 1 := by omega
-        have hs2 : (Int.ofNat (0 + d2) - Int.ofNat 0 - ((0 : Int) - Int.ofNat 0)).toNat = d2 := by omega
+        rw [ct_forwardShift_swap12 0 d2 _ _ _ (by omega) (Or.inl (by omega)) (Or.inl (by omega))]
+        have hs1 : (((0 : Int) - (0 : Int)) - (((0 : Nat) : Int) - (1 : Int))).toNat = 1 := by omega
+        have hs2 : ((((0 + d2 : Nat) : Int) - (0 : Int)) - ((0 : Int) - (0 : Int))).toNat = d2 := by omega
         rw [hs1, hs2]
       | succ j =>
-        -- d1 = j + 2: e1 = j + 1 ≥ 1
         have hne1 : ¬ (j + 2 - 1 = 0) := by omega
         simp only [hne1, ↓reduceIte]
         refine ⟨by omega, by omega, by omega, ⟨by omega, fun h => absurd h hne1, fun h => absurd h hne2⟩, ?_⟩
-        unfold trionForwardShift
-        have h12 : decide (((0 : Int) - Int.ofNat 1 < Int.ofNat (j + 2 - 1) - Int.ofNat 0) ∨
-            ((0 : Int) - Int.ofNat 1 = Int.ofNat (j + 2 - 1) - Int.ofNat 0 ∧ (1 : Nat) ≤ 0)) = true :=
-          decide_eq_true (Or.inl (by omega))
-        have h23 : decide ((Int.ofNat (j + 2 - 1) - Int.ofNat 0 < Int.ofNat (j + 2 - 1 + d2) - Int.ofNat 0) ∨
-            (Int.ofNat (j + 2 - 1) - Int.ofNat 0 = Int.ofNat (j + 2 - 1 + d2) - Int.ofNat 0 ∧ (0 : Nat) ≤ 0)) = true :=
-          decide_eq_true (Or.inl (by omega))
-        simp only [h12, h23, ↓reduceIte]
-        have hs1 : (Int.ofNat (j + 2 - 1) - Int.ofNat 0 - ((0 : Int) - Int.ofNat 1)).toNat = j + 2 := by omega
-        have hs2 : (Int.ofNat (j + 2 - 1 + d2) - Int.ofNat 0 - (Int.ofNat (j + 2 - 1) - Int.ofNat 0)).toNat = d2 := by omega
+        rw [ct_forwardShift_ordered (j + 2 - 1) d2 _ _ _ (Or.inl (by omega)) (Or.inl (by omega))]
+        have hs1 : ((((j + 2 - 1 : Nat) : Int) - (0 : Int)) - ((0 : Int) - (1 : Int))).toNat = j + 2 := by omega
+        have hs2 : ((((j + 2 - 1 + d2 : Nat) : Int) - (0 : Int)) - (((j + 2 - 1 : Nat) : Int) - (0 : Int))).toNat = d2 := by omega
         rw [hs1, hs2]
-  · -- (1, 0, 1): d1 ≥ 1, d2 ≥ 0, e1 = d1 - 1 (can be 0 if d1 = 1!), e2 = d2 + 1 ≥ 1
+  · -- (1, 0, 1)
     have hd1 : d1 ≥ 1 := by
       cases d1 with | zero => exact absurd (hZ1 rfl).1 (by decide) | succ _ => omega
-    have he1 : trionPullE1 d1 ⟨1, hv1⟩ ⟨0, hv2⟩ = d1 - 1 := by unfold trionPullE1; omega
-    have he2 : trionPullE2 d2 ⟨0, hv2⟩ ⟨1, hv3⟩ = d2 + 1 := by unfold trionPullE2; omega
-    simp only [he1, he2]
+    have h1 : d1 + 0 - 1 = d1 - 1 := by omega
+    have h2 : d2 + 1 - 0 = d2 + 1 := by omega
+    change _ ∧ _ ∧ _ ∧ _ ∧ _
+    rw [h1, h2]
     have hne2 : ¬ (d2 + 1 = 0) := by omega
     simp only [hne2, ↓reduceIte]
     cases d1 with
@@ -543,53 +592,36 @@ theorem thm_ct_trion_shift_pullback_exact (d1 d2 : Nat) (t1 t2 t3 : Fin 2)
     | succ k =>
       cases k with
       | zero =>
-        -- d1 = 1: e1 = 0 (left contact pair!), e2 = d2 + 1
-        have he1z : (1 : Nat) - 1 = 0 := rfl
-        simp only [he1z, ↓reduceIte]
+        have h1z : (1 : Nat) - 1 = 0 := rfl
+        rw [h1z]; simp only [↓reduceIte]
         refine ⟨by omega, by omega, by omega, ⟨by omega, fun _ => ⟨rfl, rfl⟩, fun h => absurd h hne2⟩, ?_⟩
-        unfold trionForwardShift
-        have h12 : decide (((0 : Int) - Int.ofNat 0 < Int.ofNat 0 - Int.ofNat 1) ∨
-            ((0 : Int) - Int.ofNat 0 = Int.ofNat 0 - Int.ofNat 1 ∧ (0 : Nat) ≤ 1)) = false :=
-          decide_eq_false (by omega)
-        have h23 : decide (((0 : Int) - Int.ofNat 0 < Int.ofNat (0 + (d2 + 1)) - Int.ofNat 1) ∨
-            ((0 : Int) - Int.ofNat 0 = Int.ofNat (0 + (d2 + 1)) - Int.ofNat 1 ∧ (0 : Nat) ≤ 1)) = true := by
-          apply decide_eq_true
-          cases d2 with
-          | zero => exact Or.inr ⟨by omega, by omega⟩
-          | succ m => exact Or.inl (by omega)
-        have h13 : decide ((Int.ofNat 0 - Int.ofNat 1 < (0 : Int) - Int.ofNat 0) ∨
-            (Int.ofNat 0 - Int.ofNat 1 = (0 : Int) - Int.ofNat 0 ∧ (1 : Nat) ≤ 0)) = true :=
-          decide_eq_true (Or.inl (by omega))
-        simp only [h12, h23, h13, ↓reduceIte, Bool.false_eq_true]
-        have hs1 : ((0 : Int) - Int.ofNat 0 - (Int.ofNat 0 - Int.ofNat 1)).toNat = 1 := by omega
-        have hs2 : (Int.ofNat (0 + (d2 + 1)) - Int.ofNat 1 - ((0 : Int) - Int.ofNat 0)).toNat = d2 := by omega
+        have h13 : (0 : Int) - (0 : Int) < ((0 + (d2 + 1) : Nat) : Int) - (1 : Int) ∨
+            ((0 : Int) - (0 : Int) = ((0 + (d2 + 1) : Nat) : Int) - (1 : Int) ∧ (0 : Nat) ≤ 1) := by
+          cases d2 with | zero => exact Or.inr ⟨by omega, by omega⟩ | succ _ => exact Or.inl (by omega)
+        rw [ct_forwardShift_swap12 0 (d2 + 1) _ _ _ (by omega) h13 (Or.inl (by omega))]
+        have hs1 : (((0 : Int) - (0 : Int)) - (((0 : Nat) : Int) - (1 : Int))).toNat = 1 := by omega
+        have hs2 : ((((0 + (d2 + 1) : Nat) : Int) - (1 : Int)) - ((0 : Int) - (0 : Int))).toNat = d2 := by omega
         rw [hs1, hs2]
       | succ j =>
         have hne1 : ¬ (j + 2 - 1 = 0) := by omega
         simp only [hne1, ↓reduceIte]
         refine ⟨by omega, by omega, by omega, ⟨by omega, fun h => absurd h hne1, fun h => absurd h hne2⟩, ?_⟩
-        unfold trionForwardShift
-        have h12 : decide (((0 : Int) - Int.ofNat 1 < Int.ofNat (j + 2 - 1) - Int.ofNat 0) ∨
-            ((0 : Int) - Int.ofNat 1 = Int.ofNat (j + 2 - 1) - Int.ofNat 0 ∧ (1 : Nat) ≤ 0)) = true :=
-          decide_eq_true (Or.inl (by omega))
-        have h23 : decide ((Int.ofNat (j + 2 - 1) - Int.ofNat 0 < Int.ofNat (j + 2 - 1 + (d2 + 1)) - Int.ofNat 1) ∨
-            (Int.ofNat (j + 2 - 1) - Int.ofNat 0 = Int.ofNat (j + 2 - 1 + (d2 + 1)) - Int.ofNat 1 ∧ (0 : Nat) ≤ 1)) = true := by
-          apply decide_eq_true
-          cases d2 with
-          | zero => exact Or.inr ⟨by omega, by omega⟩
-          | succ m => exact Or.inl (by omega)
-        simp only [h12, h23, ↓reduceIte]
-        have hs1 : (Int.ofNat (j + 2 - 1) - Int.ofNat 0 - ((0 : Int) - Int.ofNat 1)).toNat = j + 2 := by omega
-        have hs2 : (Int.ofNat (j + 2 - 1 + (d2 + 1)) - Int.ofNat 1 - (Int.ofNat (j + 2 - 1) - Int.ofNat 0)).toNat = d2 := by omega
+        have h23 : ((j + 2 - 1 : Nat) : Int) - (0 : Int) < ((j + 2 - 1 + (d2 + 1) : Nat) : Int) - (1 : Int) ∨
+            (((j + 2 - 1 : Nat) : Int) - (0 : Int) = ((j + 2 - 1 + (d2 + 1) : Nat) : Int) - (1 : Int) ∧ (0 : Nat) ≤ 1) := by
+          cases d2 with | zero => exact Or.inr ⟨by omega, by omega⟩ | succ _ => exact Or.inl (by omega)
+        rw [ct_forwardShift_ordered (j + 2 - 1) (d2 + 1) _ _ _ (Or.inl (by omega)) h23]
+        have hs1 : ((((j + 2 - 1 : Nat) : Int) - (0 : Int)) - ((0 : Int) - (1 : Int))).toNat = j + 2 := by omega
+        have hs2 : ((((j + 2 - 1 + (d2 + 1) : Nat) : Int) - (1 : Int)) - (((j + 2 - 1 : Nat) : Int) - (0 : Int))).toNat = d2 := by omega
         rw [hs1, hs2]
-  · -- (1, 1, 0): d1 ≥ 1, d2 ≥ 1, e1 = d1 ≥ 1, e2 = d2 - 1 (can be 0 if d2 = 1!)
+  · -- (1, 1, 0)
     have hd1 : d1 ≥ 1 := by
       cases d1 with | zero => exact absurd (hZ1 rfl).1 (by decide) | succ _ => omega
     have hd2 : d2 ≥ 1 := by
       cases d2 with | zero => exact absurd (hZ2 rfl).1 (by decide) | succ _ => omega
-    have he1 : trionPullE1 d1 ⟨1, hv1⟩ ⟨1, hv2⟩ = d1 := by unfold trionPullE1; omega
-    have he2 : trionPullE2 d2 ⟨1, hv2⟩ ⟨0, hv3⟩ = d2 - 1 := by unfold trionPullE2; omega
-    simp only [he1, he2]
+    have h1 : d1 + 1 - 1 = d1 := by omega
+    have h2 : d2 + 0 - 1 = d2 - 1 := by omega
+    change _ ∧ _ ∧ _ ∧ _ ∧ _
+    rw [h1, h2]
     have hne1 : ¬ (d1 = 0) := by omega
     simp only [hne1, ↓reduceIte]
     cases d2 with
@@ -597,61 +629,37 @@ theorem thm_ct_trion_shift_pullback_exact (d1 d2 : Nat) (t1 t2 t3 : Fin 2)
     | succ k =>
       cases k with
       | zero =>
-        -- d2 = 1: e2 = 0 (right contact pair!)
-        have he2z : (1 : Nat) - 1 = 0 := rfl
-        simp only [he2z, ↓reduceIte]
+        have h2z : (1 : Nat) - 1 = 0 := rfl
+        rw [h2z]; simp only [↓reduceIte]
         refine ⟨by omega, by omega, by omega, ⟨by omega, fun h => absurd h hne1, fun _ => ⟨rfl, rfl⟩⟩, ?_⟩
-        unfold trionForwardShift
-        have h12 : decide (((0 : Int) - Int.ofNat 1 < Int.ofNat d1 - Int.ofNat 0) ∨
-            ((0 : Int) - Int.ofNat 1 = Int.ofNat d1 - Int.ofNat 0 ∧ (1 : Nat) ≤ 0)) = true :=
-          decide_eq_true (Or.inl (by omega))
-        have h23 : decide ((Int.ofNat d1 - Int.ofNat 0 < Int.ofNat (d1 + 0) - Int.ofNat 1) ∨
-            (Int.ofNat d1 - Int.ofNat 0 = Int.ofNat (d1 + 0) - Int.ofNat 1 ∧ (0 : Nat) ≤ 1)) = false :=
-          decide_eq_false (by omega)
-        have h13 : decide (((0 : Int) - Int.ofNat 1 < Int.ofNat (d1 + 0) - Int.ofNat 1) ∨
-            ((0 : Int) - Int.ofNat 1 = Int.ofNat (d1 + 0) - Int.ofNat 1 ∧ (1 : Nat) ≤ 1)) = true :=
-          decide_eq_true (Or.inl (by omega))
-        simp only [h12, h23, h13, ↓reduceIte, Bool.false_eq_true]
-        have hs1 : (Int.ofNat (d1 + 0) - Int.ofNat 1 - ((0 : Int) - Int.ofNat 1)).toNat = d1 := by omega
-        have hs2 : (Int.ofNat d1 - Int.ofNat 0 - (Int.ofNat (d1 + 0) - Int.ofNat 1)).toNat = 1 := by omega
+        rw [ct_forwardShift_swap23 d1 0 _ _ _ (Or.inl (by omega)) (by omega) (Or.inl (by omega))]
+        have hs1 : ((((d1 + 0 : Nat) : Int) - (1 : Int)) - ((0 : Int) - (1 : Int))).toNat = d1 := by omega
+        have hs2 : (((d1 : Int) - (0 : Int)) - (((d1 + 0 : Nat) : Int) - (1 : Int))).toNat = 1 := by omega
         rw [hs1, hs2]
       | succ j =>
         have hne2 : ¬ (j + 2 - 1 = 0) := by omega
         simp only [hne2, ↓reduceIte]
         refine ⟨by omega, by omega, by omega, ⟨by omega, fun h => absurd h hne1, fun h => absurd h hne2⟩, ?_⟩
-        unfold trionForwardShift
-        have h12 : decide (((0 : Int) - Int.ofNat 1 < Int.ofNat d1 - Int.ofNat 1) ∨
-            ((0 : Int) - Int.ofNat 1 = Int.ofNat d1 - Int.ofNat 1 ∧ (1 : Nat) ≤ 1)) = true :=
-          decide_eq_true (Or.inl (by omega))
-        have h23 : decide ((Int.ofNat d1 - Int.ofNat 1 < Int.ofNat (d1 + (j + 2 - 1)) - Int.ofNat 0) ∨
-            (Int.ofNat d1 - Int.ofNat 1 = Int.ofNat (d1 + (j + 2 - 1)) - Int.ofNat 0 ∧ (1 : Nat) ≤ 0)) = true :=
-          decide_eq_true (Or.inl (by omega))
-        simp only [h12, h23, ↓reduceIte]
-        have hs1 : (Int.ofNat d1 - Int.ofNat 1 - ((0 : Int) - Int.ofNat 1)).toNat = d1 := by omega
-        have hs2 : (Int.ofNat (d1 + (j + 2 - 1)) - Int.ofNat 0 - (Int.ofNat d1 - Int.ofNat 1)).toNat = j + 2 := by omega
+        rw [ct_forwardShift_ordered d1 (j + 2 - 1) _ _ _ (Or.inl (by omega)) (Or.inl (by omega))]
+        have hs1 : (((d1 : Int) - (1 : Int)) - ((0 : Int) - (1 : Int))).toNat = d1 := by omega
+        have hs2 : ((((d1 + (j + 2 - 1) : Nat) : Int) - (0 : Int)) - ((d1 : Int) - (1 : Int))).toNat = j + 2 := by omega
         rw [hs1, hs2]
-  · -- (1, 1, 1): d1 ≥ 1, d2 ≥ 1, e1 = d1 ≥ 1, e2 = d2 ≥ 1
+  · -- (1, 1, 1)
     have hd1 : d1 ≥ 1 := by
       cases d1 with | zero => exact absurd (hZ1 rfl).1 (by decide) | succ _ => omega
     have hd2 : d2 ≥ 1 := by
       cases d2 with | zero => exact absurd (hZ2 rfl).1 (by decide) | succ _ => omega
-    have he1 : trionPullE1 d1 ⟨1, hv1⟩ ⟨1, hv2⟩ = d1 := by unfold trionPullE1; omega
-    have he2 : trionPullE2 d2 ⟨1, hv2⟩ ⟨1, hv3⟩ = d2 := by unfold trionPullE2; omega
-    simp only [he1, he2]
+    have h1 : d1 + 1 - 1 = d1 := by omega
+    have h2 : d2 + 1 - 1 = d2 := by omega
+    change _ ∧ _ ∧ _ ∧ _ ∧ _
+    rw [h1, h2]
     have hne1 : ¬ (d1 = 0) := by omega
     have hne2 : ¬ (d2 = 0) := by omega
     simp only [hne1, hne2, ↓reduceIte]
     refine ⟨by omega, by omega, by omega, ⟨by omega, fun h => absurd h hne1, fun h => absurd h hne2⟩, ?_⟩
-    unfold trionForwardShift
-    have h12 : decide (((0 : Int) - Int.ofNat 1 < Int.ofNat d1 - Int.ofNat 1) ∨
-        ((0 : Int) - Int.ofNat 1 = Int.ofNat d1 - Int.ofNat 1 ∧ (1 : Nat) ≤ 1)) = true :=
-      decide_eq_true (Or.inl (by omega))
-    have h23 : decide ((Int.ofNat d1 - Int.ofNat 1 < Int.ofNat (d1 + d2) - Int.ofNat 1) ∨
-        (Int.ofNat d1 - Int.ofNat 1 = Int.ofNat (d1 + d2) - Int.ofNat 1 ∧ (1 : Nat) ≤ 1)) = true :=
-      decide_eq_true (Or.inl (by omega))
-    simp only [h12, h23, ↓reduceIte]
-    have hs1 : (Int.ofNat d1 - Int.ofNat 1 - ((0 : Int) - Int.ofNat 1)).toNat = d1 := by omega
-    have hs2 : (Int.ofNat (d1 + d2) - Int.ofNat 1 - (Int.ofNat d1 - Int.ofNat 1)).toNat = d2 := by omega
+    rw [ct_forwardShift_ordered d1 d2 _ _ _ (Or.inl (by omega)) (Or.inl (by omega))]
+    have hs1 : (((d1 : Int) - (1 : Int)) - ((0 : Int) - (1 : Int))).toNat = d1 := by omega
+    have hs2 : ((((d1 + d2 : Nat) : Int) - (1 : Int)) - ((d1 : Int) - (1 : Int))).toNat = d2 := by omega
     rw [hs1, hs2]
 
 /-- Exact unit-cell trion amplitude `7^(d1 + d2) * ψ(d1, d2, s1, s2, s3) ∈ ℤ[ω]`,
@@ -735,28 +743,29 @@ private theorem ct_trionStep8_factor (M d1 d2 : Nat) (t1 t2 t3 : Fin 2)
     let e2 := trionPullE2 d2 t2 t3
     trionStep8 (trionState M) d1 d2 t1 t2 t3 =
       Eis.scale (ctPowInt 7 (M + 1 - (e1 + e2))) (ct_cellStep8 (e1 == 0) (e2 == 0) t1 t2 t3) := by
+  dsimp only
   have hP := thm_ct_trion_shift_pullback_exact d1 d2 t1 t2 t3 hV
   have hNotBoth : ¬ (trionPullE1 d1 t1 t2 = 0 ∧ trionPullE2 d2 t2 t3 = 0) := hP.2.1
   unfold trionStep8 ct_cellStep8
   by_cases h1 : trionPullE1 d1 t1 t2 = 0
   · have h2 : trionPullE2 d2 t2 t3 ≠ 0 := fun hz => hNotBoth ⟨h1, hz⟩
-    have hb1 : (trionPullE1 d1 t1 t2 == 0) = true := by simp [h1]
-    have hb2 : (trionPullE2 d2 t2 t3 == 0) = false := by simp [h2]
-    simp only [h1, hb1, ↓reduceIte]
+    have hb1 : (trionPullE1 d1 t1 t2 == 0) = true := by rw [h1]; rfl
+    have hb2 : (trionPullE2 d2 t2 t3 == 0) = false := ct_beq_zero_false _ h2
+    rw [if_pos h1, hb1, if_pos rfl, h1]
     unfold trionState
     simp only [Nat.zero_add, beq_self_eq_true, hb2]
     rw [ct_eis_mul_scale_right, ct_eis_mul_scale_right, ct_eis_scale_add,
         ct_eis_mul_scale_right, ct_eis_scale_comm 4]
-  · have hb1 : (trionPullE1 d1 t1 t2 == 0) = false := by simp [h1]
+  · have hb1 : (trionPullE1 d1 t1 t2 == 0) = false := ct_beq_zero_false _ h1
     by_cases h2 : trionPullE2 d2 t2 t3 = 0
-    · have hb2 : (trionPullE2 d2 t2 t3 == 0) = true := by simp [h2]
-      simp only [h1, h2, hb1, hb2, ↓reduceIte, Bool.false_eq_true]
+    · have hb2 : (trionPullE2 d2 t2 t3 == 0) = true := by rw [h2]; rfl
+      rw [if_neg h1, if_pos h2, hb1, if_neg (by decide), hb2, if_pos rfl, h2]
       unfold trionState
       simp only [Nat.add_zero, beq_self_eq_true, hb1]
       rw [ct_eis_mul_scale_right, ct_eis_mul_scale_right, ct_eis_scale_add,
           ct_eis_mul_scale_right, ct_eis_scale_comm 4]
-    · have hb2 : (trionPullE2 d2 t2 t3 == 0) = false := by simp [h2]
-      simp only [h1, h2, hb1, hb2, ↓reduceIte, Bool.false_eq_true]
+    · have hb2 : (trionPullE2 d2 t2 t3 == 0) = false := ct_beq_zero_false _ h2
+      rw [if_neg h1, if_neg h2, hb1, if_neg (by decide), hb2, if_neg (by decide)]
       unfold trionState
       simp only [hb1, hb2]
       exact ct_tensorCoin8Vec_scale (ctPowInt 7 (M + 1 - (trionPullE1 d1 t1 t2 + trionPullE2 d2 t2 t3)))
@@ -792,8 +801,8 @@ theorem thm_ct_trion_infinite_line_eigenstate (M : Nat) (_hM : M ≥ 2)
       | succ j =>
         have hv1 := t1.isLt; have hv2 := t2.isLt
         have hL : j + 2 + t2.val - t1.val ≠ 0 := by omega
-        have hR : (r1.val) + t2.val - t1.val ≠ 0 := by change 2 + t2.val - t1.val ≠ 0; omega
-        simp [hL, hR]
+        have hR : r1.val + t2.val - t1.val ≠ 0 := by change 2 + t2.val - t1.val ≠ 0; omega
+        rw [ct_beq_zero_false _ hL, ct_beq_zero_false _ hR]
   have hE2Z : (trionPullE2 d2 t2 t3 == 0) = (trionPullE2 r2.val t2 t3 == 0) := by
     unfold trionPullE2
     cases d2 with
@@ -804,15 +813,15 @@ theorem thm_ct_trion_infinite_line_eigenstate (M : Nat) (_hM : M ≥ 2)
       | succ j =>
         have hv2 := t2.isLt; have hv3 := t3.isLt
         have hL : j + 2 + t3.val - t2.val ≠ 0 := by omega
-        have hR : (r2.val) + t3.val - t2.val ≠ 0 := by change 2 + t3.val - t2.val ≠ 0; omega
-        simp [hL, hR]
+        have hR : r2.val + t3.val - t2.val ≠ 0 := by change 2 + t3.val - t2.val ≠ 0; omega
+        rw [ct_beq_zero_false _ hL, ct_beq_zero_false _ hR]
   have hRepSum : r1.val + r2.val ≥ 1 := by
     have hS := hV.1
     cases d1 with
     | zero =>
-      cases d2 with | zero => omega | succ k => cases k <;> decide
+      cases d2 with | zero => omega | succ k => cases k <;> simp [r1, r2]
     | succ k =>
-      cases k <;> cases d2 with | zero => decide | succ j => cases j <;> decide
+      cases k <;> cases d2 with | zero => simp [r1, r2] | succ j => cases j <;> simp [r1, r2]
   have hRepZ1 : r1.val = 0 → t1 = ⟨0, by decide⟩ ∧ t2 = ⟨1, by decide⟩ := by
     intro hr
     have hd1 : d1 = 0 := by
@@ -830,12 +839,12 @@ theorem thm_ct_trion_infinite_line_eigenstate (M : Nat) (_hM : M ≥ 2)
   rw [ct_eis_mul_scale_right, ct_eis_scale_comm 8]
   have hv1 := t1.isLt; have hv3 := t3.isLt
   by_cases hEqT : t1.val = t3.val
-  · simp only [hEqT, ↓reduceIte] at hStencil
+  · rw [if_pos hEqT] at hStencil
     have hExpEq : M + 1 - (trionPullE1 d1 t1 t2 + trionPullE2 d2 t2 t3) = M + 1 - (d1 + d2) := by omega
     rw [hExpEq, ct_eis_scale_comm 7]
     exact congrArg (Eis.scale (ctPowInt 7 (M + 1 - (d1 + d2)))) hStencil
   · by_cases hT10 : t1.val = 0
-    · simp only [hEqT, hT10, ↓reduceIte] at hStencil
+    · rw [if_neg hEqT, if_pos hT10] at hStencil
       have hT31 : t3.val = 1 := by omega
       have hExpStep : (M + 1 - (trionPullE1 d1 t1 t2 + trionPullE2 d2 t2 t3)) + 1 = M + 1 - (d1 + d2) := by omega
       rw [ct_eis_scale_scale 7]
@@ -850,7 +859,7 @@ theorem thm_ct_trion_infinite_line_eigenstate (M : Nat) (_hM : M ≥ 2)
         simp only [Eis.scale, Int.one_mul]
       rw [hOne] at hStencil
       exact congrArg (Eis.scale (ctPowInt 7 (M + 1 - (d1 + d2)))) hStencil
-    · simp only [hEqT, hT10, ↓reduceIte] at hStencil
+    · rw [if_neg hEqT, if_neg hT10] at hStencil
       have hT11 : t1.val = 1 := by omega
       have hT30 : t3.val = 0 := by omega
       have hd1Ge : d1 ≥ 1 := by
@@ -871,8 +880,9 @@ theorem thm_ct_trion_infinite_line_eigenstate (M : Nat) (_hM : M ≥ 2)
       rw [hExpStep]
       change Eis.scale 7 (Eis.scale (7 * ctPowInt 7 (M + 1 - (d1 + d2))) _) = _
       rw [ct_eis_scale_scale 7, ← Int.mul_assoc 7 7 (ctPowInt 7 (M + 1 - (d1 + d2))),
-          Int.mul_comm (7 * 7) (ctPowInt 7 (M + 1 - (d1 + d2))),
-          ← ct_eis_scale_scale (ctPowInt 7 (M + 1 - (d1 + d2))) 49]
+          Int.mul_comm (7 * 7) (ctPowInt 7 (M + 1 - (d1 + d2)))]
+      change Eis.scale (ctPowInt 7 (M + 1 - (d1 + d2)) * 49) _ = _
+      rw [← ct_eis_scale_scale (ctPowInt 7 (M + 1 - (d1 + d2))) 49]
       exact congrArg (Eis.scale (ctPowInt 7 (M + 1 - (d1 + d2)))) hStencil
 
 
@@ -970,24 +980,24 @@ private theorem ct_sumBox1To_geom (r c : Int) (M N : Nat) (hNM : 2 * N ≤ M) :
     intro d1 _ hd1
     have hC : ctSum1To (fun d2 => ctPowInt r (M - (d1 + d2)) * c) N =
         ctSum1To (fun d2 => ctPowInt r ((M - d1) - d2) * c) N :=
-      ct_sum1To_congr _ _ N (fun d2 _ _ => by have hE : M - (d1 + d2) = (M - d1) - d2 := by omega; rw [hE])
+      ct_sum1To_congr _ _ N (fun d2 _ _ => by
+        have hE : M - (d1 + d2) = (M - d1) - d2 := by omega
+        rw [hE])
     rw [hC, ct_sum1To_geom r c (M - d1) N (by omega)]
   rw [ct_sum1To_congr _ _ N hInner]
   have hOuterC : ctSum1To (fun d1 => ctPowInt r (M - d1 - N) * ctGeomScaled r c N) N =
       ctSum1To (fun d1 => ctPowInt r ((M - N) - d1) * ctGeomScaled r c N) N :=
-    ct_sum1To_congr _ _ N (fun d1 _ _ => by have hE : M - d1 - N = (M - N) - d1 := by omega; rw [hE])
+    ct_sum1To_congr _ _ N (fun d1 _ _ => by
+      have hE : M - d1 - N = (M - N) - d1 := by omega
+      rw [hE])
   rw [hOuterC, ct_sum1To_geom r (ctGeomScaled r c N) (M - N) N (by omega)]
   have hExp : (M - N) - N = M - 2 * N := by omega
   rw [hExp, ct_geom_scale r (ctGeomScaled r c N) N, ct_geom_scale r c N]
-  have hRe : ctPowInt r (M - 2 * N) * (c * ctGeomScaled r 1 N * ctGeomScaled r 1 N) =
-      c * ctPowInt r (M - 2 * N) * ctGeomScaled r 1 N * ctGeomScaled r 1 N := by
-    rw [ct_int_mul_left_comm (ctPowInt r (M - 2 * N)) (c * ctGeomScaled r 1 N) (ctGeomScaled r 1 N),
-        ← Int.mul_assoc (c * ctGeomScaled r 1 N) (ctPowInt r (M - 2 * N)) (ctGeomScaled r 1 N),
-        Int.mul_assoc c (ctGeomScaled r 1 N) (ctPowInt r (M - 2 * N)),
-        Int.mul_comm (ctGeomScaled r 1 N) (ctPowInt r (M - 2 * N)),
-        ← Int.mul_assoc c (ctPowInt r (M - 2 * N)) (ctGeomScaled r 1 N)]
-  rw [← Int.mul_assoc (c * ctGeomScaled r 1 N) (ctGeomScaled r 1 N)] at hRe
-  simpa [Int.mul_assoc] using hRe
+  rw [ct_int_mul_left_comm (ctPowInt r (M - 2 * N)) (c * ctGeomScaled r 1 N) (ctGeomScaled r 1 N),
+      ← Int.mul_assoc (c * ctGeomScaled r 1 N) (ctPowInt r (M - 2 * N)) (ctGeomScaled r 1 N),
+      Int.mul_assoc c (ctGeomScaled r 1 N) (ctPowInt r (M - 2 * N)),
+      Int.mul_comm (ctGeomScaled r 1 N) (ctPowInt r (M - 2 * N)),
+      ← Int.mul_assoc c (ctPowInt r (M - 2 * N)) (ctGeomScaled r 1 N)]
 
 private theorem ct_leftPairNormSq_eq (M d : Nat) (hd : d ≥ 1) :
     trionLeftPairNormSq M d = ctPowInt 49 (M + 1 - d) * 56 := by
@@ -1065,7 +1075,7 @@ private theorem ct_sepNorm4_eq (M d1 d2 : Nat) (h1 : d1 ≥ 1) (h2 : d2 ≥ 1) :
   rw [h00, h01, h10, h11]
   have hSq : ∀ (a b : Int), (a * b) * (a * b) = (a * a) * (b * b) := fun a b => by
     rw [Int.mul_assoc a b (a * b), ct_int_mul_left_comm b a b, ← Int.mul_assoc a a (b * b)]
-  rw [hSq, hSq, hSq, hSq, ct_powInt_sq]
+  rw [hSq, hSq, hSq, ct_powInt_sq]
   let p := ctPowInt 2401 (M + 1 - (d1 + d2))
   change ((p * (49 * 49) + p * (7 * 7)) + (p * (49 * 49) + p * (7 * 7))) +
          ((p * (343 * 343) + p * (49 * 49)) + (p * (343 * 343) + p * (49 * 49))) = p * 245000
@@ -1148,19 +1158,7 @@ theorem thm_ct_trion_norm_contact_and_ipr :
           ← Int.mul_assoc (ctPowInt 49 (N + 1)) 56, Int.mul_comm (ctPowInt 49 (N + 1)) 56]
     · rw [hS]
       have h2304 : (2304 : Int) = 48 * 48 := rfl
-      rw [h2304]
-      let A : Int := 896 * 49
-      let B : Int := ctGeomScaled 49 1 N
-      have hAlg : (48 * 48) * (A * B * B) = A * (48 * B) * (48 * B) := by
-        rw [Int.mul_assoc (48 * 48) (A * B) B,
-            ct_int_mul_left_comm (48 * 48) A B,
-            Int.mul_assoc A (48 * 48) (B * B),
-            Int.mul_assoc 48 48 (B * B),
-            ct_int_mul_left_comm 48 B B,
-            ← Int.mul_assoc 48 B (48 * B),
-            ← Int.mul_assoc A (48 * B) (48 * B)]
-      change (48 * 48) * (A * B * B) = A * (ctPowInt 49 N - 1) * (ctPowInt 49 N - 1)
-      rw [hAlg, hG1]
+      rw [h2304, ct_mul_sq_comm 48 (896 * 49) (ctGeomScaled 49 1 N), hG1]
   · intro N
     have hL : ctSum1To (trionLeftPairNorm4 (2 * N)) N =
         ctPowInt 2401 (N + 1) * ctGeomScaled 2401 2450 N := by
@@ -1198,19 +1196,7 @@ theorem thm_ct_trion_norm_contact_and_ipr :
           ← Int.mul_assoc (ctPowInt 2401 (N + 1)) 2450, Int.mul_comm (ctPowInt 2401 (N + 1)) 2450]
     · rw [hS]
       have h576 : (5760000 : Int) = 2400 * 2400 := rfl
-      rw [h576]
-      let A : Int := 245000 * 2401
-      let B : Int := ctGeomScaled 2401 1 N
-      have hAlg : (2400 * 2400) * (A * B * B) = A * (2400 * B) * (2400 * B) := by
-        rw [Int.mul_assoc (2400 * 2400) (A * B) B,
-            ct_int_mul_left_comm (2400 * 2400) A B,
-            Int.mul_assoc A (2400 * 2400) (B * B),
-            Int.mul_assoc 2400 2400 (B * B),
-            ct_int_mul_left_comm 2400 B B,
-            ← Int.mul_assoc 2400 B (2400 * B),
-            ← Int.mul_assoc A (2400 * B) (2400 * B)]
-      change (2400 * 2400) * (A * B * B) = A * (ctPowInt 2401 N - 1) * (ctPowInt 2401 N - 1)
-      rw [hAlg, hG1]
+      rw [h576, ct_mul_sq_comm 2400 (245000 * 2401) (ctGeomScaled 2401 1 N), hG1]
 
 
 /-! ## Section 4: Exact `P = 0` Trion Spectral-Gap Separation -/
@@ -1289,8 +1275,9 @@ theorem thm_ct_trion_gap_separation :
         rw [Int.mul_sub, ← Int.mul_assoc 16 (3 * p) q2, ← Int.mul_assoc 16 3 p,
             Int.mul_assoc (16 * 3) p q2, ← Int.mul_assoc 16 4 p3]; rfl
       change 11 * q3 - 16 * (3 * p * q2 - 4 * p3) = (q - 4 * p) * (11 * q2 - 4 * pq - 16 * p2)
-      rw [Int.sub_mul, Int.mul_sub, Int.mul_sub, Int.mul_sub, Int.mul_sub,
-          ha, hb, hc, hd, he, hf, hg]
+      rw [hg]
+      simp only [Int.sub_mul, Int.mul_sub]
+      rw [ha, hb, hc, hd, he, hf]
       omega
     have hq0 : 0 ≤ q := by omega
     have h4pq : 4 * (p * q) ≤ q * q := by
@@ -1340,79 +1327,23 @@ private theorem ct_cotSqCubic_strict_inc_ge_22 (p1 q1 p2 q2 : Int)
   have hxy : x < y := hLt
   have hL : ctCotSqCubicHom p1 q1 * (q2 * (q2 * q2)) = ctCotSqCubicHom x d := by
     unfold ctCotSqCubicHom
-    have e3 : (p1 * (p1 * p1)) * (q2 * (q2 * q2)) = x * (x * x) := by
-      have s1 : (p1 * p1) * (q2 * q2) = x * x := by
-        rw [Int.mul_assoc p1 p1 (q2 * q2), ct_int_mul_left_comm p1 q2 q2,
-            ← Int.mul_assoc p1 q2 (p1 * q2)]
-      rw [Int.mul_assoc p1 (p1 * p1) (q2 * (q2 * q2)),
-          ct_int_mul_left_comm (p1 * p1) q2 (q2 * q2), s1, ← Int.mul_assoc p1 q2 (x * x)]
-    have e2 : (p1 * (p1 * q1)) * (q2 * (q2 * q2)) = x * (x * d) := by
-      have s1 : (p1 * q1) * (q2 * q2) = x * d := by
-        rw [Int.mul_assoc p1 q1 (q2 * q2), ct_int_mul_left_comm q1 q2 q2,
-            ← Int.mul_assoc p1 q2 (q1 * q2)]
-      rw [Int.mul_assoc p1 (p1 * q1) (q2 * (q2 * q2)),
-          ct_int_mul_left_comm (p1 * q1) q2 (q2 * q2), s1, ← Int.mul_assoc p1 q2 (x * d)]
-    have e1 : (p1 * (q1 * q1)) * (q2 * (q2 * q2)) = x * (d * d) := by
-      have s1 : (q1 * q1) * (q2 * q2) = d * d := by
-        rw [Int.mul_assoc q1 q1 (q2 * q2), ct_int_mul_left_comm q1 q2 q2,
-            ← Int.mul_assoc q1 q2 (q1 * q2)]
-      rw [Int.mul_assoc p1 (q1 * q1) (q2 * (q2 * q2)),
-          ct_int_mul_left_comm (q1 * q1) q2 (q2 * q2), s1, ← Int.mul_assoc p1 q2 (d * d)]
-    have e0 : (q1 * (q1 * q1)) * (q2 * (q2 * q2)) = d * (d * d) := by
-      have s1 : (q1 * q1) * (q2 * q2) = d * d := by
-        rw [Int.mul_assoc q1 q1 (q2 * q2), ct_int_mul_left_comm q1 q2 q2,
-            ← Int.mul_assoc q1 q2 (q1 * q2)]
-      rw [Int.mul_assoc q1 (q1 * q1) (q2 * (q2 * q2)),
-          ct_int_mul_left_comm (q1 * q1) q2 (q2 * q2), s1, ← Int.mul_assoc q1 q2 (d * d)]
-    simp only [Int.sub_mul, Int.add_mul, Int.mul_assoc]
-    rw [← Int.mul_assoc (p1 * (p1 * q1)) q2 (q2 * q2), e2,
-        ← Int.mul_assoc (p1 * (q1 * q1)) q2 (q2 * q2), e1,
-        ← Int.mul_assoc (q1 * (q1 * q1)) q2 (q2 * q2), e0,
-        ← Int.mul_assoc (p1 * (p1 * p1)) q2 (q2 * q2), e3]
+    simp only [Int.sub_mul, Int.add_mul]
+    rw [Int.mul_assoc 33, Int.mul_assoc 27, Int.mul_assoc 3,
+        ct_triple_mul_cube p1 p1 p1 q2, ct_triple_mul_cube p1 p1 q1 q2,
+        ct_triple_mul_cube p1 q1 q1 q2, ct_triple_mul_cube q1 q1 q1 q2]
   have hR : ctCotSqCubicHom p2 q2 * (q1 * (q1 * q1)) = ctCotSqCubicHom y d := by
     unfold ctCotSqCubicHom
     have hD : q2 * q1 = d := Int.mul_comm q2 q1
-    have e3 : (p2 * (p2 * p2)) * (q1 * (q1 * q1)) = y * (y * y) := by
-      have s1 : (p2 * p2) * (q1 * q1) = y * y := by
-        rw [Int.mul_assoc p2 p2 (q1 * q1), ct_int_mul_left_comm p2 q1 q1,
-            ← Int.mul_assoc p2 q1 (p2 * q1)]
-      rw [Int.mul_assoc p2 (p2 * p2) (q1 * (q1 * q1)),
-          ct_int_mul_left_comm (p2 * p2) q1 (q1 * q1), s1, ← Int.mul_assoc p2 q1 (y * y)]
-    have e2 : (p2 * (p2 * q2)) * (q1 * (q1 * q1)) = y * (y * d) := by
-      have s1 : (p2 * q2) * (q1 * q1) = y * d := by
-        rw [Int.mul_assoc p2 q2 (q1 * q1), ct_int_mul_left_comm q2 q1 q1,
-            ← Int.mul_assoc p2 q1 (q2 * q1), hD]
-      rw [Int.mul_assoc p2 (p2 * q2) (q1 * (q1 * q1)),
-          ct_int_mul_left_comm (p2 * q2) q1 (q1 * q1), s1, ← Int.mul_assoc p2 q1 (y * d)]
-    have e1 : (p2 * (q2 * q2)) * (q1 * (q1 * q1)) = y * (d * d) := by
-      have s1 : (q2 * q2) * (q1 * q1) = d * d := by
-        rw [Int.mul_assoc q2 q2 (q1 * q1), ct_int_mul_left_comm q2 q1 q1,
-            ← Int.mul_assoc q2 q1 (q2 * q1), hD]
-      rw [Int.mul_assoc p2 (q2 * q2) (q1 * (q1 * q1)),
-          ct_int_mul_left_comm (q2 * q2) q1 (q1 * q1), s1, ← Int.mul_assoc p2 q1 (d * d)]
-    have e0 : (q2 * (q2 * q2)) * (q1 * (q1 * q1)) = d * (d * d) := by
-      have s1 : (q2 * q2) * (q1 * q1) = d * d := by
-        rw [Int.mul_assoc q2 q2 (q1 * q1), ct_int_mul_left_comm q2 q1 q1,
-            ← Int.mul_assoc q2 q1 (q2 * q1), hD]
-      rw [Int.mul_assoc q2 (q2 * q2) (q1 * (q1 * q1)),
-          ct_int_mul_left_comm (q2 * q2) q1 (q1 * q1), s1, ← Int.mul_assoc q2 q1 (d * d), hD]
-    simp only [Int.sub_mul, Int.add_mul, Int.mul_assoc]
-    rw [← Int.mul_assoc (p2 * (p2 * q2)) q1 (q1 * q1), e2,
-        ← Int.mul_assoc (p2 * (q2 * q2)) q1 (q1 * q1), e1,
-        ← Int.mul_assoc (q2 * (q2 * q2)) q1 (q1 * q1), e0,
-        ← Int.mul_assoc (p2 * (p2 * p2)) q1 (q1 * q1), e3]
+    simp only [Int.sub_mul, Int.add_mul]
+    rw [Int.mul_assoc 33, Int.mul_assoc 27, Int.mul_assoc 3,
+        ct_triple_mul_cube p2 p2 p2 q1, ct_triple_mul_cube p2 p2 q2 q1,
+        ct_triple_mul_cube p2 q2 q2 q1, ct_triple_mul_cube q2 q2 q2 q1, hD]
   rw [hL, hR]
   unfold ctCotSqCubicHom
   have hDiff : (y * (y * y) - 33 * (y * (y * d)) + 27 * (y * (d * d)) - 3 * (d * (d * d))) -
       (x * (x * x) - 33 * (x * (x * d)) + 27 * (x * (d * d)) - 3 * (d * (d * d))) =
       (y - x) * (y * y + y * x + x * x - 33 * ((y + x) * d) + 27 * (d * d)) := by
-    have t1 : (y - x) * (y * y + y * x + x * x) = y * (y * y) - x * (x * x) := by
-      simp only [Int.sub_mul, Int.mul_add]
-      rw [ct_int_mul_left_comm y x x, Int.mul_comm y x, Int.mul_assoc x x y,
-          Int.mul_comm (x * x) y, Int.mul_assoc y x y, Int.mul_comm x y]
-      have h1' : x * (y * y) = y * (x * y) := by rw [ct_int_mul_left_comm]
-      have h2' : x * (y * x) = y * (x * x) := by rw [ct_int_mul_left_comm]
-      rw [h1', h2']; omega
+    have t1 : (y - x) * (y * y + y * x + x * x) = y * (y * y) - x * (x * x) := ct_diff_cubes x y
     have t2 : (y - x) * (33 * ((y + x) * d)) = 33 * (y * (y * d)) - 33 * (x * (x * d)) := by
       rw [ct_int_mul_left_comm (y - x) 33 ((y + x) * d), ← Int.mul_assoc (y - x) (y + x) d]
       have sq : (y - x) * (y + x) = y * y - x * x := by
@@ -1458,81 +1389,24 @@ private theorem ct_tanSqCubic_strict_inc_unit (p1 q1 p2 q2 : Int)
     rw [Int.mul_assoc 2 p2 q1, Int.mul_comm q2 q1] at h; exact h
   have hL : ctTanSqCubicHom p1 q1 * (q2 * (q2 * q2)) = ctTanSqCubicHom x d := by
     unfold ctTanSqCubicHom
-    have e3 : (p1 * (p1 * p1)) * (q2 * (q2 * q2)) = x * (x * x) := by
-      have s1 : (p1 * p1) * (q2 * q2) = x * x := by
-        rw [Int.mul_assoc p1 p1 (q2 * q2), ct_int_mul_left_comm p1 q2 q2,
-            ← Int.mul_assoc p1 q2 (p1 * q2)]
-      rw [Int.mul_assoc p1 (p1 * p1) (q2 * (q2 * q2)),
-          ct_int_mul_left_comm (p1 * p1) q2 (q2 * q2), s1, ← Int.mul_assoc p1 q2 (x * x)]
-    have e2 : (p1 * (p1 * q1)) * (q2 * (q2 * q2)) = x * (x * d) := by
-      have s1 : (p1 * q1) * (q2 * q2) = x * d := by
-        rw [Int.mul_assoc p1 q1 (q2 * q2), ct_int_mul_left_comm q1 q2 q2,
-            ← Int.mul_assoc p1 q2 (q1 * q2)]
-      rw [Int.mul_assoc p1 (p1 * q1) (q2 * (q2 * q2)),
-          ct_int_mul_left_comm (p1 * q1) q2 (q2 * q2), s1, ← Int.mul_assoc p1 q2 (x * d)]
-    have e1 : (p1 * (q1 * q1)) * (q2 * (q2 * q2)) = x * (d * d) := by
-      have s1 : (q1 * q1) * (q2 * q2) = d * d := by
-        rw [Int.mul_assoc q1 q1 (q2 * q2), ct_int_mul_left_comm q1 q2 q2,
-            ← Int.mul_assoc q1 q2 (q1 * q2)]
-      rw [Int.mul_assoc p1 (q1 * q1) (q2 * (q2 * q2)),
-          ct_int_mul_left_comm (q1 * q1) q2 (q2 * q2), s1, ← Int.mul_assoc p1 q2 (d * d)]
-    have e0 : (q1 * (q1 * q1)) * (q2 * (q2 * q2)) = d * (d * d) := by
-      have s1 : (q1 * q1) * (q2 * q2) = d * d := by
-        rw [Int.mul_assoc q1 q1 (q2 * q2), ct_int_mul_left_comm q1 q2 q2,
-            ← Int.mul_assoc q1 q2 (q1 * q2)]
-      rw [Int.mul_assoc q1 (q1 * q1) (q2 * (q2 * q2)),
-          ct_int_mul_left_comm (q1 * q1) q2 (q2 * q2), s1, ← Int.mul_assoc q1 q2 (d * d)]
-    simp only [Int.sub_mul, Int.add_mul, Int.mul_assoc]
-    rw [← Int.mul_assoc (p1 * (p1 * p1)) q2 (q2 * q2), e3,
-        ← Int.mul_assoc (p1 * (p1 * q1)) q2 (q2 * q2), e2,
-        ← Int.mul_assoc (p1 * (q1 * q1)) q2 (q2 * q2), e1,
-        ← Int.mul_assoc (q1 * (q1 * q1)) q2 (q2 * q2), e0]
+    simp only [Int.sub_mul, Int.add_mul]
+    rw [Int.mul_assoc 3, Int.mul_assoc 27, Int.mul_assoc 33,
+        ct_triple_mul_cube p1 p1 p1 q2, ct_triple_mul_cube p1 p1 q1 q2,
+        ct_triple_mul_cube p1 q1 q1 q2, ct_triple_mul_cube q1 q1 q1 q2]
   have hR : ctTanSqCubicHom p2 q2 * (q1 * (q1 * q1)) = ctTanSqCubicHom y d := by
     unfold ctTanSqCubicHom
     have hD : q2 * q1 = d := Int.mul_comm q2 q1
-    have e3 : (p2 * (p2 * p2)) * (q1 * (q1 * q1)) = y * (y * y) := by
-      have s1 : (p2 * p2) * (q1 * q1) = y * y := by
-        rw [Int.mul_assoc p2 p2 (q1 * q1), ct_int_mul_left_comm p2 q1 q1,
-            ← Int.mul_assoc p2 q1 (p2 * q1)]
-      rw [Int.mul_assoc p2 (p2 * p2) (q1 * (q1 * q1)),
-          ct_int_mul_left_comm (p2 * p2) q1 (q1 * q1), s1, ← Int.mul_assoc p2 q1 (y * y)]
-    have e2 : (p2 * (p2 * q2)) * (q1 * (q1 * q1)) = y * (y * d) := by
-      have s1 : (p2 * q2) * (q1 * q1) = y * d := by
-        rw [Int.mul_assoc p2 q2 (q1 * q1), ct_int_mul_left_comm q2 q1 q1,
-            ← Int.mul_assoc p2 q1 (q2 * q1), hD]
-      rw [Int.mul_assoc p2 (p2 * q2) (q1 * (q1 * q1)),
-          ct_int_mul_left_comm (p2 * q2) q1 (q1 * q1), s1, ← Int.mul_assoc p2 q1 (y * d)]
-    have e1 : (p2 * (q2 * q2)) * (q1 * (q1 * q1)) = y * (d * d) := by
-      have s1 : (q2 * q2) * (q1 * q1) = d * d := by
-        rw [Int.mul_assoc q2 q2 (q1 * q1), ct_int_mul_left_comm q2 q1 q1,
-            ← Int.mul_assoc q2 q1 (q2 * q1), hD]
-      rw [Int.mul_assoc p2 (q2 * q2) (q1 * (q1 * q1)),
-          ct_int_mul_left_comm (q2 * q2) q1 (q1 * q1), s1, ← Int.mul_assoc p2 q1 (d * d)]
-    have e0 : (q2 * (q2 * q2)) * (q1 * (q1 * q1)) = d * (d * d) := by
-      have s1 : (q2 * q2) * (q1 * q1) = d * d := by
-        rw [Int.mul_assoc q2 q2 (q1 * q1), ct_int_mul_left_comm q2 q1 q1,
-            ← Int.mul_assoc q2 q1 (q2 * q1), hD]
-      rw [Int.mul_assoc q2 (q2 * q2) (q1 * (q1 * q1)),
-          ct_int_mul_left_comm (q2 * q2) q1 (q1 * q1), s1, ← Int.mul_assoc q2 q1 (d * d), hD]
-    simp only [Int.sub_mul, Int.add_mul, Int.mul_assoc]
-    rw [← Int.mul_assoc (p2 * (p2 * p2)) q1 (q1 * q1), e3,
-        ← Int.mul_assoc (p2 * (p2 * q2)) q1 (q1 * q1), e2,
-        ← Int.mul_assoc (p2 * (q2 * q2)) q1 (q1 * q1), e1,
-        ← Int.mul_assoc (q2 * (q2 * q2)) q1 (q1 * q1), e0]
+    simp only [Int.sub_mul, Int.add_mul]
+    rw [Int.mul_assoc 3, Int.mul_assoc 27, Int.mul_assoc 33,
+        ct_triple_mul_cube p2 p2 p2 q1, ct_triple_mul_cube p2 p2 q2 q1,
+        ct_triple_mul_cube p2 q2 q2 q1, ct_triple_mul_cube q2 q2 q2 q1, hD]
   rw [hL, hR]
   unfold ctTanSqCubicHom
   have hDiff : (3 * (y * (y * y)) - 27 * (y * (y * d)) + 33 * (y * (d * d)) - d * (d * d)) -
       (3 * (x * (x * x)) - 27 * (x * (x * d)) + 33 * (x * (d * d)) - d * (d * d)) =
       (y - x) * (3 * (y * y + y * x + x * x) - 27 * ((y + x) * d) + 33 * (d * d)) := by
     have t1 : (y - x) * (3 * (y * y + y * x + x * x)) = 3 * (y * (y * y)) - 3 * (x * (x * x)) := by
-      rw [ct_int_mul_left_comm (y - x) 3]
-      have c1 : (y - x) * (y * y + y * x + x * x) = y * (y * y) - x * (x * x) := by
-        simp only [Int.sub_mul, Int.mul_add]
-        have h1' : x * (y * y) = y * (x * y) := by rw [ct_int_mul_left_comm]
-        have h2' : x * (y * x) = y * (x * x) := by rw [ct_int_mul_left_comm]
-        rw [ct_int_mul_left_comm y x x, Int.mul_comm y x, Int.mul_assoc x x y,
-            Int.mul_comm (x * x) y, Int.mul_assoc y x y, Int.mul_comm x y, h1', h2']; omega
-      rw [c1, Int.mul_sub]
+      rw [ct_int_mul_left_comm (y - x) 3, ct_diff_cubes x y, Int.mul_sub]
     have t2 : (y - x) * (27 * ((y + x) * d)) = 27 * (y * (y * d)) - 27 * (x * (x * d)) := by
       rw [ct_int_mul_left_comm (y - x) 27 ((y + x) * d), ← Int.mul_assoc (y - x) (y + x) d]
       have sq : (y - x) * (y + x) = y * y - x * x := by
@@ -1700,7 +1574,6 @@ theorem thm_ct_hyperbolic_excision_pocket :
      2441 * 31416 < 767 * 100000 ∧
      (49 : Int) * 2 < 100 ∧
      10 * (2 * (1000 ^ 2 : Int) - 767 ^ 2) > 7 * (2 * (1000 ^ 2 : Int)) ∧
-     7 * 13 < 10 * 7 + 21 ∧ 7 * 13 > 10 * 7 ∧
      (335 : Int) * 2 < 672 ∧ 1 * 13 < 7 * 2 ∧ 7 * 10 < 7 * 13 ∧
      QPos.le ⟨335, 672, by decide⟩ ⟨7, 13, by decide⟩ ∧
      QPos.le ⟨7, 13, by decide⟩ ⟨7, 10, by decide⟩) ∧
@@ -1824,64 +1697,23 @@ private theorem ct_depressed_strict_dec_on_1_2 (p1 q1 p2 q2 : Int)
   have hxLt : x < 2 * d := by omega
   have hL : ctDepressedHom p1 q1 * (q2 * (q2 * q2)) = ctDepressedHom x d := by
     unfold ctDepressedHom
-    have e3 : (p1 * (p1 * p1)) * (q2 * (q2 * q2)) = x * (x * x) := by
-      have s1 : (p1 * p1) * (q2 * q2) = x * x := by
-        rw [Int.mul_assoc p1 p1 (q2 * q2), ct_int_mul_left_comm p1 q2 q2,
-            ← Int.mul_assoc p1 q2 (p1 * q2)]
-      rw [Int.mul_assoc p1 (p1 * p1) (q2 * (q2 * q2)),
-          ct_int_mul_left_comm (p1 * p1) q2 (q2 * q2), s1, ← Int.mul_assoc p1 q2 (x * x)]
-    have e1 : (p1 * (q1 * q1)) * (q2 * (q2 * q2)) = x * (d * d) := by
-      have s1 : (q1 * q1) * (q2 * q2) = d * d := by
-        rw [Int.mul_assoc q1 q1 (q2 * q2), ct_int_mul_left_comm q1 q2 q2,
-            ← Int.mul_assoc q1 q2 (q1 * q2)]
-      rw [Int.mul_assoc p1 (q1 * q1) (q2 * (q2 * q2)),
-          ct_int_mul_left_comm (q1 * q1) q2 (q2 * q2), s1, ← Int.mul_assoc p1 q2 (d * d)]
-    have e0 : (q1 * (q1 * q1)) * (q2 * (q2 * q2)) = d * (d * d) := by
-      have s1 : (q1 * q1) * (q2 * q2) = d * d := by
-        rw [Int.mul_assoc q1 q1 (q2 * q2), ct_int_mul_left_comm q1 q2 q2,
-            ← Int.mul_assoc q1 q2 (q1 * q2)]
-      rw [Int.mul_assoc q1 (q1 * q1) (q2 * (q2 * q2)),
-          ct_int_mul_left_comm (q1 * q1) q2 (q2 * q2), s1, ← Int.mul_assoc q1 q2 (d * d)]
-    simp only [Int.sub_mul, Int.add_mul, Int.mul_assoc]
-    rw [← Int.mul_assoc (p1 * (p1 * p1)) q2 (q2 * q2), e3,
-        ← Int.mul_assoc (p1 * (q1 * q1)) q2 (q2 * q2), e1,
-        ← Int.mul_assoc (q1 * (q1 * q1)) q2 (q2 * q2), e0]
+    simp only [Int.sub_mul, Int.add_mul]
+    rw [Int.mul_assoc 12, Int.mul_assoc 12,
+        ct_triple_mul_cube p1 p1 p1 q2, ct_triple_mul_cube p1 q1 q1 q2,
+        ct_triple_mul_cube q1 q1 q1 q2]
   have hR : ctDepressedHom p2 q2 * (q1 * (q1 * q1)) = ctDepressedHom y d := by
     unfold ctDepressedHom
     have hD : q2 * q1 = d := Int.mul_comm q2 q1
-    have e3 : (p2 * (p2 * p2)) * (q1 * (q1 * q1)) = y * (y * y) := by
-      have s1 : (p2 * p2) * (q1 * q1) = y * y := by
-        rw [Int.mul_assoc p2 p2 (q1 * q1), ct_int_mul_left_comm p2 q1 q1,
-            ← Int.mul_assoc p2 q1 (p2 * q1)]
-      rw [Int.mul_assoc p2 (p2 * p2) (q1 * (q1 * q1)),
-          ct_int_mul_left_comm (p2 * p2) q1 (q1 * q1), s1, ← Int.mul_assoc p2 q1 (y * y)]
-    have e1 : (p2 * (q2 * q2)) * (q1 * (q1 * q1)) = y * (d * d) := by
-      have s1 : (q2 * q2) * (q1 * q1) = d * d := by
-        rw [Int.mul_assoc q2 q2 (q1 * q1), ct_int_mul_left_comm q2 q1 q1,
-            ← Int.mul_assoc q2 q1 (q2 * q1), hD]
-      rw [Int.mul_assoc p2 (q2 * q2) (q1 * (q1 * q1)),
-          ct_int_mul_left_comm (q2 * q2) q1 (q1 * q1), s1, ← Int.mul_assoc p2 q1 (d * d)]
-    have e0 : (q2 * (q2 * q2)) * (q1 * (q1 * q1)) = d * (d * d) := by
-      have s1 : (q2 * q2) * (q1 * q1) = d * d := by
-        rw [Int.mul_assoc q2 q2 (q1 * q1), ct_int_mul_left_comm q2 q1 q1,
-            ← Int.mul_assoc q2 q1 (q2 * q1), hD]
-      rw [Int.mul_assoc q2 (q2 * q2) (q1 * (q1 * q1)),
-          ct_int_mul_left_comm (q2 * q2) q1 (q1 * q1), s1, ← Int.mul_assoc q2 q1 (d * d), hD]
-    simp only [Int.sub_mul, Int.add_mul, Int.mul_assoc]
-    rw [← Int.mul_assoc (p2 * (p2 * p2)) q1 (q1 * q1), e3,
-        ← Int.mul_assoc (p2 * (q2 * q2)) q1 (q1 * q1), e1,
-        ← Int.mul_assoc (q2 * (q2 * q2)) q1 (q1 * q1), e0]
+    simp only [Int.sub_mul, Int.add_mul]
+    rw [Int.mul_assoc 12, Int.mul_assoc 12,
+        ct_triple_mul_cube p2 p2 p2 q1, ct_triple_mul_cube p2 q2 q2 q1,
+        ct_triple_mul_cube q2 q2 q2 q1, hD]
   rw [hL, hR]
   unfold ctDepressedHom
   have hDiff : (x * (x * x) - 12 * (x * (d * d)) + 12 * (d * (d * d))) -
       (y * (y * y) - 12 * (y * (d * d)) + 12 * (d * (d * d))) =
       (y - x) * (12 * (d * d) - (y * y + y * x + x * x)) := by
-    have t1 : (y - x) * (y * y + y * x + x * x) = y * (y * y) - x * (x * x) := by
-      simp only [Int.sub_mul, Int.mul_add]
-      have h1' : x * (y * y) = y * (x * y) := by rw [ct_int_mul_left_comm]
-      have h2' : x * (y * x) = y * (x * x) := by rw [ct_int_mul_left_comm]
-      rw [ct_int_mul_left_comm y x x, Int.mul_comm y x, Int.mul_assoc x x y,
-          Int.mul_comm (x * x) y, Int.mul_assoc y x y, Int.mul_comm x y, h1', h2']; omega
+    have t1 : (y - x) * (y * y + y * x + x * x) = y * (y * y) - x * (x * x) := ct_diff_cubes x y
     have t2 : (y - x) * (12 * (d * d)) = 12 * (y * (d * d)) - 12 * (x * (d * d)) := by
       rw [ct_int_mul_left_comm (y - x) 12 (d * d), Int.sub_mul, Int.mul_sub]
     rw [Int.mul_sub, t1, t2]; omega

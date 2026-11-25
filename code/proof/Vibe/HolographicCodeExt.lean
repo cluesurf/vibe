@@ -508,10 +508,29 @@ private def hceOctGet : Nat → HceOct → Nat → Nat
     | 6 => hceOctGet d c6 (i % s)
     | _ => hceOctGet d c7 (i % s)
 
-/-- Logarithmic-depth (`O(log_2 n)` stack frames) range checker over `[lo, lo + 2^d) ∩ Fin n`. -/
-private def hceCheckRange (n : Nat) (P : Fin n → Bool) : (d : Nat) → (lo : Nat) → Bool
-  | 0, lo => if h : lo < n then P ⟨lo, h⟩ else true
-  | d + 1, lo => hceCheckRange n P d lo && hceCheckRange n P d (lo + 2 ^ d)
+private theorem hce_ble_iff : ∀ (a b : Nat), Nat.ble a b = true ↔ a ≤ b
+  | 0, _ => ⟨fun _ => Nat.zero_le _, fun _ => rfl⟩
+  | _ + 1, 0 => ⟨fun h => Bool.noConfusion h, fun h => absurd h (by omega)⟩
+  | a + 1, b + 1 => by
+    change Nat.ble a b = true ↔ a + 1 ≤ b + 1
+    rw [hce_ble_iff a b]; omega
+
+private theorem hce_blt_iff (a b : Nat) : Nat.blt a b = true ↔ a < b :=
+  hce_ble_iff (a + 1) b
+
+private def hcePow2D : Nat → Nat
+  | 0 => 1 | 1 => 2 | 2 => 4 | 3 => 8 | 4 => 16 | 5 => 32
+  | 6 => 64 | 7 => 128 | 8 => 256 | 9 => 512 | _ => 1024
+
+private theorem hce_pow2D_succ (d : Nat) (hd : d ≤ 9) : hcePow2D (d + 1) = hcePow2D d + hcePow2D d := by
+  match d, hd with
+  | 0, _ | 1, _ | 2, _ | 3, _ | 4, _ | 5, _ | 6, _ | 7, _ | 8, _ | 9, _ => rfl
+  | _ + 10, h => omega
+
+/-- Zero-proof logarithmic-depth (`O(log_2 n)` stack frames) range checker over `[lo, lo + 2^d) ∩ [0, n)`. -/
+private def hceCheckRangeNat (n : Nat) (P : Nat → Bool) : (d : Nat) → (lo : Nat) → Bool
+  | 0, lo => match Nat.blt lo n with | true => P lo | false => true
+  | d + 1, lo => hceCheckRangeNat n P d lo && hceCheckRangeNat n P d (lo + hcePow2D d)
 
 private theorem hce_bool_and_split {a b : Bool} (h : (a && b) = true) : a = true ∧ b = true := by
   cases a <;> cases b <;> simp_all
@@ -519,50 +538,50 @@ private theorem hce_bool_and_split {a b : Bool} (h : (a && b) = true) : a = true
 private theorem hce_bool_or_split {a b : Bool} (h : (a || b) = true) : a = true ∨ b = true := by
   cases a <;> cases b <;> simp_all
 
-private theorem hce_checkRange_sound (n : Nat) (P : Fin n → Bool) :
-    ∀ (d lo : Nat), hceCheckRange n P d lo = true →
-      ∀ (i : Fin n), lo ≤ i.val → i.val < lo + 2 ^ d → P i = true := by
+private theorem hce_checkRangeNat_sound (n : Nat) (P : Nat → Bool) :
+    ∀ (d lo : Nat), d ≤ 10 → hceCheckRangeNat n P d lo = true →
+      ∀ (i : Nat), i < n → lo ≤ i → i < lo + hcePow2D d → P i = true := by
   intro d; induction d with
   | zero =>
-    intro lo h i hlo hhi
-    unfold hceCheckRange at h
-    have hEq : lo = i.val := by simp only [Nat.pow_zero] at hhi; omega
+    intro lo _ h i hi hlo hhi
+    unfold hceCheckRangeNat at h
+    have hEq : lo = i := by simp only [hcePow2D] at hhi; omega
     subst hEq
-    rw [hce_dite_pos i.isLt] at h; exact h
+    rw [(hce_blt_iff i n).mpr hi] at h; exact h
   | succ m ih =>
-    intro lo h i hlo hhi
-    unfold hceCheckRange at h
+    intro lo hd h i hi hlo hhi
+    unfold hceCheckRangeNat at h
     obtain ⟨hL, hR⟩ := hce_bool_and_split h
-    if hlt : i.val < lo + 2 ^ m then
-      exact ih lo hL i hlo hlt
+    have hStep := hce_pow2D_succ m (by omega)
+    if hlt : i < lo + hcePow2D m then
+      exact ih lo (by omega) hL i hi hlo hlt
     else
-      have hPow : 2 ^ (m + 1) = 2 ^ m + 2 ^ m := by rw [Nat.pow_succ]; omega
-      exact ih (lo + 2 ^ m) hR i (by omega) (by omega)
+      exact ih (lo + hcePow2D m) (by omega) hR i hi (by omega) (by omega)
 
-private theorem hce_checkRange_all (n d : Nat) (P : Fin n → Bool) (hBound : n ≤ 2 ^ d)
-    (h : hceCheckRange n P d 0 = true) : ∀ i : Fin n, P i = true :=
-  fun i => hce_checkRange_sound n P d 0 h i (Nat.zero_le _) (by have := i.isLt; omega)
+private theorem hce_checkRangeNat_all (n d : Nat) (P : Nat → Bool) (hd : d ≤ 10) (hBound : n ≤ hcePow2D d)
+    (h : hceCheckRangeNat n P d 0 = true) : ∀ (i : Nat), i < n → P i = true :=
+  fun i hi => hce_checkRangeNat_sound n P d 0 hd h i hi (Nat.zero_le _) (by omega)
 
-private theorem hce_checkRange_chunks4 (n d : Nat) (P : Fin n → Bool) (hBound : n ≤ 4 * 2 ^ d)
-    (h0 : hceCheckRange n P d 0 = true)
-    (h1 : hceCheckRange n P d (2 ^ d) = true)
-    (h2 : hceCheckRange n P d (2 * 2 ^ d) = true)
-    (h3 : hceCheckRange n P d (3 * 2 ^ d) = true) : ∀ i : Fin n, P i = true := by
-  intro i
-  if c0 : i.val < 2 ^ d then exact hce_checkRange_sound n P d 0 h0 i (Nat.zero_le _) (by omega)
-  else if c1 : i.val < 2 * 2 ^ d then exact hce_checkRange_sound n P d (2 ^ d) h1 i (by omega) (by omega)
-  else if c2 : i.val < 3 * 2 ^ d then exact hce_checkRange_sound n P d (2 * 2 ^ d) h2 i (by omega) (by omega)
-  else exact hce_checkRange_sound n P d (3 * 2 ^ d) h3 i (by omega) (by have := i.isLt; omega)
+private theorem hce_checkRangeNat_chunks4 (n d : Nat) (P : Nat → Bool) (hd : d ≤ 10) (hBound : n ≤ 4 * hcePow2D d)
+    (h0 : hceCheckRangeNat n P d 0 = true)
+    (h1 : hceCheckRangeNat n P d (hcePow2D d) = true)
+    (h2 : hceCheckRangeNat n P d (2 * hcePow2D d) = true)
+    (h3 : hceCheckRangeNat n P d (3 * hcePow2D d) = true) : ∀ (i : Nat), i < n → P i = true := by
+  intro i hi
+  if c0 : i < hcePow2D d then exact hce_checkRangeNat_sound n P d 0 hd h0 i hi (Nat.zero_le _) (by omega)
+  else if c1 : i < 2 * hcePow2D d then exact hce_checkRangeNat_sound n P d (hcePow2D d) hd h1 i hi (by omega) (by omega)
+  else if c2 : i < 3 * hcePow2D d then exact hce_checkRangeNat_sound n P d (2 * hcePow2D d) hd h2 i hi (by omega) (by omega)
+  else exact hce_checkRangeNat_sound n P d (3 * hcePow2D d) hd h3 i hi (by omega) (by omega)
 
-private def hcePow2 (r : Fin 24) : Nat :=
-  match r.val with
+private def hcePow2Nat : Nat → Nat
   | 0 => 1 | 1 => 2 | 2 => 4 | 3 => 8 | 4 => 16 | 5 => 32 | 6 => 64 | 7 => 128
   | 8 => 256 | 9 => 512 | 10 => 1024 | 11 => 2048 | 12 => 4096 | 13 => 8192 | 14 => 16384 | 15 => 32768
   | 16 => 65536 | 17 => 131072 | 18 => 262144 | 19 => 524288 | 20 => 1048576 | 21 => 2097152 | 22 => 4194304
   | _ => 8388608
 
-private def hcePow32 (r : Fin 24) : Nat :=
-  match r.val with
+private def hcePow2 (r : Fin 24) : Nat := hcePow2Nat r.val
+
+private def hcePow32Nat : Nat → Nat
   | 0 => 1 | 1 => 32 | 2 => 1024 | 3 => 32768 | 4 => 1048576 | 5 => 33554432
   | 6 => 1073741824 | 7 => 34359738368 | 8 => 1099511627776 | 9 => 35184372088832
   | 10 => 1125899906842624 | 11 => 36028797018963968 | 12 => 1152921504606846976
@@ -571,6 +590,8 @@ private def hcePow32 (r : Fin 24) : Nat :=
   | 18 => 1237940039285380274899124224 | 19 => 39614081257132168796771975168
   | 20 => 1267650600228229401496703205376 | 21 => 40564819207303340847894502572032
   | 22 => 1298074214633706907132624082305024 | _ => 41538374868278621028243970633760768
+
+private def hcePow32 (r : Fin 24) : Nat := hcePow32Nat r.val
 
 private def hcePow1000Oct : HceOct :=
   HceOct.node
@@ -806,9 +827,9 @@ private def hceDarbouxSumPack (p0 : Fin 2) (r0 : Fin 24) : Nat :=
 
 private def hceCheckDarbouxRow (p0 : Fin 2) (r0 : Fin 24) : Bool :=
   let s := hceDarbouxSumPack p0 r0
-  hceCheckRange 48 (fun k =>
-    let dig := ((s / hcePow1000 k.val) % 1000) % 3
-    let exp := if k.val = 24 * p0.val + r0.val then 1 else 0
+  hceCheckRangeNat 48 (fun k =>
+    let dig := ((s / hcePow1000 k) % 1000) % 3
+    let exp := match k == 24 * p0.val + r0.val with | true => 1 | false => 0
     dig == exp) 6 0
 
 private theorem hce_darboux_certs :
@@ -833,9 +854,18 @@ private theorem hce_darboux_matrix_id (p0 : Fin 2) (r0 : Fin 24) (p : Fin 2) (r 
     if p = p0 ∧ r = r0 then 1 else 0 := by
   have hkLt : 24 * p.val + r.val < 48 := by have := p.isLt; have := r.isLt; omega
   let k0 : Fin 48 := ⟨24 * p.val + r.val, hkLt⟩
-  have hRow := hce_checkRange_all 48 6 _ (by decide) (hce_darboux_certs.2.2 p0 r0) k0
+  have hRow := hce_checkRangeNat_all 48 6 _ (by decide) (by decide) (hce_darboux_certs.2.2 p0 r0) k0.val k0.isLt
+  have hDigRaw : ((hceDarbouxSumPack p0 r0 / hcePow1000 k0.val) % 1000) % 3 =
+      match k0.val == 24 * p0.val + r0.val with | true => 1 | false => 0 := Nat.eq_of_beq_eq_true hRow
   have hDig : ((hceDarbouxSumPack p0 r0 / hcePow1000 k0.val) % 1000) % 3 =
-      if k0.val = 24 * p0.val + r0.val then 1 else 0 := Nat.eq_of_beq_eq_true hRow
+      if k0.val = 24 * p0.val + r0.val then 1 else 0 := by
+    rw [hDigRaw]
+    by_cases hc : k0.val = 24 * p0.val + r0.val
+    · rw [hce_ite_pos hc, hc]; simp only [beq_self_eq_true]
+    · rw [hce_ite_neg hc]
+      cases hb : (k0.val == 24 * p0.val + r0.val)
+      · rfl
+      · exact absurd (Nat.eq_of_beq_eq_true hb) hc
   have hCond : (k0.val = 24 * p0.val + r0.val) ↔ (p = p0 ∧ r = r0) := by
     constructor
     · intro h
@@ -1122,28 +1152,39 @@ private def hceElemWordAux : Nat → Nat → List (Fin 4)
 
 private def hceElemWord (i : Nat) : List (Fin 4) := hceElemWordAux i i
 
-private def hceElemStepOk (i : Fin hceElemCount) : Bool :=
-  let p := hceElemPermPack i.val
-  if i.val = 0 then
-    hceCheckRange 24 (fun x => ((p / hcePow32 x) % 32) == x.val) 5 0
-  else
-    let code := hceElemStep i.val
+private def hceGenPermPack : Nat → Nat
+  | 0 => 813305281892537340242239721652328612
+  | 1 => 983560571572820720808746497163233312
+  | 2 => 944538608299884620581212286846339104
+  | _ => 112487771943955725305497707180318336
+
+private def hceGenPermNat (g r : Nat) : Nat := (hceGenPermPack g / hcePow32Nat r) % 32
+
+private theorem hce_genPermNat_eq : ∀ (g : Fin 4) (r : Fin 24), (hcWF4Perm g r).val = hceGenPermNat g.val r.val := by
+  decide
+
+private def hceElemStepOk (i : Nat) : Bool :=
+  let p := hceElemPermPack i
+  match i with
+  | 0 => hceCheckRangeNat 24 (fun x => ((p / hcePow32Nat x) % 32) == x) 5 0
+  | _ =>
+    let code := hceElemStep i
     let par := code / 4
-    let g : Fin 4 := ⟨code % 4, Nat.mod_lt _ (by decide)⟩
+    let g := code % 4
     let pp := hceElemPermPack par
-    decide (par < i.val) &&
-    hceCheckRange 24 (fun x =>
-      let y := (pp / hcePow32 x) % 32
-      let z := (p / hcePow32 x) % 32
-      if hy : y < 24 then (hcWF4Perm g ⟨y, hy⟩).val == z else false) 5 0
+    Nat.blt par i &&
+    hceCheckRangeNat 24 (fun x =>
+      let y := (pp / hcePow32Nat x) % 32
+      let z := (p / hcePow32Nat x) % 32
+      Nat.blt y 24 && (hceGenPermNat g y == z)) 5 0
 
-private theorem hce_elem_steps_c0 : hceCheckRange hceElemCount hceElemStepOk 8 0 = true := by decide
-private theorem hce_elem_steps_c1 : hceCheckRange hceElemCount hceElemStepOk 8 256 = true := by decide
-private theorem hce_elem_steps_c2 : hceCheckRange hceElemCount hceElemStepOk 8 512 = true := by decide
-private theorem hce_elem_steps_c3 : hceCheckRange hceElemCount hceElemStepOk 8 768 = true := by decide
+private theorem hce_elem_steps_c0 : hceCheckRangeNat hceElemCount hceElemStepOk 8 0 = true := rfl
+private theorem hce_elem_steps_c1 : hceCheckRangeNat hceElemCount hceElemStepOk 8 256 = true := rfl
+private theorem hce_elem_steps_c2 : hceCheckRangeNat hceElemCount hceElemStepOk 8 512 = true := rfl
+private theorem hce_elem_steps_c3 : hceCheckRangeNat hceElemCount hceElemStepOk 8 768 = true := rfl
 
-private theorem hce_elem_steps_valid : ∀ i : Fin hceElemCount, hceElemStepOk i = true :=
-  hce_checkRange_chunks4 hceElemCount 8 hceElemStepOk (by decide)
+private theorem hce_elem_steps_valid : ∀ (i : Nat), i < hceElemCount → hceElemStepOk i = true :=
+  hce_checkRangeNat_chunks4 hceElemCount 8 hceElemStepOk (by decide) (by decide)
     hce_elem_steps_c0 hce_elem_steps_c1 hce_elem_steps_c2 hce_elem_steps_c3
 
 private theorem hce_elemWord_spec_aux :
@@ -1155,36 +1196,36 @@ private theorem hce_elemWord_spec_aux :
     intro i hi hle x
     have hi0 : i = 0 := by omega
     subst hi0
-    have h0 := hce_elem_steps_valid ⟨0, hi⟩
-    unfold hceElemStepOk at h0; dsimp only at h0; rw [hce_ite_pos rfl] at h0
-    have hx := hce_checkRange_all 24 5 _ (by decide) h0 x
+    have h0 := hce_elem_steps_valid 0 hi
+    unfold hceElemStepOk at h0
+    have hx := hce_checkRangeNat_all 24 5 _ (by decide) (by decide) h0 x.val x.isLt
     exact (Nat.eq_of_beq_eq_true hx).symm
   | succ f ih =>
     intro i hi hle x
-    if hi0 : i = 0 then
-      subst hi0
+    cases i with
+    | zero =>
       unfold hceElemWordAux; rw [hce_ite_pos rfl]
-      have h0 := hce_elem_steps_valid ⟨0, hi⟩
-      unfold hceElemStepOk at h0; dsimp only at h0; rw [hce_ite_pos rfl] at h0
-      have hx := hce_checkRange_all 24 5 _ (by decide) h0 x
+      have h0 := hce_elem_steps_valid 0 hi
+      unfold hceElemStepOk at h0
+      have hx := hce_checkRangeNat_all 24 5 _ (by decide) (by decide) h0 x.val x.isLt
       exact (Nat.eq_of_beq_eq_true hx).symm
-    else
+    | succ k =>
+      have hi0 : k + 1 ≠ 0 := by omega
       unfold hceElemWordAux; rw [hce_ite_neg hi0]
       simp only [hceFwdWord]
-      have hStep := hce_elem_steps_valid ⟨i, hi⟩
-      unfold hceElemStepOk at hStep; dsimp only at hStep; rw [hce_ite_neg hi0] at hStep
+      have hStep := hce_elem_steps_valid (k + 1) hi
+      unfold hceElemStepOk at hStep
       obtain ⟨hParB, hAllX⟩ := hce_bool_and_split hStep
-      have hParLt : hceElemStep i / 4 < i := of_decide_eq_true hParB
-      have hx := hce_checkRange_all 24 5 _ (by decide) hAllX x
-      have hRec := ih (hceElemStep i / 4) (by omega) (by omega) x
-      have hyLt : (hceElemPermPack (hceElemStep i / 4) / hcePow32 x) % 32 < 24 := by
-        change hceElemPermNat (hceElemStep i / 4) x < 24
-        rw [← hRec]; exact (hceFwdWord _ x).isLt
-      rw [hce_dite_pos hyLt] at hx
-      have hEqFin : hceFwdWord (hceElemWordAux f (hceElemStep i / 4)) x =
-          ⟨(hceElemPermPack (hceElemStep i / 4) / hcePow32 x) % 32, hyLt⟩ := Fin.ext hRec
-      rw [hEqFin]
-      exact Nat.eq_of_beq_eq_true hx
+      have hParLt : hceElemStep (k + 1) / 4 < k + 1 := (hce_blt_iff _ _).mp hParB
+      have hx := hce_checkRangeNat_all 24 5 _ (by decide) (by decide) hAllX x.val x.isLt
+      obtain ⟨hyLtB, hzB⟩ := hce_bool_and_split hx
+      have hRec := ih (hceElemStep (k + 1) / 4) (by omega) (by omega) x
+      have hyLt : (hceElemPermPack (hceElemStep (k + 1) / 4) / hcePow32Nat x.val) % 32 < 24 :=
+        (hce_blt_iff _ 24).mp hyLtB
+      have hEqFin : hceFwdWord (hceElemWordAux f (hceElemStep (k + 1) / 4)) x =
+          ⟨(hceElemPermPack (hceElemStep (k + 1) / 4) / hcePow32Nat x.val) % 32, hyLt⟩ := Fin.ext hRec
+      rw [hEqFin, hce_genPermNat_eq ⟨hceElemStep (k + 1) % 4, Nat.mod_lt _ (by decide)⟩ ⟨_, hyLt⟩]
+      exact Nat.eq_of_beq_eq_true hzB
 
 private theorem hce_elemWord_spec (i : Nat) (hi : i < hceElemCount) (x : Fin 24) :
     (hceFwdWord (hceElemWord i) x).val = hceElemPermNat i x :=
@@ -1330,29 +1371,27 @@ private def hceInSlots (k : Nat) (packed : Nat) (r : Nat) : Bool :=
   | 0 => false
   | m + 1 => (packed % 32 == r) || hceInSlots m (packed / 32) r
 
-private def hceSlotsMatchOk (k n : Nat) (i : Fin n) : Bool :=
-  let mask := hceOrbMask k i.val
-  let slots := hceOrbSlots k i.val
-  hceCheckRange 24 (fun r => hceInMask mask r == hceInSlots k slots r.val) 5 0
+private def hceSlotsMatchOk (k : Nat) (i : Nat) : Bool :=
+  let mask := hceOrbMask k i
+  let slots := hceOrbSlots k i
+  hceCheckRangeNat 24 (fun r => (((mask / hcePow2Nat r) % 2) == 1) == hceInSlots k slots r) 5 0
 
-private theorem hce_slots_match_1_6 :
-    hceCheckRange 1 (hceSlotsMatchOk 1 1) 1 0 = true ∧
-    hceCheckRange 4 (hceSlotsMatchOk 2 4) 2 0 = true ∧
-    hceCheckRange 10 (hceSlotsMatchOk 3 10) 4 0 = true ∧
-    hceCheckRange 31 (hceSlotsMatchOk 4 31) 5 0 = true ∧
-    hceCheckRange 81 (hceSlotsMatchOk 5 81) 7 0 = true ∧
-    hceCheckRange 210 (hceSlotsMatchOk 6 210) 8 0 = true := by
-  decide
+private theorem hce_slots_match_1 : hceCheckRangeNat 1 (hceSlotsMatchOk 1) 1 0 = true := rfl
+private theorem hce_slots_match_2 : hceCheckRangeNat 4 (hceSlotsMatchOk 2) 2 0 = true := rfl
+private theorem hce_slots_match_3 : hceCheckRangeNat 10 (hceSlotsMatchOk 3) 4 0 = true := rfl
+private theorem hce_slots_match_4 : hceCheckRangeNat 31 (hceSlotsMatchOk 4) 5 0 = true := rfl
+private theorem hce_slots_match_5 : hceCheckRangeNat 81 (hceSlotsMatchOk 5) 7 0 = true := rfl
+private theorem hce_slots_match_6 : hceCheckRangeNat 210 (hceSlotsMatchOk 6) 8 0 = true := rfl
 
-private theorem hce_slots_match_7_c0 : hceCheckRange 450 (hceSlotsMatchOk 7 450) 7 0 = true := by decide
-private theorem hce_slots_match_7_c1 : hceCheckRange 450 (hceSlotsMatchOk 7 450) 7 128 = true := by decide
-private theorem hce_slots_match_7_c2 : hceCheckRange 450 (hceSlotsMatchOk 7 450) 7 256 = true := by decide
-private theorem hce_slots_match_7_c3 : hceCheckRange 450 (hceSlotsMatchOk 7 450) 7 384 = true := by decide
+private theorem hce_slots_match_7_c0 : hceCheckRangeNat 450 (hceSlotsMatchOk 7) 7 0 = true := rfl
+private theorem hce_slots_match_7_c1 : hceCheckRangeNat 450 (hceSlotsMatchOk 7) 7 128 = true := rfl
+private theorem hce_slots_match_7_c2 : hceCheckRangeNat 450 (hceSlotsMatchOk 7) 7 256 = true := rfl
+private theorem hce_slots_match_7_c3 : hceCheckRangeNat 450 (hceSlotsMatchOk 7) 7 384 = true := rfl
 
-private theorem hce_inMask_iff_inSlots (k n : Nat) (hAll : ∀ i : Fin n, hceSlotsMatchOk k n i = true)
+private theorem hce_inMask_iff_inSlots (k n : Nat) (hAll : ∀ i : Nat, i < n → hceSlotsMatchOk k i = true)
     (i : Fin n) (r : Fin 24) :
     hceInMask (hceOrbMask k i.val) r = hceInSlots k (hceOrbSlots k i.val) r.val := by
-  have hr := hce_checkRange_all 24 5 _ (by decide) (hAll i) r
+  have hr := hce_checkRangeNat_all 24 5 _ (by decide) (by decide) (hAll i.val i.isLt) r.val r.isLt
   exact eq_of_beq hr
 
 private def hceStep0Oct : HceOct :=
@@ -1421,32 +1460,37 @@ private def hceStepRow : Nat → Nat → Nat
   | _, i => hceOctGet 3 hceStep6Oct i
 
 private def hceInMaskNat (mask r : Nat) : Bool :=
-  if hr : r < 24 then hceInMask mask ⟨r, hr⟩ else false
+  Nat.blt r 24 && (((mask / hcePow2Nat r) % 2) == 1)
+
+private theorem hce_inMaskNat_sound {mask r : Nat} (h : hceInMaskNat mask r = true) :
+    ∃ hr : r < 24, hceInMask mask ⟨r, hr⟩ = true := by
+  unfold hceInMaskNat at h
+  obtain ⟨hlt, hbit⟩ := hce_bool_and_split h
+  exact ⟨(hce_blt_iff r 24).mp hlt, hbit⟩
 
 private def hceSlotsMappedInMask (k : Nat) (slots permPack dstMask : Nat) : Bool :=
   match k with
   | 0 => true
   | m + 1 =>
-    (if hr : slots % 32 < 24 then hceInMaskNat dstMask ((permPack / hcePow32 ⟨slots % 32, hr⟩) % 32) else false) &&
+    let s := slots % 32
+    Nat.blt s 24 && hceInMaskNat dstMask ((permPack / hcePow32Nat s) % 32) &&
     hceSlotsMappedInMask m (slots / 32) permPack dstMask
 
 private theorem hce_slotsMapped_sound (k slots permPack dstMask : Nat)
     (h : hceSlotsMappedInMask k slots permPack dstMask = true) :
     ∀ r : Fin 24, hceInSlots k slots r.val = true →
-      hceInMaskNat dstMask ((permPack / hcePow32 r) % 32) = true := by
+      hceInMaskNat dstMask ((permPack / hcePow32Nat r.val) % 32) = true := by
   induction k generalizing slots with
   | zero => intro r hr; exact Bool.noConfusion hr
   | succ m ih =>
     unfold hceSlotsMappedInMask at h
     obtain ⟨hHead, hTail⟩ := hce_bool_and_split h
+    obtain ⟨_, hIn⟩ := hce_bool_and_split hHead
     intro r hr
     unfold hceInSlots at hr
     rcases hce_bool_or_split hr with hEq | hRest
     · have hVal : slots % 32 = r.val := Nat.eq_of_beq_eq_true hEq
-      have hLt : slots % 32 < 24 := by rw [hVal]; exact r.isLt
-      rw [hce_dite_pos hLt] at hHead
-      have hFin : (⟨slots % 32, hLt⟩ : Fin 24) = r := Fin.ext hVal
-      rw [hFin] at hHead; exact hHead
+      rw [hVal] at hIn; exact hIn
     · exact ih (slots / 32) hTail r hRest
 
 private def hceCheckRowLoop (k nNext : Nat) (srcSlots : Nat) (x : Nat) (rem : Nat) (row : Nat) : Bool :=
@@ -1458,8 +1502,8 @@ private def hceCheckRowLoop (k nNext : Nat) (srcSlots : Nat) (x : Nat) (rem : Na
     let eIdx := pair / 512
     let dstMask := hceOrbMask (k + 1) nextRep
     let permPack := hceElemPermPack eIdx
-    decide (nextRep < nNext) && decide (eIdx < hceElemCount) &&
-    (if hx : x < 24 then hceInMaskNat dstMask ((permPack / hcePow32 ⟨x, hx⟩) % 32) else false) &&
+    Nat.blt nextRep nNext && Nat.blt eIdx hceElemCount &&
+    hceInMaskNat dstMask ((permPack / hcePow32Nat x) % 32) &&
     hceSlotsMappedInMask k srcSlots permPack dstMask &&
     hceCheckRowLoop k nNext srcSlots (x + 1) r (row / 524288)
 
@@ -1470,8 +1514,7 @@ private theorem hce_checkRowLoop_sound (k nNext srcSlots : Nat) :
         let nextRep := pair % 512
         let eIdx := pair / 512
         nextRep < nNext ∧ eIdx < hceElemCount ∧
-        (∀ hx : x + off < 24,
-          hceInMaskNat (hceOrbMask (k + 1) nextRep) ((hceElemPermPack eIdx / hcePow32 ⟨x + off, hx⟩) % 32) = true) ∧
+        hceInMaskNat (hceOrbMask (k + 1) nextRep) ((hceElemPermPack eIdx / hcePow32Nat (x + off)) % 32) = true ∧
         hceSlotsMappedInMask k srcSlots (hceElemPermPack eIdx) (hceOrbMask (k + 1) nextRep) = true := by
   intro rem
   induction rem with
@@ -1486,75 +1529,65 @@ private theorem hce_checkRowLoop_sound (k nNext srcSlots : Nat) :
     cases off with
     | zero =>
       simp only [Nat.pow_zero, Nat.div_one, Nat.add_zero]
-      refine ⟨of_decide_eq_true hNextB, of_decide_eq_true hElemB, fun hx => ?_, hMap⟩
-      rw [hce_dite_pos hx] at hX; exact hX
+      exact ⟨(hce_blt_iff _ _).mp hNextB, (hce_blt_iff _ _).mp hElemB, hX, hMap⟩
     | succ s =>
       have hRec := ih (x + 1) (row / 524288) hTail s (by omega)
       have hDiv : row / 524288 / 524288 ^ s = row / 524288 ^ (s + 1) := by
         rw [Nat.div_div_eq_div_mul, Nat.mul_comm 524288, ← Nat.pow_succ]
       rw [hDiv] at hRec
-      refine ⟨hRec.1, hRec.2.1, fun hx => ?_, hRec.2.2.2⟩
-      have hx' : x + 1 + s < 24 := by omega
-      have hFin : (⟨x + 1 + s, hx'⟩ : Fin 24) = ⟨x + (s + 1), hx⟩ := Fin.ext (by change x + 1 + s = x + (s + 1); omega)
-      have hRes := hRec.2.2.1 hx'
-      rw [hFin] at hRes; exact hRes
+      have hAdd : x + 1 + s = x + (s + 1) := by omega
+      rw [hAdd] at hRec
+      exact hRec
 
-private def hceLevelRowOk (k nCur nNext : Nat) (i : Fin nCur) : Bool :=
-  hceCheckRowLoop k nNext (hceOrbSlots k i.val) 0 24 (hceStepRow k i.val)
+private def hceLevelRowOk (k nNext : Nat) (i : Nat) : Bool :=
+  hceCheckRowLoop k nNext (hceOrbSlots k i) 0 24 (hceStepRow k i)
 
 private theorem hce_step0_valid :
-    hceCheckRange 24 (fun x =>
-      let e := hceStep0 x
-      decide (e < hceElemCount) && hceInMaskNat (hceOrbMask 1 0) (hceElemPermNat e x)) 5 0 = true := by
-  decide
+    hceCheckRangeNat 24 (fun x =>
+      let e := hceOctGet 2 hceStep0Oct x
+      Nat.blt e hceElemCount && hceInMaskNat (hceOrbMask 1 0) ((hceElemPermPack e / hcePow32Nat x) % 32)) 5 0 = true :=
+  rfl
 
-private theorem hce_step1_valid : hceCheckRange 1 (hceLevelRowOk 1 1 4) 1 0 = true := by decide
-private theorem hce_step2_valid : hceCheckRange 4 (hceLevelRowOk 2 4 10) 2 0 = true := by decide
-private theorem hce_step3_valid : hceCheckRange 10 (hceLevelRowOk 3 10 31) 4 0 = true := by decide
-private theorem hce_step4_valid : hceCheckRange 31 (hceLevelRowOk 4 31 81) 5 0 = true := by decide
-private theorem hce_step5_valid : hceCheckRange 81 (hceLevelRowOk 5 81 210) 7 0 = true := by decide
-private theorem hce_step6_c0 : hceCheckRange 210 (hceLevelRowOk 6 210 450) 6 0 = true := by decide
-private theorem hce_step6_c1 : hceCheckRange 210 (hceLevelRowOk 6 210 450) 6 64 = true := by decide
-private theorem hce_step6_c2 : hceCheckRange 210 (hceLevelRowOk 6 210 450) 6 128 = true := by decide
-private theorem hce_step6_c3 : hceCheckRange 210 (hceLevelRowOk 6 210 450) 6 192 = true := by decide
+private theorem hce_step1_valid : hceCheckRangeNat 1 (hceLevelRowOk 1 4) 1 0 = true := rfl
+private theorem hce_step2_valid : hceCheckRangeNat 4 (hceLevelRowOk 2 10) 2 0 = true := rfl
+private theorem hce_step3_valid : hceCheckRangeNat 10 (hceLevelRowOk 3 31) 4 0 = true := rfl
+private theorem hce_step4_valid : hceCheckRangeNat 31 (hceLevelRowOk 4 81) 5 0 = true := rfl
+private theorem hce_step5_valid : hceCheckRangeNat 81 (hceLevelRowOk 5 210) 7 0 = true := rfl
+private theorem hce_step6_c0 : hceCheckRangeNat 210 (hceLevelRowOk 6 450) 6 0 = true := rfl
+private theorem hce_step6_c1 : hceCheckRangeNat 210 (hceLevelRowOk 6 450) 6 64 = true := rfl
+private theorem hce_step6_c2 : hceCheckRangeNat 210 (hceLevelRowOk 6 450) 6 128 = true := rfl
+private theorem hce_step6_c3 : hceCheckRangeNat 210 (hceLevelRowOk 6 450) 6 192 = true := rfl
 
 private theorem hce_orbit_step (k nCur nNext : Nat)
-    (hMatch : ∀ i : Fin nCur, hceSlotsMatchOk k nCur i = true)
-    (hLvl : ∀ i : Fin nCur, hceLevelRowOk k nCur nNext i = true)
+    (hMatch : ∀ i : Nat, i < nCur → hceSlotsMatchOk k i = true)
+    (hLvl : ∀ i : Nat, i < nCur → hceLevelRowOk k nNext i = true)
     (i : Fin nCur) (x : Fin 24) :
     ∃ (j : Fin nNext) (w : List (Fin 4)),
       hceInMask (hceOrbMask (k + 1) j.val) (hceFwdWord w x) = true ∧
       ∀ r : Fin 24, hceInMask (hceOrbMask k i.val) r = true →
         hceInMask (hceOrbMask (k + 1) j.val) (hceFwdWord w r) = true := by
-  have hInfo := hce_checkRowLoop_sound k nNext (hceOrbSlots k i.val) 24 0 (hceStepRow k i.val) (hLvl i) x.val x.isLt
+  have hInfo := hce_checkRowLoop_sound k nNext (hceOrbSlots k i.val) 24 0 (hceStepRow k i.val) (hLvl i.val i.isLt) x.val x.isLt
   let pair := (hceStepRow k i.val / 524288 ^ x.val) % 524288
   let nextRep := pair % 512
   let eIdx := pair / 512
   refine ⟨⟨nextRep, hInfo.1⟩, hceElemWord eIdx, ?_, ?_⟩
-  · have hX := hInfo.2.2.1 (by simp)
-    have hFin : (⟨0 + x.val, by simp⟩ : Fin 24) = x := Fin.ext (Nat.zero_add x.val)
-    rw [hFin] at hX
+  · have hX := hInfo.2.2.1
+    rw [Nat.zero_add] at hX
+    obtain ⟨hLt, hMask⟩ := hce_inMaskNat_sound hX
     have hEq := hce_elemWord_spec eIdx hInfo.2.1 x
-    unfold hceInMaskNat at hX
-    have hLt : (hceElemPermPack eIdx / hcePow32 x) % 32 < 24 := by
-      change hceElemPermNat eIdx x < 24; rw [← hEq]; exact (hceFwdWord _ x).isLt
-    rw [hce_dite_pos hLt] at hX
-    have hF2 : hceFwdWord (hceElemWord eIdx) x = ⟨(hceElemPermPack eIdx / hcePow32 x) % 32, hLt⟩ := Fin.ext hEq
-    rw [hF2]; exact hX
+    have hF2 : hceFwdWord (hceElemWord eIdx) x = ⟨(hceElemPermPack eIdx / hcePow32Nat x.val) % 32, hLt⟩ := Fin.ext hEq
+    rw [hF2]; exact hMask
   · intro r hr
     rw [hce_inMask_iff_inSlots k nCur hMatch i r] at hr
     have hR := hce_slotsMapped_sound k (hceOrbSlots k i.val) (hceElemPermPack eIdx) (hceOrbMask (k + 1) nextRep) hInfo.2.2.2 r hr
+    obtain ⟨hLt, hMask⟩ := hce_inMaskNat_sound hR
     have hEq := hce_elemWord_spec eIdx hInfo.2.1 r
-    unfold hceInMaskNat at hR
-    have hLt : (hceElemPermPack eIdx / hcePow32 r) % 32 < 24 := by
-      change hceElemPermNat eIdx r < 24; rw [← hEq]; exact (hceFwdWord _ r).isLt
-    rw [hce_dite_pos hLt] at hR
-    have hF2 : hceFwdWord (hceElemWord eIdx) r = ⟨(hceElemPermPack eIdx / hcePow32 r) % 32, hLt⟩ := Fin.ext hEq
-    rw [hF2]; exact hR
+    have hF2 : hceFwdWord (hceElemWord eIdx) r = ⟨(hceElemPermPack eIdx / hcePow32Nat r.val) % 32, hLt⟩ := Fin.ext hEq
+    rw [hF2]; exact hMask
 
 private theorem hce_orbit_lift_step (k nCur nNext : Nat)
-    (hMatch : ∀ i : Fin nCur, hceSlotsMatchOk k nCur i = true)
-    (hLvl : ∀ i : Fin nCur, hceLevelRowOk k nCur nNext i = true)
+    (hMatch : ∀ i : Nat, i < nCur → hceSlotsMatchOk k i = true)
+    (hLvl : ∀ i : Nat, i < nCur → hceLevelRowOk k nNext i = true)
     (xs : List (Fin 24)) (a : Fin 24)
     (hPrev : ∃ (i : Fin nCur) (w : List (Fin 4)), ∀ r ∈ xs, hceInMask (hceOrbMask k i.val) (hceFwdWord w r) = true) :
     ∃ (j : Fin nNext) (w' : List (Fin 4)),
@@ -1569,36 +1602,33 @@ private theorem hce_orbit_lift_step (k nCur nNext : Nat)
 
 private theorem hce_orbit_base1 (a : Fin 24) :
     ∃ (i : Fin 1) (w : List (Fin 4)), ∀ r ∈ [a], hceInMask (hceOrbMask 1 i.val) (hceFwdWord w r) = true := by
-  have h0 := hce_checkRange_all 24 5 _ (by decide) hce_step0_valid a
-  dsimp only at h0
+  have h0 := hce_checkRangeNat_all 24 5 _ (by decide) (by decide) hce_step0_valid a.val a.isLt
   obtain ⟨heB, hIn⟩ := hce_bool_and_split h0
-  have heLt : hceStep0 a < hceElemCount := of_decide_eq_true heB
+  have heLt : hceStep0 a < hceElemCount := (hce_blt_iff _ _).mp heB
   refine ⟨⟨0, by decide⟩, hceElemWord (hceStep0 a), fun r hr => ?_⟩
   have hrEq : r = a := by cases hr with | head => rfl | tail _ hn => cases hn
   subst hrEq
+  obtain ⟨hLt, hMask⟩ := hce_inMaskNat_sound hIn
   have hEq := hce_elemWord_spec (hceStep0 r) heLt r
-  unfold hceInMaskNat at hIn
-  have hLt : hceElemPermNat (hceStep0 r) r < 24 := by rw [← hEq]; exact (hceFwdWord _ r).isLt
-  rw [hce_dite_pos hLt] at hIn
-  have hFin : hceFwdWord (hceElemWord (hceStep0 r)) r = ⟨hceElemPermNat (hceStep0 r) r, hLt⟩ := Fin.ext hEq
-  rw [hFin]; exact hIn
+  have hFin : hceFwdWord (hceElemWord (hceStep0 r)) r = ⟨(hceElemPermPack (hceStep0 r) / hcePow32Nat r.val) % 32, hLt⟩ := Fin.ext hEq
+  rw [hFin]; exact hMask
 
 private theorem hce_orbit_collapse_tuple5 (a0 a1 a2 a3 a4 : Fin 24) :
     ∃ (i : Fin 81) (w : List (Fin 4)),
       ∀ r ∈ [a4, a3, a2, a1, a0], hceInMask (hceOrb5Mask i) (hceFwdWord w r) = true := by
   have h1 := hce_orbit_base1 a0
   have h2 := hce_orbit_lift_step 1 1 4
-    (hce_checkRange_all 1 1 _ (by decide) hce_slots_match_1_6.1)
-    (hce_checkRange_all 1 1 _ (by decide) hce_step1_valid) [a0] a1 h1
+    (hce_checkRangeNat_all 1 1 _ (by decide) (by decide) hce_slots_match_1)
+    (hce_checkRangeNat_all 1 1 _ (by decide) (by decide) hce_step1_valid) [a0] a1 h1
   have h3 := hce_orbit_lift_step 2 4 10
-    (hce_checkRange_all 4 2 _ (by decide) hce_slots_match_1_6.2.1)
-    (hce_checkRange_all 4 2 _ (by decide) hce_step2_valid) [a1, a0] a2 h2
+    (hce_checkRangeNat_all 4 2 _ (by decide) (by decide) hce_slots_match_2)
+    (hce_checkRangeNat_all 4 2 _ (by decide) (by decide) hce_step2_valid) [a1, a0] a2 h2
   have h4 := hce_orbit_lift_step 3 10 31
-    (hce_checkRange_all 10 4 _ (by decide) hce_slots_match_1_6.2.2.1)
-    (hce_checkRange_all 10 4 _ (by decide) hce_step3_valid) [a2, a1, a0] a3 h3
+    (hce_checkRangeNat_all 10 4 _ (by decide) (by decide) hce_slots_match_3)
+    (hce_checkRangeNat_all 10 4 _ (by decide) (by decide) hce_step3_valid) [a2, a1, a0] a3 h3
   have h5 := hce_orbit_lift_step 4 31 81
-    (hce_checkRange_all 31 5 _ (by decide) hce_slots_match_1_6.2.2.2.1)
-    (hce_checkRange_all 31 5 _ (by decide) hce_step4_valid) [a3, a2, a1, a0] a4 h4
+    (hce_checkRangeNat_all 31 5 _ (by decide) (by decide) hce_slots_match_4)
+    (hce_checkRangeNat_all 31 5 _ (by decide) (by decide) hce_step4_valid) [a3, a2, a1, a0] a4 h4
   exact h5
 
 private theorem hce_orbit_collapse_tuple7 (a0 a1 a2 a3 a4 a5 a6 : Fin 24) :
@@ -1606,11 +1636,11 @@ private theorem hce_orbit_collapse_tuple7 (a0 a1 a2 a3 a4 a5 a6 : Fin 24) :
       ∀ r ∈ [a6, a5, a4, a3, a2, a1, a0], hceInMask (hceOrb7Mask i) (hceFwdWord w r) = true := by
   have h5 := hce_orbit_collapse_tuple5 a0 a1 a2 a3 a4
   have h6 := hce_orbit_lift_step 5 81 210
-    (hce_checkRange_all 81 7 _ (by decide) hce_slots_match_1_6.2.2.2.2.1)
-    (hce_checkRange_all 81 7 _ (by decide) hce_step5_valid) [a4, a3, a2, a1, a0] a5 h5
+    (hce_checkRangeNat_all 81 7 _ (by decide) (by decide) hce_slots_match_5)
+    (hce_checkRangeNat_all 81 7 _ (by decide) (by decide) hce_step5_valid) [a4, a3, a2, a1, a0] a5 h5
   have h7 := hce_orbit_lift_step 6 210 450
-    (hce_checkRange_all 210 8 _ (by decide) hce_slots_match_1_6.2.2.2.2.2)
-    (hce_checkRange_chunks4 210 6 _ (by decide) hce_step6_c0 hce_step6_c1 hce_step6_c2 hce_step6_c3)
+    (hce_checkRangeNat_all 210 8 _ (by decide) (by decide) hce_slots_match_6)
+    (hce_checkRangeNat_chunks4 210 6 _ (by decide) (by decide) hce_step6_c0 hce_step6_c1 hce_step6_c2 hce_step6_c3)
     [a5, a4, a3, a2, a1, a0] a6 h6
   exact h7
 
@@ -1688,33 +1718,48 @@ private def hceWit5Oct : HceOct :=
 private def hceWit5 (i : Fin 81) (p0 : Fin 2) (j0 : Fin 5) : Nat :=
   hceOctGet 4 hceWit5Oct (i.val * 10 + p0.val * 5 + j0.val)
 
-private def hceOrb5SlotNat (i : Fin 81) (j : Fin 5) : Nat :=
-  (hceOrbSlots 5 i.val / hcePow32 ⟨j.val, by have := j.isLt; omega⟩) % 32
+private def hceOrb5SlotNatRaw (i j : Nat) : Nat :=
+  (hceOrbSlots 5 i / hcePow32Nat j) % 32
 
-private def hceWit5RowOk (i : Fin 81) : Bool :=
-  let r0 := hceOrb5SlotNat i ⟨0, by decide⟩
-  let r1 := hceOrb5SlotNat i ⟨1, by decide⟩
-  let r2 := hceOrb5SlotNat i ⟨2, by decide⟩
-  let r3 := hceOrb5SlotNat i ⟨3, by decide⟩
-  let r4 := hceOrb5SlotNat i ⟨4, by decide⟩
-  decide (r0 < 24 ∧ r1 < 24 ∧ r2 < 24 ∧ r3 < 24 ∧ r4 < 24) &&
-  hceCheckRange 2 (fun p0 =>
-    hceCheckRange 5 (fun j0 =>
-      let ev := hceEvalPack (hceWit5 i p0 j0)
-      hceCheckRange 2 (fun p =>
-        let base := 24 * p.val
+private def hceOrb5SlotNat (i : Fin 81) (j : Fin 5) : Nat :=
+  hceOrb5SlotNatRaw i.val j.val
+
+private def hceWit5RowOk (i : Nat) : Bool :=
+  let r0 := hceOrb5SlotNatRaw i 0
+  let r1 := hceOrb5SlotNatRaw i 1
+  let r2 := hceOrb5SlotNatRaw i 2
+  let r3 := hceOrb5SlotNatRaw i 3
+  let r4 := hceOrb5SlotNatRaw i 4
+  Nat.blt r0 24 && Nat.blt r1 24 && Nat.blt r2 24 && Nat.blt r3 24 && Nat.blt r4 24 &&
+  hceCheckRangeNat 2 (fun p0 =>
+    hceCheckRangeNat 5 (fun j0 =>
+      let ev := hceEvalPack (hceOctGet 4 hceWit5Oct (i * 10 + p0 * 5 + j0))
+      hceCheckRangeNat 2 (fun p =>
+        let base := 24 * p
         let d0 := ((ev / hcePow1000 (base + r0)) % 1000) % 3
         let d1 := ((ev / hcePow1000 (base + r1)) % 1000) % 3
         let d2 := ((ev / hcePow1000 (base + r2)) % 1000) % 3
         let d3 := ((ev / hcePow1000 (base + r3)) % 1000) % 3
         let d4 := ((ev / hcePow1000 (base + r4)) % 1000) % 3
-        (d0 == if p = p0 ∧ j0.val = 0 then 1 else 0) &&
-        (d1 == if p = p0 ∧ j0.val = 1 then 1 else 0) &&
-        (d2 == if p = p0 ∧ j0.val = 2 then 1 else 0) &&
-        (d3 == if p = p0 ∧ j0.val = 3 then 1 else 0) &&
-        (d4 == if p = p0 ∧ j0.val = 4 then 1 else 0)) 1 0) 3 0) 1 0
+        (d0 == (match (p == p0) && (j0 == 0) with | true => 1 | false => 0)) &&
+        (d1 == (match (p == p0) && (j0 == 1) with | true => 1 | false => 0)) &&
+        (d2 == (match (p == p0) && (j0 == 2) with | true => 1 | false => 0)) &&
+        (d3 == (match (p == p0) && (j0 == 3) with | true => 1 | false => 0)) &&
+        (d4 == (match (p == p0) && (j0 == 4) with | true => 1 | false => 0))) 1 0) 3 0) 1 0
 
-private theorem hce_wit5_valid : hceCheckRange 81 hceWit5RowOk 7 0 = true := by decide
+private theorem hce_wit5_valid : hceCheckRangeNat 81 hceWit5RowOk 7 0 = true := rfl
+
+private theorem hce_match_eq_ite (p p0 : Fin 2) (j j0 : Fin 5) :
+    (match (p.val == p0.val) && (j0.val == j.val) with | true => 1 | false => 0) =
+      if p = p0 ∧ j = j0 then 1 else 0 := by
+  by_cases hC : p = p0 ∧ j = j0
+  · rw [hce_ite_pos hC, hC.1, hC.2]; simp only [beq_self_eq_true, Bool.and_self]
+  · rw [hce_ite_neg hC]
+    cases h1 : (p.val == p0.val) <;> cases h2 : (j0.val == j.val)
+    · rfl
+    · rfl
+    · rfl
+    · exact absurd ⟨Fin.ext (Nat.eq_of_beq_eq_true h1), Fin.ext (Nat.eq_of_beq_eq_true h2).symm⟩ hC
 
 private theorem hce_wit5_basis (i : Fin 81) :
     (∀ j : Fin 5, hceOrb5SlotNat i j < 24) ∧
@@ -1722,23 +1767,26 @@ private theorem hce_wit5_basis (i : Fin 81) :
     (∀ (p0 : Fin 2) (j0 : Fin 5) (p : Fin 2) (j : Fin 5) (hr : hceOrb5SlotNat i j < 24),
       hcLinComb (hceDecodeRev3 (hceWit5 i p0 j0)) hcBulk23 p ⟨hceOrb5SlotNat i j, hr⟩ =
         if p = p0 ∧ j = j0 then 1 else 0) := by
-  have hi := hce_checkRange_all 81 7 hceWit5RowOk (by decide) hce_wit5_valid i
+  have hi := hce_checkRangeNat_all 81 7 hceWit5RowOk (by decide) (by decide) hce_wit5_valid i.val i.isLt
   unfold hceWit5RowOk at hi
-  obtain ⟨hLtB, hChecks⟩ := hce_bool_and_split hi
-  have hLt := of_decide_eq_true hLtB
+  obtain ⟨hLt01234, hChecks⟩ := hce_bool_and_split hi
+  obtain ⟨hLt0123, hLt4⟩ := hce_bool_and_split hLt01234
+  obtain ⟨hLt012, hLt3⟩ := hce_bool_and_split hLt0123
+  obtain ⟨hLt01, hLt2⟩ := hce_bool_and_split hLt012
+  obtain ⟨hLt0, hLt1⟩ := hce_bool_and_split hLt01
   have hSlots : ∀ j : Fin 5, hceOrb5SlotNat i j < 24 := by
     intro j; cases j with | mk jv hjv =>
     match jv, hjv with
-    | 0, _ => exact hLt.1
-    | 1, _ => exact hLt.2.1
-    | 2, _ => exact hLt.2.2.1
-    | 3, _ => exact hLt.2.2.2.1
-    | 4, _ => exact hLt.2.2.2.2
+    | 0, _ => exact (hce_blt_iff _ 24).mp hLt0
+    | 1, _ => exact (hce_blt_iff _ 24).mp hLt1
+    | 2, _ => exact (hce_blt_iff _ 24).mp hLt2
+    | 3, _ => exact (hce_blt_iff _ 24).mp hLt3
+    | 4, _ => exact (hce_blt_iff _ 24).mp hLt4
     | _ + 5, h => exact absurd h (by omega)
   have hMem : ∀ r : Fin 24, hceInMask (hceOrb5Mask i) r = true → ∃ j : Fin 5, hceOrb5SlotNat i j = r.val := by
     intro r hr
     have hM : hceInMask (hceOrbMask 5 i.val) r = true := hr
-    rw [hce_inMask_iff_inSlots 5 81 (hce_checkRange_all 81 7 _ (by decide) hce_slots_match_1_6.2.2.2.2.1) i r] at hM
+    rw [hce_inMask_iff_inSlots 5 81 (hce_checkRangeNat_all 81 7 _ (by decide) (by decide) hce_slots_match_5) i r] at hM
     unfold hceInSlots at hM
     rcases hce_bool_or_split hM with h0 | h1
     · exact ⟨⟨0, by decide⟩, by change (hceOrbSlots 5 i.val / 1) % 32 = r.val; rw [Nat.div_one]; exact Nat.eq_of_beq_eq_true h0⟩
@@ -1761,10 +1809,9 @@ private theorem hce_wit5_basis (i : Fin 81) :
     exact Bool.noConfusion h5
   refine ⟨hSlots, hMem, ?_⟩
   intro p0 j0 p j hr
-  have hp0 := hce_checkRange_all 2 1 _ (by decide) hChecks p0
-  have hj0 := hce_checkRange_all 5 3 _ (by decide) hp0 j0
-  have hp := hce_checkRange_all 2 1 _ (by decide) hj0 p
-  dsimp only at hp
+  have hp0 := hce_checkRangeNat_all 2 1 _ (by decide) (by decide) hChecks p0.val p0.isLt
+  have hj0 := hce_checkRangeNat_all 5 3 _ (by decide) (by decide) hp0 j0.val j0.isLt
+  have hp := hce_checkRangeNat_all 2 1 _ (by decide) (by decide) hj0 p.val p.isLt
   obtain ⟨h0123, h4⟩ := hce_bool_and_split hp
   obtain ⟨h012, h3⟩ := hce_bool_and_split h0123
   obtain ⟨h01, h2⟩ := hce_bool_and_split h012
@@ -1772,31 +1819,11 @@ private theorem hce_wit5_basis (i : Fin 81) :
   rw [← hce_evalPack_spec (hceWit5 i p0 j0) p ⟨hceOrb5SlotNat i j, hr⟩]
   cases j with | mk jv hjv =>
   match jv, hjv with
-  | 0, _ =>
-    rw [Nat.eq_of_beq_eq_true h0]
-    by_cases hC : p = p0 ∧ (⟨0, by decide⟩ : Fin 5) = j0
-    · rw [hce_ite_pos ⟨hC.1, congrArg Fin.val hC.2.symm⟩, hce_ite_pos hC]
-    · rw [hce_ite_neg (fun h => hC ⟨h.1, Fin.ext h.2.symm⟩), hce_ite_neg hC]
-  | 1, _ =>
-    rw [Nat.eq_of_beq_eq_true h1]
-    by_cases hC : p = p0 ∧ (⟨1, by decide⟩ : Fin 5) = j0
-    · rw [hce_ite_pos ⟨hC.1, congrArg Fin.val hC.2.symm⟩, hce_ite_pos hC]
-    · rw [hce_ite_neg (fun h => hC ⟨h.1, Fin.ext h.2.symm⟩), hce_ite_neg hC]
-  | 2, _ =>
-    rw [Nat.eq_of_beq_eq_true h2]
-    by_cases hC : p = p0 ∧ (⟨2, by decide⟩ : Fin 5) = j0
-    · rw [hce_ite_pos ⟨hC.1, congrArg Fin.val hC.2.symm⟩, hce_ite_pos hC]
-    · rw [hce_ite_neg (fun h => hC ⟨h.1, Fin.ext h.2.symm⟩), hce_ite_neg hC]
-  | 3, _ =>
-    rw [Nat.eq_of_beq_eq_true h3]
-    by_cases hC : p = p0 ∧ (⟨3, by decide⟩ : Fin 5) = j0
-    · rw [hce_ite_pos ⟨hC.1, congrArg Fin.val hC.2.symm⟩, hce_ite_pos hC]
-    · rw [hce_ite_neg (fun h => hC ⟨h.1, Fin.ext h.2.symm⟩), hce_ite_neg hC]
-  | 4, _ =>
-    rw [Nat.eq_of_beq_eq_true h4]
-    by_cases hC : p = p0 ∧ (⟨4, by decide⟩ : Fin 5) = j0
-    · rw [hce_ite_pos ⟨hC.1, congrArg Fin.val hC.2.symm⟩, hce_ite_pos hC]
-    · rw [hce_ite_neg (fun h => hC ⟨h.1, Fin.ext h.2.symm⟩), hce_ite_neg hC]
+  | 0, _ => rw [Nat.eq_of_beq_eq_true h0]; exact hce_match_eq_ite p p0 ⟨0, by decide⟩ j0
+  | 1, _ => rw [Nat.eq_of_beq_eq_true h1]; exact hce_match_eq_ite p p0 ⟨1, by decide⟩ j0
+  | 2, _ => rw [Nat.eq_of_beq_eq_true h2]; exact hce_match_eq_ite p p0 ⟨2, by decide⟩ j0
+  | 3, _ => rw [Nat.eq_of_beq_eq_true h3]; exact hce_match_eq_ite p p0 ⟨3, by decide⟩ j0
+  | 4, _ => rw [Nat.eq_of_beq_eq_true h4]; exact hce_match_eq_ite p p0 ⟨4, by decide⟩ j0
   | _ + 5, h => exact absurd h (by omega)
 
 private theorem hce_bulk23_surj_on_orb5 (i : Fin 81) (target : HcVec48) :
@@ -2106,18 +2133,18 @@ private theorem hce_checkSlotsZero_sound (k slots ev : Nat) (lVal : Fin 2 → Na
       | _ + 2, h2 => exact absurd h2 (by omega)
     · exact ih (slots / 32) hTail r p hRest
 
-private def hceWit7RowOk (i : Fin 450) : Bool :=
-  let slots := hceOrbSlots 7 i.val
-  hceCheckSlotsZero 7 slots (hceEvalPack (hceWit7X i)) hceXLVal &&
-  hceCheckSlotsZero 7 slots (hceEvalPack (hceWit7Z i)) hceZLVal
+private def hceWit7RowOk (i : Nat) : Bool :=
+  let slots := hceOrbSlots 7 i
+  hceCheckSlotsZero 7 slots (hceEvalPack (hceOctGet 3 hceWit7XOct i)) hceXLVal &&
+  hceCheckSlotsZero 7 slots (hceEvalPack (hceOctGet 3 hceWit7ZOct i)) hceZLVal
 
-private theorem hce_wit7_c0 : hceCheckRange 450 hceWit7RowOk 7 0 = true := by decide
-private theorem hce_wit7_c1 : hceCheckRange 450 hceWit7RowOk 7 128 = true := by decide
-private theorem hce_wit7_c2 : hceCheckRange 450 hceWit7RowOk 7 256 = true := by decide
-private theorem hce_wit7_c3 : hceCheckRange 450 hceWit7RowOk 7 384 = true := by decide
+private theorem hce_wit7_c0 : hceCheckRangeNat 450 hceWit7RowOk 7 0 = true := rfl
+private theorem hce_wit7_c1 : hceCheckRangeNat 450 hceWit7RowOk 7 128 = true := rfl
+private theorem hce_wit7_c2 : hceCheckRangeNat 450 hceWit7RowOk 7 256 = true := rfl
+private theorem hce_wit7_c3 : hceCheckRangeNat 450 hceWit7RowOk 7 384 = true := rfl
 
-private theorem hce_wit7_valid : ∀ i : Fin 450, hceWit7RowOk i = true :=
-  hce_checkRange_chunks4 450 7 hceWit7RowOk (by decide) hce_wit7_c0 hce_wit7_c1 hce_wit7_c2 hce_wit7_c3
+private theorem hce_wit7_valid : ∀ i : Fin 450, hceWit7RowOk i.val = true :=
+  fun i => hce_checkRangeNat_chunks4 450 7 hceWit7RowOk (by decide) (by decide) hce_wit7_c0 hce_wit7_c1 hce_wit7_c2 hce_wit7_c3 i.val i.isLt
 
 private theorem hce_wit7_clean_orb7 (i : Fin 450) :
     let u0 : HcVec48 := fun p r => (hcXLFrame p r + hcLinComb (hceDecodeRev3 (hceWit7X i)) hcBulk23 p r) % 3
@@ -2154,7 +2181,7 @@ private theorem hce_wit7_clean_orb7 (i : Fin 450) :
   have hi := hce_wit7_valid i
   unfold hceWit7RowOk at hi
   obtain ⟨hCX, hCZ⟩ := hce_bool_and_split hi
-  have hMatch7 := hce_checkRange_chunks4 450 7 (hceSlotsMatchOk 7 450) (by decide)
+  have hMatch7 := hce_checkRangeNat_chunks4 450 7 (hceSlotsMatchOk 7) (by decide) (by decide)
     hce_slots_match_7_c0 hce_slots_match_7_c1 hce_slots_match_7_c2 hce_slots_match_7_c3
   refine ⟨fun j => ⟨hPerpU j, hPerpV j⟩, hSym, fun p r hr => ?_⟩
   have hM : hceInMask (hceOrbMask 7 i.val) r = true := hr
@@ -2216,7 +2243,7 @@ private theorem hce_symp_logical_comb (c1 c2 : Fin 23 → Fin 3) (a1 b1 a2 b2 : 
   have h1 : (a1 * (b2 % 3)) % 3 = (a1 * b2) % 3 := hce_mul_mod3_right a1 b2
   have h2 : (b1 * ((a2 * 2) % 3)) % 3 = (2 * (b1 * a2)) % 3 := by
     rw [hce_mul_mod3_right, Nat.mul_comm a2 2, ← Nat.mul_assoc, Nat.mul_comm b1 2, Nat.mul_assoc]
-  rw [hce_mod3_add_mod3, hce_add_mod3_congr h1 h2]; omega
+  rw [h1, h2]; omega
 
 /-- Headline Theorem 5 (Unconditional All-536,155 Boundary Erasure Recovery for `|E| ≤ 7` on `[[24, 1, 8]]_3`):
     1. Exact boundary erasure count `∑_{k=0}^7 C(24, k) = 536,155` (with `C(24, 5) = 42,504` and `C(24, 7) = 346,104`),
@@ -2798,12 +2825,14 @@ private theorem hce_vec5Graded_word (w : List (Fin 24)) :
       have h1 : xb = 0 := hx.1 rfl; have h2 : ya = 0 := hy.2 rfl; change xa * ya + 2 * xb * yb = 0; rw [h1, h2, Int.mul_zero, Int.mul_zero, Int.zero_mul]; rfl
     · refine ⟨fun _ => ?_, fun h => absurd h (by decide)⟩
       have h1 : xb = 0 := hx.1 rfl; have h2 : yb = 0 := hy.1 rfl; change xa * yb + xb * ya = 0; rw [h1, h2, Int.mul_zero, Int.zero_mul]; rfl
-  intro i; unfold mat5Vec
-  apply hParAdd _ _ _ (hParAdd _ _ _ (hParAdd _ _ _ (hParAdd _ _ _ _ _) _) _) _ <;>
-  · have hm := hParMul _ _ _ _ (hM i _) (hC0 _)
-    have hb : ((coxeterCoordEven i == coxeterCoordEven _) == coxeterCoordEven _) = coxeterCoordEven i := by
-      cases coxeterCoordEven i <;> cases coxeterCoordEven _ <;> rfl
-    rw [hb] at hm; exact hm
+  have hSumP : ∀ p (f : Fin 5 → ZSqrt2), (∀ k, z2HasParity p (f k)) → z2HasParity p (sum5 f) := fun p f hf =>
+    hParAdd p _ _ (hParAdd p _ _ (hParAdd p _ _ (hParAdd p _ _ (hf ⟨0, by decide⟩) (hf ⟨1, by decide⟩))
+      (hf ⟨2, by decide⟩)) (hf ⟨3, by decide⟩)) (hf ⟨4, by decide⟩)
+  intro i; unfold mat5Vec; apply hSumP; intro k
+  have hm := hParMul _ _ _ _ (hM i k) (hC0 k)
+  have hb : ((coxeterCoordEven i == coxeterCoordEven k) == coxeterCoordEven k) = coxeterCoordEven i := by
+    cases coxeterCoordEven i <;> cases coxeterCoordEven k <;> rfl
+  rw [hb] at hm; exact hm
 
 private theorem hce_facet_pair_mod4 (w : List (Fin 24)) :
     ∀ a : Fin 24, (twiceForm (facetNormal a) (mat5Vec (evalTransportWord w) baseCenter)).a % 4 = 2 := by
@@ -2969,34 +2998,46 @@ def hceInwardMask (g : Mat5) (a : Fin 24) : Bool :=
 def hceInwardList (w : List (Fin 24)) : List (Fin 24) :=
   (List.finRange 24).filter (hceInwardMask (evalTransportWord w))
 
-private theorem hce_no_4clique_adj24 :
-    ∀ a b c d : Fin 24, a ≠ b → a ≠ c → a ≠ d → b ≠ c → b ≠ d → c ≠ d →
+private theorem hce_finRange24_lt : (List.finRange 24).Pairwise (fun x y : Fin 24 => x.val < y.val) := by
+  decide
+
+private theorem hce_no_4clique_adj24_ordered :
+    ∀ a b c d : Fin 24, a.val < b.val → b.val < c.val → c.val < d.val →
       ¬ (adj24 a b = true ∧ adj24 a c = true ∧ adj24 a d = true ∧
          adj24 b c = true ∧ adj24 b d = true ∧ adj24 c d = true) := by
-  have hCheck : ∀ a b : Fin 24, adj24 a b = true →
-      ∀ c : Fin 24, adj24 a c = true → adj24 b c = true →
-      ∀ d : Fin 24, adj24 a d = true → adj24 b d = true → adj24 c d = true → False := by
+  have hCheck : ∀ a b : Fin 24, a.val < b.val → adj24 a b = true →
+      ∀ c : Fin 24, b.val < c.val → adj24 a c = true → adj24 b c = true →
+      ∀ d : Fin 24, c.val < d.val → adj24 a d = true → adj24 b d = true → adj24 c d = true → False := by
     decide
-  intro a b c d _ _ _ _ _ _ ⟨hab, hac, had, hbc, hbd, hcd⟩
-  exact hCheck a b hab c hac hbc d had hbd hcd
+  intro a b c d habLt hbcLt hcdLt ⟨hab, hac, had, hbc, hbd, hcd⟩
+  exact hCheck a b habLt hab c hbcLt hac hbc d hcdLt had hbd hcd
 
 private theorem hce_clique_filter_le_3 (P : Fin 24 → Bool)
     (hClique : ∀ a b : Fin 24, a ≠ b → P a = true → P b = true → adj24 a b = true) :
     ((List.finRange 24).filter P).length ≤ 3 := by
-  have hNodup : ((List.finRange 24).filter P).Nodup := (List.nodup_finRange 24).filter P
+  have hOrd : ((List.finRange 24).filter P).Pairwise (fun x y : Fin 24 => x.val < y.val) :=
+    hce_finRange24_lt.filter P
   have hAllP : ∀ x ∈ (List.finRange 24).filter P, P x = true := fun x hx => (List.mem_filter.mp hx).2
   match hL : (List.finRange 24).filter P with
   | [] | [_] | [_, _] | [_, _, _] => simp
   | a :: b :: c :: d :: _ =>
     exfalso
-    rw [hL] at hNodup hAllP
+    rw [hL] at hOrd hAllP
     have hPa : P a = true := hAllP a (by simp)
     have hPb : P b = true := hAllP b (by simp)
     have hPc : P c = true := hAllP c (by simp)
     have hPd : P d = true := hAllP d (by simp)
-    simp only [List.nodup_cons, List.mem_cons, not_or] at hNodup
-    obtain ⟨⟨hab, hac, had, _⟩, ⟨hbc, hbd, _⟩, ⟨hcd, _⟩, _⟩ := hNodup
-    exact hce_no_4clique_adj24 a b c d hab hac had hbc hbd hcd
+    simp only [List.pairwise_cons, List.mem_cons] at hOrd
+    have habLt : a.val < b.val := hOrd.1 b (Or.inl rfl)
+    have hbcLt : b.val < c.val := hOrd.2.1 c (Or.inl rfl)
+    have hcdLt : c.val < d.val := hOrd.2.2.1 d (Or.inl rfl)
+    have hab : a ≠ b := fun h => by have := congrArg Fin.val h; omega
+    have hac : a ≠ c := fun h => by have := congrArg Fin.val h; omega
+    have had : a ≠ d := fun h => by have := congrArg Fin.val h; omega
+    have hbc : b ≠ c := fun h => by have := congrArg Fin.val h; omega
+    have hbd : b ≠ d := fun h => by have := congrArg Fin.val h; omega
+    have hcd : c ≠ d := fun h => by have := congrArg Fin.val h; omega
+    exact hce_no_4clique_adj24_ordered a b c d habLt hbcLt hcdLt
       ⟨hClique a b hab hPa hPb, hClique a c hac hPa hPc, hClique a d had hPa hPd,
        hClique b c hbc hPb hPc, hClique b d hbd hPb hPd, hClique c d hcd hPc hPd⟩
 
@@ -3104,7 +3145,22 @@ theorem thm_hce_3434_height_parity_and_inward_le_3 :
     have hUXSplit : (twiceForm u x).a = (twiceForm (facetNormal a) x).a + (twiceForm (facetNormal b) x).a := by
       dsimp only [u]; rw [hce_twiceForm_add_left]; rfl
     dsimp only [x] at huxNeg hUXSplit; omega
-  refine ⟨hPar, hConv, ?_, by decide⟩
+  have hNil : (hceInwardList []).length = 0 := by
+    have hAllF : ∀ a : Fin 24, hceInwardMask (evalTransportWord []) a = false := by
+      intro a; unfold hceInwardMask
+      have hStep := hce_lorentzHeight_step [] a
+      have hInv : revAntipodal [] = [] := rfl
+      rw [hInv, evalTransportWord, hce_mat5Vec_id, thm_24_facets_geometry.2.2.2.1 a] at hStep
+      have hGt : ¬ (lorentzHeight (mat5Mul (evalTransportWord []) (transport a)) < lorentzHeight (evalTransportWord [])) := by
+        change lorentzHeight (mat5Mul (evalTransportWord []) (transport a)) = lorentzHeight (evalTransportWord []) - 2 * (-2) at hStep
+        omega
+      exact decide_eq_false hGt
+    have hEmp : ∀ (xs : List (Fin 24)), (xs.filter (hceInwardMask (evalTransportWord []))) = [] := by
+      intro xs; induction xs with
+      | nil => rfl
+      | cons x rest ih => simp only [List.filter_cons, hAllF x]; exact ih
+    unfold hceInwardList; rw [hEmp]; rfl
+  refine ⟨hPar, hConv, ?_, hNil⟩
   intro w
   have hClq : ∀ a b : Fin 24, a ≠ b → hceInwardMask (evalTransportWord w) a = true →
       hceInwardMask (evalTransportWord w) b = true → adj24 a b = true := by
