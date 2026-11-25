@@ -23,7 +23,7 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { runInfiniteTimeProofs } from '@/code/measure/infinite-time-proofs'
 
-const MIN_HEADLINE_THEOREM_COUNT = 332
+const MIN_HEADLINE_THEOREM_COUNT = 341
 const EXPECTED_LEAN_TOOLCHAIN = 'leanprover/lean4:v4.35.0'
 const EXPECTED_LEAN_VERSION = '4.35.0'
 
@@ -375,6 +375,16 @@ const REQUIRED_THEOREMS = [
   'thm_mg_d4_tetrahedra_per_triangle_eq_3',
   'thm_mg_su3_closed_form_w1_beyond_be',
   'thm_mg_su3_axial_dobrushin_instantiation',
+  // Vibe.SpectralSharpExt (9 headline: Depth-2 19-state/23-flag Nagnibeda <= 387141227/33670000 < 11.5, Q_3 zero-cascade, 57-orbit CF 1-step > 913/80 = 11.4125)
+  'thm_sse_wf4_automorphisms_and_216_cliques',
+  'thm_sse_depth2_automaton_and_shell_growth',
+  'thm_sse_depth2_flag_reciprocity',
+  'thm_sse_depth2_nagnibeda_upper_bound',
+  'thm_sse_depth2_subgraph_schur_bound',
+  'thm_sse_q3_link_and_zero_cascade',
+  'thm_sse_cf_57_orbits_and_exact_word_sum',
+  'thm_sse_cf_lower_bound',
+  'thm_sse_combined_spectral_bracket',
   // Vibe.CompositeTrion (9 headline: Z[omega][1/7] k=3 Sym^3 trion IPR=9/32, Z[zeta_9] cot^2(pi/18) cubic, flat-D_4 excision pocket, depressed-cubic holographic rate)
   'thm_ct_trion_eigenvalue_and_ratio',
   'thm_ct_trion_gate_and_collision_modes',
