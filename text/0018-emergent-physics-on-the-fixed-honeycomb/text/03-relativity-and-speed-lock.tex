@@ -1,20 +1,20 @@
-\section{Relativistic Kinematics and Speed Lock}
+\section{Relativistic Kinematics, Isotropy, and Speed Bounds}
 \label{sec:relativity}
 
-In Section~\ref{sec:quantum} every excitation stayed on its line. The bare dynamics of single excitations is twelve
-decoupled one-dimensional systems per dock, with no 3D rotation symmetry. This is the \emph{line law}. This section
-places two excitations in one dock and follows the result of pair scattering. Three conditions are needed for the
-husk to behave as relativistic 3D space. Motion must leave the
-lines without destroying bound line states. The resulting dispersion must be isotropic and relativistic. And every
-species, gravity and light and matter, must share one limiting speed, as the neutron-star merger GW170817 requires
-($-3 \times 10^{-15} \le \Delta c / c \le +7 \times 10^{-16}$ between gravitational waves and light,
-\cite{abbott2017gw170817}).
+Because a lone excitation never leaves its initial line, the single-excitation sector separates into twelve decoupled
+one-dimensional walks per dock with no three-dimensional rotational symmetry (the \emph{line law}). Placing two
+identical excitations in opposite slots of one line activates the pair-line mixer $M_{\mathrm{pair}}(\zeta_{18})$,
+which transfers amplitude uniformly across all twelve lines in one beat.
 
-The first two happen in the bare rule (Tier~A). Pair scattering at Scale~2 frees motion from the lines and yields
-$O(k^{2.00})$ 3D isotropy and relativistic dispersion ratios on the husk at speed $c_{\mathrm{eff}} = 0.021267$
-(\code{E-RLT-0123}, \code{E-RLT-0124}). The third happens on a prescribed warped beam (Tier~B), where shared coupling
-locks all three species to $c_u = 0.977925$ at machine precision (\code{E-RLT-0125}). The two speeds differ by a factor
-of $46.0$, and that gap stays open.
+On the bare rule (Tier~A), pair scattering produces two distinct continuum regimes: on flat 4D $D_4$, the unique
+$s$-wave bound state obeys an exact $SO(4)$-isotropic massive scalar dispersion through both $O(K^2)$ and $O(K^4)$
+(first breaking at $O(K^6)$), while on the truncated 3D floor-0 husk, it gives $O(k^{2.00})$ 3D isotropy and
+avoided-crossing Dirac dispersion ratios at bare speed $c_{\mathrm{eff}} = 0.021267$ (\code{E-RLT-0123},
+\code{E-RLT-0124}). Sweeping $M_{\mathrm{pair}}(u)$ across all 18 cyclotomic roots in $\mathbb{Z}[\zeta_9]$ and all of
+$U(1)$ bounds bare floor-0 speed below $0.129492$, still $7.55\times$ below the Tier~B shared-beam speed
+$c_u = 0.977925$ (\code{E-RLT-0125}), where gravity, light, and nonlocal Weyl matter lock to machine precision as an
+algebraic identity of the shared warped beam (consistent with GW170817,
+$-3 \times 10^{-15} \le \Delta c / c \le +7 \times 10^{-16}$ \cite{abbott2017gw170817}).
 
 \subsection{Pair scattering and the line law}
 
@@ -57,31 +57,58 @@ Code (Tier~A) & Test / mechanism & Verified measurement & Verdict / contrast \\
 \end{tabularx}
 \end{table}
 
-\subsection{3D isotropy and dispersion boosts}
+\subsection{3D isotropy, 4D \texorpdfstring{$s$}{s}-wave dispersion, and the floor-0 speed ceiling}
 
-The long-wavelength behavior is computed on the husk alone. Close every bulk-directed line at
-$D = 0$, which gives the \textbf{reflecting floor-0 slab} (\mbox{\code{period = 4}}, \mbox{\code{floor = 0}}), and
-diagonalize the exact $24 \times 24$ Bloch unitary $U(\mathbf{k}, u)$ induced by $M_{\mathrm{pair}}(u)$
-\cite{strauch2006}. With the mixer off ($u = 1$) the bands are flat and motion stays on the rails. With
-$M_{\mathrm{pair}}(\zeta_{18})$ on, the line law breaks and rotational isotropy returns along $(1,0,0)$, $(1,1,0)$,
-and $(1,1,1)$, with directional anisotropy vanishing as $O(k^{2.00})$ (\code{E-RLT-0123}).
-
-All 24 floor-0 Bloch bands obey the exact cubic structure-factor theorem $E_n(\mathbf{k}) = E_n(g(\mathbf{k}))$, where
+The continuum effective Hamiltonian $H_{\mathrm{eff}} = i \ln U$ clarifies the difference between the full 4D $D_4$
+bulk and its truncated 3D floor-0 slice (Tier~A). In the palindromic Strang frame $C_{1/2} S(\mathbf{k}) C_{1/2}$ on
+flat 4D $D_4$, all $\sigma_y$ Baker--Campbell--Hausdorff splitting errors cancel identically to all orders (versus an
+$O(k)$ error of slope $\pi/3$ for non-palindromic $S C$), and inversion parity $E(-\mathbf{k}) = E(\mathbf{k})$ kills
+all odd-order dispersion terms. For two identical-tone, identical-role excitations interacting through
+$M_{\mathrm{pair}}(\zeta_{18})$, the infinite 4D $D_4$ two-body problem reduces with zero truncation to a 12-branch
+star graph coupled at relative separation $r = 0$. At $\mathbf{K} = \mathbf{0}$, the 12-fold degeneracy splits into 11
+non-$s$-wave Eisenstein bound states at $E_p(0) = 1.609267\text{ rad}$ and one unique non-degenerate 4D $s$-wave bound
+state at $E_s(0) = 1.770647\text{ rad}$ ($|u_s| = 0.07402$, $\kappa_s = 1.3017\text{ dock}^{-1}$). Because all 12 $D_4$
+root lines enter symmetrically, the individual 4D $s$-wave dispersion obeys
 \begin{equation}
-g(\mathbf{k}) = \frac{\cos k_x + \cos k_y + \cos k_z}{3}
+E_s(\mathbf{K}) = E_s(0) - 0.105504\,\|\mathbf{K}\|^2 + 0.048720\,\|\mathbf{K}\|^4 + c_6(\hat{\mathbf{K}})\,\|\mathbf{K}\|^6 + O(K^8),
+\label{eq:4d-swave-bch}
+\end{equation}
+achieving \textbf{exact $SO(4)$ isotropy through both $O(K^2)$ and $O(K^4)$} (numerical axis spreads $5.1 \times
+10^{-10}$ and $3.0 \times 10^{-7}$ across all four 4D symmetry axes) and pushing the first $W(F_4)$ rotational breaking
+to $O(K^6)$.
+
+Truncating to the 3D husk changes the rotational order sharply. Closing every bulk-directed line at $D = 0$ defines the
+\textbf{reflecting floor-0 slab} (\mbox{\code{period = 4}}, \mbox{\code{floor = 0}}). In the exact twisted-Bloch gauge
+induced by the parabolic cusp translations of $O^+(4,1; \mathbb{Z}[\sqrt{2}])$, all 24 single-particle floor-0 bands
+are identically flat ($v_g \equiv 0$, topologically edge-caged on 2-dock pairs). Turning on $M_{\mathrm{pair}}(u)$ on
+the closed $24 \times 24$ two-particle Bloch unitary $U(\mathbf{k}, u)$ \cite{strauch2006} breaks the edge cage and
+yields 19 flat bands and 5 dispersive bands (\code{E-RLT-0123}, \code{E-RLT-0124}) obeying the cubic structure-factor
+relation
+\begin{equation}
+E_n(\mathbf{k}) = E_n\bigl(g(\mathbf{k})\bigr),
+\qquad
+g(\mathbf{k}) = \frac{\cos k_x + \cos k_y + \cos k_z}{3}.
 \label{eq:cubic-structure-factor}
 \end{equation}
-separates the spectrum into 19 flat bands and 5 dispersive bands (\code{E-RLT-0124}). The relativistic particle lives
-where two of the dispersive bands nearly touch. Near the Brillouin-zone corner
-$\mathbf{R} = (\pi, \pi, \pi)$, the light Dirac dispersion is the \textbf{avoided-crossing half-splitting}
+Near the Brillouin-zone corner $\mathbf{R} = (\pi, \pi, \pi)$, the avoided-crossing half-splitting
 $E_D(\mathbf{q}) = \frac{1}{2}(d_4(\mathbf{R}-\mathbf{q}) - d_3(\mathbf{R}-\mathbf{q}))$ around the nonzero rest
 quasi-energy midpoint $E_{\mathrm{mid}} \approx +1.6515\text{ rad/beat}$ (where $d_3 = +1.6466$ touches two flat bands
-and $d_4 = +1.6564$ at $\mathbf{q} = \mathbf{0}$), yielding $m_D = 0.004905$ and bare limiting speed
-$c_{\mathrm{eff}} = 0.021267$. The four boost checks in Table~\ref{tab:dirac-boosts}, across
-$v / c_{\mathrm{eff}} \le 0.4$ along all three crystal axes, are \textbf{algebraic ratios read off the dispersion}
+and $d_4 = +1.6564$ at $\mathbf{q} = \mathbf{0}$) yields $m_D = 0.004905$ and bare limiting speed
+$c_{\mathrm{eff}} = 0.021267$. The four boost checks in Table~\ref{tab:dirac-boosts}, evaluated across
+$v / c_{\mathrm{eff}} \le 0.4$ along $(1,0,0)$, $(1,1,0)$, and $(1,1,1)$, are algebraic ratios read directly from
 $E_D(\mathbf{q})$: the internal rate $m_D / E_D$, the simultaneity ratio $(E_D/q)\, v_g / c_{\mathrm{eff}}^2$, the
 longitudinal-to-transverse Hessian curvature ratio $H_\parallel / H_\perp$ ($0.60\%$), and its square-root proxy
 $\gamma\sqrt{H_\parallel / H_\perp} - 1$ ($0.30\%$). No boosted wavepacket or light clock is simulated in real space.
+
+A full cyclotomic root sweep establishes a hard ceiling on bare floor-0 propagation speed. Across all 18 roots of unity
+$u \in \mu_{18} \subset \mathbb{Z}[\zeta_9]$ (certified exact \code{BigInt}-unitary at all 8 TRIM points for
+$u \in \{1, \zeta_{18}, \zeta_9, \zeta_6, \omega, -1\}$) and across the entire continuous circle $U(1)$, zero roots
+($0/18$) produce a gapless linear relativistic cone. Every isolated dispersive band is a massive quadratic scalar with
+exact $O(k^2)$ $SO(3)$ isotropy ($\le 7.6 \times 10^{-12}$) and universal $O(k^4)$ cubic $O_h$ breaking (axis-spread
+ratio $[c_4(100) - c_4(110)] / [c_4(100) - c_4(111)] = 3/4$ to five digits across every root). The absolute floor-0
+group-speed ceiling across all of $\mu_{18}$ and $U(1)$ is $\max c_{\mathrm{eff}}(u) = 0.129492$ docks/beat at
+$u = \zeta_{18}^5$ ($100^\circ$), which still sits $7.55\times$ below the warped-beam speed $c_u = 0.977925$ below.
+Varying the cyclotomic phase $u$ inside $M_{\mathrm{pair}}(u)$ cannot close the bare-to-beam speed gap.
 
 \begin{table}[htbp]
 \centering
@@ -141,11 +168,16 @@ beam operator by construction, $\Delta c / c = 0$ is an exact algebraic identity
 precision ($3.41 \times 10^{-16}$ gravity vs.\ matter, $2.27 \times 10^{-16}$ vs.\ light, consistent with GW170817
 $-3 \times 10^{-15} \le \Delta c / c \le +7 \times 10^{-16}$ \cite{abbott2017gw170817}) rather than a physical
 measurement outperforming an astrophysical bound.
-\item \textbf{Nonlocal square-root Weyl operator:} The chiral Weyl operator $D_{\mathrm{Weyl}}(\mathbf{k}) =
-\hat{\Sigma}(\mathbf{k}) \otimes H_{\mathrm{warp}}(\mathbf{k})^{1/2}$ is spatially nonlocal in position space via the
-matrix square root. In the site-local linear Dirac control inside \code{E-RLT-0125}, Cauchy--Schwarz causes
-$\langle v_0 | V_{\mathrm{lat}} | v_0 \rangle$ to miss $c_u$ by $0.814\%$ ($0.231\%$ on period~2), failing GW170817 by
-over 11 orders of magnitude.
+\item \textbf{Nonlocal square-root Weyl operator and Cauchy--Schwarz obstruction:} The chiral Weyl operator
+$D_{\mathrm{Weyl}}(\mathbf{k}) = \hat{\Sigma}(\mathbf{k}) \otimes H_{\mathrm{warp}}(\mathbf{k})^{1/2}$ is strictly
+depth-nonlocal in position space ($|S_{0,D}| > 0$ for every depth $D \ge 2$). Because bosonic operators average the
+squared shell speed $v_D^2 = l_D / N_D$ over shell inertia $m_D = N_D w(D)$ ($c_u^2 = \langle v_D^2 \rangle_m$),
+whereas any site-local linear multi-floor Dirac operator averages $v_D$ linearly
+($c_{\mathrm{Dirac,local}} = \langle v_D \rangle_m$), the strict Cauchy--Schwarz variance identity
+$c_u^2 - c_{\mathrm{Dirac,local}}^2 = \operatorname{Var}_m(v_D) > 0$ enforces an irreducible $0.8143\%$ mismatch on
+canonical single-face links ($0.2310\%$ on period-2 links), exceeding GW170817 by more than 11 orders of magnitude.
+Closing that mismatch with a site-local Dirac operator requires a bulk metric whose lateral shell speed $v_D$ is
+uniform across depth.
 \item \textbf{Single-face vs.\ period-2 links and super-Nyquist KK gap:} Canonical single-face links
 \mbox{$l_D = 1, 4, 20, 100$} give $c_u = 0.977925$, while aliased \mbox{\code{period = 2}} links ($1, 10, 40, 200$)
 give control $c_u^{(p=2)} = 0.986916$. Both stay strictly subluminal (canonical $c_u < 1$ is machine-checked
@@ -185,7 +217,8 @@ Vertical KK gap / bare gap & $m_{\mathrm{KK}} = 3.2725\text{ rad/beat} > 0.5$ & 
 \end{tabularx}
 \end{table}
 
-At this point the husk has isotropic, relativistic 3D motion from the bare rule (Tier~A), and on a warped beam all
-species share one speed (Tier~B). The warp was imposed without derivation, and the two speeds differ by $46\times$.
-Section~\ref{sec:gravity} shows why a warp is needed and what it does to the field of a mass on the husk, which is
-where the shared speed $c_u$ is used next.
+The bare rule thus yields $O(K^4)$-isotropic 4D $s$-wave bound states on flat $D_4$ and $O(k^2)$-isotropic floor-0
+kinematics bounded below $0.1295$, whereas the warped beam locks all species to $c_u = 0.977925$ at Tier~B.
+Section~\ref{sec:gravity} explains why the same depth warp $w(D) = 1/N_D^2$ is required to prevent bulk gravitational
+screening, proves why bare vertex-transitivity forbids deriving $w(D)$ from state-independent bare observables, and
+constructs a strictly 1-hop-causal horizon-crossing walk on the same geometry.

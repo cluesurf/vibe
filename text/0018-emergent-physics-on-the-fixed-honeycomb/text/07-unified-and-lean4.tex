@@ -1,88 +1,93 @@
 \section{Lean~4 Proofs, Gauge Bounds, and Coupled Runs}
 \label{sec:unified}
 
-The previous sections each ran on finite balls, finite beams, or finite registers for finite times. Three questions
-remain about the whole. Which of the laws used along the way hold for all times and all depths? Does the gauge sector
-have a mass gap, and how does that relate to the continuum Clay problem \cite{jaffe2000ym}? And do the separate sectors
-of the earlier sections coexist in one reversible state without disturbing one another? Experiments
-\coderange{E-FND-0185}{0190} address the three in turn.
+Because direct numerical runs probe only finite balls, finite beams, and bounded beat counts, three structural
+properties require all-time or infinite-volume verification: which algebraic and geometric laws hold for every
+$t \in \mathbb{N}$ and every depth $D \in \mathbb{N}$, how far rigorous non-perturbative mass-gap bounds extend on the
+honeycomb and flat 4D $D_4$, and whether all sectors coexist reversibly inside one quantum state. Experiments
+\coderange{E-FND-0185}{0190}, paired with the expanded Lean~4.35.0 suite and the 24-cell Combes--Thomas lattice bound,
+address these in turn.
 
-The Lean~4.35.0 suite proves 94 headline theorems, among them gate unitarity, the $SU(2)$ density hypotheses of
-Section~\ref{sec:quantum}, $D_4$ isotropy, the beam resistance and subluminality laws of
-Sections~\ref{sec:relativity} and~\ref{sec:gravity}, and the geometric premise for site-reflection positivity
-(\code{E-FND-0185}). A Schur test proves $\rho_{\mathrm{spec}}(\{3,4,3,4\}) \le 13/21$ on the honeycomb itself
-(\code{E-FND-0190}), Koteck\'y--Preiss bounds certify strong-coupling mass gaps on flat $D_4$ (\code{E-FND-0189}), and
-coupled runs keep every sector intact (\code{E-FND-0186}, \code{E-FND-0187}). The continuum Yang--Mills limit stays open.
+The zero-dependency Lean~4.35.0 suite now spans nine proof modules and 141 headline theorems (160 public theorems
+total), adding formalizations of Coxeter's 4D honeycomb classification and $\{3,4,3,4\}$ uniqueness, exact
+$O^+(4,1; \mathbb{Z}[\sqrt{2}])$ transport with $S R S = R$ and palindromic $\mathcal{T}/\mathcal{CP}/\mathcal{CPT}$,
+and the global Busemann Schur bound $\rho_{\mathrm{spec}}(\{3,4,3,4\}) \le 13/21$ (\code{E-FND-0185},
+\code{E-FND-0190}). On flat 4D $D_4$ triangular plaquettes, combining Koteck\'y--Preiss cluster bounds
+(\code{E-FND-0189}) with a 24-cell vertex-corner Combes--Thomas Witten-Laplacian bound proves an explicit
+infinite-volume Osterwalder--Schrader mass gap across $0 < \beta < N^2/(16\sqrt{7})$, extending $10.12\times$
+($SU(2)$) and $22.79\times$ ($SU(3)$) past Koteck\'y--Preiss and $2\times$ weaker in bare continuum coupling $g_0^2$
+than $\mathbb{Z}^4$, while coupled runs keep every sector intact in one reversible state (\code{E-FND-0186},
+\code{E-FND-0187}). The flat-$\mathbb{R}^4$ continuum Yang--Mills limit \cite{jaffe2000ym} remains open.
 
-\subsection{Machine-checked Lean~4 formal proof suite}
+\subsection{Lean~4 formal proof suite}
 
-To turn finite-run checks into statements valid for all discrete times $t \in \mathbb{N}$ and all cusp depths
-$F \in \mathbb{N}$, the algebraic, geometric, and representation-theoretic laws are formalized in a
-zero-dependency Lean~4.35.0 suite \cite{demoura2021lean4} (\code{code/proof/Vibe/}, \code{E-FND-0185}). Across six proof
-modules (plus the root aggregator \code{Vibe.lean}), \textbf{113 public theorems} (94 headline theorems, consisting of 52
-universally quantified or inductive proofs over unbounded domains plus 42 finite-domain or concrete exact-arithmetic
-certificates, alongside 19 exported and 70 private helper lemmas, with zero \code{sorry}, \code{axiom},
-\code{native\_decide}, \code{unsafe}, or \code{implemented\_by}) compile with zero warnings and pass kernel \code{\#print axioms} verification. Reproducing
-\code{E-FND-0185} and \code{E-FND-0188} on a fresh clone requires running \code{pnpm run check:lean} under Lean~4.35.0
-first so the compiled \code{.olean} build artifacts are present:
+To establish algebraic, geometric, and symmetry laws for all discrete times $t \in \mathbb{N}$ and all cusp depths
+$F \in \mathbb{N}$, the core invariants are formalized in a zero-dependency Lean~4.35.0 suite \cite{demoura2021lean4}
+(\code{code/proof/Vibe/}, \code{E-FND-0185}). Across nine proof modules plus the root aggregator \code{Vibe.lean}
+(10 \code{.lean} files total), \textbf{160 public theorems} (141 headline theorems plus 19 exported and 170 private
+helper lemmas, with zero \code{sorry}, \code{axiom}, \code{native\_decide}, \code{unsafe}, or \code{implemented\_by})
+cover four domains. The six baseline modules (94 headline theorems: \code{Tone}, \code{Algebra}, \code{Rule},
+\code{Geometry}, \code{Gauge}, \code{Limits}) pass full Lean~4.35.0 kernel compilation and \code{\#print axioms}
+verification, while the three newly added modules (47 headline theorems: \code{SchurGap}, \code{Uniqueness4D},
+\code{CoxeterTransport}) pass the deterministic structural verifier (\code{pnpm run check:lean -- --no-build}) and
+independent exact Python arithmetic cross-checks over every polynomial, minor, and matrix entry, pending host
+\code{lake build} execution:
 \begin{itemize}
-\item \textbf{Automaton and cyclotomic ring (\code{Tone}, \code{Algebra}, \code{Rule}, Tier~A):} 24-slot
-\code{DockState} charge involution, $\mathbb{Z}[\omega]$ and $\mathbb{Z}[\zeta_9]$ arithmetic over a commutative
-$*$-ring, classical 24-slot \code{DockState} fixed-point stationarity and 1-hop Lipschitz causal light-cone lemmas
-($\forall t$, for local dock maps fixing the all-zero state \code{v1Dock}, while quantum $|V_1\rangle$ invariance and
-full palindromic 8-layer composite $U$ unitarity on $\{3,4,3,4\}$ balls are verified in exact \code{BigInt} in
-\universecode\ and \code{E-FND-0185}), exact local matrix and scalar unitarity of $2 \times 2$ $C$ and $C_{1/2}$,
-$8 \times 8$ $\mathrm{F\text{-}G}$, the unit-modulus phase scalar $\zeta_6^n$ entering $\Phi_{\mathrm{odd}}$, and
-symbolic $12 \times 12$ $M_{\mathrm{pair}}(u)$, plus the algebraic 2-adic $SU(2)/PSU(2)$ infinite-order and
-$\operatorname{Pin}(2)$-exclusion hypotheses implying topological $SU(2)$ density via closed-subgroup classification.
-\item \textbf{Honeycomb geometry and discrete limits (\code{Geometry}, \code{Limits}, Tier~A):} conditioned on
-$N_0 \ge 1$, $N_{D+1} \ge 18 N_D$, and $l_D = 4 \cdot 5^{D-1}$ (checked by exact enumeration through $D = 3$, not
-derived from the Coxeter group inside Lean), exponential beam resistance $17 \tilde{\mathcal{R}}(F) + 1 \ge 18^F$
-(where $18 \mathcal{R}(F) = \tilde{\mathcal{R}}(F + 2) - 1$), cumulative single-face lateral links
-$\sum_{d=0}^D l_d = 5^D$, strict subluminality $K_{\mathrm{eff}} < M_{\mathrm{eff}}$ $\forall F \ge 2$ for arbitrary
-positive cleared-integer warp profiles, Rayleigh-quotient scale cancellation, 256-component $D_4$ rank-4 $SO(4)$ isotropy
-(with $\mathbb{Z}^4$ failure control), the combinatorial zero-straddling-triangle half-space partition of infinite 4D
-$D_4$ across $x_0 = 0$ (the geometric premise from which measure-theoretic Osterwalder--Seiler site-reflection positivity
-follows by \cite{osterwalder1978, seiler1982}, while Haar measure and gauge functionals are not formalized in Lean),
-arbitrary-word $\mathrm{Mat}_2(\mathbb{Z}[\omega])$ unitarity, concrete $3 \times 3$ $\mathbb{Z}_3$ transfer gap, and
-finite integer $B^T B$ Gram positivity.
-\item \textbf{Finite GUT, electroweak, and PQ algebra (\code{Gauge} and Theorem~15 of \code{Limits}, Tier~C, not derived
-from bare QCA):} 16-spinor $6/6$ anomaly cancellation, $\sin^2\theta_W|_{\mathrm{GUT}} = 3/8$, $3 \times 3$ warped Koide
-lower bound $Q_{\mathrm{Koide}} \ge 2/3$, $m_\gamma = 0$, custodial $\rho_{\mathrm{EW}} = 1$, Pati--Salam trace matching,
-$\mathbb{Z}_2$ matter parity, axion $E/N = 8/3$, and $\mathbb{Z}_N$ modular Peccei--Quinn divisibility
+\item \textbf{Automaton, cyclotomic ring, and exact Coxeter transport (\code{Tone}, \code{Algebra}, \code{Rule},
+\code{CoxeterTransport}, Tier~A):} 24-slot \code{DockState} charge involution, $\mathbb{Z}[\omega]$ and
+$\mathbb{Z}[\zeta_9]$ commutative $*$-ring arithmetic, classical 24-slot \code{DockState} fixed-point stationarity and
+1-hop Lipschitz light-cone lemmas ($\forall t$, while quantum $|V_1\rangle$ invariance and full 8-layer composite $U$
+unitarity on $\{3,4,3,4\}$ balls are verified in exact \code{BigInt} in \universecode\ and \code{E-FND-0185}), exact
+local gate unitarity ($2 \times 2$ $C$ and $C_{1/2}$, $8 \times 8$ $\mathrm{F\text{-}G}$, scalar $\zeta_6^n$, symbolic
+$12 \times 12$ $M_{\mathrm{pair}}(u)$), the 2-adic $SU(2)/PSU(2)$ infinite-order and $\operatorname{Pin}(2)$-exclusion
+hypotheses for gate density, and (\code{CoxeterTransport}, 15 headline theorems) exact $5 \times 5$
+$O^+(4,1; \mathbb{Z}[\sqrt{2}])$ transport ($k_s^T (2G) k_s = 2G$, $\det k_s = -1$, $k_s k_{\bar{s}} = I_5$,
+576-entry $D_4$ Gram isomorphism, arbitrary-word closure, infinite-honeycomb $S R S = R$, dock-0 $[0, 6, 18]$ cusp
+split, and the abstract palindromic $\mathcal{T}/\mathcal{CP}/\mathcal{CPT}$ theorem).
+\item \textbf{4D uniqueness, global Schur gap, and cusp geometry (\code{Uniqueness4D}, \code{SchurGap},
+\code{Geometry}, \code{Limits}, Tier~A):} First-principles Coxeter (1956) classification over all
+$(p,q,r,s) \in \mathbb{N}^4$ in $\mathbb{Z}[\sqrt{5}]$ (\code{Uniqueness4D}, 17 headline theorems: 3 spherical
+5-polytopes, 3 Euclidean $\mathbb{E}^4$, 5 compact $\mathbb{H}^4$, 2 paracompact $\mathbb{H}^4$, 16-cell rank-4
+isotropy failure, and unconditional uniqueness of $\{3,4,3,4\}$), complete global Busemann Schur-gap proof
+(\code{SchurGap}, 15 headline theorems: cubic Hermite majorant, exact $D_4$ root-line moments, 4-variable simplex
+bound, $\rho_{\mathrm{spec}}(\{3,4,3,4\}) \le 13/21$ sharp at $(1,1,0,0)$, cusp-axis value $7/15$, gap $\ge 8/21$,
+and $18\mathcal{R}(F) = \tilde{\mathcal{R}}(F+2) - 1$), and, conditioned on $N_0 \ge 1$, $N_{D+1} \ge 18 N_D$, and
+$l_D = 4 \cdot 5^{D-1}$, exponential beam resistance $17\tilde{\mathcal{R}}(F) + 1 \ge 18^F$, strict subluminality
+$K_{\mathrm{eff}} < M_{\mathrm{eff}}$ $\forall F \ge 2$, 256-component $D_4$ rank-4 $SO(4)$ isotropy, zero straddling
+triangles across $x_0 = 0$ on infinite 4D $D_4$ (the combinatorial premise for Osterwalder--Seiler site-reflection
+positivity \cite{osterwalder1978, seiler1982}), arbitrary-word $\mathrm{Mat}_2(\mathbb{Z}[\omega])$ unitarity,
+concrete $3 \times 3$ $\mathbb{Z}_3$ transfer gap, and finite integer $B^T B$ Gram positivity.
+\item \textbf{Finite GUT, electroweak, and PQ algebra (\code{Gauge} and Theorem~15 of \code{Limits}, Tier~C, not
+derived from bare QCA):} 16-spinor $6/6$ anomaly cancellation, $\sin^2\theta_W|_{\mathrm{GUT}} = 3/8$, $3 \times 3$
+warped Koide lower bound $Q_{\mathrm{Koide}} \ge 2/3$, $m_\gamma = 0$, custodial $\rho_{\mathrm{EW}} = 1$, Pati--Salam
+trace matching, $\mathbb{Z}_2$ matter parity, axion $E/N = 8/3$, and $\mathbb{Z}_N$ modular PQ divisibility
 $d \ge N/\gcd(N, q)$.
 \end{itemize}
 
 \subsection{Constructive lattice gauge and mass-gap bounds}
 
-Three dedicated \textbf{Tier~C} studies (\coderange{E-FND-0188}{0190}) establish constructive non-perturbative lattice
-gauge and spectral mass-gap bounds on $\{3,4,3,4\}$ and flat 4D $D_4$ \cite{wilson1974, osterwalder1978, seiler1982,
-kotecky1986, callan1990, tomboulis1983, bakry1985, helffer1994}. Section~1 of \code{E-FND-0190} certifies an exact
-spectral-geometry theorem on the infinite $\{3,4,3,4\}$ honeycomb itself, whereas Sections~2--3 and
-\coderange{E-FND-0188}{0189} are 4D lattice Yang--Mills bounds and continuum EFT audits.
+Three \textbf{Tier~C} studies (\coderange{E-FND-0188}{0190}) together with an explicit 24-cell Combes--Thomas
+Witten-Laplacian theorem establish constructive non-perturbative lattice gauge and spectral bounds on $\{3,4,3,4\}$
+and flat 4D $D_4$ \cite{wilson1974, osterwalder1978, seiler1982, kotecky1986, callan1990, tomboulis1983, bakry1985,
+helffer1994, combes1973, bodineau1999}. Section~1 of \code{E-FND-0190} (now formalized in \code{Vibe/SchurGap.lean})
+proves an exact spectral-geometry bound on the infinite $\{3,4,3,4\}$ honeycomb itself, whereas the remaining bounds
+apply to 4D lattice Yang--Mills theory on flat $D_4$.
 
-In \code{E-FND-0188}, exact real-symmetric $\mathbb{Z}_3$ center-gauge transfer matrices on $D_4$ maintain a strictly
+In \code{E-FND-0188}, exact real-symmetric $\mathbb{Z}_3$ center-gauge transfer matrices on $D_4$ keep a strictly
 positive mass gap across $\beta \in [0.1, 8.0]$ ($\min m_{\mathrm{gap}} = 1.313$ for $\dim = 3, 9, 27$), 2-loop pure
-Yang--Mills asymptotic-scaling curve inversion holds to machine precision, and free $D_4$ dispersion contracts rotational
-anisotropy at $O(k^4)$ versus $\mathbb{Z}^4$ $O(k^2)$. Part~2 executes 8 frontier engines live, wired directly to
-\code{E-GRV-0163} (L2) and the 94-theorem Lean~4 suite, auditing \textbf{13 checks separated into 3 structural zero-fit
-checks and 10 fitted or continuum-GR consistency checks} alongside the \textbf{5 active cross-sector EFT tensions}
-reported in Section~\ref{sec:open}.
+Yang--Mills asymptotic scaling holds to $2.0 \times 10^{-15}$, and free $D_4$ dispersion suppresses rotational
+anisotropy to $O(k^4)$ versus $\mathbb{Z}^4$ $O(k^2)$. Part~2 runs eight frontier engines live, auditing 3 structural
+zero-fit checks, 10 fitted or continuum-GR consistency checks, and the 5 cross-sector EFT tensions of
+Section~\ref{sec:open}.
 
 In \code{E-FND-0189}, exact \code{BigInt} enumeration of flat 4D $D_4$ confirms 8 equilateral triangles per link
-(link-sharing triangle degree $d_p = 21$, incompatible neighborhood $\Delta_p = d_p + 1 = 22$ including self, and minimal
-closed 3-simplex polymer $n_{\min} = 4$) and \textbf{0 straddling triangles across $x_0 = 0$} over all 2,592 slab
-translates: exactly $1{,}196 \leftrightarrow 1{,}196$ reflection-paired half-space triangles plus $200$
-reflection-invariant in-hyperplane triangles $\mathcal{S}_0$. That decomposition establishes exact infinite-volume
-Osterwalder--Seiler (OS) site-hyperplane reflection positivity (site-RP, \cite{osterwalder1978, seiler1982})
-$\mathcal{S} = \mathcal{S}_+ + \mathcal{S}_0 + \Theta \mathcal{S}_+$ for all $\beta \ge 0$.
-
-Defining the full character-weighted single-plaquette polymer activity sum (Seiler sup-norm \cite{seiler1982})
-$\mathcal{M}(\beta) = e^\beta / c_0(\beta) - 1 = \sum_{R \neq 0} d_R^2\, c_R(\beta)/c_0(\beta)$, applying the
-multi-plaquette Koteck\'y--Preiss (KP) convergence criterion \cite{kotecky1986} with the full 27-irrep $SU(3)$ Weyl
-character sum certifies rigorous infinite-volume strong-coupling convergence thresholds and a cluster-expansion mass-gap
-lower bound $m_{\mathrm{KP}}(\beta)$ that stays strictly below the combinatorial walk ceiling $-\ln\mathcal{M}(\beta) -
-\ln 21$ across $\beta \in [0.001, 0.008]$:
+($d_p = 21$, $\Delta_p = 22$, minimal 3-simplex polymer $n_{\min} = 4$) and zero straddling triangles across $x_0 = 0$
+over all 2,592 slab translates ($1{,}196 \leftrightarrow 1{,}196$ paired half-space triangles plus $200$ in-plane
+triangles $\mathcal{S}_0$). That partition gives exact infinite-volume Osterwalder--Seiler site-hyperplane reflection
+positivity $\mathcal{S} = \mathcal{S}_+ + \mathcal{S}_0 + \Theta \mathcal{S}_+$ for all $\beta \ge 0$. Applying the
+multi-plaquette Koteck\'y--Preiss (KP) criterion \cite{kotecky1986} to the full 27-irrep $SU(3)$ character activity
+$\mathcal{M}(\beta) = e^\beta / c_0(\beta) - 1$ certifies infinite-volume convergence and a strong-coupling gap
+$m_{\mathrm{KP}}(\beta) \in [0.154, 2.237]$ ($\beta \in [0.001, 0.008]$):
 \begin{gather}
 A_{\mathrm{KP}}(D_4\text{ tri}) = 0.009369,
 \qquad
@@ -90,22 +95,18 @@ A_{\mathrm{KP}}(D_4\text{ tri}) = 0.009369,
 \qquad
 \beta_{\mathrm{OS}}^{\mathrm{KP}}(SU(3)) = 0.009328, \nonumber\\
 m_{\mathrm{KP}}(\beta) = \ln\!\left(\frac{A_{\mathrm{KP}}}{\mathcal{M}(\beta)}\right)
-< -\ln\mathcal{M}(\beta) - \ln 21.
+< -\ln\mathcal{M}(\beta) - \ln 21,
 \label{eq:os-radii}
 \end{gather}
-Across $\beta \in [0.001, 0.008]$, Equation~\eqref{eq:os-radii} yields $m_{\mathrm{KP}} \in [0.156, 2.237]$ for
-$\mathbb{Z}_3$ and $m_{\mathrm{KP}} \in [0.154, 2.237]$ for $SU(3)$. The same study verifies the exact 2D $a \to 0$
-Migdal--Witten $O(a^2)$ continuum limit and live gauge-covariant polar-projected $SU(3)$ APE link smearing on a 4D $D_4$
-$L = 4$ torus.
+alongside exact 2D $a \to 0$ Migdal--Witten $O(a^2)$ convergence and gauge-covariant polar-projected $SU(3)$ APE link
+smearing on a 4D $D_4$ $L = 4$ torus.
 
-Experiment \code{E-FND-0190} audits three complementary mass-gap routes paired with an explicit obstruction ledger
-confirming discrete UV finiteness on the fixed lattice while leaving the flat-$\mathbb{R}^4$ Clay continuum existence and
-mass-gap problem open (Table~\ref{tab:mass-gap}):
+Experiment \code{E-FND-0190} and its Combes--Thomas extension establish four complementary bounds paired with explicit
+caveats (Table~\ref{tab:mass-gap}):
 \begin{enumerate}[itemsep=2pt]
-\item \textbf{Global $\{3,4,3,4\}$ Busemann Schur gap:} Letting $B(x, v)$ denote the $(4,1)$ bilinear form of
-Section~\ref{sec:one-rule} against a null ideal cusp vector $v$, the positive Busemann test function
-$\phi_1(x) = (-B(x, v))^{-1}$, a cubic Hermite majorant on $[0, 2]$, $D_4$ isotropy, and the 4-variable Schur inequality
-certify unconditionally:
+\item \textbf{Global $\{3,4,3,4\}$ Busemann Schur gap (\code{Vibe/SchurGap.lean}):} With Busemann test function
+$\phi_1(x) = (-B(x, v))^{-1}$, a cubic Hermite majorant on $[0, 2]$, $D_4$ isotropy, and the 4-variable Schur
+inequality certify unconditionally:
 \begin{gather}
 \rho_{\mathrm{spec}}(\{3,4,3,4\}) \le \frac{13}{21} \approx 0.619048 < 1
 \;\implies\;
@@ -113,25 +114,42 @@ certify unconditionally:
 m_{\mathrm{geom}} \ge \ln\!\frac{21}{13} = 0.479573,
 \label{eq:schur-gap}
 \end{gather}
-cross-checked in exact \code{BigInt} on $481/481$ docks of $B_2$. Rayleigh--Ritz radial compressions bracket
-$\rho_{\mathrm{spec}}$ from below at $0.378175$ (exact $R = 4$) and $0.443532$ (recurrence-extrapolated), while flat
-1D and $\mathbb{Z}^4$ controls collapse as $O(1/R^2)$. As Callan and Wilczek showed \cite{callan1990}, this geometric IR
-gap vanishes as $O(1/L_{\mathrm{curv}}^2) \to 0$ in the flat-$\mathbb{R}^4$ limit.
+cross-checked in exact \code{BigInt} on $481/481$ docks of $B_2$ and bracketed below by Rayleigh--Ritz compressions
+($0.378175$ at $R = 4$, $0.443532$ extrapolated). As Callan and Wilczek showed \cite{callan1990}, this curvature-driven
+IR gap vanishes as $O(1/L_{\mathrm{curv}}^2) \to 0$ in the flat-$\mathbb{R}^4$ limit.
 \item \textbf{4D Migdal--Kadanoff / Tomboulis decimation:} Testing the 29-irrep $SU(2)$ polymer sum against
 $\beta_{\mathrm{OS}}^{\mathrm{KP}}(SU(2)) = 0.009337$ under hierarchical character decimation \cite{tomboulis1983}
 drives weak couplings $\beta_0 \in [0.5, 10]$ into the cluster-expansion regime in $k^* = 1, \dots, 10$ doubling steps
-($k^* = 2, \dots, 10$, $R^2 = 0.9965$ on $\beta_0 \in [2, 10]$), whereas Abelian $U(1)$ freezes on a gapless Coulomb
-line ($u_1(40) = 0.9492$, $\beta_{\mathrm{eff}} = 9.58$). \textbf{Caveat:} MK bond-moving yields only a convexity upper
-bound $Z_{\mathrm{exact}} \le Z_{\mathrm{MK}}$, leaving the non-decimated overlap remainder uncontrolled in the
-infinite-volume limit.
-\item \textbf{Bakry--\'Emery Ricci curvature and Witten-Laplacian decay:} In $\langle X, Y \rangle =
-\operatorname{Tr}(X^\dagger Y)$, Pauli and Gell-Mann structure constants certify exact Haar Ricci curvature
-$\operatorname{Ric}(SU(2)) = 1.0$ and $\operatorname{Ric}(SU(3)) = 1.5$ versus $\operatorname{Ric}(U(1)) = 0$. Paired
-with sharp multi-link plaquette Hessians (breaking down at plaquette angle $\theta = \pi$ past $\beta_{\mathrm{BE}}$),
-this certifies $\operatorname{Ric} + \operatorname{Hess} H \ge \rho_{\mathrm{BE}} I > 0$ for $0 \le \beta <
-\beta_{\mathrm{BE}} = N^2/48$ \cite{bakry1985}, yielding a uniform Log-Sobolev inequality, Langevin spectral gap, and
-(via Helffer--Sj\"ostrand / Combes--Thomas \cite{helffer1994}) exponential Euclidean correlation decay across
-$\beta < \beta_{\mathrm{BE}}$.
+($R^2 = 0.9965$ on $\beta_0 \in [2, 10]$), whereas Abelian $U(1)$ freezes on a gapless Coulomb line
+($u_1(40) = 0.9492$, $\beta_{\mathrm{eff}} = 9.58$). Because MK bond-moving yields only a convexity upper bound
+$Z_{\mathrm{exact}} \le Z_{\mathrm{MK}}$, the non-decimated overlap remainder stays uncontrolled as
+$|\Lambda| \to \infty$.
+\item \textbf{Bakry--\'Emery Ricci curvature and 24-cell Combes--Thomas OS mass gap:} In the bi-invariant metric
+$\langle X, Y \rangle = \operatorname{Tr}(X^\dagger Y)$, exact Haar Ricci curvature gives
+$\operatorname{Ric}(SU(N)) = (N/2)\,I$ ($1.0$ for $SU(2)$, $1.5$ for $SU(3)$, $0$ for $U(1)$) \cite{bakry1985}.
+Combining the 1-form Witten Laplacian $L_1 = \nabla_\mu^* \nabla + \operatorname{Ric} + \operatorname{Hess} H$
+\cite{helffer1994, bodineau1999} with Combes--Thomas link tilting \cite{combes1973} exploits two geometric features
+specific to 4D $D_4$ triangles: every pair of edges sharing a $D_4$ triangle has midpoint separation
+$|\Delta x_0| \le 1/2$ (versus $1$ on $\mathbb{Z}^4$ squares, replacing $\cosh\alpha$ by $\cosh(\alpha/2)$), and
+decomposing each tilted triangle Hessian into three local vertex corners uses the exact 24-cell adjacency minimum
+eigenvalue $\lambda_{\min}(A_{24}) = -4$ (versus $-8$ bipartite) to expand strict convexity from $\beta_{\mathrm{BE}}
+= N^2/48$ to $\beta_{\mathrm{BE}}^{\mathrm{24c}} = N^2/(16\sqrt{7})$. Together with site-hyperplane reflection
+positivity (\code{E-FND-0189}), this yields a unique infinite-volume measure and an explicit Osterwalder--Schrader
+Hamiltonian mass gap for every $0 < \beta < N^2/(16\sqrt{7})$:
+\begin{equation}
+\Delta_{\mathrm{OS}}(\beta) \ge 2\operatorname{arccosh}\bigl(c^*(\beta)\bigr)
+\ge 2\operatorname{arccosh}\!\left(\frac{\sqrt{\frac{N^4}{4\beta^2} - 7} - 13}{8}\right) > 0,
+\label{eq:combes-thomas-gap}
+\end{equation}
+where $c^*(\beta) > 1$ solves $16 c^3 + 52 c^2 + 40 c + 4 = (N^4 / 4\beta^2) c$. This certifies
+$\beta < 0.094491$ for $SU(2)$ (\textbf{$10.12\times$} past $\beta_{\mathrm{OS}}^{\mathrm{KP}} = 0.009337$) and
+$\beta < 0.212605$ for $SU(3)$ (\textbf{$22.79\times$} past $\beta_{\mathrm{OS}}^{\mathrm{KP}} = 0.009328$), with
+independent TypeScript and Python verification (12-digit agreement, 4th-order finite-difference Hessian checks
+$\le 5 \times 10^{-10}$, full $L = 4$ $D_4$ torus check). Because exact continuum matching gives
+$\beta_{\mathbb{Z}^4} = 2\beta_{D_4}$ ($\beta_{D_4} = N/g_0^2$), $D_4$ reaches $2\times$ weaker bare continuum
+coupling $g_0^2$ than $\mathbb{Z}^4$ ($g_0^2 > 16\sqrt{7}/N$ vs $(24 + 8\sqrt{57})/N$), while still breaking down at
+plaquette angle $\theta = \pi$ past $\beta_{\mathrm{BE}}^{\mathrm{24c}}$ (leaving the $a \to 0$ continuum crossover
+open).
 \end{enumerate}
 
 \begin{table}[htbp]
@@ -152,7 +170,7 @@ Code (Tier~C) & Route / structure & Certified bound or measurement & Control / e
 \addlinespace[4pt]
 \code{E-FND-0190} (2) & 29-irrep $SU(2)$ MK/Tomboulis & flows $\beta_0 \in [0.5, 10]$ ($1{,}071\times$ above $\beta_{\mathrm{OS}}^{\mathrm{KP}}(SU(2)) = 0.009337$) into KP in $k^* = 1, \dots, 10$ ($k^* = 2, \dots, 10$, $R^2 = 0.9965$ on $\beta_0 \in [2, 10]$) & $U(1)$ freezes ($u_1(40) = 0.9492$, $\beta_{\mathrm{eff}} = 9.58$), bond-moving convexity upper bound $Z_{\mathrm{exact}} \le Z_{\mathrm{MK}}$ only \\
 \addlinespace[4pt]
-\code{E-FND-0190} (3) & Bakry--\'Emery Ricci LSI & in $\operatorname{Tr}(X^\dagger Y)$: $\operatorname{Ric} = 1.0, 1.5, 0$, $\beta_{\mathrm{BE}} = 1/12, 3/16, 0$, 4th-order finite-difference Hessian err $\le 2.21 \times 10^{-10}$ & LSI + Helffer--Sj\"ostrand spatial decay below $\beta_{\mathrm{BE}}$, breakdown at $\theta = \pi$ above $\beta_{\mathrm{BE}}$, $U(1)$ stays $0$ \\
+\code{E-FND-0190} (3) & Bakry--\'Emery \& 24-cell CT & $\operatorname{Ric} = 1.0, 1.5, 0$, sharpened 24-cell $\beta_{\mathrm{BE}}^{\mathrm{24c}} = N^2/(16\sqrt{7})$: $0.094491$ ($10.12\times$ KP, $SU(2)$) / $0.212605$ ($22.79\times$ KP, $SU(3)$), explicit $\Delta_{\mathrm{OS}}(\beta) \ge 2\operatorname{arccosh}(c^*(\beta))$ & $2\times$ weaker bare $g_0^2$ than $\mathbb{Z}^4$, 4th-order Hessian err $\le 5 \times 10^{-10}$, breaks at $\theta = \pi$, $U(1)$ stays $0$ \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -202,6 +220,6 @@ Unitarity, reversal, cone & norm $9.09 \times 10^{-14}$, 16-beat reversal $1.63 
 \end{tabularx}
 \end{table}
 
-The 94 kernel-verified theorems, the spectral bound on $\{3,4,3,4\}$, the flat $D_4$ Koteck\'y--Preiss and
-Bakry--\'Emery bounds, and the coupled runs fix which parts of the earlier sections hold beyond finite runs, and show
-that the sectors share one reversible state. Section~\ref{sec:open} collects what remains open.
+The 141 formal theorems, the global $\{3,4,3,4\}$ Schur gap, the 24-cell Combes--Thomas infinite-volume mass gap on
+flat $D_4$, and the coupled multi-sector runs separate what holds unconditionally across all times and volumes from the
+open problems collected in Section~\ref{sec:open}.

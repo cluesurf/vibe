@@ -1,14 +1,18 @@
 \section*{Introduction}
 
-This paper studies one object: a deterministic, reversible quantum cellular automaton (QCA) that lives on a fixed,
-infinite tiling of four-dimensional hyperbolic space by regular 24-cells, the honeycomb $\{3,4,3,4\}$
-\cite{coxeter1956, coxeter1973, margenstern2007vol1}. It asks how much of quantum mechanics, relativistic kinematics,
-gravity, gauge structure, and cosmology can be reached from that object, and it marks where each answer depends on the
-bare rule alone and where it depends on structure added by hand.
+We analyze a deterministic, reversible quantum cellular automaton (QCA) defined on the fixed, infinite tiling of
+four-dimensional hyperbolic space by regular 24-cells, the honeycomb $\{3,4,3,4\}$
+\cite{coxeter1956, coxeter1973, margenstern2007vol1}. Each 24-cell carries 24 signed ternary states
+$\tau \in \{-1, 0, +1\}$ evolved by a single local unitary beat over the cyclotomic ring $\mathbb{Z}[\zeta_9][1/6]$,
+with three-dimensional observables read on the flat cubic horosphere $\{4,3,4\}$ surrounding an ideal cusp. The paper
+serves as a self-contained mathematical specification, a Lean~4.35.0 proof audit, and a deterministic computational
+baseline \cite{cluesurf2026repo}. Every geometric object, ring, operator, symmetry, and observable is defined on first
+use so the entire construction can be checked and re-implemented directly from the text.
 
-The paper is a mathematical specification, a Lean~4.35.0 proof audit, and a deterministic computational baseline in
-one \cite{cluesurf2026repo}. Every geometric object, ring, operator, symmetry, and observable is defined on first use,
-so the text can be read and the rule re-implemented with no outside prerequisites.
+Throughout, we maintain a strict boundary between theorems of the bare automaton, behaviors obtained on prescribed
+warped or drifting backgrounds, and compatibility checks against standard lattice gauge theory and continuum effective
+field theories (EFTs). Alongside each positive construction, we record the exact no-go theorems and negative controls
+that delimit where the bare rule stops.
 
 \subsection*{Construction overview}
 
@@ -76,32 +80,36 @@ simulation.
 
 \subsection*{Verification tiers}
 
-The later sections, on gravity, matter, and cosmology, depend increasingly on structure supplied by hand. Every claim
-and every registered run therefore carries one of three tiers (Table~\ref{tab:tiers}, Figure~\ref{fig:tiers-map}). \textbf{Tier~A} is
-what the bare automaton and the exact honeycomb do on their own. \textbf{Tier~B} places the same geometry under a
-prescribed background, such as an imposed depth warp or a fixed drift, and asks what follows. \textbf{Tier~C} brings
-in standard lattice gauge theory or continuum effective field theory (EFT) and tests whether it is compatible with the
-invariants of $\{3,4,3,4\}$. Tier~C results are \textbf{not derived from the bare automaton}. The six open gaps between
-the tiers are the subject of Section~\ref{sec:open}.
+Because the later sections on gravity, matter, and cosmology introduce external structure beyond the microscopic beat,
+every claim and deterministic run is assigned one of three tiers (Table~\ref{tab:tiers}, Figure~\ref{fig:tiers-map}).
+\textbf{Tier~A} covers exact properties of the bare automaton and the $\{3,4,3,4\}$ honeycomb with nothing added.
+\textbf{Tier~B} evaluates the same geometry on a prescribed background, such as an imposed depth warp, a fixed radial
+flow, or a simplified domain-wall or ladder lattice. \textbf{Tier~C} tests standard lattice gauge theory and continuum
+effective field theories (EFTs) for compatibility with geometric and algebraic invariants read off from $\{3,4,3,4\}$.
+Tier~C results are \textbf{not derived from the bare automaton}. Section~\ref{sec:open} catalogs the six open gaps
+separating these tiers together with the no-go theorems that sharpen them.
 
-Every quantitative claim cites a deterministic experiment identifier in \code{test/registry.csv}
-\cite{cluesurf2026repo} (1,790 registered runs). No script uses pseudo-randomness, and each pairs pre-registered
-pass/fail gates with negative controls (line-confined, unwarped bulk, dephased classical, frozen $g^2 = 0$, and
-sector-off ablations). The bare reference kernel (\universecode), exact Coxeter frame builders,
-Lean-mirrored certificates (\code{E-FND-0185}), exact small-horizon QCA runs (\code{E-QTM-0203}, \code{E-QTM-0205},
-\code{E-FND-0181}, \code{E-FND-0183}, \code{E-FND-0184}), and the infinite-honeycomb radial engine (\code{E-GRV-0163})
-execute in arbitrary-precision \code{BigInt} cyclotomic arithmetic, while larger long-time, spectral, multi-qubit, and
-continuum benchmark runs (\code{E-QTM-0202}, \code{E-QTM-0206}, \code{E-QTM-0207}, \code{E-HLG-0043},
-\code{E-FND-0182}, \code{E-RLT-0125}, and downstream EFT runs) execute in IEEE-754 \code{Float64} with explicit
-unitarity and norm-drift gates.
+Every quantitative claim cites either a registered identifier in \code{test/registry.csv} \cite{cluesurf2026repo}
+(1,790 deterministic runs) or a standalone deterministic verification script in the companion repository. No script uses
+pseudo-randomness, and each pairs pre-registered pass/fail gates with negative controls (line-confined, unwarped bulk,
+dephased classical, frozen $g^2 = 0$, and sector-off ablations). The bare reference kernel (\universecode), exact
+Coxeter frame builders, Lean-mirrored certificates (\code{E-FND-0185}), exact small-horizon QCA runs
+(\code{E-QTM-0203}, \code{E-QTM-0205}, \code{E-FND-0181}, \code{E-FND-0183}, \code{E-FND-0184}), the infinite-honeycomb
+radial engine (\code{E-GRV-0163}), and the exact cyclotomic domain-wall, 1-hop horizon, and Nelson--Barr verifiers run
+in arbitrary-precision \code{BigInt} arithmetic, while larger long-time, spectral, multi-qubit, and continuum checks run
+in IEEE-754 \code{Float64} with explicit unitarity and residual gates.
 
-A second grade records how much of the honeycomb a run touches. \textbf{L1} is pure algebra or a finite-qubit
-benchmark, \textbf{L2} is an exact sector or prescribed-background run on true $\{3,4,3,4\}$ balls, infinite Coxeter
-traversals, or cusp beams, and \textbf{L3} is unfactored many-body dynamics across large 4D regions. Every run here is
-L1 or L2. No L3 claim is made. The runs are paired with 94 headline Lean~4.35.0 theorems (113 public theorems including
-19 exported helper lemmas) across six proof modules and the root aggregator \code{Vibe.lean}, with 0~\code{sorry},
-0~\code{axiom}, and 0~\code{native\_decide}. Reproducing the Lean audit requires building the \code{.olean} artifacts
-with \code{pnpm run check:lean}. Failed gates stay in the catalog and are reported beside the passing ones.
+A second grade records substrate depth. \textbf{L1} denotes pure algebra or a finite-register benchmark, \textbf{L2}
+denotes an exact sector or prescribed-background evolution on true $\{3,4,3,4\}$ balls, infinite Coxeter traversals, or
+cusp beams, and \textbf{L3} denotes unfactored many-body dynamics across large 4D regions. Every run reported here is
+L1 or L2, and no L3 claim is made. The numerical audits are paired with a zero-dependency Lean~4.35.0 formal proof suite
+of 141 headline theorems (160 public theorems including 19 exported helpers, plus 170 private helpers) across nine proof
+modules and the root aggregator \code{Vibe.lean}, with 0~\code{sorry}, 0~\code{axiom}, and 0~\code{native\_decide}.
+The six baseline modules (94 headline theorems) pass full Lean~4.35.0 kernel compilation and \code{\#print axioms}
+verification, while the three newer modules (\code{SchurGap.lean}, \code{Uniqueness4D.lean}, and
+\code{CoxeterTransport.lean}, 47 headline theorems) pass the deterministic structural audit (\code{check:lean
+--no-build}) and independent exact Python arithmetic cross-checks pending host \code{lake build} execution. Failed
+gates remain in the catalog and are reported beside passing ones.
 
 \begin{table}[htbp]
 \centering
@@ -134,10 +142,10 @@ Tier~C & Constructive flat 4D $D_4$/$\{3,4,3,4\}$ lattice gauge-theory and mass-
 \node[tierbox] (A) at (0,0) {%
   {\bfseries\color{twViolet} Tier~A: Bare QCA (Sec.~1--3)}\\[4pt]
   $\bullet$ Palindromic 8-layer $U$ in $\mathbb{Z}[\zeta_9][1/6]$\\[2pt]
-  $\bullet$ $O^+(4,1;\mathbb{Z}[\sqrt{2}])$ $\{3,4,3,4\}$ geometry\\[2pt]
+  $\bullet$ $\{3,4,3,4\}$ uniqueness \& $O^+(4,1)$\\[2pt]
   $\bullet$ Exact $\mathcal{T}, \mathcal{CP}, \mathcal{CPT}$ \& $W(F_4)^+$ cov.\\[2pt]
-  $\bullet$ $D_4$ isotropy \& 2-adic $SU(2)$ hyp.\\[2pt]
-  $\bullet$ Floor-0 Dirac ($c_{\mathrm{eff}} = 0.0213$)
+  $\bullet$ 1D YBE / 4D chaos \& bare $SU(4)$\\[2pt]
+  $\bullet$ 4D $O(K^4)$ $s$-wave \& floor-0 Dirac
 };
 \draw[line width=1.6pt, draw=twViolet] (A.north west) -- (A.north east);
 
@@ -145,19 +153,19 @@ Tier~C & Constructive flat 4D $D_4$/$\{3,4,3,4\}$ lattice gauge-theory and mass-
   {\bfseries\color{twBlue} Tier~B: Warped / Prescribed}\\[4pt]
   $\bullet$ Imposed warp $w(D) = 1/N_D^2$\\[2pt]
   $\bullet$ Speed lock $c_u = 0.9779$ (Sec.~3)\\[2pt]
-  $\bullet$ $G_{\mathrm{eff}} = 0.0786$, Hartree, GP (Sec.~4)\\[2pt]
-  $\bullet$ Cusp chirality \& $\mathbb{Z}_3$ ladder (Sec.~5)\\[2pt]
-  $\bullet$ Horosphere drift \& L1 qubits
+  $\bullet$ $G_{\mathrm{eff}} = 0.0786$ \& 1-hop horizon (Sec.~4)\\[2pt]
+  $\bullet$ Finite-range wall \& $\mathbb{Z}_3$ ladder (Sec.~5)\\[2pt]
+  $\bullet$ Horosphere drift \& Cayley SMG
 };
 \draw[line width=1.6pt, draw=twBlue] (B.north west) -- (B.north east);
 
 \node[tierbox] (C) at (11.00,0) {%
   {\bfseries\color{twEmerald} Tier~C: Lattice \& EFT}\\[4pt]
   $\bullet$ PPN metric \& continuum GR (Sec.~4)\\[2pt]
-  $\bullet$ Spin(10) / Yukawa / axion EFT (Sec.~5)\\[2pt]
+  $\bullet$ Spin(10) / Nelson--Barr EFT (Sec.~5)\\[2pt]
   $\bullet$ Inflation, BBN, BP $\Lambda$ scan (Sec.~6)\\[2pt]
   $\bullet$ $\{3,4,3,4\}$ $\rho_{\mathrm{spec}} \le 13/21$ (Sec.~7)\\[2pt]
-  $\bullet$ 4D $D_4$ KP \& Bakry--\'Emery gaps
+  $\bullet$ 24-cell Combes--Thomas $D_4$ gap
 };
 \draw[line width=1.6pt, draw=twEmerald] (C.north west) -- (C.north east);
 
@@ -189,43 +197,55 @@ while dashed arrows mark the six open dynamical and continuum bridges audited in
 
 \subsection*{Outline}
 
-Sections~\ref{sec:one-rule}--\ref{sec:cosmology} proceed from a single dock to the full honeycomb and then to the
-physics tested on it.
+The paper builds from the local 24-cell junction to the full hyperbolic honeycomb, and then follows the dynamics across
+single-particle, two-particle, gravitational, chiral, cosmological, and infinite-time regimes.
 
-\textbf{Section~\ref{sec:one-rule}} defines the geometry and the rule (Tier~A). It describes one dock, glues docks into
-$\{3,4,3,4\}$, stacks the flat husk floors around a cusp (shells $N_D = 1, 18, 330, 6{,}034$, single-face lateral
-links $l_D = 1, 4, 20, 100$), constructs the ring $\mathbb{Z}[\zeta_9][1/6]$, and assembles the beat $U$. It closes
-with two facts used throughout: the 3D husk cannot be evolved on its own because the 4D bulk behind it
-matters within one beat, and the rule keeps exact $\mathcal{CP}$, $\mathcal{T}$, and $\mathcal{CPT}$ while breaking
-$\mathcal{C}$ locally through 4-body interference.
+\textbf{Section~\ref{sec:one-rule}} defines the $\{3,4,3,4\}$ honeycomb, its uniqueness among regular 4D hyperbolic
+tilings, its flat $\{4,3,4\}$ cusp foliation (shells $N_D = 1, 18, 330, 6{,}034$, single-face lateral links
+$l_D = 1, 4, 20, 100$), the amplitude ring $\mathbb{Z}[\zeta_9][1/6]$, and the palindromic eight-layer beat $U$
+(Tier~A). It establishes two structural facts used throughout: the 3D husk is dynamically non-closed within one beat
+because of the 4D bulk behind it, and $U$ conserves $\mathcal{T}$, $\mathcal{CP}$, $\mathcal{CPT}$, and order-576
+$W(F_4)^+$ covariance while generating local $\mathcal{C}$-asymmetry through 4-body interference.
 
-\textbf{Section~\ref{sec:quantum}} follows a single excitation through the rule's two-slot coin and asks whether its
-finite set of gates is enough for quantum mechanics (Tier~A and~B). It proves the algebraic hypotheses for density in
-$SU(2)$, verifies the symmetry prerequisites of Zurek envariance under an operationally posited Born measure, runs
-finite-register benchmarks of pointer decoherence and Bell violation, and reports an open-line Bell-correlation stall.
+\textbf{Section~\ref{sec:quantum}} analyzes the single-line coin and two-body collision algebra (Tier~A and~B). Beyond
+the 2-adic $SU(2)$ density hypotheses and bipartite envariance prerequisites, it classifies the exact 1D two-body
+$S$-matrix (hitting two of the three Yang--Baxter integrable phases on $U(1)$ before 4D $M_{\mathrm{pair}}$ breaks
+integrability) and constructs two zero-external-gate universality mechanisms purely inside bare $U$, yielding
+bare-analyzer Bell--CHSH violations up to $2.6412$ and $2.8262$.
 
-\textbf{Section~\ref{sec:relativity}} considers two excitations in one dock. Pair scattering frees motion from the 12 straight
-lines, recovers 3D isotropy and relativistic dispersion ratios on the husk at bare speed $c_{\mathrm{eff}} = 0.021267$
-(Tier~A), and, on a prescribed warped beam, locks gravity, light, and matter to one speed $c_u = 0.977925$ (Tier~B). The
-$46\times$ gap between the two speeds is recorded.
+\textbf{Section~\ref{sec:relativity}} turns to multi-line kinematics and relativistic dispersion (Tier~A and~B). Pair
+scattering breaks the single-excitation line law, producing an exact $SO(4)$-isotropic 4D $s$-wave bound state through
+$O(K^4)$ on flat $D_4$ and $O(k^2)$-isotropic floor-0 Dirac kinematics at $c_{\mathrm{eff}} = 0.021267$. A sweep over
+all 18 cyclotomic roots in $\mathbb{Z}[\zeta_9]$ establishes a hard floor-0 speed ceiling of $0.129492$ ($7.55\times$
+below the Tier~B shared-beam speed $c_u = 0.977925$), while Cauchy--Schwarz fixes an irreducible $0.814\%$ speed
+mismatch for site-local linear Dirac operators on a non-uniform beam.
 
-\textbf{Section~\ref{sec:gravity}} treats the beam behind the husk. A prescribed depth warp $w(D) = 1/N_D^2$ stops the
-bulk from swallowing a husk potential, restores $1/r$ gravity with $G_{\mathrm{eff}} = 0.078593$, and supports live
-Newtonian orbits (Tier~B). An exact walk on the infinite honeycomb under a prescribed inward drift tips both light rays
-inward past a horizon (Tier~B), and continuum general-relativity benchmarks are run beside it (Tier~C).
+\textbf{Section~\ref{sec:gravity}} examines bulk gravitational screening, the prescribed depth warp $w(D) = 1/N_D^2$,
+and horizon walks (Tier~B and~C). Exact $O^+(4,1)$ vertex-transitivity proves that bare $U$ alone forces constant depth
+weighting, establishing that $w(D) = 1/N_D^2$ requires both a symmetry-breaking cusp-anchored flux background and
+2-body pair coupling. On the warped beam, the static potential recovers $1/r$ gravity ($G_{\mathrm{eff}} = 0.078593$)
+and Newtonian orbits. For horizons, a 2-band Gross--Nesme--Vogts--Werner (GNVW) no-go lemma leads to a minimal
+4-component strictly 1-hop-causal spatially varying horizon-crossing QCA (verified in pure \code{BigInt}
+$\mathbb{Z}[\zeta_9][1/2]$) exhibiting exponential peeling and $U(1,1)$ transfer-matrix Hawking tunneling, alongside
+continuum general-relativity checks.
 
-\textbf{Section~\ref{sec:gauge}} treats the husk as a one-sided boundary. A unitary domain wall with coins in the
-automaton's ring separates left and right modes by 29 orders of magnitude, the three banks of a dock supply three
-copies, and a $\mathbb{Z}_3$ ladder confines (Tier~B). Grand-unified EFT checks follow (Tier~C).
+\textbf{Section~\ref{sec:gauge}} treats lattice chirality, confinement, flavor textures, and Strong-$\mathcal{CP}$
+structure (Tier~B and~C). Replacing transcendental momentum-space coins yields a strictly finite-range pure-\code{BigInt}
+$\mathbb{Z}[\zeta_9][1/2]$ 3+1D chiral domain wall accompanied by a $\mathfrak{p}_3$-adic obstruction forbidding exact
+cubic $(1,1,1)$ velocities inside $\mathbb{Q}(\zeta_9)$, while mirror gapping requires extending bare diagonal
+$\Phi_{\mathrm{odd}}$ by the 14-term $D_4$ Cayley 4-form. A cold $\mathbb{Z}_3$ ladder demonstrates linear
+confinement, zero-parameter look-elsewhere audits bound cyclotomic Koide and flavor ans\"atze, and a pure-$\mathbb{Z}[\zeta_9]$
+Nelson--Barr mass matrix offers a Strong-$\mathcal{CP}$ alternative to the DFSZ axion tensions.
 
-\textbf{Section~\ref{sec:cosmology}} follows an excitation moving deeper into the cusp. Because each deeper floor is
-larger, steady inward drift reads on the husk as de Sitter expansion with no sites created (Tier~B). The bare rate sits
-about 61 decades above the observed Hubble rate, and continuum cosmology checks are run beside it (Tier~C).
+\textbf{Section~\ref{sec:cosmology}} evaluates inward horosphere drift on the fixed mesh, where expanding floor volume
+reads on the husk as de Sitter expansion with zero site creation (Tier~B), leaving a 61-decade bare Hubble gap
+(122 decades in $\Lambda$) alongside continuum cosmology benchmarks (Tier~C).
 
-\textbf{Section~\ref{sec:unified}} collects results that hold for all times and depths: the Lean~4
-proof suite, constructive mass-gap bounds on $\{3,4,3,4\}$ and flat $D_4$, and coupled runs in which several sectors
-share one reversible state.
+\textbf{Section~\ref{sec:unified}} collects all-time and infinite-volume results: the 9-module, 141-headline-theorem
+Lean~4.35.0 suite, the unconditional $\{3,4,3,4\}$ Busemann Schur bound $\rho_{\mathrm{spec}} \le 13/21$, a 24-cell
+vertex-corner Combes--Thomas infinite-volume 4D $D_4$ Yang--Mills mass gap extending $10.1\times$ ($SU(2)$) and
+$22.8\times$ ($SU(3)$) past Koteck\'y--Preiss, and coupled multi-sector unitary runs.
 
-\textbf{Section~\ref{sec:open}} gathers the six open gaps, the five active cross-sector EFT tensions, and the relation
-between discrete ultraviolet (UV) finiteness and the Clay Yang--Mills problem. \textbf{Appendix~\ref{sec:index}}
-indexes all 64 cited experiments.
+\textbf{Section~\ref{sec:open}} summarizes the six open frontiers, the five active cross-sector EFT tensions, and the
+boundary between discrete ultraviolet finiteness and the Clay continuum Yang--Mills problem. \textbf{Appendix~\ref{sec:index}}
+indexes all 64 registered experiments alongside the standalone breakthrough verification scripts.

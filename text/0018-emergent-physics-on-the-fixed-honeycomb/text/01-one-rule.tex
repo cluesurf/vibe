@@ -1,16 +1,16 @@
 \section{Automaton, Honeycomb Geometry, and Beat Rule}
 \label{sec:one-rule}
 
-This section defines the geometry and the rule. It starts inside one dock, with its 24 doorways and the values they
-hold. It then glues docks into the infinite honeycomb and describes that honeycomb relative to a cusp, where it splits
-into flat 3D floors backed by a widening 4D bulk. It constructs the exact number
-ring in which all amplitudes live, assembles the eight layers of one beat, and traces a few configurations through
-them. Everything here is Tier~A: it is the bare automaton, with nothing prescribed.
+We begin with the Tier~A microscopic specification: the internal geometry of a single 24-cell dock, its tiling into
+the infinite hyperbolic honeycomb $\{3,4,3,4\}$, the flat 3D horosphere foliation around an ideal cusp, the exact
+cyclotomic amplitude ring $\mathbb{Z}[\zeta_9][1/6]$, and the palindromic eight-layer unitary beat $U$. Nothing in this
+section is prescribed from outside the bare rule.
 
-Two results at the end of the section are used throughout the paper. The 3D husk cannot be evolved on its own, because two
-bulk states that look identical on the husk separate there within one beat (\code{E-HLG-0043}). And the rule keeps
-exact $\mathcal{T}$, $\mathcal{CP}$, $\mathcal{CPT}$, and order-576 $W(F_4)^+$ covariance while 4-body interference
-through $\Phi_{\mathrm{odd}}$ produces a local $\mathcal{C}$-asymmetry (\universecode, \code{E-FND-0184}).
+Two structural properties established at the end of the section carry into all later dynamics. First, the 3D husk is
+not dynamically closed: two distinct 4D bulk configurations with identical 3D beam projections separate on the husk
+within a single beat (\code{E-HLG-0043}). Second, the unified beat conserves exact $\mathcal{T}$, $\mathcal{CP}$,
+$\mathcal{CPT}$, and order-576 $W(F_4)^+$ proper-rotation covariance while 4-body interference through
+$\Phi_{\mathrm{odd}}$ produces a local $\mathcal{C}$-asymmetry (\universecode, \code{E-FND-0184}).
 
 \subsection{Docks, slots, tones, lines, and banks}
 
@@ -207,10 +207,20 @@ Scale~4 ($k^* = 4$).}
 \subsection{The \texorpdfstring{$\{3,4,3,4\}$}{\{3,4,3,4\}} honeycomb and its cusp}
 
 Gluing docks face to face across their octahedral facets builds the regular hyperbolic honeycomb $\{3,4,3,4\}$
-\cite{coxeter1956, coxeter1973, margenstern2007vol1}. Read the symbol from the inside out: triangles $\{3\}$ meet four
-at a vertex to form octahedra $\{3,4\}$, octahedra meet three around an edge to form 24-cells $\{3,4,3\}$, and 24-cells
-meet four around every triangular face. That last number forces the space to curve negatively, and it makes the
-neighborhood of each ideal point at infinity (a \emph{cusp}) a flat cubic grid $\{4,3,4\}$.
+\cite{coxeter1956, coxeter1973, margenstern2007vol1}. Reading the Schl\"afli symbol from the inside out, triangles
+$\{3\}$ meet four at a vertex to form octahedra $\{3,4\}$, octahedra meet three around an edge to form 24-cells
+$\{3,4,3\}$, and 24-cells meet four around every triangular face. That last index curves the 4D space negatively and
+fixes the vertex figure around each ideal point at infinity (a \emph{cusp}) to be the flat 3D cubic grid $\{4,3,4\}$.
+
+Formalizing Coxeter's (1956) classification over all $(p, q, r, s) \in \mathbb{N}^4$ in exact $\mathbb{Z}[\sqrt{5}]$
+Gram-minor arithmetic (\code{Vibe/Uniqueness4D.lean}, Section~\ref{sec:unified}) isolates $\{3,4,3,4\}$ without ad-hoc
+choices. In four dimensions, exact Sylvester principal minors partition regular Schl\"afli symbols into 3 spherical
+5-polytopes, 3 flat Euclidean $\mathbb{E}^4$ honeycombs, 5 compact $\mathbb{H}^4$ honeycombs ($\{3,3,3,5\}$,
+$\{5,3,3,3\}$, $\{4,3,3,5\}$, $\{5,3,3,4\}$, $\{5,3,3,5\}$), and only 2 paracompact finite-covolume $\mathbb{H}^4$
+honeycombs: $\{3,4,3,4\}$ and its dual $\{4,3,4,3\}$ (every symbol with $\max(p,q,r,s) \ge 6$ is noncompact with
+infinite covolume). Requiring a finite regular 4-polytope cell together with a flat 3D $\{4,3,4\}$ Euclidean cusp
+uniquely selects $\{3,4,3,4\}$ across all $\mathbb{N}^4$, while both the hypercube $\{4,3,3\}$ and the 16-cell
+$\{3,3,4\}$ fail rank-4 $SO(4)$ isotropy (\code{Vibe/Geometry.lean}, \code{Vibe/Uniqueness4D.lean}).
 
 To move through this infinite space without lookup tables or rounding, every dock center and every facet reflection is
 an exact $5 \times 5$ matrix over $\mathbb{Z}[\sqrt{2}]$. Two objects fix the whole geometry: the doubled Coxeter Gram
@@ -252,8 +262,10 @@ k_s = F_{n_s} Z \in O^+(4,1; \mathbb{Z}[\sqrt{2}]),
 Every single hop has determinant $-1$, so only even-length paths preserve orientation and the honeycomb is bipartite.
 Starting from the origin dock with frame $I_5$, a dock with frame $g$ sits at center $g c_0$, carries orientation
 parity $\sigma(d) = \det(g) \in \{+1, -1\}$, and reaches its neighbor through facet $s$ at frame $g k_s$ (verified on
-all $481/481$ docks of $B_2$ with zero conflicts in \universecode). Because $k_s$ has flat holonomy, an excitation that
-leaves through doorway $s$ arrives in the same slot index $s$ of the next dock. The stream
+all $481/481$ docks of $B_2$ with zero conflicts in \universecode, and formalized entrywise for all 24 generators and
+arbitrary-length words in \code{Vibe/CoxeterTransport.lean}, certifying $k_s^T (2G) k_s = 2G$, $\det(k_s) = -1$,
+$k_s k_{\bar{s}} = I_5$, and the infinite-honeycomb reversal identity $S R S = R$). Because $k_s$ has flat holonomy, an
+excitation that leaves through doorway $s$ arrives in the same slot index $s$ of the next dock. The stream
 $S(d, s) = (\mathrm{step}(d, s), s)$ is therefore a bijection, with inverse $S^{-1}(d, s) = (\mathrm{step}(d, \bar{s}), s)$
 and a strict speed limit of one hop per beat.
 
@@ -755,9 +767,9 @@ $\mathcal{C}$ and $\mathcal{P}$ breaking (Table~\ref{tab:sec1-results}).
 \subsection{Beam non-closure and \texorpdfstring{$\mathcal{CP}$}{CP} balance}
 \label{sec:cp-balance}
 
-Two questions are settled by running the bare rule. Can the 3D husk be evolved on its own, by
-summing each beam into one husk value $Q_{\mathrm{beam}}(0)$? And can a globally $\mathcal{CP}$-balanced rule still
-tell $+1$ from $-1$ locally in a neutral state? Table~\ref{tab:sec1-results} collects the runs. Three of them
+Running the bare beat settles two foundational properties of the 4D bulk: whether the 3D husk evolves autonomously under
+coarse-grained beam sums $Q_{\mathrm{beam}}(0)$, and whether a globally $\mathcal{CP}$-invariant rule can distinguish
+$+1$ from $-1$ locally inside a neutral state. Table~\ref{tab:sec1-results} collects these runs. Three legacy runs
 (\code{E-FND-0181}, \code{E-FND-0183}, \code{E-FND-0184}) used an earlier \code{code/rule/} prototype with an auxiliary
 slot mask and pair store in place of the unified kernel of Equation~\eqref{eq:beat}. The live runs of
 \code{E-FND-0181}, \code{E-FND-0182}, \code{E-FND-0183}, and \code{E-HLG-0043} report registered gate failures, listed in
@@ -805,6 +817,6 @@ coherent 4-body interference across branches of distinct $\chi_{\mathrm{odd}}$ g
 $\mathcal{C}$-odd neighbor charge difference $\mathrm{odd}(\psi) = \frac{1}{2}\langle Q(y_A) - Q(y_B) \rangle$ without
 violating global $\mathcal{CP}$ symmetry (\code{E-FND-0184}).
 
-The rule is fixed from here on. Section~\ref{sec:quantum} takes its simplest dynamics, one excitation on one line, and
-asks whether that motion, built from a finite set of exact gates, supports quantum interference, Born-rule symmetry,
-and Bell correlations.
+With the bare beat fixed, Section~\ref{sec:quantum} analyzes the simplest dynamical sectors: one excitation governed by
+the two-slot coin along a single line, followed by two-body scattering, bare-rule universality, and bipartite quantum
+correlations.

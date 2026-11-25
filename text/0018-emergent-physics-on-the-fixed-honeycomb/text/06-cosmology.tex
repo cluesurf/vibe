@@ -1,19 +1,15 @@
 \section{Horosphere Cosmology and Downstream EFT Checks}
 \label{sec:cosmology}
 
-Sections~\ref{sec:relativity}--\ref{sec:gauge} built local physics on the husk. This section asks about the husk as a
-whole. The honeycomb is fixed and never gains or loses a dock, so cosmic expansion cannot come from a growing mesh.
-It can come from depth. Each floor of the cusp is about eighteen times larger than the one above it, so an excitation
-that drifts steadily inward occupies a 3D volume that grows exponentially, and an observer who measures distances in
-units of that volume sees expansion. Section~\ref{sec:gravity} supplies the Planck units in which the rate is compared
-with observation.
-
-Steady inward drift gives exact de Sitter expansion ($q_{\log} = w_{\mathrm{eff}} = -1$) at a lattice rate of order
-$0.1\, M_{\mathrm{Pl}}$ (Tier~B, \code{E-CSM-0064}), and a reversible walk braked by a prescribed density passes from
-deceleration to acceleration (Tier~B, \code{E-CSM-0065} Part~A). The bare rate sits about 61 decades above the
-observed Hubble rate, or 122 decades in vacuum energy $\Lambda \propto H^2$, and Weinberg's no-go theorem
-\cite{weinberg1989} stands. Continuum cosmology checks follow at Tier~C (\code{E-CSM-0065} Part~B,
-\coderange{E-CSM-0066}{0068}).
+On a fixed honeycomb where no docks are created or destroyed, cosmic expansion cannot arise from adding lattice sites.
+Instead, because each deeper horosphere floor in the $\{3,4,3,4\}$ cusp contains roughly $18.285$ times as many docks
+as the floor above it, an excitation drifting steadily inward occupies an exponentially expanding 3D horosphere volume,
+producing an effective de Sitter scale factor $a(t) \propto r_{\mathrm{vol}}^{\langle D(t)\rangle/3}$ on the husk
+(Tier~B, \code{E-CSM-0064}). Adding a prescribed mean-field braking density drives a reversible transition from early
+deceleration to late acceleration (Tier~B, \code{E-CSM-0065} Part~A). In the Planck units fixed by
+Section~\ref{sec:gravity}, the bare lattice Hubble rate sits about 61 decades above $H_0$ (122 decades in vacuum energy
+$\Lambda \propto H^2$), leaving Weinberg's no-go theorem \cite{weinberg1989} intact alongside continuum cosmology
+compatibility checks at Tier~C (\code{E-CSM-0065} Part~B, \coderange{E-CSM-0066}{0068}).
 
 \subsection{Fixed-mesh horosphere drift and reversible braking}
 
@@ -139,8 +135,9 @@ Code (Tier~C) & Cosmological check & Verified measurement & Control / boundary \
 \end{tabularx}
 \end{table}
 
-Inward drift on a fixed mesh thus gives exact unitary de Sitter expansion with no sites created, and density braking
-gives a decelerating early era. The 61-decade gap in the bare rate ($122$ decades in $\Lambda$) and Weinberg's no-go
-stay open. Every result so far rests on finite runs over finite times. Section~\ref{sec:unified} turns to results that
-hold for all times and depths, and to runs in which the separate sectors of Sections~\ref{sec:one-rule}--\ref{sec:cosmology}
-share one state.
+Inward horosphere drift on the fixed mesh thus produces exact unitary de Sitter expansion without site creation, while
+prescribed density braking recovers an early decelerating era. Both the 61-decade bare Hubble discrepancy (122 decades
+in $\Lambda$) and Weinberg's no-go theorem remain open. Because the simulations in
+Sections~\ref{sec:one-rule}--\ref{sec:cosmology} run for finite times on finite regions, Section~\ref{sec:unified}
+establishes which structural laws hold unconditionally for all times and depths through Lean~4 proofs, infinite-volume
+lattice mass-gap bounds, and coupled multi-sector runs.

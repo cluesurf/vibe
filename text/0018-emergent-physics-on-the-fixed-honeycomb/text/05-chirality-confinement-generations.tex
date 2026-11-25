@@ -1,29 +1,27 @@
 \section{Chirality, Confinement, and Gauge EFT Checks}
 \label{sec:gauge}
 
-Sections~\ref{sec:relativity} and~\ref{sec:gravity} gave the husk motion, one speed, and gravity. What it lacks is
-matter with the structure of the Standard Model. A lattice model of particle physics meets three obstacles. Lattice fermions come in pairs of
-opposite handedness, as the Nielsen--Ninomiya theorem requires \cite{nielsen1981}. Quarks must be confined at zero
-temperature, with exact color triality and Gauss's law. And matter comes in three chiral generations with hierarchical
-masses and $\mathcal{CP}$-violating mixing. This section tests one structure of the honeycomb against each obstacle:
-the one-sided husk against the first, the $\mathbb{Z}_3$ center of the amplitude ring against the second, and the
-three banks of every dock against the third.
+Unlike a periodic cubic lattice, the $\{3,4,3,4\}$ cusp boundary is one-sided: every dock on the $D = 0$ husk connects
+to 18 bulk neighbors below it and to none above. That geometry, paired with the three orthogonal 16-cell banks of each
+dock and the $\mathbb{Z}_3$ center $\omega = \zeta_9^3$ of the amplitude ring, supplies discrete structures matching
+three standard requirements of lattice particle physics: chiral boundary modes under the Nielsen--Ninomiya constraint
+\cite{nielsen1981}, zero-temperature color triality and linear confinement, and three-fold flavor multiplicity.
 
-All three tests use simplified Tier~B models: 1D depth chains and a lattice ladder (\code{E-SPN-0221},
-\code{E-SPN-0222}, \code{E-FRC-0322}, \code{E-FRC-0323}). A unitary domain wall with coins in $\mathbb{Z}[\zeta_9][1/6]$
-separates left and right modes by 29 orders of magnitude while keeping net chirality zero, as Nielsen--Ninomiya
-demands. A cold $\mathbb{Z}_3$ ladder confines linearly with exact Gauss's law. The section then steps out to Tier~C
-grand-unified EFT checks (\coderange{E-FRC-0324}{0332}), which are not derived from the bare automaton. Dynamical gauge
-bosons from the bare rule stay open.
+The first three subsections evaluate these mechanisms on simplified Tier~B lattice models (\code{E-SPN-0221},
+\code{E-SPN-0222}, \code{E-FRC-0322}, \code{E-FRC-0323}), upgraded with a strictly finite-range pure-\code{BigInt}
+$\mathbb{Z}[\zeta_9][1/2]$ 3+1D chiral domain wall (replacing \code{E-SPN-0222}'s transcendental Bessel tails) and a
+sharp audit of symmetric mass generation (SMG) via bare $\Phi_{\mathrm{odd}}$ versus the 14-term $D_4$ Cayley 4-form.
+The final subsection audits Tier~C continuum $\mathrm{Spin}(10)$ EFT compatibility (\coderange{E-FRC-0324}{0332}),
+paired with a zero-continuous-parameter look-elsewhere audit of Koide/flavor ans\"atze and an exact-$\mathcal{CP}$
+Nelson--Barr alternative to the DFSZ axion tensions. Dynamical continuous gauge bosons from the bare rule remain open.
 
-\subsection{Domain-wall chirality}
+\subsection{Domain-wall chirality and symmetric mass generation}
 
-A periodic cubic lattice has no preferred side. The cusp does: every husk dock connects to 18 bulk neighbors below it
-and to none above. Following Kaplan and Shamir \cite{kaplan1992, shamir1993}, a boundary of this kind can trap a
-massless mode of one handedness. \code{E-SPN-0221} (Tier~B, L1) first tests a Hermitian domain wall on a flat 1D depth-24 chain ($m_0 = 0.5$), trapping a
-Left-handed mode at $D \le 2$ (weight $63/64 = 0.9844$ versus Right $2.09 \times 10^{-13}$), verifying the 1D dispersion
-at $\mathbf{k} = (0.1, 0, 0)$ ($5.61 \times 10^{-15}$) and the $W = 2$ doubler class (gap $0.5200$). The full 3D cone
-and all seven Brillouin-zone doublers are audited in \code{E-SPN-0222}.
+Following Kaplan and Shamir \cite{kaplan1992, shamir1993}, a one-sided boundary can localize a massless chiral mode on
+the surface while gapping bulk excitations. Experiment \code{E-SPN-0221} (Tier~B, L1) first verifies a Hermitian domain
+wall on a flat 1D depth-24 chain ($m_0 = 0.5$), trapping a Left-handed mode at $D \le 2$ (weight $63/64 = 0.9844$
+versus Right $2.09 \times 10^{-13}$), with 1D Weyl dispersion residual $5.61 \times 10^{-15}$ and the $W = 2$ doubler
+gapped at $0.5200$.
 
 The Hermitian wall is then replaced by a unitary one. To place a discrete-time split-step quantum walk
 \cite{asboth2013} in the ring of the automaton ($C$, $C_{1/2}$ with $C_{1/2}^2 = C$, and $\zeta_{18} = -\zeta_9^5$), \code{E-SPN-0222} (Tier~B, L2) builds
@@ -49,13 +47,43 @@ acting on the two-component Weyl spinor. At the 8 high-symmetry TRIM points $\ma
 \end{aligned}
 \label{eq:wall-coins}
 \end{equation}
-At generic $\mathbf{k}$ away from the 8 TRIM points, $\cos\alpha_1(\mathbf{k})$ is transcendental and the real-space 3D
-hopping is exponentially localized rather than strictly finite-range. Bulk topological winding $(\nu_0, \nu_\pi) = (1, 0)$
-traps a Left-handed zero mode near $D = 0$ (weight $0.999914$ on $D \le 2$), while all seven 3D doublers remain gapped
-at $\pi/3$. In strict compliance with Nielsen--Ninomiya \cite{nielsen1981}, the finite $N = 24$ slab carries an exact
-Right-handed mirror localized at weight $0.999914$ on the opposite wall window $D \ge 21$ (weight $3.56 \times 10^{-29}$ on
-$D \le 2$), so net slab chirality is identically $0$. Decoupling the mirror requires the non-compact $N \to \infty$
-limit, and dynamical chiral gauging without mirror recoupling remains open (Figure~\ref{fig:domain-wall}).
+At generic $\mathbf{k}$ away from the 8 TRIM points, however, nesting $\cos(\alpha_1(\mathbf{k}))$ produces
+infinite-range Bessel hopping tails $J_n(\pi/9) \notin \mathbb{Q}(\zeta_9)$ ($|c_1| = 0.1105$ down to $|c_6| = 2.99
+\times 10^{-8}$). Replacing the momentum-space angle with strictly 1-hop real-space shift conjugations of the exact
+equatorial $\mathbb{Z}[\zeta_9][1/2]$ compound coin $K_{\mathrm{small}} = R_{\pi/9}(2\pi/9) R_x(-4\pi/9)
+R_{\pi/9}(2\pi/9)$ (with elementary inter-layer bond $V_2 = R_{5\pi/9}(2\pi/9)$) removes all transcendental tails
+identically across the entire 3D Brillouin zone: the depth operator $V_1(\mathbf{k})$ has exact \code{BigInt}
+Laurent-polynomial unitarity and chiral symmetry ($0$ residual over 27 real-space offsets, $\max L_\infty = 1$,
+denominators strictly $2^p$), zero spurious $\nu_\pi$ violations and zero disconnected $\nu_0$ pockets across a
+$24^3 = 13{,}824$-point 3D BZ scan, an exact \code{BigInt} Left zero mode at $\Gamma$
+($\mathrm{Left}(D \le 2) = 1.000000$, $\mathrm{Right}(D \le 2) = 0$), all 7 doublers strictly gapped (min 0-gap
+$0.5496$, min $\pi$-gap $0.1166$), and the accidental husk zero at $(2\pi/3, \pi/2, 0)$ lifted to $1.5014\text{ rad}$.
+
+Restricting the 3D Weyl husk operator strictly inside $\mathbb{Q}(\zeta_9)$ (without adjoining $i = \sqrt{-1}$) uncovers
+an exact number-theoretic \textbf{$\mathfrak{p}_3$-adic chirality-velocity obstruction}. In the maximal real subfield
+$K^+ = \mathbb{Q}(2\cos(2\pi/9))$, the prime $(3) = \mathfrak{p}_3^3$ is totally ramified with odd valuation
+$v_{\mathfrak{p}_3}(3) = 3$. Because traceless Hermitian $2 \times 2$ matrices over $\mathbb{Q}(\zeta_9) =
+K^+(\sqrt{-3})$ carry the determinant quadratic form $\langle 1, 1, 3 \rangle$ (anisotropic over $\mathbb{F}_3$,
+whereas $\langle c, c, c \rangle$ is isotropic over $\mathbb{F}_3$), no finite-range 2-component QCA strictly over
+$\mathbb{Q}(\zeta_9)$ can achieve cubic-isotropic velocities $v_x = v_y = v_z$. The minimal pure-$\mathbb{Z}[\omega][1/2]$
+triad $(A_x, A_y, A_z) = (\sigma_x, C^\dagger \sigma_z C - C\sigma_z C^\dagger = \sqrt{3}\,\sigma_y, \sigma_z)$ uses
+12 real-space offsets with zero $i$, yields exact metric-isotropic velocities $(1, \sqrt{3}, 1)$ ($1.22\%$ cone spread
+at $|\mathbf{p}| = 0.05$ under $y_{\mathrm{phys}} = y/\sqrt{3}$), and requires adjoining $i$ to $\mathbb{Z}[\zeta_{36}][1/2]$
+for cubic $(1, 1, 1)$ isotropy.
+
+On any finite $N = 24$ slab, Nielsen--Ninomiya \cite{nielsen1981} places an exact Right-handed mirror on the far wall
+$D = 23$ (weight $0.999914$ on $D \ge 21$ in \code{E-SPN-0222}, $1.000000$ in the finite-range wall, net chirality $0$,
+Figure~\ref{fig:domain-wall}). Removing the mirror on a finite slab without breaking chiral symmetry requires symmetric
+mass generation (SMG \cite{wang2022smg}). An exact audit of the bare 4-body operator $\Phi_{\mathrm{odd}}$ yields two
+sharp no-go theorems: (i) $\chi_{\mathrm{odd}}$ vanishes identically on every 8-slot inscribed 16-cell ($0/1{,}120$
+4-tuples), and (ii) diagonal $\Phi_{\mathrm{odd}}$ and number-conserving single-dock $U_{\mathrm{dock}}$ cannot lift
+single-particle states into a unique gapped symmetric vacuum. Achieving SMG requires extending the bare diagonal phase
+by the minimal 14-term pure 4-fermion $D_4$ octonionic Cayley 4-form (6 diagonal plus 8 off-diagonal 4-fermion terms,
+zero bilinears). Exact diagonalization on 8 Majorana ($\dim = 16$) and 16 Majorana ($\dim = 256$) mirror banks
+confirms a unique $\mathrm{Spin}(7)$-invariant ground state (degeneracy $1$, residual $4.7 \times 10^{-16}$),
+single-particle mirror gap $\Delta E_{1p} = 14 g$, exact zero condensate ($0.00$ across all 28 and 120 bilinears), and
+an exact Floquet SMG gate $U_{\mathrm{SMG}} = P_0 + \zeta_9 P_1 + \zeta_9^2 P_2 \in \mathbb{Z}[\zeta_9][1/2]$.
+Lifting this 0+1D mirror-gapping mechanism to a full interacting 3+1D chiral boundary lattice remains open.
 
 \begin{figure}[htbp]
 \centering
@@ -164,26 +192,24 @@ Code (Tier~B) & Mechanism & Verified measurement & Control / ablation \\
 \end{tabularx}
 \end{table}
 
-\subsection{\texorpdfstring{$\mathrm{Spin}(10)$}{Spin(10)} EFT checks}
+\subsection{\texorpdfstring{$\mathrm{Spin}(10)$}{Spin(10)} EFT, cyclotomic flavor bounds, and Nelson--Barr \texorpdfstring{$\mathcal{CP}$}{CP}}
 
-The Tier~C checks ask a narrower question: if a standard grand-unified theory were placed on this geometry, would its
-parameters be compatible with the geometry's invariants? Nine
-\textbf{Tier~C} continuum EFT scripts (\coderange{E-FRC-0324}{0332}) test whether standard
-$\mathrm{Spin}(10)$ \cite{georgi1975, fritzsch1975} (often written $SO(10)$ in particle literature, denoted
-$\mathrm{Spin}(10)$ throughout this paper) and Pati--Salam \cite{pati1974} grand unified theory (GUT), electroweak (EW),
-Yukawa, and quantum chromodynamics (QCD) axion EFTs are compatible with geometric and algebraic invariants read off from
-$\{3,4,3,4\}$ (the three 8-slot banks, the $F_4$ root ratio $\sqrt{2}$, shell ratio $b = 6{,}034/330$, and
-$\mathbb{Q}(\zeta_9)$ phases). They are \textbf{not} claimed as derivations of the Standard Model gauge group or
-couplings from the bare automaton.
+Nine \textbf{Tier~C} continuum EFT studies (\coderange{E-FRC-0324}{0332}) test whether standard $\mathrm{Spin}(10)$
+\cite{georgi1975, fritzsch1975} (often written $SO(10)$ in particle literature) and Pati--Salam \cite{pati1974} grand
+unified theory (GUT), electroweak (EW), Yukawa, and quantum chromodynamics (QCD) Strong-$\mathcal{CP}$ EFTs are
+compatible with invariants read off from $\{3,4,3,4\}$ (the three 8-slot banks, the $F_4$ root ratio $\sqrt{2}$, shell
+ratio $b = 6{,}034/330$, and $\mathbb{Q}(\zeta_9)$ phases). None of these continuum EFTs are derived from the bare
+automaton.
 
-Algebraically, \code{E-FRC-0324} verifies textbook $\mathrm{Cl}(10)$ representation theory replicated across 3 copies
-($3 \times 16 = 48$ Weyl states, not derived from 24-cell operators) in exact \code{BigInt}, checking $6/6$ perturbative
-gauge and Witten anomaly cancellations, $\sin^2\theta_W|_{\mathrm{GUT}} = 3/8$, and an $S_3$ toy free energy whose
-minimum selects staggered shells $(0, 2, 3)$ for tuned crowding parameters $g_{\mathrm{Pauli}} = 2.5$ and
-$g_{\mathrm{cusp}} = 40$. Under the quadratic mass ansatz $M = M_0^2$ with $3 \times 3$ Hermitian circulant
-$M_0(r, \delta) = v_0\bigl(I_3 + \frac{r}{2}(e^{i\delta} T_3 + e^{-i\delta} T_3^\dagger)\bigr)$ and any positive diagonal
-warp $D_w = \operatorname{diag}(w_0, w_1, w_2)$, exact algebra (\code{E-FRC-0325}, \code{E-FRC-0327}) verifies Koide's
-relation \cite{koide1983}, the warped-shell lower bound, and the cyclotomic phase obstruction:
+\paragraph{Anomaly structure, Koide bounds, and zero-parameter flavor audit.}
+In exact \code{BigInt}, \code{E-FRC-0324} verifies textbook $\mathrm{Cl}(10)$ representation theory replicated across 3
+copies ($3 \times 16 = 48$ Weyl states, not derived from 24-cell operators), checking $6/6$ perturbative gauge and
+Witten anomaly cancellations, $\sin^2\theta_W|_{\mathrm{GUT}} = 3/8$, and an $S_3$ toy free energy selecting staggered
+shells $(0, 2, 3)$ for tuned parameters $g_{\mathrm{Pauli}} = 2.5$ and $g_{\mathrm{cusp}} = 40$. Under the quadratic
+mass ansatz $M = M_0^2$ with $3 \times 3$ Hermitian circulant
+$M_0(r, \delta) = v_0\bigl(I_3 + \frac{r}{2}(e^{i\delta} T_3 + e^{-i\delta} T_3^\dagger)\bigr)$ and any positive
+diagonal warp $D_w = \operatorname{diag}(w_0, w_1, w_2)$, exact algebra (\code{E-FRC-0325}, \code{E-FRC-0327}) proves
+Koide's relation \cite{koide1983}, the warped-shell lower bound, and the cyclotomic phase obstruction:
 \begin{equation}
 Q_{\mathrm{Koide}}(M_0^2) = \frac{2 + r^2}{6} = \frac{2}{3} \iff r^2 = 2,
 \qquad
@@ -192,15 +218,23 @@ Q_{\mathrm{Koide}}\bigl((D_w M_0 D_w)^2\bigr) \ge \frac{2}{3},
 e^{i 2/9} \notin \mathbb{Z}[\zeta_9][1/6].
 \label{eq:koide-identities}
 \end{equation}
-Direct $\arg(\zeta_9) = 2\pi/9$ fails ($93\%$ error), $e^{i 2/9} \notin \mathbb{Z}[\zeta_9][1/6]$ follows by
-Lindemann--Weierstrass, and \code{E-FRC-0327}'s standalone texture uses $M_{\mathrm{PS}} = 1.44 \times 10^{16}\,\mathrm{GeV}$,
-in five-decade tension with \code{E-FRC-0328} (Tension~5 in Section~\ref{sec:open}).
+A dedicated zero-continuous-parameter cyclotomic audit sharpens this obstruction: neither $m = 9$ nor $m = 18$ has any
+non-degenerate root inside the Brannen positivity window $[0, \pi/12]$ (minimum phase error $57.1\%$), even
+$m \in \{27, 36, 54, 72\}$ miss $m_\mu / m_e$ by $84\%\text{--}96\%$, and every bare unitary word or ratio dictionary in
+$\mathbb{Z}[\zeta_9][1/6]$ fails exact Lebesgue look-elsewhere control ($p = 0.0385\text{--}0.7697$). Likewise,
+zero-float $\{3,4,3,4\}$ shell textures capture order-of-magnitude quark mass decades ($m_c/m_u = 474.2$ vs $487.4$,
+$m_b/m_s = 57.6$ vs $53.7$) and TBM-perturbed PMNS angles ($3.2\%\text{--}10.4\%$) only when hyperbolic shell factors
+$N_D$ are included (pure $1/6$-power textures fail catastrophically), while missing precision PDG flavor data (matrix
+CKM $J$ is $11.3\times$ small, PMNS $\delta_{\mathrm{CP}} = 93.7^\circ$ sits in the wrong quadrant). Moreover,
+\code{E-FRC-0327}'s standalone texture uses $M_{\mathrm{PS}} = 1.44 \times 10^{16}\,\mathrm{GeV}$, in five-decade
+tension with \code{E-FRC-0328} (Tension~5 in Section~\ref{sec:open}).
 
-Experiment \code{E-FRC-0326} audits standard electroweak symmetry breaking ($m_\gamma^2 = 0$, custodial
-$\rho_{\mathrm{EW}} = 1$) and a 2-loop SM RG null test in which $0/10$ zero-parameter lattice candidates pass the
-pre-registered CODATA null judge. In \code{E-FRC-0328}, two-loop Machacek--Vaughn renormalization-group equations (RGEs,
-\cite{machacek1983}, at 2-loop gauge order without Yukawa feedback) perform an exact 3-for-3 parameter inversion (zero
-degrees of overdetermination) of the three measured SM couplings into an intermediate Pati--Salam scale:
+\paragraph{Gauge running, threshold matching, and Yukawa fits.}
+Experiment \code{E-FRC-0326} verifies standard electroweak symmetry breaking ($m_\gamma^2 = 0$, custodial
+$\rho_{\mathrm{EW}} = 1$) alongside a 2-loop SM RG null test in which $0/10$ zero-parameter lattice candidates pass
+CODATA. In \code{E-FRC-0328}, two-loop Machacek--Vaughn gauge RGEs \cite{machacek1983} (without Yukawa feedback)
+perform an exact 3-for-3 inversion (zero degrees of overdetermination) of the measured SM couplings into an
+intermediate Pati--Salam scale:
 \begin{equation}
 M_{\mathrm{PS}} = 1.434 \times 10^{11}\,\mathrm{GeV},
 \qquad
@@ -209,46 +243,56 @@ M_{\mathrm{GUT}} = 7.946 \times 10^{15}\,\mathrm{GeV},
 \alpha_{\mathrm{GUT}}^{-1} = 45.1271.
 \label{eq:ps-gut}
 \end{equation}
-Under canonical single-face $K_{\mathrm{eff}} = 1.012532$ (Section~\ref{sec:gravity}) and ball growth rate
-$\lambda_{\mathrm{ball}} = 18.2787$ (Table~\ref{tab:shells}), running the bare lattice coupling
-$\alpha_{\mathrm{lat}}^{-1} = 4\pi K_{\mathrm{eff}} \ln\lambda_{\mathrm{ball}} = 36.9722$ downward without threshold matching hits a
-2-loop QCD Landau pole slightly above $M_Z$ in minimal Pati--Salam ($\alpha_3^{-1}(M_Z) = -1.38$), while remaining
-perturbative in Georgi--Jarlskog PS ($\alpha^{-1}(0) = 129.52$, $-5.48\%$) and D-parity PS ($127.01$, $-7.32\%$).
+Under canonical single-face $K_{\mathrm{eff}} = 1.012532$ and $\lambda_{\mathrm{ball}} = 18.2787$, running the bare
+lattice coupling $\alpha_{\mathrm{lat}}^{-1} = 4\pi K_{\mathrm{eff}} \ln\lambda_{\mathrm{ball}} = 36.9722$ downward
+without thresholds hits a minimal-PS QCD Landau pole slightly above $M_Z$ ($\alpha_3^{-1}(M_Z) = -1.38$), while staying
+perturbative in Georgi--Jarlskog PS ($\alpha^{-1}(0) = 129.52$, $-5.48\%$) and D-parity PS ($127.01$, $-7.32\%$). In
+\code{E-FRC-0329}, the Planck-to-electroweak ratio spans $\log_b(M_{\mathrm{Pl}}/v_{\mathrm{EW}}) = 13.23$ shells
+($M_{\mathrm{Pl}}/N_{13} = 484.3\,\mathrm{GeV} \approx 2 v_{\mathrm{EW}}$), stabilized near $D_* = 13.15$ by a tuned
+continuum Goldberger--Wise scalar \cite{goldberger1999} ($m_\phi^2 = 0.18$, $v_{\mathrm{UV}}/v_{\mathrm{IR}} = 9.7$),
+while a non-compact $\mu = \pi/a$ $D_4$ Brodsky--Lepage--Mackenzie (BLM) matching ansatz \cite{brodsky1983} (omitting
+the $-17.91$ compact Wilson cosine tadpole) lifts bare $\alpha^{-1}(0) = 114.86$ to zero-fit $128.73$ ($-6.06\%$ below
+CODATA $137.036$), leaving CODATA closure to an underdetermined $3 \times 4$ heavy-threshold fit (ratios in
+$[0.291, 1.346]$).
 
-To audit lattice-to-continuum matching and electroweak shell stabilization, \code{E-FRC-0329} combines two continuum
-ans\"atze. First, with shell ratio $b = 6{,}034/330$, the Planck-to-electroweak hierarchy spans
-$\log_b(M_{\mathrm{Pl}}/v_{\mathrm{EW}}) = 13.23$ shells ($M_{\mathrm{Pl}}/N_{13} = 484.3\,\mathrm{GeV} \approx
-2 v_{\mathrm{EW}}$), which a continuum Goldberger--Wise scalar \cite{goldberger1999} can be tuned to stabilize near
-$D_* = 13.15$ ($m_\phi^2 = 0.18$, $v_{\mathrm{UV}}/v_{\mathrm{IR}} = 9.7$). Second, a non-compact $\mu = \pi/a$
-Gaussian-stiffness Brodsky--Lepage--Mackenzie (BLM) matching ansatz \cite{brodsky1983} (explicitly omitting the
-opposite-sign $-17.91$ compact Wilson cosine tadpole) lifts bare $\alpha^{-1}(0) = 114.86$ ($-16.19\%$) to zero-fit
-$128.73$ ($-6.06\%$ below CODATA $137.036$). Closing to CODATA requires an underdetermined $3 \times 4$ heavy
-$\mathrm{Spin}(10)$ threshold fit (ratios in $[0.291, 1.346]$, with a fixed $\overline{\mathrm{MS}}$-to-on-shell offset).
+For Yukawa unification at $M_{\mathrm{GUT}} = 7.946 \times 10^{15}\,\mathrm{GeV}$, minimal non-supersymmetric
+$10_H + \overline{126}_H$ (\code{E-FRC-0330}) exposes the known down-quark pull ($m_d$ $-41\%$, $m_s$ $+70\%$,
+$\chi^2 = 87.97$). Adding $120_H$ (\code{E-FRC-0332} Part~3) reduces $\chi^2$ to $0.565$ (max pull $2.92\%$)
+\cite{dueck2013}, using an over-parameterized fit of 14 continuous real parameters and 11 discrete $\mathbb{Z}_9$ phase
+exponents ($9^{11}$ basins) over 18 SM observables, with $120_H$ omitted from Part~2's 11-scalar toy Higgs Hessian
+proxy and 2-loop gauge RGEs.
 
-Minimal non-supersymmetric $10_H + \overline{126}_H$ Yukawa unification at $M_{\mathrm{GUT}} = 7.946 \times
-10^{15}\,\mathrm{GeV}$ (\code{E-FRC-0330}) exposes the known light down-quark pull ($m_d$ $-41\%$, $m_s$ $+70\%$,
-$\chi^2 = 87.97$). Adding $120_H$ (\code{E-FRC-0332} Part~3) reduces $\chi^2$ by $155.6\times$ to $0.565$ (max pull
-$2.92\%$), matching known $10_H + \overline{126}_H + 120_H$ EFT compatibility \cite{dueck2013}. This is explicitly an
-over-parameterized consistency fit using 14 continuous real parameters and 11 discrete $\mathbb{Z}_9$ phase exponents
-($9^{11} \approx 3.1 \times 10^{10}$ basins) with synthetic 2\%--12\% weights over 18 SM observables, and $120_H$ is
-omitted from Part~2's Higgs Hessian and 2-loop gauge RGEs.
+\paragraph{Strong-$\mathcal{CP}$: DFSZ axion tensions versus exact-$\mathcal{CP}$ Nelson--Barr.}
+Experiments \code{E-FRC-0331} and \code{E-FRC-0332} audit the DFSZ Peccei--Quinn (PQ \cite{peccei1977}) QCD axion
+across $f_a \in \{M_{\mathrm{PS}}, M_{\mathrm{PS}}/3, M_{\mathrm{PS}}/6\}$ ($m_a = 39.7\text{--}238.1\,\mu\mathrm{eV}$,
+hilltop tuning $\theta_i = 3.139\,\mathrm{rad}$ at $M_{\mathrm{PS}}/6$). Because $N_{\mathrm{DW}} = 3 > 1$,
+post-inflationary PQ breaking creates a domain-wall catastrophe, pre-inflationary PQ breaking conflicts with
+Section~\ref{sec:cosmology}'s Starobinsky inflation by $1.51 \times 10^6\times$, and axion dark matter shares the
+budget with the WIMP. Moreover, \code{E-FRC-0332} Part~1 shows that a postulated Green--Schwarz anomalous
+$\mathbb{Z}_{36}$ symmetry ($q(\Phi_{\mathrm{PQ}}) = +2$, $d_{\min} = 18$, $\Delta\theta_{\mathrm{grav}} = 10^{-61.9}$
+at $M_{\mathrm{Pl}}$ and $10^{-52.1}$ at $M_{\mathrm{Pl,red}}$) has naive $q = +1$ ($d_{\min} = 36$) falsified at
+dimension~20 by $\Phi_{\mathrm{PQ}}^4 (126_H)^{16}$, while anomaly-free $\mathbb{Z}_{12}$ fails neutron-EDM bounds at
+$f_a = M_{\mathrm{PS}}$ under $M_{\mathrm{Pl,red}}$ ($1.88 \times 10^{-9} > 10^{-10}$).
 
-Finally, \code{E-FRC-0331} and \code{E-FRC-0332} audit the Dine--Fischler--Srednicki--Zhitnitsky (DFSZ) Peccei--Quinn
-(PQ, \cite{peccei1977}) QCD axion across $f_a \in \{M_{\mathrm{PS}}, M_{\mathrm{PS}}/3, M_{\mathrm{PS}}/6\}$
-($m_a = 39.7\text{--}238.1\,\mu\mathrm{eV}$, requiring hilltop tuning $\theta_i = 3.139\,\mathrm{rad}$ at
-$M_{\mathrm{PS}}/6$). Because $N_{\mathrm{DW}} = 3 > 1$, post-inflationary PQ breaking creates a domain-wall problem,
-while pre-inflationary PQ breaking conflicts with Section~\ref{sec:cosmology}'s Starobinsky inflation by
-$1.51 \times 10^6\times$ and shares dark matter with Section~\ref{sec:cosmology}'s WIMP.
-
-In \code{E-FRC-0332}, Part~1 audits a postulated Green--Schwarz anomalous $\mathbb{Z}_{36}$ symmetry
-($2 A_i = 12 \not\equiv 0 \pmod{36}$): charge $q(\Phi_{\mathrm{PQ}}) = +2$ yields $d_{\min} = 18$
-($\Delta\theta_{\mathrm{grav}} = 10^{-61.9}$ at $M_{\mathrm{Pl}}$ and $10^{-52.1}$ at $M_{\mathrm{Pl,red}}$), naive
-$q = +1$ ($d_{\min} = 36$) is falsified at dimension~20 by the mixed $\mathrm{Spin}(10)$-invariant operator
-$\Phi_{\mathrm{PQ}}^4 (126_H)^{16}$, and the directly anomaly-free subgroup $\mathbb{Z}_{12}$ fails neutron-EDM bounds
-at $f_a = M_{\mathrm{PS}}$ under $M_{\mathrm{Pl,red}}$ ($1.88 \times 10^{-9} > 10^{-10}$, passing only for
-$f_a \le M_{\mathrm{PS}}/3$). Part~2 checks an 11-scalar diagonal toy Higgs Hessian proxy (3-for-3 quartic fit with
-ratios in $[0.263, 1.769]$ and circular CODATA offset, omitting $120_H$, not the full 472-component $\mathrm{Spin}(10)$
-potential). Table~\ref{tab:gauge} summarizes all nine Tier~C studies.
+Because the bare QCA obeys exact UV $\mathcal{CP}$ symmetry ($0/18{,}432$ violations across $\Phi_{\mathrm{odd}}$,
+forcing $\bar{\theta}_{\mathrm{bare}} = 0$), a Tier~C Nelson--Barr / Bento--Branco--Parada mechanism
+\cite{nelson1984, barr1984, bento1991} over $\mathbb{Z}[\zeta_9]$ avoids the axion sector altogether. Coupling three
+down quarks to heavy $SU(2)_L$-singlet vectorlike quarks $(D_L, D_R)$ via real bare blocks $m_d, M_{\mathrm{VL}}$ and
+spontaneous $\mathbb{Z}[\zeta_9]$ phases $B(\zeta_9)$ yields the block mass matrix
+$\mathcal{M}_d = \bigl(\begin{smallmatrix} m_d & 0 \\ B(\zeta_9) & M_{\mathrm{VL}} \end{smallmatrix}\bigr)$, whose
+full un-shortcutted \code{BigInt} Laplace determinant ($4! = 24$ and $5! = 120$ terms) lies strictly in
+$\mathbb{Z}_{>0}$ (zero imaginary part identically $\implies \bar{\theta}_{\mathrm{tree}} = 0$). Fixing the
+spontaneous phase vector to $B / M_{\mathrm{VL}} = [1, \zeta_9^2, \zeta_9^5]$ with a real $3 \times 3$ existence
+benchmark $m_d$ yields $J_{\mathrm{CKM}} = 3.054 \times 10^{-5}$ ($0.8\%$ from PDG, matching the commutator invariant to
+$1.55 \times 10^{-15}$, versus $0$ for real $B = [1, 1, 1]$). This eliminates the $1.51 \times 10^6\times$ axion
+isocurvature clash, $N_{\mathrm{DW}} = 3$ axion walls, anomalous $\mathbb{Z}_{36}$ PQ quality, and WIMP+axion
+double-counting (Tensions~1 and~4). Two explicit quality constraints remain: pre-inflationary $\mathcal{CP}$ breaking
+($\langle S \rangle \gtrsim H_{\mathrm{infl}} \sim 1.5 \times 10^{13}\,\mathrm{GeV}$) is needed to inflate away
+$\mathbb{Z}_2$ $\mathcal{CP}$ walls, and every Abelian Nelson--Barr symmetry permits the dimension-5 operator
+$\mathcal{O}_5 = c_5 S^* \bar{Q}_L H D_R / M_{\mathrm{Pl,red}}$, which requires separating $S$ from the bulk-localized
+Higgs $H$ ($D_{\mathrm{EW}} \approx 13$) by $\Delta D \ge 9$ horosphere shells ($b^{-9} = 4.38 \times 10^{-12}$, giving
+$\Delta\bar{\theta}_{\mathrm{dim\text{-}5}} = 1.20 \times 10^{-11} < 10^{-10}$ at $\langle S \rangle = 10^{14}\,\mathrm{GeV}$
+and 2-loop Yukawa shifts below $10^{-10}$ for $g < 0.363$). Table~\ref{tab:gauge} summarizes the Tier~C checks.
 
 \begin{table}[htbp]
 \centering
@@ -275,9 +319,8 @@ Code (Tier~C) & EFT check & Verified measurement & Tension / disclosure \\
 \end{tabularx}
 \end{table}
 
-Each obstacle is thus met on a simplified model: the one-sided husk separates handedness by 29 decades, the three banks
-give three copies, and the $\mathbb{Z}_3$ center confines on a ladder (Tier~B). The grand-unified scales found at
-Tier~C, $M_{\mathrm{PS}}$ and the shell count $13.23$ between the Planck and electroweak scales, reappear in the
-cosmology of the next section. Continuous non-Abelian gauge fields, dynamical chiral gauging, and zero-parameter
-fermion masses and $\alpha(0)$ stay open. Section~\ref{sec:cosmology} returns to the depth of the cusp and follows an
-excitation that keeps moving inward, to compute what the husk records as it goes.
+The simplified Tier~B models thus address each structural requirement on its own domain (finite-range
+$\mathbb{Z}[\zeta_9][1/2]$ boundary chirality with Cayley-4-form mirror gapping, 3-bank multiplicity, and cold
+$\mathbb{Z}_3$ ladder confinement), while the Tier~C scales $M_{\mathrm{PS}}$ and $D_{\mathrm{EW}} = 13.23$ carry
+directly into the cosmological audits of Section~\ref{sec:cosmology}. Continuous non-Abelian gauge fields, interacting
+3+1D chiral gauging, and zero-parameter flavor masses and $\alpha(0)$ remain open.

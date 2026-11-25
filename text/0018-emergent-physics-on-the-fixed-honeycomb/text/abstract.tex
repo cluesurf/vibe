@@ -1,19 +1,24 @@
 \begin{abstract}
-We specify, machine-check, and audit a deterministic, reversible ternary quantum cellular automaton (QCA) on the fixed,
+We specify, formalize, and audit a deterministic, reversible ternary quantum cellular automaton (QCA) on the fixed,
 infinite four-dimensional hyperbolic honeycomb of regular 24-cells, $\{3,4,3,4\}$. Each 24-cell (a dock) holds 24
 signed ternary tones $\tau \in \{-1, 0, +1\}$ along the $D_4$ roots. One palindromic eight-layer unitary beat,
 \[
 U = S \circ \Phi_{\mathrm{odd}} \circ C_{1/2} \circ M_{\mathrm{meet}} \circ M_{\mathrm{pair}}(\zeta_{18}) \circ K \circ C_{1/2} \circ \Phi_{\mathrm{odd}},
 \]
-evolves exact amplitudes in $\mathbb{Z}[\zeta_9][1/6]$ with no floating-point arithmetic and no randomness. The state
-evolves in the four-dimensional bulk, and three-dimensional observables are read on the flat cubic horosphere
-$\{4,3,4\}$ around an ideal cusp. Lean~4 proofs and exact integer audits establish local gate unitarity, exact
-$\mathcal{T}$, $\mathcal{CP}$, and $\mathcal{CPT}$ symmetry, order-576 $W(F_4)^+$ covariance, the algebraic hypotheses
-for $SU(2)$ gate density, envariance prerequisites, $D_4$ fourth-order isotropy, isotropic 3D Dirac kinematics, and an
-unconditional spectral bound $\rho_{\mathrm{spec}} \le 13/21$. On prescribed warped or drifting backgrounds, the same
-geometry supports a shared limiting speed, Newtonian orbits, Gullstrand--Painlev\'e light-cone tipping, a unitary
-chiral domain wall, cold $\mathbb{Z}_3$ confinement, and horosphere de Sitter drift. Each result carries one of three
-labels: bare rule, prescribed background, or continuum comparison. The open problems are dynamical gauge fields and
-nonlinear gravity from the bare rule, a $46\times$ gap between bare and beam speeds, the cosmological constant, and the
-continuum Yang--Mills limit.
+evolves exact amplitudes in $\mathbb{Z}[\zeta_9][1/6]$ with no floating-point arithmetic and no randomness. States
+evolve in the four-dimensional bulk, while three-dimensional observables are read on the flat cubic horosphere
+$\{4,3,4\}$ surrounding an ideal cusp. Formal Lean~4 proofs (141 headline theorems across nine modules) and exact
+integer audits establish $\{3,4,3,4\}$ uniqueness among regular 4D honeycombs, exact $O^+(4,1; \mathbb{Z}[\sqrt{2}])$
+transport and $\mathcal{T}, \mathcal{CP}, \mathcal{CPT}$ symmetry, order-576 $W(F_4)^+$ covariance, $D_4$ fourth-order
+isotropy, an unconditional global spectral bound $\rho_{\mathrm{spec}} \le 13/21$, exact 1D Yang--Baxter integrability
+broken in 4D by $M_{\mathrm{pair}}(\zeta_{18})$, two zero-external-gate universality constructions purely inside the
+bare beat (reaching bare-analyzer Bell--CHSH $2.6412$ and $2.8262$), and a 4D $s$-wave bound state isotropic through
+$O(K^4)$. On prescribed warped or drifting backgrounds, the same geometry supports a shared limiting speed, Newtonian
+orbits, strictly 1-hop-causal spatially varying horizon crossing with $U(1,1)$ transfer-matrix Hawking tunneling, a
+strictly finite-range $\mathbb{Z}[\zeta_9][1/2]$ chiral domain wall, cold $\mathbb{Z}_3$ confinement, and horosphere de
+Sitter drift, alongside a 24-cell Combes--Thomas lattice Yang--Mills mass gap extending $10.1\times$ ($SU(2)$) and
+$22.8\times$ ($SU(3)$) past Koteck\'y--Preiss. Every result is separated into three explicit tiers (bare rule,
+prescribed background, or lattice/continuum EFT comparison), and sharp no-go theorems bound the open gaps: intrinsic
+bare depth warping, the floor-0 speed ceiling, dynamical gauge fields and nonlinear gravity, zero-parameter flavor and
+$\alpha(0)$, the cosmological constant, and the continuum Yang--Mills limit.
 \end{abstract}
