@@ -242,8 +242,32 @@ qubits (six excitations in the 9D $S_{\mathrm{tot}} = 1$ irrep), exact commutato
 80-dimensional Lie algebra $\mathfrak{su}(9)$, containing universal $SU(4)$ with zero leakage. Using solely forward
 bare-$M_{\mathrm{meet}}$ analyzer words of length $\le 8$ at spatially separated docks violates Bell--CHSH to
 $2.6412$ ($99.83\%$ of $\sqrt{7}$) on a 1-beat bare pair and $2.8262$ ($99.92\%$ of Tsirelson's $2\sqrt{2}$) on a
-bare-DFS singlet, eliminating the need for external $\Sigma(648)$ gates in either state preparation or measurement.
+bare-DFS singlet, eliminating the need for external $\Sigma(648)$ gates in either state preparation or measurement
+(Table~\ref{tab:bare-smatrix}).
 \end{enumerate}
+
+\begin{table}[htbp]
+\centering
+\caption{Tier~A two-body scattering, Yang--Baxter classification, and zero-external-gate universality strictly inside
+the bare palindromic beat $U$ (zero $P_\omega$ or $\Sigma(648)$ additions).}
+\label{tab:bare-smatrix}
+\small
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.1cm}>{\raggedright\arraybackslash\hsize=1.22\hsize}X>{\raggedright\arraybackslash\hsize=0.78\hsize}X@{}}
+\toprule
+Bare-rule result (Tier~A) & Exact verification & Control / obstruction \\
+\midrule
+1D $C_{1/2} M_{\mathrm{meet}} C_{1/2}$ ($\eta = \omega^2$) & $SU(9)$ Yangian $R$-matrix ($\|\mathrm{YBE}\|_F = 6.7 \times 10^{-16}$), Eisenstein molecule $e^{iE(0)} = (7 + 15\omega)/13$ ($|u| = 1/13$, $L = 24$ ED err $2.8 \times 10^{-13}$) & only 3 YBE phases on $U(1)$: $\{1, \omega^2, -\omega\}$ \\
+\addlinespace[3pt]
+1D $C_{1/2} K C_{1/2}$ ($\eta = -\omega$) & exact hard-core exchange $S_S \equiv -1$ ($\|\mathrm{YBE}\|_F = 1.8 \times 10^{-15}$), $0$ bound states at all $P$ & $M_{\mathrm{meet}}$-off ($\eta = \omega$) breaks YBE by $1.77$ \\
+\addlinespace[3pt]
+4D $M_{\mathrm{pair}}(\zeta_{18})$ ($\eta_s = \omega^2\zeta_{18}$) & unique 4D $s$-wave pole $E_s(0) = 1.770647\text{ rad}$ ($|u_s| = 0.07402$), exact $SO(4)$ isotropy through $O(K^4)$ & breaks YBE at $O(1)$ ($\|\mathrm{YBE}\|_F = 1.8420$, non-integrable in 4D) \\
+\addlinespace[3pt]
+3-line $\Phi_{\mathrm{odd}}$ catalyst $L_7$ & live \code{BigInt} $L_7 \in M_2(\mathbb{Z}[\omega][1/2])$, $\det(L_7 C) = 1$, $\operatorname{Tr}(L_7 C) = -5/4$, 2-adic dense $SU(2)$ & no 2-line catalyst exists ($0/880$, all $3{,}696$ antipodal quads have $\chi_{\mathrm{odd}} \equiv 0$) \\
+\addlinespace[3pt]
+Bare $M_{\mathrm{meet}}$ DFS $SU(4)$ & $\operatorname{Tr}(S_{12} S_{23}) = 5/4$, 6-vibe $S_{\mathrm{tot}} = 1$ closure $\dim\mathrm{Lie} = 80 = \dim\mathfrak{su}(9)$, bare-analyzer CHSH $2.6412$ / $2.8262$ & bare coin $C$ alone caps CHSH at classical ceiling $2.000000$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 Although the operational Born postulate and the open-line Tsirelson stall remain open, the bare multi-excitation beat
 is computationally universal and non-integrable in 4D. Because a lone excitation never leaves its initial line,

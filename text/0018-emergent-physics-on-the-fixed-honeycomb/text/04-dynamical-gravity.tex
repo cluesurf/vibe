@@ -383,8 +383,30 @@ on a smooth $\tanh$ horizon ($\kappa = 0.015$) and $4.30\%$ ($0.957$) on the GP 
 live time-domain UV wavepacket splitting into positive-$k$ exterior and negative-$k$ interior partner packets. Two
 boundaries remain explicit: the discrete half-integer barrier carries an $O(1)$ lattice prefactor
 ($T/R \approx 4 e^{-\sin\omega / T_H}$) when $\Delta r \sim O(1)$, and $v_{\mathrm{river}}(r)$ remains a prescribed
-Tier~B background rather than dynamically sourced by bare QCA stress-energy.
+Tier~B background rather than dynamically sourced by bare QCA stress-energy (Table~\ref{tab:horizon-1hop}).
 \end{itemize}
+
+\begin{table}[htbp]
+\centering
+\caption{Tier~B 4-component strictly 1-hop-causal spatially varying horizon-crossing QCA
+(Equation~\eqref{eq:horizon-1hop}, $\max\text{hop} = 1$, closing the spatially uniform and 3-hop limitations of
+\code{E-GRV-0163}).}
+\label{tab:horizon-1hop}
+\small
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.2cm}>{\raggedright\arraybackslash\hsize=1.24\hsize}X>{\raggedright\arraybackslash\hsize=0.76\hsize}X@{}}
+\toprule
+Horizon test (Tier~B) & Verified measurement & Exact boundary / control \\
+\midrule
+Causality \& unitarity & $\max\text{hop} = 1$ across 44 basis checks, norm err $1.55 \times 10^{-15}$, 140-beat $U^\dagger$ reversal $4.16 \times 10^{-16}$, $\langle\mathrm{out}|\mathrm{in}\rangle = 0$ & 2-band zero-index GNVW no-go forbids trapping in $d = 2$ \\
+\addlinespace[3pt]
+Dynamic crossing \& trapping & ingoing ($r_0 = 185 \to 91.2$) crosses $r_s = 140$ smoothly ($0.15\%\text{--}0.86\%$ vs GP), interior outgoing ($r_0 = 95$) dragged inward every beat ($0.17\%\text{--}1.06\%$) & exterior outgoing ($r_0 = 200$) escapes every beat, WKB redshift err $0.65\%$ \\
+\addlinespace[3pt]
+Peeling \& pure \code{BigInt} & horizon packet ($r_0 = 140$) stretches as $e^{\kappa t}$ to $0.01\%\text{--}0.17\%$ (240 beats), quantized $\mathbb{Z}[\zeta_9][1/2]$ run: $\mathrm{normErr} = 0$, $\mathrm{revDiff} = 0$ & 10 exact involution coins $R_k \in M_2(\mathbb{Z}[\zeta_9][1/2])$ \\
+\addlinespace[3pt]
+$U(1,1)$ Hawking tunneling & half-integer bond $r_s = r_0 + \frac{1}{2}$: flux $|R+T-1| \le 6.7 \times 10^{-12}$, $T_{\mathrm{meas}}/T_H = 0.980$ ($\tanh$, $2.02\%$) and $0.957$ (GP, $4.30\%$) over $4.7$ decades & integer $r_s$ decouples ($R(0) = \sigma_x$), $O(1)$ lattice prefactor $\approx 4$ at $\Delta r \sim O(1)$, prescribed $v_{\mathrm{river}}(r)$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 With the same depth warp $w(D) = 1/N_D^2$ governing both $c_u$ and static $1/r$ orbits, and strictly 1-hop-causal
 horizons verified on prescribed backgrounds, deriving the symmetry-breaking origin of $w(D)$ and nonlinear 4D curvature
