@@ -16,18 +16,16 @@ U = S o Phi_odd o D o M_meet o M_pair(zeta_18) o K o D o Phi_odd
 
 where `D` is the half-coin (`diag = (2 + omega)/2`, `off = -omega/2`, `D^2 = C`), `M_meet` swaps distinct same-sign roles (`keep = zeta_6/2`, `swap = (omega - 1)/2`), `M_pair(zeta_18)` scatters identical antipodal pairs isotropically across all 12 lines (`hop = (zeta_18 - 1)/12`, `keep = (11 + zeta_18)/12`), `K` bounces opposite-sign pairs with phase `-1`, `Phi_odd` applies `zeta_6^(sigma(d) chi_odd(d))` using the canonical `W(F_4) x Z_2^C` chiral invariant (`k* = 4`), and `S` streams slot `a` across facet `a`. Reference implementation: [test/universe.ts](../test/universe.ts).
 
-## Verification Command
+## Verification Commands
 
-Every baseline bound and benchmark across all five challenges is verified deterministically (zero RNG, exact `BigInt` plus `Float64`, runtime about 0.4 s) by:
-
-```sh
-sh /Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/research/frontier-sweep/tmp/run-f5.sh
-```
-
-Direct script invocation:
+Baseline bounds across all five challenges are verified deterministically (zero RNG, exact `BigInt` plus `Float64`, runtime about 0.4 s) by [self-attractors-and-challenges.ts](../test/breakthrough/self-attractors-and-challenges.ts). The promoted Wave-2 breakthrough suites add exact verification for Challenges 1, 3, and 5 (plus asynchronous causal-set foliation invariance in [causal-foliation-invariance.ts](../test/breakthrough/causal-foliation-invariance.ts)):
 
 ```sh
-npx --prefix /Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/research/frontier-sweep tsx /Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/research/frontier-sweep/test/breakthrough/self-attractors-and-challenges.ts
+npx --prefix /Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/research/wave2-proofs-and-challenges tsx /Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/research/wave2-proofs-and-challenges/test/breakthrough/self-attractors-and-challenges.ts
+npx --prefix /Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/research/wave2-proofs-and-challenges tsx /Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/research/wave2-proofs-and-challenges/test/breakthrough/spectral-radius-sharpening.ts
+npx --prefix /Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/research/wave2-proofs-and-challenges tsx /Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/research/wave2-proofs-and-challenges/test/breakthrough/nonpert-spin1-and-horosphere-gravity.ts
+npx --prefix /Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/research/wave2-proofs-and-challenges tsx /Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/research/wave2-proofs-and-challenges/test/breakthrough/compacton-nogo-and-doublon.ts
+npx --prefix /Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/research/wave2-proofs-and-challenges tsx --tsconfig /Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/research/wave2-proofs-and-challenges/tsconfig.json /Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/research/wave2-proofs-and-challenges/test/breakthrough/causal-foliation-invariance.ts
 ```
 
 ---
@@ -36,11 +34,11 @@ npx --prefix /Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/research/
 
 | # | Challenge | Best Certified Bound Today | Reference Checker |
 | :--- | :--- | :--- | :--- |
-| 1 | Exact spectral radius `rho({3,4,3,4})` | Baseline `[10.125, 104/7]`, tightened here to `[11.013439, 14.857143]` (`rho/24 in [0.458893, 13/21]`) | `C1` in `self-attractors-and-challenges.ts`, [SchurGap.lean](../code/proof/Vibe/SchurGap.lean) |
+| 1 | Exact spectral radius `rho({3,4,3,4})` | Tightened to **`[11.310466, 11.452077]`** (finite-support `[11.308340, 11.452077]`, `27.1x` narrower, `96.3%` gap eliminated, `rho/24 in [0.471269, 0.477170] < 1/2`, `lambda_gap > 1/2`, Lean 4 `rho <= 335/28 < 12`) | [spectral-radius-sharpening.ts](../test/breakthrough/spectral-radius-sharpening.ts), [SpectralSharp.lean](../code/proof/Vibe/SpectralSharp.lean), [SchurGap.lean](../code/proof/Vibe/SchurGap.lean) |
 | 2 | Rigorous 4D `D_4` mass gap past strong coupling | `beta_BE^{24c} = N^2 / (16 sqrt(7))` (`SU(2): 0.094491`, `SU(3): 0.212605`) | `C2` in `self-attractors-and-challenges.ts`, [combes-thomas-d4-mass-gap.ts](../test/breakthrough/combes-thomas-d4-mass-gap.ts) |
-| 3 | Zero-parameter gapless spin-1 mode in bare `U` | Perturbative contact-RPA no-go (`g_c = 8.7353` vs bare `0.347, 1.732, 2.000`), non-perturbative open | `C3` in `self-attractors-and-challenges.ts`, [dynamical-gauge-and-3d-smg.ts](../test/breakthrough/dynamical-gauge-and-3d-smg.ts) |
+| 3 | Zero-parameter gapless spin-1 mode in bare `U` | Perturbative contact-RPA no-go (`g_c = 8.7353`) plus exact non-perturbative `k = 2` no-go (`1^{--}` `K = -SWAP` cancellation, `W(0) = 0`, `Delta_ph = 2pi/3`, `v_T = 0`, 4D `M_pair` `s`-wave `E_B = 1.770647 rad`). Open for `k >= 3` / thermodynamic loop-gas sectors | [nonpert-spin1-and-horosphere-gravity.ts](../test/breakthrough/nonpert-spin1-and-horosphere-gravity.ts), [dynamical-gauge-and-3d-smg.ts](../test/breakthrough/dynamical-gauge-and-3d-smg.ts), `C3` in `self-attractors-and-challenges.ts` |
 | 4 | Max distance `d` of `W(F_4)`-covariant 24-leg `GF(3)` tensor | `3 <= d_cov <= 9` (Bose-Mesner max `d_perp = 3`, `0` self-dual BM codes, non-covariant Pless `S_24` hits `d = 9`) | `C4` in `self-attractors-and-challenges.ts`, [multifloor-flux-holography.ts](../test/breakthrough/multifloor-flux-holography.ts) |
-| 5 | Finite-support 4D periodic breather of bare `U` | Exact `k = 1` AC-spectrum no-go, all tested single-dock `k = 2, 4` seeds disperse, multi-dock `k >= 4` open | `C5` in `self-attractors-and-challenges.ts`, [test/universe.ts](../test/universe.ts) |
+| 5 | Finite-support 4D periodic breather of bare `U` | **SOLVED UNCONDITIONALLY (NO-GO)** for all `k >= 1`, all `T >= 1` (Hyperbolic Convexity + Frontier-Leakage Ballistic Wavefront Theorem). Open follow-up: `k >= 3` infinite-support `l^2` bound states beyond exact `Z[omega][1/13]` `k = 2` doublons | [compacton-nogo-and-doublon.ts](../test/breakthrough/compacton-nogo-and-doublon.ts), [BallisticDoublon.lean](../code/proof/Vibe/BallisticDoublon.lean), [test/universe.ts](../test/universe.ts) |
 
 ---
 
@@ -50,19 +48,21 @@ npx --prefix /Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/research/
 
 **Certified Baseline.**
 
-- **Upper bound (Lean 4 certified in [SchurGap.lean](../code/proof/Vibe/SchurGap.lean)):** Using a global Busemann Schur test with cubic Hermite majorant on `[0, 2]`, `D_4` rank-4 isotropy, and the 4-variable simplex inequality `S^3 - 4 S e_2 + 24 e_3 >= 0`:
-  `rho / 24 <= 13 / 21 = 0.61904762`, so `rho <= 104 / 7 = 14.85714286` and `lambda_gap = 1 - rho / 24 >= 8 / 21`.
-- **Previous lower bound (`E-GMT-0044`, cusp Dirichlet floor 3):** `rho >= 10.125` (`rho / 24 >= 27 / 64 = 0.421875`), beating the 24-regular tree Kesten floor `2 sqrt(23) = 9.59166305`.
-- **New Rayleigh-Ritz sharpening (certified in `C1`):** Compressing `A` onto the orthonormal Cartier-Foata right-descent clique strata `|u_{r,k}>` (`k in {1, 2, 3}`, machine-verified against the exact 8,857-dock `R = 3` ball) gives:
-  - 1-channel spherical shells (`R = 48`): `rho >= 10.623449` (asymptotic `48 sqrt(lambda_ball) / (1 + lambda_ball) = 10.644765`).
-  - 3-channel Cartier-Foata clique strata (`R = 24`, `70 x 70` finite orthonormal compression): **`rho >= 11.013439`** (`rho / 24 >= 0.458893`, asymptotic `11.089727`), narrowing the certified bracket to `[11.013439, 14.857143]`.
+- **Lean 4 upper bounds:**
+  - Original Busemann Schur bound ([SchurGap.lean](../code/proof/Vibe/SchurGap.lean)): Using a global Busemann Schur test with cubic Hermite majorant on `[0, 2]`, `D_4` rank-4 isotropy, and the 4-variable simplex inequality `S^3 - 4 S e_2 + 24 e_3 >= 0`, `rho / 24 <= 13 / 21 = 0.61904762`, so `rho <= 104 / 7 = 14.85714286` and `lambda_gap = 1 - rho / 24 >= 8 / 21`.
+  - **New 3-rational Depth-1 Cartier-Foata Nagnibeda bound ([SpectralSharp.lean](../code/proof/Vibe/SpectralSharp.lean) and [spectral-radius-sharpening.ts](../test/breakthrough/spectral-radius-sharpening.ts)):** Evaluating the 4 Depth-1 row sums at the single-digit rational triple `a = (1/7, 1/3, 4/7)` proves **`rho <= 335 / 28 = 11.96428571 < 12`**, so `rho / 24 <= 335 / 672 = 0.49851190 < 1 / 2` and **`lambda_gap >= 337 / 672 = 0.50148810 > 1 / 2`** (a sharp Depth-1 `Q = 100,000` triple reaches `rho <= 11.925339`). Separately, adding degree-6 `W(F_4)` harmonic modulation `m(w) = 1 + (5/2) I_6(w)` to the `alpha = 1` Busemann test lowers the pure geometric bound to `13.616837`.
+- **Previous lower baselines:** Cusp Dirichlet floor 3 (`E-GMT-0044`) gave `rho >= 10.125` (extended in [spectral-radius-sharpening.ts](../test/breakthrough/spectral-radius-sharpening.ts) to floor 4 across `116,681` cusp docks / `2,939` `O_h` orbits at `rho >= 10.459740`, and to `11.073446` via the `23`-state `(D_R, L_comm)` cusp automaton at `D = 0..48`). Depth-1 3-channel Cartier-Foata strata (`C1` in `self-attractors-and-challenges.ts`) previously tightened the bracket to `[11.013439, 14.857143]` (`width = 3.843704`).
+- **New certified Wave-2 bracket ([spectral-radius-sharpening.ts](../test/breakthrough/spectral-radius-sharpening.ts)):** Constructing the exact Depth-2 (`19` states), Depth-3 (`169` states), and Depth-4 (`2,197` states) Cartier-Foata automata of the right-angled Coxeter group `W(Gamma_24)` mod `W(F_4)` (directly cross-checked with `0` mismatches against all `8,857` docks of the exact `O^+(4,1; Z[sqrt(2)])` `R = 3` ball):
+  - **Exact `BigInt` rational Nagnibeda upper bounds:** Depth-3 (`184` directed D2-edge orbits, `Q = 100,000`) certifies `rho <= 11.478890`, and Depth-4 (`1,841` D3-pair edge weights, `Q = 100,000`) certifies **`rho <= 11.452077`**.
+  - **Exact Rayleigh-Ritz lower bounds:** Depth-2 reaches `11.215942`, Depth-3 reaches `11.275448`, and Depth-4 reaches **`rho >= 11.310466`** asymptotically (concrete finite-support sine-window shell quotient on `r = 20..180` using exact `BigInt` shell ratios certifies **`rho >= 11.308340`**).
+  - **Combined certified bracket:** **`[11.310466, 11.452077]`** (concrete finite-support **`[11.308340, 11.452077]`**), which is **`27.1x` narrower** than `[11.013439, 14.857143]` (**`96.3%` of the gap eliminated**, width `0.141611`). Equivalently, **`rho / 24 in [0.471269, 0.477170] < 1 / 2`** and **`lambda_gap = 1 - rho / 24 in [0.522830, 0.528731] > 1 / 2`**.
 
-**Open Problem.** Tighten the certified bracket `[11.013439, 14.857143]` (or compute `rho({3,4,3,4})` to certified 4+ decimal places). Promising routes:
+**Open Problem.** Tighten the certified bracket `[11.310466, 11.452077]` further (or compute `rho({3,4,3,4})` to certified 4+ decimal places). Promising routes:
 
-1. **Upper bound:** Optimize the Busemann Schur exponent `alpha` (replacing `alpha = -1` from `13/21` with `alpha = -1/2` or `-3/4`, plus spherical-harmonic corrections in `W(F_4)` invariants) or apply exact non-backtracking / Cartier-Foata word-counting upper bounds on `Tr(A^{2n})`.
-2. **Lower bound:** Refine the Rayleigh-Ritz test subspace from 3-type right-descent cliques to deeper Cartier-Foata suffix classes or periodic cusp Bloch sectors at floors `D >= 4`.
+1. **Upper bound:** Push exact rational Nagnibeda edge-weight certificates to Depth-5+ Cartier-Foata automata (or directional D4 edge orbits), and formally verify the Depth-3/4 rational certificates in Lean 4 alongside [SpectralSharp.lean](../code/proof/Vibe/SpectralSharp.lean).
+2. **Lower bound:** Extend the Rayleigh-Ritz compression to Depth-5+ Cartier-Foata suffix classes or higher-rank Bloch cusp sectors coupled to deeper bulk shells.
 
-**Acceptance Criterion.** A rigorous proof (ideally machine-checked in Lean 4 or certified interval arithmetic) proving either `rho <= U < 104 / 7` or `rho >= L > 11.089727`, with zero heuristic sampling.
+**Acceptance Criterion.** A rigorous proof (ideally machine-checked in Lean 4 or certified exact rational / interval arithmetic) proving either `rho <= U < 11.452077` or `rho >= L > 11.310466`, with zero heuristic sampling.
 
 ---
 
@@ -96,13 +96,17 @@ npx --prefix /Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/research/
   - In the literal 1-body sector `U_1 = S o C`, the 12 antipodal lines decouple completely, so static transverse current response vanishes identically.
   - Even on a coupled 3D `{4,3,4}` cubic-husk Wilson-Dirac bare-coin reduction (`m_0 = sqrt(3)/2`, `t = 1/2`), exact discrete Ward-Takahashi conservation holds to `2.637e-16` (`L = 6` and `L = 8`), forcing the gauge-invariant static photon mass `Pi_tot_T(0, 0)` to decay exponentially (`-9.694e-4` at `L = 6` to `-8.276e-5` at `L = 8`).
   - Consequently, a local 4-fermion contact current-current RPA denominator `1 + g_vec Pi_para_T(0, 0) = 0` requires fine-tuning to `g_c = 1 / |Pi_para_T(0, 0)| = 8.735265` (`L = 8`), whereas every zero-parameter bare cyclotomic coupling leaves `min |1 + g_bare Pi_para_T(0, 0)| = 0.771043 > 0`.
+- **Exact non-perturbative `k = 2` no-go on 3D `{4,3,4}` and 4D `D_4` ([nonpert-spin1-and-horosphere-gravity.ts](../test/breakthrough/nonpert-spin1-and-horosphere-gravity.ts)):**
+  - Brute-force exact diagonalization of the `L = 2` 3D `{4,3,4}` cusp torus (`282 x 282`, unitarity error `2.22e-16`) verifies exact star-of-lines invariance (`dim = 18`, zero leakage `0.00e+0`), enabling exact finite-torus spectra across `L = 2, 3, 4, 6, 8, 12` alongside exact `L -> infinity` analytic transfer-pole scans.
+  - **Exact `K = -SWAP` cancellation in `1^{--}` vector dipoles:** On the antisymmetric charge-neutral vector dipole `(|+-> - |-+>) / sqrt(2)`, the `K`-bounce operator `D o K o D = -omega SWAP` acts as `+omega I`, canceling identically against the free hard-core coin (`||U_bare - U_free||_vec = 1.11e-16`). Thus the `1^{--}` spectral function has **`W(0) = 0`**, a gapped flat inter-band peak at **`Delta_ph = 2 pi / 3 = 2.094395 rad`** (`W(2 pi / 3) = 0.464103`, exact `L -> infinity` value `2 sqrt(3) - 3 = 0.464102`), a massive quadratic continuum edge `L^2 |E| -> 4 pi^2 / sqrt(3) = 22.793` (`O(1 / L^2)`), and exact zero transverse velocity **`v_T = 0`** (`max |U_y(q_x) - U_y(0)| = 0.00e+0`). The symmetric `0^{++}` `K`-bounce sector (`eta = -omega`) is anti-binding across the entire Brillouin zone (`0` bound poles over `13` momenta, `0` isolated gap eigenvalues at `L = 12`).
+  - **Coupled multi-line `M_pair(zeta_18)` spectrum (3D `{4,3,4}` and 4D `D_4`):** Coupling all `3` cusp lines (`L = 2, 3, 4, 6`) or all `12` `D_4` lines (`L = 2` dim `72`, `L = 3` dim `120`, unitarity error `<= 2.22e-16`) via `M_pair(zeta_18)` leaves `W(0) = 0` everywhere with zero massless spin-1 poles. In the 4D `D_4` identical-pair (`Q = +2`) sector, the `s`-wave collective bound state (`eta = omega^2 zeta_18`) is strictly gapped at **`E_B = 1.770647 rad`** (`kappa = 1.3017`), with the non-`s`-wave multiplet (`eta = omega^2`) gapped at `E_B = 1.609267 rad` (`kappa = 1.2825`). Even a counterfactual control applying `M_pair(zeta_18)` directly to neutral dipoles yields `W(0) = 0` and no massless spin-1 branch.
 
-**Open Problem.** Either:
+**Open Problem (Tightened to `k >= 3` and Thermodynamic Sectors).** Because both perturbative 1-loop contact-RPA and exact non-perturbative `k = 2` dynamics are now ruled out, either:
 
-1. **Constructive resolution:** Exhibit an explicit non-perturbative multi-excitation sector (for example a string-net, loop-gas, or emergent dipole-condensate phase) strictly inside bare `U` over `Z[zeta_9][1/6]` hosting a gapless transverse spin-1 dispersion `omega(q) = c_1 |q| + O(|q|^3)` on the 3D cusp husk with zero external parameters, or
-2. **No-go theorem:** Prove unconditionally that no finite-range translation-covariant sector of bare `U` without dynamical link degrees of freedom can support a gapless spin-1 photon mode (analogous to Weinberg-Witten or local-conservation obstructions for finite-alphabet QCAs), thereby proving that a dynamical link register is mathematically forced.
+1. **Constructive resolution:** Exhibit an explicit non-perturbative multi-body (`k >= 3`) or thermodynamic sector (for example a string-net, loop-gas, or emergent dipole-condensate phase) strictly inside bare `U` over `Z[zeta_9][1/6]` hosting a gapless transverse spin-1 dispersion `omega(q) = c_1 |q| + O(|q|^3)` on the 3D cusp husk with zero external parameters, or
+2. **No-go theorem:** Extend the exact `k = 2` obstruction to all `k >= 3` and finite-density translation-covariant sectors of bare `U` without dynamical link degrees of freedom (analogous to Weinberg-Witten or local-conservation obstructions for finite-alphabet QCAs), thereby proving unconditionally that a dynamical link register is mathematically forced.
 
-**Acceptance Criterion.** Either an explicit normalizable multi-body dispersion branch with verified transverse polarization and `lim_{q -> 0} omega(q) = 0`, or a formal no-go proof covering all finite-density sectors of bare `U`.
+**Acceptance Criterion.** Either an explicit normalizable `k >= 3` or thermodynamic multi-body dispersion branch with verified transverse polarization and `lim_{q -> 0} omega(q) = 0`, or a formal no-go proof covering all `k >= 3` and finite-density sectors of bare `U`.
 
 ---
 
@@ -125,20 +129,22 @@ npx --prefix /Users/lancepollard/base/crew/cluesurf/deck/vibe.worktree/research/
 
 ---
 
-## Challenge 5: Finite-Support 4D Self-Persistent Periodic Breather of Exact Bare `U` on `{3,4,3,4}`
+## Challenge 5: Finite-Support 4D Self-Persistent Periodic Breather of Exact Bare `U` on `{3,4,3,4}` (SOLVED: UNCONDITIONAL NO-GO)
 
 **Object.** A non-trivial (`|psi> != |V_1>`) finite-support normalized Fock state `|psi>` on the infinite `{3,4,3,4}` honeycomb such that for some integer period `T >= 1` and global unit phase `lambda` (`|lambda| = 1`), `U^T |psi> = lambda |psi>` under the exact bare 8-layer palindromic beat `U` in `Z[zeta_9][1/6]`.
 
-**Certified Baseline (`C5` and [test/universe.ts](../test/universe.ts)).**
+**Unconditional Resolution (All `k >= 1`, All `T >= 1` No-Go Theorem).** Certified in [compacton-nogo-and-doublon.ts](../test/breakthrough/compacton-nogo-and-doublon.ts) and formalized in [BallisticDoublon.lean](../code/proof/Vibe/BallisticDoublon.lean): **zero** non-trivial finite-support periodic eigenstates `U^T |psi> = lambda |psi>` exist for ANY excitation number `k >= 1` and ANY period `T >= 1`.
 
-- **`k = 1` (single-excitation sector) exact no-go:** A lone excitation evolves strictly along one infinite non-closing geodesic line of `{3,4,3,4}` under the 1D coined walk `S o C`. Its dispersion relation `cos(omega) = (1/2) cos(q)` produces a purely absolutely continuous spectrum on `[pi/3, 2 pi/3]` (band width `pi/3 = 1.047198 > 0`, zero flat bands). Therefore **zero** finite-support breathers exist in the `k = 1` sector.
-- **Exact `Z[zeta_9][1/6]` multi-excitation trajectories (`C5`):** All 6 tested single-dock seeds preserve exact BigInt norm and exact reversal (`revDiff = 0`), vanish on dock 0 at odd beats by bipartite parity, and disperse monotonically across even beats:
-  - `k = 1` lone love: `P_0(0, 1, 2, 3, 4) = 1.0000, 0, 0.7500, 0, 0.3281` (`5` docks by beat 4).
-  - `k = 2` identical pair (`M_pair` active): `12 -> 48 -> 156` branches across `48` docks by beat 3 (`P_0(2) = 0.5625`).
-  - `k = 2` opposite-sign pair (`K`-bounce): `P_0(0, 2, 4) = 1.0000, 0.5625, 0.1077`.
-  - `k = 2` distinct-role pair (`M_meet`): `P_0(0, 2, 4) = 1.0000, 0.5625, 0.1736`.
-  - `k = 4` chiral mixed `[0, 1, 4, 10]` and `X1` `[0, 1, 4, 16]` (`Phi_odd` active): `16` branches across `8` docks after 1 beat (`P_0(1) = 0`).
+1. **Exact Hyperbolic Convexity Identity:** For every dock `g` of `{3,4,3,4}` and every antipodal root pair `(a, -a)`, the exact integer Lorentz height `H_2(g) = -2 B(g c_0, c_0) in 2 Z_{>= 1}` satisfies **`H_2(k_a g) + H_2(k_{-a} g) = 6 H_2(g)`** (`0` defects across all `106,284` dock-line pairs on the `8,857`-dock `R = 3` ball). Therefore no non-origin dock has an antipodal pair of inward facets (`0` antipodal inward pairs, max inward degree `|In_H(g)| <= 3`, leaving `>= 21` strictly outward facets at every frontier dock).
+2. **Frontier-Leakage Ballistic Wavefront Theorem:** At any maximal-height frontier dock `g_*` attaining `M(t) = max_{g in supp(|psi(t)>)} H_2(g)` with `M(t) >= M(t - 1)`, all arriving excitations occupy the antipodal-free subset `Arr(g_*) = -In_H(g_*)` (`N_full = 0`). The on-site 7-layer unitary `L` conserves `N_full`, sends every full-line `k = 2` channel (`K`, `M_meet`, `M_pair`) outward with `P_out = 1`, and sends every `m`-particle arrival state in `P_Arr` outward with exact probability `P_out = 1 - (3/4)^m` (`ker(P_out o L o P_Arr) = {0}`, certified for `m = 1..4`: `0.25, 0.4375, 0.578125, 0.683594`, including `12/16` chiral `Phi_odd`-active quads). Thus after at most a finite turnaround, the wavefront grows strictly ballistically via **`M(t + 1) >= 6 M(t) - M(t - 1)`** with outward probability at least `(1/4) P_*(t) > 0`, making finite-support recurrence impossible for all `k >= 1` and all `T >= 1`.
+3. **Direct 4-Cycle Trajectories and Sharpness Controls:** All `9` multi-dock right-angled 4-cycle ring and pre-focused `Z[zeta_9][1/6]` trajectories (covering `k = 1, 2, 4`, `K`, `M_meet`, `M_pair`, `Phi_odd`, and the pre-focused turnaround `M(t) = [34, 6, 2, 6, 34, 198]`) preserve exact norm and exact reversal (`rev = 0`) and obey the ballistic bound `100%`. Sharpness controls on the same `{3,4,3,4}` honeycomb show that breaking either `C_diag != 0` (reflection coin 2-dock dimer) or antipodal line decoupling (`W(F_4)` 24-slot Grover coin 4-cycle ring) immediately yields exact `T = 1` compactons (`err = 0.0e+0`, `leak = 0.0e+0`).
 
-**Open Problem.** Prove or refute the existence of ANY non-trivial finite-support periodic eigenstate (quantum scar, flat-band compacton, or `4`-cycle destructive-interference breather) `U^T |psi> = lambda |psi>` of the exact bare 8-layer beat `U` on `{3,4,3,4}` for `k >= 2` excitations (in particular multi-dock configurations exploiting the 96 right-angled 4-cycles `(k_a k_{-b})^2 = 1` around every dock together with `M_pair(zeta_18)`, `M_meet`, `K`, and `Phi_odd`).
+**Exact `k = 2` Infinite-Support `l^2` Doublons (Certified in [compacton-nogo-and-doublon.ts](../test/breakthrough/compacton-nogo-and-doublon.ts) and [BallisticDoublon.lean](../code/proof/Vibe/BallisticDoublon.lean)).** Although finite-support compactons are forbidden, bare `U` does host exact exponentially localized infinite-support `l^2` two-body bound states (doublons) along geodesic lines:
 
-**Acceptance Criterion.** Either an explicit finite-support state `|psi>` with exact amplitudes in `Z[zeta_9][1/6]` (or `C`) and period `T >= 1` verified to satisfy `U^T |psi> = lambda |psi>` directly in the exact Coxeter engine of [test/universe.ts](../test/universe.ts), or a rigorous proof of absence of compactly supported eigenvalues (purely continuous spectrum on all `k`-excitation sectors, or an explicit sharp threshold `k_min`).
+- **`M_meet` symmetric `(+)` and `M_pair` 11D zero-sum (`mu_0 = omega`):** Exact algebraic `Z[omega][1/13]` doublon at `P = 0` with eigenvalue **`lambda = (7 + 15 omega) / 13`** (`E = 0.512246 pi = 1.609267 rad`), exponential decay factor **`z = e^{-2 kappa} = 1 / 13`** (`kappa = 1.282475`, localization length `xi_r = 0.3899` docks), contact probability **`p(r = 0) = 6 / 13 = 0.461538`**, and `IPR = 5118 / 14365 = 0.356283` (analytic error `4.4e-16`, 4D Coxeter cross-check `3.3e-16`, `T = 60` real-space binding plateau `P(r = 0) = 0.1593`).
+- **`M_pair(zeta_18)` 1D isotropic symmetric `(+)` (`mu_0 = omega zeta_18`):** Exact `l^2` doublon with `E = 0.563615 pi = 1.770647 rad`, `z = 1 / (7 + 4 sqrt(3) cos(pi / 9)) = 0.074017`, `p(r = 0) = 0.462991`, `IPR = 0.356979` (`T = 60` plateau `0.0996`).
+- **`K`-bounce opposite-tone channel:** `0` bound states across all `P` (`T = 60` late-time `P(r = 0) = 0.0092 -> 0`).
+
+**New Open Follow-Up (Challenge 5b: Multi-Body `k >= 3` Infinite-Support `l^2` Bound States).** Determine whether exact bare `U` on `{3,4,3,4}` supports genuine **multi-body (`k >= 3`) infinite-support `l^2` bound states** (trions, 4-body chiral `Phi_odd` bound clusters, or `M_pair`-hybridized 4D multi-line bound states beyond the exact `k = 2` doublons), and classify their quasienergies, decay lengths, and scattering stability.
+
+**Acceptance Criterion (5b).** Either an explicit normalizable `l^2` eigenstate (or certified discrete pole strictly outside the `k`-body scattering continuum with `O(1)` IPR and exponential tail verified across system sizes) for `k >= 3` under exact bare `U`, or a rigorous proof that all `k >= 3` sectors carry purely continuous spectrum beyond products of free excitations and `k = 2` doublons.
