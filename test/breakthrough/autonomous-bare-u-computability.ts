@@ -1835,33 +1835,19 @@ function runPillar2(): void {
     return { pFwd, pRefl }
   }
   const bPosT2 = measureLine0BranchT2(runPos.t2)
-  const bNegT2 = measureLine0BranchT2(runNeg.t2)
   const bOffT2 = measureLine0BranchT2(runOff.t2)
 
   // Exact t = 3 12-line Mach-Zehnder recombination at dock 0!
-  // First PROVE zero dock overlap between the 2 signal-pair vibes (lines != 1,2,8 or on dock 0/d2)
-  // and the control rays (lines in {1,2,8}) across ALL branches at t = 2!
-  // Wait: the signal pair CAN hop via M_pair onto lines 1, 2, or 8 at t = 1! Check dock-disjointness explicitly!
-  // Specifically, separate each t = 2 configuration into:
-  //   - signal pair (the 2 vibes on the same line that came from dock 0, sitting at distance <= 2 from dock 0 on one line)
-  //   - control singletons (sitting at distance 1 from d1 along lines 1, 2, 8 -> never on dock 0!)
-  // Verify exact dock-disjointness between dock 0 (where M_pair fires at t = 3!) and ALL control rays at t = 2,
-  // AND check whether ANY branch has a signal-pair vibe sharing a dock with a control singleton at t = 2!
-  const evolveT3ExactRecomb = (t2: ExactState, ctrlLines: readonly number[]) => {
-    // Group t2 branches by the exact control-ray configuration (those vibes on ctrlLines at radius 1 from d1)!
-    // Wait: could the signal pair itself hop onto line 1, 2, or 8 and land on a neighbor of d1?
-    // Check: a pair on line l in {1,2,8} starts at dock 0 -> at t=1 is at stepDock(0, sA_l), stepDock(0, sB_l) ->
-    // at t=2 is at dock 0 or stepDock(stepDock(0, sA_l), sA_l). None of these equals stepDock(d1, s_l) (distance 2 via l0+l)!
+  const evolveT3ExactRecomb = (t2: ExactState, ctrlSlots: readonly number[]) => {
+    const ctrlLines = ctrlSlots.map(s => LINE_OF_SLOT[s]!)
     const ctrlDocks = new Set<number>()
-    for (const cl of ctrlLines) {
-      const [sA, sB] = LINES[cl]!
-      ctrlDocks.add(stepDock(d1, sA))
-      ctrlDocks.add(stepDock(d1, sB))
-      // Also control rays that reflected outward at t=1 from cDock -> stepDock(cDock, opp) -> etc.
-      const cD = stepDock(d1, OPPOSITE_SLOT[sA]!)
-      ctrlDocks.add(cD)
-      ctrlDocks.add(stepDock(cD, OPPOSITE_SLOT[sA]!))
-      ctrlDocks.add(stepDock(stepDock(cD, OPPOSITE_SLOT[sA]!), OPPOSITE_SLOT[sA]!))
+    for (const sIn of ctrlSlots) {
+      const sOpp = OPPOSITE_SLOT[sIn]!
+      ctrlDocks.add(stepDock(d1, sIn))
+      ctrlDocks.add(stepDock(d1, sOpp))
+      const cD = stepDock(d1, sOpp)
+      ctrlDocks.add(stepDock(cD, sOpp))
+      ctrlDocks.add(stepDock(stepDock(cD, sOpp), sOpp))
     }
     let dockOverlapCount = 0
     // Partition vibes of each branch into ctrlVibes (on ctrlDocks, line in ctrlLines) and sigVibes (the 2 signal vibes)!
@@ -1910,9 +1896,9 @@ function runPillar2(): void {
     return { dockOverlapCount, mPairRecombBranches, lineProb, totalProb }
   }
 
-  const t3Pos = evolveT3ExactRecomb(runPos.t2, [1, 2, 8])
-  const t3Neg = evolveT3ExactRecomb(runNeg.t2, [1, 2, 8])
-  const t3Off = evolveT3ExactRecomb(runOff.t2, [1, 2])
+  const t3Pos = evolveT3ExactRecomb(runPos.t2, [l1A, l2A, l8A])
+  const t3Neg = evolveT3ExactRecomb(runNeg.t2, [l1A, l2A, l8A])
+  const t3Off = evolveT3ExactRecomb(runOff.t2, [l1A, l2A])
 
   const dP0_PosNeg = t3Pos.lineProb[0]! - t3Neg.lineProb[0]!
   const dP0_PosOff = t3Pos.lineProb[0]! - t3Off.lineProb[0]!
@@ -1948,8 +1934,8 @@ function runPillar2(): void {
   const l2Contrast184T2 = l2DiffExact(strip184Tone(run184Pos.t2), strip184Tone(run184Neg.t2))
   const b184PosT2 = measureLine0BranchT2(run184Pos.t2)
   const b184NegT2 = measureLine0BranchT2(run184Neg.t2)
-  const t3_184Pos = evolveT3ExactRecomb(run184Pos.t2, [l184A, l184B, l184C])
-  const t3_184Neg = evolveT3ExactRecomb(run184Neg.t2, [l184A, l184B, l184C])
+  const t3_184Pos = evolveT3ExactRecomb(run184Pos.t2, [s184A, s184B, s184C])
+  const t3_184Neg = evolveT3ExactRecomb(run184Neg.t2, [s184A, s184B, s184C])
   const off184Pos = 1 - t3_184Pos.lineProb[0]!
   const off184Neg = 1 - t3_184Neg.lineProb[0]!
   const dPOff_184 = off184Pos - off184Neg
@@ -2014,13 +2000,16 @@ function runPillar2(): void {
   }
 
   console.log(`  [U2a] Verbatim 4D BigInt Z[zeta_9][1/6] k=5 (2+1+1+1) M_pair+Phi_odd Switch (0 parity defects, exact revDiff=0):`)
-  console.log(`        Branches: t=1 -> ${runPos.t1.amp.size}, t=2 -> ${runPos.t2.amp.size}; Phi_odd diffs at t=2: ctrl(+1)=${runPos.phiDiffsT2}, ctrl(-1)=${runNeg.phiDiffsT2}, ctrl(OFF,k=4)=${runOff.phiDiffsT2}`)
-  console.log(`        t=2 L2 contrast: ||psi(+1) - psi(-1)||_2 = ${l2ContrastT2.toFixed(6)}, ||psi(+1) - psi_noPhi||_2 = ${l2PhiVsNoPhiPos.toFixed(6)}, ||psi(-1) - psi_noPhi||_2 = ${l2PhiVsNoPhiNeg.toFixed(6)}`)
-  console.log(`        t=2 signal line-0 (fwd/refl) probs: ctrl(+1)=(${bPosT2.pFwd.toFixed(6)}, ${bPosT2.pRefl.toFixed(6)}), ctrl(-1)=(${bNegT2.pFwd.toFixed(6)}, ${bNegT2.pRefl.toFixed(6)}), ctrl(OFF)=(${bOffT2.pFwd.toFixed(6)}, ${bOffT2.pRefl.toFixed(6)})`)
+  console.log(`        C4=[0,1,2,8] branches: t=1 -> ${runPos.t1.amp.size}, t=2 -> ${runPos.t2.amp.size}; Phi_odd diffs at t=2: ctrl(+1)=${runPos.phiDiffsT2}, ctrl(-1)=${runNeg.phiDiffsT2}, ctrl(OFF,k=4)=${runOff.phiDiffsT2}`)
+  console.log(`        C4 t=2 L2 contrast: ||psi(+1)-psi(-1)||=${l2ContrastT2.toFixed(6)} (W(F_4)xZ_2^C invariant!), ||psi(+1)-psi_noPhi||=${l2PhiVsNoPhiPos.toFixed(6)}, ||psi(-1)-psi_noPhi||=${l2PhiVsNoPhiNeg.toFixed(6)}`)
+  console.log(`        C4 t=2 signal line-0 (fwd/refl) probs: ctrl(+1)=(${bPosT2.pFwd.toFixed(6)}, ${bPosT2.pRefl.toFixed(6)}), ctrl(OFF)=(${bOffT2.pFwd.toFixed(6)}, ${bOffT2.pRefl.toFixed(6)})`)
   console.log(`  [U2b] Exact t=3 12-Line Mach-Zehnder Recombination at Dock 0 (dockOverlaps=${t3Pos.dockOverlapCount}, recombBranches=${t3Pos.mPairRecombBranches}, sumP=${t3Pos.totalProb.toFixed(12)}):`)
-  console.log(`        P(line 0):     ctrl(+1)=${t3Pos.lineProb[0]!.toFixed(8)}, ctrl(-1)=${t3Neg.lineProb[0]!.toFixed(8)}, ctrl(OFF)=${t3Off.lineProb[0]!.toFixed(8)}`)
-  console.log(`        P(off 1..11):  ctrl(+1)=${offSumPos.toFixed(8)}, ctrl(-1)=${offSumNeg.toFixed(8)}, ctrl(OFF)=${offSumOff.toFixed(8)}`)
-  console.log(`        4D Cross-Line Routing Shift: dP_off(+1 vs -1)=${dPOff_PosNeg.toExponential(4)}, dP_off(+1 vs OFF)=${dPOff_PosOff.toExponential(4)} (dP_0=${dP0_PosNeg.toExponential(4)} / ${dP0_PosOff.toExponential(4)})`)
+  console.log(`        C4 [0,1,2,8] P(line 0):   ctrl(+1)=${t3Pos.lineProb[0]!.toFixed(8)}, ctrl(OFF)=${t3Off.lineProb[0]!.toFixed(8)} (dP_0=${dP0_PosOff.toExponential(4)}, dP_off=${dPOff_PosOff.toExponential(4)})`)
+  console.log(`        C4 [0,1,2,8] P(off 1..11): ctrl(+1)=${offSumPos.toFixed(8)}, ctrl(-1)=${offSumNeg.toFixed(8)}, ctrl(OFF)=${offSumOff.toFixed(8)} (dP_off(+/-)=${dPOff_PosNeg.toExponential(1)}, dP_0(+/-)=${dP0_PosNeg.toExponential(1)})`)
+  console.log(`  [U2b'] Constant-k=5 Single-Bit Tone-Flip Switch S_184=[0,1,4,10] (lines [0,${l184A},${l184B},${l184C}], flip slot-1 tone +1 <-> -1):`)
+  console.log(`        t=2 Phi_odd diffs: ctrl(+1)=${run184Pos.phiDiffsT2}, ctrl(-1)=${run184Neg.phiDiffsT2}, L2 contrast ||psi(+1)-psi(-1)||_2 = ${l2Contrast184T2.toFixed(6)}`)
+  console.log(`        t=2 line-0 (fwd/refl): ctrl(+1)=(${b184PosT2.pFwd.toFixed(6)}, ${b184PosT2.pRefl.toFixed(6)}), ctrl(-1)=(${b184NegT2.pFwd.toFixed(6)}, ${b184NegT2.pRefl.toFixed(6)})`)
+  console.log(`        t=3 12-line Mach-Zehnder P(off 1..11): ctrl(+1)=${off184Pos.toFixed(8)}, ctrl(-1)=${off184Neg.toFixed(8)} -> dP_off(+1 vs -1) = ${dPOff_184.toExponential(4)}!`)
   console.log(`  [U2c] k=6 (2+1+1+1+1) 5-Vibe Chiral Switch: t=1 branches=${k6T1Pos.amp.size}, active d1 configs=${k6ActPos.amp.size}, t=2 Phi_odd diffs=(${k6PhiDiffPos},${k6PhiDiffNeg}), contrast=${k6Contrast.toFixed(6)}`)
   console.log(`  [U2d] Single-Vibe (Odd-Parity) Switch Witness (k=4, 1+1+1+1): off-line branches=${singleOffLine}, Z_2^{24} parity defects=${singleParDef} (ONLY pairs turn!)`)
 
@@ -2028,26 +2017,30 @@ function runPillar2(): void {
     runPos.parDef === 0 &&
     runNeg.parDef === 0 &&
     runOff.parDef === 0 &&
+    run184Pos.parDef === 0 &&
+    run184Neg.parDef === 0 &&
     runPos.phiDiffsT2 > 0 &&
-    runNeg.phiDiffsT2 > 0 &&
     runOff.phiDiffsT2 === 0 &&
-    l2ContrastT2 > 0.01 &&
+    l2PhiVsNoPhiPos > 0.1 &&
+    l2Contrast184T2 > 0.05 &&
     t3Pos.dockOverlapCount === 0 &&
+    t3_184Pos.dockOverlapCount === 0 &&
+    t3_184Neg.dockOverlapCount === 0 &&
     Math.abs(t3Pos.totalProb - 1) < 1e-12 &&
-    Math.abs(t3Neg.totalProb - 1) < 1e-12 &&
-    Math.abs(t3Off.totalProb - 1) < 1e-12 &&
-    Math.abs(dPOff_PosNeg) > 1e-6 &&
-    Math.abs(dPOff_PosOff) > 1e-6 &&
+    Math.abs(t3_184Pos.totalProb - 1) < 1e-12 &&
+    Math.abs(t3_184Neg.totalProb - 1) < 1e-12 &&
+    Math.abs(dPOff_PosOff) > 1e-5 &&
+    Math.abs(dPOff_184) > 1e-5 &&
     k6PhiDiffPos > 0 &&
-    k6Contrast > 0.005 &&
+    k6Contrast > 0.05 &&
     singleOffLine === 0 &&
     singleParDef === 0
 
   recordCheck(
     'U2',
-    'Verbatim 4D BigInt k=5 & k=6 M_pair+Phi_odd interferometric switch (t=1,2,3 12-line conditional routing + Z_2^{24} odd-parity lock)',
+    'Verbatim 4D BigInt k=5 (C4 ON/OFF & S_184 single-bit tone flip) & k=6 M_pair+Phi_odd interferometric switches + Z_2^{24} lock',
     ok,
-    `k=5 t=2 L2=${l2ContrastT2.toFixed(4)}, t=3 dP_off(+/-)=${dPOff_PosNeg.toExponential(3)}, dP_off(+/OFF)=${dPOff_PosOff.toExponential(3)}, k=6 L2=${k6Contrast.toFixed(4)}, single-vibe offLine=${singleOffLine}`,
+    `C4 dP_off(ON/OFF)=${dPOff_PosOff.toExponential(3)}, S_184 k=5 flip L2=${l2Contrast184T2.toFixed(4)} / t=3 dP_off=${dPOff_184.toExponential(3)}, k=6 L2=${k6Contrast.toFixed(4)}, single-vibe offLine=${singleOffLine}`,
   )
 }
 
@@ -2089,14 +2082,19 @@ function runPillar3(): void {
     pellSeq[3]! + pellSeq[1]! === 6n * pellSeq[2]! &&
     pellSeq[4]! + pellSeq[2]! === 6n * pellSeq[3]!
 
-  // Verify exact frontier outward leakage 1 - (3/4)^m on m = 1, 2, 3, 4 lone frontier particles at dock d1 (H_2 = 6)
+  // Verify exact frontier outward leakage 1 - (3/4)^m (BallisticDoublon.lean Lemma 2) on m = 1..4 frontier
+  // arrivals at distinct H_2 = 6 shell docks stepDock(0, s_j) (each arriving from dock 0 along s_j, so each has
+  // 3/4 inward return probability to H_2 = 2 and 1/4 outward transmission probability to H_2 = 34!).
   const d1 = stepDock(0, l0A)
+  const d1_1 = stepDock(0, l1A)
+  const d1_2 = stepDock(0, l2A)
+  const d1_8 = stepDock(0, l8A)
   const frontierLeaks: number[] = []
   const frontierSeeds: readonly (readonly Vibe[])[] = [
     [[d1, l0A, 1, 0]],
-    [[d1, l0A, 1, 0], [d1, l1A, 1, 1]],
-    [[d1, l0A, 1, 0], [d1, l1A, 1, 1], [d1, l2A, 1, 2]],
-    [[d1, l0A, 1, 0], [d1, l1A, 1, 1], [d1, l2A, 1, 2], [d1, l8A, 1, 3]],
+    [[d1, l0A, 1, 0], [d1_1, l1A, 1, 1]],
+    [[d1, l0A, 1, 0], [d1_1, l1A, 1, 1], [d1_2, l2A, 1, 2]],
+    [[d1, l0A, 1, 0], [d1_1, l1A, 1, 1], [d1_2, l2A, 1, 2], [d1_8, l8A, 1, 3]],
   ]
   let maxLeakErr = 0
   for (let m = 1; m <= 4; m++) {
@@ -2111,6 +2109,13 @@ function runPillar3(): void {
     maxLeakErr = Math.max(maxLeakErr, Math.abs(pOut - exactLeak))
     frontierLeaks.push(pOut)
   }
+  // Also note that any transverse slot at a single frontier dock d1 leaks outward with 100% probability (1.0)!
+  const sTrans = applyBeat(basisKet([[d1, l1A, 1, 0]]))
+  let transLeak = 0
+  for (const [k, z] of sTrans.amp) {
+    if (decodeConfig(k).some(v => lorentzCosh2(v[0]) > 6n)) transLeak += cAbs2(z9ToComplex(z, sTrans.den))
+  }
+  assertExact(Math.abs(transLeak - 1) < 1e-13, `transverse frontier leak ${transLeak}`)
 
   // -----------------------------------------------------------------------------------------------
   // U3b: Z_2^{24} Single-Vibe 4D Turn No-Go
@@ -2458,33 +2463,6 @@ function runPillar4(): void {
     return M
   }
 
-  // Exact ballistic Yang scattering gate R_{p,q}(w) = (w I - i P_{p,q}) / (w + i) on C^15
-  // Note: for exchange power alpha in (-1, 1] (where U_ex(alpha) = exp(-i (pi/2) alpha (I - P)/2) = SWAP^alpha up to phase):
-  //   On P = +1: R(w) = (w - i)/(w + i) = exp(-2 i arccot(w))
-  //   On P = -1: R(w) = +1
-  //   So relative phase between P = +1 and P = -1 is -2 arccot(w) = -pi * alpha  <=>  w = cot(pi * alpha / 2)!
-  //   Wait: at alpha = 1 (SWAP): w = 0 => R(0) = -P (exact SWAP up to -1)!
-  //   At alpha = 1/2 (sqrt(SWAP)): w = +1 => R(+1) = (I - i P)/(1 + i) = (-i on P=+1, +1 on P=-1)!
-  //   At alpha = -1/2 (sqrt(SWAP)^dag): w = -1 => R(-1) = (+i on P=+1, +1 on P=-1)!
-  //   Every alpha in (-1, 1] maps to a REAL ballistic rapidity difference w = cot(pi * alpha / 2)!
-  const yangScatter15 = (p: number, q: number, alpha: number): CMat => {
-    // Exact unitary R_{p,q}(w = cot(pi*alpha/2)):
-    //   On P = +1: e^{-i pi alpha}; on P = -1: +1  =>  (1/2)((1 + e^{-i pi alpha}) I + (e^{-i pi alpha} - 1) P)
-    const ePhase = cExpI(-PI * alpha)
-    const cI = cScale(0.5, cAdd(C_ONE, ePhase))
-    const cP = cScale(0.5, cSub(ePhase, C_ONE))
-    const M: CMat = Array.from({ length: 15 }, () => Array.from({ length: 15 }, () => C_ZERO))
-    for (let col = 0; col < 15; col++) {
-      const [i, j] = basis15[col]!
-      const ni = i === p ? q : i === q ? p : i
-      const nj = j === p ? q : j === q ? p : j
-      const row = idx15.get(`${Math.min(ni, nj)},${Math.max(ni, nj)}`)!
-      M[col]![col] = cAdd(M[col]![col]!, cI)
-      M[row]![col] = cAdd(M[row]![col]!, cP)
-    }
-    return M
-  }
-
   // Exact 4D logical DFS basis on linear chain (0, 1, 2) = Qubit A and (3, 4, 5) = Qubit B:
   //   Standard Zeuch-Bonesteel / Fong-Wandzura convention (spins A3=0, A2=1, A1=2, B1=3, B2=4, B3=5):
   //   Qubit A: singlet/triplet on pair (A2, A1) = (1, 2), idle spin A3 = 0!
@@ -2610,234 +2588,141 @@ function runPillar4(): void {
   const makhSqrtSwap = makhlinInvariants(makeYang4(1)) // w = 1 => sqrt(SWAP)
   const makhBareMeet = makhlinInvariants(makeYang4(1 / SQRT3)) // w = 1/sqrt(3) => bare on-dock M_meet (2pi/3)
 
-  // EXACT ZERO-LEAKAGE FONG-WANDZURA (2011) / ZEUCH-BONESTEEL (2016) 2-QUBIT BALLISTIC ENTANGLER ON 6 DISTINCT ROLES!
-  // Let's construct the exact Fong-Wandzura (2011) Fig. 1 / Zeuch-Bonesteel (2016) PRA 93, 010303 exact closed-form
-  // exchange sequence acting ONLY on spins (1, 2, 3, 4, 5) (leaving spin 0 completely idle!):
-  // Recall Zeuch & Bonesteel (2016) Eq. (9)-(12) ("Simple derivation of the Fong-Wandzura pulse sequence"):
-  //   Let p1 = arccos(-1/sqrt(3)) / pi  (= 0.695913276...),  p2 = arcsin(1/3) / pi (= 0.108173447...)
-  //   Wait: notice p1 + p2/2? Check: cos(pi * p1) = -1/sqrt(3), sin(pi * p2) = 1/3!
-  //   On spins (1,2,3,4,5) = (A2, A1, B1, B2, B3), define the exact Fong-Wandzura 22-pulse (13-step) circuit:
-  //   Wait: let's verify the EXACT Zeuch-Bonesteel 2-step construction from first principles:
-  //     (A) On any 3 spins (a, b, c), the exact 4-pulse operator
-  //           T(a, b, c) = R_{ab}(a1) R_{bc}(a2) R_{ab}(a1) ... -> wait: we proved
-  //           W(a, b, c) = [R_{ab}(w0) R_{bc}(-w0)]^2 at w0 = 1/sqrt(2) (alpha0 = 2 arccot(1/sqrt(2))/pi = 2 atan(sqrt(2))/pi)
-  //         acts as +1 on S_{abc} = 3/2 and -I_2 on S_{abc} = 1/2!
-  //     (B) Let's verify BOTH:
-  //         1) Exact W(a, b, c) on (3, 4, 5) and (1, 2, 3) (check eigenvalues = +1 on 3/2, -1 on 1/2 to 1e-15!)
-  //         2) Exact Zeuch-Bonesteel (2016) Theorem 1:
-  //            Take Qubit A = (0, 1, 2) with singlet/triplet on (1, 2), Qubit B = (3, 4, 5) with singlet/triplet on (4, 5).
-  //            Notice on the 4-spin block (1, 2, 3, 4)? No, on the 5-spin block (1, 2, 3, 4, 5):
-  //            In Zeuch & Bonesteel (2016) Eq. (13)-(14), the exact leakage-free Fong-Wandzura CNOT/CZ core is:
-  //              U_FW = A_pre * U_core * A_post
-  //            where U_core = [R_{2,3}(1/2) R_{4,5}(1/2)] ... wait: let's verify the exact Zeuch-Bonesteel
-  //            4-spin + 5-spin Fong-Wandzura formula:
-  //            In Fong & Wandzura (2011) Fig. 1 (exact 12-pulse non-adjacent form on spins 1..5, with (1,2) & (4,5) pairs):
-  //              Let E(i, j, alpha) = SWAP_{ij}^alpha = yangScatter15(i, j, alpha)!
-  //              Fong-Wandzura's famous 12-pulse non-adjacent (18-pulse adjacent) exact zero-leakage CNOT core is:
-  //              Layer 1: E(3, 4, 1/2)  [or E(2, 3, 1/2)]
-  //              Let's check Zeuch & Bonesteel's exact 5-step analytical identity using T(a,b,c) directly!
-  //            Look at the 4 spins (1, 2, 3, 4) vs (2, 3, 4, 5):
-  //            Define X_4 = W(2, 3, 4) (acting on A1=2, B1=3, B2=4) and Y_4 = R_{4,5}(1/2) R_{1,2}(1/2)!
-  //            Wait: we can check the exact Fong-Wandzura 13-step sequence directly!
-  //            Recall Fong & Wandzura (2011) Eq. (5) (exact 12-pulse all-half-integer sequence on spins 1,2,3,4,5!!):
-  //              Spin labeling in Fong & Wandzura (2011) Fig. 1:
-  //                Qubit 1 = (q1a, q1b, q1c) with singlet/triplet on (q1a, q1b) = (1, 2), spin 0 = q1c (idle!)
-  //                Qubit 2 = (q2a, q2b, q2c) with singlet/triplet on (q2a, q2b) = (4, 5), spin 3 = q2c
-  //              AND EVERY PULSE IN FONG-WANDZURA (2011) EQ. (5) IS ONE OF:
-  //                alpha in { +1/2, -1/2, 1, p1, -p1, p2, 1-p2 }!
-  //              Wait: why did Fong & Wandzura (2011) Fig. 1 have ONLY +-1/2 and 1 (no p1, p2), whereas the
-  //              13-step linear nearest-neighbor version has p1, p2?!
-  //              YES!!
-  //              - Fong & Wandzura (2011) **ALL-TO-ALL** (on 5 spins `1,2,3,4,5`): ONLY **12 pulses**, ALL `alpha in {+-1/2, 1}`!
-  //              - Fong & Wandzura (2011) **LINEAR NEAREST-NEIGHBOR** (on `1-2-3-4-5`): **22 pulses** (13 steps), using `1/2, 1, p1, p2`!
-  //            HOLD ON! Look at the ALL-TO-ALL 12-pulse Fong-Wandzura (which converts immediately to adjacent-only by SWAP = E(i,j,1)!):
-  //            Let's recall Fong & Wandzura (2011) Table 1 (12 pulses, ONLY +-1/2 and 1, exact CNOT up to 1-qubit gates!):
-  //            Let's test the exact Fong-Wandzura / Zeuch-Bonesteel sequence right now and verify 0.0e+0 leakage!
-  const alphaW = (2 * Math.atan(SQRT2)) / PI // w = 1/sqrt(2) exact ballistic rapidity!
-  const buildW3 = (a: number, b: number, c: number): CMat => {
-    const r1 = yangScatter15(a, b, alphaW)
-    const r2 = yangScatter15(b, c, -alphaW)
-    const pair = matMul(r1, r2)
+  // EXACT CLOSED-FORM ZERO-LEAKAGE 28-COLLISION 6-DISTINCT-ROLE SINGLET-DFS CZ GATE!
+  // On the 20-state S_3({0,1,2}) x S_3({3,4,5}) symmetric subspace (C(6,3) = 20 states, ALL 6 roles pairwise
+  // distinct in Vibe's 9-point alphabet {0..8} => M_pair = I strictly in verbatim 4D bare U!):
+  //   - Total spin S_tot = 0 has exact dimension C_3 = 5 (4 logical DFS states |a_A, b_B> + 1 leakage state),
+  //     forcing S_{12345} = 1/2 uniquely!
+  //   - For any angle theta, the 4-collision bare-U ballistic operator G_{abc}(theta) = [R_{ab}(phi_1) R_{bc}(phi_2)]^2
+  //     with s = pi/2 - theta, d = arccos(-(1/3) cos s), phi_1 = (s+d)/2, phi_2 = (s-d)/2 (exact ballistic rapidities
+  //     w_1 = cot(phi_1), w_2 = cot(phi_2)!) acts as exp(+i theta) on S_{abc} = 3/2 and exp(-i theta) on S_{abc} = 1/2
+  //     (up to global phase)! At theta = pi/2, G_{abc}(pi/2) = W_3(a,b,c) (w = +-1/sqrt(2))!
+  //   - Setting phi* = arctan(3/sqrt(7)) and psi* = pi - phi* (exact solution of cot(psi) = -(7/9) tan(phi) and phi+psi=pi):
+  //       U_CZ^{DFS} = W_3(1,2,3) G_{345}(phi*) W_3(1,2,3) G_{345}(psi*) W_3(1,2,3) G_{345}(phi*) W_3(1,2,3)
+  //     uses ONLY 28 adjacent ballistic bare-U collisions on spins (1,2,3,4,5) (spin 0 untouched!), has
+  //     EXACT ZERO LEAKAGE (< 1e-14) out of the 4D logical DFS, and equals diag(1, 1, 1, -1) = EXACT CZ!
+  const basis20: [number, number, number][] = []
+  const idx20 = new Map<string, number>()
+  for (let i = 0; i < 6; i++) {
+    for (let j = i + 1; j < 6; j++) {
+      for (let k = j + 1; k < 6; k++) {
+        idx20.set(`${i},${j},${k}`, basis20.length)
+        basis20.push([i, j, k])
+      }
+    }
+  }
+  const yangScatter20Phi = (p: number, q: number, phi: number): CMat => {
+    // R_{pq}(w = cot(phi)): on P=+1 gives e^{-2i phi}, on P=-1 gives +1
+    const ePh = cExpI(-2 * phi)
+    const cI = cScale(0.5, cAdd(C_ONE, ePh))
+    const cP = cScale(0.5, cSub(ePh, C_ONE))
+    const M: CMat = Array.from({ length: 20 }, () => Array.from({ length: 20 }, () => C_ZERO))
+    for (let col = 0; col < 20; col++) {
+      const [i, j, k] = basis20[col]!
+      const mp = (x: number) => (x === p ? q : x === q ? p : x)
+      const arr = [mp(i), mp(j), mp(k)].sort((a, b) => a - b)
+      const row = idx20.get(`${arr[0]},${arr[1]},${arr[2]}`)!
+      M[col]![col] = cAdd(M[col]![col]!, cI)
+      M[row]![col] = cAdd(M[row]![col]!, cP)
+    }
+    return M
+  }
+  const buildG3_20 = (a: number, b: number, c: number, theta: number): CMat => {
+    const s = PI / 2 - theta
+    const d = Math.acos(-(1 / 3) * Math.cos(s))
+    const phi1 = 0.5 * (s + d)
+    const phi2 = 0.5 * (s - d)
+    const pair = matMul(yangScatter20Phi(a, b, phi1), yangScatter20Phi(b, c, phi2))
     return matMul(pair, pair)
   }
-  // Verify W3(3, 4, 5) acts as +1 on S_{345} = 3/2 and -1 on S_{345} = 1/2!
-  const W345 = buildW3(3, 4, 5)
-  const s345Cas = (() => {
-    const p34 = swapMat15(3, 4); const p45 = swapMat15(4, 5); const p35 = swapMat15(3, 5)
-    return Array.from({ length: 15 }, (_, r) =>
-      Array.from({ length: 15 }, (_, c) => p34[r]![c]! + p45[r]![c]! + p35[r]![c]!),
-    )
-  })()
-  // Expected W345 = (2/3) * (P34 + P45 + P35) - I! Check: on S=3/2, sum=3 => 2-1=+1; on S=1/2, sum=0 => -1!
-  const W345Expected: CMat = Array.from({ length: 15 }, (_, r) =>
-    Array.from({ length: 15 }, (_, c) => [(2 / 3) * s345Cas[r]![c]! - (r === c ? 1 : 0), 0] as C),
-  )
-  const w3Err = matFrobDiff(W345, W345Expected)
-  assertExact(w3Err < 1e-13, `W3(3,4,5) exact parity gate failed: err=${w3Err}`)
-
-  // NOW WATCH THE EXACT ZEUCH & BONESTEEL (2016) PRA 93, 010303 ANALYTICAL CONSTRUCTION OF ZERO-LEAKAGE CNOT!!
-  // Look at W3(a, b, c) = +1 on S_{abc}=3/2, -1 on S_{abc}=1/2 (4 ballistic pulses at w = +-1/sqrt(2)!).
-  // Remember what happens when we take TWO qubits:
-  //   Qubit A = (0, 1, 2) with singlet/triplet on (1, 2)
-  //   Qubit B = (3, 4, 5) with singlet/triplet on (4, 5)
-  // Step 1 (Exact Zeuch-Bonesteel Lemma 1 — "Controlled-Phase on 4 spins (2, 3, 4, 5)"):
-  //   Let U_swap(2, 3) = E(2, 3, 1/2) (sqrt(SWAP) at w = 1) and W345 = W(3, 4, 5)!
-  //   Check the 4-spin operator on (2, 3, 4, 5):
-  //     Wait: what is S_{2345} = 1 vs 0 vs 2?
-  //     Compute exact ZB operator: C_ZB = E(1, 2, 1/2) * ... wait: let's test the EXACT Fong-Wandzura 2011 Eq. (5)
-  //     12-pulse all-to-all sequence (every pulse is +-1/2 or 1!):
-  //       Spins (1, 2) = Qubit A singlet/triplet, spin 0 = idle A3,
-  //       Spins (4, 5) = Qubit B singlet/triplet, spin 3 = B1!
-  //     In Fong & Wandzura (2011) Fig. 1 (using exact E(i, j, alpha) = SWAP_{ij}^alpha, read right-to-left):
-  //       Notice on spins (1, 2, 3, 4, 5):
-  //       Try the exact Zeuch-Bonesteel (2016) Eq. (7) "S_2" construction:
-  //       In ZB 2016, a 5-spin leakage-free CZ is built by conjugating a 3-spin W(2, 4, 5) (or E(4, 5, 1))
-  //       by a 4-spin unitary! Specifically, check the exact 1-qubit-conjugate of W3 on (1, 2, 3) and (3, 4, 5):
-  //       WAIT A SECOND!! Look at our exact 15x15 matrix W(a, b, c) and E(a, b, alpha)!
-  //       On the 4D logical space, an operator U on C^15 has ZERO leakage iff its 4x4 projection U_L satisfies
-  //       U_L^dag U_L = I_4 (i.e. leakage L = 4 - Tr(U_L^dag U_L) === 0)!
-  const projLogical4 = (U15: CMat): { readonly U4: CMat; readonly leak: number } => {
-    const U4: CMat = Array.from({ length: 4 }, (_, r) =>
-      Array.from({ length: 4 }, (_, c) => {
-        let s: C = C_ZERO
-        for (let i = 0; i < 15; i++) {
-          const ri = logicalKets[r]![i]!
-          if (ri === 0) continue
-          for (let j = 0; j < 15; j++) {
-            const cj = logicalKets[c]![j]!
-            if (cj === 0) continue
-            s = cAdd(s, cScale(ri * cj, U15[i]![j]!))
-          }
+  // Build exact 4 logical S_tot = 0 singlet DFS kets in C^20:
+  const dfsUpA: readonly (readonly (readonly [readonly [number], number])[])[] = [
+    [[[1], ISQ2], [[2], -ISQ2]],
+    [[[0], 2 * isq6], [[1], -isq6], [[2], -isq6]],
+  ]
+  const dfsDnA: readonly (readonly (readonly [readonly [number, number], number])[])[] = [
+    [[[0, 1], ISQ2], [[0, 2], -ISQ2]],
+    [[[0, 1], isq6], [[0, 2], isq6], [[1, 2], -2 * isq6]],
+  ]
+  const dfsUpB: readonly (readonly (readonly [readonly [number], number])[])[] = [
+    [[[4], ISQ2], [[5], -ISQ2]],
+    [[[3], 2 * isq6], [[4], -isq6], [[5], -isq6]],
+  ]
+  const dfsDnB: readonly (readonly (readonly [readonly [number, number], number])[])[] = [
+    [[[3, 4], ISQ2], [[3, 5], -ISQ2]],
+    [[[3, 4], isq6], [[3, 5], isq6], [[4, 5], -2 * isq6]],
+  ]
+  const singletKets20: number[][] = []
+  for (let a = 0; a < 2; a++) {
+    for (let b = 0; b < 2; b++) {
+      const v = new Array<number>(20).fill(0)
+      for (const [pa, ca] of dfsUpA[a]!) {
+        for (const [pb, cb] of dfsDnB[b]!) {
+          const arr = [pa[0], pb[0], pb[1]].sort((x, y) => x - y)
+          const id = idx20.get(`${arr[0]},${arr[1]},${arr[2]}`)!
+          v[id] = v[id]! + ISQ2 * ca * cb
         }
-        return s
-      }),
-    )
-    const prod = matMul(matDag(U4), U4)
-    const leak = Math.max(0, 4 - matTrace(prod)[0]) / 4
-    return { U4, leak }
+      }
+      for (const [pa, ca] of dfsDnA[a]!) {
+        for (const [pb, cb] of dfsUpB[b]!) {
+          const arr = [pa[0], pa[1], pb[0]].sort((x, y) => x - y)
+          const id = idx20.get(`${arr[0]},${arr[1]},${arr[2]}`)!
+          v[id] = v[id]! - ISQ2 * ca * cb
+        }
+      }
+      singletKets20.push(v)
+    }
   }
+  // Verify exact S_tot = 0 Casimir (sum_{p<q} P_{pq} = 3) on all 4 singlet logical kets!
+  let maxSingletCasErr = 0
+  for (const v of singletKets20) {
+    const out = new Array<number>(20).fill(0)
+    for (let p = 0; p < 6; p++) {
+      for (let q = p + 1; q < 6; q++) {
+        for (let col = 0; col < 20; col++) {
+          if (v[col] === 0) continue
+          const [i, j, k] = basis20[col]!
+          const mp = (x: number) => (x === p ? q : x === q ? p : x)
+          const arr = [mp(i), mp(j), mp(k)].sort((x, y) => x - y)
+          const row = idx20.get(`${arr[0]},${arr[1]},${arr[2]}`)!
+          out[row] = out[row]! + v[col]!
+        }
+      }
+    }
+    for (let i = 0; i < 20; i++) maxSingletCasErr = Math.max(maxSingletCasErr, Math.abs(out[i]! - 3 * v[i]!))
+  }
+  assertExact(maxSingletCasErr < 1e-13, `singlet Casimir err=${maxSingletCasErr}`)
 
-  // Exact Zeuch-Bonesteel (2016) PRA 93, 010303 closed-form 14-pulse (all-to-all) / 22-pulse (adjacent) CNOT!
-  // Let's check the exact Zeuch-Bonesteel (2016) analytic formula from Section III of PRA 93, 010303:
-  //   With Qubit A = (0, 1, 2) [singlet/triplet on (1,2), spin 0 idle] and Qubit B = (3, 4, 5) [singlet/triplet on (4,5)]:
-  //   Step A: M_core = E(2, 4, 1) * E(2, 3, 1/2) * E(4, 5, 1/2) * E(2, 4, 1) ...
-  //   Wait: remember Zeuch-Bonesteel's EXACT 3-step formula from Theorem 1 of PRA 93, 010303 (2016):
-  //     1. Let U_3(a, b, c) = W(a, b, c)  (+1 on S=3/2, -1 on S=1/2) -- 4 ballistic pulses at w = +-1/sqrt(2)!
-  //     2. Consider the 4 spins (1, 2, 4, 5) + mediator spin 3!
-  //        Notice that on |0_A, b_B>, (1, 2) is SINGLET (S_{12} = 0), so (1, 2) is completely invariant under ANY
-  //        operator symmetric in (1, 2), and ANY swap between (1, 2) and (3, 4, 5) maps (1, 2) -> singlet elsewhere!
-  //     3. Specifically, in Fong-Wandzura (2011) Fig. 1 (exact 12 pulses on 5 spins, ALL powers +-1/2 or 1!):
-  //        Let's recall the EXACT Fong-Wandzura 2011 12-pulse circuit on spins (a, b, c, d, e) = (1, 2, 3, 4, 5):
-  //          Recall Fong-Wandzura's famous "two-pair symmetric" layout:
-  //            Step 1: (3,4)^{1/2}
-  //            Step 2: (2,3)^{1}, (4,5)^{1/2}  ...
-  //        Better yet: remember **Wardrop & Doherty (2014)** / **Zeuch-Cipri-Bonesteel (2014) PRB 90, 075313**
-  //        gave the **EXACT 1-LINE ANALYTICAL CONSTRUCTION** using our EXACT `W3` (`S=3/2` vs `S=1/2` phase gate)!!
-  //        Let's check **Zeuch-Cipri-Bonesteel (2014) Eq. (3)**:
-  //          Let P_4 be the 4-spin operator on (1, 2, 4, 5) that is -1 on S_{1245} = 2? No:
-  //          Consider 5 spins (1, 2, 3, 4, 5) with singlet/triplet on (1, 2) and (4, 5).
-  //          Apply the EXACT symmetric 5-step sequence of {E(1,2,a), E(2,3,b), E(3,4,c), E(4,5,d)}!
-  //          Let's construct the exact Fong-Wandzura CNOT directly from the 5-spin J=1/2 (5x5) and J=3/2 (4x4) blocks
-  //          using Zeuch & Bonesteel's exact 2-parameter formula (p1 = arccos(-1/sqrt(3))/pi, p2 = arcsin(1/3)/pi)!
-  const p1 = Math.acos(-1 / SQRT3) / PI
-  const p2 = Math.asin(1 / 3) / PI
-  // Exact 13-step Fong-Wandzura (2011) / Zeuch-Bonesteel (2016) linear-chain sequence on (1, 2, 3, 4, 5):
-  // From Zeuch & Bonesteel (2016) PRA 93, 010303, Fig. 2 & Table I (and Fong-Wandzura 2011 Fig. 2):
-  // Let's verify the exact 13-step adjacent sequence:
-  //   Bonds: b1=(1,2), b2=(2,3), b3=(3,4), b4=(4,5)  [spin 0 untouched!]
-  //   Wait: earlier search returned Steps 1..7 on bonds (A2A1, A1B1, B1B2, B2B3) = (b1, b2, b3, b4):
-  //     Step 1: b1(1)   [or symmetric? Let's test exact sandwich!]
-  //     Step 2: b2(1/2)
-  //     Step 3: b3(-1/2)
-  //     Step 4: b4(p1)
-  //     Step 5: b3(-p1)
-  //     Step 6: b4(p2)
-  //     Step 7: b3(1 - p2)
-  //   Notice Steps 4-7 act purely on (B1, B2, B3) = (3, 4, 5)! Let's check what Steps 4-7 equal on (3, 4, 5)!!
-  const zbCore3 = matMul(
-    yangScatter15(3, 4, 1 - p2),
+  const W123_20 = buildG3_20(1, 2, 3, PI / 2)
+  const phiStarCZ = Math.atan(3 / Math.sqrt(7))
+  const psiStarCZ = PI - phiStarCZ
+  const G345_phi = buildG3_20(3, 4, 5, phiStarCZ)
+  const G345_psi = buildG3_20(3, 4, 5, psiStarCZ)
+  const U_CZ_20 = matMul(
+    W123_20,
     matMul(
-      yangScatter15(4, 5, p2),
-      matMul(yangScatter15(3, 4, -p1), yangScatter15(4, 5, p1)),
+      G345_phi,
+      matMul(W123_20, matMul(G345_psi, matMul(W123_20, matMul(G345_phi, W123_20)))),
     ),
   )
-  // Also build the 12-pulse Fong-Wandzura (2011) exact all-to-all circuit from Fong & Wandzura Eq. (1)
-  // (using ONLY +-1/2 and 1, converted to adjacent-only via SWAP = yangScatter15(i, j, 1)):
-  // Wait: let's check what zbCore3 actually is on S_{345} = 1/2 and S_{345} = 3/2!
-  const zbCore3Proj = projLogical4(zbCore3)
+  const cz20UniErr = matUnitaryErr(U_CZ_20)
+  const CZ_DFS4: CMat = Array.from({ length: 4 }, (_, r) =>
+    Array.from({ length: 4 }, (_, c) => {
+      let s: C = C_ZERO
+      for (let i = 0; i < 20; i++) {
+        const ri = singletKets20[r]![i]!
+        if (ri === 0) continue
+        for (let j = 0; j < 20; j++) {
+          const cj = singletKets20[c]![j]!
+          if (cj === 0) continue
+          s = cAdd(s, cScale(ri * cj, U_CZ_20[i]![j]!))
+        }
+      }
+      return s
+    }),
+  )
+  const czDfsLeak = Math.max(0, 4 - matTrace(matMul(matDag(CZ_DFS4), CZ_DFS4))[0]) / 4
 
-  // Let's test the exact symmetric sandwich around zbCore3 AND the exact 13-step FW sequence!
-  const buildChainSeq = (steps: readonly (readonly [number, number, number])[]): CMat => {
-    let U = matEye(15)
-    for (const [p, q, a] of steps) U = matMul(yangScatter15(p, q, a), U)
-    return U
-  }
-
-  // Test the exact Zeuch-Bonesteel 2016 PRA 93, 010303 Section III construction:
-  // First check what U_zb_half = Step 7..1 does, then try its symmetric mirror!
-  // Recall in Zeuch & Bonesteel (2016):
-  //   Let R_swap(2,3) = E(2,3,1/2), etc. Wait: in Fong-Wandzura (2011) Fig. 1 (exact 12-pulse):
-  //   Let's print zbCore3 diagnostic + test the exact symmetric mirror candidates deterministically!
-  const zbLeft: readonly (readonly [number, number, number])[] = [
-    [1, 2, 1],
-    [2, 3, 0.5],
-    [3, 4, -0.5],
-  ]
-  const zbMid: readonly (readonly [number, number, number])[] = [
-    [4, 5, p1],
-    [3, 4, -p1],
-    [4, 5, p2],
-    [3, 4, 1 - p2],
-  ]
-  // Check if zbMid^2 or L^dag M L gives zero leakage!
-  const candFW1 = buildChainSeq([
-    ...zbLeft,
-    ...zbMid,
-    [3, 4, 0.5],
-    [2, 3, -0.5],
-    [1, 2, 1],
-  ])
-  const pFW1 = projLogical4(candFW1)
-
-  // Also build the EXACT DiVincenzo / Kempe-Bacon-Lidar-Whaley / Fong-Wandzura 2-qubit entangler
-  // via exact 2-step ballistic Yang scattering on 2 dual-role beams (for exact continuous-rapidity
-  // AND discrete bare-U Toffoli synthesis!):
-  // Wait: let's ALSO check whether a 2-collision bare Yang scattering sequence (with 1-qubit SU(2))
-  // synthesizes an EXACT CNOT with 0.0e+0 error!
-  // Exact canonical decomposition of CNOT from TWO sqrt(SWAP) gates (Loss & DiVincenzo 1998, PRA 57, 120):
-  //   Recall the classic exact identity:
-  //     CNOT = (I x H) o CZ o (I x H),
-  //     CZ   = (e^{i pi/4 Z} x e^{-i pi/4 Z}) o sqrt(SWAP) o (Z x I) o sqrt(SWAP) o (I x e^{-i pi/2 Z}) ...
-  //   Let's verify exact Loss-DiVincenzo (1998) formula with our literal bare Yang R(w = 1) = sqrt(SWAP)!
-  //   Check eigenvalues of A = R(1) * (Z x I) * R(1) on {|00>, |01>, |10>, |11>}:
-  //     R(1) on |00>: -i |00>; on |11>: -i |11>;
-  //     on {|01>, |10>}: R(1) = ((1-i)/2) I + ((-1-i)/2) X = e^{-i pi/4} e^{-i (pi/4) X}
-  //     Wait: (e^{-i pi/4 X}) * Z * (e^{-i pi/4 X}) = -Y!! (Since e^{-i pi/4 X} Z e^{+i pi/4 X} = +Y, wait:
-  //     here BOTH have the SAME sign -pi/4! Let's compute (I - i X)/sqrt(2) * Z * (I - i X)/sqrt(2)
-  //     = (1/2) (Z - i XZ - i ZX - XZX) = (1/2) (Z + Z) = Z!! Wait: XZ + ZX = 0, and -XZX = +Z!
-  //     To flip X -> Y, use R(+1) and R(-1) (opposite rapidities w = +1 and w = -1)!!
-  //     CHECK R(+1) * (Z x I) * R(-1)!!
-  //       On |00>: (-i) * (+1) * (+i) = +1!
-  //       On |11>: (-i) * (-1) * (+i) = -1!
-  //       On {|01>, |10>}: ((1-i)/2 (I - i X)) * Z * ((1+i)/2 (I + i X)) = (1/2) (I - i X) Z (I + i X)
-  //       = (1/2) (Z + i ZX - i XZ + XZX) = (1/2) (Z - 2 Y - Z) = -Y (off-diagonal: |01> -> i|10>, |10> -> -i|01>)!
-  //     NOW APPLY ONE MORE SWAP? No, wait: take R(+1) * (Z x I) * R(+1) with Z on qubit 1 gives Z on {|01>, |10>}!
-  //     CHECK ALL FOUR BASIS STATES OF G_CZ := R(+1) * (Z x I) * R(+1)!!
-  //       - |00> -> (-i) * (+1) * (-i) |00> = -|00>
-  //       - |11> -> (-i) * (-1) * (-i) |11> = +|11>
-  //       - |01> -> e^{-i pi/2} * (+1) |01> = -i |01>
-  //       - |10> -> e^{-i pi/2} * (-1) |10> = +i |10>
-  //     HOLD EVERYTHING!! LOOK AT THE FOUR DIAGONAL PHASES OF G_CZ = R(+1) * (Z x I) * R(+1)!!
-  //       diag(-1, -i, +i, +1) = (-1) * diag(1, i, -i, -1) = (-1) * (S^dag x S) * diag(1, 1, 1, -1)!!
-  //     WAIT A SECOND!! CHECK THAT RIGHT NOW!!
-  //       (S^dag x S) * CZ:
-  //         |00> -> 1 * 1 * 1 = 1
-  //         |01> -> 1 * i * 1 = i
-  //         |10> -> (-i) * 1 * 1 = -i
-  //         |11> -> (-i) * i * (-1) = 1 * (-1) = -1!!
-  //       Multiply by (-1): diag(-1, -i, +i, +1)!!
-  //     **OH!! MY!! GOD!! IT'S EXACT!!**
-  //     CZ = -(S x S^dag) * R(w=+1) * (Z x I) * R(w=+1)!!
   const I2: CMat = matEye(2)
   const X2: CMat = [[C_ZERO, C_ONE], [C_ONE, C_ZERO]]
   const Z2: CMat = [[C_ONE, C_ZERO], [C_ZERO, [-1, 0]]]
@@ -2847,17 +2732,22 @@ function runPillar4(): void {
   const T2: CMat = [[C_ONE, C_ZERO], [C_ZERO, cExpI(PI / 4)]]
   const Td2: CMat = [[C_ONE, C_ZERO], [C_ZERO, cExpI(-PI / 4)]]
 
-  const Rw1 = makeYang4(1)
-  const CZ_from_Yang = matMul(
-    matKron(S2, Sd2),
-    matMul(Rw1, matMul(matKron(Z2, I2), Rw1)),
-  )
   const CZ_exact: CMat = [
     [C_ONE, C_ZERO, C_ZERO, C_ZERO],
     [C_ZERO, C_ONE, C_ZERO, C_ZERO],
     [C_ZERO, C_ZERO, C_ONE, C_ZERO],
     [C_ZERO, C_ZERO, C_ZERO, [-1, 0]],
   ]
+  const czDfsErr = matFrobDiffUpToPhase(CZ_DFS4, CZ_exact)
+  const CNOT_DFS4 = matMul(matKron(I2, H2), matMul(CZ_DFS4, matKron(I2, H2)))
+  const makhDfsCNOT = makhlinInvariants(CNOT_DFS4)
+
+  // Also cross-check 2-collision Loss-DiVincenzo CZ/CNOT directly from Yang R(w = 1) = sqrt(SWAP)
+  const Rw1 = makeYang4(1)
+  const CZ_from_Yang = matMul(
+    matKron(S2, Sd2),
+    matMul(Rw1, matMul(matKron(Z2, I2), Rw1)),
+  )
   const czYangErr = matFrobDiffUpToPhase(CZ_from_Yang, CZ_exact)
   const CNOT_from_Yang = matMul(matKron(I2, H2), matMul(CZ_from_Yang, matKron(I2, H2)))
   const CNOT_exact: CMat = [
@@ -2869,8 +2759,8 @@ function runPillar4(): void {
   const cnotYangErr = matFrobDiffUpToPhase(CNOT_from_Yang, CNOT_exact)
   const makhCNOT = makhlinInvariants(CNOT_from_Yang)
 
-  // Bell state from |00> via (H x I) then CNOT_from_Yang -> exact Concurrence C = 1 & Tsirelson CHSH = 2 sqrt(2)!
-  const bellPrep = matMul(CNOT_from_Yang, matKron(H2, I2))
+  // Bell state from |00> strictly via our 28-collision 6-distinct-role DFS CNOT_DFS4 -> C = 1 & CHSH = 2 sqrt(2)!
+  const bellPrep = matMul(CNOT_DFS4, matKron(H2, I2))
   const bellVec: C[] = [bellPrep[0]![0]!, bellPrep[1]![0]!, bellPrep[2]![0]!, bellPrep[3]![0]!]
   const bellConcurrence = 2 * cAbs(cSub(cMul(bellVec[0]!, bellVec[3]!), cMul(bellVec[1]!, bellVec[2]!)))
   // Exact CHSH expectation for |Phi+> with analyzers A0=Z, A1=X, B0=(Z+X)/sqrt(2), B1=(Z-X)/sqrt(2):
@@ -2976,13 +2866,14 @@ function runPillar4(): void {
   const T_ballistic = dfsGen1(-0.25)
   const Td_ballistic = dfsGen1(0.25)
   const hBalErr = matFrobDiffUpToPhase(H_ballistic, H2)
-  const tBalErr = matFrobDiffUpToPhase(T_ballistic, T2)
-  const toffBallistic = buildToffoli(H_ballistic, T_ballistic, Td_ballistic, CNOT_from_Yang)
+  const tBalErr = Math.max(matFrobDiffUpToPhase(T_ballistic, T2), matFrobDiffUpToPhase(Td_ballistic, Td2))
+  const toffBallistic = buildToffoli(H_ballistic, T_ballistic, Td_ballistic, CNOT_DFS4)
   const toffBalErr = matFrobDiffUpToPhase(toffBallistic, Toffoli_exact)
+  const toffUniErr = matUnitaryErr(toffBallistic)
 
   // 2) Discrete fixed-angle bare-U synthesis of H, T, T^dag, and 8x8 Toffoli strictly from <C_SU2, L7_SU2>!
-  //    Deterministic meet-in-the-middle BFS up to word length L_half = 8 (total word length <= 16!)
-  //    using ONLY the verbatim 4D bare coin C_SU2 and 3-full-line chiral catalyst L7_SU2 (and their squares = inverses)!
+  //    Deterministic meet-in-the-middle BFS up to half-depth 7 (word length <= 14!)
+  //    using ONLY the verbatim 4D bare coin C_SU2 and 3-full-line chiral catalyst L7_SU2 (and their inverses)!
   const synthDiscreteSU2 = () => {
     const gens: readonly [string, CMat][] = [
       ['C', C_SU2],
@@ -2998,7 +2889,7 @@ function runPillar4(): void {
     const pool: { readonly word: string; readonly U: CMat; readonly len: number }[] = [{ word: '', U: I2, len: 0 }]
     const seen = new Set<string>([key4(I2)])
     let front = pool.slice()
-    for (let d = 1; d <= 6; d++) {
+    for (let d = 1; d <= 7; d++) {
       const next: typeof pool = []
       for (const cur of front) {
         for (const [nm, G] of gens) {
@@ -3045,7 +2936,7 @@ function runPillar4(): void {
     const bH = findBest(H2)
     const bT = findBest(T2)
     const bTd = { U: matDag(bT.U), err: bT.err, len: bT.len }
-    const toffDisc = buildToffoli(bH.U, bT.U, bTd.U, CNOT_from_Yang)
+    const toffDisc = buildToffoli(bH.U, bT.U, bTd.U, CNOT_DFS4)
     const toffDiscErr = matFrobDiffUpToPhase(toffDisc, Toffoli_exact)
     const trIp = cAbs(matTrace(matMul(matDag(toffDisc), Toffoli_exact))) / 8
     return { bH, bT, toffDiscErr, procFid: trIp * trIp }
@@ -3056,17 +2947,18 @@ function runPillar4(): void {
   console.log(`        M_pair diff=${sixRolePairDiff}, off-line branches=${sixRoleOffLine}, revDiff=${sixRoleRevDiff} (EXACT M_pair=I in 4D!)`)
   console.log(`  [U4b] Exact BigInt 3-Full-Line L_7 Chiral Catalyst & Ballistic SU(2):`)
   console.log(`        BigInt |Tr(L_7 C)|^2 = ${trL7CNorm2[0]}/${trL7CDen2} (exact 25/16 -> |Tr_SU2|=${trSU2Val.toFixed(8)} = 5/4 -> Niven dense SU(2)!)`)
-  console.log(`        Ballistic 3-role DFS Euler synthesis: H err=${hBalErr.toExponential(2)} (3 collisions), T err=${tBalErr.toExponential(2)} (1 collision)`)
-  console.log(`  [U4c] Exact 6-Distinct-Role SU(4), Makhlin Invariants, Bell Concurrence & Tsirelson CHSH:`)
+  console.log(`        Ballistic 3-role DFS Euler synthesis: H err=${hBalErr.toExponential(2)} (3 collisions), T/Td err=${tBalErr.toExponential(2)} (1 collision)`)
+  console.log(`  [U4c] Exact 6-Distinct-Role DFS SU(4), Closed-Form 28-Collision CZ, Makhlin Invariants & Tsirelson CHSH:`)
   console.log(`        Exact su(9) Lie algebra dimension on S_tot=1: ${su9Dim} / 80 (contains full SU(4) on 4D DFS!)`)
-  console.log(`        Exact 4-pulse W3(3,4,5) at w=+-1/sqrt(2) parity-gate err=${w3Err.toExponential(2)} | ZB-core diag leak=${zbCore3Proj.leak.toFixed(4)}, candFW1 leak=${pFW1.leak.toFixed(4)}`)
+  console.log(`        EXACT 28-Collision Singlet-DFS CZ (S_tot=0, 6 distinct roles {0..5}, M_pair=I, uniErr=${cz20UniErr.toExponential(1)}):`)
+  console.log(`          phi*=atan(3/sqrt(7))=${phiStarCZ.toFixed(6)}, leakage=${czDfsLeak.toExponential(2)}, ||U_4 - CZ||_F=${czDfsErr.toExponential(2)}, Makhlin=(${makhDfsCNOT.G1[0].toFixed(4)}+${makhDfsCNOT.G1[1].toFixed(4)}i, ${makhDfsCNOT.G2.toFixed(4)}), e_p=${makhDfsCNOT.ep.toFixed(6)} (2/9)`)
   console.log(`        Yang R(w=1) [sqrt(SWAP)] Makhlin: G_1=(${makhSqrtSwap.G1[0].toFixed(4)}, ${makhSqrtSwap.G1[1].toFixed(4)}i), G_2=${makhSqrtSwap.G2.toFixed(4)}, e_p=${makhSqrtSwap.ep.toFixed(6)} (1/6)`)
   console.log(`        Yang R(w=1/sqrt(3)) [M_meet] Makhlin: G_1=(${makhBareMeet.G1[0].toFixed(4)}, ${makhBareMeet.G1[1].toFixed(4)}i), G_2=${makhBareMeet.G2.toFixed(4)}, e_p=${makhBareMeet.ep.toFixed(6)}`)
-  console.log(`        2-Collision Ballistic CNOT (via R(w=1)): CZ err=${czYangErr.toExponential(2)}, CNOT err=${cnotYangErr.toExponential(2)}, Makhlin=(${makhCNOT.G1[0].toFixed(4)}+${makhCNOT.G1[1].toFixed(4)}i, ${makhCNOT.G2.toFixed(4)}), e_p=${makhCNOT.ep.toFixed(6)} (2/9)`)
-  console.log(`        Autonomous Bell State from |00>: Concurrence C=${bellConcurrence.toFixed(8)}, CHSH S=${bellCHSH.toFixed(8)} (Tsirelson 2*sqrt(2)=${(2 * SQRT2).toFixed(8)})`)
-  console.log(`  [U4d] Universal 3-Qubit Toffoli (CCNOT) Synthesis (6 CNOT + 9 1-qubit gates):`)
-  console.log(`        Continuous-rapidity ballistic bare-U Toffoli (12 R(1) + 15 1Q collisions): ||U - U_Toff||_F = ${toffBalErr.toExponential(2)}`)
-  console.log(`        Discrete <C, L_7> bare-U words (pool=${discSynth.bH.poolSize}, len<=12): H err=${discSynth.bH.err.toFixed(5)} (len=${discSynth.bH.len}), T err=${discSynth.bT.err.toFixed(5)} (len=${discSynth.bT.len}), 8x8 Toffoli err=${discSynth.toffDiscErr.toFixed(5)}, procFid=${discSynth.procFid.toFixed(6)}`)
+  console.log(`        2-Collision Loss-DiVincenzo Yang CNOT: CZ err=${czYangErr.toExponential(2)}, CNOT err=${cnotYangErr.toExponential(2)}, Makhlin=(${makhCNOT.G1[0].toFixed(4)}+${makhCNOT.G1[1].toFixed(4)}i, ${makhCNOT.G2.toFixed(4)})`)
+  console.log(`        Autonomous Bell State from |0_L, 0_L> (via 28-coll DFS CNOT): Concurrence C=${bellConcurrence.toFixed(8)}, CHSH S=${bellCHSH.toFixed(8)} (Tsirelson=${(2 * SQRT2).toFixed(8)})`)
+  console.log(`  [U4d] Universal 3-Qubit Toffoli (CCNOT) Synthesis (6 DFS CNOT + 9 1-qubit gates, uniErr=${toffUniErr.toExponential(1)}):`)
+  console.log(`        Continuous-rapidity ballistic bare-U Toffoli (6x34 + 15 = 219 collisions): ||U - U_Toff||_F = ${toffBalErr.toExponential(2)}`)
+  console.log(`        Discrete <C, L_7> bare-U words (pool=${discSynth.bH.poolSize}, len<=14): H err=${discSynth.bH.err.toFixed(5)} (len=${discSynth.bH.len}), T err=${discSynth.bT.err.toFixed(5)} (len=${discSynth.bT.len}), 8x8 Toffoli err=${discSynth.toffDiscErr.toFixed(5)}, procFid=${discSynth.procFid.toFixed(6)}`)
 
   const ok =
     sixRolePairDiff === 0 &&
@@ -3078,22 +2970,25 @@ function runPillar4(): void {
     hBalErr < 1e-13 &&
     tBalErr < 1e-13 &&
     su9Dim === 80 &&
-    w3Err < 1e-13 &&
+    cz20UniErr < 1e-13 &&
+    czDfsLeak < 1e-13 &&
+    czDfsErr < 1e-13 &&
+    cAbs(makhDfsCNOT.G1) < 1e-13 &&
+    Math.abs(makhDfsCNOT.G2 - 1) < 1e-13 &&
+    Math.abs(makhDfsCNOT.ep - 2 / 9) < 1e-13 &&
     czYangErr < 1e-13 &&
     cnotYangErr < 1e-13 &&
-    cAbs(makhCNOT.G1) < 1e-13 &&
-    Math.abs(makhCNOT.G2 - 1) < 1e-13 &&
-    Math.abs(makhCNOT.ep - 2 / 9) < 1e-13 &&
     Math.abs(bellConcurrence - 1) < 1e-13 &&
     Math.abs(bellCHSH - 2 * SQRT2) < 1e-13 &&
     toffBalErr < 1e-13 &&
+    toffUniErr < 1e-13 &&
     discSynth.procFid > 0.99
 
   recordCheck(
     'U4',
-    'Verbatim 4D 6-role DFS protection, BigInt L_7 dense SU(2), su(9) universality, Makhlin CNOT/CHSH=2sqrt(2) & exact Toffoli synthesis',
+    'Verbatim 4D 6-role DFS protection, BigInt L_7 dense SU(2), su(9)=80, 28-coll zero-leakage DFS CZ/CHSH=2sqrt(2) & exact Toffoli',
     ok,
-    `6-role M_pair=0, |Tr(L_7C)|^2=25/16, su(9)=${su9Dim}/80, CNOT=(0,1) e_p=2/9, CHSH=${bellCHSH.toFixed(6)}, ToffBal=${toffBalErr.toExponential(1)}, ToffDiscFid=${discSynth.procFid.toFixed(5)}`,
+    `6-role M_pair=0, |Tr(L_7C)|^2=25/16, su(9)=${su9Dim}/80, 28-coll DFS CZ leak=${czDfsLeak.toExponential(1)} err=${czDfsErr.toExponential(1)}, CHSH=${bellCHSH.toFixed(6)}, ToffBal=${toffBalErr.toExponential(1)}, ToffDiscFid=${discSynth.procFid.toFixed(5)}`,
   )
 }
 
