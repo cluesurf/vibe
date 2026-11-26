@@ -1508,11 +1508,11 @@ function buildBoostedDoublonU(M: number, P: number): {
 }
 
 // =================================================================================================
-// EXPERIMENT 1: EXACT VS APPROXIMATE SEMICONJUGACY (MS-05..MS-08) & LIPSCHITZ ERROR ENVELOPE
+// EXPERIMENT 1: EXACT VS APPROXIMATE SEMICONJUGACY (MS-05, MS-06, MS-08) & LIPSCHITZ ERROR ENVELOPE
 // =================================================================================================
 
 function runExperiment1() {
-  console.log('\n[EXP 1] Exact vs Approximate Semiconjugacy (MS-05, MS-06, MS-07, MS-08) & Lipschitz Envelope:')
+  console.log('\n[EXP 1] Exact vs Approximate Semiconjugacy (MS-05, MS-06, MS-08) & Lipschitz Envelope:')
 
   // --- 1(a) Exact Symmetry Quotients on {3,4,3,4} / Bare U ---
   // (a1) W(F_4) orbit quotient on B_3 (8,857 docks -> 31 dock orbits; B_2 11,544 slots -> 39 slot orbits)
@@ -1912,7 +1912,7 @@ function runExperiment1() {
         const recXIn = sympDotBit(sOut, s2Pb.zIn)
         const recZIn = mod3(2 * sympDotBit(sOut, s2Pb.xIn))
         const recX1 = mod3(2 * recXIn)
-        const recZ1 = recZIn
+        const recZ1 = mod3(2 * recZIn)
         gf3Set(rebuiltB1, bq, recX1)
         gf3Set(rebuiltB1, 552 + bq, recZ1)
         bulkS2X[j] = sympDotBit(sOut, s2Pb.zBulk)
@@ -1940,9 +1940,10 @@ function runExperiment1() {
         gf3Set(baseRest, 552 + bq, 0)
         const outer = gf3RowZero(2)
         const cx = mod3(2 * px)
+        const cz = mod3(2 * pz)
         for (let q = 0; q < 23; q++) {
-          const xVal = mod3(cx * gf3Get(s2Pb.xIn.x, q) + pz * gf3Get(s2Pb.zIn.x, q))
-          const zVal = mod3(cx * gf3Get(s2Pb.xIn.z, q) + pz * gf3Get(s2Pb.zIn.z, q))
+          const xVal = mod3(cx * gf3Get(s2Pb.xIn.x, q) + cz * gf3Get(s2Pb.zIn.x, q))
+          const zVal = mod3(cx * gf3Get(s2Pb.xIn.z, q) + cz * gf3Get(s2Pb.zIn.z, q))
           if (xVal) gf3Set(outer, q, xVal)
           if (zVal) gf3Set(outer, 23 + q, zVal)
         }
@@ -1980,6 +1981,97 @@ function runExperiment1() {
         }
         if (!ok) b2CapDefects++
       }
+    }
+  }
+
+  // Direct 2-dock (48-qutrit) |Phi+> Bell-bond contraction cross-check (MAJOR-R2-1):
+  // Contract 1 shell-1 dock (choiMinus) with 1 shell-2 dock (choiPlus) across slot sBond = 0 <-> OPP[0] via |Phi+>,
+  // producing all 48 contracted stabilizers S_48 on 48 open qutrits (23 shell-1 outer + 23 shell-2 outer + b_1 + b_2).
+  // Verify BOTH lifted X_{b1} and Z_{b1} logicals (encoded with cx=2*px, cz=2*pz) commute with ALL 48 contracted stabilizers (0/96 defects)!
+  let twoDockCommDefects = 0
+  {
+    const sBond = 0
+    const s2In = OPP[sBond]!
+    const s1Out: number[] = []
+    const s2Out: number[] = []
+    for (let s = 0; s < 24; s++) {
+      if (s !== sBond) s1Out.push(s)
+      if (s !== s2In) s2Out.push(s)
+    }
+    // Total 50 qutrits: 0=u (shell-1 sBond), 1=v (shell-2 s2In), 2..24=shell-1 outer (23), 25..47=shell-2 outer (23), 48=b_1, 49=b_2
+    const nTot2 = 50
+    const un2: Uint8Array[] = []
+    for (const r of CROWN.choiMinus) {
+      const f = new Uint8Array(2 * nTot2)
+      f[0] = r[sBond]!; f[nTot2 + 0] = r[25 + sBond]!
+      for (let j = 0; j < 23; j++) {
+        const s = s1Out[j]!
+        f[2 + j] = r[s]!; f[nTot2 + 2 + j] = r[25 + s]!
+      }
+      f[48] = r[24]!; f[nTot2 + 48] = r[49]!
+      un2.push(f)
+    }
+    for (const r of CROWN.choiPlus) {
+      const f = new Uint8Array(2 * nTot2)
+      f[1] = r[s2In]!; f[nTot2 + 1] = r[25 + s2In]!
+      for (let j = 0; j < 23; j++) {
+        const s = s2Out[j]!
+        f[25 + j] = r[s]!; f[nTot2 + 25 + j] = r[25 + s]!
+      }
+      f[49] = r[24]!; f[nTot2 + 49] = r[49]!
+      un2.push(f)
+    }
+    const eqW = (50 + 31) >>> 5
+    const eq1 = gf3RowZero(eqW)
+    const eq2 = gf3RowZero(eqW)
+    for (let ri = 0; ri < 50; ri++) {
+      const row = un2[ri]!
+      const c1 = mod3(row[nTot2 + 0]! + row[nTot2 + 1]!)
+      const c2 = mod3(row[0]! + 2 * row[1]!)
+      if (c1) gf3Set(eq1, ri, c1)
+      if (c2) gf3Set(eq2, ri, c2)
+    }
+    const ker2 = gf3NullspaceInPlace([eq1, eq2], 50)
+    const stabs48 = ker2.map(kv => {
+      const acc = new Uint8Array(96)
+      for (let ri = 0; ri < 50; ri++) {
+        const cf = gf3Get(kv, ri)
+        if (cf === 0) continue
+        const row = un2[ri]!
+        for (let q = 0; q < 48; q++) {
+          const xv = row[2 + q]!, zv = row[nTot2 + 2 + q]!
+          if (xv) acc[q] = (acc[q]! + cf * xv) % 3
+          if (zv) acc[48 + q] = (acc[48 + q]! + cf * zv) % 3
+        }
+      }
+      return gf3FromUint8(acc)
+    })
+    const { basis: basis48 } = gf3RrefInPlace(stabs48, 96)
+    assertExact(basis48.length === 48 && countIsoDefects(basis48, 48) === 0, '2-dock 48-qutrit contracted Lagrangian')
+    const symp48 = basis48.map(r => toSympRow(r, 48))
+
+    // Lift shell-1 logical rows (choiMinus[23] = X_L, choiMinus[24] = Z_L) through |Phi+> onto shell-2 outer 23 legs!
+    const s2Pb0 = shell2Pullbacks[sBond]!
+    for (const rowIdx of [23, 24]) {
+      const r = CROWN.choiMinus[rowIdx]!
+      const px = r[sBond]!, pz = r[25 + sBond]!
+      const cx = mod3(2 * px), cz = mod3(2 * pz)
+      const lifted48 = gf3RowZero((96 + 31) >>> 5)
+      for (let j = 0; j < 23; j++) {
+        const s = s1Out[j]!
+        if (r[s]) gf3Set(lifted48, j, r[s]!)
+        if (r[25 + s]) gf3Set(lifted48, 48 + j, r[25 + s]!)
+      }
+      for (let q = 0; q < 23; q++) {
+        const xv = mod3(cx * gf3Get(s2Pb0.xIn.x, q) + cz * gf3Get(s2Pb0.zIn.x, q))
+        const zv = mod3(cx * gf3Get(s2Pb0.xIn.z, q) + cz * gf3Get(s2Pb0.zIn.z, q))
+        if (xv) gf3Set(lifted48, 23 + q, xv)
+        if (zv) gf3Set(lifted48, 48 + 23 + q, zv)
+      }
+      if (r[24]) gf3Set(lifted48, 46, r[24]!)
+      if (r[49]) gf3Set(lifted48, 48 + 46, r[49]!)
+      const sLift = toSympRow(lifted48, 48)
+      for (const st of symp48) if (sympDotBit(sLift, st) !== 0) twoDockCommDefects++
     }
   }
 
@@ -2284,7 +2376,7 @@ function runExperiment1() {
 
   console.log(`  1(a) Symmetry quotients: W(F_4) (${nDockOrbs} B_3 dock orbs, ${slotOrbs.length} B_2 slot orbs) eps = ${wf4SemiconjErr.toExponential(2)}; exact BigInt (Q, D, parity) defects = ${qdParityDefects}`)
   console.log(`  1(b) Composite carriers (t=1..20): k=2 rest eps=${epsK2Rest20.toExponential(2)} (Sym2 IPR=${doub0.ipr.toFixed(5)}, dist-basis rest IPR=${doubRestDist.ipr.toFixed(5)}), k=2 boosted P=pi/6 eps=${epsK2Boost20.toExponential(2)} (v_g=${vgDoublon.toFixed(5)}, dist-basis IPR=${doubBoost.ipr.toFixed(5)}), k=3 trion eps=${epsK3Rest20.toExponential(2)} (IPR=${trion0.ipr.toFixed(5)}), 4D cross-line leak=[${doub4DLeak.toExponential(1)}, ${trion4DLeak.toExponential(1)}]`)
-  console.log(`  1(c) Radial holographic RG (B_1=[[552,25,8]]_3, d^(0)=40; Sp(50,3) def=[${U_STAR_SP_DEFECTS},${U_NN_SP_DEFECTS}]): U_star (intertwineDef=${holoStar.intertwineDefects}, leak20=${holoStar.maxStabLeak20}), U_NN (intertwineDef=${holoNN.intertwineDefects}, leak20=${holoNN.maxStabLeak20}), MS-08 pi_{0->2}=pi_1 o pi_0 def=${rgCompDefects}/150, 3-shell B_2_cap (1058 bnd -> 48 bulk) composed def=${b2CapDefects}/${b2CapTests}`)
+  console.log(`  1(c) Radial holographic RG (B_1=[[552,25,8]]_3, d^(0)=40; Sp(50,3) def=[${U_STAR_SP_DEFECTS},${U_NN_SP_DEFECTS}]): U_star (intertwineDef=${holoStar.intertwineDefects}, leak20=${holoStar.maxStabLeak20}), U_NN (intertwineDef=${holoNN.intertwineDefects}, leak20=${holoNN.maxStabLeak20}), MS-08 pi_{0->2}=pi_1 o pi_0 def=${rgCompDefects}/150, 3-shell B_2_cap (1058 bnd -> 48 bulk) composed def=${b2CapDefects}/${b2CapTests}, 2-dock 48q |Phi+> comm def=${twoDockCommDefects}/96`)
   console.log(`  1(d) Lossy closure & Lipschitz envelope: 3D cusp columns (${d0CuspRoots.length} cols, ${cuspWrapConflicts} wrap conflicts) ||Q(A,1)-Q(B,1)||_1=${cuspColDivL1.toFixed(6)}; b=4 spatial blocks L_gal=${L_galerkin.toFixed(6)}, eps_sup=${epsSupGalerkin.toFixed(6)}`)
   console.log(`       Smooth IR (n=1,6,12): e_n=[${envSmooth.errs[0]!.toFixed(5)}, ${envSmooth.errs[5]!.toFixed(5)}, ${envSmooth.errs[11]!.toFixed(5)}], eps_traj=${envSmooth.maxStepEps.toFixed(5)}, bound(12)=${envSmooth.trajBounds[11]!.toFixed(5)}, viol=${envSmooth.boundViol}/12`)
   console.log(`       Sharp UV  (n=1,6,12): e_n=[${envSharp.errs[0]!.toFixed(5)}, ${envSharp.errs[5]!.toFixed(5)}, ${envSharp.errs[11]!.toFixed(5)}], eps_traj=${envSharp.maxStepEps.toFixed(5)}, bound(12)=${envSharp.trajBounds[11]!.toFixed(5)}, viol=${envSharp.boundViol}/12`)
@@ -2292,7 +2384,7 @@ function runExperiment1() {
 
   recordCheck(
     'W20.1',
-    'Exp 1: Exact vs Approximate Semiconjugacy (MS-05..08) & Rigorous Lipschitz Error Envelope',
+    'Exp 1: Exact vs Approximate Semiconjugacy (MS-05, MS-06, MS-08) & Rigorous Lipschitz Error Envelope',
     wf4SemiconjErr < 1e-14 &&
       qdParityDefects === 0 &&
       epsK2Rest20 < 1e-13 &&
@@ -2310,6 +2402,7 @@ function runExperiment1() {
       rgCompDefects === 0 &&
       b2CapDefects === 0 &&
       b2CapTests === 196 &&
+      twoDockCommDefects === 0 &&
       cuspWrapConflicts === 0 &&
       Math.abs(cuspColDivL1 - 0.5) < 1e-12 &&
       epsSupGalerkin > 0.2 &&
@@ -2318,7 +2411,7 @@ function runExperiment1() {
       envExp.boundViol === 0 &&
       envSmooth.errs[0]! < 0.15 * envSharp.errs[0]! &&
       envSmooth.maxStepEps < 0.15 * envSharp.maxStepEps,
-    `W(F4)=${wf4SemiconjErr.toExponential(1)}, Q/D/par=0, k=2/3 t=20 <=${Math.max(epsK2Rest20, epsK2Boost20, epsK3Rest20).toExponential(1)}, Sp(50,3)=0, RG pi_{0->2}=pi_1 o pi_0 (0/150, B2_cap 0/${b2CapTests}), cuspCol=0.500 (wrap=0), Lip viol=0/36`,
+    `W(F4)=${wf4SemiconjErr.toExponential(1)}, Q/D/par=0, k=2/3 t=20 <=${Math.max(epsK2Rest20, epsK2Boost20, epsK3Rest20).toExponential(1)}, Sp(50,3)=0, RG pi_{0->2}=pi_1 o pi_0 (0/150, B2_cap 0/${b2CapTests}, 48q comm 0/96), cuspCol=0.500 (wrap=0), Lip viol=0/36`,
   )
 
   return { doub0, doubBoost, vgDoublon, trion0, epsK2Rest20, epsK3Rest20, cuspColDivL1, epsSupGalerkin }
@@ -2945,7 +3038,7 @@ function runExperiment3() {
       u00[0] * u01[0] + u00[1] * u01[1] + u10[0] * u11[0] + u10[1] * u11[1],
       u00[0] * u01[1] - u00[1] * u01[0] + u10[0] * u11[1] - u10[1] * u11[0],
     )
-    const unitErr = Math.max(e00, e11, e01, Math.abs(detG) < 0 ? 1 : 0)
+    const unitErr = Math.max(e00, e11, e01, detG <= 0 ? 1 : 0)
     // Extract eigenphase E_pol from 2x2 unitary U (det U = e^{i phi}, eigenvalues e^{i(phi/2 +- E)}):
     const detU = cSub(cMul(u00, u11), cMul(u01, u10))
     const halfPhi = 0.5 * Math.atan2(detU[1], detU[0])
@@ -3157,7 +3250,7 @@ function runExperiment3() {
     return out
   }
   const makeT4 = (axis: number, kj: number, plus: boolean): CMat4 => {
-    // plus=true: P^+ e^{-ik} + P^- = (1 + e^{-ik})/2 I + (1 - e^{-ik})/2 alpha_j
+    // plus=true: P^+ e^{-ik} + P^- = (1 + e^{-ik})/2 I + (e^{-ik} - 1)/2 alpha_j
     // plus=false: P^+ + P^- e^{+ik} = (1 + e^{+ik})/2 I + (1 - e^{+ik})/2 alpha_j
     const A = ALPHA[axis]!
     const phR = Math.cos(plus ? -kj : kj)

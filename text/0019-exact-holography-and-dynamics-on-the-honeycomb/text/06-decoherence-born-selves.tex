@@ -1,114 +1,367 @@
-\section{Decoherence, Born Uniqueness, and Macro-Levels}
+\section{Causal Gravity and Husk--Bulk Asymmetry}
+\label{sec:gravity}
+
+Can the three-dimensional cusp boundary of $\{3,4,3,4\}$ host causal inverse-square gravity, massless spin-2 waves, and
+net matter--antimatter asymmetry without hard-coded continuum laws? Both phenomena hinge on the same curved hyperbolic
+geometry pictured in Figure~\ref{fig:cusp-projection}: the exponential bulk beam controls how gravitational fields
+localize on the three-dimensional husk, while the one-sided $6/6$ cusp-to-bulk antipodal facet split determines how
+chiral phases separate opposite charges and isolate sterile deep-bulk modes.
+
+\subsection{Causal metric backreaction, equivalence, and clocks}
+
+Solving the 12-floor $\{3,4,3,4\}$ Steinberg beam ladder isolates a sharp geometric requirement for long-range gravity
+on the cusp. On an unwarped bare beam ($6$ lateral plus $18$ downward unweighted links), bulk leakage imposes a large
+screening mass $m_{\mathrm{leak}} = 4.1253$, suppressing three-dimensional attraction at separation $r_0 = 6$ by nearly
+three thousandfold. Adopting the effective pair-density localization profile $w(D) = 1 / N_D^2$, however, yields finite
+single-face conductance $K_{\mathrm{eff}} = 1.012532$ and canonical Newton coupling
+$G_{\mathrm{eff}} = 1/(4\pi K_{\mathrm{eff}}) = 0.078593$. Here we keep the scope explicit: $w(D) = 1/N_D^2$ is an
+effective localization profile rather than a theorem derived from bare $U$, and we retain the unwarped screening mass as
+a live negative control.
+
+To test causal backreaction without prescribed potentials or spectral solvers, we couple neutral $Q = 0$ quantum
+wavepackets on an even $34^3$ ($39{,}304$-site) $\{4,3,4\}$ cusp box to a live local metric wave field $(\Phi, P)$
+propagating on the 6-neighbor stencil at finite speed $c_g = 1$ (inside the cubic Courant--Friedrichs--Lewy stability
+limit $c_g \Delta t = 0.2 < 1/\sqrt{3}$, zero FFT, zero hard-coded $1/r$ potential). One discrete beat executes a
+five-layer palindromic symplectic--unitary composition,
+\begin{equation}
+U_{\mathrm{beat}}(\Delta t)
+= B\!\left(\frac{\Delta t}{2}\right)
+  C\!\left(\frac{\Delta t}{2}\right)
+  A(\Delta t)\,
+  C\!\left(\frac{\Delta t}{2}\right)
+  B\!\left(\frac{\Delta t}{2}\right),
+\label{eq:gravity-beat}
+\end{equation}
+where $B$ kicks $P$ locally, $A$ drifts $\Phi$, and $C$ evolves each wavepacket via an 11-layer nearest-neighbor unitary
+brickwork automaton. Table~\ref{tab:gravity-spin2} summarizes all certified measurements across four physical tests.
+
+\textbf{Causal light cone and $1/r^2$ infall:} Starting from literal $\Phi = P = 0$ across a six-hop vacuum gap
+($r_0 = 10$), packet~$B$ stays quiet deep inside the spacelike region and accelerates sharply inward only after the
+causal wavefront arrives at $t = 6$, while reversing $20$ forward plus $20$ backward coupled beats recovers
+$(\psi, \Phi, P)$ to machine precision. Both the free ($G = 0$) and isolated one-body self-force controls vanish. Across
+separations $r_0 = 4\text{--}8$ initialized strictly by local 6-neighbor stencil relaxation, mutual infall follows
+$a(r) \propto r^{-1.9813}$ ($R^2 = 0.99995$). Measuring off-center one-body controls directly accounts for the $+2.30\%$
+offset between band-corrected $G_{\mathrm{dyn}} = 0.08040$ and canonical $G_{\mathrm{eff}}$ as finite Dirichlet wall
+self-images ($0.50\%\text{--}4.57\%$). Unequal-mass evolution on a periodic $24^3$ torus obeys canonical Ehrenfest
+action--reaction to machine precision, and coupled total energy sharpens cleanly at second order ($4.01\times$) upon
+halving $\Delta t$.
+
+\textbf{Weak Equivalence Principle and gravitating negative binding energy:} Inside the co-evolving well of a heavy
+neutral source ($M_S = 3\sqrt{3}$, $r_0 = 6$), single three-dimensional composites of mass $m_1, 2m_1, 3m_1$ fall with
+mass-independent acceleration to within $0.18\%$. To test composite binding directly, we drop an exact entangled
+two-body bound eigenstate $\Psi(a_1, a_2)$ ($E_{\mathrm{tot}} = -0.5565 < 0$, entanglement entropy $S(\rho_1) = 0.7113$,
+width drift $0.93\%$) along the radial symmetry axis. After discrete band-mass correction, its acceleration matches the
+Newtonian finite-size quadrupole tidal enhancement ($+2.12\%$) to $0.35\%$. Coupling the binding potential to the live
+midpoint lapse $N_{\mathrm{mid}} V_{\mathrm{bind}}$ reduces the bound pair's passive gravitational acceleration by
+$-18.75\%$, matching the Einstein mass--energy prediction $E_{\mathrm{pot}}/(2 m_0 c_g^2) = -20.55\%$ ($8.75\%$
+relative error). This certifies that negative binding energy reduces passive gravitational weight, while full
+inertial-mass renormalization awaits a relativistic two-body bound equation.
+
+\textbf{Non-tautological gravitational clock redshifts:} Because a pinned local phase gate reproduces gravitational
+redshift by algebraic identity, we evaluate two dynamical clocks inside the same co-evolving source well
+($r_{\mathrm{near}} = 5$ vs.\ $r_{\mathrm{far}} = 10$). A 32-site transverse spatial quantum harmonic oscillator evolved
+strictly by local lapse-modulated hopping bonds and spring phases, with zero hard-coded eigenfrequency passed to the
+stepper, yields emergent centroid redshift matching $-\Delta\langle\Phi\rangle/c_g^2$ to $3.27\%$ (with 100-step
+reversal error $1.8 \times 10^{-13}$). A Bragg-free three-dimensional two-band freely-falling wavepacket clock
+($\min\langle\cos k_x\rangle \ge 0.69$, upper bare-$U$ band falling strictly further inward than the lower band,
+$\Delta X_+ = -0.4015 < \Delta X_- = -0.2591 < 0$) matches the both-band averaged potential redshift to $1.94\%$ with
+Pikovski tidal visibility $0.9596$ \cite{pikovski2015}. The pinned bare coin $C^{-N\Delta t}$ is retained strictly as a
+unitary consistency check ($4.0 \times 10^{-16}$).
+
+\subsection{Massless \texorpdfstring{$D_4$}{D4}-isotropic spin-2 waves and Ricci focusing}
+
+Can the three-dimensional cubic cusp propagate massless helicity-$\pm 2$ gravitational waves free of ghosts, tachyons,
+and Brillouin-zone doublers while preserving the fourth-order isotropy of $D_4$? Discretizing linearized $3+1$
+Arnowitt--Deser--Misner (ADM) spatial-metric gravity on the staggered $\{4,3,4\}$ cusp (diagonal strains $h_{ii}$ on
+vertices, shear strains $h_{ij}$ on square plaquettes, gauge vectors $\xi_i$ on links) with the local $D_4$-plaquette
+derivative ($c_{\mathrm{iso}} = 1/12$) yields the shared Bloch momentum vector
+\begin{equation}
+\tilde{\kappa}_i(q) = 2\sin\!\left(\frac{q_i}{2}\right)\left[\frac{5}{6} + \frac{1}{12}\sum_{j \neq i}\cos q_j\right],
+\qquad
+|\tilde{\kappa}(q)|^2 = |q|^2 - \frac{1}{12}|q|^4 + O(q^6).
+\label{eq:spin2-d4}
+\end{equation}
+Two structural guarantees follow immediately. Because the bracket remains strictly $\ge 2/3 > 0$ across the entire
+Brillouin zone $[-\pi, \pi]^3$, zero Brillouin-zone doublers exist. Simultaneously, the quartic term becomes purely
+isotropic ($SO(3)$-invariant through $O(q^4)$, cutting cubic anisotropy by $762.5\times$ at $|q| = 0.2$).
+
+Diagonalizing the $6 \times 6$ ADM dynamical matrix $M_{\mathrm{EH}}(q) = K^{-1} E(q)$ (where the DeWitt operator
+$K(h)_{ij} = h_{ij} - \delta_{ij} h_{kk}$ sets kinetic norms and the contracted Bianchi identity $\tilde{D} \cdot E = 0$
+enforces energy--momentum conservation) certifies exact $2 + 3 + 1$ modal decoupling: two physical transverse-traceless
+gravitons with positive DeWitt kinetic norm ($K = +1$) and exact quadrupole helicity $J_z = \pm 2$, three zero
+diffeomorphism modes, and one negative-norm conformal trace mode locked inside a non-propagating $2 \times 2$ nilpotent
+Jordan block ($\|M_{\mathrm{EH}}^2 v_{\mathrm{conf}}\| \le 1.7 \times 10^{-15}$) eliminated identically by the discrete
+Hamiltonian constraint. Scanning $4{,}913$ three-dimensional Brillouin-zone points, including $332$ full $6 \times 6$
+eigensolves ($200$ generic non-axisymmetric interior points), certifies zero tachyons, zero ghosts, and zero doublers.
+Evolving the full six-component real-space staggered operator $M_{\mathrm{EH}}$ on a $16^3$ box with $c_{\mathrm{iso}}
+= 1/12$ active drives an off-axis $[1,1,0]$ TT wavepacket at group velocity $v_g = 0.844924$, matching the exact $D_4$
+spectral prediction $0.845836$ to $0.11\%$ while cleanly separating it from naive cubic discretization ($0.923880$).
+
+Finally, returning strictly to verbatim bare $U$ on the 37-dock cusp cluster, we evaluate optimal-transport
+Lin--Lu--Yau graph Ricci curvature $\kappa_{\mathrm{LLY}}$ (measuring how Wasserstein-1 distance between neighbor
+distributions contracts along an edge, $\kappa_0 = -7/6$ on the unperturbed honeycomb \cite{lin2011lly, jacobson1995}).
+Neutral multi-excitation packets show clean linear curvature focusing with entanglement entropy
+($\Delta\kappa_E / \Delta S_{\mathrm{EE}} = +0.1395$, through-origin $R_0^2 = 0.9954$). Instrumented four-body
+witnesses confirm that genuine nonlinear bare-$U$ interactions firing $\Phi_{\mathrm{odd}}$ ($18$ hits) and
+$M_{\mathrm{meet}}$ ($24$ hits, strict zero local charge) both produce strong positive cusp curvature focusing
+(Table~\ref{tab:gravity-spin2}).
+
+\begin{table}[htbp]
+\centering
+\caption{Certified dynamical gravity, gravitating binding weight, non-tautological clocks, 3D $D_4$-isotropic spin-2
+waves, and bare-$U$ Lin--Lu--Yau Ricci focusing.}
+\label{tab:gravity-spin2}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{4.15cm}>{\raggedright\arraybackslash}p{3.45cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Gravity / spin-2 benchmark & Certified measurement & Comparison and explicit scope boundary \\
+\midrule
+Causal light cone \& reversal ($34^3$) & $86.8\times$ post-$t{=}6$ jump, rev $\le 2.5{\cdot}10^{-15}$ & Free $3.4{\cdot}10^{-15}$, 1-body $6.4{\cdot}10^{-17}$, unwarped $m_{\mathrm{leak}} = 4.13$ kills signal $2{,}940\times$ \\
+Mutual $1/r^2$ infall ($r_0 = 4\text{--}8$) & $a \propto r^{-1.9813}$ ($R^2 = 0.99995$) & $G_{\mathrm{dyn}} = 0.08040$ ($+2.30\%$ wall images), Ehrenfest $5.4{\cdot}10^{-15}$, $4.01\times$ $O(\Delta t^2)$ \\
+WEP \& entangled bound state & Lapse shift $\mathbf{-18.75\%}$ vs.\ $\mathbf{-20.55\%}$ & Single-mass WEP $\le 0.18\%$, tidal match $0.35\%$ ($S = 0.711$, drift $0.93\%$) \\
+Non-tautological clocks ($r = 5$ vs.\ $10$) & Spatial osc.\ $\mathbf{3.27\%}$, 3D wave $\mathbf{1.94\%}$ & Zero hardcoded $\omega_0$ (rev $1.8{\cdot}10^{-13}$), Bragg-free $\Delta X_+ < \Delta X_- < 0$, vis $0.960$ \\
+3D $16^3$ 6-comp.\ $M_{\mathrm{EH}}$ ($c_{\mathrm{iso}} = 1/12$) & $[110]$ $v_g = \mathbf{0.844924}$ vs.\ $0.845836$ & $\mathbf{0.11\%}$ $D_4$ match (naive cubic $0.923880$), diff/Bianchi $\le 1.4{\cdot}10^{-15}$, $0$ ghosts in $332$ solves \\
+Bare-$U$ LLY Ricci focusing ($37$ docks) & $\Delta\kappa_E/\Delta S = +0.1395$ ($R_0^2 = 0.995$) & $\Phi_{\mathrm{odd}}$ ($18$ hits, $\Delta\kappa_{\mathrm{cusp}} = +0.659$) and $M_{\mathrm{meet}}$ ($24$ hits, $+0.991$) focus positively \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Husk--bulk \texorpdfstring{$\Phi_{\mathrm{odd}}$}{Phi-odd} baryogenesis and bulk export}
+
+Why does bare $U$'s explicit $\mathcal{C}$-violating chiral phase $\Phi_{\mathrm{odd}}$ yield zero net charge on a
+closed flat periodic torus $D_4 / 4 D_4$, yet pump net charge onto the three-dimensional horosphere husk of
+$\{3,4,3,4\}$? Figure~\ref{fig:cusp-projection} makes the reason transparent. Across a flat hyperplane $x_0 = 0$, the
+12 antipodal lines partition into 6 lateral slice pairs and 6 symmetric transverse pairs, leaving zero slice-to-bulk
+antipodal lines, so a neutral $\mathcal{C}$-even four-body state keeps exact zero slice charge at every beat
+($\le 2.1 \times 10^{-17}$). On the curved horosphere cusp $D = 0$, by contrast, all $6/6$ lateral slots pair antipodally
+with downward $D = 1$ bulk slots, breaking bulk-normal symmetry geometrically while conserving global integer charge
+$Q_{\mathrm{total}} = 0$ identically.
+
+Starting from a strictly neutral, strictly $\mathcal{C}$-even four-body superposition on $D = 0$, verbatim bare $U$ on
+the unbounded $O^+(4,1; \mathbb{Z}[\sqrt{2}])$ honeycomb pumps exact net husk charge $\langle Q_{D=0}(1)\rangle = -3/8$,
+balanced identically by $\langle Q_{D \ge 1}(t)\rangle = -\langle Q_{D=0}(t)\rangle$ in the bulk (exact global
+neutrality $0.0$, six-beat memoryless reversal $2.07 \times 10^{-15}$). Because charge conjugation is linear, tuning
+destructive interference ($\alpha = \sqrt{3}/2$, $\beta = e^{-i\pi/6}/2$) on a bulk-spectator quad cancels antimatter
+on $D = 0$ identically ($P_+(D = 0, 1) = 0$), reaching the exact analytical purity ceiling $\eta_{\mathrm{husk}} =
+1.000000$ at $\langle Q_{D=0}(1)\rangle = -9/32$. Exhaustive enumeration across all $43{,}296$ four-tuples containing an
+antipodal pair confirms zero chiral antipodal-pair pumps, matching Theorem~\ref{thm:spin1-obstruction}(iii).
+
+Five exact symmetry controls dissect Sakharov's conditions for generating net matter--antimatter asymmetry ($\mathcal{C}$
+and $\mathcal{CP}$ breaking, departure from equilibrium, and charge transport \cite{sakharov1967}) inside bare $U$
+(Table~\ref{tab:husk-dark}).
+Disabling $\Phi_{\mathrm{odd}}$ or symmetrizing under a cusp-preserving mirror $P_{\mathrm{cusp}} \in W(B_3)^-$ forces
+exact zero husk charge ($\le 4.9 \times 10^{-17}$), whereas reflecting by $P_{\mathrm{cusp}}$ flips the sign
+identically. Symmetrizing under a bulk-normal reflection $P_\perp \notin W(B_3)$ leaves a nonzero $-3/16$ signal because
+the one-sided cusp breaks $P_\perp$ geometrically, and summing over all 24 proper 3D cubic rotations $W(B_3)^+$ preserves
+the full $-3/8$ asymmetry. Crucially, bare $U$ generates a \textbf{transient pumping impulse} rather than permanent
+trapping: because any straight hyperbolic geodesic intersects the curved $D = 0$ horosphere at only two adjacent docks
+($D = [3, 2, 1, 0, 0, 1, 2, 3]$), both charges eventually exit along chords (causing $\langle Q_{D=0}(t)\rangle$ to
+oscillate at $t = 4, 6$) unless husk-confining dynamics hold baryonic matter on $D = 0$.
+
+For anti-charge exported into $D = 1$, the Steinberg cusp tree has radial spectral gap $\lambda_{\mathrm{gap,tree}} =
+0.5565 > 1/2$, driving classical Markov return probabilities down to $4.12 \times 10^{-7}$ at $t = 14$ and
+$9.08 \times 10^{-24}$ at $t = 60$. Extending unitary tree walks to $t = 1\text{--}60$ exposes a decisive shift
+distinction: a direction-reversing flip-flop shift $S_{\mathrm{ff}}$ creates large coherent mid-time return spikes
+($46.60\%$ for Grover, $33.36\%$ for $\zeta_{18}$), whereas a true unitary moving shift $S_{\mathrm{mv}}$ (matching
+bare $U$'s stream $S$) traps $97.78\%$ (Grover) and $99.62\%$ ($\zeta_{18}$) in the bulk at $t = 14$, maintaining at
+least $99.23\%$ $\zeta_{18}$ bulk trapping across the entire $t = 1\text{--}60$ horizon and agreeing with the exact
+bare-$U$ $k = 1$ Coxeter walk ($97.08\%$ at $t = 6$).
+
+\subsection{Sterile deep-bulk dark modes and cored halos}
+
+Does the hyperbolic bulk also supply a natural dark-matter candidate without introducing extra particle species? Neutral
+($Q = 0$) deep-bulk excitations sitting at depths $D \ge 1$ keep exact $\langle Q_{D=0}(t)\rangle = 0$ identically, and
+exhaustive exact $\mathbb{Q}(\sqrt{2})$ geodesic tracing across all $330$ depth-2 descendants of dock~0 proves a sharp
+\textbf{Hyperbolic Geodesic Sterility Theorem}: $312/330$ ($94.55\%$) possess zero straight rays hitting any $D = 0$
+dock (100\% geodesically sterile for $k = 2$ neutral pairs). Along the $18/330$ worst-case geodesic-aligned docks,
+isotropic contact cross-sections ($\sigma_{\mathrm{EM}} \propto P_{\mathrm{peak}}^2$) still decay monotonically with
+depth to $2.01 \times 10^{-4}$ at $D = 3$.
+
+An adversarial bare-$U$ control on the 37-dock cluster separates genuine sterile gravitational visibility from spurious
+particle leakage. Initializing a strictly sterile $D = 1$ neutral pair off the single $D = 1 \leftrightarrow D = 0$
+bridge line in a true tensor-product state leaves exact zero ($3.1 \times 10^{-15}$) entanglement shift on $D = 0$ after
+two beats (whereas occupying the bridge line physically streams particles onto $D = 0$, $D_{\mathrm{act}} = 0.0833$,
+lowering husk curvature). Genuine sterile gravitational visibility therefore rests on two non-perturbative mechanisms
+native to the geometry:
+
+\textbf{Holographic code darkness with FLM entropy:} Inside $[[24, 1, 8]]_3$, exhaustive $\mathrm{GF}(3)$ symplectic
+verification proves that all $24/24$ weight-1 electric charges $\langle Q_s \rangle$ and all $1{,}104/1{,}104$ weight-2
+correlators $\langle Q_{s_1} Q_{s_2} \rangle$ vanish identically across the bulk logical subspace, while a mixed bulk
+excitation imprints exact $+1\ln 3$ FLM gravitational entropy on large boundary wedges ($k \ge 8, 17$).
+
+\textbf{Bulk-to-husk Green's function and $\mathbb{H}^4$ cored halos:} Solving $(24I - A) G = \delta_{v_D}$ on the exact
+$8{,}857$-dock Coxeter ball explains the $+33.7\%$ core-flatness jump in $G(1)/G(0)$ ($0.04419 \to 0.05905$, plateauing
+at $0.05908$) through the exact $4/3$ mean length-2 shortest-path multiplicity from $D = 1$ to the six $r = 1$ husk
+docks. In the continuum zero-mode limit sourced by the $\mathbb{H}^4$ boundary Poisson kernel with core scale
+$r_c(D) = N_D^{1/3}$, the husk gravitational potential and Steinberg depth generating function take closed form:
+\begin{equation}
+\Phi_{\mathrm{husk}}(r, D) = \frac{\arctan\!\bigl(r / r_c(D)\bigr)}{2\pi^2 r},
+\qquad
+\sum_{D=1}^{\infty} N_D x^D = \frac{18 x - 48 x^2 + 22 x^3}{1 - 21 x + 51 x^2 - 23 x^3}.
+\label{eq:halo-gf}
+\end{equation}
+Equation~\eqref{eq:halo-gf} recovers $1/r$ Newton gravity at $r \gg r_c$ while replacing the singular $1/r$ inner cusp
+of standard Navarro--Frenk--White (NFW) cold-dark-matter halos with flat finite-density cores (inner log-slope $-0.0396$
+at $0.1 r_c$, solid-body rotation curve peaking at $1.826 r_c$).
+Evaluating the Steinberg generating function at $x = \lambda^{-\alpha}$ shows that bare combinatorics bracket the
+observed dark-to-baryonic ratio $\Omega_c / \Omega_b = 5.364$ cleanly between $d_{\mathrm{down}}/d_{\mathrm{lat}} = 3$
+and $N_1 / N_0 = 18$, matching at $\alpha_* = 1.058151$ ($p_* = 3.1745$) without fixing $5.364$ independently of
+bulk freeze-out cosmology.
+
+\begin{table}[htbp]
+\centering
+\caption{Certified husk--bulk $\Phi_{\mathrm{odd}}$ baryogenesis, bulk export irreversibility, and sterile deep-bulk
+dark-sector audits on $\{3,4,3,4\}$.}
+\label{tab:husk-dark}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{4.15cm}>{\raggedright\arraybackslash}p{3.45cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Asymmetry / dark-sector audit & Certified measurement & Comparison and explicit scope boundary \\
+\midrule
+Husk--bulk $\Phi_{\mathrm{odd}}$ pump ($Q_{\mathrm{total}} = 0$) & $\langle Q_0(1)\rangle = -3/8$, max $\eta = \mathbf{1.0000}$ & Destructive ceiling at $-9/32$ ($P_+ = 0$), $0/43{,}296$ antipodal chiral quads, rev $2.07{\cdot}10^{-15}$ \\
+Sakharov \& flat-torus controls & Flat $D_4 \le 2.1{\cdot}10^{-17}$, $P_{\mathrm{cusp}}^+ \le 4.9{\cdot}10^{-17}$ & $P_\perp$-even $-3/16$, $W(B_3)^+$ full $-3/8$, transient chordal impulse ($D = [3,2,1,0,0,1,2,3]$) \\
+Bulk export ($t = 1\text{--}60$, $\lambda_{\mathrm{gap}} = 0.557$) & $S_{\mathrm{mv}}$: $\mathbf{97.78\%}$ / $\mathbf{99.62\%}$ ($t = 14$) & $\zeta_{18}$ min trap $99.23\%$ (vs.\ $S_{\mathrm{ff}}$ spikes $33.4\%\text{--}46.6\%$), bare $k{=}1$ $97.08\%$ ($t = 6$) \\
+Geodesic \& $[[24,1,8]]_3$ sterility & $\mathbf{312/330}$ ($94.55\%$) $D = 2$ sterile & $24/24$ $Q_s = 0$ \& $1{,}104/1{,}104$ $ZZ = 0$ in code, yet $+1\ln 3$ FLM entropy ($k \ge 8, 17$) \\
+Bare-$U$ 37-dock sterile audit & Sterile shift $\mathbf{3.1{\cdot}10^{-15}}$ (exact null) & Non-sterile bridge leaks $D_{\mathrm{act}} = 0.0833$, genuine visibility is FLM + $\mathbb{H}^4$ halo \\
+$\mathbb{H}^4$ cored halo \& Steinberg GF & Core slope $-0.040$, $\alpha_* = \mathbf{1.058151}$ & $8{,}857$-dock $G(1)/G(0)$ $+33.7\%$ ($4/3$ paths), $r_{\mathrm{peak}} = 1.826 r_c$, brackets $5.364 \in [3, 18]$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+With gravitational backreaction, spin-2 propagation, and husk--bulk asymmetry anchored to the hyperbolic cusp, a deeper
+foundational question remains: inside a strictly unitary, reversible automaton with no randomness and no external heat
+bath, how do local decoherence, redundant classical records, Born probabilities, and Markovian local histories emerge?
+
+\FloatBarrier
+\section{Hyperbolic Decoherence and Born Uniqueness}
 \label{sec:decoherence}
 
 In a globally unitary, reversible automaton with zero randomness and zero external heat bath, why does a local subsystem
-appear to decohere irreversibly, broadcast classical records, obey the $p = 2$ Born probability rule, and forget its
-past without bath resets? Here we test quantum foundations directly on $\{3,4,3,4\}$ through exact multi-body
-partial-trace decoherence on live hyperbolic trees, full Quantum Darwinism with Holevo--discord separation, simultaneous
-Born and 3D Gleason uniqueness, and a three-part falsifiable testbed for individuated macro-levels.
+appear to decohere irreversibly, broadcast classical records to independent observers, obey the $p = 2$ Born probability
+rule, and forget its past without artificial bath resets? Here we test quantum foundations directly on $\{3,4,3,4\}$
+through rate-matched multi-body ablations, full Quantum Darwinism with Holevo--discord separation, exact cyclotomic
+Born--Gleason uniqueness, and a falsifiable macro-level testbed culminating in a 27-dimensional zero-reset Markovian
+swap test.
 
 \subsection{Multi-body decoherence and Bell--CHSH decay}
 
 Exact breadth-first traversal of $\{3,4,3,4\}$ in $O^+(4,1; \mathbb{Z}[\sqrt{2}])$ from the cusp origin certifies the
-local neighbor split ($0$ upward, $6$ lateral, $18$ downward), downward shell sizes $[1, 18, 330]$ (branching ratios
-$b_0 = 18.00$, $b_1 = 18.33$), an extracted three-frame by four-mode downward tree ($12/12$ distinct docks, zero
-cross-frame overlaps, zero cusp returns), and twelve disjoint eight-hop downward rays ($96/96$ distinct docks).
-Diagonalizing the live $32 \times 32$ bare branching Szegedy-cusp walk operator reveals a \textbf{$2.25\times$
-spectral-gap widening} over a flat one-dimensional line ($\pi/6 = 0.5236\text{ rad} \to 1.1771\text{ rad}$), opening
-the radial Laplacian gap from $0$ to $0.5571$.
+downward tree geometry directly: zero upward, 6 lateral, and 18 downward links at $D = 0$, downward shells
+$[1, 18, 330]$, an extracted three-frame by four-mode downward tree ($12/12$ distinct docks, zero cross-frame overlaps,
+zero cusp returns), and twelve disjoint eight-hop downward rays ($96/96$ distinct docks). Diagonalizing the live
+$32 \times 32$ bare branching Szegedy-cusp walk operator (the canonical bipartite unitary quantization of a graph Markov
+walk) reveals a \textbf{$2.25\times$ spectral-gap widening} over a flat one-dimensional line ($\pi/6 \to 1.1771\text{ rad}$),
+opening the radial Laplacian gap from $0$ to $0.5571$.
 
 To disentangle algebraic revival breaking from finite-register geometry and open hyperbolic export honestly, we evolve
 six rate-matched ($3$ modes per beat, identical $t = 1$ coherence $|\rho_{01}(1)| = 0.0625$ to $6.9 \times 10^{-17}$)
-$1 + 12$ qubit pure statevectors ($\dim = 8{,}192$) through $t = 0\text{--}24$ using exact bare-$U$ gates ($D M_{\mathrm{meet}} D$,
-intra-bath controlled-$C$, and $M_{\mathrm{pair}}(\zeta_{18})$ phases):
-\begin{itemize}
-\item \textbf{Honest finite-register $2 \times 2$ ablation:} Disabling $M_{\mathrm{pair}}(\zeta_{18})$ triggers a
-$94.7\%$ coherence revival ($0.4736$) on the closed honeycomb tree and a $42.1\%$ revival ($0.2103$) on an interacting
-flat ring, while a free-shift flat baseline revives $100\%$ ($0.5000$) at $t = 12, 24$. Enabling $M_{\mathrm{pair}}$
-breaks the local $C^3 = I$ recurrence on \emph{both} the closed honeycomb tree ($\max_{t \ge 4}|\rho_{01}| = 0.0666$)
-and the interacting flat ring ($0.0494$). Thus finite-register revival suppression is algebraic, whereas hyperbolic
-$\{3,4,3,4\}$ provides open non-returning transport: in the Tier~B open-bath collision reduction motivated by the
-non-returning rays, coherence decays monotonically from $0.5000 \to 1.221 \times 10^{-4}$ ($S = 1.0000\text{ bit}$, zero
-recurrence). All six models preserve global purity ($\le 1.9 \times 10^{-14}$) and exact Loschmidt reversal
+$1 + 12$ qubit pure statevectors ($\dim = 8{,}192$) through $t = 0\text{--}24$ using exact bare-$U$ gates
+(Table~\ref{tab:decoherence-darwinism}).
+
+\textbf{Honest $2 \times 2$ finite-register ablation:} Disabling $M_{\mathrm{pair}}(\zeta_{18})$ triggers large
+coherence revivals on both the closed honeycomb tree ($0.4736$) and an interacting flat ring ($0.2103$, while a free
+flat shift revives $100\%$ at $0.5000$). Enabling $M_{\mathrm{pair}}$ suppresses local $C^3 = I$ recurrences on
+\emph{both} closed registers ($\le 0.0666$ and $\le 0.0494$). Finite-register revival breaking is therefore algebraic,
+whereas hyperbolic $\{3,4,3,4\}$ supplies open non-returning rays: in the open-bath collision reduction motivated by
+those rays, coherence decays monotonically from $0.5000 \to 1.221 \times 10^{-4}$ ($S = 1.0000\text{ bit}$, zero
+recurrence). All six evolutions preserve global purity ($\le 1.9 \times 10^{-14}$) and exact Loschmidt time reversal
 ($|1 - F| \le 1.1 \times 10^{-14}$).
-\item \textbf{Pointer selection, ternary qutrit, and Bell--CHSH transition:} Under quantum non-demolition coupling
-($H_S = 0$), computational $Z$ pointer eigenstates remain pure ($S \le 1.6 \times 10^{-16}$) while $X, Y$ superpositions
-decohere to $1\text{ bit}$. A rate-matched ternary tone qutrit ($N_{\mathrm{env}} = 10$, $\dim = 3{,}072$) decays
-monotonically from $0.3333 \to 3.255 \times 10^{-4}$ ($S \to \log_2 3 = 1.58496\text{ bits}$, exact reversal). Coupling
-a Bell singlet $|\Psi^-\rangle_{AB} \otimes |0^{10}\rangle_E$ ($\dim = 4{,}096$) via zero-precession $(\zeta_6 I, C)$
-gates \cite{clauser1969, horodecki1995} drives fixed-axis CHSH strictly below $2$ at $t = 2$
-($2.8284 \to 2.1213 \to 1.7678 \to 1.4156$) and pulls the gauge-invariant Horodecki ceiling monotonically to $2^+$,
-preserving exact $E(Z, Z) = -1$ ($2.9 \times 10^{-15}$), no-signaling ($4.8 \times 10^{-15}$), and exact Loschmidt
-revival ($2.828427$).
-\end{itemize}
+
+\textbf{Pointer selection, ternary qutrit, and Bell--CHSH decay:} Under quantum non-demolition coupling ($H_S = 0$,
+commuting with the pointer observable $Z$), computational $Z$ pointer eigenstates remain pure ($\le 1.6 \times 10^{-16}$)
+while $X, Y$ superpositions decohere to $1\text{ bit}$. A rate-matched ternary tone qutrit decays monotonically to
+$S \to \log_2 3 = 1.5850\text{ bits}$. Coupling a Bell singlet $|\Psi^-\rangle_{AB} \otimes |0^{10}\rangle_E$ via
+zero-precession $(\zeta_6 I, C)$ gates \cite{clauser1969, horodecki1995} drives the Clauser--Horne--Shimony--Holt (CHSH)
+Bell correlation (bounded by $2$ for local hidden variables and reaching $2\sqrt{2} \approx 2.828$ for a pure singlet)
+strictly below $2$ by $t = 2$ ($2.8284 \to 1.4156$) and pulls the gauge-invariant Horodecki ceiling monotonically to
+$2^+$, while preserving exact $E(Z, Z) = -1$, no-signaling, and exact Loschmidt reversal ($U^{-t}$) back to $2.828427$.
 
 \subsection{Quantum Darwinism and Born--Gleason uniqueness}
 
-Does hyperbolic decoherence merely scramble phase information into global entanglement, or does it broadcast redundant
-classical copies into disjoint bulk observers? Decomposing the mutual information between the system $S$ and an
-environment fragment $F$ into classical Holevo information and quantum discord \cite{zurek2009, ollivier2001} gives a
-sharp quantitative diagnostic:
+Tracing out unobserved environment degrees of freedom (taking the partial trace) leaves a subsystem in a mixed reduced
+density matrix. Does hyperbolic decoherence merely scramble phase information into global entanglement, or does it
+broadcast redundant classical copies into disjoint bulk observers? Under Quantum Darwinism \cite{zurek2009}, decomposing
+the total quantum mutual information between the system $S$ and an environment fragment $F$ into classical Holevo
+capacity $\chi_Z$ (accessible via local measurements on $F$) and quantum discord $D_Z$ (the purely non-classical
+remainder) \cite{ollivier2001} gives a sharp diagnostic:
 \begin{equation}
 I(S : F) = \chi_Z(S : F) + D_Z(S : F).
 \label{eq:darwinism-decomp}
 \end{equation}
 On the open hyperbolic trajectory, $\chi_Z$ forms a flat classical plateau across fragments $f \in [2, 9]$ (redundancy
-$R_{0.05} = 6$, $R_{0.02} = 4$, discord $D_Z \le 0.0113$) before jumping to $2 H(S) = 2\text{ bits}$ at $f = 12$. On the
-finite closed honeycomb tree at $t = 24$, the three disjoint $D_4$ frames achieve classical redundancy $R_{0.10} = 3$
-($F_0: I = 1.0054 = \chi_Z(0.9951) + D_Z(0.0103)$, cleanly explaining the slight $I > H(S)$ overshoot as residual
-discord), and the ternary qutrit reaches a $\log_2 3$ plateau with $R_{0.05} = 3$. By contrast, a deterministic
-scrambled control destroys the plateau altogether: at the Page midpoint $f = 6$ \cite{page1993}, $I = 1.0029$ is
-dominated by quantum discord ($\chi_Z = 0.3678$, $D_Z = 0.6352$, zero classical redundancy).
+$R_{0.05} = 6$, $R_{0.02} = 4$, discord $D_Z \le 0.0113$) before jumping to $2 H(S)$ at $f = 12$. On the finite closed
+honeycomb tree at $t = 24$, the three disjoint $D_4$ frames achieve classical redundancy $R_{0.10} = 3$, and the
+ternary qutrit reaches a $\log_2 3$ plateau with $R_{0.05} = 3$. By contrast, a deterministic scrambled control hides
+information until half the environment is collected at the Page midpoint $f = 6$ \cite{page1993}, leaving mutual
+information dominated by quantum discord ($\chi_Z = 0.3678$, $D_Z = 0.6352$, zero classical redundancy,
+Table~\ref{tab:decoherence-darwinism}).
 
-To test probability emergence inside the exact cyclotomic ring $\mathbb{Z}[\zeta_9][1/6]$, observe that while
+\begin{table}[htbp]
+\centering
+\caption{Rate-matched $2 \times 2$ decoherence ablation, Bell--CHSH transition, and Quantum Darwinism vs.\ scrambled
+Page-midpoint control.}
+\label{tab:decoherence-darwinism}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{4.35cm}>{\raggedright\arraybackslash}p{3.15cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Decoherence / Quantum Darwinism test & Measured metric & Physical conclusion and control contrast \\
+\midrule
+Closed tree / flat ring ($M_{\mathrm{pair}}$ OFF) & Revivals $0.4736$ / $0.2103$ & Free flat shift revives $100\%$ ($0.5000$ at $t = 12, 24$) \\
+Closed tree / flat ring ($M_{\mathrm{pair}}$ ON) & $\max_{t \ge 4}|\rho_{01}| \le 0.0666$ / $0.0494$ & Finite-register revival breaking is algebraic ($C^3 = I$ broken) \\
+Open hyperbolic collision reduction & $0.5000 \to \mathbf{1.221{\cdot}10^{-4}}$ & Monotonic decay ($S = 1.000\text{ bit}$), Loschmidt $|1-F| \le 1.1{\cdot}10^{-14}$ \\
+Bell singlet CHSH ($|\Psi^-\rangle_{AB} \otimes |0^{10}\rangle_E$) & $2.8284 \to 1.7678$ ($t{=}2$) $\to 1.4156$ & Horodecki $\to 2^+$, $E(Z,Z) = -1$, exact Loschmidt revival $2.828427$ \\
+Open hyperbolic \& closed tree Darwinism & $R_{0.05} = \mathbf{6}$ ($D_Z \le 0.011$), $R_{0.10} = \mathbf{3}$ & Classical Holevo plateau (qutrit $R_{0.05} = 3$, $F_0: \chi_Z = 0.995$) \\
+Deterministic scrambled Page control & $f = 6$: $\chi_Z = 0.3678$, $D_Z = \mathbf{0.6352}$ & Discord-dominated, zero classical redundancy plateau \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+To test probability emergence directly inside the exact cyclotomic ring $\mathbb{Z}[\zeta_9][1/6]$, observe that while
 $1/\sqrt{3} \notin \mathbb{Q}(\zeta_9)$, the phase-rotated factor $-i/\sqrt{3} = (-1 - 2\omega)/3$ lies strictly inside
 $\mathbb{Z}[\zeta_9][1/3]$. Applying exact fine-graining $(-i Z_3 F_3)$ and bipartite copy unitaries certifies Zurek
-envariance \cite{zurek2005} with zero rounding error across $324$ phase unitaries in $\mathbb{Z}_{18}^2$, all $24$
-permutations of $S_4$ at $t = 1$ (four branches in $\mathbb{Z}[\zeta_9][1/2]$), and all $15$ generating transpositions
-of $S_{16}$ at $t = 2$ (sixteen branches in $\mathbb{Z}[\zeta_9][1/4]$), extended via block-DFT fine-graining to $48$
-swap transpositions across rational pairs $(1,1)$ through $(3,5)$ ($\le 4.4 \times 10^{-16}$).
-
-Stress-testing rival power laws $P_p(k) = |c_k|^p / \sum_j |c_j|^p$ across $p \in \{1, 1.5, 2, 3, 4\}$ under
-\emph{both} unitary fine-graining additivity and genuine three-dimensional Gleason non-contextuality \cite{gleason1957}
-(comparing the standard basis $B_1$ with the bare half-coin rotated basis $B_2 = \{|e_1\rangle, D|e_2\rangle,
-D|e_3\rangle\}$, Table~\ref{tab:born-swap}) singles out \textbf{$p = 2$ uniquely} ($1.11 \times 10^{-16}$ and $0.000$
-versus $0.037\text{--}0.150$ violations for every $p \neq 2$). In strict interpretive honesty, linear unitarity locks
-any consistent branch weight uniquely to $p = 2$, while the operational bridge from squared weights to single-outcome
-empirical frequencies remains an explicit postulate.
+envariance \cite{zurek2005} (entanglement-assisted invariance, where a local unitary on a subsystem can be undone by a
+unitary acting solely on its entangled partner) with zero rounding error across $324$ phase unitaries in
+$\mathbb{Z}_{18}^2$, all $24$ permutations of $S_4$ at $t = 1$, all $15$ generating transpositions of $S_{16}$ at
+$t = 2$, and $48$ block-DFT swap transpositions across five rational amplitude pairs ($\le 4.4 \times 10^{-16}$).
+Stress-testing rival normalized power-law branch weights $P_p(k) \propto |c_k|^p$ across $p \in \{1, 1.5, 2, 3, 4\}$
+under \emph{both} unitary fine-graining additivity and genuine three-dimensional Gleason non-contextuality
+\cite{gleason1957} (which proves that in dimension $\ge 3$, basis-independent probability assignments must be quadratic
+in amplitudes, tested between standard basis $B_1$ and bare half-coin rotated basis $B_2$, Table~\ref{tab:born-swap})
+singles out \textbf{$p = 2$ uniquely}. In strict interpretive honesty, linear unitarity locks any consistent branch measure uniquely to $p = 2$,
+while the operational bridge from squared weights to definite single-outcome empirical frequencies remains an explicit
+postulate.
 
 \subsection{Lumpability, QFI horizons, and Markovian swap test}
 
-Finally, we construct a concrete, falsifiable three-part testbed for individuated macro-levels on $\{3,4,3,4\}$
-(strictly testing mathematical closure, sensitivity, and memory without claiming to derive subjective experience):
-\begin{enumerate}
-\item \textbf{Exact dynamical lumpability \cite{kemeny1960}:} Measuring closure error
-$\varepsilon_{\mathrm{lump}}(C, U) = \|(I - P_C) U P_C\|_{\mathrm{op}}$ shows exact dynamical closure for the collinear
-$k = 2$ doublon ($4.50 \times 10^{-16}$), the $k = 3$ trion ($3.96 \times 10^{-16}$, zero cross-line leak versus $0.0960$
-when $M_{\mathrm{pair}}$ acts), and the $W(F_4)$ orbit quotient on $B_3$ ($31$ orbits, $1.33 \times 10^{-15}$). By
-contrast, unaliased three-dimensional cusp beam sums ($8{,}857$ docks across $63$ beams in $D \le 3$) diverge by
-$0.5000$ in a single beat ($\varepsilon_{\mathrm{beam}} \ge 0.2697$, decisively falsified as closed macro-dynamics), and
-the $[[24,1,8]]_3$ holographic code is kinematic under bare $U$ except on $M_{\mathrm{pair}}$.
-\item \textbf{Exact QFI step horizons and noise asymmetry:} On $B_1 = [[552, 25, 40]]_3$, exclusive ($0/12$ violations),
-nested, and overlapping boundary wedges coexist. Exact symmetric logarithmic derivative Quantum Fisher Information
-exhibits a sharp three-regime step horizon across boundary cone counts $k = 1\text{--}24$: zero sensitivity for
-$k \le 7$, exact Heisenberg--Schr\"odinger pointer duality across $k = 8\text{--}16$ ($(\mathrm{QFI}_Z, \mathrm{QFI}_X) =
-(0, 4)$ on $Z$-ordered cones versus $(4, 0)$ on $X$-ordered cones), and full saturation $(4, 4)$ for $k \ge 17$. Under
-noise, $B_1$ displays a strong threshold asymmetry: heralded boundary erasure preserves coded QFI advantage through
-$p = 0.10$ ($0.9998$ vs.\ $0.90$, threshold $p_c^{\mathrm{erase}} \approx 0.153$), whereas unheralded Pauli noise wins at
-$p = 0.02$ ($0.9998$ vs.\ $0.9627$) and fails by $p = 0.05$ ($p_c^{\mathrm{depol}} \approx 0.032$).
-\item \textbf{Present-state memory depth and 27D zero-reset swap test:} Measuring Holevo lag decodability
-$I(u_{t-\Delta} : \rho_{A, t})$ strictly from the instantaneous present state $\rho_{A, t}$ shows that the chiral
-four-line cluster boosts memory $207.6\times$ at $\Delta = 16$, while a lab-frame $k = 3$ trion wavepacket inside the
-fixed ball $B_2$ ($|x| \le 2$) outperforms one-body ballistic propagation by \textbf{$6.5\times$} at $\Delta = 32$
-($0.2506$ vs.\ $0.0386$, extending memory depth $\tau_{\mathrm{eff}}(0.05)$ from $22$ to $152$ beats before $O(1/t)$
-center-of-mass dispersion). To test whether hyperbolic export enforces strict Markovianity without artificial bath
-resets, we run a 27-dimensional joint-unitary swap test on $A \otimes E_1 \otimes E_2$ starting from two orthogonal
-histories $H_1, H_2$ that converge at beat $t$ to identical local states $\rho_{A,t}^{(1)} = \rho_{A,t}^{(2)}$ (local
-trace distance $0.00$) while leaving orthogonal bath records (joint trace distance $\sqrt{15}/2 = 1.9365$,
-Table~\ref{tab:born-swap}). Eight-beat zero-reset evolution proves a stark geometric dichotomy: \textbf{both a trapped
-local bath ($1.1056$) and an infinite one-dimensional bare-$U$ geodesic bath ($0.4922$, via back-scattering) fail
-Markovian swap invariance}, whereas \textbf{hyperbolic outward export passes identically ($0.00$)}.
-\end{enumerate}
+Three falsifiable macro-level tests separate dynamically closed organizations from ill-posed coarse averages on
+$\{3,4,3,4\}$ (strictly testing mathematical closure, sensitivity, and memory without claiming to derive subjective
+experience).
+
+\textbf{Exact dynamical lumpability \cite{kemeny1960}:} The closure error
+$\varepsilon_{\mathrm{lump}}(C, U) = \|(I - P_C) U P_C\|_{\mathrm{op}}$ vanishes to machine precision for the collinear
+$k = 2$ doublon ($4.50 \times 10^{-16}$), the $k = 3$ trion ($3.96 \times 10^{-16}$), and the $W(F_4)$ orbit quotient on
+$B_3$ ($1.33 \times 10^{-15}$). By contrast, unaliased three-dimensional cusp beam sums ($8{,}857$ docks across $63$
+beams) diverge in a single beat ($\varepsilon_{\mathrm{beam}} \ge 0.2697$), decisively falsifying naive beam averages as
+closed macro-dynamics.
+
+\textbf{Exact QFI step horizons and noise asymmetry:} On $B_1 = [[552, 25, 8]]_3$ ($d^{(0)}(B_1) = 40$), exact Quantum
+Fisher Information (the Cram\'er--Rao ceiling on how sensitively a boundary region detects a bulk phase shift) displays
+a sharp three-regime step horizon across boundary cone counts
+$k = 1\text{--}24$: zero sensitivity for $k \le 7$, exact Heisenberg--Schr\"odinger pointer duality $(0, 4)$ vs.\ $(4, 0)$
+across $k = 8\text{--}16$, and full $(4, 4)$ saturation for $k \ge 17$. Under noise, $B_1$ shows a strong threshold
+asymmetry between heralded boundary erasure ($p_c^{\mathrm{erase}} \approx 0.153$) and unheralded Pauli noise
+($p_c^{\mathrm{depol}} \approx 0.032$).
+
+\textbf{Memory depth and 27D zero-reset Markovian swap test:} Measuring Holevo lag decodability strictly from the
+instantaneous present state shows that a lab-frame $k = 3$ trion inside the fixed ball $B_2$ outperforms one-body
+ballistic propagation by \textbf{$6.5\times$} at $\Delta = 32$, extending effective memory depth
+$\tau_{\mathrm{eff}}(0.05)$ from $22$ to $152$ beats before $O(1/t)$ center-of-mass dispersion. To test whether
+hyperbolic export enforces strict Markovianity without artificial bath resets, we run a 27-dimensional joint-unitary
+swap test on $A \otimes E_1 \otimes E_2$ starting from two orthogonal histories that converge at beat~$t$ to identical
+local states (local trace distance $0.00$) while leaving orthogonal bath records (joint trace distance
+$\sqrt{15}/2 = 1.9365$, Table~\ref{tab:born-swap}). Eight-beat zero-reset evolution proves a stark geometric dichotomy:
+\textbf{both a trapped local bath ($1.1056$) and an infinite one-dimensional bare-$U$ geodesic bath ($0.4922$, via
+back-scattering) fail Markovian swap invariance}, whereas \textbf{hyperbolic outward export passes identically ($0.00$)}.
 
 \begin{table}[htbp]
 \centering
@@ -133,6 +386,7 @@ Hyperbolic outward export (0 resets) & $0.00$ & $1.9365$ & $\mathbf{0.0000}$ & j
 \end{tabularx}
 \end{table}
 
-With spectral export, holographic coding, many-body dynamics, gauge obstructions, and decoherence assembled into one
-picture, we conclude by summarizing what is now formally machine-checked inside a zero-dependency Lean~4 kernel and
-marking the exact open frontiers that remain.
+Because hyperbolic export enforces Markovianity while simultaneously exposing almost every bulk dock to the boundary,
+one unifying architectural question remains before we summarize formal proofs and open frontiers: how do multiscale
+abstractions, selective error-correcting boundaries, and active recurrent regulation persist inside a negatively curved
+universe?

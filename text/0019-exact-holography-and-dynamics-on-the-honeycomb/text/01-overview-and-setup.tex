@@ -12,19 +12,21 @@ lattice gauge theory, quantum foundations, emergent gravity, cosmological asymme
 backing the suite with deterministic verification and a zero-dependency Lean~4 formalization
 \cite{demoura2021lean4, cluesurf2026repo}.
 
-To keep this manuscript self-contained from page one, we first specify the microscopic honeycomb, cyclotomic amplitude
-ring, and local unitary beat. Throughout the paper we distinguish cleanly between three mathematical scopes: exact
-theorems of the bare automaton and its native geometry with nothing added, dynamical extensions built on the same
-geometry by adding discrete subgroup gauge links or a local metric field, and constructive lattice Yang--Mills bounds
-and null controls on the associated flat four-dimensional root lattice $D_4$.
+We define each geometric object, operator, and convention at first use. Throughout the paper we distinguish cleanly
+between three mathematical scopes: exact theorems of the bare automaton and its native geometry with nothing added,
+dynamical extensions built on the same geometry by adding discrete subgroup gauge links or a local metric field, and
+constructive lattice Yang--Mills bounds and null controls on the associated flat four-dimensional root lattice $D_4$.
 
 \subsection{The 24-cell dock and the \texorpdfstring{$\{3,4,3,4\}$}{\{3,4,3,4\}} mesh}
 
 The spatial substrate is the fixed, infinite regular tiling of four-dimensional hyperbolic space $\mathbb{H}^4$ by
-regular 24-cells, denoted by its Schl\"afli symbol $\{3,4,3,4\}$ \cite{coxeter1956, coxeter1973}. We refer to this fixed
-tessellation as the \emph{mesh} and to each individual 24-cell as a \emph{dock}, reserving the word \emph{cell} for
-geometric polytopes and cellular automata. Each dock is self-dual and bounded by 24 octahedral facets called
-\emph{slots}, indexed by the 24 roots of the four-dimensional root system $D_4$ \cite{conway1999}:
+regular 24-cells, denoted by its Schl\"afli symbol $\{3,4,3,4\}$ \cite{coxeter1956, coxeter1973}. In Schl\"afli
+notation, triangles $\{3\}$ form octahedral facets $\{3,4\}$, octahedra bound self-dual 24-cells $\{3,4,3\}$, and
+four 24-cells meet around every triangular ridge so that each vertex figure at infinity is a flat three-dimensional
+cubic grid $\{4,3,4\}$. We refer to this fixed tessellation as the \emph{mesh} and to each individual 24-cell as a
+\emph{dock}, reserving the word \emph{cell} for geometric polytopes and cellular automata. Each dock is self-dual and
+bounded by 24 octahedral facets called \emph{slots}, indexed by the 24 roots of the four-dimensional root system $D_4$
+\cite{conway1999}:
 \begin{equation}
 \Phi(D_4) = \bigl\{\,\text{all permutations of } (\pm 1, \pm 1, 0, 0) \in \mathbb{R}^4\,\bigr\},
 \qquad
@@ -46,11 +48,84 @@ $W(F_4) / W(D_4) \cong S_3$.
 
 Among all regular four-dimensional honeycombs, $\{3,4,3,4\}$ is uniquely selected by combining a finite self-dual
 4-polytope, exact rank-4 isotropy, and a flat three-dimensional cubic vertex figure $\{4,3,4\}$ around each ideal point
-at infinity (a \emph{cusp}). This geometry creates a clean bulk-to-boundary projection picture: fixing one cusp foliates
-the infinite four-dimensional \emph{bulk} into concentric flat three-dimensional cubic horospheres indexed by integer
-depth $D = 0, 1, 2, \dots$. The outermost slice $D = 0$ is the \emph{husk}, where three-dimensional observables are read.
-Behind every husk dock lies an exponentially widening four-dimensional \emph{beam} of bulk docks whose counts grow
-roughly eighteenfold per depth floor.
+at infinity (a \emph{cusp}). Fixing one ideal cusp foliates $\mathbb{H}^4$ into concentric \emph{horospheres} (level
+surfaces orthogonal to all geodesics approaching the cusp, each carrying flat three-dimensional Euclidean geometry tiled
+by unit cubes) indexed by integer depth $D = 0, 1, 2, \dots$ (Figure~\ref{fig:cusp-projection}). The outermost slice
+$D = 0$ is the \emph{husk}, where three-dimensional observables are read. Behind every husk dock lies an exponentially
+widening four-dimensional \emph{beam} of bulk docks whose counts grow roughly eighteenfold per depth floor. Crucially,
+each husk dock has zero upward neighbors, 6 lateral neighbors inside $D = 0$, and 18 downward neighbors in $D = 1$, and
+all 6 lateral slots pair antipodally across the dock with downward bulk slots.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  font=\footnotesize,
+  arr/.style={-{Stealth[length=3.8pt]}, line width=0.8pt},
+  box/.style={draw=twZincRule, line width=0.55pt, fill=white, align=left, inner sep=5.5pt}
+]
+% Ideal cusp label centered over left diagram (x = 3.8)
+\node[font=\scriptsize\bfseries, color=twZincInk] at (3.8,3.90) {Ideal cusp at infinity (flat $\{4,3,4\}$ vertex figure)};
+\draw[line width=0.5pt, dotted, draw=twZincRule] (0.5,3.62) -- (7.1,3.62);
+
+% Shaded exponentially widening beam behind central husk dock
+\fill[twViolet!7] (3.8,3.10) -- (1.45,1.80) -- (0.70,0.68) -- (6.90,0.68) -- (6.15,1.80) -- cycle;
+
+% D = 0 Husk slice
+\draw[line width=1.1pt, draw=twBlue] (0.5,3.10) -- (7.1,3.10);
+\node[left, font=\scriptsize\bfseries, color=twBlue] at (0.42,3.10) {$D = 0$};
+
+% Central husk dock and lateral neighbors
+\fill[twBlue] (3.8,3.10) circle (3.2pt);
+\fill[twBlue!65] (2.2,3.10) circle (2.2pt);
+\fill[twBlue!65] (5.4,3.10) circle (2.2pt);
+\draw[arr, draw=twBlue] (3.64,3.10) -- (2.36,3.10);
+\draw[arr, draw=twBlue] (3.96,3.10) -- (5.24,3.10);
+
+% D = 1 slice
+\draw[line width=0.7pt, dashed, draw=twZincInk!70] (0.5,1.80) -- (7.1,1.80);
+\node[left, font=\scriptsize\bfseries, color=twZincInk] at (0.42,1.80) {$D = 1$};
+
+% D = 2 slice
+\draw[line width=0.6pt, dashed, draw=twZincRule] (0.5,0.68) -- (7.1,0.68);
+\node[left, font=\scriptsize\bfseries, color=twZinc] at (0.42,0.68) {$D = 2$};
+
+% Antipodal cusp-to-bulk rays (pink) and additional downward bulk rays (violet)
+\draw[arr, draw=twPink, line width=0.95pt] (3.73,2.99) -- (2.60,1.90);
+\draw[arr, draw=twPink, line width=0.95pt] (3.87,2.99) -- (5.00,1.90);
+\draw[arr, draw=twViolet, line width=0.75pt] (3.68,3.00) -- (1.65,1.90);
+\draw[arr, draw=twViolet, line width=0.75pt] (3.80,2.98) -- (3.80,1.91);
+\draw[arr, draw=twViolet, line width=0.75pt] (3.92,3.00) -- (5.95,1.90);
+
+% D=1 nodes
+\foreach \x in {1.58, 2.55, 3.80, 5.05, 6.02} {
+  \fill[twViolet] (\x,1.80) circle (2.3pt);
+}
+
+% Fan into D=2
+\foreach \xa/\xb in {1.58/0.92, 1.58/1.70, 2.55/2.38, 2.55/3.08, 3.80/3.80, 5.05/4.52, 5.05/5.22, 6.02/5.90, 6.02/6.68} {
+  \draw[line width=0.55pt, draw=twZincInk!45] (\xa,1.72) -- (\xb,0.77);
+  \fill[twEmerald] (\xb,0.68) circle (1.9pt);
+}
+
+% Clean pill label sitting cleanly in vertical gap with solid white fill
+\node[font=\scriptsize, color=twPink, fill=white, draw=twPink!35, line width=0.45pt, rounded corners=1.5pt, inner sep=2.2pt] at (3.8,2.45) {$6/6$ lateral slots pair antipodally into $D = 1$};
+\node[font=\scriptsize, color=twEmerald] at (3.8,0.28) {Beam growth $N_D \sim \lambda^D$ ($\lambda = 18.2787$, scale $a_1 = \lambda^{1/3}$)};
+
+% Right summary card (matching Figure 2 design system)
+\node[box, text width=5.05cm] (cuspcard) at (10.55,2.05) {%
+  {\bfseries\color{twZincInk} Cusp Foliation Geometry}\\[3pt]
+  {\color{twBlue}\bfseries Husk ($D = 0$):} flat $\{4,3,4\}$ cubic slice, $N_0 = 1$, $0$ up / $6$ lateral / $18$ down\\[2.5pt]
+  {\color{twViolet}\bfseries Shell $D = 1$:} $N_1 = 18$ bulk children, all $6$ lateral facets pair across the dock into $D = 1$\\[2.5pt]
+  {\color{twEmerald}\bfseries Deep bulk ($D \ge 2$):} $N_2 = 330$ docks ($312/330$ geodesically sterile), $N_3 = 6{,}034$
+};
+\draw[line width=1.5pt, draw=twBlue] (cuspcard.north west) -- (cuspcard.north east);
+\end{tikzpicture}
+\caption{Four-dimensional bulk to three-dimensional husk projection around an ideal cusp of $\{3,4,3,4\}$. Each husk
+dock at $D = 0$ connects to 6 lateral husk docks (blue) and 18 downward bulk docks in $D = 1$ (violet), with all 6
+lateral facets pairing antipodally into $D = 1$ (pink). Behind every husk dock lies an exponentially widening bulk beam
+whose shell counts $N_D = 1, 18, 330, 6{,}034, \dots$ obey the Steinberg cubic \eqref{eq:steinberg-cubic}.}
+\label{fig:cusp-projection}
+\end{figure}
 
 Every dock center and facet transport is represented without floating-point rounding by an exact $5 \times 5$ Lorentz
 matrix $g \in O^+(4,1; \mathbb{Z}[\sqrt{2}])$ preserving the Coxeter bilinear form $2B(u, v) = u^T (2G) v$ and base
@@ -66,7 +141,8 @@ k_a k_{-a} = I_5.
 \end{equation}
 Because $\det(k_a) = -1$, every single hop flips orientation parity $\sigma(g) = \det(g) \in \{+1, -1\}$ and makes the
 24-regular dock graph globally bipartite. Adjacent facets satisfying $\mathbf{r}_a \cdot \mathbf{r}_b = 1$ meet at right
-angles, identifying the dock graph with the right-angled Coxeter group $W(\Gamma_{24})$. Both spherical shell sizes
+angles, identifying the dock graph with the right-angled Coxeter group $W(\Gamma_{24})$ (generated by 24 involutions
+$s_a^2 = 1$ that commute whenever facets $a$ and $b$ are orthogonal). Both spherical shell sizes
 $|\partial B_r|$ ($1, 24, 456, 8{,}376, 153{,}192, \dots$) and cusp beam shell sizes $N_D$ ($1, 18, 330, 6{,}034, \dots$)
 obey the exact Steinberg cubic recurrence:
 \begin{equation}
@@ -123,41 +199,60 @@ where $J_{12}$ is the $12 \times 12$ all-ones matrix. Finally, $\Phi_{\mathrm{od
 $\zeta_6^{\sigma(g)\chi_{\mathrm{odd}}(g)}$ built from the canonical $W(F_4) \times \mathbb{Z}_2^{\mathcal{C}}$
 orientation sign $\chi_{\mathrm{odd}}$ (which is $\mathcal{C}$-odd, flipping sign when all tones negate, $\mathcal{P}$-odd
 under spatial reflection, and $\mathcal{CP}$-even, turning on strictly at occupation $k^* = 4$). The final layer $S$
-streams every occupied slot $(g, a)$ across facet $a$ to $(g k_a, a)$ with strict unit light-cone speed. Because $K$,
-$M_{\mathrm{pair}}$, and $M_{\mathrm{meet}}$ commute pairwise, the palindromic sandwich guarantees exact time-reversal
-$\mathcal{T}$, combined $\mathcal{CP}$, $\mathcal{CPT}$, and order-576 $W(F_4)^+$ covariance for all $t \in \mathbb{Z}$.
-
-\subsection{Three-tier verification architecture}
-
-Throughout this study we separate claims strictly into three tiers so that bare-automaton theorems are never conflated
-with extended constructions or external continuum comparisons. \textbf{Tier~A} covers unconditional theorems of the
-bare automaton $U$, the $\{3,4,3,4\}$ mesh, and exact ternary stabilizer codes native to the 24-cell with nothing added.
-\textbf{Tier~B} covers dynamical extensions motivated by the geometry, including finite-subgroup gauge link registers,
-covariant holographic Clifford dynamics, open-bath collision models, and the light-mass continuum limit of the local
-contact interaction. \textbf{Tier~C} covers external constructive lattice Yang--Mills theory on flat 4D $D_4$ and
-Standard Model mass-hierarchy null tests, which are never claimed as derivations from the bare rule.
-Table~\ref{tab:tier-summary} maps the paper's main findings across these three tiers.
+streams every occupied slot $(g, a)$ across facet $a$ to $(g k_a, a)$ with strict unit light-cone speed. Because $K$, $M_{\mathrm{pair}}$, and $M_{\mathrm{meet}}$ commute pairwise, the palindromic sandwich guarantees exact
+time-reversal $\mathcal{T}$, combined $\mathcal{CP}$, $\mathcal{CPT}$, and order-576 $W(F_4)^+$ covariance for all
+$t \in \mathbb{Z}$. Table~\ref{tab:tier-summary} summarizes the main findings, mathematical scopes, and explicit
+boundaries across Sections~\ref{sec:spectral} through~\ref{sec:lean-and-open}.
 
 \begin{table}[htbp]
 \centering
-\caption{Three-tier summary of main results, certified bounds, and structural boundaries across Sections~2--7.}
+\caption{Overview of main results, mathematical scopes, and explicit structural boundaries across Sections~2--8.}
 \label{tab:tier-summary}
-\small
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.05cm}>{\centering\arraybackslash}p{0.85cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{3.45cm}@{}}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.10cm}>{\raggedright\arraybackslash}p{2.25cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{3.45cm}@{}}
 \toprule
-Domain & Tier & Certified finding & Explicit boundary \\
+Domain & Scope & Principal certified result & Explicit boundary \\
 \midrule
-Spectral geometry (Sec.~\ref{sec:spectral}) & A & $859\times$ collapse of $\rho(\{3,4,3,4\})$ to $[11.439047, 11.443713]$, gap $> 1/2$, Landauer export floor & Exact irrational $\rho$ remains bracketed to $0.04\%$ \\
-\addlinespace[3pt]
-Holography \& continuum (Sec.~\ref{sec:holography}) & A/B & Unique $W(F_4)$ $[[24,1,8]]_3$ tensor, all-$R$ HaPPY code $B_1 = [[552,25,40]]_3$, dynamical bridge, zero-Zeno $\operatorname{colim}_D \mathcal{H}_D$ & Bare $U$ exits code space in 1 beat except $M_{\mathrm{pair}}$ \\
-\addlinespace[3pt]
-Bound states \& clocks (Sec.~\ref{sec:composites}) & A/B & Compacton no-go, $83.12\%$ $M_{\mathrm{pair}}$ excision, $1/\sqrt{3k^2+1}$ tower ($k = 2\text{--}4$), COE chaos, light-mass $E = mc^2$ & Bare $m = \pi/3$ is lattice-heavy ($R_2 = 7.14$) \\
-\addlinespace[3pt]
-Spin-1 \& gauge QCA (Sec.~\ref{sec:gauge}) & A/B & All-$k$ $\mathbb{Z}_2^{24}$ superselection forces links, Tier~B single-speed QED ($9.4 \times 10^{-8}$) \& chiral $2T$ weak wall & Continuum $a \to 0$, Higgs EWSB, and $\alpha$ remain open \\
-\addlinespace[3pt]
-4D $D_4$ Yang--Mills gap (Sec.~\ref{sec:gauge}) & C & Unconditional 3-link triangle Dobrushin gaps: $SU(2)\, 0.285141$ ($3.02\times$ BE), $SU(3)\, 0.563019$ ($2.65\times$ BE) & Strong-coupling lattice window only ($\beta \to \infty$ open) \\
-\addlinespace[3pt]
-Decoherence \& Born (Sec.~\ref{sec:decoherence}) & A/B & Live $2.25\times$ Szegedy gap, Quantum Darwinism, $p = 2$ Born--Gleason uniqueness, 27D Markovian swap test & Operational Born bridge remains a postulate \\
+Spectral geometry (Sec.~\ref{sec:spectral}) & Bare geometry & $859\times$ collapse of $\rho(\{3,4,3,4\})$ to $[11.439047, 11.443713]$, gap $> 1/2$, Landauer export floor & Exact irrational $\rho$ bracketed to $0.04\%$ \\
+\addlinespace[2pt]
+Holography \& continuum (Sec.~\ref{sec:holography}) & Bare + Clifford ext. & Unique $W(F_4)$ $[[24,1,8]]_3$ tensor, all-$R$ HaPPY code $B_1 = [[552,25,8]]_3$ ($d^{(0)} = 40$), zero-Zeno colimit & Bare $U$ exits code space in 1 beat except $M_{\mathrm{pair}}$ \\
+\addlinespace[2pt]
+Bound states \& clocks (Sec.~\ref{sec:composites}) & Bare + light-mass & Compacton no-go, $83.12\%$ $M_{\mathrm{pair}}$ excision, $1/\sqrt{3k^2+1}$ tower, COE chaos, light-mass $E = mc^2$ & Bare $m = \pi/3$ is lattice-heavy ($R_2 = 7.14$) \\
+\addlinespace[2pt]
+Spin-1 \& gauge QCA (Sec.~\ref{sec:gauge}) & Bare + link ext. & All-$k$ $\mathbb{Z}_2^{24}$ superselection forces links, single-speed QED ($9.4 \times 10^{-8}$) \& chiral $2T$ weak wall & Continuum $a \to 0$, Higgs EWSB, and $\alpha$ remain open \\
+\addlinespace[2pt]
+4D $D_4$ Yang--Mills gap (Sec.~\ref{sec:gauge}) & 4D $D_4$ lattice & Unconditional 3-link triangle Dobrushin gaps: $SU(2)\, 0.285141$ ($3.02\times$ BE), $SU(3)\, 0.563019$ & Strong-coupling lattice window only ($\beta \to \infty$ open) \\
+\addlinespace[2pt]
+Gravity \& dark sector (Sec.~\ref{sec:gravity}) & Bare + metric ext. & Causal $1/r^2$ infall, gravitating binding weight, $D_4$-isotropic spin-2 waves, $\eta = 1$ husk pump, cored halos & Nonlinear 4D gravity \& origin of $w(D)$ remain open \\
+\addlinespace[2pt]
+Decoherence \& Born (Sec.~\ref{sec:decoherence}) & Bare + open bath & Live $2.25\times$ Szegedy gap, Quantum Darwinism, $p = 2$ Born--Gleason uniqueness, 27D Markovian swap & Operational Born bridge remains a postulate \\
+\addlinespace[2pt]
+Multiscale \& Lean~4 (Sec.~\ref{sec:lean-and-open}) & Bare + abstract & $94.53\%$ boundary theorem, $1.95 \times 10^{12}$ $b_0$ gain, $\mathbb{Z}_3$ sheaves, $100\%$ recurrent memory, Lean~4 suite & Field compilation of abstract agents remains open \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+To aid cross-field readers across mathematics and physics, Table~\ref{tab:notation-guide} collects the recurring symbols
+and conventions used throughout the paper.
+
+\begin{table}[htbp]
+\centering
+\caption{Compact notation and cross-field concept orientation used throughout Sections~2--8.}
+\label{tab:notation-guide}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.15cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Symbol / term & Mathematical and physical meaning \\
+\midrule
+$\{3,4,3,4\}$, dock, slot & Infinite hyperbolic 4D 24-cell honeycomb (mesh), one 24-cell (dock), one of its 24 $D_4$ octahedral facets (slot) \\
+$D_4$, $W(F_4)$, cusp $D$ & 24-vector 4D root system, its order-1,152 Weyl symmetry group, and depth $D = 0$ (3D cubic husk) into bulk ($D \ge 1$) \\
+$U$, $D$, $K$, $M_{\mathrm{meet}}$, $M_{\mathrm{pair}}$ & One palindromic unitary beat over $\mathbb{Z}[\zeta_9][1/6]$: half-coin, opposite-sign swap, same-sign contact, 12-line pair mixer \\
+$\Phi_{\mathrm{odd}}$, $\chi_{\mathrm{odd}}$, $S$ & Four-body chiral phase ($\mathcal{C}$-odd, $\mathcal{P}$-odd, $\mathcal{CP}$-even, threshold $k^* = 4$) and 1-hop facet stream ($c = 1$) \\
+$\rho$, $\lambda_{\mathrm{gap}}$, $\lambda$ & $l^2$ adjacency spectral radius ($\rho < 24$), normalized gap $1 - \rho/24 > 1/2$, and Steinberg growth root $\lambda \approx 18.28$ \\
+$[[n,k,d]]_3$, $B_1$ & Ternary symplectic stabilizer code ($k$ logical qutrits in $n$ physical, distance $d$) and radius-1 ball $B_1 = [[552,25,8]]_3$ ($d^{(0)} = 40$) \\
+$2T$, $\Sigma(648)$, $\mathbb{Z}_{18}$ & Native finite gauge subgroups: Hurwitz quaternions $2T < SU(2)_L$, qutrit Clifford $\Sigma(648) < SU(3)_C$, and hypercharge phases \\
+$M_{\mathrm{EH}}$, $\kappa_{\mathrm{LLY}}$ & Linearized staggered 3+1 ADM Einstein operator $K^{-1} E$ on $\{4,3,4\}$ and Lin--Lu--Yau optimal-transport graph Ricci curvature \\
+$I = \chi_Z + D_Z$, $\mathcal{A}$ & Mutual information split into classical Holevo capacity $\chi_Z$ and quantum discord $D_Z$, plus counterfactual autonomy $\mathcal{A}$ \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -165,3 +260,4 @@ Decoherence \& Born (Sec.~\ref{sec:decoherence}) & A/B & Live $2.25\times$ Szege
 With the fixed honeycomb and its exact cyclotomic beat specified, the first structural question is purely geometric: how
 fast does amplitude or entropy drain away across this curved 24-regular network? We begin by pinning down its $l^2$
 spectral radius and Landauer export capacity.
+\FloatBarrier

@@ -6,9 +6,10 @@ four-dimensional breathers, or does hyperbolic curvature disperse them? And if b
 chaotically, mediate entangling gates, and obey relativistic kinematics such as $E = mc^2$ and $1/\gamma$ time dilation?
 This is the core dynamical test of any discrete automaton: whether local unitary gates can assemble stable composite
 matter and relativistic clocks rather than featureless dispersion. We answer these questions across four regimes: an
-unconditional no-go theorem forbidding compactons, a spectral excision proof dissolving isotropic pair bound states into
-Feshbach resonances, an exact integrable collinear composite tower with closed-form dispersion, and a sharp separation
-between lattice-heavy bare clocks and the relativistic light-mass limit.
+unconditional no-go theorem forbidding compactons (strictly finite-support periodic eigenstates), a spectral excision
+proof dissolving isotropic pair bound states into Feshbach resonances, an exact integrable collinear composite tower
+with closed-form dispersion, and a sharp separation between lattice-heavy bare clocks and the relativistic light-mass
+limit.
 
 \subsection{Ballistic expansion and hyperbolic gap excision}
 
@@ -45,24 +46,27 @@ ruling out finite-support breathers unconditionally.
 Relaxing finite support to square-integrable $l^2$ wavefunctions exposes a sharp contrast between isotropic pair
 mixing $M_{\mathrm{pair}}(\zeta_{18})$ and collinear contact scattering $M_{\mathrm{meet}}$ inside bare $U$. On the
 identical-tone two-body sector, $U$ factorizes as $U_{\mathrm{dec}} \circ M_{\mathrm{pair}}(\zeta_{18})$, reducing
-bound-state existence on the infinite four-dimensional honeycomb to a scalar Birman--Schwinger equation on
+bound-state existence on the infinite four-dimensional honeycomb to a scalar Birman--Schwinger eigenvalue equation
+(converting a bound-state pole into a unit eigenvalue of the free resolvent times the perturbation) on
 $l^2(V(\{3,4,3,4\}))$:
 \begin{equation}
 \bigl(I - (\zeta_{18} - 1)\, K(z)\bigr) f = 0.
 \label{eq:birman-schwinger}
 \end{equation}
-Because negative curvature narrows the free-propagation band through Section~\ref{sec:spectral}'s bound
-$\rho/24 \le 0.477170$ (opening a hyperbolic core $P_{\mathrm{hyp}} = 0.3417\pi > q_c = 0.2441\pi$), combining Parseval
-bounds in the momentum gaps ($\sup\hat{t} = 0.5763 \ll \cot(\pi/18) = 5.6713$) and outer wings ($\le 1.0025$) rigorously
-\textbf{excises $83.12\%$ of the spectral circle $S^1$}. This excised zone absorbs the entire flat-4D-$D_4$ bound pocket
-($E_{\mathrm{flat}}(0) = 1.770647\text{ rad}$). Exact radius-3 Dyson--Volterra evolution ($8{,}857$ docks) and the
-infinite Bethe cavity tree $\mathbb{Z}^{*12}$ (covering the remaining $16.88\%$ arcs, sum rule $1.0032$) show that
-hyperbolic curvature dissolves the flat bound pole into a finite-lifetime \textbf{Feshbach resonance} at
+Because negative curvature narrows the free-propagation band through Section~\ref{sec:spectral}'s bound (already
+$\rho/24 \le 0.4772$ at Depth~4, opening a hyperbolic core $P_{\mathrm{hyp}} = 0.3417\pi > q_c = 0.2441\pi$), Parseval
+estimates across the momentum gaps ($\sup\hat{t} = 0.5763 \ll \cot(\pi/18) = 5.6713$) and outer wings ($\le 1.0025$)
+rigorously \textbf{excise $83.12\%$ of the spectral circle $S^1$}, absorbing the flat-4D-$D_4$ bound pocket
+($E_{\mathrm{flat}}(0) = 1.7706\text{ rad}$).
+
+Exact radius-3 Dyson--Volterra evolution ($8{,}857$ docks) and the infinite Bethe cavity tree $\mathbb{Z}^{*12}$
+(sum rule $1.0032$ over the remaining $16.88\%$ arcs) show that hyperbolic curvature dissolves the flat pole into a
+finite-lifetime \textbf{Feshbach resonance} (a metastable quasi-bound state embedded in the scattering continuum) at
 $E_{\mathrm{res}} = 1.6559\text{ rad}$ ($\mathrm{FWHM} = 0.0785\text{ rad}$, lifetime $\tau = 12.73$ beats) paired with
-a Fano antiresonance zero at $E_{\mathrm{meet}}(0) = 1.609267\text{ rad}$. Likewise, exact infinite-volume $16 \times 16$
-resolvents across all four chiral four-line classes ($k^* = 4$) certify zero $\Phi_{\mathrm{odd}}$ bound states
-($\min|\det| = 5.79 \times 10^{-4} > 0$), though resonant interference produces up to a $207.6\times$ chiral trapping
-boost at $t = 16$ and a $4.58\times$ mirror asymmetry.
+a destructive-interference Fano antiresonance zero at $1.6093\text{ rad}$. Likewise, exact
+infinite-volume $16 \times 16$ resolvents across all four chiral four-line classes ($k^* = 4$) certify zero
+$\Phi_{\mathrm{odd}}$ bound states ($\min|\det| = 5.79 \times 10^{-4} > 0$), though resonant interference yields up to
+a $207.6\times$ chiral trapping boost at $t = 16$ and a $4.58\times$ mirror asymmetry.
 
 \subsection{Collinear composite tower and Bethe strings}
 
@@ -71,9 +75,11 @@ answer lies along any single straight antipodal geodesic line of $\{3,4,3,4\}$. 
 distinct internal roles along one line, both $M_{\mathrm{pair}}$ and $\Phi_{\mathrm{odd}}$ act identically as the
 identity, eliminating cross-line leakage altogether.
 
-In this collinear sector, bare $U$ becomes exact Yang--Baxter integrable \cite{yang1967, baxter1972} ($6 \times 6$ braid
-defect $5.70 \times 10^{-16}$, three-body Bethe quantization error $1.78 \times 10^{-15}$). Its rational XXX rapidity
-and universal Bethe $k$-string pole law ($u = -i h$, $h \in \frac{1}{2}\mathbb{Z}$) take compact closed forms:
+In this collinear sector, bare $U$ becomes exact Yang--Baxter integrable \cite{yang1967, baxter1972} (multi-body
+scattering factorizes into pairwise two-body collisions obeying the braid relation, with $6 \times 6$ braid defect
+$5.70 \times 10^{-16}$ and three-body Bethe quantization error $1.78 \times 10^{-15}$). Its rational XXX rapidity and
+universal Bethe $k$-string pole law (a $k$-particle bound complex whose quasimomenta align at $u = -i h$,
+$h \in \mathbb{Z}/2$) take compact closed forms:
 \begin{equation}
 u(p, \alpha) = \frac{2}{\sqrt{3}}\,\frac{\sin E_\alpha(p)}{\sin p},
 \qquad
@@ -132,9 +138,10 @@ $5$ & Penton (pred.) & $(16 + 21\omega)/19$ & $1/\sqrt{76} = 0.115$ & $5\sqrt{3}
 Although pure distinct-role collinear motion is integrable, the full bare automaton $U$ is \emph{not} globally
 integrable. Mixing opposite tones ($K + M_{\mathrm{meet}}$, Yang--Baxter defect $1.1950$) or mixing identical and
 distinct roles ($M_{\mathrm{pair}} + M_{\mathrm{meet}}$, defect $1.3994$) breaks factorization immediately. In the
-collinear three-role sector $(+,+,+,-)$ at $L = 5, Q = +2$, exact Floquet level-spacing ratios reach circular orthogonal
-ensemble (COE) quantum chaos: $\langle r \rangle = 0.5164$ across $336$ non-degenerate gaps, matching the COE benchmark
-$0.5307$ rather than integrable Poisson statistics $0.3863$. On the full four-dimensional honeycomb, exact conservation
+collinear three-role sector $(+,+,+,-)$ at $L = 5, Q = +2$, the mean ratio $\langle r \rangle$ of consecutive Floquet
+eigenphase spacings reaches the Circular Orthogonal Ensemble (COE) signature of time-reversal-symmetric quantum chaos:
+$\langle r \rangle = 0.5164$ across $336$ non-degenerate gaps, matching the COE benchmark $0.5307$ rather than
+integrable Poisson statistics $0.3863$. On the full four-dimensional honeycomb, exact conservation
 of per-line parity $N_a \bmod 2$ forces $M_{\mathrm{pair}}$ and $\Phi_{\mathrm{odd}}$ to be mutually exclusive at
 $k = 4$, first coexisting at $k = 5 = 2 + 1 + 1 + 1$ (confirmed in exact integer arithmetic across $3{,}072$ branches).
 
@@ -145,16 +152,23 @@ separable distinct-role inputs $|(0,1)_{\mathrm{Sym}}\rangle \otimes |(2)\rangle
 lossless partial role-SWAP with a $+\pi/2$ elastic phase ($P_{\mathrm{el}} = 1/3$, $P_{\mathrm{swap}} = 2/3$, zero
 breakup).
 
-Extending collinear gates into general composable four-dimensional circuits hits four quantified obstructions in bare
-$U$ alone. \textbf{Opposite-tone breakup:} colliding opposite-sign excitations through $K$ splits doublons with
-$64.21\%$ breakup probability. \textbf{Zero cross-line contact coupling:} distinct-role $M_{\mathrm{meet}}$ composites
-never couple across intersecting $D_4$ lines ($\mathrm{diff} = 0$). \textbf{Weak diffusive pair blockade:} three-body
-$M_{\mathrm{pair}}$ blockade imparts only $-0.00912\pi$ per beat while diffusing identical pairs isotropically across
-all 12 lines. \textbf{Balanced neutral-pair no-go:} encoding logical trits in neutral pairs
-$\{(-1,+1), (0,0), (+1,-1)\}$ fails under $D$-conservation, ballistic $S_K = -1$ dispersal
-($P_{\mathrm{same}}(40) = 0.0113$), and the exact $(-I, \mathcal{C})$ Annihilation Theorem forcing
-$\chi_{\mathrm{odd}} \equiv 0$ on every $m$-rail neutral-pair junction (all-time decoupling across all $264$ two-rail
-and $1{,}760$ three-rail junctions).
+Extending collinear gates into general composable four-dimensional circuits meets four quantified obstructions inside
+bare $U$ alone.
+
+\textbf{Opposite-tone breakup:} Colliding opposite-sign excitations through the swap layer $K$ splits doublons with
+$64.21\%$ breakup probability rather than imparting a clean elastic phase.
+
+\textbf{Zero cross-line contact coupling:} Distinct-role $M_{\mathrm{meet}}$ composites propagate independently along
+intersecting $D_4$ lines with exact zero cross-line coupling ($\mathrm{diff} = 0$).
+
+\textbf{Weak diffusive pair blockade:} Three-body $M_{\mathrm{pair}}$ blockade imparts only $-0.00912\pi$ per beat
+while diffusing identical-role pairs isotropically across all 12 lines.
+
+\textbf{Balanced neutral-pair no-go:} Encoding logical trits in neutral pairs $\{(-1,+1), (0,0), (+1,-1)\}$ fails under
+activity conservation, ballistic $S_K = -1$ dispersal ($P_{\mathrm{same}}(40) = 0.0113$), and the exact
+$(-I, \mathcal{C})$ Annihilation Theorem forcing $\chi_{\mathrm{odd}} \equiv 0$ on every $m$-rail neutral-pair junction
+(all-time decoupling across all $264$ two-rail and $1{,}760$ three-rail junctions). We return to the resulting
+substrate-versus-bare-$U$ computability boundary in Section~\ref{sec:lean-and-open}.
 
 \subsection{Light-mass relativity, clocks, and warp null tests}
 
@@ -164,11 +178,13 @@ strictly additive inertial mass $m_{k,\mathrm{inert}} = k\sqrt{3}$ despite $76.8
 giving species-dependent maximum speeds $v_{k,\max} = 1/\sqrt{3k^2+1}$ and a large Lorentz remainder ratio
 $R_2 = m_{2,\mathrm{inert}} / \Omega_2(0) = 7.1406 \neq 1$.
 
-Yet the contact interaction $4 n_+ n_-$ inside $M_{\mathrm{meet}}$ is mathematically a discrete Floquet massive Thirring
-model \cite{thirring1958}. Holding the bare phase $\phi_{\mathrm{meet}} = 2\pi/3$ fixed while lowering only the coin
-mass $m \to 0$ (continuum light-mass scaling) restores exact Einstein relativity cleanly: at $m = 0.025$, quasienergy binding
-reaches $51.08\%$ ($50\%$ limit), inertial mass drops in lockstep by $50.08\%$ (defect-to-binding ratio $0.9804 \to 1$),
-$R_2 = 1.0206 \to 1$, $c_{\mathrm{eff}} = 0.9898 \to 1$, and quartic dispersion ratio $\rho_2 = 0.9952 \to 1$.
+Yet the contact interaction $4 n_+ n_-$ inside $M_{\mathrm{meet}}$ is mathematically a discrete-time Floquet version of
+the $(1+1)$-dimensional massive Thirring model (a relativistic Dirac fermion with local four-fermion contact coupling)
+\cite{thirring1958}. Holding the bare phase $\phi_{\mathrm{meet}} = 2\pi/3$ fixed while lowering only the coin
+mass $m \to 0$ (continuum light-mass scaling) restores exact Einstein relativity cleanly: at $m = 0.025$, quasienergy
+binding ($51.08\%$) and inertial-mass defect ($50.08\%$) lock together toward the exact $50\%$ continuum limit, driving
+all relativistic ratios toward unity ($R_2 = 1.0206$, $c_{\mathrm{eff}} = 0.9898$, quartic dispersion ratio
+$\rho_2 = 0.9952$).
 
 This mass-remainder insight also explains why naive lattice composite clocks can exhibit wrong-sign acceleration when
 boosted. For any two-level composite whose ground and excited rest inertia remainders $R_j = m_{j,\mathrm{inert}} / M_j$
@@ -188,15 +204,16 @@ two-flavor Dirac theorem $\partial E / \partial m|_P = \sqrt{1 - (v / v_{\max})^
 even at bare $U$'s heavy coin $m = \pi/3$.
 
 Finally, we subject the honeycomb's Steinberg warp factor $\lambda = 18.2787077744$ ($a_1 = \lambda^{1/3}$,
-$\lambda^{-1/2} = 0.2339$) to a strict external anti-numerology audit against Standard Model fermion mass ratios and CKM
-mixing angles (Table~\ref{tab:clocks-warp}). Assigning integer bulk depths yields order-unity prefactors in
+$\lambda^{-1/2} = 0.2339$) to a strict external anti-numerology audit against Standard Model fermion mass ratios and
+Cabibbo--Kobayashi--Maskawa (CKM) quark mixing angles (Table~\ref{tab:clocks-warp}). Assigning integer bulk depths yields order-unity prefactors in
 $[0.69, 1.76]$ across five decades (leptons $\lambda^{-(0,1,3)}$, up quarks $\lambda^{-(0,2,4)}$, down quarks
 $a_1^{-(0,4,7)}$, $|V_{us}| \approx \lambda^{-1/2}$ within $+4.0\%$). However, sweeping $2{,}801$ rival bases
 $b \in [2, 30]$ under both linear and Jeffreys log-uniform priors proves that statistical significance vanishes once
-exponents are allowed to vary freely ($p_{\mathrm{log}} = 0.6994$ and $0.6226$), and an exhaustive Koide control
-\cite{koide1983} confirms that no discrete depth triple approaches $Q_{\mathrm{PDG}} = 0.6666605$ (best triple $(0,1,3)$
-gives $Q = 0.67870$, $1{,}955\times$ worse, inside a $20.5\%$ base plateau). The Steinberg warp therefore compresses
-hierarchies only at order unity once depth assignments are supplied externally.
+exponents are allowed to vary freely ($p_{\mathrm{log}} = 0.6994$ and $0.6226$), and an exhaustive check against Koide's
+empirical charged-lepton mass relation \cite{koide1983} confirms that no discrete depth triple approaches
+$Q_{\mathrm{PDG}} = 0.6666605$ (best triple $(0,1,3)$ gives $Q = 0.67870$, $1{,}955\times$ worse, inside a $20.5\%$ base
+plateau). The Steinberg warp therefore compresses hierarchies only at order unity once depth assignments are supplied
+externally.
 
 \begin{table}[htbp]
 \centering
@@ -223,3 +240,4 @@ Discrete-depth Koide control & Best $(0,1,3)$: $Q = 0.67870$ & $1{,}955\times$ w
 Because collinear collisions build an exact tower of bound composites and restore relativistic kinematics in the
 light-mass limit, a decisive structural question follows immediately: can multi-body excitations of the bare automaton
 also bind into a massless transverse spin-1 gauge boson, or does an exact conservation law block them?
+\FloatBarrier

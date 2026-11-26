@@ -10,9 +10,9 @@ Yang--Mills mass gaps past $3\times$ Bakry--\'Emery.
 
 \subsection{All-body spin-1 obstruction in the bare rule}
 
-In the bare automaton, perturbative contact-RPA analysis requires an unphysical coupling $g_c = 8.7353$ to close the
-vector gap, and exact two-body $1^{--}$ dipoles suffer complete $K$-layer cancellation that leaves a fixed $2\pi/3$ gap
-and zero transverse velocity. A natural question remains: could higher-body multi-axis scattering ($k \ge 3$) or a
+In the bare automaton, perturbative random-phase approximation (contact-RPA) analysis requires an unphysical coupling
+$g_c = 8.7353$ to close the vector gap, and exact two-body $1^{--}$ dipoles (spin-1 vector states odd under parity and
+charge conjugation) suffer complete $K$-layer cancellation that leaves a fixed $2\pi/3$ gap and zero transverse velocity. A natural question remains: could higher-body multi-axis scattering ($k \ge 3$) or a
 finite-density neutral pair condensate produce a massless transverse photon? Exact symmetry analysis rules out that
 possibility across all excitation numbers $k \ge 1$ and all densities $\rho \ge 0$:
 
@@ -72,15 +72,17 @@ fermions lock to one shared light speed to $9.40 \times 10^{-8}$ at $|q| = 10^{-
 transverse massless polarizations and zero propagating longitudinal mode.
 
 The same 24-cell geometry supplies exact non-Abelian gauge building blocks without external imports. The 24 unit Hurwitz
-vertices of the 24-cell form the binary tetrahedral group $2T = \mathrm{SL}(2,3) < SU(2)_L$, which integrates all $126$
-monomials of degree $\le 5$ identically to Haar measure on $SU(2)$ (an exact spherical 5-design and unitary 2-design,
-with first deviation $1/64$ at degree~6). Its 24-cell electric Laplacian has exact spectrum
-$\{0\,(\times 1), 1/2\,(\times 4), 1\,(\times 9), 5/4\,(\times 8), 3/2\,(\times 2)\}$, reproducing $j = 0 < 1/2 < 1$ and
-the $\mathfrak{su}(2)$ commutator algebra. Together with the qutrit Clifford subgroup
-$\Delta(27) \trianglelefteq \Sigma(648) < SU(3)_C$ (an exact unitary 2-design in $SU(3)$ with frame potentials $(1, 2, 7)$)
-and the ring's native $\mathbb{Z}_{18}$ phase group (which, unlike $\mathbb{Z}_6$, preserves all six Standard Model
-hypercharges and all four $B - L$ charges faithfully), the unified discrete gauge extension passes every structural and
-dynamical audit in Table~\ref{tab:unified-gauge}.
+quaternions sitting at the vertices of the 24-cell form the order-24 binary tetrahedral group $2T = \mathrm{SL}(2,3) <
+SU(2)_L$, which matches continuous Haar-measure averages identically across all $126$ monomials of degree $\le 5$ (an
+exact spherical 5-design and unitary 2-design, with first deviation $1/64$ at degree~6). Its 24-cell electric Laplacian
+has exact spectrum $\{0\,(\times 1), 1/2\,(\times 4), 1\,(\times 9), 5/4\,(\times 8), 3/2\,(\times 2)\}$, reproducing
+$j = 0 < 1/2 < 1$ and the $\mathfrak{su}(2)$ commutator algebra. Together with the qutrit Clifford subgroup
+$\Delta(27) \trianglelefteq \Sigma(648) < SU(3)_C$ (an exact unitary 2-design in $SU(3)$ matching second-moment Haar
+averages, with frame potentials $(1, 2, 7)$) and the ring's native $\mathbb{Z}_{18}$ phase group (which, unlike
+$\mathbb{Z}_6$, preserves all six Standard Model hypercharges and all four $B - L$ charges faithfully), the unified
+discrete gauge extension passes every structural and dynamical audit in Table~\ref{tab:unified-gauge} (including
+four-dimensional domain-wall removal of spurious Brillouin-zone Weyl fermion doublers at the eight time-reversal-invariant
+momenta, TRIM).
 
 \begin{table}[htbp]
 \centering
@@ -110,14 +112,19 @@ Color $\Sigma(648)$ \& $\mathbb{Z}_{18}$ hypercharge & $0/108$ normal defects, $
 
 \subsection{Unconditional 4D \texorpdfstring{$D_4$}{D4} lattice Yang--Mills mass gaps}
 
-On the 24-cell's flat four-dimensional partner lattice $D_4$, every site has 24 nearest neighbors, every link borders
-eight equilateral triangles, $O(a^2)$ rotational artifacts vanish identically via Equation~\eqref{eq:d4-isotropy}, and
-reflection positivity across the $x_0 = 0$ site hyperplane holds exactly \cite{wilson1974, celmaster1982,
-osterwalder1978, seiler1982}. Standard 24-cell Bakry--\'Emery and Combes--Thomas curvature bounds \cite{bakry1985,
-combes1973} certify an unconditional infinite-volume Osterwalder--Schrader mass gap up to $\beta_{\mathrm{BE}}^{24c} =
-N^2 / (16\sqrt{7})$ ($0.094491$ for $SU(2)$, $0.212605$ for $SU(3)$). Four exact analytical theorems push this
-zero-truncation window past the single-link Dobrushin ceiling without any Migdal--Kadanoff approximation
-\cite{dobrushin1970, dobrushin1985, holley1987, chen1997, kotecky1986}.
+In Euclidean lattice Yang--Mills theory \cite{wilson1974}, compact gauge links $U_e \in SU(N)$ interact through minimal
+plaquette traces weighted by inverse coupling $\beta$. On the 24-cell's flat four-dimensional partner lattice $D_4$,
+every site has 24 nearest neighbors, every link borders eight equilateral triangles, $O(a^2)$ rotational artifacts
+vanish identically via Equation~\eqref{eq:d4-isotropy}, and Osterwalder--Schrader reflection positivity across the
+$x_0 = 0$ site hyperplane holds exactly \cite{celmaster1982, osterwalder1978, seiler1982}, guaranteeing a
+positive-definite physical Hilbert space and self-adjoint transfer matrix whose spectral gap $m(\beta) > 0$ certifies
+exponential correlation decay (a physical mass gap). Standard analytic methods establish $m(\beta) > 0$ at strong
+coupling (small $\beta$), including Koteck\'y--Preiss polymer cluster expansions, Bakry--\'Emery log-Sobolev curvature
+bounds, and Dobrushin uniqueness criteria bounding how strongly conditional link distributions influence adjacent blocks.
+Baseline 24-cell Bakry--\'Emery and Combes--Thomas bounds \cite{bakry1985, combes1973} certify an unconditional
+infinite-volume mass gap up to $\beta_{\mathrm{BE}}^{24c} = N^2 / (16\sqrt{7})$ ($0.094491$ for $SU(2)$, $0.212605$ for
+$SU(3)$). Four exact analytical theorems push this zero-truncation window past the single-link Dobrushin ceiling without
+any Migdal--Kadanoff approximation \cite{dobrushin1970, dobrushin1985, holley1987, chen1997, kotecky1986}.
 
 \textbf{No-free-lunch ceiling for single-link sweeps:} Any block cover updated solely by iterated single-link
 conditionals yields influence matrix $C_{\mathrm{pure}} = (I - A_{\mathrm{in}})^{-1} A_{\mathrm{out}}$, whose critical
@@ -143,7 +150,7 @@ linear staple term $\beta c_1 (U_1^\dagger U_3^\dagger) \cdot W_2$ from the inte
 the Holley--Stroock residual oscillation from $0.56$ to $\mathrm{osc}(\widetilde{V}_2) \le 0.007953$ (at $\beta = 0.2773$),
 cutting $\alpha_{13}$ from $0.04578$ to $0.03224$. For $SU(3)$, expanding $V_2(U_1, U_3)$ around the background staple
 $M_2$ keeps the linear staple inside $\operatorname{conv}(SU(3))$ and bounds the convex remainder uniformly by
-$0 \le \widetilde{V}_2 \le \frac{\beta^2}{6} v_{\max}^*(\beta)$. A deterministic branch-and-bound sweep over
+$0 \le \widetilde{V}_2 \le (\beta^2 / 6)\, v_{\max}^*(\beta)$. A deterministic branch-and-bound sweep over
 $20{,}384$ boxes at $\beta_0 = 0.5635$ (analytic Rouch\'e tail $B = 9.22 \times 10^{-20}$, minimum Cholesky pivot
 $1.11 \times 10^{-3}$, $48 \times 48$ Weyl quadrature check $1.36 \times 10^{-15}$) certifies
 $\alpha_{13}^{SU(3)}(\beta_0) \le 0.04055$.
@@ -159,7 +166,7 @@ not address the continuum Clay Yang--Mills limit $\beta \to \infty$ \cite{jaffe2
 \begin{tikzpicture}[font=\footnotesize]
 % Left panel: SU(2)
 \begin{scope}[shift={(0,0)}]
-  \node[font=\footnotesize\bfseries, color=twZincInk] at (2.05,2.95) {$SU(2)$ on 4D $D_4$ ($\beta_{\mathrm{BE}}^{24c} = 0.094491$)};
+  \node[font=\footnotesize\bfseries, color=twZincInk] at (2.05,3.18) {$SU(2)$ on 4D $D_4$ ($\beta_{\mathrm{BE}}^{24c} = 0.094491$)};
   \draw[line width=0.5pt, draw=twZincRule] (0,0) -- (4.10,0);
   \draw[line width=0.5pt, draw=twZincRule] (0,0) -- (0,2.35);
   \draw[densely dashed, line width=0.65pt, draw=twPink] (2.891,0) -- (2.891,2.38);
@@ -179,7 +186,7 @@ not address the continuum Clay Yang--Mills limit $\beta \to \infty$ \cite{jaffe2
 
 % Right panel: SU(3)
 \begin{scope}[shift={(7.75,0)}]
-  \node[font=\footnotesize\bfseries, color=twZincInk] at (2.05,2.95) {$SU(3)$ on 4D $D_4$ ($\beta_{\mathrm{BE}}^{24c} = 0.212605$)};
+  \node[font=\footnotesize\bfseries, color=twZincInk] at (2.05,3.18) {$SU(3)$ on 4D $D_4$ ($\beta_{\mathrm{BE}}^{24c} = 0.212605$)};
   \draw[line width=0.5pt, draw=twZincRule] (0,0) -- (4.10,0);
   \draw[line width=0.5pt, draw=twZincRule] (0,0) -- (0,2.35);
   \foreach \y/\val/\lbl/\col/\tag in {
