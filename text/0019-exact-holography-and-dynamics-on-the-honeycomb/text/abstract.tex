@@ -1,38 +1,19 @@
 \begin{abstract}
-Building on the baseline specification of the reversible ternary quantum cellular automaton on the fixed, infinite 4D
-hyperbolic 24-cell honeycomb $\{3,4,3,4\}$ \cite{pollard2026paper18}, we present eleven adversarially audited
-mathematical-physics advances paired with a zero-dependency Lean~4.35.0 formal proof suite expanded from 141 to
-\textbf{341 kernel-built headline theorems across 29 files} ($451$ public theorems \code{\#print axioms}-audited to
-Lean core axioms only, zero \code{sorry}, zero \code{axiom}, zero \code{native\_decide}).
-In spectral geometry, Depth-5 Cartier--Foata flag optimization ($34{,}523$ states, $43{,}312$ flags) and 2-step Markov
-witnesses collapse the certified $l^2$ spectral radius $\rho(\{3,4,3,4\})$ by \textbf{$859\times$} into exact
-\code{BigInt} $[11.439047, 11.443713]$ (asymptotic $[11.439240, 11.443713]$, gap $\lambda_{\mathrm{gap}} \in
-[0.5232, 0.5234] > 1/2$), with Lean certifying $[913/80, 387141227/33670000]$, Steinberg growth
-$\lambda = 18.2787077744$, and Landauer-exact fixed-mesh export bounds.
-In discrete holography, exhaustive $\mathrm{GF}(3)$ symplectic classification isolates a \textbf{unique
-full-$W(F_4)$-covariant 5-uniform tensor $[[24, 1, 8]]_3$} ($536{,}155$ $|E| \le 7$ erasures verified in Lean) gluing
-via bipartite $K$-alternation into an exact all-radius $\{3,4,3,4\}$ HaPPY code ($B_1 = [[552, 25, 40]]_3$,
-$d^{(0)}(B_2) \ge 98$, asymptotic rate $u^3 - 12 u + 12 = 0$, exact Ryu--Takayanagi across $55{,}455$ subsets, all-depth
-cusp isometry). A dynamical holography bridge quantifies exact $3^{24}$-dim bare-$U$ leakage ($M_{\mathrm{pair}}
-P_{\mathrm{code}} = P_{\mathrm{code}}$ vs.\ $94.70\%\text{--}99.999\%$ for $D, K, M_{\mathrm{meet}}, L_4$), uncovers
-a $72$-line ($144$-leg) quantum shield on $B_1$, classifies covariant Cliffords ($1{,}458 / 162 / 108$ untwisted vs.\
-$\{I, R\}$ twisted), builds intertwining QCAs ($U_{\mathrm{star}}, U_{\mathrm{Floq}}$), and shows how transverse
-bulk-depth subdivision ($\operatorname{colim}_D \mathcal{H}_D$, width $a_1^{-D} \to 0$) realizes a continuum
-homomorphism with zero Zeno supertasks.
-In bare-$U$ many-body dynamics, we prove an unconditional compacton no-go ($\forall k, T \ge 1$), excise $83.12\%$ of
-$S^1$ for $M_{\mathrm{pair}}$ bound states (Feshbach resonance $E_{\mathrm{res}} = 1.6559$), discover a universal
-$1/\sqrt{3k^2+1}$ dispersion tower for exact $k = 2, 3, 4$ $\mathrm{Sym}^k$ composites ($k = 4$ tetron in
-$\mathbb{Z}[\omega][1/49]$, $k = 5$ penton $(16+21\omega)/19$), certify COE chaos ($\langle r \rangle = 0.5164$) and
-collinear entangling gates, and recover light-mass Thirring $E = mc^2$ ($50\%$ mass defect) and live $1/\gamma$ clocks
-($\le 0.86\%$) alongside an uncapped $2{,}801$-base warp anti-numerology audit.
-In gauge theory, an exact all-$k$, all-density $\mathbb{Z}_2^{24}$ per-line tone-parity superselection theorem proves
-bare $U$ requires link registers for massless spin-1 bosons. A unified Tier~B single-speed gauge--matter QCA then closes
-the $46\times$ speed gap to $9.40 \times 10^{-8}$ (with $2T < SU(2)_L$ 5-design, $\Sigma(648)$ 2-design, exclusive
-3-boson fusion, past-light-cone domain-wall parity violation, and faithful $\mathbb{Z}_{18}$ hypercharges), while 1+2
-complete 3-link triangle Dobrushin pushes unconditional reflection-positive 4D $D_4$ Yang--Mills mass gaps past
-$3\times$ Bakry--\'Emery: \textbf{$SU(2): 0.285141$} ($3.02\times$ BE, $30.55\times$ KP) and \textbf{$SU(3): 0.563019$}
-($2.65\times$ BE, $60.36\times$ KP).
-Finally, exact multi-body partial traces certify Quantum Darwinism ($I = \chi_Z + D_Z$), $p = 2$ Born and 3D Gleason
-uniqueness, $B_1$ QFI step horizons, and a 27D zero-reset joint-unitary swap test proving hyperbolic outward export
-restores Markovianity where trapped and 1D geodesic baths fail.
+We investigate the spectral geometry, discrete holography, many-body dynamics, gauge structure, and quantum foundations
+of a deterministic, reversible ternary quantum cellular automaton defined on the fixed, infinite four-dimensional
+hyperbolic 24-cell honeycomb $\{3,4,3,4\}$. Each 24-cell carries 24 signed ternary states evolving under a single
+palindromic unitary beat over the cyclotomic ring $\mathbb{Z}[\zeta_9][1/6]$, with three-dimensional observables read
+on the flat cubic horosphere $\{4,3,4\}$ surrounding an ideal cusp. Exact integer bounds tighten the $l^2$ spectral
+radius of $\{3,4,3,4\}$ to $[11.439047, 11.443713]$, proving a normalized spectral gap above $1/2$. On the same
+geometry, exhaustive ternary classification isolates a unique $W(F_4)$-covariant holographic tensor $[[24, 1, 8]]_3$
+that glues into an all-radius hyperbolic code, admits a dynamical bridge to the microscopic beat, and realizes an
+inductive continuum limit along bulk depth without Zeno supertasks. For bare many-body dynamics, we rule out
+finite-support compactons unconditionally, establish an exact collinear composite tower with closed-form
+$1/\sqrt{3k^2+1}$ dispersion and relativistic light-mass convergence, and prove an all-body parity superselection theorem
+showing that massless spin-1 bosons require dynamical link registers. Adding native finite-subgroup links yields a
+single-speed gauge--matter automaton with exact Gauss laws, while block-alternating Dobrushin bounds push unconditional
+4D $D_4$ lattice Yang--Mills mass gaps past $3\times$ Bakry--\'Emery. Multi-body partial traces establish Quantum
+Darwinism, $p = 2$ Born--Gleason uniqueness, and Markovian outward export, backed by 341 machine-checked Lean~4
+theorems. All claims maintain strict tier separation, leaving continuum gauge limits, dynamical gravity, and the
+operational Born bridge explicitly open.
 \end{abstract}

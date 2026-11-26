@@ -1,101 +1,161 @@
-\section{Overview, Microscopic Automaton, and Breakthrough Ledger}
+\section{Overview and Microscopic Automaton}
 \label{sec:overview}
 
-Paper~0018 \cite{pollard2026paper18} established the complete microscopic specification of a deterministic, reversible
-ternary quantum cellular automaton (QCA) on the fixed, infinite four-dimensional hyperbolic 24-cell honeycomb
-$\{3,4,3,4\}$ \cite{coxeter1956, coxeter1973, conway1999,
-schumacher2004, arrighi2019, farrelly2020}, paired with 141 Lean~4.35.0 headline theorems \cite{demoura2021lean4} and
-five explicit open mathematical challenges. The present manuscript reports eleven adversarially audited breakthroughs
-across all five open challenges, unified gauge--matter kinematics, and quantum foundations, expands the zero-dependency
-Lean~4.35.0 suite to \textbf{341 kernel-built headline theorems across 29 files} ($451$ public theorems
-\code{\#print axioms}-audited strictly to Lean core axioms) \cite{cluesurf2026repo}, and enforces the same three-tier
-boundary between exact theorems of the bare rule (Tier~A), prescribed or dynamical link-register reductions (Tier~B),
-and external lattice gauge theory or continuum benchmarks (Tier~C).
+Can a single fixed, reversible discrete automaton in four hyperbolic dimensions host rigorous holographic error
+correction, interacting bound states, quantum chaos, and irreversible local decoherence while clearly demarcating where
+additional gauge and continuum structure is forced? We investigate this question from first principles across spectral
+geometry, discrete holography, many-body scattering, lattice gauge theory, and quantum foundations
+\cite{schumacher2004, arrighi2019, farrelly2020}. Every positive result is paired with its sharp no-go boundary and
+backed by deterministic zero-randomness verification together with a zero-dependency Lean~4 formalization
+\cite{demoura2021lean4, cluesurf2026repo}.
 
-\subsection{Self-contained specification of $\{3,4,3,4\}$ and the bare beat $U$}
+To keep the presentation self-contained from page one, we first fix the exact microscopic geometry, cyclotomic amplitude
+ring, local unitary beat, and three-tier verification contract used throughout the paper.
 
-A \emph{dock} is one regular 4D 24-cell $\{3,4,3\}$ whose 24 octahedral facets (its \emph{slots}) are indexed by the
-24 roots of $D_4$, $\Phi(D_4) = \{\text{permutations of } (\pm 1, \pm 1, 0, 0)\}$, satisfying exact rank-4 $SO(4)$
-isotropy $\sum_{\mathbf{r}\in\Phi(D_4)} r_a r_b r_c r_d = 4(\delta_{ab}\delta_{cd} + \delta_{ac}\delta_{bd} +
-\delta_{ad}\delta_{bc})$. Antipodal roots $(+\mathbf{r}, -\mathbf{r})$ form 12 straight \emph{lines}, grouped into
-three disjoint orthogonal 8-slot \emph{banks} (inscribed 16-cells) permuted by the outer triality quotient
-$W(F_4)/W(D_4) \cong S_3$, where $|W(F_4)| = 1{,}152$ and $|W(F_4)^+| = 576$. Gluing docks face to face yields
-$\{3,4,3,4\}$, proved unconditionally unique in \code{Vibe/Uniqueness4D.lean} among all regular 4D honeycombs combining a
-finite 4-polytope cell, a flat 3D cubic ideal cusp $\{4,3,4\}$, self-duality, and rank-4 isotropy.
+\subsection{The 24-cell dock and the \texorpdfstring{$\{3,4,3,4\}$}{\{3,4,3,4\}} mesh}
 
-Each dock carries an exact $5 \times 5$ Lorentz frame $g \in O^+(4,1; \mathbb{Z}[\sqrt{2}])$ preserving the doubled
-Coxeter Gram matrix $2G$ (minors $2, 3, 2, 1, -2$) and base center $c_0 = (2, 4, 3\sqrt{2}, 2\sqrt{2}, 1)^T$ with
-$2B(c_0, c_0) = -2$. Stepping across facet $a \in \{0, \dots, 23\}$ multiplies on the right by $k_a = F_{n_a} Z$, where
-$F_{n_a}$ reflects across facet normal $n_a$ and $Z$ is central inversion at $c_0$. Every step obeys
-$k_a^T (2G) k_a = 2G$, $\det(k_a) = -1$ (making the 24-regular dock graph globally bipartite), $k_a k_{-a} = I_5$, and
-$(k_a k_{-b})^2 = I_5$ whenever $\mathbf{r}_a \cdot \mathbf{r}_b = 1$, identifying the dock graph with the right-angled
-Coxeter group $W(\Gamma_{24})$ (\code{Vibe/CoxeterTransport.lean}, \code{Vibe/CuspGrowth.lean}). Around an ideal cusp,
-horosphere shells $N_D = 1, 18, 330, 6{,}034, \dots$ and spherical shells $|\partial B_r| = 1, 24, 456, 8{,}376,
-153{,}192, \dots$ obey the exact Steinberg cubic recurrence
+The spatial substrate is the fixed, infinite regular tiling of four-dimensional hyperbolic space $\mathbb{H}^4$ by
+regular 24-cells, denoted by its Schl\"afli symbol $\{3,4,3,4\}$ \cite{coxeter1956, coxeter1973}. We refer to this fixed
+tessellation as the \emph{mesh} and to each individual 24-cell as a \emph{dock}, reserving the word \emph{cell} for
+geometric polytopes and cellular automata. Each dock is self-dual and bounded by 24 octahedral facets called
+\emph{slots}, indexed by the 24 roots of the four-dimensional root system $D_4$ \cite{conway1999}:
+\begin{equation}
+\Phi(D_4) = \bigl\{\,\text{all permutations of } (\pm 1, \pm 1, 0, 0) \in \mathbb{R}^4\,\bigr\},
+\qquad
+|\Phi(D_4)| = 24.
+\label{eq:d4-roots}
+\end{equation}
+Unlike a four-dimensional hypercubic grid, the $D_4$ root vectors cancel all leading $O(a^2)$ rotational artifacts
+identically through exact fourth-order $SO(4)$ isotropy:
+\begin{equation}
+\sum_{\mathbf{r} \in \Phi(D_4)} r_a r_b r_c r_d
+= 4\bigl(\delta_{ab}\delta_{cd} + \delta_{ac}\delta_{bd} + \delta_{ad}\delta_{bc}\bigr).
+\label{eq:d4-isotropy}
+\end{equation}
+Pairing each slot $\mathbf{r}$ with its antipodal opposite $-\mathbf{r}$ forms 12 straight \emph{lines} passing through
+the dock. Grouping these lines into three complementary orthogonal coordinate-plane pairs yields three disjoint
+8-slot \emph{banks} (inscribed 16-cells). The full symmetry group of one dock is the Weyl group $W(F_4)$ of order
+$1{,}152$, with proper rotation subgroup $W(F_4)^+$ of order $576$ and outer triality quotient
+$W(F_4) / W(D_4) \cong S_3$.
+
+Among all regular four-dimensional honeycombs, $\{3,4,3,4\}$ is uniquely selected by combining a finite self-dual
+4-polytope, exact rank-4 isotropy, and a flat three-dimensional cubic vertex figure $\{4,3,4\}$ around each ideal point
+at infinity (a \emph{cusp}). This geometry creates a clean bulk-to-boundary projection picture: fixing one cusp foliates
+the infinite four-dimensional \emph{bulk} into concentric flat three-dimensional cubic horospheres indexed by integer
+depth $D = 0, 1, 2, \dots$. The outermost slice $D = 0$ is the \emph{husk}, where three-dimensional observables are read.
+Behind every husk dock lies an exponentially widening four-dimensional \emph{beam} of bulk docks whose counts grow
+roughly eighteenfold per depth floor.
+
+Every dock center and facet transport is represented without floating-point rounding by an exact $5 \times 5$ Lorentz
+matrix $g \in O^+(4,1; \mathbb{Z}[\sqrt{2}])$ preserving the Coxeter bilinear form $2B(u, v) = u^T (2G) v$ and base
+center $c_0$ with $2B(c_0, c_0) = -2$. Stepping across facet $a \in \{0, \dots, 23\}$ multiplies the dock frame on the
+right by $k_a = F_{n_a} Z$, where $F_{n_a}$ reflects across facet normal $n_a$ and $Z$ is central inversion at $c_0$:
+\begin{equation}
+k_a^T (2G) k_a = 2G,
+\qquad
+\det(k_a) = -1,
+\qquad
+k_a k_{-a} = I_5.
+\label{eq:transport}
+\end{equation}
+Because $\det(k_a) = -1$, every single hop flips orientation parity $\sigma(g) = \det(g) \in \{+1, -1\}$ and makes the
+24-regular dock graph globally bipartite. Adjacent facets satisfying $\mathbf{r}_a \cdot \mathbf{r}_b = 1$ meet at right
+angles, identifying the dock graph with the right-angled Coxeter group $W(\Gamma_{24})$. Both spherical shell sizes
+$|\partial B_r|$ ($1, 24, 456, 8{,}376, 153{,}192, \dots$) and cusp beam shell sizes $N_D$ ($1, 18, 330, 6{,}034, \dots$)
+obey the exact Steinberg cubic recurrence:
 \begin{equation}
 x(n + 4) = 21\, x(n + 3) - 51\, x(n + 2) + 23\, x(n + 1),
 \qquad
-\lambda = 18.278707774366\ldots,
+\lambda = 18.2787077744\ldots,
 \label{eq:steinberg-cubic}
 \end{equation}
-with 3D horosphere linear warp scale $a_1 = \lambda^{1/3} = 2.6341984907\ldots$ and single-face lateral links
-$l_D = 1, 4, 20, 100, \dots$ (cumulative $5^D$).
+yielding the 3D horosphere linear scale factor $a_1 = \lambda^{1/3} = 2.6341984907\ldots$ per depth floor and canonical
+single-face lateral link counts $l_0 = 1$ and $l_D = 4 \cdot 5^{D-1}$ ($D \ge 1$).
 
-A basis configuration assigns each occupied slot $(g, a)$ a signed ternary tone $\tau \in \{-1, +1\}$ (against the calm
-neutral background $\tau = 0$, empty fixed point $|V_1\rangle$) and an internal role label $j \in \{0, \dots, 8\} \cong
-\mathbb{Z}_3^2$. Finite-support Fock amplitudes evolve strictly over the exact cyclotomic ring
-$\mathbb{Z}[\zeta_9][1/6]$ ($\zeta_9^6 + \zeta_9^3 + 1 = 0$, containing $\omega = \zeta_9^3$, $\zeta_6 = 1 + \omega$,
-and $\zeta_{18} = -\zeta_9^5$) under the palindromic eight-layer unitary beat (\universecode, \code{Vibe/FockBeat.lean}):
+\subsection{Cyclotomic amplitude ring and palindromic beat}
+
+Each slot holds a signed ternary \emph{tone} $\tau \in \{-1, 0, +1\}$, the minimal signed alphabet admitting a neutral
+center $0$ and an exact charge-conjugation involution $\mathcal{C} : \tau \mapsto -\tau$. Every occupied slot
+($\tau = \pm 1$) also carries a discrete internal \emph{role} label $j \in \{0, \dots, 8\} \cong \mathbb{Z}_3^2$. The
+all-zero configuration is the \emph{neutral quiescent mesh state} $|V_1\rangle$, an exact stationary fixed point with no
+fluctuating vacuum. In the bare automaton, a \emph{link} denotes purely conceptual adjacency across a shared facet, with
+no independent gauge register attached.
+
+Quantum amplitudes live strictly inside the exact cyclotomic ring $\mathbb{Z}[\zeta_9][1/6]$, where $\zeta_9$ satisfies
+the sixth-degree cyclotomic polynomial $\zeta_9^6 + \zeta_9^3 + 1 = 0$ (geometrically $\zeta_9 = e^{2\pi i/9}$). Roots
+of unity enter naturally rather than by choice: three-valued ternary phase turns force the cube root $\omega = \zeta_9^3$
+($\omega^2 + \omega + 1 = 0$), deterministic splitting across antipodal slots forces denominator $2$, sixth-root phases
+$\zeta_6 = 1 + \omega$ supply the determinant of the half-coin and chiral phase, and isotropic pair scattering across all
+12 lines introduces denominator $12 = 4 \cdot 3$ together with the eighteenth root $\zeta_{18} = -\zeta_9^5$. No
+transcendental constants or floating-point operations enter the discrete update.
+
+One discrete time step, called a \emph{beat}, applies a single palindromic eight-layer unitary operator:
 \begin{equation}
+|\psi(t + 1)\rangle = U |\psi(t)\rangle,
+\qquad
 U = S \circ \Phi_{\mathrm{odd}} \circ D \circ M_{\mathrm{meet}} \circ M_{\mathrm{pair}}(\zeta_{18}) \circ K \circ D \circ \Phi_{\mathrm{odd}}.
 \label{eq:bare-beat}
 \end{equation}
-Here $D = C_{1/2} = \frac{1}{2}\binom{2+\omega \;\; -\omega}{-\omega \;\; 2+\omega}$ is the half-coin on lone lines
-($D^2 = C$, scalar $\det D = \zeta_6$ on full lines), $K$ swaps opposite-sign full lines with factor $-1$,
-$M_{\mathrm{meet}}$ applies $\omega$ to identical-role same-sign full lines and
-$\frac{1}{2}\binom{1+\omega \;\; \omega-1}{\omega-1 \;\; 1+\omega}$ to distinct-role same-sign full lines,
-$M_{\mathrm{pair}}(\zeta_{18}) = I_{12} + \frac{\zeta_{18} - 1}{12} J_{12}$ scatters a sole identical-tone,
-identical-role antipodal pair isotropically across all 12 lines, $\Phi_{\mathrm{odd}}$ applies
-$\zeta_6^{\sigma(g)\chi_{\mathrm{odd}}(g)}$ using the canonical $W(F_4) \times \mathbb{Z}_2^{\mathcal{C}}$ chiral
-4-body invariant ($k^* = 4$), and $S$ streams slot $a$ across facet $a$ to $(g k_a, a)$. Every local layer conserves
-total excitation count $N$ and integer charge $Q = N_+ - N_-$, while the palindromic sandwich guarantees exact
-$\mathcal{T}$, $\mathcal{CP}$, $\mathcal{CPT}$, and order-576 $W(F_4)^+$ covariance across all time $t \in \mathbb{Z}$.
+Here every local \emph{coin} is a deterministic unitary splitting amplitude across directions with zero randomness:
+\begin{equation}
+D = \frac{1}{2}\begin{pmatrix} 2 + \omega & -\omega \\ -\omega & 2 + \omega \end{pmatrix},
+\qquad
+C = D^2 = \frac{1}{2}\begin{pmatrix} 1 + \omega & 1 - \omega \\ 1 - \omega & 1 + \omega \end{pmatrix},
+\qquad
+M_{\mathrm{meet}}^{\mathrm{diff}} = \frac{1}{2}\begin{pmatrix} 1 + \omega & \omega - 1 \\ \omega - 1 & 1 + \omega \end{pmatrix}.
+\label{eq:local-coins}
+\end{equation}
+The half-coin $D$ acts on lone-occupied lines and multiplies full lines by $\det D = \zeta_6$. At two-excitation
+contact, $K$ swaps opposite-sign full lines with factor $-1$, while $M_{\mathrm{meet}}$ multiplies identical-role
+same-sign full lines by $\omega$ and applies $M_{\mathrm{meet}}^{\mathrm{diff}}$ to distinct-role pairs. On any sole
+identical-tone, identical-role antipodal pair, the 12-line pair mixer scatters isotropically across all 12 lines:
+\begin{equation}
+M_{\mathrm{pair}}(\zeta_{18}) = I_{12} + \frac{\zeta_{18} - 1}{12} J_{12},
+\label{eq:mpair}
+\end{equation}
+where $J_{12}$ is the $12 \times 12$ all-ones matrix. Finally, $\Phi_{\mathrm{odd}}$ applies the chiral four-body phase
+$\zeta_6^{\sigma(g)\chi_{\mathrm{odd}}(g)}$ built from the canonical $W(F_4) \times \mathbb{Z}_2^{\mathcal{C}}$
+orientation sign $\chi_{\mathrm{odd}}$ (which is $\mathcal{C}$-odd, flipping sign when all tones negate, $\mathcal{P}$-odd
+under spatial reflection, and $\mathcal{CP}$-even, turning on strictly at occupation $k^* = 4$). The final layer $S$
+streams every occupied slot $(g, a)$ across facet $a$ to $(g k_a, a)$ with strict unit light-cone speed. Because $K$,
+$M_{\mathrm{pair}}$, and $M_{\mathrm{meet}}$ commute pairwise, the palindromic sandwich guarantees exact time-reversal
+$\mathcal{T}$, combined $\mathcal{CP}$, $\mathcal{CPT}$, and order-576 $W(F_4)^+$ covariance for all $t \in \mathbb{Z}$.
 
-\subsection{Strict three-tier ledger and comparison against Paper~0018}
+\subsection{Three-tier verification architecture}
 
-Every claim in this paper carries an explicit tier label: \textbf{Tier~A} denotes unconditional theorems of bare $U$,
-the infinite $\{3,4,3,4\}$ honeycomb, and exact $\mathrm{GF}(3)$ symplectic codes on $\{3,4,3,4\}$ with nothing bolted on.
-\textbf{Tier~B} denotes effective dynamical reductions motivated by $\{3,4,3,4\}$ geometry (such as the sequential
-collision-model bath in Section~\ref{sec:decoherence}, covariant Clifford holographic QCAs in
-Section~\ref{sec:holography}, or the light-mass $m \ll 1$ Thirring regime of $M_{\mathrm{meet}}$ in
-Section~\ref{sec:composites}). \textbf{Tier~C} denotes external constructive lattice Yang--Mills theory on flat 4D
-$D_4$ and Standard Model warp-ratio audits, never claimed as derivations from bare $U$. Only adversarially audited
-\code{CLEAN PASS} scripts and kernel-built Lean~4.35.0 modules enter our certified statements. Table~\ref{tab:delta-0018}
-summarizes the quantitative advance from Paper~0018 to Paper~0019.
+Throughout this study we separate claims strictly into three tiers so that bare-automaton theorems are never conflated
+with extended constructions or external continuum comparisons. \textbf{Tier~A} covers unconditional theorems of the
+bare automaton $U$, the $\{3,4,3,4\}$ mesh, and exact ternary stabilizer codes native to the 24-cell with nothing added.
+\textbf{Tier~B} covers dynamical extensions motivated by the geometry, including finite-subgroup gauge link registers,
+covariant holographic Clifford dynamics, open-bath collision models, and the light-mass continuum limit of the local
+contact interaction. \textbf{Tier~C} covers external constructive lattice Yang--Mills theory on flat 4D $D_4$ and
+Standard Model mass-hierarchy null tests, which are never claimed as derivations from the bare rule.
+Table~\ref{tab:tier-summary} maps the paper's main findings across these three tiers.
 
 \begin{table}[htbp]
 \centering
-\caption{Quantitative comparison between Paper~0018 \cite{pollard2026paper18} and the adversarially audited results of
-Paper~0019. Every numeric bound is strictly outward-rounded and reproduced by deterministic zero-RNG scripts or Lean~4.35.0.}
-\label{tab:delta-0018}
-\footnotesize
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.95cm}>{\raggedright\arraybackslash}p{0.85cm}>{\raggedright\arraybackslash\hsize=0.88\hsize}X>{\raggedright\arraybackslash\hsize=1.12\hsize}X@{}}
+\caption{Three-tier summary of main results, certified bounds, and structural boundaries across Sections~2--7.}
+\label{tab:tier-summary}
+\small
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.05cm}>{\centering\arraybackslash}p{0.85cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{3.45cm}@{}}
 \toprule
-Domain & Tier & Paper~0018 baseline & Paper~0019 certified advance \\
+Domain & Tier & Certified finding & Explicit boundary \\
 \midrule
-Spectral radius $\rho(\{3,4,3,4\})$ & A & $[11.013439, 14.857143]$ (width $3.8437$, $\lambda_{\mathrm{gap}} \ge 8/21$) & \textbf{$859\times$ collapse}: \code{BigInt} $[11.439047, 11.443713]$, asym.\ $[11.439240, 11.443713]$ ($\lambda_{\mathrm{gap}} \in [0.5232, 0.5234]$), Lean $[913/80, 387141227/33670000]$ \\
+Spectral geometry (Sec.~\ref{sec:spectral}) & A & $859\times$ collapse of $\rho(\{3,4,3,4\})$ to $[11.439047, 11.443713]$, gap $> 1/2$, Landauer export floor & Exact irrational $\rho$ remains bracketed to $0.04\%$ \\
 \addlinespace[3pt]
-$\{3,4,3,4\}$ holography & A/B & Cusp non-closure (\code{E-HLG-0043}), no covariant tensor code & Unique $W(F_4)$ $[[24,1,8]]_3$ ($536{,}155$ Lean erasures), all-$R$ HaPPY code $B_1 = [[552,25,40]]_3$, $u^3 - 12u + 12 = 0$, $72$-line shield, $U_{\mathrm{star}}/U_{\mathrm{Floq}}$, zero-Zeno $\operatorname{colim}_D \mathcal{H}_D$ \\
+Holography \& continuum (Sec.~\ref{sec:holography}) & A/B & Unique $W(F_4)$ $[[24,1,8]]_3$ tensor, all-$R$ HaPPY code $B_1 = [[552,25,40]]_3$, dynamical bridge, zero-Zeno $\operatorname{colim}_D \mathcal{H}_D$ & Bare $U$ exits code space in 1 beat except $M_{\mathrm{pair}}$ \\
 \addlinespace[3pt]
-Composites, chaos \& relativity & A/B & 1D $k=2$ YBE, flat $D_4$ $s$-wave, bare speed ceiling $0.1295$ & Compacton no-go ($\forall k, T$), $83.12\%$ $M_{\mathrm{pair}}$ excision, $1/\sqrt{3k^2+1}$ $k = 2, 3, 4$ tower ($k = 4$ in $\mathbb{Z}[\omega][1/49]$), COE $\langle r\rangle = 0.5164$, Thirring $E = mc^2$ ($50\%$), live $1/\gamma$ clocks ($\le 0.86\%$) \\
+Bound states \& clocks (Sec.~\ref{sec:composites}) & A/B & Compacton no-go, $83.12\%$ $M_{\mathrm{pair}}$ excision, $1/\sqrt{3k^2+1}$ tower ($k = 2\text{--}4$), COE chaos, light-mass $E = mc^2$ & Bare $m = \pi/3$ is lattice-heavy ($R_2 = 7.14$) \\
 \addlinespace[3pt]
-Gapless spin-1 \& unified gauge & A/B & Contact-RPA obstruction ($g_c = 8.735$), $46\times$ bare-to-beam speed gap & All-$k$ $\mathbb{Z}_2^{24}$ superselection + Tier~B single-speed QCA ($9.40 \times 10^{-8}$ lock, $2T$ 5-design, $\Sigma(648)$ 2-design, $3$-boson fusion, $T_{\mathrm{DW}} = 16$ wall) \\
+Spin-1 \& gauge QCA (Sec.~\ref{sec:gauge}) & A/B & All-$k$ $\mathbb{Z}_2^{24}$ superselection forces links, Tier~B single-speed QED ($9.4 \times 10^{-8}$) \& chiral $2T$ weak wall & Continuum $a \to 0$, Higgs EWSB, and $\alpha$ remain open \\
 \addlinespace[3pt]
-4D $D_4$ Yang--Mills mass gap & C & 24-cell BE/CT: $SU(2)\, 0.094491$, $SU(3)\, 0.212605$ & Unconditional 1+2 3-link triangle Dobrushin: \textbf{$SU(2)\, 0.285141$} ($3.02\times$ BE, $30.55\times$ KP), \textbf{$SU(3)\, 0.563019$} ($2.65\times$ BE, $60.36\times$ KP) \\
+4D $D_4$ Yang--Mills gap (Sec.~\ref{sec:gauge}) & C & Unconditional 3-link triangle Dobrushin gaps: $SU(2)\, 0.285141$ ($3.02\times$ BE), $SU(3)\, 0.563019$ ($2.65\times$ BE) & Strong-coupling lattice window only ($\beta \to \infty$ open) \\
 \addlinespace[3pt]
-Decoherence, Born \& selves & A/B & 1-beat algebraic envariance, L1 $(1+4)$-qubit circuit & Live $2.25\times$ Szegedy gap, $2 \times 2$ ablation, Quantum Darwinism ($I = \chi_Z + D_Z$), $p = 2$ Born + 3D Gleason, $B_1$ QFI horizons, 27D zero-reset Markov swap test \\
-\addlinespace[3pt]
-Lean~4.35.0 proof suite & A--C & 141 headline theorems (9 modules, 6 kernel-built) & \textbf{341 headline theorems across 29 files} ($451$ public theorems, 100\% kernel-built, \code{\#print axioms} core-only) \\
+Decoherence \& Born (Sec.~\ref{sec:decoherence}) & A/B & Live $2.25\times$ Szegedy gap, Quantum Darwinism, $p = 2$ Born--Gleason uniqueness, 27D Markovian swap test & Operational Born bridge remains a postulate \\
 \bottomrule
 \end{tabularx}
 \end{table}
+
+With the fixed honeycomb and its exact cyclotomic beat specified, the first structural question is purely geometric: how
+fast does amplitude or entropy drain away across this curved 24-regular network? We begin by pinning down its $l^2$
+spectral radius and Landauer export capacity.

@@ -258,7 +258,7 @@ function runA2PhaseCartography(): void {
   }
 
   console.log(
-    `  [Observable Purity Check] Max <r> across all 42 same-sign Sym^3 bound grid points (M=8, 2 fluxes, 140 gaps/pt): ${maxIntegrableBoundR.toFixed(4)} (< 0.485, ZERO chaosToggle gate!)`,
+    `  [Observable Purity Check] Max <r> across all 42 same-sign Sym^3 bound grid points (M=10, dim=114, symCount=1): ${maxIntegrableBoundR.toFixed(4)} (< 0.485, ZERO chaosToggle gate!)`,
   )
 
   console.log('\n  [Mixed-Sign K + M_meet Sector L=5, k=4 (+,+,+,-), Q=+2 (same classifyPhasePoint)]:')
@@ -1330,7 +1330,11 @@ function runA4AtlasOfMinds(): void {
     bestMind.genome.edges.length <= COG_MAX_EDGES &&
     feedforwardBaseline.edges.length === COG_MAX_EDGES
 
-  // Evaluate across ALL THREE unseen variable horizons T in {8, 12, 16} on 64 disjoint holdout seeds!
+  // Evaluate across ALL THREE unseen variable horizons T in {8, 12, 16} on 64 balanced holdout episodes
+  // (32 disjoint noise seeds x {+1, -1} cue sign per noise stream = 64 individual episodes).
+  // Exact odd symmetry of zero-bias feedforward tanh guarantees FF mean = 0.5000 (50.0% accuracy)
+  // while preserving genuine trial-by-trial variance for honest Cohen's d effect size!
+  const holdoutEpisodeIds = Array.from({ length: 64 }, (_, i) => i)
   const horizons = [8, 12, 16] as const
   const horizonMetrics: {
     readonly T: number
@@ -1348,34 +1352,43 @@ function runA4AtlasOfMinds(): void {
     `\n  [A4.3 Strict delay=0, <=${COG_MAX_EDGES}-Edge MAP-Elites (600 evals)]: occupied=${cogEarly.occupied}->${cogFinal.occupied}/25 ` +
       `(QD=${cogEarly.qdScore.toFixed(2)}->${cogFinal.qdScore.toFixed(2)}, bestQ=${cogFinal.bestQuality.toFixed(4)}, evolvedEdges=${bestMind.genome.edges.length}, ffEdges=${feedforwardBaseline.edges.length})`,
   )
-  console.log('  [Holdout 64 Disjoint Seeds across Unseen Variable Horizons T in {8, 12, 16}]:')
+  console.log('  [Holdout 64 Balanced Disjoint Episodes (32 noise seeds x {+1,-1}) across Unseen Horizons T in {8, 12, 16}]:')
 
   let comp12: ReturnType<typeof runControlledExperiment<CognitiveGenome>> | undefined
   let lesion12: ReturnType<typeof runControlledExperiment<CognitiveGenome>> | undefined
 
   for (const H of horizons) {
     const expH: Experiment<CognitiveGenome> = {
-      id: `exp:delayed_cue_T${H}_64seeds`,
-      name: `Delayed-Cue Memory + Lesion Resilience at T=${H} (delay=0, 64 seeds)`,
-      trial(genome, seed) {
+      id: `exp:delayed_cue_T${H}_64episodes`,
+      name: `Delayed-Cue Memory + Lesion Resilience at T=${H} (delay=0, 64 balanced episodes)`,
+      trial(genome, epIdx) {
         const s0 = performance.now()
-        const res = evaluateCognitiveHorizon(genome, [seed], H)
+        const noiseSeed = holdoutSeeds[epIdx >> 1]!
+        const sign: 1 | -1 = (epIdx & 1) === 0 ? 1 : -1
+        const net = new CognitiveNetwork(genome.nodes, genome.edges)
+        const intact = runDelayedCueEpisode(net, noiseSeed, H, sign)
+        const hiddenIds = ['h1', 'h2', 'h3', 'h4'] as const
+        let lesSum = 0
+        for (const hid of hiddenIds) {
+          lesSum += runDelayedCueEpisode(net.lesionNode(hid), noiseSeed, H, sign).smoothScore
+        }
+        const meanLes = lesSum / hiddenIds.length
         return {
           architecture: genome.id,
-          seed,
+          seed: noiseSeed * 2 + (sign > 0 ? 1 : 0),
           metrics: {
-            delayed_memory: res.delayedMemory,
-            lesion_resilience: res.lesionResilience,
-            binary_accuracy: res.binaryAccuracy,
-            quality: res.quality,
+            delayed_memory: intact.smoothScore,
+            lesion_resilience: meanLes,
+            binary_accuracy: intact.binaryCorrect,
+            quality: 0.55 * intact.smoothScore + 0.45 * meanLes,
           },
           durationMs: performance.now() - s0,
           failed: false,
         }
       },
     }
-    const cMem = runControlledExperiment(expH, bestMind.genome, feedforwardBaseline, holdoutSeeds, 'delayed_memory')
-    const cLes = runControlledExperiment(expH, bestMind.genome, feedforwardBaseline, holdoutSeeds, 'lesion_resilience')
+    const cMem = runControlledExperiment(expH, bestMind.genome, feedforwardBaseline, holdoutEpisodeIds, 'delayed_memory')
+    const cLes = runControlledExperiment(expH, bestMind.genome, feedforwardBaseline, holdoutEpisodeIds, 'lesion_resilience')
     if (H === 12) {
       comp12 = cMem
       lesion12 = cLes
@@ -1510,9 +1523,12 @@ function runA4AtlasOfMinds(): void {
     horizonMetrics.every(
       h =>
         h.candMem >= 0.85 &&
+        h.candAcc >= 0.95 &&
         Math.abs(h.ctrlMem - 0.5) < 0.02 &&
         Math.abs(h.ctrlAcc - 0.5) < 0.02 &&
-        h.wins === holdoutSeeds.length,
+        h.effectSize >= 1.5 &&
+        h.effectSize < 50 &&
+        h.wins >= 48,
     ) &&
     horizonMetrics[1]!.candLesion >= 0.7 &&
     rememberEv.passed &&

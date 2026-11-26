@@ -1290,19 +1290,12 @@ export function build1DMixedChaosSector(
   return U
 }
 
-// Clean bulk integrable <r> on M = 8 (8 % 3 === 2 => symCount === 1 everywhere, zero wraparound
-// ambiguity, dim = 70), averaged across 2 incommensurate Peierls fluxes (140 total gaps per point).
+// Clean bulk integrable <r> on M = 10 (10 % 3 === 1 => symCount === 1 everywhere, zero wraparound
+// ambiguity, dim = 114 non-degenerate levels per point).
 function computeIntegrableR(mCoin: number, detPhase: number, meetPhase: Complex): number {
-  const s1 = computeLevelSpacingRatio(
-    unitaryEigen(buildU3SymEven(8, PI / 13, mCoin, detPhase, meetPhase).U).phases,
-  )
-  const s2 = computeLevelSpacingRatio(
-    unitaryEigen(buildU3SymEven(8, (2 * PI) / 17, mCoin, detPhase, meetPhase).U).phases,
-  )
-  const totalGaps = s1.gapCount + s2.gapCount
-  return totalGaps > 0
-    ? (s1.meanR * s1.gapCount + s2.meanR * s2.gapCount) / totalGaps
-    : 0
+  const { U } = buildU3SymEven(10, PI / 13, mCoin, detPhase, meetPhase)
+  const eig = unitaryEigen(U)
+  return computeLevelSpacingRatio(eig.phases).meanR
 }
 
 // =================================================================================================

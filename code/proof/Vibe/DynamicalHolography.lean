@@ -65,9 +65,12 @@ directly on top of `Vibe.HolographicCode` and `Vibe.HolographicCodeExt`.
        of `Fin 24` via exact 3-frame decomposition + sharpness witnesses), `S_2` shell strata (`360` `m=1`,
        `96` `m=2`, `456` total), and unconditional combinatorial lower bound **`d^(0)(B_2) ≥ 98`**.
   8. **W11 Single-Cone `r = 3` Zero-Loss & Sharp `r = 4` Threshold (`dh_b1_single_cone_threshold`):**
-     - Explicit `21`-row pure-cone stabilizer basis `S(C_0)` of `T_-` with verified `GF(3)` rank soundness:
-       `r = 1` (`11/11` full rank `4`), `r = 2` (`55/55` full rank `8`), `r = 3` (**`0 / 165`** logical/inward
-       coupling, `21 / 165` pure weight-6 cone stabilizers), and `r = 4` (**`56 / 330`** logical/inward coupling).
+     - Explicit `21`-row pure-cone stabilizer basis `S(C_0)` of `T_-` plus exact symbolic symplectic kernel
+       certification across ALL `11 + 55 + 165 + 330 = 561` line subsets of `C_0` (via `5`-uniformity for
+       `r = 1, 2` and `W(B_3)` orbit covariance + explicit dual/stabilizer/coupling witnesses for `r = 3, 4`):
+       `r = 1` (`11/11` zero kernel), `r = 2` (`55/55` zero kernel), `r = 3` (**`0 / 165`** logical/inward
+       coupling, exact **`21 / 165`** pure weight-6 cone stabilizers in `S(C_0)`), and `r = 4` (exact
+       **`56 / 330`** logical/inward coupling, witnessed explicitly on `[1, 2, 3, 10]` with ranks `15` vs `16`).
   9. **W10 `D = 0` Cusp Gauss Law & `D ≥ 1` Clique Invariance (`dh_cusp_d0_gauss_law_and_dge1_cliques`):**
      - Existence and full symbolic uniqueness of `g_L = Z^{⊗6}|_L` inside `hcBulk23^⊥` supported on the `D = 0`
        cusp octahedron `L = {0, 1, 4, 5, 8, 9}`, plus `L ∩ Adj(b)` clique certification across all `18` downward
@@ -2899,7 +2902,7 @@ theorem dh_dock_clifford_uniform_and_streaming_audit :
     by_cases hD : hcMat2Det (dhDecodeMat2 n) ≠ 0
     · rw [decide_eq_true hD, Bool.true_and, Bool.true_and]
       cases hP : dhUniformPreservesBulk23 (dhDecodeMat2 n)
-      · symm; rw [decide_eq_false_iff_not]; intro hC
+      · symm; apply decide_eq_false; intro hC
         rcases hC with h1 | h2
         · rw [h1, dh_uniform_and_streaming_certs.2.1.1] at hP; exact Bool.noConfusion hP
         · rw [h2, dh_uniform_and_streaming_certs.2.1.2] at hP; exact Bool.noConfusion hP
@@ -2912,7 +2915,7 @@ theorem dh_dock_clifford_uniform_and_streaming_audit :
     · have hNz : hcMat2Det (dhDecodeMat2 n) ≠ 0 := by omega
       rw [decide_eq_true hD, Bool.true_and, Bool.true_and]
       cases hP : dhUniformPreservesBulk23 (dhDecodeMat2 n)
-      · symm; rw [decide_eq_false_iff_not]; intro hC
+      · symm; apply decide_eq_false; intro hC
         rcases hC with h1 | h2
         · rw [h1, dh_uniform_and_streaming_certs.2.1.1] at hP; exact Bool.noConfusion hP
         · rw [h2, dh_uniform_and_streaming_certs.2.1.2] at hP; exact Bool.noConfusion hP
@@ -3731,8 +3734,11 @@ private theorem dh_int_mul_le_natAbs (x y : Int) (ax ay : Nat)
   have hMul : ∀ m n : Nat, Int.ofNat m * Int.ofNat n = Int.ofNat (m * n) := fun _ _ => rfl
   have hNeg : ∀ m n : Nat, Int.negSucc m * Int.negSucc n = Int.ofNat ((m + 1) * (n + 1)) := fun _ _ => rfl
   have hPN : ∀ m n : Nat, Int.ofNat m * Int.negSucc n ≤ 0 := by
-    intro m n; change Int.negOfNat (m * (n + 1)) ≤ 0
-    cases m * (n + 1) with | zero => exact Int.le_refl 0 | succ k => change Int.negSucc k ≤ 0; omega
+    intro m n
+    have hNeg1 : Int.negSucc n = - Int.ofNat (n + 1) := rfl
+    rw [hNeg1, Int.mul_neg]
+    have hMul' : Int.ofNat m * Int.ofNat (n + 1) = Int.ofNat (m * (n + 1)) := rfl
+    rw [hMul']; omega
   have hNP : ∀ m n : Nat, Int.negSucc m * Int.ofNat n ≤ 0 := by
     intro m n; rw [Int.mul_comm]; exact hPN n m
   cases x with
@@ -4468,7 +4474,7 @@ theorem dh_cusp_d0_gauss_law_and_dge1_cliques :
     intro v hPerp hSupp
     -- 1. Show v_X(0) % 3 = 0 by pairing with dhCuspZ0Probe = hcBulk23 7 + hcBulk23 8!
     have hProbe0 : hcSymp48 dhCuspZ0Probe v = 0 := by
-      unfold dhCuspZ0Probe; rw [dh_symp48_add_left, hPerp ⟨7, by decide⟩, hPerp ⟨8, by decide⟩]
+      unfold dhCuspZ0Probe; rw [dh_symp48_add_left, hPerp ⟨7, by decide⟩, hPerp ⟨8, by decide⟩]; rfl
     have hVX0 : v ⟨0, by decide⟩ ⟨0, by decide⟩ % 3 = 0 := by
       unfold hcSymp48 at hProbe0
       have hTerm : ∀ r : Fin 24,
@@ -4609,7 +4615,7 @@ theorem dh_b1_stabilizer_code_contraction_invariants :
           rw [h4]; omega
         | _ + 2, h => exact absurd h (by omega)
       rw [← hK]
-      cases p with | mk pv hpv => match pv, hpv with | 0, _ | 1, _ => simp only [dhApplyK48]; rw [hZ] | _ + 2, h => exact absurd h (by omega)
+      cases p with | mk pv hpv => match pv, hpv with | 0, _ | 1, _ => simp only [dhApplyK48]; rw [hZ]; rfl | _ + 2, h => exact absurd h (by omega)
     exact thm_hc_code_24_1_8_stabilizer_valid.2.1 c hPlus
   refine ⟨hIso, hRank, dh_bulk23Minus_distances.1, dh_bulk23Minus_distances.2,
     dh_actWordOdd_preserves_bulk23Minus, dh_b1_gluing_and_transitivity_certs.1,
