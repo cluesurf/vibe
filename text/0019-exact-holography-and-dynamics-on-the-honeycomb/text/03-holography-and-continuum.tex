@@ -1,97 +1,93 @@
 \section{Holographic Coding and Continuum Subdivision}
 \label{sec:holography}
 
-Does the 24-cell's own Weyl symmetry group $W(F_4)$ support a high-distance ternary holographic tensor that tiles the
-entire $\{3,4,3,4\}$ honeycomb into an exact bulk-to-boundary isometry \cite{pastawski2015happy}? Understanding how
-hyperbolic geometry protects bulk quantum information on its boundary matters both for discrete holography and for
-explaining how continuous fields can arise from a rigid lattice. Here we classify covariant ternary dock tensors
-exhaustively, construct the all-radius holographic network and its dynamical bridge to the bare automaton, and show how
-transverse bulk-depth subdivision resolves Zeno's supertask dilemma.
+The 24-cell's Weyl symmetry group $W(F_4)$ tightly constrains whether a high-distance ternary holographic tensor can
+tile the entire $\{3,4,3,4\}$ honeycomb into an exact bulk-to-boundary isometry \cite{pastawski2015happy}. Resolving
+this classification determines both how hyperbolic geometry protects bulk quantum information on its boundary and how
+kinematic continuum subdivision operates on a fixed discrete mesh. Here we classify covariant ternary dock tensors
+exhaustively, construct the all-radius holographic network and its dynamical bridge to the bare automaton, and establish
+the kinematic separation of finite-hop motion from transverse bulk-depth refinement.
 
 \subsection{Unique covariant ternary holographic tensor}
 
-A ternary quantum stabilizer code $[[n, k, d]]_3$ encodes $k$ logical qutrits ($\mathbb{C}^3$) into $n$ physical qutrits
-as the joint $+1$ eigenspace of commuting Weyl--Heisenberg operators built from shift $X|a\rangle = |a+1 \bmod 3\rangle$
-and clock $Z|a\rangle = \omega^a|a\rangle$, with minimum Pauli error weight $d$ needed to corrupt logical information.
-Commutation corresponds directly to symplectic orthogonality in $\mathrm{GF}(3)^{2n}$, turning code classification on
-one 24-slot dock into modular representation theory on a 48-dimensional symplectic space splitting under $W(F_4)$ into
-$U_3 \oplus U_9 \oplus V_-$. By channel--state (Choi) duality, a pure state on $n$ qutrits is \emph{$m$-uniform} (every
-$m$-qutrit marginal maximally mixed) precisely when its tensor defines an exact isometry from any $m$ input legs to the
-remaining $n - m$ legs. Exhaustive classification on the bare 24-cell establishes three sharp levels of coding power.
+On one 24-slot dock, commuting ternary Weyl--Heisenberg operators built from shift $X|a\rangle = |a+1 \bmod 3\rangle$
+and clock $Z|a\rangle = \omega^a|a\rangle$ correspond to isotropic subspaces of $\mathrm{GF}(3)^{48}$, splitting under
+$W(F_4)$ into two symplectic copies of $U_3 \oplus U_9 \oplus V_-$ ($\dim = 3, 9, 12$). By channel--state (Choi) duality,
+an $n$-qutrit pure state is \emph{$m$-uniform} (all $m$-leg marginals maximally mixed) precisely when its tensor defines
+an exact isometry from any $m$ legs to the remaining $n - m$ legs. Exhaustive classification on the bare 24-cell
+establishes three sharp levels of coding power.
 
 \textbf{Classical and CSS obstruction:} Every projective monomial lift of $W(F_4)$ over $\mathrm{GF}(3)$ is
 gauge-equivalent to pure global signs $\pm P_g$, and only four of the 32 $\mathrm{GF}(3)[W(F_4)]$-submodules are
 self-orthogonal. Consequently, \textbf{zero self-dual $[24, 12]_3$ codes} preserve $W(F_4)$, capping
 Calderbank--Shor--Steane (CSS) codes (built from separate $X$- and $Z$-type classical codes) at $[[24, 14, 3]]_3$. Even
-the extremal $d = 9$ self-dual codes $S_{24}$ \cite{pless1968} and $QR_{24}$ have automorphism orders indivisible by
-$9 = |\mathrm{Syl}_3(W(F_4))|$, intersecting $W(F_4)$ across all $24!$ relabelings at most in the order-12 Coxeter
-subgroup $C_{12}$.
+the extremal $d = 9$ self-dual Pless symmetry code $S_{24}$ \cite{pless1968} and ternary quadratic-residue code
+$QR_{24}$ have automorphism orders indivisible by $9 = |\mathrm{Syl}_3(W(F_4))|$, intersecting $W(F_4)$ across all
+$24!$ relabelings at most in the order-12 Coxeter subgroup $C_{12}$.
 
-\textbf{Untwisted symplectic ceiling:} Exhaustive Goursat enumeration of all $3{,}380$ untwisted $W(F_4)$-invariant
-isotropic subspaces proves exact ceilings of $[[24, 0, 4]]_3$ for pure states (forced by the irreducible 9-dimensional
-module $U_9$) and $[[24, 1, 6]]_3$ for degenerate bulk-encoding codes.
+\textbf{Untwisted symplectic ceiling:} Exhaustive Goursat-lemma enumeration of all $3{,}380$ untwisted
+$W(F_4)$-invariant isotropic subspaces proves exact ceilings of $[[24, 0, 4]]_3$ for pure states (forced by the
+irreducible 9-dimensional module $U_9$) and $[[24, 1, 6]]_3$ for degenerate bulk-encoding codes.
 
-\textbf{Unique $S_3$-triality tensor $[[24, 1, 8]]_3$:} Exhaustive Wedderburn Hom-socle classification across all
-projective local-Clifford classes $W(F_4) \to \mathrm{PGL}_2(3)$ and all site-dependent induced actions proves that
-coupling outer triality $W(F_4) / W(D_4) \cong S_3 = \langle K, P \rangle < \mathrm{GL}_2(3)$ splits
-$U_9 \otimes \mathbb{F}_3^2 = W_9^{(4)} \oplus W_9^{(6)}$. This overcomes the weight-4 barrier, isolating exactly two
-pure 5-uniform states $[[24, 0, 6]]_3$ and a \textbf{unique full-$W(F_4)$-covariant 5-uniform bulk-encoding tensor
-$[[24, 1, 8]]_3$} ($d_{\mathrm{pure}} = 6$, logical distance $d = 8$). The bulk qutrit is encoded directly on the
-three-bank triality mode $\mathbf{1}_{F_0} - \mathbf{1}_{F_1}$, with $W(F_4)$ covariance, 5-uniformity across all
-$42{,}504$ five-leg subsets, distances $d_{\mathrm{pure}} = 6$ and $d = 8$, and 100\% bulk erasure
-recovery across all $536{,}155$ boundary erasures of size $|E| \le 7$ machine-checked in Lean~4.
+\textbf{Unique $S_3$-triality tensor $[[24, 1, 8]]_3$:} Exhaustive Wedderburn Hom-socle (irreducible-submodule
+intertwiner) classification across all projective local-Clifford classes $W(F_4) \to \mathrm{PGL}_2(3)$ and all
+site-dependent induced actions proves that coupling outer triality
+$W(F_4) / W(D_4) \cong S_3 = \langle K_{\mathrm{c}}, P_{\mathrm{tri}} \rangle < \mathrm{GL}_2(3)$ splits
+$U_9 \otimes \mathbb{F}_3^2 = W_9^{(4)} \oplus W_9^{(6)}$. This overcomes the weight-4 barrier, isolating two pure
+5-uniform states $[[24, 0, 6]]_3$ and a \textbf{unique full-$W(F_4)$-covariant 5-uniform bulk-encoding tensor
+$[[24, 1, 8]]_3$} ($d_{\mathrm{pure}} = 6$, logical distance $d = 8$). The bulk qutrit is encoded on the difference
+$\mathbf{1}_{F_0} - \mathbf{1}_{F_1}$ between two of the three 8-slot banks, with $W(F_4)$ covariance, 5-uniformity
+across all $42{,}504$ five-leg subsets, distances $d_{\mathrm{pure}} = 6$ and $d = 8$, and 100\% bulk erasure recovery
+across all $536{,}155$ boundary erasures of size $|E| \le 7$ machine-checked in Lean~4.
 
 \subsection{All-radius holographic code and cusp isometry}
 
 Because every non-origin dock $g$ of $\{3,4,3,4\}$ has an inward facet set forming a non-empty clique of $\Gamma_{24}$,
 its inward degree obeys $1 \le |\mathrm{In}_R(g)| \le 3$, leaving a two-facet safety margin strictly inside the
 $m \le 5$ universal isometry ceiling of $[[24, 1, 8]]_3$. Homogeneous gluing fails symmetry because none of the 24
-valid $\det(M) = 2$ qutrit Bell matrices in $\mathrm{GL}_2(3)$ commute with the triality phase gate $P$. Bipartiteness
-of $\{3,4,3,4\}$ resolves this uniquely: placing the canonical tensor $T_+$ on even docks ($\det g = +1$), its conjugate
-$T_- = K^{\otimes 25} T_+$ on odd docks ($\det g = -1$), and $|\Phi^+\rangle$ ($M = K$) on every internal edge yields an
-exact $[3,4,3,4]$-covariant all-radius bulk-to-boundary isometry
-$V_R : (\mathbb{C}^3)^{\otimes |B_R|} \to (\mathbb{C}^3)^{\otimes |\partial B_R|}$ ($V_R^\dagger V_R = I$ for all
-$R \ge 0$).
-
-\textbf{Algebraic encoding rate:} Alternating bipartite boundary sizes $n_R = 24 |S_R| - n_{R-1}$ yield an exact
-asymptotic bulk-to-boundary rate $r_\infty = \lim_{R\to\infty} |B_R|/|\partial B_R|$ whose rescaled value
-$u = 24 r_\infty$ solves a depressed cubic:
+valid $\det(M) = 2$ qutrit Bell matrices in $\mathrm{GL}_2(3)$ commute with the triality phase gate $P_{\mathrm{tri}}$.
+Bipartiteness of $\{3,4,3,4\}$ resolves this uniquely: placing the canonical tensor $T_+$ on even docks ($\det g = +1$),
+its conjugate $T_- = K_{\mathrm{c}}^{\otimes 25} T_+$ on odd docks ($\det g = -1$), and $|\Phi^+\rangle$
+($M = K_{\mathrm{c}}$) on every internal edge yields an exact $\{3,4,3,4\}$-covariant all-radius bulk-to-boundary
+isometry ($R \ge 0$) on the $n_R$ dangling boundary legs of ball $B_R$ ($n_R = 24 |S_R| - n_{R-1}$, distinct from vertex
+shell size $|\partial B_R|$):
 \begin{equation}
-r_\infty = \frac{\lambda + 1}{24(\lambda - 1)} = 0.046490,
-\qquad
-u^3 - 12 u + 12 = 0.
+V_R : (\mathbb{C}^3)^{\otimes |B_R|} \to (\mathbb{C}^3)^{\otimes n_R}
+\;\;(V_R^\dagger V_R = I),
+\quad
+r_\infty = \lim_{R\to\infty}\frac{|B_R|}{n_R} = \frac{\lambda + 1}{24(\lambda - 1)} = 0.046490,
 \label{eq:happy-cubic}
 \end{equation}
+whose rescaled encoding rate $u = 24 r_\infty$ solves the depressed cubic $u^3 - 12 u + 12 = 0$.
 
 \textbf{Radial distance amplification:} Direct bit-sliced $\mathrm{GF}(3)$ contraction of the radius-1 ball produces
-$B_1 = [[552, 25, 8]]_3$ with full $W(F_4)$ covariance (global distance $d = 8$ set by peripheral shell-1 bulk qutrits,
-whereas non-alternating $T_+/T_+$ gluing breaks triality). Because every single-leg Pauli pushes through $T_-$ with
-minimum weight $5$, deep-bulk distance amplifies fivefold in one shell, giving the central origin bulk qutrit exact
-logical distance $d^{(0)}(B_1) = 40$ (erasure threshold $|E| = 39$ vs.\ $40$). On $B_2$, induced-edge bounds certify
-$d^{(0)}(B_2) \ge 98$, paired with explicit zero-leakage pushed origin logicals of weight $204$ ($Z_L$) and $205$
-($X_L$). Greedy wedge reconstruction recovers 100\% of bulk qutrits on $B_2$ and $B_3$ under uniform boundary erasure up
-to $p_{\mathrm{greedy}}^\infty = (5\lambda - 19)/(24\lambda) = 16.50\%$, and recovers the origin under structured
-erasure of $44.97\%$ of $\partial B_2$.
+$B_1 = [[552, 25, 8]]_3$ with full $W(F_4)$ covariance, where peripheral shell-1 bulk qutrits fix global distance
+$d = 8$ while non-alternating $T_+/T_+$ gluing breaks triality (Table~\ref{tab:holo-bridge}, top). Because every
+single-leg Pauli pushes through $T_-$ with minimum weight $5$, deep-bulk distance amplifies fivefold in a single shell,
+lifting the central origin bulk qutrit to exact distance $d^{(0)}(B_1) = 40$ and pushing $B_2$ to $d^{(0)}(B_2) \ge 98$.
+Greedy wedge reconstruction recovers all bulk qutrits on $B_2$ and $B_3$ under uniform boundary erasure up to the
+asymptotic threshold $16.50\%$, and recovers the origin under structured boundary erasure up to $44.97\%$ on $B_2$.
 
-\textbf{Ryu--Takayanagi, FLM, and cusp isometry:} On pure $[[552, 0]]_3$, the discrete Ryu--Takayanagi area law
-$S(A) = |\gamma_A|\ln 3$ \cite{ryu2006rt} (equating boundary entanglement entropy to the minimum bulk cut area
-$|\gamma_A|$) holds identically across all $55{,}455$ multi-cone subsets with $k \le 5$, contiguous $k = 6$, and
-bulk-snapping partial cones, with sharp $0 \to 16\ln 3$ mutual-information transitions and computable stabilizer
-deficits at larger cuts ($k = 8, 10, 12$). On $[[552, 25, 8]]_3$, the Faulkner--Lewkowycz--Maldacena (FLM) bulk-entropy
-correction $S(A) = |\gamma_A|\ln 3 + S_{\mathrm{bulk}}$ \cite{faulkner2013flm} holds in both exact regimes ($k \le 5$
-and $k \ge 17$), while a central mixed black hole yields zero shift for $k \le 7$, a classical horizon across
-$k = 8\text{--}16$, and a universal $+1\ln 3$ entropy jump for $k \ge 17$. Along the horosphere cusp foliation, every
-dock at depth $D \ge 1$ satisfies $|\mathrm{up}(g)| + |\mathrm{lat}(g)| \le 3 < 5$, yielding exact lateral-Bell isometry
-for all $D \ge 1$, while at $D = 0$ the unique pure-$Z$ weight-6 stabilizer $g_L = Z^{\otimes 6}|_L$ induces a single
-volume-independent global $\mathbb{Z}_3$ Gauss law verified on closed even cusp tori.
+\textbf{Ryu--Takayanagi, FLM, and cusp isometry:} Partitioning the boundary of $B_1$ into the 24 shell-1 boundary cones
+($k \in \{1, \dots, 24\}$), the discrete Ryu--Takayanagi (RT) area law $S(A) = |\gamma_A|\ln 3$ \cite{ryu2006rt}
+(equating boundary entanglement entropy to minimum bulk cut length $|\gamma_A|$) holds identically on pure $[[552, 0]]_3$
+across all small multi-cone subsets ($k \le 5$) and contiguous $k = 6$ cuts, with sharp mutual-information jumps and
+computable stabilizer deficits at larger cuts (Table~\ref{tab:holo-bridge}, top). On $[[552, 25, 8]]_3$, the
+Faulkner--Lewkowycz--Maldacena (FLM) bulk-entropy correction $S(A) = |\gamma_A|\ln 3 + S_{\mathrm{bulk}}$
+\cite{faulkner2013flm} holds identically for $k \le 5$ and $k \ge 19$ in general (and for $k \ge 17$ on the all-25-mixed
+Choi state), while mixing the central bulk qutrit (a HaPPY black-hole analog) produces a sharp $+1\ln 3$ relative entropy
+jump at $k \ge 17$. Along the horosphere cusp foliation, every dock at depth $D \ge 1$ satisfies
+$|\mathrm{up}(g)| + |\mathrm{lat}(g)| \le 3 < 5$, giving exact lateral-Bell isometry for all $D \ge 1$, whereas at
+$D = 0$ the unique pure-$Z$ weight-6 stabilizer $g_L = Z^{\otimes 6}|_L$ induces a volume-independent global
+$\mathbb{Z}_3$ charge sum rule verified on closed even cusp tori.
 
 \subsection{Dynamical bridge to the bare automaton}
 
-Because the HaPPY construction above is static, a central question follows: does the microscopic beat $U$ preserve the
-code subspace $P_{\mathrm{code}}$ of $[[24, 1, 8]]_3$, or how do the two dynamics connect? Changing variables on each
-antipodal line to $u_l = x_{a_l} + x_{b_l}$ and $v_l = x_{a_l} - x_{b_l} \pmod 3$ factorizes $[[24, 1, 8]]_3$ into
-symmetric and antisymmetric 12-qutrit blocks, enabling exact evaluation of code survival across the full
-$3^{24}$-dimensional dock Hilbert space (Table~\ref{tab:holo-bridge}):
+Because the HaPPY network above is static, we evaluate directly whether the microscopic beat $U$ preserves the code
+subspace $P_{\mathrm{code}}$ of $[[24, 1, 8]]_3$ and classify what auxiliary unitary dynamics preserve it. Changing
+variables on each antipodal line to $u_l = x_{a_l} + x_{b_l}$ and $v_l = x_{a_l} - x_{b_l} \pmod 3$ factorizes
+$[[24, 1, 8]]_3$ into symmetric and antisymmetric 12-qutrit blocks, enabling exact evaluation of code survival across
+the full $3^{24}$-dimensional dock Hilbert space (Table~\ref{tab:holo-bridge}, bottom):
 \begin{equation}
 p_{\mathrm{code}}(L) = \frac{1}{3}\operatorname{Tr}\bigl(P_{\mathrm{code}} L P_{\mathrm{code}} L^\dagger\bigr).
 \label{eq:pcode}
@@ -99,88 +95,79 @@ p_{\mathrm{code}}(L) = \frac{1}{3}\operatorname{Tr}\bigl(P_{\mathrm{code}} L P_{
 
 Two exact results characterize the bare automaton. First, because stabilizer $Z^{\otimes 24} = +1$ forbids
 $Q \equiv \pm 2 \pmod 3$, the 12-line pair mixer $M_{\mathrm{pair}}(\zeta_{18})$ acts as the \textbf{exact identity} on
-the $+1$ code subspace ($p_{\mathrm{code}} = 1$). Every other interacting bare layer ($D, K, M_{\mathrm{meet}},
-L_4 = D M_{\mathrm{meet}} K D$, and $\Phi_{\mathrm{odd}}$) is strictly non-Clifford (lying outside the
-stabilizer-preserving Clifford group, with nonzero stabilizer R\'enyi magic $M_2$) and leaks $94.70\%$ to $99.999\%$
-out of $P_{\mathrm{code}}$ in one beat, with $\Phi_{\mathrm{odd}}$ first encountering chiral codewords at exact weight
-$7$. Second, exact Pauli-twirl analysis shows strong residual protection: conservation of $u_l$ preserves the classical
-logical $Z_L$ channel at a strict $1.0000\ln 3$ floor on $B_0$, while on $B_1$ all three-line cone collisions are pure
-weight-6 cone stabilizers with zero logical coupling, proving an exact \textbf{72-line (144-qutrit) quantum shield} with
-single-cone degradation threshold at $r = 4$ lines.
+the $+1$ code subspace ($p_{\mathrm{code}} = 1$). Every other line-local bare layer ($D, C = D^2, K, M_{\mathrm{meet}},
+L_4 = D M_{\mathrm{meet}} K D$) is strictly non-Clifford (lying outside the stabilizer-preserving Clifford group, with
+nonzero stabilizer R\'enyi magic $M_2$) and leaks $94.70\%$ to $99.999\%$ out of $P_{\mathrm{code}}$ in one beat. The
+chiral four-body phase $\Phi_{\mathrm{odd}}$ likewise exits $P_{\mathrm{code}}$ ($p_{\mathrm{code}} < 1$, breaking
+$15/15$ $X$-stabilizers and first hitting chiral codewords at exact weight $7$). Second, exact Pauli-twirl analysis
+reveals localized residual protection: conservation of $u_l$ preserves the classical logical $Z_L$ channel at a strict
+$1.0000\ln 3$ floor on $B_0$, and on $B_1$ all localized three-line cone collisions reduce to pure weight-6 cone
+stabilizers with zero logical coupling, giving a \textbf{72-line (144-qutrit) localized quantum shield} (threshold
+$r = 4$ lines per cone), whereas global bare $U$ still leaves $P_{\mathrm{code}}$ in a single beat.
 
-\begin{table}[htbp]
+\begin{table}[tb]
 \centering
-\caption{Exact $3^{24}$-dimensional bare-$U$ code survival, covariant Clifford classification, and intertwining
-holographic QCAs on $[[24, 1, 8]]_3$ and $B_1 = [[552, 25, 8]]_3$ ($d^{(0)} = 40$).}
+\caption{Certified all-radius code parameters and discrete RT/FLM regimes across the 24 shell-1 cones
+($k \in \{1, \dots, 24\}$, top), plus exact $3^{24}$-dimensional bare-$U$ code survival, covariant Cliffords, and
+auxiliary intertwining QCAs on $[[24, 1, 8]]_3$ and $B_1 = [[552, 25, 8]]_3$ (bottom).}
 \label{tab:holo-bridge}
-\small
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.55cm}>{\raggedright\arraybackslash}p{2.55cm}>{\raggedright\arraybackslash}X@{}}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.55cm}>{\raggedright\arraybackslash}p{3.45cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Static code / RT--FLM regime & Certified parameter & Structural scope and exact boundary \\
+\midrule
+Radius-1 ball $B_1 = [[552, 25, 8]]_3$ & Origin $d^{(0)} = 40$, global $d = 8$ & Full $W(F_4)$ covariance, erasure threshold $|E| = 39$ vs.\ $40$ (non-alt.\ breaks triality) \\
+Radius-2 ball $B_2$ \& greedy wedge & $d^{(0)} \ge 98$ ($204\ Z_L, 205\ X_L$) & Uniform $p_{\mathrm{greedy}}^\infty = (5\lambda - 19)/(24\lambda) = 16.50\%$, structured $B_2$ origin $44.97\%$ \\
+Pure RT on $[[552, 0]]_3$ & Exact on $55{,}455$ cuts ($k \le 5$) & Contiguous $k = 6$ exact ($0 \to 16\ln 3$ MI jump), computable deficits at $k = 8, 10, 12$ \\
+FLM ($B_1$) \& cusp isometry & Exact $k \le 5, k \ge 19$ (Choi $k \ge 17$) & Mixed center: $0$ ($k \le 7$), plateau ($8\text{--}16$), $+1\ln 3$ ($k \ge 17$), $D \ge 1$ iso., $D = 0$ $Z^{\otimes 6}$ rule \\
+\bottomrule
+\end{tabularx}
+
+\vspace{4pt}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.55cm}>{\raggedright\arraybackslash}p{3.45cm}>{\raggedright\arraybackslash}X@{}}
 \toprule
 Layer or operator class & Code survival $p_{\mathrm{code}}$ & Certified structural action \\
 \midrule
 $M_{\mathrm{pair}}(\zeta_{18})$ & $1.000000$ (exact) & Exact identity on $+1$ code space ($Z^{\otimes 24} = +1$) \\
 Half-coin $D$ & $0.052980$ & $94.70\%$ leak, $M_2 = 0.8293$, exact $1.00\ln 3$ $Z_L$ floor \\
-$K$, $M_{\mathrm{meet}}$, $L_4$ & $0.00248$ to $0.00027$ & Non-Clifford ($M_2 \le 1.52$), $B_1$ shields $72$ lines ($144$ legs) \\
-Chiral phase $\Phi_{\mathrm{odd}}$ & $< 1$ (breaks $15/15$ $X$) & Zero chiral codewords at wt $4\text{--}6$, minimum chiral wt $7$ \\
+$K, L_4, M_{\mathrm{meet}}, C$ & $0.00248$ to $1.15 \times 10^{-5}$ & Non-Clifford ($M_2 \le 1.52$), $B_1$ localized 72-line shield \\
+Chiral phase $\Phi_{\mathrm{odd}}$ & $< 1$ ($15/15$ $X$ broken) & Zero chiral codewords at wt $4\text{--}6$, minimum chiral wt $7$ \\
 $(N, Q)$-conserving Cliffords & Monomial $P_\pi U_q$ & Untwisted $1{,}458 / 162 / 108$ ($C_3$) vs.\ twisted $\{I, R\}$ (ord.\ $2$) \\
-Intertwining $U_{\mathrm{star}}, U_{\mathrm{Floq}}$ & $1.000000$ ($0$ leak) & Order-3 $W(F_4)$ star on $B_1$ (25-qutrit GHZ), $2T \circ 2T$ cone on $B_3$ \\
+Aux.\ $U_{\mathrm{star}}, U_{\mathrm{Floq}}$ & $1.000000$ ($0$ leak) & Non-local $W(F_4)$ star on $B_1$ (25-qutrit GHZ), $2T \circ 2T$ cone on $B_3$ \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 Exhaustive $\mathrm{GF}(3)$ endomorphism classification explains why bare $U$'s hopping layers cannot act directly as
-code-preserving Cliffords: every $(N, Q)$-conserving 24-qutrit Clifford is strictly monomial $P_\pi U_q$ ($1{,}458$
-untwisted elements vs.\ $\{I, R\}$ under twisted $S_3$-triality). Extending to the symmetry-twisted Clifford sector,
-zero single-edge $W(F_4)$-covariant entangling gates exist ($0/81$), yet coordination number $24 \equiv 0 \pmod 3$
-cancels the $\det(K) = -1$ obstruction and admits an exact order-3 full-$W(F_4)$ bulk star QCA $U_{\mathrm{star}}$ on
-$B_1$ lifting to $\mathrm{Sp}(1104, 3)$ with zero leakage and generating 25-qutrit GHZ entanglement. Restricting to
-$2T \circ 2T$ gives a commuting nearest-neighbor edge QCA $U_{\mathrm{NN}}$ and Floquet evolution $U_{\mathrm{Floq}}$
-with an exact 1-shell/beat light cone on $B_3$ ($8{,}857$ docks). On $B_1$, full $k = 1\text{--}12$ mutual-information
-sweeps confirm exact $+2\min(k, r)\ln 3$ ER=EPR metric contraction ($\Delta d_{\mathrm{MI}} = -0.6190$) from neutral
-bulk Bell pairs versus central black-hole screening ($k = 4\text{--}7$).
+code-preserving Cliffords: every 24-qutrit Clifford conserving particle count $N$ and net charge $Q$ is strictly
+monomial $P_\pi U_q$ (reducing to $\{I, R\}$ under twisted $S_3$-triality). Moving to auxiliary symmetry-twisted
+Clifford extensions outside bare $U$, zero single-edge $W(F_4)$-covariant entangling gates exist ($0/81$), yet
+coordination number $24 \equiv 0 \pmod 3$ cancels the $\det(K_{\mathrm{c}}) = -1$ obstruction and admits an order-3
+full-$W(F_4)$ bulk star operator $U_{\mathrm{star}}$ on $B_1$ lifting on the code subspace to a non-local symplectic
+operator in $\mathrm{Sp}(1104, 3)$ with zero leakage and 25-qutrit GHZ entanglement. Restricting covariance to the
+order-288 proper subgroup $2T \circ 2T < W(F_4)^+$ yields a commuting nearest-neighbor edge QCA $U_{\mathrm{NN}}$ and
+Floquet evolution $U_{\mathrm{Floq}}$ with an exact 1-shell/beat light cone on $B_3$ ($8{,}857$ docks). On $B_1$,
+full $k = 1\text{--}12$ mutual-information sweeps confirm exact $+2\min(k, r)\ln 3$ mutual-information proxy shortening
+(the tensor-network ER=EPR analog, $\Delta d_{\mathrm{MI}} = -0.6190$) from neutral bulk Bell pairs alongside central
+mixed-qutrit screening ($k = 4\text{--}7$).
 
 \subsection{Transverse subdivision and continuum bridges}
 
 Since Zeno of Elea, discrete models of space have faced an apparent dilemma: either space terminates at a rigid pixel
 floor that breaks continuous wave equations, or infinite subdivision is placed along the line of travel, forcing a
 moving particle to cross infinitely many sub-steps in finite time (a Zeno supertask). The hyperbolic bulk of
-$\{3,4,3,4\}$ resolves this dilemma geometrically by separating motion and subdivision into orthogonal directions
+$\{3,4,3,4\}$ separates motion and subdivision into orthogonal directions kinematically
 (Figure~\ref{fig:zeno-subdivision}). Infinite discrete space exists all at once as the algebraic Coxeter orbit
 $M = \operatorname{colim}_r B_r$ rather than by sequential manufacture. Each step deeper in bulk depth $D$ keeps every
 24-cell at fixed unit size in $\mathbb{H}^4$ while shrinking its projected boundary cone diameter on the ideal 3D cusp
 $\mathbb{R}^3$ by $a_1^{-D} = \lambda^{-D/3} \to 0$.
 
-Longitudinal motion from $A$ to $B$ never traverses infinitely many infinitesimal points: every beat of $U$ is a finite
-one-hop facet swap $S$ ($c = 1$), so any finite-energy packet with cutoff $\Lambda$ occupies a finite depth scale
-$D_* \sim \log_{a_1}(\Lambda)$ and travels from $A$ to $B$ in finitely many discrete beats, while long-range
-correlations arch through shallower coarse shells in $O(\log d(A, B))$ hops. Infinite subdivision lives strictly
-\emph{transversely} along bulk depth $D$, available timelessly whenever higher probe energy $E \sim a_1^D$ resolves
-deeper shells. Because a finite discrete patch has finite Hilbert-space dimension while continuum quantum field theory
-carries a Type~$\mathrm{III}_1$ von Neumann algebra (whose sharp spatial boundaries carry infinite entanglement), no
-naive bijective isomorphism exists on a finite patch. Instead, three rigorous homomorphisms connect the discrete mesh to
-continuous physics.
-
-\textbf{Exact inductive-limit isometry (Bridge~A):} The all-depth HaPPY embeddings $V_D : \mathcal{H}_D \to
-\mathcal{H}_{D+1}$ ($V_D^\dagger V_D = I$) define canonical isometries $\Phi_D : \mathcal{H}_D \to \mathcal{H}_\infty =
-\overline{\operatorname{colim}_D \mathcal{H}_D}$ obeying $\Phi_{D+1} \circ V_D = \Phi_D$ and faithful observable
-embeddings $\alpha_D(O) = V_D O V_D^\dagger$ with zero approximation error (intertwining bare $U$ itself into a
-continuum $H_{\mathrm{CFT}}$ remains open).
-
-\textbf{Paley--Wiener band-limited dynamical homomorphism (Bridge~B):} Sinc--Fourier interpolation maps
-$l^2(a\mathbb{Z}^3)$ unitarily onto the band-limited space $\mathrm{PW}_{\pi/a}(\mathbb{R}^3) \subset L^2(\mathbb{R}^3)$
-(functions whose Fourier support lies inside $[-\pi/a, \pi/a]^3$) and intertwines discrete unitary beats with continuum
-Dirac, Maxwell, and Thirring propagators to $O(t(\Lambda a)^2)$, verified quantitatively in Sections~\ref{sec:composites}
-and~\ref{sec:gauge}.
-
-\textbf{Hyperfinite transfer (Bridge~C):} Passing to an ultraproduct over $a_D = a_1^{-D} \to 0$ lifts every all-scale
-discrete Lean~4 invariant automatically to infinitesimal finite differences via transfer.
-
-\begin{figure}[htbp]
+\begin{figure}[tb]
 \centering
 \begin{tikzpicture}[
   font=\footnotesize,
   arr/.style={-{Stealth[length=4.0pt]}, line width=0.8pt},
-  box/.style={draw=twZincRule, line width=0.55pt, fill=white, align=left, inner sep=5pt}
+  box/.style={draw=twZincRule, line width=0.55pt, fill=white, align=left, inner sep=5.5pt}
 ]
 % Ideal 3D cusp boundary
 \draw[line width=0.95pt, draw=twZincInk] (0.0,3.45) -- (7.4,3.45);
@@ -196,11 +183,11 @@ discrete Lean~4 invariant automatically to infinitesimal finite differences via 
 \node[left, font=\scriptsize, color=twZinc] at (0.15,0.65) {$D = 2$};
 
 % Shaded cone of shrinking boundary width a_1^{-D}
-\fill[twZincTint] (6.2,3.45) -- (5.30,2.55) -- (7.10,2.55) -- cycle;
-\draw[line width=0.6pt, dotted, draw=twViolet] (6.2,3.45) -- (5.30,2.55);
-\draw[line width=0.6pt, dotted, draw=twViolet] (6.2,3.45) -- (7.10,2.55);
-\draw[line width=0.6pt, dotted, draw=twViolet] (6.2,3.45) -- (5.85,1.60);
-\draw[line width=0.6pt, dotted, draw=twViolet] (6.2,3.45) -- (6.55,1.60);
+\fill[twZincTint] (6.15,3.45) -- (5.25,2.55) -- (7.05,2.55) -- cycle;
+\draw[line width=0.6pt, dotted, draw=twViolet] (6.15,3.45) -- (5.25,2.55);
+\draw[line width=0.6pt, dotted, draw=twViolet] (6.15,3.45) -- (7.05,2.55);
+\draw[line width=0.6pt, dotted, draw=twViolet] (6.15,3.45) -- (5.80,1.60);
+\draw[line width=0.6pt, dotted, draw=twViolet] (6.15,3.45) -- (6.50,1.60);
 
 % Longitudinal finite-hop motion along finite depth D_* = 1
 \foreach \x in {0.8, 1.8, 2.8, 3.8, 4.8} {
@@ -217,30 +204,56 @@ discrete Lean~4 invariant automatically to infinitesimal finite differences via 
 % Coarse RT bulk shortcut arc through D=0
 \draw[arr, densely dashed, draw=twEmerald] (0.8,1.72) to[bend left=20] node[above=1pt, font=\scriptsize, color=twEmerald, fill=white, inner sep=1pt] {coarse bulk arc $O(\log d)$} (4.8,1.72);
 
-% Transverse isometric refinement arrow on right side
-\draw[arr, draw=twViolet, line width=1.0pt] (6.2,2.45) -- node[right=2pt, font=\scriptsize\bfseries, color=twViolet] {$V_0$} (6.2,1.70);
-\draw[arr, draw=twViolet, line width=1.0pt] (6.2,1.50) -- node[right=2pt, font=\scriptsize\bfseries, color=twViolet] {$V_1$} (6.2,0.75);
-\fill[twViolet] (6.2,2.55) circle (2.2pt);
-\fill[twViolet] (6.2,1.60) circle (2.2pt);
-\fill[twViolet] (6.2,0.65) circle (2.2pt);
+% Transverse isometric refinement arrows with clean white-backed labels outside dotted cone
+\draw[arr, draw=twViolet, line width=1.0pt] (6.15,2.45) -- (6.15,1.70);
+\draw[arr, draw=twViolet, line width=1.0pt] (6.15,1.50) -- (6.15,0.75);
+\node[right=10pt, font=\scriptsize\bfseries, color=twViolet, fill=white, inner sep=1pt] at (6.15,2.08) {$V_0$};
+\node[right=10pt, font=\scriptsize\bfseries, color=twViolet, fill=white, inner sep=1pt] at (6.15,1.12) {$V_1$};
+\fill[twViolet] (6.15,2.55) circle (2.2pt);
+\fill[twViolet] (6.15,1.60) circle (2.2pt);
+\fill[twViolet] (6.15,0.65) circle (2.2pt);
 \node[below=3pt, font=\scriptsize, color=twViolet] at (4.0,0.58) {Transverse depth $D \to \infty$: boundary resolution $a_1^{-D} \to 0$};
 
-% Right summary card
-\node[box, text width=5.15cm] (card) at (10.75,1.95) {%
-  {\bfseries\color{twZincInk} Resolution of Zeno's Supertask}\\[3pt]
-  $\bullet$ {\color{twBlue}\bfseries Longitudinal ($A \to B$):} finite 24-cell hops via $S$ ($c = 1$), zero infinitesimal steps\\[2pt]
-  $\bullet$ {\color{twViolet}\bfseries Transverse ($D \to \infty$):} exact HaPPY isometries $V_D^\dagger V_D = I$, width $a_1^{-D}$\\[2pt]
-  $\bullet$ {\color{twEmerald}\bfseries Inductive colimit:} $\Phi_{D+1} \circ V_D = \Phi_D$ holds all at once without splitting any dock
+% Right summary card (matching Figure 1 clean bulletless style)
+\node[box, text width=5.10cm] (card) at (10.75,1.95) {%
+  \raggedright
+  {\bfseries\color{twZincInk} Kinematic Scale Separation}\\[3pt]
+  {\color{twBlue}\bfseries Longitudinal ($A \to B$):} finite 24-cell hops via $S$ ($c = 1$), zero infinitesimal steps\\[2.5pt]
+  {\color{twViolet}\bfseries Transverse ($D \to \infty$):} static HaPPY isometries $V_D^\dagger V_D = I$, cone width $a_1^{-D}$\\[2.5pt]
+  {\color{twEmerald}\bfseries Inductive colimit:} $\Phi_{D+1} \circ V_D = \Phi_D$ holds all at once, never splitting any dock
 };
 \draw[line width=1.5pt, draw=twViolet] (card.north west) -- (card.north east);
 \end{tikzpicture}
 \caption{Orthogonality of finite-hop longitudinal motion ($S$ at finite scale $D_*$, blue) and transverse hyperbolic
 bulk-depth subdivision ($V_D : \mathcal{H}_D \to \mathcal{H}_{D+1}$, boundary cone width $a_1^{-D} \to 0$, violet) on
-$\{3,4,3,4\}$. Infinite resolution lives timelessly in $\operatorname{colim}_D \mathcal{H}_D$ without requiring any
+$\{3,4,3,4\}$. Infinite kinematic resolution lives in $\operatorname{colim}_D \mathcal{H}_D$ without requiring any
 moving excitation to traverse infinitely many sub-steps.}
 \label{fig:zeno-subdivision}
 \end{figure}
 
-Having established how static holographic structure and transverse bulk refinement bridge the fixed mesh to continuum
-fields, we now activate the microscopic automaton and ask what happens when multiple excitations collide inside bare
-$U$: do they localize, scatter chaotically, or form relativistic composite clocks?
+Longitudinal motion from $A$ to $B$ never traverses infinitely many infinitesimal points: every beat of $U$ is a finite
+one-hop facet swap $S$ ($c = 1$), so any finite-energy packet with cutoff $\Lambda$ occupies a finite depth scale
+$D_* \sim \log_{a_1}(\Lambda)$ and travels from $A$ to $B$ in finitely many discrete beats, while long-range
+correlations arch through shallower coarse shells in $O(\log d(A, B))$ hops. Infinite subdivision lives strictly
+\emph{transversely} along bulk depth $D$, available timelessly whenever higher probe energy $E \sim a_1^D$ resolves
+deeper shells. Because a finite discrete patch has finite Hilbert-space dimension while continuum quantum field theory
+carries a Type~$\mathrm{III}_1$ von Neumann algebra (whose sharp spatial boundaries carry infinite entanglement), no
+naive bijective isomorphism exists on a finite patch. Instead, three sharply scoped homomorphisms connect the discrete
+mesh to continuous physics.
+
+\textbf{Exact inductive-limit isometry (Bridge~A):} The static all-depth HaPPY embeddings
+$V_D : \mathcal{H}_D \to \mathcal{H}_{D+1}$ ($V_D^\dagger V_D = I$) define canonical isometries
+$\Phi_D : \mathcal{H}_D \to \mathcal{H}_\infty = \overline{\operatorname{colim}_D \mathcal{H}_D}$ obeying
+$\Phi_{D+1} \circ V_D = \Phi_D$ and faithful observable embeddings $\alpha_D(O) = V_D O V_D^\dagger$ with zero
+approximation error. As Section~3.3 proved, non-Clifford bare $U$ breaks this static code subspace in one beat, so
+intertwining bare $U$ into a continuum $H_{\mathrm{CFT}}$ remains open.
+
+\textbf{Paley--Wiener band-limited dynamical homomorphism (Bridge~B):} On flat cubic grids $a\mathbb{Z}^3$,
+sinc--Fourier interpolation maps $l^2(a\mathbb{Z}^3)$ unitarily onto the band-limited space
+$\mathrm{PW}_{\pi/a}(\mathbb{R}^3) \subset L^2(\mathbb{R}^3)$ (Fourier support inside $[-\pi/a, \pi/a]^3$) and
+intertwines discrete unitary beats with continuum Dirac, Maxwell, and Thirring propagators to $O(t(\Lambda a)^2)$,
+tested in Sections~\ref{sec:composites} and~\ref{sec:gauge} on mass-deformed Thirring and added Maxwell--Dirac rules.
+
+\textbf{Hyperfinite transfer (Bridge~C):} Passing to a first-order ultraproduct over $a_D = a_1^{-D} \to 0$ lifts
+all-scale discrete algebraic identities automatically to infinitesimal finite differences via transfer, without
+constructing a standard renormalized continuum QFT measure.

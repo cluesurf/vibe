@@ -24,19 +24,24 @@
 //                  - U3d: Unavoidable 11/12 isotropic M_pair fan-out (0.0838% target hop, 10/11 loss),
 //                    m = 1..11 coherent refocusing bound (0.921% max), exact {3,4,3,4} girth-4 square
 //                    witness in O^+(4,1; Z[sqrt(2)]), and exact BigInt 2-dock pair-relay turn witness
-//   Pillar 4 (U4): Autonomous quantum-circuit universality (6-distinct-role M_pair = I verbatim-4D DFS)
-//                  - U4a: Verbatim 4D BigInt proof that 6 distinct roles {0..5} subset {0..8} have M_pair = I
-//                  - U4b: Exact BigInt L_7 chiral catalyst density (|Tr(L_7 C)|^2 = 25/16 -> Niven dense SU(2))
-//                    and 3-collision ballistic SU(2) Euler synthesis
+//   Pillar 4 (U4): Autonomous quantum-circuit universality (6/9-distinct-role M_pair = I verbatim-4D DFS)
+//                  - U4a: Verbatim 4D BigInt proof that both 6 distinct roles {0..5} and all 9 distinct
+//                    roles {0..8} have M_pair = I identically (0 off-line branches, exact reversibility)
+//                  - U4b: Exact BigInt L_7 chiral catalyst density on single-vibe slot qubits
+//                    (|Tr(L_7 C)|^2 = 25/16 -> Niven dense SU(2)), bare on-dock <M_{01}, M_{12}> density
+//                    on 3-role DFS (|Tr_SU2| = 5/4), and 3-collision ballistic SU(2) Euler synthesis
 //                  - U4c: Exact su(9) Lie dimension 80/80, Yang R(w) Makhlin invariants (G_1, G_2),
-//                    exact zero-leakage Fong-Wandzura / Zeuch-Bonesteel exchange-only CNOT translated to
-//                    ballistic bare-U rapidities w = cot(pi p / 2), Concurrence C = 1, Tsirelson CHSH = 2 sqrt(2)
-//                  - U4d: Exact 3-qubit Toffoli (CCNOT) synthesis via continuous-rapidity ballistic bare-U
-//                    scattering (< 1e-14) AND via discrete fixed-angle bare-U <C, L_7> / <M_01, M_12> words
+//                    closed-form 28-coll CPHASE(+pi/3) and 60-coll CZ scoped strictly to 2-qubit S_tot = 0,
+//                    Concurrence C = 1, and Tsirelson CHSH = 2 sqrt(2)
+//                  - U4d: Exact closed-form spin-independent 5-spin CZ (53 adj colls) and CNOT (54 adj colls)
+//                    verified on both S_{AB} = 0 and S_{AB} = 1 with matching global phase (< 1e-15),
+//                    full 9-spin C(9,4) = 126-dim linear-chain Toffoli with explicit adjacent routing SWAPs
+//                    (13 1Q + 324 2Q + 36 routing SWAP = 373 adj colls, ||U16 - Toff(x)I2|| < 1e-14),
+//                    and same-encoding hybrid discrete <M_{01}, M_{12}> + spin-indep CZ Toffoli on C^126
 //   Pillar 5 (U5): Sharp classification table (classical railway CA vs bare-U weak ballistic universality
 //                  vs obstructed strong finite-seed Turing universality)
 //
-// Strictly deterministic (ZERO Math.random), zero external imports, strict tsc clean, laptop-safe (< 10 s).
+// Strictly deterministic (zero randomness), zero external imports, strict tsc clean, laptop-safe (< 10 s).
 
 // =================================================================================================
 // 0. VERIFICATION HARNESS, COMPLEX / LINEAR ALGEBRA, AND EXACT Z[zeta_9][1/6] {3,4,3,4} KERNEL
@@ -1696,7 +1701,7 @@ function runPillar1(): void {
     const heraldEnt = shannon(heraldTerms.map(t => cAbs2(t.amp) / heraldProb))
 
     return {
-      maxNormErr, pEl, pSw1, pSw0, pBreak, altNorm2, anaAltLeak, argEl, sVN,
+      maxNormErr, pEl, pSw1, pSw0, pBreak, pSurv, altNorm2, anaAltLeak, argEl, sVN,
       busNorm2, pWriteD1toD2, pReadD2, mutInfoD1D2, heraldProb, heraldEnt,
     }
   })()
@@ -1709,7 +1714,7 @@ function runPillar1(): void {
   console.log(`           (1,1) exact 5-body: dPhi_11=${(u1aTwoStation.phi11 / PI).toFixed(5)} pi (wigFid=${u1aTwoStation.wigFid11.toFixed(4)}, sh=${u1aTwoStation.bestSh11}), |dPhi_11 - (dPhi_10+dPhi_01)|=${(u1aTwoStation.addDefect / PI).toFixed(5)} pi`)
   console.log(`  [U1b]    Exact Distinguishable 3-Role (0,1,2) Collision (M=20, T=48, M_pair=I in 4D!, normErr=${u1bRoleHead.maxNormErr.toExponential(1)}):`)
   console.log(`           P_el=${u1bRoleHead.pEl.toFixed(5)} (ana 1/3), P_swap=(${u1bRoleHead.pSw1.toFixed(5)}, ${u1bRoleHead.pSw0.toFixed(5)}) (ana 1/3,1/3), P_break=${u1bRoleHead.pBreak.toFixed(5)}, wpAltTail=${u1bRoleHead.altNorm2.toExponential(2)} (anaAltLeak=${u1bRoleHead.anaAltLeak.toExponential(1)})`)
-  console.log(`           arg(a_el)=${(u1bRoleHead.argEl / PI).toFixed(5)} pi (ana +0.500 pi), Autonomous S_vN(head:mem)=${u1bRoleHead.sVN.toFixed(5)} bits (max log2(3)=${Math.log2(3).toFixed(5)})`)
+  console.log(`           arg(a_el)=${(u1bRoleHead.argEl / PI).toFixed(5)} pi (ana +0.500 pi), survival-conditioned role entanglement entropy S_vN(head:mem)=${u1bRoleHead.sVN.toFixed(5)} bits (pSurv=${u1bRoleHead.pSurv.toFixed(5)}, max log2(3)=${Math.log2(3).toFixed(5)})`)
   console.log(`           5-Role 2-Station Remote Bus (D_1={0,1}, D_2={2,3}, head=4): norm2=${u1bRoleHead.busNorm2.toFixed(12)}, P(D1->D2 write)=${u1bRoleHead.pWriteD1toD2.toFixed(5)} (4/9), P(D2 readout)=${u1bRoleHead.pReadD2.toFixed(5)} (2/3)`)
   console.log(`           Remote Stationary-Memory I(D_1:D_2)=${u1bRoleHead.mutInfoD1D2.toFixed(5)} bits, Heralded (h=2, P=1/3) Bell S_vN=${u1bRoleHead.heraldEnt.toFixed(5)} bits (= log2(3) exact!)`)
 
@@ -1726,7 +1731,7 @@ function runPillar1(): void {
     Math.abs(u1bRoleHead.pSw0 - 1 / 3) < 0.03 &&
     u1bRoleHead.anaAltLeak < 1e-14 &&
     u1bRoleHead.altNorm2 < 0.02 &&
-    Math.abs(u1bRoleHead.argEl - PI / 2) < 0.05 &&
+    Math.abs(u1bRoleHead.argEl - PI / 2) < 0.05 * PI &&
     u1bRoleHead.sVN > 1.57 &&
     Math.abs(u1bRoleHead.pWriteD1toD2 - 4 / 9) < 1e-12 &&
     Math.abs(u1bRoleHead.heraldEnt - Math.log2(3)) < 1e-12
@@ -1789,36 +1794,18 @@ function runPillar2(): void {
     const t1 = applyBeat(seed)
     assertExact(hasExactUnitNorm(t1), `${label} t=1 unit norm`)
     assertExact(countStateDiffs(applyBeatInv(t1), seed) === 0, `${label} t=1 exact reversibility`)
+    const t1Size = t1.amp.size
     const t2 = applyBeat(t1)
     assertExact(hasExactUnitNorm(t2), `${label} t=2 unit norm`)
-    // Exact parity check across all branches at t = 1 and t = 2
     let parDef = 0
     for (const k of t1.amp.keys()) if (toneParitySig24(decodeConfig(k)) !== expPar) parDef++
     for (const k of t2.amp.keys()) if (toneParitySig24(decodeConfig(k)) !== expPar) parDef++
-    // Also compare t=2 against Phi_odd disabled on t1
     const t2NoPhi = applyBeatSkip(t1, applyOddChiralPhase)
     const phiDiffsT2 = countStateDiffs(t2, t2NoPhi)
-    return { t1, t2, t2NoPhi, phiDiffsT2, parDef, expPar }
+    const l2PhiVsNoPhi = l2DiffExact(t2, t2NoPhi)
+    return { t1Size, t2, phiDiffsT2, l2PhiVsNoPhi, parDef }
   }
 
-  const runPos = evolve2Exact(seedPos, 'k5_ctrl+1')
-  const runNeg = evolve2Exact(seedNeg, 'k5_ctrl-1')
-  const runOff = evolve2Exact(seedOff, 'k4_ctrlOFF')
-
-  // Compare ctrl=+1 vs ctrl=-1 (ignoring the tone label of the line-8 spectator so we compare
-  // the exact reduced signal+partner state / amplitudes directly!)
-  const stripCtrl8Tone = (s: ExactState): ExactState =>
-    mapConfigs(s, (vibes, amp) => [
-      vibes.map(([d, sl, tn, r]) => [d, sl, LINE_OF_SLOT[sl] === 8 ? 1 : tn, r] as const),
-      amp,
-    ])
-  const l2ContrastT2 = l2DiffExact(stripCtrl8Tone(runPos.t2), stripCtrl8Tone(runNeg.t2))
-  const l2PhiVsNoPhiPos = l2DiffExact(runPos.t2, runPos.t2NoPhi)
-  const l2PhiVsNoPhiNeg = l2DiffExact(runNeg.t2, runNeg.t2NoPhi)
-
-  // Measure conditional signal-vibe transmission vs reflection at dock d1 during beat t=2
-  // (on the branch where signal stayed on line 0 and met the control rays at d1 -> outgoing dock
-  //  stepDock(d1, l0A) [forward] vs dock 0 [reflected back toward dock 0]!)
   const measureLine0BranchT2 = (s: ExactState) => {
     const d2Fwd = stepDock(d1, l0A)
     let pFwd = 0; let pRefl = 0
@@ -1834,8 +1821,6 @@ function runPillar2(): void {
     }
     return { pFwd, pRefl }
   }
-  const bPosT2 = measureLine0BranchT2(runPos.t2)
-  const bOffT2 = measureLine0BranchT2(runOff.t2)
 
   // Exact t = 3 12-line Mach-Zehnder recombination at dock 0!
   const evolveT3ExactRecomb = (t2: ExactState, ctrlSlots: readonly number[]) => {
@@ -1850,7 +1835,6 @@ function runPillar2(): void {
       ctrlDocks.add(stepDock(stepDock(cD, sOpp), sOpp))
     }
     let dockOverlapCount = 0
-    // Partition vibes of each branch into ctrlVibes (on ctrlDocks, line in ctrlLines) and sigVibes (the 2 signal vibes)!
     const byCtrl = new Map<string, Map<string, Z9>>()
     for (const [k, z] of t2.amp) {
       const vs = decodeConfig(k)
@@ -1861,7 +1845,6 @@ function runPillar2(): void {
         else sVs.push(v)
       }
       assertExact(sVs.length === 2, `signal pair partition failed (${sVs.length} != 2) for ${k}`)
-      // Verify exact dock disjointness between sVs and cVs!
       for (const sv of sVs) for (const cv of cVs) if (sv[0] === cv[0]) dockOverlapCount++
       const cKey = encodeConfig(cVs)
       let sub = byCtrl.get(cKey)
@@ -1869,15 +1852,11 @@ function runPillar2(): void {
       addAmpZ9(sub, encodeConfig(sVs), z)
     }
     assertExact(dockOverlapCount === 0, `unexpected dock overlap ${dockOverlapCount} at t=2`)
-    // Because U acts independently as U_sig (x) U_ctrl when signal & control docks are strictly disjoint,
-    // and U_ctrl is unitary (preserving inner products & orthogonal control keys), applying verbatim
-    // applyBeat to each 2-vibe signal sub-state computes the EXACT t = 3 12-line signal distribution!
     const lineProb = new Float64Array(12)
     let totalProb = 0
     let mPairRecombBranches = 0
     for (const subMap of byCtrl.values()) {
       const sigState: ExactState = { amp: subMap, den: t2.den }
-      // Check how many branches in subMap have both signal vibes back at dock 0 (M_pair recombination!)
       for (const sk of subMap.keys()) {
         const sv = decodeConfig(sk)
         if (sv[0]![0] === 0 && sv[1]![0] === 0) mPairRecombBranches++
@@ -1896,48 +1875,74 @@ function runPillar2(): void {
     return { dockOverlapCount, mPairRecombBranches, lineProb, totalProb }
   }
 
-  const t3Pos = evolveT3ExactRecomb(runPos.t2, [l1A, l2A, l8A])
-  const t3Neg = evolveT3ExactRecomb(runNeg.t2, [l1A, l2A, l8A])
-  const t3Off = evolveT3ExactRecomb(runOff.t2, [l1A, l2A])
+  // Block 1: C4 = [0, 1, 2, 8] (scoped to release BigInt state maps immediately for low RSS)
+  const c4Summary = (() => {
+    const runPos = evolve2Exact(seedPos, 'k5_ctrl+1')
+    const runNeg = evolve2Exact(seedNeg, 'k5_ctrl-1')
+    const stripCtrl8Tone = (s: ExactState): ExactState =>
+      mapConfigs(s, (vibes, amp) => [
+        vibes.map(([d, sl, tn, r]) => [d, sl, LINE_OF_SLOT[sl] === 8 ? 1 : tn, r] as const),
+        amp,
+      ])
+    const l2ContrastT2 = l2DiffExact(stripCtrl8Tone(runPos.t2), stripCtrl8Tone(runNeg.t2))
+    const bPosT2 = measureLine0BranchT2(runPos.t2)
+    const t3Pos = evolveT3ExactRecomb(runPos.t2, [l1A, l2A, l8A])
+    const t3Neg = evolveT3ExactRecomb(runNeg.t2, [l1A, l2A, l8A])
+    const runOff = evolve2Exact(seedOff, 'k4_ctrlOFF')
+    const bOffT2 = measureLine0BranchT2(runOff.t2)
+    const t3Off = evolveT3ExactRecomb(runOff.t2, [l1A, l2A])
+    return {
+      t1Size: runPos.t1Size, t2Size: runPos.t2.amp.size,
+      phiPos: runPos.phiDiffsT2, phiNeg: runNeg.phiDiffsT2, phiOff: runOff.phiDiffsT2,
+      parDef: runPos.parDef + runNeg.parDef + runOff.parDef,
+      l2ContrastT2, l2PhiPos: runPos.l2PhiVsNoPhi, l2PhiNeg: runNeg.l2PhiVsNoPhi,
+      bPosT2, bOffT2, t3Pos, t3Neg, t3Off,
+    }
+  })()
 
-  const dP0_PosNeg = t3Pos.lineProb[0]! - t3Neg.lineProb[0]!
-  const dP0_PosOff = t3Pos.lineProb[0]! - t3Off.lineProb[0]!
-  const offSumPos = 1 - t3Pos.lineProb[0]!
-  const offSumNeg = 1 - t3Neg.lineProb[0]!
-  const offSumOff = 1 - t3Off.lineProb[0]!
+  const dP0_PosNeg = c4Summary.t3Pos.lineProb[0]! - c4Summary.t3Neg.lineProb[0]!
+  const dP0_PosOff = c4Summary.t3Pos.lineProb[0]! - c4Summary.t3Off.lineProb[0]!
+  const offSumPos = 1 - c4Summary.t3Pos.lineProb[0]!
+  const offSumNeg = 1 - c4Summary.t3Neg.lineProb[0]!
+  const offSumOff = 1 - c4Summary.t3Off.lineProb[0]!
   const dPOff_PosNeg = offSumPos - offSumNeg
   const dPOff_PosOff = offSumPos - offSumOff
 
-  // Also test the E-FND-0184 single-bit tone-flip switch geometry at CONSTANT k = 5:
-  // Slots [0, 1, 4, 10] (from universe.ts!): [0(+), 1(+), 4(+), 10(+)] has chi = 0, whereas
-  // flipping ONLY the tone of control ray slot 1 (+1 -> -1) gives [0(+), 1(-), 4(+), 10(+)] with chi != 0!
+  // Block 2: Constant-k = 5 single-bit tone-flip switch S_184 = [0, 1, 4, 10] (scoped for low RSS)
   const s184A = 1; const s184B = 4; const s184C = 10
   const l184A = LINE_OF_SLOT[s184A]!; const l184B = LINE_OF_SLOT[s184B]!; const l184C = LINE_OF_SLOT[s184C]!
-  const d184A = stepDock(d1, OPPOSITE_SLOT[s184A]!)
-  const d184B = stepDock(d1, OPPOSITE_SLOT[s184B]!)
-  const d184C = stepDock(d1, OPPOSITE_SLOT[s184C]!)
-  const seed184Pos = basisKet([
-    [0, l0A, 1, 0], [0, l0B, 1, 0],
-    [d184A, s184A, 1, 0], [d184B, s184B, 1, 0], [d184C, s184C, 1, 0],
-  ])
-  const seed184Neg = basisKet([
-    [0, l0A, 1, 0], [0, l0B, 1, 0],
-    [d184A, s184A, -1, 0], [d184B, s184B, 1, 0], [d184C, s184C, 1, 0],
-  ])
-  const run184Pos = evolve2Exact(seed184Pos, 'k5_184_ctrl+1')
-  const run184Neg = evolve2Exact(seed184Neg, 'k5_184_ctrl-1')
-  const strip184Tone = (s: ExactState): ExactState =>
-    mapConfigs(s, (vibes, amp) => [
-      vibes.map(([d, sl, tn, r]) => [d, sl, LINE_OF_SLOT[sl] === l184A ? 1 : tn, r] as const),
-      amp,
+  const s184Summary = (() => {
+    const d184A = stepDock(d1, OPPOSITE_SLOT[s184A]!)
+    const d184B = stepDock(d1, OPPOSITE_SLOT[s184B]!)
+    const d184C = stepDock(d1, OPPOSITE_SLOT[s184C]!)
+    const seed184Pos = basisKet([
+      [0, l0A, 1, 0], [0, l0B, 1, 0],
+      [d184A, s184A, 1, 0], [d184B, s184B, 1, 0], [d184C, s184C, 1, 0],
     ])
-  const l2Contrast184T2 = l2DiffExact(strip184Tone(run184Pos.t2), strip184Tone(run184Neg.t2))
-  const b184PosT2 = measureLine0BranchT2(run184Pos.t2)
-  const b184NegT2 = measureLine0BranchT2(run184Neg.t2)
-  const t3_184Pos = evolveT3ExactRecomb(run184Pos.t2, [s184A, s184B, s184C])
-  const t3_184Neg = evolveT3ExactRecomb(run184Neg.t2, [s184A, s184B, s184C])
-  const off184Pos = 1 - t3_184Pos.lineProb[0]!
-  const off184Neg = 1 - t3_184Neg.lineProb[0]!
+    const seed184Neg = basisKet([
+      [0, l0A, 1, 0], [0, l0B, 1, 0],
+      [d184A, s184A, -1, 0], [d184B, s184B, 1, 0], [d184C, s184C, 1, 0],
+    ])
+    const run184Pos = evolve2Exact(seed184Pos, 'k5_184_ctrl+1')
+    const run184Neg = evolve2Exact(seed184Neg, 'k5_184_ctrl-1')
+    const strip184Tone = (s: ExactState): ExactState =>
+      mapConfigs(s, (vibes, amp) => [
+        vibes.map(([d, sl, tn, r]) => [d, sl, LINE_OF_SLOT[sl] === l184A ? 1 : tn, r] as const),
+        amp,
+      ])
+    const l2Contrast184T2 = l2DiffExact(strip184Tone(run184Pos.t2), strip184Tone(run184Neg.t2))
+    const b184PosT2 = measureLine0BranchT2(run184Pos.t2)
+    const b184NegT2 = measureLine0BranchT2(run184Neg.t2)
+    const t3_184Pos = evolveT3ExactRecomb(run184Pos.t2, [s184A, s184B, s184C])
+    const t3_184Neg = evolveT3ExactRecomb(run184Neg.t2, [s184A, s184B, s184C])
+    return {
+      phiPos: run184Pos.phiDiffsT2, phiNeg: run184Neg.phiDiffsT2,
+      parDef: run184Pos.parDef + run184Neg.parDef,
+      l2Contrast184T2, b184PosT2, b184NegT2, t3_184Pos, t3_184Neg,
+    }
+  })()
+  const off184Pos = 1 - s184Summary.t3_184Pos.lineProb[0]!
+  const off184Neg = 1 - s184Summary.t3_184Neg.lineProb[0]!
   const dPOff_184 = off184Pos - off184Neg
 
   // Also test k = 6 = 2 + 1 + 1 + 1 + 1 (4 control rays on [1, 2, 4, 8], t = 1 exact + active d1 sector t = 2!)
@@ -1960,7 +1965,6 @@ function runPillar2(): void {
   const k6T1Pos = applyBeat(seedK6Pos)
   const k6T1Neg = applyBeat(seedK6Neg)
   assertExact(hasExactUnitNorm(k6T1Pos) && hasExactUnitNorm(k6T1Neg), 'k=6 t=1 unit norm')
-  // Project onto the exact dock-d1 5-vibe coincidence config (the ONLY config at t=1 where Phi_odd fires!)
   const extractActiveD1 = (s: ExactState): ExactState => {
     const m = new Map<string, Z9>()
     for (const [k, z] of s.amp) {
@@ -1975,7 +1979,12 @@ function runPillar2(): void {
   const k6T2Neg = applyBeat(k6ActNeg)
   const k6PhiDiffPos = countStateDiffs(k6T2Pos, applyBeatSkip(k6ActPos, applyOddChiralPhase))
   const k6PhiDiffNeg = countStateDiffs(k6T2Neg, applyBeatSkip(k6ActNeg, applyOddChiralPhase))
-  const k6Contrast = l2DiffExact(stripCtrl8Tone(k6T2Pos), stripCtrl8Tone(k6T2Neg))
+  const stripCtrl8ToneK6 = (s: ExactState): ExactState =>
+    mapConfigs(s, (vibes, amp) => [
+      vibes.map(([d, sl, tn, r]) => [d, sl, LINE_OF_SLOT[sl] === 8 ? 1 : tn, r] as const),
+      amp,
+    ])
+  const k6Contrast = l2DiffExact(stripCtrl8ToneK6(k6T2Pos), stripCtrl8ToneK6(k6T2Neg))
 
   // Single-vibe (odd-parity) control test: 1 vibe on line 0 + 3 control rays on [1, 2, 8] -> 0 off-line!
   const seedSingle = basisKet([
@@ -2000,35 +2009,32 @@ function runPillar2(): void {
   }
 
   console.log(`  [U2a] Verbatim 4D BigInt Z[zeta_9][1/6] k=5 (2+1+1+1) M_pair+Phi_odd Switch (0 parity defects, exact revDiff=0):`)
-  console.log(`        C4=[0,1,2,8] branches: t=1 -> ${runPos.t1.amp.size}, t=2 -> ${runPos.t2.amp.size}; Phi_odd diffs at t=2: ctrl(+1)=${runPos.phiDiffsT2}, ctrl(-1)=${runNeg.phiDiffsT2}, ctrl(OFF,k=4)=${runOff.phiDiffsT2}`)
-  console.log(`        C4 t=2 L2 contrast: ||psi(+1)-psi(-1)||=${l2ContrastT2.toFixed(6)} (W(F_4)xZ_2^C invariant!), ||psi(+1)-psi_noPhi||=${l2PhiVsNoPhiPos.toFixed(6)}, ||psi(-1)-psi_noPhi||=${l2PhiVsNoPhiNeg.toFixed(6)}`)
-  console.log(`        C4 t=2 signal line-0 (fwd/refl) probs: ctrl(+1)=(${bPosT2.pFwd.toFixed(6)}, ${bPosT2.pRefl.toFixed(6)}), ctrl(OFF)=(${bOffT2.pFwd.toFixed(6)}, ${bOffT2.pRefl.toFixed(6)})`)
-  console.log(`  [U2b] Exact t=3 12-Line Mach-Zehnder Recombination at Dock 0 (dockOverlaps=${t3Pos.dockOverlapCount}, recombBranches=${t3Pos.mPairRecombBranches}, sumP=${t3Pos.totalProb.toFixed(12)}):`)
-  console.log(`        C4 [0,1,2,8] P(line 0):   ctrl(+1)=${t3Pos.lineProb[0]!.toFixed(8)}, ctrl(OFF)=${t3Off.lineProb[0]!.toFixed(8)} (dP_0=${dP0_PosOff.toExponential(4)}, dP_off=${dPOff_PosOff.toExponential(4)})`)
-  console.log(`        C4 [0,1,2,8] P(off 1..11): ctrl(+1)=${offSumPos.toFixed(8)}, ctrl(-1)=${offSumNeg.toFixed(8)}, ctrl(OFF)=${offSumOff.toFixed(8)} (dP_off(+/-)=${dPOff_PosNeg.toExponential(1)}, dP_0(+/-)=${dP0_PosNeg.toExponential(1)})`)
+  console.log(`        C4 (lines [0,1,2,8], slots [${l0A},${l1A},${l2A},${l8A}]) branches: t=1 -> ${c4Summary.t1Size}, t=2 -> ${c4Summary.t2Size}; Phi_odd diffs at t=2: ctrl(+1)=${c4Summary.phiPos}, ctrl(-1)=${c4Summary.phiNeg}, ctrl(OFF,k=4)=${c4Summary.phiOff}`)
+  console.log(`        C4 t=2 L2 contrast: ||psi(+1)-psi(-1)||=${c4Summary.l2ContrastT2.toFixed(6)} (W(F_4)xZ_2^C invariant!), ||psi(+1)-psi_noPhi||=${c4Summary.l2PhiPos.toFixed(6)}, ||psi(-1)-psi_noPhi||=${c4Summary.l2PhiNeg.toFixed(6)}`)
+  console.log(`        C4 t=2 signal line-0 (fwd/refl) probs: ctrl(+1)=(${c4Summary.bPosT2.pFwd.toFixed(6)}, ${c4Summary.bPosT2.pRefl.toFixed(6)}), ctrl(OFF)=(${c4Summary.bOffT2.pFwd.toFixed(6)}, ${c4Summary.bOffT2.pRefl.toFixed(6)})`)
+  console.log(`  [U2b] Exact t=3 12-Line Mach-Zehnder Recombination at Dock 0 (dockOverlaps=${c4Summary.t3Pos.dockOverlapCount}, recombBranches=${c4Summary.t3Pos.mPairRecombBranches}, sumP=${c4Summary.t3Pos.totalProb.toFixed(12)}):`)
+  console.log(`        C4 (lines [0,1,2,8], slots [${l0A},${l1A},${l2A},${l8A}]) P(line 0):   ctrl(+1)=${c4Summary.t3Pos.lineProb[0]!.toFixed(8)}, ctrl(OFF)=${c4Summary.t3Off.lineProb[0]!.toFixed(8)} (dP_0=${dP0_PosOff.toExponential(4)}, dP_off=${dPOff_PosOff.toExponential(4)})`)
+  console.log(`        C4 (lines [0,1,2,8], slots [${l0A},${l1A},${l2A},${l8A}]) P(off 1..11): ctrl(+1)=${offSumPos.toFixed(8)}, ctrl(-1)=${offSumNeg.toFixed(8)}, ctrl(OFF)=${offSumOff.toFixed(8)} (dP_off(+/-)=${dPOff_PosNeg.toExponential(1)}, dP_0(+/-)=${dP0_PosNeg.toExponential(1)})`)
   console.log(`  [U2b'] Constant-k=5 Single-Bit Tone-Flip Switch S_184=[0,1,4,10] (lines [0,${l184A},${l184B},${l184C}], flip slot-1 tone +1 <-> -1):`)
-  console.log(`        t=2 Phi_odd diffs: ctrl(+1)=${run184Pos.phiDiffsT2}, ctrl(-1)=${run184Neg.phiDiffsT2}, L2 contrast ||psi(+1)-psi(-1)||_2 = ${l2Contrast184T2.toFixed(6)}`)
-  console.log(`        t=2 line-0 (fwd/refl): ctrl(+1)=(${b184PosT2.pFwd.toFixed(6)}, ${b184PosT2.pRefl.toFixed(6)}), ctrl(-1)=(${b184NegT2.pFwd.toFixed(6)}, ${b184NegT2.pRefl.toFixed(6)})`)
+  console.log(`        t=2 Phi_odd diffs: ctrl(+1)=${s184Summary.phiPos}, ctrl(-1)=${s184Summary.phiNeg}, L2 contrast ||psi(+1)-psi(-1)||_2 = ${s184Summary.l2Contrast184T2.toFixed(6)}`)
+  console.log(`        t=2 line-0 (fwd/refl): ctrl(+1)=(${s184Summary.b184PosT2.pFwd.toFixed(6)}, ${s184Summary.b184PosT2.pRefl.toFixed(6)}), ctrl(-1)=(${s184Summary.b184NegT2.pFwd.toFixed(6)}, ${s184Summary.b184NegT2.pRefl.toFixed(6)})`)
   console.log(`        t=3 12-line Mach-Zehnder P(off 1..11): ctrl(+1)=${off184Pos.toFixed(8)}, ctrl(-1)=${off184Neg.toFixed(8)} -> dP_off(+1 vs -1) = ${dPOff_184.toExponential(4)}!`)
   console.log(`  [U2c] k=6 (2+1+1+1+1) 5-Vibe Chiral Switch: t=1 branches=${k6T1Pos.amp.size}, active d1 configs=${k6ActPos.amp.size}, t=2 Phi_odd diffs=(${k6PhiDiffPos},${k6PhiDiffNeg}), contrast=${k6Contrast.toFixed(6)}`)
   console.log(`  [U2d] Single-Vibe (Odd-Parity) Switch Witness (k=4, 1+1+1+1): off-line branches=${singleOffLine}, Z_2^{24} parity defects=${singleParDef} (ONLY pairs turn!)`)
 
   const ok =
-    runPos.parDef === 0 &&
-    runNeg.parDef === 0 &&
-    runOff.parDef === 0 &&
-    run184Pos.parDef === 0 &&
-    run184Neg.parDef === 0 &&
-    runPos.phiDiffsT2 > 0 &&
-    runOff.phiDiffsT2 === 0 &&
-    l2PhiVsNoPhiPos > 0.1 &&
-    l2Contrast184T2 > 0.05 &&
-    t3Pos.dockOverlapCount === 0 &&
-    t3_184Pos.dockOverlapCount === 0 &&
-    t3_184Neg.dockOverlapCount === 0 &&
-    Math.abs(t3Pos.totalProb - 1) < 1e-12 &&
-    Math.abs(t3_184Pos.totalProb - 1) < 1e-12 &&
-    Math.abs(t3_184Neg.totalProb - 1) < 1e-12 &&
+    c4Summary.parDef === 0 &&
+    s184Summary.parDef === 0 &&
+    c4Summary.phiPos > 0 &&
+    c4Summary.phiOff === 0 &&
+    c4Summary.l2PhiPos > 0.1 &&
+    s184Summary.l2Contrast184T2 > 0.05 &&
+    c4Summary.t3Pos.dockOverlapCount === 0 &&
+    s184Summary.t3_184Pos.dockOverlapCount === 0 &&
+    s184Summary.t3_184Neg.dockOverlapCount === 0 &&
+    Math.abs(c4Summary.t3Pos.totalProb - 1) < 1e-12 &&
+    Math.abs(s184Summary.t3_184Pos.totalProb - 1) < 1e-12 &&
+    Math.abs(s184Summary.t3_184Neg.totalProb - 1) < 1e-12 &&
     Math.abs(dPOff_PosOff) > 1e-5 &&
     Math.abs(dPOff_184) > 1e-5 &&
     k6PhiDiffPos > 0 &&
@@ -2040,7 +2046,7 @@ function runPillar2(): void {
     'U2',
     'Verbatim 4D BigInt k=5 (C4 ON/OFF & S_184 single-bit tone flip) & k=6 M_pair+Phi_odd interferometric switches + Z_2^{24} lock',
     ok,
-    `C4 dP_off(ON/OFF)=${dPOff_PosOff.toExponential(3)}, S_184 k=5 flip L2=${l2Contrast184T2.toFixed(4)} / t=3 dP_off=${dPOff_184.toExponential(3)}, k=6 L2=${k6Contrast.toFixed(4)}, single-vibe offLine=${singleOffLine}`,
+    `C4 dP_off(ON/OFF)=${dPOff_PosOff.toExponential(3)}, S_184 k=5 flip L2=${s184Summary.l2Contrast184T2.toFixed(4)} / t=3 dP_off=${dPOff_184.toExponential(3)}, k=6 L2=${k6Contrast.toFixed(4)}, single-vibe offLine=${singleOffLine}`,
   )
 }
 
@@ -2369,6 +2375,7 @@ function runPillar4(): void {
   const d1 = stepDock(0, l0A)
   const d2 = stepDock(d1, l0A)
   const d3 = stepDock(d2, l0A)
+  const d4 = stepDock(d3, l0A)
   const sixRoleSeed = basisKet([
     [0, l0A, 1, 0], [0, l0B, 1, 1],
     [d1, l0A, 1, 2], [d1, l0B, 1, 3],
@@ -2383,6 +2390,24 @@ function runPillar4(): void {
     for (const [, sl] of decodeConfig(k)) if (LINE_OF_SLOT[sl] !== 0) sixRoleOffLine++
   }
   assertExact(hasExactUnitNorm(sixRoleT1), 'U4a 6-role unit norm')
+
+  // Also certify full 9-distinct-role ({0..8}) 3-qubit register in verbatim 4D BigInt (M_pair = I identically!)
+  const nineRoleSeed = basisKet([
+    [0, l0A, 1, 0], [0, l0B, 1, 1],
+    [d1, l0A, 1, 2], [d1, l0B, 1, 3],
+    [d2, l0A, 1, 4], [d2, l0B, 1, 5],
+    [d3, l0A, 1, 6], [d3, l0B, 1, 7],
+    [d4, l0A, 1, 8],
+  ])
+  const nineRoleT1 = applyBeat(nineRoleSeed)
+  const nineRoleT1NoPair = applyBeatSkip(nineRoleSeed, applyPairLineMixer)
+  const nineRolePairDiff = countStateDiffs(nineRoleT1, nineRoleT1NoPair)
+  const nineRoleRevDiff = countStateDiffs(applyBeatInv(nineRoleT1), nineRoleSeed)
+  let nineRoleOffLine = 0
+  for (const k of nineRoleT1.amp.keys()) {
+    for (const [, sl] of decodeConfig(k)) if (LINE_OF_SLOT[sl] !== 0) nineRoleOffLine++
+  }
+  assertExact(hasExactUnitNorm(nineRoleT1), 'U4a 9-role unit norm')
 
   // -----------------------------------------------------------------------------------------------
   // U4b: Exact BigInt L_7 3-Full-Line Chiral Catalyst (|Tr(L_7 C)|^2 = 25/16 -> Dense SU(2)!)
@@ -2439,7 +2464,7 @@ function runPillar4(): void {
 
   // -----------------------------------------------------------------------------------------------
   // U4c: 6-Distinct-Role DFS SU(4): Exact su(9) Lie Rank (80/80), Yang R(w) Makhlin Invariants,
-  //      Exact Zero-Leakage Fong-Wandzura / Zeuch-Bonesteel Ballistic CNOT, Concurrence & CHSH!
+  //      2-Qubit S_tot = 0 Singlet-DFS 28/60-Collision CPHASE/CZ, Concurrence & CHSH!
   // -----------------------------------------------------------------------------------------------
   // Exact 15-state S_4({0,1,2,3}) x S_2({4,5}) symmetric basis:
   //   basis15[idx] = [i, j] (0 <= i < j < 6) = positions of the two symmetrized marker roles {4, 5}!
@@ -2588,19 +2613,22 @@ function runPillar4(): void {
   const makhSqrtSwap = makhlinInvariants(makeYang4(1)) // w = 1 => sqrt(SWAP)
   const makhBareMeet = makhlinInvariants(makeYang4(1 / SQRT3)) // w = 1/sqrt(3) => bare on-dock M_meet (2pi/3)
 
-  // EXACT CLOSED-FORM ZERO-LEAKAGE 28-COLLISION 6-DISTINCT-ROLE SINGLET-DFS CZ GATE!
+  // EXACT CLOSED-FORM ZERO-LEAKAGE 28-COLLISION CPHASE(pi/3) & 60-COLLISION CZ (SCOPED TO 2-QUBIT S_tot = 0!)
   // On the 20-state S_3({0,1,2}) x S_3({3,4,5}) symmetric subspace (C(6,3) = 20 states, ALL 6 roles pairwise
   // distinct in Vibe's 9-point alphabet {0..8} => M_pair = I strictly in verbatim 4D bare U!):
   //   - Total spin S_tot = 0 has exact dimension C_3 = 5 (4 logical DFS states |a_A, b_B> + 1 leakage state),
-  //     forcing S_{12345} = 1/2 uniquely!
+  //     forcing S_{12345} = 1/2 uniquely! (Note: this 60-collision singlet-DFS CZ applies strictly to 2-qubit
+  //     S_tot = 0 states; multi-qubit circuits with n >= 3 qubits require the spin-independent 5-spin CZ/CNOT
+  //     proved and verified across both S_{AB} = 0 and S_{AB} = 1 in U4d below!)
   //   - For any angle theta, the 4-collision bare-U ballistic operator G_{abc}(theta) = [R_{ab}(phi_1) R_{bc}(phi_2)]^2
   //     with s = pi/2 - theta, d = arccos(-(1/3) cos s), phi_1 = (s+d)/2, phi_2 = (s-d)/2 (exact ballistic rapidities
   //     w_1 = cot(phi_1), w_2 = cot(phi_2)!) acts as exp(+i theta) on S_{abc} = 3/2 and exp(-i theta) on S_{abc} = 1/2
   //     (up to global phase)! At theta = pi/2, G_{abc}(pi/2) = W_3(a,b,c) (w = +-1/sqrt(2))!
-  //   - Setting phi* = arctan(3/sqrt(7)) and psi* = pi - phi* (exact solution of cot(psi) = -(7/9) tan(phi) and phi+psi=pi):
-  //       U_CZ^{DFS} = W_3(1,2,3) G_{345}(phi*) W_3(1,2,3) G_{345}(psi*) W_3(1,2,3) G_{345}(phi*) W_3(1,2,3)
-  //     uses ONLY 28 adjacent ballistic bare-U collisions on spins (1,2,3,4,5) (spin 0 untouched!), has
-  //     EXACT ZERO LEAKAGE (< 1e-14) out of the 4D logical DFS, and equals diag(1, 1, 1, -1) = EXACT CZ!
+  //   - With exact Racah 6j double-angle cosine gamma = cos(2 beta) = 17/81 and closed-form root
+  //     t* = (32*sqrt(3) - sqrt(1695))/17 (phi* = atan(t*), psi* = 2*pi/3 - phi*):
+  //       V = W_3(1,2,3) G_{345}(phi*) W_3(1,2,3) G_{345}(psi*) W_3(1,2,3) G_{345}(phi*) W_3(1,2,3) (28 collisions)
+  //     realizes exact zero-leakage CPHASE(pi/3), and its reduced cube V^3 (60 adjacent collisions on spins 1..5,
+  //     spin 0 untouched!) realizes exact zero-leakage CZ on S_tot = 0 (< 1e-14)!
   const basis20: [number, number, number][] = []
   const idx20 = new Map<string, number>()
   for (let i = 0; i < 6; i++) {
@@ -2760,6 +2788,14 @@ function runPillar4(): void {
     [C_ZERO, C_ZERO, C_ONE, C_ZERO],
     [C_ZERO, C_ZERO, C_ZERO, [-1, 0]],
   ]
+  // Exact 28-collision CPHASE(+pi/3) target check (MINOR-3):
+  const CPHASE_PI3_exact: CMat = [
+    [C_ONE, C_ZERO, C_ZERO, C_ZERO],
+    [C_ZERO, C_ONE, C_ZERO, C_ZERO],
+    [C_ZERO, C_ZERO, C_ONE, C_ZERO],
+    [C_ZERO, C_ZERO, C_ZERO, cExpI(PI / 3)],
+  ]
+  const cp3Err = matFrobDiffUpToPhase(cp3Res.U4, CPHASE_PI3_exact)
   const czDfsErr = matFrobDiffUpToPhase(CZ_DFS4, CZ_exact)
   const CNOT_DFS4 = matMul(matKron(I2, H2), matMul(CZ_DFS4, matKron(I2, H2)))
   const makhDfsCNOT = makhlinInvariants(CNOT_DFS4)
@@ -2781,7 +2817,7 @@ function runPillar4(): void {
   const cnotYangErr = matFrobDiffUpToPhase(CNOT_from_Yang, CNOT_exact)
   const makhCNOT = makhlinInvariants(CNOT_from_Yang)
 
-  // Bell state from |00> strictly via our 28-collision 6-distinct-role DFS CNOT_DFS4 -> C = 1 & CHSH = 2 sqrt(2)!
+  // Bell state from |00> strictly via our 60-collision 6-distinct-role S_tot=0 singlet-DFS CNOT_DFS4 -> C = 1 & CHSH = 2 sqrt(2)!
   const bellPrep = matMul(CNOT_DFS4, matKron(H2, I2))
   const bellVec: C[] = [bellPrep[0]![0]!, bellPrep[1]![0]!, bellPrep[2]![0]!, bellPrep[3]![0]!]
   const bellConcurrence = 2 * cAbs(cSub(cMul(bellVec[0]!, bellVec[3]!), cMul(bellVec[1]!, bellVec[2]!)))
@@ -2801,63 +2837,13 @@ function runPillar4(): void {
   )
 
   // -----------------------------------------------------------------------------------------------
-  // U4d: Exact 3-Qubit Toffoli (CCNOT) Synthesis (Continuous-Rapidity Ballistic AND Discrete Bare-U!)
+  // U4d: Spin-Independent 5-Spin Exchange-Only CZ/CNOT (S_AB=0 & S_AB=1, Identical Global Phase!)
+  //      + Full 9-Spin C(9,4)=126-Dim Hilbert Space 3-Qubit Toffoli (Explicit Adjacent Routing SWAPs!)
+  //      + Same-Encoding Discrete Bare-U <M_{01}, M_{12}> Synthesis Directly on C^126!
   // -----------------------------------------------------------------------------------------------
-  // Exact Nielsen-Chuang Fig. 4.9 decomposition (6 CNOTs + 9 single-qubit gates {H, T, T^dag}):
-  const embed1of3 = (G: CMat, q: 0 | 1 | 2): CMat => {
-    if (q === 0) return matKron(G, matEye(4))
-    if (q === 1) return matKron(matEye(2), matKron(G, matEye(2)))
-    return matKron(matEye(4), G)
-  }
-  const embedCNOT3 = (cnot2: CMat, ctrl: 0 | 1 | 2, tgt: 0 | 1 | 2): CMat => {
-    const U: CMat = Array.from({ length: 8 }, () => Array.from({ length: 8 }, () => C_ZERO))
-    for (let col = 0; col < 8; col++) {
-      const b = [(col >> 2) & 1, (col >> 1) & 1, col & 1]
-      const in2 = (b[ctrl]! << 1) | b[tgt]!
-      for (let out2 = 0; out2 < 4; out2++) {
-        const amp = cnot2[out2]![in2]!
-        if (amp[0] === 0 && amp[1] === 0) continue
-        const nb = [b[0]!, b[1]!, b[2]!]
-        nb[ctrl] = (out2 >> 1) & 1
-        nb[tgt] = out2 & 1
-        const row = (nb[0]! << 2) | (nb[1]! << 1) | nb[2]!
-        U[row]![col] = cAdd(U[row]![col]!, amp)
-      }
-    }
-    return U
-  }
-  const buildToffoli = (hG: CMat, tG: CMat, tdG: CMat, cnotG: CMat): CMat => {
-    // Sequence applied right-to-left (Nielsen & Chuang Fig. 4.9):
-    const ops: CMat[] = [
-      embed1of3(hG, 2),
-      embedCNOT3(cnotG, 1, 2),
-      embed1of3(tdG, 2),
-      embedCNOT3(cnotG, 0, 2),
-      embed1of3(tG, 2),
-      embedCNOT3(cnotG, 1, 2),
-      embed1of3(tdG, 2),
-      embedCNOT3(cnotG, 0, 2),
-      embed1of3(tG, 1),
-      embed1of3(tG, 2),
-      embedCNOT3(cnotG, 0, 1),
-      embed1of3(hG, 2),
-      embed1of3(tG, 0),
-      embed1of3(tdG, 1),
-      embedCNOT3(cnotG, 0, 1),
-    ]
-    let U = matEye(8)
-    for (const op of ops) U = matMul(op, U)
-    return U
-  }
-  const Toffoli_exact: CMat = matEye(8)
-  Toffoli_exact[6]![6] = C_ZERO; Toffoli_exact[7]![7] = C_ZERO
-  Toffoli_exact[6]![7] = C_ONE; Toffoli_exact[7]![6] = C_ONE
-
-  // 1) Exact continuous-rapidity ballistic bare-U Toffoli (6 CNOT_from_Yang = 12 ballistic R(1) collisions + 1-qubit Euler!)
-  //    Verify exact 3-collision ballistic SU(2) Euler synthesis for H, T, T^dag using 3-distinct-role DFS R_{01}(w), R_{12}(w)!
-  //    On 3-distinct-role DFS {|0_L>, |1_L>}:
-  //      P_{01} = -Z,  P_{12} = (1/2) Z + (sqrt(3)/2) X!
-  //    Using exact 3-pulse R_{01}(a) R_{12}(b) R_{01}(c) (or 4-pulse when needed), synthesize H, T, T^dag to < 1e-14!
+  // 1) Exact 3-spin DFS single-qubit generators on (s0, s1, s2) matching dfsA/dfsB (singlet on (s1, s2)):
+  //      P_{12} = -Z,  P_{01} = (1/2) Z + (sqrt(3)/2) X!
+  //    Verify directly on dfsA = {|0_A>=(|1>-|2>)/sqrt(2), |1_A>=(2|0>-|1>-|2>)/sqrt(6)}:
   const rotAxis = (nx: number, ny: number, nz: number, ang: number): CMat => {
     const c = Math.cos(ang / 2); const s = Math.sin(ang / 2)
     return [
@@ -2865,84 +2851,542 @@ function runPillar4(): void {
       [[s * ny, -s * nx], [c, s * nz]],
     ]
   }
-  // Exact 3-distinct-role DFS generators: g1(a) = exp(-i (pi a/2) (-Z)) = Rz(-pi a), g2(b) = exp(-i (pi b/2) ((1/2) Z + (sqrt(3)/2) X))
-  const dfsGen1 = (a: number): CMat => rotAxis(0, 0, -1, PI * a)
-  const dfsGen2 = (b: number): CMat => rotAxis(SQRT3 / 2, 0, 0.5, PI * b)
-  // Exact ballistic synthesis of T (Rz(pi/4)): just 1 collision dfsGen1(-1/4)!
-  // Exact ballistic synthesis of T^dag (Rz(-pi/4)): just 1 collision dfsGen1(+1/4)!
-  // Exact ballistic synthesis of H (rotation by pi around (X+Z)/sqrt(2)) using 3 ballistic collisions dfsGen1(a)*dfsGen2(b)*dfsGen1(c):
-  //   Note: H_SU2 = -i (X + Z)/sqrt(2), whose (0,0) entry is -i/sqrt(2), so |U_00| = 1/sqrt(2).
-  //   For dfsGen1(a) * dfsGen2(b) * dfsGen1(c), |U_00|^2 = cos^2(pi b/2) + (1/4) sin^2(pi b/2) = 1 - (3/4) sin^2(pi b/2)!
-  //   Setting 1 - (3/4) sin^2(pi b/2) = 1/2 => sin^2(pi b/2) = 2/3 => b_H = (2/pi) arcsin(sqrt(2/3))!
-  const bH = (2 / PI) * Math.asin(Math.sqrt(2 / 3))
-  const midH = dfsGen2(bH)
-  // Match phases of (0,0) and (0,1) to H_SU2 = -i H:
-  //   (dfsGen1(a) midH dfsGen1(c))_{00} = e^{i pi(a+c)/2} midH_{00}  -> want arg = -pi/2
-  //   (dfsGen1(a) midH dfsGen1(c))_{01} = e^{i pi(a-c)/2} midH_{01}  -> want arg = -pi/2
-  const ph00 = cArg(midH[0]![0]!); const ph01 = cArg(midH[0]![1]!)
-  const aPlusC = wrapPi(-PI / 2 - ph00) * (2 / PI)
-  const aMinusC = wrapPi(-PI / 2 - ph01) * (2 / PI)
-  const aH = 0.5 * (aPlusC + aMinusC)
-  const cH = 0.5 * (aPlusC - aMinusC)
-  const H_ballistic = matMul(dfsGen1(aH), matMul(dfsGen2(bH), dfsGen1(cH)))
-  const T_ballistic = dfsGen1(-0.25)
-  const Td_ballistic = dfsGen1(0.25)
-  const hBalErr = matFrobDiffUpToPhase(H_ballistic, H2)
-  const tBalErr = Math.max(matFrobDiffUpToPhase(T_ballistic, T2), matFrobDiffUpToPhase(Td_ballistic, Td2))
-  const toffBallistic = buildToffoli(H_ballistic, T_ballistic, Td_ballistic, CNOT_DFS4)
-  const toffBalErr = matFrobDiffUpToPhase(toffBallistic, Toffoli_exact)
-  const toffUniErr = matUnitaryErr(toffBallistic)
+  // E_{pq}(alpha) = SWAP_{pq}^alpha = (1+e^{i pi alpha})/2 I + (1-e^{i pi alpha})/2 P_{pq}
+  //               = e^{i pi alpha/2} exp(-i (pi alpha/2) P_{pq})
+  //               = Yang ballistic scattering R_{pq}(w = +cot(pi alpha/2)) up to global phase!
+  //   pair 1 = (s1, s2) [P_{12} = -Z]             -> dfsGen12(a) = exp(-i (pi a/2) (-Z)) = Rz(-pi a)
+  //   pair 0 = (s0, s1) [P_{01} = (1/2)Z+(s3/2)X] -> dfsGen01(b) = exp(-i (pi b/2) ((1/2)Z + (sqrt(3)/2)X))
+  const dfsGen12 = (a: number): CMat => rotAxis(0, 0, -1, PI * a)
+  const dfsGen01 = (b: number): CMat => rotAxis(SQRT3 / 2, 0, 0.5, PI * b)
+  // Direct algebraic check of P_{12} = -Z and P_{01} = (1/2)Z + (sqrt(3)/2)X on dfsA:
+  const check3SpinP = (p: number, q: number): CMat => {
+    const M: CMat = [[C_ZERO, C_ZERO], [C_ZERO, C_ZERO]]
+    const basis3 = [[0, ISQ2, -ISQ2], [2 * isq6, -isq6, -isq6]]
+    for (let r = 0; r < 2; r++) {
+      for (let c = 0; c < 2; c++) {
+        let s = 0
+        for (let i = 0; i < 3; i++) {
+          const j = i === p ? q : i === q ? p : i
+          s += basis3[r]![j]! * basis3[c]![i]!
+        }
+        M[r]![c] = [s, 0]
+      }
+    }
+    return M
+  }
+  const P12_target: CMat = [[[-1, 0], C_ZERO], [C_ZERO, C_ONE]]
+  const P01_target: CMat = [[[0.5, 0], [SQRT3 / 2, 0]], [[SQRT3 / 2, 0], [-0.5, 0]]]
+  assertExact(matFrobDiffUpToPhase(check3SpinP(1, 2), P12_target) < 1e-14, 'P12 !== -Z on dfsA')
+  assertExact(matFrobDiffUpToPhase(check3SpinP(0, 1), P01_target) < 1e-14, 'P01 !== (1/2)Z+(sqrt(3)/2)X on dfsA')
 
-  // 2) Discrete fixed-angle bare-U synthesis of H, T, T^dag, and 8x8 Toffoli strictly from <C_SU2, L7_SU2>!
-  //    Deterministic meet-in-the-middle BFS up to half-depth 7 (word length <= 14!)
-  //    using ONLY the verbatim 4D bare coin C_SU2 and 3-full-line chiral catalyst L7_SU2 (and their inverses)!
-  const synthDiscreteSU2 = () => {
-    const gens: readonly [string, CMat][] = [
-      ['C', C_SU2],
-      ['c', matDag(C_SU2)],
-      ['L', L7_SU2],
-      ['l', matDag(L7_SU2)],
+  // General exact 1-qubit Euler synthesis into [whichPair, alpha] (pair 1 = (s1,s2), pair 0 = (s0,s1), right-to-left):
+  //   3 pulses whenever |U_{01}|^2 <= 3/4 (1 pulse for pure Z rotations T/Td!), 4 pulses if |U_{01}|^2 > 3/4.
+  type PairPulse1Q = readonly [0 | 1, number]
+  const synth1Q_DFS = (Uin: CMat): readonly PairPulse1Q[] => {
+    const U = toSU2(Uin)
+    const try3 = (T: CMat): PairPulse1Q[] | null => {
+      if (cAbs(T[0]![1]!) < 1e-13) {
+        const a = wrapPi(2 * cArg(T[0]![0]!)) / PI
+        return Math.abs(a) < 1e-13 ? [] : [[1, a]]
+      }
+      const s2 = cAbs2(T[0]![1]!) / 0.75
+      if (s2 > 1 + 1e-12) return null
+      const b = (2 / PI) * Math.asin(Math.sqrt(Math.min(1, s2)))
+      const M = dfsGen01(b)
+      const apc = wrapPi(cArg(T[0]![0]!) - cArg(M[0]![0]!)) * (2 / PI)
+      const amc = wrapPi(cArg(T[0]![1]!) - cArg(M[0]![1]!)) * (2 / PI)
+      const a = 0.5 * (apc + amc)
+      const c = 0.5 * (apc - amc)
+      const seq: PairPulse1Q[] = []
+      if (Math.abs(c) > 1e-13) seq.push([1, c])
+      if (Math.abs(b) > 1e-13) seq.push([0, b])
+      if (Math.abs(a) > 1e-13) seq.push([1, a])
+      return seq
+    }
+    const r3 = try3(U)
+    if (r3) return r3
+    for (const beta of [1, 0.5, -0.5]) {
+      const r = try3(matMul(dfsGen01(beta), U))
+      if (r) return [...r, [0, -beta]]
+    }
+    throw new Error('synth1Q_DFS failed')
+  }
+  const eval1Q_DFS = (seq: readonly PairPulse1Q[]): CMat => {
+    let M = matEye(2)
+    for (const [w, a] of seq) M = matMul(w === 1 ? dfsGen12(a) : dfsGen01(a), M)
+    return M
+  }
+  const seqH_1Q = synth1Q_DFS(H2)
+  const seqT_1Q = synth1Q_DFS(T2)
+  const seqTd_1Q = synth1Q_DFS(Td2)
+  const hBalErr = matFrobDiffUpToPhase(eval1Q_DFS(seqH_1Q), H2)
+  const tBalErr = Math.max(
+    matFrobDiffUpToPhase(eval1Q_DFS(seqT_1Q), T2),
+    matFrobDiffUpToPhase(eval1Q_DFS(seqTd_1Q), Td2),
+  )
+  assertExact(seqH_1Q.length === 3 && seqT_1Q.length === 1 && seqTd_1Q.length === 1, '1Q collision counts')
+
+  // 2) EXACT CLOSED-FORM SPIN-INDEPENDENT 5-SPIN EXCHANGE-ONLY CZ (53 ADJACENT COLLISIONS) & CNOT (54 ADJACENT COLLISIONS)!
+  //    (Zeuch-Bonesteel 4-spin-to-5-spin controlled-swap construction on active spins (1,2,3,4,5), spin 0 untouched!)
+  //    Proof sketch (exact on BOTH S_{AB} = 0 [S_{12345}=1/2] AND S_{AB} = 1 [S_{12345}=1/2, 3/2]):
+  //      - On 4 spins (2,3,4,5), the 5-collision block W_0 = P_{23} E_{34}(-2/3) P_{45} E_{34}(+2/3) P_{23}
+  //        (using ONLY SWAP and verbatim bare on-dock M_meet angle +-2/3!) clears the S_{345}=3/2 leakage state |L>
+  //        into {|0_B>, |1_B>} identically: W_0|L> = (-sqrt(6)/4 + i*sqrt(2)/2)|0_B> - (1/(2*sqrt(2)))|1_B> + 0|L>!
+  //      - The 2-pulse 1Q rotation Q_B = E_{34}(b_QB) E_{45}(a_QB) with b_QB = (2/pi) arcsin(1/sqrt(6)) aligns W_0|L> -> |0_B>,
+  //        so U_4 = W_0^dag Q_B^dag P_{45} Q_B W_0 (15 adjacent collisions!) acts as diag(+1, +1, -1) on S_{2345}=1
+  //        (ZERO leakage out of S_{345}=1/2!) and as exact Bloch reflection R_n on S_{2345}=0 with exact axis
+  //        n = (-5*sqrt(3)/16, -5/8, 9/16) (unit norm: (75 + 100 + 81)/256 = 1)!
+  //      - Thus U_4 is an exact controlled-swap between spin 2 and Qubit B's spin-1/2 controlled on the -1 eigenstate of R_n!
+  //        Applying the S_3 braid U_{CZ,raw} = U_4 P_{12} U_4 P_{12} U_4 (47 adjacent collisions!) acts as
+  //        |0_A><0_A| (x) R_n + |1_A><1_A| (x) I_B identically on BOTH S_{AB}=0 AND S_{AB}=1 with identical global phase!
+  //      - Framing Qubit B with exact local 1Q rotations Q_cz (3+3=6 collisions) yields exact spin-independent CZ (53 collisions),
+  //        and with Q_cnot = H Q_cz (4+3=7 collisions) yields exact spin-independent CNOT (54 collisions)!
+  type AdjPulse = readonly [number, number, number] // [spinLo, spinHi, alpha] with spinHi === spinLo + 1
+  const bQB = (2 / PI) * Math.asin(1 / Math.sqrt(6))
+  const wL0_c: C = [-Math.sqrt(6) / 4, SQRT2 / 2]
+  const wL1_c: C = [-1 / (2 * SQRT2), 0]
+  const E34_bQB = dfsGen01(bQB)
+  const qNum = cMul(E34_bQB[1]![1]!, wL1_c)
+  const qDen = cMul(E34_bQB[1]![0]!, wL0_c)
+  const aQB = cArg(cDiv([-qNum[0], -qNum[1]], qDen)) / PI
+  const Rn_B: CMat = [
+    [[9 / 16, 0], [(-5 * SQRT3) / 16, 5 / 8]],
+    [[(-5 * SQRT3) / 16, -5 / 8], [-9 / 16, 0]],
+  ]
+  const thRn = Math.acos(9 / 16)
+  const phiRn = Math.atan2(-5 / 8, (-5 * SQRT3) / 16)
+  const vPlusRn: readonly [C, C] = [[Math.cos(thRn / 2), 0], cScale(Math.sin(thRn / 2), cExpI(phiRn))]
+  const vMinusRn: readonly [C, C] = [[-Math.sin(thRn / 2), 0], cScale(Math.cos(thRn / 2), cExpI(phiRn))]
+  const Q_cz_B: CMat = [
+    [cConj(vPlusRn[0]), cConj(vPlusRn[1])],
+    [cConj(vMinusRn[0]), cConj(vMinusRn[1])],
+  ]
+  const Q_cnot_B = matMul(H2, Q_cz_B)
+  const rightCZ_1Q = synth1Q_DFS(matDag(Q_cz_B))
+  const leftCZ_1Q = synth1Q_DFS(matMul(Q_cz_B, Rn_B))
+  const rightCNOT_1Q = synth1Q_DFS(matDag(Q_cnot_B))
+  const leftCNOT_1Q = synth1Q_DFS(matMul(Q_cnot_B, Rn_B))
+
+  const buildSpinIndep2Q = (
+    s1: number, s2: number, s3: number, s4: number, s5: number,
+    right1Q: readonly PairPulse1Q[], left1Q: readonly PairPulse1Q[],
+  ): readonly AdjPulse[] => {
+    const w0: readonly AdjPulse[] = [
+      [s2, s3, 1],
+      [s3, s4, 2 / 3],
+      [s4, s5, 1],
+      [s3, s4, -2 / 3],
+      [s2, s3, 1],
+    ]
+    const mapB = (seq: readonly PairPulse1Q[]): AdjPulse[] =>
+      seq.map(([w, a]) => (w === 1 ? [s4, s5, a] : [s3, s4, a]))
+    const u4: readonly AdjPulse[] = [
+      ...w0,
+      [s4, s5, aQB],
+      [s3, s4, bQB],
+      [s4, s5, 1],
+      [s3, s4, -bQB],
+      [s4, s5, -aQB],
+      ...w0.slice().reverse().map(([p, q, a]): AdjPulse => [p, q, -a]),
+    ]
+    const raw: AdjPulse[] = [
+      ...mapB(right1Q),
+      ...u4,
+      [s1, s2, 1],
+      ...u4,
+      [s1, s2, 1],
+      ...u4,
+      ...mapB(left1Q),
+    ]
+    for (const [p, q] of raw) assertExact(q === p + 1, `Non-adjacent pulse [${p},${q}]`)
+    return raw
+  }
+
+  const czSpinIndep01 = buildSpinIndep2Q(1, 2, 3, 4, 5, rightCZ_1Q, leftCZ_1Q)
+  const cnotSpinIndep01 = buildSpinIndep2Q(1, 2, 3, 4, 5, rightCNOT_1Q, leftCNOT_1Q)
+  assertExact(czSpinIndep01.length === 53 && cnotSpinIndep01.length === 54, `2Q counts (${czSpinIndep01.length}, ${cnotSpinIndep01.length})`)
+
+  // Verify spin-independent CZ (53) & CNOT (54) on FULL 6-spin C(6,3)=20 across BOTH S_{AB}=0 AND S_{AB}=1!
+  const exch20Alpha = (p: number, q: number, alpha: number): CMat => {
+    const ph = cExpI(PI * alpha)
+    const cI = cScale(0.5, cAdd(C_ONE, ph))
+    const cP = cScale(0.5, cSub(C_ONE, ph))
+    const M: CMat = Array.from({ length: 20 }, () => Array.from({ length: 20 }, () => C_ZERO))
+    for (let col = 0; col < 20; col++) {
+      const [i, j, k] = basis20[col]!
+      const mp = (x: number) => (x === p ? q : x === q ? p : x)
+      const arr = [mp(i), mp(j), mp(k)].sort((a, b) => a - b)
+      const row = idx20.get(`${arr[0]},${arr[1]},${arr[2]}`)!
+      M[col]![col] = cAdd(M[col]![col]!, cI)
+      M[row]![col] = cAdd(M[row]![col]!, cP)
+    }
+    return M
+  }
+  const runPulses20 = (pulses: readonly AdjPulse[]): CMat => {
+    let U = matEye(20)
+    for (const [p, q, a] of pulses) U = matMul(exch20Alpha(p, q, a), U)
+    return U
+  }
+  // Build S_{AB} = 1 (m_s = 0) logical kets in C^20 alongside S_{AB} = 0 (singletKets20):
+  const tripletKets20: number[][] = []
+  for (let a = 0; a < 2; a++) {
+    for (let b = 0; b < 2; b++) {
+      const v = new Array<number>(20).fill(0)
+      for (const [pa, ca] of dfsUpA[a]!) {
+        for (const [pb, cb] of dfsDnB[b]!) {
+          const arr = [pa[0], pb[0], pb[1]].sort((x, y) => x - y)
+          const id = idx20.get(`${arr[0]},${arr[1]},${arr[2]}`)!
+          v[id] = v[id]! + ISQ2 * ca * cb
+        }
+      }
+      for (const [pa, ca] of dfsDnA[a]!) {
+        for (const [pb, cb] of dfsUpB[b]!) {
+          const arr = [pa[0], pa[1], pb[0]].sort((x, y) => x - y)
+          const id = idx20.get(`${arr[0]},${arr[1]},${arr[2]}`)!
+          v[id] = v[id]! + ISQ2 * ca * cb
+        }
+      }
+      tripletKets20.push(v)
+    }
+  }
+  // Verify S_{AB} = 1 Casimir (sum_{p<q} P_{pq} = 5) on all 4 triplet logical kets!
+  let maxTripletCasErr = 0
+  for (const v of tripletKets20) {
+    const out = new Array<number>(20).fill(0)
+    for (let p = 0; p < 6; p++) for (let q = p + 1; q < 6; q++) {
+      for (let col = 0; col < 20; col++) {
+        if (v[col] === 0) continue
+        const [i, j, k] = basis20[col]!
+        const mp = (x: number) => (x === p ? q : x === q ? p : x)
+        const arr = [mp(i), mp(j), mp(k)].sort((x, y) => x - y)
+        const row = idx20.get(`${arr[0]},${arr[1]},${arr[2]}`)!
+        out[row] = out[row]! + v[col]!
+      }
+    }
+    for (let i = 0; i < 20; i++) maxTripletCasErr = Math.max(maxTripletCasErr, Math.abs(out[i]! - 5 * v[i]!))
+  }
+  assertExact(maxTripletCasErr < 1e-13, `triplet Casimir err=${maxTripletCasErr}`)
+
+  const proj20Kets = (U20: CMat, kets: readonly (readonly number[])[]): { readonly U4: CMat; readonly leak: number } => {
+    const U4: CMat = Array.from({ length: 4 }, (_, r) =>
+      Array.from({ length: 4 }, (_, c) => {
+        let s: C = C_ZERO
+        for (let i = 0; i < 20; i++) {
+          const ri = kets[r]![i]!
+          if (ri === 0) continue
+          for (let j = 0; j < 20; j++) {
+            const cj = kets[c]![j]!
+            if (cj === 0) continue
+            s = cAdd(s, cScale(ri * cj, U20[i]![j]!))
+          }
+        }
+        return s
+      }),
+    )
+    const leak = Math.max(0, 4 - matTrace(matMul(matDag(U4), U4))[0]) / 4
+    return { U4, leak }
+  }
+  const matFrobRaw = (A: CMat, B: CMat): number => {
+    let s = 0
+    for (let r = 0; r < A.length; r++) for (let c = 0; c < A[0]!.length; c++) s += cAbs2(cSub(A[r]![c]!, B[r]![c]!))
+    return Math.sqrt(s)
+  }
+  // Honest diagnostic: show that the 60-collision S_tot=0 singlet-DFS CZ leaks on S_{AB}=1!
+  const czSingletOnTripletLeak = proj20Kets(U_CZ_20, tripletKets20).leak
+
+  const U_CZ_SI_20 = runPulses20(czSpinIndep01)
+  const U_CNOT_SI_20 = runPulses20(cnotSpinIndep01)
+  const czSI_uniErr = matUnitaryErr(U_CZ_SI_20)
+  const cnotSI_uniErr = matUnitaryErr(U_CNOT_SI_20)
+  const czSI_S0 = proj20Kets(U_CZ_SI_20, singletKets20)
+  const czSI_S1 = proj20Kets(U_CZ_SI_20, tripletKets20)
+  const czSI_errS0 = matFrobDiffUpToPhase(czSI_S0.U4, CZ_exact)
+  const czSI_errS1 = matFrobDiffUpToPhase(czSI_S1.U4, CZ_exact)
+  const czSI_phaseMatch = matFrobRaw(czSI_S0.U4, czSI_S1.U4) // ZERO separate phase freedom!
+
+  const cnotSI_S0 = proj20Kets(U_CNOT_SI_20, singletKets20)
+  const cnotSI_S1 = proj20Kets(U_CNOT_SI_20, tripletKets20)
+  const cnotSI_errS0 = matFrobDiffUpToPhase(cnotSI_S0.U4, CNOT_exact)
+  const cnotSI_errS1 = matFrobDiffUpToPhase(cnotSI_S1.U4, CNOT_exact)
+  const cnotSI_phaseMatch = matFrobRaw(cnotSI_S0.U4, cnotSI_S1.U4) // ZERO separate phase freedom!
+
+  // 3) FULL 9-SPIN C(9,4) = 126-DIM HILBERT SPACE 3-QUBIT TOFFOLI VERIFICATION (BOTH S_{AB}=0 AND S_{AB}=1!)
+  //    All 9 roles {0..8} pairwise distinct in Vibe's 9-point alphabet => M_pair = I strictly in verbatim 4D!
+  //    Qubits on linear chain: Q0 = (0,1,2), Q1 = (3,4,5), Q2 = (6,7,8), m_s = +1/2 (4 markers, 5 backgrounds).
+  const basis126: [number, number, number, number][] = []
+  const idx126 = new Map<string, number>()
+  for (let a = 0; a < 9; a++) {
+    for (let b = a + 1; b < 9; b++) {
+      for (let c = b + 1; c < 9; c++) {
+        for (let d = c + 1; d < 9; d++) {
+          idx126.set(`${a},${b},${c},${d}`, basis126.length)
+          basis126.push([a, b, c, d])
+        }
+      }
+    }
+  }
+  assertExact(basis126.length === 126, `C(9,4)=${basis126.length}`)
+  const swapPerm126 = (p: number, q: number): Int32Array => {
+    const perm = new Int32Array(126)
+    for (let i = 0; i < 126; i++) {
+      const [a, b, c, d] = basis126[i]!
+      const mp = (x: number) => (x === p ? q : x === q ? p : x)
+      const arr = [mp(a), mp(b), mp(c), mp(d)].sort((x, y) => x - y)
+      perm[i] = idx126.get(`${arr[0]},${arr[1]},${arr[2]},${arr[3]}`)!
+    }
+    return perm
+  }
+  const adjPerms126: readonly Int32Array[] = Array.from({ length: 8 }, (_, k) => swapPerm126(k, k + 1))
+
+  const applyAdj126 = (re: Float64Array, im: Float64Array, nCols: number, k: number, alpha: number): void => {
+    const perm = adjPerms126[k]!
+    const ph = cExpI(PI * alpha)
+    const cIr = 0.5 * (1 + ph[0]); const cIi = 0.5 * ph[1]
+    const cPr = 0.5 * (1 - ph[0]); const cPi = -0.5 * ph[1]
+    for (let col = 0; col < nCols; col++) {
+      const off = col * 126
+      for (let i = 0; i < 126; i++) {
+        const j = perm[i]!
+        if (j <= i) continue
+        const ir = re[off + i]!; const ii = im[off + i]!
+        const jr = re[off + j]!; const ji = im[off + j]!
+        re[off + i] = cIr * ir - cIi * ii + cPr * jr - cPi * ji
+        im[off + i] = cIr * ii + cIi * ir + cPr * ji + cPi * jr
+        re[off + j] = cIr * jr - cIi * ji + cPr * ir - cPi * ii
+        im[off + j] = cIr * ji + cIi * jr + cPr * ii + cPi * ir
+      }
+    }
+  }
+
+  // Build ALL 16 orthonormal logical+gauge basis states in S_{ABC} = 1/2 (8 with S_{AB}=0, 8 with S_{AB}=1):
+  const qUp126 = (q: number, bit: number): readonly (readonly [readonly number[], number])[] =>
+    bit === 0
+      ? [[[3 * q + 1], ISQ2], [[3 * q + 2], -ISQ2]]
+      : [[[3 * q], 2 * isq6], [[3 * q + 1], -isq6], [[3 * q + 2], -isq6]]
+  const qDn126 = (q: number, bit: number): readonly (readonly [readonly number[], number])[] =>
+    bit === 0
+      ? [[[3 * q, 3 * q + 1], ISQ2], [[3 * q, 3 * q + 2], -ISQ2]]
+      : [[[3 * q, 3 * q + 1], isq6], [[3 * q, 3 * q + 2], isq6], [[3 * q + 1, 3 * q + 2], -2 * isq6]]
+  const addProd126 = (
+    v: Float64Array, coeff: number,
+    tA: readonly (readonly [readonly number[], number])[],
+    tB: readonly (readonly [readonly number[], number])[],
+    tC: readonly (readonly [readonly number[], number])[],
+  ): void => {
+    for (const [dA, cA] of tA) {
+      for (const [dB, cB] of tB) {
+        for (const [dC, cC] of tC) {
+          const arr = [...dA, ...dB, ...dC].sort((x, y) => x - y)
+          const id = idx126.get(`${arr[0]},${arr[1]},${arr[2]},${arr[3]}`)!
+          v[id] = v[id]! + coeff * cA * cB * cC
+        }
+      }
+    }
+  }
+  const kets126: Float64Array[] = []
+  for (let g = 0; g < 2; g++) {
+    for (let idx = 0; idx < 8; idx++) {
+      const a = (idx >> 2) & 1; const b = (idx >> 1) & 1; const c = idx & 1
+      const v = new Float64Array(126)
+      if (g === 0) {
+        addProd126(v, ISQ2, qUp126(0, a), qDn126(1, b), qUp126(2, c))
+        addProd126(v, -ISQ2, qDn126(0, a), qUp126(1, b), qUp126(2, c))
+      } else {
+        addProd126(v, 2 * isq6, qUp126(0, a), qUp126(1, b), qDn126(2, c))
+        addProd126(v, -isq6, qUp126(0, a), qDn126(1, b), qUp126(2, c))
+        addProd126(v, -isq6, qDn126(0, a), qUp126(1, b), qUp126(2, c))
+      }
+      kets126.push(v)
+    }
+  }
+  let maxOrtho126Err = 0
+  for (let i = 0; i < 16; i++) {
+    for (let j = 0; j < 16; j++) {
+      let d = 0
+      for (let k = 0; k < 126; k++) d += kets126[i]![k]! * kets126[j]![k]!
+      maxOrtho126Err = Math.max(maxOrtho126Err, Math.abs(d - (i === j ? 1 : 0)))
+    }
+  }
+  // Verify exact 9-spin total-spin Casimir (sum_{p<q} P_{pq} = S(S+1) - 9*3/4 + 36/2 = 12 for S = 1/2!)
+  let maxCas126Err = 0
+  const allPerms126: Int32Array[] = []
+  for (let p = 0; p < 9; p++) for (let q = p + 1; q < 9; q++) allPerms126.push(swapPerm126(p, q))
+  for (const v of kets126) {
+    const out = new Float64Array(126)
+    for (const perm of allPerms126) {
+      for (let i = 0; i < 126; i++) out[perm[i]!] = out[perm[i]!]! + v[i]!
+    }
+    for (let i = 0; i < 126; i++) maxCas126Err = Math.max(maxCas126Err, Math.abs(out[i]! - 12 * v[i]!))
+  }
+  assertExact(maxOrtho126Err < 1e-13 && maxCas126Err < 1e-13, `126D basis err=${maxOrtho126Err}, cas=${maxCas126Err}`)
+
+  // Explicit adjacent routing SWAP between Q0=(0,1,2) and Q1=(3,4,5): 3 x 3 = 9 adjacent R(w=0) SWAP collisions!
+  const qubitSwap01: readonly AdjPulse[] = [
+    [2, 3, 1], [3, 4, 1], [4, 5, 1],
+    [1, 2, 1], [2, 3, 1], [3, 4, 1],
+    [0, 1, 1], [1, 2, 1], [2, 3, 1],
+  ]
+  const map1Q_9 = (q: 0 | 1 | 2, seq: readonly PairPulse1Q[]): AdjPulse[] =>
+    seq.map(([w, a]) => (w === 1 ? [3 * q + 1, 3 * q + 2, a] : [3 * q, 3 * q + 1, a]))
+
+  const Toffoli_exact: CMat = matEye(8)
+  Toffoli_exact[6]![6] = C_ZERO; Toffoli_exact[7]![7] = C_ZERO
+  Toffoli_exact[6]![7] = C_ONE; Toffoli_exact[7]![6] = C_ONE
+  const Toffoli16_exact: CMat = matEye(16)
+  for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+    Toffoli16_exact[r]![c] = Toffoli_exact[r]![c]!
+    Toffoli16_exact[r + 8]![c + 8] = Toffoli_exact[r]![c]!
+  }
+
+  const evalCircuit126 = (pulses: readonly AdjPulse[], checkFull126Unitary: boolean) => {
+    for (const [p, q] of pulses) assertExact(q === p + 1, `Non-adjacent 9-spin pulse [${p},${q}]`)
+    const stRe = new Float64Array(16 * 126)
+    const stIm = new Float64Array(16 * 126)
+    for (let col = 0; col < 16; col++) for (let i = 0; i < 126; i++) stRe[col * 126 + i] = kets126[col]![i]!
+    for (const [p, _q, a] of pulses) applyAdj126(stRe, stIm, 16, p, a)
+    const U16: CMat = Array.from({ length: 16 }, (_, r) =>
+      Array.from({ length: 16 }, (_, c) => {
+        let re = 0; let im = 0
+        const off = c * 126
+        for (let i = 0; i < 126; i++) {
+          const w = kets126[r]![i]!
+          if (w !== 0) { re += w * stRe[off + i]!; im += w * stIm[off + i]! }
+        }
+        return [re, im] as C
+      }),
+    )
+    let tr16 = 0
+    for (let r = 0; r < 16; r++) for (let c = 0; c < 16; c++) tr16 += cAbs2(U16[r]![c]!)
+    const leak16 = Math.max(0, 16 - tr16) / 16
+    let cross2 = 0
+    for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) cross2 += cAbs2(U16[r]![c + 8]!) + cAbs2(U16[r + 8]![c]!)
+    const U8_g0 = U16.slice(0, 8).map(row => row.slice(0, 8))
+    const U8_g1 = U16.slice(8, 16).map(row => row.slice(8, 16))
+    const errG0 = matFrobDiffUpToPhase(U8_g0, Toffoli_exact)
+    const errG1 = matFrobDiffUpToPhase(U8_g1, Toffoli_exact)
+    const phaseMatch01 = matFrobRaw(U8_g0, U8_g1)
+    const err16 = matFrobDiffUpToPhase(U16, Toffoli16_exact)
+    const trIp = cAbs(matTrace(matMul(matDag(U8_g0), Toffoli_exact))) / 8
+    let uni126Err = 0
+    if (checkFull126Unitary) {
+      const fRe = new Float64Array(126 * 126)
+      const fIm = new Float64Array(126 * 126)
+      for (let col = 0; col < 126; col++) fRe[col * 126 + col] = 1
+      for (const [p, _q, a] of pulses) applyAdj126(fRe, fIm, 126, p, a)
+      let e2 = 0
+      for (let c1 = 0; c1 < 126; c1++) {
+        const o1 = c1 * 126
+        for (let c2 = 0; c2 < 126; c2++) {
+          const o2 = c2 * 126
+          let re = 0; let im = 0
+          for (let i = 0; i < 126; i++) {
+            re += fRe[o1 + i]! * fRe[o2 + i]! + fIm[o1 + i]! * fIm[o2 + i]!
+            im += fRe[o1 + i]! * fIm[o2 + i]! - fIm[o1 + i]! * fRe[o2 + i]!
+          }
+          if (c1 === c2) re -= 1
+          e2 += re * re + im * im
+        }
+      }
+      uni126Err = Math.sqrt(e2)
+    }
+    return { leak16, crossGauge: Math.sqrt(cross2), errG0, errG1, phaseMatch01, err16, procFid: trIp * trIp, uni126Err }
+  }
+
+  // Assemble continuous-rapidity linear-chain 9-spin Toffoli (Nielsen-Chuang Fig. 4.9, right-to-left):
+  const cnotSI_12 = buildSpinIndep2Q(4, 5, 6, 7, 8, rightCNOT_1Q, leftCNOT_1Q)
+  const cnotSI_02: readonly AdjPulse[] = [...qubitSwap01, ...cnotSI_12, ...qubitSwap01.slice().reverse()]
+  const toff9Ops: readonly { readonly kind: '1Q' | '2Q' | '2Q_SWAP'; readonly pulses: readonly AdjPulse[] }[] = [
+    { kind: '1Q', pulses: map1Q_9(2, seqH_1Q) },
+    { kind: '2Q', pulses: cnotSI_12 },
+    { kind: '1Q', pulses: map1Q_9(2, seqTd_1Q) },
+    { kind: '2Q_SWAP', pulses: cnotSI_02 },
+    { kind: '1Q', pulses: map1Q_9(2, seqT_1Q) },
+    { kind: '2Q', pulses: cnotSI_12 },
+    { kind: '1Q', pulses: map1Q_9(2, seqTd_1Q) },
+    { kind: '2Q_SWAP', pulses: cnotSI_02 },
+    { kind: '1Q', pulses: map1Q_9(1, seqT_1Q) },
+    { kind: '1Q', pulses: map1Q_9(2, seqT_1Q) },
+    { kind: '2Q', pulses: cnotSpinIndep01 },
+    { kind: '1Q', pulses: map1Q_9(2, seqH_1Q) },
+    { kind: '1Q', pulses: map1Q_9(0, seqT_1Q) },
+    { kind: '1Q', pulses: map1Q_9(1, seqTd_1Q) },
+    { kind: '2Q', pulses: cnotSpinIndep01 },
+  ]
+  let count1Q_9 = 0; let count2Q_9 = 0; let countSwap_9 = 0
+  const toff9Pulses: AdjPulse[] = []
+  for (const op of toff9Ops) {
+    if (op.kind === '1Q') count1Q_9 += op.pulses.length
+    else if (op.kind === '2Q_SWAP') { count2Q_9 += cnotSI_12.length; countSwap_9 += 2 * qubitSwap01.length }
+    else count2Q_9 += op.pulses.length
+    for (const p of op.pulses) toff9Pulses.push(p)
+  }
+  assertExact(count1Q_9 === 13 && count2Q_9 === 324 && countSwap_9 === 36 && toff9Pulses.length === 373, '9-spin Toffoli collision breakdown')
+  const toff9Cont = evalCircuit126(toff9Pulses, true)
+
+  // 4) SAME-ENCODING DISCRETE FIXED-ANGLE BARE-U <M_{01}, M_{12}> SYNTHESIS DIRECTLY ON C^126!
+  //    Using ONLY the verbatim bare on-dock M_meet generators (w = 1/sqrt(3), alpha = 2/3) inside the EXACT SAME
+  //    3-spin DFS encoding:
+  //      M_{12} = dfsGen12(2/3),  M_{01} = dfsGen01(2/3),  |Tr_{SU(2)}(M_{01} M_{12})| = 5/4 (Niven-dense in SU(2)!)
+  //    Note: M_{ij}^3 = -I in SU(2) => M_{ij}^{-1} = -M_{ij}^2 is just 2 positive bare M_meet collisions!
+  //    Deterministic meet-in-the-middle BFS (half-depth <= 10, word length <= 20 letters, pool = 4,093) synthesizes
+  //    bH_DFS, bT_DFS, bTd_DFS = bT_DFS^dag. We then compose the FULL 9-spin Toffoli directly on C(9,4)=126 using:
+  //      - Discrete bare-U <M_{01}, M_{12}> words for ALL single-qubit gates (H, T, T^dag) AND for BOTH H gates
+  //        framing every spin-independent CZ inside CNOT = (I x bH_DFS) * CZ_spinIndep * (I x bH_DFS),
+  //      - Continuous-rapidity spin-independent 53-collision CZ for the 6 entangling blocks, and
+  //      - 36 adjacent R(w = 0) routing SWAP collisions for the 2 non-adjacent CNOT(0, 2) gates!
+  const M01_DFS = dfsGen01(2 / 3)
+  const M12_DFS = dfsGen12(2 / 3)
+  const trM01M12 = cAbs(matTrace(matMul(M01_DFS, M12_DFS)))
+  const m01SqInvErr = matFrobDiffUpToPhase(matMul(M01_DFS, M01_DFS), matDag(M01_DFS))
+  assertExact(Math.abs(trM01M12 - 1.25) < 1e-13 && m01SqInvErr < 1e-13, `M01/M12 check tr=${trM01M12}`)
+
+  const synthDiscreteDFS = () => {
+    const gens: readonly { readonly pair: 0 | 1; readonly alpha: number; readonly U: CMat }[] = [
+      { pair: 0, alpha: 2 / 3, U: M01_DFS },
+      { pair: 0, alpha: -2 / 3, U: matDag(M01_DFS) },
+      { pair: 1, alpha: 2 / 3, U: M12_DFS },
+      { pair: 1, alpha: -2 / 3, U: matDag(M12_DFS) },
     ]
     const key4 = (U: CMat): string => {
       let a = U[0]![0]!; let b = U[0]![1]!
       if (a[0] < -1e-6 || (Math.abs(a[0]) <= 1e-6 && a[1] < -1e-6)) { a = [-a[0], -a[1]]; b = [-b[0], -b[1]] }
       return `${a[0].toFixed(4)},${a[1].toFixed(4)},${b[0].toFixed(4)},${b[1].toFixed(4)}`
     }
-    const pool: { readonly word: string; readonly U: CMat; readonly len: number }[] = [{ word: '', U: I2, len: 0 }]
+    interface PoolItem { readonly seq: readonly PairPulse1Q[]; readonly U: CMat; readonly lastPair: -1 | 0 | 1 }
+    const pool: PoolItem[] = [{ seq: [], U: I2, lastPair: -1 }]
     const seen = new Set<string>([key4(I2)])
-    let front = pool.slice()
-    for (let d = 1; d <= 7; d++) {
-      const next: typeof pool = []
+    let front: PoolItem[] = pool.slice()
+    for (let d = 1; d <= 10; d++) {
+      const next: PoolItem[] = []
       for (const cur of front) {
-        for (const [nm, G] of gens) {
-          const U = matMul(G, cur.U)
+        for (const g of gens) {
+          if (g.pair === cur.lastPair) continue
+          const U = matMul(g.U, cur.U)
           const k = key4(U)
           if (!seen.has(k)) {
             seen.add(k)
-            const item = { word: nm + cur.word, U, len: d }
+            const item: PoolItem = { seq: [...cur.seq, [g.pair, g.alpha]], U, lastPair: g.pair }
             pool.push(item); next.push(item)
           }
         }
       }
       front = next
     }
-    // Meet-in-the-middle search over pool x pool (word length <= 12) for closest match to target in SU(2)!
+    const nP = pool.length
+    const l0 = new Float64Array(nP); const l1 = new Float64Array(nP)
+    const l2 = new Float64Array(nP); const l3 = new Float64Array(nP)
+    for (let i = 0; i < nP; i++) {
+      const U = pool[i]!.U
+      l0[i] = U[0]![0]![0]; l1[i] = U[0]![0]![1]; l2[i] = U[0]![1]![0]; l3[i] = U[0]![1]![1]
+    }
     const findBest = (target: CMat) => {
       const T_SU2 = toSU2(target)
-      // Precompute T_SU2 * U_right^dag for all right words, then find closest left word via dot product!
-      const nP = pool.length
-      // Store (Re a, Im a, Re b, Im b) of T_SU2 * R^dag
       const r0 = new Float64Array(nP); const r1 = new Float64Array(nP)
       const r2 = new Float64Array(nP); const r3 = new Float64Array(nP)
-      const l0 = new Float64Array(nP); const l1 = new Float64Array(nP)
-      const l2 = new Float64Array(nP); const l3 = new Float64Array(nP)
       for (let i = 0; i < nP; i++) {
-        const U = pool[i]!.U
-        l0[i] = U[0]![0]![0]; l1[i] = U[0]![0]![1]; l2[i] = U[0]![1]![0]; l3[i] = U[0]![1]![1]
-        const M = matMul(T_SU2, matDag(U))
+        const M = matMul(T_SU2, matDag(pool[i]!.U))
         r0[i] = M[0]![0]![0]; r1[i] = M[0]![0]![1]; r2[i] = M[0]![1]![0]; r3[i] = M[0]![1]![1]
       }
-      // Subsample bucketed or direct all-pairs? Check nP: at d <= 6, nP ~ 650, so 650*650 = 420k dot products (~3 ms!)
       let bestDot = -1; let bi = 0; let bj = 0
       for (let i = 0; i < nP; i++) {
         const a0 = l0[i]!; const a1 = l1[i]!; const a2 = l2[i]!; const a3 = l3[i]!
@@ -2952,50 +3396,84 @@ function runPillar4(): void {
         }
       }
       const Ubest = matMul(pool[bi]!.U, pool[bj]!.U)
-      const err = matFrobDiffUpToPhase(Ubest, target)
-      return { U: Ubest, err, len: pool[bi]!.len + pool[bj]!.len, word: pool[bi]!.word + pool[bj]!.word, poolSize: nP }
+      const seq: PairPulse1Q[] = [...pool[bj]!.seq, ...pool[bi]!.seq]
+      const posMeetCount = seq.reduce((acc, [, a]) => acc + (a > 0 ? 1 : 2), 0)
+      return { U: Ubest, err: matFrobDiffUpToPhase(Ubest, target), letters: seq.length, posMeetCount, seq, poolSize: nP }
     }
     const bH = findBest(H2)
     const bT = findBest(T2)
-    const bTd = { U: matDag(bT.U), err: bT.err, len: bT.len }
-    const toffDisc = buildToffoli(bH.U, bT.U, bTd.U, CNOT_DFS4)
-    const toffDiscErr = matFrobDiffUpToPhase(toffDisc, Toffoli_exact)
-    const trIp = cAbs(matTrace(matMul(matDag(toffDisc), Toffoli_exact))) / 8
-    return { bH, bT, toffDiscErr, procFid: trIp * trIp }
+    const bTdSeq: readonly PairPulse1Q[] = bT.seq.slice().reverse().map(([w, a]) => [w, -a])
+    // Build hybrid 9-spin Toffoli on C^126 using bH_DFS inside every CNOT = (I x bH_DFS) CZ_spinIndep (I x bH_DFS)!
+    const czSI_01 = czSpinIndep01
+    const czSI_12 = buildSpinIndep2Q(4, 5, 6, 7, 8, rightCZ_1Q, leftCZ_1Q)
+    const cnotHyb_01: readonly AdjPulse[] = [...map1Q_9(1, bH.seq), ...czSI_01, ...map1Q_9(1, bH.seq)]
+    const cnotHyb_12: readonly AdjPulse[] = [...map1Q_9(2, bH.seq), ...czSI_12, ...map1Q_9(2, bH.seq)]
+    const cnotHyb_02: readonly AdjPulse[] = [...qubitSwap01, ...cnotHyb_12, ...qubitSwap01.slice().reverse()]
+    const hybPulses: AdjPulse[] = [
+      ...map1Q_9(2, bH.seq),
+      ...cnotHyb_12,
+      ...map1Q_9(2, bTdSeq),
+      ...cnotHyb_02,
+      ...map1Q_9(2, bT.seq),
+      ...cnotHyb_12,
+      ...map1Q_9(2, bTdSeq),
+      ...cnotHyb_02,
+      ...map1Q_9(1, bT.seq),
+      ...map1Q_9(2, bT.seq),
+      ...cnotHyb_01,
+      ...map1Q_9(2, bH.seq),
+      ...map1Q_9(0, bT.seq),
+      ...map1Q_9(1, bTdSeq),
+      ...cnotHyb_01,
+    ]
+    const hyb126 = evalCircuit126(hybPulses, false)
+    return { bH, bT, hyb126, totalPulses: hybPulses.length }
   }
-  const discSynth = synthDiscreteSU2()
+  const discSynth = synthDiscreteDFS()
 
-  console.log(`  [U4a] Verbatim 4D BigInt 6-Distinct-Role DFS ({0..5} subset {0..8}):`)
-  console.log(`        M_pair diff=${sixRolePairDiff}, off-line branches=${sixRoleOffLine}, revDiff=${sixRoleRevDiff} (EXACT M_pair=I in 4D!)`)
-  console.log(`  [U4b] Exact BigInt 3-Full-Line L_7 Chiral Catalyst & Ballistic SU(2):`)
-  console.log(`        BigInt |Tr(L_7 C)|^2 = ${trL7CNorm2[0]}/${trL7CDen2} (exact 25/16 -> |Tr_SU2|=${trSU2Val.toFixed(8)} = 5/4 -> Niven dense SU(2)!)`)
-  console.log(`        Ballistic 3-role DFS Euler synthesis: H err=${hBalErr.toExponential(2)} (3 collisions), T/Td err=${tBalErr.toExponential(2)} (1 collision)`)
-  console.log(`  [U4c] Exact 6-Distinct-Role DFS SU(4), Closed-Form 28/60-Collision CZ, Makhlin Invariants & Tsirelson CHSH:`)
+  console.log(`  [U4a] Verbatim 4D BigInt Distinct-Role DFS Protection ({0..5} & full 9-role {0..8} subset {0..8}):`)
+  console.log(`        6-role {0..5}: M_pair diff=${sixRolePairDiff}, off-line=${sixRoleOffLine}, revDiff=${sixRoleRevDiff} | 9-role {0..8}: M_pair diff=${nineRolePairDiff}, off-line=${nineRoleOffLine}, revDiff=${nineRoleRevDiff} (EXACT M_pair=I in 4D!)`)
+  console.log(`  [U4b] Exact Single-Qubit Dense SU(2) (Slot-Qubit <C, L_7> & 3-Role DFS Euler / Bare <M_{01}, M_{12}>):`)
+  console.log(`        Single-vibe slot-qubit BigInt |Tr(L_7 C)|^2 = ${trL7CNorm2[0]}/${trL7CDen2} (exact 25/16 -> |Tr_SU2|=${trSU2Val.toFixed(8)} = 5/4 -> Niven dense SU(2)!)`)
+  console.log(`        3-role DFS bare on-dock M_meet <M_{01}, M_{12}>: |Tr_SU2(M_{01} M_{12})|=${trM01M12.toFixed(8)} = 5/4 (Niven dense SU(2)!, M^2=-M^dag err=${m01SqInvErr.toExponential(1)})`)
+  console.log(`        3-role DFS continuous-rapidity Euler: H err=${hBalErr.toExponential(2)} (${seqH_1Q.length} colls), T/Td err=${tBalErr.toExponential(2)} (${seqT_1Q.length} coll)`)
+  console.log(`  [U4c] Exact 6-Distinct-Role DFS SU(4), 2-Qubit S_tot=0 Singlet-DFS CZ (28/60 colls), Makhlin & Tsirelson CHSH:`)
   console.log(`        Exact su(9) Lie algebra dimension on S_tot=1: ${su9Dim} / 80 (contains full SU(4) on 4D DFS!)`)
-  console.log(`        EXACT 28-Collision Singlet-DFS CPHASE(pi/3) (S_tot=0, 6 distinct roles {0..5}, M_pair=I):`)
-  console.log(`          phi*=${phiStarCZ.toFixed(6)}, psi*=${psiStarCZ.toFixed(6)}, leakage=${cp3Res.leak.toExponential(2)} (EXACT 0!)`)
-  console.log(`        EXACT 60-Collision Singlet-DFS CZ (V^3 reduced, uniErr=${cz20UniErr.toExponential(1)}, v3Err=${v3CheckErr.toExponential(1)}):`)
-  console.log(`          leakage=${czDfsLeak.toExponential(2)}, ||U_4 - CZ||_F=${czDfsErr.toExponential(2)}, Makhlin=(${makhDfsCNOT.G1[0].toFixed(4)}+${makhDfsCNOT.G1[1].toFixed(4)}i, ${makhDfsCNOT.G2.toFixed(4)}), e_p=${makhDfsCNOT.ep.toFixed(6)} (2/9)`)
+  console.log(`        EXACT 28-Collision Singlet-DFS CPHASE(+pi/3) [scoped to 2-qubit S_tot=0, 6 distinct roles {0..5}, M_pair=I]:`)
+  console.log(`          phi*=${phiStarCZ.toFixed(6)}, psi*=${psiStarCZ.toFixed(6)}, leakage=${cp3Res.leak.toExponential(2)}, ||U_4 - CPHASE(pi/3)||_F=${cp3Err.toExponential(2)}`)
+  console.log(`        EXACT 60-Collision Singlet-DFS CZ [scoped to 2-qubit S_tot=0, uniErr=${cz20UniErr.toExponential(1)}, v3Err=${v3CheckErr.toExponential(1)}]:`)
+  console.log(`          S_tot=0 leak=${czDfsLeak.toExponential(2)}, ||U_4 - CZ||_F=${czDfsErr.toExponential(2)}, Makhlin=(${makhDfsCNOT.G1[0].toFixed(4)}+${makhDfsCNOT.G1[1].toFixed(4)}i, ${makhDfsCNOT.G2.toFixed(4)}), e_p=${makhDfsCNOT.ep.toFixed(6)} (2/9)`)
+  console.log(`          (Honest scope diagnostic: 60-coll S_tot=0 CZ leaks ${czSingletOnTripletLeak.toFixed(4)} on S_{AB}=1 -> multi-qubit circuits require spin-independent U4d!)`)
   console.log(`        Yang R(w=1) [sqrt(SWAP)] Makhlin: G_1=(${makhSqrtSwap.G1[0].toFixed(4)}, ${makhSqrtSwap.G1[1].toFixed(4)}i), G_2=${makhSqrtSwap.G2.toFixed(4)}, e_p=${makhSqrtSwap.ep.toFixed(6)} (1/6)`)
   console.log(`        Yang R(w=1/sqrt(3)) [M_meet] Makhlin: G_1=(${makhBareMeet.G1[0].toFixed(4)}, ${makhBareMeet.G1[1].toFixed(4)}i), G_2=${makhBareMeet.G2.toFixed(4)}, e_p=${makhBareMeet.ep.toFixed(6)}`)
   console.log(`        2-Collision Loss-DiVincenzo Yang CNOT: CZ err=${czYangErr.toExponential(2)}, CNOT err=${cnotYangErr.toExponential(2)}, Makhlin=(${makhCNOT.G1[0].toFixed(4)}+${makhCNOT.G1[1].toFixed(4)}i, ${makhCNOT.G2.toFixed(4)})`)
-  console.log(`        Autonomous Bell State from |0_L, 0_L> (via 60-coll DFS CNOT): Concurrence C=${bellConcurrence.toFixed(8)}, CHSH S=${bellCHSH.toFixed(8)} (Tsirelson=${(2 * SQRT2).toFixed(8)})`)
-  console.log(`  [U4d] Universal 3-Qubit Toffoli (CCNOT) Synthesis (6 DFS CNOT + 9 1-qubit gates, uniErr=${toffUniErr.toExponential(1)}):`)
-  console.log(`        Continuous-rapidity ballistic bare-U Toffoli (6x66 + 15 = 411 adjacent collisions): ||U - U_Toff||_F = ${toffBalErr.toExponential(2)}`)
-  console.log(`        Discrete <C, L_7> bare-U words (pool=${discSynth.bH.poolSize}, len<=14): H err=${discSynth.bH.err.toFixed(5)} (len=${discSynth.bH.len}), T err=${discSynth.bT.err.toFixed(5)} (len=${discSynth.bT.len}), 8x8 Toffoli err=${discSynth.toffDiscErr.toFixed(5)}, procFid=${discSynth.procFid.toFixed(6)}`)
+  console.log(`        Autonomous Bell State from |0_L, 0_L> (S_tot=0 60-coll DFS CNOT): Concurrence C=${bellConcurrence.toFixed(8)}, CHSH S=${bellCHSH.toFixed(8)} (Tsirelson=${(2 * SQRT2).toFixed(8)})`)
+  console.log(`  [U4d] Spin-Independent 5-Spin CZ/CNOT (S_AB=0 & S_AB=1) + Full 9-Spin C(9,4)=126-Dim Toffoli (Explicit Adjacent Routing SWAPs):`)
+  console.log(`        Spin-Independent 53-coll CZ  (C(6,3)=20, uniErr=${czSI_uniErr.toExponential(1)}): S_AB=0 leak=${czSI_S0.leak.toExponential(2)} err=${czSI_errS0.toExponential(2)} | S_AB=1 leak=${czSI_S1.leak.toExponential(2)} err=${czSI_errS1.toExponential(2)} | ||U(0)-U(1)||_F=${czSI_phaseMatch.toExponential(2)}`)
+  console.log(`        Spin-Independent 54-coll CNOT(C(6,3)=20, uniErr=${cnotSI_uniErr.toExponential(1)}): S_AB=0 leak=${cnotSI_S0.leak.toExponential(2)} err=${cnotSI_errS0.toExponential(2)} | S_AB=1 leak=${cnotSI_S1.leak.toExponential(2)} err=${cnotSI_errS1.toExponential(2)} | ||U(0)-U(1)||_F=${cnotSI_phaseMatch.toExponential(2)}`)
+  console.log(`        FULL 9-Spin C(9,4)=126 Continuous-Rapidity Linear-Chain Toffoli (${count1Q_9} 1Q + ${count2Q_9} 2Q + ${countSwap_9} routing SWAP = ${toff9Pulses.length} strictly adjacent colls, uni126Err=${toff9Cont.uni126Err.toExponential(1)}):`)
+  console.log(`          16D leak=${toff9Cont.leak16.toExponential(2)}, crossGauge=${toff9Cont.crossGauge.toExponential(2)}, ||U8(S_AB=0)-Toff||=${toff9Cont.errG0.toExponential(2)}, ||U8(S_AB=1)-Toff||=${toff9Cont.errG1.toExponential(2)}, ||U8(0)-U8(1)||=${toff9Cont.phaseMatch01.toExponential(2)}, ||U16-Toff(x)I2||=${toff9Cont.err16.toExponential(2)}`)
+  console.log(`        SAME-ENCODING Hybrid 9-Spin C(9,4)=126 Toffoli (discrete bare <M_{01},M_{12}> 1Q + framing H in CNOT [pool=${discSynth.bH.poolSize}, len<=20] + continuous 53-coll spin-indep CZ + 36 routing SWAPs, total=${discSynth.totalPulses} colls):`)
+  console.log(`          bH_DFS err=${discSynth.bH.err.toFixed(5)} (${discSynth.bH.letters} letters / ${discSynth.bH.posMeetCount} pos M_meet), bT_DFS err=${discSynth.bT.err.toFixed(5)} (${discSynth.bT.letters} letters / ${discSynth.bT.posMeetCount} pos M_meet)`)
+  console.log(`          C^126 16D leak=${discSynth.hyb126.leak16.toExponential(2)}, crossGauge=${discSynth.hyb126.crossGauge.toExponential(2)}, ||U8(0)-U8(1)||=${discSynth.hyb126.phaseMatch01.toExponential(2)}, ||U8-Toff||=${discSynth.hyb126.errG0.toFixed(5)}, procFid=${discSynth.hyb126.procFid.toFixed(6)}`)
 
   const ok =
     sixRolePairDiff === 0 &&
     sixRoleOffLine === 0 &&
     sixRoleRevDiff === 0 &&
+    nineRolePairDiff === 0 &&
+    nineRoleOffLine === 0 &&
+    nineRoleRevDiff === 0 &&
     trL7CNorm2[0] === 25n &&
     trL7CDen2 === 16n &&
     Math.abs(trSU2Val - 1.25) < 1e-13 &&
+    Math.abs(trM01M12 - 1.25) < 1e-13 &&
     hBalErr < 1e-13 &&
     tBalErr < 1e-13 &&
     su9Dim === 80 &&
     cz20UniErr < 1e-13 &&
     cp3Res.leak < 1e-13 &&
+    cp3Err < 1e-13 &&
     czDfsLeak < 1e-13 &&
     czDfsErr < 1e-13 &&
     cAbs(makhDfsCNOT.G1) < 1e-13 &&
@@ -3005,15 +3483,35 @@ function runPillar4(): void {
     cnotYangErr < 1e-13 &&
     Math.abs(bellConcurrence - 1) < 1e-13 &&
     Math.abs(bellCHSH - 2 * SQRT2) < 1e-13 &&
-    toffBalErr < 1e-13 &&
-    toffUniErr < 1e-13 &&
-    discSynth.procFid > 0.99
+    czSI_uniErr < 1e-13 &&
+    czSI_S0.leak < 1e-13 &&
+    czSI_S1.leak < 1e-13 &&
+    czSI_errS0 < 1e-13 &&
+    czSI_errS1 < 1e-13 &&
+    czSI_phaseMatch < 1e-13 &&
+    cnotSI_uniErr < 1e-13 &&
+    cnotSI_S0.leak < 1e-13 &&
+    cnotSI_S1.leak < 1e-13 &&
+    cnotSI_errS0 < 1e-13 &&
+    cnotSI_errS1 < 1e-13 &&
+    cnotSI_phaseMatch < 1e-13 &&
+    toff9Cont.uni126Err < 1e-13 &&
+    toff9Cont.leak16 < 1e-13 &&
+    toff9Cont.crossGauge < 1e-13 &&
+    toff9Cont.errG0 < 1e-13 &&
+    toff9Cont.errG1 < 1e-13 &&
+    toff9Cont.phaseMatch01 < 1e-13 &&
+    toff9Cont.err16 < 1e-13 &&
+    discSynth.hyb126.leak16 < 1e-13 &&
+    discSynth.hyb126.crossGauge < 1e-13 &&
+    discSynth.hyb126.phaseMatch01 < 1e-13 &&
+    discSynth.hyb126.procFid > 0.99
 
   recordCheck(
     'U4',
-    'Verbatim 4D 6-role DFS protection, BigInt L_7 dense SU(2), su(9)=80, 60-coll zero-leakage DFS CZ/CHSH=2sqrt(2) & exact Toffoli',
+    'Verbatim 4D 6/9-role M_pair=I, BigInt L_7 & <M01,M12> dense SU(2), su(9)=80, 60-coll S_tot=0 CZ, spin-indep 53/54-coll CZ/CNOT & full 9-spin 126D Toffoli',
     ok,
-    `6-role M_pair=0, |Tr(L_7C)|^2=25/16, su(9)=${su9Dim}/80, 60-coll DFS CZ leak=${czDfsLeak.toExponential(1)} err=${czDfsErr.toExponential(1)}, CHSH=${bellCHSH.toFixed(6)}, ToffBal=${toffBalErr.toExponential(1)}, ToffDiscFid=${discSynth.procFid.toFixed(5)}`,
+    `6/9-role M_pair=0, |Tr(L_7C)|^2=25/16, su(9)=${su9Dim}/80, 60-coll CZ=${czDfsErr.toExponential(1)}, SI-CNOT(0/1)=${cnotSI_phaseMatch.toExponential(1)}, 126D-Toff=${toff9Cont.err16.toExponential(1)} (373 adj), Hyb<M01,M12>-126D Fid=${discSynth.hyb126.procFid.toFixed(5)}`,
   )
 }
 
@@ -3028,13 +3526,13 @@ function runPillar5(startNs: bigint): void {
   console.log('  1. Classical Railway CA on {3,4,3,4} (0012 / Zenodo 20710630):')
   console.log('       STRONG Turing universal (dedicated classical transition table, static finite tracks & deterministic 2-way switches).')
   console.log('  2. Verbatim Bare Quantum U Gate/Circuit Model (W12 + 0018 + W23 U4):')
-  console.log('       EXACT BQP / SU(2^n) universal (dense SU(2) via L_7+C |Tr|=5/4 & 3-role DFS; su(9) -> SU(4) on 6-role DFS with M_pair=I; exact CNOT, CHSH=2*sqrt(2), exact Toffoli).')
+  console.log('       EXACT BQP / SU(2^n) universal (dense SU(2) via slot-qubit L_7+C |Tr|=5/4 & 3-role DFS bare <M_{01},M_{12}> |Tr|=5/4; su(9) -> SU(4) on 6-role DFS with M_pair=I; spin-independent 53/54-coll CZ/CNOT, CHSH=2*sqrt(2), full 9-spin 126D Toffoli).')
   console.log('  3. Verbatim Bare Quantum U Autonomous Ballistic Scattering (W23 U1, U2, U4 -- ZERO external time-dependent gates):')
   console.log('       WEAK AUTONOMOUS BQP UNIVERSAL (fixed-depth circuits encoded spatially in initial wavepackets/doublons evolved strictly by bare U^t):')
   console.log('         - Sequential collinear CZ doubling (pi -> 2pi) & 5-body 2-station truth table (U1a)')
-  console.log('         - Single-collision maximally entangled 2-qutrit Bell state (log_2 3 bits) & remote D_1<->D_2 memory bus (U1b)')
+  console.log('         - Single-collision survival-conditioned 2-qutrit Bell state (log_2 3 bits) & remote D_1<->D_2 memory bus (U1b)')
   console.log('         - Verbatim 4D k=5/k=6 M_pair+Phi_odd conditional 12-line Mach-Zehnder routing shift at t=3 (U2)')
-  console.log('         - Exact 6-distinct-role M_pair=I ballistic CNOT & Toffoli synthesis (U4)')
+  console.log('         - Exact 6/9-distinct-role M_pair=I spin-independent CNOT & full 9-spin 126D linear-chain Toffoli synthesis (U4)')
   console.log('  4. Verbatim Bare Quantum U Finite-Seed Strong Autonomous Turing Machine (W23 U3 -- OBSTRUCTED / OPEN):')
   console.log('       OBSTRUCTED by four exact theorems (no static finite-support tracks/mirrors by Pell compacton no-go; no single-vibe 4D turns by Z_2^{24}; no 2/3-rail neutral switches by (-I,C); 10/11 unwanted M_pair fan-out & <0.93% single-contact target turn even with m=11 focusing).')
 
@@ -3043,7 +3541,7 @@ function runPillar5(startNs: bigint): void {
   const passedCount = CHECKS.filter(c => c.passed).length
 
   console.log('\n================================================================================')
-  console.log('FINAL VERIFICATION LEDGER (W23 — AUTONOMOUS BARE-U COMPUTABILITY)')
+  console.log('FINAL VERIFICATION LEDGER (W23: AUTONOMOUS BARE-U COMPUTABILITY)')
   console.log('================================================================================')
   for (const row of CHECKS) {
     console.log(`  [${row.passed ? 'PASS' : 'FAIL'}] ${row.pillar.padEnd(4)} | ${row.name}`)

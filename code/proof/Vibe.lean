@@ -20,8 +20,10 @@ import Vibe.BallisticDoublon
 import Vibe.HolographicCode
 import Vibe.HolographicCodeExt
 import Vibe.D4MassGap
+import Vibe.D4MassGapExt
 import Vibe.SpectralSharpExt
 import Vibe.CompositeTrion
+import Vibe.DynamicalHolography
 
 /-!
 # Vibe Theory: Formal Lean 4 Proof Suite
@@ -49,8 +51,10 @@ Root aggregator (0 theorems) re-exporting all zero-dependency Lean 4 proof modul
 - `Vibe.HolographicCode`: `W(F_4)` Bourbaki alignment & `S_3`-triality local-Clifford homomorphism (`det = +1` on `2T ∘ 2T`), orthogonal block decomposition (`R_8 ⊕ R_4` linked to `hcR4`), `W(F_4)`-orbit weight-4 exclusion from `W_9^(6)`, exact `23 × 48` (`[[24, 1, 8]]_3`) and `24 × 48` (`[[24, 0, 6]]_3`) isotropy/ranks/all-word covariance/weight witnesses, and native `D_4` CSS obstruction (`d_⊥(R_4) = 2`, `d_⊥(R_5) = 3`)
 - `Vibe.HolographicCodeExt`: Explicit isotropic Darboux dual basis, `W(F_4)` 81/450-mask orbit collapse, exact 5-uniformity (`42,504` subsets), exact distances `d(hcPure24) = 6` and `d(hcBulk23) = 8`, all `536,155` `|E| ≤ 7` bulk erasure recoveries with `det = 2` Cramer inversion, unconditional infinite-`{3,4,3,4}` height parity & `|In_H(w)| ≤ 3`, 25-qutrit bent-symplectic pushing, and `StarCommRing` Kronecker / HaPPY tower isometry schema
 - `Vibe.D4MassGap`: Discrete lattice 4D `D_4` strong-coupling / Dobrushin mass-gap window: 12 positive `D_4` roots & `x_0 = 0` RP frozen-line acyclicity, root-derived `11 × 11` Perron eigenpair `4 + 4√7`, unconstrained polynomial `S^3` vMF identities, unconditional `SU(2)` thresholds past `2.51× β_BE`, `H_12` 3-forest partition & exhaustive `4,096`-subset `p*(H_12) = 32/11`, `∀ n ≥ 1` BFS polymer step ratio `< 10^10 / 9^9`, `C_4(Δ) = 3`, `A_2` Pieri-walk `SU(3)` moments & `∀ M` tail bound, and time-tilted axial Dobrushin matrix contractions for both `SU(2)` and `SU(3)`
+- `Vibe.D4MassGapExt`: Sharp 4D `D_4` mass-gap extensions (`Alt-x0+planes` 4-direction alternating-plane forest RP/acyclicity, `88 × 88` quotient `M88` & Collatz-Wielandt `Λ_Alt < 145685/10000 < 4 + 4√7` past the 1D-axial chordal ceiling, unconstrained `ℤ`-factorized `SU(3)` staple convex-hull & Cardano deltoid invariants, `K ≤ 2` Weyl-dimension/Casimir/Pieri branching, and `SU(2)` chordal & 2-link wedge Dobrushin contraction)
 - `Vibe.SpectralSharpExt`: `W(F_4)` `216`-clique transitivity, exact `19`-state Depth-2 Cartier-Foata automaton & `23`-flag reciprocity, Depth-2 Nagnibeda Schur upper bound `ρ ≤ 387141227/33670000 < 11.5` (`λ_gap > 13/25 > 1/2`) with finite-subgraph bridge, `Q_3 = Adj(0)` 3-cube zero-cascade algebra, `57` pair-orbit symbolic word-sum reduction, and concrete CF 1-step lower bound `ρ > 913/80 = 11.4125`, collapsing Lean's kernel spectral bracket `10.2×` to `[913/80, 387141227/33670000]` (width `< 0.086`)
 - `Vibe.CompositeTrion`: Exact `ℤ[ω][1/7]` `P = 0` collinear `k = 3` `Sym^3` trion (`|r|^2 = 1/7`, `p_pair = 6/7`, `IPR = 9/32`), exact `∀ N` finite-box norm sums, `ℤ[ζ_9]` `cot^2(π/18)` cubic & Parseval margin, flat-`D_4` hyperbolic excision pocket (`335/672 < 1/2 < 7/13 < 7/10`), and Steinberg-to-depressed-cubic holographic rate `u^3 - 12 u + 12 = 0` (`r_∞ ∈ (0.0464895, 0.0464896)`)
+- `Vibe.DynamicalHolography`: Exact `W11` dynamical holography bridge & `W10` `B_1`/`B_2` IR distance amplification (`M_pair(ζ_18)` code-subspace triviality & `(u, v)` decoupling, `0/1,128` weight-1 affine lines & `27/243` `[9,9,9]` Bose-Mesner + twisted `{I, R}` collapse, `0/81` single-edge entangling intertwiners & `0/24` Bell-pair `P`-commutators, `Sp(50, 3)` `U_star(1)`, `U_NN`, `U_Floq` & universal symbolic `U_bdy` lift with `G`-covariance mod `H`, `2/48` uniform dock rigidity, `d^(0)(B_1) = 40` & `M_8=17, M_9=21, M_10=24 ⇒ d^(0)(B_2) ≥ 98`, `W(B_3)` `r=3` `0/165` zero-loss / `21/165` wt-6 & `r=4` `56/330` coupling threshold, `D=0` cusp Gauss-law uniqueness & `D≥1` cliques, and `24`-cone `144`-leg shield)
 
 Zero `sorry`, zero `axiom`, zero `native_decide`, zero external packages, machine-checked by Lean `4.35.0`.
 -/
