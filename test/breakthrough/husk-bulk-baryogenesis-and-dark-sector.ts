@@ -6,51 +6,49 @@
 // laptop-safe (< 10 s, < 300 MB RAM), strict noUncheckedIndexedAccess-safe, ending with `export {}`.
 //
 // Machine-verified theorems and exact computations proved in this script:
-//   W19.1 (C1): Exact {3,4,3,4} O^+(4,1; Z[sqrt(2)]) cusp geometry (0 up / 6 lat / 18 down,
-//               N_D = 1, 18, 330, 6034), W(B_3) cusp stabilizer (24 proper + 24 improper), and
-//               verbatim 8-layer bare U = S o Phi_odd o D o M_meet o M_pair(zeta_18) o K o D o Phi_odd
-//               with exact canonical W(F_4) x Z_2^C orbit invariant chi_odd from universe.ts.
+//   W19.1 (C1): Exact {3,4,3,4} O^+(4,1, Z[sqrt(2)]) cusp geometry (0 up / 6 lat / 18 down,
+//               N_D = 1, 18, 330, 6034), W(B_3) cusp stabilizer (24 proper + 24 improper, verified
+//               on all 481 R <= 2 docks), and verbatim 8-layer bare U with canonical chi_odd.
 //   W19.2 (C2): Exact t = 0..6 Husk-vs-Bulk Baryogenesis from strictly Q_total = 0, strictly C-even
-//               k = 4 (++--) initial states on D = 0 under verbatim bare U: exact <Q_{D=0}(t)> != 0
+//               k = 4 (++--) initial states on D = 0 under verbatim bare U: exact <Q_{D=0}(1)> = -3/8
 //               balanced identically by <Q_{D>=1}(t)> = -<Q_{D=0}(t)> swept into deep bulk shells
-//               D = 1..6, with exact unit norm, exact <Q_total(t)> = 0, and exact time-reversal U^{-t} U^t = I,
-//               plus pure-ket recurrence and multi-line maximal eta_husk optimization.
+//               D = 1..6 (transient impulse with chordal-geodesic escape and sign oscillation),
+//               plus exact purity ceiling eta_husk = 1.000000 (100% pure matter at <Q_0> = -9/32).
 //   W19.3 (C3): Exact Symmetry Controls:
-//               (1) Phi_odd = I null control -> <Q_D(t)> === 0 identically on every shell for all t = 0..6;
+//               (1) Phi_odd = I null control -> <Q_D(t)> === 0 identically on every shell for t = 0..6
 //               (2) Cusp-preserving reflection P_cusp in W(B_3)^- -> exact CP sign flip
-//                   <Q_{D=0}(t; P_cusp|psi>)> = -<Q_{D=0}(t; |psi>)>;
-//               (3) C-even + P_cusp-even state -> exact <Q_{D=0}(t)> === 0 (proving CP protection);
-//               (4) C-even + P_perp-even state (bulk-normal reflection outside W(B_3)) -> NONZERO <Q_{D=0}(t)>;
+//                   <Q_{D=0}(t, P_cusp|psi>)> = -<Q_{D=0}(t, |psi>)>
+//               (3) C-even + P_cusp-even state -> exact <Q_{D=0}(t)> === 0 (proving CP protection)
+//               (4) C-even + P_perp-even state (bulk-normal reflection outside W(B_3)) -> NONZERO <Q_{D=0}(t)>
 //               (5) 3D rotationally isotropic W(B_3)^+-invariant C-even chiral state -> NONZERO <Q_{D=0}(t)>.
 //   W19.4 (C4): Closed Flat 4D D_4 / L D_4 Periodic Box Null Control:
 //               Exact geometric contrast proving why flat 3D hyperplane x_0 = 0 (6 up / 12 lat / 6 down,
 //               0 slice-to-bulk antipodal pairs) forbids 1-beat slice-vs-bulk pumping (<Q_{x_0=0}(1)> = 0)
 //               and keeps global <Q_box(t)> = 0 with periodic recurrence, vs {3,4,3,4}'s 6/6 cusp-to-bulk pairs.
 //   W19.5 (C5): Irreversible Hyperbolic Bulk Export Arrow:
-//               Exact Steinberg cusp-tree branching asymmetry (d_down/d_up -> 18.010), SchurGap spectral
-//               bound (||A/24||_2 <= 13/21, lambda_gap >= 8/21), and exponential return-probability decay
-//               P_return(t) <= (13/21)^{2t} vs flat-box recurrence.
+//               Exact Steinberg cusp-tree branching asymmetry (d_down/d_up -> 18.2787), SchurGap spectral
+//               bound (||A/24||_2 <= 13/21, lambda_gap >= 8/21), Markov decay P_return(t) < (13/21)^{2t},
+//               full t = 1..60 flip-flop S_ff peak-return audit vs true moving-shift S_mv and bare k = 1 walk.
 //   W19.6 (C6): Sterile Deep-Bulk Neutral Dark-Matter Candidates at Depths D = 1, 2, 3:
-//               (a) k = 2 neutral antipodal pair (pure-bulk-line exact 0 husk leakage for all t; isotropic
-//                   depth-suppressed causal contact & EM cross-section ~ P_{D=0}^2);
-//               (b) k = 4 neutral C-even chiral cluster at D = 0, 1, 2, 3 (exponential husk suppression);
+//               (a) k = 2 neutral antipodal pair (exhaustive 312/330 = 94.55% off-geodesic D = 2 sterility,
+//                   pure-bulk-line exact 0 husk leakage, geodesic causal delay and EM cross-section ~ P^2)
+//               (b) k = 4 neutral C-even chiral cluster at D = 0, 1, 2, 3 (rapid depth suppression)
 //               (c) W10 [[24, 1, 8]]_3 bulk logical excitations (exact 0 local electric charge <Q_s> = 0
-//                   and exact 0 two-point EM shift across all 24 slots & 276 pairs, exact d = 8 Knill-Laflamme
-//                   sterility + exact FLM entropy imprint on large boundary wedges).
-//   W19.7 (C7): Direct Microscopic Gravitational/Entanglement Visibility on D = 0 of a Sterile D = 1
-//               Neutral Bulk Mode under Verbatim Bare U on the 37-Dock {3,4,3,4} Cusp Cluster:
-//               Exact max_{x in D=0} |<Q_x>| = 0.000000000000000 simultaneously with strictly nonzero
-//               Delta S(D=0) > 0, Delta I(D=0:D=1) > 0, Delta d_MI < 0, and nonzero LLY curvature response.
+//                   and exact 0 two-point EM shift across 24 slots and 1104 ZZ ops, plus +1 ln 3 FLM shift).
+//   W19.7 (C7): Honest Two-Part Bare-U Microscopic Audit on the 37-Dock {3,4,3,4} Cusp Cluster (T = 2):
+//               (a) Strictly sterile D = 1 non-bridge neutral mode in a genuine disjoint tensor-product state
+//                   certifies exact 0 sterile entanglement imprint on D = 0 (plus t = 0 50/50 artifact diagnosis)
+//               (b) Non-sterile D = 1 <-> D = 0 bridge-exchange diagnostic explicitly reports matter leakage
+//                   D_act(D = 0) > 0, bridge dI/dd_MI/dk_LLY growth, and negative husk-only I(0:r_1) and dk_LLY(hub).
 //   W19.8 (C8): Exact {3,4,3,4} Bulk-to-Husk Green's Function & Emergent Cored Dark-Matter Halo Profile:
-//               (a) Exact 8,857-dock R <= 3 Coxeter 4D Green's function G_{4D}(x_{D=0}; v_{D_source})
-//                   for D_source = 0, 1, 2, 3 (direct microscopic core flattening + honest m_bulk screening audit);
-//               (b) Exact 3D {4,3,4} husk Newtonian potential Phi_husk(r; D_source) via 14-digit Schwinger-Bessel
-//                   convolution with bulk-to-husk Poisson smearing: exact 1/r Newton tail at large r
-//                   (4 pi r Phi -> 1.000) AND smooth finite-density core at r < r_c(D_source) (v_c ~ r).
+//               (a) Exact 8,857-dock R <= 3 Coxeter 4D Green's function G_{4D}(x_{D=0}, v_{D_source})
+//                   for D_source = 0..3 (point decay ~3.12/hop vs m_bulk = 2.9057, 4/3 path-multiplicity jump)
+//               (b) Exact 3D {4,3,4} lattice G_cusp verified at 6 axis points via Schwinger-Bessel quadrature
+//                   plus closed-form continuum H^4 Poisson-kernel potential atan(r/r_c) / (2 pi^2 r).
 //   W19.9 (C9): Exact {3,4,3,4} Dark-to-Baryonic Phase-Space & Warped-Column Ratio Audit:
-//               Exact N_D = 1, 18, 330, 6034..., facet ratio 18/6 = 3, shell-1 ratio 18, exact sums
-//               sum_{D>=1} w(D) N_D / (w(0) N_0) across all canonical warp profiles, critical exponent alpha_*
-//               matching Planck Omega_c / Omega_b = 5.364, and honest cosmological boundary statement.
+//               Exact N_D = 1, 18, 330, 6034..., facet ratio 18/6 = 3, shell-1 ratio 18, exact closed-form
+//               Steinberg generating function (cross-checked to D = 600) for critical alpha_* matching
+//               Planck Omega_c / Omega_b = 5.364, and honest cosmological boundary statement.
 
 type CheckRow = {
   readonly id: string
@@ -100,7 +98,7 @@ const zeta6PowC = (n: number): Cx => ZETA6_POW_C[((n % 6) + 6) % 6]!
 
 // ============================================================================
 // 0. EXACT D_4 ROOT SYSTEM, W(F_4) (ORDER 1152), W(B_3) CUSP STABILIZER (48),
-//    AND EXACT O^+(4,1; Z[sqrt(2)]) {3,4,3,4} COXETER ENGINE
+//    AND EXACT O^+(4,1, Z[sqrt(2)]) {3,4,3,4} COXETER ENGINE
 // ============================================================================
 
 type Root4 = readonly [bigint, bigint, bigint, bigint]
@@ -196,7 +194,7 @@ const WF4_GROUP: WF4Group = (() => {
   return { elements, det }
 })()
 
-// Exact O^+(4,1; Z[sqrt(2)]) {3,4,3,4} Coxeter engine
+// Exact O^+(4,1, Z[sqrt(2)]) {3,4,3,4} Coxeter engine
 const DIM5 = [0, 1, 2, 3, 4] as const
 const Q2_ZERO: Q2 = [0n, 0n]
 const EYE5: readonly (readonly Q2[])[] = DIM5.map(r => DIM5.map(c => [r === c ? 1n : 0n, 0n] as const))
@@ -1741,12 +1739,28 @@ function runPart1(): { readonly lambdaExact: number; readonly nExact: readonly n
   const cViolC1 = stateDiffL2(applyCState(uChiral), applyBareBeat(applyCState(testChiral)))
   const pViolC1 = stateDiffL2(mapHypStateByPerm(uChiral, P_CUSP_REF), applyBareBeat(mapHypStateByPerm(testChiral, P_CUSP_REF)))
 
-  // Verify P_cusp preserves cuspDepth identically across all R <= 2 neighbors of dock 0
+  // Verify P_cusp preserves cuspDepth identically across ALL 481 docks in the R <= 2 ball around dock 0
+  const r2Dist = new Map<number, number>([[0, 0]])
+  const r2Mapped = new Map<number, number>([[0, 0]])
+  const r2Queue: number[] = [0]
+  for (let head = 0; head < r2Queue.length; head++) {
+    const u = r2Queue[head]!
+    const du = r2Dist.get(u)!
+    if (du >= 2) continue
+    const mu = r2Mapped.get(u)!
+    for (let s = 0; s < 24; s++) {
+      const nb = stepDock(u, s)
+      if (!r2Dist.has(nb)) {
+        r2Dist.set(nb, du + 1)
+        r2Mapped.set(nb, stepDock(mu, P_CUSP_REF[s]!))
+        r2Queue.push(nb)
+      }
+    }
+  }
+  assertExact(r2Queue.length === 481, `Expected 481 docks in R <= 2 ball, got ${r2Queue.length}`)
   let pCuspDepthViol = 0
-  for (let s = 0; s < 24; s++) {
-    const nb = stepDock(0, s)
-    const mapped = stepDock(0, P_CUSP_REF[s]!)
-    if (cuspDepth(nb) !== cuspDepth(mapped)) pCuspDepthViol++
+  for (const d of r2Queue) {
+    if (cuspDepth(d) !== cuspDepth(r2Mapped.get(d)!)) pCuspDepthViol++
   }
 
   console.log('\n  [C1] Exact {3,4,3,4} Horosphere Cusp & Verbatim Bare-U Certification:')
@@ -1757,7 +1771,7 @@ function runPart1(): { readonly lambdaExact: number; readonly nExact: readonly n
     `       D=1 bulk facets: ${d1Up} up + ${d1Lat} lat + ${d1Down} down across N_1=${d1Docks.length} docks`,
   )
   console.log(
-    `       Cusp stabilizer W(B_3) in W(F_4): |W(B_3)^+|=${WB3_PROPER.length}, |W(B_3)^-|=${WB3_IMPROPER.length}, non-cusp W(F_4)^-=${WF4_IMPROPER_NONCUSP.length}, P_cusp depth defects=${pCuspDepthViol}`,
+    `       Cusp stabilizer W(B_3) in W(F_4): |W(B_3)^+|=${WB3_PROPER.length}, |W(B_3)^-|=${WB3_IMPROPER.length}, non-cusp W(F_4)^-=${WF4_IMPROPER_NONCUSP.length}, P_cusp depth defects=${pCuspDepthViol}/${r2Queue.length} (full R<=2 ball)`,
   )
   console.log(
     `       chi_odd witnesses (universe.ts): mixed=${chiMixed}, X1=${chiX1}, E-FND-0184=${chi184Zero}/${chi184Act}`,
@@ -1777,6 +1791,7 @@ function runPart1(): { readonly lambdaExact: number; readonly nExact: readonly n
       d1Down === 390 &&
       WB3_PROPER.length === 24 &&
       WB3_IMPROPER.length === 24 &&
+      r2Queue.length === 481 &&
       pCuspDepthViol === 0 &&
       chiMixed !== 0 &&
       chiX1 !== 0 &&
@@ -1786,7 +1801,7 @@ function runPart1(): { readonly lambdaExact: number; readonly nExact: readonly n
       cpDiffC1 < 1e-14 &&
       cViolC1 > 0.5 &&
       pViolC1 > 0.5,
-    `6lat+18down, W(B_3)=24+24, revErr=${revErrC1.toExponential(1)}, cpDiff=${cpDiffC1.toExponential(1)}, C/P-viol=${cViolC1.toFixed(3)}`,
+    `6lat+18down, W(B_3)=24+24, P_cusp=0/481, revErr=${revErrC1.toExponential(1)}, cpDiff=${cpDiffC1.toExponential(1)}, C/P-viol=${cViolC1.toFixed(3)}`,
   )
 
   // --------------------------------------------------------------------------
@@ -1814,7 +1829,7 @@ function runPart1(): { readonly lambdaExact: number; readonly nExact: readonly n
   let witnessMPair: { readonly slots: readonly [number, number, number, number]; readonly tones: readonly [-1 | 1, -1 | 1, -1 | 1, -1 | 1]; readonly chiA: number; readonly chiB: number } | undefined
 
   // Also locate a pure-bulk-spectator pump witness (q3 in LAYER_SLOTS, q0,q1,q2 on pure-bulk lines!)
-  // which achieves the EXACT analytical single-line maximum eta_husk = 3/4 = 0.750000 (<Q_0>=-3/8, <D_act,0>=1/2)!
+  // Equal weights give max beat-1 magnitude |<Q_0>| = 3/8 (eta = 3/4) while destructive interference reaches eta = 1!
   let witnessMaxEta: ChiralPumpWitness | undefined
   for (const q3 of LAYER_SLOTS) {
     const l3 = LINE_OF_SLOT[q3]!
@@ -1867,25 +1882,51 @@ function runPart1(): { readonly lambdaExact: number; readonly nExact: readonly n
       }
     }
   }
-  // Also check if ANY Q = 0_V k = 4 quad containing an identical-tone antipodal pair (for M_pair scattering!) is chiral
+  // Exhaustively verify across ALL 16 tone patterns and ALL antipodal-pair 4-tuples in D_4 that chi_odd === 0
+  let totalAntipodalPairChecked = 0
   for (let lPair = 0; lPair < 12; lPair++) {
     const [pA, pB] = LINES[lPair]!
     for (let q2 = 0; q2 < 24; q2++) {
       if (LINE_OF_SLOT[q2] === lPair) continue
-      for (const q3 of LAYER_SLOTS) {
-        if (LINE_OF_SLOT[q3] === lPair || LINE_OF_SLOT[q3] === LINE_OF_SLOT[q2]) continue
-        const chiA = chiral4Sign(cCode(pA, 1), cCode(pB, 1), cCode(q2, -1), cCode(q3, -1))
-        const chiB = chiral4Sign(cCode(pA, 1), cCode(pB, 1), cCode(q2, -1), cCode(OPPOSITE_SLOT[q3]!, -1))
-        if (chiA !== 0 || chiB !== 0) {
-          totalAntipodalPairChiral++
-          if (!witnessMPair && chiA !== chiB) {
-            witnessMPair = { slots: [pA, pB, q2, q3], tones: [1, 1, -1, -1], chiA, chiB }
+      for (let q3 = q2 + 1; q3 < 24; q3++) {
+        if (LINE_OF_SLOT[q3] === lPair) continue
+        if (LINE_OF_SLOT[q3] === LINE_OF_SLOT[q2] && LINE_OF_SLOT[q2]! < lPair) continue
+        for (let tMask = 0; tMask < 16; tMask++) {
+          const t0: -1 | 1 = (tMask & 1) ? -1 : 1
+          const t1: -1 | 1 = (tMask & 2) ? -1 : 1
+          const t2: -1 | 1 = (tMask & 4) ? -1 : 1
+          const t3: -1 | 1 = (tMask & 8) ? -1 : 1
+          totalAntipodalPairChecked++
+          const chi = chiral4Sign(cCode(pA, t0), cCode(pB, t1), cCode(q2, t2), cCode(q3, t3))
+          if (chi !== 0) {
+            totalAntipodalPairChiral++
+            if (!witnessMPair) {
+              witnessMPair = { slots: [pA, pB, q2, q3], tones: [t0, t1, t2, t3], chiA: chi, chiB: 0 }
+            }
           }
         }
       }
     }
   }
   assertExact(witnessSingle !== undefined, 'Expected at least one distinct-line chi=(1,0) Q=0 pump witness')
+  assertExact(witnessMaxEta !== undefined, 'Expected pure-bulk-spectator chi=(1,0) Q=0 witness')
+  assertExact(totalAntipodalPairChiral === 0, `Expected 0 chiral antipodal-pair quads across all 16 tone patterns`)
+
+  // Trace exact chordal geodesic depth sequence D(n) along LAYER_SLOTS[0] for n = -3..+4
+  const chordalDepths: number[] = []
+  let dNeg = 0
+  const negTrail: number[] = []
+  for (let k = 1; k <= 3; k++) {
+    dNeg = stepDock(dNeg, OPPOSITE_SLOT[LAYER_SLOTS[0]!]!)
+    negTrail.push(cuspDepth(dNeg))
+  }
+  for (let k = 2; k >= 0; k--) chordalDepths.push(negTrail[k]!)
+  chordalDepths.push(0)
+  let dPos = 0
+  for (let k = 1; k <= 4; k++) {
+    dPos = stepDock(dPos, LAYER_SLOTS[0]!)
+    chordalDepths.push(cuspDepth(dPos))
+  }
 
   // Build C-even Q_total = 0 initial states on D = 0 (dock 0):
   //   (1) |psi_int>  : canonical single-line interfering C-even state (|a> + |b> + C|a> + C|b>) / 2
@@ -1977,14 +2018,12 @@ function runPart1(): { readonly lambdaExact: number; readonly nExact: readonly n
     }
   }
 
-  // Systematic optimization of maximal beat-1 baryon-to-activity ratio eta_husk = |<Q_{D=0}>| / <D_act, D=0>
-  // over ALL 16-ket C-even line-flip coherent superpositions on a 4-cusp-slot quad (all 4 slots in LAYER_SLOTS!)
-  // Because any state of the form sum_{b in {0,1}^4} c_b |flip(b)> + C(...) has exact 1-beat evolution on 16 states!
-  let bestEtaHusk = 0
-  let bestQHusk = 0
-  let bestDActHusk = 0
-  let bestQuadDesc = ''
-  // Pick a quad with ALL 4 slots in LAYER_SLOTS (there are C(6,4) = 15 such quads) and check all 3 ++-- tone patterns
+  // Scan all 2-ket (1-line flip) C-even superpositions across all C(6,4) = 15 4-cusp-slot quads
+  // with discrete relative phases {1, i, -1, -i, zeta_6, zeta_6^-1}
+  let best4CuspEta = 0
+  let best4CuspQ = 0
+  let best4CuspDAct = 0
+  let best4CuspDesc = ''
   for (let i = 0; i < LAYER_SLOTS.length; i++) {
     for (let j = i + 1; j < LAYER_SLOTS.length; j++) {
       for (let k = j + 1; k < LAYER_SLOTS.length; k++) {
@@ -1993,8 +2032,6 @@ function runPart1(): { readonly lambdaExact: number; readonly nExact: readonly n
             LAYER_SLOTS[i]!, LAYER_SLOTS[j]!, LAYER_SLOTS[k]!, LAYER_SLOTS[l]!,
           ]
           for (const ts of q0Patterns) {
-            // Check 16 flip combinations (mask bit m = 1 flips slot m to opp(slot m))
-            // Compute chi(mask) for all 16 masks
             const chis = new Int8Array(16)
             let anyNz = false
             for (let m = 0; m < 16; m++) {
@@ -2007,14 +2044,12 @@ function runPart1(): { readonly lambdaExact: number; readonly nExact: readonly n
               if (ch !== 0) anyNz = true
             }
             if (!anyNz) continue
-            // Test all 2-ket (1-line flip) and full 16-ket uniform/phase-aligned C-even superpositions
             for (let mA = 0; mA < 16; mA++) {
               for (let bit = 0; bit < 4; bit++) {
                 const mB = mA ^ (1 << bit)
                 if (mB <= mA || chis[mA] === chis[mB]) continue
                 const sA: Vibe[] = qs.map((q, idx) => [0, (mA >> idx) & 1 ? OPPOSITE_SLOT[q]! : q, ts[idx]!, 0] as const)
                 const sB: Vibe[] = qs.map((q, idx) => [0, (mB >> idx) & 1 ? OPPOSITE_SLOT[q]! : q, ts[idx]!, 0] as const)
-                // Test relative phase e^{i phi} in {1, i, -1, -i, zeta_6, zeta_6^-1}
                 const phases: readonly Cx[] = [[1, 0], [0, 1], [-1, 0], [0, -1], Z6_C, cxConj(Z6_C)]
                 for (const [pr, pi] of phases) {
                   const st: FState = new Map()
@@ -2024,11 +2059,11 @@ function runPart1(): { readonly lambdaExact: number; readonly nExact: readonly n
                   for (const e of cSt.values()) addEntry(st, e.vibes, e.re, e.im)
                   const psiN = toFast4(normalizeState(st))
                   const m1 = measureShellMetrics4(applyBareBeat4(psiN, HYP_GEOM))
-                  if (m1.etaHusk > bestEtaHusk + 1e-12) {
-                    bestEtaHusk = m1.etaHusk
-                    bestQHusk = m1.qByShell[0]!
-                    bestDActHusk = m1.dActByShell[0]!
-                    bestQuadDesc = `4-cusp-slot [${qs.join(',')}] tones=[${ts.join(',')}] mA=${mA},mB=${mB} chi=(${chis[mA]},${chis[mB]}) ph=(${pr.toFixed(2)},${pi.toFixed(2)})`
+                  if (m1.etaHusk > best4CuspEta + 1e-12) {
+                    best4CuspEta = m1.etaHusk
+                    best4CuspQ = m1.qByShell[0]!
+                    best4CuspDAct = m1.dActByShell[0]!
+                    best4CuspDesc = `4-cusp-slot [${qs.join(',')}] tones=[${ts.join(',')}] mA=${mA},mB=${mB} chi=(${chis[mA]},${chis[mB]}) ph=(${pr.toFixed(2)},${pi.toFixed(2)})`
                   }
                 }
               }
@@ -2039,15 +2074,64 @@ function runPart1(): { readonly lambdaExact: number; readonly nExact: readonly n
     }
   }
 
-  // Verify exact theoretical maximum eta_husk = 3/4 = 0.750000 via pure-bulk-spectator witness (cuspCnt === 1)!
-  if (witnessMaxEta) {
-    const psiMax0 = buildInterferingCEven(witnessMaxEta.slots, witnessMaxEta.tones, 3)
-    const mMax1 = measureShellMetrics(applyBareBeat(psiMax0, HYP_GEOM))
-    if (mMax1.etaHusk > bestEtaHusk + 1e-12) {
-      bestEtaHusk = mMax1.etaHusk
-      bestQHusk = mMax1.qByShell[0]!
-      bestDActHusk = mMax1.dActByShell[0]!
-      bestQuadDesc = `pure-bulk-spectators [${witnessMaxEta.slots.join(',')}] tones=[${witnessMaxEta.tones.join(',')}] chi=(${witnessMaxEta.chiA},${witnessMaxEta.chiB})`
+  // Exact analytical purity family on pure-bulk-spectator quad [12, 13, 18, 0] (chi = (1, 0)):
+  // Because C is linear, ANY normalized (alpha |a> + beta |b> + C(...)) / sqrt(2) is strictly Q = 0 and C-even!
+  //   (i)   Equal weights, phi = 0: maximizes magnitude |<Q_0(1)>| = 3/8 = 0.375000 (eta_husk = 3/4 = 0.750000)
+  //   (ii)  Equal weights, optimal phase phi_* = pi + arcsin(sqrt(3)/4) = 3.590098: eta_husk = 3/sqrt(13) = 0.832050
+  //   (iii) Exact destructive interference alpha = sqrt(3)/2, beta = (1/2) e^{-i pi/6}:
+  //         P_+(D=0, t=1) === 0, <Q_0(1)> = -9/32 = -0.281250, <D_act,0(1)> = 9/32, eta_husk = 1.000000 (100% pure matter!)
+  const buildWeightedCEven = (
+    slots: readonly [number, number, number, number],
+    tones: readonly [-1 | 1, -1 | 1, -1 | 1, -1 | 1],
+    flipIdx: number,
+    alpha: Cx,
+    beta: Cx,
+  ): FState => {
+    const a: Vibe[] = slots.map((s, i) => [0, s, tones[i]!, 0] as const)
+    const b: Vibe[] = slots.map((s, i) => [0, i === flipIdx ? OPPOSITE_SLOT[s]! : s, tones[i]!, 0] as const)
+    const st: FState = new Map()
+    addEntry(st, a, alpha[0], alpha[1])
+    addEntry(st, b, beta[0], beta[1])
+    const cSt = applyCState(st)
+    const both: FState = new Map()
+    for (const e of st.values()) addEntry(both, e.vibes, e.re, e.im)
+    for (const e of cSt.values()) addEntry(both, e.vibes, e.re, e.im)
+    return normalizeState(both)
+  }
+  const wSpec = witnessMaxEta!
+  const psiEqZero = buildWeightedCEven(wSpec.slots, wSpec.tones, 3, [Math.SQRT1_2, 0], [Math.SQRT1_2, 0])
+  const mEqZero = measureShellMetrics(applyBareBeat(psiEqZero, HYP_GEOM))
+
+  const phiOptEq = PI + Math.asin(SQRT3 / 4)
+  const psiEqPhi = buildWeightedCEven(
+    wSpec.slots,
+    wSpec.tones,
+    3,
+    [Math.SQRT1_2, 0],
+    [Math.SQRT1_2 * Math.cos(phiOptEq), Math.SQRT1_2 * Math.sin(phiOptEq)],
+  )
+  const mEqPhi = measureShellMetrics(applyBareBeat(psiEqPhi, HYP_GEOM))
+
+  const psiPure100 = buildWeightedCEven(
+    wSpec.slots,
+    wSpec.tones,
+    3,
+    [SQRT3 / 2, 0],
+    [0.5 * Math.cos(-PI / 6), 0.5 * Math.sin(-PI / 6)],
+  )
+  const pure100CEvenErr = stateDiffL2(psiPure100, applyCState(psiPure100))
+  const uPure100 = applyBareBeat(psiPure100, HYP_GEOM)
+  const mPure100 = measureShellMetrics(uPure100)
+  // Verify P_+(D = 0, t = 1) === 0 directly on uPure100
+  let pPlusPure100 = 0
+  let pMinusPure100 = 0
+  for (const e of uPure100.values()) {
+    const p = e.re * e.re + e.im * e.im
+    for (const [d, , t] of e.vibes) {
+      if (cuspDepth(d) === 0) {
+        if (t > 0) pPlusPure100 += p
+        else pMinusPure100 += p
+      }
     }
   }
 
@@ -2068,7 +2152,10 @@ function runPart1(): { readonly lambdaExact: number; readonly nExact: readonly n
   const fmtS = (x: number): string => `${x >= 0 ? '+' : ''}${x.toFixed(6)}`
   console.log('\n  [C2] Exact t = 0..6 Husk-vs-Bulk Baryogenesis Under Verbatim Bare U (Unbounded {3,4,3,4}):')
   console.log(
-    `       Exhaustive Q=0_V (++--) pump scan: ${totalDistinctLinePumps} distinct-line pumps (${totalDelta2Pumps} with |dChi|=2), ${totalAntipodalPairChiral} antipodal-pair chiral quads (exact hyperplane-reflection theorem!)`,
+    `       Exhaustive pump scan: ${totalDistinctLinePumps} distinct-line Q=0 pumps (${totalDelta2Pumps} with |dChi|=2), ${totalAntipodalPairChiral}/${totalAntipodalPairChecked} antipodal-pair chiral quads across all 16 tone patterns`,
+  )
+  console.log(
+    `       Chordal geodesic depth along LAYER_SLOTS[0] (n = -3..+4): D = [${chordalDepths.join(', ')}] (stays on D=0 for only 2 docks -> transient impulse with sign oscillation)`,
   )
   console.log(
     `       Canonical witness |psi_int>: slots=[${wMain.slots.join(',')}] tones=[${wMain.tones.join(',')}] (q3=${wMain.slots[3]} in D=0, opp=${OPPOSITE_SLOT[wMain.slots[3]]} in D=1), chi=(${wMain.chiA},${wMain.chiB})`,
@@ -2092,7 +2179,19 @@ function runPart1(): { readonly lambdaExact: number; readonly nExact: readonly n
     )
   }
   console.log(
-    `       Maximal 1-beat eta_husk = ${bestEtaHusk.toFixed(6)} (exact 3/4 = 0.750000: <Q_{D=0}>=${fmtS(bestQHusk)}, <D_act,0>=${bestDActHusk.toFixed(5)}) via ${bestQuadDesc}`,
+    `       Best 4-cusp-slot 2-ket pump: eta_husk = ${best4CuspEta.toFixed(6)} (exact 3/10 = 0.300000: <Q_0>=${fmtS(best4CuspQ)}, <D_act,0>=${best4CuspDAct.toFixed(5)}) via ${best4CuspDesc}`,
+  )
+  console.log(
+    `       Pure-bulk-spectator [${wSpec.slots.join(',')}] exact beat-1 family (strictly Q=0, C-even):`,
+  )
+  console.log(
+    `         (i)   Equal weights, phi = 0 (max magnitude): <Q_0>=${fmtS(mEqZero.qByShell[0]!)} (-3/8), <D_act,0>=${mEqZero.dActByShell[0]!.toFixed(5)}, eta_husk=${mEqZero.etaHusk.toFixed(6)} (3/4)`,
+  )
+  console.log(
+    `         (ii)  Equal weights, phi_*=${phiOptEq.toFixed(6)}: <Q_0>=${fmtS(mEqPhi.qByShell[0]!)}, <D_act,0>=${mEqPhi.dActByShell[0]!.toFixed(5)}, eta_husk=${mEqPhi.etaHusk.toFixed(6)} (3/sqrt(13)=${(3 / Math.sqrt(13)).toFixed(6)})`,
+  )
+  console.log(
+    `         (iii) Destructive interference alpha=sqrt(3)/2, beta=(1/2)e^{-i pi/6}: <Q_0>=${fmtS(mPure100.qByShell[0]!)} (-9/32), <D_act,0>=${mPure100.dActByShell[0]!.toFixed(6)}, P_+=${pPlusPure100.toExponential(1)}, P_-=${pMinusPure100.toFixed(6)}, eta_husk=${mPure100.etaHusk.toFixed(6)} (100% PURE MATTER, C-err=${pure100CEvenErr.toExponential(1)}, Q_tot=${mPure100.qTotal.toExponential(1)})`,
   )
 
   const exactBeat1Match = Math.abs(Math.abs(trajInt[1]!.qByShell[0]!) - 0.375) < 1e-12
@@ -2106,8 +2205,16 @@ function runPart1(): { readonly lambdaExact: number; readonly nExact: readonly n
       exactBeat1Match &&
       peakAbsQHusk >= 0.375 - 1e-12 &&
       Math.abs(trajInt[6]!.qBulkGe2) > 1e-4 &&
-      Math.abs(bestEtaHusk - 0.75) < 1e-12,
-    `Q_0(1)=${fmtS(trajInt[1]!.qByShell[0]!)}, Q_0(3)=${fmtS(trajInt[3]!.qByShell[0]!)}, Q_0(6)=${fmtS(trajInt[6]!.qByShell[0]!)}, revErr6=${revErrInt6.toExponential(1)}, maxEta=${bestEtaHusk.toFixed(4)}`,
+      chordalDepths.join(',') === '3,2,1,0,0,1,2,3' &&
+      Math.abs(best4CuspEta - 0.3) < 1e-12 &&
+      Math.abs(mEqZero.etaHusk - 0.75) < 1e-12 &&
+      Math.abs(mEqPhi.etaHusk - 3 / Math.sqrt(13)) < 1e-12 &&
+      pure100CEvenErr < 1e-14 &&
+      Math.abs(mPure100.qTotal) < 1e-14 &&
+      pPlusPure100 < 1e-14 &&
+      Math.abs(mPure100.qByShell[0]! + 9 / 32) < 1e-12 &&
+      Math.abs(mPure100.etaHusk - 1.0) < 1e-12,
+    `Q_0(1)=${fmtS(trajInt[1]!.qByShell[0]!)}, Q_0(3)=${fmtS(trajInt[3]!.qByShell[0]!)}, Q_0(6)=${fmtS(trajInt[6]!.qByShell[0]!)}, revErr6=${revErrInt6.toExponential(1)}, maxMag=3/8(eta=3/4), maxEta=1.0000(-9/32)`,
   )
 
   // --------------------------------------------------------------------------

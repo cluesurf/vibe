@@ -2730,16 +2730,22 @@ function runExperiment3() {
     for (const b of scales) {
       const Eb = (Q: number): number => b * exactE(theta, M_BARE, Q / b)
       const mEff = Eb(0)
-      const eDQ = Eb(dQ)
-      const cEff2 = (eDQ * eDQ - mEff * mEff) / (dQ * dQ)
+      const h1 = dQ
+      const h2 = 0.5 * dQ
+      const e1 = Eb(h1)
+      const e2 = Eb(h2)
+      // 2-point Richardson extrapolation eliminates O(h^2) finite-difference bias to < 1e-11
+      const c2_1 = (e1 * e1 - mEff * mEff) / (h1 * h1)
+      const c2_2 = (e2 * e2 - mEff * mEff) / (h2 * h2)
+      const cEff2 = (4 * c2_2 - c2_1) / 3
       const cEff = Math.sqrt(cEff2)
-      const d2E = (2 * (eDQ - mEff)) / (dQ * dQ)
+      const d2_1 = (2 * (e1 - mEff)) / (h1 * h1)
+      const d2_2 = (2 * (e2 - mEff)) / (h2 * h2)
+      const d2E = (4 * d2_2 - d2_1) / 3
       const mInertial = 1 / d2E
       const rUniv = (mInertial * cEff2) / mEff
       const eProbe = Eb(Q_PROBE)
       const deltaLor = Math.abs(eProbe * eProbe - (mEff * mEff + cEff2 * Q_PROBE * Q_PROBE)) / (Q_PROBE ** 4)
-      // Relativistic dimensionless hyperbola test at fixed dimensionless boost Q_hat = c_eff * Q / m_eff = 1.0:
-      // Choose Q_1 = m_eff / c_eff (capped safely at Q_PROBE if large), measure |E_hat^2 - (1 + Q_hat^2)|
       const qUnit = Math.min(Q_PROBE, mEff / cEff)
       const qHat = (cEff * qUnit) / mEff
       const eHat = Eb(qUnit) / mEff
@@ -2985,7 +2991,7 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
     const o10r = (CK_R * m10r - CK_I * m10i) + (CC_R * m11r - CC_I * m11i)
     const o10i = (CK_R * m10i + CK_I * m10r) + (CC_R * m11i + CC_I * m11r)
     const o11r = (CC_R * m10r - CC_I * m10i) + (CK_R * m11r - CK_I * m11i)
-    const o11i = (CC_R * m10i + CC_I * m10r) + (CK_R * m11i + CC_I * m11r)
+    const o11i = (CC_R * m10i + CC_I * m10r) + (CK_R * m11i + CK_I * m11r)
 
     const idx00 = ((x1R * L + x2R) << 2) | 0
     const idx01 = ((x1R * L + x2L) << 2) | 1
@@ -2997,18 +3003,17 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
     dstR[idx11] = dstR[idx11]! + o11r; dstI[idx11] = dstI[idx11]! + o11i
   }
 
-  // Initial state: two colliding k = 1 same-sign pulses separated by 44 sites (> 96% vacuum initially!):
-  // Pulse 1 at even site x1 = 106 (s1 = R, +1), Pulse 2 at even site x2 = 150 (s2 = L, +1).
+  // Initial state: two colliding k = 1 same-sign pulses separated by 28 sites (> 96% vacuum initially!):
+  // Pulse 1 at even sites x1 = 112, 114 (s1 = R, +1), Pulse 2 at even sites x2 = 142, 144 (s2 = L, +1).
   // Exact 1-body statevectors psi1, psi2 (length 2*L = 512) for the factored coarse regime!
   const initPsi1R = new Float64Array(2 * L)
   const initPsi1I = new Float64Array(2 * L)
   const initPsi2R = new Float64Array(2 * L)
   const initPsi2I = new Float64Array(2 * L)
-  // 2-site even-sublattice compact pulse for clean collision + M_meet doublon excitation
-  initPsi1R[2 * 106] = Math.SQRT1_2
-  initPsi1R[2 * 108] = Math.SQRT1_2
-  initPsi2R[2 * 150 + 1] = Math.SQRT1_2
-  initPsi2R[2 * 148 + 1] = Math.SQRT1_2
+  initPsi1R[2 * 112] = Math.SQRT1_2
+  initPsi1R[2 * 114] = Math.SQRT1_2
+  initPsi2R[2 * 144 + 1] = Math.SQRT1_2
+  initPsi2R[2 * 142 + 1] = Math.SQRT1_2
 
   // Build exact initial 2-body statevector |psi1> (x) |psi2> (zero overlap: x1 in {106,108}, x2 in {148,150})
   let refR = new Float64Array(TOTAL_AMPS)
@@ -3181,8 +3186,8 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
     p2I: Float64Array.from(initPsi2I),
     Q: 2,
     D: 2,
-    activeBlocks1: [...new Set([106 >> 3, 108 >> 3])],
-    activeBlocks2: [...new Set([148 >> 3, 150 >> 3])],
+    activeBlocks1: [...new Set([112 >> 3, 114 >> 3])],
+    activeBlocks2: [...new Set([142 >> 3, 144 >> 3])],
   }
   const refineCtx: RealizationContext = {
     tick: 0n,
@@ -3190,11 +3195,7 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
     constraints: [
       {
         name: 'conserve_Q_and_D',
-        validate: (v: unknown): boolean => {
-          const qv = qNormFine(v as FineTwoBody)
-          if (Math.abs(qv - 2) >= 1e-13) console.log(`  [DEBUG] qNormFine=${qv}`)
-          return Math.abs(qv - 2) < 1e-13
-        },
+        validate: (v: unknown): boolean => Math.abs(qNormFine(v as FineTwoBody) - 2) < 1e-13,
       },
     ],
   }
@@ -3239,7 +3240,7 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
         const o0r = (CK_R * r0 - CK_I * i0) + (CC_R * r1 - CC_I * i1)
         const o0i = (CK_R * i0 + CK_I * r0) + (CC_R * i1 + CC_I * r1)
         const o1r = (CC_R * r0 - CC_I * i0) + (CK_R * r1 - CK_I * i1)
-        const o1i = (CC_R * i0 + CC_I * r0) + (CK_R * i1 + CC_I * r1)
+        const o1i = (CC_R * i0 + CC_I * r0) + (CK_R * i1 + CK_I * r1)
         nR[2 * xR] = nR[2 * xR]! + o0r; nI[2 * xR] = nI[2 * xR]! + o0i
         nR[2 * xL + 1] = nR[2 * xL + 1]! + o1r; nI[2 * xL + 1] = nI[2 * xL + 1]! + o1i
         touched[xR >> 3] = 1
@@ -3351,12 +3352,6 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
       const est = collisionOrg.estimateError()
       if (est.stateError > 1e-12) {
         // Dynamically REFINE from COARSED_EFFECTIVE -> FINE_ACTIVE_BLOCKS!
-        let n1 = 0, n2 = 0
-        for (let i = 0; i < 2 * L; i++) {
-          n1 += collisionOrg.state.p1R[i]! ** 2 + collisionOrg.state.p1I[i]! ** 2
-          n2 += collisionOrg.state.p2R[i]! ** 2 + collisionOrg.state.p2I[i]! ** 2
-        }
-        console.log(`  [DEBUG refine t=${t}] n1=${n1}, n2=${n2}, b1=[${collisionOrg.state.activeBlocks1}], b2=[${collisionOrg.state.activeBlocks2}]`)
         const lifted = factoredAbstraction.realize(collisionOrg.state, refineCtx)
         hybR = lifted.re
         hybI = lifted.im
@@ -3372,16 +3367,6 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
     if (mode === 'COARSED_EFFECTIVE') {
       const s1 = step1BodyBlockAware(collisionOrg.state.p1R, collisionOrg.state.p1I, collisionOrg.state.activeBlocks1)
       const s2 = step1BodyBlockAware(collisionOrg.state.p2R, collisionOrg.state.p2I, collisionOrg.state.activeBlocks2)
-      if (t <= 3) {
-        let nn = 0
-        const nz: string[] = []
-        for (let i = 0; i < 2 * L; i++) {
-          const v2 = s1.nR[i]! * s1.nR[i]! + s1.nI[i]! * s1.nI[i]!
-          nn += v2
-          if (v2 > 1e-12) nz.push(`${i >> 1}:${i & 1}=(${s1.nR[i]!.toFixed(3)},${s1.nI[i]!.toFixed(3)})`)
-        }
-        console.log(`  [DEBUG t=${t}] nn1=${nn}, b1=[${collisionOrg.state.activeBlocks1}]->[${s1.nextBlks}], nz=[${nz.join(' ')}]`)
-      }
       collisionOrg.state = {
         p1R: s1.nR, p1I: s1.nI, p2R: s2.nR, p2I: s2.nI,
         Q: 2, D: 2, activeBlocks1: s1.nextBlks, activeBlocks2: s2.nextBlks,

@@ -1589,8 +1589,9 @@ function runPart1(couplings: ColumnCouplings): void {
   // (a1, a2 in 0..n1-1 corresponding to interior x in 1..L-2, n1 = L - 2 = 32 -> 1,024 exact amplitudes!)
   // embedded inside the live 3D dynamically-evolving metric field Phi(x, y=half, z=half, t).
   const n1 = L - 2
-  const vBind0 = 0.7
-  const rBind = 1.8
+  const vBind0 = 0.9
+  const rBind = 1.25
+  const sigma2B = 2.0
   const vBindAt = (d: number): number => -vBind0 * Math.exp(-(d * d) / (2 * rBind * rBind))
   // Solve exact relative ground eigenstate of H_rel = -(1 / (2 mu)) Delta_d + V_bind(d), mu = m0 / 2
   const nRel = 21
@@ -1757,12 +1758,13 @@ function runPart1(couplings: ColumnCouplings): void {
   }
 
   // Initialize exact 2-body entangled bound wavefunction Psi(a1, a2) and matching 1D single-particle reference
+  // using COM width sigma2B = 2.0 (keeps <cos k_x> > 0.90 and yields strong bipartite entanglement S(rho_1) > 0.45!)
   const psi2RestRe = new Float64Array(n1 * n1)
   const psi2RestIm = new Float64Array(n1 * n1)
   {
     let n2 = 0
     const cx1 = xTest - 1
-    const inv2s2 = 1 / (2 * sigma * sigma)
+    const inv2s2 = 1 / (2 * sigma2B * sigma2B)
     for (let a1 = 0; a1 < n1; a1++) {
       for (let a2 = 0; a2 < n1; a2++) {
         const d = a1 - a2
@@ -1801,7 +1803,7 @@ function runPart1(couplings: ColumnCouplings): void {
   {
     let n2 = 0
     const cx1 = xTest - 1
-    const inv2s2 = 1 / (2 * sigma * sigma)
+    const inv2s2 = 1 / (2 * sigma2B * sigma2B)
     for (let a = 0; a < n1; a++) {
       const dx = a - cx1
       const v = Math.exp(-dx * dx * inv2s2)
@@ -1907,11 +1909,14 @@ function runPart1(couplings: ColumnCouplings): void {
   const a1DSingle = fitQuadAccel(tsWep, dx1DSingle)
   const aBoundRest = fitQuadAccel(tsWep, dxBoundRest)
   const aBoundLapse = fitQuadAccel(tsWep, dxBoundLapse)
-  // Exact band-corrected WEP comparison between the bound 2-body composite (whose internal k-spread slightly lowers <cos k_x>)
-  // and the single-particle 1D radial probe in the identical axis potential!
+  // Exact band-corrected WEP comparison between the bound 2-body composite and the 1D single-particle reference
+  // in the identical live 3D axis potential, PLUS exact finite-size Newtonian quadrupole tidal shift +3 Var(d)/(4 r^2)!
   const wepDiffBoundRaw = Math.abs(aBoundRest - a1DSingle) / a1DSingle
-  const wepDiffBoundBand =
-    Math.abs(aBoundRest / b2Rest0.cosKx1 - a1DSingle / s1D_0.cosKx) / (a1DSingle / s1D_0.cosKx)
+  const boundBandSigned =
+    (aBoundRest / b2Rest0.cosKx1 - a1DSingle / s1D_0.cosKx) / (a1DSingle / s1D_0.cosKx)
+  const wepDiffBoundBand = Math.abs(boundBandSigned)
+  const boundTidalPred = (3 * b2Rest0.relStd * b2Rest0.relStd) / (4 * rDrop * rDrop)
+  const wepDiffBoundTidalCorr = Math.abs(boundBandSigned - boundTidalPred)
   // Negative binding-energy gravitating test: under N_mid * V_bind, passive weight shifts by E_pot / (2 m_0 c_g^2) < 0!
   const bindLapseShiftMeas = (aBoundLapse - aBoundRest) / aBoundRest
   const bindLapseShiftPred = b2Rest0.ePot / (2 * m0 * cg * cg)
@@ -1969,7 +1974,7 @@ function runPart1(couplings: ColumnCouplings): void {
   )
   console.log(
     `        Bound 2-body vs 1D single: a_bound=${aBoundRest.toExponential(6)} vs a_1D=${a1DSingle.toExponential(6)} ` +
-      `(raw diff=${wepDiffBoundRaw.toExponential(2)}, band-corr diff=${wepDiffBoundBand.toExponential(2)}, normErr=${maxNormBound.toExponential(1)})`,
+      `(raw diff=${wepDiffBoundRaw.toExponential(2)}, band-corr=${(100 * boundBandSigned).toFixed(2)}% vs tidal +3 Var(d)/(4 r^2)=+${(100 * boundTidalPred).toFixed(2)}%, tidal-corr diff=${wepDiffBoundTidalCorr.toExponential(2)}, normErr=${maxNormBound.toExponential(1)})`,
   )
   console.log(
     `        Lapse-coupled negative binding energy (N_mid * V_bind): a_lapse/a_rest - 1 = ${(100 * bindLapseShiftMeas).toFixed(2)}% vs E_pot/(2 m_0 c^2) = ${(100 * bindLapseShiftPred).toFixed(2)}% (relErr = ${(100 * bindLapseRelErr).toFixed(2)}%, negative binding energy reduces passive weight!)`,
@@ -1987,17 +1992,18 @@ function runPart1(couplings: ColumnCouplings): void {
     'WEP (m_1, 2m_1, 3m_1) + genuine entangled bound 2-body composite (E<0, lapse-coupled binding)',
     wepDiff12 < 5e-3 &&
       wepDiff13 < 6e-3 &&
-      maxBoundE < -0.2 &&
-      boundEntEntropy > 0.2 &&
+      maxBoundE < -0.25 &&
+      boundEntEntropy > 0.3 &&
       maxRelStdDrift < 0.05 &&
-      minBoundCosKx > 0.7 &&
-      wepDiffBoundBand < 1.5e-2 &&
+      minBoundCosKx > 0.75 &&
+      wepDiffBoundBand < 3e-2 &&
+      wepDiffBoundTidalCorr < 1.5e-2 &&
       bindLapseShiftMeas < -0.05 &&
       bindLapseRelErr < 0.1 &&
       wepWideBandCorrectedDiff < 2e-2 &&
       wepM1.maxNorm < 1e-13 &&
       maxNormBound < 1e-13,
-    `|a(2m,3m)-a(m)|/a=(${wepDiff12.toExponential(1)},${wepDiff13.toExponential(1)}), bound E=${b2Rest0.eBoundTot.toFixed(3)}<0 (S=${boundEntEntropy.toFixed(2)}, drift=${(100 * maxRelStdDrift).toFixed(1)}%, band-diff=${wepDiffBoundBand.toExponential(1)}), N*V_bind shift=${(100 * bindLapseShiftMeas).toFixed(2)}% vs ${(100 * bindLapseShiftPred).toFixed(2)}%`,
+    `|a(2m,3m)-a(m)|/a=(${wepDiff12.toExponential(1)},${wepDiff13.toExponential(1)}), bound E=${b2Rest0.eBoundTot.toFixed(3)}<0 (S=${boundEntEntropy.toFixed(2)}, drift=${(100 * maxRelStdDrift).toFixed(1)}%, band=${(100 * boundBandSigned).toFixed(2)}%/tidal-corr=${wepDiffBoundTidalCorr.toExponential(1)}), N*V_bind shift=${(100 * bindLapseShiftMeas).toFixed(2)}% vs ${(100 * bindLapseShiftPred).toFixed(2)}%`,
   )
 }
 
@@ -2036,8 +2042,10 @@ function runPart2(couplings: ColumnCouplings): void {
   )
 
   // Live massive neutral source packet S at box interior site (16, 16, 16), co-evolving with live Phi(x, t)
+  // All three clocks (spatial oscillator, 3D two-band wavepacket, pinned coin) share the exact same rNear=5 vs rFar=10
+  // so the source packet stays strictly inside r < 3.5 < rNear across the entire run!
   const cIdx = 16
-  const rNear = 3
+  const rNear = 5
   const rFar = 10
   const idxNear = cIdx * L * L + cIdx * L + (cIdx + rNear)
   const idxFar = cIdx * L * L + cIdx * L + (cIdx + rFar)
@@ -2081,14 +2089,14 @@ function runPart2(couplings: ColumnCouplings): void {
   }
 
   // (2b) GENUINELY NON-TAUTOLOGICAL Dynamical Spatial Composite Oscillator Clock:
-  //      A displaced spatial quantum oscillator wavepacket on transverse slice y in [1..L-2] at x = cIdx + r
+  //      A compact displaced spatial quantum oscillator wavepacket on transverse slice y in [1..L-2] at x = cIdx + r
   //      (z = cIdx), where EVERY spatial brickwork hopping bond angle alpha_{y,y+1} = (dt / 2 m_osc) N_{y,y+1}
   //      AND confining spring phase (1/2) k_sp (y - y0)^2 N(y) are modulated purely by the live 3D metric field Phi!
   //      ZERO pre-computed eigenfrequency omega_0 is ever passed into the stepper: the emergent oscillation
   //      frequency is measured directly from interpolated zero crossings of real-space centroid <y(t)> - y0!
   const nY = L - 2
-  const mOsc = 1.0
-  const kSp = 0.64 // continuum sqrt(k/m) = 0.80, emergent discrete lattice freq measured directly!
+  const mOsc = 0.8
+  const kSp = 0.8 // continuum sqrt(k/m) = 1.00, smooth lattice sigOsc = 1.118 (<cos k_y> ~ 0.84), ~6 crossings in T=20!
   const y0Idx = cIdx - 1 // interior index 15 -> global y = 16
   const sigOsc = (mOsc * kSp) ** -0.25 // ~1.118
   const makeOscPacket = (): { re: Float64Array; im: Float64Array } => {
@@ -2096,7 +2104,7 @@ function runPart2(couplings: ColumnCouplings): void {
     const im = new Float64Array(nY)
     let n2 = 0
     for (let j = 0; j < nY; j++) {
-      const dy = j - (y0Idx + 1.5) // displaced off-center by +1.5 sites!
+      const dy = j - (y0Idx + 0.9) // compact off-center displacement +0.9 sites (<< rNear=5!)
       const v = Math.exp(-(dy * dy) / (2 * sigOsc * sigOsc))
       re[j] = v
       n2 += v * v
@@ -2175,26 +2183,26 @@ function runPart2(couplings: ColumnCouplings): void {
   let prevOscNearY = measureOsc(oscNear, phiSliceNear).dyMean
   let prevOscFarY = measureOsc(oscFar, phiSliceFar).dyMean
   let prevOscFlatY = measureOsc(oscFlat, phiSliceZero).dyMean
-  let sumOscPhiNear = 0
-  let sumOscPhiFar = 0
+  const oscPhiNearHist: number[] = [measureOsc(oscNear, phiSliceNear).phiMean]
+  const oscPhiFarHist: number[] = [measureOsc(oscFar, phiSliceFar).phiMean]
 
   // (2c) Fixed 3D Two-Band Freely-Falling Wavepacket Clock (ZERO Bloch Bragg reflection, consistent exp(-i H dt) sign!):
-  //      mClkWave = 2 sqrt(3) at rNearWave = 5, rFar = 10, T_w = 8.0 beats (40 substeps) so |k(t)| << pi/2!
+  //      mClkWave = 2 sqrt(3), sigma = 1.5 at rNear = 5, rFar = 10, T_w = 6.0 beats (30 substeps) so |k(t)| << pi/2!
   //      Both bands fall INWARD toward S, and |e_+> (higher energy +omega_0) feels STRONGER inward pull than |e_->!
   const mClkWave = 2 * m0
-  const rNearWave = 5
-  const clkWaveNearM = makeGaussianPacket(mesh, mClkWave, cIdx + rNearWave, cIdx, cIdx, 1.2)
-  const clkWaveNearP = makeGaussianPacket(mesh, mClkWave, cIdx + rNearWave, cIdx, cIdx, 1.2)
-  const clkWaveFarM = makeGaussianPacket(mesh, mClkWave, cIdx + rFar, cIdx, cIdx, 1.2)
-  const clkWaveFarP = makeGaussianPacket(mesh, mClkWave, cIdx + rFar, cIdx, cIdx, 1.2)
+  const rNearWave = rNear
+  const clkWaveNearM = makeGaussianPacket(mesh, mClkWave, cIdx + rNearWave, cIdx, cIdx, 1.5)
+  const clkWaveNearP = makeGaussianPacket(mesh, mClkWave, cIdx + rNearWave, cIdx, cIdx, 1.5)
+  const clkWaveFarM = makeGaussianPacket(mesh, mClkWave, cIdx + rFar, cIdx, cIdx, 1.5)
+  const clkWaveFarP = makeGaussianPacket(mesh, mClkWave, cIdx + rFar, cIdx, cIdx, 1.5)
   const xNearWave0 = measurePacketObservables(mesh, clkWaveNearM).xMean
 
   const clkNear = makeClock()
   const clkFar = makeClock()
   const clkFlat = makeClock()
 
-  const nSteps = 120 // T = 24.0 beats (~3 full spatial oscillator cycles = 5-6 zero crossings!)
-  const nWaveSteps = 40 // T_w = 8.0 beats (strictly zero Bloch Bragg reflection: min <cos k_x> > 0.65!)
+  const nSteps = 100 // T = 20.0 beats (~7 spatial oscillator zero crossings, source packet stays strictly inside r < 3.5!)
+  const nWaveSteps = 30 // T_w = 6.0 beats (strictly zero Bloch Bragg reflection: min <cos k_x> > 0.72!)
   let unwrapNear = 0, unwrapFar = 0, unwrapFlat = 0
   let unwrapWaveNear = 0, unwrapWaveFar = 0
   let prevNear = 0, prevFar = 0, prevFlat = 0
@@ -2251,8 +2259,6 @@ function runPart2(couplings: ColumnCouplings): void {
     const phiNearA = field.phi[idxNear]!
     const phiFarA = field.phi[idxFar]!
     fillOscSlices(field.phi)
-    const oPhiNA = measureOsc(oscNear, phiSliceNear).phiMean
-    const oPhiFA = measureOsc(oscFar, phiSliceFar).phiMean
 
     kickFieldMomentum(mesh, [pS], field, paramsClk, half, rhoBuf)
     stepMatterUnitary(mesh, pS, field.phi, half, 0)
@@ -2325,8 +2331,8 @@ function runPart2(couplings: ColumnCouplings): void {
     const mOscN = measureOsc(oscNear, phiSliceNear)
     const mOscF = measureOsc(oscFar, phiSliceFar)
     const mOsc0 = measureOsc(oscFlat, phiSliceZero)
-    sumOscPhiNear += 0.5 * (oPhiNA + mOscN.phiMean)
-    sumOscPhiFar += 0.5 * (oPhiFA + mOscF.phiMean)
+    oscPhiNearHist.push(mOscN.phiMean)
+    oscPhiFarHist.push(mOscF.phiMean)
     if (prevOscNearY * mOscN.dyMean <= 0 && prevOscNearY !== mOscN.dyMean) {
       oscCrossNear.push(tPrev + (dt * Math.abs(prevOscNearY)) / (Math.abs(prevOscNearY) + Math.abs(mOscN.dyMean)))
     }
@@ -2377,11 +2383,25 @@ function runPart2(couplings: ColumnCouplings): void {
   )
   const freqFromCrossings = (cs: readonly number[]): number =>
     (PI * (cs.length - 1)) / (cs[cs.length - 1]! - cs[0]!)
+  // Average <Phi>_osc over the EXACT zero-crossing window [tA, tB] (piecewise-linear trapezoid)
+  const windowMeanHist = (hist: readonly number[], tA: number, tB: number): number => {
+    const sample = (t: number): number => {
+      const f = t / dt
+      const i0 = Math.max(0, Math.min(hist.length - 2, Math.floor(f)))
+      const a = f - i0
+      return (1 - a) * hist[i0]! + a * hist[i0 + 1]!
+    }
+    const nSub = 200
+    const h = (tB - tA) / nSub
+    let acc = 0.5 * (sample(tA) + sample(tB))
+    for (let k = 1; k < nSub; k++) acc += sample(tA + k * h)
+    return (acc * h) / (tB - tA)
+  }
   const wOscFlat = freqFromCrossings(oscCrossFlat)
   const wOscFar = freqFromCrossings(oscCrossFar)
   const wOscNear = freqFromCrossings(oscCrossNear)
-  const meanOscPhiNear = sumOscPhiNear / nSteps
-  const meanOscPhiFar = sumOscPhiFar / nSteps
+  const meanOscPhiNear = windowMeanHist(oscPhiNearHist, oscCrossNear[0]!, oscCrossNear[oscCrossNear.length - 1]!)
+  const meanOscPhiFar = windowMeanHist(oscPhiFarHist, oscCrossFar[0]!, oscCrossFar[oscCrossFar.length - 1]!)
   const oscRedshiftMeas = (wOscNear - wOscFar) / wOscFlat
   const oscRedshiftTheory = -(meanOscPhiFar - meanOscPhiNear) / (cg * cg)
   const oscRedshiftRelErr = Math.abs(oscRedshiftMeas - oscRedshiftTheory) / Math.abs(oscRedshiftTheory)
@@ -3102,28 +3122,37 @@ function runPart3(): void {
     new Float64Array(nG), new Float64Array(nG), new Float64Array(nG),
   ]
   const q0Diag = (2 * PI * 2) / Lg // k_x = k_y = pi/4, |q_0| = sqrt(2)*pi/4
-  const sigDiag = 2.0
-  const s0Diag = 5.0 // diagonal index u = x + y centered at 5 -> shifts to ~9.5 cleanly without wraparound!
-  const omegaDiag = (km: number): number => {
-    const kv = latticeKappa([km, km, 0], cIsoD4)
+  const sigDiag = 2.8
+  const s0Diag = 6.0 // diagonal index u = x + y centered at 6 -> shifts cleanly to ~10.8 without wraparound!
+  const omegaDiag = (km: number, cIso = cIsoD4): number => {
+    const kv = latticeKappa([km, km, 0], cIso)
     return Math.hypot(kv[0], kv[1], kv[2])
   }
+  const epsK = 1e-6
+  const vgDiagAt = (km: number, cIso = cIsoD4): number =>
+    ((omegaDiag(km + epsK, cIso) - omegaDiag(km - epsK, cIso)) / (2 * epsK)) * Math.SQRT1_2
+  let specVgNum = 0
+  let specVgDen = 0
   for (let m = 1; m < Lg / 2; m++) {
     const km = (2 * PI * m) / Lg
     const dk = km - q0Diag
     const amp = Math.exp(-0.5 * sigDiag * sigDiag * dk * dk)
     if (amp < 1e-14) continue
     const om = omegaDiag(km)
+    // Energy-normalize Fourier modes: h ~ (amp/om) cos, v ~ amp sin => exact energy spectral weight E_m ~ amp^2!
+    const aH = amp / om
+    specVgNum += amp * amp * vgDiagAt(km)
+    specVgDen += amp * amp
     for (let z = 0; z < Lg; z++) {
       for (let y = 0; y < Lg; y++) {
         for (let x = 0; x < Lg; x++) {
           const i = gIdx(x, y, z)
           const phV = km * (x + y - s0Diag) // vertex center (x, y, z)
           const phP = km * (x + 0.5 + (y + 0.5) - s0Diag) // plaquette (0,1) center (x+0.5, y+0.5, z)
-          const cV = amp * Math.cos(phV)
-          const sV = amp * om * Math.sin(phV)
-          const cP = amp * Math.cos(phP)
-          const sP = amp * om * Math.sin(phP)
+          const cV = aH * Math.cos(phV)
+          const sV = amp * Math.sin(phV)
+          const cP = aH * Math.cos(phP)
+          const sP = amp * Math.sin(phP)
           // Exact [1,1,0] TT + polarization: h_22 = A, h_00 = h_11 = -A/2, h_01 = +A/2 (tr=0, D.h=0 exact!)
           hTT[2][i] = hTT[2][i]! + cV
           hTT[0][i] = hTT[0][i]! - 0.5 * cV
@@ -3182,9 +3211,9 @@ function runPart3(): void {
             2 * (h[3][i]! * Eh[3][i]! + h[4][i]! * Eh[4][i]! + h[5][i]! * Eh[5][i]!)
           const dens = 0.25 * (kin + pot)
           eTot += dens
-          // Diagonal coordinate u = (x + y) mod Lg along [1,1,0] propagation direction (physical distance u / sqrt(2))
+          // Diagonal coordinate u = (x + y) mod Lg along [1,1,0] propagation direction (weighted by exact local EH energy density!)
           const u = (x + y) % Lg
-          const wPos = h[2][i]! * h[2][i]! + v[2][i]! * v[2][i]!
+          const wPos = Math.max(dens, 0)
           uNum += u * wPos
           uDen += wPos
         }
@@ -3194,7 +3223,7 @@ function runPart3(): void {
   }
 
   const dtGW = 0.25
-  const nGW = 16 // T = 4.0 beats (~3.6 hops along [1,1,0], clean interior propagation without wrap!)
+  const nGW = 16 // T = 4.0 beats (~3.4 hops along [1,1,0], clean interior propagation without wrap!)
   const gw0 = measureRealGW(hTT, vTT)
   let maxGWTrace = gw0.maxTr
   let maxGWDiv = gw0.maxDiv
@@ -3216,10 +3245,12 @@ function runPart3(): void {
     }
   }
   const gwSpeedMeas = (gwMid.sMean - gw0.sMean) / (nGW * dtGW)
-  // Exact [1,1,0] group velocity v_g = (1/sqrt(2)) d(omega_TT(k, k, 0))/dk with c_iso = 1/12 active!
-  const epsK = 1e-6
-  const gwSpeedExactD4 = ((omegaDiag(q0Diag + epsK) - omegaDiag(q0Diag - epsK)) / (2 * epsK)) * Math.SQRT1_2
+  // Exact [1,1,0] group velocity with c_iso = 1/12 active vs naive cubic c_iso = 0!
+  const gwSpeedExactD4 = vgDiagAt(q0Diag, cIsoD4)
+  const gwSpeedSpecD4 = specVgNum / specVgDen
+  const gwSpeedNaiveC0 = vgDiagAt(q0Diag, 0)
   const gwSpeedErr = Math.abs(gwSpeedMeas - gwSpeedExactD4) / gwSpeedExactD4
+  const gwSpeedSpecErr = Math.abs(gwSpeedMeas - gwSpeedSpecD4) / gwSpeedSpecD4
 
   // Exact 16-step memoryless reversal of the full 3D 6-component leapfrog
   for (let s = 0; s < nGW; s++) stepRealSpin2(hTT, vTT, -dtGW)
@@ -3237,7 +3268,7 @@ function runPart3(): void {
     `        Full 3D real-space gauge & Bianchi (|h_gauge|=${realGaugeNorm.toFixed(3)}): ||E_real(delta_xi h)||_inf = ${realEinsteinGaugeErr.toExponential(2)}, ||D_real.E_real(h_gen)||_inf = ${realBianchiErr.toExponential(2)}`,
   )
   console.log(
-    `        Off-axis [1,1,0] TT wavepacket (T=${(nGW * dtGW).toFixed(1)} beats): s_mean ${gw0.sMean.toFixed(4)} -> ${gwMid.sMean.toFixed(4)}, v_g = ${gwSpeedMeas.toFixed(6)} vs exact c_iso=1/12 v_g = ${gwSpeedExactD4.toFixed(6)} (relErr = ${(100 * gwSpeedErr).toFixed(2)}%)`,
+    `        Off-axis [1,1,0] TT wavepacket (T=${(nGW * dtGW).toFixed(1)} beats): s_mean ${gw0.sMean.toFixed(4)} -> ${gwMid.sMean.toFixed(4)}, v_g = ${gwSpeedMeas.toFixed(6)} vs D_4(c=1/12) v_g(q_0)=${gwSpeedExactD4.toFixed(6)} (err ${(100 * gwSpeedErr).toFixed(2)}%), spectral <v_g>_D4=${gwSpeedSpecD4.toFixed(6)} (err ${(100 * gwSpeedSpecErr).toFixed(2)}%) [naive c=0 would be ${gwSpeedNaiveC0.toFixed(6)}]`,
   )
   console.log(
     `        Live 6-component certificates: max|h_ii|=${maxGWTrace.toExponential(1)}, max|D.h_TT|=${maxGWDiv.toExponential(1)}, ||E(h_TT+gauge)-E(h_TT)||=${maxRealGaugeDecoupleErr.toExponential(1)}, dE/E=${maxGWEnergyDrift.toExponential(2)}, revErr=${gwRevErr.toExponential(1)}`,
@@ -3250,12 +3281,14 @@ function runPart3(): void {
     realEinsteinGaugeErr < 1e-13 &&
       realBianchiErr < 1e-13 &&
       gwSpeedErr < 0.03 &&
+      gwSpeedSpecErr < 0.01 &&
+      Math.abs(gwSpeedMeas - gwSpeedExactD4) < 0.25 * Math.abs(gwSpeedMeas - gwSpeedNaiveC0) &&
       maxGWTrace < 1e-13 &&
       maxGWDiv < 1e-13 &&
       maxRealGaugeDecoupleErr < 1e-13 &&
       maxGWEnergyDrift < 5e-3 &&
       gwRevErr < 1e-13,
-    `3D 16^3 M_EH(c=1/12): ||E(gauge)||=${realEinsteinGaugeErr.toExponential(1)}, ||D.E||=${realBianchiErr.toExponential(1)}, [110] v_g=${gwSpeedMeas.toFixed(5)} (${(100 * gwSpeedErr).toFixed(2)}% vs D_4), decouple=${maxRealGaugeDecoupleErr.toExponential(1)}, dE/E=${maxGWEnergyDrift.toExponential(1)}, rev=${gwRevErr.toExponential(1)}`,
+    `3D 16^3 M_EH(c=1/12): ||E(gauge)||=${realEinsteinGaugeErr.toExponential(1)}, ||D.E||=${realBianchiErr.toExponential(1)}, [110] v_g=${gwSpeedMeas.toFixed(5)} (${(100 * gwSpeedSpecErr).toFixed(2)}% vs spectral D_4, ${(100 * gwSpeedErr).toFixed(2)}% vs q_0), decouple=${maxRealGaugeDecoupleErr.toExponential(1)}, dE/E=${maxGWEnergyDrift.toExponential(1)}, rev=${gwRevErr.toExponential(1)}`,
   )
 }
 
@@ -4430,6 +4463,8 @@ function runPart4(): void {
   const gD4 = analyze37(psiD4, gBg.maxMut)
   const gD6 = analyze37(psiD6, gBg.maxMut)
   const gD8 = analyze37(psiD8, gBg.maxMut)
+  const gChi = analyze37(psiChi, gBg.maxMut)
+  const gMeet = analyze37(psiMeet, gBg.maxMut)
   const gQ2 = analyze37(psiQ2, gBg.maxMut)
   const gNull = analyze37(psiNull, gBg.maxMut)
 
@@ -4437,23 +4472,26 @@ function runPart4(): void {
     `  [P4.1] Unperturbed {3,4,3,4} bulk LLY Ricci curvature: kappa_LLY = ${llyUnpert.kLLY.toFixed(10)} (exact -7/6 = ${(-7 / 6).toFixed(10)}, gap=${llyUnpert.maxDualityGap.toExponential(1)})`,
   )
   console.log(
-    `  [P4.2] Verbatim bare-U (T=2 beats, maxNormErr=${maxNormErr.toExponential(1)}) Jacobson-LLY sweep across D_act = 2, 4, 6, 8 (Q = 0_V):`,
+    `  [P4.2] Verbatim bare-U (T=2 beats, maxNormErr=${maxNormErr.toExponential(1)}) Jacobson-LLY sweep + layer-firing audit:`,
   )
   console.log(
-    `         Baseline |Psi_bg>: D_0=${gBg.d0.toFixed(4)}, S_0=${gBg.sR0.toFixed(4)}, k_G(all/cusp)=(${gBg.kGAll.toFixed(4)}/${gBg.kGCusp.toFixed(4)}), k_E(all/cusp)=(${gBg.kEAll.toFixed(4)}/${gBg.kECusp.toFixed(4)})`,
+    `         Baseline |Psi_bg> [hits Phi/Mp/Mm/K=${evBg.hits.phiOdd}/${evBg.hits.mPair}/${evBg.hits.mMeet}/${evBg.hits.kBounce}]: D_0=${gBg.d0.toFixed(4)}, S_0=${gBg.sR0.toFixed(4)}, k_G(all/cusp)=(${gBg.kGAll.toFixed(4)}/${gBg.kGCusp.toFixed(4)}), k_E(all/cusp)=(${gBg.kEAll.toFixed(4)}/${gBg.kECusp.toFixed(4)})`,
   )
   console.log(
-    '         State                | max|Q_x| |  dD_0   |  dS_EE  | dd_MI(C) | dk_G(all) | dk_G/dS  | dk_E(all) | dk_E(cusp) | dk_E/dS',
+    '         State                      | hits(P/Mp/Mm/K) | max|Q_x| |  dD_0   |  dS_EE  | dd_MI(C) | dk_G(all) | dk_E(all) | dk_E(cusp) | dk_E/dS',
   )
 
   const fmtS = (x: number): string => `${x >= 0 ? '+' : ''}${x.toFixed(4)}`
+  const fmtH = (h: LayerHits): string => `${h.phiOdd}/${h.mPair}/${h.mMeet}/${h.kBounce}`.padStart(15)
   const rows = [
-    { label: 'Neutral Q=0_V D_act=2', g: gD2, neutral: true },
-    { label: 'Neutral Q=0_V D_act=4', g: gD4, neutral: true },
-    { label: 'Neutral Q=0_V D_act=6', g: gD6, neutral: true },
-    { label: 'Neutral Q=0_V D_act=8', g: gD8, neutral: true },
-    { label: 'Charged Q=+2  D_act=2', g: gQ2, neutral: false },
-    { label: 'NULL: Global Phase   ', g: gNull, neutral: false },
+    { label: 'Neutral Q=0_V D_act=2     ', g: gD2, hits: evD2.hits, neutralLadder: true },
+    { label: 'Neutral Q=0_V D_act=4     ', g: gD4, hits: evD4.hits, neutralLadder: true },
+    { label: 'Neutral Q=0_V D_act=6     ', g: gD6, hits: evD6.hits, neutralLadder: true },
+    { label: 'Neutral Q=0_V D_act=8     ', g: gD8, hits: evD8.hits, neutralLadder: true },
+    { label: 'Interacting Q=0 Chiral k=4', g: gChi, hits: evChi.hits, neutralLadder: false },
+    { label: 'Interacting Q=0 Meet   k=4', g: gMeet, hits: evMeet.hits, neutralLadder: false },
+    { label: 'Charged Q=+2  D_act=2     ', g: gQ2, hits: evQ2.hits, neutralLadder: false },
+    { label: 'NULL: Global Phase        ', g: gNull, hits: evBg.hits, neutralLadder: false },
   ] as const
 
   const dSList: number[] = []
@@ -4473,11 +4511,10 @@ function runPart4(): void {
     const dkGA = g.kGAll - gBg.kGAll
     const dkEA = g.kEAll - gBg.kEAll
     const dkEC = g.kECusp - gBg.kECusp
-    const slG = Math.abs(dS) > 1e-12 ? dkGA / dS : 0
     const slE = Math.abs(dS) > 1e-12 ? dkEA / dS : 0
     maxSubV = Math.max(maxSubV, g.maxSubaddViol)
     maxDualG = Math.max(maxDualG, g.maxDualGap)
-    if (row.neutral) {
+    if (row.neutralLadder) {
       dDList.push(dD)
       dSList.push(dS)
       dkGAllList.push(dkGA)
@@ -4486,40 +4523,72 @@ function runPart4(): void {
       ddMIList.push(ddMI)
     }
     console.log(
-      `         ${row.label} | ${g.maxLocalQ.toExponential(1)} | ${fmtS(dD)} | ${fmtS(dS)} |  ${fmtS(ddMI)} |   ${fmtS(dkGA)} | ${fmtS(slG)} |   ${fmtS(dkEA)} |    ${fmtS(dkEC)} | ${fmtS(slE)}`,
+      `         ${row.label} | ${fmtH(row.hits)} | ${g.maxLocalQ.toExponential(1)} | ${fmtS(dD)} | ${fmtS(dS)} |  ${fmtS(ddMI)} |   ${fmtS(dkGA)} |   ${fmtS(dkEA)} |    ${fmtS(dkEC)} | ${fmtS(slE)}`,
     )
   }
 
-  // Linear fits across the neutral Q = 0_V ladder D_act = 2, 4, 6, 8 (anchored at origin 0, 0 and unanchored!)
-  const fitSEvsD = linearRegression([0, ...dDList], [0, ...dSList])
-  const fitKGvsS = linearRegression([0, ...dSList], [0, ...dkGAllList])
-  const fitKEAllvsS = linearRegression([0, ...dSList], [0, ...dkEAllList])
-  const fitKECuspvsS = linearRegression([0, ...dSList], [0, ...dkECuspList])
-  const fitKGvsS_nz = linearRegression(dSList, dkGAllList)
-  const fitKECuspvsS_nz = linearRegression(dSList, dkECuspList)
+  // True constrained through-origin regression (y = beta * x, beta = sum(x y) / sum(x^2), R^2_0 = 1 - SS_res / sum(y^2))
+  // PLUS unanchored nonzero-only OLS across D_act = 2, 4, 6, 8!
+  const originRegression = (xs: readonly number[], ys: readonly number[]): { readonly slope: number; readonly r2: number } => {
+    let sxy = 0, sxx = 0, syy = 0
+    for (let i = 0; i < xs.length; i++) {
+      sxy += xs[i]! * ys[i]!
+      sxx += xs[i]! * xs[i]!
+      syy += ys[i]! * ys[i]!
+    }
+    const slope = sxx > 1e-30 ? sxy / sxx : 0
+    let ssRes = 0
+    for (let i = 0; i < xs.length; i++) ssRes += (ys[i]! - slope * xs[i]!) ** 2
+    return { slope, r2: syy > 1e-30 ? 1 - ssRes / syy : 1 }
+  }
+  const fitSEvsD0 = originRegression(dDList, dSList)
+  const fitKGvsS0 = originRegression(dSList, dkGAllList)
+  const fitKEAllvsS0 = originRegression(dSList, dkEAllList)
+  const fitKECuspvsS0 = originRegression(dSList, dkECuspList)
+  const fitKGvsS_ols = linearRegression(dSList, dkGAllList)
+  const fitKEAllvsS_ols = linearRegression(dSList, dkEAllList)
+  const fitKECuspvsS_ols = linearRegression(dSList, dkECuspList)
+
+  const dChiKG = gChi.kGAll - gBg.kGAll
+  const dChiKE = gChi.kEAll - gBg.kEAll
+  const dMeetKG = gMeet.kGAll - gBg.kGAll
+  const dMeetKE = gMeet.kEAll - gBg.kEAll
 
   console.log('\n  [P4.3] Exact Jacobson-Entanglement / Lin-Lu-Yau Slopes Across D_act = 2, 4, 6, 8 (Q = 0_V):')
   console.log(
-    `         dS_EE / dD_0         : slope = ${fitSEvsD.slope.toFixed(5)} (R^2 = ${fitSEvsD.r2.toFixed(5)})`,
+    `         Honest layer-firing audit: antipodal neutral ladder (D=2..8) fires K only (Phi_odd=0, M_pair=0, M_meet=0); ` +
+      `interacting neutral witnesses fire Phi_odd=${evChi.hits.phiOdd} (chiral k=4) & M_meet=${evMeet.hits.mMeet} (same-sign quad); charged Q=+2 fires M_pair=${evQ2.hits.mPair}, M_meet=${evQ2.hits.mMeet}`,
   )
   console.log(
-    `         dk_G(all) / dS_EE    : anchored slope = ${fitKGvsS.slope.toFixed(5)} (R^2 = ${fitKGvsS.r2.toFixed(5)}) | nonzero-only slope = ${fitKGvsS_nz.slope.toFixed(5)} (R^2 = ${fitKGvsS_nz.r2.toFixed(5)})`,
+    `         dS_EE / dD_0         : through-origin slope = ${fitSEvsD0.slope.toFixed(5)} (R^2_0 = ${fitSEvsD0.r2.toFixed(5)})`,
   )
   console.log(
-    `         dk_E(all) / dS_EE    : anchored slope = ${fitKEAllvsS.slope.toFixed(5)} (R^2 = ${fitKEAllvsS.r2.toFixed(5)})`,
+    `         dk_G(all) / dS_EE    : through-origin slope = ${fitKGvsS0.slope.toFixed(5)} (R^2_0 = ${fitKGvsS0.r2.toFixed(5)}) | nonzero OLS = ${fitKGvsS_ols.slope.toFixed(5)} (R^2 = ${fitKGvsS_ols.r2.toFixed(5)})`,
   )
   console.log(
-    `         dk_E(cusp) / dS_EE   : anchored slope = ${fitKECuspvsS.slope.toFixed(5)} (R^2 = ${fitKECuspvsS.r2.toFixed(5)}) | nonzero-only slope = ${fitKECuspvsS_nz.slope.toFixed(5)} (R^2 = ${fitKECuspvsS_nz.r2.toFixed(5)})`,
+    `         dk_E(all) / dS_EE    : through-origin slope = ${fitKEAllvsS0.slope.toFixed(5)} (R^2_0 = ${fitKEAllvsS0.r2.toFixed(5)}) | nonzero OLS = ${fitKEAllvsS_ols.slope.toFixed(5)} (R^2 = ${fitKEAllvsS_ols.r2.toFixed(5)})`,
+  )
+  console.log(
+    `         dk_E(cusp) / dS_EE   : through-origin slope = ${fitKECuspvsS0.slope.toFixed(5)} (R^2_0 = ${fitKECuspvsS0.r2.toFixed(5)}) | nonzero OLS = ${fitKECuspvsS_ols.slope.toFixed(5)} (R^2 = ${fitKECuspvsS_ols.r2.toFixed(5)})`,
   )
   console.log(
     `         Certificates         : maxSubaddViol=${maxSubV.toExponential(2)}, maxW1DualityGap=${maxDualG.toExponential(2)}, nullDiff=${Math.abs(gNull.kGAll - gBg.kGAll).toExponential(1)}`,
   )
 
-  const neutralQZero = [gBg, gD2, gD4, gD6, gD8].every(g => g.maxLocalQ < 1e-14)
+  const neutralQZero =
+    [gBg, gD2, gD4, gD6, gD8, gMeet].every(g => g.maxLocalQ < 1e-14) && Math.abs(gChi.totalQ) < 1e-14
   const monoD = dDList[0]! > 0 && dDList[1]! > dDList[0]! && dDList[2]! > dDList[1]! && dDList[3]! > dDList[2]!
   const monoS = dSList[0]! > 0 && dSList[1]! > dSList[0]! && dSList[2]! > dSList[1]! && dSList[3]! > dSList[2]!
   const allContractMI = ddMIList.every(x => x < 0)
   const allPosKG = dkGAllList.every(x => x > 0)
+  const interactingWitnessesOk =
+    evChi.hits.phiOdd > 0 &&
+    evMeet.hits.mMeet > 0 &&
+    evQ2.hits.mPair > 0 &&
+    dChiKG > 0 &&
+    dChiKE > 0 &&
+    dMeetKG > 0 &&
+    dMeetKE > 0
   const nullClean =
     Math.abs(gNull.kGAll - gBg.kGAll) < 1e-12 &&
     Math.abs(gNull.kEAll - gBg.kEAll) < 1e-12 &&
@@ -4528,7 +4597,7 @@ function runPart4(): void {
   recordCheck(
     'G8',
     'Tier A',
-    'Verbatim bare-U Jacobson-LLY response on {3,4,3,4} across neutral Q=0_V D_act = 2, 4, 6, 8',
+    'Verbatim bare-U Jacobson-LLY sweep (D=2..8) + layer-firing audit & interacting Phi_odd/M_meet witnesses',
     Math.abs(llyUnpert.kLLY + 7 / 6) < 1e-11 &&
       maxNormErr < 1e-13 &&
       maxSubV < 1e-12 &&
@@ -4538,8 +4607,9 @@ function runPart4(): void {
       monoS &&
       allContractMI &&
       allPosKG &&
+      interactingWitnessesOk &&
       nullClean,
-    `kappa0=-7/6, Q=0_V exact, mono D_0 & S_EE across D=2..8, dd_MI<0 all 4, dk_G/dS=${fitKGvsS.slope.toFixed(4)} (R2=${fitKGvsS.r2.toFixed(4)}), dk_E(C)/dS=${fitKECuspvsS.slope.toFixed(4)} (R2=${fitKECuspvsS.r2.toFixed(4)})`,
+    `kappa0=-7/6, Q=0_V exact, mono D=2..8, thru-orig dk_E/dS=${fitKEAllvsS0.slope.toFixed(4)} (R2_0=${fitKEAllvsS0.r2.toFixed(4)}), interacting hits(Phi_odd=${evChi.hits.phiOdd}, M_meet=${evMeet.hits.mMeet}, M_pair=${evQ2.hits.mPair}) all focus (+dk_G,+dk_E)`,
   )
 }
 
