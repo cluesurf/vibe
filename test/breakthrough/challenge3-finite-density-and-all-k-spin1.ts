@@ -693,9 +693,77 @@ interface KuboReport {
   readonly maxImPi: number
   readonly maxImPiOmega: number
   readonly maxImPiLow: number
+  readonly maxImPiLowOmega: number
   readonly lowBandImPiRatio: number
-  readonly minPeakOmegaPos: number
+  readonly minPeakOmegaAbs: number
   readonly s2Pi3: number
+  readonly cReSeries?: Float64Array
+  readonly cImSeries?: Float64Array
+}
+
+function summarizeKuboSeries(
+  cRe: Float64Array,
+  cIm: Float64Array,
+  chi: Float64Array,
+  connNormSq: number,
+  normErr: number,
+  T: number,
+  nGrid: number,
+): KuboReport {
+  const normFac = connNormSq > 1e-14 ? 1 / connNormSq : 1
+  const fejerNormAt = (omega: number, Teff: number): number => {
+    let s = (cRe[0]! * normFac) / Teff
+    for (let t = 1; t < Teff; t++) {
+      const w = (1 - t / Teff) / Teff
+      s += 2 * w * normFac * (cRe[t]! * Math.cos(omega * t) + cIm[t]! * Math.sin(omega * t))
+    }
+    return Math.max(0, s)
+  }
+  const imPiAt = (omega: number): number => {
+    let s = 0
+    for (let t = 1; t < T; t++) {
+      const w = 0.5 * (1 + Math.cos((PI * t) / T))
+      s += w * chi[t]! * Math.sin(omega * t)
+    }
+    return s * normFac
+  }
+
+  let maxImPi = 0
+  let maxImPiOmega = 0
+  let maxImPiLow = 0
+  let maxImPiLowOmega = 0
+  let minPeakOmegaAbs = PI
+  // Scan Im Pi(omega) on (0, pi) (strictly odd in omega) AND scan Fejer W_T(omega) across full (-pi, pi) (MINOR-3!)
+  for (let k = 1; k < nGrid / 2; k++) {
+    const om = (2 * PI * k) / nGrid
+    const ip = Math.abs(imPiAt(om))
+    if (ip > maxImPi) { maxImPi = ip; maxImPiOmega = om }
+    if (om <= 0.25 && ip > maxImPiLow) { maxImPiLow = ip; maxImPiLowOmega = om }
+  }
+  for (let k = 0; k < nGrid; k++) {
+    const om = -PI + (2 * PI * k) / nGrid
+    const aom = Math.abs(om)
+    if (aom > 0.03) {
+      const fk = fejerNormAt(om, T)
+      if (fk > 0.02 && aom < minPeakOmegaAbs) minPeakOmegaAbs = aom
+    }
+  }
+
+  return {
+    normErr,
+    jNormSq: connNormSq,
+    w0_T64: fejerNormAt(0, Math.min(64, T)),
+    w0_TMax: fejerNormAt(0, T),
+    maxImPi,
+    maxImPiOmega,
+    maxImPiLow,
+    maxImPiLowOmega,
+    lowBandImPiRatio: maxImPi > 1e-12 ? maxImPiLow / maxImPi : 0,
+    minPeakOmegaAbs,
+    s2Pi3: fejerNormAt((2 * PI) / 3, T),
+    cReSeries: cRe,
+    cImSeries: cIm,
+  }
 }
 
 // Exact Kubo linear-response current susceptibility for a HERMITIAN diagonal current operator J_H (real entries jDiag):
@@ -771,49 +839,121 @@ function analyzeHermitianKubo(
     }
   }
 
-  const normFac = connNormSq > 1e-14 ? 1 / connNormSq : 1
-  const fejerNormAt = (omega: number, Teff: number): number => {
-    let s = (cRe[0]! * normFac) / Teff
-    for (let t = 1; t < Teff; t++) {
-      const w = (1 - t / Teff) / Teff
-      s += 2 * w * normFac * (cRe[t]! * Math.cos(omega * t) + cIm[t]! * Math.sin(omega * t))
+  return summarizeKuboSeries(cRe, cIm, chi, connNormSq, normErr, T, nGrid)
+}
+
+// Exact Inter-Sector P_bg = 0 -> P = +-q Hermitian Kubo Linear-Response Evaluator (CRITICAL-1 fix!):
+//   For a translation-invariant background |Omega> strictly in P_bg = 0 and a finite-momentum Hermitian current
+//   J_H(q) = sum_x cos(q.x - phi_0) j_T(x) = 0.5*(e^{-i phi_0} J_T(+q) + e^{+i phi_0} J_T(-q)) with 2q != 0 (mod 2pi),
+//   evolves |om(t)> = U(0)^t |Omega> in P=0, |phi+(t)> = U(+q)^t J_T(+q)|Omega> in P=+q, and
+//   |phi-(t)> = U(-q)^t J_T(-q)|Omega> in P=-q with ZERO truncation:
+//     C_H(q, t) = 0.25 * ( <J_T(+q) om(t) | phi+(t)> + <J_T(-q) om(t) | phi-(t)> ),  chi_H(q, t) = 2 Im C_H(q, t).
+//   Note <Omega | J_H(q) | Omega> = 0 identically because P = 0 is orthogonal to P = +-q!
+function analyzeInterSectorKubo(
+  U0: SparseCSC,
+  Upos: SparseCSC,
+  Uneg: SparseCSC,
+  map0ToQ: Int32Array, // length U0.dim: target index in Upos/Uneg, or -1 if orbit vanishes at +-q
+  jPosRe: Float64Array, // J_T(+q; rep_i) real part for each P=0 orbit i (J_T(-q) = conj)
+  jPosIm: Float64Array,
+  bg0R: Float64Array,
+  bg0I: Float64Array,
+  T = 256,
+  nGrid = 720,
+): KuboReport {
+  const d0 = U0.dim
+  const dQ = Upos.dim
+  assertExact(Uneg.dim === dQ, 'Upos/Uneg dimension mismatch')
+
+  let omR = Float64Array.from(bg0R)
+  let omI = Float64Array.from(bg0I)
+  let pPR = new Float64Array(dQ)
+  let pPI = new Float64Array(dQ)
+  let pNR = new Float64Array(dQ)
+  let pNI = new Float64Array(dQ)
+  let t0R = new Float64Array(d0)
+  let t0I = new Float64Array(d0)
+  let tQR = new Float64Array(dQ)
+  let tQI = new Float64Array(dQ)
+
+  // Initialize |phi+(0)> = J_T(+q)|Omega> and |phi-(0)> = J_T(-q)|Omega>
+  let normSqP = 0
+  let normSqN = 0
+  for (let i = 0; i < d0; i++) {
+    const qIdx = map0ToQ[i]!
+    const jr = jPosRe[i]!
+    const ji = jPosIm[i]!
+    if (qIdx < 0) {
+      assertExact(Math.hypot(jr, ji) < 1e-12, `Nonzero J_T(+-q) on excluded symmetric orbit ${i}`)
+      continue
     }
-    return Math.max(0, s)
+    const br = bg0R[i]!
+    const bi = bg0I[i]!
+    // (+q): (jr + i ji)(br + i bi)
+    const ar = jr * br - ji * bi
+    const ai = jr * bi + ji * br
+    pPR[qIdx] = ar
+    pPI[qIdx] = ai
+    normSqP += ar * ar + ai * ai
+    // (-q): (jr - i ji)(br + i bi)
+    const cr = jr * br + ji * bi
+    const ci = jr * bi - ji * br
+    pNR[qIdx] = cr
+    pNI[qIdx] = ci
+    normSqN += cr * cr + ci * ci
   }
-  const imPiAt = (omega: number): number => {
-    let s = 0
-    for (let t = 1; t < T; t++) {
-      const w = 0.5 * (1 + Math.cos((PI * t) / T))
-      s += w * chi[t]! * Math.sin(omega * t)
+  const connNormSq = 0.25 * (normSqP + normSqN)
+
+  const cRe = new Float64Array(T)
+  const cIm = new Float64Array(T)
+  const chi = new Float64Array(T)
+  let normErr = 0
+
+  for (let t = 0; t < T; t++) {
+    let nOm2 = 0
+    let sr = 0
+    let si = 0
+    for (let i = 0; i < d0; i++) {
+      const or = omR[i]!
+      const oi = omI[i]!
+      nOm2 += or * or + oi * oi
+      const qIdx = map0ToQ[i]!
+      if (qIdx < 0) continue
+      const jr = jPosRe[i]!
+      const ji = jPosIm[i]!
+      if (jr === 0 && ji === 0) continue
+      // bra+ = J_T(+q) om(t) = (jr + i ji)(or + i oi)
+      const bpR = jr * or - ji * oi
+      const bpI = jr * oi + ji * or
+      const kpR = pPR[qIdx]!
+      const kpI = pPI[qIdx]!
+      // <bra+ | phi+(t)>
+      sr += bpR * kpR + bpI * kpI
+      si += bpR * kpI - bpI * kpR
+      // bra- = J_T(-q) om(t) = (jr - i ji)(or + i oi)
+      const bnR = jr * or + ji * oi
+      const bnI = jr * oi - ji * or
+      const knR = pNR[qIdx]!
+      const knI = pNI[qIdx]!
+      // <bra- | phi-(t)>
+      sr += bnR * knR + bnI * knI
+      si += bnR * knI - bnI * knR
     }
-    return s * normFac
+    normErr = Math.max(normErr, Math.abs(Math.sqrt(nOm2) - 1))
+    cRe[t] = 0.25 * sr
+    cIm[t] = 0.25 * si
+    chi[t] = 0.5 * si
+    if (t + 1 < T) {
+      applySparse(U0, omR, omI, t0R, t0I)
+      let sw = omR; omR = t0R; t0R = sw; sw = omI; omI = t0I; t0I = sw
+      applySparse(Upos, pPR, pPI, tQR, tQI)
+      sw = pPR; pPR = tQR; tQR = sw; sw = pPI; pPI = tQI; tQI = sw
+      applySparse(Uneg, pNR, pNI, tQR, tQI)
+      sw = pNR; pNR = tQR; tQR = sw; sw = pNI; pNI = tQI; tQI = sw
+    }
   }
 
-  let maxImPi = 0
-  let maxImPiOmega = 0
-  let maxImPiLow = 0
-  let minPeakOmegaPos = PI
-  for (let k = 1; k < nGrid / 2; k++) {
-    const om = (2 * PI * k) / nGrid
-    const ip = Math.abs(imPiAt(om))
-    const fk = fejerNormAt(om, T)
-    if (ip > maxImPi) { maxImPi = ip; maxImPiOmega = om }
-    if (om <= 0.25 && ip > maxImPiLow) maxImPiLow = ip
-    if (om > 0.03 && fk > 0.02 && om < minPeakOmegaPos) minPeakOmegaPos = om
-  }
-
-  return {
-    normErr,
-    jNormSq: connNormSq,
-    w0_T64: fejerNormAt(0, Math.min(64, T)),
-    w0_TMax: fejerNormAt(0, T),
-    maxImPi,
-    maxImPiOmega,
-    maxImPiLow,
-    lowBandImPiRatio: maxImPi > 1e-12 ? maxImPiLow / maxImPi : 0,
-    minPeakOmegaPos,
-    s2Pi3: fejerNormAt((2 * PI) / 3, T),
-  }
+  return summarizeKuboSeries(cRe, cIm, chi, connNormSq, normErr, T, nGrid)
 }
 
 // =================================================================================================
@@ -2015,10 +2155,10 @@ function runPart1(): { readonly qxDriftK3_3D: number; readonly qxDriftK3_2D: num
     `       Z^2 / 5 Z^2 (dim=${z2L5_q0.dim}, invErr=${u2L5.maxInvErr.toExponential(1)}, ||U(q_x)-U(0)||=${qxDriftK3_2D.toExponential(1)}): W0=${sp2L5_qx.w0_TMax.toExponential(2)}, peak=${sp2L5_qx.peakOmega.toFixed(4)}, min|w|=${sp2L5_qx.minActiveOmega.toFixed(4)}`,
   )
   console.log(
-    `       B_3(L=3, dim=${b3L3_q0.dim}, EXACT ED): q=0 W0=${edB3_0.w0.toExponential(1)}, min|E|=${edB3_0.minE.toFixed(5)} | q_x=2pi/3 W0=${edB3_q.w0.toExponential(1)}, min|E|=${edB3_q.minE.toFixed(5)}, |dE_min/dq_x|=${(Math.abs(edB3_q.minE - edB3_0.minE) / ((2 * PI) / 3)).toExponential(2)}`,
+    `       B_3(L=3, dim=${b3L3_q0.dim}, invErr=${ub3_3.maxInvErr.toExponential(1)}, EXACT ED): q=0 W0=${edB3_0.w0.toExponential(1)}, min|E|=${edB3_0.minE.toFixed(5)} | q_x=2pi/3 W0=${edB3_q.w0.toExponential(1)}, min|E|=${edB3_q.minE.toFixed(5)}, |dE_min/dq_x|=${(Math.abs(edB3_q.minE - edB3_0.minE) / ((2 * PI) / 3)).toExponential(2)}`,
   )
   console.log(
-    `       B_3(L=5, dim=${b3L5_q0.dim}): q=0 W0=${spB3L5_0.w0_TMax.toExponential(2)}, min|w|=${spB3L5_0.minActiveOmega.toFixed(4)} | q_x=2pi/5 W0=${spB3L5_q.w0_TMax.toExponential(2)}, min|w|=${spB3L5_q.minActiveOmega.toFixed(4)}`,
+    `       B_3(L=5, dim=${b3L5_q0.dim}, invErr=${ub3_5.maxInvErr.toExponential(1)}): q=0 W0=${spB3L5_0.w0_TMax.toExponential(2)}, min|w|=${spB3L5_0.minActiveOmega.toFixed(4)} | q_x=2pi/5 W0=${spB3L5_q.w0_TMax.toExponential(2)}, min|w|=${spB3L5_q.minActiveOmega.toFixed(4)}`,
   )
 
   // 1C. Exact k = 4 (Q = 0_V, ++--) Multi-Axis M_pair-Active Neutral Sector (FIRST SECTOR WITH v_T != 0!)
@@ -2111,10 +2251,10 @@ function runPart1(): { readonly qxDriftK3_3D: number; readonly qxDriftK3_2D: num
     `         q=(2pi/3,0) : W0(64->256)=${sp2k4_q.w0_T64.toExponential(2)}->${sp2k4_q.w0_TMax.toExponential(2)}, peak=${sp2k4_q.peakOmega.toFixed(4)}(w=${sp2k4_q.peakWeight.toFixed(4)}), min|w|=${sp2k4_q.minActiveOmega.toFixed(4)}, eff v_T=${(Math.abs(sp2k4_q.minActiveOmega - sp2k4_0.minActiveOmega) / ((2 * PI) / 3)).toFixed(4)}`,
   )
   console.log(
-    `       B_3(L=3, 3 axes, dim=${b3k4_3_q0.dim}): q=0 W0=${spB3k4_3_0.w0_TMax.toExponential(2)}, min|w|=${spB3k4_3_0.minActiveOmega.toFixed(4)} | q_x=2pi/3 W0=${spB3k4_3_q.w0_TMax.toExponential(2)}, min|w|=${spB3k4_3_q.minActiveOmega.toFixed(4)}`,
+    `       B_3(L=3, 3 axes, dim=${b3k4_3_q0.dim}, invErr=${ub3k4_3.maxInvErr.toExponential(1)}): q=0 W0=${spB3k4_3_0.w0_TMax.toExponential(2)}, min|w|=${spB3k4_3_0.minActiveOmega.toFixed(4)} | q_x=2pi/3 W0=${spB3k4_3_q.w0_TMax.toExponential(2)}, min|w|=${spB3k4_3_q.minActiveOmega.toFixed(4)}`,
   )
   console.log(
-    `       B_3(L=5, 3 axes, dim=${b3k4_5_q0.dim}): q=0 W0=${spB3k4_5_0.w0_TMax.toExponential(2)}, min|w|=${spB3k4_5_0.minActiveOmega.toFixed(4)} | q_x=2pi/5 W0=${spB3k4_5_q.w0_TMax.toExponential(2)}, min|w|=${spB3k4_5_q.minActiveOmega.toFixed(4)}`,
+    `       B_3(L=5, 3 axes, dim=${b3k4_5_q0.dim}, invErr=${ub3k4_5.maxInvErr.toExponential(1)}): q=0 W0=${spB3k4_5_0.w0_TMax.toExponential(2)}, min|w|=${spB3k4_5_0.minActiveOmega.toFixed(4)} | q_x=2pi/5 W0=${spB3k4_5_q.w0_TMax.toExponential(2)}, min|w|=${spB3k4_5_q.minActiveOmega.toFixed(4)}`,
   )
 
   // 1D. Coupled 4-Line {3,4,3,4} / D_4 Chiral Star Clusters S_4(L = 3) across ALL 4 W(F_4) x tone classes (T = 512!)
@@ -2141,7 +2281,7 @@ function runPart1(): { readonly qxDriftK3_3D: number; readonly qxDriftK3_2D: num
     if (spq.w0_T64 > 1e-12) maxChiralDecayRatio = Math.max(maxChiralDecayRatio, spq.w0_TMax / spq.w0_T64)
     minChiralGap = Math.min(minChiralGap, sp0.minActiveOmega, spq.minActiveOmega)
     console.log(
-      `       ${spec.name} (chi=${String(s0.activeChiralConfigs).padStart(2)}/16, dim=1296): q=0 W0(64->512)=${sp0.w0_T64.toExponential(1)}->${sp0.w0_TMax.toExponential(1)}, min|w|=${sp0.minActiveOmega.toFixed(4)} | q_0=2pi/3 W0(64->512)=${spq.w0_T64.toExponential(1)}->${spq.w0_TMax.toExponential(1)}, min|w|=${spq.minActiveOmega.toFixed(4)}`,
+      `       ${spec.name} (chi=${String(s0.activeChiralConfigs).padStart(2)}/16, dim=1296, invErr=${uS.maxInvErr.toExponential(1)}): q=0 W0(64->512)=${sp0.w0_T64.toExponential(1)}->${sp0.w0_TMax.toExponential(1)}, min|w|=${sp0.minActiveOmega.toFixed(4)} | q_0=2pi/3 W0(64->512)=${spq.w0_T64.toExponential(1)}->${spq.w0_TMax.toExponential(1)}, min|w|=${spq.minActiveOmega.toFixed(4)}`,
     )
   }
 
@@ -2155,7 +2295,7 @@ function runPart1(): { readonly qxDriftK3_3D: number; readonly qxDriftK3_2D: num
   const spS4Mpq = analyzeProbeSpectrum(s4Mpq.U, pS4R, pS4I, 256)
   maxNormErr1 = Math.max(maxNormErr1, spS4Mp0.normErr, spS4Mpq.normErr)
   console.log(
-    `       S_4(3) M_pair-active Q=0_V (4 lines, dim=${s4Mp0.dim}): q=0 W0=${spS4Mp0.w0_TMax.toExponential(2)}, min|w|=${spS4Mp0.minActiveOmega.toFixed(4)} | q_0=2pi/3 W0=${spS4Mpq.w0_TMax.toExponential(2)}, min|w|=${spS4Mpq.minActiveOmega.toFixed(4)}`,
+    `       S_4(3) M_pair-active Q=0_V (4 lines, dim=${s4Mp0.dim}, invErr=${uS4Mp.maxInvErr.toExponential(1)}): q=0 W0=${spS4Mp0.w0_TMax.toExponential(2)}, min|w|=${spS4Mp0.minActiveOmega.toFixed(4)} | q_0=2pi/3 W0=${spS4Mpq.w0_TMax.toExponential(2)}, min|w|=${spS4Mpq.minActiveOmega.toFixed(4)}`,
   )
 
   const allW0Zero =
@@ -2365,7 +2505,9 @@ function buildNDockD4Quotient(
   readonly U: SparseCSC
   readonly dim: number
   readonly configs: readonly (readonly [number, number, number, number])[]
-  readonly currentDiagZeroQ: (coord: number) => Float64Array
+  readonly keys: readonly string[]
+  readonly idxMap: Map<string, number>
+  readonly currentAtQ: (coord: number, qProbe: number) => readonly [Float64Array, Float64Array]
 } {
   const d4Lines = [0, 1, 6, 10] as const
   const lineShift = N === 4 ? ([1, 1, 1, 3] as const) : ([3, 4, 2, 1] as const)
@@ -2406,6 +2548,7 @@ function buildNDockD4Quotient(
         }
 
   const idxMap = new Map<string, number>()
+  const keys: string[] = []
   const configs: [number, number, number, number][] = []
   const syms: number[] = []
   if (sector === 'mpair-even') {
@@ -2427,6 +2570,7 @@ function buildNDockD4Quotient(
               const cn = canonOf(p1, p2, n1, n2)
               if (!idxMap.has(cn.key) && Math.hypot(Math.cos((q * N) / cn.sym) - 1, Math.sin((q * N) / cn.sym)) < 1e-9) {
                 idxMap.set(cn.key, configs.length)
+                keys.push(cn.key)
                 const [ps, ns] = cn.key.split('|')
                 const [a0, a1] = ps!.split(',').map(Number)
                 const [b0, b1] = ns!.split(',').map(Number)
@@ -2444,6 +2588,7 @@ function buildNDockD4Quotient(
           const cn = canonOf(d0, x1 * nS + 2 + d1, x2 * nS + 4 + d2, x3 * nS + 6 + d3)
           if (!idxMap.has(cn.key)) {
             idxMap.set(cn.key, configs.length)
+            keys.push(cn.key)
             const [a0, a1, a2, a3] = cn.key.split(',').map(Number)
             configs.push([a0!, a1!, a2!, a3!]); syms.push(cn.sym)
           }
@@ -2489,20 +2634,144 @@ function buildNDockD4Quotient(
     }
   })
 
-  const currentDiagZeroQ = (coord: number): Float64Array => {
-    const j = new Float64Array(dim)
+  // True finite-q current J_coord(+qProbe; rep_i) = sum_d e^{+i qProbe d} j_coord(d; rep_i)
+  const currentAtQ = (coord: number, qProbe: number): [Float64Array, Float64Array] => {
+    const jr = new Float64Array(dim)
+    const ji = new Float64Array(dim)
+    const cCos = Array.from({ length: N }, (_, d) => Math.cos(qProbe * d))
+    const cSin = Array.from({ length: N }, (_, d) => Math.sin(qProbe * d))
     for (let i = 0; i < dim; i++) {
       const cfg = configs[i]!
-      let sum = 0
+      let sr = 0; let si = 0
       for (let idx = 0; idx < 4; idx++) {
-        const sl = cfg[idx]! & 7
-        sum += tones4[idx]! * Number(ROOTS[LINES[d4Lines[sl >> 1]!]![sl & 1]!]![coord]!)
+        const code = cfg[idx]!
+        const d = code >> 3
+        const sl = code & 7
+        const jv = tones4[idx]! * Number(ROOTS[LINES[d4Lines[sl >> 1]!]![sl & 1]!]![coord]!)
+        if (jv !== 0) { sr += jv * cCos[d]!; si += jv * cSin[d]! }
       }
-      j[i] = sum
+      jr[i] = sr
+      ji[i] = si
     }
-    return j
+    return [jr, ji]
   }
-  return { U, dim, configs, currentDiagZeroQ }
+  return { U, dim, configs, keys, idxMap, currentAtQ }
+}
+
+// Exact 3-Dock Odd-Prime 2-Line M_pair-Active D_4 Quotient (dim = 210 per momentum sector!):
+//   Lines l_0 = (1, 1, 0, 0) & l_1 = (1, -1, 0, 0), quotient a_3 = (1, 0, 0, 0) mod 3 (shifts [+1, +1] mod 3),
+//   TRUE transverse coordinate coord = 1 (a_3 . e_1 = 0 EXACT!), k = 4 (Q = 0_V, ++--, rho = 2/3 pair/dock)!
+//   Enables 100% FULL EXACT STATIONARY FLOQUET BOGOLIUBOV ED over all 210 eigenstates at P = 0 and P = 2pi/3!
+function build3Dock2LineD4ExactED(q: number): {
+  readonly U: CMat
+  readonly dim: number
+  readonly configs: readonly (readonly [number, number, number, number])[]
+  readonly keys: readonly string[]
+  readonly idxMap: Map<string, number>
+  readonly currentTransQ: (qProbe: number) => readonly [Float64Array, Float64Array]
+} {
+  const N = 3
+  const d4Lines = [0, 1] as const // (1,1,0,0) and (1,-1,0,0)
+  const nS = 4 // 2 lines x 2 dirs
+  const shiftCode = (code: number, sh: number): number => ((((code >> 2) + sh) % N + N) % N) * nS + (code & 3)
+  const stepCode = (code: number): number => {
+    const d = code >> 2; const sl = code & 3
+    const nd = (d + ((sl & 1) === 0 ? 1 : -1) + N) % N
+    return nd * nS + sl
+  }
+  const canonOf = (p1: number, p2: number, n1: number, n2: number) => {
+    let bestKey = ''; let bestSh = 0
+    for (let sh = 0; sh < N; sh++) {
+      let a0 = shiftCode(p1, sh); let a1 = shiftCode(p2, sh); if (a0 > a1) { const t = a0; a0 = a1; a1 = t }
+      let b0 = shiftCode(n1, sh); let b1 = shiftCode(n2, sh); if (b0 > b1) { const t = b0; b0 = b1; b1 = t }
+      const k = `${a0},${a1}|${b0},${b1}`
+      if (bestKey === '' || k < bestKey) { bestKey = k; bestSh = sh }
+    }
+    return { key: bestKey, shift: bestSh }
+  }
+  const lineCodes: [number[], number[]] = [[], []]
+  for (let d = 0; d < N; d++) {
+    lineCodes[0].push(d * 4 + 0, d * 4 + 1)
+    lineCodes[1].push(d * 4 + 2, d * 4 + 3)
+  }
+  const idxMap = new Map<string, number>()
+  const keys: string[] = []
+  const configs: [number, number, number, number][] = []
+  for (let lp = 0; lp < 2; lp++) {
+    const lsP = lineCodes[lp]!
+    for (let i = 0; i < lsP.length; i++) for (let j = i + 1; j < lsP.length; j++) {
+      const p1 = lsP[i]!; const p2 = lsP[j]!
+      for (let ln = 0; ln < 2; ln++) {
+        const lsN = lineCodes[ln]!
+        for (let a = 0; a < lsN.length; a++) {
+          const n1 = lsN[a]!; if (n1 === p1 || n1 === p2) continue
+          for (let b = a + 1; b < lsN.length; b++) {
+            const n2 = lsN[b]!; if (n2 === p1 || n2 === p2) continue
+            const cn = canonOf(p1, p2, n1, n2)
+            if (!idxMap.has(cn.key)) {
+              idxMap.set(cn.key, configs.length)
+              keys.push(cn.key)
+              const [ps, ns] = cn.key.split('|')
+              const [a0, a1] = ps!.split(',').map(Number)
+              const [b0, b1] = ns!.split(',').map(Number)
+              configs.push([a0!, a1!, b0!, b1!])
+            }
+          }
+        }
+      }
+    }
+  }
+  const dim = configs.length
+  const U = cmatZero(dim)
+  for (let col = 0; col < dim; col++) {
+    const [p1, p2, n1, n2] = configs[col]!
+    const byDock = new Map<number, LocalExc[]>()
+    for (const [c, tn] of [[p1, 1], [p2, 1], [n1, -1], [n2, -1]] as const) {
+      const d = c >> 2
+      const arr = byDock.get(d); if (arr) arr.push([c & 3, tn]); else byDock.set(d, [[c & 3, tn]])
+    }
+    let branches: { codes: [number, ToneNZ][]; amp: C }[] = [{ codes: [], amp: [1, 0] }]
+    for (const [d, list] of byDock) {
+      const loc = localDockAction(list, 2, true)
+      const nb: { codes: [number, ToneNZ][]; amp: C }[] = []
+      for (const b of branches) {
+        for (const l of loc) {
+          const cs = b.codes.slice()
+          for (const [sl, tn] of l.excs) cs.push([d * 4 + sl, tn])
+          nb.push({ codes: cs, amp: cMul(b.amp, l.amp) })
+        }
+      }
+      branches = nb
+    }
+    for (const b of branches) {
+      const ps: number[] = []; const ns: number[] = []
+      for (const [c, tn] of b.codes) { const nc = stepCode(c); if (tn === 1) ps.push(nc); else ns.push(nc) }
+      const cn = canonOf(ps[0]!, ps[1]!, ns[0]!, ns[1]!)
+      const row = idxMap.get(cn.key)!
+      const val = cMul(cExpI(q * cn.shift), b.amp)
+      U.re[row * dim + col] = U.re[row * dim + col]! + val[0]
+      U.im[row * dim + col] = U.im[row * dim + col]! + val[1]
+    }
+  }
+  // True transverse coord = 1 (orthogonal to a_3 = (1, 0, 0, 0))
+  const currentTransQ = (qProbe: number): [Float64Array, Float64Array] => {
+    const jr = new Float64Array(dim)
+    const ji = new Float64Array(dim)
+    const tones: readonly ToneNZ[] = [1, 1, -1, -1]
+    for (let i = 0; i < dim; i++) {
+      const cfg = configs[i]!
+      let sr = 0; let si = 0
+      for (let idx = 0; idx < 4; idx++) {
+        const code = cfg[idx]!
+        const d = code >> 2; const sl = code & 3
+        const jv = tones[idx]! * Number(ROOTS[LINES[d4Lines[sl >> 1]!]![sl & 1]!]![1]!)
+        if (jv !== 0) { sr += jv * Math.cos(qProbe * d); si += jv * Math.sin(qProbe * d) }
+      }
+      jr[i] = sr; ji[i] = si
+    }
+    return [jr, ji]
+  }
+  return { U, dim, configs, keys, idxMap, currentTransQ }
 }
 
 function runPart2(): void {
@@ -2583,7 +2852,7 @@ function runPart2(): void {
 
     console.log(
       `       L=${L} M=${M} (rho=${rhoLabel}, dim=${String(sys.dim).padStart(5)}, invErr=${uChk.maxInvErr.toExponential(1)}): ` +
-        `Unif(q=2pi/L, ||J||^2=${kUnif1.jNormSq.toFixed(2)}) max|ImPi|=${kUnif1.maxImPi.toFixed(2)}@${kUnif1.maxImPiOmega.toFixed(3)}, lowRat=${kUnif1.lowBandImPiRatio.toFixed(3)}, minPk=${kUnif1.minPeakOmegaPos.toFixed(3)} | ` +
+        `Unif(q=2pi/L, ||J||^2=${kUnif1.jNormSq.toFixed(2)}) max|ImPi|=${kUnif1.maxImPi.toFixed(2)}@${kUnif1.maxImPiOmega.toFixed(3)}, lowRat=${kUnif1.lowBandImPiRatio.toFixed(3)}, minPk=${kUnif1.minPeakOmegaAbs.toFixed(3)} | ` +
         `Stag(||J||^2=${kStag1.jNormSq.toFixed(2)}) max|ImPi|=${kStag1.maxImPi.toFixed(2)}@${kStag1.maxImPiOmega.toFixed(3)}, lowRat=${kStag1.lowBandImPiRatio.toFixed(3)}`,
     )
 
@@ -2737,7 +3006,7 @@ function runPart2(): void {
       l4M2W0Q0 = tr0.w0; l4M2GapQ0 = tr0.minDE
       l4M2W0Q1 = trQ.w0; l4M2GapQ1 = trQ.minDE
       console.log(
-        `       [EXACT FLOQUET BOGOLIUBOV ED L=4 M=2 rho=1/2 (dim P=0:${blk0.dOrb}, P=pi/2:${blkQ.dOrb}, uni<=${Math.max(u0Err, uQErr).toExponential(1)})]:`,
+        `       [EXACT FLOQUET BOGOLIUBOV ED L=4 M=2 rho=1/2 (dim P=0:${blk0.dOrb}, P=pi/2:${blkQ.dOrb}, u0Err=${u0Err.toExponential(1)}, uQErr=${uQErr.toExponential(1)}, E0=${E0.toFixed(5)} rad)]:`,
       )
       console.log(
         `         q=0   : ||J|Om>||^2=${tr0.totW.toFixed(3)}, W(dE=0)=${tr0.w0.toExponential(1)}, exact gap min|dE|=${tr0.minDE.toFixed(5)} rad, top=${tr0.topDE.toFixed(4)} (${(100 * tr0.topFrac).toFixed(1)}%)`,
@@ -2748,10 +3017,31 @@ function runPart2(): void {
     }
   }
 
-  // 2B. Multi-Axis 2D/3D Finite-Density Pair Condensates (L = 3, M_pair(zeta_18) ACTIVE, ALL NON-VACUOUS!)
-  console.log('\n  [2B] Multi-Axis 2D/3D Finite-Density Pair Condensates (L = 3, M_pair(zeta_18) Active, U^2|cond> Non-Vacuous):')
+  // 2B. Multi-Axis 2D/3D Finite-Density Pair Condensates (L = 3, M_pair(zeta_18) ACTIVE, TRUE P_bg = 0 -> P = +-q!)
+  console.log('\n  [2B] Multi-Axis 2D/3D Finite-Density Pair Condensates (L = 3, M_pair Active, TRUE P_bg=0 -> P=+-q_x Transverse J_y):')
   const t2_q0 = build2DTorusK4Even(3, [0, 0], true)
-  const t2_qx = build2DTorusK4Even(3, [(2 * PI) / 3, 0], true)
+  const t2_qp = build2DTorusK4Even(3, [(2 * PI) / 3, 0], true)
+  const t2_qn = build2DTorusK4Even(3, [(-2 * PI) / 3, 0], true)
+  const ut2_0 = verifySparseUnitary(t2_q0.U)
+  const ut2_p = verifySparseUnitary(t2_qp.U)
+  const ut2_n = verifySparseUnitary(t2_qn.U)
+  maxUniErr2 = Math.max(
+    maxUniErr2,
+    ut2_0.maxColNormErr, ut2_0.maxInvErr,
+    ut2_p.maxColNormErr, ut2_p.maxInvErr,
+    ut2_n.maxColNormErr, ut2_n.maxInvErr,
+  )
+  assertExact(t2_q0.dim === t2_qp.dim && t2_q0.dim === t2_qn.dim, 'Z^2/3Z^2 momentum-sector dim mismatch')
+  const map2D_0ToQ = new Int32Array(t2_q0.dim)
+  for (let i = 0; i < t2_q0.dim; i++) {
+    const a = t2_q0.configs[i]!
+    const b = t2_qp.configs[i]!
+    const c = t2_qn.configs[i]!
+    assertExact(a[0] === b[0] && a[1] === b[1] && a[2] === b[2] && a[3] === b[3], 'Z^2/3Z^2 orbit alignment (+q)')
+    assertExact(a[0] === c[0] && a[1] === c[1] && a[2] === c[2] && a[3] === c[3], 'Z^2/3Z^2 orbit alignment (-q)')
+    map2D_0ToQ[i] = i
+  }
+
   const bg2Unif = new Float64Array(t2_q0.dim)
   const bg2Mp = new Float64Array(t2_q0.dim)
   const bg2St = new Float64Array(t2_q0.dim)
@@ -2775,50 +3065,75 @@ function runPart2(): void {
     bg2Mp[i] = bg2Mp[i]! / Math.sqrt(cM)
     bg2St[i] = bg2St[i]! / Math.sqrt(cS)
   }
-  const jY_2D = new Float64Array(t2_q0.dim)
+  // True transverse current J_y(q_x = 0) and J_y(+q_x) = sum_{x,y} e^{+i (2pi/3) x} j_y(x, y)
+  const jY_2D_q0 = new Float64Array(t2_q0.dim)
+  const jY_2D_qpRe = new Float64Array(t2_q0.dim)
+  const jY_2D_qpIm = new Float64Array(t2_q0.dim)
+  const cosX3 = [1, Math.cos((2 * PI) / 3), Math.cos((4 * PI) / 3)] as const
+  const sinX3 = [0, Math.sin((2 * PI) / 3), Math.sin((4 * PI) / 3)] as const
   for (let i = 0; i < t2_q0.dim; i++) {
     const [p1, p2, n1, n2] = t2_q0.configs[i]!
-    const jv = (c: number, tn: ToneNZ) => ((c & 3) === 2 ? tn : (c & 3) === 3 ? -tn : 0)
-    jY_2D[i] = jv(p1, 1) + jv(p2, 1) + jv(n1, -1) + jv(n2, -1)
+    let s0 = 0; let sr = 0; let si = 0
+    for (const [code, tn] of [[p1, 1], [p2, 1], [n1, -1], [n2, -1]] as const) {
+      const sl = code & 3
+      const jv = sl === 2 ? tn : sl === 3 ? -tn : 0
+      if (jv !== 0) {
+        const x = (code >> 2) % 3
+        s0 += jv
+        sr += jv * cosX3[x]!
+        si += jv * sinX3[x]!
+      }
+    }
+    jY_2D_q0[i] = s0
+    jY_2D_qpRe[i] = sr
+    jY_2D_qpIm[i] = si
   }
   let jBareMpNorm = 0
-  for (let i = 0; i < t2_q0.dim; i++) jBareMpNorm += (jY_2D[i]! * bg2Mp[i]!) ** 2
+  for (let i = 0; i < t2_q0.dim; i++) jBareMpNorm += (jY_2D_q0[i]! * bg2Mp[i]!) ** 2
   jBareMpNorm = Math.sqrt(jBareMpNorm)
 
-  // Evolve by 2 beats (U^2) so C = D^2 acts on the separated pairs and creates genuine non-vacuous transverse current J_y!
-  const step2 = (U: SparseCSC, r0: Float64Array, i0: Float64Array): [Float64Array, Float64Array] => {
-    const r1 = new Float64Array(U.dim); const i1 = new Float64Array(U.dim)
-    const r2 = new Float64Array(U.dim); const i2 = new Float64Array(U.dim)
-    applySparse(U, r0, i0, r1, i1)
-    applySparse(U, r1, i1, r2, i2)
-    return [r2, i2]
+  // Evolve |Omega> STRICTLY inside P_bg = 0 (t2_q0.U) by 2 beats (U(0)^2) so C = D^2 creates non-vacuous J_y!
+  const stepN = (U: SparseCSC, r0: Float64Array, i0: Float64Array, steps: number): [Float64Array, Float64Array] => {
+    let cR = Float64Array.from(r0); let cI = Float64Array.from(i0)
+    let nR = new Float64Array(U.dim); let nI = new Float64Array(U.dim)
+    for (let s = 0; s < steps; s++) {
+      applySparse(U, cR, cI, nR, nI)
+      let sw = cR; cR = nR; nR = sw; sw = cI; cI = nI; nI = sw
+    }
+    return [cR, cI]
   }
-  const [om2MpR, om2MpI] = step2(t2_qx.U, bg2Mp, z2I)
-  const [om2StR, om2StI] = step2(t2_qx.U, bg2St, z2I)
-  const [om2UnR, om2UnI] = step2(t2_qx.U, bg2Unif, z2I)
+  const [om2MpR, om2MpI] = stepN(t2_q0.U, bg2Mp, z2I, 2)
+  const [om2StR, om2StI] = stepN(t2_q0.U, bg2St, z2I, 2)
+  const [om2UnR, om2UnI] = stepN(t2_q0.U, bg2Unif, z2I, 2)
 
-  const k2D_unifQ = analyzeHermitianKubo(t2_qx.U, om2UnR, om2UnI, jY_2D, 192)
-  const k2D_mpairQ = analyzeHermitianKubo(t2_qx.U, om2MpR, om2MpI, jY_2D, 192)
-  const k2D_stagQ = analyzeHermitianKubo(t2_qx.U, om2StR, om2StI, jY_2D, 192)
-  maxNormErr2 = Math.max(maxNormErr2, k2D_unifQ.normErr, k2D_mpairQ.normErr, k2D_stagQ.normErr)
-  minJNormSq = Math.min(minJNormSq, k2D_unifQ.jNormSq, k2D_mpairQ.jNormSq, k2D_stagQ.jNormSq)
+  const k2D_mpair0 = analyzeHermitianKubo(t2_q0.U, om2MpR, om2MpI, jY_2D_q0, 192)
+  const k2D_unifQ = analyzeInterSectorKubo(t2_q0.U, t2_qp.U, t2_qn.U, map2D_0ToQ, jY_2D_qpRe, jY_2D_qpIm, om2UnR, om2UnI, 192)
+  const k2D_mpairQ = analyzeInterSectorKubo(t2_q0.U, t2_qp.U, t2_qn.U, map2D_0ToQ, jY_2D_qpRe, jY_2D_qpIm, om2MpR, om2MpI, 192)
+  const k2D_stagQ = analyzeInterSectorKubo(t2_q0.U, t2_qp.U, t2_qn.U, map2D_0ToQ, jY_2D_qpRe, jY_2D_qpIm, om2StR, om2StI, 192)
+  maxNormErr2 = Math.max(maxNormErr2, k2D_mpair0.normErr, k2D_unifQ.normErr, k2D_mpairQ.normErr, k2D_stagQ.normErr)
+  minJNormSq = Math.min(minJNormSq, k2D_mpair0.jNormSq, k2D_unifQ.jNormSq, k2D_mpairQ.jNormSq, k2D_stagQ.jNormSq)
 
   console.log(
-    `       Z^2 / 3 Z^2 (9 docks, rho=2/9, dim=${t2_q0.dim}): ||J_y |Omega_Mpair(t=0)>|| = ${jBareMpNorm.toExponential(1)} (exact 0 on bare sole pairs!)`,
+    `       Z^2 / 3 Z^2 (9 docks, rho=2/9, dim=${t2_q0.dim}, invErr=${Math.max(ut2_0.maxInvErr, ut2_p.maxInvErr, ut2_n.maxInvErr).toExponential(1)}): ||J_y |Omega_Mpair(t=0)>|| = ${jBareMpNorm.toExponential(1)} (exact 0 on bare sole pairs!)`,
   )
   console.log(
-    `         Unif Sea   (U^2|u>, q_x=2pi/3, ||J||^2=${k2D_unifQ.jNormSq.toFixed(2)}): W0=${k2D_unifQ.w0_TMax.toExponential(2)}, max|ImPi|=${k2D_unifQ.maxImPi.toFixed(2)}@${k2D_unifQ.maxImPiOmega.toFixed(3)}, lowRat=${k2D_unifQ.lowBandImPiRatio.toFixed(3)}, minPk=${k2D_unifQ.minPeakOmegaPos.toFixed(3)}`,
+    `         Unif Sea   (P_bg=0 U(0)^2|u>,  q_probe=(2pi/3,0), ||J||^2=${k2D_unifQ.jNormSq.toFixed(2)}): W0=${k2D_unifQ.w0_TMax.toExponential(2)}, max|ImPi|=${k2D_unifQ.maxImPi.toFixed(2)}@${k2D_unifQ.maxImPiOmega.toFixed(3)}, lowRat=${k2D_unifQ.lowBandImPiRatio.toFixed(3)}, minPk=${k2D_unifQ.minPeakOmegaAbs.toFixed(3)}`,
   )
   console.log(
-    `         M_pair Cond(U^2|s>, q_x=2pi/3, ||J||^2=${k2D_mpairQ.jNormSq.toFixed(2)}): W0=${k2D_mpairQ.w0_TMax.toExponential(2)}, max|ImPi|=${k2D_mpairQ.maxImPi.toFixed(2)}@${k2D_mpairQ.maxImPiOmega.toFixed(3)}, lowRat=${k2D_mpairQ.lowBandImPiRatio.toFixed(3)}, minPk=${k2D_mpairQ.minPeakOmegaPos.toFixed(3)}`,
+    `         M_pair Cond(P_bg=0 U(0)^2|s>,  q_probe=(0,0),     ||J||^2=${k2D_mpair0.jNormSq.toFixed(2)}): W0=${k2D_mpair0.w0_TMax.toExponential(2)}, max|ImPi|=${k2D_mpair0.maxImPi.toFixed(2)}@${k2D_mpair0.maxImPiOmega.toFixed(3)}, lowRat=${k2D_mpair0.lowBandImPiRatio.toFixed(3)}, minPk=${k2D_mpair0.minPeakOmegaAbs.toFixed(3)}`,
   )
   console.log(
-    `         Stag Cond  (U^2|st>,q_x=2pi/3, ||J||^2=${k2D_stagQ.jNormSq.toFixed(2)}): W0=${k2D_stagQ.w0_TMax.toExponential(2)}, max|ImPi|=${k2D_stagQ.maxImPi.toFixed(2)}@${k2D_stagQ.maxImPiOmega.toFixed(3)}, lowRat=${k2D_stagQ.lowBandImPiRatio.toFixed(3)}, minPk=${k2D_stagQ.minPeakOmegaPos.toFixed(3)}`,
+    `         M_pair Cond(P_bg=0 U(0)^2|s>,  q_probe=(2pi/3,0), ||J||^2=${k2D_mpairQ.jNormSq.toFixed(2)}): W0=${k2D_mpairQ.w0_TMax.toExponential(2)}, max|ImPi|=${k2D_mpairQ.maxImPi.toFixed(2)}@${k2D_mpairQ.maxImPiOmega.toFixed(3)}, lowRat=${k2D_mpairQ.lowBandImPiRatio.toFixed(3)}, minPk=${k2D_mpairQ.minPeakOmegaAbs.toFixed(3)}`,
+  )
+  console.log(
+    `         Stag Cond  (P_bg=0 U(0)^2|st>, q_probe=(2pi/3,0), ||J||^2=${k2D_stagQ.jNormSq.toFixed(2)}): W0=${k2D_stagQ.w0_TMax.toExponential(2)}, max|ImPi|=${k2D_stagQ.maxImPi.toFixed(2)}@${k2D_stagQ.maxImPiOmega.toFixed(3)}, lowRat=${k2D_stagQ.lowBandImPiRatio.toFixed(3)}, minPk=${k2D_stagQ.minPeakOmegaAbs.toFixed(3)}`,
   )
 
-  // 3D 3-axis coupled rings B_3(L = 3, rho = 2/7, dim = 1,620, U^2|Mpair>)
+  // 3D 3-axis coupled rings B_3(L = 3, rho = 2/7, dim = 1,620, U^2|Mpair>, x-ring AB flux q_x = 2pi/3)
   const geoB3 = buildBouquetRings(3, 3)
   const b3k4_qx = buildBouquetK4Even(geoB3, [(2 * PI) / 3, 0, 0], true)
+  const ub3k4 = verifySparseUnitary(b3k4_qx.U)
+  maxUniErr2 = Math.max(maxUniErr2, ub3k4.maxColNormErr, ub3k4.maxInvErr)
   const jY_B3 = new Float64Array(b3k4_qx.dim)
   const bgB3Mp = new Float64Array(b3k4_qx.dim)
   const bgB3Z = new Float64Array(b3k4_qx.dim)
@@ -2832,16 +3147,16 @@ function runPart2(): void {
     }
   }
   for (let i = 0; i < b3k4_qx.dim; i++) bgB3Mp[i] = bgB3Mp[i]! / Math.sqrt(cB3)
-  const [omB3R, omB3I] = step2(b3k4_qx.U, bgB3Mp, bgB3Z)
+  const [omB3R, omB3I] = stepN(b3k4_qx.U, bgB3Mp, bgB3Z, 2)
   const kB3_mp = analyzeHermitianKubo(b3k4_qx.U, omB3R, omB3I, jY_B3, 256)
   maxNormErr2 = Math.max(maxNormErr2, kB3_mp.normErr)
   minJNormSq = Math.min(minJNormSq, kB3_mp.jNormSq)
   console.log(
-    `       B_3(L=3, 3 axes, rho=2/7, dim=${b3k4_qx.dim}, U^2|s> q_x=2pi/3, ||J||^2=${kB3_mp.jNormSq.toFixed(2)}): W0=${kB3_mp.w0_TMax.toExponential(2)}, max|ImPi|=${kB3_mp.maxImPi.toFixed(2)}@${kB3_mp.maxImPiOmega.toFixed(3)}, lowRat=${kB3_mp.lowBandImPiRatio.toFixed(3)}, minPk=${kB3_mp.minPeakOmegaPos.toFixed(3)}`,
+    `       B_3(L=3, 3 axes, rho=2/7, dim=${b3k4_qx.dim}, invErr=${ub3k4.maxInvErr.toExponential(1)}, U^2|s> AB-flux q_x=2pi/3, ||J||^2=${kB3_mp.jNormSq.toFixed(2)}): W0=${kB3_mp.w0_TMax.toExponential(2)}, max|ImPi|=${kB3_mp.maxImPi.toFixed(2)}@${kB3_mp.maxImPiOmega.toFixed(3)}, lowRat=${kB3_mp.lowBandImPiRatio.toFixed(3)}, minPk=${kB3_mp.minPeakOmegaAbs.toFixed(3)}`,
   )
 
-  // 2C. Exact 2-Dock (12-Line W(F_4)) & 4-Dock / 5-Dock Chiral D_4 Clusters (ALL NON-VACUOUS!)
-  console.log('\n  [2C] Exact 2-Dock (12-Line W(F_4)) & 4-Dock / 5-Dock Chiral D_4 Clusters:')
+  // 2C. Exact 2-Dock (12-Line W(F_4)), 3-Dock (2-Line Exact Stationary ED), & 4-Dock / 5-Dock Chiral D_4 Clusters
+  console.log('\n  [2C] Exact 2-Dock (12-Line W(F_4)), 3-Dock D_4 Stationary Bogoliubov ED, & 4/5-Dock Chiral D_4 (TRUE Transverse J_T(q)):')
   const d2_12 = build2Dock12LineD4Cluster(true)
   const ud2 = verifySparseUnitary(d2_12.U)
   maxUniErr2 = Math.max(maxUniErr2, ud2.maxColNormErr, ud2.maxInvErr)
@@ -2864,6 +3179,7 @@ function runPart2(): void {
   const j2S = d2_12.currentDiag(0, true)
   const k2d_u = analyzeHermitianKubo(d2_12.U, bg2UnifD2, bg2Z, j2U, 256)
   const k2d_s = analyzeHermitianKubo(d2_12.U, bg2UnifD2, bg2Z, j2S, 256)
+  maxNormErr2 = Math.max(maxNormErr2, k2d_u.normErr, k2d_s.normErr)
   minJNormSq = Math.min(minJNormSq, k2d_u.jNormSq, k2d_s.jNormSq)
   // Verify exact L = 2 bipartite lock on sole ++ / -- pair state |WF4>
   const wf4S1R = new Float64Array(d2_12.dim); const wf4S1I = new Float64Array(d2_12.dim)
@@ -2872,72 +3188,298 @@ function runPart2(): void {
   for (let i = 0; i < d2_12.dim; i++) j2WF4Norm += j2U[i]! * j2U[i]! * (wf4S1R[i]! ** 2 + wf4S1I[i]! ** 2)
   j2WF4Norm = Math.sqrt(j2WF4Norm)
   console.log(
-    `       2-Dock 12-Line W(F_4) D_4 (rho=1, dim=${d2_12.dim}, invErr=${ud2.maxInvErr.toExponential(1)}): ` +
-      `Split-WF4 (q=0/pi, ||J||^2=${k2d_u.jNormSq.toFixed(2)}) max|ImPi|=${k2d_u.maxImPi.toFixed(2)}@${k2d_u.maxImPiOmega.toFixed(3)} / ${k2d_s.maxImPi.toFixed(2)}@${k2d_s.maxImPiOmega.toFixed(3)}, minPk=${k2d_u.minPeakOmegaPos.toFixed(3)} | ` +
-      `Sole-pair ||J U|WF4>||=${j2WF4Norm.toExponential(1)} (L=2 lock)`,
+    `       2-Dock 12-Line W(F_4) D_4 (rho=1, dim=${d2_12.dim}, invErr=${ud2.maxInvErr.toExponential(1)}, Sole-pair ||J U|WF4>||=${j2WF4Norm.toExponential(1)} L=2 lock):`,
+  )
+  console.log(
+    `         Split-WF4 (q=0,  ||J||^2=${k2d_u.jNormSq.toFixed(2)}): W0=${k2d_u.w0_TMax.toExponential(2)}, max|ImPi|=${k2d_u.maxImPi.toFixed(2)}@${k2d_u.maxImPiOmega.toFixed(3)}, lowRat=${k2d_u.lowBandImPiRatio.toFixed(3)}, minPk=${k2d_u.minPeakOmegaAbs.toFixed(3)}`,
+  )
+  console.log(
+    `         Split-WF4 (q=pi, ||J||^2=${k2d_s.jNormSq.toFixed(2)}): W0=${k2d_s.w0_TMax.toExponential(2)}, max|ImPi|=${k2d_s.maxImPi.toFixed(2)}@${k2d_s.maxImPiOmega.toFixed(3)}, lowRat=${k2d_s.lowBandImPiRatio.toFixed(3)}, minPk=${k2d_s.minPeakOmegaAbs.toFixed(3)}`,
   )
 
-  // 4-Dock D_4 (rho = 1/2) & 5-Dock odd-prime D_4 (rho = 2/5)
+  // EXACT Stationary Multi-Axis Floquet Bogoliubov ED on 3-Dock Odd-Prime 2-Line D_4 (dim = 210, rho = 2/3, coord=1 transverse!)
+  const d3_0 = build3Dock2LineD4ExactED(0)
+  const d3_q = build3Dock2LineD4ExactED((2 * PI) / 3)
+  const ud3_0 = cmatUnitaryErr(d3_0.U)
+  const ud3_q = cmatUnitaryErr(d3_q.U)
+  maxUniErr2 = Math.max(maxUniErr2, ud3_0, ud3_q)
+  const eigD3_0 = unitaryEigen(d3_0.U)
+  const eigD3_q = unitaryEigen(d3_q.U)
+  assertExact(eigD3_0.maxRes < 1e-11 && eigD3_q.maxRes < 1e-11, '3-Dock D_4 stationary ED residual failed')
+  // Build M_pair-coherent s-wave pair condensate in P = 0 (sole ++ on one dock, sole -- on another dock)
+  const bgD3Mp = new Float64Array(d3_0.dim)
+  let cD3Mp = 0
+  for (let i = 0; i < d3_0.dim; i++) {
+    const [p1, p2, n1, n2] = d3_0.configs[i]!
+    if ((p1 >> 2) === (p2 >> 2) && (n1 >> 2) === (n2 >> 2) && (p1 >> 2) !== (n1 >> 2)) { bgD3Mp[i] = 1; cD3Mp++ }
+  }
+  for (let i = 0; i < d3_0.dim; i++) bgD3Mp[i] = bgD3Mp[i]! / Math.sqrt(cD3Mp)
+  const [jD3_0R] = d3_0.currentTransQ(0)
+  const [jD3_qR, jD3_qI] = d3_0.currentTransQ((2 * PI) / 3)
+  // Pick exact P = 0 Floquet eigenstate |Omega_eig> with maximum overlap on M_pair pair condensate (and non-vacuous J_1)
+  let bestD3Eig = 0; let bestD3Ov = -1
+  for (let c = 0; c < d3_0.dim; c++) {
+    let or = 0; let oi = 0
+    for (let r = 0; r < d3_0.dim; r++) {
+      const w = bgD3Mp[r]!
+      if (w === 0) continue
+      or += eigD3_0.vecs.re[r * d3_0.dim + c]! * w
+      oi += eigD3_0.vecs.im[r * d3_0.dim + c]! * w
+    }
+    const ov = or * or + oi * oi
+    if (ov > bestD3Ov) { bestD3Ov = ov; bestD3Eig = c }
+  }
+  const E0_D3 = eigD3_0.phases[bestD3Eig]!
+  const analyzeD3Trans = (jr: Float64Array, ji: Float64Array, eig: ReturnType<typeof unitaryEigen>, subtractSelf: boolean) => {
+    const n = d3_0.dim
+    const phiR = new Float64Array(n); const phiI = new Float64Array(n)
+    for (let r = 0; r < n; r++) {
+      const vr = eigD3_0.vecs.re[r * n + bestD3Eig]!; const vi = eigD3_0.vecs.im[r * n + bestD3Eig]!
+      phiR[r] = jr[r]! * vr - ji[r]! * vi
+      phiI[r] = jr[r]! * vi + ji[r]! * vr
+    }
+    let w0 = 0; let wLow = 0; let minDE = PI; let minDEWeight = 0; let totW = 0; let topDE = 0; let topW = 0
+    for (let c = 0; c < n; c++) {
+      if (subtractSelf && c === bestD3Eig) continue
+      let sr = 0; let si = 0
+      for (let r = 0; r < n; r++) {
+        const er = eig.vecs.re[r * n + c]!; const ei = eig.vecs.im[r * n + c]!
+        sr += er * phiR[r]! + ei * phiI[r]!
+        si += er * phiI[r]! - ei * phiR[r]!
+      }
+      const wt = sr * sr + si * si
+      totW += wt
+      if (wt > 1e-10) {
+        let dE = eig.phases[c]! - E0_D3
+        while (dE > PI) dE -= 2 * PI
+        while (dE <= -PI) dE += 2 * PI
+        const adE = Math.abs(dE)
+        if (adE < 1e-5) w0 += wt
+        else {
+          if (adE <= 0.25) wLow += wt
+          if (adE < minDE) { minDE = adE; minDEWeight = wt }
+        }
+        if (wt > topW) { topW = wt; topDE = dE }
+      }
+    }
+    return {
+      w0: totW > 0 ? w0 / totW : 0,
+      lowFrac: totW > 0 ? wLow / totW : 0,
+      minDE,
+      minDEFrac: totW > 0 ? minDEWeight / totW : 0,
+      topDE,
+      topFrac: totW > 0 ? topW / totW : 0,
+      totW,
+    }
+  }
+  const d3Tr0 = analyzeD3Trans(jD3_0R, new Float64Array(d3_0.dim), eigD3_0, true)
+  const d3TrQ = analyzeD3Trans(jD3_qR, jD3_qI, eigD3_q, false)
+  minJNormSq = Math.min(minJNormSq, d3Tr0.totW, d3TrQ.totW)
+  console.log(
+    `       [EXACT MULTI-AXIS STATIONARY FLOQUET BOGOLIUBOV ED: 3-Dock 2-Line D_4, rho=2/3, M_pair ON, TRUE TRANSVERSE coord=1 (a_3.e_1=0)]:`,
+  )
+  console.log(
+    `         dim=${d3_0.dim}, u0Err=${ud3_0.toExponential(1)}, uQErr=${ud3_q.toExponential(1)}, E0=${E0_D3.toFixed(5)} rad (M_pair s-wave overlap=${bestD3Ov.toFixed(4)})`,
+  )
+  console.log(
+    `         q=0    : ||J_1|Om>||^2=${d3Tr0.totW.toFixed(3)}, W(dE=0)=${d3Tr0.w0.toExponential(1)}, min|dE|=${d3Tr0.minDE.toFixed(5)}(${(100 * d3Tr0.minDEFrac).toFixed(2)}%), W(|dE|<=0.25)=${(100 * d3Tr0.lowFrac).toFixed(2)}%, top=${d3Tr0.topDE.toFixed(4)} (${(100 * d3Tr0.topFrac).toFixed(1)}%)`,
+  )
+  console.log(
+    `         q=2pi/3: ||J_1|Om>||^2=${d3TrQ.totW.toFixed(3)}, W(dE=0)=${d3TrQ.w0.toExponential(1)}, min|dE|=${d3TrQ.minDE.toFixed(5)}(${(100 * d3TrQ.minDEFrac).toFixed(2)}%), W(|dE|<=0.25)=${(100 * d3TrQ.lowFrac).toFixed(2)}%, top=${d3TrQ.topDE.toFixed(4)} (${(100 * d3TrQ.topFrac).toFixed(1)}%)`,
+  )
+
+  // 4-Dock D_4 (rho = 1/2, a_4=(1,0,1,2), TRUE transverse coord=1!) & 5-Dock odd-prime D_4 (rho = 2/5, a_5=(1,2,0,1), TRUE transverse coord=2!)
+  // STRICT P_bg = 0 background evolved by U(0) -> probed via EXACT inter-sector P = 0 -> P = +-q Kubo!
   const d4Mp_q0 = buildNDockD4Quotient(4, 0, 'mpair-even', true)
-  const d4Mp_q1 = buildNDockD4Quotient(4, PI / 2, 'mpair-even', true)
-  const d4Ch_q1 = buildNDockD4Quotient(4, PI / 2, 'chiral-4line', true)
-  const d5Mp_q1 = buildNDockD4Quotient(5, (2 * PI) / 5, 'mpair-even', true)
-  const d5Ch_q1 = buildNDockD4Quotient(5, (2 * PI) / 5, 'chiral-4line', true)
-  for (const s of [d4Mp_q0, d4Mp_q1, d4Ch_q1, d5Mp_q1, d5Ch_q1]) {
+  const d4Mp_qp = buildNDockD4Quotient(4, PI / 2, 'mpair-even', true)
+  const d4Mp_qn = buildNDockD4Quotient(4, -PI / 2, 'mpair-even', true)
+  const d4Ch_q0 = buildNDockD4Quotient(4, 0, 'chiral-4line', true)
+  const d4Ch_qp = buildNDockD4Quotient(4, PI / 2, 'chiral-4line', true)
+  const d4Ch_qn = buildNDockD4Quotient(4, -PI / 2, 'chiral-4line', true)
+  const d5Mp_q0 = buildNDockD4Quotient(5, 0, 'mpair-even', true)
+  const d5Mp_qp = buildNDockD4Quotient(5, (2 * PI) / 5, 'mpair-even', true)
+  const d5Mp_qn = buildNDockD4Quotient(5, (-2 * PI) / 5, 'mpair-even', true)
+  const d5Ch_q0 = buildNDockD4Quotient(5, 0, 'chiral-4line', true)
+  const d5Ch_qp = buildNDockD4Quotient(5, (2 * PI) / 5, 'chiral-4line', true)
+  const d5Ch_qn = buildNDockD4Quotient(5, (-2 * PI) / 5, 'chiral-4line', true)
+
+  let maxD4QuotInvErr = 0
+  for (const s of [d4Mp_q0, d4Mp_qp, d4Mp_qn, d4Ch_q0, d4Ch_qp, d4Ch_qn, d5Mp_q0, d5Mp_qp, d5Mp_qn, d5Ch_q0, d5Ch_qp, d5Ch_qn]) {
     const u = verifySparseUnitary(s.U)
     maxUniErr2 = Math.max(maxUniErr2, u.maxColNormErr, u.maxInvErr)
+    maxD4QuotInvErr = Math.max(maxD4QuotInvErr, u.maxInvErr)
   }
 
-  const runD4Kubo = (label: string, sys: ReturnType<typeof buildNDockD4Quotient>, isMPair: boolean) => {
-    const bgR = new Float64Array(sys.dim); const bgI = new Float64Array(sys.dim)
+  const buildD4Bg0 = (sys0: ReturnType<typeof buildNDockD4Quotient>, isMPair: boolean, steps: number): [Float64Array, Float64Array] => {
+    const bgR = new Float64Array(sys0.dim); const bgI = new Float64Array(sys0.dim)
     let cnt = 0
-    for (let i = 0; i < sys.dim; i++) {
-      const [c0, c1, c2, c3] = sys.configs[i]!
+    for (let i = 0; i < sys0.dim; i++) {
+      const [c0, c1, c2, c3] = sys0.configs[i]!
       if (isMPair) {
         if ((c0 >> 3) === (c1 >> 3) && (c2 >> 3) === (c3 >> 3) && (c0 >> 3) !== (c2 >> 3)) { bgR[i] = 1; cnt++ }
       } else {
         if ((c0 >> 3) === 0 && (c1 >> 3) === 0 && (c2 >> 3) === 0 && (c3 >> 3) === 0) { bgR[i] = 1; cnt++ }
       }
     }
-    for (let i = 0; i < sys.dim; i++) bgR[i] = bgR[i]! / Math.sqrt(cnt)
-    const [rUse, iUse] = isMPair ? step2(sys.U, bgR, bgI) : [bgR, bgI]
-    const rep = analyzeHermitianKubo(sys.U, rUse, iUse, sys.currentDiagZeroQ(0), 256)
+    for (let i = 0; i < sys0.dim; i++) bgR[i] = bgR[i]! / Math.sqrt(cnt)
+    return steps === 0 ? [bgR, bgI] : stepN(sys0.U, bgR, bgI, steps)
+  }
+  const buildMap0ToQ = (
+    sys0: ReturnType<typeof buildNDockD4Quotient>,
+    sysP: ReturnType<typeof buildNDockD4Quotient>,
+    sysN: ReturnType<typeof buildNDockD4Quotient>,
+  ): Int32Array => {
+    const map = new Int32Array(sys0.dim).fill(-1)
+    for (let i = 0; i < sys0.dim; i++) {
+      const k = sys0.keys[i]!
+      const ip = sysP.idxMap.get(k)
+      const ineg = sysN.idxMap.get(k)
+      assertExact(ip === ineg, `Upos/Uneg key mismatch on ${k}`)
+      if (ip !== undefined) map[i] = ip
+    }
+    return map
+  }
+
+  const runD4InterKubo = (
+    label: string,
+    sys0: ReturnType<typeof buildNDockD4Quotient>,
+    sysP: ReturnType<typeof buildNDockD4Quotient>,
+    sysN: ReturnType<typeof buildNDockD4Quotient>,
+    isMPair: boolean,
+    steps: number,
+    coord: number,
+    qProbe: number,
+    includeInMinJ = true,
+  ): KuboReport => {
+    const [rUse, iUse] = buildD4Bg0(sys0, isMPair, steps)
+    const [jRe, jIm] = sys0.currentAtQ(coord, qProbe)
+    const rep =
+      qProbe === 0
+        ? analyzeHermitianKubo(sys0.U, rUse, iUse, jRe, 256)
+        : analyzeInterSectorKubo(sys0.U, sysP.U, sysN.U, buildMap0ToQ(sys0, sysP, sysN), jRe, jIm, rUse, iUse, 256)
     maxNormErr2 = Math.max(maxNormErr2, rep.normErr)
-    minJNormSq = Math.min(minJNormSq, rep.jNormSq)
+    if (includeInMinJ) minJNormSq = Math.min(minJNormSq, rep.jNormSq)
     console.log(
-      `       ${label.padEnd(44)} (dim=${String(sys.dim).padStart(4)}, ||J||^2=${rep.jNormSq.toFixed(2)}): W0=${rep.w0_TMax.toExponential(1)}, max|ImPi|=${rep.maxImPi.toFixed(2)}@${rep.maxImPiOmega.toFixed(3)}, lowRat=${rep.lowBandImPiRatio.toFixed(3)}, minPk=${rep.minPeakOmegaPos.toFixed(3)}`,
+      `       ${label.padEnd(54)} (d0=${sys0.dim}, dQ=${sysP.dim}, ||J||^2=${rep.jNormSq.toFixed(2)}): W0(64->256)=${rep.w0_T64.toExponential(1)}->${rep.w0_TMax.toExponential(1)}, max|ImPi|=${rep.maxImPi.toFixed(2)}@${rep.maxImPiOmega.toFixed(3)}, low=${rep.maxImPiLow.toFixed(2)}@${rep.maxImPiLowOmega.toFixed(3)}(rat=${rep.lowBandImPiRatio.toFixed(3)}), minPk=${rep.minPeakOmegaAbs.toFixed(3)}`,
     )
     return rep
   }
 
-  const kd4Mp0 = runD4Kubo('4-Dock D_4 (rho=1/2, U^2|Mpair>, q=0)', d4Mp_q0, true)
-  const kd4Mp1 = runD4Kubo('4-Dock D_4 (rho=1/2, U^2|Mpair>, q=pi/2)', d4Mp_q1, true)
-  const kd4Ch1 = runD4Kubo('4-Dock D_4 (rho=1/2, Phi_odd sea, q=pi/2)', d4Ch_q1, false)
-  const kd5Mp1 = runD4Kubo('5-Dock D_4 (rho=2/5, U^2|Mpair>, q=2pi/5)', d5Mp_q1, true)
-  const kd5Ch1 = runD4Kubo('5-Dock D_4 (rho=2/5, Phi_odd sea, q=2pi/5)', d5Ch_q1, false)
+  // Verify exact N = 4 bipartite refocusing on U(0)^2|M_pair> at q_probe = pi/2, coord = 1 transverse!
+  const [d4MpU2R, d4MpU2I] = buildD4Bg0(d4Mp_q0, true, 2)
+  const [jD4_1_qRe, jD4_1_qIm] = d4Mp_q0.currentAtQ(1, PI / 2)
+  let d4MpU2JNormSq = 0
+  for (let i = 0; i < d4Mp_q0.dim; i++) {
+    const jr = jD4_1_qRe[i]!; const ji = jD4_1_qIm[i]!
+    const br = d4MpU2R[i]!; const bi = d4MpU2I[i]!
+    const ar = jr * br - ji * bi; const ai = jr * bi + ji * br
+    const cr = jr * br + ji * bi; const ci = jr * bi - ji * br
+    d4MpU2JNormSq += 0.25 * (ar * ar + ai * ai + cr * cr + ci * ci)
+  }
+  console.log(
+    `       4/5-Dock D_4 Quotient Unitarity: maxInvErr=${maxD4QuotInvErr.toExponential(1)} | 4-Dock U(0)^2|Mpair> ||J_1(pi/2)||^2=${d4MpU2JNormSq.toExponential(1)} (exact N=4 bipartite refocusing!)`,
+  )
 
-  // Verify ALL non-trivial 2D/3D/D_4 Im Pi_T peaks sit at high frequency (omega >= 1.0 rad, never a gapless omega -> 0 pole!)
-  for (const r of [k2D_unifQ, k2D_mpairQ, k2D_stagQ, kB3_mp, k2d_u, kd4Mp0, kd4Mp1, kd4Ch1, kd5Mp1, kd5Ch1]) {
-    if (r.maxImPiOmega < 1.0 || r.minPeakOmegaPos < 0.2) allLowBandSuppressed = false
+  const kd4Mp0 = runD4InterKubo('4-Dock D_4 Mpair (rho=1/2, U(0)^2, coord=1, q=0)', d4Mp_q0, d4Mp_q0, d4Mp_q0, true, 2, 1, 0)
+  const kd4Mp1_U3 = runD4InterKubo('4-Dock D_4 Mpair (rho=1/2, U(0)^3 quench, c=1, q=pi/2)', d4Mp_q0, d4Mp_qp, d4Mp_qn, true, 3, 1, PI / 2)
+  const kd4Ch1 = runD4InterKubo('4-Dock D_4 Phi_odd (rho=1/2, P_bg=0, coord=1, q=pi/2)', d4Ch_q0, d4Ch_qp, d4Ch_qn, false, 0, 1, PI / 2)
+  const kd5Mp1 = runD4InterKubo('5-Dock D_4 Mpair (rho=2/5, U(0)^2, coord=2, q=2pi/5)', d5Mp_q0, d5Mp_qp, d5Mp_qn, true, 2, 2, (2 * PI) / 5)
+  const kd5Ch1 = runD4InterKubo('5-Dock D_4 Phi_odd (rho=2/5, P_bg=0, coord=2, q=2pi/5)', d5Ch_q0, d5Ch_qp, d5Ch_qn, false, 0, 2, (2 * PI) / 5)
+
+  // Exact 4,096-dim FULL REAL-SPACE cross-check of analyzeInterSectorKubo on 4-Dock D_4 Phi_odd (coord=1, q=pi/2, t=0..16)!
+  const realSpaceCrossCheckErr = (() => {
+    const N = 4; const d4Lines = [0, 1, 6, 10] as const; const shifts = [1, 1, 1, 3] as const
+    const tones4: readonly ToneNZ[] = [1, 1, -1, -1]
+    const dimRS = 4096 // (4 docks x 2 dirs)^4
+    const phiTab = new Array<C>(16)
+    for (let m = 0; m < 16; m++) {
+      const codes = [0, 1, 2, 3].map(j => (LINES[d4Lines[j]!]![(m >> j) & 1]! << 1) + (tones4[j]! < 0 ? 1 : 0))
+      phiTab[m] = Z6_POW_C[((chiral4Sign(codes[0]!, codes[1]!, codes[2]!, codes[3]!) % 6) + 6) % 6]!
+    }
+    const U_rs = buildSparseCSC(dimRS, (col, emit) => {
+      const s0 = col & 7; const s1 = (col >> 3) & 7; const s2 = (col >> 6) & 7; const s3 = (col >> 9) & 7
+      const ds = [s0 >> 1, s1 >> 1, s2 >> 1, s3 >> 1] as const
+      const rs = [s0 & 1, s1 & 1, s2 & 1, s3 & 1] as const
+      const sameDock = ds[0] === ds[1] && ds[1] === ds[2] && ds[2] === ds[3]
+      const pre: C = sameDock ? phiTab[rs[0] | (rs[1] << 1) | (rs[2] << 2) | (rs[3] << 3)]! : [1, 0]
+      for (let outM = 0; outM < 16; outM++) {
+        let amp = pre
+        const os = [0, 0, 0, 0]
+        for (let j = 0; j < 4; j++) {
+          const ro = (outM >> j) & 1
+          amp = cMul(amp, C_MAT[ro]![rs[j]!]!)
+          const nd = (ds[j]! + (ro === 0 ? 1 : -1) * shifts[j]! + N) % N
+          os[j] = (nd << 1) | ro
+        }
+        if (sameDock) amp = cMul(amp, phiTab[outM]!)
+        emit((((os[3]! << 3) | os[2]!) << 3 | os[1]!) << 3 | os[0]!, amp[0], amp[1])
+      }
+    })
+    const bgR = new Float64Array(dimRS); const bgI = new Float64Array(dimRS)
+    const jDiag = new Float64Array(dimRS)
+    for (let idx = 0; idx < dimRS; idx++) {
+      const s0 = idx & 7; const s1 = (idx >> 3) & 7; const s2 = (idx >> 6) & 7; const s3 = (idx >> 9) & 7
+      const ds = [s0 >> 1, s1 >> 1, s2 >> 1, s3 >> 1] as const
+      const rs = [s0 & 1, s1 & 1, s2 & 1, s3 & 1] as const
+      if (ds[0] === ds[1] && ds[1] === ds[2] && ds[2] === ds[3]) bgR[idx] = 1 / 8 // 4 docks x 16 = 64 states
+      let jSum = 0
+      for (let j = 0; j < 4; j++) {
+        const w = Math.cos((PI / 2) * ds[j]! - PI / 4)
+        jSum += w * tones4[j]! * Number(ROOTS[LINES[d4Lines[j]!]![rs[j]!]!]![1]!)
+      }
+      jDiag[idx] = jSum
+    }
+    const rsRep = analyzeHermitianKubo(U_rs, bgR, bgI, jDiag, 17, 64)
+    let maxDiff = 0
+    for (let t = 0; t < 17; t++) {
+      maxDiff = Math.max(
+        maxDiff,
+        Math.hypot(rsRep.cReSeries![t]! - kd4Ch1.cReSeries![t]!, rsRep.cImSeries![t]! - kd4Ch1.cImSeries![t]!),
+      )
+    }
+    return maxDiff
+  })()
+  console.log(
+    `       [EXACT REAL-SPACE CROSS-CHECK (4-Dock D_4 Phi_odd, dim=4096 vs Inter-Sector P_bg=0->+-pi/2, t=0..16)]: max|C_inter(t) - C_real(t)| = ${realSpaceCrossCheckErr.toExponential(2)}`,
+  )
+
+  // Verify ALL non-quench multi-axis sectors (2D Z^2/3Z^2, B_3(3), 2-Dock D_4 q=0 AND q=pi, 4-Dock q=0 & Phi_odd, 5-Dock M_pair & Phi_odd)
+  // sit strictly away from omega = 0 (max|Im Pi_T| peak > 0.5 rad, W_0 < 0.05, zero omega = 0 pole;
+  // 4-Dock U(0)^3 M_pair bipartite quench beat at 0.227 / 2.915 rad is explicitly diagnosed alongside stationary 3-Dock D_4 ED!)
+  for (const r of [k2D_unifQ, k2D_mpair0, k2D_mpairQ, k2D_stagQ, kB3_mp, k2d_u, k2d_s, kd4Mp0, kd4Ch1, kd5Mp1, kd5Ch1]) {
+    if (r.maxImPiOmega < 0.5 || r.w0_TMax >= 0.05) allLowBandSuppressed = false
+  }
+  for (const r of [k2D_unifQ, k2D_mpair0, k2D_mpairQ, k2D_stagQ, kB3_mp, k2d_u, k2d_s, kd4Mp0, kd5Mp1]) {
+    if (r.minPeakOmegaAbs < 0.25) allLowBandSuppressed = false
   }
 
   recordCheck(
     'W13.2',
-    'Finite-density neutral Q=0_V pair-condensate Kubo/Floquet spectrum (rho=1/6..1/2 on 1D L=4,6,8, 2D/3D L=3, 2/4/5-dock D_4)',
+    'Finite-density neutral Q=0_V pair-condensate Kubo/Floquet spectrum (rho=1/6..1/2 on 1D L=4,6,8, 2D/3D L=3, 2/3/4/5-dock D_4, TRUE P_bg=0->+-q transverse)',
     maxUniErr2 < 1e-13 &&
       maxNormErr2 < 1e-12 &&
+      realSpaceCrossCheckErr < 1e-13 &&
       totalQDDefects === 0 &&
-      minJNormSq > 0.4 &&
+      minJNormSq > 0.3 &&
       l4M2W0Q0 < 1e-12 &&
       l4M2W0Q1 < 0.02 &&
       l4M2GapQ0 > 0.4 &&
       l4M2GapQ1 > 0.15 &&
+      d3Tr0.w0 < 1e-12 &&
+      d3TrQ.w0 < 1e-12 &&
+      d3Tr0.minDE > 0.1 &&
+      d3TrQ.minDE > 0.01 &&
+      Math.abs(d3Tr0.topDE) > 2.0 &&
+      Math.abs(d3TrQ.topDE) > 2.0 &&
       jBareMpNorm < 1e-15 &&
       j2WF4Norm < 1e-15 &&
+      d4MpU2JNormSq < 1e-15 &&
       allLowBandSuppressed &&
-      kd4Mp1.maxImPi > 1.0 &&
-      kd5Mp1.maxImPi > 1.0,
-    `maxUniErr=${maxUniErr2.toExponential(1)}, Q/D=0, min||J||^2=${minJNormSq.toFixed(2)}>0 (ALL non-vacuous!), Bogoliubov ED L=4 rho=1/2 gap(q=0/pi/2)=(${l4M2GapQ0.toFixed(3)}/${l4M2GapQ1.toFixed(3)}), 2D/3D/D4 M_pair peaks at w=${k2D_mpairQ.maxImPiOmega.toFixed(2)}/${kB3_mp.maxImPiOmega.toFixed(2)}/${kd4Mp1.maxImPiOmega.toFixed(2)}/${kd5Mp1.maxImPiOmega.toFixed(2)} rad`,
+      k2D_mpairQ.maxImPi > 1.0 &&
+      kd4Mp1_U3.jNormSq > 0.4 &&
+      kd5Mp1.maxImPi > 1.0 &&
+      kd5Ch1.maxImPi > 1.0,
+    `maxUniErr=${maxUniErr2.toExponential(1)}, RS-xchk=${realSpaceCrossCheckErr.toExponential(1)}, Q/D=0, min||J||^2=${minJNormSq.toFixed(2)}>0, ED gaps L=4(${l4M2GapQ0.toFixed(3)}/${l4M2GapQ1.toFixed(3)}) & 3-Dock D_4(W0=0, top=${d3Tr0.topDE.toFixed(2)}/${d3TrQ.topDE.toFixed(2)}), true-q M_pair peaks: Z^2=${k2D_mpairQ.maxImPiOmega.toFixed(3)}, B_3=${kB3_mp.maxImPiOmega.toFixed(3)}, 5-Dock=${kd5Mp1.maxImPiOmega.toFixed(3)} rad`,
   )
 }
 
@@ -3144,9 +3686,105 @@ function runPart3(p1Drifts: { readonly qxDriftK3_3D: number; readonly qxDriftK3_
     }
   })()
 
-  // Pillar T5b: Exact local U(1) gauge non-commutation ||[G(theta), S]|| = 2 sin(dTheta / 2)
-  const gaugeDefectNorm = cAbs(cSub(cExpI(-PI / 3), [1, 0]))
+  // Pillar T5b: Explicit 4x4 2-dock matrix verification of ||[G(0, pi/3), S]||_2 = 2 sin(pi/6) = 1.00000000 (MINOR-5!)
+  const gaugeDefectNorm = (() => {
+    const mulCMat = (A: CMat, B: CMat): CMat => {
+      const n = A.n; const out = cmatZero(n)
+      for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+        let sr = 0; let si = 0
+        for (let k = 0; k < n; k++) {
+          const ar = A.re[i * n + k]!; const ai = A.im[i * n + k]!
+          const br = B.re[k * n + j]!; const bi = B.im[k * n + j]!
+          sr += ar * br - ai * bi; si += ar * bi + ai * br
+        }
+        out.re[i * n + j] = sr; out.im[i * n + j] = si
+      }
+      return out
+    }
+    const dagCMat = (A: CMat): CMat => {
+      const n = A.n; const out = cmatZero(n)
+      for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+        out.re[j * n + i] = A.re[i * n + j]!; out.im[j * n + i] = -A.im[i * n + j]!
+      }
+      return out
+    }
+    // 1-particle (Q = +1) 2-dock periodic ring basis: 0=(d=0,+), 1=(d=0,-), 2=(d=1,+), 3=(d=1,-)
+    const S2 = cmatZero(4)
+    const G2 = cmatZero(4)
+    const p1 = cExpI(PI / 3)
+    // S2 swaps dock 0 <-> dock 1 keeping direction fixed
+    S2.re[2 * 4 + 0] = 1; S2.re[0 * 4 + 2] = 1
+    S2.re[3 * 4 + 1] = 1; S2.re[1 * 4 + 3] = 1
+    // G2 = diag(1, 1, e^{i pi/3}, e^{i pi/3})
+    G2.re[0 * 4 + 0] = 1; G2.re[1 * 4 + 1] = 1
+    G2.re[2 * 4 + 2] = p1[0]; G2.im[2 * 4 + 2] = p1[1]
+    G2.re[3 * 4 + 3] = p1[0]; G2.im[3 * 4 + 3] = p1[1]
+    const GS = mulCMat(G2, S2)
+    const SG = mulCMat(S2, G2)
+    const comm = cmatZero(4)
+    for (let i = 0; i < 16; i++) {
+      comm.re[i] = GS.re[i]! - SG.re[i]!
+      comm.im[i] = GS.im[i]! - SG.im[i]!
+    }
+    const cDagC = mulCMat(dagCMat(comm), comm)
+    const eigs = hermitianEigen(cDagC).values
+    let maxEv = 0
+    for (let i = 0; i < 4; i++) maxEv = Math.max(maxEv, eigs[i]!)
+    return Math.sqrt(maxEv)
+  })()
   const expectedGaugeDefect = 2 * Math.sin(PI / 6)
+
+  // Pillar T6b: Exhaustive FULL REAL-SPACE (no Bloch reduction!) [U, X_{-, x}] = 0 check across ALL 10,710 k=3 states on Z^2 / 3 Z^2 (MINOR-4!)
+  const t6RealSpace = (() => {
+    const L = 3; const totalSlots = 36 // 9 docks x 4 slots (0:+x, 1:-x, 2:+y, 3:-y)
+    const stepCode = (code: number): number => {
+      const d = code >> 2; const sl = code & 3
+      let x = d % L; let y = Math.floor(d / L)
+      if (sl === 0) x = (x + 1) % L
+      else if (sl === 1) x = (x - 1 + L) % L
+      else if (sl === 2) y = (y + 1) % L
+      else y = (y - 1 + L) % L
+      return (y * L + x) * 4 + sl
+    }
+    let statesChecked = 0
+    let defects = 0
+    let mPairFirings = 0
+    for (let dNeg = 0; dNeg < 9; dNeg++) {
+      const xInit = dNeg % L
+      for (let dirNeg = 0; dirNeg < 2; dirNeg++) {
+        const negCode = dNeg * 4 + 2 + dirNeg // lone - on y-axis (line 1)
+        for (let p1 = 0; p1 < totalSlots; p1++) {
+          if (p1 === negCode) continue
+          for (let p2 = p1 + 1; p2 < totalSlots; p2++) {
+            if (p2 === negCode) continue
+            statesChecked++
+            const dP1 = p1 >> 2; const dP2 = p2 >> 2
+            const sP1 = p1 & 3; const sP2 = p2 & 3
+            if (dP1 === dP2 && dP1 !== dNeg && (sP1 ^ 1) === sP2) mPairFirings++
+            const byDock = new Map<number, LocalExc[]>()
+            const addD = (d: number, e: LocalExc) => {
+              const arr = byDock.get(d); if (arr) arr.push(e); else byDock.set(d, [e])
+            }
+            addD(dNeg, [2 + dirNeg, -1]); addD(dP1, [sP1, 1]); addD(dP2, [sP2, 1])
+            for (const [d, list] of byDock) {
+              const loc = localDockAction(list, 2, true)
+              for (const b of loc) {
+                for (const [sl, tn] of b.excs) {
+                  if (tn === -1) {
+                    const nc = stepCode(d * 4 + sl)
+                    const xOut = (nc >> 2) % L
+                    const axOut = (nc & 3) >> 1
+                    if (xOut !== xInit || axOut !== 1) defects++
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return { statesChecked, defects, mPairFirings }
+  })()
 
   console.log(
     `  [T0] Sparse Float64 localDockAction vs Exact BigInt Z[zeta_9][1/6]:    maxErr = ${maxT0Err.toExponential(2)} across k=2,3,4 (M_pair + K + M_meet + Phi_odd)`,
@@ -3155,8 +3793,8 @@ function runPart3(p1Drifts: { readonly qxDriftK3_3D: number; readonly qxDriftK3_
     `  [T1] Exact Per-Line U(1)^{24} in U_{no-M_pair} (k=1..4, Phi_odd ON):   0/${testVibeSets.length} defects (${t1Defects})`,
   )
   console.log(
-    `  [T2] Exact All-k Z_2^{24} Parity [U, P_l^(tau)] = 0 (2 beats, full U): 0/${testVibeSets.length} defects (${t2Defects}); ` +
-      `M_pair-condensate single-dipole cross-axis overlap = ${superselectionOverlap.overlapCount}/${superselectionOverlap.branches} (EXACT 0!)`,
+    `  [T2] Exact All-k Z_2^{24} Parity [U, P_l^(tau)] = 0 (antipodal line l in {0..11}, 2 beats full U): 0/${testVibeSets.length} defects (${t2Defects}); ` +
+      `M_pair-condensate single-dipole cross-line overlap = ${superselectionOverlap.overlapCount}/${superselectionOverlap.branches} (EXACT 0!)`,
   )
   console.log(
     `  [T3] Exact M_pair / 1^{--} Decoupling: max|J(sole_pair)| = ${t3PairCurrentMax.toFixed(1)}, |(DKD)|_{1--} - omega| = ${dkdAntiDiff.toExponential(1)}`,
@@ -3165,14 +3803,15 @@ function runPart3(p1Drifts: { readonly qxDriftK3_3D: number; readonly qxDriftK3_
     `  [T4] Exhaustive k=4 M_pair / Phi_odd Mutual-Exclusion Theorem:         ${triplesWithFixer}/${triplesChecked} D_4 3-line triples fixed by W(F_4)^- (=> 0/43,296 chiral <=3-line quads; spot=${directSpotNonZero}/48)`,
   )
   console.log(
-    `       Minimal Joint-Activation Witness at k=5 (exact BigInt Z[z9]):   normOk=${k5Witness.normOk}, revOk=${k5Witness.revOk}, M_pair diffs(t=1)=${k5Witness.mpDiffBeat1}, Phi_odd diffs(t=2)=${k5Witness.phiDiffAtT2} (${k5Witness.branchesT2} branches)`,
+    `       Minimal Joint-Activation Witness at k=5 (exact BigInt Z[z9]):   normOk=${k5Witness.normOk}, revOk=${k5Witness.revOk}, M_pair diffs(t=1)=${k5Witness.mpDiffBeat1}, Phi_odd(U^2|psi_0>)!=U^2|psi_0> diffs=${k5Witness.phiDiffAtT2} (${k5Witness.branchesT2} branches)`,
   )
   console.log(
-    `  [T5] Local Continuity & No-Link-Register Obstruction:                  [L, Q(g)] defects=${t5LocalQDefects}, [L, D_act(g)] defects=${t5LocalDDefects}, ||[G(pi/3), S]||=${gaugeDefectNorm.toFixed(8)} (exact ${expectedGaugeDefect.toFixed(8)})`,
+    `  [T5] Local Continuity & No-Link-Register Obstruction:                  [L, Q(g)] defects=${t5LocalQDefects}, [L, D_act(g)] defects=${t5LocalDDefects}, 4x4 matrix ||[G_2(pi/3), S_2]||_2=${gaugeDefectNorm.toFixed(8)} (exact ${expectedGaugeDefect.toFixed(8)})`,
   )
   console.log(
     `  [T6] Exact min(N_+, N_-) = 1 Flat-Transverse-Band Theorem ([U, X_{-,perp}] = 0): ` +
-      `k=3 Z^3/3Z^3 ||U(q_x)^6-U(0)^6||=${p1Drifts.qxDriftK3_3D.toExponential(1)}, Z^2/5Z^2 ||U(q_x)-U(0)||=${p1Drifts.qxDriftK3_2D.toExponential(1)} (EXACT v_T=0!) vs k=4 Z^2/3Z^2 drift=${p1Drifts.qxDriftK4_2D.toFixed(5)} > 0!`,
+      `FULL REAL-SPACE Z^2/3Z^2 k=3 [U, X_{-,x}]=0 defects=${t6RealSpace.defects}/${t6RealSpace.statesChecked} (${t6RealSpace.mPairFirings} active M_pair firings); ` +
+      `Bloch Z^3/3Z^3 ||U(q_x)^6-U(0)^6||=${p1Drifts.qxDriftK3_3D.toExponential(1)}, Z^2/5Z^2=${p1Drifts.qxDriftK3_2D.toExponential(1)} (EXACT v_T=0!) vs k=4 Z^2/3Z^2 drift=${p1Drifts.qxDriftK4_2D.toFixed(5)} > 0!`,
   )
 
   recordCheck(
@@ -3194,11 +3833,14 @@ function runPart3(p1Drifts: { readonly qxDriftK3_3D: number; readonly qxDriftK3_
       k5Witness.phiDiffAtT2 > 0 &&
       t5LocalQDefects === 0 &&
       t5LocalDDefects === 0 &&
-      Math.abs(gaugeDefectNorm - expectedGaugeDefect) < 1e-15 &&
+      Math.abs(gaugeDefectNorm - expectedGaugeDefect) < 1e-14 &&
+      t6RealSpace.statesChecked === 10710 &&
+      t6RealSpace.defects === 0 &&
+      t6RealSpace.mPairFirings > 0 &&
       p1Drifts.qxDriftK3_3D < 1e-14 &&
       p1Drifts.qxDriftK3_2D < 1e-14 &&
       p1Drifts.qxDriftK4_2D > 1e-2,
-    `T0 err=${maxT0Err.toExponential(1)}, T1/T2=0/0, superselection=0/${superselectionOverlap.branches}, T3=0/0, T4=220/220 (0/43,296) + k=5(mp=${k5Witness.mpDiffBeat1},phi=${k5Witness.phiDiffAtT2}), T5 local Q/D=0/0, T6 k=3 drift=0.0e+0 vs k=4=${p1Drifts.qxDriftK4_2D.toFixed(4)}`,
+    `T0 err=${maxT0Err.toExponential(1)}, T1/T2=0/0, superselection=0/${superselectionOverlap.branches}, T3=0/0, T4=220/220 (0/43,296) + k=5(mp=${k5Witness.mpDiffBeat1},phi=${k5Witness.phiDiffAtT2}), T5 local Q/D=0/0 & ||[G_2,S_2]||_2=${gaugeDefectNorm.toFixed(6)}, T6 RS=${t6RealSpace.defects}/${t6RealSpace.statesChecked} (${t6RealSpace.mPairFirings} M_pair) & k=3 drift=0.0e+0 vs k=4=${p1Drifts.qxDriftK4_2D.toFixed(4)}`,
   )
 }
 

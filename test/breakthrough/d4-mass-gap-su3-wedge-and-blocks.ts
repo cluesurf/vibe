@@ -1966,7 +1966,7 @@ console.log('--- PART 4: INDEPENDENT VERIFICATION CROSS-CHECKS (SANITY CHECKS ON
 console.log(`  Schur tail (10,16 vs 14,19 at m<=1.58):         max rel diff = ${cross.schurDiff.toExponential(3)} (< 1e-13)`)
 console.log(`  48x48 Weyl quadrature vs Schur Z & E[U_kk]:     relZ=${cross.weylZErr.toExponential(2)}, absE=${cross.weylEuErr.toExponential(2)} (< 1e-12)`)
 console.log(`  SU(2) V_tilde_2 osc bound check (beta=0.285):   max viol     = ${cross.maxSu2VTildeViolation.toExponential(2)} (expect 0)`)
-console.log(`  SU(3) V_tilde_2 convexity check (beta=${certSu3Tri.beta.toFixed(3)}):  violations   = ${cross.su3VTildeViolations} (max obs ${cross.maxObservedSu3VTilde.toFixed(6)} <= ${certSu3Tri.omegaUpper.toFixed(6)})`)
+console.log(`  SU(3) V_tilde_2 convexity check (beta=${certSu3Tri.beta.toFixed(4)}): violations   = ${cross.su3VTildeViolations} (max obs ${cross.maxObservedSu3VTilde.toFixed(6)} <= ${certSu3Tri.omegaUpper.toFixed(6)})`)
 console.log(`  1D-Axial 3-Tri 11x11 vs closed 2x2 formula:     abs diff     = ${cross.closed2x2Diff.toExponential(3)} (< 1e-11)`)
 console.log(`  4-Dir Alt-x0+planes Lambda_88(0) vs W8:         abs diff     = ${cross.lam4DErr.toExponential(3)} (< 1e-8)\n`)
 

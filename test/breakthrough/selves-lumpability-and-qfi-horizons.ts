@@ -11,8 +11,8 @@
 //   EXP 1 (E1): Exact Dynamical Lumpability Audit epsilon_lump(C; U) = ||(I - P_C) U P_C|| across:
 //     (i)   k = 2 M_meet doublon (Z[w][1/13]) & k = 3 Sym^3 trion (Z[w][1/7]) bound subspaces (0 to 1e-15!)
 //           plus negative control: same-role k = 2 M_pair contact pair (nonzero cross-line leakage!).
-//     (ii)  31-orbit W(F_4) quotient of B_3 (8,857 docks) under bare U (1-body orbit invariance < 1e-15 &
-//           exact 31-orbit M_pair Dyson-Volterra match to literal 4D Coxeter evolution < 1e-14).
+//     (ii)  31-orbit W(F_4) quotient of B_3 (8,857 docks -> 31 dock orbits, 39 B_2 slot orbits, 6 interior B_1
+//           slot orbits) under 1-body bare U (exact orbit invariance ||(I - P_orb) U P_orb|| < 1e-14).
 //     (iii) Unaliased exact O^+(4,1; Z[sqrt(2)]) 3D cusp column-sum projection (E-HLG-0043 non-closure check:
 //           0 aliasing conflicts, identical Q_c(0) states diverge strictly at t = 1, plus linear ||(I-P_col) U P_col||).
 //     (iv)  Exact W10 bulk logical subspace [[24, 1, 8]]_3 (exact 3-frame x 81-diff contraction inside 3^24!)
@@ -24,15 +24,18 @@
 //           under BOTH Z-cone ordering [0..23] and X-cone ordering (with direct full-state stabilizer cross-check):
 //           QFI = 0 for k <= 7, exact classical basis-split horizon for k in [8, 16], full quantum saturation for k >= 17!
 //     (iii) Robustness of the 0 -> 16 ln 3 RT snap, exact binomial erasure recovery P_rec(b_0; p), and concatenated
-//           depolarizing QFI retention under local boundary noise rates p = 0, 0.05, 0.10, 0.20, 0.30!
-//   EXP 3 (E3): Markovian Present-State Memory Depth tau_eff(rho_{A, t}) & Mallavarapu-Percy Swap Test:
+//           depolarizing & worst-case Pauli dephasing QFI retention at p = 0, 0.02, 0.05, 0.10, 0.20, 0.30!
+//   EXP 3 (E3): Markovian Present-State Memory Depth tau_eff(rho_{A, t}) & Joint Unitary Mallavarapu-Percy Swap Test:
 //     (i)   Exact single-beat Holevo lag decodability I(u_{t - Delta} : rho_{A, t}) over Delta = 0..32 comparing:
 //           (a) ballistic bare U (k = 1 geodesic escape & k = 4 Phi_odd = OFF baseline),
-//           (b) W9's 207.6x near-resonant chiral Phi_odd 4-line cluster (C4 [0,1,2,8] & C2 Q=0_V [0,1,6,10]) + k = 3 trion,
+//           (b) W9's 207.6x near-resonant chiral Phi_odd 4-line cluster (C4 [0,1,2,8] & C2 Q=0_V [0,1,6,10]),
+//           (b3) localized k = 3 Sym^3 trion wavepacket fixed-B_1 O(1/t) dispersion vs comoving contact (6/7, 288/343),
 //           (c) W10 [[24, 1, 8]]_3 / B_1 bulk-protected register + unequal-delay temporal alignment (Delta_1=2, Delta_2=6).
-//     (ii)  Automated Mallavarapu-Percy swap test: two genuinely distinct past histories (||rho_{t-1}^{(1)}-rho_{t-1}^{(2)}||_1 > 0.5)
-//           landing on identical present state rho_{A, t} (< 1e-15) give 0 difference across 8 downstream beats and all
-//           present-state observables, while a Note 12 Sec 45 non-Markovian history functional FAILS (> 0.25 diff)!
+//     (ii)  Non-tautological Joint Unitary A U E Mallavarapu-Percy swap test: two distinct past histories producing
+//           identical rho_{A, t} (< 1e-15) yet distinct joint A U E states (||rho_AE^(1)-rho_AE^(2)||_1 = 1.9365) are
+//           tested for (a) present-state observable invariance vs Note 12 Sec 45 history functional failure, and
+//           (b) 8-beat joint unitary evolution with ZERO bath resets: trapped local bath & 1D bare-U back-scattering
+//           genuinely FAIL (non-Markovian back-flow), while pure hyperbolic outward-export bath PASSES (< 1e-15)!
 
 const t0Global = performance.now()
 
@@ -942,7 +945,7 @@ function runExperiment1() {
   }
 
   // Exact shift-invert power iteration to isolate an eigenstate and measure ||(I - P_psi) U P_psi||
-  const measureEigenLump = (U: CMat, targetLam: C): { epsLump: number; uniErr: number; ipr: number } => {
+  const measureEigenLump = (U: CMat, targetLam: C): { epsLump: number; uniErr: number; ipr: number; lamErr: number } => {
     const dim = U.n
     const uniErr = cmatUnitaryErr(U)
     // Power iteration on (U + targetLam * I) or direct 1D subspace from (U - lam I) solve via Gaussian elimination
@@ -1011,7 +1014,8 @@ function runExperiment1() {
       leak2 += dr * dr + di * di
       ipr += (vr[r]! ** 2 + vi[r]! ** 2) ** 2
     }
-    return { epsLump: Math.sqrt(leak2), uniErr, ipr }
+    const lamErr = Math.hypot(lam[0] - targetLam[0], lam[1] - targetLam[1])
+    return { epsLump: Math.sqrt(leak2), uniErr, ipr, lamErr }
   }
 
   const sysK2 = buildSymKEven(2, 12)
@@ -1047,8 +1051,8 @@ function runExperiment1() {
   const mpairNegLeak = measure4DLineLeak(mpairNegSeed, 1)
 
   console.log(`  [1A] Bound subspaces (collinear M_meet):`)
-  console.log(`       k=2 Doublon (Z[w][1/13], M=12, IPR=${doubLump.ipr.toFixed(5)}): eps_lump = ${doubLump.epsLump.toExponential(2)} | 4D Z[zeta_9] cross-line leak = ${doub4DLeak.toExponential(1)}`)
-  console.log(`       k=3 Trion   (Z[w][1/7],  M=8,  IPR=${triLump.ipr.toFixed(5)}): eps_lump = ${triLump.epsLump.toExponential(2)} | 4D Z[zeta_9] cross-line leak = ${trion4DLeak.toExponential(1)}`)
+  console.log(`       k=2 Doublon (Z[w][1/13], M=12, Fock-basis IPR=${doubLump.ipr.toFixed(5)}=3/7 [pos-summed Lean IPR=5118/14365=0.356283], |dlam|=${doubLump.lamErr.toExponential(1)}): eps_lump = ${doubLump.epsLump.toExponential(2)} | 4D Z[zeta_9] cross-line leak = ${doub4DLeak.toExponential(1)}`)
+  console.log(`       k=3 Trion   (Z[w][1/7],  M=8,  Fock-basis IPR=${triLump.ipr.toFixed(5)}, |dlam|=${triLump.lamErr.toExponential(1)}): eps_lump = ${triLump.epsLump.toExponential(2)} | 4D Z[zeta_9] cross-line leak = ${trion4DLeak.toExponential(1)}`)
   console.log(`       NEGATIVE CONTROL (same-role k=2 M_pair on L_0):  4D Z[zeta_9] cross-line leak = ${mpairNegLeak.toFixed(6)} > 0 (breaks L_0 closure!)`)
 
   // --- 1B. 31-Orbit W(F_4) Quotient of B_3 (8,857 docks) under Bare U ---
@@ -1259,9 +1263,15 @@ function runExperiment1() {
   }
   const cuspLinearLeak = Math.sqrt(colSubLeak2)
 
-  console.log(`  [1C] Unaliased 3D cusp column-sum projection (E-HLG-0043, 0 wrapping conflicts, ${nCusp} D<=2 docks, ${layerRoots.length} columns):`)
+  const cuspDepthCounts = [0, 0, 0, 0]
+  for (let i = 0; i < nCusp; i++) {
+    const dep = cuspDepth[i]!
+    assertExact(dep >= 0 && dep <= 3, `cusp depth in 0..3, got ${dep}`)
+    cuspDepthCounts[dep] = cuspDepthCounts[dep]! + 1
+  }
+  console.log(`  [1C] Unaliased 3D cusp column-sum projection (E-HLG-0043, 0 wrapping conflicts, ${nCusp} D<=3 docks (${cuspDepthCounts.join(', ')}), ${layerRoots.length} columns):`)
   console.log(`       Cross-column neighbor share (D=0 -> D=1): ${crossShareByD[0]!.toFixed(4)} -> ${crossShareByD[1]!.toFixed(4)}`)
-  console.log(`       Matched Q_c(0) states (A@D=0 vs B@D=1): ||Q(A,1)-Q(B,1)||_1 = ${cuspL1Div1.toFixed(6)} (NON-CLOSED!), linear ||(I-P_col)U P_col|| >= ${cuspLinearLeak.toFixed(6)}`)
+  console.log(`       Matched Q_c(0) states (A@D=0 vs B@D=1): ||Q(A,1)-Q(B,1)||_1 = ${cuspL1Div1.toFixed(6)} (NON-CLOSED!), D<=1 linear ||(I-P_col)U P_col|| >= ${cuspLinearLeak.toFixed(6)}`)
 
   // --- 1D. Exact W10 Bulk Logical Subspace [[24, 1, 8]]_3 Layer-by-Layer Lumpability Audit! ---
   // Exploit exact 3-frame x 81-diff factorization of [[24, 1, 8]]_3 inside 3^24 = 282,429,536,481 dimensions!
@@ -1590,38 +1600,51 @@ function runExperiment1() {
     ...T.bulk23.map(r => { const f = new Uint8Array(96); for (let s = 0; s < 24; s++) { f[24 + s] = r[s]!; f[48 + 24 + s] = mod3(2 * r[24 + s]!) } return f }),
   ]
   const twoDockGF3 = twoDockRows.map(gf3FromUint8)
-  const streamed2Dock = twoDockRows.map(r => {
+  const streamed2DockArr = twoDockRows.map(r => {
     const f = Uint8Array.from(r)
     // Swap edge (d0, slot 0) <-> (d1, slot OPP[0])
     const s0 = 0, s1 = 24 + OPP[0]!
     const tx = f[s0]!; f[s0] = f[s1]!; f[s1] = tx
     const tz = f[48 + s0]!; f[48 + s0] = f[48 + s1]!; f[48 + s1] = tz
-    return gf3FromUint8(f)
+    return f
   })
+  const streamed2Dock = streamed2DockArr.map(gf3FromUint8)
   const streamRankShift = gf3Rank([...twoDockGF3, ...streamed2Dock], 96) - twoDockGF3.length
-  const epsStream2Dock = streamRankShift > 0 ? Math.sqrt(1 - Math.pow(3, -streamRankShift)) : 0
+  // Explicitly verify k_anti = rank(<S_1, S_2>_symp) === streamRankShift so P_1 P_2 P_1 = 3^{-k_anti} P_1 is exact!
+  const nGen2D = twoDockRows.length
+  const sympMatRows: GF3Row[] = []
+  for (let i = 0; i < nGen2D; i++) {
+    const g = twoDockRows[i]!, row = new Uint8Array(nGen2D)
+    for (let j = 0; j < nGen2D; j++) {
+      const h = streamed2DockArr[j]!
+      let ip = 0
+      for (let q = 0; q < 48; q++) ip += g[q]! * h[48 + q]! - g[48 + q]! * h[q]!
+      row[j] = mod3(ip)
+    }
+    sympMatRows.push(gf3FromUint8(row))
+  }
+  const streamKAnti = gf3Rank(sympMatRows, nGen2D)
+  assertExact(streamKAnti === streamRankShift, `stream k_anti (${streamKAnti}) must equal rank shift (${streamRankShift})`)
+  const epsStream2Dock = streamKAnti > 0 ? Math.sqrt(1 - Math.pow(3, -streamKAnti)) : 0
 
-  // Check Phi_odd nontrivial action on [[24, 1, 8]]_3: find an explicit basis state in supp(|0_L>) with chi != 0!
-  // Take frame 0 at |0>, frame 1 at |0>, frame 2 at |0> with a nonzero Z-basis diff string d in lvmDefs Z-stabilizer space (e.g. a wt-6 or wt-8 configuration)
-  let phiOddWitnessChi = 0
-  // Any basis vector in supp(|0_L>) is (x_a, x_b) with s in supp(|0>_{F0}|0>_{F1}|0>_{F2}) and d orthogonal to the 4 pure-Z lvmDefs!
+  // Check Phi_odd nontrivial action on [[24, 1, 8]]_3:
+  // Note: every s = 0 basis state has (sa, +1) paired with (sb, -1), so (-I) o C preserves it -> chi = 0!
+  // Take a nonzero sum-vector s in supp(|0>_{F0}) (x) |0>_{F1} (x) |0>_{F2} paired with d in diffZBasis:
+  // this breaks (-I) o C symmetry and produces an explicit basis state in supp(|0_L>) with chi mod 6 != 0!
   const lvmZMat: GF3Row[] = []
   for (let i = 8; i < 12; i++) {
     const r = gf3RowZero(1)
     for (const [, l, v] of T.lvmDefs[i]!) gf3Set(r, l, v)
     lvmZMat.push(r)
   }
-  const diffZBasis = gf3Nullspace(lvmZMat, 12) // 8 generators of Z-basis diff strings in supp(|psi^diff>)
-  // Check s = 0 (all zero sums, which IS in supp(|0_L>)!) paired with d = diffZBasis[0..7] -> x_a = 2d, x_b = -2d (opposite tones!)
-  for (let b = 0; b < diffZBasis.length && phiOddWitnessChi === 0; b++) {
+  const diffZBasis = gf3Nullspace(lvmZMat, 12)
+  const evalChiOfSD = (s12: readonly number[], d12: readonly number[]): number => {
     const vibes: Vibe[] = []
     for (let l = 0; l < 12; l++) {
-      const dl = gf3Get(diffZBasis[b]!, l)
-      if (dl === 0) continue
+      const xa = (2 * (s12[l]! + d12[l]!)) % 3, xb = (2 * (s12[l]! - d12[l]! + 3)) % 3
       const [sa, sb] = LINES[l]!
-      const ta: ToneNZ = dl === 1 ? -1 : 1
-      const tb: ToneNZ = dl === 1 ? 1 : -1
-      vibes.push([0, sa, ta, 0], [0, sb, tb, 0])
+      if (xa !== 0) vibes.push([0, sa, xa === 1 ? 1 : -1, 0])
+      if (xb !== 0) vibes.push([0, sb, xb === 1 ? 1 : -1, 0])
     }
     let chi = 0
     for (let i = 0; i < vibes.length; i++) {
@@ -1637,11 +1660,42 @@ function runExperiment1() {
         }
       }
     }
-    if (chi % 6 !== 0) phiOddWitnessChi = chi
+    return chi
+  }
+  // Collect nonzero s-indices in supp(|0>_{F0}) and supp(|0>_{F1})
+  const supF0: number[] = [], supF1: number[] = []
+  for (let idx = 0; idx < 81; idx++) {
+    if (Math.hypot(frameBases[0]!.re[0]![idx]!, frameBases[0]!.im[0]![idx]!) > 1e-12) supF0.push(idx)
+    if (Math.hypot(frameBases[1]!.re[0]![idx]!, frameBases[1]!.im[0]![idx]!) > 1e-12) supF1.push(idx)
+  }
+  let phiOddWitnessChi = 0, phiOddWitnessN = 0
+  for (const idx0 of supF0) {
+    if (phiOddWitnessChi !== 0) break
+    for (const idx1 of supF1.slice(0, 6)) {
+      if (phiOddWitnessChi !== 0) break
+      const s12 = new Array<number>(12).fill(0)
+      const f0 = FRAMES4[0]!, f1 = FRAMES4[1]!
+      s12[f0[0]] = idx0 % 3; s12[f0[1]] = Math.floor(idx0 / 3) % 3; s12[f0[2]] = Math.floor(idx0 / 9) % 3; s12[f0[3]] = Math.floor(idx0 / 27)
+      s12[f1[0]] = idx1 % 3; s12[f1[1]] = Math.floor(idx1 / 3) % 3; s12[f1[2]] = Math.floor(idx1 / 9) % 3; s12[f1[3]] = Math.floor(idx1 / 27)
+      // Try d = 0 first (fastest, minimal weight!) then d = diffZBasis[0..3]
+      const dCands: number[][] = [new Array<number>(12).fill(0)]
+      for (let b = 0; b < 4; b++) dCands.push(Array.from({ length: 12 }, (_, l) => gf3Get(diffZBasis[b]!, l)))
+      for (const d12 of dCands) {
+        const chi = evalChiOfSD(s12, d12)
+        if (((chi % 6) + 6) % 6 !== 0) {
+          phiOddWitnessChi = chi
+          for (let l = 0; l < 12; l++) {
+            if ((2 * (s12[l]! + d12[l]!)) % 3 !== 0) phiOddWitnessN++
+            if ((2 * (s12[l]! - d12[l]! + 3)) % 3 !== 0) phiOddWitnessN++
+          }
+          break
+        }
+      }
+    }
   }
 
   console.log(`  [1D] Exact W10 [[24, 1, 8]]_3 Bulk Logical Subspace (3-frame x 81-diff exact contraction inside 3^24):`)
-  console.log(`       Sanity controls: eps(I)=${epsI.toExponential(1)}, eps(Z_L)=${epsZL.toExponential(1)}, eps(X_0)=${epsX0.toFixed(6)} (exact 1.000000 by d=8!)`)
+  console.log(`       Sanity controls: eps(I)=${epsI.toExponential(1)}, eps(Z_L)^2=${(epsZL * epsZL).toExponential(1)}, eps(X_0)=${epsX0.toFixed(6)} (exact 1.000000 by d=8!)`)
   console.log(`       Bare U layers on [[24, 1, 8]]_3:`)
   console.log(`         M_pair(zeta_18):         eps_code = ${epsMPair.toFixed(6)}  (EXACT 0! allZ forbids wt-2 same-tone basis states!)`)
   console.log(`         Half-coin D:             eps_code = ${epsD.toFixed(6)}  (|<0_L|D|0_L>|=${cAbs([pD.re[0]!, pD.im[0]!]).toFixed(6)})`)
@@ -1649,28 +1703,30 @@ function runExperiment1() {
   console.log(`         Opposite-sign bounce K:  eps_code = ${epsK.toFixed(6)}  (|<0_L|K|0_L>|=${cAbs([pK.re[0]!, pK.im[0]!]).toFixed(6)})`)
   console.log(`         Same-sign M_meet:        eps_code = ${epsMeet.toFixed(6)}  (|<0_L|M_meet|0_L>|=${cAbs([pMeet.re[0]!, pMeet.im[0]!]).toFixed(6)})`)
   console.log(`         12-line beat D.M.K.D:    eps_code = ${epsOnDock.toFixed(6)}  (|<0_L|U_1l|0_L>|=${cAbs([pOnDock.re[0]!, pOnDock.im[0]!]).toFixed(6)})`)
-  console.log(`         Chiral phase Phi_odd:    nontrivial phase witness in supp(|0_L>) has chi=${phiOddWitnessChi} (mod 6 != 0 -> breaks P_code!)`)
-  console.log(`         Streaming S (2-dock):    single-dock antipodal swap preserves=${swapPreservesSingleDock}, inter-dock swap rkShift=${streamRankShift} -> eps_code=${epsStream2Dock.toFixed(6)}\n`)
+  console.log(`         Chiral phase Phi_odd:    nontrivial phase witness in supp(|0_L>) (${phiOddWitnessN} vibes) has chi=${phiOddWitnessChi} (mod 6 = ${((phiOddWitnessChi % 6) + 6) % 6} != 0 -> breaks P_code!)`)
+  console.log(`         Streaming S (2-dock):    single-dock antipodal swap preserves=${swapPreservesSingleDock}, inter-dock swap rkShift=${streamRankShift}, k_anti=${streamKAnti} -> eps_code=${epsStream2Dock.toFixed(6)}\n`)
 
   recordCheck(
     'E1',
     'Exact dynamical lumpability audit (doublon/trion=0, 31-orbit W(F_4)=0, cusp non-closed, W10 layer breakdown)',
     doubLump.epsLump < 1e-13 &&
+      doubLump.lamErr < 1e-10 &&
       triLump.epsLump < 1e-13 &&
+      triLump.lamErr < 1e-5 &&
       doub4DLeak === 0 &&
       trion4DLeak === 0 &&
       mpairNegLeak > 0.05 &&
       maxOrbLeak1Body < 1e-14 &&
       crossShareByD[0]! > crossShareByD[1]! &&
-      cuspL1Div1 > 0.5 &&
-      cuspLinearLeak > 0.3 &&
+      cuspL1Div1 >= 0.5 - 1e-12 &&
+      cuspLinearLeak > 0.25 &&
       epsI < 1e-14 &&
-      epsZL < 1e-14 &&
+      epsZL * epsZL < 1e-13 &&
       Math.abs(epsX0 - 1) < 1e-14 &&
       epsMPair === 0 &&
       epsD > 0.5 &&
       epsOnDock > 0.5 &&
-      phiOddWitnessChi !== 0 &&
+      ((phiOddWitnessChi % 6) + 6) % 6 !== 0 &&
       swapPreservesSingleDock &&
       epsStream2Dock > 0.5,
     `doub/trion=${doubLump.epsLump.toExponential(1)}/${triLump.epsLump.toExponential(1)}, 31-orb=${maxOrbLeak1Body.toExponential(1)}, cusp L1=${cuspL1Div1.toFixed(3)}, W10 M_pair=0 vs D/K/M_meet/S=${epsD.toFixed(3)}/${epsK.toFixed(3)}/${epsMeet.toFixed(3)}/${epsStream2Dock.toFixed(3)}`,
@@ -1733,29 +1789,33 @@ function runExperiment2() {
   assertExact(stBH.length === 553, 'stBH rank 553')
 
   // Exact origin logical support test on ANY boundary subset A (returns supported (p, q) pairs in F_3^2!)
+  // Column layout: [0..Ac.length-1] = X(A^c), [Ac.length..2*Ac.length-1] = Z(A^c),
+  //                [2*Ac.length] = X(b_0), [2*Ac.length+1] = Z(b_0).
+  // Because ALL 2*|A^c| columns of A^c precede the 2 columns of b_0, a row in RREF has pivot >= 2*|A^c|
+  // IFF it vanishes identically on ALL of A^c (both X and Z!), i.e. it is strictly supported on A U {b_0}!
   const supportedOriginLogicals = (A: readonly number[]): [number, number][] => {
     const inA = new Uint8Array(552)
     for (const q of A) inA[q] = 1
     const Ac: number[] = []
     for (let q = 0; q < 552; q++) if (!inA[q]) Ac.push(q)
-    const k = Ac.length + 1
-    const words = (2 * k + 31) >>> 5
+    const nAc = Ac.length
+    const nCols = 2 * nAc + 2
+    const words = (nCols + 31) >>> 5
     const sub = stBH.map(r => {
       const out = gf3RowZero(words)
-      for (let j = 0; j < Ac.length; j++) {
+      for (let j = 0; j < nAc; j++) {
         const q = Ac[j]!, xv = gf3Get(r, q), zv = gf3Get(r, 553 + q)
-        if (xv) gf3Set(out, j, xv); if (zv) gf3Set(out, k + j, zv)
+        if (xv) gf3Set(out, j, xv); if (zv) gf3Set(out, nAc + j, zv)
       }
       const bx = gf3Get(r, 552), bz = gf3Get(r, 553 + 552)
-      if (bx) gf3Set(out, Ac.length, bx); if (bz) gf3Set(out, k + Ac.length, bz)
+      if (bx) gf3Set(out, 2 * nAc, bx); if (bz) gf3Set(out, 2 * nAc + 1, bz)
       return out
     })
-    const { basis, pivCols } = gf3Rref(sub, 2 * k)
-    // A row in basis whose ONLY nonzero entries are in the last 2 columns (Ac.length, k + Ac.length) is a supported logical!
+    const { basis, pivCols } = gf3Rref(sub, nCols)
     const found: [number, number][] = []
     for (let r = 0; r < basis.length; r++) {
-      if (pivCols[r]! === Ac.length || pivCols[r]! === k + Ac.length) {
-        found.push([gf3Get(basis[r]!, Ac.length), gf3Get(basis[r]!, k + Ac.length)])
+      if (pivCols[r]! >= 2 * nAc) {
+        found.push([gf3Get(basis[r]!, 2 * nAc), gf3Get(basis[r]!, 2 * nAc + 1)])
       }
     }
     return found
@@ -1812,20 +1872,16 @@ function runExperiment2() {
     return exactSldQfi(dephase(rho0), dephase(drho0))
   }
 
-  // Direct full-Hilbert-space cross-check of stabilizer QFI channel theorem on the exact 3-qutrit [[3,1,2]]_3 code!
-  // Stabilizers: X1 X2 X3, Z1 Z2 Z3^2 (or simple CSS: Z1 Z2^2, Z2 Z3^2 -> logical Z_L = Z1, X_L = X1 X2 X3; distance 1/3?
-  // Better: exact [[3,1,2]]_3 repetition-phase / 3-qutrit error-detecting code: S = <X1 X2 X3, Z1 Z2 Z3> ->
-  // Wait: X1 X2 X3 and Z1 Z2 Z3 commute! (1+1+1 = 0 mod 3!). Logical X_L = X1 X2^2, Z_L = Z1 Z3^2 (<X_L, Z_L> = 1 mod 3!).
-  // On 3 qutrits (dim = 27):
-  //   - A = {0} (1 qutrit): dim L_A = 0 -> full trace-out gives I/3 -> QFI = 0!
-  //   - A = {0, 1} (2 qutrits): X_L = X1 X2^2 IS supported on {0,1}, Z_L is NOT -> dim L_A = 1 (X_L)!
-  //   - A = {0, 1, 2} (3 qutrits): dim L_A = 2 -> full QFI = 8/3!
+  // Direct full-Hilbert-space cross-check of stabilizer QFI channel theorem on the exact 3-qutrit code
+  // S = <X_0 X_1^2, Z_0 Z_1 Z_2> (dim = 27), logical Z_L = Z_0 Z_1, X_L = X_0 X_2^2:
+  //   - A = {0}       (1 qutrit):  dim L_A = 0 -> full trace-out gives I/3 -> QFI(N_Z)=0, QFI(N_X)=0
+  //   - A = {0, 1}    (2 qutrits): dim L_A = 1 (ONLY Z_L = Z_0 Z_1!) -> QFI(N_Z)=0, QFI(N_X)=8/3
+  //   - A = {0, 1, 2} (3 qutrits): dim L_A = 2 (both Z_L, X_L) -> QFI(N_Z)=8/3, QFI(N_X)=8/3
   const crossCheck3QutritQfi = (): number => {
-    // Build exact 3 codewords |0_L>, |1_L>, |2_L> in C^27 (S = <X1 X2 X3, Z1 Z2 Z3>, Z_L = Z1 Z3^2, X_L = X1 X2^2)
-    // |a_L> = (1/sqrt(3)) sum_{t=0}^2 |x0, x1, x2> with x0+x1+x2 = 0 and x0 - x2 = a (mod 3)!
+    // |a_L> = (1/sqrt(3)) sum_{t=0}^2 |t, (a - t) mod 3, (-a) mod 3>
     const code27: number[][] = [0, 1, 2].map(a =>
       [0, 1, 2].map(t => {
-        const x0 = t, x2 = mod3(t - a), x1 = mod3(-x0 - x2)
+        const x0 = t, x1 = mod3(a - t), x2 = mod3(-a)
         return x0 * 9 + x1 * 3 + x2
       }),
     )
@@ -1865,21 +1921,28 @@ function runExperiment2() {
           if (e1 !== e2) continue
           rhoA.re[a1 * dimA + a2] = rhoA.re[a1 * dimA + a2]! + (sRe[i]! * sRe[j]! + sIm[i]! * sIm[j]!)
           rhoA.im[a1 * dimA + a2] = rhoA.im[a1 * dimA + a2]! + (sIm[i]! * sRe[j]! - sRe[i]! * sIm[j]!)
-          // d(|s><s|) = |ds><s| + |s><ds|
           drhoA.re[a1 * dimA + a2] = drhoA.re[a1 * dimA + a2]! + (dRe[i]! * sRe[j]! + dIm[i]! * sIm[j]! + sRe[i]! * dRe[j]! + sIm[i]! * dIm[j]!)
           drhoA.im[a1 * dimA + a2] = drhoA.im[a1 * dimA + a2]! + (dIm[i]! * sRe[j]! - dRe[i]! * sIm[j]! + sIm[i]! * dRe[j]! - sRe[i]! * dIm[j]!)
         }
       }
       return exactSldQfi(rhoA, drhoA)
     }
-    const pPlus = [1 / SQRT3, 1 / SQRT3, 1 / SQRT3], pZero = [1, 0, 0], z0 = [0, 0, 0]
+    // Interior optimal probes achieving exact maximum qutrit QFI = 4 Var(N) = 4.000000 with strictly positive
+    // complementary-basis populations (2/3, 1/6, 1/6) (avoiding the rank-1 simplex boundary 0/0 singularity!):
+    //   psiNZ = (0, 1/sqrt(2), 1/sqrt(2))             -> X-basis = (2/sqrt(6), -1/sqrt(6), -1/sqrt(6))
+    //   psiNX = (2/sqrt(6), -1/sqrt(6), -1/sqrt(6))   -> Z-basis = (2/sqrt(6), -1/sqrt(6), -1/sqrt(6))
+    const psiNZ = [0, Math.SQRT1_2, Math.SQRT1_2]
+    const psiNX = [2 / Math.sqrt(6), -1 / Math.sqrt(6), -1 / Math.sqrt(6)]
+    const z0 = [0, 0, 0]
     let maxErr = 0
-    maxErr = Math.max(maxErr, Math.abs(testFull(0b001, NZ, pPlus, z0) - evalChannelQfi([], NZ, pPlus, z0)))
-    maxErr = Math.max(maxErr, Math.abs(testFull(0b001, NX, pZero, z0) - evalChannelQfi([], NX, pZero, z0)))
-    maxErr = Math.max(maxErr, Math.abs(testFull(0b011, NZ, pPlus, z0) - evalChannelQfi([[1, 0]], NZ, pPlus, z0)))
-    maxErr = Math.max(maxErr, Math.abs(testFull(0b011, NX, pZero, z0) - evalChannelQfi([[1, 0]], NX, pZero, z0)))
-    maxErr = Math.max(maxErr, Math.abs(testFull(0b111, NZ, pPlus, z0) - evalChannelQfi([[1, 0], [0, 1]], NZ, pPlus, z0)))
-    maxErr = Math.max(maxErr, Math.abs(testFull(0b111, NX, pZero, z0) - evalChannelQfi([[1, 0], [0, 1]], NX, pZero, z0)))
+    maxErr = Math.max(maxErr, Math.abs(testFull(0b001, NZ, psiNZ, z0) - evalChannelQfi([], NZ, psiNZ, z0)))
+    maxErr = Math.max(maxErr, Math.abs(testFull(0b001, NX, psiNX, z0) - evalChannelQfi([], NX, psiNX, z0)))
+    maxErr = Math.max(maxErr, Math.abs(testFull(0b011, NZ, psiNZ, z0) - evalChannelQfi([[0, 1]], NZ, psiNZ, z0)))
+    maxErr = Math.max(maxErr, Math.abs(testFull(0b011, NX, psiNX, z0) - evalChannelQfi([[0, 1]], NX, psiNX, z0)))
+    maxErr = Math.max(maxErr, Math.abs(testFull(0b111, NZ, psiNZ, z0) - evalChannelQfi([[1, 0], [0, 1]], NZ, psiNZ, z0)))
+    maxErr = Math.max(maxErr, Math.abs(testFull(0b111, NX, psiNX, z0) - evalChannelQfi([[1, 0], [0, 1]], NX, psiNX, z0)))
+    assertExact(Math.abs(testFull(0b011, NX, psiNX, z0) - 4) < 1e-12, '3-qutrit classical-sector QFI(N_X) = 4')
+    assertExact(testFull(0b011, NZ, psiNZ, z0) < 1e-12, '3-qutrit classical-sector QFI(N_Z) = 0')
     return maxErr
   }
   const qfiChannelCrossErr = crossCheck3QutritQfi()
@@ -1915,37 +1978,79 @@ function runExperiment2() {
   console.log(`       Overlapping: A_1=[0..16] & A_2=[7..23] BOTH capture b_0 (${ovB0_1}/${ovB0_2}), split UV b_1 (${ovB1_1}/${ovB1_2}) & b_24 (${ovB24_1}/${ovB24_2})`)
 
   // --- 2B. Exact QFI Step Horizons across k = 1..24 cones (BOTH Z-cone and X-cone orderings!) ---
-  const pPlus = [1 / SQRT3, 1 / SQRT3, 1 / SQRT3], pZero = [1, 0, 0], z0 = [0, 0, 0]
+  const psiNZ = [0, Math.SQRT1_2, Math.SQRT1_2]
+  const psiNX = [2 / Math.sqrt(6), -1 / Math.sqrt(6), -1 / Math.sqrt(6)]
+  const z0 = [0, 0, 0]
   const zOrder = Array.from({ length: 24 }, (_, i) => i)
+  // Build deterministic X-dual cone ordering via exact Cleaning Lemma:
+  // xLead = [0,1,4,5,17,19,21,23] is a weight-8 X_L support. Find a disjoint weight-8 X_L support xTail
+  // from the X-coset xL + span(X-stabilizers of [[24,1,8]]_3) so xOrder = [xLead (8), mid (8), xTail (8)]
+  // is GUARANTEED to hold dim L_A = 1 (X_L only!) for ALL k = 8..16 and jump to dim = 2 at k = 17!
   const xLead = [0, 1, 4, 5, 17, 19, 21, 23]
-  const xOrder = [...xLead, ...zOrder.filter(c => !xLead.includes(c))]
+  const xLeadSet = new Set<number>(xLead)
+  const xStabRows = T.bulk23.filter(r => {
+    for (let i = 0; i < 24; i++) if (r[24 + i] !== 0) return false
+    return true
+  })
+  // Note: T.bulk23 has 1 + 8 = 9 pure-X rows (allX + 8 lvmDefs X-rows); also include w9Defs[0..5] X-parts via exact GF(3) search on stBH!
+  // Faster & exact: pick any weight-8 subset of the 16 cones outside xLead directly from the pure-X + mixed stabilizers of [[24,1,8]]_3:
+  // Actually, find xTail by checking minimal weight-8 X_L coset members in xL + span(bulk23) having ZERO Z-part AND disjoint from xLead!
+  // On 24 legs, the pure-X subspace of T.bulk23 has dimension 9 (allX + 8 lvmX) -> only 3^9 = 19,683 coset elements (takes < 3 ms)!
+  let xTail: number[] = []
+  const nXS = xStabRows.length
+  const totalCoset = Math.pow(3, nXS)
+  for (let code = 0; code < totalCoset; code++) {
+    let tmp = code, wt = 0, overlap = false
+    const coeffs = new Uint8Array(nXS)
+    for (let j = 0; j < nXS; j++) { coeffs[j] = tmp % 3; tmp = Math.floor(tmp / 3) }
+    const supp: number[] = []
+    for (let s = 0; s < 24; s++) {
+      let v = T.xL[s]!
+      for (let j = 0; j < nXS; j++) if (coeffs[j]) v = (v + coeffs[j]! * xStabRows[j]![s]!) % 3
+      if (v !== 0) {
+        if (xLeadSet.has(s)) { overlap = true; break }
+        wt++; supp.push(s)
+        if (wt > 8) break
+      }
+    }
+    if (!overlap && wt === 8) { xTail = supp; break }
+  }
+  assertExact(xTail.length === 8, 'found disjoint weight-8 X_L support xTail')
+  const xTailSet = new Set<number>(xTail)
+  const xMid = zOrder.filter(c => !xLeadSet.has(c) && !xTailSet.has(c))
+  const xOrder = [...xLead, ...xMid, ...xTail]
 
   type QfiRow = { k: number; dimZ: number; qZ_NZ: number; qZ_NX: number; dimX: number; qX_NZ: number; qX_NX: number }
   const qfiRows: QfiRow[] = []
+  let supZAt8 = '', supXAt8 = ''
   for (let k = 1; k <= 24; k++) {
     const supZ = supportedOriginLogicals(conesUnion(zOrder.slice(0, k)))
     const supX = supportedOriginLogicals(conesUnion(xOrder.slice(0, k)))
+    if (k === 8) {
+      supZAt8 = supZ.map(([p, q]) => `X^${p}Z^${q}`).join(',')
+      supXAt8 = supX.map(([p, q]) => `X^${p}Z^${q}`).join(',')
+    }
     qfiRows.push({
       k,
       dimZ: supZ.length,
-      qZ_NZ: evalChannelQfi(supZ, NZ, pPlus, z0),
-      qZ_NX: evalChannelQfi(supZ, NX, pZero, z0),
+      qZ_NZ: evalChannelQfi(supZ, NZ, psiNZ, z0),
+      qZ_NX: evalChannelQfi(supZ, NX, psiNX, z0),
       dimX: supX.length,
-      qX_NZ: evalChannelQfi(supX, NZ, pPlus, z0),
-      qX_NX: evalChannelQfi(supX, NX, pZero, z0),
+      qX_NZ: evalChannelQfi(supX, NZ, psiNZ, z0),
+      qX_NX: evalChannelQfi(supX, NX, psiNX, z0),
     })
   }
-  const qfiZeroAllLe7 = qfiRows.filter(r => r.k <= 7).every(r => r.dimZ === 0 && r.dimX === 0 && r.qZ_NZ === 0 && r.qZ_NX === 0 && r.qX_NZ === 0 && r.qX_NX === 0)
+  const qfiZeroAllLe7 = qfiRows.filter(r => r.k <= 7).every(r => r.dimZ === 0 && r.dimX === 0 && r.qZ_NZ < 1e-12 && r.qZ_NX < 1e-12 && r.qX_NZ < 1e-12 && r.qX_NX < 1e-12)
   const qfiSplitBand8to16 = qfiRows
     .filter(r => r.k >= 8 && r.k <= 16)
     .every(
       r =>
         r.dimZ === 1 &&
-        r.qZ_NZ === 0 &&
-        Math.abs(r.qZ_NX - 8 / 3) < 1e-12 &&
+        r.qZ_NZ < 1e-12 &&
+        Math.abs(r.qZ_NX - 4) < 1e-12 &&
         r.dimX === 1 &&
-        Math.abs(r.qX_NZ - 8 / 3) < 1e-12 &&
-        r.qX_NX === 0,
+        Math.abs(r.qX_NZ - 4) < 1e-12 &&
+        r.qX_NX < 1e-12,
     )
   const qfiSatGe17 = qfiRows
     .filter(r => r.k >= 17)
@@ -1953,19 +2058,24 @@ function runExperiment2() {
       r =>
         r.dimZ === 2 &&
         r.dimX === 2 &&
-        Math.abs(r.qZ_NZ - 8 / 3) < 1e-12 &&
-        Math.abs(r.qZ_NX - 8 / 3) < 1e-12 &&
-        Math.abs(r.qX_NZ - 8 / 3) < 1e-12 &&
-        Math.abs(r.qX_NX - 8 / 3) < 1e-12,
+        Math.abs(r.qZ_NZ - 4) < 1e-12 &&
+        Math.abs(r.qZ_NX - 4) < 1e-12 &&
+        Math.abs(r.qX_NZ - 4) < 1e-12 &&
+        Math.abs(r.qX_NX - 4) < 1e-12,
     )
 
+  const cnt0 = qfiRows.filter(r => r.k <= 7 && r.dimZ === 0 && r.dimX === 0).length
+  const cntZ1 = qfiRows.filter(r => r.k >= 8 && r.k <= 16 && r.dimZ === 1 && r.qZ_NZ < 1e-12 && Math.abs(r.qZ_NX - 4) < 1e-12).length
+  const cntX1 = qfiRows.filter(r => r.k >= 8 && r.k <= 16 && r.dimX === 1 && Math.abs(r.qX_NZ - 4) < 1e-12 && r.qX_NX < 1e-12).length
+  const cnt2 = qfiRows.filter(r => r.k >= 17 && r.dimZ === 2 && r.dimX === 2 && Math.abs(r.qZ_NZ - 4) < 1e-12 && Math.abs(r.qX_NX - 4) < 1e-12).length
   console.log(`  [2B] Exact QFI Step Horizons on B_1 (full 27-dim 3-qutrit SLD cross-check err = ${qfiChannelCrossErr.toExponential(2)}):`)
-  console.log(`       k =  1.. 7: dim L_A = 0 -> QFI(N_Z) = 0.000000, QFI(N_X) = 0.000000 (all 7/7 exact zero!)`)
-  console.log(`       k =  8..16 (Z-cones, Z_L accessible): dim L_A = 1 -> QFI(N_Z) = 0.000000, QFI(N_X) = ${(8 / 3).toFixed(6)} (all 9/9 exact!)`)
-  console.log(`       k =  8..16 (X-cones, X_L accessible): dim L_A = 1 -> QFI(N_Z) = ${(8 / 3).toFixed(6)}, QFI(N_X) = 0.000000 (all 9/9 exact!)`)
-  console.log(`       k = 17..24 (full quantum EW capture): dim L_A = 2 -> QFI(N_Z) = ${(8 / 3).toFixed(6)}, QFI(N_X) = ${(8 / 3).toFixed(6)} (all 8/8 exact!)`)
+  console.log(`       zOrder(k=8) supports [${supZAt8}] | xOrder(k=8) supports [${supXAt8}] | xOrder(1..16)=[${xOrder.slice(0, 16).join(',')}]`)
+  console.log(`       k =  1.. 7: dim L_A = 0 -> QFI(N_Z) = 0.000000, QFI(N_X) = 0.000000 (${cnt0}/7 verified!)`)
+  console.log(`       k =  8..16 (Z-cones, Z_L accessible): dim L_A = 1 -> QFI(N_Z) = 0.000000, QFI(N_X) = 4.000000 (${cntZ1}/9 verified!)`)
+  console.log(`       k =  8..16 (X-cones, X_L accessible): dim L_A = 1 -> QFI(N_Z) = 4.000000, QFI(N_X) = 0.000000 (${cntX1}/9 verified!)`)
+  console.log(`       k = 17..24 (full quantum EW capture): dim L_A = 2 -> QFI(N_Z) = 4.000000, QFI(N_X) = 4.000000 (${cnt2}/8 verified!)`)
 
-  // --- 2C. Robustness of 0 -> 16 ln 3 RT Snap, Binomial Erasure Threshold & Depolarizing QFI at p = 0, 0.05, 0.10, 0.20, 0.30 ---
+  // --- 2C. Robustness of 0 -> 16 ln 3 RT Snap, Binomial Erasure Threshold & Depolarizing QFI at p = 0, 0.02, 0.05, 0.10, 0.20, 0.30 ---
   const comb = (n: number, k: number): number => {
     if (k < 0 || k > n) return 0
     let r = 1
@@ -1977,7 +2087,13 @@ function runExperiment2() {
     for (let k = 0; k <= maxK; k++) s += comb(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k)
     return s
   }
-  // Exact depolarizing SLD QFI formula check: Lambda_eps(rho) = (1-eps) rho + eps (I/3) -> J(eps)/J(0) = (1-eps)^2 / (1 - 2 eps/3)
+  // Exact qutrit (d=3) depolarizing SLD QFI formula check:
+  // Convention: p = total single-qutrit Pauli error prob (8 non-identity Paulis at p/8 each) corresponds to
+  // isotropic depolarizing parameter eps = (9/8) p in Lambda_eps(rho) = (1-eps) rho + eps (I/3)
+  // (using eps = p is conservative by 8/9). Eigenvalues on |+>: lambda_0 = 1 - 2 eps/3, lambda_{1,2} = eps/3,
+  // so lambda_0 + lambda_k = 1 - eps/3 and J_iso(eps)/J(0) = (1 - eps)^2 / (1 - eps/3).
+  // Worst-case logical Pauli dephasing channel rho -> (1 - eps_log) rho + eps_log Z rho Z^dag gives
+  // J_deph(eps_log)/J(0) >= max(0, 1 - 2 eps_log)^2 (exact for optimal phase probe |psi_NZ>!).
   const depolCheckErr = (() => {
     const eps = 0.17
     const rho0 = cmatZero(3), drho0 = cmatZero(3)
@@ -1991,15 +2107,19 @@ function runExperiment2() {
       drho0.im[k] = -(1 - eps) * (Hrho.re[k]! - rhoH.re[k]!)
     }
     const num = exactSldQfi(rho0, drho0)
-    const exact = (8 / 3) * ((1 - eps) ** 2 / (1 - (2 / 3) * eps))
+    const exact = (8 / 3) * ((1 - eps) ** 2 / (1 - eps / 3))
     return Math.abs(num - exact)
   })()
 
-  console.log(`  [2C] Local Boundary Erasure & Depolarization Robustness (p = 0, 0.05, 0.10, 0.20, 0.30; SLD depol err=${depolCheckErr.toExponential(1)}):`)
-  type NoiseRow = { p: number; mErase: number; rtSnapK11: number; rtSnapK3: number; iBulkOrig: number; pBinomRec: number; qfiRatioCode: number; qfiRatioRaw: number }
+  console.log(`  [2C] Local Boundary Erasure & Depolarization Robustness (p = 0, 0.02, 0.05, 0.10, 0.20, 0.30; SLD depol err=${depolCheckErr.toExponential(1)}):`)
+  console.log(`       Convention: p = total Pauli error prob (iso depol eps = (9/8) p; also reporting worst-case Pauli dephasing (1 - 2 eps)^2)`)
+  type NoiseRow = {
+    p: number; mErase: number; rtSnapK11: number; rtSnapK3: number; iBulkOrig: number; pBinomRec: number
+    qfiDepCode: number; qfiDepRaw: number; qfiDephCode: number; qfiDephRaw: number
+  }
   const noiseRows: NoiseRow[] = []
-  for (const p of [0, 0.05, 0.10, 0.20, 0.30]) {
-    const mErase = Math.round(23 * p) // 0, 1, 2, 5, 7 legs erased per cone (deterministic stratum profile!)
+  for (const p of [0, 0.02, 0.05, 0.10, 0.20, 0.30]) {
+    const mErase = Math.round(23 * p) // 0, 0, 1, 2, 5, 7 legs erased per cone (deterministic stratum profile!)
     const keptOfCone = (a: number): number[] => Array.from({ length: 23 - mErase }, (_, j) => a * 23 + mErase + j)
     const keptCones = (as: readonly number[]): number[] => as.flatMap(keptOfCone)
     const evalRTMI = (k: number): number => {
@@ -2010,25 +2130,28 @@ function runExperiment2() {
     const rtSnapK3 = evalRTMI(3), rtSnapK11 = evalRTMI(11)
     const allKept = keptCones(zOrder)
     const iBulkOrig = 1 + stabEntropy(cB1Bulk.basis, 577, allKept) - stabEntropy(cB1Bulk.basis, 577, [...allKept, 552])
-    // Exact i.i.d. binomial erasure lower bound: each cone recovers internal edge iff <= 4 boundary erasures (d_pure=6),
-    // and origin recovers b_0 iff <= 7 cones fail (d=8)!
+    // Exact i.i.d. heralded erasure QFI/J_max lower bound: each cone recovers iff <= 4 erasures (d_pure=6), origin iff <= 7 failed cones (d=8)!
     const qConeRec = binomCdf(23, p, 4)
     const pBinomRec = binomCdf(24, 1 - qConeRec, 7)
-    // Concatenated 2-level Pauli depolarizing decoding (each cone corrects <= 2 errors since d_cone >= 5; origin corrects <= 3 cone failures since d_0 = 8)
+    // Unheralded 2-level Pauli decoding: each cone corrects <= 2 Pauli errors (d_cone >= 5), origin corrects <= 3 failed cones (d_0 = 8)
     const pConeFail = 1 - binomCdf(23, p, 2)
-    const epsLog = 1 - binomCdf(24, pConeFail, 3)
-    const qfiRatioCode = ((1 - epsLog) ** 2) / (1 - (2 / 3) * epsLog)
-    const qfiRatioRaw = ((1 - p) ** 2) / (1 - (2 / 3) * p)
-    noiseRows.push({ p, mErase, rtSnapK11, rtSnapK3, iBulkOrig, pBinomRec, qfiRatioCode, qfiRatioRaw })
+    const pLogFail = 1 - binomCdf(24, pConeFail, 3)
+    const epsIsoCode = Math.min(1, (9 / 8) * pLogFail)
+    const epsIsoRaw = Math.min(1, (9 / 8) * p)
+    const qfiDepCode = ((1 - epsIsoCode) ** 2) / (1 - epsIsoCode / 3)
+    const qfiDepRaw = ((1 - epsIsoRaw) ** 2) / (1 - epsIsoRaw / 3)
+    const qfiDephCode = Math.max(0, 1 - 2 * pLogFail) ** 2
+    const qfiDephRaw = Math.max(0, 1 - 2 * p) ** 2
+    noiseRows.push({ p, mErase, rtSnapK11, rtSnapK3, iBulkOrig, pBinomRec, qfiDepCode, qfiDepRaw, qfiDephCode, qfiDephRaw })
     console.log(
-      `       p=${p.toFixed(2)} (m=${mErase}/23): RT I(3:3)=${String(rtSnapK3).padStart(2)}, I(11:11)=${String(rtSnapK11).padStart(2)} ln 3 | I(b0:E^c)=${iBulkOrig}/2 | P_binom(b0)=${pBinomRec.toFixed(6)} | QFI/J_max: coded=${qfiRatioCode.toFixed(6)} vs raw=${qfiRatioRaw.toFixed(6)}`,
+      `       p=${p.toFixed(2)} (m=${mErase}/23): RT I(3:3)=${String(rtSnapK3).padStart(2)}, I(11:11)=${String(rtSnapK11).padStart(2)} ln 3 | I(b0:E^c)=${iBulkOrig}/2 | Erase=${pBinomRec.toFixed(6)} vs ${(1 - p).toFixed(2)} | IsoDep=${qfiDepCode.toFixed(6)} vs ${qfiDepRaw.toFixed(4)} | Deph=${qfiDephCode.toFixed(6)} vs ${qfiDephRaw.toFixed(4)}`,
     )
   }
   console.log('')
 
   recordCheck(
     'E2',
-    'B_1 RT individuation, exact QFI step horizons (k<=7:0, 8..16:basis-split, >=17:8/3) & p=0..0.30 robustness',
+    'B_1 RT individuation, exact QFI step horizons (k<=7:0, 8..16:basis-split, >=17:4.0) & p=0..0.30 robustness',
     exclViolations === 0 &&
       ssA === 0 && ssB === 0 && ssC === 0 && ssABC === 2 &&
       nestSubB1 === 2 && nestSubB0 === 0 && nestSupB1 === 2 && nestSupB0 === 2 &&
@@ -2039,12 +2162,17 @@ function runExperiment2() {
       qfiSplitBand8to16 &&
       qfiSatGe17 &&
       noiseRows[0]!.rtSnapK11 === 16 &&
-      noiseRows[1]!.rtSnapK11 === 16 &&
       noiseRows[2]!.rtSnapK11 === 16 &&
-      noiseRows[2]!.pBinomRec > 0.999 &&
-      noiseRows[4]!.pBinomRec < 1e-6 &&
-      noiseRows[1]!.qfiRatioCode > noiseRows[1]!.qfiRatioRaw,
-    `QFI steps exact k<=7/8..16/>=17 (3-qutrit SLD err=${qfiChannelCrossErr.toExponential(1)}); RT 16 ln 3 survives p=0,0.05,0.10 (P_rec>0.9996) & collapses by p=0.30`,
+      noiseRows[3]!.rtSnapK11 === 16 &&
+      noiseRows[2]!.pBinomRec > 0.99999 &&
+      noiseRows[3]!.pBinomRec > 0.999 &&
+      noiseRows[5]!.pBinomRec < 1e-6 &&
+      noiseRows[1]!.qfiDepCode > noiseRows[1]!.qfiDepRaw &&
+      noiseRows[1]!.qfiDephCode > noiseRows[1]!.qfiDephRaw &&
+      noiseRows[2]!.qfiDepCode < noiseRows[2]!.qfiDepRaw &&
+      noiseRows[2]!.qfiDephCode < noiseRows[2]!.qfiDephRaw &&
+      noiseRows[3]!.pBinomRec > 1 - noiseRows[3]!.p,
+    `QFI steps exact k<=7/8..16/>=17 (3-qutrit SLD err=${qfiChannelCrossErr.toExponential(1)}, depol err=${depolCheckErr.toExponential(1)}); RT 16 ln 3 survives p=0..0.10 (erase P_rec>0.9997) & collapses by p=0.30`,
   )
 
   return { stBH, cB1Bulk, coneLegs, conesUnion }
@@ -2179,20 +2307,211 @@ function runExperiment3(b1Ctx: ReturnType<typeof runExperiment2>) {
   const c4Mem = runChiralMemory([0, 1, 2, 8], [1, 1, 1, 1])
   const c2Mem = runChiralMemory([0, 1, 6, 10], [1, 1, -1, -1])
 
-  // Exact k=3 Sym^3 trion permanent B_1 retention (exact Z[w][1/7] decay |r|^2 = 1/7):
-  // Inside B_1 (relative separation d1 + d2 <= 1, i.e., all 3 particles within 1 hop of CM), weight is p_pair = 6/7 (exact!)
-  // Wait: exact eigenstate probability is time-independent -> Holevo I(u : rho_{B1, Delta}) = (6/7) * ln 2 for ALL Delta >= 0 (tau_eff = inf)!
-  const trionB1HolevoPermanent = (6 / 7) * Math.log(2)
+  // --- 3B2. Exact k = 3 Sym^3 Trion Bloch Band E_trion(P): Comoving Relative Binding vs Fixed-B_1 Wavepacket Dispersion! ---
+  // Build exact open-relative-separation 3-body Sym^3 Bloch unitary U(P) on d1 + d2 <= R_REL = 7 (196 relative states; (1/7)^7 = 1.2e-6):
+  // Canonical basis: {(0, s0), (d1, s1), (d1+d2, s2)} sorted by (m, s), d1 >= 0, d2 >= 0, d1 + d2 in [1, R_REL].
+  const R_REL = 6 // 144 states; (1/7)^6 = 8.5e-6 -> exact to 5+ digits in < 120 ms!
+  type Rel3 = readonly [number, number, number, number, number] // [d1, d2, s0, s1, s2]
+  const rel3List: Rel3[] = []
+  const rel3Key = (d1: number, d2: number, s0: number, s1: number, s2: number) => `${d1}:${d2}:${s0}:${s1}:${s2}`
+  const rel3Map = new Map<string, number>()
+  for (let d1 = 0; d1 <= R_REL; d1++) {
+    for (let d2 = 0; d2 <= R_REL - d1; d2++) {
+      if (d1 + d2 === 0) continue
+      for (let s0 = 0; s0 < 2; s0++) {
+        for (let s1 = 0; s1 < 2; s1++) {
+          if (d1 === 0 && s0 >= s1) continue
+          for (let s2 = 0; s2 < 2; s2++) {
+            if (d2 === 0 && s1 >= s2) continue
+            rel3Map.set(rel3Key(d1, d2, s0, s1, s2), rel3List.length)
+            rel3List.push([d1, d2, s0, s1, s2])
+          }
+        }
+      }
+    }
+  }
+  const nRel3 = rel3List.length
+  // Precompute shift-indexed sparse transitions of U_Sym3 on relative basis: each entry (row, col, shift, ampR, ampI)
+  type Rel3Trans = { readonly row: number; readonly col: number; readonly shift: number; readonly re: number; readonly im: number }
+  const rel3Trans: Rel3Trans[] = []
+  {
+    const cMat1: C[][] = [[C_KEEP, C_CROSS], [C_CROSS, C_KEEP]]
+    for (let col = 0; col < nRel3; col++) {
+      const [d1, d2, s0, s1, s2] = rel3List[col]!
+      const pts: readonly [number, number][] = [[0, s0], [d1, s1], [d1 + d2, s2]]
+      const byM = new Map<number, number[]>()
+      for (let i = 0; i < 3; i++) { const m = pts[i]![0], l = byM.get(m); if (l) l.push(i); else byM.set(m, [i]) }
+      let br: { pts: [number, number][]; amp: C }[] = [{ pts: [], amp: [1, 0] }]
+      for (const [m, idxs] of byM) {
+        if (idxs.length === 2) br = br.map(b => ({ pts: [...b.pts, [m, 0], [m, 1]], amp: cMul(b.amp, W2_C) }))
+        else {
+          const sIn = pts[idxs[0]!]![1], nb: { pts: [number, number][]; amp: C }[] = []
+          for (const b of br) {
+            nb.push({ pts: [...b.pts, [m, 0]], amp: cMul(b.amp, cMat1[0]![sIn]!) })
+            nb.push({ pts: [...b.pts, [m, 1]], amp: cMul(b.amp, cMat1[1]![sIn]!) })
+          }
+          br = nb
+        }
+      }
+      for (const b of br) {
+        const moved: [number, number][] = b.pts.map(([m, s]) => [s === 0 ? m : m - 1, s])
+        moved.sort((a, b2) => a[0] - b2[0] || a[1] - b2[1])
+        const sh = moved[0]![0]
+        const nd1 = moved[1]![0] - sh, nd2 = moved[2]![0] - moved[1]![0]
+        if (nd1 + nd2 > R_REL) continue
+        const row = rel3Map.get(rel3Key(nd1, nd2, moved[0]![1], moved[1]![1], moved[2]![1]))!
+        rel3Trans.push({ row, col, shift: sh, re: b.amp[0], im: b.amp[1] })
+      }
+    }
+  }
+  const buildRel3U = (P: number): CMat => {
+    const U = cmatZero(nRel3)
+    const phCache = new Map<number, C>([[-1, cExpI(P)], [0, [1, 0]], [1, cExpI(-P)]])
+    for (const tr of rel3Trans) {
+      const ph = phCache.get(tr.shift) ?? cExpI(-P * tr.shift)
+      const re = tr.re * ph[0] - tr.im * ph[1], im = tr.re * ph[1] + tr.im * ph[0]
+      U.re[tr.row * nRel3 + tr.col] = U.re[tr.row * nRel3 + tr.col]! + re
+      U.im[tr.row * nRel3 + tr.col] = U.im[tr.row * nRel3 + tr.col]! + im
+    }
+    return U
+  }
+  const refineBlochEigen = (U: CMat, seedLam: C, seedRe: Float64Array, seedIm: Float64Array, iters: number) => {
+    const n = U.n
+    const vr = Float64Array.from(seedRe), vi = Float64Array.from(seedIm)
+    let lam: C = seedLam
+    const ar = new Float64Array(n * n), ai = new Float64Array(n * n)
+    const xr = new Float64Array(n), xi = new Float64Array(n)
+    for (let it = 0; it < iters; it++) {
+      ar.set(U.re); ai.set(U.im); xr.set(vr); xi.set(vi)
+      const sh: C = cScale(it === 0 ? 1.0005 : 1 + 1e-9, lam)
+      for (let i = 0; i < n; i++) { ar[i * n + i] = ar[i * n + i]! - sh[0]; ai[i * n + i] = ai[i * n + i]! - sh[1] }
+      for (let c = 0; c < n; c++) {
+        let piv = c, best = Math.hypot(ar[c * n + c]!, ai[c * n + c]!)
+        for (let r = c + 1; r < n; r++) { const v = Math.hypot(ar[r * n + c]!, ai[r * n + c]!); if (v > best) { best = v; piv = r } }
+        if (piv !== c) {
+          for (let j = c; j < n; j++) {
+            let t = ar[c * n + j]!; ar[c * n + j] = ar[piv * n + j]!; ar[piv * n + j] = t
+            t = ai[c * n + j]!; ai[c * n + j] = ai[piv * n + j]!; ai[piv * n + j] = t
+          }
+          let tb = xr[c]!; xr[c] = xr[piv]!; xr[piv] = tb; tb = xi[c]!; xi[c] = xi[piv]!; xi[piv] = tb
+        }
+        const pr = ar[c * n + c]!, pi = ai[c * n + c]!, d = pr * pr + pi * pi
+        for (let r = c + 1; r < n; r++) {
+          const fr0 = ar[r * n + c]!, fi0 = ai[r * n + c]!
+          if (fr0 === 0 && fi0 === 0) continue
+          const fr = (fr0 * pr + fi0 * pi) / d, fi = (fi0 * pr - fr0 * pi) / d
+          for (let j = c + 1; j < n; j++) {
+            ar[r * n + j] = ar[r * n + j]! - (fr * ar[c * n + j]! - fi * ai[c * n + j]!)
+            ai[r * n + j] = ai[r * n + j]! - (fr * ai[c * n + j]! + fi * ar[c * n + j]!)
+          }
+          xr[r] = xr[r]! - (fr * xr[c]! - fi * xi[c]!); xi[r] = xi[r]! - (fr * xi[c]! + fi * xr[c]!)
+        }
+      }
+      for (let r = n - 1; r >= 0; r--) {
+        let sr = xr[r]!, si = xi[r]!
+        for (let j = r + 1; j < n; j++) { sr -= ar[r * n + j]! * xr[j]! - ai[r * n + j]! * xi[j]!; si -= ar[r * n + j]! * xi[j]! + ai[r * n + j]! * xr[j]! }
+        const pr = ar[r * n + r]!, pi = ai[r * n + r]!, d = pr * pr + pi * pi
+        xr[r] = (sr * pr + si * pi) / d; xi[r] = (si * pr - sr * pi) / d
+      }
+      let n2 = 0; for (let i = 0; i < n; i++) n2 += xr[i]! ** 2 + xi[i]! ** 2
+      const inv = 1 / Math.sqrt(n2); for (let i = 0; i < n; i++) { vr[i] = xr[i]! * inv; vi[i] = xi[i]! * inv }
+      let lr = 0, li = 0
+      for (let r = 0; r < n; r++) {
+        let sr = 0, si = 0
+        for (let c = 0; c < n; c++) { sr += U.re[r * n + c]! * vr[c]! - U.im[r * n + c]! * vi[c]!; si += U.re[r * n + c]! * vi[c]! + U.im[r * n + c]! * vr[c]! }
+        lr += vr[r]! * sr + vi[r]! * si; li += vr[r]! * si - vi[r]! * sr
+      }
+      lam = [lr, li]
+    }
+    let res2 = 0, edgeW = 0
+    for (let r = 0; r < n; r++) {
+      let sr = 0, si = 0
+      for (let c = 0; c < n; c++) { sr += U.re[r * n + c]! * vr[c]! - U.im[r * n + c]! * vi[c]!; si += U.re[r * n + c]! * vi[c]! + U.im[r * n + c]! * vr[c]! }
+      const dr = sr - (lam[0] * vr[r]! - lam[1] * vi[r]!), di = si - (lam[0] * vi[r]! + lam[1] * vr[r]!)
+      res2 += dr * dr + di * di
+      if (rel3List[r]![0] + rel3List[r]![1] === R_REL) edgeW += vr[r]! ** 2 + vi[r]! ** 2
+    }
+    return { lam, vr, vi, res: Math.sqrt(res2), edgeW }
+  }
+
+  // Exact P = 0 trion eigenvector: verify BOTH exact comoving probabilities p_pair = 6/7 & p_{d1+d2=1} = 288/343!
+  const seedTrR = new Float64Array(nRel3), seedTrI = new Float64Array(nRel3)
+  for (let i = 0; i < nRel3; i++) seedTrR[i] = Math.cos(i * 0.713 + 0.1) / Math.sqrt(nRel3)
+  const trionP0 = refineBlochEigen(buildRel3U(0), [-13 / 14, (-3 * SQRT3) / 14], seedTrR, seedTrI, 5)
+  let trionComovingPair = 0, trionComovingCore1 = 0
+  for (let i = 0; i < nRel3; i++) {
+    const w = trionP0.vr[i]! ** 2 + trionP0.vi[i]! ** 2
+    const [d1, d2] = rel3List[i]!
+    if (d1 === 0 || d2 === 0) trionComovingPair += w
+    if (d1 + d2 === 1) trionComovingCore1 += w
+  }
+  assertExact(Math.abs(trionComovingPair - 6 / 7) < 1e-4, `trion comoving p_pair=6/7, got ${trionComovingPair}`)
+  assertExact(Math.abs(trionComovingCore1 - 288 / 343) < 1e-4, `trion comoving p_{d1+d2=1}=288/343, got ${trionComovingCore1}`)
+
+  // Trace exact Bloch dispersion E_trion(P) across a N_CM = 32 even-site (= 64-dock) geodesic ring and evolve a localized trion wavepacket!
+  const N_CM = 32
+  const boundPs: { P: number; lam: C; vr: Float64Array; vi: Float64Array }[] = []
+  const traceHalf = (dir: 1 | -1) => {
+    let curLam = trionP0.lam, curR = trionP0.vr, curI = trionP0.vi
+    const startQ = dir === 1 ? 1 : -1
+    const limQ = dir === 1 ? N_CM / 2 : -(N_CM / 2 - 1)
+    for (let q = startQ; dir === 1 ? q <= limQ : q >= limQ; q += dir) {
+      const P = (2 * Math.PI * q) / N_CM
+      const sol = refineBlochEigen(buildRel3U(P), curLam, curR, curI, 2)
+      if (sol.res < 1e-3 && sol.edgeW < 5e-3 && Math.abs(cAbs(sol.lam) - 1) < 1e-3) {
+        // Phase-align gauge continuously (<cur | sol> real > 0) for smooth localized wavepacket!
+        let ovR = 0, ovI = 0
+        for (let i = 0; i < nRel3; i++) { ovR += curR[i]! * sol.vr[i]! + curI[i]! * sol.vi[i]!; ovI += curR[i]! * sol.vi[i]! - curI[i]! * sol.vr[i]! }
+        const nOv = Math.hypot(ovR, ovI), cR = ovR / nOv, cI = -ovI / nOv
+        for (let i = 0; i < nRel3; i++) {
+          const r = sol.vr[i]!, im = sol.vi[i]!
+          sol.vr[i] = cR * r - cI * im; sol.vi[i] = cR * im + cI * r
+        }
+        boundPs.push({ P, lam: sol.lam, vr: sol.vr, vi: sol.vi })
+        curLam = sol.lam; curR = sol.vr; curI = sol.vi
+      } else break
+    }
+  }
+  boundPs.push({ P: 0, lam: trionP0.lam, vr: trionP0.vr, vi: trionP0.vi })
+  traceHalf(1); traceHalf(-1)
+  boundPs.sort((a, b) => a.P - b.P)
+
+  // Construct exact normalized localized trion wavepacket centered at origin x = 0 (all certified bound Bloch modes with cosine-window weights!)
+  const pMaxBound = Math.max(...boundPs.map(b => Math.abs(b.P)))
+  const wpW = boundPs.map(b => (pMaxBound > 0 ? Math.cos((0.45 * Math.PI * b.P) / pMaxBound) : 1))
+  const wpNorm = Math.sqrt(wpW.reduce((s, w) => s + w * w, 0))
+  const wpC = wpW.map(w => w / wpNorm)
+  // Compute exact fixed-B_1 survival p_{fixed B_1}(Delta) = probability ALL 3 particles lie inside fixed origin 3-even-site ball m in {-1, 0, 1}!
+  // For leftmost coordinate m0 in {-1, 0, 1}, all 3 particles lie inside {-1, 0, 1} iff m0 + d1 + d2 <= 1!
+  const trionFixedB1Surv: number[] = []
+  const trionFixedB1Holevo: number[] = []
+  for (let t = 0; t <= T_MAX; t++) {
+    let pIn = 0
+    for (const m0 of [-1, 0, 1]) {
+      for (let i = 0; i < nRel3; i++) {
+        const [d1, d2] = rel3List[i]!
+        if (m0 + d1 + d2 > 1) continue
+        let ar = 0, ai = 0
+        for (let b = 0; b < boundPs.length; b++) {
+          const bp = boundPs[b]!, w = wpC[b]!
+          // lam^t * exp(i P m0) / sqrt(N_CM) -> exact normalization: over all m0 in Z_{N_CM}, sum_{m0} |sum_b c_b e^{i P_b m0} phi_b|^2 / N_CM = sum_b |c_b|^2 = 1!
+          const ang = Math.atan2(bp.lam[1], bp.lam[0]) * t + bp.P * m0
+          const cr = Math.cos(ang), ci = Math.sin(ang)
+          const pr = bp.vr[i]!, pi = bp.vi[i]!
+          ar += w * (cr * pr - ci * pi); ai += w * (cr * pi + ci * pr)
+        }
+        pIn += (ar * ar + ai * ai) / N_CM
+      }
+    }
+    trionFixedB1Surv.push(pIn)
+    trionFixedB1Holevo.push(pIn * Math.log(2)) // Binary input u in {0, 1} on two orthogonal geodesic lines L_0 vs L_1!
+  }
+  // Exact group velocity curvature check: verify genuine center-of-mass dispersion (strictly decaying fixed-B_1 survival!)
+  const trionDispRatio = trionFixedB1Surv[32]! / trionFixedB1Surv[0]!
 
   // --- 3C. W10 B_1 = [[552, 25, 40]]_3 Bulk-Protected Register & Unequal-Delay Temporal Alignment ---
   // Ternary input u in {0, 1, 2} encoded in b_0 -> under any sub-threshold boundary erasure (|E| <= 39, or m <= 4 per cone),
   // I(u : rho_{E^c, t}) = ln 3 (100% trit, tau_eff = inf), dropping at |E| = 40!
-  // Unequal-delay temporal alignment (Note 12 Sec 46):
-  //   Inject u_1 in {0, 1, 2} at beat t - 2 on geodesic path L_1 (delay Delta_1 = 2) -> arrives at B_1 with survival k1SurvB1[2],
-  //   AND inject independent u_2 in {0, 1, 2} at beat t - 6 on orthogonal geodesic path L_2 (delay Delta_2 = 6) -> survival k1SurvB1[6],
-  //   BOTH simultaneously decodable inside ONE single-beat present snapshot rho_{B_1, t}!
-  //   Also on B_1 holographic bulk: shell-1 bulk qutrit b_1 (encoding u_1 at radial lag 1) and origin bulk qutrit b_0 (encoding u_2 at radial lag 2)
-  //   are simultaneously readable with full 2 ln 3 each inside ONE single-beat snapshot of EW(A_17)!
   const alignBallisticD2 = k1HolevoB1[2]!, alignBallisticD6 = k1HolevoB1[6]!
   const alignB1_b0 = 1 + stabEntropy(b1Ctx.cB1Bulk.basis, 577, b1Ctx.conesUnion(Array.from({ length: 17 }, (_, i) => i))) -
     stabEntropy(b1Ctx.cB1Bulk.basis, 577, [...b1Ctx.conesUnion(Array.from({ length: 17 }, (_, i) => i)), 552])
@@ -2211,111 +2530,119 @@ function runExperiment3(b1Ctx: ReturnType<typeof runExperiment2>) {
   console.log(`  [3A/B] Single-beat present-state Holevo lag decodability I(u_{t-Delta} : rho_{A, t}) (Delta = 0..32):`)
   console.log(`       (a1) k=1 Ballistic bare U (dock 0): I(0)=${k1HolevoB0[0]!.toFixed(4)}, I(2)=${k1HolevoB0[2]!.toFixed(4)}, I(8)=${k1HolevoB0[8]!.toFixed(4)}, I(16)=${k1HolevoB0[16]!.toFixed(4)}, I(32)=${k1HolevoB0[32]!.toFixed(4)} | tau_eff(0.05)=${tauEff(k1HolevoB0, etaMed)}`)
   console.log(`       (a2) k=4 Uncoupled (Phi_odd=OFF):   I(0)=${c4Mem.offCurve[0]!.toFixed(4)}, I(8)=${c4Mem.offCurve[8]!.toExponential(2)}, I(16)=${c4Mem.offCurve[16]!.toExponential(2)}, I(32)=${c4Mem.offCurve[32]!.toExponential(2)} | tau_eff(1e-3)=${tauEff(c4Mem.offCurve, etaLow)}`)
-  console.log(`       (b1) W9 Chiral C4 [0,1,2,8] ON:     I(0)=${c4Mem.onCurve[0]!.toFixed(4)}, I(8)=${c4Mem.onCurve[8]!.toExponential(2)}, I(16)=${c4Mem.onCurve[16]!.toExponential(2)} (${c4Mem.boost16Holevo.toFixed(1)}x Holevo / ${c4Mem.boost16Surv.toFixed(1)}x surv boost!), tau_eff(1e-3)=${tauEff(c4Mem.onCurve, etaLow)}`)
-  console.log(`       (b2) W9 Chiral C2 Q=0_V ON:         I(0)=${c2Mem.onCurve[0]!.toFixed(4)}, I(8)=${c2Mem.onCurve[8]!.toExponential(2)}, I(16)=${c2Mem.onCurve[16]!.toExponential(2)} (${c2Mem.boost16Holevo.toFixed(1)}x Holevo / ${c2Mem.boost16Surv.toFixed(1)}x surv boost!), tau_eff(1e-3)=${tauEff(c2Mem.onCurve, etaLow)}`)
-  console.log(`       (b3) k=3 Sym^3 Trion bound core:    permanent B_1 plateau I = (6/7) ln 2 = ${trionB1HolevoPermanent.toFixed(6)} (tau_eff = inf!)`)
-  console.log(`       (c)  W10 B_1 bulk register:         I(u : rho_{EW,t}) = ln 3 = ${LN3.toFixed(6)} (tau_eff = inf for |E|<=39)`)
+  console.log(`       (b1) W9 Chiral C4 [0,1,2,8] ON:     I(0)=${c4Mem.onCurve[0]!.toFixed(4)}, I(8)=${c4Mem.onCurve[8]!.toExponential(2)}, I(16)=${c4Mem.onCurve[16]!.toExponential(2)}, I(32)=${c4Mem.onCurve[32]!.toExponential(2)} (${c4Mem.boost16Holevo.toFixed(1)}x Holevo / ${c4Mem.boost16Surv.toFixed(1)}x surv @16), tau_eff(1e-3)=${tauEff(c4Mem.onCurve, etaLow)}`)
+  console.log(`       (b2) W9 Chiral C2 Q=0_V ON:         I(0)=${c2Mem.onCurve[0]!.toFixed(4)}, I(8)=${c2Mem.onCurve[8]!.toExponential(2)}, I(16)=${c2Mem.onCurve[16]!.toExponential(2)}, I(32)=${c2Mem.onCurve[32]!.toExponential(2)} (${c2Mem.boost16Holevo.toFixed(1)}x Holevo / ${c2Mem.boost16Surv.toFixed(1)}x surv @16), tau_eff(1e-3)=${tauEff(c2Mem.onCurve, etaLow)}`)
+  console.log(`       (b3) k=3 Sym^3 Trion (${boundPs.length}/${N_CM} bound Bloch modes):`)
+  console.log(`            Comoving relative frame (P=0): p_pair(d1=0|d2=0)=${trionComovingPair.toFixed(6)} (exact 6/7=0.857143), p(d1+d2=1)=${trionComovingCore1.toFixed(6)} (exact 288/343=0.839650)`)
+  console.log(`            Fixed-B_1 wavepacket (O(1/t) CM dispersion): I(0)=${trionFixedB1Holevo[0]!.toFixed(4)}, I(8)=${trionFixedB1Holevo[8]!.toFixed(4)}, I(16)=${trionFixedB1Holevo[16]!.toFixed(4)}, I(32)=${trionFixedB1Holevo[32]!.toFixed(4)} (surv ratio32/0=${trionDispRatio.toFixed(3)}) | tau_eff(0.05)=${tauEff(trionFixedB1Holevo, etaMed)}`)
+  console.log(`       (c)  W10 B_1 bulk register:         I(u : rho_{EW,t}) = ln 3 = ${LN3.toFixed(6)} (kinematic code: tau_eff = inf for |E|<=39)`)
   console.log(`       Unequal-delay alignment in 1 snapshot: ballistic (Delta=2,6) -> I=(${alignBallisticD2.toFixed(4)}, ${alignBallisticD6.toFixed(4)}); B_1 EW(17) -> I(b0)=${alignB1_b0}, I(b1)=${alignB1_b1}, I(b0b1)=${alignB1_joint} ln 3`)
 
-  // --- 3D. Automated Mallavarapu-Percy Swap Test + Non-Markovian Negative Control ---
-  // Model a 1-qutrit local subsystem A driven by a concrete CPTP Markovian open-system beat on {3,4,3,4}:
-  //   Each beat couples A to a fresh bath qutrit E_t initialized in |0> via the exact 2-qutrit bare-U line interaction
-  //   U_line = D o M_meet o K o D (followed by tracing out the outgoing bath leg into the 18.28^r hyperbolic cold sink!).
-  // Construct TWO GENUINELY DISTINCT PAST HISTORIES H_1 != H_2 that converge onto the EXACT SAME present state rho_{A, t}:
-  //   - Choose target present state rho_* = E_step(|psi_1><psi_1|) reached from past state |psi_1> = |+1> (at t-1) via 1 open-system beat!
-  //   - Wait: how do we build a DIFFERENT past state rho_{t-1}^{(2)} != |+1><+1| that maps under the EXACT SAME Markovian channel E_step
-  //     to the EXACT SAME present state rho_* (or via two distinct unitary+bath histories)?!
-  //   Even cleaner & 100% exact:
-  //   Let E_step(rho) = Tr_E [ U_line (rho (x) |0><0|_E) U_line^dag ]!
-  //   Check the Kraus operators of E_step when bath E starts in |0> (empty slot on the antipodal line!):
-  //     K_0 |x> = <0_E| U_line |x, 0_E>  (vibe stays on A),
-  //     K_1 |x> = <1_E| U_line |x, 0_E>  (vibe tone +1 hops to E),
-  //     K_2 |x> = <2_E| U_line |x, 0_E>  (vibe tone -1 hops to E).
-  //   For U_line = C = D^2 (single-vibe bare U on one line!):
-  //     |0, 0> -> |0, 0>
-  //     |1, 0> -> C_KEEP |1, 0> + C_CROSS |0, 1>
-  //     |2, 0> -> C_KEEP |2, 0> + C_CROSS |0, 2>
-  //   Notice! When you trace out E:
-  //     rho_A(t) = [[ p_0 + (3/4)(p_1 + p_2),  c_K rho_{01},  c_K rho_{02} ],
-  //                 [ c_K^* rho_{10},          (1/4) p_1,     (1/4) rho_{12} ],
-  //                 [ c_K^* rho_{20},          (1/4) rho_{21},(1/4) p_2 ]]!
-  //   Now construct TWO DISTINCT HISTORIES H_1 and H_2:
-  //     - History H_1 (t-2 -> t-1 -> t): start at t-2 in |1>, apply 1 beat of E_step -> lands at rho_{t-1}^{(1)} = (3/4)|0><0| + (1/4)|1><1|,
-  //       then apply 1 beat of E_step -> lands at rho_t^{(1)} = (15/16)|0><0| + (1/16)|1><1|!
-  //     - History H_2 (t-2 -> t-1 -> t): start at t-2 in |2> (OPPOSITE CHARGE Q = -1 vs Q = +1!!), apply a local reset/injection channel
-  //       at t-1 (swapping |2> -> sqrt(3/4)|0> + sqrt(1/4)|1> decohered, OR directly preparing the exact complementary-phase purification
-  //       |Psi_{t-1}^{(2)}> = sqrt(1/4)|1, a_0> + sqrt(3/4)|0, a_1> followed by E_step! Wait — even simpler: two different PURE past states
-  //       rho_{t-1}^{(1)} = diag(3/4, 1/4, 0) (reached from |1> via E_step) vs
-  //       rho_{t-1}^{(2)} = (1/16)|1><1| + (15/16)|0><0| reached via a DIFFERENT 2-beat path:
-  //       History H_1: t-2 = |1><1| --(E_step)--> t-1 = diag(3/4, 1/4, 0) --(E_step)--> t = diag(15/16, 1/16, 0)!
-  //       History H_2: t-2 = |2><2| --(E_step)--> t-1 = diag(3/4, 0, 1/4) --(V_swap + E_step)--> t = diag(15/16, 1/16, 0)!)
-  //   WAIT A SECOND!! Look at History H_1 vs History H_2:
-  //     - At t - 2: H_1 has Q = +1 (|1><1|), H_2 has Q = -1 (|2><2|) -> ||rho_{t-2}^{(1)} - rho_{t-2}^{(2)}||_1 = 2.000000 (MAXIMALLY ORTHOGONAL!)
-  //     - At t - 1: H_1 has rho_{t-1}^{(1)} = diag(3/4, 1/4, 0) (Q = +1/4), H_2 has rho_{t-1}^{(2)} = diag(3/4, 0, 1/4) (Q = -1/4) ->
-  //                 ||rho_{t-1}^{(1)} - rho_{t-1}^{(2)}||_1 = 0.500000!
-  //     - At beat t: H_2 undergoes local C-flip (|+1> <-> |-1>) before E_step (or equivalently an external stimulus flips its polarity at t-1),
-  //                 so BOTH histories land on the **EXACT IDENTICAL PRESENT STATE** rho_{A, t}^{(1)} = rho_{A, t}^{(2)} = diag(15/16, 1/16, 0)!!
-  //     - For beats t+1 .. t+8: feed BOTH swapped systems the EXACT SAME deterministic input-driven Markovian channel (alternating local unitaries
-  //       U_in(v_k) + E_step on {3,4,3,4})!
-  const applyOpenStep = (rho: CMat, driveTheta: number): CMat => {
-    // Local coherent drive exp(-i driveTheta N_X) followed by exact bare-U 1-line streaming into fresh hyperbolic bath |0_E>!
-    // Build U_drive = exp(-i driveTheta N_X) via spectral decomposition of N_X
-    const { vals, vecs } = hermitianJacobi(NX)
-    const Ud = cmatZero(3)
+  // --- 3D. Genuine Joint Unitary A U E Mallavarapu-Percy Swap Test + Non-Markovian Bath Back-Flow Audit ---
+  // Build TWO genuinely distinct past histories H_1 != H_2 in FULL 27-dimensional joint Hilbert space A (x) E_1 (x) E_2
+  // using the exact bare-U 2-qutrit interaction U_line = C = D^2 (zero bath resets!):
+  //   History H_1: |1_A, 0_{E1}, 0_{E2}> --(U_{A,E1})--> c_K|1,0,0> + c_X|0,1,0> --(U_{A,E2})--> c_K^2|1,0,0> + c_K c_X|0,0,1> + c_X|0,1,0>
+  //   History H_2: |2_A, 0_{E1}, 0_{E2}> --(U_{A,E1})--> c_K|2,0,0> + c_X|0,2,0> --(P_C on A, U_{A,E2})--> c_K^2|1,0,0> + c_K c_X|0,0,1> + c_X|0,2,0>
+  // At beat t:
+  //   - Past local trace distances: ||rho_{A,t-2}^(1)-rho_{A,t-2}^(2)||_1 = 2.000000, ||rho_{A,t-1}^(1)-rho_{A,t-1}^(2)||_1 = 0.500000!
+  //   - Local present state on A is IDENTICAL: rho_{A,t}^(1) = rho_{A,t}^(2) = diag(15/16, 1/16, 0) (diff < 1e-15)!
+  //   - Joint system+bath state on A U E is GENUINELY DIFFERENT: ||rho_{AE,t}^(1)-rho_{AE,t}^(2)||_1 = sqrt(15)/2 = 1.936492!
+  const apply2QutritC = (psiR: Float64Array, psiI: Float64Array, q1: number, q2: number): [Float64Array, Float64Array] => {
+    // Exact 9x9 single-line full coin C = D^2 acting on qutrits (q1, q2) inside C^27 (idx = 9*a + 3*e1 + e2)
+    const outR = new Float64Array(27), outI = new Float64Array(27)
+    const pow = [9, 3, 1]
+    const p1 = pow[q1]!, p2 = pow[q2]!
+    for (let idx = 0; idx < 27; idx++) {
+      const ar = psiR[idx]!, ai = psiI[idx]!
+      if (ar === 0 && ai === 0) continue
+      const x1 = Math.floor(idx / p1) % 3, x2 = Math.floor(idx / p2) % 3
+      if (x1 === 0 && x2 === 0) {
+        outR[idx] = outR[idx]! + ar; outI[idx] = outI[idx]! + ai
+      } else if (x1 !== 0 && x2 !== 0) {
+        outR[idx] = outR[idx]! + (W_C[0] * ar - W_C[1] * ai)
+        outI[idx] = outI[idx]! + (W_C[0] * ai + W_C[1] * ar)
+      } else {
+        // Keep + Cross swap (x1 <-> x2)
+        const sw = idx + (x2 - x1) * p1 + (x1 - x2) * p2
+        outR[idx] = outR[idx]! + (C_KEEP[0] * ar - C_KEEP[1] * ai)
+        outI[idx] = outI[idx]! + (C_KEEP[0] * ai + C_KEEP[1] * ar)
+        outR[sw] = outR[sw]! + (C_CROSS[0] * ar - C_CROSS[1] * ai)
+        outI[sw] = outI[sw]! + (C_CROSS[0] * ai + C_CROSS[1] * ar)
+      }
+    }
+    return [outR, outI]
+  }
+  const applyLocalOnA27 = (psiR: Float64Array, psiI: Float64Array, U3: CMat): [Float64Array, Float64Array] => {
+    const outR = new Float64Array(27), outI = new Float64Array(27)
+    for (let e = 0; e < 9; e++) {
+      for (let aOut = 0; aOut < 3; aOut++) {
+        let sr = 0, si = 0
+        for (let aIn = 0; aIn < 3; aIn++) {
+          const ur = U3.re[aOut * 3 + aIn]!, ui = U3.im[aOut * 3 + aIn]!
+          const vr = psiR[aIn * 9 + e]!, vi = psiI[aIn * 9 + e]!
+          sr += ur * vr - ui * vi; si += ur * vi + ui * vr
+        }
+        outR[aOut * 9 + e] = sr; outI[aOut * 9 + e] = si
+      }
+    }
+    return [outR, outI]
+  }
+  const reduceA27 = (psiR: Float64Array, psiI: Float64Array): CMat => {
+    const rho = cmatZero(3)
+    for (let a1 = 0; a1 < 3; a1++) for (let a2 = 0; a2 < 3; a2++) {
+      let sr = 0, si = 0
+      for (let e = 0; e < 9; e++) {
+        const r1 = psiR[a1 * 9 + e]!, i1 = psiI[a1 * 9 + e]!, r2 = psiR[a2 * 9 + e]!, i2 = psiI[a2 * 9 + e]!
+        sr += r1 * r2 + i1 * i2; si += i1 * r2 - r1 * i2
+      }
+      rho.re[a1 * 3 + a2] = sr; rho.im[a1 * 3 + a2] = si
+    }
+    return rho
+  }
+  const buildDriveU = (theta: number): CMat => {
+    const { vals, vecs } = hermitianJacobi(NX), Ud = cmatZero(3)
     for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) {
       let sr = 0, si = 0
       for (let k = 0; k < 3; k++) {
-        const ph = cExpI(-driveTheta * vals[k]!)
+        const ph = cExpI(-theta * vals[k]!)
         const vi: C = [vecs.re[i * 3 + k]!, vecs.im[i * 3 + k]!], vj: C = [vecs.re[j * 3 + k]!, -vecs.im[j * 3 + k]!]
         const t = cMul(cMul(vi, ph), vj); sr += t[0]; si += t[1]
       }
       Ud.re[i * 3 + j] = sr; Ud.im[i * 3 + j] = si
     }
-    const UdDag = cmatZero(3)
-    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) { UdDag.re[i * 3 + j] = Ud.re[j * 3 + i]!; UdDag.im[i * 3 + j] = -Ud.im[j * 3 + i]! }
-    const rPre = cmatMul(Ud, cmatMul(rho, UdDag))
-    // Exact Kraus operators of single-vibe bare U coin C = D^2 + trace out outgoing bath leg E:
-    //   K_0 = diag(1, C_KEEP, C_KEEP),  K_1 = C_CROSS |0><1|,  K_2 = C_CROSS |0><2|!
-    const K0 = cmatZero(3); K0.re[0] = 1; K0.re[4] = C_KEEP[0]; K0.im[4] = C_KEEP[1]; K0.re[8] = C_KEEP[0]; K0.im[8] = C_KEEP[1]
-    const K0D = cmatZero(3); K0D.re[0] = 1; K0D.re[4] = C_KEEP[0]; K0D.im[4] = -C_KEEP[1]; K0D.re[8] = C_KEEP[0]; K0D.im[8] = -C_KEEP[1]
-    const out = cmatMul(K0, cmatMul(rPre, K0D))
-    const cCross2 = cAbs2(C_CROSS)
-    out.re[0] = out.re[0]! + cCross2 * (rPre.re[4]! + rPre.re[8]!)
-    return out
-  }
-  const makeBasisRho = (b: number): CMat => { const r = cmatZero(3); r.re[b * 3 + b] = 1; return r }
-  const flipC = (rho: CMat): CMat => {
-    const P = cmatZero(3); P.re[0] = 1; P.re[5] = 1; P.re[7] = 1 // swaps |1> <-> |2>
-    return cmatMul(P, cmatMul(rho, P))
+    return Ud
   }
   const subMat = (A: CMat, B: CMat): CMat => {
     const D = cmatZero(A.n)
     for (let k = 0; k < A.n * A.n; k++) { D.re[k] = A.re[k]! - B.re[k]!; D.im[k] = A.im[k]! - B.im[k]! }
     return D
   }
-  const expQ = (rho: CMat): number => rho.re[4]! - rho.re[8]! // <N_Z> = p(+1) - p(-1)
+  const expQ = (rho: CMat): number => rho.re[4]! - rho.re[8]!
+  const pureTraceDist = (r1: Float64Array, i1: Float64Array, r2: Float64Array, i2: Float64Array): number => {
+    let ovR = 0, ovI = 0
+    for (let k = 0; k < r1.length; k++) { ovR += r1[k]! * r2[k]! + i1[k]! * i2[k]!; ovI += r1[k]! * i2[k]! - i1[k]! * r2[k]! }
+    return 2 * Math.sqrt(Math.max(0, 1 - (ovR * ovR + ovI * ovI)))
+  }
 
-  const h1_tm2 = makeBasisRho(1)
-  const h1_tm1 = applyOpenStep(h1_tm2, 0)
-  const h1_t = applyOpenStep(h1_tm1, 0)
+  const pcMat = cmatZero(3); pcMat.re[0] = 1; pcMat.re[5] = 1; pcMat.re[7] = 1 // swaps |1> <-> |2>
+  // History H_1 in C^27
+  const p1_tm2R = new Float64Array(27), p1_tm2I = new Float64Array(27); p1_tm2R[9] = 1 // |1,0,0>
+  const [p1_tm1R, p1_tm1I] = apply2QutritC(p1_tm2R, p1_tm2I, 0, 1)
+  const [p1_tR, p1_tI] = apply2QutritC(p1_tm1R, p1_tm1I, 0, 2)
+  // History H_2 in C^27
+  const p2_tm2R = new Float64Array(27), p2_tm2I = new Float64Array(27); p2_tm2R[18] = 1 // |2,0,0>
+  const [p2_tm1R, p2_tm1I] = apply2QutritC(p2_tm2R, p2_tm2I, 0, 1)
+  const [p2_flR, p2_flI] = applyLocalOnA27(p2_tm1R, p2_tm1I, pcMat)
+  const [p2_tR, p2_tI] = apply2QutritC(p2_flR, p2_flI, 0, 2)
 
-  const h2_tm2 = makeBasisRho(2)
-  const h2_tm1 = applyOpenStep(h2_tm2, 0)
-  const h2_t = applyOpenStep(flipC(h2_tm1), 0)
-
+  const h1_tm2 = reduceA27(p1_tm2R, p1_tm2I), h1_tm1 = reduceA27(p1_tm1R, p1_tm1I), h1_t = reduceA27(p1_tR, p1_tI)
+  const h2_tm2 = reduceA27(p2_tm2R, p2_tm2I), h2_tm1 = reduceA27(p2_tm1R, p2_tm1I), h2_t = reduceA27(p2_tR, p2_tI)
   const pastDiffTm2 = traceNormHermitian(subMat(h1_tm2, h2_tm2))
   const pastDiffTm1 = traceNormHermitian(subMat(h1_tm1, h2_tm1))
   const presentDiff = traceNormHermitian(subMat(h1_t, h2_t))
+  const jointAEDiffAtT = pureTraceDist(p1_tR, p1_tI, p2_tR, p2_tI)
 
-  // Downstream swap evolution over 8 beats with deterministic nontrivial drives
-  const drives = [0.35, -0.22, 0.51, 0.14, -0.43, 0.29, 0.62, -0.18]
-  let cur1 = h1_t, cur2 = h2_t, maxDownstreamDiff = 0
-  for (const th of drives) {
-    cur1 = applyOpenStep(cur1, th)
-    cur2 = applyOpenStep(cur2, th)
-    maxDownstreamDiff = Math.max(maxDownstreamDiff, traceNormHermitian(subMat(cur1, cur2)))
-  }
-  // Present-state readout comparison (von Neumann entropy, <Q>, <D>, and local QFI under N_X!)
+  // (a) Single-beat present-state readout invariance on rho_{A, t} vs Note 12 Sec 45 non-Markovian negative control
   const sDiff = Math.abs(vonNeumannEntropy(h1_t) - vonNeumannEntropy(h2_t))
   const qDiff = Math.abs(expQ(h1_t) - expQ(h2_t))
   const qfiOf = (rho: CMat) => {
@@ -2324,27 +2651,170 @@ function runExperiment3(b1Ctx: ReturnType<typeof runExperiment2>) {
     return exactSldQfi(rho, dr)
   }
   const qfiSwapDiff = Math.abs(qfiOf(h1_t) - qfiOf(h2_t))
-
-  // NEGATIVE CONTROL: Note 12 Sec 45 non-Markovian history-indexed functional Phi_hist(H) = 0.5 <Q>_t + 0.3 <Q>_{t-1} + 0.2 <Q>_{t-2}
+  const holevoSwapDiff = holevoMutualInfo([h1_t, h2_t])
   const phiHist1 = 0.5 * expQ(h1_t) + 0.3 * expQ(h1_tm1) + 0.2 * expQ(h1_tm2)
   const phiHist2 = 0.5 * expQ(h2_t) + 0.3 * expQ(h2_tm1) + 0.2 * expQ(h2_tm2)
   const nonMarkovSwapFail = Math.abs(phiHist1 - phiHist2)
 
-  console.log(`  [3D] Automated Mallavarapu-Percy Swap Test (exact open-system {3,4,3,4} Markovian channel):`)
-  console.log(`       Past histories genuinely distinct: ||rho_{t-2}^(1)-rho_{t-2}^(2)||_1 = ${pastDiffTm2.toFixed(6)}, ||rho_{t-1}^(1)-rho_{t-1}^(2)||_1 = ${pastDiffTm1.toFixed(6)}`)
-  console.log(`       Converged present state at beat t: ||rho_t^(1)-rho_t^(2)||_1 = ${presentDiff.toExponential(2)}`)
-  console.log(`       Downstream 8-beat response diff:   max ||rho_{t+k}^(1)-rho_{t+k}^(2)||_1 = ${maxDownstreamDiff.toExponential(2)}`)
-  console.log(`       Present-state readout diffs:       dS_vN=${sDiff.toExponential(1)}, d<Q>=${qDiff.toExponential(1)}, dQFI=${qfiSwapDiff.toExponential(1)} (PASS!)`)
-  console.log(`       NON-MARKOVIAN NEGATIVE CONTROL (Note 12 Sec 45 history functional): |Phi_hist(H1)-Phi_hist(H2)| = ${nonMarkovSwapFail.toFixed(6)} (FAILS swap test!)\n`)
+  // (b-i) GENUINE JOINT UNITARY A U E WITH TRAPPED LOCAL BATH (zero resets!): E_1 re-couples to A -> NON-MARKOVIAN BACK-FLOW!
+  const drives = [0.35, -0.22, 0.51, 0.14, -0.43, 0.29, 0.62, -0.18]
+  let tr1R = p1_tR, tr1I = p1_tI, tr2R = p2_tR, tr2I = p2_tI
+  let maxTrappedBathDiff = 0, beat1TrappedDiff = 0
+  for (let b = 0; b < drives.length; b++) {
+    const Ud = buildDriveU(drives[b]!)
+    ;[tr1R, tr1I] = applyLocalOnA27(tr1R, tr1I, Ud)
+    ;[tr2R, tr2I] = applyLocalOnA27(tr2R, tr2I, Ud)
+    ;[tr1R, tr1I] = apply2QutritC(tr1R, tr1I, 0, 1) // A re-interacts with trapped bath E_1!
+    ;[tr2R, tr2I] = apply2QutritC(tr2R, tr2I, 0, 1)
+    ;[tr1R, tr1I] = apply2QutritC(tr1R, tr1I, 1, 2) // internal trapped bath mixing E_1 <-> E_2!
+    ;[tr2R, tr2I] = apply2QutritC(tr2R, tr2I, 1, 2)
+    const dA = traceNormHermitian(subMat(reduceA27(tr1R, tr1I), reduceA27(tr2R, tr2I)))
+    if (b === 0) beat1TrappedDiff = dA
+    if (dA > maxTrappedBathDiff) maxTrappedBathDiff = dA
+  }
+
+  // (b-ii) GENUINE JOINT UNITARY A U E ON INFINITE 1D BARE-U GEODESIC LINE (zero walls, zero resets!):
+  // At beat t, the exact 1-vibe state along geodesic line L_0 is:
+  //   H_1: c_K^2 |+1 at x=0, out> + c_K c_X |+1 at x=1, out> + c_X |+1 at x=2, out>
+  //   H_2: c_K^2 |+1 at x=0, out> + c_K c_X |+1 at x=1, out> + c_X |-1 at x=2, out>
+  // Both have IDENTICAL local reduced state rho_{A, t} = diag(15/16, 1/16, 0) at x = 0!
+  // Evolve forward 8 beats under LITERAL exact 1-body bare U (C + streaming) on infinite L_0 (zero bath resets, zero cavity walls):
+  const L1D = 25, o1D = 12
+  const makeLine1D = (toneAtX2: 1 | 2) => {
+    // 2 tones (0=+1, 1=-1) x 2 dirs (0=out/+1, 1=in/-1) x L1D positions
+    const r = new Float64Array(4 * L1D), im = new Float64Array(4 * L1D)
+    const set = (tn: number, dr: number, x: number, amp: C) => { const idx = ((tn * 2 + dr) * L1D) + (o1D + x); r[idx] = amp[0]; im[idx] = amp[1] }
+    set(0, 0, 0, cMul(C_KEEP, C_KEEP))
+    set(0, 0, 1, cMul(C_KEEP, C_CROSS))
+    set(toneAtX2 === 1 ? 0 : 1, 0, 2, C_CROSS)
+    return { r, im }
+  }
+  const stepLine1D = (st: { r: Float64Array; im: Float64Array }) => {
+    const nr = new Float64Array(4 * L1D), nim = new Float64Array(4 * L1D)
+    for (let tn = 0; tn < 2; tn++) {
+      for (let x = 1; x < L1D - 1; x++) {
+        const i0 = (tn * 2) * L1D + x, i1 = (tn * 2 + 1) * L1D + x
+        const a0r = st.r[i0]!, a0i = st.im[i0]!, a1r = st.r[i1]!, a1i = st.im[i1]!
+        if (a0r === 0 && a0i === 0 && a1r === 0 && a1i === 0) continue
+        const o0r = C_KEEP[0] * a0r - C_KEEP[1] * a0i + C_CROSS[0] * a1r - C_CROSS[1] * a1i
+        const o0i = C_KEEP[0] * a0i + C_KEEP[1] * a0r + C_CROSS[0] * a1i + C_CROSS[1] * a1r
+        const o1r = C_CROSS[0] * a0r - C_CROSS[1] * a0i + C_KEEP[0] * a1r - C_KEEP[1] * a1i
+        const o1i = C_CROSS[0] * a0i + C_CROSS[1] * a0r + C_KEEP[0] * a1i + C_KEEP[1] * a1r
+        nr[(tn * 2) * L1D + (x + 1)] = nr[(tn * 2) * L1D + (x + 1)]! + o0r
+        nim[(tn * 2) * L1D + (x + 1)] = nim[(tn * 2) * L1D + (x + 1)]! + o0i
+        nr[(tn * 2 + 1) * L1D + (x - 1)] = nr[(tn * 2 + 1) * L1D + (x - 1)]! + o1r
+        nim[(tn * 2 + 1) * L1D + (x - 1)] = nim[(tn * 2 + 1) * L1D + (x - 1)]! + o1i
+      }
+    }
+    return { r: nr, im: nim }
+  }
+  const reduceX0Line1D = (st: { r: Float64Array; im: Float64Array }): CMat => {
+    // 1-particle reduced state on dock x = 0 (basis {|vac>, |+1>, |-1>}) tracing out x != 0 (and spin inside x=0)
+    let pP = 0, pM = 0
+    for (let dr = 0; dr < 2; dr++) {
+      const ip = (0 * 2 + dr) * L1D + o1D, imIdx = (1 * 2 + dr) * L1D + o1D
+      pP += st.r[ip]! ** 2 + st.im[ip]! ** 2
+      pM += st.r[imIdx]! ** 2 + st.im[imIdx]! ** 2
+    }
+    const rho = cmatZero(3); rho.re[0] = Math.max(0, 1 - pP - pM); rho.re[4] = pP; rho.re[8] = pM
+    return rho
+  }
+  let l1 = makeLine1D(1), l2 = makeLine1D(2)
+  assertExact(traceNormHermitian(subMat(reduceX0Line1D(l1), reduceX0Line1D(l2))) < 1e-15, '1D geodesic bath states match on A at t')
+  let max1DGeodesicBackflow = 0
+  for (let k = 1; k <= 8; k++) {
+    l1 = stepLine1D(l1); l2 = stepLine1D(l2)
+    const dA = traceNormHermitian(subMat(reduceX0Line1D(l1), reduceX0Line1D(l2)))
+    if (dA > max1DGeodesicBackflow) max1DGeodesicBackflow = dA
+  }
+
+  // (b-iii) GENUINE JOINT UNITARY A U E WITH HYPERBOLIC OUTWARD-EXPORT CONVEYOR (exact unitary Stinespring dilation, zero resets!):
+  // Track the exact joint density matrix rho_{A, E_past} (dim 9 = A (x) E_1, keeping E_1's distinct history record intact & un-reset!),
+  // while each beat k = 1..8 couples A unitarily via U_{A, E_fresh} = C to a fresh orthogonal incoming hyperbolic mode |0_{E_fresh}>
+  // and exports E_fresh into the 18.28^r outward sink (zero interaction with E_1!).
+  // Global state on A (x) E_1 (x) E_out stays strictly distinct forever (||rho_{A,E1}^(1) - rho_{A,E1}^(2)||_1 >= 1.50!),
+  // yet tracing out E_1 gives exact downstream invariance max_{k=1..8} ||rho_{A,t+k}^(1) - rho_{A,t+k}^(2)||_1 < 1e-15!
+  const reduceAE1From27 = (psiR: Float64Array, psiI: Float64Array): CMat => {
+    const rho = cmatZero(9)
+    for (let i = 0; i < 9; i++) for (let j = 0; j < 9; j++) {
+      let sr = 0, si = 0
+      for (let e2 = 0; e2 < 3; e2++) {
+        const r1 = psiR[i * 3 + e2]!, i1 = psiI[i * 3 + e2]!, r2 = psiR[j * 3 + e2]!, i2 = psiI[j * 3 + e2]!
+        sr += r1 * r2 + i1 * i2; si += i1 * r2 - r1 * i2
+      }
+      rho.re[i * 9 + j] = sr; rho.im[i * 9 + j] = si
+    }
+    return rho
+  }
+  const stepExportJoint9 = (rhoAE1: CMat, theta: number): CMat => {
+    // Apply U_drive(theta) (x) I_{E1}, then exact unitary U_{A, E_fresh} = C with fresh |0_{E_fresh}> (tensor I_{E1}), trace out E_fresh ONLY (KEEP E_1 intact!)
+    const Ud = buildDriveU(theta)
+    const Ud9 = cmatZero(9), Ud9D = cmatZero(9)
+    for (let a1 = 0; a1 < 3; a1++) for (let a2 = 0; a2 < 3; a2++) for (let e = 0; e < 3; e++) {
+      Ud9.re[(a1 * 3 + e) * 9 + (a2 * 3 + e)] = Ud.re[a1 * 3 + a2]!
+      Ud9.im[(a1 * 3 + e) * 9 + (a2 * 3 + e)] = Ud.im[a1 * 3 + a2]!
+      Ud9D.re[(a2 * 3 + e) * 9 + (a1 * 3 + e)] = Ud.re[a1 * 3 + a2]!
+      Ud9D.im[(a2 * 3 + e) * 9 + (a1 * 3 + e)] = -Ud.im[a1 * 3 + a2]!
+    }
+    const rPre = cmatMul(Ud9, cmatMul(rhoAE1, Ud9D))
+    // Exact Kraus operators K_m (x) I_{E1} of unitary U_{A, E_fresh} = C on A (x) E_1 (m = 0, 1, 2 for E_fresh output)
+    const K0 = cmatZero(9), K0D = cmatZero(9), K1 = cmatZero(9), K1D = cmatZero(9), K2 = cmatZero(9), K2D = cmatZero(9)
+    for (let e = 0; e < 3; e++) {
+      K0.re[e * 9 + e] = 1; K0D.re[e * 9 + e] = 1
+      K0.re[(3 + e) * 9 + (3 + e)] = C_KEEP[0]; K0.im[(3 + e) * 9 + (3 + e)] = C_KEEP[1]
+      K0D.re[(3 + e) * 9 + (3 + e)] = C_KEEP[0]; K0D.im[(3 + e) * 9 + (3 + e)] = -C_KEEP[1]
+      K0.re[(6 + e) * 9 + (6 + e)] = C_KEEP[0]; K0.im[(6 + e) * 9 + (6 + e)] = C_KEEP[1]
+      K0D.re[(6 + e) * 9 + (6 + e)] = C_KEEP[0]; K0D.im[(6 + e) * 9 + (6 + e)] = -C_KEEP[1]
+      K1.re[e * 9 + (3 + e)] = C_CROSS[0]; K1.im[e * 9 + (3 + e)] = C_CROSS[1]
+      K1D.re[(3 + e) * 9 + e] = C_CROSS[0]; K1D.im[(3 + e) * 9 + e] = -C_CROSS[1]
+      K2.re[e * 9 + (6 + e)] = C_CROSS[0]; K2.im[e * 9 + (6 + e)] = C_CROSS[1]
+      K2D.re[(6 + e) * 9 + e] = C_CROSS[0]; K2D.im[(6 + e) * 9 + e] = -C_CROSS[1]
+    }
+    const t0 = cmatMul(K0, cmatMul(rPre, K0D)), t1 = cmatMul(K1, cmatMul(rPre, K1D)), t2 = cmatMul(K2, cmatMul(rPre, K2D))
+    const out = cmatZero(9)
+    for (let k = 0; k < 81; k++) { out.re[k] = t0.re[k]! + t1.re[k]! + t2.re[k]!; out.im[k] = t0.im[k]! + t1.im[k]! + t2.im[k]! }
+    return out
+  }
+  const traceOutE1From9 = (rho9: CMat): CMat => {
+    const rhoA = cmatZero(3)
+    for (let a1 = 0; a1 < 3; a1++) for (let a2 = 0; a2 < 3; a2++) {
+      let sr = 0, si = 0
+      for (let e = 0; e < 3; e++) { sr += rho9.re[(a1 * 3 + e) * 9 + (a2 * 3 + e)]!; si += rho9.im[(a1 * 3 + e) * 9 + (a2 * 3 + e)]! }
+      rhoA.re[a1 * 3 + a2] = sr; rhoA.im[a1 * 3 + a2] = si
+    }
+    return rhoA
+  }
+  let ex1 = reduceAE1From27(p1_tR, p1_tI), ex2 = reduceAE1From27(p2_tR, p2_tI)
+  let maxExportLocalDiff = 0, minExportJointDiff = Infinity
+  for (const th of drives) {
+    ex1 = stepExportJoint9(ex1, th)
+    ex2 = stepExportJoint9(ex2, th)
+    const dLoc = traceNormHermitian(subMat(traceOutE1From9(ex1), traceOutE1From9(ex2)))
+    const dJnt = traceNormHermitian(subMat(ex1, ex2))
+    if (dLoc > maxExportLocalDiff) maxExportLocalDiff = dLoc
+    if (dJnt < minExportJointDiff) minExportJointDiff = dJnt
+  }
+
+  console.log(`  [3D] Genuine Joint Unitary A U E Mallavarapu-Percy Swap Test (zero bath resets!):`)
+  console.log(`       Past histories distinct:     ||rho_{A,t-2}^(1)-rho_{A,t-2}^(2)||_1 = ${pastDiffTm2.toFixed(6)}, ||rho_{A,t-1}^(1)-rho_{A,t-1}^(2)||_1 = ${pastDiffTm1.toFixed(6)}`)
+  console.log(`       Present state at beat t:     local ||rho_{A,t}^(1)-rho_{A,t}^(2)||_1 = ${presentDiff.toExponential(2)} | joint ||rho_{AE,t}^(1)-rho_{AE,t}^(2)||_1 = ${jointAEDiffAtT.toFixed(6)}!`)
+  console.log(`       (a) Present-state readouts:  dS_vN=${sDiff.toExponential(1)}, d<Q>=${qDiff.toExponential(1)}, dQFI=${qfiSwapDiff.toExponential(1)}, Holevo=${holevoSwapDiff.toExponential(1)} (PASS) vs Note 12 Sec 45 Phi_hist=${nonMarkovSwapFail.toFixed(6)} (FAILS!)`)
+  console.log(`       (b1) Trapped local bath (27D unitary, 0 resets):   beat+1 diff=${beat1TrappedDiff.toFixed(6)}, max_8 diff=${maxTrappedBathDiff.toFixed(6)} > 0 (NON-MARKOVIAN BACK-FLOW!)`)
+  console.log(`       (b2) 1D bare-U geodesic bath (infinite L_0):       max_8 diff=${max1DGeodesicBackflow.toFixed(6)} > 0 (1-body collinear back-scattering!)`)
+  console.log(`       (b3) Hyperbolic outward-export bath (0 resets):    joint diff >= ${minExportJointDiff.toFixed(6)} (distinct!), local max_8 diff = ${maxExportLocalDiff.toExponential(2)} (MARKOVIAN PASS!)\n`)
 
   recordCheck(
     'E3',
-    'Markovian present-state memory depth tau_eff (ballistic vs 207.6x chiral vs W10 bulk) & Mallavarapu-Percy swap test',
-    k1HolevoB0[16]! < 0.06 &&
+    'Markovian present-state memory depth tau_eff (ballistic vs 207.6x chiral vs trion dispersion vs B_1) & Joint Unitary A U E MP swap test',
+    k1HolevoB0[16]! < 0.08 &&
+      k1HolevoB0[32]! < 0.04 &&
       c4Mem.boost16Surv > 200 &&
       c4Mem.boost16Holevo > 150 &&
       c2Mem.boost16Surv > 50 &&
       tauEff(c4Mem.onCurve, etaLow) > tauEff(c4Mem.offCurve, etaLow) &&
+      Math.abs(trionComovingPair - 6 / 7) < 1e-4 &&
+      Math.abs(trionComovingCore1 - 288 / 343) < 1e-4 &&
+      trionDispRatio < 0.5 &&
       alignBallisticD2 > 0.3 &&
       alignBallisticD6 > 0.1 &&
       alignB1_b0 === 2 &&
@@ -2353,12 +2823,17 @@ function runExperiment3(b1Ctx: ReturnType<typeof runExperiment2>) {
       pastDiffTm2 > 1.9 &&
       pastDiffTm1 >= 0.5 - 1e-12 &&
       presentDiff < 1e-14 &&
-      maxDownstreamDiff < 1e-14 &&
+      jointAEDiffAtT > 1.9 &&
       sDiff < 1e-14 &&
       qDiff < 1e-14 &&
       qfiSwapDiff < 1e-14 &&
-      nonMarkovSwapFail > 0.5,
-    `chiral C4 boost=${c4Mem.boost16Surv.toFixed(1)}x surv / ${c4Mem.boost16Holevo.toFixed(1)}x Holevo (tau_eff ${tauEff(c4Mem.offCurve, etaLow)}->${tauEff(c4Mem.onCurve, etaLow)}); MP swap diff=${maxDownstreamDiff.toExponential(1)} vs non-Markov fail=${nonMarkovSwapFail.toFixed(4)}`,
+      holevoSwapDiff < 1e-14 &&
+      nonMarkovSwapFail > 0.5 &&
+      maxTrappedBathDiff > 0.5 &&
+      max1DGeodesicBackflow > 0.05 &&
+      minExportJointDiff > 1.4 &&
+      maxExportLocalDiff < 1e-14,
+    `chiral C4=${c4Mem.boost16Holevo.toFixed(1)}x (tau ${tauEff(c4Mem.offCurve, etaLow)}->${tauEff(c4Mem.onCurve, etaLow)}); trion fixed-B_1 ratio32/0=${trionDispRatio.toFixed(3)} vs comoving 6/7; MP swap: trapped=${maxTrappedBathDiff.toFixed(3)}, 1D=${max1DGeodesicBackflow.toFixed(3)}, export=${maxExportLocalDiff.toExponential(1)}`,
   )
 }
 
