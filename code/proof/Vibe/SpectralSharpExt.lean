@@ -113,9 +113,9 @@ private theorem sse_int_mul_right_comm (a b c : Int) : (a * b) * c = (a * c) * b
 private theorem sse_nat_mul_quad (w0 a b va vb x y : Nat) :
     (w0 * (a * x) * va) * (w0 * (b * y) * vb) = w0 * w0 * (a * b * va * vb) * (x * y) := by
   have h1 : w0 * (a * x) * va = (w0 * a * va) * x := by
-    rw [Nat.mul_assoc w0 a x, Nat.mul_right_comm (w0 * a) x va]
+    rw [← Nat.mul_assoc w0 a x, Nat.mul_right_comm (w0 * a) x va]
   have h2 : w0 * (b * y) * vb = (w0 * b * vb) * y := by
-    rw [Nat.mul_assoc w0 b y, Nat.mul_right_comm (w0 * b) y vb]
+    rw [← Nat.mul_assoc w0 b y, Nat.mul_right_comm (w0 * b) y vb]
   rw [h1, h2]
   have h3 : ∀ p q : Nat, (p * x) * (q * y) = (p * q) * (x * y) := by
     intro p q; rw [Nat.mul_assoc, Nat.mul_left_comm x q y, ← Nat.mul_assoc]
@@ -135,10 +135,10 @@ private theorem sse_nat_mul_m0 (w1 w2 a b o0 v0 d : Nat) :
     (w1 * (a * d) * b) * (w2 * (o0 * (a * d)) * v0) =
       w1 * w2 * (o0 * v0 * (a * a * b)) * (d * d) := by
   have h1 : w1 * (a * d) * b = (w1 * a * b) * d := by
-    rw [Nat.mul_assoc w1 a d, Nat.mul_right_comm (w1 * a) d b]
+    rw [← Nat.mul_assoc w1 a d, Nat.mul_right_comm (w1 * a) d b]
   have h2 : w2 * (o0 * (a * d)) * v0 = (w2 * o0 * a * v0) * d := by
-    rw [← Nat.mul_assoc o0 a d, Nat.mul_assoc w2 (o0 * a) d,
-        Nat.mul_right_comm (w2 * (o0 * a)) d v0, Nat.mul_assoc w2 o0 a]
+    rw [← Nat.mul_assoc o0 a d, ← Nat.mul_assoc w2 (o0 * a) d,
+        Nat.mul_right_comm (w2 * (o0 * a)) d v0, ← Nat.mul_assoc w2 o0 a]
   rw [h1, h2]
   have h3 : ∀ p q : Nat, (p * d) * (q * d) = (p * q) * (d * d) := by
     intro p q; rw [Nat.mul_assoc, Nat.mul_left_comm d q d, ← Nat.mul_assoc]
@@ -175,20 +175,21 @@ private theorem sse_rangeMap_length {α : Type} (f : Nat → α) (s len : Nat) :
   | zero => rfl
   | succ r ih => simp only [sse_rangeMap, List.length, ih]
 
-private def sse_listGetD {α : Type} (d : α) : List α → Nat → α
+/-- Safe indexed list lookup with default value. -/
+def sseListGetD {α : Type} (d : α) : List α → Nat → α
   | [], _ => d
   | x :: _, 0 => x
-  | _ :: xs, n + 1 => sse_listGetD d xs n
+  | _ :: xs, n + 1 => sseListGetD d xs n
 
 private theorem sse_rangeMap_listGetD {α : Type} (f : Nat → α) (d : α) (s len m : Nat) (hm : m < len) :
-    sse_listGetD d (sse_rangeMap f s len) m = f (s + m) := by
+    sseListGetD d (sse_rangeMap f s len) m = f (s + m) := by
   induction len generalizing s m with
   | zero => omega
   | succ r ih =>
     cases m with
-    | zero => simp [sse_rangeMap, sse_listGetD]
+    | zero => simp [sse_rangeMap, sseListGetD]
     | succ m1 =>
-      simp only [sse_rangeMap, sse_listGetD]
+      simp only [sse_rangeMap, sseListGetD]
       have h := ih (s + 1) m1 (by omega)
       have hEq : s + 1 + m1 = s + (m1 + 1) := by omega
       rw [hEq] at h; exact h
@@ -337,7 +338,9 @@ private theorem sse_allPow2_sound (P : Nat → Bool) (d lo : Nat)
     (h : sse_allPow2 P d lo = true) (k : Nat) (hlo : lo ≤ k) (hhi : k < lo + 2 ^ d) :
     P k = true := by
   induction d generalizing lo with
-  | zero => have hk : k = lo := by omega; rw [hk]; exact h
+  | zero =>
+    have hk : k = lo := by omega
+    rw [hk]; exact h
   | succ d ih =>
     simp only [sse_allPow2, Bool.and_eq_true] at h
     have hPow : 2 ^ (d + 1) = 2 ^ d + 2 ^ d := by rw [Nat.pow_succ]; omega
@@ -348,7 +351,7 @@ private theorem sse_forall_fin_of_pow2 {n : Nat} (d : Nat) (hd : n ≤ 2 ^ d) (P
     (h : sse_allPow2 (fun k => if hk : k < n then P ⟨k, hk⟩ else true) d 0 = true)
     (i : Fin n) : P i = true := by
   have h1 := sse_allPow2_sound _ d 0 h i.val (Nat.zero_le _) (by have := i.isLt; omega)
-  rw [dif_pos i.isLt] at h1; exact h1
+  rw [dite_eq_left i.isLt] at h1; exact h1
 
 private def sse_sumPow2 (f : Nat → Nat) : Nat → Nat → Nat
   | 0, lo => f lo
@@ -364,7 +367,8 @@ private theorem sse_sumFinNatAux_eq_prefix {n : Nat} (k : Nat) (hk : k ≤ n) (f
   | zero => rfl
   | succ m ih =>
     simp only [sseSumFinNatAux, sse_sumNatPrefix, ih (Nat.le_of_succ_le hk)]
-    rw [dif_pos hk]
+    have hlt : m < n := hk
+    rw [dite_eq_left hlt]
 
 private theorem sse_sumPow2_eq_prefix (g : Nat → Nat) (d lo : Nat) :
     sse_sumNatPrefix g (lo + 2 ^ d) = sse_sumNatPrefix g lo + sse_sumPow2 g d lo := by
@@ -379,10 +383,14 @@ private theorem sse_sumPow2_eq_prefix (g : Nat → Nat) (d lo : Nat) :
 private theorem sse_sumNatPrefix_zero_tail (g : Nat → Nat) (n m : Nat) (hnm : n ≤ m)
     (hZ : ∀ k, n ≤ k → g k = 0) : sse_sumNatPrefix g m = sse_sumNatPrefix g n := by
   induction m with
-  | zero => have : n = 0 := by omega; subst this; rfl
+  | zero =>
+    have : n = 0 := by omega
+    subst this; rfl
   | succ r ih =>
     if hr : n ≤ r then simp only [sse_sumNatPrefix, hZ r hr, Nat.add_zero, ih hr]
-    else have : n = r + 1 := by omega; subst this; rfl
+    else
+      have : n = r + 1 := by omega
+      subst this; rfl
 
 private theorem sse_sumFinNat_eq_sumPow2 {n : Nat} (d : Nat) (hd : n ≤ 2 ^ d) (f : Fin n → Nat) :
     sseSumFinNat f = sse_sumPow2 (fun k => if h : k < n then f ⟨k, h⟩ else 0) d 0 := by
@@ -391,7 +399,7 @@ private theorem sse_sumFinNat_eq_sumPow2 {n : Nat} (d : Nat) (hd : n ≤ 2 ^ d) 
   have h1 := sse_sumPow2_eq_prefix (fun k => if h : k < n then f ⟨k, h⟩ else 0) d 0
   simp only [Nat.zero_add, sse_sumNatPrefix] at h1
   rw [← h1]
-  exact (sse_sumNatPrefix_zero_tail _ n (2 ^ d) hd (fun k hk => dif_neg (by omega))).symm
+  exact (sse_sumNatPrefix_zero_tail _ n (2 ^ d) hd (fun k hk => dite_eq_right (by omega))).symm
 
 /-- Weighted sum over a multiplicity table `List (α × Nat)`: `∑_{(k, m) ∈ tbl} m * F k`. -/
 def sseTableSum {α : Type} (F : α → Nat) : List (α × Nat) → Nat
@@ -441,10 +449,10 @@ private theorem sse_treeCollect_mapSum {n : Nat} {α : Type} (P : Fin n → Bool
   | zero =>
     simp only [sse_treeCollect, sse_sumPow2]
     if h : lo < n then
-      rw [dif_pos h, dif_pos h]
+      rw [dite_eq_left h, dite_eq_left h]
       if hP : P ⟨lo, h⟩ = true then rw [sse_ite_pos hP, sse_ite_pos hP]; rfl
       else rw [sse_ite_neg hP, sse_ite_neg hP]; rfl
-    else rw [dif_neg h, dif_neg h]; rfl
+    else rw [dite_eq_right h, dite_eq_right h]; rfl
   | succ d ih => simp only [sse_treeCollect, sse_treeMapSum, sse_sumPow2, ih]
 
 private theorem sse_treeMapSum_zero {α : Type} (t : SseTree α) : sse_treeMapSum (fun _ : α => 0) t = 0 := by
@@ -519,7 +527,7 @@ private theorem sse_treeMapSum_eq_tableSum {α : Type} [DecidableEq α]
             simp only [List.map, List.any, Bool.or_eq_false_iff] at h1 ⊢
             exact ⟨h1.1, ihr h1.2⟩
         have hEq1 : decide (e.1 = x) = true := decide_eq_true hxe.symm
-        rw [sse_ite_pos hxe, hNotIn, hEq1, Bool.true_or, hxe]; omega
+        rw [sse_ite_pos hxe, hNotIn, hEq1, Bool.true_or, hxe]; dsimp only; exact Nat.add_zero _
       else
         have hNe1 : decide (e.1 = x) = false := decide_eq_false (fun h => hxe h.symm)
         rw [sse_ite_neg hxe, hNe1, Bool.false_or]; omega
@@ -721,6 +729,12 @@ private theorem sse_applyWord_preserves_adj24 (w : List (Fin 4)) (a b : Fin 24) 
     adj24 (sseApplyWord w a) (sseApplyWord w b) = adj24 a b := by
   unfold adj24; rw [sse_applyWord_preserves_dot4]
 
+private theorem sse_applyWord_val_eq_nat (w : List (Fin 4)) (a : Fin 24) :
+    (sseApplyWord w a).val = sseApplyWordNat (w.map Fin.val) a.val := by
+  induction w with
+  | nil => rfl
+  | cons k rest ih => simp only [sseApplyWord, List.map, sseApplyWordNat, sseWF4Gen, ih]
+
 /-- Fast `Nat` adjacency mirror on `0..23` matching `Vibe.CuspGrowth.adj24`. -/
 private abbrev sse_Adj8 := Nat × Nat × Nat × Nat × Nat × Nat × Nat × Nat
 
@@ -858,7 +872,7 @@ private theorem sse_allCliquesList_len : sseAllCliquesList.length = 216 := by
   rw [sse_allCliquesList_eq_rangeMap, sse_rangeMap_length]
 
 private theorem sse_allCliquesList_getD (i : Fin 216) :
-    sse_listGetD (SseClique.c1 sse_v0) sseAllCliquesList i.val = sseClique216 i := by
+    sseListGetD (SseClique.c1 ⟨0, by decide⟩) sseAllCliquesList i.val = sseClique216 i := by
   rw [sse_allCliquesList_eq_rangeMap, sse_rangeMap_listGetD sse_clique216Nat _ 0 216 i.val i.isLt]
   simp [sseClique216]
 
@@ -899,8 +913,8 @@ private theorem sse_clique216_key_strict (i j : Fin 216) (hij : i.val < j.val) :
       | succ d'' =>
         have h1 := ih a (by omega) (by omega)
         have h2 := hAdj (a + (d'' + 1)) (by omega)
-        have hEq : a + (d'' + 1) + 1 = a + (d'' + 2) := by omega
-        rw [hEq] at h2; omega
+        have hEq : a + (d'' + 1) + 1 = a + (d'' + 1 + 1) := by omega
+        rw [hEq] at h2; exact Nat.lt_trans h1 h2
   have hRes := hStep (j.val - i.val) i.val (by have := j.isLt; omega) (by omega)
   have hEq : i.val + (j.val - i.val) = j.val := by omega
   rw [hEq] at hRes; exact hRes
@@ -1121,7 +1135,7 @@ def sseAct216 : List (Fin 4) → Fin 216 → Fin 216
 
 private theorem sse_act216Gen_compat_fast :
     sse_allPow2 (fun i =>
-      if hi : i < 216 then
+      if i < 216 then
         let ci := sse_clique216Nat i
         decide (sse_clique216Nat (sse_act216Gen0Nat i) = sseActCliqueGen ⟨0, by decide⟩ ci) &&
         decide (sse_clique216Nat (sse_act216Gen1Nat i) = sseActCliqueGen ⟨1, by decide⟩ ci) &&
@@ -1137,7 +1151,7 @@ private theorem sse_act216Gen_compat_fast :
 private theorem sse_act216Gen_compat (k : Fin 4) (i : Fin 216) :
     sseClique216 (sseAct216Gen k i) = sseActCliqueGen k (sseClique216 i) := by
   have h := sse_allPow2_sound _ 8 0 sse_act216Gen_compat_fast i.val (Nat.zero_le _) (by have := i.isLt; omega)
-  rw [dif_pos i.isLt] at h; simp only [Bool.and_eq_true] at h
+  rw [sse_ite_pos i.isLt] at h; simp only [Bool.and_eq_true] at h
   rcases k with ⟨kv, hkv⟩
   match kv with
   | 0 => exact of_decide_eq_true h.1.1.1.1.1.1.1
@@ -1149,7 +1163,7 @@ private theorem sse_act216Gen_compat (k : Fin 4) (i : Fin 216) :
 private theorem sse_act216Gen_inv (k : Fin 4) (i : Fin 216) :
     sseAct216Gen k (sseAct216Gen k i) = i := by
   have h := sse_allPow2_sound _ 8 0 sse_act216Gen_compat_fast i.val (Nat.zero_le _) (by have := i.isLt; omega)
-  rw [dif_pos i.isLt] at h; simp only [Bool.and_eq_true] at h
+  rw [sse_ite_pos i.isLt] at h; simp only [Bool.and_eq_true] at h
   apply Fin.ext; unfold sseAct216Gen sse_act216GenNat
   rcases k with ⟨kv, hkv⟩
   match kv with
@@ -1241,7 +1255,7 @@ private theorem sse_act216_eq_natWord (w : List Nat) (i : Fin 216) :
 
 private theorem sse_canonWord216_fast :
     sse_allPow2 (fun i =>
-      if hi : i < 216 then
+      if i < 216 then
         decide (sse_act216NatWord (sse_canonWord216Nat i) i =
           (sseCanonCliqueOfSize (sseCliqueSize (sse_clique216Nat i))).val)
       else true) 8 0 = true := by
@@ -1253,7 +1267,7 @@ private theorem sse_canonWord216_exact (i : Fin 216) :
   unfold sseCanonWord216 sseSize216 sseClique216
   rw [sse_act216_eq_natWord]
   have h := sse_allPow2_sound _ 8 0 sse_canonWord216_fast i.val (Nat.zero_le _) (by have := i.isLt; omega)
-  rw [dif_pos i.isLt] at h; exact of_decide_eq_true h
+  rw [sse_ite_pos i.isLt] at h; exact of_decide_eq_true h
 
 private theorem sse_cliques216_counts_fast :
     (sseClique216 ⟨0, by decide⟩ = SseClique.c1 sse_v0) ∧
@@ -1274,7 +1288,8 @@ private theorem sse_cliques216_size_counts :
   · rw [sse_sumFinNat_eq_sumPow2 8 (by decide)]; exact sse_cliques216_counts_fast.2.2.2.2.2
 
 /-- Headline Theorem 1 (`W(F_4)` Automorphisms & Exhaustive `216`-Clique Transitivity):
-    1. Every `W(F_4)` word `w : List (Fin 4)` is a bijection on `Fin 24` preserving `dot4` and `adj24`.
+    1. Every `W(F_4)` word `w : List (Fin 4)` is a bijection on `Fin 24` preserving `dot4` and `adj24`
+       and matching `sseApplyWordNat (w.map Fin.val)` on values.
     2. `sseClique216` matches `sseAllCliquesList` from `Vibe.CuspGrowth` identically (`24 + 96 + 96 = 216`),
        `sseAct216` is a compatible `W(F_4)` bijection on `Fin 216`, and EVERY `i : Fin 216` maps under
        `sseCanonWord216 i` onto the canonical representative `[0]`, `[0, 4]`, or `[0, 4, 8]` of its size! -/
@@ -1282,9 +1297,10 @@ theorem thm_sse_wf4_automorphisms_and_216_cliques :
     (∀ (w : List (Fin 4)) (a b : Fin 24),
       sseApplyWord w.reverse (sseApplyWord w a) = a ∧
       dot4 (d4RootOf (sseApplyWord w a)) (d4RootOf (sseApplyWord w b)) = dot4 (d4RootOf a) (d4RootOf b) ∧
-      adj24 (sseApplyWord w a) (sseApplyWord w b) = adj24 a b) ∧
+      adj24 (sseApplyWord w a) (sseApplyWord w b) = adj24 a b ∧
+      (sseApplyWord w a).val = sseApplyWordNat (w.map Fin.val) a.val) ∧
     (sseAllCliquesList.length = 216 ∧
-     (∀ i : Fin 216, sse_listGetD (SseClique.c1 sse_v0) sseAllCliquesList i.val = sseClique216 i) ∧
+     (∀ i : Fin 216, sseListGetD (SseClique.c1 ⟨0, by decide⟩) sseAllCliquesList i.val = sseClique216 i) ∧
      sseSumFinNat (fun i : Fin 216 => if sseSize216 i = 1 then 1 else 0) = 24 ∧
      sseSumFinNat (fun i : Fin 216 => if sseSize216 i = 2 then 1 else 0) = 96 ∧
      sseSumFinNat (fun i : Fin 216 => if sseSize216 i = 3 then 1 else 0) = 96) ∧
@@ -1292,7 +1308,8 @@ theorem thm_sse_wf4_automorphisms_and_216_cliques :
       sseClique216 (sseAct216Gen k i) = sseActCliqueGen k (sseClique216 i) ∧
       sseAct216Gen k (sseAct216Gen k i) = i) ∧
     (∀ (i : Fin 216), sseAct216 (sseCanonWord216 i) i = sseCanonCliqueOfSize (sseSize216 i)) :=
-  ⟨fun w a b => ⟨sse_applyWord_inv w a, sse_applyWord_preserves_dot4 w a b, sse_applyWord_preserves_adj24 w a b⟩,
+  ⟨fun w a b => ⟨sse_applyWord_inv w a, sse_applyWord_preserves_dot4 w a b,
+     sse_applyWord_preserves_adj24 w a b, sse_applyWord_val_eq_nat w a⟩,
    ⟨sse_allCliquesList_len, sse_allCliquesList_getD,
     sse_cliques216_size_counts.1, sse_cliques216_size_counts.2.1, sse_cliques216_size_counts.2.2⟩,
    fun k i => ⟨sse_act216Gen_compat k i, sse_act216Gen_inv k i⟩,
@@ -1321,9 +1338,10 @@ private def sse_sortPairList : List (Nat × List Nat) → List (Nat × List Nat)
   | [] => []
   | p :: ps => sse_insertPairSorted p (sse_sortPairList ps)
 
-private def sse_memNat (x : Nat) : List Nat → Bool
+/-- Exact membership test on `List Nat`. -/
+def sseMemNat (x : Nat) : List Nat → Bool
   | [] => false
-  | y :: ys => (x == y) || sse_memNat x ys
+  | y :: ys => (x == y) || sseMemNat x ys
 
 /-- Exact Depth-2 suffix transition `stepD2(St_2(w), b) = St_2(w s_b)` computed directly from `adj24` (`sse_adjFast`). -/
 def sseStepD2 (st : SseD2StateNat) (b : Nat) : SseD2StateNat :=
@@ -1404,11 +1422,6 @@ def sseD2Word (u : Fin 19) (b : Fin 24) : List (Fin 4) :=
   | none => []
   | some e => sseNatWordToFin4 e.2
 
-private def sse_d2WordNat (u : Fin 19) (b : Fin 24) : List Nat :=
-  match sse_d2Lookup u.val b.val with
-  | none => []
-  | some e => e.2
-
 /-- Clique size `|D(u)| ∈ {0, 1, 2, 3}` of Depth-2 state `u : Fin 19`. -/
 def sseD2Size (u : Fin 19) : Fin 4 :=
   match (sseD2Rep u).1.length with
@@ -1437,39 +1450,85 @@ def sseIsValidD2State (st : SseD2StateNat) : Bool :=
   decide (st.2.map Prod.fst = st.1) &&
   st.2.all (fun p =>
     sseIsValidCliqueNat p.2 &&
-    !(sse_memNat p.1 p.2) &&
-    st.1.all (fun x => decide (x = p.1) || (sse_memNat x p.2 && sse_adjFast p.1 x)))
+    !(sseMemNat p.1 p.2) &&
+    st.1.all (fun x => decide (x = p.1) || (sseMemNat x p.2 && sse_adjFast p.1 x)))
 
 private theorem sse_d2_reps_valid_and_distinct :
     (∀ u : Fin 19, sseIsValidD2State (sseD2Rep u) = true) ∧
     (∀ u v : Fin 19, sseD2Rep u = sseD2Rep v → u = v) := by
   decide
 
--- O(19 * 24) single-pass closure verification (no redundant inner `∀ v : Fin 19` quantifier!).
-private def sse_d2StepClosureOk (u : Fin 19) (b : Fin 24) : Bool :=
-  match sseD2Next u b with
-  | none => sse_memNat b.val (sseD2Rep u).1
-  | some v => !(sse_memNat b.val (sseD2Rep u).1) &&
-      decide (ssePermD2 (sse_d2WordNat u b) (sseStepD2 (sseD2Rep u) b.val) = sseD2Rep v)
+private theorem sse_natWordToFin4_map_val (w : List Nat) (h : w.all (fun k => decide (k < 4)) = true) :
+    (sseNatWordToFin4 w).map Fin.val = w := by
+  induction w with
+  | nil => rfl
+  | cons k rest ih =>
+    simp only [List.all, Bool.and_eq_true] at h
+    have hk : k < 4 := of_decide_eq_true h.1
+    simp only [sseNatWordToFin4, List.map, Nat.mod_eq_of_lt hk, ih h.2]
 
-private theorem sse_d2_step_closure_fast :
-    ∀ (u : Fin 19) (b : Fin 24), sse_d2StepClosureOk u b = true := by
-  decide
+-- Single-lookup O(19 * 24) closure check split into 4 fast slices (well under default maxHeartbeats!).
+private def sse_d2StepClosureOk (u : Fin 19) (b : Fin 24) : Bool :=
+  match sse_d2Lookup u.val b.val with
+  | none => sseMemNat b.val (sseD2Rep u).1
+  | some e =>
+    decide (e.1 < 19) &&
+    !(sseMemNat b.val (sseD2Rep u).1) &&
+    e.2.all (fun k => decide (k < 4)) &&
+    decide (ssePermD2 e.2 (sseStepD2 (sseD2Rep u) b.val) = sseD2Rep ⟨e.1 % 19, Nat.mod_lt _ (by decide)⟩)
+
+private theorem sse_d2_step_closure_p0 :
+    ∀ (i : Fin 5) (b : Fin 24), sse_d2StepClosureOk ⟨i.val, by omega⟩ b = true := by decide
+
+private theorem sse_d2_step_closure_p1 :
+    ∀ (i : Fin 5) (b : Fin 24), sse_d2StepClosureOk ⟨i.val + 5, by omega⟩ b = true := by decide
+
+private theorem sse_d2_step_closure_p2 :
+    ∀ (i : Fin 5) (b : Fin 24), sse_d2StepClosureOk ⟨i.val + 10, by omega⟩ b = true := by decide
+
+private theorem sse_d2_step_closure_p3 :
+    ∀ (i : Fin 4) (b : Fin 24), sse_d2StepClosureOk ⟨i.val + 15, by omega⟩ b = true := by decide
+
+private theorem sse_d2_step_closure_fast (u : Fin 19) (b : Fin 24) :
+    sse_d2StepClosureOk u b = true := by
+  if h0 : u.val < 5 then
+    have hu : u = ⟨u.val, by omega⟩ := rfl
+    exact sse_d2_step_closure_p0 ⟨u.val, h0⟩ b
+  else if h1 : u.val < 10 then
+    have h := sse_d2_step_closure_p1 ⟨u.val - 5, by omega⟩ b
+    have hu : (⟨u.val - 5 + 5, by omega⟩ : Fin 19) = u := Fin.ext (by omega)
+    rw [hu] at h; exact h
+  else if h2 : u.val < 15 then
+    have h := sse_d2_step_closure_p2 ⟨u.val - 10, by omega⟩ b
+    have hu : (⟨u.val - 10 + 10, by omega⟩ : Fin 19) = u := Fin.ext (by omega)
+    rw [hu] at h; exact h
+  else
+    have h := sse_d2_step_closure_p3 ⟨u.val - 15, by omega⟩ b
+    have hu : (⟨u.val - 15 + 15, by omega⟩ : Fin 19) = u := Fin.ext (by omega)
+    rw [hu] at h; exact h
 
 private theorem sse_d2_step_closure_exact (u : Fin 19) (b : Fin 24) :
-    (sse_memNat b.val (sseD2Rep u).1 = true ↔ sseD2Next u b = none) ∧
+    (sseMemNat b.val (sseD2Rep u).1 = true ↔ sseD2Next u b = none) ∧
     (∀ v : Fin 19, sseD2Next u b = some v →
-      ssePermD2 (sse_d2WordNat u b) (sseStepD2 (sseD2Rep u) b.val) = sseD2Rep v) := by
+      ssePermD2 ((sseD2Word u b).map Fin.val) (sseStepD2 (sseD2Rep u) b.val) = sseD2Rep v) := by
   have h := sse_d2_step_closure_fast u b
   unfold sse_d2StepClosureOk at h
-  cases hN : sseD2Next u b with
+  unfold sseD2Next sseD2Word
+  cases hL : sse_d2Lookup u.val b.val with
   | none =>
-    rw [hN] at h
-    exact ⟨⟨fun _ => rfl, fun _ => h⟩, fun _ hv => Option.noConfusion hv⟩
-  | some w =>
-    rw [hN] at h; simp only [Bool.and_eq_true, Bool.not_eq_true'] at h
-    refine ⟨⟨fun hm => by rw [h.1] at hm; exact absurd hm (by decide), fun hn => Option.noConfusion hn⟩, ?_⟩
-    intro v hv; cases hv; exact of_decide_eq_true h.2
+    rw [hL] at h; dsimp only at h ⊢
+    exact ⟨⟨fun _ => rfl, fun _ => h⟩, fun _ hv => nomatch hv⟩
+  | some e =>
+    rw [hL] at h; dsimp only at h ⊢
+    simp only [Bool.and_eq_true, Bool.not_eq_true'] at h
+    have hlt : e.1 < 19 := of_decide_eq_true h.1.1.1
+    rw [dite_eq_left hlt]
+    refine ⟨⟨fun hm => by rw [h.1.1.2] at hm; exact absurd hm (by decide), fun hn => nomatch hn⟩, ?_⟩
+    intro v hv; cases hv
+    rw [sse_natWordToFin4_map_val e.2 h.1.2]
+    have heq : (⟨e.1 % 19, Nat.mod_lt _ (by decide)⟩ : Fin 19) = ⟨e.1, hlt⟩ := Fin.ext (Nat.mod_eq_of_lt hlt)
+    have hP := of_decide_eq_true h.2
+    rw [heq] at hP; exact hP
 
 private theorem sse_d2_lumpability_exact :
     (∀ u : Fin 19, (sseD2Size u).val + sseSumFinNat (fun v : Fin 19 => sseD2TransMult u v) = 24) ∧
@@ -1620,9 +1679,9 @@ theorem thm_sse_depth2_automaton_and_shell_growth :
     (∀ u : Fin 19, sseIsValidD2State (sseD2Rep u) = true) ∧
     (∀ u v : Fin 19, sseD2Rep u = sseD2Rep v → u = v) ∧
     (∀ (u : Fin 19) (b : Fin 24),
-      (sse_memNat b.val (sseD2Rep u).1 = true ↔ sseD2Next u b = none) ∧
+      (sseMemNat b.val (sseD2Rep u).1 = true ↔ sseD2Next u b = none) ∧
       (∀ v : Fin 19, sseD2Next u b = some v →
-        ssePermD2 (sse_d2WordNat u b) (sseStepD2 (sseD2Rep u) b.val) = sseD2Rep v)) ∧
+        ssePermD2 ((sseD2Word u b).map Fin.val) (sseStepD2 (sseD2Rep u) b.val) = sseD2Rep v)) ∧
     (∀ u : Fin 19, (sseD2Size u).val + sseSumFinNat (fun v : Fin 19 => sseD2TransMult u v) = 24) ∧
     (∀ (u : Fin 19) (t : Fin 4),
       sseSumFinNat (fun v : Fin 19 => if sseD2Size v = t then sseD2TransMult u v else 0) =
@@ -1638,13 +1697,15 @@ theorem thm_sse_depth2_automaton_and_shell_growth :
         (sseD2Size v).val * N (r + 1) v = sseSumFinNat (fun u : Fin 19 => N r u * sseD2TransMult u v)) →
       ∀ r : Nat,
         (∀ k : Fin 4, sseSumFinNat (fun u : Fin 19 => if sseD2Size u = k then N r u else 0) = ssStratumCount k r) ∧
-        sseSumFinNat (fun u : Fin 19 => N r u) = ballShell r) :=
+        sseSumFinNat (fun u : Fin 19 => N r u) = ballShell r) ∧
+    (∀ r : Fin 6, ∀ v : Fin 19, v.val ≠ 0 →
+      sseSumFinNat (fun u : Fin 19 => sseD2ShellVec r.val u * sseD2TransMult u v) % (sseD2Size v).val = 0) :=
   ⟨sse_d2_reps_valid_and_distinct.1, sse_d2_reps_valid_and_distinct.2, sse_d2_step_closure_exact,
    sse_d2_lumpability_exact.1, sse_d2_lumpability_exact.2,
    ⟨sse_d2_shell_r0_to_r6.2.1.1, sse_d2_shell_r0_to_r6.2.2.1.1, sse_d2_shell_r0_to_r6.2.2.2.1.1,
     sse_d2_shell_r0_to_r6.2.2.2.2.1.1, sse_d2_shell_r0_to_r6.2.2.2.2.2.1.1,
     sse_d2_shell_r0_to_r6.2.2.2.2.2.2.1.1, sse_d2_shell_r0_to_r6.2.2.2.2.2.2.2.1⟩,
-   sse_d2_all_depth_lumpable⟩
+   sse_d2_all_depth_lumpable, sse_d2_shell_r0_to_r6.1⟩
 
 
 /-! ## Section 3: Exact `23`-Flag Upward-End Orbits, Unconditional `Aut`-Invariance & Reciprocity -/
@@ -1730,8 +1791,8 @@ def sseD2UpMult (u : Fin 19) (e : Fin 23) : Nat :=
 -- Fast O(19 * 24) flag invariant verification (avoids O(19*24*19*23) quantifier expansion!).
 private def sse_d2DownFlagOk (v : Fin 19) (a : Fin 24) : Bool :=
   match sseD2DownFlag v a with
-  | none => !(sse_memNat a.val (sseD2Rep v).1)
-  | some e => sse_memNat a.val (sseD2Rep v).1 && decide (sseD2FlagOwner e = v)
+  | none => !(sseMemNat a.val (sseD2Rep v).1)
+  | some e => sseMemNat a.val (sseD2Rep v).1 && decide (sseD2FlagOwner e = v)
 
 private def sse_d2RecOk (u : Fin 19) (b : Fin 24) : Bool :=
   match sseD2Next u b with
@@ -1747,7 +1808,7 @@ private theorem sse_d2_flag_invariants_fast :
     (∀ (v : Fin 19) (a : Fin 24), sse_d2DownFlagOk v a = true) ∧
     (∀ e : Fin 23, 0 < sseD2DownMult (sseD2FlagOwner e) e) ∧
     (∀ (v : Fin 19) (a b : Fin 24),
-      sse_memNat a.val (sseD2Rep v).1 = true → sse_memNat b.val (sseD2Rep v).1 = true →
+      sseMemNat a.val (sseD2Rep v).1 = true → sseMemNat b.val (sseD2Rep v).1 = true →
       sseD2DownCliqueLen v a = sseD2DownCliqueLen v b → sseD2DownFlag v a = sseD2DownFlag v b) ∧
     (∀ (u : Fin 19) (b : Fin 24), sse_d2RecOk u b = true) ∧
     (∀ u : Fin 19,
@@ -1769,9 +1830,9 @@ theorem thm_sse_depth2_flag_reciprocity :
     (∀ (v : Fin 19) (a : Fin 24) (e : Fin 23), sseD2DownFlag v a = some e → sseD2FlagOwner e = v) ∧
     (∀ e : Fin 23, 0 < sseD2DownMult (sseD2FlagOwner e) e) ∧
     (∀ (v : Fin 19) (π : Fin 24 → Fin 24),
-      (∀ a : Fin 24, sse_memNat a.val (sseD2Rep v).1 = true →
-        sse_memNat (π a).val (sseD2Rep v).1 = true ∧ sseD2DownCliqueLen v (π a) = sseD2DownCliqueLen v a) →
-      ∀ a : Fin 24, sse_memNat a.val (sseD2Rep v).1 = true → sseD2DownFlag v (π a) = sseD2DownFlag v a) ∧
+      (∀ a : Fin 24, sseMemNat a.val (sseD2Rep v).1 = true →
+        sseMemNat (π a).val (sseD2Rep v).1 = true ∧ sseD2DownCliqueLen v (π a) = sseD2DownCliqueLen v a) →
+      ∀ a : Fin 24, sseMemNat a.val (sseD2Rep v).1 = true → sseD2DownFlag v (π a) = sseD2DownFlag v a) ∧
     (∀ (u : Fin 19) (b : Fin 24) (v : Fin 19),
       sseD2Next u b = some v →
       ∃ e : Fin 23,
@@ -1784,18 +1845,18 @@ theorem thm_sse_depth2_flag_reciprocity :
   refine ⟨?_, sse_d2_flag_invariants_fast.2.1, ?_, ?_, sse_d2_flag_invariants_fast.2.2.2.2⟩
   · intro v a e he
     have h := sse_d2_flag_invariants_fast.1 v a
-    unfold sse_d2DownFlagOk at h; rw [he] at h; simp only [Bool.and_eq_true] at h
+    unfold sse_d2DownFlagOk at h; rw [he] at h; dsimp only at h; simp only [Bool.and_eq_true] at h
     exact of_decide_eq_true h.2
   · intro v π hπ a ha
     have h1 := hπ a ha
     exact (sse_d2_flag_invariants_fast.2.2.1 v a (π a) ha h1.1 h1.2.symm).symm
   · intro u b v hv
     have h := sse_d2_flag_invariants_fast.2.2.2.1 u b
-    unfold sse_d2RecOk at h; rw [hv] at h
+    unfold sse_d2RecOk at h; rw [hv] at h; dsimp only at h
     cases hu : sseD2UpFlag u b with
-    | none => rw [hu] at h; exact absurd h (by decide)
+    | none => rw [hu] at h; dsimp only at h; exact absurd h (by decide)
     | some e =>
-      rw [hu] at h; simp only [Bool.and_eq_true] at h
+      rw [hu] at h; dsimp only at h; simp only [Bool.and_eq_true] at h
       exact ⟨e, rfl, of_decide_eq_true h.1, of_decide_eq_true h.2⟩
 
 
@@ -2135,8 +2196,8 @@ private theorem sse_inForb_wf4Gen (k : Fin 4) (c : SseClique) (x : Fin 24) :
   | c3 a b c =>
     have hEq3 : ∀ p q r : Fin 24,
         (∀ y : Fin 24, (y = p ∨ y = q ∨ y = r) ↔ (y = sseWF4Gen k a ∨ y = sseWF4Gen k b ∨ y = sseWF4Gen k c)) →
-        (adj24 p (sseWF4Gen k x) && adj24 q (sseWF4Gen k x) && adj24 r (sseWF4Gen k x) =
-         adj24 (sseWF4Gen k a) (sseWF4Gen k x) && adj24 (sseWF4Gen k b) (sseWF4Gen k x) && adj24 (sseWF4Gen k c) (sseWF4Gen k x)) →
+        ((adj24 p (sseWF4Gen k x) && adj24 q (sseWF4Gen k x) && adj24 r (sseWF4Gen k x)) =
+         (adj24 (sseWF4Gen k a) (sseWF4Gen k x) && adj24 (sseWF4Gen k b) (sseWF4Gen k x) && adj24 (sseWF4Gen k c) (sseWF4Gen k x))) →
         sseInForbClique (SseClique.c3 p q r) (sseWF4Gen k x) = sseInForbClique (SseClique.c3 a b c) x := by
       intro p q r hOr hAnd
       simp only [sseInForbClique, hAnd, sse_wf4Gen_preserves_adj24]
@@ -2171,8 +2232,7 @@ private theorem sse_canFollow216_wf4Gen (k : Fin 4) (i j : Fin 216) :
   generalize sseClique216 i = c1
   cases sseClique216 j with
   | c1 x =>
-    change !(sseInForbClique (sseActCliqueGen k c1) (sseWF4Gen k x)) = !(sseInForbClique c1 x)
-    rw [sse_inForb_wf4Gen]
+    simp only [sseActCliqueGen, sseCanFollowClique, sse_inForb_wf4Gen]
   | c2 x y =>
     change sseCanFollowClique (sseActCliqueGen k c1)
         (SseClique.c2 (sseSort2Fin (sseWF4Gen k x) (sseWF4Gen k y)).1 (sseSort2Fin (sseWF4Gen k x) (sseWF4Gen k y)).2) = _
@@ -2260,7 +2320,7 @@ def sseStab0Q3Word (i : Fin 216) : List (Fin 4) :=
     | _ => [])
 
 /-- Explicit 20-element list of all `Q_3 = Adj(0)` cliques (kernel-verified equal to `{j | sseIsQ3 j = true}`). -/
-private def sse_q3List : List (Fin 216) := [⟨4, by decide⟩, ⟨5, by decide⟩, ⟨8, by decide⟩, ⟨9, by decide⟩, ⟨12, by decide⟩, ⟨13, by decide⟩, ⟨16, by decide⟩, ⟨17, by decide⟩, ⟨56, by decide⟩, ⟨57, by decide⟩, ⟨58, by decide⟩, ⟨62, by decide⟩, ⟨63, by decide⟩, ⟨64, by decide⟩, ⟨80, by decide⟩, ⟨84, by decide⟩, ⟨96, by decide⟩, ⟨97, by decide⟩, ⟨100, by decide⟩, ⟨101, by decide⟩]
+def sseQ3List : List (Fin 216) := [⟨4, by decide⟩, ⟨5, by decide⟩, ⟨8, by decide⟩, ⟨9, by decide⟩, ⟨12, by decide⟩, ⟨13, by decide⟩, ⟨16, by decide⟩, ⟨17, by decide⟩, ⟨56, by decide⟩, ⟨57, by decide⟩, ⟨58, by decide⟩, ⟨62, by decide⟩, ⟨63, by decide⟩, ⟨64, by decide⟩, ⟨80, by decide⟩, ⟨84, by decide⟩, ⟨96, by decide⟩, ⟨97, by decide⟩, ⟨100, by decide⟩, ⟨101, by decide⟩]
 
 private def sse_add0SpecBool (j : Fin 216) : Bool :=
   match sseClique216 j with
@@ -2279,7 +2339,7 @@ private theorem sse_isQ3_wall_and_counts_fast :
     (sse_sumPow2 (fun k => if h : k < 216 then if (sseIsQ3 ⟨k, h⟩ && decide (sseSize216 ⟨k, h⟩ = 3)) = true then 1 else 0 else 0) 8 0 = 0) ∧
     (sse_allPow2 (fun k => if h : k < 216 then
       let j : Fin 216 := ⟨k, h⟩
-      decide (sse_q3List.any (fun x => decide (x = j)) = sseIsQ3 j) &&
+      decide (sseQ3List.any (fun x => decide (x = j)) = sseIsQ3 j) &&
       (!(sseIsQ3 j) || (decide (sseApplyWord (sseStab0Q3Word j) sse_v0 = sse_v0) &&
                         decide (sseAct216 (sseStab0Q3Word j) j = sseCanonQ3OfSize (sseSize216 j)) &&
                         sse_add0SpecBool j)) &&
@@ -2288,14 +2348,14 @@ private theorem sse_isQ3_wall_and_counts_fast :
   decide
 
 private theorem sse_q3_212_pairs_and_zero_cascade_fast :
-    sse_q3List.length = 20 ∧
-    (sse_q3List.foldl (fun acc j1 => acc + (sse_q3List.filter (fun j2 => sse_canFollowFast j1 j2)).length) 0 = 212) ∧
-    (sse_q3List.all (fun j1 => sse_q3List.all (fun j2 =>
+    sseQ3List.length = 20 ∧
+    (sseQ3List.foldl (fun acc j1 => acc + (sseQ3List.filter (fun j2 => sse_canFollowFast j1 j2)).length) 0 = 212) ∧
+    (sseQ3List.all (fun j1 => sseQ3List.all (fun j2 =>
       !(sse_canFollowFast j1 j2) || sse_canFollowFast (sseAdd0 j1) j2)) = true) ∧
     (sse_allPow2 (fun k => if h : k < 216 then
       let c : Fin 216 := ⟨k, h⟩
       !(sse_canFollowFast c sseIdx0) ||
-        sse_q3List.all (fun j => !(sse_canFollowFast c j) || sse_canFollowFast c (sseAdd0 j))
+        sseQ3List.all (fun j => !(sse_canFollowFast c j) || sse_canFollowFast c (sseAdd0 j))
     else true) 8 0 = true) := by
   decide
 
@@ -2311,14 +2371,14 @@ private theorem sse_q3_counts :
   · rw [sse_sumFinNat_eq_sumPow2 8 (by decide)]; exact sse_isQ3_wall_and_counts_fast.2.2.2.2.2.2.1
 
 private theorem sse_q3_all_props (j : Fin 216) :
-    (sse_q3List.any (fun x => decide (x = j)) = sseIsQ3 j) ∧
+    (sseQ3List.any (fun x => decide (x = j)) = sseIsQ3 j) ∧
     (sseIsQ3 j = true →
       sseApplyWord (sseStab0Q3Word j) sse_v0 = sse_v0 ∧
       sseAct216 (sseStab0Q3Word j) j = sseCanonQ3OfSize (sseSize216 j) ∧
       sse_add0SpecBool j = true) ∧
     (sse_canFollowFast j sseIdx0 = true → sseIsQ3 j = false) := by
   have h := sse_allPow2_sound _ 8 0 sse_isQ3_wall_and_counts_fast.2.2.2.2.2.2.2 j.val (Nat.zero_le _) (by have := j.isLt; omega)
-  rw [dif_pos j.isLt] at h; simp only [Bool.and_eq_true] at h
+  rw [dite_eq_left j.isLt] at h; dsimp only at h; simp only [Bool.and_eq_true] at h
   refine ⟨of_decide_eq_true h.1.1, ?_, ?_⟩
   · intro hQ
     have h2 := h.1.2; rw [hQ] at h2; simp only [Bool.not_true, Bool.false_or, Bool.and_eq_true] at h2
@@ -2334,7 +2394,7 @@ private theorem sse_q3_size_1_or_2 (j : Fin 216) (hQ : sseIsQ3 j = true) :
   cases hcj : sseClique216 j <;> rw [hcj] at h3
   · exact Or.inl rfl
   · exact Or.inr rfl
-  · exact absurd h3 (by decide)
+  · dsimp only at h3; exact absurd h3 (by decide)
 
 private theorem sse_list_all_of_any {α : Type} [DecidableEq α] (l : List α) (p : α → Bool)
     (h : l.all p = true) {x : α} (hx : l.any (fun y => decide (y = x)) = true) : p x = true := by
@@ -2352,9 +2412,11 @@ private theorem sse_canFollow_c_add0 (c j : Fin 216)
     sseCanFollow216 c (sseAdd0 j) = true := by
   rw [sse_canFollow216_eq_fast] at h0 hJ ⊢
   have h1 := sse_allPow2_sound _ 8 0 sse_q3_212_pairs_and_zero_cascade_fast.2.2.2 c.val (Nat.zero_le _) (by have := c.isLt; omega)
-  rw [dif_pos c.isLt, h0] at h1; simp only [Bool.not_true, Bool.false_or] at h1
-  have hAny : sse_q3List.any (fun x => decide (x = j)) = true := by rw [(sse_q3_all_props j).1, hQ]
-  have h2 := sse_list_all_of_any sse_q3List _ h1 hAny
+  rw [dite_eq_left c.isLt] at h1
+  change (!(sse_canFollowFast c sseIdx0) || sseQ3List.all (fun j => !(sse_canFollowFast c j) || sse_canFollowFast c (sseAdd0 j))) = true at h1
+  rw [h0] at h1; simp only [Bool.not_true, Bool.false_or] at h1
+  have hAny : sseQ3List.any (fun x => decide (x = j)) = true := by rw [(sse_q3_all_props j).1, hQ]
+  have h2 := sse_list_all_of_any sseQ3List _ h1 hAny
   rw [hJ] at h2; simp only [Bool.not_true, Bool.false_or] at h2
   exact h2
 
@@ -2362,10 +2424,10 @@ private theorem sse_zero_cascade (j1 j2 : Fin 216)
     (h1 : sseIsQ3 j1 = true) (h2 : sseIsQ3 j2 = true) (hF : sseCanFollow216 j1 j2 = true) :
     sseCanFollow216 (sseAdd0 j1) j2 = true := by
   rw [sse_canFollow216_eq_fast] at hF ⊢
-  have hA1 : sse_q3List.any (fun x => decide (x = j1)) = true := by rw [(sse_q3_all_props j1).1, h1]
-  have hA2 : sse_q3List.any (fun x => decide (x = j2)) = true := by rw [(sse_q3_all_props j2).1, h2]
-  have ha := sse_list_all_of_any sse_q3List _ sse_q3_212_pairs_and_zero_cascade_fast.2.2.1 hA1
-  have hb := sse_list_all_of_any sse_q3List _ ha hA2
+  have hA1 : sseQ3List.any (fun x => decide (x = j1)) = true := by rw [(sse_q3_all_props j1).1, h1]
+  have hA2 : sseQ3List.any (fun x => decide (x = j2)) = true := by rw [(sse_q3_all_props j2).1, h2]
+  have ha := sse_list_all_of_any sseQ3List _ sse_q3_212_pairs_and_zero_cascade_fast.2.2.1 hA1
+  have hb := sse_list_all_of_any sseQ3List _ ha hA2
   rw [hF] at hb; simp only [Bool.not_true, Bool.false_or] at hb
   exact hb
 
@@ -2385,7 +2447,7 @@ private theorem sse_stab0_preserves_q3_and_add0 (w : List (Fin 4))
        | SseClique.c2 a b => x = sseApplyWord u a ∨ x = sseApplyWord u b
        | SseClique.c3 a b c => x = sseApplyWord u a ∨ x = sseApplyWord u b ∨ x = sseApplyWord u c) := by
     intro u; induction u with
-    | nil => intro i x; cases sseClique216 i <;> rfl
+    | nil => intro i x; simp only [sseAct216, sseApplyWord]
     | cons k rest ih =>
       intro i x
       simp only [sseAct216, sse_act216Gen_compat]
@@ -2437,7 +2499,7 @@ private theorem sse_stab0_preserves_q3_and_add0 (w : List (Fin 4))
       else true) 8 0 = true := by decide
     intro k
     have h := sse_allPow2_sound _ 8 0 hFast k.val (Nat.zero_le _) (by have := k.isLt; omega)
-    rw [dif_pos k.isLt] at h; unfold sseClique216
+    rw [dite_eq_left k.isLt] at h; dsimp only at h; unfold sseClique216
     cases hck : sse_clique216Nat k.val <;> rw [hck] at h
     · trivial
     · exact of_decide_eq_true h
@@ -2475,11 +2537,13 @@ private theorem sse_stab0_preserves_q3_and_add0 (w : List (Fin 4))
     apply hInj216; intro x
     rw [hCliqueWord w sseIdx0 x]
     have h0 : sseClique216 sseIdx0 = SseClique.c1 sse_v0 := rfl
-    rw [h0, hFix0]
+    rw [h0]; dsimp only; rw [hFix0]
   have hQ3 : ∀ j : Fin 216, sseIsQ3 (sseAct216 w j) = sseIsQ3 j := by
     intro j
     have hWall : ∀ x : Fin 24, isWallFacet (sseApplyWord w x) = isWallFacet x := by
-      intro x; unfold isWallFacet; rw [← hFix0, sse_applyWord_preserves_adj24]
+      intro x
+      change adj24 sse_v0 (sseApplyWord w x) = adj24 sse_v0 x
+      rw [← sse_applyWord_preserves_adj24 w sse_v0 x, hFix0]
     have hAllWall : ∀ k : Fin 216, sseIsQ3 k = true ↔
         ∀ x : Fin 24,
           (match sseClique216 k with | SseClique.c1 a => x = a | SseClique.c2 a b => x = a ∨ x = b | SseClique.c3 a b c => x = a ∨ x = b ∨ x = c) →
@@ -2532,18 +2596,18 @@ private theorem sse_stab0_preserves_q3_and_add0 (w : List (Fin 4))
   have hAdd2 := ((sse_q3_all_props (sseAct216 w j)).2.1 hQaj).2.2
   unfold sse_add0SpecBool at hAdd1 hAdd2
   have hMemW := hCliqueWord w j x
-  cases hcj : sseClique216 j <;> rw [hcj] at hAdd1 hMemW
-  · have hE1 := of_decide_eq_true hAdd1; rw [hE1, hFix0]
-    cases hcw : sseClique216 (sseAct216 w j) <;> rw [hcw] at hAdd2 hMemW
-    · have hE2 := of_decide_eq_true hAdd2; rw [hE2]
+  cases hcj : sseClique216 j <;> rw [hcj] at hAdd1 hMemW <;> dsimp only at hAdd1 hMemW
+  · have hE1 := of_decide_eq_true hAdd1; rw [hE1]; dsimp only; rw [hFix0]
+    cases hcw : sseClique216 (sseAct216 w j) <;> rw [hcw] at hAdd2 hMemW <;> dsimp only at hAdd2 hMemW
+    · have hE2 := of_decide_eq_true hAdd2; rw [hE2]; dsimp only
       exact ⟨fun h => h.elim Or.inl (fun h2 => Or.inr (hMemW.2 h2)),
              fun h => h.elim Or.inl (fun h2 => Or.inr (hMemW.1 h2))⟩
     · exfalso; have hs := sse_act216_size w j; unfold sseSize216 at hs; rw [hcj, hcw] at hs; exact absurd hs (by decide)
     · exfalso; have hs := sse_act216_size w j; unfold sseSize216 at hs; rw [hcj, hcw] at hs; exact absurd hs (by decide)
-  · have hE1 := of_decide_eq_true hAdd1; rw [hE1, hFix0]
-    cases hcw : sseClique216 (sseAct216 w j) <;> rw [hcw] at hAdd2 hMemW
+  · have hE1 := of_decide_eq_true hAdd1; rw [hE1]; dsimp only; rw [hFix0]
+    cases hcw : sseClique216 (sseAct216 w j) <;> rw [hcw] at hAdd2 hMemW <;> dsimp only at hAdd2 hMemW
     · exfalso; have hs := sse_act216_size w j; unfold sseSize216 at hs; rw [hcj, hcw] at hs; exact absurd hs (by decide)
-    · have hE2 := of_decide_eq_true hAdd2; rw [hE2]
+    · have hE2 := of_decide_eq_true hAdd2; rw [hE2]; dsimp only
       exact ⟨fun h => h.elim Or.inl (fun h2 => Or.inr (hMemW.2 h2)),
              fun h => h.elim Or.inl (fun h2 => Or.inr (hMemW.1 h2))⟩
     · exfalso; have hs := sse_act216_size w j; unfold sseSize216 at hs; rw [hcj, hcw] at hs; exact absurd hs (by decide)
@@ -2551,7 +2615,7 @@ private theorem sse_stab0_preserves_q3_and_add0 (w : List (Fin 4))
 
 /-- Headline Theorem 6 (Exact `Q_3 = Adj(0)` 3-Cube Link Algebra & Zero-Cascade Upward Insertion):
     1. `Q_3 = Adj(0)` is an `8`-vertex, `3`-regular, `12`-edge, triangle-free 3-cube with exactly
-       `20` non-empty cliques (`8` 1-cliques + `12` 2-cliques) and `212` valid Cartier-Foata pairs;
+       `20` non-empty cliques (`8` 1-cliques + `12` 2-cliques + `0` 3-cliques) and `212` valid Cartier-Foata pairs;
     2. `Stab_{W(F_4)}(0)` acts transitively on all `8` 1-cliques (`→ [4]`) and all `12` 2-cliques (`→ [4, 8]`);
     3. For EVERY `J ∈ Q_3`, `J ∪ {0}` is a valid clique of `Γ_24`; for EVERY `C` allowing `0`, `C ∉ Q_3`
        and `J ⊆ F(C) → J ∪ {0} ⊆ F(C)`; and for ALL `212` valid `Q_3` pairs `(J_1, J_2)`,
@@ -2564,24 +2628,37 @@ theorem thm_sse_q3_link_and_zero_cascade :
     (sseSumFinNat (fun i : Fin 216 => if sseIsQ3 i = true then 1 else 0) = 20) ∧
     (sseSumFinNat (fun i : Fin 216 => if (sseIsQ3 i && decide (sseSize216 i = 1)) = true then 1 else 0) = 8) ∧
     (sseSumFinNat (fun i : Fin 216 => if (sseIsQ3 i && decide (sseSize216 i = 2)) = true then 1 else 0) = 12) ∧
-    (sse_q3List.foldl (fun acc j1 => acc + (sse_q3List.filter (fun j2 => sseCanFollow216 j1 j2)).length) 0 = 212) ∧
+    (sseQ3List.foldl (fun acc j1 => acc + (sseQ3List.filter (fun j2 => sseCanFollow216 j1 j2)).length) 0 = 212) ∧
     (∀ j : Fin 216, sseIsQ3 j = true →
-      sseApplyWord (sseStab0Q3Word j) sse_v0 = sse_v0 ∧
+      sseApplyWord (sseStab0Q3Word j) ⟨0, by decide⟩ = ⟨0, by decide⟩ ∧
       sseAct216 (sseStab0Q3Word j) j = sseCanonQ3OfSize (sseSize216 j)) ∧
     (∀ c : Fin 216, sseCanFollow216 c sseIdx0 = true → sseIsQ3 c = false) ∧
     (∀ c j : Fin 216, sseCanFollow216 c sseIdx0 = true → sseIsQ3 j = true →
       sseCanFollow216 c j = true → sseCanFollow216 c (sseAdd0 j) = true) ∧
     (∀ j1 j2 : Fin 216, sseIsQ3 j1 = true → sseIsQ3 j2 = true →
-      sseCanFollow216 j1 j2 = true → sseCanFollow216 (sseAdd0 j1) j2 = true) := by
+      sseCanFollow216 j1 j2 = true → sseCanFollow216 (sseAdd0 j1) j2 = true) ∧
+    (sseSumFinNat (fun i : Fin 216 => if (sseIsQ3 i && decide (sseSize216 i = 3)) = true then 1 else 0) = 0) ∧
+    (∀ j : Fin 216, sseIsQ3 j = true →
+      match sseClique216 j with
+      | SseClique.c1 a => sseClique216 (sseAdd0 j) = SseClique.c2 ⟨0, by decide⟩ a
+      | SseClique.c2 a b => sseClique216 (sseAdd0 j) = SseClique.c3 ⟨0, by decide⟩ a b
+      | SseClique.c3 _ _ _ => False) := by
   have hFun : (fun j1 j2 => sseCanFollow216 j1 j2) = sse_canFollowFast :=
     funext (fun j1 => funext (fun j2 => sse_canFollow216_eq_fast j1 j2))
   refine ⟨sse_isQ3_wall_and_counts_fast.1, sse_isQ3_wall_and_counts_fast.2.1, sse_isQ3_wall_and_counts_fast.2.2.1,
     sse_q3_counts.1, sse_q3_counts.2.1, sse_q3_counts.2.2.1,
     ?_, fun j hQ => ⟨((sse_q3_all_props j).2.1 hQ).1, ((sse_q3_all_props j).2.1 hQ).2.1⟩,
-    ?_, sse_canFollow_c_add0, sse_zero_cascade⟩
+    ?_, sse_canFollow_c_add0, sse_zero_cascade, sse_q3_counts.2.2.2, ?_⟩
   · have hEq := sse_q3_212_pairs_and_zero_cascade_fast.2.1
     rw [← hFun] at hEq; exact hEq
   · intro c hc; rw [sse_canFollow216_eq_fast] at hc; exact (sse_q3_all_props c).2.2 hc
+  · intro j hQ
+    have hSpec := ((sse_q3_all_props j).2.1 hQ).2.2
+    unfold sse_add0SpecBool at hSpec
+    cases hcj : sseClique216 j <;> rw [hcj] at hSpec <;> dsimp only at hSpec
+    · exact of_decide_eq_true hSpec
+    · exact of_decide_eq_true hSpec
+    · exact absurd hSpec (by decide)
 
 
 /-! ## Section 6: Exact `57` Pair-Orbit Algebra & All-Depth Symbolic Cartier-Foata Word-Sum Reduction -/
@@ -2610,42 +2687,9 @@ private theorem sse_sort3Nat_swap12 (a b c : Nat) : sse_sort3Nat a b c = sse_sor
 
 private theorem sse_sort3Nat_swap23 (a b c : Nat) : sse_sort3Nat a b c = sse_sort3Nat a c b := by
   unfold sse_sort3Nat sse_sort2Nat
-  if hab : a ≤ b then
-    if hbc : b ≤ c then
-      have hac : a ≤ c := by omega
-      rw [sse_ite_pos hab, sse_ite_pos hbc, sse_ite_pos hab, sse_ite_pos hac]
-      if hcb : c ≤ b then
-        have hEq : b = c := by omega
-        rw [sse_ite_pos hcb, hEq, sse_ite_pos hab]
-      else rw [sse_ite_neg hcb, sse_ite_pos hab]
-    else if hac : a ≤ c then
-      have hcb : c ≤ b := by omega
-      rw [sse_ite_pos hab, sse_ite_neg hbc, sse_ite_pos hac, sse_ite_pos hac, sse_ite_pos hcb, sse_ite_pos hac]
-    else
-      have hcb : c ≤ b := by omega
-      have hca : c ≤ a := by omega
-      rw [sse_ite_pos hab, sse_ite_neg hbc, sse_ite_neg hac, sse_ite_neg hac, sse_ite_pos hab, sse_ite_pos hca]
-  else
-    have hba : b ≤ a := by omega
-    if hac : a ≤ c then
-      have hbc : b ≤ c := by omega
-      rw [sse_ite_neg hab, sse_ite_pos hac, sse_ite_pos hba, sse_ite_pos hac]
-      if hcb : c ≤ b then
-        have hEq1 : a = b := by omega
-        have hEq2 : b = c := by omega
-        rw [sse_ite_pos hcb, hEq1, hEq2, sse_ite_pos (Nat.le_refl c)]
-      else rw [sse_ite_neg hcb, sse_ite_neg hab]
-    else if hbc : b ≤ c then
-      have hca : c ≤ a := by omega
-      rw [sse_ite_neg hab, sse_ite_neg hac, sse_ite_pos hbc, sse_ite_neg hac]
-      if hcb : c ≤ b then
-        have hEq : b = c := by omega
-        rw [sse_ite_pos hcb, hEq, sse_ite_pos hca]
-      else rw [sse_ite_neg hcb, sse_ite_pos hbc]
-    else
-      have hca : c ≤ a := by omega
-      have hcb : c ≤ b := by omega
-      rw [sse_ite_neg hab, sse_ite_neg hac, sse_ite_neg hbc, sse_ite_neg hac, sse_ite_pos hcb, sse_ite_pos hcb]
+  split <;> dsimp only <;> split <;> dsimp only <;> split <;> dsimp only <;>
+    split <;> dsimp only <;> split <;> dsimp only <;> split <;> dsimp only <;>
+    first | rfl | exact Prod.ext (by omega) (Prod.ext (by omega) (by omega))
 
 private theorem sse_sort3Nat_perm23 (a b c : Nat) : sse_sort3Nat a c b = sse_sort3Nat a b c :=
   (sse_sort3Nat_swap23 a b c).symm
@@ -2785,17 +2829,16 @@ private theorem sse_pairDotCode_wf4Gen (k : Fin 4) (c1 c2 : SseClique) :
   have hSz2 : sseCliqueSize (sseActCliqueGen k c2) = sseCliqueSize c2 := by cases c2 <;> rfl
   unfold ssePairDotCode
   rw [hSz2]
+  generalize sseActCliqueGen k c2 = c2' at hRow ⊢
   cases c1 with
   | c1 a => simp only [sseActCliqueGen, sseCliqueSize, hRow]
   | c2 a1 a2 =>
-    change (sseCliqueSize (SseClique.c2 _ _) - 1) + 3 * (sseCliqueSize c2 - 1) + 9 * _ = _
-    dsimp only [sseCliqueSize]
+    dsimp only [sseActCliqueGen, sseCliqueSize]
     rcases sse_sort2Fin_cases (sseWF4Gen k a1) (sseWF4Gen k a2) with hs | hs <;> rw [hs] <;> dsimp only
     · simp only [hRow]
     · simp only [hRow, sse_sort2Nat_comm]
   | c3 a1 a2 a3 =>
-    change (sseCliqueSize (SseClique.c3 _ _ _) - 1) + 3 * (sseCliqueSize c2 - 1) + 9 * _ = _
-    dsimp only [sseCliqueSize]
+    dsimp only [sseActCliqueGen, sseCliqueSize]
     rcases sse_sort3Fin_cases (sseWF4Gen k a1) (sseWF4Gen k a2) (sseWF4Gen k a3) with hs | hs | hs | hs | hs | hs <;>
       rw [hs] <;> dsimp only
     · simp only [hRow]
@@ -2804,6 +2847,13 @@ private theorem sse_pairDotCode_wf4Gen (k : Fin 4) (c1 c2 : SseClique) :
     · simp only [hRow, sse_sort3Nat_perm231]
     · simp only [hRow, sse_sort3Nat_perm312]
     · simp only [hRow, sse_sort3Nat_perm321]
+
+private theorem sse_pairDotCode_wf4 (w : List (Fin 4)) (i j : Fin 216) :
+    ssePairDotCode (sseClique216 (sseAct216 w i)) (sseClique216 (sseAct216 w j)) =
+      ssePairDotCode (sseClique216 i) (sseClique216 j) := by
+  induction w with
+  | nil => rfl
+  | cons k rest ih => simp only [sseAct216, sse_act216Gen_compat, sse_pairDotCode_wf4Gen, ih]
 
 private theorem sse_pairOrbit216_wf4Gen (k : Fin 4) (i j : Fin 216) :
     ssePairOrbit216 (sseAct216Gen k i) (sseAct216Gen k j) = ssePairOrbit216 i j := by
@@ -2898,42 +2948,73 @@ private theorem sse_orbit_meta_verified :
     (∀ (o : Fin 57),
       sseOrbitTotalPairs o =
         (match sseOrbitS2 o with | 1 => 24 | _ => 96) * sseOrbitMultIn o) ∧
+    (∀ (o : Fin 57),
+      sseTableSum (fun x => if x = o then 1 else 0) (sseInOrbitTbl (sseOrbitS2 o)) =
+        sseOrbitMultIn o) ∧
+    (∀ (o : Fin 57),
+      24 * sseTableSum (fun x => if x = o then 1 else 0) (sseInOrbitTbl 1) +
+      96 * sseTableSum (fun x => if x = o then 1 else 0) (sseInOrbitTbl 2) +
+      96 * sseTableSum (fun x => if x = o then 1 else 0) (sseInOrbitTbl 3) =
+        sseOrbitTotalPairs o) ∧
     (sse_allPow2 (fun k => if hk : k < 216 then
       let p : Fin 216 := ⟨k, hk⟩
       (!(sse_canFollowFast p ⟨0, by decide⟩) ||
         (decide (sseOrbitS1 (ssePairOrbit216 p ⟨0, by decide⟩) = sseSize216 p) &&
-         decide (sseOrbitS2 (ssePairOrbit216 p ⟨0, by decide⟩) = 1))) &&
+         decide (sseOrbitS2 (ssePairOrbit216 p ⟨0, by decide⟩) = 1) &&
+         decide (ssePairDotCode (sseClique216 p) (sseClique216 ⟨0, by decide⟩) =
+           sseOrbitCode (ssePairOrbit216 p ⟨0, by decide⟩)))) &&
       (!(sse_canFollowFast p ⟨24, by decide⟩) ||
         (decide (sseOrbitS1 (ssePairOrbit216 p ⟨24, by decide⟩) = sseSize216 p) &&
-         decide (sseOrbitS2 (ssePairOrbit216 p ⟨24, by decide⟩) = 2))) &&
+         decide (sseOrbitS2 (ssePairOrbit216 p ⟨24, by decide⟩) = 2) &&
+         decide (ssePairDotCode (sseClique216 p) (sseClique216 ⟨24, by decide⟩) =
+           sseOrbitCode (ssePairOrbit216 p ⟨24, by decide⟩)))) &&
       (!(sse_canFollowFast p ⟨120, by decide⟩) ||
         (decide (sseOrbitS1 (ssePairOrbit216 p ⟨120, by decide⟩) = sseSize216 p) &&
-         decide (sseOrbitS2 (ssePairOrbit216 p ⟨120, by decide⟩) = 3)))
+         decide (sseOrbitS2 (ssePairOrbit216 p ⟨120, by decide⟩) = 3) &&
+         decide (ssePairDotCode (sseClique216 p) (sseClique216 ⟨120, by decide⟩) =
+           sseOrbitCode (ssePairOrbit216 p ⟨120, by decide⟩))))
     else true) 8 0 = true) := by
   decide
 
-private theorem sse_pairOrbit_sizes (p c : Fin 216) (hF : sseCanFollow216 p c = true) :
-    sseOrbitS1 (ssePairOrbit216 p c) = sseSize216 p ∧ sseOrbitS2 (ssePairOrbit216 p c) = sseSize216 c := by
+private theorem sse_pairOrbit_sizes_and_code (p c : Fin 216) (hF : sseCanFollow216 p c = true) :
+    sseOrbitS1 (ssePairOrbit216 p c) = sseSize216 p ∧
+    sseOrbitS2 (ssePairOrbit216 p c) = sseSize216 c ∧
+    ssePairDotCode (sseClique216 p) (sseClique216 c) = sseOrbitCode (ssePairOrbit216 p c) := by
   let w := sseCanonWord216 c
   have hCw : sseAct216 w c = sseCanonCliqueOfSize (sseSize216 c) := sse_canonWord216_exact c
   have hFw : sse_canFollowFast (sseAct216 w p) (sseCanonCliqueOfSize (sseSize216 c)) = true := by
     rw [← sse_canFollow216_eq_fast, ← hCw, sse_canFollow216_wf4, hF]
-  have hAll := sse_allPow2_sound _ 8 0 sse_orbit_meta_verified.2.2.2.2.2.2.2 (sseAct216 w p).val
+  have hAll := sse_allPow2_sound _ 8 0 sse_orbit_meta_verified.2.2.2.2.2.2.2.2.2 (sseAct216 w p).val
     (Nat.zero_le _) (by have := (sseAct216 w p).isLt; omega)
-  rw [dif_pos (sseAct216 w p).isLt] at hAll; simp only [Bool.and_eq_true] at hAll
+  rw [dite_eq_left (sseAct216 w p).isLt] at hAll; dsimp only at hAll; simp only [Bool.and_eq_true] at hAll
   have hSz : sseSize216 c = 1 ∨ sseSize216 c = 2 ∨ sseSize216 c = 3 := by
     unfold sseSize216; cases sseClique216 c <;> simp [sseCliqueSize]
   have hM : sseOrbitS1 (ssePairOrbit216 (sseAct216 w p) (sseCanonCliqueOfSize (sseSize216 c))) = sseSize216 (sseAct216 w p) ∧
-      sseOrbitS2 (ssePairOrbit216 (sseAct216 w p) (sseCanonCliqueOfSize (sseSize216 c))) = sseSize216 c := by
+      sseOrbitS2 (ssePairOrbit216 (sseAct216 w p) (sseCanonCliqueOfSize (sseSize216 c))) = sseSize216 c ∧
+      ssePairDotCode (sseClique216 (sseAct216 w p)) (sseClique216 (sseCanonCliqueOfSize (sseSize216 c))) =
+        sseOrbitCode (ssePairOrbit216 (sseAct216 w p) (sseCanonCliqueOfSize (sseSize216 c))) := by
     rcases hSz with h1 | h2 | h3
-    · rw [h1] at hFw ⊢; have ha := hAll.1.1; rw [hFw] at ha; simp only [Bool.not_true, Bool.false_or, Bool.and_eq_true] at ha
-      exact ⟨of_decide_eq_true ha.1, of_decide_eq_true ha.2⟩
-    · rw [h2] at hFw ⊢; have ha := hAll.1.2; rw [hFw] at ha; simp only [Bool.not_true, Bool.false_or, Bool.and_eq_true] at ha
-      exact ⟨of_decide_eq_true ha.1, of_decide_eq_true ha.2⟩
-    · rw [h3] at hFw ⊢; have ha := hAll.2; rw [hFw] at ha; simp only [Bool.not_true, Bool.false_or, Bool.and_eq_true] at ha
-      exact ⟨of_decide_eq_true ha.1, of_decide_eq_true ha.2⟩
-  rw [← hCw, sse_pairOrbit216_wf4, sse_act216_size] at hM
+    · rw [h1] at hFw ⊢; unfold sseCanonCliqueOfSize at hFw ⊢
+      have ha := hAll.1.1
+      change (!(sse_canFollowFast (sseAct216 w p) ⟨0, by decide⟩) || _) = true at ha
+      rw [hFw] at ha; simp only [Bool.not_true, Bool.false_or, Bool.and_eq_true] at ha
+      exact ⟨of_decide_eq_true ha.1.1, of_decide_eq_true ha.1.2, of_decide_eq_true ha.2⟩
+    · rw [h2] at hFw ⊢; unfold sseCanonCliqueOfSize at hFw ⊢
+      have ha := hAll.1.2
+      change (!(sse_canFollowFast (sseAct216 w p) ⟨24, by decide⟩) || _) = true at ha
+      rw [hFw] at ha; simp only [Bool.not_true, Bool.false_or, Bool.and_eq_true] at ha
+      exact ⟨of_decide_eq_true ha.1.1, of_decide_eq_true ha.1.2, of_decide_eq_true ha.2⟩
+    · rw [h3] at hFw ⊢; unfold sseCanonCliqueOfSize at hFw ⊢
+      have ha := hAll.2
+      change (!(sse_canFollowFast (sseAct216 w p) ⟨120, by decide⟩) || _) = true at ha
+      rw [hFw] at ha; simp only [Bool.not_true, Bool.false_or, Bool.and_eq_true] at ha
+      exact ⟨of_decide_eq_true ha.1.1, of_decide_eq_true ha.1.2, of_decide_eq_true ha.2⟩
+  rw [← hCw, sse_pairOrbit216_wf4, sse_pairDotCode_wf4, sse_act216_size] at hM
   exact hM
+
+private theorem sse_pairOrbit_sizes (p c : Fin 216) (hF : sseCanFollow216 p c = true) :
+    sseOrbitS1 (ssePairOrbit216 p c) = sseSize216 p ∧ sseOrbitS2 (ssePairOrbit216 p c) = sseSize216 c :=
+  ⟨(sse_pairOrbit_sizes_and_code p c hF).1, (sse_pairOrbit_sizes_and_code p c hF).2.1⟩
 
 -- Literal Cartier-Foata normal-form word tree & 1-step Markov product witness `ssePsi`:
 /-- Exact sum of `f w` over ALL valid Cartier-Foata normal-form words `w` (stored reversed `[C_k, ..., C_1]`)
@@ -3173,7 +3254,7 @@ private theorem sse_wordsEnd_head (n : Nat) (c : Fin 216) (f : List (Fin 216) �
     apply sse_sumFinNat_congr; intro p
     if hF : sseCanFollow216 p c = true then
       rw [sse_ite_pos hF, sse_ite_pos hF]
-      apply sse_wordsEnd_congr; intro rev _; dsimp only; rw [sse_ite_pos rfl]
+      apply sse_wordsEnd_congr; intro rev _; rw [sse_ite_pos rfl]
     else rw [sse_ite_neg hF, sse_ite_neg hF]
 
 -- Canonical grouping over all `p : Fin 216` preceding ANY `c : Fin 216` via `W(F_4)` bijection!
@@ -3404,10 +3485,10 @@ private theorem sse_cf_exact_normSq_eq (K : Nat) (W : Nat → Nat) (om v : Fin 5
          96 * sseTableSum (fun o => om o * om o * v o * v o * sseZAt om (k - 1) (sseOrbitS1 o)) (sseInOrbitTbl 3)) else 0) := by
     intro k
     cases k with
-    | zero => rfl
+    | zero => rw [sse_ite_neg (by omega), sse_ite_neg (by omega)]
     | succ n =>
       cases n with
-      | zero => rfl
+      | zero => rw [sse_ite_neg (by omega), sse_ite_neg (by omega)]
       | succ m =>
         rw [sse_ite_pos (by omega), sse_ite_pos (by omega)]
         have hEach : ∀ c : Fin 216,
@@ -3529,8 +3610,8 @@ private theorem sse_q3Mass_eq (om : Fin 57 → Nat) :
                     dsimp only
                     if hh : h = c then
                       rw [sse_ite_pos hh, sse_ite_pos hh, hh]
-                      simp only [sseQ3SuffixLenRev, hQ, hNotQ, sse_ite_pos rfl,
-                        sse_ite_neg (by decide : ¬ (false = true)), sseInsert0Rev, hF0, ssePrefixProd]
+                      simp only [sseQ3SuffixLenRev, hQ, hNotQ, ite_true,
+                        Bool.false_eq_true, ite_false, sseInsert0Rev, hF0, ssePrefixProd]
                       have hA : ∀ a b d : Nat, (a * d) * (b * d) = (a * b) * (d * d) := by
                         intro a b d; rw [Nat.mul_assoc, Nat.mul_left_comm d b d, ← Nat.mul_assoc]
                       exact hA _ _ _
@@ -3538,7 +3619,7 @@ private theorem sse_q3Mass_eq (om : Fin 57 → Nat) :
                 rw [hMul, sse_wordsEnd_prefixProdSq om (k2 + 1) (by omega) c, (sse_pairOrbit_sizes c j hFj).1]
               else
                 have hF0f : sseCanFollow216 c sseIdx0 = false := by cases h : sseCanFollow216 c sseIdx0; rfl; exact absurd h hF0
-                have hAndF : ¬ ((sseCanFollow216 c sseIdx0 && sseCanFollow216 c j) = true) := by rw [hF0f]; decide
+                have hAndF : ¬ ((sseCanFollow216 c sseIdx0 && sseCanFollow216 c j) = true) := by rw [hF0f, Bool.false_and]; decide
                 rw [sse_ite_neg hAndF, ← sse_wordsEnd_head k2 c]
                 have hZ : sseWordsEnd (k2 + 1) c (fun rev => match rev with
                     | h :: _ => if h = c then (if sseQ3SuffixLenRev (j :: rev) = 1 then
@@ -3552,9 +3633,9 @@ private theorem sse_q3Mass_eq (om : Fin 57 → Nat) :
                     if hh : h = c then
                       rw [sse_ite_pos hh, hh]
                       cases hQc : sseIsQ3 c
-                      · simp only [sseQ3SuffixLenRev, hQ, hQc, sse_ite_pos rfl,
-                          sse_ite_neg (by decide : ¬ (false = true)), sseInsert0Rev, hF0f]; rfl
-                      · simp only [sseQ3SuffixLenRev, hQ, hQc, sse_ite_pos rfl]
+                      · simp only [sseQ3SuffixLenRev, hQ, hQc, ite_true,
+                          Bool.false_eq_true, ite_false, sseInsert0Rev, hF0f]
+                      · simp only [sseQ3SuffixLenRev, hQ, hQc, ite_true]
                         rw [sse_ite_neg (by omega)]
                     else rw [sse_ite_neg hh]
                 rw [hZ, sse_wordsEnd_zero]
@@ -3581,6 +3662,8 @@ private theorem sse_q3Mass_eq (om : Fin 57 → Nat) :
           cases m'' with
           | zero =>
             -- Case `m = 2`, `k = k2 + 2 ≥ 3`
+            unfold sseCF1SliceAt
+            apply congrArg (48 * ·)
             have hStep : sseSumFinNat (fun j1 : Fin 216 =>
                 if sseCanFollow216 j1 j = true then
                   sseWordsEnd (k2 + 1) j1 (fun rev =>
@@ -3627,22 +3710,22 @@ private theorem sse_q3Mass_eq (om : Fin 57 → Nat) :
                         cases rs with
                         | nil => simp at hlen; omega
                         | cons c cs =>
-                          simp only [sseQ3SuffixLenRev, hQ, hQ1, sse_ite_pos rfl]
+                          simp only [sseQ3SuffixLenRev, hQ, hQ1, ite_true]
                           cases hQc : sseIsQ3 c
-                          · simp only [sse_ite_neg (by decide : ¬ (false = true)), sse_ite_pos rfl, sseInsert0Rev, hQ, hQ1, hQc]
+                          · simp only [Bool.false_eq_true, ite_false, ite_true, sseInsert0Rev, hQ, hQ1, hQc]
                             cases hF0 : sseCanFollow216 c sseIdx0
                             · simp
-                            · simp only [sse_ite_pos rfl, ssePrefixProd]
+                            · simp only [ite_true, ssePrefixProd]
                               have hA : ∀ a b x y : Nat, (a * x) * (b * y) = (a * b) * (x * y) := by
                                 intro a b x y; rw [Nat.mul_assoc, Nat.mul_left_comm x b y, ← Nat.mul_assoc]
                               exact hA _ _ _ _
-                          · simp only [sse_ite_pos rfl]
+                          · simp only [ite_true]
                             rw [sse_ite_neg (by omega), sse_ite_neg (by omega), Nat.mul_zero]
                       else rw [sse_ite_neg hh, sse_ite_neg hh]
                   rw [hMul, ih (by omega) (k2 + 1) (by omega) j1 hQ1, (sse_pairOrbit_sizes j1 j hFj).1]
                 else
                   have hQ1f : sseIsQ3 j1 = false := by cases h : sseIsQ3 j1; rfl; exact absurd h hQ1
-                  have hAndF : ¬ ((sseIsQ3 j1 && sseCanFollow216 j1 j) = true) := by rw [hQ1f]; decide
+                  have hAndF : ¬ ((sseIsQ3 j1 && sseCanFollow216 j1 j) = true) := by rw [hQ1f, Bool.false_and]; decide
                   rw [sse_ite_neg hAndF, ← sse_wordsEnd_head k2 j1]
                   have hZ : sseWordsEnd (k2 + 1) j1 (fun rev => match rev with
                       | h :: _ => if h = j1 then (if sseQ3SuffixLenRev (j :: rev) = 2 then
@@ -3716,15 +3799,15 @@ private theorem sse_q3Mass_eq (om : Fin 57 → Nat) :
                         cases rs with
                         | nil => simp at hlen; omega
                         | cons r rss =>
-                          simp only [sseQ3SuffixLenRev, hQ, hQp, sse_ite_pos rfl]
+                          simp only [sseQ3SuffixLenRev, hQ, hQp, ite_true]
                           cases hQr : sseIsQ3 r
-                          · simp only [sse_ite_neg (by decide : ¬ (false = true))]
+                          · simp only [Bool.false_eq_true, ite_false]
                             rw [sse_ite_neg (by omega), sse_ite_neg (by omega), Nat.mul_zero]
-                          · simp only [sse_ite_pos rfl]
+                          · simp only [ite_true]
                             if hLenEq : sseQ3SuffixLenRev rss + 1 + 1 = d + 2 then
                               have hLenEq2 : sseQ3SuffixLenRev rss + 1 + 1 + 1 = d + 3 := by omega
                               rw [sse_ite_pos hLenEq2, sse_ite_pos hLenEq]
-                              simp only [sseInsert0Rev, hQ, hQp, hQr, sse_ite_pos rfl]
+                              simp only [sseInsert0Rev, hQ, hQp, hQr, ite_true]
                               cases hIns : sseInsert0Rev (r :: rss) with
                               | none => simp
                               | some tail' =>
@@ -3739,7 +3822,7 @@ private theorem sse_q3Mass_eq (om : Fin 57 → Nat) :
                   rw [hMul, ih (by omega) (k2 + 1) (by omega) p hQp, (sse_pairOrbit_sizes p j hFp).1]
                 else
                   have hQpf : sseIsQ3 p = false := by cases h : sseIsQ3 p; rfl; exact absurd h hQp
-                  have hAndF : ¬ ((sseIsQ3 p && sseCanFollow216 p j) = true) := by rw [hQpf]; decide
+                  have hAndF : ¬ ((sseIsQ3 p && sseCanFollow216 p j) = true) := by rw [hQpf, Bool.false_and]; decide
                   rw [sse_ite_neg hAndF, ← sse_wordsEnd_head k2 p]
                   have hZ : sseWordsEnd (k2 + 1) p (fun rev => match rev with
                       | h :: _ => if h = p then (if sseQ3SuffixLenRev (j :: rev) = d + 3 then
@@ -3751,8 +3834,9 @@ private theorem sse_q3Mass_eq (om : Fin 57 → Nat) :
                     | cons h rs =>
                       dsimp only
                       if hh : h = p then
-                        rw [sse_ite_pos hh, hh]; simp only [sseQ3SuffixLenRev, hQ, hQpf]
-                        rw [sse_ite_neg (by decide : ¬ (false = true)), sse_ite_pos rfl, sse_ite_neg (by omega)]
+                        rw [sse_ite_pos hh, hh]
+                        simp only [sseQ3SuffixLenRev, hQ, hQpf, ite_true, Bool.false_eq_true, ite_false]
+                        rw [sse_ite_neg (by omega)]
                       else rw [sse_ite_neg hh]
                   rw [hZ, sse_wordsEnd_zero]
               else
@@ -3778,10 +3862,11 @@ private theorem sse_up0_slice_exact (W : Nat → Nat) (om v : Fin 57 → Nat)
     cases k1 with
     | zero => omega
     | succ k2 =>
-      apply congrArg (48 * ·)
       cases m with
       | zero =>
         -- Case `m = 0`, `k = k2 + 2`
+        unfold sseCF1SliceAt
+        apply congrArg (48 * ·)
         have hEach : ∀ c : Fin 216,
             sseWordsEnd (k2 + 2) c (fun w => if sseQ3SuffixLenRev w = 0 then sse_up0PairVal W om v w else 0) =
             if sseCanFollow216 c sseIdx0 = true then
@@ -3818,8 +3903,8 @@ private theorem sse_up0_slice_exact (W : Nat → Nat) (om v : Fin 57 → Nat)
                     rw [sse_ite_pos hh, sse_ite_pos hh, hh]
                     have hrl : rs.length + 2 = k2 + 2 := by simp at hlen; omega
                     have hrl1 : rs.length + 1 + 2 = k2 + 3 := by omega
-                    simp only [sseQ3SuffixLenRev, hNotQ, sse_ite_neg (by decide : ¬ (false = true)),
-                      sse_ite_pos rfl, sse_up0PairVal, sseInsert0Rev, hF0, ssePsi, List.length, hrl, hrl1, ssePrefixProd]
+                    simp only [sseQ3SuffixLenRev, hNotQ, Bool.false_eq_true, ite_false,
+                      ite_true, sse_up0PairVal, sseInsert0Rev, hF0, ssePsi, List.length, hrl, hrl1, ssePrefixProd]
                     exact sse_nat_mul_m0 _ _ _ _ _ _ _
                   else rw [sse_ite_neg hh, sse_ite_neg hh]
               rw [hMul, sse_wordsEnd_prefixProdSq om (k2 + 1) (by omega) p, (sse_pairOrbit_sizes p c hFp).1]
@@ -3840,9 +3925,9 @@ private theorem sse_up0_slice_exact (W : Nat → Nat) (om v : Fin 57 → Nat)
                 if hh : h = c then
                   rw [sse_ite_pos hh, hh]
                   cases hQc : sseIsQ3 c
-                  · simp only [sseQ3SuffixLenRev, hQc, sse_ite_neg (by decide : ¬ (false = true)), sse_ite_pos rfl,
-                      sse_up0PairVal, sseInsert0Rev, hF0f]; rfl
-                  · simp only [sseQ3SuffixLenRev, hQc, sse_ite_pos rfl]
+                  · simp only [sseQ3SuffixLenRev, hQc, Bool.false_eq_true, ite_false, ite_true,
+                      sse_up0PairVal, sseInsert0Rev, hF0f]
+                  · simp only [sseQ3SuffixLenRev, hQc, ite_true]
                     rw [sse_ite_neg (by omega)]
                 else rw [sse_ite_neg hh]
             rw [hZ, sse_wordsEnd_zero]
@@ -3877,6 +3962,8 @@ private theorem sse_up0_slice_exact (W : Nat → Nat) (om v : Fin 57 → Nat)
         cases m' with
         | zero =>
           -- Case `m = 1`, `k = k2 + 2`
+          unfold sseCF1SliceAt
+          apply congrArg (48 * ·)
           have hEach : ∀ j : Fin 216,
               sseWordsEnd (k2 + 2) j (fun w => if sseQ3SuffixLenRev w = 1 then sse_up0PairVal W om v w else 0) =
               if sseIsQ3 j = true then
@@ -3915,14 +4002,14 @@ private theorem sse_up0_slice_exact (W : Nat → Nat) (om v : Fin 57 → Nat)
                       if hh : h = c then
                         rw [sse_ite_pos hh, sse_ite_pos hh, hh]
                         have hrl : rs.length + 2 = k2 + 2 := by simp at hlen; omega
-                        simp only [sseQ3SuffixLenRev, hQj, hNotQ, sse_ite_neg (by decide : ¬ (false = true)),
-                          sse_ite_pos rfl, sse_up0PairVal, sseInsert0Rev, hF0, ssePsi, hrl, ssePrefixProd]
+                        simp only [sseQ3SuffixLenRev, hQj, hNotQ, Bool.false_eq_true, ite_false,
+                          ite_true, sse_up0PairVal, sseInsert0Rev, hF0, ssePsi, hrl, ssePrefixProd]
                         exact sse_nat_mul_quad _ _ _ _ _ _ _
                       else rw [sse_ite_neg hh, sse_ite_neg hh]
                   rw [hMul, sse_wordsEnd_prefixProdSq om (k2 + 1) (by omega) c, (sse_pairOrbit_sizes c j hFj).1, Nat.mul_assoc]
                 else
                   have hF0f : sseCanFollow216 c sseIdx0 = false := by cases h : sseCanFollow216 c sseIdx0; rfl; exact absurd h hF0
-                  have hAndF : ¬ ((sseCanFollow216 c sseIdx0 && sseCanFollow216 c j) = true) := by rw [hF0f]; decide
+                  have hAndF : ¬ ((sseCanFollow216 c sseIdx0 && sseCanFollow216 c j) = true) := by rw [hF0f, Bool.false_and]; decide
                   rw [sse_ite_neg hAndF, Nat.mul_zero, ← sse_wordsEnd_head k2 c]
                   have hZ : sseWordsEnd (k2 + 1) c (fun rev => match rev with
                       | h :: _ => if h = c then (if sseQ3SuffixLenRev (j :: rev) = 1 then sse_up0PairVal W om v (j :: rev) else 0) else 0
@@ -3935,9 +4022,9 @@ private theorem sse_up0_slice_exact (W : Nat → Nat) (om v : Fin 57 → Nat)
                       if hh : h = c then
                         rw [sse_ite_pos hh, hh]
                         cases hQc : sseIsQ3 c
-                        · simp only [sseQ3SuffixLenRev, hQj, hQc, sse_ite_pos rfl,
-                            sse_ite_neg (by decide : ¬ (false = true)), sse_up0PairVal, sseInsert0Rev, hF0f]; rfl
-                        · simp only [sseQ3SuffixLenRev, hQj, hQc, sse_ite_pos rfl]
+                        · simp only [sseQ3SuffixLenRev, hQj, hQc, ite_true,
+                            Bool.false_eq_true, ite_false, sse_up0PairVal, sseInsert0Rev, hF0f]
+                        · simp only [sseQ3SuffixLenRev, hQj, hQc, ite_true]
                           rw [sse_ite_neg (by omega)]
                       else rw [sse_ite_neg hh]
                   rw [hZ, sse_wordsEnd_zero]
@@ -3957,7 +4044,7 @@ private theorem sse_up0_slice_exact (W : Nat → Nat) (om v : Fin 57 → Nat)
                 | cons h rs =>
                   dsimp only
                   if hh : h = j then
-                    rw [sse_ite_pos hh, hh]; simp only [sseQ3SuffixLenRev, hQjf, sse_ite_neg (by decide : ¬ (false = true))]
+                    rw [sse_ite_pos hh, hh]; simp only [sseQ3SuffixLenRev, hQjf, Bool.false_eq_true, ite_false]
                     rw [sse_ite_neg (by decide : ¬ (0 = 1))]
                   else rw [sse_ite_neg hh]
               rw [hZ, sse_wordsEnd_zero]
@@ -3978,6 +4065,8 @@ private theorem sse_up0_slice_exact (W : Nat → Nat) (om v : Fin 57 → Nat)
           cases m'' with
           | zero =>
             -- Case `m = 2`, `k = k2 + 2 ≥ 3`
+            unfold sseCF1SliceAt
+            apply congrArg (48 * ·)
             have hEach : ∀ j2 : Fin 216,
                 sseWordsEnd (k2 + 2) j2 (fun w => if sseQ3SuffixLenRev w = 2 then sse_up0PairVal W om v w else 0) =
                 if sseIsQ3 j2 = true then
@@ -4022,21 +4111,21 @@ private theorem sse_up0_slice_exact (W : Nat → Nat) (om v : Fin 57 → Nat)
                           | nil => simp at hlen; omega
                           | cons c cs =>
                             have hrl : cs.length + 1 + 2 = k2 + 2 := by simp at hlen; omega
-                            simp only [sseQ3SuffixLenRev, hQj, hQ1, sse_ite_pos rfl]
+                            simp only [sseQ3SuffixLenRev, hQj, hQ1, ite_true]
                             cases hQc : sseIsQ3 c
-                            · simp only [sse_ite_neg (by decide : ¬ (false = true)), sse_ite_pos rfl,
+                            · simp only [Bool.false_eq_true, ite_false, ite_true,
                                 sse_up0PairVal, sseInsert0Rev, hQj, hQ1, hQc]
                               cases hF0 : sseCanFollow216 c sseIdx0
                               · simp
-                              · simp only [sse_ite_pos rfl, ssePsi, List.length, hrl, ssePrefixProd]
+                              · simp only [ite_true, ssePsi, List.length, hrl, ssePrefixProd]
                                 exact sse_nat_mul_quad _ _ _ _ _ _ _
-                            · simp only [sse_ite_pos rfl]
+                            · simp only [ite_true]
                               rw [sse_ite_neg (by omega), sse_ite_neg (by omega), Nat.mul_zero]
                         else rw [sse_ite_neg hh, sse_ite_neg hh]
                     rw [hMul, sse_q3Mass_eq om 1 (by omega) (k2 + 1) (by omega) j1 hQ1, (sse_pairOrbit_sizes j1 j2 hFj).1, Nat.mul_assoc]
                   else
                     have hQ1f : sseIsQ3 j1 = false := by cases h : sseIsQ3 j1; rfl; exact absurd h hQ1
-                    have hAndF : ¬ ((sseIsQ3 j1 && sseCanFollow216 j1 j2) = true) := by rw [hQ1f]; decide
+                    have hAndF : ¬ ((sseIsQ3 j1 && sseCanFollow216 j1 j2) = true) := by rw [hQ1f, Bool.false_and]; decide
                     rw [sse_ite_neg hAndF, Nat.mul_zero, ← sse_wordsEnd_head k2 j1]
                     have hZ : sseWordsEnd (k2 + 1) j1 (fun rev => match rev with
                         | h :: _ => if h = j1 then (if sseQ3SuffixLenRev (j2 :: rev) = 2 then sse_up0PairVal W om v (j2 :: rev) else 0) else 0
@@ -4047,8 +4136,9 @@ private theorem sse_up0_slice_exact (W : Nat → Nat) (om v : Fin 57 → Nat)
                       | cons h rs =>
                         dsimp only
                         if hh : h = j1 then
-                          rw [sse_ite_pos hh, hh]; simp only [sseQ3SuffixLenRev, hQj, hQ1f]
-                          rw [sse_ite_neg (by decide : ¬ (false = true)), sse_ite_pos rfl, sse_ite_neg (by decide : ¬ (0 + 1 = 2))]
+                          rw [sse_ite_pos hh, hh]
+                          simp only [sseQ3SuffixLenRev, hQj, hQ1f, ite_true, Bool.false_eq_true, ite_false]
+                          rw [sse_ite_neg (by decide : ¬ (0 + 1 = 2))]
                         else rw [sse_ite_neg hh]
                     rw [hZ, sse_wordsEnd_zero]
                 else
@@ -4067,7 +4157,7 @@ private theorem sse_up0_slice_exact (W : Nat → Nat) (om v : Fin 57 → Nat)
                   | cons h rs =>
                     dsimp only
                     if hh : h = j2 then
-                      rw [sse_ite_pos hh, hh]; simp only [sseQ3SuffixLenRev, hQjf, sse_ite_neg (by decide : ¬ (false = true))]
+                      rw [sse_ite_pos hh, hh]; simp only [sseQ3SuffixLenRev, hQjf, Bool.false_eq_true, ite_false]
                       rw [sse_ite_neg (by decide : ¬ (0 = 2))]
                     else rw [sse_ite_neg hh]
                 rw [hZ, sse_wordsEnd_zero]
@@ -4088,6 +4178,8 @@ private theorem sse_up0_slice_exact (W : Nat → Nat) (om v : Fin 57 → Nat)
             rw [hOut, hSub, sse_sum_q3_by_size]; rfl
           | succ d =>
             -- Case `m = d + 3 ≥ 3`, `k = k2 + 2 > d + 3`
+            unfold sseCF1SliceAt
+            apply congrArg (48 * ·)
             have hInsLen : ∀ (u : List (Fin 216)) (u' : List (Fin 216)),
                 sseQ3SuffixLenRev u ≥ 1 → sseInsert0Rev u = some u' → u'.length = u.length := by
               intro u; induction u with
@@ -4096,15 +4188,15 @@ private theorem sse_up0_slice_exact (W : Nat → Nat) (om v : Fin 57 → Nat)
                 intro u' h1 h2
                 cases hQx : sseIsQ3 x
                 · simp [sseQ3SuffixLenRev, hQx] at h1
-                · simp only [sseInsert0Rev, hQx, sse_ite_pos rfl] at h2
+                · simp only [sseInsert0Rev, hQx, ite_true] at h2
                   cases xs with
                   | nil => cases h2; rfl
                   | cons y ys =>
                     cases hQy : sseIsQ3 y
-                    · simp only [hQy, sse_ite_neg (by decide : ¬ (false = true))] at h2
+                    · simp only [hQy, Bool.false_eq_true, ite_false] at h2
                       cases hFy : sseCanFollow216 y sseIdx0 <;> simp [hFy] at h2
                       subst h2; rfl
-                    · simp only [hQy, sse_ite_pos rfl] at h2
+                    · simp only [hQy, ite_true] at h2
                       cases hIns : sseInsert0Rev (y :: ys) with
                       | none => simp [hIns] at h2
                       | some rs' =>
@@ -4154,15 +4246,15 @@ private theorem sse_up0_slice_exact (W : Nat → Nat) (om v : Fin 57 → Nat)
                           cases rs with
                           | nil => simp at hlen; omega
                           | cons r rss =>
-                            simp only [sseQ3SuffixLenRev, hQj, hQp, sse_ite_pos rfl]
+                            simp only [sseQ3SuffixLenRev, hQj, hQp, ite_true]
                             cases hQr : sseIsQ3 r
-                            · simp only [sse_ite_neg (by decide : ¬ (false = true))]
+                            · simp only [Bool.false_eq_true, ite_false]
                               rw [sse_ite_neg (by omega), sse_ite_neg (by omega), Nat.mul_zero]
-                            · simp only [sse_ite_pos rfl]
+                            · simp only [ite_true]
                               if hLenEq : sseQ3SuffixLenRev rss + 1 + 1 = d + 2 then
                                 have hLenEq2 : sseQ3SuffixLenRev rss + 1 + 1 + 1 = d + 3 := by omega
                                 rw [sse_ite_pos hLenEq2, sse_ite_pos hLenEq]
-                                simp only [sse_up0PairVal, sseInsert0Rev, hQj, hQp, hQr, sse_ite_pos rfl]
+                                simp only [sse_up0PairVal, sseInsert0Rev, hQj, hQp, hQr, ite_true]
                                 cases hIns : sseInsert0Rev (r :: rss) with
                                 | none => simp
                                 | some tail' =>
@@ -4179,7 +4271,7 @@ private theorem sse_up0_slice_exact (W : Nat → Nat) (om v : Fin 57 → Nat)
                     rw [hMul, sse_q3Mass_eq om (d + 2) (by omega) (k2 + 1) (by omega) p hQp, (sse_pairOrbit_sizes p j hFp).1, Nat.mul_assoc]
                   else
                     have hQpf : sseIsQ3 p = false := by cases h : sseIsQ3 p; rfl; exact absurd h hQp
-                    have hAndF : ¬ ((sseIsQ3 p && sseCanFollow216 p j) = true) := by rw [hQpf]; decide
+                    have hAndF : ¬ ((sseIsQ3 p && sseCanFollow216 p j) = true) := by rw [hQpf, Bool.false_and]; decide
                     rw [sse_ite_neg hAndF, Nat.mul_zero, ← sse_wordsEnd_head k2 p]
                     have hZ : sseWordsEnd (k2 + 1) p (fun rev => match rev with
                         | h :: _ => if h = p then (if sseQ3SuffixLenRev (j :: rev) = d + 3 then sse_up0PairVal W om v (j :: rev) else 0) else 0
@@ -4190,8 +4282,9 @@ private theorem sse_up0_slice_exact (W : Nat → Nat) (om v : Fin 57 → Nat)
                       | cons h rs =>
                         dsimp only
                         if hh : h = p then
-                          rw [sse_ite_pos hh, hh]; simp only [sseQ3SuffixLenRev, hQj, hQpf]
-                          rw [sse_ite_neg (by decide : ¬ (false = true)), sse_ite_pos rfl, sse_ite_neg (by omega)]
+                          rw [sse_ite_pos hh, hh]
+                          simp only [sseQ3SuffixLenRev, hQj, hQpf, ite_true, Bool.false_eq_true, ite_false]
+                          rw [sse_ite_neg (by omega)]
                         else rw [sse_ite_neg hh]
                     rw [hZ, sse_wordsEnd_zero]
                 else
@@ -4210,7 +4303,7 @@ private theorem sse_up0_slice_exact (W : Nat → Nat) (om v : Fin 57 → Nat)
                   | cons h rs =>
                     dsimp only
                     if hh : h = j then
-                      rw [sse_ite_pos hh, hh]; simp only [sseQ3SuffixLenRev, hQjf, sse_ite_neg (by decide : ¬ (false = true))]
+                      rw [sse_ite_pos hh, hh]; simp only [sseQ3SuffixLenRev, hQjf, Bool.false_eq_true, ite_false]
                       rw [sse_ite_neg (by omega)]
                     else rw [sse_ite_neg hh]
                 rw [hZ, sse_wordsEnd_zero]
@@ -4312,9 +4405,25 @@ private theorem sse_cf_exact_up0Quad_ge (K M : Nat) (W : Nat → Nat) (om v : Fi
   else
     rw [sse_ite_neg hk2, sse_ite_neg hk2, Nat.mul_zero]; exact Nat.le_refl 0
 
+private theorem sse_orbit_totalPairs_exact (o : Fin 57) :
+    sseSumFinNat (fun c : Fin 216 =>
+      sseSumFinNat (fun p : Fin 216 =>
+        if sseCanFollow216 p c = true then (if ssePairOrbit216 p c = o then 1 else 0) else 0)) =
+      sseOrbitTotalPairs o := by
+  have hIn : ∀ c : Fin 216,
+      sseSumFinNat (fun p : Fin 216 =>
+        if sseCanFollow216 p c = true then (if ssePairOrbit216 p c = o then 1 else 0) else 0) =
+      sseTableSum (fun x => if x = o then 1 else 0) (sseInOrbitTbl (sseSize216 c)) :=
+    fun c => sse_sum_inOrbit_any c (fun x => if x = o then 1 else 0)
+  rw [sse_sumFinNat_congr _ _ hIn,
+      sse_sum_by_size216 (fun sz => sseTableSum (fun x => if x = o then 1 else 0) (sseInOrbitTbl sz))]
+  exact sse_orbit_meta_verified.2.2.2.2.2.2.2.2.1 o
+
 /-- Headline Theorem 7 (Exact `57` Pair-Orbit Algebra & All-Depth Symbolic Cartier-Foata Word-Sum Reduction):
     1. `ssePairDotCode` classifies all `31,080` valid clique pairs of `Γ_24` (`2280 + 13056 + 15744`)
-       into `57` distinct `W(F_4)`-invariant orbits with zero collisions;
+       into `57` distinct `W(F_4)`-invariant orbits with zero collisions and zero fallback hits, with
+       `sseOrbitTotalPairs o` and `sseOrbitMultIn o` proved directly equal to the exact valid-pair counts
+       over `sseCanFollow216` and `sseInOrbitTbl`;
     2. **All-depth symbolic prefix identity:** for EVERY `om : Fin 57 → Nat`, EVERY `k ≥ 1`, and EVERY
        `c : Fin 216`, `sseWordsEnd k c (prefixProd^2) = sseZAt om k (sseSize216 c)`;
     3. **Exact symbolic finite-support norm:** for EVERY `K, W, om, v`,
@@ -4333,11 +4442,22 @@ theorem thm_sse_cf_57_orbits_and_exact_word_sum :
     (∀ (K : Nat) (W : Nat → Nat) (om v : Fin 57 → Nat),
       sseCFExactNormSq K W om v = sseCF1NormSq K W om v) ∧
     (∀ (K M : Nat) (W : Nat → Nat) (om v : Fin 57 → Nat),
-      48 * sseCFExactUp0Quad K W om v ≥ sseCF1QuadTrunc K M W om v) :=
+      48 * sseCFExactUp0Quad K W om v ≥ sseCF1QuadTrunc K M W om v) ∧
+    (∀ p c : Fin 216, sseCanFollow216 p c = true →
+      ssePairDotCode (sseClique216 p) (sseClique216 c) = sseOrbitCode (ssePairOrbit216 p c)) ∧
+    (∀ o : Fin 57,
+      sseTableSum (fun x => if x = o then 1 else 0) (sseInOrbitTbl (sseOrbitS2 o)) = sseOrbitMultIn o) ∧
+    (∀ o : Fin 57,
+      sseSumFinNat (fun c : Fin 216 =>
+        sseSumFinNat (fun p : Fin 216 =>
+          if sseCanFollow216 p c = true then (if ssePairOrbit216 p c = o then 1 else 0) else 0)) =
+        sseOrbitTotalPairs o) :=
   ⟨sse_orbit_meta_verified.1,
    ⟨sse_orbit_meta_verified.2.2.1, sse_orbit_meta_verified.2.2.2.1,
     sse_orbit_meta_verified.2.2.2.2.1, sse_orbit_meta_verified.2.2.2.2.2.1⟩,
-   sse_pairOrbit216_wf4, sse_wordsEnd_prefixProdSq, sse_cf_exact_normSq_eq, sse_cf_exact_up0Quad_ge⟩
+   sse_pairOrbit216_wf4, sse_wordsEnd_prefixProdSq, sse_cf_exact_normSq_eq, sse_cf_exact_up0Quad_ge,
+   fun p c hF => (sse_pairOrbit_sizes_and_code p c hF).2.2,
+   sse_orbit_meta_verified.2.2.2.2.2.2.2.1, sse_orbit_totalPairs_exact⟩
 
 
 /-! ## Section 7: Concrete CF 1-Step Lower Bound (`ρ > 913/80 = 11.4125`) & Master Certified Bracket -/
@@ -4388,11 +4508,11 @@ private theorem sse_tableSum_split3 (tbl : List (Fin 57 × Nat)) (f : Fin 57 →
     have he : sseOrbitS1 e.1 = 1 ∨ sseOrbitS1 e.1 = 2 ∨ sseOrbitS1 e.1 = 3 := of_decide_eq_true hS.1
     simp only [sseTableSum, ih hS.2, Nat.add_mul]
     rcases he with h1 | h2 | h3
-    · rw [h1]; simp only [sse_ite_pos rfl, sse_ite_neg (by decide : ¬ (1 = 2)), sse_ite_neg (by decide : ¬ (1 = 3)),
+    · rw [h1]; simp only [ite_true, sse_ite_neg (by decide : ¬ (1 = 2)), sse_ite_neg (by decide : ¬ (1 = 3)),
         Nat.mul_zero, Nat.zero_mul, Nat.mul_assoc]; omega
-    · rw [h2]; simp only [sse_ite_pos rfl, sse_ite_neg (by decide : ¬ (2 = 1)), sse_ite_neg (by decide : ¬ (2 = 3)),
+    · rw [h2]; simp only [ite_true, sse_ite_neg (by decide : ¬ (2 = 1)), sse_ite_neg (by decide : ¬ (2 = 3)),
         Nat.mul_zero, Nat.zero_mul, Nat.mul_assoc]; omega
-    · rw [h3]; simp only [sse_ite_pos rfl, sse_ite_neg (by decide : ¬ (3 = 1)), sse_ite_neg (by decide : ¬ (3 = 2)),
+    · rw [h3]; simp only [ite_true, sse_ite_neg (by decide : ¬ (3 = 1)), sse_ite_neg (by decide : ¬ (3 = 2)),
         Nat.mul_zero, Nat.zero_mul, Nat.mul_assoc]; omega
 
 private theorem sse_tableSum_split2_pair (tbl : List ((Fin 57 × Fin 57) × Nat)) (f : Fin 57 × Fin 57 → Nat)
@@ -4408,8 +4528,8 @@ private theorem sse_tableSum_split2_pair (tbl : List ((Fin 57 × Fin 57) × Nat)
     have he : sseOrbitS1 e.1.1 = 1 ∨ sseOrbitS1 e.1.1 = 2 := of_decide_eq_true hS.1
     simp only [sseTableSum, ih hS.2, Nat.add_mul]
     rcases he with h1 | h2
-    · rw [h1]; simp only [sse_ite_pos rfl, sse_ite_neg (by decide : ¬ (1 = 2)), Nat.mul_zero, Nat.zero_mul, Nat.mul_assoc]; omega
-    · rw [h2]; simp only [sse_ite_pos rfl, sse_ite_neg (by decide : ¬ (2 = 1)), Nat.mul_zero, Nat.zero_mul, Nat.mul_assoc]; omega
+    · rw [h1]; simp only [ite_true, sse_ite_neg (by decide : ¬ (1 = 2)), Nat.mul_zero, Nat.zero_mul, Nat.mul_assoc]; omega
+    · rw [h2]; simp only [ite_true, sse_ite_neg (by decide : ¬ (2 = 1)), Nat.mul_zero, Nat.zero_mul, Nat.mul_assoc]; omega
 
 private theorem sse_tableSum_split3_pair (tbl : List ((Fin 57 × Fin 57) × Nat)) (f : Fin 57 × Fin 57 → Nat)
     (z : Nat × Nat × Nat)
@@ -4425,9 +4545,9 @@ private theorem sse_tableSum_split3_pair (tbl : List ((Fin 57 × Fin 57) × Nat)
     have he : sseOrbitS1 e.1.1 = 1 ∨ sseOrbitS1 e.1.1 = 2 ∨ sseOrbitS1 e.1.1 = 3 := of_decide_eq_true hS.1
     simp only [sseTableSum, ih hS.2, Nat.add_mul]
     rcases he with h1 | h2 | h3
-    · rw [h1]; simp only [sse_ite_pos rfl, sse_ite_neg (by decide : ¬ (1 = 2)), sse_ite_neg (by decide : ¬ (1 = 3)), Nat.mul_zero, Nat.zero_mul, Nat.mul_assoc]; omega
-    · rw [h2]; simp only [sse_ite_pos rfl, sse_ite_neg (by decide : ¬ (2 = 1)), sse_ite_neg (by decide : ¬ (2 = 3)), Nat.mul_zero, Nat.zero_mul, Nat.mul_assoc]; omega
-    · rw [h3]; simp only [sse_ite_pos rfl, sse_ite_neg (by decide : ¬ (3 = 1)), sse_ite_neg (by decide : ¬ (3 = 2)), Nat.mul_zero, Nat.zero_mul, Nat.mul_assoc]; omega
+    · rw [h1]; simp only [ite_true, sse_ite_neg (by decide : ¬ (1 = 2)), sse_ite_neg (by decide : ¬ (1 = 3)), Nat.mul_zero, Nat.zero_mul, Nat.mul_assoc]; omega
+    · rw [h2]; simp only [ite_true, sse_ite_neg (by decide : ¬ (2 = 1)), sse_ite_neg (by decide : ¬ (2 = 3)), Nat.mul_zero, Nat.zero_mul, Nat.mul_assoc]; omega
+    · rw [h3]; simp only [ite_true, sse_ite_neg (by decide : ¬ (3 = 1)), sse_ite_neg (by decide : ¬ (3 = 2)), Nat.mul_zero, Nat.zero_mul, Nat.mul_assoc]; omega
 
 private theorem sse_tableSum_split2 (tbl : List (Fin 57 × Nat)) (f : Fin 57 → Nat) (z : Nat × Nat)
     (hS : tbl.all (fun e => decide (sseOrbitS1 e.1 = 1 ∨ sseOrbitS1 e.1 = 2)) = true) :
@@ -4441,8 +4561,8 @@ private theorem sse_tableSum_split2 (tbl : List (Fin 57 × Nat)) (f : Fin 57 →
     have he : sseOrbitS1 e.1 = 1 ∨ sseOrbitS1 e.1 = 2 := of_decide_eq_true hS.1
     simp only [sseTableSum, ih hS.2, Nat.add_mul]
     rcases he with h1 | h2
-    · rw [h1]; simp only [sse_ite_pos rfl, sse_ite_neg (by decide : ¬ (1 = 2)), Nat.mul_zero, Nat.zero_mul, Nat.mul_assoc]; omega
-    · rw [h2]; simp only [sse_ite_pos rfl, sse_ite_neg (by decide : ¬ (2 = 1)), Nat.mul_zero, Nat.zero_mul, Nat.mul_assoc]; omega
+    · rw [h1]; simp only [ite_true, sse_ite_neg (by decide : ¬ (1 = 2)), Nat.mul_zero, Nat.zero_mul, Nat.mul_assoc]; omega
+    · rw [h2]; simp only [ite_true, sse_ite_neg (by decide : ¬ (2 = 1)), Nat.mul_zero, Nat.zero_mul, Nat.mul_assoc]; omega
 
 private theorem sse_tbl_s1_ranges :
     ((sseInOrbitTbl 1).all (fun e => decide (sseOrbitS1 e.1 = 1 ∨ sseOrbitS1 e.1 = 2 ∨ sseOrbitS1 e.1 = 3)) = true) ∧
@@ -4675,36 +4795,41 @@ private def sse_zHist (c11 c12 c13 c21 c22 c23 c31 c32 c33 : Nat) : Nat → List
   | 1 => [(1, 1, 1), (0, 0, 0)]
   | k + 2 =>
     let rest := sse_zHist c11 c12 c13 c21 c22 c23 c31 c32 c33 (k + 1)
-    let prev := sse_listGetD (0, 0, 0) rest 0
+    let prev := sseListGetD (0, 0, 0) rest 0
     (c11 * prev.1 + c12 * prev.2.1 + c13 * prev.2.2,
      c21 * prev.1 + c22 * prev.2.1 + c23 * prev.2.2,
      c31 * prev.1 + c32 * prev.2.1 + c33 * prev.2.2) :: rest
 
 private theorem sse_zHist_getD :
     ∀ (k m : Nat), m ≤ k →
-      sse_listGetD (0, 0, 0)
+      sseListGetD (0, 0, 0)
         (sse_zHist (sse_cZ 1 1) (sse_cZ 1 2) (sse_cZ 1 3)
                    (sse_cZ 2 1) (sse_cZ 2 2) (sse_cZ 2 3)
                    (sse_cZ 3 1) (sse_cZ 3 2) (sse_cZ 3 3) k) m =
       sseZVec sseCF1Om (k - m) := by
   intro k; induction k with
-  | zero => intro m hm; have : m = 0 := by omega; subst this; rfl
+  | zero =>
+    intro m hm
+    have : m = 0 := by omega
+    subst this; rfl
   | succ k1 ih =>
     intro m hm
     cases k1 with
     | zero =>
       cases m with
       | zero => rfl
-      | succ m1 => have : m1 = 0 := by omega; subst this; rfl
+      | succ m1 =>
+        have : m1 = 0 := by omega
+        subst this; rfl
     | succ k2 =>
       cases m with
       | zero =>
-        simp only [sse_zHist, sse_listGetD, Nat.sub_zero]
+        simp only [sse_zHist, sseListGetD, Nat.sub_zero]
         have hHead := ih 0 (by omega)
         simp only [Nat.sub_zero] at hHead
         rw [hHead, sse_zVec_step]
       | succ m1 =>
-        simp only [sse_zHist, sse_listGetD]
+        simp only [sse_zHist, sseListGetD]
         have hSub : k2 + 2 - (m1 + 1) = k2 + 1 - m1 := by omega
         rw [hSub]; exact ih m1 (by omega)
 
@@ -4718,12 +4843,12 @@ private def sse_cf1FastGo (M : Nat) (W : Nat → Nat) (cDen : Nat × Nat × Nat)
     let (dPrev, qPrev) := sse_cf1FastGo M W cDen cSl k prevHist
     if k ≥ 2 then
       let wk := W k; let wk2 := wk * wk; let w01 := wk * W (k + 1)
-      let z1 := sse_listGetD (0, 0, 0) hist 1
+      let z1 := sseListGetD (0, 0, 0) hist 1
       let dK := wk2 * sse_dot3 cDen z1
       let qK := sumNat (M + 1) (fun m =>
         if m < k then
           (match m with | 0 => w01 | _ => wk2) *
-            sse_dot3 (sse_listGetD (0, 0, 0) cSl m) (sse_listGetD (0, 0, 0) hist (match m with | 0 => 1 | _ => m))
+            sse_dot3 (sseListGetD (0, 0, 0) cSl m) (sseListGetD (0, 0, 0) hist (match m with | 0 => 1 | _ => m))
         else 0)
       (dPrev + dK, qPrev + qK)
     else (dPrev, qPrev)
@@ -4743,7 +4868,7 @@ private theorem sse_cf1FastPair_eq (K M : Nat) (W : Nat → Nat) :
   let c31 := sse_cZ 3 1; let c32 := sse_cZ 3 2; let c33 := sse_cZ 3 3
   let cDen := (sse_cDen 1, sse_cDen 2, sse_cDen 3)
   let cSl := sse_rangeMap sse_cSlice 0 (M + 1)
-  have hCSl : ∀ m : Nat, m < M + 1 → sse_listGetD (0, 0, 0) cSl m = sse_cSlice m := by
+  have hCSl : ∀ m : Nat, m < M + 1 → sseListGetD (0, 0, 0) cSl m = sse_cSlice m := by
     intro m hm
     have h := sse_rangeMap_listGetD sse_cSlice (0, 0, 0) 0 (M + 1) m hm
     simp only [Nat.zero_add] at h; exact h
@@ -4826,7 +4951,7 @@ theorem thm_sse_cf_lower_bound :
     combines the concrete CF 1-step lower witness (`> 913/80 = 11.4125`) with the Depth-2 `19`-state
     Nagnibeda Schur upper bound (`≤ 387141227/33670000 < 11.4982 < 11.5`), certifying inside Lean's kernel:
     - Raw adjacency bracket: `11049/1000 < 913/80 < ρ_low ≤ ρ ≤ 387141227/33670000 < 115/10 < 3325977059/278900000`,
-    - Certified width `387141227/33670000 - 913/80 = 57620709/673400000 < 86/1000` (**`> 10.2×` tighter**
+    - Certified width `387141227/33670000 - 913/80 = 57647040/673400000 < 86/1000` (**`> 10.2×` tighter**
       than `Vibe.SpectralSharp`'s width `3325977059/278900000 - 11049/1000 > 876/1000`!),
     - Normalized walk radius: `913/1920 < ρ/24 ≤ 387141227/808080000 < 23/48 < 1/2`,
     - Normalized Laplacian spectral gap: `1/2 < 13/25 < 25/48 < 420938773/808080000 ≤ λ_gap < 1007/1920`. -/
@@ -4839,10 +4964,10 @@ theorem thm_sse_combined_spectral_bracket :
      913 * 33670000 < 387141227 * 80 ∧
      387141227 * 10 < 115 * 33670000 ∧
      115 * 278900000 < 3325977059 * 10) ∧
-    QPos.eq (QPos.add ⟨913, 80, by decide⟩ ⟨57620709, 673400000, by decide⟩) ⟨387141227, 33670000, by decide⟩ ∧
-    (57620709 * 1000 < 86 * 673400000 ∧
-     10 * (387141227 * 80 - 913 * 33670000) * 278900000 * 1000 <
-       (3325977059 * 1000 - 11049 * 278900000) * 33670000 * 80) ∧
+    QPos.eq (QPos.add ⟨913, 80, by decide⟩ ⟨57647040, 673400000, by decide⟩) ⟨387141227, 33670000, by decide⟩ ∧
+    (57647040 * 1000 < 86 * 673400000 ∧
+     102 * (387141227 * 80 - 913 * 33670000) * 278900000 * 1000 <
+       10 * (3325977059 * 1000 - 11049 * 278900000) * 33670000 * 80) ∧
     (913 * 808080000 < 387141227 * 1920 ∧ 387141227 * 48 < 23 * 808080000 ∧ 23 < 24) ∧
     (1 * 25 < 13 * 2 ∧ 13 * 48 < 25 * 25 ∧ 25 * 808080000 < 420938773 * 48 ∧
      420938773 * 1920 < 1007 * 808080000) :=
