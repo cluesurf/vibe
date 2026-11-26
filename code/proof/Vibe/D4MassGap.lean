@@ -217,7 +217,7 @@ def add4 (u v : Vec4) : Vec4 :=
   (u.1 + v.1, u.2.1 + v.2.1, u.2.2.1 + v.2.2.1, u.2.2.2 + v.2.2.2)
 
 /-- Exact 4D vector negation `-v`. -/
-def neg4 (v : Vec4) : Vec4 :=
+def mgNeg4 (v : Vec4) : Vec4 :=
   (-v.1, -v.2.1, -v.2.2.1, -v.2.2.2)
 
 /-- Exact 4D scalar multiplication `k • v`. -/
@@ -269,7 +269,7 @@ def mgFrozenFiber (x : Vec4) : Int × Int × Int := (x.1, x.2.1, x.2.2.1 - x.2.2
 
 /-- Step relation along the frozen subgraph: `v - u = ± r_frozen`. -/
 def mgFrozenStep (u v : Vec4) : Prop :=
-  sub4 v u = mgFrozenRoot ∨ sub4 v u = neg4 mgFrozenRoot
+  sub4 v u = mgFrozenRoot ∨ sub4 v u = mgNeg4 mgFrozenRoot
 
 private theorem mgFrozen_step_coord_fiber (u v : Vec4) (h : mgFrozenStep u v) :
     mgFrozenFiber v = mgFrozenFiber u ∧
@@ -283,7 +283,7 @@ private theorem mgFrozen_step_coord_fiber (u v : Vec4) (h : mgFrozenStep u v) :
     · simp only [mgFrozenFiber, Prod.mk.injEq]; omega
     · simp only [add4, mgFrozenRoot, mgPosRoot, mgFrozenIdx, Prod.mk.injEq]; omega
     · simp only [mgFrozenCoord]; omega
-  · simp only [sub4, neg4, mgFrozenRoot, mgPosRoot, mgFrozenIdx, Prod.mk.injEq] at hneg
+  · simp only [sub4, mgNeg4, mgFrozenRoot, mgPosRoot, mgFrozenIdx, Prod.mk.injEq] at hneg
     refine ⟨?_, Or.inr ⟨?_, ?_⟩⟩
     · simp only [mgFrozenFiber, Prod.mk.injEq]; omega
     · simp only [sub4, mgFrozenRoot, mgPosRoot, mgFrozenIdx, Prod.mk.injEq]; omega
