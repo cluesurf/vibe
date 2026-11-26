@@ -354,12 +354,24 @@ export type EntanglementSeamResult = {
   readonly schmidtCoefficients: readonly number[]
   readonly schmidtRank: number
   readonly entanglementEntropyBits: number
+  // Bipartite quantum mutual information I(A : C B) = 2 S(rho_A) for the pure state on A x C x B.
   readonly quantumMutualInfoBits: number
+  readonly quantumMutualInfoABWithSeamBits: number
+  // Computational-basis projective conditional entanglement E(A:B | C_comp) = sum_c p(c) S(rho_{A|c}).
+  // NOTE: This is explicitly projective in the fixed computational seam basis C_comp, NOT the
+  // basis-invariant quantum conditional mutual information I(A:B | C) (which equals log_2(d) for
+  // a coherent GHZ state). Rotating C by a local unitary (e.g. qutrit QFT F_3) changes E(A:B | C_basis).
+  readonly projectiveSeamConditionalEntropyBits: number
+  // Alias kept equal to projectiveSeamConditionalEntropyBits for backwards compatibility.
   readonly conditionalSeamEntropyBits: number
+  // True iff post-measurement branches factorize across A : B in the fixed computational seam basis C_comp.
+  readonly classicalFiberProductInCompBasis: boolean
+  // Alias kept equal to classicalFiberProductInCompBasis for backwards compatibility.
   readonly classicalFiberProductValid: boolean
 }
 
-// Measures Schmidt rank, entanglement entropy, and conditional entanglement across a seam C
+// Measures Schmidt rank, bipartite entanglement entropy S(rho_A) and I(A : C B) = 2 S(rho_A),
+// and computational-basis projective conditional entanglement E(A:B | C_comp) across seam C
 // for a pure state on A x C x B (with dimSeam = 1 reducing to bipartite A x B).
 // Index order: ((a * dimSeam) + c) * dimB + b.
 export function analyzeEntanglementSeam(input: {
@@ -378,10 +390,11 @@ export function analyzeEntanglementSeam(input: {
     throw new Error('state vector length must equal dimA * dimSeam * dimB')
   }
 
-  // Overall bipartite cut A : (C x B)
+  // Overall bipartite cut A : (C x B), yielding I(A : C B) = 2 S(rho_A) for a pure tripartite state.
   const full = bipartiteSchmidtStats(dimA, dimSeam * dimB, stateRe, stateIm, tolerance)
 
-  // Conditioned on each classical seam outcome c in 0..dimSeam-1, evaluate residual A : B entanglement.
+  // Conditioned on each projective computational-basis seam outcome c in 0..dimSeam-1,
+  // evaluate residual A : B entanglement E(A:B | C_comp).
   let totalProb = 0
   let weightedCondEntropy = 0
   let maxCondRank = 0
@@ -408,8 +421,11 @@ export function analyzeEntanglementSeam(input: {
     }
   }
 
-  const conditionalSeamEntropyBits =
+  const projectiveSeamConditionalEntropyBits =
     totalProb > 1e-15 ? weightedCondEntropy / totalProb : 0
+  const classicalFiberProductInCompBasis =
+    maxCondRank <= 1 && projectiveSeamConditionalEntropyBits <= tolerance
+  const quantumMutualInfoABWithSeamBits = 2 * full.entropyBits
 
   return {
     dimA,
@@ -418,11 +434,12 @@ export function analyzeEntanglementSeam(input: {
     schmidtCoefficients: full.schmidtCoeffs,
     schmidtRank: full.schmidtRank,
     entanglementEntropyBits: full.entropyBits,
-    quantumMutualInfoBits: 2 * full.entropyBits,
-    conditionalSeamEntropyBits,
-    // Classical fiber product X_A x_{X_C} X_B holds iff conditioned on seam C every branch factorizes.
-    classicalFiberProductValid:
-      maxCondRank <= 1 && conditionalSeamEntropyBits <= tolerance,
+    quantumMutualInfoBits: quantumMutualInfoABWithSeamBits,
+    quantumMutualInfoABWithSeamBits,
+    projectiveSeamConditionalEntropyBits,
+    conditionalSeamEntropyBits: projectiveSeamConditionalEntropyBits,
+    classicalFiberProductInCompBasis,
+    classicalFiberProductValid: classicalFiberProductInCompBasis,
   }
 }
 

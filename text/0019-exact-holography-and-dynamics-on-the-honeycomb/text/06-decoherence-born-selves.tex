@@ -1,0 +1,137 @@
+\section{Hyperbolic Decoherence, $p = 2$ Born Uniqueness, and Higher-Selves Testbed}
+\label{sec:decoherence}
+
+Paper~0018 left quantum foundations at a 1-beat algebraic envariance check and an abstract L1 $(1+4)$-qubit circuit.
+Wave-4 Tracks~W17 and~W14 Part~B upgrade this foundation to exact multi-body partial-trace decoherence on
+\code{HONEYCOMB}-extracted $\{3,4,3,4\}$ trees, full Quantum Darwinism with Holevo/discord decomposition, exact
+$p = 2$ Born-rule and 3D Gleason uniqueness, and a three-part falsifiable testbed for individuated macro-levels
+(higher selves) on $\{3,4,3,4\}$.
+
+\subsection{Live Szegedy-cusp gap, $2 \times 2$ decoherence ablation, and Bell--CHSH transition (Track~W17)}
+
+Live exact $O^+(4,1; \mathbb{Z}[\sqrt{2}])$ BFS from dock~0 (Tier~A, \code{W17.0}) certifies the cusp neighbor split
+($0$ up / $6$ lateral / $18$ down), downward shell counts $[N_0 = 1, N_1 = 18, N_2 = 330]$ ($b_0 = 18.0000$,
+$b_1 = 18.3333$), an extracted $3$-frame $\times$ $4$-mode downward tree ($12/12$ distinct docks, $9$ $D = 1 \to 2$
+edges, $0$ cross-frame overlaps, $0$ cusp returns), and $12$ disjoint downward rays of $8$ hops ($96/96$ distinct
+docks). Diagonalizing the live $32 \times 32$ bare branching Szegedy-cusp operator $U_{\mathrm{rad}}(b)$ (unitarity
+$3.3 \times 10^{-16}$) reveals a \textbf{$2.25\times$ spectral-gap widening} over flat $b = 1$: bare Szegedy gap
+$0.523599\text{ rad} = \pi/6 \to 1.173679\text{ rad}$ ($b_0$) / $1.177109\text{ rad}$ ($b_1$), while the radial
+Laplacian gap opens from $0$ to $0.553406$ / $0.557061$.
+
+To separate algebraic revival-breaking cleanly from finite-register geometry vs.\ open hyperbolic export (\code{W17.1}),
+we evolve six rate-matched ($3$ modes/beat, identical $t = 1$ coherence $|\rho_{01}(1)| = 0.062500$ to
+$6.9 \times 10^{-17}$) $1 + 12$ qubit pure statevectors ($\dim = 8{,}192$) through $t = 0\text{--}24$ using exact
+bare-$U$ gates ($D M_{\mathrm{meet}} D$, intra-bath $\mathrm{ctrl}\text{-}C$, and $M_{\mathrm{pair}}(\zeta_{18})$ phases):
+\begin{itemize}
+\item \textbf{Honest finite-register $2 \times 2$ ablation:} Turning off $M_{\mathrm{pair}}(\zeta_{18})$ causes a
+$94.7\%$ revival ($0.473641$) on the closed \code{HONEYCOMB} tree (C) and a $42.1\%$ revival ($0.210319$) on the
+interacting flat ring (E), while the free-shift flat baseline (F) revives $100\%$ ($0.500000$) at $t = 12, 24$.
+Turning on $M_{\mathrm{pair}}(\zeta_{18})$ breaks $C^3 = I$ revivals on \emph{both} the finite \code{HONEYCOMB} tree
+(B) ($\max_{t \ge 4}|\rho_{01}| = 0.0666$, $t = 24: 0.004931$) and the apples-to-apples interacting flat ring (D)
+($\max = 0.0494$, $t = 24: 0.019520$). Thus finite-register revival suppression is algebraic ($M_{\mathrm{pair}}$), while
+hyperbolic $\{3,4,3,4\}$ supplies open non-returning transport: in the Tier~B open-bath collision reduction (A)
+motivated by \code{W17.0}'s non-returning rays, $|\rho_{01}(t)|$ decays monotonically from $0.500000 \to 1.221 \times 10^{-4}$
+($S = 1.000000\text{ bits}$, zero recurrence). All six models preserve global purity ($\le 1.91 \times 10^{-14}$) and
+exact Loschmidt reversal ($|1 - F| \le 1.07 \times 10^{-14}$).
+\item \textbf{QND pointer selection, ternary qutrit, and Bell--CHSH decoherence (\code{W17.2}, \code{W17.3}, \code{W17.9}):} Under pure
+QND coupling ($H_S = 0$), $Z$ eigenstates stay pure ($S \le 1.60 \times 10^{-16}$) while $X, Y$ decohere to $S = 1\text{ bit}$.
+A rate-matched ($2$ modes/beat) ternary tone qutrit $S \in \{-1, 0, +1\}$ with $N_{\mathrm{env}} = 10$ ($\dim = 3{,}072$)
+decays monotonically $0.333333 \to 3.255 \times 10^{-4}$ ($S \to \log_2 3 = 1.58496\text{ bits}$, Loschmidt $|1-F| = 0$).
+For a Bell singlet $|\Psi^-\rangle_{AB} \otimes |0^{10}\rangle_E$ ($\dim = 4{,}096$) coupled via exact zero-precession
+$(\zeta_6 I, C)$ \cite{clauser1969, horodecki1995}, fixed-axis CHSH crosses strictly below $2.0$ at $t = 2$ ($1$/beat:
+$2.8284 \to 2.1213 \to 1.7678 \to 1.415595 = \sqrt{2}(1 + 2^{-10})$), gauge-invariant Horodecki $S_{\mathrm{Hor}}$
+converges asymptotically to $2^+$ ($2.000001$), $E(Z, Z) = -1$ holds to $2.89 \times 10^{-15}$, Alice no-signaling holds
+to $4.77 \times 10^{-15}$, and Loschmidt reversal restores $S = 2.828427124746$.
+\end{itemize}
+
+\subsection{Quantum Darwinism and exact $p = 2$ Born-rule / 3D Gleason uniqueness}
+
+From the exact $8{,}192$-component statevectors of Part~1, we decompose every fragment mutual information into classical
+Holevo information $\chi_Z$ and quantum discord $D_Z$ ($I(S : F) = \chi_Z + D_Z$, \cite{zurek2009, ollivier2001},
+$64 \times 64$ vs.\ $128 \times 128$ Schmidt cross-check $5.55 \times 10^{-16}$, zero Holevo violation):
+\begin{itemize}
+\item On Open-Hyp, $\chi_Z$ forms a flat classical plateau across $f \in [2, 9]$ ($R_{0.05} = 6$, $R_{0.02} = 4$,
+$D_Z \le 0.0113$) before jumping to $2 H(S) = 2.0000$ at $f = 12$. On the finite \code{HONEYCOMB} TI-Tree ($t = 24$,
+$H(S) = 0.99993$), the three disjoint $D_4$ frames yield $F_0: I = 1.00540 = \chi_Z(0.99510) + D_Z(0.01030)$ and
+$F_1, F_2: I = 0.91232 = \chi_Z(0.91181) + D_Z(0.00052)$, cleanly resolving the slight $I > H(S)$ excess as residual
+discord while certifying classical redundancy $R_{0.10} = 3$. On the ternary qutrit ($N_{\mathrm{env}} = 10$), a plateau
+forms at $\log_2 3 = 1.58496\text{ bits}$ ($R_{0.05} = 3$). By contrast, a deterministic bare-$U$ scrambled negative
+control destroys the plateau completely: at the Page midpoint $f = 6$ \cite{page1993}, $I = 1.0029$ is
+discord-dominated ($\chi_Z = 0.3678, D_Z = 0.6352$, zero classical redundancy).
+\item \textbf{Exact $\mathbb{Z}[\zeta_9][1/6]$ Zurek envariance and $p = 2$ uniqueness (\coderange{W17.6}{W17.8}):} Because
+$-i/\sqrt{3} = (-1 - 2\omega)/3 \in \mathbb{Z}[\zeta_9][1/3]$ (whereas $1/\sqrt{3} \notin \mathbb{Q}(\zeta_9)$),
+fine-graining via exact Tier~B $(-i Z_3 F_3)$ and bipartite $U_{\mathrm{copy}}$ certifies $324/324$
+$\mathbb{Z}_{18} \times \mathbb{Z}_{18}$ phase unitaries and $24/24$ $S_4$ swaps at $t = 1$ ($4$ equal-norm branches
+in $\mathbb{Z}[\zeta_9][1/2]$), and $15/15$ adjacent generating transpositions of $S_{16}$ at $t = 2$ ($16$ branches in
+$\mathbb{Z}[\zeta_9][1/4]$, $0\text{n}$ \code{BigInt} error) \cite{zurek2005}. General rational pairs
+$(m, n) \in \{(1,1),(1,2),(1,3),(2,3),(3,5)\}$ via block-DFT $F_m \oplus F_n$ verify $48/48$ swap transpositions
+($\le 4.4 \times 10^{-16}$). Stress-testing rival laws $P_p(k) = |c_k|^p / \sum_j |c_j|^p$ across
+$p \in \{1, 1.5, 2, 3, 4\}$ under BOTH unitary fine-graining additivity AND genuine 3D Gleason non-contextuality
+\cite{gleason1957} ($\dim = 3$, standard basis $B_1$ vs.\ rotated basis $B_2 = \{|e_1\rangle, D|e_2\rangle,
+D|e_3\rangle\}$ generated by bare half-coin $D$, Table~\ref{tab:born-swap}) singles out \textbf{$p = 2$ uniquely}
+($1.11 \times 10^{-16}$ and $0.000$ vs.\ $0.037\text{--}0.150$ failures for every $p \neq 2$). In strict interpretive
+honesty, unitary mathematics locks any consistent branch measure to $p = 2$ conditionally, while the operational bridge
+from squared branch weights to single-outcome empirical frequencies remains an explicit bridge postulate.
+\end{itemize}
+
+\subsection{Falsifiable higher-selves testbed: lumpability, QFI horizons, and 27D swap test (Track~W14B)}
+
+Wave-4 Track~W14 Part~B executes three concrete, falsifiable tests of individuated macro-levels on $\{3,4,3,4\}$
+(without claiming to derive phenomenal qualia from mathematics):
+\begin{enumerate}
+\item \textbf{Exact dynamical lumpability $\varepsilon_{\mathrm{lump}}(C, U) = \|(I - P_C) U P_C\|_{\mathrm{op}}$
+\cite{kemeny1960}:} Both the collinear $k = 2$ doublon ($\varepsilon = 4.50 \times 10^{-16}$) and $k = 3$ trion
+($3.96 \times 10^{-16}$, zero cross-line leak vs.\ $M_{\mathrm{pair}}$ control $0.095988$) plus the $W(F_4)$ orbit
+quotient ($31$ dock orbits on $B_3$, $\varepsilon = 1.33 \times 10^{-15}$) achieve \textbf{exact dynamical closure}. By
+contrast, unaliased 3D cusp column sums ($8{,}857$ docks in $D \le 3$, $63$ columns, $0$ wrap conflicts) diverge by
+$0.500000$ in one beat ($\varepsilon_{\mathrm{col}} \ge 0.269657$, falsified as closed macro-dynamics), and W10's
+$[[24, 1, 8]]_3$ code is kinematic under bare $U$ ($\varepsilon_{\mathrm{code}} = 0$ for $M_{\mathrm{pair}}$,
+$0.943\text{--}1.000$ for all other layers, matching Track~W11).
+\item \textbf{Exact QFI step horizons and noise asymmetry on $B_1 = [[552, 25, 40]]_3$:} On $B_1$, exclusive
+($0/12$ violations), nested, and overlapping geometric individuation coexist simultaneously. Exact symmetric
+logarithmic derivative Quantum Fisher Information (cross-checked on a direct 27D 3-qutrit code to $1.78 \times 10^{-15}$)
+exhibits a sharp 3-regime step horizon across boundary cone counts $k = 1\text{--}24$: zero sensitivity for $k \le 7$,
+exact Heisenberg--Schr\"odinger pointer duality in $k = 8\text{--}16$ ($(\mathrm{QFI}(N_Z), \mathrm{QFI}(N_X)) =
+(0, 4)$ on $Z$-ordered cones and $(4, 0)$ on $X$-ordered cones), and full quantum saturation $(4, 4)$ for $k \ge 17$.
+Under noise, $B_1$ reveals a sharp threshold asymmetry: heralded boundary erasure preserves the $0 \to 16\ln 3$ RT snap
+and coded QFI advantage through $p = 0.10$ ($0.999794$ vs.\ $0.90$, threshold $p_c^{\mathrm{erase}} \approx 0.153$),
+whereas 2-level unheralded Pauli decoding wins at $p = 0.02$ ($0.999795$ vs.\ $0.9627$ isotropic, $0.999563$ vs.\
+$0.9216$ worst-case dephasing) and loses already at $p = 0.05$ ($p_c^{\mathrm{depol}} \approx 0.032$).
+\item \textbf{Present-state memory depth $\tau_{\mathrm{eff}}$ and 27D zero-reset joint-unitary swap test:} Measuring
+Holevo lag decodability $I(u_{t-\Delta} : \rho_{A, t})$ strictly from the single-beat present state $\rho_{A, t}$ shows
+W9's chiral $C_4$ cluster boosts memory $207.6\times$ at $\Delta = 16$ ($\tau_{\mathrm{eff}}(10^{-3}): 4 \to 22$), while
+a lab-frame $N_{\mathrm{CM}} = 64$ $k = 3$ trion wavepacket inside the fixed ball $B_2$ ($|x| \le 2$) outperforms
+1-body ballistic bare $U$ by \textbf{$6.5\times$} at $\Delta = 32$ ($0.2506$ vs.\ $0.0386$, extending
+$\tau_{\mathrm{eff}}(0.05)$ by $6.9\times$ from $22$ to $152$ before clean $O(1/t)$ center-of-mass dispersion, while
+holding exact comoving binding $6/7$ and $288/343$). Finally, we execute a genuine \textbf{27-dimensional zero-reset
+joint-unitary Mallavarapu--Percy swap test} on $A \otimes E_1 \otimes E_2$ starting from two orthogonal histories
+$H_1, H_2$ that converge at beat $t$ to identical local states $\rho_{A,t}^{(1)} = \rho_{A,t}^{(2)}$ (trace distance
+$0.00$) yet distinct joint bath records (joint trace distance $\sqrt{15}/2 = 1.936492$, Table~\ref{tab:born-swap}).
+Present-state readouts match to $0.00$ (while a non-Markovian history functional fails by $0.5500$), and 8-beat forward
+evolution with zero bath resets proves a sharp physical dichotomy: \textbf{both a trapped local bath ($1.105648$) and
+an infinite 1D bare-$U$ geodesic bath ($0.492188$, via $C_{\mathrm{cross}}$ back-scattering) fail Markovian swap
+invariance}, whereas \textbf{hyperbolic outward export passes identically ($0.00$, joint distance $\ge 1.500034$)}.
+\end{enumerate}
+
+\begin{table}[htbp]
+\centering
+\caption{Exact $p = 2$ Born / 3D Gleason uniqueness (Track~W17, top) and 27D zero-reset joint-unitary Mallavarapu--Percy
+swap test across bath geometries (Track~W14 Part~B, bottom).}
+\label{tab:born-swap}
+\scriptsize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{4.35cm}>{\centering\arraybackslash}p{1.45cm}>{\centering\arraybackslash}p{1.45cm}>{\centering\arraybackslash}p{1.65cm}>{\centering\arraybackslash}p{1.45cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+W17 Born / Gleason uniqueness test & $p = 1$ & $p = 1.5$ & $\mathbf{p = 2}$ & $p = 3$ & $p = 4$ / verdict \\
+\midrule
+Max unitary fine-graining err (5 pairs) & $1.160{\cdot}10^{-1}$ & $5.492{\cdot}10^{-2}$ & $\mathbf{1.110{\cdot}10^{-16}}$ & $8.861{\cdot}10^{-2}$ & $1.500{\cdot}10^{-1}$ ($p = 2$ unique) \\
+3D Gleason $|P_p(e_1|B_1) - P_p(e_1|B_2)|$ & $7.735{\cdot}10^{-2}$ & $3.693{\cdot}10^{-2}$ & $\mathbf{0.000{\cdot}10^{0}}$ & $6.353{\cdot}10^{-2}$ & $1.154{\cdot}10^{-1}$ ($p = 2$ unique) \\
+\midrule
+W14B 27D zero-reset swap regime & Local $t$ & Joint $t$ & Max 8-beat & Control & Physical Markovianity verdict \\
+\midrule
+Present readouts vs.\ history functional & $0.00$ & $1.936492$ & $0.00$ & $0.5500$ (fail) & Present state passes, tape fails \\
+Trapped 27D bath (0 resets) & $0.00$ & $1.936492$ & $\mathbf{1.105648}$ & non-Mark. & \textbf{FAILS} (bath record back-flows) \\
+Infinite 1D bare-$U$ geodesic (0 resets) & $0.00$ & $1.936492$ & $\mathbf{0.492188}$ & non-Mark. & \textbf{FAILS} ($C_{\mathrm{cross}}$ back-scatters) \\
+Hyperbolic outward export (0 resets) & $0.00$ & $1.936492$ & $\mathbf{0.000000}$ & joint $\ge 1.50$ & \textbf{PASSES} (strictly Markovian) \\
+\bottomrule
+\end{tabularx}
+\end{table}

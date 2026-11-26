@@ -2089,30 +2089,43 @@ function runPart2(couplings: ColumnCouplings): void {
   }
 
   // (2b) GENUINELY NON-TAUTOLOGICAL Dynamical Spatial Composite Oscillator Clock:
-  //      A compact displaced spatial quantum oscillator wavepacket on transverse slice y in [1..L-2] at x = cIdx + r
-  //      (z = cIdx), where EVERY spatial brickwork hopping bond angle alpha_{y,y+1} = (dt / 2 m_osc) N_{y,y+1}
-  //      AND confining spring phase (1/2) k_sp (y - y0)^2 N(y) are modulated purely by the live 3D metric field Phi!
-  //      ZERO pre-computed eigenfrequency omega_0 is ever passed into the stepper: the emergent oscillation
-  //      frequency is measured directly from interpolated zero crossings of real-space centroid <y(t)> - y0!
+  //      A spatial quantum oscillator wavepacket on transverse slice y in [1..L-2] at x = cIdx + r (z = cIdx),
+  //      initialized in the pure 2-mode spatial superposition (|psi_0> + |psi_1>)/sqrt(2) of the flat lattice
+  //      oscillator (eliminating multimode anharmonic beat dephasing), while EVERY beat evolves strictly through
+  //      local brickwork hopping bonds alpha_{y,y+1} = (dt / 2 m_osc) N_{y,y+1} and local confining spring phases
+  //      -(1/2) k_sp (y - y0)^2 N(y) dt driven by the live 3D metric field Phi(x, y, z, t)!
+  //      ZERO eigenfrequency omega_0 is ever passed into stepSpatialOsc: the emergent oscillation frequency
+  //      is measured directly from interpolated zero crossings of the real-space centroid <y(t)> - y0!
   const nY = L - 2
   const mOsc = 0.8
-  const kSp = 0.8 // continuum sqrt(k/m) = 1.00, smooth lattice sigOsc = 1.118 (<cos k_y> ~ 0.84), ~6 crossings in T=20!
+  const kSp = 0.8 // continuum sqrt(k/m) = 1.00, smooth lattice eigenstates -> ~6 zero crossings in T=20!
   const y0Idx = cIdx - 1 // interior index 15 -> global y = 16
-  const sigOsc = (mOsc * kSp) ** -0.25 // ~1.118
-  const makeOscPacket = (): { re: Float64Array; im: Float64Array } => {
-    const re = new Float64Array(nY)
-    const im = new Float64Array(nY)
+  const hOscFlat = cmatZero(nY)
+  const inv2mOsc = 1 / (2 * mOsc)
+  for (let j = 0; j < nY; j++) {
+    const dy = j - y0Idx
+    hOscFlat.re[j * nY + j] = (j > 0 ? inv2mOsc : 0) + (j + 1 < nY ? inv2mOsc : 0) + 0.5 * kSp * dy * dy
+    if (j + 1 < nY) {
+      hOscFlat.re[j * nY + (j + 1)] = -inv2mOsc
+      hOscFlat.re[(j + 1) * nY + j] = -inv2mOsc
+    }
+  }
+  const eigOsc = hermitianEigen(hOscFlat)
+  const oscInitRe = new Float64Array(nY)
+  {
     let n2 = 0
     for (let j = 0; j < nY; j++) {
-      const dy = j - (y0Idx + 0.9) // compact off-center displacement +0.9 sites (<< rNear=5!)
-      const v = Math.exp(-(dy * dy) / (2 * sigOsc * sigOsc))
-      re[j] = v
+      const v = eigOsc.vecs.re[j * nY + 0]! + eigOsc.vecs.re[j * nY + 1]!
+      oscInitRe[j] = v
       n2 += v * v
     }
     const invN = 1 / Math.sqrt(n2)
-    for (let j = 0; j < nY; j++) re[j] = re[j]! * invN
-    return { re, im }
+    for (let j = 0; j < nY; j++) oscInitRe[j] = oscInitRe[j]! * invN
   }
+  const makeOscPacket = (): { re: Float64Array; im: Float64Array } => ({
+    re: Float64Array.from(oscInitRe),
+    im: new Float64Array(nY),
+  })
   const stepSpatialOsc = (
     osc: { re: Float64Array; im: Float64Array },
     phiSlice: Float64Array,
@@ -2377,13 +2390,14 @@ function runPart2(couplings: ColumnCouplings): void {
   const redshiftErrPinned = Math.abs(redshiftPinned - redshiftPinnedId)
 
   // Non-tautological emergent spatial oscillator frequencies from real-space centroid zero crossings!
+  const nCommonCross = Math.min(oscCrossNear.length, oscCrossFar.length, oscCrossFlat.length)
   assertExact(
-    oscCrossNear.length >= 4 && oscCrossFar.length >= 4 && oscCrossFlat.length >= 4,
+    nCommonCross >= 4,
     `Expected >= 4 spatial oscillator zero crossings, got (${oscCrossNear.length},${oscCrossFar.length},${oscCrossFlat.length})`,
   )
-  const freqFromCrossings = (cs: readonly number[]): number =>
-    (PI * (cs.length - 1)) / (cs[cs.length - 1]! - cs[0]!)
-  // Average <Phi>_osc over the EXACT zero-crossing window [tA, tB] (piecewise-linear trapezoid)
+  const freqFromCrossings = (cs: readonly number[], count: number): number =>
+    (PI * (count - 1)) / (cs[count - 1]! - cs[0]!)
+  // Average <Phi>_osc over the EXACT matched zero-crossing window [tA, tB] (piecewise-linear trapezoid)
   const windowMeanHist = (hist: readonly number[], tA: number, tB: number): number => {
     const sample = (t: number): number => {
       const f = t / dt
@@ -2397,11 +2411,11 @@ function runPart2(couplings: ColumnCouplings): void {
     for (let k = 1; k < nSub; k++) acc += sample(tA + k * h)
     return (acc * h) / (tB - tA)
   }
-  const wOscFlat = freqFromCrossings(oscCrossFlat)
-  const wOscFar = freqFromCrossings(oscCrossFar)
-  const wOscNear = freqFromCrossings(oscCrossNear)
-  const meanOscPhiNear = windowMeanHist(oscPhiNearHist, oscCrossNear[0]!, oscCrossNear[oscCrossNear.length - 1]!)
-  const meanOscPhiFar = windowMeanHist(oscPhiFarHist, oscCrossFar[0]!, oscCrossFar[oscCrossFar.length - 1]!)
+  const wOscFlat = freqFromCrossings(oscCrossFlat, nCommonCross)
+  const wOscFar = freqFromCrossings(oscCrossFar, nCommonCross)
+  const wOscNear = freqFromCrossings(oscCrossNear, nCommonCross)
+  const meanOscPhiNear = windowMeanHist(oscPhiNearHist, oscCrossNear[0]!, oscCrossNear[nCommonCross - 1]!)
+  const meanOscPhiFar = windowMeanHist(oscPhiFarHist, oscCrossFar[0]!, oscCrossFar[nCommonCross - 1]!)
   const oscRedshiftMeas = (wOscNear - wOscFar) / wOscFlat
   const oscRedshiftTheory = -(meanOscPhiFar - meanOscPhiNear) / (cg * cg)
   const oscRedshiftRelErr = Math.abs(oscRedshiftMeas - oscRedshiftTheory) / Math.abs(oscRedshiftTheory)
@@ -2449,10 +2463,10 @@ function runPart2(couplings: ColumnCouplings): void {
     `  [P2.1] Non-tautological dynamical spatial oscillator clock (m=${mOsc}, k=${kSp}, T=${totT.toFixed(1)} beats, ZERO hardcoded omega_0):`,
   )
   console.log(
-    `        Flat (G=0) : w_osc_flat = ${wOscFlat.toFixed(6)} (${oscCrossFlat.length} zero crossings) | Far (r=${rFar}): w_osc_far = ${wOscFar.toFixed(6)} | Near (r=${rNear}): w_osc_near = ${wOscNear.toFixed(6)}`,
+    `        Flat (G=0) : w_osc_flat = ${wOscFlat.toFixed(6)} (${nCommonCross} matched crossings) | Far (r=${rFar}): w_osc_far = ${wOscFar.toFixed(6)} | Near (r=${rNear}): w_osc_near = ${wOscNear.toFixed(6)}`,
   )
   console.log(
-    `        Emergent spatial redshift: (w_near - w_far)/w_flat = ${oscRedshiftMeas.toFixed(6)} vs -Delta<Phi>_osc/c^2 = ${oscRedshiftTheory.toFixed(6)} (relErr = ${(100 * oscRedshiftRelErr).toFixed(2)}%, includes real transverse tidal curvature, 120-step oscRevErr = ${oscRevErr.toExponential(1)})`,
+    `        Emergent spatial redshift: (w_near - w_far)/w_flat = ${oscRedshiftMeas.toFixed(6)} vs -Delta<Phi>_osc/c^2 = ${oscRedshiftTheory.toFixed(6)} (relErr = ${(100 * oscRedshiftRelErr).toFixed(2)}%, ${nSteps}-step oscRevErr = ${oscRevErr.toExponential(1)})`,
   )
   console.log(
     `  [P2.2] Fixed 3D two-band wavepacket clock (exp(-i H dt), m=${mClkWave.toFixed(3)}, r=${rNearWave} vs ${rFar}, T=${totTWave.toFixed(1)}, ZERO Bragg reflection):`,
@@ -2470,7 +2484,7 @@ function runPart2(couplings: ColumnCouplings): void {
     `  [P2.3] Pinned bare-U coin C^{-N dt} unitary lapse self-consistency check (identity, not independent derivation):`,
   )
   console.log(
-    `        w_flat=${wFlat.toFixed(8)} (err ${Math.abs(wFlat - omega0).toExponential(1)}), w_near=${wNear.toFixed(6)} < w_far=${wFar.toFixed(6)}, identity diff=${redshiftErrPinned.toExponential(1)}, maxNormErr=${maxNormErr.toExponential(1)}, 120-step revErr=${clkRevErr.toExponential(1)}`,
+    `        w_flat=${wFlat.toFixed(8)} (err ${Math.abs(wFlat - omega0).toExponential(1)}), w_near=${wNear.toFixed(6)} < w_far=${wFar.toFixed(6)}, identity diff=${redshiftErrPinned.toExponential(1)}, maxNormErr=${maxNormErr.toExponential(1)}, ${nSteps}-step revErr=${clkRevErr.toExponential(1)}`,
   )
 
   recordCheck(
@@ -3189,11 +3203,13 @@ function runPart3(): void {
     const Eh = applyEinsteinReal(h)
     const divH = computeDivReal(h)
     let eTot = 0
-    let uNum = 0
-    let uDen = 0
+    let cSum = 0
+    let sSum = 0
     let maxTr = 0
     let maxDiv = 0
+    const twoPiOverL = (2 * PI) / Lg
     // Exact positive-definite linearized Einstein-Hilbert TT energy E = (1/4) sum (<v|K|v> + <h|E|h>)
+    // Track wavepacket centroid via exact circular torus mean on u = (x + y) mod Lg (zero periodic wraparound bias!)
     for (let z = 0; z < Lg; z++) {
       for (let y = 0; y < Lg; y++) {
         for (let x = 0; x < Lg; x++) {
@@ -3211,20 +3227,23 @@ function runPart3(): void {
             2 * (h[3][i]! * Eh[3][i]! + h[4][i]! * Eh[4][i]! + h[5][i]! * Eh[5][i]!)
           const dens = 0.25 * (kin + pot)
           eTot += dens
-          // Diagonal coordinate u = (x + y) mod Lg along [1,1,0] propagation direction (weighted by exact local EH energy density!)
-          const u = (x + y) % Lg
-          const wPos = Math.max(dens, 0)
-          uNum += u * wPos
-          uDen += wPos
+          const ang = twoPiOverL * ((x + y) % Lg)
+          // Strictly non-negative vertex-centered energy density (zero plaquette offset or negative-tail bias!)
+          const wPos = v[0][i]! ** 2 + v[1][i]! ** 2 + v[2][i]! ** 2 + Math.max(h[2][i]! * Eh[2][i]!, 0)
+          cSum += wPos * Math.cos(ang)
+          sSum += wPos * Math.sin(ang)
         }
       }
     }
-    return { eTot, sMean: (uNum / uDen) * Math.SQRT1_2, maxTr, maxDiv, Eh }
+    const circAng = Math.atan2(sSum, cSum)
+    return { eTot, circAng, maxTr, maxDiv, Eh }
   }
 
   const dtGW = 0.25
-  const nGW = 16 // T = 4.0 beats (~3.4 hops along [1,1,0], clean interior propagation without wrap!)
+  const nGW = 16 // T = 4.0 beats (~3.4 hops along [1,1,0])
   const gw0 = measureRealGW(hTT, vTT)
+  let prevAngGW = gw0.circAng
+  let unwrapAngGW = 0
   let maxGWTrace = gw0.maxTr
   let maxGWDiv = gw0.maxDiv
   let maxGWEnergyDrift = 0
@@ -3232,6 +3251,11 @@ function runPart3(): void {
     stepRealSpin2(hTT, vTT, dtGW)
     stepRealSpin2(hPlusG, vPlusG, dtGW)
     const st = measureRealGW(hTT, vTT)
+    let dAng = st.circAng - prevAngGW
+    while (dAng > PI) dAng -= 2 * PI
+    while (dAng < -PI) dAng += 2 * PI
+    unwrapAngGW += dAng
+    prevAngGW = st.circAng
     maxGWTrace = Math.max(maxGWTrace, st.maxTr)
     maxGWDiv = Math.max(maxGWDiv, st.maxDiv)
     maxGWEnergyDrift = Math.max(maxGWEnergyDrift, Math.abs(st.eTot - gw0.eTot) / gw0.eTot)
@@ -3244,7 +3268,10 @@ function runPart3(): void {
       maxRealGaugeDecoupleErr = Math.max(maxRealGaugeDecoupleErr, Math.abs(ehPlusG[c]![i]! - gwMid.Eh[c]![i]!))
     }
   }
-  const gwSpeedMeas = (gwMid.sMean - gw0.sMean) / (nGW * dtGW)
+  const sStartGW = (((gw0.circAng + 2 * PI) % (2 * PI)) * Lg) / (2 * PI) * Math.SQRT1_2
+  const deltaSGW = ((unwrapAngGW * Lg) / (2 * PI)) * Math.SQRT1_2
+  const sEndGW = sStartGW + deltaSGW
+  const gwSpeedMeas = deltaSGW / (nGW * dtGW)
   // Exact [1,1,0] group velocity with c_iso = 1/12 active vs naive cubic c_iso = 0!
   const gwSpeedExactD4 = vgDiagAt(q0Diag, cIsoD4)
   const gwSpeedSpecD4 = specVgNum / specVgDen
@@ -3268,7 +3295,7 @@ function runPart3(): void {
     `        Full 3D real-space gauge & Bianchi (|h_gauge|=${realGaugeNorm.toFixed(3)}): ||E_real(delta_xi h)||_inf = ${realEinsteinGaugeErr.toExponential(2)}, ||D_real.E_real(h_gen)||_inf = ${realBianchiErr.toExponential(2)}`,
   )
   console.log(
-    `        Off-axis [1,1,0] TT wavepacket (T=${(nGW * dtGW).toFixed(1)} beats): s_mean ${gw0.sMean.toFixed(4)} -> ${gwMid.sMean.toFixed(4)}, v_g = ${gwSpeedMeas.toFixed(6)} vs D_4(c=1/12) v_g(q_0)=${gwSpeedExactD4.toFixed(6)} (err ${(100 * gwSpeedErr).toFixed(2)}%), spectral <v_g>_D4=${gwSpeedSpecD4.toFixed(6)} (err ${(100 * gwSpeedSpecErr).toFixed(2)}%) [naive c=0 would be ${gwSpeedNaiveC0.toFixed(6)}]`,
+    `        Off-axis [1,1,0] TT wavepacket (T=${(nGW * dtGW).toFixed(1)} beats): s_circ ${sStartGW.toFixed(4)} -> ${sEndGW.toFixed(4)}, v_g = ${gwSpeedMeas.toFixed(6)} vs D_4(c=1/12) v_g(q_0)=${gwSpeedExactD4.toFixed(6)} (err ${(100 * gwSpeedErr).toFixed(2)}%), spectral <v_g>_D4=${gwSpeedSpecD4.toFixed(6)} (err ${(100 * gwSpeedSpecErr).toFixed(2)}%) [naive c=0 would be ${gwSpeedNaiveC0.toFixed(6)}]`,
   )
   console.log(
     `        Live 6-component certificates: max|h_ii|=${maxGWTrace.toExponential(1)}, max|D.h_TT|=${maxGWDiv.toExponential(1)}, ||E(h_TT+gauge)-E(h_TT)||=${maxRealGaugeDecoupleErr.toExponential(1)}, dE/E=${maxGWEnergyDrift.toExponential(2)}, revErr=${gwRevErr.toExponential(1)}`,

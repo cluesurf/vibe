@@ -1,0 +1,129 @@
+\section{Lean~4.35.0 Proof Suite, Verification Index, and Open Frontiers}
+\label{sec:lean-and-open}
+
+All algebraic, geometric, combinatorial, and finite-support quantum theorems supporting Sections~\ref{sec:overview}
+through~\ref{sec:decoherence} are backed either by machine-checked zero-dependency Lean~4.35.0 proofs
+\cite{demoura2021lean4} or by standalone, deterministic, zero-RNG TypeScript scripts verified under strict
+\code{tsc --noEmit --strict --noUncheckedIndexedAccess} compilation \cite{cluesurf2026repo}.
+
+\subsection{Zero-dependency Lean~4.35.0 formal proof suite (29 files, 341 headline theorems)}
+
+Running \code{pnpm run check:lean} executes a full \code{lake build} on Lean~4.35.0 across all \textbf{29 \code{.lean}
+files} (root aggregator \code{Vibe.lean}, the thin re-export facade \code{Vibe/FockBeat.lean}, its four submodules
+\code{Vibe/Fock/Ring}, \code{State}, \code{Gates}, \code{Beat}, and 23 top-level proof modules) with zero external packages, zero
+\code{sorry}, zero \code{axiom}, zero \code{native\_decide}, zero \code{unsafe}, zero \code{implemented\_by}, and zero
+compiler warnings. Every one of the \textbf{341 substantive headline theorems} (and all \textbf{451 public theorems}
+including exported cross-module helpers) passes a live \code{\#print axioms} kernel audit confirming exclusive reliance
+on Lean's core axioms (\code{propext}, \code{Quot.sound}, \code{Classical.choice}, or none). Table~\ref{tab:lean-suite}
+catalogs the complete kernel-built suite, expanding Paper~0018's 141 theorems by $+200$ new machine-checked theorems.
+
+\begin{table}[htbp]
+\centering
+\caption{Complete kernel-built zero-dependency Lean~4.35.0 formal proof suite (\code{code/proof/Vibe/}, 29 \code{.lean}
+files including \code{Vibe.lean} and \code{FockBeat.lean} facade, 341 headline / 451 public theorems, 0 \code{sorry},
+0 \code{axiom}, 0 \code{native\_decide}, 100\% \code{\#print axioms} core-only).}
+\label{tab:lean-suite}
+\scriptsize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.45cm}>{\centering\arraybackslash}p{0.65cm}>{\centering\arraybackslash}p{0.70cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Module (\code{Vibe/}) & Tier & Thms & Kernel-verified formal scope \\
+\midrule
+\code{Tone}, \code{Algebra}, \code{Rule} & A & 38 & Ternary dock involution (5), $\mathbb{Z}[\omega]/\mathbb{Z}[\zeta_9]$ gap cubic (4), classical $V_1$/light-cone, gate unitarity, 2-adic $SU(2)$ hypotheses, symbolic $M_{\mathrm{pair}}$ (29) \\
+\code{Geometry}, \code{Limits} & A/C & 29 & $D_4$ rank-4 isotropy, zero-straddling RP premise, cusp resistance (14), $\mathbb{Z}_3$ gap, modular PQ, arbitrary-word $\mathrm{Mat}_2$ unitarity, $B^T B$ Gram (15) \\
+\code{Gauge} & C & 27 & $\mathrm{Spin}(10)$ 16-spinor anomalies, Weinberg $3/8$, warped Koide $\ge 2/3$, EW $m_\gamma = 0$/$\rho = 1$, Pati--Salam traces, $\mathbb{Z}_2$ parity, axion $8/3$ \\
+\code{SchurGap}, \code{Uniqueness4D} & A & 32 & Global Busemann Schur $\rho \le 13/21$ (15), Coxeter 1956 4D honeycomb classification over $\mathbb{Z}[\sqrt{5}]$ and $\{3,4,3,4\}$ uniqueness (17) \\
+\code{CoxeterTransport} & A & 15 & $O^+(4,1; \mathbb{Z}[\sqrt{2}])$ $5 \times 5$ transport $k_a = F_a Z$, all-word closure, $S R S = R$, palindromic $\mathcal{T}/\mathcal{CP}/\mathcal{CPT}$ \\
+\code{Fock/Ring..Beat} (4 files) & A & 18 & Exact $\mathbb{Z}[\zeta_9][1/6]$ Fock space, Scale-2 pairwise commutation, all-time 8-layer $U$ unitarity, $|V_1\rangle$, $Q$, 1-hop Lieb--Robinson light cone, concrete $\mathcal{T}/\mathcal{CP}/\mathcal{CPT}$ \\
+\code{Chirality} & A & 17 & Order-1,152 $W(F_4) = W(D_4) \rtimes S_3$, unconditional $k^* = 4$ achirality ($k \le 3$ pointwise mirrors), $\chi_{\mathrm{odd}}$ laws, global $W(F_4)^+$ covariance \\
+\code{CuspGrowth} & A & 17 & Right-angled Cartier--Foata transfer proof of Steinberg cubic \eqref{eq:steinberg-cubic}, $18.2787 < \lambda < 18.2788$, $l_D = 4 \cdot 5^{D-1}$, unconditional \code{Geometry} discharge \\
+\code{Quantum} & A & 15 & $C_{1/2}$ \& $M_{\mathrm{meet}}^{\mathrm{diff}}$ Eisenstein laws, 2-adic $\mathrm{normSq} \neq 2$, $6 \times 6$ splitter/MZ, $36/36$ $\mathbb{Z}_6^2$ \& $24/24$ $S_4$ envariance \\
+\code{BreakthroughAlgebra} & A--C & 21 & 24-cell Combes--Thomas SOS, $L_7$ catalyst infinite order \& $\mathfrak{su}(9)$ Casimir, 14-term Cayley $\mathrm{Spin}(7)$ SMG, symbolic $4 \times 4 / 5 \times 5$ $\mathbb{Z}[\zeta_9]$ Nelson--Barr \\
+\code{Countermodels} & A & 14 & General Stabilizer Theorem, $0_D \neq 0_V$, central trinomials, 24-rule census, symbolic 8-square octonion non-associativity, 5-universe separation \\
+\code{ParityUniqueness} & A & 14 & $D_n$ self-duality iff $n = 4$, zero-minimality $\{3,4,3,4\}$ uniqueness, bipartite class-swap $J = L \circ C$ commuting $\forall t$, Hurwitz $2T$ polar duality \\
+\code{CausalFoliation} & A & 11 & $S = R \circ E_{\mathrm{swap}}$, Tomonaga--Schwinger foliation invariance bridged to \code{fockBeat}, 1-Lipschitz Cauchy cuts, microcausality, per-event $Q$ \& $D$ \\
+\code{SpectralSharp} & A & 12 & Reciprocal edge Schur bound, 217-clique $\Gamma_{24}$ detailed balance, RACG subgraph bridge, $\rho \le 335/28 < 12$, $\lambda_{\mathrm{gap}} \ge 337/672 > 1/2$, $(11, 12)$ bracket \\
+\code{BallisticDoublon} & A & 12 & Symbolic $H_2(g k_a) + H_2(g k_{-a}) = 6 H_2(g)$, Cholesky $H_2 \ge 2$, frontier Gram $1 - (3/4)^m$, no-compacton theorem, exact $P = 0$ $\mathbb{Z}[\omega][1/13]$ doublon \\
+\code{HolographicCode} & A & 9 & $S_3$-triality local-Clifford homomorphism, $W_9^{(6)}$ split, $[[24,1,8]]_3$ \& $[[24,0,6]]_3$ isotropy, ranks, all-word $W(F_4)$ covariance, native $D_4$ CSS obstruction \\
+\code{HolographicCodeExt} & A & 9 & Darboux completeness, $W(F_4)$ orbit collapse, exact 5-uniformity ($42{,}504$), $d_{\mathrm{pure}} = 6$, $d = 8$, all $536{,}155$ $|E| \le 7$ erasures, $|\mathrm{In}_H| \le 3$, HaPPY tower isometry \\
+\code{D4MassGap} & C & 13 & 1D-axial $x_0 = 0$ RP, $11 \times 11$ Perron $4 + 4\sqrt{7}$, $S^3$ vMF identities, $SU(2)$ $W_1 > 2.51\times$ BE, $p^*(H_{12}) = 32/11$, $A_2$ Pieri $SU(3)$ moments \& axial contraction \\
+\code{SpectralSharpExt} & A & 9 & 19-state $D_2$ CF automaton, 23-flag reciprocity, $\rho \le 387141227/33670000 < 11.5$, $Q_3$ zero-cascade, 57-orbit CF $\rho > 913/80 = 11.4125$ ($10.2\times$ kernel collapse) \\
+\code{CompositeTrion} & A & 9 & Exact $\mathbb{Z}[\omega][1/7]$ $P = 0$ $k = 3$ $\mathrm{Sym}^3$ trion ($p_{\mathrm{pair}} = 6/7$, $\mathrm{IPR} = 9/32$), $\cot^2(\pi/18)$ cubic, hyperbolic excision pocket, depressed cubic $u^3 - 12 u + 12 = 0$ \\
+\midrule
+\textbf{Total (29 \code{.lean} files)} & A--C & \textbf{341} & \textbf{451 public theorems} (341 headline + 110 exported helpers), \code{pnpm run check:lean} PASS \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Deterministic zero-RNG breakthrough verification catalog}
+
+Table~\ref{tab:script-index} indexes every standalone adversarially audited \code{CLEAN PASS} TypeScript verification
+script under \code{test/breakthrough/} supporting the results in this manuscript. All twelve scripts (eleven tracks,
+with W14 split into Parts~A and~B) run cleanly on a standard laptop with zero external imports, zero pseudo-randomness,
+and strict typechecking.
+
+\begin{table}[htbp]
+\centering
+\caption{Standalone zero-RNG \code{CLEAN PASS} breakthrough verification scripts (\code{test/breakthrough/}, combined
+runtime $\approx 50\text{ s}$, zero \code{Math.random}, strict \code{tsc --noEmit} clean).}
+\label{tab:script-index}
+\scriptsize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{6.75cm}>{\centering\arraybackslash}p{0.80cm}>{\centering\arraybackslash}p{0.80cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Verification script (\code{test/breakthrough/}) & Track & Time & Certified checks and headline deliverables \\
+\midrule
+\code{spectral-radius-deep-collapse.ts} & W7 & $8.7\text{ s}$ & $7/7$: $D_5$ $43{,}312$-flag upper, $4{,}440$-triple CF Markov lower, \code{BigInt} $[11.439047, 11.443713]$ \\
+\code{d4-mass-gap-su2-su3-sharp.ts} & W8 & $9.5\text{ s}$ & $SU(2)$ $0.277274$ 2-wedge \& $SU(3)$ $0.546000$ $K = 2$ Peter--Weyl Schur complement \\
+\code{multibody-mpair-and-chiral-clusters.ts} & W9 & $3.6\text{ s}$ & $4/4$: $83.12\%$ $M_{\mathrm{pair}}$ excision, Feshbach $1.6559$, exact $k = 3$ trion, $207.6\times$ chiral trap \\
+\code{happy-code-3434-holography.ts} & W10 & $1.7\text{ s}$ & $8/8$: $B_1 = [[552,25,40]]_3$, $55{,}455$ RT sets, $d^{(0)}(B_2) \ge 98$, all-$D$ cusp isometry \\
+\code{dynamical-holography-bridge.ts} & W11 & $< 10\text{ s}$ & $10/10$: exact $3^{24}$ leakage, $72$-line shield, $U_{\mathrm{star}}/U_{\mathrm{Floq}}$, monomial Cliffords, ER=EPR \\
+\code{bare-u-integrability-and-scattering-gates.ts} & W12 & $4.5\text{ s}$ & $4/4$: YBE, COE $\langle r\rangle = 0.5164$, $k = 4$ tetron ($0/1{,}220$), $(-I,C)$ no-go, $k = 5$ witness \\
+\code{challenge3-finite-density-and-all-k-spin1.ts} & W13 & $7.1\text{ s}$ & $3/3$: $\mathbb{Z}_2^{24}$ superselection, $0/10{,}710$ $v_T = 0$, $220/220$ $W(F_4)^-$, Kubo \& Bogoliubov ED \\
+\code{d4-mass-gap-su3-wedge-and-blocks.ts} & W14A & $8.0\text{ s}$ & 1+2 3-link triangle Dobrushin: $SU(2)\, 0.285141$ ($3.02\times$ BE), $SU(3)\, 0.563019$ ($2.65\times$ BE) \\
+\code{selves-lumpability-and-qfi-horizons.ts} & W14B & $4.5\text{ s}$ & $3/3$: lumpability, $B_1$ QFI horizons, lab-frame trion $6.5\times$ memory, 27D zero-reset swap \\
+\code{unified-gauge-matter-single-speed-qca.ts} & W16 & $2.9\text{ s}$ & $17/17$: $9.40 \times 10^{-8}$ speed lock, $24^3$ Coulomb, $12^3$ Dirac, $2T$ 5-design, $T_{\mathrm{DW}} = 16$ wall \\
+\code{hyperbolic-decoherence-and-born-rule.ts} & W17 & $0.3\text{ s}$ & $10/10$: $2.25\times$ Szegedy gap, $2 \times 2$ ablation, Darwinism $\chi_Z/D_Z$, $p = 2$ Born + 3D Gleason \\
+\code{boosted-composite-clocks-and-mass-spectrum.ts} & W18 & $2.0\text{ s}$ & $8/8$: $1/\sqrt{3k^2+1}$ tower, Thirring $E = mc^2$, $R_e$ law, live $1/\gamma$ clocks, $2{,}801$-base null \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Open frontiers and honest boundaries}
+
+Six clearly bounded open problems remain beyond the certified theorems of this manuscript (note that active exploratory
+drafts on dynamical spin-2 backreaction, bulk-covariant chiral gauging, and additional Lean~4 modules remain under
+adversarial revision and are intentionally excluded from every claim in this paper):
+\begin{enumerate}
+\item \textbf{Continuum 4D Yang--Mills ($a \to 0$):} Section~\ref{sec:gauge}'s unconditional mass gaps
+($\beta_* = 0.285141$ for $SU(2)$, $0.563019$ for $SU(3)$) operate in the strong-coupling lattice regime. Crossing the
+intermediate crossover toward $\beta \to \infty$ requires multi-scale Balaban-style block-spin renormalization
+\cite{balaban1989}, and Track~W16's finite subgroups $2T$ and $\Sigma(648)$ face weak-coupling freezing transitions
+whose continuum scaling window remains open.
+\item \textbf{Dynamical Higgs/EWSB and bulk-covariant 4D chiral gauging:} Track~W16 establishes massless chiral
+$2T < SU(2)_L$ kinematics, $\mathcal{P}_{LR}$ breaking, and faithful $\mathbb{Z}_{18}$ hypercharges, while dynamical
+scalar Higgs condensation ($m_W/m_Z = \cos\theta_W$), Yukawa mass generation, full dynamical $SU(3)_C$ QCD confinement
+in 3+1D, and bulk-covariant 4D domain-wall gauging with mirror symmetric mass generation remain open.
+\item \textbf{Dynamical nonlinear 4D gravity and origin of $w(D) = 1/N_D^2$:} Deriving self-consistent Einstein
+backreaction ($G_{\mu\nu} = 8\pi G T_{\mu\nu}$, $\gamma_{\mathrm{PPN}} = \beta_{\mathrm{PPN}} = 1$) and the dynamical
+symmetry-breaking origin of the cusp-anchored warp profile $w(D) = 1/N_D^2$ from microscopic quantum states remains open.
+\item \textbf{Microscopic light Dirac mass generation and 3+1D spin-statistics:} Section~\ref{sec:composites} shows that
+exact $E = mc^2$ and sub-$1\%$ $1/\gamma$ moving clocks emerge cleanly inside bare $U$'s $M_{\mathrm{meet}}$
+architecture once $m_{\mathrm{eff}} \ll 1$, whereas verbatim bare $U$ sits at cutoff mass $m = \pi/3$. Deriving a
+microscopic infrared mechanism yielding $m_{\mathrm{eff}} \ll 1$, a single-potential radial $1s \leftrightarrow 2s$
+relativistic 2-body clock, and emergent 3+1D fermionic exchange statistics from bare ternary tones remains open.
+\item \textbf{Precision Standard Model constants and the cosmological-constant gap:} As Track~W18's $2{,}801$-base null
+audit demonstrates, $\{3,4,3,4\}$'s Steinberg warp compresses five decades of fermion hierarchies only at $O(1)$ once
+depth assignments are fixed, without deriving Koide's $10^{-5}$ precision, $\alpha(0) = 1/137.036$, or resolving the
+61-decade bare Hubble ($122$-decade $\Lambda$) gap \cite{weinberg1989}.
+\item \textbf{Operational Born bridge and branch measurement:} Track~W17 locks any consistent branch measure uniquely to
+$p = 2$ via envariance and 3D Gleason non-contextuality, while Track~W14B quantifies lumpability, QFI horizons, and
+Markovian outward export. Across pure unitary evolution on the fixed honeycomb, the operational Born postulate linking
+$|\psi_k|^2$ to definite single-outcome observations remains explicitly an interpretive bridge rather than a theorem of
+linear unitarity alone.
+\end{enumerate}
+
+\paragraph{Acknowledgments and computational tooling.}
+All 29 Lean~4.35.0 files (341 headline theorems, 451 public theorems) passed full \code{lake build} compilation and
+\code{\#print axioms} verification, and all twelve breakthrough scripts executed deterministically from the public
+repository with zero randomness. The author takes sole responsibility for all mathematical statements and any remaining
+errors. During proof engineering, adversarial auditing, code verification, and manuscript preparation, large language
+models assisted as research and software engineering tools.

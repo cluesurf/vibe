@@ -251,17 +251,31 @@ export function computePredictiveEquivalence(input: {
     inducedObservable[c] = observable[rep]!
   }
 
-  // Certify coarsestness: merging any two distinct classes violates h or congruence.
-  let isCoarsestCongruence = true
-  if (current.classCount <= 128) {
-    outer: for (let c1 = 0; c1 < current.classCount; c1++) {
-      for (let c2 = c1 + 1; c2 < current.classCount; c2++) {
-        if (inducedObservable[c1] !== inducedObservable[c2]) {
-          continue
+  // Certify coarsestness mathematically:
+  // Moore fixed-point refinement guarantees the unique coarsest dynamical congruence refining h.
+  // Independently verify the necessary and sufficient distinguishing-horizon witness: every pair
+  // of distinct quotient classes (c1, c2) diverges in induced observable h(G^t(c)) for some
+  // t < classCount, proving NO congruence refining h (including multi-block simultaneous merges)
+  // can merge any distinct classes.
+  const isCong = isDynamicalCongruence(transition, current)
+  const preservesObs = partitionRefines(current, observablePartition)
+  let isCoarsestCongruence = isCong && preservesObs
+  if (isCoarsestCongruence) {
+    const k = current.classCount
+    outer: for (let c1 = 0; c1 < k; c1++) {
+      for (let c2 = c1 + 1; c2 < k; c2++) {
+        let s1 = c1
+        let s2 = c2
+        let distinguished = false
+        for (let t = 0; t < k; t++) {
+          if (inducedObservable[s1] !== inducedObservable[s2]) {
+            distinguished = true
+            break
+          }
+          s1 = sq.inducedTransition[s1]!
+          s2 = sq.inducedTransition[s2]!
         }
-        const mergedLabels = current.classOf.map(c => (c === c2 ? c1 : c))
-        const merged = canonicalizePartition(mergedLabels)
-        if (isDynamicalCongruence(transition, merged)) {
+        if (!distinguished) {
           isCoarsestCongruence = false
           break outer
         }
@@ -277,8 +291,8 @@ export function computePredictiveEquivalence(input: {
     commutingResidual: sq.residual,
     refinementRounds,
     compressionRatio: current.classCount > 0 ? stateCount / current.classCount : 0,
-    preservesObservable: partitionRefines(current, observablePartition),
-    isCongruence: isDynamicalCongruence(transition, current),
+    preservesObservable: preservesObs,
+    isCongruence: isCong,
     isCoarsestCongruence,
   }
 }
@@ -730,8 +744,10 @@ export type HeisenbergClosureResult = {
   readonly closed: boolean
 }
 
-// Quantum Heisenberg operator-subalgebra closure:
-// Measures exact Hilbert-Schmidt distance of (U^dag)^t O_k U^t from span{O_j}.
+// Quantum Heisenberg operator-space linear-span closure:
+// Measures exact Hilbert-Schmidt distance of Ad_{U^t}(O_k) = (U^dag)^t O_k U^t from span{O_j}.
+// When the supplied operator list {O_j} spans a *-subalgebra (closed under adjoints and products),
+// zero defect certifies exact Heisenberg *-subalgebra invariance across t = 1..horizonSteps.
 export function computeHeisenbergSubalgebraClosure(input: {
   readonly unitary: ComplexMatrix
   readonly observables: readonly ComplexMatrix[]

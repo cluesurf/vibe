@@ -1664,11 +1664,11 @@ private theorem dh_uStar_z0 (β : Nat) (v : DhVec50) :
 
 private theorem dh_uStar_xg (β : Nat) (v : DhVec50) (g : Fin 25) (hg : g.val ≠ 0) :
     dhUStar β v ⟨0, by decide⟩ g = (v ⟨0, by decide⟩ g + β * v ⟨0, by decide⟩ ⟨0, by decide⟩ + 2 * dhShell1Sum (v ⟨0, by decide⟩)) % 3 := by
-  unfold dhUStar; dsimp only; exact dh_ite_neg hg
+  simp only [dhUStar]; exact dh_ite_neg hg
 
 private theorem dh_uStar_zg (β : Nat) (v : DhVec50) (g : Fin 25) (hg : g.val ≠ 0) :
     dhUStar β v ⟨1, by decide⟩ g = (v ⟨1, by decide⟩ g + 2 * β * v ⟨1, by decide⟩ ⟨0, by decide⟩ + 2 * dhShell1Sum (v ⟨1, by decide⟩)) % 3 := by
-  unfold dhUStar; dsimp only; exact dh_ite_neg hg
+  simp only [dhUStar]; exact dh_ite_neg hg
 
 private theorem dh_bulkAct_x0 (perm : Fin 24 → Fin 24) (A0 A1 : HcMat2) (v : DhVec50) :
     dhBulkAct perm A0 A1 v ⟨0, by decide⟩ ⟨0, by decide⟩ =
@@ -1689,6 +1689,58 @@ private theorem dh_bulkAct_zg (perm : Fin 24 → Fin 24) (A0 A1 : HcMat2) (v : D
     (A1.2.2.1 * v ⟨0, by decide⟩ ⟨(perm ⟨g.val - 1, by have := g.isLt; omega⟩).val + 1, by have := (perm ⟨g.val - 1, by have := g.isLt; omega⟩).isLt; omega⟩ +
      A1.2.2.2 * v ⟨1, by decide⟩ ⟨(perm ⟨g.val - 1, by have := g.isLt; omega⟩).val + 1, by have := (perm ⟨g.val - 1, by have := g.isLt; omega⟩).isLt; omega⟩) % 3 := by
   unfold dhBulkAct; rw [dh_dite_neg hg]
+
+private theorem dh_bulkWF4_x0 (k : Fin 4) (v : DhVec50) :
+    dhBulkWF4 k v ⟨0, by decide⟩ ⟨0, by decide⟩ =
+    ((dhScaleMat2 (dhFrameSgn k) (hcCliffGen k)).1 * v ⟨0, by decide⟩ ⟨0, by decide⟩ +
+     (dhScaleMat2 (dhFrameSgn k) (hcCliffGen k)).2.1 * v ⟨1, by decide⟩ ⟨0, by decide⟩) % 3 := rfl
+
+private theorem dh_bulkWF4_z0 (k : Fin 4) (v : DhVec50) :
+    dhBulkWF4 k v ⟨1, by decide⟩ ⟨0, by decide⟩ =
+    ((dhScaleMat2 (dhFrameSgn k) (hcCliffGen k)).2.2.1 * v ⟨0, by decide⟩ ⟨0, by decide⟩ +
+     (dhScaleMat2 (dhFrameSgn k) (hcCliffGen k)).2.2.2 * v ⟨1, by decide⟩ ⟨0, by decide⟩) % 3 := rfl
+
+private theorem dh_bulkWF4_xg (k : Fin 4) (v : DhVec50) (g : Fin 25) (hg : g.val ≠ 0) :
+    dhBulkWF4 k v ⟨0, by decide⟩ g =
+    ((dhScaleMat2 (dhFrameSgn k) (dhCliffGenOdd k)).1 *
+       v ⟨0, by decide⟩ ⟨(hcWF4Perm k ⟨g.val - 1, by have := g.isLt; omega⟩).val + 1, by have := (hcWF4Perm k ⟨g.val - 1, by have := g.isLt; omega⟩).isLt; omega⟩ +
+     (dhScaleMat2 (dhFrameSgn k) (dhCliffGenOdd k)).2.1 *
+       v ⟨1, by decide⟩ ⟨(hcWF4Perm k ⟨g.val - 1, by have := g.isLt; omega⟩).val + 1, by have := (hcWF4Perm k ⟨g.val - 1, by have := g.isLt; omega⟩).isLt; omega⟩) % 3 :=
+  dh_bulkAct_xg _ _ _ v g hg
+
+private theorem dh_bulkWF4_zg (k : Fin 4) (v : DhVec50) (g : Fin 25) (hg : g.val ≠ 0) :
+    dhBulkWF4 k v ⟨1, by decide⟩ g =
+    ((dhScaleMat2 (dhFrameSgn k) (dhCliffGenOdd k)).2.2.1 *
+       v ⟨0, by decide⟩ ⟨(hcWF4Perm k ⟨g.val - 1, by have := g.isLt; omega⟩).val + 1, by have := (hcWF4Perm k ⟨g.val - 1, by have := g.isLt; omega⟩).isLt; omega⟩ +
+     (dhScaleMat2 (dhFrameSgn k) (dhCliffGenOdd k)).2.2.2 *
+       v ⟨1, by decide⟩ ⟨(hcWF4Perm k ⟨g.val - 1, by have := g.isLt; omega⟩).val + 1, by have := (hcWF4Perm k ⟨g.val - 1, by have := g.isLt; omega⟩).isLt; omega⟩) % 3 :=
+  dh_bulkAct_zg _ _ _ v g hg
+
+private theorem dh_bulkT2_x0 (gi : Fin 5) (v : DhVec50) :
+    dhBulkT2 gi v ⟨0, by decide⟩ ⟨0, by decide⟩ =
+    ((dhT2MatEven gi).1 * v ⟨0, by decide⟩ ⟨0, by decide⟩ +
+     (dhT2MatEven gi).2.1 * v ⟨1, by decide⟩ ⟨0, by decide⟩) % 3 := rfl
+
+private theorem dh_bulkT2_z0 (gi : Fin 5) (v : DhVec50) :
+    dhBulkT2 gi v ⟨1, by decide⟩ ⟨0, by decide⟩ =
+    ((dhT2MatEven gi).2.2.1 * v ⟨0, by decide⟩ ⟨0, by decide⟩ +
+     (dhT2MatEven gi).2.2.2 * v ⟨1, by decide⟩ ⟨0, by decide⟩) % 3 := rfl
+
+private theorem dh_bulkT2_xg (gi : Fin 5) (v : DhVec50) (g : Fin 25) (hg : g.val ≠ 0) :
+    dhBulkT2 gi v ⟨0, by decide⟩ g =
+    ((dhT2MatOdd gi).1 *
+       v ⟨0, by decide⟩ ⟨(dhT2Perm gi ⟨g.val - 1, by have := g.isLt; omega⟩).val + 1, by have := (dhT2Perm gi ⟨g.val - 1, by have := g.isLt; omega⟩).isLt; omega⟩ +
+     (dhT2MatOdd gi).2.1 *
+       v ⟨1, by decide⟩ ⟨(dhT2Perm gi ⟨g.val - 1, by have := g.isLt; omega⟩).val + 1, by have := (dhT2Perm gi ⟨g.val - 1, by have := g.isLt; omega⟩).isLt; omega⟩) % 3 :=
+  dh_bulkAct_xg _ _ _ v g hg
+
+private theorem dh_bulkT2_zg (gi : Fin 5) (v : DhVec50) (g : Fin 25) (hg : g.val ≠ 0) :
+    dhBulkT2 gi v ⟨1, by decide⟩ g =
+    ((dhT2MatOdd gi).2.2.1 *
+       v ⟨0, by decide⟩ ⟨(dhT2Perm gi ⟨g.val - 1, by have := g.isLt; omega⟩).val + 1, by have := (dhT2Perm gi ⟨g.val - 1, by have := g.isLt; omega⟩).isLt; omega⟩ +
+     (dhT2MatOdd gi).2.2.2 *
+       v ⟨1, by decide⟩ ⟨(dhT2Perm gi ⟨g.val - 1, by have := g.isLt; omega⟩).val + 1, by have := (dhT2Perm gi ⟨g.val - 1, by have := g.isLt; omega⟩).isLt; omega⟩) % 3 :=
+  dh_bulkAct_zg _ _ _ v g hg
 
 private theorem dh_bulkAct_shell1_x (perm : Fin 24 → Fin 24) (A0 A1 : HcMat2) (v : DhVec50) (a : Fin 24) :
     dhBulkAct perm A0 A1 v ⟨0, by decide⟩ ⟨a.val + 1, by have := a.isLt; omega⟩ =
@@ -1721,10 +1773,29 @@ private theorem dh_uNN_x0 (v : DhVec50) :
 
 private theorem dh_uNN_xg (v : DhVec50) (g : Fin 25) (hg : g.val ≠ 0) :
     dhUNN v ⟨0, by decide⟩ g = (v ⟨0, by decide⟩ g + v ⟨1, by decide⟩ ⟨0, by decide⟩) % 3 := by
-  unfold dhUNN; dsimp only; exact dh_ite_neg hg
+  simp only [dhUNN]; exact dh_ite_neg hg
 
 private theorem dh_uNN_zg (v : DhVec50) (g : Fin 25) :
     dhUNN v ⟨1, by decide⟩ g = v ⟨1, by decide⟩ g % 3 := rfl
+
+private theorem dh_wf4_mat_vals :
+    (dhScaleMat2 (dhFrameSgn ⟨0, by decide⟩) (hcCliffGen ⟨0, by decide⟩) = (2, 0, 0, 2) ∧
+     dhScaleMat2 (dhFrameSgn ⟨0, by decide⟩) (dhCliffGenOdd ⟨0, by decide⟩) = (2, 0, 0, 2)) ∧
+    (dhScaleMat2 (dhFrameSgn ⟨1, by decide⟩) (hcCliffGen ⟨1, by decide⟩) = (2, 0, 0, 2) ∧
+     dhScaleMat2 (dhFrameSgn ⟨1, by decide⟩) (dhCliffGenOdd ⟨1, by decide⟩) = (2, 0, 0, 2)) ∧
+    (dhScaleMat2 (dhFrameSgn ⟨2, by decide⟩) (hcCliffGen ⟨2, by decide⟩) = (1, 0, 0, 2) ∧
+     dhScaleMat2 (dhFrameSgn ⟨2, by decide⟩) (dhCliffGenOdd ⟨2, by decide⟩) = (1, 0, 0, 2)) ∧
+    (dhScaleMat2 (dhFrameSgn ⟨3, by decide⟩) (hcCliffGen ⟨3, by decide⟩) = (1, 1, 0, 2) ∧
+     dhScaleMat2 (dhFrameSgn ⟨3, by decide⟩) (dhCliffGenOdd ⟨3, by decide⟩) = (1, 2, 0, 2)) := by
+  decide
+
+private theorem dh_t2_mat_vals :
+    (dhT2MatEven ⟨0, by decide⟩ = (1, 0, 0, 1) ∧ dhT2MatOdd ⟨0, by decide⟩ = (1, 0, 0, 1)) ∧
+    (dhT2MatEven ⟨1, by decide⟩ = (1, 1, 0, 1) ∧ dhT2MatOdd ⟨1, by decide⟩ = (1, 2, 0, 1)) ∧
+    (dhT2MatEven ⟨2, by decide⟩ = (1, 0, 0, 1) ∧ dhT2MatOdd ⟨2, by decide⟩ = (1, 0, 0, 1)) ∧
+    (dhT2MatEven ⟨3, by decide⟩ = (1, 0, 0, 1) ∧ dhT2MatOdd ⟨3, by decide⟩ = (1, 0, 0, 1)) ∧
+    (dhT2MatEven ⟨4, by decide⟩ = (1, 2, 0, 1) ∧ dhT2MatOdd ⟨4, by decide⟩ = (1, 1, 0, 1)) := by
+  decide
 
 private theorem dh_uStar_shell1_inv (β : Nat) (v : DhVec50) :
     dhShell1Sum (dhUStar β v ⟨0, by decide⟩) % 3 = dhShell1Sum (v ⟨0, by decide⟩) % 3 ∧
@@ -1844,19 +1915,21 @@ private theorem dh_uStar_comp (v : DhVec50) (p : Fin 2) (g : Fin 25) :
   | 0, _ =>
     by_cases hg : g.val = 0
     · have hEq : g = ⟨0, by decide⟩ := Fin.ext hg; subst hEq
-      rw [dh_uStar_x0, dh_uStar_x0, dh_uStar_x0, dh_uStar_x0, dh_uStar_x0]
-      exact ⟨by omega, by omega⟩
-    · rw [dh_uStar_xg 1 _ g hg, dh_uStar_xg 2 _ g hg, dh_uStar_x0,
-          dh_uStar_xg 1 _ g hg, dh_uStar_xg 1 _ g hg, dh_uStar_x0]
-      exact ⟨by omega, by omega⟩
+      constructor
+      · rw [dh_uStar_x0 1 (dhUStar 2 v), dh_uStar_x0 2 v]; omega
+      · rw [dh_uStar_x0 1 (dhUStar 1 v), dh_uStar_x0 1 v, dh_uStar_x0 2 v]; omega
+    · constructor
+      · rw [dh_uStar_xg 1 (dhUStar 2 v) g hg, dh_uStar_xg 2 v g hg, dh_uStar_x0 2 v]; omega
+      · rw [dh_uStar_xg 1 (dhUStar 1 v) g hg, dh_uStar_xg 1 v g hg, dh_uStar_x0 1 v, dh_uStar_xg 2 v g hg]; omega
   | 1, _ =>
     by_cases hg : g.val = 0
     · have hEq : g = ⟨0, by decide⟩ := Fin.ext hg; subst hEq
-      rw [dh_uStar_z0, dh_uStar_z0, dh_uStar_z0, dh_uStar_z0, dh_uStar_z0]
-      exact ⟨by omega, by omega⟩
-    · rw [dh_uStar_zg 1 _ g hg, dh_uStar_zg 2 _ g hg, dh_uStar_z0,
-          dh_uStar_zg 1 _ g hg, dh_uStar_zg 1 _ g hg, dh_uStar_z0]
-      exact ⟨by omega, by omega⟩
+      constructor
+      · rw [dh_uStar_z0 1 (dhUStar 2 v), dh_uStar_z0 2 v]; omega
+      · rw [dh_uStar_z0 1 (dhUStar 1 v), dh_uStar_z0 1 v, dh_uStar_z0 2 v]; omega
+    · constructor
+      · rw [dh_uStar_zg 1 (dhUStar 2 v) g hg, dh_uStar_zg 2 v g hg, dh_uStar_z0 2 v]; omega
+      · rw [dh_uStar_zg 1 (dhUStar 1 v) g hg, dh_uStar_zg 1 v g hg, dh_uStar_z0 1 v, dh_uStar_zg 2 v g hg]; omega
   | _ + 2, h => exact absurd h (by omega)
 
 private theorem dh_uStar_wf4_cov (k : Fin 4) (v : DhVec50) (p : Fin 2) (g : Fin 25) :
@@ -1894,29 +1967,67 @@ private theorem dh_uStar_wf4_cov (k : Fin 4) (v : DhVec50) (p : Fin 2) (g : Fin 
   by_cases hg : g.val = 0
   · have hEq : g = ⟨0, by decide⟩ := Fin.ext hg; subst hEq
     match kv, hkv, pv, hpv with
-    | 0, _, 0, _ | 1, _, 0, _ | 2, _, 0, _ | 3, _, 0, _ =>
-      rw [dh_uStar_x0, dhBulkWF4, dh_bulkAct_x0, dh_bulkAct_x0, dh_uStar_x0, dh_uStar_z0]
-      simp only [dhFrameSgn, dhScaleMat2, hcCliffGen, dhCliffGenOdd, dhMatK, hcMat2Mul] at hSx hSz ⊢
-      omega
-    | 0, _, 1, _ | 1, _, 1, _ | 2, _, 1, _ | 3, _, 1, _ =>
-      rw [dh_uStar_z0, dhBulkWF4, dh_bulkAct_z0, dh_bulkAct_z0, dh_uStar_x0, dh_uStar_z0]
-      simp only [dhFrameSgn, dhScaleMat2, hcCliffGen, dhCliffGenOdd, dhMatK, hcMat2Mul] at hSx hSz ⊢
-      omega
+    | 0, _, 0, _ =>
+      rw [dh_uStar_x0 1 (dhBulkWF4 _ v), dh_bulkWF4_x0 _ v, dh_bulkWF4_x0 _ (dhUStar 1 v), dh_uStar_x0 1 v, dh_uStar_z0 1 v,
+          dh_wf4_mat_vals.1.1]; rw [dh_wf4_mat_vals.1.2] at hSx; dsimp only at hSx ⊢; omega
+    | 1, _, 0, _ =>
+      rw [dh_uStar_x0 1 (dhBulkWF4 _ v), dh_bulkWF4_x0 _ v, dh_bulkWF4_x0 _ (dhUStar 1 v), dh_uStar_x0 1 v, dh_uStar_z0 1 v,
+          dh_wf4_mat_vals.2.1.1]; rw [dh_wf4_mat_vals.2.1.2] at hSx; dsimp only at hSx ⊢; omega
+    | 2, _, 0, _ =>
+      rw [dh_uStar_x0 1 (dhBulkWF4 _ v), dh_bulkWF4_x0 _ v, dh_bulkWF4_x0 _ (dhUStar 1 v), dh_uStar_x0 1 v, dh_uStar_z0 1 v,
+          dh_wf4_mat_vals.2.2.1.1]; rw [dh_wf4_mat_vals.2.2.1.2] at hSx; dsimp only at hSx ⊢; omega
+    | 3, _, 0, _ =>
+      rw [dh_uStar_x0 1 (dhBulkWF4 _ v), dh_bulkWF4_x0 _ v, dh_bulkWF4_x0 _ (dhUStar 1 v), dh_uStar_x0 1 v, dh_uStar_z0 1 v,
+          dh_wf4_mat_vals.2.2.2.1]; rw [dh_wf4_mat_vals.2.2.2.2] at hSx; dsimp only at hSx ⊢; omega
+    | 0, _, 1, _ =>
+      rw [dh_uStar_z0 1 (dhBulkWF4 _ v), dh_bulkWF4_z0 _ v, dh_bulkWF4_z0 _ (dhUStar 1 v), dh_uStar_x0 1 v, dh_uStar_z0 1 v,
+          dh_wf4_mat_vals.1.1]; rw [dh_wf4_mat_vals.1.2] at hSz; dsimp only at hSz ⊢; omega
+    | 1, _, 1, _ =>
+      rw [dh_uStar_z0 1 (dhBulkWF4 _ v), dh_bulkWF4_z0 _ v, dh_bulkWF4_z0 _ (dhUStar 1 v), dh_uStar_x0 1 v, dh_uStar_z0 1 v,
+          dh_wf4_mat_vals.2.1.1]; rw [dh_wf4_mat_vals.2.1.2] at hSz; dsimp only at hSz ⊢; omega
+    | 2, _, 1, _ =>
+      rw [dh_uStar_z0 1 (dhBulkWF4 _ v), dh_bulkWF4_z0 _ v, dh_bulkWF4_z0 _ (dhUStar 1 v), dh_uStar_x0 1 v, dh_uStar_z0 1 v,
+          dh_wf4_mat_vals.2.2.1.1]; rw [dh_wf4_mat_vals.2.2.1.2] at hSz; dsimp only at hSz ⊢; omega
+    | 3, _, 1, _ =>
+      rw [dh_uStar_z0 1 (dhBulkWF4 _ v), dh_bulkWF4_z0 _ v, dh_bulkWF4_z0 _ (dhUStar 1 v), dh_uStar_x0 1 v, dh_uStar_z0 1 v,
+          dh_wf4_mat_vals.2.2.2.1]; rw [dh_wf4_mat_vals.2.2.2.2] at hSz; dsimp only at hSz ⊢; omega
     | _ + 4, h, _, _ => exact absurd h (by omega)
     | _, _, _ + 2, h => exact absurd h (by omega)
   · have hSrcNe : (⟨(hcWF4Perm ⟨kv, hkv⟩ ⟨g.val - 1, by have := g.isLt; omega⟩).val + 1,
         by have := (hcWF4Perm ⟨kv, hkv⟩ ⟨g.val - 1, by have := g.isLt; omega⟩).isLt; omega⟩ : Fin 25).val ≠ 0 := by omega
     match kv, hkv, pv, hpv with
-    | 0, _, 0, _ | 1, _, 0, _ | 2, _, 0, _ | 3, _, 0, _ =>
-      rw [dh_uStar_xg 1 _ g hg, dhBulkWF4, dh_bulkAct_xg _ _ _ _ g hg, dh_bulkAct_x0,
-          dh_bulkAct_xg _ _ _ _ g hg, dh_uStar_xg 1 _ _ hSrcNe, dh_uStar_zg 1 _ _ hSrcNe]
-      simp only [dhFrameSgn, dhScaleMat2, hcCliffGen, dhCliffGenOdd, dhMatK, hcMat2Mul] at hSx hSz ⊢
-      omega
-    | 0, _, 1, _ | 1, _, 1, _ | 2, _, 1, _ | 3, _, 1, _ =>
-      rw [dh_uStar_zg 1 _ g hg, dhBulkWF4, dh_bulkAct_zg _ _ _ _ g hg, dh_bulkAct_z0,
-          dh_bulkAct_zg _ _ _ _ g hg, dh_uStar_xg 1 _ _ hSrcNe, dh_uStar_zg 1 _ _ hSrcNe]
-      simp only [dhFrameSgn, dhScaleMat2, hcCliffGen, dhCliffGenOdd, dhMatK, hcMat2Mul] at hSx hSz ⊢
-      omega
+    | 0, _, 0, _ =>
+      rw [dh_uStar_xg 1 (dhBulkWF4 _ v) g hg, dh_bulkWF4_xg _ v g hg, dh_bulkWF4_x0 _ v,
+          dh_bulkWF4_xg _ (dhUStar 1 v) g hg, dh_uStar_xg 1 v _ hSrcNe, dh_uStar_zg 1 v _ hSrcNe,
+          dh_wf4_mat_vals.1.1, dh_wf4_mat_vals.1.2]; rw [dh_wf4_mat_vals.1.2] at hSx; dsimp only at hSx ⊢; omega
+    | 1, _, 0, _ =>
+      rw [dh_uStar_xg 1 (dhBulkWF4 _ v) g hg, dh_bulkWF4_xg _ v g hg, dh_bulkWF4_x0 _ v,
+          dh_bulkWF4_xg _ (dhUStar 1 v) g hg, dh_uStar_xg 1 v _ hSrcNe, dh_uStar_zg 1 v _ hSrcNe,
+          dh_wf4_mat_vals.2.1.1, dh_wf4_mat_vals.2.1.2]; rw [dh_wf4_mat_vals.2.1.2] at hSx; dsimp only at hSx ⊢; omega
+    | 2, _, 0, _ =>
+      rw [dh_uStar_xg 1 (dhBulkWF4 _ v) g hg, dh_bulkWF4_xg _ v g hg, dh_bulkWF4_x0 _ v,
+          dh_bulkWF4_xg _ (dhUStar 1 v) g hg, dh_uStar_xg 1 v _ hSrcNe, dh_uStar_zg 1 v _ hSrcNe,
+          dh_wf4_mat_vals.2.2.1.1, dh_wf4_mat_vals.2.2.1.2]; rw [dh_wf4_mat_vals.2.2.1.2] at hSx; dsimp only at hSx ⊢; omega
+    | 3, _, 0, _ =>
+      rw [dh_uStar_xg 1 (dhBulkWF4 _ v) g hg, dh_bulkWF4_xg _ v g hg, dh_bulkWF4_x0 _ v,
+          dh_bulkWF4_xg _ (dhUStar 1 v) g hg, dh_uStar_xg 1 v _ hSrcNe, dh_uStar_zg 1 v _ hSrcNe,
+          dh_wf4_mat_vals.2.2.2.1, dh_wf4_mat_vals.2.2.2.2]; rw [dh_wf4_mat_vals.2.2.2.2] at hSx; dsimp only at hSx ⊢; omega
+    | 0, _, 1, _ =>
+      rw [dh_uStar_zg 1 (dhBulkWF4 _ v) g hg, dh_bulkWF4_zg _ v g hg, dh_bulkWF4_z0 _ v,
+          dh_bulkWF4_zg _ (dhUStar 1 v) g hg, dh_uStar_xg 1 v _ hSrcNe, dh_uStar_zg 1 v _ hSrcNe,
+          dh_wf4_mat_vals.1.1, dh_wf4_mat_vals.1.2]; rw [dh_wf4_mat_vals.1.2] at hSz; dsimp only at hSz ⊢; omega
+    | 1, _, 1, _ =>
+      rw [dh_uStar_zg 1 (dhBulkWF4 _ v) g hg, dh_bulkWF4_zg _ v g hg, dh_bulkWF4_z0 _ v,
+          dh_bulkWF4_zg _ (dhUStar 1 v) g hg, dh_uStar_xg 1 v _ hSrcNe, dh_uStar_zg 1 v _ hSrcNe,
+          dh_wf4_mat_vals.2.1.1, dh_wf4_mat_vals.2.1.2]; rw [dh_wf4_mat_vals.2.1.2] at hSz; dsimp only at hSz ⊢; omega
+    | 2, _, 1, _ =>
+      rw [dh_uStar_zg 1 (dhBulkWF4 _ v) g hg, dh_bulkWF4_zg _ v g hg, dh_bulkWF4_z0 _ v,
+          dh_bulkWF4_zg _ (dhUStar 1 v) g hg, dh_uStar_xg 1 v _ hSrcNe, dh_uStar_zg 1 v _ hSrcNe,
+          dh_wf4_mat_vals.2.2.1.1, dh_wf4_mat_vals.2.2.1.2]; rw [dh_wf4_mat_vals.2.2.1.2] at hSz; dsimp only at hSz ⊢; omega
+    | 3, _, 1, _ =>
+      rw [dh_uStar_zg 1 (dhBulkWF4 _ v) g hg, dh_bulkWF4_zg _ v g hg, dh_bulkWF4_z0 _ v,
+          dh_bulkWF4_zg _ (dhUStar 1 v) g hg, dh_uStar_xg 1 v _ hSrcNe, dh_uStar_zg 1 v _ hSrcNe,
+          dh_wf4_mat_vals.2.2.2.1, dh_wf4_mat_vals.2.2.2.2]; rw [dh_wf4_mat_vals.2.2.2.2] at hSz; dsimp only at hSz ⊢; omega
     | _ + 4, h, _, _ => exact absurd h (by omega)
     | _, _, _ + 2, h => exact absurd h (by omega)
 
@@ -1959,7 +2070,7 @@ private theorem dh_uNN_symp_and_ord3 (u v : DhVec50) :
           2 * (u ⟨1, by decide⟩ ⟨0, by decide⟩ * v ⟨0, by decide⟩ ⟨0, by decide⟩)) +
          dhShell1Sum (u ⟨1, by decide⟩) * v ⟨1, by decide⟩ ⟨0, by decide⟩ +
          2 * (u ⟨1, by decide⟩ ⟨0, by decide⟩ * dhShell1Sum (v ⟨1, by decide⟩))) % 3 := by
-      rw [dh_uNN_x0, dh_uNN_zg, dh_uNN_zg, dh_uNN_x0]
+      rw [dh_uNN_x0 u, dh_uNN_zg v, dh_uNN_zg u, dh_uNN_x0 v]
       rw [dh_add_mod3_congr
             (dh_mul_mod3_congr (c := u ⟨0, by decide⟩ ⟨0, by decide⟩ + dhShell1Sum (u ⟨1, by decide⟩))
               (d := v ⟨1, by decide⟩ ⟨0, by decide⟩) (by omega) (by omega))
@@ -1970,17 +2081,17 @@ private theorem dh_uNN_symp_and_ord3 (u v : DhVec50) :
     rw [dh_add_mod3_congr h0 hShell]; omega
   · intro p g
     have hZSum : dhShell1Sum (dhUNN u ⟨1, by decide⟩) % 3 = dhShell1Sum (u ⟨1, by decide⟩) % 3 := by
-      unfold dhShell1Sum; apply dh_sumFin_mod3_congr; intro a; rw [dh_uNN_zg]; omega
+      unfold dhShell1Sum; apply dh_sumFin_mod3_congr; intro a; rw [dh_uNN_zg u]; omega
     have hZSum2 : dhShell1Sum (dhUNN (dhUNN u) ⟨1, by decide⟩) % 3 = dhShell1Sum (u ⟨1, by decide⟩) % 3 := by
-      unfold dhShell1Sum; apply dh_sumFin_mod3_congr; intro a; rw [dh_uNN_zg, dh_uNN_zg]; omega
+      unfold dhShell1Sum; apply dh_sumFin_mod3_congr; intro a; rw [dh_uNN_zg (dhUNN u), dh_uNN_zg u]; omega
     cases p with | mk pv hpv =>
     match pv, hpv with
     | 0, _ =>
       by_cases hg : g.val = 0
       · have hEq : g = ⟨0, by decide⟩ := Fin.ext hg; subst hEq
-        rw [dh_uNN_x0, dh_uNN_x0, dh_uNN_x0]; omega
-      · rw [dh_uNN_xg _ g hg, dh_uNN_xg _ g hg, dh_uNN_xg _ g hg, dh_uNN_zg, dh_uNN_zg]; omega
-    | 1, _ => rw [dh_uNN_zg, dh_uNN_zg, dh_uNN_zg]; omega
+        rw [dh_uNN_x0 (dhUNN (dhUNN u)), dh_uNN_x0 (dhUNN u), dh_uNN_x0 u]; omega
+      · rw [dh_uNN_xg (dhUNN (dhUNN u)) g hg, dh_uNN_xg (dhUNN u) g hg, dh_uNN_xg u g hg, dh_uNN_zg (dhUNN u), dh_uNN_zg u]; omega
+    | 1, _ => rw [dh_uNN_zg (dhUNN (dhUNN u)), dh_uNN_zg (dhUNN u), dh_uNN_zg u]; omega
     | _ + 2, h => exact absurd h (by omega)
 
 private theorem dh_uNN_t2_cov_and_trev :
@@ -2008,25 +2119,31 @@ private theorem dh_uNN_t2_cov_and_trev :
     by_cases hg : g.val = 0
     · have hEq : g = ⟨0, by decide⟩ := Fin.ext hg; subst hEq
       match giv, hgiv, pv, hpv with
-      | 0, _, 0, _ | 1, _, 0, _ | 2, _, 0, _ | 3, _, 0, _ | 4, _, 0, _ =>
-        rw [dh_uNN_x0, dhBulkT2, dh_bulkAct_x0, dh_bulkAct_x0, dh_uNN_x0, dh_uNN_zg]
-        simp only [dhT2MatEven, dhT2MatOdd, dhMatK, hcCliffP, hcCliffGen, hcMat2Id, hcMat2Mul, hcMat2Pow] at hShellZ ⊢; omega
-      | 0, _, 1, _ | 1, _, 1, _ | 2, _, 1, _ | 3, _, 1, _ | 4, _, 1, _ =>
-        rw [dh_uNN_zg, dhBulkT2, dh_bulkAct_z0, dh_bulkAct_z0, dh_uNN_x0, dh_uNN_zg]
-        simp only [dhT2MatEven, dhT2MatOdd, dhMatK, hcCliffP, hcCliffGen, hcMat2Id, hcMat2Mul, hcMat2Pow] at hShellZ ⊢; omega
+      | 0, _, 0, _ => rw [dh_uNN_x0 (dhBulkT2 _ v), dh_bulkT2_x0 _ v, dh_bulkT2_x0 _ (dhUNN v), dh_uNN_x0 v, dh_uNN_zg v, dh_t2_mat_vals.1.1]; dsimp only; omega
+      | 1, _, 0, _ => rw [dh_uNN_x0 (dhBulkT2 _ v), dh_bulkT2_x0 _ v, dh_bulkT2_x0 _ (dhUNN v), dh_uNN_x0 v, dh_uNN_zg v, dh_t2_mat_vals.2.1.1]; dsimp only; omega
+      | 2, _, 0, _ => rw [dh_uNN_x0 (dhBulkT2 _ v), dh_bulkT2_x0 _ v, dh_bulkT2_x0 _ (dhUNN v), dh_uNN_x0 v, dh_uNN_zg v, dh_t2_mat_vals.2.2.1.1]; dsimp only; omega
+      | 3, _, 0, _ => rw [dh_uNN_x0 (dhBulkT2 _ v), dh_bulkT2_x0 _ v, dh_bulkT2_x0 _ (dhUNN v), dh_uNN_x0 v, dh_uNN_zg v, dh_t2_mat_vals.2.2.2.1.1]; dsimp only; omega
+      | 4, _, 0, _ => rw [dh_uNN_x0 (dhBulkT2 _ v), dh_bulkT2_x0 _ v, dh_bulkT2_x0 _ (dhUNN v), dh_uNN_x0 v, dh_uNN_zg v, dh_t2_mat_vals.2.2.2.2.1]; dsimp only; omega
+      | 0, _, 1, _ => rw [dh_uNN_zg (dhBulkT2 _ v), dh_bulkT2_z0 _ v, dh_bulkT2_z0 _ (dhUNN v), dh_uNN_x0 v, dh_uNN_zg v, dh_t2_mat_vals.1.1]; dsimp only; omega
+      | 1, _, 1, _ => rw [dh_uNN_zg (dhBulkT2 _ v), dh_bulkT2_z0 _ v, dh_bulkT2_z0 _ (dhUNN v), dh_uNN_x0 v, dh_uNN_zg v, dh_t2_mat_vals.2.1.1]; dsimp only; omega
+      | 2, _, 1, _ => rw [dh_uNN_zg (dhBulkT2 _ v), dh_bulkT2_z0 _ v, dh_bulkT2_z0 _ (dhUNN v), dh_uNN_x0 v, dh_uNN_zg v, dh_t2_mat_vals.2.2.1.1]; dsimp only; omega
+      | 3, _, 1, _ => rw [dh_uNN_zg (dhBulkT2 _ v), dh_bulkT2_z0 _ v, dh_bulkT2_z0 _ (dhUNN v), dh_uNN_x0 v, dh_uNN_zg v, dh_t2_mat_vals.2.2.2.1.1]; dsimp only; omega
+      | 4, _, 1, _ => rw [dh_uNN_zg (dhBulkT2 _ v), dh_bulkT2_z0 _ v, dh_bulkT2_z0 _ (dhUNN v), dh_uNN_x0 v, dh_uNN_zg v, dh_t2_mat_vals.2.2.2.2.1]; dsimp only; omega
       | _ + 5, h, _, _ => exact absurd h (by omega)
       | _, _, _ + 2, h => exact absurd h (by omega)
     · have hSrcNe : (⟨(dhT2Perm ⟨giv, hgiv⟩ ⟨g.val - 1, by have := g.isLt; omega⟩).val + 1,
           by have := (dhT2Perm ⟨giv, hgiv⟩ ⟨g.val - 1, by have := g.isLt; omega⟩).isLt; omega⟩ : Fin 25).val ≠ 0 := by omega
       match giv, hgiv, pv, hpv with
-      | 0, _, 0, _ | 1, _, 0, _ | 2, _, 0, _ | 3, _, 0, _ | 4, _, 0, _ =>
-        rw [dh_uNN_xg _ g hg, dhBulkT2, dh_bulkAct_xg _ _ _ _ g hg, dh_bulkAct_z0,
-            dh_bulkAct_xg _ _ _ _ g hg, dh_uNN_xg _ _ hSrcNe, dh_uNN_zg]
-        simp only [dhT2MatEven, dhT2MatOdd, dhMatK, hcCliffP, hcCliffGen, hcMat2Id, hcMat2Mul, hcMat2Pow]; omega
-      | 0, _, 1, _ | 1, _, 1, _ | 2, _, 1, _ | 3, _, 1, _ | 4, _, 1, _ =>
-        rw [dh_uNN_zg, dhBulkT2, dh_bulkAct_zg _ _ _ _ g hg,
-            dh_bulkAct_zg _ _ _ _ g hg, dh_uNN_xg _ _ hSrcNe, dh_uNN_zg]
-        simp only [dhT2MatEven, dhT2MatOdd, dhMatK, hcCliffP, hcCliffGen, hcMat2Id, hcMat2Mul, hcMat2Pow]; omega
+      | 0, _, 0, _ => rw [dh_uNN_xg (dhBulkT2 _ v) g hg, dh_bulkT2_xg _ v g hg, dh_bulkT2_z0 _ v, dh_bulkT2_xg _ (dhUNN v) g hg, dh_uNN_xg v _ hSrcNe, dh_uNN_zg v, dh_t2_mat_vals.1.1, dh_t2_mat_vals.1.2]; dsimp only; omega
+      | 1, _, 0, _ => rw [dh_uNN_xg (dhBulkT2 _ v) g hg, dh_bulkT2_xg _ v g hg, dh_bulkT2_z0 _ v, dh_bulkT2_xg _ (dhUNN v) g hg, dh_uNN_xg v _ hSrcNe, dh_uNN_zg v, dh_t2_mat_vals.2.1.1, dh_t2_mat_vals.2.1.2]; dsimp only; omega
+      | 2, _, 0, _ => rw [dh_uNN_xg (dhBulkT2 _ v) g hg, dh_bulkT2_xg _ v g hg, dh_bulkT2_z0 _ v, dh_bulkT2_xg _ (dhUNN v) g hg, dh_uNN_xg v _ hSrcNe, dh_uNN_zg v, dh_t2_mat_vals.2.2.1.1, dh_t2_mat_vals.2.2.1.2]; dsimp only; omega
+      | 3, _, 0, _ => rw [dh_uNN_xg (dhBulkT2 _ v) g hg, dh_bulkT2_xg _ v g hg, dh_bulkT2_z0 _ v, dh_bulkT2_xg _ (dhUNN v) g hg, dh_uNN_xg v _ hSrcNe, dh_uNN_zg v, dh_t2_mat_vals.2.2.2.1.1, dh_t2_mat_vals.2.2.2.1.2]; dsimp only; omega
+      | 4, _, 0, _ => rw [dh_uNN_xg (dhBulkT2 _ v) g hg, dh_bulkT2_xg _ v g hg, dh_bulkT2_z0 _ v, dh_bulkT2_xg _ (dhUNN v) g hg, dh_uNN_xg v _ hSrcNe, dh_uNN_zg v, dh_t2_mat_vals.2.2.2.2.1, dh_t2_mat_vals.2.2.2.2.2]; dsimp only; omega
+      | 0, _, 1, _ => rw [dh_uNN_zg (dhBulkT2 _ v), dh_bulkT2_zg _ v g hg, dh_bulkT2_zg _ (dhUNN v) g hg, dh_uNN_xg v _ hSrcNe, dh_uNN_zg v, dh_t2_mat_vals.1.2]; dsimp only; omega
+      | 1, _, 1, _ => rw [dh_uNN_zg (dhBulkT2 _ v), dh_bulkT2_zg _ v g hg, dh_bulkT2_zg _ (dhUNN v) g hg, dh_uNN_xg v _ hSrcNe, dh_uNN_zg v, dh_t2_mat_vals.2.1.2]; dsimp only; omega
+      | 2, _, 1, _ => rw [dh_uNN_zg (dhBulkT2 _ v), dh_bulkT2_zg _ v g hg, dh_bulkT2_zg _ (dhUNN v) g hg, dh_uNN_xg v _ hSrcNe, dh_uNN_zg v, dh_t2_mat_vals.2.2.1.2]; dsimp only; omega
+      | 3, _, 1, _ => rw [dh_uNN_zg (dhBulkT2 _ v), dh_bulkT2_zg _ v g hg, dh_bulkT2_zg _ (dhUNN v) g hg, dh_uNN_xg v _ hSrcNe, dh_uNN_zg v, dh_t2_mat_vals.2.2.2.1.2]; dsimp only; omega
+      | 4, _, 1, _ => rw [dh_uNN_zg (dhBulkT2 _ v), dh_bulkT2_zg _ v g hg, dh_bulkT2_zg _ (dhUNN v) g hg, dh_uNN_xg v _ hSrcNe, dh_uNN_zg v, dh_t2_mat_vals.2.2.2.2.2]; dsimp only; omega
       | _ + 5, h, _, _ => exact absurd h (by omega)
       | _, _, _ + 2, h => exact absurd h (by omega)
   · intro k hk v p g
@@ -2046,7 +2163,7 @@ private theorem dh_uNN_t2_cov_and_trev :
       rw [dh_sumFin_mod3_congr _ _ hSub, dh_sumFin_mul_left,
           dh_sum24_wf4Perm k (fun a => v ⟨1, by decide⟩ ⟨a.val + 1, by have := a.isLt; omega⟩)]
     have hZSumU : dhShell1Sum (dhUNN v ⟨1, by decide⟩) % 3 = dhShell1Sum (v ⟨1, by decide⟩) % 3 := by
-      unfold dhShell1Sum; apply dh_sumFin_mod3_congr; intro a; rw [dh_uNN_zg]; omega
+      unfold dhShell1Sum; apply dh_sumFin_mod3_congr; intro a; rw [dh_uNN_zg v]; omega
     rcases hk with h2 | h3
     · have hkEq : k = ⟨2, by decide⟩ := Fin.ext h2; subst hkEq
       cases p with | mk pv hpv =>
@@ -2054,11 +2171,13 @@ private theorem dh_uNN_t2_cov_and_trev :
       · have hEq : g = ⟨0, by decide⟩ := Fin.ext hg; subst hEq
         match pv, hpv with
         | 0, _ =>
-          rw [dhBulkWF4, dh_bulkAct_x0, dh_uNN_x0, dh_uNN_zg, dh_bulkAct_x0, dh_bulkAct_z0, dh_uNN_x0, dh_uNN_x0]
-          simp only [dhFrameSgn, dhScaleMat2, hcCliffGen, dhCliffGenOdd, dhMatK, hcMat2Mul] at hZSum hZSumU ⊢; omega
+          rw [dh_bulkWF4_x0 _ (dhUNN (dhBulkWF4 _ v)), dh_uNN_x0 (dhBulkWF4 _ v), dh_uNN_zg (dhBulkWF4 _ v),
+              dh_bulkWF4_x0 _ v, dh_bulkWF4_z0 _ v, dh_uNN_x0 (dhUNN v), dh_uNN_x0 v, dh_wf4_mat_vals.2.2.1.1]
+          dsimp only; omega
         | 1, _ =>
-          rw [dhBulkWF4, dh_bulkAct_z0, dh_uNN_x0, dh_uNN_zg, dh_bulkAct_x0, dh_bulkAct_z0, dh_uNN_zg, dh_uNN_zg]
-          simp only [dhFrameSgn, dhScaleMat2, hcCliffGen, dhCliffGenOdd, dhMatK, hcMat2Mul] at hZSum hZSumU ⊢; omega
+          rw [dh_bulkWF4_z0 _ (dhUNN (dhBulkWF4 _ v)), dh_uNN_x0 (dhBulkWF4 _ v), dh_uNN_zg (dhBulkWF4 _ v),
+              dh_bulkWF4_x0 _ v, dh_bulkWF4_z0 _ v, dh_uNN_zg (dhUNN v), dh_uNN_zg v, dh_wf4_mat_vals.2.2.1.1]
+          dsimp only; omega
         | _ + 2, h => exact absurd h (by omega)
       · have hSrcNe : (⟨(hcWF4Perm ⟨2, by decide⟩ ⟨g.val - 1, by have := g.isLt; omega⟩).val + 1,
             by have := (hcWF4Perm ⟨2, by decide⟩ ⟨g.val - 1, by have := g.isLt; omega⟩).isLt; omega⟩ : Fin 25).val ≠ 0 := by omega
@@ -2073,15 +2192,15 @@ private theorem dh_uNN_t2_cov_and_trev :
           rw [hSub1, hInv]; dsimp only; omega
         match pv, hpv with
         | 0, _ =>
-          rw [dhBulkWF4, dh_bulkAct_xg _ _ _ _ g hg, dh_uNN_xg _ _ hSrcNe, dh_uNN_zg,
-              dh_bulkAct_xg _ _ _ _ _ hSrcNe, dh_bulkAct_zg _ _ _ _ _ hSrcNe, dh_bulkAct_z0,
-              hBack, dh_uNN_xg _ g hg, dh_uNN_xg _ g hg, dh_uNN_zg]
-          simp only [dhFrameSgn, dhScaleMat2, hcCliffGen, dhCliffGenOdd, dhMatK, hcMat2Mul]; omega
+          rw [dh_bulkWF4_xg _ (dhUNN (dhBulkWF4 _ v)) g hg, dh_uNN_xg (dhBulkWF4 _ v) _ hSrcNe, dh_uNN_zg (dhBulkWF4 _ v),
+              dh_bulkWF4_xg _ v _ hSrcNe, dh_bulkWF4_zg _ v _ hSrcNe, dh_bulkWF4_z0 _ v, hBack,
+              dh_uNN_xg (dhUNN v) g hg, dh_uNN_xg v g hg, dh_uNN_zg v, dh_wf4_mat_vals.2.2.1.1, dh_wf4_mat_vals.2.2.1.2]
+          dsimp only; omega
         | 1, _ =>
-          rw [dhBulkWF4, dh_bulkAct_zg _ _ _ _ g hg, dh_uNN_xg _ _ hSrcNe, dh_uNN_zg,
-              dh_bulkAct_xg _ _ _ _ _ hSrcNe, dh_bulkAct_zg _ _ _ _ _ hSrcNe, dh_bulkAct_z0,
-              hBack, dh_uNN_zg, dh_uNN_zg]
-          simp only [dhFrameSgn, dhScaleMat2, hcCliffGen, dhCliffGenOdd, dhMatK, hcMat2Mul]; omega
+          rw [dh_bulkWF4_zg _ (dhUNN (dhBulkWF4 _ v)) g hg, dh_uNN_xg (dhBulkWF4 _ v) _ hSrcNe, dh_uNN_zg (dhBulkWF4 _ v),
+              dh_bulkWF4_xg _ v _ hSrcNe, dh_bulkWF4_zg _ v _ hSrcNe, dh_bulkWF4_z0 _ v, hBack,
+              dh_uNN_zg (dhUNN v), dh_uNN_zg v, dh_wf4_mat_vals.2.2.1.1, dh_wf4_mat_vals.2.2.1.2]
+          dsimp only; omega
         | _ + 2, h => exact absurd h (by omega)
     · have hkEq : k = ⟨3, by decide⟩ := Fin.ext h3; subst hkEq
       cases p with | mk pv hpv =>
@@ -2089,11 +2208,13 @@ private theorem dh_uNN_t2_cov_and_trev :
       · have hEq : g = ⟨0, by decide⟩ := Fin.ext hg; subst hEq
         match pv, hpv with
         | 0, _ =>
-          rw [dhBulkWF4, dh_bulkAct_x0, dh_uNN_x0, dh_uNN_zg, dh_bulkAct_x0, dh_bulkAct_z0, dh_uNN_x0, dh_uNN_x0]
-          simp only [dhFrameSgn, dhScaleMat2, hcCliffGen, dhCliffGenOdd, dhMatK, hcMat2Mul] at hZSum hZSumU ⊢; omega
+          rw [dh_bulkWF4_x0 _ (dhUNN (dhBulkWF4 _ v)), dh_uNN_x0 (dhBulkWF4 _ v), dh_uNN_zg (dhBulkWF4 _ v),
+              dh_bulkWF4_x0 _ v, dh_bulkWF4_z0 _ v, dh_uNN_x0 (dhUNN v), dh_uNN_x0 v, dh_wf4_mat_vals.2.2.2.1]
+          dsimp only; omega
         | 1, _ =>
-          rw [dhBulkWF4, dh_bulkAct_z0, dh_uNN_x0, dh_uNN_zg, dh_bulkAct_x0, dh_bulkAct_z0, dh_uNN_zg, dh_uNN_zg]
-          simp only [dhFrameSgn, dhScaleMat2, hcCliffGen, dhCliffGenOdd, dhMatK, hcMat2Mul] at hZSum hZSumU ⊢; omega
+          rw [dh_bulkWF4_z0 _ (dhUNN (dhBulkWF4 _ v)), dh_uNN_x0 (dhBulkWF4 _ v), dh_uNN_zg (dhBulkWF4 _ v),
+              dh_bulkWF4_x0 _ v, dh_bulkWF4_z0 _ v, dh_uNN_zg (dhUNN v), dh_uNN_zg v, dh_wf4_mat_vals.2.2.2.1]
+          dsimp only; omega
         | _ + 2, h => exact absurd h (by omega)
       · have hSrcNe : (⟨(hcWF4Perm ⟨3, by decide⟩ ⟨g.val - 1, by have := g.isLt; omega⟩).val + 1,
             by have := (hcWF4Perm ⟨3, by decide⟩ ⟨g.val - 1, by have := g.isLt; omega⟩).isLt; omega⟩ : Fin 25).val ≠ 0 := by omega
@@ -2108,15 +2229,15 @@ private theorem dh_uNN_t2_cov_and_trev :
           rw [hSub1, hInv]; dsimp only; omega
         match pv, hpv with
         | 0, _ =>
-          rw [dhBulkWF4, dh_bulkAct_xg _ _ _ _ g hg, dh_uNN_xg _ _ hSrcNe, dh_uNN_zg,
-              dh_bulkAct_xg _ _ _ _ _ hSrcNe, dh_bulkAct_zg _ _ _ _ _ hSrcNe, dh_bulkAct_z0,
-              hBack, dh_uNN_xg _ g hg, dh_uNN_xg _ g hg, dh_uNN_zg]
-          simp only [dhFrameSgn, dhScaleMat2, hcCliffGen, dhCliffGenOdd, dhMatK, hcMat2Mul]; omega
+          rw [dh_bulkWF4_xg _ (dhUNN (dhBulkWF4 _ v)) g hg, dh_uNN_xg (dhBulkWF4 _ v) _ hSrcNe, dh_uNN_zg (dhBulkWF4 _ v),
+              dh_bulkWF4_xg _ v _ hSrcNe, dh_bulkWF4_zg _ v _ hSrcNe, dh_bulkWF4_z0 _ v, hBack,
+              dh_uNN_xg (dhUNN v) g hg, dh_uNN_xg v g hg, dh_uNN_zg v, dh_wf4_mat_vals.2.2.2.1, dh_wf4_mat_vals.2.2.2.2]
+          dsimp only; omega
         | 1, _ =>
-          rw [dhBulkWF4, dh_bulkAct_zg _ _ _ _ g hg, dh_uNN_xg _ _ hSrcNe, dh_uNN_zg,
-              dh_bulkAct_xg _ _ _ _ _ hSrcNe, dh_bulkAct_zg _ _ _ _ _ hSrcNe, dh_bulkAct_z0,
-              hBack, dh_uNN_zg, dh_uNN_zg]
-          simp only [dhFrameSgn, dhScaleMat2, hcCliffGen, dhCliffGenOdd, dhMatK, hcMat2Mul]; omega
+          rw [dh_bulkWF4_zg _ (dhUNN (dhBulkWF4 _ v)) g hg, dh_uNN_xg (dhBulkWF4 _ v) _ hSrcNe, dh_uNN_zg (dhBulkWF4 _ v),
+              dh_bulkWF4_xg _ v _ hSrcNe, dh_bulkWF4_zg _ v _ hSrcNe, dh_bulkWF4_z0 _ v, hBack,
+              dh_uNN_zg (dhUNN v), dh_uNN_zg v, dh_wf4_mat_vals.2.2.2.1, dh_wf4_mat_vals.2.2.2.2]
+          dsimp only; omega
         | _ + 2, h => exact absurd h (by omega)
 
 /-- Headline Theorem 4 (Exact `24 ≡ 0 (mod 3)` Full-`W(F_4)` Star QCA `U_star(1)` & Pure Unitary `2T ∘ 2T` Nearest-Neighbor QCA `U_NN`):
@@ -2159,8 +2280,10 @@ theorem dh_ustar_and_unn_symplectic_covariant :
       unfold dhShell1Sum; have hF : (fun a : Fin 24 => v ⟨0, by decide⟩ ⟨a.val + 1, by have := a.isLt; omega⟩) = fun _ => 0 := by
         funext a; exact hv _
       rw [hF, dh_sumFin_zero]
-    unfold dhUStar; dsimp only; rw [hSx, hv ⟨0, by decide⟩, hv g]
-    by_cases hg : g.val = 0 <;> simp [hg]
+    by_cases hg : g.val = 0
+    · have hEq : g = ⟨0, by decide⟩ := Fin.ext hg; subst hEq
+      rw [dh_uStar_x0, hSx, hv ⟨0, by decide⟩]; rfl
+    · rw [dh_uStar_xg 1 v g hg, hSx, hv ⟨0, by decide⟩, hv g]; rfl
 
 /-- General `2 n`-coordinate `GF(3)` symplectic vector and inner product for the universal boundary lift theorem. -/
 abbrev DhVec (n : Nat) := Fin 2 → Fin n → Nat
@@ -2509,7 +2632,14 @@ private theorem dh_bdyLift_universal {n k : Nat} (L : Fin (2 * k) → DhVec n)
                 dh_ite_pos rfl, Nat.mul_one]
           rw [hS0, hS1, hS2]
         rw [hUSymp a b] at hUExp
-        have hlt : dhOmega2K k a b < 3 := by unfold dhOmega2K; split <;> (try split) <;> decide
+        have hlt : dhOmega2K k a b < 3 := by
+          unfold dhOmega2K
+          by_cases h1 : a.val < k ∧ b.val = a.val + k
+          · rw [dh_ite_pos h1]; decide
+          · rw [dh_ite_neg h1]
+            by_cases h2 : b.val < k ∧ a.val = b.val + k
+            · rw [dh_ite_pos h2]; decide
+            · rw [dh_ite_neg h2]; decide
         omega
       rw [hT1, hT2, hT3]
       have hMod3 : ∀ x y z : Nat, (x % 3 + y % 3 + z % 3) % 3 = (x + y + z) % 3 := fun _ _ _ => by omega
@@ -2570,7 +2700,7 @@ private theorem dh_bdyLift_universal {n k : Nat} (L : Fin (2 * k) → DhVec n)
     rw [← Nat.add_mul]
     by_cases hi : i = a
     · rw [dh_ite_pos hi, dh_ite_pos hi]
-      rw [← dh_mul_mod3_left]; apply dh_mul_mod3_congr _ rfl; omega
+      exact dh_mul_mod3_congr (by omega) rfl
     · rw [dh_ite_neg hi, dh_ite_neg hi, Nat.zero_add, Nat.add_zero, dh_mul_mod3_left]
   exact ⟨hSymp, hIterH, hIntertwine⟩
 
@@ -2624,9 +2754,9 @@ theorem dh_floquet_and_boundary_lift_algebra :
     | 0, _ => simp only [dhUFloq, dhHadamard50, dhUNN]; by_cases hg0 : g0.val = 0 <;> simp [hg0] <;> omega
     | 1, _ => simp only [dhUFloq, dhHadamard50, dhUNN]; omega
     | _ + 2, h => exact absurd h (by omega)
-  unfold dhUFloqInv; dsimp only
   have hFun : (fun p1 g1 => match p1.val with | 0 => (2 * dhUFloq v ⟨1, by decide⟩ g1) % 3 | _ => dhUFloq v ⟨0, by decide⟩ g1 % 3) = dhUNN v :=
     funext (fun p0 => funext (fun g0 => hCancelH p0 g0))
+  change dhUNN (dhUNN (fun p1 g1 => match p1.val with | 0 => (2 * dhUFloq v ⟨1, by decide⟩ g1) % 3 | _ => dhUFloq v ⟨0, by decide⟩ g1 % 3)) p g = v p g % 3
   rw [hFun]; exact (dh_uNN_symp_and_ord3 v v).2 p g
 
 
@@ -2647,6 +2777,12 @@ def dhUniformPreservesBulk23 (C : HcMat2) : Bool :=
     decide (hcSymp48 img hcZLFrame = 0) &&
     decide (hcSymp48 img hcXLFrame = 0))
 
+/-- Fast 3-pair necessary condition eliminating all `46 / 48` non-`±I_2` matrices in `GL_2(3)`. -/
+def dhUniformFastCheck (C : HcMat2) : Bool :=
+  decide (hcSymp48 (hcBulk23 ⟨2, by decide⟩) (dhApplyUniform C (hcBulk23 ⟨2, by decide⟩)) = 0) &&
+  decide (hcSymp48 (hcBulk23 ⟨11, by decide⟩) (dhApplyUniform C (hcBulk23 ⟨11, by decide⟩)) = 0) &&
+  decide (hcSymp48 (hcBulk23 ⟨7, by decide⟩) (dhApplyUniform C (hcBulk23 ⟨2, by decide⟩)) = 0)
+
 /-- Antipodal reversal `R` on `HcVec48`: `(R v)(p, r) = v(p, oppSlot r)`. -/
 def dhActRev (v : HcVec48) : HcVec48 := fun p r => v p (oppSlot r)
 
@@ -2658,13 +2794,25 @@ def dhPhiPlusRow (i : Fin 2) : Fin 4 → Nat :=
 def dhEdgeSwap4 (v : Fin 4 → Nat) : Fin 4 → Nat :=
   fun c => match c.val with | 0 => v ⟨1, by decide⟩ | 1 => v ⟨0, by decide⟩ | 2 => v ⟨3, by decide⟩ | _ => v ⟨2, by decide⟩
 
+private theorem dh_uniform_fast_implies (C : HcMat2) (h : dhUniformPreservesBulk23 C = true) :
+    dhUniformFastCheck C = true := by
+  unfold dhUniformPreservesBulk23 at h
+  have h2 := (List.all_eq_true.mp h) ⟨2, by decide⟩ (List.mem_finRange _)
+  have h11 := (List.all_eq_true.mp h) ⟨11, by decide⟩ (List.mem_finRange _)
+  simp only [Bool.and_eq_true, List.all_eq_true] at h2 h11
+  unfold dhUniformFastCheck
+  simp only [Bool.and_eq_true]
+  exact ⟨⟨h2.1.1 ⟨2, by decide⟩ (List.mem_finRange _), h11.1.1 ⟨11, by decide⟩ (List.mem_finRange _)⟩,
+    h2.1.1 ⟨7, by decide⟩ (List.mem_finRange _)⟩
+
 private theorem dh_uniform_and_streaming_certs :
-    (((List.finRange 81).filter (fun n =>
-      let C := dhDecodeMat2 n; decide (hcMat2Det C ≠ 0) && dhUniformPreservesBulk23 C)).length = 2) ∧
-    (((List.finRange 81).filter (fun n =>
-      let C := dhDecodeMat2 n; decide (hcMat2Det C = 1) && dhUniformPreservesBulk23 C)).length = 2) ∧
     (∀ n : Fin 81, let C := dhDecodeMat2 n
-      hcMat2Det C ≠ 0 → dhUniformPreservesBulk23 C = true → C = (1, 0, 0, 1) ∨ C = (2, 0, 0, 2)) ∧
+      hcMat2Det C ≠ 0 → dhUniformFastCheck C = true → C = (1, 0, 0, 1) ∨ C = (2, 0, 0, 2)) ∧
+    (dhUniformPreservesBulk23 (1, 0, 0, 1) = true ∧ dhUniformPreservesBulk23 (2, 0, 0, 2) = true) ∧
+    (((List.finRange 81).filter (fun n =>
+      let C := dhDecodeMat2 n; decide (hcMat2Det C ≠ 0) && decide (C = (1, 0, 0, 1) ∨ C = (2, 0, 0, 2)))).length = 2) ∧
+    (((List.finRange 81).filter (fun n =>
+      let C := dhDecodeMat2 n; decide (hcMat2Det C = 1) && decide (C = (1, 0, 0, 1) ∨ C = (2, 0, 0, 2)))).length = 2) ∧
     (∀ i : Fin 23,
       (∀ j : Fin 23, hcSymp48 (hcBulk23 j) (dhActRev (hcBulk23 i)) = 0) ∧
       hcSymp48 (dhActRev (hcBulk23 i)) hcZLFrame = 0 ∧
@@ -2721,37 +2869,62 @@ theorem dh_dock_clifford_uniform_and_streaming_audit :
       rw [hEq]; exact hDet
     have hEqApp : ∀ i : Fin 23, ∀ p r, dhApplyUniform (dhDecodeMat2 idx) (hcBulk23 i) p r % 3 =
         dhApplyUniform C (hcBulk23 i) p r % 3 := by
-      intro i p r; rw [hDec]; unfold dhApplyUniform
+      intro i p r; rw [hDec]
       cases p with | mk pv hpv =>
       match pv, hpv with
       | 0, _ =>
-        dsimp only [c0, c1]
+        simp only [dhApplyUniform]; dsimp only [c0, c1]
         have h1 := dh_add_mod3_congr (dh_mul_mod3_congr (a := C.1 % 3) (c := C.1) (b := hcBulk23 i ⟨0, by decide⟩ r) (d := hcBulk23 i ⟨0, by decide⟩ r) (by omega) rfl)
           (dh_mul_mod3_congr (a := C.2.1 % 3) (c := C.2.1) (b := hcBulk23 i ⟨1, by decide⟩ r) (d := hcBulk23 i ⟨1, by decide⟩ r) (by omega) rfl)
         omega
       | 1, _ =>
-        dsimp only [c2, c3]
+        simp only [dhApplyUniform]; dsimp only [c2, c3]
         have h1 := dh_add_mod3_congr (dh_mul_mod3_congr (a := C.2.2.1 % 3) (c := C.2.2.1) (b := hcBulk23 i ⟨0, by decide⟩ r) (d := hcBulk23 i ⟨0, by decide⟩ r) (by omega) rfl)
           (dh_mul_mod3_congr (a := C.2.2.2 % 3) (c := C.2.2.2) (b := hcBulk23 i ⟨1, by decide⟩ r) (d := hcBulk23 i ⟨1, by decide⟩ r) (by omega) rfl)
         omega
       | _ + 2, h => exact absurd h (by omega)
-    have hBool : dhUniformPreservesBulk23 (dhDecodeMat2 idx) = true := by
-      unfold dhUniformPreservesBulk23
-      rw [List.all_eq_true]; intro i _
-      obtain ⟨hPerp, hZ, hX⟩ := (dh_inSpan_bulk23_iff _).mp (hPres i)
-      simp only [Bool.and_eq_true, List.all_eq_true, decide_eq_true_eq]
-      refine ⟨⟨fun j _ => ?_, ?_⟩, ?_⟩
-      · rw [dh_symp48_congr_right _ (hEqApp i)]; exact hPerp j
-      · rw [dh_symp48_congr_left _ (hEqApp i)]; exact hZ
-      · rw [dh_symp48_congr_left _ (hEqApp i)]; exact hX
-    have hRes := dh_uniform_and_streaming_certs.2.2.1 idx hDet' hBool
+    have hBool : dhUniformFastCheck (dhDecodeMat2 idx) = true := by
+      unfold dhUniformFastCheck
+      obtain ⟨hP2, _, _⟩ := (dh_inSpan_bulk23_iff _).mp (hPres ⟨2, by decide⟩)
+      obtain ⟨hP11, _, _⟩ := (dh_inSpan_bulk23_iff _).mp (hPres ⟨11, by decide⟩)
+      simp only [Bool.and_eq_true, decide_eq_true_eq]
+      exact ⟨⟨by rw [dh_symp48_congr_right _ (hEqApp ⟨2, by decide⟩)]; exact hP2 ⟨2, by decide⟩,
+              by rw [dh_symp48_congr_right _ (hEqApp ⟨11, by decide⟩)]; exact hP11 ⟨11, by decide⟩⟩,
+             by rw [dh_symp48_congr_right _ (hEqApp ⟨2, by decide⟩)]; exact hP2 ⟨7, by decide⟩⟩
+    have hRes := dh_uniform_and_streaming_certs.1 idx hDet' hBool
     rw [hDec] at hRes; exact hRes
-  refine ⟨hUnif, dh_uniform_and_streaming_certs.1, dh_uniform_and_streaming_certs.2.1,
-    fun i => (dh_inSpan_bulk23_iff _).mpr (dh_uniform_and_streaming_certs.2.2.2.1 i),
+  have hFiltEq1 : (fun n : Fin 81 => let C := dhDecodeMat2 n; decide (hcMat2Det C ≠ 0) && dhUniformPreservesBulk23 C) =
+      (fun n : Fin 81 => let C := dhDecodeMat2 n; decide (hcMat2Det C ≠ 0) && decide (C = (1, 0, 0, 1) ∨ C = (2, 0, 0, 2))) := by
+    funext n; dsimp only
+    by_cases hD : hcMat2Det (dhDecodeMat2 n) ≠ 0
+    · rw [decide_eq_true hD, Bool.true_and, Bool.true_and]
+      cases hP : dhUniformPreservesBulk23 (dhDecodeMat2 n)
+      · symm; rw [decide_eq_false_iff_not]; intro hC
+        rcases hC with h1 | h2
+        · rw [h1, dh_uniform_and_streaming_certs.2.1.1] at hP; exact Bool.noConfusion hP
+        · rw [h2, dh_uniform_and_streaming_certs.2.1.2] at hP; exact Bool.noConfusion hP
+      · symm; exact decide_eq_true (dh_uniform_and_streaming_certs.1 n hD (dh_uniform_fast_implies _ hP))
+    · rw [decide_eq_false hD, Bool.false_and, Bool.false_and]
+  have hFiltEq2 : (fun n : Fin 81 => let C := dhDecodeMat2 n; decide (hcMat2Det C = 1) && dhUniformPreservesBulk23 C) =
+      (fun n : Fin 81 => let C := dhDecodeMat2 n; decide (hcMat2Det C = 1) && decide (C = (1, 0, 0, 1) ∨ C = (2, 0, 0, 2))) := by
+    funext n; dsimp only
+    by_cases hD : hcMat2Det (dhDecodeMat2 n) = 1
+    · have hNz : hcMat2Det (dhDecodeMat2 n) ≠ 0 := by omega
+      rw [decide_eq_true hD, Bool.true_and, Bool.true_and]
+      cases hP : dhUniformPreservesBulk23 (dhDecodeMat2 n)
+      · symm; rw [decide_eq_false_iff_not]; intro hC
+        rcases hC with h1 | h2
+        · rw [h1, dh_uniform_and_streaming_certs.2.1.1] at hP; exact Bool.noConfusion hP
+        · rw [h2, dh_uniform_and_streaming_certs.2.1.2] at hP; exact Bool.noConfusion hP
+      · symm; exact decide_eq_true (dh_uniform_and_streaming_certs.1 n hNz (dh_uniform_fast_implies _ hP))
+    · rw [decide_eq_false hD, Bool.false_and, Bool.false_and]
+  refine ⟨hUnif, by rw [hFiltEq1]; exact dh_uniform_and_streaming_certs.2.2.1,
+    by rw [hFiltEq2]; exact dh_uniform_and_streaming_certs.2.2.2.1,
+    fun i => (dh_inSpan_bulk23_iff _).mpr (dh_uniform_and_streaming_certs.2.2.2.2.1 i),
     thm_hc_wf4_generators_match_chirality.2.2.1,
-    dh_uniform_and_streaming_certs.2.2.2.2.1,
     dh_uniform_and_streaming_certs.2.2.2.2.2.1,
-    dh_uniform_and_streaming_certs.2.2.2.2.2.2⟩
+    dh_uniform_and_streaming_certs.2.2.2.2.2.2.1,
+    dh_uniform_and_streaming_certs.2.2.2.2.2.2.2⟩
 
 
 /-! ## Section 7: Odd-Dock `T_-` Inheritance, W10 Exact `B_1` `d^(0) = 40` & `B_2` `d^(0)(B_2) ≥ 98` -/
@@ -2777,6 +2950,104 @@ def dhActWF4Odd (k : Fin 4) (v : HcVec48) : HcVec48 :=
 def dhActWordOdd : List (Fin 4) → HcVec48 → HcVec48
   | [], v => v
   | k :: rest, v => dhActWF4Odd k (dhActWordOdd rest v)
+
+/-- O(length) collapsed odd-dock `W(F_4)` word action (`dhWordMatOdd w` × `hcePermWord w`) avoiding exponential blowup. -/
+def dhWordMatOdd : List (Fin 4) → HcMat2
+  | [] => hcMat2Id
+  | k :: rest => hcMat2Mul (dhCliffGenOdd k) (dhWordMatOdd rest)
+
+def dhActWordOddFast (w : List (Fin 4)) (v : HcVec48) : HcVec48 :=
+  let A := dhWordMatOdd w
+  fun p r =>
+    let src := hcePermWord w r
+    match p.val with
+    | 0 => (A.1 * v ⟨0, by decide⟩ src + A.2.1 * v ⟨1, by decide⟩ src) % 3
+    | _ => (A.2.2.1 * v ⟨0, by decide⟩ src + A.2.2.2 * v ⟨1, by decide⟩ src) % 3
+
+private theorem dh_actWordOdd_eq_fast (w : List (Fin 4)) (v : HcVec48) (p : Fin 2) (r : Fin 24) :
+    dhActWordOdd w v p r % 3 = dhActWordOddFast w v p r := by
+  induction w generalizing p r with
+  | nil =>
+    cases p with | mk pv hpv =>
+    match pv, hpv with
+    | 0, _ | 1, _ => simp only [dhActWordOdd, dhActWordOddFast, dhWordMatOdd, hcMat2Id, hcePermWord]; omega
+    | _ + 2, h => exact absurd h (by omega)
+  | cons k rest ih =>
+    let A := dhCliffGenOdd k
+    let B := dhWordMatOdd rest
+    let src := hcePermWord rest (hcWF4Perm k r)
+    have h0 := ih ⟨0, by decide⟩ (hcWF4Perm k r)
+    have h1 := ih ⟨1, by decide⟩ (hcWF4Perm k r)
+    simp only [dhActWordOddFast] at h0 h1
+    cases p with | mk pv hpv =>
+    match pv, hpv with
+    | 0, _ =>
+      simp only [dhActWordOdd, dhActWF4Odd, dhActWordOddFast, dhWordMatOdd, hcMat2Mul, hcePermWord]
+      have hMod : ((A.1 * dhActWordOdd rest v ⟨0, by decide⟩ (hcWF4Perm k r) +
+          A.2.1 * dhActWordOdd rest v ⟨1, by decide⟩ (hcWF4Perm k r)) % 3) % 3 =
+          (A.1 * (B.1 * v ⟨0, by decide⟩ src + B.2.1 * v ⟨1, by decide⟩ src) +
+           A.2.1 * (B.2.2.1 * v ⟨0, by decide⟩ src + B.2.2.2 * v ⟨1, by decide⟩ src)) % 3 := by
+        have hEq1 : (A.1 * dhActWordOdd rest v ⟨0, by decide⟩ (hcWF4Perm k r) +
+            A.2.1 * dhActWordOdd rest v ⟨1, by decide⟩ (hcWF4Perm k r)) % 3 =
+            (A.1 * ((B.1 * v ⟨0, by decide⟩ src + B.2.1 * v ⟨1, by decide⟩ src) % 3) +
+             A.2.1 * ((B.2.2.1 * v ⟨0, by decide⟩ src + B.2.2.2 * v ⟨1, by decide⟩ src) % 3)) % 3 :=
+          dh_add_mod3_congr (dh_mul_mod3_congr rfl h0) (dh_mul_mod3_congr rfl h1)
+        have hEq2 : (A.1 * ((B.1 * v ⟨0, by decide⟩ src + B.2.1 * v ⟨1, by decide⟩ src) % 3) +
+            A.2.1 * ((B.2.2.1 * v ⟨0, by decide⟩ src + B.2.2.2 * v ⟨1, by decide⟩ src) % 3)) % 3 =
+            (A.1 * (B.1 * v ⟨0, by decide⟩ src + B.2.1 * v ⟨1, by decide⟩ src) +
+             A.2.1 * (B.2.2.1 * v ⟨0, by decide⟩ src + B.2.2.2 * v ⟨1, by decide⟩ src)) % 3 :=
+          dh_add_mod3_congr (dh_mul_mod3_right _ _) (dh_mul_mod3_right _ _)
+        omega
+      have hRHS : (((A.1 * B.1 + A.2.1 * B.2.2.1) % 3) * v ⟨0, by decide⟩ src +
+          ((A.1 * B.2.1 + A.2.1 * B.2.2.2) % 3) * v ⟨1, by decide⟩ src) % 3 =
+          ((A.1 * B.1 + A.2.1 * B.2.2.1) * v ⟨0, by decide⟩ src +
+           (A.1 * B.2.1 + A.2.1 * B.2.2.2) * v ⟨1, by decide⟩ src) % 3 :=
+        dh_add_mod3_congr (dh_mul_mod3_left _ _) (dh_mul_mod3_left _ _)
+      change ((A.1 * dhActWordOdd rest v ⟨0, by decide⟩ (hcWF4Perm k r) +
+          A.2.1 * dhActWordOdd rest v ⟨1, by decide⟩ (hcWF4Perm k r)) % 3) % 3 =
+        (((A.1 * B.1 + A.2.1 * B.2.2.1) % 3) * v ⟨0, by decide⟩ src +
+          ((A.1 * B.2.1 + A.2.1 * B.2.2.2) % 3) * v ⟨1, by decide⟩ src) % 3
+      rw [hMod, hRHS]
+      have hAlg : A.1 * (B.1 * v ⟨0, by decide⟩ src + B.2.1 * v ⟨1, by decide⟩ src) +
+          A.2.1 * (B.2.2.1 * v ⟨0, by decide⟩ src + B.2.2.2 * v ⟨1, by decide⟩ src) =
+          (A.1 * B.1 + A.2.1 * B.2.2.1) * v ⟨0, by decide⟩ src +
+          (A.1 * B.2.1 + A.2.1 * B.2.2.2) * v ⟨1, by decide⟩ src := by
+        simp only [Nat.mul_add, Nat.add_mul, Nat.mul_assoc]; omega
+      rw [hAlg]
+    | 1, _ =>
+      simp only [dhActWordOdd, dhActWF4Odd, dhActWordOddFast, dhWordMatOdd, hcMat2Mul, hcePermWord]
+      have hMod : ((A.2.2.1 * dhActWordOdd rest v ⟨0, by decide⟩ (hcWF4Perm k r) +
+          A.2.2.2 * dhActWordOdd rest v ⟨1, by decide⟩ (hcWF4Perm k r)) % 3) % 3 =
+          (A.2.2.1 * (B.1 * v ⟨0, by decide⟩ src + B.2.1 * v ⟨1, by decide⟩ src) +
+           A.2.2.2 * (B.2.2.1 * v ⟨0, by decide⟩ src + B.2.2.2 * v ⟨1, by decide⟩ src)) % 3 := by
+        have hEq1 : (A.2.2.1 * dhActWordOdd rest v ⟨0, by decide⟩ (hcWF4Perm k r) +
+            A.2.2.2 * dhActWordOdd rest v ⟨1, by decide⟩ (hcWF4Perm k r)) % 3 =
+            (A.2.2.1 * ((B.1 * v ⟨0, by decide⟩ src + B.2.1 * v ⟨1, by decide⟩ src) % 3) +
+             A.2.2.2 * ((B.2.2.1 * v ⟨0, by decide⟩ src + B.2.2.2 * v ⟨1, by decide⟩ src) % 3)) % 3 :=
+          dh_add_mod3_congr (dh_mul_mod3_congr rfl h0) (dh_mul_mod3_congr rfl h1)
+        have hEq2 : (A.2.2.1 * ((B.1 * v ⟨0, by decide⟩ src + B.2.1 * v ⟨1, by decide⟩ src) % 3) +
+            A.2.2.2 * ((B.2.2.1 * v ⟨0, by decide⟩ src + B.2.2.2 * v ⟨1, by decide⟩ src) % 3)) % 3 =
+            (A.2.2.1 * (B.1 * v ⟨0, by decide⟩ src + B.2.1 * v ⟨1, by decide⟩ src) +
+             A.2.2.2 * (B.2.2.1 * v ⟨0, by decide⟩ src + B.2.2.2 * v ⟨1, by decide⟩ src)) % 3 :=
+          dh_add_mod3_congr (dh_mul_mod3_right _ _) (dh_mul_mod3_right _ _)
+        omega
+      have hRHS : (((A.2.2.1 * B.1 + A.2.2.2 * B.2.2.1) % 3) * v ⟨0, by decide⟩ src +
+          ((A.2.2.1 * B.2.1 + A.2.2.2 * B.2.2.2) % 3) * v ⟨1, by decide⟩ src) % 3 =
+          ((A.2.2.1 * B.1 + A.2.2.2 * B.2.2.1) * v ⟨0, by decide⟩ src +
+           (A.2.2.1 * B.2.1 + A.2.2.2 * B.2.2.2) * v ⟨1, by decide⟩ src) % 3 :=
+        dh_add_mod3_congr (dh_mul_mod3_left _ _) (dh_mul_mod3_left _ _)
+      change ((A.2.2.1 * dhActWordOdd rest v ⟨0, by decide⟩ (hcWF4Perm k r) +
+          A.2.2.2 * dhActWordOdd rest v ⟨1, by decide⟩ (hcWF4Perm k r)) % 3) % 3 =
+        (((A.2.2.1 * B.1 + A.2.2.2 * B.2.2.1) % 3) * v ⟨0, by decide⟩ src +
+          ((A.2.2.1 * B.2.1 + A.2.2.2 * B.2.2.2) % 3) * v ⟨1, by decide⟩ src) % 3
+      rw [hMod, hRHS]
+      have hAlg : A.2.2.1 * (B.1 * v ⟨0, by decide⟩ src + B.2.1 * v ⟨1, by decide⟩ src) +
+          A.2.2.2 * (B.2.2.1 * v ⟨0, by decide⟩ src + B.2.2.2 * v ⟨1, by decide⟩ src) =
+          (A.2.2.1 * B.1 + A.2.2.2 * B.2.2.1) * v ⟨0, by decide⟩ src +
+          (A.2.2.1 * B.2.1 + A.2.2.2 * B.2.2.2) * v ⟨1, by decide⟩ src := by
+        simp only [Nat.mul_add, Nat.add_mul, Nat.mul_assoc]; omega
+      rw [hAlg]
+    | _ + 2, h => exact absurd h (by omega)
 
 private theorem dh_applyK48_props :
     (∀ v : HcVec48, ∀ p r, dhApplyK48 (dhApplyK48 v) p r = v p r % 3) ∧
@@ -2906,12 +3177,12 @@ def dhPushVec0 (ray : Fin 4) : HcVec48 := hcLinComb (dhPushCoeff0 ray) dhBulk23M
     each active cone `a` carries a weight-6 `T_-` stabilizer pushed from `oppSlot a` via `dhWF4WordTo (oppSlot a)`. -/
 def dhConePushX (a : Fin 24) : HcVec48 :=
   let c := hcXLWt8 ⟨0, by decide⟩ a
-  let base := dhActWordOdd (dhWF4WordTo (oppSlot a)) (dhPushVec0 ⟨0, by decide⟩)
+  let base := dhActWordOddFast (dhWF4WordTo (oppSlot a)) (dhPushVec0 ⟨0, by decide⟩)
   fun p r => (c * base p r) % 3
 
 def dhConePushZ (a : Fin 24) : HcVec48 :=
   let c := hcZLWt8 ⟨1, by decide⟩ a
-  let base := dhActWordOdd (dhWF4WordTo (oppSlot a)) (dhPushVec0 ⟨1, by decide⟩)
+  let base := dhActWordOddFast (dhWF4WordTo (oppSlot a)) (dhPushVec0 ⟨1, by decide⟩)
   let sgn := base ⟨1, by decide⟩ (oppSlot a)
   -- Since `|Φ^+⟩` pairs `(0, z)` on dock 0 with `(0, 2z)` on dock `1 + a`, match `2 * c` on `oppSlot a`!
   let scale := (2 * c * sgn) % 3
@@ -3043,15 +3314,15 @@ def dhFrameDom (φ : Fin 3) (f : Nat) : List (Nat × Nat × Nat × Nat) :=
     | 0 => (s1.1, s1.2, s2.1, s2.2)
     | 1 => (s1.1, s2.1, s1.2, s2.2)
     | _ => (s1.1, s2.1, s2.2, s1.2)
-  (List.range 5).flatMap (fun c1 =>
+  ([0, 1, 2, 3, 4]).flatMap (fun c1 =>
     if c1 ≤ f ∧ f - c1 ≤ 4 then
       (dhBlockDom c1).flatMap (fun s1 => (dhBlockDom (f - c1)).map (fun s2 => mk4 s1 s2))
     else [])
 
 /-- Check `2 |E|` upper bound over all `(f_0, f_1, f_2)` with `f_0 + f_1 + f_2 = k` and dominating `|S^{(φ)}|` profiles. -/
 def dhCheckMaxEdgesBound (k maxTwoE : Nat) : Bool :=
-  (List.range 9).all (fun f0 =>
-    (List.range 9).all (fun f1 =>
+  ([0, 1, 2, 3, 4, 5, 6, 7, 8]).all (fun f0 =>
+    ([0, 1, 2, 3, 4, 5, 6, 7, 8]).all (fun f1 =>
       if f0 + f1 ≤ k ∧ k - (f0 + f1) ≤ 8 then
         let f2 := k - (f0 + f1)
         let ff := f0 * f1 + f1 * f2 + f2 * f0
@@ -3072,6 +3343,13 @@ private theorem dh_maxEdges_dom_table_certs :
     dhCheckMaxEdgesBound 10 48 = true := by
   decide
 
+private theorem dh_mem_0to4 (c : Nat) (hc : c ≤ 4) : c ∈ ([0, 1, 2, 3, 4] : List Nat) := by
+  rcases (by omega : c = 0 ∨ c = 1 ∨ c = 2 ∨ c = 3 ∨ c = 4) with rfl | rfl | rfl | rfl | rfl <;> decide
+
+private theorem dh_mem_0to8 (c : Nat) (hc : c ≤ 8) : c ∈ ([0, 1, 2, 3, 4, 5, 6, 7, 8] : List Nat) := by
+  rcases (by omega : c = 0 ∨ c = 1 ∨ c = 2 ∨ c = 3 ∨ c = 4 ∨ c = 5 ∨ c = 6 ∨ c = 7 ∨ c = 8) with
+    rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl <;> decide
+
 private theorem dh_block4_dom_lemma (b0 b1 b2 b3 : Bool) :
     let c := (if b0 then 1 else 0) + (if b1 then 1 else 0) + (if b2 then 1 else 0) + (if b3 then 1 else 0)
     let sx : Int := (if b0 then 1 else 0) + (if b1 then 1 else 0) + (if b2 then -1 else 0) + (if b3 then -1 else 0)
@@ -3086,9 +3364,7 @@ private theorem dh_frame_dom_exists (A : Fin 24 → Bool) (φ : Fin 3) :
       (dhFrameCoordSum A φ ⟨1, by decide⟩).natAbs ≤ v.2.1 ∧
       (dhFrameCoordSum A φ ⟨2, by decide⟩).natAbs ≤ v.2.2.1 ∧
       (dhFrameCoordSum A φ ⟨3, by decide⟩).natAbs ≤ v.2.2.2 := by
-  have hBoolNat : ∀ b : Bool, (if b = true then (1 : Nat) else 0) = (if b then 1 else 0) := fun b => by cases b <;> rfl
-  have hBoolInt1 : ∀ b : Bool, (if b = true then (1 : Int) else 0) = (if b then 1 else 0) := fun b => by cases b <;> rfl
-  have hBoolIntM1 : ∀ b : Bool, (if b = true then (-1 : Int) else 0) = (if b then -1 else 0) := fun b => by cases b <;> rfl
+  have h01 : ∀ b : Bool, (if b then (1 : Nat) else 0) ≤ 1 := fun b => by cases b <;> decide
   cases φ with | mk fv hfv =>
   match fv, hfv with
   | 0, _ =>
@@ -3097,35 +3373,40 @@ private theorem dh_frame_dom_exists (A : Fin 24 → Bool) (φ : Fin 3) :
          (if A ⟨2, by decide⟩ then 1 else 0) + (if A ⟨3, by decide⟩ then 1 else 0)) +
         ((if A ⟨20, by decide⟩ then 1 else 0) + (if A ⟨21, by decide⟩ then 1 else 0) +
          (if A ⟨22, by decide⟩ then 1 else 0) + (if A ⟨23, by decide⟩ then 1 else 0)) := by
-      simp only [dhFrameCard, hcSumFin, hcSumFinAux, hcFrameOf, hBoolNat]; simp; omega
+      simp only [dhFrameCard, hcSumFin, hcSumFinAux, hcFrameOf]; simp; omega
     have hS0 : dhFrameCoordSum A ⟨0, by decide⟩ ⟨0, by decide⟩ =
         (if A ⟨0, by decide⟩ then 1 else 0) + (if A ⟨1, by decide⟩ then 1 else 0) +
         (if A ⟨2, by decide⟩ then -1 else 0) + (if A ⟨3, by decide⟩ then -1 else 0) := by
-      simp only [dhFrameCoordSum, dhIntSum24, dhIntSum24Aux, hcFrameOf, coord4, d4RootOf]; simp [hBoolInt1, hBoolIntM1]; omega
+      simp only [dhFrameCoordSum, dhIntSum24, dhIntSum24Aux, hcFrameOf, coord4, d4RootOf]; simp; omega
     have hS1 : dhFrameCoordSum A ⟨0, by decide⟩ ⟨1, by decide⟩ =
         (if A ⟨0, by decide⟩ then 1 else 0) + (if A ⟨1, by decide⟩ then -1 else 0) +
         (if A ⟨2, by decide⟩ then 1 else 0) + (if A ⟨3, by decide⟩ then -1 else 0) := by
-      simp only [dhFrameCoordSum, dhIntSum24, dhIntSum24Aux, hcFrameOf, coord4, d4RootOf]; simp [hBoolInt1, hBoolIntM1]; omega
+      simp only [dhFrameCoordSum, dhIntSum24, dhIntSum24Aux, hcFrameOf, coord4, d4RootOf]; simp; omega
     have hS2 : dhFrameCoordSum A ⟨0, by decide⟩ ⟨2, by decide⟩ =
         (if A ⟨20, by decide⟩ then 1 else 0) + (if A ⟨21, by decide⟩ then 1 else 0) +
         (if A ⟨22, by decide⟩ then -1 else 0) + (if A ⟨23, by decide⟩ then -1 else 0) := by
-      simp only [dhFrameCoordSum, dhIntSum24, dhIntSum24Aux, hcFrameOf, coord4, d4RootOf]; simp [hBoolInt1, hBoolIntM1]; omega
+      simp only [dhFrameCoordSum, dhIntSum24, dhIntSum24Aux, hcFrameOf, coord4, d4RootOf]; simp; omega
     have hS3 : dhFrameCoordSum A ⟨0, by decide⟩ ⟨3, by decide⟩ =
         (if A ⟨20, by decide⟩ then 1 else 0) + (if A ⟨21, by decide⟩ then -1 else 0) +
         (if A ⟨22, by decide⟩ then 1 else 0) + (if A ⟨23, by decide⟩ then -1 else 0) := by
-      simp only [dhFrameCoordSum, dhIntSum24, dhIntSum24Aux, hcFrameOf, coord4, d4RootOf]; simp [hBoolInt1, hBoolIntM1]; omega
+      simp only [dhFrameCoordSum, dhIntSum24, dhIntSum24Aux, hcFrameOf, coord4, d4RootOf]; simp; omega
     let c1 := (if A ⟨0, by decide⟩ then 1 else 0) + (if A ⟨1, by decide⟩ then 1 else 0) +
               (if A ⟨2, by decide⟩ then 1 else 0) + (if A ⟨3, by decide⟩ then 1 else 0)
     let c2 := (if A ⟨20, by decide⟩ then 1 else 0) + (if A ⟨21, by decide⟩ then 1 else 0) +
               (if A ⟨22, by decide⟩ then 1 else 0) + (if A ⟨23, by decide⟩ then 1 else 0)
-    have hc1 : c1 ≤ 4 := by dsimp only [c1]; split <;> split <;> split <;> split <;> omega
-    have hc2 : c2 ≤ 4 := by dsimp only [c2]; split <;> split <;> split <;> split <;> omega
+    have hc1 : c1 ≤ 4 := by
+      have := h01 (A ⟨0, by decide⟩); have := h01 (A ⟨1, by decide⟩)
+      have := h01 (A ⟨2, by decide⟩); have := h01 (A ⟨3, by decide⟩); dsimp only [c1]; omega
+    have hc2 : c2 ≤ 4 := by
+      have := h01 (A ⟨20, by decide⟩); have := h01 (A ⟨21, by decide⟩)
+      have := h01 (A ⟨22, by decide⟩); have := h01 (A ⟨23, by decide⟩); dsimp only [c2]; omega
     rcases dh_block4_dom_lemma (A ⟨0, by decide⟩) (A ⟨1, by decide⟩) (A ⟨2, by decide⟩) (A ⟨3, by decide⟩) with ⟨p1, hp1, h0, h1⟩
     rcases dh_block4_dom_lemma (A ⟨20, by decide⟩) (A ⟨21, by decide⟩) (A ⟨22, by decide⟩) (A ⟨23, by decide⟩) with ⟨p2, hp2, h2, h3⟩
     refine ⟨by omega, (p1.1, p1.2, p2.1, p2.2), ?_, by rw [hS0]; exact h0, by rw [hS1]; exact h1, by rw [hS2]; exact h2, by rw [hS3]; exact h3⟩
     unfold dhFrameDom; rw [hCard, List.mem_flatMap]
-    refine ⟨c1, List.mem_range.mpr (by omega), ?_⟩
-    rw [dh_ite_pos ⟨by omega, by omega⟩, Nat.add_sub_cancel_left c1 c2, List.mem_flatMap]
+    refine ⟨c1, dh_mem_0to4 c1 hc1, ?_⟩
+    have hSub : c1 + c2 - c1 = c2 := by omega
+    rw [dh_ite_pos ⟨by omega, by omega⟩, hSub, List.mem_flatMap]
     exact ⟨p1, hp1, List.mem_map.mpr ⟨p2, hp2, rfl⟩⟩
   | 1, _ =>
     have hCard : dhFrameCard A ⟨1, by decide⟩ =
@@ -3133,35 +3414,40 @@ private theorem dh_frame_dom_exists (A : Fin 24 → Bool) (φ : Fin 3) :
          (if A ⟨6, by decide⟩ then 1 else 0) + (if A ⟨7, by decide⟩ then 1 else 0)) +
         ((if A ⟨16, by decide⟩ then 1 else 0) + (if A ⟨17, by decide⟩ then 1 else 0) +
          (if A ⟨18, by decide⟩ then 1 else 0) + (if A ⟨19, by decide⟩ then 1 else 0)) := by
-      simp only [dhFrameCard, hcSumFin, hcSumFinAux, hcFrameOf, hBoolNat]; simp; omega
+      simp only [dhFrameCard, hcSumFin, hcSumFinAux, hcFrameOf]; simp; omega
     have hS0 : dhFrameCoordSum A ⟨1, by decide⟩ ⟨0, by decide⟩ =
         (if A ⟨4, by decide⟩ then 1 else 0) + (if A ⟨5, by decide⟩ then 1 else 0) +
         (if A ⟨6, by decide⟩ then -1 else 0) + (if A ⟨7, by decide⟩ then -1 else 0) := by
-      simp only [dhFrameCoordSum, dhIntSum24, dhIntSum24Aux, hcFrameOf, coord4, d4RootOf]; simp [hBoolInt1, hBoolIntM1]; omega
+      simp only [dhFrameCoordSum, dhIntSum24, dhIntSum24Aux, hcFrameOf, coord4, d4RootOf]; simp; omega
     have hS2 : dhFrameCoordSum A ⟨1, by decide⟩ ⟨2, by decide⟩ =
         (if A ⟨4, by decide⟩ then 1 else 0) + (if A ⟨5, by decide⟩ then -1 else 0) +
         (if A ⟨6, by decide⟩ then 1 else 0) + (if A ⟨7, by decide⟩ then -1 else 0) := by
-      simp only [dhFrameCoordSum, dhIntSum24, dhIntSum24Aux, hcFrameOf, coord4, d4RootOf]; simp [hBoolInt1, hBoolIntM1]; omega
+      simp only [dhFrameCoordSum, dhIntSum24, dhIntSum24Aux, hcFrameOf, coord4, d4RootOf]; simp; omega
     have hS1 : dhFrameCoordSum A ⟨1, by decide⟩ ⟨1, by decide⟩ =
         (if A ⟨16, by decide⟩ then 1 else 0) + (if A ⟨17, by decide⟩ then 1 else 0) +
         (if A ⟨18, by decide⟩ then -1 else 0) + (if A ⟨19, by decide⟩ then -1 else 0) := by
-      simp only [dhFrameCoordSum, dhIntSum24, dhIntSum24Aux, hcFrameOf, coord4, d4RootOf]; simp [hBoolInt1, hBoolIntM1]; omega
+      simp only [dhFrameCoordSum, dhIntSum24, dhIntSum24Aux, hcFrameOf, coord4, d4RootOf]; simp; omega
     have hS3 : dhFrameCoordSum A ⟨1, by decide⟩ ⟨3, by decide⟩ =
         (if A ⟨16, by decide⟩ then 1 else 0) + (if A ⟨17, by decide⟩ then -1 else 0) +
         (if A ⟨18, by decide⟩ then 1 else 0) + (if A ⟨19, by decide⟩ then -1 else 0) := by
-      simp only [dhFrameCoordSum, dhIntSum24, dhIntSum24Aux, hcFrameOf, coord4, d4RootOf]; simp [hBoolInt1, hBoolIntM1]; omega
+      simp only [dhFrameCoordSum, dhIntSum24, dhIntSum24Aux, hcFrameOf, coord4, d4RootOf]; simp; omega
     let c1 := (if A ⟨4, by decide⟩ then 1 else 0) + (if A ⟨5, by decide⟩ then 1 else 0) +
               (if A ⟨6, by decide⟩ then 1 else 0) + (if A ⟨7, by decide⟩ then 1 else 0)
     let c2 := (if A ⟨16, by decide⟩ then 1 else 0) + (if A ⟨17, by decide⟩ then 1 else 0) +
               (if A ⟨18, by decide⟩ then 1 else 0) + (if A ⟨19, by decide⟩ then 1 else 0)
-    have hc1 : c1 ≤ 4 := by dsimp only [c1]; split <;> split <;> split <;> split <;> omega
-    have hc2 : c2 ≤ 4 := by dsimp only [c2]; split <;> split <;> split <;> split <;> omega
+    have hc1 : c1 ≤ 4 := by
+      have := h01 (A ⟨4, by decide⟩); have := h01 (A ⟨5, by decide⟩)
+      have := h01 (A ⟨6, by decide⟩); have := h01 (A ⟨7, by decide⟩); dsimp only [c1]; omega
+    have hc2 : c2 ≤ 4 := by
+      have := h01 (A ⟨16, by decide⟩); have := h01 (A ⟨17, by decide⟩)
+      have := h01 (A ⟨18, by decide⟩); have := h01 (A ⟨19, by decide⟩); dsimp only [c2]; omega
     rcases dh_block4_dom_lemma (A ⟨4, by decide⟩) (A ⟨5, by decide⟩) (A ⟨6, by decide⟩) (A ⟨7, by decide⟩) with ⟨p1, hp1, h0, h2⟩
     rcases dh_block4_dom_lemma (A ⟨16, by decide⟩) (A ⟨17, by decide⟩) (A ⟨18, by decide⟩) (A ⟨19, by decide⟩) with ⟨p2, hp2, h1, h3⟩
     refine ⟨by omega, (p1.1, p2.1, p1.2, p2.2), ?_, by rw [hS0]; exact h0, by rw [hS1]; exact h1, by rw [hS2]; exact h2, by rw [hS3]; exact h3⟩
     unfold dhFrameDom; rw [hCard, List.mem_flatMap]
-    refine ⟨c1, List.mem_range.mpr (by omega), ?_⟩
-    rw [dh_ite_pos ⟨by omega, by omega⟩, Nat.add_sub_cancel_left c1 c2, List.mem_flatMap]
+    refine ⟨c1, dh_mem_0to4 c1 hc1, ?_⟩
+    have hSub : c1 + c2 - c1 = c2 := by omega
+    rw [dh_ite_pos ⟨by omega, by omega⟩, hSub, List.mem_flatMap]
     exact ⟨p1, hp1, List.mem_map.mpr ⟨p2, hp2, rfl⟩⟩
   | 2, _ =>
     have hCard : dhFrameCard A ⟨2, by decide⟩ =
@@ -3169,35 +3455,40 @@ private theorem dh_frame_dom_exists (A : Fin 24 → Bool) (φ : Fin 3) :
          (if A ⟨10, by decide⟩ then 1 else 0) + (if A ⟨11, by decide⟩ then 1 else 0)) +
         ((if A ⟨12, by decide⟩ then 1 else 0) + (if A ⟨13, by decide⟩ then 1 else 0) +
          (if A ⟨14, by decide⟩ then 1 else 0) + (if A ⟨15, by decide⟩ then 1 else 0)) := by
-      simp only [dhFrameCard, hcSumFin, hcSumFinAux, hcFrameOf, hBoolNat]; simp; omega
+      simp only [dhFrameCard, hcSumFin, hcSumFinAux, hcFrameOf]; simp; omega
     have hS0 : dhFrameCoordSum A ⟨2, by decide⟩ ⟨0, by decide⟩ =
         (if A ⟨8, by decide⟩ then 1 else 0) + (if A ⟨9, by decide⟩ then 1 else 0) +
         (if A ⟨10, by decide⟩ then -1 else 0) + (if A ⟨11, by decide⟩ then -1 else 0) := by
-      simp only [dhFrameCoordSum, dhIntSum24, dhIntSum24Aux, hcFrameOf, coord4, d4RootOf]; simp [hBoolInt1, hBoolIntM1]; omega
+      simp only [dhFrameCoordSum, dhIntSum24, dhIntSum24Aux, hcFrameOf, coord4, d4RootOf]; simp; omega
     have hS3 : dhFrameCoordSum A ⟨2, by decide⟩ ⟨3, by decide⟩ =
         (if A ⟨8, by decide⟩ then 1 else 0) + (if A ⟨9, by decide⟩ then -1 else 0) +
         (if A ⟨10, by decide⟩ then 1 else 0) + (if A ⟨11, by decide⟩ then -1 else 0) := by
-      simp only [dhFrameCoordSum, dhIntSum24, dhIntSum24Aux, hcFrameOf, coord4, d4RootOf]; simp [hBoolInt1, hBoolIntM1]; omega
+      simp only [dhFrameCoordSum, dhIntSum24, dhIntSum24Aux, hcFrameOf, coord4, d4RootOf]; simp; omega
     have hS1 : dhFrameCoordSum A ⟨2, by decide⟩ ⟨1, by decide⟩ =
         (if A ⟨12, by decide⟩ then 1 else 0) + (if A ⟨13, by decide⟩ then 1 else 0) +
         (if A ⟨14, by decide⟩ then -1 else 0) + (if A ⟨15, by decide⟩ then -1 else 0) := by
-      simp only [dhFrameCoordSum, dhIntSum24, dhIntSum24Aux, hcFrameOf, coord4, d4RootOf]; simp [hBoolInt1, hBoolIntM1]; omega
+      simp only [dhFrameCoordSum, dhIntSum24, dhIntSum24Aux, hcFrameOf, coord4, d4RootOf]; simp; omega
     have hS2 : dhFrameCoordSum A ⟨2, by decide⟩ ⟨2, by decide⟩ =
         (if A ⟨12, by decide⟩ then 1 else 0) + (if A ⟨13, by decide⟩ then -1 else 0) +
         (if A ⟨14, by decide⟩ then 1 else 0) + (if A ⟨15, by decide⟩ then -1 else 0) := by
-      simp only [dhFrameCoordSum, dhIntSum24, dhIntSum24Aux, hcFrameOf, coord4, d4RootOf]; simp [hBoolInt1, hBoolIntM1]; omega
+      simp only [dhFrameCoordSum, dhIntSum24, dhIntSum24Aux, hcFrameOf, coord4, d4RootOf]; simp; omega
     let c1 := (if A ⟨8, by decide⟩ then 1 else 0) + (if A ⟨9, by decide⟩ then 1 else 0) +
               (if A ⟨10, by decide⟩ then 1 else 0) + (if A ⟨11, by decide⟩ then 1 else 0)
     let c2 := (if A ⟨12, by decide⟩ then 1 else 0) + (if A ⟨13, by decide⟩ then 1 else 0) +
               (if A ⟨14, by decide⟩ then 1 else 0) + (if A ⟨15, by decide⟩ then 1 else 0)
-    have hc1 : c1 ≤ 4 := by dsimp only [c1]; split <;> split <;> split <;> split <;> omega
-    have hc2 : c2 ≤ 4 := by dsimp only [c2]; split <;> split <;> split <;> split <;> omega
+    have hc1 : c1 ≤ 4 := by
+      have := h01 (A ⟨8, by decide⟩); have := h01 (A ⟨9, by decide⟩)
+      have := h01 (A ⟨10, by decide⟩); have := h01 (A ⟨11, by decide⟩); dsimp only [c1]; omega
+    have hc2 : c2 ≤ 4 := by
+      have := h01 (A ⟨12, by decide⟩); have := h01 (A ⟨13, by decide⟩)
+      have := h01 (A ⟨14, by decide⟩); have := h01 (A ⟨15, by decide⟩); dsimp only [c2]; omega
     rcases dh_block4_dom_lemma (A ⟨8, by decide⟩) (A ⟨9, by decide⟩) (A ⟨10, by decide⟩) (A ⟨11, by decide⟩) with ⟨p1, hp1, h0, h3⟩
     rcases dh_block4_dom_lemma (A ⟨12, by decide⟩) (A ⟨13, by decide⟩) (A ⟨14, by decide⟩) (A ⟨15, by decide⟩) with ⟨p2, hp2, h1, h2⟩
     refine ⟨by omega, (p1.1, p2.1, p2.2, p1.2), ?_, by rw [hS0]; exact h0, by rw [hS1]; exact h1, by rw [hS2]; exact h2, by rw [hS3]; exact h3⟩
     unfold dhFrameDom; rw [hCard, List.mem_flatMap]
-    refine ⟨c1, List.mem_range.mpr (by omega), ?_⟩
-    rw [dh_ite_pos ⟨by omega, by omega⟩, Nat.add_sub_cancel_left c1 c2, List.mem_flatMap]
+    refine ⟨c1, dh_mem_0to4 c1 hc1, ?_⟩
+    have hSub : c1 + c2 - c1 = c2 := by omega
+    rw [dh_ite_pos ⟨by omega, by omega⟩, hSub, List.mem_flatMap]
     exact ⟨p1, hp1, List.mem_map.mpr ⟨p2, hp2, rfl⟩⟩
   | _ + 3, h => exact absurd h (by omega)
 
@@ -3228,6 +3519,9 @@ private theorem dh_intSum24_mul_right (f : Fin 24 → Int) (c : Int) :
   | zero => simp only [dhIntSum24Aux, Int.zero_mul]
   | succ m ih => simp only [dhIntSum24Aux]; rw [ih (Nat.le_of_succ_le hk), Int.add_mul]
 
+private theorem dh_ofNat_add (a b : Nat) : Int.ofNat (a + b) = Int.ofNat a + Int.ofNat b := rfl
+private theorem dh_ofNat_mul (a b : Nat) : Int.ofNat (a * b) = Int.ofNat a * Int.ofNat b := rfl
+
 private theorem dh_intSum24_ofNat (f : Fin 24 → Nat) :
     Int.ofNat (hcSumFin f) = dhIntSum24 (fun i => Int.ofNat (f i)) := by
   unfold hcSumFin dhIntSum24
@@ -3235,7 +3529,7 @@ private theorem dh_intSum24_ofNat (f : Fin 24 → Nat) :
       dhIntSum24Aux k hk (fun i => Int.ofNat (f i)) from this 24 (Nat.le_refl 24)
   intro k hk; induction k with
   | zero => rfl
-  | succ m ih => simp only [hcSumFinAux, dhIntSum24Aux, Int.ofNat_add]; rw [ih (Nat.le_of_succ_le hk)]
+  | succ m ih => simp only [hcSumFinAux, dhIntSum24Aux, dh_ofNat_add]; rw [ih (Nat.le_of_succ_le hk)]
 
 private theorem dh_inducedEdges_frame_identity (A : Fin 24 → Bool) :
     Int.ofNat (2 * dhInducedEdges24 A) =
@@ -3351,7 +3645,7 @@ private theorem dh_inducedEdges_frame_identity (A : Fin 24 → Bool) :
     have hCardQ : dhIntSum24 qJ = Int.ofNat (dhFrameCard A ψ) := by
       unfold dhFrameCard; rw [dh_intSum24_ofNat]; apply congrArg dhIntSum24; funext j
       dsimp only [qJ]; by_cases h : A j = true ∧ hcFrameOf j = ψ <;> simp [h]
-    rw [hCardP, hCardQ, Int.ofNat_mul]; rfl
+    rw [hCardP, hCardQ, dh_ofNat_mul]; rfl
   -- Now equate 2 * (2 * dhInducedEdges24 A) to the sum of all 6 ordered pairs φ ≠ ψ!
   have hLhs4 : Int.ofNat (2 * (2 * dhInducedEdges24 A)) =
       dhIntSum24 (fun i : Fin 24 => dhIntSum24 (fun j : Fin 24 =>
@@ -3413,11 +3707,11 @@ private theorem dh_inducedEdges_frame_identity (A : Fin 24 → Bool) :
       hPairDot ⟨2, by decide⟩ ⟨0, by decide⟩, hPairDot ⟨0, by decide⟩ ⟨2, by decide⟩] at hLhs4
   have hComm : ∀ x y : Int, y * x = x * y := Int.mul_comm
   have hNComm : ∀ x y : Nat, y * x = x * y := Nat.mul_comm
-  simp only [Int.ofNat_mul, Int.ofNat_add] at hLhs4 ⊢
+  simp only [dh_ofNat_mul, dh_ofNat_add] at hLhs4 ⊢
   rw [hNComm (dhFrameCard A ⟨1, by decide⟩) (dhFrameCard A ⟨0, by decide⟩),
       hNComm (dhFrameCard A ⟨2, by decide⟩) (dhFrameCard A ⟨1, by decide⟩),
       hNComm (dhFrameCard A ⟨0, by decide⟩) (dhFrameCard A ⟨2, by decide⟩)] at hLhs4
-  simp only [Int.ofNat_mul] at hLhs4
+  simp only [dh_ofNat_mul] at hLhs4
   rw [hComm (dhFrameCoordSum A ⟨0, by decide⟩ ⟨0, by decide⟩) (dhFrameCoordSum A ⟨1, by decide⟩ ⟨0, by decide⟩),
       hComm (dhFrameCoordSum A ⟨0, by decide⟩ ⟨1, by decide⟩) (dhFrameCoordSum A ⟨1, by decide⟩ ⟨1, by decide⟩),
       hComm (dhFrameCoordSum A ⟨0, by decide⟩ ⟨2, by decide⟩) (dhFrameCoordSum A ⟨1, by decide⟩ ⟨2, by decide⟩),
@@ -3434,10 +3728,26 @@ private theorem dh_inducedEdges_frame_identity (A : Fin 24 → Bool) :
 
 private theorem dh_int_mul_le_natAbs (x y : Int) (ax ay : Nat)
     (hx : x.natAbs ≤ ax) (hy : y.natAbs ≤ ay) : x * y ≤ Int.ofNat (ax * ay) := by
-  have h1 : x * y ≤ Int.ofNat (x * y).natAbs := Int.le_natAbs
-  have h2 : (x * y).natAbs = x.natAbs * y.natAbs := Int.natAbs_mul x y
-  have h3 : x.natAbs * y.natAbs ≤ ax * ay := Nat.mul_le_mul hx hy
-  omega
+  have hMul : ∀ m n : Nat, Int.ofNat m * Int.ofNat n = Int.ofNat (m * n) := fun _ _ => rfl
+  have hNeg : ∀ m n : Nat, Int.negSucc m * Int.negSucc n = Int.ofNat ((m + 1) * (n + 1)) := fun _ _ => rfl
+  have hPN : ∀ m n : Nat, Int.ofNat m * Int.negSucc n ≤ 0 := by
+    intro m n; change Int.negOfNat (m * (n + 1)) ≤ 0
+    cases m * (n + 1) with | zero => exact Int.le_refl 0 | succ k => change Int.negSucc k ≤ 0; omega
+  have hNP : ∀ m n : Nat, Int.negSucc m * Int.ofNat n ≤ 0 := by
+    intro m n; rw [Int.mul_comm]; exact hPN n m
+  cases x with
+  | ofNat m =>
+    cases y with
+    | ofNat n => rw [hMul]; have h := Nat.mul_le_mul hx hy; omega
+    | negSucc n => have h := hPN m n; omega
+  | negSucc m =>
+    cases y with
+    | ofNat n => have h := hNP m n; omega
+    | negSucc n =>
+      rw [hNeg]
+      have hm : m + 1 ≤ ax := hx
+      have hn : n + 1 ≤ ay := hy
+      have h := Nat.mul_le_mul hm hn; omega
 
 private theorem dh_inducedEdges_le_of_domCheck (k maxTwoE : Nat)
     (hCheck : dhCheckMaxEdgesBound k maxTwoE = true)
@@ -3455,8 +3765,8 @@ private theorem dh_inducedEdges_le_of_domCheck (k maxTwoE : Nat)
   obtain ⟨hf1, v1, hv1, h10, h11, h12, h13⟩ := dh_frame_dom_exists A ⟨1, by decide⟩
   obtain ⟨hf2, v2, hv2, h20, h21, h22, h23⟩ := dh_frame_dom_exists A ⟨2, by decide⟩
   unfold dhCheckMaxEdgesBound at hCheck
-  have hC1 := (List.all_eq_true.mp hCheck) (dhFrameCard A ⟨0, by decide⟩) (List.mem_range.mpr (by omega))
-  have hC2 := (List.all_eq_true.mp hC1) (dhFrameCard A ⟨1, by decide⟩) (List.mem_range.mpr (by omega))
+  have hC1 := (List.all_eq_true.mp hCheck) (dhFrameCard A ⟨0, by decide⟩) (dh_mem_0to8 _ hf0)
+  have hC2 := (List.all_eq_true.mp hC1) (dhFrameCard A ⟨1, by decide⟩) (dh_mem_0to8 _ hf1)
   have hCond : dhFrameCard A ⟨0, by decide⟩ + dhFrameCard A ⟨1, by decide⟩ ≤ k ∧
       k - (dhFrameCard A ⟨0, by decide⟩ + dhFrameCard A ⟨1, by decide⟩) ≤ 8 := by omega
   rw [dh_ite_pos hCond] at hC2
@@ -3613,10 +3923,18 @@ theorem dh_happy_b1_d40_and_b2_d98 :
       rw [h1]; unfold hcLinComb; rw [dh_mul_mod3_right, ← dh_sumFin_mul_left]
       apply dh_sumFin_mod3_congr; intro i; dsimp only; rw [dh_mul_mod3_left, Nat.mul_assoc]
     intro a
+    have hFastSpan : ∀ (w : List (Fin 4)) (v : HcVec48), hcInSpan dhBulk23Minus v →
+        hcInSpan dhBulk23Minus (dhActWordOddFast w v) := by
+      intro w v hv
+      rcases dh_actWordOdd_preserves_bulk23Minus w v hv with ⟨c, hc⟩
+      refine ⟨c, fun p r => ?_⟩
+      have hEq := dh_actWordOdd_eq_fast w v p r
+      have hlt : dhActWordOddFast w v p r < 3 := by
+        cases p with | mk pv hpv => match pv, hpv with | 0, _ | 1, _ => simp only [dhActWordOddFast]; exact Nat.mod_lt _ (by decide) | _ + 2, h => exact absurd h (by omega)
+      rw [← hEq] at hlt; rw [← hc p r, ← hEq]; omega
     have hBase0 : hcInSpan dhBulk23Minus (dhPushVec0 ⟨0, by decide⟩) := ⟨dhPushCoeff0 ⟨0, by decide⟩, fun p r => by unfold dhPushVec0 hcLinComb; omega⟩
     have hBase1 : hcInSpan dhBulk23Minus (dhPushVec0 ⟨1, by decide⟩) := ⟨dhPushCoeff0 ⟨1, by decide⟩, fun p r => by unfold dhPushVec0 hcLinComb; omega⟩
-    exact ⟨hScaleSpan _ _ (dh_actWordOdd_preserves_bulk23Minus _ _ hBase0),
-           hScaleSpan _ _ (dh_actWordOdd_preserves_bulk23Minus _ _ hBase1)⟩
+    exact ⟨hScaleSpan _ _ (hFastSpan _ _ hBase0), hScaleSpan _ _ (hFastSpan _ _ hBase1)⟩
   have hPair1 : dhB1OutSymp dhConePushX dhConePushZ = 1 := by
     unfold dhB1OutSymp
     have hConeIso : ∀ a : Fin 24, hcSymp48 (dhConePushX a) (dhConePushZ a) = 0 := by
@@ -4200,11 +4518,11 @@ theorem dh_cusp_d0_gauss_law_and_dge1_cliques :
         have hr0 : r = ⟨0, by decide⟩ := by
           rcases hCases with h | h | h | h | h | h
           · exact Fin.ext h
-          · exfalso; apply hr; simp [A5, Fin.ext h]
-          · exfalso; apply hr; simp [A5, Fin.ext h]
-          · exfalso; apply hr; simp [A5, Fin.ext h]
-          · exfalso; apply hr; simp [A5, Fin.ext h]
-          · exfalso; apply hr; simp [A5, Fin.ext h]
+          · exfalso; apply hr; have hEq : r = ⟨1, by decide⟩ := Fin.ext h; subst hEq; decide
+          · exfalso; apply hr; have hEq : r = ⟨4, by decide⟩ := Fin.ext h; subst hEq; decide
+          · exfalso; apply hr; have hEq : r = ⟨5, by decide⟩ := Fin.ext h; subst hEq; decide
+          · exfalso; apply hr; have hEq : r = ⟨8, by decide⟩ := Fin.ext h; subst hEq; decide
+          · exfalso; apply hr; have hEq : r = ⟨9, by decide⟩ := Fin.ext h; subst hEq; decide
         subst hr0
         have hGL0 : dhCuspGL ⟨0, by decide⟩ ⟨0, by decide⟩ = 0 ∧ dhCuspGL ⟨1, by decide⟩ ⟨0, by decide⟩ = 1 := by decide
         dsimp only [w, c]; rw [hGL0.1, hGL0.2]; exact ⟨by omega, by omega⟩

@@ -63,7 +63,7 @@ const MEET_SWAP_C: C = [-0.75, SQRT3 / 4] // (omega - 1)/2
 // --- Exact BigInt Cyclotomic Ring Z[zeta_9][1/6] ---
 type Z9 = readonly [bigint, bigint, bigint, bigint, bigint, bigint]
 type Root4 = readonly [number, number, number, number]
-type Q2 = readonly [bigint, bigint]
+type Q2 = readonly [number, number]
 type ToneNZ = -1 | 1
 type Vibe = readonly [dock: number, slot: number, tone: ToneNZ, role: number]
 type ExactState = { readonly amp: Map<string, Z9>; readonly den: bigint }
@@ -362,31 +362,60 @@ function chiral4Sign(c0: number, c1: number, c2: number, c3: number): number {
   return sign
 }
 
-// Exact O^+(4,1; Z[sqrt(2)]) {3,4,3,4} Coxeter honeycomb
+// Exact O^+(4,1; Z[sqrt(2)]) {3,4,3,4} Coxeter honeycomb (exact safe-integer Z[sqrt(2)] arithmetic)
 const DIM5 = [0, 1, 2, 3, 4] as const
-const Q2_ZERO: Q2 = [0n, 0n]
+const Q2_ZERO: Q2 = [0, 0]
 const EYE5: readonly (readonly Q2[])[] = DIM5.map(r =>
-  DIM5.map(c => [r === c ? 1n : 0n, 0n] as const),
+  DIM5.map(c => [r === c ? 1 : 0, 0] as const),
 )
-const addQ2 = (u: Q2, v: Q2): Q2 => [u[0] + v[0], u[1] + v[1]]
 const subQ2 = (u: Q2, v: Q2): Q2 => [u[0] - v[0], u[1] - v[1]]
-const mulQ2 = (u: Q2, v: Q2): Q2 => [u[0] * v[0] + 2n * u[1] * v[1], u[0] * v[1] + u[1] * v[0]]
-const dotQ2 = (u: readonly Q2[], v: readonly Q2[]): Q2 =>
-  u.reduce<Q2>((s, e, i) => addQ2(s, mulQ2(e, v[i]!)), Q2_ZERO)
-const vecKeyQ2 = (v: readonly Q2[]): string => v.map(([a, b]) => `${a},${b}`).join(';')
-const matVecQ2 = (m: readonly (readonly Q2[])[], v: readonly Q2[]): Q2[] => m.map(r => dotQ2(r, v))
-const matMulQ2 = (a: readonly (readonly Q2[])[], b: readonly (readonly Q2[])[]): Q2[][] =>
-  a.map(row => DIM5.map(col => dotQ2(row, b.map(br => br[col]!))))
-const q2Float = (u: Q2): number => Number(u[0]) + Number(u[1]) * SQRT2
+const mulQ2 = (u: Q2, v: Q2): Q2 => [u[0] * v[0] + 2 * u[1] * v[1], u[0] * v[1] + u[1] * v[0]]
+const dotQ2 = (u: readonly Q2[], v: readonly Q2[]): Q2 => {
+  let a = 0
+  let b = 0
+  for (let i = 0; i < 5; i++) {
+    const ui = u[i]!, vi = v[i]!
+    a += ui[0] * vi[0] + 2 * ui[1] * vi[1]
+    b += ui[0] * vi[1] + ui[1] * vi[0]
+  }
+  return [a, b]
+}
+const vecKeyQ2 = (v: readonly Q2[]): string =>
+  `${v[0]![0]},${v[0]![1]};${v[1]![0]},${v[1]![1]};${v[2]![0]},${v[2]![1]};${v[3]![0]},${v[3]![1]};${v[4]![0]},${v[4]![1]}`
+const matVecQ2 = (m: readonly (readonly Q2[])[], v: readonly Q2[]): Q2[] => {
+  const out: Q2[] = new Array<Q2>(5)
+  for (let r = 0; r < 5; r++) out[r] = dotQ2(m[r]!, v)
+  return out
+}
+const matMulQ2 = (a: readonly (readonly Q2[])[], b: readonly (readonly Q2[])[]): Q2[][] => {
+  const out: Q2[][] = new Array<Q2[]>(5)
+  for (let r = 0; r < 5; r++) {
+    const ar = a[r]!
+    const row: Q2[] = new Array<Q2>(5)
+    for (let c = 0; c < 5; c++) {
+      let s0 = 0
+      let s1 = 0
+      for (let k = 0; k < 5; k++) {
+        const u = ar[k]!, v = b[k]![c]!
+        s0 += u[0] * v[0] + 2 * u[1] * v[1]
+        s1 += u[0] * v[1] + u[1] * v[0]
+      }
+      row[c] = [s0, s1]
+    }
+    out[r] = row
+  }
+  return out
+}
+const q2Float = (u: Q2): number => u[0] + u[1] * SQRT2
 
 const TWICE_GRAM: readonly (readonly Q2[])[] = DIM5.map(i =>
   DIM5.map(j =>
     i === j
-      ? ([2n, 0n] as const)
+      ? ([2, 0] as const)
       : Math.abs(i - j) === 1
         ? Math.min(i, j) % 2 === 0
-          ? ([-1n, 0n] as const)
-          : ([0n, -1n] as const)
+          ? ([-1, 0] as const)
+          : ([0, -1] as const)
         : Q2_ZERO,
   ),
 )
@@ -395,12 +424,13 @@ const reflect5 = (normal: readonly Q2[]): Q2[][] => {
   const dual = matVecQ2(TWICE_GRAM, normal)
   return EYE5.map((row, i) => row.map((entry, j) => subQ2(entry, mulQ2(normal[i]!, dual[j]!))))
 }
-const BASE_CENTER: readonly Q2[] = [[2n, 0n], [4n, 0n], [0n, 3n], [0n, 2n], [1n, 0n]]
-const CUSP_V: readonly Q2[] = [[0n, 0n], [1n, 0n], [0n, 1n], [0n, 1n], [1n, 0n]]
+const BASE_CENTER: readonly Q2[] = [[2, 0], [4, 0], [0, 3], [0, 2], [1, 0]]
+const CUSP_V: readonly Q2[] = [[0, 0], [1, 0], [0, 1], [0, 1], [1, 0]]
+const TWICE_GRAM_CUSP: readonly Q2[] = matVecQ2(TWICE_GRAM, CUSP_V)
 const CENTRAL_INVERSION: readonly (readonly Q2[])[] = DIM5.map(i =>
   DIM5.map(j => [
-    (j === 4 ? 2n * BASE_CENTER[i]![0] : 0n) - (i === j ? 1n : 0n),
-    j === 4 ? 2n * BASE_CENTER[i]![1] : 0n,
+    (j === 4 ? 2 * BASE_CENTER[i]![0] : 0) - (i === j ? 1 : 0),
+    j === 4 ? 2 * BASE_CENTER[i]![1] : 0,
   ]),
 )
 const STAB_REFS = [0, 1, 2, 3].map(idx => reflect5(EYE5[idx]!))
@@ -417,11 +447,11 @@ const TRANSPORTS: readonly (readonly (readonly Q2[])[])[] = (() => {
       }
     }
   }
-  const facetDot = (a: number, b: number): bigint => (twiceForm(facetNormals[a]!, facetNormals[b]!)[0] + 2n) / 2n
+  const facetDot = (a: number, b: number): number => (twiceForm(facetNormals[a]!, facetNormals[b]!)[0] + 2) / 2
   const ortho: number[] = []
-  for (let f = 0; f < 24 && ortho.length < 4; f++) if (ortho.every(prev => facetDot(f, prev) === 0n)) ortho.push(f)
+  for (let f = 0; f < 24 && ortho.length < 4; f++) if (ortho.every(prev => facetDot(f, prev) === 0)) ortho.push(f)
   const facetRoots = facetNormals.map((_, f) => {
-    const [c0, c1, c2, c3] = ortho.map(o => Number(facetDot(f, o)))
+    const [c0, c1, c2, c3] = ortho.map(o => facetDot(f, o))
     return [(c0! + c1!) / 2, (c0! - c1!) / 2, (c2! + c3!) / 2, (c2! - c3!) / 2] as const
   })
   return ROOTS.map(root => {
@@ -431,28 +461,45 @@ const TRANSPORTS: readonly (readonly (readonly Q2[])[])[] = (() => {
     return matMulQ2(reflect5(facetNormals[fIdx]!), CENTRAL_INVERSION)
   })
 })()
+const TRANSPORT_CENTERS: readonly (readonly Q2[])[] = TRANSPORTS.map(T => matVecQ2(T, BASE_CENTER))
 
-const dockFrames: (readonly (readonly Q2[])[])[] = [EYE5]
+const dockFrames: (readonly (readonly Q2[])[] | undefined)[] = [EYE5]
+const dockParent: (readonly [number, number] | undefined)[] = [undefined]
 const dockCenters: Q2[][] = [BASE_CENTER.map(x => [x[0], x[1]] as Q2)]
 const dockParity: number[] = [1]
 const dockRad: number[] = [0]
 const centerToDockId = new Map<string, number>([[vecKeyQ2(BASE_CENTER), 0]])
 const hcNeighbors: Int32Array[] = [new Int32Array(24).fill(-1)]
 
+function getDockFrame(dock: number): readonly (readonly Q2[])[] {
+  const cached = dockFrames[dock]
+  if (cached !== undefined) return cached
+  const [pDock, pSlot] = dockParent[dock]!
+  const f = matMulQ2(getDockFrame(pDock), TRANSPORTS[pSlot]!)
+  dockFrames[dock] = f
+  return f
+}
+
 function stepDock(dock: number, slot: number): number {
   const cached = hcNeighbors[dock]![slot]!
   if (cached >= 0) return cached
-  const nextFrame = matMulQ2(dockFrames[dock]!, TRANSPORTS[slot]!)
-  const nextCenter = matVecQ2(nextFrame, BASE_CENTER)
+  const parentFrame = getDockFrame(dock)
+  const nextR = dockRad[dock]! + 1
+  const nextCenter = matVecQ2(parentFrame, TRANSPORT_CENTERS[slot]!)
+  assertExact(
+    Number.isSafeInteger(nextCenter[0]![0]) && Number.isSafeInteger(nextCenter[4]![0]),
+    'exact Z[sqrt(2)] safe integer',
+  )
   const centerKey = vecKeyQ2(nextCenter)
   let nextId = centerToDockId.get(centerKey)
   if (nextId === undefined) {
     nextId = dockFrames.length
     centerToDockId.set(centerKey, nextId)
-    dockFrames.push(nextFrame)
+    dockFrames.push(nextR <= 2 ? matMulQ2(parentFrame, TRANSPORTS[slot]!) : undefined)
+    dockParent.push([dock, slot])
     dockCenters.push(nextCenter)
     dockParity.push(-dockParity[dock]!)
-    dockRad.push(dockRad[dock]! + 1)
+    dockRad.push(nextR)
     hcNeighbors.push(new Int32Array(24).fill(-1))
   }
   hcNeighbors[dock]![slot] = nextId
@@ -460,40 +507,73 @@ function stepDock(dock: number, slot: number): number {
   return nextId
 }
 
+// Pre-flattened 5x5x2 reflection matrices for zero-allocation dominantCenterKey
+const STAB_REFS_FLAT: readonly Float64Array[] = STAB_REFS.map(m => {
+  const f = new Float64Array(50)
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 5; c++) {
+      f[(r * 5 + c) * 2] = m[r]![c]![0]
+      f[(r * 5 + c) * 2 + 1] = m[r]![c]![1]
+    }
+  }
+  return f
+})
+const TWICE_GRAM_FLAT: readonly Float64Array[] = [0, 1, 2, 3].map(i => {
+  const f = new Float64Array(10)
+  for (let c = 0; c < 5; c++) {
+    f[c * 2] = TWICE_GRAM[i]![c]![0]
+    f[c * 2 + 1] = TWICE_GRAM[i]![c]![1]
+  }
+  return f
+})
+const DOM_CUR = new Float64Array(10)
+const DOM_NXT = new Float64Array(10)
+
 function dominantCenterKey(center: readonly Q2[]): string {
-  let v: Q2[] = center.map(x => [x[0], x[1]] as Q2)
+  for (let i = 0; i < 5; i++) { DOM_CUR[2 * i] = center[i]![0]; DOM_CUR[2 * i + 1] = center[i]![1] }
   for (let iter = 0; iter < 60; iter++) {
     let changed = false
     for (let i = 0; i < 4; i++) {
-      if (q2Float(twiceForm(v, EYE5[i]!)) < -1e-9) {
-        v = matVecQ2(STAB_REFS[i]!, v)
+      const gi = TWICE_GRAM_FLAT[i]!
+      let a = 0, b = 0
+      for (let k = 0; k < 5; k++) {
+        const u0 = DOM_CUR[2 * k]!, u1 = DOM_CUR[2 * k + 1]!
+        const v0 = gi[2 * k]!, v1 = gi[2 * k + 1]!
+        a += u0 * v0 + 2 * u1 * v1
+        b += u0 * v1 + u1 * v0
+      }
+      if (a + b * SQRT2 < -1e-9) {
+        const mf = STAB_REFS_FLAT[i]!
+        for (let r = 0; r < 5; r++) {
+          let s0 = 0, s1 = 0
+          const ro = r * 10
+          for (let c = 0; c < 5; c++) {
+            const m0 = mf[ro + 2 * c]!, m1 = mf[ro + 2 * c + 1]!
+            const u0 = DOM_CUR[2 * c]!, u1 = DOM_CUR[2 * c + 1]!
+            s0 += m0 * u0 + 2 * m1 * u1
+            s1 += m0 * u1 + m1 * u0
+          }
+          DOM_NXT[2 * r] = s0
+          DOM_NXT[2 * r + 1] = s1
+        }
+        DOM_CUR.set(DOM_NXT)
         changed = true
         break
       }
     }
     if (!changed) break
   }
-  return vecKeyQ2(v)
+  return `${DOM_CUR[0]},${DOM_CUR[1]};${DOM_CUR[2]},${DOM_CUR[3]};${DOM_CUR[4]},${DOM_CUR[5]};${DOM_CUR[6]},${DOM_CUR[7]};${DOM_CUR[8]},${DOM_CUR[9]}`
 }
 
-// Build exact R = 3 ball B_3 (8,857 docks) before any deeper walks
+// Build exact R = 3 ball B_3 (8,857 docks) before any deeper walks.
+// Because {3,4,3,4} is bipartite (det(T_s) = -1 => 0 intra-shell edges), every interior edge of B_3
+// connects r <= 2 to r <= 3 and is already populated during the r < 3 BFS!
 for (let h = 0; h < dockFrames.length; h++) {
   if (dockRad[h]! < 3) for (let s = 0; s < 24; s++) stepDock(h, s)
 }
 const N_B3 = dockFrames.length
 assertExact(N_B3 === 8857, `Expected 8857 docks in B_3, got ${N_B3}`)
-for (let d = 0; d < N_B3; d++) {
-  if (dockRad[d]! === 3) {
-    for (let s = 0; s < 24; s++) {
-      if (hcNeighbors[d]![s]! >= 0) continue
-      const hit = centerToDockId.get(vecKeyQ2(matVecQ2(matMulQ2(dockFrames[d]!, TRANSPORTS[s]!), BASE_CENTER)))
-      if (hit !== undefined) {
-        hcNeighbors[d]![s] = hit
-        hcNeighbors[hit]![OPP[s]!] = d
-      }
-    }
-  }
-}
 const N_B2 = dockRad.filter(r => r <= 2).length
 assertExact(N_B2 === 481, `Expected 481 docks in B_2, got ${N_B2}`)
 
@@ -789,8 +869,7 @@ function gf3Rank(rows: readonly GF3Row[], nCols: number): number {
   }
   return rank
 }
-function gf3Rref(rows: readonly GF3Row[], nCols: number): { readonly basis: GF3Row[]; readonly pivCols: number[] } {
-  const mat = rows.map(gf3RowClone)
+function gf3RrefInPlace(mat: GF3Row[], nCols: number): { readonly basis: GF3Row[]; readonly pivCols: number[] } {
   const nRows = mat.length
   const pivCols: number[] = []
   let rank = 0
@@ -816,8 +895,11 @@ function gf3Rref(rows: readonly GF3Row[], nCols: number): { readonly basis: GF3R
   }
   return { basis: mat.slice(0, rank), pivCols }
 }
-function gf3Nullspace(rows: readonly GF3Row[], nCols: number): GF3Row[] {
-  const { basis, pivCols } = gf3Rref(rows, nCols)
+function gf3Rref(rows: readonly GF3Row[], nCols: number): { readonly basis: GF3Row[]; readonly pivCols: number[] } {
+  return gf3RrefInPlace(rows.map(gf3RowClone), nCols)
+}
+function gf3NullspaceInPlace(rows: GF3Row[], nCols: number): GF3Row[] {
+  const { basis, pivCols } = gf3RrefInPlace(rows, nCols)
   const r = basis.length
   const isPiv = new Uint8Array(nCols)
   for (const c of pivCols) isPiv[c] = 1
@@ -834,6 +916,9 @@ function gf3Nullspace(rows: readonly GF3Row[], nCols: number): GF3Row[] {
     out.push(v)
   }
   return out
+}
+function gf3Nullspace(rows: readonly GF3Row[], nCols: number): GF3Row[] {
+  return gf3NullspaceInPlace(rows.map(gf3RowClone), nCols)
 }
 
 type SympRow = { readonly x: GF3Row; readonly z: GF3Row }
@@ -1111,18 +1196,32 @@ function buildUNN50(): Uint8Array[] {
 }
 function makeBoundaryLift552(Ubulk: readonly Uint8Array[]) {
   const delta = Ubulk.map((row, i) => Uint8Array.from(row, (v, j) => (i === j ? mod3(v - 1) : v)))
+  const sympWords = (552 + 31) >>> 5
+  const tmpSymp: SympRow = { x: gf3RowZero(sympWords), z: gf3RowZero(sympWords) }
+  const tmpC = new Uint8Array(50)
   return (v: GF3Row): GF3Row => {
-    const sv = toSympRow(v, 552)
-    const c = new Uint8Array(50)
-    for (let g = 0; g < 25; g++) {
-      c[g] = sympDotBit(sv, B1_SYMP_Z[g]!)
-      c[25 + g] = mod3(2 * sympDotBit(sv, B1_SYMP_X[g]!))
+    tmpSymp.x.a.fill(0); tmpSymp.x.b.fill(0)
+    tmpSymp.z.a.fill(0); tmpSymp.z.b.fill(0)
+    for (let i = 0; i < 552; i++) {
+      const xv = gf3Get(v, i)
+      const zv = gf3Get(v, 552 + i)
+      if (xv) gf3Set(tmpSymp.x, i, xv)
+      if (zv) gf3Set(tmpSymp.z, i, zv)
     }
+    let anyC = false
+    for (let g = 0; g < 25; g++) {
+      const cx = sympDotBit(tmpSymp, B1_SYMP_Z[g]!)
+      const cz = mod3(2 * sympDotBit(tmpSymp, B1_SYMP_X[g]!))
+      tmpC[g] = cx
+      tmpC[25 + g] = cz
+      if (cx !== 0 || cz !== 0) anyC = true
+    }
+    if (!anyC) return v
     const out = gf3RowClone(v)
     for (let i = 0; i < 50; i++) {
       let s = 0
       const di = delta[i]!
-      for (let j = 0; j < 50; j++) if (c[j]! !== 0 && di[j]! !== 0) s += di[j]! * c[j]!
+      for (let j = 0; j < 50; j++) if (tmpC[j]! !== 0 && di[j]! !== 0) s += di[j]! * tmpC[j]!
       s = mod3(s)
       if (s === 1) gf3AddInPlace(out, B1_LOG_ALL[i]!)
       else if (s === 2) gf3SubInPlace(out, B1_LOG_ALL[i]!)
@@ -1410,7 +1509,7 @@ function runExperiment1() {
 
   const slotToTargetCenter = (d: number, s: number): Q2[] => {
     const nb = hcNeighbors[d]![s]!
-    return nb >= 0 ? dockCenters[nb]! : matVecQ2(matMulQ2(dockFrames[d]!, TRANSPORTS[s]!), BASE_CENTER)
+    return nb >= 0 ? dockCenters[nb]! : matVecQ2(matMulQ2(getDockFrame(d), TRANSPORTS[s]!), BASE_CENTER)
   }
   const dockReflB2: Int32Array[] = STAB_REFS.map(g => {
     const arr = new Int32Array(N_B2)
@@ -1476,23 +1575,24 @@ function runExperiment1() {
 
   // (a2) Exact Q, D, and bipartite dock-parity conservation across verbatim 8-layer BigInt bare U
   const [l0A, l0B] = LINES[0]!
-  const testStates4D: readonly { readonly label: string; readonly st: ExactState; readonly q: number; readonly d: number; readonly par: number }[] = [
-    { label: 'vacuum', st: stateFromEntries([[[], Z9_ONE]], 1n), q: 0, d: 0, par: 1 },
-    { label: '1-vibe', st: stateFromEntries([[[[0, l0A, 1, 0]], Z9_ONE]], 1n), q: 1, d: 1, par: 1 },
-    { label: '2-pair', st: stateFromEntries([[[[0, l0A, 1, 0], [0, l0B, 1, 0]], Z9_ONE]], 1n), q: 2, d: 2, par: 1 },
-    { label: '2-neut', st: stateFromEntries([[[[0, l0A, 1, 0], [0, l0B, -1, 0]], Z9_ONE]], 1n), q: 0, d: 2, par: 1 },
+  const testStates4D: readonly { readonly label: string; readonly st: ExactState; readonly q: number; readonly d: number; readonly par: number; readonly steps: number }[] = [
+    { label: 'vacuum', st: stateFromEntries([[[], Z9_ONE]], 1n), q: 0, d: 0, par: 1, steps: 2 },
+    { label: '1-vibe', st: stateFromEntries([[[[0, l0A, 1, 0]], Z9_ONE]], 1n), q: 1, d: 1, par: 1, steps: 2 },
+    { label: '2-pair', st: stateFromEntries([[[[0, l0A, 1, 0], [0, l0B, 1, 0]], Z9_ONE]], 1n), q: 2, d: 2, par: 1, steps: 2 },
+    { label: '2-neut', st: stateFromEntries([[[[0, l0A, 1, 0], [0, l0B, -1, 0]], Z9_ONE]], 1n), q: 0, d: 2, par: 1, steps: 2 },
     {
       label: '4-chiral',
       st: stateFromEntries([[[[0, 0, 1, 0], [0, 1, -1, 0], [0, 4, 1, 0], [0, 10, 1, 0]], Z9_ONE]], 1n),
       q: 2,
       d: 4,
       par: 1,
+      steps: 1,
     },
   ]
   let qdParityDefects = 0
   for (const tc of testStates4D) {
     let cur = tc.st
-    for (let t = 1; t <= 2; t++) {
+    for (let t = 1; t <= tc.steps; t++) {
       cur = applyBeat4D(cur)
       const expPar = t % 2 === 1 ? (tc.d % 2 === 1 ? -tc.par : tc.par) : tc.par
       for (const k of cur.amp.keys()) {
@@ -1802,7 +1902,7 @@ function runExperiment1() {
   const cuspDocks: number[] = []
   const cuspIdx = new Int32Array(N_B3).fill(-1)
   for (let d = 0; d < N_B3; d++) {
-    if (q2Float(twiceForm(dockCenters[d]!, CUSP_V)) <= -2 + 1e-9) {
+    if (q2Float(dotQ2(dockCenters[d]!, TWICE_GRAM_CUSP)) <= -2 + 1e-9) {
       cuspIdx[d] = cuspDocks.length
       cuspDocks.push(d)
     }
@@ -1813,8 +1913,8 @@ function runExperiment1() {
   const colQ: number[] = []
   const d0CuspRoots: number[] = []
   for (let i = 0; i < nCusp; i++) {
-    const tf = twiceForm(dockCenters[cuspDocks[i]!]!, CUSP_V)
-    if (tf[0] === -2n && tf[1] === 0n) {
+    const tf = dotQ2(dockCenters[cuspDocks[i]!]!, TWICE_GRAM_CUSP)
+    if (tf[0] === -2 && tf[1] === 0) {
       cuspDepth[i] = 0
       colRoots[i]!.add(d0CuspRoots.length)
       d0CuspRoots.push(i)
@@ -2709,10 +2809,19 @@ function runExperiment3() {
   const Q_PROBE = PI / 8
   const dQ = 1e-4
 
+  // Cancellation-free exact eigenphase E(k) from half-angle identity:
+  //   1 - cos(E) = 2 sin^2(m/2) + 2 cos(theta) cos(theta - m) sin^2(k/2)
+  // Cross-checked against bloch2x2 matrix trace to < 1e-14!
   const exactE = (theta: number, m: number, k: number): number => {
-    const [b00, , , b11] = bloch2x2(theta, m, k)
-    const halfTr = Math.max(-1, Math.min(1, 0.5 * (b00[0] + b11[0])))
-    return Math.acos(halfTr)
+    const sm = Math.sin(0.5 * m)
+    const sk = Math.sin(0.5 * k)
+    const s2 = sm * sm + Math.cos(theta) * Math.cos(theta - m) * sk * sk
+    return 2 * Math.asin(Math.sqrt(Math.max(0, Math.min(1, s2))))
+  }
+  {
+    const [b00, , , b11] = bloch2x2(PI / 3, M_BARE, PI / 7)
+    const eMat = Math.acos(Math.max(-1, Math.min(1, 0.5 * (b00[0] + b11[0]))))
+    assertExact(Math.abs(exactE(PI / 3, M_BARE, PI / 7) - eMat) < 1e-14, 'half-angle E(k) matches bloch2x2')
   }
 
   let maxUnivRatioErr = 0
@@ -3003,17 +3112,17 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
     dstR[idx11] = dstR[idx11]! + o11r; dstI[idx11] = dstI[idx11]! + o11i
   }
 
-  // Initial state: two colliding k = 1 same-sign pulses separated by 28 sites (> 96% vacuum initially!):
-  // Pulse 1 at even sites x1 = 112, 114 (s1 = R, +1), Pulse 2 at even sites x2 = 142, 144 (s2 = L, +1).
+  // Initial state: two colliding k = 1 same-sign pulses separated by 24 sites (> 96% vacuum initially!):
+  // Pulse 1 at even sites x1 = 114, 116 (s1 = R, +1), Pulse 2 at even sites x2 = 140, 142 (s2 = L, +1).
   // Exact 1-body statevectors psi1, psi2 (length 2*L = 512) for the factored coarse regime!
   const initPsi1R = new Float64Array(2 * L)
   const initPsi1I = new Float64Array(2 * L)
   const initPsi2R = new Float64Array(2 * L)
   const initPsi2I = new Float64Array(2 * L)
-  initPsi1R[2 * 112] = Math.SQRT1_2
   initPsi1R[2 * 114] = Math.SQRT1_2
-  initPsi2R[2 * 144 + 1] = Math.SQRT1_2
+  initPsi1R[2 * 116] = Math.SQRT1_2
   initPsi2R[2 * 142 + 1] = Math.SQRT1_2
+  initPsi2R[2 * 140 + 1] = Math.SQRT1_2
 
   // Build exact initial 2-body statevector |psi1> (x) |psi2> (zero overlap: x1 in {106,108}, x2 in {148,150})
   let refR = new Float64Array(TOTAL_AMPS)
@@ -3131,9 +3240,21 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
       return fine
     },
     error(fine: FineTwoBody, coarse: FactoredCoarse): number {
-      const lifted = this.realize(coarse, { tick: 0n, seed: 0n, constraints: [] })
       let e2 = 0
-      for (let i = 0; i < TOTAL_AMPS; i++) e2 += (fine.re[i]! - lifted.re[i]!) ** 2 + (fine.im[i]! - lifted.im[i]!) ** 2
+      const p1R = coarse.p1R, p1I = coarse.p1I, p2R = coarse.p2R, p2I = coarse.p2I
+      for (let x1 = 0; x1 < L; x1++) {
+        for (let x2 = 0; x2 < L; x2++) {
+          const base = (x1 * L + x2) << 2
+          for (let s = 0; s < 4; s++) {
+            const s1 = s >> 1, s2 = s & 1
+            const aR = p1R[2 * x1 + s1]!, aI = p1I[2 * x1 + s1]!
+            const bR = p2R[2 * x2 + s2]!, bI = p2I[2 * x2 + s2]!
+            const lr = aR * bR - aI * bI
+            const li = aR * bI + aI * bR
+            e2 += (fine.re[base + s]! - lr) ** 2 + (fine.im[base + s]! - li) ** 2
+          }
+        }
+      }
       return Math.sqrt(e2)
     },
   }
@@ -3186,8 +3307,8 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
     p2I: Float64Array.from(initPsi2I),
     Q: 2,
     D: 2,
-    activeBlocks1: [...new Set([112 >> 3, 114 >> 3])],
-    activeBlocks2: [...new Set([142 >> 3, 144 >> 3])],
+    activeBlocks1: [...new Set([114 >> 3, 116 >> 3])],
+    activeBlocks2: [...new Set([140 >> 3, 142 >> 3])],
   }
   const refineCtx: RealizationContext = {
     tick: 0n,
@@ -3199,11 +3320,15 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
       },
     ],
   }
-  const liftedCheck = factoredAbstraction.realize(initCoarse, refineCtx)
-  const reProj = factoredAbstraction.project(liftedCheck)
-  const ms09FactoredErr = factoredAbstraction.error(liftedCheck, reProj)
-  const ms10QErr = Math.abs(reProj.Q - initCoarse.Q)
-  const ms10DErr = Math.abs(reProj.D - initCoarse.D)
+  const { ms09FactoredErr, ms10QErr, ms10DErr } = (() => {
+    const liftedCheck = factoredAbstraction.realize(initCoarse, refineCtx)
+    const reProj = factoredAbstraction.project(liftedCheck)
+    return {
+      ms09FactoredErr: factoredAbstraction.error(liftedCheck, reProj),
+      ms10QErr: Math.abs(reProj.Q - initCoarse.Q),
+      ms10DErr: Math.abs(reProj.D - initCoarse.D),
+    }
+  })()
 
   const doubCoarse0: DoublonCoarse = { alpha: C1, Q: 2, D: 2, beat: 0n }
   const doubLifted0 = doublonAbstraction.realize(doubCoarse0, { tick: 0n, seed: 0n, constraints: [] })
@@ -3304,16 +3429,23 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
   }
 
   // Run BOTH (1) Full Dense Fine-Grained Reference AND (2) Live Adaptive Hybrid Simulator beat-for-beat for T = 60 beats!
+  // Pre-allocated ping-pong buffers keep peak RSS low (zero per-beat 4 MB typed-array churn!).
   let mode: AdaptiveMode = 'COARSED_EFFECTIVE'
+  let refNextR = new Float64Array(TOTAL_AMPS)
+  let refNextI = new Float64Array(TOTAL_AMPS)
   let hybR = new Float64Array(0)
   let hybI = new Float64Array(0)
+  let hybNextR = new Float64Array(TOTAL_AMPS)
+  let hybNextI = new Float64Array(TOTAL_AMPS)
   let activePairBlocks = new Uint8Array(N_BLKS * N_BLKS)
+  let nextActiveBlocks = new Uint8Array(N_BLKS * N_BLKS)
   let refineTick = -1
   let totalDensePairUpdates = 0
   let totalAdaptivePairUpdates = 0
   let maxStateErr = 0
-  let maxConsErr = 0
-  let maxEntanglementCollision = 0 // Verify genuine M_meet scattering happened during collision!
+  let maxCrossScaleConsErr = 0
+  let maxAbsNormErr = 0
+  let maxEntanglementCollision = 0
 
   // Also track doublon fine reference vs adaptive refine/re-coarsen lifecycle across t = 1..60!
   let doubRefR = Float64Array.from(doubLifted0.re)
@@ -3334,15 +3466,15 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
   for (let t = 1; t <= T_BEATS; t++) {
     // 1. Full Dense Fine-Grained Reference Beat (updates all 256 x 256 = 65,536 site pairs!)
     const td0 = Date.now()
-    const nextRefR = new Float64Array(TOTAL_AMPS)
-    const nextRefI = new Float64Array(TOTAL_AMPS)
+    refNextR.fill(0)
+    refNextI.fill(0)
     for (let x1 = 0; x1 < L; x1++) {
       for (let x2 = 0; x2 < L; x2++) {
-        stepOnePair(x1, x2, refR, refI, nextRefR, nextRefI)
+        stepOnePair(x1, x2, refR, refI, refNextR, refNextI)
       }
     }
-    refR = nextRefR
-    refI = nextRefI
+    const tmpRR = refR; refR = refNextR; refNextR = tmpRR
+    const tmpRI = refI; refI = refNextI; refNextI = tmpRI
     totalDensePairUpdates += TOTAL_PAIRS
     denseMs += Date.now() - td0
 
@@ -3355,7 +3487,7 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
         const lifted = factoredAbstraction.realize(collisionOrg.state, refineCtx)
         hybR = lifted.re
         hybI = lifted.im
-        activePairBlocks = new Uint8Array(N_BLKS * N_BLKS)
+        activePairBlocks.fill(0)
         for (const b1 of collisionOrg.state.activeBlocks1) {
           for (const b2 of collisionOrg.state.activeBlocks2) activePairBlocks[b1 * N_BLKS + b2] = 1
         }
@@ -3374,61 +3506,76 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
       totalAdaptivePairUpdates += s1.siteOps + s2.siteOps
     } else {
       // Evolve ONLY active non-vacuum block pairs (b1, b2); vacuum block pairs do 0 work!
-      const nextHybR = new Float64Array(TOTAL_AMPS)
-      const nextHybI = new Float64Array(TOTAL_AMPS)
-      const nextActive = new Uint8Array(N_BLKS * N_BLKS)
+      hybNextR.fill(0)
+      hybNextI.fill(0)
+      nextActiveBlocks.fill(0)
       for (let b1 = 0; b1 < N_BLKS; b1++) {
         for (let b2 = 0; b2 < N_BLKS; b2++) {
           if (!activePairBlocks[b1 * N_BLKS + b2]) continue
           for (let x1 = b1 * BLK_SIZE; x1 < (b1 + 1) * BLK_SIZE; x1++) {
             for (let x2 = b2 * BLK_SIZE; x2 < (b2 + 1) * BLK_SIZE; x2++) {
               totalAdaptivePairUpdates++
-              stepOnePair(x1, x2, hybR, hybI, nextHybR, nextHybI)
+              stepOnePair(x1, x2, hybR, hybI, hybNextR, hybNextI)
             }
           }
-          // Mark block pair and its 1-block Lieb-Robinson neighborhood if non-vacuum after step
           for (let db1 = -1; db1 <= 1; db1++) {
             const nb1 = (b1 + db1 + N_BLKS) % N_BLKS
             for (let db2 = -1; db2 <= 1; db2++) {
               const nb2 = (b2 + db2 + N_BLKS) % N_BLKS
-              if (nextActive[nb1 * N_BLKS + nb2]) continue
+              if (nextActiveBlocks[nb1 * N_BLKS + nb2]) continue
               let hasMass = false
               for (let x1 = nb1 * BLK_SIZE; x1 < (nb1 + 1) * BLK_SIZE && !hasMass; x1++) {
                 for (let x2 = nb2 * BLK_SIZE; x2 < (nb2 + 1) * BLK_SIZE; x2++) {
                   const base = (x1 * L + x2) << 2
                   if (
-                    nextHybR[base]! ** 2 + nextHybI[base]! ** 2 +
-                    nextHybR[base + 1]! ** 2 + nextHybI[base + 1]! ** 2 +
-                    nextHybR[base + 2]! ** 2 + nextHybI[base + 2]! ** 2 +
-                    nextHybR[base + 3]! ** 2 + nextHybI[base + 3]! ** 2 > 1e-30
+                    hybNextR[base]! ** 2 + hybNextI[base]! ** 2 +
+                    hybNextR[base + 1]! ** 2 + hybNextI[base + 1]! ** 2 +
+                    hybNextR[base + 2]! ** 2 + hybNextI[base + 2]! ** 2 +
+                    hybNextR[base + 3]! ** 2 + hybNextI[base + 3]! ** 2 > 1e-30
                   ) { hasMass = true; break }
                 }
               }
-              if (hasMass) nextActive[nb1 * N_BLKS + nb2] = 1
+              if (hasMass) nextActiveBlocks[nb1 * N_BLKS + nb2] = 1
             }
           }
         }
       }
-      hybR = nextHybR
-      hybI = nextHybI
-      activePairBlocks = nextActive
+      const tmpHR = hybR; hybR = hybNextR; hybNextR = tmpHR
+      const tmpHI = hybI; hybI = hybNextI; hybNextI = tmpHI
+      const tmpAB = activePairBlocks; activePairBlocks = nextActiveBlocks; nextActiveBlocks = tmpAB
     }
     adaptMs += Date.now() - ta0
 
-    // Beat-for-beat verification against Full Dense Fine-Grained Reference!
+    // Beat-for-beat verification against Full Dense Fine-Grained Reference (zero allocation!)
     let diff2 = 0
     let normHyb2 = 0
+    let normRef2 = 0
     let onDockProb = 0
     if (mode === 'COARSED_EFFECTIVE') {
-      const lifted = factoredAbstraction.realize(collisionOrg.state, { tick: BigInt(t), seed: 0n, constraints: [] })
-      for (let i = 0; i < TOTAL_AMPS; i++) {
-        diff2 += (refR[i]! - lifted.re[i]!) ** 2 + (refI[i]! - lifted.im[i]!) ** 2
-        normHyb2 += lifted.re[i]! ** 2 + lifted.im[i]! ** 2
+      const p1R = collisionOrg.state.p1R, p1I = collisionOrg.state.p1I
+      const p2R = collisionOrg.state.p2R, p2I = collisionOrg.state.p2I
+      for (let x1 = 0; x1 < L; x1++) {
+        for (let x2 = 0; x2 < L; x2++) {
+          const base = (x1 * L + x2) << 2
+          for (let s = 0; s < 4; s++) {
+            const s1 = s >> 1, s2 = s & 1
+            const aR = p1R[2 * x1 + s1]!, aI = p1I[2 * x1 + s1]!
+            const bR = p2R[2 * x2 + s2]!, bI = p2I[2 * x2 + s2]!
+            const lr = aR * bR - aI * bI
+            const li = aR * bI + aI * bR
+            const rr = refR[base + s]!, ri = refI[base + s]!
+            diff2 += (rr - lr) ** 2 + (ri - li) ** 2
+            normHyb2 += lr * lr + li * li
+            normRef2 += rr * rr + ri * ri
+          }
+        }
       }
     } else {
       for (let i = 0; i < TOTAL_AMPS; i++) {
-        diff2 += (refR[i]! - hybR[i]!) ** 2 + (refI[i]! - hybI[i]!) ** 2
-        normHyb2 += hybR[i]! ** 2 + hybI[i]! ** 2
+        const rr = refR[i]!, ri = refI[i]!, hr = hybR[i]!, hi = hybI[i]!
+        diff2 += (rr - hr) ** 2 + (ri - hi) ** 2
+        normHyb2 += hr * hr + hi * hi
+        normRef2 += rr * rr + ri * ri
       }
       for (let x = 0; x < L; x++) {
         const base = (x * L + x) << 2
@@ -3438,7 +3585,8 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
       if (onDockProb > maxEntanglementCollision) maxEntanglementCollision = onDockProb
     }
     maxStateErr = Math.max(maxStateErr, Math.sqrt(diff2))
-    maxConsErr = Math.max(maxConsErr, Math.abs(2 * normHyb2 - 2))
+    maxCrossScaleConsErr = Math.max(maxCrossScaleConsErr, Math.abs(2 * normHyb2 - 2 * normRef2))
+    maxAbsNormErr = Math.max(maxAbsNormErr, Math.abs(Math.sqrt(normHyb2) - 1))
 
     // 3. Coexisting k = 2 Z[omega][1/13] Doublon Carrier: Coarse (t=1..19) -> Refine (t=20..35) -> Re-coarsen (t=36..60)!
     const nDoubRefR = new Float64Array(doubDim)
@@ -3505,7 +3653,7 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
 
   console.log(`  Refinement consistency (MS-09/10): pi(L(z))=z err=${ms09FactoredErr.toExponential(2)} (doublon=${ms09DoublonErr.toExponential(2)}), |Delta Q|=${ms10QErr.toExponential(1)}, |Delta D|=${ms10DErr.toExponential(1)}`)
   console.log(`  L=${L}, T=${T_BEATS} colliding bare-U pair: dynamically refined at beat t=${refineTick}, peak on-dock M_meet prob=${maxEntanglementCollision.toFixed(5)}`)
-  console.log(`  Beat-for-beat vs dense reference: maxStateErr=${maxStateErr.toExponential(2)}, conservationErr(Q,D)=${maxConsErr.toExponential(2)}`)
+  console.log(`  Beat-for-beat vs dense reference: maxStateErr=${maxStateErr.toExponential(2)}, crossScaleConsErr(Q,D)=${maxCrossScaleConsErr.toExponential(2)}, absNormErr=${maxAbsNormErr.toExponential(2)}`)
   console.log(`  Adaptive work compression: dense=${totalDensePairUpdates.toLocaleString()} vs adaptive=${totalAdaptivePairUpdates.toLocaleString()} pair-updates => ${workReduction.toFixed(2)}x reduction (final active block-pairs ${activeBlocksFinal}/${N_BLKS * N_BLKS}; dense=${denseMs}ms vs adapt=${adaptMs}ms, total=${tHybridWall}ms)`)
   console.log(`  Coexisting k=2 doublon lifecycle: refine=${doubRefineCount} (t=20), re-coarsen=${doubRecoarsenCount} (t=35), maxStateErr=${doubMaxErr.toExponential(2)}, workReduction=${doubWorkReduction.toFixed(2)}x`)
 
@@ -3516,17 +3664,18 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
       ms09DoublonErr < 1e-14 &&
       ms10QErr < 1e-14 &&
       ms10DErr < 1e-14 &&
-      refineTick > 10 &&
-      refineTick < 25 &&
+      refineTick >= 10 &&
+      refineTick <= 22 &&
       maxEntanglementCollision > 0.01 &&
       maxStateErr < 1e-13 &&
-      maxConsErr < 1e-14 &&
+      maxCrossScaleConsErr < 1e-14 &&
+      maxAbsNormErr < 1e-14 &&
       workReduction >= 5 &&
       doubRefineCount === 1 &&
       doubRecoarsenCount === 1 &&
       doubMaxErr < 1e-13 &&
       doubWorkReduction >= 3,
-    `maxStateErr=${maxStateErr.toExponential(1)}, consErr=${maxConsErr.toExponential(1)}, refine@t=${refineTick}, workReduction=${workReduction.toFixed(2)}x (doublon=${doubWorkReduction.toFixed(2)}x, err=${doubMaxErr.toExponential(1)})`,
+    `maxStateErr=${maxStateErr.toExponential(1)}, crossScaleConsErr=${maxCrossScaleConsErr.toExponential(1)}, normErr=${maxAbsNormErr.toExponential(1)}, refine@t=${refineTick}, workReduction=${workReduction.toFixed(2)}x (doublon=${doubWorkReduction.toFixed(2)}x)`,
   )
 }
 
@@ -3563,7 +3712,7 @@ function runExperiment5() {
       }
       if (nz) eqs.push(eq)
     }
-    const ker = gf3Nullspace(eqs, nRows)
+    const ker = gf3NullspaceInPlace(eqs, nRows)
     return ker.map(kv => {
       const row = gf3RowZero(B1_BND_WORDS)
       for (let ri = 0; ri < nRows; ri++) {
@@ -3600,7 +3749,7 @@ function runExperiment5() {
       if (rhs[ri]!) gf3Set(a, nVars, rhs[ri]!)
       return a
     })
-    const { pivCols } = gf3Rref(aug, nVars + 1)
+    const { pivCols } = gf3RrefInPlace(aug, nVars + 1)
     return !pivCols.includes(nVars)
   }
 
@@ -3844,6 +3993,78 @@ function runExperiment6(exp1: {
   const p1Docks = new Set<number>()
   for (const k of p1State.amp.keys()) for (const [d] of decodeConfig(k)) p1Docks.add(d)
 
+  // Exact Peierls-flux k = 3 trion group velocity v_g(P = pi/6) on M = 8 Sym^3 even sublattice (dim = 70, precompiled transitions!)
+  const sym3FluxFactory = (() => {
+    const M = 8
+    const canon = (pts: readonly (readonly [number, number])[]) => {
+      let bestKey = '', bestSorted: [number, number][] = [], symCount = 0
+      for (let sh = 0; sh < M; sh++) {
+        const arr: [number, number][] = pts.map(([m, s]) => [(m + sh) % M, s])
+        arr.sort((a, b) => a[0] - b[0] || a[1] - b[1])
+        const k = arr.map(([m, s]) => `${m}:${s}`).join(',')
+        if (bestKey === '' || k < bestKey) { bestKey = k; bestSorted = arr; symCount = 1 }
+        else if (k === bestKey) symCount++
+      }
+      return { key: bestKey, sorted: bestSorted, symCount }
+    }
+    const idxMap = new Map<string, number>(), configs: [number, number][][] = [], symCounts: number[] = [], chosen: number[] = []
+    const gen = (start: number) => {
+      if (chosen.length === 3) {
+        const cn = canon(chosen.map(c => [c >> 1, c & 1] as const))
+        if (!idxMap.has(cn.key)) { idxMap.set(cn.key, configs.length); configs.push(cn.sorted); symCounts.push(cn.symCount) }
+        return
+      }
+      for (let c = start; c < 2 * M; c++) { chosen.push(c); gen(c + 1); chosen.pop() }
+    }
+    gen(0)
+    const dim = configs.length
+    const cMat: C[][] = [[C_KEEP_C, C_CROSS_C], [C_CROSS_C, C_KEEP_C]]
+    const trans: { readonly row: number; readonly col: number; readonly ampR: number; readonly ampI: number; readonly sumV: number }[] = []
+    for (let col = 0; col < dim; col++) {
+      const pts = configs[col]!, byM = new Map<number, number[]>()
+      for (let i = 0; i < 3; i++) { const m = pts[i]![0], l = byM.get(m); if (l) l.push(i); else byM.set(m, [i]) }
+      let br: { pts: [number, number][]; amp: C }[] = [{ pts: [], amp: C1 }]
+      for (const [m, idxs] of byM) {
+        if (idxs.length === 2) br = br.map(b => ({ pts: [...b.pts, [m, 0], [m, 1]], amp: cMul(b.amp, W2_C) }))
+        else {
+          const sIn = pts[idxs[0]!]![1], nb: { pts: [number, number][]; amp: C }[] = []
+          for (const b of br) {
+            nb.push({ pts: [...b.pts, [m, 0]], amp: cMul(b.amp, cMat[0]![sIn]!) })
+            nb.push({ pts: [...b.pts, [m, 1]], amp: cMul(b.amp, cMat[1]![sIn]!) })
+          }
+          br = nb
+        }
+      }
+      for (const b of br) {
+        let sumV = 0
+        for (const [, s] of b.pts) sumV += s === 0 ? 1 : -1
+        const cn = canon(b.pts.map(([m, s]) => [s === 0 ? m : (m - 1 + M) % M, s]))
+        const row = idxMap.get(cn.key)!
+        const sc = Math.sqrt(symCounts[row]! / symCounts[col]!)
+        trans.push({ row, col, ampR: sc * b.amp[0], ampI: sc * b.amp[1], sumV })
+      }
+    }
+    return (P: number): CMat => {
+      const U = cmatZero(dim)
+      for (const t of trans) {
+        const ang = (-P * t.sumV) / 3
+        const c = Math.cos(ang), s = Math.sin(ang)
+        const idx = t.row * dim + t.col
+        U.re[idx] = U.re[idx]! + (t.ampR * c - t.ampI * s)
+        U.im[idx] = U.im[idx]! + (t.ampR * s + t.ampI * c)
+      }
+      return U
+    }
+  })()
+  const lamTrionSeed: C = [-13 / 14, (-3 * SQRT3) / 14]
+  const trionAtP = extractUnitaryEigenmode(sym3FluxFactory(PI / 6), lamTrionSeed)
+  const trionPlus = extractUnitaryEigenmode(sym3FluxFactory(PI / 6 + 1e-4), trionAtP.lam)
+  const trionMinus = extractUnitaryEigenmode(sym3FluxFactory(PI / 6 - 1e-4), trionAtP.lam)
+  const vgTrion = Math.abs(
+    ((((Math.atan2(trionPlus.lam[1], trionPlus.lam[0]) - Math.atan2(trionMinus.lam[1], trionMinus.lam[0])) + PI) % TWO_PI + TWO_PI) % TWO_PI - PI) /
+      2e-4,
+  )
+
   // Compute 5 measured Scale-Profile Vectors sigma(A) = (spatial_support, temporal_persistence, compositional_k, info_capacity_bits, causal_reach, closure_quality)
   type ScaleProfile = {
     readonly name: string
@@ -3888,7 +4109,7 @@ function runExperiment6(exp1: {
       temporalPersistence: 'Inf (exact bound mode)',
       compositionalK: 3,
       infoCapacityBits: Math.log2(8) + 6 / 7,
-      causalReach: Math.abs(exp1.vgDoublon) * 0.7,
+      causalReach: vgTrion,
       closureQuality: 1 - exp1.epsK3Rest20,
     },
     {

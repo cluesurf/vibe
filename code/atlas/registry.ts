@@ -12,6 +12,8 @@ export type RealizationMode = 'field' | 'verified-effective' | 'abstract'
 
 export type EpistemicTier = 'tier_a_exact' | 'tier_b_effective' | 'tier_c_speculative'
 
+export type EvidenceKind = 'exact_deterministic_proof' | 'controlled_empirical_benchmark'
+
 export interface Port {
   readonly id: Id
   readonly direction: 'input' | 'output' | 'bidirectional'
@@ -86,12 +88,13 @@ export const ALL_CAPABILITIES: readonly Capability[] = [
 
 export interface CapabilityEvidence {
   readonly capability: Capability
+  readonly evidenceKind: EvidenceKind
   readonly protocol: Id
   readonly score: number
   readonly trials: number
   readonly baseline: number
-  readonly standardError: number
-  readonly effectSize: number
+  readonly standardError: number | null
+  readonly effectSize: number | null
   readonly passed: boolean
   readonly experiment: Id
   readonly realizationMode: RealizationMode
@@ -99,13 +102,14 @@ export interface CapabilityEvidence {
 
 export interface CapabilityCertificationInput {
   readonly capability: Capability
+  readonly evidenceKind: EvidenceKind
   readonly protocol: Id
   readonly experiment: Id
   readonly realizationMode: RealizationMode
   readonly score: number
   readonly baseline: number
-  readonly standardError: number
-  readonly effectSize: number
+  readonly standardError: number | null
+  readonly effectSize: number | null
   readonly trials: number
   readonly minMargin: number
   readonly minEffectSize?: number
@@ -117,11 +121,43 @@ export function certifyCapability(input: CapabilityCertificationInput): Capabili
   const minEffect = input.minEffectSize ?? 0
   const failRate = input.failureRate ?? 0
   const maxFail = input.maxFailureRate ?? 0.25
+
+  if (input.evidenceKind === 'exact_deterministic_proof') {
+    const finite =
+      Number.isFinite(input.score) &&
+      Number.isFinite(input.baseline) &&
+      input.trials >= 1
+    const passed = finite && input.score >= input.baseline + input.minMargin && failRate <= maxFail
+    return {
+      capability: input.capability,
+      evidenceKind: input.evidenceKind,
+      protocol: input.protocol,
+      score: input.score,
+      trials: input.trials,
+      baseline: input.baseline,
+      standardError: null,
+      effectSize: null,
+      passed,
+      experiment: input.experiment,
+      realizationMode: input.realizationMode,
+    }
+  }
+
+  if (
+    input.standardError === null ||
+    input.effectSize === null ||
+    !Number.isFinite(input.standardError) ||
+    !Number.isFinite(input.effectSize)
+  ) {
+    throw new Error(
+      `controlled_empirical_benchmark for capability ${input.capability} requires finite empirical standardError and effectSize`,
+    )
+  }
+
   const finite =
     Number.isFinite(input.score) &&
     Number.isFinite(input.baseline) &&
-    Number.isFinite(input.effectSize) &&
-    input.trials >= 1
+    input.trials >= 2
   const passed =
     finite &&
     input.score >= input.baseline + input.minMargin &&
@@ -130,12 +166,13 @@ export function certifyCapability(input: CapabilityCertificationInput): Capabili
 
   return {
     capability: input.capability,
+    evidenceKind: input.evidenceKind,
     protocol: input.protocol,
     score: input.score,
     trials: input.trials,
     baseline: input.baseline,
-    standardError: Number.isFinite(input.standardError) ? input.standardError : 0,
-    effectSize: Number.isFinite(input.effectSize) ? input.effectSize : 0,
+    standardError: input.standardError,
+    effectSize: input.effectSize,
     passed,
     experiment: input.experiment,
     realizationMode: input.realizationMode,
@@ -509,6 +546,8 @@ function findStronglyConnectedComponents(
   return { sccs, hasSelfLoop }
 }
 
+export const MAX_EXACT_MIP_NODES = 12
+
 // Four competing, strictly quarantined phenomenal constitution hypotheses from Note 18 Section 20.
 // Every output carries epistemicStatus: 'competing_unverified_hypothesis'.
 export function createStandardConstitutionHypotheses(): readonly ConstitutionHypothesis[] {
@@ -608,7 +647,7 @@ export function createStandardConstitutionHypotheses(): readonly ConstitutionHyp
     label: 'Global Broadcast Workspace Unity',
     epistemicStatus: 'competing_unverified_hypothesis',
     theoreticalBasis:
-      'Unified subjectivity is hypothesized to require a dedicated central workspace broadcast hub receiving from multiple specialists and broadcasting back across modules.',
+      'Unified subjectivity is hypothesized to require a dedicated central workspace broadcast hub bidirectionally coupled to multiple specialist modules.',
     selectContexts(architecture, history) {
       const ids = architecture.processes.map(p => p.id)
       const idxMap = new Map<Id, number>(ids.map((id, i) => [id, i]))
@@ -687,10 +726,15 @@ export function createStandardConstitutionHypotheses(): readonly ConstitutionHyp
     label: 'Minimum-Partition Causal Integration (Phi-MIP Surrogate)',
     epistemicStatus: 'competing_unverified_hypothesis',
     theoreticalBasis:
-      'Unified subjectivity is hypothesized to track irreducible bidirectional causal influence across the weakest bipartition (minimum information partition surrogate) weighted by trajectory differentiation.',
+      'Unified subjectivity is hypothesized to track irreducible bidirectional causal influence across the weakest bipartition (exact minimum information partition surrogate for n <= 12) weighted by trajectory differentiation.',
     selectContexts(architecture, history) {
       const n = architecture.processes.length
       if (n < 2) return []
+      if (n > MAX_EXACT_MIP_NODES) {
+        throw new RangeError(
+          `causal_partition_integration exact bipartition scan supports n <= ${MAX_EXACT_MIP_NODES}, got n=${n}`,
+        )
+      }
       const ids = architecture.processes.map(p => p.id)
       const idxMap = new Map<Id, number>(ids.map((id, i) => [id, i]))
       const stats = computeNodeStats(n, history)
@@ -706,30 +750,24 @@ export function createStandardConstitutionHypotheses(): readonly ConstitutionHyp
         eff[v * n + u] = eff[v * n + u]! + Math.abs(c.weight) * Math.max(0.05, stdFrom)
       }
 
-      // Exact minimum-cut over all nontrivial bipartitions (for n <= 12; deterministic subset scan).
-      const maxMask = n <= 12 ? (1 << (n - 1)) - 1 : 0
+      // Exact minimum-cut over all nontrivial bipartitions (n <= 12 enforced above).
+      const maxMask = (1 << (n - 1)) - 1
       let minBidirectionalCut = Infinity
-      if (maxMask > 0) {
-        for (let mask = 1; mask <= maxMask; mask++) {
-          let ab = 0
-          let ba = 0
-          for (let i = 0; i < n; i++) {
-            const inA = ((mask >> i) & 1) === 1
-            for (let j = 0; j < n; j++) {
-              const jInA = ((mask >> j) & 1) === 1
-              if (inA && !jInA) ab += eff[j * n + i]!
-              else if (!inA && jInA) ba += eff[j * n + i]!
-            }
+      for (let mask = 1; mask <= maxMask; mask++) {
+        let ab = 0
+        let ba = 0
+        for (let i = 0; i < n; i++) {
+          const inA = ((mask >> i) & 1) === 1
+          for (let j = 0; j < n; j++) {
+            const jInA = ((mask >> j) & 1) === 1
+            if (inA && !jInA) ab += eff[j * n + i]!
+            else if (!inA && jInA) ba += eff[j * n + i]!
           }
-          // Bidirectional irreducibility requires causal influence in BOTH directions across the cut.
-          const bidir = Math.min(ab, ba)
-          if (bidir < minBidirectionalCut) minBidirectionalCut = bidir
         }
-      } else {
-        minBidirectionalCut = 0
+        const bidir = Math.min(ab, ba)
+        if (bidir < minBidirectionalCut) minBidirectionalCut = bidir
       }
 
-      // Trajectory differentiation: mean normalized node variance across the system.
       let avgStd = 0
       for (let i = 0; i < n; i++) avgStd += Math.sqrt(Math.max(0, stats.variance[i]!))
       avgStd /= n

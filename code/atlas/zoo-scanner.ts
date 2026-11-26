@@ -4,11 +4,11 @@
 //   - Canonicalizes k = 1, 2, 3, 4 excitation species under exact symmetry equivalence
 //   - Measures exact dynamical fingerprints (lifetime, contactProb, ipr, quasienergy, chiOdd,
 //     bindingGap, groupVelocity, levelSpacingR)
-//   - Constructs the exact bare-U Collision Matrix (pass-through, phase-shift, role-swap,
-//     bound-capture, annihilation, chiral-asymmetry)
-//   - Sweeps a 2D parametric (m, phi) QCA phase map + K+M_meet chaos toggle classifying every
-//     rule into quantitative dynamical phases (free-dispersive, integrable-bound,
-//     relativistic-Thirring, chaotic-COE) — replacing Wolfram NKS's subjective visual classes.
+//   - Executes live unitary 2-body and 3-body wavepacket collisions plus exact 4D dock checks
+//     to populate the bare-U Collision Matrix with explicit measurementKind provenance
+//   - Sweeps a 2D parametric (m, phi) QCA phase map + mixed-sign K+M_meet sector, classifying
+//     every rule purely from observables (free-dispersive, integrable-bound,
+//     relativistic-Thirring, chaotic-COE) with zero hardcoded regime toggles.
 //
 // Strictly deterministic, ZERO Math.random(), laptop-safe.
 
@@ -17,6 +17,7 @@ import {
   type CapabilityEvidence,
   type DiscoveryRegistrationInput,
   type RealizationMode,
+  type Valence,
 } from './registry'
 
 const PI = Math.PI
@@ -25,7 +26,6 @@ const SQRT3 = Math.sqrt(3)
 type Complex = readonly [number, number]
 
 const cAdd = (a: Complex, b: Complex): Complex => [a[0] + b[0], a[1] + b[1]]
-const cSub = (a: Complex, b: Complex): Complex => [a[0] - b[0], a[1] - b[1]]
 const cMul = (a: Complex, b: Complex): Complex => [
   a[0] * b[0] - a[1] * b[1],
   a[0] * b[1] + a[1] * b[0],
@@ -395,7 +395,6 @@ function unitaryEigen(U: ComplexMatrix): {
       const idx = i * n + j
       const ur = U.re[idx]! * sh[0] - U.im[idx]! * sh[1]
       const ui = U.re[idx]! * sh[1] + U.im[idx]! * sh[0]
-      // A = I + U_s, B = i (I - U_s) -> H = A^{-1} B is Hermitian with eigenvalues tan(theta/2)
       const diag = i === j ? 1 : 0
       aRe[idx] = diag + ur
       aIm[idx] = ui
@@ -419,7 +418,6 @@ function unitaryEigen(U: ComplexMatrix): {
     }
   }
 
-  // Symmetrize H to exact Hermiticity
   for (let i = 0; i < n; i++) {
     H.im[i * n + i] = 0
     for (let j = i + 1; j < n; j++) {
@@ -435,7 +433,6 @@ function unitaryEigen(U: ComplexMatrix): {
   const eig = hermitianEigen(H)
   const phases = new Float64Array(n)
   for (let i = 0; i < n; i++) {
-    // H v = tan(theta/2) v => U_s v = e^{+i theta} v => U v = e^{i (shift + theta)} v
     const theta = 2 * Math.atan(eig.values[i]!)
     phases[i] = wrapPi(shift + theta)
   }
@@ -552,7 +549,7 @@ export function computeLevelSpacingRatio(phases: Float64Array): {
 }
 
 // =================================================================================================
-// 2. EXACT D_4 24-SLOT GEOMETRY, W(F_4) ORDER-1152 SYMMETRY GROUP & PHI_ODD CHIRAL ORIENTATION
+// 2. EXACT D_4 24-SLOT GEOMETRY, W(F_4) ORDER-1152 SYMMETRY GROUP & BARE-U DOCK OPERATORS
 // =================================================================================================
 
 export type Root4 = readonly [number, number, number, number]
@@ -590,6 +587,30 @@ export const ANTIPODAL_LINES: readonly (readonly [number, number])[] = D4_ROOTS.
 export const LINE_OF_SLOT: readonly number[] = D4_ROOTS.map((_, s) =>
   ANTIPODAL_LINES.findIndex(([a, b]) => a === s || b === s),
 )
+
+// Exact bare-U antipodal K-bounce operator on a single geodesic line pair:
+//   K = -omega * SWAP on opposite-tone pairs {(+1, -1), (-1, +1)}, identity on vacuum (0, 0).
+export interface BareUDockPairState {
+  readonly slotA: Valence
+  readonly slotB: Valence
+  readonly ampRe: number
+  readonly ampIm: number
+}
+
+export function applyBareUKBounceLayer(state: BareUDockPairState): BareUDockPairState {
+  if (state.slotA !== 0 && state.slotB !== 0 && state.slotA === -state.slotB) {
+    // Multiply by -omega = (1/2, -sqrt(3)/2) and swap antipodal slots
+    const negOmegaRe = -OMEGA[0]
+    const negOmegaIm = -OMEGA[1]
+    return {
+      slotA: state.slotB,
+      slotB: state.slotA,
+      ampRe: negOmegaRe * state.ampRe - negOmegaIm * state.ampIm,
+      ampIm: negOmegaRe * state.ampIm + negOmegaIm * state.ampRe,
+    }
+  }
+  return state
+}
 
 interface WF4Group {
   readonly elements: readonly Uint8Array[]
@@ -753,7 +774,7 @@ export function computeChiralOrientation(vibes: readonly DockOccupancy[]): numbe
   return chi
 }
 
-// Canonicalizes a dock excitation template under the exact W(F_4) x C symmetry group.
+// Canonicalizes a single-dock excitation template under the exact W(F_4) x C symmetry group.
 export function canonicalizeDockPattern(vibes: readonly DockOccupancy[]): {
   readonly canonicalKey: string
   readonly orbitSize: number
@@ -780,6 +801,37 @@ export function canonicalizeDockPattern(vibes: readonly DockOccupancy[]): {
     orbitSize: uniqueOrbits.size,
     chiOdd: computeChiralOrientation(vibes),
   }
+}
+
+// Canonicalizes a multi-dock collinear template (dock offset d in Z, slot s in {0..23}, tone in {+1,-1})
+// under exact W(F_4) x C x Z-reflection along the geodesic line.
+function canonicalizeCollinearPattern(
+  vibes: readonly { readonly dockOffset: number; readonly slot: number; readonly tone: 1 | -1 }[],
+): {
+  readonly canonicalKey: string
+  readonly orbitSize: number
+} {
+  const { elements } = getWF4Group()
+  const uniqueOrbits = new Set<string>()
+  let bestKey = ''
+  for (let e = 0; e < elements.length; e++) {
+    const p = elements[e]!
+    for (const flip of [1, -1] as const) {
+      const mapped = vibes.map(v => ({
+        d: v.dockOffset,
+        s: p[v.slot]!,
+        t: v.tone * flip > 0 ? '+' : '-',
+      }))
+      const minD = Math.min(...mapped.map(x => x.d))
+      const key = mapped
+        .map(x => `${x.d - minD}@${x.s}:${x.t}`)
+        .sort()
+        .join('|')
+      uniqueOrbits.add(key)
+      if (bestKey === '' || key < bestKey) bestKey = key
+    }
+  }
+  return { canonicalKey: bestKey, orbitSize: uniqueOrbits.size }
 }
 
 // =================================================================================================
@@ -917,7 +969,6 @@ function findBoundDoublon(
       const p = eig.vecs.re[r * dim + c]! ** 2 + eig.vecs.im[r * dim + c]! ** 2
       ipr += p * p
     }
-    // Localization score favors high p(r=0) and tiny edge weight
     const locRatio = p0 / (pEdge + 1e-12)
     if (p0 > 0.02 && pEdge < 0.03 && locRatio > bestScore) {
       bestScore = locRatio
@@ -972,7 +1023,6 @@ function findBoundDoublon(
     vi[r] = eig.vecs.im[r * dim + bestCol]!
   }
 
-  // Distance to nearest continuum eigenstate (edge weight > 0.005)
   let bindingGap = PI
   for (let c = 0; c < dim; c++) {
     if (c === bestCol) continue
@@ -1019,7 +1069,10 @@ function findBoundDoublon(
   }
 }
 
-// Exact k = 3 Sym^3 even-sublattice periodic ring operator with Peierls flux q = P/3
+// Exact k = 3 Sym^3 even-sublattice periodic ring operator with uniform Peierls flux qFlux = P/3.
+// Note on Peierls gauge invariance: for any prime ring length M not divisible by 3 (e.g. M = 7, 11),
+// every 3-particle translation orbit has symCount === 1 identically, eliminating any M/3 shift
+// wraparound phase ambiguity at qFlux != 0. We enforce M % 3 !== 0 whenever qFlux !== 0.
 function buildU3SymEven(
   M: number,
   qFlux: number,
@@ -1030,6 +1083,9 @@ function buildU3SymEven(
   readonly U: ComplexMatrix
   readonly configs: readonly (readonly (readonly [number, number])[])[]
 } {
+  if (Math.abs(qFlux) > 1e-12 && M % 3 === 0) {
+    throw new Error(`buildU3SymEven requires M not divisible by 3 when qFlux != 0 (got M=${M})`)
+  }
   const canon = (pts: readonly (readonly [number, number])[]) => {
     let bestKey = ''
     let bestSorted: [number, number][] = []
@@ -1167,7 +1223,6 @@ export function build1DMixedChaosSector(
   const dim = cfgs.length
   const U = cmatZero(dim)
   const coin = diracCoin(mCoin, detPhase)
-  // Opposite-sign K bounce phase = -det(C) = -e^{2 i detPhase}
   const detC = cExpI(2 * detPhase)
   const kFac: Complex = [-detC[0], -detC[1]]
 
@@ -1235,15 +1290,1056 @@ export function build1DMixedChaosSector(
   return U
 }
 
-// Exact 1D same-sign Sym^3 sector on M = 9 for integrable Poisson level-spacing ratio <r>.
+// Clean bulk integrable <r> on M = 8 (8 % 3 === 2 => symCount === 1 everywhere, zero wraparound
+// ambiguity, dim = 70), averaged across 2 incommensurate Peierls fluxes (140 total gaps per point).
 function computeIntegrableR(mCoin: number, detPhase: number, meetPhase: Complex): number {
-  const { U } = buildU3SymEven(8, PI / 11, mCoin, detPhase, meetPhase)
-  const eig = unitaryEigen(U)
-  return computeLevelSpacingRatio(eig.phases).meanR
+  const s1 = computeLevelSpacingRatio(
+    unitaryEigen(buildU3SymEven(8, PI / 13, mCoin, detPhase, meetPhase).U).phases,
+  )
+  const s2 = computeLevelSpacingRatio(
+    unitaryEigen(buildU3SymEven(8, (2 * PI) / 17, mCoin, detPhase, meetPhase).U).phases,
+  )
+  const totalGaps = s1.gapCount + s2.gapCount
+  return totalGaps > 0
+    ? (s1.meanR * s1.gapCount + s2.meanR * s2.gapCount) / totalGaps
+    : 0
 }
 
 // =================================================================================================
-// 4. BARE-U SPECIES ZOO SCANNER & COLLISION MATRIX
+// 4. LIVE SPARSE UNITARY WAVEPACKET COLLISION SOLVERS (2-BODY, 3-BODY SYM^3, 3-BODY BREAKUP, 4D)
+// =================================================================================================
+
+function bareSingleParticleE(p: number, band: 1 | -1): number {
+  return PI / 3 + band * Math.acos(0.5 * Math.cos(p))
+}
+
+function bareYangRapidity(p: number, band: 1 | -1): number {
+  return (2 / SQRT3) * (Math.sin(bareSingleParticleE(p, band)) / Math.sin(p))
+}
+
+function bareSingleParticleSpinor(p: number, band: 1 | -1): readonly [Complex, Complex] {
+  const coin = diracCoin(PI / 3, PI / 3)
+  const eN = cExpI(-p)
+  const u00 = cMul(eN, coin[0][0])
+  const u01 = cMul(eN, coin[0][1])
+  const lam = cExpI(bareSingleParticleE(p, band))
+  // (u00 - lam) v0 + u01 v1 = 0 => v0 = u01, v1 = lam - u00
+  const v0 = u01
+  const v1: Complex = [lam[0] - u00[0], lam[1] - u00[1]]
+  const nrm = Math.hypot(cAbs(v0), cAbs(v1))
+  return [cScale(1 / nrm, v0), cScale(1 / nrm, v1)]
+}
+
+function build1DGaussianPacket(
+  L: number,
+  center: number,
+  sigma: number,
+  p: number,
+  band: 1 | -1,
+  parityFilter?: 0 | 1,
+): { readonly re: Float64Array; readonly im: Float64Array } {
+  const re = new Float64Array(2 * L)
+  const im = new Float64Array(2 * L)
+  const [s0, s1] = bareSingleParticleSpinor(p, band)
+  let norm2 = 0
+  for (let x = 0; x < L; x++) {
+    if (parityFilter !== undefined && (x & 1) !== parityFilter) continue
+    let dx = x - center
+    if (dx > L / 2) dx -= L
+    if (dx < -L / 2) dx += L
+    const env = Math.exp(-(dx * dx) / (2 * sigma * sigma))
+    const ph = cExpI(p * dx)
+    const a0 = cScale(env, cMul(ph, s0))
+    const a1 = cScale(env, cMul(ph, s1))
+    re[2 * x] = a0[0]
+    im[2 * x] = a0[1]
+    re[2 * x + 1] = a1[0]
+    im[2 * x + 1] = a1[1]
+    norm2 += a0[0] * a0[0] + a0[1] * a0[1] + a1[0] * a1[0] + a1[1] * a1[1]
+  }
+  const inv = 1 / Math.sqrt(Math.max(1e-30, norm2))
+  for (let i = 0; i < 2 * L; i++) {
+    re[i] = re[i]! * inv
+    im[i] = im[i]! * inv
+  }
+  return { re, im }
+}
+
+function step1DBare(
+  L: number,
+  re: Float64Array,
+  im: Float64Array,
+): { readonly re: Float64Array; readonly im: Float64Array } {
+  const coin = diracCoin(PI / 3, PI / 3)
+  const outR = new Float64Array(2 * L)
+  const outI = new Float64Array(2 * L)
+  const c00r = coin[0][0][0]
+  const c00i = coin[0][0][1]
+  const c01r = coin[0][1][0]
+  const c01i = coin[0][1][1]
+  for (let x = 0; x < L; x++) {
+    const r0 = re[2 * x]!
+    const i0 = im[2 * x]!
+    const r1 = re[2 * x + 1]!
+    const i1 = im[2 * x + 1]!
+    const a0r = c00r * r0 - c00i * i0 + (c01r * r1 - c01i * i1)
+    const a0i = c00r * i0 + c00i * r0 + (c01r * i1 + c01i * r1)
+    const a1r = c01r * r0 - c01i * i0 + (c00r * r1 - c00i * i1)
+    const a1i = c01r * i0 + c01i * r0 + (c00r * i1 + c00i * r1)
+    const xR = (x + 1) % L
+    const xL = (x - 1 + L) % L
+    outR[2 * xR] = a0r
+    outI[2 * xR] = a0i
+    outR[2 * xL + 1] = a1r
+    outI[2 * xL + 1] = a1i
+  }
+  return { re: outR, im: outI }
+}
+
+// Live sparse 2-body distinguishable wavepacket collision on periodic 1D ring L = 36 (M_meet or K_bounce).
+function runLive2BodyCollision(mode: 'M_meet' | 'K_bounce'): {
+  readonly roleSwapProb: number
+  readonly conditionalPhaseRad: number
+  readonly overlapMag: number
+  readonly normErr: number
+  readonly analyticSwapRef: number
+} {
+  const L = 36
+  const T = 26
+  const p1 = 0.65 // moving right (band -1: v_g = +sin(p)/(2 sqrt(1 - 0.25 cos^2 p)) > 0)
+  const p2 = -1.15 // moving left (band -1: v_g < 0)
+  // Both packets sit on even sites so x1 - x2 is even and they collide head-on on the same dock!
+  const w1 = build1DGaussianPacket(L, 10, 2.2, p1, -1, 0)
+  const w2 = build1DGaussianPacket(L, 24, 2.2, p2, -1, 0)
+
+  const S = 2 * L
+  const dim = S * S
+  let stR = new Float64Array(dim)
+  let stI = new Float64Array(dim)
+  let norm0 = 0
+  for (let a = 0; a < S; a++) {
+    const ar = w1.re[a]!
+    const ai = w1.im[a]!
+    if (ar === 0 && ai === 0) continue
+    for (let b = 0; b < S; b++) {
+      if (a === b) continue
+      const br = w2.re[b]!
+      const bi = w2.im[b]!
+      if (br === 0 && bi === 0) continue
+      const idx = a * S + b
+      const vr = ar * br - ai * bi
+      const vi = ar * bi + ai * br
+      stR[idx] = vr
+      stI[idx] = vi
+      norm0 += vr * vr + vi * vi
+    }
+  }
+  const inv0 = 1 / Math.sqrt(norm0)
+  for (let i = 0; i < dim; i++) {
+    stR[i] = stR[i]! * inv0
+    stI[i] = stI[i]! * inv0
+  }
+
+  let ref1 = { re: Float64Array.from(w1.re), im: Float64Array.from(w1.im) }
+  let ref2 = { re: Float64Array.from(w2.re), im: Float64Array.from(w2.im) }
+
+  const coin = diracCoin(PI / 3, PI / 3)
+  const cc: Complex[][] = Array.from({ length: 4 }, (_, o) =>
+    Array.from({ length: 4 }, (_, i) => cMul(coin[o >> 1]![i >> 1]!, coin[o & 1]![i & 1]!)),
+  )
+  // Exact bare-U on-dock D o M_meet o D for distinct roles: L_keep = -1/2, L_swap = -i sqrt(3)/2
+  const meetKeepR = -0.5
+  const meetSwapI = -SQRT3 / 2
+  // Exact bare-U on-dock D o K o D for opposite signs: K = -omega * SWAP
+  const kFacR = -OMEGA[0]
+  const kFacI = -OMEGA[1]
+
+  for (let step = 0; step < T; step++) {
+    ref1 = step1DBare(L, ref1.re, ref1.im)
+    ref2 = step1DBare(L, ref2.re, ref2.im)
+
+    const nxR = new Float64Array(dim)
+    const nxI = new Float64Array(dim)
+    for (let x1 = 0; x1 < L; x1++) {
+      for (let x2 = 0; x2 < L; x2++) {
+        if (x1 === x2) {
+          const i01 = (2 * x1 + 0) * S + (2 * x2 + 1)
+          const i10 = (2 * x1 + 1) * S + (2 * x2 + 0)
+          const a01r = stR[i01]!
+          const a01i = stI[i01]!
+          const a10r = stR[i10]!
+          const a10i = stI[i10]!
+          if (a01r === 0 && a01i === 0 && a10r === 0 && a10i === 0) continue
+
+          let b01r = 0
+          let b01i = 0
+          let b10r = 0
+          let b10i = 0
+          if (mode === 'M_meet') {
+            // (keep, swap) on roles: b01 = -0.5 a01 - i (sqrt(3)/2) a10
+            b01r = meetKeepR * a01r - meetSwapI * a10i
+            b01i = meetKeepR * a01i + meetSwapI * a10r
+            b10r = meetKeepR * a10r - meetSwapI * a01i
+            b10i = meetKeepR * a10i + meetSwapI * a01r
+          } else {
+            // K bounce swaps slots of the two opposite-sign particles with phase -omega
+            b01r = kFacR * a10r - kFacI * a10i
+            b01i = kFacR * a10i + kFacI * a10r
+            b10r = kFacR * a01r - kFacI * a01i
+            b10i = kFacR * a01i + kFacI * a01r
+          }
+          const xR = (x1 + 1) % L
+          const xL = (x1 - 1 + L) % L
+          const d01 = (2 * xR + 0) * S + (2 * xL + 1)
+          const d10 = (2 * xL + 1) * S + (2 * xR + 0)
+          nxR[d01] = nxR[d01]! + b01r
+          nxI[d01] = nxI[d01]! + b01i
+          nxR[d10] = nxR[d10]! + b10r
+          nxI[d10] = nxI[d10]! + b10i
+        } else {
+          // Independent single-vibe coin C x C then stream
+          const base00 = (2 * x1 + 0) * S + (2 * x2 + 0)
+          const base01 = (2 * x1 + 0) * S + (2 * x2 + 1)
+          const base10 = (2 * x1 + 1) * S + (2 * x2 + 0)
+          const base11 = (2 * x1 + 1) * S + (2 * x2 + 1)
+          const inR = [stR[base00]!, stR[base01]!, stR[base10]!, stR[base11]!]
+          const inI = [stI[base00]!, stI[base01]!, stI[base10]!, stI[base11]!]
+          if (
+            inR[0] === 0 && inI[0] === 0 &&
+            inR[1] === 0 && inI[1] === 0 &&
+            inR[2] === 0 && inI[2] === 0 &&
+            inR[3] === 0 && inI[3] === 0
+          ) {
+            continue
+          }
+          const x1R = (x1 + 1) % L
+          const x1L = (x1 - 1 + L) % L
+          const x2R = (x2 + 1) % L
+          const x2L = (x2 - 1 + L) % L
+          const dsts = [
+            (2 * x1R + 0) * S + (2 * x2R + 0),
+            (2 * x1R + 0) * S + (2 * x2L + 1),
+            (2 * x1L + 1) * S + (2 * x2R + 0),
+            (2 * x1L + 1) * S + (2 * x2L + 1),
+          ]
+          for (let o = 0; o < 4; o++) {
+            let sr = 0
+            let si = 0
+            const row = cc[o]!
+            for (let i = 0; i < 4; i++) {
+              const c = row[i]!
+              sr += c[0] * inR[i]! - c[1] * inI[i]!
+              si += c[0] * inI[i]! + c[1] * inR[i]!
+            }
+            const dst = dsts[o]!
+            nxR[dst] = nxR[dst]! + sr
+            nxI[dst] = nxI[dst]! + si
+          }
+        }
+      }
+    }
+    stR = nxR
+    stI = nxI
+  }
+
+  let normEnd = 0
+  let ovDirR = 0
+  let ovDirI = 0
+  let ovSwapR = 0
+  let ovSwapI = 0
+  for (let a = 0; a < S; a++) {
+    for (let b = 0; b < S; b++) {
+      const idx = a * S + b
+      const sr = stR[idx]!
+      const si = stI[idx]!
+      normEnd += sr * sr + si * si
+      // Direct product |ref1>_1 |ref2>_2
+      const dr = ref1.re[a]! * ref2.re[b]! - ref1.im[a]! * ref2.im[b]!
+      const di = ref1.re[a]! * ref2.im[b]! + ref1.im[a]! * ref2.re[b]!
+      ovDirR += dr * sr + di * si
+      ovDirI += dr * si - di * sr
+      // Swapped product |ref2>_1 |ref1>_2
+      const wr = ref2.re[a]! * ref1.re[b]! - ref2.im[a]! * ref1.im[b]!
+      const wi = ref2.re[a]! * ref1.im[b]! + ref2.im[a]! * ref1.re[b]!
+      ovSwapR += wr * sr + wi * si
+      ovSwapI += wr * si - wi * sr
+    }
+  }
+
+  const pDir = ovDirR * ovDirR + ovDirI * ovDirI
+  const pSwap = ovSwapR * ovSwapR + ovSwapI * ovSwapI
+  const u1 = bareYangRapidity(p1, -1)
+  const u2 = bareYangRapidity(p2, -1)
+  const w12 = u1 - u2
+  const analyticSwapRef = mode === 'M_meet' ? 1 / (1 + w12 * w12) : 1.0
+
+  // For M_meet, roleSwapProb = pSwap; conditionalPhase = arg(<direct|out>) (or swapped for K where pDir ~ 0, pSwap ~ 1)
+  const phase =
+    pDir >= pSwap
+      ? Math.atan2(ovDirI, ovDirR)
+      : Math.atan2(ovSwapI, ovSwapR)
+
+  return {
+    roleSwapProb: pSwap,
+    conditionalPhaseRad: phase,
+    overlapMag: Math.sqrt(pDir + pSwap),
+    normErr: Math.abs(normEnd - 1),
+    analyticSwapRef,
+  }
+}
+
+// Exact even-sublattice spinor for single-vibe momentum p in band +1 (matching s=0: m->m, s=1: m->m-1 frame)
+function buildEvenSublatticePulse(
+  M: number,
+  mP0: number,
+  sigP: number,
+  pMom: number,
+): { readonly re: Float64Array; readonly im: Float64Array } {
+  const S = 2 * M
+  const re = new Float64Array(S)
+  const im = new Float64Array(S)
+  const th = Math.acos(0.5 * Math.cos(pMom))
+  const ratio = -(Math.sin(pMom) + 2 * Math.sin(th)) / SQRT3
+  const w = cScale(ratio, cExpI(pMom))
+  const inv = 1 / Math.hypot(1, Math.abs(ratio))
+  const chi0: Complex = [inv, 0]
+  const chi1: Complex = cScale(inv, w)
+  let n2 = 0
+  for (let m = 0; m < M; m++) {
+    let dm = m - mP0
+    if (dm > M / 2) dm -= M
+    if (dm < -M / 2) dm += M
+    const env = Math.exp(-(dm * dm) / (4 * sigP * sigP))
+    const ph = cExpI(2 * pMom * m)
+    const a0 = cScale(env, cMul(ph, chi0))
+    const a1 = cScale(env, cMul(ph, chi1))
+    re[2 * m] = a0[0]
+    im[2 * m] = a0[1]
+    re[2 * m + 1] = a1[0]
+    im[2 * m + 1] = a1[1]
+    n2 += a0[0] ** 2 + a0[1] ** 2 + a1[0] ** 2 + a1[1] ** 2
+  }
+  const sc = 1 / Math.sqrt(Math.max(1e-30, n2))
+  for (let i = 0; i < S; i++) {
+    re[i] = re[i]! * sc
+    im[i] = im[i]! * sc
+  }
+  return { re, im }
+}
+
+// Exact P = 0 Z[omega][1/13] bare-U M_meet doublon wavepacket with Gaussian CM envelope (sigD = 1.8)
+function buildEvenSublatticeDoublonPacket(
+  M: number,
+  mD0: number,
+  sigD: number,
+): { readonly re: Float64Array; readonly im: Float64Array } {
+  const S = 2 * M
+  const c2: number[] = Array.from({ length: S + 1 }, (_, n) => (n * (n - 1)) / 2)
+  const dim2 = c2[S]!
+  const d2Idx = (a: number, b: number): number => (a < b ? a + c2[b]! : b + c2[a]!)
+  const re = new Float64Array(dim2)
+  const im = new Float64Array(dim2)
+
+  const uPP: Complex = [3 + 4 * OMEGA[0], 4 * OMEGA[1]]
+  const uPM: Complex = [1, 0]
+  const uMP: Complex = [-7 + 8 * OMEGA[0], 8 * OMEGA[1]]
+
+  for (let m1 = 0; m1 < M; m1++) {
+    let dm0 = m1 - mD0
+    if (dm0 > M / 2) dm0 -= M
+    if (dm0 < -M / 2) dm0 += M
+    const e0 = Math.exp(-(dm0 * dm0) / (4 * sigD * sigD))
+    const k0 = d2Idx(2 * m1, 2 * m1 + 1)
+    re[k0] = re[k0]! + 13 * e0
+    for (let d = 1; d <= 5; d++) {
+      const m2 = (m1 + d) % M
+      let dcm = m1 + 0.5 * d - mD0
+      if (dcm > M / 2) dcm -= M
+      if (dcm < -M / 2) dcm += M
+      const env = Math.exp(-(dcm * dcm) / (4 * sigD * sigD)) * Math.pow(1 / 13, d - 1)
+      const terms: readonly (readonly [number, number, Complex])[] = [
+        [2 * m1, 2 * m2, uPP],
+        [2 * m1, 2 * m2 + 1, uPM],
+        [2 * m1 + 1, 2 * m2, uMP],
+        [2 * m1 + 1, 2 * m2 + 1, uPP],
+      ]
+      for (const [a, b, u] of terms) {
+        const k = d2Idx(a, b)
+        const v = cScale(env, u)
+        re[k] = re[k]! + v[0]
+        im[k] = im[k]! + v[1]
+      }
+    }
+  }
+  let n2 = 0
+  for (let i = 0; i < dim2; i++) n2 += re[i]! ** 2 + im[i]! ** 2
+  const sc = 1 / Math.sqrt(Math.max(1e-30, n2))
+  for (let i = 0; i < dim2; i++) {
+    re[i] = re[i]! * sc
+    im[i] = im[i]! * sc
+  }
+  return { re, im }
+}
+
+// Live sparse 3-body Sym^3 Doublon + Pulse unitary collision on even-sublattice ring M = 24 (dim = C(48,3) = 17,296).
+// Collides the exact Z[omega][1/13] P = 0 doublon packet (mD0 = 12) with a localized Gaussian pulse (mP0 = 5)
+// moving right at exact CZ momentum p_* = -atan(6 sqrt(3)/5) (v_g = +6/13) over T = 50 beats.
+function runLiveDoublonPulseSym3Collision(): {
+  readonly conditionalPhaseRad: number
+  readonly fidelity: number
+  readonly transmission: number
+  readonly breakupProb: number
+  readonly normErr: number
+} {
+  const M = 24
+  const S = 2 * M
+  const T = 50
+  const c2: number[] = Array.from({ length: S + 1 }, (_, n) => (n * (n - 1)) / 2)
+  const c3: number[] = Array.from({ length: S + 1 }, (_, n) => (n * (n - 1) * (n - 2)) / 6)
+  const dim = c3[S]!
+  const dim2 = c2[S]!
+  const d2Idx = (a: number, b: number): number => (a < b ? a + c2[b]! : b + c2[a]!)
+  const idx3 = (a: number, b: number, c: number): number => {
+    let x = a
+    let y = b
+    let z = c
+    if (x > y) { const t = x; x = y; y = t }
+    if (y > z) { const t = y; y = z; z = t }
+    if (x > y) { const t = x; x = y; y = t }
+    return x + c2[y]! + c3[z]!
+  }
+
+  const dInit = buildEvenSublatticeDoublonPacket(M, 12, 1.7)
+  const pStar = -Math.atan((6 * SQRT3) / 5)
+  const pInit = buildEvenSublatticePulse(M, 5, 1.8, pStar)
+  const d2R = dInit.re
+  const d2I = dInit.im
+  const p1R = pInit.re
+  const p1I = pInit.im
+
+  // Helper to assemble Sym^3 tensor product of d2 and p1
+  const assembleSym3 = (
+    a2R: Float64Array,
+    a2I: Float64Array,
+    a1R: Float64Array,
+    a1I: Float64Array,
+  ): { readonly re: Float64Array; readonly im: Float64Array } => {
+    const outR = new Float64Array(dim)
+    const outI = new Float64Array(dim)
+    for (let b = 1; b < S; b++) {
+      const cb = c2[b]!
+      for (let a = 0; a < b; a++) {
+        const k2 = a + cb
+        const r2 = a2R[k2]!
+        const i2 = a2I[k2]!
+        if (r2 === 0 && i2 === 0) continue
+        for (let c = 0; c < S; c++) {
+          if (c === a || c === b) continue
+          const r1 = a1R[c]!
+          const i1 = a1I[c]!
+          if (r1 === 0 && i1 === 0) continue
+          const k3 = idx3(a, b, c)
+          outR[k3] = outR[k3]! + (r2 * r1 - i2 * i1)
+          outI[k3] = outI[k3]! + (r2 * i1 + i2 * r1)
+        }
+      }
+    }
+    let n2 = 0
+    for (let i = 0; i < dim; i++) n2 += outR[i]! ** 2 + outI[i]! ** 2
+    const inv = 1 / Math.sqrt(Math.max(1e-30, n2))
+    for (let i = 0; i < dim; i++) {
+      outR[i] = outR[i]! * inv
+      outI[i] = outI[i]! * inv
+    }
+    return { re: outR, im: outI }
+  }
+
+  let st3 = assembleSym3(d2R, d2I, p1R, p1I)
+  let curD2R = Float64Array.from(d2R)
+  let curD2I = Float64Array.from(d2I)
+  let curP1R = Float64Array.from(p1R)
+  let curP1I = Float64Array.from(p1I)
+
+  const coin = diracCoin(PI / 3, PI / 3)
+  const c00r = coin[0][0][0]
+  const c00i = coin[0][0][1]
+  const c01r = coin[0][1][0]
+  const c01i = coin[0][1][1]
+  const w2r = OMEGA2[0]
+  const w2i = OMEGA2[1]
+
+  // Even-sublattice streaming: s=0 stays at m, s=1 shifts to (m-1+M)%M (equivalent to co-moving right frame!)
+  const streamEven = (m: number, s: number): number =>
+    2 * (s === 0 ? m : (m - 1 + M) % M) + s
+
+  // Single-beat sparse evolution for 1-body, 2-body Sym^2, and 3-body Sym^3
+  for (let step = 0; step < T; step++) {
+    // 1-body reference step
+    const n1R = new Float64Array(S)
+    const n1I = new Float64Array(S)
+    for (let m = 0; m < M; m++) {
+      const r0 = curP1R[2 * m]!
+      const i0 = curP1I[2 * m]!
+      const r1 = curP1R[2 * m + 1]!
+      const i1 = curP1I[2 * m + 1]!
+      if (r0 === 0 && i0 === 0 && r1 === 0 && i1 === 0) continue
+      const o0 = streamEven(m, 0)
+      const o1 = streamEven(m, 1)
+      n1R[o0] = n1R[o0]! + (c00r * r0 - c00i * i0 + (c01r * r1 - c01i * i1))
+      n1I[o0] = n1I[o0]! + (c00r * i0 + c00i * r0 + (c01r * i1 + c01i * r1))
+      n1R[o1] = n1R[o1]! + (c01r * r0 - c01i * i0 + (c00r * r1 - c00i * i1))
+      n1I[o1] = n1I[o1]! + (c01r * i0 + c01i * r0 + (c00r * i1 + c00i * r1))
+    }
+    curP1R = n1R
+    curP1I = n1I
+
+    // 2-body Sym^2 reference step
+    const n2R = new Float64Array(dim2)
+    const n2I = new Float64Array(dim2)
+    for (let b = 1; b < S; b++) {
+      const cb = c2[b]!
+      const mb = b >> 1
+      const sb = b & 1
+      for (let a = 0; a < b; a++) {
+        const k = a + cb
+        const ar = curD2R[k]!
+        const ai = curD2I[k]!
+        if (ar === 0 && ai === 0) continue
+        const ma = a >> 1
+        const sa = a & 1
+        if (ma === mb) {
+          const dst = d2Idx(streamEven(ma, 0), streamEven(ma, 1))
+          n2R[dst] = n2R[dst]! + (w2r * ar - w2i * ai)
+          n2I[dst] = n2I[dst]! + (w2r * ai + w2i * ar)
+        } else {
+          for (let oa = 0; oa < 2; oa++) {
+            const ca = oa === sa ? [c00r, c00i] : [c01r, c01i]
+            const tr = ca[0]! * ar - ca[1]! * ai
+            const ti = ca[0]! * ai + ca[1]! * ar
+            const saOut = streamEven(ma, oa)
+            for (let ob = 0; ob < 2; ob++) {
+              const cbm = ob === sb ? [c00r, c00i] : [c01r, c01i]
+              const vr = cbm[0]! * tr - cbm[1]! * ti
+              const vi = cbm[0]! * ti + cbm[1]! * tr
+              const dst = d2Idx(saOut, streamEven(mb, ob))
+              n2R[dst] = n2R[dst]! + vr
+              n2I[dst] = n2I[dst]! + vi
+            }
+          }
+        }
+      }
+    }
+    curD2R = n2R
+    curD2I = n2I
+
+    // 3-body Sym^3 full interacting step
+    const n3R = new Float64Array(dim)
+    const n3I = new Float64Array(dim)
+    for (let c = 2; c < S; c++) {
+      const cc3 = c3[c]!
+      const mc = c >> 1
+      const sc = c & 1
+      for (let b = 1; b < c; b++) {
+        const cb2 = c2[b]!
+        const mb = b >> 1
+        const sb = b & 1
+        for (let a = 0; a < b; a++) {
+          const k = a + cb2 + cc3
+          const ar = st3.re[k]!
+          const ai = st3.im[k]!
+          if (ar === 0 && ai === 0) continue
+          const ma = a >> 1
+          const sa = a & 1
+          if (ma === mb) {
+            // Pair at ma, lone at mc
+            const pr = w2r * ar - w2i * ai
+            const pi = w2r * ai + w2i * ar
+            const sA = streamEven(ma, 0)
+            const sB = streamEven(ma, 1)
+            for (let oc = 0; oc < 2; oc++) {
+              const cm = oc === sc ? [c00r, c00i] : [c01r, c01i]
+              const vr = cm[0]! * pr - cm[1]! * pi
+              const vi = cm[0]! * pi + cm[1]! * pr
+              const dst = idx3(sA, sB, streamEven(mc, oc))
+              n3R[dst] = n3R[dst]! + vr
+              n3I[dst] = n3I[dst]! + vi
+            }
+          } else if (mb === mc) {
+            // Pair at mb, lone at ma
+            const pr = w2r * ar - w2i * ai
+            const pi = w2r * ai + w2i * ar
+            const sB = streamEven(mb, 0)
+            const sC = streamEven(mb, 1)
+            for (let oa = 0; oa < 2; oa++) {
+              const cm = oa === sa ? [c00r, c00i] : [c01r, c01i]
+              const vr = cm[0]! * pr - cm[1]! * pi
+              const vi = cm[0]! * pi + cm[1]! * pr
+              const dst = idx3(streamEven(ma, oa), sB, sC)
+              n3R[dst] = n3R[dst]! + vr
+              n3I[dst] = n3I[dst]! + vi
+            }
+          } else {
+            // Three distinct docks: independent coin C x C x C
+            for (let oa = 0; oa < 2; oa++) {
+              const ca = oa === sa ? [c00r, c00i] : [c01r, c01i]
+              const r1 = ca[0]! * ar - ca[1]! * ai
+              const i1 = ca[0]! * ai + ca[1]! * ar
+              const sA = streamEven(ma, oa)
+              for (let ob = 0; ob < 2; ob++) {
+                const cb = ob === sb ? [c00r, c00i] : [c01r, c01i]
+                const r2 = cb[0]! * r1 - cb[1]! * i1
+                const i2 = cb[0]! * i1 + cb[1]! * r1
+                const sB = streamEven(mb, ob)
+                for (let oc = 0; oc < 2; oc++) {
+                  const cm = oc === sc ? [c00r, c00i] : [c01r, c01i]
+                  const vr = cm[0]! * r2 - cm[1]! * i2
+                  const vi = cm[0]! * i2 + cm[1]! * r2
+                  const dst = idx3(sA, sB, streamEven(mc, oc))
+                  n3R[dst] = n3R[dst]! + vr
+                  n3I[dst] = n3I[dst]! + vi
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    st3 = { re: n3R, im: n3I }
+  }
+
+  const ref3 = assembleSym3(curD2R, curD2I, curP1R, curP1I)
+  let normEnd = 0
+  let ovR = 0
+  let ovI = 0
+  let pBoundSurvived = 0
+  let pTransmitted = 0
+  for (let c = 2; c < S; c++) {
+    const cc3 = c3[c]!
+    const mc = c >> 1
+    for (let b = 1; b < c; b++) {
+      const cb2 = c2[b]!
+      const mb = b >> 1
+      for (let a = 0; a < b; a++) {
+        const k = a + cb2 + cc3
+        const sr = st3.re[k]!
+        const si = st3.im[k]!
+        const p = sr * sr + si * si
+        normEnd += p
+        ovR += ref3.re[k]! * sr + ref3.im[k]! * si
+        ovI += ref3.re[k]! * si - ref3.im[k]! * sr
+
+        const ma = a >> 1
+        const dM = (u: number, v: number) => Math.min(Math.abs(u - v), M - Math.abs(u - v))
+        const dab = dM(ma, mb)
+        const dbc = dM(mb, mc)
+        const dca = dM(mc, ma)
+        const minPairDist = Math.min(dab, dbc, dca)
+        if (minPairDist <= 2) {
+          pBoundSurvived += p
+          // Identify spectator position relative to tightest pair center
+          let spec = mc
+          let pairC = ma
+          if (dbc === minPairDist) { spec = ma; pairC = mb }
+          else if (dca === minPairDist) { spec = mb; pairC = mc }
+          const rel = (((spec - pairC) % M) + M) % M
+          // Pulse started left (mP0=5) of doublon (mD0=12) moving right; transmitted means rel in (0, M/2)
+          if (rel > 0 && rel < M / 2) pTransmitted += p
+        }
+      }
+    }
+  }
+
+  return {
+    conditionalPhaseRad: Math.abs(Math.atan2(ovI, ovR)),
+    fidelity: ovR * ovR + ovI * ovI,
+    transmission: pTransmitted,
+    breakupProb: Math.max(0, 1 - pBoundSurvived),
+    normErr: Math.abs(normEnd - 1),
+  }
+}
+
+// Live sparse 3-body (+, +, -) K + M_meet collision on M = 16 (dim = C(32, 2) * 32 = 15,872)
+// proving opposite-sign K breaks up the exact Z[omega][1/13] M_meet doublon inelastically!
+function runLiveOppositeSignDoublonBreakup(): {
+  readonly breakupProb: number
+  readonly refOverlapSq: number
+  readonly normErr: number
+} {
+  const M = 16
+  const S = 2 * M
+  const T = 36
+  const c2: number[] = Array.from({ length: S + 1 }, (_, n) => (n * (n - 1)) / 2)
+  const dim2 = c2[S]!
+  const dim = dim2 * S
+  const d2Idx = (a: number, b: number): number => (a < b ? a + c2[b]! : b + c2[a]!)
+  const idx3M = (k2: number, nSlot: number): number => k2 * S + nSlot
+
+  const dInit = buildEvenSublatticeDoublonPacket(M, 9, 1.4)
+  const pNeg = -Math.atan((6 * SQRT3) / 5)
+  const pInit = buildEvenSublatticePulse(M, 3, 1.4, pNeg)
+  const d2R = dInit.re
+  const d2I = dInit.im
+  const p1R = pInit.re
+  const p1I = pInit.im
+
+  let stR = new Float64Array(dim)
+  let stI = new Float64Array(dim)
+  let n0 = 0
+  for (let b = 1; b < S; b++) {
+    const cb = c2[b]!
+    for (let a = 0; a < b; a++) {
+      const k2 = a + cb
+      const r2 = d2R[k2]!
+      const i2 = d2I[k2]!
+      if (r2 === 0 && i2 === 0) continue
+      for (let nSlot = 0; nSlot < S; nSlot++) {
+        if (nSlot === a || nSlot === b) continue
+        const r1 = p1R[nSlot]!
+        const i1 = p1I[nSlot]!
+        if (r1 === 0 && i1 === 0) continue
+        const k = idx3M(k2, nSlot)
+        const vr = r2 * r1 - i2 * i1
+        const vi = r2 * i1 + i2 * r1
+        stR[k] = vr
+        stI[k] = vi
+        n0 += vr * vr + vi * vi
+      }
+    }
+  }
+  const inv0 = 1 / Math.sqrt(Math.max(1e-30, n0))
+  for (let i = 0; i < dim; i++) {
+    stR[i] = stR[i]! * inv0
+    stI[i] = stI[i]! * inv0
+  }
+
+  let refD2R = Float64Array.from(d2R)
+  let refD2I = Float64Array.from(d2I)
+  let refP1R = Float64Array.from(p1R)
+  let refP1I = Float64Array.from(p1I)
+
+  const coin = diracCoin(PI / 3, PI / 3)
+  const c00r = coin[0][0][0]
+  const c00i = coin[0][0][1]
+  const c01r = coin[0][1][0]
+  const c01i = coin[0][1][1]
+  const w2r = OMEGA2[0]
+  const w2i = OMEGA2[1]
+  const kFacR = -OMEGA[0]
+  const kFacI = -OMEGA[1]
+  const streamEven = (m: number, s: number): number =>
+    2 * (s === 0 ? m : (m - 1 + M) % M) + s
+
+  for (let step = 0; step < T; step++) {
+    // Advance non-interacting references
+    const n1R = new Float64Array(S)
+    const n1I = new Float64Array(S)
+    for (let m = 0; m < M; m++) {
+      const r0 = refP1R[2 * m]!
+      const i0 = refP1I[2 * m]!
+      const r1 = refP1R[2 * m + 1]!
+      const i1 = refP1I[2 * m + 1]!
+      if (r0 === 0 && i0 === 0 && r1 === 0 && i1 === 0) continue
+      const o0 = streamEven(m, 0)
+      const o1 = streamEven(m, 1)
+      n1R[o0] = n1R[o0]! + (c00r * r0 - c00i * i0 + (c01r * r1 - c01i * i1))
+      n1I[o0] = n1I[o0]! + (c00r * i0 + c00i * r0 + (c01r * i1 + c01i * r1))
+      n1R[o1] = n1R[o1]! + (c01r * r0 - c01i * i0 + (c00r * r1 - c00i * i1))
+      n1I[o1] = n1I[o1]! + (c01r * i0 + c01i * r0 + (c00r * i1 + c00i * r1))
+    }
+    refP1R = n1R
+    refP1I = n1I
+
+    const n2R = new Float64Array(dim2)
+    const n2I = new Float64Array(dim2)
+    for (let b = 1; b < S; b++) {
+      const cb = c2[b]!
+      const mb = b >> 1
+      const sb = b & 1
+      for (let a = 0; a < b; a++) {
+        const k2 = a + cb
+        const ar = refD2R[k2]!
+        const ai = refD2I[k2]!
+        if (ar === 0 && ai === 0) continue
+        const ma = a >> 1
+        const sa = a & 1
+        if (ma === mb) {
+          const dst = d2Idx(streamEven(ma, 0), streamEven(ma, 1))
+          n2R[dst] = n2R[dst]! + (w2r * ar - w2i * ai)
+          n2I[dst] = n2I[dst]! + (w2r * ai + w2i * ar)
+        } else {
+          for (let oa = 0; oa < 2; oa++) {
+            const ca = oa === sa ? [c00r, c00i] : [c01r, c01i]
+            const tr = ca[0]! * ar - ca[1]! * ai
+            const ti = ca[0]! * ai + ca[1]! * ar
+            const sA = streamEven(ma, oa)
+            for (let ob = 0; ob < 2; ob++) {
+              const cbm = ob === sb ? [c00r, c00i] : [c01r, c01i]
+              const vr = cbm[0]! * tr - cbm[1]! * ti
+              const vi = cbm[0]! * ti + cbm[1]! * tr
+              const dst = d2Idx(sA, streamEven(mb, ob))
+              n2R[dst] = n2R[dst]! + vr
+              n2I[dst] = n2I[dst]! + vi
+            }
+          }
+        }
+      }
+    }
+    refD2R = n2R
+    refD2I = n2I
+
+    // Full interacting (+, +, -) K + M_meet step
+    const nxR = new Float64Array(dim)
+    const nxI = new Float64Array(dim)
+    for (let b = 1; b < S; b++) {
+      const cb = c2[b]!
+      const mb = b >> 1
+      const sb = b & 1
+      for (let a = 0; a < b; a++) {
+        const k2 = a + cb
+        const ma = a >> 1
+        const sa = a & 1
+        for (let nSlot = 0; nSlot < S; nSlot++) {
+          if (nSlot === a || nSlot === b) continue
+          const k = idx3M(k2, nSlot)
+          const ar = stR[k]!
+          const ai = stI[k]!
+          if (ar === 0 && ai === 0) continue
+          const mn = nSlot >> 1
+          const sn = nSlot & 1
+
+          if (ma === mb) {
+            // ++ meet at ma, - lone at mn
+            const pr = w2r * ar - w2i * ai
+            const pi = w2r * ai + w2i * ar
+            const kOut = d2Idx(streamEven(ma, 0), streamEven(ma, 1))
+            for (let on = 0; on < 2; on++) {
+              const cn = on === sn ? [c00r, c00i] : [c01r, c01i]
+              const dst = idx3M(kOut, streamEven(mn, on))
+              nxR[dst] = nxR[dst]! + (cn[0]! * pr - cn[1]! * pi)
+              nxI[dst] = nxI[dst]! + (cn[0]! * pi + cn[1]! * pr)
+            }
+          } else if (ma === mn) {
+            // +- K bounce at ma (a and n swap slots with -omega), + lone at mb
+            const pr = kFacR * ar - kFacI * ai
+            const pi = kFacR * ai + kFacI * ar
+            const sAOut = streamEven(ma, sn)
+            const sNOut = streamEven(ma, sa)
+            for (let ob = 0; ob < 2; ob++) {
+              const cbm = ob === sb ? [c00r, c00i] : [c01r, c01i]
+              const dst = idx3M(d2Idx(sAOut, streamEven(mb, ob)), sNOut)
+              nxR[dst] = nxR[dst]! + (cbm[0]! * pr - cbm[1]! * pi)
+              nxI[dst] = nxI[dst]! + (cbm[0]! * pi + cbm[1]! * pr)
+            }
+          } else if (mb === mn) {
+            // +- K bounce at mb (b and n swap slots with -omega), + lone at ma
+            const pr = kFacR * ar - kFacI * ai
+            const pi = kFacR * ai + kFacI * ar
+            const sBOut = streamEven(mb, sn)
+            const sNOut = streamEven(mb, sb)
+            for (let oa = 0; oa < 2; oa++) {
+              const ca = oa === sa ? [c00r, c00i] : [c01r, c01i]
+              const dst = idx3M(d2Idx(streamEven(ma, oa), sBOut), sNOut)
+              nxR[dst] = nxR[dst]! + (ca[0]! * pr - ca[1]! * pi)
+              nxI[dst] = nxI[dst]! + (ca[0]! * pi + ca[1]! * pr)
+            }
+          } else {
+            // All three on distinct docks: C x C x C
+            for (let oa = 0; oa < 2; oa++) {
+              const ca = oa === sa ? [c00r, c00i] : [c01r, c01i]
+              const r1 = ca[0]! * ar - ca[1]! * ai
+              const i1 = ca[0]! * ai + ca[1]! * ar
+              const sA = streamEven(ma, oa)
+              for (let ob = 0; ob < 2; ob++) {
+                const cbm = ob === sb ? [c00r, c00i] : [c01r, c01i]
+                const r2 = cbm[0]! * r1 - cbm[1]! * i1
+                const i2 = cbm[0]! * i1 + cbm[1]! * r1
+                const sB = streamEven(mb, ob)
+                const kOut = d2Idx(sA, sB)
+                for (let on = 0; on < 2; on++) {
+                  const cn = on === sn ? [c00r, c00i] : [c01r, c01i]
+                  const dst = idx3M(kOut, streamEven(mn, on))
+                  nxR[dst] = nxR[dst]! + (cn[0]! * r2 - cn[1]! * i2)
+                  nxI[dst] = nxI[dst]! + (cn[0]! * i2 + cn[1]! * r2)
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    stR = nxR
+    stI = nxI
+  }
+
+  let normEnd = 0
+  let pIntactPair = 0
+  let ovR = 0
+  let ovI = 0
+  for (let b = 1; b < S; b++) {
+    const cb = c2[b]!
+    const mb = b >> 1
+    for (let a = 0; a < b; a++) {
+      const k2 = a + cb
+      const ma = a >> 1
+      const dPlus = Math.min(Math.abs(ma - mb), M - Math.abs(ma - mb))
+      const r2 = refD2R[k2]!
+      const i2 = refD2I[k2]!
+      for (let nSlot = 0; nSlot < S; nSlot++) {
+        if (nSlot === a || nSlot === b) continue
+        const k = idx3M(k2, nSlot)
+        const sr = stR[k]!
+        const si = stI[k]!
+        const p = sr * sr + si * si
+        normEnd += p
+        if (dPlus <= 1) pIntactPair += p
+        const rr = r2 * refP1R[nSlot]! - i2 * refP1I[nSlot]!
+        const ri = r2 * refP1I[nSlot]! + i2 * refP1R[nSlot]!
+        ovR += rr * sr + ri * si
+        ovI += rr * si - ri * sr
+      }
+    }
+  }
+
+  return {
+    breakupProb: Math.max(0, 1 - pIntactPair),
+    refOverlapSq: ovR * ovR + ovI * ovI,
+    normErr: Math.abs(normEnd - 1),
+  }
+}
+
+// Live 4D 24-slot dock operator check for cross-line L_0 doublon + L_1 lone vibe transparency:
+// Evolves the joint 3-vibe configuration through exact 4D dock layers (Phi_odd o D o K o M_meet o D o Phi_odd)
+// vs the tensor product of independent L_0 and L_1 evolutions, returning exact L_2 norm difference.
+function runLive4DCrossLineTransparencyCheck(): {
+  readonly crossLineDiff: number
+  readonly branchCount: number
+} {
+  type Branch = { readonly vibes: readonly DockOccupancy[]; readonly amp: Complex }
+  const l0 = ANTIPODAL_LINES[0]!
+  const l1 = ANTIPODAL_LINES[1]!
+
+  const applyDockLayers = (init: readonly DockOccupancy[]): Map<string, Complex> => {
+    const keyOf = (vs: readonly DockOccupancy[]): string =>
+      [...vs]
+        .sort((a, b) => a.slot - b.slot || a.role - b.role)
+        .map(v => `${v.slot}:${v.tone}:${v.role}`)
+        .join('|')
+
+    // 1. Phi_odd
+    const chi1 = computeChiralOrientation(init)
+    let branches: Branch[] = [{ vibes: init, amp: cExpI((chi1 * PI) / 3) }]
+
+    // 2. Half-coin D (exact: detPhase = zeta_6 on both-occupied lines, (cos(pi/6), -i sin(pi/6))*e^{i pi/6} on lone slots)
+    const dDiag = cScale(Math.cos(PI / 6), cExpI(PI / 6))
+    const dOff = cMul(cExpI(PI / 6), [0, -Math.sin(PI / 6)])
+    const zeta6 = cExpI(PI / 3)
+
+    const applyD = (inBrs: readonly Branch[]): Branch[] => {
+      let cur = [...inBrs]
+      for (const [sA, sB] of ANTIPODAL_LINES) {
+        const next: Branch[] = []
+        for (const br of cur) {
+          const iA = br.vibes.findIndex(v => v.slot === sA)
+          const iB = br.vibes.findIndex(v => v.slot === sB)
+          if (iA >= 0 && iB >= 0) {
+            next.push({ vibes: br.vibes, amp: cMul(br.amp, zeta6) })
+          } else if (iA >= 0 || iB >= 0) {
+            const idx = iA >= 0 ? iA : iB
+            const opp = iA >= 0 ? sB : sA
+            const flipped = br.vibes.map((v, k) => (k === idx ? { ...v, slot: opp } : v))
+            next.push({ vibes: br.vibes, amp: cMul(br.amp, dDiag) })
+            next.push({ vibes: flipped, amp: cMul(br.amp, dOff) })
+          } else {
+            next.push(br)
+          }
+        }
+        cur = next
+      }
+      return cur
+    }
+
+    // 3. M_meet on distinct same-tone antipodal pairs: keep = zeta_6 / 2, swap = (omega - 1) / 2
+    const mKeep = cScale(0.5, zeta6)
+    const mSwap: Complex = [0.5 * (OMEGA[0] - 1), 0.5 * OMEGA[1]]
+    const applyMeet = (inBrs: readonly Branch[]): Branch[] => {
+      let cur = [...inBrs]
+      for (const [sA, sB] of ANTIPODAL_LINES) {
+        const next: Branch[] = []
+        for (const br of cur) {
+          const iA = br.vibes.findIndex(v => v.slot === sA)
+          const iB = br.vibes.findIndex(v => v.slot === sB)
+          if (iA >= 0 && iB >= 0 && br.vibes[iA]!.tone === br.vibes[iB]!.tone) {
+            if (br.vibes[iA]!.role === br.vibes[iB]!.role) {
+              next.push({ vibes: br.vibes, amp: cMul(br.amp, OMEGA) })
+            } else {
+              const swapped = br.vibes.map((v, k) =>
+                k === iA
+                  ? { ...v, role: br.vibes[iB]!.role }
+                  : k === iB
+                    ? { ...v, role: br.vibes[iA]!.role }
+                    : v,
+              )
+              next.push({ vibes: br.vibes, amp: cMul(br.amp, mKeep) })
+              next.push({ vibes: swapped, amp: cMul(br.amp, mSwap) })
+            }
+          } else {
+            next.push(br)
+          }
+        }
+        cur = next
+      }
+      return cur
+    }
+
+    branches = applyD(branches)
+    branches = applyMeet(branches)
+    branches = applyD(branches)
+    // Final Phi_odd
+    const out = new Map<string, Complex>()
+    for (const br of branches) {
+      const chi2 = computeChiralOrientation(br.vibes)
+      const amp = cMul(br.amp, cExpI((chi2 * PI) / 3))
+      const k = keyOf(br.vibes)
+      const prev = out.get(k)
+      out.set(k, prev ? cAdd(prev, amp) : amp)
+    }
+    return out
+  }
+
+  const pairL0: readonly DockOccupancy[] = [
+    { slot: l0[0], tone: 1, role: 0 },
+    { slot: l0[1], tone: 1, role: 1 },
+  ]
+  const loneL1: readonly DockOccupancy[] = [{ slot: l1[0], tone: 1, role: 2 }]
+
+  const jointOut = applyDockLayers([...pairL0, ...loneL1])
+  const outL0 = applyDockLayers(pairL0)
+  const outL1 = applyDockLayers(loneL1)
+
+  const tensorOut = new Map<string, Complex>()
+  for (const [k0, a0] of outL0) {
+    for (const [k1, a1] of outL1) {
+      const mergedKey = [...k0.split('|'), ...k1.split('|')]
+        .sort((x, y) => Number(x.split(':')[0]) - Number(y.split(':')[0]))
+        .join('|')
+      const prod = cMul(a0, a1)
+      const prev = tensorOut.get(mergedKey)
+      tensorOut.set(mergedKey, prev ? cAdd(prev, prod) : prod)
+    }
+  }
+
+  const allKeys = new Set([...jointOut.keys(), ...tensorOut.keys()])
+  let diffSq = 0
+  for (const k of allKeys) {
+    const a = jointOut.get(k) ?? ([0, 0] as Complex)
+    const b = tensorOut.get(k) ?? ([0, 0] as Complex)
+    diffSq += (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2
+  }
+  return { crossLineDiff: Math.sqrt(diffSq), branchCount: jointOut.size }
+}
+
+// =================================================================================================
+// 5. BARE-U SPECIES ZOO SCANNER & COLLISION MATRIX
 // =================================================================================================
 
 export interface ZooSpeciesFingerprint {
@@ -1261,7 +2357,7 @@ export interface ZooSpeciesFingerprint {
   readonly chiOdd: number
   readonly bindingGap: number
   readonly groupVelocity: number
-  readonly levelSpacingR: number
+  readonly levelSpacingR: number | null
   readonly realizationMode: RealizationMode
 }
 
@@ -1269,44 +2365,45 @@ export type CollisionOutcome =
   | 'pass-through'
   | 'phase-shift'
   | 'role-swap'
-  | 'bound-capture'
-  | 'annihilation'
+  | 'bound_state_eigenchannel'
+  | 'chiral_cancellation_chi_odd_zero'
   | 'chiral-asymmetry'
+  | 'inelastic-breakup'
+
+export type CollisionMeasurementKind =
+  | 'live_unitary_collision'
+  | 'exact_spectral_eigenchannel'
+  | 'exact_4d_chiral_operator'
+  | 'exact_analytic_yang_formula'
 
 export interface CollisionMatrixEntry {
   readonly speciesA: string
   readonly speciesB: string
   readonly channel: string
   readonly outcome: CollisionOutcome
+  readonly measurementKind: CollisionMeasurementKind
   readonly conditionalPhaseRad: number
   readonly roleSwapProb: number
   readonly breakupProb: number
   readonly crossLineDiff: number
   readonly chiOddDelta: number
+  readonly unitarityError: number
   readonly detail: string
 }
 
 export interface BareUZooReport {
   readonly species: readonly ZooSpeciesFingerprint[]
   readonly collisions: readonly CollisionMatrixEntry[]
-  readonly neutralPairAnnihilationZeroCount: number
-  readonly neutralPairAnnihilationTestedCount: number
+  readonly neutralPairCancellationZeroCount: number
+  readonly neutralPairCancellationTestedCount: number
+  readonly chaosSectorInteractionDeviation: number
   readonly unitarityMaxError: number
-}
-
-// Exact Yang rapidity u(p, alpha) = (2/sqrt(3)) sin(E_alpha(p)) / sin(p) and S-matrix.
-function bareSingleParticleE(p: number, band: 1 | -1): number {
-  return PI / 3 + band * Math.acos(0.5 * Math.cos(p))
-}
-
-function bareYangRapidity(p: number, band: 1 | -1): number {
-  return (2 / SQRT3) * (Math.sin(bareSingleParticleE(p, band)) / Math.sin(p))
 }
 
 export function scanBareUZoo(): BareUZooReport {
   let maxUniErr = 0
 
-  // 1. k = 1 lone geodesic vibe
+  // 1. k = 1 lone geodesic vibe (exact Bloch dispersion; single-particle <r> is undefined -> null)
   const loneDock: readonly DockOccupancy[] = [{ slot: ANTIPODAL_LINES[0]![0], tone: 1, role: 0 }]
   const loneCanon = canonicalizeDockPattern(loneDock)
   const loneVMax = Math.cos(PI / 3) // exact 0.5
@@ -1325,7 +2422,7 @@ export function scanBareUZoo(): BareUZooReport {
     chiOdd: loneCanon.chiOdd,
     bindingGap: 0,
     groupVelocity: loneVMax,
-    levelSpacingR: 0.3863,
+    levelSpacingR: null,
     realizationMode: 'field',
   }
 
@@ -1339,7 +2436,6 @@ export function scanBareUZoo(): BareUZooReport {
   const u2Bare = buildU2SymCM(16, 0, PI / 3, PI / 3, OMEGA2)
   maxUniErr = Math.max(maxUniErr, unitaryError(u2Bare))
   const d0 = findBoundDoublon(16, 0, PI / 3, PI / 3, OMEGA2)
-  // Exact group velocity at P = pi/2 on branch A (seeded with exact E_A(pi/2) to avoid bipartite partner E_B = E_A - pi)
   const e2HalfPiTarget = PI / 3 + Math.asin(1 / Math.sqrt(13))
   const dHalfMinus = shiftInvertEigen(
     buildU2SymCM(16, PI / 2 - 1e-3, PI / 3, PI / 3, OMEGA2),
@@ -1356,7 +2452,6 @@ export function scanBareUZoo(): BareUZooReport {
     6,
   )
   const doublonVMax = Math.abs(wrapPi(dHalfMinus.E - dHalfPlus.E)) / 2e-3
-  // Wavefunction amplitude decays as z^r = (1/13)^r (so probability |psi(r)|^2 decays as z^{2r} => sqrt(p2/p1) = 1/13)
   const doublonZDecay = d0.decayRatio
   const rIntegrable = computeIntegrableR(PI / 3, PI / 3, OMEGA2)
 
@@ -1408,12 +2503,21 @@ export function scanBareUZoo(): BareUZooReport {
     realizationMode: 'field',
   }
 
-  // 4. k = 3 Sym^3 M_meet trion (exact |r|^2 = 1/7, E_3(0) = -2.761341, v_g(pi/4) = 1/sqrt(55))
+  // 4. k = 3 Sym^3 M_meet trion on prime M = 11 (exact symCount === 1 everywhere, full spectrum gap!)
   const M3 = 11
   const trionSys = buildU3SymEven(M3, 0, PI / 3, PI / 3, OMEGA2)
   maxUniErr = Math.max(maxUniErr, unitaryError(trionSys.U))
+  const trionFullEig = unitaryEigen(trionSys.U)
   const e3Target = Math.atan2((-3 * SQRT3) / 14, -13 / 14)
   const tRef = shiftInvertEigen(trionSys.U, e3Target, undefined, undefined, 7)
+
+  // Compute exact trion binding gap against ALL other eigenphases of trionSys.U (not a single analytic point)
+  let trionMinContinuumGap = PI
+  for (let i = 0; i < trionFullEig.phases.length; i++) {
+    const d = phaseDist(tRef.E, trionFullEig.phases[i]!)
+    if (d > 1e-6 && d < trionMinContinuumGap) trionMinContinuumGap = d
+  }
+
   let trionContact = 0
   let pPairSep1 = 0
   let pPairSep2 = 0
@@ -1424,14 +2528,15 @@ export function scanBareUZoo(): BareUZooReport {
     const m1 = cfg[1]![0]
     const m2 = cfg[2]![0]
     if (m0 === m1 || m1 === m2 || m0 === m2) trionContact += p
-    // Pure pair-plus-spectator configurations [0:0, 0:1, d:s]: exact amplitude decay = (1/7)^d => |psi(d=2)|/|psi(d=1)| = 1/7!
     if (m0 === 0 && m1 === 0 && cfg[0]![1] === 0 && cfg[1]![1] === 1) {
       if (m2 === 1) pPairSep1 += p
       else if (m2 === 2) pPairSep2 += p
     }
   }
-  // Exact group velocity at P = pi/4 via Peierls flux q = P/3 (where M=11 matches infinite-line 1/sqrt(55) to 1e-6!)
-  const e3QuarterPi = wrapPi(-PI + Math.asin(1 / Math.sqrt(28)) + Math.asin(Math.SQRT1_2 / Math.sqrt(28)))
+
+  const e3QuarterPi = wrapPi(
+    -PI + Math.asin(1 / Math.sqrt(28)) + Math.asin(Math.SQRT1_2 / Math.sqrt(28)),
+  )
   const tMinus = shiftInvertEigen(
     buildU3SymEven(M3, (PI / 4 - 1e-3) / 3, PI / 3, PI / 3, OMEGA2).U,
     e3QuarterPi + 1.35e-4,
@@ -1447,30 +2552,36 @@ export function scanBareUZoo(): BareUZooReport {
     6,
   )
   const trionVQuarter = Math.abs(wrapPi(tMinus.E - tPlus.E)) / 2e-3
-  const trionGap = Math.abs(wrapPi(tRef.E - (d0.E + bareSingleParticleE(0, 1) - 2 * PI)))
-  // Exact Bethe 3-string decay ratio |r|^2 = 1/7 directly from pair-plus-spectator eigenvector amplitude decay sqrt(p2/p1)
   const trionDecayRatio = pPairSep1 > 1e-12 ? Math.sqrt(pPairSep2 / pPairSep1) : 1 / 7
+
+  // Compute trion's own W(F_4) x C collinear canonical signature and orbit size (2 on dock 0, 1 on adjacent dock 1)
+  const trionCanon = canonicalizeCollinearPattern([
+    { dockOffset: 0, slot: line0[0], tone: 1 },
+    { dockOffset: 0, slot: line0[1], tone: 1 },
+    { dockOffset: 1, slot: line0[0], tone: 1 },
+  ])
 
   const trionSpecies: ZooSpeciesFingerprint = {
     id: 'trion_k3_sym3',
     label: 'Bare-U k=3 Sym^3 M_meet Trion (Z[omega][1/7])',
     particleCount: 3,
-    canonicalSignature: `1d_sym3:${doublonCanon.canonicalKey}+1`,
-    symmetryOrbitSize: doublonCanon.orbitSize,
-    bound: trionGap > 0.05 && tRef.residual < 1e-9,
+    canonicalSignature: trionCanon.canonicalKey,
+    symmetryOrbitSize: trionCanon.orbitSize,
+    bound: trionMinContinuumGap > 0.05 && tRef.residual < 1e-9,
     lifetime: Number.POSITIVE_INFINITY,
     contactProb: trionContact,
     ipr: tRef.ipr,
     decayRatio: trionDecayRatio,
     quasienergy: tRef.E,
     chiOdd: 0,
-    bindingGap: trionGap,
+    bindingGap: trionMinContinuumGap,
     groupVelocity: trionVQuarter,
     levelSpacingR: rIntegrable,
     realizationMode: 'field',
   }
 
   // 5. k = 4 non-coplanar Phi_odd chiral cluster C4 = lines [0, 1, 2, 8]
+  // Single dock configuration: many-body <r> is undefined (null).
   const c4Lines = [0, 1, 2, 8] as const
   const chiralDock: readonly DockOccupancy[] = c4Lines.map((l, idx) => ({
     slot: ANTIPODAL_LINES[l]![0],
@@ -1483,7 +2594,6 @@ export function scanBareUZoo(): BareUZooReport {
     tone: (v.tone === 1 ? -1 : 1) as 1 | -1,
     role: v.role,
   }))
-  // True 4D orientation-reversing spatial parity mirror P_0: (x_0, x_1, x_2, x_3) -> (-x_0, x_1, x_2, x_3), det = -1
   const mirrorSlotP0 = (s: number): number => {
     const r = D4_ROOTS[s]!
     return D4_ROOTS.findIndex(
@@ -1513,15 +2623,15 @@ export function scanBareUZoo(): BareUZooReport {
     chiOdd: chiralCanon.chiOdd,
     bindingGap: 0,
     groupVelocity: loneVMax,
-    levelSpacingR: 0.3863,
+    levelSpacingR: null,
     realizationMode: 'field',
   }
 
-  // Exhaustive (-I, C) Neutral-Pair Annihilation Theorem verification across 2-rail and 3-rail junctions!
+  // Exact (-I, C) Chiral Cancellation Theorem across 242 neutral-pair junctions:
+  //   132 2-rail junctions (C(12, 2) = 66 line pairs x 2 relative tone orientations)
+  //   + 110 3-rail junctions (l1 in 0..5, l2 in l1+1..7, l3 in l2+1..9) = 242 exact configs.
   let neutralPairTested = 0
   let neutralPairZero = 0
-  // Test all C(12, 2) = 66 2-rail junctions x 2 relative tone orientations = 132 configs
-  // + first 60 3-rail junctions = 192 total exact configs.
   for (let l1 = 0; l1 < 12; l1++) {
     for (let l2 = l1 + 1; l2 < 12; l2++) {
       for (const s2 of [1, -1] as const) {
@@ -1553,160 +2663,194 @@ export function scanBareUZoo(): BareUZooReport {
     }
   }
 
-  // Exact Collision Matrix across discovered species
-  // 1. k=1 + k=1 same-sign M_meet (distinct roles): exact Yang R-matrix t(w) = w/(w+i), r(w) = -i/(w+i)
-  const u1 = bareYangRapidity(0.45, 1)
-  const u2 = bareYangRapidity(1.25, 1)
-  const w12 = u1 - u2
-  const r12 = cDiv([0, -1], [w12, 1])
-  const pRoleSwap11 = cAbs(r12) ** 2
-  const s12 = cDiv([w12, -1], [w12, 1])
+  // --- EXECUTE LIVE UNITARY COLLISIONS & EXACT 4D OPERATOR CHECKS ---
+  const live2Meet = runLive2BodyCollision('M_meet')
+  const live2K = runLive2BodyCollision('K_bounce')
+  const live3Sym3 = runLiveDoublonPulseSym3Collision()
+  const live3Breakup = runLiveOppositeSignDoublonBreakup()
+  const live4DCross = runLive4DCrossLineTransparencyCheck()
+  maxUniErr = Math.max(
+    maxUniErr,
+    live2Meet.normErr,
+    live2K.normErr,
+    live3Sym3.normErr,
+    live3Breakup.normErr,
+  )
 
-  // 2. Doublon + Pulse (Sym^3) at p_* = -atan(6 sqrt(3) / 5), band +1 -> u_* = -sqrt(3)/2:
-  //    S_Sym3(u_*) = ((u_* - i/2)(u_* - 3i/2)) / ((u_* + i/2)(u_* + 3i/2)) = -1 (exact pi!)
+  // Compute live 1-step interaction deviation of uChaosBare vs non-interacting free limit (phi = pi)
+  const uChaosBare = build1DMixedChaosSector(5, (2 * PI) / 5, PI / 3, PI / 3, OMEGA2)
+  const uFreeMixed = build1DMixedChaosSector(5, (2 * PI) / 5, PI / 3, PI / 3, negOmega)
+  maxUniErr = Math.max(maxUniErr, unitaryError(uChaosBare), unitaryError(uFreeMixed))
+  let chaosDiffSq = 0
+  for (let i = 0; i < uChaosBare.re.length; i++) {
+    const dr = uChaosBare.re[i]! - uFreeMixed.re[i]!
+    const di = uChaosBare.im[i]! - uFreeMixed.im[i]!
+    chaosDiffSq += dr * dr + di * di
+  }
+  const chaosSectorInteractionDeviation = Math.sqrt(chaosDiffSq / uChaosBare.n)
+
+  // Exact analytic Yang-fusion references (explicitly marked measurementKind: 'exact_analytic_yang_formula')
   const pStar = -Math.atan((6 * SQRT3) / 5)
   const uStar = bareYangRapidity(pStar, 1)
-  const sDPNum = cMul([uStar, -0.5], [uStar, -1.5])
-  const sDPDen = cMul([uStar, 0.5], [uStar, 1.5])
-  const sDPSym3 = cDiv(sDPNum, sDPDen)
-  const phaseDP = Math.abs(Math.atan2(sDPSym3[1], sDPSym3[0]))
-
-  // 3. Doublon + Pulse (3-role separable Yang fusion |(0,1)_Sym> (x) |(2)>):
-  //    S_Std(u_*) = (u_* - i/2)/(u_* + i/2), a_el = (S_Sym3 + 2 S_Std)/3 => |a_el|^2 = 1/3, P_roleSwap = 2/3
+  const sDPSym3 = cDiv(cMul([uStar, -0.5], [uStar, -1.5]), cMul([uStar, 0.5], [uStar, 1.5]))
   const sDPStd = cDiv([uStar, -0.5], [uStar, 0.5])
   const aElSep = cScale(1 / 3, cAdd(sDPSym3, cScale(2, sDPStd)))
   const pRoleSwapDP = 1 - cAbs(aElSep) ** 2
 
-  // 4. Trion + Pulse (Sym^4) at p_*^(T) = -atan(3 sqrt(2) / 5), band +1 -> u_* = -sqrt(2)
   const pStarT = -Math.atan((3 * Math.SQRT2) / 5)
   const uStarT = bareYangRapidity(pStarT, 1)
-  const sTPSym4 = cDiv(
-    cMul([uStarT, -2], [uStarT, -1]),
-    cMul([uStarT, 2], [uStarT, 1]),
-  )
+  const sTPSym4 = cDiv(cMul([uStarT, -2], [uStarT, -1]), cMul([uStarT, 2], [uStarT, 1]))
   const phaseTP = Math.abs(Math.atan2(sTPSym4[1], sTPSym4[0]))
-
-  // 5. Opposite-sign K pulse + M_meet doublon: YBE-broken inelastic breakup check
-  //    Compute 1-step overlap loss between K+M_meet sector and free product on L = 5 mixed sector
-  const uChaosBare = build1DMixedChaosSector(5, (2 * PI) / 5, PI / 3, PI / 3, OMEGA2)
-  maxUniErr = Math.max(maxUniErr, unitaryError(uChaosBare))
 
   const collisions: CollisionMatrixEntry[] = [
     {
       speciesA: 'vibe_k1_lone',
       speciesB: 'vibe_k1_lone',
-      channel: '1D collinear same-sign M_meet (distinct roles)',
+      channel: '1D live wavepacket same-sign M_meet (distinct roles, L=36, T=26)',
       outcome: 'role-swap',
-      conditionalPhaseRad: Math.atan2(s12[1], s12[0]),
-      roleSwapProb: pRoleSwap11,
+      measurementKind: 'live_unitary_collision',
+      conditionalPhaseRad: live2Meet.conditionalPhaseRad,
+      roleSwapProb: live2Meet.roleSwapProb,
       breakupProb: 0,
       crossLineDiff: 0,
       chiOddDelta: 0,
-      detail: `Exact Yang R-matrix w=${w12.toFixed(4)}, P_swap=${pRoleSwap11.toFixed(4)}, |S|=${cAbs(s12).toFixed(6)}`,
+      unitarityError: live2Meet.normErr,
+      detail: `Live 2-body collision: P_swap=${live2Meet.roleSwapProb.toFixed(4)} (Yang ref=${live2Meet.analyticSwapRef.toFixed(4)}), |ov|=${live2Meet.overlapMag.toFixed(4)}, normErr=${live2Meet.normErr.toExponential(1)}`,
     },
     {
       speciesA: 'vibe_k1_lone',
       speciesB: 'vibe_k1_lone',
-      channel: '1D collinear opposite-sign K bounce',
+      channel: '1D live wavepacket opposite-sign K bounce (L=36, T=26)',
       outcome: 'phase-shift',
-      conditionalPhaseRad: PI,
-      roleSwapProb: 0,
+      measurementKind: 'live_unitary_collision',
+      conditionalPhaseRad: live2K.conditionalPhaseRad,
+      roleSwapProb: live2K.roleSwapProb,
       breakupProb: 0,
       crossLineDiff: 0,
       chiOddDelta: 0,
-      detail: 'Exact K = -omega * SWAP giving S_K = -1 free-fermion elastic reflection (no bound state)',
+      unitarityError: live2K.normErr,
+      detail: `Live 2-body K-bounce: P_reflect=${live2K.roleSwapProb.toFixed(4)}, phase=${(live2K.conditionalPhaseRad / PI).toFixed(4)}pi, normErr=${live2K.normErr.toExponential(1)}`,
     },
     {
       speciesA: 'vibe_k1_lone',
       speciesB: 'vibe_k1_lone',
-      channel: 'Bethe 2-string pole u = -i/2 (M_meet Sym^+)',
-      outcome: 'bound-capture',
+      channel: 'Exact U_2 Sym(+) bound-state eigenchannel (not 2->1 capture)',
+      outcome: 'bound_state_eigenchannel',
+      measurementKind: 'exact_spectral_eigenchannel',
       conditionalPhaseRad: d0.E,
       roleSwapProb: 0,
       breakupProb: 0,
       crossLineDiff: 0,
       chiOddDelta: 0,
-      detail: `Exact z = 1/13 (${doublonZDecay.toFixed(5)}), p_contact = ${d0.contactProb.toFixed(5)}, gap = ${d0.bindingGap.toFixed(5)}`,
+      unitarityError: unitaryError(u2Bare),
+      detail: `Exact discrete U_2 eigenstate: z=1/13 (${doublonZDecay.toFixed(5)}), p0=${d0.contactProb.toFixed(5)}, gap=${d0.bindingGap.toFixed(5)}`,
     },
     {
       speciesA: 'doublon_k2_m_meet',
       speciesB: 'vibe_k1_lone',
-      channel: '1D collinear Sym^3 at p_* = -atan(6 sqrt(3)/5)',
+      channel: '1D live Sym^3 wavepacket collision at p_* = -atan(6 sqrt(3)/5) (M=24, T=50)',
       outcome: 'phase-shift',
-      conditionalPhaseRad: phaseDP,
+      measurementKind: 'live_unitary_collision',
+      conditionalPhaseRad: live3Sym3.conditionalPhaseRad,
       roleSwapProb: 0,
-      breakupProb: 0,
+      breakupProb: live3Sym3.breakupProb,
       crossLineDiff: 0,
       chiOddDelta: 0,
-      detail: `Exact Yang fusion CZ phase Delta_phi = ${(phaseDP / PI).toFixed(6)} pi (zero breakup on Sym^3)`,
+      unitarityError: live3Sym3.normErr,
+      detail: `Live 3-body Sym^3 CZ: dPhi=${(live3Sym3.conditionalPhaseRad / PI).toFixed(4)}pi, fid=${live3Sym3.fidelity.toFixed(4)}, T=${live3Sym3.transmission.toFixed(4)}, P_break=${live3Sym3.breakupProb.toFixed(4)}`,
     },
     {
       speciesA: 'doublon_k2_m_meet',
       speciesB: 'vibe_k1_lone',
-      channel: '1D collinear 3-role separable |(0,1)_Sym> (x) |(2)>',
+      channel: '1D live (+,+,-) opposite-sign K breakup collision (M=16, T=36)',
+      outcome: 'inelastic-breakup',
+      measurementKind: 'live_unitary_collision',
+      conditionalPhaseRad: 0,
+      roleSwapProb: 0,
+      breakupProb: live3Breakup.breakupProb,
+      crossLineDiff: 0,
+      chiOddDelta: 0,
+      unitarityError: live3Breakup.normErr,
+      detail: `Live 3-body K+M_meet breakup: P_break=${live3Breakup.breakupProb.toFixed(4)}, |<ref|out>|^2=${live3Breakup.refOverlapSq.toFixed(4)}, uChaosDev=${chaosSectorInteractionDeviation.toFixed(4)}`,
+    },
+    {
+      speciesA: 'doublon_k2_m_meet',
+      speciesB: 'vibe_k1_lone',
+      channel: '1D 3-role separable |(0,1)_Sym> (x) |(2)> Yang fusion reference',
       outcome: 'role-swap',
+      measurementKind: 'exact_analytic_yang_formula',
       conditionalPhaseRad: Math.atan2(aElSep[1], aElSep[0]),
       roleSwapProb: pRoleSwapDP,
       breakupProb: 0,
       crossLineDiff: 0,
       chiOddDelta: 0,
-      detail: `Lossless partial role-SWAP + phase entangler: P_el=1/3, P_roleSwap=${pRoleSwapDP.toFixed(6)}`,
+      unitarityError: 0,
+      detail: `Exact Yang fusion analytic formula: P_el=1/3, P_roleSwap=${pRoleSwapDP.toFixed(6)}, arg(a_el)=+0.5000pi`,
     },
     {
       speciesA: 'doublon_k2_m_meet',
       speciesB: 'vibe_k1_lone',
-      channel: '4D cross-line intersection (L_0 x L_1)',
+      channel: '4D live 24-slot dock cross-line intersection (L_0 x L_1)',
       outcome: 'pass-through',
+      measurementKind: 'live_unitary_collision',
       conditionalPhaseRad: 0,
       roleSwapProb: 0,
       breakupProb: 0,
-      crossLineDiff: 0,
+      crossLineDiff: live4DCross.crossLineDiff,
       chiOddDelta: 0,
-      detail: 'Exact cross-line transparency: M_meet is strictly intra-line and 2 lines are coplanar (chi_odd=0)',
+      unitarityError: 0,
+      detail: `Live 4D dock evolution (${live4DCross.branchCount} branches): ||U_joint - U_L0 (x) U_L1||_2 = ${live4DCross.crossLineDiff.toExponential(1)}`,
     },
     {
       speciesA: 'trion_k3_sym3',
       speciesB: 'vibe_k1_lone',
-      channel: '1D collinear Sym^4 at p_*^(T) = -atan(3 sqrt(2)/5)',
+      channel: '1D Sym^4 Trion+Pulse at p_*^(T) = -atan(3 sqrt(2)/5) Yang fusion reference',
       outcome: 'phase-shift',
+      measurementKind: 'exact_analytic_yang_formula',
       conditionalPhaseRad: phaseTP,
       roleSwapProb: 0,
       breakupProb: 0,
       crossLineDiff: 0,
       chiOddDelta: 0,
-      detail: `Exact Sym^4 Trion+Pulse Yang fusion phase Delta_phi = ${(phaseTP / PI).toFixed(6)} pi`,
+      unitarityError: 0,
+      detail: `Exact Sym^4 analytic Yang fusion formula: Delta_phi = ${(phaseTP / PI).toFixed(6)}pi`,
     },
     {
       speciesA: 'pair_k2_k_bounce',
       speciesB: 'pair_k2_k_bounce',
-      channel: '4D multi-rail (-I, C) neutral-pair junction (m = 2, 3)',
-      outcome: 'annihilation',
+      channel: '4D multi-rail (-I, C) neutral-pair chiral cancellation (k and D conserved)',
+      outcome: 'chiral_cancellation_chi_odd_zero',
+      measurementKind: 'exact_4d_chiral_operator',
       conditionalPhaseRad: 0,
       roleSwapProb: 0,
       breakupProb: 0,
       crossLineDiff: 0,
       chiOddDelta: 0,
-      detail: `Exact (-I, C) Annihilation Theorem: chi_odd = 0 across ${neutralPairZero}/${neutralPairTested} neutral-pair junctions`,
+      unitarityError: 0,
+      detail: `Exact (-I, C) Chiral Cancellation: chi_odd = 0 across ${neutralPairZero}/${neutralPairTested} (132 2-rail + 110 3-rail) junctions`,
     },
     {
       speciesA: 'chiral_k4_phi_odd',
-      speciesB: 'chiral_k4_phi_odd',
-      channel: '4D C4=[0,1,2,8] vs C-conjugate / P-mirror under Phi_odd',
+      speciesB: 'C_and_P0_conjugates(chiral_k4_phi_odd)',
+      channel: '4D single-cluster C4=[0,1,2,8] self-symmetry comparison under C and P_0',
       outcome: 'chiral-asymmetry',
+      measurementKind: 'exact_4d_chiral_operator',
       conditionalPhaseRad: ((chiralCanon.chiOdd - chiC) * PI) / 3,
       roleSwapProb: 0,
       breakupProb: 0,
       crossLineDiff: 1,
       chiOddDelta: chiralCanon.chiOdd - chiC,
-      detail: `C/P-asymmetric scattering: chi(C4)=${chiralCanon.chiOdd}, chi(C(C4))=${chiC}, chi(P(C4))=${chiP}, Delta_phi=${(((chiralCanon.chiOdd - chiC) * PI) / 3).toFixed(4)} rad`,
+      unitarityError: 0,
+      detail: `4-body self-symmetry check (not 8-body): chi(C4)=${chiralCanon.chiOdd}, chi(C(C4))=${chiC}, chi(P_0(C4))=${chiP}, Delta_phi=${(((chiralCanon.chiOdd - chiC) * PI) / 3).toFixed(4)} rad`,
     },
   ]
 
   return {
     species: [loneSpecies, doublonSpecies, kBounceSpecies, trionSpecies, chiralSpecies],
     collisions,
-    neutralPairAnnihilationZeroCount: neutralPairZero,
-    neutralPairAnnihilationTestedCount: neutralPairTested,
+    neutralPairCancellationZeroCount: neutralPairZero,
+    neutralPairCancellationTestedCount: neutralPairTested,
+    chaosSectorInteractionDeviation,
     unitarityMaxError: maxUniErr,
   }
 }
@@ -1719,37 +2863,40 @@ export function speciesToDiscoveryInput(
   const evidence: CapabilityEvidence[] = [
     certifyCapability({
       capability: 'persist',
+      evidenceKind: 'exact_deterministic_proof',
       protocol: 'bare_u_spectral_lifetime',
       experiment: 'A1_zoo_scanner',
       realizationMode: 'field',
       score: Number.isFinite(species.lifetime) ? species.lifetime : 1000,
       baseline: 1,
-      standardError: 0,
-      effectSize: Number.isFinite(species.lifetime) ? 0 : 10,
+      standardError: null,
+      effectSize: null,
       trials: 1,
       minMargin: 10,
     }),
     certifyCapability({
       capability: 'propagate',
+      evidenceKind: 'exact_deterministic_proof',
       protocol: 'bare_u_bloch_group_velocity',
       experiment: 'A1_zoo_scanner',
       realizationMode: 'field',
       score: species.groupVelocity,
       baseline: 0,
-      standardError: 0,
-      effectSize: species.groupVelocity > 0.05 ? 10 : 0,
+      standardError: null,
+      effectSize: null,
       trials: 1,
       minMargin: 0.05,
     }),
     certifyCapability({
       capability: 'bind',
+      evidenceKind: 'exact_deterministic_proof',
       protocol: 'bare_u_binding_gap_vs_k_bounce',
       experiment: 'A1_zoo_scanner',
       realizationMode: 'field',
       score: species.bindingGap,
       baseline: 0,
-      standardError: 0,
-      effectSize: species.bound ? 10 : 0,
+      standardError: null,
+      effectSize: null,
       trials: 1,
       minMargin: 0.01,
     }),
@@ -1778,7 +2925,7 @@ export function speciesToDiscoveryInput(
 }
 
 // =================================================================================================
-// 5. QUANTITATIVE 2D PARAMETRIC (m, phi) DYNAMICAL PHASE CARTOGRAPHY (UPGRADE OVER WOLFRAM NKS)
+// 6. QUANTITATIVE 2D PARAMETRIC (m, phi) DYNAMICAL PHASE CARTOGRAPHY (100% OBSERVABLE-DRIVEN)
 // =================================================================================================
 
 export type DynamicalPhaseClass =
@@ -1790,7 +2937,7 @@ export type DynamicalPhaseClass =
 export interface PhaseMapPoint {
   readonly m: number
   readonly phi: number
-  readonly chaosToggle: boolean
+  readonly sectorLabel: 'same_sign_sym3' | 'mixed_sign_k_plus_m_meet'
   readonly bound: boolean
   readonly bindingGap: number
   readonly restEnergy: number
@@ -1804,25 +2951,30 @@ export interface DynamicalPhaseMap {
   readonly mValues: readonly number[]
   readonly phiValues: readonly number[]
   readonly gridPoints: readonly PhaseMapPoint[]
-  readonly chaosPoints: readonly PhaseMapPoint[]
+  readonly mixedSignPoints: readonly PhaseMapPoint[]
   readonly phaseCounts: Readonly<Record<DynamicalPhaseClass, number>>
   readonly bareUPoint: PhaseMapPoint
   readonly relativisticWitness: PhaseMapPoint
   readonly chaosWitness: PhaseMapPoint
 }
 
-function classifyPhasePoint(
+// Purely observable-driven phase classifier (ZERO hardcoded sector/chaos toggle inputs!):
+//   1. Free / non-interacting (bindingGap <= 0.005) checked FIRST so picket-fence free spectra
+//      are classified as 'free-dispersive'.
+//   2. Interacting quantum chaos (<r> >= 0.485, approaching COE 0.5307 vs Poisson 0.3863).
+//   3. Emergent relativistic continuum Thirring regime (0.85 <= R_2 <= 1.25).
+//   4. Lattice-heavy integrable bound regime (R_2 > 1.25, Poisson <r> < 0.485).
+export function classifyPhasePoint(
   bound: boolean,
   bindingGap: number,
   inertiaRatioR2: number,
   levelSpacingR: number,
-  chaosToggle: boolean,
 ): DynamicalPhaseClass {
-  if (chaosToggle && levelSpacingR >= 0.485) {
-    return 'chaotic-COE'
-  }
-  if (!bound || bindingGap < 1e-3) {
+  if (!bound || bindingGap <= 0.005) {
     return 'free-dispersive'
+  }
+  if (levelSpacingR >= 0.485) {
+    return 'chaotic-COE'
   }
   if (Number.isFinite(inertiaRatioR2) && inertiaRatioR2 >= 0.85 && inertiaRatioR2 <= 1.25) {
     return 'relativistic-Thirring'
@@ -1840,8 +2992,6 @@ function measureDoublonInertia(
   readonly inertialMass: number
   readonly inertiaRatioR2: number
 } {
-  // Using detPhase = 0 so single-vibe rest mass is mCoin, (++)/(+-) continuum threshold is at 0 / +/- 2m,
-  // and phi = pi (meetPhase = -1) is exact free-fermion K-bounce while phi = 2 pi / 3 is bare U's M_meet!
   const H = mCoin <= 0.14 ? 32 : 16
   const meetPhase = cExpI(phi)
   const b0 = findBoundDoublon(H, 0, mCoin, 0, meetPhase)
@@ -1859,9 +3009,10 @@ function measureDoublonInertia(
   const uP = buildU2SymCM(H, dP, mCoin, 0, meetPhase)
   const refP = shiftInvertEigen(uP, b0.E, b0.vr, b0.vi, 5)
   const dE = Math.abs(refP.E) - restEnergy
-  // E(P) = E(0) + P^2 / (2 m_inert) => m_inert = P^2 / (2 dE)
-  const inertialMass = Math.abs(dE) > 1e-12 ? (dP * dP) / (2 * Math.abs(dE)) : Number.POSITIVE_INFINITY
-  const inertiaRatioR2 = restEnergy > 1e-12 ? inertialMass / restEnergy : Number.POSITIVE_INFINITY
+  const inertialMass =
+    Math.abs(dE) > 1e-12 ? (dP * dP) / (2 * Math.abs(dE)) : Number.POSITIVE_INFINITY
+  const inertiaRatioR2 =
+    restEnergy > 1e-12 ? inertialMass / restEnergy : Number.POSITIVE_INFINITY
   return {
     bound: true,
     bindingGap: b0.bindingGap,
@@ -1872,9 +3023,6 @@ function measureDoublonInertia(
 }
 
 export function scanDynamicalPhaseMap(): DynamicalPhaseMap {
-  // 7 x 7 = 49 deterministic grid over coin mass m and contact phase phi:
-  // Includes light relativistic Thirring masses (m = 0.08, 0.14) up to verbatim bare U (m = pi/3),
-  // and contact phases spanning bare U (2pi/3) through exact free-fermion K-bounce (pi).
   const mValues: readonly number[] = [0.08, 0.14, 0.24, 0.42, 0.65, 0.88, PI / 3]
   const phiValues: readonly number[] = [
     0.25 * PI,
@@ -1897,22 +3045,22 @@ export function scanDynamicalPhaseMap(): DynamicalPhaseMap {
   for (const m of mValues) {
     for (const phi of phiValues) {
       const meas = measureDoublonInertia(m, phi)
-      // Integrable same-sign 2-body/3-body sector stays Poisson (<r> ~ 0.386-0.43);
-      // compute exact <r> on M = 7 Sym^3 sector at representative points to stay super fast (< 1 s total!).
-      const sym3 = buildU3SymEven(7, PI / 11, m, 0, cExpI(phi))
-      const rVal = computeLevelSpacingRatio(unitaryEigen(sym3.U).phases).meanR
+      // Use prime M = 11 (dim = 140, symCount === 1 everywhere) for clean non-degenerate bulk <r>
+      // on bound points, and prime M = 7 on free points.
+      const rVal = meas.bound
+        ? computeIntegrableR(m, 0, cExpI(phi))
+        : computeLevelSpacingRatio(unitaryEigen(buildU3SymEven(7, PI / 13, m, 0, cExpI(phi)).U).phases).meanR
       const phaseClass = classifyPhasePoint(
         meas.bound,
         meas.bindingGap,
         meas.inertiaRatioR2,
         rVal,
-        false,
       )
       phaseCounts[phaseClass]++
       gridPoints.push({
         m,
         phi,
-        chaosToggle: false,
+        sectorLabel: 'same_sign_sym3',
         bound: meas.bound,
         bindingGap: meas.bindingGap,
         restEnergy: meas.restEnergy,
@@ -1924,18 +3072,18 @@ export function scanDynamicalPhaseMap(): DynamicalPhaseMap {
     }
   }
 
-  // Exact K + M_meet chaos toggle sweep across 4 representative (m, phi) pairs (L = 5, k = 4 (+,+,+,-), Q = +2)
-  const chaosConfigs: readonly (readonly [number, number])[] = [
+  // Exact mixed-sign K + M_meet sector (L = 5, k = 4 (+,+,+,-), Q = +2) classified by the EXACT SAME
+  // observable-only classifyPhasePoint() function!
+  const mixedConfigs: readonly (readonly [number, number])[] = [
     [PI / 3, (2 * PI) / 3],
     [0.88, (2 * PI) / 3],
     [0.65, 0.45 * PI],
     [PI / 3, 0.45 * PI],
   ]
-  const chaosPoints: PhaseMapPoint[] = []
-  for (const [m, phi] of chaosConfigs) {
+  const mixedSignPoints: PhaseMapPoint[] = []
+  for (const [m, phi] of mixedConfigs) {
     const detPh = m === PI / 3 ? PI / 3 : 0
     const plusMeet = cExpI(2 * detPh + phi)
-    // Average <r> over symmetry-resolved nonzero momenta m_k = 1, 2 on L = 5 (zero degeneracies!)
     const r1 = computeLevelSpacingRatio(
       unitaryEigen(build1DMixedChaosSector(5, (2 * PI * 1) / 5, m, detPh, plusMeet)).phases,
     )
@@ -1951,13 +3099,12 @@ export function scanDynamicalPhaseMap(): DynamicalPhaseMap {
       meas.bindingGap,
       meas.inertiaRatioR2,
       meanR,
-      true,
     )
     phaseCounts[phaseClass]++
-    chaosPoints.push({
+    mixedSignPoints.push({
       m,
       phi,
-      chaosToggle: true,
+      sectorLabel: 'mixed_sign_k_plus_m_meet',
       bound: meas.bound,
       bindingGap: meas.bindingGap,
       restEnergy: meas.restEnergy,
@@ -1974,13 +3121,13 @@ export function scanDynamicalPhaseMap(): DynamicalPhaseMap {
   const relativisticWitness = gridPoints.find(
     p => p.phaseClass === 'relativistic-Thirring',
   )!
-  const chaosWitness = chaosPoints.find(p => p.phaseClass === 'chaotic-COE')!
+  const chaosWitness = mixedSignPoints.find(p => p.phaseClass === 'chaotic-COE')!
 
   return {
     mValues,
     phiValues,
     gridPoints,
-    chaosPoints,
+    mixedSignPoints,
     phaseCounts,
     bareUPoint,
     relativisticWitness,

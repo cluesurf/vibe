@@ -94,7 +94,7 @@ export function strictRefine(
   if (fiber === undefined || fiber.length === 0) {
     return {
       ok: false,
-      mode: 'exact',
+      mode,
       reason: 'empty_fiber',
       requiredBits: 0,
       suppliedBits: request.suppliedResidualBits ?? 0,
@@ -238,14 +238,17 @@ function weakestErrorBasis(a: ErrorBasis, b: ErrorBasis): ErrorBasis {
   return ERROR_BASIS_RANK[a] <= ERROR_BASIS_RANK[b] ? a : b
 }
 
-// Compose ErrorContract across L_0 -> L_1 -> L_2 via exact triangle inequality:
-//   eps_{0->2}(T) <= eps_{0->1}(T) + L_{1->2} * eps_{1->2}(T)
+// Compose ErrorContract across L_0 -> L_1 -> L_2 via exact triangle inequality for pi_2 o pi_1:
+//   d_2(pi_2(pi_1(F_0(x))), F_2(pi_2(pi_1(x))))
+//     <= d_2(pi_2(pi_1(F_0(x))), pi_2(F_1(pi_1(x)))) + d_2(pi_2(F_1(pi_1(x))), F_2(pi_2(pi_1(x))))
+//     <= L_{pi_2} * eps_{0->1}(T) + eps_{1->2}(T)
+// where upper.lipschitzFactor = L_{pi_2} scales lower commutation error into the L_2 metric.
 export function composeErrorContracts(
   lower: ErrorContract<unknown>,
   upper: ErrorContract<unknown>,
 ): ErrorContract<unknown> {
   const commutationBound =
-    lower.commutationBound + upper.lipschitzFactor * upper.commutationBound
+    upper.lipschitzFactor * lower.commutationBound + upper.commutationBound
   const conservationBound = lower.conservationBound + upper.conservationBound
   const interfaceBound = lower.interfaceBound + upper.interfaceBound
 
@@ -257,7 +260,7 @@ export function composeErrorContracts(
     lipschitzFactor: lower.lipschitzFactor * upper.lipschitzFactor,
     observableMetric: `${lower.observableMetric} -> ${upper.observableMetric}`,
     basis: weakestErrorBasis(lower.basis, upper.basis),
-    validityPredicates: [],
+    validityPredicates: [...lower.validityPredicates, ...upper.validityPredicates],
     compositionRule:
       commutationBound === 0 &&
       lower.compositionRule === 'exact_zero' &&
@@ -370,6 +373,12 @@ export class ProofCarryingRegistry {
     if (inst.errorContract.commutationBound < 0) {
       reasons.push('negative commutationBound is invalid')
     }
+    if (inst.errorContract.conservationBound < 0) {
+      reasons.push('negative conservationBound is invalid')
+    }
+    if (inst.errorContract.interfaceBound < 0) {
+      reasons.push('negative interfaceBound is invalid')
+    }
 
     return {
       entityId: id,
@@ -448,7 +457,12 @@ export function chooseAdaptiveScale(input: {
     }
   }
 
-  if (validityOk && measuredDefect <= tauCoarse && currentLevel < maxLevel) {
+  if (
+    validityOk &&
+    measuredDefect <= tauCoarse &&
+    cumulativeError <= maxCumulativeError &&
+    currentLevel < maxLevel
+  ) {
     return {
       fromLevel: currentLevel,
       toLevel: currentLevel + 1,

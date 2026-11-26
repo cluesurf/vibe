@@ -3,7 +3,7 @@
 //   - Zero-Math.random() deterministic Mulberry32 PRNG (createSeededRng)
 //   - Generic MapElites<G> quality-diversity archive with immutable parent handling
 //   - Controlled ExperimentRunner with matched-seed candidate vs control statistics
-//   - Universal navigate<N> A* engine enforcing Reference.propagationDelay causal floors
+//   - Universal navigate<N> A* engine actively pruning Reference.propagationDelay causal violations
 //   - AssociationMemory spreading-activation store (a_{t+1} = (1 - lam) s + lam P^T a_t)
 //   - CognitiveNetwork configurable delayed-edge recurrent tanh simulator with lesionNode()
 
@@ -289,7 +289,7 @@ export interface ControlledComparison {
   readonly totalSeeds: number
 }
 
-function summarizeValues(values: readonly number[]): MetricStats {
+export function computeEmpiricalStats(values: readonly number[]): MetricStats {
   const n = values.length
   if (n === 0) return { mean: 0, stdDev: 0, standardError: 0, count: 0 }
   const mean = values.reduce((a, b) => a + b, 0) / n
@@ -302,6 +302,38 @@ function summarizeValues(values: readonly number[]): MetricStats {
     stdDev,
     standardError: stdDev / Math.sqrt(n),
     count: n,
+  }
+}
+
+export function computePairedEffectSize(
+  candidateValues: readonly number[],
+  controlValues: readonly number[],
+): {
+  readonly deltaMean: number
+  readonly pairedStandardError: number
+  readonly effectSize: number
+} {
+  const n = Math.min(candidateValues.length, controlValues.length)
+  if (n < 2) return { deltaMean: 0, pairedStandardError: 0, effectSize: 0 }
+  const diffs: number[] = []
+  for (let i = 0; i < n; i++) diffs.push(candidateValues[i]! - controlValues[i]!)
+  const diffStats = computeEmpiricalStats(diffs)
+  const candStats = computeEmpiricalStats(candidateValues.slice(0, n))
+  const ctrlStats = computeEmpiricalStats(controlValues.slice(0, n))
+  const pooledStd = Math.sqrt(
+    0.5 * (candStats.stdDev * candStats.stdDev + ctrlStats.stdDev * ctrlStats.stdDev),
+  )
+  const denom = pooledStd > 1e-12 ? pooledStd : diffStats.stdDev
+  const effectSize =
+    denom > 1e-12
+      ? diffStats.mean / denom
+      : Math.abs(diffStats.mean) > 1e-12
+        ? Math.sign(diffStats.mean) * Math.sqrt(n)
+        : 0
+  return {
+    deltaMean: diffStats.mean,
+    pairedStandardError: diffStats.standardError,
+    effectSize,
   }
 }
 
@@ -325,7 +357,7 @@ export function runExperiment<G>(
     const vals = results
       .map(r => r.metrics[name])
       .filter((v): v is number => v !== undefined && Number.isFinite(v))
-    summary[name] = summarizeValues(vals)
+    summary[name] = computeEmpiricalStats(vals)
   }
 
   return {
@@ -347,54 +379,34 @@ export function runControlledExperiment<G>(
   const candSummary = runExperiment(experiment, candidate, seeds)
   const ctrlSummary = runExperiment(experiment, control, seeds)
 
-  const pairedDiffs: number[] = []
+  const candVals: number[] = []
+  const ctrlVals: number[] = []
   let wins = 0
   for (let i = 0; i < seeds.length; i++) {
     const cv = candSummary.results[i]!.metrics[primaryMetric] ?? 0
     const bv = ctrlSummary.results[i]!.metrics[primaryMetric] ?? 0
-    const diff = cv - bv
-    pairedDiffs.push(diff)
-    if (diff > 1e-12) wins++
+    candVals.push(cv)
+    ctrlVals.push(bv)
+    if (cv - bv > 1e-12) wins++
   }
 
-  const diffStats = summarizeValues(pairedDiffs)
-  const candStats = candSummary.summary[primaryMetric] ?? {
-    mean: 0,
-    stdDev: 0,
-    standardError: 0,
-    count: 0,
-  }
-  const ctrlStats = ctrlSummary.summary[primaryMetric] ?? {
-    mean: 0,
-    stdDev: 0,
-    standardError: 0,
-    count: 0,
-  }
-  const pooledStd = Math.sqrt(
-    0.5 * (candStats.stdDev * candStats.stdDev + ctrlStats.stdDev * ctrlStats.stdDev),
-  )
-  const effectSize =
-    pooledStd > 1e-12
-      ? diffStats.mean / pooledStd
-      : Math.abs(diffStats.mean) > 1e-12
-        ? Math.sign(diffStats.mean) * 10
-        : 0
+  const paired = computePairedEffectSize(candVals, ctrlVals)
 
   return {
     experiment: experiment.id,
     primaryMetric,
     candidate: candSummary,
     control: ctrlSummary,
-    deltaMean: diffStats.mean,
-    pairedStandardError: diffStats.standardError,
-    effectSize,
+    deltaMean: paired.deltaMean,
+    pairedStandardError: paired.pairedStandardError,
+    effectSize: paired.effectSize,
     candidateWinsMatchedSeeds: wins,
     totalSeeds: seeds.length,
   }
 }
 
 // =================================================================================================
-// 4. UNIVERSAL NAVIGATION ENGINE (6 DOMAINS + REFERENCE PROPAGATION DELAY CAUSAL FLOOR)
+// 4. UNIVERSAL NAVIGATION ENGINE (6 DOMAINS + ACTIVE CAUSAL PROPAGATION-DELAY PRUNING)
 // =================================================================================================
 
 export type NavigationDomain =
@@ -440,22 +452,27 @@ export interface Route<N> {
   readonly cost: number
   readonly totalPropagationDelay: number
   readonly expanded: number
+  readonly prunedCausalEdges: number
   readonly obeysCausalFloor: boolean
 }
 
-export interface NavigateOptions {
+export interface NavigateOptions<N = unknown> {
   readonly budget?: number
   readonly minPhysicalDelay?: number
+  readonly physicalDistance?: (a: N, b: N) => number
+  readonly enforceCausalFloor?: boolean
 }
 
 export function navigate<N>(
   space: NavigationSpace<N>,
   start: N,
   goal: N,
-  options?: NavigateOptions,
+  options?: NavigateOptions<N>,
 ): Route<N> | undefined {
   const budget = options?.budget ?? 100_000
   const minPhysicalDelay = options?.minPhysicalDelay ?? 0
+  const physicalDistance = options?.physicalDistance
+  const enforceCausalFloor = options?.enforceCausalFloor ?? true
   const target = space.key(goal)
   const source = space.key(start)
 
@@ -472,6 +489,7 @@ export function navigate<N>(
 
   const heuristic = space.heuristic ?? (() => 0)
   let expanded = 0
+  let prunedCausalEdges = 0
 
   while (open.size > 0 && expanded < budget) {
     let best: string | undefined
@@ -495,6 +513,11 @@ export function navigate<N>(
     expanded++
 
     if (best === target) {
+      const obeys = currentDelay + 1e-12 >= minPhysicalDelay
+      if (enforceCausalFloor && !obeys) {
+        prunedCausalEdges++
+        continue
+      }
       const path: N[] = []
       let cursor: string | undefined = best
       while (cursor !== undefined) {
@@ -509,7 +532,8 @@ export function navigate<N>(
         cost,
         totalPropagationDelay: currentDelay,
         expanded,
-        obeysCausalFloor: currentDelay + 1e-12 >= minPhysicalDelay,
+        prunedCausalEdges,
+        obeysCausalFloor: obeys,
       }
     }
 
@@ -522,11 +546,29 @@ export function navigate<N>(
         throw new Error(`Invalid propagationDelay: ${edgeDelay}`)
       }
 
+      // Active per-edge causal light-cone pruning inside A* neighbor expansion
+      if (enforceCausalFloor && physicalDistance !== undefined) {
+        const edgeFloor = physicalDistance(current, edge.to)
+        if (!Number.isFinite(edgeFloor) || edgeFloor < 0) {
+          throw new Error(`Invalid physicalDistance: ${edgeFloor}`)
+        }
+        if (edgeDelay + 1e-12 < edgeFloor) {
+          prunedCausalEdges++
+          continue
+        }
+      }
+
       const key = space.key(edge.to)
       const nextCost = cost + edge.cost
       const nextDelay = currentDelay + edgeDelay
-      const prevBestCost = distance.get(key) ?? Infinity
 
+      // Active goal-level causal floor pruning so illegal teleport edges never dominate legal routes
+      if (enforceCausalFloor && key === target && nextDelay + 1e-12 < minPhysicalDelay) {
+        prunedCausalEdges++
+        continue
+      }
+
+      const prevBestCost = distance.get(key) ?? Infinity
       if (nextCost > prevBestCost - 1e-12) continue
 
       distance.set(key, nextCost)

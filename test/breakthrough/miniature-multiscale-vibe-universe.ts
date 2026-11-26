@@ -22,6 +22,7 @@ import {
   canonicalizePartition,
   checkStrongLumpability,
   cmatIdentity,
+  cmatMul,
   cmatProjectorFromBasis,
   cmatSub,
   cmatUnitaryError,
@@ -141,8 +142,8 @@ const q2Mul = (x: ZSqrt2, y: ZSqrt2): ZSqrt2 => [
 const q2Scale = (k: bigint, x: ZSqrt2): ZSqrt2 => [k * x[0], k * x[1]]
 
 function buildExactCoxeterShellCounts(maxRadius: number): readonly number[] {
-  // Gram signature (1,1,1,1,-1); base center c_0 = (0,0,0,0,1); facet normal n_a = (r_a, sqrt(2)).
-  // Facet reflection F_a(v) = v - (2 B(v, n_a) / 2) n_a = v - B(v, n_a) n_a, where B(n_a, n_a) = 2.
+  // Gram signature (1,1,1,1,-1); base center c_0 = (0,0,0,0,1); facet normal n_a = (r_a, 1) with B(n_a, n_a) = 1.
+  // Facet reflection F_a(v) = v - (2 B(v, n_a) / B(n_a, n_a)) n_a = v - 2 B(v, n_a) n_a.
   const matMul = (a: Mat5Q2, b: Mat5Q2): Mat5Q2 => {
     const out: ZSqrt2[] = new Array<ZSqrt2>(25).fill(Q2_ZERO)
     for (let i = 0; i < 5; i++) {
@@ -541,35 +542,77 @@ function buildMPair12Unitary(): ComplexMatrix {
   return u
 }
 
-// Build 27x27 3-qutrit stabilizer code S = <X_0 X_1^2, Z_0 Z_1 Z_2> (Z_L = Z_0 Z_1, X_L = X_0 X_2^2)
-// and test logical unitary Z_L vs bare single-qutrit coin C = D^2 on active {-1, +1} states.
+// Build genuine MDS [[3, 1, 2]]_3 qutrit stabilizer code S = <X_0 X_1 X_2, Z_0 Z_1 Z_2>
+// (logicals Z_L = Z_0^2 Z_1, X_L = X_1 X_2^2; exact distance d = 2 verified over all 728 Paulis)
+// and test logical unitary Z_L vs bare single-qutrit coin C = D^2 on active {1, 2} states.
 function buildQutritCode27Test(): {
   readonly projector: ComplexMatrix
   readonly uLogicalZ: ComplexMatrix
   readonly uBareCoin0: ComplexMatrix
   readonly logicalOps: readonly ComplexMatrix[]
   readonly classicalBasisCoverRank: number
+  readonly exactMinDistance: number
 } {
   const dim = 27
-  // Basis index for (q0, q1, q2) in {0,1,2}^3: q0*9 + q1*3 + q2
-  // Codewords |c_L> = (1/sqrt(3)) sum_{a=0}^2 |a, (2a + c) mod 3, (2c) mod 3>?
-  // Wait: check stabilizers X_0 X_1^2 and Z_0 Z_1 Z_2:
-  //   Z_0 Z_1 Z_2 |q0,q1,q2> = w^{q0+q1+q2} |q0,q1,q2> => q0 + q1 + q2 = 0 (mod 3).
-  //   X_0 X_1^2 |q0,q1,q2> = |q0+1, q1+2, q2> (preserves q0+q1+q2 mod 3!).
-  //   Z_L = Z_0 Z_1 gives eigenvalue w^{q0+q1} = w^{-q2}!
-  //   So |k_L> (for k = 0,1,2) has fixed q2 = (-k) mod 3, and sums over a in {0,1,2}:
-  //     |k_L> = (1/sqrt(3)) sum_{a=0}^2 |a, (k - a) mod 3, (-k) mod 3>!
-  //   Check: q0+q1+q2 = a + (k - a) - k = 0 mod 3; X_0 X_1^2 sends a -> a+1, k-a -> k-a-1 = k-(a+1), invariant!
-  //   Check Z_L |k_L> = w^{q0+q1} |k_L> = w^k |k_L>!
-  //   Check X_L = X_0 X_2^2 sends (a, k-a, -k) -> (a+1, k-a, -k+2) = (a', (k+1)-a', -(k+1)) => |(k+1)_L>!
+  // Exhaustively certify d = 2 over all 3^6 - 1 = 728 nontrivial 3-qutrit Paulis in GF(3)^6.
+  // Stabilizer generators in (x0,x1,x2, z0,z1,z2): g1 = (1,1,1, 0,0,0), g2 = (0,0,0, 1,1,1).
+  const g1 = [1, 1, 1, 0, 0, 0]
+  const g2 = [0, 0, 0, 1, 1, 1]
+  const symp3 = (u: readonly number[], v: readonly number[]): number =>
+    mod3(
+      u[0]! * v[3]! -
+        u[3]! * v[0]! +
+        u[1]! * v[4]! -
+        u[4]! * v[1]! +
+        u[2]! * v[5]! -
+        u[5]! * v[2]!,
+    )
+  const inStabilizer = (v: readonly number[]): boolean => {
+    for (let a = 0; a < 3; a++) {
+      for (let b = 0; b < 3; b++) {
+        let eq = true
+        for (let i = 0; i < 6; i++) {
+          if (mod3(a * g1[i]! + b * g2[i]!) !== v[i]!) {
+            eq = false
+            break
+          }
+        }
+        if (eq) return true
+      }
+    }
+    return false
+  }
+  let exactMinDistance = 99
+  for (let codeIdx = 1; codeIdx < 729; codeIdx++) {
+    let tmp = codeIdx
+    const v: number[] = []
+    for (let i = 0; i < 6; i++) {
+      v.push(tmp % 3)
+      tmp = Math.floor(tmp / 3)
+    }
+    if (symp3(v, g1) === 0 && symp3(v, g2) === 0 && !inStabilizer(v)) {
+      let wt = 0
+      for (let q = 0; q < 3; q++) {
+        if (v[q]! !== 0 || v[3 + q]! !== 0) wt++
+      }
+      if (wt < exactMinDistance) exactMinDistance = wt
+    }
+  }
+
+  // Basis index for (q0, q1, q2) in {0,1,2}^3: q0*9 + q1*3 + q2.
+  // Z_0 Z_1 Z_2 enforces q0 + q1 + q2 = 0 (mod 3); X_0 X_1 X_2 shifts (q0,q1,q2) by +(1,1,1) mod 3.
+  // Orthonormal logical basis (k = 0, 1, 2):
+  //   |k_L> = (1/sqrt(3)) sum_{a=0}^2 |a, (a + k) mod 3, (a - k) mod 3>
+  // Check Z_L = Z_0^2 Z_1: w^{2a + (a + k)} = w^k => Z_L |k_L> = w^k |k_L>.
+  // Check X_L = X_1 X_2^2: (a, a+k, a-k) -> (a, a+k+1, a-k+2) = (a, a+(k+1), a-(k+1)) => |(k+1)_L>.
   const codeVecs: { readonly re: number[]; readonly im: number[] }[] = []
   const supportCount = new Set<number>()
   for (let k = 0; k < 3; k++) {
     const re = new Array<number>(dim).fill(0)
     const im = new Array<number>(dim).fill(0)
-    const q2 = mod3(-k)
     for (let a = 0; a < 3; a++) {
-      const q1 = mod3(k - a)
+      const q1 = mod3(a + k)
+      const q2 = mod3(a - k)
       const idx = a * 9 + q1 * 3 + q2
       re[idx] = 1 / SQRT3
       supportCount.add(idx)
@@ -585,22 +628,26 @@ function buildQutritCode27Test(): {
     return m === 0 ? [1, 0] : m === 1 ? [wRe, wIm] : [wRe, -wIm]
   }
 
-  // Logical unitary Z_L = Z_0 Z_1 (exact code-space automorphism).
+  // Logical unitary Z_L = Z_0^2 Z_1 (exact code-space automorphism).
   const uLogicalZ = cmatZero(dim)
+  const zL2 = cmatZero(dim)
   for (let q0 = 0; q0 < 3; q0++) {
     for (let q1 = 0; q1 < 3; q1++) {
       for (let q2 = 0; q2 < 3; q2++) {
         const idx = q0 * 9 + q1 * 3 + q2
-        const [pr, pi] = wPow(q0 + q1)
-        uLogicalZ.re[idx * dim + idx] = pr
-        uLogicalZ.im[idx * dim + idx] = pi
+        const [pr1, pi1] = wPow(2 * q0 + q1)
+        uLogicalZ.re[idx * dim + idx] = pr1
+        uLogicalZ.im[idx * dim + idx] = pi1
+        const [pr2, pi2] = wPow(2 * (2 * q0 + q1))
+        zL2.re[idx * dim + idx] = pr2
+        zL2.im[idx * dim + idx] = pi2
       }
     }
   }
 
   // Verbatim bare U full coin C = D^2 on qutrit 0's active {1, 2} subspace (0 calm fixed):
   // C = [[1, 0, 0], [0, C_keep, C_cross], [0, C_cross, C_keep]],
-  // C_keep = (1 + i sqrt(3))/4, C_cross = (3 - i sqrt(3))/4 (exact unitary!).
+  // C_keep = (1 + i sqrt(3))/4, C_cross = (3 - i sqrt(3))/4 (exact unitary).
   const cKeepRe = 0.25
   const cKeepIm = SQRT3 / 4
   const cCrossRe = 0.75
@@ -624,37 +671,39 @@ function buildQutritCode27Test(): {
     }
   }
 
-  // Logical observable algebra {P_code, P_code Z_L P_code, P_code Z_L^2 P_code} (commuting diagonal logicals)
-  // plus X_L = X_0 X_2^2 (which shifts Z_L by w under conjugation!).
-  const zL2 = cmatZero(dim)
-  for (let q0 = 0; q0 < 3; q0++) {
-    for (let q1 = 0; q1 < 3; q1++) {
-      for (let q2 = 0; q2 < 3; q2++) {
-        const idx = q0 * 9 + q1 * 3 + q2
-        const [pr, pi] = wPow(2 * (q0 + q1))
-        zL2.re[idx * dim + idx] = pr
-        zL2.im[idx * dim + idx] = pi
-      }
-    }
-  }
-
+  // Logical shift operators X_L = X_1 X_2^2 and X_L^2 = X_1^2 X_2.
   const xL = cmatZero(dim)
+  const xL2 = cmatZero(dim)
   for (let q0 = 0; q0 < 3; q0++) {
     for (let q1 = 0; q1 < 3; q1++) {
       for (let q2 = 0; q2 < 3; q2++) {
         const src = q0 * 9 + q1 * 3 + q2
-        const dst = mod3(q0 + 1) * 9 + q1 * 3 + mod3(q2 + 2)
-        xL.re[dst * dim + src] = 1
+        const dst1 = q0 * 9 + mod3(q1 + 1) * 3 + mod3(q2 + 2)
+        const dst2 = q0 * 9 + mod3(q1 + 2) * 3 + mod3(q2 + 1)
+        xL.re[dst1 * dim + src] = 1
+        xL2.re[dst2 * dim + src] = 1
       }
     }
   }
+
+  // Exact code-projected logical operator set:
+  // [P_code, P_code Z_L P_code, P_code Z_L^2 P_code, P_code X_L P_code, P_code X_L^2 P_code].
+  const projOp = (op: ComplexMatrix): ComplexMatrix => cmatMul(projector, cmatMul(op, projector))
+  const logicalOps: ComplexMatrix[] = [
+    projector,
+    projOp(uLogicalZ),
+    projOp(zL2),
+    projOp(xL),
+    projOp(xL2),
+  ]
 
   return {
     projector,
     uLogicalZ,
     uBareCoin0,
-    logicalOps: [projector, uLogicalZ, zL2, xL],
+    logicalOps,
     classicalBasisCoverRank: supportCount.size,
+    exactMinDistance,
   }
 }
 
@@ -735,6 +784,7 @@ function runExpM2(): void {
     !line0Heis.closed &&
     codeLogicalClosure.closed &&
     codeLogicalClosure.projectorRank === 3 &&
+    q27.exactMinDistance === 2 &&
     codeLogicalHeis.closed &&
     !codeCoinClosure.closed &&
     codeCoinClosure.normalizedDefect > 0.7 &&
@@ -761,7 +811,7 @@ function runExpM2(): void {
     'M2',
     'Quantum Operator-Algebraic Closure vs Classical Partition Failure',
     passed,
-    `M_pair P_sym eps=${symClosure.invarianceDefect.toExponential(2)} vs P_line0 eps=${line0Closure.invarianceDefect.toFixed(6)}; [[3,1,2]]_3 logical eps=${codeLogicalClosure.invarianceDefect.toExponential(2)} (rank 3 vs classical cover 9) vs bare C=D^2 norm-eps=${codeCoinClosure.normalizedDefect.toFixed(4)}; W10 hcBulk23 rank=${bulk23Rank} isotropic`,
+    `M_pair P_sym eps=${symClosure.invarianceDefect.toExponential(2)} vs P_line0 eps=${line0Closure.invarianceDefect.toFixed(6)}; genuine [[3,1,${q27.exactMinDistance}]]_3 (728 Paulis checked) logical eps=${codeLogicalClosure.invarianceDefect.toExponential(2)} (rank 3 vs classical cover 9) vs bare C=D^2 norm-eps=${codeCoinClosure.normalizedDefect.toFixed(4)}; W10 hcBulk23 rank=${bulk23Rank} isotropic`,
   )
 }
 
@@ -786,8 +836,8 @@ function runExpM3(): void {
   }
 
   // Verify 100% exact GF(3) recovery on verbatim W10 [[24, 1, 8]]_3 for ALL C(24, 3) = 2024 weight-3
-  // subsets (certifying unheralded t <= 3 error correction / 3-erasure recovery) plus 100 deterministic
-  // weight-7 subsets (heralded <= 7 erasures, matching Vibe.HolographicCodeExt)!
+  // subsets (certifying unheralded t <= 3 error correction / 3-erasure recovery) plus 64 genuinely
+  // distinct deterministic weight-7 subsets spanning varied geometries (matching Vibe.HolographicCodeExt)!
   let recoveredWt3 = 0
   let totalWt3 = 0
   for (let a = 0; a < 24; a++) {
@@ -799,16 +849,58 @@ function runExpM3(): void {
     }
   }
 
-  // Deterministic stride sample of 64 weight-7 erasure sets across 24 slots.
-  let recoveredWt7 = 0
+  // Deterministic generator producing 64 genuinely distinct weight-7 erasure sets across varied geometries:
+  // contiguous blocks, multiple strides (1, 2, 3, 5, 7, 11), antipodal-pair clusters, and quadratic hashes.
   const totalWt7 = 64
-  for (let k = 0; k < totalWt7; k++) {
-    const set: number[] = []
-    for (let j = 0; j < 7; j++) {
-      set.push((k * 5 + j * 3) % 24)
+  const uniqueWt7Keys = new Set<string>()
+  const wt7Sets: number[][] = []
+  const addCandidateWt7 = (slots: readonly number[]): void => {
+    if (wt7Sets.length >= totalWt7) return
+    const sorted = [...new Set(slots.map(s => ((s % 24) + 24) % 24))].sort((x, y) => x - y)
+    if (sorted.length !== 7) return
+    const key = sorted.join(',')
+    if (!uniqueWt7Keys.has(key)) {
+      uniqueWt7Keys.add(key)
+      wt7Sets.push(sorted)
     }
-    const uniq = [...new Set(set)]
-    if (uniq.length === 7 && canRecoverW10ErasureSet(W10_CODE, uniq)) {
+  }
+  // 16 contiguous 7-slot blocks
+  for (let start = 0; start < 16; start++) {
+    addCandidateWt7([0, 1, 2, 3, 4, 5, 6].map(j => start + j))
+  }
+  // 16 paired antipodal-line + 1-slot patterns (3 distinct full antipodal lines + 1 fresh slot)
+  for (let k = 0; k < 16; k++) {
+    const idx0 = k % 12
+    const idx1 = (idx0 + 1 + (k % 3)) % 12
+    const idx2 = (idx0 + 5 + Math.floor(k / 4)) % 12
+    const chosen = new Set<number>([
+      ANTIPODAL_LINES[idx0]![0],
+      ANTIPODAL_LINES[idx0]![1],
+      ANTIPODAL_LINES[idx1]![0],
+      ANTIPODAL_LINES[idx1]![1],
+      ANTIPODAL_LINES[idx2]![0],
+      ANTIPODAL_LINES[idx2]![1],
+    ])
+    for (let probe = 0; probe < 24 && chosen.size < 7; probe++) {
+      chosen.add((k * 7 + probe * 5 + 3) % 24)
+    }
+    addCandidateWt7([...chosen])
+  }
+  // Fill remaining up to 64 with varied-stride and non-cyclic deterministic 7-subsets across all 24 slots.
+  const strides = [2, 3, 5, 7, 11, 13] as const
+  for (let k = 0; wt7Sets.length < totalWt7 && k < 512; k++) {
+    const stride = strides[k % strides.length]!
+    const offset = (k * 5 + Math.floor(k / 6) * 3) % 24
+    const picked = new Set<number>()
+    for (let j = 0; picked.size < 7 && j < 48; j++) {
+      picked.add((offset + j * stride + ((j * j * (k + 1)) % 7)) % 24)
+    }
+    addCandidateWt7([...picked])
+  }
+
+  let recoveredWt7 = 0
+  for (const uniq of wt7Sets) {
+    if (canRecoverW10ErasureSet(W10_CODE, uniq)) {
       recoveredWt7++
     }
   }
@@ -818,7 +910,9 @@ function runExpM3(): void {
     codeDistance: 8,
     errorRate: 0.05,
   })
-  const filterB1P05 = evaluateSelectiveInterfaceFilter({
+  // B_1 = [[552, 25, 8]]_3 has global distance d = 8 and central origin bulk qutrit distance
+  // d^(0)(B_1) = 40; the <= 39 erasure bound below protects the central origin bulk qutrit b_0.
+  const filterB1OriginP05 = evaluateSelectiveInterfaceFilter({
     boundarySlots: 552,
     codeDistance: 40,
     errorRate: 0.05,
@@ -834,19 +928,24 @@ function runExpM3(): void {
     coxeterMatch &&
     report.hyperbolic3434[8]!.shellSize === s8Expected &&
     report.hyperbolic3434[8]!.shellSize === 17102192424n &&
+    Math.abs(report.discrete3434AsymptoticLambda - 18.27870777) < 1e-7 &&
     report.hyperbolicFinalRatio > 0.945 &&
     report.discrete3434AsymptoticRatio > 0.945 &&
     report.euclideanD4FinalRatio < 0.40 &&
     report.euclideanZ4FinalRatio < 0.39 &&
     totalWt3 === 2024 &&
     recoveredWt3 === 2024 &&
+    uniqueWt7Keys.size === totalWt7 &&
     recoveredWt7 === totalWt7 &&
     filterDock24P05.unshieldedSurvivalProb < 0.30 &&
     filterDock24P05.selectiveUnheraldedSurvivalProb > 0.97 &&
     filterDock24P05.selectiveErasureSurvivalProb > 0.9999 &&
-    filterB1P05.unshieldedSurvivalProb < 1e-12 &&
-    filterB1P05.selectiveErasureSurvivalProb > 0.98
+    filterB1OriginP05.unshieldedSurvivalProb < 1e-12 &&
+    filterB1OriginP05.selectiveErasureSurvivalProb > 0.98
 
+  console.log(
+    `  M3 Steinberg root: lambda_{3434}=${report.discrete3434AsymptoticLambda.toFixed(8)}, 1 - 1/lambda=${report.discrete3434AsymptoticRatio.toFixed(8)}`,
+  )
   console.log('  M3 Shell Growth Table (r = 0..8):')
   for (let r = 0; r <= 8; r++) {
     const h = report.hyperbolic3434[r]!
@@ -862,7 +961,7 @@ function runExpM3(): void {
     'M3',
     'Hyperbolic {3,4,3,4} Boundary Theorem & Selective Interface Necessity',
     passed,
-    `O^+(4,1) B_3=[${exactCoxeterShells.join(',')}] (A/V->${report.discrete3434AsymptoticRatio.toFixed(6)} vs D4=${report.euclideanD4FinalRatio.toFixed(4)}, Z4=${report.euclideanZ4FinalRatio.toFixed(4)}); W10 wt3=${recoveredWt3}/${totalWt3} & wt7=${recoveredWt7}/${totalWt7} recovered; p=0.05 dock24 unshielded=${filterDock24P05.unshieldedSurvivalProb.toFixed(4)} vs selective-err=${filterDock24P05.selectiveUnheraldedSurvivalProb.toFixed(4)} / erase=${filterDock24P05.selectiveErasureSurvivalProb.toFixed(6)}; B_1(552) unshielded=${filterB1P05.unshieldedSurvivalProb.toExponential(2)} vs selective-erase=${filterB1P05.selectiveErasureSurvivalProb.toFixed(6)}`,
+    `O^+(4,1) B_3=[${exactCoxeterShells.join(',')}] (lambda=${report.discrete3434AsymptoticLambda.toFixed(8)}, A/V->${report.discrete3434AsymptoticRatio.toFixed(6)} vs D4=${report.euclideanD4FinalRatio.toFixed(4)}, Z4=${report.euclideanZ4FinalRatio.toFixed(4)}); W10 wt3=${recoveredWt3}/${totalWt3} & wt7=${recoveredWt7}/${uniqueWt7Keys.size} distinct recovered; p=0.05 dock24 unshielded=${filterDock24P05.unshieldedSurvivalProb.toFixed(4)} vs selective-err=${filterDock24P05.selectiveUnheraldedSurvivalProb.toFixed(4)} / erase=${filterDock24P05.selectiveErasureSurvivalProb.toFixed(6)}; B_1=[[552,25,8]]_3 origin b_0 (d^(0)=40) unshielded=${filterB1OriginP05.unshieldedSurvivalProb.toExponential(2)} vs selective-erase=${filterB1OriginP05.selectiveErasureSurvivalProb.toFixed(6)}`,
   )
 }
 
@@ -917,7 +1016,8 @@ function runExpM4(): void {
   const twist2 = checkPairwiseVsGlobalConsistency(buildTernaryHolonomyLoop(2))
 
   // 4c: Quantum entanglement-seam diagnostic on A x C x B (dimA = 3, dimSeam = 3, dimB = 3).
-  // State 1 (GHZ classical seam copy): (1/sqrt(3)) sum_{c=0}^2 |c>_A |c>_C |c>_B -> factorizes given C!
+  // State 1 (GHZ in computational seam basis C_comp): (1/sqrt(3)) sum_{c=0}^2 |c>_A |c>_C |c>_B
+  //   Post-measurement in C_comp factorizes: E(A:B | C_comp) = 0, I(A : C B) = 2 log_2(3).
   const ghzRe = new Array<number>(27).fill(0)
   const ghzIm = new Array<number>(27).fill(0)
   for (let c = 0; c < 3; c++) {
@@ -929,6 +1029,27 @@ function runExpM4(): void {
     dimSeam: 3,
     stateRe: ghzRe,
     stateIm: ghzIm,
+  })
+
+  // State 1b (GHZ after local qutrit QFT F_3 on seam C alone):
+  //   (I_A x F_C x I_B) |GHZ> = (1/3) sum_{c,k} w^{c k} |c>_A |k>_C |c>_B
+  //   Demonstrates explicit basis dependence of E(A:B | C_basis): E(A:B | C_QFT) = log_2(3) = 1.584963 bits!
+  const ghzQftRe = new Array<number>(27).fill(0)
+  const ghzQftIm = new Array<number>(27).fill(0)
+  for (let c = 0; c < 3; c++) {
+    for (let k = 0; k < 3; k++) {
+      const ang = (2 * PI * ((c * k) % 3)) / 3
+      const idx = (c * 3 + k) * 3 + c
+      ghzQftRe[idx] = Math.cos(ang) / 3
+      ghzQftIm[idx] = Math.sin(ang) / 3
+    }
+  }
+  const ghzQftSeam = analyzeEntanglementSeam({
+    dimA: 3,
+    dimB: 3,
+    dimSeam: 3,
+    stateRe: ghzQftRe,
+    stateIm: ghzQftIm,
   })
 
   // State 2 (Bell entanglement bridging A:B across fixed seam C = 0): |0>_C (1/sqrt(3)) sum_j |j>_A |j>_B
@@ -963,18 +1084,21 @@ function runExpM4(): void {
     twist2.allEdgesLocallyConsistent &&
     twist2.globalSections.length === 0 &&
     twist2.sheafObstructionDetected &&
-    ghzSeam.classicalFiberProductValid &&
-    ghzSeam.conditionalSeamEntropyBits < 1e-12 &&
-    !bellSeam.classicalFiberProductValid &&
+    ghzSeam.classicalFiberProductInCompBasis &&
+    ghzSeam.projectiveSeamConditionalEntropyBits < 1e-12 &&
+    Math.abs(ghzSeam.quantumMutualInfoABWithSeamBits - 2 * Math.log2(3)) < 1e-10 &&
+    !ghzQftSeam.classicalFiberProductInCompBasis &&
+    Math.abs(ghzQftSeam.projectiveSeamConditionalEntropyBits - Math.log2(3)) < 1e-10 &&
+    !bellSeam.classicalFiberProductInCompBasis &&
     bellSeam.schmidtRank === 3 &&
-    Math.abs(bellSeam.conditionalSeamEntropyBits - Math.log2(3)) < 1e-10
+    Math.abs(bellSeam.projectiveSeamConditionalEntropyBits - Math.log2(3)) < 1e-10
 
   assertCondition(passed, 'Exp M4 failed')
   recordExp(
     'M4',
     'Fiber-Product Composition, Z_3 Sheaf Obstruction & Entanglement Seam',
     passed,
-    `|X_A x_C X_B|=12 (compat=${fpGood.dynamicallyCompatible}, bad viol=${fpBad.compatibilityViolationCount}); Z_3 holonomy h=0->3 sections vs h=1,2->0 sections (3/3 local); GHZ cond-S=0 vs Bell cond-S=${bellSeam.conditionalSeamEntropyBits.toFixed(6)} bits (rank ${bellSeam.schmidtRank})`,
+    `|X_A x_C X_B|=12 (compat=${fpGood.dynamicallyCompatible}, bad viol=${fpBad.compatibilityViolationCount}); Z_3 holonomy h=0->3 sections vs h=1,2->0 sections (3/3 local); GHZ E(A:B|C_comp)=0 vs E(A:B|C_QFT)=${ghzQftSeam.projectiveSeamConditionalEntropyBits.toFixed(6)} bits (I(A:CB)=${ghzSeam.quantumMutualInfoABWithSeamBits.toFixed(4)}) vs Bell E(A:B|C_comp)=${bellSeam.projectiveSeamConditionalEntropyBits.toFixed(6)} bits (rank ${bellSeam.schmidtRank})`,
   )
 }
 
@@ -1267,7 +1391,15 @@ function runExpM7(): void {
     theoremId: 'thm_hce_bulk23_exact_distance_8',
     leanModule: 'Vibe.HolographicCodeExt',
     tier: 'tier_a_proved',
-    scope: 'Exact d = 8 logical distance & all 536,155 |E| <= 7 erasure recoveries for [[24,1,8]]_3',
+    scope: 'Exact d = 8 logical distance for [[24,1,8]]_3 bulk-encoding holographic tensor',
+    assumptions: ['stabilizer code subspace preservation'],
+    verified: true,
+  })
+  const certHolographyErasure = makeProofCertificate({
+    theoremId: 'thm_hce_bulk23_all_7erasure_recovery',
+    leanModule: 'Vibe.HolographicCodeExt',
+    tier: 'tier_a_proved',
+    scope: 'All 536,155 |E| <= 7 boundary erasure recoveries for [[24,1,8]]_3',
     assumptions: ['stabilizer code subspace preservation'],
     verified: true,
   })
@@ -1321,7 +1453,7 @@ function runExpM7(): void {
   type DockMacroState = { readonly activeCount: number; readonly netCharge: number }
 
   const contractL0ToL1: ErrorContract<DockMacroState> = {
-    commutationBound: 0.0,
+    commutationBound: 2e-7,
     conservationBound: 0.0,
     interfaceBound: 0.0,
     horizonSteps: 20,
@@ -1335,7 +1467,7 @@ function runExpM7(): void {
         check: s => s.activeCount >= Math.abs(s.netCharge),
       },
     ],
-    compositionRule: 'exact_zero',
+    compositionRule: 'triangle_lipschitz',
   }
 
   const contractL1ToL2: ErrorContract<DockMacroState> = {
@@ -1356,10 +1488,38 @@ function runExpM7(): void {
     compositionRule: 'triangle_lipschitz',
   }
 
+  // Exact triangle inequality for pi_2 o pi_1:
+  //   eps_{0->2} = upper.lipschitzFactor * lower.commutationBound + upper.commutationBound
+  //              = 1.5 * 2e-7 + 1e-6 = 1.3e-6.
   const composedContract = composeErrorContracts(
     contractL0ToL1 as ErrorContract<unknown>,
     contractL1ToL2 as ErrorContract<unknown>,
   )
+
+  // Explicit soundness regression test: lower = 1.0, upper = 0.0, upper.L = 10.0 MUST give 10.0!
+  const scaleTestLower: ErrorContract<unknown> = {
+    commutationBound: 1.0,
+    conservationBound: 0,
+    interfaceBound: 0,
+    horizonSteps: 10,
+    lipschitzFactor: 1.0,
+    observableMetric: 'L1_meters',
+    basis: 'certified_theorem',
+    validityPredicates: [],
+    compositionRule: 'triangle_lipschitz',
+  }
+  const scaleTestUpper: ErrorContract<unknown> = {
+    commutationBound: 0.0,
+    conservationBound: 0,
+    interfaceBound: 0,
+    horizonSteps: 10,
+    lipschitzFactor: 10.0,
+    observableMetric: 'L2_decimeters',
+    basis: 'certified_theorem',
+    validityPredicates: [],
+    compositionRule: 'exact_zero',
+  }
+  const scaleTestComp = composeErrorContracts(scaleTestLower, scaleTestUpper)
 
   const dockA: OrganizationInstance<DockMacroState> = {
     id: 'dock_origin_token_0',
@@ -1374,7 +1534,13 @@ function runExpM7(): void {
     identity: { predecessors: [], createdAt: 0n, branchMode: 'origin' },
     effectiveModelId: 'model_l0_bare_u',
     errorContract: contractL0ToL1,
-    certificates: [certFockUnitary, certFockV1, certLightCone, certHolographyD8],
+    certificates: [
+      certFockUnitary,
+      certFockV1,
+      certLightCone,
+      certHolographyD8,
+      certHolographyErasure,
+    ],
   }
 
   const dockB: OrganizationInstance<DockMacroState> = {
@@ -1531,9 +1697,45 @@ function runExpM7(): void {
     if (t >= 15 && currentLevel === 2) recoarsenedToTwo = true
   }
 
+  // Explicit budget-exhaustion anti-chattering regression test:
+  // When cumulativeError > maxCumulativeError at currentLevel = 0 (even with defect = 0),
+  // chooseAdaptiveScale MUST stay locked at level 0 with ZERO chattering!
+  let budgetLvlFrom0 = 0
+  const budgetTraceFrom0: number[] = []
+  let budgetLvlFrom2 = 2
+  const budgetTraceFrom2: number[] = []
+  for (let step = 0; step < 8; step++) {
+    budgetLvlFrom0 = chooseAdaptiveScale({
+      currentLevel: budgetLvlFrom0,
+      maxLevel: 2,
+      measuredDefect: 0,
+      validityOk: true,
+      tauCoarse: 1e-4,
+      tauRefine: 1e-2,
+      cumulativeError: 1.0,
+      maxCumulativeError: 0.5,
+    }).toLevel
+    budgetTraceFrom0.push(budgetLvlFrom0)
+
+    budgetLvlFrom2 = chooseAdaptiveScale({
+      currentLevel: budgetLvlFrom2,
+      maxLevel: 2,
+      measuredDefect: 0,
+      validityOk: true,
+      tauCoarse: 1e-4,
+      tauRefine: 1e-2,
+      cumulativeError: 1.0,
+      maxCumulativeError: 0.5,
+    }).toLevel
+    budgetTraceFrom2.push(budgetLvlFrom2)
+  }
+  const zeroChatterOk =
+    budgetTraceFrom0.every(l => l === 0) &&
+    budgetTraceFrom2.join(',') === '1,0,0,0,0,0,0,0'
+
   const passed =
     auditA.valid &&
-    auditA.tierACount === 4 &&
+    auditA.tierACount === 5 &&
     auditB.valid &&
     auditB.tierACount === 3 &&
     tokenSepOk &&
@@ -1544,8 +1746,11 @@ function runExpM7(): void {
     calmProf.totalActivity === 0 &&
     activeBalancedProf.netCharge === 0 &&
     activeBalancedProf.totalActivity === 4 &&
-    Math.abs(composedContract.commutationBound - 1.5e-6) < 1e-15 &&
+    Math.abs(composedContract.commutationBound - 1.3e-6) < 1e-15 &&
+    composedContract.validityPredicates.length === 2 &&
+    Math.abs(scaleTestComp.commutationBound - 10.0) < 1e-12 &&
     composedContract.basis === 'exhaustive_finite' &&
+    zeroChatterOk &&
     refinedToZero &&
     recoarsenedToTwo &&
     cumulativeError <= maxBudget &&
@@ -1558,7 +1763,7 @@ function runExpM7(): void {
     'M7',
     'Proof-Carrying Multiscale Stack & Adaptive Scale-Switch Benchmark',
     passed,
-    `7 Lean 4.35.0 Tier-A certs audited; 5-graph valid; composed eps=${composedContract.commutationBound.toExponential(2)}; 20-beat trace [${levelHistory.join(',')}] cumErr=${cumulativeError.toExponential(2)} <= budget=${maxBudget.toExponential(2)}`,
+    `8 Lean 4.35.0 Tier-A certs audited; 5-graph valid; composed eps=${composedContract.commutationBound.toExponential(2)} (10x scale test=${scaleTestComp.commutationBound.toFixed(1)}, predicates=${composedContract.validityPredicates.length}); budget-lock zero-chatter=[${budgetTraceFrom0.join(',')}]; 20-beat trace [${levelHistory.join(',')}] cumErr=${cumulativeError.toExponential(2)} <= budget=${maxBudget.toExponential(2)}`,
   )
 }
 
@@ -1642,15 +1847,15 @@ function runExpM8(): void {
       step: 9,
       title: 'Composed gates into memory, signal routing, and computation',
       status: 'PARTIAL_FRONTIER',
-      evidence: 'Exp M4 exact fiber-product composition + W10 B_1=[[552,25,40]]_3 memory slice + M7 adaptive stack',
+      evidence: 'Exp M4 exact fiber-product composition + W10 B_1=[[552,25,8]]_3 (origin d^(0)=40) memory slice + M7 adaptive stack',
       honestLimit: 'Composable multi-gate bare-U circuits with garbage routing not yet realized natively',
     },
     {
       step: 10,
       title: 'Self-maintaining organization with verified internal regulation',
       status: 'TIER_B_REALIZED',
-      evidence: 'Exp M3 selective [[24,1,8]]_3 interface + Exp M5 |Viab(K_A)|=4 & counterfactual autonomy A > 0 (rock A = 0)',
-      honestLimit: 'Realized with explicit active stabilizer cooling; autonomous cooling from bare U alone is open',
+      evidence: 'Exp M3 selective [[24,1,8]]_3 interface + Exp M5 9-state error-weight Markov cooling model (|Viab(K_A)|=4, A > 0, rock A = 0)',
+      honestLimit: 'Realized as a 9-state Markov error-weight cooling model over the d=8 t<=3 viable band; full 24-qutrit autonomous bare-U cooling is open',
     },
     {
       step: 11,

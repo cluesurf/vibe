@@ -1,0 +1,217 @@
+\section{Spin-1 Closure, Unified Single-Speed Gauge QCA, and 4D $D_4$ Mass Gaps}
+\label{sec:gauge}
+
+We now connect three complementary pillars of gauge theory on $\{3,4,3,4\}$ and flat 4D $D_4$: an exact all-$k$
+algebraic proof that verbatim bare $U$ requires dynamical link registers for massless spin-1 bosons (Tier~A, Track~W13),
+a unified Tier~B single-speed gauge--matter QCA built purely from the native 24-cell and qutrit subgroups $2T < SU(2)_L$,
+$\Sigma(648) < SU(3)_C$, and $\mathbb{Z}_{18}$ (Track~W16), and unconditional zero-truncation infinite-volume 4D $D_4$
+Yang--Mills mass gaps breaking past $3\times$ Bakry--\'Emery (Tier~C, Track~W14 Part~A and \code{D4MassGap.lean}).
+
+\subsection{Closing Challenge~3: all-$k$ bare-$U$ spin-1 algebraic obstruction (Track~W13)}
+
+Paper~0018 ruled out perturbative contact-RPA spin-1 modes ($g_c = 8.7353$), and Wave-2/3 ruled out $k = 2$ (exact
+$K = -\omega\mathrm{SWAP}$ cancellation in $1^{--}$ dipoles, $W(0) = 0$, $\Delta_{\mathrm{ph}} = 2\pi/3$, $v_T = 0$),
+1D collinear $k = 3, 4$, and 4-line $\Phi_{\mathrm{odd}}$-only $k = 4$. Wave-4 Track~W13 closes Challenge~3 structurally
+across all $k \ge 1$, all densities $\rho \ge 0$, and all audited multi-axis lattices (Tier~A):
+
+\begin{theorem}[All-$k$ Bare-$U$ Spin-1 Algebraic Obstruction, Track~W13 Pillars $T_0\text{--}T_6$]
+\label{thm:spin1-obstruction}
+Let $N_l^{(\tau)}$ be the total count of tone $\tau \in \{-1, +1\}$ on antipodal $D_4$ line $l \in \{0, \dots, 11\}$
+and let $P_l^{(\tau)} = (-1)^{N_l^{(\tau)}}$. Under verbatim bare $U$ over $\mathbb{Z}[\zeta_9][1/6]$ with zero
+external link registers:
+\begin{enumerate}
+\item \textbf{All-$k$, all-density $\mathbb{Z}_2^{24}$ per-line tone-parity superselection ($T_1, T_2$):} Because
+$M_{\mathrm{pair}}(\zeta_{18})$ moves identical pairs in steps $\Delta N_l^{(\tau)} = \pm 2$ while all other layers
+preserve $N_l^{(\tau)}$ individually, $[U, P_l^{(\tau)}] = 0$ identically. Against any parity-definite background
+$|\Omega\rangle$ at any density $\rho \ge 0$ (including $|V_1\rangle$ and every $M_{\mathrm{pair}}$-coherent pair
+condensate), a neutral single-dipole creation operator $O_l^\dagger(x)$ on line $l$ is strictly orthogonal to
+$O_m^\dagger(y)$ on any distinct line $m \neq l$ for all time:
+\begin{equation}
+\langle\Omega | O_m(y)\, U^t\, O_l^\dagger(x) | \Omega\rangle = 0 \qquad (\forall m \neq l,\; \forall t \in \mathbb{Z}),
+\label{eq:z24-superselection}
+\end{equation}
+verified to $0/192$ overlap in exact \code{BigInt} $\mathbb{Z}[\zeta_9][1/6]$, forbidding single-dipole cross-line
+transfer and elementary $(+,-)$ 4-cycle plaquette ring-exchange.
+\item \textbf{Exact $\min(N_+, N_-) = 1$ flat-transverse-band theorem ($T_6$):} Whenever a sector holds a single
+negative (or positive) excitation, $M_{\mathrm{pair}}$ never moves that lone tone, so its transverse coordinates commute
+strictly with bare $U$ ($[U, X_{-,\perp}] = 0$, verified across all $10{,}710/10{,}710$ full real-space states on
+$\mathbb{Z}^2/3\mathbb{Z}^2$ with $288$ active $M_{\mathrm{pair}}$ firings). Conjugating by
+$e^{i q_\perp \cdot X_{-,\perp}}$ proves $v_T = 0$ identically across all $k \le 3$ sectors even with active
+$M_{\mathrm{pair}}$ scattering ($\|U(q_x)^6 - U(0)^6\| = 0$ on $\mathbb{Z}^3/3\mathbb{Z}^3$ and
+$\mathbb{Z}^2/5\mathbb{Z}^2$). Thus $k = 4$ ($Q = 0_V$) is the algebraic minimum for $v_T \neq 0$.
+\item \textbf{Exhaustive $k = 4$ $M_{\mathrm{pair}} / \Phi_{\mathrm{odd}}$ mutual exclusion and no local $U(1)$
+($T_3, T_4, T_5$):} All $220/220$ triples of $D_4$ lines are fixed pointwise by an improper reflection $g \in W(F_4)^-$,
+forcing $\chi_{\mathrm{odd}} = 0$ across all $43{,}296$ $\le 3$-line quads so $M_{\mathrm{pair}}$ and $\Phi_{\mathrm{odd}}$
+first coexist at $k = 5$. Every local layer preserves $Q(g)$ and $D_{\mathrm{act}}(g)$, while a non-constant local
+$U(1)$ gauge transform fails to commute with $S$ ($\|[G_2(\pi/3), S_2]\|_2 = 1.000000$).
+\end{enumerate}
+\end{theorem}
+
+Exact sparse multi-axis audits ($\text{unitarity} \le 3.3 \times 10^{-16}$) confirm the algebraic verdict at $k = 4$ and
+finite density $\rho \in [1/6, 1]$: on $\mathbb{Z}^2/3\mathbb{Z}^2$ ($k = 4$, $\dim = 9{,}282$), $M_{\mathrm{pair}}$
+opens nonzero cross-axis transfer ($P(y \to x) = 1.345 \times 10^{-3}$, $\|U(q_x)^6 - U(0)^6\| = 0.20007$) yet leaves
+the dipole peak locked at $-2\pi/3$ ($\min|\omega| = 0.3665$, $v_T = 0.0083$). Across finite-density neutral pair
+condensates probed via exact inter-sector $P_{\mathrm{bg}} = 0 \to P = \pm q$ transverse Kubo response (cross-checked
+against full $4{,}096$-dim real-space evolution to $2.78 \times 10^{-15}$) and full stationary multi-axis Floquet
+Bogoliubov ED on 3-dock 2-line $D_4$ ($\dim = 210, \rho = 2/3$, true transverse coordinate), $W(\Delta E = 0) = 0$
+identically and dominant transitions sit at $-2.4708$ and $+2.9590\text{ rad}$ (while non-stationary bipartite quench
+beats are cleanly diagnosed). Excluding an unmotivated thermodynamic spontaneous breaking of discrete $\mathbb{Z}_2^{24}$
+into a composite pair-only spin liquid, \textbf{dynamical gauge link registers are structurally forced}.
+
+\subsection{Unified single-speed gauge--matter QCA and chiral $2T < SU(2)_L$ weak bosons (Track~W16)}
+
+Responding directly to Theorem~\ref{thm:spin1-obstruction}, Wave-4 Track~W16 (Tier~B, $17/17$ checks passed) builds a
+unified dynamical gauge--matter QCA strictly from subgroups native to the 24-cell dock and ternary qutrit:
+\begin{itemize}
+\item \textbf{Closing the $46\times$ speed gap to $9.40 \times 10^{-8}$ and exact QED dynamics:} Matching the palindromic
+split-step 3D $\{4,3,4\}$ cusp Weyl/Dirac QCA at the bare coin angle $\theta = \pi/3$ ($\cos(\pi/3) = 1/2$) directly
+to the discrete-time Maxwell link beat ($\tau_E = \tau_B = 1/2$, sub-beat speed $c_0 = 1/2 < 1/\sqrt{3}$,
+$\max\mathrm{CFL} = \sqrt{3}/2 = 0.8660 < 1$, symplectic error $1.39 \times 10^{-17}$) yields \textbf{exact 2
+degenerate transverse massless photons} ($\max|\lambda_{T_1} - \lambda_{T_2}| = 3.55 \times 10^{-15}$), \textbf{zero
+propagating longitudinal mode} ($\max|\lambda_L| = 2.66 \times 10^{-15}$), and single-speed lock
+$|c_{\mathrm{photon}} - c_{\mathrm{fermion}}|/c_{\mathrm{photon}} \le 9.40 \times 10^{-8}$ at $|q| = 10^{-3}$
+($\le 2.34 \times 10^{-4}$ at $|q| = 0.05$) across $[1,0,0]$, $[1,1,0]$, and $[1,1,1]$, closing the $46.43\times$ gap
+between bare $M_{\mathrm{pair}}$ ($c_{\mathrm{eff}} = 0.021254$) and the warped column ($0.986916$). Auditing all
+8 TRIM cones confirms Nielsen--Ninomiya balance ($\chi = +4, -4$, isotropic $c = 1$ at $\Gamma$ with error
+$4.00 \times 10^{-11}$, 7 boundary doublers sheared and later removed by the 4D domain wall). On a 4-vertex plaquette,
+full quantum $\mathbb{Z}_3$ QED satisfies exact local Gauss law $\max\|[U_{\mathrm{QED}}, V_v]\| = 1.75 \times 10^{-16}$
+across $648/648$ basis states ($T = 20$ reversal $7.30 \times 10^{-15}$ on $\dim = 5{,}184$). On a periodic $24^3$
+lattice ($41{,}472$ links, zero hard-coded $1/r$), a 1D flux string radiates into the exact 3D Coulomb field
+($\cos\mathrm{Sim} = 0.3511 \to 0.999994$, $4\pi r G(r) = 1.0094$ at $r = 6$, zero Gauss and reversal error). On
+$12^3$, symmetric massive Dirac wavepackets with exact Poisson initialization show zero free drift
+($\le 1.78 \times 10^{-15}$), symmetric opposite-charge attraction ($\Delta_{\mathrm{sep}} = -0.01301$), and like-charge
+repulsion ($+0.01264$, parity $|\Delta x_1 + \Delta x_2| \le 5.33 \times 10^{-15}$, Gauss $1.19 \times 10^{-15}$).
+\item \textbf{Hurwitz $2T < SU(2)_L$ 5-design, $\Sigma(648)$ 2-design, 3-boson fusion, and past-light-cone chiral wall:}
+The 24 unit Hurwitz vertices of the 24-cell generate $2T = \mathrm{SL}(2,3) < SU(2)_L$. Exact \code{BigInt} rational
+integration over all $126/126$ monomials of degree $\le 5$ proves $2T$ is an \textbf{exact spherical 5-design (unitary
+2-design) in $SU(2)$} (zero defect through degree 5, first difference $1/64$ at degree 6), with 24-cell electric
+Laplacian spectrum $\{0\,(\times 1), 1/2\,(\times 4), 1\,(\times 9), 5/4\,(\times 8), 3/2\,(\times 2)\}$ reproducing
+$j = 0 < 1/2 < 1$ and the exact $[T^a, T^b] = i\varepsilon^{abc} T^c$ algebra. Full-operator non-Abelian Gauss laws
+hold to $0.00$ across all $1{,}500/1{,}500$ states of a $2T$-projected $SU(2)_L$ $D_4$ triangle (mobile $P_R$ singlet
+$\mathrm{maxMove} = 0.9495$, $\mathrm{flip} = 0$ vs.\ $P_L$ doublet $\mathrm{flip} = 0.4008$) and to
+$2.44 \times 10^{-16}$ across $192/192$ discrete $2T$ plaquette checks ($\dim = 2{,}304$). Inside pure $U_B^{(2T)}$, the
+exclusive antisymmetric 3-boson Yang--Mills fusion channel hits $P(|W^1, W^2\rangle \to |W^3, \mathrm{vac}\rangle) =
+2.9829 \times 10^{-3}$ versus exact-zero controls ($W^1 W^1: 1.88 \times 10^{-35}$, $W^1 \mathrm{vac}:
+3.65 \times 10^{-34}$). On the unified 3+1D $\mathbb{Z}[\zeta_9][1/2]$ chiral domain wall ($6^3 \times N_D = 12$,
+3-component weak fiber $(u_L, d_L, u_R)$, $\dim = 31{,}104$) evolved in a static $2T$ flux to $T_{\mathrm{DW}} = 16 > 11$
+(past the causal light cone), the $D = 0$ left doublet flips strongly ($\Delta P_L = 0.9994$, $P(u_L \to d_L) = 0.6045$)
+while the $D = 0$ right singlet stays sterile ($\Delta P_R = 2.04 \times 10^{-14}$) and the $D = 11$ mirror deposits a
+causally reached yet exponentially suppressed $D = 0$ tail of $3.57 \times 10^{-22}$. Finally, $\Delta(27) \trianglelefteq
+\Sigma(648) < SU(3)_C$ ($0/108$ normality defects) is an exact unitary 2-design in $SU(3)$ (frame potentials $(1, 2, 7)$),
+$2T_L \circ 2T_R$ ($|G| = 288$) sits normally in $W(F_4)$ with $\mathcal{P}_{LR}$ swapping $2T_L \leftrightarrow 2T_R$,
+all 5 Standard Model anomaly channels vanish, and native $\mathbb{Z}_{18}$ (unlike $\mathbb{Z}_6$) preserves all $6/6$
+hypercharges and $4/4$ $B - L$ charges faithfully ($|G_{\mathrm{SM}}(\mathbb{Z}_{18})| = 46{,}656$).
+\end{itemize}
+
+\subsection{Unconditional 4D $D_4$ Yang--Mills mass gaps past $3\times$ Bakry--\'Emery (Track~W14A)}
+
+On the flat 4D $D_4$ lattice (24 nearest neighbors, 8 equilateral triangles per link, exact $O(a^4)$ isotropy
+\cite{celmaster1982}, and exact $x_0 = 0$ site-hyperplane reflection positivity \cite{osterwalder1978, seiler1982}
+formalized in \code{Vibe/Geometry.lean}), Paper~0018's 24-cell Combes--Thomas / Bakry--\'Emery bound
+\cite{bakry1985, combes1973} proved an unconditional infinite-volume Osterwalder--Schrader mass gap $m(\beta) > 0$ up to
+$\beta_{\mathrm{BE}}^{24c} = N^2 / (16\sqrt{7})$ ($0.094491$ for $SU(2)$, $0.212605$ for $SU(3)$). Waves~2--4
+(Tracks~W6, W8, W14 Part~A, Tier~C, with core pillars formalized in \code{Vibe/D4MassGap.lean}) smash single-link
+ceilings without any Migdal--Kadanoff truncation via four exact theorems \cite{dobrushin1970, dobrushin1985,
+holley1987, chen1997, kotecky1986}:
+\begin{enumerate}
+\item \textbf{No-Free-Lunch for pure single-link sweeps:} Any block cover updated solely by iterated single-link
+conditionals gives $C_{\mathrm{pure}} = (I - A_{\mathrm{in}})^{-1} A_{\mathrm{out}}$, whose critical threshold
+$\rho(C_{\mathrm{pure}}) = 1$ matches the single-link ceiling $\rho(A) = 1$ identically (confirmed on frozen-base
+$\mathrm{FRR}$ wedges and naive triangle Gibbs sweeps). Beating single-link ceilings requires genuine multi-link
+marginalization $\alpha_{13} < c$.
+\item \textbf{Exact 1+2 block-alternating complete 3-link triangle cover:} On 1D spatial axial gauge (freezing
+$r_{\mathrm{frozen}} = (0,0,1,1)$ preserves $x_0 = 0$ reflection positivity and drops the link Perron root from $16$ to
+$4 + 4\sqrt{7} = 14.583005$, proved in \code{D4MassGap.lean}) and on the 4-direction alternating-plane forest
+\code{Alt-x0+planes} ($\Lambda_{88}(0) = 14.568425$), every active triangle is type $\mathrm{URR}$. Updating one link
+conditionally and the remaining 2-link wedge by exact marginalization yields symmetrized internal coupling
+$\gamma_{\mathrm{shared}} = \frac{1}{2}(\alpha_{13} + c(1 + \alpha_{13})) < c$ and exact $3 \times 3$ block factors
+$g_{\mathrm{self}} = c/(1 - 2c\gamma_{\mathrm{shared}})$, $g_{\mathrm{other}} = c\gamma_{\mathrm{shared}}/(1 -
+2c\gamma_{\mathrm{shared}})$.
+\item \textbf{Sharp Linear-Split $\widetilde{V}_2$ for $SU(2)$:} Splitting off the midpoint linear staple term
+$\beta c_1 (U_1^\dagger U_3^\dagger) \cdot W_2$ from the Bessel potential $V_2 = \ln Z_{SU(2)}(\beta\|W_2 + U_1^\dagger
+U_3^\dagger\|)$ collapses the Holley--Stroock residual oscillation from $0.56$ to $\mathrm{osc}(\widetilde{V}_2) \le
+0.007953$ (at $\beta = 0.277274$), cutting $\alpha_{13}$ from $0.045784$ to $0.032241$.
+\item \textbf{Exact $SU(3)$ $\ln Z$ Convexity and $K = 2$ Peter--Weyl Schur complement:} Expanding
+$V_2(U_1, U_3) = \ln Z_{SU(3)}(M_2 + \frac{\beta}{3} U_1^\dagger U_3)$ around $M_2$ places the linear staple
+$U_3 E(M_2)^\dagger$ strictly inside $\operatorname{conv}(SU(3))$ (staying within the certified polytope
+$\widetilde{\Omega}(\beta)$) and bounds the convex remainder uniformly by $0 \le \widetilde{V}_2 \le \omega(\beta) =
+\frac{\beta^2}{6} v_{\max}^*(\beta)$. A unified branch-and-bound sweep over $20{,}384$ boxes at $\beta_0 = 0.5635$
+(analytic Rouch\'e/Cauchy tail $B = 9.22 \times 10^{-20}$, Cholesky min pivot $1.11 \times 10^{-3}$, $48 \times 48$ Weyl
+quadrature cross-check $1.36 \times 10^{-15}$) certifies $\alpha_{13}^{SU(3)}(\beta_0) \le 0.04055$.
+\end{enumerate}
+As shown in Table~\ref{tab:d4-mass-gaps} and Figure~\ref{fig:mass-gap-bars}, time-tilted block Dobrushin matrices
+$G(m)$ ($\rho(G(m)) < 1$) certify unconditional infinite-volume mass gaps strictly past $3\times$ Bakry--\'Emery for
+$SU(2)$ (\textbf{$\beta_* = 0.285141$}, $3.02\times$ BE, $30.55\times$ KP, $m(0.283473) \ge 0.025587 > 0$) and past
+$60\times$ Koteck\'y--Preiss for $SU(3)$ (\textbf{$\beta_* = 0.563019$}, $2.65\times$ BE, $60.36\times$ KP,
+$m(0.546000) \ge 0.130541 > 0$). These are strong-coupling lattice theorems and do not address the continuum Clay
+Yang--Mills limit $\beta \to \infty$ \cite{jaffe2000ym, balaban1989}.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[font=\footnotesize]
+% Left panel: SU(2)
+\begin{scope}[shift={(0,0)}]
+  \node[font=\footnotesize\bfseries, color=twZincInk] at (2.4,2.65) {$SU(2)$ on 4D $D_4$ ($\beta_{\mathrm{BE}}^{24c} = 0.094491$)};
+  \draw[line width=0.5pt, draw=twZincRule] (0,0) -- (4.8,0);
+  \draw[line width=0.5pt, draw=twZincRule] (0,0) -- (0,2.35);
+  % Reference line at 3x BE = 0.283473 (scale: x = beta * 14.8)
+  \draw[densely dashed, line width=0.6pt, draw=twPink] (4.195,0) -- (4.195,2.35);
+  \node[above, font=\scriptsize, color=twPink] at (4.195,2.32) {$3\times\mathrm{BE}$};
+  \foreach \y/\val/\lbl/\col/\tag in {
+    1.94/0.009335/KP/twZinc/0.0093,
+    1.50/0.094491/BE (0018)/twZincInk/0.0945,
+    1.06/0.237543/W6 1D $W_1$/twBlue/0.2375,
+    0.62/0.277274/W8 2-Wedge/twViolet/0.2773,
+    0.18/0.285141/W14 3-Tri/twEmerald/0.2851\,(3.02\times)
+  }{
+    \fill[\col] (0,\y) rectangle (\val*14.8,\y+0.28);
+    \node[left, font=\scriptsize, color=twZincInk] at (-0.06,\y+0.14) {\lbl};
+    \node[right, font=\scriptsize, color=\col] at (\val*14.8+0.06,\y+0.14) {$\tag$};
+  }
+\end{scope}
+
+% Right panel: SU(3)
+\begin{scope}[shift={(7.95,0)}]
+  \node[font=\footnotesize\bfseries, color=twZincInk] at (2.4,2.65) {$SU(3)$ on 4D $D_4$ ($\beta_{\mathrm{BE}}^{24c} = 0.212605$)};
+  \draw[line width=0.5pt, draw=twZincRule] (0,0) -- (4.8,0);
+  \draw[line width=0.5pt, draw=twZincRule] (0,0) -- (0,2.35);
+  % Scale x = beta * 7.5
+  \foreach \y/\val/\lbl/\col/\tag in {
+    1.94/0.009328/KP/twZinc/0.0093,
+    1.50/0.212605/BE (0018)/twZincInk/0.2126,
+    1.06/0.337971/W6 1D $W_1$/twBlue/0.3380,
+    0.62/0.546000/W8 $K{=}2$/twViolet/0.5460,
+    0.18/0.563019/W14 3-Tri/twEmerald/0.5630\,(2.65\times)
+  }{
+    \fill[\col] (0,\y) rectangle (\val*7.5,\y+0.28);
+    \node[left, font=\scriptsize, color=twZincInk] at (-0.06,\y+0.14) {\lbl};
+    \node[right, font=\scriptsize, color=\col] at (\val*7.5+0.06,\y+0.14) {$\tag$};
+  }
+\end{scope}
+\end{tikzpicture}
+\caption{Progression of unconditional, zero-truncation, reflection-positive infinite-volume mass-gap thresholds
+$\beta_*$ on 4D $D_4$ (Tier~C) from Koteck\'y--Preiss (KP) and Paper~0018 Bakry--\'Emery (BE) through Wave-4 Track~W14's
+1+2 complete 3-link triangle Dobrushin bounds ($30.55\times$ KP for $SU(2)$ and $60.36\times$ KP for $SU(3)$).}
+\label{fig:mass-gap-bars}
+\end{figure}
+
+\begin{table}[htbp]
+\centering
+\caption{Unconditional zero-truncation 4D $D_4$ Yang--Mills mass-gap thresholds $\beta_*$ and certified gaps
+$m(\beta) > 0$ (Tier~C, outward-floored, preserving exact $x_0 = 0$ reflection positivity).}
+\label{tab:d4-mass-gaps}
+\scriptsize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.55cm}>{\centering\arraybackslash}p{1.25cm}>{\centering\arraybackslash}p{2.12cm}>{\centering\arraybackslash}p{1.25cm}>{\centering\arraybackslash}p{2.12cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Method / gauge / block cover & $SU(2)$ $\beta_*$ & vs.\ BE / KP & $SU(3)$ $\beta_*$ & vs.\ BE / KP & Certified gap sample \\
+\midrule
+Koteck\'y--Preiss polymer (KP) & $0.009335$ & $0.10\times / 1.0\times$ & $0.009328$ & $0.04\times / 1.0\times$ & $m_{\mathrm{KP}} \in [0.15, 2.24]$ \\
+Bakry--\'Emery / CT (Paper~0018) & $0.094491$ & $1.00\times / 10.1\times$ & $0.212605$ & $1.00\times / 22.8\times$ & $m(0.094) = 0.3415$ \\
+Wave-2 W6 1D-axial $W_1$ (\code{D4MassGap}) & $0.237543$ & $2.51\times / 25.4\times$ & $0.337971$ & $1.59\times / 36.2\times$ & $m_{SU(2)}(0.20) = 0.6363$ \\
+Wave-3 W8 single-link / 2-wedge & $0.277274$ & $2.93\times / 29.7\times$ & $0.546000$ & $2.57\times / 58.5\times$ & Breaks single-link ceil. \\
+W14 All-pair 2-wedge (4-dir Alt) & $0.280382$ & $2.97\times / 30.0\times$ & $0.555190$ & $2.61\times / 59.5\times$ & $m_{SU(3)}(0.554) \ge 0.0693$ \\
+\textbf{W14 3-Link Triangle (1D-axial)} & $\mathbf{0.284888}$ & $3.01\times / 30.5\times$ & $\mathbf{0.562504}$ & $2.65\times / 60.3\times$ & $m_{SU(2)}(0.2835) \ge 0.0217$ \\
+\textbf{W14 3-Link Triangle (4-dir Alt)} & $\mathbf{0.285141}$ & $\mathbf{3.02\times / 30.55\times}$ & $\mathbf{0.563019}$ & $\mathbf{2.65\times / 60.36\times}$ & $m_{SU(2)}(0.2835) \ge 0.0256$, $m_{SU(3)}(0.546) \ge 0.1305$ \\
+\bottomrule
+\end{tabularx}
+\end{table}

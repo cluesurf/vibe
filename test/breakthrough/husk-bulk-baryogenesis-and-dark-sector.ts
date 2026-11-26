@@ -2077,7 +2077,7 @@ function runPart1(): { readonly lambdaExact: number; readonly nExact: readonly n
   // Exact analytical purity family on pure-bulk-spectator quad [12, 13, 18, 0] (chi = (1, 0)):
   // Because C is linear, ANY normalized (alpha |a> + beta |b> + C(...)) / sqrt(2) is strictly Q = 0 and C-even!
   //   (i)   Equal weights, phi = 0: maximizes magnitude |<Q_0(1)>| = 3/8 = 0.375000 (eta_husk = 3/4 = 0.750000)
-  //   (ii)  Equal weights, optimal phase phi_* = pi + arcsin(sqrt(3)/4) = 3.590098: eta_husk = 3/sqrt(13) = 0.832050
+  //   (ii)  Equal weights, optimal phase phi_* = pi + arcsin(sqrt(3)/4) = 3.589425: eta_husk = 3/sqrt(13) = 0.832050
   //   (iii) Exact destructive interference alpha = sqrt(3)/2, beta = (1/2) e^{-i pi/6}:
   //         P_+(D=0, t=1) === 0, <Q_0(1)> = -9/32 = -0.281250, <D_act,0(1)> = 9/32, eta_husk = 1.000000 (100% pure matter!)
   const buildWeightedCEven = (
@@ -2230,7 +2230,7 @@ function runPart1(): { readonly lambdaExact: number; readonly nExact: readonly n
   }
   curNoPhi = createFast4(1)
 
-  // Control 2: P_cusp |psiInt0> (exact CP sign flip <Q_{D=0}(t; P_cusp|psi>)> = -<Q_{D=0}(t; |psi>)>)
+  // Control 2: P_cusp |psiInt0> (exact CP sign flip <Q_{D=0}(t, P_cusp|psi>)> = -<Q_{D=0}(t, |psi>)>)
   const psiPCusp0 = mapHypStateByPerm(psiInt0, P_CUSP_REF)
   let curPCusp = toFast4(psiPCusp0)
   let maxCPSignErr = 0
@@ -2353,7 +2353,7 @@ function runPart1(): { readonly lambdaExact: number; readonly nExact: readonly n
   // Bipartite double cover of flat D_4 / L D_4 (L = 4 -> 128 * 2 = 256 docks):
   //   coords (x0, x1, x2, x3) in Z_4^4 with x0+x1+x2+x3 even, plus bipartite parity bit p in {0, 1}.
   //   Every hop along D_4 root r_s flips p -> 1 - p, giving exact bipartite dockParity = (-1)^p!
-  //   Flat 3D hyperplane slice: x0 = 0 (6 slots with x0=+1, 12 slots with x0=0, 6 slots with x0=-1;
+  //   Flat 3D hyperplane slice: x0 = 0 (6 slots with x0=+1, 12 slots with x0=0, 6 slots with x0=-1,
   //   0 slice-to-bulk antipodal pairs because opp(r) has -x0!).
   const L_FLAT = 4
   const flatKey = (x0: number, x1: number, x2: number, x3: number, p: number): number =>
@@ -2463,13 +2463,23 @@ function runPart1(): { readonly lambdaExact: number; readonly nExact: readonly n
   // --------------------------------------------------------------------------
   // C5: Irreversible Hyperbolic Bulk Export Arrow (Steinberg Tree & P_return)
   // --------------------------------------------------------------------------
-  const D_TREE = 22
+  const D_TREE = 80
   const nExact: number[] = [1, 18, 330, 6034]
   for (let d = 4; d <= D_TREE; d++) nExact.push(21 * nExact[d - 1]! - 51 * nExact[d - 2]! + 23 * nExact[d - 3]!)
   const lExact: number[] = [1]
   for (let d = 1; d <= D_TREE; d++) lExact.push(4 * 5 ** (d - 1))
   const vExact: number[] = [24 * nExact[0]! - 6 * lExact[0]!]
   for (let d = 1; d <= D_TREE; d++) vExact.push(24 * nExact[d]! - vExact[d - 1]! - 6 * lExact[d]!)
+
+  // Verify exact degree conservation dUp + dLat + dDown === 24 across all D = 0..80
+  let maxDegErrC5 = 0
+  for (let d = 0; d <= D_TREE; d++) {
+    const dUp = d === 0 ? 0 : vExact[d - 1]! / nExact[d]!
+    const dLat = (6 * lExact[d]!) / nExact[d]!
+    const dDown = vExact[d]! / nExact[d]!
+    maxDegErrC5 = Math.max(maxDegErrC5, Math.abs(dUp + dLat + dDown - 24))
+  }
+  assertExact(maxDegErrC5 < 1e-12, `Degree conservation error on D_TREE=80: ${maxDegErrC5}`)
 
   let lam = 18.28
   for (let it = 0; it < 30; it++) {
@@ -2479,13 +2489,15 @@ function runPart1(): { readonly lambdaExact: number; readonly nExact: readonly n
   const dDownInf = 24 - dUpInf
   const asymRatioInf = dDownInf / dUpInf
 
-  // Compute exact classical & unitary branching-tree return probability P(D=0, t | D_init=1) for t = 1..14!
-  const T_RET = 14
+  // Compute exact classical Markov branching-tree return probability P(D=0, t | D_init=1) over t = 1..60
+  const T_RET = 60
   const pMkv = new Float64Array(D_TREE + 1)
-  pMkv[1] = 1.0 // exported charge starting in D = 1!
+  pMkv[1] = 1.0
   const retMkv: number[] = []
-  let maxRatioToSchur = 0
   const schurRho = 13 / 21
+  const rhoTreeAsymp = 2 * Math.sqrt((dUpInf / 24) * (dDownInf / 24))
+  let maxRatioToSchurT = 0
+  let maxRatioToRhoTree = 0
   for (let t = 1; t <= T_RET; t++) {
     const nxt = new Float64Array(D_TREE + 1)
     for (let d = 0; d <= D_TREE; d++) {
@@ -2501,82 +2513,162 @@ function runPart1(): { readonly lambdaExact: number; readonly nExact: readonly n
     }
     pMkv.set(nxt)
     retMkv.push(pMkv[0]!)
-    const bound = Math.pow(schurRho, 2 * t)
-    if (t >= 2) maxRatioToSchur = Math.max(maxRatioToSchur, pMkv[0]! / bound)
+    maxRatioToSchurT = Math.max(maxRatioToSchurT, pMkv[0]! / Math.pow(schurRho, t))
+    maxRatioToRhoTree = Math.max(maxRatioToRhoTree, pMkv[0]! / Math.pow(rhoTreeAsymp, t))
   }
 
-  // Exact unitary Grover & zeta_18 branching-tree return probabilities from D = 1
-  // Test BOTH outward bulk-injected |1, down> (true moving-shift export) and flip-flop |1, up> (boundary defect control)
+  // Exact sparse O(D_TREE) unitary branching-tree quantum walk from D = 1 over t = 1..60 (D_TREE = 80)
+  // Compares BOTH flip-flop shift S_ff (down(d) <-> up(d+1), which exhibits mid-time return spikes!)
+  // AND true unitary moving shift S_mv (down(d) -> down(d+1), up(d) -> up(d-1), up(1) -> down(0))
   const chOff = (d: number): number => (d === 0 ? 0 : 2 + 3 * (d - 1))
   const treeDim = 2 + 3 * D_TREE
+  type TreeWalkResult = {
+    readonly unitErr: number
+    readonly maxNormErr: number
+    readonly p0Series: number[]
+    readonly peakP0: number
+    readonly peakT: number
+    readonly pGe1At14: number
+    readonly pGe1At60: number
+    readonly minBulkTrap: number
+  }
   function runTreeFromD1(
     coinKind: 'grover' | 'zeta18',
+    shiftKind: 'flipflop' | 'moving',
     initChannel: 'down' | 'up',
-  ): { readonly unitErr: number; readonly p0Series: number[]; readonly pGe1Final: number; readonly pGe1AvgLate: number } {
-    const Cmat = cmatZero(treeDim)
+  ): TreeWalkResult {
+    // Precompute exact 2x2 (d=0) and 3x3 (d>=1) local unitary coin blocks and certify block unitarity
+    const blkRe: Float64Array[] = []
+    const blkIm: Float64Array[] = []
+    let unitErr = 0
     for (let d = 0; d <= D_TREE; d++) {
       const dUp = d === 0 ? 0 : vExact[d - 1]! / nExact[d]!
       const dLat = (6 * lExact[d]!) / nExact[d]!
       const dDown = vExact[d]! / nExact[d]!
       const uVec = d === 0 ? [Math.sqrt(dLat / 24), Math.sqrt(dDown / 24)] : [Math.sqrt(dUp / 24), Math.sqrt(dLat / 24), Math.sqrt(dDown / 24)]
-      const off = chOff(d)
-      for (let i = 0; i < uVec.length; i++) {
-        for (let j = 0; j < uVec.length; j++) {
+      const m = uVec.length
+      const br = new Float64Array(m * m)
+      const bi = new Float64Array(m * m)
+      for (let i = 0; i < m; i++) {
+        for (let j = 0; j < m; j++) {
           const uu = uVec[i]! * uVec[j]!
           if (coinKind === 'grover') {
-            Cmat.re[(off + i) * treeDim + (off + j)] = 2 * uu - (i === j ? 1 : 0)
+            br[i * m + j] = 2 * uu - (i === j ? 1 : 0)
           } else {
-            Cmat.re[(off + i) * treeDim + (off + j)] = (i === j ? 1 : 0) + (Z18_C[0] - 1) * uu
-            Cmat.im[(off + i) * treeDim + (off + j)] = Z18_C[1] * uu
+            br[i * m + j] = (i === j ? 1 : 0) + (Z18_C[0] - 1) * uu
+            bi[i * m + j] = Z18_C[1] * uu
           }
         }
       }
+      // Verify C_d^dag C_d = I_m
+      for (let i = 0; i < m; i++) {
+        for (let j = 0; j < m; j++) {
+          let sr = 0, si = 0
+          for (let k = 0; k < m; k++) {
+            const ar = br[k * m + i]!, ai = -bi[k * m + i]!
+            const cr = br[k * m + j]!, ci = bi[k * m + j]!
+            sr += ar * cr - ai * ci
+            si += ar * ci + ai * cr
+          }
+          unitErr = Math.max(unitErr, Math.hypot(sr - (i === j ? 1 : 0), si))
+        }
+      }
+      blkRe.push(br)
+      blkIm.push(bi)
     }
-    const Smat = cmatZero(treeDim)
+    // Build exact permutation map for shift S (bijection on treeDim -> exact unitarity S^dag S = I)
+    const shiftDst = new Int32Array(treeDim).fill(-1)
     for (let d = 0; d <= D_TREE; d++) {
       const off = chOff(d)
       const latIdx = d === 0 ? off : off + 1
       const downIdx = d === 0 ? off + 1 : off + 2
-      Smat.re[latIdx * treeDim + latIdx] = 1
-      if (d < D_TREE) {
-        const nextUp = chOff(d + 1)
-        Smat.re[nextUp * treeDim + downIdx] = 1
-        Smat.re[downIdx * treeDim + nextUp] = 1
+      shiftDst[latIdx] = latIdx
+      if (shiftKind === 'flipflop') {
+        if (d < D_TREE) {
+          const nextUp = chOff(d + 1)
+          shiftDst[downIdx] = nextUp
+          shiftDst[nextUp] = downIdx
+        } else {
+          shiftDst[downIdx] = downIdx
+        }
       } else {
-        Smat.re[downIdx * treeDim + downIdx] = 1
+        // True moving shift: down(d) -> down(d+1), up(d) -> up(d-1), up(1) -> down(0), down(D_TREE) -> up(D_TREE)
+        if (d < D_TREE) {
+          shiftDst[downIdx] = chOff(d + 1) + 2
+        } else {
+          shiftDst[downIdx] = chOff(D_TREE)
+        }
+        if (d >= 2) {
+          shiftDst[off] = chOff(d - 1)
+        } else if (d === 1) {
+          shiftDst[off] = chOff(0) + 1
+        }
       }
     }
-    const U = cmatMul(Smat, Cmat)
-    const unitErr = cmatUnitaryErr(U)
+    // Certify shiftDst is a strict bijection on 0..treeDim-1
+    const seenDst = new Uint8Array(treeDim)
+    for (let i = 0; i < treeDim; i++) {
+      const dst = shiftDst[i]!
+      assertExact(dst >= 0 && dst < treeDim && seenDst[dst] === 0, `Shift permutation failed at ${i}`)
+      seenDst[dst] = 1
+    }
+
     let vr = new Float64Array(treeDim), vi = new Float64Array(treeDim)
+    const cr = new Float64Array(treeDim), ci = new Float64Array(treeDim)
     vr[initChannel === 'down' ? chOff(1) + 2 : chOff(1)] = 1.0
     const p0Series: number[] = []
-    let sumGe1Late = 0
+    let peakP0 = 0
+    let peakT = 0
+    let maxNormErr = 0
     for (let t = 1; t <= T_RET; t++) {
-      const nr = new Float64Array(treeDim), ni = new Float64Array(treeDim)
-      for (let r = 0; r < treeDim; r++) {
-        let sr = 0, si = 0
-        for (let c = 0; c < treeDim; c++) {
-          sr += U.re[r * treeDim + c]! * vr[c]! - U.im[r * treeDim + c]! * vi[c]!
-          si += U.re[r * treeDim + c]! * vi[c]! + U.im[r * treeDim + c]! * vr[c]!
+      // Apply block-diagonal coin C
+      for (let d = 0; d <= D_TREE; d++) {
+        const off = chOff(d)
+        const m = d === 0 ? 2 : 3
+        const br = blkRe[d]!, bi = blkIm[d]!
+        for (let i = 0; i < m; i++) {
+          let sr = 0, si = 0
+          for (let j = 0; j < m; j++) {
+            const xr = vr[off + j]!, xi = vi[off + j]!
+            const mr = br[i * m + j]!, mi = bi[i * m + j]!
+            sr += mr * xr - mi * xi
+            si += mr * xi + mi * xr
+          }
+          cr[off + i] = sr
+          ci[off + i] = si
         }
-        nr[r] = sr; ni[r] = si
       }
+      // Apply shift permutation S
+      const nr = new Float64Array(treeDim), ni = new Float64Array(treeDim)
+      let normSq = 0
+      for (let i = 0; i < treeDim; i++) {
+        const dst = shiftDst[i]!
+        nr[dst] = cr[i]!
+        ni[dst] = ci[i]!
+        normSq += cr[i]! * cr[i]! + ci[i]! * ci[i]!
+      }
+      maxNormErr = Math.max(maxNormErr, Math.abs(normSq - 1))
       vr = nr; vi = ni
       const p0 = vr[0]! ** 2 + vi[0]! ** 2 + vr[1]! ** 2 + vi[1]! ** 2
       p0Series.push(p0)
-      if (t >= 8) sumGe1Late += 1 - p0
+      if (p0 > peakP0) { peakP0 = p0; peakT = t }
     }
     return {
       unitErr,
+      maxNormErr,
       p0Series,
-      pGe1Final: 1 - p0Series[p0Series.length - 1]!,
-      pGe1AvgLate: sumGe1Late / (T_RET - 7),
+      peakP0,
+      peakT,
+      pGe1At14: 1 - p0Series[13]!,
+      pGe1At60: 1 - p0Series[T_RET - 1]!,
+      minBulkTrap: 1 - peakP0,
     }
   }
-  const uTreeGDown = runTreeFromD1('grover', 'down')
-  const uTreeZDown = runTreeFromD1('zeta18', 'down')
-  const uTreeGUp = runTreeFromD1('grover', 'up')
+  const uTreeGFF = runTreeFromD1('grover', 'flipflop', 'down')
+  const uTreeZFF = runTreeFromD1('zeta18', 'flipflop', 'down')
+  const uTreeGUpFF = runTreeFromD1('grover', 'flipflop', 'up')
+  const uTreeGMv = runTreeFromD1('grover', 'moving', 'down')
+  const uTreeZMv = runTreeFromD1('zeta18', 'moving', 'down')
 
   // Also run exact bare-U moving-shift k = 1 Coxeter walk from an isotropic D = 1 bulk dock for T = 6 beats!
   const d1Sample = d1Docks[0]!
@@ -2613,51 +2705,67 @@ function runPart1(): { readonly lambdaExact: number; readonly nExact: readonly n
     bareD1NormFinal = tot
   }
   const bareD1TrapT6 = 1 - bareD1P0Series[5]!
+  const bareD1PeakP0 = Math.max(...bareD1P0Series)
 
-  // Radial random-walk return spectral radius on asymptotic {3,4,3,4} tree: 2 sqrt(p_up p_down)
-  const rhoTreeAsymp = 2 * Math.sqrt((dUpInf / 24) * (dDownInf / 24))
-  const lambdaGapTree = 1 - rhoTreeAsymp // > 1/2!
-  const lambdaGapSchur = 1 - schurRho // 8/21 = 0.380952
+  // Radial random-walk return spectral gap on asymptotic {3,4,3,4} tree: 1 - 2 sqrt(p_up p_down)
+  const lambdaGapTree = 1 - rhoTreeAsymp
+  const lambdaGapSchur = 1 - schurRho
 
-  console.log('\n  [C5] Irreversible Hyperbolic Bulk Export Arrow (Steinberg Cusp Tree & Spectral Gap):')
+  console.log('\n  [C5] Irreversible Hyperbolic Bulk Export Arrow (Steinberg Cusp Tree & Spectral Gap, T = 1..60):')
   console.log(
     `       Steinberg shells N_D = [${nExact.slice(0, 6).join(', ')}], lambda = ${lam.toFixed(10)}, d_down/d_up -> ${dDownInf.toFixed(4)}/${dUpInf.toFixed(4)} = ${asymRatioInf.toFixed(4)}`,
   )
   console.log(
-    `       Spectral gaps: SchurGap bulk 1 - 13/21 = ${lambdaGapSchur.toFixed(6)} (||A/24|| <= 13/21 = ${schurRho.toFixed(6)}); radial cusp tree 1 - 2*sqrt(p_up*p_down) = ${lambdaGapTree.toFixed(6)} (> 1/2!)`,
+    `       Spectral gaps: SchurGap bulk 1 - 13/21 = ${lambdaGapSchur.toFixed(6)} (||A/24|| <= 13/21 = ${schurRho.toFixed(6)}); radial cusp tree 1 - 2*sqrt(p_up*p_down) = ${lambdaGapTree.toFixed(6)} (> 1/2!, rho_tree = ${rhoTreeAsymp.toFixed(6)})`,
   )
   console.log(
-    `       Exported D=1 packet return probability P(D=0, t) at t = [2, 4, 6, 10, 14]:`,
+    `       Exported D=1 packet return probability P(D=0, t) over t = 1..60 (D_TREE = ${D_TREE}):`,
   )
   console.log(
-    `         Markov tree          : [${[1, 3, 5, 9, 13].map(i => retMkv[i]!.toExponential(3)).join(', ')}] (strictly < (13/21)^{2t} = [${[2, 4, 6, 10, 14].map(t => Math.pow(schurRho, 2 * t).toExponential(3)).join(', ')}])`,
+    `         Markov tree               : P(14)=${retMkv[13]!.toExponential(3)} (< (13/21)^28=${Math.pow(schurRho, 28).toExponential(3)}), P(60)=${retMkv[59]!.toExponential(3)} (< rho_tree^60=${Math.pow(rhoTreeAsymp, 60).toExponential(2)} < (13/21)^60=${Math.pow(schurRho, 60).toExponential(2)}), max(P/rho_tree^t)=${maxRatioToRhoTree.toFixed(4)}, max(P/(13/21)^t)=${maxRatioToSchurT.toFixed(4)}`,
   )
   console.log(
-    `         Grover QW (|1,down>) : [${[1, 3, 5, 9, 13].map(i => uTreeGDown.p0Series[i]!.toExponential(3)).join(', ')}] (unitErr=${uTreeGDown.unitErr.toExponential(1)}, trapped in bulk t=14: ${(100 * uTreeGDown.pGe1Final).toFixed(4)}%)`,
+    `         Flip-flop S_ff Grover |1,d>: PEAK return ${(100 * uTreeGFF.peakP0).toFixed(2)}% at t=${uTreeGFF.peakT} (min trap ${(100 * uTreeGFF.minBulkTrap).toFixed(2)}%, t=14 trap ${(100 * uTreeGFF.pGe1At14).toFixed(2)}%, t=60 trap ${(100 * uTreeGFF.pGe1At60).toFixed(2)}%, uErr=${uTreeGFF.unitErr.toExponential(1)})`,
   )
   console.log(
-    `         zeta_18 QW (|1,down>): [${[1, 3, 5, 9, 13].map(i => uTreeZDown.p0Series[i]!.toExponential(3)).join(', ')}] (unitErr=${uTreeZDown.unitErr.toExponential(1)}, trapped in bulk t=14: ${(100 * uTreeZDown.pGe1Final).toFixed(4)}%)`,
+    `         Flip-flop S_ff zeta18 |1,d>: PEAK return ${(100 * uTreeZFF.peakP0).toFixed(2)}% at t=${uTreeZFF.peakT} (min trap ${(100 * uTreeZFF.minBulkTrap).toFixed(2)}%, t=14 trap ${(100 * uTreeZFF.pGe1At14).toFixed(2)}%, t=60 trap ${(100 * uTreeZFF.pGe1At60).toFixed(2)}%, uErr=${uTreeZFF.unitErr.toExponential(1)})`,
   )
   console.log(
-    `         Flip-flop defect ctrl: Grover |1,up> traps ${(100 * uTreeGUp.pGe1Final).toFixed(2)}% in bulk (honest impedance reflection at D=0 defect under flip-flop S_ff)`,
+    `         Flip-flop S_ff Grover |1,u>: PEAK return ${(100 * uTreeGUpFF.peakP0).toFixed(2)}% at t=${uTreeGUpFF.peakT} (t=14 trap ${(100 * uTreeGUpFF.pGe1At14).toFixed(2)}%, t=60 trap ${(100 * uTreeGUpFF.pGe1At60).toFixed(2)}%)`,
   )
   console.log(
-    `         Exact bare-U k=1 D=1 : P(D=0, t=1..6) = [${bareD1P0Series.map(x => x.toFixed(4)).join(', ')}] (norm=${bareD1NormFinal.toFixed(12)}, bulk-trapped at t=6: ${(100 * bareD1TrapT6).toFixed(2)}%)`,
+    `         Moving S_mv Grover    |1,d>: PEAK return ${(100 * uTreeGMv.peakP0).toFixed(4)}% at t=${uTreeGMv.peakT} (min trap ${(100 * uTreeGMv.minBulkTrap).toFixed(4)}%, t=14 trap ${(100 * uTreeGMv.pGe1At14).toFixed(2)}%, t=60 trap ${(100 * uTreeGMv.pGe1At60).toFixed(4)}%, uErr=${uTreeGMv.unitErr.toExponential(1)})`,
+  )
+  console.log(
+    `         Moving S_mv zeta18    |1,d>: PEAK return ${(100 * uTreeZMv.peakP0).toFixed(4)}% at t=${uTreeZMv.peakT} (min trap ${(100 * uTreeZMv.minBulkTrap).toFixed(4)}%, t=14 trap ${(100 * uTreeZMv.pGe1At14).toFixed(2)}%, t=60 trap ${(100 * uTreeZMv.pGe1At60).toFixed(4)}%, uErr=${uTreeZMv.unitErr.toExponential(1)})`,
+  )
+  console.log(
+    `         Exact bare-U moving k=1 D=1: P(D=0, t=1..6) = [${bareD1P0Series.map(x => x.toFixed(4)).join(', ')}] (peak ${(100 * bareD1PeakP0).toFixed(2)}%, norm=${bareD1NormFinal.toFixed(12)}, bulk-trapped at t=6: ${(100 * bareD1TrapT6).toFixed(2)}%)`,
   )
 
   recordCheck(
     'C5',
-    'Hyperbolic bulk export irreversibility: radial spectral gap > 1/2, Markov < (13/21)^{2t} & >91% unitary bulk trap',
+    'Hyperbolic bulk export irreversibility: radial gap > 1/2, Markov < rho_tree^t, S_ff vs S_mv & bare k=1',
     lambdaGapTree > 0.5 &&
-      retMkv[13]! < 1e-6 &&
-      maxRatioToSchur < 1.0 &&
-      uTreeGDown.unitErr < 1e-13 &&
-      uTreeZDown.unitErr < 1e-13 &&
-      uTreeGDown.pGe1Final > 0.90 &&
-      uTreeZDown.pGe1Final > 0.90 &&
+      retMkv[13]! < Math.pow(schurRho, 28) &&
+      retMkv[59]! < 1e-23 &&
+      maxRatioToRhoTree < 1.0 &&
+      maxRatioToSchurT < 1.0 &&
+      uTreeGFF.unitErr < 1e-13 &&
+      uTreeZFF.unitErr < 1e-13 &&
+      uTreeGMv.unitErr < 1e-13 &&
+      uTreeZMv.unitErr < 1e-13 &&
+      uTreeGFF.maxNormErr < 1e-12 &&
+      uTreeZFF.maxNormErr < 1e-12 &&
+      uTreeGMv.maxNormErr < 1e-12 &&
+      uTreeZMv.maxNormErr < 1e-12 &&
+      uTreeGFF.peakP0 > 0.45 &&
+      uTreeZFF.peakP0 > 0.30 &&
+      uTreeGMv.minBulkTrap > 0.84 &&
+      uTreeZMv.minBulkTrap > 0.99 &&
       Math.abs(bareD1NormFinal - 1) < 1e-12 &&
       bareD1TrapT6 > 0.96,
-    `gap_tree=${lambdaGapTree.toFixed(4)}>0.5, P_Mkv(14)=${retMkv[13]!.toExponential(2)}, bulkTrap(G/z18/bare1)=${(100 * uTreeGDown.pGe1Final).toFixed(2)}%/${(100 * uTreeZDown.pGe1Final).toFixed(2)}%/${(100 * bareD1TrapT6).toFixed(2)}%`,
+    `gap_tree=${lambdaGapTree.toFixed(4)}>0.5, P_Mkv(14/60)=${retMkv[13]!.toExponential(2)}/${retMkv[59]!.toExponential(2)}, S_ff peak(G/z18)=${(100 * uTreeGFF.peakP0).toFixed(2)}%/${(100 * uTreeZFF.peakP0).toFixed(2)}%, S_mv minTrap(G/z18)=${(100 * uTreeGMv.minBulkTrap).toFixed(2)}%/${(100 * uTreeZMv.minBulkTrap).toFixed(2)}%, bare1=${(100 * bareD1TrapT6).toFixed(2)}%`,
   )
 
   return { lambdaExact: lam, nExact }
@@ -2698,8 +2806,8 @@ function runPart2(lambdaExact: number, nExact: readonly number[]): void {
     nb => cuspDepth(nb) === 3,
   )!
   // Exact count of straight-geodesic-visible docks in D = 2 under dock 0:
-  // Every D = 0 dock has 18 downward rays into D = 1, continuing 1 more step straight down gives 18 D = 2 docks;
-  // check how many of the distinct D = 2 descendants of dock 0's 18 D = 1 children lie on a 2-step straight geodesic from dock 0!
+  // Every D = 0 dock has 18 downward rays into D = 1, continuing 1 more step straight down gives 18 D = 2 docks.
+  // Exhaustively test ALL 330 D = 2 descendants across ALL 24 geodesic rays for m = 1..6 via exact Q(sqrt(2)) frames!
   const d1ChildrenOf0: number[] = []
   const d1SlotOf0: number[] = []
   for (let s = 0; s < 24; s++) {
@@ -2716,6 +2824,39 @@ function runPart2(lambdaExact: number, nExact: readonly number[]): void {
       const nb = stepDock(u, s)
       if (cuspDepth(nb) === 2) d2AllUnder0.add(nb)
     }
+  }
+  // Zero-allocation exact Q(sqrt(2)) straight-ray check: center(step^m(v, s))[0] = dockFrames[v][0] . (T_s^m * c_0)
+  const rayVecs: Q2[][][] = Array.from({ length: 24 }, (_, s) => {
+    const arr: Q2[][] = [BASE_CENTER.map(x => [x[0], x[1]] as Q2)]
+    for (let m = 1; m <= 6; m++) arr.push(matVecQ2(TRANSPORTS[s]!, arr[m - 1]!))
+    return arr
+  })
+  // Cross-check rayVecs formula against stepDock on bulkDocks[2] and offGeoD2 for m = 1..6
+  for (const vTest of [bulkDocks[2]!, offGeoD2]) {
+    const r0 = dockFrames[vTest]![0]!
+    for (let s = 0; s < 24; s++) {
+      let cur = vTest
+      for (let m = 1; m <= 6; m++) {
+        cur = stepDock(cur, s)
+        const c0Pred = dotQ2(r0, rayVecs[s]![m]!)
+        const isD0Pred = c0Pred[0] === 2n && c0Pred[1] === 0n
+        assertExact(isD0Pred === isLayerDock(cur), `rayVecs mismatch at dock ${vTest} slot ${s} step ${m}`)
+      }
+    }
+  }
+  let d2ExhaustiveHitD0 = 0
+  let d2ExhaustiveSterile = 0
+  for (const v of d2AllUnder0) {
+    const r0 = dockFrames[v]![0]!
+    let hitsAnyD0 = false
+    for (let s = 0; s < 24 && !hitsAnyD0; s++) {
+      for (let m = 1; m <= 6; m++) {
+        const c0 = dotQ2(r0, rayVecs[s]![m]!)
+        if (c0[0] === 2n && c0[1] === 0n) { hitsAnyD0 = true; break }
+      }
+    }
+    if (hitsAnyD0) d2ExhaustiveHitD0++
+    else d2ExhaustiveSterile++
   }
 
   // (a) k = 2 neutral C-even antipodal pair at depths D = 0, 1, 2, 3 (geodesic-aligned worst-case AND off-geodesic generic!)
@@ -2936,7 +3077,7 @@ function runPart2(lambdaExact: number, nExact: readonly number[]): void {
     })
     return gf3RankSmall(sub, 2 * k) - k
   }
-  // Pure |0_L> has 24 stabilizers (bulk23 U {zL}); maximally mixed bulk logical M_1 has 23 stabilizers (bulk23)
+  // Pure |0_L> has 24 stabilizers (bulk23 U {zL}), maximally mixed bulk logical M_1 has 23 stabilizers (bulk23)
   // Wait: for mixed state on 24 qutrits with 23 stabilizers (dim 3 code space), S(A) = |A| - |S_A| where |S_A| = rank(S) - rank(S_{A^c})?
   // Exact formula for mixed stabilizer state rho = (1/3^{n-r}) prod (I + ...): S(A) = |A| - (r - rank(proj_{A^c}(S)))?
   // Wait: for pure state (r = n), S(A) = rank(proj_A(S)) - |A|. For mixed state purified by 1 bulk qutrit b_0:
@@ -2979,7 +3120,7 @@ function runPart2(lambdaExact: number, nExact: readonly number[]): void {
     )
   }
   console.log(
-    `           Hyperbolic geodesic sterility theorem: only ${d2StraightFrom0.size}/${d2AllUnder0.size} (${((100 * d2StraightFrom0.size) / d2AllUnder0.size).toFixed(2)}%) of dock-0 D=2 descendants lie on a 2-step geodesic from dock 0! Generic off-geodesic D=2,3 isotropic pairs give exact P(D=0, t=0..6) = [${offGeoResD2.peakP0.toExponential(1)}, ${offGeoResD3.peakP0.toExponential(1)}] (100% GEODESICALLY STERILE!)`,
+    `           Hyperbolic geodesic sterility theorem (exhaustive all ${d2AllUnder0.size} D=2 descendants, 24 rays, m=1..6): ${d2ExhaustiveSterile}/${d2AllUnder0.size} (${((100 * d2ExhaustiveSterile) / d2AllUnder0.size).toFixed(2)}%) have ZERO geodesic rays hitting ANY D=0 dock, while ${d2ExhaustiveHitD0}/${d2AllUnder0.size} (${((100 * d2ExhaustiveHitD0) / d2AllUnder0.size).toFixed(2)}%, matching ${d2StraightFrom0.size} straight from dock 0) hit D=0! Bare-U off-geodesic D=2,3 isotropic k=2 pairs: P(D=0, t=0..6) = [${offGeoResD2.peakP0.toExponential(1)}, ${offGeoResD3.peakP0.toExponential(1)}]`,
   )
   console.log('       (b) k = 4 Neutral C-Even Chiral Bulk Cluster (T = 4 beats under verbatim bare U, geodesic-aligned):')
   console.log(
@@ -2995,7 +3136,7 @@ function runPart2(lambdaExact: number, nExact: readonly number[]): void {
 
   recordCheck(
     'C6',
-    'Sterile deep-bulk DM modes (D=1..3): exact <Q_0>=0, geodesic sterility, causal depth decay & W10 d=8 EM sterility',
+    'Sterile deep-bulk DM modes (D=1..3): exact <Q_0>=0, exhaustive 312/330 geodesic sterility & W10 d=8 EM sterility',
     maxK2LocalQ < 1e-14 &&
       pureBulkPairMaxP0[1]! < 1e-14 &&
       pureBulkPairMaxP0[2]! < 1e-14 &&
@@ -3006,6 +3147,9 @@ function runPart2(lambdaExact: number, nExact: readonly number[]): void {
       isoPairPeakP0[3]! < isoPairPeakP0[2]! &&
       isoPairPeakP0[2]! < isoPairPeakP0[1]! &&
       isoPairPeakP0[1]! < isoPairPeakP0[0]! &&
+      d2AllUnder0.size === 330 &&
+      d2ExhaustiveSterile === 312 &&
+      d2ExhaustiveHitD0 === 18 &&
       offGeoResD2.peakP0 < 1e-14 &&
       offGeoResD3.peakP0 < 1e-14 &&
       k4PeakQ0[1]! < k4PeakQ0[0]! &&
@@ -3015,12 +3159,15 @@ function runPart2(lambdaExact: number, nExact: readonly number[]): void {
       twoSlotZZAnticomm === twoSlotZZTotal &&
       w10MixS[2]! - w10VacS[2]! === 0 &&
       w10MixS[6]! - w10VacS[6]! === 1,
-    `geoPeak=[${isoPairPeakP0.map(x => x.toFixed(4)).join(',')}], offGeoD2/3=0 (${d2StraightFrom0.size}/${d2AllUnder0.size} hit), W10 Q_s=0 (24/24), FLM=+1`,
+    `geoPeak=[${isoPairPeakP0.map(x => x.toFixed(4)).join(',')}], sterileD2=${d2ExhaustiveSterile}/${d2AllUnder0.size} (94.55%), W10 Q_s=0 (24/24), FLM=+1`,
   )
 
   // --------------------------------------------------------------------------
-  // C7: Direct Microscopic Gravitational/Entanglement Visibility on D = 0
-  //     of a Sterile D = 1 Neutral Bulk Mode on the 37-Dock {3,4,3,4} Cusp!
+  // C7: Honest Two-Part Bare-U Microscopic Audit on the 37-Dock {3,4,3,4} Cusp:
+  //     (a) Strictly sterile D = 1 non-bridge neutral mode (disjoint tensor-product state)
+  //         certifying exact 0 bare-U sterile entanglement imprint when no particle crosses to D = 0
+  //     (b) Non-sterile D = 1 <-> D = 0 bridge-exchange diagnostic (explicitly reporting matter leakage
+  //         D_act(D=0) > 0, t=0 50/50 cross-sector artifact, bridge dI>0, and negative husk-only response)
   // --------------------------------------------------------------------------
   const globalDock37: number[] = [0]
   const localId37 = new Map<number, number>([[0, 0]])
@@ -3062,9 +3209,7 @@ function runPart2(lambdaExact: number, nExact: readonly number[]): void {
   }
   const graphDist37 = floydWarshall(nV37, edgeLen37)
 
-  // Local bounded 37-dock reflecting geometry (same as W5 Part B2!)
   function applyBareBeat37(st: FState): FState {
-    // Use standard 7 local layers + bounded reflecting S on cl37
     const geom37: LatticeGeometry = {
       step: (d, s) => table37[d]![s]!,
       parity: d => dockParity[globalDock37[d]!]!,
@@ -3148,11 +3293,101 @@ function runPart2(lambdaExact: number, nExact: readonly number[]): void {
     const l = LINE_OF_SLOT[s]!
     if (!cuspLines.includes(l)) cuspLines.push(l)
   }
-  // Pick a D = 1 bulk dock directly beneath dock 0 (connected via bridge edge (0, vBulkD1))
   const vBulkD1 = Array.from({ length: 24 }, (_, i) => i + 1).find(u => cuspDepth(globalDock37[u]!) === 1)!
   const bridgeEdgeIdx = edges37.findIndex(([u, v]) => (u === 0 && v === vBulkD1) || (u === vBulkD1 && v === 0))
+  const slotBulkTo0 = Array.from({ length: 24 }, (_, s) => s).find(s => table37[vBulkD1]![s] === 0)!
+  const bridgeLine = LINE_OF_SLOT[slotBulkTo0]!
+  const sterileLines = cuspLines.filter(l => l !== bridgeLine)
+  let vBulkReflectSlots = 0
+  for (let s = 0; s < 24; s++) if (table37[vBulkD1]![s]! < 0) vBulkReflectSlots++
+  const r1HuskLocals: number[] = []
+  for (let v = 1; v < nV37; v++) {
+    if (cuspDepth(globalDock37[v]!) === 0 && graphDist37[0]![v] === 1) r1HuskLocals.push(v)
+  }
+  assertExact(r1HuskLocals.length === 6, `Expected 6 r=1 husk docks in cl37, got ${r1HuskLocals.length}`)
 
-  // Neutral vacuum background sea on cl37 (role 0, Q = 0_V) + neutral bulk DM packet strictly at D = 1 dock vBulkD1 (role 1, Q = 0_V)
+  const measureDAct37 = (st: FState): { readonly dAct0: number; readonly dActAllD0: number; readonly maxQHusk: number } => {
+    const qLoc = new Float64Array(nV37)
+    let dAct0 = 0, dActAllD0 = 0
+    for (const e of st.values()) {
+      const p = e.re * e.re + e.im * e.im
+      for (const [d, , t] of e.vibes) {
+        qLoc[d] = qLoc[d]! + p * t
+        if (d === 0) dAct0 += p
+        if (cuspDepth(globalDock37[d]!) === 0) dActAllD0 += p
+      }
+    }
+    let maxQHusk = 0
+    for (let v = 0; v < nV37; v++) if (cuspDepth(globalDock37[v]!) === 0) maxQHusk = Math.max(maxQHusk, Math.abs(qLoc[v]!))
+    return { dAct0, dActAllD0, maxQHusk }
+  }
+
+  const tensorProduct37 = (a: FState, b: FState): FState => {
+    const out: FState = new Map()
+    for (const ea of a.values()) {
+      for (const eb of b.values()) {
+        const [re, im] = cxMul([ea.re, ea.im], [eb.re, eb.im])
+        addEntry(out, [...ea.vibes, ...eb.vibes], re, im)
+      }
+    }
+    return normalizeState(out)
+  }
+
+  // (a) Strictly sterile D = 1 bulk mode control (excluding bridgeLine {1, 2}):
+  //     Build a genuine same-role tensor-product state |sea_husk(D=0)> (x) |DM_sterile(vBulkD1)>
+  const buildHuskOnlySea37 = (): FState => {
+    const st: FState = new Map()
+    const huskCore = [0, ...r1HuskLocals]
+    for (const v of huskCore) {
+      for (const l of cuspLines) {
+        const [sA, sB] = LINES[l]!
+        addEntry(st, [[v, sA, 1, 0], [v, sB, -1, 0]], 1, 0)
+        addEntry(st, [[v, sA, -1, 0], [v, sB, 1, 0]], 1, 0)
+      }
+    }
+    return normalizeState(st)
+  }
+  const buildSterileDM37 = (): FState => {
+    const [sA, sB] = LINES[sterileLines[0]!]!
+    const st: FState = new Map()
+    addEntry(st, [[vBulkD1, sA, 1, 0], [vBulkD1, sB, -1, 0]], 1, 0)
+    addEntry(st, [[vBulkD1, sA, -1, 0], [vBulkD1, sB, 1, 0]], 1, 0)
+    return normalizeState(st)
+  }
+  let stSterileAlone = buildSterileDM37()
+  let stHuskBase = buildHuskOnlySea37()
+  let stProdSterile = tensorProduct37(stHuskBase, stSterileAlone)
+  for (let t = 0; t < 2; t++) {
+    stSterileAlone = applyBareBeat37(stSterileAlone)
+    stHuskBase = applyBareBeat37(stHuskBase)
+    stProdSterile = applyBareBeat37(stProdSterile)
+  }
+  const sterileLeak = measureDAct37(stSterileAlone)
+  const sHubBaseA = subsystemEntropy37(stHuskBase, [0])
+  const sBulkBaseA = subsystemEntropy37(stHuskBase, [vBulkD1])
+  const miBridgeBaseA = Math.max(0, sHubBaseA + sBulkBaseA - subsystemEntropy37(stHuskBase, [0, vBulkD1]))
+  let miHuskBaseA = 0
+  for (const r1 of r1HuskLocals) {
+    miHuskBaseA += Math.max(0, sHubBaseA + subsystemEntropy37(stHuskBase, [r1]) - subsystemEntropy37(stHuskBase, [0, r1]))
+  }
+  miHuskBaseA /= r1HuskLocals.length
+
+  const sHubProdA = subsystemEntropy37(stProdSterile, [0])
+  const sBulkProdA = subsystemEntropy37(stProdSterile, [vBulkD1])
+  const miBridgeProdA = Math.max(0, sHubProdA + sBulkProdA - subsystemEntropy37(stProdSterile, [0, vBulkD1]))
+  let miHuskProdA = 0
+  for (const r1 of r1HuskLocals) {
+    miHuskProdA += Math.max(0, sHubProdA + subsystemEntropy37(stProdSterile, [r1]) - subsystemEntropy37(stProdSterile, [0, r1]))
+  }
+  miHuskProdA /= r1HuskLocals.length
+  const prodLeakQ = measureDAct37(stProdSterile).maxQHusk
+  const sterileShiftMax = Math.max(
+    Math.abs(sHubProdA - sHubBaseA),
+    Math.abs(miBridgeProdA - miBridgeBaseA),
+    Math.abs(miHuskProdA - miHuskBaseA),
+  )
+
+  // (b) Non-sterile D = 1 <-> D = 0 bridge-exchange diagnostic (explicitly non-sterile!)
   const buildSea37 = (): FState => {
     const st: FState = new Map()
     for (let v = 0; v < nV37; v++) {
@@ -3189,14 +3424,25 @@ function runPart2(lambdaExact: number, nExact: readonly number[]): void {
     return normalizeState(out)
   }
 
-  let stSea = buildSea37()
-  let stDM2 = buildBulkDM37(1)
-  let stDM4 = buildBulkDM37(2)
+  const stSea0 = buildSea37()
+  const stDM2_0 = buildBulkDM37(1)
+  const stDM4_0 = buildBulkDM37(2)
+  // Measure t = 0 50/50 cross-sector superposition artifact BEFORE bare U runs
+  const psiMixT0 = mixStates(stSea0, stDM2_0)
+  const miSeaT0 = Math.max(0, subsystemEntropy37(stSea0, [0]) + subsystemEntropy37(stSea0, [vBulkD1]) - subsystemEntropy37(stSea0, [0, vBulkD1]))
+  const miMixT0 = Math.max(0, subsystemEntropy37(psiMixT0, [0]) + subsystemEntropy37(psiMixT0, [vBulkD1]) - subsystemEntropy37(psiMixT0, [0, vBulkD1]))
+  const artifactT0DeltaI = miMixT0 - miSeaT0
+
+  let stSea = stSea0
+  let stDM2 = stDM2_0
+  let stDM4 = stDM4_0
   for (let t = 0; t < 2; t++) {
     stSea = applyBareBeat37(stSea)
     stDM2 = applyBareBeat37(stDM2)
     stDM4 = applyBareBeat37(stDM4)
   }
+  const dm2Leak = measureDAct37(stDM2)
+  const dm4Leak = measureDAct37(stDM4)
   const psiSea = stSea
   const psiWithDM2 = mixStates(stSea, stDM2)
   const psiWithDM4 = mixStates(stSea, stDM4)
@@ -3218,11 +3464,13 @@ function runPart2(lambdaExact: number, nExact: readonly number[]): void {
     const wMat = Array.from({ length: nV37 }, () => new Float64Array(nV37))
     const mutEdge = new Float64Array(edges37.length)
     let maxMut = 0
+    let miHuskR1Sum = 0
     for (let ei = 0; ei < edges37.length; ei++) {
       const [u, v] = edges37[ei]!
       const mi = Math.max(0, s1[u]! + s1[v]! - subsystemEntropy37(st, [u, v]))
       mutEdge[ei] = mi
       if (mi > maxMut) maxMut = mi
+      if ((u === 0 && r1HuskLocals.includes(v)) || (v === 0 && r1HuskLocals.includes(u))) miHuskR1Sum += mi
     }
     const iRef = iRefBg ?? Math.max(maxMut, 1e-15)
     const iFloor = Math.max(iRef * 1e-6, 1e-12)
@@ -3247,6 +3495,7 @@ function runPart2(lambdaExact: number, nExact: readonly number[]): void {
       sHub: s1[0]!,
       sBulk: s1[vBulkD1]!,
       miBridge,
+      miHuskR1Mean: miHuskR1Sum / r1HuskLocals.length,
       dMIBridge,
       kBridge,
       kHubMean: kHubSum / kHubCnt,
@@ -3257,39 +3506,69 @@ function runPart2(lambdaExact: number, nExact: readonly number[]): void {
   const aSea = analyze37(psiSea)
   const aDM2 = analyze37(psiWithDM2, aSea.maxMut)
   const aDM4 = analyze37(psiWithDM4, aSea.maxMut)
+  const huskR1Drop2Pct = 100 * (aDM2.miHuskR1Mean / aSea.miHuskR1Mean - 1)
+  const huskR1Drop4Pct = 100 * (aDM4.miHuskR1Mean / aSea.miHuskR1Mean - 1)
 
   const fmtS = (x: number): string => `${x >= 0 ? '+' : ''}${x.toFixed(5)}`
-  console.log('\n  [C7] Microscopic Gravitational/Entanglement Imprint on D = 0 of a Sterile D = 1 Bulk DM Mode (37-Dock Bare U, T = 2):')
+  console.log('\n  [C7] Honest Bare-U Microscopic Audit on 37-Dock {3,4,3,4} Cluster (T = 2, Sterile Control vs Non-Sterile Bridge):')
   console.log(
-    `       Baseline sea (Q=0_V) : max|Q_{D=0}|=${aSea.maxQHusk.toExponential(1)}, S(hub)=${aSea.sHub.toFixed(5)}, I(0:D1)=${aSea.miBridge.toFixed(5)}, k_LLY(0,D1)=${aSea.kBridge.toFixed(5)}, k_LLY(hub)=${aSea.kHubMean.toFixed(5)}`,
+    `       cl37 boundary audit: vBulkD1 has ${vBulkReflectSlots}/24 slots hitting the artificial reflecting wall, bridgeLine={${LINES[bridgeLine]!.join(',')}}`,
   )
   console.log(
-    `       + D=1 DM (D_act=2)   : max|Q_{D=0}|=${aDM2.maxQHusk.toExponential(1)}, dS(hub)=${fmtS(aDM2.sHub - aSea.sHub)}, dI(0:D1)=${fmtS(aDM2.miBridge - aSea.miBridge)}, dd_MI(0:D1)=${fmtS(aDM2.dMIBridge - aSea.dMIBridge)}, dk_LLY(0,D1)=${fmtS(aDM2.kBridge - aSea.kBridge)}, dk_LLY(hub)=${fmtS(aDM2.kHubMean - aSea.kHubMean)}`,
+    `       (a) STRICTLY STERILE D=1 non-bridge control (genuine same-role tensor product |sea_husk> (x) |DM_sterile>):`,
   )
   console.log(
-    `       + D=1 DM (D_act=4)   : max|Q_{D=0}|=${aDM4.maxQHusk.toExponential(1)}, dS(hub)=${fmtS(aDM4.sHub - aSea.sHub)}, dI(0:D1)=${fmtS(aDM4.miBridge - aSea.miBridge)}, dd_MI(0:D1)=${fmtS(aDM4.dMIBridge - aSea.dMIBridge)}, dk_LLY(0,D1)=${fmtS(aDM4.kBridge - aSea.kBridge)}, dk_LLY(hub)=${fmtS(aDM4.kHubMean - aSea.kHubMean)}`,
+    `           Sterile DM alone at t=2: D_act(dock 0)=${sterileLeak.dAct0.toFixed(6)}, D_act(all D=0)=${sterileLeak.dActAllD0.toFixed(6)}, max|Q_{D=0}|=${sterileLeak.maxQHusk.toExponential(1)}`,
+  )
+  console.log(
+    `           Product state vs baseline: max|Q_{D=0}|=${prodLeakQ.toExponential(1)}, dS(hub)=${fmtS(sHubProdA - sHubBaseA)}, dI(0:D1)=${fmtS(miBridgeProdA - miBridgeBaseA)}, dI(0:r_1)=${fmtS(miHuskProdA - miHuskBaseA)} (EXACT ZERO sterile imprint!)`,
+  )
+  console.log(
+    `           50/50 role-0/role-1 superposition artifact check at t=0 (BEFORE bare U): dI(0:D1, t=0)=${fmtS(artifactT0DeltaI)}`,
+  )
+  console.log(
+    `       (b) NON-STERILE D=1 <-> D=0 bridge-exchange diagnostic (particles physically cross bridgeLine onto D=0!):`,
+  )
+  console.log(
+    `           Non-sterile DM matter leakage onto D=0 at t=2: DM2 D_act(dock 0)=${dm2Leak.dAct0.toFixed(6)}, D_act(all D=0)=${dm2Leak.dActAllD0.toFixed(6)}; DM4 D_act(dock 0)=${dm4Leak.dAct0.toFixed(6)}, D_act(all D=0)=${dm4Leak.dActAllD0.toFixed(6)}`,
+  )
+  console.log(
+    `           Baseline sea (Q=0_V) : max|Q_{D=0}|=${aSea.maxQHusk.toExponential(1)}, S(hub)=${aSea.sHub.toFixed(5)}, I(0:D1)=${aSea.miBridge.toFixed(5)}, I(0:r1)=${aSea.miHuskR1Mean.toFixed(5)}, k_LLY(0,D1)=${aSea.kBridge.toFixed(5)}, k_LLY(hub)=${aSea.kHubMean.toFixed(5)}`,
+  )
+  console.log(
+    `           + Bridge DM2 (non-st): max|Q_{D=0}|=${aDM2.maxQHusk.toExponential(1)}, dS(hub)=${fmtS(aDM2.sHub - aSea.sHub)}, dI(0:D1)=${fmtS(aDM2.miBridge - aSea.miBridge)}, dI(0:r1)=${huskR1Drop2Pct.toFixed(1)}%, dd_MI=${fmtS(aDM2.dMIBridge - aSea.dMIBridge)}, dk_LLY(0,D1)=${fmtS(aDM2.kBridge - aSea.kBridge)}, dk_LLY(hub)=${fmtS(aDM2.kHubMean - aSea.kHubMean)}`,
+  )
+  console.log(
+    `           + Bridge DM4 (non-st): max|Q_{D=0}|=${aDM4.maxQHusk.toExponential(1)}, dS(hub)=${fmtS(aDM4.sHub - aSea.sHub)}, dI(0:D1)=${fmtS(aDM4.miBridge - aSea.miBridge)}, dI(0:r1)=${huskR1Drop4Pct.toFixed(1)}%, dd_MI=${fmtS(aDM4.dMIBridge - aSea.dMIBridge)}, dk_LLY(0,D1)=${fmtS(aDM4.kBridge - aSea.kBridge)}, dk_LLY(hub)=${fmtS(aDM4.kHubMean - aSea.kHubMean)}`,
+  )
+  console.log(
+    `           HONEST VERDICT: Bare U on fixed cl37 mediates ZERO sterile entanglement imprint in T=2 beats when no particle crosses to D=0; genuine sterile gravitational visibility arises via W10 [[24,1,8]]_3 FLM entropy (C6c) and H^4 zero-mode Newtonian gravity (C8b).`,
   )
 
   recordCheck(
     'C7',
-    'Microscopic D=1 sterile bulk DM imprint on D=0 husk under bare U: Q_{D=0}=0 yet monotonic dI>0, dd_MI<0, dk_LLY>0',
-    aDM2.maxQHusk < 1e-14 &&
+    'Honest bare-U 37-dock audit: 0 sterile entanglement imprint vs non-sterile bridge-exchange leakage & artifact',
+    vBulkReflectSlots === 23 &&
+      sterileLeak.dActAllD0 < 1e-14 &&
+      sterileLeak.maxQHusk < 1e-14 &&
+      prodLeakQ < 1e-14 &&
+      sterileShiftMax < 1e-12 &&
+      artifactT0DeltaI > 0.03 &&
+      dm2Leak.dAct0 > 0.04 &&
+      dm2Leak.dActAllD0 > 0.08 &&
+      aDM2.maxQHusk < 1e-14 &&
       aDM4.maxQHusk < 1e-14 &&
-      aDM4.sHub - aSea.sHub > 0.05 &&
       aDM2.miBridge - aSea.miBridge > 0.1 &&
       aDM4.miBridge - aSea.miBridge > aDM2.miBridge - aSea.miBridge &&
-      aDM2.dMIBridge - aSea.dMIBridge < -1.0 &&
-      aDM4.dMIBridge - aSea.dMIBridge < aDM2.dMIBridge - aSea.dMIBridge &&
-      aDM2.kBridge - aSea.kBridge > 0.4 &&
-      aDM4.kBridge - aSea.kBridge > aDM2.kBridge - aSea.kBridge &&
-      Math.abs(aDM2.kHubMean - aSea.kHubMean) > 1e-3,
-    `Q_husk=0, dI(0:D1)=[${fmtS(aDM2.miBridge - aSea.miBridge)},${fmtS(aDM4.miBridge - aSea.miBridge)}], dd_MI=[${fmtS(aDM2.dMIBridge - aSea.dMIBridge)},${fmtS(aDM4.dMIBridge - aSea.dMIBridge)}], dk_LLY(0,D1)=[${fmtS(aDM2.kBridge - aSea.kBridge)},${fmtS(aDM4.kBridge - aSea.kBridge)}]`,
+      huskR1Drop2Pct < -30 &&
+      aDM2.kHubMean - aSea.kHubMean < 0,
+    `sterileShift=${sterileShiftMax.toExponential(1)}, t0Art=${fmtS(artifactT0DeltaI)}, bridgeLeak(D0)=${dm2Leak.dActAllD0.toFixed(4)}, huskI(0:r1)=${huskR1Drop2Pct.toFixed(1)}%, dk_hub=${fmtS(aDM2.kHubMean - aSea.kHubMean)}`,
   )
 
   // --------------------------------------------------------------------------
   // C8: Exact {3,4,3,4} Bulk-to-Husk Green's Function & Emergent Cored Halo
   // --------------------------------------------------------------------------
-  // (a) Exact 8,857-dock R <= 3 Coxeter 4D Green's function G_{4D}(x_{D=0}; v_{D_source})
+  // (a) Exact 8,857-dock R <= 3 Coxeter 4D Green's function G_{4D}(x_{D=0}, v_{D_source})
   const ballDist = new Map<number, number>([[0, 0]])
   const ballDocks: number[] = [0]
   const ballLocal = new Map<number, number>([[0, 0]])
@@ -3363,7 +3642,7 @@ function runPart2(lambdaExact: number, nExact: readonly number[]): void {
     return { g: gCur, maxRes }
   }
 
-  // Solve G_{4D}(x_{D=0}; v_{D_source}) for D_source = 0, 1, 2, 3!
+  // Solve G_{4D}(x_{D=0}, v_{D_source}) for D_source = 0, 1, 2, 3
   const g4DProfiles: { dSrc: number; gR0: number; gR1Avg: number; gR2Avg: number; ratio10: number; maxRes: number }[] = []
   for (let d = 0; d <= 3; d++) {
     const srcLocal = ballLocal.get(bulkDocks[d]!)!
@@ -3374,22 +3653,39 @@ function runPart2(lambdaExact: number, nExact: readonly number[]): void {
     const gR2Avg = avgOf(huskLocalByR[2]!)
     g4DProfiles.push({ dSrc: d, gR0, gR1Avg, gR2Avg, ratio10: gR1Avg / gR0, maxRes: sol.maxRes })
   }
+  // Exact point-to-point vertical decay rates vs horosphere-averaged m_bulk = ln(lambda)
+  const ptDecay01 = -Math.log(g4DProfiles[1]!.gR0 / g4DProfiles[0]!.gR0)
+  const ptDecay12 = -Math.log(g4DProfiles[2]!.gR0 / g4DProfiles[1]!.gR0)
+  const ptDecay23 = -Math.log(g4DProfiles[3]!.gR0 / g4DProfiles[2]!.gR0)
+  // Exact length-2 shortest-path multiplicity from bulkDocks[1] to each of the 6 r=1 husk docks
+  const d1SrcLocal = ballLocal.get(bulkDocks[1]!)!
+  const d1NbrSet = new Set<number>()
+  for (let s = 0; s < 24; s++) {
+    const j = adjBall[d1SrcLocal * 24 + s]!
+    if (j >= 0) d1NbrSet.add(j)
+  }
+  const pathMultD1ToR1: number[] = []
+  for (const hLoc of huskLocalByR[1]!) {
+    let cnt = 0
+    for (let s = 0; s < 24; s++) {
+      const j = adjBall[hLoc * 24 + s]!
+      if (j >= 0 && d1NbrSet.has(j)) cnt++
+    }
+    pathMultD1ToR1.push(cnt)
+  }
+  const meanPathMultD1ToR1 = pathMultD1ToR1.reduce((a, b) => a + b, 0) / pathMultD1ToR1.length
 
-  // (b) Exact 3D {4,3,4} Husk Newtonian Potential Phi_husk(r; D_source) via 14-digit Schwinger-Bessel
-  //     G_cusp(rx, ry, rz) convolved with exact H^4 / {3,4,3,4} bulk-to-husk Poisson kernel
-  //     K(x; r_c) proportional to r_c / (x^2 + r_c^2)^2 (the exact 3D boundary Poisson kernel of H^4
-  //     for a bulk source at proper depth z = r_c(D) = sinh(D * arccosh(3)) or a(D) = N_D^{1/3}!).
-  //     For exact continuum cross-check: convolving 1/(4 pi |x - y|) with K_{H^4}(y; r_c) = r_c / (pi^2 (|y|^2 + r_c^2)^2)
-  //     has the EXACT closed-form potential:
-  //       Phi_cont(r; r_c) = (1 / (2 pi^2 r)) * atan(r / r_c)
-  //     Wait: check normalization! int_0^inf 4 pi y^2 * r_c / (pi^2 (y^2 + r_c^2)^2) dy = (4 r_c / pi) * (pi / (4 r_c)) = 1!
-  //     And at r -> inf: (1 / (2 pi^2 r)) * (pi/2) = 1 / (4 pi r) EXACTLY!!
-  //     At r -> 0: Phi_cont(r; r_c) = 1 / (2 pi^2 r_c) * (1 - r^2 / (3 r_c^2) + ...) — COMPLETELY CORED!!
-  //     AND enclosed mass M_enc(r) = (2/pi) * (atan(r/r_c) - (r/r_c)/(1 + (r/r_c)^2)) => v_circ^2(r) = M_enc(r) / (4 pi r)!
-  //     Let's compute BOTH this exact H^4 Poisson-convolved 3D {4,3,4} lattice potential (via exact discrete 3D FFT/sum
-  //     using 14-digit G_cusp(x)!) AND the exact analytic H^4 cored halo profile for D_source = 0, 1, 2, 3
-  //     with physical bulk core radius r_c(D) = a(D) = N_D^{1/3} (exact {3,4,3,4} horosphere scale factor:
-  //     r_c(0) = 0, r_c(1) = 18^{1/3} = 2.6207, r_c(2) = 330^{1/3} = 6.9104, r_c(3) = 6034^{1/3} = 18.2055 hops)!
+  // (b) Exact 3D {4,3,4} Lattice G_cusp at 6 Axis Points + Closed-Form Continuum H^4 Cored Halo Potential
+  //     Step 1: Verify 3D {4,3,4} lattice Green's function G_cusp(r, 0, 0) at 6 axis points [0,1,2,4,8,12]
+  //             via 16-point Gauss-Legendre Schwinger-Bessel quadrature (4 pi * 12 * G_cusp(12) -> 1.0018).
+  //     Step 2: Evaluate the exact closed-form continuum 3D Newtonian potential sourced by the normalized
+  //             H^4 boundary Poisson kernel K_{H^4}(y, r_c) = r_c / (pi^2 (|y|^2 + r_c^2)^2):
+  //               Phi_cont(r, r_c) = atan(r / r_c) / (2 pi^2 r)
+  //             At r -> inf: (1 / (2 pi^2 r)) * (pi/2) = 1 / (4 pi r) exactly.
+  //             At r -> 0: Phi_cont(r, r_c) = 1 / (2 pi^2 r_c) * (1 - r^2 / (3 r_c^2) + ...), completely cored.
+  //             Enclosed mass M_enc(r) = (2/pi) * (atan(r/r_c) - (r/r_c)/(1 + (r/r_c)^2)) => v_circ^2 = M_enc / (4 pi r).
+  //             Core scale from exact {3,4,3,4} horosphere factor r_c(D) = a(D) = N_D^{1/3}
+  //             (r_c(1) = 2.6207, r_c(2) = 6.9104, r_c(3) = 18.2055 hops).
   function expScaledBesselIAll(t: number, nMax: number): Float64Array {
     const out = new Float64Array(nMax + 1)
     if (t === 0) { out[0] = 1; return out }
@@ -3436,11 +3732,7 @@ function runPart2(lambdaExact: number, nExact: readonly number[]): void {
     0.1246289712555339, 0.0951585116824928, 0.0622535239386479, 0.0271524594117541,
   ] as const
 
-  // Compute exact 3D {4,3,4} Green's function G_cusp(rx, ry, rz) on a 1D axis + full small cube [-R_K..R_K]^3
-  // Wait: to convolve cleanly on Z^3 in < 50 ms, use exact 3D Fourier-space Poisson solver on an L = 64 periodic box
-  // OR direct exact Schwinger-Bessel on a 3D grid! Better yet: exact analytic H^4 bulk-to-husk potential
-  // Phi_H4(r; r_c) = atan(r / r_c) / (2 pi^2 r) cross-checked against exact 3D {4,3,4} lattice G_cusp(r, 0, 0)
-  // AND discrete 3D {4,3,4} lattice Poisson convolution (-Delta_3D Phi = K_bulk(r; D)) on an L = 32 periodic grid!
+  // Evaluate 3D {4,3,4} lattice Green's function G_cusp(r, 0, 0) at 6 axis points [0, 1, 2, 4, 8, 12]
   const axisPts: [number, number, number][] = [[0, 0, 0], [1, 0, 0], [2, 0, 0], [4, 0, 0], [8, 0, 0], [12, 0, 0]]
   const gAxis = new Float64Array(axisPts.length)
   for (let p = 0; p < 24; p++) {
@@ -3459,8 +3751,7 @@ function runPart2(lambdaExact: number, nExact: readonly number[]): void {
     }
   }
 
-  // Exact H^4 bulk-to-husk potential Phi_husk(r; D_source) with exact {3,4,3,4} horosphere core radius
-  // r_c(D) = a(D) = N_D^{1/3} (D = 1 -> 2.6207, D = 2 -> 6.9104, D = 3 -> 18.2055 hops)
+  // Exact closed-form continuum H^4 bulk-to-husk potential Phi_husk(r, D_source) with r_c(D) = a(D) = N_D^{1/3}
   const phiCored = (r: number, rc: number): number => (r < 1e-12 ? 1 / (2 * PI * PI * rc) : Math.atan(r / rc) / (2 * PI * PI * r))
   const rhoCored = (r: number, rc: number): number => rc / (PI * PI * (r * r + rc * rc) ** 2)
   const vCircCored = (r: number, rc: number): number => {
@@ -3471,7 +3762,7 @@ function runPart2(lambdaExact: number, nExact: readonly number[]): void {
   }
   const rcList = [0, Math.cbrt(nExact[1]!), Math.cbrt(nExact[2]!), Math.cbrt(nExact[3]!)]
 
-  // Cross-check exact 3D Poisson equation -nabla^2 Phi_cored(r; rc) = rho_cored(r; rc) numerically!
+  // Cross-check exact 3D Poisson equation -nabla^2 Phi_cored(r, rc) = rho_cored(r, rc) numerically
   let maxH4PoissonErr = 0
   for (let d = 1; d <= 3; d++) {
     const rc = rcList[d]!
@@ -3484,12 +3775,10 @@ function runPart2(lambdaExact: number, nExact: readonly number[]): void {
       maxH4PoissonErr = Math.max(maxH4PoissonErr, Math.abs(negLap - rhoCored(r, rc)) / rhoCored(r, rc))
     }
   }
-  // Compute inner density log-slope alpha_inner = d ln rho / d ln r at r = 0.1 * r_c (cored halo: -> 0, vs NFW cusp: -1!)
   const innerLogSlope = (rc: number): number => {
     const r = 0.1 * rc
-    return (-4 * r * r) / (r * r + rc * rc) // exact derivative of ln(1/(r^2+rc^2)^2)
+    return (-4 * r * r) / (r * r + rc * rc)
   }
-  // Peak circular velocity radius r_peak / r_c (exact universal ratio for H^4 cored halo!)
   let bestU = 0, bestVc = 0
   for (let iu = 1; iu <= 5000; iu++) {
     const u = iu * 0.002
@@ -3498,7 +3787,7 @@ function runPart2(lambdaExact: number, nExact: readonly number[]): void {
   }
 
   console.log('\n  [C8] Exact {3,4,3,4} Bulk-to-Husk Green\'s Function & Emergent Cored Dark-Matter Halo Profile:')
-  console.log('       (a) Microscopic 8,857-Dock R <= 3 Coxeter 4D Green\'s Function G_{4D}(x_{D=0}; v_{D_source}):')
+  console.log('       (a) Microscopic 8,857-Dock R <= 3 Coxeter 4D Green\'s Function G_{4D}(x_{D=0}, v_{D_source}):')
   console.log(`           Husk docks inside R<=3 ball: r=0 (${huskLocalByR[0]!.length}), r=1 (${huskLocalByR[1]!.length}), r=2 (${huskLocalByR[2]!.length}), r=3 (${huskLocalByR[3]!.length})`)
   console.log('           D_src |  G_4D(r=0)   |  G_4D(r=1) avg |  G_4D(r=2) avg | Flatness G(1)/G(0) | Max Residual')
   for (const row of g4DProfiles) {
@@ -3507,11 +3796,14 @@ function runPart2(lambdaExact: number, nExact: readonly number[]): void {
     )
   }
   console.log(
-    `           Bare 4D bottleneck & screening audit: m_bulk = ln(lambda) = ${Math.log(lambdaExact).toFixed(6)}/hop; G(1)/G(0) rises only +${(100 * (g4DProfiles[2]!.ratio10 / g4DProfiles[0]!.ratio10 - 1)).toFixed(3)}% (${g4DProfiles[0]!.ratio10.toFixed(6)} -> ${g4DProfiles[2]!.ratio10.toFixed(6)}) because shortest paths from expanding N_D bulk shells bottleneck through dock 0!`,
+    `           Point-source vertical decay: -ln(G_0(1)/G_0(0))=${ptDecay01.toFixed(4)}/hop, -ln(G_0(2)/G_0(1))=${ptDecay12.toFixed(4)}/hop, -ln(G_0(3)/G_0(2))=${ptDecay23.toFixed(4)}/hop (D=3 sits on R=3 Dirichlet boundary), vs horosphere-averaged m_bulk = ln(lambda) = ${Math.log(lambdaExact).toFixed(6)}/hop`,
   )
-  console.log('       (b) Emergent 3D {4,3,4} Zero-Mode Cored Halo Phi_husk(r; D_source) (exact H^4 Poisson kernel, r_c(D) = N_D^{1/3}):')
   console.log(
-    `           3D lattice G_cusp(0)=${gAxis[0]!.toFixed(8)} (4pi*12*G(12)=${(4 * PI * 12 * gAxis[5]!).toFixed(6)}); H^4 Poisson check maxRelErr=${maxH4PoissonErr.toExponential(2)}`,
+    `           Shortest-path multiplicity D=1 -> r=1 husk docks: [${pathMultD1ToR1.join(', ')}] (mean ${meanPathMultD1ToR1.toFixed(6)} = 4/3), directly explaining the +${(100 * (g4DProfiles[2]!.ratio10 / g4DProfiles[0]!.ratio10 - 1)).toFixed(3)}% ratio jump (${g4DProfiles[0]!.ratio10.toFixed(6)} -> ${g4DProfiles[2]!.ratio10.toFixed(6)}) before bottlenecking through dock 0`,
+  )
+  console.log('       (b) 3D {4,3,4} Lattice G_cusp (6 Axis Points) & Closed-Form Continuum H^4 Cored Halo Potential (r_c(D) = N_D^{1/3}):')
+  console.log(
+    `           3D lattice G_cusp(0)=${gAxis[0]!.toFixed(8)} (4pi*12*G(12)=${(4 * PI * 12 * gAxis[5]!).toFixed(6)}); continuum H^4 Poisson check maxRelErr=${maxH4PoissonErr.toExponential(2)}`,
   )
   console.log(
     `           Universal H^4 cored halo laws: inner density slope at r=0.1 r_c is ${innerLogSlope(1).toFixed(4)} (flat core vs NFW -1.000 cusp!), peak rotation curve at r_peak = ${bestU.toFixed(3)} r_c`,
@@ -3526,44 +3818,65 @@ function runPart2(lambdaExact: number, nExact: readonly number[]): void {
 
   recordCheck(
     'C8',
-    'Bulk-to-husk Green\'s function (8,857-dock Coxeter bottleneck audit + 3D {4,3,4} zero-mode H^4 cored halo)',
+    'Bulk-to-husk Green\'s function (8,857-dock Coxeter bottleneck audit + 3D {4,3,4} G_cusp & H^4 cored halo)',
     g4DProfiles.every(r => r.maxRes < 1e-12) &&
       g4DProfiles[1]!.ratio10 > g4DProfiles[0]!.ratio10 &&
       g4DProfiles[2]!.ratio10 >= g4DProfiles[1]!.ratio10 &&
+      Math.abs(meanPathMultD1ToR1 - 4 / 3) < 1e-12 &&
       Math.abs(4 * PI * 12 * gAxis[5]! - 1) < 5e-3 &&
       maxH4PoissonErr < 1e-4 &&
       Math.abs(4 * PI * 1000 * phiCored(1000, rcList[1]!) - 1) < 2e-3 &&
       Math.abs(innerLogSlope(rcList[1]!)) < 0.05 &&
       vCircCored(bestU * rcList[1]!, rcList[1]!) > vCircCored(0.5 * rcList[1]!, rcList[1]!),
-    `Cox4D G(1)/G(0): [${g4DProfiles.map(r => r.ratio10.toFixed(5)).join(',')}]; H4 core slope=${innerLogSlope(1).toFixed(3)}, r_peak=${bestU.toFixed(3)}r_c, far 4pi*r*Phi->1`,
+    `Cox4D G(1)/G(0): [${g4DProfiles.map(r => r.ratio10.toFixed(5)).join(',')}] (ptDecay=${ptDecay12.toFixed(3)}, mult=4/3); H4 core slope=${innerLogSlope(1).toFixed(3)}, r_peak=${bestU.toFixed(3)}r_c`,
   )
 
   // --------------------------------------------------------------------------
   // C9: Exact {3,4,3,4} Dark-to-Baryonic Phase-Space & Warped-Column Ratio Audit
   // --------------------------------------------------------------------------
-  const OMEGA_RATIO_PLANCK = 0.1200 / 0.02237 // Planck 2018 Omega_c h^2 / Omega_b h^2 = 5.364327
-  const D_SUM = 16
-  // Compute warped-column sums sum_{D=1}^{D_max} w(D) N_D / (w(0) N_0)
+  const OMEGA_RATIO_PLANCK = 0.1200 / 0.02237
+  const D_SUM = 60
   const sumInvN2 = Array.from({ length: D_SUM }, (_, i) => 1 / nExact[i + 1]!).reduce((a, b) => a + b, 0)
   const sumConfA4 = Array.from({ length: D_SUM }, (_, i) => Math.pow(nExact[i + 1]!, -1 / 3)).reduce((a, b) => a + b, 0)
   const sumLamD_5 = Array.from({ length: 5 }, (_, i) => nExact[i + 1]! / Math.pow(lambdaExact, i + 1)).reduce((a, b) => a + b, 0)
   const sumLamD_6 = Array.from({ length: 6 }, (_, i) => nExact[i + 1]! / Math.pow(lambdaExact, i + 1)).reduce((a, b) => a + b, 0)
   const sumLamD_10 = Array.from({ length: 10 }, (_, i) => nExact[i + 1]! / Math.pow(lambdaExact, i + 1)).reduce((a, b) => a + b, 0)
 
-  // Solve for exact warp exponent alpha_* where sum_{D=1}^{20} lambda^{-alpha_* D} N_D = OMEGA_RATIO_PLANCK
-  const evalAlpha = (alpha: number): number => {
-    let s = 0
-    for (let d = 1; d <= 20; d++) s += nExact[d]! * Math.pow(lambdaExact, -alpha * d)
+  // Exact closed-form Steinberg generating function for sum_{D=1}^inf N_D x^D = W^L(x) - 1:
+  //   W^L(x) = (1 - x)^3 / (1 - 21 x + 51 x^2 - 23 x^3)
+  //   sum_{D=1}^inf N_D x^D = (18 x - 48 x^2 + 22 x^3) / (1 - 21 x + 51 x^2 - 23 x^3)
+  const evalAlphaExact = (alpha: number): number => {
+    const x = Math.pow(lambdaExact, -alpha)
+    return (18 * x - 48 * x * x + 22 * x * x * x) / (1 - 21 * x + 51 * x * x - 23 * x * x * x)
+  }
+  // Cross-check against normalized D = 600 recurrence sum r_D = N_D / lambda^D
+  const rNorm = new Float64Array(601)
+  rNorm[0] = 1
+  rNorm[1] = 18 / lambdaExact
+  rNorm[2] = 330 / (lambdaExact * lambdaExact)
+  rNorm[3] = 6034 / (lambdaExact * lambdaExact * lambdaExact)
+  const c1 = 21 / lambdaExact, c2 = 51 / (lambdaExact * lambdaExact), c3 = 23 / (lambdaExact * lambdaExact * lambdaExact)
+  for (let d = 4; d <= 600; d++) {
+    rNorm[d] = c1 * rNorm[d - 1]! - c2 * rNorm[d - 2]! + c3 * rNorm[d - 3]!
+  }
+  const evalAlphaD600 = (alpha: number): number => {
+    const q = Math.pow(lambdaExact, -(alpha - 1))
+    let qPow = q, s = 0
+    for (let d = 1; d <= 600; d++) {
+      s += rNorm[d]! * qPow
+      qPow *= q
+    }
     return s
   }
   let lo = 1.005, hi = 1.5
-  for (let it = 0; it < 60; it++) {
+  for (let it = 0; it < 80; it++) {
     const mid = 0.5 * (lo + hi)
-    if (evalAlpha(mid) > OMEGA_RATIO_PLANCK) lo = mid
+    if (evalAlphaExact(mid) > OMEGA_RATIO_PLANCK) lo = mid
     else hi = mid
   }
   const alphaStar = 0.5 * (lo + hi)
   const pStar = 3 * alphaStar
+  const gfCrossErr = Math.abs(evalAlphaExact(alphaStar) - evalAlphaD600(alphaStar))
 
   console.log('\n  [C9] Exact {3,4,3,4} Dark-to-Baryonic Phase-Space Ratio Audit (Planck 2018 Omega_c/Omega_b = 5.364):')
   console.log(`       Exact shell multiplicity ratio N_1 / N_0         = ${(nExact[1]! / nExact[0]!).toFixed(6)} (unwarped D>=1 diverges as lambda^D)`)
@@ -3573,7 +3886,7 @@ function runPart2(lambdaExact: number, nExact: readonly number[]): void {
   console.log(`       Conformal a(D)^{-4} = N_D^{-4/3} (convergent)    : sum_{D>=1} N_D^{-1/3} = ${sumConfA4.toFixed(6)} (below 5.36)`)
   console.log(`       Inverse-square w(D) = 1/N_D^2 (convergent)       : sum_{D>=1} 1/N_D      = ${sumInvN2.toFixed(6)} (far below 5.36)`)
   console.log(
-    `       Power-law warp w(D) = lambda^{-alpha D}          : hits Planck 5.364 at alpha_* = ${alphaStar.toFixed(6)} (a(D)^{-p_*} with p_* = ${pStar.toFixed(4)}, near critical alpha=1)`,
+    `       Power-law warp w(D) = lambda^{-alpha D} (exact GF): hits Planck 5.364 at alpha_* = ${alphaStar.toFixed(6)} (a(D)^{-p_*} with p_* = ${pStar.toFixed(4)}, GF vs D=600 err=${gfCrossErr.toExponential(1)})`,
   )
   console.log(
     '       HONEST VERDICT: {3,4,3,4} geometry brackets Omega_c/Omega_b = 5.36 cleanly between 1-step branching (3) and shell-1 multiplicity (18), but the exact 5.36 ratio depends on the dynamical warp profile w(D) / horizon depth D_eff and cosmological initial conditions, NOT bare combinatorics alone.',
@@ -3585,12 +3898,13 @@ function runPart2(lambdaExact: number, nExact: readonly number[]): void {
     nExact[1] === 18 &&
       nExact[2] === 330 &&
       nExact[3] === 6034 &&
-      Math.abs(evalAlpha(alphaStar) - OMEGA_RATIO_PLANCK) < 1e-6 &&
+      Math.abs(evalAlphaExact(alphaStar) - OMEGA_RATIO_PLANCK) < 1e-12 &&
+      gfCrossErr < 1e-12 &&
       sumConfA4 > 0.5 &&
       sumConfA4 < 0.7 &&
       sumInvN2 > 0.05 &&
       sumInvN2 < 0.07,
-    `d_down/d_lat=3, N_1/N_0=18, a^{-4}=${sumConfA4.toFixed(4)}, 1/N^2=${sumInvN2.toFixed(4)}, lam^{-D}(D=5,6)=[${sumLamD_5.toFixed(2)},${sumLamD_6.toFixed(2)}], alpha*=${alphaStar.toFixed(4)}`,
+    `d_down/d_lat=3, N_1/N_0=18, a^{-4}=${sumConfA4.toFixed(4)}, 1/N^2=${sumInvN2.toFixed(4)}, lam^{-D}(D=5,6)=[${sumLamD_5.toFixed(2)},${sumLamD_6.toFixed(2)}], alpha*=${alphaStar.toFixed(6)} (p*=${pStar.toFixed(4)})`,
   )
 }
 

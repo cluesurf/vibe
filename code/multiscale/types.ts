@@ -113,7 +113,7 @@ export type RefinementSuccess<Fine> = {
 
 export type RefinementFailure = {
   readonly ok: false
-  readonly mode: 'exact'
+  readonly mode: RefinementMode
   readonly reason:
     | 'insufficient_residual_bits'
     | 'invalid_residual_key'
@@ -327,7 +327,9 @@ export function validateFiveGraphSeparation(
   const eventTick = new Map<EventId, Tick>(
     bundle.causal.events.map(e => [e.id, e.tick]),
   )
+  const realEntitySet = new Set<EntityId>(bundle.realization.entityIds)
   const orgSet = new Set<EntityId>(bundle.composition.organizations)
+  const interfaceSet = new Set<string>(bundle.composition.interfaces.map(i => i.id))
   const recordSet = new Set<string>(bundle.representation.records.map(r => r.id))
 
   for (const edge of bundle.field.edges) {
@@ -355,6 +357,12 @@ export function validateFiveGraphSeparation(
   }
 
   for (const link of bundle.realization.links) {
+    if (!realEntitySet.has(link.entityId)) {
+      violations.push(`realization link references undeclared entityId ${link.entityId}`)
+    }
+    if (!orgSet.has(link.entityId)) {
+      violations.push(`realization link entity ${link.entityId} missing from composition organizations`)
+    }
     if (link.realizedBySite !== undefined && !siteSet.has(link.realizedBySite)) {
       violations.push(`realization link ${link.entityId} references unknown site ${link.realizedBySite}`)
     }
@@ -366,9 +374,19 @@ export function validateFiveGraphSeparation(
     }
   }
 
+  for (const iface of bundle.composition.interfaces) {
+    const [e0, e1] = iface.sharedBetween
+    if (!orgSet.has(e0) || !orgSet.has(e1)) {
+      violations.push(`shared interface ${iface.id} references unknown entity (${e0}, ${e1})`)
+    }
+  }
+
   for (const pe of bundle.composition.partEdges) {
     if (!orgSet.has(pe.part) || !orgSet.has(pe.whole)) {
       violations.push(`composition edge references unknown entity (${pe.part} -> ${pe.whole})`)
+    }
+    if (pe.interfaceId !== undefined && !interfaceSet.has(pe.interfaceId)) {
+      violations.push(`composition edge (${pe.part} -> ${pe.whole}) references unknown interface ${pe.interfaceId}`)
     }
   }
 
