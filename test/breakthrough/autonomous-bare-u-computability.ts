@@ -2694,34 +2694,56 @@ function runPillar4(): void {
   assertExact(maxSingletCasErr < 1e-13, `singlet Casimir err=${maxSingletCasErr}`)
 
   const W123_20 = buildG3_20(1, 2, 3, PI / 2)
-  const phiStarCZ = Math.atan(3 / Math.sqrt(7))
-  const psiStarCZ = PI - phiStarCZ
+  // Exact Racah 6j cosine: cos(beta) = -7/9 => gamma = cos(2 beta) = 2*(49/81) - 1 = +17/81!
+  // Solving exact zero-leakage cot(psi) = (17/81) tan(phi) together with phi + psi = 2*pi/3
+  // yields cot(2*pi/3 - phi) = (sqrt(3) t - 1)/(sqrt(3) + t) = (17/81) t => 17 t^2 - 64*sqrt(3) t + 81 = 0
+  // => exact closed-form root t* = (32*sqrt(3) - sqrt(1695)) / 17:
+  //   - Single block V(phi*) = W123 G(phi*) W123 G(psi*) W123 G(phi*) W123 (28 collisions) = exact zero-leakage CPHASE(pi/3)!
+  //   - Cubing V(phi*)^3 (canceling W123^2 = I & merging G(phi*)^2 = G(2 phi*) -> 60 adjacent collisions!) = EXACT ZERO-LEAKAGE CZ!
+  const tStarCZ = (32 * SQRT3 - Math.sqrt(1695)) / 17
+  const phiStarCZ = Math.atan(tStarCZ)
+  const psiStarCZ = (2 * PI) / 3 - phiStarCZ
   const G345_phi = buildG3_20(3, 4, 5, phiStarCZ)
+  const G345_2phi = buildG3_20(3, 4, 5, 2 * phiStarCZ)
   const G345_psi = buildG3_20(3, 4, 5, psiStarCZ)
-  const U_CZ_20 = matMul(
+  const V_CP3_20 = matMul(
     W123_20,
     matMul(
       G345_phi,
       matMul(W123_20, matMul(G345_psi, matMul(W123_20, matMul(G345_phi, W123_20)))),
     ),
   )
+  // Simplified 60-collision exact product W123 G(phi) W123 G(psi) W123 G(2phi) W123 G(psi) W123 G(2phi) W123 G(psi) W123 G(phi) W123
+  const U_CZ_20 = [
+    W123_20, G345_phi, W123_20, G345_psi, W123_20, G345_2phi, W123_20,
+    G345_psi, W123_20, G345_2phi, W123_20, G345_psi, W123_20, G345_phi, W123_20,
+  ].reduce((acc, M) => matMul(M, acc), matEye(20))
+  const v3CheckErr = matFrobDiffUpToPhase(U_CZ_20, matMul(V_CP3_20, matMul(V_CP3_20, V_CP3_20)))
+  assertExact(v3CheckErr < 1e-12, `60-collision reduction mismatch: ${v3CheckErr}`)
   const cz20UniErr = matUnitaryErr(U_CZ_20)
-  const CZ_DFS4: CMat = Array.from({ length: 4 }, (_, r) =>
-    Array.from({ length: 4 }, (_, c) => {
-      let s: C = C_ZERO
-      for (let i = 0; i < 20; i++) {
-        const ri = singletKets20[r]![i]!
-        if (ri === 0) continue
-        for (let j = 0; j < 20; j++) {
-          const cj = singletKets20[c]![j]!
-          if (cj === 0) continue
-          s = cAdd(s, cScale(ri * cj, U_CZ_20[i]![j]!))
+  const proj20to4 = (U20: CMat): { readonly U4: CMat; readonly leak: number } => {
+    const U4: CMat = Array.from({ length: 4 }, (_, r) =>
+      Array.from({ length: 4 }, (_, c) => {
+        let s: C = C_ZERO
+        for (let i = 0; i < 20; i++) {
+          const ri = singletKets20[r]![i]!
+          if (ri === 0) continue
+          for (let j = 0; j < 20; j++) {
+            const cj = singletKets20[c]![j]!
+            if (cj === 0) continue
+            s = cAdd(s, cScale(ri * cj, U20[i]![j]!))
+          }
         }
-      }
-      return s
-    }),
-  )
-  const czDfsLeak = Math.max(0, 4 - matTrace(matMul(matDag(CZ_DFS4), CZ_DFS4))[0]) / 4
+        return s
+      }),
+    )
+    const leak = Math.max(0, 4 - matTrace(matMul(matDag(U4), U4))[0]) / 4
+    return { U4, leak }
+  }
+  const cp3Res = proj20to4(V_CP3_20)
+  const czRes = proj20to4(U_CZ_20)
+  const CZ_DFS4 = czRes.U4
+  const czDfsLeak = czRes.leak
 
   const I2: CMat = matEye(2)
   const X2: CMat = [[C_ZERO, C_ONE], [C_ONE, C_ZERO]]
@@ -2948,16 +2970,18 @@ function runPillar4(): void {
   console.log(`  [U4b] Exact BigInt 3-Full-Line L_7 Chiral Catalyst & Ballistic SU(2):`)
   console.log(`        BigInt |Tr(L_7 C)|^2 = ${trL7CNorm2[0]}/${trL7CDen2} (exact 25/16 -> |Tr_SU2|=${trSU2Val.toFixed(8)} = 5/4 -> Niven dense SU(2)!)`)
   console.log(`        Ballistic 3-role DFS Euler synthesis: H err=${hBalErr.toExponential(2)} (3 collisions), T/Td err=${tBalErr.toExponential(2)} (1 collision)`)
-  console.log(`  [U4c] Exact 6-Distinct-Role DFS SU(4), Closed-Form 28-Collision CZ, Makhlin Invariants & Tsirelson CHSH:`)
+  console.log(`  [U4c] Exact 6-Distinct-Role DFS SU(4), Closed-Form 28/60-Collision CZ, Makhlin Invariants & Tsirelson CHSH:`)
   console.log(`        Exact su(9) Lie algebra dimension on S_tot=1: ${su9Dim} / 80 (contains full SU(4) on 4D DFS!)`)
-  console.log(`        EXACT 28-Collision Singlet-DFS CZ (S_tot=0, 6 distinct roles {0..5}, M_pair=I, uniErr=${cz20UniErr.toExponential(1)}):`)
-  console.log(`          phi*=atan(3/sqrt(7))=${phiStarCZ.toFixed(6)}, leakage=${czDfsLeak.toExponential(2)}, ||U_4 - CZ||_F=${czDfsErr.toExponential(2)}, Makhlin=(${makhDfsCNOT.G1[0].toFixed(4)}+${makhDfsCNOT.G1[1].toFixed(4)}i, ${makhDfsCNOT.G2.toFixed(4)}), e_p=${makhDfsCNOT.ep.toFixed(6)} (2/9)`)
+  console.log(`        EXACT 28-Collision Singlet-DFS CPHASE(pi/3) (S_tot=0, 6 distinct roles {0..5}, M_pair=I):`)
+  console.log(`          phi*=${phiStarCZ.toFixed(6)}, psi*=${psiStarCZ.toFixed(6)}, leakage=${cp3Res.leak.toExponential(2)} (EXACT 0!)`)
+  console.log(`        EXACT 60-Collision Singlet-DFS CZ (V^3 reduced, uniErr=${cz20UniErr.toExponential(1)}, v3Err=${v3CheckErr.toExponential(1)}):`)
+  console.log(`          leakage=${czDfsLeak.toExponential(2)}, ||U_4 - CZ||_F=${czDfsErr.toExponential(2)}, Makhlin=(${makhDfsCNOT.G1[0].toFixed(4)}+${makhDfsCNOT.G1[1].toFixed(4)}i, ${makhDfsCNOT.G2.toFixed(4)}), e_p=${makhDfsCNOT.ep.toFixed(6)} (2/9)`)
   console.log(`        Yang R(w=1) [sqrt(SWAP)] Makhlin: G_1=(${makhSqrtSwap.G1[0].toFixed(4)}, ${makhSqrtSwap.G1[1].toFixed(4)}i), G_2=${makhSqrtSwap.G2.toFixed(4)}, e_p=${makhSqrtSwap.ep.toFixed(6)} (1/6)`)
   console.log(`        Yang R(w=1/sqrt(3)) [M_meet] Makhlin: G_1=(${makhBareMeet.G1[0].toFixed(4)}, ${makhBareMeet.G1[1].toFixed(4)}i), G_2=${makhBareMeet.G2.toFixed(4)}, e_p=${makhBareMeet.ep.toFixed(6)}`)
   console.log(`        2-Collision Loss-DiVincenzo Yang CNOT: CZ err=${czYangErr.toExponential(2)}, CNOT err=${cnotYangErr.toExponential(2)}, Makhlin=(${makhCNOT.G1[0].toFixed(4)}+${makhCNOT.G1[1].toFixed(4)}i, ${makhCNOT.G2.toFixed(4)})`)
-  console.log(`        Autonomous Bell State from |0_L, 0_L> (via 28-coll DFS CNOT): Concurrence C=${bellConcurrence.toFixed(8)}, CHSH S=${bellCHSH.toFixed(8)} (Tsirelson=${(2 * SQRT2).toFixed(8)})`)
+  console.log(`        Autonomous Bell State from |0_L, 0_L> (via 60-coll DFS CNOT): Concurrence C=${bellConcurrence.toFixed(8)}, CHSH S=${bellCHSH.toFixed(8)} (Tsirelson=${(2 * SQRT2).toFixed(8)})`)
   console.log(`  [U4d] Universal 3-Qubit Toffoli (CCNOT) Synthesis (6 DFS CNOT + 9 1-qubit gates, uniErr=${toffUniErr.toExponential(1)}):`)
-  console.log(`        Continuous-rapidity ballistic bare-U Toffoli (6x34 + 15 = 219 collisions): ||U - U_Toff||_F = ${toffBalErr.toExponential(2)}`)
+  console.log(`        Continuous-rapidity ballistic bare-U Toffoli (6x66 + 15 = 411 adjacent collisions): ||U - U_Toff||_F = ${toffBalErr.toExponential(2)}`)
   console.log(`        Discrete <C, L_7> bare-U words (pool=${discSynth.bH.poolSize}, len<=14): H err=${discSynth.bH.err.toFixed(5)} (len=${discSynth.bH.len}), T err=${discSynth.bT.err.toFixed(5)} (len=${discSynth.bT.len}), 8x8 Toffoli err=${discSynth.toffDiscErr.toFixed(5)}, procFid=${discSynth.procFid.toFixed(6)}`)
 
   const ok =
@@ -2971,6 +2995,7 @@ function runPillar4(): void {
     tBalErr < 1e-13 &&
     su9Dim === 80 &&
     cz20UniErr < 1e-13 &&
+    cp3Res.leak < 1e-13 &&
     czDfsLeak < 1e-13 &&
     czDfsErr < 1e-13 &&
     cAbs(makhDfsCNOT.G1) < 1e-13 &&
@@ -2986,9 +3011,9 @@ function runPillar4(): void {
 
   recordCheck(
     'U4',
-    'Verbatim 4D 6-role DFS protection, BigInt L_7 dense SU(2), su(9)=80, 28-coll zero-leakage DFS CZ/CHSH=2sqrt(2) & exact Toffoli',
+    'Verbatim 4D 6-role DFS protection, BigInt L_7 dense SU(2), su(9)=80, 60-coll zero-leakage DFS CZ/CHSH=2sqrt(2) & exact Toffoli',
     ok,
-    `6-role M_pair=0, |Tr(L_7C)|^2=25/16, su(9)=${su9Dim}/80, 28-coll DFS CZ leak=${czDfsLeak.toExponential(1)} err=${czDfsErr.toExponential(1)}, CHSH=${bellCHSH.toFixed(6)}, ToffBal=${toffBalErr.toExponential(1)}, ToffDiscFid=${discSynth.procFid.toFixed(5)}`,
+    `6-role M_pair=0, |Tr(L_7C)|^2=25/16, su(9)=${su9Dim}/80, 60-coll DFS CZ leak=${czDfsLeak.toExponential(1)} err=${czDfsErr.toExponential(1)}, CHSH=${bellCHSH.toFixed(6)}, ToffBal=${toffBalErr.toExponential(1)}, ToffDiscFid=${discSynth.procFid.toFixed(5)}`,
   )
 }
 
