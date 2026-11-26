@@ -83,12 +83,13 @@
   \renewcommand{\headrulewidth}{0pt}
 }
 
-\BeforeBeginEnvironment{equation}{\vspace{3.5pt}}
-\AfterEndEnvironment{equation}{\vspace{3.5pt}}
-\BeforeBeginEnvironment{align}{\vspace{3.5pt}}
-\AfterEndEnvironment{align}{\vspace{3.5pt}}
-\BeforeBeginEnvironment{gather}{\vspace{3.5pt}}
-\AfterEndEnvironment{gather}{\vspace{3.5pt}}
+\apptocmd{\normalsize}{%
+  \setlength{\abovedisplayskip}{11.5pt plus 2pt minus 3pt}%
+  \setlength{\belowdisplayskip}{11.5pt plus 2pt minus 3pt}%
+  \setlength{\abovedisplayshortskip}{7.5pt plus 2pt minus 2pt}%
+  \setlength{\belowdisplayshortskip}{9.5pt plus 2pt minus 2pt}%
+}{}{}
+\setlength{\lineskiplimit}{-1pt}
 \setlist[itemize]{before=\vspace{0pt},after=\vspace{-2pt},itemsep=2pt,leftmargin=1.4em}
 \setlist[enumerate]{before=\vspace{0pt},after=\vspace{-2pt},itemsep=2pt,leftmargin=1.6em}
 \renewcommand{\arraystretch}{1.16}
