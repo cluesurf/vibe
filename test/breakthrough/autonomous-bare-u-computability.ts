@@ -1922,6 +1922,38 @@ function runPillar2(): void {
   const dPOff_PosNeg = offSumPos - offSumNeg
   const dPOff_PosOff = offSumPos - offSumOff
 
+  // Also test the E-FND-0184 single-bit tone-flip switch geometry at CONSTANT k = 5:
+  // Slots [0, 1, 4, 10] (from universe.ts!): [0(+), 1(+), 4(+), 10(+)] has chi = 0, whereas
+  // flipping ONLY the tone of control ray slot 1 (+1 -> -1) gives [0(+), 1(-), 4(+), 10(+)] with chi != 0!
+  const s184A = 1; const s184B = 4; const s184C = 10
+  const l184A = LINE_OF_SLOT[s184A]!; const l184B = LINE_OF_SLOT[s184B]!; const l184C = LINE_OF_SLOT[s184C]!
+  const d184A = stepDock(d1, OPPOSITE_SLOT[s184A]!)
+  const d184B = stepDock(d1, OPPOSITE_SLOT[s184B]!)
+  const d184C = stepDock(d1, OPPOSITE_SLOT[s184C]!)
+  const seed184Pos = basisKet([
+    [0, l0A, 1, 0], [0, l0B, 1, 0],
+    [d184A, s184A, 1, 0], [d184B, s184B, 1, 0], [d184C, s184C, 1, 0],
+  ])
+  const seed184Neg = basisKet([
+    [0, l0A, 1, 0], [0, l0B, 1, 0],
+    [d184A, s184A, -1, 0], [d184B, s184B, 1, 0], [d184C, s184C, 1, 0],
+  ])
+  const run184Pos = evolve2Exact(seed184Pos, 'k5_184_ctrl+1')
+  const run184Neg = evolve2Exact(seed184Neg, 'k5_184_ctrl-1')
+  const strip184Tone = (s: ExactState): ExactState =>
+    mapConfigs(s, (vibes, amp) => [
+      vibes.map(([d, sl, tn, r]) => [d, sl, LINE_OF_SLOT[sl] === l184A ? 1 : tn, r] as const),
+      amp,
+    ])
+  const l2Contrast184T2 = l2DiffExact(strip184Tone(run184Pos.t2), strip184Tone(run184Neg.t2))
+  const b184PosT2 = measureLine0BranchT2(run184Pos.t2)
+  const b184NegT2 = measureLine0BranchT2(run184Neg.t2)
+  const t3_184Pos = evolveT3ExactRecomb(run184Pos.t2, [l184A, l184B, l184C])
+  const t3_184Neg = evolveT3ExactRecomb(run184Neg.t2, [l184A, l184B, l184C])
+  const off184Pos = 1 - t3_184Pos.lineProb[0]!
+  const off184Neg = 1 - t3_184Neg.lineProb[0]!
+  const dPOff_184 = off184Pos - off184Neg
+
   // Also test k = 6 = 2 + 1 + 1 + 1 + 1 (4 control rays on [1, 2, 4, 8], t = 1 exact + active d1 sector t = 2!)
   const seedK6Pos = basisKet([
     [0, l0A, 1, 0],
