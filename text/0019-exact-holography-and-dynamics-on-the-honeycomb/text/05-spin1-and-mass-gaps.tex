@@ -1,19 +1,19 @@
 \section{Gauge Fields}
 \label{sec:gauge}
 
-Section~\ref{sec:composites} established that bare $U$ binds collinear multi-body composites with integrable scattering,
-level repulsion, and light-mass relativistic clock scaling. The next dynamical test asks whether massless transverse
-spin-1 gauge bosons can also arise purely as multi-body bound states of bare $U$ without link variables, separating
-what local matter rules generate on their own from where explicit link degrees of freedom become structurally forced.
-Here we prove an all-body parity superselection obstruction in bare $U$, assemble separate discrete gauge--matter
-building blocks from native 24-cell and qutrit finite subgroups, and establish strong-coupling, zero-truncation 4D
-$D_4$ lattice Yang--Mills mass gaps past $3\times$ Bakry--\'Emery.
+The same $\mathbb{Z}_2^{24}$ per-line tone-parity conservation that confines single excitations to one geodesic line in
+Section~\ref{sec:composites} determines whether bare $U$ can bind massless transverse spin-1 gauge bosons without link
+variables, separating what local matter rules generate autonomously from where explicit link degrees of freedom are
+structurally forced. An all-body parity superselection theorem rules out composite photons in bare $U$, native 24-cell
+and qutrit finite subgroups supply separate discrete gauge--matter building blocks, and zero-truncation multi-link
+contraction establishes strong-coupling 4D $D_4$ lattice Yang--Mills mass gaps reaching $3.02\times$ Bakry--\'Emery for
+$SU(2)$ and $2.65\times$ ($60.36\times$ Koteck\'y--Preiss) for $SU(3)$.
 
 \subsection{Spin-1 obstruction}
 
-Many discrete emergent-gauge programs hope that massless transverse spin-1 bosons will condense spontaneously from local
-matter rules once higher-body scattering or a dense pair background is included, often relying on perturbative
-approximations or small finite clusters without checking exact conservation laws. In bare $U$, perturbative random-phase
+Emergent $U(1)$ spin liquids with gapless photon excitations do arise in specific three-dimensional lattice models,
+which makes checking exact local conservation laws essential before expecting composite transverse spin-1 bosons from
+higher-body scattering or a dense pair background in bare $U$. Even at the perturbative level, contact random-phase
 approximation (contact-RPA) analysis already flags an obstruction by requiring an unphysical coupling $g_c = 8.7353$ to
 close the vector gap, and exact two-body $1^{--}$ dipoles (spin-1 vector states odd under parity and charge conjugation)
 suffer complete $K$-layer cancellation that leaves a fixed $2\pi/3$ gap and zero transverse velocity.
@@ -24,9 +24,9 @@ escape routes before any approximation enters. Every local layer of $U$ preserve
 $12$ antipodal $D_4$ lines except $M_{\mathrm{pair}}(\zeta_{18})$, which transfers identical pairs strictly in even
 steps $\Delta N_l^{(\tau)} = \pm 2$. The parity of positive and negative tones on every line separately is therefore an
 exact constant of motion, producing $24$ independent $\mathbb{Z}_2$ superselection charges. Against any parity-definite
-vacuum or pair condensate, a lone dipole created on line~$l$ flips parities solely on line~$l$ and can never hop onto a
-transverse line $m \neq l$, ruling out a massless composite photon across all excitation counts $k \ge 1$ and all
-densities $\bar{n} \ge 0$.
+neutral quiescent background or pair condensate, a lone dipole created on line~$l$ flips parities solely on line~$l$ and
+can never hop onto a transverse line $m \neq l$, ruling out a massless composite photon across all excitation counts
+$k \ge 1$ and all densities $\bar{n} \ge 0$.
 
 \begin{theorem}[All-Body Bare-$U$ Spin-1 Algebraic Obstruction]
 \label{thm:spin1-obstruction}
@@ -74,27 +74,23 @@ v_T = 0.0083.
 
 Finite-density neutral pair condensates across $\bar{n} \in [1/6, 1]$ do not soften this gap either. Exact transverse
 Kubo linear response (cross-checked against $4{,}096$-state time evolution to $2.78 \times 10^{-15}$) confirms that a
-background pair condensate keeps the transverse current strictly gapped.
+background pair condensate keeps the transverse current strictly gapped, and stationary Floquet Bogoliubov
+diagonalization on two-line $D_4$ ($\dim = 210$, $\bar{n} = 2/3$) independently finds exact zero gapless spectral
+weight, $W(\Delta E = 0) = 0$, with all vector transitions pushed to $-2.47$ and $+2.96\text{ rad}$.
 
-Independently, stationary Floquet Bogoliubov diagonalization on two-line $D_4$ ($\dim = 210$, $\bar{n} = 2/3$) finds
-exact zero gapless spectral weight, $W(\Delta E = 0) = 0$, with all vector transitions pushed to $-2.47$ and
-$+2.96\text{ rad}$.
-
-Rather than leaving an ambiguous failure, Theorem~\ref{thm:spin1-obstruction} turns a negative result into a precise
-structural blueprint. It demonstrates that no parameter tuning or higher-body scattering inside bare $U$ can
-manufacture a composite photon while preserving the local rule. Excluding an unmotivated spontaneous breaking of
-$\mathbb{Z}_2^{24}$ into a pair-only spin liquid, breaking per-line parity locally requires parallel transport across
-24-cell facets, so \textbf{dynamical gauge link registers are mathematically forced}.
+Theorem~\ref{thm:spin1-obstruction} proves that no parameter tuning or higher-body scattering inside bare $U$ can
+produce a composite photon while preserving the local rule. Excluding spontaneous breaking of $\mathbb{Z}_2^{24}$ into
+a pair-only spin liquid, breaking per-line parity locally requires parallel transport across 24-cell facets, so
+\textbf{dynamical gauge link registers are mathematically forced}.
 
 \subsection{Discrete gauge blocks}
 
-Once Theorem~\ref{thm:spin1-obstruction} compels explicit link registers, a natural structural question follows: which
-discrete gauge registers belong on a 24-cell without importing unrelated external algebra. No arbitrary finite groups
-need to be invented from outside. The 24-cell's own vertex polytope and the ternary qutrit state space already contain
-finite subgroups that act as exact unitary 2-designs inside $SU(2)_L$ and $SU(3)_C$, matching continuous Haar moments
-through degree $t = 2$, while the amplitude ring $\mathbb{Z}[\zeta_9][1/6]$ supplies $\mathbb{Z}_{18}$. Anchored to
-these native groups, we build and audit three separate discrete gauge--matter building blocks
-(Table~\ref{tab:unified-gauge}).
+Because Theorem~\ref{thm:spin1-obstruction} compels explicit link registers, we construct them from finite subgroups
+already native to the 24-cell and ternary qutrit rather than importing unrelated external algebra. The 24-cell's vertex
+polytope and the ternary qutrit state space contain finite subgroups that act as exact unitary 2-designs inside
+$SU(2)_L$ and $SU(3)_C$, matching continuous Haar moments through degree $t = 2$, while the amplitude ring
+$\mathbb{Z}[\zeta_9][1/6]$ supplies $\mathbb{Z}_{18}$. Anchored to these native groups, we build and audit three
+separate discrete gauge--matter building blocks (Table~\ref{tab:unified-gauge}).
 
 \textbf{Engineered single-speed 3D Maxwell--Dirac QCA:} Uncoupled discrete automata typically separate matter and
 radiation onto mismatched light cones. Here bare pair transport ($c_{\mathrm{eff}} = 0.0213$) and warped cusp-beam
@@ -191,8 +187,9 @@ and $SU(3)$. Single-link Bakry--\'Emery log-Sobolev curvature and Combes--Thomas
 avoid polymer counting and lift the infinite-volume threshold to $\beta_{\mathrm{BE}}^{24c} = N^2 / (16\sqrt{7})$
 ($0.094491$ for $SU(2)$ and $0.212605$ for $SU(3)$), yet still bound each link's eight neighboring triangles as
 independent worst-case perturbations, ignoring exact internal cancellations across shared plaquettes. Four exact
-analytical theorems push this unconditional, zero-truncation strong-coupling window far past the single-link Dobrushin
-ceiling without any Migdal--Kadanoff approximation \cite{dobrushin1970, dobrushin1985, holley1987, chen1997}.
+analytical theorems push this unconditional, zero-truncation strong-coupling window strictly past the single-link
+Dobrushin ceiling (by $2.8\text{--}3.1\%$, and $2.65\text{--}3.02\times$ past Bakry--\'Emery) without any
+Migdal--Kadanoff approximation \cite{dobrushin1970, dobrushin1985, holley1987, chen1997}.
 
 \textbf{No-free-lunch ceiling for single-link sweeps:} Grouping links into multi-link blocks does not improve
 contraction on its own. Let $c$ denote the single-link Dobrushin influence coefficient of one neighboring link across a
@@ -223,29 +220,42 @@ controlling the effective two-link Bessel potential $V_2(U_1, U_3)$ without losi
 bounds. For $SU(2)$, subtracting the optimal midpoint linear staple term proportional to $(U_1^\dagger U_3^\dagger)
 \cdot W_{\mathrm{bg}}$ (where $W_{\mathrm{bg}}$ is the background staple sum) removes nearly all variation of $V_2$,
 slashing the Holley--Stroock residual oscillation from $0.56$ to below $0.0080$ at $\beta = 0.277274$. This linear
-split pulls the two-link influence $\alpha_{13}$ down from $0.04578$ to $0.03224$, opening exact multi-link contraction
-cleanly past single-link limits.
+split pulls the two-link influence $\alpha_{13}$ down from $0.04578$ to $0.03224$, extending exact multi-link
+contraction past single-link limits.
 
 \textbf{Uniform $\ln Z$ convexity for $SU(3)$:} For $SU(3)$, expanding $V_2(U_1, U_3)$ around $W_{\mathrm{bg}}$ keeps
 the linear staple inside the convex hull $\operatorname{conv}(SU(3))$ and bounds the convex remainder uniformly by
 $\beta^2 / 6$ times its maximum eigenvalue variance. A deterministic branch-and-bound sweep over $20{,}384$ boxes at
 $\beta_0 = 0.5635$ (cross-checked independently by analytic Rouch\'e tails and Weyl quadrature) certifies
-$\alpha_{13}^{SU(3)}(\beta_0) \le 0.04055$, bringing exact three-link triangle contraction well beyond single-link
-$SU(3)$ thresholds.
+$\alpha_{13}^{SU(3)}(\beta_0) \le 0.04055$, pushing exact three-link triangle contraction strictly past the single-link
+$SU(3)$ Dobrushin ceiling (by $3.1\%$, and $2.65\times$ past Bakry--\'Emery).
 
 Evaluating time-tilted block Dobrushin matrices $G(m)$ ($\rho(G(m)) < 1$) certifies unconditional, zero-truncation
-infinite-volume mass gaps far beyond both classical barriers, summarized in Figure~\ref{fig:mass-gap-bars} and
-Table~\ref{tab:d4-mass-gaps}:
+strong-coupling infinite-volume mass gaps past both classical Bakry--\'Emery and Koteck\'y--Preiss barriers, summarized
+in Figure~\ref{fig:mass-gap-bars} and Table~\ref{tab:d4-mass-gaps}:
 \begin{equation}
 \beta_*^{SU(2)} = 0.285141 \;\; (3.02\times\mathrm{BE},\; 30.55\times\mathrm{KP}),
 \qquad
 \beta_*^{SU(3)} = 0.563019 \;\; (2.65\times\mathrm{BE},\; 60.36\times\mathrm{KP}).
 \label{eq:ym-thresholds}
 \end{equation}
-Structurally, these bounds confirm that $D_4$'s equilateral triangle plaquettes support exact multi-link contraction deep
-past polymer and single-link convexity walls without uncontrolled decimation. At the same time, they remain
-finite-$\beta$ strong-coupling lattice theorems and do not address the weak-coupling $\beta \to \infty$ Clay continuum
-limit \cite{jaffe2000ym, balaban1989}.
+The geometric advantage of three-link plaquettes on $D_4$ over hypercubic $\mathbb{Z}^4$ is direct. While every $D_4$
+link borders eight equilateral triangles (creating the combinatorial polymer entropy that stalls Koteck\'y--Preiss near
+$\beta \approx 0.0093$), each plaquette carries only three links $(U_1, U_2, U_3)$ instead of four. Conditioning on
+exterior staples and marginalizing the internal link $U_2$ yields an effective two-link potential $V_2(U_1, U_3)$ that
+couples the wedge $(U_1, U_3)$ strictly through the group product $U_1^\dagger U_3^\dagger$ against the background
+staple sum $W_{\mathrm{bg}}$. Integrating both wedge links simultaneously collapses their direct triangle correlations
+inside the joint Haar measure rather than bounding each shared plaquette independently as a worst-case perturbation,
+driving $\alpha_{13}$ below $c / (1 + c)$ and tightening the conditional contraction ($\gamma_{\mathrm{shared}} < c$)
+without uncontrolled decimation.
+
+At the same time, the continuum limit as $\beta \to \infty$ remains strictly open. Strong-coupling Dobrushin contraction
+proves an unconditional exponential mass gap $m(\beta) > 0$ only at finite $\beta$, where local link fluctuations keep
+the block influence spectral radius $\rho(G(m)) < 1$. Reaching the continuum Yang--Mills limit $\beta \to \infty$
+\cite{jaffe2000ym, balaban1989} requires controlling the weak-coupling renormalization-group flow of asymptotic freedom
+across arbitrarily many length scales and ruling out any intervening bulk transition between the strong-coupling window
+and the scaling regime. Unifying the separate discrete gauge blocks with dynamical non-Abelian links coupled to bare-$U$
+matter while avoiding finite-subgroup freezing likewise remains open.
 
 \begin{figure}[tb]
 \centering
@@ -323,18 +333,3 @@ All-pair 2-wedge (4-dir alt.) & $0.280382$ & $2.97 / 30.0$ & $0.555190$ & $2.61 
 \bottomrule
 \end{tabularx}
 \end{table}
-
-Taken together, these gauge audits draw a clean boundary across the 24-cell and its flat $D_4$ partner. Inside bare $U$,
-exact $\mathbb{Z}_2^{24}$ per-line tone-parity superselection rules out composite transverse photons across all particle
-counts and densities, establishing that dynamical link registers are algebraically required rather than optional. The
-polytope and ternary state space supply native exact unitary 2-designs ($2T < SU(2)_L$ and $\Sigma(648) < SU(3)_C$)
-alongside an engineered single-speed 3D Maxwell--Dirac QCA, while continuous Wilson Yang--Mills theory on flat 4D $D_4$
-admits exact $1+2$ three-link triangle Dobrushin contraction yielding unconditional infinite-volume mass gaps
-$30.55\times$ ($SU(2)$) and $60.36\times$ ($SU(3)$) past Koteck\'y--Preiss.
-
-Coupling dynamical non-Abelian link registers to bare-$U$ matter without triggering finite-subgroup weak-coupling
-freezing, unifying the separate gauge building blocks into one dynamical Standard Model QCA, and extending
-finite-$\beta$ lattice mass gaps to the continuum $\beta \to \infty$ limit all remain open. With internal gauge
-structure bounded on the 24-cell and flat $D_4$, the same geometry poses a parallel set of questions for spacetime on
-the curved three-dimensional horosphere cusp: how gravitational backreaction, transverse spin-2 waves, charge asymmetry,
-and sterile deep-bulk modes behave next to an exponentially branching interior.

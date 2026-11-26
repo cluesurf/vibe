@@ -3,12 +3,14 @@
 
 Negative curvature governs diffusive return, two-body scattering thresholds, and local entropy export on the infinite
 24-regular $\{3,4,3,4\}$ dock graph through its $l^2$ adjacency spectral radius $\rho = \|A\|_{l^2(V) \to l^2(V)}$.
-On any flat Euclidean lattice $\mathbb{Z}^d$, the adjacency spectrum reaches the vertex degree ($\rho/\deg = 1$), so the
-normalized spectral gap vanishes and diffusive bulk excitations recycle indefinitely. On $\{3,4,3,4\}$, a simple global
-Busemann Schur weight bounds $\rho$ from above only at $104/7 \approx 14.857143$ against a spherical-shell lower bound
-of $11.013439$. Working strictly on the bare dock graph, we collapse that uncertainty by nearly three orders of
-magnitude to $\rho = 11.4414 \pm 0.0024$, certify a normalized spectral gap $\lambda_{\mathrm{gap}} = 1 - \rho/24 > 1/2$,
-and prove a size-independent geometric ceiling on local entropy export into the fixed bulk.
+On any infinite flat Euclidean lattice $\mathbb{Z}^d$, the adjacency spectrum reaches the vertex degree ($\rho/\deg = 1$),
+so $\lambda_{\mathrm{gap}} = 0$ yields slow algebraic diffusive decay ($t^{-d/2}$) and $h = 0$ forces a vanishing
+$O(R^{-1})$ per-site export ceiling, while finite periodic boxes reflect excitations into Poincar\'e revivals. On
+$\{3,4,3,4\}$, a simple global Busemann Schur weight bounds $\rho$ from above only at $104/7 \approx 14.857143$ against a
+spherical-shell lower bound of $11.013439$. Working strictly on the bare dock graph, we collapse that uncertainty by nearly
+three orders of magnitude to $\rho = 11.4414 \pm 0.0024$, certify a normalized spectral gap
+$\lambda_{\mathrm{gap}} = 1 - \rho/24 > 1/2$, and prove a size-independent geometric ceiling on local entropy export into
+the fixed bulk.
 
 \subsection{Hyperbolic decay}
 
@@ -17,9 +19,10 @@ $\mathbb{Z}^4$ (degree $8$) or flat $D_4$ lattice (degree $24$) against the curv
 (also degree $24$). Every flat lattice is amenable: as a ball $B_r$ of radius $r$ grows, its boundary-to-volume ratio
 $|\partial B_r|/|B_r|$ decays as $4/r \to 0$. By Kesten's amenability criterion, this vanishing surface ratio forces
 $\rho/\deg = 1$, zero normalized spectral gap ($\lambda_{\mathrm{gap}} = 0$), and zero Cheeger isoperimetric constant
-($h = 0$). Physically, diffusive probability on a flat grid spreads only algebraically ($t^{-2}$ in four dimensions), so
-disordered energy and entanglement entropy emitted by a finite region remain trapped nearby and recycle back unless an
-external infinite heat bath or non-unitary absorbing boundary is appended by hand.
+($h = 0$). Physically, on infinite $\mathbb{Z}^d$, $\lambda_{\mathrm{gap}} = 0$ allows diffusive return probabilities to
+decay only algebraically ($t^{-d/2}$, or $t^{-2}$ in four dimensions) and $h = 0$ caps per-site boundary export at
+$O(R^{-1}) \to 0$ as a region's radius $R$ grows, while truncating the grid to any finite periodic box reflects emitted
+excitations and forces Poincar\'e revivals unless an external bath or absorbing boundary is appended.
 
 \begin{table}[tb]
 \centering
@@ -198,6 +201,8 @@ Asymptotic Depth-5 + 2-step CF & $\mathbf{[11.439240, 11.443713]}$ & $\mathbf{0.
 \end{tabularx}
 \end{table}
 
+\subsection{Entropy export}
+
 Alongside $\rho$, the Lean~4 formalization proves the exact Steinberg cubic \eqref{eq:steinberg-cubic} unconditionally
 for both spherical shells and cusp beams, certifying $18.2787 < \lambda < 18.2788$ and $l_D = 4 \cdot 5^{D-1}$ for all
 $D \ge 1$. This exponential bulk geometry resolves a central thermodynamic tension of reversible discrete physics: how a
@@ -226,23 +231,21 @@ however, the certified Cheeger constant $12.33 \le h(\{3,4,3,4\}) \le 21.52$ (th
 $\inf_{|B|<\infty} n_c(B)/|B|$) guarantees a strictly positive, size-independent lower bound on the per-dock geometric
 export capacity ceiling across every finite region $B$:
 \begin{equation}
-\frac{n_c(B)\, \Delta}{|B|} \ge h(\{3,4,3,4\})\, \ln 19 \ge 12.33 \ln 19 = 36.30\text{ nats/dock/beat}.
+\frac{n_c(B)\, \Delta}{|B|} \ge h(\{3,4,3,4\})\, \ln 19 \ge 12.33 \ln 19 > 36.30\text{ nats/dock/beat}.
 \label{eq:cheeger-floor}
 \end{equation}
 Whether $B$ contains one dock or $10^{20}$ docks, its boundary always supplies more than twelve outward links per
-interior dock to fresh, unentangled exterior slots. In thermodynamic terms, the fixed hyperbolic bulk functions as an
-unfillable cold entropy sink: global unitarity and fixed spatial volume remain exact, yet local entropy can disperse
-irreversibly into exponentially growing deep-bulk shells without ever hitting a finite-bath revival ceiling. Equation
-\eqref{eq:cheeger-floor} establishes the geometric capacity rather than a universal saturation rate, because actual
-export depends on cross-line coupling and vanishes for strictly line-confined states.
+interior dock to fresh, unentangled exterior slots. Equation~\eqref{eq:cheeger-floor} establishes the geometric capacity
+rather than a universal saturation rate, because actual export depends on cross-line coupling and vanishes for strictly
+line-confined states.
 
-On the bare $\{3,4,3,4\}$ dock graph, exact arithmetic therefore pins the spectral radius to $0.04\%$ ($824\times$
-concrete and $859\times$ asymptotic collapse), certifies a normalized spectral gap above one half alongside Steinberg
-exponential growth, and establishes a size-independent $36.30\text{ nats/dock/beat}$ export ceiling that turns a fixed,
-reversible mesh into an unbounded cold sink without expanding space. Two limitations remain directly at this geometric
-level: the exact irrational value of $\rho(\{3,4,3,4\})$ is bracketed rather than closed in elementary form, and
-Eq.~\eqref{eq:cheeger-floor} certifies geometric export capacity rather than proving dynamical thermalization for
-arbitrary interacting states. Because the same exponential boundary dominance places $94.53\%$ of any large hyperbolic
-ball on its outer shell, Section~\ref{sec:holography} next tests whether $W(F_4)$ symmetry admits a high-distance
-ternary holographic tensor that encodes bulk quantum information isometrically onto that boundary and organizes
-transverse continuum refinement.
+This bound clarifies how exact global unitarity coexists with persistent, irreversible-looking local entropy shedding
+across the hyperbolic cut $\partial B$. Because bare $U$ acts unitarily across the infinite honeycomb with zero added
+dissipation, global phase-space volume and total fine-grained von Neumann entropy are strictly conserved on every beat.
+Apparent local irreversibility arises strictly upon restricting to the finite subsystem $B$: since
+$h(\{3,4,3,4\}) > 12.33$, the outward-crossing channel remains permanently wider than the interior volume $|B|$ at every
+length scale, while successive exterior shells proliferate by the Steinberg factor $\lambda \approx 18.28$. Once
+interior excitations couple onto outward facets, the stream $S$ trades entangled boundary registers for fresh quiescent
+exterior slots and dilutes local correlations exponentially into deep outer docks rather than returning them to $B$.
+Microscopic reversibility therefore holds without approximation even as local observables see one-way radiative cooling
+into the fixed curved bulk.

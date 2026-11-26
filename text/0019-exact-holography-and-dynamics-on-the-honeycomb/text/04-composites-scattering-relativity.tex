@@ -1,19 +1,18 @@
 \section{Particle Dynamics}
 \label{sec:composites}
 
-Section~\ref{sec:holography} showed that the bare beat $U$ over $\mathbb{Z}[\zeta_9][1/6]$ leaves static stabilizer
-protection immediately because its line-local layers inject non-Clifford magic. That shifts the focus directly to
-many-body dynamics, testing what bound matter, entangling computation, and relativistic kinematics this single fixed
-unitary rule generates on $\{3,4,3,4\}$.
+Because bare $U$'s line-local layers inject non-Clifford magic rather than preserving a static stabilizer code, its
+physical content lies in the many-body bound states, scattering logic, and relativistic kinematics generated on
+$\{3,4,3,4\}$.
 
-Reversible discrete cellular automata almost always fail matter in one of two opposite ways. Linear or weakly coupled
-ballistic rules disperse every multi-body packet into featureless spreading waves with no persistent composites, while
-classical glider and railway automata localize structures only by freezing deterministic tracks that lack quantum
-superposition, entangling gates, and Lorentz kinematics \cite{arrighi2019, farrelly2020}. Bare $U$ cuts sharply across
-both failure modes, establishing five distinct dynamical regimes: an unconditional no-go theorem forbidding
-finite-support breathers, hyperbolic spectral excision turning isotropic pair poles into Feshbach resonances, an exact
-integrable collinear bound-state tower, non-integrable chaos alongside exact weak autonomous BQP universality and four
-unbounded-loop barriers, and a clean separation between cutoff-heavy bare clocks and the relativistic light-mass limit.
+Reversible discrete cellular automata commonly encounter one of two limitations. Linear or weakly coupled ballistic rules
+disperse every multi-body packet into featureless spreading waves with no persistent composites, while classical glider
+and railway automata localize structures only by freezing deterministic tracks that lack quantum superposition,
+entangling gates, and Lorentz kinematics \cite{arrighi2019, farrelly2020}. Bare $U$ avoids both extremes, establishing
+five distinct dynamical regimes: an unconditional no-go theorem forbidding finite-support breathers, hyperbolic spectral
+excision turning isotropic pair poles into Feshbach resonances, an exact integrable collinear bound-state tower,
+mixed-sector level repulsion alongside exact three-qubit spin-independent universal exchange-gate synthesis and four
+unbounded-loop barriers, and a sharp separation between cutoff-heavy bare clocks and the relativistic light-mass limit.
 
 \subsection{Ballistic transport}
 
@@ -166,21 +165,20 @@ conservation of per-line parity $N_a \bmod 2$ keeps $M_{\mathrm{pair}}$ and $\Ph
 $k = 4$, forcing their first nonlinear four-dimensional coexistence at $k = 5 = 2 + 1 + 1 + 1$ (certified in exact
 integer arithmetic across $3{,}072$ branches).
 
-Inside the clean collinear sector, uninterrupted bare-$U$ collisions execute native entangling logic and multi-stage
+Inside the integrable collinear sector, uninterrupted bare-$U$ collisions execute native entangling logic and multi-stage
 ballistic memory transfer with zero external time-dependent controls (Tables~\ref{tab:scattering-gates}
 and~\ref{tab:universality-obstructions}). Colliding a tuned momentum-$p_*$ pulse with a stationary doublon on
-$\mathrm{Sym}^3$ imparts an approximate controlled-$\pi$ phase with only $0.23\%$ breakup. Allowing that pulse to
-traverse the doublon across two consecutive laps on a periodic ring ($M = 28$) doubles the controlled phase cleanly to
-$2\pi$ with doubled Wigner delay and only $0.31\%$ cumulative breakup, while a spatially separated five-body two-station
-collision reproduces the additive phase truth table to $0.034\pi$.
+$\mathrm{Sym}^3$ imparts an approximate controlled-$\pi$ phase with only $0.23\%$ breakup. Letting that pulse traverse
+the doublon across two consecutive laps on a periodic ring doubles both the controlled phase and the Wigner delay with
+sub-percent cumulative breakup, while a spatially separated five-body two-station collision reproduces the additive
+four-entry phase truth table (Table~\ref{tab:universality-obstructions}).
 
-Removing $\mathrm{Sym}^k$ pre-symmetrization entirely in favor of pairwise-distinct roles $\{0, 1, 2\}$ guarantees
-$M_{\mathrm{pair}} = I$ verbatim in four dimensions. For separable inputs $|\{0,1\}_{\mathrm{Sym}}\rangle \otimes |2\rangle$,
-exact Yang fusion implements a lossless partial role-SWAP with a $+\pi/2$ elastic phase ($P_{\mathrm{el}} = 1/3$,
-$P_{\mathrm{swap}} = 2/3$). In direct wavepacket evolution, one autonomous collision generates survival-conditioned
-entanglement entropy reaching $99.94\%$ of maximal $\log_2 3$ bits, and a five-role two-station bus writes a stored role
-from one stationary doublon into another with probability $4/9$, heralding an exact $\log_2 3$-bit Bell state between
-stationary stations that never touch.
+Replacing $\mathrm{Sym}^k$ pre-symmetrization with pairwise-distinct roles $\{0, 1, 2\}$ enforces $M_{\mathrm{pair}} = I$
+identically in four dimensions, so separable inputs $|\{0,1\}_{\mathrm{Sym}}\rangle \otimes |2\rangle$ undergo a lossless
+partial role-SWAP ($2/3$ swap probability, $+\pi/2$ elastic phase). In direct wavepacket evolution, a single autonomous
+collision generates near-maximal $\log_2 3$-bit survival-conditioned entanglement, and a five-role two-station bus writes
+a stored role from one stationary doublon into another with probability $4/9$, heralding an entangled Bell pair between
+stations that never touch.
 
 \begin{table}[tb]
 \centering

@@ -32,7 +32,7 @@ Spectral geometry (Sec.~\ref{sec:spectral}) & Bare geometry & $824\times$ concre
 \addlinespace[2pt]
 Holography \& continuum (Sec.~\ref{sec:holography}) & Bare + Clifford ext. & Unique $W(F_4)$ $[[24,1,8]]_3$ tensor, all-$R$ HaPPY code $B_1 = [[552,25,8]]_3$ ($d^{(0)} = 40$), kinematic colimit & Bare $U$ exits code space in 1 beat except $M_{\mathrm{pair}}$ \\
 \addlinespace[2pt]
-Bound states \& clocks (Sec.~\ref{sec:composites}) & Bare + deformed $m$ & Compacton no-go, $83.12\%$ $M_{\mathrm{pair}}$ excision, $1/\sqrt{3k^2+1}$ tower, COE repulsion, weak BQP, light-mass $E = mc^2$ & Bare $m = \pi/3$ cutoff-heavy ($R_2 = 7.14$), anti-dilation, warp null, loop obs. \\
+Bound states \& clocks (Sec.~\ref{sec:composites}) & Bare + deformed $m$ & Compacton no-go, $83.12\%$ $M_{\mathrm{pair}}$ excision, $1/\sqrt{3k^2+1}$ tower, COE repulsion, exact three-qubit spin-independent universal exchange-gate synthesis, light-mass $E = mc^2$ & Bare $m = \pi/3$ cutoff-heavy ($R_2 = 7.14$), anti-dilation, warp null, loop obs. \\
 \addlinespace[2pt]
 Spin-1 \& gauge QCA (Sec.~\ref{sec:gauge}) & Bare + link ext. & All-$k$ $\mathbb{Z}_2^{24}$ superselection forces links, single-speed QED ($9.4 \times 10^{-8}$) \& static $2T$ chiral wall & Finite-subgroup freezing, dynamical $SU(3)_C$/chiral gauging, $a \to 0$ open \\
 \addlinespace[2pt]
@@ -50,20 +50,22 @@ Multiscale \& Lean~4 (Sec.~\ref{sec:lean-and-open}) & Bare + abstract & $94.53\%
 \subsection{Related frameworks}
 
 Existing discrete programs in mathematical physics typically solve one structural constraint at the price of another.
-Flat Euclidean quantum cellular automata (QCAs) preserve exact unitarity, finite propagation speed, and translation
-symmetry \cite{schumacher2004, arrighi2019, farrelly2020}, yet every amenable flat grid has zero normalized spectral gap
-and vanishing Cheeger ratio, so emitted entropy and local excitations recycle indefinitely unless an external bath is
-appended. Causal-set approaches achieve statistical Lorentz invariance through random Poisson sprinklings of partial
+Flat Euclidean quantum cellular automata (QCAs) preserve unitarity, finite speed, and translation symmetry
+\cite{schumacher2004, arrighi2019, farrelly2020}, yet on infinite $\mathbb{Z}^d$, $\lambda_{\mathrm{gap}} = 0$ yields
+algebraic diffusive decay ($t^{-d/2}$ vs.\ hyperbolic $< 2^{-t}$) and $h = 0$ yields a vanishing $O(R^{-1})$ export
+ceiling (vs.\ $\ge 36.30\text{ nats/dock/beat}$), while finite periodic boxes reflect excitations into Poincar\'e revivals.
+Causal-set approaches achieve statistical Lorentz invariance through random Poisson sprinklings of partial
 orders, but sacrifice regular local symmetry, deterministic algebraic amplitudes, and a local unitary evolution
 operator. Static two-dimensional hyperbolic tensor networks \cite{pastawski2015happy} realize exact holographic
 error-correcting codes and discrete Ryu--Takayanagi geometry \cite{ryu2006rt}, yet they carry no intrinsic unitary
 dynamics and terminate on a one-dimensional boundary rather than a flat three-dimensional space.
 
-Lattice gauge and discrete gravity models on four-dimensional hypercubic grids $\mathbb{Z}^4$ provide mature
-strong-coupling and Monte Carlo toolkits \cite{wilson1974, osterwalder1978, kotecky1986}, yet $\mathbb{Z}^4$ breaks
-fourth-order rotational isotropy at leading $O(a^2)$ order, introduces cubic anisotropy in linearized spin-2 waves, and
-relies on four-link plaquettes whose strong-coupling cluster bounds tighten earlier than three-link triangles on the
-body-centered hypercubic lattice $D_4$ \cite{celmaster1982}. Meanwhile, finite-bath unitary collision models preserve
+Lattice gauge and discrete gravity models on hypercubic grids $\mathbb{Z}^4$ provide mature strong-coupling and Monte
+Carlo toolkits \cite{wilson1974, osterwalder1978, kotecky1986}, yet $\mathbb{Z}^4$ breaks fourth-order isotropy at
+$O(a^2)$ and adds cubic anisotropy to linearized spin-2 waves \cite{celmaster1982}. By contrast, flat $D_4$ removes
+$O(a^2)$ rotational artifacts identically, and its three-link triangles allow exact two-link wedge marginalization inside
+each triangle, pushing $D_4$'s strong-coupling threshold $2.65\text{--}3.02\times$ past $D_4$ Bakry--\'Emery and
+$30\text{--}60\times$ past $D_4$ Koteck\'y--Preiss. Meanwhile, finite-bath unitary collision models preserve
 microscopic reversibility without approximation, yet finite Hilbert-space dimension forces Page entropy turnover and
 Poincar\'e revivals \cite{page1993} instead of genuine one-way radiative dilution.
 
@@ -77,17 +79,17 @@ $\mathbb{Z}[\zeta_9][1/6]$.}
 \toprule
 Discrete framework & Core structural strength & Structural trade-off or open gap \\
 \midrule
-Flat Euclidean QCAs \cite{schumacher2004, arrighi2019, farrelly2020} & Exact local unitarity, strict light cone, translation-invariant dispersion & Zero spectral gap ($\rho/\deg = 1$), zero Cheeger constant, entropy recycling without an external bath \\
+Flat Euclidean QCAs \cite{schumacher2004, arrighi2019, farrelly2020} & Exact local unitarity, strict light cone, translation-invariant dispersion & Infinite $\mathbb{Z}^d$: $\lambda_{\mathrm{gap}} = 0$ ($t^{-d/2}$ decay) and $h = 0$ ($O(R^{-1})$ export ceiling), while finite periodic boxes reflect excitations into Poincar\'e revivals \\
 \addlinespace[2pt]
 Causal-set partial orders & Statistical Lorentz invariance with no preferred spatial axes & Sacrifices regular local symmetry, exact unitary time steps, and algebraic amplitude closure \\
 \addlinespace[2pt]
 2D hyperbolic tensor networks \cite{pastawski2015happy} & Exact holographic error correction and discrete bulk--boundary isometries & Static maps with no intrinsic unitary beat and a 1D boundary rather than a flat 3D slice \\
 \addlinespace[2pt]
-Hypercubic $\mathbb{Z}^4$ lattice models \cite{wilson1974, kotecky1986} & Standard gauge-invariant plaquettes and constructive cluster expansions & $O(a^2)$ cubic rotational and spin-2 anisotropy, 4-link plaquettes tighter than $D_4$ triangles \cite{celmaster1982} \\
+Hypercubic $\mathbb{Z}^4$ lattice models \cite{wilson1974, kotecky1986} & Standard gauge-invariant plaquettes and constructive cluster expansions & Breaks fourth-order isotropy at $O(a^2)$ with cubic spin-2 wave anisotropy, unlike $D_4$'s isotropic triangles \cite{celmaster1982} \\
 \addlinespace[2pt]
 Finite-bath unitary models \cite{page1993} & Exact global reversibility and closed microscopic state accounting & Finite volume enforces Page turnover and Poincar\'e revivals rather than one-way export \\
 \addlinespace[2pt]
-$\{3,4,3,4\}$ + $\mathbb{Z}[\zeta_9][1/6]$ (this work) & Rank-4 $D_4$ isotropy, flat 3D $\{4,3,4\}$ husk, $\lambda_{\mathrm{gap}} > 1/2$ cold bulk, zero free parameters & Bare $U$ lacks spin-1 bosons (forcing links) and exits static code space, with continuum limits and nonlinear gravity open \\
+$\{3,4,3,4\}$ + $\mathbb{Z}[\zeta_9][1/6]$ (this work) & Rank-4 $D_4$ isotropy, flat 3D $\{4,3,4\}$ husk, $\lambda_{\mathrm{gap}} > 1/2$ cold bulk, zero continuous parameters in bare $U$ & Bare $U$ lacks spin-1 bosons (forcing links) and exits static code space, with continuum limits and nonlinear gravity open \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -120,16 +122,17 @@ cancel all leading $O(a^2)$ rotational artifacts identically through exact fourt
 = 4\bigl(\delta_{ab}\delta_{cd} + \delta_{ac}\delta_{bd} + \delta_{ad}\delta_{bc}\bigr).
 \label{eq:d4-isotropy}
 \end{equation}
-This single tensor identity governs two later physical results directly: on the flat $D_4$ lattice it restores isotropic
-linearized spin-2 gravitational wave speeds across coordinate and diagonal axes (Section~\ref{sec:gravity}), and its
-minimal 3-link triangular plaquettes widen constructive Yang--Mills mass-gap windows compared with 4-link hypercubic
-plaquettes (Section~\ref{sec:gauge}) \cite{celmaster1982}. Pairing each slot $\mathbf{r}$ with its antipodal opposite
-$-\mathbf{r}$ forms 12 straight \emph{lines} passing through the dock. Grouping these lines into three complementary
-orthogonal coordinate-plane pairs yields three disjoint 8-slot \emph{banks} (inscribed 16-cells). The full symmetry
-group of one dock is the Weyl group $W(F_4)$ of order $1{,}152$, with proper rotation subgroup $W(F_4)^+$ of order $576$
-and outer triality quotient $W(F_4) / W(D_4) \cong S_3$. That outer $S_3$ triality permutes the three 8-slot banks and
-proves decisive in Section~\ref{sec:holography}, where untwisted $W(F_4)$ symmetry alone hits an algebraic distance
-ceiling that only triality breaks.
+This tensor identity eliminates $O(a^2)$ rotational artifacts on flat $D_4$ and restores isotropic linearized spin-2
+wave speeds across coordinate and diagonal axes (Section~\ref{sec:gravity}), while $D_4$'s three-link triangles permit
+exact two-link wedge marginalization inside a single triangle, pushing $D_4$'s strong-coupling Yang--Mills threshold
+$2.65\text{--}3.02\times$ past $D_4$ Bakry--\'Emery and $30\text{--}60\times$ past $D_4$ Koteck\'y--Preiss
+(Section~\ref{sec:gauge}) \cite{celmaster1982}. Pairing each slot $\mathbf{r}$ with its antipodal opposite $-\mathbf{r}$
+forms 12 straight \emph{lines} passing through the dock. Grouping these lines into three complementary orthogonal
+coordinate-plane pairs yields three disjoint 8-slot \emph{banks} (inscribed 16-cells). The full symmetry group of one
+dock is the Weyl group $W(F_4)$ of order $1{,}152$, with proper rotation subgroup $W(F_4)^+$ of order $576$ and outer
+triality quotient $W(F_4) / W(D_4) \cong S_3$. That outer $S_3$ triality permutes the three 8-slot banks and proves
+essential in Section~\ref{sec:holography}, where untwisted $W(F_4)$ symmetry alone hits an algebraic distance ceiling
+that only triality breaks.
 
 \begin{figure}[tb]
 \centering
@@ -235,14 +238,13 @@ k_a^T (2G) k_a = 2G,
 k_a k_{-a} = I_5.
 \label{eq:transport}
 \end{equation}
-The negative determinant $\det(k_a) = -1$ is structurally consequential rather than a mere bookkeeping sign: every single
-facet hop flips orientation parity $\sigma(g) = \det(g) \in \{+1, -1\}$, making the 24-regular dock graph globally
-bipartite and supplying the staggered sublattice sign entering both exact spectral bounds (Section~\ref{sec:spectral})
-and the chiral four-body phase below. Adjacent facets satisfying $\mathbf{r}_a \cdot \mathbf{r}_b = 1$ meet at right
-angles, identifying the dock graph with the right-angled Coxeter group $W(\Gamma_{24})$ (generated by 24 involutions
-$s_a^2 = 1$ that commute whenever facets $a$ and $b$ are orthogonal). Both spherical shell sizes $|\partial B_r|$
-($1, 24, 456, 8{,}376, 153{,}192, \dots$) and cusp beam shell sizes $N_D$ ($1, 18, 330, 6{,}034, \dots$) obey the exact
-Steinberg cubic recurrence:
+The negative determinant $\det(k_a) = -1$ makes the 24-regular dock graph globally bipartite: every facet hop flips
+orientation parity $\sigma(g) = \det(g) \in \{+1, -1\}$, supplying the staggered sublattice sign entering both exact
+spectral bounds (Section~\ref{sec:spectral}) and the chiral four-body phase below. Adjacent facets satisfying
+$\mathbf{r}_a \cdot \mathbf{r}_b = 1$ meet at right angles, identifying the dock graph with the right-angled Coxeter
+group $W(\Gamma_{24})$ (generated by 24 involutions $s_a^2 = 1$ that commute whenever facets $a$ and $b$ are orthogonal).
+Both spherical shell sizes $|\partial B_r|$ ($1, 24, 456, 8{,}376, 153{,}192, \dots$) and cusp beam shell sizes $N_D$
+($1, 18, 330, 6{,}034, \dots$) obey the exact Steinberg cubic recurrence:
 \begin{equation}
 x(n + 4) = 21\, x(n + 3) - 51\, x(n + 2) + 23\, x(n + 1) \quad (n \ge 0),
 \qquad
@@ -254,28 +256,27 @@ single-face lateral link counts $l_0 = 1$ and $l_D = 4 \cdot 5^{D-1}$ ($D \ge 1$
 
 \subsection{Unitary dynamics}
 
-Each local ingredient of the microscopic rule is constrained by minimality, exact discrete symmetry, and algebraic
-closure with zero continuous knobs. Every slot holds a signed ternary \emph{tone} $\tau \in \{-1, 0, +1\}$. A binary
-alphabet $\{0, 1\}$ admits no nontrivial charge-conjugation involution leaving a neutral state fixed, so signed ternary
-tones form the smallest alphabet admitting both a neutral center $0$ and an exact involution $\mathcal{C} : \tau
-\mapsto -\tau$. Every occupied slot ($\tau = \pm 1$) also carries a discrete internal \emph{role} label
+Each local ingredient of the microscopic rule is chosen for minimality, exact discrete symmetry, and algebraic closure
+with zero continuous knobs. Every slot holds a signed ternary \emph{tone} $\tau \in \{-1, 0, +1\}$. A binary alphabet
+$\{0, 1\}$ admits no nontrivial charge-conjugation involution leaving a neutral state fixed, so signed ternary tones form
+the smallest alphabet admitting both a neutral center $0$ and an exact involution $\mathcal{C} : \tau \mapsto -\tau$.
+Every occupied slot ($\tau = \pm 1$) also carries a discrete internal \emph{role} label
 $j \in \{0, \dots, 8\} \cong \mathbb{Z}_3^2$, the minimal ternary double-index space distinguishing identical-role from
 distinct-role collisions (needed for mixed-tone level repulsion and role-labeled bound states in
-Section~\ref{sec:composites}) while keeping every local dimension a power of $3$. The all-zero configuration is the
-\emph{neutral quiescent mesh state} $|V_1\rangle$, an exact stationary fixed point with zero spontaneous activity. In
-the bare automaton, a \emph{link} denotes purely conceptual adjacency across a shared facet, with no independent gauge
-register attached.
+Section~\ref{sec:composites}) while keeping the internal role alphabet a power of $3$ (giving prime per-slot dimension
+$d = 1 + 2\cdot 9 = 19$). The all-zero configuration is the \emph{neutral quiescent mesh state} $|V_1\rangle$, an exact
+stationary fixed point with zero spontaneous activity. In the bare automaton, a \emph{link} denotes purely conceptual
+adjacency across a shared facet, with no independent gauge register attached.
 
 Quantum amplitudes live strictly inside the exact cyclotomic ring $\mathbb{Z}[\zeta_9][1/6]$, where $\zeta_9$ satisfies
-the sixth-degree cyclotomic polynomial $\zeta_9^6 + \zeta_9^3 + 1 = 0$ (geometrically $\zeta_9 = e^{2\pi i/9}$). Rather
-than introducing tunable real angles or coupling constants, each element of this ring is forced by exact unitarity and
-symmetry on the 24-cell. Three-valued ternary phase turns require the primitive cube root $\omega = \zeta_9^3$
-($\omega^2 + \omega + 1 = 0$), equal-weight deterministic splitting across antipodal slots requires denominator $2$,
-exact determinant matching between singly and doubly occupied lines requires the sixth root $\zeta_6 = 1 + \omega$, and
-$W(F_4)$-isotropic pair scattering across all 12 lines requires denominator $12 = 4 \cdot 3$ together with the eighteenth
-root $\zeta_{18} = -\zeta_9^5$. Because every entry of the evolution operator belongs to $\mathbb{Z}[\zeta_9][1/6]$, no
-transcendental constants, free parameters, or floating-point rounding enter the discrete update, and exact operator
-identities translate directly into algebraic Lean~4 proofs.
+$\zeta_9^6 + \zeta_9^3 + 1 = 0$ (geometrically $\zeta_9 = e^{2\pi i/9}$). Rather than introducing tunable real angles or
+couplings, $\mathbb{Z}[\zeta_9][1/6]$ is the minimal cyclotomic ring closed under the specified local gates on the
+24-cell. Ternary phase turns use the primitive cube root $\omega = \zeta_9^3$ ($\omega^2 + \omega + 1 = 0$),
+$3/4\text{--}1/4$ deterministic splitting across antipodal slots uses denominator $2$, determinant matching between singly
+and doubly occupied lines uses $\zeta_6 = 1 + \omega$, and $W(F_4)$-isotropic pair scattering across all 12 lines uses
+denominator $12 = 4 \cdot 3$ together with $\zeta_{18} = -\zeta_9^5$. Because every entry of $U$ belongs to
+$\mathbb{Z}[\zeta_9][1/6]$, no transcendental constants, continuous parameters, or floating-point rounding enter the bare
+update, and exact operator identities translate directly into algebraic Lean~4 proofs.
 
 One discrete time step, called a \emph{beat}, applies a single palindromic eight-layer unitary operator:
 \begin{equation}
@@ -299,10 +300,11 @@ single- and two-body phases algebraically coherent. At two-excitation contact on
 lines with a fermion-like $-1$ sign, while $M_{\mathrm{meet}}$ imparts phase $\omega$ to identical-role same-sign full
 lines and mixes distinct-role same-sign pairs via $M_{\mathrm{meet}}^{\mathrm{diff}}$. Without cross-line coupling,
 excitations would remain permanently trapped on one-dimensional antipodal tracks. The 12-line pair mixer therefore acts
-on any sole identical-tone, identical-role antipodal pair as the unique $W(F_4)$-invariant isotropic rank-1 unitary
-perturbation across all 12 lines:
+on any sole identical-tone, identical-role antipodal pair via the one-parameter family of $W(F_4)$-invariant isotropic
+rank-1 unitaries evaluated at $\zeta = \zeta_{18}$:
 \begin{equation}
-M_{\mathrm{pair}}(\zeta_{18}) = I_{12} + \frac{\zeta_{18} - 1}{12} J_{12},
+M_{\mathrm{pair}}(\zeta) = I_{12} + \frac{\zeta - 1}{12} J_{12}
+\qquad\text{at}\quad \zeta = \zeta_{18},
 \label{eq:mpair}
 \end{equation}
 where $J_{12}$ is the $12 \times 12$ all-ones matrix.
@@ -319,6 +321,20 @@ streaming enforces exact time-reversal $\mathcal{T}$, combined $\mathcal{CP}$, $
 $W(F_4)^+$ covariance for all $t \in \mathbb{Z}$. Throughout the rest of this paper, this bare rule $U$ is held
 completely fixed: whenever bare $U$ encounters an algebraic or geometric obstruction, we prove the obstruction as a
 theorem and isolate the minimal added structure required to overcome it.
+
+Tracing one complete beat of Eq.~\eqref{eq:bare-beat} makes the local mechanism concrete. When a lone excitation enters
+dock $g$ on slot $a$ ($k = 1$), the first $\Phi_{\mathrm{odd}}$ acts as the identity because $k < 4$, and the first
+half-coin $D$ splits the amplitude deterministically across the antipodal line $(a, -a)$ with weight $3/4$ on slot $a$
+and $1/4$ on slot $-a$. With no partner on $-a$, all three central layers ($K$, $M_{\mathrm{pair}}$, and
+$M_{\mathrm{meet}}$) act trivially, so the second half-coin $D$ re-splits the superposition into the full free coin
+$C = D^2$ (leaving weight $1/4$ on $a$ and $3/4$ on $-a$), the outer $\Phi_{\mathrm{odd}}$ again acts as the identity,
+and the shift $S$ streams each branch across its octahedral facet into the adjacent dock $(g k_a, a)$ or
+$(g k_{-a}, -a)$. If an antipodal partner arrives simultaneously on $-a$ ($k = 2$), both half-coins leave the full line
+fixed with phase $\det D = \zeta_6$, and the central layers select one of three channels: an opposite-sign pair swaps
+slots with a $-1$ sign under $K$, a same-sign distinct-role pair mixes via $M_{\mathrm{meet}}^{\mathrm{diff}}$, and
+only a sole same-sign, identical-role pair receives the exact $2\pi/3$ phase $\omega$ from $M_{\mathrm{meet}}$ while
+scattering isotropically across all 12 lines via $M_{\mathrm{pair}}(\zeta_{18})$ before $S$ streams the outgoing slots
+across their facets.
 
 \begin{table}[tb]
 \centering
@@ -341,11 +357,3 @@ $I = \chi_Z + D_Z$, $\mathcal{A}$ & Mutual information split into classical Hole
 \bottomrule
 \end{tabularx}
 \end{table}
-
-Taken together, the $\{3,4,3,4\}$ tessellation and the cyclotomic operator $U$ fix a single parameter-free discrete
-system combining fourth-order $D_4$ isotropy, a flat three-dimensional $\{4,3,4\}$ boundary, exact Lorentz transport,
-global bipartiteness, strict unit-speed locality, $\mathcal{T}/\mathcal{CP}/\mathcal{CPT}$ invariance, and order-576
-$W(F_4)^+$ covariance with zero floating-point approximation or tunable couplings. Specifying that reversible local
-update, however, does not by itself establish how rapidly diffusive excitations decay across the infinite curved graph,
-whether local entropy can disperse without recycling, or whether the bulk supports bound matter and holographic
-encoding. Section~\ref{sec:spectral} resolves the bare spectral and thermodynamic properties of $\{3,4,3,4\}$ first.

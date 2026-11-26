@@ -1,11 +1,11 @@
 \section{Synthesis}
 \label{sec:lean-and-open}
 
-Coherent higher-level organization on $\{3,4,3,4\}$ confronts a geometric constraint absent from flat space: nearly
-every site of a large hyperbolic ball lies directly on its outer boundary. Here we examine how selective holographic
-interfaces, proof-carrying coarse-graining, and active regulation handle that exposure, summarize the zero-dependency
-Lean~4 formalization, synthesize the cumulative cross-domain ledger, and state the six open problems governing whether
-this discrete substrate scales to continuum physics.
+Coherent higher-level organization on $\{3,4,3,4\}$ confronts a geometric constraint absent from flat space: because
+$94.53\%$ of any large hyperbolic ball sits on its outer shell, macroscopic structure cannot rely on passive volumetric
+isolation. Sustaining persistent organization instead requires active boundary filtering and multiscale closure, whose
+algebraic guarantees and machine-checked Lean~4 proofs we evaluate alongside the unresolved boundaries separating this
+discrete substrate from continuum physics.
 
 \subsection{Multiscale closure}
 
@@ -20,7 +20,7 @@ hyperbolic organization from flat space:
 Because $94.53\%$ of every large hyperbolic ball lies on its outer one-hop shell (whereas in Euclidean $D_4$ and
 $\mathbb{Z}^4$ the boundary share vanishes as $4/r \to 0$), bulk volume alone cannot shield an interior state.
 Persistence requires selective error-correcting interfaces (such as $B_1 = [[552, 25, 8]]_3$, lifting central origin
-survival by nearly twelve orders of magnitude at $p = 0.05$) paired with active regulatory dynamics measured by Aubin
+survival by over twelve orders of magnitude at $p = 0.05$) paired with active regulatory dynamics measured by Aubin
 viability kernels \cite{aubin1991} (the largest safe subset maintainable against disturbances) and counterfactual
 autonomy $\mathcal{A}$ (Table~\ref{tab:multiscale-autonomy}).
 
@@ -56,13 +56,14 @@ influence, realization, composition, and representation as distinct relations en
 $\mathrm{do}(\mathrm{disabled})$ in Equation~\eqref{eq:boundary-autonomy} separate active boundary-filtered regulation
 ($\mathcal{A} > 0$) from passive persistence ($\mathcal{A} = 0$).
 
-An executable benchmark evaluates five live unitary bare-$U$ collisions alongside a 53-point deformed $(m, \phi)$ phase
-atlas classified purely from observables with zero hardcoded regime toggles, separating free, integrable-bound,
-relativistic-Thirring, and COE-repulsion phases. At the abstract effective level, unbiased signed quality-diversity
-search discovers stabilizing negative self-feedback from scratch, active A* light-cone pruning rejects unphysical
-teleportation edges, and strict $\mathrm{delay} = 0$ budget-matched recurrent attractors sustain $100.0\%$ accuracy
-across held-out episodes and unseen horizons exceeding the five-step acyclic depth ceiling where feedforward controls
-stay at chance (Table~\ref{tab:multiscale-autonomy}), explicitly separated from bare-$U$ mesh realizations.
+To test whether coarse-scale dynamical regimes can be identified automatically without external labels, an executable
+benchmark pairs five live unitary bare-$U$ collisions with a 53-point deformed $(m, \phi)$ observable phase atlas that
+separates free, integrable-bound, relativistic-Thirring, and COE-repulsion phases purely from measured invariants.
+Because surface-dominated balls require active regulation rather than passive shielding, abstract control benchmarks
+test whether behavioral-archive (quality-diversity) search discovers stabilizing negative self-feedback without a preset
+target, whether causal light-cone pruning rejects acausal paths, and whether recurrent attractors without external delay
+taps ($\mathrm{delay} = 0$) sustain memory beyond the five-step feedforward horizon
+(Table~\ref{tab:multiscale-autonomy}), strictly separated from bare-$U$ mesh dynamics.
 
 \begin{table}[tb]
 \centering
@@ -88,19 +89,6 @@ Strict $\mathrm{delay} = 0$ recurrent attractors & $\mathbf{100.0\%}$ ($0.993$) 
 \bottomrule
 \end{tabularx}
 \end{table}
-
-\textbf{Computability boundary:} On $\{3,4,3,4\}$, a dedicated classical transition table supports a uniform, strongly
-universal railway cellular automaton from a finite self-extending seed \cite{pollard2026railway}. Inside verbatim bare
-quantum $U$, Section~\ref{sec:composites} splits computability sharply. Bare $U$ is exact weak autonomous BQP universal
-with zero external clocks: embedding three-particle decoherence-free-subsystem qubits across nine distinct internal
-roles locks $M_{\mathrm{pair}} = I$ in four dimensions and yields a spin-independent linear-chain three-qubit Toffoli
-gate verified directly on the full $126$-dimensional nine-spin Hilbert space in $373$ strictly adjacent ballistic
-collisions, alongside composable phase logic, near-maximal two-qutrit entanglement, and constant-$k = 5$ cross-line
-switching. Conversely, finite-seed strong unbounded-loop Turing universality inside bare $U$ is obstructed by four exact
-theorems: Pell--Chebyshev wavefront escape (forbidding finite-support static tracks), $\mathbb{Z}_2^{24}$ parity
-superselection (locking lone excitations to one line), $(-I, \mathcal{C})$ annihilation (decoupling two- and three-rail
-neutral switches), and $W(F_4)$-isotropic $11/12$ pair diffraction (capping single-target turning below $0.084\%$ and
-coherent eleven-line focusing below $0.93\%$).
 
 \subsection{Formal proofs}
 
@@ -130,7 +118,7 @@ contraction bounds.
 
 We maintain a strict separation between kernel-checked proofs and numerical audits: measure-theoretic $l^2$ and Haar
 bridges, exhaustive local-Clifford uniqueness, the Depth-5 integer spectral collapse, the $k = 4$ tetron, the nine-spin
-ballistic universality and four-dimensional switching audits, the three-link triangle 4D $D_4$ bounds, and all
+exchange-gate synthesis and four-dimensional switching audits, the three-link triangle 4D $D_4$ bounds, and all
 scattering, gauge, gravitational, decoherence, and multiscale simulations are certified independently by standalone,
 deterministic, zero-randomness programs in the companion archive \cite{cluesurf2026repo}.
 
@@ -149,33 +137,50 @@ bounds strictly separated.
 \toprule
 Domain & Established structure & Open boundary \\
 \midrule
-Spectral geometry \& thermodynamics (Sec.~\ref{sec:spectral}) & Exact Steinberg growth ($\lambda \approx 18.28$), $824\times$ collapse of $\rho$ to $[11.439047, 11.443713]$ ($\lambda_{\mathrm{gap}} > 1/2$), $Q_3$ zero-cascade, and Landauer bulk export ($h\Delta \ge 36.30\text{ nats/dock/beat}$). & Closed-form evaluation of irrational $\rho$ beyond $0.04\%$ width, and interacting multi-body thermalization rates under bare $U$. \\
+Spectral geometry \& thermodynamics (Sec.~\ref{sec:spectral}) & Exact Steinberg growth ($\lambda \approx 18.28$), $824\times$ collapse of $\rho$ to $[11.439047, 11.443713]$ ($\lambda_{\mathrm{gap}} > 1/2$), $Q_3$ zero-cascade, and Landauer bulk export ($h\Delta \ge 36.30\text{ nats/dock/beat}$ capacity ceiling). & Closed-form evaluation of irrational $\rho$ beyond $0.04\%$ width, and interacting multi-body thermalization rates under bare $U$. \\
 \addlinespace[2pt]
 Holography \& subdivision (Sec.~\ref{sec:holography}) & Unique $W(F_4)$ $[[24, 1, 8]]_3$ tensor, bipartite all-radius HaPPY isometry ($B_1 = [[552, 25, 8]]_3$, $d^{(0)} = 40$), discrete RT/FLM, auxiliary Cliffords, and orthogonal subdivision via $\operatorname{colim}_D \mathcal{H}_D$. & Bare $U$ exits $P_{\mathrm{code}}$ in one beat (except $M_{\mathrm{pair}}$), leaving a dynamical continuum CFT Hamiltonian intertwined with bare $U$ open. \\
 \addlinespace[2pt]
-Matter, gates, BQP \& clocks (Sec.~\ref{sec:composites}) & Compacton no-go, $83.12\%$ $M_{\mathrm{pair}}$ excision, Bethe $k$-strings ($k \le 9$), COE repulsion, exact weak autonomous BQP universality ($373$-coll.\ $9$-spin $126$-dim Toffoli, $k = 5$ switch), and light-mass $E = mc^2$ and $1/\gamma$ clocks. & Infrared origin of $m_{\mathrm{eff}} \ll 1$ from bare $m = \pi/3$, 3+1D fermionic statistics, precision SM constants, and finite-seed strong unbounded-loop Turing machines (four obstructions). \\
+Matter, gates \& clocks (Sec.~\ref{sec:composites}) & Compacton no-go, $83.12\%$ $M_{\mathrm{pair}}$ excision, Bethe $k$-strings ($k \le 9$), COE repulsion, exact 3-qubit spin-independent universal exchange-gate synthesis ($373$-step $9$-spin $126$-dim Toffoli, $k = 5$ switch), and deformed $m \to 0$ $E = mc^2$ and $1/\gamma$ clocks. & Infrared origin of $m_{\mathrm{eff}} \ll 1$ from bare $m = \pi/3$, 3+1D fermionic statistics, precision SM constants, $\binom{9}{2} = 36$ ballistic crossing limit, 9-role $n \le 3$ ceiling, and four unbounded-loop obstructions. \\
 \addlinespace[2pt]
-Gauge, subgroups \& 4D $D_4$ gaps (Sec.~\ref{sec:gauge}) & All-body $\mathbb{Z}_2^{24}$ spin-1 obstruction forcing links, single-speed Maxwell--Dirac QCA, static $2T$ chiral wall, native $2T/\Sigma(648)/\mathbb{Z}_{18}$ designs, and strong-coupling 4D $D_4$ $SU(2)/SU(3)$ Wilson gaps past $3\times$ BE. & Continuum limit ($\beta \to \infty$), finite-subgroup freezing, dynamical electroweak breaking, 3+1D $SU(3)_C$ confinement, and bulk-covariant 4D dynamical chiral gauging. \\
+Gauge, subgroups \& 4D $D_4$ gaps (Sec.~\ref{sec:gauge}) & All-body $\mathbb{Z}_2^{24}$ spin-1 obstruction forcing links, single-speed Maxwell--Dirac QCA, static $2T$ chiral wall, native $2T/\Sigma(648)/\mathbb{Z}_{18}$ designs, and strong-coupling 4D $D_4$ $SU(2)/SU(3)$ Wilson gaps ($3.02\times$ BE for $SU(2)$, $2.65\times$ BE / $60.36\times$ KP for $SU(3)$). & Continuum limit ($\beta \to \infty$), finite-subgroup freezing, dynamical electroweak breaking, 3+1D $SU(3)_C$ confinement, and bulk-covariant 4D dynamical chiral gauging. \\
 \addlinespace[2pt]
-Gravity, spin-2, pumping \& dark (Sec.~\ref{sec:gravity}) & Causal $1/r^2$ scalar infall, single-body WEP, passive binding weight, non-tautological redshifts, ghost-free $D_4$-isotropic spin-2 waves, transient $\eta = 1$ husk charge pumping, and auxiliary $\mathbb{H}^4$ cored halos. & Nonlinear Einstein unification ($G_{\mu\nu} = 8\pi G T_{\mu\nu}$), deriving $w(D) = 1/N_D^2$, relativistic two-body WEP, permanent husk trapping ($\Delta B \neq 0$, $\mathcal{CP}$), and bare-$U$ sterile coupling ($3.1 \times 10^{-15}$ null). \\
+Gravity, spin-2, pumping \& dark (Sec.~\ref{sec:gravity}) & Two separate gravitational extensions (causal $1/r^2$ scalar infall, single-body WEP, passive binding weight, and non-tautological redshifts vs.\ ghost-free $D_4$-isotropic spin-2 waves), plus transient $\eta = 1$ husk charge pumping and auxiliary $\mathbb{H}^4$ cored halos. & Nonlinear Einstein unification ($G_{\mu\nu} = 8\pi G T_{\mu\nu}$), deriving $w(D) = 1/N_D^2$, relativistic two-body WEP, permanent husk trapping ($\Delta B \neq 0$, $\mathcal{CP}$), and bare-$U$ sterile coupling ($3.1 \times 10^{-15}$ null). \\
 \addlinespace[2pt]
-Decoherence, Darwinism \& Born (Sec.~\ref{sec:decoherence}) & Live $2.25\times$ Szegedy gap widening, rate-matched ablations, Bell--CHSH decay, Quantum Darwinism plateaus, unique $p = 2$ cyclotomic envariance and 3D Gleason selection, and 27D zero-reset swap tests. & Idealized zero-return swap limit versus bare $U$'s small reflections ($2.92\%$ at $t = 6$), and the operational bridge from $|\psi_k|^2$ weights to single-outcome frequencies. \\
+Decoherence, Darwinism \& Born (Sec.~\ref{sec:decoherence}) & Live $2.25\times$ Szegedy gap widening, rate-matched ablations, Bell--CHSH decay, unique $p = 2$ cyclotomic envariance and 3D Gleason selection, plus Quantum Darwinism plateaus and 27D zero-reset swap tests in reduced open-ray QND models. & Idealized zero-return swap limit versus bare $U$'s small reflections ($2.92\%$ at $t = 6$), and the operational bridge from $|\psi_k|^2$ weights to single-outcome frequencies. \\
 \addlinespace[2pt]
 Multiscale closure \& autonomy (Sec.~\ref{sec:lean-and-open}) & Exact $94.53\%$ boundary theorem, Moore causal-state and MDS quantum operator closure, $\mathbb{Z}_3$ sheaves, restoration floor, Lipschitz error triangles, zero-chattering switching, and abstract recurrent attractors. & Mesh-level compilation of autonomous homeostatic or recurrent agents strictly into bare $U$, and dynamical self-assembly of selective holographic interfaces. \\
 \addlinespace[2pt]
-Formal verification (Sec.~\ref{sec:lean-and-open}) & Zero-dependency Lean~4 kernel proofs across five pillars (geometry/growth, unitarity/envariance, spectral bracket, holographic tensor and all-radius schema, anomalies/axial contraction) plus deterministic archives. & Kernel formalization of measure-theoretic $l^2$/Haar bridges, Depth-5 integer bounds, three-link 4D $D_4$ contraction, and the nine-spin ballistic universality suite. \\
+Formal verification (Sec.~\ref{sec:lean-and-open}) & Zero-dependency Lean~4 kernel proofs across five pillars (geometry/growth, unitarity/envariance, spectral bracket, holographic tensor and all-radius schema, anomalies/axial contraction) plus deterministic archives. & Kernel formalization of measure-theoretic $l^2$/Haar bridges, Depth-5 integer bounds, three-link 4D $D_4$ contraction, and the nine-spin exchange-gate synthesis suite. \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-Viewed cumulatively, one rigid, parameter-free rule over $\mathbb{Z}[\zeta_9][1/6]$ connects non-amenable
-thermodynamics, unique covariant holographic error correction, an integrable bound-state tower alongside level
-repulsion, spin-independent weak autonomous quantum universality, an algebraic proof of gauge-link necessity,
-strong-coupling 4D lattice mass gaps on its partner root lattice, non-tautological gravitational redshifts and
-ghost-free isotropic spin-2 waves in its weak-field extensions, and Quantum Darwinism with unique $p = 2$ branch
-measures. These properties follow without fitted parameters from five interlocked invariants of $\{3,4,3,4\}$: a
-spectral gap above one half, rank-4 $D_4$ isotropy, $W(F_4)$ triality, one-sided cusp antipodal pairing, and exact
-cyclotomic unitarity.
+Viewed cumulatively, the bare rule over $\mathbb{Z}[\zeta_9][1/6]$ and the controlled extensions built on its lattice
+geometry connect non-amenable thermodynamics, unique covariant holographic error correction, an integrable bound-state
+tower alongside level repulsion, exact 3-qubit spin-independent universal exchange-gate synthesis, an algebraic proof of
+gauge-link necessity, strong-coupling 4D lattice mass gaps on its partner root lattice, non-tautological gravitational
+redshifts and ghost-free isotropic spin-2 waves in two separate weak-field extensions, and unique $p = 2$ branch
+measures alongside Quantum Darwinism in reduced open-ray models. Across the bare automaton and the extensions anchored
+to its geometry, these results are organized by five interlocked invariants of $\{3,4,3,4\}$: a spectral gap above one
+half, rank-4 $D_4$ isotropy, $W(F_4)$ triality, one-sided cusp antipodal pairing, and exact cyclotomic unitarity, with
+explicit auxiliary parameters ($m$, matched Maxwell weights, $w(D) = 1/N_D^2$, $\beta$) kept strictly within the
+extensions where they enter.
+
+These five invariants interlock across domains rather than acting as isolated structural features. The non-amenable
+spectral gap $\lambda_{\mathrm{gap}} > 1/2$ sets the bulk Landauer export ceiling ($h\Delta \ge 36.30$ nats/dock/beat)
+while driving the $2.25\times$ Szegedy gap widening that suppresses backflow and stabilizes Markovian pointer records in
+open-ray channels. Rank-4 $D_4$ isotropy cancels leading quadrupolar lattice anisotropy on the partner root lattice,
+governing both ghost-free isotropic spin-2 wave propagation in the linearized gravitational extension and the three-link
+triangular Yang--Mills wedge contractions that extend rigorous strong-coupling 4D $SU(2)$ and $SU(3)$ Wilson mass-gap
+radii. The $W(F_4)$ triality group acts as a simultaneous selection and exclusion principle, uniquely fixing the
+covariant $[[24, 1, 8]]_3$ holographic code tensor while enforcing the all-body $\mathbb{Z}_2^{24}$ parity barrier that
+forbids bare massless spin-1 composites and requires explicit gauge links. One-sided cusp antipodal pairing likewise
+produces paired geometric consequences, enabling transient $\eta = 1$ husk charge separation during scattering while
+confining deep-bulk neutral pairs to the $3.1 \times 10^{-15}$ sterile coupling floor. Finally, exact cyclotomic
+unitarity over $\mathbb{Z}[\zeta_9][1/6]$ guarantees microscopic reversibility and unique $p = 2$ envariance branch
+weights, yet fixes bare excitations at the heavy cutoff mass $m = \pi/3$ so relativistic $E = mc^2$ clocks remain
+inaccessible without an infrared mass-lowering mechanism.
 
 Every unclosed frontier in Table~\ref{tab:master-scorecard} is equally sharp, quantitative, and falsifiable. Bare $U$
 sits at cutoff mass $m = \pi/3$, exits the static holographic code in one beat, forbids massless spin-1 composites by
@@ -188,61 +193,50 @@ emerge at longer scales, or be supplied explicitly, to reach continuum physics.
 Six sharply bounded open problems lie beyond the theorems certified in this paper, each testing whether this discrete
 substrate scales to continuum physics.
 
-\textbf{Continuum 4D Yang--Mills limit ($a \to 0$):} Section~\ref{sec:gauge}'s strong-coupling 4D $D_4$ mass gaps
-($\beta_* = 0.285141$ for $SU(2)$ and $0.563019$ for $SU(3)$) hold strictly inside the strong-coupling regime. Crossing
-toward $\beta \to \infty$ requires multi-scale renormalization group control \cite{balaban1989}, while $2T$ and
-$\Sigma(648)$ face weak-coupling freezing transitions. Strong-coupling contraction certifies exponential decay only at
-lattice-scale correlation lengths, whereas continuum Yang--Mills theory requires diverging correlation length at fixed
-physical mass. Testing whether $D_4$'s rank-4 isotropy tightens multi-scale block-spin bounds and whether native
-subgroups admit any non-freezing crossover decides if the 24-cell's gauge geometry survives the continuum limit.
+\textbf{Continuum 4D Yang--Mills limit ($a \to 0$):} Extending the strong-coupling 4D $D_4$ Wilson mass gaps
+($\beta_* = 0.285141$ for $SU(2)$ and $0.563019$ for $SU(3)$) toward $\beta \to \infty$ requires multi-scale
+renormalization group control \cite{balaban1989}, since strong-coupling contraction certifies exponential decay only at
+lattice-scale correlation lengths rather than diverging correlation length at fixed physical mass. Establishing whether
+$D_4$ isotropy tightens multi-scale block-spin bounds and whether native subgroups ($2T$, $\Sigma(648)$) admit any
+non-freezing crossover decides whether the 24-cell's gauge geometry survives the continuum limit.
 
-\textbf{Dynamical electroweak breaking and 4D chiral gauging:} Section~\ref{sec:gauge} certifies static background
-$2T < SU(2)_L$ domain-wall kinematics and algebraic anomaly checks on input one-generation chiral matter, while deriving
-chiral representations, dynamical Higgs condensation ($m_W / m_Z = \cos\theta_W$), Yukawa masses, dynamical 3+1D
-$SU(3)_C$ confinement, and bulk-covariant four-dimensional chiral gauging with mirror symmetric mass generation remain
-open. Promoting static cusp-wall fluxes to dynamical four-dimensional gauge links confronts mirror-fermion doubling on
-the deep bulk wall directly. A non-perturbative mirror-gapping mechanism preserving local gauge invariance and
-spontaneous symmetry breaking is the decisive test of whether these building blocks unify into one chiral gauge
-automaton.
+\textbf{Dynamical electroweak breaking and 4D chiral gauging:} Deriving chiral matter representations, dynamical Higgs
+condensation ($m_W / m_Z = \cos\theta_W$), Yukawa masses, dynamical 3+1D $SU(3)_C$ confinement, and bulk-covariant
+four-dimensional chiral gauging beyond static $2T < SU(2)_L$ background walls remains open. Promoting cusp-wall fluxes
+to dynamical four-dimensional gauge links confronts mirror-fermion doubling on the deep bulk wall directly. Constructing
+a non-perturbative mirror-gapping mechanism that preserves local gauge invariance and spontaneous symmetry breaking is
+the sharp test of whether these building blocks unify into one chiral gauge automaton.
 
-\textbf{Nonlinear 4D quantum gravity, dark-sector coupling, and permanent charge asymmetry:} Section~\ref{sec:gravity}
-treats causal scalar backreaction with assumed $w(D) = 1/N_D^2$, vacuum linearized $D_4$-isotropic spin-2 waves,
-kinematic LLY curvature, and transient bare-$U$ charge pumping separately. Unifying scalar backreaction with nonlinear
-Einstein dynamics ($G_{\mu\nu} = 8\pi G T_{\mu\nu}$), deriving $w(D)$ from bare $U$, restoring relativistic two-body
-bound-state WEP, overcoming bare $U$'s exact $3.1 \times 10^{-15}$ sterile dark-sector null, and achieving permanent
-husk trapping with $\Delta B \neq 0$ and dynamical $\mathcal{CP}$ breaking remain open. Weak-field lapse infall and
-linearized gravitons probe separate metric limits, whereas relativistic gravity couples stress-energy nonlinearly to
-curvature and equates inertial and passive mass for bound composites. Deriving bulk localization, sterile gravitational
-visibility, and permanent husk trapping from unitary evolution tests whether gravity and dark-sector phenomenology arise
-natively on $\{3,4,3,4\}$.
+\textbf{Nonlinear 4D quantum gravity, dark-sector coupling, and permanent charge asymmetry:} Unifying scalar
+backreaction with nonlinear Einstein dynamics ($G_{\mu\nu} = 8\pi G T_{\mu\nu}$), deriving $w(D) = 1/N_D^2$ from bare
+$U$, restoring relativistic two-body bound-state WEP, overcoming the exact $3.1 \times 10^{-15}$ sterile dark-sector
+null, and achieving permanent husk trapping with $\Delta B \neq 0$ and dynamical $\mathcal{CP}$ breaking remain open.
+Weak-field lapse infall and linearized gravitons probe separate metric limits, whereas relativistic gravity couples
+stress-energy nonlinearly to curvature and equates inertial and passive mass for bound composites. Deriving bulk
+localization, sterile gravitational visibility, and permanent husk trapping from unitary evolution tests whether gravity
+and dark-sector phenomenology arise natively on $\{3,4,3,4\}$.
 
-\textbf{Light mass generation, strong unbounded-loop computability, and mesh-level compilation:}
-Section~\ref{sec:composites} shows that $E = mc^2$ and sub-$1\%$ $1/\gamma$ clocks emerge once $m_{\mathrm{eff}} \ll 1$,
-whereas bare $U$ sits at $m = \pi/3$. It also proves that bare $U$ is exact weak autonomous BQP universal without
-external clocks via a spin-independent $373$-collision nine-spin Toffoli gate on the $126$-dimensional Hilbert space
-($M_{\mathrm{pair}} = I$ across nine distinct roles, plus $k = 5$ cross-line switching), while proving four exact
-obstructions blocking finite-seed static-track Turing loops \cite{pollard2026railway}. Deriving an infrared mechanism for
-$m_{\mathrm{eff}} \ll 1$ and 3+1D fermionic statistics, testing whether high-density ($k \ge 5$) self-confining
-waveguides or gauge links bypass the four railway obstructions for unbounded loops, and compiling abstract recurrent
-agents down to bare $U$ remain open. Crossing this infrared and confinement barrier separates fixed-depth ballistic
-scattering from long-lived composite matter and unbounded computation on the infinite mesh.
+\textbf{Light mass generation, autonomous universality, and mesh-level compilation:} Generating an infrared mass scale
+$m_{\mathrm{eff}} \ll 1$ from bare $m = \pi/3$ alongside 3+1D fermionic statistics remains open. Past exact 3-qubit
+exchange-gate synthesis on $\mathbb{C}^{126}$, three computational frontiers remain inside bare $U$: exceeding the
+$\binom{9}{2} = 36$ single-pass ballistic crossing limit, scaling past nine internal roles ($n \le 3$ DFS qubits)
+without cross-line $M_{\mathrm{pair}}$ leakage, and bypassing the four unbounded-loop obstructions
+\cite{pollard2026railway} (for example via high-density $k \ge 5$ waveguides or gauge links) or compiling recurrent
+agents strictly into bare $U$. Crossing this infrared and confinement barrier separates fixed-depth ballistic scattering
+from long-lived composite matter and unbounded computation on the infinite mesh.
 
-\textbf{Precision Standard Model constants and the vacuum-energy gap:} Section~\ref{sec:composites}'s $2{,}801$-base
-null audit shows that $\{3,4,3,4\}$'s Steinberg warp compresses five decades of fermion mass ratios only at order unity
-once depths are fixed externally, without reproducing Koide's $10^{-5}$ precision, deriving $\alpha(0) = 1/137.036$,
-fixing $\Omega_c / \Omega_b$ dynamically, or closing the 61-decade Hubble and $122$-decade cosmological constant gap
-\cite{weinberg1989}. Exponential trees accommodate multi-decade scales post hoc whenever integer depths are chosen by
-hand, as the rival-base audit proves. A predictive continuum theory must derive bulk depths, dimensionless couplings,
-and infrared vacuum-energy cancellation dynamically without free tuning.
+\textbf{Precision Standard Model constants and the vacuum-energy gap:} Reproducing Koide's $10^{-5}$ lepton-mass
+precision, deriving $\alpha(0) = 1/137.036$, fixing $\Omega_c / \Omega_b$ dynamically, and closing the 61-decade Hubble
+and $122$-decade cosmological constant gap \cite{weinberg1989} remain open. Because exponential trees accommodate
+multi-decade ratios post hoc whenever integer depths are assigned externally, a predictive continuum theory must derive
+bulk depths, dimensionless couplings, and infrared vacuum-energy cancellation dynamically without free tuning.
 
-\textbf{Operational Born bridge:} Section~\ref{sec:decoherence} restricts any consistent branch measure uniquely to
-$p = 2$ via exact cyclotomic envariance and three-dimensional Gleason non-contextuality, while showing that idealized
-outward export enforces strict Markovianity where trapped and 1D baths fail. Within pure linear unitarity on the fixed
-honeycomb, the operational bridge linking squared weights $|\psi_k|^2$ to single-outcome empirical frequencies remains
-an explicit interpretive postulate. Hyperbolic geometry provides monotonic decoherence, redundant classical records, and
-a unique quadratic measure, yet linear superposition alone does not select one realized outcome per run. Clarifying
-whether single-outcome statistics require a dynamical collapse extension, a typicality postulate, or an observer-level
-axiom marks the boundary between unitary honeycomb dynamics and laboratory measurement.
+\textbf{Operational Born bridge:} Within pure linear unitarity on the fixed honeycomb, the operational bridge linking
+squared weights $|\psi_k|^2$ to single-outcome empirical frequencies remains an explicit interpretive postulate. Even
+with monotonic hyperbolic decoherence, redundant classical records, and a unique quadratic branch measure ($p = 2$),
+linear superposition alone does not select one realized outcome per run. Clarifying whether single-outcome statistics
+require a dynamical collapse extension, a typicality postulate, or an observer-level axiom marks the boundary between
+unitary honeycomb dynamics and laboratory measurement.
 
 \paragraph{Acknowledgments and computational tooling.}
 The author thanks the open-source Lean~4 community for a fast, self-contained proof kernel enabling zero-dependency
