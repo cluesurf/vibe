@@ -2,17 +2,18 @@
 \label{sec:holography}
 
 Does the 24-cell's own Weyl symmetry group $W(F_4)$ support a high-distance ternary holographic tensor that tiles the
-entire $\{3,4,3,4\}$ honeycomb into an exact bulk-to-boundary isometry \cite{pastawski2015happy}? And if so, how does
-the bare eight-layer automaton $U$ interact with that code, and what does the resulting shell tower imply about
-continuum fields and infinite subdivision? Here we resolve the ternary covariant tensor classification completely
-(Tier~A), construct the all-radius holographic network and its dynamical bridge (Tier~A/B), and show how transverse
-bulk-depth subdivision resolves Zeno's supertask paradox.
+entire $\{3,4,3,4\}$ honeycomb into an exact bulk-to-boundary isometry \cite{pastawski2015happy}? Understanding how
+hyperbolic geometry protects bulk quantum information on its boundary matters both for discrete holography and for
+explaining how continuous fields can emerge from a rigid lattice. Here we resolve the native ternary covariant tensor
+classification completely, construct the all-radius holographic network and its dynamical bridge to the bare automaton
+(distinguishing bare-$U$ behavior from symmetry-twisted Clifford extensions), and show how transverse bulk-depth
+subdivision resolves Zeno's supertask dilemma.
 
 \subsection{Unique covariant ternary holographic tensor}
 
 Each dock holds 24 qutrit legs indexed by the $D_4$ roots, spanning a 48-dimensional symplectic space over
 $\mathrm{GF}(3)$ that splits under $W(F_4)$ into three parity and representation blocks $U_3 \oplus U_9 \oplus V_-$.
-Exhaustive modular and symplectic classification establishes three sharp tiers of coding power (Tier~A):
+Exhaustive modular and symplectic classification on the bare 24-cell establishes three sharp levels of coding power:
 \begin{itemize}
 \item \textbf{Classical and CSS obstruction:} Every projective monomial lift of $W(F_4)$ over $\mathrm{GF}(3)$ is
 gauge-equivalent to pure global signs $\pm P_g$, and only four of the 32 $\mathrm{GF}(3)[W(F_4)]$-submodules are
@@ -47,19 +48,22 @@ on every internal edge yields an exact, $[3,4,3,4]$-covariant all-radius bulk-to
 $V_R : (\mathbb{C}^3)^{\otimes |B_R|} \to (\mathbb{C}^3)^{\otimes |\partial B_R|}$ ($V_R^\dagger V_R = I$, zero overlap
 defect for all $R \ge 0$).
 
-Four geometric and information-theoretic properties follow directly from this contraction (Tier~A):
+Four exact geometric and information-theoretic properties follow directly from this contraction:
 \begin{itemize}
 \item \textbf{Algebraic encoding rate:} Alternating bipartite boundary sizes $n_R = 24 |S_R| - n_{R-1}$ yield an exact
-asymptotic bulk-to-boundary rate $r_\infty = \lim_{R\to\infty} |B_R|/|\partial B_R| = (\lambda + 1)/(24(\lambda - 1)) =
-0.0464895582$, where $u = 24 r_\infty$ solves the depressed cubic
+asymptotic bulk-to-boundary rate $r_\infty = \lim_{R\to\infty} |B_R|/|\partial B_R|$ whose rescaled value
+$u = 24 r_\infty$ solves a depressed cubic:
 \begin{equation}
+r_\infty = \frac{\lambda + 1}{24(\lambda - 1)} = 0.046490,
+\qquad
 u^3 - 12 u + 12 = 0.
 \label{eq:happy-cubic}
 \end{equation}
 \item \textbf{Radial distance amplification:} Direct bit-sliced $\mathrm{GF}(3)$ contraction of the radius-1 ball
-produces $B_1 = [[552, 25, 40]]_3$ with full $W(F_4)$ covariance (whereas naive non-alternating $T_+/T_+$ gluing breaks
-triality). Because every single-leg Pauli pushes through $T_-$ with minimum weight $5$, deep-bulk distance amplifies
-fivefold in one shell ($d^{(0)}(B_1) = 40$, sharp erasure threshold at $|E| = 39$ vs.\ $40$). On $B_2$, exact
+produces $B_1 = [[552, 25, 8]]_3$ with full $W(F_4)$ covariance (global distance $d = 8$ set by peripheral shell-1 bulk
+qutrits, whereas naive non-alternating $T_+/T_+$ gluing breaks triality). Because every single-leg Pauli pushes through
+$T_-$ with minimum weight $5$, deep-bulk distance amplifies fivefold in one shell, giving the central origin bulk qutrit
+exact logical distance $d^{(0)}(B_1) = 40$ (sharp erasure threshold at $|E| = 39$ vs.\ $40$). On $B_2$, exact
 $\Gamma_{24}$ induced-edge bounds certify $d^{(0)}(B_2) \ge 98$, paired with explicit zero-leakage pushed origin
 logicals of weight $204$ ($Z_L$) and $205$ ($X_L$). Greedy wedge reconstruction recovers 100\% of bulk qutrits on $B_2$
 and $B_3$ under uniform boundary erasure up to $p_{\mathrm{greedy}}^\infty = (5\lambda - 19)/(24\lambda) = 16.50\%$,
@@ -87,7 +91,7 @@ symmetric and antisymmetric 12-qutrit blocks, enabling exact evaluation of code 
 $p_{\mathrm{code}}(L) = \frac{1}{3}\operatorname{Tr}(P_{\mathrm{code}} L P_{\mathrm{code}} L^\dagger)$ across the full
 $3^{24}$-dimensional dock Hilbert space (Table~\ref{tab:holo-bridge}).
 
-Two sharp surprises emerge (Tier~A). First, because stabilizer $Z^{\otimes 24} = +1$ forbids $Q \equiv \pm 2 \pmod 3$,
+Two sharp surprises emerge for the bare automaton. First, because stabilizer $Z^{\otimes 24} = +1$ forbids $Q \equiv \pm 2 \pmod 3$,
 the 12-line pair mixer $M_{\mathrm{pair}}(\zeta_{18})$ acts as the \textbf{exact identity} on the $+1$ code subspace
 ($p_{\mathrm{code}} = 1$). Every other interacting bare layer ($D, K, M_{\mathrm{meet}}, L_4 = D M_{\mathrm{meet}} K D$,
 and $\Phi_{\mathrm{odd}}$) is strictly non-Clifford and leaks $94.70\%$ to $99.999\%$ out of $P_{\mathrm{code}}$ in one
@@ -100,7 +104,7 @@ quantum shield} with single-cone degradation threshold at $r = 4$ lines.
 \begin{table}[htbp]
 \centering
 \caption{Exact $3^{24}$-dimensional bare-$U$ code survival, covariant Clifford classification, and intertwining
-holographic QCAs on $[[24, 1, 8]]_3$ and $B_1 = [[552, 25, 40]]_3$ (Tier~A/B).}
+holographic QCAs on $[[24, 1, 8]]_3$ and $B_1 = [[552, 25, 8]]_3$ ($d^{(0)} = 40$).}
 \label{tab:holo-bridge}
 \small
 \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.55cm}>{\raggedright\arraybackslash}p{2.55cm}>{\raggedright\arraybackslash}X@{}}
@@ -121,7 +125,7 @@ Exhaustive $\mathrm{GF}(3)$ endomorphism classification explains why bare $U$'s 
 UV code-preserving Cliffords. Every $(N, Q)$-conserving 24-qutrit Clifford is strictly monomial $P_\pi U_q$ with zero
 computational-basis hopping: under untwisted $W(F_4)$ there are $1{,}458$ elements ($162$ preserving $S_{\mathrm{bulk}}$,
 $108$ inducing order-3 logical phase $C_3$), whereas twisted $S_3$-triality collapses this intersection to $\{I, R\}$.
-Inside the symmetry-twisted Clifford sector (Tier~B), zero single-edge $W(F_4)$-covariant entangling gates exist
+Extending to the symmetry-twisted Clifford sector, zero single-edge $W(F_4)$-covariant entangling gates exist
 ($0/81$), yet coordination number $24 \equiv 0 \pmod 3$ cancels the $\det(K) = -1$ obstruction and unlocks an exact
 order-3 full-$W(F_4)$ bulk star QCA $U_{\mathrm{star}}$ on $B_1$ lifting to $\mathrm{Sp}(1104, 3)$ with zero leakage
 and generating genuine 25-qutrit GHZ entanglement on $|+\rangle_0 |0\rangle^{\otimes 24}$. Restricting to pure unitary
@@ -134,11 +138,14 @@ black-hole screening ($k = 4\text{--}7$) and strict $I_{\mathrm{vac}Z} < I_{M_1}
 
 \subsection{Transverse subdivision and continuum bridges}
 
-Infinite discrete space $\{3,4,3,4\}$ exists all at once as the algebraic Coxeter orbit $M = \operatorname{colim}_r B_r$
-rather than by sequential manufacture. Remarkably, the hyperbolic bulk supplies the exact dual construction for an
-infinitely subdividable continuum field without ever splitting a 24-cell (Figure~\ref{fig:zeno-subdivision}). Each step
-deeper in bulk depth $D$ keeps every 24-cell at fixed unit size in $\mathbb{H}^4$ while shrinking its projected boundary
-cone diameter on the ideal 3D cusp $\mathbb{R}^3$ by $a_1^{-D} = \lambda^{-D/3} \to 0$.
+Since Zeno of Elea, discrete models of space have faced an apparent dilemma: either space terminates at a rigid pixel
+floor that breaks continuous wave equations, or infinite subdivision is placed along the line of travel, forcing a
+moving particle to cross infinitely many sub-steps in finite time (a Zeno supertask). The hyperbolic bulk of
+$\{3,4,3,4\}$ resolves this dilemma geometrically by separating motion and subdivision into orthogonal directions
+(Figure~\ref{fig:zeno-subdivision}). Infinite discrete space exists all at once as the algebraic Coxeter orbit
+$M = \operatorname{colim}_r B_r$ rather than by sequential manufacture. Each step deeper in bulk depth $D$ keeps every
+24-cell at fixed unit size in $\mathbb{H}^4$ while shrinking its projected boundary cone diameter on the ideal 3D cusp
+$\mathbb{R}^3$ by $a_1^{-D} = \lambda^{-D/3} \to 0$.
 
 This geometry eliminates the physical ultraviolet tension behind Zeno's supertask paradox. Longitudinal motion from $A$
 to $B$ never traverses infinitely many infinitesimal points: every beat of $U$ is a strictly finite one-hop facet swap
@@ -173,53 +180,54 @@ bare $U$: do they localize, scatter chaotically, or form relativistic composite 
 \centering
 \begin{tikzpicture}[
   font=\footnotesize,
-  arr/.style={-{Stealth[length=4.2pt]}, line width=0.8pt},
+  arr/.style={-{Stealth[length=4.0pt]}, line width=0.8pt},
   box/.style={draw=twZincRule, line width=0.55pt, fill=white, align=left, inner sep=5pt}
 ]
-% Boundary line (Ideal cusp R^3)
-\draw[line width=0.95pt, draw=twZincInk] (0.0,3.15) -- (8.0,3.15);
-\node[above, font=\scriptsize\bfseries, color=twZincInk] at (4.0,3.18) {Ideal 3D boundary $\mathbb{R}^3 = \partial\mathbb{H}^4$: continuum colimit $\mathcal{H}_\infty = \overline{\operatorname{colim}_D \mathcal{H}_D}$};
+% Ideal 3D cusp boundary
+\draw[line width=0.95pt, draw=twZincInk] (0.0,3.45) -- (7.4,3.45);
+\node[above, font=\scriptsize\bfseries, color=twZincInk] at (3.7,3.48) {Ideal 3D boundary $\mathbb{R}^3 = \partial\mathbb{H}^4$: colimit $\mathcal{H}_\infty = \overline{\operatorname{colim}_D \mathcal{H}_D}$};
 
 % Horizontal depth slices
-\draw[line width=0.6pt, draw=twZincInk!70] (0.2,2.35) -- (7.8,2.35);
-\draw[line width=0.5pt, dashed, draw=twZincRule] (0.2,1.50) -- (7.8,1.50);
-\draw[line width=0.5pt, dashed, draw=twZincRule] (0.2,0.65) -- (7.8,0.65);
+\draw[line width=0.6pt, draw=twZincInk!70] (0.2,2.55) -- (7.2,2.55);
+\draw[line width=0.5pt, dashed, draw=twZincRule] (0.2,1.60) -- (7.2,1.60);
+\draw[line width=0.5pt, dashed, draw=twZincRule] (0.2,0.65) -- (7.2,0.65);
 
-\node[left, font=\scriptsize\bfseries, color=twZincInk] at (0.15,2.35) {$D = 0$};
-\node[left, font=\scriptsize, color=twZinc] at (0.15,1.50) {$D = 1$};
+\node[left, font=\scriptsize\bfseries, color=twZincInk] at (0.15,2.55) {$D = 0$};
+\node[left, font=\scriptsize, color=twZinc] at (0.15,1.60) {$D = 1$};
 \node[left, font=\scriptsize, color=twZinc] at (0.15,0.65) {$D = 2$};
 
-% Shaded cone of shrinking boundary width a_1^{-D}
-\fill[twZincTint] (4.0,3.15) -- (2.85,2.35) -- (5.15,2.35) -- cycle;
-\draw[line width=0.6pt, dotted, draw=twViolet] (4.0,3.15) -- (2.85,2.35);
-\draw[line width=0.6pt, dotted, draw=twViolet] (4.0,3.15) -- (5.15,2.35);
-\draw[line width=0.6pt, dotted, draw=twViolet] (4.0,3.15) -- (3.58,1.50);
-\draw[line width=0.6pt, dotted, draw=twViolet] (4.0,3.15) -- (4.42,1.50);
+% Shaded cone of shrinking boundary width a_1^{-D} (anchored on right column x = 6.2)
+\fill[twZincTint] (6.2,3.45) -- (5.30,2.55) -- (7.10,2.55) -- cycle;
+\draw[line width=0.6pt, dotted, draw=twViolet] (6.2,3.45) -- (5.30,2.55);
+\draw[line width=0.6pt, dotted, draw=twViolet] (6.2,3.45) -- (7.10,2.55);
+\draw[line width=0.6pt, dotted, draw=twViolet] (6.2,3.45) -- (5.85,1.60);
+\draw[line width=0.6pt, dotted, draw=twViolet] (6.2,3.45) -- (6.55,1.60);
 
-% Longitudinal finite-hop motion along finite depth D_* = 1
-\foreach \x in {1.2, 2.6, 4.0, 5.4, 6.8} {
-  \fill[twBlue] (\x,1.50) circle (2.2pt);
+% Longitudinal finite-hop motion along finite depth D_* = 1 (x = 0.8 to 4.8)
+\foreach \x in {0.8, 1.8, 2.8, 3.8, 4.8} {
+  \fill[twBlue] (\x,1.60) circle (2.2pt);
 }
-\draw[arr, draw=twBlue] (1.32,1.50) -- (2.48,1.50);
-\draw[arr, draw=twBlue] (2.72,1.50) -- (3.88,1.50);
-\draw[arr, draw=twBlue] (4.12,1.50) -- (5.28,1.50);
-\draw[arr, draw=twBlue] (5.52,1.50) -- (6.68,1.50);
-\node[below=2pt, font=\scriptsize\bfseries, color=twBlue] at (1.2,1.45) {$A$};
-\node[below=2pt, font=\scriptsize\bfseries, color=twBlue] at (6.8,1.45) {$B$};
-\node[below=3pt, font=\scriptsize, color=twBlue] at (4.0,1.38) {Longitudinal motion: finite 1-hop stream $S$ at finite $D_*$};
+\draw[arr, draw=twBlue] (0.92,1.60) -- (1.68,1.60);
+\draw[arr, draw=twBlue] (1.92,1.60) -- (2.68,1.60);
+\draw[arr, draw=twBlue] (2.92,1.60) -- (3.68,1.60);
+\draw[arr, draw=twBlue] (3.92,1.60) -- (4.68,1.60);
+\node[below=2pt, font=\scriptsize\bfseries, color=twBlue] at (0.8,1.54) {$A$};
+\node[below=2pt, font=\scriptsize\bfseries, color=twBlue] at (4.8,1.54) {$B$};
+\node[below=10pt, font=\scriptsize, color=twBlue] at (2.8,1.50) {Longitudinal: finite 1-hop stream $S$ at finite $D_*$};
 
 % Coarse RT bulk shortcut arc through D=0
-\draw[arr, densely dashed, draw=twEmerald] (1.2,1.62) to[bend left=24] node[above=1pt, font=\scriptsize, color=twEmerald] {coarse bulk arc $O(\log d)$} (6.8,1.62);
+\draw[arr, densely dashed, draw=twEmerald] (0.8,1.72) to[bend left=20] node[above=1pt, font=\scriptsize, color=twEmerald, fill=white, inner sep=1pt] {coarse bulk arc $O(\log d)$} (4.8,1.72);
 
-% Transverse isometric refinement arrow
-\draw[arr, draw=twViolet, line width=1.0pt] (4.0,2.25) -- node[right=2pt, font=\scriptsize\bfseries, color=twViolet] {$V_0$} (4.0,1.60);
-\draw[arr, draw=twViolet, line width=1.0pt] (4.0,1.40) -- node[right=2pt, font=\scriptsize\bfseries, color=twViolet] {$V_1$} (4.0,0.75);
-\fill[twViolet] (4.0,2.35) circle (2.2pt);
-\fill[twViolet] (4.0,0.65) circle (2.2pt);
-\node[below=2pt, font=\scriptsize, color=twViolet] at (4.0,0.58) {Transverse depth $D \to \infty$: resolution $a_1^{-D} \to 0$};
+% Transverse isometric refinement arrow on right side (x = 6.2)
+\draw[arr, draw=twViolet, line width=1.0pt] (6.2,2.45) -- node[right=2pt, font=\scriptsize\bfseries, color=twViolet] {$V_0$} (6.2,1.70);
+\draw[arr, draw=twViolet, line width=1.0pt] (6.2,1.50) -- node[right=2pt, font=\scriptsize\bfseries, color=twViolet] {$V_1$} (6.2,0.75);
+\fill[twViolet] (6.2,2.55) circle (2.2pt);
+\fill[twViolet] (6.2,1.60) circle (2.2pt);
+\fill[twViolet] (6.2,0.65) circle (2.2pt);
+\node[below=3pt, font=\scriptsize, color=twViolet] at (4.0,0.58) {Transverse depth $D \to \infty$: boundary resolution $a_1^{-D} \to 0$};
 
-% Right summary card
-\node[box, text width=5.25cm] (card) at (11.15,1.82) {%
+% Right summary card (cleanly separated from diagram)
+\node[box, text width=5.15cm] (card) at (10.75,1.95) {%
   {\bfseries\color{twZincInk} Resolution of Zeno's Supertask}\\[3pt]
   $\bullet$ {\color{twBlue}\bfseries Longitudinal ($A \to B$):} finite 24-cell hops via $S$ ($c = 1$), zero infinitesimal steps\\[2pt]
   $\bullet$ {\color{twViolet}\bfseries Transverse ($D \to \infty$):} exact HaPPY isometries $V_D^\dagger V_D = I$, width $a_1^{-D}$\\[2pt]

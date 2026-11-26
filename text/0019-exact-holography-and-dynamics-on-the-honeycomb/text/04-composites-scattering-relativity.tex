@@ -4,16 +4,19 @@
 When multiple excitations collide under the bare beat $U$ over $\mathbb{Z}[\zeta_9][1/6]$, can they lock into localized
 four-dimensional breathers, or does hyperbolic curvature disperse them? And if bound states do form, can they scatter
 chaotically, mediate entangling gates, and obey relativistic kinematics such as $E = mc^2$ and $1/\gamma$ time dilation?
-We answer these questions across four regimes: an unconditional no-go theorem forbidding compactons, a spectral excision
-proof dissolving isotropic pair bound states into Feshbach resonances, an exact integrable collinear composite tower with
-closed-form dispersion, and a sharp separation between lattice-heavy bare clocks and the relativistic light-mass limit.
+This is the core dynamical test of any discrete automaton: whether local unitary gates can assemble stable composite
+matter and relativistic clocks rather than featureless dispersion. We answer these questions across four regimes: an
+unconditional no-go theorem forbidding compactons, a spectral excision proof dissolving isotropic pair bound states into
+Feshbach resonances, an exact integrable collinear composite tower with closed-form dispersion, and a sharp separation
+between lattice-heavy bare clocks and the relativistic light-mass limit.
 
 \subsection{Ballistic expansion and hyperbolic gap excision}
 
 Intuitively, a strictly localized excitation on a curved hyperbolic graph always sits on an outer shell whose outward
 facets outnumber its inward facets by at least seven to one. Every time the local half-coin splits amplitude across an
 antipodal line, a strictly positive fraction leaks outward into untouched shells, making finite-support recurrence
-impossible. This geometric intuition yields a sharp all-body no-go theorem (Tier~A, machine-checked in Lean~4):
+impossible. This geometric intuition yields a sharp all-body no-go theorem for the bare automaton (machine-checked in
+Lean~4):
 
 \begin{theorem}[Unconditional Compacton No-Go on $\{3,4,3,4\}$]
 \label{thm:compacton-nogo}
@@ -40,7 +43,7 @@ M(t + 1) \ge 6\, M(t) - M(t - 1),
 ruling out finite-support breathers unconditionally.
 
 Relaxing finite support to square-integrable $l^2$ wavefunctions exposes a dramatic contrast between isotropic pair
-mixing $M_{\mathrm{pair}}(\zeta_{18})$ and collinear contact scattering $M_{\mathrm{meet}}$ (Tier~A). On the
+mixing $M_{\mathrm{pair}}(\zeta_{18})$ and collinear contact scattering $M_{\mathrm{meet}}$ inside bare $U$. On the
 identical-tone two-body sector, $U$ factorizes as $U_{\mathrm{dec}} \circ M_{\mathrm{pair}}(\zeta_{18})$, reducing
 bound-state existence on the infinite four-dimensional honeycomb to a scalar Birman--Schwinger equation on
 $l^2(V(\{3,4,3,4\}))$:
@@ -108,7 +111,7 @@ at least $5.17 \times 10^{-5}$) dissociates anywhere on $(-\pi, \pi)$.
 \begin{table}[htbp]
 \centering
 \caption{Exact collinear $\mathrm{Sym}^k$ composite bound-state tower of the bare automaton ($m = \pi/3$,
-$\phi_{\mathrm{meet}} = 2\pi/3$) on infinite $\{3,4,3,4\}$ (Tier~A).}
+$\phi_{\mathrm{meet}} = 2\pi/3$) on infinite $\{3,4,3,4\}$.}
 \label{tab:composite-tower}
 \footnotesize
 \begin{tabularx}{\textwidth}{@{}>{\centering\arraybackslash}p{0.45cm}>{\raggedright\arraybackslash}p{1.65cm}>{\raggedright\arraybackslash}p{2.25cm}>{\raggedright\arraybackslash}p{1.65cm}>{\centering\arraybackslash}p{1.15cm}>{\raggedright\arraybackslash}p{2.10cm}>{\raggedright\arraybackslash}X@{}}
@@ -135,7 +138,7 @@ $0.5307$ rather than integrable Poisson statistics $0.3863$. On the full four-di
 of per-line parity $N_a \bmod 2$ forces $M_{\mathrm{pair}}$ and $\Phi_{\mathrm{odd}}$ to be mutually exclusive at
 $k = 4$, first coexisting at $k = 5 = 2 + 1 + 1 + 1$ (confirmed in exact integer arithmetic across $3{,}072$ branches).
 
-Within the collinear sector, composite collisions realize native entangling gates (Tier~A). Colliding a momentum-$p_*$
+Within the collinear sector, bare-$U$ composite collisions realize native entangling gates. Colliding a momentum-$p_*$
 pulse ($p_* = -\arctan(6\sqrt{3}/5)$) with a stationary doublon on $\mathrm{Sym}^3$ imparts a controlled-$\pi$ phase
 ($\Delta\phi_{\mathrm{CZ}} = 0.99943\pi$, transmission $98.84\%$, breakup $0.23\%$, Wigner fidelity $0.9445$). For
 separable distinct-role inputs $|(0,1)_{\mathrm{Sym}}\rangle \otimes |(2)\rangle$, exact Yang fusion implements a
@@ -167,7 +170,7 @@ $R_2 = m_{2,\mathrm{inert}} / \Omega_2(0) = 7.1406 \neq 1$.
 
 Yet the contact interaction $4 n_+ n_-$ inside $M_{\mathrm{meet}}$ is mathematically a discrete Floquet massive Thirring
 model \cite{thirring1958}. Holding the bare phase $\phi_{\mathrm{meet}} = 2\pi/3$ fixed while lowering only the coin
-mass $m \to 0$ (Tier~B continuum scaling) restores exact Einstein relativity cleanly: at $m = 0.025$, quasienergy binding
+mass $m \to 0$ (continuum light-mass scaling) restores exact Einstein relativity cleanly: at $m = 0.025$, quasienergy binding
 reaches $51.08\%$ ($50\%$ limit), inertial mass drops in lockstep by $50.08\%$ (defect-to-binding ratio $0.9804 \to 1$),
 $R_2 = 1.0206 \to 1$, $c_{\mathrm{eff}} = 0.9898 \to 1$, and quartic dispersion ratio $\rho_2 = 0.9952 \to 1$.
 
@@ -189,8 +192,8 @@ two-flavor Dirac theorem $\partial E / \partial m|_P = \sqrt{1 - (v / v_{\max})^
 even at bare $U$'s heavy coin $m = \pi/3$.
 
 Finally, we subject the honeycomb's Steinberg warp factor $\lambda = 18.2787077744$ ($a_1 = \lambda^{1/3}$,
-$\lambda^{-1/2} = 0.2339$) to a strict anti-numerology audit against Standard Model fermion mass ratios and CKM mixing
-angles (Tier~C, Table~\ref{tab:clocks-warp}). Assigning integer bulk depths yields order-unity prefactors in
+$\lambda^{-1/2} = 0.2339$) to a strict external anti-numerology audit against Standard Model fermion mass ratios and CKM
+mixing angles (Table~\ref{tab:clocks-warp}). Assigning integer bulk depths yields order-unity prefactors in
 $[0.69, 1.76]$ across five decades (leptons $\lambda^{-(0,1,3)}$, up quarks $\lambda^{-(0,2,4)}$, down quarks
 $a_1^{-(0,4,7)}$, $|V_{us}| \approx \lambda^{-1/2}$ within $+4.0\%$). However, sweeping $2{,}801$ rival bases
 $b \in [2, 30]$ under both linear and Jeffreys log-uniform priors proves that statistical significance vanishes once
@@ -201,8 +204,8 @@ hierarchies only at order unity once depth assignments are supplied externally.
 
 \begin{table}[htbp]
 \centering
-\caption{Live real-space moving clock dilation (Tier~A/B, top) and deterministic $2{,}801$-base anti-numerology warp
-null audit (Tier~C, bottom).}
+\caption{Live real-space moving clock dilation (bare and light-mass continuum scaling, top) and deterministic
+$2{,}801$-base anti-numerology warp null audit (bottom).}
 \label{tab:clocks-warp}
 \footnotesize
 \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{4.35cm}>{\raggedright\arraybackslash}p{3.05cm}>{\raggedright\arraybackslash}X@{}}

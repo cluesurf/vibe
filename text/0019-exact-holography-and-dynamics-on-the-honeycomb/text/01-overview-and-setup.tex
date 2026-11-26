@@ -2,15 +2,21 @@
 \label{sec:overview}
 
 Can a single fixed, reversible discrete automaton in four hyperbolic dimensions host rigorous holographic error
-correction, interacting bound states, quantum chaos, and irreversible local decoherence while clearly demarcating where
-additional gauge and continuum structure is forced? We investigate this question from first principles across spectral
-geometry, discrete holography, many-body scattering, lattice gauge theory, and quantum foundations
-\cite{schumacher2004, arrighi2019, farrelly2020}. Every positive result is paired with its sharp no-go boundary and
-backed by deterministic zero-randomness verification together with a zero-dependency Lean~4 formalization
+correction, interacting bound states, quantum chaos, emergent gravity, and irreversible local decoherence while clearly
+demarcating where additional gauge or continuum structure is forced? This question matters because discrete microscopic
+models of physics routinely fail in one of two opposite ways: either they remain too simple to support bound matter,
+field propagation, and classical records, or they smuggle in continuum structure through unstated approximations. We
+investigate the question from first principles across spectral geometry, discrete holography, many-body scattering,
+lattice gauge theory, quantum foundations, emergent gravity, cosmological asymmetry, and multiscale organization
+\cite{schumacher2004, arrighi2019, farrelly2020}, pairing every positive theorem with its exact no-go boundary and
+backing the suite with deterministic verification and a zero-dependency Lean~4 formalization
 \cite{demoura2021lean4, cluesurf2026repo}.
 
-To keep the presentation self-contained from page one, we first fix the exact microscopic geometry, cyclotomic amplitude
-ring, local unitary beat, and three-tier verification contract used throughout the paper.
+To keep this manuscript self-contained from page one, we first specify the microscopic honeycomb, cyclotomic amplitude
+ring, and local unitary beat. Throughout the paper we distinguish cleanly between three mathematical scopes: exact
+theorems of the bare automaton and its native geometry with nothing added, dynamical extensions built on the same
+geometry by adding discrete subgroup gauge links or a local metric field, and constructive lattice Yang--Mills bounds
+and null controls on the associated flat four-dimensional root lattice $D_4$.
 
 \subsection{The 24-cell dock and the \texorpdfstring{$\{3,4,3,4\}$}{\{3,4,3,4\}} mesh}
 
@@ -99,9 +105,9 @@ U = S \circ \Phi_{\mathrm{odd}} \circ D \circ M_{\mathrm{meet}} \circ M_{\mathrm
 Here every local \emph{coin} is a deterministic unitary splitting amplitude across directions with zero randomness:
 \begin{equation}
 D = \frac{1}{2}\begin{pmatrix} 2 + \omega & -\omega \\ -\omega & 2 + \omega \end{pmatrix},
-\qquad
+\quad
 C = D^2 = \frac{1}{2}\begin{pmatrix} 1 + \omega & 1 - \omega \\ 1 - \omega & 1 + \omega \end{pmatrix},
-\qquad
+\quad
 M_{\mathrm{meet}}^{\mathrm{diff}} = \frac{1}{2}\begin{pmatrix} 1 + \omega & \omega - 1 \\ \omega - 1 & 1 + \omega \end{pmatrix}.
 \label{eq:local-coins}
 \end{equation}

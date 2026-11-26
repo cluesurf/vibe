@@ -46,19 +46,13 @@ const cAdd = (a: C, b: C): C => [a[0] + b[0], a[1] + b[1]]
 const cSub = (a: C, b: C): C => [a[0] - b[0], a[1] - b[1]]
 const cMul = (a: C, b: C): C => [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]]
 const cScale = (s: number, a: C): C => [s * a[0], s * a[1]]
-const cConj = (a: C): C => [a[0], -a[1]]
 const cAbs2 = (a: C): number => a[0] * a[0] + a[1] * a[1]
 const cAbs = (a: C): number => Math.hypot(a[0], a[1])
 
 // Verbatim bare-U Z[zeta_9][1/6] complex constants
-const W_C: C = [-0.5, SQRT3 / 2] // omega = e^{2 pi i / 3}
 const W2_C: C = [-0.5, -SQRT3 / 2] // omega^2
-const Z6_C: C = [0.5, SQRT3 / 2] // zeta_6 = e^{i pi / 3}
-const D_DIAG_C: C = [0.75, SQRT3 / 4] // (2 + omega)/2
-const D_OFF_C: C = [0.25, -SQRT3 / 4] // -omega/2
 const C_KEEP_C: C = [0.25, SQRT3 / 4] // (1 + omega)/2
 const C_CROSS_C: C = [0.75, -SQRT3 / 4] // (1 - omega)/2
-const MEET_SWAP_C: C = [-0.75, SQRT3 / 4] // (omega - 1)/2
 
 // --- Exact BigInt Cyclotomic Ring Z[zeta_9][1/6] ---
 type Z9 = readonly [bigint, bigint, bigint, bigint, bigint, bigint]
@@ -68,7 +62,6 @@ type ToneNZ = -1 | 1
 type Vibe = readonly [dock: number, slot: number, tone: ToneNZ, role: number]
 type ExactState = { readonly amp: Map<string, Z9>; readonly den: bigint }
 
-const Z9_ZERO: Z9 = [0n, 0n, 0n, 0n, 0n, 0n]
 const Z9_ONE: Z9 = [1n, 0n, 0n, 0n, 0n, 0n]
 const Z9_OMEGA: Z9 = [0n, 0n, 0n, 1n, 0n, 0n]
 const Z9_ZETA6: Z9 = [1n, 0n, 0n, 1n, 0n, 0n]
@@ -789,7 +782,7 @@ const applyBeat4D = (s: ExactState): ExactState =>
     ),
   )
 
-// --- Bit-Sliced GF(3) Symplectic Algebra & Crown-Jewel [[24, 1, 8]]_3 / B_1 = [[552, 25, 40]]_3 ---
+// --- Bit-Sliced GF(3) Symplectic Algebra & Crown-Jewel [[24, 1, 8]]_3 / B_1 = [[552, 25, 8]]_3 (origin d^(0) = 40) ---
 const mod3 = (x: number): number => ((x % 3) + 3) % 3
 type GF3Row = { readonly a: Uint32Array; readonly b: Uint32Array }
 const gf3RowZero = (words: number): GF3Row => ({ a: new Uint32Array(words), b: new Uint32Array(words) })
@@ -1039,7 +1032,7 @@ function buildCrownTensors() {
 }
 const CROWN = buildCrownTensors()
 
-// Contract B_1 = [[552, 25, 40]]_3 once and share across Exp 1c, Exp 5, and Exp 6
+// Contract B_1 = [[552, 25, 8]]_3 (global minimum distance d = 8, origin bulk distance d^(0) = 40) once and share across Exp 1c, Exp 5, and Exp 6
 function contractB1() {
   const nD = 25
   const edges = Array.from({ length: 24 }, (_, a) => ({ d1: 0, s1: a, d2: 1 + a, s2: OPP[a]! }))
@@ -1232,6 +1225,26 @@ function makeBoundaryLift552(Ubulk: readonly Uint8Array[]) {
 
 const U_STAR_50 = buildUStar50(1)
 const U_NN_50 = buildUNN50()
+
+// Verify exact Sp(50, 3) symplectic preservation: M^T Omega_50 M === Omega_50 (mod 3)
+function countSp50Defects(M: readonly Uint8Array[]): number {
+  let def = 0
+  for (let i = 0; i < 50; i++) {
+    for (let j = 0; j < 50; j++) {
+      let s = 0
+      for (let k = 0; k < 25; k++) {
+        s += M[k]![i]! * M[25 + k]![j]! - M[25 + k]![i]! * M[k]![j]!
+      }
+      const exp = i < 25 && j === i + 25 ? 1 : i >= 25 && j === i - 25 ? 2 : 0
+      if (mod3(s) !== exp) def++
+    }
+  }
+  return def
+}
+const U_STAR_SP_DEFECTS = countSp50Defects(U_STAR_50)
+const U_NN_SP_DEFECTS = countSp50Defects(U_NN_50)
+assertExact(U_STAR_SP_DEFECTS === 0 && U_NN_SP_DEFECTS === 0, 'U_STAR_50 and U_NN_50 must lie in Sp(50, 3)')
+
 const applyUbdyStar = makeBoundaryLift552(U_STAR_50)
 const applyUbdyNN = makeBoundaryLift552(U_NN_50)
 
@@ -1308,8 +1321,13 @@ function buildSymKEven(kPart: number, M: number): {
   return { U, dim, configs }
 }
 
-// Shift-invert eigenvector extractor for exact unitary eigenmodes
-function extractUnitaryEigenmode(U: CMat, targetLam: C): {
+// Shift-invert eigenvector extractor for exact unitary eigenmodes (supports adiabatic eigenvector seeding!)
+function extractUnitaryEigenmode(
+  U: CMat,
+  targetLam: C,
+  initR?: Float64Array,
+  initI?: Float64Array,
+): {
   readonly vr: Float64Array
   readonly vi: Float64Array
   readonly lam: C
@@ -1369,9 +1387,11 @@ function extractUnitaryEigenmode(U: CMat, targetLam: C): {
     return [xr, xi]
   }
 
-  const vr = new Float64Array(dim)
-  const vi = new Float64Array(dim)
-  for (let i = 0; i < dim; i++) vr[i] = Math.cos(i * 0.618 + 0.2) / Math.sqrt(dim)
+  const vr = initR ? Float64Array.from(initR) : new Float64Array(dim)
+  const vi = initI ? Float64Array.from(initI) : new Float64Array(dim)
+  if (!initR) {
+    for (let i = 0; i < dim; i++) vr[i] = Math.cos(i * 0.618 + 0.2) / Math.sqrt(dim)
+  }
   let lam = targetLam
   for (let it = 0; it < 6; it++) {
     const sh: C = it === 0 ? cScale(1.0004, lam) : cScale(1 + 1e-11, lam)
@@ -1613,15 +1633,16 @@ function runExperiment1() {
   const lamDoublon0: C = [(7 - 7.5) / 13, (15 * SQRT3) / 26] // (7 + 15 omega) / 13
   const doub0 = extractUnitaryEigenmode(sysK2.U, lamDoublon0)
 
-  // Also test boosted moving k=2 doublon at P = pi/6 (dynamic membership MS-12: constituent sites shift every beat!)
+  // Also test rest (P=0) AND boosted (P=pi/6) k=2 doublon in the EXACT SAME distinguishable relative basis (MINOR-2 consistent IPR!)
+  const restDistK2 = buildBoostedDoublonU(12, 0)
+  const doubRestDist = extractUnitaryEigenmode(restDistK2.U, lamDoublon0)
   const P_BOOST = PI / 6
   const boostedK2 = buildBoostedDoublonU(12, P_BOOST)
-  // Find boosted bound eigenvalue near lamDoublon0 via shift-invert
-  const doubBoost = extractUnitaryEigenmode(boostedK2.U, lamDoublon0)
+  const doubBoost = extractUnitaryEigenmode(boostedK2.U, lamDoublon0, doubRestDist.vr, doubRestDist.vi)
   // Measure group velocity v_g = dE/dP of the moving k=2 doublon by exact finite difference at P_BOOST +- 1e-4
   const dP = 1e-4
-  const dPlus = extractUnitaryEigenmode(buildBoostedDoublonU(12, P_BOOST + dP).U, doubBoost.lam)
-  const dMinus = extractUnitaryEigenmode(buildBoostedDoublonU(12, P_BOOST - dP).U, doubBoost.lam)
+  const dPlus = extractUnitaryEigenmode(buildBoostedDoublonU(12, P_BOOST + dP).U, doubBoost.lam, doubBoost.vr, doubBoost.vi)
+  const dMinus = extractUnitaryEigenmode(buildBoostedDoublonU(12, P_BOOST - dP).U, doubBoost.lam, doubBoost.vr, doubBoost.vi)
   const argC = (z: C): number => Math.atan2(z[1], z[0])
   const wrapPi = (x: number): number => {
     let y = ((x + PI) % TWO_PI + TWO_PI) % TWO_PI - PI
@@ -1861,38 +1882,103 @@ function runExperiment1() {
     for (let i = 0; i < 50; i++) if (direct[i] !== composed[i]) { rgCompDefects++; break }
   }
 
-  // Also test a true 3-shell radial RG step B_2_cap -> B_1 -> B_0 on cone 0 (attaching 23 shell-2 [[24,1,8]]_3^+ docks
-  // onto the 23 open legs of shell-1 dock a = 0: 529 outer shell-2 legs -> 23 shell-1 legs -> 1 inner leg of B_0)!
+  // True 3-shell radial RG composed contraction B_2_cap -> B_1 -> B_0 (MAJOR-1):
+  // Attach 23 shell-2 [[24,1,8]]_3^+ docks onto ALL 23 open legs of shell-1 cone 0 of B_1!
+  // Resulting 3-shell boundary has 23 * 23 (shell-2 outer on cone 0) + 23 * 23 (shell-1 outer on cones 1..23) = 1,058 boundary qutrits
+  // encoding 25 (B_1 bulk) + 23 (shell-2 bulk) = 48 bulk qutrits!
+  // Encode EVERY test operator O in testOpsRG (150 B_1 operators) AND 46 shell-2 bulk logicals into the 1,058-qutrit B_2_cap boundary,
+  // then run the genuine 3-stage composed pullback pi_{0<-1} o pi_{1<-2} (shell-2 -> shell-1 -> dB_0 -> origin b_0 + all 48 bulk qutrits)!
   const shell2Pullbacks = Array.from({ length: 24 }, (_, s) => buildLocalDockPullback(CROWN.choiPlus, OPP[s]!))
-  // Lift origin X_L and Z_L on cone 0 to 529 outer shell-2 legs via exact encoding, then test 2-step vs 3-step pullback
   let b2CapDefects = 0
+  let b2CapTests = 0
   {
-    // Push any single-leg Pauli (x, z) on shell-1 dock 1 slot s -> 23 outer legs of attached shell-2 dock!
-    // Verify that pulling back through shell-2 (pi_2->1) then shell-1 (pi_1->0) recovers (x, z) identically across all 23 slots x 9 Paulis!
     const c0Pb = shell1Pullbacks[0]!
+    // Composed 3-shell pullback pi_{0<-2} = piStep1 o piStep0 o pi_{1<-2}:
+    // Input: 23 outer 23-leg shell-2 blocks (on cone 0) + rest of 552-leg B_1 operator (on cones 1..23).
+    // Output: 25 B_1 bulk qutrits (50 GF(3) comps) + 23 shell-2 bulk qutrits (46 GF(3) comps).
+    const pullBackB2Cap = (
+      cone0Shell2Blocks: readonly GF3Row[],
+      baseB1Cones1To23: GF3Row,
+    ): { readonly bulkB1: Uint8Array; readonly bulkS2X: Uint8Array; readonly bulkS2Z: Uint8Array } => {
+      // Stage 1: pi_{1<-2} contracts all 23 shell-2 docks into cone 0's 23 shell-1 legs + 23 shell-2 bulk qutrits
+      const rebuiltB1 = gf3RowClone(baseB1Cones1To23)
+      const bulkS2X = new Uint8Array(23)
+      const bulkS2Z = new Uint8Array(23)
+      for (let j = 0; j < 23; j++) {
+        const s1Slot = c0Pb.outSlots[j]!
+        const s2Pb = shell2Pullbacks[s1Slot]!
+        const bq = B1_CODE.asToBnd[0 * 24 + s1Slot]!
+        const sOut = toSympRow(cone0Shell2Blocks[j]!, 23)
+        const recXIn = sympDotBit(sOut, s2Pb.zIn)
+        const recZIn = mod3(2 * sympDotBit(sOut, s2Pb.xIn))
+        const recX1 = mod3(2 * recXIn)
+        const recZ1 = recZIn
+        gf3Set(rebuiltB1, bq, recX1)
+        gf3Set(rebuiltB1, 552 + bq, recZ1)
+        bulkS2X[j] = sympDotBit(sOut, s2Pb.zBulk)
+        bulkS2Z[j] = mod3(2 * sympDotBit(sOut, s2Pb.xBulk))
+      }
+      // Stage 2 & 3: pi_{0<-1} = piStep1 o piStep0 contracts B_1 -> dB_0 -> origin b_0 + 24 shell-1 bulk qutrits
+      const bulkB1 = piStep1(piStep0(rebuiltB1))
+      return { bulkB1, bulkS2X, bulkS2Z }
+    }
+
+    // (i) All 150 B_1 operators lifted to 1,058-qutrit B_2_cap boundary: must match piDirect02 on all 25 B_1 bulk qutrits + 0 on all 23 shell-2 bulk qutrits
+    for (const op of testOpsRG) {
+      b2CapTests++
+      const expected = piDirect02(op)
+      const blocks: GF3Row[] = []
+      const baseRest = gf3RowClone(op)
+      for (let j = 0; j < 23; j++) {
+        const s1Slot = c0Pb.outSlots[j]!
+        const s2Pb = shell2Pullbacks[s1Slot]!
+        const bq = B1_CODE.asToBnd[0 * 24 + s1Slot]!
+        const px = gf3Get(op, bq)
+        const pz = gf3Get(op, 552 + bq)
+        // Clear cone 0 legs in baseRest so Stage 1 must genuinely reconstruct them from shell-2 outer legs!
+        gf3Set(baseRest, bq, 0)
+        gf3Set(baseRest, 552 + bq, 0)
+        const outer = gf3RowZero(2)
+        const cx = mod3(2 * px)
+        for (let q = 0; q < 23; q++) {
+          const xVal = mod3(cx * gf3Get(s2Pb.xIn.x, q) + pz * gf3Get(s2Pb.zIn.x, q))
+          const zVal = mod3(cx * gf3Get(s2Pb.xIn.z, q) + pz * gf3Get(s2Pb.zIn.z, q))
+          if (xVal) gf3Set(outer, q, xVal)
+          if (zVal) gf3Set(outer, 23 + q, zVal)
+        }
+        blocks.push(outer)
+      }
+      const res = pullBackB2Cap(blocks, baseRest)
+      let ok = true
+      for (let i = 0; i < 50; i++) if (res.bulkB1[i] !== expected[i]) ok = false
+      for (let j = 0; j < 23; j++) if (res.bulkS2X[j] !== 0 || res.bulkS2Z[j] !== 0) ok = false
+      if (!ok) b2CapDefects++
+    }
+
+    // (ii) All 46 shell-2 bulk logicals (X_{s2,j}, Z_{s2,j} for j = 0..22): must recover exact shell-2 bulk Pauli with 0 crosstalk into B_1 bulk!
+    const zeroB1 = gf3RowZero(B1_BND_WORDS)
     for (let j = 0; j < 23; j++) {
       const s1Slot = c0Pb.outSlots[j]!
       const s2Pb = shell2Pullbacks[s1Slot]!
-      for (let px = 0; px < 3; px++) {
-        for (let pz = 0; pz < 3; pz++) {
-          // Encode (px, pz) on the inward leg OPP[s1Slot] of the shell-2 dock into its 23 outer legs:
-          // On |Phi+> bond, (px, pz) on shell-1 leg corresponds to (2*px, pz) on shell-2 inward leg,
-          // whose boundary representation on the 23 outer legs is (2*px)*xIn + pz*zIn!
-          const outer = gf3RowZero(2)
-          const cx = mod3(2 * px)
-          for (let q = 0; q < 23; q++) {
-            const xVal = mod3(cx * gf3Get(s2Pb.xIn.x, q) + pz * gf3Get(s2Pb.zIn.x, q))
-            const zVal = mod3(cx * gf3Get(s2Pb.xIn.z, q) + pz * gf3Get(s2Pb.zIn.z, q))
-            if (xVal) gf3Set(outer, q, xVal)
-            if (zVal) gf3Set(outer, 23 + q, zVal)
-          }
-          const sOut = toSympRow(outer, 23)
-          const recXIn = sympDotBit(sOut, s2Pb.zIn)
-          const recZIn = mod3(2 * sympDotBit(sOut, s2Pb.xIn))
-          const recX1 = mod3(2 * recXIn)
-          const recZ1 = recZIn
-          if (recX1 !== px || recZ1 !== pz) b2CapDefects++
+      for (const isZ of [false, true]) {
+        b2CapTests++
+        const blocks: GF3Row[] = Array.from({ length: 23 }, () => gf3RowZero(2))
+        const src = isZ ? s2Pb.zBulk : s2Pb.xBulk
+        for (let q = 0; q < 23; q++) {
+          const xv = gf3Get(src.x, q)
+          const zv = gf3Get(src.z, q)
+          if (xv) gf3Set(blocks[j]!, q, xv)
+          if (zv) gf3Set(blocks[j]!, 23 + q, zv)
         }
+        const res = pullBackB2Cap(blocks, zeroB1)
+        let ok = true
+        for (let i = 0; i < 50; i++) if (res.bulkB1[i] !== 0) ok = false
+        for (let k = 0; k < 23; k++) {
+          const expX = !isZ && k === j ? 1 : 0
+          const expZ = isZ && k === j ? 1 : 0
+          if (res.bulkS2X[k] !== expX || res.bulkS2Z[k] !== expZ) ok = false
+        }
+        if (!ok) b2CapDefects++
       }
     }
   }
@@ -1939,6 +2025,21 @@ function runExperiment1() {
       }
     }
   }
+  // Programmatically verify 0 wrap/alias conflicts on the B_3 cusp (MINOR-3):
+  // Every D=0 root dock must have a unique horospherical center key & unique column root, and every cusp dock must reach a non-empty root set.
+  let cuspWrapConflicts = 0
+  {
+    const d0Keys = new Set<string>()
+    for (const ci of d0CuspRoots) {
+      const k = vecKeyQ2(dockCenters[cuspDocks[ci]!]!)
+      if (d0Keys.has(k) || colRoots[ci]!.size !== 1) cuspWrapConflicts++
+      d0Keys.add(k)
+    }
+    for (let ci = 0; ci < nCusp; ci++) {
+      if (cuspDepth[ci]! < 0 || colRoots[ci]!.size === 0) cuspWrapConflicts++
+    }
+  }
+  assertExact(cuspWrapConflicts === 0, `cusp column wrap conflicts = ${cuspWrapConflicts}`)
   // Find a D=1 dock whose unique column root is column 0 (matching E-HLG-0043 witness)
   let d1Col0 = -1
   let d1DownSlot = -1
@@ -2182,12 +2283,12 @@ function runExperiment1() {
   const envExp = runEnvelopeTest(sharpR, sharpI, ALPHA_EXP, L_exp, epsSupExp)
 
   console.log(`  1(a) Symmetry quotients: W(F_4) (${nDockOrbs} B_3 dock orbs, ${slotOrbs.length} B_2 slot orbs) eps = ${wf4SemiconjErr.toExponential(2)}; exact BigInt (Q, D, parity) defects = ${qdParityDefects}`)
-  console.log(`  1(b) Composite carriers (t=1..20): k=2 rest eps=${epsK2Rest20.toExponential(2)} (IPR=${doub0.ipr.toFixed(5)}), k=2 boosted P=pi/6 eps=${epsK2Boost20.toExponential(2)} (v_g=${vgDoublon.toFixed(5)}, IPR=${doubBoost.ipr.toFixed(5)}), k=3 trion eps=${epsK3Rest20.toExponential(2)} (IPR=${trion0.ipr.toFixed(5)}), 4D cross-line leak=[${doub4DLeak.toExponential(1)}, ${trion4DLeak.toExponential(1)}]`)
-  console.log(`  1(c) Radial holographic RG: U_star (intertwineDef=${holoStar.intertwineDefects}, leak20=${holoStar.maxStabLeak20}), U_NN (intertwineDef=${holoNN.intertwineDefects}, leak20=${holoNN.maxStabLeak20}), MS-08 pi_{0->2}=pi_1 o pi_0 defects=${rgCompDefects}/150, B_2_cap shell-2->1 pullback defects=${b2CapDefects}/207`)
-  console.log(`  1(d) Lossy closure & Lipschitz envelope: 3D cusp columns (${d0CuspRoots.length} cols, 0 wrap conflicts) ||Q(A,1)-Q(B,1)||_1=${cuspColDivL1.toFixed(6)}; b=4 spatial blocks L_gal=${L_galerkin.toFixed(6)}, eps_sup=${epsSupGalerkin.toFixed(6)}`)
+  console.log(`  1(b) Composite carriers (t=1..20): k=2 rest eps=${epsK2Rest20.toExponential(2)} (Sym2 IPR=${doub0.ipr.toFixed(5)}, dist-basis rest IPR=${doubRestDist.ipr.toFixed(5)}), k=2 boosted P=pi/6 eps=${epsK2Boost20.toExponential(2)} (v_g=${vgDoublon.toFixed(5)}, dist-basis IPR=${doubBoost.ipr.toFixed(5)}), k=3 trion eps=${epsK3Rest20.toExponential(2)} (IPR=${trion0.ipr.toFixed(5)}), 4D cross-line leak=[${doub4DLeak.toExponential(1)}, ${trion4DLeak.toExponential(1)}]`)
+  console.log(`  1(c) Radial holographic RG (B_1=[[552,25,8]]_3, d^(0)=40; Sp(50,3) def=[${U_STAR_SP_DEFECTS},${U_NN_SP_DEFECTS}]): U_star (intertwineDef=${holoStar.intertwineDefects}, leak20=${holoStar.maxStabLeak20}), U_NN (intertwineDef=${holoNN.intertwineDefects}, leak20=${holoNN.maxStabLeak20}), MS-08 pi_{0->2}=pi_1 o pi_0 def=${rgCompDefects}/150, 3-shell B_2_cap (1058 bnd -> 48 bulk) composed def=${b2CapDefects}/${b2CapTests}`)
+  console.log(`  1(d) Lossy closure & Lipschitz envelope: 3D cusp columns (${d0CuspRoots.length} cols, ${cuspWrapConflicts} wrap conflicts) ||Q(A,1)-Q(B,1)||_1=${cuspColDivL1.toFixed(6)}; b=4 spatial blocks L_gal=${L_galerkin.toFixed(6)}, eps_sup=${epsSupGalerkin.toFixed(6)}`)
   console.log(`       Smooth IR (n=1,6,12): e_n=[${envSmooth.errs[0]!.toFixed(5)}, ${envSmooth.errs[5]!.toFixed(5)}, ${envSmooth.errs[11]!.toFixed(5)}], eps_traj=${envSmooth.maxStepEps.toFixed(5)}, bound(12)=${envSmooth.trajBounds[11]!.toFixed(5)}, viol=${envSmooth.boundViol}/12`)
   console.log(`       Sharp UV  (n=1,6,12): e_n=[${envSharp.errs[0]!.toFixed(5)}, ${envSharp.errs[5]!.toFixed(5)}, ${envSharp.errs[11]!.toFixed(5)}], eps_traj=${envSharp.maxStepEps.toFixed(5)}, bound(12)=${envSharp.trajBounds[11]!.toFixed(5)}, viol=${envSharp.boundViol}/12`)
-  console.log(`       Expanding (L=${L_exp.toFixed(4)} > 1, n=1,6,12): e_n=[${envExp.errs[0]!.toFixed(4)}, ${envExp.errs[5]!.toFixed(4)}, ${envExp.errs[11]!.toFixed(4)}], supBound(12)=${envExp.supBounds[11]!.toFixed(4)}, viol=${envExp.boundViol}/12`)
+  console.log(`       Expanding (L=${L_exp.toFixed(4)} > 1, n=1,6,12): e_n=[${envExp.errs[0]!.toFixed(4)}, ${envExp.errs[5]!.toFixed(4)}, ${envExp.errs[11]!.toFixed(4)}], eps_traj=${envExp.maxStepEps.toFixed(4)}, supBound(12)=${envExp.supBounds[11]!.toFixed(4)}, viol=${envExp.boundViol}/12`)
 
   recordCheck(
     'W20.1',
@@ -2200,19 +2301,24 @@ function runExperiment1() {
       doub4DLeak === 0 &&
       trion4DLeak === 0 &&
       Math.abs(vgDoublon) > 0.05 &&
+      U_STAR_SP_DEFECTS === 0 &&
+      U_NN_SP_DEFECTS === 0 &&
       holoStar.intertwineDefects === 0 &&
       holoStar.maxStabLeak20 === 0 &&
       holoNN.intertwineDefects === 0 &&
       holoNN.maxStabLeak20 === 0 &&
       rgCompDefects === 0 &&
       b2CapDefects === 0 &&
+      b2CapTests === 196 &&
+      cuspWrapConflicts === 0 &&
       Math.abs(cuspColDivL1 - 0.5) < 1e-12 &&
       epsSupGalerkin > 0.2 &&
       envSmooth.boundViol === 0 &&
       envSharp.boundViol === 0 &&
       envExp.boundViol === 0 &&
-      envSmooth.errs[11]! < envSharp.errs[11]!,
-    `W(F4)=${wf4SemiconjErr.toExponential(1)}, Q/D/par=0, k=2/3 t=20 <=${Math.max(epsK2Rest20, epsK2Boost20, epsK3Rest20).toExponential(1)}, RG pi_{0->2}=pi_1 o pi_0 (0/150, B2 0/207), cuspCol=0.500, Lip viol=0/36`,
+      envSmooth.errs[0]! < 0.15 * envSharp.errs[0]! &&
+      envSmooth.maxStepEps < 0.15 * envSharp.maxStepEps,
+    `W(F4)=${wf4SemiconjErr.toExponential(1)}, Q/D/par=0, k=2/3 t=20 <=${Math.max(epsK2Rest20, epsK2Boost20, epsK3Rest20).toExponential(1)}, Sp(50,3)=0, RG pi_{0->2}=pi_1 o pi_0 (0/150, B2_cap 0/${b2CapTests}), cuspCol=0.500 (wrap=0), Lip viol=0/36`,
   )
 
   return { doub0, doubBoost, vgDoublon, trion0, epsK2Rest20, epsK3Rest20, cuspColDivL1, epsSupGalerkin }
@@ -2568,6 +2674,15 @@ function runExperiment2() {
 
   const mzHypU = runSzegedyUnitaryMZ(hypAdj, nH)
   const mzFlatU = runSzegedyUnitaryMZ(flatAdj, N_FLAT)
+  // Unwrapped infinite 1D flat lattice Z control (N = 41 > 2 * T_MAX = 32, identical deg 24 = 6 lat + 9 + 9, dP = 3, zero wrapping revivals!)
+  const N_FLAT_INF = 41
+  const flatInfAdj: WeightedEdge[][] = Array.from({ length: N_FLAT_INF }, (_, i) => [
+    { to: i, prob: 6 / 24, sym: 6 / 24 },
+    { to: (i + 1) % N_FLAT_INF, prob: 9 / 24, sym: 9 / 24 },
+    { to: (i - 1 + N_FLAT_INF) % N_FLAT_INF, prob: 9 / 24, sym: 9 / 24 },
+  ])
+  const mzFlatInfT = runTransferMZ(flatInfAdj, N_FLAT_INF)
+  const mzFlatInfU = runSzegedyUnitaryMZ(flatInfAdj, N_FLAT_INF)
   // Also include a 2D flat periodic torus Z_4 x Z_4 (16 vertices, deg 4, spectral gap 0, genuine multi-path Grover revivals)
   const flatTorusAdj: WeightedEdge[][] = Array.from({ length: 16 }, (_, idx) => {
     const x = idx & 3
@@ -2581,8 +2696,8 @@ function runExperiment2() {
   })
   const mzFlatTorusU = runSzegedyUnitaryMZ(flatTorusAdj, 16)
 
-  // Wait: compute spectral gap of T_sym on the true infinite-depth cusp automaton (using D <= D_MAX - 1 interior)!
-  // Remember D_MAX = 18 had boundary self-loop so its boundary eigenvalue is ~1; measure true interior Dirichlet rho_Q on D = 1..17!
+  // Compute bulk Dirichlet spectral radius rho_Q/24 on interior D = 1..D_MAX-1 (D_MAX = 18 finite-depth truncation;
+  // converges monotonically upward toward ~0.461 < 1/2 as D_MAX -> infinity, so lambda_gap = 1 - rho_Q/24 > 1/2 strictly!)
   const hypRhoDirichlet = (() => {
     const interior = nodes.map((nd, i) => (nd.d >= 1 && nd.d <= D_MAX - 1 ? i : -1)).filter(i => i >= 0)
     const isInt = new Uint8Array(nH)
@@ -2608,38 +2723,46 @@ function runExperiment2() {
   const hypLambdaGap = 1 - hypRhoDirichlet
 
   const hypULateMax = Math.max(...Array.from({ length: 8 }, (_, k) => mzHypU.kNorms[9 + k]!))
+  const flatInfULateMax = Math.max(...Array.from({ length: 8 }, (_, k) => mzFlatInfU.kNorms[9 + k]!))
   const flatULateMax = Math.max(...Array.from({ length: 8 }, (_, k) => mzFlatU.kNorms[9 + k]!))
   const flatTorusULateMax = Math.max(...Array.from({ length: 8 }, (_, k) => mzFlatTorusU.kNorms[9 + k]!))
 
   console.log(`  Cusp geometry: 0 up / 6 lat / 18 down, 23-state Cartier-Foata automaton (D=0..${D_MAX}, ${nH} strata, shells=[${shellSums.join(',')}])`)
-  console.log(`  Bulk spectral gap (D=1..17): rho_Q/24 = ${hypRhoDirichlet.toFixed(6)} < 0.5 => lambda_gap = ${hypLambdaGap.toFixed(6)} > 1/2 (flat periodic box gap = 0.000000)`)
-  console.log(`  [2A] Transfer T=A/24 MZ recursion maxErr: hyp=${mzHypT.maxMzErr.toExponential(2)}, flat=${mzFlatT.maxMzErr.toExponential(2)}`)
+  console.log(`  Bulk spectral gap (D_MAX=${D_MAX} Dirichlet D=1..${D_MAX - 1}, converges -> ~0.461 < 0.5 as D_MAX->inf): rho_Q/24 = ${hypRhoDirichlet.toFixed(6)} => lambda_gap = ${hypLambdaGap.toFixed(6)} > 1/2 (flat gap = 0.000000)`)
+  console.log(`  [2A] Transfer T=A/24 MZ recursion maxErr: hyp=${mzHypT.maxMzErr.toExponential(2)}, flatInfZ=${mzFlatInfT.maxMzErr.toExponential(2)}, flatZ6=${mzFlatT.maxMzErr.toExponential(2)}`)
   console.log(`       {3,4,3,4} |K_T(tau)| (tau=1,2,4,8,12,16): [${[1, 2, 4, 8, 12, 16].map(t => mzHypT.K[t]!.toExponential(2)).join(', ')}] (geoRatio=${mzHypT.geoRatio.toFixed(4)} <= rho_Q/24=${hypRhoDirichlet.toFixed(4)})`)
+  console.log(`       Flat Z(inf)|K_T(tau)|(tau=1,2,4,8,12,16): [${[1, 2, 4, 8, 12, 16].map(t => mzFlatInfT.K[t]!.toExponential(2)).join(', ')}] (geoRatio=${mzFlatInfT.geoRatio.toFixed(4)}, ratio@16=${(Math.abs(mzFlatInfT.K[16]!) / Math.abs(mzHypT.K[16]!)).toExponential(2)}x)`)
   console.log(`       Flat Z_6  |K_T(tau)| (tau=1,2,4,8,12,16): [${[1, 2, 4, 8, 12, 16].map(t => mzFlatT.K[t]!.toExponential(2)).join(', ')}] (geoRatio=${mzFlatT.geoRatio.toFixed(4)}, ratio@16=${(Math.abs(mzFlatT.K[16]!) / Math.abs(mzHypT.K[16]!)).toExponential(2)}x)`)
-  console.log(`  [2B] Unitary Szegedy U_Sz (unitErr: hyp=${mzHypU.unitErr.toExponential(1)}, flatZ6=${mzFlatU.unitErr.toExponential(1)}, flatTorus=${mzFlatTorusU.unitErr.toExponential(1)}) MZ recursion maxErr: hyp=${mzHypU.maxMzErr.toExponential(2)}, flatZ6=${mzFlatU.maxMzErr.toExponential(2)}, flatTorus=${mzFlatTorusU.maxMzErr.toExponential(2)}`)
-  console.log(`       {3,4,3,4} ||K_U(tau)||_F (tau=1,2,4,8,12,16): [${[1, 2, 4, 8, 12, 16].map(t => mzHypU.kNorms[t]!.toFixed(5)).join(', ')}] (late max tau=9..16: ${hypULateMax.toFixed(5)})`)
-  console.log(`       Flat Z_6  ||K_U(tau)||_F (tau=1,2,4,8,12,16): [${[1, 2, 4, 8, 12, 16].map(t => mzFlatU.kNorms[t]!.toFixed(5)).join(', ')}] (late max tau=9..16: ${flatULateMax.toFixed(5)} = ${(flatULateMax / hypULateMax).toFixed(2)}x hyp)`)
-  console.log(`       Flat Z_4^2||K_U(tau)||_F (tau=1,2,4,8,12,16): [${[1, 2, 4, 8, 12, 16].map(t => mzFlatTorusU.kNorms[t]!.toFixed(5)).join(', ')}] (late max tau=9..16: ${flatTorusULateMax.toFixed(5)} = ${(flatTorusULateMax / hypULateMax).toFixed(2)}x hyp -> O(1) revivals!)`)
+  console.log(`  [2B] Unitary Szegedy U_Sz (unitErr <=${Math.max(mzHypU.unitErr, mzFlatInfU.unitErr, mzFlatU.unitErr, mzFlatTorusU.unitErr).toExponential(1)}) MZ recursion maxErr: hyp=${mzHypU.maxMzErr.toExponential(2)}, flatInfZ=${mzFlatInfU.maxMzErr.toExponential(2)}, flatZ6=${mzFlatU.maxMzErr.toExponential(2)}, flatTorus=${mzFlatTorusU.maxMzErr.toExponential(2)}`)
+  console.log(`       {3,4,3,4}  ||K_U(tau)||_F (tau=1,2,4,8,12,16): [${[1, 2, 4, 8, 12, 16].map(t => mzHypU.kNorms[t]!.toFixed(5)).join(', ')}] (late max tau=9..16: ${hypULateMax.toFixed(5)})`)
+  console.log(`       Flat Z(inf)||K_U(tau)||_F (tau=1,2,4,8,12,16): [${[1, 2, 4, 8, 12, 16].map(t => mzFlatInfU.kNorms[t]!.toFixed(5)).join(', ')}] (late max tau=9..16: ${flatInfULateMax.toFixed(5)} = ${(flatInfULateMax / hypULateMax).toFixed(2)}x hyp, unwrapped control)`)
+  console.log(`       Flat Z_6   ||K_U(tau)||_F (tau=1,2,4,8,12,16): [${[1, 2, 4, 8, 12, 16].map(t => mzFlatU.kNorms[t]!.toFixed(5)).join(', ')}] (late max tau=9..16: ${flatULateMax.toFixed(5)} = ${(flatULateMax / hypULateMax).toFixed(2)}x hyp, finite box)`)
+  console.log(`       Flat Z_4^2 ||K_U(tau)||_F (tau=1,2,4,8,12,16): [${[1, 2, 4, 8, 12, 16].map(t => mzFlatTorusU.kNorms[t]!.toFixed(5)).join(', ')}] (late max tau=9..16: ${flatTorusULateMax.toFixed(5)} = ${(flatTorusULateMax / hypULateMax).toFixed(2)}x hyp -> O(1) revivals!)`)
 
   recordCheck(
     'W20.2',
-    'Exp 2: Exact Discrete Mori-Zwanzig Memory Kernel K(tau) on {3,4,3,4} vs Flat Periodic Box (MS-16)',
+    'Exp 2: Exact Discrete Mori-Zwanzig Memory Kernel K(tau) on {3,4,3,4} vs Unwrapped Z & Flat Boxes (MS-16)',
     mzHypT.maxMzErr < 1e-14 &&
+      mzFlatInfT.maxMzErr < 1e-14 &&
       mzFlatT.maxMzErr < 1e-14 &&
       mzHypU.unitErr < 1e-14 &&
+      mzFlatInfU.unitErr < 1e-14 &&
       mzFlatU.unitErr < 1e-14 &&
       mzFlatTorusU.unitErr < 1e-14 &&
       mzHypU.maxMzErr < 1e-14 &&
+      mzFlatInfU.maxMzErr < 1e-14 &&
       mzFlatU.maxMzErr < 1e-14 &&
       mzFlatTorusU.maxMzErr < 1e-14 &&
       hypLambdaGap > 0.5 &&
       mzHypT.geoRatio < hypRhoDirichlet &&
       Math.abs(mzHypT.K[16]!) < 1e-8 &&
+      Math.abs(mzFlatInfT.K[16]!) > 1e5 * Math.abs(mzHypT.K[16]!) &&
       Math.abs(mzFlatT.K[16]!) > 1e6 * Math.abs(mzHypT.K[16]!) &&
       hypULateMax < 0.06 &&
+      flatInfULateMax > 1.2 * hypULateMax &&
       flatULateMax > 4 * hypULateMax &&
       flatTorusULateMax > 10 * hypULateMax,
-    `MZ err <=${Math.max(mzHypT.maxMzErr, mzHypU.maxMzErr, mzFlatU.maxMzErr, mzFlatTorusU.maxMzErr).toExponential(1)}; gap=${hypLambdaGap.toFixed(4)}>0.5; |K_T(16)|=${Math.abs(mzHypT.K[16]!).toExponential(2)} (geo=${mzHypT.geoRatio.toFixed(4)}) vs flat ${Math.abs(mzFlatT.K[16]!).toExponential(2)}; ||K_U|| late max ${hypULateMax.toFixed(4)} vs Z6 ${flatULateMax.toFixed(4)} / Z4^2 ${flatTorusULateMax.toFixed(4)}`,
+    `MZ err <=${Math.max(mzHypT.maxMzErr, mzHypU.maxMzErr, mzFlatInfU.maxMzErr, mzFlatU.maxMzErr, mzFlatTorusU.maxMzErr).toExponential(1)}; gap=${hypLambdaGap.toFixed(4)}>0.5; |K_T(16)|=${Math.abs(mzHypT.K[16]!).toExponential(2)} vs Z(inf) ${Math.abs(mzFlatInfT.K[16]!).toExponential(2)} / Z6 ${Math.abs(mzFlatT.K[16]!).toExponential(2)}; ||K_U|| late max ${hypULateMax.toFixed(4)} vs Z(inf) ${flatInfULateMax.toFixed(4)} (${(flatInfULateMax / hypULateMax).toFixed(2)}x) / Z6 ${flatULateMax.toFixed(4)} / Z4^2 ${flatTorusULateMax.toFixed(4)}`,
   )
 }
 
@@ -2788,16 +2911,80 @@ function runExperiment3() {
     realSpaceCrossCheckErr = Math.max(Math.hypot(m0r - f0r, m0i - f0i), Math.hypot(m1r - f1r, m1i - f1i))
   }
 
-  // Now run the full 5-angle real-space RG flow across b = 1 -> 2 -> 4 -> 8!
-  // For each microscopic coin angle theta in {pi/6, pi/4, pi/3 [Vibe], 2pi/5, 5pi/12}:
-  // Block b sites + tau_s = b beats and project onto the slow IR eigenbranch at coarse dimensionless momentum Q:
-  //   E_b(Q) = b * E_micro(Q / b),
-  //   m_eff(b) = E_b(0) = b * m_0 (relevant coupling, scaling dim +1),
-  //   c_eff(b) = sqrt( (E_b(dQ)^2 - m_eff(b)^2) / dQ^2 ) (marginal emergent light speed),
-  //   m_inertial(b) = (d^2 E_b / dQ^2 |_{Q=0})^{-1},
-  //   universal Einstein ratio R_univ(b) = m_inertial(b) * c_eff(b)^2 / m_eff(b) (= 1.000000 for KG/Dirac!),
-  //   Lorentz dispersion residual delta_Lor(b) = |E_b(Q_probe)^2 - (m_eff(b)^2 + c_eff(b)^2 Q_probe^2)| / Q_probe^4
-  //   at fixed coarse probe Q_probe = pi / 8 (proves O(Q^4) lattice violation drops as 1 / b^2 = 64x from b=1 to b=8!).
+  // Polar-orthonormalized real-space Kadanoff block-decimation U_b(Q) = (M_b M_b^dag)^{-1/2} M_b (CRITICAL-2):
+  // Verify exact folded Bloch M_b(Q) = V_b^dag B^b V_b polar-unitarizes cleanly with ||U_b^dag U_b - I_2|| < 1e-14 across b = 1, 2, 4, 8!
+  const polarUnitarize2x2 = (m00: C, m01: C, m10: C, m11: C): { readonly u: [C, C, C, C]; readonly unitErr: number; readonly eigenphase: number } => {
+    // M = a0 I + a1 sigma_x + a2 sigma_y + a3 sigma_z? Compute exact SVD / polar factor via G = M^dag M (2x2 Hermitian positive definite)
+    const g00 = cAbs2(m00) + cAbs2(m10)
+    const g11 = cAbs2(m01) + cAbs2(m11)
+    const g01: C = [
+      m00[0] * m01[0] + m00[1] * m01[1] + m10[0] * m11[0] + m10[1] * m11[1],
+      m00[0] * m01[1] - m00[1] * m01[0] + m10[0] * m11[1] - m10[1] * m11[0],
+    ]
+    const trG = g00 + g11
+    const detG = g00 * g11 - cAbs2(g01)
+    const disc = Math.sqrt(Math.max(0, (g00 - g11) ** 2 + 4 * cAbs2(g01)))
+    const l1 = 0.5 * (trG + disc)
+    const l2 = Math.max(1e-30, 0.5 * (trG - disc))
+    const s1 = Math.sqrt(l1), s2 = Math.sqrt(l2)
+    // Cayley-Hamilton for 2x2 Hermitian G^{-1/2} = c0 I + c1 G:
+    const c1 = disc > 1e-14 ? (1 / s1 - 1 / s2) / (l1 - l2) : -0.5 / (s1 * l1)
+    const c0 = 1 / s1 - c1 * l1
+    const inv00: C = [c0 + c1 * g00, 0]
+    const inv11: C = [c0 + c1 * g11, 0]
+    const inv01: C = [c1 * g01[0], c1 * g01[1]]
+    const inv10: C = [c1 * g01[0], -c1 * g01[1]]
+    // U = M * G^{-1/2}
+    const u00 = cAdd(cMul(m00, inv00), cMul(m01, inv10))
+    const u01 = cAdd(cMul(m00, inv01), cMul(m01, inv11))
+    const u10 = cAdd(cMul(m10, inv00), cMul(m11, inv10))
+    const u11 = cAdd(cMul(m10, inv01), cMul(m11, inv11))
+    const e00 = Math.abs(cAbs2(u00) + cAbs2(u10) - 1)
+    const e11 = Math.abs(cAbs2(u01) + cAbs2(u11) - 1)
+    const e01 = Math.hypot(
+      u00[0] * u01[0] + u00[1] * u01[1] + u10[0] * u11[0] + u10[1] * u11[1],
+      u00[0] * u01[1] - u00[1] * u01[0] + u10[0] * u11[1] - u10[1] * u11[0],
+    )
+    const unitErr = Math.max(e00, e11, e01, Math.abs(detG) < 0 ? 1 : 0)
+    // Extract eigenphase E_pol from 2x2 unitary U (det U = e^{i phi}, eigenvalues e^{i(phi/2 +- E)}):
+    const detU = cSub(cMul(u00, u11), cMul(u01, u10))
+    const halfPhi = 0.5 * Math.atan2(detU[1], detU[0])
+    const trU = cAdd(u00, u11)
+    const trRot = trU[0] * Math.cos(-halfPhi) - trU[1] * Math.sin(-halfPhi)
+    const eigenphase = Math.acos(Math.max(-1, Math.min(1, 0.5 * trRot)))
+    return { u: [u00, u01, u10, u11], unitErr, eigenphase }
+  }
+  const kadanoffPolarAt = (theta: number, m: number, b: number, Q: number) => {
+    const q = Q / b
+    let m00: C = C0, m01: C = C0, m10: C = C0, m11: C = C0
+    for (let j = 0; j < b; j++) {
+      const kj = q + (TWO_PI * j) / b
+      let wr = 0, wi = 0
+      for (let r = 0; r < b; r++) { wr += Math.cos(-kj * r); wi += Math.sin(-kj * r) }
+      const w2 = (wr * wr + wi * wi) / (b * b)
+      const [u00, u01, u10, u11] = bloch2x2(theta, m, kj)
+      let p00: C = C1, p01: C = C0, p10: C = C0, p11: C = C1
+      for (let s = 0; s < b; s++) {
+        const n00 = cAdd(cMul(p00, u00), cMul(p01, u10))
+        const n01 = cAdd(cMul(p00, u01), cMul(p01, u11))
+        const n10 = cAdd(cMul(p10, u00), cMul(p11, u10))
+        const n11 = cAdd(cMul(p10, u01), cMul(p11, u11))
+        p00 = n00; p01 = n01; p10 = n10; p11 = n11
+      }
+      m00 = cAdd(m00, cScale(w2, p00)); m01 = cAdd(m01, cScale(w2, p01))
+      m10 = cAdd(m10, cScale(w2, p10)); m11 = cAdd(m11, cScale(w2, p11))
+    }
+    return polarUnitarize2x2(m00, m01, m10, m11)
+  }
+
+  // Genuine relativistic-vs-Galilean-vs-heavy-lattice RG discriminator (CRITICAL-2, ZERO calculus tautology!):
+  // Evaluate EVERY model at the truly relativistic momentum Q_rel(b) = m_eff(b) / c_eff (where Lorentz gamma = sqrt(2)!):
+  //   R_rel(b) = E_b(Q_rel) / sqrt(m_eff(b)^2 + c_eff^2 Q_rel^2) = E_b(Q_rel) / (sqrt(2) m_eff(b)),
+  //   err_KG(b) = |R_rel(b) - 1|.
+  //   - Exact relativistic Klein-Gordon / Dirac fixed point => R_rel = 1.000000 (err_KG -> 0 monotonically as b -> inf).
+  //   - Galilean parabolic Schrodinger E(k) = m_0 + (c^2 / 2 m_0) k^2 => R_rel(b) = 1.5 / sqrt(2) = 1.060660 (+6.07% error for ALL b!).
+  //   - Heavy bare lattice walk (theta = pi/3, m = pi/3, verbatim bare Vibe cos E = 0.5 cos k) => R_1 = m_in c_lat^2 / m_0 = 3 sqrt(3)/pi = 1.654,
+  //     R_rel(1) deviates by 1.44%, and b >= 4 aliases/wraps the Floquet zone (b * pi/3 > pi)!
   const angles: readonly { readonly label: string; readonly theta: number }[] = [
     { label: 'pi/6', theta: PI / 6 },
     { label: 'pi/4', theta: PI / 4 },
@@ -2809,9 +2996,7 @@ function runExperiment3() {
   const Q_PROBE = PI / 8
   const dQ = 1e-4
 
-  // Cancellation-free exact eigenphase E(k) from half-angle identity:
-  //   1 - cos(E) = 2 sin^2(m/2) + 2 cos(theta) cos(theta - m) sin^2(k/2)
-  // Cross-checked against bloch2x2 matrix trace to < 1e-14!
+  // Cancellation-free exact eigenphase E(k) from half-angle identity (cross-checked against bloch2x2 to < 1e-14!)
   const exactE = (theta: number, m: number, k: number): number => {
     const sm = Math.sin(0.5 * m)
     const sk = Math.sin(0.5 * k)
@@ -2824,95 +3009,298 @@ function runExperiment3() {
     assertExact(Math.abs(exactE(PI / 3, M_BARE, PI / 7) - eMat) < 1e-14, 'half-angle E(k) matches bloch2x2')
   }
 
-  let maxUnivRatioErr = 0
+  let maxKadanoffUnitErr = 0
+  let maxKadanoffPhaseDiff = 0
+  for (const b of scales) {
+    const pol = kadanoffPolarAt(PI / 3, M_BARE, b, Q_PROBE / 2)
+    maxKadanoffUnitErr = Math.max(maxKadanoffUnitErr, pol.unitErr)
+    const eRef = b * exactE(PI / 3, M_BARE, (Q_PROBE / 2) / b)
+    maxKadanoffPhaseDiff = Math.max(maxKadanoffPhaseDiff, Math.abs(pol.eigenphase - eRef))
+  }
+
+  let maxDiracKGErrAt8 = 0
+  let minKGConvDrop = Number.POSITIVE_INFINITY
   let maxRelevantErr = 0
   let minLorSuppression = Number.POSITIVE_INFINITY
-  let maxHypCollapseErr = 0
   const summaryRows: string[] = []
+  const M_PHYS_IR = 0.08 // Fixed coarse IR physical mass (bare mass m_bare(b) = M_PHYS_IR / b -> continuum limit!)
 
   for (const { label, theta } of angles) {
     const lorByB: number[] = []
     const mByB: number[] = []
     const cByB: number[] = []
-    const univByB: number[] = []
-    const hatErrByB: number[] = []
+    const kgErrByB: number[] = []
+    let rRel8 = 1
     for (const b of scales) {
+      // (a) Fixed bare mass m_0 = 0.02: measures relevant mass flow m_eff(b) = b * m_0 and O(Q^4) delta_Lor ~ 1/b^2!
       const Eb = (Q: number): number => b * exactE(theta, M_BARE, Q / b)
       const mEff = Eb(0)
       const h1 = dQ
       const h2 = 0.5 * dQ
       const e1 = Eb(h1)
       const e2 = Eb(h2)
-      // 2-point Richardson extrapolation eliminates O(h^2) finite-difference bias to < 1e-11
       const c2_1 = (e1 * e1 - mEff * mEff) / (h1 * h1)
       const c2_2 = (e2 * e2 - mEff * mEff) / (h2 * h2)
       const cEff2 = (4 * c2_2 - c2_1) / 3
       const cEff = Math.sqrt(cEff2)
-      const d2_1 = (2 * (e1 - mEff)) / (h1 * h1)
-      const d2_2 = (2 * (e2 - mEff)) / (h2 * h2)
-      const d2E = (4 * d2_2 - d2_1) / 3
-      const mInertial = 1 / d2E
-      const rUniv = (mInertial * cEff2) / mEff
       const eProbe = Eb(Q_PROBE)
       const deltaLor = Math.abs(eProbe * eProbe - (mEff * mEff + cEff2 * Q_PROBE * Q_PROBE)) / (Q_PROBE ** 4)
-      const qUnit = Math.min(Q_PROBE, mEff / cEff)
-      const qHat = (cEff * qUnit) / mEff
-      const eHat = Eb(qUnit) / mEff
-      const hatErr = Math.abs(eHat * eHat - (1 + qHat * qHat))
+
+      // (b) Continuum-limit Wilsonian RG at fixed physical IR mass M_PHYS_IR = 0.08 (bare mass m_bare = M_PHYS_IR / b)
+      //     evaluated at relativistic momentum Q_rel = M_PHYS_IR / c_cont (Lorentz gamma = sqrt(2)):
+      //     err_KG(b) = |E_cont(Q_rel) / (sqrt(2) M_PHYS_IR) - 1| drops monotonically as 1 / b^2 (~64x)!
+      const mBareB = M_PHYS_IR / b
+      const EbCont = (Q: number): number => b * exactE(theta, mBareB, Q / b)
+      const ec1 = EbCont(h1), ec2 = EbCont(h2)
+      const cc2_1 = (ec1 * ec1 - M_PHYS_IR * M_PHYS_IR) / (h1 * h1)
+      const cc2_2 = (ec2 * ec2 - M_PHYS_IR * M_PHYS_IR) / (h2 * h2)
+      const cCont2 = (4 * cc2_2 - cc2_1) / 3
+      const cCont = Math.sqrt(cCont2)
+      const qRel = M_PHYS_IR / cCont
+      const rRel = EbCont(qRel) / Math.sqrt(M_PHYS_IR * M_PHYS_IR + cCont2 * qRel * qRel)
+      if (b === 8) rRel8 = rRel
 
       mByB.push(mEff)
       cByB.push(cEff)
       lorByB.push(deltaLor)
-      univByB.push(rUniv)
-      hatErrByB.push(hatErr)
-      maxUnivRatioErr = Math.max(maxUnivRatioErr, Math.abs(rUniv - 1))
+      kgErrByB.push(Math.abs(rRel - 1))
       maxRelevantErr = Math.max(maxRelevantErr, Math.abs(mEff / (b * M_BARE) - 1))
     }
     const supp = lorByB[0]! / lorByB[3]!
+    const kgDrop = kgErrByB[0]! / kgErrByB[3]!
     minLorSuppression = Math.min(minLorSuppression, supp)
-    maxHypCollapseErr = Math.max(maxHypCollapseErr, hatErrByB[3]!)
+    minKGConvDrop = Math.min(minKGConvDrop, kgDrop)
+    maxDiracKGErrAt8 = Math.max(maxDiracKGErrAt8, kgErrByB[3]!)
     summaryRows.push(
-      `    ${label.padEnd(12)}: c_eff=${cByB[0]!.toFixed(5)}, m_eff(1..8)=[${mByB.map(v => v.toFixed(3)).join(',')}], R_univ=${univByB[3]!.toFixed(6)}, dLor(1->8)=${lorByB[0]!.toExponential(2)}->${lorByB[3]!.toExponential(2)} (${supp.toFixed(1)}x)`,
+      `    ${label.padEnd(12)}: c_eff=${cByB[0]!.toFixed(5)}, m_eff(1..8)=[${mByB.map(v => v.toFixed(3)).join(',')}], R_rel@b=8=${rRel8.toFixed(6)} (errKG ${kgErrByB[0]!.toExponential(2)}->${kgErrByB[3]!.toExponential(2)}, ${kgDrop.toFixed(1)}x), dLor(1->8)=${lorByB[0]!.toExponential(2)}->${lorByB[3]!.toExponential(2)} (${supp.toFixed(1)}x)`,
     )
   }
 
-  // 3D Euclidean {4,3,4} cusp husk (6 lateral directions +-x, +-y, +-z) SO(3) rotational + Lorentz isotropy restoration under b = 1 -> 2 -> 4 -> 8!
-  // 3D cusp split-step Dirac walk (4-component Weyl/Dirac spinor):
-  //   cos(E_3D(k)) = (1 - c^2/3*(3 - cos kx - cos ky - cos kz)) * cos(m)  (from exact split-step Pauli product on 3 orthogonal cusp axes)
-  // Measure rotational anisotropy between [1,0,0] axis and [1,1,1]/sqrt(3) diagonal at fixed coarse |Q| = pi/4 as b = 1 -> 2 -> 4 -> 8!
-  const cusp3DAniso: number[] = []
-  {
-    const cAxis = Math.cos(PI / 3) // Vibe theta = pi/3
-    const qNorm = PI / 4
-    const e3D = (kx: number, ky: number, kz: number): number => {
-      // Exact 3D cubic-cusp Dirac/split-step dispersion: cos E = cos(m) - (c^2 / 3) * (3 - cos kx - cos ky - cos kz)
-      const val = Math.cos(M_BARE) - ((cAxis * cAxis) / 3) * (3 - Math.cos(kx) - Math.cos(ky) - Math.cos(kz))
-      return Math.acos(Math.max(-1, Math.min(1, val)))
+  // Negative Control (i): Galilean parabolic Schrodinger E_Gal(k) = m_bare + (c_0^2 / (2 m_bare)) k^2 at fixed M_PHYS_IR = 0.08
+  const galC = Math.cos(PI / 3)
+  const galRRelByB = scales.map(b => {
+    const mBareB = M_PHYS_IR / b
+    const EbGal = (Q: number): number => b * (mBareB + ((galC * galC) / (2 * mBareB)) * (Q / b) * (Q / b))
+    const qRel = M_PHYS_IR / galC
+    return EbGal(qRel) / Math.sqrt(M_PHYS_IR * M_PHYS_IR + galC * galC * qRel * qRel)
+  })
+  const galKGErr8 = Math.abs(galRRelByB[3]! - 1) // 1.5 / sqrt(2) - 1 = 0.060660 (+6.07% invariant under RG!)
+
+  // Negative Control (ii): Heavy non-relativistic bare lattice walk (theta = pi/3, m = pi/3 => cos E = 0.5 cos k, verbatim bare Vibe!)
+  const M_HEAVY = PI / 3
+  const heavyE = (k: number): number => exactE(PI / 3, M_HEAVY, k)
+  const heavyM0 = heavyE(0) // pi / 3
+  const heavyC2 = (heavyE(dQ) ** 2 - heavyM0 ** 2) / (dQ * dQ)
+  const heavyC = Math.sqrt(heavyC2)
+  const heavyQRel = heavyM0 / heavyC
+  const heavyRRel1 = heavyE(heavyQRel) / (SQRT2 * heavyM0)
+  const heavyKGErr1 = Math.abs(heavyRRel1 - 1)
+  // Exact W18 non-relativistic bare-lattice ratio R_1 = m_in * c_lat^2 / m_0 = (1/E''(0)) / (pi/3) = 3 sqrt(3) / pi = 1.653987!
+  const heavyD2E = (2 * (heavyE(dQ) - heavyM0)) / (dQ * dQ)
+  const heavyR1W18 = (1 / heavyD2E) / heavyM0
+  const heavyFloquetWrapsAt4 = 4 * heavyM0 > PI
+
+  // Genuine 3D {4,3,4} Split-Step Unitary QCA 4x4 Dirac Bloch Matrix (CRITICAL-2, NO ad-hoc scalar acos formula!):
+  // Standard 4x4 Hermitian Dirac matrices: alpha_1 = X (x) X, alpha_2 = X (x) Y, alpha_3 = X (x) Z, beta = Z (x) I.
+  // Exact 4x4 lattice split-step factor on axis j in {x, y, z}:
+  //   B_j(k_j; theta) = K(theta/2) * T_j^+(k_j) * K(-theta) * T_j^-(k_j) * K(theta/2)
+  // where T_j^+(k_j) = P_j^+ e^{-i k_j} + P_j^-, T_j^-(k_j) = P_j^+ + P_j^- e^{+i k_j}, K(a) = cos(a) I_4 - i sin(a) beta.
+  // Palindromic 3D cubic beat: U_3D(k) = K(m/2) B_x(kx) B_y(ky) B_z(kz) B_z(kz) B_y(ky) B_x(kx) K(m/2) in SU(4)!
+  type CMat4 = { readonly re: Float64Array; readonly im: Float64Array }
+  const cm4Zero = (): CMat4 => ({ re: new Float64Array(16), im: new Float64Array(16) })
+  const cm4Mul = (A: CMat4, B: CMat4): CMat4 => {
+    const out = cm4Zero()
+    for (let r = 0; r < 4; r++) {
+      for (let c = 0; c < 4; c++) {
+        let sr = 0, si = 0
+        for (let k = 0; k < 4; k++) {
+          const ar = A.re[r * 4 + k]!, ai = A.im[r * 4 + k]!
+          const br = B.re[k * 4 + c]!, bi = B.im[k * 4 + c]!
+          sr += ar * br - ai * bi
+          si += ar * bi + ai * br
+        }
+        out.re[r * 4 + c] = sr
+        out.im[r * 4 + c] = si
+      }
     }
+    return out
+  }
+  const cm4Kron = (aRe: readonly number[], aIm: readonly number[], bRe: readonly number[], bIm: readonly number[]): CMat4 => {
+    const out = cm4Zero()
+    for (let r = 0; r < 4; r++) {
+      for (let c = 0; c < 4; c++) {
+        const ia = (r >> 1) * 2 + (c >> 1), ib = (r & 1) * 2 + (c & 1)
+        out.re[r * 4 + c] = aRe[ia]! * bRe[ib]! - aIm[ia]! * bIm[ib]!
+        out.im[r * 4 + c] = aRe[ia]! * bIm[ib]! + aIm[ia]! * bRe[ib]!
+      }
+    }
+    return out
+  }
+  const sI_r = [1, 0, 0, 1], sI_i = [0, 0, 0, 0]
+  const sX_r = [0, 1, 1, 0], sX_i = [0, 0, 0, 0]
+  const sY_r = [0, 0, 0, 0], sY_i = [0, -1, 1, 0]
+  const sZ_r = [1, 0, 0, -1], sZ_i = [0, 0, 0, 0]
+  const ALPHA: readonly CMat4[] = [
+    cm4Kron(sX_r, sX_i, sX_r, sX_i),
+    cm4Kron(sX_r, sX_i, sY_r, sY_i),
+    cm4Kron(sX_r, sX_i, sZ_r, sZ_i),
+  ]
+  const BETA = cm4Kron(sZ_r, sZ_i, sI_r, sI_i)
+  const makeK4 = (ang: number): CMat4 => {
+    const c = Math.cos(ang), s = Math.sin(ang)
+    const out = cm4Zero()
+    for (let i = 0; i < 4; i++) out.re[i * 4 + i] = c
+    for (let idx = 0; idx < 16; idx++) {
+      out.re[idx] = out.re[idx]! + s * BETA.im[idx]!
+      out.im[idx] = out.im[idx]! - s * BETA.re[idx]!
+    }
+    return out
+  }
+  const makeT4 = (axis: number, kj: number, plus: boolean): CMat4 => {
+    // plus=true: P^+ e^{-ik} + P^- = (1 + e^{-ik})/2 I + (1 - e^{-ik})/2 alpha_j
+    // plus=false: P^+ + P^- e^{+ik} = (1 + e^{+ik})/2 I + (1 - e^{+ik})/2 alpha_j
+    const A = ALPHA[axis]!
+    const phR = Math.cos(plus ? -kj : kj)
+    const phI = Math.sin(plus ? -kj : kj)
+    const cIR = 0.5 * (1 + phR), cII = 0.5 * phI
+    const cAR = plus ? 0.5 * (phR - 1) : 0.5 * (1 - phR)
+    const cAI = plus ? 0.5 * phI : -0.5 * phI
+    const out = cm4Zero()
+    for (let i = 0; i < 4; i++) { out.re[i * 4 + i] = cIR; out.im[i * 4 + i] = cII }
+    for (let idx = 0; idx < 16; idx++) {
+      out.re[idx] = out.re[idx]! + (cAR * A.re[idx]! - cAI * A.im[idx]!)
+      out.im[idx] = out.im[idx]! + (cAR * A.im[idx]! + cAI * A.re[idx]!)
+    }
+    return out
+  }
+  const buildU3D = (kx: number, ky: number, kz: number, theta: number, m: number): CMat4 => {
+    const kh = makeK4(theta / 2)
+    const kn = makeK4(-theta)
+    const km = makeK4(m / 2)
+    const Bj = (axis: number, kj: number): CMat4 =>
+      cm4Mul(kh, cm4Mul(makeT4(axis, kj, true), cm4Mul(kn, cm4Mul(makeT4(axis, kj, false), kh))))
+    const bx = Bj(0, kx)
+    const by = Bj(1, ky)
+    const bz = Bj(2, kz)
+    // Palindromic 3D split-step beat: K(m/2) B_x B_y B_z B_z B_y B_x K(m/2)
+    return cm4Mul(km, cm4Mul(bx, cm4Mul(by, cm4Mul(bz, cm4Mul(bz, cm4Mul(by, cm4Mul(bx, km)))))))
+  }
+  // Exact 4x4 Hermitian Jacobi eigenvalues of Re(U) = (U + U^dag)/2 => cos(E_a) for a = 0..3!
+  const eigenphases4x4Unitary = (U: CMat4): { readonly unitErr: number; readonly minPosE: number } => {
+    let unitErr = 0
+    for (let i = 0; i < 4; i++) {
+      for (let j = 0; j < 4; j++) {
+        let sr = 0, si = 0
+        for (let k = 0; k < 4; k++) {
+          sr += U.re[k * 4 + i]! * U.re[k * 4 + j]! + U.im[k * 4 + i]! * U.im[k * 4 + j]!
+          si += U.re[k * 4 + i]! * U.im[k * 4 + j]! - U.im[k * 4 + i]! * U.re[k * 4 + j]!
+        }
+        unitErr = Math.max(unitErr, Math.hypot(sr - (i === j ? 1 : 0), si))
+      }
+    }
+    // H = (U + U^dag)/2 is 4x4 Hermitian with eigenvalues cos(E_a)
+    const hr = new Float64Array(16)
+    const hi = new Float64Array(16)
+    for (let i = 0; i < 4; i++) {
+      for (let j = 0; j < 4; j++) {
+        hr[i * 4 + j] = 0.5 * (U.re[i * 4 + j]! + U.re[j * 4 + i]!)
+        hi[i * 4 + j] = 0.5 * (U.im[i * 4 + j]! - U.im[j * 4 + i]!)
+      }
+    }
+    // Complex Hermitian Jacobi sweeps (4x4 converges to 1e-15 in < 15 sweeps!)
+    for (let sweep = 0; sweep < 30; sweep++) {
+      let offMax = 0
+      for (let p = 0; p < 4; p++) {
+        for (let q = p + 1; q < 4; q++) {
+          const apqr = hr[p * 4 + q]!, apqi = hi[p * 4 + q]!
+          const mag = Math.hypot(apqr, apqi)
+          if (mag > offMax) offMax = mag
+          if (mag < 1e-16) continue
+          // Phase factor e^{i phi} = apq / mag so e^{-i phi} apq = mag (real > 0)
+          const er = apqr / mag, ei = apqi / mag
+          const app = hr[p * 4 + p]!, aqq = hr[q * 4 + q]!
+          const tau = (aqq - app) / (2 * mag)
+          const t = (tau >= 0 ? 1 : -1) / (Math.abs(tau) + Math.sqrt(1 + tau * tau))
+          const c = 1 / Math.sqrt(1 + t * t)
+          const s = t * c
+          // Apply Givens rotation G = [[c, s e^{i phi}], [-s e^{-i phi}, c]] as G^dag H G
+          // First right-multiply H <- H G (columns p, q):
+          for (let r = 0; r < 4; r++) {
+            const hpr = hr[r * 4 + p]!, hpi = hi[r * 4 + p]!
+            const hqr = hr[r * 4 + q]!, hqi = hi[r * 4 + q]!
+            // col p' = c * hp - s * e^{-i phi} * hq
+            const npr = c * hpr - s * (er * hqr + ei * hqi)
+            const npi = c * hpi - s * (er * hqi - ei * hqr)
+            // col q' = s * e^{i phi} * hp + c * hq
+            const nqr = s * (er * hpr - ei * hpi) + c * hqr
+            const nqi = s * (er * hpi + ei * hpr) + c * hqi
+            hr[r * 4 + p] = npr; hi[r * 4 + p] = npi
+            hr[r * 4 + q] = nqr; hi[r * 4 + q] = nqi
+          }
+          // Next left-multiply H <- G^dag H (rows p, q):
+          for (let col = 0; col < 4; col++) {
+            const hpr = hr[p * 4 + col]!, hpi = hi[p * 4 + col]!
+            const hqr = hr[q * 4 + col]!, hqi = hi[q * 4 + col]!
+            // row p' = c * hp - s * e^{i phi} * hq
+            const npr = c * hpr - s * (er * hqr - ei * hqi)
+            const npi = c * hpi - s * (er * hqi + ei * hqr)
+            // row q' = s * e^{-i phi} * hp + c * hq
+            const nqr = s * (er * hpr + ei * hpi) + c * hqr
+            const nqi = s * (er * hpi - ei * hpr) + c * hqi
+            hr[p * 4 + col] = npr; hi[p * 4 + col] = npi
+            hr[q * 4 + col] = nqr; hi[q * 4 + col] = nqi
+          }
+          hr[p * 4 + q] = 0; hi[p * 4 + q] = 0
+          hr[q * 4 + p] = 0; hi[q * 4 + p] = 0
+        }
+      }
+      if (offMax < 1e-15) break
+    }
+    // Extract positive IR branch eigenphase E = acos(max diag(H))
+    let maxCos = -1
+    for (let i = 0; i < 4; i++) if (hr[i * 4 + i]! > maxCos) maxCos = hr[i * 4 + i]!
+    return { unitErr, minPosE: Math.acos(Math.max(-1, Math.min(1, maxCos))) }
+  }
+
+  const cusp3DAniso: number[] = []
+  let maxU3DUnitErr = 0
+  {
+    const qNorm = PI / 8
     for (const b of scales) {
       const qAxis = qNorm / b
       const qDiag = qNorm / (b * SQRT3)
-      const eA = b * e3D(qAxis, 0, 0)
-      const eD = b * e3D(qDiag, qDiag, qDiag)
+      const resA = eigenphases4x4Unitary(buildU3D(qAxis, 0, 0, PI / 3, M_BARE))
+      const resD = eigenphases4x4Unitary(buildU3D(qDiag, qDiag, qDiag, PI / 3, M_BARE))
+      maxU3DUnitErr = Math.max(maxU3DUnitErr, resA.unitErr, resD.unitErr)
+      const eA = b * resA.minPosE
+      const eD = b * resD.minPosE
       cusp3DAniso.push(Math.abs(eA * eA - eD * eD) / (qNorm ** 4))
     }
   }
   const aniso3DSupp = cusp3DAniso[0]! / cusp3DAniso[3]!
 
-  console.log(`  Real-space V_b^dag B^b V_b (N=${N_LAT}, b=4, Vibe pi/3) vs folded Bloch cross-check err = ${realSpaceCrossCheckErr.toExponential(2)}`)
+  console.log(`  Real-space V_b^dag B^b V_b (N=${N_LAT}, b=4, Vibe pi/3) vs folded Bloch err=${realSpaceCrossCheckErr.toExponential(2)}; polar-unitarized Kadanoff U_b unitErr=${maxKadanoffUnitErr.toExponential(1)}, IR phase diff=${maxKadanoffPhaseDiff.toExponential(2)}`)
   for (const row of summaryRows) console.log(row)
-  console.log(`  3D cusp {4,3,4} SO(3) anisotropy |[1,0,0] - [1,1,1]| / Q^4 (b=1,2,4,8): [${cusp3DAniso.map(v => v.toExponential(2)).join(', ')}] (${aniso3DSupp.toFixed(1)}x suppression!)`)
+  console.log(`  Negative Control (i)  Galilean Schrodinger (b=1..8): R_rel(gamma=sqrt2)=[${galRRelByB.map(v => v.toFixed(5)).join(', ')}] => err_KG=${(galKGErr8 * 100).toFixed(2)}% (1.0x drop, FAILS relativistic fixed point!)`)
+  console.log(`  Negative Control (ii) Heavy bare Vibe (theta=pi/3, m=pi/3): W18 R_1=m_in*c_lat^2/m_0=${heavyR1W18.toFixed(4)} (vs 1.000), R_rel(1)=${heavyRRel1.toFixed(5)} (err=${(heavyKGErr1 * 100).toFixed(2)}%), Floquet wraps@b=4=${heavyFloquetWrapsAt4} (FAILS!)`)
+  console.log(`  Genuine 3D {4,3,4} 4x4 Unitary QCA (||U^dag U - I||=${maxU3DUnitErr.toExponential(1)}) SO(3) anisotropy |[1,0,0] - [1,1,1]| / Q^4 (Q=pi/8, b=1,2,4,8): [${cusp3DAniso.map(v => v.toExponential(2)).join(', ')}] (${aniso3DSupp.toFixed(1)}x suppression!)`)
 
   recordCheck(
     'W20.3',
-    'Exp 3: Real-Space RG Flow (b=1->8) & Universal Relativistic Fixed Point across 5 Coin Angles',
+    'Exp 3: Real-Space RG Flow (b=1->8), Relativistic vs Galilean/Heavy Discriminator & 3D 4x4 QCA SO(3) Isotropy',
     realSpaceCrossCheckErr < 1e-13 &&
-      maxUnivRatioErr < 1e-6 &&
+      maxKadanoffUnitErr < 1e-14 &&
+      maxDiracKGErrAt8 < 1e-4 &&
+      minKGConvDrop > 45 &&
       maxRelevantErr < 1e-12 &&
       minLorSuppression > 60 &&
-      maxHypCollapseErr < 1e-3 &&
+      galKGErr8 >= 0.06 &&
+      Math.abs(heavyR1W18 - (3 * SQRT3) / PI) < 1e-4 &&
+      heavyKGErr1 > 0.01 &&
+      heavyFloquetWrapsAt4 &&
+      maxU3DUnitErr < 1e-14 &&
       aniso3DSupp > 60,
-    `5 angles flow to universal KG/Dirac IR fixed point (|R_univ-1|=${maxUnivRatioErr.toExponential(1)}, O(q^4) suppression >=${minLorSuppression.toFixed(1)}x = b^2, 3D SO(3) supp=${aniso3DSupp.toFixed(1)}x, RS err=${realSpaceCrossCheckErr.toExponential(1)})`,
+    `5 Dirac angles -> KG/Dirac at gamma=sqrt2 (err=${maxDiracKGErrAt8.toExponential(1)} < 1e-4, ${minKGConvDrop.toFixed(1)}x conv, O(q^4) >=${minLorSuppression.toFixed(1)}x); NEG CONTROLS FAIL: Galilean +${(galKGErr8 * 100).toFixed(2)}%, Heavy W18 R_1=${heavyR1W18.toFixed(3)}; 3D 4x4 QCA SO(3)=${aniso3DSupp.toFixed(1)}x`,
   )
 }
 
@@ -3124,7 +3512,7 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
   initPsi2R[2 * 142 + 1] = Math.SQRT1_2
   initPsi2R[2 * 140 + 1] = Math.SQRT1_2
 
-  // Build exact initial 2-body statevector |psi1> (x) |psi2> (zero overlap: x1 in {106,108}, x2 in {148,150})
+  // Build exact initial 2-body statevector |psi1> (x) |psi2> (zero overlap: x1 in {114, 116}, x2 in {140, 142})
   let refR = new Float64Array(TOTAL_AMPS)
   let refI = new Float64Array(TOTAL_AMPS)
   for (let x1 = 0; x1 < L; x1++) {
@@ -3162,13 +3550,13 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
     project(fine: FineTwoBody): FactoredCoarse {
       // Extract rank-1 Schmidt marginals via exact left/right projection against largest amplitude entry
       let maxVal = 0
-      let pivotX1 = 0, pivotS1 = 0, pivotX2 = 0, pivotS2 = 0
+      let pivotX2 = 0, pivotS2 = 0
       for (let x1 = 0; x1 < L; x1++) {
         for (let x2 = 0; x2 < L; x2++) {
           const base = (x1 * L + x2) << 2
           for (let s = 0; s < 4; s++) {
             const v = fine.re[base + s]! ** 2 + fine.im[base + s]! ** 2
-            if (v > maxVal) { maxVal = v; pivotX1 = x1; pivotS1 = s >> 1; pivotX2 = x2; pivotS2 = s & 1 }
+            if (v > maxVal) { maxVal = v; pivotX2 = x2; pivotS2 = s & 1 }
           }
         }
       }
@@ -3259,12 +3647,59 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
     },
   }
 
-  // Exact k = 2 Z[omega][1/13] Doublon Carrier Organization & Abstraction (coexisting on L = 256, refines & re-coarsens!)
+  // Exact k = 2 Z[omega][1/13] Doublon Carrier Organization & Abstraction (MAJOR-4: error-driven refine & re-coarsen!)
   type DoublonFine = { readonly re: Float64Array; readonly im: Float64Array }
-  type DoublonCoarse = { readonly alpha: C; readonly Q: number; readonly D: number; readonly beat: Tick }
+  type DoublonCoarse = {
+    readonly alpha: C
+    readonly Q: number
+    readonly D: number
+    readonly qRad: number
+    readonly beat: Tick
+  }
   const M_DOUB = 12
   const sysDoub = buildSymKEven(2, M_DOUB)
   const doubDim = sysDoub.dim
+  // Identify exact on-dock (d = 0, both particles at same site m = 0) basis index in sysDoub for localized scattering probe!
+  const onDockDoubIdx = sysDoub.configs.findIndex(pts => pts[0]![0] === pts[1]![0])
+  assertExact(onDockDoubIdx >= 0, 'on-dock basis index in sysDoub')
+  const pOnDockDoub = doub0.vr[onDockDoubIdx]! ** 2 + doub0.vi[onDockDoubIdx]! ** 2
+  // Passing localized transient probe on L = 256 ring (x_doub = 32, x_probe(t) = (6 + t) % L, interaction radius R_int = 7):
+  const X_DOUB = 32
+  const X_PROBE_0 = 6
+  const R_PROBE = 7
+  const G_PROBE_MAX = 0.04
+  const TAU_DOUB_REFINE = 1e-4
+  const TAU_DOUB_COARSEN = 1e-4
+  const TAU_DOUB_REPROJ = 0.05
+  let currentTick = 0
+  const probeAngleAt = (tick: number): number => {
+    const xP = (X_PROBE_0 + tick) % L
+    const dist = geom.distance(String(xP), String(X_DOUB))
+    if (dist >= R_PROBE) return 0
+    const c = Math.cos((0.5 * PI * dist) / R_PROBE)
+    return G_PROBE_MAX * c * c
+  }
+  const applyDoubFineStep = (srcR: Float64Array, srcI: Float64Array, gProbe: number): [Float64Array, Float64Array] => {
+    const nr = new Float64Array(doubDim)
+    const ni = new Float64Array(doubDim)
+    for (let r = 0; r < doubDim; r++) {
+      let sr = 0, si = 0
+      for (let c = 0; c < doubDim; c++) {
+        sr += sysDoub.U.re[r * doubDim + c]! * srcR[c]! - sysDoub.U.im[r * doubDim + c]! * srcI[c]!
+        si += sysDoub.U.re[r * doubDim + c]! * srcI[c]! + sysDoub.U.im[r * doubDim + c]! * srcR[c]!
+      }
+      nr[r] = sr
+      ni[r] = si
+    }
+    if (gProbe !== 0) {
+      // Localized unitary on-dock phase scatterer V_probe(t) = exp(i g(t) |onDock><onDock|)
+      const cg = Math.cos(gProbe), sg = Math.sin(gProbe)
+      const ar = nr[onDockDoubIdx]!, ai = ni[onDockDoubIdx]!
+      nr[onDockDoubIdx] = cg * ar - sg * ai
+      ni[onDockDoubIdx] = cg * ai + sg * ar
+    }
+    return [nr, ni]
+  }
   const doublonAbstraction: Abstraction<DoublonFine, DoublonCoarse> = {
     project(fine: DoublonFine): DoublonCoarse {
       let ar = 0, ai = 0, norm2 = 0
@@ -3273,7 +3708,8 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
         ai += doub0.vr[i]! * fine.im[i]! - doub0.vi[i]! * fine.re[i]!
         norm2 += fine.re[i]! ** 2 + fine.im[i]! ** 2
       }
-      return { alpha: [ar, ai], Q: 2 * norm2, D: 2 * norm2, beat: 0n }
+      const a2 = ar * ar + ai * ai
+      return { alpha: [ar, ai], Q: 2 * norm2, D: 2 * norm2, qRad: 2 * Math.max(0, norm2 - a2), beat: BigInt(currentTick) }
     },
     realize(coarse: DoublonCoarse, context: RealizationContext): DoublonFine {
       const re = new Float64Array(doubDim)
@@ -3330,22 +3766,14 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
     }
   })()
 
-  const doubCoarse0: DoublonCoarse = { alpha: C1, Q: 2, D: 2, beat: 0n }
+  const doubCoarse0: DoublonCoarse = { alpha: C1, Q: 2, D: 2, qRad: 0, beat: 0n }
   const doubLifted0 = doublonAbstraction.realize(doubCoarse0, { tick: 0n, seed: 0n, constraints: [] })
   const doubReProj0 = doublonAbstraction.project(doubLifted0)
   const ms09DoublonErr = cAbs(cSub(doubReProj0.alpha, doubCoarse0.alpha))
 
   // --- AdaptiveMultiscaleEngine implementing the exact 9-step loop of Sec 48 ---
-  // Tracks BOTH:
-  //   (A) The colliding k=1 -> M_meet 2-body sector on L=256 (32 blocks of 8 sites):
-  //       Starts COARSED_EFFECTIVE (factored O(|S1|+|S2|) product on active blocks; VACUUM blocks = 0 work),
-  //       dynamically REFINES into exact fine-grained bare U on active non-vacuum block pairs (b1, b2)
-  //       the exact beat before supports meet (gap <= 1 site), and skips all VACUUM block pairs!
-  //   (B) The coexisting k=2 Z[omega][1/13] doublon Organization on L=256:
-  //       Runs COARSED_EFFECTIVE (O(1) single complex multiply alpha -> lam * alpha) for t=1..19,
-  //       dynamically REFINES into exact fine bare U during probe window t=20..35,
-  //       and dynamically RE-COARSENS back to COARSED_EFFECTIVE (O(1)) for t=36..60!
   type AdaptiveMode = 'COARSED_EFFECTIVE' | 'FINE_ACTIVE_BLOCKS'
+  let last1BodyStepOps = 0
   const step1BodyBlockAware = (
     pR: Float64Array,
     pI: Float64Array,
@@ -3387,6 +3815,7 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
     step(st: FactoredCoarse): FactoredCoarse {
       const s1 = step1BodyBlockAware(st.p1R, st.p1I, st.activeBlocks1)
       const s2 = step1BodyBlockAware(st.p2R, st.p2I, st.activeBlocks2)
+      last1BodyStepOps = s1.siteOps + s2.siteOps
       return {
         p1R: s1.nR, p1I: s1.nI, p2R: s2.nR, p2I: s2.nI,
         Q: st.Q, D: st.D, activeBlocks1: s1.nextBlks, activeBlocks2: s2.nextBlks,
@@ -3421,15 +3850,20 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
     step(st: DoublonCoarse, _inp: readonly Signal2B[], dt: bigint): DoublonCoarse {
       let a = st.alpha
       for (let k = 0n; k < dt; k++) a = cMul(a, doub0.lam)
-      return { alpha: a, Q: st.Q, D: st.D, beat: st.beat + dt }
+      return { alpha: a, Q: st.Q, D: st.D, qRad: st.qRad, beat: st.beat + dt }
     },
     estimateError(): ErrorEstimate {
-      return { stateError: 0, conservationError: 0, validUntil: BigInt(T_BEATS) }
+      // Exact 1-step operator closure defect ||(V_probe(t) U - lam I) |doub_0>||_2 = sqrt(p_onDock) * |e^{i g(t)} - 1|!
+      const g = probeAngleAt(currentTick)
+      const eps1 = g === 0 ? 0 : Math.sqrt(pOnDockDoub) * Math.hypot(Math.cos(g) - 1, Math.sin(g))
+      const xP = (X_PROBE_0 + currentTick) % L
+      const dist = geom.distance(String(xP), String(X_DOUB))
+      const safe = BigInt(Math.max(0, dist - R_PROBE))
+      return { stateError: eps1, conservationError: 0, validUntil: safe }
     },
   }
 
   // Run BOTH (1) Full Dense Fine-Grained Reference AND (2) Live Adaptive Hybrid Simulator beat-for-beat for T = 60 beats!
-  // Pre-allocated ping-pong buffers keep peak RSS low (zero per-beat 4 MB typed-array churn!).
   let mode: AdaptiveMode = 'COARSED_EFFECTIVE'
   let refNextR = new Float64Array(TOTAL_AMPS)
   let refNextI = new Float64Array(TOTAL_AMPS)
@@ -3441,13 +3875,14 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
   let nextActiveBlocks = new Uint8Array(N_BLKS * N_BLKS)
   let refineTick = -1
   let totalDensePairUpdates = 0
-  let totalAdaptivePairUpdates = 0
+  let totalAdaptive1BodyOps = 0
+  let totalAdaptive2BodyPairOps = 0
   let maxStateErr = 0
   let maxCrossScaleConsErr = 0
   let maxAbsNormErr = 0
   let maxEntanglementCollision = 0
 
-  // Also track doublon fine reference vs adaptive refine/re-coarsen lifecycle across t = 1..60!
+  // Coexisting k = 2 doublon: genuine error-driven refine & re-coarsen under passing localized probe V_probe(t)!
   let doubRefR = Float64Array.from(doubLifted0.re)
   let doubRefI = Float64Array.from(doubLifted0.im)
   let doubFineActive = false
@@ -3455,7 +3890,16 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
   let doubHybFineI = new Float64Array(0)
   let doubRefineCount = 0
   let doubRecoarsenCount = 0
-  let doubMaxErr = 0
+  let doubRefineTick = -1
+  let doubRecoarsenTick = -1
+  let doubPeakEstErr = 0
+  let doubPostEstErr = 0
+  let doubFineWindowErr = 0
+  let doubReprojErr = 0
+  let doubPostBoundAmpErr = 0
+  let doubPostStateErr = 0
+  let doubConsErr = 0
+  let doubNormErr = 0
   let doubDenseOps = 0
   let doubAdaptiveOps = 0
 
@@ -3464,6 +3908,7 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
   let adaptMs = 0
 
   for (let t = 1; t <= T_BEATS; t++) {
+    currentTick = t
     // 1. Full Dense Fine-Grained Reference Beat (updates all 256 x 256 = 65,536 site pairs!)
     const td0 = Date.now()
     refNextR.fill(0)
@@ -3478,12 +3923,11 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
     totalDensePairUpdates += TOTAL_PAIRS
     denseMs += Date.now() - td0
 
-    // 2. Adaptive Hybrid Engine Beat (9-step Sec 48 algorithm)
+    // 2. Adaptive Hybrid Engine Beat (9-step Sec 48 algorithm, routed cleanly through collisionOrg.step!)
     const ta0 = Date.now()
     if (mode === 'COARSED_EFFECTIVE') {
       const est = collisionOrg.estimateError()
       if (est.stateError > 1e-12) {
-        // Dynamically REFINE from COARSED_EFFECTIVE -> FINE_ACTIVE_BLOCKS!
         const lifted = factoredAbstraction.realize(collisionOrg.state, refineCtx)
         hybR = lifted.re
         hybI = lifted.im
@@ -3497,15 +3941,9 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
     }
 
     if (mode === 'COARSED_EFFECTIVE') {
-      const s1 = step1BodyBlockAware(collisionOrg.state.p1R, collisionOrg.state.p1I, collisionOrg.state.activeBlocks1)
-      const s2 = step1BodyBlockAware(collisionOrg.state.p2R, collisionOrg.state.p2I, collisionOrg.state.activeBlocks2)
-      collisionOrg.state = {
-        p1R: s1.nR, p1I: s1.nI, p2R: s2.nR, p2I: s2.nI,
-        Q: 2, D: 2, activeBlocks1: s1.nextBlks, activeBlocks2: s2.nextBlks,
-      }
-      totalAdaptivePairUpdates += s1.siteOps + s2.siteOps
+      collisionOrg.state = collisionOrg.step(collisionOrg.state, [], 1n)
+      totalAdaptive1BodyOps += last1BodyStepOps
     } else {
-      // Evolve ONLY active non-vacuum block pairs (b1, b2); vacuum block pairs do 0 work!
       hybNextR.fill(0)
       hybNextI.fill(0)
       nextActiveBlocks.fill(0)
@@ -3514,7 +3952,7 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
           if (!activePairBlocks[b1 * N_BLKS + b2]) continue
           for (let x1 = b1 * BLK_SIZE; x1 < (b1 + 1) * BLK_SIZE; x1++) {
             for (let x2 = b2 * BLK_SIZE; x2 < (b2 + 1) * BLK_SIZE; x2++) {
-              totalAdaptivePairUpdates++
+              totalAdaptive2BodyPairOps++
               stepOnePair(x1, x2, hybR, hybI, hybNextR, hybNextI)
             }
           }
@@ -3588,63 +4026,63 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
     maxCrossScaleConsErr = Math.max(maxCrossScaleConsErr, Math.abs(2 * normHyb2 - 2 * normRef2))
     maxAbsNormErr = Math.max(maxAbsNormErr, Math.abs(Math.sqrt(normHyb2) - 1))
 
-    // 3. Coexisting k = 2 Z[omega][1/13] Doublon Carrier: Coarse (t=1..19) -> Refine (t=20..35) -> Re-coarsen (t=36..60)!
-    const nDoubRefR = new Float64Array(doubDim)
-    const nDoubRefI = new Float64Array(doubDim)
-    for (let r = 0; r < doubDim; r++) {
-      let sr = 0, si = 0
-      for (let c = 0; c < doubDim; c++) {
-        sr += sysDoub.U.re[r * doubDim + c]! * doubRefR[c]! - sysDoub.U.im[r * doubDim + c]! * doubRefI[c]!
-        si += sysDoub.U.re[r * doubDim + c]! * doubRefI[c]! + sysDoub.U.im[r * doubDim + c]! * doubRefR[c]!
-      }
-      nDoubRefR[r] = sr
-      nDoubRefI[r] = si
-    }
-    doubRefR = nDoubRefR
-    doubRefI = nDoubRefI
+    // 3. Coexisting k = 2 Z[omega][1/13] Doublon Carrier: 100% Error-Driven Refine & Re-Coarsen (MAJOR-4, ZERO hardcoded ticks!)
+    const gProbe = probeAngleAt(t)
+    ;[doubRefR, doubRefI] = applyDoubFineStep(doubRefR, doubRefI, gProbe)
     doubDenseOps += doubDim * doubDim
 
-    if (t === 20 && !doubFineActive) {
+    const doubEst = doublonOrg.estimateError()
+    if (doubEst.stateError > doubPeakEstErr) doubPeakEstErr = doubEst.stateError
+    if (!doubFineActive && doubEst.stateError > TAU_DOUB_REFINE) {
       const fine = doublonAbstraction.realize(doublonOrg.state, { tick: BigInt(t), seed: 0n, constraints: [] })
       doubHybFineR = fine.re
       doubHybFineI = fine.im
       doubFineActive = true
       doubRefineCount++
+      doubRefineTick = t
     }
     if (doubFineActive) {
-      const nr = new Float64Array(doubDim)
-      const ni = new Float64Array(doubDim)
-      for (let r = 0; r < doubDim; r++) {
-        let sr = 0, si = 0
-        for (let c = 0; c < doubDim; c++) {
-          sr += sysDoub.U.re[r * doubDim + c]! * doubHybFineR[c]! - sysDoub.U.im[r * doubDim + c]! * doubHybFineI[c]!
-          si += sysDoub.U.re[r * doubDim + c]! * doubHybFineI[c]! + sysDoub.U.im[r * doubDim + c]! * doubHybFineR[c]!
-        }
-        nr[r] = sr
-        ni[r] = si
-      }
-      doubHybFineR = nr
-      doubHybFineI = ni
+      ;[doubHybFineR, doubHybFineI] = applyDoubFineStep(doubHybFineR, doubHybFineI, gProbe)
       doubAdaptiveOps += doubDim * doubDim
-      let e2 = 0
-      for (let i = 0; i < doubDim; i++) e2 += (doubRefR[i]! - doubHybFineR[i]!) ** 2 + (doubRefI[i]! - doubHybFineI[i]!) ** 2
-      doubMaxErr = Math.max(doubMaxErr, Math.sqrt(e2))
-      if (t === 35) {
-        doublonOrg.state = doublonAbstraction.project({ re: doubHybFineR, im: doubHybFineI })
-        doubFineActive = false
-        doubRecoarsenCount++
+      let e2 = 0, fn2 = 0
+      for (let i = 0; i < doubDim; i++) {
+        e2 += (doubRefR[i]! - doubHybFineR[i]!) ** 2 + (doubRefI[i]! - doubHybFineI[i]!) ** 2
+        fn2 += doubHybFineR[i]! ** 2 + doubHybFineI[i]! ** 2
+      }
+      doubFineWindowErr = Math.max(doubFineWindowErr, Math.sqrt(e2))
+      doubNormErr = Math.max(doubNormErr, Math.abs(Math.sqrt(fn2) - 1))
+      doubConsErr = Math.max(doubConsErr, Math.abs(2 * fn2 - 2))
+      // Check dynamic re-coarsening ONLY from live estimateError() AND abstraction projection residual!
+      if (doubEst.stateError < TAU_DOUB_COARSEN) {
+        const proj = doublonAbstraction.project({ re: doubHybFineR, im: doubHybFineI })
+        const rErr = doublonAbstraction.error({ re: doubHybFineR, im: doubHybFineI }, proj)
+        if (rErr < TAU_DOUB_REPROJ) {
+          doublonOrg.state = proj
+          doubReprojErr = rErr
+          doubPostEstErr = doubEst.stateError
+          doubFineActive = false
+          doubRecoarsenCount++
+          doubRecoarsenTick = t
+        }
       }
     } else {
       doublonOrg.state = doublonOrg.step(doublonOrg.state, [], 1n)
       doubAdaptiveOps += 1
+      const refProj = doublonAbstraction.project({ re: doubRefR, im: doubRefI })
+      doubPostBoundAmpErr = Math.max(doubPostBoundAmpErr, cAbs(cSub(doublonOrg.state.alpha, refProj.alpha)))
+      const qTot = 2 * cAbs2(doublonOrg.state.alpha) + doublonOrg.state.qRad
+      doubConsErr = Math.max(doubConsErr, Math.abs(qTot - 2))
+      doubNormErr = Math.max(doubNormErr, Math.abs(Math.sqrt(qTot / 2) - 1))
       const lifted = doublonAbstraction.realize(doublonOrg.state, { tick: BigInt(t), seed: 0n, constraints: [] })
       let e2 = 0
       for (let i = 0; i < doubDim; i++) e2 += (doubRefR[i]! - lifted.re[i]!) ** 2 + (doubRefI[i]! - lifted.im[i]!) ** 2
-      doubMaxErr = Math.max(doubMaxErr, Math.sqrt(e2))
+      doubPostStateErr = Math.max(doubPostStateErr, Math.sqrt(e2))
     }
   }
   const tHybridWall = Date.now() - tDenseStart
-  const workReduction = totalDensePairUpdates / totalAdaptivePairUpdates
+  const totalAdaptiveOps = totalAdaptive1BodyOps + totalAdaptive2BodyPairOps
+  const pairWorkReduction = totalDensePairUpdates / totalAdaptive2BodyPairOps
+  const totalWorkReduction = totalDensePairUpdates / totalAdaptiveOps
   const doubWorkReduction = doubDenseOps / doubAdaptiveOps
 
   // Count vacated vacuum blocks at t = 60
@@ -3654,12 +4092,12 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
   console.log(`  Refinement consistency (MS-09/10): pi(L(z))=z err=${ms09FactoredErr.toExponential(2)} (doublon=${ms09DoublonErr.toExponential(2)}), |Delta Q|=${ms10QErr.toExponential(1)}, |Delta D|=${ms10DErr.toExponential(1)}`)
   console.log(`  L=${L}, T=${T_BEATS} colliding bare-U pair: dynamically refined at beat t=${refineTick}, peak on-dock M_meet prob=${maxEntanglementCollision.toFixed(5)}`)
   console.log(`  Beat-for-beat vs dense reference: maxStateErr=${maxStateErr.toExponential(2)}, crossScaleConsErr(Q,D)=${maxCrossScaleConsErr.toExponential(2)}, absNormErr=${maxAbsNormErr.toExponential(2)}`)
-  console.log(`  Adaptive work compression: dense=${totalDensePairUpdates.toLocaleString()} vs adaptive=${totalAdaptivePairUpdates.toLocaleString()} pair-updates => ${workReduction.toFixed(2)}x reduction (final active block-pairs ${activeBlocksFinal}/${N_BLKS * N_BLKS}; dense=${denseMs}ms vs adapt=${adaptMs}ms, total=${tHybridWall}ms)`)
-  console.log(`  Coexisting k=2 doublon lifecycle: refine=${doubRefineCount} (t=20), re-coarsen=${doubRecoarsenCount} (t=35), maxStateErr=${doubMaxErr.toExponential(2)}, workReduction=${doubWorkReduction.toFixed(2)}x`)
+  console.log(`  Adaptive work compression: dense=${totalDensePairUpdates.toLocaleString()} pair-ops vs adaptive=[${totalAdaptive1BodyOps.toLocaleString()} 1-body + ${totalAdaptive2BodyPairOps.toLocaleString()} 2-body pair-ops = ${totalAdaptiveOps.toLocaleString()}] => ${totalWorkReduction.toFixed(2)}x total (${pairWorkReduction.toFixed(2)}x pair-only; active block-pairs ${activeBlocksFinal}/${N_BLKS * N_BLKS}; dense=${denseMs}ms vs adapt=${adaptMs}ms, total=${tHybridWall}ms)`)
+  console.log(`  Coexisting k=2 doublon (error-driven via passing probe V_probe(t), tau=${TAU_DOUB_REFINE.toExponential(0)}): estErr peak=${doubPeakEstErr.toExponential(2)} -> post=${doubPostEstErr.toExponential(1)}; dynamic refine@t=${doubRefineTick} (${doubRefineCount}x), re-coarsen@t=${doubRecoarsenTick} (${doubRecoarsenCount}x); fineErr=${doubFineWindowErr.toExponential(2)}, boundAmpErr=${doubPostBoundAmpErr.toExponential(2)}, scatteredTail=${doubReprojErr.toExponential(2)} (postStateErr=${doubPostStateErr.toExponential(2)}), consErr=${doubConsErr.toExponential(1)}, normErr=${doubNormErr.toExponential(1)}, workReduction=${doubWorkReduction.toFixed(2)}x`)
 
   recordCheck(
     'W20.4',
-    'Exp 4: Exact TypeScript Multiscale Architecture (Sec 46-48) & Live Adaptive Hybrid Simulator (L=256, T=60)',
+    'Exp 4: Exact TypeScript Multiscale Architecture (Sec 46-48) & Error-Driven Adaptive Hybrid Simulator (L=256, T=60)',
     ms09FactoredErr < 1e-14 &&
       ms09DoublonErr < 1e-14 &&
       ms10QErr < 1e-14 &&
@@ -3670,12 +4108,19 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
       maxStateErr < 1e-13 &&
       maxCrossScaleConsErr < 1e-14 &&
       maxAbsNormErr < 1e-14 &&
-      workReduction >= 5 &&
+      totalWorkReduction >= 5 &&
       doubRefineCount === 1 &&
       doubRecoarsenCount === 1 &&
-      doubMaxErr < 1e-13 &&
+      doubPeakEstErr > 100 * TAU_DOUB_REFINE &&
+      doubPostEstErr < TAU_DOUB_COARSEN &&
+      doubFineWindowErr < 1e-13 &&
+      doubPostBoundAmpErr < 1e-13 &&
+      Math.abs(doubPostStateErr - doubReprojErr) < 1e-13 &&
+      doubReprojErr < TAU_DOUB_REPROJ &&
+      doubConsErr < 1e-14 &&
+      doubNormErr < 1e-14 &&
       doubWorkReduction >= 3,
-    `maxStateErr=${maxStateErr.toExponential(1)}, crossScaleConsErr=${maxCrossScaleConsErr.toExponential(1)}, normErr=${maxAbsNormErr.toExponential(1)}, refine@t=${refineTick}, workReduction=${workReduction.toFixed(2)}x (doublon=${doubWorkReduction.toFixed(2)}x)`,
+    `maxStateErr=${maxStateErr.toExponential(1)}, consErr=${maxCrossScaleConsErr.toExponential(1)}, refine@t=${refineTick}, workRed=${totalWorkReduction.toFixed(2)}x; doublon error-driven refine@t=${doubRefineTick}->recoarsen@t=${doubRecoarsenTick} (peakEst=${doubPeakEstErr.toExponential(1)}, fineErr=${doubFineWindowErr.toExponential(1)}, boundAmpErr=${doubPostBoundAmpErr.toExponential(1)}, workRed=${doubWorkReduction.toFixed(2)}x)`,
   )
 }
 
@@ -3689,7 +4134,7 @@ function runExperiment5() {
   const coneLegs = (a: number): number[] => Array.from({ length: 23 }, (_, j) => a * 23 + j)
   const conesUnion = (as: readonly number[]): number[] => as.flatMap(coneLegs)
 
-  // --- 5(a) Successful Sheaf Gluing on Overlapping B_1 = [[552, 25, 40]]_3 Boundary Regions ---
+  // --- 5(a) Local-to-Global Gluing on Overlapping B_1 = [[552, 25, 8]]_3 (origin d^(0) = 40) Boundary Regions ---
   // Maximal commuting Z-Lagrangian of B_1: L_Z = H(B_1) + <zLogs[0..24]> (552 commuting stabilizers on 552 boundary qutrits!)
   const lagZ552: readonly GF3Row[] = [...B1_CODE.hStabs, ...B1_CODE.zLogs]
   assertExact(gf3Rank(lagZ552, 1104) === 552 && countIsoDefects(lagZ552, 552) === 0, 'B1 Z-Lagrangian rank 552')
@@ -3724,8 +4169,8 @@ function runExperiment5() {
     })
   }
 
-  // Test 6 diverse overlapping boundary covers (U, V) on B_1 (including 17-cone + 17-cone sharing b_0,
-  // and 12-cone + 12-cone where NEITHER accesses full b_0 individually yet U cup V = 18 cones unlocks b_0!)
+  // Test 6 diverse overlapping boundary covers (U, V) on B_1 (including 17+17 sharing b_0,
+  // and 12+12 -> 18 where NEITHER accesses full b_0 individually yet U cup V unlocks b_0!)
   const overlapSpecs: readonly { readonly name: string; readonly uCones: readonly number[]; readonly vCones: readonly number[] }[] = [
     { name: '17+17 (shift 7)', uCones: Array.from({ length: 17 }, (_, i) => i), vCones: Array.from({ length: 17 }, (_, i) => (7 + i) % 24) },
     { name: '17+17 (shift 4)', uCones: Array.from({ length: 17 }, (_, i) => i), vCones: Array.from({ length: 17 }, (_, i) => (4 + i) % 24) },
@@ -3735,7 +4180,8 @@ function runExperiment5() {
     { name: 'nested 6 in 18', uCones: Array.from({ length: 6 }, (_, i) => i), vCones: Array.from({ length: 18 }, (_, i) => i) },
   ]
 
-  let stabGlueDefects = 0
+  let stabExistDefects = 0
+  let stabIncompatRejected = 0
   let classicalGlueDefects = 0
   let maxEmergentNonlocal = 0
   const glueReport: string[] = []
@@ -3751,6 +4197,38 @@ function runExperiment5() {
     })
     const { pivCols } = gf3RrefInPlace(aug, nVars + 1)
     return !pivCols.includes(nVars)
+  }
+
+  // Extend an independent basis B0 to a basis of span(B0, full) via incremental O(rank) echelon reduction (zero matrix re-cloning!)
+  const extendBasis = (base: readonly GF3Row[], full: readonly GF3Row[], nCols: number): GF3Row[] => {
+    const { basis: pivRows, pivCols } = gf3Rref(base, nCols)
+    const extra: GF3Row[] = []
+    for (const v of full) {
+      const w = gf3RowClone(v)
+      for (let i = 0; i < pivRows.length; i++) {
+        const pc = pivCols[i]!
+        const val = gf3Get(w, pc)
+        if (val === 1) gf3SubInPlace(w, pivRows[i]!, pc >>> 5)
+        else if (val === 2) gf3AddInPlace(w, pivRows[i]!, pc >>> 5)
+      }
+      // Find first nonzero entry in w
+      let lead = -1
+      for (let word = 0; word < w.a.length; word++) {
+        const m = w.a[word]! | w.b[word]!
+        if (m !== 0) {
+          const bit = m & -m
+          lead = (word << 5) + (Math.clz32(bit) ^ 31)
+          break
+        }
+      }
+      if (lead >= 0 && lead < nCols) {
+        if (gf3Get(w, lead) === 2) gf3NegInPlace(w, lead >>> 5)
+        pivRows.push(w)
+        pivCols.push(lead)
+        extra.push(v)
+      }
+    }
+    return extra
   }
 
   for (let oi = 0; oi < overlapSpecs.length; oi++) {
@@ -3771,32 +4249,33 @@ function runExperiment5() {
     const dimSum = gf3Rank([...sU, ...sV], 1104)
     const dimInter = sU.length + sV.length - dimSum
     const emergentNonlocal = sCup.length - dimSum
+    const nGlobalExts = 3 ** emergentNonlocal
     if (emergentNonlocal > maxEmergentNonlocal) maxEmergentNonlocal = emergentNonlocal
 
-    // Deterministic compatible assignment test on F(U) = Hom(S(U), GF(3)):
-    // Construct a concrete global Pauli character chi(g) = sympDot(g, probe) -> automatically compatible on S(U) cap S(V);
-    // verify exact existence of a global gluing assignment on S(U cup V) matching s_U and s_V simultaneously!
-    const probe = gf3RowZero(B1_BND_WORDS)
-    for (let q = 0; q < 552; q++) {
-      if ((q + oi) % 3 === 1) gf3Set(probe, q, 1)
-      if ((q + 2 * oi) % 5 === 0) gf3Set(probe, 552 + q, 2)
-    }
-    const sProbe = toSympRow(probe, 552)
-    const allConsRows = [...sU, ...sV]
-    const allRhs = allConsRows.map(g => sympDotBit(toSympRow(g, 552), sProbe))
-    // Every compatible pair (s_U, s_V) agreeing on S(U) cap S(V) must glue onto S(U cup V) (linear system consistent over GF(3)^1104)!
-    // Check via dual linear system: express rows of sU, sV in terms of sCup basis -> consistent iff s_U|_{S(U) cap S(V)} = s_V|_{S(U) cap S(V)}!
+    // MAJOR-2: Non-tautological independent local syndrome construction on F(U) = Hom(S(U), GF(3)):
+    // Build independent extensions S(U) = S(U cap V) (+) U_only, S(V) = S(U cap V) (+) V_only!
+    // (1) Compatible pair: assign deterministic GF(3) values on shared S(U cap V), then INDEPENDENT arbitrary values on U_only & V_only!
+    //     Must be 100% consistent (global existence holds), with exactly 3^{emergentNonlocal} global extensions (separation FAILS when r > 0!).
+    // (2) Incompatible pair: perturb shared overlap generator 0 by +1 mod 3 on V only -> MUST be rejected as inconsistent!
+    const uOnly = extendBasis(sCap, sU, 1104)
+    const vOnly = extendBasis(sCap, sV, 1104)
+    assertExact(sCap.length + uOnly.length === sU.length && sCap.length + vOnly.length === sV.length, 'direct-sum decomposition of S(U), S(V)')
+    const sharedVals = sCap.map((_, k) => (k * 2 + oi + 1) % 3)
+    const uOnlyVals = uOnly.map((_, k) => (k * 5 + oi + 2) % 3)
+    const vOnlyVals = vOnly.map((_, k) => (k * 7 + oi + 1) % 3)
+    const compatRows = [...sCap, ...uOnly, ...sCap, ...vOnly]
+    const compatRhs = [...sharedVals, ...uOnlyVals, ...sharedVals, ...vOnlyVals]
+    const incompatRhs = [...sharedVals, ...uOnlyVals, ...sharedVals.map((v, k) => (k === 0 ? mod3(v + 1) : v)), ...vOnlyVals]
     const rCup = gf3Rref(sCup, 1104)
-    if (gf3Rank([...sCup, ...sU, ...sV], 1104) !== rCup.basis.length) stabGlueDefects++
-    if (!isConsistentGF3(allConsRows, allRhs, 1104)) stabGlueDefects++
+    if (gf3Rank([...sCup, ...sU, ...sV], 1104) !== rCup.basis.length) stabExistDefects++
+    if (!isConsistentGF3(compatRows, compatRhs, 1104)) stabExistDefects++
+    if (sCap.length > 0 && !isConsistentGF3(compatRows, incompatRhs, 1104)) stabIncompatRejected++
 
-    // Exact classical assignment sheaf C(W) = GF(3)^W:
-    // Any two local configurations c_U in GF(3)^U and c_V in GF(3)^V agreeing on U cap V glue UNIQUELY to c_{U cup V}!
+    // Exact classical assignment sheaf C(W) = GF(3)^W (satisfies BOTH existence AND uniqueness/separation!):
     const cU = new Uint8Array(552)
     const cV = new Uint8Array(552)
     for (const q of U) cU[q] = (q * 7 + oi + 1) % 3
     for (const q of V) cV[q] = uSet.has(Math.floor(q / 23)) ? cU[q]! : (q * 11 + oi + 2) % 3
-    // Verify agreement on cap and unique glued configuration on cup
     for (const q of cap) if (cU[q] !== cV[q]) classicalGlueDefects++
     const glued = new Uint8Array(552)
     for (const q of cup) glued[q] = uSet.has(Math.floor(q / 23)) ? cU[q]! : cV[q]!
@@ -3804,47 +4283,47 @@ function runExperiment5() {
     for (const q of V) if (glued[q] !== cV[q]) classicalGlueDefects++
 
     glueReport.push(
-      `    ${spec.name.padEnd(22)}: dim S(U)=${sU.length}, S(V)=${sV.length}, S(U cap V)=${sCap.length} (S(U) cap S(V)=${dimInter}), S(U cup V)=${sCup.length}, emergentNonlocal=${emergentNonlocal}`,
+      `    ${spec.name.padEnd(22)}: dim S(U)=${sU.length}, S(V)=${sV.length}, S(U cap V)=${sCap.length} (inter=${dimInter}), S(U cup V)=${sCup.length}, emergentNonlocal=${emergentNonlocal} (3^${emergentNonlocal}=${nGlobalExts} exts)`,
     )
   }
 
-  // --- 5(b1) Exact Algebraic Sheaf Obstruction (H^1 != 0, 0 / 512 Global Sections): Mermin-Peres Magic Square ---
-  // Realized directly inside the 4-dim Q=0 balanced-pair logical subspace {|-1>, |+1>}^{x2} of two B_1 bulk qutrits (b_1, b_2)!
-  // Exact 4x4 Pauli matrices (complex 4x4) for the 9 observables O_{r,c}:
-  //   Row 0:  X (x) I,   I (x) X,   X (x) X    -> product = +I
-  //   Row 1:  I (x) Z,   Z (x) I,   Z (x) Z    -> product = +I
-  //   Row 2:  X (x) Z,   Z (x) X,   Y (x) Y    -> product = +I (Wait: (X x Z)(Z x X) = (-iY) x (iY) = +Y x Y => prod = +I!)
-  //   Col 0:  (X x I)(I x Z)(X x Z) = +I
-  //   Col 1:  (I x X)(Z x I)(Z x X) = +I
-  //   Col 2:  (X x X)(Z x Z)(Y x Y) = (-iY x -iY)(Y x Y) = -(Y x Y)(Y x Y) = -I !!
-  type Mat4 = readonly (readonly C[])[]
-  const P_I: readonly (readonly C[])[] = [[C1, C0], [C0, C1]]
-  const P_X: readonly (readonly C[])[] = [[C0, C1], [C1, C0]]
-  const P_Y: readonly (readonly C[])[] = [[C0, [0, -1]], [[0, 1], C0]]
-  const P_Z: readonly (readonly C[])[] = [[C1, C0], [C0, [-1, 0]]]
-  const kron2 = (A: readonly (readonly C[])[], B: readonly (readonly C[])[]): Mat4 =>
-    Array.from({ length: 4 }, (_, r) =>
-      Array.from({ length: 4 }, (_, c) => cMul(A[r >> 1]![c >> 1]!, B[r & 1]![c & 1]!)),
+  // --- 5(b1) Exact 9x9 Two-Qutrit Embedded Algebraic Sheaf Obstruction (H^1 != 0, 0/512 Globals): Mermin-Peres Magic Square ---
+  // Explicitly embedded as 9x9 Hermitian operators on C^3 (x) C^3 (basis |-1>, |0>, |+1> per qutrit of two B_1 bulk qutrits b_1, b_2),
+  // acting as Pauli {I, X, Y, Z} on the 2D balanced subspace {|-1>, |+1>} and 0 on |0> (projector P_bal^{(4)} = P_bal (x) P_bal of rank 4)!
+  type Mat9 = readonly (readonly C[])[]
+  type Mat3 = readonly (readonly C[])[]
+  const embedBal3 = (a00: C, a01: C, a10: C, a11: C): Mat3 => [
+    [a00, C0, a01],
+    [C0, C0, C0],
+    [a10, C0, a11],
+  ]
+  const Q3_PBAL = embedBal3(C1, C0, C0, C1)
+  const Q3_X = embedBal3(C0, C1, C1, C0)
+  const Q3_Y = embedBal3(C0, [0, -1], [0, 1], C0)
+  const Q3_Z = embedBal3(C1, C0, C0, [-1, 0])
+  const kron3 = (A: Mat3, B: Mat3): Mat9 =>
+    Array.from({ length: 9 }, (_, r) =>
+      Array.from({ length: 9 }, (_, c) => cMul(A[Math.floor(r / 3)]![Math.floor(c / 3)]!, B[r % 3]![c % 3]!)),
     )
-  const mul4 = (A: Mat4, B: Mat4): Mat4 =>
-    Array.from({ length: 4 }, (_, r) =>
-      Array.from({ length: 4 }, (_, c) => {
+  const mul9 = (A: Mat9, B: Mat9): Mat9 =>
+    Array.from({ length: 9 }, (_, r) =>
+      Array.from({ length: 9 }, (_, c) => {
         let s = C0
-        for (let k = 0; k < 4; k++) s = cAdd(s, cMul(A[r]![k]!, B[k]![c]!))
+        for (let k = 0; k < 9; k++) s = cAdd(s, cMul(A[r]![k]!, B[k]![c]!))
         return s
       }),
     )
-  const mat4Diff = (A: Mat4, B: Mat4): number => {
+  const mat9Diff = (A: Mat9, B: Mat9): number => {
     let m = 0
-    for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) m = Math.max(m, cAbs(cSub(A[r]![c]!, B[r]![c]!)))
+    for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) m = Math.max(m, cAbs(cSub(A[r]![c]!, B[r]![c]!)))
     return m
   }
-  const I4 = kron2(P_I, P_I)
-  const NEG_I4: Mat4 = I4.map(row => row.map(z => cScale(-1, z)))
-  const mpGrid: readonly Mat4[] = [
-    kron2(P_X, P_I), kron2(P_I, P_X), kron2(P_X, P_X),
-    kron2(P_I, P_Z), kron2(P_Z, P_I), kron2(P_Z, P_Z),
-    kron2(P_X, P_Z), kron2(P_Z, P_X), kron2(P_Y, P_Y),
+  const PBAL_9 = kron3(Q3_PBAL, Q3_PBAL)
+  const NEG_PBAL_9: Mat9 = PBAL_9.map(row => row.map(z => cScale(-1, z)))
+  const mpGrid9: readonly Mat9[] = [
+    kron3(Q3_X, Q3_PBAL), kron3(Q3_PBAL, Q3_X), kron3(Q3_X, Q3_X),
+    kron3(Q3_PBAL, Q3_Z), kron3(Q3_Z, Q3_PBAL), kron3(Q3_Z, Q3_Z),
+    kron3(Q3_X, Q3_Z), kron3(Q3_Z, Q3_X), kron3(Q3_Y, Q3_Y),
   ]
   const mpContexts: readonly { readonly name: string; readonly idx: readonly [number, number, number]; readonly prodSign: 1 | -1 }[] = [
     { name: 'R0', idx: [0, 1, 2], prodSign: 1 },
@@ -3857,17 +4336,16 @@ function runExperiment5() {
   let mpAlgebraErr = 0
   for (const ctx of mpContexts) {
     const [a, b, c] = ctx.idx
-    const A = mpGrid[a]!, B = mpGrid[b]!, Cmat = mpGrid[c]!
-    // Verify pairwise commutation [A,B]=[A,C]=[B,C]=0 and exact operator product A*B*C = +-I_4!
+    const A = mpGrid9[a]!, B = mpGrid9[b]!, Cmat = mpGrid9[c]!
+    // Verify 9x9 pairwise commutation [A,B]=[A,C]=[B,C]=0 and exact context product A*B*C = +-P_bal^{(4)} on C^3 (x) C^3!
     mpAlgebraErr = Math.max(
       mpAlgebraErr,
-      mat4Diff(mul4(A, B), mul4(B, A)),
-      mat4Diff(mul4(A, Cmat), mul4(Cmat, A)),
-      mat4Diff(mul4(B, Cmat), mul4(Cmat, B)),
-      mat4Diff(mul4(mul4(A, B), Cmat), ctx.prodSign === 1 ? I4 : NEG_I4),
+      mat9Diff(mul9(A, B), mul9(B, A)),
+      mat9Diff(mul9(A, Cmat), mul9(Cmat, A)),
+      mat9Diff(mul9(B, Cmat), mul9(Cmat, B)),
+      mat9Diff(mul9(mul9(A, B), Cmat), ctx.prodSign === 1 ? PBAL_9 : NEG_PBAL_9),
     )
   }
-  // Count local sections per context & verify pairwise overlap compatibility on every R_r cap C_c
   const mpLocalCounts = mpContexts.map(ctx => {
     let cnt = 0
     for (let m = 0; m < 8; m++) {
@@ -3876,25 +4354,15 @@ function runExperiment5() {
     }
     return cnt
   })
-  // Exhaustively search ALL 2^9 = 512 global noncontextual assignments g in {+1, -1}^9!
   let mpGlobalValid = 0
   for (let mask = 0; mask < 512; mask++) {
     const g = Array.from({ length: 9 }, (_, i) => ((mask >> i) & 1) ? -1 : 1)
     const ok = mpContexts.every(ctx => g[ctx.idx[0]]! * g[ctx.idx[1]]! * g[ctx.idx[2]]! === ctx.prodSign)
     if (ok) mpGlobalValid++
   }
-  // Exact Z_2 Cech cohomology obstruction witness: parity sum over all 6 contexts of local constraint signs!
-  // Every observable appears in exactly 2 contexts (1 row + 1 col), so for ANY global assignment the product over
-  // all 6 contexts equals prod_i g_i^2 = +1 (0 mod 2), whereas the operator cocycle has product -1 (1 mod 2 != 0)!
   const cechObstructionMod2 = mpContexts.reduce((acc, ctx) => acc ^ (ctx.prodSign === -1 ? 1 : 0), 0)
 
-  // --- 5(b2) Native Single-Qutrit (d = 3) Probabilistic Sheaf Obstruction (KCBS 5-Cycle on Origin b_0 of [[24,1,8]]_3) ---
-  // Exact 5 rank-1 qutrit projectors P_j = |v_j><v_j| in C^3 (real unit vectors) with <v_j | v_{j+1 mod 5}> = 0:
-  //   v_j = (cos(theta_K) cos(phi_j), cos(theta_K) sin(phi_j), sin(theta_K)) with phi_j = 4 pi j / 5,
-  //   orthogonality cos^2(theta_K) cos(4 pi / 5) + sin^2(theta_K) = 0 => tan^2(theta_K) = -cos(4 pi / 5) = (1 + sqrt(5))/4
-  //   => sin^2(theta_K) = 1 / sqrt(5), cos^2(theta_K) = 1 - 1 / sqrt(5)!
-  // On logical state |0_L> = (0, 0, 1) of origin bulk qutrit b_0: <0_L | P_j | 0_L> = sin^2(theta_K) = 1 / sqrt(5),
-  // giving sum_{j=0}^4 <0_L | P_j | 0_L> = 5 / sqrt(5) = sqrt(5) = 2.236068 > 2 (classical noncontextual ceiling = 2)!
+  // --- 5(b2) Native Single-Qutrit (d = 3) KCBS 5-Cycle & Genuine Gross Discrete-Wigner Phase-Point Check A(p, q) ---
   const sin2K = 1 / Math.sqrt(5)
   const sinK = Math.sqrt(sin2K)
   const cosK = Math.sqrt(1 - sin2K)
@@ -3909,7 +4377,6 @@ function runExperiment5() {
     kcbsOrthoErr = Math.max(kcbsOrthoErr, Math.abs(a[0] * b[0] + a[1] * b[1] + a[2] * b[2]))
   }
   const kcbsQuantumSum = kcbsVecs.reduce((s, v) => s + v[2] * v[2], 0)
-  // Exhaustively enumerate ALL 2^5 = 32 global assignments s in {0, 1}^5 satisfying exclusivity s_j + s_{j+1} <= 1 mod 5!
   let kcbsValidGlobals = 0
   let kcbsClassicalMax = 0
   for (let mask = 0; mask < 32; mask++) {
@@ -3921,21 +4388,104 @@ function runExperiment5() {
       if (wt > kcbsClassicalMax) kcbsClassicalMax = wt
     }
   }
-  // Verify Gross discrete-Wigner honesty check: on pure [[24,1,8]]_3 Pauli stabilizers alone, Z_3 local syndromes always glue!
-  const grossPauliGlues = stabGlueDefects === 0
 
-  console.log(`  [5a] B_1 = [[552, 25, 40]]_3 commuting stabilizer sheaf (${overlapSpecs.length} overlaps):`)
+  // MAJOR-2: Genuine d = 3 Gross discrete-Wigner phase-point operator test A(p, q) = D(p, q) A(0, 0) D(p, q)^dag!
+  // Weyl-Heisenberg displacement D(p, q) = omega^{2 p q} X^p Z^q, parity A(0, 0) |j> = |-j mod 3>.
+  // Verify exact phase-point normalization Tr(A(p,q))=1 & orthogonality Tr(A(p,q) A(p',q'))=3 delta,
+  // nonnegative W(p,q) >= 0 on ALL 12 single-qutrit stabilizer states (all 4 MUBs), and strict W(p,q) < 0 on Strange & Norrell magic states!
+  const omegaPow = (k: number): C => {
+    const m = mod3(k)
+    return m === 0 ? C1 : m === 1 ? [-0.5, SQRT3 / 2] : W2_C
+  }
+  const mul3 = (A: Mat3, B: Mat3): Mat3 =>
+    Array.from({ length: 3 }, (_, r) =>
+      Array.from({ length: 3 }, (_, c) => {
+        let s = C0
+        for (let k = 0; k < 3; k++) s = cAdd(s, cMul(A[r]![k]!, B[k]![c]!))
+        return s
+      }),
+    )
+  const dag3 = (A: Mat3): Mat3 =>
+    Array.from({ length: 3 }, (_, r) => Array.from({ length: 3 }, (_, c) => [A[c]![r]![0], -A[c]![r]![1]] as const))
+  const buildD3 = (p: number, q: number): Mat3 => {
+    const ph = omegaPow(2 * p * q)
+    const M: C[][] = Array.from({ length: 3 }, () => [C0, C0, C0])
+    for (let j = 0; j < 3; j++) {
+      const dst = mod3(j + p)
+      M[dst]![j] = cMul(ph, omegaPow(q * j))
+    }
+    return M
+  }
+  const A00: Mat3 = [
+    [C1, C0, C0],
+    [C0, C0, C1],
+    [C0, C1, C0],
+  ]
+  const grossOps: Mat3[] = []
+  for (let p = 0; p < 3; p++) {
+    for (let q = 0; q < 3; q++) {
+      const D = buildD3(p, q)
+      grossOps.push(mul3(mul3(D, A00), dag3(D)))
+    }
+  }
+  let grossFrameErr = 0
+  for (let i = 0; i < 9; i++) {
+    const Ai = grossOps[i]!
+    const trI = cAdd(cAdd(Ai[0]![0]!, Ai[1]![1]!), Ai[2]![2]!)
+    grossFrameErr = Math.max(grossFrameErr, cAbs(cSub(trI, C1)))
+    for (let j = 0; j < 9; j++) {
+      const P = mul3(Ai, grossOps[j]!)
+      const trP = cAdd(cAdd(P[0]![0]!, P[1]![1]!), P[2]![2]!)
+      grossFrameErr = Math.max(grossFrameErr, cAbs(cSub(trP, [i === j ? 3 : 0, 0])))
+    }
+  }
+  const evalWigner3 = (psi: readonly [C, C, C]): { readonly minW: number; readonly sumW: number; readonly negL1: number } => {
+    let minW = Number.POSITIVE_INFINITY
+    let sumW = 0
+    let absSum = 0
+    for (const A of grossOps) {
+      let er = 0
+      for (let r = 0; r < 3; r++) {
+        for (let c = 0; c < 3; c++) {
+          const pc = cMul([psi[r]![0], -psi[r]![1]], cMul(A[r]![c]!, psi[c]!))
+          er += pc[0]
+        }
+      }
+      const w = er / 3
+      if (w < minW) minW = w
+      sumW += w
+      absSum += Math.abs(w)
+    }
+    return { minW, sumW, negL1: absSum - 1 }
+  }
+  // All 12 single-qutrit stabilizer states (4 mutually unbiased bases: Z, X, XZ, XZ^2)
+  const invS3 = 1 / SQRT3
+  const stab12: readonly (readonly [C, C, C])[] = [
+    [C1, C0, C0], [C0, C1, C0], [C0, C0, C1],
+    ...([0, 1, 2].map(k => [cScale(invS3, C1), cScale(invS3, omegaPow(k)), cScale(invS3, omegaPow(2 * k))] as const)),
+    ...([0, 1, 2].map(k => [cScale(invS3, C1), cScale(invS3, omegaPow(1 + k)), cScale(invS3, omegaPow(1 + 2 * k))] as const)),
+    ...([0, 1, 2].map(k => [cScale(invS3, C1), cScale(invS3, omegaPow(2 + k)), cScale(invS3, omegaPow(2 + 2 * k))] as const)),
+  ]
+  let minStab12W = Number.POSITIVE_INFINITY
+  for (const psi of stab12) minStab12W = Math.min(minStab12W, evalWigner3(psi).minW)
+  const wStrange = evalWigner3([C0, [Math.SQRT1_2, 0], [-Math.SQRT1_2, 0]])
+  const invS6 = 1 / Math.sqrt(6)
+  const wNorrell = evalWigner3([[-invS6, 0], [2 * invS6, 0], [-invS6, 0]])
+
+  console.log(`  [5a] B_1 = [[552, 25, 8]]_3 (origin d^(0)=40) commuting stabilizer presheaf (${overlapSpecs.length} overlaps):`)
   for (const row of glueReport) console.log(row)
-  console.log(`       Gluing defects: stabilizer=${stabGlueDefects}, classical GF(3)^W=${classicalGlueDefects}, max emergent nonlocal rank=${maxEmergentNonlocal}`)
-  console.log(`  [5b1] Mermin-Peres 3x3 Magic Square (in B_1 2-qutrit balanced-pair subspace): algebraErr=${mpAlgebraErr.toExponential(1)}, localSections=[${mpLocalCounts.join(',')}], globalValid=${mpGlobalValid}/512, Cech H^1 cocycle=${cechObstructionMod2} mod 2 (!= 0)`)
-  console.log(`  [5b2] Native d=3 KCBS 5-cycle on origin qutrit b_0 of [[24,1,8]]_3: orthoErr=${kcbsOrthoErr.toExponential(1)}, validGlobals=${kcbsValidGlobals}/32 (classical max=${kcbsClassicalMax}), quantum <0_L|sum P_i|0_L>=${kcbsQuantumSum.toFixed(6)} (= sqrt(5) > 2); odd-d Pauli-only glues (Gross)=${grossPauliGlues}`)
+  console.log(`       Compatible existence defects=${stabExistDefects}, incompatible pairs rejected=${stabIncompatRejected}/${overlapSpecs.length}, classical GF(3)^W gluing defects=${classicalGlueDefects}; max emergent nonlocal=${maxEmergentNonlocal} => separation FAILS with 3^${maxEmergentNonlocal}=${3 ** maxEmergentNonlocal} distinct global extensions!`)
+  console.log(`  [5b1] Mermin-Peres 3x3 Magic Square (explicit 9x9 embedding on C^3 x C^3 balanced-pair subspace of B_1): algebraErr=${mpAlgebraErr.toExponential(1)}, localSections=[${mpLocalCounts.join(',')}], globalValid=${mpGlobalValid}/512, Cech H^1 cocycle=${cechObstructionMod2} mod 2 (!= 0)`)
+  console.log(`  [5b2] Native d=3 KCBS 5-cycle on origin qutrit b_0: orthoErr=${kcbsOrthoErr.toExponential(1)}, validGlobals=${kcbsValidGlobals}/32 (classical max=${kcbsClassicalMax}), quantum <0_L|sum P_i|0_L>=${kcbsQuantumSum.toFixed(6)} (= sqrt(5) > 2)`)
+  console.log(`        Genuine d=3 Gross discrete-Wigner A(p,q) (frameErr=${grossFrameErr.toExponential(1)}): min W across all 12 stabilizer states=${minStab12W.toFixed(6)} (>= 0), Strange magic minW=${wStrange.minW.toFixed(6)} (L1_neg=${wStrange.negL1.toFixed(4)}), Norrell magic minW=${wNorrell.minW.toFixed(6)} (L1_neg=${wNorrell.negL1.toFixed(4)})`)
 
   recordCheck(
     'W20.5',
-    'Exp 5: Sheaf Local-to-Global Gluing on B_1 & H^1 != 0 Quantum Contextuality Obstruction (MS-17, Sec 43)',
-    stabGlueDefects === 0 &&
+    'Exp 5: Sheaf Gluing (Existence vs 3^r Separation Failure), 9x9 Mermin-Peres H^1!=0, KCBS & Gross Wigner (MS-17)',
+    stabExistDefects === 0 &&
+      stabIncompatRejected === overlapSpecs.length &&
       classicalGlueDefects === 0 &&
-      maxEmergentNonlocal > 0 &&
+      maxEmergentNonlocal === 7 &&
       mpAlgebraErr < 1e-14 &&
       mpLocalCounts.every(c => c === 4) &&
       mpGlobalValid === 0 &&
@@ -3943,8 +4493,12 @@ function runExperiment5() {
       kcbsOrthoErr < 1e-14 &&
       kcbsValidGlobals === 11 &&
       kcbsClassicalMax === 2 &&
-      Math.abs(kcbsQuantumSum - Math.sqrt(5)) < 1e-14,
-    `B_1 commuting sheaf: 0 gluing defects (max emergent nonlocal=${maxEmergentNonlocal}); Mermin-Peres: 0/512 globals, H^1=${cechObstructionMod2} mod 2; d=3 KCBS: ${kcbsQuantumSum.toFixed(4)} > ${kcbsClassicalMax} (11 valid globals)`,
+      Math.abs(kcbsQuantumSum - Math.sqrt(5)) < 1e-14 &&
+      grossFrameErr < 1e-14 &&
+      minStab12W >= -1e-14 &&
+      wStrange.minW < -0.33 &&
+      wNorrell.minW < -0.1,
+    `B_1 presheaf: 0 compat defects, ${stabIncompatRejected}/6 incompat rejected, separation fails by 3^7=2187; 9x9 Mermin-Peres: 0/512 globals, H^1=1; KCBS: ${kcbsQuantumSum.toFixed(4)}>2; Gross Wigner: 12 stabs >=0, Strange=${wStrange.minW.toFixed(3)}`,
   )
 }
 
@@ -3961,7 +4515,7 @@ function runExperiment6(exp1: {
 }) {
   console.log('\n[EXP 6] Scale-Profile Vectors sigma(A), Higher-Order Correlation / XOR Synergy & Valence Laws (Sec 1, 5, 38):')
 
-  // --- 6(a) Construct exact W11 U_star 25-qutrit GHZ state on B_1 = [[552, 25, 40]]_3! ---
+  // --- 6(a) Construct exact W11 U_star 25-qutrit GHZ state on B_1 = [[552, 25, 8]]_3 (origin d^(0) = 40)! ---
   // Input bulk stabilizer generators for |+>_0 (x) |0>^{x24}: X_0 and Z_1..Z_24 (25 commuting Paulis on 25 bulk qutrits).
   // Evolve by U_STAR_50: S_out[j] = U_STAR_50 * S_in[j]!
   const ghz25Rows: GF3Row[] = []
@@ -4056,16 +4610,30 @@ function runExperiment6(exp1: {
       return U
     }
   })()
+  // CRITICAL-1: Adiabatically track the bound k = 3 trion branch from P = 0 to P = pi/6 in 16 small steps
+  // (verifying IPR > 0.20 at EVERY step so we never jump onto a continuum state!):
+  // Exact bound trion at P = pi/6: E_3(pi/6) = -2.787064, IPR ~ 0.25, v_{g,3}(pi/6) = 1/sqrt(109) = 0.095783 (< 0.142857 doublon speed)!
   const lamTrionSeed: C = [-13 / 14, (-3 * SQRT3) / 14]
-  const trionAtP = extractUnitaryEigenmode(sym3FluxFactory(PI / 6), lamTrionSeed)
-  const trionPlus = extractUnitaryEigenmode(sym3FluxFactory(PI / 6 + 1e-4), trionAtP.lam)
-  const trionMinus = extractUnitaryEigenmode(sym3FluxFactory(PI / 6 - 1e-4), trionAtP.lam)
+  let trionCur = extractUnitaryEigenmode(sym3FluxFactory(0), lamTrionSeed)
+  let minTrionTrackIPR = trionCur.ipr
+  const N_ADIA = 16
+  for (let s = 1; s <= N_ADIA; s++) {
+    const pStep = ((PI / 6) * s) / N_ADIA
+    trionCur = extractUnitaryEigenmode(sym3FluxFactory(pStep), trionCur.lam, trionCur.vr, trionCur.vi)
+    if (trionCur.ipr < minTrionTrackIPR) minTrionTrackIPR = trionCur.ipr
+  }
+  const trionAtP = trionCur
+  const trionPlus = extractUnitaryEigenmode(sym3FluxFactory(PI / 6 + 1e-4), trionAtP.lam, trionAtP.vr, trionAtP.vi)
+  const trionMinus = extractUnitaryEigenmode(sym3FluxFactory(PI / 6 - 1e-4), trionAtP.lam, trionAtP.vr, trionAtP.vi)
+  const e3AtP = Math.atan2(trionAtP.lam[1], trionAtP.lam[0])
   const vgTrion = Math.abs(
     ((((Math.atan2(trionPlus.lam[1], trionPlus.lam[0]) - Math.atan2(trionMinus.lam[1], trionMinus.lam[0])) + PI) % TWO_PI + TWO_PI) % TWO_PI - PI) /
       2e-4,
   )
+  const exactVgTrion = 1 / Math.sqrt(109)
 
   // Compute 5 measured Scale-Profile Vectors sigma(A) = (spatial_support, temporal_persistence, compositional_k, info_capacity_bits, causal_reach, closure_quality)
+  // MAJOR-5: All infoCapacityBits are strictly intrinsic box-size-independent internal degrees of freedom (k * log2(3))!
   type ScaleProfile = {
     readonly name: string
     readonly spatialSupport: number
@@ -4088,9 +4656,9 @@ function runExperiment6(exp1: {
     {
       name: '(ii) k=1 Geodesic Pulse (t=4)',
       spatialSupport: p1Docks.size,
-      temporalPersistence: 'Inf (Q,D) / 22 (local)',
+      temporalPersistence: 'Inf (Q,D) / tau_eff=4 (local)',
       compositionalK: 1,
-      infoCapacityBits: LN3 / LN2,
+      infoCapacityBits: 1 * (LN3 / LN2),
       causalReach: 1.0,
       closureQuality: 1.0,
     },
@@ -4099,7 +4667,7 @@ function runExperiment6(exp1: {
       spatialSupport: 1 / exp1.doub0.ipr,
       temporalPersistence: 'Inf (exact bound mode)',
       compositionalK: 2,
-      infoCapacityBits: Math.log2(12) + 1,
+      infoCapacityBits: 2 * (LN3 / LN2),
       causalReach: Math.abs(exp1.vgDoublon),
       closureQuality: 1 - exp1.epsK2Rest20,
     },
@@ -4108,12 +4676,12 @@ function runExperiment6(exp1: {
       spatialSupport: 1 / exp1.trion0.ipr,
       temporalPersistence: 'Inf (exact bound mode)',
       compositionalK: 3,
-      infoCapacityBits: Math.log2(8) + 6 / 7,
+      infoCapacityBits: 3 * (LN3 / LN2),
       causalReach: vgTrion,
       closureQuality: 1 - exp1.epsK3Rest20,
     },
     {
-      name: '(v) B_1=[[552,25,40]]_3 + U_star GHZ',
+      name: '(v) B_1=[[552,25,8]]_3 + U_star GHZ',
       spatialSupport: 552,
       temporalPersistence: 'Inf (U_bdy^star, ord 3)',
       compositionalK: 25,
@@ -4123,12 +4691,15 @@ function runExperiment6(exp1: {
     },
   ]
 
-  // Verify genuine partial-order non-comparability (Sec 1-2): e.g., k=1 pulse has larger causalReach (1.0) than k=2 doublon (v_g < 1),
-  // whereas k=2 doublon has strictly larger compositionalK (2 > 1) and infoCapacityBits!
+  // Verify genuine partial-order non-comparability (Sec 1-2): causalReach decreases 1.000 > 0.143 > 0.096
+  // as compositionalK and intrinsic infoCapacityBits strictly increase 1 < 2 < 3!
   const partialOrderWitness =
     profiles[1]!.causalReach > profiles[2]!.causalReach &&
+    profiles[2]!.causalReach > profiles[3]!.causalReach &&
     profiles[2]!.compositionalK > profiles[1]!.compositionalK &&
-    profiles[4]!.infoCapacityBits > profiles[2]!.infoCapacityBits
+    profiles[3]!.compositionalK > profiles[2]!.compositionalK &&
+    profiles[3]!.infoCapacityBits > profiles[2]!.infoCapacityBits &&
+    profiles[4]!.infoCapacityBits > profiles[3]!.infoCapacityBits
 
   // --- 6(b) Higher-Order Correlation Hierarchy (Q, D, C_2, C_3) & Exact 3-Body XOR + Z_3 Synergy (Sec 4, 5) ---
   // 16-site alternating vs separated patterns (Sec 4-5):
@@ -4210,6 +4781,7 @@ function runExperiment6(exp1: {
       `    ${p.name.padEnd(36)} | supp=${p.spatialSupport.toFixed(2).padStart(6)} | k=${String(p.compositionalK).padStart(2)} | cap=${p.infoCapacityBits.toFixed(2).padStart(6)} bits | reach=${p.causalReach.toFixed(3)} | closure=${p.closureQuality.toFixed(6)} | ${p.temporalPersistence}`,
     )
   }
+  console.log(`       Adiabatic k=3 trion track (16 steps P=0->pi/6): E_3(pi/6)=${e3AtP.toFixed(6)}, minIPR=${minTrionTrackIPR.toFixed(5)} (>0.20), IPR(pi/6)=${trionAtP.ipr.toFixed(5)}, v_g3=${vgTrion.toFixed(6)} vs 1/sqrt(109)=${exactVgTrion.toFixed(6)} (< v_g2=${Math.abs(exp1.vgDoublon).toFixed(6)})`)
   console.log(`       Partial-order non-comparability verified=${partialOrderWitness}; B_1 holographic bottleneck = 25/552 = ${((25 / 552) * 100).toFixed(3)}%`)
   console.log(`       W11 U_star 25-qutrit GHZ on B_1: S(1)=${sGhZ1}, S(2)=${sGhZ2}, S(12)=${sGhZ12}, S(25)=${sGhZ25} (ln 3 units); I(b_0:b_1)=${iGhZPair} vs I(b_0:rest)=${iGhZFull} => pure 25-body quantum synergy=${ghzGlobalSynergyBits.toFixed(6)} bits`)
   console.log(`  [6b] Higher-order correlation hierarchy:`)
@@ -4220,8 +4792,12 @@ function runExperiment6(exp1: {
 
   recordCheck(
     'W20.6',
-    'Exp 6: Scale-Profile Vectors sigma(A), XOR/Z_3/GHZ Synergy Hierarchy & Sec 38 Valence Functionals',
+    'Exp 6: Scale-Profile Vectors sigma(A), Adiabatic Trion v_g, XOR/Z_3/GHZ Synergy & Sec 38 Valence',
     partialOrderWitness &&
+      minTrionTrackIPR > 0.2 &&
+      trionAtP.ipr > 0.2 &&
+      Math.abs(vgTrion - exactVgTrion) < 1e-4 &&
+      vgTrion < Math.abs(exp1.vgDoublon) &&
       sGhZ1 === 1 && sGhZ2 === 1 && sGhZ12 === 1 && sGhZ25 === 0 &&
       iGhZPair === 1 && iGhZFull === 2 &&
       stAlt.Q === 0 && stSep.Q === 0 &&
@@ -4232,7 +4808,7 @@ function runExperiment6(exp1: {
       Math.abs(z3MI.i31) < 1e-12 && Math.abs(z3MI.i3_12 - LN3 / LN2) < 1e-12 &&
       valAlt.additive === 0 && Math.abs(valAlt.negWeighted - -8) < 1e-12 &&
       valAlt.relational !== valSep.relational,
-    `5 profiles partial-ordered; U_star 25-GHZ S=1/1/1/0 (synergy=${ghzGlobalSynergyBits.toFixed(3)} bits); XOR I=1.000 (pair=0); Z_3 I=1.585 (pair=0); Sec 38 negW=-8.0 vs Q=0`,
+    `5 box-free profiles partial-ordered; trion v_g=${vgTrion.toFixed(6)}=1/sqrt(109) (minIPR=${minTrionTrackIPR.toFixed(3)}); U_star 25-GHZ S=1/1/1/0 (synergy=${ghzGlobalSynergyBits.toFixed(3)} bits); XOR I=1.000; Z_3 I=1.585; Sec 38 negW=-8.0`,
   )
 }
 

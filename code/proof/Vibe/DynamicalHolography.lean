@@ -2285,8 +2285,8 @@ theorem dh_ustar_and_unn_symplectic_covariant :
       rw [hF, dh_sumFin_zero]
     by_cases hg : g.val = 0
     · have hEq : g = ⟨0, by decide⟩ := Fin.ext hg; subst hEq
-      rw [dh_uStar_x0, hSx, hv ⟨0, by decide⟩]; rfl
-    · rw [dh_uStar_xg 1 v g hg, hSx, hv ⟨0, by decide⟩, hv g]; rfl
+      rw [dh_uStar_x0, hSx, hv ⟨0, by decide⟩]
+    · rw [dh_uStar_xg 1 v g hg, hSx, hv ⟨0, by decide⟩, hv g]
 
 /-- General `2 n`-coordinate `GF(3)` symplectic vector and inner product for the universal boundary lift theorem. -/
 abbrev DhVec (n : Nat) := Fin 2 → Fin n → Nat
@@ -2601,8 +2601,7 @@ private theorem dh_bdyLift_universal {n k : Nat} (L : Fin (2 * k) → DhVec n)
               dsimp only [D]; by_cases hi : i = a <;> simp [hi] <;> omega
             have hUj : U j b % 3 = ((if j = b then 1 else 0) + D j b) % 3 := by
               dsimp only [D]; by_cases hj : j = b <;> simp [hj] <;> omega
-            rw [dh_mul_mod3_congr (dh_mul_mod3_congr hUi rfl) hUj,
-                dh_mul_mod3_congr (dh_mul_mod3_left _ _) (by omega), dh_mul_mod3_right]
+            rw [dh_mul_mod3_congr (dh_mul_mod3_congr hUi rfl) hUj]
             simp only [Nat.add_mul, Nat.mul_add]; omega
           have hOuter : hcSumFin (fun i : Fin (2 * k) => hcSumFin (fun j : Fin (2 * k) => U i a * dhOmega2K k i j * U j b)) % 3 =
               (hcSumFin (fun i : Fin (2 * k) => hcSumFin (fun j : Fin (2 * k) => (if i = a then 1 else 0) * dhOmega2K k i j * (if j = b then 1 else 0))) +
@@ -3067,8 +3066,13 @@ private theorem dh_applyK48_props :
     intro u v; simp only [hcSymp48, dhApplyK48]
     rw [dh_mul_mod3_right, ← dh_sumFin_mul_left]
     apply dh_sumFin_mod3_congr; intro r
-    rw [dh_add_mod3_congr (dh_mul_mod3_congr (by omega) (by omega))
-          (dh_mul_mod3_congr rfl (dh_mul_mod3_congr (by omega) (by omega)))]
+    have hm1 : ((u ⟨0, by decide⟩ r % 3) * ((2 * v ⟨1, by decide⟩ r) % 3)) % 3 =
+        (u ⟨0, by decide⟩ r * (2 * v ⟨1, by decide⟩ r)) % 3 := by
+      rw [dh_mul_mod3_left, dh_mul_mod3_right]
+    have hm2 : (2 * (((2 * u ⟨1, by decide⟩ r) % 3) * (v ⟨0, by decide⟩ r % 3))) % 3 =
+        (2 * (2 * u ⟨1, by decide⟩ r * v ⟨0, by decide⟩ r)) % 3 := by
+      rw [← dh_mul_mod3_right 2, dh_mul_mod3_left, dh_mul_mod3_right, dh_mul_mod3_right]
+    rw [dh_add_mod3_congr hm1 hm2]
     have a1 : u ⟨0, by decide⟩ r * (2 * v ⟨1, by decide⟩ r) = 2 * (u ⟨0, by decide⟩ r * v ⟨1, by decide⟩ r) := by
       rw [← Nat.mul_assoc, Nat.mul_comm _ 2, Nat.mul_assoc]
     have a2 : 2 * u ⟨1, by decide⟩ r * v ⟨0, by decide⟩ r = 2 * (u ⟨1, by decide⟩ r * v ⟨0, by decide⟩ r) :=
@@ -3141,7 +3145,7 @@ private theorem dh_bulk23Minus_distances :
       intro i
       have h0 := hPerp i
       have hS := dh_applyK48_props.2.1 (hcBulk23 i) (dhApplyK48 L)
-      rw [dh_symp48_congr_right _ (fun p r => by rw [dh_applyK48_props.1 L p r]; omega)] at hS
+      rw [dh_symp48_congr_right _ (v' := L) (fun p r => by rw [dh_applyK48_props.1 L p r]; omega)] at hS
       change hcSymp48 (dhBulk23Minus i) L = (2 * hcSymp48 (hcBulk23 i) (dhApplyK48 L)) % 3 at hS
       rw [h0] at hS; have hlt : hcSymp48 (hcBulk23 i) (dhApplyK48 L) < 3 := Nat.mod_lt _ (by decide); omega
     have hNotK : ¬ hcInSpan hcBulk23 (dhApplyK48 L) := fun h => hNotSpan ((dh_applyK48_props.2.2.2 hcBulk23 L).mpr h)
@@ -3670,7 +3674,7 @@ private theorem dh_inducedEdges_frame_identity (A : Fin 24 → Bool) :
         by_cases hFne : hcFrameOf i ≠ hcFrameOf j
         · rw [dh_ite_pos ⟨hA.1, hA.2, hFne⟩]; rw [dh_ite_pos hFne] at hEq; exact hEq
         · rw [dh_ite_neg (fun p => hFne p.2.2)]
-    · rw [dh_ite_neg (fun p => hA ⟨p.1, p.2.1⟩), dh_ite_neg (fun p => hA ⟨p.1, p.2.1⟩)]; rfl
+    · simp only [dh_ite_neg (fun p => hA ⟨p.1, p.2.1⟩), Nat.mul_zero]; rfl
   -- Split the double sum over the 6 ordered distinct frame pairs (0,1),(1,0),(1,2),(2,1),(2,0),(0,2)!
   have hSplit6 : ∀ i j : Fin 24,
       (if A i = true ∧ A j = true ∧ hcFrameOf i ≠ hcFrameOf j then 1 + dot4 (d4RootOf i) (d4RootOf j) else 0) =
@@ -3947,14 +3951,14 @@ theorem dh_happy_b1_d40_and_b2_d98 :
       intro a
       rcases (hPushSpan a).1 with ⟨cx, hcx⟩
       rcases (hPushSpan a).2 with ⟨cz, hcz⟩
-      rw [dh_symp48_congr_left _ (fun p r => by rw [hcx p r]; unfold hcLinComb; omega),
-          dh_symp48_congr_right _ (fun p r => by rw [hcz p r]; unfold hcLinComb; omega),
+      rw [dh_symp48_congr_left (u' := hcLinComb cx dhBulk23Minus) _ (fun p r => by rw [hcx p r]; unfold hcLinComb; omega),
+          dh_symp48_congr_right _ (v' := hcLinComb cz dhBulk23Minus) (fun p r => by rw [hcz p r]; unfold hcLinComb; omega),
           dh_symp48_linComb_left]
       apply dh_sumFin_zero_mod3; intro i
       rw [dh_symp48_linComb_right]
       have hz : hcSumFin (fun j : Fin 23 => (cz j).val * hcSymp48 (dhBulk23Minus i) (dhBulk23Minus j)) % 3 = 0 := by
         apply dh_sumFin_zero_mod3; intro j; unfold dhBulk23Minus
-        rw [dh_applyK48_props.2.1, thm_hc_code_24_1_8_stabilizer_valid.1 i j]; decide
+        rw [dh_applyK48_props.2.1, thm_hc_code_24_1_8_stabilizer_valid.1 i j]; simp only [Nat.mul_zero, Nat.zero_mod]
       rw [hz, Nat.mul_zero]
     have hPerA : ∀ a : Fin 24,
         hcSumFin (fun s : Fin 24 =>
@@ -4041,8 +4045,12 @@ def dhChoiMinus25 (i : Fin 25) : HcVec48 :=
   | 23 => dhXLMinus
   | _ => dhZLMinus
 
-/-- Exact `GF(3)` Gaussian elimination rank over `List (List Nat)` (with entries `< 3`),
-    tracking the row-echelon basis to guarantee linear-algebraic soundness. -/
+/-- Self-contained safe list indexing and `GF(3)` rank for concrete witness rank reporting (`[1, 2, 3, 10]`). -/
+def dhGetD : List Nat → Nat → Nat
+  | [], _ => 0
+  | a :: _, 0 => a
+  | _ :: as, k + 1 => dhGetD as k
+
 def dhVecSubScale3 : List Nat → List Nat → Nat → List Nat
   | [], _, _ => []
   | a :: as, [], _ => a :: as
@@ -4052,7 +4060,6 @@ def dhVecScale2 : List Nat → List Nat
   | [] => []
   | a :: as => ((2 * a) % 3) :: dhVecScale2 as
 
-/-- Insert a row into an upper-triangular pivot-indexed `GF(3)` basis `List (Nat × List Nat)`. -/
 def dhInsertPivot (basis : List (Nat × List Nat)) (row : List Nat) : List (Nat × List Nat) :=
   let rec reduce (bs : List (Nat × List Nat)) (r : List Nat) : List (Nat × List Nat) :=
     match bs with
@@ -4063,10 +4070,10 @@ def dhInsertPivot (basis : List (Nat × List Nat)) (row : List Nat) : List (Nat 
       match firstNz 0 r with
       | none => []
       | some p =>
-        let rNorm := if r.getD p 0 % 3 = 2 then dhVecScale2 r else r
+        let rNorm := if dhGetD r p % 3 = 2 then dhVecScale2 r else r
         [(p, rNorm)]
     | (p, prow) :: rest =>
-      let v := r.getD p 0 % 3
+      let v := dhGetD r p % 3
       let r' := if v = 0 then r else dhVecSubScale3 r prow v
       (p, prow) :: reduce rest r'
   reduce basis row
@@ -4090,103 +4097,80 @@ def dhSynRankSC0 (ls : List (Fin 12)) : Nat :=
 def dhSynRankChoi (ls : List (Fin 12)) : Nat :=
   dhGF3Rank ((List.finRange 25).map (fun i => dhSynRow (dhChoiMinus25 i) ls))
 
-/-- Soundness predicate for a `GF(3)` echelon basis `bs : List (Nat × List Nat)`:
-    each `(p, r)` has entry `1` at `p`, entry `0` at all earlier pivots of `bs`, and every
-    row in `bs` is linearly independent over `GF(3)`. -/
-def dhEchelonWellFormed : List (Nat × List Nat) → Prop
-  | [] => True
-  | (p, r) :: rest =>
-      r.getD p 0 % 3 = 1 ∧
-      (∀ q ∈ rest, q.2.getD p 0 % 3 = 0) ∧
-      dhEchelonWellFormed rest
+/-- Predicate: `w : HcVec48` is supported strictly on the antipodal lines in `ls : List (Fin 12)`
+    (vanishes mod 3 on every slot `r : Fin 24` with `hcLineOf r ∉ ls`). -/
+def dhSuppOnLines (ls : List (Fin 12)) (w : HcVec48) : Prop :=
+  ∀ r : Fin 24, hcLineOf r ∉ ls → w ⟨0, by decide⟩ r % 3 = 0 ∧ w ⟨1, by decide⟩ r % 3 = 0
 
-private theorem dh_vecSubScale3_getD (r prow : List Nat) (f k : Nat)
-    (hLen : r.length = prow.length) (hk : k < r.length) :
-    (dhVecSubScale3 r prow f).getD k 0 % 3 = (r.getD k 0 + (3 - f) * prow.getD k 0) % 3 := by
-  induction r generalizing prow k with
-  | nil => simp at hk
-  | cons a as ih =>
-    cases prow with
-    | nil => simp at hLen
-    | cons b bs =>
-      cases k with
-      | zero => simp [dhVecSubScale3]
-      | succ m =>
-        simp only [dhVecSubScale3, List.getD_cons_succ]
-        exact ih bs m (by simp at hLen; omega) (by simp at hk; omega)
+/-- Exact symplectic logical/inward coupling predicate on `C_0`:
+    there exists an operator `w` supported strictly on `ls` commuting with all `21` rows of `dhSC0`
+    yet failing to commute with some row of `dhChoiMinus25` (equivalently `rk(T_-^{Choi}|_ls) > rk(S(C_0)|_ls)`). -/
+def dhHasCoupledOp (ls : List (Fin 12)) : Prop :=
+  ∃ w : HcVec48, dhSuppOnLines ls w ∧
+    (∀ i : Fin 21, hcSymp48 (dhSC0 i) w = 0) ∧
+    (∃ j : Fin 25, hcSymp48 (dhChoiMinus25 j) w ≠ 0)
 
-private theorem dh_vecSubScale3_len (r prow : List Nat) (f : Nat) (hLen : r.length = prow.length) :
-    (dhVecSubScale3 r prow f).length = r.length := by
-  induction r generalizing prow with
-  | nil => rfl
-  | cons a as ih =>
-    cases prow with
-    | nil => simp at hLen
-    | cons b bs => simp [dhVecSubScale3, ih bs (by simp at hLen; omega)]
+/-- Exact pure-cone stabilizer predicate on `C_0`:
+    there exists a nonzero operator `w ∈ span(dhSC0)` supported strictly on `ls`. -/
+def dhHasPureStab (ls : List (Fin 12)) : Prop :=
+  ∃ w : HcVec48, dhSuppOnLines ls w ∧ hcInSpan dhSC0 w ∧ (∃ p r, w p r % 3 ≠ 0)
 
-private theorem dh_vecScale2_getD (r : List Nat) (k : Nat) :
-    (dhVecScale2 r).getD k 0 % 3 = (2 * r.getD k 0) % 3 := by
-  induction r generalizing k with
-  | nil => simp [dhVecScale2]
-  | cons a as ih =>
-    cases k with
-    | zero => simp [dhVecScale2]
-    | succ m => simp only [dhVecScale2, List.getD_cons_succ]; exact ih m
+/-- Line-permutation word action matching `hcePermWord`: `dhWordLinePerm (k :: rest) l = dhWordLinePerm rest (hcLinePerm k l)`. -/
+def dhWordLinePerm : List (Fin 4) → Fin 12 → Fin 12
+  | [], l => l
+  | k :: rest, l => dhWordLinePerm rest (hcLinePerm k l)
 
-private theorem dh_vecScale2_len (r : List Nat) : (dhVecScale2 r).length = r.length := by
-  induction r with | nil => rfl | cons _ _ ih => simp [dhVecScale2, ih]
+private theorem dh_sumFin23_split (f : Fin 23 → Nat) :
+    hcSumFin f = f ⟨0, by decide⟩ + f ⟨1, by decide⟩ +
+      hcSumFin (fun i : Fin 21 => f ⟨i.val + 2, by have := i.isLt; omega⟩) := by
+  unfold hcSumFin
+  suffices ∀ (k : Nat) (hk : k ≤ 21),
+      hcSumFinAux (k + 2) (by omega) f =
+      f ⟨0, by decide⟩ + f ⟨1, by decide⟩ +
+      hcSumFinAux k hk (fun i : Fin 21 => f ⟨i.val + 2, by have := i.isLt; omega⟩) from
+    this 21 (Nat.le_refl 21)
+  intro k hk; induction k with
+  | zero => simp only [Nat.zero_add, hcSumFinAux, Nat.add_zero]
+  | succ m ih =>
+    simp only [hcSumFinAux]; rw [ih (Nat.le_of_succ_le hk), Nat.add_assoc]
 
-private theorem dh_echelon_linIndep (bs : List (Nat × List Nat)) (hWF : dhEchelonWellFormed bs) :
-    ∀ coeffs : List Nat, coeffs.length = bs.length →
-      (∀ k : Nat, (List.zipWith (fun c pr => c * pr.2.getD k 0) coeffs bs).foldl (· + ·) 0 % 3 = 0) →
-      ∀ c ∈ coeffs, c % 3 = 0 := by
-  have hFoldAdd : ∀ (xs : List Nat) (a : Nat), xs.foldl (· + ·) a = a + xs.foldl (· + ·) 0 := by
-    intro xs; induction xs with
-    | nil => intro a; simp
-    | cons x rest ih =>
-      intro a; simp only [List.foldl_cons, Nat.zero_add]; rw [ih (a + x), ih x, Nat.add_assoc]
-  induction bs with
-  | nil => intro coeffs hLen _ c hc; cases coeffs with | nil => cases hc | cons _ _ => simp at hLen
-  | cons pr rest ih =>
-    rcases pr with ⟨p, r⟩
-    obtain ⟨hP1, hRest0, hWFRest⟩ := hWF
-    intro coeffs hLen hZero
-    cases coeffs with
-    | nil => simp at hLen
-    | cons c0 cs =>
-      have hRestZeroAtP : (List.zipWith (fun c q => c * q.2.getD p 0) cs rest).foldl (· + ·) 0 % 3 = 0 := by
-        have hGen : ∀ (xs : List Nat) (ys : List (Nat × List Nat)),
-            (∀ q ∈ ys, q.2.getD p 0 % 3 = 0) →
-            (List.zipWith (fun c q => c * q.2.getD p 0) xs ys).foldl (· + ·) 0 % 3 = 0 := by
-          intro xs; induction xs with
-          | nil => intro ys _; simp
-          | cons x xrest ihx =>
-            intro ys hys; cases ys with
-            | nil => simp
-            | cons y yrest =>
-              simp only [List.zipWith_cons_cons, List.foldl_cons, Nat.zero_add]
-              rw [hFoldAdd]
-              have hy0 : y.2.getD p 0 % 3 = 0 := hys y (by simp)
-              have hTerm : (x * y.2.getD p 0) % 3 = 0 := by rw [← dh_mul_mod3_right, hy0, Nat.mul_zero]
-              have hTail := ihx yrest (fun q hq => hys q (List.mem_cons_of_mem _ hq))
-              omega
-        exact hGen cs rest hRest0
-      have hc0 : c0 % 3 = 0 := by
-        have hp := hZero p
-        simp only [List.zipWith_cons_cons, List.foldl_cons, Nat.zero_add] at hp
-        rw [hFoldAdd] at hp
-        have hProd : (c0 * r.getD p 0) % 3 = c0 % 3 := by rw [← dh_mul_mod3_right, hP1, Nat.mul_one]
-        omega
-      have hZeroRest : ∀ k : Nat, (List.zipWith (fun c q => c * q.2.getD k 0) cs rest).foldl (· + ·) 0 % 3 = 0 := by
-        intro k; have hk := hZero k
-        simp only [List.zipWith_cons_cons, List.foldl_cons, Nat.zero_add] at hk
-        rw [hFoldAdd] at hk
-        have h0k : (c0 * r.getD k 0) % 3 = 0 := by rw [← dh_mul_mod3_left, hc0, Nat.zero_mul]
-        omega
-      intro c hc; simp only [List.mem_cons] at hc
-      rcases hc with rfl | hMem
-      · exact hc0
-      · exact ih hWFRest cs (by simp at hLen; omega) hZeroRest c hMem
+private theorem dh_sc0_linComb_to_bulk23Minus (c : Fin 21 → Fin 3) :
+    let c0v := hcSumFin (fun i : Fin 21 => (c i).val * ((2 * dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ ⟨0, by decide⟩ ⟨3, by decide⟩) % 3)) % 3
+    let c1v := hcSumFin (fun i : Fin 21 => (c i).val * (dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ ⟨1, by decide⟩ ⟨3, by decide⟩ % 3)) % 3
+    let c23 : Fin 23 → Fin 3 := fun j =>
+      if j.val = 0 then ⟨c0v, Nat.mod_lt _ (by decide)⟩
+      else if j.val = 1 then ⟨c1v, Nat.mod_lt _ (by decide)⟩
+      else c ⟨j.val - 2, by have := j.isLt; omega⟩
+    ∀ p r, hcLinComb c dhSC0 p r = hcLinComb c23 dhBulk23Minus p r := by
+  intro c0v c1v c23 p r
+  unfold hcLinComb dhSC0
+  have hPer : ∀ i : Fin 21, ((c i).val *
+      ((dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ p r +
+        ((2 * dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ ⟨0, by decide⟩ ⟨3, by decide⟩) % 3) * dhBulk23Minus ⟨0, by decide⟩ p r +
+        (dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ ⟨1, by decide⟩ ⟨3, by decide⟩ % 3) * dhBulk23Minus ⟨1, by decide⟩ p r) % 3)) % 3 =
+      ((c i).val * dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ p r +
+       (c i).val * ((2 * dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ ⟨0, by decide⟩ ⟨3, by decide⟩) % 3) * dhBulk23Minus ⟨0, by decide⟩ p r +
+       (c i).val * (dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ ⟨1, by decide⟩ ⟨3, by decide⟩ % 3) * dhBulk23Minus ⟨1, by decide⟩ p r) % 3 := by
+    intro i; rw [dh_mul_mod3_right]; simp only [Nat.mul_add, Nat.mul_assoc]
+  have hLhs : hcSumFin (fun i : Fin 21 => (c i).val *
+      ((dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ p r +
+        ((2 * dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ ⟨0, by decide⟩ ⟨3, by decide⟩) % 3) * dhBulk23Minus ⟨0, by decide⟩ p r +
+        (dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ ⟨1, by decide⟩ ⟨3, by decide⟩ % 3) * dhBulk23Minus ⟨1, by decide⟩ p r) % 3)) % 3 =
+      (hcSumFin (fun i : Fin 21 => (c i).val * dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ p r) +
+       c0v * dhBulk23Minus ⟨0, by decide⟩ p r + c1v * dhBulk23Minus ⟨1, by decide⟩ p r) % 3 := by
+    rw [dh_sumFin_mod3_congr _ _ hPer, dh_sumFin_add, dh_sumFin_add, dh_sumFin_mul_right, dh_sumFin_mul_right]
+    dsimp only [c0v, c1v]
+    exact dh_add_mod3_congr (dh_add_mod3_congr rfl (dh_mul_mod3_left _ _).symm) (dh_mul_mod3_left _ _).symm
+  rw [hLhs, dh_sumFin23_split]
+  have hTail : (fun i : Fin 21 => (c23 ⟨i.val + 2, by have := i.isLt; omega⟩).val * dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ p r) =
+      (fun i : Fin 21 => (c i).val * dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ p r) := by
+    funext i; dsimp only [c23]
+    rw [dh_ite_neg (by omega), dh_ite_neg (by omega)]
+    have hFin : (⟨i.val + 2 - 2, by omega⟩ : Fin 21) = i := Fin.ext (Nat.add_sub_cancel i.val 2)
+    rw [hFin]
+  have h0 : (c23 ⟨0, by decide⟩).val = c0v := rfl
+  have h1 : (c23 ⟨1, by decide⟩).val = c1v := rfl
+  rw [h0, h1, hTail]; omega
 
 private theorem dh_sc0_basis_spec :
     (∀ i : Fin 21, dhSC0 i ⟨0, by decide⟩ ⟨3, by decide⟩ = 0 ∧ dhSC0 i ⟨1, by decide⟩ ⟨3, by decide⟩ = 0) ∧
@@ -4195,106 +4179,27 @@ private theorem dh_sc0_basis_spec :
     (∀ c : Fin 21 → Fin 3, (∀ p r, hcLinComb c dhSC0 p r = 0) → ∀ i : Fin 21, c i = ⟨0, by decide⟩) := by
   have hZeroIso : (∀ i : Fin 21, dhSC0 i ⟨0, by decide⟩ ⟨3, by decide⟩ = 0 ∧ dhSC0 i ⟨1, by decide⟩ ⟨3, by decide⟩ = 0) ∧
       (∀ i j : Fin 21, hcSymp48 (dhSC0 i) (dhSC0 j) = 0) := by decide
-  have hRow01 : dhBulk23Minus ⟨0, by decide⟩ ⟨0, by decide⟩ ⟨3, by decide⟩ = 1 ∧
-      dhBulk23Minus ⟨0, by decide⟩ ⟨1, by decide⟩ ⟨3, by decide⟩ = 0 ∧
-      dhBulk23Minus ⟨1, by decide⟩ ⟨0, by decide⟩ ⟨3, by decide⟩ = 0 ∧
-      dhBulk23Minus ⟨1, by decide⟩ ⟨1, by decide⟩ ⟨3, by decide⟩ = 2 := by decide
   have hSpan : ∀ i : Fin 21, hcInSpan dhBulk23Minus (dhSC0 i) := by
     intro i
-    let row := dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩
-    let c0 : Fin 3 := ⟨(2 * row ⟨0, by decide⟩ ⟨3, by decide⟩) % 3, Nat.mod_lt _ (by decide)⟩
-    let c1 : Fin 3 := ⟨row ⟨1, by decide⟩ ⟨3, by decide⟩ % 3, Nat.mod_lt _ (by decide)⟩
-    let coeff : Fin 23 → Fin 3 := fun j =>
-      if j.val = 0 then c0 else if j.val = 1 then c1 else if j.val = i.val + 2 then ⟨1, by decide⟩ else ⟨0, by decide⟩
-    refine ⟨coeff, fun p r => ?_⟩
-    unfold dhSC0 hcLinComb; dsimp only [coeff, c0, c1, row]
-    have hSplit : hcSumFin (fun j : Fin 23 =>
-        (if j.val = 0 then (⟨(2 * dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ ⟨0, by decide⟩ ⟨3, by decide⟩) % 3, Nat.mod_lt _ (by decide)⟩ : Fin 3)
-         else if j.val = 1 then ⟨dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ ⟨1, by decide⟩ ⟨3, by decide⟩ % 3, Nat.mod_lt _ (by decide)⟩
-         else if j.val = i.val + 2 then ⟨1, by decide⟩ else ⟨0, by decide⟩).val * dhBulk23Minus j p r) =
-        ((2 * dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ ⟨0, by decide⟩ ⟨3, by decide⟩) % 3) * dhBulk23Minus ⟨0, by decide⟩ p r +
-        (dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ ⟨1, by decide⟩ ⟨3, by decide⟩ % 3) * dhBulk23Minus ⟨1, by decide⟩ p r +
-        1 * dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ p r := by
-      have hFun : (fun j : Fin 23 =>
-          (if j.val = 0 then (⟨(2 * dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ ⟨0, by decide⟩ ⟨3, by decide⟩) % 3, Nat.mod_lt _ (by decide)⟩ : Fin 3)
-           else if j.val = 1 then ⟨dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ ⟨1, by decide⟩ ⟨3, by decide⟩ % 3, Nat.mod_lt _ (by decide)⟩
-           else if j.val = i.val + 2 then ⟨1, by decide⟩ else ⟨0, by decide⟩).val * dhBulk23Minus j p r) =
-          fun j : Fin 23 =>
-            (if j = ⟨0, by decide⟩ then ((2 * dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ ⟨0, by decide⟩ ⟨3, by decide⟩) % 3) * dhBulk23Minus j p r else 0) +
-            (if j = ⟨1, by decide⟩ then (dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ ⟨1, by decide⟩ ⟨3, by decide⟩ % 3) * dhBulk23Minus j p r else 0) +
-            (if j = ⟨i.val + 2, by have := i.isLt; omega⟩ then 1 * dhBulk23Minus j p r else 0) := by
-        funext j
-        if hj0 : j.val = 0 then
-          have hEq : j = ⟨0, by decide⟩ := Fin.ext hj0; subst hEq; simp
-        else if hj1 : j.val = 1 then
-          have hEq : j = ⟨1, by decide⟩ := Fin.ext hj1; subst hEq; simp
-        else if hji : j.val = i.val + 2 then
-          have hEq : j = ⟨i.val + 2, by have := i.isLt; omega⟩ := Fin.ext hji; subst hEq
-          have hne0 : (⟨i.val + 2, by have := i.isLt; omega⟩ : Fin 23) ≠ ⟨0, by decide⟩ := fun e => by have := congrArg Fin.val e; omega
-          have hne1 : (⟨i.val + 2, by have := i.isLt; omega⟩ : Fin 23) ≠ ⟨1, by decide⟩ := fun e => by have := congrArg Fin.val e; omega
-          simp [hj0, hj1, hne0, hne1]
-        else
-          have hne0 : j ≠ ⟨0, by decide⟩ := fun e => hj0 (congrArg Fin.val e)
-          have hne1 : j ≠ ⟨1, by decide⟩ := fun e => hj1 (congrArg Fin.val e)
-          have hnei : j ≠ ⟨i.val + 2, by have := i.isLt; omega⟩ := fun e => hji (congrArg Fin.val e)
-          simp [hj0, hj1, hji, hne0, hne1, hnei]
-      rw [hFun, dh_sumFin_add, dh_sumFin_add,
-          dh_sumFin_zero_except _ ⟨0, by decide⟩ (fun j hj => dh_ite_neg hj),
-          dh_sumFin_zero_except _ ⟨1, by decide⟩ (fun j hj => dh_ite_neg hj),
-          dh_sumFin_zero_except _ ⟨i.val + 2, by have := i.isLt; omega⟩ (fun j hj => dh_ite_neg hj),
-          dh_ite_pos rfl, dh_ite_pos rfl, dh_ite_pos rfl]
-    rw [hSplit, Nat.one_mul]; omega
+    let e : Fin 21 → Fin 3 := fun j => if j = i then ⟨1, by decide⟩ else ⟨0, by decide⟩
+    have hE : ∀ p r, dhSC0 i p r % 3 = hcLinComb e dhSC0 p r := by
+      intro p r; unfold hcLinComb
+      rw [dh_sumFin_zero_except _ i (fun j hj => by dsimp only [e]; rw [dh_ite_neg hj]; exact Nat.zero_mul _)]
+      dsimp only [e]; rw [dh_ite_pos rfl, Nat.one_mul]
+    have hConv := dh_sc0_linComb_to_bulk23Minus e
+    refine ⟨_, fun p r => by rw [hE p r]; exact hConv p r⟩
   have hRank21 : ∀ c : Fin 21 → Fin 3, (∀ p r, hcLinComb c dhSC0 p r = 0) → ∀ i : Fin 21, c i = ⟨0, by decide⟩ := by
     intro c hZ
-    -- Expand hcLinComb c dhSC0 as a combination of dhBulk23Minus, then apply K to reduce to hcBulk23 rank 23!
     let c0v := hcSumFin (fun i : Fin 21 => (c i).val * ((2 * dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ ⟨0, by decide⟩ ⟨3, by decide⟩) % 3)) % 3
     let c1v := hcSumFin (fun i : Fin 21 => (c i).val * (dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ ⟨1, by decide⟩ ⟨3, by decide⟩ % 3)) % 3
     let c23 : Fin 23 → Fin 3 := fun j =>
       if j.val = 0 then ⟨c0v, Nat.mod_lt _ (by decide)⟩
       else if j.val = 1 then ⟨c1v, Nat.mod_lt _ (by decide)⟩
       else c ⟨j.val - 2, by have := j.isLt; omega⟩
+    have hConv := dh_sc0_linComb_to_bulk23Minus c
     have hBulkZero : ∀ p r, hcLinComb c23 hcBulk23 p r = 0 := by
       intro p r
-      have hMinus : hcLinComb c23 dhBulk23Minus p r = 0 := by
-        have hz := hZ p r; unfold hcLinComb dhSC0 at hz ⊢
-        have hExp : hcSumFin (fun i : Fin 21 => (c i).val *
-            ((dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ p r +
-              ((2 * dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ ⟨0, by decide⟩ ⟨3, by decide⟩) % 3) * dhBulk23Minus ⟨0, by decide⟩ p r +
-              (dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ ⟨1, by decide⟩ ⟨3, by decide⟩ % 3) * dhBulk23Minus ⟨1, by decide⟩ p r) % 3)) % 3 =
-            (hcSumFin (fun i : Fin 21 => (c i).val * dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ p r) +
-             c0v * dhBulk23Minus ⟨0, by decide⟩ p r + c1v * dhBulk23Minus ⟨1, by decide⟩ p r) % 3 := by
-          have hPer : ∀ i : Fin 21, ((c i).val *
-              ((dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ p r +
-                ((2 * dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ ⟨0, by decide⟩ ⟨3, by decide⟩) % 3) * dhBulk23Minus ⟨0, by decide⟩ p r +
-                (dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ ⟨1, by decide⟩ ⟨3, by decide⟩ % 3) * dhBulk23Minus ⟨1, by decide⟩ p r) % 3)) % 3 =
-              ((c i).val * dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ p r +
-               (c i).val * ((2 * dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ ⟨0, by decide⟩ ⟨3, by decide⟩) % 3) * dhBulk23Minus ⟨0, by decide⟩ p r +
-               (c i).val * (dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ ⟨1, by decide⟩ ⟨3, by decide⟩ % 3) * dhBulk23Minus ⟨1, by decide⟩ p r) % 3 := by
-            intro i; rw [dh_mul_mod3_right]; simp only [Nat.mul_add, Nat.mul_assoc]
-          rw [dh_sumFin_mod3_congr _ _ hPer, dh_sumFin_add, dh_sumFin_add, dh_sumFin_mul_right, dh_sumFin_mul_right]
-          dsimp only [c0v, c1v]
-          exact dh_add_mod3_congr (dh_add_mod3_congr rfl (dh_mul_mod3_left _ _).symm) (dh_mul_mod3_left _ _).symm
-        rw [hExp] at hz
-        have hSplit23 : hcSumFin (fun j : Fin 23 => (c23 j).val * dhBulk23Minus j p r) =
-            c0v * dhBulk23Minus ⟨0, by decide⟩ p r + c1v * dhBulk23Minus ⟨1, by decide⟩ p r +
-            hcSumFin (fun i : Fin 21 => (c i).val * dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ p r) := by
-          unfold hcSumFin
-          suffices ∀ (k : Nat) (hk : k ≤ 21),
-              hcSumFinAux (k + 2) (by omega) (fun j : Fin 23 => (c23 j).val * dhBulk23Minus j p r) =
-              c0v * dhBulk23Minus ⟨0, by decide⟩ p r + c1v * dhBulk23Minus ⟨1, by decide⟩ p r +
-              hcSumFinAux k hk (fun i : Fin 21 => (c i).val * dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ p r) from
-            this 21 (Nat.le_refl 21)
-          intro k hk; induction k with
-          | zero => simp only [hcSumFinAux, Nat.zero_add, Nat.add_zero, c23]; rfl
-          | succ m ih =>
-            simp only [hcSumFinAux]; rw [ih (Nat.le_of_succ_le hk), Nat.add_assoc]
-            have hC : (c23 ⟨m + 2, by omega⟩).val = (c ⟨m, hk⟩).val := by
-              dsimp only [c23]; rw [dh_ite_neg (by omega), dh_ite_neg (by omega)]
-              have hFin : (⟨m + 2 - 2, by omega⟩ : Fin 21) = ⟨m, hk⟩ := Fin.ext (Nat.add_sub_cancel m 2)
-              rw [hFin]
-            rw [hC]
-        rw [hSplit23]; omega
-      -- Now recover hcLinComb c23 hcBulk23 p r = 0 via K involution!
+      have hMinus : hcLinComb c23 dhBulk23Minus p r = 0 := by rw [← hConv p r]; exact hZ p r
       have hK : dhApplyK48 (hcLinComb c23 dhBulk23Minus) p r = hcLinComb c23 hcBulk23 p r := by
         cases p with | mk pv hpv =>
         match pv, hpv with
@@ -4313,7 +4218,10 @@ private theorem dh_sc0_basis_spec :
           rw [h4]; omega
         | _ + 2, h => exact absurd h (by omega)
       rw [← hK]
-      cases p with | mk pv hpv => match pv, hpv with | 0, _ | 1, _ => simp only [dhApplyK48]; rw [hMinus] | _ + 2, h => exact absurd h (by omega)
+      cases p with | mk pv hpv =>
+      match pv, hpv with
+      | 0, _ | 1, _ => simp only [dhApplyK48]; rw [hMinus]
+      | _ + 2, h => exact absurd h (by omega)
     have hAll0 := thm_hc_code_24_1_8_stabilizer_valid.2.1 c23 hBulkZero
     intro i
     have hi := hAll0 ⟨i.val + 2, by have := i.isLt; omega⟩
@@ -4321,6 +4229,511 @@ private theorem dh_sc0_basis_spec :
     have hFin : (⟨i.val + 2 - 2, by omega⟩ : Fin 21) = i := Fin.ext (Nat.add_sub_cancel i.val 2)
     rw [hFin] at hi; exact hi
   exact ⟨hZeroIso.1, hZeroIso.2, hSpan, hRank21⟩
+
+private theorem dh_symp48_applyK48_zero (a b : HcVec48) :
+    hcSymp48 (dhApplyK48 a) b = 0 ↔ hcSymp48 a (dhApplyK48 b) = 0 := by
+  have hS := dh_applyK48_props.2.1 a (dhApplyK48 b)
+  rw [dh_symp48_congr_right _ (v' := b) (fun p r => by rw [dh_applyK48_props.1 b p r]; omega)] at hS
+  have hlt1 : hcSymp48 (dhApplyK48 a) b < 3 := Nat.mod_lt _ (by decide)
+  have hlt2 : hcSymp48 a (dhApplyK48 b) < 3 := Nat.mod_lt _ (by decide)
+  omega
+
+private theorem dh_inSpan_bulk23Minus_iff (v : HcVec48) :
+    hcInSpan dhBulk23Minus v ↔
+      (∀ i : Fin 23, hcSymp48 (dhBulk23Minus i) v = 0) ∧
+      hcSymp48 v dhZLMinus = 0 ∧ hcSymp48 v dhXLMinus = 0 := by
+  have hSpanK : hcInSpan dhBulk23Minus v ↔ hcInSpan hcBulk23 (dhApplyK48 v) :=
+    dh_applyK48_props.2.2.2 hcBulk23 v
+  have hSwapZ : hcSymp48 v dhZLMinus = 0 ↔ hcSymp48 (dhApplyK48 v) hcZLFrame = 0 := by
+    have h1 := dh_symp48_skew dhZLMinus v
+    have h2 := dh_symp48_skew hcZLFrame (dhApplyK48 v)
+    have h3 := dh_symp48_applyK48_zero hcZLFrame v
+    have l1 : hcSymp48 v dhZLMinus < 3 := Nat.mod_lt _ (by decide)
+    have l2 : hcSymp48 dhZLMinus v < 3 := Nat.mod_lt _ (by decide)
+    have l3 : hcSymp48 (dhApplyK48 v) hcZLFrame < 3 := Nat.mod_lt _ (by decide)
+    have l4 : hcSymp48 hcZLFrame (dhApplyK48 v) < 3 := Nat.mod_lt _ (by decide)
+    change hcSymp48 dhZLMinus v = 0 ↔ hcSymp48 hcZLFrame (dhApplyK48 v) = 0 at h3
+    omega
+  have hSwapX : hcSymp48 v dhXLMinus = 0 ↔ hcSymp48 (dhApplyK48 v) hcXLFrame = 0 := by
+    have h1 := dh_symp48_skew dhXLMinus v
+    have h2 := dh_symp48_skew hcXLFrame (dhApplyK48 v)
+    have h3 := dh_symp48_applyK48_zero hcXLFrame v
+    have l1 : hcSymp48 v dhXLMinus < 3 := Nat.mod_lt _ (by decide)
+    have l2 : hcSymp48 dhXLMinus v < 3 := Nat.mod_lt _ (by decide)
+    have l3 : hcSymp48 (dhApplyK48 v) hcXLFrame < 3 := Nat.mod_lt _ (by decide)
+    have l4 : hcSymp48 hcXLFrame (dhApplyK48 v) < 3 := Nat.mod_lt _ (by decide)
+    change hcSymp48 dhXLMinus v = 0 ↔ hcSymp48 hcXLFrame (dhApplyK48 v) = 0 at h3
+    omega
+  rw [hSpanK, dh_inSpan_bulk23_iff (dhApplyK48 v)]
+  constructor
+  · intro ⟨hP, hZ, hX⟩
+    exact ⟨fun i => (dh_symp48_applyK48_zero (hcBulk23 i) v).mpr (hP i), hSwapZ.mpr hZ, hSwapX.mpr hX⟩
+  · intro ⟨hP, hZ, hX⟩
+    exact ⟨fun i => (dh_symp48_applyK48_zero (hcBulk23 i) v).mp (hP i), hSwapZ.mp hZ, hSwapX.mp hX⟩
+
+private theorem dh_inSpan_sc0_iff (v : HcVec48) :
+    hcInSpan dhSC0 v ↔
+      hcInSpan dhBulk23Minus v ∧
+      v ⟨0, by decide⟩ ⟨3, by decide⟩ % 3 = 0 ∧ v ⟨1, by decide⟩ ⟨3, by decide⟩ % 3 = 0 := by
+  have hRow01 : dhBulk23Minus ⟨0, by decide⟩ ⟨0, by decide⟩ ⟨3, by decide⟩ = 1 ∧
+      dhBulk23Minus ⟨0, by decide⟩ ⟨1, by decide⟩ ⟨3, by decide⟩ = 0 ∧
+      dhBulk23Minus ⟨1, by decide⟩ ⟨0, by decide⟩ ⟨3, by decide⟩ = 0 ∧
+      dhBulk23Minus ⟨1, by decide⟩ ⟨1, by decide⟩ ⟨3, by decide⟩ = 2 := by decide
+  constructor
+  · intro ⟨c, hc⟩
+    have hConv := dh_sc0_linComb_to_bulk23Minus c
+    refine ⟨⟨_, fun p r => by rw [hc p r]; exact hConv p r⟩, ?_, ?_⟩
+    · rw [hc ⟨0, by decide⟩ ⟨3, by decide⟩]; unfold hcLinComb
+      apply dh_sumFin_zero_mod3; intro i; rw [(dh_sc0_basis_spec.1 i).1, Nat.mul_zero]
+    · rw [hc ⟨1, by decide⟩ ⟨3, by decide⟩]; unfold hcLinComb
+      apply dh_sumFin_zero_mod3; intro i; rw [(dh_sc0_basis_spec.1 i).2, Nat.mul_zero]
+  · intro ⟨⟨c23, hc23⟩, hv0, hv1⟩
+    let c21 : Fin 21 → Fin 3 := fun i => c23 ⟨i.val + 2, by have := i.isLt; omega⟩
+    let c0v := hcSumFin (fun i : Fin 21 => (c21 i).val * ((2 * dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ ⟨0, by decide⟩ ⟨3, by decide⟩) % 3)) % 3
+    let c1v := hcSumFin (fun i : Fin 21 => (c21 i).val * (dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ ⟨1, by decide⟩ ⟨3, by decide⟩ % 3)) % 3
+    let c23' : Fin 23 → Fin 3 := fun j =>
+      if j.val = 0 then ⟨c0v, Nat.mod_lt _ (by decide)⟩
+      else if j.val = 1 then ⟨c1v, Nat.mod_lt _ (by decide)⟩
+      else c21 ⟨j.val - 2, by have := j.isLt; omega⟩
+    have hConv := dh_sc0_linComb_to_bulk23Minus c21
+    have hU0 : hcLinComb c23' dhBulk23Minus ⟨0, by decide⟩ ⟨3, by decide⟩ = 0 := by
+      rw [← hConv]; unfold hcLinComb
+      apply dh_sumFin_zero_mod3; intro i; rw [(dh_sc0_basis_spec.1 i).1, Nat.mul_zero]
+    have hU1 : hcLinComb c23' dhBulk23Minus ⟨1, by decide⟩ ⟨3, by decide⟩ = 0 := by
+      rw [← hConv]; unfold hcLinComb
+      apply dh_sumFin_zero_mod3; intro i; rw [(dh_sc0_basis_spec.1 i).2, Nat.mul_zero]
+    have hV0 : hcLinComb c23 dhBulk23Minus ⟨0, by decide⟩ ⟨3, by decide⟩ = 0 := by
+      rw [← hc23 ⟨0, by decide⟩ ⟨3, by decide⟩]; exact hv0
+    have hV1 : hcLinComb c23 dhBulk23Minus ⟨1, by decide⟩ ⟨3, by decide⟩ = 0 := by
+      rw [← hc23 ⟨1, by decide⟩ ⟨3, by decide⟩]; exact hv1
+    have hTailEq : ∀ p r,
+        hcSumFin (fun i : Fin 21 => (c23' ⟨i.val + 2, by have := i.isLt; omega⟩).val * dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ p r) =
+        hcSumFin (fun i : Fin 21 => (c23 ⟨i.val + 2, by have := i.isLt; omega⟩).val * dhBulk23Minus ⟨i.val + 2, by have := i.isLt; omega⟩ p r) := by
+      intro p r; apply congrArg hcSumFin; funext i
+      dsimp only [c23', c21]; rw [dh_ite_neg (by omega), dh_ite_neg (by omega)]
+      have hFin : (⟨i.val + 2 - 2, by omega⟩ : Fin 21) = i := Fin.ext (Nat.add_sub_cancel i.val 2)
+      rw [hFin]
+    unfold hcLinComb at hU0 hU1 hV0 hV1
+    rw [dh_sumFin23_split, hTailEq] at hU0 hU1
+    rw [dh_sumFin23_split] at hV0 hV1
+    rw [hRow01.1, hRow01.2.2.1] at hU0 hV0
+    rw [hRow01.2.1, hRow01.2.2.2] at hU1 hV1
+    have hc0Eq : (c23 ⟨0, by decide⟩).val = (c23' ⟨0, by decide⟩).val := by
+      have l1 := (c23 ⟨0, by decide⟩).isLt; have l2 := (c23' ⟨0, by decide⟩).isLt; omega
+    have hc1Eq : (c23 ⟨1, by decide⟩).val = (c23' ⟨1, by decide⟩).val := by
+      have l1 := (c23 ⟨1, by decide⟩).isLt; have l2 := (c23' ⟨1, by decide⟩).isLt; omega
+    refine ⟨c21, fun p r => ?_⟩
+    rw [hc23 p r, hConv p r]; unfold hcLinComb
+    rw [dh_sumFin23_split, dh_sumFin23_split, hTailEq, hc0Eq, hc1Eq]
+
+private theorem dh_symp48_sc0_eq (m : Fin 21) (v : HcVec48) :
+    hcSymp48 (dhSC0 m) v =
+      (hcSymp48 (dhBulk23Minus ⟨m.val + 2, by have := m.isLt; omega⟩) v +
+       ((2 * dhBulk23Minus ⟨m.val + 2, by have := m.isLt; omega⟩ ⟨0, by decide⟩ ⟨3, by decide⟩) % 3) *
+         hcSymp48 (dhBulk23Minus ⟨0, by decide⟩) v +
+       (dhBulk23Minus ⟨m.val + 2, by have := m.isLt; omega⟩ ⟨1, by decide⟩ ⟨3, by decide⟩ % 3) *
+         hcSymp48 (dhBulk23Minus ⟨1, by decide⟩) v) % 3 := by
+  let row := dhBulk23Minus ⟨m.val + 2, by have := m.isLt; omega⟩
+  let c0 := (2 * row ⟨0, by decide⟩ ⟨3, by decide⟩) % 3
+  let c1 := row ⟨1, by decide⟩ ⟨3, by decide⟩ % 3
+  let r0 : HcVec48 := fun p r => (c0 * dhBulk23Minus ⟨0, by decide⟩ p r) % 3
+  let r1 : HcVec48 := fun p r => (c1 * dhBulk23Minus ⟨1, by decide⟩ p r) % 3
+  let r01 : HcVec48 := fun p r => (row p r + r0 p r) % 3
+  have hCong : ∀ p r, dhSC0 m p r % 3 = ((r01 p r + r1 p r) % 3) % 3 := by
+    intro p r; unfold dhSC0; dsimp only [r01, r0, r1, row, c0, c1]; omega
+  rw [dh_symp48_congr_left v hCong, dh_symp48_add_left, dh_symp48_add_left,
+      dh_symp48_scale_left, dh_symp48_scale_left]
+  omega
+
+private theorem dh_choi25_perp_iff (v : HcVec48) :
+    (∀ j : Fin 25, hcSymp48 (dhChoiMinus25 j) v = 0) ↔ hcInSpan dhBulk23Minus v := by
+  rw [dh_inSpan_bulk23Minus_iff v]
+  constructor
+  · intro h
+    have h21 : hcSymp48 (dhBulk23Minus ⟨0, by decide⟩) v = 0 := h ⟨21, by decide⟩
+    have h22 : hcSymp48 (dhBulk23Minus ⟨1, by decide⟩) v = 0 := h ⟨22, by decide⟩
+    have h23 : hcSymp48 dhXLMinus v = 0 := h ⟨23, by decide⟩
+    have h24 : hcSymp48 dhZLMinus v = 0 := h ⟨24, by decide⟩
+    refine ⟨?_, by rw [dh_symp48_skew, h24], by rw [dh_symp48_skew, h23]⟩
+    intro i
+    if hi0 : i.val = 0 then
+      have hEq : i = ⟨0, by decide⟩ := Fin.ext hi0; subst hEq; exact h21
+    else if hi1 : i.val = 1 then
+      have hEq : i = ⟨1, by decide⟩ := Fin.ext hi1; subst hEq; exact h22
+    else
+      let m : Fin 21 := ⟨i.val - 2, by have := i.isLt; omega⟩
+      have hm : hcSymp48 (dhSC0 m) v = 0 := by
+        have hjm := h ⟨m.val, by have := m.isLt; omega⟩
+        unfold dhChoiMinus25 at hjm; rw [dh_dite_pos m.isLt] at hjm; exact hjm
+      rw [dh_symp48_sc0_eq m v, h21, h22] at hm
+      have hFi : (⟨m.val + 2, by have := m.isLt; omega⟩ : Fin 23) = i := Fin.ext (by dsimp only [m]; omega)
+      rw [hFi] at hm
+      have hlt : hcSymp48 (dhBulk23Minus i) v < 3 := Nat.mod_lt _ (by decide)
+      omega
+  · intro ⟨hPerp, hZ, hX⟩ j
+    if hj : j.val < 21 then
+      unfold dhChoiMinus25; rw [dh_dite_pos hj, dh_symp48_sc0_eq, hPerp, hPerp, hPerp, Nat.mul_zero, Nat.mul_zero]
+    else
+      cases j with | mk jv hjv =>
+      match jv, hjv with
+      | 21, _ => exact hPerp ⟨0, by decide⟩
+      | 22, _ => exact hPerp ⟨1, by decide⟩
+      | 23, _ => rw [dh_symp48_skew, hX]
+      | 24, _ => rw [dh_symp48_skew, hZ]
+      | jv, hjv => exfalso; omega
+
+private theorem dh_cliffGenOdd_vals :
+    dhCliffGenOdd ⟨0, by decide⟩ = (1, 0, 0, 1) ∧
+    dhCliffGenOdd ⟨1, by decide⟩ = (1, 0, 0, 1) ∧
+    dhCliffGenOdd ⟨2, by decide⟩ = (1, 0, 0, 2) ∧
+    dhCliffGenOdd ⟨3, by decide⟩ = (1, 2, 0, 2) := by
+  decide
+
+private theorem dh_actWF4Odd_congr (k : Fin 4) {u v : HcVec48}
+    (h : ∀ p r, u p r % 3 = v p r % 3) (p : Fin 2) (r : Fin 24) :
+    dhActWF4Odd k u p r = dhActWF4Odd k v p r := by
+  cases p with | mk pv hpv =>
+  match pv, hpv with
+  | 0, _ | 1, _ =>
+    simp only [dhActWF4Odd]
+    exact dh_add_mod3_congr (dh_mul_mod3_congr rfl (h _ _)) (dh_mul_mod3_congr rfl (h _ _))
+  | _ + 2, h0 => exact absurd h0 (by omega)
+
+private theorem dh_actWordOdd_congr (w : List (Fin 4)) {u v : HcVec48}
+    (h : ∀ p r, u p r % 3 = v p r % 3) (p : Fin 2) (r : Fin 24) :
+    dhActWordOdd w u p r % 3 = dhActWordOdd w v p r % 3 := by
+  induction w generalizing p r with
+  | nil => exact h p r
+  | cons k rest ih =>
+    simp only [dhActWordOdd]
+    rw [dh_actWF4Odd_congr k ih p r]
+
+private theorem dh_actWordOdd_append (w1 w2 : List (Fin 4)) (v : HcVec48) :
+    dhActWordOdd (w1 ++ w2) v = dhActWordOdd w1 (dhActWordOdd w2 v) := by
+  induction w1 with
+  | nil => rfl
+  | cons k rest ih => simp only [List.cons_append, dhActWordOdd, ih]
+
+private theorem dh_actWF4Odd_invol (k : Fin 4) (v : HcVec48) (p : Fin 2) (r : Fin 24) :
+    dhActWF4Odd k (dhActWF4Odd k v) p r = v p r % 3 := by
+  have hInvP := thm_hc_wf4_generators_match_chirality.2.1 k r
+  cases k with | mk kv hkv =>
+  cases p with | mk pv hpv =>
+  match kv, hkv, pv, hpv with
+  | 0, _, 0, _ | 0, _, 1, _ =>
+    simp only [dhActWF4Odd, dh_cliffGenOdd_vals.1, hInvP]; omega
+  | 1, _, 0, _ | 1, _, 1, _ =>
+    simp only [dhActWF4Odd, dh_cliffGenOdd_vals.2.1, hInvP]; omega
+  | 2, _, 0, _ | 2, _, 1, _ =>
+    simp only [dhActWF4Odd, dh_cliffGenOdd_vals.2.2.1, hInvP]; omega
+  | 3, _, 0, _ | 3, _, 1, _ =>
+    simp only [dhActWF4Odd, dh_cliffGenOdd_vals.2.2.2, hInvP]; omega
+  | _ + 4, h, _, _ => exact absurd h (by omega)
+  | _, _, _ + 2, h => exact absurd h (by omega)
+
+private theorem dh_actWordOdd_reverse_cancel (w : List (Fin 4)) (v : HcVec48) (p : Fin 2) (r : Fin 24) :
+    dhActWordOdd w (dhActWordOdd w.reverse v) p r % 3 = v p r % 3 := by
+  induction w generalizing v p r with
+  | nil => rfl
+  | cons k rest ih =>
+    simp only [List.reverse_cons, dhActWordOdd, dh_actWordOdd_append]
+    rw [dh_actWF4Odd_congr k (fun p0 r0 => ih (dhActWF4Odd k v) p0 r0) p r, dh_actWF4Odd_invol]
+    omega
+
+private theorem dh_actWF4Odd_symp_zero (k : Fin 4) (u v : HcVec48) :
+    hcSymp48 (dhActWF4Odd k u) (dhActWF4Odd k v) = 0 ↔ hcSymp48 u v = 0 := by
+  have hKConj : ∀ w0 : HcVec48, ∀ p r, dhActWF4Odd k w0 p r % 3 = dhApplyK48 (hcActWF4 k (dhApplyK48 w0)) p r % 3 := by
+    intro w0 p r; rw [← dh_actWF4Odd_K_conj]
+    rw [dh_actWF4Odd_congr k (u := w0) (v := dhApplyK48 (dhApplyK48 w0))
+          (fun p0 r0 => by rw [dh_applyK48_props.1 w0 p0 r0]; omega) p r]
+  have hS : hcSymp48 (dhActWF4Odd k u) (dhActWF4Odd k v) = (hcMat2Det (hcCliffGen k) * hcSymp48 u v) % 3 := by
+    rw [dh_symp48_congr_left _ (hKConj u), dh_symp48_congr_right _ (hKConj v),
+        dh_applyK48_props.2.1, thm_hc_s3_clifford_homomorphism.2, dh_applyK48_props.2.1]
+    rw [dh_mul_mod3_right 2, dh_mul_mod3_right (hcMat2Det (hcCliffGen k)),
+        ← Nat.mul_assoc 2, Nat.mul_comm 2 (hcMat2Det (hcCliffGen k)), Nat.mul_assoc (hcMat2Det (hcCliffGen k)),
+        ← Nat.mul_assoc _ 2 2]
+    have h4 : (hcMat2Det (hcCliffGen k) * (4 * hcSymp48 u v)) % 3 = (hcMat2Det (hcCliffGen k) * hcSymp48 u v) % 3 := by
+      rw [dh_mul_mod3_congr rfl (by omega : (4 * hcSymp48 u v) % 3 = hcSymp48 u v % 3)]
+      exact dh_mul_mod3_right _ _
+    exact h4
+  have hDet : hcMat2Det (hcCliffGen k) = 1 ∨ hcMat2Det (hcCliffGen k) = 2 := by
+    cases k with | mk kv hkv =>
+    match kv, hkv with
+    | 0, _ => exact Or.inl thm_hc_s3_clifford_homomorphism.1.1
+    | 1, _ => exact Or.inl thm_hc_s3_clifford_homomorphism.1.2.1
+    | 2, _ => exact Or.inr thm_hc_s3_clifford_homomorphism.1.2.2.1
+    | 3, _ => exact Or.inr thm_hc_s3_clifford_homomorphism.1.2.2.2.1
+    | _ + 4, h => exact absurd h (by omega)
+  have hlt : hcSymp48 u v < 3 := Nat.mod_lt _ (by decide)
+  rw [hS]; rcases hDet with hd | hd <;> rw [hd] <;> omega
+
+private theorem dh_actWordOdd_symp_zero (w : List (Fin 4)) (u v : HcVec48) :
+    hcSymp48 (dhActWordOdd w u) (dhActWordOdd w v) = 0 ↔ hcSymp48 u v = 0 := by
+  induction w generalizing u v with
+  | nil => exact Iff.rfl
+  | cons k rest ih =>
+    simp only [dhActWordOdd]
+    exact (dh_actWF4Odd_symp_zero k _ _).trans (ih u v)
+
+private theorem dh_wordLinePerm_eq_lineOf (w : List (Fin 4)) (r : Fin 24) :
+    hcLineOf (hcePermWord w r) = dhWordLinePerm w (hcLineOf r) := by
+  have hBase : ∀ k : Fin 4, ∀ a : Fin 24, hcLineOf (hcWF4Perm k a) = hcLinePerm k (hcLineOf a) := by decide
+  induction w generalizing r with
+  | nil => rfl
+  | cons k rest ih => simp only [hcePermWord, dhWordLinePerm]; rw [ih, hBase]
+
+private theorem dh_permWord_append (w1 w2 : List (Fin 4)) (r : Fin 24) :
+    hcePermWord (w1 ++ w2) r = hcePermWord w2 (hcePermWord w1 r) := by
+  induction w1 generalizing r with
+  | nil => rfl
+  | cons k rest ih => simp only [List.cons_append, hcePermWord]; exact ih (hcWF4Perm k r)
+
+private theorem dh_permWord_reverse_cancel (w : List (Fin 4)) (r : Fin 24) :
+    hcePermWord w (hcePermWord w.reverse r) = r := by
+  induction w generalizing r with
+  | nil => rfl
+  | cons k rest ih =>
+    simp only [List.reverse_cons, hcePermWord, dh_permWord_append, thm_hc_wf4_generators_match_chirality.2.1]
+    exact ih r
+
+private theorem dh_actWordOdd_suppOnLines (w : List (Fin 4)) (ls rep : List (Fin 12))
+    (hMap : ∀ l : Fin 12, (l ∈ ls) ↔ (dhWordLinePerm w l ∈ rep)) :
+    (∀ v : HcVec48, dhSuppOnLines rep v → dhSuppOnLines ls (dhActWordOdd w v)) ∧
+    (∀ u : HcVec48, dhSuppOnLines ls u → dhSuppOnLines rep (dhActWordOdd w.reverse u)) := by
+  have hZeroAt : ∀ (w0 : List (Fin 4)) (v : HcVec48) (r : Fin 24),
+      v ⟨0, by decide⟩ (hcePermWord w0 r) % 3 = 0 →
+      v ⟨1, by decide⟩ (hcePermWord w0 r) % 3 = 0 →
+      dhActWordOdd w0 v ⟨0, by decide⟩ r % 3 = 0 ∧ dhActWordOdd w0 v ⟨1, by decide⟩ r % 3 = 0 := by
+    intro w0 v r h0 h1
+    rw [dh_actWordOdd_eq_fast w0 v ⟨0, by decide⟩ r, dh_actWordOdd_eq_fast w0 v ⟨1, by decide⟩ r]
+    simp only [dhActWordOddFast]
+    constructor
+    · rw [dh_add_mod3_congr (c := 0) (d := 0) (by rw [← dh_mul_mod3_right, h0, Nat.mul_zero])
+            (by rw [← dh_mul_mod3_right, h1, Nat.mul_zero])]
+    · rw [dh_add_mod3_congr (c := 0) (d := 0) (by rw [← dh_mul_mod3_right, h0, Nat.mul_zero])
+            (by rw [← dh_mul_mod3_right, h1, Nat.mul_zero])]
+  constructor
+  · intro v hv r hr
+    have hNot : hcLineOf (hcePermWord w r) ∉ rep := by
+      rw [dh_wordLinePerm_eq_lineOf]; intro hIn; exact hr ((hMap (hcLineOf r)).mpr hIn)
+    exact hZeroAt w v r (hv _ hNot).1 (hv _ hNot).2
+  · intro u hu r hr
+    have hNot : hcLineOf (hcePermWord w.reverse r) ∉ ls := by
+      intro hIn
+      have hInRep := (hMap _).mp hIn
+      rw [← dh_wordLinePerm_eq_lineOf, dh_permWord_reverse_cancel] at hInRep
+      exact hr hInRep
+    exact hZeroAt w.reverse u r (hu _ hNot).1 (hu _ hNot).2
+
+private theorem dh_wb3_fixes_slot3 (w : List (Fin 4)) (hw : ∀ k ∈ w, 1 ≤ k.val) :
+    hcePermWord w ⟨3, by decide⟩ = ⟨3, by decide⟩ ∧
+    hcePermWord w.reverse ⟨3, by decide⟩ = ⟨3, by decide⟩ := by
+  have hBase : ∀ k : Fin 4, 1 ≤ k.val → hcWF4Perm k ⟨3, by decide⟩ = ⟨3, by decide⟩ := by decide
+  induction w with
+  | nil => exact ⟨rfl, rfl⟩
+  | cons k rest ih =>
+    have hk : 1 ≤ k.val := hw k (List.mem_cons_self ..)
+    have hrest := ih (fun k' hk' => hw k' (List.mem_cons_of_mem _ hk'))
+    constructor
+    · simp only [hcePermWord, hBase k hk]; exact hrest.1
+    · simp only [List.reverse_cons, dh_permWord_append, hrest.2, hcePermWord]; exact hBase k hk
+
+private theorem dh_actWordOdd_preserves_sc0 (w : List (Fin 4))
+    (hFix3 : hcePermWord w ⟨3, by decide⟩ = ⟨3, by decide⟩)
+    (v : HcVec48) (hv : hcInSpan dhSC0 v) : hcInSpan dhSC0 (dhActWordOdd w v) := by
+  obtain ⟨hBulk, hv0, hv1⟩ := (dh_inSpan_sc0_iff v).mp hv
+  apply (dh_inSpan_sc0_iff _).mpr
+  refine ⟨dh_actWordOdd_preserves_bulk23Minus w v hBulk, ?_, ?_⟩
+  · rw [dh_actWordOdd_eq_fast]; simp only [dhActWordOddFast, hFix3]
+    rw [dh_add_mod3_congr (c := 0) (d := 0) (by rw [← dh_mul_mod3_right, hv0, Nat.mul_zero])
+          (by rw [← dh_mul_mod3_right, hv1, Nat.mul_zero])]
+  · rw [dh_actWordOdd_eq_fast]; simp only [dhActWordOddFast, hFix3]
+    rw [dh_add_mod3_congr (c := 0) (d := 0) (by rw [← dh_mul_mod3_right, hv0, Nat.mul_zero])
+          (by rw [← dh_mul_mod3_right, hv1, Nat.mul_zero])]
+
+private theorem dh_actWordOdd_preserves_sc0_perp (w : List (Fin 4))
+    (hFix3Rev : hcePermWord w.reverse ⟨3, by decide⟩ = ⟨3, by decide⟩)
+    (v : HcVec48) (hv : ∀ i : Fin 21, hcSymp48 (dhSC0 i) v = 0) :
+    ∀ i : Fin 21, hcSymp48 (dhSC0 i) (dhActWordOdd w v) = 0 := by
+  intro i
+  have hiSpan : hcInSpan dhSC0 (dhSC0 i) := by
+    refine ⟨fun j => if j = i then ⟨1, by decide⟩ else ⟨0, by decide⟩, fun p r => ?_⟩
+    unfold hcLinComb
+    rw [dh_sumFin_zero_except _ i (fun j hj => by rw [dh_ite_neg hj]; exact Nat.zero_mul _),
+        dh_ite_pos rfl, Nat.one_mul]
+  obtain ⟨c, hc⟩ := dh_actWordOdd_preserves_sc0 w.reverse hFix3Rev (dhSC0 i) hiSpan
+  have hPerpU : hcSymp48 (dhActWordOdd w.reverse (dhSC0 i)) v = 0 := by
+    rw [dh_symp48_congr_left (u' := hcLinComb c dhSC0) v (fun p r => by rw [hc p r]; unfold hcLinComb; omega), dh_symp48_linComb_left]
+    apply dh_sumFin_zero_mod3; intro j; rw [hv j, Nat.mul_zero]
+  have hAct := (dh_actWordOdd_symp_zero w (dhActWordOdd w.reverse (dhSC0 i)) v).mpr hPerpU
+  rw [dh_symp48_congr_left _ (dh_actWordOdd_reverse_cancel w (dhSC0 i))] at hAct
+  exact hAct
+
+private theorem dh_wb3_orbit_equiv (w : List (Fin 4)) (hw : ∀ k ∈ w, 1 ≤ k.val)
+    (ls rep : List (Fin 12)) (hMap : ∀ l : Fin 12, (l ∈ ls) ↔ (dhWordLinePerm w l ∈ rep)) :
+    (dhHasCoupledOp ls ↔ dhHasCoupledOp rep) ∧ (dhHasPureStab ls ↔ dhHasPureStab rep) := by
+  have hFix := dh_wb3_fixes_slot3 w hw
+  have hSupp := dh_actWordOdd_suppOnLines w ls rep hMap
+  have hSpanPres : ∀ (w0 : List (Fin 4)) (u : HcVec48),
+      hcInSpan dhBulk23Minus (dhActWordOdd w0 u) ↔ hcInSpan dhBulk23Minus u := by
+    intro w0 u; constructor
+    · intro h
+      have hBack := dh_actWordOdd_preserves_bulk23Minus w0.reverse _ h
+      rcases hBack with ⟨c, hc⟩
+      refine ⟨c, fun p r => ?_⟩
+      have hCan := dh_actWordOdd_reverse_cancel w0.reverse u p r
+      rw [List.reverse_reverse] at hCan
+      rw [← hCan]; exact hc p r
+    · exact dh_actWordOdd_preserves_bulk23Minus w0 u
+  have hNonzeroPres : ∀ (w0 : List (Fin 4)) (u : HcVec48),
+      (∃ p r, u p r % 3 ≠ 0) → ∃ p r, dhActWordOdd w0 u p r % 3 ≠ 0 := by
+    intro w0 u ⟨p0, r0, hne⟩
+    rcases Classical.em (∃ p r, dhActWordOdd w0 u p r % 3 ≠ 0) with hEx | hNo
+    · exact hEx
+    · exfalso
+      have hAll0 : ∀ p r, dhActWordOdd w0 u p r % 3 = 0 := fun p r =>
+        match Classical.em (dhActWordOdd w0 u p r % 3 = 0) with
+        | Or.inl h => h | Or.inr hne' => absurd ⟨p, r, hne'⟩ hNo
+      have hRev0 : ∀ p r, dhActWordOdd w0.reverse (dhActWordOdd w0 u) p r % 3 = 0 := by
+        intro p r
+        have hZ : dhActWordOdd w0.reverse (fun _ _ => 0) p r % 3 = 0 := by
+          rw [dh_actWordOdd_eq_fast]
+          cases p with | mk pv hpv =>
+          match pv, hpv with
+          | 0, _ | 1, _ => simp only [dhActWordOddFast, Nat.mul_zero, Nat.add_zero, Nat.zero_mod]
+          | _ + 2, h => exact absurd h (by omega)
+        rw [dh_actWordOdd_congr w0.reverse hAll0 p r, hZ]
+      have hCan := dh_actWordOdd_reverse_cancel w0.reverse u p0 r0
+      rw [List.reverse_reverse] at hCan
+      rw [← hCan] at hne; exact hne (hRev0 p0 r0)
+  constructor
+  · constructor
+    · intro ⟨u, huSupp, huSC0, ⟨j0, hj0⟩⟩
+      let v := dhActWordOdd w.reverse u
+      refine ⟨v, hSupp.2 u huSupp,
+        dh_actWordOdd_preserves_sc0_perp w.reverse (by rw [List.reverse_reverse]; exact hFix.1) u huSC0, ?_⟩
+      rcases Classical.em (∃ j : Fin 25, hcSymp48 (dhChoiMinus25 j) v ≠ 0) with hEx | hNo
+      · exact hEx
+      · exfalso
+        have hAll : ∀ j : Fin 25, hcSymp48 (dhChoiMinus25 j) v = 0 := fun j =>
+          match Classical.em (hcSymp48 (dhChoiMinus25 j) v = 0) with
+          | Or.inl h => h | Or.inr hne => absurd ⟨j, hne⟩ hNo
+        have huSpan : hcInSpan dhBulk23Minus u := (hSpanPres w.reverse u).mp ((dh_choi25_perp_iff v).mp hAll)
+        exact hj0 ((dh_choi25_perp_iff u).mpr huSpan j0)
+    · intro ⟨v, hvSupp, hvSC0, ⟨j0, hj0⟩⟩
+      let u := dhActWordOdd w v
+      refine ⟨u, hSupp.1 v hvSupp, dh_actWordOdd_preserves_sc0_perp w hFix.2 v hvSC0, ?_⟩
+      rcases Classical.em (∃ j : Fin 25, hcSymp48 (dhChoiMinus25 j) u ≠ 0) with hEx | hNo
+      · exact hEx
+      · exfalso
+        have hAll : ∀ j : Fin 25, hcSymp48 (dhChoiMinus25 j) u = 0 := fun j =>
+          match Classical.em (hcSymp48 (dhChoiMinus25 j) u = 0) with
+          | Or.inl h => h | Or.inr hne => absurd ⟨j, hne⟩ hNo
+        have hvSpan : hcInSpan dhBulk23Minus v := (hSpanPres w v).mp ((dh_choi25_perp_iff u).mp hAll)
+        exact hj0 ((dh_choi25_perp_iff v).mpr hvSpan j0)
+  · constructor
+    · intro ⟨u, huSupp, huSpan, huNz⟩
+      exact ⟨dhActWordOdd w.reverse u, hSupp.2 u huSupp,
+        dh_actWordOdd_preserves_sc0 w.reverse hFix.2 u huSpan, hNonzeroPres w.reverse u huNz⟩
+    · intro ⟨v, hvSupp, hvSpan, hvNz⟩
+      exact ⟨dhActWordOdd w v, hSupp.1 v hvSupp,
+        dh_actWordOdd_preserves_sc0 w hFix.1 v hvSpan, hNonzeroPres w v hvNz⟩
+
+private theorem dh_flatMap_pair_len {α β : Type} (f g : α → β) (xs : List α) :
+    (xs.flatMap (fun x => [f x, g x])).length = 2 * xs.length := by
+  induction xs with
+  | nil => rfl
+  | cons a rest ih => simp only [List.flatMap_cons, List.cons_append, List.nil_append, List.length_cons, ih]; omega
+
+/-- Zero-search symbolic `r ≤ 2` vanishing theorem on `C_0` directly from `5`-uniformity
+    (`thm_hce_5uniform_bulk23_and_pure24.2`): ANY `w` supported on `≤ 2` lines of `{1..11}`
+    commuting with `S(C_0)` vanishes identically! -/
+private theorem dh_cone0_r1_r2_zero_kernel (ls : List (Fin 12))
+    (hLen : ls.length ≤ 2) (hNot0 : (⟨0, by decide⟩ : Fin 12) ∉ ls)
+    (w : HcVec48) (hSupp : dhSuppOnLines ls w)
+    (hSC0 : ∀ i : Fin 21, hcSymp48 (dhSC0 i) w = 0) :
+    ∀ p r, w p r % 3 = 0 := by
+  have hSlot3Line : hcLineOf ⟨3, by decide⟩ = ⟨0, by decide⟩ := by decide
+  have hw3 : w ⟨0, by decide⟩ ⟨3, by decide⟩ % 3 = 0 ∧ w ⟨1, by decide⟩ ⟨3, by decide⟩ % 3 = 0 :=
+    hSupp ⟨3, by decide⟩ (by rw [hSlot3Line]; exact hNot0)
+  have hRow01 : dhBulk23Minus ⟨0, by decide⟩ ⟨0, by decide⟩ ⟨3, by decide⟩ = 1 ∧
+      dhBulk23Minus ⟨0, by decide⟩ ⟨1, by decide⟩ ⟨3, by decide⟩ = 0 ∧
+      dhBulk23Minus ⟨1, by decide⟩ ⟨0, by decide⟩ ⟨3, by decide⟩ = 0 ∧
+      dhBulk23Minus ⟨1, by decide⟩ ⟨1, by decide⟩ ⟨3, by decide⟩ = 2 := by decide
+  let s0 := hcSymp48 (dhBulk23Minus ⟨0, by decide⟩) w
+  let s1 := hcSymp48 (dhBulk23Minus ⟨1, by decide⟩) w
+  let w' : HcVec48 := fun p r =>
+    if r = ⟨3, by decide⟩ then (if p.val = 0 then (2 * s1) % 3 else (2 * s0) % 3) else w p r
+  have hSympShift : ∀ u : HcVec48,
+      hcSymp48 u w' = (hcSymp48 u w + u ⟨0, by decide⟩ ⟨3, by decide⟩ * ((2 * s0) % 3) +
+        2 * (u ⟨1, by decide⟩ ⟨3, by decide⟩ * ((2 * s1) % 3))) % 3 := by
+    intro u; unfold hcSymp48
+    have hDiff : ∀ r : Fin 24,
+        (u ⟨0, by decide⟩ r * w' ⟨1, by decide⟩ r + 2 * (u ⟨1, by decide⟩ r * w' ⟨0, by decide⟩ r)) % 3 =
+        ((u ⟨0, by decide⟩ r * w ⟨1, by decide⟩ r + 2 * (u ⟨1, by decide⟩ r * w ⟨0, by decide⟩ r)) +
+         if r = ⟨3, by decide⟩ then u ⟨0, by decide⟩ ⟨3, by decide⟩ * ((2 * s0) % 3) +
+           2 * (u ⟨1, by decide⟩ ⟨3, by decide⟩ * ((2 * s1) % 3)) else 0) % 3 := by
+      intro r
+      by_cases hr : r = ⟨3, by decide⟩
+      · subst hr; dsimp only [w']; rw [dh_ite_pos rfl, dh_ite_pos rfl, dh_ite_pos rfl]
+        have h00 : (u ⟨0, by decide⟩ ⟨3, by decide⟩ * w ⟨1, by decide⟩ ⟨3, by decide⟩) % 3 = 0 := by
+          rw [← dh_mul_mod3_right, hw3.2, Nat.mul_zero]
+        have h11 : (2 * (u ⟨1, by decide⟩ ⟨3, by decide⟩ * w ⟨0, by decide⟩ ⟨3, by decide⟩)) % 3 = 0 := by
+          rw [← dh_mul_mod3_right 2, ← dh_mul_mod3_right _ (w _ _), hw3.1, Nat.mul_zero]
+        omega
+      · dsimp only [w']; rw [dh_ite_neg hr, dh_ite_neg hr, dh_ite_neg hr, Nat.add_zero]
+    rw [dh_sumFin_mod3_congr _ _ hDiff, dh_sumFin_add,
+        dh_sumFin_zero_except _ ⟨3, by decide⟩ (fun r hr => dh_ite_neg hr), dh_ite_pos rfl]
+    omega
+  have hw'Perp : ∀ j : Fin 23, hcSymp48 (dhBulk23Minus j) w' = 0 := by
+    have h0 : hcSymp48 (dhBulk23Minus ⟨0, by decide⟩) w' = 0 := by
+      rw [hSympShift, hRow01.1, hRow01.2.1]; dsimp only [s0]; omega
+    have h1 : hcSymp48 (dhBulk23Minus ⟨1, by decide⟩) w' = 0 := by
+      rw [hSympShift, hRow01.2.2.1, hRow01.2.2.2]; dsimp only [s1]; omega
+    intro j
+    if hj0 : j.val = 0 then
+      have hEq : j = ⟨0, by decide⟩ := Fin.ext hj0; subst hEq; exact h0
+    else if hj1 : j.val = 1 then
+      have hEq : j = ⟨1, by decide⟩ := Fin.ext hj1; subst hEq; exact h1
+    else
+      let m : Fin 21 := ⟨j.val - 2, by have := j.isLt; omega⟩
+      have hSC0w' : hcSymp48 (dhSC0 m) w' = 0 := by
+        rw [hSympShift, (dh_sc0_basis_spec.1 m).1, (dh_sc0_basis_spec.1 m).2, hSC0 m,
+            Nat.zero_mul, Nat.zero_mul, Nat.mul_zero]
+      rw [dh_symp48_sc0_eq m w', h0, h1] at hSC0w'
+      have hFj : (⟨m.val + 2, by have := m.isLt; omega⟩ : Fin 23) = j := Fin.ext (by dsimp only [m]; omega)
+      rw [hFj] at hSC0w'
+      have hlt : hcSymp48 (dhBulk23Minus j) w' < 3 := Nat.mod_lt _ (by decide)
+      omega
+  have hw'KPerp : ∀ j : Fin 23, hcSymp48 (hcBulk23 j) (dhApplyK48 w') = 0 :=
+    fun j => (dh_symp48_applyK48_zero (hcBulk23 j) w').mp (hw'Perp j)
+  let A : List (Fin 24) := ⟨3, by decide⟩ :: ls.flatMap (fun l => [hcLineRep l, hcOppRep l])
+  have hALen : A.length ≤ 5 := by
+    dsimp only [A]; rw [List.length_cons, dh_flatMap_pair_len]; omega
+  have hSlotCov : ∀ r : Fin 24, r = hcLineRep (hcLineOf r) ∨ r = hcOppRep (hcLineOf r) := by decide
+  have hw'KSupp : ∀ r : Fin 24, r ∉ A →
+      dhApplyK48 w' ⟨0, by decide⟩ r % 3 = 0 ∧ dhApplyK48 w' ⟨1, by decide⟩ r % 3 = 0 := by
+    intro r hr
+    have hr3 : r ≠ ⟨3, by decide⟩ := fun e => hr (e ▸ List.mem_cons_self ..)
+    have hrNotLs : hcLineOf r ∉ ls := by
+      intro hIn; apply hr; apply List.mem_cons_of_mem
+      apply List.mem_flatMap.mpr; refine ⟨hcLineOf r, hIn, ?_⟩
+      rcases hSlotCov r with h1 | h2
+      · rw [h1]; exact List.mem_cons_self ..
+      · rw [h2]; exact List.mem_cons_of_mem _ (List.mem_cons_self ..)
+    obtain ⟨h0, h1⟩ := hSupp r hrNotLs
+    simp only [dhApplyK48]; dsimp only [w']; rw [dh_ite_neg hr3, dh_ite_neg hr3]; exact ⟨by omega, by omega⟩
+  have hZeroK := thm_hce_5uniform_bulk23_and_pure24.2 A hALen (dhApplyK48 w') hw'KPerp hw'KSupp
+  intro p r
+  by_cases hr3 : r = ⟨3, by decide⟩
+  · subst hr3; cases p with | mk pv hpv =>
+    match pv, hpv with | 0, _ => exact hw3.1 | 1, _ => exact hw3.2 | _ + 2, h => exact absurd h (by omega)
+  · have hzk := hZeroK p r
+    cases p with | mk pv hpv =>
+    match pv, hpv with
+    | 0, _ => simp only [dhApplyK48] at hzk; dsimp only [w'] at hzk; rw [dh_ite_neg hr3] at hzk; omega
+    | 1, _ => simp only [dhApplyK48] at hzk; dsimp only [w'] at hzk; rw [dh_ite_neg hr3] at hzk; omega
+    | _ + 2, h => exact absurd h (by omega)
 
 /-- Enumerate all strictly increasing `r`-line subsets of `{1..11} ⊂ Fin 12` (the `11` complete lines in `C_0`). -/
 def dhCone0Lines1 : List (List (Fin 12)) :=
@@ -4341,72 +4754,1008 @@ def dhCone0Lines4 : List (List (Fin 12)) :=
       ((List.finRange 12).filter (fun l3 => decide (l2.val < l3.val))).flatMap (fun l3 =>
         ((List.finRange 12).filter (fun l4 => decide (l3.val < l4.val))).map (fun l4 => [l1, l2, l3, l4]))))
 
-private theorem dh_cone0_r1_r2_certs :
-    dhCone0Lines1.length = 11 ∧
-    (dhCone0Lines1.filter (fun ls => decide (dhSynRankSC0 ls = 4 && dhSynRankChoi ls = 4))).length = 11 ∧
-    dhCone0Lines2.length = 55 ∧
-    (dhCone0Lines2.filter (fun ls => decide (dhSynRankSC0 ls = 8 && dhSynRankChoi ls = 8))).length = 55 := by
+/-- Self-contained `Fin 12` list membership, strict lexicographic order (`O(N)` `Nodup` check),
+    and aligned zip/lookup combinators. -/
+def dhMem12 (x : Fin 12) : List (Fin 12) → Bool
+  | [] => false
+  | a :: as => decide (x = a) || dhMem12 x as
+
+private theorem dh_mem12_iff (x : Fin 12) (xs : List (Fin 12)) :
+    dhMem12 x xs = true ↔ x ∈ xs := by
+  induction xs with
+  | nil => simp [dhMem12]
+  | cons a as ih => simp only [dhMem12, Bool.or_eq_true, decide_eq_true_eq, List.mem_cons, ih]
+
+def dhLexLt : List (Fin 12) → List (Fin 12) → Bool
+  | [], _ :: _ => true
+  | a :: as, b :: bs => if a.val < b.val then true else if a.val = b.val then dhLexLt as bs else false
+  | _, _ => false
+
+def dhStrictlySorted : List (List (Fin 12)) → Bool
+  | [] => true
+  | [_] => true
+  | a :: b :: rest => dhLexLt a b && dhStrictlySorted (b :: rest)
+
+private theorem dh_lexLt_irrefl (xs : List (Fin 12)) : dhLexLt xs xs = false := by
+  induction xs with
+  | nil => rfl
+  | cons a as ih => simp only [dhLexLt]; rw [dh_ite_neg (by omega), dh_ite_pos rfl]; exact ih
+
+private theorem dh_lexLt_trans (xs ys zs : List (Fin 12)) :
+    dhLexLt xs ys = true → dhLexLt ys zs = true → dhLexLt xs zs = true := by
+  induction xs generalizing ys zs with
+  | nil =>
+    cases ys with
+    | nil => intro h; simp [dhLexLt] at h
+    | cons _ _ =>
+      cases zs with
+      | nil => intro _ h; simp [dhLexLt] at h
+      | cons _ _ => intro _ _; rfl
+  | cons a as ih =>
+    cases ys with
+    | nil => intro h; simp [dhLexLt] at h
+    | cons b bs =>
+      cases zs with
+      | nil => intro _ h; simp [dhLexLt] at h
+      | cons c cs =>
+        intro h1 h2; simp only [dhLexLt] at h1 h2 ⊢
+        by_cases hab : a.val < b.val
+        · by_cases hbc : b.val < c.val
+          · rw [dh_ite_pos (by omega : a.val < c.val)]
+          · rw [dh_ite_neg hbc] at h2
+            by_cases hbcEq : b.val = c.val
+            · rw [dh_ite_pos (by omega : a.val < c.val)]
+            · rw [dh_ite_neg hbcEq] at h2; exact Bool.noConfusion h2
+        · rw [dh_ite_neg hab] at h1
+          by_cases habEq : a.val = b.val
+          · rw [dh_ite_pos habEq] at h1
+            by_cases hbc : b.val < c.val
+            · rw [dh_ite_pos (by omega : a.val < c.val)]
+            · rw [dh_ite_neg hbc] at h2
+              by_cases hbcEq : b.val = c.val
+              · rw [dh_ite_pos hbcEq] at h2
+                rw [dh_ite_neg (by omega : ¬ (a.val < c.val)), dh_ite_pos (by omega : a.val = c.val)]
+                exact ih bs cs h1 h2
+              · rw [dh_ite_neg hbcEq] at h2; exact Bool.noConfusion h2
+          · rw [dh_ite_neg habEq] at h1; exact Bool.noConfusion h1
+
+private theorem dh_strictlySorted_head_lt (a : List (Fin 12)) (xs : List (List (Fin 12)))
+    (h : dhStrictlySorted (a :: xs) = true) : ∀ y ∈ xs, dhLexLt a y = true := by
+  induction xs generalizing a with
+  | nil => intro y hy; cases hy
+  | cons b rest ih =>
+    simp only [dhStrictlySorted, Bool.and_eq_true] at h
+    intro y hy; simp only [List.mem_cons] at hy
+    rcases hy with rfl | hy'
+    · exact h.1
+    · exact dh_lexLt_trans a b y h.1 (ih b h.2 y hy')
+
+private theorem dh_strictlySorted_nodup (xs : List (List (Fin 12))) (h : dhStrictlySorted xs = true) :
+    xs.Nodup := by
+  induction xs with
+  | nil => exact List.Pairwise.nil
+  | cons a rest ih =>
+    apply List.nodup_cons.mpr; refine ⟨?_, ?_⟩
+    · intro ha
+      have hlt := dh_strictlySorted_head_lt a rest h a ha
+      rw [dh_lexLt_irrefl a] at hlt; exact Bool.noConfusion hlt
+    · cases rest with
+      | nil => exact List.Pairwise.nil
+      | cons b bs => simp only [dhStrictlySorted, Bool.and_eq_true] at h; exact ih h.2
+
+def dhZipAll {α β : Type} (p : α → β → Bool) : List α → List β → Bool
+  | [], [] => true
+  | a :: as, b :: bs => p a b && dhZipAll p as bs
+  | _, _ => false
+
+def dhAssocCode {α : Type} [DecidableEq α] : List α → List Nat → α → Nat
+  | [], _, _ => 0
+  | _, [], _ => 0
+  | x :: xs, c :: cs, target => if x = target then c else dhAssocCode xs cs target
+
+private theorem dh_filter_congr {α : Type} (p q : α → Bool) (xs : List α)
+    (h : ∀ x ∈ xs, p x = q x) : xs.filter p = xs.filter q := by
+  induction xs with
+  | nil => rfl
+  | cons x rest ih =>
+    simp only [List.filter_cons, h x (List.mem_cons_self ..)]
+    rw [ih (fun y hy => h y (List.mem_cons_of_mem _ hy))]
+
+private theorem dh_assocCode_spec {α : Type} [DecidableEq α] (p : α → Nat → Bool) :
+    ∀ (xs : List α) (cs : List Nat), xs.Nodup → dhZipAll p xs cs = true →
+      ∀ x ∈ xs, p x (dhAssocCode xs cs x) = true
+  | [], [], _, _, _, hx => by cases hx
+  | [], _ :: _, _, hZip, _, _ => by simp [dhZipAll] at hZip
+  | _ :: _, [], _, hZip, _, _ => by simp [dhZipAll] at hZip
+  | a :: as, c :: cs, hNd, hZip, x, hx => by
+    obtain ⟨hNotMem, hNdRest⟩ := List.nodup_cons.mp hNd
+    simp only [dhZipAll, Bool.and_eq_true] at hZip
+    simp only [List.mem_cons] at hx
+    rcases hx with rfl | hx'
+    · simp only [dhAssocCode, dh_ite_pos rfl]; exact hZip.1
+    · have hne : a ≠ x := fun h => hNotMem (h ▸ hx')
+      simp only [dhAssocCode, dh_ite_neg hne]
+      exact dh_assocCode_spec p as cs hNdRest hZip.2 x hx'
+
+private theorem dh_assocCode_filter_len {α : Type} [DecidableEq α] (g : Nat → Bool) :
+    ∀ (xs : List α) (cs : List Nat), xs.Nodup → xs.length = cs.length →
+      (xs.filter (fun x => g (dhAssocCode xs cs x))).length = (cs.filter g).length
+  | [], [], _, _ => rfl
+  | [], _ :: _, _, hLen => by simp at hLen
+  | _ :: _, [], _, hLen => by simp at hLen
+  | x :: xs, c :: cs, hNd, hLen => by
+    obtain ⟨hNotMem, hNdRest⟩ := List.nodup_cons.mp hNd
+    have hRestEq : xs.filter (fun y => g (dhAssocCode (x :: xs) (c :: cs) y)) =
+        xs.filter (fun y => g (dhAssocCode xs cs y)) := by
+      apply dh_filter_congr; intro y hy
+      have hne : x ≠ y := fun h => hNotMem (h ▸ hy)
+      simp only [dhAssocCode, dh_ite_neg hne]
+    have hHead : dhAssocCode (x :: xs) (c :: cs) x = c := by simp only [dhAssocCode, dh_ite_pos rfl]
+    cases hgc : g c
+    · simp [List.filter_cons, hHead, hgc, hRestEq]
+      exact dh_assocCode_filter_len g xs cs hNdRest (by simp at hLen; omega)
+    · simp [List.filter_cons, hHead, hgc, hRestEq]
+      exact congrArg Nat.succ (dh_assocCode_filter_len g xs cs hNdRest (by simp at hLen; omega))
+
+/-- Exact `48` words of `W(B_3) = Stab_{W(F_4)}(slot 0) = ⟨s_1, s_2, s_3⟩` fixing slot `3 = oppSlot 0`. -/
+def dhWB3Word (g : Fin 48) : List (Fin 4) :=
+  let g1 : Fin 4 := ⟨1, by decide⟩; let g2 : Fin 4 := ⟨2, by decide⟩; let g3 : Fin 4 := ⟨3, by decide⟩
+  match g.val with
+  | 0 => []
+  | 1 => [g1]
+  | 2 => [g2]
+  | 3 => [g3]
+  | 4 => [g2, g1]
+  | 5 => [g3, g1]
+  | 6 => [g1, g2]
+  | 7 => [g3, g2]
+  | 8 => [g2, g3]
+  | 9 => [g1, g2, g1]
+  | 10 => [g3, g2, g1]
+  | 11 => [g2, g3, g1]
+  | 12 => [g2, g1, g2]
+  | 13 => [g3, g1, g2]
+  | 14 => [g2, g3, g2]
+  | 15 => [g1, g2, g3]
+  | 16 => [g2, g1, g2, g1]
+  | 17 => [g3, g1, g2, g1]
+  | 18 => [g2, g3, g2, g1]
+  | 19 => [g1, g2, g3, g1]
+  | 20 => [g3, g2, g1, g2]
+  | 21 => [g2, g3, g1, g2]
+  | 22 => [g1, g2, g3, g2]
+  | 23 => [g2, g1, g2, g3]
+  | 24 => [g3, g2, g1, g2, g1]
+  | 25 => [g2, g3, g1, g2, g1]
+  | 26 => [g1, g2, g3, g2, g1]
+  | 27 => [g2, g1, g2, g3, g1]
+  | 28 => [g2, g3, g2, g1, g2]
+  | 29 => [g1, g2, g3, g1, g2]
+  | 30 => [g2, g1, g2, g3, g2]
+  | 31 => [g3, g2, g1, g2, g3]
+  | 32 => [g2, g3, g2, g1, g2, g1]
+  | 33 => [g1, g2, g3, g1, g2, g1]
+  | 34 => [g2, g1, g2, g3, g2, g1]
+  | 35 => [g3, g2, g1, g2, g3, g1]
+  | 36 => [g1, g2, g3, g2, g1, g2]
+  | 37 => [g2, g1, g2, g3, g1, g2]
+  | 38 => [g3, g2, g1, g2, g3, g2]
+  | 39 => [g1, g2, g3, g2, g1, g2, g1]
+  | 40 => [g2, g1, g2, g3, g1, g2, g1]
+  | 41 => [g3, g2, g1, g2, g3, g2, g1]
+  | 42 => [g2, g1, g2, g3, g2, g1, g2]
+  | 43 => [g3, g2, g1, g2, g3, g1, g2]
+  | 44 => [g2, g1, g2, g3, g2, g1, g2, g1]
+  | 45 => [g3, g2, g1, g2, g3, g1, g2, g1]
+  | 46 => [g3, g2, g1, g2, g3, g2, g1, g2]
+  | _ => [g3, g2, g1, g2, g3, g2, g1, g2, g1]
+
+/-- Precomputed `48 × 12` line-permutation table of `W(B_3)` (`= dhWordLinePerm (dhWB3Word g) l`). -/
+def dhWB3LinePerm (g : Fin 48) (l : Fin 12) : Fin 12 :=
+  match g.val, l.val with
+  | 0, 0 => ⟨0, by decide⟩ | 0, 1 => ⟨1, by decide⟩ | 0, 2 => ⟨2, by decide⟩ | 0, 3 => ⟨3, by decide⟩ | 0, 4 => ⟨4, by decide⟩ | 0, 5 => ⟨5, by decide⟩
+  | 0, 6 => ⟨6, by decide⟩ | 0, 7 => ⟨7, by decide⟩ | 0, 8 => ⟨8, by decide⟩ | 0, 9 => ⟨9, by decide⟩ | 0, 10 => ⟨10, by decide⟩ | 0, 11 => ⟨11, by decide⟩
+  | 1, 0 => ⟨0, by decide⟩ | 1, 1 => ⟨1, by decide⟩ | 1, 2 => ⟨4, by decide⟩ | 1, 3 => ⟨5, by decide⟩ | 1, 4 => ⟨2, by decide⟩ | 1, 5 => ⟨3, by decide⟩
+  | 1, 6 => ⟨8, by decide⟩ | 1, 7 => ⟨9, by decide⟩ | 1, 8 => ⟨6, by decide⟩ | 1, 9 => ⟨7, by decide⟩ | 1, 10 => ⟨10, by decide⟩ | 1, 11 => ⟨11, by decide⟩
+  | 2, 0 => ⟨0, by decide⟩ | 2, 1 => ⟨1, by decide⟩ | 2, 2 => ⟨2, by decide⟩ | 2, 3 => ⟨3, by decide⟩ | 2, 4 => ⟨5, by decide⟩ | 2, 5 => ⟨4, by decide⟩
+  | 2, 6 => ⟨6, by decide⟩ | 2, 7 => ⟨7, by decide⟩ | 2, 8 => ⟨9, by decide⟩ | 2, 9 => ⟨8, by decide⟩ | 2, 10 => ⟨11, by decide⟩ | 2, 11 => ⟨10, by decide⟩
+  | 3, 0 => ⟨0, by decide⟩ | 3, 1 => ⟨10, by decide⟩ | 3, 2 => ⟨2, by decide⟩ | 3, 3 => ⟨8, by decide⟩ | 3, 4 => ⟨4, by decide⟩ | 3, 5 => ⟨6, by decide⟩
+  | 3, 6 => ⟨5, by decide⟩ | 3, 7 => ⟨7, by decide⟩ | 3, 8 => ⟨3, by decide⟩ | 3, 9 => ⟨9, by decide⟩ | 3, 10 => ⟨1, by decide⟩ | 3, 11 => ⟨11, by decide⟩
+  | 4, 0 => ⟨0, by decide⟩ | 4, 1 => ⟨1, by decide⟩ | 4, 2 => ⟨4, by decide⟩ | 4, 3 => ⟨5, by decide⟩ | 4, 4 => ⟨3, by decide⟩ | 4, 5 => ⟨2, by decide⟩
+  | 4, 6 => ⟨8, by decide⟩ | 4, 7 => ⟨9, by decide⟩ | 4, 8 => ⟨7, by decide⟩ | 4, 9 => ⟨6, by decide⟩ | 4, 10 => ⟨11, by decide⟩ | 4, 11 => ⟨10, by decide⟩
+  | 5, 0 => ⟨0, by decide⟩ | 5, 1 => ⟨10, by decide⟩ | 5, 2 => ⟨4, by decide⟩ | 5, 3 => ⟨6, by decide⟩ | 5, 4 => ⟨2, by decide⟩ | 5, 5 => ⟨8, by decide⟩
+  | 5, 6 => ⟨3, by decide⟩ | 5, 7 => ⟨9, by decide⟩ | 5, 8 => ⟨5, by decide⟩ | 5, 9 => ⟨7, by decide⟩ | 5, 10 => ⟨1, by decide⟩ | 5, 11 => ⟨11, by decide⟩
+  | 6, 0 => ⟨0, by decide⟩ | 6, 1 => ⟨1, by decide⟩ | 6, 2 => ⟨5, by decide⟩ | 6, 3 => ⟨4, by decide⟩ | 6, 4 => ⟨2, by decide⟩ | 6, 5 => ⟨3, by decide⟩
+  | 6, 6 => ⟨9, by decide⟩ | 6, 7 => ⟨8, by decide⟩ | 6, 8 => ⟨6, by decide⟩ | 6, 9 => ⟨7, by decide⟩ | 6, 10 => ⟨11, by decide⟩ | 6, 11 => ⟨10, by decide⟩
+  | 7, 0 => ⟨0, by decide⟩ | 7, 1 => ⟨11, by decide⟩ | 7, 2 => ⟨2, by decide⟩ | 7, 3 => ⟨9, by decide⟩ | 7, 4 => ⟨5, by decide⟩ | 7, 5 => ⟨6, by decide⟩
+  | 7, 6 => ⟨4, by decide⟩ | 7, 7 => ⟨7, by decide⟩ | 7, 8 => ⟨3, by decide⟩ | 7, 9 => ⟨8, by decide⟩ | 7, 10 => ⟨1, by decide⟩ | 7, 11 => ⟨10, by decide⟩
+  | 8, 0 => ⟨0, by decide⟩ | 8, 1 => ⟨10, by decide⟩ | 8, 2 => ⟨2, by decide⟩ | 8, 3 => ⟨8, by decide⟩ | 8, 4 => ⟨6, by decide⟩ | 8, 5 => ⟨4, by decide⟩
+  | 8, 6 => ⟨5, by decide⟩ | 8, 7 => ⟨7, by decide⟩ | 8, 8 => ⟨9, by decide⟩ | 8, 9 => ⟨3, by decide⟩ | 8, 10 => ⟨11, by decide⟩ | 8, 11 => ⟨1, by decide⟩
+  | 9, 0 => ⟨0, by decide⟩ | 9, 1 => ⟨1, by decide⟩ | 9, 2 => ⟨3, by decide⟩ | 9, 3 => ⟨2, by decide⟩ | 9, 4 => ⟨4, by decide⟩ | 9, 5 => ⟨5, by decide⟩
+  | 9, 6 => ⟨7, by decide⟩ | 9, 7 => ⟨6, by decide⟩ | 9, 8 => ⟨8, by decide⟩ | 9, 9 => ⟨9, by decide⟩ | 9, 10 => ⟨11, by decide⟩ | 9, 11 => ⟨10, by decide⟩
+  | 10, 0 => ⟨0, by decide⟩ | 10, 1 => ⟨11, by decide⟩ | 10, 2 => ⟨4, by decide⟩ | 10, 3 => ⟨7, by decide⟩ | 10, 4 => ⟨3, by decide⟩ | 10, 5 => ⟨8, by decide⟩
+  | 10, 6 => ⟨2, by decide⟩ | 10, 7 => ⟨9, by decide⟩ | 10, 8 => ⟨5, by decide⟩ | 10, 9 => ⟨6, by decide⟩ | 10, 10 => ⟨1, by decide⟩ | 10, 11 => ⟨10, by decide⟩
+  | 11, 0 => ⟨0, by decide⟩ | 11, 1 => ⟨10, by decide⟩ | 11, 2 => ⟨4, by decide⟩ | 11, 3 => ⟨6, by decide⟩ | 11, 4 => ⟨8, by decide⟩ | 11, 5 => ⟨2, by decide⟩
+  | 11, 6 => ⟨3, by decide⟩ | 11, 7 => ⟨9, by decide⟩ | 11, 8 => ⟨7, by decide⟩ | 11, 9 => ⟨5, by decide⟩ | 11, 10 => ⟨11, by decide⟩ | 11, 11 => ⟨1, by decide⟩
+  | 12, 0 => ⟨0, by decide⟩ | 12, 1 => ⟨1, by decide⟩ | 12, 2 => ⟨5, by decide⟩ | 12, 3 => ⟨4, by decide⟩ | 12, 4 => ⟨3, by decide⟩ | 12, 5 => ⟨2, by decide⟩
+  | 12, 6 => ⟨9, by decide⟩ | 12, 7 => ⟨8, by decide⟩ | 12, 8 => ⟨7, by decide⟩ | 12, 9 => ⟨6, by decide⟩ | 12, 10 => ⟨10, by decide⟩ | 12, 11 => ⟨11, by decide⟩
+  | 13, 0 => ⟨0, by decide⟩ | 13, 1 => ⟨11, by decide⟩ | 13, 2 => ⟨5, by decide⟩ | 13, 3 => ⟨6, by decide⟩ | 13, 4 => ⟨2, by decide⟩ | 13, 5 => ⟨9, by decide⟩
+  | 13, 6 => ⟨3, by decide⟩ | 13, 7 => ⟨8, by decide⟩ | 13, 8 => ⟨4, by decide⟩ | 13, 9 => ⟨7, by decide⟩ | 13, 10 => ⟨1, by decide⟩ | 13, 11 => ⟨10, by decide⟩
+  | 14, 0 => ⟨0, by decide⟩ | 14, 1 => ⟨11, by decide⟩ | 14, 2 => ⟨2, by decide⟩ | 14, 3 => ⟨9, by decide⟩ | 14, 4 => ⟨6, by decide⟩ | 14, 5 => ⟨5, by decide⟩
+  | 14, 6 => ⟨4, by decide⟩ | 14, 7 => ⟨7, by decide⟩ | 14, 8 => ⟨8, by decide⟩ | 14, 9 => ⟨3, by decide⟩ | 14, 10 => ⟨10, by decide⟩ | 14, 11 => ⟨1, by decide⟩
+  | 15, 0 => ⟨0, by decide⟩ | 15, 1 => ⟨10, by decide⟩ | 15, 2 => ⟨6, by decide⟩ | 15, 3 => ⟨4, by decide⟩ | 15, 4 => ⟨2, by decide⟩ | 15, 5 => ⟨8, by decide⟩
+  | 15, 6 => ⟨9, by decide⟩ | 15, 7 => ⟨3, by decide⟩ | 15, 8 => ⟨5, by decide⟩ | 15, 9 => ⟨7, by decide⟩ | 15, 10 => ⟨11, by decide⟩ | 15, 11 => ⟨1, by decide⟩
+  | 16, 0 => ⟨0, by decide⟩ | 16, 1 => ⟨1, by decide⟩ | 16, 2 => ⟨3, by decide⟩ | 16, 3 => ⟨2, by decide⟩ | 16, 4 => ⟨5, by decide⟩ | 16, 5 => ⟨4, by decide⟩
+  | 16, 6 => ⟨7, by decide⟩ | 16, 7 => ⟨6, by decide⟩ | 16, 8 => ⟨9, by decide⟩ | 16, 9 => ⟨8, by decide⟩ | 16, 10 => ⟨10, by decide⟩ | 16, 11 => ⟨11, by decide⟩
+  | 17, 0 => ⟨0, by decide⟩ | 17, 1 => ⟨11, by decide⟩ | 17, 2 => ⟨3, by decide⟩ | 17, 3 => ⟨8, by decide⟩ | 17, 4 => ⟨4, by decide⟩ | 17, 5 => ⟨7, by decide⟩
+  | 17, 6 => ⟨5, by decide⟩ | 17, 7 => ⟨6, by decide⟩ | 17, 8 => ⟨2, by decide⟩ | 17, 9 => ⟨9, by decide⟩ | 17, 10 => ⟨1, by decide⟩ | 17, 11 => ⟨10, by decide⟩
+  | 18, 0 => ⟨0, by decide⟩ | 18, 1 => ⟨11, by decide⟩ | 18, 2 => ⟨4, by decide⟩ | 18, 3 => ⟨7, by decide⟩ | 18, 4 => ⟨8, by decide⟩ | 18, 5 => ⟨3, by decide⟩
+  | 18, 6 => ⟨2, by decide⟩ | 18, 7 => ⟨9, by decide⟩ | 18, 8 => ⟨6, by decide⟩ | 18, 9 => ⟨5, by decide⟩ | 18, 10 => ⟨10, by decide⟩ | 18, 11 => ⟨1, by decide⟩
+  | 19, 0 => ⟨0, by decide⟩ | 19, 1 => ⟨10, by decide⟩ | 19, 2 => ⟨8, by decide⟩ | 19, 3 => ⟨2, by decide⟩ | 19, 4 => ⟨4, by decide⟩ | 19, 5 => ⟨6, by decide⟩
+  | 19, 6 => ⟨7, by decide⟩ | 19, 7 => ⟨5, by decide⟩ | 19, 8 => ⟨3, by decide⟩ | 19, 9 => ⟨9, by decide⟩ | 19, 10 => ⟨11, by decide⟩ | 19, 11 => ⟨1, by decide⟩
+  | 20, 0 => ⟨0, by decide⟩ | 20, 1 => ⟨10, by decide⟩ | 20, 2 => ⟨5, by decide⟩ | 20, 3 => ⟨7, by decide⟩ | 20, 4 => ⟨3, by decide⟩ | 20, 5 => ⟨9, by decide⟩
+  | 20, 6 => ⟨2, by decide⟩ | 20, 7 => ⟨8, by decide⟩ | 20, 8 => ⟨4, by decide⟩ | 20, 9 => ⟨6, by decide⟩ | 20, 10 => ⟨1, by decide⟩ | 20, 11 => ⟨11, by decide⟩
+  | 21, 0 => ⟨0, by decide⟩ | 21, 1 => ⟨11, by decide⟩ | 21, 2 => ⟨5, by decide⟩ | 21, 3 => ⟨6, by decide⟩ | 21, 4 => ⟨9, by decide⟩ | 21, 5 => ⟨2, by decide⟩
+  | 21, 6 => ⟨3, by decide⟩ | 21, 7 => ⟨8, by decide⟩ | 21, 8 => ⟨7, by decide⟩ | 21, 9 => ⟨4, by decide⟩ | 21, 10 => ⟨10, by decide⟩ | 21, 11 => ⟨1, by decide⟩
+  | 22, 0 => ⟨0, by decide⟩ | 22, 1 => ⟨11, by decide⟩ | 22, 2 => ⟨6, by decide⟩ | 22, 3 => ⟨5, by decide⟩ | 22, 4 => ⟨2, by decide⟩ | 22, 5 => ⟨9, by decide⟩
+  | 22, 6 => ⟨8, by decide⟩ | 22, 7 => ⟨3, by decide⟩ | 22, 8 => ⟨4, by decide⟩ | 22, 9 => ⟨7, by decide⟩ | 22, 10 => ⟨10, by decide⟩ | 22, 11 => ⟨1, by decide⟩
+  | 23, 0 => ⟨0, by decide⟩ | 23, 1 => ⟨10, by decide⟩ | 23, 2 => ⟨6, by decide⟩ | 23, 3 => ⟨4, by decide⟩ | 23, 4 => ⟨8, by decide⟩ | 23, 5 => ⟨2, by decide⟩
+  | 23, 6 => ⟨9, by decide⟩ | 23, 7 => ⟨3, by decide⟩ | 23, 8 => ⟨7, by decide⟩ | 23, 9 => ⟨5, by decide⟩ | 23, 10 => ⟨1, by decide⟩ | 23, 11 => ⟨11, by decide⟩
+  | 24, 0 => ⟨0, by decide⟩ | 24, 1 => ⟨10, by decide⟩ | 24, 2 => ⟨3, by decide⟩ | 24, 3 => ⟨9, by decide⟩ | 24, 4 => ⟨5, by decide⟩ | 24, 5 => ⟨7, by decide⟩
+  | 24, 6 => ⟨4, by decide⟩ | 24, 7 => ⟨6, by decide⟩ | 24, 8 => ⟨2, by decide⟩ | 24, 9 => ⟨8, by decide⟩ | 24, 10 => ⟨1, by decide⟩ | 24, 11 => ⟨11, by decide⟩
+  | 25, 0 => ⟨0, by decide⟩ | 25, 1 => ⟨11, by decide⟩ | 25, 2 => ⟨3, by decide⟩ | 25, 3 => ⟨8, by decide⟩ | 25, 4 => ⟨7, by decide⟩ | 25, 5 => ⟨4, by decide⟩
+  | 25, 6 => ⟨5, by decide⟩ | 25, 7 => ⟨6, by decide⟩ | 25, 8 => ⟨9, by decide⟩ | 25, 9 => ⟨2, by decide⟩ | 25, 10 => ⟨10, by decide⟩ | 25, 11 => ⟨1, by decide⟩
+  | 26, 0 => ⟨0, by decide⟩ | 26, 1 => ⟨11, by decide⟩ | 26, 2 => ⟨8, by decide⟩ | 26, 3 => ⟨3, by decide⟩ | 26, 4 => ⟨4, by decide⟩ | 26, 5 => ⟨7, by decide⟩
+  | 26, 6 => ⟨6, by decide⟩ | 26, 7 => ⟨5, by decide⟩ | 26, 8 => ⟨2, by decide⟩ | 26, 9 => ⟨9, by decide⟩ | 26, 10 => ⟨10, by decide⟩ | 26, 11 => ⟨1, by decide⟩
+  | 27, 0 => ⟨0, by decide⟩ | 27, 1 => ⟨10, by decide⟩ | 27, 2 => ⟨8, by decide⟩ | 27, 3 => ⟨2, by decide⟩ | 27, 4 => ⟨6, by decide⟩ | 27, 5 => ⟨4, by decide⟩
+  | 27, 6 => ⟨7, by decide⟩ | 27, 7 => ⟨5, by decide⟩ | 27, 8 => ⟨9, by decide⟩ | 27, 9 => ⟨3, by decide⟩ | 27, 10 => ⟨1, by decide⟩ | 27, 11 => ⟨11, by decide⟩
+  | 28, 0 => ⟨0, by decide⟩ | 28, 1 => ⟨10, by decide⟩ | 28, 2 => ⟨5, by decide⟩ | 28, 3 => ⟨7, by decide⟩ | 28, 4 => ⟨9, by decide⟩ | 28, 5 => ⟨3, by decide⟩
+  | 28, 6 => ⟨2, by decide⟩ | 28, 7 => ⟨8, by decide⟩ | 28, 8 => ⟨6, by decide⟩ | 28, 9 => ⟨4, by decide⟩ | 28, 10 => ⟨11, by decide⟩ | 28, 11 => ⟨1, by decide⟩
+  | 29, 0 => ⟨0, by decide⟩ | 29, 1 => ⟨11, by decide⟩ | 29, 2 => ⟨9, by decide⟩ | 29, 3 => ⟨2, by decide⟩ | 29, 4 => ⟨5, by decide⟩ | 29, 5 => ⟨6, by decide⟩
+  | 29, 6 => ⟨7, by decide⟩ | 29, 7 => ⟨4, by decide⟩ | 29, 8 => ⟨3, by decide⟩ | 29, 9 => ⟨8, by decide⟩ | 29, 10 => ⟨10, by decide⟩ | 29, 11 => ⟨1, by decide⟩
+  | 30, 0 => ⟨0, by decide⟩ | 30, 1 => ⟨11, by decide⟩ | 30, 2 => ⟨6, by decide⟩ | 30, 3 => ⟨5, by decide⟩ | 30, 4 => ⟨9, by decide⟩ | 30, 5 => ⟨2, by decide⟩
+  | 30, 6 => ⟨8, by decide⟩ | 30, 7 => ⟨3, by decide⟩ | 30, 8 => ⟨7, by decide⟩ | 30, 9 => ⟨4, by decide⟩ | 30, 10 => ⟨1, by decide⟩ | 30, 11 => ⟨10, by decide⟩
+  | 31, 0 => ⟨0, by decide⟩ | 31, 1 => ⟨1, by decide⟩ | 31, 2 => ⟨6, by decide⟩ | 31, 3 => ⟨7, by decide⟩ | 31, 4 => ⟨8, by decide⟩ | 31, 5 => ⟨9, by decide⟩
+  | 31, 6 => ⟨2, by decide⟩ | 31, 7 => ⟨3, by decide⟩ | 31, 8 => ⟨4, by decide⟩ | 31, 9 => ⟨5, by decide⟩ | 31, 10 => ⟨10, by decide⟩ | 31, 11 => ⟨11, by decide⟩
+  | 32, 0 => ⟨0, by decide⟩ | 32, 1 => ⟨10, by decide⟩ | 32, 2 => ⟨3, by decide⟩ | 32, 3 => ⟨9, by decide⟩ | 32, 4 => ⟨7, by decide⟩ | 32, 5 => ⟨5, by decide⟩
+  | 32, 6 => ⟨4, by decide⟩ | 32, 7 => ⟨6, by decide⟩ | 32, 8 => ⟨8, by decide⟩ | 32, 9 => ⟨2, by decide⟩ | 32, 10 => ⟨11, by decide⟩ | 32, 11 => ⟨1, by decide⟩
+  | 33, 0 => ⟨0, by decide⟩ | 33, 1 => ⟨11, by decide⟩ | 33, 2 => ⟨7, by decide⟩ | 33, 3 => ⟨4, by decide⟩ | 33, 4 => ⟨3, by decide⟩ | 33, 5 => ⟨8, by decide⟩
+  | 33, 6 => ⟨9, by decide⟩ | 33, 7 => ⟨2, by decide⟩ | 33, 8 => ⟨5, by decide⟩ | 33, 9 => ⟨6, by decide⟩ | 33, 10 => ⟨10, by decide⟩ | 33, 11 => ⟨1, by decide⟩
+  | 34, 0 => ⟨0, by decide⟩ | 34, 1 => ⟨11, by decide⟩ | 34, 2 => ⟨8, by decide⟩ | 34, 3 => ⟨3, by decide⟩ | 34, 4 => ⟨7, by decide⟩ | 34, 5 => ⟨4, by decide⟩
+  | 34, 6 => ⟨6, by decide⟩ | 34, 7 => ⟨5, by decide⟩ | 34, 8 => ⟨9, by decide⟩ | 34, 9 => ⟨2, by decide⟩ | 34, 10 => ⟨1, by decide⟩ | 34, 11 => ⟨10, by decide⟩
+  | 35, 0 => ⟨0, by decide⟩ | 35, 1 => ⟨1, by decide⟩ | 35, 2 => ⟨8, by decide⟩ | 35, 3 => ⟨9, by decide⟩ | 35, 4 => ⟨6, by decide⟩ | 35, 5 => ⟨7, by decide⟩
+  | 35, 6 => ⟨4, by decide⟩ | 35, 7 => ⟨5, by decide⟩ | 35, 8 => ⟨2, by decide⟩ | 35, 9 => ⟨3, by decide⟩ | 35, 10 => ⟨10, by decide⟩ | 35, 11 => ⟨11, by decide⟩
+  | 36, 0 => ⟨0, by decide⟩ | 36, 1 => ⟨10, by decide⟩ | 36, 2 => ⟨9, by decide⟩ | 36, 3 => ⟨3, by decide⟩ | 36, 4 => ⟨5, by decide⟩ | 36, 5 => ⟨7, by decide⟩
+  | 36, 6 => ⟨6, by decide⟩ | 36, 7 => ⟨4, by decide⟩ | 36, 8 => ⟨2, by decide⟩ | 36, 9 => ⟨8, by decide⟩ | 36, 10 => ⟨11, by decide⟩ | 36, 11 => ⟨1, by decide⟩
+  | 37, 0 => ⟨0, by decide⟩ | 37, 1 => ⟨11, by decide⟩ | 37, 2 => ⟨9, by decide⟩ | 37, 3 => ⟨2, by decide⟩ | 37, 4 => ⟨6, by decide⟩ | 37, 5 => ⟨5, by decide⟩
+  | 37, 6 => ⟨7, by decide⟩ | 37, 7 => ⟨4, by decide⟩ | 37, 8 => ⟨8, by decide⟩ | 37, 9 => ⟨3, by decide⟩ | 37, 10 => ⟨1, by decide⟩ | 37, 11 => ⟨10, by decide⟩
+  | 38, 0 => ⟨0, by decide⟩ | 38, 1 => ⟨1, by decide⟩ | 38, 2 => ⟨6, by decide⟩ | 38, 3 => ⟨7, by decide⟩ | 38, 4 => ⟨9, by decide⟩ | 38, 5 => ⟨8, by decide⟩
+  | 38, 6 => ⟨2, by decide⟩ | 38, 7 => ⟨3, by decide⟩ | 38, 8 => ⟨5, by decide⟩ | 38, 9 => ⟨4, by decide⟩ | 38, 10 => ⟨11, by decide⟩ | 38, 11 => ⟨10, by decide⟩
+  | 39, 0 => ⟨0, by decide⟩ | 39, 1 => ⟨10, by decide⟩ | 39, 2 => ⟨7, by decide⟩ | 39, 3 => ⟨5, by decide⟩ | 39, 4 => ⟨3, by decide⟩ | 39, 5 => ⟨9, by decide⟩
+  | 39, 6 => ⟨8, by decide⟩ | 39, 7 => ⟨2, by decide⟩ | 39, 8 => ⟨4, by decide⟩ | 39, 9 => ⟨6, by decide⟩ | 39, 10 => ⟨11, by decide⟩ | 39, 11 => ⟨1, by decide⟩
+  | 40, 0 => ⟨0, by decide⟩ | 40, 1 => ⟨11, by decide⟩ | 40, 2 => ⟨7, by decide⟩ | 40, 3 => ⟨4, by decide⟩ | 40, 4 => ⟨8, by decide⟩ | 40, 5 => ⟨3, by decide⟩
+  | 40, 6 => ⟨9, by decide⟩ | 40, 7 => ⟨2, by decide⟩ | 40, 8 => ⟨6, by decide⟩ | 40, 9 => ⟨5, by decide⟩ | 40, 10 => ⟨1, by decide⟩ | 40, 11 => ⟨10, by decide⟩
+  | 41, 0 => ⟨0, by decide⟩ | 41, 1 => ⟨1, by decide⟩ | 41, 2 => ⟨8, by decide⟩ | 41, 3 => ⟨9, by decide⟩ | 41, 4 => ⟨7, by decide⟩ | 41, 5 => ⟨6, by decide⟩
+  | 41, 6 => ⟨4, by decide⟩ | 41, 7 => ⟨5, by decide⟩ | 41, 8 => ⟨3, by decide⟩ | 41, 9 => ⟨2, by decide⟩ | 41, 10 => ⟨11, by decide⟩ | 41, 11 => ⟨10, by decide⟩
+  | 42, 0 => ⟨0, by decide⟩ | 42, 1 => ⟨10, by decide⟩ | 42, 2 => ⟨9, by decide⟩ | 42, 3 => ⟨3, by decide⟩ | 42, 4 => ⟨7, by decide⟩ | 42, 5 => ⟨5, by decide⟩
+  | 42, 6 => ⟨6, by decide⟩ | 42, 7 => ⟨4, by decide⟩ | 42, 8 => ⟨8, by decide⟩ | 42, 9 => ⟨2, by decide⟩ | 42, 10 => ⟨1, by decide⟩ | 42, 11 => ⟨11, by decide⟩
+  | 43, 0 => ⟨0, by decide⟩ | 43, 1 => ⟨1, by decide⟩ | 43, 2 => ⟨9, by decide⟩ | 43, 3 => ⟨8, by decide⟩ | 43, 4 => ⟨6, by decide⟩ | 43, 5 => ⟨7, by decide⟩
+  | 43, 6 => ⟨5, by decide⟩ | 43, 7 => ⟨4, by decide⟩ | 43, 8 => ⟨2, by decide⟩ | 43, 9 => ⟨3, by decide⟩ | 43, 10 => ⟨11, by decide⟩ | 43, 11 => ⟨10, by decide⟩
+  | 44, 0 => ⟨0, by decide⟩ | 44, 1 => ⟨10, by decide⟩ | 44, 2 => ⟨7, by decide⟩ | 44, 3 => ⟨5, by decide⟩ | 44, 4 => ⟨9, by decide⟩ | 44, 5 => ⟨3, by decide⟩
+  | 44, 6 => ⟨8, by decide⟩ | 44, 7 => ⟨2, by decide⟩ | 44, 8 => ⟨6, by decide⟩ | 44, 9 => ⟨4, by decide⟩ | 44, 10 => ⟨1, by decide⟩ | 44, 11 => ⟨11, by decide⟩
+  | 45, 0 => ⟨0, by decide⟩ | 45, 1 => ⟨1, by decide⟩ | 45, 2 => ⟨7, by decide⟩ | 45, 3 => ⟨6, by decide⟩ | 45, 4 => ⟨8, by decide⟩ | 45, 5 => ⟨9, by decide⟩
+  | 45, 6 => ⟨3, by decide⟩ | 45, 7 => ⟨2, by decide⟩ | 45, 8 => ⟨4, by decide⟩ | 45, 9 => ⟨5, by decide⟩ | 45, 10 => ⟨11, by decide⟩ | 45, 11 => ⟨10, by decide⟩
+  | 46, 0 => ⟨0, by decide⟩ | 46, 1 => ⟨1, by decide⟩ | 46, 2 => ⟨9, by decide⟩ | 46, 3 => ⟨8, by decide⟩ | 46, 4 => ⟨7, by decide⟩ | 46, 5 => ⟨6, by decide⟩
+  | 46, 6 => ⟨5, by decide⟩ | 46, 7 => ⟨4, by decide⟩ | 46, 8 => ⟨3, by decide⟩ | 46, 9 => ⟨2, by decide⟩ | 46, 10 => ⟨10, by decide⟩ | 46, 11 => ⟨11, by decide⟩
+  | 47, 0 => ⟨0, by decide⟩ | 47, 1 => ⟨1, by decide⟩ | 47, 2 => ⟨7, by decide⟩ | 47, 3 => ⟨6, by decide⟩ | 47, 4 => ⟨9, by decide⟩ | 47, 5 => ⟨8, by decide⟩
+  | 47, 6 => ⟨3, by decide⟩ | 47, 7 => ⟨2, by decide⟩ | 47, 8 => ⟨5, by decide⟩ | 47, 9 => ⟨4, by decide⟩ | 47, 10 => ⟨10, by decide⟩ | 47, 11 => ⟨11, by decide⟩
+  | _, _ => ⟨0, by decide⟩
+
+/-- Exact `10` `W(B_3)` orbit representatives of `C(11, 3) = 165` 3-line subsets of `C_0`. -/
+def dhRep3 (rid : Fin 10) : List (Fin 12) :=
+  match rid.val with
+  | 0 => [⟨1, by decide⟩, ⟨2, by decide⟩, ⟨3, by decide⟩]
+  | 1 => [⟨1, by decide⟩, ⟨2, by decide⟩, ⟨4, by decide⟩]
+  | 2 => [⟨1, by decide⟩, ⟨2, by decide⟩, ⟨6, by decide⟩]
+  | 3 => [⟨1, by decide⟩, ⟨2, by decide⟩, ⟨7, by decide⟩]
+  | 4 => [⟨1, by decide⟩, ⟨2, by decide⟩, ⟨8, by decide⟩]
+  | 5 => [⟨1, by decide⟩, ⟨2, by decide⟩, ⟨10, by decide⟩]
+  | 6 => [⟨1, by decide⟩, ⟨10, by decide⟩, ⟨11, by decide⟩]
+  | 7 => [⟨2, by decide⟩, ⟨3, by decide⟩, ⟨4, by decide⟩]
+  | 8 => [⟨2, by decide⟩, ⟨3, by decide⟩, ⟨6, by decide⟩]
+  | _ => [⟨2, by decide⟩, ⟨3, by decide⟩, ⟨8, by decide⟩]
+
+/-- Exact `17` `W(B_3)` orbit representatives of `C(11, 4) = 330` 4-line subsets of `C_0`. -/
+def dhRep4 (rid : Fin 17) : List (Fin 12) :=
+  match rid.val with
+  | 0 => [⟨1, by decide⟩, ⟨2, by decide⟩, ⟨3, by decide⟩, ⟨4, by decide⟩]
+  | 1 => [⟨1, by decide⟩, ⟨2, by decide⟩, ⟨3, by decide⟩, ⟨6, by decide⟩]
+  | 2 => [⟨1, by decide⟩, ⟨2, by decide⟩, ⟨3, by decide⟩, ⟨8, by decide⟩]
+  | 3 => [⟨1, by decide⟩, ⟨2, by decide⟩, ⟨3, by decide⟩, ⟨10, by decide⟩]
+  | 4 => [⟨1, by decide⟩, ⟨2, by decide⟩, ⟨4, by decide⟩, ⟨6, by decide⟩]
+  | 5 => [⟨1, by decide⟩, ⟨2, by decide⟩, ⟨4, by decide⟩, ⟨7, by decide⟩]
+  | 6 => [⟨1, by decide⟩, ⟨2, by decide⟩, ⟨4, by decide⟩, ⟨10, by decide⟩]
+  | 7 => [⟨1, by decide⟩, ⟨2, by decide⟩, ⟨4, by decide⟩, ⟨11, by decide⟩]
+  | 8 => [⟨1, by decide⟩, ⟨2, by decide⟩, ⟨7, by decide⟩, ⟨10, by decide⟩]
+  | 9 => [⟨1, by decide⟩, ⟨2, by decide⟩, ⟨8, by decide⟩, ⟨11, by decide⟩]
+  | 10 => [⟨1, by decide⟩, ⟨2, by decide⟩, ⟨10, by decide⟩, ⟨11, by decide⟩]
+  | 11 => [⟨2, by decide⟩, ⟨3, by decide⟩, ⟨4, by decide⟩, ⟨5, by decide⟩]
+  | 12 => [⟨2, by decide⟩, ⟨3, by decide⟩, ⟨4, by decide⟩, ⟨6, by decide⟩]
+  | 13 => [⟨2, by decide⟩, ⟨3, by decide⟩, ⟨4, by decide⟩, ⟨8, by decide⟩]
+  | 14 => [⟨2, by decide⟩, ⟨3, by decide⟩, ⟨4, by decide⟩, ⟨9, by decide⟩]
+  | 15 => [⟨2, by decide⟩, ⟨3, by decide⟩, ⟨6, by decide⟩, ⟨7, by decide⟩]
+  | _ => [⟨2, by decide⟩, ⟨3, by decide⟩, ⟨8, by decide⟩, ⟨9, by decide⟩]
+
+/-- Compact `(rid * 48 + g)` witness map aligning `dhCone0Lines3` (`165`) to `dhRep3` (`10` orbits). -/
+def dhWit3Packed : List Nat := [
+  0, 48, 50, 96, 144, 192, 194, 240, 242, 54, 60, 153, 105, 201, 208,
+  256, 249, 1, 193, 198, 97, 145, 241, 246, 196, 204, 148, 100, 252, 244,
+  31, 79, 86, 260, 268, 91, 94, 284, 279, 35, 264, 276, 282, 272, 288,
+  336, 338, 384, 393, 432, 434, 195, 200, 337, 341, 399, 339, 392, 51, 104,
+  347, 407, 387, 344, 99, 56, 415, 343, 350, 55, 62, 401, 409, 147, 152,
+  439, 3, 206, 199, 8, 247, 342, 389, 351, 355, 411, 101, 63, 395, 359,
+  403, 363, 71, 107, 429, 410, 418, 154, 162, 365, 373, 85, 77, 461, 209,
+  19, 27, 217, 269, 433, 438, 385, 388, 197, 203, 445, 349, 394, 5, 210,
+  358, 417, 205, 15, 419, 61, 70, 149, 159, 253, 453, 402, 357, 202, 11,
+  424, 366, 23, 213, 425, 161, 155, 78, 69, 261, 367, 374, 212, 220, 371,
+  68, 114, 106, 76, 250, 379, 113, 84, 90, 121, 273, 216, 224, 257, 265
+]
+
+/-- Compact `(rid * 48 + g)` witness map aligning `dhCone0Lines4` (`330`) to `dhRep4` (`17` orbits). -/
+def dhWit4Packed : List Nat := [
+  0, 2, 48, 57, 96, 98, 144, 146, 1, 192, 240, 193, 241, 288, 336,
+  194, 242, 244, 196, 338, 290, 79, 223, 230, 343, 350, 285, 287, 384, 386,
+  131, 147, 432, 434, 152, 480, 6, 249, 201, 198, 246, 342, 294, 256, 208,
+  252, 204, 300, 348, 93, 271, 278, 400, 393, 237, 239, 373, 365, 139, 441,
+  163, 171, 448, 489, 97, 102, 49, 52, 145, 148, 127, 227, 281, 149, 433,
+  235, 286, 438, 159, 83, 349, 358, 385, 390, 481, 134, 275, 233, 436, 155,
+  283, 238, 167, 444, 89, 396, 388, 366, 357, 484, 31, 38, 175, 182, 35,
+  308, 367, 374, 316, 490, 43, 379, 324, 330, 382, 513, 179, 185, 497, 505,
+  528, 576, 585, 624, 672, 197, 207, 578, 592, 674, 626, 215, 203, 720, 679,
+  686, 250, 258, 701, 709, 280, 273, 768, 99, 115, 123, 104, 435, 625, 673,
+  577, 580, 195, 200, 677, 531, 586, 5, 206, 593, 728, 243, 63, 675, 3,
+  214, 245, 56, 339, 683, 583, 536, 199, 11, 723, 601, 71, 248, 680, 51,
+  251, 222, 8, 344, 600, 608, 247, 254, 631, 7, 210, 202, 14, 295, 715,
+  65, 279, 284, 73, 391, 103, 110, 151, 158, 678, 630, 582, 588, 219, 211,
+  687, 589, 725, 53, 259, 543, 609, 229, 15, 691, 205, 19, 75, 255, 351,
+  695, 731, 597, 267, 59, 605, 551, 23, 221, 699, 263, 67, 27, 213, 359,
+  612, 618, 277, 269, 707, 260, 74, 82, 268, 394, 653, 232, 29, 37, 225,
+  317, 133, 125, 170, 178, 769, 685, 693, 101, 107, 694, 702, 119, 111, 721,
+  257, 266, 274, 265, 437, 637, 710, 109, 118, 596, 13, 218, 58, 272, 154,
+  615, 209, 22, 282, 81, 166, 253, 262, 301, 397, 703, 645, 126, 117, 604,
+  264, 66, 226, 21, 162, 620, 88, 276, 30, 217, 174, 270, 261, 401, 309,
+  559, 216, 228, 234, 224, 452, 212, 220, 356, 364, 236, 231, 372, 378, 456
+]
+
+def dhPow3 (i : Fin 21) : Nat :=
+  match i.val with
+  | 0 => 1
+  | 1 => 3
+  | 2 => 9
+  | 3 => 27
+  | 4 => 81
+  | 5 => 243
+  | 6 => 729
+  | 7 => 2187
+  | 8 => 6561
+  | 9 => 19683
+  | 10 => 59049
+  | 11 => 177147
+  | 12 => 531441
+  | 13 => 1594323
+  | 14 => 4782969
+  | 15 => 14348907
+  | 16 => 43046721
+  | 17 => 129140163
+  | 18 => 387420489
+  | 19 => 1162261467
+  | _ => 3486784401
+
+def dhDecodeCoeff21 (code : Nat) (i : Fin 21) : Fin 3 :=
+  ⟨(code / dhPow3 i) % 3, Nat.mod_lt _ (by decide)⟩
+
+def dhRep3FullDual (rid : Fin 10) (coord : Fin 12) : Nat :=
+  match rid.val, coord.val with
+  | 0, 0 => 137782 | 0, 1 => 645702516 | 0, 2 => 78733 | 0, 3 => 903981870
+  | 0, 4 => 393664 | 0, 5 => 1291401954 | 0, 6 => 216517 | 0, 7 => 2582804556
+  | 0, 8 => 1102255 | 0, 9 => 129141297 | 0, 10 => 570814 | 0, 11 => 258282432
+  | 1, 0 => 118124 | 1, 1 => 387420975 | 1, 2 => 59075 | 1, 3 => 774841464
+  | 1, 4 => 354300 | 1, 5 => 1162263654 | 1, 6 => 177153 | 1, 7 => 2324525121
+  | 1, 8 => 3188664 | 1, 9 => 3486790233 | 1, 10 => 1594341 | 1, 11 => 6973574634
+  | 3, 0 => 118142 | 3, 1 => 387420975 | 3, 2 => 59093 | 3, 3 => 774841464
+  | 3, 4 => 354300 | 3, 5 => 1291401891 | 3, 6 => 177153 | 3, 7 => 2582804493
+  | 3, 8 => 28697850 | 3, 9 => 129141144 | 3, 10 => 14348943 | 3, 11 => 258282279
+  | 4, 0 => 121184 | 4, 1 => 3874205376 | 4, 2 => 62135 | 4, 3 => 7748410266
+  | 4, 4 => 360132 | 4, 5 => 1162266570 | 4, 6 => 182985 | 4, 7 => 2324528037
+  | 4, 8 => 86099436 | 4, 9 => 3486787317 | 4, 10 => 43052715 | 4, 11 => 6973571718
+  | 5, 0 => 3329344 | 5, 1 => 648914495 | 5, 2 => 3270295 | 5, 3 => 903984786
+  | 5, 4 => 1948623 | 5, 5 => 1294616039 | 5, 6 => 3365799 | 5, 7 => 2584438171
+  | 5, 8 => 25520 | 5, 9 => 259915966 | 5, 10 => 1619843 | 5, 11 => 132353114
+  | 7, 0 => 354317 | 7, 1 => 1291404627 | 7, 2 => 177170 | 7, 3 => 2582806986
+  | 7, 4 => 1062908 | 7, 5 => 129141054 | 7, 6 => 531467 | 7, 7 => 258281946
+  | 7, 8 => 3188664 | 7, 9 => 3486790233 | 7, 10 => 1594341 | 7, 11 => 6973574634
+  | 8, 0 => 354362 | 8, 1 => 1549683504 | 8, 2 => 177215 | 8, 3 => 3099365460
+  | 8, 4 => 1062953 | 8, 5 => 129141054 | 8, 6 => 531512 | 8, 7 => 258281946
+  | 8, 8 => 9566001 | 8, 9 => 903981888 | 8, 10 => 4783032 | 8, 11 => 645702291
+  | _, _ => 0
+
+def dhRep3Wt6Uncoup (rid : Fin 10) (m : Fin 4) : Nat :=
+  match rid.val, m.val with
+  | 2, 0 => 70 | 2, 1 => 1944 | 2, 2 => 46 | 2, 3 => 1233
+  | 6, 0 => 1436859 | 6, 1 => 9427231899 | 6, 2 => 1436859 | 6, 3 => 9427231899
+  | 9, 0 => 2 | 9, 1 => 1458 | 9, 2 => 1 | 9, 3 => 729
+  | _, _ => 0
+
+def dhRep3Wt6Stab (rid : Fin 10) : Nat :=
+  match rid.val with
+  | 2 => 5196312
+  | 6 => 243
+  | 9 => 2190
+  | _ => 0
+
+def dhRep4Uncoup (rid : Fin 17) (m : Fin 4) : Nat :=
+  match rid.val, m.val with
+  | 0, 0 => 19683 | 0, 1 => 1944 | 0, 2 => 10 | 0, 3 => 4860
+  | 1, 0 => 19683 | 1, 1 => 1944 | 1, 2 => 46 | 1, 3 => 1233
+  | 2, 0 => 19683 | 2, 1 => 1944 | 2, 2 => 1 | 2, 3 => 1215
+  | 4, 0 => 9556 | 4, 1 => 1944 | 4, 2 => 18991 | 4, 3 => 4860
+  | 5, 0 => 19006 | 5, 1 => 1944 | 5, 2 => 9541 | 5, 3 => 4860
+  | 6, 0 => 9585621 | 6, 1 => 4841071 | 6, 2 => 9585642 | 6, 3 => 4830136
+  | 7, 0 => 1082565 | 7, 1 => 1101290 | 7, 2 => 1082586 | 7, 3 => 1090355
+  | 8, 0 => 3208329 | 8, 1 => 1639312 | 8, 2 => 3208368 | 8, 3 => 1634956
+  | 12, 0 => 2 | 12, 1 => 1458 | 12, 2 => 18991 | 12, 3 => 4374
+  | 13, 0 => 2 | 13, 1 => 1458 | 13, 2 => 10 | 13, 3 => 7290
+  | 14, 0 => 2 | 14, 1 => 1458 | 14, 2 => 10 | 14, 3 => 7290
+  | 16, 0 => 2 | 16, 1 => 1458 | 16, 2 => 1 | 16, 3 => 729
+  | _, _ => 0
+
+def dhRep4CoupCode (rid : Fin 17) : Nat :=
+  match rid.val with
+  | 3 => 16215554
+  | 9 => 17463794
+  | 10 => 1044121
+  | 11 => 16144980
+  | 15 => 16144980
+  | _ => 0
+
+def dhRep4CoupRow (rid : Fin 17) : Fin 25 :=
+  match rid.val with
+  | 3 => ⟨22, by decide⟩
+  | 9 => ⟨23, by decide⟩
+  | 10 => ⟨22, by decide⟩
+  | 11 => ⟨23, by decide⟩
+  | 15 => ⟨23, by decide⟩
+  | _ => ⟨21, by decide⟩
+
+def dhRep3Slot (rid : Fin 10) (s : Fin 6) : Fin 24 :=
+  match dhRep3 rid with
+  | [l0, l1, l2] =>
+    match s.val with
+    | 0 => hcLineRep l0 | 1 => hcOppRep l0
+    | 2 => hcLineRep l1 | 3 => hcOppRep l1
+    | 4 => hcLineRep l2 | _ => hcOppRep l2
+  | _ => ⟨0, by decide⟩
+
+def dhRep4Slot (rid : Fin 17) (s : Fin 8) : Fin 24 :=
+  match dhRep4 rid with
+  | [l0, l1, l2, l3] =>
+    match s.val with
+    | 0 => hcLineRep l0 | 1 => hcOppRep l0
+    | 2 => hcLineRep l1 | 3 => hcOppRep l1
+    | 4 => hcLineRep l2 | 5 => hcOppRep l2
+    | 6 => hcLineRep l3 | _ => hcOppRep l3
+  | _ => ⟨0, by decide⟩
+
+def dhRep4CoupVec (rid : Fin 17) : HcVec48 :=
+  let code := dhRep4CoupCode rid
+  fun p r =>
+    let trit (k : Fin 16) : Nat := (code / dhPow3 ⟨k.val, by have := k.isLt; omega⟩) % 3
+    if r = dhRep4Slot rid ⟨0, by decide⟩ then trit ⟨0 + p.val, by have := p.isLt; omega⟩
+    else if r = dhRep4Slot rid ⟨1, by decide⟩ then trit ⟨2 + p.val, by have := p.isLt; omega⟩
+    else if r = dhRep4Slot rid ⟨2, by decide⟩ then trit ⟨4 + p.val, by have := p.isLt; omega⟩
+    else if r = dhRep4Slot rid ⟨3, by decide⟩ then trit ⟨6 + p.val, by have := p.isLt; omega⟩
+    else if r = dhRep4Slot rid ⟨4, by decide⟩ then trit ⟨8 + p.val, by have := p.isLt; omega⟩
+    else if r = dhRep4Slot rid ⟨5, by decide⟩ then trit ⟨10 + p.val, by have := p.isLt; omega⟩
+    else if r = dhRep4Slot rid ⟨6, by decide⟩ then trit ⟨12 + p.val, by have := p.isLt; omega⟩
+    else if r = dhRep4Slot rid ⟨7, by decide⟩ then trit ⟨14 + p.val, by have := p.isLt; omega⟩
+    else 0
+
+def dhIsWt6Rid (rid : Nat) : Bool := decide (rid = 2 ∨ rid = 6 ∨ rid = 9)
+def dhIsCoupRid (rid : Nat) : Bool := decide (rid = 3 ∨ rid = 9 ∨ rid = 10 ∨ rid = 11 ∨ rid = 15)
+
+/-- Explicit decidable orbit-classified predicates for pure weight-6 triples (`21 / 165`)
+    and coupled 4-line subsets (`56 / 330`) on `C_0`. -/
+def dhIsPureWt6Triple (ls : List (Fin 12)) : Bool :=
+  dhIsWt6Rid (dhAssocCode dhCone0Lines3 dhWit3Packed ls / 48)
+
+def dhIsCoupledQuad (ls : List (Fin 12)) : Bool :=
+  dhIsCoupRid (dhAssocCode dhCone0Lines4 dhWit4Packed ls / 48)
+
+def dhOrbitCheck3 (ls : List (Fin 12)) (packed : Nat) : Bool :=
+  let rid := packed / 48; let g := packed % 48
+  if hr : rid < 10 then
+    if hg : g < 48 then
+      (List.finRange 12).all (fun l =>
+        decide (dhMem12 l ls = dhMem12 (dhWB3LinePerm ⟨g, hg⟩ l) (dhRep3 ⟨rid, hr⟩)))
+    else false
+  else false
+
+def dhOrbitCheck4 (ls : List (Fin 12)) (packed : Nat) : Bool :=
+  let rid := packed / 48; let g := packed % 48
+  if hr : rid < 17 then
+    if hg : g < 48 then
+      (List.finRange 12).all (fun l =>
+        decide (dhMem12 l ls = dhMem12 (dhWB3LinePerm ⟨g, hg⟩ l) (dhRep4 ⟨rid, hr⟩)))
+    else false
+  else false
+
+def dhCheckRep3FullDual (rid : Fin 10) : Bool :=
+  (List.finRange 6).all (fun s =>
+    let uX := hcLinComb (dhDecodeCoeff21 (dhRep3FullDual rid ⟨2 * s.val, by have := s.isLt; omega⟩)) dhSC0
+    let uZ := hcLinComb (dhDecodeCoeff21 (dhRep3FullDual rid ⟨2 * s.val + 1, by have := s.isLt; omega⟩)) dhSC0
+    (List.finRange 6).all (fun t =>
+      let r := dhRep3Slot rid t
+      decide (uX ⟨0, by decide⟩ r = if t = s then 1 else 0) &&
+      decide (uX ⟨1, by decide⟩ r = 0) &&
+      decide (uZ ⟨0, by decide⟩ r = 0) &&
+      decide (uZ ⟨1, by decide⟩ r = if t = s then 1 else 0)))
+
+def dhCheckUncoupOn (ls : List (Fin 12)) (codes : Fin 4 → Nat) : Bool :=
+  (List.finRange 4).all (fun m =>
+    let u := hcLinComb (dhDecodeCoeff21 (codes m)) dhSC0
+    let row := dhChoiMinus25 ⟨21 + m.val, by have := m.isLt; omega⟩
+    ls.all (fun l =>
+      let a := hcLineRep l; let b := hcOppRep l
+      decide (u ⟨0, by decide⟩ a = row ⟨0, by decide⟩ a % 3) &&
+      decide (u ⟨1, by decide⟩ a = row ⟨1, by decide⟩ a % 3) &&
+      decide (u ⟨0, by decide⟩ b = row ⟨0, by decide⟩ b % 3) &&
+      decide (u ⟨1, by decide⟩ b = row ⟨1, by decide⟩ b % 3)))
+
+def dhCheckRep3Wt6Stab (rid : Fin 10) : Bool :=
+  let w := hcLinComb (dhDecodeCoeff21 (dhRep3Wt6Stab rid)) dhSC0
+  (List.finRange 24).all (fun r =>
+    if dhMem12 (hcLineOf r) (dhRep3 rid) then true
+    else decide (w ⟨0, by decide⟩ r = 0 ∧ w ⟨1, by decide⟩ r = 0)) &&
+  (List.finRange 24).any (fun r => decide (w ⟨0, by decide⟩ r ≠ 0 ∨ w ⟨1, by decide⟩ r ≠ 0))
+
+def dhCheckRep4Coup (rid : Fin 17) : Bool :=
+  let w := dhRep4CoupVec rid
+  (List.finRange 24).all (fun r =>
+    if dhMem12 (hcLineOf r) (dhRep4 rid) then true
+    else decide (w ⟨0, by decide⟩ r = 0 ∧ w ⟨1, by decide⟩ r = 0)) &&
+  (List.finRange 21).all (fun i => decide (hcSymp48 (dhSC0 i) w = 0)) &&
+  decide (hcSymp48 (dhChoiMinus25 (dhRep4CoupRow rid)) w ≠ 0)
+
+private theorem dh_wb3_table_cert :
+    (∀ g : Fin 48, (∀ k ∈ dhWB3Word g, 1 ≤ k.val) ∧ ∀ l : Fin 12, dhWB3LinePerm g l = dhWordLinePerm (dhWB3Word g) l) ∧
+    (∀ rid : Fin 10, ∀ r : Fin 24, dhMem12 (hcLineOf r) (dhRep3 rid) = true → ∃ s : Fin 6, dhRep3Slot rid s = r) ∧
+    (∀ rid : Fin 10, ∀ s t : Fin 6, dhRep3Slot rid s = dhRep3Slot rid t → s = t) ∧
+    (dhCone0Lines1.length = 11 ∧ dhCone0Lines2.length = 55 ∧
+     dhCone0Lines1.all (fun ls => decide (ls.length ≤ 2) && !(dhMem12 ⟨0, by decide⟩ ls)) = true ∧
+     dhCone0Lines2.all (fun ls => decide (ls.length ≤ 2) && !(dhMem12 ⟨0, by decide⟩ ls)) = true) := by
   decide
 
-private theorem dh_cone0_r3_certs :
-    dhCone0Lines3.length = 165 ∧
-    (dhCone0Lines3.filter (fun ls => decide (dhSynRankChoi ls > dhSynRankSC0 ls))).length = 0 ∧
-    (dhCone0Lines3.filter (fun ls => decide (dhSynRankSC0 ls < 12))).length = 21 := by
+private theorem dh_r3_full_dual_cert_a :
+    dhCheckRep3FullDual ⟨0, by decide⟩ = true ∧ dhCheckRep3FullDual ⟨1, by decide⟩ = true ∧
+    dhCheckRep3FullDual ⟨3, by decide⟩ = true ∧ dhCheckRep3FullDual ⟨4, by decide⟩ = true := by
   decide
 
-private theorem dh_cone0_r4_certs_part1 :
-    dhCone0Lines4.length = 330 ∧
-    ((dhCone0Lines4.take 165).filter (fun ls => decide (dhSynRankChoi ls > dhSynRankSC0 ls))).length = 41 := by
+private theorem dh_r3_full_dual_cert_b :
+    dhCheckRep3FullDual ⟨5, by decide⟩ = true ∧ dhCheckRep3FullDual ⟨7, by decide⟩ = true ∧
+    dhCheckRep3FullDual ⟨8, by decide⟩ = true := by
   decide
 
-private theorem dh_cone0_r4_certs_part2 :
-    ((dhCone0Lines4.drop 165).filter (fun ls => decide (dhSynRankChoi ls > dhSynRankSC0 ls))).length = 15 ∧
+private theorem dh_r3_wt6_cert :
+    dhCheckUncoupOn (dhRep3 ⟨2, by decide⟩) (dhRep3Wt6Uncoup ⟨2, by decide⟩) = true ∧
+    dhCheckUncoupOn (dhRep3 ⟨6, by decide⟩) (dhRep3Wt6Uncoup ⟨6, by decide⟩) = true ∧
+    dhCheckUncoupOn (dhRep3 ⟨9, by decide⟩) (dhRep3Wt6Uncoup ⟨9, by decide⟩) = true ∧
+    dhCheckRep3Wt6Stab ⟨2, by decide⟩ = true ∧
+    dhCheckRep3Wt6Stab ⟨6, by decide⟩ = true ∧
+    dhCheckRep3Wt6Stab ⟨9, by decide⟩ = true := by
+  decide
+
+private theorem dh_r4_uncoup_cert_a :
+    dhCheckUncoupOn (dhRep4 ⟨0, by decide⟩) (dhRep4Uncoup ⟨0, by decide⟩) = true ∧
+    dhCheckUncoupOn (dhRep4 ⟨1, by decide⟩) (dhRep4Uncoup ⟨1, by decide⟩) = true ∧
+    dhCheckUncoupOn (dhRep4 ⟨2, by decide⟩) (dhRep4Uncoup ⟨2, by decide⟩) = true ∧
+    dhCheckUncoupOn (dhRep4 ⟨4, by decide⟩) (dhRep4Uncoup ⟨4, by decide⟩) = true ∧
+    dhCheckUncoupOn (dhRep4 ⟨5, by decide⟩) (dhRep4Uncoup ⟨5, by decide⟩) = true ∧
+    dhCheckUncoupOn (dhRep4 ⟨6, by decide⟩) (dhRep4Uncoup ⟨6, by decide⟩) = true := by
+  decide
+
+private theorem dh_r4_uncoup_cert_b :
+    dhCheckUncoupOn (dhRep4 ⟨7, by decide⟩) (dhRep4Uncoup ⟨7, by decide⟩) = true ∧
+    dhCheckUncoupOn (dhRep4 ⟨8, by decide⟩) (dhRep4Uncoup ⟨8, by decide⟩) = true ∧
+    dhCheckUncoupOn (dhRep4 ⟨12, by decide⟩) (dhRep4Uncoup ⟨12, by decide⟩) = true ∧
+    dhCheckUncoupOn (dhRep4 ⟨13, by decide⟩) (dhRep4Uncoup ⟨13, by decide⟩) = true ∧
+    dhCheckUncoupOn (dhRep4 ⟨14, by decide⟩) (dhRep4Uncoup ⟨14, by decide⟩) = true ∧
+    dhCheckUncoupOn (dhRep4 ⟨16, by decide⟩) (dhRep4Uncoup ⟨16, by decide⟩) = true := by
+  decide
+
+private theorem dh_r4_coup_cert :
+    dhCheckRep4Coup ⟨3, by decide⟩ = true ∧ dhCheckRep4Coup ⟨9, by decide⟩ = true ∧
+    dhCheckRep4Coup ⟨10, by decide⟩ = true ∧ dhCheckRep4Coup ⟨11, by decide⟩ = true ∧
+    dhCheckRep4Coup ⟨15, by decide⟩ = true := by
+  decide
+
+private theorem dh_wit3_orbit_cert :
+    dhCone0Lines3.length = 165 ∧ dhWit3Packed.length = 165 ∧
+    dhStrictlySorted dhCone0Lines3 = true ∧
+    dhZipAll dhOrbitCheck3 dhCone0Lines3 dhWit3Packed = true ∧
+    (dhWit3Packed.filter (fun c => dhIsWt6Rid (c / 48))).length = 21 := by
+  decide
+
+private theorem dh_wit4_orbit_cert :
+    dhCone0Lines4.length = 330 ∧ dhWit4Packed.length = 330 ∧
+    dhStrictlySorted dhCone0Lines4 = true ∧
+    dhZipAll dhOrbitCheck4 dhCone0Lines4 dhWit4Packed = true ∧
+    (dhWit4Packed.filter (fun c => dhIsCoupRid (c / 48))).length = 56 := by
+  decide
+
+private theorem dh_r4_witness_12310_cert :
     dhSynRankSC0 [⟨1, by decide⟩, ⟨2, by decide⟩, ⟨3, by decide⟩, ⟨10, by decide⟩] = 15 ∧
     dhSynRankChoi [⟨1, by decide⟩, ⟨2, by decide⟩, ⟨3, by decide⟩, ⟨10, by decide⟩] = 16 := by
   decide
 
+private theorem dh_uncoupled_of_witness (ls : List (Fin 12)) (codes : Fin 4 → Nat)
+    (hCert : dhCheckUncoupOn ls codes = true) : ¬ dhHasCoupledOp ls := by
+  have hSlotCov : ∀ r : Fin 24, r = hcLineRep (hcLineOf r) ∨ r = hcOppRep (hcLineOf r) := by decide
+  intro ⟨w, hSupp, hSC0, ⟨j, hj⟩⟩
+  if hj21 : j.val < 21 then
+    have hRow : dhChoiMinus25 j = dhSC0 ⟨j.val, hj21⟩ := by unfold dhChoiMinus25; exact dh_dite_pos hj21
+    rw [hRow] at hj; exact hj (hSC0 ⟨j.val, hj21⟩)
+  else
+    let m : Fin 4 := ⟨j.val - 21, by have := j.isLt; omega⟩
+    have hFj : (⟨21 + m.val, by have := m.isLt; omega⟩ : Fin 25) = j := Fin.ext (by dsimp only [m]; omega)
+    let u := hcLinComb (dhDecodeCoeff21 (codes m)) dhSC0
+    have hM := (List.all_eq_true.mp hCert) m (List.mem_finRange m)
+    have hSiteEq : ∀ r : Fin 24,
+        (dhChoiMinus25 j ⟨0, by decide⟩ r * w ⟨1, by decide⟩ r +
+         2 * (dhChoiMinus25 j ⟨1, by decide⟩ r * w ⟨0, by decide⟩ r)) % 3 =
+        (u ⟨0, by decide⟩ r * w ⟨1, by decide⟩ r + 2 * (u ⟨1, by decide⟩ r * w ⟨0, by decide⟩ r)) % 3 := by
+      intro r
+      by_cases hIn : hcLineOf r ∈ ls
+      · have hL := (List.all_eq_true.mp hM) (hcLineOf r) hIn
+        simp only [Bool.and_eq_true, decide_eq_true_eq] at hL
+        rw [hFj] at hL
+        have hUR : u ⟨0, by decide⟩ r = dhChoiMinus25 j ⟨0, by decide⟩ r % 3 ∧
+            u ⟨1, by decide⟩ r = dhChoiMinus25 j ⟨1, by decide⟩ r % 3 := by
+          rcases hSlotCov r with hA | hB
+          · rw [hA]; exact ⟨hL.1.1.1, hL.1.1.2⟩
+          · rw [hB]; exact ⟨hL.1.2, hL.2⟩
+        rw [hUR.1, hUR.2]
+        exact dh_add_mod3_congr (dh_mul_mod3_left _ _).symm (dh_mul_mod3_congr rfl (dh_mul_mod3_left _ _).symm)
+      · obtain ⟨w0, w1⟩ := hSupp r hIn
+        have t1 : (dhChoiMinus25 j ⟨0, by decide⟩ r * w ⟨1, by decide⟩ r) % 3 = 0 := by rw [← dh_mul_mod3_right, w1, Nat.mul_zero]
+        have t2 : (2 * (dhChoiMinus25 j ⟨1, by decide⟩ r * w ⟨0, by decide⟩ r)) % 3 = 0 := by
+          rw [← dh_mul_mod3_right 2, ← dh_mul_mod3_right _ (w _ _), w0, Nat.mul_zero]
+        have t3 : (u ⟨0, by decide⟩ r * w ⟨1, by decide⟩ r) % 3 = 0 := by rw [← dh_mul_mod3_right, w1, Nat.mul_zero]
+        have t4 : (2 * (u ⟨1, by decide⟩ r * w ⟨0, by decide⟩ r)) % 3 = 0 := by
+          rw [← dh_mul_mod3_right 2, ← dh_mul_mod3_right _ (w _ _), w0, Nat.mul_zero]
+        omega
+    have hSympEq : hcSymp48 (dhChoiMinus25 j) w = hcSymp48 u w := dh_sumFin_mod3_congr _ _ hSiteEq
+    have hu0 : hcSymp48 u w = 0 := by
+      dsimp only [u]; rw [dh_symp48_linComb_left]
+      apply dh_sumFin_zero_mod3; intro i; rw [hSC0 i, Nat.mul_zero]
+    rw [hSympEq, hu0] at hj; exact hj rfl
+
+private theorem dh_fullrank_of_witness (rid : Fin 10) (hCert : dhCheckRep3FullDual rid = true) :
+    ¬ dhHasCoupledOp (dhRep3 rid) ∧ ¬ dhHasPureStab (dhRep3 rid) := by
+  have hKer0 : ∀ w : HcVec48, dhSuppOnLines (dhRep3 rid) w →
+      (∀ i : Fin 21, hcSymp48 (dhSC0 i) w = 0) → ∀ p r, w p r % 3 = 0 := by
+    intro w hSupp hSC0 p r
+    by_cases hIn : hcLineOf r ∈ dhRep3 rid
+    · obtain ⟨s, hs⟩ := dh_wb3_table_cert.2.1 rid r ((dh_mem12_iff _ _).mpr hIn)
+      let uX := hcLinComb (dhDecodeCoeff21 (dhRep3FullDual rid ⟨2 * s.val, by have := s.isLt; omega⟩)) dhSC0
+      let uZ := hcLinComb (dhDecodeCoeff21 (dhRep3FullDual rid ⟨2 * s.val + 1, by have := s.isLt; omega⟩)) dhSC0
+      have hS := (List.all_eq_true.mp hCert) s (List.mem_finRange s)
+      have hX0 : hcSymp48 uX w = 0 := by
+        dsimp only [uX]; rw [dh_symp48_linComb_left]
+        apply dh_sumFin_zero_mod3; intro i; rw [hSC0 i, Nat.mul_zero]
+      have hZ0 : hcSymp48 uZ w = 0 := by
+        dsimp only [uZ]; rw [dh_symp48_linComb_left]
+        apply dh_sumFin_zero_mod3; intro i; rw [hSC0 i, Nat.mul_zero]
+      have hEvalX : hcSymp48 uX w = w ⟨1, by decide⟩ r % 3 := by
+        unfold hcSymp48
+        have hPer : ∀ r0 : Fin 24,
+            (uX ⟨0, by decide⟩ r0 * w ⟨1, by decide⟩ r0 + 2 * (uX ⟨1, by decide⟩ r0 * w ⟨0, by decide⟩ r0)) % 3 =
+            (if r0 = r then w ⟨1, by decide⟩ r else 0) % 3 := by
+          intro r0
+          by_cases hIn0 : hcLineOf r0 ∈ dhRep3 rid
+          · obtain ⟨t, ht⟩ := dh_wb3_table_cert.2.1 rid r0 ((dh_mem12_iff _ _).mpr hIn0)
+            have hT := (List.all_eq_true.mp hS) t (List.mem_finRange t)
+            simp only [Bool.and_eq_true, decide_eq_true_eq] at hT
+            have hUX0 : uX ⟨0, by decide⟩ r0 = if t = s then 1 else 0 := by rw [← ht]; exact hT.1.1.1
+            have hUX1 : uX ⟨1, by decide⟩ r0 = 0 := by rw [← ht]; exact hT.1.1.2
+            rw [hUX0, hUX1, Nat.zero_mul, Nat.mul_zero, Nat.add_zero]
+            by_cases hrEq : r0 = r
+            · have hts : t = s := dh_wb3_table_cert.2.2.1 rid t s (by rw [ht, hs]; exact hrEq)
+              rw [dh_ite_pos hts, dh_ite_pos hrEq, hrEq, Nat.one_mul]
+            · have hts : t ≠ s := fun e => hrEq (by rw [← ht, ← hs, e])
+              rw [dh_ite_neg hts, dh_ite_neg hrEq, Nat.zero_mul]
+          · obtain ⟨w0, w1⟩ := hSupp r0 hIn0
+            have hne : r0 ≠ r := fun e => hIn0 (e ▸ hIn)
+            rw [dh_ite_neg hne]
+            have t1 : (uX ⟨0, by decide⟩ r0 * w ⟨1, by decide⟩ r0) % 3 = 0 := by rw [← dh_mul_mod3_right, w1, Nat.mul_zero]
+            have t2 : (2 * (uX ⟨1, by decide⟩ r0 * w ⟨0, by decide⟩ r0)) % 3 = 0 := by
+              rw [← dh_mul_mod3_right 2, ← dh_mul_mod3_right _ (w _ _), w0, Nat.mul_zero]
+            omega
+        rw [dh_sumFin_mod3_congr _ _ hPer, dh_sumFin_zero_except _ r (fun r0 hr0 => dh_ite_neg hr0), dh_ite_pos rfl]
+      have hEvalZ : hcSymp48 uZ w = (2 * w ⟨0, by decide⟩ r) % 3 := by
+        unfold hcSymp48
+        have hPer : ∀ r0 : Fin 24,
+            (uZ ⟨0, by decide⟩ r0 * w ⟨1, by decide⟩ r0 + 2 * (uZ ⟨1, by decide⟩ r0 * w ⟨0, by decide⟩ r0)) % 3 =
+            (if r0 = r then 2 * w ⟨0, by decide⟩ r else 0) % 3 := by
+          intro r0
+          by_cases hIn0 : hcLineOf r0 ∈ dhRep3 rid
+          · obtain ⟨t, ht⟩ := dh_wb3_table_cert.2.1 rid r0 ((dh_mem12_iff _ _).mpr hIn0)
+            have hT := (List.all_eq_true.mp hS) t (List.mem_finRange t)
+            simp only [Bool.and_eq_true, decide_eq_true_eq] at hT
+            have hUZ0 : uZ ⟨0, by decide⟩ r0 = 0 := by rw [← ht]; exact hT.1.2
+            have hUZ1 : uZ ⟨1, by decide⟩ r0 = if t = s then 1 else 0 := by rw [← ht]; exact hT.2
+            rw [hUZ0, hUZ1, Nat.zero_mul, Nat.zero_add]
+            by_cases hrEq : r0 = r
+            · have hts : t = s := dh_wb3_table_cert.2.2.1 rid t s (by rw [ht, hs]; exact hrEq)
+              rw [dh_ite_pos hts, dh_ite_pos hrEq, hrEq, Nat.one_mul]
+            · have hts : t ≠ s := fun e => hrEq (by rw [← ht, ← hs, e])
+              rw [dh_ite_neg hts, dh_ite_neg hrEq, Nat.zero_mul, Nat.mul_zero]
+          · obtain ⟨w0, w1⟩ := hSupp r0 hIn0
+            have hne : r0 ≠ r := fun e => hIn0 (e ▸ hIn)
+            rw [dh_ite_neg hne]
+            have t1 : (uZ ⟨0, by decide⟩ r0 * w ⟨1, by decide⟩ r0) % 3 = 0 := by rw [← dh_mul_mod3_right, w1, Nat.mul_zero]
+            have t2 : (2 * (uZ ⟨1, by decide⟩ r0 * w ⟨0, by decide⟩ r0)) % 3 = 0 := by
+              rw [← dh_mul_mod3_right 2, ← dh_mul_mod3_right _ (w _ _), w0, Nat.mul_zero]
+            omega
+        rw [dh_sumFin_mod3_congr _ _ hPer, dh_sumFin_zero_except _ r (fun r0 hr0 => dh_ite_neg hr0), dh_ite_pos rfl]
+      cases p with | mk pv hpv =>
+      match pv, hpv with
+      | 0, _ => rw [hEvalZ] at hZ0; omega
+      | 1, _ => rw [hEvalX] at hX0; exact hX0
+      | _ + 2, h => exact absurd h (by omega)
+    · obtain ⟨w0, w1⟩ := hSupp r hIn
+      cases p with | mk pv hpv =>
+      match pv, hpv with | 0, _ => exact w0 | 1, _ => exact w1 | _ + 2, h => exact absurd h (by omega)
+  constructor
+  · intro ⟨w, hSupp, hSC0, ⟨j, hj⟩⟩
+    have hZ := hKer0 w hSupp hSC0
+    have hS0 : hcSymp48 (dhChoiMinus25 j) w = 0 := by
+      rw [dh_symp48_congr_right _ (v' := fun _ _ => 0) (fun p r => hZ p r)]; unfold hcSymp48
+      apply dh_sumFin_zero_mod3; intro r; simp only [Nat.mul_zero, Nat.add_zero, Nat.zero_mod]
+    exact hj hS0
+  · intro ⟨w, hSupp, ⟨c, hc⟩, ⟨p0, r0, hne⟩⟩
+    have hSC0 : ∀ i : Fin 21, hcSymp48 (dhSC0 i) w = 0 := by
+      intro i
+      rw [dh_symp48_congr_right _ (v' := hcLinComb c dhSC0) (fun p r => by rw [hc p r]; unfold hcLinComb; omega), dh_symp48_linComb_right]
+      apply dh_sumFin_zero_mod3; intro j; rw [dh_sc0_basis_spec.2.1 i j, Nat.mul_zero]
+    exact hne (hKer0 w hSupp hSC0 p0 r0)
+
+private theorem dh_pureStab_of_witness (rid : Fin 10) (hCert : dhCheckRep3Wt6Stab rid = true) :
+    dhHasPureStab (dhRep3 rid) := by
+  let c := dhDecodeCoeff21 (dhRep3Wt6Stab rid)
+  let w := hcLinComb c dhSC0
+  simp only [dhCheckRep3Wt6Stab, Bool.and_eq_true] at hCert
+  refine ⟨w, ?_, ⟨c, fun p r => by dsimp only [w]; unfold hcLinComb; omega⟩, ?_⟩
+  · intro r hr
+    have hR := (List.all_eq_true.mp hCert.1) r (List.mem_finRange r)
+    have hF : dhMem12 (hcLineOf r) (dhRep3 rid) = false := by
+      cases hm : dhMem12 (hcLineOf r) (dhRep3 rid)
+      · rfl
+      · exact absurd ((dh_mem12_iff _ _).mp hm) hr
+    rw [hF] at hR; simp only [Bool.false_eq_true, ite_false, decide_eq_true_eq] at hR
+    exact ⟨by rw [hR.1], by rw [hR.2]⟩
+  · have hEx : ∃ r ∈ List.finRange 24, w ⟨0, by decide⟩ r ≠ 0 ∨ w ⟨1, by decide⟩ r ≠ 0 := by
+      have hAny : ∀ xs : List (Fin 24), xs.any (fun r => decide (w ⟨0, by decide⟩ r ≠ 0 ∨ w ⟨1, by decide⟩ r ≠ 0)) = true →
+          ∃ r ∈ xs, w ⟨0, by decide⟩ r ≠ 0 ∨ w ⟨1, by decide⟩ r ≠ 0 := by
+        intro xs; induction xs with
+        | nil => intro h; simp at h
+        | cons a rest ih =>
+          intro h; simp only [List.any, Bool.or_eq_true, decide_eq_true_eq] at h
+          rcases h with ha | hrest
+          · exact ⟨a, List.mem_cons_self .., ha⟩
+          · obtain ⟨r, hr, hnz⟩ := ih hrest; exact ⟨r, List.mem_cons_of_mem _ hr, hnz⟩
+      exact hAny (List.finRange 24) hCert.2
+    obtain ⟨r, _, hnz⟩ := hEx
+    have hlt0 : w ⟨0, by decide⟩ r < 3 := Nat.mod_lt _ (by decide)
+    have hlt1 : w ⟨1, by decide⟩ r < 3 := Nat.mod_lt _ (by decide)
+    rcases hnz with h0 | h1
+    · exact ⟨⟨0, by decide⟩, r, by omega⟩
+    · exact ⟨⟨1, by decide⟩, r, by omega⟩
+
+private theorem dh_coupled_of_witness (rid : Fin 17) (hCert : dhCheckRep4Coup rid = true) :
+    dhHasCoupledOp (dhRep4 rid) := by
+  simp only [dhCheckRep4Coup, Bool.and_eq_true, decide_eq_true_eq] at hCert
+  refine ⟨dhRep4CoupVec rid, ?_, ?_, ⟨dhRep4CoupRow rid, hCert.2⟩⟩
+  · intro r hr
+    have hR := (List.all_eq_true.mp hCert.1.1) r (List.mem_finRange r)
+    have hF : dhMem12 (hcLineOf r) (dhRep4 rid) = false := by
+      cases hm : dhMem12 (hcLineOf r) (dhRep4 rid)
+      · rfl
+      · exact absurd ((dh_mem12_iff _ _).mp hm) hr
+    rw [hF] at hR; simp only [Bool.false_eq_true, ite_false, decide_eq_true_eq] at hR
+    exact ⟨by rw [hR.1], by rw [hR.2]⟩
+  · intro i
+    exact of_decide_eq_true ((List.all_eq_true.mp hCert.1.2) i (List.mem_finRange i))
+
 /-- Headline Theorem 8 (W11 Single-Cone `r = 3` Zero-Loss & Sharp `r = 4` Threshold on `C_0` of `T_-`):
     1. **Exact `21`-Row Pure-Cone Stabilizer Basis `S(C_0)`:** All `21` rows of `dhSC0` lie in `span(T_-)`,
        vanish identically on the inward bond slot `3 = oppSlot 0`, are strictly isotropic, and have full rank `21`.
-    2. **Verified `GF(3)` Echelon Independence:** Any well-formed echelon basis produced by `dhGF3Basis` is
-       linearly independent over `GF(3)`.
-    3. **Exhaustive Single-Cone Line-Subset Census on `C_0` (`11` complete antipodal lines):**
-       - `r = 1`: ALL `C(11, 1) = 11 / 11` lines achieve full rank `4` on both `S(C_0)` and `T_-^{Choi}` (`0` coupling),
-       - `r = 2`: ALL `C(11, 2) = 55 / 55` pairs achieve full rank `8` on both `S(C_0)` and `T_-^{Choi}` (`0` coupling),
-       - `r = 3`: Across ALL `C(11, 3) = 165` triples, **`0 / 165`** couple to `(OPP[0], b_1)`
-         (`rk(T_-^{Choi}|_E) = rk(S(C_0)|_E)` everywhere), while **`21 / 165`** contain pure weight-6 cone stabilizers
-         in `S(C_0)` (`rk < 12`, zero logical loss!),
-       - `r = 4`: Across ALL `C(11, 4) = 330` 4-line subsets, **`56 / 330`** exhibit true logical/inward coupling
-         (`rk(T_-^{Choi}|_E) > rk(S(C_0)|_E)`), witnessed explicitly on lines `[1, 2, 3, 10]` (`15` vs `16`). -/
+    2. **Universal Symbolic `r ≤ 2` Zero Kernel:** ANY operator `w : HcVec48` supported on `≤ 2` lines of
+       `{1..11}` commuting with `S(C_0)` vanishes identically (`∀ p r, w p r % 3 = 0`), covering ALL
+       `C(11, 1) = 11 / 11` and `C(11, 2) = 55 / 55` subsets with zero coupling and zero pure stabilizers.
+    3. **Exact Exhaustive `r = 3` (`165 / 165`) Zero-Loss Theorem:** Across ALL `C(11, 3) = 165` triples
+       in `C_0`, **`0 / 165`** admit any logical/inward coupling (`∀ ls ∈ dhCone0Lines3, ¬ dhHasCoupledOp ls`),
+       while `dhHasPureStab ls ↔ dhIsPureWt6Triple ls = true` everywhere with exact count **`21 / 165`**
+       pure weight-6 cone stabilizers in `S(C_0)`.
+    4. **Exact Exhaustive `r = 4` (`330 / 330`) True Coupling Threshold:** Across ALL `C(11, 4) = 330`
+       4-line subsets in `C_0`, `dhHasCoupledOp ls ↔ dhIsCoupledQuad ls = true` everywhere with exact count
+       **`56 / 330`** coupled subsets, witnessed explicitly on `[1, 2, 3, 10]` (`dhSynRankSC0 = 15`,
+       `dhSynRankChoi = 16`). -/
 theorem dh_b1_single_cone_threshold :
     ((∀ i : Fin 21, dhSC0 i ⟨0, by decide⟩ ⟨3, by decide⟩ = 0 ∧ dhSC0 i ⟨1, by decide⟩ ⟨3, by decide⟩ = 0) ∧
      (∀ i j : Fin 21, hcSymp48 (dhSC0 i) (dhSC0 j) = 0) ∧
      (∀ i : Fin 21, hcInSpan dhBulk23Minus (dhSC0 i)) ∧
      (∀ c : Fin 21 → Fin 3, (∀ p r, hcLinComb c dhSC0 p r = 0) → ∀ i : Fin 21, c i = ⟨0, by decide⟩)) ∧
-    (∀ bs : List (Nat × List Nat), dhEchelonWellFormed bs →
-      ∀ coeffs : List Nat, coeffs.length = bs.length →
-        (∀ k : Nat, (List.zipWith (fun c pr => c * pr.2.getD k 0) coeffs bs).foldl (· + ·) 0 % 3 = 0) →
-        ∀ c ∈ coeffs, c % 3 = 0) ∧
-    (dhCone0Lines1.length = 11 ∧
-     (dhCone0Lines1.filter (fun ls => decide (dhSynRankSC0 ls = 4 && dhSynRankChoi ls = 4))).length = 11) ∧
-    (dhCone0Lines2.length = 55 ∧
-     (dhCone0Lines2.filter (fun ls => decide (dhSynRankSC0 ls = 8 && dhSynRankChoi ls = 8))).length = 55) ∧
+    (∀ ls : List (Fin 12), ls.length ≤ 2 → (⟨0, by decide⟩ : Fin 12) ∉ ls →
+      ∀ w : HcVec48, dhSuppOnLines ls w → (∀ i : Fin 21, hcSymp48 (dhSC0 i) w = 0) →
+        ∀ p r, w p r % 3 = 0) ∧
+    (dhCone0Lines1.length = 11 ∧ ∀ ls ∈ dhCone0Lines1, ¬ dhHasCoupledOp ls ∧ ¬ dhHasPureStab ls) ∧
+    (dhCone0Lines2.length = 55 ∧ ∀ ls ∈ dhCone0Lines2, ¬ dhHasCoupledOp ls ∧ ¬ dhHasPureStab ls) ∧
     (dhCone0Lines3.length = 165 ∧
-     (dhCone0Lines3.filter (fun ls => decide (dhSynRankChoi ls > dhSynRankSC0 ls))).length = 0 ∧
-     (dhCone0Lines3.filter (fun ls => decide (dhSynRankSC0 ls < 12))).length = 21) ∧
+     (∀ ls ∈ dhCone0Lines3, ¬ dhHasCoupledOp ls) ∧
+     (∀ ls ∈ dhCone0Lines3, dhHasPureStab ls ↔ dhIsPureWt6Triple ls = true) ∧
+     (dhCone0Lines3.filter dhIsPureWt6Triple).length = 21) ∧
     (dhCone0Lines4.length = 330 ∧
-     (dhCone0Lines4.filter (fun ls => decide (dhSynRankChoi ls > dhSynRankSC0 ls))).length = 56 ∧
+     (∀ ls ∈ dhCone0Lines4, dhHasCoupledOp ls ↔ dhIsCoupledQuad ls = true) ∧
+     (dhCone0Lines4.filter dhIsCoupledQuad).length = 56 ∧
+     dhHasCoupledOp [⟨1, by decide⟩, ⟨2, by decide⟩, ⟨3, by decide⟩, ⟨10, by decide⟩] ∧
      dhSynRankSC0 [⟨1, by decide⟩, ⟨2, by decide⟩, ⟨3, by decide⟩, ⟨10, by decide⟩] = 15 ∧
      dhSynRankChoi [⟨1, by decide⟩, ⟨2, by decide⟩, ⟨3, by decide⟩, ⟨10, by decide⟩] = 16) := by
-  have hR4Sum : (dhCone0Lines4.filter (fun ls => decide (dhSynRankChoi ls > dhSynRankSC0 ls))).length = 56 := by
-    have hSplit : dhCone0Lines4 = dhCone0Lines4.take 165 ++ dhCone0Lines4.drop 165 := (List.take_append_drop 165 _).symm
-    conv => lhs; rw [hSplit, List.filter_append, List.length_append]
-    rw [dh_cone0_r4_certs_part1.2, dh_cone0_r4_certs_part2.1]
-  exact ⟨dh_sc0_basis_spec, dh_echelon_linIndep,
-    ⟨dh_cone0_r1_r2_certs.1, dh_cone0_r1_r2_certs.2.1⟩,
-    ⟨dh_cone0_r1_r2_certs.2.2.1, dh_cone0_r1_r2_certs.2.2.2⟩,
-    dh_cone0_r3_certs,
-    ⟨dh_cone0_r4_certs_part1.1, hR4Sum, dh_cone0_r4_certs_part2.2.1, dh_cone0_r4_certs_part2.2.2⟩⟩
+  have hZeroImp : ∀ ls : List (Fin 12), ls.length ≤ 2 → (⟨0, by decide⟩ : Fin 12) ∉ ls →
+      ¬ dhHasCoupledOp ls ∧ ¬ dhHasPureStab ls := by
+    intro ls hLen hNot0
+    constructor
+    · intro ⟨w, hSupp, hSC0, ⟨j, hj⟩⟩
+      have hZ := dh_cone0_r1_r2_zero_kernel ls hLen hNot0 w hSupp hSC0
+      have hS0 : hcSymp48 (dhChoiMinus25 j) w = 0 := by
+        rw [dh_symp48_congr_right _ (v' := fun _ _ => 0) (fun p r => hZ p r)]; unfold hcSymp48
+        apply dh_sumFin_zero_mod3; intro r; simp only [Nat.mul_zero, Nat.add_zero, Nat.zero_mod]
+      exact hj hS0
+    · intro ⟨w, hSupp, ⟨c, hc⟩, ⟨p0, r0, hne⟩⟩
+      have hSC0 : ∀ i : Fin 21, hcSymp48 (dhSC0 i) w = 0 := by
+        intro i
+        rw [dh_symp48_congr_right _ (v' := hcLinComb c dhSC0) (fun p r => by rw [hc p r]; unfold hcLinComb; omega), dh_symp48_linComb_right]
+        apply dh_sumFin_zero_mod3; intro j; rw [dh_sc0_basis_spec.2.1 i j, Nat.mul_zero]
+      exact hne (dh_cone0_r1_r2_zero_kernel ls hLen hNot0 w hSupp hSC0 p0 r0)
+  have hR1 : ∀ ls ∈ dhCone0Lines1, ¬ dhHasCoupledOp ls ∧ ¬ dhHasPureStab ls := by
+    intro ls hls
+    have hB := (List.all_eq_true.mp dh_wb3_table_cert.2.2.2.2.2.1) ls hls
+    simp only [Bool.and_eq_true, decide_eq_true_eq] at hB
+    have hNot0 : (⟨0, by decide⟩ : Fin 12) ∉ ls := by
+      intro h0; have hm := (dh_mem12_iff _ _).mpr h0; rw [hm] at hB; exact Bool.noConfusion hB.2
+    exact hZeroImp ls hB.1 hNot0
+  have hR2 : ∀ ls ∈ dhCone0Lines2, ¬ dhHasCoupledOp ls ∧ ¬ dhHasPureStab ls := by
+    intro ls hls
+    have hB := (List.all_eq_true.mp dh_wb3_table_cert.2.2.2.2.2.2) ls hls
+    simp only [Bool.and_eq_true, decide_eq_true_eq] at hB
+    have hNot0 : (⟨0, by decide⟩ : Fin 12) ∉ ls := by
+      intro h0; have hm := (dh_mem12_iff _ _).mpr h0; rw [hm] at hB; exact Bool.noConfusion hB.2
+    exact hZeroImp ls hB.1 hNot0
+  have hRep3All : ∀ rid : Fin 10, ¬ dhHasCoupledOp (dhRep3 rid) ∧
+      (dhHasPureStab (dhRep3 rid) ↔ dhIsWt6Rid rid.val = true) := by
+    intro rid; cases rid with | mk rv hrv =>
+    match rv, hrv with
+    | 0, _ =>
+      have h := dh_fullrank_of_witness ⟨0, by decide⟩ dh_r3_full_dual_cert_a.1
+      exact ⟨h.1, ⟨fun hp => absurd hp h.2, fun hb => by cases hb⟩⟩
+    | 1, _ =>
+      have h := dh_fullrank_of_witness ⟨1, by decide⟩ dh_r3_full_dual_cert_a.2.1
+      exact ⟨h.1, ⟨fun hp => absurd hp h.2, fun hb => by cases hb⟩⟩
+    | 2, _ =>
+      exact ⟨dh_uncoupled_of_witness _ _ dh_r3_wt6_cert.1,
+        ⟨fun _ => rfl, fun _ => dh_pureStab_of_witness ⟨2, by decide⟩ dh_r3_wt6_cert.2.2.2.1⟩⟩
+    | 3, _ =>
+      have h := dh_fullrank_of_witness ⟨3, by decide⟩ dh_r3_full_dual_cert_a.2.2.1
+      exact ⟨h.1, ⟨fun hp => absurd hp h.2, fun hb => by cases hb⟩⟩
+    | 4, _ =>
+      have h := dh_fullrank_of_witness ⟨4, by decide⟩ dh_r3_full_dual_cert_a.2.2.2
+      exact ⟨h.1, ⟨fun hp => absurd hp h.2, fun hb => by cases hb⟩⟩
+    | 5, _ =>
+      have h := dh_fullrank_of_witness ⟨5, by decide⟩ dh_r3_full_dual_cert_b.1
+      exact ⟨h.1, ⟨fun hp => absurd hp h.2, fun hb => by cases hb⟩⟩
+    | 6, _ =>
+      exact ⟨dh_uncoupled_of_witness _ _ dh_r3_wt6_cert.2.1,
+        ⟨fun _ => rfl, fun _ => dh_pureStab_of_witness ⟨6, by decide⟩ dh_r3_wt6_cert.2.2.2.2.1⟩⟩
+    | 7, _ =>
+      have h := dh_fullrank_of_witness ⟨7, by decide⟩ dh_r3_full_dual_cert_b.2.1
+      exact ⟨h.1, ⟨fun hp => absurd hp h.2, fun hb => by cases hb⟩⟩
+    | 8, _ =>
+      have h := dh_fullrank_of_witness ⟨8, by decide⟩ dh_r3_full_dual_cert_b.2.2
+      exact ⟨h.1, ⟨fun hp => absurd hp h.2, fun hb => by cases hb⟩⟩
+    | 9, _ =>
+      exact ⟨dh_uncoupled_of_witness _ _ dh_r3_wt6_cert.2.2.1,
+        ⟨fun _ => rfl, fun _ => dh_pureStab_of_witness ⟨9, by decide⟩ dh_r3_wt6_cert.2.2.2.2.2⟩⟩
+    | _ + 10, h => exact absurd h (by omega)
+  have hRep4All : ∀ rid : Fin 17, dhHasCoupledOp (dhRep4 rid) ↔ dhIsCoupRid rid.val = true := by
+    intro rid; cases rid with | mk rv hrv =>
+    match rv, hrv with
+    | 0, _ => exact ⟨fun hc => absurd hc (dh_uncoupled_of_witness _ _ dh_r4_uncoup_cert_a.1), fun hb => by cases hb⟩
+    | 1, _ => exact ⟨fun hc => absurd hc (dh_uncoupled_of_witness _ _ dh_r4_uncoup_cert_a.2.1), fun hb => by cases hb⟩
+    | 2, _ => exact ⟨fun hc => absurd hc (dh_uncoupled_of_witness _ _ dh_r4_uncoup_cert_a.2.2.1), fun hb => by cases hb⟩
+    | 3, _ => exact ⟨fun _ => rfl, fun _ => dh_coupled_of_witness ⟨3, by decide⟩ dh_r4_coup_cert.1⟩
+    | 4, _ => exact ⟨fun hc => absurd hc (dh_uncoupled_of_witness _ _ dh_r4_uncoup_cert_a.2.2.2.1), fun hb => by cases hb⟩
+    | 5, _ => exact ⟨fun hc => absurd hc (dh_uncoupled_of_witness _ _ dh_r4_uncoup_cert_a.2.2.2.2.1), fun hb => by cases hb⟩
+    | 6, _ => exact ⟨fun hc => absurd hc (dh_uncoupled_of_witness _ _ dh_r4_uncoup_cert_a.2.2.2.2.2), fun hb => by cases hb⟩
+    | 7, _ => exact ⟨fun hc => absurd hc (dh_uncoupled_of_witness _ _ dh_r4_uncoup_cert_b.1), fun hb => by cases hb⟩
+    | 8, _ => exact ⟨fun hc => absurd hc (dh_uncoupled_of_witness _ _ dh_r4_uncoup_cert_b.2.1), fun hb => by cases hb⟩
+    | 9, _ => exact ⟨fun _ => rfl, fun _ => dh_coupled_of_witness ⟨9, by decide⟩ dh_r4_coup_cert.2.1⟩
+    | 10, _ => exact ⟨fun _ => rfl, fun _ => dh_coupled_of_witness ⟨10, by decide⟩ dh_r4_coup_cert.2.2.1⟩
+    | 11, _ => exact ⟨fun _ => rfl, fun _ => dh_coupled_of_witness ⟨11, by decide⟩ dh_r4_coup_cert.2.2.2.1⟩
+    | 12, _ => exact ⟨fun hc => absurd hc (dh_uncoupled_of_witness _ _ dh_r4_uncoup_cert_b.2.2.1), fun hb => by cases hb⟩
+    | 13, _ => exact ⟨fun hc => absurd hc (dh_uncoupled_of_witness _ _ dh_r4_uncoup_cert_b.2.2.2.1), fun hb => by cases hb⟩
+    | 14, _ => exact ⟨fun hc => absurd hc (dh_uncoupled_of_witness _ _ dh_r4_uncoup_cert_b.2.2.2.2.1), fun hb => by cases hb⟩
+    | 15, _ => exact ⟨fun _ => rfl, fun _ => dh_coupled_of_witness ⟨15, by decide⟩ dh_r4_coup_cert.2.2.2.2⟩
+    | 16, _ => exact ⟨fun hc => absurd hc (dh_uncoupled_of_witness _ _ dh_r4_uncoup_cert_b.2.2.2.2.2), fun hb => by cases hb⟩
+    | _ + 17, h => exact absurd h (by omega)
+  have hNd3 : dhCone0Lines3.Nodup := dh_strictlySorted_nodup _ dh_wit3_orbit_cert.2.2.1
+  have hNd4 : dhCone0Lines4.Nodup := dh_strictlySorted_nodup _ dh_wit4_orbit_cert.2.2.1
+  have hR3All : ∀ ls ∈ dhCone0Lines3, ¬ dhHasCoupledOp ls ∧ (dhHasPureStab ls ↔ dhIsPureWt6Triple ls = true) := by
+    intro ls hls
+    have hChk := dh_assocCode_spec dhOrbitCheck3 dhCone0Lines3 dhWit3Packed hNd3 dh_wit3_orbit_cert.2.2.2.1 ls hls
+    let packed := dhAssocCode dhCone0Lines3 dhWit3Packed ls
+    have hChk' : dhOrbitCheck3 ls packed = true := hChk
+    unfold dhOrbitCheck3 at hChk'
+    by_cases hr : packed / 48 < 10
+    · rw [dh_dite_pos hr] at hChk'
+      by_cases hg : packed % 48 < 48
+      · rw [dh_dite_pos hg] at hChk'
+        let rid : Fin 10 := ⟨packed / 48, hr⟩
+        let g : Fin 48 := ⟨packed % 48, hg⟩
+        have hMap : ∀ l : Fin 12, (l ∈ ls) ↔ (dhWordLinePerm (dhWB3Word g) l ∈ dhRep3 rid) := by
+          intro l
+          have hL := of_decide_eq_true ((List.all_eq_true.mp hChk') l (List.mem_finRange l))
+          rw [← dh_mem12_iff, ← dh_mem12_iff, ← (dh_wb3_table_cert.1 g).2 l, hL]
+        have hEq := dh_wb3_orbit_equiv (dhWB3Word g) (dh_wb3_table_cert.1 g).1 ls (dhRep3 rid) hMap
+        have hR := hRep3All rid
+        exact ⟨fun hc => hR.1 (hEq.1.mp hc), hEq.2.trans hR.2⟩
+      · rw [dh_dite_neg hg] at hChk'; exact Bool.noConfusion hChk'
+    · rw [dh_dite_neg hr] at hChk'; exact Bool.noConfusion hChk'
+  have hR4All : ∀ ls ∈ dhCone0Lines4, dhHasCoupledOp ls ↔ dhIsCoupledQuad ls = true := by
+    intro ls hls
+    have hChk := dh_assocCode_spec dhOrbitCheck4 dhCone0Lines4 dhWit4Packed hNd4 dh_wit4_orbit_cert.2.2.2.1 ls hls
+    let packed := dhAssocCode dhCone0Lines4 dhWit4Packed ls
+    have hChk' : dhOrbitCheck4 ls packed = true := hChk
+    unfold dhOrbitCheck4 at hChk'
+    by_cases hr : packed / 48 < 17
+    · rw [dh_dite_pos hr] at hChk'
+      by_cases hg : packed % 48 < 48
+      · rw [dh_dite_pos hg] at hChk'
+        let rid : Fin 17 := ⟨packed / 48, hr⟩
+        let g : Fin 48 := ⟨packed % 48, hg⟩
+        have hMap : ∀ l : Fin 12, (l ∈ ls) ↔ (dhWordLinePerm (dhWB3Word g) l ∈ dhRep4 rid) := by
+          intro l
+          have hL := of_decide_eq_true ((List.all_eq_true.mp hChk') l (List.mem_finRange l))
+          rw [← dh_mem12_iff, ← dh_mem12_iff, ← (dh_wb3_table_cert.1 g).2 l, hL]
+        have hEq := dh_wb3_orbit_equiv (dhWB3Word g) (dh_wb3_table_cert.1 g).1 ls (dhRep4 rid) hMap
+        exact hEq.1.trans (hRep4All rid)
+      · rw [dh_dite_neg hg] at hChk'; exact Bool.noConfusion hChk'
+    · rw [dh_dite_neg hr] at hChk'; exact Bool.noConfusion hChk'
+  have hCnt3 : (dhCone0Lines3.filter dhIsPureWt6Triple).length = 21 := by
+    change (dhCone0Lines3.filter (fun ls => dhIsWt6Rid (dhAssocCode dhCone0Lines3 dhWit3Packed ls / 48))).length = 21
+    rw [dh_assocCode_filter_len (fun c => dhIsWt6Rid (c / 48)) dhCone0Lines3 dhWit3Packed hNd3
+          (by rw [dh_wit3_orbit_cert.1, dh_wit3_orbit_cert.2.1])]
+    exact dh_wit3_orbit_cert.2.2.2.2
+  have hCnt4 : (dhCone0Lines4.filter dhIsCoupledQuad).length = 56 := by
+    change (dhCone0Lines4.filter (fun ls => dhIsCoupRid (dhAssocCode dhCone0Lines4 dhWit4Packed ls / 48))).length = 56
+    rw [dh_assocCode_filter_len (fun c => dhIsCoupRid (c / 48)) dhCone0Lines4 dhWit4Packed hNd4
+          (by rw [dh_wit4_orbit_cert.1, dh_wit4_orbit_cert.2.1])]
+    exact dh_wit4_orbit_cert.2.2.2.2
+  exact ⟨dh_sc0_basis_spec, dh_cone0_r1_r2_zero_kernel,
+    ⟨dh_wb3_table_cert.2.2.2.1, hR1⟩,
+    ⟨dh_wb3_table_cert.2.2.2.2.1, hR2⟩,
+    ⟨dh_wit3_orbit_cert.1, fun ls hls => (hR3All ls hls).1, fun ls hls => (hR3All ls hls).2, hCnt3⟩,
+    ⟨dh_wit4_orbit_cert.1, hR4All, hCnt4,
+     dh_coupled_of_witness ⟨3, by decide⟩ dh_r4_coup_cert.1,
+     dh_r4_witness_12310_cert.1, dh_r4_witness_12310_cert.2⟩⟩
 
 
 /-! ## Section 9: W10 `D = 0` Cusp Gauss Law Uniqueness & `D ≥ 1` Downward Clique Invariance -/
@@ -4474,7 +5823,7 @@ theorem dh_cusp_d0_gauss_law_and_dge1_cliques :
     intro v hPerp hSupp
     -- 1. Show v_X(0) % 3 = 0 by pairing with dhCuspZ0Probe = hcBulk23 7 + hcBulk23 8!
     have hProbe0 : hcSymp48 dhCuspZ0Probe v = 0 := by
-      unfold dhCuspZ0Probe; rw [dh_symp48_add_left, hPerp ⟨7, by decide⟩, hPerp ⟨8, by decide⟩]; rfl
+      unfold dhCuspZ0Probe; rw [dh_symp48_add_left, hPerp ⟨7, by decide⟩, hPerp ⟨8, by decide⟩]
     have hVX0 : v ⟨0, by decide⟩ ⟨0, by decide⟩ % 3 = 0 := by
       unfold hcSymp48 at hProbe0
       have hTerm : ∀ r : Fin 24,
@@ -4592,7 +5941,7 @@ theorem dh_b1_stabilizer_code_contraction_invariants :
     (24 * 23 = 552 ∧ 24 * 21 = 504 ∧ 527 - 504 = 23 ∧ 24 * 3 = 72 ∧ 72 * 2 = 144) := by
   have hIso : ∀ i j : Fin 23, hcSymp48 (dhBulk23Minus i) (dhBulk23Minus j) = 0 := by
     intro i j; unfold dhBulk23Minus
-    rw [dh_applyK48_props.2.1, thm_hc_code_24_1_8_stabilizer_valid.1 i j]; rfl
+    rw [dh_applyK48_props.2.1, thm_hc_code_24_1_8_stabilizer_valid.1 i j]
   have hRank : ∀ c : Fin 23 → Fin 3, (∀ p r, hcLinComb c dhBulk23Minus p r = 0) → ∀ i : Fin 23, c i = ⟨0, by decide⟩ := by
     intro c hZ
     have hPlus : ∀ p r, hcLinComb c hcBulk23 p r = 0 := by
@@ -4615,7 +5964,7 @@ theorem dh_b1_stabilizer_code_contraction_invariants :
           rw [h4]; omega
         | _ + 2, h => exact absurd h (by omega)
       rw [← hK]
-      cases p with | mk pv hpv => match pv, hpv with | 0, _ | 1, _ => simp only [dhApplyK48]; rw [hZ]; rfl | _ + 2, h => exact absurd h (by omega)
+      cases p with | mk pv hpv => match pv, hpv with | 0, _ | 1, _ => simp only [dhApplyK48]; rw [hZ] | _ + 2, h => exact absurd h (by omega)
     exact thm_hc_code_24_1_8_stabilizer_valid.2.1 c hPlus
   refine ⟨hIso, hRank, dh_bulk23Minus_distances.1, dh_bulk23Minus_distances.2,
     dh_actWordOdd_preserves_bulk23Minus, dh_b1_gluing_and_transitivity_certs.1,

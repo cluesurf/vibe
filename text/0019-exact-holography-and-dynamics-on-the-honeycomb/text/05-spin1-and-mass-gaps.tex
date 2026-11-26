@@ -161,41 +161,41 @@ not address the continuum Clay Yang--Mills limit $\beta \to \infty$ \cite{jaffe2
 \begin{tikzpicture}[font=\footnotesize]
 % Left panel: SU(2)
 \begin{scope}[shift={(0,0)}]
-  \node[font=\footnotesize\bfseries, color=twZincInk] at (2.25,2.68) {$SU(2)$ on 4D $D_4$ ($\beta_{\mathrm{BE}}^{24c} = 0.094491$)};
-  \draw[line width=0.5pt, draw=twZincRule] (0,0) -- (4.55,0);
+  \node[font=\footnotesize\bfseries, color=twZincInk] at (2.05,2.95) {$SU(2)$ on 4D $D_4$ ($\beta_{\mathrm{BE}}^{24c} = 0.094491$)};
+  \draw[line width=0.5pt, draw=twZincRule] (0,0) -- (4.10,0);
   \draw[line width=0.5pt, draw=twZincRule] (0,0) -- (0,2.35);
-  % Reference line at 3x BE = 0.283473 (scale: x = beta * 13.8)
-  \draw[densely dashed, line width=0.65pt, draw=twPink] (3.912,0) -- (3.912,2.35);
-  \node[above, font=\scriptsize, color=twPink] at (3.912,2.32) {$3\times\mathrm{BE}$};
+  % Reference line at 3x BE = 0.283473 (scale: x = beta * 10.2)
+  \draw[densely dashed, line width=0.65pt, draw=twPink] (2.891,0) -- (2.891,2.38);
+  \node[above, font=\scriptsize, color=twPink] at (2.891,2.38) {$3\times\mathrm{BE}$};
   \foreach \y/\val/\lbl/\col/\tag in {
     1.94/0.009335/KP polymer/twZinc/0.0093,
     1.50/0.094491/BE baseline/twZincInk/0.0945,
-    1.06/0.237543/1D-axial $W_1$/twBlue/0.2375,
-    0.62/0.277274/2-link wedge/twViolet/0.2773,
-    0.18/0.285141/3-link triangle/twEmerald/0.2851\,(3.02\times)
+    1.06/0.237543/Axial $W_1$/twBlue/0.2375,
+    0.62/0.277274/2-wedge/twViolet/0.2773,
+    0.18/0.285141/3-triangle/twEmerald/0.2851\,(3.02\times)
   }{
-    \fill[\col] (0,\y) rectangle (\val*13.8,\y+0.28);
+    \fill[\col] (0,\y) rectangle (\val*10.2,\y+0.28);
     \node[left, font=\scriptsize, color=twZincInk] at (-0.06,\y+0.14) {\lbl};
-    \node[right, font=\scriptsize, color=\col] at (\val*13.8+0.06,\y+0.14) {$\tag$};
+    \node[right, font=\scriptsize, color=\col] at (\val*10.2+0.06,\y+0.14) {$\tag$};
   }
 \end{scope}
 
 % Right panel: SU(3)
-\begin{scope}[shift={(7.85,0)}]
-  \node[font=\footnotesize\bfseries, color=twZincInk] at (2.25,2.68) {$SU(3)$ on 4D $D_4$ ($\beta_{\mathrm{BE}}^{24c} = 0.212605$)};
-  \draw[line width=0.5pt, draw=twZincRule] (0,0) -- (4.55,0);
+\begin{scope}[shift={(7.75,0)}]
+  \node[font=\footnotesize\bfseries, color=twZincInk] at (2.05,2.95) {$SU(3)$ on 4D $D_4$ ($\beta_{\mathrm{BE}}^{24c} = 0.212605$)};
+  \draw[line width=0.5pt, draw=twZincRule] (0,0) -- (4.10,0);
   \draw[line width=0.5pt, draw=twZincRule] (0,0) -- (0,2.35);
-  % Scale x = beta * 6.95
+  % Scale x = beta * 5.2
   \foreach \y/\val/\lbl/\col/\tag in {
     1.94/0.009328/KP polymer/twZinc/0.0093,
     1.50/0.212605/BE baseline/twZincInk/0.2126,
-    1.06/0.337971/1D-axial $W_1$/twBlue/0.3380,
+    1.06/0.337971/Axial $W_1$/twBlue/0.3380,
     0.62/0.546000/$K{=}2$ wedge/twViolet/0.5460,
-    0.18/0.563019/3-link triangle/twEmerald/0.5630\,(2.65\times)
+    0.18/0.563019/3-triangle/twEmerald/0.5630\,(2.65\times)
   }{
-    \fill[\col] (0,\y) rectangle (\val*6.95,\y+0.28);
+    \fill[\col] (0,\y) rectangle (\val*5.2,\y+0.28);
     \node[left, font=\scriptsize, color=twZincInk] at (-0.06,\y+0.14) {\lbl};
-    \node[right, font=\scriptsize, color=\col] at (\val*6.95+0.06,\y+0.14) {$\tag$};
+    \node[right, font=\scriptsize, color=\col] at (\val*5.2+0.06,\y+0.14) {$\tag$};
   }
 \end{scope}
 \end{tikzpicture}
@@ -211,17 +211,17 @@ three-link triangle Dobrushin bounds ($30.55\times$ KP for $SU(2)$ and $60.36\ti
 $m(\beta) > 0$ (Tier~C, outward-floored, preserving exact $x_0 = 0$ reflection positivity).}
 \label{tab:d4-mass-gaps}
 \footnotesize
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{4.05cm}>{\centering\arraybackslash}p{1.25cm}>{\centering\arraybackslash}p{1.95cm}>{\centering\arraybackslash}p{1.25cm}>{\centering\arraybackslash}p{1.95cm}>{\raggedright\arraybackslash}X@{}}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.50cm}>{\centering\arraybackslash}p{1.42cm}>{\centering\arraybackslash}p{1.68cm}>{\centering\arraybackslash}p{1.42cm}>{\centering\arraybackslash}p{1.68cm}>{\raggedright\arraybackslash}X@{}}
 \toprule
-Method / block cover & $SU(2)$ $\beta_*$ & vs.\ BE / KP & $SU(3)$ $\beta_*$ & vs.\ BE / KP & Certified gap sample \\
+Method / block cover & $SU(2)$ $\beta_*$ & BE / KP ($\times$) & $SU(3)$ $\beta_*$ & BE / KP ($\times$) & Certified gap sample \\
 \midrule
-Koteck\'y--Preiss polymer (KP) & $0.009335$ & $0.10\times / 1.0\times$ & $0.009328$ & $0.04\times / 1.0\times$ & $m_{\mathrm{KP}} \in [0.15, 2.24]$ \\
-Bakry--\'Emery baseline (BE) & $0.094491$ & $1.00\times / 10.1\times$ & $0.212605$ & $1.00\times / 22.8\times$ & $m(0.094) = 0.3415$ \\
-1D-axial Wasserstein-1 (Lean) & $0.237543$ & $2.51\times / 25.4\times$ & $0.337971$ & $1.59\times / 36.2\times$ & $m_{SU(2)}(0.20) = 0.6363$ \\
-Single-link / 2-link wedge & $0.277274$ & $2.93\times / 29.7\times$ & $0.546000$ & $2.57\times / 58.5\times$ & Breaks single-link ceil. \\
-All-pair 2-wedge (4-dir alt.) & $0.280382$ & $2.97\times / 30.0\times$ & $0.555190$ & $2.61\times / 59.5\times$ & $m_{SU(3)}(0.554) \ge 0.0693$ \\
-3-link triangle (1D-axial) & $0.284888$ & $3.01\times / 30.5\times$ & $0.562504$ & $2.65\times / 60.3\times$ & $m_{SU(2)}(0.2835) \ge 0.0217$ \\
-\textbf{3-link triangle (4-dir alt.)} & $\mathbf{0.285141}$ & $\mathbf{3.02\times / 30.55\times}$ & $\mathbf{0.563019}$ & $\mathbf{2.65\times / 60.36\times}$ & $m_{SU(2)} \ge 0.0256$, $m_{SU(3)} \ge 0.1305$ \\
+Koteck\'y--Preiss polymer (KP) & $0.009335$ & $0.10 / 1.0$ & $0.009328$ & $0.04 / 1.0$ & $m_{\mathrm{KP}} \in [0.15, 2.24]$ \\
+Bakry--\'Emery baseline (BE) & $0.094491$ & $1.00 / 10.1$ & $0.212605$ & $1.00 / 22.8$ & $m(0.094) = 0.3415$ \\
+1D-axial Wasserstein-1 (Lean) & $0.237543$ & $2.51 / 25.4$ & $0.337971$ & $1.59 / 36.2$ & $m_{SU(2)}(0.20) = 0.6363$ \\
+Single-link / 2-link wedge & $0.277274$ & $2.93 / 29.7$ & $0.546000$ & $2.57 / 58.5$ & Breaks single-link ceil. \\
+All-pair 2-wedge (4-dir alt.) & $0.280382$ & $2.97 / 30.0$ & $0.555190$ & $2.61 / 59.5$ & $m_{SU(3)}(0.554) \ge 0.0693$ \\
+3-link triangle (1D-axial) & $0.284888$ & $3.01 / 30.5$ & $0.562504$ & $2.65 / 60.3$ & $m_{SU(2)}(0.2835) \ge 0.0217$ \\
+\textbf{3-link triangle (4-dir alt.)} & $\mathbf{0.285141}$ & $\mathbf{3.02 / 30.55}$ & $\mathbf{0.563019}$ & $\mathbf{2.65 / 60.36}$ & $m_{SU(2)} \ge 0.0256$, $m_{SU(3)} \ge 0.1305$ \\
 \bottomrule
 \end{tabularx}
 \end{table}
