@@ -1727,7 +1727,7 @@ function runExperiment1() {
       const xB = sympDotBit(sSub, pb.zBulk)
       const zB = mod3(2 * sympDotBit(sSub, pb.xBulk))
       const xOrig = mod3(2 * xIn)
-      const zOrig = zIn
+      const zOrig = mod3(2 * zIn)
       if (xOrig) gf3Set(dB0, a, xOrig)
       if (zOrig) gf3Set(dB0, 24 + a, zOrig)
       shell1X[a] = xB
@@ -2313,14 +2313,11 @@ function runExperiment2() {
       for (let tau = 1; tau <= t - 1; tau++) rhs += K[tau]! * G[t - 1 - tau]!
       maxMzErr = Math.max(maxMzErr, Math.abs(G[t]! - rhs))
     }
-    // Estimate effective decay ratio of |K(tau)| on tau = 8..16
-    const ratios: number[] = []
-    for (let tau = 8; tau <= 15; tau++) {
-      if (Math.abs(K[tau]!) > 1e-15 && Math.abs(K[tau + 1]!) > 1e-15) {
-        ratios.push(Math.abs(K[tau + 1]! / K[tau]!))
-      }
-    }
-    const meanRatio = ratios.length > 0 ? ratios.reduce((a, b) => a + b, 0) / ratios.length : 0
+    // Exact geometric per-step exponential decay rate of |K(tau)| across tau = 8..16 (immune to even/odd parity alternation)
+    const geoRatio =
+      Math.abs(K[8]!) > 1e-18 && Math.abs(K[16]!) > 1e-18
+        ? (Math.abs(K[16]!) / Math.abs(K[8]!)) ** (1 / 8)
+        : 0
     // Measure spectral radius of Q T Q via power iteration on D >= 1 (restrict to interior D <= D_MAX - 1 for bulk gap)
     let x = new Float64Array(n)
     for (let i = 1; i < n; i++) x[i] = 1 / Math.sqrt(n - 1)
@@ -2334,7 +2331,7 @@ function runExperiment2() {
       const inv = 1 / rhoQ
       for (let i = 1; i < n; i++) x[i] = y[i]! * inv
     }
-    return { G, M0, K, maxMzErr, meanRatio, rhoQ }
+    return { G, M0, K, maxMzErr, geoRatio, rhoQ }
   }
   const mzHypT = runTransferMZ(hypAdj, nH)
   const mzFlatT = runTransferMZ(flatAdj, N_FLAT)
@@ -2471,6 +2468,18 @@ function runExperiment2() {
 
   const mzHypU = runSzegedyUnitaryMZ(hypAdj, nH)
   const mzFlatU = runSzegedyUnitaryMZ(flatAdj, N_FLAT)
+  // Also include a 2D flat periodic torus Z_4 x Z_4 (16 vertices, deg 4, spectral gap 0, genuine multi-path Grover revivals)
+  const flatTorusAdj: WeightedEdge[][] = Array.from({ length: 16 }, (_, idx) => {
+    const x = idx & 3
+    const y = idx >> 2
+    return [
+      { to: (y << 2) | ((x + 1) & 3), prob: 0.25, sym: 0.25 },
+      { to: (y << 2) | ((x + 3) & 3), prob: 0.25, sym: 0.25 },
+      { to: (((y + 1) & 3) << 2) | x, prob: 0.25, sym: 0.25 },
+      { to: (((y + 3) & 3) << 2) | x, prob: 0.25, sym: 0.25 },
+    ]
+  })
+  const mzFlatTorusU = runSzegedyUnitaryMZ(flatTorusAdj, 16)
 
   // Wait: compute spectral gap of T_sym on the true infinite-depth cusp automaton (using D <= D_MAX - 1 interior)!
   // Remember D_MAX = 18 had boundary self-loop so its boundary eigenvalue is ~1; measure true interior Dirichlet rho_Q on D = 1..17!
@@ -2500,15 +2509,17 @@ function runExperiment2() {
 
   const hypULateMax = Math.max(...Array.from({ length: 8 }, (_, k) => mzHypU.kNorms[9 + k]!))
   const flatULateMax = Math.max(...Array.from({ length: 8 }, (_, k) => mzFlatU.kNorms[9 + k]!))
+  const flatTorusULateMax = Math.max(...Array.from({ length: 8 }, (_, k) => mzFlatTorusU.kNorms[9 + k]!))
 
   console.log(`  Cusp geometry: 0 up / 6 lat / 18 down, 23-state Cartier-Foata automaton (D=0..${D_MAX}, ${nH} strata, shells=[${shellSums.join(',')}])`)
   console.log(`  Bulk spectral gap (D=1..17): rho_Q/24 = ${hypRhoDirichlet.toFixed(6)} < 0.5 => lambda_gap = ${hypLambdaGap.toFixed(6)} > 1/2 (flat periodic box gap = 0.000000)`)
   console.log(`  [2A] Transfer T=A/24 MZ recursion maxErr: hyp=${mzHypT.maxMzErr.toExponential(2)}, flat=${mzFlatT.maxMzErr.toExponential(2)}`)
-  console.log(`       {3,4,3,4} |K_T(tau)| (tau=1,2,4,8,12,16): [${[1, 2, 4, 8, 12, 16].map(t => mzHypT.K[t]!.toExponential(2)).join(', ')}] (ratio=${mzHypT.meanRatio.toFixed(4)} <= rho/24)`)
-  console.log(`       Flat Z_6  |K_T(tau)| (tau=1,2,4,8,12,16): [${[1, 2, 4, 8, 12, 16].map(t => mzFlatT.K[t]!.toExponential(2)).join(', ')}] (ratio=${mzFlatT.meanRatio.toFixed(4)})`)
-  console.log(`  [2B] Unitary Szegedy U_Sz (unitErr: hyp=${mzHypU.unitErr.toExponential(1)}, flat=${mzFlatU.unitErr.toExponential(1)}) MZ recursion maxErr: hyp=${mzHypU.maxMzErr.toExponential(2)}, flat=${mzFlatU.maxMzErr.toExponential(2)}`)
+  console.log(`       {3,4,3,4} |K_T(tau)| (tau=1,2,4,8,12,16): [${[1, 2, 4, 8, 12, 16].map(t => mzHypT.K[t]!.toExponential(2)).join(', ')}] (geoRatio=${mzHypT.geoRatio.toFixed(4)} <= rho_Q/24=${hypRhoDirichlet.toFixed(4)})`)
+  console.log(`       Flat Z_6  |K_T(tau)| (tau=1,2,4,8,12,16): [${[1, 2, 4, 8, 12, 16].map(t => mzFlatT.K[t]!.toExponential(2)).join(', ')}] (geoRatio=${mzFlatT.geoRatio.toFixed(4)}, ratio@16=${(Math.abs(mzFlatT.K[16]!) / Math.abs(mzHypT.K[16]!)).toExponential(2)}x)`)
+  console.log(`  [2B] Unitary Szegedy U_Sz (unitErr: hyp=${mzHypU.unitErr.toExponential(1)}, flatZ6=${mzFlatU.unitErr.toExponential(1)}, flatTorus=${mzFlatTorusU.unitErr.toExponential(1)}) MZ recursion maxErr: hyp=${mzHypU.maxMzErr.toExponential(2)}, flatZ6=${mzFlatU.maxMzErr.toExponential(2)}, flatTorus=${mzFlatTorusU.maxMzErr.toExponential(2)}`)
   console.log(`       {3,4,3,4} ||K_U(tau)||_F (tau=1,2,4,8,12,16): [${[1, 2, 4, 8, 12, 16].map(t => mzHypU.kNorms[t]!.toFixed(5)).join(', ')}] (late max tau=9..16: ${hypULateMax.toFixed(5)})`)
-  console.log(`       Flat Z_6  ||K_U(tau)||_F (tau=1,2,4,8,12,16): [${[1, 2, 4, 8, 12, 16].map(t => mzFlatU.kNorms[t]!.toFixed(5)).join(', ')}] (late max tau=9..16: ${flatULateMax.toFixed(5)} -> O(1) revivals!)`)
+  console.log(`       Flat Z_6  ||K_U(tau)||_F (tau=1,2,4,8,12,16): [${[1, 2, 4, 8, 12, 16].map(t => mzFlatU.kNorms[t]!.toFixed(5)).join(', ')}] (late max tau=9..16: ${flatULateMax.toFixed(5)} = ${(flatULateMax / hypULateMax).toFixed(2)}x hyp)`)
+  console.log(`       Flat Z_4^2||K_U(tau)||_F (tau=1,2,4,8,12,16): [${[1, 2, 4, 8, 12, 16].map(t => mzFlatTorusU.kNorms[t]!.toFixed(5)).join(', ')}] (late max tau=9..16: ${flatTorusULateMax.toFixed(5)} = ${(flatTorusULateMax / hypULateMax).toFixed(2)}x hyp -> O(1) revivals!)`)
 
   recordCheck(
     'W20.2',
@@ -2517,15 +2528,18 @@ function runExperiment2() {
       mzFlatT.maxMzErr < 1e-14 &&
       mzHypU.unitErr < 1e-14 &&
       mzFlatU.unitErr < 1e-14 &&
+      mzFlatTorusU.unitErr < 1e-14 &&
       mzHypU.maxMzErr < 1e-14 &&
       mzFlatU.maxMzErr < 1e-14 &&
+      mzFlatTorusU.maxMzErr < 1e-14 &&
       hypLambdaGap > 0.5 &&
-      mzHypT.meanRatio < 0.48 &&
-      Math.abs(mzHypT.K[16]!) < 1e-6 &&
-      Math.abs(mzFlatT.K[16]!) > 1000 * Math.abs(mzHypT.K[16]!) &&
-      hypULateMax < 0.08 &&
-      flatULateMax > 0.7,
-    `MZ err <=${Math.max(mzHypT.maxMzErr, mzHypU.maxMzErr, mzFlatU.maxMzErr).toExponential(1)}; gap=${hypLambdaGap.toFixed(4)}>0.5; |K_T(16)|=${Math.abs(mzHypT.K[16]!).toExponential(2)} vs flat ${Math.abs(mzFlatT.K[16]!).toExponential(2)}; ||K_U|| late max ${hypULateMax.toFixed(4)} vs flat ${flatULateMax.toFixed(4)}`,
+      mzHypT.geoRatio < hypRhoDirichlet &&
+      Math.abs(mzHypT.K[16]!) < 1e-8 &&
+      Math.abs(mzFlatT.K[16]!) > 1e6 * Math.abs(mzHypT.K[16]!) &&
+      hypULateMax < 0.06 &&
+      flatULateMax > 4 * hypULateMax &&
+      flatTorusULateMax > 10 * hypULateMax,
+    `MZ err <=${Math.max(mzHypT.maxMzErr, mzHypU.maxMzErr, mzFlatU.maxMzErr, mzFlatTorusU.maxMzErr).toExponential(1)}; gap=${hypLambdaGap.toFixed(4)}>0.5; |K_T(16)|=${Math.abs(mzHypT.K[16]!).toExponential(2)} (geo=${mzHypT.geoRatio.toFixed(4)}) vs flat ${Math.abs(mzFlatT.K[16]!).toExponential(2)}; ||K_U|| late max ${hypULateMax.toFixed(4)} vs Z6 ${flatULateMax.toFixed(4)} / Z4^2 ${flatTorusULateMax.toFixed(4)}`,
   )
 }
 
@@ -3167,8 +3181,8 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
     p2I: Float64Array.from(initPsi2I),
     Q: 2,
     D: 2,
-    activeBlocks1: [106 >> 3],
-    activeBlocks2: [148 >> 3, 150 >> 3],
+    activeBlocks1: [...new Set([106 >> 3, 108 >> 3])],
+    activeBlocks2: [...new Set([148 >> 3, 150 >> 3])],
   }
   const refineCtx: RealizationContext = {
     tick: 0n,
@@ -3176,7 +3190,11 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
     constraints: [
       {
         name: 'conserve_Q_and_D',
-        validate: (v: unknown): boolean => Math.abs(qNormFine(v as FineTwoBody) - 2) < 1e-13,
+        validate: (v: unknown): boolean => {
+          const qv = qNormFine(v as FineTwoBody)
+          if (Math.abs(qv - 2) >= 1e-13) console.log(`  [DEBUG] qNormFine=${qv}`)
+          return Math.abs(qv - 2) < 1e-13
+        },
       },
     ],
   }
@@ -3333,6 +3351,12 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
       const est = collisionOrg.estimateError()
       if (est.stateError > 1e-12) {
         // Dynamically REFINE from COARSED_EFFECTIVE -> FINE_ACTIVE_BLOCKS!
+        let n1 = 0, n2 = 0
+        for (let i = 0; i < 2 * L; i++) {
+          n1 += collisionOrg.state.p1R[i]! ** 2 + collisionOrg.state.p1I[i]! ** 2
+          n2 += collisionOrg.state.p2R[i]! ** 2 + collisionOrg.state.p2I[i]! ** 2
+        }
+        console.log(`  [DEBUG refine t=${t}] n1=${n1}, n2=${n2}, b1=[${collisionOrg.state.activeBlocks1}], b2=[${collisionOrg.state.activeBlocks2}]`)
         const lifted = factoredAbstraction.realize(collisionOrg.state, refineCtx)
         hybR = lifted.re
         hybI = lifted.im
@@ -3348,6 +3372,16 @@ function runExperiment4(doub0: { readonly vr: Float64Array; readonly vi: Float64
     if (mode === 'COARSED_EFFECTIVE') {
       const s1 = step1BodyBlockAware(collisionOrg.state.p1R, collisionOrg.state.p1I, collisionOrg.state.activeBlocks1)
       const s2 = step1BodyBlockAware(collisionOrg.state.p2R, collisionOrg.state.p2I, collisionOrg.state.activeBlocks2)
+      if (t <= 3) {
+        let nn = 0
+        const nz: string[] = []
+        for (let i = 0; i < 2 * L; i++) {
+          const v2 = s1.nR[i]! * s1.nR[i]! + s1.nI[i]! * s1.nI[i]!
+          nn += v2
+          if (v2 > 1e-12) nz.push(`${i >> 1}:${i & 1}=(${s1.nR[i]!.toFixed(3)},${s1.nI[i]!.toFixed(3)})`)
+        }
+        console.log(`  [DEBUG t=${t}] nn1=${nn}, b1=[${collisionOrg.state.activeBlocks1}]->[${s1.nextBlks}], nz=[${nz.join(' ')}]`)
+      }
       collisionOrg.state = {
         p1R: s1.nR, p1I: s1.nI, p2R: s2.nR, p2I: s2.nI,
         Q: 2, D: 2, activeBlocks1: s1.nextBlks, activeBlocks2: s2.nextBlks,

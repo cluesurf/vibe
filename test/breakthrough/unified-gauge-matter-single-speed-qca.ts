@@ -18,8 +18,9 @@
 //           [U_QED, V_v] = 0 < 1e-14 at every vertex and beat, live dynamical flux exchange.
 //   - P1.3: Live 3D {4,3,4} cusp (24^3 = 13,824 sites) dynamical 1D-string-to-3D-Coulomb radiation
 //           with ZERO hard-coded 1/r potential (exact 1/(4 pi r) static field emergence + exact Gauss
-//           law + T = 20 reversal < 1e-14) and live 3D (12^3) two-wavepacket Coulomb scattering
-//           (attractive opposite-charge vs repulsive like-charge vs zero-deflection g = 0 control).
+//           law + T = 20 reversal < 1e-14) and live 3D (12^3) symmetric massive Dirac two-wavepacket
+//           Coulomb scattering (symmetric 3D Poisson init, zero-drift rest spinor, parity-exact
+//           dx1 + dx2 = 0 attraction/repulsion, Gauss law & T = 20 reversal on all runs).
 //
 // PART 2: Dynamical Chiral 2T < SU(2)_L Weak Gauge Bosons on the {3,4,3,4} Cusp Domain Wall
 //   - P2.1: Exact order-24 binary tetrahedral Hurwitz group 2T = <i, j, (-1+i+j+k)/2> < SU(2),
@@ -27,14 +28,16 @@
 //           in SU(2) matching every Haar polynomial integral up to degree 5 with 0n defect (and exact
 //           first deviation 1/64 at degree 6), 24-cell Laplacian spectrum {0, 1/2, 1, 5/4, 3/2}, and
 //           exact 3-boson (W^+, W^-, W^3) Lie algebra [T^a, T^b] = i eps^{abc} T^c & Casimir {0, 3/4, 2}.
-//   - P2.2: Exact non-Abelian discrete Gauss law [U_weak, G_v^a] = 0 (a = 1,2,3) to < 1e-14 on the
-//           2T-projected SU(2)_L Quantum Link + chiral fermion 3-vertex D_4 triangle (dim = 1,500)
-//           AND exact discrete 2T Gauss law [U_weak^(2T), V_v(h)] = 0 for all 24 Hurwitz units h in 2T
-//           on a 2-link non-Abelian 2T plaquette (dim = 2,304), plus dynamical W^1, W^2 <-> W^3 mixing.
+//   - P2.2: Exact full-operator non-Abelian Gauss law [U_weak, G_v^a] = 0 (all 1,500/1,500 states) on the
+//           2T-projected SU(2)_L Quantum Link + chiral fermion 3-vertex D_4 triangle (with free kinetic P_R
+//           singlet!) AND exact discrete 2T Gauss law [U_weak^(2T), V_v(h)] = 0 (192/192 checks) on the
+//           full 24-element Hurwitz 2-link plaquette (dim = 2,304) + exclusive antisymmetric pure-U_B
+//           3-boson Yang-Mills fusion vertex (W^1, W^2) -> (W^3, vac) vs exact zero symmetric controls.
 //   - P2.3: Live 3+1D strictly finite-range Z[zeta_9][1/2] chiral domain-wall QCA U_DW (6^3 husk x
-//           N_D = 16 depth layers, dim = 27,648) coupled chirally (P_L at D = 0) to dynamical 2T weak
-//           flux: certifies exact maximal parity violation (Delta P_L > 0.5, u_L -> d_L flip > 0.35;
-//           P_R singlet Delta P_R = 0.00e+0; deep-bulk D = 15 mirror Delta P_{R,mir} < 1e-14).
+//           N_D = 12 depth layers, T_DW = 16 > N_D - 1 = 11 PAST causal light-cone crossing, dim = 31,104)
+//           in a STATIC spatially varying non-Abelian 2T background weak flux using ONE unified operator
+//           over the 3-fiber weak multiplet (u_L, d_L, u_R): certifies maximal parity violation with
+//           exponentially suppressed causal mirror tail at D = 0 (distinct from dynamical link spaces P1.2/P2.2).
 //
 // PART 3: Exact Discrete Electroweak & Left-Right / Pati-Salam Compatibility
 //   - P3.1: Direct closure of W(F_4) (order 1152), W(F_4)^+ (order 576), normal subgroup 2T_L o 2T_R
@@ -657,7 +660,8 @@ function runPart1_1(): void {
   for (let ix = 0; ix < N_BZ; ix++) {
     for (let iy = 0; iy < N_BZ; iy++) {
       for (let iz = 0; iz < N_BZ; iz++) {
-        if (ix === 0 && iy === 0 && iz === 0) continue
+        // qx = 2*pi*ix/N_BZ - pi => q = (0,0,0) is at (N_BZ/2, N_BZ/2, N_BZ/2), NOT (0,0,0)!
+        if (ix === N_BZ / 2 && iy === N_BZ / 2 && iz === N_BZ / 2) continue
         const qx = (2 * PI * ix) / N_BZ - PI
         const qy = (2 * PI * iy) / N_BZ - PI
         const qz = (2 * PI * iz) / N_BZ - PI
@@ -683,6 +687,79 @@ function runPart1_1(): void {
       }
     }
   }
+
+  // Exact 8-TRIM Weyl doubling & chirality audit (Nielsen-Ninomiya transparency for 3D local walk):
+  // At all 8 TRIM points q_0 in {0, pi}^3, U_Weyl,pal(q_0) == I_2 (8 massless Weyl cones: 4 with chi=+1,
+  // 4 with chi=-1, sum chi = 0). Gamma=(0,0,0) is exact isotropic c=1; the 7 BZ-boundary doublers are sheared
+  // (removed in Part 2 by lifting onto the 4D {3,4,3,4} chiral domain wall U_DW).
+  const dqTrim = 1e-5
+  let maxTrimIdErr = 0
+  let sumChirality = 0
+  let posChiCount = 0
+  let negChiCount = 0
+  let gammaIsoErr = 0
+  const trimRows: string[] = []
+  for (let mask = 0; mask < 8; mask++) {
+    const bx = mask & 1
+    const by = (mask >> 1) & 1
+    const bz = (mask >> 2) & 1
+    const q0x = bx * PI
+    const q0y = by * PI
+    const q0z = bz * PI
+    const u0 = uWeylPal(q0x, q0y, q0z)
+    maxTrimIdErr = Math.max(
+      maxTrimIdErr,
+      cAbs(cSub(u0[0][0], C1)),
+      cAbs(u0[0][1]),
+      cAbs(u0[1][0]),
+      cAbs(cSub(u0[1][1], C1)),
+    )
+    // Velocity Jacobian V_{a, mu} from U(q0 + dq e_mu) = I - i dq sum_a V_{a, mu} sigma_a
+    const V = [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+    ]
+    for (let mu = 0; mu < 3; mu++) {
+      const dp = [mu === 0 ? dqTrim : 0, mu === 1 ? dqTrim : 0, mu === 2 ? dqTrim : 0] as const
+      const up = uWeylPal(q0x + dp[0], q0y + dp[1], q0z + dp[2])
+      const um = uWeylPal(q0x - dp[0], q0y - dp[1], q0z - dp[2])
+      const diff = m2Add(up, m2Scale([-1, 0], um))
+      for (let a = 0; a < 3; a++) {
+        // (i / (4 dq)) * Tr(sigma_a * (U(+dq) - U(-dq)))
+        const tr = m2Tr(m2Mul(PAULI[a]!, diff))
+        V[a]![mu] = -tr[1] / (4 * dqTrim) // Re(i * (re + i im)) = -im
+      }
+    }
+    const detV =
+      V[0]![0]! * (V[1]![1]! * V[2]![2]! - V[1]![2]! * V[2]![1]!) -
+      V[0]![1]! * (V[1]![0]! * V[2]![2]! - V[1]![2]! * V[2]![0]!) +
+      V[0]![2]! * (V[1]![0]! * V[2]![1]! - V[1]![1]! * V[2]![0]!)
+    const chi = detV > 0 ? 1 : -1
+    sumChirality += chi
+    if (chi > 0) posChiCount++
+    else negChiCount++
+    // Principal speeds = sqrt(eig(V^T V))
+    const vtvRe = new Float64Array(9)
+    const vtvIm = new Float64Array(9)
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        let s = 0
+        for (let k = 0; k < 3; k++) s += V[k]![i]! * V[k]![j]!
+        vtvRe[i * 3 + j] = s
+      }
+    }
+    const sv = hermitianJacobi(3, vtvRe, vtvIm).vals.map(x => Math.sqrt(Math.max(0, x)))
+    if (mask === 0) {
+      gammaIsoErr = Math.max(Math.abs(sv[0]! - 1), Math.abs(sv[1]! - 1), Math.abs(sv[2]! - 1))
+    }
+    trimRows.push(
+      `(${bx},${by},${bz})pi:chi=${chi > 0 ? '+1' : '-1'},det=${detV.toFixed(2)},sv=[${sv[0]!.toFixed(2)},${sv[1]!.toFixed(2)},${sv[2]!.toFixed(2)}]`,
+    )
+  }
+  console.log(`  8-TRIM Weyl doubling audit (Nielsen-Ninomiya sum chi = ${sumChirality}):`)
+  console.log(`    ${trimRows.slice(0, 4).join(' | ')}`)
+  console.log(`    ${trimRows.slice(4, 8).join(' | ')}`)
 
   // Exact directional comparison along [1,0,0], [1,1,0], [1,1,1] at |q| = 1e-3, 1e-2, 5e-2
   const dirs: readonly (readonly [string, readonly [number, number, number]])[] = [
@@ -774,9 +851,17 @@ function runPart1_1(): void {
     `max|lambda_L|=${maxLongEig.toExponential(2)}, max|div*K|=${maxDivCurlErr.toExponential(2)}, max|T1-T2|=${maxTransSplit.toExponential(2)}, maxCFL=${maxCflRatio.toFixed(4)}<1, sympErr=${maxSympErr.toExponential(2)}`,
   )
   recordCheck(
-    'P1.1c Single-speed lock closing 46x gap across [1,0,0],[1,1,0],[1,1,1]',
-    maxWeylUniErr < 1e-14 && maxRelMismatchAt1e3 < 1e-6 && maxRelMismatchAt5e2 < 1e-3 && maxIsoSpreadAt1e3 < 1e-6,
-    `relDiff(|q|=1e-3)=${maxRelMismatchAt1e3.toExponential(2)}, relDiff(|q|=0.05)=${maxRelMismatchAt5e2.toExponential(2)}, isoSpread=${maxIsoSpreadAt1e3.toExponential(2)}, weylUniErr=${maxWeylUniErr.toExponential(2)}`,
+    'P1.1c Single-speed lock closing 46x gap across [1,0,0],[1,1,0],[1,1,1] + 8-TRIM Nielsen-Ninomiya audit',
+    maxWeylUniErr < 1e-14 &&
+      maxRelMismatchAt1e3 < 1e-6 &&
+      maxRelMismatchAt5e2 < 1e-3 &&
+      maxIsoSpreadAt1e3 < 1e-6 &&
+      maxTrimIdErr < 1e-14 &&
+      sumChirality === 0 &&
+      posChiCount === 4 &&
+      negChiCount === 4 &&
+      gammaIsoErr < 1e-8,
+    `relDiff(1e-3)=${maxRelMismatchAt1e3.toExponential(2)}, relDiff(0.05)=${maxRelMismatchAt5e2.toExponential(2)}, isoSpread=${maxIsoSpreadAt1e3.toExponential(2)}, 8-TRIM chi=(+4,-4,sum=0), Gamma svErr=${gammaIsoErr.toExponential(2)}`,
   )
 }
 
@@ -1153,7 +1238,8 @@ function runPart1_2(): void {
                 const g = (getE(l, eOut) - getE(l, eIn) - qv + 9) % 3
                 if (g === 0) continue
                 const i = idx2(vp, sp, va, sa, l)
-                bad2 += re[i]! * re[i]! + im[i]! * im[i]!
+                // |exp(i*2*pi*g/3) - 1|^2 = 3 identically for g in {1, 2}, giving exact ||(V_v - I)|psi>||
+                bad2 += 3 * (re[i]! * re[i]! + im[i]! * im[i]!)
               }
             }
           }
@@ -1433,12 +1519,16 @@ function runPart1_3(): void {
 
   // Compare initial 1D string (t=0), instantaneous t=20 snapshot, AND Cesaro T=60 average
   // against the exact static 3D lattice Coulomb dipole field inside r <= 5 from center (12,12,12)!
+  // Note: on a periodic torus 24^3, the d=4 1D string carries a conserved k=0 winding mean E_x0 = d/V = 4/13824.
+  const stringK0Mean = (xMinus - xPlus) / V
   let dot0 = 0
   let norm0 = 0
   let dot20 = 0
   let norm20 = 0
   let dotAvg = 0
   let normAvg = 0
+  let dotAvgSub = 0
+  let normAvgSub = 0
   let normCoul2 = 0
   let transverseE2 = 0
   for (let x = 9; x <= 14; x++) {
@@ -1462,6 +1552,9 @@ function runPart1_3(): void {
         norm20 += snapEx20[i]! ** 2 + snapEy20[i]! ** 2 + snapEz20[i]! ** 2
         dotAvg += avgEx[i]! * exC + avgEy[i]! * eyC + avgEz[i]! * ezC
         normAvg += avgEx[i]! ** 2 + avgEy[i]! ** 2 + avgEz[i]! ** 2
+        const exSub = avgEx[i]! - stringK0Mean
+        dotAvgSub += exSub * exC + avgEy[i]! * eyC + avgEz[i]! * ezC
+        normAvgSub += exSub * exSub + avgEy[i]! ** 2 + avgEz[i]! ** 2
         normCoul2 += exC * exC + eyC * eyC + ezC * ezC
         transverseE2 += snapEy20[i]! ** 2 + snapEz20[i]! ** 2
       }
@@ -1470,6 +1563,7 @@ function runPart1_3(): void {
   const cosSim0 = dot0 / Math.sqrt(norm0 * normCoul2)
   const cosSim20 = dot20 / Math.sqrt(norm20 * normCoul2)
   const coulombCosSim = dotAvg / Math.sqrt(normAvg * normCoul2)
+  const coulombCosSimK0Sub = dotAvgSub / Math.sqrt(normAvgSub * normCoul2)
 
   // Verify 1/(4 pi r) static 3D {4,3,4} lattice Coulomb Green's function on a large box L_G = 64
   // (eliminating L = 24 periodic image shift; O(L_G^3) for 5 axial radii runs in ~15 ms!)
@@ -1528,126 +1622,239 @@ function runPart1_3(): void {
     return `r=${r}:${(4 * PI * r * gInfR).toFixed(4)}`
   })
   console.log(
-    `  24^3 String->Coulomb radiation: cosSim(t=0 string)=${cosSim0.toFixed(4)} -> cosSim(t=20 snap)=${cosSim20.toFixed(4)} -> cosSim(T=60 Cesaro)=${coulombCosSim.toFixed(6)}, E_perp^2(0->20)=0->${transverseE2.toFixed(4)}`,
+    `  24^3 String->Coulomb radiation: cosSim(t=0 string)=${cosSim0.toFixed(4)} -> cosSim(t=20 snap)=${cosSim20.toFixed(4)} -> cosSim(T=60 Cesaro)=${coulombCosSim.toFixed(6)} (k=0 winding ${stringK0Mean.toExponential(2)} sub: ${coulombCosSimK0Sub.toFixed(6)}), E_perp^2(0->20)=0->${transverseE2.toFixed(4)}`,
   )
   console.log(
     `  3D static Coulomb 1/(4pi r) (L=64): G_64(0)=${gSelf64.toFixed(5)}, dV(4->10) err = ${(100 * maxCoulLawErr).toFixed(2)}%, 4pi*r*G(r) = [${coulProbes.join(', ')}]`,
   )
 
-  // --- (B) Live 12^3 3D coupled two-wavepacket dynamical QED scattering (exact Gauss law + reversal!)
+  // --- (B) Live 12^3 3D coupled two-wavepacket massive Dirac QED scattering
+  //         Exact symmetric 3D Poisson Coulomb initialization (-grad phi_Coul from live rho(x,0), zero asymmetric
+  //         spanning-tree string!), zero-mean-drift 4-component rest-frame Dirac packets (free stays at 4.000, 8.000!),
+  //         exact parity symmetry (dx1 + dx2 = 0 to machine precision!), exact Gauss law & T = 20 reversal on ALL runs!
   const Ls = 12
   const Vs = Ls * Ls * Ls
   const sIdx = (x: number, y: number, z: number): number =>
     (((x + Ls) % Ls) * Ls + ((y + Ls) % Ls)) * Ls + ((z + Ls) % Ls)
 
+  // Exact separable 3D discrete Poisson solver on Ls^3: (-Delta) phi = rho (k != 0), E = -grad phi
+  function solveSymmetricPoisson3D(rhoIn: Float64Array): {
+    readonly Ex: Float64Array
+    readonly Ey: Float64Array
+    readonly Ez: Float64Array
+  } {
+    const cosT = new Float64Array(Ls * Ls)
+    const sinT = new Float64Array(Ls * Ls)
+    const sin2 = new Float64Array(Ls)
+    for (let k = 0; k < Ls; k++) {
+      sin2[k] = 4 * Math.sin((PI * k) / Ls) ** 2
+      for (let x = 0; x < Ls; x++) {
+        const ang = (2 * PI * k * x) / Ls
+        cosT[k * Ls + x] = Math.cos(ang)
+        sinT[k * Ls + x] = Math.sin(ang)
+      }
+    }
+    const f1R = new Float64Array(Vs)
+    const f1I = new Float64Array(Vs)
+    const f2R = new Float64Array(Vs)
+    const f2I = new Float64Array(Vs)
+    const f3R = new Float64Array(Vs)
+    const f3I = new Float64Array(Vs)
+
+    // Forward 1D DFT along x, then y, then z
+    for (let y = 0; y < Ls; y++) {
+      for (let z = 0; z < Ls; z++) {
+        for (let kx = 0; kx < Ls; kx++) {
+          let sr = 0
+          let si = 0
+          for (let x = 0; x < Ls; x++) {
+            const v = rhoIn[sIdx(x, y, z)]!
+            sr += v * cosT[kx * Ls + x]!
+            si -= v * sinT[kx * Ls + x]!
+          }
+          const idx = sIdx(kx, y, z)
+          f1R[idx] = sr
+          f1I[idx] = si
+        }
+      }
+    }
+    for (let kx = 0; kx < Ls; kx++) {
+      for (let z = 0; z < Ls; z++) {
+        for (let ky = 0; ky < Ls; ky++) {
+          let sr = 0
+          let si = 0
+          for (let y = 0; y < Ls; y++) {
+            const idx = sIdx(kx, y, z)
+            const c = cosT[ky * Ls + y]!
+            const s = sinT[ky * Ls + y]!
+            sr += f1R[idx]! * c + f1I[idx]! * s
+            si += f1I[idx]! * c - f1R[idx]! * s
+          }
+          const o = sIdx(kx, ky, z)
+          f2R[o] = sr
+          f2I[o] = si
+        }
+      }
+    }
+    for (let kx = 0; kx < Ls; kx++) {
+      for (let ky = 0; ky < Ls; ky++) {
+        for (let kz = 0; kz < Ls; kz++) {
+          let sr = 0
+          let si = 0
+          for (let z = 0; z < Ls; z++) {
+            const idx = sIdx(kx, ky, z)
+            const c = cosT[kz * Ls + z]!
+            const s = sinT[kz * Ls + z]!
+            sr += f2R[idx]! * c + f2I[idx]! * s
+            si += f2I[idx]! * c - f2R[idx]! * s
+          }
+          const lam = sin2[kx]! + sin2[ky]! + sin2[kz]!
+          const o = sIdx(kx, ky, kz)
+          if (lam > 1e-12) {
+            f3R[o] = sr / (lam * Vs)
+            f3I[o] = si / (lam * Vs)
+          }
+        }
+      }
+    }
+    // Inverse 1D DFT along z, then y, then x
+    for (let kx = 0; kx < Ls; kx++) {
+      for (let ky = 0; ky < Ls; ky++) {
+        for (let z = 0; z < Ls; z++) {
+          let sr = 0
+          let si = 0
+          for (let kz = 0; kz < Ls; kz++) {
+            const idx = sIdx(kx, ky, kz)
+            const c = cosT[kz * Ls + z]!
+            const s = sinT[kz * Ls + z]!
+            sr += f3R[idx]! * c - f3I[idx]! * s
+            si += f3I[idx]! * c + f3R[idx]! * s
+          }
+          const o = sIdx(kx, ky, z)
+          f2R[o] = sr
+          f2I[o] = si
+        }
+      }
+    }
+    for (let kx = 0; kx < Ls; kx++) {
+      for (let z = 0; z < Ls; z++) {
+        for (let y = 0; y < Ls; y++) {
+          let sr = 0
+          let si = 0
+          for (let ky = 0; ky < Ls; ky++) {
+            const idx = sIdx(kx, ky, z)
+            const c = cosT[ky * Ls + y]!
+            const s = sinT[ky * Ls + y]!
+            sr += f2R[idx]! * c - f2I[idx]! * s
+            si += f2I[idx]! * c + f2R[idx]! * s
+          }
+          const o = sIdx(kx, y, z)
+          f1R[o] = sr
+          f1I[o] = si
+        }
+      }
+    }
+    const phi = new Float64Array(Vs)
+    for (let y = 0; y < Ls; y++) {
+      for (let z = 0; z < Ls; z++) {
+        for (let x = 0; x < Ls; x++) {
+          let sr = 0
+          for (let kx = 0; kx < Ls; kx++) {
+            const idx = sIdx(kx, y, z)
+            sr += f1R[idx]! * cosT[kx * Ls + x]! - f1I[idx]! * sinT[kx * Ls + x]!
+          }
+          phi[sIdx(x, y, z)] = sr
+        }
+      }
+    }
+    const Ex = new Float64Array(Vs)
+    const Ey = new Float64Array(Vs)
+    const Ez = new Float64Array(Vs)
+    for (let x = 0; x < Ls; x++) {
+      for (let y = 0; y < Ls; y++) {
+        for (let z = 0; z < Ls; z++) {
+          const i = sIdx(x, y, z)
+          Ex[i] = phi[i]! - phi[sIdx(x + 1, y, z)]!
+          Ey[i] = phi[i]! - phi[sIdx(x, y + 1, z)]!
+          Ez[i] = phi[i]! - phi[sIdx(x, y, z + 1)]!
+        }
+      }
+    }
+    return { Ex, Ey, Ez }
+  }
+
   function runTwoPacketScattering(q1: number, q2: number): {
+    readonly x1: number
+    readonly x2: number
+    readonly dx1: number
+    readonly dx2: number
     readonly finalSep: number
     readonly maxGauss: number
     readonly maxNorm: number
     readonly revErr: number
   } {
-    // 2-component Weyl spinors psi1, psi2 on Ls^3 coupled to dynamical (Ex,Ey,Ez,Ax,Ay,Az)
-    const p1R = new Float64Array(2 * Vs)
-    const p1I = new Float64Array(2 * Vs)
-    const p2R = new Float64Array(2 * Vs)
-    const p2I = new Float64Array(2 * Vs)
+    // 4-component massive Dirac spinors psi1, psi2 = (L_0, L_1, R_0, R_1) on Ls^3
+    // Positive-energy rest-frame initial spinor: L = R = (1/sqrt(2), 0) => exact zero free drift!
+    const p1R = new Float64Array(4 * Vs)
+    const p1I = new Float64Array(4 * Vs)
+    const p2R = new Float64Array(4 * Vs)
+    const p2I = new Float64Array(4 * Vs)
 
-    // Initialize two localized 3D Gaussian packets at x1 = 4, x2 = 8, y = z = 6 (zero hard-coded potential)
+    const pDist = (a: number, b: number): number => {
+      let d = (a - b) % Ls
+      if (d > Ls / 2) d -= Ls
+      if (d < -Ls / 2) d += Ls
+      return d
+    }
     let n1 = 0
     let n2 = 0
     for (let x = 0; x < Ls; x++) {
+      const dx1g = pDist(x, 4)
+      const dx2g = pDist(x, 8)
       for (let y = 0; y < Ls; y++) {
+        const dy = pDist(y, 6)
         for (let z = 0; z < Ls; z++) {
+          const dz = pDist(z, 6)
           const i = sIdx(x, y, z)
-          const dy = y - 6
-          const dz = z - 6
-          const g1 = Math.exp(-0.7 * ((x - 4) * (x - 4) + dy * dy + dz * dz))
-          const g2 = Math.exp(-0.7 * ((x - 8) * (x - 8) + dy * dy + dz * dz))
-          // Balanced spinor (1/sqrt(2), 1/sqrt(2)) => zero initial net drift in free space!
-          p1R[2 * i] = g1
-          p1R[2 * i + 1] = g1
+          const g1 = Math.exp(-0.55 * (dx1g * dx1g + dy * dy + dz * dz))
+          const g2 = Math.exp(-0.55 * (dx2g * dx2g + dy * dy + dz * dz))
+          // Rest-frame positive-energy Dirac state: L_0 = R_0 = g, L_1 = R_1 = 0 => <v_x>=<v_y>=<v_z>=0!
+          p1R[4 * i + 0] = g1
+          p1R[4 * i + 2] = g1
           n1 += 2 * g1 * g1
-          p2R[2 * i] = g2
-          p2R[2 * i + 1] = g2
+          p2R[4 * i + 0] = g2
+          p2R[4 * i + 2] = g2
           n2 += 2 * g2 * g2
         }
       }
     }
     const invN1 = 1 / Math.sqrt(n1)
     const invN2 = 1 / Math.sqrt(n2)
-    for (let i = 0; i < 2 * Vs; i++) {
+    for (let i = 0; i < 4 * Vs; i++) {
       p1R[i] = p1R[i]! * invN1
       p2R[i] = p2R[i]! * invN2
     }
     const p1R0 = Float64Array.from(p1R)
     const p2R0 = Float64Array.from(p2R)
 
-    // Build exact Gauss-consistent initial electric field with ZERO 1/r potential:
-    // Axial tree-gauge prefix sum (div E = rho_net exactly to 1e-15!)
-    const ExS = new Float64Array(Vs)
-    const EyS = new Float64Array(Vs)
-    const EzS = new Float64Array(Vs)
-    const AxS = new Float64Array(Vs)
-    const AyS = new Float64Array(Vs)
-    const AzS = new Float64Array(Vs)
-    // Add uniform neutralizing background rho_bg = -(q1 + q2) / Vs so total charge on torus is 0
     const rhoBg = -(q1 + q2) / Vs
     const rho0 = new Float64Array(Vs)
     for (let i = 0; i < Vs; i++) {
-      const r1 = p1R[2 * i]! * p1R[2 * i]! + p1R[2 * i + 1]! * p1R[2 * i + 1]!
-      const r2 = p2R[2 * i]! * p2R[2 * i]! + p2R[2 * i + 1]! * p2R[2 * i + 1]!
+      const r1 = p1R[4 * i]! ** 2 + p1R[4 * i + 1]! ** 2 + p1R[4 * i + 2]! ** 2 + p1R[4 * i + 3]! ** 2
+      const r2 = p2R[4 * i]! ** 2 + p2R[4 * i + 1]! ** 2 + p2R[4 * i + 2]! ** 2 + p2R[4 * i + 3]! ** 2
       rho0[i] = q1 * r1 + q2 * r2 + rhoBg
     }
-    // Sweep x -> 0, then y -> 0, then z -> 0 along spanning tree
-    const remY = new Float64Array(Ls * Ls)
-    for (let y = 0; y < Ls; y++) {
-      for (let z = 0; z < Ls; z++) {
-        let sumX = 0
-        for (let x = Ls - 1; x >= 1; x--) {
-          sumX += rho0[sIdx(x, y, z)]!
-          // E_x at (x-1, y, z) carries flux from x-1 to x, so div at x gets -E_x(x-1).
-          // Setting E_x(x-1, y, z) = -sumX makes div at x equal +rho0[x]!
-          ExS[sIdx(x - 1, y, z)] = -sumX
-        }
-        remY[y * Ls + z] = sumX + rho0[sIdx(0, y, z)]!
-      }
-    }
-    const remZ = new Float64Array(Ls)
-    for (let z = 0; z < Ls; z++) {
-      let sumY = 0
-      for (let y = Ls - 1; y >= 1; y--) {
-        sumY += remY[y * Ls + z]!
-        EyS[sIdx(0, y - 1, z)] = -sumY
-      }
-      remZ[z] = sumY + remY[z]!
-    }
-    let sumZ = 0
-    for (let z = Ls - 1; z >= 1; z--) {
-      sumZ += remZ[z]!
-      EzS[sIdx(0, 0, z - 1)] = -sumZ
-    }
+    const initE = solveSymmetricPoisson3D(rho0)
+    const ExS = initE.Ex
+    const EyS = initE.Ey
+    const EzS = initE.Ez
+    const AxS = new Float64Array(Vs)
+    const AyS = new Float64Array(Vs)
+    const AzS = new Float64Array(Vs)
     const ExS0 = Float64Array.from(ExS)
     const EyS0 = Float64Array.from(EyS)
     const EzS0 = Float64Array.from(EzS)
 
-    // Gauge-covariant split-step 1D shift with exact discrete current feedback E_mu <- E_mu - J_mu!
-    // Uses diagonalized sigma_z basis via local unitary basis change B_mu (on-site, preserves rho_x!)
-    function applySiteMat(re: Float64Array, im: Float64Array, M: CMat2): void {
-      for (let i = 0; i < Vs; i++) {
-        const r0 = re[2 * i]!
-        const m0 = im[2 * i]!
-        const r1 = re[2 * i + 1]!
-        const m1 = im[2 * i + 1]!
-        const a0 = cAdd(cMul(M[0][0], [r0, m0]), cMul(M[0][1], [r1, m1]))
-        const a1 = cAdd(cMul(M[1][0], [r0, m0]), cMul(M[1][1], [r1, m1]))
-        re[2 * i] = a0[0]
-        im[2 * i] = a0[1]
-        re[2 * i + 1] = a1[0]
-        im[2 * i + 1] = a1[1]
-      }
-    }
-
-    // Basis changes B_mu such that B_mu^dag sigma_z B_mu = sigma_mu:
     const INV_SQ2 = 1 / Math.SQRT2
     const BX: CMat2 = [
       [[INV_SQ2, 0], [INV_SQ2, 0]],
@@ -1663,23 +1870,63 @@ function runPart1_3(): void {
     const TH_FULL_P = m2ExpPauli(SY, PI / 3)
     const TH_HALF_P = m2ExpPauli(SY, PI / 6)
     const TH_FULL_N = m2ExpPauli(SY, -PI / 3)
+    const MASS_M = 0.45
+    const CM = Math.cos(MASS_M)
+    const SM = Math.sin(MASS_M)
 
-    const tmpR = new Float64Array(2 * Vs)
-    const tmpI = new Float64Array(2 * Vs)
+    const tmpR = new Float64Array(4 * Vs)
+    const tmpI = new Float64Array(4 * Vs)
 
-    // Shift component 0 (+1) forward or component 1 (-1) backward along axis mu with Peierls phase e^{\mp i q A_mu}
-    // AND exact Gauss-law current feedback on E_mu!
-    function shiftSpinorWithFeedback(
+    function applySiteMatChiral(re: Float64Array, im: Float64Array, chiralOff: 0 | 2, M: CMat2): void {
+      for (let i = 0; i < Vs; i++) {
+        const i0 = 4 * i + chiralOff
+        const i1 = 4 * i + chiralOff + 1
+        const a0 = cAdd(cMul(M[0][0], [re[i0]!, im[i0]!]), cMul(M[0][1], [re[i1]!, im[i1]!]))
+        const a1 = cAdd(cMul(M[1][0], [re[i0]!, im[i0]!]), cMul(M[1][1], [re[i1]!, im[i1]!]))
+        re[i0] = a0[0]
+        im[i0] = a0[1]
+        re[i1] = a1[0]
+        im[i1] = a1[1]
+      }
+    }
+
+    // On-site mass coin U_mass = exp(-i m gamma^0): mixes L <-> R preserving |L|^2 + |R|^2 identically!
+    function applyMassCoin(re: Float64Array, im: Float64Array, inv: boolean): void {
+      const s = inv ? -SM : SM
+      for (let i = 0; i < Vs; i++) {
+        for (let sp = 0; sp < 2; sp++) {
+          const iL = 4 * i + sp
+          const iR = 4 * i + 2 + sp
+          const lr = re[iL]!
+          const li = im[iL]!
+          const rr = re[iR]!
+          const ri = im[iR]!
+          // L' = CM * L - i s R = (CM lr + s ri) + i (CM li - s rr)
+          // R' = -i s L + CM R = (CM rr + s li) + i (CM ri - s lr)
+          re[iL] = CM * lr + s * ri
+          im[iL] = CM * li - s * rr
+          re[iR] = CM * rr + s * li
+          im[iR] = CM * ri - s * lr
+        }
+      }
+    }
+
+    // Parity-symmetric directional shift with exact Gauss-law current feedback:
+    //   chiralOff=0 (L): comp 0 moves +1, comp 1 moves -1
+    //   chiralOff=2 (R): comp 0 moves -1, comp 1 moves +1 (exact spatial reflection partner!)
+    function shiftChiralWithFeedback(
       re: Float64Array,
       im: Float64Array,
       qCharge: number,
       mu: number,
+      chiralOff: 0 | 2,
       comp: 0 | 1,
       inv: boolean,
     ): void {
       const Aarr = mu === 0 ? AxS : mu === 1 ? AyS : AzS
       const Earr = mu === 0 ? ExS : mu === 1 ? EyS : EzS
-      const fwdDir = (comp === 0 ? 1 : -1) * (inv ? -1 : 1)
+      const baseDir = (chiralOff === 0 ? 1 : -1) * (comp === 0 ? 1 : -1)
+      const fwdDir = baseDir * (inv ? -1 : 1)
       tmpR.set(re)
       tmpI.set(im)
       for (let x = 0; x < Ls; x++) {
@@ -1690,27 +1937,21 @@ function runPart1_3(): void {
             const ny = mu === 1 ? (y + fwdDir + Ls) % Ls : y
             const nz = mu === 2 ? (z + fwdDir + Ls) % Ls : z
             const j = sIdx(nx, ny, nz)
-            // Link traversed: if fwdDir == +1, link is at i (i -> j); if fwdDir == -1, link is at j (j -> i)
             const linkSite = fwdDir === 1 ? i : j
             const aVal = Aarr[linkSite]!
-            // Peierls phase: moving +1 along link gets e^{-i q A}, moving -1 along link gets e^{+i q A}
             const phase = -fwdDir * qCharge * aVal
             const cp = Math.cos(phase)
             const sp = Math.sin(phase)
-            const r = re[2 * i + comp]!
-            const m = im[2 * i + comp]!
-            tmpR[2 * j + comp] = cp * r - sp * m
-            tmpI[2 * j + comp] = cp * m + sp * r
-            // Exact Gauss-law current feedback:
-            // Forward step (inv=false):
-            //   comp=0 moves i -> j across link i: charge leaves i, enters j => E[i] -= q * |psi_0(i)|^2
-            //   comp=1 moves i -> j (backward along link j): charge enters j, leaves i => E[j] += q * |psi_1(i)|^2
-            // Inverse step (inv=true): exactly undoes the feedback using |psi(i)|^2 (which equals the moved density!)
+            const cOff = chiralOff + comp
+            const r = re[4 * i + cOff]!
+            const m = im[4 * i + cOff]!
+            tmpR[4 * j + cOff] = cp * r - sp * m
+            tmpI[4 * j + cOff] = cp * m + sp * r
             const prob = r * r + m * m
             if (!inv) {
-              Earr[linkSite] = Earr[linkSite]! - (comp === 0 ? 1 : -1) * qCharge * prob
+              Earr[linkSite] = Earr[linkSite]! - baseDir * qCharge * prob
             } else {
-              Earr[linkSite] = Earr[linkSite]! + (comp === 0 ? 1 : -1) * qCharge * prob
+              Earr[linkSite] = Earr[linkSite]! + baseDir * qCharge * prob
             }
           }
         }
@@ -1719,29 +1960,56 @@ function runPart1_3(): void {
       im.set(tmpI)
     }
 
-    function stepAxis1Packet(
+    function stepAxisDirac(
       re: Float64Array,
       im: Float64Array,
       qCharge: number,
       mu: number,
+      thetaSign: 1 | -1,
       inv: boolean,
     ): void {
+      // Exact parity-paired Dirac step: U_R(q) = U_L(-q) IDENTICALLY!
+      // Both L and R use the exact same coin angles (hC, fC); ONLY the spatial shift direction flips for R!
+      // Therefore spatial reflection x -> L - x combined with L <-> R is an EXACT discrete symmetry (dx1 + dx2 == 0)!
+      const hC = thetaSign === 1 ? TH_HALF_N : TH_HALF_P
+      const fC = thetaSign === 1 ? TH_FULL_P : TH_FULL_N
+      const hCInv = thetaSign === 1 ? TH_HALF_P : TH_HALF_N
+      const fCInv = thetaSign === 1 ? TH_FULL_N : TH_FULL_P
+
       if (!inv) {
-        applySiteMat(re, im, B_MATS[mu]!)
-        applySiteMat(re, im, TH_HALF_N)
-        shiftSpinorWithFeedback(re, im, qCharge, mu, 1, false)
-        applySiteMat(re, im, TH_FULL_P)
-        shiftSpinorWithFeedback(re, im, qCharge, mu, 0, false)
-        applySiteMat(re, im, TH_HALF_N)
-        applySiteMat(re, im, B_DAGS[mu]!)
+        // L block
+        applySiteMatChiral(re, im, 0, B_MATS[mu]!)
+        applySiteMatChiral(re, im, 0, hC)
+        shiftChiralWithFeedback(re, im, qCharge, mu, 0, 1, false)
+        applySiteMatChiral(re, im, 0, fC)
+        shiftChiralWithFeedback(re, im, qCharge, mu, 0, 0, false)
+        applySiteMatChiral(re, im, 0, hC)
+        applySiteMatChiral(re, im, 0, B_DAGS[mu]!)
+        // R block: exact spatial parity partner U_R(q) = U_L(-q)
+        applySiteMatChiral(re, im, 2, B_MATS[mu]!)
+        applySiteMatChiral(re, im, 2, hC)
+        shiftChiralWithFeedback(re, im, qCharge, mu, 2, 1, false)
+        applySiteMatChiral(re, im, 2, fC)
+        shiftChiralWithFeedback(re, im, qCharge, mu, 2, 0, false)
+        applySiteMatChiral(re, im, 2, hC)
+        applySiteMatChiral(re, im, 2, B_DAGS[mu]!)
       } else {
-        applySiteMat(re, im, B_MATS[mu]!)
-        applySiteMat(re, im, TH_HALF_P)
-        shiftSpinorWithFeedback(re, im, qCharge, mu, 0, true)
-        applySiteMat(re, im, TH_FULL_N)
-        shiftSpinorWithFeedback(re, im, qCharge, mu, 1, true)
-        applySiteMat(re, im, TH_HALF_P)
-        applySiteMat(re, im, B_DAGS[mu]!)
+        // Inverse R block
+        applySiteMatChiral(re, im, 2, B_MATS[mu]!)
+        applySiteMatChiral(re, im, 2, hCInv)
+        shiftChiralWithFeedback(re, im, qCharge, mu, 2, 0, true)
+        applySiteMatChiral(re, im, 2, fCInv)
+        shiftChiralWithFeedback(re, im, qCharge, mu, 2, 1, true)
+        applySiteMatChiral(re, im, 2, hCInv)
+        applySiteMatChiral(re, im, 2, B_DAGS[mu]!)
+        // Inverse L block
+        applySiteMatChiral(re, im, 0, B_MATS[mu]!)
+        applySiteMatChiral(re, im, 0, hCInv)
+        shiftChiralWithFeedback(re, im, qCharge, mu, 0, 0, true)
+        applySiteMatChiral(re, im, 0, fCInv)
+        shiftChiralWithFeedback(re, im, qCharge, mu, 0, 1, true)
+        applySiteMatChiral(re, im, 0, hCInv)
+        applySiteMatChiral(re, im, 0, B_DAGS[mu]!)
       }
     }
 
@@ -1796,18 +2064,36 @@ function runPart1_3(): void {
     }
 
     function stepCoupledBeat(inv: boolean): void {
+      // Exact palindromic single-speed beat (matching P1.1 U_Weyl,pal + U_Max,pal!):
+      //   First half:  (x, y, z) with +theta + Maxwell sub-beat
+      //   Second half: (z, y, x) with -theta + Maxwell sub-beat
+      // Eliminates O(q^2) spin-tilt drift identically => exact zero free drift & exact dx1 + dx2 = 0!
       if (!inv) {
+        applyMassCoin(p1R, p1I, false)
+        applyMassCoin(p2R, p2I, false)
         for (let mu = 0; mu < 3; mu++) {
-          stepAxis1Packet(p1R, p1I, q1, mu, false)
-          stepAxis1Packet(p2R, p2I, q2, mu, false)
+          stepAxisDirac(p1R, p1I, q1, mu, 1, false)
+          stepAxisDirac(p2R, p2I, q2, mu, 1, false)
+        }
+        stepMaxwellSmall(false)
+        for (let mu = 2; mu >= 0; mu--) {
+          stepAxisDirac(p1R, p1I, q1, mu, -1, false)
+          stepAxisDirac(p2R, p2I, q2, mu, -1, false)
         }
         stepMaxwellSmall(false)
       } else {
         stepMaxwellSmall(true)
-        for (let mu = 2; mu >= 0; mu--) {
-          stepAxis1Packet(p2R, p2I, q2, mu, true)
-          stepAxis1Packet(p1R, p1I, q1, mu, true)
+        for (let mu = 0; mu < 3; mu++) {
+          stepAxisDirac(p2R, p2I, q2, mu, -1, true)
+          stepAxisDirac(p1R, p1I, q1, mu, -1, true)
         }
+        stepMaxwellSmall(true)
+        for (let mu = 2; mu >= 0; mu--) {
+          stepAxisDirac(p2R, p2I, q2, mu, 1, true)
+          stepAxisDirac(p1R, p1I, q1, mu, 1, true)
+        }
+        applyMassCoin(p2R, p2I, true)
+        applyMassCoin(p1R, p1I, true)
       }
     }
 
@@ -1822,8 +2108,12 @@ function runPart1_3(): void {
           for (let z = 0; z < Ls; z++) {
             const zm = (z + Ls - 1) % Ls
             const i = sIdx(x, y, z)
-            const r1 = p1R[2 * i]! ** 2 + p1I[2 * i]! ** 2 + p1R[2 * i + 1]! ** 2 + p1I[2 * i + 1]! ** 2
-            const r2 = p2R[2 * i]! ** 2 + p2I[2 * i]! ** 2 + p2R[2 * i + 1]! ** 2 + p2I[2 * i + 1]! ** 2
+            let r1 = 0
+            let r2 = 0
+            for (let c = 0; c < 4; c++) {
+              r1 += p1R[4 * i + c]! ** 2 + p1I[4 * i + c]! ** 2
+              r2 += p2R[4 * i + c]! ** 2 + p2I[4 * i + c]! ** 2
+            }
             n1t += r1
             n2t += r2
             const rhoCur = q1 * r1 + q2 * r2 + rhoBg
@@ -1841,14 +2131,15 @@ function runPart1_3(): void {
     let maxGauss = checkGaussS().gErr
     let maxNorm = 0
     const T_SCAT = 20
-    let sepAtT6 = 0
+    let x1AtT3 = 4
+    let x2AtT3 = 8
     for (let t = 1; t <= T_SCAT; t++) {
       stepCoupledBeat(false)
       const st = checkGaussS()
       maxGauss = Math.max(maxGauss, st.gErr)
       maxNorm = Math.max(maxNorm, st.nErr)
-      if (t === 6) {
-        // Measure circular mean separation before torus wrap-around
+      // At t = 3 palindromic beats (= 6 sub-beats, before torus wrap-around at c=1, L/2=6)
+      if (t === 3) {
         let s1c = 0
         let s1s = 0
         let s2c = 0
@@ -1860,8 +2151,12 @@ function runPart1_3(): void {
           for (let y = 0; y < Ls; y++) {
             for (let z = 0; z < Ls; z++) {
               const i = sIdx(x, y, z)
-              const r1 = p1R[2 * i]! ** 2 + p1I[2 * i]! ** 2 + p1R[2 * i + 1]! ** 2 + p1I[2 * i + 1]! ** 2
-              const r2 = p2R[2 * i]! ** 2 + p2I[2 * i]! ** 2 + p2R[2 * i + 1]! ** 2 + p2I[2 * i + 1]! ** 2
+              let r1 = 0
+              let r2 = 0
+              for (let c = 0; c < 4; c++) {
+                r1 += p1R[4 * i + c]! ** 2 + p1I[4 * i + c]! ** 2
+                r2 += p2R[4 * i + c]! ** 2 + p2I[4 * i + c]! ** 2
+              }
               s1c += r1 * ca
               s1s += r1 * sa
               s2c += r2 * ca
@@ -1869,16 +2164,15 @@ function runPart1_3(): void {
             }
           }
         }
-        const x1m = ((Math.atan2(s1s, s1c) * Ls) / (2 * PI) + Ls) % Ls
-        const x2m = ((Math.atan2(s2s, s2c) * Ls) / (2 * PI) + Ls) % Ls
-        sepAtT6 = x2m - x1m
+        x1AtT3 = ((Math.atan2(s1s, s1c) * Ls) / (2 * PI) + Ls) % Ls
+        x2AtT3 = ((Math.atan2(s2s, s2c) * Ls) / (2 * PI) + Ls) % Ls
       }
     }
 
     // Reverse T = 20 beats
     for (let t = 1; t <= T_SCAT; t++) stepCoupledBeat(true)
     let revErr = 0
-    for (let i = 0; i < 2 * Vs; i++) {
+    for (let i = 0; i < 4 * Vs; i++) {
       revErr = Math.max(
         revErr,
         Math.abs(p1R[i]! - p1R0[i]!),
@@ -1898,16 +2192,36 @@ function runPart1_3(): void {
         Math.abs(AzS[i]!),
       )
     }
-    return { finalSep: sepAtT6, maxGauss, maxNorm, revErr }
+    return {
+      x1: x1AtT3,
+      x2: x2AtT3,
+      dx1: x1AtT3 - 4,
+      dx2: x2AtT3 - 8,
+      finalSep: x2AtT3 - x1AtT3,
+      maxGauss,
+      maxNorm,
+      revErr,
+    }
   }
 
   const freeRun = runTwoPacketScattering(0, 0)
-  const oppRun = runTwoPacketScattering(1.2, -1.2)
-  const likeRun = runTwoPacketScattering(1.2, 1.2)
+  const oppRun = runTwoPacketScattering(2.2, -2.2)
+  const likeRun = runTwoPacketScattering(2.2, 2.2)
   const deltaOpp = oppRun.finalSep - freeRun.finalSep
   const deltaLike = likeRun.finalSep - freeRun.finalSep
+  const oppParityErr = Math.abs(oppRun.dx1 + oppRun.dx2)
+  const likeParityErr = Math.abs(likeRun.dx1 + likeRun.dx2)
   console.log(
-    `  12^3 3D wavepacket scattering (t=6 sep): free=${freeRun.finalSep.toFixed(5)}, opp(+,-)=${oppRun.finalSep.toFixed(5)} (Delta=${deltaOpp.toFixed(5)}), like(+,+)=${likeRun.finalSep.toFixed(5)} (Delta=${deltaLike.toFixed(5)})`,
+    `  12^3 3D massive Dirac palindromic wavepacket scattering (t=3 beats=6 sub-beats, symmetric Poisson init):`,
+  )
+  console.log(
+    `    free (0,0):       x1=${freeRun.x1.toFixed(6)}, x2=${freeRun.x2.toFixed(6)} (dx1=${freeRun.dx1.toExponential(2)}, dx2=${freeRun.dx2.toExponential(2)})`,
+  )
+  console.log(
+    `    opp  (+2.2,-2.2): x1=${oppRun.x1.toFixed(6)} (dx1=${oppRun.dx1 >= 0 ? '+' : ''}${oppRun.dx1.toFixed(5)}), x2=${oppRun.x2.toFixed(6)} (dx2=${oppRun.dx2 >= 0 ? '+' : ''}${oppRun.dx2.toFixed(5)}), Delta_sep=${deltaOpp.toFixed(5)}, |dx1+dx2|=${oppParityErr.toExponential(2)}`,
+  )
+  console.log(
+    `    like (+2.2,+2.2): x1=${likeRun.x1.toFixed(6)} (dx1=${likeRun.dx1 >= 0 ? '+' : ''}${likeRun.dx1.toFixed(5)}), x2=${likeRun.x2.toFixed(6)} (dx2=${likeRun.dx2 >= 0 ? '+' : ''}${likeRun.dx2.toFixed(5)}), Delta_sep=${deltaLike.toFixed(5)}, |dx1+dx2|=${likeParityErr.toExponential(2)}`,
   )
 
   recordCheck(
@@ -1915,21 +2229,29 @@ function runPart1_3(): void {
     maxGauss3D < 1e-14 &&
       maxRev3D < 1e-14 &&
       coulombCosSim > 0.999 &&
+      coulombCosSimK0Sub > 0.9999 &&
       transverseE2 > 0.1 &&
       maxCoulLawErr < 0.04 &&
       r6Err < 0.015,
-    `gaussErr=${maxGauss3D.toExponential(2)}, revErr=${maxRev3D.toExponential(2)}, cosSim(E_dyn,E_Coul)=${coulombCosSim.toFixed(6)}, dV(4->10)err=${(100 * maxCoulLawErr).toFixed(2)}%, r=6 err=${(100 * r6Err).toFixed(2)}%`,
+    `gaussErr=${maxGauss3D.toExponential(2)}, revErr=${maxRev3D.toExponential(2)}, cosSim=${coulombCosSim.toFixed(6)} (k0-sub=${coulombCosSimK0Sub.toFixed(6)}), dV(4->10)err=${(100 * maxCoulLawErr).toFixed(2)}%, r=6 err=${(100 * r6Err).toFixed(2)}%`,
   )
   recordCheck(
-    'P1.3b 12^3 3D coupled wavepacket scattering (exact Gauss, T=20 reversal, opp!=like!=free)',
-    oppRun.maxGauss < 1e-13 &&
+    'P1.3b 12^3 3D symmetric Dirac scattering (zero free drift, opp attract / like repel, parity-exact)',
+    Math.abs(freeRun.dx1) < 1e-13 &&
+      Math.abs(freeRun.dx2) < 1e-13 &&
+      oppRun.dx1 > 0.005 &&
+      oppRun.dx2 < -0.005 &&
+      likeRun.dx1 < -0.005 &&
+      likeRun.dx2 > 0.005 &&
+      oppParityErr < 1e-13 &&
+      likeParityErr < 1e-13 &&
+      oppRun.maxGauss < 1e-13 &&
       likeRun.maxGauss < 1e-13 &&
-      oppRun.maxNorm < 1e-14 &&
-      oppRun.revErr < 1e-12 &&
-      Math.abs(deltaOpp) > 1e-3 &&
-      Math.abs(deltaLike) > 1e-3 &&
-      deltaOpp !== deltaLike,
-    `gaussErr=${Math.max(oppRun.maxGauss, likeRun.maxGauss).toExponential(2)}, revErr=${oppRun.revErr.toExponential(2)}, Delta_opp=${deltaOpp.toFixed(5)}, Delta_like=${deltaLike.toFixed(5)}`,
+      oppRun.maxNorm < 1e-13 &&
+      likeRun.maxNorm < 1e-13 &&
+      oppRun.revErr < 1e-13 &&
+      likeRun.revErr < 1e-13,
+    `free_dx=(${freeRun.dx1.toExponential(1)},${freeRun.dx2.toExponential(1)}), opp_dx=(+${oppRun.dx1.toFixed(5)},${oppRun.dx2.toFixed(5)}), like_dx=(${likeRun.dx1.toFixed(5)},+${likeRun.dx2.toFixed(5)}), |dx1+dx2|=${Math.max(oppParityErr, likeParityErr).toExponential(2)}, gauss=${Math.max(oppRun.maxGauss, likeRun.maxGauss).toExponential(2)}, norm=${Math.max(oppRun.maxNorm, likeRun.maxNorm).toExponential(2)}, rev=${Math.max(oppRun.revErr, likeRun.revErr).toExponential(2)}`,
   )
 }
 
@@ -2447,7 +2769,9 @@ function runPart2_2(): void {
     (((chi * 3 + v) * 2 + iso) * 125 + l3)
 
   function applyUBondOnState(re: Float64Array, im: Float64Array, edge: number, inv: boolean): void {
-    // Only acts on chi = 0 (Left-handed doublet); chi = 1 (Right-handed singlet) is strictly identity!
+    // chi = 0 (Left-handed doublet): gauge-covariant 20x20 local unitary uBond coupled to dynamical SU(2)_L link!
+    // chi = 1 (Right-handed singlet): identical free kinetic hopping exp(-i TAU_HOP_W (psi_y^dag I_2 psi_x + h.c.))
+    //         coupled to trivial I_2 (strictly commutes with G_v^a, genuinely mobile yet sterile to weak links!).
     const vx = edge
     const vy = (edge + 1) % 3
     const otherE1 = (edge + 1) % 3
@@ -2501,6 +2825,135 @@ function runPart2_2(): void {
           }
         }
       }
+    }
+    // Free kinetic hopping on chi = 1 (Right-handed singlet): exp(-i * TAU_HOP_W * sigma_x) on (vx, vy)
+    const cf = Math.cos(TAU_HOP_W)
+    const sf = inv ? Math.sin(TAU_HOP_W) : -Math.sin(TAU_HOP_W)
+    for (let iso = 0; iso < 2; iso++) {
+      for (let l3 = 0; l3 < 125; l3++) {
+        const ix = wIdx(1, vx, iso, l3)
+        const iy = wIdx(1, vy, iso, l3)
+        const rx = re[ix]!
+        const mx = im[ix]!
+        const ry = re[iy]!
+        const my = im[iy]!
+        // x' = cf * x + i * sf * y = (cf rx - sf my) + i (cf mx + sf ry)
+        re[ix] = cf * rx - sf * my
+        im[ix] = cf * mx + sf * ry
+        re[iy] = cf * ry - sf * mx
+        im[iy] = cf * my + sf * rx
+      }
+    }
+  }
+
+  // Exact full-operator dense matrix commutator proofs covering 100% of all 1,500/1,500 basis states:
+  //   1) [hBond, G_x^a] = 0 and [hBond, G_y^a] = 0 (6 exact 20x20 commutators)
+  //   2) [hPlaq, G_v^a] = 0 (9 exact 125x125 commutators)
+  let maxFullBondComm = 0
+  for (let a = 0; a < 3; a++) {
+    const Ta = T_HALF[a]!
+    const LR = L5Re[a]!
+    const LI = L5Im[a]!
+    const RR = R5Re[a]!
+    const RI = R5Im[a]!
+    // Build 20x20 G_x^a (R_e^a on link + Q_x^a on x) and G_y^a (L_e^a on link + Q_y^a on y)
+    for (const end of [0, 1] as const) {
+      const gRe = new Float64Array(400)
+      const gIm = new Float64Array(400)
+      const linkR = end === 0 ? RR : LR
+      const linkI = end === 0 ? RI : LI
+      for (let side = 0; side < 2; side++) {
+        for (let iso = 0; iso < 2; iso++) {
+          for (let l = 0; l < 5; l++) {
+            const col = side * 10 + iso * 5 + l
+            for (let lp = 0; lp < 5; lp++) {
+              const row = side * 10 + iso * 5 + lp
+              gRe[row * 20 + col] = gRe[row * 20 + col]! + linkR[lp * 5 + l]!
+              gIm[row * 20 + col] = gIm[row * 20 + col]! + linkI[lp * 5 + l]!
+            }
+            if (side === end) {
+              for (let iso2 = 0; iso2 < 2; iso2++) {
+                const row = side * 10 + iso2 * 5 + l
+                const e = Ta[iso2]![iso]!
+                gRe[row * 20 + col] = gRe[row * 20 + col]! + e[0]
+                gIm[row * 20 + col] = gIm[row * 20 + col]! + e[1]
+              }
+            }
+          }
+        }
+      }
+      // Compute ||hBond * G - G * hBond||_F
+      let f2 = 0
+      for (let r = 0; r < 20; r++) {
+        for (let c = 0; c < 20; c++) {
+          let sr = 0
+          let si = 0
+          for (let k = 0; k < 20; k++) {
+            const h1 = hBondRe[r * 20 + k]!
+            const h2 = hBondRe[k * 20 + c]!
+            sr += h1 * gRe[k * 20 + c]! - gRe[r * 20 + k]! * h2
+            si += h1 * gIm[k * 20 + c]! - gIm[r * 20 + k]! * h2
+          }
+          f2 += sr * sr + si * si
+        }
+      }
+      maxFullBondComm = Math.max(maxFullBondComm, Math.sqrt(f2))
+    }
+  }
+
+  let maxFullPlaqComm = 0
+  for (let v = 0; v < 3; v++) {
+    const eOut = v
+    const eIn = (v + 2) % 3
+    for (let a = 0; a < 3; a++) {
+      const LR = L5Re[a]!
+      const LI = L5Im[a]!
+      const RR = R5Re[a]!
+      const RI = R5Im[a]!
+      // Sparse action of G_{link, v}^a on 125 link states: check ||hPlaq * G - G * hPlaq||_max
+      const gPlaqR = new Float64Array(125 * 125)
+      const gPlaqI = new Float64Array(125 * 125)
+      for (let l0 = 0; l0 < 5; l0++) {
+        for (let l1 = 0; l1 < 5; l1++) {
+          for (let l2 = 0; l2 < 5; l2++) {
+            const col = linkIdx3(l0, l1, l2)
+            const ls = [l0, l1, l2]
+            for (let lp = 0; lp < 5; lp++) {
+              const nIn = [l0, l1, l2]
+              nIn[eIn] = lp
+              const rIn = linkIdx3(nIn[0]!, nIn[1]!, nIn[2]!)
+              gPlaqR[rIn * 125 + col] = gPlaqR[rIn * 125 + col]! + LR[lp * 5 + ls[eIn]!]!
+              gPlaqI[rIn * 125 + col] = gPlaqI[rIn * 125 + col]! + LI[lp * 5 + ls[eIn]!]!
+              const nOut = [l0, l1, l2]
+              nOut[eOut] = lp
+              const rOut = linkIdx3(nOut[0]!, nOut[1]!, nOut[2]!)
+              gPlaqR[rOut * 125 + col] = gPlaqR[rOut * 125 + col]! + RR[lp * 5 + ls[eOut]!]!
+              gPlaqI[rOut * 125 + col] = gPlaqI[rOut * 125 + col]! + RI[lp * 5 + ls[eOut]!]!
+            }
+          }
+        }
+      }
+      let f2 = 0
+      for (let r = 0; r < 125; r++) {
+        for (let c = 0; c < 125; c++) {
+          let sr = 0
+          let si = 0
+          for (let k = 0; k < 125; k++) {
+            const h1 = hPlaqRe[r * 125 + k]!
+            const h2 = hPlaqRe[k * 125 + c]!
+            if (h1 !== 0) {
+              sr += h1 * gPlaqR[k * 125 + c]!
+              si += h1 * gPlaqI[k * 125 + c]!
+            }
+            if (h2 !== 0) {
+              sr -= gPlaqR[r * 125 + k]! * h2
+              si -= gPlaqI[r * 125 + k]! * h2
+            }
+          }
+          f2 += sr * sr + si * si
+        }
+      }
+      maxFullPlaqComm = Math.max(maxFullPlaqComm, Math.sqrt(f2))
     }
   }
 
@@ -2810,6 +3263,22 @@ function runPart2_2(): void {
     }
   }
   const uE24 = { uRe: uE24Re, uIm: uE24Im }
+  let uE24UniErr = 0
+  for (let i = 0; i < 24; i++) {
+    for (let j = 0; j < 24; j++) {
+      let sr = 0
+      let si = 0
+      for (let k = 0; k < 24; k++) {
+        const ar = uE24Re[k * 24 + i]!
+        const ai = -uE24Im[k * 24 + i]!
+        const br = uE24Re[k * 24 + j]!
+        const bi = uE24Im[k * 24 + j]!
+        sr += ar * br - ai * bi
+        si += ar * bi + ai * br
+      }
+      uE24UniErr = Math.max(uE24UniErr, Math.hypot(sr - (i === j ? 1 : 0), si))
+    }
+  }
   const ALPHA_2T = 0.5
   const BETA_2T = 0.45
 
@@ -2985,12 +3454,16 @@ function runPart2_2(): void {
     }
   }
 
-  // Verify [U_weak^(2T), V_v(h)] = 0 across ALL 24 Hurwitz units h in 2T and BOTH vertices (48/48 checks!)
+  // Verify [U_weak^(2T), V_v(h)] = 0 across ALL 24 Hurwitz units h in 2T, BOTH vertices, and 4 independent
+  // orthogonal basis states (192/192 checks!)
+  const probes2T: readonly (readonly [number, number, number, number])[] = [
+    [0, 0, 1, 5],
+    [0, 1, 7, 14],
+    [1, 0, 12, 19],
+    [1, 1, 3, 22],
+  ]
   const p2tR = new Float64Array(DIM2T)
   const p2tI = new Float64Array(DIM2T)
-  // Deterministic nontrivial superposition across vertices, isospins, and Hurwitz link elements
-  p2tR[idx2T(0, 0, 1, 5)] = 0.6
-  p2tI[idx2T(1, 1, 12, 19)] = 0.8
   const a2tR = new Float64Array(DIM2T)
   const a2tI = new Float64Array(DIM2T)
   const b2tR = new Float64Array(DIM2T)
@@ -2999,24 +3472,33 @@ function runPart2_2(): void {
   const c2tI = new Float64Array(DIM2T)
 
   let max2TGaussComm = 0
-  for (const v of [0, 1] as const) {
-    for (let h = 0; h < 24; h++) {
-      applyGauss2T(p2tR, p2tI, a2tR, a2tI, v, h)
-      applyUWeak2T(a2tR, a2tI, false)
-      b2tR.set(p2tR)
-      b2tI.set(p2tI)
-      applyUWeak2T(b2tR, b2tI, false)
-      applyGauss2T(b2tR, b2tI, c2tR, c2tI, v, h)
-      let e2 = 0
-      for (let i = 0; i < DIM2T; i++) {
-        const dr = a2tR[i]! - c2tR[i]!
-        const di = a2tI[i]! - c2tI[i]!
-        e2 += dr * dr + di * di
+  for (const [pv, piso, pg0, pg1] of probes2T) {
+    p2tR.fill(0)
+    p2tI.fill(0)
+    p2tR[idx2T(pv, piso, pg0, pg1)] = 1
+    for (const v of [0, 1] as const) {
+      for (let h = 0; h < 24; h++) {
+        applyGauss2T(p2tR, p2tI, a2tR, a2tI, v, h)
+        applyUWeak2T(a2tR, a2tI, false)
+        b2tR.set(p2tR)
+        b2tI.set(p2tI)
+        applyUWeak2T(b2tR, b2tI, false)
+        applyGauss2T(b2tR, b2tI, c2tR, c2tI, v, h)
+        let e2 = 0
+        for (let i = 0; i < DIM2T; i++) {
+          const dr = a2tR[i]! - c2tR[i]!
+          const di = a2tI[i]! - c2tI[i]!
+          e2 += dr * dr + di * di
+        }
+        max2TGaussComm = Math.max(max2TGaussComm, Math.sqrt(e2))
       }
-      max2TGaussComm = Math.max(max2TGaussComm, Math.sqrt(e2))
     }
   }
-  // Check T = 20 reversal on full 2T plaquette AND dynamical W^1, W^2 -> W^3 excitation
+  // Check T = 20 reversal on full 2T plaquette from nontrivial superposition
+  p2tR.fill(0)
+  p2tI.fill(0)
+  p2tR[idx2T(0, 0, 1, 5)] = 0.6
+  p2tI[idx2T(1, 1, 12, 19)] = 0.8
   const rev2tR = Float64Array.from(p2tR)
   const rev2tI = Float64Array.from(p2tI)
   for (let t = 1; t <= 20; t++) applyUWeak2T(rev2tR, rev2tI, false)
@@ -3026,9 +3508,12 @@ function runPart2_2(): void {
     rev2TErr = Math.max(rev2TErr, Math.hypot(rev2tR[i]! - p2tR[i]!, rev2tI[i]! - p2tI[i]!))
   }
 
-  // Dynamical W^1, W^2 -> W^3 non-Abelian mixing inside the 3-plet of C[2T]:
-  // Start link g0 in pure W^1 (R_{00}) and link g1 in pure W^2 (R_{11}); evolve 1 beat of U_weak^(2T)
-  // and measure nonzero overlap onto W^3 (R_{22}) generated by the non-Abelian plaquette U_B^(2T)!
+  // Exclusive antisymmetric 3-boson Yang-Mills fusion vertex inside PURE U_B^(2T) (no fermion hopping!):
+  // Compute |<W^3, vac | U_B^(2T) | A, B>|^2 on the 24x24 pure link space:
+  //   - Signal:     |W^1, W^2> -> |W^3, vac>  (nonzero antisymmetric eps^{abc} 3-boson fusion!)
+  //   - Controls:   |W^1, W^1> -> |W^3, vac>  === 0 (exact symmetry veto!)
+  //                 |W^1, vac> -> |W^3, vac>  === 0 (exact orthogonality veto!)
+  //                 |vac, vac> -> |W^3, vac>  === 0 (exact vacuum-stability veto!)
   const adjVec = (a: number, b: number): Float64Array => {
     const v = new Float64Array(24)
     for (let gi = 0; gi < 24; gi++) {
@@ -3037,9 +3522,33 @@ function runPart2_2(): void {
     }
     return v
   }
+  const vacVec = new Float64Array(24).fill(1 / Math.sqrt(24))
   const w1Vec = adjVec(0, 0)
   const w2Vec = adjVec(1, 1)
   const w3Vec = adjVec(2, 2)
+
+  function pureUBFusionProb(in0: Float64Array, in1: Float64Array, out0: Float64Array, out1: Float64Array): number {
+    let sr = 0
+    let si = 0
+    for (let g0 = 0; g0 < 24; g0++) {
+      for (let g1 = 0; g1 < 24; g1++) {
+        const hol = G2T.mulTab[g0]![G2T.invTab[g1]!]!
+        const reTr = G2T.elems[hol]![0]!
+        const ph = cExpI(BETA_2T * reTr)
+        const w = out0[g0]! * out1[g1]! * in0[g0]! * in1[g1]!
+        sr += w * ph[0]
+        si += w * ph[1]
+      }
+    }
+    return sr * sr + si * si
+  }
+
+  const pUB_W1W2_to_W3vac = pureUBFusionProb(w1Vec, w2Vec, w3Vec, vacVec)
+  const pUB_W1W1_to_W3vac = pureUBFusionProb(w1Vec, w1Vec, w3Vec, vacVec)
+  const pUB_W1vac_to_W3vac = pureUBFusionProb(w1Vec, vacVec, w3Vec, vacVec)
+  const pUB_vacvac_to_W3vac = pureUBFusionProb(vacVec, vacVec, w3Vec, vacVec)
+
+  // Also check full U_weak^(2T) (including U_hop + U_B + U_E) exclusive |W^3, vac> probability (summed over fermion)
   const mixR = new Float64Array(DIM2T)
   const mixI = new Float64Array(DIM2T)
   for (let g0 = 0; g0 < 24; g0++) {
@@ -3048,53 +3557,70 @@ function runPart2_2(): void {
     }
   }
   applyUWeak2T(mixR, mixI, false)
-  let w3Prob = 0
+  let fullExclW3Vac = 0
   for (let m = 0; m < 4; m++) {
-    for (let g1 = 0; g1 < 24; g1++) {
-      let sr = 0
-      let si = 0
-      for (let g0 = 0; g0 < 24; g0++) {
+    let sr = 0
+    let si = 0
+    for (let g0 = 0; g0 < 24; g0++) {
+      for (let g1 = 0; g1 < 24; g1++) {
         const i = (m * 24 + g0) * 24 + g1
-        sr += w3Vec[g0]! * mixR[i]!
-        si += w3Vec[g0]! * mixI[i]!
+        const w = w3Vec[g0]! * vacVec[g1]!
+        sr += w * mixR[i]!
+        si += w * mixI[i]!
       }
-      w3Prob += sr * sr + si * si
     }
+    fullExclW3Vac += sr * sr + si * si
   }
+  console.log(
+    `  Pure U_B^(2T) exclusive 3-boson fusion: P(W1,W2->W3,vac)=${pUB_W1W2_to_W3vac.toExponential(4)} vs controls W1W1=${pUB_W1W1_to_W3vac.toExponential(2)}, W1vac=${pUB_W1vac_to_W3vac.toExponential(2)}, vacvac=${pUB_vacvac_to_W3vac.toExponential(2)} (full U_weak excl=${fullExclW3Vac.toExponential(4)})`,
+  )
 
   recordCheck(
-    'P2.2a Exact non-Abelian SU(2)_L Gauss law [U_weak, G_v^a] = 0 (9/9 gens, dim=1,500) & T=20 rev',
-    maxWeakGaussComm < 1e-14 && maxWeakLieAlgErr < 1e-14 && weakRevErr < 1e-14 && uBond.uniErr < 1e-14 && uPlaq.uniErr < 1e-14,
-    `max||[U,G_v^a]||=${maxWeakGaussComm.toExponential(2)}, LieAlgErr=${maxWeakLieAlgErr.toExponential(2)}, revErr=${weakRevErr.toExponential(2)}`,
+    'P2.2a Exact full-operator SU(2)_L Gauss law [U_weak, G_v^a] = 0 (all 1,500/1,500 states) & T=20 rev',
+    maxFullBondComm < 1e-14 &&
+      maxFullPlaqComm < 1e-14 &&
+      maxWeakGaussComm < 1e-14 &&
+      maxWeakLieAlgErr < 1e-14 &&
+      weakRevErr < 1e-14 &&
+      uBond.uniErr < 1e-14 &&
+      uPlaq.uniErr < 1e-14,
+    `||[hBond,G]||=${maxFullBondComm.toExponential(2)}, ||[hPlaq,G]||=${maxFullPlaqComm.toExponential(2)}, ||[U,G_v^a]||=${maxWeakGaussComm.toExponential(2)}, revErr=${weakRevErr.toExponential(2)}`,
   )
   recordCheck(
-    'P2.2b Quantum chiral parity violation on 2T-projected triangle (P_L doublet vs P_R singlet)',
-    maxFlipL > 0.3 && maxMoveL > 0.3 && maxFlipR < 1e-15 && maxMoveR < 1e-15,
-    `P_L: maxFlip(u->d)=${maxFlipL.toFixed(4)}, maxMove=${maxMoveL.toFixed(4)}; P_R: maxFlip=${maxFlipR.toExponential(2)}, maxMove=${maxMoveR.toExponential(2)}`,
+    'P2.2b Quantum chiral parity violation on 2T-projected triangle (mobile P_R singlet vs coupled P_L doublet)',
+    maxFlipL > 0.3 && maxMoveL > 0.3 && maxMoveR > 0.3 && maxFlipR < 1e-15,
+    `P_L: maxFlip(u->d)=${maxFlipL.toFixed(4)}, maxMove=${maxMoveL.toFixed(4)}; P_R (free kinetic): maxMove=${maxMoveR.toFixed(4)}, maxFlip=${maxFlipR.toExponential(2)}`,
   )
   recordCheck(
-    'P2.2c Full 24-element Hurwitz 2T plaquette Gauss law (48/48 checks, dim=2,304) & W^1,W^2->W^3',
-    max2TGaussComm < 1e-14 && rev2TErr < 1e-14 && w3Prob > 0.01,
-    `max||[U_2T,V_v(h)]||=${max2TGaussComm.toExponential(2)}, revErr=${rev2TErr.toExponential(2)}, P(W1,W2->W3)=${w3Prob.toFixed(4)}`,
+    'P2.2c Full 24-element 2T plaquette Gauss law (192/192 checks) & exclusive antisymmetric W1,W2->W3,vac vertex',
+    max2TGaussComm < 1e-14 &&
+      uE24UniErr < 1e-14 &&
+      rev2TErr < 1e-14 &&
+      pUB_W1W2_to_W3vac > 1e-3 &&
+      pUB_W1W1_to_W3vac < 1e-28 &&
+      pUB_W1vac_to_W3vac < 1e-28 &&
+      pUB_vacvac_to_W3vac < 1e-28,
+    `max||[U_2T,V_v(h)]||=${max2TGaussComm.toExponential(2)}, uE24Uni=${uE24UniErr.toExponential(2)}, revErr=${rev2TErr.toExponential(2)}, P_UB(W1,W2->W3,vac)=${pUB_W1W2_to_W3vac.toExponential(3)} vs ctrl=${pUB_W1W1_to_W3vac.toExponential(1)}`,
   )
 }
 
 // ----------------------------------------------------------------------------
 // P2.3: Live 3+1D Strictly Finite-Range Z[zeta_9][1/2] Chiral Domain-Wall QCA
-//       (6^3 Husk x N_D = 16 Depth, dim = 27,648) Coupled to Dynamical 2T Weak Links
+//       (6^3 Husk x N_D = 12 Depth, T_DW = 16 > N_D - 1 = 11 PAST CAUSAL LIGHT CONE!)
+//       in a STATIC spatially varying non-Abelian 2T background weak flux!
+//       (Explicitly distinguished from the full quantum dynamical link spaces in P1.2 & P2.2.)
+//       ALL THREE modes (L_doublet_D0, R_singlet_D0, R_mirror_D11) evolve under ONE SINGLE
+//       UNIFIED OPERATOR U_DW(linkField) on the 3-fiber weak multiplet (u_L, d_L, u_R) with ZERO mode flag!
 // ----------------------------------------------------------------------------
 function runPart2_3(): void {
-  console.log('\n--- P2.3: Live 3+1D {3,4,3,4} Cusp Domain Wall (N_D=16) + Dynamical 2T Weak Flux ---')
+  console.log('\n--- P2.3: Live 3+1D {3,4,3,4} Domain Wall (N_D=12, T=16 > light cone) + Static 2T Background Flux ---')
 
   // Exact strictly finite-range Z[zeta_9][1/2] chiral domain-wall coin K from finite-range-chiral-wall.ts:
-  //   R_phi(2a) = cos(a) I - i sin(a) (cos(phi) sx + sin(phi) sy)
-  //   K = R_{pi/9}(2pi/9) * R_x(-4pi/9) * R_{pi/9}(2pi/9)
   function eqCoin(aStep: number, phiStep: number): CMat2 {
     const a = (aStep * PI) / 9
     const phi = (phiStep * PI) / 9
     const ca = Math.cos(a)
     const sa = Math.sin(a)
-    // -i sin(a) e^{-i phi} = -sin(a) sin(phi) - i sin(a) cos(phi)
     const off01: C = [-sa * Math.sin(phi), -sa * Math.cos(phi)]
     const off10: C = [sa * Math.sin(phi), -sa * Math.cos(phi)]
     return [
@@ -3105,56 +3631,54 @@ function runPart2_3(): void {
   const K_WALL = m2Mul(eqCoin(1, 1), m2Mul(eqCoin(-2, 0), eqCoin(1, 1)))
   const K_DAG = m2Dag(K_WALL)
 
-  // 3D {4,3,4} husk L_h = 6, depth N_D = 16, 2 wall-chiralities (tau in {0=L, 1=R}), 2 weak isospin (u, d)
-  // For clean 3D domain-wall dynamics: total state dim = 6^3 * 16 * 2 * 2 = 13,824 (2-component wall x 2 isospin;
-  // Weyl spin is diagonalized on the wall via chiral boundary mode, and we ALSO track a decoupled P_R singlet!).
-  // Wait: let's keep full 4-component (2 wall-chirality x 2 Weyl-spin) x 2 weak-isospin => dim = 6^3 * 16 * 4 * 2 = 27,648!
+  // 3D {4,3,4} husk L_h = 6 (216 sites), depth N_D = 12, 2 wall-chiralities (tau in {0,1}),
+  // 2 Weyl spins, and 3 weak-multiplet fiber components:
+  //   f in {0, 1}: SU(2)_L doublet (u_L, d_L) (I = 1/2), V_2 pairs (|d, tau=1>, |d+1, tau=0>) -> L zero mode at D=0, R mirror at D=11
+  //   f = 2:       SU(2)_L singlet (u_R)      (I = 0),   V_2 pairs (|d, tau=0>, |d+1, tau=1>) -> R zero mode at D=0 (transforms as 1!)
+  // Total state dim = 6^3 * 12 * 4 * 3 = 31,104!
   const LH = 6
   const VH = LH * LH * LH
-  const ND = 16
-  const DIM_DW = VH * ND * 4 * 2 // site * depth * (tau*2 + spin) * iso
-  const dwIdx = (site: number, d: number, tau: number, spin: number, iso: number): number =>
-    ((((site * ND + d) * 2 + tau) * 2 + spin) * 2 + iso)
+  const ND = 12
+  const NF = 3
+  const DIM_DW = VH * ND * 4 * NF
+  const dwIdx = (site: number, d: number, tau: number, spin: number, f: number): number =>
+    ((((site * ND + d) * 2 + tau) * 2 + spin) * NF + f)
   const hSite = (x: number, y: number, z: number): number =>
     (((x + LH) % LH) * LH + ((y + LH) % LH)) * LH + ((z + LH) % LH)
 
-  // Assign dynamical 2T Hurwitz link matrices U_{x, mu} in 2T on the 6^3 husk (non-Abelian W^+, W^-, W^3 flux!)
-  // Uses exact 2T elements: i, j, (-1+i+j+k)/2, (1+i-j+k)/2 varying spatially across the 6^3 husk!
+  // Two link backgrounds fed into the EXACT SAME unified operator U_DW(linkField):
+  //   1) idLinks:   identity I_2 on every link (free control)
+  //   2) fluxLinks: static spatially varying non-Abelian 2T Hurwitz links {i, j, (-1+i+j+k)/2, (1+i-j+k)/2}
+  const gId = 0
   const gI = G2T.keyMap.get('0,2,0,0')!
   const gJ = G2T.keyMap.get('0,0,2,0')!
   const gW1 = G2T.keyMap.get('-1,1,1,1')!
   const gW2 = G2T.keyMap.get('1,1,-1,1')!
   const fluxPalette = [gI, gJ, gW1, gW2] as const
-  const link2T: number[][] = [new Array(VH), new Array(VH), new Array(VH)]
+  const idLinks: number[][] = [new Array(VH).fill(gId), new Array(VH).fill(gId), new Array(VH).fill(gId)]
+  const fluxLinks: number[][] = [new Array(VH), new Array(VH), new Array(VH)]
   for (let x = 0; x < LH; x++) {
     for (let y = 0; y < LH; y++) {
       for (let z = 0; z < LH; z++) {
         const s = hSite(x, y, z)
-        link2T[0]![s] = fluxPalette[(x + 2 * y + z) % 4]!
-        link2T[1]![s] = fluxPalette[(2 * x + y + 3 * z) % 4]!
-        link2T[2]![s] = fluxPalette[(x + y + 2 * z) % 4]!
+        fluxLinks[0]![s] = fluxPalette[(x + 2 * y + z) % 4]!
+        fluxLinks[1]![s] = fluxPalette[(2 * x + y + 3 * z) % 4]!
+        fluxLinks[2]![s] = fluxPalette[(x + y + 2 * z) % 4]!
       }
     }
   }
 
-  // Strictly finite-range 3+1D chiral domain-wall QCA step:
-  //   U_DW(2T) = U_depth_V2 * U_V1(2T_on_D0) * U_husk_Weyl(2T_on_D0)
-  // Specifically:
-  //   1) Depth-layer shift-conjugated coin V_1 along x, y, z (1-hop per axis in tau-space; strictly local,
-  //      exact zero mode at D=0 with tau=0 (Left-handed) and exact mirror at D=ND-1 with tau=1 (Right-handed)!).
-  //   2) Inter-layer bond unitary V_2 = K_WALL on every bond (|d, tau=1>, |d+1, tau=0>) for d = 0..ND-2.
-  //   3) Husk Weyl propagation S_husk acting on spin with dynamical 2T weak link parallel transport
-  //      applied ONLY to the Left-handed (D = 0, tau = 0) doublet when weakOn = true!
   const tmpR = new Float64Array(DIM_DW)
   const tmpI = new Float64Array(DIM_DW)
 
-  // Shift tau=0 (+1) along axis mu (using 2T link ONLY at d=0 when weakOn && coupleDoublet)
-  function shiftTau0(
+  // Unified chiral link shift on tau=0 (doublet) and tau=1 (singlet):
+  // Representation matrix on 3-fiber (u_L, d_L, u_R) is block-diagonal diag(U_link^(2T) on {0,1} at d=0, I_1 on {2})!
+  function shiftWallAxis(
     re: Float64Array,
     im: Float64Array,
     mu: 0 | 1 | 2,
     dir: 1 | -1,
-    weakOn: boolean,
+    links: readonly (readonly number[])[],
   ): void {
     tmpR.set(re)
     tmpI.set(im)
@@ -3167,15 +3691,16 @@ function runPart2_3(): void {
           const nz = mu === 2 ? (z + dir + LH) % LH : z
           const ns = hSite(nx, ny, nz)
           const linkSite = dir === 1 ? s : ns
-          const Ulink = weakOn ? (dir === 1 ? G2T.mats[link2T[mu]![linkSite]!]! : m2Dag(G2T.mats[link2T[mu]![linkSite]!]!)) : I2
+          const gIdx = links[mu]![linkSite]!
+          const Ulink = dir === 1 ? G2T.mats[gIdx]! : m2Dag(G2T.mats[gIdx]!)
           for (let d = 0; d < ND; d++) {
-            const useWeak = weakOn && d === 0
             for (let spin = 0; spin < 2; spin++) {
+              // Doublet (f=0,1): shifts tau=0, coupled to Ulink at d=0
               const s0 = dwIdx(s, d, 0, spin, 0)
               const s1 = dwIdx(s, d, 0, spin, 1)
               const d0 = dwIdx(ns, d, 0, spin, 0)
               const d1 = dwIdx(ns, d, 0, spin, 1)
-              if (useWeak) {
+              if (d === 0) {
                 const a0: C = [re[s0]!, im[s0]!]
                 const a1: C = [re[s1]!, im[s1]!]
                 const r0 = cAdd(cMul(Ulink[0][0], a0), cMul(Ulink[0][1], a1))
@@ -3190,6 +3715,11 @@ function runPart2_3(): void {
                 tmpR[d1] = re[s1]!
                 tmpI[d1] = im[s1]!
               }
+              // Singlet (f=2, trivial I=0 rep of 2T): shifts tau=1 with exact 1x1 identity [1] at ALL d (including d=0!)
+              const s2 = dwIdx(s, d, 1, spin, 2)
+              const d2 = dwIdx(ns, d, 1, spin, 2)
+              tmpR[d2] = re[s2]!
+              tmpI[d2] = im[s2]!
             }
           }
         }
@@ -3203,9 +3733,9 @@ function runPart2_3(): void {
     for (let s = 0; s < VH; s++) {
       for (let d = 0; d < ND; d++) {
         for (let spin = 0; spin < 2; spin++) {
-          for (let iso = 0; iso < 2; iso++) {
-            const i0 = dwIdx(s, d, 0, spin, iso)
-            const i1 = dwIdx(s, d, 1, spin, iso)
+          for (let f = 0; f < NF; f++) {
+            const i0 = dwIdx(s, d, 0, spin, f)
+            const i1 = dwIdx(s, d, 1, spin, f)
             const a0: C = [re[i0]!, im[i0]!]
             const a1: C = [re[i1]!, im[i1]!]
             const r0 = cAdd(cMul(M[0][0], a0), cMul(M[0][1], a1))
@@ -3220,18 +3750,23 @@ function runPart2_3(): void {
     }
   }
 
-  function applyV1Axis(re: Float64Array, im: Float64Array, mu: 0 | 1 | 2, weakOn: boolean, inv: boolean): void {
-    // K^dag * T_mu * K * T_mu^dag (and inverse T_mu * K^dag * T_mu^dag * K)
+  function applyV1Axis(
+    re: Float64Array,
+    im: Float64Array,
+    mu: 0 | 1 | 2,
+    links: readonly (readonly number[])[],
+    inv: boolean,
+  ): void {
     if (!inv) {
-      shiftTau0(re, im, mu, -1, weakOn)
+      shiftWallAxis(re, im, mu, -1, links)
       applyOnSiteTauMat(re, im, K_WALL)
-      shiftTau0(re, im, mu, 1, weakOn)
+      shiftWallAxis(re, im, mu, 1, links)
       applyOnSiteTauMat(re, im, K_DAG)
     } else {
       applyOnSiteTauMat(re, im, K_WALL)
-      shiftTau0(re, im, mu, -1, weakOn)
+      shiftWallAxis(re, im, mu, -1, links)
       applyOnSiteTauMat(re, im, K_DAG)
-      shiftTau0(re, im, mu, 1, weakOn)
+      shiftWallAxis(re, im, mu, 1, links)
     }
   }
 
@@ -3240,9 +3775,10 @@ function runPart2_3(): void {
     for (let s = 0; s < VH; s++) {
       for (let d = 0; d < ND - 1; d++) {
         for (let spin = 0; spin < 2; spin++) {
-          for (let iso = 0; iso < 2; iso++) {
-            const i0 = dwIdx(s, d, 1, spin, iso) // |d, R>
-            const i1 = dwIdx(s, d + 1, 0, spin, iso) // |d+1, L>
+          // Doublet (f=0,1): pairs (|d, tau=1>, |d+1, tau=0>) -> L zero mode at D=0, R mirror at D=ND-1
+          for (let f = 0; f < 2; f++) {
+            const i0 = dwIdx(s, d, 1, spin, f)
+            const i1 = dwIdx(s, d + 1, 0, spin, f)
             const a0: C = [re[i0]!, im[i0]!]
             const a1: C = [re[i1]!, im[i1]!]
             const r0 = cAdd(cMul(M[0][0], a0), cMul(M[0][1], a1))
@@ -3252,13 +3788,29 @@ function runPart2_3(): void {
             re[i1] = r1[0]
             im[i1] = r1[1]
           }
+          // Singlet (f=2): opposite-sign wall pairs (|d, tau=0>, |d+1, tau=1>) -> R zero mode at D=0!
+          const j0 = dwIdx(s, d, 0, spin, 2)
+          const j1 = dwIdx(s, d + 1, 1, spin, 2)
+          const b0: C = [re[j0]!, im[j0]!]
+          const b1: C = [re[j1]!, im[j1]!]
+          const q0 = cAdd(cMul(M[0][0], b0), cMul(M[0][1], b1))
+          const q1 = cAdd(cMul(M[1][0], b0), cMul(M[1][1], b1))
+          re[j0] = q0[0]
+          im[j0] = q0[1]
+          re[j1] = q1[0]
+          im[j1] = q1[1]
         }
       }
     }
   }
 
-  // Husk Weyl shift S_husk along x (moves spin=0 forward, spin=1 backward; uses 2T link ONLY on D=0, tau=0!)
-  function applyHuskWeyl(re: Float64Array, im: Float64Array, weakOn: boolean, inv: boolean): void {
+  // Unified husk Weyl shift along x: acts identically on all 3 fibers with rep diag(U_link on D=0 tau=0 doublet, I_1 on singlet)
+  function applyHuskWeyl(
+    re: Float64Array,
+    im: Float64Array,
+    links: readonly (readonly number[])[],
+    inv: boolean,
+  ): void {
     tmpR.set(re)
     tmpI.set(im)
     const dir0: 1 | -1 = inv ? -1 : 1
@@ -3267,21 +3819,19 @@ function runPart2_3(): void {
       for (let y = 0; y < LH; y++) {
         for (let z = 0; z < LH; z++) {
           const s = hSite(x, y, z)
-          const nx0 = (x + dir0 + LH) % LH
-          const nx1 = (x + dir1 + LH) % LH
-          const ns0 = hSite(nx0, y, z)
-          const ns1 = hSite(nx1, y, z)
-          const link0 = dir0 === 1 ? s : ns0
-          const link1 = dir1 === 1 ? s : ns1
-          const U0 = weakOn ? (dir0 === 1 ? G2T.mats[link2T[0]![link0]!]! : m2Dag(G2T.mats[link2T[0]![link0]!]!)) : I2
-          const U1 = weakOn ? (dir1 === 1 ? G2T.mats[link2T[0]![link1]!]! : m2Dag(G2T.mats[link2T[0]![link1]!]!)) : I2
+          const ns0 = hSite((x + dir0 + LH) % LH, y, z)
+          const ns1 = hSite((x + dir1 + LH) % LH, y, z)
+          const g0 = links[0]![dir0 === 1 ? s : ns0]!
+          const g1 = links[0]![dir1 === 1 ? s : ns1]!
+          const U0 = dir0 === 1 ? G2T.mats[g0]! : m2Dag(G2T.mats[g0]!)
+          const U1 = dir1 === 1 ? G2T.mats[g1]! : m2Dag(G2T.mats[g1]!)
           for (let d = 0; d < ND; d++) {
             for (let tau = 0; tau < 2; tau++) {
-              const useWeak = weakOn && d === 0 && tau === 0
-              // spin = 0
+              const useWeakD = d === 0 && tau === 0
+              // Doublet spin=0
               const a00: C = [re[dwIdx(s, d, tau, 0, 0)]!, im[dwIdx(s, d, tau, 0, 0)]!]
               const a01: C = [re[dwIdx(s, d, tau, 0, 1)]!, im[dwIdx(s, d, tau, 0, 1)]!]
-              if (useWeak) {
+              if (useWeakD) {
                 const r0 = cAdd(cMul(U0[0][0], a00), cMul(U0[0][1], a01))
                 const r1 = cAdd(cMul(U0[1][0], a00), cMul(U0[1][1], a01))
                 tmpR[dwIdx(ns0, d, tau, 0, 0)] = r0[0]
@@ -3294,10 +3844,10 @@ function runPart2_3(): void {
                 tmpR[dwIdx(ns0, d, tau, 0, 1)] = a01[0]
                 tmpI[dwIdx(ns0, d, tau, 0, 1)] = a01[1]
               }
-              // spin = 1
+              // Doublet spin=1
               const b10: C = [re[dwIdx(s, d, tau, 1, 0)]!, im[dwIdx(s, d, tau, 1, 0)]!]
               const b11: C = [re[dwIdx(s, d, tau, 1, 1)]!, im[dwIdx(s, d, tau, 1, 1)]!]
-              if (useWeak) {
+              if (useWeakD) {
                 const r0 = cAdd(cMul(U1[0][0], b10), cMul(U1[0][1], b11))
                 const r1 = cAdd(cMul(U1[1][0], b10), cMul(U1[1][1], b11))
                 tmpR[dwIdx(ns1, d, tau, 1, 0)] = r0[0]
@@ -3310,6 +3860,11 @@ function runPart2_3(): void {
                 tmpR[dwIdx(ns1, d, tau, 1, 1)] = b11[0]
                 tmpI[dwIdx(ns1, d, tau, 1, 1)] = b11[1]
               }
+              // Singlet f=2 (trivial I=0 rep of 2T): propagates identically with rep [1]
+              tmpR[dwIdx(ns0, d, tau, 0, 2)] = re[dwIdx(s, d, tau, 0, 2)]!
+              tmpI[dwIdx(ns0, d, tau, 0, 2)] = im[dwIdx(s, d, tau, 0, 2)]!
+              tmpR[dwIdx(ns1, d, tau, 1, 2)] = re[dwIdx(s, d, tau, 1, 2)]!
+              tmpI[dwIdx(ns1, d, tau, 1, 2)] = im[dwIdx(s, d, tau, 1, 2)]!
             }
           }
         }
@@ -3319,53 +3874,56 @@ function runPart2_3(): void {
     im.set(tmpI)
   }
 
-  function stepDW(re: Float64Array, im: Float64Array, weakOn: boolean, inv: boolean): void {
+  function stepDWUnified(
+    re: Float64Array,
+    im: Float64Array,
+    links: readonly (readonly number[])[],
+    inv: boolean,
+  ): void {
     if (!inv) {
-      applyHuskWeyl(re, im, weakOn, false)
-      applyV1Axis(re, im, 2, weakOn, false)
-      applyV1Axis(re, im, 1, weakOn, false)
-      applyV1Axis(re, im, 0, weakOn, false)
+      applyHuskWeyl(re, im, links, false)
+      applyV1Axis(re, im, 2, links, false)
+      applyV1Axis(re, im, 1, links, false)
+      applyV1Axis(re, im, 0, links, false)
       applyV2Depth(re, im, false)
     } else {
       applyV2Depth(re, im, true)
-      applyV1Axis(re, im, 0, weakOn, true)
-      applyV1Axis(re, im, 1, weakOn, true)
-      applyV1Axis(re, im, 2, weakOn, true)
-      applyHuskWeyl(re, im, weakOn, true)
+      applyV1Axis(re, im, 0, links, true)
+      applyV1Axis(re, im, 1, links, true)
+      applyV1Axis(re, im, 2, links, true)
+      applyHuskWeyl(re, im, links, true)
     }
   }
 
-  function testMode(mode: 'L_D0' | 'R_singlet_D0' | 'R_mirror_D15'): {
+  // Evolve ALL THREE modes through the EXACT SAME unified operator stepDWUnified (idLinks vs fluxLinks)
+  // for T_DW = 16 > N_D - 1 = 11 beats (5 full beats PAST causal light-cone crossing of the entire depth slab!)
+  const T_DW = 16
+  function testModeUnified(mode: 'L_doublet_D0' | 'R_singlet_D0' | 'R_mirror_D11'): {
     readonly deltaP: number
     readonly isoFlip: number
     readonly revErr: number
     readonly wallWeight: number
+    readonly weightAtD0: number
   } {
     const rFree = new Float64Array(DIM_DW)
     const iFree = new Float64Array(DIM_DW)
     const rWeak = new Float64Array(DIM_DW)
     const iWeak = new Float64Array(DIM_DW)
 
-    // Smooth low-momentum wavepacket on 6^3 husk (k_x = 0 for exact Gamma zero mode, plus gentle modulation)
-    // At Gamma (k=0), |D=0, tau=0> is an EXACT zero mode of U_DW with 1.000000 weight on D=0,
-    // and |D=ND-1, tau=1> is the EXACT Right-handed mirror mode with 1.000000 weight on D=15!
-    // Add a small k_x = 2pi/6 plane-wave envelope so the packet genuinely propagates across links!
-    const norm = 1 / Math.sqrt(VH)
-    const targetD = mode === 'R_mirror_D15' ? ND - 1 : 0
-    const targetTau = mode === 'L_D0' ? 0 : 1
+    const targetD = mode === 'R_mirror_D11' ? ND - 1 : 0
+    const targetTau = mode === 'L_doublet_D0' ? 0 : 1
+    const targetF = mode === 'R_singlet_D0' ? 2 : 0
     for (let x = 0; x < LH; x++) {
-      // Pure Gamma in y,z and superposed (1 + 0.25 cos(2pi x / LH)) along x for genuine multi-link propagation
       const amp = 1 + 0.15 * Math.cos((2 * PI * x) / LH)
       for (let y = 0; y < LH; y++) {
         for (let z = 0; z < LH; z++) {
           const s = hSite(x, y, z)
-          const idx = dwIdx(s, targetD, targetTau, 0, 0) // pure u (iso=0)
-          rFree[idx] = amp * norm
-          rWeak[idx] = amp * norm
+          const idx = dwIdx(s, targetD, targetTau, 0, targetF)
+          rFree[idx] = amp
+          rWeak[idx] = amp
         }
       }
     }
-    // Normalize exactly
     let n2 = 0
     for (let i = 0; i < DIM_DW; i++) n2 += rFree[i]! ** 2
     const invN = 1 / Math.sqrt(n2)
@@ -3375,75 +3933,80 @@ function runPart2_3(): void {
     }
     const rWeak0 = Float64Array.from(rWeak)
 
-    const T_DW = 6
     let maxDeltaP = 0
     let maxFlip = 0
     let wallWeight = 0
+    let weightAtD0 = 0
     for (let t = 1; t <= T_DW; t++) {
-      stepDW(rFree, iFree, false, false)
-      // For R_singlet_D0, it is a Right-handed weak singlet (tau=1, sterile to weak links)
-      stepDW(rWeak, iWeak, mode !== 'R_singlet_D0', false)
-      // Overlap |<psi_free | psi_weak>|^2
+      // EXACT SAME operator with NO mode boolean: only link background changes (idLinks vs fluxLinks)!
+      stepDWUnified(rFree, iFree, idLinks, false)
+      stepDWUnified(rWeak, iWeak, fluxLinks, false)
       let ovR = 0
       let ovI = 0
       let flip = 0
       let wD = 0
+      let w0 = 0
       for (let s = 0; s < VH; s++) {
         for (let d = 0; d < ND; d++) {
           for (let tau = 0; tau < 2; tau++) {
             for (let spin = 0; spin < 2; spin++) {
-              for (let iso = 0; iso < 2; iso++) {
-                const idx = dwIdx(s, d, tau, spin, iso)
+              for (let f = 0; f < NF; f++) {
+                const idx = dwIdx(s, d, tau, spin, f)
                 ovR += rFree[idx]! * rWeak[idx]! + iFree[idx]! * iWeak[idx]!
                 ovI += rFree[idx]! * iWeak[idx]! - iFree[idx]! * rWeak[idx]!
                 const p = rWeak[idx]! ** 2 + iWeak[idx]! ** 2
-                if (iso === 1) flip += p
+                if (f === 1) flip += p
                 if (d === targetD) wD += p
+                if (d === 0) w0 += p
               }
             }
           }
         }
       }
-      const dP = Math.max(0, 1 - (ovR * ovR + ovI * ovI))
-      maxDeltaP = Math.max(maxDeltaP, dP)
+      maxDeltaP = Math.max(maxDeltaP, Math.max(0, 1 - (ovR * ovR + ovI * ovI)))
       maxFlip = Math.max(maxFlip, flip)
       wallWeight = wD
+      weightAtD0 = Math.max(weightAtD0, w0)
     }
 
-    for (let t = 1; t <= T_DW; t++) stepDW(rWeak, iWeak, mode !== 'R_singlet_D0', true)
+    for (let t = 1; t <= T_DW; t++) stepDWUnified(rWeak, iWeak, fluxLinks, true)
     let revErr = 0
     for (let i = 0; i < DIM_DW; i++) {
       revErr = Math.max(revErr, Math.hypot(rWeak[i]! - rWeak0[i]!, iWeak[i]!))
     }
-    return { deltaP: maxDeltaP, isoFlip: maxFlip, revErr, wallWeight }
+    return { deltaP: maxDeltaP, isoFlip: maxFlip, revErr, wallWeight, weightAtD0 }
   }
 
-  const resL = testMode('L_D0')
-  const resRSinglet = testMode('R_singlet_D0')
-  const resRMirror = testMode('R_mirror_D15')
+  const resL = testModeUnified('L_doublet_D0')
+  const resRSinglet = testModeUnified('R_singlet_D0')
+  const resRMirror = testModeUnified('R_mirror_D11')
 
   console.log(
-    `  3+1D Domain Wall (6^3 x N_D=16, dim=${DIM_DW}) + 2T weak flux:`,
+    `  3+1D Unified Domain Wall (6^3 x N_D=${ND}, T=${T_DW} > ${ND - 1} causal crossing, dim=${DIM_DW}, static 2T background flux):`,
   )
   console.log(
-    `    Left-handed doublet (D=0):    Delta P_L = ${resL.deltaP.toFixed(6)}, P(u_L->d_L) = ${resL.isoFlip.toFixed(6)}, D=0 weight = ${resL.wallWeight.toFixed(6)}, revErr = ${resL.revErr.toExponential(2)}`,
+    `    L doublet  (D=0, f=0):  Delta P_L = ${resL.deltaP.toFixed(6)}, P(u_L->d_L) = ${resL.isoFlip.toFixed(6)}, D=0 wt = ${resL.wallWeight.toFixed(6)}, revErr = ${resL.revErr.toExponential(2)}`,
   )
   console.log(
-    `    Right-handed singlet (D=0):   Delta P_R = ${resRSinglet.deltaP.toExponential(2)}, P(u_R->d_R) = ${resRSinglet.isoFlip.toExponential(2)}, revErr = ${resRSinglet.revErr.toExponential(2)}`,
+    `    R singlet  (D=0, f=2):  Delta P_R = ${resRSinglet.deltaP.toExponential(2)}, P(flip) = ${resRSinglet.isoFlip.toExponential(2)}, D=0 wt = ${resRSinglet.wallWeight.toFixed(6)}, revErr = ${resRSinglet.revErr.toExponential(2)}`,
   )
   console.log(
-    `    Right-handed mirror (D=15):   Delta P_mir = ${resRMirror.deltaP.toExponential(2)}, P(flip) = ${resRMirror.isoFlip.toExponential(2)}, D=15 weight = ${resRMirror.wallWeight.toFixed(6)}, revErr = ${resRMirror.revErr.toExponential(2)}`,
+    `    R mirror  (D=11, f=0):  Delta P_mir = ${resRMirror.deltaP.toExponential(2)}, P(flip) = ${resRMirror.isoFlip.toExponential(2)}, D=11 wt = ${resRMirror.wallWeight.toFixed(6)}, max D=0 tail = ${resRMirror.weightAtD0.toExponential(2)}, revErr = ${resRMirror.revErr.toExponential(2)}`,
   )
 
   recordCheck(
-    'P2.3 Exact maximal parity violation on 3+1D {3,4,3,4} domain wall (6^3 x N_D=16) + 2T flux',
+    'P2.3 Unified 3+1D domain wall (N_D=12, T=16 > light cone) + static 2T background maximal parity violation',
     resL.deltaP > 0.5 &&
       resL.isoFlip > 0.3 &&
       resRSinglet.deltaP < 1e-12 &&
+      resRSinglet.wallWeight > 0.95 &&
       resRMirror.deltaP < 1e-12 &&
+      resRMirror.weightAtD0 > 0 &&
+      resRMirror.weightAtD0 < 1e-12 &&
       resL.revErr < 1e-13 &&
+      resRSinglet.revErr < 1e-13 &&
       resRMirror.revErr < 1e-13,
-    `DeltaP_L=${resL.deltaP.toFixed(4)} (flip=${resL.isoFlip.toFixed(4)}), DeltaP_R=${resRSinglet.deltaP.toExponential(2)}, DeltaP_mir=${resRMirror.deltaP.toExponential(2)}, revErr=${resL.revErr.toExponential(2)}`,
+    `DeltaP_L=${resL.deltaP.toFixed(4)} (flip=${resL.isoFlip.toFixed(4)}), DeltaP_R=${resRSinglet.deltaP.toExponential(2)} (D0wt=${resRSinglet.wallWeight.toFixed(4)}), DeltaP_mir=${resRMirror.deltaP.toExponential(2)} (causal D0 tail=${resRMirror.weightAtD0.toExponential(2)})`,
   )
 }
 
@@ -3661,6 +4224,23 @@ function runPart3(): void {
 
   const delta27 = closeMat3([CLOCK3, SHIFT3], 100)
   const sigma648 = closeMat3([CLOCK3, SHIFT3, PHASE_T, HESS_V], 1000)
+
+  // Explicit normality verification: Delta(27) <| Sigma(648) under all 4 generators (108/108 checks!)
+  const m3Dag = (a: Mat3): Mat3 => {
+    const out: C[] = new Array(9)
+    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) out[i * 3 + j] = cConj(a[j * 3 + i]!)
+    return out
+  }
+  const delta27Keys = new Set<string>(delta27.map(m3Key))
+  const s648Gens: readonly Mat3[] = [CLOCK3, SHIFT3, PHASE_T, HESS_V]
+  let delta27NormDefects = 0
+  for (const d of delta27) {
+    for (const g of s648Gens) {
+      const conj = m3Mul(g, m3Mul(d, m3Dag(g)))
+      if (!delta27Keys.has(m3Key(conj))) delta27NormDefects++
+    }
+  }
+
   let s648DetErr = 0
   let s648UniErr = 0
   let s648CenterCount = 0
@@ -3691,35 +4271,34 @@ function runPart3(): void {
   s648FP3 /= sigma648.length
 
   // --------------------------------------------------------------------------
-  // P3.3: Standard Model Z_6 Central Quotient, Left-Right Y = T_R^3 + (B-L)/2 & 5 Anomalies
+  // P3.3: Standard Model Z_6 Central Quotient (Z_18 faithful vs Z_6 quotient-collapsed),
+  //       Left-Right z_{6,LR} kernel, Y = T_R^3 + (B-L)/2 & 5 Anomalies
   // --------------------------------------------------------------------------
-  // One full generation (16 Weyl fermions, all written as Left-handed):
-  //   Q_L   : (3,   2, 1, +1/3) -> T_R^3 = 0,     Y = +1/6  (6Y = +1, mult = 6)
-  //   u_R^c : (3b,  1, 2, -1/3) -> T_R^3 = -1/2,  Y = -2/3  (6Y = -4, mult = 3)
-  //   d_R^c : (3b,  1, 2, -1/3) -> T_R^3 = +1/2,  Y = +1/3  (6Y = +2, mult = 3)
-  //   L_L   : (1,   2, 1, -1)   -> T_R^3 = 0,     Y = -1/2  (6Y = -3, mult = 2)
-  //   e_R^c : (1,   1, 2, +1)   -> T_R^3 = +1/2,  Y = +1    (6Y = +6, mult = 1)
-  //   nu_R^c: (1,   1, 2, +1)   -> T_R^3 = -1/2,  Y = 0     (6Y =  0, mult = 1)
   interface Multiplet {
     readonly name: string
     readonly nColor: number // 3, -3 (anti-triplet), 1
     readonly nWeakL: number // 2 or 1
+    readonly nWeakR: number // 2 or 1
     readonly tR3: number // 0, +1/2, -1/2
     readonly bMinusL: number // +1/3, -1/3, -1, +1 (for LH states!)
     readonly sixY: number
   }
   const gen1: readonly Multiplet[] = [
-    { name: 'Q_L', nColor: 3, nWeakL: 2, tR3: 0, bMinusL: 1 / 3, sixY: 1 },
-    { name: 'u_R^c', nColor: -3, nWeakL: 1, tR3: -0.5, bMinusL: -1 / 3, sixY: -4 },
-    { name: 'd_R^c', nColor: -3, nWeakL: 1, tR3: 0.5, bMinusL: -1 / 3, sixY: 2 },
-    { name: 'L_L', nColor: 1, nWeakL: 2, tR3: 0, bMinusL: -1, sixY: -3 },
-    { name: 'e_R^c', nColor: 1, nWeakL: 1, tR3: 0.5, bMinusL: 1, sixY: 6 },
-    { name: 'nu_R^c', nColor: 1, nWeakL: 1, tR3: -0.5, bMinusL: 1, sixY: 0 },
+    { name: 'Q_L', nColor: 3, nWeakL: 2, nWeakR: 1, tR3: 0, bMinusL: 1 / 3, sixY: 1 },
+    { name: 'u_R^c', nColor: -3, nWeakL: 1, nWeakR: 2, tR3: -0.5, bMinusL: -1 / 3, sixY: -4 },
+    { name: 'd_R^c', nColor: -3, nWeakL: 1, nWeakR: 2, tR3: 0.5, bMinusL: -1 / 3, sixY: 2 },
+    { name: 'L_L', nColor: 1, nWeakL: 2, nWeakR: 1, tR3: 0, bMinusL: -1, sixY: -3 },
+    { name: 'e_R^c', nColor: 1, nWeakL: 1, nWeakR: 2, tR3: 0.5, bMinusL: 1, sixY: 6 },
+    { name: 'nu_R^c', nColor: 1, nWeakL: 1, nWeakR: 2, tR3: -0.5, bMinusL: 1, sixY: 0 },
   ]
 
-  // Check z_6 = (omega I_3, -I_2, zeta_6) invariance on ALL 6 multiplets (16 Weyl fermions)
+  // Check:
+  //   1) SM central z_6 = (omega I_3, -I_2L, zeta_6^{6Y}) invariance on all 6 multiplets (16 Weyl)
+  //   2) Left-Right central z_{6,LR} = (omega I_3, -I_2L, -I_2R, zeta_6^{3(B-L)}) invariance on all 4 LR multiplets
+  //   3) Faithfulness of Z_18 (6/6 distinct hypercharges mod 18) vs Z_6 quotient collapse (u_R^c -4 == d_R^c +2 mod 6!)
   const ZETA6 = cExpI(PI / 3)
   let maxZ6Err = 0
+  let maxZ6LRErr = 0
   let maxLRFormulaErr = 0
   let anomSU3sqY = 0
   let anomSU2sqY = 0
@@ -3727,6 +4306,10 @@ function runPart3(): void {
   let anomGravY = 0
   let wittenDoublets = 0
   let totalWeyl = 0
+  const yMod6 = new Set<number>()
+  const yMod18 = new Set<number>()
+  const blMod6 = new Set<number>()
+  const blMod18 = new Set<number>()
 
   for (const m of gen1) {
     const dimC = Math.abs(m.nColor)
@@ -3736,14 +4319,27 @@ function runPart3(): void {
     const yPred = m.tR3 + 0.5 * m.bMinusL
     maxLRFormulaErr = Math.max(maxLRFormulaErr, Math.abs(yVal - yPred))
 
-    // Central z_6 action: color factor (omega for 3, omega^2 for 3bar, 1 for 1) * (-1 for 2, +1 for 1) * zeta_6^(6Y)
+    yMod6.add(((m.sixY % 6) + 6) % 6)
+    yMod18.add(((m.sixY % 18) + 18) % 18)
+    const threeBL = Math.round(3 * m.bMinusL)
+    blMod6.add(((threeBL % 6) + 6) % 6)
+    blMod18.add(((threeBL % 18) + 18) % 18)
+
+    // SM central z_6 action: color * (-1 for 2_L) * zeta_6^(6Y)
     const cPh: C = m.nColor === 3 ? W : m.nColor === -3 ? W2 : C1
-    const wPh: C = m.nWeakL === 2 ? [-1, 0] : C1
+    const wLPh: C = m.nWeakL === 2 ? [-1, 0] : C1
+    const wRPh: C = m.nWeakR === 2 ? [-1, 0] : C1
     let yPh: C = C1
-    const steps = ((m.sixY % 6) + 6) % 6
-    for (let k = 0; k < steps; k++) yPh = cMul(yPh, ZETA6)
-    const z6Act = cMul(cMul(cPh, wPh), yPh)
-    maxZ6Err = Math.max(maxZ6Err, cAbs(cSub(z6Act, C1)))
+    const stepsY = ((m.sixY % 6) + 6) % 6
+    for (let k = 0; k < stepsY; k++) yPh = cMul(yPh, ZETA6)
+    maxZ6Err = Math.max(maxZ6Err, cAbs(cSub(cMul(cMul(cPh, wLPh), yPh), C1)))
+
+    // Left-Right central z_{6,LR} = (omega I_3, -I_2L, -I_2R, zeta_6^{3(B-L)})
+    let blPh: C = C1
+    const stepsBL = ((threeBL % 6) + 6) % 6
+    for (let k = 0; k < stepsBL; k++) blPh = cMul(blPh, ZETA6)
+    const z6LRAct = cMul(cMul(cMul(cPh, wLPh), wRPh), blPh)
+    maxZ6LRErr = Math.max(maxZ6LRErr, cAbs(cSub(z6LRAct, C1)))
 
     // Anomalies
     if (dimC === 3) anomSU3sqY += m.nWeakL * yVal
@@ -3761,10 +4357,6 @@ function runPart3(): void {
     Math.abs(anomGravY),
   )
 
-  // Check exact discrete group orders:
-  //   G_SM^disc(N=1) = (Sigma(648) x 2T_L x Z_6) / Z_6   -> order 648 * 24 * 6 / 6 = 15,552
-  //   G_SM^disc(N=3) = (Sigma(648) x 2T_L x Z_18) / Z_6  -> order 648 * 24 * 18 / 6 = 46,656
-  //   G_LR^disc      = (Sigma(648) x 2T_L x 2T_R x Z_6) / (Z_3 x Z_2) -> order 648 * 24 * 24 * 6 / 6 = 373,248
   const orderSM6 = (sigma648.length * G2T.elems.length * 6) / 6
   const orderSM18 = (sigma648.length * G2T.elems.length * 18) / 6
   const orderLR = (sigma648.length * G2T.elems.length * G2T.elems.length * 6) / 6
@@ -3785,16 +4377,16 @@ function runPart3(): void {
     `  P_LR = conj in W(F_4)^-: ${pLRInWF4Minus}, P_LR(2T_L)P_LR = 2T_R swap defects = ${swapDefects}/24; Z_6 < 2T_R order = ${z6Order}`,
   )
   console.log(
-    `  |Delta(27)|=${delta27.length}, |Sigma(648)|=${sigma648.length}, |Z(Sigma(648))|=${s648CenterCount}, detErr=${s648DetErr.toExponential(2)}, uniErr=${s648UniErr.toExponential(2)}`,
+    `  |Delta(27)|=${delta27.length} (normality defects in Sigma(648)=${delta27NormDefects}/108), |Sigma(648)|=${sigma648.length}, |Z(Sigma(648))|=${s648CenterCount}, detErr=${s648DetErr.toExponential(2)}, uniErr=${s648UniErr.toExponential(2)}`,
   )
   console.log(
     `  Sigma(648) unitary t-design frame potentials in SU(3): k=1: ${s648FP1.toFixed(12)} (SU3=1), k=2: ${s648FP2.toFixed(12)} (SU3=2 => EXACT 2-design!), k=3: ${s648FP3.toFixed(6)} (SU3=6)`,
   )
   console.log(
-    `  16 Weyl fermions (total=${totalWeyl}): max|z_6 - 1|=${maxZ6Err.toExponential(2)}, max|Y-(T_R^3+(B-L)/2)|=${maxLRFormulaErr.toExponential(2)}, maxAnom=${maxAnomErr.toExponential(2)}, Witten doublets=${wittenDoublets} (even!)`,
+    `  16 Weyl fermions (total=${totalWeyl}): max|z_6(SM)-1|=${maxZ6Err.toExponential(2)}, max|z_6(LR)-1|=${maxZ6LRErr.toExponential(2)}, max|Y-(T_R^3+(B-L)/2)|=${maxLRFormulaErr.toExponential(2)}, maxAnom=${maxAnomErr.toExponential(2)}, Witten=${wittenDoublets}`,
   )
   console.log(
-    `  Discrete gauge orders: |G_SM(Z_6)|=${orderSM6}, |G_SM(Z_18)|=${orderSM18}, |G_LR|=${orderLR}`,
+    `  Hypercharge faithfulness: Z_6 distinct=${yMod6.size}/6 (quotient-collapsed: u_R^c==d_R^c & e_R^c==nu_R^c mod 6), native Z_18 distinct=${yMod18.size}/6 (faithful Z_3 quotient, |G_SM(Z_18)|=${orderSM18}), B-L distinct: Z_6=${blMod6.size}/4 vs Z_18=${blMod18.size}/4, |G_LR|=${orderLR}`,
   )
 
   // Avoid unused warning on m4Transpose
@@ -3815,27 +4407,33 @@ function runPart3(): void {
     `|W(F_4)|=1152, |2T_L o 2T_R|=288 (normal, 0 defects), P_LR swap=0/24 defects, Z_6 < 2T_R order=6`,
   )
   recordCheck(
-    'P3.2 Delta(27) (27) <| Sigma(648) (648) < SU(3)_C exact closure & unitary 2-design in SU(3)',
+    'P3.2 Delta(27) (27) <| Sigma(648) (648) < SU(3)_C exact normality & unitary 2-design in SU(3)',
     delta27.length === 27 &&
+      delta27NormDefects === 0 &&
       sigma648.length === 648 &&
       s648CenterCount === 3 &&
       s648DetErr < 1e-13 &&
       s648UniErr < 1e-13 &&
       Math.abs(s648FP1 - 1) < 1e-12 &&
       Math.abs(s648FP2 - 2) < 1e-12,
-    `|Sigma(648)|=648, |Z|=3, FP(k=1,2)=(${s648FP1.toFixed(6)}, ${s648FP2.toFixed(6)}), FP(k=3)=${s648FP3.toFixed(4)}`,
+    `|Delta(27)|=27 (0/108 norm defects), |Sigma(648)|=648, |Z|=3, FP(k=1,2)=(${s648FP1.toFixed(6)}, ${s648FP2.toFixed(6)}), FP(k=3)=${s648FP3.toFixed(4)}`,
   )
   recordCheck(
-    'P3.3 Exact SM Z_6 central quotient, Left-Right Y = T_R^3 + (B-L)/2 & 5-channel anomaly cancel',
+    'P3.3 Exact SM/LR Z_6 kernels, faithful Z_18 hypercharges (6/6), Y = T_R^3+(B-L)/2 & 5-channel anomalies',
     totalWeyl === 16 &&
       maxZ6Err < 1e-14 &&
+      maxZ6LRErr < 1e-14 &&
       maxLRFormulaErr < 1e-15 &&
       maxAnomErr < 1e-15 &&
       wittenDoublets === 4 &&
+      yMod6.size === 4 &&
+      yMod18.size === 6 &&
+      blMod6.size === 3 &&
+      blMod18.size === 4 &&
       orderSM6 === 15552 &&
       orderSM18 === 46656 &&
       orderLR === 373248,
-    `z_6 err=${maxZ6Err.toExponential(2)}, LR Y err=${maxLRFormulaErr.toExponential(2)}, anomErr=${maxAnomErr.toExponential(2)}, Witten=4, |G_LR|=373,248`,
+    `z_6(SM/LR) err=(${maxZ6Err.toExponential(1)},${maxZ6LRErr.toExponential(1)}), Z_18 faithful=6/6 Y & 4/4 B-L (Z_6=4/6 Y, 3/4 B-L), anomErr=${maxAnomErr.toExponential(1)}, |G_SM(Z_18)|=46,656, |G_LR|=373,248`,
   )
 }
 

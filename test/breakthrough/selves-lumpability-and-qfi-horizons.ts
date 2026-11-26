@@ -29,7 +29,7 @@
 //     (i)   Exact single-beat Holevo lag decodability I(u_{t - Delta} : rho_{A, t}) over Delta = 0..32 comparing:
 //           (a) ballistic bare U (k = 1 geodesic escape & k = 4 Phi_odd = OFF baseline),
 //           (b) W9's 207.6x near-resonant chiral Phi_odd 4-line cluster (C4 [0,1,2,8] & C2 Q=0_V [0,1,6,10]),
-//           (b3) localized k = 3 Sym^3 trion wavepacket fixed-B_1 O(1/t) dispersion vs comoving contact (6/7, 288/343),
+//           (b3) localized k = 3 Sym^3 trion wavepacket lab-frame fixed-B_2 (|x| <= 2) O(1/t) dispersion vs comoving contact (6/7, 288/343),
 //           (c) W10 [[24, 1, 8]]_3 / B_1 bulk-protected register + unequal-delay temporal alignment (Delta_1=2, Delta_2=6).
 //     (ii)  Non-tautological Joint Unitary A U E Mallavarapu-Percy swap test: two distinct past histories producing
 //           identical rho_{A, t} (< 1e-15) yet distinct joint A U E states (||rho_AE^(1)-rho_AE^(2)||_1 = 1.9365) are
@@ -2448,9 +2448,11 @@ function runExperiment3(b1Ctx: ReturnType<typeof runExperiment2>) {
   assertExact(Math.abs(trionComovingPair - 6 / 7) < 1e-4, `trion comoving p_pair=6/7, got ${trionComovingPair}`)
   assertExact(Math.abs(trionComovingCore1 - 288 / 343) < 1e-4, `trion comoving p_{d1+d2=1}=288/343, got ${trionComovingCore1}`)
 
-  // Trace exact Bloch dispersion E_trion(P) across a N_CM = 32 even-site (= 64-dock) geodesic ring and evolve a localized trion wavepacket!
-  const N_CM = 32
-  const boundPs: { P: number; lam: C; vr: Float64Array; vi: Float64Array }[] = []
+  // Trace exact Bloch dispersion E_trion(P) across a N_CM = 64 even-site (= 128-dock) geodesic ring and evolve a localized trion wavepacket in the LAB FRAME!
+  // Coordinate convention: m_code moves at +1 dock/beat (x_phys = 2 m_code + t), so on every even beat t = 2k,
+  // m_lab = x_phys / 2 = m_code + t/2 => lam_lab(P) = lam_code(P) * exp(-i P/2), i.e., E_lab(P) = E_code(P) - P/2!
+  const N_CM = 64
+  const boundPs: { P: number; lam: C; phiLab: number; vr: Float64Array; vi: Float64Array }[] = []
   const traceHalf = (dir: 1 | -1) => {
     let curLam = trionP0.lam, curR = trionP0.vr, curI = trionP0.vi
     const startQ = dir === 1 ? 1 : -1
@@ -2467,25 +2469,51 @@ function runExperiment3(b1Ctx: ReturnType<typeof runExperiment2>) {
           const r = sol.vr[i]!, im = sol.vi[i]!
           sol.vr[i] = cR * r - cI * im; sol.vi[i] = cR * im + cI * r
         }
-        boundPs.push({ P, lam: sol.lam, vr: sol.vr, vi: sol.vi })
+        const phiLab = Math.atan2(sol.lam[1], sol.lam[0]) - 0.5 * P
+        boundPs.push({ P, lam: sol.lam, phiLab, vr: sol.vr, vi: sol.vi })
         curLam = sol.lam; curR = sol.vr; curI = sol.vi
       } else break
     }
   }
-  boundPs.push({ P: 0, lam: trionP0.lam, vr: trionP0.vr, vi: trionP0.vi })
+  boundPs.push({ P: 0, lam: trionP0.lam, phiLab: Math.atan2(trionP0.lam[1], trionP0.lam[0]), vr: trionP0.vr, vi: trionP0.vi })
   traceHalf(1); traceHalf(-1)
   boundPs.sort((a, b) => a.P - b.P)
+
+  // Verify exact lab-frame reflection symmetry E_lab(+P) === E_lab(-P) (so v_lab(0) = dE_lab/dP|_{P=0} = 0 identically!)
+  let trionLabSymErr = 0, trionLabSymErrQ1 = 0, trionMaxVLab = 0
+  const bpByQ = new Map<number, (typeof boundPs)[number]>()
+  for (const bp of boundPs) bpByQ.set(Math.round((bp.P * N_CM) / (2 * Math.PI)), bp)
+  for (const [q, bpPos] of bpByQ) {
+    if (q <= 0) continue
+    const bpNeg = bpByQ.get(-q)
+    if (bpNeg) {
+      const eDiff = Math.hypot(Math.cos(bpPos.phiLab) - Math.cos(bpNeg.phiLab), Math.sin(bpPos.phiLab) - Math.sin(bpNeg.phiLab))
+      if (q === 1) trionLabSymErrQ1 = eDiff
+      if (eDiff > trionLabSymErr) trionLabSymErr = eDiff
+    }
+  }
+  const dP = (2 * Math.PI) / N_CM
+  for (let idx = 1; idx < boundPs.length; idx++) {
+    const dp = boundPs[idx]!.phiLab - boundPs[idx - 1]!.phiLab
+    const wrapped = Math.atan2(Math.sin(dp), Math.cos(dp))
+    const vEven = Math.abs(wrapped / dP)
+    if (vEven > trionMaxVLab) trionMaxVLab = vEven
+  }
+  assertExact(trionLabSymErrQ1 < 1e-7 && trionLabSymErr < 1e-4, `trion lab-frame reflection symmetry E_lab(+P)=E_lab(-P), got q1=${trionLabSymErrQ1}, all=${trionLabSymErr}`)
 
   // Construct exact normalized localized trion wavepacket centered at origin x = 0 (all certified bound Bloch modes with cosine-window weights!)
   const pMaxBound = Math.max(...boundPs.map(b => Math.abs(b.P)))
   const wpW = boundPs.map(b => (pMaxBound > 0 ? Math.cos((0.45 * Math.PI * b.P) / pMaxBound) : 1))
   const wpNorm = Math.sqrt(wpW.reduce((s, w) => s + w * w, 0))
   const wpC = wpW.map(w => w / wpNorm)
-  // Compute exact fixed-B_1 survival p_{fixed B_1}(Delta) = probability ALL 3 particles lie inside fixed origin 3-even-site ball m in {-1, 0, 1}!
-  // For leftmost coordinate m0 in {-1, 0, 1}, all 3 particles lie inside {-1, 0, 1} iff m0 + d1 + d2 <= 1!
-  const trionFixedB1Surv: number[] = []
-  const trionFixedB1Holevo: number[] = []
-  for (let t = 0; t <= T_MAX; t++) {
+  // Compute exact lab-frame fixed-B_2 (|x| <= 2, i.e., 3 even sites m_lab in {-1, 0, 1}) survival across even beats t = 0, 2, ..., 192!
+  // Max group velocity |v_lab| <= 0.093 even-sites/beat -> max displacement <= 18 < 32 = N_CM/2 (zero wraparound!).
+  // For leftmost even-site coordinate m0 in {-1, 0, 1}, all 3 particles lie inside fixed B_2 ({-2, 0, +2}) iff m0 + d1 + d2 <= 1!
+  const T_TRION = 192
+  const trionFixedB2Surv = new Map<number, number>()
+  const trionFixedB2Holevo = new Map<number, number>()
+  let trionTau05 = 0, trionTau10 = 0
+  for (let t = 0; t <= T_TRION; t += 2) {
     let pIn = 0
     for (const m0 of [-1, 0, 1]) {
       for (let i = 0; i < nRel3; i++) {
@@ -2494,8 +2522,8 @@ function runExperiment3(b1Ctx: ReturnType<typeof runExperiment2>) {
         let ar = 0, ai = 0
         for (let b = 0; b < boundPs.length; b++) {
           const bp = boundPs[b]!, w = wpC[b]!
-          // lam^t * exp(i P m0) / sqrt(N_CM) -> exact normalization: over all m0 in Z_{N_CM}, sum_{m0} |sum_b c_b e^{i P_b m0} phi_b|^2 / N_CM = sum_b |c_b|^2 = 1!
-          const ang = Math.atan2(bp.lam[1], bp.lam[0]) * t + bp.P * m0
+          // Exact lab-frame plane wave on even beat t: exp(i (arg(lam) - P/2) t + i P m_lab) / sqrt(N_CM)
+          const ang = (Math.atan2(bp.lam[1], bp.lam[0]) - 0.5 * bp.P) * t + bp.P * m0
           const cr = Math.cos(ang), ci = Math.sin(ang)
           const pr = bp.vr[i]!, pi = bp.vi[i]!
           ar += w * (cr * pr - ci * pi); ai += w * (cr * pi + ci * pr)
@@ -2503,11 +2531,15 @@ function runExperiment3(b1Ctx: ReturnType<typeof runExperiment2>) {
         pIn += (ar * ar + ai * ai) / N_CM
       }
     }
-    trionFixedB1Surv.push(pIn)
-    trionFixedB1Holevo.push(pIn * Math.log(2)) // Binary input u in {0, 1} on two orthogonal geodesic lines L_0 vs L_1!
+    const hVal = pIn * Math.log(2) // Binary input u in {0, 1} on two orthogonal geodesic lines L_0 vs L_1!
+    trionFixedB2Surv.set(t, pIn)
+    trionFixedB2Holevo.set(t, hVal)
+    if (hVal >= 0.05) trionTau05 = t
+    if (hVal >= 0.10) trionTau10 = t
   }
-  // Exact group velocity curvature check: verify genuine center-of-mass dispersion (strictly decaying fixed-B_1 survival!)
-  const trionDispRatio = trionFixedB1Surv[32]! / trionFixedB1Surv[0]!
+  const trionDispRatio128 = trionFixedB2Surv.get(128)! / trionFixedB2Surv.get(0)!
+  const trionBoostVsK1At32 = trionFixedB2Holevo.get(32)! / k1HolevoB0[32]!
+  assertExact(trionFixedB2Holevo.get(T_TRION)! < 0.05, `trion crosses below 0.05 by t=${T_TRION}`)
 
   // --- 3C. W10 B_1 = [[552, 25, 40]]_3 Bulk-Protected Register & Unequal-Delay Temporal Alignment ---
   // Ternary input u in {0, 1, 2} encoded in b_0 -> under any sub-threshold boundary erasure (|E| <= 39, or m <= 4 per cone),
@@ -2527,14 +2559,14 @@ function runExperiment3(b1Ctx: ReturnType<typeof runExperiment2>) {
     return best
   }
   const etaLow = 1e-3, etaMed = 0.05
-  console.log(`  [3A/B] Single-beat present-state Holevo lag decodability I(u_{t-Delta} : rho_{A, t}) (Delta = 0..32):`)
+  console.log(`  [3A/B] Single-beat present-state Holevo lag decodability I(u_{t-Delta} : rho_{A, t}) (Delta = 0..32, trion to 128):`)
   console.log(`       (a1) k=1 Ballistic bare U (dock 0): I(0)=${k1HolevoB0[0]!.toFixed(4)}, I(2)=${k1HolevoB0[2]!.toFixed(4)}, I(8)=${k1HolevoB0[8]!.toFixed(4)}, I(16)=${k1HolevoB0[16]!.toFixed(4)}, I(32)=${k1HolevoB0[32]!.toFixed(4)} | tau_eff(0.05)=${tauEff(k1HolevoB0, etaMed)}`)
   console.log(`       (a2) k=4 Uncoupled (Phi_odd=OFF):   I(0)=${c4Mem.offCurve[0]!.toFixed(4)}, I(8)=${c4Mem.offCurve[8]!.toExponential(2)}, I(16)=${c4Mem.offCurve[16]!.toExponential(2)}, I(32)=${c4Mem.offCurve[32]!.toExponential(2)} | tau_eff(1e-3)=${tauEff(c4Mem.offCurve, etaLow)}`)
   console.log(`       (b1) W9 Chiral C4 [0,1,2,8] ON:     I(0)=${c4Mem.onCurve[0]!.toFixed(4)}, I(8)=${c4Mem.onCurve[8]!.toExponential(2)}, I(16)=${c4Mem.onCurve[16]!.toExponential(2)}, I(32)=${c4Mem.onCurve[32]!.toExponential(2)} (${c4Mem.boost16Holevo.toFixed(1)}x Holevo / ${c4Mem.boost16Surv.toFixed(1)}x surv @16), tau_eff(1e-3)=${tauEff(c4Mem.onCurve, etaLow)}`)
   console.log(`       (b2) W9 Chiral C2 Q=0_V ON:         I(0)=${c2Mem.onCurve[0]!.toFixed(4)}, I(8)=${c2Mem.onCurve[8]!.toExponential(2)}, I(16)=${c2Mem.onCurve[16]!.toExponential(2)}, I(32)=${c2Mem.onCurve[32]!.toExponential(2)} (${c2Mem.boost16Holevo.toFixed(1)}x Holevo / ${c2Mem.boost16Surv.toFixed(1)}x surv @16), tau_eff(1e-3)=${tauEff(c2Mem.onCurve, etaLow)}`)
-  console.log(`       (b3) k=3 Sym^3 Trion (${boundPs.length}/${N_CM} bound Bloch modes):`)
+  console.log(`       (b3) k=3 Sym^3 Trion (${boundPs.length}/${N_CM} bound Bloch modes, lab-frame E(+dP)=E(-dP) err=${trionLabSymErrQ1.toExponential(1)}, band max=${trionLabSymErr.toExponential(1)}, max|v_lab|=${trionMaxVLab.toFixed(3)}):`)
   console.log(`            Comoving relative frame (P=0): p_pair(d1=0|d2=0)=${trionComovingPair.toFixed(6)} (exact 6/7=0.857143), p(d1+d2=1)=${trionComovingCore1.toFixed(6)} (exact 288/343=0.839650)`)
-  console.log(`            Fixed-B_1 wavepacket (O(1/t) CM dispersion): I(0)=${trionFixedB1Holevo[0]!.toFixed(4)}, I(8)=${trionFixedB1Holevo[8]!.toFixed(4)}, I(16)=${trionFixedB1Holevo[16]!.toFixed(4)}, I(32)=${trionFixedB1Holevo[32]!.toFixed(4)} (surv ratio32/0=${trionDispRatio.toFixed(3)}) | tau_eff(0.05)=${tauEff(trionFixedB1Holevo, etaMed)}`)
+  console.log(`            Fixed-B_2 (|x|<=2) lab-frame wavepacket: I(0)=${trionFixedB2Holevo.get(0)!.toFixed(4)}, I(8)=${trionFixedB2Holevo.get(8)!.toFixed(4)}, I(16)=${trionFixedB2Holevo.get(16)!.toFixed(4)}, I(32)=${trionFixedB2Holevo.get(32)!.toFixed(4)} (${trionBoostVsK1At32.toFixed(1)}x vs k=1 @32!), I(64)=${trionFixedB2Holevo.get(64)!.toFixed(4)}, I(128)=${trionFixedB2Holevo.get(128)!.toFixed(4)} (ratio128/0=${trionDispRatio128.toFixed(3)}) | tau_eff(0.10)=${trionTau10}, tau_eff(0.05)=${trionTau05}`)
   console.log(`       (c)  W10 B_1 bulk register:         I(u : rho_{EW,t}) = ln 3 = ${LN3.toFixed(6)} (kinematic code: tau_eff = inf for |E|<=39)`)
   console.log(`       Unequal-delay alignment in 1 snapshot: ballistic (Delta=2,6) -> I=(${alignBallisticD2.toFixed(4)}, ${alignBallisticD6.toFixed(4)}); B_1 EW(17) -> I(b0)=${alignB1_b0}, I(b1)=${alignB1_b1}, I(b0b1)=${alignB1_joint} ln 3`)
 
@@ -2814,7 +2846,10 @@ function runExperiment3(b1Ctx: ReturnType<typeof runExperiment2>) {
       tauEff(c4Mem.onCurve, etaLow) > tauEff(c4Mem.offCurve, etaLow) &&
       Math.abs(trionComovingPair - 6 / 7) < 1e-4 &&
       Math.abs(trionComovingCore1 - 288 / 343) < 1e-4 &&
-      trionDispRatio < 0.5 &&
+      trionLabSymErrQ1 < 1e-7 &&
+      trionLabSymErr < 1e-4 &&
+      trionBoostVsK1At32 > 5 &&
+      trionDispRatio128 < 0.6 &&
       alignBallisticD2 > 0.3 &&
       alignBallisticD6 > 0.1 &&
       alignB1_b0 === 2 &&
@@ -2833,7 +2868,7 @@ function runExperiment3(b1Ctx: ReturnType<typeof runExperiment2>) {
       max1DGeodesicBackflow > 0.05 &&
       minExportJointDiff > 1.4 &&
       maxExportLocalDiff < 1e-14,
-    `chiral C4=${c4Mem.boost16Holevo.toFixed(1)}x (tau ${tauEff(c4Mem.offCurve, etaLow)}->${tauEff(c4Mem.onCurve, etaLow)}); trion fixed-B_1 ratio32/0=${trionDispRatio.toFixed(3)} vs comoving 6/7; MP swap: trapped=${maxTrappedBathDiff.toFixed(3)}, 1D=${max1DGeodesicBackflow.toFixed(3)}, export=${maxExportLocalDiff.toExponential(1)}`,
+    `chiral C4=${c4Mem.boost16Holevo.toFixed(1)}x (tau ${tauEff(c4Mem.offCurve, etaLow)}->${tauEff(c4Mem.onCurve, etaLow)}); trion fixed-B_2: ${trionBoostVsK1At32.toFixed(1)}x vs k=1 @32, ratio128/0=${trionDispRatio128.toFixed(3)} (lab sym err=${trionLabSymErr.toExponential(1)}); MP swap: trapped=${maxTrappedBathDiff.toFixed(3)}, 1D=${max1DGeodesicBackflow.toFixed(3)}, export=${maxExportLocalDiff.toExponential(1)}`,
   )
 }
 

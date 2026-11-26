@@ -258,8 +258,8 @@ private theorem mge_listSum_countP_mul {α : Type} [DecidableEq α]
       by_cases h : a = v
       · subst h
         have hbt : (a == a) = true := beq_self_eq_true a
-        rw [hbt, mge_ite_true rfl, Nat.one_mul]
-        simp only [ite_true, Nat.add_mul, Nat.one_mul]; omega
+        rw [hbt, mge_ite_true (rfl : true = true), mge_ite_true (rfl : a = a), Nat.add_mul, Nat.one_mul]
+        omega
       · have hbf : (a == v) = false := beq_false_of_ne h
         rw [hbf, mge_ite_false h, Nat.zero_mul, Nat.zero_add]
         simp only [Bool.false_eq_true, ite_false, Nat.add_zero]
@@ -310,6 +310,7 @@ private theorem mge_listSum_countP_pair_mul {α : Type} [DecidableEq α]
         ch * (L.countP (fun p => p.1 == v && p.2) * f v)) := by
     funext v; rw [Nat.add_mul, Nat.mul_assoc, Nat.mul_assoc]
   rw [hSplit, mge_listSum_map_add, mge_listSum_map_const_mul, mge_listSum_map_const_mul]
+  clear hSplit
   simp only [mge_countP_pair_false, mge_countP_pair_true]
   rw [mge_listSum_countP_mul dom hNodup hDom, mge_listSum_countP_mul dom hNodup hDom]
   induction L with
@@ -320,11 +321,11 @@ private theorem mge_listSum_countP_pair_mul {α : Type} [DecidableEq α]
     | false =>
       simp only [List.filter_cons, Bool.not_false, Bool.false_eq_true, ite_true, ite_false,
         List.map_cons, mgeListSum, Nat.mul_add]
-      omega
+      rw [Nat.add_assoc, ih]
     | true =>
       simp only [List.filter_cons, Bool.not_true, Bool.false_eq_true, ite_true, ite_false,
         List.map_cons, mgeListSum, Nat.mul_add]
-      omega
+      rw [Nat.add_left_comm, ih]
 
 private theorem mge_getD_map_aux {α β : Type} (f : α → β) (d : β) :
     ∀ (l : List α) (i : Nat) (h : i < l.length),
@@ -338,6 +339,7 @@ private theorem mge_getD_map_finRange {n : Nat} {α : Type} (f : Fin n → α) (
   have hLen : u.val < (List.finRange n).length := by
     rw [List.length_finRange]; exact u.isLt
   rw [mge_getD_map_aux f d (List.finRange n) u.val hLen, List.getElem_finRange]
+  exact congrArg f (Fin.ext rfl)
 
 private theorem mge_int_mul_left_comm (a b c : Int) : a * (b * c) = b * (a * c) := by
   rw [← Int.mul_assoc, Int.mul_comm a b, Int.mul_assoc]
@@ -480,7 +482,7 @@ private theorem mge_frozenRoot_timeReflect (x : Vec4) :
     · have hNeg : (-x0) % 2 ≠ 0 := by omega
       simp only [beq_false_of_ne h, beq_false_of_ne hNeg]
   constructor
-  · simp only [mgeFrozenRootAt, mgeFrozenDirAt, timeReflect4, hMod]
+  · simp only [mgeFrozenRootAt, mgeFrozenDirAt, timeReflect4, hMod]; rfl
   · unfold mgeFrozenRootAt mgeFrozenDirAt
     split <;> split <;> rfl
 
@@ -512,7 +514,7 @@ private theorem mge_frozen_step_invariants (u v : Vec4) (h : mgeFrozenStep u v) 
           simp only [mgeFrozenRootAt, hDirV, mgPosRoot]
         refine ⟨by omega, by rw [hDirV, hDirU], by rw [hRootV, hRootU], ?_, ?_, Or.inl ⟨?_, ?_⟩⟩
         · simp only [mgeFrozenFiberAt, hv0, hv1, h0, h1, beq_self_eq_true, ite_true, Prod.mk.injEq]
-          exact ⟨rfl, rfl, by omega⟩
+          exact ⟨trivial, trivial, by omega⟩
         · right; simp only [hRootV, sub4, mgNeg4, Prod.mk.injEq]
           exact ⟨by omega, by omega, by omega, by omega⟩
         · simp only [hRootU, add4, Prod.mk.injEq]
@@ -527,7 +529,7 @@ private theorem mge_frozen_step_invariants (u v : Vec4) (h : mgeFrozenStep u v) 
           simp only [mgeFrozenRootAt, hDirV, mgPosRoot]
         refine ⟨by omega, by rw [hDirV, hDirU], by rw [hRootV, hRootU], ?_, ?_, Or.inr ⟨?_, ?_⟩⟩
         · simp only [mgeFrozenFiberAt, hv0, hv1, h0, h1, beq_self_eq_true, ite_true, Prod.mk.injEq]
-          exact ⟨rfl, rfl, by omega⟩
+          exact ⟨trivial, trivial, by omega⟩
         · left; simp only [hRootV, sub4, Prod.mk.injEq]
           exact ⟨by omega, by omega, by omega, by omega⟩
         · simp only [hRootU, sub4, Prod.mk.injEq]
@@ -551,7 +553,7 @@ private theorem mge_frozen_step_invariants (u v : Vec4) (h : mgeFrozenStep u v) 
         refine ⟨by omega, by rw [hDirV, hDirU], by rw [hRootV, hRootU], ?_, ?_, Or.inl ⟨?_, ?_⟩⟩
         · simp only [mgeFrozenFiberAt, hv0, hv1, h0, beq_self_eq_true, beq_false_of_ne h1,
             ite_true, Bool.false_eq_true, ite_false, Prod.mk.injEq]
-          exact ⟨rfl, rfl, by omega⟩
+          exact ⟨trivial, trivial, by omega⟩
         · right; simp only [hRootV, sub4, mgNeg4, Prod.mk.injEq]
           exact ⟨by omega, by omega, by omega, by omega⟩
         · simp only [hRootU, add4, Prod.mk.injEq]
@@ -568,7 +570,7 @@ private theorem mge_frozen_step_invariants (u v : Vec4) (h : mgeFrozenStep u v) 
         refine ⟨by omega, by rw [hDirV, hDirU], by rw [hRootV, hRootU], ?_, ?_, Or.inr ⟨?_, ?_⟩⟩
         · simp only [mgeFrozenFiberAt, hv0, hv1, h0, beq_self_eq_true, beq_false_of_ne h1,
             ite_true, Bool.false_eq_true, ite_false, Prod.mk.injEq]
-          exact ⟨rfl, rfl, by omega⟩
+          exact ⟨trivial, trivial, by omega⟩
         · left; simp only [hRootV, sub4, Prod.mk.injEq]
           exact ⟨by omega, by omega, by omega, by omega⟩
         · simp only [hRootU, sub4, Prod.mk.injEq]
@@ -593,7 +595,7 @@ private theorem mge_frozen_step_invariants (u v : Vec4) (h : mgeFrozenStep u v) 
         refine ⟨by omega, by rw [hDirV, hDirU], by rw [hRootV, hRootU], ?_, ?_, Or.inl ⟨?_, ?_⟩⟩
         · simp only [mgeFrozenFiberAt, hv0, hv2, beq_false_of_ne h0, h2, beq_self_eq_true,
             Bool.false_eq_true, ite_false, ite_true, Prod.mk.injEq]
-          exact ⟨rfl, rfl, by omega⟩
+          exact ⟨trivial, trivial, by omega⟩
         · right; simp only [hRootV, sub4, mgNeg4, Prod.mk.injEq]
           exact ⟨by omega, by omega, by omega, by omega⟩
         · simp only [hRootU, add4, Prod.mk.injEq]
@@ -610,7 +612,7 @@ private theorem mge_frozen_step_invariants (u v : Vec4) (h : mgeFrozenStep u v) 
         refine ⟨by omega, by rw [hDirV, hDirU], by rw [hRootV, hRootU], ?_, ?_, Or.inr ⟨?_, ?_⟩⟩
         · simp only [mgeFrozenFiberAt, hv0, hv2, beq_false_of_ne h0, h2, beq_self_eq_true,
             Bool.false_eq_true, ite_false, ite_true, Prod.mk.injEq]
-          exact ⟨rfl, rfl, by omega⟩
+          exact ⟨trivial, trivial, by omega⟩
         · left; simp only [hRootV, sub4, Prod.mk.injEq]
           exact ⟨by omega, by omega, by omega, by omega⟩
         · simp only [hRootU, sub4, Prod.mk.injEq]
@@ -634,7 +636,7 @@ private theorem mge_frozen_step_invariants (u v : Vec4) (h : mgeFrozenStep u v) 
         refine ⟨by omega, by rw [hDirV, hDirU], by rw [hRootV, hRootU], ?_, ?_, Or.inl ⟨?_, ?_⟩⟩
         · simp only [mgeFrozenFiberAt, hv0, hv2, beq_false_of_ne h0, beq_false_of_ne h2,
             Bool.false_eq_true, ite_false, Prod.mk.injEq]
-          exact ⟨rfl, rfl, by omega⟩
+          exact ⟨trivial, trivial, by omega⟩
         · right; simp only [hRootV, sub4, mgNeg4, Prod.mk.injEq]
           exact ⟨by omega, by omega, by omega, by omega⟩
         · simp only [hRootU, add4, Prod.mk.injEq]
@@ -651,7 +653,7 @@ private theorem mge_frozen_step_invariants (u v : Vec4) (h : mgeFrozenStep u v) 
         refine ⟨by omega, by rw [hDirV, hDirU], by rw [hRootV, hRootU], ?_, ?_, Or.inr ⟨?_, ?_⟩⟩
         · simp only [mgeFrozenFiberAt, hv0, hv2, beq_false_of_ne h0, beq_false_of_ne h2,
             Bool.false_eq_true, ite_false, Prod.mk.injEq]
-          exact ⟨rfl, rfl, by omega⟩
+          exact ⟨trivial, trivial, by omega⟩
         · left; simp only [hRootV, sub4, Prod.mk.injEq]
           exact ⟨by omega, by omega, by omega, by omega⟩
         · simp only [hRootU, sub4, Prod.mk.injEq]
@@ -763,6 +765,7 @@ theorem thm_mge_alt_x0_planes_forest_rp_and_acyclic :
   · intro x hx
     rcases x with ⟨x0, x1, x2, x3⟩
     unfold mgeInD4 at hx ⊢
+    dsimp only at hx
     unfold mgeFrozenRootAt mgeFrozenDirAt
     split <;> split
     · change ((x0 + 0) + (x1 + 0) + (x2 + 1) + (x3 + 1)) % 2 = 0 ∧
@@ -790,8 +793,9 @@ theorem thm_mge_alt_x0_planes_forest_rp_and_acyclic :
       have hx0 := mge_frozenRoot_x0_zero (a0, a1, a2, a3)
       unfold mgeFrozenStep at hab ⊢
       rw [hr.1]
-      rcases mgeFrozenRootAt (a0, a1, a2, a3) with ⟨r0, r1, r2, r3⟩
-      change r0 = 0 at hx0
+      rcases hR : mgeFrozenRootAt (a0, a1, a2, a3) with ⟨r0, r1, r2, r3⟩
+      rw [hR] at hab hx0
+      dsimp only at hx0
       rcases hab with hpos | hneg
       · left
         simp only [sub4, timeReflect4, Prod.mk.injEq] at hpos ⊢
@@ -827,9 +831,11 @@ theorem thm_mge_alt_x0_planes_forest_rp_and_acyclic :
           refine ⟨by rw [hR, hRb], ?_, ?_, ?_⟩
           · simp only [hR, sub4, scale4, Int.mul_zero, Int.sub_zero, Int.mul_one, mgeFrozenFiberAt,
               h0, h1, beq_self_eq_true, ite_true, Prod.mk.injEq]
-            exact ⟨rfl, rfl, by omega⟩
-          · simp only [hR, mgeFrozenHeightAt, hRb, sub4, scale4, dot4, Int.mul_zero, Int.mul_one]; omega
-          · simp only [hR, mgeFrozenHeightAt, hRb, sub4, scale4, dot4, Int.mul_zero, Int.mul_one]; omega
+            exact ⟨trivial, trivial, by omega⟩
+          · rw [hR, mgeFrozenHeightAt, hRb]
+            simp only [sub4, scale4, dot4, Int.mul_zero, Int.mul_one]; omega
+          · rw [hR, mgeFrozenHeightAt, hRb]
+            simp only [sub4, scale4, dot4, Int.mul_zero, Int.mul_one]; omega
         · have hD : mgeFrozenDirAt (x0, x1, x2, x3) = ⟨11, by decide⟩ := by
             simp only [mgeFrozenDirAt, h0, beq_self_eq_true, beq_false_of_ne h1, ite_true,
               Bool.false_eq_true, ite_false]
@@ -845,9 +851,11 @@ theorem thm_mge_alt_x0_planes_forest_rp_and_acyclic :
           · simp only [hR, sub4, scale4, Int.mul_zero, Int.sub_zero, Int.mul_one, Int.mul_neg,
               mgeFrozenFiberAt, h0, beq_self_eq_true, beq_false_of_ne h1, ite_true,
               Bool.false_eq_true, ite_false, Prod.mk.injEq]
-            exact ⟨rfl, rfl, by omega⟩
-          · simp only [hR, mgeFrozenHeightAt, hRb, sub4, scale4, dot4, Int.mul_zero, Int.mul_one, Int.mul_neg]; omega
-          · simp only [hR, mgeFrozenHeightAt, hRb, sub4, scale4, dot4, Int.mul_zero, Int.mul_one, Int.mul_neg]; omega
+            exact ⟨trivial, trivial, by omega⟩
+          · rw [hR, mgeFrozenHeightAt, hRb]
+            simp only [sub4, scale4, dot4, Int.mul_zero, Int.mul_one, Int.mul_neg]; omega
+          · rw [hR, mgeFrozenHeightAt, hRb]
+            simp only [sub4, scale4, dot4, Int.mul_zero, Int.mul_one, Int.mul_neg]; omega
       · by_cases h2 : x2 % 2 = 0
         · have hD : mgeFrozenDirAt (x0, x1, x2, x3) = ⟨8, by decide⟩ := by
             simp only [mgeFrozenDirAt, beq_false_of_ne h0, h2, beq_self_eq_true,
@@ -864,9 +872,11 @@ theorem thm_mge_alt_x0_planes_forest_rp_and_acyclic :
           · simp only [hR, sub4, scale4, Int.mul_zero, Int.sub_zero, Int.mul_one, mgeFrozenFiberAt,
               beq_false_of_ne h0, h2, beq_self_eq_true, Bool.false_eq_true, ite_false, ite_true,
               Prod.mk.injEq]
-            exact ⟨rfl, rfl, by omega⟩
-          · simp only [hR, mgeFrozenHeightAt, hRb, sub4, scale4, dot4, Int.mul_zero, Int.mul_one]; omega
-          · simp only [hR, mgeFrozenHeightAt, hRb, sub4, scale4, dot4, Int.mul_zero, Int.mul_one]; omega
+            exact ⟨trivial, trivial, by omega⟩
+          · rw [hR, mgeFrozenHeightAt, hRb]
+            simp only [sub4, scale4, dot4, Int.mul_zero, Int.mul_one]; omega
+          · rw [hR, mgeFrozenHeightAt, hRb]
+            simp only [sub4, scale4, dot4, Int.mul_zero, Int.mul_one]; omega
         · have hD : mgeFrozenDirAt (x0, x1, x2, x3) = ⟨9, by decide⟩ := by
             simp only [mgeFrozenDirAt, beq_false_of_ne h0, beq_false_of_ne h2,
               Bool.false_eq_true, ite_false]
@@ -882,9 +892,11 @@ theorem thm_mge_alt_x0_planes_forest_rp_and_acyclic :
           · simp only [hR, sub4, scale4, Int.mul_zero, Int.sub_zero, Int.mul_one, Int.mul_neg,
               mgeFrozenFiberAt, beq_false_of_ne h0, beq_false_of_ne h2, Bool.false_eq_true,
               ite_false, Prod.mk.injEq]
-            exact ⟨rfl, rfl, by omega⟩
-          · simp only [hR, mgeFrozenHeightAt, hRb, sub4, scale4, dot4, Int.mul_zero, Int.mul_one, Int.mul_neg]; omega
-          · simp only [hR, mgeFrozenHeightAt, hRb, sub4, scale4, dot4, Int.mul_zero, Int.mul_one, Int.mul_neg]; omega
+            exact ⟨trivial, trivial, by omega⟩
+          · rw [hR, mgeFrozenHeightAt, hRb]
+            simp only [sub4, scale4, dot4, Int.mul_zero, Int.mul_one, Int.mul_neg]; omega
+          · rw [hR, mgeFrozenHeightAt, hRb]
+            simp only [sub4, scale4, dot4, Int.mul_zero, Int.mul_one, Int.mul_neg]; omega
     · intro n'
       dsimp only
       intro h0' h1'
@@ -1256,16 +1268,16 @@ private theorem mge_matPow88_weighted_step (K : MgeIdx88 → MgeIdx88 → Nat)
           (fun y : MgeIdx88 => mgeListSum (mgeAll88.map (fun z => K x z * (mgeMatPow88 K m z y * v y)))) := by
         funext y
         rw [← mge_listSum_map_mul_const]
-        congr 1; congr 1; funext z; exact Nat.mul_assoc _ _ _
+        exact congrArg mgeListSum (congrArg (fun g => mgeAll88.map g) (funext fun z => Nat.mul_assoc (K x z) (mgeMatPow88 K m z y) (v y)))
       rw [h1, mge_listSum_swap]
-      congr 1; congr 1; funext z
-      rw [mge_listSum_map_const_mul]
+      exact congrArg mgeListSum (congrArg (fun g => mgeAll88.map g) (funext fun z =>
+        mge_listSum_map_const_mul (K x z) (fun y => mgeMatPow88 K m z y * v y) mgeAll88))
     rw [hDist, Nat.pow_succ q m]
     have hPull : q ^ m * q * mgeSum88 (fun z => K x z * mgeSum88 (fun y => mgeMatPow88 K m z y * v y)) =
         q * mgeSum88 (fun z => K x z * (q ^ m * mgeSum88 (fun y => mgeMatPow88 K m z y * v y))) := by
       rw [Nat.mul_comm (q ^ m) q, Nat.mul_assoc q (q ^ m), mge_sum88_eq_listSum, mge_sum88_eq_listSum,
           ← mge_listSum_map_const_mul]
-      congr 1; congr 1; congr 1; funext z; ac_rfl
+      exact congrArg (q * ·) (congrArg mgeListSum (congrArg (fun g => mgeAll88.map g) (funext fun z => by ac_rfl)))
     rw [hPull]
     have hLe1 : mgeSum88 (fun z => K x z * (q ^ m * mgeSum88 (fun y => mgeMatPow88 K m z y * v y))) ≤
         mgeSum88 (fun z => K x z * ((p * Q) ^ m * v z)) := by
@@ -1274,7 +1286,7 @@ private theorem mge_matPow88_weighted_step (K : MgeIdx88 → MgeIdx88 → Nat)
     have hRew : mgeSum88 (fun z => K x z * ((p * Q) ^ m * v z)) =
         (p * Q) ^ m * mgeSum88 (fun z => K x z * v z) := by
       rw [mge_sum88_eq_listSum, mge_sum88_eq_listSum, ← mge_listSum_map_const_mul]
-      congr 1; congr 1; funext z; ac_rfl
+      exact congrArg mgeListSum (congrArg (fun g => mgeAll88.map g) (funext fun z => by ac_rfl))
     have hLe2 : q * mgeSum88 (fun z => K x z * (q ^ m * mgeSum88 (fun y => mgeMatPow88 K m z y * v y))) ≤
         (p * Q) ^ m * (q * mgeSum88 (fun z => K x z * v z)) := by
       have hMul := Nat.mul_le_mul_left q hLe1
@@ -1348,7 +1360,8 @@ private theorem mge_dobrushin88_decay (K : MgeIdx88 → MgeIdx88 → Nat)
     have hRhs : q ^ (M - 1) * (Q ^ (d + M - 1) * (p ^ d * q) * vMax) =
         Q ^ (d + M - 1) * (p ^ d * q ^ M) * vMax := by
       have hPowM : q ^ (M - 1) * q = q ^ M := by
-        rw [← Nat.pow_succ q (M - 1), Nat.sub_add_cancel hM]
+        rw [← Nat.pow_succ q (M - 1)]
+        exact congrArg (q ^ ·) (Nat.sub_add_cancel hM)
       calc q ^ (M - 1) * (Q ^ (d + M - 1) * (p ^ d * q) * vMax)
           = Q ^ (d + M - 1) * (p ^ d * (q ^ (M - 1) * q)) * vMax := by ac_rfl
         _ = Q ^ (d + M - 1) * (p ^ d * q ^ M) * vMax := by rw [hPowM]
@@ -1432,7 +1445,7 @@ theorem thm_mge_alt_x0_planes_spectral_bound_and_contraction :
     have hPull : mgeSum88 (fun v => mgeK88_tilted u v * mgePerronVec88 v) =
         68573 * mgeSum88 (fun v => (1000 * mgeM88_0 u v + 1001 * mgeM88_h u v) * mgePerronVec88 v) := by
       rw [mge_sum88_eq_listSum, mge_sum88_eq_listSum, ← mge_listSum_map_const_mul]
-      congr 1; congr 1; funext v; exact Nat.mul_assoc _ _ _
+      exact congrArg mgeListSum (congrArg (fun g => mgeAll88.map g) (funext fun v => Nat.mul_assoc 68573 _ _))
     rw [hPull, mge_m88_linear_action]
     exact (hRow u).2.2
   have hDec := mge_dobrushin88_decay mgeK88_tilted 1000000000 9996 10000 100000000 112071153
@@ -1821,7 +1834,8 @@ private theorem mge_su3_casimir3_tail (p q : Nat) (h : p + q ≥ 3) :
   have hs3 : (3 : Int) ≤ pi + qi := by simp only [pi, qi]; omega
   have hs2 : (9 : Int) ≤ (pi + qi) * (pi + qi) := by
     have h0 := Int.mul_nonneg (show 0 ≤ (pi + qi) - 3 by omega) (show 0 ≤ (pi + qi) + 3 by omega)
-    rw [Int.sub_mul, Int.mul_add, Int.mul_add, Int.mul_comm (pi + qi) 3] at h0
+    rw [Int.sub_mul, Int.mul_add (pi + qi) (pi + qi) 3, Int.mul_add 3 (pi + qi) 3,
+        Int.mul_comm (pi + qi) 3] at h0
     omega
   have hInt16 : (16 : Int) ≤ ((p * p + q * q + p * q + 3 * p + 3 * q : Nat) : Int) := by
     rw [hCast]; omega
@@ -1941,14 +1955,14 @@ private theorem mge_pieri3_xy_identities (x y : Int) :
     rw [a1, a2, a3]; omega
   have hD2 : (x - 1) * (y + 1) * (x + y) =
       x * x * y + x * (y * y) + x * x - y * y - x - y := by
-    simp only [Int.add_mul, Int.mul_add, Int.sub_mul, Int.mul_sub, Int.one_mul, Int.mul_one]
+    simp only [Int.add_mul, Int.mul_add, Int.sub_mul, Int.one_mul, Int.mul_one]
     have a1 : x * y * x = x * x * y := by ac_rfl
     have a2 : x * y * y = x * (y * y) := by ac_rfl
     have a3 : y * x = x * y := by ac_rfl
     rw [a1, a2, a3]; omega
   have hD3 : x * (y - 1) * (x + y - 1) =
       x * x * y + x * (y * y) - x * x - 2 * (x * y) + x := by
-    simp only [Int.add_mul, Int.mul_add, Int.sub_mul, Int.mul_sub, Int.one_mul, Int.mul_one]
+    simp only [Int.mul_add, Int.sub_mul, Int.mul_sub, Int.mul_one]
     have a1 : x * y * x = x * x * y := by ac_rfl
     have a2 : x * y * y = x * (y * y) := by ac_rfl
     rw [a1, a2]; omega
@@ -2042,7 +2056,7 @@ private theorem mge_pieri3_dim_and_casimir_int (p q : Nat) :
           simp only [List.map_cons, List.map_nil, mgeListSum, Nat.add_zero, Nat.mul_add]
         have hx0 : x - 1 = 0 := by simp only [x]; omega
         have hx1 : ((1 : Nat) : Int) + 1 = x + 1 := by simp only [x]; omega
-        have hx0' : ((0 : Nat) : Int) + 1 = x := by simp only [x]; omega
+        have hx0' : ((0 : Nat) : Int) + 1 = x := rfl
         have hy1 : ((q' + 1 : Nat) : Int) + 1 = y := by simp only [y]
         have hy0 : ((q' : Nat) : Int) + 1 = y - 1 := by simp only [y, Int.natCast_add]; omega
         constructor
@@ -2131,8 +2145,8 @@ private theorem mge_pieri3_dim_and_casimir_int (p q : Nat) :
       have h3 : x + (y - 1) = x + y - 1 := by omega
       rw [h1, h2, h3]
       exact hXY.2
-    rw [hC1, hC2, hC3]
-    simp only [Int.mul_add]
+    rw [hC1, hC2, hC3, Int.mul_add (mgeDimXY (x + 1) y), Int.mul_add (mgeDimXY (x - 1) (y + 1)),
+        Int.mul_add (mgeDimXY x (y - 1))]
     have hGrp :
         mgeDimXY (x + 1) y * (mgeCasXY x y + 1) + mgeDimXY (x + 1) y * (2 * x + y) +
         (mgeDimXY (x - 1) (y + 1) * (mgeCasXY x y + 1) + mgeDimXY (x - 1) (y + 1) * (-x + y)) +
@@ -2582,7 +2596,11 @@ private theorem mge_wedge_action_2x2 (cNum cDen aNum aDen wU wR : Nat) (v : Fin 
   have hAct := hSplit (mgeWedgeUBlock v) (mgeWedgeShared v) (mgeWedgeC1 v) (mgeWedgeC2 v)
     kUBlock kShared kC1 kC2
   change sumFinNat (fun u => (kUBlock * mgeWedgeUBlock v u + kShared * mgeWedgeShared v u +
-    kC1 * mgeWedgeC1 v u + kC2 * mgeWedgeC2 v u) * mgeWedgeVec wU wR u) = _
+    kC1 * mgeWedgeC1 v u + kC2 * mgeWedgeC2 v u) * mgeWedgeVec wU wR u) =
+      if mgIsUntouched v then
+        (16 * kShared + 80 * kC1 + 80 * kC2) * wR
+      else
+        6 * kUBlock * wU + (42 * kC1 + 42 * kC2) * wR
   rw [hAct, hVecSplit (mgeWedgeUBlock v), hVecSplit (mgeWedgeShared v),
       hVecSplit (mgeWedgeC1 v), hVecSplit (mgeWedgeC2 v)]
   cases hv : mgIsUntouched v with
@@ -2605,11 +2623,11 @@ private theorem mge_wedge_action_2x2 (cNum cDen aNum aDen wU wR : Nat) (v : Fin 
       rw [hAdd, mge_listSum_map_add, mge_listSum_map_add, mge_listSum_map_add] at hAll0
       omega
     rw [hZero.1, hZero.2.1, hZero.2.2.1, hZero.2.2.2, hU.2.1, hU.2.2.1, hU.2.2.2.1, hU.2.2.2.2]
-    simp only [Nat.zero_mul, Nat.add_zero, Nat.zero_add, Nat.mul_zero, Nat.add_mul, ite_true]
+    simp only [Nat.zero_mul, Nat.add_zero, Nat.zero_add, Nat.mul_zero, ite_true]
     have e1 : kShared * (16 * wR) = 16 * kShared * wR := by ac_rfl
     have e2 : kC1 * (80 * wR) = 80 * kC1 * wR := by ac_rfl
     have e3 : kC2 * (80 * wR) = 80 * kC2 * wR := by ac_rfl
-    rw [e1, e2, e3]
+    rw [e1, e2, e3, ← Nat.add_mul, ← Nat.add_mul]
   | false =>
     have hR := thm_mge_su2_wedge_coverage_and_block_matrix.2.2.2.2.2 v hv
     have hZero1 :
@@ -2639,12 +2657,12 @@ private theorem mge_wedge_action_2x2 (cNum cDen aNum aDen wU wR : Nat) (v : Fin 
       rw [hAdd, mge_listSum_map_add] at hAll0
       omega
     rw [hR.1, hZero1.1, hZero1.2.1, hZero1.2.2, hZero2.1, hZero2.2, hR.2.2.2.1, hR.2.2.2.2]
-    simp only [Nat.zero_mul, Nat.add_zero, Nat.zero_add, Nat.mul_zero, Nat.add_mul,
+    simp only [Nat.zero_mul, Nat.add_zero, Nat.zero_add, Nat.mul_zero,
       Bool.false_eq_true, ite_false]
     have e1 : kUBlock * (6 * wU) = 6 * kUBlock * wU := by ac_rfl
     have e2 : kC1 * (42 * wR) = 42 * kC1 * wR := by ac_rfl
     have e3 : kC2 * (42 * wR) = 42 * kC2 * wR := by ac_rfl
-    rw [e1, e2, e3, Nat.add_assoc]
+    rw [e1, e2, e3, Nat.add_assoc, ← Nat.add_mul]
 
 private theorem mge_wedge_contraction_checks :
     (let cN := 68573; let cD := 1000000; let aN := 1117; let aD := 25000
