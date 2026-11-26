@@ -60,14 +60,13 @@ operator. Static two-dimensional hyperbolic tensor networks \cite{pastawski2015h
 error-correcting codes and discrete Ryu--Takayanagi geometry \cite{ryu2006rt}, yet they carry no intrinsic unitary
 dynamics and terminate on a one-dimensional boundary rather than a flat three-dimensional space.
 
-Lattice gauge and discrete gravity models on hypercubic grids $\mathbb{Z}^4$ provide mature strong-coupling and Monte
-Carlo toolkits \cite{wilson1974, osterwalder1978, kotecky1986}, yet $\mathbb{Z}^4$ breaks fourth-order isotropy at
-$O(a^2)$ and adds cubic anisotropy to linearized spin-2 waves \cite{celmaster1982}. By contrast, flat $D_4$ removes
-$O(a^2)$ rotational artifacts identically, and its three-link triangles allow exact two-link wedge marginalization inside
-each triangle, pushing $D_4$'s strong-coupling threshold $2.65\text{--}3.02\times$ past $D_4$ Bakry--\'Emery and
-$30\text{--}60\times$ past $D_4$ Koteck\'y--Preiss. Meanwhile, finite-bath unitary collision models preserve
-microscopic reversibility without approximation, yet finite Hilbert-space dimension forces Page entropy turnover and
-Poincar\'e revivals \cite{page1993} instead of genuine one-way radiative dilution.
+Lattice gauge and discrete gravity models on $\mathbb{Z}^4$ provide mature strong-coupling and Monte Carlo toolkits
+\cite{wilson1974, osterwalder1978, kotecky1986}, yet $\mathbb{Z}^4$ breaks fourth-order isotropy at $O(a^2)$ and adds
+cubic anisotropy to linearized spin-2 waves \cite{celmaster1982}. By contrast, flat $D_4$ removes $O(a^2)$ rotational
+artifacts identically, and its three-link triangles allow exact two-link wedge marginalization, pushing $D_4$'s
+strong-coupling threshold $2.65\text{--}3.02\times$ past $D_4$ Bakry--\'Emery and $30\text{--}60\times$ past $D_4$
+Koteck\'y--Preiss. Meanwhile, finite-bath unitary collision models preserve microscopic reversibility, yet finite
+Hilbert-space dimension forces Page turnover and Poincar\'e revivals \cite{page1993} instead of one-way dilution.
 
 \begin{table}[tb]
 \centering
@@ -122,17 +121,16 @@ cancel all leading $O(a^2)$ rotational artifacts identically through exact fourt
 = 4\bigl(\delta_{ab}\delta_{cd} + \delta_{ac}\delta_{bd} + \delta_{ad}\delta_{bc}\bigr).
 \label{eq:d4-isotropy}
 \end{equation}
-This tensor identity eliminates $O(a^2)$ rotational artifacts on flat $D_4$ and restores isotropic linearized spin-2
-wave speeds across coordinate and diagonal axes (Section~\ref{sec:gravity}), while $D_4$'s three-link triangles permit
-exact two-link wedge marginalization inside a single triangle, pushing $D_4$'s strong-coupling Yang--Mills threshold
+This tensor identity removes $O(a^2)$ rotational artifacts on flat $D_4$ and restores isotropic linearized spin-2 wave
+speeds across coordinate and diagonal axes (Section~\ref{sec:gravity}), while $D_4$'s three-link triangles allow exact
+two-link wedge marginalization inside each triangle, pushing $D_4$'s strong-coupling Yang--Mills threshold
 $2.65\text{--}3.02\times$ past $D_4$ Bakry--\'Emery and $30\text{--}60\times$ past $D_4$ Koteck\'y--Preiss
-(Section~\ref{sec:gauge}) \cite{celmaster1982}. Pairing each slot $\mathbf{r}$ with its antipodal opposite $-\mathbf{r}$
-forms 12 straight \emph{lines} passing through the dock. Grouping these lines into three complementary orthogonal
-coordinate-plane pairs yields three disjoint 8-slot \emph{banks} (inscribed 16-cells). The full symmetry group of one
-dock is the Weyl group $W(F_4)$ of order $1{,}152$, with proper rotation subgroup $W(F_4)^+$ of order $576$ and outer
+(Section~\ref{sec:gauge}) \cite{celmaster1982}. Pairing each slot $\mathbf{r}$ with $-\mathbf{r}$ forms 12 straight
+\emph{lines} through the dock, grouped into three disjoint 8-slot \emph{banks} (inscribed 16-cells). One dock's full
+symmetry group is the Weyl group $W(F_4)$ of order $1{,}152$, with proper subgroup $W(F_4)^+$ of order $576$ and outer
 triality quotient $W(F_4) / W(D_4) \cong S_3$. That outer $S_3$ triality permutes the three 8-slot banks and proves
-essential in Section~\ref{sec:holography}, where untwisted $W(F_4)$ symmetry alone hits an algebraic distance ceiling
-that only triality breaks.
+essential in Section~\ref{sec:holography}, where untwisted $W(F_4)$ symmetry hits an algebraic distance ceiling that
+only triality breaks.
 
 \begin{figure}[tb]
 \centering
@@ -322,19 +320,17 @@ $W(F_4)^+$ covariance for all $t \in \mathbb{Z}$. Throughout the rest of this pa
 completely fixed: whenever bare $U$ encounters an algebraic or geometric obstruction, we prove the obstruction as a
 theorem and isolate the minimal added structure required to overcome it.
 
-Tracing one complete beat of Eq.~\eqref{eq:bare-beat} makes the local mechanism concrete. When a lone excitation enters
-dock $g$ on slot $a$ ($k = 1$), the first $\Phi_{\mathrm{odd}}$ acts as the identity because $k < 4$, and the first
-half-coin $D$ splits the amplitude deterministically across the antipodal line $(a, -a)$ with weight $3/4$ on slot $a$
-and $1/4$ on slot $-a$. With no partner on $-a$, all three central layers ($K$, $M_{\mathrm{pair}}$, and
-$M_{\mathrm{meet}}$) act trivially, so the second half-coin $D$ re-splits the superposition into the full free coin
-$C = D^2$ (leaving weight $1/4$ on $a$ and $3/4$ on $-a$), the outer $\Phi_{\mathrm{odd}}$ again acts as the identity,
-and the shift $S$ streams each branch across its octahedral facet into the adjacent dock $(g k_a, a)$ or
-$(g k_{-a}, -a)$. If an antipodal partner arrives simultaneously on $-a$ ($k = 2$), both half-coins leave the full line
-fixed with phase $\det D = \zeta_6$, and the central layers select one of three channels: an opposite-sign pair swaps
-slots with a $-1$ sign under $K$, a same-sign distinct-role pair mixes via $M_{\mathrm{meet}}^{\mathrm{diff}}$, and
-only a sole same-sign, identical-role pair receives the exact $2\pi/3$ phase $\omega$ from $M_{\mathrm{meet}}$ while
-scattering isotropically across all 12 lines via $M_{\mathrm{pair}}(\zeta_{18})$ before $S$ streams the outgoing slots
-across their facets.
+Tracing one complete beat of Eq.~\eqref{eq:bare-beat} shows the local rule in motion. For a lone excitation entering
+dock $g$ on slot $a$ ($k = 1$), the first $\Phi_{\mathrm{odd}}$ acts as the identity ($k < 4$), and the first half-coin
+$D$ splits amplitude across line $(a, -a)$ with weights $3/4$ on $a$ and $1/4$ on $-a$. With no partner on $-a$, all
+three central layers ($K$, $M_{\mathrm{pair}}$, $M_{\mathrm{meet}}$) act trivially, so the second $D$ re-splits the
+state into the full free coin $C = D^2$ (weights $1/4$ on $a$ and $3/4$ on $-a$), the outer $\Phi_{\mathrm{odd}}$ acts
+as the identity, and $S$ streams each branch across its octahedral facet into $(g k_a, a)$ or $(g k_{-a}, -a)$. If an
+antipodal partner arrives on $-a$ ($k = 2$), both half-coins leave the full line fixed with phase $\det D = \zeta_6$,
+and the central layers branch into three channels: opposite-sign pairs swap slots with a $-1$ sign under $K$,
+same-sign distinct-role pairs mix via $M_{\mathrm{meet}}^{\mathrm{diff}}$, and only a sole same-sign, identical-role
+pair receives the exact $2\pi/3$ phase $\omega$ from $M_{\mathrm{meet}}$ while scattering isotropically across all 12
+lines via $M_{\mathrm{pair}}(\zeta_{18})$ before $S$ streams the outgoing slots into adjacent docks.
 
 \begin{table}[tb]
 \centering

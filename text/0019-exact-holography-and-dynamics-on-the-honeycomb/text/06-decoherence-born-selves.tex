@@ -13,19 +13,22 @@ Solving the 12-floor $\{3,4,3,4\}$ Steinberg beam ladder isolates a sharp geomet
 on the cusp. Unlike flat three-dimensional space where flux spreads quadratically, an unwarped bare hyperbolic beam ($6$
 lateral plus $18$ downward unweighted links) drains gravitational flux exponentially into the bulk, imposing a large
 screening mass $m_{\mathrm{leak}} = 4.1253$ that suppresses three-dimensional attraction at separation $r_0 = 6$ by
-nearly three thousandfold. Adopting the effective pair-density localization profile $w(D) = 1 / N_D^2$, however,
-restores finite single-face conductance $K_{\mathrm{eff}} = 1.012532$ and canonical Newton coupling
+nearly three thousandfold. Because each downward floor multiplies parallel bulk channels roughly by the shell growth
+factor while uniform link weights direct $18/24$ of a cusp dock's neighbors downward, an unweighted harmonic field loses
+flux exponentially into the bulk. Adopting the effective pair-density localization profile $w(D) = 1 / N_D^2$ suppresses
+floor-$D$ downward conductance as $N_D w(D) = 1 / N_D$ so the summed vertical ladder converges, restoring finite
+single-face conductance $K_{\mathrm{eff}} = 1.012532$ and canonical Newton coupling
 $G_{\mathrm{eff}} = 1/(4\pi K_{\mathrm{eff}}) = 0.078593$. Because $w(D) = 1/N_D^2$ is an effective localization
 profile rather than a theorem derived from bare $U$, we retain the unwarped screening mass explicitly as a live negative
 control.
 
 Discrete weak-field gravity models often prescribe static $1/r$ potentials or solve the elliptic Poisson equation
 instantaneously via Fourier transforms, bypassing causal field propagation altogether. To test genuine local
-backreaction without prescribed potentials or spectral solvers, we couple neutral $Q = 0$ quantum wavepackets on an
-even $34^3$ ($39{,}304$-site) $\{4,3,4\}$ cusp box to a
-live local scalar gravitational (lapse) wave field $(\Phi, P)$ propagating on the 6-neighbor stencil at finite speed
-$c_g = 1$ (inside the cubic Courant--Friedrichs--Lewy stability limit $c_g \Delta t = 0.2 < 1/\sqrt{3}$, zero FFT, zero
-hard-coded $1/r$ potential). One discrete beat executes a five-layer palindromic symplectic--unitary composition,
+backreaction without prescribed potentials or spectral solvers, we couple neutral $Q = 0$ quantum wavepackets on an even
+$34^3$ ($39{,}304$-site) $\{4,3,4\}$ cusp box to a live local scalar gravitational (lapse) wave field $(\Phi, P)$
+propagating on the 6-neighbor stencil at finite speed $c_g = 1$ (inside the cubic Courant--Friedrichs--Lewy stability
+limit $c_g \Delta t = 0.2 < 1/\sqrt{3}$, zero FFT, zero hard-coded $1/r$ potential). One discrete beat executes a
+five-layer palindromic symplectic--unitary composition,
 \begin{equation}
 U_{\mathrm{beat}}(\Delta t)
 = B\!\left(\frac{\Delta t}{2}\right)
@@ -111,9 +114,9 @@ $O(q^2)$. Because the 24 nearest-neighbor vectors of 4D $D_4$ have a vanishing r
 weight uniquely at $c_{\mathrm{iso}} = 1/12$ without tuning direction-dependent couplings. The cross-axis cosine sum
 supplies the exact off-diagonal terms $-\frac{1}{12}\sum_{i \neq j} q_i^2 q_j^2$ needed to complete $\sum_i q_i^4$ into
 the $SO(3)$-invariant square $|q|^4$, pushing residual dispersion anisotropy to $O(q^4)$ and cutting cubic anisotropy by
-$762.5\times$ at $|q| = 0.2$. Crucially, because every discrete divergence, curl, and Einstein component shares this
-single scalar Bloch factor $\tilde{\kappa}_i(q)$, improving isotropy leaves gauge invariance and the discrete contracted
-Bianchi identity $\tilde{D} \cdot E = 0$ untouched.
+$762.5\times$ at $|q| = 0.2$. Because every discrete divergence, curl, and Einstein component shares this single scalar
+Bloch factor $\tilde{\kappa}_i(q)$, improving isotropy preserves gauge invariance and the discrete contracted Bianchi
+identity $\tilde{D} \cdot E = 0$ identically.
 
 Diagonalizing the $6 \times 6$ ADM dynamical matrix $M_{\mathrm{EH}}(q) = K^{-1} E(q)$ (where the DeWitt operator
 $K(h)_{ij} = h_{ij} - \delta_{ij} h_{kk}$ defines kinetic norms and the contracted Bianchi identity $\tilde{D} \cdot E = 0$
@@ -311,8 +314,8 @@ $100\%$), whereas enabling $M_{\mathrm{pair}}$ suppresses local $C^3 = I$ recurr
 Hyperbolic $\{3,4,3,4\}$ supplies what neither finite registers nor flat Euclidean lattices provide: an infinite supply
 of disjoint, non-returning outward rays. In the open-bath collision reduction motivated by those rays, off-diagonal
 coherence decays monotonically to $S = 1.000\text{ bit}$ with zero recurrence while preserving global purity
-($\le 1.9 \times 10^{-14}$) and exact Loschmidt reversal under $U^{-t}$. Irreversible local decoherence thus arises
-strictly from outward geometric export inside exact global reversibility.
+($\le 1.9 \times 10^{-14}$) and exact Loschmidt reversal under $U^{-t}$. In reduced open-ray collision models,
+monotonic local decoherence thus arises directly from outward geometric export inside exact global reversibility.
 
 \textbf{Pointer selection, ternary qutrit, and Bell--CHSH decay:} Under quantum non-demolition coupling ($H_S = 0$,
 commuting with $Z$), computational $Z$ pointer eigenstates remain pure ($\le 1.6 \times 10^{-16}$) while $X, Y$
@@ -324,10 +327,10 @@ bound $2$ by $t = 2$ and pulls the gauge-invariant Horodecki ceiling monotonical
 $E(Z, Z) = -1$, no-signaling, and exact Loschmidt revival (Table~\ref{tab:decoherence-darwinism}).
 
 Comparing this open hyperbolic evolution head-to-head against a finite flat-ring bath exposes the physical consequence of
-flat-space recurrences. On the flat ring, coherent backflow generates a full Poincar\'e CHSH revival back to $2.8284$ at
-$t = 15$, undoing the classical transition completely. Turning on $\zeta_{18}$ coupling suppresses that $t = 15$ value
-to $1.3821$, while open hyperbolic export removes the revival permanently without modifying linear unitarity
-(Table~\ref{tab:decoherence-darwinism}).
+finite-register recurrences. On the flat ring, coherent backflow generates a full Poincar\'e CHSH revival back to
+$2.8284$ at $t = 15$, undoing the classical transition completely. Turning on $\zeta_{18}$ coupling suppresses that
+$t = 15$ value to $1.3821$, while open hyperbolic export removes the revival permanently without modifying linear
+unitarity (Table~\ref{tab:decoherence-darwinism}).
 
 \subsection{Born uniqueness}
 
@@ -389,10 +392,13 @@ Stress-testing rival normalized power-law branch weights $P_p(k) \propto |c_k|^p
 under \emph{both} unitary fine-graining additivity and three-dimensional Gleason non-contextuality \cite{gleason1957}
 (requiring basis-independent probabilities for a ray $e_1$ across standard basis $\mathcal{B}_1$ and half-coin rotated
 basis $\mathcal{B}_2$, Table~\ref{tab:born-swap}) eliminates every rival power and forces \textbf{$p = 2$ uniquely}.
-Linear unitarity and symmetry thus fix the probability measure with zero free exponent and zero collapse modification to
-$U$. At the same time, the interpretive boundary stays completely explicit: envariance and Gleason uniqueness pin down
-the mathematical weights $|\psi_k|^2$, whereas the operational bridge from squared Hilbert-space weights to definite
-single-run empirical frequencies in an individual trial remains an open interpretive postulate.
+Algebraically, splitting an outcome of amplitude $c$ unitarily into $m$ equal sub-branches scales each sub-amplitude by
+$1/\sqrt{m}$, multiplying the summed $p$-norm weight by $m^{1 - p/2}$ and violating fine-graining additivity unless
+$p = 2$, while simultaneously breaking basis independence under the three-dimensional half-coin rotation. Linear
+unitarity and symmetry thus determine the probability measure with zero free exponent and zero collapse modification to
+$U$. At the same time, the interpretive boundary stays explicit: envariance and Gleason uniqueness fix the mathematical
+weights $|\psi_k|^2$, whereas the operational bridge from squared Hilbert-space weights to definite single-run empirical
+frequencies in an individual trial remains an open interpretive postulate.
 
 \subsection{Markovian horizons}
 
@@ -467,24 +473,18 @@ one-dimensional bare-$U$ geodesic bath fails} ($\|\Delta\rho_A\|_1 = 0.4922$), d
 alone does not prevent the reflecting coin from back-scattering past bath information onto $A$.
 
 Only \textbf{idealized zero-return outward export passes Markovian swap invariance identically}
-($\|\Delta\rho_A\|_1 = 0.0000$, joint distance $\ge 1.50$). Keeping the real-automaton scope explicit, verbatim bare $U$
-on $\{3,4,3,4\}$ retains a small exponentially decaying return ($2.92\%$ at $t = 6$) from its reflecting coin rather than
-exact zero return, realizing approximate Markovianity controlled by the hyperbolic spectral gap rather than an exact
-zero-return channel (Table~\ref{tab:born-swap}).
+($\|\Delta\rho_A\|_1 = 0.0000$, joint distance $\ge 1.50$). In contrast to that idealized zero-return channel, verbatim
+bare $U$ on $\{3,4,3,4\}$ retains a small exponentially decaying return ($2.92\%$ at $t = 6$) from its reflecting coin,
+realizing approximate Markovianity controlled by the hyperbolic spectral gap (Table~\ref{tab:born-swap}).
 
-Exponential branching on $\{3,4,3,4\}$ therefore separates hyperbolic unitary dynamics cleanly from finite or Euclidean
-baths. Widening the radial walk spectral gap by $2.25\times$ and providing disjoint outward rays turns pure linear
-unitarity into monotonic local decoherence, Bell--CHSH decay free of the $t = 15$ flat-ring revival, redundant classical
-Quantum Darwinism plateaus ($R_{0.05} = 6$, contrasted against discord-dominated scrambling), and strict zero-reset
-Markovian swap invariance in the idealized zero-return limit where trapped and infinite 1D baths both fail. Inside
-$\mathbb{Z}[\zeta_9][1/6]$, exact cyclotomic envariance and three-dimensional Gleason non-contextuality fix the Born
-exponent $p = 2$ uniquely with zero collapse modification, while dynamical lumpability and QFI step horizons distinguish
-autonomous macro-sectors from failing beam averages.
-
-Two clear boundaries remain: connecting squared Hilbert-space branch weights $|\psi_k|^2$ to definite single-run
-empirical frequencies stays an explicit interpretive postulate outside linear unitarity, and full multi-body bare-$U$
-bulk trajectories still retain bare $U$'s small $2.92\%$ reflecting-coin return at $t = 6$ (alongside embedding Quantum
-Darwinism beyond collision reductions). That same exponential geometry places $94.53\%$ of every large hyperbolic ball
-directly on its outermost shell, raising the complementary question addressed in Section~\ref{sec:lean-and-open}: how
-coherent higher-level organization survives total surface exposure through selective holographic filtering and active
-regulation.
+Physically, hyperbolic outward branching acts as a geometric Stinespring dilation. A memoryless completely positive
+channel ordinarily requires coupling $A$ at every beat to a freshly initialized external ancilla and discarding the
+previous one. On $\{3,4,3,4\}$, exponential downward shell growth (expanding from $1$ to $18$ to $330$ docks with
+shell-1 branching $b_1 = 330/18$) supplies those fresh modes intrinsically: excitations scattered from the central dock
+into shell $D + 1$ disperse across exponentially many outgoing docks whose amplitude overlap with trajectories returning
+to $A$ decays exponentially with the radial spectral gap $\lambda_{\mathrm{gap,tree}} = 0.5565$. By contrast, a finite
+trapped bath saturates its ancilla space immediately ($\|\Delta\rho_A\|_1 = 1.1056$) and an infinite 1D geodesic bath
+with unit cross-section retains a non-vanishing reflecting-coin return channel ($\|\Delta\rho_A\|_1 = 0.4922$). Only
+exponential branching decouples previously recorded bath states from $A$'s incoming channels fast enough to turn global
+linear unitarity into one-way pointer records without resets or collapse axioms, while embedding multi-body Quantum
+Darwinism beyond collision reductions remains open.

@@ -89,14 +89,15 @@ S_v(b, \theta) = \bigl(P(\theta)\, y\bigr)_v + \frac{1}{y_v}.
 \end{equation}
 Alternating monotone row equalization, exact AM--GM scalar rescaling, left-Perron dual updates, and Howard policy
 updates on $\theta$ solves the Depth-5 automaton to a primal-dual gap below $10^{-8}$. Across Depths~$2$ through~$4$,
-the upper optima shrink monotonically while the dual-weighted 4-cycle curl
+the upper optima shrink monotonically while the dual-weighted average of the 4-cycle curl
 \begin{equation}
 \kappa_{\mathrm{curl}} = \left|\ln \frac{f_a\, f_{ab}}{f_b\, f_{ba}}\right|
 \label{eq:four-cycle-curl}
 \end{equation}
-decays from $0.1370$ (Depth~2) to $0.0181$ (Depth~4). Because the exact $\rho$-harmonic eigenfunction on a graph yields
-a conservative edge-ratio potential with zero circulation around every 4-cycle, this shrinking curl provides a direct
-geometric diagnostic that the finite-depth flag weights are converging onto the true infinite-graph ground state.
+(where $f_a, f_{ab}$ and $f_b, f_{ba}$ are the upward flag weights along the two paths of a commuting 4-cycle
+$s_a s_b = s_b s_a$ from $u$) decays from $0.1370$ (Depth~2) to $0.0181$ (Depth~4). Because the exact $\rho$-harmonic
+eigenfunction yields a conservative edge-ratio potential with zero circulation around every 4-cycle, this shrinking
+average curl shows the finite-depth flag weights converging onto the infinite-graph ground state.
 Quantizing the Depth-5 weights to exact rationals at denominator $Q = 10^6$ and evaluating every row ceiling in
 arbitrary-precision integer arithmetic proves
 \begin{equation}
@@ -168,10 +169,11 @@ finite-support bound $\rho \ge 11.439047$ with zero square roots and zero asympt
 Numerical eigenvalue solvers on finite balls approach $\rho$ strictly from below and cannot certify an upper bound on an
 infinite graph. Because reciprocal Schur inequalities and Cartier--Foata witnesses reduce to finite rational tables, the
 same machinery translates directly into machine-checked Lean~4 proofs valid over all infinitely many docks
-simultaneously. A Depth-1 rational witness first establishes $\rho \le 335/28 < 12$ and
-$\lambda_{\mathrm{gap}} \ge 337/672 > 1/2$. Formalizing the 19-state Depth-2 automaton, 23-flag reciprocity at
-$Q = 10{,}000$, Theorem~\ref{thm:q3-cascade}'s $Q_3$ zero-cascade algebra, and a 57-orbit 1-step Cartier--Foata witness
-collapses the kernel-verified bracket by $10.2\times$:
+simultaneously. A coarse Depth-1 rational witness first proves $\rho \le 335/28 \approx 11.964286$
+($\lambda_{\mathrm{gap}} \ge 337/672 > 1/2$), while optimizing the same Depth-1 RACG Schur weights tightens the upper
+bound to $\rho \le 11.925340$ ($\lambda_{\mathrm{gap}} \ge 0.5031$, Table~\ref{tab:spectral-ladder}). Formalizing the
+19-state Depth-2 automaton, 23-flag reciprocity at $Q = 10{,}000$, Theorem~\ref{thm:q3-cascade}'s $Q_3$ zero-cascade
+algebra, and a 57-orbit 1-step Cartier--Foata witness collapses that Depth-1 bracket by $10.2\times$:
 \begin{equation}
 \frac{913}{80} = 11.4125 < \rho(\{3,4,3,4\}) \le \frac{387{,}141{,}227}{33{,}670{,}000} \le 11.498106 < 11.5,
 \qquad
@@ -192,7 +194,7 @@ outward-rounded).}
 Method / formalization & Bracket for $\rho$ & Width (gain) & Normalized gap $\lambda_{\mathrm{gap}}$ \\
 \midrule
 Global Busemann Schur bound & $[11.013439, 14.857143]$ & $3.843704$ ($1.0\times$) & $\ge 8/21 \ge 0.3809$ \\
-Lean~4 Depth-1 RACG Schur & $(11.049, 11.925340]$ & $0.876340$ ($4.4\times$) & $\ge 337/672 \ge 0.5014$ \\
+Lean~4 Depth-1 RACG Schur & $(11.049, 11.925340]$ & $0.876340$ ($4.4\times$) & $\ge 0.5031$ ($> 337/672$) \\
 Depth-4 pair weights \& Depth-4 shells & $[11.308339, 11.452078]$ & $0.143739$ ($26.7\times$) & $[0.522830, 0.528820]$ \\
 Lean~4 Depth-2 + 57-orbit CF & $(11.4125, 11.498106]$ & $0.085606$ ($44.9\times$) & $> 13/25 = 0.5200$ \\
 Concrete exact integer (Depth-5) & $\mathbf{[11.439047, 11.443713]}$ & $\mathbf{0.004666}$ ($\mathbf{824\times}$) & $[0.523178, 0.523374]$ \\
@@ -226,12 +228,12 @@ The dynamical difference between one-dimensional confinement and hyperbolic bulk
 per-dock rate $n_c(B)\Delta / |B|$. Under purely line-confined dynamics without cross-line mixing, excitations escape
 only through the two endpoints of each interior antipodal track, capping the per-dock export capacity at
 $2\Delta / \ell_{\max}$ for maximum interior chord length $\ell_{\max}$ (reproducing the vanishing $O(R^{-1})$
-bottleneck of a flat lattice). Once cross-line mixing couples interior tracks to all 24 facets on $\{3,4,3,4\}$,
-however, the certified Cheeger constant $12.33 \le h(\{3,4,3,4\}) \le 21.52$ (the infimal boundary-to-volume ratio
-$\inf_{|B|<\infty} n_c(B)/|B|$) guarantees a strictly positive, size-independent lower bound on the per-dock geometric
-export capacity ceiling across every finite region $B$:
+bottleneck of a flat lattice). Once cross-line mixing couples interior tracks to all 24 facets on $\{3,4,3,4\}$, for
+quiescent unentangled incoming slots ($s_{\mathrm{in}} = 0$) and the full 9-role register ($d = 19$, so
+$\Delta = \ln 19$), the certified Cheeger constant $12.33 \le h(\{3,4,3,4\}) \le 21.52$ ($\inf_{|B|<\infty} n_c(B)/|B|$)
+guarantees a size-independent lower bound on the per-dock geometric export capacity ceiling across every finite $B$:
 \begin{equation}
-\frac{n_c(B)\, \Delta}{|B|} \ge h(\{3,4,3,4\})\, \ln 19 \ge 12.33 \ln 19 > 36.30\text{ nats/dock/beat}.
+\frac{n_c(B)\, \Delta}{|B|}\Big|_{s_{\mathrm{in}}=0,\, d=19} \ge h(\{3,4,3,4\})\, \ln 19 \ge 12.33 \ln 19 > 36.30\text{ nats/dock/beat}.
 \label{eq:cheeger-floor}
 \end{equation}
 Whether $B$ contains one dock or $10^{20}$ docks, its boundary always supplies more than twelve outward links per
@@ -241,11 +243,9 @@ line-confined states.
 
 This bound clarifies how exact global unitarity coexists with persistent, irreversible-looking local entropy shedding
 across the hyperbolic cut $\partial B$. Because bare $U$ acts unitarily across the infinite honeycomb with zero added
-dissipation, global phase-space volume and total fine-grained von Neumann entropy are strictly conserved on every beat.
-Apparent local irreversibility arises strictly upon restricting to the finite subsystem $B$: since
-$h(\{3,4,3,4\}) > 12.33$, the outward-crossing channel remains permanently wider than the interior volume $|B|$ at every
-length scale, while successive exterior shells proliferate by the Steinberg factor $\lambda \approx 18.28$. Once
-interior excitations couple onto outward facets, the stream $S$ trades entangled boundary registers for fresh quiescent
-exterior slots and dilutes local correlations exponentially into deep outer docks rather than returning them to $B$.
-Microscopic reversibility therefore holds without approximation even as local observables see one-way radiative cooling
-into the fixed curved bulk.
+dissipation, global phase-space volume and total fine-grained entropy are conserved on every beat. Apparent local
+irreversibility arises strictly upon restricting to finite $B$: since $h(\{3,4,3,4\}) > 12.33$, the outward-crossing
+channel stays permanently wider than $|B|$ at every scale while outer shells expand by $\lambda \approx 18.28$. Once
+interior excitations couple onto outward facets, the stream $S$ swaps entangled boundary registers for fresh quiescent
+exterior slots and dilutes local correlations exponentially into deep outer docks rather than returning them to $B$,
+yielding one-way local cooling without sacrificing microscopic reversibility.

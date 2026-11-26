@@ -45,8 +45,8 @@ whenever slot permutations act identically on all three 8-slot banks without mix
 
 \textbf{Unique $S_3$-triality tensor $[[24, 1, 8]]_3$:} The 24-cell possesses an outer symmetry absent from hypercubic
 grids, namely the triality quotient $W(F_4) / W(D_4) \cong S_3$ permuting its three disjoint 8-slot banks. Coupling that
-outer $S_3$ action to local ternary Clifford rotations $\langle K_{\mathrm{c}}, P_{\mathrm{tri}} \rangle <
-\mathrm{GL}_2(3)$ splits the obstructing module directly:
+outer $S_3$ action to extended (unitary and anti-unitary) local ternary Clifford operations
+$\langle K_{\mathrm{c}}, P_{\mathrm{tri}} \rangle < \mathrm{GL}_2(3)$ splits the obstructing module directly:
 \begin{equation}
 U_9 \otimes \mathbb{F}_3^2 = W_9^{(4)} \oplus W_9^{(6)}.
 \label{eq:triality-split}
@@ -87,7 +87,7 @@ dangling boundary legs ($n_R = 24 |S_R| - n_{R-1}$, distinct from vertex shell s
 V_R : (\mathbb{C}^3)^{\otimes |B_R|} \to (\mathbb{C}^3)^{\otimes n_R}
 \;\;(V_R^\dagger V_R = I),
 \quad
-r_\infty = \lim_{R\to\infty}\frac{|B_R|}{n_R} = \frac{\lambda + 1}{24(\lambda - 1)} = 0.046490,
+r_\infty = \lim_{R\to\infty}\frac{|B_R|}{n_R} = \frac{\lambda + 1}{24(\lambda - 1)} \approx 0.046490,
 \label{eq:happy-cubic}
 \end{equation}
 whose rescaled asymptotic encoding rate $u = 24 r_\infty$ satisfies the depressed cubic $u^3 - 12 u + 12 = 0$.
@@ -321,9 +321,10 @@ Hilbert-space completion,
 \alpha_D(O) = V_D O V_D^\dagger,
 \label{eq:colimit-bridge}
 \end{equation}
-providing faithful all-scale observable embeddings with zero approximation error. Because Section~\ref{sec:holo-bridge}
-proved that non-Clifford bare $U$ leaves this static code subspace in one beat, Bridge~A remains strictly kinematic:
-intertwining bare $U$ into a continuum boundary Hamiltonian $H_{\mathrm{CFT}}$ remains open.
+where each $\alpha_D$ is a non-unital faithful isometric $*$-homomorphism providing all-scale observable embeddings with
+zero approximation error. Because Section~\ref{sec:holo-bridge} proved that non-Clifford bare $U$ leaves this static code
+subspace in one beat, Bridge~A remains strictly kinematic: intertwining bare $U$ into a continuum boundary Hamiltonian
+$H_{\mathrm{CFT}}$ remains open.
 
 \textbf{Paley--Wiener band-limited homomorphism (Bridge~B):} On flat cubic grids $a\mathbb{Z}^3$, sinc--Fourier
 interpolation maps $l^2(a\mathbb{Z}^3)$ unitarily onto the band-limited continuum subspace

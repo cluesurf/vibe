@@ -12,7 +12,7 @@ discrete substrate from continuum physics.
 On $\{3,4,3,4\}$, the Steinberg cubic \eqref{eq:steinberg-cubic} imposes an asymptotic boundary theorem separating
 hyperbolic organization from flat space:
 \begin{equation}
-\lim_{r \to \infty} \frac{|\partial B_r|}{|B_r|} = 1 - \frac{1}{\lambda} = 0.945292,
+\lim_{r \to \infty} \frac{|\partial B_r|}{|B_r|} = 1 - \frac{1}{\lambda} \approx 0.945292,
 \qquad
 \mathcal{A} = P(\mathrm{surv} \mid \mathrm{intact}) - P(\mathrm{surv} \mid \mathrm{do}(\mathrm{disabled})).
 \label{eq:boundary-autonomy}
@@ -45,7 +45,8 @@ restoring forgotten microscopic history obeys the exact restoration entropy floo
 refusing unkeyed exact reconstruction whenever microscopic key bits are absent.
 
 \textbf{Lipschitz error triangles and zero-chattering switching:} Stacked effective models compose one-step error
-contracts $\varepsilon$ via the exact Lipschitz triangle inequality with upper-map Lipschitz factor $\mathrm{Lip}_2$:
+contracts $\varepsilon$ via the exact Lipschitz triangle inequality, where $\mathrm{Lip}_2$ is the Lipschitz constant
+of the upper coarse-graining projection $\pi_2 : X_1 \to X_2$ (rather than of the upper dynamics $T_2$):
 \begin{equation}
 \varepsilon_{0 \to 2} \le \mathrm{Lip}_2\, \varepsilon_{0 \to 1} + \varepsilon_{1 \to 2}.
 \label{eq:lipschitz-triangle}
@@ -141,7 +142,7 @@ Spectral geometry \& thermodynamics (Sec.~\ref{sec:spectral}) & Exact Steinberg 
 \addlinespace[2pt]
 Holography \& subdivision (Sec.~\ref{sec:holography}) & Unique $W(F_4)$ $[[24, 1, 8]]_3$ tensor, bipartite all-radius HaPPY isometry ($B_1 = [[552, 25, 8]]_3$, $d^{(0)} = 40$), discrete RT/FLM, auxiliary Cliffords, and orthogonal subdivision via $\operatorname{colim}_D \mathcal{H}_D$. & Bare $U$ exits $P_{\mathrm{code}}$ in one beat (except $M_{\mathrm{pair}}$), leaving a dynamical continuum CFT Hamiltonian intertwined with bare $U$ open. \\
 \addlinespace[2pt]
-Matter, gates \& clocks (Sec.~\ref{sec:composites}) & Compacton no-go, $83.12\%$ $M_{\mathrm{pair}}$ excision, Bethe $k$-strings ($k \le 9$), COE repulsion, exact 3-qubit spin-independent universal exchange-gate synthesis ($373$-step $9$-spin $126$-dim Toffoli, $k = 5$ switch), and deformed $m \to 0$ $E = mc^2$ and $1/\gamma$ clocks. & Infrared origin of $m_{\mathrm{eff}} \ll 1$ from bare $m = \pi/3$, 3+1D fermionic statistics, precision SM constants, $\binom{9}{2} = 36$ ballistic crossing limit, 9-role $n \le 3$ ceiling, and four unbounded-loop obstructions. \\
+Matter, gates \& clocks (Sec.~\ref{sec:composites}) & Compacton no-go, $83.12\%$ $M_{\mathrm{pair}}$ excision, Bethe $k$-strings ($k \le 9$), COE repulsion, externally scheduled 3-qubit spin-independent universal exchange-gate synthesis ($373$-step $9$-spin $126$-dim Toffoli, $k = 5$ switch), and deformed $m \to 0$ $E = mc^2$ and $1/\gamma$ clocks. & Infrared origin of $m_{\mathrm{eff}} \ll 1$ from bare $m = \pi/3$, 3+1D fermionic statistics, precision SM constants, $v(u) = \sqrt{3}u/(3u^2+1)$ $w = 0$ zero-relative-velocity SWAP obstruction, $\binom{9}{2} = 36$ ballistic crossing cap, 9-role $n \le 3$ ceiling, and four unbounded-loop obstructions. \\
 \addlinespace[2pt]
 Gauge, subgroups \& 4D $D_4$ gaps (Sec.~\ref{sec:gauge}) & All-body $\mathbb{Z}_2^{24}$ spin-1 obstruction forcing links, single-speed Maxwell--Dirac QCA, static $2T$ chiral wall, native $2T/\Sigma(648)/\mathbb{Z}_{18}$ designs, and strong-coupling 4D $D_4$ $SU(2)/SU(3)$ Wilson gaps ($3.02\times$ BE for $SU(2)$, $2.65\times$ BE / $60.36\times$ KP for $SU(3)$). & Continuum limit ($\beta \to \infty$), finite-subgroup freezing, dynamical electroweak breaking, 3+1D $SU(3)_C$ confinement, and bulk-covariant 4D dynamical chiral gauging. \\
 \addlinespace[2pt]
@@ -158,9 +159,9 @@ Formal verification (Sec.~\ref{sec:lean-and-open}) & Zero-dependency Lean~4 kern
 
 Viewed cumulatively, the bare rule over $\mathbb{Z}[\zeta_9][1/6]$ and the controlled extensions built on its lattice
 geometry connect non-amenable thermodynamics, unique covariant holographic error correction, an integrable bound-state
-tower alongside level repulsion, exact 3-qubit spin-independent universal exchange-gate synthesis, an algebraic proof of
-gauge-link necessity, strong-coupling 4D lattice mass gaps on its partner root lattice, non-tautological gravitational
-redshifts and ghost-free isotropic spin-2 waves in two separate weak-field extensions, and unique $p = 2$ branch
+tower alongside level repulsion, externally scheduled 3-qubit spin-independent universal exchange-gate synthesis, an
+algebraic proof of gauge-link necessity, strong-coupling 4D lattice mass gaps on its partner root lattice,
+non-tautological gravitational redshifts and ghost-free isotropic spin-2 waves in two separate weak-field extensions, and unique $p = 2$ branch
 measures alongside Quantum Darwinism in reduced open-ray models. Across the bare automaton and the extensions anchored
 to its geometry, these results are organized by five interlocked invariants of $\{3,4,3,4\}$: a spectral gap above one
 half, rank-4 $D_4$ isotropy, $W(F_4)$ triality, one-sided cusp antipodal pairing, and exact cyclotomic unitarity, with
@@ -217,13 +218,14 @@ localization, sterile gravitational visibility, and permanent husk trapping from
 and dark-sector phenomenology arise natively on $\{3,4,3,4\}$.
 
 \textbf{Light mass generation, autonomous universality, and mesh-level compilation:} Generating an infrared mass scale
-$m_{\mathrm{eff}} \ll 1$ from bare $m = \pi/3$ alongside 3+1D fermionic statistics remains open. Past exact 3-qubit
-exchange-gate synthesis on $\mathbb{C}^{126}$, three computational frontiers remain inside bare $U$: exceeding the
-$\binom{9}{2} = 36$ single-pass ballistic crossing limit, scaling past nine internal roles ($n \le 3$ DFS qubits)
-without cross-line $M_{\mathrm{pair}}$ leakage, and bypassing the four unbounded-loop obstructions
-\cite{pollard2026railway} (for example via high-density $k \ge 5$ waveguides or gauge links) or compiling recurrent
-agents strictly into bare $U$. Crossing this infrared and confinement barrier separates fixed-depth ballistic scattering
-from long-lived composite matter and unbounded computation on the infinite mesh.
+$m_{\mathrm{eff}} \ll 1$ from bare $m = \pi/3$ alongside 3+1D fermionic statistics remains open. Past externally
+scheduled 3-qubit spin-independent universal exchange-gate synthesis on $\mathbb{C}^{126}$, four computational
+frontiers remain inside bare $U$: overcoming the $v(u) = \sqrt{3}u/(3u^2+1)$ $w = 0$ zero-relative-velocity SWAP
+obstruction, exceeding the $\binom{9}{2} = 36$ single-pass ballistic crossing cap, scaling past nine internal roles
+($n \le 3$ DFS qubits) without cross-line $M_{\mathrm{pair}}$ leakage, and bypassing the four unbounded-loop
+obstructions \cite{pollard2026railway} (for example via high-density $k \ge 5$ waveguides or gauge links) or compiling
+recurrent agents strictly into bare $U$. Crossing this infrared and confinement barrier separates fixed-depth ballistic
+scattering from long-lived composite matter and unbounded computation on the infinite mesh.
 
 \textbf{Precision Standard Model constants and the vacuum-energy gap:} Reproducing Koide's $10^{-5}$ lepton-mass
 precision, deriving $\alpha(0) = 1/137.036$, fixing $\Omega_c / \Omega_b$ dynamically, and closing the 61-decade Hubble

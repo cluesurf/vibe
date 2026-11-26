@@ -62,11 +62,12 @@ stream $S$ ($\|[G_2(\pi/3), S_2]\|_2 = 1$).
 Exact sparse multi-axis diagonalization on $\mathbb{Z}^2 / 3\mathbb{Z}^2$ at the algebraic minimum $k = 4$
 ($\dim = 9{,}282$, unitarity error $\le 3.3 \times 10^{-16}$) verifies how strongly this obstruction persists once
 transverse scattering first becomes kinematically allowed. Active $M_{\mathrm{pair}}$ mixing leaves the vector dipole
-peak pinned near $-2\pi/3$ with negligible cross-axis leakage and near-zero transverse speed:
+peak pinned near $-2\pi/3$ with negligible cross-axis leakage and near-zero transverse discrete finite-difference slope
+$v_T = |\Delta \min|\Omega|| / (2\pi/3)$:
 \begin{equation}
 \text{cross-axis leakage} = 1.345 \times 10^{-3},
 \qquad
-\min|\Omega| = 0.3665,
+\min|\Omega| = 0.3665\text{ rad},
 \qquad
 v_T = 0.0083.
 \label{eq:k4-dipole-gap}
@@ -130,8 +131,9 @@ the $D = 11$ mirror wall tail (Table~\ref{tab:unified-gauge}).
 
 \textbf{Standalone finite-subgroup algebraic checks:} Combining $2T < SU(2)_L$ with the qutrit Clifford subgroup
 $\Delta(27) \trianglelefteq \Sigma(648) < SU(3)_C$ (the ternary Hessian group, an exact unitary 2-design matching
-continuous $SU(3)$ Haar moments through degree $t = 2$) and the ring's native $\mathbb{Z}_{18}$ phase group yields a
-finite group of order $|G_{\mathrm{fin}}| = 46{,}656$. Unlike $\mathbb{Z}_6$, the $\mathbb{Z}_{18}$ factor represents
+continuous $SU(3)$ Haar moments through degree $t = 2$) and the ring's native $\mathbb{Z}_{18}$ phase group by the
+Standard Model central quotient yields $G_{\mathrm{fin}} = \bigl(2T \times \Sigma(648) \times \mathbb{Z}_{18}\bigr)/\mathbb{Z}_6$
+of order $(24 \times 648 \times 18)/6 = 46{,}656$. Unlike $\mathbb{Z}_6$, the $\mathbb{Z}_{18}$ factor represents
 all six input one-generation Standard Model hypercharges and all four $B - L$ charges faithfully, with standard
 five-channel gauge-anomaly cancellation verified algebraically on input chiral matter.
 
@@ -139,7 +141,7 @@ These audits validate separate Abelian, static-chiral, and algebraic building bl
 gauged Standard Model automaton. Moreover, finite subgroups carry a known dynamical frontier: because $2T$ and
 $\Sigma(648)$ have a finite minimal angular separation between distinct elements, their unitary 2-design identities
 control strong coupling accurately, whereas at weak coupling ($\beta$ large) Wilson plaquette dynamics undergoes a
-freezing transition into a locked trivial phase that obstructs a naive continuum limit (Section~\ref{sec:lean-and-open}).
+freezing transition into a trivial ordered phase that obstructs a naive continuum limit (Section~\ref{sec:lean-and-open}).
 
 \begin{table}[tb]
 \centering
@@ -163,7 +165,7 @@ Hurwitz $2T < SU(2)_L$ & $126/126$ deg-5 exact, $U_B$ fusion $2.98 \times 10^{-3
 \addlinespace[2pt]
 3+1D chiral domain wall ($T = 16$) & $D=0$ left flip $\mathbf{0.6045}$, right $\mathbf{0.00}$ ($\Delta P$: $0.9994$ vs.\ $2.04 \times 10^{-14}$) & $6^3 \times 12$ static $2T$ flux past light cone, $D = 11$ mirror tail suppressed to $3.57 \times 10^{-22}$ \\
 \addlinespace[2pt]
-Color $\Sigma(648)$ \& $\mathbb{Z}_{18}$ hypercharge & $0/108$ normal defects, $|G_{\mathrm{fin}}| = 46{,}656$ & Exact $SU(3)$ 2-design, $2T_L \circ 2T_R \trianglelefteq W(F_4)$, input 1-gen $5/5$ anomalies cancel, $6/6$ $Y$ faithful \\
+Color $\Sigma(648)$ \& $\mathbb{Z}_{18}$ hypercharge & $0/108$ normal defects, $|G_{\mathrm{fin}}| = 46{,}656$ & Exact $SU(3)$ 2-design, $G_{\mathrm{fin}} = (2T \times \Sigma(648) \times \mathbb{Z}_{18})/\mathbb{Z}_6$, $2T_L \circ 2T_R \trianglelefteq W(F_4)$, input 1-gen $5/5$ anomalies cancel, $6/6$ $Y$ faithful \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -249,7 +251,10 @@ inside the joint Haar measure rather than bounding each shared plaquette indepen
 driving $\alpha_{13}$ below $c / (1 + c)$ and tightening the conditional contraction ($\gamma_{\mathrm{shared}} < c$)
 without uncontrolled decimation.
 
-At the same time, the continuum limit as $\beta \to \infty$ remains strictly open. Strong-coupling Dobrushin contraction
+At the same time, preserving exact $x_0 = 0$ reflection positivity throughout the axial gauge fixing and $1 + 2$ block
+sweep is essential: unlike uncontrolled real-space decimation, it guarantees that exponential correlation decay from
+$\rho(G(m)) < 1$ reconstructs a genuine spectral gap $m(\beta) > 0$ for the physical Osterwalder--Schrader transfer
+matrix. Even so, the continuum limit as $\beta \to \infty$ remains strictly open. Strong-coupling Dobrushin contraction
 proves an unconditional exponential mass gap $m(\beta) > 0$ only at finite $\beta$, where local link fluctuations keep
 the block influence spectral radius $\rho(G(m)) < 1$. Reaching the continuum Yang--Mills limit $\beta \to \infty$
 \cite{jaffe2000ym, balaban1989} requires controlling the weak-coupling renormalization-group flow of asymptotic freedom
