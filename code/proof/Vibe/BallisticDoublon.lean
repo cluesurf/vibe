@@ -29,7 +29,7 @@ Zero-dependency Lean 4.35.0 formalization of the algebraic core behind Wave-2 Tr
      exclusion, antipodal-free disjoint-support frontier Gram diagonalization `1 - (3/4)^m`, and the
      abstract leap-to-no-periodicity theorem; instantiating the Fock-space trajectory
      `M(t) = max_{g ∈ activeDocks(U^t ψ)} H_2(g)` for full multi-particle `U` is bridged externally in
-     `test/breakthrough/compacton-nogo-and-doublon.ts` and
+     `test/verify/compacton-nogo-and-doublon.ts` and
      `03-bare-qca-compacton-and-scattering-theorem.md`.
 3. **Exact Antipodal-Free Disjoint-Support & `2^m`-Branch Frontier-Leakage Diagonalization (`Lemma 2`):**
    - Exact bare coin weights `|C_diag|^2 = 1/4` (outward transmission) and `|C_off|^2 = 3/4`
@@ -850,7 +850,7 @@ private theorem bd_exists_turnaround_aux :
     bound `B`, and CANNOT be periodic for ANY period `T ≥ 1`.
     (Instantiating `M(t) = max_{g ∈ activeDocks(U^t ψ)} H_2(g)` on the multi-particle Fock space
     from Theorems 3, 4, 5, 8, and 9 is bridged externally in
-    `test/breakthrough/compacton-nogo-and-doublon.ts` and
+    `test/verify/compacton-nogo-and-doublon.ts` and
     `03-bare-qca-compacton-and-scattering-theorem.md`.) -/
 theorem thm_bd_ballistic_no_periodic_compacton (M : Nat → Nat)
     (hPos : ∀ t : Nat, M t > 0)

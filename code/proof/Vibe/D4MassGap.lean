@@ -5,7 +5,7 @@ import Vibe.Geometry
 # Vibe Theory: Discrete 4D `D_4` Lattice Strong-Coupling / Dobrushin Mass-Gap Algebra (`beta > beta_BE^{24c}`)
 
 Zero-dependency Lean `4.35.0` formalization of the exact **algebraic, spectral, and combinatorial
-pillars** of Wave-2 Track W6 (`test/breakthrough/d4-mass-gap-beyond-be.ts`) for the **discrete
+pillars** of Wave-2 Track W6 (`test/verify/d4-mass-gap-beyond-be.ts`) for the **discrete
 lattice 4D `D_4` strong-coupling / Dobrushin mass-gap window** strictly beyond the 24-cell
 Bakry-Emery threshold `beta_BE^{24c} = N^2 / (16 √7)`.
 
