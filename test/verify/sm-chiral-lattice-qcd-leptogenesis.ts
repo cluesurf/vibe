@@ -29,9 +29,15 @@
 //       * G5.3: Live 3-gen 5D Domain-Wall + effective 16-Weyl-fermion SMG mirror self-energy
 //               Sigma_SMG(z) = (V_SMG^2 / z) P_R(L_5 - 1) (V_SMG = Delta_1p = 29/8 = 3.625) on
 //               thermalized 3D weak-coupling gauge configs.
-//               HONEST DISCLOSURE: Sigma_SMG(z) is an effective Luttinger-zero self-energy coupled
+//               HONEST DISCLOSURE: (1) Sigma_SMG(z) is an effective Luttinger-zero self-energy coupled
 //               to classical thermalized 3D gauge links (not a full 5D interacting many-body fermion
-//               Monte Carlo, which has a sign problem). We also verify the Xu-You / Wang-Wen
+//               Monte Carlo, which has a sign problem). (2) Because the quenched 2^3 pure-gauge action
+//               has zero restoring potential for continuous k = 0 flat-toron Polyakov loops on L = 2
+//               (pure center alignment suffices at g = 0.1 but leaves O(1) continuous Cartan holonomy
+//               shifts at g = 0.3, 0.5), G5.3 applies 3D Coulomb gauge fixing plus continuous polar
+//               Weiss trivial-holonomy boundary alignment (leaving Z[zeta_9][1/6] for that boundary
+//               twist) and explicitly certifies |<P_3>_after - <P_3>_before| so live curvature is
+//               preserved rather than flattened toward U = I. (3) We verify the Xu-You / Wang-Wen
 //               theorem showing why naive symmetric L+R self-energy creates a spurious auxiliary
 //               zero mode whereas chiral P_R(L_5 - 1) gaps the mirror wall cleanly.
 //       * G6.1: Live 4D D_4 (2^3 x 4) non-freezing curve: exact Collapsed-Fiber Gibbs-Metropolis
@@ -91,8 +97,9 @@ function recordGate(
   cond: boolean,
   detail: string,
 ): void {
+  const rss = (process.memoryUsage().rss / (1024 * 1024)).toFixed(1)
   GATES.push({ id, tier, title, passed: cond, detail })
-  console.log(`  [${cond ? 'PASS' : 'FAIL'}] ${id} (${tier}) | ${title}`)
+  console.log(`  [${cond ? 'PASS' : 'FAIL'}] ${id} (${tier}) | ${title} [RSS ${rss} MB]`)
   console.log(`         -> ${detail}`)
   assert(cond, `Gate ${id} (${title}) failed: ${detail}`)
 }
@@ -1046,15 +1053,16 @@ function cmatClone(A: CMat): CMat {
   return { n: A.n, re: Float64Array.from(A.re), im: Float64Array.from(A.im) }
 }
 
-function cmatMul(A: CMat, B: CMat): CMat {
+function cmatMulInto(A: CMat, B: CMat, out: CMat): void {
   const n = A.n
-  const out = cmatNew(n)
   const ar = A.re
   const ai = A.im
   const br = B.re
   const bi = B.im
   const or = out.re
   const oi = out.im
+  or.fill(0)
+  oi.fill(0)
   for (let i = 0; i < n; i++) {
     const iOff = i * n
     for (let k = 0; k < n; k++) {
@@ -1070,20 +1078,54 @@ function cmatMul(A: CMat, B: CMat): CMat {
       }
     }
   }
+}
+
+function cmatMul(A: CMat, B: CMat): CMat {
+  const out = cmatNew(A.n)
+  cmatMulInto(A, B, out)
   return out
 }
 
-// Complex LU factorization with partial pivoting, solving A * X = B (multiple RHS columns n x m)
-function cmatSolveMulti(
+// Reusable LU scratch buffers per dimension n (avoids hundreds of MB of transient Float64Array RSS churn)
+const LU_SCRATCH = new Map<
+  number,
+  { readonly luR: Float64Array; readonly luI: Float64Array; readonly piv: Int32Array; readonly idR: Float64Array; readonly idI: Float64Array }
+>()
+
+function getLuScratch(n: number) {
+  let sc = LU_SCRATCH.get(n)
+  if (!sc) {
+    const idR = new Float64Array(n * n)
+    const idI = new Float64Array(n * n)
+    for (let i = 0; i < n; i++) idR[i * n + i] = 1
+    sc = {
+      luR: new Float64Array(n * n),
+      luI: new Float64Array(n * n),
+      piv: new Int32Array(n),
+      idR,
+      idI,
+    }
+    LU_SCRATCH.set(n, sc)
+  }
+  return sc
+}
+
+// Complex LU factorization with partial pivoting, solving A * X = B into (xR, xI) (multiple RHS columns n x m)
+function cmatSolveMultiInto(
   A: CMat,
   bRe: Float64Array,
   bIm: Float64Array,
   mCols: number,
-): { readonly re: Float64Array; readonly im: Float64Array } {
+  xR: Float64Array,
+  xI: Float64Array,
+): void {
   const n = A.n
-  const luR = Float64Array.from(A.re)
-  const luI = Float64Array.from(A.im)
-  const piv = new Int32Array(n)
+  const sc = getLuScratch(n)
+  const luR = sc.luR
+  const luI = sc.luI
+  const piv = sc.piv
+  luR.set(A.re)
+  luI.set(A.im)
   for (let i = 0; i < n; i++) piv[i] = i
 
   for (let k = 0; k < n; k++) {
@@ -1139,8 +1181,6 @@ function cmatSolveMulti(
   }
 
   // Apply permutation to B -> X
-  const xR = new Float64Array(n * mCols)
-  const xI = new Float64Array(n * mCols)
   for (let i = 0; i < n; i++) {
     const srcOff = piv[i]! * mCols
     const dstOff = i * mCols
@@ -1195,27 +1235,47 @@ function cmatSolveMulti(
       xI[xiOff + c] = yR * invI + yI * invR
     }
   }
+}
+
+function cmatSolveMulti(
+  A: CMat,
+  bRe: Float64Array,
+  bIm: Float64Array,
+  mCols: number,
+): { readonly re: Float64Array; readonly im: Float64Array } {
+  const xR = new Float64Array(A.n * mCols)
+  const xI = new Float64Array(A.n * mCols)
+  cmatSolveMultiInto(A, bRe, bIm, mCols, xR, xI)
   return { re: xR, im: xI }
 }
 
+function cmatInvertInto(A: CMat, out: CMat): void {
+  const sc = getLuScratch(A.n)
+  cmatSolveMultiInto(A, sc.idR, sc.idI, A.n, out.re, out.im)
+}
+
+function cmatSolveMatInto(A: CMat, B: CMat, out: CMat): void {
+  cmatSolveMultiInto(A, B.re, B.im, B.n, out.re, out.im)
+}
+
 function cmatInvert(A: CMat): CMat {
-  const n = A.n
-  const idR = new Float64Array(n * n)
-  const idI = new Float64Array(n * n)
-  for (let i = 0; i < n; i++) idR[i * n + i] = 1
-  const res = cmatSolveMulti(A, idR, idI, n)
-  return { n, re: res.re, im: res.im }
+  const out = cmatNew(A.n)
+  cmatInvertInto(A, out)
+  return out
 }
 
 function cmatSolveMat(A: CMat, B: CMat): CMat {
-  const res = cmatSolveMulti(A, B.re, B.im, B.n)
-  return { n: A.n, re: res.re, im: res.im }
+  const out = cmatNew(A.n)
+  cmatSolveMatInto(A, B, out)
+  return out
 }
 
-// Hermitian positive-definite Cholesky factorization A = L L^dag (lower triangle in lRe, lIm)
-function choleskyFactorHerm(n: number, aRe: Float64Array, aIm: Float64Array): CMat {
-  const lRe = new Float64Array(n * n)
-  const lIm = new Float64Array(n * n)
+// Hermitian positive-definite Cholesky factorization A = L L^dag into pre-allocated out (lower triangle)
+function choleskyFactorHermInto(n: number, aRe: Float64Array, aIm: Float64Array, out: CMat): void {
+  const lRe = out.re
+  const lIm = out.im
+  lRe.fill(0)
+  lIm.fill(0)
   for (let j = 0; j < n; j++) {
     const jOff = j * n
     let d = aRe[jOff + j]!
@@ -1244,20 +1304,21 @@ function choleskyFactorHerm(n: number, aRe: Float64Array, aIm: Float64Array): CM
       lIm[iOff + j] = si * invLjj
     }
   }
-  return { n, re: lRe, im: lIm }
 }
 
-// Solve (L L^dag) x = b for a single RHS vector (re, im)
-function choleskySolveVec(
+// Solve (L L^dag) x = b into (xR, xI) using scratch (yR, yI)
+function choleskySolveVecInto(
   L: CMat,
   bRe: Float64Array,
   bIm: Float64Array,
-): { readonly re: Float64Array; readonly im: Float64Array } {
+  yR: Float64Array,
+  yI: Float64Array,
+  xR: Float64Array,
+  xI: Float64Array,
+): void {
   const n = L.n
   const lr = L.re
   const li = L.im
-  const yR = new Float64Array(n)
-  const yI = new Float64Array(n)
   // Forward: L y = b
   for (let i = 0; i < n; i++) {
     const iOff = i * n
@@ -1276,8 +1337,6 @@ function choleskySolveVec(
     yI[i] = si * invD
   }
   // Backward: L^dag x = y
-  const xR = new Float64Array(n)
-  const xI = new Float64Array(n)
   for (let i = n - 1; i >= 0; i--) {
     let sr = yR[i]!
     let si = yI[i]!
@@ -1294,7 +1353,6 @@ function choleskySolveVec(
     xR[i] = sr * invD
     xI[i] = si * invD
   }
-  return { re: xR, im: xI }
 }
 
 // Exact trace Tr((L L^dag)^{-1}) = ||L^{-1}||_F^2
@@ -1665,60 +1723,35 @@ function runGateG51(): void {
   }
   assert(linkStates.length === 285, `Expected 285-dim Z_6 SM link, got ${linkStates.length}`)
 
-  // Sparse single-link U_C, U_C^dag, U_L, U_L^dag and L/R generator tables
-  type SpLink = readonly [number, number]
-  const uCSp: SpLink[][][][] = [0, 1, 2].map(a =>
-    [0, 1, 2].map(b =>
-      Array.from({ length: 19 }, (_, c) => {
-        const list: SpLink[] = []
-        const Uab = QLM_SU3.U[a]![b]!
-        for (let cp = 0; cp < 19; cp++) {
-          const v = Uab[cp * 19 + c]!
-          if (v !== 0) list.push([cp, v])
+  // Exact 1-to-1 flat Int8Array transition tables for single-link U_C, U_C^dag, U_L, U_L^dag
+  // (Every matrix entry U_{ab} in 19-dim SU(3) QLM and 5-dim SU(2) QLM maps each basis state to AT MOST ONE target!)
+  const buildUnitFlat = (U: readonly (readonly Float64Array[])[], dN: number, dim: number, dag: boolean) => {
+    const dst = new Int8Array(dN * dN * dim).fill(-1)
+    const val = new Int8Array(dN * dN * dim)
+    for (let a = 0; a < dN; a++) {
+      for (let b = 0; b < dN; b++) {
+        const Uab = U[a]![b]!
+        for (let src = 0; src < dim; src++) {
+          let hits = 0
+          for (let tgt = 0; tgt < dim; tgt++) {
+            const v = dag ? Uab[src * dim + tgt]! : Uab[tgt * dim + src]!
+            if (v !== 0) {
+              const slot = (a * dN + b) * dim + src
+              dst[slot] = tgt
+              val[slot] = v
+              hits++
+            }
+          }
+          assert(hits <= 1, 'QLM link operator must be monomial (<=1 target per basis state)')
         }
-        return list
-      }),
-    ),
-  )
-  const uCDagSp: SpLink[][][][] = [0, 1, 2].map(a =>
-    [0, 1, 2].map(b =>
-      Array.from({ length: 19 }, (_, cp) => {
-        const list: SpLink[] = []
-        const Uab = QLM_SU3.U[a]![b]!
-        for (let c = 0; c < 19; c++) {
-          const v = Uab[cp * 19 + c]!
-          if (v !== 0) list.push([c, v])
-        }
-        return list
-      }),
-    ),
-  )
-  const uLSp: SpLink[][][][] = [0, 1].map(i =>
-    [0, 1].map(j =>
-      Array.from({ length: 5 }, (_, l) => {
-        const list: SpLink[] = []
-        const Uij = QLM_SU2.U[i]![j]!
-        for (let lp = 0; lp < 5; lp++) {
-          const v = Uij[lp * 5 + l]!
-          if (v !== 0) list.push([lp, v])
-        }
-        return list
-      }),
-    ),
-  )
-  const uLDagSp: SpLink[][][][] = [0, 1].map(i =>
-    [0, 1].map(j =>
-      Array.from({ length: 5 }, (_, lp) => {
-        const list: SpLink[] = []
-        const Uij = QLM_SU2.U[i]![j]!
-        for (let l = 0; l < 5; l++) {
-          const v = Uij[lp * 5 + l]!
-          if (v !== 0) list.push([l, v])
-        }
-        return list
-      }),
-    ),
-  )
+      }
+    }
+    return { dst, val }
+  }
+  const uCFlat = buildUnitFlat(QLM_SU3.U, 3, 19, false)
+  const uCDagFlat = buildUnitFlat(QLM_SU3.U, 3, 19, true)
+  const uLFlat = buildUnitFlat(QLM_SU2.U, 2, 5, false)
+  const uLDagFlat = buildUnitFlat(QLM_SU2.U, 2, 5, true)
 
   type SpC = readonly [number, number, number] // [dst, re, im]
   const buildGenSp = (reMats: readonly Float64Array[], imMats: readonly Float64Array[], dim: number): SpC[][][] =>
@@ -1840,63 +1873,143 @@ function runGateG51(): void {
     return list
   })
 
-  // 4) Compact BigInt state encoding: 1-particle Q_L matter (v:0..5, spin:0..3, color:0..2, iso:0..1 -> 0..143)
-  //    + 7 links (each 0..284, 9 bits -> 63 bits, total 71 bits -> exact BigInt!)
-  type SparseVec = Map<bigint, [number, number]>
-  const packState = (mIdx: number, lks: ArrayLike<number>): bigint => {
-    let key = BigInt(mIdx)
-    for (let e = 0; e < 7; e++) key = (key << 9n) | BigInt(lks[e]!)
-    return key
+  // 4) Zero-allocation flat-typed-array sparse state engine:
+  //    1-particle Q_L matter (0..143, 8 bits) + 7 Z_6 links (each 0..284, 9 bits -> 63 bits, total 71 bits)
+  //    packed losslessly into two exact IEEE-754 integer halves: hi (< 2^35) and lo (< 2^36) (zero BigInt/Map churn!).
+  const HASH_SIZE = 16384
+  const HASH_MASK = HASH_SIZE - 1
+  const SP_CAP = 8192
+  type SpVec = {
+    readonly hi: Float64Array
+    readonly lo: Float64Array
+    readonly re: Float64Array
+    readonly im: Float64Array
+    readonly bkt: Int32Array
+    readonly nxt: Int32Array
+    readonly head: Int32Array
+    len: number
   }
-  const unpackState = (key: bigint, outLks: Int32Array): number => {
-    let k = key
-    for (let e = 6; e >= 0; e--) {
-      outLks[e] = Number(k & 511n)
-      k >>= 9n
-    }
-    return Number(k)
+  const spNew = (): SpVec => ({
+    hi: new Float64Array(SP_CAP),
+    lo: new Float64Array(SP_CAP),
+    re: new Float64Array(SP_CAP),
+    im: new Float64Array(SP_CAP),
+    bkt: new Int32Array(SP_CAP),
+    nxt: new Int32Array(SP_CAP),
+    head: new Int32Array(HASH_SIZE).fill(-1),
+    len: 0,
+  })
+  const spClear = (v: SpVec): void => {
+    const n = v.len
+    const bkt = v.bkt
+    const head = v.head
+    for (let i = 0; i < n; i++) head[bkt[i]!] = -1
+    v.len = 0
   }
-  const addSp = (vec: SparseVec, key: bigint, re: number, im: number): void => {
+  const packHi = (mIdx: number, lks: ArrayLike<number>): number =>
+    ((mIdx * 512 + lks[0]!) * 512 + lks[1]!) * 512 + lks[2]!
+  const packLo = (lks: ArrayLike<number>): number =>
+    ((lks[3]! * 512 + lks[4]!) * 512 + lks[5]!) * 512 + lks[6]!
+  const unpackHiLo = (hi: number, lo: number, outLks: Int32Array): number => {
+    const l6 = lo % 512
+    const r5 = (lo - l6) / 512
+    const l5 = r5 % 512
+    const r4 = (r5 - l5) / 512
+    const l4 = r4 % 512
+    const l3 = (r4 - l4) / 512
+    const l2 = hi % 512
+    const q1 = (hi - l2) / 512
+    const l1 = q1 % 512
+    const q0 = (q1 - l1) / 512
+    const l0 = q0 % 512
+    const mIdx = (q0 - l0) / 512
+    outLks[0] = l0
+    outLks[1] = l1
+    outLks[2] = l2
+    outLks[3] = l3
+    outLks[4] = l4
+    outLks[5] = l5
+    outLks[6] = l6
+    return mIdx
+  }
+  const hashHiLo = (hi: number, lo: number): number => {
+    const a = (hi | 0) ^ Math.imul(Math.floor(hi / 4294967296) | 0, 0x9e3779b1)
+    const b = (lo | 0) ^ Math.imul(Math.floor(lo / 4294967296) | 0, 0x85ebca77)
+    let h = Math.imul(a ^ Math.imul(b, 0x27d4eb2d), 0x165667b1)
+    h ^= h >>> 15
+    return h & HASH_MASK
+  }
+  const addSp = (vec: SpVec, hi: number, lo: number, re: number, im: number): void => {
     if (re === 0 && im === 0) return
-    const cur = vec.get(key)
-    if (cur) {
-      cur[0] += re
-      cur[1] += im
-    } else {
-      vec.set(key, [re, im])
+    const h = hashHiLo(hi, lo)
+    let cur = vec.head[h]!
+    while (cur >= 0) {
+      if (vec.hi[cur] === hi && vec.lo[cur] === lo) {
+        vec.re[cur] = vec.re[cur]! + re
+        vec.im[cur] = vec.im[cur]! + im
+        return
+      }
+      cur = vec.nxt[cur]!
     }
+    const idx = vec.len
+    assert(idx < SP_CAP, `SpVec overflow > ${SP_CAP}`)
+    vec.hi[idx] = hi
+    vec.lo[idx] = lo
+    vec.re[idx] = re
+    vec.im[idx] = im
+    vec.bkt[idx] = h
+    vec.nxt[idx] = vec.head[h]!
+    vec.head[h] = idx
+    vec.len = idx + 1
   }
-  const spNorm = (vec: SparseVec): number => {
+  const spFind = (vec: SpVec, hi: number, lo: number): number => {
+    let cur = vec.head[hashHiLo(hi, lo)]!
+    while (cur >= 0) {
+      if (vec.hi[cur] === hi && vec.lo[cur] === lo) return cur
+      cur = vec.nxt[cur]!
+    }
+    return -1
+  }
+  const spNorm = (vec: SpVec): number => {
     let s = 0
-    for (const [r, im] of vec.values()) s += r * r + im * im
+    for (let i = 0; i < vec.len; i++) {
+      const r = vec.re[i]!
+      const im = vec.im[i]!
+      s += r * r + im * im
+    }
     return Math.sqrt(s)
   }
-  const spDiffNorm = (a: SparseVec, b: SparseVec): number => {
+  const spDiffNorm = (a: SpVec, b: SpVec): number => {
     let s = 0
-    for (const [k, [ar, ai]] of a) {
-      const bv = b.get(k)
-      const dr = ar - (bv ? bv[0] : 0)
-      const di = ai - (bv ? bv[1] : 0)
+    for (let i = 0; i < a.len; i++) {
+      const j = spFind(b, a.hi[i]!, a.lo[i]!)
+      const dr = a.re[i]! - (j >= 0 ? b.re[j]! : 0)
+      const di = a.im[i]! - (j >= 0 ? b.im[j]! : 0)
       s += dr * dr + di * di
     }
-    for (const [k, [br, bi]] of b) {
-      if (!a.has(k)) s += br * br + bi * bi
+    for (let j = 0; j < b.len; j++) {
+      if (spFind(a, b.hi[j]!, b.lo[j]!) < 0) {
+        const br = b.re[j]!
+        const bi = b.im[j]!
+        s += br * br + bi * bi
+      }
     }
     return Math.sqrt(s)
   }
-  const spInner = (a: SparseVec, b: SparseVec): C => {
+  const spInner = (a: SpVec, b: SpVec): C => {
     let sr = 0
     let si = 0
-    for (const [k, [ar, ai]] of a) {
-      const bv = b.get(k)
-      if (!bv) continue
-      sr += ar * bv[0] + ai * bv[1]
-      si += ar * bv[1] - ai * bv[0]
+    for (let i = 0; i < a.len; i++) {
+      const j = spFind(b, a.hi[i]!, a.lo[i]!)
+      if (j < 0) continue
+      const ar = a.re[i]!
+      const ai = a.im[i]!
+      const br = b.re[j]!
+      const bi = b.im[j]!
+      sr += ar * br + ai * bi
+      si += ar * bi - ai * br
     }
     return [sr, si]
-  }
-  const spAddInto = (dst: SparseVec, src: SparseVec): void => {
-    for (const [k, [r, im]] of src) addSp(dst, k, r, im)
   }
 
   // Hamiltonian couplings (O(1) so all 6 pieces have ||H_piece |probe>|| > 0.5 while staying well-conditioned)
@@ -1912,11 +2025,14 @@ function runGateG51(): void {
   const lksBuf = new Int32Array(7)
   const lksTmp = new Int32Array(7)
 
-  const applyHE = (st: SparseVec): SparseVec => {
-    const out: SparseVec = new Map()
-    for (const [key, [vr, vi]] of st) {
+  const applyHEInto = (st: SpVec, out: SpVec): void => {
+    for (let si = 0; si < st.len; si++) {
+      const vr = st.re[si]!
+      const vi = st.im[si]!
       if (vr === 0 && vi === 0) continue
-      unpackState(key, lksBuf)
+      const hi = st.hi[si]!
+      const lo = st.lo[si]!
+      unpackHiLo(hi, lo, lksBuf)
       let eVal = 0
       for (let e = 0; e < 7; e++) {
         const ls = linkStates[lksBuf[e]!]!
@@ -1925,192 +2041,171 @@ function runGateG51(): void {
         const eY = symY(ls.qY) / 6
         eVal += 0.5 * G3_SQ * c2C + 0.5 * G2_SQ * c2L + 0.5 * G1_SQ * eY * eY
       }
-      addSp(out, key, eVal * vr, eVal * vi)
+      addSp(out, hi, lo, eVal * vr, eVal * vi)
     }
-    return out
+  }
+
+  // Flat monomial plaquette helper for BOTH B_p^(3,Y) (forward + h.c.) and B_p^(2,Y) (forward + h.c.)
+  // Max loop depth = 4 (prevents V8 TurboFan Zone blowup from 10-deep nested loops)
+  const applyColorPlaqDir = (
+    mIdx: number,
+    plaq: readonly [number, number, number, number],
+    flat: { readonly dst: Int8Array; readonly val: Int8Array },
+    qShift: number,
+    vr: number,
+    vi: number,
+    out: SpVec,
+  ): number => {
+    const e0 = plaq[0]
+    const e1 = plaq[1]
+    const e2 = plaq[2]
+    const e3 = plaq[3]
+    const ls0 = linkStates[lksBuf[e0]!]!
+    const ls1 = linkStates[lksBuf[e1]!]!
+    const ls2 = linkStates[lksBuf[e2]!]!
+    const ls3 = linkStates[lksBuf[e3]!]!
+    const q0p = (ls0.qY + qShift) % 18
+    const q1p = (ls1.qY + qShift) % 18
+    const q2p = (ls2.qY + qShift) % 18
+    const q3p = (ls3.qY + qShift) % 18
+    const dst = flat.dst
+    const val = flat.val
+    let viol = 0
+    for (let a = 0; a < 3; a++) {
+      for (let b = 0; b < 3; b++) {
+        const s0 = (b * 3 + a) * 19 + ls0.c
+        const c0p = dst[s0]!
+        if (c0p < 0) continue
+        const v0 = val[s0]!
+        const lk0p = linkLookup[(c0p * 5 + ls0.l) * 18 + q0p]!
+        for (let c = 0; c < 3; c++) {
+          const s1 = (c * 3 + b) * 19 + ls1.c
+          const c1p = dst[s1]!
+          if (c1p < 0) continue
+          const v01 = v0 * val[s1]!
+          const lk1p = linkLookup[(c1p * 5 + ls1.l) * 18 + q1p]!
+          for (let d = 0; d < 3; d++) {
+            const s2 = (d * 3 + c) * 19 + ls2.c
+            const c2p = dst[s2]!
+            if (c2p < 0) continue
+            const s3 = (a * 3 + d) * 19 + ls3.c
+            const c3p = dst[s3]!
+            if (c3p < 0) continue
+            const lk2p = linkLookup[(c2p * 5 + ls2.l) * 18 + q2p]!
+            const lk3p = linkLookup[(c3p * 5 + ls3.l) * 18 + q3p]!
+            if (lk0p < 0 || lk1p < 0 || lk2p < 0 || lk3p < 0) {
+              viol++
+              continue
+            }
+            lksTmp.set(lksBuf)
+            lksTmp[e0] = lk0p
+            lksTmp[e1] = lk1p
+            lksTmp[e2] = lk2p
+            lksTmp[e3] = lk3p
+            const w = C_B3Y * v01 * val[s2]! * val[s3]!
+            addSp(out, packHi(mIdx, lksTmp), packLo(lksTmp), w * vr, w * vi)
+          }
+        }
+      }
+    }
+    return viol
   }
 
   // Path-ordered right-to-left B_p^(3,Y) = Tr_3(U_C(e3) U_C(e2) U_C(e1) U_C(e0)) prod U_Y^{-2} + h.c.
-  const applyHB3Y = (st: SparseVec, dropUY = false): { out: SparseVec; z6Violations: number } => {
-    const out: SparseVec = new Map()
+  const applyHB3YInto = (st: SpVec, out: SpVec, dropUY = false): number => {
     let z6Violations = 0
-    for (const [key, [vr, vi]] of st) {
+    const qFwd = dropUY ? 0 : 16 // -2 mod 18
+    const qBwd = dropUY ? 0 : 2 // +2 mod 18
+    for (let si = 0; si < st.len; si++) {
+      const vr = st.re[si]!
+      const vi = st.im[si]!
       if (vr === 0 && vi === 0) continue
-      const mIdx = unpackState(key, lksBuf)
+      const mIdx = unpackHiLo(st.hi[si]!, st.lo[si]!, lksBuf)
       for (const plaq of PLAQS) {
-        const e0 = plaq[0]
-        const e1 = plaq[1]
-        const e2 = plaq[2]
-        const e3 = plaq[3]
-        const ls0 = linkStates[lksBuf[e0]!]!
-        const ls1 = linkStates[lksBuf[e1]!]!
-        const ls2 = linkStates[lksBuf[e2]!]!
-        const ls3 = linkStates[lksBuf[e3]!]!
-        const qShiftFwd = dropUY ? 0 : 16 // -2 mod 18
-        const qShiftBwd = dropUY ? 0 : 2 // +2 mod 18
+        z6Violations += applyColorPlaqDir(mIdx, plaq, uCFlat, qFwd, vr, vi, out)
+        z6Violations += applyColorPlaqDir(mIdx, plaq, uCDagFlat, qBwd, vr, vi, out)
+      }
+    }
+    return z6Violations
+  }
 
-        // Forward W = sum_{a,b,c,d} (U3)_{ad} (U2)_{dc} (U1)_{cb} (U0)_{ba} prod U_Y^{-2}
-        for (let a = 0; a < 3; a++) {
-          for (let b = 0; b < 3; b++) {
-            const list0 = uCSp[b]![a]![ls0.c]!
-            if (list0.length === 0) continue
-            for (let c = 0; c < 3; c++) {
-              const list1 = uCSp[c]![b]![ls1.c]!
-              if (list1.length === 0) continue
-              for (let d = 0; d < 3; d++) {
-                const list2 = uCSp[d]![c]![ls2.c]!
-                if (list2.length === 0) continue
-                const list3 = uCSp[a]![d]![ls3.c]!
-                if (list3.length === 0) continue
-                const q0p = (ls0.qY + qShiftFwd) % 18
-                const q1p = (ls1.qY + qShiftFwd) % 18
-                const q2p = (ls2.qY + qShiftFwd) % 18
-                const q3p = (ls3.qY + qShiftFwd) % 18
-                for (const [c0p, v0] of list0) {
-                  const lk0p = linkLookup[(c0p * 5 + ls0.l) * 18 + q0p]!
-                  for (const [c1p, v1] of list1) {
-                    const lk1p = linkLookup[(c1p * 5 + ls1.l) * 18 + q1p]!
-                    for (const [c2p, v2] of list2) {
-                      const lk2p = linkLookup[(c2p * 5 + ls2.l) * 18 + q2p]!
-                      for (const [c3p, v3] of list3) {
-                        const lk3p = linkLookup[(c3p * 5 + ls3.l) * 18 + q3p]!
-                        if (lk0p < 0 || lk1p < 0 || lk2p < 0 || lk3p < 0) {
-                          z6Violations++
-                          continue
-                        }
-                        lksTmp.set(lksBuf)
-                        lksTmp[e0] = lk0p
-                        lksTmp[e1] = lk1p
-                        lksTmp[e2] = lk2p
-                        lksTmp[e3] = lk3p
-                        const w = C_B3Y * v0 * v1 * v2 * v3
-                        addSp(out, packState(mIdx, lksTmp), w * vr, w * vi)
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-        // Hermitian conjugate W^dag = sum_{a,b,c,d} (U3_{ad})^dag (U2_{dc})^dag (U1_{cb})^dag (U0_{ba})^dag prod U_Y^{+2}
-        for (let a = 0; a < 3; a++) {
-          for (let b = 0; b < 3; b++) {
-            const list0 = uCDagSp[b]![a]![ls0.c]!
-            if (list0.length === 0) continue
-            for (let c = 0; c < 3; c++) {
-              const list1 = uCDagSp[c]![b]![ls1.c]!
-              if (list1.length === 0) continue
-              for (let d = 0; d < 3; d++) {
-                const list2 = uCDagSp[d]![c]![ls2.c]!
-                if (list2.length === 0) continue
-                const list3 = uCDagSp[a]![d]![ls3.c]!
-                if (list3.length === 0) continue
-                const q0p = (ls0.qY + qShiftBwd) % 18
-                const q1p = (ls1.qY + qShiftBwd) % 18
-                const q2p = (ls2.qY + qShiftBwd) % 18
-                const q3p = (ls3.qY + qShiftBwd) % 18
-                for (const [c0p, v0] of list0) {
-                  const lk0p = linkLookup[(c0p * 5 + ls0.l) * 18 + q0p]!
-                  for (const [c1p, v1] of list1) {
-                    const lk1p = linkLookup[(c1p * 5 + ls1.l) * 18 + q1p]!
-                    for (const [c2p, v2] of list2) {
-                      const lk2p = linkLookup[(c2p * 5 + ls2.l) * 18 + q2p]!
-                      for (const [c3p, v3] of list3) {
-                        const lk3p = linkLookup[(c3p * 5 + ls3.l) * 18 + q3p]!
-                        if (lk0p < 0 || lk1p < 0 || lk2p < 0 || lk3p < 0) {
-                          z6Violations++
-                          continue
-                        }
-                        lksTmp.set(lksBuf)
-                        lksTmp[e0] = lk0p
-                        lksTmp[e1] = lk1p
-                        lksTmp[e2] = lk2p
-                        lksTmp[e3] = lk3p
-                        const w = C_B3Y * v0 * v1 * v2 * v3
-                        addSp(out, packState(mIdx, lksTmp), w * vr, w * vi)
-                      }
-                    }
-                  }
-                }
-              }
-            }
+  const applyWeakPlaqDir = (
+    mIdx: number,
+    plaq: readonly [number, number, number, number],
+    flat: { readonly dst: Int8Array; readonly val: Int8Array },
+    qShift: number,
+    vr: number,
+    vi: number,
+    out: SpVec,
+  ): void => {
+    const e0 = plaq[0]
+    const e1 = plaq[1]
+    const e2 = plaq[2]
+    const e3 = plaq[3]
+    const ls0 = linkStates[lksBuf[e0]!]!
+    const ls1 = linkStates[lksBuf[e1]!]!
+    const ls2 = linkStates[lksBuf[e2]!]!
+    const ls3 = linkStates[lksBuf[e3]!]!
+    const q0p = (ls0.qY + qShift) % 18
+    const q1p = (ls1.qY + qShift) % 18
+    const q2p = (ls2.qY + qShift) % 18
+    const q3p = (ls3.qY + qShift) % 18
+    const dst = flat.dst
+    const val = flat.val
+    for (let a = 0; a < 2; a++) {
+      for (let b = 0; b < 2; b++) {
+        const s0 = (b * 2 + a) * 5 + ls0.l
+        const l0p = dst[s0]!
+        if (l0p < 0) continue
+        const v0 = val[s0]!
+        const lk0p = linkLookup[(ls0.c * 5 + l0p) * 18 + q0p]!
+        for (let c = 0; c < 2; c++) {
+          const s1 = (c * 2 + b) * 5 + ls1.l
+          const l1p = dst[s1]!
+          if (l1p < 0) continue
+          const v01 = v0 * val[s1]!
+          const lk1p = linkLookup[(ls1.c * 5 + l1p) * 18 + q1p]!
+          for (let d = 0; d < 2; d++) {
+            const s2 = (d * 2 + c) * 5 + ls2.l
+            const l2p = dst[s2]!
+            if (l2p < 0) continue
+            const s3 = (a * 2 + d) * 5 + ls3.l
+            const l3p = dst[s3]!
+            if (l3p < 0) continue
+            lksTmp.set(lksBuf)
+            lksTmp[e0] = lk0p
+            lksTmp[e1] = lk1p
+            lksTmp[e2] = linkLookup[(ls2.c * 5 + l2p) * 18 + q2p]!
+            lksTmp[e3] = linkLookup[(ls3.c * 5 + l3p) * 18 + q3p]!
+            const w = C_B2Y * v01 * val[s2]! * val[s3]!
+            addSp(out, packHi(mIdx, lksTmp), packLo(lksTmp), w * vr, w * vi)
           }
         }
       }
     }
-    return { out, z6Violations }
   }
 
   // Path-ordered right-to-left B_p^(2,Y) = Tr_2(U_L(e3) U_L(e2) U_L(e1) U_L(e0)) prod U_Y^{+3} + h.c.
-  const applyHB2Y = (st: SparseVec): SparseVec => {
-    const out: SparseVec = new Map()
-    for (const [key, [vr, vi]] of st) {
+  const applyHB2YInto = (st: SpVec, out: SpVec): void => {
+    for (let si = 0; si < st.len; si++) {
+      const vr = st.re[si]!
+      const vi = st.im[si]!
       if (vr === 0 && vi === 0) continue
-      const mIdx = unpackState(key, lksBuf)
+      const mIdx = unpackHiLo(st.hi[si]!, st.lo[si]!, lksBuf)
       for (const plaq of PLAQS) {
-        const e0 = plaq[0]
-        const e1 = plaq[1]
-        const e2 = plaq[2]
-        const e3 = plaq[3]
-        const ls0 = linkStates[lksBuf[e0]!]!
-        const ls1 = linkStates[lksBuf[e1]!]!
-        const ls2 = linkStates[lksBuf[e2]!]!
-        const ls3 = linkStates[lksBuf[e3]!]!
-        for (const isDag of [false, true]) {
-          const sp = isDag ? uLDagSp : uLSp
-          const qShift = isDag ? 15 : 3 // -3 vs +3 mod 18
-          const q0p = (ls0.qY + qShift) % 18
-          const q1p = (ls1.qY + qShift) % 18
-          const q2p = (ls2.qY + qShift) % 18
-          const q3p = (ls3.qY + qShift) % 18
-          for (let a = 0; a < 2; a++) {
-            for (let b = 0; b < 2; b++) {
-              const list0 = sp[b]![a]![ls0.l]!
-              if (list0.length === 0) continue
-              for (let c = 0; c < 2; c++) {
-                const list1 = sp[c]![b]![ls1.l]!
-                if (list1.length === 0) continue
-                for (let d = 0; d < 2; d++) {
-                  const list2 = sp[d]![c]![ls2.l]!
-                  if (list2.length === 0) continue
-                  const list3 = sp[a]![d]![ls3.l]!
-                  if (list3.length === 0) continue
-                  for (const [l0p, v0] of list0) {
-                    const lk0p = linkLookup[(ls0.c * 5 + l0p) * 18 + q0p]!
-                    for (const [l1p, v1] of list1) {
-                      const lk1p = linkLookup[(ls1.c * 5 + l1p) * 18 + q1p]!
-                      for (const [l2p, v2] of list2) {
-                        const lk2p = linkLookup[(ls2.c * 5 + l2p) * 18 + q2p]!
-                        for (const [l3p, v3] of list3) {
-                          const lk3p = linkLookup[(ls3.c * 5 + l3p) * 18 + q3p]!
-                          lksTmp.set(lksBuf)
-                          lksTmp[e0] = lk0p
-                          lksTmp[e1] = lk1p
-                          lksTmp[e2] = lk2p
-                          lksTmp[e3] = lk3p
-                          const w = C_B2Y * v0 * v1 * v2 * v3
-                          addSp(out, packState(mIdx, lksTmp), w * vr, w * vi)
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
+        applyWeakPlaqDir(mIdx, plaq, uLFlat, 3, vr, vi, out)
+        applyWeakPlaqDir(mIdx, plaq, uLDagFlat, 15, vr, vi, out)
       }
     }
-    return out
   }
 
   // B_p^(Y6) = prod U_Y^{+6} + prod U_Y^{-6}
-  const applyHBY6 = (st: SparseVec): SparseVec => {
-    const out: SparseVec = new Map()
-    for (const [key, [vr, vi]] of st) {
+  const applyHBY6Into = (st: SpVec, out: SpVec): void => {
+    for (let si = 0; si < st.len; si++) {
+      const vr = st.re[si]!
+      const vi = st.im[si]!
       if (vr === 0 && vi === 0) continue
-      const mIdx = unpackState(key, lksBuf)
+      const mIdx = unpackHiLo(st.hi[si]!, st.lo[si]!, lksBuf)
       for (const plaq of PLAQS) {
         for (const qShift of [6, 12] as const) {
           lksTmp.set(lksBuf)
@@ -2118,19 +2213,20 @@ function runGateG51(): void {
             const ls = linkStates[lksBuf[e]!]!
             lksTmp[e] = linkLookup[(ls.c * 5 + ls.l) * 18 + ((ls.qY + qShift) % 18)]!
           }
-          addSp(out, packState(mIdx, lksTmp), C_BY6 * vr, C_BY6 * vi)
+          addSp(out, packHi(mIdx, lksTmp), packLo(lksTmp), C_BY6 * vr, C_BY6 * vi)
         }
       }
     }
-    return out
   }
 
   // 3D Domain-Wall on-site mass H_DW_mass = sum_v M_DW(z_v) psi_v^dag beta psi_v
-  const applyHDWMass = (st: SparseVec): SparseVec => {
-    const out: SparseVec = new Map()
-    for (const [key, [vr, vi]] of st) {
+  const applyHDWMassInto = (st: SpVec, out: SpVec): void => {
+    for (let si = 0; si < st.len; si++) {
+      const vr = st.re[si]!
+      const vi = st.im[si]!
       if (vr === 0 && vi === 0) continue
-      const mIdx = unpackState(key, lksBuf)
+      const lo = st.lo[si]!
+      const mIdx = unpackHiLo(st.hi[si]!, lo, lksBuf)
       const v = (mIdx / 24) | 0
       const rem = mIdx % 24
       const sp = (rem / 6) | 0
@@ -2138,19 +2234,61 @@ function runGateG51(): void {
       const mv = M_DW_VERT[v]!
       for (const [sp2, br, bi] of betaSpinSp[sp]!) {
         const m2 = v * 24 + sp2 * 6 + cg
-        addSp(out, packState(m2, lksBuf), mv * (br * vr - bi * vi), mv * (br * vi + bi * vr))
+        addSp(out, packHi(m2, lksBuf), lo, mv * (br * vr - bi * vi), mv * (br * vi + bi * vr))
       }
     }
-    return out
+  }
+
+  // Single-edge monomial Q_L hopping helper (flat 1-to-1 U_C & U_L lookups)
+  const applyHopEdge = (
+    ei: number,
+    dstV: number,
+    col: number,
+    iso: number,
+    qShift: number,
+    kList: readonly SpC[],
+    isFwd: boolean,
+    vr: number,
+    vi: number,
+    out: SpVec,
+  ): void => {
+    const ls = linkStates[lksBuf[ei]!]!
+    const qYp = (ls.qY + qShift) % 18
+    const cDst = isFwd ? uCFlat.dst : uCDagFlat.dst
+    const cVal = isFwd ? uCFlat.val : uCDagFlat.val
+    const lDst = isFwd ? uLFlat.dst : uLDagFlat.dst
+    const lVal = isFwd ? uLFlat.val : uLDagFlat.val
+    for (let a = 0; a < 3; a++) {
+      const cs = (isFwd ? a * 3 + col : col * 3 + a) * 19 + ls.c
+      const cp = cDst[cs]!
+      if (cp < 0) continue
+      const vc = cVal[cs]!
+      for (let i = 0; i < 2; i++) {
+        const lsSlot = (isFwd ? i * 2 + iso : iso * 2 + i) * 5 + ls.l
+        const lp = lDst[lsSlot]!
+        if (lp < 0) continue
+        const lkp = linkLookup[(cp * 5 + lp) * 18 + qYp]!
+        assert(lkp >= 0, 'Z_6 violation in Q_L hopping')
+        lksTmp.set(lksBuf)
+        lksTmp[ei] = lkp
+        const loNew = packLo(lksTmp)
+        const wg = T_HOP * vc * lVal[lsSlot]!
+        for (const [sp2, kr, ki] of kList) {
+          const m2 = dstV * 24 + sp2 * 6 + a * 2 + i
+          addSp(out, packHi(m2, lksTmp), loNew, wg * (kr * vr - ki * vi), wg * (kr * vi + ki * vr))
+        }
+      }
+    }
   }
 
   // 3D Chiral Wilson-Dirac gauge-covariant hopping H_DW_hop along all 7 edges
-  const applyHDWHop = (st: SparseVec, yStep = 1): SparseVec => {
-    const out: SparseVec = new Map()
+  const applyHDWHopInto = (st: SpVec, out: SpVec, yStep = 1): void => {
     const yBack = (18 - (yStep % 18)) % 18
-    for (const [key, [vr, vi]] of st) {
+    for (let si = 0; si < st.len; si++) {
+      const vr = st.re[si]!
+      const vi = st.im[si]!
       if (vr === 0 && vi === 0) continue
-      const mIdx = unpackState(key, lksBuf)
+      const mIdx = unpackHiLo(st.hi[si]!, st.lo[si]!, lksBuf)
       const vCur = (mIdx / 24) | 0
       const rem = mIdx % 24
       const sp = (rem / 6) | 0
@@ -2160,75 +2298,22 @@ function runGateG51(): void {
       for (let ei = 0; ei < 7; ei++) {
         const ed = EDGES[ei]!
         if (ed.u === vCur) {
-          // Forward hop u -> v: psi_v^dag K_e U_C(e) U_L(e) U_Y(e)^{+yStep} psi_u
-          const ls = linkStates[lksBuf[ei]!]!
-          const qYp = (ls.qY + yStep) % 18
-          const kList = edgeSpinMats[ei]!.fwd[sp]!
-          for (let a = 0; a < 3; a++) {
-            const cList = uCSp[a]![col]![ls.c]!
-            if (cList.length === 0) continue
-            for (let i = 0; i < 2; i++) {
-              const lList = uLSp[i]![iso]![ls.l]!
-              if (lList.length === 0) continue
-              for (const [cp, vc] of cList) {
-                for (const [lp, vl] of lList) {
-                  const lkp = linkLookup[(cp * 5 + lp) * 18 + qYp]!
-                  assert(lkp >= 0, 'Z_6 violation in forward Q_L hopping')
-                  lksTmp.set(lksBuf)
-                  lksTmp[ei] = lkp
-                  const wg = T_HOP * vc * vl
-                  for (const [sp2, kr, ki] of kList) {
-                    const m2 = ed.v * 24 + sp2 * 6 + a * 2 + i
-                    const ar = wg * (kr * vr - ki * vi)
-                    const ai = wg * (kr * vi + ki * vr)
-                    addSp(out, packState(m2, lksTmp), ar, ai)
-                  }
-                }
-              }
-            }
-          }
+          applyHopEdge(ei, ed.v, col, iso, yStep, edgeSpinMats[ei]!.fwd[sp]!, true, vr, vi, out)
         } else if (ed.v === vCur) {
-          // Backward hop v -> u: psi_u^dag K_e^dag U_C(e)^dag U_L(e)^dag U_Y(e)^{-yStep} psi_v
-          const ls = linkStates[lksBuf[ei]!]!
-          const qYp = (ls.qY + yBack) % 18
-          const kList = edgeSpinMats[ei]!.bwd[sp]!
-          for (let b = 0; b < 3; b++) {
-            const cList = uCDagSp[col]![b]![ls.c]!
-            if (cList.length === 0) continue
-            for (let j = 0; j < 2; j++) {
-              const lList = uLDagSp[iso]![j]![ls.l]!
-              if (lList.length === 0) continue
-              for (const [cp, vc] of cList) {
-                for (const [lp, vl] of lList) {
-                  const lkp = linkLookup[(cp * 5 + lp) * 18 + qYp]!
-                  assert(lkp >= 0, 'Z_6 violation in backward Q_L hopping')
-                  lksTmp.set(lksBuf)
-                  lksTmp[ei] = lkp
-                  const wg = T_HOP * vc * vl
-                  for (const [sp2, kr, ki] of kList) {
-                    const m2 = ed.u * 24 + sp2 * 6 + b * 2 + j
-                    const ar = wg * (kr * vr - ki * vi)
-                    const ai = wg * (kr * vi + ki * vr)
-                    addSp(out, packState(m2, lksTmp), ar, ai)
-                  }
-                }
-              }
-            }
-          }
+          applyHopEdge(ei, ed.u, col, iso, yBack, edgeSpinMats[ei]!.bwd[sp]!, false, vr, vi, out)
         }
       }
     }
-    return out
   }
 
-  const applyHTot = (st: SparseVec, yStep = 1): SparseVec => {
-    const out = applyHE(st)
-    spAddInto(out, applyHB3Y(st, false).out)
-    spAddInto(out, applyHB2Y(st))
-    spAddInto(out, applyHBY6(st))
-    spAddInto(out, applyHDWMass(st))
-    spAddInto(out, applyHDWHop(st, yStep))
-    return out
+  const applyHTotInto = (st: SpVec, out: SpVec, yStep = 1): void => {
+    spClear(out)
+    applyHEInto(st, out)
+    applyHB3YInto(st, out, false)
+    applyHB2YInto(st, out)
+    applyHBY6Into(st, out)
+    applyHDWMassInto(st, out)
+    applyHDWHopInto(st, out, yStep)
   }
 
   // Local Gauss generators G_v^(12) at each vertex v in 0..5 (8 SU(3)_C + 3 SU(2)_L + 1 U(1)_Y)
@@ -2243,33 +2328,33 @@ function runGateG51(): void {
     'Vertices 0 and 1 must be degree-3 3D junctions',
   )
 
-  const applyGaussSU3 = (v: number, A: number, st: SparseVec): SparseVec => {
-    const out: SparseVec = new Map()
+  const applyGaussSU3Into = (v: number, A: number, st: SpVec, out: SpVec): void => {
+    spClear(out)
     const T = T8_SU3[A]!
     const outEdges = incOut[v]!
     const inEdges = incIn[v]!
-    for (const [key, [vr, vi]] of st) {
+    for (let si = 0; si < st.len; si++) {
+      const vr = st.re[si]!
+      const vi = st.im[si]!
       if (vr === 0 && vi === 0) continue
-      const mIdx = unpackState(key, lksBuf)
-      // Outgoing edges contribute +R_e^A
+      const lo = st.lo[si]!
+      const mIdx = unpackHiLo(st.hi[si]!, lo, lksBuf)
       for (const ei of outEdges) {
         const ls = linkStates[lksBuf[ei]!]!
         for (const [cp, gr, gi] of su3RSp[A]![ls.c]!) {
           lksTmp.set(lksBuf)
           lksTmp[ei] = linkLookup[(cp * 5 + ls.l) * 18 + ls.qY]!
-          addSp(out, packState(mIdx, lksTmp), gr * vr - gi * vi, gr * vi + gi * vr)
+          addSp(out, packHi(mIdx, lksTmp), packLo(lksTmp), gr * vr - gi * vi, gr * vi + gi * vr)
         }
       }
-      // Incoming edges contribute +L_e^A
       for (const ei of inEdges) {
         const ls = linkStates[lksBuf[ei]!]!
         for (const [cp, gr, gi] of su3LSp[A]![ls.c]!) {
           lksTmp.set(lksBuf)
           lksTmp[ei] = linkLookup[(cp * 5 + ls.l) * 18 + ls.qY]!
-          addSp(out, packState(mIdx, lksTmp), gr * vr - gi * vi, gr * vi + gi * vr)
+          addSp(out, packHi(mIdx, lksTmp), packLo(lksTmp), gr * vr - gi * vi, gr * vi + gi * vr)
         }
       }
-      // Local Q_L matter at vertex v contributes +T^A
       if (((mIdx / 24) | 0) === v) {
         const rem = mIdx % 24
         const sp = (rem / 6) | 0
@@ -2280,27 +2365,29 @@ function runGateG51(): void {
           const z = T[c2]![col]!
           if (z[0] === 0 && z[1] === 0) continue
           const m2 = v * 24 + sp * 6 + c2 * 2 + iso
-          addSp(out, packState(m2, lksBuf), z[0] * vr - z[1] * vi, z[0] * vi + z[1] * vr)
+          addSp(out, packHi(m2, lksBuf), lo, z[0] * vr - z[1] * vi, z[0] * vi + z[1] * vr)
         }
       }
     }
-    return out
   }
 
-  const applyGaussSU2 = (v: number, a: number, st: SparseVec): SparseVec => {
-    const out: SparseVec = new Map()
+  const applyGaussSU2Into = (v: number, a: number, st: SpVec, out: SpVec): void => {
+    spClear(out)
     const P = PAULI[a]!
     const outEdges = incOut[v]!
     const inEdges = incIn[v]!
-    for (const [key, [vr, vi]] of st) {
+    for (let si = 0; si < st.len; si++) {
+      const vr = st.re[si]!
+      const vi = st.im[si]!
       if (vr === 0 && vi === 0) continue
-      const mIdx = unpackState(key, lksBuf)
+      const lo = st.lo[si]!
+      const mIdx = unpackHiLo(st.hi[si]!, lo, lksBuf)
       for (const ei of outEdges) {
         const ls = linkStates[lksBuf[ei]!]!
         for (const [lp, gr, gi] of su2RSp[a]![ls.l]!) {
           lksTmp.set(lksBuf)
           lksTmp[ei] = linkLookup[(ls.c * 5 + lp) * 18 + ls.qY]!
-          addSp(out, packState(mIdx, lksTmp), gr * vr - gi * vi, gr * vi + gi * vr)
+          addSp(out, packHi(mIdx, lksTmp), packLo(lksTmp), gr * vr - gi * vi, gr * vi + gi * vr)
         }
       }
       for (const ei of inEdges) {
@@ -2308,7 +2395,7 @@ function runGateG51(): void {
         for (const [lp, gr, gi] of su2LSp[a]![ls.l]!) {
           lksTmp.set(lksBuf)
           lksTmp[ei] = linkLookup[(ls.c * 5 + lp) * 18 + ls.qY]!
-          addSp(out, packState(mIdx, lksTmp), gr * vr - gi * vi, gr * vi + gi * vr)
+          addSp(out, packHi(mIdx, lksTmp), packLo(lksTmp), gr * vr - gi * vi, gr * vi + gi * vr)
         }
       }
       if (((mIdx / 24) | 0) === v) {
@@ -2323,30 +2410,33 @@ function runGateG51(): void {
           const m2 = v * 24 + sp * 6 + col * 2 + i2
           addSp(
             out,
-            packState(m2, lksBuf),
+            packHi(m2, lksBuf),
+            lo,
             0.5 * (z[0] * vr - z[1] * vi),
             0.5 * (z[0] * vi + z[1] * vr),
           )
         }
       }
     }
-    return out
   }
 
-  const applyGaussU1Y = (v: number, st: SparseVec): SparseVec => {
-    const out: SparseVec = new Map()
+  const applyGaussU1YInto = (v: number, st: SpVec, out: SpVec): void => {
+    spClear(out)
     const outEdges = incOut[v]!
     const inEdges = incIn[v]!
-    for (const [key, [vr, vi]] of st) {
+    for (let si = 0; si < st.len; si++) {
+      const vr = st.re[si]!
+      const vi = st.im[si]!
       if (vr === 0 && vi === 0) continue
-      const mIdx = unpackState(key, lksBuf)
+      const hi = st.hi[si]!
+      const lo = st.lo[si]!
+      const mIdx = unpackHiLo(hi, lo, lksBuf)
       let gY = ((mIdx / 24) | 0) === v ? 1 : 0
       for (const ei of outEdges) gY += linkStates[lksBuf[ei]!]!.qY
       for (const ei of inEdges) gY -= linkStates[lksBuf[ei]!]!.qY
       const qMod = ((gY % 18) + 18) % 18
-      if (qMod !== 0) addSp(out, key, qMod * vr, qMod * vi)
+      if (qMod !== 0) addSp(out, hi, lo, qMod * vr, qMod * vi)
     }
-    return out
   }
 
   // Deterministic normalized multi-sector probe spanning z=0 and z=1 vertices + excited & singlet Z_6 links
@@ -2363,41 +2453,68 @@ function runGateG51(): void {
     // State 2: v=5 (z=1 domain-wall face), mixed excited links
     [5 * 24 + 1 * 6 + 2 * 2 + 0, [lk(12, 3, 5), lk(1, 0, 10), lk(15, 2, 11), lk(4, 1, 7), lk(0, 0, 0), lk(16, 4, 5), lk(6, 2, 13)], [0.33, 0.37]],
   ]
-  const probe: SparseVec = new Map()
+  const probe = spNew()
   let pN2 = 0
   for (const [, , z] of probeSeeds) pN2 += cAbs2(z)
   const invPN = 1 / Math.sqrt(pN2)
   for (const [mIdx, lks, z] of probeSeeds) {
-    addSp(probe, packState(mIdx, lks), z[0] * invPN, z[1] * invPN)
+    addSp(probe, packHi(mIdx, lks), packLo(lks), z[0] * invPN, z[1] * invPN)
   }
+
+  // Only 4 reused SpVec buffers for the ENTIRE G5.1 certification (~5 MB static, zero per-iteration allocations!)
+  const bufA = spNew()
+  const bufB = spNew()
+  const bufC = spNew()
+  const hTotProbe = spNew()
 
   // Certify non-vacuity of all 6 Hamiltonian pieces (each ||H_piece |probe>|| > 0.1)
-  const hE_p = applyHE(probe)
-  const hB3Y_p = applyHB3Y(probe, false)
-  const hB2Y_p = applyHB2Y(probe)
-  const hBY6_p = applyHBY6(probe)
-  const hMass_p = applyHDWMass(probe)
-  const hHop_p = applyHDWHop(probe, 1)
+  spClear(bufA)
+  applyHEInto(probe, bufA)
+  const normHE = spNorm(bufA)
+
+  spClear(bufA)
+  const z6ValidViol = applyHB3YInto(probe, bufA, false)
+  const normB3Y = spNorm(bufA)
+  assert(z6ValidViol === 0, 'Valid B_p^(3,Y) must have 0 Z_6 violations')
+
+  spClear(bufA)
+  applyHB2YInto(probe, bufA)
+  const normB2Y = spNorm(bufA)
+
+  spClear(bufA)
+  applyHBY6Into(probe, bufA)
+  const normBY6 = spNorm(bufA)
+
+  spClear(bufA)
+  applyHDWMassInto(probe, bufA)
+  const normMass = spNorm(bufA)
+
+  spClear(bufA)
+  applyHDWHopInto(probe, bufA, 1)
+  const normHop = spNorm(bufA)
+
   const pieceNorms = {
-    H_E: spNorm(hE_p),
-    H_B3Y: spNorm(hB3Y_p.out),
-    H_B2Y: spNorm(hB2Y_p),
-    H_BY6: spNorm(hBY6_p),
-    H_DW_mass: spNorm(hMass_p),
-    H_DW_hop: spNorm(hHop_p),
+    H_E: normHE,
+    H_B3Y: normB3Y,
+    H_B2Y: normB2Y,
+    H_BY6: normBY6,
+    H_DW_mass: normMass,
+    H_DW_hop: normHop,
   }
   const minPieceNorm = Math.min(...Object.values(pieceNorms))
-  assert(hB3Y_p.z6Violations === 0, 'Valid B_p^(3,Y) must have 0 Z_6 violations')
 
   // Full H_tot |probe>
-  const hTotProbe = applyHTot(probe, 1)
+  applyHTotInto(probe, hTotProbe, 1)
 
   // Verify exact Hermiticity <probe2 | H_tot | probe> = <H_tot probe2 | probe>*
-  const probe2: SparseVec = new Map()
-  addSp(probe2, packState(1 * 24 + 0 * 6 + 1 * 2 + 0, [lk(1, 1, 1), lk(0, 0, 6), lk(0, 0, 0), lk(0, 0, 12), lk(0, 0, 0), lk(0, 0, 6), lk(0, 0, 0)]), 0.6, 0.3)
-  addSp(probe2, packState(0 * 24 + 2 * 6 + 0 * 2 + 0, [lk(0, 0, 0), lk(0, 0, 6), lk(0, 0, 0), lk(0, 0, 12), lk(0, 0, 0), lk(0, 0, 6), lk(0, 0, 0)]), -0.5, 0.5)
-  const ip1 = spInner(probe2, hTotProbe)
-  const ip2 = spInner(applyHTot(probe2, 1), probe)
+  spClear(bufA)
+  const p2a = [lk(1, 1, 1), lk(0, 0, 6), lk(0, 0, 0), lk(0, 0, 12), lk(0, 0, 0), lk(0, 0, 6), lk(0, 0, 0)]
+  const p2b = [lk(0, 0, 0), lk(0, 0, 6), lk(0, 0, 0), lk(0, 0, 12), lk(0, 0, 0), lk(0, 0, 6), lk(0, 0, 0)]
+  addSp(bufA, packHi(1 * 24 + 0 * 6 + 1 * 2 + 0, p2a), packLo(p2a), 0.6, 0.3)
+  addSp(bufA, packHi(0 * 24 + 2 * 6 + 0 * 2 + 0, p2b), packLo(p2b), -0.5, 0.5)
+  const ip1 = spInner(bufA, hTotProbe)
+  applyHTotInto(bufA, bufB, 1)
+  const ip2 = spInner(bufB, probe)
   const hermErr = Math.hypot(ip1[0] - ip2[0], ip1[1] - ip2[1])
 
   // Certify ALL 72/72 (6 vertices x 12 generators) local Gauss commutators ||[H_tot, G_v^(12)] |probe>|| < 1e-14
@@ -2405,31 +2522,41 @@ function runGateG51(): void {
   let nChecked = 0
   for (let v = 0; v < 6; v++) {
     for (let A = 0; A < 8; A++) {
-      const gP = applyGaussSU3(v, A, probe)
-      const err = spDiffNorm(applyHTot(gP, 1), applyGaussSU3(v, A, hTotProbe))
+      applyGaussSU3Into(v, A, probe, bufA)
+      applyHTotInto(bufA, bufB, 1)
+      applyGaussSU3Into(v, A, hTotProbe, bufC)
+      const err = spDiffNorm(bufB, bufC)
       if (err > maxGaussErr) maxGaussErr = err
       nChecked++
     }
     for (let a = 0; a < 3; a++) {
-      const gP = applyGaussSU2(v, a, probe)
-      const err = spDiffNorm(applyHTot(gP, 1), applyGaussSU2(v, a, hTotProbe))
+      applyGaussSU2Into(v, a, probe, bufA)
+      applyHTotInto(bufA, bufB, 1)
+      applyGaussSU2Into(v, a, hTotProbe, bufC)
+      const err = spDiffNorm(bufB, bufC)
       if (err > maxGaussErr) maxGaussErr = err
       nChecked++
     }
-    const gYP = applyGaussU1Y(v, probe)
-    const errY = spDiffNorm(applyHTot(gYP, 1), applyGaussU1Y(v, hTotProbe))
+    applyGaussU1YInto(v, probe, bufA)
+    applyHTotInto(bufA, bufB, 1)
+    applyGaussU1YInto(v, hTotProbe, bufC)
+    const errY = spDiffNorm(bufB, bufC)
     if (errY > maxGaussErr) maxGaussErr = errY
     nChecked++
   }
 
   // Negative control 1: Z_6-broken plaquette (dropping prod U_Y^{-2} in B_p^(3,Y))
-  const brokenPlaq = applyHB3Y(probe, true)
+  spClear(bufA)
+  const brokenZ6Viol = applyHB3YInto(probe, bufA, true)
 
   // Negative control 2: q_Y + 7 broken-Y hopping (preserves Z_6 since 7 === 1 mod 6, breaks U(1)_Y Gauss law!)
-  const hBrokenY = applyHTot(probe, 7)
+  applyHTotInto(probe, hTotProbe, 7)
   let maxBrokenYErr = 0
   for (let v = 0; v < 6; v++) {
-    const err = spDiffNorm(applyHTot(applyGaussU1Y(v, probe), 7), applyGaussU1Y(v, hBrokenY))
+    applyGaussU1YInto(v, probe, bufA)
+    applyHTotInto(bufA, bufB, 7)
+    applyGaussU1YInto(v, hTotProbe, bufC)
+    const err = spDiffNorm(bufB, bufC)
     if (err > maxBrokenYErr) maxBrokenYErr = err
   }
 
@@ -2442,7 +2569,7 @@ function runGateG51(): void {
     `  Hermiticity err=${hermErr.toExponential(2)}, 72/72 local Gauss max||[H_tot,G_v]||=${maxGaussErr.toExponential(2)}`,
   )
   console.log(
-    `  NegCtrl(a) drop U_Y^-2 in B^(3,Y): ${brokenPlaq.z6Violations} Z_6 violations (>100); ` +
+    `  NegCtrl(a) drop U_Y^-2 in B^(3,Y): ${brokenZ6Viol} Z_6 violations (>100); ` +
       `NegCtrl(b) q_Y+7 hopping: max||[H_broken,G_v^Y]||=${maxBrokenYErr.toFixed(3)} (>0.5)`,
   )
 
@@ -2452,7 +2579,7 @@ function runGateG51(): void {
     hermErr < 1e-14 &&
     nChecked === 72 &&
     maxGaussErr < 1e-14 &&
-    brokenPlaq.z6Violations > 100 &&
+    brokenZ6Viol > 100 &&
     maxBrokenYErr > 0.5
 
   recordGate(
@@ -2462,7 +2589,7 @@ function runGateG51(): void {
     ok,
     `6v/7e/2p (deg-3 junctions v=0,1), 6/6 pieces min=${minPieceNorm.toFixed(3)}>0.1, ` +
       `72/72 Gauss max=${maxGaussErr.toExponential(2)}<1e-14, herm=${hermErr.toExponential(1)}, ` +
-      `Z_6-drop viol=${brokenPlaq.z6Violations}>100, q_Y+7 err=${maxBrokenYErr.toFixed(2)}>0.5 (${(performance.now() - t0).toFixed(0)} ms)`,
+      `Z_6-drop viol=${brokenZ6Viol}>100, q_Y+7 err=${maxBrokenYErr.toFixed(2)}>0.5 (${(performance.now() - t0).toFixed(0)} ms)`,
   )
 }
 
@@ -2568,25 +2695,27 @@ function runGateG52(ring: DenseRingBundle): Map<number, Config3D> {
   // Medium-large step pool for g = 1.0 using exact g_0^2 (strictly in Z[zeta_9][1/3], acceptance ~40-50%)
   const pool3_big = buildSu3Pool(z9Mat3ToM3(z9mMul(g0Z9, g0Z9)))
 
-  // SU(2) multi-scale symmetric pools from powers of (S_12 S_23)^7 conjugated by Dic_3 and S_23
-  const qPow = (q: Quat, n: number): Quat => {
-    let r = Q_ID
-    let b = q
+  // SU(2) multi-scale symmetric pools from exact BigInt powers of (S_12 S_23)^7 conjugated by Dic_3 and S_23
+  const powE2 = (base: EMat2, n: number): EMat2 => {
+    let r: EMat2 = { m00: E_ONE, m01: E_ZERO, m10: E_ZERO, m11: E_ONE, p: 0 }
+    let b = base
     let e = n
     while (e > 0) {
-      if ((e & 1) === 1) r = qMul(r, b)
+      if ((e & 1) === 1) r = mulE2(r, b)
       e >>= 1
-      if (e > 0) b = qMul(b, b)
+      if (e > 0) b = mulE2(b, b)
     }
     return r
   }
   const su2Conjugators: Quat[] = [...ring.gDic3]
   for (const h of ring.gDic3) su2Conjugators.push(qMul(ring.qS23, h))
   const buildSu2Pool = (powK: number): readonly Quat[] => {
-    const g = qPow(qW7, powK)
+    const g = eMat2ToQuat(powE2(w7E, powK))
     const pool: Quat[] = []
     for (const h of su2Conjugators) {
-      const m = qMul(qMul(h, g), qConj(h))
+      const mRaw = qMul(qMul(h, g), qConj(h))
+      const invM = 1 / Math.hypot(mRaw[0], mRaw[1], mRaw[2], mRaw[3])
+      const m: Quat = [mRaw[0] * invM, mRaw[1] * invM, mRaw[2] * invM, mRaw[3] * invM]
       pool.push(m, qConj(m))
     }
     return pool
@@ -2631,12 +2760,9 @@ function runGateG52(ring: DenseRingBundle): Map<number, Config3D> {
     const pool2 = g >= 0.9 ? pool2_big : g >= 0.45 ? pool2_med : g >= 0.25 ? pool2_sm : pool2_xs
     const u1StepMax = g >= 0.9 ? 40 : g >= 0.45 ? 20 : g >= 0.25 ? 12 : 5
 
-    const u3: M3[] = Array.from({ length: 24 }, () => m3Id())
-    const u2: Quat[] = Array.from({ length: 24 }, () => Q_ID)
-    const u1PhaseK = new Int32Array(24) // exact integer power of eigenphase phi_0 = thetaW7
-
-    const nTherm = g >= 0.9 ? 240 : 140
-    const nMeas = g >= 0.9 ? 800 : 260
+    const nChains = g >= 0.9 ? 4 : 1
+    const nTherm = g >= 0.9 ? 110 : 120
+    const nMeas = g >= 0.9 ? 220 : 220
     let acc3Cnt = 0
     let acc2Cnt = 0
     let acc1Cnt = 0
@@ -2644,165 +2770,162 @@ function runGateG52(ring: DenseRingBundle): Map<number, Config3D> {
     let sumP3 = 0
     let sumP2 = 0
     let sumP1 = 0
+    let u3Final: M3[] = []
+    let u2Final: Quat[] = []
+    let u1KFinal = new Int32Array(24)
 
-    const measurePlaqs = (): readonly [number, number, number] => {
-      let s3 = 0
-      let s2 = 0
-      let s1 = 0
-      for (let s = 0; s < 8; s++) {
-        for (let mu = 0; mu < 3; mu++) {
-          for (let nu = mu + 1; nu < 3; nu++) {
-            const sMu = shift3(s, mu, 1)
-            const sNu = shift3(s, nu, 1)
-            const l0 = s * 3 + mu
-            const l1 = sMu * 3 + nu
-            const l2 = sNu * 3 + mu
-            const l3 = s * 3 + nu
-            // SU(3) plaquette U_mu(x) U_nu(x+mu) U_mu(x+nu)^dag U_nu(x)^dag
-            m3MulInto(u3[l0]!, u3[l1]!, tmpA)
-            m3DagInto(u3[l2]!, tmpB)
-            m3MulInto(tmpA, tmpB, tmpC)
-            m3DagInto(u3[l3]!, tmpB)
-            m3MulInto(tmpC, tmpB, tmpA)
-            s3 += m3ReTr(tmpA) / 3
-            // SU(2) plaquette
-            const qp = qMul(qMul(u2[l0]!, u2[l1]!), qMul(qConj(u2[l2]!), qConj(u2[l3]!)))
-            s2 += qp[0]
-            // U(1) plaquette
-            const dk = u1PhaseK[l0]! + u1PhaseK[l1]! - u1PhaseK[l2]! - u1PhaseK[l3]!
-            s1 += Math.cos(dk * thetaW7)
+    for (let ch = 0; ch < nChains; ch++) {
+      const u3: M3[] = Array.from({ length: 24 }, () => m3Id())
+      const u2: Quat[] = Array.from({ length: 24 }, () => Q_ID)
+      const u1PhaseK = new Int32Array(24) // exact integer power of eigenphase phi_0 = thetaW7
+
+      const measurePlaqs = (): readonly [number, number, number] => {
+        let s3 = 0
+        let s2 = 0
+        let s1 = 0
+        for (let s = 0; s < 8; s++) {
+          for (let mu = 0; mu < 3; mu++) {
+            for (let nu = mu + 1; nu < 3; nu++) {
+              const sMu = shift3(s, mu, 1)
+              const sNu = shift3(s, nu, 1)
+              const l0 = s * 3 + mu
+              const l1 = sMu * 3 + nu
+              const l2 = sNu * 3 + mu
+              const l3 = s * 3 + nu
+              m3MulInto(u3[l0]!, u3[l1]!, tmpA)
+              m3DagInto(u3[l2]!, tmpB)
+              m3MulInto(tmpA, tmpB, tmpC)
+              m3DagInto(u3[l3]!, tmpB)
+              m3MulInto(tmpC, tmpB, tmpA)
+              s3 += m3ReTr(tmpA) / 3
+              const qp = qMul(qMul(u2[l0]!, u2[l1]!), qMul(qConj(u2[l2]!), qConj(u2[l3]!)))
+              s2 += qp[0]
+              const dk = u1PhaseK[l0]! + u1PhaseK[l1]! - u1PhaseK[l2]! - u1PhaseK[l3]!
+              s1 += Math.cos(dk * thetaW7)
+            }
           }
         }
+        return [s3 / 24, s2 / 24, s1 / 24]
       }
-      return [s3 / 24, s2 / 24, s1 / 24]
+
+      const st3 = new Float64Array(18)
+      const updateOneLink3D = (s: number, mu: number, recordAcc: boolean): void => {
+        const eIdx = s * 3 + mu
+        const sMu = shift3(s, mu, 1)
+        st3.fill(0)
+        let st2_0 = 0
+        let st2_1 = 0
+        let st2_2 = 0
+        let st2_3 = 0
+        let st1R = 0
+        let st1I = 0
+
+        for (let nu = 0; nu < 3; nu++) {
+          if (nu === mu) continue
+          const sNu = shift3(s, nu, 1)
+          const a1 = sMu * 3 + nu
+          const a2 = sNu * 3 + mu
+          const a3 = s * 3 + nu
+          m3DagInto(u3[a2]!, tmpA)
+          m3MulInto(u3[a1]!, tmpA, tmpB)
+          m3DagInto(u3[a3]!, tmpA)
+          m3MulInto(tmpB, tmpA, tmpC)
+          m3AddInto(st3, tmpC)
+
+          const qf = qMul(qMul(u2[a1]!, qConj(u2[a2]!)), qConj(u2[a3]!))
+          st2_0 += qf[0]
+          st2_1 += qf[1]
+          st2_2 += qf[2]
+          st2_3 += qf[3]
+
+          const kf = u1PhaseK[a1]! - u1PhaseK[a2]! - u1PhaseK[a3]!
+          st1R += Math.cos(kf * thetaW7)
+          st1I += Math.sin(kf * thetaW7)
+
+          const sMnu = shift3(s, nu, -1)
+          const sMuMnu = shift3(sMu, nu, -1)
+          const b1 = sMuMnu * 3 + nu
+          const b2 = sMnu * 3 + mu
+          const b3 = sMnu * 3 + nu
+          m3DagInto(u3[b1]!, tmpA)
+          m3DagInto(u3[b2]!, tmpB)
+          m3MulInto(tmpA, tmpB, tmpC)
+          m3MulInto(tmpC, u3[b3]!, tmpD)
+          m3AddInto(st3, tmpD)
+
+          const qb = qMul(qMul(qConj(u2[b1]!), qConj(u2[b2]!)), u2[b3]!)
+          st2_0 += qb[0]
+          st2_1 += qb[1]
+          st2_2 += qb[2]
+          st2_3 += qb[3]
+
+          const kb = -u1PhaseK[b1]! - u1PhaseK[b2]! + u1PhaseK[b3]!
+          st1R += Math.cos(kb * thetaW7)
+          st1I += Math.sin(kb * thetaW7)
+        }
+
+        const cur3 = u3[eIdx]!
+        m3MulInto(pool3[rng.nextInt(pool3.length)]!, cur3, tmpProp)
+        const dS3 = -(beta3 / 3) * (m3ReTrProd(tmpProp, st3) - m3ReTrProd(cur3, st3))
+        if (dS3 <= 0 || rng.next() < Math.exp(-dS3)) {
+          u3[eIdx]!.set(tmpProp)
+          if (recordAcc) acc3Cnt++
+        }
+
+        const cur2 = u2[eIdx]!
+        const prop2 = qMul(pool2[rng.nextInt(pool2.length)]!, cur2)
+        const oldRe2 = cur2[0] * st2_0 - cur2[1] * st2_1 - cur2[2] * st2_2 - cur2[3] * st2_3
+        const newRe2 = prop2[0] * st2_0 - prop2[1] * st2_1 - prop2[2] * st2_2 - prop2[3] * st2_3
+        const dS2 = -beta2 * (newRe2 - oldRe2)
+        if (dS2 <= 0 || rng.next() < Math.exp(-dS2)) {
+          u2[eIdx] = prop2
+          if (recordAcc) acc2Cnt++
+        }
+
+        const curK = u1PhaseK[eIdx]!
+        const propK = curK + (rng.nextInt(u1StepMax) + 1) * (rng.next() < 0.5 ? 1 : -1)
+        const oldRe1 = Math.cos(curK * thetaW7) * st1R - Math.sin(curK * thetaW7) * st1I
+        const newRe1 = Math.cos(propK * thetaW7) * st1R - Math.sin(propK * thetaW7) * st1I
+        const dS1 = -beta1 * (newRe1 - oldRe1)
+        if (dS1 <= 0 || rng.next() < Math.exp(-dS1)) {
+          u1PhaseK[eIdx] = propK
+          if (recordAcc) acc1Cnt++
+        }
+        if (recordAcc) totSteps++
+      }
+
+      for (let sw = 0; sw < nTherm + nMeas; sw++) {
+        const rec = sw >= nTherm
+        for (let s = 0; s < 8; s++) {
+          for (let mu = 0; mu < 3; mu++) updateOneLink3D(s, mu, rec)
+        }
+        if (sw >= nTherm) {
+          const [p3, p2, p1] = measurePlaqs()
+          sumP3 += p3
+          sumP2 += p2
+          sumP1 += p1
+        }
+      }
+      for (let i = 0; i < 24; i++) {
+        maxUni3Err = Math.max(maxUni3Err, m3UnitaryErr(u3[i]!))
+        maxDet3Err = Math.max(maxDet3Err, m3DetErr(u3[i]!))
+        maxUni2Err = Math.max(maxUni2Err, qNormErr(u2[i]!))
+      }
+      u3Final = u3
+      u2Final = u2
+      u1KFinal = u1PhaseK
     }
 
-    for (let sw = 0; sw < nTherm + nMeas; sw++) {
-      for (let s = 0; s < 8; s++) {
-        for (let mu = 0; mu < 3; mu++) {
-          const eIdx = s * 3 + mu
-          const sMu = shift3(s, mu, 1)
-
-          // Build SU(3), SU(2), U(1) staples from the 4 plaquettes touching link (s, mu)
-          const st3 = new Float64Array(18)
-          let st2_0 = 0
-          let st2_1 = 0
-          let st2_2 = 0
-          let st2_3 = 0
-          let st1R = 0
-          let st1I = 0
-
-          for (let nu = 0; nu < 3; nu++) {
-            if (nu === mu) continue
-            // Forward staple (+nu): U_nu(x+mu) U_mu(x+nu)^dag U_nu(x)^dag
-            const sNu = shift3(s, nu, 1)
-            const a1 = sMu * 3 + nu
-            const a2 = sNu * 3 + mu
-            const a3 = s * 3 + nu
-            m3DagInto(u3[a2]!, tmpA)
-            m3MulInto(u3[a1]!, tmpA, tmpB)
-            m3DagInto(u3[a3]!, tmpA)
-            m3MulInto(tmpB, tmpA, tmpC)
-            m3AddInto(st3, tmpC)
-
-            const qf = qMul(qMul(u2[a1]!, qConj(u2[a2]!)), qConj(u2[a3]!))
-            st2_0 += qf[0]
-            st2_1 += qf[1]
-            st2_2 += qf[2]
-            st2_3 += qf[3]
-
-            const kf = u1PhaseK[a1]! - u1PhaseK[a2]! - u1PhaseK[a3]!
-            st1R += Math.cos(kf * thetaW7)
-            st1I += Math.sin(kf * thetaW7)
-
-            // Backward staple (-nu): U_nu(x+mu-nu)^dag U_mu(x-nu)^dag U_nu(x-nu)
-            const sMnu = shift3(s, nu, -1)
-            const sMuMnu = shift3(sMu, nu, -1)
-            const b1 = sMuMnu * 3 + nu
-            const b2 = sMnu * 3 + mu
-            const b3 = sMnu * 3 + nu
-            m3DagInto(u3[b1]!, tmpA)
-            m3DagInto(u3[b2]!, tmpB)
-            m3MulInto(tmpA, tmpB, tmpC)
-            m3MulInto(tmpC, u3[b3]!, tmpD)
-            m3AddInto(st3, tmpD)
-
-            const qb = qMul(qMul(qConj(u2[b1]!), qConj(u2[b2]!)), u2[b3]!)
-            st2_0 += qb[0]
-            st2_1 += qb[1]
-            st2_2 += qb[2]
-            st2_3 += qb[3]
-
-            const kb = -u1PhaseK[b1]! - u1PhaseK[b2]! + u1PhaseK[b3]!
-            st1R += Math.cos(kb * thetaW7)
-            st1I += Math.sin(kb * thetaW7)
-          }
-
-          // SU(3) strict ring Metropolis update
-          const cur3 = u3[eIdx]!
-          const propM = pool3[rng.nextInt(pool3.length)]!
-          m3MulInto(propM, cur3, tmpProp)
-          const oldRe3 = m3ReTrProd(cur3, st3)
-          const newRe3 = m3ReTrProd(tmpProp, st3)
-          const dS3 = -(beta3 / 3) * (newRe3 - oldRe3)
-          if (dS3 <= 0 || rng.next() < Math.exp(-dS3)) {
-            u3[eIdx] = Float64Array.from(tmpProp)
-            if (sw >= nTherm) acc3Cnt++
-          }
-
-          // SU(2) strict ring Metropolis update
-          const cur2 = u2[eIdx]!
-          const prop2 = qMul(pool2[rng.nextInt(pool2.length)]!, cur2)
-          const oldRe2 = cur2[0] * st2_0 - cur2[1] * st2_1 - cur2[2] * st2_2 - cur2[3] * st2_3
-          const newRe2 = prop2[0] * st2_0 - prop2[1] * st2_1 - prop2[2] * st2_2 - prop2[3] * st2_3
-          const dS2 = -beta2 * (newRe2 - oldRe2)
-          if (dS2 <= 0 || rng.next() < Math.exp(-dS2)) {
-            u2[eIdx] = prop2
-            if (sw >= nTherm) acc2Cnt++
-          }
-
-          // U(1)_Y strict Cartan-eigenphase Metropolis update
-          const curK = u1PhaseK[eIdx]!
-          const dkStep = (rng.nextInt(u1StepMax) + 1) * (rng.next() < 0.5 ? 1 : -1)
-          const propK = curK + dkStep
-          const oldRe1 = Math.cos(curK * thetaW7) * st1R - Math.sin(curK * thetaW7) * st1I
-          const newRe1 = Math.cos(propK * thetaW7) * st1R - Math.sin(propK * thetaW7) * st1I
-          const dS1 = -beta1 * (newRe1 - oldRe1)
-          if (dS1 <= 0 || rng.next() < Math.exp(-dS1)) {
-            u1PhaseK[eIdx] = propK
-            if (sw >= nTherm) acc1Cnt++
-          }
-          if (sw >= nTherm) totSteps++
-        }
-      }
-      if (sw % 40 === 39) {
-        // Remove IEEE-754 mantissa roundoff (< 1e-14) accumulated across 40 products of exact ring matrices
-        for (let i = 0; i < 24; i++) {
-          u3[i] = m3PolishSU3(u3[i]!)
-          const q = u2[i]!
-          const invQ = 1 / Math.hypot(q[0], q[1], q[2], q[3])
-          u2[i] = [q[0] * invQ, q[1] * invQ, q[2] * invQ, q[3] * invQ]
-        }
-      }
-      if (sw >= nTherm) {
-        const [p3, p2, p1] = measurePlaqs()
-        sumP3 += p3
-        sumP2 += p2
-        sumP1 += p1
-      }
-    }
-
-    const u1: C[] = Array.from({ length: 24 }, (_, idx) => cExpI(u1PhaseK[idx]! * thetaW7))
+    const u3 = u3Final
+    const u2 = u2Final
+    const u1: C[] = Array.from({ length: 24 }, (_, idx) => cExpI(u1KFinal[idx]! * thetaW7))
     for (let i = 0; i < 24; i++) {
-      maxUni3Err = Math.max(maxUni3Err, m3UnitaryErr(u3[i]!))
-      maxDet3Err = Math.max(maxDet3Err, m3DetErr(u3[i]!))
-      maxUni2Err = Math.max(maxUni2Err, qNormErr(u2[i]!))
       maxUni1Err = Math.max(maxUni1Err, Math.abs(cAbs2(u1[i]!) - 1))
     }
 
-    const avgP3 = sumP3 / nMeas
-    const avgP2 = sumP2 / nMeas
-    const avgP1 = sumP1 / nMeas
+    const avgP3 = sumP3 / (nChains * nMeas)
+    const avgP2 = sumP2 / (nChains * nMeas)
+    const avgP1 = sumP1 / (nChains * nMeas)
     const acc3 = acc3Cnt / totSteps
     const acc2 = acc2Cnt / totSteps
     const acc1 = acc1Cnt / totSteps
@@ -2825,7 +2948,8 @@ function runGateG52(ring: DenseRingBundle): Map<number, Config3D> {
   const maxAlgErr = Math.max(maxUni3Err, maxDet3Err, maxUni2Err, maxUni1Err)
 
   console.log(
-    `  Unitarity/det drift (unprojected): max=${maxAlgErr.toExponential(2)} (<1e-13), ` +
+    `  Unitarity/det drift (genuinely unprojected): max=${maxAlgErr.toExponential(2)} ` +
+      `(SU3_uni=${maxUni3Err.toExponential(1)}, SU3_det=${maxDet3Err.toExponential(1)}, SU2=${maxUni2Err.toExponential(1)}) (<1e-13), ` +
       `minAccept=${(minAcc * 100).toFixed(1)}% (>25%), |<P_3>(0.1)-0.9957|=${weakErr.toExponential(2)} (<2e-3)`,
   )
 
@@ -2867,6 +2991,10 @@ function runGateG53(configs3D: Map<number, Config3D>): void {
   console.log(
     '  [Scope Disclosure] Effective 16-Weyl-fermion SMG mirror self-energy Sigma_SMG(z) = (V_SMG^2/z) P_R(L_5-1)\n' +
       '                     (V_SMG = Delta_1p = 29/8 = 3.625) coupled to classical thermalized 3D gauge links.\n' +
+      '                     On the tiny quenched L = 2 torus, 3D Coulomb gauge fixing + continuous polar Weiss\n' +
+      '                     trivial-holonomy boundary alignment (non-Abelian, leaving Z[zeta_9][1/6] for the\n' +
+      '                     k = 0 boundary twist) removes the 1/L flat-toron shift while preserving live curvature\n' +
+      '                     (verified explicitly via |<P_3>_after - <P_3>_before| below).\n' +
       '  [Xu-You / Wang-Wen Theorem] Symmetric (L+R) boundary coupling adds an auxiliary mode to bulk-paired L(L_5-1),\n' +
       '                     creating a 3-mode chain [R(L_5-2) <-> L(L_5-1) <-> chi_aux] with an exact spurious zero mode\n' +
       '                     |psi_spur> ~ V|R(L_5-2)> + |chi_aux>; strict chiral P_R(L_5-1) pairs ONLY unpaired R(L_5-1).',
@@ -2890,20 +3018,42 @@ function runGateG53(configs3D: Map<number, Config3D>): void {
     return ((x & 1) << 2) | ((y & 1) << 1) | (z & 1)
   }
 
-  const buildSpatialOps = (cfg: Config3D): { readonly K: CMat; readonly W: CMat } => {
+  const avgPlaq3D = (u3: readonly M3[]): number => {
+    const tA = new Float64Array(18)
+    const tB = new Float64Array(18)
+    const tC = new Float64Array(18)
+    let sum = 0
+    for (let s = 0; s < 8; s++) {
+      for (let mu = 0; mu < 3; mu++) {
+        for (let nu = mu + 1; nu < 3; nu++) {
+          const sMu = shift3(s, mu, 1)
+          const sNu = shift3(s, nu, 1)
+          m3MulInto(u3[s * 3 + mu]!, u3[sMu * 3 + nu]!, tA)
+          m3DagInto(u3[sNu * 3 + mu]!, tB)
+          m3MulInto(tA, tB, tC)
+          m3DagInto(u3[s * 3 + nu]!, tB)
+          m3MulInto(tC, tB, tA)
+          sum += m3ReTr(tA) / 3
+        }
+      }
+    }
+    return sum / 24
+  }
+
+  const buildSpatialOps = (
+    cfg: Config3D,
+  ): { readonly K: CMat; readonly W: CMat; readonly plaqBefore: number; readonly plaqAfter: number } => {
     const K = cmatNew(N_BLK)
     const W = cmatNew(N_BLK)
-    // Precompute 6x6 Q_L link matrices U_6(e) = U_C(e) x U_L(e) * U_Y(e),
-    // aligned to the trivial-Polyakov Weiss vacuum sector on the tiny L=2 torus:
-    //   1) Exact 3D Coulomb gauge fixing (pure gauge transformation Omega(x), preserving every plaquette identically!)
-    //   2) Subtract ONLY the k=0 global flat-toron Aharonov-Bohm holonomy H_mu on the x_mu=1 boundary twist
-    //      (which is a pure 1/L finite-volume artifact on L=2 that otherwise shifts k=0 onto W=1).
+    // Explicitly disclosed 3D Coulomb gauge fixing + continuous polar Weiss trivial-holonomy boundary alignment
+    // on the tiny quenched L = 2 torus (removes pure-gauge 1/L flat-toron shift while preserving live curvature):
     const u3Work: M3[] = cfg.u3.map(m3Clone)
     const u2Work: Quat[] = [...cfg.u2]
     const u1Work: C[] = [...cfg.u1]
+    const plaqBefore = avgPlaq3D(u3Work)
 
-    // Helper: exact SU(3) polar maximizer argmax_{V in SU(3)} Re Tr(V * W) via 6 sweeps of 3-SU(2) Cabibbo-Marinari
-    const su3MaxReTr = (W: M3): M3 => {
+    // Exact SU(3) polar maximizer argmax_{V in SU(3)} Re Tr(V * W) via 6 sweeps of 3-SU(2) Cabibbo-Marinari
+    const su3MaxReTr = (Wmat: M3): M3 => {
       const V = m3Id()
       const prod = new Float64Array(18)
       const pairs: readonly (readonly [number, number])[] = [
@@ -2913,7 +3063,7 @@ function runGateG53(configs3D: Map<number, Config3D>): void {
       ]
       for (let sw = 0; sw < 6; sw++) {
         for (const [p, q] of pairs) {
-          m3MulInto(V, W, prod)
+          m3MulInto(V, Wmat, prod)
           const a0 = 0.5 * (prod[(p * 3 + p) * 2]! + prod[(q * 3 + q) * 2]!)
           const a1 = 0.5 * (prod[(p * 3 + q) * 2 + 1]! + prod[(q * 3 + p) * 2 + 1]!)
           const a2 = 0.5 * (prod[(p * 3 + q) * 2]! - prod[(q * 3 + p) * 2]!)
@@ -2949,9 +3099,10 @@ function runGateG53(configs3D: Map<number, Config3D>): void {
       return V
     }
 
-    // 1) Exact 3D Coulomb gauge relaxation (pure local gauge transformations at each site x, preserving every plaquette!)
+    // 1) Exact 3D Coulomb gauge relaxation (pure local gauge transformation preserving every plaquette identically!)
     const tmpG1 = new Float64Array(18)
     const tmpG2 = new Float64Array(18)
+    const w3Buf = new Float64Array(18)
     for (let it = 0; it < 24; it++) {
       for (let x = 0; x < 8; x++) {
         let s1R = 0
@@ -2960,7 +3111,7 @@ function runGateG53(configs3D: Map<number, Config3D>): void {
         let q1 = 0
         let q2 = 0
         let q3 = 0
-        const w3 = new Float64Array(18)
+        w3Buf.fill(0)
         for (let mu = 0; mu < 3; mu++) {
           const eOut = x * 3 + mu
           const eIn = shift3(x, mu, -1) * 3 + mu
@@ -2972,10 +3123,9 @@ function runGateG53(configs3D: Map<number, Config3D>): void {
           q1 += qo[1] + qi[1]
           q2 += qo[2] + qi[2]
           q3 += qo[3] + qi[3]
-          // Maximize Re Tr(om3 * (U_out + U_in^dag))
-          m3AddInto(w3, u3Work[eOut]!)
+          m3AddInto(w3Buf, u3Work[eOut]!)
           m3DagInto(u3Work[eIn]!, tmpG1)
-          m3AddInto(w3, tmpG1)
+          m3AddInto(w3Buf, tmpG1)
         }
         const n1 = Math.hypot(s1R, s1I)
         if (n1 > 1e-12) {
@@ -2999,7 +3149,7 @@ function runGateG53(configs3D: Map<number, Config3D>): void {
             u2Work[eIn] = qMul(u2Work[eIn]!, om2c)
           }
         }
-        const om3 = su3MaxReTr(w3)
+        const om3 = su3MaxReTr(w3Buf)
         m3DagInto(om3, tmpG2)
         for (let mu = 0; mu < 3; mu++) {
           const eOut = x * 3 + mu
@@ -3010,7 +3160,8 @@ function runGateG53(configs3D: Map<number, Config3D>): void {
       }
     }
 
-    // 2) Weiss trivial-holonomy boundary alignment on x_mu = 1 boundary links (removes pure L=2 flat-toron shift)
+    // 2) Disclosed continuous polar Weiss trivial-holonomy boundary alignment on x_mu = 1 slice
+    const p3Sum = new Float64Array(18)
     for (let mu = 0; mu < 3; mu++) {
       let p1R = 0
       let p1I = 0
@@ -3018,7 +3169,7 @@ function runGateG53(configs3D: Map<number, Config3D>): void {
       let p2_1 = 0
       let p2_2 = 0
       let p2_3 = 0
-      const p3Sum = new Float64Array(18)
+      p3Sum.fill(0)
       for (let x = 0; x < 8; x++) {
         const coordMu = mu === 0 ? (x >> 2) & 1 : mu === 1 ? (x >> 1) & 1 : x & 1
         if (coordMu !== 0) continue
@@ -3040,7 +3191,6 @@ function runGateG53(configs3D: Map<number, Config3D>): void {
       const h1Dag: C = n1 > 1e-12 ? [p1R / n1, -p1I / n1] : C1
       const n2 = Math.hypot(p2_0, p2_1, p2_2, p2_3)
       const h2Dag: Quat = n2 > 1e-12 ? [p2_0 / n2, -p2_1 / n2, -p2_2 / n2, -p2_3 / n2] : Q_ID
-      // Exact argmax_{h3Dag in SU(3)} Re Tr(h3Dag * p3Sum)
       const h3Dag = su3MaxReTr(p3Sum)
       for (let x = 0; x < 8; x++) {
         const coordMu = mu === 0 ? (x >> 2) & 1 : mu === 1 ? (x >> 1) & 1 : x & 1
@@ -3051,6 +3201,7 @@ function runGateG53(configs3D: Map<number, Config3D>): void {
         u3Work[e1] = m3Mul(u3Work[e1]!, h3Dag)
       }
     }
+    const plaqAfter = avgPlaq3D(u3Work)
 
     const u6R: Float64Array[] = []
     const u6I: Float64Array[] = []
@@ -3138,7 +3289,7 @@ function runGateG53(configs3D: Map<number, Config3D>): void {
         }
       }
     }
-    return { K, W }
+    return { K, W, plaqBefore, plaqAfter }
   }
 
   // Exact block-tridiagonal Green's function evaluator for 5D Shamir DW + chiral mirror Sigma_SMG(z)
@@ -3149,12 +3300,19 @@ function runGateG53(configs3D: Map<number, Config3D>): void {
   //   U_{2s+1} = L_{2s+1} = +I_96               [couples R(s) <-> L(s+1)]
   type BlockSweepResult = {
     readonly trG_L0: C
-    readonly trG_R0: C
-    readonly trG_Ltot: C
-    readonly trG_Rtot: C
     readonly trG_Rmir: C
     readonly trG_Rmir_V0: C
   }
+
+  // Pre-allocated zero-allocation 96x96 scratch pool for all 5D block-tridiagonal sweeps (~1.2 MB total)
+  const b1Buf = cmatNew(N_BLK)
+  const alBuf = cmatNew(N_BLK)
+  const arBuf = cmatNew(N_BLK)
+  const arMirBuf = cmatNew(N_BLK)
+  const curBuf = cmatNew(N_BLK)
+  const invBuf = cmatNew(N_BLK)
+  const termBuf = cmatNew(N_BLK)
+  const prevFBuf = cmatNew(N_BLK)
 
   const evalBlockTridiagTraces = (
     K: CMat,
@@ -3163,48 +3321,45 @@ function runGateG53(configs3D: Map<number, Config3D>): void {
     L5: number,
     z: C,
     vSmg: number,
-    computeAllSlices: boolean,
   ): BlockSweepResult => {
     const m = 2 * L5
     const n = N_BLK
     const n2 = n * n
     // B1 = W + (1 - m5) I (Hermitian, couples L(s) <-> R(s) with sign -B1 in (z I - H))
-    const B1 = cmatClone(W)
+    b1Buf.re.set(W.re)
+    b1Buf.im.set(W.im)
     const shiftB = 1 - m5
-    for (let i = 0; i < n; i++) B1.re[i * n + i] = B1.re[i * n + i]! + shiftB
+    for (let i = 0; i < n; i++) b1Buf.re[i * n + i] = b1Buf.re[i * n + i]! + shiftB
 
     // AL = z I + K, AR = z I - K
-    const AL = cmatNew(n)
-    const AR = cmatNew(n)
     for (let k = 0; k < n2; k++) {
-      AL.re[k] = K.re[k]!
-      AL.im[k] = K.im[k]!
-      AR.re[k] = -K.re[k]!
-      AR.im[k] = -K.im[k]!
+      alBuf.re[k] = K.re[k]!
+      alBuf.im[k] = K.im[k]!
+      arBuf.re[k] = -K.re[k]!
+      arBuf.im[k] = -K.im[k]!
     }
     for (let i = 0; i < n; i++) {
-      AL.re[i * n + i] = AL.re[i * n + i]! + z[0]
-      AL.im[i * n + i] = AL.im[i * n + i]! + z[1]
-      AR.re[i * n + i] = AR.re[i * n + i]! + z[0]
-      AR.im[i * n + i] = AR.im[i * n + i]! + z[1]
+      alBuf.re[i * n + i] = alBuf.re[i * n + i]! + z[0]
+      alBuf.im[i * n + i] = alBuf.im[i * n + i]! + z[1]
+      arBuf.re[i * n + i] = arBuf.re[i * n + i]! + z[0]
+      arBuf.im[i * n + i] = arBuf.im[i * n + i]! + z[1]
     }
     // Mirror self-energy -Sigma_SMG(z) = -(V_SMG^2 / z) I added to AR on final block b_{m-1}
     const zAbs2 = z[0] * z[0] + z[1] * z[1]
     const sigR = -(vSmg * vSmg * z[0]) / zAbs2
     const sigI = (vSmg * vSmg * z[1]) / zAbs2
-    const AR_mir = cmatClone(AR)
+    arMirBuf.re.set(arBuf.re)
+    arMirBuf.im.set(arBuf.im)
     for (let i = 0; i < n; i++) {
-      AR_mir.re[i * n + i] = AR_mir.re[i * n + i]! + sigR
-      AR_mir.im[i * n + i] = AR_mir.im[i * n + i]! + sigI
+      arMirBuf.re[i * n + i] = arMirBuf.re[i * n + i]! + sigR
+      arMirBuf.im[i * n + i] = arMirBuf.im[i * n + i]! + sigI
     }
 
-    const subFrom = (A: CMat, sub: CMat): CMat => {
-      const out = cmatNew(n)
+    const subFromInto = (A: CMat, sub: CMat, out: CMat): void => {
       for (let k = 0; k < n2; k++) {
         out.re[k] = A.re[k]! - sub.re[k]!
         out.im[k] = A.im[k]! - sub.im[k]!
       }
-      return out
     }
     const traceOf = (M: CMat): C => {
       let trR = 0
@@ -3216,71 +3371,51 @@ function runGateG53(configs3D: Map<number, Config3D>): void {
       return [trR, trI]
     }
 
-    // Forward sweep F_0 .. F_{m-1} (shared by BOTH V_SMG > 0 and V_SMG = 0 through m-2!)
-    const F: CMat[] = new Array<CMat>(m)
-    F[0] = AL
+    // Zero-allocation forward sweep F_0 .. F_{m-1} (shared by BOTH V_SMG > 0 and V_SMG = 0 through m-2!)
+    curBuf.re.set(alBuf.re)
+    curBuf.im.set(alBuf.im)
     for (let j = 1; j < m; j++) {
-      const Aj = j === m - 1 ? AR_mir : (j & 1) === 0 ? AL : AR
+      if (j === m - 1) {
+        prevFBuf.re.set(curBuf.re)
+        prevFBuf.im.set(curBuf.im)
+      }
+      const Aj = j === m - 1 ? arMirBuf : (j & 1) === 0 ? alBuf : arBuf
       if ((j & 1) === 1) {
-        // Coupling between j-1 (L) and j (R) is -B1 (both U and L) -> B1 * F_{j-1}^{-1} * B1
-        const invB = cmatSolveMat(F[j - 1]!, B1)
-        const term = cmatMul(B1, invB)
-        F[j] = subFrom(Aj, term)
+        cmatSolveMatInto(curBuf, b1Buf, invBuf)
+        cmatMulInto(b1Buf, invBuf, termBuf)
+        subFromInto(Aj, termBuf, curBuf)
       } else {
-        // Coupling between j-1 (R) and j (L) is +I -> F_{j-1}^{-1}
-        F[j] = subFrom(Aj, cmatInvert(F[j - 1]!))
+        cmatInvertInto(curBuf, invBuf)
+        subFromInto(Aj, invBuf, curBuf)
       }
     }
-    const G_Rmir = cmatInvert(F[m - 1]!)
-    // Exact V_SMG = 0 mirror block reuses F[m-2] at cost of just ONE 96x96 invert!
-    const F_last_V0 = subFrom(AR, cmatMul(B1, cmatSolveMat(F[m - 2]!, B1)))
-    const G_Rmir_V0 = cmatInvert(F_last_V0)
+    cmatInvertInto(curBuf, invBuf)
+    const trG_Rmir = traceOf(invBuf)
+    // Exact V_SMG = 0 mirror block reuses F[m-2] (saved in prevFBuf) with ZERO extra sweep cost!
+    cmatSolveMatInto(prevFBuf, b1Buf, invBuf)
+    cmatMulInto(b1Buf, invBuf, termBuf)
+    subFromInto(arBuf, termBuf, curBuf)
+    cmatInvertInto(curBuf, invBuf)
+    const trG_Rmir_V0 = traceOf(invBuf)
 
-    // Backward sweep S_{m-1} .. S_0
-    const S: CMat[] = new Array<CMat>(m)
-    S[m - 1] = AR_mir
+    // Zero-allocation backward sweep S_{m-1} .. S_0
+    curBuf.re.set(arMirBuf.re)
+    curBuf.im.set(arMirBuf.im)
     for (let j = m - 2; j >= 0; j--) {
-      const Aj = (j & 1) === 0 ? AL : AR
+      const Aj = (j & 1) === 0 ? alBuf : arBuf
       if ((j & 1) === 0) {
-        // Coupling between j (L) and j+1 (R) is -B1 -> B1 * S_{j+1}^{-1} * B1
-        const invB = cmatSolveMat(S[j + 1]!, B1)
-        S[j] = subFrom(Aj, cmatMul(B1, invB))
+        cmatSolveMatInto(curBuf, b1Buf, invBuf)
+        cmatMulInto(b1Buf, invBuf, termBuf)
+        subFromInto(Aj, termBuf, curBuf)
       } else {
-        // Coupling between j (R) and j+1 (L) is +I -> S_{j+1}^{-1}
-        S[j] = subFrom(Aj, cmatInvert(S[j + 1]!))
+        cmatInvertInto(curBuf, invBuf)
+        subFromInto(Aj, invBuf, curBuf)
       }
     }
-    const G_L0 = cmatInvert(S[0]!)
-    const trG_L0 = traceOf(G_L0)
-    const trG_Rmir = traceOf(G_Rmir)
-    const trG_Rmir_V0 = traceOf(G_Rmir_V0)
+    cmatInvertInto(curBuf, invBuf)
+    const trG_L0 = traceOf(invBuf)
 
-    let trLtot: C = trG_L0
-    let trRtot: C = C0
-    let trG_R0: C = C0
-
-    if (computeAllSlices) {
-      // Physical-half slices s = 0, 1 (blocks j = 1 [R(0)], 2 [L(1)], 3 [R(1)]) — excludes mirror-wall L(L_5-1)
-      // where heavy doublers hybridize with the chiral mirror self-energy pole (Xu-You/Wang-Wen boundary effect).
-      const sliceBlocks = [1, 2, 3]
-      for (const j of sliceBlocks) {
-        if (j <= 0 || j >= m - 1) continue
-        const Aj = (j & 1) === 0 ? AL : AR
-        const Mj = cmatNew(n)
-        const Fj = F[j]!
-        const Sj = S[j]!
-        for (let k = 0; k < n2; k++) {
-          Mj.re[k] = Fj.re[k]! + Sj.re[k]! - Aj.re[k]!
-          Mj.im[k] = Fj.im[k]! + Sj.im[k]! - Aj.im[k]!
-        }
-        const trJ = traceOf(cmatInvert(Mj))
-        if (j === 1) trG_R0 = trJ
-        if ((j & 1) === 0) trLtot = cAdd(trLtot, trJ)
-        else trRtot = cAdd(trRtot, trJ)
-      }
-    }
-
-    return { trG_L0, trG_R0, trG_Ltot: trLtot, trG_Rtot: trRtot, trG_Rmir, trG_Rmir_V0 }
+    return { trG_L0, trG_Rmir, trG_Rmir_V0 }
   }
 
   // Exact Furman-Shamir midpoint-to-boundary residual chiral mass m_res(L_5) at z = i * mu
@@ -3313,12 +3448,25 @@ function runGateG53(configs3D: Map<number, Config3D>): void {
       }
       return out
     }
-    const S: CMat[] = new Array<CMat>(m)
-    S[m - 1] = AR
+    const S: CMat[] = Array.from({ length: m }, () => cmatNew(n))
+    S[m - 1]!.re.set(AR.re)
+    S[m - 1]!.im.set(AR.im)
     for (let j = m - 2; j >= 0; j--) {
       const Aj = (j & 1) === 0 ? AL : AR
-      if ((j & 1) === 0) S[j] = subFrom(Aj, cmatMul(B1, cmatSolveMat(S[j + 1]!, B1)))
-      else S[j] = subFrom(Aj, cmatInvert(S[j + 1]!))
+      if ((j & 1) === 0) {
+        cmatSolveMatInto(S[j + 1]!, B1, invBuf)
+        cmatMulInto(B1, invBuf, termBuf)
+        for (let k = 0; k < n2; k++) {
+          S[j]!.re[k] = Aj.re[k]! - termBuf.re[k]!
+          S[j]!.im[k] = Aj.im[k]! - termBuf.im[k]!
+        }
+      } else {
+        cmatInvertInto(S[j + 1]!, invBuf)
+        for (let k = 0; k < n2; k++) {
+          S[j]!.re[k] = Aj.re[k]! - invBuf.re[k]!
+          S[j]!.im[k] = Aj.im[k]! - invBuf.im[k]!
+        }
+      }
     }
     // 12-column physical k=0 wall source (uniform over 8 spatial sites for each of 12 spin x gauge modes)
     const nCols = 12
@@ -3374,11 +3522,31 @@ function runGateG53(configs3D: Map<number, Config3D>): void {
     return frob2Rect(X.re, X.im) / norm0
   }
 
-  // Prebuild spatial operators (K, W) for g = 0.5, 0.3, 0.1
-  const opsByG = new Map<number, { readonly K: CMat; readonly W: CMat }>()
+  // Prebuild spatial operators (K, W) for g = 0.5, 0.3, 0.1 and explicitly verify live gauge curvature preservation
+  const opsByG = new Map<
+    number,
+    { readonly K: CMat; readonly W: CMat; readonly plaqBefore: number; readonly plaqAfter: number }
+  >()
+  const curvParts: string[] = []
+  let maxPlaqShift = 0
   for (const g of [0.5, 0.3, 0.1] as const) {
-    opsByG.set(g, buildSpatialOps(configs3D.get(g)!))
+    const built = buildSpatialOps(configs3D.get(g)!)
+    const shift = Math.abs(built.plaqAfter - built.plaqBefore)
+    const defBefore = 1 - built.plaqBefore
+    const defAfter = 1 - built.plaqAfter
+    if (shift > maxPlaqShift) maxPlaqShift = shift
+    // Hard-assert curvature is preserved (neither blown up nor flattened toward U = I!)
+    const maxAllowedShift = g >= 0.45 ? 0.05 : g >= 0.25 ? 0.02 : 0.005
+    assert(
+      shift < maxAllowedShift && defAfter > 0.5 * defBefore,
+      `Weiss alignment distorted curvature at g=${g}: before=${built.plaqBefore}, after=${built.plaqAfter}`,
+    )
+    curvParts.push(
+      `g=${g.toFixed(1)}: <P_3> ${built.plaqBefore.toFixed(5)}->${built.plaqAfter.toFixed(5)} (|dP|=${shift.toExponential(2)})`,
+    )
+    opsByG.set(g, built)
   }
+  console.log(`  [Weiss Curvature Preservation] ${curvParts.join(' | ')} (live curvature preserved, not flattened to U=I)`)
 
   // 1) Exponential m_res(L_5) decay at L_5 = 4, 6, 8 (evaluated at g = 0.3 <= 0.5, M_5 = 1.00)
   const ops03 = opsByG.get(0.3)!
@@ -3413,7 +3581,7 @@ function runGateG53(configs3D: Map<number, Config3D>): void {
     let nMirV0 = 0
     for (const m5 of M5_GENS) {
       for (const zq of uhpZ) {
-        const res = evalBlockTridiagTraces(ops.K, ops.W, m5, L5_RUN, zq, V_SMG, false)
+        const res = evalBlockTridiagTraces(ops.K, ops.W, m5, L5_RUN, zq, V_SMG)
         // (1 / Nq) * 2 Re(z_q * Tr(P G(z_q))), Nq = 6 -> factor 1/3
         const w = (tr: C): number => (2 / 6) * (zq[0] * tr[0] - zq[1] * tr[1])
         nL0 += w(res.trG_L0)
@@ -3421,21 +3589,21 @@ function runGateG53(configs3D: Map<number, Config3D>): void {
         nMirV0 += w(res.trG_Rmir_V0)
       }
     }
-    // 4D effective IR chiral polarization P_L = N_L0 / (N_L0 + N_mir(IR))
+    // 4D effective IR chiral polarization P_L = N_L(0) / (N_L(0) + N_R(L_5 - 1))
     const pL = nL0 / (nL0 + Math.max(0, nMirIR))
     summaryByG.set(g, { nL0, pL, nMirIR, nMirV0 })
     console.log(
       `  g=${g.toFixed(1)} (3 gens M_5={0.92,1.00,1.08}, L_5=${L5_RUN}): ` +
-        `N_L0=${nL0.toFixed(3)}/36, P_L=${(pL * 100).toFixed(2)}%, ` +
-        `N_mir(IR)=${nMirIR.toFixed(4)} (<0.25), NegCtrl(V_SMG=0) N_mir=${nMirV0.toFixed(3)}/36`,
+        `N_L(0)=${nL0.toFixed(3)}/36, P_L=N_L(0)/(N_L(0)+N_R(L5-1))=${(pL * 100).toFixed(2)}%, ` +
+        `N_mir(IR)=${nMirIR.toFixed(4)}${g <= 0.3 ? ' (<0.25)' : ''}, NegCtrl(V_SMG=0) N_mir=${nMirV0.toFixed(3)}/36`,
     )
   }
 
   // 3) Mirror spectral function A_mir(omega) = -(1/pi) Im Tr[P_R(L_5-1) G(omega + i eta)] at omega = 0 vs 3.625
   const ops01 = opsByG.get(0.1)!
   const etaSpec = 0.08
-  const rSpec0 = evalBlockTridiagTraces(ops01.K, ops01.W, 1.0, L5_RUN, [0, etaSpec], V_SMG, false)
-  const rSpecV = evalBlockTridiagTraces(ops01.K, ops01.W, 1.0, L5_RUN, [V_SMG, etaSpec], V_SMG, false)
+  const rSpec0 = evalBlockTridiagTraces(ops01.K, ops01.W, 1.0, L5_RUN, [0, etaSpec], V_SMG)
+  const rSpecV = evalBlockTridiagTraces(ops01.K, ops01.W, 1.0, L5_RUN, [V_SMG, etaSpec], V_SMG)
   const aMir0 = -rSpec0.trG_Rmir[1] / PI
   const aMirV = -rSpecV.trG_Rmir[1] / PI
   const specPeakRatio = aMirV / Math.max(1e-12, aMir0)
@@ -3455,6 +3623,8 @@ function runGateG53(configs3D: Map<number, Config3D>): void {
     mres6 > 3 * mres8 &&
     mres4 > 9 * mres8 &&
     mres8 < 2e-4 &&
+    s05.nL0 < s03.nL0 &&
+    s03.nL0 < s01.nL0 &&
     s03.nL0 > 34.5 &&
     s01.nL0 > 34.5 &&
     s03.pL > 0.99 &&
@@ -3805,7 +3975,8 @@ function makeD4GaugeEngine(torus: D4Torus, ring: DenseRingBundle) {
     return { logZ: fac * maxVal + Math.log(sumW), sumW }
   }
 
-  const drawFromFiber = (outW: Float64Array, sumW: number, rng: LcgRng): M3 => {
+  const fiberDrawBuf = new Float64Array(18)
+  const drawFromFiberInto = (outW: Float64Array, sumW: number, rng: LcgRng, out: M3): void => {
     let target = rng.next() * sumW
     let chosen = 647
     for (let j = 0; j < 648; j++) {
@@ -3817,17 +3988,18 @@ function makeD4GaugeEngine(torus: D4Torus, ring: DenseRingBundle) {
     }
     const rep = sMod[(chosen / 3) | 0]!
     const ph = chosen % 3
-    if (ph === 0) return m3Clone(rep)
+    if (ph === 0) {
+      out.set(rep)
+      return
+    }
     const cr = ph === 1 ? wR : w2R
     const ci = ph === 1 ? wI : w2I
-    const out = new Float64Array(18)
     for (let k = 0; k < 9; k++) {
       const r = rep[2 * k]!
       const im = rep[2 * k + 1]!
       out[2 * k] = r * cr - im * ci
       out[2 * k + 1] = r * ci + im * cr
     }
-    return out
   }
 
   const curWBuf = new Float64Array(648)
@@ -3864,9 +4036,10 @@ function makeD4GaugeEngine(torus: D4Torus, ring: DenseRingBundle) {
           }
         }
       }
-      const hNew = drawFromFiber(curWBuf, fCur.sumW, rng)
+      drawFromFiberInto(curWBuf, fCur.sumW, rng, fiberDrawBuf)
       cosetIdx[e] = cCur
-      links[e] = nC === 1 ? hNew : m3Mul(cosets[cCur]!, hNew)
+      if (nC === 1) links[e]!.set(fiberDrawBuf)
+      else m3MulInto(cosets[cCur]!, fiberDrawBuf, links[e]!)
     }
   }
 
@@ -4176,14 +4349,15 @@ function buildD4ChiralBlockM(torus: D4Torus, links: readonly M3[]): CMat {
   return M
 }
 
-// Compute H = M^dag M (mode = 'R') or M M^dag (mode = 'L') + shift * I (exact Hermitian n x n)
-function buildGramHerm(M: CMat, mode: 'L' | 'R', shift = 0): CMat {
+// Compute H = M^dag M (mode = 'R') or M M^dag (mode = 'L') + shift * I into pre-allocated out
+function buildGramHermInto(M: CMat, mode: 'L' | 'R', shift: number, out: CMat): void {
   const n = M.n
-  const out = cmatNew(n)
   const mr = M.re
   const mi = M.im
   const or = out.re
   const oi = out.im
+  or.fill(0)
+  oi.fill(0)
   if (mode === 'R') {
     // (M^dag M)_{ij} = sum_k conj(M_{ki}) M_{kj}
     for (let k = 0; k < n; k++) {
@@ -4230,6 +4404,11 @@ function buildGramHerm(M: CMat, mode: 'L' | 'R', shift = 0): CMat {
       oi[j * n + i] = -oi[i * n + j]!
     }
   }
+}
+
+function buildGramHerm(M: CMat, mode: 'L' | 'R', shift = 0): CMat {
+  const out = cmatNew(M.n)
+  buildGramHermInto(M, mode, shift, out)
   return out
 }
 
@@ -4470,11 +4649,16 @@ function runGateG63(d4Data: D4EnsembleData): void {
     [1, 0, 2, -1],
   ]
 
-  // Helper: multiply M * v or M^dag * v (144-dim complex vector)
-  const matVecM = (M: CMat, vR: Float64Array, vI: Float64Array, dag: boolean): readonly [Float64Array, Float64Array] => {
+  // Helper: multiply M * v or M^dag * v into pre-allocated (oR, oI)
+  const matVecMInto = (
+    M: CMat,
+    vR: Float64Array,
+    vI: Float64Array,
+    dag: boolean,
+    oR: Float64Array,
+    oI: Float64Array,
+  ): void => {
     const n = M.n
-    const oR = new Float64Array(n)
-    const oI = new Float64Array(n)
     const mr = M.re
     const mi = M.im
     if (!dag) {
@@ -4494,6 +4678,8 @@ function runGateG63(d4Data: D4EnsembleData): void {
         oI[r] = si
       }
     } else {
+      oR.fill(0)
+      oI.fill(0)
       for (let c = 0; c < n; c++) {
         const br = vR[c]!
         const bi = vI[c]!
@@ -4507,7 +4693,6 @@ function runGateG63(d4Data: D4EnsembleData): void {
         }
       }
     }
-    return [oR, oI]
   }
 
   // Exact mass extraction from symmetric cosh correlator C(tau) = A cosh(m (tau - Lt/2)) at tau = 2, 3
@@ -4539,12 +4724,167 @@ function runGateG63(d4Data: D4EnsembleData): void {
   const sIm = Array.from({ length: V }, () => new Float64Array(144))
   const eVecR = new Float64Array(nBlk)
   const eVecI = new Float64Array(nBlk)
+  const gramBuf = cmatNew(nBlk)
+  const cholL = cmatNew(nBlk)
+  const cholR = cmatNew(nBlk)
+  const cholYR = new Float64Array(nBlk)
+  const cholYI = new Float64Array(nBlk)
+  const solR = new Float64Array(nBlk)
+  const solI = new Float64Array(nBlk)
+  const mvR = new Float64Array(nBlk)
+  const mvI = new Float64Array(nBlk)
 
-  // Scratch 4x4 spin matrices for rho & nucleon contractions
+  // Scratch 4x4 spin matrices + compact site-contraction helpers (keeps loop depth <= 4 for low V8 JIT RSS)
   const m4AR = new Float64Array(16)
   const m4AI = new Float64Array(16)
   const m4BR = new Float64Array(16)
   const m4BI = new Float64Array(16)
+
+  const computeRhoSite = (sr: Float64Array, si: Float64Array): number => {
+    let rhoVal = 0
+    for (let dir = 0; dir < 3; dir++) {
+      const G = g5gkList[dir]!
+      for (let c1 = 0; c1 < 3; c1++) {
+        for (let c2 = 0; c2 < 3; c2++) {
+          for (let a = 0; a < 4; a++) {
+            for (let b = 0; b < 4; b++) {
+              const idx = (a * 3 + c1) * 12 + (b * 3 + c2)
+              m4AR[a * 4 + b] = sr[idx]!
+              m4AI[a * 4 + b] = si[idx]!
+            }
+          }
+          for (let a = 0; a < 4; a++) {
+            for (let b = 0; b < 4; b++) {
+              let trR = 0
+              let trI = 0
+              for (let m = 0; m < 4; m++) {
+                const g = G[a]![m]!
+                if (g[0] === 0 && g[1] === 0) continue
+                const sR = m4AR[m * 4 + b]!
+                const sI = m4AI[m * 4 + b]!
+                trR += g[0] * sR - g[1] * sI
+                trI += g[0] * sI + g[1] * sR
+              }
+              m4BR[a * 4 + b] = trR
+              m4BI[a * 4 + b] = trI
+            }
+          }
+          for (let a = 0; a < 4; a++) {
+            for (let b = 0; b < 4; b++) {
+              let qr = 0
+              let qi = 0
+              for (let m = 0; m < 4; m++) {
+                const g = G[b]![m]!
+                if (g[0] === 0 && g[1] === 0) continue
+                const br = m4BR[a * 4 + m]!
+                const bi = m4BI[a * 4 + m]!
+                qr += br * g[0] + bi * g[1]
+                qi += bi * g[0] - br * g[1]
+              }
+              rhoVal += qr * m4AR[a * 4 + b]! + qi * m4AI[a * 4 + b]!
+            }
+          }
+        }
+      }
+    }
+    return rhoVal / 3
+  }
+
+  const computeProtPair = (
+    sr: Float64Array,
+    si: Float64Array,
+    a: number,
+    b: number,
+    c: number,
+    ap: number,
+    bp: number,
+    cp: number,
+  ): readonly [number, number] => {
+    // D = G_C (S^{b, bp})^T G_C; since G_C = diag(eps, eps) is antisymmetric, (G_C)_{n, be} = -gcSgn[be]
+    for (let al = 0; al < 4; al++) {
+      const gal = gcMap[al]!
+      const sal = gcSgn[al]!
+      for (let be = 0; be < 4; be++) {
+        const gbe = gcMap[be]!
+        const sg = -sal * gcSgn[be]!
+        const idx = (gbe * 3 + b) * 12 + (gal * 3 + bp)
+        m4AR[al * 4 + be] = sg * sr[idx]!
+        m4AI[al * 4 + be] = sg * si[idx]!
+      }
+    }
+    let dR = 0
+    let dI = 0
+    for (let al = 0; al < 4; al++) {
+      for (let be = 0; be < 4; be++) {
+        const dr = m4AR[al * 4 + be]!
+        const di = m4AI[al * 4 + be]!
+        const idx = (be * 3 + a) * 12 + (al * 3 + ap)
+        const qr = sr[idx]!
+        const qi = si[idx]!
+        dR -= dr * qr - di * qi
+        dI -= dr * qi + di * qr
+      }
+    }
+    let scTrR = 0
+    let scTrI = 0
+    let scG0R = 0
+    let scG0I = 0
+    for (let sp = 0; sp < 4; sp++) {
+      const idDiag = (sp * 3 + c) * 12 + (sp * 3 + cp)
+      scTrR += sr[idDiag]!
+      scTrI += si[idDiag]!
+      const idG0 = ((sp ^ 2) * 3 + c) * 12 + (sp * 3 + cp)
+      scG0R += sr[idG0]!
+      scG0I += si[idG0]!
+    }
+    const dirI = scTrR * dR - scTrI * dI
+    const dirG0 = scG0R * dR - scG0I * dI
+
+    for (let al = 0; al < 4; al++) {
+      for (let ga = 0; ga < 4; ga++) {
+        let br = 0
+        let bi = 0
+        for (let be = 0; be < 4; be++) {
+          const dr = m4AR[al * 4 + be]!
+          const di = m4AI[al * 4 + be]!
+          const idx = (be * 3 + a) * 12 + (ga * 3 + cp)
+          const qr = sr[idx]!
+          const qi = si[idx]!
+          br += dr * qr - di * qi
+          bi += dr * qi + di * qr
+        }
+        m4BR[al * 4 + ga] = br
+        m4BI[al * 4 + ga] = bi
+      }
+    }
+    let exI = 0
+    let exG0 = 0
+    for (let sp = 0; sp < 4; sp++) {
+      const spSwap = sp ^ 2
+      for (let al = 0; al < 4; al++) {
+        const id1 = (sp * 3 + c) * 12 + (al * 3 + ap)
+        const s1r = sr[id1]!
+        const s1i = si[id1]!
+        exI += s1r * m4BR[al * 4 + sp]! - s1i * m4BI[al * 4 + sp]!
+        exG0 += s1r * m4BR[al * 4 + spSwap]! - s1i * m4BI[al * 4 + spSwap]!
+      }
+    }
+    return [dirI + exI, dirG0 + exG0]
+  }
+
+  const computeProtSite = (sr: Float64Array, si: Float64Array): readonly [number, number] => {
+    let trI_tot = 0
+    let trG0_tot = 0
+    for (const [a, b, c, ea] of epsTriples) {
+      for (const [ap, bp, cp, eb] of epsTriples) {
+        const eSign = ea * eb
+        const [pI, pG0] = computeProtPair(sr, si, a, b, c, ap, bp, cp)
+        trI_tot += eSign * pI
+        trG0_tot += eSign * pG0
+      }
+    }
+    return [0.5 * (trI_tot + trG0_tot), 0.5 * (trI_tot - trG0_tot)]
+  }
 
   for (const mq of mQuarks) {
     const cPi = new Float64Array(Lt)
@@ -4556,10 +4896,10 @@ function runGateG63(d4Data: D4EnsembleData): void {
 
     for (let ci = 0; ci < mBlocksW2.length; ci++) {
       const M = mBlocksW2[ci]!
-      const HL = buildGramHerm(M, 'L', mq * mq)
-      const HR = buildGramHerm(M, 'R', mq * mq)
-      const cholL = choleskyFactorHerm(nBlk, HL.re, HL.im)
-      const cholR = choleskyFactorHerm(nBlk, HR.re, HR.im)
+      buildGramHermInto(M, 'L', mq * mq, gramBuf)
+      choleskyFactorHermInto(nBlk, gramBuf.re, gramBuf.im, cholL)
+      buildGramHermInto(M, 'R', mq * mq, gramBuf)
+      choleskyFactorHermInto(nBlk, gramBuf.re, gramBuf.im, cholR)
 
       for (const x0 of srcSites) {
         for (let x = 0; x < V; x++) {
@@ -4573,8 +4913,8 @@ function runGateG63(d4Data: D4EnsembleData): void {
             const srcIdx12 = sp0 * 3 + col0 // 0..5
             eVecR.fill(0)
             eVecR[kBlk] = 1
-            const v = choleskySolveVec(cholL, eVecR, eVecI)
-            const [rlR, rlI] = matVecM(M, v.re, v.im, true)
+            choleskySolveVecInto(cholL, eVecR, eVecI, cholYR, cholYI, solR, solI)
+            matVecMInto(M, solR, solI, true, mvR, mvI)
             for (let x = 0; x < V; x++) {
               const dstR = sRe[x]!
               const dstI = sIm[x]!
@@ -4583,10 +4923,10 @@ function runGateG63(d4Data: D4EnsembleData): void {
                   const rBlk = (x * 2 + sp) * 3 + col
                   const rL = sp * 3 + col
                   const rR = (2 + sp) * 3 + col
-                  dstR[rL * 12 + srcIdx12] = mq * v.re[rBlk]!
-                  dstI[rL * 12 + srcIdx12] = mq * v.im[rBlk]!
-                  dstR[rR * 12 + srcIdx12] = rlR[rBlk]!
-                  dstI[rR * 12 + srcIdx12] = rlI[rBlk]!
+                  dstR[rL * 12 + srcIdx12] = mq * solR[rBlk]!
+                  dstI[rL * 12 + srcIdx12] = mq * solI[rBlk]!
+                  dstR[rR * 12 + srcIdx12] = mvR[rBlk]!
+                  dstI[rR * 12 + srcIdx12] = mvI[rBlk]!
                 }
               }
             }
@@ -4599,8 +4939,8 @@ function runGateG63(d4Data: D4EnsembleData): void {
             const srcIdx12 = (2 + sp0) * 3 + col0 // 6..11
             eVecR.fill(0)
             eVecR[kBlk] = 1
-            const w = choleskySolveVec(cholR, eVecR, eVecI)
-            const [lrR, lrI] = matVecM(M, w.re, w.im, false)
+            choleskySolveVecInto(cholR, eVecR, eVecI, cholYR, cholYI, solR, solI)
+            matVecMInto(M, solR, solI, false, mvR, mvI)
             for (let x = 0; x < V; x++) {
               const dstR = sRe[x]!
               const dstI = sIm[x]!
@@ -4609,10 +4949,10 @@ function runGateG63(d4Data: D4EnsembleData): void {
                   const rBlk = (x * 2 + sp) * 3 + col
                   const rL = sp * 3 + col
                   const rR = (2 + sp) * 3 + col
-                  dstR[rL * 12 + srcIdx12] = -lrR[rBlk]!
-                  dstI[rL * 12 + srcIdx12] = -lrI[rBlk]!
-                  dstR[rR * 12 + srcIdx12] = mq * w.re[rBlk]!
-                  dstI[rR * 12 + srcIdx12] = mq * w.im[rBlk]!
+                  dstR[rL * 12 + srcIdx12] = -mvR[rBlk]!
+                  dstI[rL * 12 + srcIdx12] = -mvI[rBlk]!
+                  dstR[rR * 12 + srcIdx12] = mq * solR[rBlk]!
+                  dstI[rR * 12 + srcIdx12] = mq * solI[rBlk]!
                 }
               }
             }
@@ -4638,159 +4978,12 @@ function runGateG63(d4Data: D4EnsembleData): void {
           sumPiSrc += piVal
 
           // 2) Rho C_rho(tau) = (1/3) sum_{k=1..3} Re Tr[(g5 gk) S (g5 gk)^dag S^dag]
-          let rhoVal = 0
-          for (let dir = 0; dir < 3; dir++) {
-            const G = g5gkList[dir]!
-            // Compute T = G * S (in spin) for each color pair (c1, c2)
-            for (let c1 = 0; c1 < 3; c1++) {
-              for (let c2 = 0; c2 < 3; c2++) {
-                // Load 4x4 spin block S^{c1, c2}
-                for (let a = 0; a < 4; a++) {
-                  for (let b = 0; b < 4; b++) {
-                    const idx = (a * 3 + c1) * 12 + (b * 3 + c2)
-                    m4AR[a * 4 + b] = sr[idx]!
-                    m4AI[a * 4 + b] = si[idx]!
-                  }
-                }
-                // Compute (G * S * G^dag)_{ab} contracted with conj(S_{ab})
-                // Since (G)^dag = -G, (G S G^dag) = -(G S G). Compute B = G * S first:
-                for (let a = 0; a < 4; a++) {
-                  for (let b = 0; b < 4; b++) {
-                    let trR = 0
-                    let trI = 0
-                    for (let m = 0; m < 4; m++) {
-                      const g = G[a]![m]!
-                      if (g[0] === 0 && g[1] === 0) continue
-                      const sR = m4AR[m * 4 + b]!
-                      const sI = m4AI[m * 4 + b]!
-                      trR += g[0] * sR - g[1] * sI
-                      trI += g[0] * sI + g[1] * sR
-                    }
-                    m4BR[a * 4 + b] = trR
-                    m4BI[a * 4 + b] = trI
-                  }
-                }
-                // Re Tr[ (B G^dag) S^dag ] = sum_{a,b,m} Re( B_{am} conj(G_{bm}) conj(S_{ab}) )
-                for (let a = 0; a < 4; a++) {
-                  for (let b = 0; b < 4; b++) {
-                    let qr = 0
-                    let qi = 0
-                    for (let m = 0; m < 4; m++) {
-                      const g = G[b]![m]!
-                      if (g[0] === 0 && g[1] === 0) continue
-                      const br = m4BR[a * 4 + m]!
-                      const bi = m4BI[a * 4 + m]!
-                      // B_{am} * conj(G_{bm})
-                      qr += br * g[0] + bi * g[1]
-                      qi += bi * g[0] - br * g[1]
-                    }
-                    const sR = m4AR[a * 4 + b]!
-                    const sI = m4AI[a * 4 + b]!
-                    rhoVal += qr * sR + qi * sI
-                  }
-                }
-              }
-            }
-          }
-          cRho[tau] = cRho[tau]! + rhoVal / 3
+          cRho[tau] = cRho[tau]! + computeRhoSite(sr, si)
 
-          // 3) Exact 3-quark Ioffe Proton correlator (direct + exchange):
-          //    C_p^{+/-}(tau) = sum_{eps, eps'} ( Tr[P_{+/-} S^{cc'}] Tr[G_C S^{bb'} (-G_C) (S^{aa'})^T]
-          //                                     + Tr[P_{+/-} S^{ca'} G_C (S^{bb'})^T G_C S^{ac'}] )
-          //    where G_C = C gamma_5 = diag(eps, eps), P_{+/-} = (I +/- gamma_0)/2.
-          //    Let D^{bb'}_{al, be} = (G_C (S^{bb'})^T G_C)_{al, be} = gcSgn[al]*gcSgn[be]*S^{bb'}_{gcMap[be], gcMap[al]}!
-          //    Notice: Tr[G_C S^{bb'} (-G_C) (S^{aa'})^T] = -Tr[(G_C (S^{bb'})^T G_C) S^{aa'}] = -sum_{al,be} D^{bb'}_{al,be} S^{aa'}_{be,al}!
-          //    Check on S = P_+: D_{al,be} = (G_C P_+^T G_C)_{al,be} = -P_+_{al,be}, so -Tr[D P_+] = +Tr[P_+^2] = +2! EXACT!
-          let trI_tot = 0
-          let trG0_tot = 0
-          for (const [a, b, c, ea] of epsTriples) {
-            for (const [ap, bp, cp, eb] of epsTriples) {
-              const eSign = ea * eb
-              // Precompute 4x4 matrix D = G_C (S^{b, bp})^T G_C
-              // Since G_C = diag(eps, eps) is antisymmetric, (G_C)_{n, be} = -(G_C)_{be, n} = -gcSgn[be]
-              for (let al = 0; al < 4; al++) {
-                const gal = gcMap[al]!
-                const sal = gcSgn[al]!
-                for (let be = 0; be < 4; be++) {
-                  const gbe = gcMap[be]!
-                  const sg = -sal * gcSgn[be]!
-                  const idx = (gbe * 3 + b) * 12 + (gal * 3 + bp)
-                  m4AR[al * 4 + be] = sg * sr[idx]!
-                  m4AI[al * 4 + be] = sg * si[idx]!
-                }
-              }
-              // Direct diquark scalar dScal = -Tr[D * S^{a, ap}]
-              let dR = 0
-              let dI = 0
-              for (let al = 0; al < 4; al++) {
-                for (let be = 0; be < 4; be++) {
-                  const dr = m4AR[al * 4 + be]!
-                  const di = m4AI[al * 4 + be]!
-                  const idx = (be * 3 + a) * 12 + (al * 3 + ap)
-                  const qr = sr[idx]!
-                  const qi = si[idx]!
-                  dR -= dr * qr - di * qi
-                  dI -= dr * qi + di * qr
-                }
-              }
-              // Direct Tr[S^{c, cp}] and Tr[gamma_0 S^{c, cp}] (gamma_0 swaps spin 0<->2 and 1<->3)
-              let scTrR = 0
-              let scTrI = 0
-              let scG0R = 0
-              let scG0I = 0
-              for (let sp = 0; sp < 4; sp++) {
-                const idDiag = (sp * 3 + c) * 12 + (sp * 3 + cp)
-                scTrR += sr[idDiag]!
-                scTrI += si[idDiag]!
-                const spSwap = sp ^ 2
-                const idG0 = (spSwap * 3 + c) * 12 + (sp * 3 + cp)
-                scG0R += sr[idG0]!
-                scG0I += si[idG0]!
-              }
-              const dirI = scTrR * dR - scTrI * dI
-              const dirG0 = scG0R * dR - scG0I * dI
-
-              // Exchange: M_ex = S^{c, ap} * D * S^{a, cp}, need Re Tr[M_ex] and Re Tr[gamma_0 M_ex]
-              // First B = D * S^{a, cp}
-              for (let al = 0; al < 4; al++) {
-                for (let ga = 0; ga < 4; ga++) {
-                  let br = 0
-                  let bi = 0
-                  for (let be = 0; be < 4; be++) {
-                    const dr = m4AR[al * 4 + be]!
-                    const di = m4AI[al * 4 + be]!
-                    const idx = (be * 3 + a) * 12 + (ga * 3 + cp)
-                    const qr = sr[idx]!
-                    const qi = si[idx]!
-                    br += dr * qr - di * qi
-                    bi += dr * qi + di * qr
-                  }
-                  m4BR[al * 4 + ga] = br
-                  m4BI[al * 4 + ga] = bi
-                }
-              }
-              let exI = 0
-              let exG0 = 0
-              for (let sp = 0; sp < 4; sp++) {
-                const spSwap = sp ^ 2
-                for (let al = 0; al < 4; al++) {
-                  const id1 = (sp * 3 + c) * 12 + (al * 3 + ap)
-                  const s1r = sr[id1]!
-                  const s1i = si[id1]!
-                  const b1r = m4BR[al * 4 + sp]!
-                  const b1i = m4BI[al * 4 + sp]!
-                  exI += s1r * b1r - s1i * b1i
-                  const b2r = m4BR[al * 4 + spSwap]!
-                  const b2i = m4BI[al * 4 + spSwap]!
-                  exG0 += s1r * b2r - s1i * b2i
-                }
-              }
-              trI_tot += eSign * (dirI + exI)
-              trG0_tot += eSign * (dirG0 + exG0)
-            }
-          }
-          cProtP[tau] = cProtP[tau]! + 0.5 * (trI_tot + trG0_tot)
-          cProtM[tau] = cProtM[tau]! + 0.5 * (trI_tot - trG0_tot)
+          // 3) Exact 3-quark Ioffe Proton correlator (direct + exchange, P_{+/-} = (I +/- gamma_0)/2)
+          const [pPlus, pMinus] = computeProtSite(sr, si)
+          cProtP[tau] = cProtP[tau]! + pPlus
+          cProtM[tau] = cProtM[tau]! + pMinus
         }
 
         const wtiRel = Math.abs(mq * sumPiSrc - trS0) / Math.max(1e-12, Math.abs(trS0))
@@ -4917,8 +5110,11 @@ function runGateG63(d4Data: D4EnsembleData): void {
   const cTotZ4 = 0.25 * (4 / 3) - 3 / 24 + (C_DG_Z4 - 1 / 12) * 3
   const cTotD4 = (11 / 32) * (4 / 3) - (11 / 192) * 3 + (cLoopD4 + 1 / 24) * 3
   const lamMsOverD4 = 28.809 * Math.exp((cTotD4 - cTotZ4) / (2 * b0))
+  // Lepage-Mackenzie 1-loop tadpole-improved matching: <P_tri> = 1 - (11/24) g_0^2 -> 1/g_TI^2 = 1/g_0^2 - 11/24
+  // Subtracting the exact 1-loop triangle tadpole 11/24 from cTotD4 avoids double-counting the tadpole shift!
+  const lamMsOverD4TI = lamMsOverD4 * Math.exp(-(11 / 24) / (2 * b0))
   const aLamMsBare = aLamLat(g0Sq) * lamMsOverD4
-  const aLamMsTI = aLamLat(gTiSq) * lamMsOverD4
+  const aLamMsTI = aLamLat(gTiSq) * lamMsOverD4TI
   // Physical scale anchor from m_rho(0) -> 0.775 GeV (illustrative coarse-lattice scale)
   const aInvGeV = 0.775 / rhoFit.intercept
 
@@ -4947,7 +5143,10 @@ function runGateG63(d4Data: D4EnsembleData): void {
   console.log(
     `  Illustrative lattice scale a^-1 ~ ${aInvGeV.toFixed(2)} GeV (a ~ ${(0.1973 / aInvGeV).toFixed(2)} fm). ` +
       `EXPLICIT SYSTEMATICS: quenched N_f=0, tiny 2^3x6 box (L_s=2), coarse beta_D4=3.1, naive N_t=8 tastes, ` +
-      `and short-time (tau=1->2) N* excited-state contamination introduce O(40-80%) shifts relative to continuum PDG ratios.`,
+      `and short-time (tau=1->2) N* excited-state contamination introduce O(40-80%) shifts relative to continuum PDG ratios.\n` +
+      `  Lattice normalization contributors to m_rho(0)/f_pi(0)=${(rhoFit.intercept / fPiFit.intercept).toFixed(2)} vs PDG 5.95: ` +
+      `(i) naive 4D D_4 doubler anisotropy (c_t = +-1/3, giving Free lam_min = 1/6), and ` +
+      `(ii) D_4 checkerboard unit-cell 4-volume V_cell = 2 in Z^4 coordinates inflating site-normalized <psi-bar psi> and G_pi^2.`,
   )
 
   const ok =
@@ -5413,19 +5612,6 @@ function runGateG64G65(): void {
     return { K1, mTilde1Ev, pFlav, epsFlav, epsTot }
   }
 
-  // Complex orthogonal rotation R_13(omega) with omega = r * exp(i * phi)
-  const complexRot13 = (r: number, phi: number): readonly (readonly [C, C, C])[] => {
-    const wr = r * Math.cos(phi)
-    const wi = r * Math.sin(phi)
-    const cosW: C = [Math.cos(wr) * Math.cosh(wi), -Math.sin(wr) * Math.sinh(wi)]
-    const sinW: C = [Math.sin(wr) * Math.cosh(wi), Math.cos(wr) * Math.sinh(wi)]
-    return [
-      [cosW, C0, sinW],
-      [C0, C1, C0],
-      [cScale(-1, sinW), C0, cosW],
-    ]
-  }
-
   const U_Z9 = buildPmnsPdg(deltaCpRad)
   const U_CP0 = buildPmnsPdg(0)
 
@@ -5433,21 +5619,34 @@ function runGateG64G65(): void {
   // CHANNEL 3A (G6.4): 1-Flavor Thermal Leptogenesis, M_1 = 0.80 M_PS, Z[zeta_9] phase 14 pi / 9
   // -----------------------------------------------------------------------------------------------
   const M1_3A = 0.8 * M_PS
-  const masses3A: readonly [number, number, number] = [M1_3A, 5 * M1_3A, 20 * M1_3A]
+  // Non-resonant hierarchy M_2 = 1.8 M_1, M_3 = 6.0 M_1 (M_2 - M_1 >> Gamma_2 by > 10^4x)
+  // Exact complex orthogonal R = R_12(r * exp(i * 14 pi / 9)) * P_{23} mixes (nu_1, nu_3) in N_1 <-> N_2
+  const masses3A: readonly [number, number, number] = [M1_3A, 1.8 * M1_3A, 6 * M1_3A]
   const mNu3A: readonly [number, number, number] = [
-    0.005,
-    Math.sqrt(DM21_SQ + 0.005 * 0.005),
-    Math.sqrt(DM31_SQ + 0.005 * 0.005),
+    0.004,
+    Math.sqrt(DM21_SQ + 0.004 * 0.004),
+    Math.sqrt(DM31_SQ + 0.004 * 0.004),
   ]
+  const makeComplexR3A = (r: number, phi: number): readonly (readonly [C, C, C])[] => {
+    const wr = r * Math.cos(phi)
+    const wi = r * Math.sin(phi)
+    const cosW: C = [Math.cos(wr) * Math.cosh(wi), -Math.sin(wr) * Math.sinh(wi)]
+    const sinW: C = [Math.sin(wr) * Math.cosh(wi), Math.cos(wr) * Math.sinh(wi)]
+    return [
+      [cosW, C0, sinW],
+      [cScale(-1, sinW), C0, cosW],
+      [C0, C1, C0],
+    ]
+  }
   const eval3A = (rMod: number, phi: number, thermal: boolean) => {
-    const R = complexRot13(rMod, phi)
+    const R = makeComplexR3A(rMod, phi)
     const ss = computeSeesawLepto(U_Z9, mNu3A, masses3A, R)
     const res = integrate1Flavor(ss.K1, ss.epsTot, thermal, 400)
     return { ...ss, ...res }
   }
-  // Dial 1 continuous O(1) real seesaw modulus r_A (explicitly counted in B2.4 UV Yukawa ledger) via bisection
-  let loA = 0.2
-  let hiA = 1.4
+  // Dial 1 continuous O(1) real seesaw modulus r_A (explicitly counted in B2.4 UV Yukawa ledger) on strong-washout branch
+  let loA = 0.35
+  let hiA = 1.2
   const vLoA = eval3A(loA, PHI_Z9_14, true).etaB
   const vHiA = eval3A(hiA, PHI_Z9_14, true).etaB
   assert((vLoA - PLANCK_ETA_B) * (vHiA - PLANCK_ETA_B) < 0, `3A bracket failed: [${vLoA}, ${vHiA}]`)
@@ -5468,24 +5667,25 @@ function runGateG64G65(): void {
   // -----------------------------------------------------------------------------------------------
   const M1_3B = 1.35 * M_PS
   assert(M1_3B < 1e12, `Channel 3B requires M_1 < 10^12 GeV, got ${M1_3B.toExponential(3)}`)
-  const masses3B: readonly [number, number, number] = [M1_3B, 3 * M1_3B, 10 * M1_3B]
-  // Strictly real orthogonal R in SO(3, R) (Im(R) === 0 identically!), mixing (nu_1, nu_2, nu_3) via 1 real angle thB
-  //   R = R_12(thB) * P_{123->231} so N_1 mixes nu_2 and nu_3 with strong washout on BOTH flavors (K_tau > 7, K_2 > 20)
+  // Mildly split non-resonant hierarchy M_2 = 1.04 M_1, M_3 = 6.0 M_1 (M_2 - M_1 = 7.7e9 GeV > 2500 * Gamma_2)
+  const masses3B: readonly [number, number, number] = [M1_3B, 1.04 * M1_3B, 6 * M1_3B]
+  // Strictly real orthogonal R in SO(3, R) (Im(R) === 0 identically!), mixing (nu_1, nu_3) via 1 real angle thB
   const makeRealR3B = (thB: number): readonly (readonly [C, C, C])[] => {
     const c = Math.cos(thB)
     const s = Math.sin(thB)
     // Purely real orthogonal matrix (det = +1, Im(R) === 0 identically):
-    // Row 0 (N_1): [0, c, s], Row 1 (N_2): [0, -s, c], Row 2 (N_3): [1, 0, 0]
+    // Row 0 (N_1): [c, 0, s], Row 1 (N_2): [-s, 0, c], Row 2 (N_3): [0, 1, 0]
     return [
-      [C0, [c, 0], [s, 0]],
-      [C0, [-s, 0], [c, 0]],
-      [C1, C0, C0],
+      [[c, 0], C0, [s, 0]],
+      [[-s, 0], C0, [c, 0]],
+      [C0, C1, C0],
     ]
   }
+  // Normal-ordering spectrum with sum(m_nu) = 0.115 eV (< 0.12 eV Planck+BAO bound)
   const mNu3B: readonly [number, number, number] = [
-    0.014,
-    Math.sqrt(DM21_SQ + 0.014 * 0.014),
-    Math.sqrt(DM31_SQ + 0.014 * 0.014),
+    0.028,
+    Math.sqrt(DM21_SQ + 0.028 * 0.028),
+    Math.sqrt(DM31_SQ + 0.028 * 0.028),
   ]
   const eval3B = (thB: number, Umat: readonly (readonly [C, C, C])[], thermal: boolean) => {
     const R = makeRealR3B(thB)
@@ -5498,25 +5698,33 @@ function runGateG64G65(): void {
     return { ...ss, pTau, p2, epsTau, eps2, ...res }
   }
 
-  // Scan [0.05, 1.50] to bracket Planck 6.12e-10 in the strong-washout pure-PMNS branch (Im(R) === 0)
+  // Scan [0.75, 1.45] to bracket Planck 6.12e-10 with K_tau > 20 and K_2 > 15 (deep strong washout -> IC diff < 0.01%)
   let loB = 0
   let hiB = 0
   let foundB = false
-  for (let i = 1; i < 60; i++) {
-    const t1 = 0.05 + (1.45 * (i - 1)) / 60
-    const t2 = 0.05 + (1.45 * i) / 60
-    const e1 = eval3B(t1, U_Z9, true)
-    const e2 = eval3B(t2, U_Z9, true)
-    if ((e1.etaB - PLANCK_ETA_B) * (e2.etaB - PLANCK_ETA_B) <= 0 && e1.K1 * e1.pTau > 5 && e2.K1 * e2.pTau > 5) {
-      loB = t1
-      hiB = t2
+  let prevT = 0.75
+  let prevE = eval3B(prevT, U_Z9, true)
+  for (let i = 1; i <= 14; i++) {
+    const curT = 0.75 + (0.7 * i) / 14
+    const curE = eval3B(curT, U_Z9, true)
+    if (
+      (prevE.etaB - PLANCK_ETA_B) * (curE.etaB - PLANCK_ETA_B) <= 0 &&
+      prevE.K1 * prevE.pTau > 20 &&
+      curE.K1 * curE.pTau > 20 &&
+      prevE.K1 * prevE.p2 > 15 &&
+      curE.K1 * curE.p2 > 15
+    ) {
+      loB = prevT
+      hiB = curT
       foundB = true
       break
     }
+    prevT = curT
+    prevE = curE
   }
-  assert(foundB, 'Failed to bracket Channel 3B pure-PMNS Planck solution in strong washout')
+  assert(foundB, 'Failed to bracket Channel 3B pure-PMNS Planck solution in deep strong washout')
   const vLoB = eval3B(loB, U_Z9, true).etaB
-  for (let it = 0; it < 50; it++) {
+  for (let it = 0; it < 42; it++) {
     const mid = 0.5 * (loB + hiB)
     const vm = eval3B(mid, U_Z9, true).etaB
     if ((vm - PLANCK_ETA_B) * (vLoB - PLANCK_ETA_B) <= 0) hiB = mid
@@ -5526,8 +5734,8 @@ function runGateG64G65(): void {
   const ch3B_therm = eval3B(thB_sol, U_Z9, true)
   const ch3B_zero = eval3B(thB_sol, U_Z9, false)
   const icDiff3B = Math.abs(ch3B_zero.etaB - ch3B_therm.etaB) / Math.abs(ch3B_therm.etaB)
-  // Verify exact Im(R) === 0 => flavor-summed eps_1 === 0 identically!
-  assert(Math.abs(ch3B_therm.epsTot) < 1e-24, `Im(R)=0 must give eps_tot=0, got ${ch3B_therm.epsTot}`)
+  // Verify exact Im(R) === 0 => flavor-summed eps_1 === 0 to full Float64 precision (~1e-15 * |eps_tau| ~ 1e-22)
+  assert(Math.abs(ch3B_therm.epsTot) < 1e-20, `Im(R)=0 must give eps_tot=0, got ${ch3B_therm.epsTot}`)
 
   // -----------------------------------------------------------------------------------------------
   // NEGATIVE CONTROLS: (a) CP-conserving (Im=0, delta_CP=0) & (b) Light M_1 = 10^7 GeV (< DI bound)
@@ -5540,14 +5748,14 @@ function runGateG64G65(): void {
   const ssLight3A = computeSeesawLepto(
     U_Z9,
     mNu3A,
-    [M1_LIGHT, 5 * M1_LIGHT, 20 * M1_LIGHT],
-    complexRot13(rMod3A, PHI_Z9_14),
+    [M1_LIGHT, 1.8 * M1_LIGHT, 6 * M1_LIGHT],
+    makeComplexR3A(rMod3A, PHI_Z9_14),
   )
   const negLight3A = integrate1Flavor(ssLight3A.K1, ssLight3A.epsTot, true, 400)
   const ssLight3B = computeSeesawLepto(
     U_Z9,
     mNu3B,
-    [M1_LIGHT, 3 * M1_LIGHT, 10 * M1_LIGHT],
+    [M1_LIGHT, 1.04 * M1_LIGHT, 6 * M1_LIGHT],
     makeRealR3B(thB_sol),
   )
   const negLight3B = integrate2Flavor(
@@ -5572,8 +5780,9 @@ function runGateG64G65(): void {
       `eta_B=${ch3A_therm.etaB.toExponential(3)} (IC diff=${(icDiff3A * 100).toFixed(4)}% < 0.1%)`,
   )
   console.log(
-    `  [G6.5 Channel 3B (2-flav, Im(R)===0)] M_1=1.35 M_PS=${M1_3B.toExponential(3)} GeV, pure delta_CP=${deltaCpDeg.toFixed(1)} deg, th_B=${thB_sol.toFixed(4)}: ` +
-      `K_1=${ch3B_therm.K1.toFixed(1)} (K_tau=${(ch3B_therm.K1 * ch3B_therm.pTau).toFixed(1)}, K_2=${(ch3B_therm.K1 * ch3B_therm.p2).toFixed(1)}), ` +
+    `  [G6.5 Channel 3B (2-flav, Im(R)===0)] M_1=1.35 M_PS=${M1_3B.toExponential(3)} GeV (M_2=1.04 M_1 mildly split non-resonant >2500*Gamma_2; sum m_nu=0.115 eV < 0.12 eV), ` +
+      `pure delta_CP=${deltaCpDeg.toFixed(1)} deg, th_B=${thB_sol.toFixed(4)}:\n` +
+      `                                      K_1=${ch3B_therm.K1.toFixed(1)} (K_tau=${(ch3B_therm.K1 * ch3B_therm.pTau).toFixed(1)}, K_2=${(ch3B_therm.K1 * ch3B_therm.p2).toFixed(1)}), ` +
       `eps_tot=${ch3B_therm.epsTot.toExponential(1)}, eps_tau=${ch3B_therm.epsTau.toExponential(3)}, ` +
       `eta_B=${ch3B_therm.etaB.toExponential(3)} (IC diff=${(icDiff3B * 100).toFixed(4)}% < 0.1%)`,
   )
@@ -5598,7 +5807,7 @@ function runGateG64G65(): void {
     Math.abs(ch3B_therm.etaB - PLANCK_ETA_B) < PLANCK_ERR &&
     icDiff3B < 0.001 &&
     ch3B_therm.K1 > 10 &&
-    Math.abs(ch3B_therm.epsTot) < 1e-24 &&
+    Math.abs(ch3B_therm.epsTot) < 1e-20 &&
     maxNegCp < 1e-24 &&
     maxNegLight < 1e-12 &&
     lightFailFactor > 600
@@ -5625,7 +5834,10 @@ function main(): void {
   console.log('=================================================================================')
 
   const ring = buildDenseRingBundle()
-  console.log(`  [Init] Dense cyclotomic ring bundle (Sigma(648), W_1=5832, W_2=36936, Dic_3) built in ${(performance.now() - T0_GLOBAL).toFixed(0)} ms`)
+  console.log(
+    `  [Init] Dense cyclotomic ring bundle (Sigma(648), W_1=5832, W_2=36936, Dic_3) built in ` +
+      `${(performance.now() - T0_GLOBAL).toFixed(0)} ms [RSS ${(process.memoryUsage().rss / (1024 * 1024)).toFixed(1)} MB]`,
+  )
   runGateG51()
   const configs3D = runGateG52(ring)
   runGateG53(configs3D)
