@@ -23,7 +23,7 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { runInfiniteTimeProofs } from '@/code/measure/infinite-time-proofs'
 
-const MIN_HEADLINE_THEOREM_COUNT = 341
+const MIN_HEADLINE_THEOREM_COUNT = 362
 const EXPECTED_LEAN_TOOLCHAIN = 'leanprover/lean4:v4.35.0'
 const EXPECTED_LEAN_VERSION = '4.35.0'
 
@@ -395,6 +395,29 @@ const REQUIRED_THEOREMS = [
   'thm_ct_mpair_gap_margin',
   'thm_ct_hyperbolic_excision_pocket',
   'thm_ct_holographic_rate_depressed_cubic',
+  // Vibe.D4MassGapExt (11 headline: Alt-x0+planes forest RP/M88/Lambda_Alt < 4+4sqrt(7), SU(3) convex-hull/Cardano/K<=2 Pieri, SU(2) chordal & 2-link wedge contraction)
+  'thm_mge_alt_x0_planes_forest_rp_and_acyclic',
+  'thm_mge_alt_x0_planes_quotient_M88_structure',
+  'thm_mge_alt_x0_planes_spectral_bound_and_contraction',
+  'thm_mge_su3_staple_convex_hull_algebraic',
+  'thm_mge_su3_maximal_torus_and_cardano_invariants',
+  'thm_mge_su3_weyl_dim_and_k2_casimir_spectrum',
+  'thm_mge_su3_pieri_branching_and_weight_sectors',
+  'thm_mge_su2_chordal_region1_and_region3_bounds',
+  'thm_mge_su2_wedge_coverage_and_block_matrix',
+  'thm_mge_su2_wedge_dobrushin_contraction',
+  'thm_mge_su2_and_su3_sharp_threshold_ratios',
+  // Vibe.DynamicalHolography (10 headline: W11 dynamical holography bridge & W10 B_1 d^(0)=40 / B_2 d^(0)>=98 / C_0 r=3 zero-loss & r=4 threshold)
+  'dh_mpair_trivial_on_code',
+  'dh_monomial_fock_clifford_classification',
+  'dh_single_edge_wf4_nogo',
+  'dh_ustar_and_unn_symplectic_covariant',
+  'dh_floquet_and_boundary_lift_algebra',
+  'dh_dock_clifford_uniform_and_streaming_audit',
+  'dh_happy_b1_d40_and_b2_d98',
+  'dh_b1_single_cone_threshold',
+  'dh_cusp_d0_gauss_law_and_dge1_cliques',
+  'dh_b1_stabilizer_code_contraction_invariants',
 ] as const
 
 const scriptDir = dirname(fileURLToPath(import.meta.url))

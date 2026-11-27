@@ -217,7 +217,7 @@ def add4 (u v : Vec4) : Vec4 :=
   (u.1 + v.1, u.2.1 + v.2.1, u.2.2.1 + v.2.2.1, u.2.2.2 + v.2.2.2)
 
 /-- Exact 4D vector negation `-v`. -/
-def neg4 (v : Vec4) : Vec4 :=
+def mgNeg4 (v : Vec4) : Vec4 :=
   (-v.1, -v.2.1, -v.2.2.1, -v.2.2.2)
 
 /-- Exact 4D scalar multiplication `k • v`. -/
@@ -269,7 +269,7 @@ def mgFrozenFiber (x : Vec4) : Int × Int × Int := (x.1, x.2.1, x.2.2.1 - x.2.2
 
 /-- Step relation along the frozen subgraph: `v - u = ± r_frozen`. -/
 def mgFrozenStep (u v : Vec4) : Prop :=
-  sub4 v u = mgFrozenRoot ∨ sub4 v u = neg4 mgFrozenRoot
+  sub4 v u = mgFrozenRoot ∨ sub4 v u = mgNeg4 mgFrozenRoot
 
 private theorem mgFrozen_step_coord_fiber (u v : Vec4) (h : mgFrozenStep u v) :
     mgFrozenFiber v = mgFrozenFiber u ∧
@@ -283,7 +283,7 @@ private theorem mgFrozen_step_coord_fiber (u v : Vec4) (h : mgFrozenStep u v) :
     · simp only [mgFrozenFiber, Prod.mk.injEq]; omega
     · simp only [add4, mgFrozenRoot, mgPosRoot, mgFrozenIdx, Prod.mk.injEq]; omega
     · simp only [mgFrozenCoord]; omega
-  · simp only [sub4, neg4, mgFrozenRoot, mgPosRoot, mgFrozenIdx, Prod.mk.injEq] at hneg
+  · simp only [sub4, mgNeg4, mgFrozenRoot, mgPosRoot, mgFrozenIdx, Prod.mk.injEq] at hneg
     refine ⟨?_, Or.inr ⟨?_, ?_⟩⟩
     · simp only [mgFrozenFiber, Prod.mk.injEq]; omega
     · simp only [sub4, mgFrozenRoot, mgPosRoot, mgFrozenIdx, Prod.mk.injEq]; omega
@@ -356,8 +356,8 @@ private theorem mgFrozen_walk_monotone (w : Nat → Vec4) (k : Nat)
 private theorem mgPosRoot_align_check :
     d4Roots.filter mgLexPos = (List.finRange 12).map mgPosRoot ∧
     ((List.finRange 12).map mgPosRoot).Nodup ∧
-    (∀ r ∈ d4Roots, ∃ d : Fin 12, r = mgPosRoot d ∨ r = neg4 (mgPosRoot d)) ∧
-    (∀ d1 d2 : Fin 12, (mgPosRoot d1 = mgPosRoot d2 ∨ mgPosRoot d1 = neg4 (mgPosRoot d2)) → d1 = d2) := by
+    (∀ r ∈ d4Roots, ∃ d : Fin 12, r = mgPosRoot d ∨ r = mgNeg4 (mgPosRoot d)) ∧
+    (∀ d1 d2 : Fin 12, (mgPosRoot d1 = mgPosRoot d2 ∨ mgPosRoot d1 = mgNeg4 (mgPosRoot d2)) → d1 = d2) := by
   decide
 
 private theorem nat_half_slab :
@@ -392,8 +392,8 @@ private theorem int_half_floor_slab (s : Int) : ∃ n : Int, 0 ≤ s - 2 * n ∧
     open boundary conditions along `r_frozen`, excluding periodic wrap-around along `r_frozen`). -/
 theorem thm_mg_d4_pos_roots_and_frozen_rp :
     d4Roots.filter mgLexPos = (List.finRange 12).map mgPosRoot ∧
-    (∀ r ∈ d4Roots, ∃ d : Fin 12, r = mgPosRoot d ∨ r = neg4 (mgPosRoot d)) ∧
-    (∀ d1 d2 : Fin 12, (mgPosRoot d1 = mgPosRoot d2 ∨ mgPosRoot d1 = neg4 (mgPosRoot d2)) → d1 = d2) ∧
+    (∀ r ∈ d4Roots, ∃ d : Fin 12, r = mgPosRoot d ∨ r = mgNeg4 (mgPosRoot d)) ∧
+    (∀ d1 d2 : Fin 12, (mgPosRoot d1 = mgPosRoot d2 ∨ mgPosRoot d1 = mgNeg4 (mgPosRoot d2)) → d1 = d2) ∧
     mgFrozenRoot = (0, 0, 1, 1) ∧
     mgFrozenRoot.1 = 0 ∧
     timeReflect4 mgFrozenRoot = mgFrozenRoot ∧
@@ -438,7 +438,7 @@ theorem thm_mg_d4_pos_roots_and_frozen_rp :
 
 /-- Map any `D_4` root `v` to its unoriented direction index `Fin 12` (canonical positive sign). -/
 def mgDirOf (v : Vec4) : Fin 12 :=
-  let u := if mgLexPos v then v else neg4 v
+  let u := if mgLexPos v then v else mgNeg4 v
   match u with
   | (1,  1,  0,  0) => ⟨0, by decide⟩
   | (1, -1,  0,  0) => ⟨1, by decide⟩
@@ -497,7 +497,7 @@ def mgMh_11 (a b : Fin 11) : Nat := mgLh_12 (mgActiveDir a) (mgActiveDir b)
 def mgM11 (a b : Fin 11) : Nat := mgM0_11 a b + mgMh_11 a b
 
 private theorem mgL12_props :
-    (∀ r ∈ d4Roots, r = mgPosRoot (mgDirOf r) ∨ r = neg4 (mgPosRoot (mgDirOf r))) ∧
+    (∀ r ∈ d4Roots, r = mgPosRoot (mgDirOf r) ∨ r = mgNeg4 (mgPosRoot (mgDirOf r))) ∧
     (d4Roots.all fun r => d4Roots.all fun s =>
       !(dot4 r s == 1) ||
       (decide (-1 ≤ r.1 - s.1) && decide (r.1 - s.1 ≤ 1) &&
@@ -532,7 +532,7 @@ private theorem mgM11_block_props :
     of degree `14 = 8 + 6`, `3` untouched directions of degree `16 = 16 + 0`, ZERO untouched-to-untouched
     couplings), yielding the exact `2 × 2` block quotient matrix `B = [[8, 6], [16, 0]]`. -/
 theorem thm_mg_unfixed_L12_and_axial_M11_blocks :
-    (∀ r ∈ d4Roots, r = mgPosRoot (mgDirOf r) ∨ r = neg4 (mgPosRoot (mgDirOf r))) ∧
+    (∀ r ∈ d4Roots, r = mgPosRoot (mgDirOf r) ∨ r = mgNeg4 (mgPosRoot (mgDirOf r))) ∧
     (∀ r ∈ d4Roots, ∀ s ∈ d4Roots, dot4 r s = 1 →
       -1 ≤ r.1 - s.1 ∧ r.1 - s.1 ≤ 1 ∧ -1 ≤ s.1 ∧ s.1 ≤ 1) ∧
     (∀ a : Fin 12, mgL12 a a = 0 ∧

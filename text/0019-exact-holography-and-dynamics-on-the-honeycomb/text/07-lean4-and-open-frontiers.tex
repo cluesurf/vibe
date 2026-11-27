@@ -1,0 +1,249 @@
+\section{Synthesis}
+\label{sec:lean-and-open}
+
+Coherent higher-level organization on $\{3,4,3,4\}$ confronts a geometric constraint absent from flat space: because
+$94.53\%$ of any large hyperbolic ball sits on its outer shell, macroscopic structure cannot rely on passive volumetric
+isolation. Sustaining persistent organization instead requires active boundary filtering and multiscale closure, whose
+algebraic guarantees and machine-checked Lean~4 proofs we evaluate alongside the unresolved boundaries separating this
+discrete substrate from continuum physics.
+
+\subsection{Multiscale closure}
+
+On $\{3,4,3,4\}$, the Steinberg cubic \eqref{eq:steinberg-cubic} imposes an asymptotic boundary theorem separating
+hyperbolic organization from flat space:
+\begin{equation}
+\lim_{r \to \infty} \frac{|\partial B_r|}{|B_r|} = 1 - \frac{1}{\lambda} \approx 0.945292,
+\qquad
+\mathcal{A} = P(\mathrm{surv} \mid \mathrm{intact}) - P(\mathrm{surv} \mid \mathrm{do}(\mathrm{disabled})).
+\label{eq:boundary-autonomy}
+\end{equation}
+Because $94.53\%$ of every large hyperbolic ball lies on its outer one-hop shell (whereas in Euclidean $D_4$ and
+$\mathbb{Z}^4$ the boundary share vanishes as $4/r \to 0$), bulk volume alone cannot shield an interior state.
+Persistence requires selective error-correcting interfaces (such as $B_1 = [[552, 25, 8]]_3$, lifting central origin
+survival by over twelve orders of magnitude at $p = 0.05$) paired with active regulatory dynamics measured by Aubin
+viability kernels \cite{aubin1991} (the largest safe subset maintainable against disturbances) and counterfactual
+autonomy $\mathcal{A}$ (Table~\ref{tab:multiscale-autonomy}).
+
+Large-scale discrete simulations are often approached as black-box cellular automaton exploration, scanning visual
+trajectories or informal spatial block averages for persistent patterns. That heuristic workflow lacks a certified
+validity boundary: hidden microstate degeneracies, unmodeled boundary fluxes, or growing truncation drift can silently
+break the macro-description without warning. Proof-carrying coarse-graining converts discrete simulation into an
+auditable mathematical bridge through four explicit controls.
+
+\textbf{Exact causal quotients and quantum operator closure:} Effective scales derive from Moore predictive and
+interactive causal-state quotients \cite{moore1956} (identifying microstates with identical future observable
+distributions under free or probed trajectories), certified as coarsest by finite distinguishing horizons where every
+distinct class pair diverges. Classical partitions fail on quantum superpositions: on the genuine
+maximum-distance-separable (MDS) $[[3, 1, 2]]_3$ qutrit code, logical $Z_L$ closes the three-dimensional code subspace
+and its Heisenberg span to machine precision, whereas any classical basis cover requires rank $9$.
+
+\textbf{Sheaf composition and restoration floors:} Overlapping organizations compose via fiber products
+$X_A \times_{X_C} X_B$ (pullbacks matching shared interface $X_C$) subject to global sheaf consistency and
+basis-dependent quantum seams: twisted $\mathbb{Z}_3$ loop holonomies pass every local patch yet admit zero global
+sections, while qutrit GHZ seams depend on measurement basis. Across a three-level tower $L_0 \to L_1 \to L_2$,
+restoring forgotten microscopic history obeys the exact restoration entropy floor $H(L_0 \mid L_2) = 3.5850\text{ bits}$,
+refusing unkeyed exact reconstruction whenever microscopic key bits are absent.
+
+\textbf{Lipschitz error triangles and zero-chattering switching:} Stacked effective models compose one-step error
+contracts $\varepsilon$ via the exact Lipschitz triangle inequality, where $\mathrm{Lip}_2$ is the Lipschitz constant
+of the upper coarse-graining projection $\pi_2 : X_1 \to X_2$ (rather than of the upper dynamics $T_2$):
+\begin{equation}
+\varepsilon_{0 \to 2} \le \mathrm{Lip}_2\, \varepsilon_{0 \to 1} + \varepsilon_{1 \to 2}.
+\label{eq:lipschitz-triangle}
+\end{equation}
+Pairing Equation~\eqref{eq:lipschitz-triangle} with budget-locked adaptive scale switching keeps cumulative error
+bounded while eliminating threshold chattering between fine and coarse scales. Keeping substrate adjacency, causal
+influence, realization, composition, and representation as distinct relations ensures that surgical lesions
+$\mathrm{do}(\mathrm{disabled})$ in Equation~\eqref{eq:boundary-autonomy} separate active boundary-filtered regulation
+($\mathcal{A} > 0$) from passive persistence ($\mathcal{A} = 0$).
+
+To test whether coarse-scale dynamical regimes can be identified automatically without external labels, an executable
+benchmark pairs five live unitary bare-$U$ collisions with a 53-point deformed $(m, \phi)$ observable phase atlas that
+separates free, integrable-bound, relativistic-Thirring, and COE-repulsion phases purely from measured invariants.
+Because surface-dominated balls require active regulation rather than passive shielding, abstract control benchmarks
+test whether behavioral-archive (quality-diversity) search discovers stabilizing negative self-feedback without a preset
+target, whether causal light-cone pruning rejects acausal paths, and whether recurrent attractors without external delay
+taps ($\mathrm{delay} = 0$) sustain memory beyond the five-step feedforward horizon
+(Table~\ref{tab:multiscale-autonomy}), strictly separated from bare-$U$ mesh dynamics.
+
+\begin{table}[tb]
+\centering
+\caption{Certified multiscale closure, selective hyperbolic boundary filtering, bare-$U$ collision atlas, and abstract
+autonomous regulation benchmarks.}
+\label{tab:multiscale-autonomy}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{4.05cm}>{\raggedright\arraybackslash}p{3.50cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Multiscale / autonomy benchmark & Certified measurement & Structural scope and explicit control \\
+\midrule
+Moore quotients \& MDS $[[3,1,2]]_3$ & $54 \to 9$ ($6\times$), $Z_L$ $\varepsilon_{\mathrm{inv}} = 6.2 \times 10^{-16}$ & Open $9$ vs.\ $27$ ($121$ words), classical cover needs rank $9$, bare $C$ norm.\ defect $0.8165$ \\
+\addlinespace[2pt]
+Hyperbolic boundary \& $b_0$ shield & $S_r/V_r \to \mathbf{94.53\%}$, gain $\mathbf{1.95 \times 10^{12}}$ & At $p = 0.05$, $B_1 = [[552,25,8]]_3$ lifts origin $b_0$ ($d^{(0)}{=}40$) $5.05 \times 10^{-13} \to 0.9867$ \\
+\addlinespace[2pt]
+Sheaves, viability \& refinement floor & $|\mathrm{Viab}| = 4$ vs.\ $0$, $\mathcal{A} \in [0.188, 1.000]$ & $\mathbb{Z}_3$ holonomy $0$ global sections, GHZ seam $0$ vs.\ $1.585\text{ b}$, $H_{\mathrm{rest}} = 3.585\text{ b}$ \\
+\addlinespace[2pt]
+Live bare-$U$ zoo \& 53-pt deformed atlas & $5$ live collisions, $\mathrm{Sym}^3$ CZ $0.9909\pi$ & Compact rings ($M = 24/16$, Float64): $0.35\%$ / $46.88\%$ breakup, $1.3 \times 10^{-16}$ 4D pass, $14$ Thirring ($m \ge 0.08$, min $R_2 = 1.020$) \\
+\addlinespace[2pt]
+Unbiased homeostats \& causal A* & $33/36$ niches, $\overline{W}_{ii} = -0.491$ & Random quality $0.000 \to 0.958$ ($16/16$ wins), A* prunes teleport edge (delay $6$, abstract) \\
+\addlinespace[2pt]
+Strict $\mathrm{delay} = 0$ recurrent attractors & $\mathbf{100.0\%}$ ($0.993$) at $T = 8, 12, 16$ & $\le 12$ edges, $64/64$ wins, lesion $0.865$, vs.\ $50.0\%$ feedforward chance (abstract) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Formal proofs}
+
+Discrete physics proposals are susceptible to three silent failure modes: floating-point rounding drift hiding small
+unitarity or symmetry defects, unverified external algebra libraries, and hand-waved combinatorial steps across large
+symmetry groups such as $W(F_4)$ of order $1{,}152$. A zero-dependency Lean~4.35.0 formalization
+\cite{demoura2021lean4, cluesurf2026repo} eliminates those risks on the exact algebraic foundations, compiling from
+scratch with zero external libraries, zero unproven placeholders, zero custom axioms, and zero native-evaluation
+shortcuts so every sign, denominator, and orbit check rests solely on Lean's core logic axioms across five pillars.
+
+\textbf{Geometry and growth:} $D_4$ rank-4 isotropy, $O^+(4,1; \mathbb{Z}[\sqrt{2}])$ Coxeter transport, $\{3,4,3,4\}$
+uniqueness, and the Steinberg cubic \eqref{eq:steinberg-cubic} for spherical shells and cusp beams.
+
+\textbf{Cyclotomic dynamics:} Exact $\mathbb{Z}[\zeta_9][1/6]$ Fock-space unitarity, one-hop causal foliation,
+$\mathcal{T}/\mathcal{CP}/\mathcal{CPT}$ symmetry, and cyclotomic envariance.
+
+\textbf{Spectral geometry:} Upward-end Schur reciprocity, Theorem~\ref{thm:q3-cascade}'s $Q_3$ zero-cascade algebra, and
+the spectral bracket $\rho \in (913/80, 11.498106]$ with $\lambda_{\mathrm{gap}} > 13/25 > 1/2$.
+
+\textbf{Holography and bare composites:} The $W(F_4)$-covariant $[[24, 1, 8]]_3$ tensor (uniqueness established by
+Section~\ref{sec:holography}'s exhaustive Wedderburn classification), the all-radius isometry schema,
+Theorem~\ref{thm:compacton-nogo}'s height-convexity and Pell core, and exact $k = 2, 3$ collinear composites.
+
+\textbf{Anomalies and axial lattice contraction:} Standard one-generation $\mathrm{Spin}(10)$ algebraic
+anomaly-cancellation identities, $x_0 = 0$ site-hyperplane reflection positivity, and 1D-axial 4D $D_4$ $SU(2)/SU(3)$
+contraction bounds.
+
+We maintain a strict separation between kernel-checked proofs and numerical audits: measure-theoretic $l^2$ and Haar
+bridges, exhaustive local-Clifford uniqueness, the Depth-5 integer spectral collapse, the $k = 4$ tetron, the nine-spin
+exchange-gate synthesis and four-dimensional switching audits, the three-link triangle 4D $D_4$ bounds, and all
+scattering, gauge, gravitational, decoherence, and multiscale simulations are certified independently by standalone,
+deterministic, zero-randomness programs in the companion archive \cite{cluesurf2026repo}.
+
+\subsection{Cross-domain summary}
+
+Table~\ref{tab:master-scorecard} places each established construction on $\{3,4,3,4\}$ alongside its unclosed boundary
+across all eight domains, keeping bare theorems, deformed regimes, added link or metric structures, and external lattice
+bounds strictly separated.
+
+\begin{table}[tb]
+\centering
+\caption{Cross-domain summary of established constructions and explicit open boundaries across Sections~2 through~8.}
+\label{tab:master-scorecard}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.95cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{5.85cm}@{}}
+\toprule
+Domain & Established structure & Open boundary \\
+\midrule
+Spectral geometry \& thermodynamics (Sec.~\ref{sec:spectral}) & Exact Steinberg growth ($\lambda \approx 18.28$), $824\times$ collapse of $\rho$ to $[11.439047, 11.443713]$ ($\lambda_{\mathrm{gap}} > 1/2$), $Q_3$ zero-cascade, and Landauer bulk export ($h\Delta \ge 36.30\text{ nats/dock/beat}$ capacity ceiling). & Closed-form evaluation of irrational $\rho$ beyond $0.04\%$ width, and interacting multi-body thermalization rates under bare $U$. \\
+\addlinespace[2pt]
+Holography \& subdivision (Sec.~\ref{sec:holography}) & Unique $W(F_4)$ $[[24, 1, 8]]_3$ tensor, bipartite all-radius HaPPY isometry ($B_1 = [[552, 25, 8]]_3$, $d^{(0)} = 40$), discrete RT/FLM, auxiliary Cliffords, and orthogonal subdivision via $\operatorname{colim}_D \mathcal{H}_D$. & Bare $U$ exits $P_{\mathrm{code}}$ in one beat (except $M_{\mathrm{pair}}$), leaving a dynamical continuum CFT Hamiltonian intertwined with bare $U$ open. \\
+\addlinespace[2pt]
+Matter, gates \& clocks (Sec.~\ref{sec:composites}) & Compacton no-go, $83.12\%$ $M_{\mathrm{pair}}$ excision, Bethe $k$-strings ($k \le 9$), COE repulsion, externally scheduled 3-qubit spin-independent universal exchange-gate synthesis ($373$-step $9$-spin $126$-dim Toffoli, $k = 5$ switch), and deformed $m \to 0$ $E = mc^2$ and $1/\gamma$ clocks. & Infrared origin of $m_{\mathrm{eff}} \ll 1$ from bare $m = \pi/3$, 3+1D fermionic statistics, precision SM constants, $v(u) = \sqrt{3}u/(3u^2+1)$ $w = 0$ zero-relative-velocity SWAP obstruction, $\binom{9}{2} = 36$ ballistic crossing cap, 9-role $n \le 3$ ceiling, and four unbounded-loop obstructions. \\
+\addlinespace[2pt]
+Gauge, subgroups \& 4D $D_4$ gaps (Sec.~\ref{sec:gauge}) & All-body $\mathbb{Z}_2^{24}$ spin-1 obstruction forcing links, single-speed Maxwell--Dirac QCA, static $2T$ chiral wall, native $2T/\Sigma(648)/\mathbb{Z}_{18}$ designs, and strong-coupling 4D $D_4$ $SU(2)/SU(3)$ Wilson gaps ($3.02\times$ BE for $SU(2)$, $2.65\times$ BE / $60.36\times$ KP for $SU(3)$). & Continuum limit ($\beta \to \infty$), finite-subgroup freezing, dynamical electroweak breaking, 3+1D $SU(3)_C$ confinement, and bulk-covariant 4D dynamical chiral gauging. \\
+\addlinespace[2pt]
+Gravity, spin-2, pumping \& dark (Sec.~\ref{sec:gravity}) & Two separate gravitational extensions (causal $1/r^2$ scalar infall, single-body WEP, passive binding weight, and non-tautological redshifts vs.\ ghost-free $D_4$-isotropic spin-2 waves), plus transient $\eta = 1$ husk charge pumping and auxiliary $\mathbb{H}^4$ cored halos. & Nonlinear Einstein unification ($G_{\mu\nu} = 8\pi G T_{\mu\nu}$), deriving $w(D) = 1/N_D^2$, relativistic two-body WEP, permanent husk trapping ($\Delta B \neq 0$, $\mathcal{CP}$), and bare-$U$ sterile coupling ($3.1 \times 10^{-15}$ null). \\
+\addlinespace[2pt]
+Decoherence, Darwinism \& Born (Sec.~\ref{sec:decoherence}) & Live $2.25\times$ Szegedy gap widening, rate-matched ablations, Bell--CHSH decay, unique $p = 2$ cyclotomic envariance and 3D Gleason selection, plus Quantum Darwinism plateaus and 27D zero-reset swap tests in reduced open-ray QND models. & Idealized zero-return swap limit versus bare $U$'s small reflections ($2.92\%$ at $t = 6$), and the operational bridge from $|\psi_k|^2$ weights to single-outcome frequencies. \\
+\addlinespace[2pt]
+Multiscale closure \& autonomy (Sec.~\ref{sec:lean-and-open}) & Exact $94.53\%$ boundary theorem, Moore causal-state and MDS quantum operator closure, $\mathbb{Z}_3$ sheaves, restoration floor, Lipschitz error triangles, zero-chattering switching, and abstract recurrent attractors. & Mesh-level compilation of autonomous homeostatic or recurrent agents strictly into bare $U$, and dynamical self-assembly of selective holographic interfaces. \\
+\addlinespace[2pt]
+Formal verification (Sec.~\ref{sec:lean-and-open}) & Zero-dependency Lean~4 kernel proofs across five pillars (geometry/growth, unitarity/envariance, spectral bracket, holographic tensor and all-radius schema, anomalies/axial contraction) plus deterministic archives. & Kernel formalization of measure-theoretic $l^2$/Haar bridges, Depth-5 integer bounds, three-link 4D $D_4$ contraction, and the nine-spin exchange-gate synthesis suite. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Viewed cumulatively, the bare rule over $\mathbb{Z}[\zeta_9][1/6]$ and the controlled extensions built on its lattice
+geometry connect non-amenable thermodynamics, unique covariant holographic error correction, an integrable bound-state
+tower alongside level repulsion, externally scheduled 3-qubit spin-independent universal exchange-gate synthesis, an
+algebraic proof of gauge-link necessity, strong-coupling 4D lattice mass gaps on its partner root lattice,
+non-tautological gravitational redshifts and ghost-free isotropic spin-2 waves in two separate weak-field extensions, and unique $p = 2$ branch
+measures alongside Quantum Darwinism in reduced open-ray models. Across the bare automaton and the extensions anchored
+to its geometry, these results are organized by five interlocked invariants of $\{3,4,3,4\}$: a spectral gap above one
+half, rank-4 $D_4$ isotropy, $W(F_4)$ triality, one-sided cusp antipodal pairing, and exact cyclotomic unitarity, with
+explicit auxiliary parameters ($m$, matched Maxwell weights, $w(D) = 1/N_D^2$, $\beta$) kept strictly within the
+extensions where they enter.
+
+These five invariants interlock across domains rather than acting as isolated structural features. The non-amenable
+spectral gap $\lambda_{\mathrm{gap}} > 1/2$ sets the bulk Landauer export ceiling ($h\Delta \ge 36.30$ nats/dock/beat)
+while driving the $2.25\times$ Szegedy gap widening that suppresses backflow and stabilizes Markovian pointer records in
+open-ray channels. Rank-4 $D_4$ isotropy cancels leading quadrupolar lattice anisotropy on the partner root lattice,
+governing both ghost-free isotropic spin-2 wave propagation in the linearized gravitational extension and the three-link
+triangular Yang--Mills wedge contractions that extend rigorous strong-coupling 4D $SU(2)$ and $SU(3)$ Wilson mass-gap
+radii. The $W(F_4)$ triality group acts as a simultaneous selection and exclusion principle, uniquely fixing the
+covariant $[[24, 1, 8]]_3$ holographic code tensor while enforcing the all-body $\mathbb{Z}_2^{24}$ parity barrier that
+forbids bare massless spin-1 composites and requires explicit gauge links. One-sided cusp antipodal pairing likewise
+produces paired geometric consequences, enabling transient $\eta = 1$ husk charge separation during scattering while
+confining deep-bulk neutral pairs to the $3.1 \times 10^{-15}$ sterile coupling floor. Finally, exact cyclotomic
+unitarity over $\mathbb{Z}[\zeta_9][1/6]$ guarantees microscopic reversibility and unique $p = 2$ envariance branch
+weights, yet fixes bare excitations at the heavy cutoff mass $m = \pi/3$ so relativistic $E = mc^2$ clocks remain
+inaccessible without an infrared mass-lowering mechanism.
+
+Every unclosed frontier in Table~\ref{tab:master-scorecard} is equally sharp, quantitative, and falsifiable. Bare $U$
+sits at cutoff mass $m = \pi/3$, exits the static holographic code in one beat, forbids massless spin-1 composites by
+$\mathbb{Z}_2^{24}$ superselection, decouples sterile deep-bulk pairs to $3.1 \times 10^{-15}$, and blocks finite-seed
+static-track Turing loops via four exact theorems. Each obstruction identifies the exact dynamical mechanism that must
+emerge at longer scales, or be supplied explicitly, to reach continuum physics.
+
+\subsection{Open problems}
+
+Six sharply bounded open problems lie beyond the theorems certified in this paper, each testing whether this discrete
+substrate scales to continuum physics.
+
+\textbf{Continuum 4D Yang--Mills limit ($a \to 0$):} Extending the strong-coupling 4D $D_4$ Wilson mass gaps
+($\beta_* = 0.285141$ for $SU(2)$ and $0.563019$ for $SU(3)$) toward $\beta \to \infty$ requires multi-scale
+renormalization group control \cite{balaban1989}, since strong-coupling contraction certifies exponential decay only at
+lattice-scale correlation lengths rather than diverging correlation length at fixed physical mass. Establishing whether
+$D_4$ isotropy tightens multi-scale block-spin bounds and whether native subgroups ($2T$, $\Sigma(648)$) admit any
+non-freezing crossover decides whether the 24-cell's gauge geometry survives the continuum limit.
+
+\textbf{Dynamical electroweak breaking and 4D chiral gauging:} Deriving chiral matter representations, dynamical Higgs
+condensation ($m_W / m_Z = \cos\theta_W$), Yukawa masses, dynamical 3+1D $SU(3)_C$ confinement, and bulk-covariant
+four-dimensional chiral gauging beyond static $2T < SU(2)_L$ background walls remains open. Promoting cusp-wall fluxes
+to dynamical four-dimensional gauge links confronts mirror-fermion doubling on the deep bulk wall directly. Constructing
+a non-perturbative mirror-gapping mechanism that preserves local gauge invariance and spontaneous symmetry breaking is
+the sharp test of whether these building blocks unify into one chiral gauge automaton.
+
+\textbf{Nonlinear 4D quantum gravity, dark-sector coupling, and permanent charge asymmetry:} Unifying scalar
+backreaction with nonlinear Einstein dynamics ($G_{\mu\nu} = 8\pi G T_{\mu\nu}$), deriving $w(D) = 1/N_D^2$ from bare
+$U$, restoring relativistic two-body bound-state WEP, overcoming the exact $3.1 \times 10^{-15}$ sterile dark-sector
+null, and achieving permanent husk trapping with $\Delta B \neq 0$ and dynamical $\mathcal{CP}$ breaking remain open.
+Weak-field lapse infall and linearized gravitons probe separate metric limits, whereas relativistic gravity couples
+stress-energy nonlinearly to curvature and equates inertial and passive mass for bound composites. Deriving bulk
+localization, sterile gravitational visibility, and permanent husk trapping from unitary evolution tests whether gravity
+and dark-sector phenomenology arise natively on $\{3,4,3,4\}$.
+
+\textbf{Light mass generation, autonomous universality, and mesh-level compilation:} Generating an infrared mass scale
+$m_{\mathrm{eff}} \ll 1$ from bare $m = \pi/3$ alongside 3+1D fermionic statistics remains open. Past externally
+scheduled 3-qubit spin-independent universal exchange-gate synthesis on $\mathbb{C}^{126}$, four computational
+frontiers remain inside bare $U$: overcoming the $v(u) = \sqrt{3}u/(3u^2+1)$ $w = 0$ zero-relative-velocity SWAP
+obstruction, exceeding the $\binom{9}{2} = 36$ single-pass ballistic crossing cap, scaling past nine internal roles
+($n \le 3$ DFS qubits) without cross-line $M_{\mathrm{pair}}$ leakage, and bypassing the four unbounded-loop
+obstructions \cite{pollard2026railway} (for example via high-density $k \ge 5$ waveguides or gauge links) or compiling
+recurrent agents strictly into bare $U$. Crossing this infrared and confinement barrier separates fixed-depth ballistic
+scattering from long-lived composite matter and unbounded computation on the infinite mesh.
+
+\textbf{Precision Standard Model constants and the vacuum-energy gap:} Reproducing Koide's $10^{-5}$ lepton-mass
+precision, deriving $\alpha(0) = 1/137.036$, fixing $\Omega_c / \Omega_b$ dynamically, and closing the 61-decade Hubble
+and $122$-decade cosmological constant gap \cite{weinberg1989} remain open. Because exponential trees accommodate
+multi-decade ratios post hoc whenever integer depths are assigned externally, a predictive continuum theory must derive
+bulk depths, dimensionless couplings, and infrared vacuum-energy cancellation dynamically without free tuning.
+
+\textbf{Operational Born bridge:} Within pure linear unitarity on the fixed honeycomb, the operational bridge linking
+squared weights $|\psi_k|^2$ to single-outcome empirical frequencies remains an explicit interpretive postulate. Even
+with monotonic hyperbolic decoherence, redundant classical records, and a unique quadratic branch measure ($p = 2$),
+linear superposition alone does not select one realized outcome per run. Clarifying whether single-outcome statistics
+require a dynamical collapse extension, a typicality postulate, or an observer-level axiom marks the boundary between
+unitary honeycomb dynamics and laboratory measurement.
+
+\paragraph{Acknowledgments and computational tooling.}
+The author thanks the open-source Lean~4 community for a fast, self-contained proof kernel enabling zero-dependency
+formal verification. During the course of this investigation, large language models assisted as computational and
+proof-engineering tools: Claude Opus~5.5 assisted with earlier exploratory modeling, numerical experiments, and initial
+proof sketches, while Gemini~4~Neon assisted with expanding the Lean~4 formalization, constructive mathematical
+analyses, adversarial verification audits, remediation, and manuscript revision. All mathematical statements,
+verification standards, and any remaining errors are the sole responsibility of the author.

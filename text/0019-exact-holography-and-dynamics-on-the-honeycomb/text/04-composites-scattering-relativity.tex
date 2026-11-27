@@ -1,0 +1,422 @@
+\section{Particle Dynamics}
+\label{sec:composites}
+
+Because bare $U$'s line-local layers inject non-Clifford magic rather than preserving a static stabilizer code, its
+physical content lies in the many-body bound states, scattering logic, and relativistic kinematics generated on
+$\{3,4,3,4\}$.
+
+Reversible discrete cellular automata commonly encounter one of two limitations. Linear or weakly coupled ballistic rules
+disperse every multi-body packet into featureless spreading waves with no persistent composites, while classical glider
+and railway automata localize structures only by freezing deterministic tracks that lack quantum superposition,
+entangling gates, and Lorentz kinematics \cite{arrighi2019, farrelly2020}. Bare $U$ avoids both extremes, establishing
+five distinct dynamical regimes: an unconditional no-go theorem forbidding finite-support breathers, hyperbolic spectral
+excision turning isotropic pair poles into Feshbach resonances, an exact integrable collinear bound-state tower,
+mixed-sector level repulsion alongside exact externally scheduled three-qubit exchange-gate synthesis, autonomous
+low-depth scattering primitives, and four unbounded-loop barriers, and a sharp separation between cutoff-heavy bare
+clocks and the relativistic light-mass limit.
+
+\subsection{Ballistic transport}
+
+Negative curvature prevents any finite-support lump of bare-$U$ amplitude from freezing in place and dissolves flat-space
+isotropic pair bound states into finite-lifetime resonances. On a flat lattice, carefully balanced interference can
+sometimes trap strictly finite-support periodic structures (\emph{compactons}). On $\{3,4,3,4\}$, hyperbolic branching
+eliminates that mechanism unconditionally: every finite excitation reaches an outer frontier dock whose outward facets
+outnumber its inward facets by at least seven to one. Whenever the local half-coin splits amplitude across an antipodal
+line, a strictly positive probability escapes into untouched shells on every beat, ruling out finite-support recurrence
+across all particle numbers. The exact Lorentz height-convexity and Pell no-periodicity core is machine-checked in
+Lean~4, and the multi-body Fock instantiation is verified deterministically:
+
+\begin{theorem}[Unconditional Compacton No-Go on $\{3,4,3,4\}$]
+\label{thm:compacton-nogo}
+Under the bare automaton $U$, zero nontrivial finite-support periodic eigenstates $U^T |\psi\rangle = \lambda
+|\psi\rangle$ ($|\psi\rangle \neq |V_1\rangle$) exist for any excitation count $k \ge 1$ and any integer period
+$T \ge 1$.
+\end{theorem}
+
+The proof rests on two exact algebraic identities. First, for every dock $g$ and antipodal root pair $(a, -a)$, the
+even-integer Lorentz height $H_2(g) = -2 B(g c_0, c_0) \in 2\mathbb{Z}_{\ge 1}$ obeys universal midpoint convexity:
+\begin{equation}
+H_2(g k_a) + H_2(g k_{-a}) = 6\, H_2(g).
+\label{eq:height-convexity}
+\end{equation}
+No frontier dock $g_*$ attaining the instantaneous maximum height $M(t)$ can therefore possess an antipodal inward pair,
+bounding its inward degree by $|\mathrm{In}_H(g_*)| \le 3$ and leaving at least $21$ outward facets. Second, any
+$m$-particle state arriving on an antipodal-free subset of facets exits strictly outward with exact Gram-diagonalized
+probability $P_{\mathrm{out}} = 1 - (3/4)^m > 0$ ($0.25$ through $0.6836$ for $m = 1\text{--}4$, including active chiral
+quads). After at most one turnaround beat, the wavefront expands ballistically according to the Pell recurrence
+\begin{equation}
+M(t + 1) \ge 6\, M(t) - M(t - 1),
+\label{eq:pell-frontier}
+\end{equation}
+forbidding finite-support breathers unconditionally. Physically, any stable composite of bare $U$ must therefore be an
+extended square-integrable ($l^2$) state carrying infinite exponential tails rather than a hard-edged classical blob.
+
+Relaxing finite support to $l^2$ wavefunctions reveals a second consequence of curvature, sharply separating isotropic
+pair mixing $M_{\mathrm{pair}}(\zeta_{18})$ from collinear contact scattering $M_{\mathrm{meet}}$. On the identical-tone
+two-body sector, bare $U$ factorizes as $U_{\mathrm{dec}} \circ M_{\mathrm{pair}}(\zeta_{18})$, where $U_{\mathrm{dec}}$
+is the decoupled line-local beat without $M_{\mathrm{pair}}$. Denoting by $K(z)$ the free two-body resolvent of
+$U_{\mathrm{dec}}$ projected onto identical-pair states reduces isotropic bound-state existence on $\{3,4,3,4\}$ to a
+scalar Birman--Schwinger eigenvalue equation on $l^2(V(\{3,4,3,4\}))$:
+\begin{equation}
+\bigl(I - (\zeta_{18} - 1)\, K(z)\bigr) f = 0.
+\label{eq:birman-schwinger}
+\end{equation}
+On the flat four-dimensional $D_4$ lattice, diffusive walks return frequently enough that this contact attraction binds a
+true isotropic two-body state at $E_{\mathrm{flat}}(0) = 1.7706\text{ rad}$. On curved $\{3,4,3,4\}$,
+Section~\ref{sec:spectral}'s spectral gap ($\rho/24 \le 0.4772$ already at Depth~4) compresses the free propagation band
+so tightly that Parseval estimates across the momentum gaps and outer wings rigorously \textbf{excise $83.12\%$ of the
+spectral circle $S^1$}, absorbing the flat bound pocket completely (Table~\ref{tab:scattering-gates}).
+
+Exact radius-3 Dyson--Volterra evolution ($8{,}857$ docks) and the infinite Bethe cavity tree $\mathbb{Z}^{*12}$ covering
+the unexcised arcs determine the physical fate of that dissolved bound state. Rather than vanishing without trace,
+hyperbolic curvature converts the flat pole into a finite-lifetime \textbf{Feshbach resonance} (a metastable quasi-bound
+state embedded in the scattering continuum with lifetime $\tau = 12.73$ beats) paired with a destructive-interference Fano
+antiresonance zero. Exact infinite-volume $16 \times 16$ resolvents across all four chiral four-line classes ($k^* = 4$)
+likewise certify zero $\Phi_{\mathrm{odd}}$ bound states, though resonant interference still generates strong transient
+chiral trapping and mirror asymmetry (Table~\ref{tab:scattering-gates}).
+
+\subsection{Bound states}
+
+Exact $l^2$ bound states survive intact inside bare $U$ along any single straight antipodal geodesic line of
+$\{3,4,3,4\}$, forming a closed-form tower of Bethe $k$-strings with exact cyclotomic wavefunctions. The protection
+mechanism is purely algebraic: when same-sign excitations traveling along one straight line carry pairwise-distinct
+internal roles from the nine-point alphabet $\{0, \dots, 8\}$, both $M_{\mathrm{pair}}$ and $\Phi_{\mathrm{odd}}$ act
+as the exact identity. Cross-line diffraction shuts off altogether, leaving excitations free to bind purely through
+collinear contact scattering $M_{\mathrm{meet}}$.
+
+In this collinear sector, bare $U$ becomes exact Yang--Baxter integrable \cite{yang1967, baxter1972}: multi-body
+scattering factorizes into pairwise collisions obeying the braid relation (with $6 \times 6$ braid defect
+$5.70 \times 10^{-16}$ and three-body Bethe quantization error $1.78 \times 10^{-15}$). Its rational XXX rapidity and
+universal Bethe $k$-string pole law (a $k$-particle bound complex whose quasimomenta align vertically at $u = -i h$,
+$h \in \mathbb{Z}/2$) take compact closed forms:
+\begin{equation}
+u(p, \alpha) = \frac{2}{\sqrt{3}}\,\frac{\sin E_\alpha(p)}{\sin p},
+\qquad
+z(h) = e^{2 i p(h)} = \frac{1 - 3h + 3h^2}{1 + 3h + 3h^2}.
+\label{eq:bethe-pole-law}
+\end{equation}
+Every symmetric $P = 0$ composite bound state on $\{3,4,3,4\}$ is an exact Bethe $k$-string of
+Equation~\eqref{eq:bethe-pole-law}, realizable verbatim in four dimensions up to $k \le 9$ via the nine distinct internal
+roles (and forbidden for $k \ge 4$ in any three-role truncation because pigeonhole collisions reactivate
+$M_{\mathrm{pair}}$).
+
+Each species in this tower lives over an explicit cyclotomic ring without floating-point approximation: the Lean-proved
+$k = 2$ doublon lies in $\mathbb{Z}[\omega][1/13]$, the Lean-proved $k = 3$ trion lies in $\mathbb{Z}[\omega][1/7]$, and
+Equation~\eqref{eq:bethe-pole-law} resolves the four-body tetron bound state in the continuum (BIC) via one exact
+eigenstate in $\mathbb{Z}[\omega][1/49]$. Parametrized by ordered even-sublattice separations $d_1, d_2, d_3 \ge 0$
+(hard-core exclusion $d_1 + d_2 \ge 1$, $d_2 + d_3 \ge 1$, contact spins $(s_j, s_{j+1}) = (0, 1)$ when $d_j = 0$) and
+orientations $s = (s_1, s_2, s_3, s_4) \in \{0, 1\}^4$, the tetron satisfies zero defects across $1{,}220$ exact integer
+stencils covering all five contact regimes:
+\begin{gather}
+\psi_4(d_1, d_2, d_3 \mid s) = \left(\frac{13}{49}\right)^{d_1+d_3-2}\left(\frac{1}{49}\right)^{d_2-1} \bar{q}^2\,
+q^{\mathbf{1}_{s_1=0} + \mathbf{1}_{s_4=1}}\, p^{\mathbf{1}_{s_2=0} + \mathbf{1}_{s_3=1}}, \nonumber\\
+p = \frac{-1 - 4\omega}{13},
+\qquad
+q = \frac{-29 - 12\omega}{49},
+\label{eq:tetron-exact}
+\end{gather}
+matching finite-ring diagonalization ($M = 10$) to $3.89 \times 10^{-9}$ overlap defect. An important geometric scope
+boundary accompanies this exactness: because a straight hyperbolic geodesic intersects the curved $D = 0$ horosphere on
+only two adjacent docks, these bare-$U$ composites are strictly one-dimensional geodesic complexes rather than
+three-dimensional husk-confined particles.
+
+Boosting any collinear $k$-string across the open Brillouin zone $P \in (-\pi, \pi)$ produces a unified closed-form
+dispersion relation:
+\begin{equation}
+E_k(P) = \left(\frac{2\pi k}{3} - \pi\right)
++ \arcsin\!\left(\frac{1}{\sqrt{3k^2+1}}\right)
++ \arcsin\!\left(\frac{\cos P}{\sqrt{3k^2+1}}\right) \pmod{2\pi},
+\label{eq:universal-dispersion}
+\end{equation}
+proved analytically for $k = 1$, verified to $9.6 \times 10^{-14}$ for $k = 2$, confirmed on finite rings for $k = 3, 4$,
+and conjectured for $k \le 9$ (Table~\ref{tab:composite-tower}). Neither the doublon (shielded by a quartic zone-edge gap
+$(\pi - P)^4 / (64\sqrt{3})$) nor the trion (separated from all eight multi-particle continua by at least
+$5.17 \times 10^{-5}$) dissociates anywhere on $(-\pi, \pi)$, making both composites genuinely stable ballistic carriers
+across all momenta.
+
+\begin{table}[tb]
+\centering
+\caption{Exact collinear $\mathrm{Sym}^k$ composite bound-state tower of the bare automaton ($m = \pi/3$,
+$\phi_{\mathrm{meet}} = 2\pi/3$, additive rest inertia $m_{k,\mathrm{inert}} = k\sqrt{3}$) on infinite $\{3,4,3,4\}$.
+IPRs are unordered spin-resolved Fock values ($k = 2$ signed relative-position IPR is $5118/14365$).}
+\label{tab:composite-tower}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.35cm}>{\raggedright\arraybackslash}p{2.35cm}>{\raggedright\arraybackslash}p{2.25cm}>{\raggedright\arraybackslash}p{2.25cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Species ($k$) & Exact $P = 0$ $\lambda_k$ & $v_{k,\max}$ & $p_{\mathrm{contact}}$ / $\mathrm{IPR}$ & Verification status \\
+\midrule
+Lone ($k = 1$) & $1$ ($E_{1,-} = 0$) & $1/2 = 0.500$ & n/a & Exact analytic ($1.8 \times 10^{-15}$) \\
+Doublon ($k = 2$) & $(7 + 15\omega)/13$ & $1/\sqrt{13} = 0.277$ & $6/13$ / $3/7$ & Lean proved, $E_2(P)$ err $9.6 \times 10^{-14}$ \\
+Trion ($k = 3$) & $-(8 + 3\omega)/7$ & $1/\sqrt{28} = 0.189$ & $6/7$ / $9/32$ & Lean proved, $E_3(P)$ err $1.1 \times 10^{-8}$ ($P \le \pi/4$) \\
+Tetron BIC ($k = 4$) & $(16 - 39\omega)/49$ & $1/7 = 0.143$ & $24/25$ / $3888/24025$ & $0/1{,}220$ exact stencils, 9 roles \\
+Penton ($k = 5$, pred.) & $(16 + 21\omega)/19$ & $1/\sqrt{76} = 0.115$ & $z(+2) = 7/19$ & Bethe 5-string in $\mathbb{Z}[\omega][1/133]$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Scattering gates}
+
+Integrability is strictly confined to the same-sign distinct-role geodesic sector. Mixing opposite tones
+($K + M_{\mathrm{meet}}$) or mixing identical and distinct roles ($M_{\mathrm{pair}} + M_{\mathrm{meet}}$) breaks
+Yang--Baxter factorization immediately (Table~\ref{tab:scattering-gates}). In the collinear three-role sector
+$(+,+,+,-)$ at $L = 5, Q = +2$, consecutive Floquet eigenphase spacing ratios display clear level repulsion consistent
+with the Circular Orthogonal Ensemble (COE, $\langle r \rangle = 0.5164$ across $336$ gaps, against Poisson $0.3863$ and
+asymptotic COE $0.5307$, with finite-size scaling to larger $L$ left to future work). In four dimensions, exact
+conservation of per-line parity $N_a \bmod 2$ keeps $M_{\mathrm{pair}}$ and $\Phi_{\mathrm{odd}}$ mutually exclusive at
+$k = 4$, forcing their first nonlinear four-dimensional coexistence at $k = 5 = 2 + 1 + 1 + 1$ (certified in exact
+integer arithmetic across $3{,}072$ branches).
+
+Inside the integrable collinear sector, uninterrupted bare-$U$ collisions execute native entangling logic and multi-stage
+ballistic memory transfer with zero external time-dependent controls (Tables~\ref{tab:scattering-gates}
+and~\ref{tab:universality-obstructions}). Colliding a tuned momentum-$p_*$ pulse with a stationary doublon on
+$\mathrm{Sym}^3$ imparts an approximate controlled-$\pi$ phase with only $0.23\%$ breakup. Letting that pulse traverse
+the doublon across two consecutive laps on a periodic ring doubles both the controlled phase and the Wigner delay with
+sub-percent cumulative breakup, while a spatially separated five-body two-station collision reproduces the additive
+four-entry phase truth table (Table~\ref{tab:universality-obstructions}).
+
+Replacing $\mathrm{Sym}^k$ pre-symmetrization with pairwise-distinct roles $\{0, 1, 2\}$ enforces $M_{\mathrm{pair}} = I$
+identically in four dimensions, so separable inputs $|\{0,1\}_{\mathrm{Sym}}\rangle \otimes |2\rangle$ undergo a lossless
+partial role-SWAP ($2/3$ swap probability, $+\pi/2$ elastic phase). In direct wavepacket evolution, a single autonomous
+collision generates near-maximal $\log_2 3$-bit survival-conditioned entanglement, and a five-role two-station bus writes
+a stored role from one stationary doublon into another with probability $4/9$, heralding an entangled Bell pair between
+stations that never touch.
+
+\begin{table}[tb]
+\centering
+\caption{Certified hyperbolic spectral excision, Feshbach and chiral resolvents, non-integrable $L = 5$ level repulsion,
+and isolated collinear entangling collisions under bare $U$.}
+\label{tab:scattering-gates}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.95cm}>{\raggedright\arraybackslash}p{3.45cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Scattering / chaos audit & Certified measurement & Physical structure and explicit scope \\
+\midrule
+Hyperbolic excision ($M_{\mathrm{pair}}$) & $83.12\%$ of $S^1$ excised & Absorbs flat-4D-$D_4$ pole ($E_{\mathrm{flat}}(0) = 1.7706\text{ rad}$), $16.88\%$ arcs on $\mathbb{Z}^{*12}$ \\
+Feshbach resonance ($B_3$, $8{,}857$ docks) & $E_{\mathrm{res}} = 1.6559\text{ rad}$, $\tau = 12.73$ & $\mathrm{FWHM} = 0.0785\text{ rad}$, Fano antiresonance zero at $1.6093\text{ rad}$ \\
+Chiral $16 \times 16$ resolvents ($k^* = 4$) & $\min|\det| =$ \mbox{$5.79 \times 10^{-4} > 0$} & Zero $\Phi_{\mathrm{odd}}$ bound states, up to $207.6\times$ trap ($t = 16$) and $4.58\times$ mirror skew \\
+Integrability breaking \& $L = 5$ COE & $\langle r \rangle = 0.5164$ ($336$ gaps) & YB defects $1.1950$ ($K{+}M_{\mathrm{meet}}$), $1.3994$ ($M_{\mathrm{pair}}{+}M_{\mathrm{meet}}$), COE $0.5307$ vs.\ Poisson $0.3863$ \\
+Collinear entangling gates ($\mathrm{Sym}^3$) & $\Delta\phi_{\mathrm{CZ}} = 0.99943\pi$ ($0.23\%$ brk) & $p_* = -\arctan(6\sqrt{3}/5)$, $98.84\%$ trans., fid.\ $0.9445$, partial SWAP ($2/3$, $+\pi/2$, $0$ brk) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Quantum universality}
+
+These scattering primitives settle what quantum computation bare $U$ supports natively in four dimensions. Along any
+single antipodal geodesic line, assigning pairwise-distinct internal roles from the nine-point alphabet $\{0, \dots, 8\}$
+to $N \le 9$ same-sign excitations forces the off-line pair mixer $M_{\mathrm{pair}}(\zeta_{18})$ to act as the exact
+identity in verbatim four dimensions (zero off-line branches and exact reversibility,
+Table~\ref{tab:universality-obstructions}). Within this leakage-free collinear sector, $M_{\mathrm{meet}}$ conserves
+particle labels and acts as an exact $SU(2)$-symmetric exchange interaction on binary pseudo-spins carried by
+distinct-role excitations. Writing $P_{pq}$ for the pseudo-spin swap permutation on excitations $p$ and $q$, the Yang
+$R$-matrix $R_{pq}(w)$ at rapidity difference $w = u_p - u_q$ and fractional exchange gate $E_{pq}(\alpha) = P_{pq}^\alpha$
+obey the exact global-phase identity
+\begin{equation}
+R_{pq}(w) = \frac{w I - i P_{pq}}{w + i},
+\qquad
+E_{pq}(\alpha) = \frac{1 + e^{i\pi\alpha}}{2}\,I + \frac{1 - e^{i\pi\alpha}}{2}\,P_{pq}
+= e^{i\pi\alpha}\, R_{pq}\bigl(\cot(\pi\alpha/2)\bigr).
+\label{eq:yang-exchange}
+\end{equation}
+Bare on-dock distinct-role contact $M_{\mathrm{meet}}^{\mathrm{diff}}$ has one fixed chirality ($\alpha = -2/3$,
+$w = -1/\sqrt{3}$ up to phase), while the opposite sign ($\alpha = +2/3$) uses $(M_{\mathrm{meet}}^{\mathrm{diff}})^\dagger
+= (M_{\mathrm{meet}}^{\mathrm{diff}})^2$ (two on-dock hits) or opposite rapidity $w = +1/\sqrt{3}$.
+
+In the standard three-spin decoherence-free-subspace (DFS) encoding, three distinct-role excitations encode one logical
+qubit inside their two $S = 1/2$ doublet states ($|0_L\rangle$ singlet and $|1_L\rangle$ triplet on the trailing pair,
+giving $P_{12} = -Z$ and $P_{01} = \frac{1}{2}Z + \frac{\sqrt{3}}{2}X$). Three such DFS qubits consume all nine roles
+$\{0, \dots, 8\}$ with zero repetition. Restricting to total spin projection $S_z = 1/2$ (five pseudo-spin-up and four
+pseudo-spin-down excitations) spans $\mathbb{C}^{126}$ ($\binom{9}{4} = 126$), whose 16-dimensional total-$S = 1/2$ code
+subspace factors into three logical qubits tensored with a two-state gauge spin labeled by the intermediate pair spin
+$S_{AB} \in \{0, 1\}$ of the first two qubits.
+
+\textbf{Dense single-qubit control and spin-independent two-qubit gates:} On one DFS qubit, the non-commuting bare
+on-dock exchange generators $\langle M_{01}, M_{12}\rangle$ have non-collinear rotation axes and Niven-irrational trace
+$|\operatorname{Tr}_{SU(2)}(M_{01} M_{12})| = 5/4$, which together establish topological density in $SU(2)$. In $SU(2)$
+normalization ($M_{ij}^3 = -I$) they satisfy $M_{ij}^2 = -M_{ij}^\dagger$, whereas unnormalized
+$M_{\mathrm{meet}}^{\mathrm{diff}}$ obeys $(M_{\mathrm{meet}}^{\mathrm{diff}})^3 = +I$, so every inverse word uses only
+positive forward beats. Continuous-rapidity $E_{pq}(\alpha)$ synthesizes exact $T$ and $T^\dagger$ in $1$ hit and
+Hadamard $H$ in $3$ hits, while on single-excitation slot qubits a non-commuting three-full-line chiral catalyst
+composed with $C$ yields squared trace magnitude $25/16$, giving an independent dense-$SU(2)$ proof. On two DFS qubits,
+the five adjacent exchange generators span all $80$ dimensions of $\mathfrak{su}(9)$ on the total-spin $S_{\mathrm{tot}} = 1$
+sector, and a $60$-step singlet-DFS CZ prepares a Bell state saturating Concurrence $C = 1$ and the Tsirelson CHSH bound
+$2\sqrt{2}$ \cite{clauser1969}. Direct projection shows, however, that this singlet-scoped gate leaks $10.6\%$ on the
+triplet pair-spin sector $S_{AB} = 1$, which every register of $n \ge 3$ qubits necessarily populates.
+
+We eliminate that leakage analytically on active spins $(1, 2, 3, 4, 5)$, leaving control gauge spin $0$ untouched. On
+spins $(2, 3, 4, 5)$, the five-step sequence using SWAP ($w = 0$) and $\alpha = \pm 2/3$ ($w = \pm 1/\sqrt{3}$),
+\begin{equation}
+W_0 = P_{23}\, E_{34}(-2/3)\, P_{45}\, E_{34}(+2/3)\, P_{23},
+\label{eq:leakage-clear}
+\end{equation}
+cancels the $S_{2345} = 1$ Racah amplitude ratio $-1/8$ identically and maps the $S_{345} = 3/2$ leakage state strictly
+into the logical subspace. Conjugating $P_{45}$ by $W_0$ and a two-step alignment rotation forms a $15$-step controlled
+swap $U_4$, and the $S_3$ braid $U_4 P_{12} U_4 P_{12} U_4$ plus local framing yields an exact $53$-step CZ and $54$-step
+CNOT matching identically across both $S_{AB} = 0$ and $S_{AB} = 1$ to machine precision
+(Table~\ref{tab:universality-obstructions}).
+
+\textbf{Full $\mathbb{C}^{126}$ Toffoli and 4D chiral switching:} Compiling the standard six-CNOT Toffoli on
+$\mathbb{C}^{126}$ (all nine roles distinct so $M_{\mathrm{pair}} = I$ in 4D) with explicit adjacent $R(w = 0)$ routing
+SWAPs takes $373$ adjacent exchange steps. Writing $U_{16}$ for its restriction to the 16-dimensional total-$S = 1/2$
+code subspace and $U_8(0), U_8(1)$ for its $8 \times 8$ blocks on $S_{AB} = 0, 1$, exact evaluation certifies
+\begin{equation}
+\|U_{16} - U_{\mathrm{Toff}} \otimes I_2\|_F = 8.82 \times 10^{-15},
+\qquad
+\|U_8(0) - U_8(1)\|_F = 2.81 \times 10^{-15},
+\label{eq:toffoli-cert}
+\end{equation}
+where the first norm allows one shared global phase across all $16$ states and the second enforces zero relative phase
+freedom between gauge sectors, with machine-zero leakage and cross-gauge mixing
+(Table~\ref{tab:universality-obstructions}). Replacing all single-qubit gates and CNOT framing Hadamards with discrete
+bare $\langle M_{01}, M_{12}\rangle$ words yields a hybrid $\mathbb{C}^{126}$ Toffoli at process fidelity $0.997907$.
+Off a single geodesic, exact arbitrary-precision 4D evolution on a constant-$k = 5$ chiral four-line configuration
+certifies an autonomous three-beat 12-line Mach--Zehnder switch whose single-bit tone flip shifts the $t = 3$ off-line
+routing probability by $+1.5514 \times 10^{-4}$ (Table~\ref{tab:universality-obstructions}), bounded by the small
+isotropic off-line coupling of $M_{\mathrm{pair}}(\zeta_{18})$.
+
+\begin{table}[tb]
+\centering
+\caption{Certified externally scheduled three-qubit exchange-gate synthesis on $\mathbb{C}^{126}$ and autonomous
+low-depth scattering primitives in verbatim 4D bare $U$ (top) paired with the four exact structural obstructions blocking
+finite-seed unbounded-loop railway computation (bottom).}
+\label{tab:universality-obstructions}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.95cm}>{\raggedright\arraybackslash}p{3.65cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Constructive gate / 4D switch & Certified measurement & Exact structural scope \\
+\midrule
+Autonomous collinear bus \& CZ & $S_{\mathrm{vN}} = 1.5841\text{ b}$, write $4/9$ & 2-lap CZ ($-0.998\pi \to 2.007\pi$, $0.31\%$ brk), $k = 5$ add.\ err $0.034\pi$, $I(D_1{:}D_2) = 2.113\text{ b}$ \\
+4D 6/9-role DFS protection & $M_{\mathrm{pair}} = I$, $0$ off-line & Exact integer 4D evolution on $\{0,\dots,5\}$ and $\{0,\dots,8\}$ ($0$ rev.\ defect) \\
+Spin-indep.\ 5-spin CZ / CNOT & $53$ / $54$ adj.\ steps & $\|U(0) - U(1)\|_F = 3.79 / 7.43 \times 10^{-16}$, leak $\le 3.33 \times 10^{-16}$ ($S_{AB} = 0, 1$) \\
+9-spin $\mathbb{C}^{126}$ linear Toffoli & $373$ adj.\ ($13{+}324{+}36$) & $\|U_{16} - U_{\mathrm{Toff}} \otimes I_2\|_F = 8.82 \times 10^{-15}$, leak $2.00 \times 10^{-15}$, $R(0)$ swaps \\
+Hybrid $\langle M_{01}, M_{12}\rangle$ $\mathbb{C}^{126}$ Toffoli & $\mathrm{procFid} = 0.997907$ & Same DFS encoding, $|\mathrm{Tr}_{SU(2)}| = 5/4$, $746$ adj.\ (len $\le 20$), leak $2.65 \times 10^{-14}$ \\
+4D $k = 5$ chiral four-line switch & $\Delta P_{\mathrm{off}} = +1.5514 \times 10^{-4}$ & Single-bit tone flip, $t = 3$ 12-line MZ ($L_2 = 0.1559$ at $t = 2$, $0$ defects) \\
+\midrule
+Unbounded-loop obstruction & Exact witness / bound & Structural mechanism \\
+\midrule
+No static finite-support tracks & $H_2(0\text{--}4) = 2, 6, 34, 198, 1154$ & Thm.~\ref{thm:compacton-nogo} Pell escape, frontier leak $1 - (3/4)^m \ge 1/4$ ($1.1 \times 10^{-16}$) \\
+Single-excitation 4D turn obstruction & $0$ off-line branches & Exact $\mathbb{Z}_2^{24}$ per-line tone-parity superselection, $0$ cross-line $M_{\mathrm{meet}}$ \\
+Neutral-pair switch annihilation & $0/264$ 2-rail, $0$ 3-rail diff & $(-I, \mathcal{C})$ forces $\chi_{\mathrm{odd}} \equiv 0$, $S_K = -1$ dispersal ($P_{\mathrm{same}}(40) = 0.0113$) \\
+Isotropic $M_{\mathrm{pair}}$ fan-out & $P_{\mathrm{hop}} = 0.0008376$ ($0.0838\%$) & $10/11$ unwanted diffraction, $1/36$ Grover cap, $m = 11$ focus $0.921\%$, girth-4 relay $0.0008222$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Kinematic, ballistic-crossing, and nine-role ceilings:} Three exact barriers separate scheduled exchange-gate
+synthesis from unconstrained autonomous circuits on an infinite line. First, from $E_\alpha(p) = \frac{\pi}{3} + \alpha
+\arccos(\frac{1}{2}\cos p)$ and $u(p, \alpha) = \frac{2}{\sqrt{3}}\frac{\sin E_\alpha(p)}{\sin p}$
+(Equation~\eqref{eq:bethe-pole-law}), group velocity is a single-valued function of rapidity,
+$v(u) = \sqrt{3}\, u / (3 u^2 + 1)$, so $w = u_p - u_q = 0$ forces $v_p = v_q$: exact $R(w = 0)$ SWAP steps carry zero
+relative velocity and never collide ballistically. Second, because integrable collinear trajectories conserve asymptotic
+velocities and Theorem~\ref{thm:compacton-nogo} forbids static mirrors, $N = 9$ ballistic worldlines on an infinite
+geodesic cross at most $\binom{9}{2} = 36$ times, far below the $53$ (CZ), $54$ (CNOT), $373$ (Toffoli), or $746$
+(hybrid) sequential steps (such as Equation~\eqref{eq:leakage-clear}, where spins $(3,4)$ interact twice at opposite
+signs $\pm 2/3$). Third, because bare $U$ carries $9$ internal roles and each DFS qubit uses $3$ distinct roles, scaling
+past $n = 3$ leakage-free logical qubits on one geodesic encounters same-role $M_{\mathrm{pair}}$ cross-line scattering
+by the pigeonhole principle.
+
+\textbf{Four exact obstructions to finite-seed unbounded-loop computation:} On $\{3,4,3,4\}$, a dedicated classical
+railway cellular automaton achieves strong Turing universality from a finite self-extending seed
+\cite{pollard2026railway}. Four exact algebraic barriers prove why verbatim bare quantum $U$ cannot implement that
+finite-seed static-track railway architecture directly (Table~\ref{tab:universality-obstructions}, bottom).
+
+\textbf{No finite-support static tracks or mirrors:} By Theorem~\ref{thm:compacton-nogo}, every finite-support core
+expands along the Pell--Chebyshev frontier sequence and loses at least $1 - (3/4)^m \ge 1/4$ of its outer norm on every
+beat. No static walls, mirrors, or localized tracks persist inside bare $U$, and colliding opposite-sign excitations
+through $K$ breaks doublons with $64.21\%$ probability rather than reflecting them elastically.
+
+\textbf{Single-excitation parity barrier:} Exact $\mathbb{Z}_2^{24}$ per-line tone-parity conservation (proved across all
+particle counts in Section~\ref{sec:gauge}) confines every odd-parity single excitation permanently onto its initial
+geodesic line with zero off-line branches, while distinct-role $M_{\mathrm{meet}}$ lines cross intersecting $D_4$ axes
+with exact zero coupling.
+
+\textbf{Balanced neutral-pair annihilation:} Encoding logical trits in neutral antipodal pairs
+$\{(-1,+1), (0,0), (+1,-1)\}$ fails under activity conservation, ballistic $S_K = -1$ dispersal, and intact-junction
+$(-I, \mathcal{C})$ annihilation forcing $\chi_{\mathrm{odd}} \equiv 0$ on every intact $m$-rail junction. On all $264$
+two-rail and $1{,}760$ three-rail junctions, this decoupling holds for all time because $\mathbb{Z}_2^{24}$ odd tone
+parity confines particles to at most three lines and Theorem~\ref{thm:spin1-obstruction}(iii) forces
+$\chi_{\mathrm{odd}} = 0$ on every quad supported on at most three lines.
+
+\textbf{Isotropic diffraction ceiling:} Even for even-parity pairs permitted to change lines, $W(F_4)$-isotropic
+$M_{\mathrm{pair}}(\zeta_{18})$ diffracts equally across all $11$ partner lines. Single-target-line turning caps at
+$P_{\mathrm{hop}} = \sin^2(\pi/18)/36 = 0.0838\%$, losing $10/11$ of turned probability into unwanted lines. Coherent
+multi-line focusing, optimal Grover reflection, and two-dock girth-4 pair relays remain bounded by the same isotropic
+fan-out ceiling (Table~\ref{tab:universality-obstructions}).
+
+These results fix an exact separation: (a)~exact externally scheduled exchange-only universal gate synthesis from bare
+$U$'s Yang $R$-matrix family, certified up to $n = 3$ DFS qubits ($k = 9$ roles) on $\mathbb{C}^{126}$ with verbatim 4D
+$M_{\mathrm{pair}} = I$ and extendable in the abstract exchange circuit model, plus (b)~autonomous low-depth ballistic
+scattering primitives running directly under uninterrupted $U^t$ (2-lap periodic-ring CZ, five-role memory bus,
+single-collision Bell state, and 4D $k = 5$ chiral switch). Exceeding the zero-velocity SWAP and $36$-crossing ceilings,
+scaling past three distinct-role qubits without cross-line leakage, or sustaining finite-seed unbounded loops requires
+sequential scheduling, a periodic register, open-cusp dissipation, or explicit link degrees of freedom.
+
+\subsection{Moving clocks}
+
+Equation~\eqref{eq:universal-dispersion} separates lattice-cutoff kinematics sharply from the relativistic continuum
+limit. At the bare automaton's heavy coin mass $m = \pi/3$, every $k$-body composite lies deep in the cutoff regime:
+rest inertia remains strictly additive ($m_{k,\mathrm{inert}} = k\sqrt{3}$) despite $76.84\%$ quasienergy binding at
+$k = 2$, yielding species-dependent top speeds $v_{k,\max} = 1/\sqrt{3k^2+1}$ and a large Lorentz remainder ratio
+$R_2 = m_{2,\mathrm{inert}} / \Omega_2(0) = 7.1406 \neq 1$. Bare composites therefore move slower than light and do not
+obey Einstein's mass-energy equivalence at the bare cutoff scale.
+
+The underlying contact interaction $4 n_+ n_-$ inside $M_{\mathrm{meet}}$, however, is mathematically a discrete-time
+Floquet version of the $(1+1)$-dimensional massive Thirring model (a relativistic Dirac fermion with local four-fermion
+contact coupling) \cite{thirring1958}. Deforming bare $U$ by holding $\phi_{\mathrm{meet}} = 2\pi/3$ fixed while lowering
+the coin mass $m \to 0$ restores continuum relativity quantitatively: by $m = 0.025$, quasienergy binding and
+inertial-mass defect converge together toward the exact $50\%$ continuum limit ($E = mc^2$), driving $R_2$,
+$c_{\mathrm{eff}}$, and $\rho_2$ toward unity (Table~\ref{tab:clocks-warp}).
+
+This inertia-remainder mechanism also explains a subtle discrete-clock phenomenon: boosted composite clocks on a lattice
+can actually speed up instead of slowing down whenever ground and excited states sit at mismatched cutoff remainders. For
+any two-level composite with rest masses $M_g, M_e$ ($\Delta M = M_e - M_g$), rest inertias
+$m_{g,\mathrm{inert}}, m_{e,\mathrm{inert}}$ ($\bar{m}_{\mathrm{inert}} = (m_{g,\mathrm{inert}} +
+m_{e,\mathrm{inert}})/2$), mean group speed $v_{\mathrm{avg}}$, and inertia remainders $R_j = m_{j,\mathrm{inert}}/M_j$,
+the low-velocity clock dilation coefficient obeys an exact algebraic limit:
+\begin{equation}
+D_{\mathrm{clock}}
+\equiv \lim_{P \to 0}\frac{\omega(P) - \omega(0)}{-\frac{1}{2} v_{\mathrm{avg}}^2 \omega(0)}
+= \frac{m_{g,\mathrm{inert}} m_{e,\mathrm{inert}}}{\bar{m}_{\mathrm{inert}}^2}\, R_e
+\left(1 + \frac{M_g}{\Delta M}\frac{R_e - R_g}{R_e}\right).
+\label{eq:anti-dilation-law}
+\end{equation}
+Whenever $R_g > R_e$ and $(M_g/\Delta M)|(R_e - R_g)/R_e| > 1$, the dilation factor flips negative and the moving clock
+accelerates, confirmed live on a parameter-deformed $m = 0.72$ contact-knot automaton (Table~\ref{tab:clocks-warp}).
+Matching $R_g \approx R_e$ in a parameter-deformed, decoupled flavor-switched two-body Thirring clock ($m = 0.09$)
+restores live real-space $1/\gamma(v/c)$ time dilation across $v \in [0, 0.8c]$ to below $0.86\%$, while a one-body
+two-flavor Dirac clock obeys $\partial E / \partial m|_P = \sqrt{1 - (v / v_{\max})^2}$ identically for
+$m \in (0, \pi/2)$ and $|P| \le \pi/2$ ($0.067\%$ live accuracy at bare $m = \pi/3$, with $v_{\max} = 1/2 < c$).
+
+\begin{table}[tb]
+\centering
+\caption{Live real-space moving clock dilation (bare and parameter-deformed light-mass scaling, top) and deterministic
+$2{,}801$-base anti-numerology warp null audit (bottom).}
+\label{tab:clocks-warp}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{4.05cm}>{\raggedright\arraybackslash}p{3.55cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Benchmark or audit control & Measured value & Comparison and explicit scope boundary \\
+\midrule
+Bare-$U$ moving doublon ($T = 48$) & $|v_{\mathrm{live}} - v_{\mathrm{Bloch}}| \le$ \mbox{$5.7 \times 10^{-4}$} & Bloch comoving phase $L_2(v)/L_2(0)$ tracks $1/\gamma(v/c_{\mathrm{eff},2})$ to $0.862\%$ ($P \le 0.36\pi$, live width $\langle r \rangle$ expands, $c_{\mathrm{eff},2} = 0.3742$, $v_{2,\max} = 1/\sqrt{13}$, $R_2 = 7.14$) \\
+Light-mass Thirring ($m = 0.025$) & $51.08\%$ / $50.08\%$ bind & Converges to $50\%$ continuum limit ($R_2 = 1.0206$, $c_{\mathrm{eff}} = 0.9898$, $\rho_2 = 0.9952$, deformed $m$) \\
+Anti-dilation law ($m = 0.72$, $P = 0.05$) & $D_{\mathrm{clock}} = -0.08754$ & Matches Eq.~\eqref{eq:anti-dilation-law} ($-0.08728$, residual $2.6 \times 10^{-4}$, deformed $m$) \\
+Two-body Thirring clock ($m = 0.09$) & Max err $\mathbf{0.859\%}$ live ($0.682\%$ $P$) & $v \in [0, 0.8c]$, $T = 60$, deformed decoupled $U(\phi_A) \oplus U(\phi_B)$ \\
+One-body two-flavor Dirac clock & Err $\mathbf{0.067\%}$ ($m = \pi/3$) & Exact $\partial E/\partial m|_P = 1/\gamma(v/v_{\max})$ ($|P| \le \pi/2$, $v_{\max} = 1/2$) \\
+\midrule
+Post-hoc fixed-exponent warp fits & RMS $1.325\times$ / $1.287\times$ & $p_{\mathrm{lin}} = 0.056 / 0.026$, $p_{\mathrm{log}} = 0.033 / 0.015$ \\
+Uncapped look-elsewhere warp grids & RMS $2.007\times$ / $1.247\times$ & $p_{\mathrm{log}} = 0.6994 / 0.6226$ (no significance without fixed depths) \\
+Discrete-depth Koide control & Best $(0,1,3)$: $Q = 0.67870$ & $1{,}955\times$ worse than PDG ($20.5\%$ base plateau within $0.02$) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Finally, we subject the honeycomb's Steinberg warp factor $\lambda$ ($a_1 = \lambda^{1/3}$) to a strict external
+anti-numerology audit against Standard Model fermion mass ratios and Cabibbo--Kobayashi--Maskawa (CKM) quark mixing
+angles (Table~\ref{tab:clocks-warp}, bottom). Because exponential depth scaling spans five orders of magnitude in only a
+few integer floors, post-hoc exponent choices can easily create misleading coincidences. Fixing integer bulk depths by
+hand yields order-unity prefactors in $[0.69, 1.76]$, yet sweeping $2{,}801$ rival bases $b \in [2, 30]$ under linear and
+Jeffreys log-uniform priors proves that statistical significance vanishes completely once exponents vary freely
+($p_{\mathrm{log}} > 0.62$). An exhaustive check against Koide's empirical charged-lepton relation \cite{koide1983}
+likewise confirms that no discrete depth triple approaches $Q_{\mathrm{PDG}} = 0.6666605$. The Steinberg warp factor
+therefore compresses hierarchies at order unity only once depth assignments are derived dynamically rather than chosen
+after the fact.

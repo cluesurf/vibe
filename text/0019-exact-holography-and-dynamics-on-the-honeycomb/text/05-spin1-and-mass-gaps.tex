@@ -1,0 +1,340 @@
+\section{Gauge Fields}
+\label{sec:gauge}
+
+The same $\mathbb{Z}_2^{24}$ per-line tone-parity conservation that confines single excitations to one geodesic line in
+Section~\ref{sec:composites} determines whether bare $U$ can bind massless transverse spin-1 gauge bosons without link
+variables, separating what local matter rules generate autonomously from where explicit link degrees of freedom are
+structurally forced. An all-body parity superselection theorem rules out composite photons in bare $U$, native 24-cell
+and qutrit finite subgroups supply separate discrete gauge--matter building blocks, and zero-truncation multi-link
+contraction establishes strong-coupling 4D $D_4$ lattice Yang--Mills mass gaps reaching $3.02\times$ Bakry--\'Emery for
+$SU(2)$ and $2.65\times$ ($60.36\times$ Koteck\'y--Preiss) for $SU(3)$.
+
+\subsection{Spin-1 obstruction}
+
+Emergent $U(1)$ spin liquids with gapless photon excitations do arise in specific three-dimensional lattice models,
+which makes checking exact local conservation laws essential before expecting composite transverse spin-1 bosons from
+higher-body scattering or a dense pair background in bare $U$. Even at the perturbative level, contact random-phase
+approximation (contact-RPA) analysis already flags an obstruction by requiring an unphysical coupling $g_c = 8.7353$ to
+close the vector gap, and exact two-body $1^{--}$ dipoles (spin-1 vector states odd under parity and charge conjugation)
+suffer complete $K$-layer cancellation that leaves a fixed $2\pi/3$ gap and zero transverse velocity.
+
+One might still expect multi-axis collisions ($k \ge 3$), four-body plaquette exchange, or a neutral pair condensate to
+bend a dipole onto orthogonal axes and close that gap. Exact symmetry analysis of bare $U$ closes every one of those
+escape routes before any approximation enters. Every local layer of $U$ preserves individual tone counts on each of the
+$12$ antipodal $D_4$ lines except $M_{\mathrm{pair}}(\zeta_{18})$, which transfers identical pairs strictly in even
+steps $\Delta N_l^{(\tau)} = \pm 2$. The parity of positive and negative tones on every line separately is therefore an
+exact constant of motion, producing $24$ independent $\mathbb{Z}_2$ superselection charges. Against any parity-definite
+neutral quiescent background or pair condensate, a lone dipole created on line~$l$ flips parities solely on line~$l$ and
+can never hop onto a transverse line $m \neq l$, ruling out a massless composite photon across all excitation counts
+$k \ge 1$ and all densities $\bar{n} \ge 0$.
+
+\begin{theorem}[All-Body Bare-$U$ Spin-1 Algebraic Obstruction]
+\label{thm:spin1-obstruction}
+Let $N_l^{(\tau)}$ be the total count of tone $\tau \in \{-1, +1\}$ on antipodal $D_4$ line $l \in \{0, \dots, 11\}$,
+and let $P_l^{(\tau)} = (-1)^{N_l^{(\tau)}}$. Under the bare automaton $U$ over $\mathbb{Z}[\zeta_9][1/6]$ with no
+external link registers:
+
+\textbf{(i) Exact $\mathbb{Z}_2^{24}$ per-line tone-parity superselection:} Because $M_{\mathrm{pair}}(\zeta_{18})$
+transfers identical pairs in steps $\Delta N_l^{(\tau)} = \pm 2$ while all other layers preserve every $N_l^{(\tau)}$
+individually, $[U, P_l^{(\tau)}] = 0$ identically. Against any parity-definite background $|\Omega\rangle$ at any
+particle density $\bar{n} \ge 0$ (including $|V_1\rangle$ and every pair-coherent condensate), a single-dipole creation
+operator $O_l^\dagger(x)$ on line $l$ decouples strictly from every distinct line $m \neq l$ for all time:
+\begin{equation}
+\langle\Omega | O_m(y)\, U^t\, O_l^\dagger(x) | \Omega\rangle = 0
+\qquad (\forall\, m \neq l,\; \forall\, t \in \mathbb{Z}),
+\label{eq:z24-superselection}
+\end{equation}
+forbidding single-dipole cross-line transfer and elementary $(+,-)$ four-cycle plaquette ring-exchange.
+
+\textbf{(ii) Exact flat-transverse-band theorem for $\min(N_+, N_-) = 1$:} Whenever a sector holds a single negative
+(or positive) excitation, $M_{\mathrm{pair}}$ never moves that lone tone, so its transverse coordinates commute strictly
+with bare $U$ ($[U, X_{-,\perp}] = 0$, verified across all $10{,}710$ real-space states on $\mathbb{Z}^2 / 3\mathbb{Z}^2$
+with $288$ active $M_{\mathrm{pair}}$ firings). Conjugating by $e^{i q_\perp \cdot X_{-,\perp}}$ enforces $v_T = 0$
+identically for all $k \le 3$, making $k = 4$ ($Q = 0$) the algebraic minimum for nonzero transverse dispersion.
+
+\textbf{(iii) Exhaustive $k = 4$ mutual exclusion and absence of local $U(1)$:} Every one of the $220$ triples of $D_4$
+lines is fixed pointwise by an improper reflection $g \in W(F_4)^-$, forcing $\chi_{\mathrm{odd}} = 0$ on all
+$43{,}296$ quads of at most three lines so $M_{\mathrm{pair}}$ and $\Phi_{\mathrm{odd}}$ never coexist below $k = 5$.
+Every local layer preserves charge $Q(g)$, whereas any spatially varying $U(1)$ gauge rotation fails to commute with the
+stream $S$ ($\|[G_2(\pi/3), S_2]\|_2 = 1$).
+\end{theorem}
+
+Exact sparse multi-axis diagonalization on $\mathbb{Z}^2 / 3\mathbb{Z}^2$ at the algebraic minimum $k = 4$
+($\dim = 9{,}282$, unitarity error $\le 3.3 \times 10^{-16}$) verifies how strongly this obstruction persists once
+transverse scattering first becomes kinematically allowed. Active $M_{\mathrm{pair}}$ mixing leaves the vector dipole
+peak pinned near $-2\pi/3$ with negligible cross-axis leakage and near-zero transverse discrete finite-difference slope
+$v_T = |\Delta \min|\Omega|| / (2\pi/3)$:
+\begin{equation}
+\text{cross-axis leakage} = 1.345 \times 10^{-3},
+\qquad
+\min|\Omega| = 0.3665\text{ rad},
+\qquad
+v_T = 0.0083.
+\label{eq:k4-dipole-gap}
+\end{equation}
+
+Finite-density neutral pair condensates across $\bar{n} \in [1/6, 1]$ do not soften this gap either. Exact transverse
+Kubo linear response (cross-checked against $4{,}096$-state time evolution to $2.78 \times 10^{-15}$) confirms that a
+background pair condensate keeps the transverse current strictly gapped, and stationary Floquet Bogoliubov
+diagonalization on two-line $D_4$ ($\dim = 210$, $\bar{n} = 2/3$) independently finds exact zero gapless spectral
+weight, $W(\Delta E = 0) = 0$, with all vector transitions pushed to $-2.47$ and $+2.96\text{ rad}$.
+
+Theorem~\ref{thm:spin1-obstruction} proves that no parameter tuning or higher-body scattering inside bare $U$ can
+produce a composite photon while preserving the local rule. Excluding spontaneous breaking of $\mathbb{Z}_2^{24}$ into
+a pair-only spin liquid, breaking per-line parity locally requires parallel transport across 24-cell facets, so
+\textbf{dynamical gauge link registers are mathematically forced}.
+
+\subsection{Discrete gauge blocks}
+
+Because Theorem~\ref{thm:spin1-obstruction} compels explicit link registers, we construct them from finite subgroups
+already native to the 24-cell and ternary qutrit rather than importing unrelated external algebra. The 24-cell's vertex
+polytope and the ternary qutrit state space contain finite subgroups that act as exact unitary 2-designs inside
+$SU(2)_L$ and $SU(3)_C$, matching continuous Haar moments through degree $t = 2$, while the amplitude ring
+$\mathbb{Z}[\zeta_9][1/6]$ supplies $\mathbb{Z}_{18}$. Anchored to these native groups, we build and audit three
+separate discrete gauge--matter building blocks (Table~\ref{tab:unified-gauge}).
+
+\textbf{Engineered single-speed 3D Maxwell--Dirac QCA:} Uncoupled discrete automata typically separate matter and
+radiation onto mismatched light cones. Here bare pair transport ($c_{\mathrm{eff}} = 0.0213$) and warped cusp-beam
+propagation ($0.9869$) differ by $46.4\times$. To eliminate that mismatch, we couple a palindromic split-step
+three-dimensional $\{4,3,4\}$ cusp Weyl/Dirac automaton at the bare coin angle $\theta = \pi/3$ to a discrete-time
+Maxwell link beat whose leapfrog weights match $\cos(\pi/3) = 1/2$ by construction, staying safely inside the cubic
+Courant--Friedrichs--Lewy stability limit ($\max\mathrm{CFL} = \sqrt{3}/2 < 1$).
+
+Under this matched Abelian link beat, photons and fermions share one light speed with two degenerate transverse massless
+polarizations and zero propagating longitudinal mode. Independent audits verify exact quantum $\mathbb{Z}_3$ plaquette
+Gauss invariance, linear Maxwell Coulomb radiation from a 1D flux string, a static $64^3$ lattice Green's function, and
+live massive Dirac scattering showing opposite-charge attraction and like-charge repulsion
+(Table~\ref{tab:unified-gauge}). Because the leapfrog weights are matched to $\cos(\pi/3)$ by construction, this
+subsystem is an engineered Abelian coupling rather than a consequence of bare $U$.
+
+\textbf{Static chiral $2T$ domain-wall kinematics:} The 24 unit Hurwitz quaternions sitting at the vertices of the
+24-cell form the order-24 binary tetrahedral subgroup $2T = \mathrm{SL}(2,3) < SU(2)_L$. Because $2T$ is an exact
+spherical 5-design and unitary 2-design, it matches continuous $SU(2)$ Haar averages identically across all $126$
+monomials of degree $\le 5$, with the first finite-subgroup deviation ($1/64$) appearing only at degree~6. Every
+strong-coupling lattice observable determined by degree-2 Haar moments, including single-plaquette expectations and
+leading link correlators, therefore agrees identically with continuous $SU(2)$. Its 24-cell electric Laplacian has exact
+spectrum
+\begin{equation}
+\operatorname{spec}(\Delta_{2T})
+= \bigl\{0\,(\times 1),\; 1/2\,(\times 4),\; 1\,(\times 9),\; 5/4\,(\times 8),\; 3/2\,(\times 2)\bigr\},
+\label{eq:2t-spectrum}
+\end{equation}
+matching the low-lying representation multiplicities $(1, 4, 9)$ and ordering $j = 0 < 1/2 < 1$ (at finite-group ratio
+$2$ rather than $SU(2)$'s $8/3$), while its $SU(2)$ embedding generates the full $\mathfrak{su}(2)$ commutator algebra.
+
+Discretizing Weyl fermions directly on a three-dimensional cubic cusp runs into standard fermion doubling across the
+eight time-reversal-invariant momenta (TRIM), where opposite chiralities cancel ($\chi = +4, -4$). Embedding the cusp as
+the $D = 0$ boundary of a $6^3 \times 12$ four-dimensional domain wall strips away the seven sheared Brillouin-zone
+doublers while preserving one isotropic $\Gamma$-point Weyl cone. Applying a static background $2T$ gauge flux produces
+left-handed spin-flip transitions on $D = 0$ while decoupling right-handed modes to machine precision and suppressing
+the $D = 11$ mirror wall tail (Table~\ref{tab:unified-gauge}).
+
+\textbf{Standalone finite-subgroup algebraic checks:} Combining $2T < SU(2)_L$ with the qutrit Clifford subgroup
+$\Delta(27) \trianglelefteq \Sigma(648) < SU(3)_C$ (the ternary Hessian group, an exact unitary 2-design matching
+continuous $SU(3)$ Haar moments through degree $t = 2$) and the ring's native $\mathbb{Z}_{18}$ phase group by the
+Standard Model central quotient yields $G_{\mathrm{fin}} = \bigl(2T \times \Sigma(648) \times \mathbb{Z}_{18}\bigr)/\mathbb{Z}_6$
+of order $(24 \times 648 \times 18)/6 = 46{,}656$. Unlike $\mathbb{Z}_6$, the $\mathbb{Z}_{18}$ factor represents
+all six input one-generation Standard Model hypercharges and all four $B - L$ charges faithfully, with standard
+five-channel gauge-anomaly cancellation verified algebraically on input chiral matter.
+
+These audits validate separate Abelian, static-chiral, and algebraic building blocks rather than a single dynamically
+gauged Standard Model automaton. Moreover, finite subgroups carry a known dynamical frontier: because $2T$ and
+$\Sigma(648)$ have a finite minimal angular separation between distinct elements, their unitary 2-design identities
+control strong coupling accurately, whereas at weak coupling ($\beta$ large) Wilson plaquette dynamics undergoes a
+freezing transition into a trivial ordered phase that obstructs a naive continuum limit (Section~\ref{sec:lean-and-open}).
+
+\begin{table}[tb]
+\centering
+\caption{Separate discrete gauge--matter building blocks: engineered Maxwell--Dirac QCA, static $2T$ domain-wall
+kinematics, and standalone finite-subgroup algebraic audits.}
+\label{tab:unified-gauge}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.65cm}>{\raggedright\arraybackslash}p{3.65cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Subsystem / benchmark & Certified numerical metric & Physical structure and explicit scope \\
+\midrule
+Single-speed Maxwell--Dirac QCA & $|\Delta c|/c \le \mathbf{9.40 \times 10^{-8}}$ ($|q|=10^{-3}$) & Matched $\Delta t_E = \Delta t_B = 1/2$: $2$ transverse photons ($3.6 \times 10^{-15}$), $0$ longitudinal ($2.7 \times 10^{-15}$) \\
+\addlinespace[2pt]
+8-TRIM Weyl doubler audit & $\chi = +4, -4$, $c(\Gamma) = 1 \pm 4 \times 10^{-11}$ & Isotropic $\Gamma$ cone, $7$ sheared doublers removed by 4D wall \\
+\addlinespace[2pt]
+$\mathbb{Z}_3$ QED, $24^3$ radiation \& $64^3$ $G$ & Gauss $\le 1.75 \times 10^{-16}$, $\cos\mathrm{Sim} = \mathbf{0.999994}$ & $648$-state $\mathbb{Z}_3$ basis, $24^3$ linear string ($T = 60$ Ces\`aro), static $64^3$ $4\pi r G(6) = 1.0094$ \\
+\addlinespace[2pt]
+$12^3$ massive Dirac scattering & $\Delta_{\mathrm{sep}} = -0.01301$ vs.\ $+0.01264$ & Zero free drift ($\le 1.8 \times 10^{-15}$), opposite attraction / like repulsion parity ($5.3 \times 10^{-15}$) \\
+\addlinespace[2pt]
+Hurwitz $2T < SU(2)_L$ & $126/126$ deg-5 exact, $U_B$ fusion $2.98 \times 10^{-3}$ & Exact $SU(2)$ 5-design, Gauss $0.00$ ($1{,}500$ states) \& $2.4 \times 10^{-16}$, symmetric ctrl $1.9 \times 10^{-35}$ \\
+\addlinespace[2pt]
+3+1D chiral domain wall ($T = 16$) & $D=0$ left flip $\mathbf{0.6045}$, right $\mathbf{0.00}$ ($\Delta P$: $0.9994$ vs.\ $2.04 \times 10^{-14}$) & $6^3 \times 12$ static $2T$ flux past light cone, $D = 11$ mirror tail suppressed to $3.57 \times 10^{-22}$ \\
+\addlinespace[2pt]
+Color $\Sigma(648)$ \& $\mathbb{Z}_{18}$ hypercharge & $0/108$ normal defects, $|G_{\mathrm{fin}}| = 46{,}656$ & Exact $SU(3)$ 2-design, $G_{\mathrm{fin}} = (2T \times \Sigma(648) \times \mathbb{Z}_{18})/\mathbb{Z}_6$, $2T_L \circ 2T_R \trianglelefteq W(F_4)$, input 1-gen $5/5$ anomalies cancel, $6/6$ $Y$ faithful \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Lattice mass gaps}
+
+Because finite subgroups freeze at weak coupling, rigorous non-Abelian mass-gap analysis turns independently of bare $U$
+and of the finite-subgroup building blocks above to continuous-group Euclidean Wilson lattice Yang--Mills theory
+\cite{wilson1974} with compact gauge links $U_e \in SU(N)$ on the 24-cell's flat four-dimensional partner lattice $D_4$.
+Most lattice Yang--Mills analyses work on the standard hypercubic lattice $\mathbb{Z}^4$, where square plaquettes break
+rotational invariance at leading order $O(a^2)$. On $D_4$, every site meets 24 nearest neighbors and every link borders
+eight equilateral triangles, so $O(a^2)$ rotational artifacts vanish identically via Equation~\eqref{eq:d4-isotropy}.
+Simultaneously, Osterwalder--Schrader reflection positivity across the $x_0 = 0$ site hyperplane holds exactly
+\cite{celmaster1982, osterwalder1978, seiler1982}, reconstructing a positive-definite physical Hilbert space and
+self-adjoint transfer matrix whose spectral gap $m(\beta) > 0$ certifies exponential correlation decay.
+
+Standard rigorous strong-coupling methods certify $m(\beta) > 0$ at small $\beta$, yet stall early on densely
+triangulated lattices. Koteck\'y--Preiss polymer cluster expansions \cite{kotecky1986} lose convergence to the rapidly
+growing combinatorial entropy of overlapping triangular polymers, stalling at $\beta \approx 0.0093$ for both $SU(2)$
+and $SU(3)$. Single-link Bakry--\'Emery log-Sobolev curvature and Combes--Thomas bounds \cite{bakry1985, combes1973}
+avoid polymer counting and lift the infinite-volume threshold to $\beta_{\mathrm{BE}}^{24c} = N^2 / (16\sqrt{7})$
+($0.094491$ for $SU(2)$ and $0.212605$ for $SU(3)$), yet still bound each link's eight neighboring triangles as
+independent worst-case perturbations, ignoring exact internal cancellations across shared plaquettes. Four exact
+analytical theorems push this unconditional, zero-truncation strong-coupling window strictly past the single-link
+Dobrushin ceiling (by $2.8\text{--}3.1\%$, and $2.65\text{--}3.02\times$ past Bakry--\'Emery) without any
+Migdal--Kadanoff approximation \cite{dobrushin1970, dobrushin1985, holley1987, chen1997}.
+
+\textbf{No-free-lunch ceiling for single-link sweeps:} Grouping links into multi-link blocks does not improve
+contraction on its own. Let $c$ denote the single-link Dobrushin influence coefficient of one neighboring link across a
+shared triangle, and $\alpha_{13}$ the corresponding influence after exact two-link wedge marginalization. Any block
+cover updated solely by iterated single-link conditionals produces block influence matrix
+$C_{\mathrm{pure}} = (I - A_{\mathrm{in}})^{-1} A_{\mathrm{out}}$, whose critical threshold $\rho(C_{\mathrm{pure}}) = 1$
+coincides identically with the single-link ceiling $\rho(A) = 1$. Surpassing that ceiling requires genuine multi-link
+marginalization inside each triangle so internal cancellations drive the shared coupling strictly below $c$
+($\gamma_{\mathrm{shared}} < c$), which holds precisely when $\alpha_{13} < c / (1 + c)$.
+
+\textbf{Exact 1+2 block-alternating complete triangle cover:} Fixing one spatial axial direction removes gauge
+redundancy while preserving $x_0 = 0$ reflection positivity and dropping the link Perron root from $16$ to
+$4 + 4\sqrt{7} = 14.5830$ (proved in Lean~4), while a four-direction alternating-plane forest lowers the link Perron
+root further to $14.5684$. Covering the remaining active links with complete three-link triangles and running a $1 + 2$
+block-alternating sweep (updating one link conditionally and integrating out the remaining two-link wedge exactly)
+yields the symmetrized internal coupling and $3 \times 3$ block factors:
+\begin{equation}
+\gamma_{\mathrm{shared}} = \frac{1}{2}\bigl(\alpha_{13} + c(1 + \alpha_{13})\bigr) < c,
+\qquad
+g_{\mathrm{self}} = \frac{c}{1 - 2c\gamma_{\mathrm{shared}}},
+\qquad
+g_{\mathrm{other}} = \frac{c\gamma_{\mathrm{shared}}}{1 - 2c\gamma_{\mathrm{shared}}}.
+\label{eq:block-factors}
+\end{equation}
+
+\textbf{Sharp linear-split potential for $SU(2)$:} Realizing the gain in Equation~\eqref{eq:block-factors} requires
+controlling the effective two-link Bessel potential $V_2(U_1, U_3)$ without losing sharpness to coarse worst-case
+bounds. For $SU(2)$, subtracting the optimal midpoint linear staple term proportional to $(U_1^\dagger U_3^\dagger)
+\cdot W_{\mathrm{bg}}$ (where $W_{\mathrm{bg}}$ is the background staple sum) removes nearly all variation of $V_2$,
+slashing the Holley--Stroock residual oscillation from $0.56$ to below $0.0080$ at $\beta = 0.277274$. This linear
+split pulls the two-link influence $\alpha_{13}$ down from $0.04578$ to $0.03224$, extending exact multi-link
+contraction past single-link limits.
+
+\textbf{Uniform $\ln Z$ convexity for $SU(3)$:} For $SU(3)$, expanding $V_2(U_1, U_3)$ around $W_{\mathrm{bg}}$ keeps
+the linear staple inside the convex hull $\operatorname{conv}(SU(3))$ and bounds the convex remainder uniformly by
+$\beta^2 / 6$ times its maximum eigenvalue variance. A deterministic branch-and-bound sweep over $20{,}384$ boxes at
+$\beta_0 = 0.5635$ (cross-checked independently by analytic Rouch\'e tails and Weyl quadrature) certifies
+$\alpha_{13}^{SU(3)}(\beta_0) \le 0.04055$, pushing exact three-link triangle contraction strictly past the single-link
+$SU(3)$ Dobrushin ceiling (by $3.1\%$, and $2.65\times$ past Bakry--\'Emery).
+
+Evaluating time-tilted block Dobrushin matrices $G(m)$ ($\rho(G(m)) < 1$) certifies unconditional, zero-truncation
+strong-coupling infinite-volume mass gaps past both classical Bakry--\'Emery and Koteck\'y--Preiss barriers, summarized
+in Figure~\ref{fig:mass-gap-bars} and Table~\ref{tab:d4-mass-gaps}:
+\begin{equation}
+\beta_*^{SU(2)} = 0.285141 \;\; (3.02\times\mathrm{BE},\; 30.55\times\mathrm{KP}),
+\qquad
+\beta_*^{SU(3)} = 0.563019 \;\; (2.65\times\mathrm{BE},\; 60.36\times\mathrm{KP}).
+\label{eq:ym-thresholds}
+\end{equation}
+The geometric advantage of three-link plaquettes on $D_4$ over hypercubic $\mathbb{Z}^4$ is direct. While every $D_4$
+link borders eight equilateral triangles (creating the combinatorial polymer entropy that stalls Koteck\'y--Preiss near
+$\beta \approx 0.0093$), each plaquette carries only three links $(U_1, U_2, U_3)$ instead of four. Conditioning on
+exterior staples and marginalizing the internal link $U_2$ yields an effective two-link potential $V_2(U_1, U_3)$ that
+couples the wedge $(U_1, U_3)$ strictly through the group product $U_1^\dagger U_3^\dagger$ against the background
+staple sum $W_{\mathrm{bg}}$. Integrating both wedge links simultaneously collapses their direct triangle correlations
+inside the joint Haar measure rather than bounding each shared plaquette independently as a worst-case perturbation,
+driving $\alpha_{13}$ below $c / (1 + c)$ and tightening the conditional contraction ($\gamma_{\mathrm{shared}} < c$)
+without uncontrolled decimation.
+
+At the same time, preserving exact $x_0 = 0$ reflection positivity throughout the axial gauge fixing and $1 + 2$ block
+sweep is essential: unlike uncontrolled real-space decimation, it guarantees that exponential correlation decay from
+$\rho(G(m)) < 1$ reconstructs a genuine spectral gap $m(\beta) > 0$ for the physical Osterwalder--Schrader transfer
+matrix. Even so, the continuum limit as $\beta \to \infty$ remains strictly open. Strong-coupling Dobrushin contraction
+proves an unconditional exponential mass gap $m(\beta) > 0$ only at finite $\beta$, where local link fluctuations keep
+the block influence spectral radius $\rho(G(m)) < 1$. Reaching the continuum Yang--Mills limit $\beta \to \infty$
+\cite{jaffe2000ym, balaban1989} requires controlling the weak-coupling renormalization-group flow of asymptotic freedom
+across arbitrarily many length scales and ruling out any intervening bulk transition between the strong-coupling window
+and the scaling regime. Unifying the separate discrete gauge blocks with dynamical non-Abelian links coupled to bare-$U$
+matter while avoiding finite-subgroup freezing likewise remains open.
+
+\begin{figure}[tb]
+\centering
+\begin{tikzpicture}[font=\footnotesize]
+% Left panel: SU(2)
+\begin{scope}[shift={(0,0)}]
+  \node[font=\footnotesize\bfseries, color=twZincInk] at (2.05,3.18) {$SU(2)$ on 4D $D_4$ ($\beta_{\mathrm{BE}}^{24c} = 0.094491$)};
+  \draw[line width=0.5pt, draw=twZincRule] (0,0) -- (4.20,0);
+  \draw[line width=0.5pt, draw=twZincRule] (0,0) -- (0,2.35);
+  \draw[densely dashed, line width=0.65pt, draw=twPink] (2.891,0) -- (2.891,2.38);
+  \node[above, font=\scriptsize, color=twPink] at (2.891,2.38) {$3\times\mathrm{BE}$};
+  % Bars drawn with zero collision against the 3xBE dashed line
+  \fill[twZinc] (0,1.94) rectangle (0.095,2.22);
+  \node[left, font=\scriptsize, color=twZincInk] at (-0.06,2.08) {KP polymer};
+  \node[right, font=\scriptsize, color=twZinc] at (0.15,2.08) {$0.0093$};
+
+  \fill[twZincInk] (0,1.50) rectangle (0.964,1.78);
+  \node[left, font=\scriptsize, color=twZincInk] at (-0.06,1.64) {BE baseline};
+  \node[right, font=\scriptsize, color=twZincInk] at (1.02,1.64) {$0.0945$};
+
+  \fill[twBlue] (0,1.06) rectangle (2.423,1.34);
+  \node[left, font=\scriptsize, color=twZincInk] at (-0.06,1.20) {Axial $W_1$};
+  \node[left, font=\scriptsize\bfseries, color=white] at (2.36,1.20) {$0.2375$};
+
+  \fill[twViolet] (0,0.62) rectangle (2.828,0.90);
+  \node[left, font=\scriptsize, color=twZincInk] at (-0.06,0.76) {2-wedge};
+  \node[right, font=\scriptsize, color=twViolet, fill=white, inner sep=1pt] at (2.96,0.76) {$0.2773$};
+
+  \fill[twEmerald] (0,0.18) rectangle (2.908,0.46);
+  \node[left, font=\scriptsize, color=twZincInk] at (-0.06,0.32) {3-triangle};
+  \node[right, font=\scriptsize, color=twEmerald, fill=white, inner sep=1pt] at (2.96,0.32) {$0.2851\,(3.02\times)$};
+\end{scope}
+
+% Right panel: SU(3)
+\begin{scope}[shift={(7.75,0)}]
+  \node[font=\footnotesize\bfseries, color=twZincInk] at (2.05,3.18) {$SU(3)$ on 4D $D_4$ ($\beta_{\mathrm{BE}}^{24c} = 0.212605$)};
+  \draw[line width=0.5pt, draw=twZincRule] (0,0) -- (4.20,0);
+  \draw[line width=0.5pt, draw=twZincRule] (0,0) -- (0,2.35);
+  \foreach \y/\val/\lbl/\col/\tag in {
+    1.94/0.009328/KP polymer/twZinc/0.0093,
+    1.50/0.212605/BE baseline/twZincInk/0.2126,
+    1.06/0.337971/Axial $W_1$/twBlue/0.3380,
+    0.62/0.546000/Single-link ($K{=}2$)/twViolet/0.5460,
+    0.18/0.563019/3-triangle/twEmerald/0.5630\,(2.65\times)
+  }{
+    \fill[\col] (0,\y) rectangle (\val*5.2,\y+0.28);
+    \node[left, font=\scriptsize, color=twZincInk] at (-0.06,\y+0.14) {\lbl};
+    \node[right, font=\scriptsize, color=\col, fill=white, inner sep=1pt] at (\val*5.2+0.06,\y+0.14) {$\tag$};
+  }
+\end{scope}
+\end{tikzpicture}
+\caption{Progression of strong-coupling, zero-truncation, reflection-positive infinite-volume mass-gap thresholds
+$\beta_*$ on flat 4D $D_4$ from Koteck\'y--Preiss (KP) and Bakry--\'Emery (BE) bounds through 1+2 complete three-link
+triangle Dobrushin bounds ($30.55\times$ KP for $SU(2)$ and $60.36\times$ KP for $SU(3)$).}
+\label{fig:mass-gap-bars}
+\end{figure}
+
+\begin{table}[tb]
+\centering
+\caption{Strong-coupling, zero-truncation 4D $D_4$ Wilson Yang--Mills mass-gap thresholds $\beta_*$ and certified gaps
+$m(\beta) > 0$ (outward-floored, preserving exact $x_0 = 0$ reflection positivity).}
+\label{tab:d4-mass-gaps}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.32cm}>{\centering\arraybackslash}p{1.45cm}>{\centering\arraybackslash}p{1.65cm}>{\centering\arraybackslash}p{1.45cm}>{\centering\arraybackslash}p{1.65cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Method / block cover & $SU(2)$ $\beta_*$ & BE / KP ($\times$) & $SU(3)$ $\beta_*$ & BE / KP ($\times$) & Certified gap sample \\
+\midrule
+Koteck\'y--Preiss polymer (KP) & $0.009335$ & $0.10 / 1.0$ & $0.009328$ & $0.04 / 1.0$ & $m_{SU(2)}(0.009) \ge 0.15$ \\
+Bakry--\'Emery baseline (BE) & $0.094491$ & $1.00 / 10.1$ & $0.212605$ & $1.00 / 22.8$ & $m_{SU(2)}(0.094) \ge 0.3415$ \\
+1D-axial Wasserstein-1 (Lean) & $0.237543$ & $2.51 / 25.4$ & $0.337971$ & $1.59 / 36.2$ & $m_{SU(2)}(0.20) \ge 0.6362$ \\
+Single-link / 2-link wedge & $0.277274$ & $2.93 / 29.7$ & $0.546000$ & $2.57 / 58.5$ & $SU(2)$ 2-wedge, $SU(3)$ single-link $K{=}2$ \\
+All-pair 2-wedge (4-dir alt.) & $0.280382$ & $2.97 / 30.0$ & $0.555190$ & $2.61 / 59.5$ & First $SU(3)$ 2-wedge ($+1.68\%$) \\
+3-link triangle (1D-axial) & $0.284888$ & $3.01 / 30.5$ & $0.562504$ & $2.65 / 60.3$ & $m_{SU(2)}(0.283473) \ge 0.0216$ \\
+\textbf{3-link triangle (4-dir alt.)} & $\mathbf{0.285141}$ & $\mathbf{3.02 / 30.55}$ & $\mathbf{0.563019}$ & $\mathbf{2.65 / 60.36}$ & $m_{SU(2)}(0.283473) \ge 0.0255$, $m_{SU(3)}(0.546) \ge 0.1305$ \\
+\bottomrule
+\end{tabularx}
+\end{table}

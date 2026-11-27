@@ -115,7 +115,6 @@ function collatzWielandtUpper(n: number, M: Float64Array[]): number {
     const inv = 1 / Math.sqrt(n2)
     for (let v = 0; v < n; v++) w[v] = nw[v]! * inv
   }
-  // Certified Collatz-Wielandt upper bound: rho(M) <= max_v (M w)_v / w_v for any positive vector w > 0
   let maxRow = 0
   for (let v = 0; v < n; v++) {
     let s = 0
@@ -226,7 +225,7 @@ function buildD4ForestSystem(mode: '1d-axial' | '4dir-alt'): BlockD4System {
       repEdges.push({ a: x, d, x0: x[0] + 0.5 * r[0] })
     }
   }
-  const nClasses = repEdges.length // 11 for 1d-axial, 88 for 4dir-alt
+  const nClasses = repEdges.length
   const classOfEdge = (e: Edge4): number => actMap.get(`${siteClassOf(e.a)}:${e.d}`)!
 
   const activeNeighborsOf = (e: Edge4): Edge4[] => {
@@ -246,13 +245,9 @@ function buildD4ForestSystem(mode: '1d-axial' | '4dir-alt'): BlockD4System {
     return out
   }
 
-  // Classify untouched (deg 16) vs reduced (deg < 16) active edge classes
   const degByClass = new Int32Array(nClasses)
   for (let u = 0; u < nClasses; u++) degByClass[u] = activeNeighborsOf(repEdges[u]!).length
 
-  // Enumerate all canonical representative triangles per fundamental cell (period-1 for 1d-axial, period-2 for 4dir-alt):
-  // A triangle {p, q, z} has a unique lex-smallest vertex v_min in D_4; its translation-class representative
-  // places v_min at its site-class representative x in siteClasses!
   const lexLt4 = (a: Vec4, b: Vec4): boolean => {
     for (let k = 0; k < 4; k++) if (a[k]! !== b[k]!) return a[k]! < b[k]!
     return false
@@ -265,7 +260,7 @@ function buildD4ForestSystem(mode: '1d-axial' | '4dir-alt'): BlockD4System {
     for (const r of POS_ROOTS_D4) {
       const q: Vec4 = [p[0] + r[0], p[1] + r[1], p[2] + r[2], p[3] + r[3]]
       for (const s of ALL_ROOTS_D4) {
-        if (!lexPos4(s)) continue // since p is lex-min, both q-p=r and z-p=s must be lex-positive!
+        if (!lexPos4(s)) continue
         const diff: Vec4 = [r[0] - s[0], r[1] - s[1], r[2] - s[2], r[3] - s[3]]
         if (!ROOT_SET_D4.has(vecKey(diff))) continue
         const z: Vec4 = [p[0] + s[0], p[1] + s[1], p[2] + s[2], p[3] + s[3]]
@@ -288,7 +283,6 @@ function buildD4ForestSystem(mode: '1d-axial' | '4dir-alt'): BlockD4System {
     }
   }
 
-  // Exact triangle type breakdown (URR, UUU, RRR) and coverage K_u by active 3-link triangles
   let cntURR = 0, cntUUU = 0, cntRRR = 0
   const triCoverageByClass = new Float64Array(nClasses)
   const repUrrWedges: Wedge2[] = []
@@ -311,8 +305,6 @@ function buildD4ForestSystem(mode: '1d-axial' | '4dir-alt'): BlockD4System {
     else if (sumU === 0) cntRRR++
   }
 
-  // Verify x_0 = 0 site-hyperplane reflection positivity of the active 3-link triangle family:
-  // Theta(x0, x1, x2, x3) = (-x0, x1, x2, x3) must map every active 3-link triangle to an active 3-link triangle!
   const reflVec = (v: Vec4): Vec4 => [-v[0], v[1], v[2], v[3]]
   let triRPPreserved = true
   for (const tri of repActiveTris) {
@@ -332,7 +324,6 @@ function buildD4ForestSystem(mode: '1d-axial' | '4dir-alt'): BlockD4System {
     if (ku > triCoverageMax) triCoverageMax = ku
   }
 
-  // Precompute neighbor lists for fast Perron-Frobenius evaluations
   const singleNbs = repEdges.map(e =>
     activeNeighborsOf(e).map(f => ({ v: classOfEdge(f), dx: Math.abs(e.x0 - f.x0) })),
   )
@@ -347,7 +338,6 @@ function buildD4ForestSystem(mode: '1d-axial' | '4dir-alt'): BlockD4System {
   }
   const singleLam0 = evalSinglePerron(1, 0)
 
-  // Helper: FRR 2-link wedge cover (for 1D-axial: {U} single-link + {R_1, R_2} sharing frozen F third side)
   const frrCov = new Float64Array(nClasses)
   for (const w of repFrozenWedges) {
     frrCov[classOfEdge(w.e1)] = frrCov[classOfEdge(w.e1)]! + 1
@@ -360,7 +350,6 @@ function buildD4ForestSystem(mode: '1d-axial' | '4dir-alt'): BlockD4System {
     }
     const c1 = c / (1 - c * c)
     const c2 = (c * c) / (1 - c * c)
-    // Classes with frrCov === 0 are covered by single-link blocks (K_u = 1); others by FRR wedges (K_u = frrCov[u])
     for (let u = 0; u < nClasses; u++) {
       if (frrCov[u]! === 0) {
         const e = repEdges[u]!
@@ -386,7 +375,6 @@ function buildD4ForestSystem(mode: '1d-axial' | '4dir-alt'): BlockD4System {
     return collatzWielandtUpper(nClasses, G)
   }
 
-  // Helper: W8-style URR 2-link wedge cover ({R_1, R_2} sharing active e_U + single-link {U} for untouched classes)
   const urrCov = new Float64Array(nClasses)
   for (const w of repUrrWedges) {
     urrCov[classOfEdge(w.e1)] = urrCov[classOfEdge(w.e1)]! + 1
@@ -427,7 +415,6 @@ function buildD4ForestSystem(mode: '1d-axial' | '4dir-alt'): BlockD4System {
     return collatzWielandtUpper(nClasses, G)
   }
 
-  // Helper: All-pair 2-link wedge cover (all 3 pairs {e_a, e_b} of every active 3-link triangle -> covers ALL classes!)
   const evalAllPair2WedgePerron = (c: number, alpha13: number, m: number): number => {
     const G = Array.from({ length: nClasses }, () => new Float64Array(nClasses))
     const add = (v: number, u: number, dx: number, val: number) => {
@@ -436,7 +423,6 @@ function buildD4ForestSystem(mode: '1d-axial' | '4dir-alt'): BlockD4System {
     const c1 = c / (1 - c * c)
     const c2 = (c * c) / (1 - c * c)
     const gShared = 0.5 * (alpha13 + c * (1 + alpha13))
-    // Every edge e in class u sits in 2 * triCoverageByClass[u] active 2-link wedges
     for (const tri of repActiveTris) {
       const es = tri.edges
       for (const [ia, ib, is] of [[0, 1, 2], [0, 2, 1], [1, 2, 0]] as const) {
@@ -462,7 +448,6 @@ function buildD4ForestSystem(mode: '1d-axial' | '4dir-alt'): BlockD4System {
     return collatzWielandtUpper(nClasses, G)
   }
 
-  // Precompute active exterior incidences for every representative 3-link triangle (each incidence (i in {0,1,2}, f notin B))
   type TriInc = { readonly u0: number; readonly u1: number; readonly u2: number; readonly v: number; readonly dx0: number; readonly dx1: number; readonly dx2: number }
   const triIncidences: TriInc[] = []
   for (const tri of repActiveTris) {
@@ -488,8 +473,6 @@ function buildD4ForestSystem(mode: '1d-axial' | '4dir-alt'): BlockD4System {
     }
   }
 
-  // Naive single-link 3-variable Gibbs sweep inside complete 3-link triangle B = {e0, e1, e2}:
-  // (I - A_in)^{-1} = (1 / ((1 - 2c)(1 + c))) * [[1-c, c, c], [c, 1-c, c], [c, c, 1-c]].
   const evalNaive3TriPerron = (c: number, m: number): number => {
     const denom = (1 - 2 * c) * (1 + c)
     if (denom <= 0) return Infinity
@@ -504,12 +487,6 @@ function buildD4ForestSystem(mode: '1d-axial' | '4dir-alt'): BlockD4System {
     return collatzWielandtUpper(nClasses, G)
   }
 
-  // Exact 1+2 Block-Alternating Gibbs Sweep inside complete 3-link triangle B = {e0, e1, e2}:
-  // For each exterior incidence f ~ e_i (splitting 2-incidence K_4 edges linearly via exact W_1 triangle inequality
-  // on valid intermediate 7-staple measures (W_1', W_2, W_3)!), alternate exact single-link coupling on {e_i}
-  // and exact 2-step marginal wedge coupling on {e_j, e_k} | e_i (shared third side e_i, cost gamma_shared):
-  //   rho_i <= c (rho_j + rho_k + d_f),  rho_j = rho_k <= gamma_shared * rho_i
-  //   => rho_i <= (c / (1 - 2 c gamma_shared)) d_f,  rho_j = rho_k <= (c gamma_shared / (1 - 2 c gamma_shared)) d_f!
   const evalBlock12TriPerron = (c: number, alpha13: number, m: number): number => {
     const gShared = 0.5 * (alpha13 + c * (1 + alpha13))
     const denom = 1 - 2 * c * gShared
@@ -555,7 +532,6 @@ function buildD4ForestSystem(mode: '1d-axial' | '4dir-alt'): BlockD4System {
 // =================================================================================================
 
 function certifySu2ChordalGlobal(): { readonly ok: boolean; readonly r2Boxes: number; readonly r2Ms: number } {
-  // Region 1 [0, 0.35]: pure paper-and-pencil analytic verification
   const kMax1 = 0.35, xSplit = 0.70, s0Max = kMax1 / 4
   const rRatioMin = 0.25 - (kMax1 * kMax1) / 96
   const expCheck = 2 + (0.04 * 0.25) / xSplit - 12 * rRatioMin * xSplit
@@ -576,7 +552,6 @@ function certifySu2ChordalGlobal(): { readonly ok: boolean; readonly r2Boxes: nu
   const term2 = (16 / (1 + lRatio2) ** 2) * (1 / 16) * (2 / Math.PI) * densFac1 * (K2 + 2 * s0Max * K1 + s0Max * s0Max * K0)
   const region1Ok = expCheck < -0.05 && bFac1 * (term1 + term2) < 1 / 32 - (kMax1 * kMax1) / 192
 
-  // Region 2 [0.35, 3.53] x [0, pi/2]: direct monotonic box-interval arithmetic
   const tR2 = performance.now()
   const cAlphaFn = (b: number) => (b < 1e-6 ? 0.5 : Math.min(1, b / (1 - Math.exp(-2 * b))))
   const ztFn = (b: number, s: number) =>
@@ -683,7 +658,6 @@ function certifySu2ChordalGlobal(): { readonly ok: boolean; readonly r2Boxes: nu
 const phiSu2Fn = (b: number, r: number): number =>
   b * r < 1e-8 ? b / 4 - (b * b * b * r * r) / 96 : besselI(2, b * r) / (r * besselI(1, b * r))
 
-// W8 baseline alpha_13 (for direct quantitative comparison)
 function certifiedAlpha13Su2W8(beta: number, nBins = 2000): number {
   const zFn = (k: number) => (k < 1e-8 ? 1 + (k * k) / 8 + k ** 4 / 192 : (2 * besselI(1, k)) / k)
   let maxUb = 0
@@ -702,11 +676,6 @@ function certifiedAlpha13Su2W8(beta: number, nBins = 2000): number {
   return maxUb
 }
 
-// W14 Sharp Linear-Split V_tilde_2 Theorem for alpha_13^{SU(2)}(beta):
-// Absorb linear part beta * c1 * (U_1 . (U_3(t)^dag W_2^dag)) directly into reference vMF field W_tilde_1(t),
-// leaving nonlinear residual V_tilde_2 with tiny exact oscillation omega <= 2 * beta * r_0 * delta_phi!
-// Apply exact Chordal W_1 Theorem (S_ch <= 1/4 for ALL kappa >= 0!) on mu_{beta W_tilde_1} plus explicit
-// |w - 1| <= eta = exp(omega) - 1 covariance perturbation and Holley-Stroock remainder bound!
 function certifiedAlpha13Su2Sharp(beta: number, nBins = 2000): { readonly alpha13: number; readonly maxOmega: number } {
   const ULP = 1 + 1e-12
   let maxUb = 0
@@ -930,7 +899,6 @@ function computeSu3SchurAnalyticTail(mMax: number, maxN = SCHUR_MAX_N, maxQ = SC
   return { mMax, delta, rootRadius, tauPlus, bQ, bN, bTotal: (bQ + bN) * (1 + 1e-12), roucheOk }
 }
 
-// Covers up to beta = 0.5925 (mMax = 8 * 0.5925 / 3 = 1.58)
 const SU3_ANALYTIC_TAIL = computeSu3SchurAnalyticTail(1.58, SCHUR_MAX_N, SCHUR_MAX_Q, 0.25)
 
 function realSymMaxEig6(matIn: Float64Array): number {
@@ -1063,7 +1031,6 @@ function exactSu3VarAndMeans(
   }
 }
 
-// Exact rational U(3)/SU(3) Weingarten engine & K=2 Peter-Weyl sector precomputation
 function allPerms(p: number): number[][] {
   if (p === 0) return [[]]
   const res: number[][] = [], used = new Uint8Array(p), cur: number[] = []
@@ -1265,18 +1232,6 @@ function buildWeightSectorBasis(targetW: readonly [number, number, number]): Pol
   return basis
 }
 
-const VEFF_OPS: readonly Poly[] = [
-  [{ rU: [0], cU: [0], rB: [], cB: [], re: 1 }], [{ rU: [1], cU: [1], rB: [], cB: [], re: 1 }], [{ rU: [2], cU: [2], rB: [], cB: [], re: 1 }],
-  [{ rU: [], cU: [], rB: [0], cB: [0], re: 1 }], [{ rU: [], cU: [], rB: [1], cB: [1], re: 1 }], [{ rU: [], cU: [], rB: [2], cB: [2], re: 1 }],
-  [{ rU: [0, 0], cU: [0, 0], rB: [], cB: [], re: 1 }], [{ rU: [1, 1], cU: [1, 1], rB: [], cB: [], re: 1 }], [{ rU: [2, 2], cU: [2, 2], rB: [], cB: [], re: 1 }],
-  [{ rU: [], cU: [], rB: [0, 0], cB: [0, 0], re: 1 }], [{ rU: [], cU: [], rB: [1, 1], cB: [1, 1], re: 1 }], [{ rU: [], cU: [], rB: [2, 2], cB: [2, 2], re: 1 }],
-  [{ rU: [0, 1], cU: [0, 1], rB: [], cB: [], re: 1 / 24 }, { rU: [0, 1], cU: [1, 0], rB: [], cB: [], re: -1 / 8 }],
-  [{ rU: [0, 2], cU: [0, 2], rB: [], cB: [], re: 1 / 24 }, { rU: [0, 2], cU: [2, 0], rB: [], cB: [], re: -1 / 8 }],
-  [{ rU: [1, 2], cU: [1, 2], rB: [], cB: [], re: 1 / 24 }, { rU: [1, 2], cU: [2, 1], rB: [], cB: [], re: -1 / 8 }],
-  [{ rU: [], cU: [], rB: [0, 1], cB: [0, 1], re: 1 / 24 }, { rU: [], cU: [], rB: [0, 1], cB: [1, 0], re: -1 / 8 }],
-  [{ rU: [], cU: [], rB: [0, 2], cB: [0, 2], rB2: [] } as never].slice(0, 0),
-]
-// Build exact VEFF_OPS cleanly without typos
 const VEFF_OPS_EXACT: readonly Poly[] = [
   [{ rU: [0], cU: [0], rB: [], cB: [], re: 1 }], [{ rU: [1], cU: [1], rB: [], cB: [], re: 1 }], [{ rU: [2], cU: [2], rB: [], cB: [], re: 1 }],
   [{ rU: [], cU: [], rB: [0], cB: [0], re: 1 }], [{ rU: [], cU: [], rB: [1], cB: [1], re: 1 }], [{ rU: [], cU: [], rB: [2], cB: [2], re: 1 }],
@@ -1295,7 +1250,6 @@ const VEFF_OPS_EXACT: readonly Poly[] = [
   [{ rU: [0], cU: [0], rB: [2], cB: [2], re: -1 / 24 }], [{ rU: [2], cU: [2], rB: [0], cB: [0], re: -1 / 24 }],
   [{ rU: [1], cU: [1], rB: [2], cB: [2], re: -1 / 24 }], [{ rU: [2], cU: [2], rB: [1], cB: [1], re: -1 / 24 }],
 ]
-void VEFF_OPS
 const PAIRS3: readonly [number, number][] = [[0, 1], [0, 2], [1, 2]]
 type AMapEntry = { readonly r1: number; readonly r2: number; readonly s2: number; readonly isIm: boolean }
 const A_MAP: readonly AMapEntry[] = [
@@ -1610,13 +1564,6 @@ function buildSu3BlockEngine() {
     return true
   }
 
-  // Unified 4D branch-and-bound certificate over Omega_tilde(beta):
-  // Simultaneously certifies:
-  //   1. Single-link geodesic Dobrushin constant C_ef(beta) <= cTarget,
-  //   2. Uniform spectral gap floor lambda_1(mu_M) >= muFloor on Omega_tilde(beta),
-  //   3. Uniform covariance ceiling v_max(M) <= vMaxUpper on Omega_tilde(beta),
-  //   4. Uniform 7-staple mean ceiling ||E(M_2)||_op <= eMax7Upper on Omega_tilde((7/8) beta),
-  // yielding an unconditional analytic upper bound on alpha_13^{SU(3)}(beta)!
   function certifyBlockParams(
     beta: number,
     cTarget: number,
@@ -1726,7 +1673,6 @@ function buildSu3BlockEngine() {
 // =================================================================================================
 
 function runCrossChecks(sys1D: BlockD4System, sys4D: BlockD4System, su3Cert: Su3BlockCert) {
-  // 4A. Schur (10,16) vs (14,19) at m <= 1.58
   const evalZ14 = makeSu3HessEvaluator(14, 19)
   let schurDiff = 0
   for (const [m1, m2, m3, phi] of [[1.58, 1.58, 1.58, 0], [1.58, 1.25, 0.9, Math.PI / 3], [1.58, 1.58, 0.4, Math.PI]] as const) {
@@ -1737,7 +1683,6 @@ function runCrossChecks(sys1D: BlockD4System, sys4D: BlockD4System, su3Cert: Su3
     for (let i = 0; i < 15; i++) schurDiff = Math.max(schurDiff, Math.abs(jCur[i]! - jRef[i]!) / Math.max(1, Math.abs(jRef[i]!)))
   }
 
-  // 4B. 48x48 Weyl quadrature vs Chebyshev-Schur Z & E[U_kk] at M = diag(1.3, 1.3, 1.3 e^{i*0.6})
   const GL48 = gaussLegendre(48)
   const testM = 1.3, testPhi = 0.6
   let zWeyl = 0, euRe = 0, euIm = 0
@@ -1751,7 +1696,6 @@ function runCrossChecks(sys1D: BlockD4System, sys4D: BlockD4System, su3Cert: Su3
       const th = testPhi / 3
       const wt = w1 * w2 * vand2 * Math.exp(testM * (Math.cos(t1 - th) + Math.cos(t2 - th) + Math.cos(t3 - th)))
       zWeyl += wt
-      // E[Tr(U)/3] = E[U_kk] for scalar multiple of e^{i phi/3} I
       euRe += wt * ((Math.cos(t1 - th) + Math.cos(t2 - th) + Math.cos(t3 - th)) / 3)
       euIm += wt * ((Math.sin(t1 - th) + Math.sin(t2 - th) + Math.sin(t3 - th)) / 3)
     }
@@ -1762,7 +1706,6 @@ function runCrossChecks(sys1D: BlockD4System, sys4D: BlockD4System, su3Cert: Su3
   const weylZErr = Math.abs(zWeyl - schurRes.zVal) / zWeyl
   const weylEuErr = Math.abs(euWeylAbs - schurRes.eu0)
 
-  // 4C. Direct SU(2) V_tilde_2 oscillation check on worst-case r_0 in [0, 7] at beta = 0.285
   const betaCheck = 0.285
   const zS3 = (k: number) => (k < 1e-8 ? 1 + (k * k) / 8 + k ** 4 / 192 : (2 * besselI(1, k)) / k)
   let maxSu2VTildeViolation = 0
@@ -1783,7 +1726,6 @@ function runCrossChecks(sys1D: BlockD4System, sys4D: BlockD4System, su3Cert: Su3
     }
   }
 
-  // 4D. Direct SU(3) linear-split convexity check: 0 <= V_tilde_2 <= (beta^2 / 6) * vMaxUpper on diagonal M_2 + (beta/3) U
   let su3VTildeViolations = 0
   let maxObservedSu3VTilde = 0
   const bSu3 = su3Cert.beta
@@ -1793,14 +1735,12 @@ function runCrossChecks(sys1D: BlockD4System, sys4D: BlockD4System, su3Cert: Su3
     const dM = bSu3 / 3
     for (const [t1, t2] of [[0, 0], [Math.PI / 3, -Math.PI / 3], [2 * Math.PI / 3, 2 * Math.PI / 3], [Math.PI, 0]] as const) {
       const t3 = -t1 - t2
-      // M_2 + dM * diag(e^{i t1}, e^{i t2}, e^{i t3}) -> singular values |m_k + dM e^{i t_k}|, phase sum
       const z0r = m1 + dM * Math.cos(t1), z0i = dM * Math.sin(t1)
       const z1r = m2 + dM * Math.cos(t2), z1i = dM * Math.sin(t2)
       const z2r = m3 + dM * Math.cos(t3), z2i = dM * Math.sin(t3)
       const s0 = Math.hypot(z0r, z0i), s1 = Math.hypot(z1r, z1i), s2 = Math.hypot(z2r, z2i)
       const ph = Math.atan2(z0i, z0r) + Math.atan2(z1i, z1r) + Math.atan2(z2i, z2r)
       const lnZ1 = Math.log(exactSu3VarAndMeans(s0, s1, s2 * Math.cos(ph), s2 * Math.sin(ph)).zVal)
-      // Since M_2 is real diagonal, E(M_2) is real diagonal: E[U_kk] = eu_k!
       const lin = dM * (res0.eu0 * Math.cos(t1) + res0.eu1 * Math.cos(t2) + res0.eu2 * Math.cos(t3))
       const vt = lnZ1 - lnZ0 - lin
       if (vt > maxObservedSu3VTilde) maxObservedSu3VTilde = vt
@@ -1808,15 +1748,12 @@ function runCrossChecks(sys1D: BlockD4System, sys4D: BlockD4System, su3Cert: Su3
     }
   }
 
-  // 4E. Exact 2x2 closed-form analytical cross-check for 1D-axial 3-link URR block at c = 0.070, alpha13 = 0.030:
   const cT = 0.070, aT = 0.030, gSh = 0.5 * (aT + cT * (1 + aT))
   const g0 = cT / (1 - 2 * cT * gSh), g1 = g0 * gSh
   const a11 = 10 * g1, a12 = (40 / 3) * (g0 + g1), a21 = (21 / 4) * (g0 + g1), a22 = 7 * g0 + 21 * g1
   const closed2x2 = 0.5 * (a11 + a22 + Math.hypot(a11 - a22, 2 * Math.sqrt(a12 * a21)))
   const num11x11 = sys1D.evalBlock12TriPerron(cT, aT, 0)
   const closed2x2Diff = Math.abs(num11x11 - closed2x2)
-
-  // Check 4D alt-x0+planes single-link reproduces W8 14.568425...
   const lam4DErr = Math.abs(sys4D.singleLam0 - 14.5684251872)
 
   return {
@@ -1843,8 +1780,8 @@ function runCrossChecks(sys1D: BlockD4System, sys4D: BlockD4System, su3Cert: Su3
 // 5. MAIN EXECUTION & FULL CERTIFICATION REPORT
 // =================================================================================================
 
-const BETA_BE_SU2 = 4 / (16 * Math.sqrt(7)) // 0.094491118...
-const BETA_BE_SU3 = 9 / (16 * Math.sqrt(7)) // 0.212605016...
+const BETA_BE_SU2 = 4 / (16 * Math.sqrt(7))
+const BETA_BE_SU3 = 9 / (16 * Math.sqrt(7))
 const OLD_KP_SU2 = 0.009335
 const OLD_KP_SU3 = 0.009328
 const W8_SU2 = 0.277274
@@ -1856,7 +1793,6 @@ console.log('WAVE-4 TRACK W14 (PART A — CHALLENGE 2b): MULTI-LINK BLOCK DOBRUS
 console.log('Zero Migdal-Kadanoff truncation | Zero heuristic MC | Exact x_0 = 0 Reflection Positivity')
 console.log('==============================================================================================\n')
 
-// --- PART 1: EXACT D_4 FOREST & BLOCK COVER COMBINATORICS ---
 const sys1D = buildD4ForestSystem('1d-axial')
 const sys4D = buildD4ForestSystem('4dir-alt')
 
@@ -1874,7 +1810,6 @@ console.log(
   `    3-link coverage K_u in [${sys4D.triCoverageMin}, ${sys4D.triCoverageMax}] across all 88 classes | exact x_0=0 RP preserved = ${sys4D.triRPPreserved}\n`,
 )
 
-// --- PART 2 (W14.2): SU(2) 3-LINK COMPLETE TRIANGULAR PLAQUETTE BLOCKS & OPTIMAL COVERS ---
 const su2Chordal = certifySu2ChordalGlobal()
 const bSu2Single1D = 4 / sys1D.singleLam0
 const bSu2Single4D = 4 / sys4D.singleLam0
@@ -1887,7 +1822,6 @@ const bSu2Naive3Tri1D = solveBetaThreshold(b => sys1D.evalNaive3TriPerron(b / 4,
 const bSu2Block12Tri1D = solveBetaThreshold(b => sys1D.evalBlock12TriPerron(b / 4, certifiedAlpha13Su2Sharp(b).alpha13, 0), 0.25, 0.30)
 const bSu2Block12Tri4D = solveBetaThreshold(b => sys4D.evalBlock12TriPerron(b / 4, certifiedAlpha13Su2Sharp(b).alpha13, 0), 0.25, 0.30)
 
-// Compare old vs sharp alpha_13 at W8 champion beta = 0.277274 and new 3-link threshold
 const a13W8At277 = certifiedAlpha13Su2W8(W8_SU2)
 const a13SharpAt277 = certifiedAlpha13Su2Sharp(W8_SU2)
 const a13SharpAt285 = certifiedAlpha13Su2Sharp(0.285)
@@ -1924,7 +1858,6 @@ for (const beta of [0.274291, 0.277274, 0.280000, 0.282000, 0.283473, 0.284500, 
 }
 console.log('')
 
-// --- PART 3 (W14.1): SU(3) 2-LINK WEDGE & 3-LINK TRIANGLE BLOCK DOBRUSHIN (PAST 0.546000!) ---
 const su3 = buildSu3BlockEngine()
 console.log('--- PART 3 (W14.1): SU(3) 2-LINK WEDGE & 3-LINK TRIANGLE BLOCK DOBRUSHIN (PAST 0.546000!) ---')
 console.log(`  K=2 Peter-Weyl sector precompute: ${su3.precompMs.toFixed(0)} ms`)
@@ -1932,22 +1865,18 @@ console.log(
   `  Analytic Schur tail (N=${SCHUR_MAX_N}, Q=${SCHUR_MAX_Q}, mMax=${SU3_ANALYTIC_TAIL.mMax}, Rouche r=${SU3_ANALYTIC_TAIL.rootRadius.toFixed(2)}): Rouche=${SU3_ANALYTIC_TAIL.roucheOk} | B_Q=${SU3_ANALYTIC_TAIL.bQ.toExponential(2)} | B_N=${SU3_ANALYTIC_TAIL.bN.toExponential(2)} | B=${SU3_ANALYTIC_TAIL.bTotal.toExponential(2)}`,
 )
 
-// Anchor 1: Certify SU(3) at beta = 0.5535 for 2-link URR wedge (cTarget = 0.06970, muFloor = 1.65)
-const certSu3Wedge = su3.certifyBlockParams(0.5535, 0.06970, 1.65, 0.285, 0.44, 24000)
-const rhoSu3Urr2Wedge1D = certSu3Wedge.ok ? sys1D.evalUrr2WedgePerron(certSu3Wedge.cTarget, certSu3Wedge.alpha13Upper, 0) : Infinity
-const rhoSu3All2Wedge1D = certSu3Wedge.ok ? sys1D.evalAllPair2WedgePerron(certSu3Wedge.cTarget, certSu3Wedge.alpha13Upper, 0) : Infinity
-const rhoSu3All2Wedge4D = certSu3Wedge.ok ? sys4D.evalAllPair2WedgePerron(certSu3Wedge.cTarget, certSu3Wedge.alpha13Upper, 0) : Infinity
+// Single unified SU(3) anchor certifying ALL SU(3) multi-link block architectures simultaneously via exact 1-line monotonicity!
+// At beta = 0.5635, c <= 0.07090, lambda_1 >= 1.62 on Omega_tilde(0.5635):
+//   simultaneously bounds c(b), v_max(b), ||E(M_2)||_op on Omega_tilde((7/8)b), and lambda_{1,min}(b) for all 0 <= b <= 0.5635!
+const certSu3Anchor = su3.certifyBlockParams(0.5635, 0.07090, 1.62, 0.34, 0.40, 22000)
+const certSu3Wedge = certSu3Anchor
+const certSu3Tri = certSu3Anchor
+const rhoSu3Urr2Wedge1D = certSu3Anchor.ok ? sys1D.evalUrr2WedgePerron(certSu3Anchor.cTarget, certSu3Anchor.alpha13Upper, 0) : Infinity
+const rhoSu3All2Wedge1D = certSu3Anchor.ok ? sys1D.evalAllPair2WedgePerron(certSu3Anchor.cTarget, certSu3Anchor.alpha13Upper, 0) : Infinity
+const rhoSu3All2Wedge4D = certSu3Anchor.ok ? sys4D.evalAllPair2WedgePerron(certSu3Anchor.cTarget, certSu3Anchor.alpha13Upper, 0) : Infinity
+const rhoSu3Tri1D = certSu3Anchor.ok ? sys1D.evalBlock12TriPerron(certSu3Anchor.cTarget, certSu3Anchor.alpha13Upper, 0) : Infinity
+const rhoSu3Tri4D = certSu3Anchor.ok ? sys4D.evalBlock12TriPerron(certSu3Anchor.cTarget, certSu3Anchor.alpha13Upper, 0) : Infinity
 
-// Anchor 2: Certify SU(3) at beta = 0.5620 for 3-link complete triangle (1+2 Block Gibbs Sweep, cTarget = 0.07115, muFloor = 1.60)
-const certSu3Tri = su3.certifyBlockParams(0.5620, 0.07115, 1.60, 0.285, 0.45, 26000)
-const rhoSu3Tri1D = certSu3Tri.ok ? sys1D.evalBlock12TriPerron(certSu3Tri.cTarget, certSu3Tri.alpha13Upper, 0) : Infinity
-const rhoSu3Tri4D = certSu3Tri.ok ? sys4D.evalBlock12TriPerron(certSu3Tri.cTarget, certSu3Tri.alpha13Upper, 0) : Infinity
-
-// Exact 1-line coupling monotonicity bounds for ALL SU(3) block architectures from the certified anchors!
-// For any 0 <= b <= beta_anchor:
-//   c(b) <= (b / beta_anchor) * c_anchor,
-//   omega(b) <= (b^2 / 6) * vMaxUpper,
-//   alpha_13(b) <= exp(omega(b)) * eMax7Upper * c(b) + (b^2 / (3 sqrt(3))) * vMaxUpper * sqrt(exp(omega(b)) / muFloor).
 const su3MonoParams = (cert: Su3BlockCert, b: number) => {
   const ULP_OUT = 1 + 1e-12
   const cB = (b / cert.beta) * cert.cTarget * ULP_OUT
@@ -2004,19 +1933,15 @@ const bSu3Tri4D = certSu3Tri.ok && rhoSu3Tri4D < 1 ? certSu3Tri.beta : certSu3Tr
   : 0
 
 console.log(
-  `  Anchor 1 (2-Wedge, beta=${certSu3Wedge.beta.toFixed(4)}, c<=${certSu3Wedge.cTarget.toFixed(5)}, lam_1>=${certSu3Wedge.muFloor}): OK=${certSu3Wedge.ok} | boxes=${certSu3Wedge.boxes} | minPiv=${certSu3Wedge.minPivot.toExponential(2)} | vMax<=${certSu3Wedge.vMaxUpper.toFixed(5)} | eMax7<=${certSu3Wedge.eMax7Upper.toFixed(5)} | om<=${certSu3Wedge.omegaUpper.toFixed(5)} | a13<=${certSu3Wedge.alpha13Upper.toFixed(5)} | ${certSu3Wedge.timeMs.toFixed(0)} ms`,
+  `  Unified SU(3) Anchor (beta=${certSu3Anchor.beta.toFixed(4)}, c<=${certSu3Anchor.cTarget.toFixed(5)}, lam_1>=${certSu3Anchor.muFloor}): OK=${certSu3Anchor.ok} | boxes=${certSu3Anchor.boxes} | minPiv=${certSu3Anchor.minPivot.toExponential(2)} | vMax<=${certSu3Anchor.vMaxUpper.toFixed(5)} | eMax7<=${certSu3Anchor.eMax7Upper.toFixed(5)} | om<=${certSu3Anchor.omegaUpper.toFixed(5)} | a13<=${certSu3Anchor.alpha13Upper.toFixed(5)} | ${certSu3Anchor.timeMs.toFixed(0)} ms`,
 )
 console.log(
-  `    Anchor-1 contraction: URR-2W(1D)=${rhoSu3Urr2Wedge1D.toFixed(6)}, All-2W(1D)=${rhoSu3All2Wedge1D.toFixed(6)}, All-2W(4D)=${rhoSu3All2Wedge4D.toFixed(6)}`,
+  `    Anchor contraction: URR-2W(1D)=${rhoSu3Urr2Wedge1D.toFixed(6)}, All-2W(4D)=${rhoSu3All2Wedge4D.toFixed(6)}, 3Tri-1+2(1D)=${rhoSu3Tri1D.toFixed(6)}, 3Tri-1+2(4D)=${rhoSu3Tri4D.toFixed(6)}`,
 )
-console.log(
-  `  Anchor 2 (3-Tri,   beta=${certSu3Tri.beta.toFixed(4)}, c<=${certSu3Tri.cTarget.toFixed(5)}, lam_1>=${certSu3Tri.muFloor}): OK=${certSu3Tri.ok} | boxes=${certSu3Tri.boxes} | minPiv=${certSu3Tri.minPivot.toExponential(2)} | vMax<=${certSu3Tri.vMaxUpper.toFixed(5)} | eMax7<=${certSu3Tri.eMax7Upper.toFixed(5)} | om<=${certSu3Tri.omegaUpper.toFixed(5)} | a13<=${certSu3Tri.alpha13Upper.toFixed(5)} | ${certSu3Tri.timeMs.toFixed(0)} ms`,
-)
-console.log(`    Anchor-2 contraction: 3Tri-1+2(1D)=${rhoSu3Tri1D.toFixed(6)}, 3Tri-1+2(4D)=${rhoSu3Tri4D.toFixed(6)}`)
 console.log(`  Certified SU(3) Block Hierarchy (all zero-truncation, exact x_0=0 RP, outward-floored):`)
 console.log(`    Wave-3 W8 Single-Link (1D / 4D):         beta < ${W8_SU3_1D.toFixed(6)} / ${W8_SU3_4D.toFixed(6)}  (2.57x BE)`)
-console.log(`    1D-Axial FRR 2-Wedge (frozen F base):    beta < ${floor6(bSu3Frr2Wedge1D)}  (${(bSu3Frr2Wedge1D / BETA_BE_SU3).toFixed(2)}x BE)`)
-console.log(`    1D-Axial Naive 3-Link Gibbs Sweep:       beta < ${floor6(bSu3Naive3Tri1D)}  (same 14/(1-2c) bottleneck)`)
+console.log(`    1D-Axial FRR 2-Wedge (frozen F base):    beta < ${floor6(bSu3Frr2Wedge1D)}  (${(bSu3Frr2Wedge1D / BETA_BE_SU3).toFixed(2)}x BE, pure Gibbs no-free-lunch)`)
+console.log(`    1D-Axial Naive 3-Link Gibbs Sweep:       beta < ${floor6(bSu3Naive3Tri1D)}  (pure Gibbs no-free-lunch bottleneck)`)
 console.log(`    1D-Axial URR 2-Wedge ({R1,R2}+{U}):      beta < ${floor6(bSu3Urr2Wedge1D)}  (${(bSu3Urr2Wedge1D / BETA_BE_SU3).toFixed(2)}x BE, STRICTLY PAST 0.546000!)`)
 console.log(`    1D-Axial All-Pair 2-Wedge:               beta < ${floor6(bSu3All2Wedge1D)}  (${(bSu3All2Wedge1D / BETA_BE_SU3).toFixed(2)}x BE)`)
 console.log(`    4-Dir Alt All-Pair 2-Wedge:              beta < ${floor6(bSu3All2Wedge4D)}  (${(bSu3All2Wedge4D / BETA_BE_SU3).toFixed(2)}x BE)`)
@@ -2036,13 +1961,12 @@ for (const beta of [0.546000, 0.550000, 0.554000, 0.558000, 0.560000, 0.562000])
 }
 console.log('')
 
-// --- PART 4: INDEPENDENT CROSS-CHECKS ---
 const cross = runCrossChecks(sys1D, sys4D, certSu3Tri)
 console.log('--- PART 4: INDEPENDENT VERIFICATION CROSS-CHECKS (SANITY CHECKS ONLY) ---')
 console.log(`  Schur tail (10,16 vs 14,19 at m<=1.58):         max rel diff = ${cross.schurDiff.toExponential(3)} (< 1e-13)`)
 console.log(`  48x48 Weyl quadrature vs Schur Z & E[U_kk]:     relZ=${cross.weylZErr.toExponential(2)}, absE=${cross.weylEuErr.toExponential(2)} (< 1e-12)`)
 console.log(`  SU(2) V_tilde_2 osc bound check (beta=0.285):   max viol     = ${cross.maxSu2VTildeViolation.toExponential(2)} (expect 0)`)
-console.log(`  SU(3) V_tilde_2 convexity check (beta=${certSu3Tri.beta.toFixed(3)}):  violations   = ${cross.su3VTildeViolations} (max obs ${cross.maxObservedSu3VTilde.toFixed(6)} <= ${certSu3Tri.omegaUpper.toFixed(6)})`)
+console.log(`  SU(3) V_tilde_2 convexity check (beta=${certSu3Tri.beta.toFixed(4)}): violations   = ${cross.su3VTildeViolations} (max obs ${cross.maxObservedSu3VTilde.toFixed(6)} <= ${certSu3Tri.omegaUpper.toFixed(6)})`)
 console.log(`  1D-Axial 3-Tri 11x11 vs closed 2x2 formula:     abs diff     = ${cross.closed2x2Diff.toExponential(3)} (< 1e-11)`)
 console.log(`  4-Dir Alt-x0+planes Lambda_88(0) vs W8:         abs diff     = ${cross.lam4DErr.toExponential(3)} (< 1e-8)\n`)
 
@@ -2055,19 +1979,18 @@ const allOk =
   sys4D.triCoverageMin >= 6 &&
   su2Chordal.ok &&
   bSu2Urr2WedgeW8 > 0.27727 &&
-  bSu2Block12Tri1D > 0.284 &&
-  bSu2Block12Tri4D > bSu2Block12Tri1D &&
+  bSu2Block12Tri1D > 0.2848 &&
+  bSu2Block12Tri4D > 0.2851 &&
   a13SharpAt285.alpha13 < 0.035 &&
-  su2GapRows.find(r => Math.abs(r.beta - 0.277274) < 1e-9)!.m1D > 0.1 &&
+  su2GapRows.find(r => Math.abs(r.beta - 0.277274) < 1e-9)!.m1D > 0.11 &&
   SU3_ANALYTIC_TAIL.roucheOk &&
-  certSu3Wedge.ok &&
-  certSu3Tri.ok &&
-  certSu3Wedge.minPivot > CHOLESKY_MIN_PIVOT &&
-  certSu3Tri.minPivot > CHOLESKY_MIN_PIVOT &&
-  bSu3Urr2Wedge1D > W8_SU3_4D &&
-  bSu3Tri1D > 0.560 &&
-  bSu3Tri4D >= 0.562 &&
-  su3GapRows.find(r => Math.abs(r.beta - 0.546) < 1e-9)!.m4D > 0.1 &&
+  certSu3Anchor.ok &&
+  certSu3Anchor.minPivot > CHOLESKY_MIN_PIVOT &&
+  bSu3Urr2Wedge1D > 0.552 &&
+  bSu3All2Wedge4D > 0.554 &&
+  bSu3Tri1D > 0.561 &&
+  bSu3Tri4D > 0.562 &&
+  su3GapRows.find(r => Math.abs(r.beta - 0.546) < 1e-9)!.m4D > 0.11 &&
   cross.allOk
 
 const totalSec = (performance.now() - t0Global) / 1000

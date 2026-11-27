@@ -1492,19 +1492,18 @@ private theorem sse_d2_step_closure_p3 :
 private theorem sse_d2_step_closure_fast (u : Fin 19) (b : Fin 24) :
     sse_d2StepClosureOk u b = true := by
   if h0 : u.val < 5 then
-    have hu : u = ⟨u.val, by omega⟩ := rfl
     exact sse_d2_step_closure_p0 ⟨u.val, h0⟩ b
   else if h1 : u.val < 10 then
     have h := sse_d2_step_closure_p1 ⟨u.val - 5, by omega⟩ b
-    have hu : (⟨u.val - 5 + 5, by omega⟩ : Fin 19) = u := Fin.ext (by omega)
+    have hu : (⟨u.val - 5 + 5, by omega⟩ : Fin 19) = u := Fin.ext (by dsimp only; omega)
     rw [hu] at h; exact h
   else if h2 : u.val < 15 then
     have h := sse_d2_step_closure_p2 ⟨u.val - 10, by omega⟩ b
-    have hu : (⟨u.val - 10 + 10, by omega⟩ : Fin 19) = u := Fin.ext (by omega)
+    have hu : (⟨u.val - 10 + 10, by omega⟩ : Fin 19) = u := Fin.ext (by dsimp only; omega)
     rw [hu] at h; exact h
   else
     have h := sse_d2_step_closure_p3 ⟨u.val - 15, by omega⟩ b
-    have hu : (⟨u.val - 15 + 15, by omega⟩ : Fin 19) = u := Fin.ext (by omega)
+    have hu : (⟨u.val - 15 + 15, by omega⟩ : Fin 19) = u := Fin.ext (by dsimp only; omega)
     rw [hu] at h; exact h
 
 private theorem sse_d2_step_closure_exact (u : Fin 19) (b : Fin 24) :
@@ -2232,7 +2231,9 @@ private theorem sse_canFollow216_wf4Gen (k : Fin 4) (i j : Fin 216) :
   generalize sseClique216 i = c1
   cases sseClique216 j with
   | c1 x =>
-    simp only [sseActCliqueGen, sseCanFollowClique, sse_inForb_wf4Gen]
+    change sseCanFollowClique (sseActCliqueGen k c1) (SseClique.c1 (sseWF4Gen k x)) = _
+    dsimp only [sseCanFollowClique]
+    rw [sse_inForb_wf4Gen]
   | c2 x y =>
     change sseCanFollowClique (sseActCliqueGen k c1)
         (SseClique.c2 (sseSort2Fin (sseWF4Gen k x) (sseWF4Gen k y)).1 (sseSort2Fin (sseWF4Gen k x) (sseWF4Gen k y)).2) = _
@@ -2499,7 +2500,7 @@ private theorem sse_stab0_preserves_q3_and_add0 (w : List (Fin 4))
       else true) 8 0 = true := by decide
     intro k
     have h := sse_allPow2_sound _ 8 0 hFast k.val (Nat.zero_le _) (by have := k.isLt; omega)
-    rw [dite_eq_left k.isLt] at h; dsimp only at h; unfold sseClique216
+    rw [dite_eq_left k.isLt] at h; unfold sseClique216
     cases hck : sse_clique216Nat k.val <;> rw [hck] at h
     · trivial
     · exact of_decide_eq_true h
@@ -2602,15 +2603,15 @@ private theorem sse_stab0_preserves_q3_and_add0 (w : List (Fin 4))
     · have hE2 := of_decide_eq_true hAdd2; rw [hE2]; dsimp only
       exact ⟨fun h => h.elim Or.inl (fun h2 => Or.inr (hMemW.2 h2)),
              fun h => h.elim Or.inl (fun h2 => Or.inr (hMemW.1 h2))⟩
-    · exfalso; have hs := sse_act216_size w j; unfold sseSize216 at hs; rw [hcj, hcw] at hs; exact absurd hs (by decide)
-    · exfalso; have hs := sse_act216_size w j; unfold sseSize216 at hs; rw [hcj, hcw] at hs; exact absurd hs (by decide)
+    · exfalso; have hs := sse_act216_size w j; simp only [sseSize216, hcj, hcw, sseCliqueSize] at hs; exact absurd hs (by decide)
+    · exfalso; have hs := sse_act216_size w j; simp only [sseSize216, hcj, hcw, sseCliqueSize] at hs; exact absurd hs (by decide)
   · have hE1 := of_decide_eq_true hAdd1; rw [hE1]; dsimp only; rw [hFix0]
     cases hcw : sseClique216 (sseAct216 w j) <;> rw [hcw] at hAdd2 hMemW <;> dsimp only at hAdd2 hMemW
-    · exfalso; have hs := sse_act216_size w j; unfold sseSize216 at hs; rw [hcj, hcw] at hs; exact absurd hs (by decide)
+    · exfalso; have hs := sse_act216_size w j; simp only [sseSize216, hcj, hcw, sseCliqueSize] at hs; exact absurd hs (by decide)
     · have hE2 := of_decide_eq_true hAdd2; rw [hE2]; dsimp only
       exact ⟨fun h => h.elim Or.inl (fun h2 => Or.inr (hMemW.2 h2)),
              fun h => h.elim Or.inl (fun h2 => Or.inr (hMemW.1 h2))⟩
-    · exfalso; have hs := sse_act216_size w j; unfold sseSize216 at hs; rw [hcj, hcw] at hs; exact absurd hs (by decide)
+    · exfalso; have hs := sse_act216_size w j; simp only [sseSize216, hcj, hcw, sseCliqueSize] at hs; exact absurd hs (by decide)
   · exact absurd hAdd1 (by decide)
 
 /-- Headline Theorem 6 (Exact `Q_3 = Adj(0)` 3-Cube Link Algebra & Zero-Cascade Upward Insertion):
@@ -2686,10 +2687,38 @@ private theorem sse_sort3Nat_swap12 (a b c : Nat) : sse_sort3Nat a b c = sse_sor
   unfold sse_sort3Nat; rw [sse_sort2Nat_comm a b]
 
 private theorem sse_sort3Nat_swap23 (a b c : Nat) : sse_sort3Nat a b c = sse_sort3Nat a c b := by
-  unfold sse_sort3Nat sse_sort2Nat
-  split <;> dsimp only <;> split <;> dsimp only <;> split <;> dsimp only <;>
-    split <;> dsimp only <;> split <;> dsimp only <;> split <;> dsimp only <;>
-    first | rfl | exact Prod.ext (by omega) (Prod.ext (by omega) (by omega))
+  have hLe : ∀ {x y : Nat}, x ≤ y → sse_sort2Nat x y = (x, y) := fun h => sse_ite_pos h _ _
+  have hGe : ∀ {x y : Nat}, y ≤ x → sse_sort2Nat x y = (y, x) := by
+    intro x y h; unfold sse_sort2Nat
+    if hxy : x ≤ y then
+      have : x = y := by omega
+      subst this; exact sse_ite_pos hxy _ _
+    else exact sse_ite_neg hxy _ _
+  have hStep : ∀ x y z x1 y1 y2 z2 x3 y3 : Nat,
+      sse_sort2Nat x y = (x1, y1) → sse_sort2Nat y1 z = (y2, z2) → sse_sort2Nat x1 y2 = (x3, y3) →
+      sse_sort3Nat x y z = (x3, y3, z2) := by
+    intro x y z x1 y1 y2 z2 x3 y3 h1 h2 h3
+    unfold sse_sort3Nat; rw [h1]; dsimp only; rw [h2]; dsimp only; rw [h3]
+  if hab : a ≤ b then
+    if hbc : b ≤ c then
+      rw [hStep _ _ _ _ _ _ _ _ _ (hLe hab) (hLe hbc) (hLe hab),
+          hStep _ _ _ _ _ _ _ _ _ (hLe (Nat.le_trans hab hbc)) (hGe hbc) (hLe hab)]
+    else if hac : a ≤ c then
+      rw [hStep _ _ _ _ _ _ _ _ _ (hLe hab) (hGe (by omega : c ≤ b)) (hLe hac),
+          hStep _ _ _ _ _ _ _ _ _ (hLe hac) (hLe (by omega : c ≤ b)) (hLe hac)]
+    else
+      rw [hStep _ _ _ _ _ _ _ _ _ (hLe hab) (hGe (by omega : c ≤ b)) (hGe (by omega : c ≤ a)),
+          hStep _ _ _ _ _ _ _ _ _ (hGe (by omega : c ≤ a)) (hLe hab) (hLe (by omega : c ≤ a))]
+  else
+    if hac : a ≤ c then
+      rw [hStep _ _ _ _ _ _ _ _ _ (hGe (by omega : b ≤ a)) (hLe hac) (hLe (by omega : b ≤ a)),
+          hStep _ _ _ _ _ _ _ _ _ (hLe hac) (hGe (by omega : b ≤ c)) (hGe (by omega : b ≤ a))]
+    else if hbc : b ≤ c then
+      rw [hStep _ _ _ _ _ _ _ _ _ (hGe (by omega : b ≤ a)) (hGe (by omega : c ≤ a)) (hLe hbc),
+          hStep _ _ _ _ _ _ _ _ _ (hGe (by omega : c ≤ a)) (hGe (by omega : b ≤ a)) (hGe hbc)]
+    else
+      rw [hStep _ _ _ _ _ _ _ _ _ (hGe (by omega : b ≤ a)) (hGe (by omega : c ≤ a)) (hGe (by omega : c ≤ b)),
+          hStep _ _ _ _ _ _ _ _ _ (hGe (by omega : c ≤ a)) (hGe (by omega : b ≤ a)) (hLe (by omega : c ≤ b))]
 
 private theorem sse_sort3Nat_perm23 (a b c : Nat) : sse_sort3Nat a c b = sse_sort3Nat a b c :=
   (sse_sort3Nat_swap23 a b c).symm
@@ -2994,17 +3023,17 @@ private theorem sse_pairOrbit_sizes_and_code (p c : Fin 216) (hF : sseCanFollow2
       ssePairDotCode (sseClique216 (sseAct216 w p)) (sseClique216 (sseCanonCliqueOfSize (sseSize216 c))) =
         sseOrbitCode (ssePairOrbit216 (sseAct216 w p) (sseCanonCliqueOfSize (sseSize216 c))) := by
     rcases hSz with h1 | h2 | h3
-    · rw [h1] at hFw ⊢; unfold sseCanonCliqueOfSize at hFw ⊢
+    · rw [h1] at hFw ⊢; simp only [sseCanonCliqueOfSize] at hFw ⊢
       have ha := hAll.1.1
       change (!(sse_canFollowFast (sseAct216 w p) ⟨0, by decide⟩) || _) = true at ha
       rw [hFw] at ha; simp only [Bool.not_true, Bool.false_or, Bool.and_eq_true] at ha
       exact ⟨of_decide_eq_true ha.1.1, of_decide_eq_true ha.1.2, of_decide_eq_true ha.2⟩
-    · rw [h2] at hFw ⊢; unfold sseCanonCliqueOfSize at hFw ⊢
+    · rw [h2] at hFw ⊢; simp only [sseCanonCliqueOfSize] at hFw ⊢
       have ha := hAll.1.2
       change (!(sse_canFollowFast (sseAct216 w p) ⟨24, by decide⟩) || _) = true at ha
       rw [hFw] at ha; simp only [Bool.not_true, Bool.false_or, Bool.and_eq_true] at ha
       exact ⟨of_decide_eq_true ha.1.1, of_decide_eq_true ha.1.2, of_decide_eq_true ha.2⟩
-    · rw [h3] at hFw ⊢; unfold sseCanonCliqueOfSize at hFw ⊢
+    · rw [h3] at hFw ⊢; simp only [sseCanonCliqueOfSize] at hFw ⊢
       have ha := hAll.2
       change (!(sse_canFollowFast (sseAct216 w p) ⟨120, by decide⟩) || _) = true at ha
       rw [hFw] at ha; simp only [Bool.not_true, Bool.false_or, Bool.and_eq_true] at ha
@@ -3254,7 +3283,7 @@ private theorem sse_wordsEnd_head (n : Nat) (c : Fin 216) (f : List (Fin 216) �
     apply sse_sumFinNat_congr; intro p
     if hF : sseCanFollow216 p c = true then
       rw [sse_ite_pos hF, sse_ite_pos hF]
-      apply sse_wordsEnd_congr; intro rev _; rw [sse_ite_pos rfl]
+      apply sse_wordsEnd_congr; intro rev _; simp only [ite_true]
     else rw [sse_ite_neg hF, sse_ite_neg hF]
 
 -- Canonical grouping over all `p : Fin 216` preceding ANY `c : Fin 216` via `W(F_4)` bijection!
@@ -3662,8 +3691,6 @@ private theorem sse_q3Mass_eq (om : Fin 57 → Nat) :
           cases m'' with
           | zero =>
             -- Case `m = 2`, `k = k2 + 2 ≥ 3`
-            unfold sseCF1SliceAt
-            apply congrArg (48 * ·)
             have hStep : sseSumFinNat (fun j1 : Fin 216 =>
                 if sseCanFollow216 j1 j = true then
                   sseWordsEnd (k2 + 1) j1 (fun rev =>
@@ -3737,8 +3764,9 @@ private theorem sse_q3Mass_eq (om : Fin 57 → Nat) :
                     | cons h rs =>
                       dsimp only
                       if hh : h = j1 then
-                        rw [sse_ite_pos hh, hh]; simp only [sseQ3SuffixLenRev, hQ, hQ1f]
-                        rw [sse_ite_neg (by decide : ¬ (false = true)), sse_ite_pos rfl, sse_ite_neg (by decide : ¬ (0 + 1 = 2))]
+                        rw [sse_ite_pos hh, hh]
+                        simp only [sseQ3SuffixLenRev, hQ, hQ1f, ite_true, Bool.false_eq_true, ite_false]
+                        rw [sse_ite_neg (by decide : ¬ (0 + 1 = 2))]
                       else rw [sse_ite_neg hh]
                   rw [hZ, sse_wordsEnd_zero]
               else
@@ -3925,8 +3953,11 @@ private theorem sse_up0_slice_exact (W : Nat → Nat) (om v : Fin 57 → Nat)
                 if hh : h = c then
                   rw [sse_ite_pos hh, hh]
                   cases hQc : sseIsQ3 c
-                  · simp only [sseQ3SuffixLenRev, hQc, Bool.false_eq_true, ite_false, ite_true,
-                      sse_up0PairVal, sseInsert0Rev, hF0f]
+                  · cases rs with
+                    | nil => simp at hlen
+                    | cons r rss =>
+                      simp only [sseQ3SuffixLenRev, hQc, Bool.false_eq_true, ite_false, ite_true,
+                        sse_up0PairVal, sseInsert0Rev, hF0f]
                   · simp only [sseQ3SuffixLenRev, hQc, ite_true]
                     rw [sse_ite_neg (by omega)]
                 else rw [sse_ite_neg hh]
@@ -3953,11 +3984,15 @@ private theorem sse_up0_slice_exact (W : Nat → Nat) (om v : Fin 57 → Nat)
             have hSz : sseSize216 c = 1 ∨ sseSize216 c = 2 ∨ sseSize216 c = 3 := by
               unfold sseSize216; cases sseClique216 c <;> simp [sseCliqueSize]
             rcases hSz with h1 | h2 | h3
-            · rw [h1]
-            · rw [h2]
-            · rw [h3]
+            · rw [h1]; rfl
+            · rw [h2]; rfl
+            · rw [h3]; rfl
           else rw [sse_ite_neg hF0, sse_ite_neg hF0, Nat.mul_zero]
-        rw [hOut, sse_sum_inOrbit_any sseIdx0]; rfl
+        rw [hOut, sse_sum_inOrbit_any sseIdx0 (fun o => om o * v o *
+          (match sseOrbitS1 o with
+           | 1 => sseTableSum (fun o' => om o' * om o' * v o' * sseZAt om (k2 + 1) (sseOrbitS1 o')) (sseInOrbitTbl 1)
+           | 2 => sseTableSum (fun o' => om o' * om o' * v o' * sseZAt om (k2 + 1) (sseOrbitS1 o')) (sseInOrbitTbl 2)
+           | _ => sseTableSum (fun o' => om o' * om o' * v o' * sseZAt om (k2 + 1) (sseOrbitS1 o')) (sseInOrbitTbl 3)))]; rfl
       | succ m' =>
         cases m' with
         | zero =>
@@ -4060,7 +4095,9 @@ private theorem sse_up0_slice_exact (W : Nat → Nat) (om v : Fin 57 → Nat)
             apply sse_sumFinNat_congr; intro j
             if hQ : sseIsQ3 j = true then rw [sse_ite_pos hQ, sse_ite_pos hQ]
             else rw [sse_ite_neg hQ, sse_ite_neg hQ, Nat.mul_zero]
-          rw [hOut, sse_sum_q3_by_size]; rfl
+          rw [hOut, sse_sum_q3_by_size (fun sz => sseTableSum
+            (fun p : Fin 57 × Fin 57 => om p.1 * om p.2 * v p.1 * v p.2 * sseZAt om (k2 + 1) (sseOrbitS1 p.1))
+            (sseM1Tbl sz))]; rfl
         | succ m'' =>
           cases m'' with
           | zero =>
@@ -4175,7 +4212,9 @@ private theorem sse_up0_slice_exact (W : Nat → Nat) (om v : Fin 57 → Nat)
               if hQ : sseIsQ3 j2 = true then rw [sse_ite_pos hQ, sse_ite_pos hQ]
               else rw [sse_ite_neg hQ, sse_ite_neg hQ, Nat.mul_zero]
             have hSub : k2 + 1 - 1 = k2 + 2 - 2 := by omega
-            rw [hOut, hSub, sse_sum_q3_by_size]; rfl
+            rw [hOut, hSub, sse_sum_q3_by_size (fun sz => sseTableSum
+              (fun p : Fin 57 × Fin 57 => om p.1 * om p.2 * v p.1 * v p.2 *
+                sse_q3MassPick om (sseZVec om (k2 + 2 - 2)) 1 (sseOrbitS1 p.1)) (sseM2Tbl sz))]; rfl
           | succ d =>
             -- Case `m = d + 3 ≥ 3`, `k = k2 + 2 > d + 3`
             unfold sseCF1SliceAt
@@ -4188,15 +4227,16 @@ private theorem sse_up0_slice_exact (W : Nat → Nat) (om v : Fin 57 → Nat)
                 intro u' h1 h2
                 cases hQx : sseIsQ3 x
                 · simp [sseQ3SuffixLenRev, hQx] at h1
-                · simp only [sseInsert0Rev, hQx, ite_true] at h2
-                  cases xs with
-                  | nil => cases h2; rfl
+                · cases xs with
+                  | nil =>
+                    simp only [sseInsert0Rev, hQx, ite_true] at h2
+                    cases h2; rfl
                   | cons y ys =>
                     cases hQy : sseIsQ3 y
-                    · simp only [hQy, Bool.false_eq_true, ite_false] at h2
+                    · simp only [sseInsert0Rev, hQx, hQy, ite_true, Bool.false_eq_true, ite_false] at h2
                       cases hFy : sseCanFollow216 y sseIdx0 <;> simp [hFy] at h2
                       subst h2; rfl
-                    · simp only [hQy, ite_true] at h2
+                    · simp only [sseInsert0Rev, hQx, hQy, ite_true] at h2
                       cases hIns : sseInsert0Rev (y :: ys) with
                       | none => simp [hIns] at h2
                       | some rs' =>
@@ -4260,7 +4300,7 @@ private theorem sse_up0_slice_exact (W : Nat → Nat) (om v : Fin 57 → Nat)
                                 | some tail' =>
                                   have hTLen : tail'.length = (r :: rss).length :=
                                     hInsLen (r :: rss) tail' (by simp [sseQ3SuffixLenRev, hQr]) hIns
-                                  have hrl : (r :: rss).length + 2 = k2 + 2 := by simp at hlen; omega
+                                  have hrl : (r :: rss).length + 2 = k2 + 2 := by simp only [List.length] at hlen ⊢; omega
                                   have hrl' : tail'.length + 2 = k2 + 2 := by rw [hTLen]; exact hrl
                                   simp only [ssePsi, hrl, hrl', ssePrefixProd]
                                   exact sse_nat_mul_quad _ _ _ _ _ _ _
@@ -4321,7 +4361,10 @@ private theorem sse_up0_slice_exact (W : Nat → Nat) (om v : Fin 57 → Nat)
               if hQ : sseIsQ3 j = true then rw [sse_ite_pos hQ, sse_ite_pos hQ]
               else rw [sse_ite_neg hQ, sse_ite_neg hQ, Nat.mul_zero]
             have hSub : k2 + 1 - (d + 2) = k2 + 2 - (d + 3) := by omega
-            rw [hOut, hSub, sse_sum_q3_by_size]; rfl
+            rw [hOut, hSub, sse_sum_q3_by_size (fun sz => sseTableSum
+              (fun o : Fin 57 => om o * om o * v o * v o *
+                sse_q3MassPick om (sseZVec om (k2 + 2 - (d + 3))) (d + 2) (sseOrbitS1 o))
+              (sseQ3InTbl sz))]; rfl
 
 -- Disjoint slide-depth partition inequality: `48 * sseCFExactUp0Quad ≥ sseCF1QuadTrunc` for ALL `K, M, W, om, v`!
 private theorem sse_cf_exact_up0Quad_ge (K M : Nat) (W : Nat → Nat) (om v : Fin 57 → Nat) :
@@ -4646,14 +4689,24 @@ private theorem sse_q3MassVec_lin (z : Nat × Nat × Nat) :
        sse_cQ3 2 1 * p.1 + sse_cQ3 2 2 * p.2)) := by
   refine ⟨?_, ?_, ?_⟩
   · unfold sseQ3MassVec sse_cP1
+    dsimp only
     rw [sse_tableSum_split3_pair _ _ z sse_tbl_s1_ranges.2.2.2.1,
         sse_tableSum_split3_pair _ _ z sse_tbl_s1_ranges.2.2.2.2.1]
-  · unfold sseQ3MassVec sse_cP2
-    dsimp only
+  · have hL : sseQ3MassVec sseCF1Om z 2 =
+        (sseTableSum (fun p => sseCF1Om p.1 * sseCF1Om p.2 *
+            (match sseOrbitS1 p.1 with | 1 => (sseQ3MassVec sseCF1Om z 1).1 | _ => (sseQ3MassVec sseCF1Om z 1).2)) (sseM2Tbl 1),
+         sseTableSum (fun p => sseCF1Om p.1 * sseCF1Om p.2 *
+            (match sseOrbitS1 p.1 with | 1 => (sseQ3MassVec sseCF1Om z 1).1 | _ => (sseQ3MassVec sseCF1Om z 1).2)) (sseM2Tbl 2)) := rfl
+    rw [hL]; unfold sse_cP2; dsimp only
     rw [sse_tableSum_split2_pair _ _ _ sse_tbl_s1_ranges.2.2.2.2.2.1,
         sse_tableSum_split2_pair _ _ _ sse_tbl_s1_ranges.2.2.2.2.2.2.1]
-  · intro d; unfold sseQ3MassVec sse_cQ3
-    dsimp only
+  · intro d
+    have hL : sseQ3MassVec sseCF1Om z (d + 3) =
+        (sseTableSum (fun o => sseCF1Om o * sseCF1Om o *
+            (match sseOrbitS1 o with | 1 => (sseQ3MassVec sseCF1Om z (d + 2)).1 | _ => (sseQ3MassVec sseCF1Om z (d + 2)).2)) (sseQ3InTbl 1),
+         sseTableSum (fun o => sseCF1Om o * sseCF1Om o *
+            (match sseOrbitS1 o with | 1 => (sseQ3MassVec sseCF1Om z (d + 2)).1 | _ => (sseQ3MassVec sseCF1Om z (d + 2)).2)) (sseQ3InTbl 2)) := rfl
+    rw [hL]; unfold sse_cQ3; dsimp only
     rw [sse_tableSum_split2 _ _ _ sse_tbl_s1_ranges.2.2.2.2.2.2.2.1,
         sse_tableSum_split2 _ _ _ sse_tbl_s1_ranges.2.2.2.2.2.2.2.2]
 
@@ -4676,7 +4729,7 @@ private theorem sse_sliceAt_eq_dot3 (W : Nat → Nat) (k m : Nat) :
        sseTableSum (fun o => sseCF1Om o * sseCF1Om o * sseCF1V o * sseZAt sseCF1Om (k - 1) (sseOrbitS1 o)) (sseInOrbitTbl 2),
        sseTableSum (fun o => sseCF1Om o * sseCF1Om o * sseCF1V o * sseZAt sseCF1Om (k - 1) (sseOrbitS1 o)) (sseInOrbitTbl 3))
       sse_tbl_s1_ranges.1
-    rw [hOuter, hV1, hV2, hV3]
+    rw [hOuter]; unfold sseZAt; dsimp only; rw [hV1, hV2, hV3]
     have hAlg : ∀ (ww b1 b2 b3 a11 a12 a13 a21 a22 a23 a31 a32 a33 z1 z2 z3 : Nat),
         48 * (ww * (b1 * (a11 * z1 + a12 * z2 + a13 * z3) +
                     b2 * (a21 * z1 + a22 * z2 + a23 * z3) +
@@ -4763,6 +4816,8 @@ private theorem sse_sliceAt_eq_dot3 (W : Nat → Nat) (k m : Nat) :
             rw [hShift]; rfl
         rw [hPow d (sse_cQ3V 1) (sse_cQ3V 2), (sse_q3MassVec_lin _).2.1, (sse_q3MassVec_lin _).1]
         dsimp only
+        have hSub : k - (d + 1 + 1 + 1) = k - (d + 3) := by omega
+        rw [hSub]
         simp only [Nat.mul_add, Nat.add_mul, Nat.mul_assoc]; omega
 
 private theorem sse_cf1NormSq_term_eq (W : Nat → Nat) (k : Nat) :
@@ -4771,6 +4826,7 @@ private theorem sse_cf1NormSq_term_eq (W : Nat → Nat) (k : Nat) :
        96 * sseTableSum (fun o => sseCF1Om o * sseCF1Om o * sseCF1V o * sseCF1V o * sseZAt sseCF1Om (k - 1) (sseOrbitS1 o)) (sseInOrbitTbl 2) +
        96 * sseTableSum (fun o => sseCF1Om o * sseCF1Om o * sseCF1V o * sseCF1V o * sseZAt sseCF1Om (k - 1) (sseOrbitS1 o)) (sseInOrbitTbl 3)) =
     W k * W k * sse_dot3 (sse_cDen 1, sse_cDen 2, sse_cDen 3) (sseZVec sseCF1Om (k - 1)) := by
+  unfold sseZAt; dsimp only
   rw [sse_tableSum_split3 _ _ (sseZVec sseCF1Om (k - 1)) sse_tbl_s1_ranges.1,
       sse_tableSum_split3 _ _ (sseZVec sseCF1Om (k - 1)) sse_tbl_s1_ranges.2.1,
       sse_tableSum_split3 _ _ (sseZVec sseCF1Om (k - 1)) sse_tbl_s1_ranges.2.2.1]
@@ -4784,7 +4840,14 @@ private theorem sse_zVec_step (k : Nat) :
       (sse_cZ 1 1 * prev.1 + sse_cZ 1 2 * prev.2.1 + sse_cZ 1 3 * prev.2.2,
        sse_cZ 2 1 * prev.1 + sse_cZ 2 2 * prev.2.1 + sse_cZ 2 3 * prev.2.2,
        sse_cZ 3 1 * prev.1 + sse_cZ 3 2 * prev.2.1 + sse_cZ 3 3 * prev.2.2) := by
-  unfold sseZVec sse_cZ
+  have hL : sseZVec sseCF1Om (k + 2) =
+      (sseTableSum (fun o => sseCF1Om o * sseCF1Om o *
+          (match sseOrbitS1 o with | 1 => (sseZVec sseCF1Om (k + 1)).1 | 2 => (sseZVec sseCF1Om (k + 1)).2.1 | _ => (sseZVec sseCF1Om (k + 1)).2.2)) (sseInOrbitTbl 1),
+       sseTableSum (fun o => sseCF1Om o * sseCF1Om o *
+          (match sseOrbitS1 o with | 1 => (sseZVec sseCF1Om (k + 1)).1 | 2 => (sseZVec sseCF1Om (k + 1)).2.1 | _ => (sseZVec sseCF1Om (k + 1)).2.2)) (sseInOrbitTbl 2),
+       sseTableSum (fun o => sseCF1Om o * sseCF1Om o *
+          (match sseOrbitS1 o with | 1 => (sseZVec sseCF1Om (k + 1)).1 | 2 => (sseZVec sseCF1Om (k + 1)).2.1 | _ => (sseZVec sseCF1Om (k + 1)).2.2)) (sseInOrbitTbl 3)) := rfl
+  rw [hL]; unfold sse_cZ; dsimp only
   rw [sse_tableSum_split3 _ _ (sseZVec sseCF1Om (k + 1)) sse_tbl_s1_ranges.1,
       sse_tableSum_split3 _ _ (sseZVec sseCF1Om (k + 1)) sse_tbl_s1_ranges.2.1,
       sse_tableSum_split3 _ _ (sseZVec sseCF1Om (k + 1)) sse_tbl_s1_ranges.2.2.1]
@@ -4884,16 +4947,26 @@ private theorem sse_cf1FastPair_eq (K M : Nat) (W : Nat → Nat) :
     | zero => rfl
     | succ r ih =>
       unfold sse_cf1FastGo
-      rw [hTail r, ih]
-      unfold sseCF1NormSq sseCF1QuadTrunc
-      simp only [sumNat]
+      rw [hTail r]; dsimp only; rw [ih]
+      have hNStep : sseCF1NormSq (r + 1) W sseCF1Om sseCF1V =
+          sseCF1NormSq r W sseCF1Om sseCF1V +
+            (if r + 1 ≥ 2 then W (r + 1) * W (r + 1) *
+              (24 * sseTableSum (fun o => sseCF1Om o * sseCF1Om o * sseCF1V o * sseCF1V o * sseZAt sseCF1Om (r + 1 - 1) (sseOrbitS1 o)) (sseInOrbitTbl 1) +
+               96 * sseTableSum (fun o => sseCF1Om o * sseCF1Om o * sseCF1V o * sseCF1V o * sseZAt sseCF1Om (r + 1 - 1) (sseOrbitS1 o)) (sseInOrbitTbl 2) +
+               96 * sseTableSum (fun o => sseCF1Om o * sseCF1Om o * sseCF1V o * sseCF1V o * sseZAt sseCF1Om (r + 1 - 1) (sseOrbitS1 o)) (sseInOrbitTbl 3))
+             else 0) := rfl
+      have hQStep : sseCF1QuadTrunc (r + 1) M W sseCF1Om sseCF1V =
+          sseCF1QuadTrunc r M W sseCF1Om sseCF1V +
+            (if r + 1 ≥ 2 then sumNat (M + 1) (fun m => if m < r + 1 then sseCF1SliceAt W sseCF1Om sseCF1V (r + 1) m else 0)
+             else 0) := rfl
+      rw [hNStep, hQStep]
       if hr2 : r + 1 ≥ 2 then
         rw [sse_ite_pos hr2, sse_ite_pos hr2, sse_ite_pos hr2]
         apply Prod.ext
         · dsimp only
           rw [sse_zHist_getD (r + 1) 1 (by omega), sse_cf1NormSq_term_eq]
         · dsimp only
-          apply congrArg (_ + ·)
+          apply congrArg (sseCF1QuadTrunc r M W sseCF1Om sseCF1V + ·)
           have hSum : ∀ t (f g : Nat → Nat), (∀ i, i < t → f i = g i) → sumNat t f = sumNat t g := by
             intro t f g h; induction t with
             | zero => rfl
@@ -4902,16 +4975,328 @@ private theorem sse_cf1FastPair_eq (K M : Nat) (W : Nat → Nat) :
           if hmk : m < r + 1 then
             rw [sse_ite_pos hmk, sse_ite_pos hmk, hCSl m hm, sse_sliceAt_eq_dot3]
             cases m with
-            | zero => rw [sse_zHist_getD (r + 1) 1 (by omega)]
-            | succ m1 => rw [sse_zHist_getD (r + 1) (m1 + 1) (by omega)]
+            | zero =>
+              exact congrArg (fun z => (W (r + 1) * W (r + 1 + 1)) * sse_dot3 (sse_cSlice 0) z)
+                (sse_zHist_getD (r + 1) 1 (by omega))
+            | succ m1 =>
+              exact congrArg (fun z => (W (r + 1) * W (r + 1)) * sse_dot3 (sse_cSlice (m1 + 1)) z)
+                (sse_zHist_getD (r + 1) (m1 + 1) (by omega))
           else rw [sse_ite_neg hmk, sse_ite_neg hmk]
       else
-        rw [sse_ite_neg hr2, sse_ite_neg hr2, sse_ite_neg hr2]; simp
+        rw [sse_ite_neg hr2, sse_ite_neg hr2, sse_ite_neg hr2, Nat.add_zero, Nat.add_zero]
   exact hAux K
+
+-- Balanced `O(log K)` binary-tree evaluator for `sseCF1NormSq` and `sseCF1QuadTrunc` (depth `≤ 18`, zero `maxRecDepth` bump!):
+private abbrev sse_Vec3 := Nat × Nat × Nat
+private abbrev sse_Mat3 := sse_Vec3 × sse_Vec3 × sse_Vec3
+
+private def sse_mat3Vec (m : sse_Mat3) (v : sse_Vec3) : sse_Vec3 :=
+  (sse_dot3 m.1 v, sse_dot3 m.2.1 v, sse_dot3 m.2.2 v)
+
+private def sse_mat3Mul (a b : sse_Mat3) : sse_Mat3 :=
+  let c1 : sse_Vec3 := (b.1.1, b.2.1.1, b.2.2.1)
+  let c2 : sse_Vec3 := (b.1.2.1, b.2.1.2.1, b.2.2.2.1)
+  let c3 : sse_Vec3 := (b.1.2.2, b.2.1.2.2, b.2.2.2.2)
+  ((sse_dot3 a.1 c1, sse_dot3 a.1 c2, sse_dot3 a.1 c3),
+   (sse_dot3 a.2.1 c1, sse_dot3 a.2.1 c2, sse_dot3 a.2.1 c3),
+   (sse_dot3 a.2.2 c1, sse_dot3 a.2.2 c2, sse_dot3 a.2.2 c3))
+
+private def sse_mat3Pow2 (m : sse_Mat3) : Nat → sse_Mat3
+  | 0 => m
+  | d + 1 =>
+    let h := sse_mat3Pow2 m d
+    sse_mat3Mul h h
+
+private def sse_matZ : sse_Mat3 :=
+  ((sse_cZ 1 1, sse_cZ 1 2, sse_cZ 1 3),
+   (sse_cZ 2 1, sse_cZ 2 2, sse_cZ 2 3),
+   (sse_cZ 3 1, sse_cZ 3 2, sse_cZ 3 3))
+
+private theorem sse_mat3Vec_mul (a b : sse_Mat3) (v : sse_Vec3) :
+    sse_mat3Vec a (sse_mat3Vec b v) = sse_mat3Vec (sse_mat3Mul a b) v := by
+  unfold sse_mat3Vec sse_mat3Mul sse_dot3; dsimp only
+  apply Prod.ext
+  · simp only [Nat.mul_add, Nat.add_mul, Nat.mul_assoc]; omega
+  · apply Prod.ext
+    · simp only [Nat.mul_add, Nat.add_mul, Nat.mul_assoc]; omega
+    · simp only [Nat.mul_add, Nat.add_mul, Nat.mul_assoc]; omega
+
+private theorem sse_zVec_matZ_step (k : Nat) (hk : k ≥ 1) :
+    sseZVec sseCF1Om (k + 1) = sse_mat3Vec sse_matZ (sseZVec sseCF1Om k) := by
+  cases k with
+  | zero => omega
+  | succ k' => exact sse_zVec_step k'
+
+private theorem sse_zVec_matZ_pow2 (d : Nat) :
+    ∀ k : Nat, k ≥ 1 → sseZVec sseCF1Om (k + 2 ^ d) = sse_mat3Vec (sse_mat3Pow2 sse_matZ d) (sseZVec sseCF1Om k) := by
+  induction d with
+  | zero =>
+    intro k hk; exact sse_zVec_matZ_step k hk
+  | succ d' ih =>
+    intro k hk
+    have hE : k + 2 ^ (d' + 1) = (k + 2 ^ d') + 2 ^ d' := by
+      simp only [Nat.pow_succ]; omega
+    rw [hE, ih (k + 2 ^ d') (Nat.le_trans hk (Nat.le_add_right _ _)), ih k hk, sse_mat3Vec_mul]; rfl
+
+private def sse_zWinGo (mZ : sse_Mat3) : Nat → sse_Vec3 → List sse_Vec3 → List sse_Vec3
+  | 0, _, acc => acc
+  | r + 1, cur, acc => sse_zWinGo mZ r (sse_mat3Vec mZ cur) (cur :: acc)
+
+private theorem sse_zWinGo_getD (r : Nat) :
+    ∀ (b : Nat) (_hb : b ≥ 1) (acc : List sse_Vec3),
+      (∀ j, j < acc.length → sseListGetD (0, 0, 0) acc j = sseZVec sseCF1Om (b - 1 - j)) →
+      ∀ i, i < r + acc.length →
+        sseListGetD (0, 0, 0) (sse_zWinGo sse_matZ r (sseZVec sseCF1Om b) acc) i =
+          sseZVec sseCF1Om (b + r - 1 - i) := by
+  induction r with
+  | zero =>
+    intro b _ acc hacc i hi
+    simp only [sse_zWinGo, Nat.add_zero]
+    exact hacc i (by omega)
+  | succ r' ih =>
+    intro b hb acc hacc i hi
+    unfold sse_zWinGo
+    rw [← sse_zVec_matZ_step b hb]
+    have hAcc' : ∀ j, j < (sseZVec sseCF1Om b :: acc).length →
+        sseListGetD (0, 0, 0) (sseZVec sseCF1Om b :: acc) j = sseZVec sseCF1Om (b + 1 - 1 - j) := by
+      intro j hj
+      cases j with
+      | zero => simp only [sseListGetD, Nat.add_sub_cancel, Nat.sub_zero]
+      | succ j' =>
+        simp only [List.length] at hj
+        simp only [sseListGetD]
+        have hSub : b + 1 - 1 - (j' + 1) = b - 1 - j' := by omega
+        rw [hSub]; exact hacc j' (by omega)
+    have hRes := ih (b + 1) (by omega) (sseZVec sseCF1Om b :: acc) hAcc' i (by simp only [List.length]; omega)
+    have hSub2 : b + 1 + r' - 1 - i = b + (r' + 1) - 1 - i := by omega
+    rw [hSub2] at hRes; exact hRes
+
+private def sse_cf1PairAt (M : Nat) (W : Nat → Nat) (k : Nat) : Nat × Nat :=
+  (if k ≥ 2 then W k * W k *
+      (24 * sseTableSum (fun o => sseCF1Om o * sseCF1Om o * sseCF1V o * sseCF1V o * sseZAt sseCF1Om (k - 1) (sseOrbitS1 o)) (sseInOrbitTbl 1) +
+       96 * sseTableSum (fun o => sseCF1Om o * sseCF1Om o * sseCF1V o * sseCF1V o * sseZAt sseCF1Om (k - 1) (sseOrbitS1 o)) (sseInOrbitTbl 2) +
+       96 * sseTableSum (fun o => sseCF1Om o * sseCF1Om o * sseCF1V o * sseCF1V o * sseZAt sseCF1Om (k - 1) (sseOrbitS1 o)) (sseInOrbitTbl 3))
+   else 0,
+   if k ≥ 2 then sumNat (M + 1) (fun m => if m < k then sseCF1SliceAt W sseCF1Om sseCF1V k m else 0) else 0)
+
+private def sse_sumPairRange (f : Nat → Nat × Nat) (lo : Nat) : Nat → Nat × Nat
+  | 0 => (0, 0)
+  | n + 1 =>
+    let prev := sse_sumPairRange f lo n
+    let cur := f (lo + n)
+    (prev.1 + cur.1, prev.2 + cur.2)
+
+private theorem sse_sumPairRange_add (f : Nat → Nat × Nat) (lo a b : Nat) :
+    sse_sumPairRange f lo (a + b) =
+      let p := sse_sumPairRange f lo a
+      let q := sse_sumPairRange f (lo + a) b
+      (p.1 + q.1, p.2 + q.2) := by
+  induction b with
+  | zero => simp [sse_sumPairRange]
+  | succ b' ih =>
+    have hAdd : a + (b' + 1) = (a + b') + 1 := by omega
+    have hIdx : lo + (a + b') = lo + a + b' := by omega
+    have hL : sse_sumPairRange f lo ((a + b') + 1) =
+        ((sse_sumPairRange f lo (a + b')).1 + (f (lo + (a + b'))).1,
+         (sse_sumPairRange f lo (a + b')).2 + (f (lo + (a + b'))).2) := rfl
+    have hR : sse_sumPairRange f (lo + a) (b' + 1) =
+        ((sse_sumPairRange f (lo + a) b').1 + (f (lo + a + b')).1,
+         (sse_sumPairRange f (lo + a) b').2 + (f (lo + a + b')).2) := rfl
+    rw [hAdd, hL, hR]; dsimp only; rw [ih]; dsimp only
+    rw [hIdx]
+    apply Prod.ext <;> exact Nat.add_assoc _ _ _
+
+private theorem sse_sumPairRange_congr (f g : Nat → Nat × Nat) (lo n : Nat)
+    (h : ∀ i, i < n → f (lo + i) = g (lo + i)) :
+    sse_sumPairRange f lo n = sse_sumPairRange g lo n := by
+  induction n with
+  | zero => rfl
+  | succ n' ih =>
+    unfold sse_sumPairRange; dsimp only
+    rw [ih (fun i hi => h i (by omega)), h n' (by omega)]
+
+private theorem sse_sumPairRange_zero (f : Nat → Nat × Nat) (lo n : Nat)
+    (h : ∀ i, i < n → f (lo + i) = (0, 0)) :
+    sse_sumPairRange f lo n = (0, 0) := by
+  induction n with
+  | zero => rfl
+  | succ n' ih =>
+    unfold sse_sumPairRange; dsimp only
+    rw [ih (fun i hi => h i (by omega)), h n' (by omega)]; rfl
+
+private theorem sse_sumPairRange_normQuad (M : Nat) (W : Nat → Nat) (n : Nat) :
+    sse_sumPairRange (sse_cf1PairAt M W) 0 (n + 1) =
+      (sseCF1NormSq n W sseCF1Om sseCF1V, sseCF1QuadTrunc n M W sseCF1Om sseCF1V) := by
+  induction n with
+  | zero => rfl
+  | succ r ih =>
+    unfold sse_sumPairRange
+    dsimp only; rw [ih, Nat.zero_add]
+    rfl
+
+private def sse_cf1Term (M : Nat) (W : Nat → Nat) (cDen : sse_Vec3) (cSl : List sse_Vec3)
+    (k : Nat) (zs : List sse_Vec3) : Nat × Nat :=
+  let wk := W k; let wk2 := wk * wk; let w01 := wk * W (k + 1)
+  let z1 := sseListGetD (0, 0, 0) zs 0
+  let dK := wk2 * sse_dot3 cDen z1
+  let qK := sumNat (M + 1) (fun m =>
+    (match m with | 0 => w01 | _ => wk2) *
+      sse_dot3 (sseListGetD (0, 0, 0) cSl m)
+        (sseListGetD (0, 0, 0) zs (match m with | 0 => 0 | m' + 1 => m')))
+  (dK, qK)
+
+private def sse_matPowLookup (m0 m1 m2 m3 m4 m5 m6 : sse_Mat3) : Nat → sse_Mat3
+  | 0 => m0 | 1 => m1 | 2 => m2 | 3 => m3 | 4 => m4 | 5 => m5 | 6 => m6
+  | d => sse_mat3Pow2 m0 d
+
+private def sse_cf1TreeSum (K M : Nat) (W : Nat → Nat) (cDen : sse_Vec3) (cSl : List sse_Vec3)
+    (pows : Nat → sse_Mat3) : Nat → Nat → sse_Vec3 → Nat × Nat
+  | 0, lo, zBase =>
+    if lo ≤ K then
+      sse_cf1Term M W cDen cSl lo (sse_zWinGo (pows 0) M zBase [])
+    else (0, 0)
+  | d + 1, lo, zBase =>
+    let l := sse_cf1TreeSum K M W cDen cSl pows d lo zBase
+    let mid := lo + 2 ^ d
+    if mid ≤ K then
+      let r := sse_cf1TreeSum K M W cDen cSl pows d mid (sse_mat3Vec (pows d) zBase)
+      (l.1 + r.1, l.2 + r.2)
+    else l
+
+private def sse_cf1TreePairAux (K M d : Nat) (W : Nat → Nat)
+    (cDen : sse_Vec3) (cSl : List sse_Vec3) (m0 m1 m2 m3 m4 m5 m6 : sse_Mat3) : Nat × Nat :=
+  let lo := sse_cf1FastGo M W cDen cSl (M + 1)
+    (sse_zHist m0.1.1 m0.1.2.1 m0.1.2.2 m0.2.1.1 m0.2.1.2.1 m0.2.1.2.2 m0.2.2.1 m0.2.2.2.1 m0.2.2.2.2 M)
+  let hi := sse_cf1TreeSum K M W cDen cSl (sse_matPowLookup m0 m1 m2 m3 m4 m5 m6) d (M + 1) (1, 1, 1)
+  (lo.1 + hi.1, lo.2 + hi.2)
+
+private def sse_cf1TreePair (K M d : Nat) (W : Nat → Nat) : Nat × Nat :=
+  let m0 := sse_matZ
+  let m1 := sse_mat3Mul m0 m0
+  let m2 := sse_mat3Mul m1 m1
+  let m3 := sse_mat3Mul m2 m2
+  let m4 := sse_mat3Mul m3 m3
+  let m5 := sse_mat3Mul m4 m4
+  let m6 := sse_mat3Mul m5 m5
+  let cDen := (sse_cDen 1, sse_cDen 2, sse_cDen 3)
+  let cSl := sse_rangeMap sse_cSlice 0 (M + 1)
+  sse_cf1TreePairAux K M d W cDen cSl m0 m1 m2 m3 m4 m5 m6
+
+private theorem sse_cf1TreePair_eq (K M d : Nat) (W : Nat → Nat)
+    (hM : M ≥ 1) (hKM : M ≤ K) (hCov : K < M + 1 + 2 ^ d) :
+    sse_cf1TreePair K M d W = (sseCF1NormSq K W sseCF1Om sseCF1V, sseCF1QuadTrunc K M W sseCF1Om sseCF1V) := by
+  let m0 := sse_matZ
+  let m1 := sse_mat3Mul m0 m0
+  let m2 := sse_mat3Mul m1 m1
+  let m3 := sse_mat3Mul m2 m2
+  let m4 := sse_mat3Mul m3 m3
+  let m5 := sse_mat3Mul m4 m4
+  let m6 := sse_mat3Mul m5 m5
+  let cDen := (sse_cDen 1, sse_cDen 2, sse_cDen 3)
+  let cSl := sse_rangeMap sse_cSlice 0 (M + 1)
+  let pows := sse_matPowLookup m0 m1 m2 m3 m4 m5 m6
+  have hPows : ∀ i : Nat, pows i = sse_mat3Pow2 sse_matZ i := by
+    intro i; rcases i with _ | _ | _ | _ | _ | _ | _ | _ <;> rfl
+  have hCSl : ∀ m : Nat, m < M + 1 → sseListGetD (0, 0, 0) cSl m = sse_cSlice m := by
+    intro m hm
+    have h := sse_rangeMap_listGetD sse_cSlice (0, 0, 0) 0 (M + 1) m hm
+    simp only [Nat.zero_add] at h; exact h
+  have hTerm : ∀ k : Nat, k ≥ M + 1 →
+      sse_cf1Term M W cDen cSl k (sse_zWinGo sse_matZ M (sseZVec sseCF1Om (k - M)) []) =
+        sse_cf1PairAt M W k := by
+    intro k hk
+    have hk2 : k ≥ 2 := by omega
+    have hWin : ∀ i, i < M →
+        sseListGetD (0, 0, 0) (sse_zWinGo sse_matZ M (sseZVec sseCF1Om (k - M)) []) i =
+          sseZVec sseCF1Om (k - 1 - i) := by
+      intro i hi
+      have hW := sse_zWinGo_getD M (k - M) (by omega) [] (fun _ hj => by simp at hj) i (by simp; omega)
+      have hSub : k - M + M - 1 - i = k - 1 - i := by omega
+      rw [hSub] at hW; exact hW
+    unfold sse_cf1Term sse_cf1PairAt
+    rw [sse_ite_pos hk2, sse_ite_pos hk2]
+    apply Prod.ext
+    · dsimp only
+      have h0 := hWin 0 (by omega)
+      simp only [Nat.sub_zero] at h0
+      rw [h0, sse_cf1NormSq_term_eq]
+    · dsimp only
+      have hSum : ∀ t (f g : Nat → Nat), (∀ i, i < t → f i = g i) → sumNat t f = sumNat t g := by
+        intro t f g h; induction t with
+        | zero => rfl
+        | succ p ihp => simp only [sumNat, ihp (fun i hi => h i (by omega)), h p (by omega)]
+      apply hSum (M + 1); intro m hm
+      have hmk : m < k := by omega
+      rw [sse_ite_pos hmk, hCSl m hm, sse_sliceAt_eq_dot3]
+      cases m with
+      | zero =>
+        have h0 := hWin 0 (by omega); simp only [Nat.sub_zero] at h0; rw [h0]; rfl
+      | succ m' =>
+        have hm' := hWin m' (by omega)
+        have hSub : k - 1 - m' = k - (m' + 1) := by omega
+        rw [hSub] at hm'; rw [hm']; rfl
+  have hTree : ∀ (t lo : Nat), lo ≥ M + 1 →
+      sse_cf1TreeSum K M W cDen cSl pows t lo (sseZVec sseCF1Om (lo - M)) =
+        sse_sumPairRange (fun k => if k ≤ K then sse_cf1PairAt M W k else (0, 0)) lo (2 ^ t) := by
+    intro t; induction t with
+    | zero =>
+      intro lo hlo
+      have hR : sse_sumPairRange (fun k => if k ≤ K then sse_cf1PairAt M W k else (0, 0)) lo (2 ^ 0) =
+          (if lo ≤ K then sse_cf1PairAt M W lo else (0, 0)) := by
+        change (0 + (if lo + 0 ≤ K then sse_cf1PairAt M W (lo + 0) else (0, 0)).1,
+                0 + (if lo + 0 ≤ K then sse_cf1PairAt M W (lo + 0) else (0, 0)).2) = _
+        simp only [Nat.zero_add, Nat.add_zero]
+      rw [hR]; unfold sse_cf1TreeSum; rw [hPows 0]
+      if hle : lo ≤ K then
+        rw [sse_ite_pos hle, sse_ite_pos hle]; exact hTerm lo hlo
+      else
+        rw [sse_ite_neg hle, sse_ite_neg hle]
+    | succ t' ih =>
+      intro lo hlo
+      have hPow : 2 ^ (t' + 1) = 2 ^ t' + 2 ^ t' := by simp only [Nat.pow_succ]; omega
+      rw [hPow, sse_sumPairRange_add]
+      unfold sse_cf1TreeSum; dsimp only
+      rw [ih lo hlo]
+      if hmid : lo + 2 ^ t' ≤ K then
+        rw [sse_ite_pos hmid, hPows t', ← sse_zVec_matZ_pow2 t' (lo - M) (by omega)]
+        have hSub : lo - M + 2 ^ t' = lo + 2 ^ t' - M := (Nat.sub_add_comm (by omega : M ≤ lo)).symm
+        rw [hSub, ih (lo + 2 ^ t') (Nat.le_trans hlo (Nat.le_add_right _ _))]
+      else
+        rw [sse_ite_neg hmid]
+        have hR : sse_sumPairRange (fun k => if k ≤ K then sse_cf1PairAt M W k else (0, 0)) (lo + 2 ^ t') (2 ^ t') = (0, 0) :=
+          sse_sumPairRange_zero _ _ _ (fun i _ => sse_ite_neg (by omega) _ _)
+        rw [hR]; simp
+  unfold sse_cf1TreePair sse_cf1TreePairAux; dsimp only
+  have hLo : sse_cf1FastGo M W cDen cSl (M + 1)
+      (sse_zHist m0.1.1 m0.1.2.1 m0.1.2.2 m0.2.1.1 m0.2.1.2.1 m0.2.1.2.2 m0.2.2.1 m0.2.2.2.1 m0.2.2.2.2 M) =
+      sse_sumPairRange (sse_cf1PairAt M W) 0 (M + 1) := by
+    rw [sse_sumPairRange_normQuad M W M]
+    exact sse_cf1FastPair_eq M M W
+  have hZ1 : (1, 1, 1) = sseZVec sseCF1Om (M + 1 - M) := by
+    have h1 : M + 1 - M = 1 := by omega
+    rw [h1]; rfl
+  have hHi : sse_cf1TreeSum K M W cDen cSl pows d (M + 1) (1, 1, 1) =
+      sse_sumPairRange (sse_cf1PairAt M W) (M + 1) (K - M) := by
+    rw [hZ1, hTree d (M + 1) (by omega)]
+    have hSplit : 2 ^ d = (K - M) + (M + 1 + 2 ^ d - (K + 1)) := by omega
+    rw [hSplit, sse_sumPairRange_add]; dsimp only
+    have hA : sse_sumPairRange (fun k => if k ≤ K then sse_cf1PairAt M W k else (0, 0)) (M + 1) (K - M) =
+        sse_sumPairRange (sse_cf1PairAt M W) (M + 1) (K - M) :=
+      sse_sumPairRange_congr _ _ _ _ (fun i hi => sse_ite_pos (by omega) _ _)
+    have hB : sse_sumPairRange (fun k => if k ≤ K then sse_cf1PairAt M W k else (0, 0))
+        (M + 1 + (K - M)) (M + 1 + 2 ^ d - (K + 1)) = (0, 0) :=
+      sse_sumPairRange_zero _ _ _ (fun i _ => sse_ite_neg (by omega) _ _)
+    rw [hA, hB]; simp
+  rw [hLo, hHi]
+  have hComb := (sse_sumPairRange_add (sse_cf1PairAt M W) 0 (M + 1) (K - M)).symm
+  simp only [Nat.zero_add] at hComb
+  have hLen : M + 1 + (K - M) = K + 1 := by omega
+  rw [hLen, sse_sumPairRange_normQuad M W K] at hComb
+  exact hComb
 
 private theorem sse_cf1_witness_verified :
     (∀ o : Fin 57, 0 < sseCF1Om o ∧ 0 < sseCF1V o) ∧
-    (let p := sse_cf1FastPair 120 11 sseCF1Win
+    (let p := sse_cf1TreePair 120 11 7 sseCF1Win
      p.1 > 0 ∧ 80 * p.2 > 913 * p.1 ∧ 1000 * p.2 > 11412 * p.1) := by
   decide
 
@@ -4930,7 +5315,7 @@ theorem thm_sse_cf_lower_bound :
       913 * sseCFExactNormSq 120 sseCF1Win sseCF1Om sseCF1V) ∧
     (1000 * (48 * sseCFExactUp0Quad 120 sseCF1Win sseCF1Om sseCF1V) >
       11412 * sseCFExactNormSq 120 sseCF1Win sseCF1Om sseCF1V) := by
-  have hEq := sse_cf1FastPair_eq 120 11 sseCF1Win
+  have hEq := sse_cf1TreePair_eq 120 11 7 sseCF1Win (by decide) (by decide) (by decide)
   have hW := sse_cf1_witness_verified.2
   dsimp only at hW
   rw [hEq] at hW
