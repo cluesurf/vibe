@@ -1544,7 +1544,7 @@ function runPillarN1(): PillarN1Metrics {
     if (phase === 'L2_DEC3_ODD') return { arr: runLRevAll12(arrIn), ctrl: { phase: 'L2_INC1', launch: 0, ret: 0 } }
     if (phase === 'L2_INC1') return stepMacroFwd(arrIn, 'L2_INC1', launch, ret, 0, 3, true, 'L2_HEAD_ODD')
     if (phase === 'HALT_ODD') return { arr: runLRevAll12(arrIn), ctrl: { phase: 'HALT_EVEN', launch: 0, ret: 0 } }
-    return { arr: runLRevAll12(arrIn), ctrl: { phase: 'HALT_ODD', launch: 0, ret: 0 } }
+    throw new Error('Cannot step forward past terminal HALT_EVEN (reversible halting boundary)')
   }
 
   function applyOriginCtrlInv(arrAfterSInv: Uint8Array, ctrl: CtrlState): { readonly arr: Uint8Array; readonly ctrl: CtrlState } {
@@ -2555,7 +2555,7 @@ function runPillarN3(): PillarN3Metrics {
   const bulk23Minus = applyK(bulk23, 24)
   const choiMinus = applyK(choiPlus, 25)
 
-  // Contract B_1 = [[552, 25, 40]]_3
+  // Contract B_1 = [[552, 25, d_min=8 / d_0=40]]_3
   const edges = Array.from({ length: 24 }, (_, a) => ({ d1: 0, s1: a, d2: 1 + a, s2: OPP[a]! }))
   const nD = 25, nInt = 48
   const slotToInt = Array.from({ length: nD }, () => new Int32Array(24).fill(-1))

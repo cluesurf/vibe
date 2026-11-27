@@ -417,7 +417,7 @@ function unitaryEigenPhases(n: number, uRe: Float64Array, uIm: Float64Array): {
 
 // =================================================================================================
 // EXACT Z[zeta_9][1/6], D_4 ROOTS, W(F_4), chi_odd, AND O^+(4,1; Z[sqrt(2)]) {3,4,3,4} KERNEL
-// (Verbatim bit-for-bit match to test/breakthrough/autonomous-bare-u-computability.ts)
+// (Verbatim bit-for-bit match to test/verify/autonomous-bare-u-computability.ts)
 // =================================================================================================
 
 type Z9 = readonly [bigint, bigint, bigint, bigint, bigint, bigint]
