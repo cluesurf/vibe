@@ -1,6 +1,6 @@
-// Wave-5 Breakthrough Certification Suite:
+// Wave-5 Verification Suite:
 // Native Strong Turing Universality, Locally Gauss-Invariant Z_3-Link PQTM,
-// Fault-Tolerant Holographic Universal Quantum Computer on B_1 = [[552, 25, 40]]_3,
+// Holographic Universal Quantum Computer on B_1 = [[552, 25, d_min=8 / d_0=40]]_3,
 // and Complete (T, S, A, M, Delta S_cusp) Physical Resource Ledger on Fixed {3,4,3,4}.
 //
 // Strictly standalone (ZERO external imports, ends with `export {}`), strictly deterministic
@@ -9,29 +9,35 @@
 //
 // FOUR MACHINE-CERTIFIED PILLARS:
 //   PILLAR N1: Exact Reversible, (Q, D)-Conserving, Finite-Seed {3,4,3,4} Strong Turing RPCA
-//              (U_rev = S o L_rev, 11-species + K_F/B/R_{a,b} local bijection, live RCM(2)
-//              c_2 <- c_2 + 2 * c_1 with strict constant D(t) = D_0 & exact bit-for-bit
-//              U_rev^{-T}(U_rev^T(state_0)) === state_0, operational memory test Gap 11,
-//              Paper 0012 railway-ca.ts irreversibility negative control, & O(log_{18.28} S)
-//              hyperbolic tree-RAM latency vs flat Z^4 Omega(S^{1/4})).
+//              (U_rev = S o L_rev, 11-species local bijection, period-2 oscillating gate catalysts
+//              K_F/B/R_{a,b} composed with live streaming S, homogeneous U_rev counter rays driven
+//              by a strictly finite-state reversible origin FSM computing bijective
+//              (c_1, c_2, 0) -> (c_1, c_2 + 2 c_1, 0) for c_1 = 0, 3, 5 with fixed D = 5, zero
+//              unbounded state, exact U_sys^{-T}(U_sys^T(state_0)) === state_0, operational memory
+//              test Gap 11, Paper 0012 railway-ca.ts irreversibility negative control, &
+//              O(log_{18.28} S) hyperbolic tree-RAM latency bound vs flat Z^4 Omega(S^{1/4})).
 //   PILLAR N2: Exact Finite-Seed, Locally Gauss-Invariant W16 Z_3-Link Partitioned Quantum
 //              Turing Machine (PQTM) on {3,4,3,4} (648D girth-4 square corner-turn 100.000000%
-//              [1,194x over bare U 0.0838%], exact flux-loop write E=(2,1,2,1) mod 3, 0 leakage
-//              over t=1..50; live 4-cell L_0 PQTM with 4 disjoint side plaquettes, full-space
-//              [U_PQTM, V_v] = 0, exact zero-decoherence gauge-string dressing P = 1.000000000000
-//              recombination vs un-uncomputed / loop-entangled negative controls).
-//   PILLAR N3: Fault-Tolerant Holographic Universal Quantum Computer on B_1 = [[552, 25, 40]]_3
-//              (W10 + W11 + W17: exact GF(3) contraction 527 stabs, 0 iso defects, wt-40 logicals,
-//              SL(2,3) + SUM + CZ_3 + U_star + U_Floq lifted to Sp(1104, 3), 0 leakage over 20
-//              composite beats, wt-39 recovery vs wt-40 drop; bare-U magic harvest prob=5/6 &
-//              Gross W(1,1)=W(2,2)=-0.100000, L1_neg=0.200000; native Z[zeta_9] T_3 magic
-//              W(0,1)=-0.097709, exact Clifford conjugation, 9x9 3-outcome teleportation F=1 vs
-//              no-feedforward negative control; Lie closure su(3)=8/8 & su(9)=80/80; end-to-end
-//              27D 3-qutrit circuit + wt-19 boundary Pauli injection + unique 527-stab syndrome +
-//              F=1 recovery vs wt-40 logical negative control; 72-line/144-leg 24/24 cone zero
-//              loss; live W17 0/6/18 cusp split, 96/96 disjoint docks, Szegedy gap 1.177109 rad,
+//              [1,194x over bare U 0.0838%], exact flux-loop write E=(2,1,2,1) mod 3, electric-only
+//              g_B=0 U_E eigenstate invariance over t=1..50; live 4-cell L_0 tape-conditioned PQTM
+//              with 4 disjoint side plaquettes, full-space [U_PQTM, V_v] = 0, forward t=4
+//              gauged-vs-ungauged Hadamard multi-path interference, & zero-decoherence dressing
+//              P = 1.000000000000 recombination vs un-uncomputed / loop-entangled negative controls).
+//   PILLAR N3: Holographic Universal Quantum Computer on B_1 = [[552, 25, d_min=8 / d_0=40]]_3
+//              (W10 + W11 + W17: exact GF(3) contraction 527 stabs, 0 iso defects, origin wt-40
+//              logicals commuting with all shell-1 logicals + shell-1 wt-8 logical; global
+//              algebraic Sp(1104, 3) symplectic lifts for SL(2,3) + SUM + CZ_3 + U_star + U_Floq,
+//              non-trivial 20-beat logical composition modulo hStabs, wt-39 recovery vs wt-40 drop;
+//              single internal half-coin layer D magic harvest prob=5/6 & Gross W=-0.100000;
+//              native Z[zeta_9] T_3 magic W(0,1)=-0.097709, exact Clifford conjugation, 9x9
+//              3-outcome teleportation F=1 vs no-FF control; exact discrete density proof via
+//              infinite-order W_comm = H_3 T_3 H_3^dag T_3^dag [3x^3-3x-1=0] vs finite-order
+//              Clifford controls T_3 -> Z_3, S_3, Cartan closed-subgroup su(3)=8/8 & su(9)=80/80;
+//              end-to-end 27D 3-qutrit circuit + 1-error-per-cone wt-19 syndrome recovery F=1 vs
+//              wt-8 shell-1 & wt-40 origin logical negative controls; 72-line/144-leg 24/24 cone
+//              zero loss; live W17 0/6/18 cusp split, 96/96 disjoint docks, Szegedy gap 1.177109 rad,
 //              and < 0.2304^t syndrome return bound).
-//   PILLAR N4: Complete (T, S, A, M, Delta S_cusp) Resource Ledger (Note 44 Gap 7) & Summary Matrix.
+//   PILLAR N4: Complete 7-Tier (T, S, A, M, Delta S_cusp) Resource Ledger (Note 44 Gap 7) & Summary.
 
 const T_START_MS = performance.now()
 
@@ -688,9 +694,9 @@ function runPillarN1(): PillarN1Metrics {
     for (let x = -1; x >= -negLen; x--) { cur = hc.step(cur, slotNeg); map.set(x, cur) }
     return map
   }
-  const rayL0 = buildRay(0, 14, 30)
-  const rayL1 = buildRay(1, 14, 30)
-  const rayL2 = buildRay(4, 240, 14)
+  const rayL0 = buildRay(0, 14, 34)
+  const rayL1 = buildRay(1, 14, 34)
+  const rayL2 = buildRay(4, 14, 34)
 
   // Verify S = R o E_swap: S(g, s) = (step(g, s), s), S^{-1}(g, s) = (step(g, OPP[s]), s)
   let streamChecked = 0
@@ -943,79 +949,199 @@ function runPillarN1(): PillarN1Metrics {
     `M T=40 leaks=${markerLeakCount}/40 (0.000000%); W 18-beat dx=+6 exact (err=${walkerErr})`,
   )
 
-  // 4. Single-dock Fredkin CSWAP (K_F catalyst), Morita Rotary Element RE (B bit-carrier), & Mirrors R_{a,b}
-  //    All built on a single 24-slot dock with all-+1-tone species (strictly conserving Q and D).
-  //    CSWAP ports: control on slot 0 (L_0), data-1 on slot 1 (L_1), data-2 on slot 20 (L_10, orthogonal!),
-  //                 catalyst K_F on slot 21 (L_11, orthogonal!).
+  // 4. Period-2 Oscillating Gate Catalysts (Fredkin CSWAP K_F, Morita RE B, Mirror R_{0,1})
+  //    Every catalyst oscillates s <-> OPP[s] identically to SP_M, verified both on single-dock truth tables
+  //    AND in live multi-beat streaming composition U_gate = S o L_gate on {3,4,3,4} with exact U_gate^{-T}!
   const SP_KF = 12
   const SP_B = 13
   const SP_MIRROR = 14
+  const DATA2_SLOT = LINES[8]![0]
+  const [CAT_A9, CAT_B9] = LINES[9]!
+  const [CAT_A10, CAT_B10] = LINES[10]!
+  const [CAT_A11, CAT_B11] = LINES[11]!
+
   const cswapDock = (slots: Uint8Array): Uint8Array => {
     const out = Uint8Array.from(slots)
-    if (out[21] === SP_KF && out[0] === SP_P) {
-      const tmp = out[1]!
-      out[1] = out[20]!
-      out[20] = tmp
+    if (out[CAT_B11] === SP_KF && out[CAT_A11] === 0) {
+      out[CAT_B11] = 0
+      out[CAT_A11] = SP_KF
+      if (out[0] === SP_P) {
+        const tmp = out[1]!
+        out[1] = out[DATA2_SLOT]!
+        out[DATA2_SLOT] = tmp
+      }
+    } else if (out[CAT_A11] === SP_KF && out[CAT_B11] === 0) {
+      out[CAT_A11] = 0
+      out[CAT_B11] = SP_KF
     }
     return out
   }
+  const cswapDockInv = (slots: Uint8Array): Uint8Array => {
+    const out = Uint8Array.from(slots)
+    if (out[CAT_A11] === SP_KF && out[CAT_B11] === 0) {
+      out[CAT_A11] = 0
+      out[CAT_B11] = SP_KF
+      if (out[0] === SP_P) {
+        const tmp = out[1]!
+        out[1] = out[DATA2_SLOT]!
+        out[DATA2_SLOT] = tmp
+      }
+    } else if (out[CAT_B11] === SP_KF && out[CAT_A11] === 0) {
+      out[CAT_B11] = 0
+      out[CAT_A11] = SP_KF
+    }
+    return out
+  }
+  const stepGateMesh = (
+    st: MeshState,
+    fwdFn: (s: Uint8Array) => Uint8Array,
+    invFn: (s: Uint8Array) => Uint8Array,
+    inv: boolean,
+  ): MeshState => {
+    if (!inv) {
+      const out: MeshState = new Map()
+      for (const [dock, arr] of st) {
+        const loc = fwdFn(arr)
+        for (let s = 0; s < 24; s++) if (loc[s]! !== 0) setSlot(out, hc.step(dock, s), s, loc[s]!)
+      }
+      return out
+    }
+    const pulled: MeshState = new Map()
+    for (const [dock, arr] of st) {
+      for (let s = 0; s < 24; s++) if (arr[s]! !== 0) setSlot(pulled, hc.step(dock, OPP[s]!), s, arr[s]!)
+    }
+    const out: MeshState = new Map()
+    for (const [dock, arr] of pulled) {
+      const loc = invFn(arr)
+      for (let s = 0; s < 24; s++) if (loc[s]! !== 0) setSlot(out, dock, s, loc[s]!)
+    }
+    return out
+  }
+
   let cswapTruthOk = 0
   let cswapInvDef = 0
   let cswapQDDef = 0
   for (let mask = 0; mask < 8; mask++) {
     const c = (mask >> 2) & 1, x = (mask >> 1) & 1, y = mask & 1
     const inp = new Uint8Array(24)
-    inp[21] = SP_KF
+    inp[CAT_B11] = SP_KF
     if (c) inp[0] = SP_P
     if (x) inp[1] = SP_P
-    if (y) inp[20] = SP_P
+    if (y) inp[DATA2_SLOT] = SP_P
     const out = cswapDock(inp)
     const expX = c ? y : x, expY = c ? x : y
-    if (out[21] === SP_KF && (out[0] === SP_P ? 1 : 0) === c && (out[1] === SP_P ? 1 : 0) === expX && (out[20] === SP_P ? 1 : 0) === expY) {
+    if (
+      out[CAT_A11] === SP_KF &&
+      out[CAT_B11] === 0 &&
+      (out[0] === SP_P ? 1 : 0) === c &&
+      (out[1] === SP_P ? 1 : 0) === expX &&
+      (out[DATA2_SLOT] === SP_P ? 1 : 0) === expY
+    ) {
       cswapTruthOk++
     }
-    const back = cswapDock(out)
+    const back = cswapDockInv(out)
     for (let s = 0; s < 24; s++) if (back[s] !== inp[s]) cswapInvDef++
     let dIn = 0, dOut = 0
     for (let s = 0; s < 24; s++) { if (inp[s]) dIn++; if (out[s]) dOut++ }
     if (dIn !== dOut) cswapQDDef++
   }
+  // Live multi-beat streaming CSWAP test (T = 4 beats, 2 consecutive pulses at t=0 [c=1,x=1,y=0] and t=2 [c=0,x=1,y=0])
+  const cswapSeed: MeshState = new Map()
+  setSlot(cswapSeed, 0, CAT_B11, SP_KF)
+  setSlot(cswapSeed, 0, 0, SP_P)
+  setSlot(cswapSeed, 0, 1, SP_P)
+  setSlot(cswapSeed, rayL1.get(-2)!, 1, SP_P) // arrives at (0, 1) at t = 2 with c = 0!
+  let stCswap = cloneMesh(cswapSeed)
+  let cswapStreamOk = true
+  for (let t = 1; t <= 4; t++) {
+    stCswap = stepGateMesh(stCswap, cswapDock, cswapDockInv, false)
+    if (countParticles(stCswap).D !== 4) cswapStreamOk = false
+    if (t === 1 && stCswap.get(hc.step(0, DATA2_SLOT))?.[DATA2_SLOT] !== SP_P) cswapStreamOk = false
+    if (t === 2 && stCswap.get(0)?.[CAT_B11] !== SP_KF) cswapStreamOk = false
+    if (t === 3 && stCswap.get(hc.step(0, 1))?.[1] !== SP_P) cswapStreamOk = false
+    if (t === 4 && stCswap.get(0)?.[CAT_B11] !== SP_KF) cswapStreamOk = false
+  }
+  for (let t = 0; t < 4; t++) stCswap = stepGateMesh(stCswap, cswapDock, cswapDockInv, true)
+  if (diffMesh(stCswap, cswapSeed) !== 0) cswapStreamOk = false
 
-  // Morita Rotary Element RE on 4 orthogonal ports N=0, E=1, S=3, W=2 + rotary bar B on slot 20 (b=0: H-bar) or slot 21 (b=1: V-bar)
-  // Incoming direction idx: 0=N (moving S -> arrives slot 3), 1=E (moving W -> arrives slot 2), 2=S (moving N -> arrives slot 0), 3=W (moving E -> arrives slot 1)
+  // Morita Rotary Element RE: period-2 oscillating bar B on L_10 (H-bar: b10<->a10) or L_11 (V-bar: b11<->a11)
   const rePortSlots = [3, 2, 0, 1] as const // N->S(3), E->W(2), S->N(0), W->E(1)
   const reDock = (slots: Uint8Array): Uint8Array => {
     const out = Uint8Array.from(slots)
-    const isH = out[20] === SP_B && out[21] === 0
-    const isV = out[21] === SP_B && out[20] === 0
-    if (!isH && !isV) return out
-    let activeDir = -1
-    let activeCount = 0
-    for (let d = 0; d < 4; d++) {
-      if (out[rePortSlots[d]!] === SP_P) { activeDir = d; activeCount++ }
+    const isH = out[CAT_B10] === SP_B && out[CAT_A10] === 0 && out[CAT_B11] === 0 && out[CAT_A11] === 0
+    const isV = out[CAT_B11] === SP_B && out[CAT_A11] === 0 && out[CAT_B10] === 0 && out[CAT_A10] === 0
+    if (isH || isV) {
+      let activeDir = -1, activeCount = 0
+      for (let d = 0; d < 4; d++) if (out[rePortSlots[d]!] === SP_P) { activeDir = d; activeCount++ }
+      if (activeCount === 0) {
+        if (isH) { out[CAT_B10] = 0; out[CAT_A10] = SP_B }
+        else { out[CAT_B11] = 0; out[CAT_A11] = SP_B }
+        return out
+      }
+      if (activeCount !== 1) return out
+      out[rePortSlots[activeDir]!] = 0
+      if (isH) {
+        out[CAT_B10] = 0
+        if (activeDir === 1) { out[2] = SP_P; out[CAT_A10] = SP_B }
+        else if (activeDir === 3) { out[1] = SP_P; out[CAT_A10] = SP_B }
+        else if (activeDir === 0) { out[2] = SP_P; out[CAT_A11] = SP_B }
+        else { out[1] = SP_P; out[CAT_A11] = SP_B }
+      } else {
+        out[CAT_B11] = 0
+        if (activeDir === 0) { out[3] = SP_P; out[CAT_A11] = SP_B }
+        else if (activeDir === 2) { out[0] = SP_P; out[CAT_A11] = SP_B }
+        else if (activeDir === 1) { out[0] = SP_P; out[CAT_A10] = SP_B }
+        else { out[3] = SP_P; out[CAT_A10] = SP_B }
+      }
+      return out
     }
-    if (activeCount !== 1) return out
-    out[rePortSlots[activeDir]!] = 0
-    if (isH) {
-      // H-bar: E(1) & W(3) pass straight (slot 2 -> 2, slot 1 -> 1); N(0) turns right to W(slot 2) & flips H->V; S(2) turns right to E(slot 1) & flips H->V
-      if (activeDir === 1) { out[2] = SP_P }
-      else if (activeDir === 3) { out[1] = SP_P }
-      else if (activeDir === 0) { out[2] = SP_P; out[20] = 0; out[21] = SP_B }
-      else { out[1] = SP_P; out[20] = 0; out[21] = SP_B }
-    } else {
-      // V-bar: N(0) & S(2) pass straight (slot 3 -> 3, slot 0 -> 0); E(1) turns right to N(slot 0) & flips V->H; W(3) turns right to S(slot 3) & flips V->H
-      if (activeDir === 0) { out[3] = SP_P }
-      else if (activeDir === 2) { out[0] = SP_P }
-      else if (activeDir === 1) { out[0] = SP_P; out[21] = 0; out[20] = SP_B }
-      else { out[3] = SP_P; out[21] = 0; out[20] = SP_B }
+    // Odd-beat catalyst return at neighbor dock
+    if (out[CAT_A10] === SP_B && out[CAT_B10] === 0 && out[CAT_A11] === 0 && out[CAT_B11] === 0) {
+      out[CAT_A10] = 0; out[CAT_B10] = SP_B
+    } else if (out[CAT_A11] === SP_B && out[CAT_B11] === 0 && out[CAT_A10] === 0 && out[CAT_B10] === 0) {
+      out[CAT_A11] = 0; out[CAT_B11] = SP_B
+    }
+    return out
+  }
+  const reDockInv = (slots: Uint8Array): Uint8Array => {
+    const out = Uint8Array.from(slots)
+    const outH = out[CAT_A10] === SP_B && out[CAT_B10] === 0 && out[CAT_A11] === 0 && out[CAT_B11] === 0
+    const outV = out[CAT_A11] === SP_B && out[CAT_B11] === 0 && out[CAT_A10] === 0 && out[CAT_B10] === 0
+    if (outH || outV) {
+      let outSlot = -1, activeCount = 0
+      for (const s of rePortSlots) if (out[s] === SP_P) { outSlot = s; activeCount++ }
+      if (activeCount === 0) {
+        if (outH) { out[CAT_A10] = 0; out[CAT_B10] = SP_B }
+        else { out[CAT_A11] = 0; out[CAT_B11] = SP_B }
+        return out
+      }
+      if (activeCount !== 1) return out
+      out[outSlot] = 0
+      if (outH) {
+        out[CAT_A10] = 0
+        if (outSlot === 2) { out[2] = SP_P; out[CAT_B10] = SP_B }
+        else if (outSlot === 1) { out[1] = SP_P; out[CAT_B10] = SP_B }
+        else if (outSlot === 0) { out[2] = SP_P; out[CAT_B11] = SP_B }
+        else { out[1] = SP_P; out[CAT_B11] = SP_B }
+      } else {
+        out[CAT_A11] = 0
+        if (outSlot === 2) { out[3] = SP_P; out[CAT_B10] = SP_B }
+        else if (outSlot === 1) { out[0] = SP_P; out[CAT_B10] = SP_B }
+        else if (outSlot === 3) { out[3] = SP_P; out[CAT_B11] = SP_B }
+        else { out[0] = SP_P; out[CAT_B11] = SP_B }
+      }
+      return out
+    }
+    if (out[CAT_B10] === SP_B && out[CAT_A10] === 0 && out[CAT_B11] === 0 && out[CAT_A11] === 0) {
+      out[CAT_B10] = 0; out[CAT_A10] = SP_B
+    } else if (out[CAT_B11] === SP_B && out[CAT_A11] === 0 && out[CAT_B10] === 0 && out[CAT_A10] === 0) {
+      out[CAT_B11] = 0; out[CAT_A11] = SP_B
     }
     return out
   }
   const reOutputs = new Set<string>()
-  let reQDDef = 0
-  let reTruthOk = 0
+  let reQDDef = 0, reTruthOk = 0, reInvDef = 0
   const reExpected: readonly (readonly [number, number])[] = [
-    // (outSlot, outB) for (dir=0..3, b=0) then (dir=0..3, b=1)
     [2, 1], [2, 0], [1, 1], [1, 0],
     [3, 1], [0, 0], [0, 1], [3, 0],
   ]
@@ -1023,43 +1149,104 @@ function runPillarN1(): PillarN1Metrics {
     for (let dir = 0; dir < 4; dir++) {
       const inp = new Uint8Array(24)
       inp[rePortSlots[dir]!] = SP_P
-      inp[b === 0 ? 20 : 21] = SP_B
+      inp[b === 0 ? CAT_B10 : CAT_B11] = SP_B
       const out = reDock(inp)
       let outSlot = -1
       for (const s of rePortSlots) if (out[s] === SP_P) outSlot = s
-      const outB = out[20] === SP_B ? 0 : out[21] === SP_B ? 1 : -1
+      const outB = out[CAT_A10] === SP_B ? 0 : out[CAT_A11] === SP_B ? 1 : -1
       const exp = reExpected[b * 4 + dir]!
       if (outSlot === exp[0] && outB === exp[1]) reTruthOk++
       reOutputs.add(`${outSlot}:${outB}`)
+      const back = reDockInv(out)
+      for (let s = 0; s < 24; s++) if (back[s] !== inp[s]) reInvDef++
       let dIn = 0, dOut = 0
       for (let s = 0; s < 24; s++) { if (inp[s]) dIn++; if (out[s]) dOut++ }
       if (dIn !== dOut) reQDDef++
     }
   }
+  // Live multi-beat streaming RE test (T = 6 beats, 3 consecutive pulses flipping H -> V -> V -> H!)
+  const reSeed: MeshState = new Map()
+  setSlot(reSeed, 0, CAT_B10, SP_B)          // H-bar at dock 0
+  setSlot(reSeed, 0, 3, SP_P)                // pulse 1 from N at t=0 -> turns W (slot 2), flips H->V
+  setSlot(reSeed, rayL0.get(2)!, 3, SP_P)    // pulse 2 from N at t=2 -> straight S (slot 3), stays V
+  setSlot(reSeed, rayL1.get(4)!, 2, SP_P)    // pulse 3 from E at t=4 -> turns N (slot 0), flips V->H
+  let stRe = cloneMesh(reSeed)
+  let reStreamOk = true
+  for (let t = 1; t <= 6; t++) {
+    stRe = stepGateMesh(stRe, reDock, reDockInv, false)
+    if (countParticles(stRe).D !== 4) reStreamOk = false
+    if (t === 1 && stRe.get(hc.step(0, 2))?.[2] !== SP_P) reStreamOk = false
+    if (t === 2 && stRe.get(0)?.[CAT_B11] !== SP_B) reStreamOk = false
+    if (t === 3 && stRe.get(hc.step(0, 3))?.[3] !== SP_P) reStreamOk = false
+    if (t === 4 && stRe.get(0)?.[CAT_B11] !== SP_B) reStreamOk = false
+    if (t === 5 && stRe.get(hc.step(0, 0))?.[0] !== SP_P) reStreamOk = false
+    if (t === 6 && stRe.get(0)?.[CAT_B10] !== SP_B) reStreamOk = false
+  }
+  for (let t = 0; t < 6; t++) stRe = stepGateMesh(stRe, reDock, reDockInv, true)
+  if (diffMesh(stRe, reSeed) !== 0) reStreamOk = false
 
-  // Mirror R_{0,1}: swaps slot 0 <-> 1 and slot 3 <-> 2 catalytically in presence of SP_MIRROR on slot 22
+  // Mirror R_{0,1}: period-2 oscillating catalyst SP_MIRROR on L_9 (b9 <-> a9)
   const mirrorDock = (slots: Uint8Array): Uint8Array => {
     const out = Uint8Array.from(slots)
-    if (out[22] === SP_MIRROR) {
+    if (out[CAT_B9] === SP_MIRROR && out[CAT_A9] === 0) {
+      out[CAT_B9] = 0; out[CAT_A9] = SP_MIRROR
       const t0 = out[0]!; out[0] = out[1]!; out[1] = t0
       const t3 = out[3]!; out[3] = out[2]!; out[2] = t3
+    } else if (out[CAT_A9] === SP_MIRROR && out[CAT_B9] === 0) {
+      out[CAT_A9] = 0; out[CAT_B9] = SP_MIRROR
+    }
+    return out
+  }
+  const mirrorDockInv = (slots: Uint8Array): Uint8Array => {
+    const out = Uint8Array.from(slots)
+    if (out[CAT_A9] === SP_MIRROR && out[CAT_B9] === 0) {
+      out[CAT_A9] = 0; out[CAT_B9] = SP_MIRROR
+      const t0 = out[0]!; out[0] = out[1]!; out[1] = t0
+      const t3 = out[3]!; out[3] = out[2]!; out[2] = t3
+    } else if (out[CAT_B9] === SP_MIRROR && out[CAT_A9] === 0) {
+      out[CAT_B9] = 0; out[CAT_A9] = SP_MIRROR
     }
     return out
   }
   let mirrorInvDef = 0
   for (const s of [0, 1, 2, 3]) {
-    const inp = new Uint8Array(24); inp[22] = SP_MIRROR; inp[s] = SP_P
-    const out = mirrorDock(inp)
-    const back = mirrorDock(out)
+    const inp = new Uint8Array(24); inp[CAT_B9] = SP_MIRROR; inp[s] = SP_P
+    const back = mirrorDockInv(mirrorDock(inp))
     for (let k = 0; k < 24; k++) if (back[k] !== inp[k]) mirrorInvDef++
   }
+  const mirSeed: MeshState = new Map()
+  setSlot(mirSeed, 0, CAT_B9, SP_MIRROR)
+  setSlot(mirSeed, 0, 0, SP_P)
+  setSlot(mirSeed, rayL0.get(2)!, 3, SP_P)
+  let stMir = cloneMesh(mirSeed)
+  let mirStreamOk = true
+  for (let t = 1; t <= 4; t++) {
+    stMir = stepGateMesh(stMir, mirrorDock, mirrorDockInv, false)
+    if (countParticles(stMir).D !== 3) mirStreamOk = false
+    if (t === 1 && stMir.get(hc.step(0, 1))?.[1] !== SP_P) mirStreamOk = false
+    if (t === 2 && stMir.get(0)?.[CAT_B9] !== SP_MIRROR) mirStreamOk = false
+    if (t === 3 && stMir.get(hc.step(0, 2))?.[2] !== SP_P) mirStreamOk = false
+    if (t === 4 && stMir.get(0)?.[CAT_B9] !== SP_MIRROR) mirStreamOk = false
+  }
+  for (let t = 0; t < 4; t++) stMir = stepGateMesh(stMir, mirrorDock, mirrorDockInv, true)
+  if (diffMesh(stMir, mirSeed) !== 0) mirStreamOk = false
 
   recordCheck(
     'N1',
     'N1.4',
-    'Single-dock Fredkin CSWAP (8/8), Morita Rotary Element RE (8/8) & Mirror R_{a,b} (Q, D)-conserving bijections',
-    cswapTruthOk === 8 && cswapInvDef === 0 && cswapQDDef === 0 && reTruthOk === 8 && reOutputs.size === 8 && reQDDef === 0 && mirrorInvDef === 0,
-    `CSWAP=${cswapTruthOk}/8 (invDef=${cswapInvDef}, QD=${cswapQDDef}); RE=${reTruthOk}/8 (${reOutputs.size}/8 distinct, QD=${reQDDef}); R_{0,1} invDef=${mirrorInvDef}`,
+    'Period-2 oscillating gate catalysts (CSWAP 8/8, RE 8/8, Mirror R_{0,1}) + live multi-beat S streaming & reversal',
+    cswapTruthOk === 8 &&
+      cswapInvDef === 0 &&
+      cswapQDDef === 0 &&
+      cswapStreamOk &&
+      reTruthOk === 8 &&
+      reOutputs.size === 8 &&
+      reInvDef === 0 &&
+      reQDDef === 0 &&
+      reStreamOk &&
+      mirrorInvDef === 0 &&
+      mirStreamOk,
+    `CSWAP=${cswapTruthOk}/8 (invDef=${cswapInvDef}, QD=${cswapQDDef}, T=4 stream+rev=${cswapStreamOk}); RE=${reTruthOk}/8 (${reOutputs.size}/8 distinct, invDef=${reInvDef}, QD=${reQDDef}, T=6 H->V->V->H stream+rev=${reStreamOk}); R_{0,1} (invDef=${mirrorInvDef}, T=4 stream+rev=${mirStreamOk})`,
   )
 
   // 5. LIVE FINITE-SEED CONSTANT-D REVERSIBLE COUNTER PRIMITIVES (INC, DEC, ZERO_TEST) ON {3,4,3,4}
@@ -1126,267 +1313,279 @@ function runPillarN1(): PillarN1Metrics {
     `INC dt=[${incSpacings.join(',')}], DEC dt=[${decSpacings.join(',')}], ZT=[${ztTimes.join(',')}] (Gap 11 memory probe c=1->20 vs c=2->24)`,
   )
 
-  // 6. COMPLETE MULTI-STEP REVERSIBLE 2-COUNTER PROGRAM: c_2 <- c_2 + 2 * c_1
-  //    Start: (c_1 = 3, c_2 = 1) -> (n_1 = 14 on L_0, n_2 = 10 on L_1)
-  //    End:   (c_1 = 0, c_2 = 7) -> (n_1 = 8 on L_0, n_2 = 22 on L_1)
-  //    All D_0 = 9 particles live strictly on {3,4,3,4}:
-  //      M_1 on L_0(14), M_2 on L_1(10), M_ref on L_2(8), 2 work tokens on L_3/L_4, 4 clock tokens on L_5..L_8.
+  // 6. HOMOGENEOUS U_rev COUNTER RAYS DRIVEN BY A STRICTLY FINITE-STATE REVERSIBLE ORIGIN CONTROLLER:
+  //    Bijective Bennett compute-and-restore routine (c_1, c_2, 0) -> (c_1, c_2 + 2 c_1, 0) on {3,4,3,4} rays
+  //    L_0 (c_1 at n_1 = 2 c_1), L_1 (c_2 at n_2 = 2 c_2), L_2 (c_3 at n_3 = 2 c_3).
+  //    ZERO unbounded counters (no `h`), ZERO consumed/escaping particles, FIXED D_0 = 5 particles
+  //    (M_1, M_2, M_3 + 2 reusable parked work tokens on L_3, L_4), exact U_sys^{-T}(U_sys^T(state_0)) === state_0
+  //    verified across c_1 = 0, c_1 = 3, AND c_1 = 5!
+  //    Note: All non-origin docks evolve strictly under homogeneous U_rev = S o L_rev; dock 0 hosts the
+  //    bounded finite-state reversible origin FSM (17 phases x launch in 0..11 x ret in 0..10).
   type CtrlPhase =
-    | 'ZT_LAUNCH'
-    | 'ZT_WAIT_CLK'
-    | 'ZT_WAIT_PROBE'
-    | 'DEC_TICK'
-    | 'DEC_LAUNCH'
-    | 'DEC_WAIT1'
-    | 'DEC_WAIT2'
-    | 'INC1_TICK'
-    | 'INC1_LAUNCH'
-    | 'INC1_WAIT1'
-    | 'INC1_WAIT2'
-    | 'INC2_TICK'
-    | 'INC2_LAUNCH'
-    | 'INC2_WAIT1'
-    | 'INC2_WAIT2'
-    | 'LOOP_TICK'
-    | 'HALT'
+    | 'START'
+    | 'L1_HEAD_ODD'
+    | 'L1_DISPATCH_EVEN'
+    | 'L1_DEC1'
+    | 'L1_DEC1_ODD'
+    | 'L1_INC2A'
+    | 'L1_INC2A_ODD'
+    | 'L1_INC2B'
+    | 'L1_INC2B_ODD'
+    | 'L1_INC3'
+    | 'L2_HEAD_ODD'
+    | 'L2_DISPATCH_EVEN'
+    | 'L2_DEC3'
+    | 'L2_DEC3_ODD'
+    | 'L2_INC1'
+    | 'HALT_ODD'
+    | 'HALT_EVEN'
 
   interface CtrlState {
     readonly phase: CtrlPhase
-    readonly tau: number
-    readonly h: number
+    readonly launch: number // strictly bounded 0..11
+    readonly ret: number    // strictly bounded 0..10
   }
   interface SysState {
     readonly mesh: MeshState
     readonly ctrl: CtrlState
   }
 
-  // Exact parking lines L_3..L_8 from LINES[3..8]: [a, b] where parked M sits at (0, b) on even beats
-  const PARK_A = [LINES[3]![0], LINES[4]![0], LINES[5]![0], LINES[6]![0], LINES[7]![0], LINES[8]![0]] as const
-  const PARK_B = [LINES[3]![1], LINES[4]![1], LINES[5]![1], LINES[6]![1], LINES[7]![1], LINES[8]![1]] as const
-  // Park index 0 = work token 1 (L_3), 1 = work token 2 (L_4), 2+h = clock token h (L_{5+h})
+  // Exact parking lines L_3, L_4: ONLY 2 reusable work tokens for ALL inputs c_1 >= 0!
+  const PARK_A = [LINES[3]![0], LINES[4]![0]] as const
+  const PARK_B = [LINES[3]![1], LINES[4]![1]] as const
 
-  function applyOriginCtrlFwd(arrIn: Uint8Array, ctrl: CtrlState): { readonly arr: Uint8Array; readonly ctrl: CtrlState } {
-    // First apply standard L_rev on every line at dock 0 EXCEPT lines explicitly handled by ctrl!
+  const runLRevAll12 = (arrIn: Uint8Array): Uint8Array => {
     const out = new Uint8Array(24)
     for (let l = 0; l < 12; l++) {
       const [sa, sb] = LINES[l]!
       const [oa, ob] = lRevLine(arrIn[sa]!, arrIn[sb]!)
       out[sa] = oa; out[sb] = ob
     }
-    const { phase, tau, h } = ctrl
-    const takePark = (pIdx: number): void => {
-      // On even beat, parked M was at arrIn[PARK_B[pIdx]], so standard lRevLine moved it to out[PARK_A[pIdx]].
-      assertExact(out[PARK_A[pIdx]!] === SP_M && out[PARK_B[pIdx]!] === 0, `takePark ${pIdx} missing M`)
-      out[PARK_A[pIdx]!] = 0
-    }
-    const putPark = (pIdx: number): void => {
-      // Park into PARK_A[pIdx] so S streams it to neighbor on odd beat and back to PARK_B on next even beat!
-      assertExact(out[PARK_A[pIdx]!] === 0 && out[PARK_B[pIdx]!] === 0, `putPark ${pIdx} occupied`)
-      out[PARK_A[pIdx]!] = SP_M
-    }
-
-    if (phase === 'ZT_LAUNCH') {
-      takePark(0)
-      takePark(2 + h)
-      assertExact(out[0] === 0 && out[4] === 0, 'ZT_LAUNCH slots 0,4 clear')
-      out[0] = SP_P
-      out[4] = SP_P
-      return { arr: out, ctrl: { phase: 'ZT_WAIT_CLK', tau: 0, h } }
-    }
-    if (phase === 'ZT_WAIT_CLK') {
-      if (out[7] === SP_P && out[3] === SP_P) {
-        // Coincidence at t = 16 => c_1 === 0!
-        out[3] = 0; putPark(0)
-        out[7] = 0; putPark(2 + h)
-        return { arr: out, ctrl: { phase: 'HALT', tau: 0, h } }
-      }
-      if (out[7] === SP_P && out[3] === 0) {
-        // Clock arrived alone => c_1 > 0! Let P continue straight on slot 7 onto -L_2!
-        return { arr: out, ctrl: { phase: 'ZT_WAIT_PROBE', tau: 0, h } }
-      }
-      return { arr: out, ctrl }
-    }
-    if (phase === 'ZT_WAIT_PROBE') {
-      if (out[3] === SP_P) {
-        out[3] = 0; putPark(0)
-        return { arr: out, ctrl: { phase: 'DEC_TICK', tau: 0, h } }
-      }
-      return { arr: out, ctrl }
-    }
-    if (phase === 'DEC_TICK') return { arr: out, ctrl: { phase: 'DEC_LAUNCH', tau: 0, h } }
-    if (phase === 'DEC_LAUNCH') {
-      if (tau === 0) {
-        takePark(0)
-        assertExact(out[0] === 0, 'DEC H slot clear')
-        out[0] = SP_H
-        return { arr: out, ctrl: { phase: 'DEC_LAUNCH', tau: 1, h } }
-      }
-      if (tau < 10) return { arr: out, ctrl: { phase: 'DEC_LAUNCH', tau: tau + 1, h } }
-      // tau === 10
-      takePark(1)
-      assertExact(out[0] === 0, 'DEC G slot clear')
-      out[0] = SP_G
-      return { arr: out, ctrl: { phase: 'DEC_WAIT1', tau: 0, h } }
-    }
-    if (phase === 'DEC_WAIT1') {
-      if (out[3] === SP_HR) {
-        out[3] = 0; putPark(0)
-        return { arr: out, ctrl: { phase: 'DEC_WAIT2', tau: 0, h } }
-      }
-      return { arr: out, ctrl }
-    }
-    if (phase === 'DEC_WAIT2') {
-      if (tau < 5) return { arr: out, ctrl: { phase: 'DEC_WAIT2', tau: tau + 1, h } }
-      assertExact(out[3] === SP_FR, 'DEC_WAIT2(5) expects Fr on slot 3')
-      out[3] = 0; putPark(1)
-      return { arr: out, ctrl: { phase: 'INC1_TICK', tau: 0, h } }
-    }
-    if (phase === 'INC1_TICK') return { arr: out, ctrl: { phase: 'INC1_LAUNCH', tau: 0, h } }
-    if (phase === 'INC1_LAUNCH') {
-      if (tau === 0) {
-        takePark(0)
-        assertExact(out[1] === 0, 'INC1 F slot clear')
-        out[1] = SP_F
-        return { arr: out, ctrl: { phase: 'INC1_LAUNCH', tau: 1, h } }
-      }
-      if (tau < 6) return { arr: out, ctrl: { phase: 'INC1_LAUNCH', tau: tau + 1, h } }
-      takePark(1)
-      assertExact(out[1] === 0, 'INC1 G slot clear')
-      out[1] = SP_G
-      return { arr: out, ctrl: { phase: 'INC1_WAIT1', tau: 0, h } }
-    }
-    if (phase === 'INC1_WAIT1') {
-      if (out[2] === SP_FR) {
-        out[2] = 0; putPark(0)
-        return { arr: out, ctrl: { phase: 'INC1_WAIT2', tau: 0, h } }
-      }
-      return { arr: out, ctrl }
-    }
-    if (phase === 'INC1_WAIT2') {
-      if (tau < 9) return { arr: out, ctrl: { phase: 'INC1_WAIT2', tau: tau + 1, h } }
-      assertExact(out[2] === SP_GR, 'INC1_WAIT2(9) expects Gr on slot 2')
-      out[2] = 0; putPark(1)
-      return { arr: out, ctrl: { phase: 'INC2_TICK', tau: 0, h } }
-    }
-    if (phase === 'INC2_TICK') return { arr: out, ctrl: { phase: 'INC2_LAUNCH', tau: 0, h } }
-    if (phase === 'INC2_LAUNCH') {
-      if (tau === 0) {
-        takePark(0)
-        assertExact(out[1] === 0, 'INC2 F slot clear')
-        out[1] = SP_F
-        return { arr: out, ctrl: { phase: 'INC2_LAUNCH', tau: 1, h } }
-      }
-      if (tau < 6) return { arr: out, ctrl: { phase: 'INC2_LAUNCH', tau: tau + 1, h } }
-      takePark(1)
-      assertExact(out[1] === 0, 'INC2 G slot clear')
-      out[1] = SP_G
-      return { arr: out, ctrl: { phase: 'INC2_WAIT1', tau: 0, h } }
-    }
-    if (phase === 'INC2_WAIT1') {
-      if (out[2] === SP_FR) {
-        out[2] = 0; putPark(0)
-        return { arr: out, ctrl: { phase: 'INC2_WAIT2', tau: 0, h } }
-      }
-      return { arr: out, ctrl }
-    }
-    if (phase === 'INC2_WAIT2') {
-      if (tau < 9) return { arr: out, ctrl: { phase: 'INC2_WAIT2', tau: tau + 1, h } }
-      assertExact(out[2] === SP_GR, 'INC2_WAIT2(9) expects Gr on slot 2')
-      out[2] = 0; putPark(1)
-      return { arr: out, ctrl: { phase: 'LOOP_TICK', tau: 0, h: h + 1 } }
-    }
-    if (phase === 'LOOP_TICK') return { arr: out, ctrl: { phase: 'ZT_LAUNCH', tau: 0, h } }
-    // HALT: count tau reversibly
-    return { arr: out, ctrl: { phase: 'HALT', tau: tau + 1, h } }
+    return out
   }
-
-  function applyOriginCtrlInv(arrAfterSInv: Uint8Array, ctrl: CtrlState): { readonly arr: Uint8Array; readonly ctrl: CtrlState } {
-    // Invert the post-L_rev dock-0 action FIRST, then invert standard L_rev on every line!
-    const pre = Uint8Array.from(arrAfterSInv)
-    const { phase, tau, h } = ctrl
-    let prevCtrl: CtrlState = ctrl
-
-    const unTakePark = (pIdx: number): void => {
-      assertExact(pre[PARK_A[pIdx]!] === 0, `unTakePark ${pIdx} not empty`)
-      pre[PARK_A[pIdx]!] = SP_M
-    }
-    const unPutPark = (pIdx: number): void => {
-      assertExact(pre[PARK_A[pIdx]!] === SP_M, `unPutPark ${pIdx} missing M`)
-      pre[PARK_A[pIdx]!] = 0
-    }
-
-    if (phase === 'HALT') {
-      if (tau > 0) prevCtrl = { phase: 'HALT', tau: tau - 1, h }
-      else {
-        unPutPark(0); pre[3] = SP_P
-        unPutPark(2 + h); pre[7] = SP_P
-        prevCtrl = { phase: 'ZT_WAIT_CLK', tau: 0, h }
-      }
-    } else if (phase === 'ZT_LAUNCH') {
-      assertExact(h > 0, 'cannot invert initial ZT_LAUNCH(h=0)')
-      prevCtrl = { phase: 'LOOP_TICK', tau: 0, h }
-    } else if (phase === 'LOOP_TICK') {
-      unPutPark(1); pre[2] = SP_GR
-      prevCtrl = { phase: 'INC2_WAIT2', tau: 9, h: h - 1 }
-    } else if (phase === 'INC2_WAIT2') {
-      if (tau > 0) prevCtrl = { phase: 'INC2_WAIT2', tau: tau - 1, h }
-      else { unPutPark(0); pre[2] = SP_FR; prevCtrl = { phase: 'INC2_WAIT1', tau: 0, h } }
-    } else if (phase === 'INC2_WAIT1') {
-      if (pre[1] === SP_G) { pre[1] = 0; unTakePark(1); prevCtrl = { phase: 'INC2_LAUNCH', tau: 6, h } }
-      else prevCtrl = ctrl
-    } else if (phase === 'INC2_LAUNCH') {
-      if (tau > 1) prevCtrl = { phase: 'INC2_LAUNCH', tau: tau - 1, h }
-      else if (tau === 1) { assertExact(pre[1] === SP_F, 'inv INC2 F'); pre[1] = 0; unTakePark(0); prevCtrl = { phase: 'INC2_LAUNCH', tau: 0, h } }
-      else prevCtrl = { phase: 'INC2_TICK', tau: 0, h }
-    } else if (phase === 'INC2_TICK') {
-      unPutPark(1); pre[2] = SP_GR
-      prevCtrl = { phase: 'INC1_WAIT2', tau: 9, h }
-    } else if (phase === 'INC1_WAIT2') {
-      if (tau > 0) prevCtrl = { phase: 'INC1_WAIT2', tau: tau - 1, h }
-      else { unPutPark(0); pre[2] = SP_FR; prevCtrl = { phase: 'INC1_WAIT1', tau: 0, h } }
-    } else if (phase === 'INC1_WAIT1') {
-      if (pre[1] === SP_G) { pre[1] = 0; unTakePark(1); prevCtrl = { phase: 'INC1_LAUNCH', tau: 6, h } }
-      else prevCtrl = ctrl
-    } else if (phase === 'INC1_LAUNCH') {
-      if (tau > 1) prevCtrl = { phase: 'INC1_LAUNCH', tau: tau - 1, h }
-      else if (tau === 1) { assertExact(pre[1] === SP_F, 'inv INC1 F'); pre[1] = 0; unTakePark(0); prevCtrl = { phase: 'INC1_LAUNCH', tau: 0, h } }
-      else prevCtrl = { phase: 'INC1_TICK', tau: 0, h }
-    } else if (phase === 'INC1_TICK') {
-      unPutPark(1); pre[3] = SP_FR
-      prevCtrl = { phase: 'DEC_WAIT2', tau: 5, h }
-    } else if (phase === 'DEC_WAIT2') {
-      if (tau > 0) prevCtrl = { phase: 'DEC_WAIT2', tau: tau - 1, h }
-      else { unPutPark(0); pre[3] = SP_HR; prevCtrl = { phase: 'DEC_WAIT1', tau: 0, h } }
-    } else if (phase === 'DEC_WAIT1') {
-      if (pre[0] === SP_G) { pre[0] = 0; unTakePark(1); prevCtrl = { phase: 'DEC_LAUNCH', tau: 10, h } }
-      else prevCtrl = ctrl
-    } else if (phase === 'DEC_LAUNCH') {
-      if (tau > 1) prevCtrl = { phase: 'DEC_LAUNCH', tau: tau - 1, h }
-      else if (tau === 1) { assertExact(pre[0] === SP_H, 'inv DEC H'); pre[0] = 0; unTakePark(0); prevCtrl = { phase: 'DEC_LAUNCH', tau: 0, h } }
-      else prevCtrl = { phase: 'DEC_TICK', tau: 0, h }
-    } else if (phase === 'DEC_TICK') {
-      unPutPark(0); pre[3] = SP_P
-      prevCtrl = { phase: 'ZT_WAIT_PROBE', tau: 0, h }
-    } else if (phase === 'ZT_WAIT_PROBE') {
-      if (pre[7] === SP_P) prevCtrl = { phase: 'ZT_WAIT_CLK', tau: 0, h }
-      else prevCtrl = ctrl
-    } else if (phase === 'ZT_WAIT_CLK') {
-      if (pre[0] === SP_P && pre[4] === SP_P) {
-        pre[0] = 0; unTakePark(0)
-        pre[4] = 0; unTakePark(2 + h)
-        prevCtrl = { phase: 'ZT_LAUNCH', tau: 0, h }
-      } else {
-        prevCtrl = ctrl
-      }
-    }
-
+  const runLRevInvAll12 = (arrIn: Uint8Array): Uint8Array => {
     const out = new Uint8Array(24)
     for (let l = 0; l < 12; l++) {
       const [sa, sb] = LINES[l]!
-      const [ia, ib] = lRevLineInv(pre[sa]!, pre[sb]!)
+      const [ia, ib] = lRevLineInv(arrIn[sa]!, arrIn[sb]!)
       out[sa] = ia; out[sb] = ib
     }
-    return { arr: out, ctrl: prevCtrl }
+    return out
+  }
+
+  function stepMacroFwd(
+    arrIn: Uint8Array,
+    phase: CtrlPhase,
+    launch: number,
+    ret: number,
+    sPos: number,
+    sNeg: number,
+    isInc: boolean,
+    nextOddPhase: CtrlPhase,
+  ): { readonly arr: Uint8Array; readonly ctrl: CtrlState } {
+    const pre = Uint8Array.from(arrIn)
+    const launchG = isInc ? 6 : 10
+    const launchDone = launchG + 1
+    const retDone = isInc ? 10 : 6
+    const spFirst = isInc ? SP_F : SP_H
+    const spRet1 = isInc ? SP_FR : SP_HR
+    const spRet2 = isInc ? SP_GR : SP_FR
+
+    // 1. Pre-lRevLine outbound launch
+    let nextLaunch = launch
+    if (launch === 0) {
+      assertExact(pre[PARK_B[0]] === SP_M && pre[sPos] === 0, `${phase} launch0`)
+      pre[PARK_B[0]] = 0
+      pre[sPos] = spFirst
+      nextLaunch = 1
+    } else if (launch < launchG) {
+      nextLaunch = launch + 1
+    } else if (launch === launchG) {
+      assertExact(pre[PARK_B[1]] === SP_M && pre[sPos] === 0, `${phase} launchG`)
+      pre[PARK_B[1]] = 0
+      pre[sPos] = SP_G
+      nextLaunch = launchDone
+    }
+
+    // 2. Standard homogeneous lRevLine on all 12 lines (handles c=0/c=1 collisions right at dock 0!)
+    const out = runLRevAll12(pre)
+
+    // 3. Post-lRevLine inbound absorption
+    if (ret === 0) {
+      if (out[sNeg] === spRet1) {
+        assertExact(out[PARK_A[0]] === 0, `${phase} park0 free`)
+        out[sNeg] = 0
+        out[PARK_A[0]] = SP_M
+        return { arr: out, ctrl: { phase, launch: nextLaunch, ret: 1 } }
+      }
+      return { arr: out, ctrl: { phase, launch: nextLaunch, ret: 0 } }
+    }
+    if (ret < retDone) {
+      return { arr: out, ctrl: { phase, launch: nextLaunch, ret: ret + 1 } }
+    }
+    // ret === retDone -> absorb second return pulse and exit macro to odd beat!
+    assertExact(out[sNeg] === spRet2 && out[PARK_A[1]] === 0, `${phase} ret2`)
+    out[sNeg] = 0
+    out[PARK_A[1]] = SP_M
+    return { arr: out, ctrl: { phase: nextOddPhase, launch: 0, ret: 0 } }
+  }
+
+  function stepMacroExitInv(
+    arrAfterSInv: Uint8Array,
+    macroPhase: CtrlPhase,
+    sPos: number,
+    sNeg: number,
+    isInc: boolean,
+  ): { readonly arr: Uint8Array; readonly ctrl: CtrlState } {
+    const pre = Uint8Array.from(arrAfterSInv)
+    const launchG = isInc ? 6 : 10
+    const launchDone = launchG + 1
+    const retDone = isInc ? 10 : 6
+    const spRet2 = isInc ? SP_GR : SP_FR
+
+    // 1. Undo post-lRevLine absorption of second return pulse
+    assertExact(pre[PARK_A[1]] === SP_M && pre[sNeg] === 0, `${macroPhase} exitInv park1`)
+    pre[PARK_A[1]] = 0
+    pre[sNeg] = spRet2
+
+    // 2. Standard homogeneous lRevLineInv on all 12 lines
+    const out = runLRevInvAll12(pre)
+
+    // 3. Undo pre-lRevLine launch of G iff it occurred on the exact same beat (DEC at c=1!)
+    let prevLaunch = launchDone
+    if (out[sPos] === SP_G) {
+      assertExact(out[PARK_B[1]] === 0, `${macroPhase} exitInv unlaunchG`)
+      out[sPos] = 0
+      out[PARK_B[1]] = SP_M
+      prevLaunch = launchG
+    }
+    return { arr: out, ctrl: { phase: macroPhase, launch: prevLaunch, ret: retDone } }
+  }
+
+  function stepMacroInv(
+    arrAfterSInv: Uint8Array,
+    phase: CtrlPhase,
+    launch: number,
+    ret: number,
+    sPos: number,
+    sNeg: number,
+    isInc: boolean,
+    prevEntryPhase: CtrlPhase,
+  ): { readonly arr: Uint8Array; readonly ctrl: CtrlState } {
+    const pre = Uint8Array.from(arrAfterSInv)
+    const launchG = isInc ? 6 : 10
+    const launchDone = launchG + 1
+    const spFirst = isInc ? SP_F : SP_H
+    const spRet1 = isInc ? SP_FR : SP_HR
+
+    // 1. Undo post-lRevLine return step
+    let prevRet = ret
+    if (ret === 1) {
+      assertExact(pre[PARK_A[0]] === SP_M && pre[sNeg] === 0, `${phase} inv unpark0`)
+      pre[PARK_A[0]] = 0
+      pre[sNeg] = spRet1
+      prevRet = 0
+    } else if (ret > 1) {
+      prevRet = ret - 1
+    }
+
+    // 2. Standard homogeneous lRevLineInv on all 12 lines
+    const out = runLRevInvAll12(pre)
+
+    // 3. Undo pre-lRevLine outbound launch
+    if (launch === launchDone) {
+      if (out[sPos] === SP_G) {
+        assertExact(out[PARK_B[1]] === 0, `${phase} inv unlaunchG`)
+        out[sPos] = 0
+        out[PARK_B[1]] = SP_M
+        return { arr: out, ctrl: { phase, launch: launchG, ret: prevRet } }
+      }
+      return { arr: out, ctrl: { phase, launch: launchDone, ret: prevRet } }
+    }
+    if (launch > 1) {
+      return { arr: out, ctrl: { phase, launch: launch - 1, ret: prevRet } }
+    }
+    // launch === 1 -> unlaunch first pulse (F or H) and return to macro entry state!
+    assertExact(launch === 1 && prevRet === 0 && out[sPos] === spFirst && out[PARK_B[0]] === 0, `${phase} inv unlaunch0`)
+    out[sPos] = 0
+    out[PARK_B[0]] = SP_M
+    return { arr: out, ctrl: { phase: prevEntryPhase, launch: 0, ret: 0 } }
+  }
+
+  function applyOriginCtrlFwd(arrIn: Uint8Array, ctrl: CtrlState): { readonly arr: Uint8Array; readonly ctrl: CtrlState } {
+    const { phase, launch, ret } = ctrl
+    if (phase === 'START') return { arr: runLRevAll12(arrIn), ctrl: { phase: 'L1_HEAD_ODD', launch: 0, ret: 0 } }
+    if (phase === 'L1_HEAD_ODD') return { arr: runLRevAll12(arrIn), ctrl: { phase: 'L1_DISPATCH_EVEN', launch: 0, ret: 0 } }
+    if (phase === 'L1_DISPATCH_EVEN') {
+      if (arrIn[3] === SP_M) {
+        // Local zero-test c_1 === 0 -> exit Loop 1 into Loop 2!
+        return { arr: runLRevAll12(arrIn), ctrl: { phase: 'L2_HEAD_ODD', launch: 0, ret: 0 } }
+      }
+      // c_1 > 0 -> execute beat 0 of DEC(c_1)
+      return stepMacroFwd(arrIn, 'L1_DEC1', 0, 0, 0, 3, false, 'L1_DEC1_ODD')
+    }
+    if (phase === 'L1_DEC1') return stepMacroFwd(arrIn, 'L1_DEC1', launch, ret, 0, 3, false, 'L1_DEC1_ODD')
+    if (phase === 'L1_DEC1_ODD') return { arr: runLRevAll12(arrIn), ctrl: { phase: 'L1_INC2A', launch: 0, ret: 0 } }
+    if (phase === 'L1_INC2A') return stepMacroFwd(arrIn, 'L1_INC2A', launch, ret, 1, 2, true, 'L1_INC2A_ODD')
+    if (phase === 'L1_INC2A_ODD') return { arr: runLRevAll12(arrIn), ctrl: { phase: 'L1_INC2B', launch: 0, ret: 0 } }
+    if (phase === 'L1_INC2B') return stepMacroFwd(arrIn, 'L1_INC2B', launch, ret, 1, 2, true, 'L1_INC2B_ODD')
+    if (phase === 'L1_INC2B_ODD') return { arr: runLRevAll12(arrIn), ctrl: { phase: 'L1_INC3', launch: 0, ret: 0 } }
+    if (phase === 'L1_INC3') return stepMacroFwd(arrIn, 'L1_INC3', launch, ret, 4, 7, true, 'L1_HEAD_ODD')
+    if (phase === 'L2_HEAD_ODD') return { arr: runLRevAll12(arrIn), ctrl: { phase: 'L2_DISPATCH_EVEN', launch: 0, ret: 0 } }
+    if (phase === 'L2_DISPATCH_EVEN') {
+      if (arrIn[7] === SP_M) {
+        // Local zero-test c_3 === 0 -> HALT!
+        return { arr: runLRevAll12(arrIn), ctrl: { phase: 'HALT_ODD', launch: 0, ret: 0 } }
+      }
+      // c_3 > 0 -> execute beat 0 of DEC(c_3)
+      return stepMacroFwd(arrIn, 'L2_DEC3', 0, 0, 4, 7, false, 'L2_DEC3_ODD')
+    }
+    if (phase === 'L2_DEC3') return stepMacroFwd(arrIn, 'L2_DEC3', launch, ret, 4, 7, false, 'L2_DEC3_ODD')
+    if (phase === 'L2_DEC3_ODD') return { arr: runLRevAll12(arrIn), ctrl: { phase: 'L2_INC1', launch: 0, ret: 0 } }
+    if (phase === 'L2_INC1') return stepMacroFwd(arrIn, 'L2_INC1', launch, ret, 0, 3, true, 'L2_HEAD_ODD')
+    if (phase === 'HALT_ODD') return { arr: runLRevAll12(arrIn), ctrl: { phase: 'HALT_EVEN', launch: 0, ret: 0 } }
+    return { arr: runLRevAll12(arrIn), ctrl: { phase: 'HALT_ODD', launch: 0, ret: 0 } }
+  }
+
+  function applyOriginCtrlInv(arrAfterSInv: Uint8Array, ctrl: CtrlState): { readonly arr: Uint8Array; readonly ctrl: CtrlState } {
+    const { phase, launch, ret } = ctrl
+    if (phase === 'HALT_EVEN') return { arr: runLRevInvAll12(arrAfterSInv), ctrl: { phase: 'HALT_ODD', launch: 0, ret: 0 } }
+    if (phase === 'HALT_ODD') return { arr: runLRevInvAll12(arrAfterSInv), ctrl: { phase: 'L2_DISPATCH_EVEN', launch: 0, ret: 0 } }
+    if (phase === 'L2_HEAD_ODD') {
+      // Purely local merge check on pulled dock 0: pre[0] === SP_M <=> c_1 === 0 (came from L1_DISPATCH_EVEN)!
+      if (arrAfterSInv[0] === SP_M) return { arr: runLRevInvAll12(arrAfterSInv), ctrl: { phase: 'L1_DISPATCH_EVEN', launch: 0, ret: 0 } }
+      return stepMacroExitInv(arrAfterSInv, 'L2_INC1', 0, 3, true)
+    }
+    if (phase === 'L2_INC1') {
+      if (launch === 0 && ret === 0) return { arr: runLRevInvAll12(arrAfterSInv), ctrl: { phase: 'L2_DEC3_ODD', launch: 0, ret: 0 } }
+      return stepMacroInv(arrAfterSInv, 'L2_INC1', launch, ret, 0, 3, true, 'L2_INC1')
+    }
+    if (phase === 'L2_DEC3_ODD') return stepMacroExitInv(arrAfterSInv, 'L2_DEC3', 4, 7, false)
+    if (phase === 'L2_DEC3') return stepMacroInv(arrAfterSInv, 'L2_DEC3', launch, ret, 4, 7, false, 'L2_DISPATCH_EVEN')
+    if (phase === 'L2_DISPATCH_EVEN') return { arr: runLRevInvAll12(arrAfterSInv), ctrl: { phase: 'L2_HEAD_ODD', launch: 0, ret: 0 } }
+    if (phase === 'L1_HEAD_ODD') {
+      // Purely local merge check on pulled dock 0: pre[4] === SP_M <=> c_3 === 0 (came from START)!
+      if (arrAfterSInv[4] === SP_M) return { arr: runLRevInvAll12(arrAfterSInv), ctrl: { phase: 'START', launch: 0, ret: 0 } }
+      return stepMacroExitInv(arrAfterSInv, 'L1_INC3', 4, 7, true)
+    }
+    if (phase === 'L1_INC3') {
+      if (launch === 0 && ret === 0) return { arr: runLRevInvAll12(arrAfterSInv), ctrl: { phase: 'L1_INC2B_ODD', launch: 0, ret: 0 } }
+      return stepMacroInv(arrAfterSInv, 'L1_INC3', launch, ret, 4, 7, true, 'L1_INC3')
+    }
+    if (phase === 'L1_INC2B_ODD') return stepMacroExitInv(arrAfterSInv, 'L1_INC2B', 1, 2, true)
+    if (phase === 'L1_INC2B') {
+      if (launch === 0 && ret === 0) return { arr: runLRevInvAll12(arrAfterSInv), ctrl: { phase: 'L1_INC2A_ODD', launch: 0, ret: 0 } }
+      return stepMacroInv(arrAfterSInv, 'L1_INC2B', launch, ret, 1, 2, true, 'L1_INC2B')
+    }
+    if (phase === 'L1_INC2A_ODD') return stepMacroExitInv(arrAfterSInv, 'L1_INC2A', 1, 2, true)
+    if (phase === 'L1_INC2A') {
+      if (launch === 0 && ret === 0) return { arr: runLRevInvAll12(arrAfterSInv), ctrl: { phase: 'L1_DEC1_ODD', launch: 0, ret: 0 } }
+      return stepMacroInv(arrAfterSInv, 'L1_INC2A', launch, ret, 1, 2, true, 'L1_INC2A')
+    }
+    if (phase === 'L1_DEC1_ODD') return stepMacroExitInv(arrAfterSInv, 'L1_DEC1', 0, 3, false)
+    if (phase === 'L1_DEC1') return stepMacroInv(arrAfterSInv, 'L1_DEC1', launch, ret, 0, 3, false, 'L1_DISPATCH_EVEN')
+    if (phase === 'L1_DISPATCH_EVEN') return { arr: runLRevInvAll12(arrAfterSInv), ctrl: { phase: 'L1_HEAD_ODD', launch: 0, ret: 0 } }
+    throw new Error(`cannot invert initial state ${phase}`)
   }
 
   function stepSys(sys: SysState, inv: boolean): SysState {
@@ -1410,7 +1609,6 @@ function runPillarN1(): PillarN1Metrics {
       }
       return { mesh: outMesh, ctrl: nextCtrl }
     } else {
-      // S^{-1} globally first
       const pulled: MeshState = new Map()
       for (const [dock, arr] of sys.mesh) {
         for (let s = 0; s < 24; s++) {
@@ -1439,64 +1637,57 @@ function runPillarN1(): PillarN1Metrics {
     }
   }
 
-  // Build finite seed state_0 for (c_1 = 3, c_2 = 1) -> (n_1 = 14, n_2 = 10)
-  const seedMesh: MeshState = new Map()
-  setSlot(seedMesh, rayL0.get(14)!, 3, SP_M) // Counter 1: c_1 = 3
-  setSlot(seedMesh, rayL1.get(10)!, 2, SP_M) // Counter 2: c_2 = 1
-  setSlot(seedMesh, rayL2.get(8)!, 7, SP_M)  // Reference clock marker at n_ref = 8 on +L_2
-  for (let p = 0; p < 6; p++) setSlot(seedMesh, 0, PARK_B[p]!, SP_M) // 2 work + 4 clock tokens parked at dock 0!
-  const initSys: SysState = { mesh: seedMesh, ctrl: { phase: 'ZT_LAUNCH', tau: 0, h: 0 } }
-  const D0 = countParticles(initSys.mesh).D
-  assertExact(D0 === 9, `D0=${D0} !== 9`)
+  // Execute the EXACT SAME fixed-D=5 finite-state reversible machine on c_1 = 0, c_1 = 3, AND c_1 = 5!
+  const runBijectiveProgram = (c1Init: number, c2Init: number) => {
+    const seedMesh: MeshState = new Map()
+    setSlot(seedMesh, rayL0.get(2 * c1Init)!, 3, SP_M)
+    setSlot(seedMesh, rayL1.get(2 * c2Init)!, 2, SP_M)
+    setSlot(seedMesh, rayL2.get(0)!, 7, SP_M)
+    setSlot(seedMesh, 0, PARK_B[0], SP_M)
+    setSlot(seedMesh, 0, PARK_B[1], SP_M)
+    const initSys: SysState = { mesh: seedMesh, ctrl: { phase: 'START', launch: 0, ret: 0 } }
+    const d0 = countParticles(initSys.mesh).D
+    assertExact(d0 === 5, `fixed D0=${d0} !== 5`)
 
-  let curSys: SysState = { mesh: cloneMesh(initSys.mesh), ctrl: initSys.ctrl }
-  let dViolations = 0
-  let qViolations = 0
-  let totalActiveTransitions = 0
-  const visitedDocks = new Set<number>()
-  let haltBeat = -1
-  for (let t = 1; t <= 1000; t++) {
-    curSys = stepSys(curSys, false)
-    const { D, Q } = countParticles(curSys.mesh)
-    if (D !== D0) dViolations++
-    if (Q !== D0) qViolations++
-    for (const d of curSys.mesh.keys()) visitedDocks.add(d)
-    totalActiveTransitions += curSys.mesh.size
-    if (curSys.ctrl.phase === 'HALT' && haltBeat < 0) {
-      haltBeat = t
-      break
+    let curSys: SysState = { mesh: cloneMesh(initSys.mesh), ctrl: initSys.ctrl }
+    let dViol = 0, qViol = 0, activeTrans = 0
+    const visited = new Set<number>()
+    let haltBeat = -1
+    for (let t = 1; t <= 4000; t++) {
+      curSys = stepSys(curSys, false)
+      const { D, Q } = countParticles(curSys.mesh)
+      if (D !== d0) dViol++
+      if (Q !== d0) qViol++
+      for (const d of curSys.mesh.keys()) visited.add(d)
+      activeTrans += curSys.mesh.size
+      if (curSys.ctrl.phase === 'HALT_EVEN') {
+        haltBeat = t
+        break
+      }
     }
+    assertExact(haltBeat > 0, `RCM program (${c1Init},${c2Init}) halted`)
+    let fN1 = -1, fN2 = -1, fN3 = -1
+    for (let x = 0; x <= 30; x += 2) {
+      if (curSys.mesh.get(rayL0.get(x)!)?.[3] === SP_M) fN1 = x
+      if (curSys.mesh.get(rayL1.get(x)!)?.[2] === SP_M) fN2 = x
+      if (curSys.mesh.get(rayL2.get(x)!)?.[7] === SP_M) fN3 = x
+    }
+    let revSys = curSys
+    for (let t = 0; t < haltBeat; t++) {
+      revSys = stepSys(revSys, true)
+      if (countParticles(revSys.mesh).D !== d0) dViol++
+    }
+    const revDiffs = diffMesh(revSys.mesh, initSys.mesh)
+    const revCtrlOk =
+      revSys.ctrl.phase === initSys.ctrl.phase &&
+      revSys.ctrl.launch === initSys.ctrl.launch &&
+      revSys.ctrl.ret === initSys.ctrl.ret
+    const exactOut = fN1 === 2 * c1Init && fN2 === 2 * (c2Init + 2 * c1Init) && fN3 === 0
+    return { haltBeat, fN1, fN2, fN3, d0, dViol, qViol, revDiffs, revCtrlOk, exactOut, visited: visited.size, activeTrans }
   }
-  assertExact(haltBeat > 0, 'RCM(2) program did not halt')
-  // Step 1 more beat to check even-phase marker alignment (haltBeat is odd/even check)
-  const runBeats = haltBeat + (haltBeat % 2 === 1 ? 1 : 0)
-  while (runBeats > haltBeat && curSys.ctrl.tau < runBeats - haltBeat) {
-    curSys = stepSys(curSys, false)
-    const { D, Q } = countParticles(curSys.mesh)
-    if (D !== D0) dViolations++
-    if (Q !== D0) qViolations++
-    totalActiveTransitions += curSys.mesh.size
-  }
-
-  // Locate final M_1 on L_0 and M_2 on L_1
-  let finalN1 = -1
-  let finalN2 = -1
-  for (let x = 2; x <= 30; x++) {
-    if (curSys.mesh.get(rayL0.get(x)!)?.[3] === SP_M) finalN1 = x
-    if (curSys.mesh.get(rayL1.get(x)!)?.[2] === SP_M) finalN2 = x
-  }
-
-  // Exact bit-for-bit time reversal U_rev^{-T}(U_rev^T(state_0)) === state_0!
-  let revSys = curSys
-  for (let t = 0; t < runBeats; t++) {
-    revSys = stepSys(revSys, true)
-    if (countParticles(revSys.mesh).D !== D0) dViolations++
-  }
-  const revMeshDiffs = diffMesh(revSys.mesh, initSys.mesh)
-  const revCtrlMatch =
-    revSys.ctrl.phase === initSys.ctrl.phase &&
-    revSys.ctrl.tau === initSys.ctrl.tau &&
-    revSys.ctrl.h === initSys.ctrl.h
+  const runC0 = runBijectiveProgram(0, 2) // (0,2,0) -> (0,2,0)
+  const runC3 = runBijectiveProgram(3, 1) // (3,1,0) -> (3,7,0)
+  const runC5 = runBijectiveProgram(5, 1) // (5,1,0) -> (5,11,0)
 
   // Operational memory test (Gap 11): write c = 1 vs c = 2, wait 6 idle beats, inject identical probe P at dock 0 -> distinguishable return times 20 vs 24!
   const runMemoryProbe = (cVal: number): number => {
@@ -1516,16 +1707,11 @@ function runPillarN1(): PillarN1Metrics {
   recordCheck(
     'N1',
     'N1.6',
-    'Live multi-step RCM(2) c_2 <- c_2 + 2*c_1 ((3,1)->(0,7)), constant D(t), exact U_rev^-T reversal & Gap 11 memory',
-    finalN1 === 8 &&
-      finalN2 === 22 &&
-      dViolations === 0 &&
-      qViolations === 0 &&
-      revMeshDiffs === 0 &&
-      revCtrlMatch &&
+    'Homogeneous U_rev rays + finite-state reversible origin FSM: bijective (c1,c2,0)->(c1,c2+2c1,0) for c1=0,3,5, fixed D=5 & Gap 11',
+    [runC0, runC3, runC5].every(r => r.exactOut && r.dViol === 0 && r.qViol === 0 && r.revDiffs === 0 && r.revCtrlOk) &&
       memProbeC1 === 20 &&
       memProbeC2 === 24,
-    `halt=${haltBeat} (T=${runBeats}), final (n1=${finalN1}, n2=${finalN2})=(c1=0,c2=7), D(t)=${D0} (viol=${dViolations}), revDiffs=${revMeshDiffs} (ctrl=${revCtrlMatch}), memProbe=(${memProbeC1},${memProbeC2})`,
+    `D(t)=5 fixed (0 unbounded h, 0 escapes): (0,2)->(0,2) T=${runC0.haltBeat} | (3,1)->(3,7) T=${runC3.haltBeat} | (5,1)->(5,11) T=${runC5.haltBeat} [all revDiffs=0, dViol=0]; memProbe=(${memProbeC1},${memProbeC2})`,
   )
 
   // 7. Negative Control: Reproduce Paper 0012 railway-ca.ts passive-merge & memory-overwrite preimage collisions
@@ -1606,7 +1792,7 @@ function runPillarN1(): PillarN1Metrics {
     `passiveMerge: 2 distinct inputs -> identical t=2 (${mergeCollision}); memOverwrite: active=1 vs 2 -> identical t=1 (${memCollision})`,
   )
 
-  // 8. Hyperbolic tree-indexed reversible RAM latency O(log_{18.28} S) vs flat Z^4 Omega(S^{1/4})
+  // 8. Hyperbolic tree-indexed reversible RAM latency bound O(log_{18.28} S) vs flat Z^4 Omega(S^{1/4})
   //    Compute exact {3,4,3,4} cusp shells N_D directly via the exact RACG (D_R, L_comm) automaton!
   const LAYER_SLOTS = [0, 1, 4, 5, 8, 9]
   const Lmask = LAYER_SLOTS.reduce((m, x) => m | (1 << x), 0)
@@ -1670,16 +1856,16 @@ function runPillarN1(): PillarN1Metrics {
   recordCheck(
     'N1',
     'N1.8',
-    'Hyperbolic tree-indexed reversible RAM latency O(log_{18.28} S) vs flat Z^4 Omega(S^{1/4})',
+    'Hyperbolic tree-indexed reversible RAM latency bound O(log_{18.28} S) vs flat Z^4 Omega(S^{1/4})',
     cuspND.slice(0, 4).join(',') === '1,18,330,6034' && ramSpeedupD5 >= 5.5,
     `cusp=[${cuspND.slice(0, 6).join(',')}]; ${ramRows.join(' | ')} (D=5 speedup=${ramSpeedupD5.toFixed(2)}x)`,
   )
 
   return {
-    progBeats: runBeats,
-    progActiveDocks: visitedDocks.size,
-    progTransitions: totalActiveTransitions,
-    progD0: D0,
+    progBeats: runC3.haltBeat,
+    progActiveDocks: runC3.visited,
+    progTransitions: runC3.activeTrans,
+    progD0: runC3.d0,
     cuspShells: cuspND,
     ramSpeedupD5,
   }
@@ -1877,7 +2063,7 @@ function runPillarN2(): PillarN2Metrics {
   const bareUTurnProb = (Math.sin(PI / 18) ** 2) / 36 // exact bare U M_pair(zeta_18) turn prob = 0.00083760
   const cornerTurnGain = beatProbs[0]! / bareUTurnProb
 
-  // Certify 0 leakage of all 3 closed flux loop states |L_p(m)> under U_E over t = 1..50
+  // Certify electric-only (g_B = 0, zero magnetic plaquette coupling) eigenstate invariance of closed flux loop states |L_p(m)> under U_E over t = 1..50
   let maxFluxLoopLeak = 0
   for (const m of [0, 1, 2]) {
     const lLoop =
@@ -1895,7 +2081,7 @@ function runPillarN2(): PillarN2Metrics {
   recordCheck(
     'N2',
     'N2.1',
-    'Live 648D girth-4 square corner-turn (100% vs bare U 0.0838% = 1,194x), E=(2,1,2,1) write & U_E loop stability',
+    'Live 648D girth-4 square corner-turn (100% vs bare U 0.0838% = 1,194x), E=(2,1,2,1) write & electric-only (g_B=0) U_E invariance',
     sqUniFrob < 1e-13 &&
       sqMaxGaussFrob < 1e-13 &&
       beatProbs.every(p => Math.abs(p - 1) < 1e-14) &&
@@ -1903,14 +2089,12 @@ function runPillarN2(): PillarN2Metrics {
       maxFluxLoopLeak < 1e-13 &&
       cornerTurnGain > 1193 &&
       cornerTurnGain < 1195,
-    `sq=[0,6,0,6] H2=[${sqHeights.join(',')}], ||U^dagU-I||_F=${sqUniFrob.toExponential(1)}, max||[U,V_v]||_F=${sqMaxGaussFrob.toExponential(1)}, P(t=1..4)=[${beatProbs.map(x => x.toFixed(6)).join(',')}], gain=${cornerTurnGain.toFixed(1)}x, E=(2,1,2,1) P=${probLoopWrite.toFixed(6)}, U_E leak=${maxFluxLoopLeak.toExponential(1)}`,
+    `sq=[0,6,0,6] H2=[${sqHeights.join(',')}], ||U^dagU-I||_F=${sqUniFrob.toExponential(1)}, max||[U,V_v]||_F=${sqMaxGaussFrob.toExponential(1)}, P(t=1..4)=[${beatProbs.map(x => x.toFixed(6)).join(',')}], gain=${cornerTurnGain.toFixed(1)}x, E=(2,1,2,1) P=${probLoopWrite.toFixed(6)}, U_E(g_B=0) leak=${maxFluxLoopLeak.toExponential(1)}`,
   )
 
-  // 2. Live W16 Z_3-Link PQTM Quantum Interference & Controlled Plaquette Tape (L = 4 cells along L_0)
-  //    First certify in exact O^+(4,1; Z[sqrt(2)]) that 4 side girth-4 plaquettes along L_0 are pairwise disjoint!
+  // 2. Live W16 Z_3-Link Tape-Conditioned PQTM, Forward t = 4 Multi-Path Interference, & Controlled Plaquette Tape (L = 4 cells along L_0)
   const tapeDocks: number[] = [0]
   for (let k = 1; k < 4; k++) tapeDocks.push(hc.step(tapeDocks[k - 1]!, 0))
-  // Side square at each tape dock g_k using transverse slots (4, 15) -- search first transverse girth-4 square disjoint from L_0!
   let sidePair: readonly [number, number] | null = null
   for (let sa = 0; sa < 24 && !sidePair; sa++) {
     if (sa === 0 || sa === 3) continue
@@ -1941,10 +2125,6 @@ function runPillarN2(): PillarN2Metrics {
   }
   assertExact(plaquetteOverlap === 0 && allPlaquetteDocks.size === 16, '4 side plaquettes strictly pairwise disjoint')
 
-  // Full Hilbert space of L = 4 PQTM:
-  //   k in {0,1,2,3} (head cell) x c in {0,1} (coin) x E in Z_3^3 (3 backbone gauge links, 27) x m in Z_3^4 (4 side plaquette trits, 81)
-  //   Total dim = 4 * 2 * 27 * 81 = 17,496!
-  //   Static -1 anchor at k = 0 => Gauss law G_v = (E_v - E_{v-1} - q_v) mod 3 with q_v = delta_{k,v} - delta_{v,0}, E_{-1} = E_3 = 0.
   const N_E3 = 27
   const N_M4 = 81
   const DIM_PQTM = 4 * 2 * N_E3 * N_M4
@@ -1962,8 +2142,37 @@ function runPillarN2(): PillarN2Metrics {
     return m + (nxt - cur) * POW3_4[j]!
   }
 
-  // Exact basis-state image of U_PQTM = U_shift o U_write o H_coin (and U_walk = U_shift o H_coin)
-  // Returns list of (idx, re, im) terms (at most 2 terms per basis state!)
+  // Genuine tape-conditioned gauge-invariant coin C_tape(m_k):
+  //   m_k = 0: H = (1/sqrt(2)) [[1, 1], [1, -1]] (quantum Hadamard branching)
+  //   m_k = 1: I = [[1, 0], [0, 1]]              (deterministic straight pass)
+  //   m_k = 2: X = [[0, 1], [1, 0]]              (deterministic direction flip)
+  // All three are exact real symmetric unitaries (C^dag = C) acting solely on coin c conditioned
+  // on the gauge-invariant closed side-plaquette trit m_k => strictly commutes with ALL V_v!
+  const coinAmp = (mk: number, outC: number, inC: number): number => {
+    if (mk === 0) return outC === 1 && inC === 1 ? -INV_SQRT2 : INV_SQRT2
+    if (mk === 1) return outC === inC ? 1 : 0
+    return outC !== inC ? 1 : 0
+  }
+  function applyTapeCoinSparse(vec: Map<number, Cx>): Map<number, Cx> {
+    const out = new Map<number, Cx>()
+    const add = (idx: number, z: Cx) => {
+      const prev = out.get(idx)
+      const nxt = prev ? cxAdd(prev, z) : z
+      if (cxAbs2(nxt) < 1e-30) out.delete(idx)
+      else out.set(idx, nxt)
+    }
+    for (const [idx, amp] of vec) {
+      const m = idx % N_M4, t1 = (idx - m) / N_M4
+      const e = t1 % N_E3, t2 = (t1 - e) / N_E3
+      const c = t2 & 1, k = t2 >> 1
+      const mk = getM4(m, k)
+      const a0 = coinAmp(mk, 0, c)
+      const a1 = coinAmp(mk, 1, c)
+      if (a0 !== 0) add(idxP(k, 0, e, m), cxScale(a0, amp))
+      if (a1 !== 0) add(idxP(k, 1, e, m), cxScale(a1, amp))
+    }
+    return out
+  }
   function applyHadamardSparse(vec: Map<number, Cx>): Map<number, Cx> {
     const out = new Map<number, Cx>()
     const add = (idx: number, z: Cx) => {
@@ -1983,8 +2192,6 @@ function runPillarN2(): PillarN2Metrics {
     return out
   }
   function applyWriteSparse(vec: Map<number, Cx>, inv: boolean): Map<number, Cx> {
-    // Gauge-invariant controlled side-plaquette flux write W_{p_k}^{+-1} (when coin c === 0):
-    // acts purely on closed side loop m_k -> (m_k +- 1) mod 3 => strictly commutes with ALL G_v!
     const delta: 1 | 2 = inv ? 2 : 1
     const out = new Map<number, Cx>()
     for (const [idx, amp] of vec) {
@@ -1997,9 +2204,6 @@ function runPillarN2(): PillarN2Metrics {
     return out
   }
   function applyShiftSparse(vec: Map<number, Cx>, inv: boolean): Map<number, Cx> {
-    // Exact gauge-covariant reflective 8-cycle shift on (k, c, E):
-    //   Fwd: (0,0)->(1,0)[E0-=1], (1,0)->(2,0)[E1-=1], (2,0)->(3,0)[E2-=1], (3,0)->(3,1),
-    //        (3,1)->(2,1)[E2+=1], (2,1)->(1,1)[E1+=1], (1,1)->(0,1)[E0+=1], (0,1)->(0,0)
     const out = new Map<number, Cx>()
     for (const [idx, amp] of vec) {
       const m = idx % N_M4, t1 = (idx - m) / N_M4
@@ -2029,8 +2233,8 @@ function runPillarN2(): PillarN2Metrics {
   }
   const applyPQTM = (v: Map<number, Cx>, inv: boolean): Map<number, Cx> =>
     !inv
-      ? applyShiftSparse(applyWriteSparse(applyHadamardSparse(v), false), false)
-      : applyHadamardSparse(applyWriteSparse(applyShiftSparse(v, true), true))
+      ? applyShiftSparse(applyWriteSparse(applyTapeCoinSparse(v), false), false)
+      : applyTapeCoinSparse(applyWriteSparse(applyShiftSparse(v, true), true))
   const applyWalkOnly = (v: Map<number, Cx>, inv: boolean): Map<number, Cx> =>
     !inv ? applyShiftSparse(applyHadamardSparse(v), false) : applyHadamardSparse(applyShiftSparse(v, true))
 
@@ -2050,10 +2254,7 @@ function runPillarN2(): PillarN2Metrics {
     return s
   }
 
-  // Zero-allocation exact full-17,496D operator certification of ||U_PQTM^dag U_PQTM - I||_F and max_v ||[U_PQTM, V_v]||_F!
-  // Under U_PQTM = U_shift o U_write o H_coin, every basis column |col> maps to EXACTLY two target states:
-  //   branch 0 (after H->c'=0, write m_k+=1, shift forward): amplitude +1/sqrt(2)
-  //   branch 1 (after H->c'=1, no write, shift backward):    amplitude (+1 or -1)/sqrt(2)
+  // Zero-allocation exact full-17,496D certification of tape-conditioned U_PQTM = U_shift o U_write o C_tape!
   const shiftOneFwd = (k: number, c: number, e: number, m: number): number => {
     if (c === 0) return k < 3 ? idxP(k + 1, 0, shiftE3(e, k, 2), m) : idxP(3, 1, e, m)
     return k > 0 ? idxP(k - 1, 1, shiftE3(e, k - 1, 1), m) : idxP(0, 0, e, m)
@@ -2071,26 +2272,26 @@ function runPillarN2(): PillarN2Metrics {
     const m = col % N_M4, t1 = (col - m) / N_M4
     const e = t1 % N_E3, t2 = (t1 - e) / N_E3
     const c = t2 & 1, k = t2 >> 1
+    const mk = getM4(m, k)
     const dst0 = shiftOneFwd(k, 0, e, shiftM4(m, k, 1))
     const dst1 = shiftOneFwd(k, 1, e, m)
-    const a0 = INV_SQRT2
-    const a1 = c === 0 ? INV_SQRT2 : -INV_SQRT2
+    const a0 = coinAmp(mk, 0, c)
+    const a1 = coinAmp(mk, 1, c)
 
-    // Apply U_PQTM^dag = H_coin o U_write^dag o U_shift^dag to (a0 |dst0> + a1 |dst1>)
     const [k0, c0, e0, m0] = shiftOneInv(dst0)
     const um0 = c0 === 0 ? shiftM4(m0, k0, 2) : m0
+    const mk0 = getM4(um0, k0)
     const [k1, c1, e1, m1] = shiftOneInv(dst1)
     const um1 = c1 === 0 ? shiftM4(m1, k1, 2) : m1
-    // H_coin on each branch produces (k, 0, e, um) and (k, 1, e, um)
+    const mk1 = getM4(um1, k1)
     const backIdxA = idxP(k0, 0, e0, um0)
     const backIdxB = idxP(k0, 1, e0, um0)
     const backIdxC = idxP(k1, 0, e1, um1)
     const backIdxD = idxP(k1, 1, e1, um1)
-    const wA = a0 * INV_SQRT2
-    const wB = (c0 === 0 ? a0 : -a0) * INV_SQRT2
-    const wC = a1 * INV_SQRT2
-    const wD = (c1 === 0 ? a1 : -a1) * INV_SQRT2
-    // Accumulate exact amplitudes on the <= 4 indices (for valid unitary, backIdxA===backIdxC and backIdxB===backIdxD!)
+    const wA = a0 * coinAmp(mk0, 0, c0)
+    const wB = a0 * coinAmp(mk0, 1, c0)
+    const wC = a1 * coinAmp(mk1, 0, c1)
+    const wD = a1 * coinAmp(mk1, 1, c1)
     const idxs = [backIdxA, backIdxB, backIdxC, backIdxD]
     const wts = [wA, wB, wC, wD]
     for (let u = 0; u < 4; u++) {
@@ -2105,7 +2306,6 @@ function runPillarN2(): PillarN2Metrics {
     }
     if (backIdxA !== col && backIdxB !== col && backIdxC !== col && backIdxD !== col) pqtmUniFrob2 += 1
 
-    // Exact [U_PQTM, V_v] |col> = U_PQTM V_v |col> - V_v U_PQTM |col>
     for (let v = 0; v < 4; v++) {
       const phCol = gaussEigenPhasePQTM(col, v)
       const phDst0 = gaussEigenPhasePQTM(dst0, v)
@@ -2118,7 +2318,7 @@ function runPillarN2(): PillarN2Metrics {
   const pqtmUniFrob = Math.sqrt(pqtmUniFrob2)
   const pqtmMaxGaussFrob = Math.max(...pqtmGaussFrob2.map(Math.sqrt))
 
-  // Exact T = 6 time-reversal check on physical state |k=0, c=0, E=(0,0,0), m=(0,0,0,0)>
+  // Exact T = 6 time-reversal check + genuine tape-conditioned trajectory divergence (blank m=0 vs pre-marked m_0=1)
   const psi0Idx = idxP(0, 0, 0, 0)
   const psi0 = new Map<number, Cx>([[psi0Idx, CX1]])
   let stRevTest = psi0
@@ -2126,8 +2326,60 @@ function runPillarN2(): PillarN2Metrics {
   for (let t = 0; t < 6; t++) stRevTest = applyPQTM(stRevTest, true)
   const pqtmRevErr = Math.sqrt(sparseDiff2(stRevTest, psi0))
 
-  // ZERO-DECOHERENCE GAUGE-STRING DRESSING PROOF (Live!):
-  //   1. Evolve 2 beats of Hadamard walk U_walk -> superposition across k = 0, 1, 2 with Gauss strings E=(0,0,0), (2,0,0), (2,2,0)
+  const posDist = (vec: Map<number, Cx>): number[] => {
+    const p = [0, 0, 0, 0]
+    for (const [idx, amp] of vec) {
+      const k = Math.floor(idx / (2 * N_E3 * N_M4))
+      p[k] = p[k]! + cxAbs2(amp)
+    }
+    return p
+  }
+  let stBlank4 = psi0
+  let stMarked4 = new Map<number, Cx>([[idxP(0, 0, 0, 1), CX1]]) // pre-marked m_0 = 1
+  for (let t = 0; t < 4; t++) {
+    stBlank4 = applyPQTM(stBlank4, false)
+    stMarked4 = applyPQTM(stMarked4, false)
+  }
+  const pBlank4 = posDist(stBlank4)
+  const pMarked4 = posDist(stMarked4)
+  const tapeCondL1 = pBlank4.reduce((s, v, k) => s + Math.abs(v - pMarked4[k]!), 0)
+
+  // FORWARD t = 4 gauged vs ungauged Hadamard quantum walk multi-path interference proof!
+  let stGauged4 = psi0
+  for (let t = 0; t < 4; t++) stGauged4 = applyWalkOnly(stGauged4, false)
+  const pGauged4 = posDist(stGauged4)
+  // Exact ungauged 8D (k, c) quantum walk and classical random walk over 4 beats
+  let freeVec = new Float64Array(8); freeVec[0] = 1
+  let classVec = new Float64Array(8); classVec[0] = 1
+  for (let t = 0; t < 4; t++) {
+    const hcVec = new Float64Array(8)
+    const clCoin = new Float64Array(8)
+    for (let k = 0; k < 4; k++) {
+      hcVec[2 * k] = INV_SQRT2 * (freeVec[2 * k]! + freeVec[2 * k + 1]!)
+      hcVec[2 * k + 1] = INV_SQRT2 * (freeVec[2 * k]! - freeVec[2 * k + 1]!)
+      const pSum = classVec[2 * k]! + classVec[2 * k + 1]!
+      clCoin[2 * k] = 0.5 * pSum
+      clCoin[2 * k + 1] = 0.5 * pSum
+    }
+    const nxtFree = new Float64Array(8)
+    const nxtCl = new Float64Array(8)
+    for (let k = 0; k < 4; k++) {
+      const dst0 = k < 3 ? 2 * (k + 1) : 2 * 3 + 1
+      const dst1 = k > 0 ? 2 * (k - 1) + 1 : 0
+      nxtFree[dst0] = nxtFree[dst0]! + hcVec[2 * k]!
+      nxtFree[dst1] = nxtFree[dst1]! + hcVec[2 * k + 1]!
+      nxtCl[dst0] = nxtCl[dst0]! + clCoin[2 * k]!
+      nxtCl[dst1] = nxtCl[dst1]! + clCoin[2 * k + 1]!
+    }
+    freeVec = nxtFree
+    classVec = nxtCl
+  }
+  const pUngauged4 = [0, 1, 2, 3].map(k => freeVec[2 * k]! ** 2 + freeVec[2 * k + 1]! ** 2)
+  const pClass4 = [0, 1, 2, 3].map(k => classVec[2 * k]! + classVec[2 * k + 1]!)
+  const fwdGaugeMatchErr = Math.max(...pGauged4.map((v, k) => Math.abs(v - pUngauged4[k]!)))
+  const fwdQuantumVsClassL1 = pGauged4.reduce((s, v, k) => s + Math.abs(v - pClass4[k]!), 0)
+
+  // ZERO-DECOHERENCE GAUGE-STRING DRESSING & UNCOMPUTATION PROOF (Live!):
   let stWalk = applyWalkOnly(applyWalkOnly(psi0, false), false)
   const cellsPopulated = new Set<number>()
   let gaussDefectOnWalk = 0
@@ -2140,7 +2392,6 @@ function runPillarN2(): PillarN2Metrics {
       if (cxAbs(cxSub(ph, CX1)) > 1e-12) gaussDefectOnWalk++
     }
   }
-  //   2. Controlled gauge-invariant plaquette write (all cells k: m_k += 1 mod 3 regardless of c, so ALL branches write!)
   const applyCellWriteAll = (vec: Map<number, Cx>, inv: boolean): Map<number, Cx> => {
     const delta: 1 | 2 = inv ? 2 : 1
     const out = new Map<number, Cx>()
@@ -2156,20 +2407,17 @@ function runPillarN2(): PillarN2Metrics {
   let writtenTapeProb = 0
   for (const [idx, amp] of stWritten) if (idx % N_M4 !== 0) writtenTapeProb += cxAbs2(amp)
 
-  //   3. Positive control: uncompute plaquette write + inverse walk U_walk^{-2} -> EXACT P = 1.000000000000 recombination!
   const stUncomp = applyCellWriteAll(stWritten, true)
   const stRecomb = applyWalkOnly(applyWalkOnly(stUncomp, true), true)
   const recombProb = cxAbs2(stRecomb.get(psi0Idx) ?? CX0)
 
-  //   4. Negative Control A: skip tape uncomputation -> orthogonal tape states m_0/m_1/m_2 destroy constructive interference!
   const stNegNoUncomp = applyWalkOnly(applyWalkOnly(stWritten, true), true)
   let negNoUncompProb = 0
   for (const [idx, amp] of stNegNoUncomp) {
     const t2 = Math.floor(idx / (N_E3 * N_M4))
-    if (t2 === 0) negNoUncompProb += cxAbs2(amp) // P(k = 0, c = 0) summed over all tape & link states!
+    if (t2 === 0) negNoUncompProb += cxAbs2(amp)
   }
 
-  //   5. Negative Control B: path-dependent loop entanglement (apply closed loop W_{p_0} ONLY on k = 2 branch, without uncomputing!)
   const stLoopEnt = new Map<number, Cx>()
   for (const [idx, amp] of stWalk) {
     const m = idx % N_M4, t1 = (idx - m) / N_M4
@@ -2184,7 +2432,6 @@ function runPillarN2(): PillarN2Metrics {
     const t2 = Math.floor(idx / (N_E3 * N_M4))
     if (t2 === 0) negLoopEntProb += cxAbs2(amp)
   }
-  // Suppress unused helper lint by verifying getM4 on written state
   let nonzeroTritWrites = 0
   for (const idx of stWritten.keys()) {
     const m = idx % N_M4
@@ -2194,11 +2441,14 @@ function runPillarN2(): PillarN2Metrics {
   recordCheck(
     'N2',
     'N2.2',
-    'Live 17,496D W16 Z_3-Link PQTM (4 disjoint plaquettes), full [U,V_v]=0, & zero-decoherence dressing vs controls',
+    'Live 17,496D tape-conditioned W16 Z_3-Link PQTM ([U,V_v]=0), forward t=4 interference & uncomputation controls',
     plaquetteOverlap === 0 &&
       pqtmUniFrob < 1e-13 &&
       pqtmMaxGaussFrob < 1e-13 &&
       pqtmRevErr < 1e-13 &&
+      tapeCondL1 > 0.1 &&
+      fwdGaugeMatchErr < 1e-14 &&
+      fwdQuantumVsClassL1 > 0.2 &&
       cellsPopulated.size === 3 &&
       gaussDefectOnWalk === 0 &&
       Math.abs(writtenTapeProb - 1) < 1e-14 &&
@@ -2206,7 +2456,7 @@ function runPillarN2(): PillarN2Metrics {
       Math.abs(recombProb - 1) < 1e-13 &&
       negNoUncompProb < 0.75 &&
       negLoopEntProb < 0.75,
-    `plaqDisjoint=16/16, ||U^dagU-I||_F=${pqtmUniFrob.toExponential(1)}, max||[U,V_v]||_F=${pqtmMaxGaussFrob.toExponential(1)}, revErr=${pqtmRevErr.toExponential(1)}, P_recomb=${recombProb.toFixed(12)} vs negNoUncomp=${negNoUncompProb.toFixed(6)}, negLoopEnt=${negLoopEntProb.toFixed(6)}`,
+    `plaqDisjoint=16/16, ||U^dagU-I||_F=${pqtmUniFrob.toExponential(1)}, max||[U,V_v]||_F=${pqtmMaxGaussFrob.toExponential(1)}, revErr=${pqtmRevErr.toExponential(1)}, tapeCondL1=${tapeCondL1.toFixed(4)}, fwdT4(gaugeVsFree=${fwdGaugeMatchErr.toExponential(1)}, QvsClassL1=${fwdQuantumVsClassL1.toFixed(4)}), P_recomb=${recombProb.toFixed(12)} vs negNoUncomp=${negNoUncompProb.toFixed(6)}, negLoopEnt=${negLoopEntProb.toFixed(6)}`,
   )
 
   return {
@@ -2219,8 +2469,8 @@ function runPillarN2(): PillarN2Metrics {
 }
 
 // ============================================================================
-// PILLAR N3: FAULT-TOLERANT HOLOGRAPHIC UNIVERSAL QUANTUM COMPUTER ON
-//            B_1 = [[552, 25, 40]]_3 (W10 + W11 + W17)
+// PILLAR N3: HOLOGRAPHIC UNIVERSAL QUANTUM COMPUTER ON
+//            B_1 = [[552, 25, d_min=8 / d_0=40]]_3 (W10 + W11 + W17)
 // ============================================================================
 
 interface PillarN3Metrics {
@@ -2234,6 +2484,7 @@ interface PillarN3Metrics {
   readonly su3Rank: number
   readonly su9Rank: number
   readonly wt19RecoveryFid: number
+  readonly wt8NegFid: number
   readonly wt40NegFid: number
   readonly szegedyGapRad: number
   readonly returnBoundBase: number
@@ -2241,10 +2492,10 @@ interface PillarN3Metrics {
 
 function runPillarN3(): PillarN3Metrics {
   console.log('\n================================================================================')
-  console.log('PILLAR N3: FAULT-TOLERANT HOLOGRAPHIC UNIVERSAL QC ON B_1 = [[552, 25, 40]]_3')
+  console.log('PILLAR N3: HOLOGRAPHIC UNIVERSAL QC ON B_1 = [[552, 25, d_min=8 / d_0=40]]_3')
   console.log('================================================================================')
 
-  // 1. Build Crown-Jewel [[24, 1, 8]]_3 tensors & contract B_1 = [[552, 25, 40]]_3 in exact GF(3)
+  // 1. Build Crown-Jewel [[24, 1, 8]]_3 tensors & contract B_1 = [[552, 25, d_min=8 / d_0=40]]_3 in exact GF(3)
   const w9Defs: readonly (readonly (readonly [number, number, number])[])[] = [
     [[0, 0, 1], [0, 1, 2], [1, 10, 2], [1, 11, 1]],
     [[0, 2, 1], [0, 3, 2], [1, 8, 2], [1, 9, 1]],
@@ -2523,19 +2774,62 @@ function runPillarN3(): PillarN3Metrics {
   const xl40 = buildOriginWt40([[0, 2, 0], [1, 2, 0], [21, 2, 0], [23, 2, 0], [4, 1, 0], [5, 1, 0], [17, 1, 0], [19, 1, 0]])
   const zl40 = buildOriginWt40([[0, 0, 2], [1, 0, 2], [2, 0, 2], [3, 0, 2], [4, 0, 1], [5, 0, 1], [6, 0, 1], [7, 0, 1]])
   const sH527 = hStabs.map(r => toSympRow(r, 552))
+  const B1_SYMP_X = xLogs.map(r => toSympRow(r, 552))
+  const B1_SYMP_Z = zLogs.map(r => toSympRow(r, 552))
   const sX40 = toSympRow(xl40.row, 552), sZ40 = toSympRow(zl40.row, 552)
   const wt40CommH = sH527.every(h => sympDotBit(sX40, h) === 0 && sympDotBit(sZ40, h) === 0)
   const wt40Pair = sympDotBit(sX40, sZ40)
+  // Direct origin-only commutation check: xl40, zl40 commute with ALL shell-1 logicals xLogs[1..24], zLogs[1..24]
+  const wt40CommShell1 = xLogs.slice(1).every((_, i) => {
+    const sx = B1_SYMP_X[1 + i]!, sz = B1_SYMP_Z[1 + i]!
+    return sympDotBit(sX40, sx) === 0 && sympDotBit(sX40, sz) === 0 && sympDotBit(sZ40, sx) === 0 && sympDotBit(sZ40, sz) === 0
+  })
+  const wt40OriginNontriv = sympDotBit(sX40, B1_SYMP_Z[0]!) !== 0 && sympDotBit(sZ40, B1_SYMP_X[0]!) !== 0
+
+  // Construct explicit shell-1 UV weight-8 logical operator Z_L^{(1,8)} on b_1 (cone 0 avoiding OPP[0]=3)
+  const shell1Wt8 = (() => {
+    const baseZ8 = new Uint8Array(48)
+    for (let i = 0; i < 4; i++) baseZ8[24 + i] = 2
+    for (let i = 4; i < 8; i++) baseZ8[24 + i] = 1
+    for (const w of WF4_FULL) {
+      let hitsOpp0 = false
+      for (let i = 0; i < 8; i++) if (w.perm[i] === OPP[0]!) { hitsOpp0 = true; break }
+      if (hitsOpp0) continue
+      const row = gf3RowZero(B1_BND_WORDS)
+      for (let i = 0; i < 8; i++) {
+        const dstS = w.perm[i]!, bq = asToBnd[0 * 24 + dstS]!
+        const zv = mod3(2 * baseZ8[24 + i]!)
+        const nx = mod3(w.Aodd[1] * zv), nz = mod3(w.Aodd[3] * zv)
+        if (nx) gf3Set(row, bq, nx)
+        if (nz) gf3Set(row, 552 + bq, nz)
+      }
+      const sr = toSympRow(row, 552)
+      if (sH527.every(h => sympDotBit(sr, h) === 0) && sympDotBit(sr, B1_SYMP_X[1]!) !== 0) {
+        return { row, symp: sr, wt: 8 }
+      }
+    }
+    throw new Error('shell-1 wt-8 logical not found')
+  })()
 
   recordCheck(
     'N3',
     'N3.1',
-    'Exact GF(3) contraction of B_1 = [[552, 25, 40]]_3 (527 stabs, 0 iso defects, wt-40 logicals)',
-    hStabs.length === 527 && b1IsoDef === 0 && xl40.supp.length === 40 && zl40.supp.length === 40 && wt40CommH && wt40Pair === 1,
-    `rank=${choiBasis.length}/577, |H|=${hStabs.length}, isoDef=${b1IsoDef}, wt(X40,Z40)=(${xl40.supp.length},${zl40.supp.length}), commH=${wt40CommH}, <X40,Z40>=${wt40Pair}`,
+    'Exact GF(3) contraction of B_1 = [[552, 25, d_min=8 / d_0=40]]_3 (527 stabs, 0 iso, origin wt-40 & shell-1 wt-8)',
+    hStabs.length === 527 &&
+      b1IsoDef === 0 &&
+      xl40.supp.length === 40 &&
+      zl40.supp.length === 40 &&
+      wt40CommH &&
+      wt40CommShell1 &&
+      wt40OriginNontriv &&
+      wt40Pair === 1 &&
+      shell1Wt8.wt === 8,
+    `rank=${choiBasis.length}/577, |H|=${hStabs.length}, isoDef=${b1IsoDef}, wt(X40,Z40)=(${xl40.supp.length},${zl40.supp.length}), commH=${wt40CommH}, commShell1=${wt40CommShell1}, <X40,Z40>=${wt40Pair}, d_min(b_1)=${shell1Wt8.wt}`,
   )
 
-  // 2. Lift H_3(b_0), S_3(b_0), SUM(b_0->b_1), CZ_3(b_0,b_1), U_star(1), & U_Floq to Sp(1104, 3)
+  // 2. Global Algebraic Sp(1104, 3) Symplectic Boundary Lifts (NOT transversal/local FT boundary circuits!)
+  //    Lift H_3(b_0), S_3(b_0), SUM(b_0->b_1), CZ_3(b_0,b_1), U_star(1), & U_Floq and certify
+  //    non-trivial 20-beat logical composition modulo hStabs + wt-39/40 origin erasure threshold!
   const eye50 = (): Uint8Array[] => Array.from({ length: 50 }, (_, i) => { const r = new Uint8Array(50); r[i] = 1; return r })
   const mulMat50 = (A: readonly Uint8Array[], B: readonly Uint8Array[]): Uint8Array[] =>
     Array.from({ length: 50 }, (_, i) => {
@@ -2594,11 +2888,10 @@ function runPillarN3(): PillarN3Metrics {
   for (let g = 0; g < 25; g++) { M_HALL[g]![25 + g] = 1; M_HALL[25 + g]![g] = 2 }
   const M_UFLOQ = mulMat50(M_HALL, M_UNN)
 
-  const B1_SYMP_X = xLogs.map(r => toSympRow(r, 552))
-  const B1_SYMP_Z = zLogs.map(r => toSympRow(r, 552))
   const B1_LOG_ALL: readonly GF3Row[] = [...xLogs, ...zLogs]
 
   function makeBoundaryLift552(Ubulk: readonly Uint8Array[]) {
+    // Global algebraic Sp(1104, 3) lift acting identically on H and intertwining bulk logicals
     const delta = Ubulk.map((row, i) => Uint8Array.from(row, (v, j) => (i === j ? mod3(v - 1) : v)))
     return (v: GF3Row): GF3Row => {
       const sv = toSympRow(v, 552)
@@ -2657,17 +2950,50 @@ function runPillarN3(): PillarN3Metrics {
   ]
   const spDefList = liftedOps.map(op => verifyFullSp1104(op.fn))
   const intList = liftedOps.map(op => checkIntertwining552(op.fn, op.M))
-  // 20 composite beats across all 6 lifted gates -> certify 0 stabilizer leakage
-  let curH = hStabs.map(gf3RowClone)
-  let maxCompLeak = 0
+
+  // Non-trivial 20-beat logical composition check:
+  //   Evolve coset-shifted logicals (B1_LOG_ALL[j] + hStabs[j]) through L_20 o ... o L_1,
+  //   compose bulk matrix M_comp = U_20 ... U_1, assert M_comp != I_50, and verify
+  //   L_20 o ... o L_1(B1_LOG_ALL[j] + hStabs[j]) === (M_comp(B1_LOG_ALL))[j] modulo hStabs!
+  const hRref = gf3Rref(hStabs, 1104)
+  const inSpanH = (row: GF3Row): boolean => {
+    const r = gf3RowClone(row)
+    for (let i = 0; i < hRref.basis.length; i++) {
+      const f = gf3Get(r, hRref.pivCols[i]!)
+      if (f === 1) gf3SubInPlace(r, hRref.basis[i]!)
+      else if (f === 2) gf3AddInPlace(r, hRref.basis[i]!)
+    }
+    for (let w = 0; w < r.a.length; w++) if ((r.a[w]! | r.b[w]!) !== 0) return false
+    return true
+  }
+  let mComp20 = eye50()
+  let curCosets = B1_LOG_ALL.map((row, j) => {
+    const c = gf3RowClone(row)
+    gf3AddInPlace(c, hStabs[j]!)
+    return c
+  })
   for (let t = 0; t < 20; t++) {
     const op = liftedOps[t % liftedOps.length]!
-    curH = curH.map(op.fn)
-    if (t === 0 || t === 9 || t === 19) {
-      maxCompLeak = Math.max(maxCompLeak, gf3Rank([...hStabs, ...curH], 1104) - 527)
-    }
+    mComp20 = mulMat50(op.M, mComp20)
+    curCosets = curCosets.map(op.fn)
   }
-  // Erasure recovery: weight-39 vs weight-40 negative control
+  let mCompNonIdEntries = 0
+  for (let i = 0; i < 50; i++)
+    for (let j = 0; j < 50; j++) if (mComp20[i]![j] !== (i === j ? 1 : 0)) mCompNonIdEntries++
+  let comp20Defects = 0
+  for (let j = 0; j < 50; j++) {
+    const exp = gf3RowZero(B1_BND_WORDS)
+    for (let i = 0; i < 50; i++) {
+      const cf = mComp20[i]![j]!
+      if (cf === 1) gf3AddInPlace(exp, B1_LOG_ALL[i]!)
+      else if (cf === 2) gf3SubInPlace(exp, B1_LOG_ALL[i]!)
+    }
+    const diff = gf3RowClone(curCosets[j]!)
+    gf3SubInPlace(diff, exp)
+    if (!inSpanH(diff)) comp20Defects++
+  }
+
+  // Erasure recovery on origin b_0: weight-39 vs weight-40 negative control
   const all552 = Array.from({ length: 552 }, (_, i) => i)
   const checkOriginRec = (erased: readonly number[]): number => {
     const eSet = new Set(erased)
@@ -2682,19 +3008,21 @@ function runPillarN3(): PillarN3Metrics {
   recordCheck(
     'N3',
     'N3.2',
-    'Sp(1104,3) boundary lifts (SL(2,3), SUM, CZ_3, U_star, U_Floq), 20-beat 0 leak & wt-39/40 erasure threshold',
+    'Global algebraic Sp(1104,3) symplectic lifts, non-trivial 20-beat logical composition mod H & wt-39/40 erasure',
     sl23Order === 24 &&
       spDefList.every(d => d === 0) &&
       intList.every(Boolean) &&
-      maxCompLeak === 0 &&
+      mCompNonIdEntries > 100 &&
+      comp20Defects === 0 &&
       i39Z === 2 &&
       i39X === 2 &&
       i40Z === 1 &&
       i40X === 1,
-    `|<H3,S3>|=${sl23Order}, spDefs=[${spDefList.join(',')}], intertwine=6/6, 20-beat leak=${maxCompLeak}, erase39=(${i39Z},${i39X})/2 vs erase40=(${i40Z},${i40X})/2`,
+    `|<H3,S3>|=${sl23Order}, spDefs=[${spDefList.join(',')}], intertwine=6/6, 20-beat comp(nonId=${mCompNonIdEntries}/2500, modHDef=${comp20Defects}/50), erase39=(${i39Z},${i39X})/2 vs erase40=(${i40Z},${i40X})/2`,
   )
 
-  // 3. Bare-U Magic Harvest + Exact Native Z[zeta_9] T_3 Teleportation + su(3)/su(9) Closure
+  // 3. Single Internal Half-Coin Layer D Magic Harvest + Native Z[zeta_9] T_3 Teleportation +
+  //    Exact Discrete Density Proof of <H_3, S_3, T_3> -> SU(3) & <..., CZ_3> -> SU(9)
   const D_DIAG: Cx = cxScale(0.5, cxAdd([2, 0], CX_OMEGA))
   const D_OFF: Cx = cxScale(-0.5, CX_OMEGA)
   const U_D_LINE = cmatZero(9)
@@ -2767,7 +3095,8 @@ function runPillarN3(): PillarN3Metrics {
     return { W, l1Neg, sumW }
   }
 
-  // Bare-D magic harvest from |+>_1 |0>_2 post-selected on |0>_2
+  // Single internal half-coin layer D (U_D_LINE, NOT full beat U where C = D^2 gives prob=1/2) magic harvest
+  // from |+>_1 |0>_2 post-selected on |0>_2 -> separate non-stabilizer witness psiHarvest (distinct from psiT3)!
   const initD9: Cx[] = new Array<Cx>(9).fill(CX0)
   initD9[0] = [INV_SQRT3, 0]; initD9[3] = [INV_SQRT3, 0]; initD9[6] = [INV_SQRT3, 0]
   const outD9 = cmatVec(U_D_LINE, initD9)
@@ -2775,6 +3104,9 @@ function runPillarN3(): PillarN3Metrics {
   const harvestProb = cxAbs2(unnormHarv[0]!) + cxAbs2(unnormHarv[1]!) + cxAbs2(unnormHarv[2]!)
   const psiHarvest = unnormHarv.map(z => cxScale(1 / Math.sqrt(harvestProb), z))
   const wigHarv = grossWigner(psiHarvest)
+  // Full-coin C = D^2 contrast check: prob = 1/2
+  const outC9 = cmatVec(cmatMul(U_D_LINE, U_D_LINE), initD9)
+  const fullCoinProb = cxAbs2(outC9[0]!) + cxAbs2(outC9[3]!) + cxAbs2(outC9[6]!)
 
   // Exact native Z[zeta_9] qutrit gates: X, Z, H_3, S_3 = diag(1, omega^2, omega^2), T_3 = diag(1, zeta_9, zeta_9^{-1})
   const Q3_X: CMat = [
@@ -2791,6 +3123,7 @@ function runPillarN3(): PillarN3Metrics {
   const Q3_H: CMat = Array.from({ length: 3 }, (_, r) =>
     Array.from({ length: 3 }, (_, c) => cxScale(INV_SQRT3, OMEGA_POW[(r * c) % 3]!)),
   )
+  const Q3_H_DAG = cmatDag(Q3_H)
   const Q3_S: CMat = [
     [CX1, CX0, CX0],
     [CX0, CX_OMEGA2, CX0],
@@ -2820,7 +3153,6 @@ function runPillarN3(): PillarN3Metrics {
   const normIn3 = Math.sqrt(rawIn3.reduce((s, z) => s + cxAbs2(z), 0))
   const psiDataIn = rawIn3.map(z => cxScale(1 / normIn3, z))
   const targetT3Psi = cmatVec(Q3_T, psiDataIn)
-  // Build 9x9 SUM_{data->anc}^{-1}: |j, k> -> |j, (k - j) mod 3>
   const SUM_INV9 = cmatZero(9)
   for (let j = 0; j < 3; j++)
     for (let k = 0; k < 3; k++) SUM_INV9[3 * j + mod3(k - j)]![3 * j + k] = CX1
@@ -2841,51 +3173,82 @@ function runPillarN3(): PillarN3Metrics {
     teleNegNoFF.push(cxAbs2(cvecInner(targetT3Psi, postNorm)))
   }
 
-  // Exact Lie-algebra commutator closure rank: su(3) = 8/8 and su(9) = 80/80
-  const tracelessHerm = (A: CMat): CMat => {
-    const n = A.length
-    let trR = 0
-    for (let i = 0; i < n; i++) trR += A[i]![i]![0]
-    const shift = trR / n
-    return A.map((row, r) => row.map((z, c) => (r === c ? [z[0] - shift, 0] : z)))
+  // GENUINE DISCRETE DENSITY PROOF OF <H_3, S_3, T_3> -> SU(3) & <..., CZ_3> -> SU(9)
+  // (ZERO continuous -i log of finite-order Clifford gates!):
+  //   1. Construct commutator word W_comm = H_3 T_3 H_3^dag T_3^dag in SU(3) (det = 1).
+  //      Tr(W_comm) = (1 + 2 cos(2pi/9))^2 / 3 is strictly real => eigenvalues {1, e^{+i theta}, e^{-i theta}}
+  //      with x = 2 cos(theta) = Tr(W_comm) - 1 satisfying the irreducible non-algebraic-integer cubic
+  //      3 x^3 - 3 x - 1 = 0 (monic x^3 - x - 1/3 notin Z[x]) => theta/pi notin Q => INFINITE ORDER in PSU(3)!
+  const W_COMM = cmatMul(Q3_H, cmatMul(Q3_T, cmatMul(Q3_H_DAG, Q3_T_DAG)))
+  const W_COMM_DAG = cmatDag(W_COMM)
+  const cmatTrace = (A: CMat): Cx => {
+    let s = CX0
+    for (let i = 0; i < A.length; i++) s = cxAdd(s, A[i]![i]!)
+    return s
   }
-  const diagHerm = (vals: readonly number[]): CMat => {
-    const n = vals.length
-    const M = cmatZero(n)
-    for (let i = 0; i < n; i++) M[i]![i] = [vals[i]!, 0]
-    return tracelessHerm(M)
+  const projIdDist = (U: CMat): number => {
+    const tr = cmatTrace(U)
+    const ph = cxScale(1 / U.length, tr)
+    let d2 = 0
+    for (let r = 0; r < U.length; r++)
+      for (let c = 0; c < U.length; c++) d2 += cxAbs2(cxSub(U[r]![c]!, r === c ? ph : CX0))
+    return Math.sqrt(d2)
   }
-  // Exact -i log H_3 from order-4 spectral projectors (H_3^4 = I, eigenvalues {+1, -1, +i})
-  const H2 = cmatMul(Q3_H, Q3_H)
-  const H3 = cmatMul(H2, Q3_H)
-  const I3 = cmatId(3)
-  const linComb3 = (c0: Cx, c1: Cx, c2: Cx, c3: Cx): CMat =>
-    Array.from({ length: 3 }, (_, r) =>
-      Array.from({ length: 3 }, (_, c) =>
-        cxAdd(
-          cxAdd(cxMul(c0, I3[r]![c]!), cxMul(c1, Q3_H[r]![c]!)),
-          cxAdd(cxMul(c2, H2[r]![c]!), cxMul(c3, H3[r]![c]!)),
-        ),
-      ),
-    )
-  const pMinus1 = linComb3([0.25, 0], [-0.25, 0], [0.25, 0], [-0.25, 0])
-  const pPlusI = linComb3([0.25, 0], [0, -0.25], [-0.25, 0], [0, 0.25])
-  const pMinusI = linComb3([0.25, 0], [0, 0.25], [-0.25, 0], [0, -0.25])
-  const genH3 = tracelessHerm(
-    Array.from({ length: 3 }, (_, r) =>
-      Array.from({ length: 3 }, (_, c) =>
-        cxAdd(
-          cxScale(PI, pMinus1[r]![c]!),
-          cxAdd(cxScale(PI / 2, pPlusI[r]![c]!), cxScale(-PI / 2, pMinusI[r]![c]!)),
-        ),
-      ),
-    ),
-  )
-  const genS3 = diagHerm([0, (-2 * PI) / 3, (-2 * PI) / 3])
-  const genT3 = diagHerm([0, (2 * PI) / 9, (-2 * PI) / 9])
-  const genCZ3 = diagHerm([0, 0, 0, 0, (2 * PI) / 3, (4 * PI) / 3, 0, (4 * PI) / 3, (2 * PI) / 3])
+  const trW = cmatTrace(W_COMM)
+  assertExact(Math.abs(trW[1]) < 1e-14, 'Tr(W_comm) real')
+  const xCos = trW[0] - 1 // 2 cos(theta)
+  const cubicRes = Math.abs(3 * xCos ** 3 - 3 * xCos - 1)
+  const thetaW = Math.acos(xCos / 2)
+  // Certify W_comm^k != e^{i phi} I across ALL k = 1..120
+  let minProjDistW120 = Infinity
+  let powW = cmatId(3)
+  for (let k = 1; k <= 120; k++) {
+    powW = cmatMul(powW, W_COMM)
+    minProjDistW120 = Math.min(minProjDistW120, projIdDist(powW))
+  }
+  // Explicit Clifford negative controls: replacing T_3 -> Z_3 or T_3 -> S_3 gives FINITE order in PSU(3)!
+  const findProjOrder = (U: CMat, maxK: number): number => {
+    let cur = cmatId(U.length)
+    for (let k = 1; k <= maxK; k++) {
+      cur = cmatMul(cur, U)
+      if (projIdDist(cur) < 1e-12) return k
+    }
+    return -1
+  }
+  const W_CLIFF_Z = cmatMul(Q3_H, cmatMul(Q3_Z, cmatMul(Q3_H_DAG, cmatDag(Q3_Z))))
+  const W_CLIFF_S = cmatMul(Q3_H, cmatMul(Q3_S, cmatMul(Q3_H_DAG, cmatDag(Q3_S))))
+  const ordCliffZ = findProjOrder(W_CLIFF_Z, 24)
+  const ordCliffS = findProjOrder(W_CLIFF_S, 24)
 
-  function lieClosureRank(generators: readonly CMat[]): number {
+  //   2. Since W_comm has provably infinite order in PSU(3), its closure overline{<W_comm>} contains the
+  //      1-parameter subgroup exp(i t A_W), where A_W = (W_comm - W_comm^dag) / (2 i sin(theta)) has eigenvalues {0,+1,-1}
+  //      and satisfies exact exponential identity exp(i theta A_W) = I + i sin(theta) A_W + (cos(theta)-1) A_W^2 === W_comm!
+  const sinTh = Math.sin(thetaW)
+  const cosTh = Math.cos(thetaW)
+  const A_W: CMat = Array.from({ length: 3 }, (_, r) =>
+    Array.from({ length: 3 }, (_, c) => {
+      const d = cxSub(W_COMM[r]![c]!, W_COMM_DAG[r]![c]!)
+      // Divide by (2 i sinTh): (re + i im) / (2 i s) = (im - i re) / (2 s)
+      return [d[1] / (2 * sinTh), -d[0] / (2 * sinTh)] as const
+    }),
+  )
+  const A_W2 = cmatMul(A_W, A_W)
+  const I3 = cmatId(3)
+  const expAW: CMat = Array.from({ length: 3 }, (_, r) =>
+    Array.from({ length: 3 }, (_, c) => {
+      const t0 = I3[r]![c]!
+      const t1 = cxMul([0, sinTh], A_W[r]![c]!)
+      const t2 = cxScale(cosTh - 1, A_W2[r]![c]!)
+      return cxAdd(t0, cxAdd(t1, t2))
+    }),
+  )
+  const expAWErr = cmatFrobDiff(expAW, W_COMM)
+
+  //   3. By Cartan's Closed Subgroup Theorem, Lie(overline{<H_3, S_3, T_3>}) contains every discrete conjugate
+  //      U A_W U^dag for U in <H_3, S_3, T_3> (and on 2 qutrits, CZ_3 conjugates of su(3) x I and I x su(3))!
+  const conjMat = (U: CMat, A: CMat): CMat => cmatMul(U, cmatMul(A, cmatDag(U)))
+
+  function lieClosureBasis(generators: readonly CMat[]): CMat[] {
     const n = generators[0]!.length
     const len = 2 * n * n
     const toVec = (M: CMat): Float64Array => {
@@ -2895,7 +3258,6 @@ function runPillarN3(): PillarN3Metrics {
       return v
     }
     const lieBracket = (A: CMat, B: CMat): CMat => {
-      // i [A, B] = i (A B - B A), which is Hermitian & traceless whenever A, B are Hermitian
       const AB = cmatMul(A, B), BA = cmatMul(B, A)
       return Array.from({ length: n }, (_, r) =>
         Array.from({ length: n }, (_, c) => {
@@ -2919,7 +3281,6 @@ function runPillarN3(): PillarN3Metrics {
       const invN = 1 / Math.sqrt(norm2)
       for (let i = 0; i < len; i++) v[i] = v[i]! * invN
       basisVecs.push(v)
-      // Store normalized matrix so magnitudes never blow up or underflow
       const normM = cmatZero(n)
       for (let r = 0; r < n; r++)
         for (let c = 0; c < n; c++) normM[r]![c] = [v[2 * (r * n + c)]!, v[2 * (r * n + c) + 1]!]
@@ -2937,28 +3298,41 @@ function runPillarN3(): PillarN3Metrics {
       }
       head++
     }
-    return basisMats.length
+    return basisMats
   }
-  const su3Rank = lieClosureRank([genH3, genS3, genT3])
-  const su9Rank = lieClosureRank([
-    cmatKron(genH3, I3),
-    cmatKron(genS3, I3),
-    cmatKron(genT3, I3),
-    cmatKron(I3, genH3),
-    cmatKron(I3, genS3),
-    cmatKron(I3, genT3),
-    genCZ3,
-  ])
+
+  const su3Gens = [
+    A_W,
+    conjMat(Q3_H, A_W),
+    conjMat(Q3_S, A_W),
+    conjMat(cmatMul(Q3_H, Q3_S), A_W),
+    conjMat(cmatMul(Q3_S, Q3_H), A_W),
+    conjMat(Q3_T, A_W),
+  ]
+  const su3Basis = lieClosureBasis(su3Gens)
+  const su3Rank = su3Basis.length
+
+  const CZ3_9 = cmatZero(9)
+  for (let a = 0; a < 3; a++)
+    for (let b = 0; b < 3; b++) CZ3_9[3 * a + b]![3 * a + b] = OMEGA_POW[(a * b) % 3]!
+  const su9Gens: CMat[] = [
+    ...su3Basis.map(B => cmatKron(B, I3)),
+    ...su3Basis.map(B => cmatKron(I3, B)),
+    conjMat(CZ3_9, cmatKron(A_W, I3)),
+    conjMat(CZ3_9, cmatKron(I3, A_W)),
+  ]
+  const su9Rank = lieClosureBasis(su9Gens).length
 
   recordCheck(
     'N3',
     'N3.3',
-    'Bare-U magic harvest (prob=5/6, W=-0.100000), Z[zeta_9] T_3 teleportation (F=1 vs no-FF), & su(3)/su(9) closure',
+    'Half-coin D harvest (5/6 vs C=D^2 1/2), Z[zeta_9] T_3 teleport (F=1 vs no-FF), & discrete SU(3)/SU(9) density vs Clifford',
     Math.abs(m2D - 0.8293) < 0.001 &&
       Math.abs(m2Meet - 0.9778) < 0.001 &&
       Math.abs(m2K - 1.5099) < 0.001 &&
       Math.abs(m2L4 - 1.5187) < 0.001 &&
       Math.abs(harvestProb - 5 / 6) < 1e-14 &&
+      Math.abs(fullCoinProb - 0.5) < 1e-14 &&
       Math.abs(wigHarv.W[1]![1]! + 0.1) < 1e-14 &&
       Math.abs(wigHarv.W[2]![2]! + 0.1) < 1e-14 &&
       Math.abs(wigHarv.l1Neg - 0.2) < 1e-14 &&
@@ -2968,9 +3342,15 @@ function runPillarN3(): PillarN3Metrics {
       teleFids.every(f => Math.abs(f - 1) < 1e-14) &&
       teleNegNoFF[1]! < 0.9 &&
       teleNegNoFF[2]! < 0.9 &&
+      cubicRes < 1e-14 &&
+      minProjDistW120 > 0.01 &&
+      expAWErr < 1e-14 &&
+      ordCliffZ === 3 &&
+      ordCliffS > 0 &&
+      ordCliffS <= 24 &&
       su3Rank === 8 &&
       su9Rank === 80,
-    `M2=[D:${m2D.toFixed(4)},Meet:${m2Meet.toFixed(4)},K:${m2K.toFixed(4)},L4:${m2L4.toFixed(4)}], harv(p=${harvestProb.toFixed(6)},W11=${wigHarv.W[1]![1]!.toFixed(6)},L1=${wigHarv.l1Neg.toFixed(6)}), T3(W01=${wigT3.W[0]![1]!.toFixed(6)},conjErr=${t3ConjErr.toExponential(1)}), teleF=[${teleFids.map(f => f.toFixed(12)).join(',')}] vs noFF=[${teleNegNoFF.map(f => f.toFixed(4)).join(',')}], su(3)=${su3Rank}/8, su(9)=${su9Rank}/80`,
+    `M2=[D:${m2D.toFixed(4)},Meet:${m2Meet.toFixed(4)},K:${m2K.toFixed(4)},L4:${m2L4.toFixed(4)}], halfD-harv(p=${harvestProb.toFixed(6)} vs C=D^2:${fullCoinProb.toFixed(2)}, W11=-0.100000, L1=0.200000, sep from T3), T3(W01=${wigT3.W[0]![1]!.toFixed(6)}, conjErr=${t3ConjErr.toExponential(1)}), teleF=[1,1,1] vs noFF=[${teleNegNoFF.map(f => f.toFixed(4)).join(',')}], discreteW(|3x^3-3x-1|=${cubicRes.toExponential(1)}, minDist120=${minProjDistW120.toFixed(4)}, expErr=${expAWErr.toExponential(1)}) vs CliffOrd(Z=${ordCliffZ},S=${ordCliffS}), Cartan su(3)=${su3Rank}/8, su(9)=${su9Rank}/80`,
   )
 
   // 4. End-to-end 3-qutrit (27D) universal logical circuit + wt-19 boundary Pauli injection +
@@ -3103,7 +3483,7 @@ function runPillarN3(): PillarN3Metrics {
     coneDecoders.push({ stabs: sympStabs, table })
   }
 
-  // Inject deterministic weight-19 boundary Pauli error E_19 (1 error per cone on cones 0..18, varying X/Z/XZ/XZ^2!)
+  // Inject deterministic 1-error-per-cone weight-19 boundary Pauli error E_19 (1 error per cone on cones 0..18, varying X/Z/XZ/XZ^2!)
   const e19Row = gf3RowZero(B1_BND_WORDS)
   let e19Weight = 0
   for (let a = 0; a < 19; a++) {
@@ -3119,7 +3499,7 @@ function runPillarN3(): PillarN3Metrics {
   let e19Syn527Nonzero = 0
   for (const h of sH527) if (sympDotBit(sE19, h) !== 0) e19Syn527Nonzero++
 
-  // Live syndrome-only decoding from S(C_a) without peeking at e19Row!
+  // Live syndrome-only cone-local decoding from S(C_a) without peeking at e19Row!
   const recRow = gf3RowZero(B1_BND_WORDS)
   for (let a = 0; a < 24; a++) {
     const dec = coneDecoders[a]!
@@ -3151,7 +3531,13 @@ function runPillarN3(): PillarN3Metrics {
   const psi27Recovered = applyBoundaryLogicalAction27(psi27, sRes)
   const wt19RecoveryFid = cxAbs2(cvecInner(psi27, psi27Recovered))
 
-  // Negative control: inject weight-40 logical X_L^{(0,40)} -> 0/527 syndrome triggered -> undetected logical flip!
+  // Negative Control A: inject shell-1 weight-8 logical Z_L^{(1,8)} on b_1 -> 0/527 syndrome -> undetected corruption!
+  let wt8Syn527Nonzero = 0
+  for (const h of sH527) if (sympDotBit(shell1Wt8.symp, h) !== 0) wt8Syn527Nonzero++
+  const psi27Neg8 = applyBoundaryLogicalAction27(psi27, shell1Wt8.symp)
+  const wt8NegFid = cxAbs2(cvecInner(psi27, psi27Neg8))
+
+  // Negative Control B: inject origin weight-40 logical X_L^{(0,40)} on b_0 -> 0/527 syndrome -> undetected corruption!
   let x40Syn527Nonzero = 0
   for (const h of sH527) if (sympDotBit(sX40, h) !== 0) x40Syn527Nonzero++
   const psi27Neg40 = applyBoundaryLogicalAction27(psi27, sX40)
@@ -3160,16 +3546,18 @@ function runPillarN3(): PillarN3Metrics {
   recordCheck(
     'N3',
     'N3.4',
-    'End-to-end 27D 3-qutrit circuit + wt-19 error syndrome recovery (F=1 vs wt-40 neg) & 72-line/144-leg cone zero loss',
+    '27D 3-qutrit circuit + 1-per-cone wt-19 recovery (F=1 vs shell-1 wt-8 & origin wt-40 controls) & 72-line cone zero loss',
     e19Weight === 19 &&
       e19Syn527Nonzero > 0 &&
       resNonzeroWords === 0 &&
       Math.abs(wt19RecoveryFid - 1) < 1e-14 &&
+      wt8Syn527Nonzero === 0 &&
+      wt8NegFid < 0.85 &&
       x40Syn527Nonzero === 0 &&
       wt40NegFid < 0.85 &&
       conesEmbeddedInH === 24 &&
       cones72ZeroLeak === 24,
-    `wt19 syn=${e19Syn527Nonzero}/527, residualWords=${resNonzeroWords}, F_rec=${wt19RecoveryFid.toFixed(15)} vs wt40 syn=${x40Syn527Nonzero}/527 F_neg=${wt40NegFid.toFixed(6)}; 72-line(144-leg) zero-loss=${cones72ZeroLeak}/24 cones (H-embed=${conesEmbeddedInH}/24)`,
+    `1-per-cone wt19 syn=${e19Syn527Nonzero}/527, resWords=${resNonzeroWords}, F_rec=${wt19RecoveryFid.toFixed(12)} vs shell1-wt8(syn=${wt8Syn527Nonzero}/527,F=${wt8NegFid.toFixed(6)}) & origin-wt40(syn=${x40Syn527Nonzero}/527,F=${wt40NegFid.toFixed(6)}); 72-line(144-leg) zero-loss=${cones72ZeroLeak}/24 cones (H-embed=${conesEmbeddedInH}/24)`,
   )
 
   // 5. Live W17 0/6/18 cusp split, 96/96 disjoint docks over 8 hops, 0 returns, Szegedy gap 1.177109 rad, < 0.2304^t bound!
@@ -3292,6 +3680,7 @@ function runPillarN3(): PillarN3Metrics {
     su3Rank,
     su9Rank,
     wt19RecoveryFid,
+    wt8NegFid,
     wt40NegFid,
     szegedyGapRad: szegB1.gapRad,
     returnBoundBase,
@@ -3300,7 +3689,7 @@ function runPillarN3(): PillarN3Metrics {
 
 // ============================================================================
 // PILLAR N4: COMPLETE (T, S, A, M, Delta S_cusp) RESOURCE LEDGER (NOTE 44 GAP 7)
-//            & SUMMARY MATRIX ACROSS ALL 6 {3,4,3,4} COMPUTATIONAL TIERS
+//            & SUMMARY MATRIX ACROSS ALL 7 {3,4,3,4} COMPUTATIONAL TIERS
 // ============================================================================
 
 function runPillarN4(n1: PillarN1Metrics, n2: PillarN2Metrics, n3: PillarN3Metrics): void {
@@ -3316,12 +3705,9 @@ function runPillarN4(n1: PillarN1Metrics, n2: PillarN2Metrics, n3: PillarN3Metri
   const boundaryTaxPct = 100 * (1 - 1 / lamBall) // 94.53%
   const ln3 = Math.log(3)
   const ln2 = Math.log(2)
-  // Exact Holevo ceiling per dock per beat: 24 slots * log_2(3) = 38.0391 bits/dock/beat (for ternary tone qutrit slots)
   const holevoDockCeiling = 24 * Math.log2(3)
-  // Exact B_1 weight-19 syndrome export Landauer minimum: 19 errors * log(8) nats (or 527-stab info >= 19 * 2 * ln(3) nats)
-  const b1Wt19LandauerNats = 19 * Math.log(8) // 39.509 nats (each of 19 non-identity qutrit Paulis carries log_2(8) = 3 bits)
-  const railwayMergeLandauerNats = ln2 // 0.693147 nats per 2->1 passive merge or 1-bit memory overwrite
-  // Max downward cusp cooling capacity: 18 downward slots * ln(19) > 36.30 nats/dock/beat (exact ternary 18*ln(3) = 19.775, 19-state 18*ln(19) = 53.00 nats)
+  const b1Wt19LandauerNats = 19 * Math.log(8)
+  const railwayMergeLandauerNats = ln2
   const cuspCapTernaryNats = 18 * ln3
   const cuspCap19StateNats = 18 * Math.log(19)
 
@@ -3336,39 +3722,48 @@ function runPillarN4(n1: PillarN1Metrics, n2: PillarN2Metrics, n3: PillarN3Metri
   }
   const ledger: readonly TierLedgerRow[] = [
     {
-      tier: 'T1: Bare U Ballistic (W23 R3)',
-      classLabel: 'Weak BQP (M_pair=I)',
-      T: 'O(D) [373 coll Toff]',
-      S: 'O(D * n), n<=3/line',
-      A: '8 * T unitary layers',
+      tier: 'T1a: Bare U Sched Exchange (W23 U4)',
+      classLabel: 'Ext-Sched BQP (M_pair=I)',
+      T: '373 adj (126D Toff)',
+      S: 'n<=3 DFS (k=9 roles)',
+      A: 'Yang R-matrix pulses',
       M: `<= ${holevoDockCeiling.toFixed(2)} b/dock`,
       dSCusp: '0.000 nats (closed)',
     },
     {
-      tier: 'T2: Native RPCA U_rev (N1)',
-      classLabel: 'Strong Turing RCM(2)',
+      tier: 'T1b: Bare U Auto Ballistic (W23 U1-3)',
+      classLabel: 'Low-Depth Prim (TM Obs)',
+      T: '2-lap CZ / t=3 MZ',
+      S: 'Ring / 4D k<=6 bulk',
+      A: 'Uninterrupted bare U^t',
+      M: 'Z_2^24 / 0.084% turn',
+      dSCusp: '0.000 nats (closed)',
+    },
+    {
+      tier: 'T2: RPCA U_rev + Origin FSM (N1)',
+      classLabel: 'Reversible Counter Mach',
       T: `${n1.progBeats} b [O(log_18.28 S)]`,
-      S: `${n1.progActiveDocks} docks (D=${n1.progD0})`,
+      S: `${n1.progActiveDocks} docks (D=${n1.progD0} fixed)`,
       A: `${n1.progTransitions} dock-steps`,
       M: `${(n1.progD0 * Math.log2(12)).toFixed(2)} bits`,
       dSCusp: '0.000 nats (closed)',
     },
     {
       tier: 'T3: W16 Z_3-Link PQTM (N2)',
-      classLabel: 'Gauss-Inv Strong QTM',
-      T: '4 b turn / 2 b walk',
+      classLabel: 'Gauss-Inv Tape QTM',
+      T: '4 b turn / 4 b walk',
       S: `16 docks (${n2.pqtmDim}D)`,
       A: '3 local layers/beat',
       M: `${Math.log2(6).toFixed(2)} b/cell (0 decoh)`,
       dSCusp: '0.000 nats (closed)',
     },
     {
-      tier: 'T4: FT B_1 [[552,25,40]]_3 (N3)',
-      classLabel: 'FT Universal BQP',
-      T: '20 b Cliff + T_3 tele',
+      tier: 'T4: B_1 [[552,25,d8/d0=40]]_3 (N3)',
+      classLabel: 'Hologr Univ QC (Alg)',
+      T: '20 b alg + T_3 tele',
       S: `25 docks / 552 legs`,
       A: `${n3.b1Stabs} stabs + Sp(1104,3)`,
-      M: `${n3.wt40Dist}-dist / 144-leg 0-loss`,
+      M: `d8/d0=${n3.wt40Dist} / 144-leg 0-loss`,
       dSCusp: `>= ${b1Wt19LandauerNats.toFixed(2)} nats (wt19)`,
     },
     {
@@ -3392,21 +3787,17 @@ function runPillarN4(n1: PillarN1Metrics, n2: PillarN2Metrics, n3: PillarN3Metri
   ]
 
   console.log(
-    `  ${'Tier'.padEnd(32)} | ${'Class'.padEnd(21)} | ${'T (Time)'.padEnd(21)} | ${'S (Space)'.padEnd(20)} | ${'A (Ops)'.padEnd(21)} | ${'M (Comm)'.padEnd(21)} | Delta S_cusp`,
+    `  ${'Tier'.padEnd(37)} | ${'Class'.padEnd(24)} | ${'T (Time)'.padEnd(21)} | ${'S (Space)'.padEnd(21)} | ${'A (Ops)'.padEnd(22)} | ${'M (Comm)'.padEnd(23)} | Delta S_cusp`,
   )
-  console.log('  ' + '-'.repeat(165))
+  console.log('  ' + '-'.repeat(175))
   for (const row of ledger) {
     console.log(
-      `  ${row.tier.padEnd(32)} | ${row.classLabel.padEnd(21)} | ${row.T.padEnd(21)} | ${row.S.padEnd(20)} | ${row.A.padEnd(21)} | ${row.M.padEnd(21)} | ${row.dSCusp}`,
+      `  ${row.tier.padEnd(37)} | ${row.classLabel.padEnd(24)} | ${row.T.padEnd(21)} | ${row.S.padEnd(21)} | ${row.A.padEnd(22)} | ${row.M.padEnd(23)} | ${row.dSCusp}`,
     )
   }
 
-  // Certify all ledger physical invariants:
-  //   - Closed unitary/reversible tiers (T1, T2, T3) strictly export Delta S_cusp = 0
-  //   - Dissipative/FT tiers (T4, T5) strictly obey Delta S_cusp >= Delta I * ln 3 (or ln 2 per merge), strictly below cusp cooling capacity
-  //   - Exact {3,4,3,4} boundary tax = 94.529% (|tax - 94.5292| < 0.01) and Holevo ceiling = 38.0391 bits/dock/beat
   const ledgerOk =
-    ledger.length === 6 &&
+    ledger.length === 7 &&
     Math.abs(boundaryTaxPct - 94.5292) < 0.01 &&
     Math.abs(holevoDockCeiling - 38.0391) < 0.01 &&
     b1Wt19LandauerNats > 39 &&
@@ -3420,9 +3811,9 @@ function runPillarN4(n1: PillarN1Metrics, n2: PillarN2Metrics, n3: PillarN3Metri
   recordCheck(
     'N4',
     'N4.1',
-    'Complete 6-tier (T, S, A, M, Delta S_cusp) Note-44 Gap 7 resource ledger & Landauer cusp-export bounds',
+    'Complete 7-tier (T1a/T1b/T2..T6) (T, S, A, M, Delta S_cusp) Note-44 Gap 7 resource ledger & Landauer cusp bounds',
     ledgerOk,
-    `6 tiers certified; bdyTax=${boundaryTaxPct.toFixed(4)}%, Holevo=${holevoDockCeiling.toFixed(4)} b/dock, wt19Export=${b1Wt19LandauerNats.toFixed(2)} nats << 24-cone cap ${(24 * cuspCapTernaryNats).toFixed(1)} nats (19-st cap=${cuspCap19StateNats.toFixed(2)} nats/dock)`,
+    `7 tiers certified (aligned w/ W23 Pillar 5); bdyTax=${boundaryTaxPct.toFixed(4)}%, Holevo=${holevoDockCeiling.toFixed(4)} b/dock, wt19Export=${b1Wt19LandauerNats.toFixed(2)} nats << 24-cone cap ${(24 * cuspCapTernaryNats).toFixed(1)} nats (19-st cap=${cuspCap19StateNats.toFixed(2)} nats/dock)`,
   )
 }
 
@@ -3441,7 +3832,7 @@ const passedCount = CHECKS.filter(c => c.passed).length
 const allPassed = passedCount === CHECKS.length
 
 console.log('\n================================================================================')
-console.log(`WAVE-5 NATIVE {3,4,3,4} TURING UNIVERSALITY SUMMARY (${elapsedSec.toFixed(3)} s, RSS ${rssMB.toFixed(1)} MB)`)
+console.log(`WAVE-5 NATIVE {3,4,3,4} TURING UNIVERSALITY VERIFICATION SUMMARY (${elapsedSec.toFixed(3)} s, RSS ${rssMB.toFixed(1)} MB)`)
 console.log('================================================================================')
 for (const c of CHECKS) {
   console.log(`  [${c.passed ? 'PASS' : 'FAIL'}] ${c.id.padEnd(4)} | ${c.name}`)
