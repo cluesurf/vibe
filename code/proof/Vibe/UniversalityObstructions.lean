@@ -98,6 +98,20 @@ private theorem univ_bool_ite_true {α : Type} (a b : α) :
 private theorem univ_bool_ite_false {α : Type} (a b : α) :
     (if false = true then a else b) = b := rfl
 
+private theorem univ_dite_pos {α : Type} {c : Prop} [h : Decidable c] (hc : c)
+    (a : c → α) (b : ¬ c → α) : (if h' : c then a h' else b h') = a hc :=
+  match h with
+  | isTrue _ => rfl
+  | isFalse hnc => absurd hc hnc
+
+private theorem univ_dite_neg {α : Type} {c : Prop} [h : Decidable c] (hnc : ¬ c)
+    (a : c → α) (b : ¬ c → α) : (if h' : c then a h' else b h') = b hnc :=
+  match h with
+  | isTrue hc => absurd hc hnc
+  | isFalse _ => rfl
+
+private theorem univ_le_of_lt {a b : Int} (h : a < b) : a ≤ b := by omega
+
 private theorem univ_pow2 (x : Int) : x ^ 2 = x * x := by
   have h0 : x ^ 0 = 1 := rfl
   rw [Int.pow_succ, Int.pow_succ, h0, Int.one_mul]
@@ -257,6 +271,41 @@ private theorem univ_fin_exists_or_forall (n : Nat) (p : Fin n → Bool) :
           rw [heq]
           exact hlast
 
+private def univDropVal {k : Nat} (v x : Fin (k + 1)) (hne : x ≠ v) : Fin k :=
+  if h : x.val < v.val then
+    ⟨x.val, by have := v.isLt; omega⟩
+  else
+    ⟨x.val - 1, by
+      have hvn : x.val ≠ v.val := fun e => hne (Fin.ext e)
+      have := x.isLt
+      omega⟩
+
+private theorem univDropVal_inj {k : Nat} (v x y : Fin (k + 1)) (hx : x ≠ v) (hy : y ≠ v)
+    (heq : univDropVal v x hx = univDropVal v y hy) : x = y := by
+  have hv : (univDropVal v x hx).val = (univDropVal v y hy).val := congrArg Fin.val heq
+  have hxn : x.val ≠ v.val := fun e => hx (Fin.ext e)
+  have hyn : y.val ≠ v.val := fun e => hy (Fin.ext e)
+  unfold univDropVal at hv
+  if hxlt : x.val < v.val then
+    rw [univ_dite_pos hxlt] at hv
+    if hylt : y.val < v.val then
+      rw [univ_dite_pos hylt] at hv
+      exact Fin.ext hv
+    else
+      rw [univ_dite_neg hylt] at hv
+      dsimp only at hv
+      omega
+  else
+    rw [univ_dite_neg hxlt] at hv
+    if hylt : y.val < v.val then
+      rw [univ_dite_pos hylt] at hv
+      dsimp only at hv
+      omega
+    else
+      rw [univ_dite_neg hylt] at hv
+      dsimp only at hv
+      exact Fin.ext (by omega)
+
 private theorem univ_fin_pigeonhole :
     ∀ (k m : Nat), k < m → ∀ f : Fin m → Fin k, ∃ i j : Fin m, i ≠ j ∧ f i = f j := by
   intro k
@@ -282,37 +331,10 @@ private theorem univ_fin_pigeonhole :
         have ht : p i = true := decide_eq_true heq
         rw [hnone i] at ht
         exact Bool.noConfusion ht
-      let g : Fin (m - 1) → Fin k := fun i =>
-        let x := f ⟨i.val, by omega⟩
-        if hx : x.val < v.val then
-          ⟨x.val, by have := v.isLt; omega⟩
-        else
-          ⟨x.val - 1, by
-            have hxne : x.val ≠ v.val := fun hval => hneq i (Fin.ext hval)
-            have := x.isLt
-            omega⟩
+      let g : Fin (m - 1) → Fin k := fun i => univDropVal v (f ⟨i.val, by omega⟩) (hneq i)
       obtain ⟨i, j, hij, hge⟩ := ih (m - 1) (by omega) g
-      have hfeq : f ⟨i.val, by omega⟩ = f ⟨j.val, by omega⟩ := by
-        have hgv : (g i).val = (g j).val := congrArg Fin.val hge
-        have hxi_ne : (f ⟨i.val, by omega⟩).val ≠ v.val := fun hv => hneq i (Fin.ext hv)
-        have hxj_ne : (f ⟨j.val, by omega⟩).val ≠ v.val := fun hv => hneq j (Fin.ext hv)
-        dsimp only [g] at hgv
-        by_cases hiLt : (f ⟨i.val, by omega⟩).val < v.val
-        · rw [dif_pos hiLt] at hgv
-          by_cases hjLt : (f ⟨j.val, by omega⟩).val < v.val
-          · rw [dif_pos hjLt] at hgv
-            exact Fin.ext hgv
-          · rw [dif_neg hjLt] at hgv
-            dsimp only at hgv
-            omega
-        · rw [dif_neg hiLt] at hgv
-          by_cases hjLt : (f ⟨j.val, by omega⟩).val < v.val
-          · rw [dif_pos hjLt] at hgv
-            dsimp only at hgv
-            omega
-          · rw [dif_neg hjLt] at hgv
-            dsimp only at hgv
-            exact Fin.ext (by omega)
+      have hfeq : f ⟨i.val, by omega⟩ = f ⟨j.val, by omega⟩ :=
+        univDropVal_inj v _ _ (hneq i) (hneq j) hge
       have hne' : (⟨i.val, by omega⟩ : Fin m) ≠ ⟨j.val, by omega⟩ := by
         intro heq
         exact hij (Fin.ext (congrArg Fin.val heq))
@@ -572,13 +594,7 @@ private theorem univ_swapLineRolesDock_eq_swapLineSlotsDock (l : Fin 12) (d : Fu
     | occ sB rB =>
       rw [hA, hB] at hdiff
       have ⟨hs, _⟩ := of_decide_eq_true hdiff
-      funext s
-      if hsA : s = lineA l then
-        rw [univ_ite_pos hsA, univ_ite_pos hsA, hB, hs]
-      else if hsB : s = lineB l then
-        rw [univ_ite_neg hsA, univ_ite_pos hsB, univ_ite_neg hsA, univ_ite_pos hsB, hA, hs]
-      else
-        rw [univ_ite_neg hsA, univ_ite_neg hsB, univ_ite_neg hsA, univ_ite_neg hsB]
+      rw [hs]
 
 private theorem univ_solePair_decomp (d : FullDock) (hAct : isSoleIdentPairDock d = true) :
     ∃ (l : Fin 12) (s₀ : Sign) (r₀ : Bool),
@@ -841,7 +857,7 @@ private theorem univ_dockLineCount_moveSolePair_even (l₀ m : Fin 12) (τ : Sig
       have hNB : ¬ (lineB l₀ = lineA m ∨ lineB l₀ = lineB m) :=
         fun h => match h with | Or.inl e => hDisj.2.2.1 e | Or.inr e => hDisj.2.2.2 e
       rw [univ_ite_neg hNA, univ_ite_neg hNB]
-      decide
+      rfl
   have h2 : univDockLineToneRoleCount l₀ τ r d % 2 = 0 := by
     unfold univDockLineToneRoleCount
     if hl : l₀ = l then
@@ -850,7 +866,7 @@ private theorem univ_dockLineCount_moveSolePair_even (l₀ m : Fin 12) (τ : Sig
     else
       have hDisj := line_geom_facts.2.2.2.1 l₀ l hl
       rw [hOth (lineA l₀) hDisj.1 hDisj.2.1, hOth (lineB l₀) hDisj.2.2.1 hDisj.2.2.2]
-      decide
+      rfl
   omega
 
 private theorem univ_lineCount_streamConfig (l₀ : Fin 12) (τ : Sign) (r : Bool) (c : HoneycombConfig) :
