@@ -1,4 +1,4 @@
-// Wave-5 Breakthrough Certification Suite: Periodic Mirrors, Compacton Qubits, H^3 Bragg Shields & Sharp Bounds
+// Wave-5 Verification Suite: Periodic Mirrors, Compacton Qubits, H^3 Bragg Shields & Sharp Bounds
 //
 // Four decisive pillars strictly under verbatim time-independent 8-layer bare U
 //   U = S o Phi_odd o D o M_meet o M_pair(zeta_18) o K o D o Phi_odd
@@ -16,11 +16,13 @@
 //   PILLAR B2: Exact Periodic-Background Hard-Wall Mirrors (0.00e+0 Leak) & Period-12 1-Dock Qubit Compacton
 //              - Period-1 Uniform 2-Line Crystal & Period-2 FM cavity in verbatim 4D BigInt
 //                (M_pair diff=0, Phi_odd diff=0, zero-branching U^2 |tau> = e^{i Theta} |tau>,
-//                and full 12-beat verbatim BigInt 1-dock qubit U^{12} = +I with 0 diffs!)
+//                bipartite M=4 12-beat verbatim BigInt 1-dock qubit U^{12} = +I with 0 diffs,
+//                and direct M=6, L_cav=3 1-body interior+wall BigInt cross-check < 1e-13!)
 //              - L_cav = 8 Hard-Wall Cavity (T=200 1-body role-1 & T=100 2-body Sym^2 doublon):
 //                normErr < 1e-13, maxLeak = 0.00e+0 (exact R = 1.000000000000000 via K!)
 //              - L_cav = 1 Period-12 1-Dock Qubit Breather Compacton: exact 2-state confinement on
-//                {(x_0,+),(x_0,-)} at even beats, exact U^2 eigenvalues (-1, omega^2), ||U^{12}-I_2||_F < 1e-14
+//                {(x_0,+),(x_0,-)} at even beats, exact background-relative U^2 eigenvalues (-1, +omega),
+//                ||U^{12}-I_2||_F < 1e-14
 //              - Negative control: removing -1 walls gives ballistic escape P_in < 0.05 by T=100
 //   PILLAR B3: Exact Mod-2 Coxeter D_4-Triality Z_2^2 Quotient, 3D H^3 L_7 Omnidirectional Bragg Mirror
 //              (5/8 Gap) & Orthogonal (+,-) M_pair = I Shield
@@ -33,8 +35,10 @@
 //              - Exact 5/8 omnidirectional Bragg band gap: vacuum (cos(2k)-3)/4 in [-1,-1/2] vs L_7
 //                (3+2 cos(2k))/8 in [+1/8,+5/8], kappa_min = 0.5 acosh(3.5), kappa(-pi/2) = 0.5 acosh(5.5),
 //                live pure-band Gaussian scattering (sigma_0=6, p=-pi/2) across W=2,6,8,12,16 walls
-//                down to T(16) < 1e-12 (vs W=0 negative control T=1.000000), plus Sym^2 doublon in
-//                the 2-body L_7 Bragg gap (gap > 0.08 pi)
+//                down to T(16) < 1e-12 (vs W=0 negative control T=1.000000), plus full P_in in [0,pi]
+//                energy-conservation sweep showing moving P=pi/2 Sym^2 doublon sits strictly inside the
+//                full interacting 2-body L_7 Bragg gap (>= 0.087 pi > 0.08 pi) while low-P (0..pi/4)
+//                doublons overlap L_7's own internal bound-state band
 //              - Class (iv) orthogonal (+,-) spectator-rail M_pair = I shield in verbatim 4D BigInt
 //                (0 off-line branches vs 12 branches / 0.921% leakage without spectator)
 //   PILLAR B4: Exact All-k Dispersion Floor, Airy O(sigma_0^3) Spreading, YBE Parameter-Dimension Collapse
@@ -46,7 +50,8 @@
 //              - Exact YBE parameter-dimension collapse 3n-1 < 4^n-1 (n=1..10), live 6x6 YBE < 1e-14
 //                (plus mismatched-rapidity negative control), exact BigInt Z[omega] W_0 clearance
 //                (<L|W_0|L> = 0, plus same-sign negative control), and live W_0 rapidity-additivity
-//                contradiction (u_A - u_C = -sqrt(3), u_C - u_D = +sqrt(3) => w_{AD}=0, v(u_A)=v(u_D))
+//                contradiction (w_sp = -tan(pi alpha/2) = -1/w_R: u_A - u_C = -sqrt(3), u_C - u_D = +sqrt(3)
+//                => w_{AD}=0, v(u_A)=v(u_D))
 //
 // Strictly deterministic (ZERO Math.random), zero external imports, strict tsc clean, laptop-safe (< 10 s).
 
@@ -1166,7 +1171,7 @@ function runPillarB1(): void {
   console.log(`        k_a c_0 = c_0 + 2 n_a defects = ${defectsKc0}/120 | k_a n_a = 2 c_0 + 5 n_a defects = ${defectsKna}/120`)
   console.log(`  [B1b] Geodesic Pair Uniqueness (m1,m2 in [-10..10], ${distinctPairsChecked} distinct facet pairs):`)
   console.log(`        Secondary intersections = ${secondaryIntersections} (ONLY c_0! |L_i cap L_j| <= 1) | Neg-ctrl antipodal overlap = ${antipodalOverlapMin}/21`)
-  console.log(`        <=3-line chi_odd check (${threeLineChecked} quads): max|chi| = ${max3LineChi} => N_junc(D) <= floor(D(D-1)/12): D=4->${juncCap(4)}, D=5->${juncCap(5)}, D=6->${juncCap(6)}, D=12->${juncCap(12)}`)
+  console.log(`        <=3-line chi_odd check (${threeLineChecked} representative 2-/3-line quads: all 1,056 2-line + 880 3-line): max|chi| = ${max3LineChi} => N_junc(D) <= floor(D(D-1)/12): D=4->${juncCap(4)}, D=5->${juncCap(5)}, D=6->${juncCap(6)}, D=12->${juncCap(12)}`)
   console.log(`  [B1c] Verbatim 4D BigInt Z_2^{216} Superselection & 18 (tone,role) Counts (k=2,4,5; ${totalBranchesChecked} branches, revDiff=${totalRevDiffs}):`)
   console.log(`        N_{tau,r} (18) defects = ${defectsN18} | P_{l,tau,r} (216) defects = ${defectsP216} | Neg-ctrl raw N_{l,tau,r} changed = ${rawLineCountChanged}/11 off-line M_pair branches`)
 
@@ -1284,11 +1289,10 @@ function runPillarB2(): void {
     'FM cavity Period-2 zero-branching return',
   )
 
-  // 1c) FULL 12-BEAT VERBATIM BigInt Z[zeta_9][1/6] 1-DOCK QUBIT COMPACTON (M = 3, L_cav = 1, role = 1):
+  // 1c) FULL 12-BEAT VERBATIM BigInt Z[zeta_9][1/6] 1-DOCK QUBIT COMPACTON (strictly bipartite M = 4, L_cav = 1, role = 1):
   //     Certify M_pair diff = 0, Phi_odd diff = 0 at EVERY beat, 2-state confinement at even beats, AND U^{12} = +I (0 BigInt diffs!)
-  const per3 = makePeriodicBeat(3)
-  const qBitKetPlus = basisKet(buildCrystalVibes(3, [0], [0, l0A, 1]))
-  const qBitKetMinus = basisKet(buildCrystalVibes(3, [0], [0, l0B, 1]))
+  const qBitKetPlus = basisKet(buildCrystalVibes(4, [0], [0, l0A, 1]))
+  const qBitKetMinus = basisKet(buildCrystalVibes(4, [0], [0, l0B, 1]))
   const qKeyPlus = [...qBitKetPlus.amp.keys()][0]!
   const qKeyMinus = [...qBitKetMinus.amp.keys()][0]!
   let bigIntQ12Diffs = 0
@@ -1299,10 +1303,10 @@ function runPillarB2(): void {
   for (const initQ of [qBitKetPlus, qBitKetMinus]) {
     let cur = initQ
     for (let t = 1; t <= 12; t++) {
-      const nxt = per3.step(cur)
+      const nxt = per4.step(cur)
       assertExact(hasExactUnitNorm(nxt), `BigInt qubit t=${t} norm`)
-      bigIntQMPairDiff += countStateDiffs(nxt, per3.stepSkip(cur, applyPairLineMixer))
-      bigIntQPhiDiff += countStateDiffs(nxt, per3.stepSkip(cur, per3.phiPer))
+      bigIntQMPairDiff += countStateDiffs(nxt, per4.stepSkip(cur, applyPairLineMixer))
+      bigIntQPhiDiff += countStateDiffs(nxt, per4.stepSkip(cur, per4.phiPer))
       bigIntQMaxBranches = Math.max(bigIntQMaxBranches, nxt.amp.size)
       if (t % 2 === 0) {
         for (const k of nxt.amp.keys()) if (k !== qKeyPlus && k !== qKeyMinus) bigIntQEvenLeak++
@@ -1313,15 +1317,87 @@ function runPillarB2(): void {
   }
 
   // 2) Exact reduced 1-body & 2-body cavity unitary operators on embedded window M_win:
-  //    Interior FM (+1,+1) site: D M_meet D = omega * M_meet (1 exc), omega (2 exc contact: omega^2 * omega^2)
-  //    Wall (+1,-1)/(-1,+1) site: D K D = -omega * X (1-body exact bounce; in 2-body exact relative phase omega^2 * X)
+  //    Relative to the periodic background (omega^2 per empty FM site, -omega per wall site), multiplying
+  //    by global beat phase omega^2 gives the exact background-relative single-particle amplitudes:
+  //      - Interior FM (+1,+1) site: DMD_MAT = omega * M_meet (1 exc), omega (2 exc contact: omega^2 * omega^2)
+  //      - Wall (+1,-1)/(-1,+1) site: +omega^2 * X (W2_C, because occupying a wall site frees an empty FM site of phase omega^2!)
   const DMD_KEEP = cMul(W_C, MEET_KEEP) // -1/2
   const DMD_SWAP = cMul(W_C, MEET_SWAP) // -i sqrt(3)/2
   const DMD_MAT: readonly (readonly [C, C])[] = [
     [DMD_KEEP, DMD_SWAP],
     [DMD_SWAP, DMD_KEEP],
   ]
-  const NEG_W: C = [-W_C[0], -W_C[1]] // -omega
+
+  // 2a) L_cav = 8 Hard-Wall Cavity (1 role-1 excitation, T = 200 beats) embedded in M_win = 40 window:
+  //     Cavity is x in [xL, xR] = [16, 23] (L_cav = 8).
+  const step1BodyCavity = (
+    Mwin: number, xL: number, xR: number, re: Float64Array, im: Float64Array, oddBeat: boolean, hasWalls: boolean,
+  ): [Float64Array, Float64Array] => {
+    const nr = new Float64Array(2 * Mwin)
+    const ni = new Float64Array(2 * Mwin)
+    for (let x = 0; x < Mwin; x++) {
+      const r0 = re[2 * x]!; const i0 = im[2 * x]!
+      const r1 = re[2 * x + 1]!; const i1 = im[2 * x + 1]!
+      if (r0 === 0 && i0 === 0 && r1 === 0 && i1 === 0) continue
+      const isFM = !hasWalls || (!oddBeat ? (x >= xL && x <= xR) : (x >= xL + 1 && x <= xR - 1))
+      const xp = (x + 1) % Mwin
+      const xm = (x - 1 + Mwin) % Mwin
+      if (isFM) {
+        const o0r = DMD_KEEP[0] * r0 - DMD_KEEP[1] * i0 + DMD_SWAP[0] * r1 - DMD_SWAP[1] * i1
+        const o0i = DMD_KEEP[0] * i0 + DMD_KEEP[1] * r0 + DMD_SWAP[0] * i1 + DMD_SWAP[1] * r1
+        const o1r = DMD_SWAP[0] * r0 - DMD_SWAP[1] * i0 + DMD_KEEP[0] * r1 - DMD_KEEP[1] * i1
+        const o1i = DMD_SWAP[0] * i0 + DMD_SWAP[1] * r0 + DMD_KEEP[0] * i1 + DMD_KEEP[1] * r1
+        nr[2 * xp] = o0r; ni[2 * xp] = o0i
+        nr[2 * xm + 1] = o1r; ni[2 * xm + 1] = o1i
+      } else {
+        // Wall site: exact background-relative bounce W2_C * X = +omega^2 * X!
+        const o0r = W2_C[0] * r1 - W2_C[1] * i1
+        const o0i = W2_C[0] * i1 + W2_C[1] * r1
+        const o1r = W2_C[0] * r0 - W2_C[1] * i0
+        const o1i = W2_C[0] * i0 + W2_C[1] * r0
+        nr[2 * xp] = o0r; ni[2 * xp] = o0i
+        nr[2 * xm + 1] = o1r; ni[2 * xm + 1] = o1i
+      }
+    }
+    return [nr, ni]
+  }
+
+  // Direct 1-body verbatim BigInt cross-check on bipartite M = 6, L_cav = 3 (docks [0,1,2] FM):
+  // Starting from (x=0, +), at odd beat t=1 BOTH an interior FM site (x=1,+) AND a wall site (x=5,-)
+  // are simultaneously occupied, and they interfere coherently at t=2 and t=3!
+  const cavity1BodyCrossCheckErr = (() => {
+    const M = 6
+    const per6 = makePeriodicBeat(M)
+    let big = basisKet(buildCrystalVibes(M, [0, 1, 2], [0, l0A, 1]))
+    let fR = new Float64Array(2 * M); let fI = new Float64Array(2 * M)
+    fR[0] = 1
+    let maxErr = 0
+    for (let t = 1; t <= 3; t++) {
+      big = per6.step(big)
+      assertExact(hasExactUnitNorm(big), `M=6 L_cav=3 BigInt t=${t} norm`)
+      ;[fR, fI] = step1BodyCavity(M, 0, 2, fR, fI, (t - 1) % 2 === 1, true)
+      const bigVec = new Map<number, C>()
+      for (const [k, z] of big.amp) {
+        const exc = decodeConfig(k).find(v => v[3] === 1)!
+        const sl = 2 * exc[0] + (exc[1] === l0B ? 1 : 0)
+        bigVec.set(sl, z9ToComplex(z, big.den))
+      }
+      let ip: C = C_ZERO
+      for (let s = 0; s < 2 * M; s++) {
+        const bv = bigVec.get(s) ?? C_ZERO
+        ip = cAdd(ip, cMul(cConj(bv), [fR[s]!, fI[s]!]))
+      }
+      const ph = cExpI(-cArg(ip))
+      let err2 = 0
+      for (let s = 0; s < 2 * M; s++) {
+        const bv = bigVec.get(s) ?? C_ZERO
+        const fv = cMul(ph, [fR[s]!, fI[s]!])
+        err2 += cAbs2(cSub(bv, fv))
+      }
+      maxErr = Math.max(maxErr, Math.sqrt(err2))
+    }
+    return maxErr
+  })()
 
   // Cross-check 2-body cavity rule directly against verbatim BigInt on M=4, L_cav=2 (docks 0,1 FM, two role=1 excitations):
   const cavityCrossCheckErr = (() => {
@@ -1400,40 +1476,6 @@ function runPillarB2(): void {
     }
     return Math.sqrt(err2)
   })()
-
-  // 2a) L_cav = 8 Hard-Wall Cavity (1 role-1 excitation, T = 200 beats) embedded in M_win = 40 window:
-  //     Cavity is x in [xL, xR] = [16, 23] (L_cav = 8).
-  const step1BodyCavity = (
-    Mwin: number, xL: number, xR: number, re: Float64Array, im: Float64Array, oddBeat: boolean, hasWalls: boolean,
-  ): [Float64Array, Float64Array] => {
-    const nr = new Float64Array(2 * Mwin)
-    const ni = new Float64Array(2 * Mwin)
-    for (let x = 0; x < Mwin; x++) {
-      const r0 = re[2 * x]!; const i0 = im[2 * x]!
-      const r1 = re[2 * x + 1]!; const i1 = im[2 * x + 1]!
-      if (r0 === 0 && i0 === 0 && r1 === 0 && i1 === 0) continue
-      const isFM = !hasWalls || (!oddBeat ? (x >= xL && x <= xR) : (x >= xL + 1 && x <= xR - 1))
-      const xp = (x + 1) % Mwin
-      const xm = (x - 1 + Mwin) % Mwin
-      if (isFM) {
-        const o0r = DMD_KEEP[0] * r0 - DMD_KEEP[1] * i0 + DMD_SWAP[0] * r1 - DMD_SWAP[1] * i1
-        const o0i = DMD_KEEP[0] * i0 + DMD_KEEP[1] * r0 + DMD_SWAP[0] * i1 + DMD_SWAP[1] * r1
-        const o1r = DMD_SWAP[0] * r0 - DMD_SWAP[1] * i0 + DMD_KEEP[0] * r1 - DMD_KEEP[1] * i1
-        const o1i = DMD_SWAP[0] * i0 + DMD_SWAP[1] * r0 + DMD_KEEP[0] * i1 + DMD_KEEP[1] * r1
-        nr[2 * xp] = o0r; ni[2 * xp] = o0i
-        nr[2 * xm + 1] = o1r; ni[2 * xm + 1] = o1i
-      } else {
-        // Wall site: exact D K D = -omega * X (swaps slot 0 <-> slot 1 with phase -omega!)
-        const o0r = NEG_W[0] * r1 - NEG_W[1] * i1
-        const o0i = NEG_W[0] * i1 + NEG_W[1] * r1
-        const o1r = NEG_W[0] * r0 - NEG_W[1] * i0
-        const o1i = NEG_W[0] * i0 + NEG_W[1] * r0
-        nr[2 * xp] = o0r; ni[2 * xp] = o0i
-        nr[2 * xm + 1] = o1r; ni[2 * xm + 1] = o1i
-      }
-    }
-    return [nr, ni]
-  }
 
   const cav1Res = (() => {
     const Mwin = 40; const xL = 16; const xR = 23 // L_cav = 8
@@ -1561,8 +1603,8 @@ function runPillarB2(): void {
   })()
 
   // 2c) L_cav = 1 Period-12 1-Dock Qubit Breather Compacton (x_0 = 8 in M_win = 16):
-  //     Certify exact 2-state confinement on {(x_0,+), (x_0,-)} at even beats, exact U^2 eigenvalues (-1, omega^2),
-  //     and ||U^{12} - I_2||_F < 1e-14 (0.00e+0 leakage)!
+  //     Certify exact 2-state confinement on {(x_0,+), (x_0,-)} at even beats, exact background-relative
+  //     U^2 eigenvalues (-1, +omega), and ||U^{12} - I_2||_F < 1e-14 (0.00e+0 leakage)!
   const q1Dock = (() => {
     const Mwin = 16; const x0 = 8
     const U2: CMat = [[C_ZERO, C_ZERO], [C_ZERO, C_ZERO]]
@@ -1589,8 +1631,8 @@ function runPillarB2(): void {
       }
     }
     const [e0, e1] = eig2x2([[U2[0]![0]!, U2[0]![1]!], [U2[1]![0]!, U2[1]![1]!]])
-    const dMatchA = Math.max(cAbs(cSub(e0, [-1, 0])), cAbs(cSub(e1, W2_C)))
-    const dMatchB = Math.max(cAbs(cSub(e1, [-1, 0])), cAbs(cSub(e0, W2_C)))
+    const dMatchA = Math.max(cAbs(cSub(e0, [-1, 0])), cAbs(cSub(e1, W_C)))
+    const dMatchB = Math.max(cAbs(cSub(e1, [-1, 0])), cAbs(cSub(e0, W_C)))
     const eigErr = Math.min(dMatchA, dMatchB)
     const U4 = matMul(U2, U2)
     const U6 = matMul(U4, U2)
@@ -1616,14 +1658,15 @@ function runPillarB2(): void {
   })()
 
   console.log(`  [B2a] Verbatim 4D BigInt 2-Line Crystal & FM Cavity (M_pair diff=${openMPairDiff + crysMPairDiff + fmMPairDiff}, Phi_odd diff=${openPhiDiff + crysPhiDiff + fmPhiDiff}, revDiff=${openRevDiff}):`)
-  console.log(`        Uniform crystal Period-1/2: 1 branch, phase(U^2)=(${unifPhase2[0].toFixed(4)}, ${unifPhase2[1].toFixed(4)}) | L_cav=1 FM cavity Period-2: 1 branch, phase(U^2)=(${fmPhase2[0].toFixed(4)}, ${fmPhase2[1].toFixed(4)})`)
-  console.log(`        Full 12-beat Verbatim BigInt 1-dock qubit (M=3, 12 vibes): M_pair diff=${bigIntQMPairDiff}, Phi_odd diff=${bigIntQPhiDiff}, maxBranches=${bigIntQMaxBranches}, evenLeak=${bigIntQEvenLeak}, U^{12}=I BigInt diffs=${bigIntQ12Diffs}`)
+  console.log(`        Uniform crystal Period-1/2 (bipartite M=4): 1 branch, phase(U^2)=(${unifPhase2[0].toFixed(4)}, ${unifPhase2[1].toFixed(4)}) | L_cav=1 FM cavity Period-2: 1 branch, phase(U^2)=(${fmPhase2[0].toFixed(4)}, ${fmPhase2[1].toFixed(4)})`)
+  console.log(`        Full 12-beat Verbatim BigInt 1-dock qubit (bipartite M=4, 16 vibes): M_pair diff=${bigIntQMPairDiff}, Phi_odd diff=${bigIntQPhiDiff}, maxBranches=${bigIntQMaxBranches}, evenLeak=${bigIntQEvenLeak}, U^{12}=I BigInt diffs=${bigIntQ12Diffs}`)
+  console.log(`        Direct 1-body interior+wall BigInt cross-check (M=6, L_cav=3, t=1..3): max L2 diff = ${cavity1BodyCrossCheckErr.toExponential(2)}`)
   console.log(`        Exact 2-body cavity rule vs verbatim BigInt (M=4, L_cav=2, t=2): L2 diff = ${cavityCrossCheckErr.toExponential(2)}`)
   console.log(`  [B2b] L_cav=8 Hard-Wall Cavity Live Simulation (R = 1.000000000000000 via K):`)
   console.log(`        1-body role-1 (T=200): normErr=${cav1Res.maxNormErr.toExponential(1)}, maxLeak=${cav1Res.maxLeak.toExponential(2)}`)
   console.log(`        2-body Sym^2 doublon (T=100): normErr=${cav2Res.maxNormErr.toExponential(1)}, maxLeak=${cav2Res.maxLeak.toExponential(2)}`)
   console.log(`  [B2c] L_cav=1 Period-12 1-Dock Qubit Compacton:`)
-  console.log(`        evenLeak=${q1Dock.maxEvenLeak.toExponential(2)}, eig(U^2) vs (-1, omega^2) err=${q1Dock.eigErr.toExponential(2)}, ||U^4-I||=${q1Dock.errU4.toFixed(4)}, ||U^6-I||=${q1Dock.errU6.toFixed(4)}, ||U^{12}-I_2||_F=${q1Dock.errU12.toExponential(2)}`)
+  console.log(`        evenLeak=${q1Dock.maxEvenLeak.toExponential(2)}, eig(U^2) vs (-1, +omega) err=${q1Dock.eigErr.toExponential(2)}, ||U^4-I||=${q1Dock.errU4.toFixed(4)}, ||U^6-I||=${q1Dock.errU6.toFixed(4)}, ||U^{12}-I_2||_F=${q1Dock.errU12.toExponential(2)}`)
   console.log(`  [B2d] Negative Control (no -1 walls, T=100): P_in([x_L, x_R]) = ${negEscapePin.toFixed(6)} (< 0.05 ballistic escape!)`)
 
   const ok =
@@ -1631,6 +1674,7 @@ function runPillarB2(): void {
     crysMPairDiff === 0 && crysPhiDiff === 0 &&
     fmMPairDiff === 0 && fmPhiDiff === 0 &&
     bigIntQ12Diffs === 0 && bigIntQMPairDiff === 0 && bigIntQPhiDiff === 0 && bigIntQEvenLeak === 0 &&
+    cavity1BodyCrossCheckErr < 1e-13 &&
     cavityCrossCheckErr < 1e-13 &&
     cav1Res.maxNormErr < 1e-13 && cav1Res.maxLeak === 0 &&
     cav2Res.maxNormErr < 1e-13 && cav2Res.maxLeak === 0 &&
@@ -1641,7 +1685,7 @@ function runPillarB2(): void {
     'B2',
     'Periodic-background hard-wall mirrors (0.00e+0 leak) & Period-12 1-dock qubit compacton (U^{12}=+I)',
     ok,
-    `BigInt U^12 diffs=${bigIntQ12Diffs}, L_cav=8 maxLeak=(${cav1Res.maxLeak.toExponential(1)},${cav2Res.maxLeak.toExponential(1)}), L_cav=1 ||U^12-I||=${q1Dock.errU12.toExponential(1)}, negCtrl P_in=${negEscapePin.toFixed(4)}`,
+    `BigInt U^12 diffs=${bigIntQ12Diffs}, M=6 1-body xchk=${cavity1BodyCrossCheckErr.toExponential(1)}, L_cav=8 maxLeak=(${cav1Res.maxLeak.toExponential(1)},${cav2Res.maxLeak.toExponential(1)}), L_cav=1 eig=(-1,+omega) ||U^12-I||=${q1Dock.errU12.toExponential(1)}, negCtrl P_in=${negEscapePin.toFixed(4)}`,
   )
 }
 
@@ -1962,33 +2006,34 @@ function runPillarB3(): void {
     [0, l4A, 1, 0], [0, l4B, -1, 0],
   ]
   const chiFullL0L7 = chiralOrientationDock(l0FullWithL7, [0, 1, 2, 3, 4, 5, 6, 7])
-  // Build exact 2-beat interacting 2-body L_7 Bloch unitary U_{2,L7}^2(P) on ring M = 24 (even-r, dim = 46)
-  // and check BOTH the 2-body L_7 continuum Bragg gap (at P=0 and P=pi/2) AND full interacting spectrum at P=pi/2!
+  // Build exact 2-beat interacting 2-body L_7 Bloch unitary U_{2,L7}^2(P_in) on ring M = 18 (even-r, dim = 34)
+  // and perform a FULL energy-conservation sweep across ALL P_in in [0, pi] (25 momenta, since wall
+  // scattering conserves quasienergy E_F rather than total momentum P!):
   const doublonGap = (() => {
-    const M = 24
-    const D46 = 46
-    const idx46 = (rIn: number, s1: number, s2: number): number => {
+    const M = 18
+    const D = 2 * M - 2 // 34
+    const idxD = (rIn: number, s1: number, s2: number): number => {
       const r = ((rIn % M) + M) % M
       if (r === 0) return s1 === 0 && s2 === 1 ? 0 : 1
       return 2 + ((r / 2 - 1) * 4) + s1 * 2 + s2
     }
-    const build1Beat46P = (coin: readonly (readonly [C, C])[], P: number): [Float64Array, Float64Array] => {
-      const uR = new Float64Array(D46 * D46); const uI = new Float64Array(D46 * D46)
+    const build1BeatP = (coin: readonly (readonly [C, C])[], P: number): [Float64Array, Float64Array] => {
+      const uR = new Float64Array(D * D); const uI = new Float64Array(D * D)
       const addM = (row: number, col: number, v: C) => {
-        uR[row * D46 + col] = uR[row * D46 + col]! + v[0]
-        uI[row * D46 + col] = uI[row * D46 + col]! + v[1]
+        uR[row * D + col] = uR[row * D + col]! + v[0]
+        uI[row * D + col] = uI[row * D + col]! + v[1]
       }
-      addM(idx46(2, 0, 1), 0, cMul(W2_C, cExpI(P)))
-      addM(idx46(M - 2, 1, 0), 1, cMul(W2_C, cExpI(-P)))
+      addM(idxD(2, 0, 1), 0, cMul(W2_C, cExpI(P)))
+      addM(idxD(M - 2, 1, 0), 1, cMul(W2_C, cExpI(-P)))
       for (let r = 2; r < M; r += 2) {
         for (const s1 of [0, 1] as const) {
           for (const s2 of [0, 1] as const) {
-            const col = idx46(r, s1, s2)
+            const col = idxD(r, s1, s2)
             for (const t1 of [0, 1] as const) {
               for (const t2 of [0, 1] as const) {
                 const d1 = t1 === 0 ? 1 : -1; const d2 = t2 === 0 ? 1 : -1
                 const rNext = ((r + d1 - d2) % M + M) % M
-                addM(idx46(rNext, t1, t2), col, cMul(cMul(coin[t1]![s1]!, coin[t2]![s2]!), cExpI(-P * d2)))
+                addM(idxD(rNext, t1, t2), col, cMul(cMul(coin[t1]![s1]!, coin[t2]![s2]!), cExpI(-P * d2)))
               }
             }
           }
@@ -1996,34 +2041,47 @@ function runPillarB3(): void {
       }
       return [uR, uI]
     }
-    const evalInteractingGap = (P: number, targetE2F: number) => {
-      const [rP, iP] = build1Beat46P(L7_P, P)
-      const [rM, iM] = build1Beat46P(L7_M, P)
-      const u46R = new Float64Array(D46 * D46); const u46I = new Float64Array(D46 * D46)
-      for (let r = 0; r < D46; r++) for (let c = 0; c < D46; c++) {
+
+    // Collect ALL 2-body interacting L_7 quasienergies across full P_in in [0, pi] (25 momenta incl. 0, pi/6, pi/4, pi/2, pi):
+    const N_P = 24
+    const allPhasesL7: number[] = []
+    let maxEigRes = 0
+    for (let j = 0; j <= N_P; j++) {
+      const P_in = (PI * j) / N_P
+      const [rP, iP] = build1BeatP(L7_P, P_in)
+      const [rM, iM] = build1BeatP(L7_M, P_in)
+      const u2R = new Float64Array(D * D); const u2I = new Float64Array(D * D)
+      for (let r = 0; r < D; r++) for (let c = 0; c < D; c++) {
         let sr = 0; let si = 0
-        for (let k = 0; k < D46; k++) {
-          sr += rM[r * D46 + k]! * rP[k * D46 + c]! - iM[r * D46 + k]! * iP[k * D46 + c]!
-          si += rM[r * D46 + k]! * iP[k * D46 + c]! + iM[r * D46 + k]! * rP[k * D46 + c]!
+        for (let k = 0; k < D; k++) {
+          sr += rM[r * D + k]! * rP[k * D + c]! - iM[r * D + k]! * iP[k * D + c]!
+          si += rM[r * D + k]! * iP[k * D + c]! + iM[r * D + k]! * rP[k * D + c]!
         }
-        u46R[r * D46 + c] = sr; u46I[r * D46 + c] = si
+        u2R[r * D + c] = sr; u2I[r * D + c] = si
       }
-      let uniErr = 0
-      for (let c1 = 0; c1 < D46; c1++) for (let c2 = 0; c2 < D46; c2++) {
-        let sr = 0; let si = 0
-        for (let r = 0; r < D46; r++) {
-          sr += u46R[r * D46 + c1]! * u46R[r * D46 + c2]! + u46I[r * D46 + c1]! * u46I[r * D46 + c2]!
-          si += u46R[r * D46 + c1]! * u46I[r * D46 + c2]! - u46I[r * D46 + c1]! * u46R[r * D46 + c2]!
+      if (j === 0 || j === 12) {
+        let uniErr = 0
+        for (let c1 = 0; c1 < D; c1++) for (let c2 = 0; c2 < D; c2++) {
+          let sr = 0; let si = 0
+          for (let r = 0; r < D; r++) {
+            sr += u2R[r * D + c1]! * u2R[r * D + c2]! + u2I[r * D + c1]! * u2I[r * D + c2]!
+            si += u2R[r * D + c1]! * u2I[r * D + c2]! - u2I[r * D + c1]! * u2R[r * D + c2]!
+          }
+          if (c1 === c2) sr -= 1
+          uniErr += sr * sr + si * si
         }
-        if (c1 === c2) sr -= 1
-        uniErr += sr * sr + si * si
+        assertExact(Math.sqrt(uniErr) < 1e-12, `2-body L7 U2 unitary err ${Math.sqrt(uniErr)}`)
       }
-      assertExact(Math.sqrt(uniErr) < 1e-12, `2-body L7 U2 unitary err ${Math.sqrt(uniErr)}`)
-      const eig = unitaryEigenPhases(D46, u46R, u46I)
+      const eig = unitaryEigenPhases(D, u2R, u2I)
       assertExact(eig.maxResidual < 1e-11, `2-body L7 eig residual ${eig.maxResidual}`)
-      let minGap = PI
-      for (let i = 0; i < D46; i++) minGap = Math.min(minGap, Math.abs(wrapPi(eig.phases[i]! - targetE2F)))
-      return { minGap, maxResidual: eig.maxResidual }
+      maxEigRes = Math.max(maxEigRes, eig.maxResidual)
+      for (let i = 0; i < D; i++) allPhasesL7.push(eig.phases[i]!)
+    }
+
+    const fullSweepGapOf = (targetE2F: number): number => {
+      let minG = PI
+      for (const ph of allPhasesL7) minG = Math.min(minG, Math.abs(wrapPi(ph - targetE2F)))
+      return minG
     }
 
     // Exact 2-body L_7 continuum bands: B_- + B_-, B_- + B_+, B_+ + B_+
@@ -2047,17 +2105,21 @@ function runPillarB3(): void {
     }
 
     // Vacuum Sym^2 doublon 2-beat quasienergy: E_2(P) = pi/3 + arcsin(1/sqrt(13)) + arcsin(cos(P)/sqrt(13))
-    const lam2Vac0 = cScale(1 / 13, cAdd([7, 0], cScale(15, W_C)))
-    const e2Vac0_2Beat = wrapPi(2 * cArg(lam2Vac0)) // 1.02449 pi = -0.97551 pi
-    const e2VacPi2_2Beat = wrapPi(2 * (PI / 3 + Math.asin(1 / Math.sqrt(13)))) // 0.84558 pi (max-speed P=pi/2!)
-    const gapCont0 = contGapOf(e2Vac0_2Beat)
-    const gapContPi2 = contGapOf(e2VacPi2_2Beat)
-    const intPi2 = evalInteractingGap(PI / 2, e2VacPi2_2Beat)
+    const e2Vac2Beat = (P: number): number => wrapPi(2 * (PI / 3 + Math.asin(1 / Math.sqrt(13)) + Math.asin(Math.cos(P) / Math.sqrt(13))))
+    const e2Vac0 = e2Vac2Beat(0) // 1.02449 pi = -0.97551 pi
+    const e2VacPi6 = e2Vac2Beat(PI / 6) // ~1.0005 pi (crosses L_7 internal Sym^2 bound-state band!)
+    const e2VacPi4 = e2Vac2Beat(PI / 4) // 0.97124 pi
+    const e2VacPi2 = e2Vac2Beat(PI / 2) // 0.84558 pi (max-speed inflection point!)
     return {
-      e2Vac0_2Beat, e2VacPi2_2Beat,
-      gapCont0, gapContPi2,
-      gapIntPi2: intPi2.minGap,
-      maxEigRes: intPi2.maxResidual,
+      e2Vac0, e2VacPi2,
+      gapCont0: contGapOf(e2Vac0),
+      gapContPi2: contGapOf(e2VacPi2),
+      gapAllP_Pi2: fullSweepGapOf(e2VacPi2),
+      gapAllP_0: fullSweepGapOf(e2Vac0),
+      gapAllP_Pi6: fullSweepGapOf(e2VacPi6),
+      gapAllP_Pi4: fullSweepGapOf(e2VacPi4),
+      nMomenta: N_P + 1,
+      maxEigRes,
     }
   })()
 
@@ -2104,7 +2166,9 @@ function runPillarB3(): void {
   console.log(`        Lyapunov: kappa_min=${kappaMinAna.toFixed(6)} (res=${kappaMinRes.toExponential(1)}), kappa(-pi/2)=${kappaInflAna.toFixed(6)} (res=${kappaInflRes.toExponential(1)})`)
   console.log(`        Live scattering (sigma_0=6, p=-pi/2): W=0 (neg ctrl) T=${scNeg.T.toFixed(6)} | ` +
     scWalls.map(s => `W=${s.W}: T=${s.T.toExponential(2)}`).join(', '))
-  console.log(`        2-body Sym^2 doublon in L_7 gap (chi_full=${chiFullL0L7}, M=24 eigRes=${doublonGap.maxEigRes.toExponential(1)}): contGap(P=0)=${(doublonGap.gapCont0 / PI).toFixed(5)} pi, contGap(P=pi/2)=${(doublonGap.gapContPi2 / PI).toFixed(5)} pi, fullIntGap(P=pi/2)=${(doublonGap.gapIntPi2 / PI).toFixed(5)} pi (all > 0.08 pi!)`)
+  console.log(`        2-body Sym^2 doublon full P_in in [0,pi] sweep (${doublonGap.nMomenta} momenta, M=18, chi_full=${chiFullL0L7}, eigRes=${doublonGap.maxEigRes.toExponential(1)}):`)
+  console.log(`          Moving P=pi/2 (E=0.84558pi): fullIntGap(all P_in)=${(doublonGap.gapAllP_Pi2 / PI).toFixed(5)} pi (>= 0.087 pi > 0.08 pi!), contGap=${(doublonGap.gapContPi2 / PI).toFixed(5)} pi`)
+  console.log(`          Honest low-P scope (L_7 internal Sym^2 bound-state band overlap): fullIntGap(P=0)=${(doublonGap.gapAllP_0 / PI).toFixed(5)} pi, P=pi/6=${(doublonGap.gapAllP_Pi6 / PI).toFixed(5)} pi, P=pi/4=${(doublonGap.gapAllP_Pi4 / PI).toFixed(5)} pi (continuum-only P=0 gap=${(doublonGap.gapCont0 / PI).toFixed(5)} pi)`)
   console.log(`  [B3d] Class (iv) Orthogonal (+,-) Spectator-Rail M_pair=I Shield (Verbatim 4D BigInt):`)
   console.log(`        Shielded: M_pair diff=${shieldMPairDiff}, Phi_odd diff=${shieldPhiDiff}, off-line=${shieldOffLine}, 1D-exact diff=${shield1DMatchDiff}, revDiff=${shieldRevDiff}`)
   console.log(`        Neg-ctrl (no spectator): branches=${noSpecT1.amp.size}, off-line leakage=${(noSpecOffProb * 100).toFixed(4)}% (0.9214%!)`)
@@ -2136,9 +2200,10 @@ function runPillarB3(): void {
     sc16.T < 1e-12 &&
     sc16.R > 1 - 1e-12 &&
     chiFullL0L7 === 0 &&
-    doublonGap.gapCont0 > 0.08 * PI &&
     doublonGap.gapContPi2 > 0.08 * PI &&
-    doublonGap.gapIntPi2 > 0.08 * PI &&
+    doublonGap.gapAllP_Pi2 >= 0.087 * PI &&
+    doublonGap.gapAllP_0 < 0.01 * PI &&
+    doublonGap.gapAllP_Pi6 < 0.01 * PI &&
     shieldMPairDiff === 0 &&
     shieldPhiDiff === 0 &&
     shieldOffLine === 0 &&
@@ -2151,7 +2216,7 @@ function runPillarB3(): void {
     'B3',
     'Mod-2 Coxeter Z_2^2 quotient, 3D H^3 L_7 Bragg mirror (5/8 gap, T(16)<1e-12) & (+,-) M_pair=I shield',
     ok,
-    `|Z_2^2|=4 (4+4+4), H^3=6 lines, gap=${braggGap.toFixed(4)}, T(16)=${sc16.T.toExponential(2)}, doublonGap(0,pi/2)=(${(doublonGap.gapCont0 / PI).toFixed(4)},${(doublonGap.gapIntPi2 / PI).toFixed(4)})pi, shieldOff=${shieldOffLine} vs ${noSpecT1.amp.size}br`,
+    `|Z_2^2|=4 (4+4+4), H^3=6 lines, gap=${braggGap.toFixed(4)}, T(16)=${sc16.T.toExponential(2)}, fullIntGap(P=pi/2)=${(doublonGap.gapAllP_Pi2 / PI).toFixed(4)}pi (low-P overlap=${(doublonGap.gapAllP_0 / PI).toFixed(4)}pi), shieldOff=${shieldOffLine} vs ${noSpecT1.amp.size}br`,
   )
 }
 
@@ -2382,9 +2447,11 @@ function runPillarB4(): void {
   const innerW0Bad = vL_Z3.reduce<Z3>((s, vi, i) => addZ3(s, mulZ3(vi, w0Bad[i]!)), Z3_ZERO)
 
   // 5) Live demonstration of the W_0 rapidity-additivity contradiction:
-  //    When two particles cross ballistically in 1D, the spatial scattering operator is S_sp(w) = P R(w) = (w P - i I)/(w + i),
-  //    which matches E(alpha) = P^alpha (up to global phase) at w = -tan(pi alpha / 2):
-  //      alpha = +2/3 => w = -sqrt(3),   alpha = -2/3 => w = +sqrt(3)!
+  //    Convention bridge (consistent with bare-u-arbitrary-n-and-zero-w0.ts):
+  //      - Particle-label R-matrix R(w_R) = (w_R I - i P)/(w_R + i) ~ E(alpha) at w_R = cot(pi alpha / 2)
+  //        (alpha = +-2/3 => w_R = +-1/sqrt(3));
+  //      - Spatial crossing operator S_sp(w_sp) = P R(w_sp) = (w_sp P - i I)/(w_sp + i) ~ E(alpha) at
+  //        w_sp = -tan(pi alpha / 2) = -1 / w_R (alpha = +2/3 => w_sp = -sqrt(3), alpha = -2/3 => w_sp = +sqrt(3))!
   const makeE2 = (alpha: number): CMat => {
     const ph = cExpI(PI * alpha)
     const cI = cScale(0.5, cAdd(C_ONE, ph))
@@ -2398,6 +2465,10 @@ function runPillarB4(): void {
   }
   const errWPos23 = matFrobDiffUpToPhase(makeSsp2(-SQRT3), makeE2(2 / 3))
   const errWNeg23 = matFrobDiffUpToPhase(makeSsp2(+SQRT3), makeE2(-2 / 3))
+  const wRPos23 = 1 / Math.tan((PI * (2 / 3)) / 2) // +1/sqrt(3)
+  const wSpPos23 = -Math.tan((PI * (2 / 3)) / 2) // -sqrt(3)
+  const convBridgeErr = Math.abs(wSpPos23 - -1 / wRPos23)
+  assertExact(convBridgeErr < 1e-14, `w_sp = -1/w_R err ${convBridgeErr}`)
 
   // Programmatically trace the 4 worldlines (A, B, C, D) through the 5 gates of W_0 (right to left):
   const order = ['A', 'B', 'C', 'D']
@@ -2452,7 +2523,7 @@ function runPillarB4(): void {
   console.log(`        6x6 YBE maxErr (R & braid, 5 triples) = ${maxYbeErr.toExponential(2)} | Neg-ctrl mismatched YBE err = ${ybeNegErr.toFixed(4)}`)
   console.log(`  [B4d] W_0 Exact Z[omega] Clearance & Rapidity-Additivity Contradiction:`)
   console.log(`        Exact BigInt Z[omega] <L|4 W_0|L> = [${innerW0[0]}, ${innerW0[1]}] (EXACT 0!) | Neg-ctrl same-sign = [${innerW0Bad[0]}, ${innerW0Bad[1]}] (!= 0!)`)
-  console.log(`        S_sp(-sqrt(3)) vs E(+2/3) err=${errWPos23.toExponential(1)}, S_sp(+sqrt(3)) vs E(-2/3) err=${errWNeg23.toExponential(1)}, |v(u)-v_p|=${maxVelRapErr.toExponential(1)}`)
+  console.log(`        Convention w_sp = -tan(pi alpha/2) = -1/w_R (err=${convBridgeErr.toExponential(1)}): S_sp(-sqrt(3)) vs E(+2/3) err=${errWPos23.toExponential(1)}, S_sp(+sqrt(3)) vs E(-2/3) err=${errWNeg23.toExponential(1)}, |v(u)-v_p|=${maxVelRapErr.toExponential(1)}`)
   console.log(`        W_0 worldlines: G2=(${g2Pair.join(',')}) w=-sqrt(3), G4=(${g4Pair.join(',')}) w=+sqrt(3) => G3=(${g3Pair.join(',')}) forced w_AD=${maxWad.toExponential(1)}, |v_A-v_D|=${maxRelVelAD.toExponential(1)}, ||S_sp(0)-P||=${swapZeroDefect.toFixed(4)}`)
 
   const ok =

@@ -337,7 +337,7 @@ private theorem univ_fin_pigeonhole :
         univDropVal_inj v _ _ (hneq i) (hneq j) hge
       have hne' : (⟨i.val, by omega⟩ : Fin m) ≠ ⟨j.val, by omega⟩ := by
         intro heq
-        have hv : i.val = j.val := congrArg Fin.val heq
+        have hv : i.val = j.val := congrArg (fun x : Fin m => x.val) heq
         exact hij (Fin.ext hv)
       exact ⟨⟨i.val, by omega⟩, ⟨j.val, by omega⟩, hne', hfeq⟩
 
@@ -1264,10 +1264,10 @@ theorem thm_univ_dispersion_floor_and_rapidity_nogo :
       dsimp only at hId hNN
       omega
     · intro hp0
-      dsimp only at hId
-      rw [hp0] at hId ⊢
-      rw [Int.zero_mul] at hId
-      omega
+      rw [hp0]
+      simp only [Int.zero_mul, Int.zero_add, Int.sub_zero, Int.mul_zero, Int.add_zero]
+      rw [univ_pow3 A, univ_pow2 q, univ_pow2 (A * q), univ_pow5 (A * q)]
+      ac_rfl
     · intro hpPos
       have hPos := univ_mul_pos p _ hpPos hInnerPos
       dsimp only at hId hPos
@@ -2216,6 +2216,7 @@ private theorem univ_geodesic_pow_nat (a : Fin 24) (n : Nat) :
         (univ_transport_action_facetDir a).1, (univ_transport_action_facetDir a).2]
     funext i
     unfold univVec5Add univVec5Scale
+    dsimp only
     cases baseCenter i with | mk ca cb =>
     cases facetDir a i with | mk da db =>
     simp only [ZSqrt2.add, ZSqrt2.scale, ZSqrt2.mk.injEq, Int.add_mul, Int.mul_add]
@@ -2379,10 +2380,14 @@ theorem thm_univ_geodesic_2plane_and_junction_cap :
       rw [hpEq] at hi
       unfold univVec5Add univVec5Scale at hi
       unfold univVec5Scale
-      cases ZSqrt2.scale p2 (baseCenter i)
-      cases ZSqrt2.scale q1 (facetDir a1 i)
-      cases ZSqrt2.scale q2 (facetDir a2 i)
-      simp only [ZSqrt2.add, ZSqrt2.mk.injEq] at hi ⊢
+      have hia := congrArg ZSqrt2.a hi
+      have hib := congrArg ZSqrt2.b hi
+      dsimp only [ZSqrt2.add] at hia hib
+      cases h1 : ZSqrt2.scale q1 (facetDir a1 i) with | mk x1 y1 =>
+      cases h2 : ZSqrt2.scale q2 (facetDir a2 i) with | mk x2 y2 =>
+      rw [h1, h2] at hia hib
+      dsimp only at hia hib
+      simp only [ZSqrt2.mk.injEq]
       exact ⟨by omega, by omega⟩
     let d := dot4 (d4RootOf a1) (d4RootOf a2)
     have hdVals := univ_d4_noncollinear_dot.2 a1 a2 hne1 hne2

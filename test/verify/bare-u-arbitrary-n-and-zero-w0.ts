@@ -1,6 +1,6 @@
-// Wave-5 Breakthrough Certification Suite:
-//   Arbitrary-n M_pair = I Marin Universality, Complete Elimination of the w = 0 Kinematic No-Go,
-//   K-Mirror Billiard Shattering the C(9,2) = 36 Cap, & Exact 3-Pass Disentangling 4D CZ
+// Wave-5 Verification Suite:
+//   Arbitrary-n M_pair = I Marin Lie-Algebraic Universality, Zero-w=0 Exchange-Gate Compilation,
+//   1D K-Mirror Crossing-Count Bounds, & Exact 3-Pass Disentangling 4D CZ
 //
 // Strictly under verbatim time-independent 8-layer bare quantum U:
 //   U = S o Phi_odd o D o M_meet o M_pair(zeta_18) o K o D o Phi_odd
@@ -8,36 +8,48 @@
 //
 //   PILLAR T1: Exact S_6 Role-Block No-Go & Alternating S_3(2,1) | S_5(3,2) 8-Role Arbitrary-n Marin Universality
 //     - T1a: Direct C^{720} = C[S_6] evolution of U4d's 53-step CZ on localized disjoint blocks Q_0={0,1,2} (2,1)
-//            and Q_1={3,4,5} (2,1) -> P_stay(|0,0>) = P_stay(|1,1>) = 169/1024 = 0.165039 (83.5% role leakage!)
-//            and P_stay(|0,1>) = 841/1024 = 0.821289 (negative control proving naive 3-spin 2-coloring fails!)
+//            and Q_1={3,4,5} (2,1) -> P_stay(|0,0>) = P_stay(|1,1>) = 169/1024 = 0.165039 (83.5% role leakage)
+//            and P_stay(|0,1>) = 841/1024 = 0.821289 (negative control proving naive 3-spin 2-coloring fails)
 //     - T1b: Exact Lie algebra closure dims dim Lie({i P_{p,p+1}}) in C[S_N]: S_3 -> 4, S_4 -> 12, S_5 -> 40,
 //            S_6 -> 249, plus exact leakage-kernel stabilizer of W=(2,1)x(2,1) in g_6 -> exact 6 = su(2)+su(2)
-//            effective action dims (0 non-local entangling dims, proving Theorem 1B directly!)
-//     - T1c: Exact Murnaghan-Nakayama character tables & Littlewood-Richardson decomposition for:
-//              * S_3(2,1) | S_5(3,2) in S_8 (8 <= 9 roles!): dim = 560, 9 irreps, 0 hooks, W perp tau(W),
-//                10*m(W) + 10*m(tau(W)) <= dim(V_lambda) on 9/9 irreps -> Marin SU(10) (99 dims) -> arbitrary n -> inf!
-//              * S_4(2,2) | S_5(3,2) in S_9 (9 roles): dim = 1260, 9 irreps, 0 hooks, 0 self-conjugate, ALL m(W)=1!
+//            effective action dims (0 non-local entangling dims, proving Theorem 1B directly)
+//     - T1c: Exact Murnaghan-Nakayama character tables & Littlewood-Richardson decomposition (Lie-algebraic
+//            existence in the externally scheduled exchange-gate model; no explicit S_8 pulse sequence is
+//            synthesized here, and T2a's explicit pulses use S_3(2,1) | S_3(2,1)):
+//              * S_3(2,1) | S_5(3,2) in S_8 (8 <= 9 roles): dim = 560, 9 irreps, 0 hooks, W perp tau(W),
+//                10*m(W) + 10*m(tau(W)) <= dim(V_lambda) on 9/9 irreps -> Marin stabilizer in g_8 is u(10)
+//                (100 dims, containing all 99 dims of su(10)) -> arbitrary n -> inf with M_pair = I
+//              * S_4(2,2) | S_5(3,2) in S_9 (9 roles): dim = 1260, 9 irreps, 0 hooks, 0 self-conjugate, ALL m(W)=1
 //
-//   PILLAR T2: Complete Elimination of the w = 0 Kinematic No-Go
-//     - T2a: Exact zero-w=0 continuous-rapidity universal gate set (strictly adjacent, all finite nonzero w):
+//   PILLAR T2: Complete Elimination of w = 0 in the Externally Scheduled Exchange-Gate Model
+//     (Note: replacing E(1) by E(1/2)^2 requires colliding the same pair twice, which remains impossible on a
+//      single-pass infinite ballistic line without mirrors. Conventions: verbatim bare M_meet = omega * E(-2/3),
+//      so M_meet^dag = M_meet^2 = omega^2 * E(+2/3), i.e., E(+2/3) = omega * M_meet^dag = omega * M_meet^2;
+//      worldline R(w_R) uses w_R = cot(pi alpha / 2), related to spatial-crossing S_sp(w_sp) = P R(w_sp) in
+//      bare-u-periodic-mirrors-and-bounds.ts by w_sp = -tan(pi alpha / 2) = -1 / w_R.)
+//     - T2a: Exact zero-w=0 continuous-rapidity universal gate set (strictly adjacent, all finite nonzero w_R):
 //              * 76-pulse spin-independent CZ (err < 1e-13, leak < 1e-14, min|w_R| > 0.20, min|dv_sym| > 0.34)
 //              * 77-pulse spin-independent CNOT (err < 1e-13, min|w_R| = 1/sqrt(3), min|dv_sym| = 0.536555)
 //              * 547-pulse full 9-spin C^{126} linear-chain Toffoli (||U16 - Toff(x)I2|| < 1e-13, min|dv_sym| = 0.536555)
-//     - T2b: Strictly-positive 2-rapidity set w in {+1/sqrt(3), +1} (alpha in {+2/3, +1/2}) spin-independent CZ
-//            (~294 pulses, 0 w=0, 0 negative w, 0 continuous angles; leak < 1e-4, ||U4-CZ|| < 0.025, procFid > 0.9995)
-//     - T2c: Single-rapidity bare on-dock M_meet alone (w = +1/sqrt(3) ONLY) on 5 spins C(5,2)=10 -> exact 39/39
-//            = 15 + 24 = su(4) + su(5) Lie closure (plus alpha=1 SWAP negative control -> 0 dims!)
+//     - T2b: Strictly-positive 2-rapidity set w_R in {+1/sqrt(3), +1} (alpha in {+2/3, +1/2}) spin-independent CZ
+//            (294 pulses, 0 w=0, 0 negative w_R, 0 continuous angles; leak < 1e-4, ||U4-CZ|| < 0.025, procFid > 0.9995)
+//     - T2c: Single-rapidity bare on-dock M_meet alone (E(+2/3) = omega * M_meet^2, w_R = +1/sqrt(3) ONLY) on
+//            5 spins C(5,2)=10 -> exact 39/39 = 15 + 24 = su(4) + su(5) Lie closure (alpha=1 SWAP negative control -> 0)
 //     - T2d: Exact closed-form Sym^2 doublon dispersion E_2(U), P(U), v_2(U) cross-checked against live M=16
-//            2-body exact Bloch diagonalization (< 1e-12), breakdown of v_1(U)=v_2(U) at w=0 (max|dv|=0.278365 at U=1/2),
-//            and exact Householder involution F(0) = -1/3 I + 2/3(P_{13}+P_{23}) (F(0)^2 = I_3, P_el=1/9, P_swap=8/9)
+//            2-body exact Bloch diagonalization (< 1e-12 for |k|<=4), breakdown of v_1(U)=v_2(U) at w=0
+//            (dv=0.278365 at U=1/2; global peak 0.283301 at U=0.428432), and exact Householder involution F(0)
 //
-//   PILLAR T3: Shattering the C(9,2)=36 Crossing Cap (104 Autonomous Collisions) & Exact 3-Pass Disentangling CZ
+//   PILLAR T3: 1D K-Mirror Crossing-Count Bounds (104 vs C(9,2)=36) & Exact 3-Pass Disentangling 4D CZ
 //     - T3a: Verbatim 4D BigInt 18-species (all 9+9 distinct (tone,role)) M_pair = I proof (diff=0, offLine=0, revDiff=0)
-//            + exact deterministic 1D K-mirror billiard (4|9|5 -> 104 (+1/+1) M_meet collisions = 2.89x > 77 > 36;
-//            4|6|5 -> >=50 vs 15; 0-mirror negative controls -> <= 36 and <= 15)
+//            + exact deterministic 1D point-particle crossing-count bound (4|9|5 -> 104 (+1/+1) crossings on 9 +1
+//            particles vs C(9,2)=36; 4|6|5 -> 58 < 77 on 6 +1 particles vs 15; 0-mirror negative controls <= 36, 15).
+//            (Crossing-count ceiling only; autonomous circuit compilation remains obstructed by YBE parameter collapse
+//             and wavepacket dispersion.)
 //     - T3b: Exact 3-pass disentangling 4D CZ identity F(+-sqrt(3)/2)^3 = -I_3 (< 1e-14), live time-domain 3-role (0,1,2)
-//            wavepacket evolution over 3 consecutive passes (S_vN: 0 -> ~1.58 -> ~1.58 -> near 0, elastic phase ~ pi),
-//            and exact same-role Sym^2 4D M_pair decay rate gamma = (6/13)*(11 sin^2(pi/18)/36) = 0.0042525/beat (tau=235)
+//            wavepacket evolution over 3 consecutive passes (S_vN: 0.02 -> 1.58 -> 1.58 -> returns to ~0.69 bits,
+//            87% elastic recovery, phase 0.95 pi on M = 20), and leading-order / single-beat same-role Sym^2 4D M_pair
+//            decay rate gamma = (6/13) * P_off = 0.0042525/beat (tau=235; P_{d=0}=6/13 and P_off are individually exact;
+//            multi-beat corrections are O(P_off^2) ~ 8e-5)
 //
 // Strictly deterministic (zero Math.random()), zero external imports, strict tsc clean, laptop-safe (< 12 s, < 400 MB).
 
@@ -1566,12 +1578,13 @@ function runPillarT1(): void {
   console.log(`        S_3 -> ${lieS3.totalDim} | S_4 -> ${lieS4.totalDim} | S_5 -> ${lieS5.totalDim} | S_6 -> ${lieS6.totalDim} (${lieS6.basisEven.length} even + ${lieS6.basisOdd.length} odd)`)
   console.log(`        S_6 block-preserving stabilizer of W=(2,1)x(2,1): kerDim=(${stabEven.kerDim}+${stabOdd.kerDim}), effective action dim=${s6EffDim} (${stabEven.effDim} even + ${stabOdd.effDim} odd = su(2)+su(2)!), maxNonLocalPauli=${s6MaxNonLocal.toExponential(2)} (0 entangling dims!)`)
   console.log(`        Obstruction check via Murnaghan-Nakayama: Ind_{S_3xS_3}^{S_6}((2,1)x(2,1)) dim=${decS6.dimInd}, irreps=${decS6.rows.length}, HOOK IRREPS=${decS6.hookCount} (${decS6.rows.filter(r => r.isHook).map(r => `(${partKey(r.lambda)})`).join(', ')}), W perp tau(W)=${decS6.wOrthogonalTauW}`)
-  console.log(`  [T1c] Positive Breakthrough — Alternating S_3(2,1) | S_5(3,2) 8-Role 2-Coloring in S_8 (3+5=8 <= 9 roles!):`)
+  console.log(`  [T1c] Alternating S_3(2,1) | S_5(3,2) 8-Role 2-Coloring in S_8 (3+5=8 <= 9 roles; Lie-algebraic existence in externally scheduled exchange-gate model):`)
   console.log(`        Ind_{S_3xS_5}^{S_8}((2,1)x(3,2)): dim=${decS8.dimInd}, dim(W)=${decS8.dimW}, W perp tau(W)=${decS8.wOrthogonalTauW}, irreps=${decS8.rows.length}/9, hooks=${decS8.hookCount}, all 10*m(W)+10*m(tau(W))<=dim: ${decS8.allFitMarin}`)
   for (const r of decS8.rows) {
     console.log(`          (${partKey(r.lambda).padEnd(7)}) dim=${String(r.dim).padStart(2)} | m(W)=${r.mW}, m(tauW)=${r.mTauW} | 10*(mW+mTauW)=${String(10 * (r.mW + r.mTauW)).padStart(2)} <= ${r.dim} | hook=${r.isHook}, selfConj=${r.isSelfConj}`)
   }
-  console.log(`        -> By Marin's Theorem (2007): exact block-preserving stabilizer of W in C[S_8] is ALL of SU(10) (99 dims) => zero-role-leakage CZ/CNOT/SWAP for arbitrary n -> inf with M_pair = I!`)
+  console.log(`        -> By Marin's Theorem (2007): exact stabilizer of W in g_8 is u(10) (100 dims, containing all 99 dims of su(10))`)
+  console.log(`           (Scope: Lie-algebraic existence in externally scheduled exchange-gate model; no explicit S_8 pulse sequence synthesized here; T2a uses S_3(2,1)|S_3(2,1).)`)
   console.log(`        9-Role Variant S_4(2,2) | S_5(3,2) in S_9: dim=${decS9.dimInd}, irreps=${decS9.rows.length}, hooks=${decS9.hookCount}, selfConj=${decS9.selfConjCount}, all m(W)=1: ${decS9.allMultOne}, W perp tau(W)=${decS9.wOrthogonalTauW}, allFitMarin=${decS9.allFitMarin}`)
 
   const ok =
@@ -1604,20 +1617,29 @@ function runPillarT1(): void {
 
   recordCheck(
     'T1',
-    'Exact S_6 role-block no-go (83.5% leak, Lie=12/40/249, stab=6=su(2)+su(2)) & S_3(2,1)|S_5(3,2) S_8 / S_4(2,2)|S_5(3,2) S_9 Marin SU(10) universality',
+    'Exact S_6 role-block no-go (83.5% leak, Lie=12/40/249, stab=6=su(2)+su(2)) & S_3(2,1)|S_5(3,2) S_8 / S_4(2,2)|S_5(3,2) S_9 Marin u(10)/su(10) existence',
     ok,
-    `P_stay(00,11)=${pStay[0]!.toFixed(6)}, P_stay(01)=${pStay[1]!.toFixed(6)}, Lie=(${lieS4.totalDim},${lieS5.totalDim},${lieS6.totalDim}), S6_eff=${s6EffDim}, S8=(560,9 irr,0 hooks,SU(10)), S9=(1260,9 irr,0 hooks,0 sc,m=1)`,
+    `P_stay(00,11)=${pStay[0]!.toFixed(6)}, P_stay(01)=${pStay[1]!.toFixed(6)}, Lie=(${lieS4.totalDim},${lieS5.totalDim},${lieS6.totalDim}), S6_eff=${s6EffDim}, S8=(560,9 irr,0 hooks,u(10)/su(10)), S9=(1260,9 irr,0 hooks,0 sc,m=1)`,
   )
 }
 
 // =================================================================================================
-// PILLAR T2: COMPLETE ELIMINATION OF THE w = 0 KINEMATIC NO-GO
+// PILLAR T2: COMPLETE ELIMINATION OF w = 0 IN THE EXTERNALLY SCHEDULED EXCHANGE-GATE MODEL
 // =================================================================================================
+// Rapidity convention bridge:
+//   - Worldline Yang operator R(w_R) = (w_R I - i P)/(w_R + i) matches E(alpha) = (1+e^{i pi alpha})/2 I + (1-e^{i pi alpha})/2 P
+//     up to global phase e^{i pi alpha} with w_R = cot(pi alpha / 2) (so alpha=1 -> w_R=0, alpha=1/2 -> w_R=+1, alpha=2/3 -> w_R=+1/sqrt(3)).
+//   - Spatial-crossing operator S_sp(w_sp) = P R(w_sp) (used in bare-u-periodic-mirrors-and-bounds.ts) satisfies
+//     w_sp = -tan(pi alpha / 2) = -1 / w_R.
+//   - Verbatim bare on-dock M_meet acts as omega on P=+1 (Sym) and 1 on P=-1 (Alt), so M_meet = omega * E(-2/3),
+//     hence M_meet^dag = M_meet^2 = omega^2 * E(+2/3), equivalently E(+2/3) = omega * M_meet^dag = omega * M_meet^2
+//     (and E(-2/3) = omega^2 * M_meet).
 
 function v1OfU(u: number): number {
   return (SQRT3 * u) / (3 * u * u + 1)
 }
 function rapidityOfAlpha(alpha: number): number {
+  // Worldline rapidity w_R = cot(pi alpha / 2); spatial-crossing convention is w_sp = -tan(pi alpha / 2) = -1 / w_R.
   // Normalize alpha into (-1, 1]
   let a = ((alpha + 1) % 2 + 2) % 2 - 1
   if (Math.abs(a + 1) < 1e-12) a = 1
@@ -1655,8 +1677,30 @@ function pulseKinematicStats(pulses: readonly AdjPulse[]): {
 
 function runPillarT2(): void {
   console.log('\n================================================================================')
-  console.log('PILLAR T2: COMPLETE ELIMINATION OF THE w = 0 KINEMATIC NO-GO')
+  console.log('PILLAR T2: ZERO-w=0 GATE COMPILATION (EXTERNALLY SCHEDULED EXCHANGE-GATE MODEL)')
   console.log('================================================================================')
+  // Machine-check exact M_meet / E(+-2/3) phase convention and worldline vs spatial-crossing rapidity bridge:
+  //   M_meet = (zeta_6/2) I + ((omega-1)/2) P => Sym (+1): omega, Alt (-1): 1
+  //   E(alpha) = (1+e^{i pi alpha})/2 I + (1-e^{i pi alpha})/2 P => Sym (+1): 1, Alt (-1): e^{i pi alpha}
+  //   => M_meet = omega * E(-2/3), and M_meet^dag = M_meet^2 = omega^2 * E(+2/3), so E(+2/3) = omega * M_meet^dag = omega * M_meet^2.
+  const mMeetSym = cAdd(MEET_KEEP, MEET_SWAP)
+  const mMeetAlt = cSub(MEET_KEEP, MEET_SWAP)
+  assertExact(cAbs(cSub(mMeetSym, W_C)) < 1e-14 && cAbs(cSub(mMeetAlt, C_ONE)) < 1e-14, 'M_meet Sym/Alt eigenvalues')
+  const ePlus23Sym = C_ONE
+  const ePlus23Alt = cExpI((2 * PI) / 3) // omega
+  assertExact(
+    cAbs(cSub(ePlus23Sym, cMul(W_C, cConj(mMeetSym)))) < 1e-14 &&
+      cAbs(cSub(ePlus23Alt, cMul(W_C, cConj(mMeetAlt)))) < 1e-14 &&
+      cAbs(cSub(cMul(W2_C, ePlus23Sym), cMul(mMeetSym, mMeetSym))) < 1e-14 &&
+      cAbs(cSub(cMul(W2_C, ePlus23Alt), cMul(mMeetAlt, mMeetAlt))) < 1e-14,
+    'E(+2/3) = omega * M_meet^dag = omega * M_meet^2 identity',
+  )
+  // Cross-check w_R = cot(pi alpha / 2) vs w_sp = -tan(pi alpha / 2) = -1 / w_R at alpha = 2/3 and 1/2
+  for (const aTest of [2 / 3, 0.5, -2 / 3, 0.25]) {
+    const wR = rapidityOfAlpha(aTest)
+    const wSp = -Math.tan((PI * aTest) / 2)
+    assertExact(Math.abs(wSp + 1 / wR) < 1e-14, `w_sp = -1/w_R check at alpha=${aTest}`)
+  }
 
   // Build C(6,3) = 20 basis & singlet/triplet logical DFS kets (verbatim from U4d)
   const basis20: [number, number, number][] = []
@@ -2395,15 +2439,18 @@ function runPillarT2(): void {
     }
   })()
 
-  console.log(`  [T2a] Exact Zero-w=0 Continuous-Rapidity Universal Gate Set (Negative control: U4d 54-pulse CNOT had ${origStats54.w0Count} w=0 SWAPs, min|dv|=${origStats54.minDvSym.toFixed(4)}):`)
+  console.log(`  [T2a] Zero-w=0 Continuous-Rapidity Universal Gate Set (externally scheduled exchange-gate model; S_3(2,1)|S_3(2,1)):`)
+  console.log(`        Scope note: replacing E(1) by E(1/2)^2 requires colliding the same pair twice (impossible on a single-pass infinite ballistic line without mirrors).`)
+  console.log(`        Conventions: w_R = cot(pi alpha / 2) (worldline R(w_R)) vs w_sp = -tan(pi alpha / 2) = -1 / w_R (spatial S_sp = P R); M_meet = omega * E(-2/3) => E(+2/3) = omega * M_meet^dag = omega * M_meet^2.`)
+  console.log(`        Negative control: U4d 54-pulse CNOT had ${origStats54.w0Count} w=0 SWAPs, min|dv|=${origStats54.minDvSym.toFixed(4)}.`)
   console.log(`        76-pulse CZ  (0 w=0): err(S0)=${cz76_err0.toExponential(2)}, err(S1)=${cz76_err1.toExponential(2)}, ||U(0)-U(1)||=${cz76_match.toExponential(2)}, leak=(${cz76_S0.leak.toExponential(1)},${cz76_S1.leak.toExponential(1)}), min|w_R|=${statsCZ76.minAbsW.toFixed(6)}, min|dv_sym|=${statsCZ76.minDvSym.toFixed(6)}`)
-  console.log(`        77-pulse CNOT(0 w=0): err(S0)=${cnot77_err0.toExponential(2)}, err(S1)=${cnot77_err1.toExponential(2)}, ||U(0)-U(1)||=${cnot77_match.toExponential(2)}, leak=(${cnot77_S0.leak.toExponential(1)},${cnot77_S1.leak.toExponential(1)}), min|w_R|=${statsCNOT77.minAbsW.toFixed(6)} (=1/sqrt(3)!), min|dv_sym|=${statsCNOT77.minDvSym.toFixed(6)}`)
-  console.log(`        547-pulse C^{126} Toffoli (13+6*77+4*18, 0 w=0, uni126Err=${toffUni126Err.toExponential(1)}): ||U16-Toff(x)I2||=${toffErr16.toExponential(2)}, leak16=${toffLeak16.toExponential(2)}, ||U8(0)-U8(1)||=${toffMatch01.toExponential(2)}, min|w_R|=${statsToff547.minAbsW.toFixed(6)}, min|dv_sym|=${statsToff547.minDvSym.toFixed(6)} (>53% c!)`)
-  console.log(`  [T2b] Strictly-Positive 2-Rapidity Set w in {+1/sqrt(3), +1} (alpha in {+2/3, +1/2}) Spin-Independent CZ:`)
+  console.log(`        77-pulse CNOT(0 w=0): err(S0)=${cnot77_err0.toExponential(2)}, err(S1)=${cnot77_err1.toExponential(2)}, ||U(0)-U(1)||=${cnot77_match.toExponential(2)}, leak=(${cnot77_S0.leak.toExponential(1)},${cnot77_S1.leak.toExponential(1)}), min|w_R|=${statsCNOT77.minAbsW.toFixed(6)} (=1/sqrt(3)), min|dv_sym|=${statsCNOT77.minDvSym.toFixed(6)}`)
+  console.log(`        547-pulse C^{126} Toffoli (13+6*77+4*18, 0 w=0, uni126Err=${toffUni126Err.toExponential(1)}): ||U16-Toff(x)I2||=${toffErr16.toExponential(2)}, leak16=${toffLeak16.toExponential(2)}, ||U8(0)-U8(1)||=${toffMatch01.toExponential(2)}, min|w_R|=${statsToff547.minAbsW.toFixed(6)}, min|dv_sym|=${statsToff547.minDvSym.toFixed(6)} (>53% c)`)
+  console.log(`  [T2b] Strictly-Positive 2-Rapidity Set w_R in {+1/sqrt(3), +1} (alpha in {+2/3, +1/2}; w_sp in {-sqrt(3), -1}) Spin-Independent CZ:`)
   console.log(`        MITM pool=${mitm2Rap.poolSize}, total=${mitm2Rap.pulses} strictly-positive pulses (w0=${mitm2Rap.stats.w0Count}, negW=${mitm2Rap.stats.negWCount})`)
   console.log(`        S_AB=0: leak=${mitm2Rap.leak0.toExponential(2)}, ||U4-CZ||=${mitm2Rap.err0.toFixed(6)}, procFid=${mitm2Rap.fid0.toFixed(6)} | S_AB=1: leak=${mitm2Rap.leak1.toExponential(2)}, ||U4-CZ||=${mitm2Rap.err1.toFixed(6)}, procFid=${mitm2Rap.fid1.toFixed(6)} | ||U(0)-U(1)||=${mitm2Rap.match01.toExponential(2)}`)
-  console.log(`  [T2c] Single-Rapidity Bare On-Dock M_meet Alone (w = +1/sqrt(3) ONLY) on 5 Spins C(5,2)=10:`)
-  console.log(`        Exact Lie closure dim = ${singleRapMmeet.dim} / 39 (= 15 + 24 = su(4) + su(5)!), max action on (5)=${singleRapMmeet.maxOnSym5.toExponential(2)} | Negative control (alpha=1 SWAPs): dim=${singleRapMmeet.negSwapDim}`)
+  console.log(`  [T2c] Single-Rapidity Bare On-Dock M_meet Alone (E(+2/3) = omega * M_meet^dag = omega * M_meet^2, w_R = +1/sqrt(3) ONLY) on 5 Spins C(5,2)=10:`)
+  console.log(`        Exact Lie closure dim = ${singleRapMmeet.dim} / 39 (= 15 + 24 = su(4) + su(5)), max action on (5)=${singleRapMmeet.maxOnSym5.toExponential(2)} | Negative control (alpha=1 SWAPs): dim=${singleRapMmeet.negSwapDim}`)
   console.log(`  [T2d] Exact Sym^2 Doublon Dispersion (M=16 Exact Bloch Diag) & w=0 Kinematic Breakdown + Householder F(0):`)
   console.log(`        M=16 exact diag: |k|<=4 (9/16 momenta) max|E_2 - E_2_ana|=${sym2Disp.maxE2ErrLowK.toExponential(2)} (< 1e-12!), all 16/16 (incl. P=+-pi/2 finite-size tail)=${sym2Disp.maxE2Err.toExponential(2)}`)
   console.log(`        max|dE_2/dP - v_2|=${sym2Disp.maxV2FdErr.toExponential(2)}, K=0 on-site P_{d=0}=${sym2Disp.pOnSiteK0.toFixed(12)} (exact 6/13=${(6 / 13).toFixed(12)})`)
@@ -2462,14 +2509,14 @@ function runPillarT2(): void {
 
   recordCheck(
     'T2',
-    'Complete w=0 elimination: 76-CZ/77-CNOT/547-Toffoli, 2-rapidity +CZ, 1-rapidity M_meet su(4)+su(5)=39/39, & Sym^2 dispersion + F(0)',
+    'Zero-w=0 exchange-gate compilation (externally scheduled): 76-CZ/77-CNOT/547-Toffoli, 2-rapidity +CZ, 1-rapidity M_meet su(4)+su(5)=39/39, & Sym^2 dispersion + F(0)',
     ok,
     `76-CZ=${cz76_err0.toExponential(1)}, 77-CNOT(dv=${statsCNOT77.minDvSym.toFixed(4)}), 547-Toff=${toffErr16.toExponential(1)}, 2-rap(${mitm2Rap.pulses}p,fid=${mitm2Rap.fid0.toFixed(5)}), M_meet=${singleRapMmeet.dim}/39, E2_err(|k|<=4)=${sym2Disp.maxE2ErrLowK.toExponential(1)}, F(0)^2=I`,
   )
 }
 
 // =================================================================================================
-// PILLAR T3: SHATTERING THE C(9,2)=36 CAP (104 COLLISIONS) & EXACT 3-PASS DISENTANGLING 4D CZ
+// PILLAR T3: 1D K-MIRROR CROSSING-COUNT BOUNDS (104 vs C(9,2)=36) & 3-PASS DISENTANGLING 4D CZ
 // =================================================================================================
 
 function buildPulse1D(M: number, p: number, m0: number, sig: number): [Float64Array, Float64Array] {
@@ -2601,7 +2648,7 @@ function step2EvenSym(M: number, re: Float64Array, im: Float64Array): [Float64Ar
 
 function runPillarT3(): void {
   console.log('\n================================================================================')
-  console.log('PILLAR T3: 18-SPECIES K-MIRROR BILLIARD (104 > 77 > 36) & 3-PASS DISENTANGLING CZ')
+  console.log('PILLAR T3: 18-SPECIES 1D K-MIRROR CROSSING BOUNDS (104 vs 36) & 3-PASS DISENTANGLING CZ')
   console.log('================================================================================')
 
   // -----------------------------------------------------------------------------------------------
@@ -3000,12 +3047,13 @@ function runPillarT3(): void {
     return { maxNormErr, snap0, snap1: snaps.get(76)!, snap2: snaps.get(164)!, snap3: snaps.get(248)! }
   })()
 
-  console.log(`  [T3a] Verbatim 4D BigInt 18-Species M_pair = I Proof & Autonomous K-Mirror Billiard:`)
-  console.log(`        18 distinct (tone,role) species on 1 geodesic: branches=${t1_18.amp.size}, M_pair diff=${diff18_mPair}, off-line=${offLine18}, revDiff=${rev18_diff} (EXACT M_pair = I!)`)
+  console.log(`  [T3a] Verbatim 4D BigInt 18-Species M_pair = I Proof & 1D Point-Particle K-Mirror Crossing-Count Bounds:`)
+  console.log(`        18 distinct (tone,role) species on 1 geodesic: branches=${t1_18.amp.size}, M_pair diff=${diff18_mPair}, off-line=${offLine18}, revDiff=${rev18_diff} (exact M_pair = I)`)
   console.log(`        Negative control (same-role pair): M_pair diff=${sameRolePairDiff}, P_off=${sameRoleOffProb.toFixed(8)} (exact 11*sin^2(pi/18)/36=${pOffExact.toFixed(8)}) | distinct-role pair diff=${distRoleDiff}`)
-  console.log(`        4|9|5 K-Mirror Billiard: (+1/+1) M_meet collisions = ${bil495.pp} (${(bil495.pp / 36).toFixed(2)}x above 36, > 77-pulse zero-w=0 CNOT!), pm=${bil495.pm}, mm=${bil495.mm}`)
-  console.log(`        4|6|5 2-Qubit Billiard : (+1/+1) M_meet collisions = ${bil465.pp} (${(bil465.pp / 15).toFixed(2)}x above 15, >= 50!), pm=${bil465.pm}, mm=${bil465.mm}`)
+  console.log(`        4|9|5 1D Point-Particle Crossing Bound (9 +1 particles): (+1/+1) crossings = ${bil495.pp} (${(bil495.pp / 36).toFixed(2)}x above C(9,2)=36), pm=${bil495.pm}, mm=${bil495.mm}`)
+  console.log(`        4|6|5 1D Point-Particle Crossing Bound (6 +1 particles): (+1/+1) crossings = ${bil465.pp} (${(bil465.pp / 15).toFixed(2)}x above C(6,2)=15; note 58 < 77 for 6 +1 particles), pm=${bil465.pm}, mm=${bil465.mm}`)
   console.log(`        0-Mirror Negative Controls: 0|9|0 -> ${bil090.pp} (<= 36 = C(9,2)), 0|6|0 -> ${bil060.pp} (<= 15 = C(6,2))`)
+  console.log(`        Scope note: 104 and 58 are 1D point-particle crossing-count bounds only; autonomous circuit compilation remains obstructed by YBE parameter collapse and wavepacket dispersion.`)
   console.log(`  [T3b] Exact 3-Pass Disentangling 4D CZ Identity F(+-sqrt(3)/2)^3 = -I_3 & Same-Role 4D Decay:`)
   console.log(`        Analytic: ||F(+sqrt(3)/2)^3 + I_3||_F=${fPlus.cubeErr.toExponential(2)} (altLeak=${fPlus.altLeak.toExponential(1)}), ||F(-sqrt(3)/2)^3 + I_3||_F=${fMinus.cubeErr.toExponential(2)} (altLeak=${fMinus.altLeak.toExponential(1)})`)
   console.log(`        Live 3-Role (0,1,2) Wavepacket 3-Pass Evolution (M=20 ring, uninterrupted bare U^t, normErr=${threePassSim.maxNormErr.toExponential(1)}):`)
@@ -3017,7 +3065,7 @@ function runPillarT3(): void {
   ] as const) {
     console.log(`          ${lbl}: P_el=${s.pEl.toFixed(5)} (rel ${(s.pEl / s.pSurv).toFixed(4)}), P_sw=(${s.pSw1.toFixed(5)}, ${s.pSw0.toFixed(5)}), pSurv=${s.pSurv.toFixed(5)}, S_vN=${s.sVN.toFixed(5)} b, argEl=${(s.argEl / PI).toFixed(4)} pi (wigFid=${s.bestWigFid.toFixed(4)} @ sh=${s.bestSh})`)
   }
-  console.log(`        Same-Role Sym^2 4D M_pair Decay Rate: gamma = (6/13)*(11 sin^2(pi/18)/36) = ${gammaDecay.toFixed(7)}/beat (exact ${gammaExact.toFixed(7)}), tau_{1/e} = ${tauDecay.toFixed(2)} beats (vs gamma=0 for distinct roles!)`)
+  console.log(`        Same-Role Sym^2 4D M_pair Leading-Order / Single-Beat Decay Rate: gamma = (6/13) * P_off = ${gammaDecay.toFixed(7)}/beat (exact single-beat ${gammaExact.toFixed(7)}, tau_{1/e} = ${tauDecay.toFixed(2)} beats; P_{d=0}=6/13 and P_off are individually exact, multi-beat corrections O(P_off^2) ~ 8e-5; vs gamma=0 for distinct roles)`)
 
   const ok =
     diff18_mPair === 0 &&
@@ -3046,9 +3094,9 @@ function runPillarT3(): void {
 
   recordCheck(
     'T3',
-    '18-species 4D M_pair=I, 4|9|5 K-mirror billiard (104 > 77 > 36), F(+-sqrt(3)/2)^3=-I_3 3-pass disentangling CZ, & same-role decay',
+    '18-species 4D M_pair=I, 1D point-particle K-mirror crossing bounds (4|9|5=104 vs 36, 4|6|5=58 vs 15), F(+-sqrt(3)/2)^3=-I_3 3-pass CZ, & single-beat decay',
     ok,
-    `18-sp diff=0, 4|9|5=${bil495.pp}, 4|6|5=${bil465.pp}, 0|9|0=${bil090.pp}, F^3+I=${fPlus.cubeErr.toExponential(1)}, S_vN=(${threePassSim.snap0.sVN.toFixed(2)}->${threePassSim.snap1.sVN.toFixed(2)}->${threePassSim.snap2.sVN.toFixed(2)}->${threePassSim.snap3.sVN.toFixed(2)}b), gamma=${gammaDecay.toFixed(7)} (tau=${tauDecay.toFixed(1)})`,
+    `18-sp diff=0, 4|9|5=${bil495.pp}, 4|6|5=${bil465.pp}, 0|9|0=${bil090.pp}, F^3+I=${fPlus.cubeErr.toExponential(1)}, S_vN=(${threePassSim.snap0.sVN.toFixed(2)}->${threePassSim.snap1.sVN.toFixed(2)}->${threePassSim.snap2.sVN.toFixed(2)}->${threePassSim.snap3.sVN.toFixed(2)}b), gamma_1beat=${gammaDecay.toFixed(7)} (tau=${tauDecay.toFixed(1)})`,
   )
 }
 
