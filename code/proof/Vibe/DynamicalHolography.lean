@@ -5,8 +5,8 @@ import Vibe.HolographicCodeExt
 # Vibe Theory: Dynamical Holography Bridge (`W11`) & Multi-Shell `B_1` / `B_2` IR Distance Amplification (`W10`)
 
 Zero-dependency Lean `4.35.0` formalization of the exact `GF(3)` symplectic, representation-theoretic,
-and combinatorial theorems of Wave-4 Track W11 (`test/breakthrough/dynamical-holography-bridge.ts`)
-and Wave-3 Track W10 (`test/breakthrough/happy-code-3434-holography.ts`, Milestone P9-B), built
+and combinatorial theorems of Wave-4 Track W11 (`test/verify/dynamical-holography-bridge.ts`)
+and Wave-3 Track W10 (`test/verify/happy-code-3434-holography.ts`, Milestone P9-B), built
 directly on top of `Vibe.HolographicCode` and `Vibe.HolographicCodeExt`.
 
 ## Honest Scope Boundary
@@ -81,7 +81,7 @@ directly on top of `Vibe.HolographicCode` and `Vibe.HolographicCodeExt`.
         `r = 3` zero-loss protection to `72` simultaneous lines (`144` boundary qutrits).
 
 - **External dynamical / numerical computations NOT formalized inside Lean (certified externally in
-  `test/breakthrough/dynamical-holography-bridge.ts` and `test/breakthrough/happy-code-3434-holography.ts`):**
+  `test/verify/dynamical-holography-bridge.ts` and `test/verify/happy-code-3434-holography.ts`):**
   1. Complex Hilbert-space bare-`U` non-Clifford Pauli Transfer Matrices (`D`, `K`, `M_meet`, `L_4`),
      stabilizer Rényi magic `M_2`, exact `3^{24}` Poisson-summed 1-beat leakage probabilities `p_code(L)`
      (`94.70%` to `99.999%`), and `B_0` Pauli-twirl Shannon conditional entropies `I_twirl(b_0 : A_k)`.
