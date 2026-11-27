@@ -58,12 +58,12 @@ and connecting them unconditionally to the infinite `{3,4,3,4}` hyperbolic honey
   (`∀ R : Nat`) isometry composition and greedy outward intertwining for any `HceHappyTower` /
   `HceGreedyPush`. Complex-Hilbert-space stabilizer state realization, concrete `{3,4,3,4}`
   multi-level shell-graph carry wiring, parallel multi-dock pushing, and bipartite `K`-alternation
-  `W(F_4)` covariance on the glued tower live in `test/breakthrough/happy-code-3434-holography.ts`
+  `W(F_4)` covariance on the glued tower live in `test/verify/happy-code-3434-holography.ts`
   and are not instantiated inside Lean.
 - **Remaining external verifications from `Vibe.HolographicCode`:** Artin-Wedderburn `U_9 ⊗ F_3^2`
   `3^9` weight census, global uniqueness/optimality across all `13` `W(F_4)` and `9` `W(F_4)^+`
   local-Clifford classes, and the 32-submodule CSS `d ≤ 3` ceiling remain in
-  `test/breakthrough/covariant-gf3-holographic-tensors.ts`.
+  `test/verify/covariant-gf3-holographic-tensors.ts`.
 -/
 
 set_option autoImplicit false
@@ -3478,7 +3478,7 @@ private theorem hce_ringSumAux_swap {R : Type} [StarCommRing R] {n m : Nat}
 
 /-- Abstract recursive HaPPY holographic shell-network tower schema over any inner-product ring `K`.
     (Abstract induction interface; concrete complex-Hilbert stabilizer state realization and `{3,4,3,4}`
-    multi-level shell-graph carry wiring live in `test/breakthrough/happy-code-3434-holography.ts`.) -/
+    multi-level shell-graph carry wiring live in `test/verify/happy-code-3434-holography.ts`.) -/
 structure HceHappyTower (K : Type) where
   Bdy : Nat → Type
   BallBulk : Nat → Type
@@ -3547,7 +3547,7 @@ def hceGreedyBoundaryOp {K : Type} {T : HceHappyTower K} (G : HceGreedyPush T)
        *(Scope note: Conjuncts 3–5 are an abstract induction schema; complex-Hilbert-space stabilizer state
        realization, concrete `{3,4,3,4}` multi-level shell-graph carry wiring, parallel multi-dock pushing,
        and bipartite `K`-alternation `W(F_4)` covariance on the glued tower live in
-       `test/breakthrough/happy-code-3434-holography.ts` and are not instantiated inside Lean.)* -/
+       `test/verify/happy-code-3434-holography.ts` and are not instantiated inside Lean.)* -/
 theorem thm_hce_infinite_radius_happy_isometry_and_greedy_reconstruction :
     (∀ {R : Type} [StarCommRing R] {a b c : Nat}
       (f : (Fin a → R) → (Fin b → R)) (g : (Fin b → R) → (Fin c → R)),

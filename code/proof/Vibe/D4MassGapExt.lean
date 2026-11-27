@@ -6,7 +6,7 @@ import Vibe.D4MassGap
 # Vibe Theory: Sharp 4D `D_4` Lattice Mass-Gap Extensions (`Alt-x0+planes`, `SU(3)` Convex Hull & `K = 2` Peter-Weyl, `SU(2)` Chordal & 2-Link Wedge)
 
 Zero-dependency Lean `4.35.0` formalization of the exact **algebraic, graph-theoretic, representation-theoretic,
-and spectral pillars** of Wave-3 Track W8 (`test/breakthrough/d4-mass-gap-su2-su3-sharp.ts`, Milestone P9-A)
+and spectral pillars** of Wave-3 Track W8 (`test/verify/d4-mass-gap-su2-su3-sharp.ts`, Milestone P9-A)
 pushing the discrete 4D `D_4` Yang-Mills mass-gap window strictly beyond Wave-2 Track W6 (`Vibe.D4MassGap`)
 and strictly beyond the 1D-axial single-link `SU(2)` chordal ceiling `4 / (4 + 4√7) ≈ 0.274291`.
 
@@ -51,7 +51,7 @@ and strictly beyond the 1D-axial single-link `SU(2)` chordal ceiling `4 / (4 + 4
      matrix at `β = 274292/1000000` and `β = 277274/1000000`, and exact zero-float `SU(2)` / `SU(3)`
      threshold brackets & breakthrough ratios (`SU(2)` `2.93×` BE / `29.70×` KP, `SU(3)` `2.57×` BE rounded / `58.53×` KP).
 - **External analytic / measure-theoretic steps NOT formalized inside Lean (certified externally in
-  `test/breakthrough/d4-mass-gap-su2-su3-sharp.ts`):**
+  `test/verify/d4-mass-gap-su2-su3-sharp.ts`):**
   1. Compact Lie groups `SU(2)`, `SU(3)`, Haar measure integration, Osterwalder-Seiler measure-theoretic
      reflection positivity and transfer-matrix mass-gap reconstruction, and infinite-lattice Dobrushin `W_1`
      uniqueness / covariance bounds.

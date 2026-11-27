@@ -101,7 +101,7 @@ A/B/C runs above.
   proof suite (`29` `.lean` files including `Vibe/Fock/{Ring,State,Gates,Beat}.lean`
   and root `Vibe.lean`, `341` substantive headline / `451` public theorems,
   `0` `sorry`, `0` `axiom`, `0` `native_decide`, `pnpm check:lean`, fail-closed)
-- [`test/breakthrough/`](test/breakthrough/): `30` deterministic
+- [`test/verify/`](test/verify/): `30` deterministic
   verification scripts (`27` standalone zero-import plus `3` importing
   `@/code/`) covering the `{3,4,3,4}` spectral collapse (`[11.439047, 11.443713]`),
   unconditional zero-truncation 4D `D_4` mass gap (`SU(2): 0.277274`,
@@ -139,8 +139,8 @@ pnpm rerun E-FND-0190
 pnpm result E-FND-0188
 
 # Run any standalone breakthrough verification script (zero imports)
-npx tsx test/breakthrough/combes-thomas-d4-mass-gap.ts
-npx tsx test/breakthrough/horizon-one-hop.ts
+npx tsx test/verify/combes-thomas-d4-mass-gap.ts
+npx tsx test/verify/horizon-one-hop.ts
 
 # Verify the Lean 4.35.0 proof suite (29 files, 341 headline theorems)
 pnpm check:lean

@@ -63,7 +63,7 @@ Zero-dependency Lean 4.35.0 formalization of Wave-3 Tracks W9 & W10 (Milestone P
 This file machine-checks the exact finite/algebraic/symbolic statements above in zero-dependency Lean 4.
 The following analytic and full-Fock bridge steps lie **outside** this Lean module and remain external
 results of the companion derivations (`note/project/vibe/research/wave3/03-multibody-mpair-and-chiral-clusters.md`,
-`04-happy-code-3434-holography.md`, and `test/breakthrough/multibody-mpair-and-chiral-clusters.ts`):
+`04-happy-code-3434-holography.md`, and `test/verify/multibody-mpair-and-chiral-clusters.ts`):
 
 - **4D-to-1D Fock-beat reduction**: Reduction of the full 8-layer 4D `{3,4,3,4}` Fock beat `U` (`Vibe.FockBeat`)
   to the 1D geodesic-line `P = 0` relative-coordinate transfer operator `trionStep8` with zero cross-line

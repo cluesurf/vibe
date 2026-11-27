@@ -4,7 +4,7 @@ import Vibe.Chirality
 # Vibe Theory: Full-`W(F_4)`-Covariant `GF(3)` Holographic Stabilizer Codes (`[[24, 1, 8]]_3` & `[[24, 0, 6]]_3`)
 
 Zero-dependency Lean 4.35.0 formalization of Wave-2 Track W2's Open Challenge 4 breakthrough
-(`test/breakthrough/covariant-gf3-holographic-tensors.ts`, `note/project/vibe/research/wave2/02-covariant-gf3-holographic-tensors.md`):
+(`test/verify/covariant-gf3-holographic-tensors.ts`, `note/project/vibe/research/wave2/02-covariant-gf3-holographic-tensors.md`):
 
 1. **Exact `W(F_4)` Alignment & `S_3`-Triality Local-Clifford Homomorphism:**
    - All 4 Bourbaki `W(F_4)` simple reflections `s_0..s_3` on `Fin 24` match `Vibe.Chirality.mat2SlotPerm (f4SimpleMat2 k)`
@@ -33,7 +33,7 @@ Zero-dependency Lean 4.35.0 formalization of Wave-2 Track W2's Open Challenge 4 
   3-frame bulk logicals `X_L, Z_L ∈ S^⊥ \ S` with `⟨X_L, Z_L⟩_ω = 1`, stabilizer-equivalent weight-8 logicals (`d ≤ 8`),
   weight-6 stabilizer witnesses (`d_pure ≤ 6`), and exact native `D_4` dual distances `d_⊥(R_4) = 2` and `d_⊥(R_5) = 3`
   (with non-degeneracy `hcDualWt2 ∉ span(hcR4)`, `hcDualWt3 ∉ span(hcR5)`).
-- **Verified externally in `test/breakthrough/covariant-gf3-holographic-tensors.ts`:** exhaustive quantum distance lower
+- **Verified externally in `test/verify/covariant-gf3-holographic-tensors.ts`:** exhaustive quantum distance lower
   bounds `d ≥ 8` (`hcBulk23`) and `d_pure ≥ 6`, Artin-Wedderburn `U_9 ⊗ F_3^2 = W_9^(4) ⊕ W_9^(6)` splitting and `3^9`
   weight census, brute-force `42,504 / 42,504` 5-uniformity, `553,276` boundary erasure recovery (`|E| ≤ 7`), and
   uniqueness/global optimality across all 13 `W(F_4)` and 9 `W(F_4)^+` local-Clifford classes.
@@ -801,7 +801,7 @@ def hcUntwistedWt4 (a b : Fin 3) : HcVec48 :=
     in its full `W(F_4)`-orbit (`∀ w : List (Fin 4)`) likewise fails to commute with `W_9^(6)`.
     (Scope note: the full Artin-Wedderburn direct-sum split `U_9 ⊗ F_3^2 = W_9^(4) ⊕ W_9^(6)` and
     exhaustive `min wt_P(W_9^(6)) = 6` over all `3^9` vectors are certified externally in
-    `test/breakthrough/covariant-gf3-holographic-tensors.ts` T4a.) -/
+    `test/verify/covariant-gf3-holographic-tensors.ts` T4a.) -/
 theorem thm_hc_w9_weight4_vs_weight6_split :
     ∀ a b : Fin 3, (a.val ≠ 0 ∨ b.val ≠ 0) →
       hcPauliWeight (hcUntwistedWt4 a b) = 4 ∧
@@ -986,7 +986,7 @@ private theorem hc_bulk23_rank23 (c : Fin 23 → Fin 3)
     full rank `23` over `GF(3)`, with explicit weight-6 stabilizer witnesses (`d_pure ≤ 6`).
     (Scope note: the exhaustive lower bounds `d_pure ≥ 6` and `d ≥ 8`, brute-force `42,504 / 42,504`
     5-uniformity, `553,276` erasure recovery, and uniqueness across all 13 `W(F_4)` / 9 `W(F_4)^+`
-    local-Clifford classes are certified externally in `test/breakthrough/covariant-gf3-holographic-tensors.ts`.) -/
+    local-Clifford classes are certified externally in `test/verify/covariant-gf3-holographic-tensors.ts`.) -/
 theorem thm_hc_code_24_1_8_stabilizer_valid :
     (∀ i j : Fin 23, hcSymp48 (hcBulk23 i) (hcBulk23 j) = 0) ∧
     (∀ c : Fin 23 → Fin 3, (∀ p r, hcLinComb c hcBulk23 p r = 0) → ∀ i : Fin 23, c i = ⟨0, by decide⟩) ∧
@@ -1171,7 +1171,7 @@ private theorem hc_bulk_logical_certs :
     all 23 stabilizers, obey `⟨X_L, Z_L⟩_ω = 1`, have Pauli weight `8` (`d ≤ 8`), and lie strictly outside
     `rowSpan hcBulk23` (`∈ S^⊥ \ S`).
     (Scope note: the exhaustive lower bound `d ≥ 8` and `553,276` boundary erasure recovery for `|E| ≤ 7` are
-    verified externally in `test/breakthrough/covariant-gf3-holographic-tensors.ts`.) -/
+    verified externally in `test/verify/covariant-gf3-holographic-tensors.ts`.) -/
 theorem thm_hc_code_24_1_8_triality_bulk_logical :
     (∀ i : Fin 23, hcSymp48 (hcBulk23 i) hcXLFrame = 0 ∧ hcSymp48 (hcBulk23 i) hcZLFrame = 0 ∧
       hcSymp48 (hcBulk23 i) hcXLWt8 = 0 ∧ hcSymp48 (hcBulk23 i) hcZLWt8 = 0) ∧
@@ -1284,7 +1284,7 @@ private theorem hc_actWF4_pure24_row (k : Fin 4) (i : Fin 24) (p : Fin 2) (r : F
     stabilizer witness (`d ≤ 6`).
     (Scope note: the exhaustive lower bound `d ≥ 6`, brute-force `42,504 / 42,504` 5-uniformity, and global
     optimality across all 13 `W(F_4)` / 9 `W(F_4)^+` local-Clifford classes are certified externally in
-    `test/breakthrough/covariant-gf3-holographic-tensors.ts`.) -/
+    `test/verify/covariant-gf3-holographic-tensors.ts`.) -/
 theorem thm_hc_code_24_0_6_lagrangian_wf4_covariant :
     (∀ i j : Fin 24, hcSymp48 (hcPure24 i) (hcPure24 j) = 0) ∧
     (∀ c : Fin 24 → Fin 3, (∀ p r, hcLinComb c hcPure24 p r = 0) → ∀ i : Fin 24, c i = ⟨0, by decide⟩) ∧
@@ -1370,7 +1370,7 @@ private theorem hc_r4_r5_ranks :
     with exact non-degenerate dual distances `d_⊥(R_4) = 2` (antipodal pair `e_0 + e_3 ∈ R_4^⊥ \ R_4`)
     and `d_⊥(R_5) = 3` (zero-sum `A_2` triple `e_0 + e_6 + e_15 ∈ R_5^⊥ \ R_5`).
     (Scope note: the complete 32-submodule CSS ceiling `d ≤ 3` is certified externally in
-    `test/breakthrough/covariant-gf3-holographic-tensors.ts` T2; untwisted non-CSS symplectic codes
+    `test/verify/covariant-gf3-holographic-tensors.ts` T2; untwisted non-CSS symplectic codes
     already surpass `d ≤ 3` to reach `d = 4` (`k = 0`) and `d = 6` (`k = 1`) in T3, whereas
     `S_3`-triality local-Clifford covariance is strictly required to surpass `d = 4`/`6` to `d = 6`/`8` in T4.) -/
 theorem thm_hc_native_d4_css_obstruction :

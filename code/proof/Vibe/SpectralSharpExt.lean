@@ -76,7 +76,7 @@ Lean's kernel to **`[913/80, 387141227/33670000]`** (`[11.4125, 11.498106]`, wid
      upward right-multiplication `w ↦ w s_0` and `W(F_4)`-transitivity across `b ∈ Fin 24` equating
      `⟨ψ, A ψ⟩` with `48 * sseCFExactUp0Quad`.
   4. Deeper Depth-3..5 Nagnibeda certificates (`ρ ≤ 11.443713`) and 2-step 4,440-triple CF lower bounds
-     (`ρ ≥ 11.439047`) live in `test/breakthrough/spectral-radius-deep-collapse.ts`.
+     (`ρ ≥ 11.439047`) live in `test/verify/spectral-radius-deep-collapse.ts`.
 -/
 
 set_option autoImplicit false
