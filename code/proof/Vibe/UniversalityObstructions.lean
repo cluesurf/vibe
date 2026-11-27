@@ -1029,9 +1029,7 @@ private theorem univ_disp_poly_identity (A p q : Int) :
         x3 * (x2 + 4 * (X * p) + 4 * p2) +
           (A * x2) * (p * ((x2 - 2 * (X * p) + p2) - (x2 + 4 * (X * p) + 4 * p2))) := by
       rw [Int.mul_add, Int.sub_mul, Int.mul_sub, ← Int.mul_assoc (A * x2) q, hAQq,
-          ← Int.mul_assoc (A * x2) p, ← Int.mul_assoc (A * x2) p,
-          Int.mul_sub (A * x2), Int.mul_sub p]
-      rw [Int.mul_assoc (A * x2) p, Int.mul_assoc (A * x2) p]
+          Int.mul_sub p, Int.mul_sub (A * x2)]
       omega
     rw [hDist]
     have hDiff : (x2 - 2 * (X * p) + p2) - (x2 + 4 * (X * p) + 4 * p2) =
@@ -1085,14 +1083,11 @@ private theorem univ_disp_inner_pos (A p q : Int) (hA : 4 ≤ A) (hp : 0 ≤ p) 
       change 2 * ((A * q) * p) = 2 * (A * (q * p)); ac_rfl
     have r1 : A * (2 * A * q * q) = 2 * (A * (A * (q * q))) := by ac_rfl
     have r2 : A * (2 * A * q * p) = 2 * (A * (A * (q * p))) := by ac_rfl
-    have r3 : A * (A * (q * q)) = A * (A * (q * q)) := rfl
     have r4 : A * (3 * (q * q)) = 3 * (A * (q * q)) := by ac_rfl
     have r5 : A * (2 * q * q) = 2 * (A * (q * q)) := by ac_rfl
     have r6 : A * (2 * q * p) = 2 * (A * (q * p)) := by ac_rfl
-    have r7 : A * (q * q) = A * (q * q) := rfl
-    have r8 : A * (q * p) = A * (q * p) := rfl
     have r9 : A * (p * q) = A * (q * p) := by ac_rfl
-    rw [t1, t2, t3, r1, r2, r3, r4, r5, r6, r7, r8, r9]; omega
+    rw [t1, t2, t3, r1, r2, r4, r5, r6, r9]; omega
   have hq2 : 0 < q * q := univ_mul_pos q q hq hq
   have h1 : 0 ≤ 2 * A * q * (q - p) := Int.mul_nonneg (Int.mul_nonneg (by omega) (by omega)) (by omega)
   have h2 : 0 < (A - 3) * (q * q) := univ_mul_pos (A - 3) (q * q) (by omega) hq2
@@ -1260,11 +1255,8 @@ theorem thm_univ_dispersion_floor_and_rapidity_nogo :
     have hId := univ_disp_poly_identity A p q
     have hInnerPos := univ_disp_inner_pos A p q hA4 hp hpq hq
     refine ⟨?_, ?_, ?_⟩
-    · have hNN : 0 ≤ p * (3 * (A * q * (A * q)) *
-          (3 * (A * q * (A * q)) - 2 * A * (A * q * p) - 2 * (A * q * p) - A * (p * p)) +
-          5 * (A * q) * (p * p) * (2 * (A * q) - p) + (p * p) * (p * p)) :=
-        Int.mul_nonneg hp (by omega)
-      dsimp only at hId hInnerPos
+    · have hNN := Int.mul_nonneg hp (univ_le_of_lt hInnerPos)
+      dsimp only at hId hNN
       omega
     · intro hp0
       dsimp only at hId
@@ -1457,6 +1449,13 @@ private def univYangApply (σ : Fin 6 → Fin 6) (w : Int) (v : Fin 6 → UnivGa
     UnivGauss :=
   UnivGauss.add (UnivGauss.mul ⟨w, 0⟩ (v r)) (UnivGauss.mul ⟨0, -1⟩ (v (σ r)))
 
+private theorem univ_gauss_add_comm (x y : UnivGauss) : UnivGauss.add x y = UnivGauss.add y x := by
+  cases x; cases y; simp only [UnivGauss.add, UnivGauss.mk.injEq]; exact ⟨by omega, by omega⟩
+
+private theorem univ_gauss_add_assoc (x y z : UnivGauss) :
+    UnivGauss.add (UnivGauss.add x y) z = UnivGauss.add x (UnivGauss.add y z) := by
+  cases x; cases y; cases z; simp only [UnivGauss.add, UnivGauss.mk.injEq]; exact ⟨by omega, by omega⟩
+
 private theorem univ_gauss_add_zero (x : UnivGauss) : UnivGauss.add x UnivGauss.zero = x := by
   cases x; simp only [UnivGauss.add, UnivGauss.zero, UnivGauss.mk.injEq]; exact ⟨by omega, by omega⟩
 
@@ -1466,56 +1465,59 @@ private theorem univ_gauss_zero_add (x : UnivGauss) : UnivGauss.add UnivGauss.ze
 private theorem univ_gauss_zero_mul (x : UnivGauss) : UnivGauss.mul UnivGauss.zero x = UnivGauss.zero := by
   cases x; simp only [UnivGauss.mul, UnivGauss.zero, UnivGauss.mk.injEq, Int.zero_mul]; exact ⟨by omega, by omega⟩
 
+private theorem univ_sum6G_add (f g : Fin 6 → UnivGauss) :
+    univSum6G (fun k => UnivGauss.add (f k) (g k)) = UnivGauss.add (univSum6G f) (univSum6G g) := by
+  have swap4 : ∀ a b c d : UnivGauss,
+      UnivGauss.add (UnivGauss.add a b) (UnivGauss.add c d) =
+        UnivGauss.add (UnivGauss.add a c) (UnivGauss.add b d) := by
+    intro a b c d
+    rw [univ_gauss_add_assoc a b (UnivGauss.add c d), ← univ_gauss_add_assoc b c d,
+        univ_gauss_add_comm b c, univ_gauss_add_assoc c b d,
+        ← univ_gauss_add_assoc a c (UnivGauss.add b d)]
+  unfold univSum6G
+  rw [swap4, swap4, swap4, swap4, swap4]
+
+private theorem univ_sum6G_delta (a : Fin 6) (va : UnivGauss) :
+    univSum6G (fun k => if k = a then va else UnivGauss.zero) = va := by
+  match a with
+  | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ | ⟨4, _⟩ | ⟨5, _⟩ =>
+    simp [univSum6G, univ_gauss_add_zero, univ_gauss_zero_add]
+
 private theorem univ_mat6GMul_yangR (σ : Fin 6 → Fin 6)
     (hInv : ∀ x : Fin 6, σ (σ x) = x) (hNoFix : ∀ x : Fin 6, σ x ≠ x)
     (w : Int) (B : Fin 6 → Fin 6 → UnivGauss) (r x : Fin 6) :
     univMat6GMul (univYangR σ w) B r x = univYangApply σ w (fun k => B k x) r := by
   have hTerm : ∀ k : Fin 6,
       UnivGauss.mul (univYangR σ w r k) (B k x) =
-        if k = r then UnivGauss.mul ⟨w, 0⟩ (B r x)
-        else if k = σ r then UnivGauss.mul ⟨0, -1⟩ (B (σ r) x)
-        else UnivGauss.zero := by
+        UnivGauss.add
+          (if k = r then UnivGauss.mul ⟨w, 0⟩ (B r x) else UnivGauss.zero)
+          (if k = σ r then UnivGauss.mul ⟨0, -1⟩ (B (σ r) x) else UnivGauss.zero) := by
     intro k
     unfold univYangR
     if hkr : k = r then
       have hne1 : σ k ≠ r := by rw [hkr]; exact hNoFix r
-      rw [univ_ite_pos hkr, univ_ite_pos hkr.symm, univ_ite_neg hne1, hkr]
+      have hne2 : k ≠ σ r := by rw [hkr]; exact fun e => hNoFix r e.symm
+      rw [univ_ite_pos hkr, univ_ite_neg hne2, univ_ite_pos hkr.symm, univ_ite_neg hne1,
+          hkr, univ_gauss_add_zero]
     else if hks : k = σ r then
       have heq : σ k = r := by rw [hks, hInv r]
-      rw [univ_ite_neg hkr, univ_ite_pos hks, univ_ite_neg (fun h => hkr h.symm), univ_ite_pos heq, hks]
+      rw [univ_ite_neg hkr, univ_ite_pos hks, univ_ite_neg (fun h => hkr h.symm),
+          univ_ite_pos heq, hks, univ_gauss_zero_add]
     else
       have hne2 : σ k ≠ r := by
         intro heq
         have := congrArg σ heq
         rw [hInv k] at this
         exact hks this
-      rw [univ_ite_neg hkr, univ_ite_neg hks, univ_ite_neg (fun h => hkr h.symm), univ_ite_neg hne2]
+      rw [univ_ite_neg hkr, univ_ite_neg hks, univ_ite_neg (fun h => hkr h.symm),
+          univ_ite_neg hne2, univ_gauss_add_zero]
       exact univ_gauss_zero_mul (B k x)
-  have hSumTwo : ∀ (a b : Fin 6) (hab : a ≠ b) (va vb : UnivGauss),
-      univSum6G (fun k => if k = a then va else if k = b then vb else UnivGauss.zero) =
-        UnivGauss.add va vb := by
-    intro a b hab va vb
-    cases va with | mk ar ai =>
-    cases vb with | mk br bi =>
-    unfold univSum6G
-    match a, b with
-    | ⟨0, _⟩, ⟨0, _⟩ | ⟨1, _⟩, ⟨1, _⟩ | ⟨2, _⟩, ⟨2, _⟩
-    | ⟨3, _⟩, ⟨3, _⟩ | ⟨4, _⟩, ⟨4, _⟩ | ⟨5, _⟩, ⟨5, _⟩ => exact absurd rfl hab
-    | ⟨0, _⟩, ⟨1, _⟩ | ⟨0, _⟩, ⟨2, _⟩ | ⟨0, _⟩, ⟨3, _⟩ | ⟨0, _⟩, ⟨4, _⟩ | ⟨0, _⟩, ⟨5, _⟩
-    | ⟨1, _⟩, ⟨0, _⟩ | ⟨1, _⟩, ⟨2, _⟩ | ⟨1, _⟩, ⟨3, _⟩ | ⟨1, _⟩, ⟨4, _⟩ | ⟨1, _⟩, ⟨5, _⟩
-    | ⟨2, _⟩, ⟨0, _⟩ | ⟨2, _⟩, ⟨1, _⟩ | ⟨2, _⟩, ⟨3, _⟩ | ⟨2, _⟩, ⟨4, _⟩ | ⟨2, _⟩, ⟨5, _⟩
-    | ⟨3, _⟩, ⟨0, _⟩ | ⟨3, _⟩, ⟨1, _⟩ | ⟨3, _⟩, ⟨2, _⟩ | ⟨3, _⟩, ⟨4, _⟩ | ⟨3, _⟩, ⟨5, _⟩
-    | ⟨4, _⟩, ⟨0, _⟩ | ⟨4, _⟩, ⟨1, _⟩ | ⟨4, _⟩, ⟨2, _⟩ | ⟨4, _⟩, ⟨3, _⟩ | ⟨4, _⟩, ⟨5, _⟩
-    | ⟨5, _⟩, ⟨0, _⟩ | ⟨5, _⟩, ⟨1, _⟩ | ⟨5, _⟩, ⟨2, _⟩ | ⟨5, _⟩, ⟨3, _⟩ | ⟨5, _⟩, ⟨4, _⟩ =>
-      simp only [UnivGauss.add, UnivGauss.zero, UnivGauss.mk.injEq]
-      exact ⟨by omega, by omega⟩
   unfold univMat6GMul univYangApply
   have hFun : (fun k => UnivGauss.mul (univYangR σ w r k) (B k x)) =
-      (fun k => if k = r then UnivGauss.mul ⟨w, 0⟩ (B r x)
-                else if k = σ r then UnivGauss.mul ⟨0, -1⟩ (B (σ r) x)
-                else UnivGauss.zero) := funext hTerm
-  rw [hFun]
-  exact hSumTwo r (σ r) (fun h => hNoFix r h.symm) _ _
+      (fun k => UnivGauss.add
+        (if k = r then UnivGauss.mul ⟨w, 0⟩ (B r x) else UnivGauss.zero)
+        (if k = σ r then UnivGauss.mul ⟨0, -1⟩ (B (σ r) x) else UnivGauss.zero)) := funext hTerm
+  rw [hFun, univ_sum6G_add, univ_sum6G_delta r _, univ_sum6G_delta (σ r) _]
 
 private theorem univ_s3_relations :
     (∀ x : Fin 6, univS12 (univS12 x) = x ∧ univS12 x ≠ x) ∧
@@ -1529,6 +1531,42 @@ private theorem univ_s3_relations :
     (∀ r : Fin 6, univS13 (univS23 r) = univS23 (univS12 r)) := by
   decide
 
+private theorem univ_yangApply_mk (w xr xi yr yi : Int) :
+    UnivGauss.add (UnivGauss.mul ⟨w, 0⟩ ⟨xr, xi⟩) (UnivGauss.mul ⟨0, -1⟩ ⟨yr, yi⟩) =
+      ⟨w * xr + yi, w * xi - yr⟩ := by
+  simp only [UnivGauss.add, UnivGauss.mul, UnivGauss.mk.injEq,
+    Int.zero_mul, Int.mul_zero, Int.neg_mul, Int.one_mul]
+  exact ⟨by omega, by omega⟩
+
+private theorem univ_yang_triple_core (a b c : Int) (hb : b = a + c)
+    (v0 v1 v2 v3 v4 v5 : UnivGauss) :
+    let app := fun (w : Int) (x y : UnivGauss) =>
+      UnivGauss.add (UnivGauss.mul ⟨w, 0⟩ x) (UnivGauss.mul ⟨0, -1⟩ y)
+    app a (app b (app c v0 v2) (app c v3 v4)) (app b (app c v1 v5) (app c v4 v3)) =
+      app c (app b (app a v0 v1) (app a v3 v5)) (app b (app a v2 v4) (app a v5 v3)) := by
+  cases v0 with | mk v0r v0i =>
+  cases v1 with | mk v1r v1i =>
+  cases v2 with | mk v2r v2i =>
+  cases v3 with | mk v3r v3i =>
+  cases v4 with | mk v4r v4i =>
+  cases v5 with | mk v5r v5i =>
+  dsimp only
+  simp only [univ_yangApply_mk, UnivGauss.mk.injEq, Int.mul_add, Int.mul_sub]
+  have e1 : a * (b * (c * v0r)) = c * (b * (a * v0r)) := by ac_rfl
+  have e2 : a * (b * (c * v0i)) = c * (b * (a * v0i)) := by ac_rfl
+  have e3 : a * (c * v3i) = c * (a * v3i) := by ac_rfl
+  have e4 : a * (c * v3r) = c * (a * v3r) := by ac_rfl
+  have e5 : a * (b * v2i) = b * (a * v2i) := by ac_rfl
+  have e6 : a * (b * v2r) = b * (a * v2r) := by ac_rfl
+  have e7 : b * (c * v1i) = c * (b * v1i) := by ac_rfl
+  have e8 : b * (c * v1r) = c * (b * v1r) := by ac_rfl
+  have h4r : b * v4r = a * v4r + c * v4r := by rw [hb, Int.add_mul]
+  have h4i : b * v4i = a * v4i + c * v4i := by rw [hb, Int.add_mul]
+  have h5r : b * v5r = a * v5r + c * v5r := by rw [hb, Int.add_mul]
+  have h5i : b * v5i = a * v5i + c * v5i := by rw [hb, Int.add_mul]
+  rw [e1, e2, e3, e4, e5, e6, e7, e8, h4r, h4i, h5r, h5i]
+  exact ⟨by omega, by omega⟩
+
 private theorem univ_yang_triple_apply (a c : Int) (v : Fin 6 → UnivGauss) (r : Fin 6) :
     univYangApply univS12 a (univYangApply univS13 (a + c) (univYangApply univS23 c v)) r =
       univYangApply univS23 c (univYangApply univS13 (a + c) (univYangApply univS12 a v)) r := by
@@ -1536,26 +1574,9 @@ private theorem univ_yang_triple_apply (a c : Int) (v : Fin 6 → UnivGauss) (r 
   unfold univYangApply
   rw [hS.2.2.2.1 r, hS.2.2.2.2.1 r, hS.2.2.2.2.2.1 r,
       hS.2.2.2.2.2.2.1 r, hS.2.2.2.2.2.2.2.1 r, hS.2.2.2.2.2.2.2.2 r]
-  cases v r with | mk v0r v0i =>
-  cases v (univS12 r) with | mk v1r v1i =>
-  cases v (univS23 r) with | mk v2r v2i =>
-  cases v (univS13 r) with | mk v3r v3i =>
-  cases v (univS12 (univS23 r)) with | mk v4r v4i =>
-  cases v (univS23 (univS12 r)) with | mk v5r v5i =>
-  simp only [UnivGauss.add, UnivGauss.mul, UnivGauss.mk.injEq,
-    Int.zero_mul, Int.mul_zero, Int.add_zero, Int.zero_add, Int.sub_zero,
-    Int.mul_add, Int.add_mul, Int.mul_sub, Int.sub_mul,
-    Int.neg_mul, Int.mul_neg, Int.one_mul, Int.mul_one, Int.neg_neg]
-  have e1 : a * ((a + c) * (c * v0r)) = c * ((a + c) * (a * v0r)) := by ac_rfl
-  have e2 : a * ((a + c) * (c * v0i)) = c * ((a + c) * (a * v0i)) := by ac_rfl
-  have e3 : a * (c * v3i) = c * (a * v3i) := by ac_rfl
-  have e4 : a * (c * v3r) = c * (a * v3r) := by ac_rfl
-  have e5 : a * ((a + c) * v2i) = (a + c) * (a * v2i) := by ac_rfl
-  have e6 : a * ((a + c) * v2r) = (a + c) * (a * v2r) := by ac_rfl
-  have e7 : (a + c) * (c * v1i) = c * ((a + c) * v1i) := by ac_rfl
-  have e8 : (a + c) * (c * v1r) = c * ((a + c) * v1r) := by ac_rfl
-  rw [e1, e2, e3, e4, e5, e6, e7, e8]
-  exact ⟨by omega, by omega⟩
+  exact univ_yang_triple_core a (a + c) c rfl
+    (v r) (v (univS12 r)) (v (univS23 r)) (v (univS13 r))
+    (v (univS12 (univS23 r))) (v (univS23 (univS12 r)))
 
 /-- Headline Theorem 4 (Straight-Worldline Crossing Ceiling, Symbolic `6 × 6` Yang-Baxter & Dim Separation):
     1. Straight-worldline no-double-crossing (distinct velocities intersect at most once), universal
@@ -2236,6 +2257,36 @@ private theorem univPairOf6_spec :
       p1 = p2) := by
   decide
 
+private def univOrderPairIdx {D : Nat} (u v : Fin D) (hne : u ≠ v) : Fin (D * (D - 1) / 2) :=
+  if h : u.val < v.val then
+    univTriPairIdx u v h
+  else
+    univTriPairIdx v u (by have hvn : u.val ≠ v.val := fun e => hne (Fin.ext e); omega)
+
+private theorem univOrderPairIdx_eq {D : Nat} (u1 v1 u2 v2 : Fin D) (h1 : u1 ≠ v1) (h2 : u2 ≠ v2)
+    (heq : univOrderPairIdx u1 v1 h1 = univOrderPairIdx u2 v2 h2) :
+    (u1 = u2 ∧ v1 = v2) ∨ (u1 = v2 ∧ v1 = u2) := by
+  unfold univOrderPairIdx at heq
+  if h1lt : u1.val < v1.val then
+    rw [univ_dite_pos h1lt] at heq
+    if h2lt : u2.val < v2.val then
+      rw [univ_dite_pos h2lt] at heq
+      exact Or.inl (univTriPairIdx_inj u1 v1 u2 v2 h1lt h2lt heq)
+    else
+      rw [univ_dite_neg h2lt] at heq
+      have ⟨ha, hb⟩ := univTriPairIdx_inj u1 v1 v2 u2 h1lt _ heq
+      exact Or.inr ⟨ha, hb⟩
+  else
+    rw [univ_dite_neg h1lt] at heq
+    if h2lt : u2.val < v2.val then
+      rw [univ_dite_pos h2lt] at heq
+      have ⟨ha, hb⟩ := univTriPairIdx_inj v1 u1 u2 v2 _ h2lt heq
+      exact Or.inr ⟨hb, ha⟩
+    else
+      rw [univ_dite_neg h2lt] at heq
+      have ⟨ha, hb⟩ := univTriPairIdx_inj v1 u1 v2 u2 _ _ heq
+      exact Or.inl ⟨hb, ha⟩
+
 /-- Headline Theorem 6 (Hyperbolic Geodesic 2-Plane Invariance, Unique Intersection & 4-Line Junction Cap):
     1. Directly on `Vibe.CoxeterTransport`: for ALL `a : Fin 24`,
        `k_a c_0 = c_0 + 2 n_a` and `k_a n_a = 2 c_0 + 5 n_a`.
@@ -2297,12 +2348,6 @@ theorem thm_univ_geodesic_2plane_and_junction_cap :
           thm_24_facet_dirs_isomorphic_to_d4 a1 a1,
           thm_24_facet_dirs_isomorphic_to_d4 a2 a1,
           univ_d4_noncollinear_dot.1 a1] at hF
-      have hSymDot : dot4 (d4RootOf a2) (d4RootOf a1) = d := by
-        dsimp only [d]; unfold dot4
-        cases d4RootOf a1; cases d4RootOf a2
-        simp only []
-        have c0 : _ * _ = _ * _ := Int.mul_comm _ _
-        omega
       have hDotComm : ∀ u v : Vec4, dot4 u v = dot4 v u := by
         intro u v
         rcases u with ⟨u0, u1, u2, u3⟩
@@ -2336,43 +2381,18 @@ theorem thm_univ_geodesic_2plane_and_junction_cap :
     let φ : Fin (6 * J) → Fin (D * (D - 1) / 2) := fun k =>
       let j : Fin J := ⟨k.val / 6, by have := k.isLt; omega⟩
       let p : Fin 6 := ⟨k.val % 6, by omega⟩
-      let u := junc j (univPairOf6 p).1
-      let v := junc j (univPairOf6 p).2
-      if hlt : u.val < v.val then
-        univTriPairIdx u v hlt
-      else
-        univTriPairIdx v u (by
-          have hne : u ≠ v := hDist j _ _ (univPairOf6_spec.1 p)
-          have hvn : u.val ≠ v.val := fun e => hne (Fin.ext e)
-          omega)
+      univOrderPairIdx (junc j (univPairOf6 p).1) (junc j (univPairOf6 p).2)
+        (hDist j _ _ (univPairOf6_spec.1 p))
     have h6J : 6 * J ≤ D * (D - 1) / 2 := by
       refine univ_fin_inj_le φ (fun k1 k2 hEq => ?_)
       let j1 : Fin J := ⟨k1.val / 6, by have := k1.isLt; omega⟩
       let p1 : Fin 6 := ⟨k1.val % 6, by omega⟩
       let j2 : Fin J := ⟨k2.val / 6, by have := k2.isLt; omega⟩
       let p2 : Fin 6 := ⟨k2.val % 6, by omega⟩
-      let u1 := junc j1 (univPairOf6 p1).1
-      let v1 := junc j1 (univPairOf6 p1).2
-      let u2 := junc j2 (univPairOf6 p2).1
-      let v2 := junc j2 (univPairOf6 p2).2
-      have hUnord : (u1 = u2 ∧ v1 = v2) ∨ (u1 = v2 ∧ v1 = u2) := by
-        dsimp only [φ] at hEq
-        by_cases h1 : u1.val < v1.val
-        · rw [dif_pos h1] at hEq
-          by_cases h2 : u2.val < v2.val
-          · rw [dif_pos h2] at hEq
-            exact Or.inl (univTriPairIdx_inj u1 v1 u2 v2 h1 h2 hEq)
-          · rw [dif_neg h2] at hEq
-            have ⟨ha, hb⟩ := univTriPairIdx_inj u1 v1 v2 u2 h1 _ hEq
-            exact Or.inr ⟨ha, hb⟩
-        · rw [dif_neg h1] at hEq
-          by_cases h2 : u2.val < v2.val
-          · rw [dif_pos h2] at hEq
-            have ⟨ha, hb⟩ := univTriPairIdx_inj v1 u1 u2 v2 _ h2 hEq
-            exact Or.inr ⟨hb, ha⟩
-          · rw [dif_neg h2] at hEq
-            have ⟨ha, hb⟩ := univTriPairIdx_inj v1 u1 v2 u2 _ _ hEq
-            exact Or.inl ⟨hb, ha⟩
+      have hUnord := univOrderPairIdx_eq
+        (junc j1 (univPairOf6 p1).1) (junc j1 (univPairOf6 p1).2)
+        (junc j2 (univPairOf6 p2).1) (junc j2 (univPairOf6 p2).2)
+        (hDist j1 _ _ (univPairOf6_spec.1 p1)) (hDist j2 _ _ (univPairOf6_spec.1 p2)) hEq
       have hjEq : j1 = j2 := by
         if hj : j1 = j2 then exact hj
         else
@@ -2395,7 +2415,7 @@ theorem thm_univ_geodesic_2plane_and_junction_cap :
       have hv2 : k1.val % 6 = k2.val % 6 := congrArg Fin.val hpEq
       exact Fin.ext (by omega)
     refine ⟨h6J, ?_⟩
-    have hDiv : ∀ (a m : Nat), 6 * a ≤ m / 2 → a ≤ m / 12 := fun _ _ _ => by omega
+    have hDiv : ∀ (a m : Nat), 6 * a ≤ m / 2 → a ≤ m / 12 := fun _ _ h => by omega
     exact hDiv J (D * (D - 1)) h6J
 
 
@@ -2557,15 +2577,22 @@ private theorem univ_mod2_centralInversion :
 
 private theorem univ_mod2_mul_id_right (A : UnivMat5Mod2) :
     univMat5Mod2Mul A (univKleinMat false false) = A := by
-  have h1 : ∀ (x : UnivZ2Mod2), UnivZ2Mod2.mul x UnivZ2Mod2.one = x := by decide
-  have h0 : ∀ (x : UnivZ2Mod2), UnivZ2Mod2.mul x UnivZ2Mod2.zero = UnivZ2Mod2.zero := by decide
-  have ha0 : ∀ (x : UnivZ2Mod2), UnivZ2Mod2.add x UnivZ2Mod2.zero = x := by decide
-  have h0a : ∀ (x : UnivZ2Mod2), UnivZ2Mod2.add UnivZ2Mod2.zero x = x := by decide
+  have hId : ∀ r c : Fin 5, univKleinMat false false r c =
+      if r = c then UnivZ2Mod2.one else UnivZ2Mod2.zero := by decide
+  have h1 : ∀ (x : UnivZ2Mod2), UnivZ2Mod2.mul x UnivZ2Mod2.one = x := by
+    intro x; cases x with | mk xa xb => cases xa <;> cases xb <;> rfl
+  have h0 : ∀ (x : UnivZ2Mod2), UnivZ2Mod2.mul x UnivZ2Mod2.zero = UnivZ2Mod2.zero := by
+    intro x; cases x with | mk xa xb => cases xa <;> cases xb <;> rfl
+  have ha0 : ∀ (x : UnivZ2Mod2), UnivZ2Mod2.add x UnivZ2Mod2.zero = x := by
+    intro x; cases x with | mk xa xb => cases xa <;> cases xb <;> rfl
+  have h0a : ∀ (x : UnivZ2Mod2), UnivZ2Mod2.add UnivZ2Mod2.zero x = x := by
+    intro x; cases x with | mk xa xb => cases xa <;> cases xb <;> rfl
   funext i j
   unfold univMat5Mod2Mul univSum5Mod2
+  simp only [hId]
   match j with
   | ⟨0, _⟩ | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩ | ⟨4, _⟩ =>
-    simp [univKleinMat, h1, h0, ha0, h0a]
+    simp [h1, h0, ha0, h0a]
 
 private theorem univ_mod2_transport_lines :
     ∀ l : Fin 12,
@@ -2645,10 +2672,10 @@ theorem thm_univ_mod2_triality_and_l7_bragg_gap :
       ((List.finRange 12).filter (fun l => univLineKlein l == (true, true))).length = 4 ∧
       ((List.finRange 12).filter (fun l => univLineKlein l == (true, false))).length = 4 ∧
       (∀ l : Fin 12, univLineKlein l ≠ (false, false))) ∧
-     ((∀ u v : Bool × Bool,
-        univKleinEta (xor u.1 v.1, xor u.2 v.2) = xor (univKleinEta u) (univKleinEta v) ∧
-        univKleinEta2 (xor u.1 v.1, xor u.2 v.2) = xor (univKleinEta2 u) (univKleinEta2 v) ∧
-        univKleinEta3 (xor u.1 v.1, xor u.2 v.2) = xor (univKleinEta3 u) (univKleinEta3 v)) ∧
+     ((∀ a1 b1 a2 b2 : Bool,
+        univKleinEta (xor a1 a2, xor b1 b2) = xor (univKleinEta (a1, b1)) (univKleinEta (a2, b2)) ∧
+        univKleinEta2 (xor a1 a2, xor b1 b2) = xor (univKleinEta2 (a1, b1)) (univKleinEta2 (a2, b2)) ∧
+        univKleinEta3 (xor a1 a2, xor b1 b2) = xor (univKleinEta3 (a1, b1)) (univKleinEta3 (a2, b2))) ∧
       ([(false, false), (false, true), (true, false), (true, true)].filter (fun u => !univKleinEta u)).length = 2 ∧
       ([(false, false), (false, true), (true, false), (true, true)].filter (fun u => !univKleinEta2 u)).length = 2 ∧
       ([(false, false), (false, true), (true, false), (true, true)].filter (fun u => !univKleinEta3 u)).length = 2 ∧
@@ -2693,7 +2720,8 @@ theorem thm_univ_mod2_triality_and_l7_bragg_gap :
     intro a1 b1 a2 b2 hne hEq
     have h42 := congrFun (congrFun hEq ⟨4, by decide⟩) ⟨2, by decide⟩
     have h43 := congrFun (congrFun hEq ⟨4, by decide⟩) ⟨3, by decide⟩
-    unfold univKleinMat at h42 h43
+    change (⟨false, a1⟩ : UnivZ2Mod2) = ⟨false, a2⟩ at h42
+    change (⟨false, b1⟩ : UnivZ2Mod2) = ⟨false, b2⟩ at h43
     have ha : a1 = a2 := congrArg UnivZ2Mod2.b h42
     have hb : b1 = b2 := congrArg UnivZ2Mod2.b h43
     exact hne (Prod.ext ha hb)
