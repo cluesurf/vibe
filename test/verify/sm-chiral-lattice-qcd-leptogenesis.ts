@@ -840,27 +840,46 @@ function buildDenseRingBundle(): DenseRingBundle {
   assert(dQ.length === 12, `Expected |Dic_3| = 12, got ${dQ.length}`)
   const gDic3 = dQ.map(eMat2ToQuat)
 
-  // Close Sigma(648) (order 648) in exact BigInt Z[zeta_9][1/3] so every matrix has full 53-bit precision
+  // Fast BFS closure of Sigma(648) in Float64 (recording exact BFS generator words for on-demand BigInt Z9Mat3!)
+  const mClock = z9Mat3ToM3(CLOCK_Z9)
+  const mShift = z9Mat3ToM3(SHIFT_Z9)
   const mHessV = z9Mat3ToM3(HESS_V_Z9)
+  const mPhaseT = z9Mat3ToM3(PHASE_T_Z9)
   const mT3 = z9Mat3ToM3(T3_Z9)
+  const s648GensM3: readonly M3[] = [mClock, mShift, mHessV, mPhaseT]
+  const s648GensZ9: readonly Z9Mat3[] = [CLOCK_Z9, SHIFT_Z9, HESS_V_Z9, PHASE_T_Z9]
 
-  const idZ9: Z9Mat3 = [Z9_ONE, Z9_ZERO, Z9_ZERO, Z9_ZERO, Z9_ONE, Z9_ZERO, Z9_ZERO, Z9_ZERO, Z9_ONE]
-  const sMapZ9 = new Map<string, Z9Mat3>([[z9mKey(idZ9), idZ9]])
-  const sQZ9: Z9Mat3[] = [idZ9]
-  for (let hd = 0; hd < sQZ9.length; hd++) {
-    const cur = sQZ9[hd]!
-    for (const g of [CLOCK_Z9, SHIFT_Z9, HESS_V_Z9, PHASE_T_Z9]) {
-      const nxt = z9mMul(cur, g)
-      const k = z9mKey(nxt)
-      if (!sMapZ9.has(k)) {
-        sMapZ9.set(k, nxt)
-        sQZ9.push(nxt)
+  const id = m3Id()
+  const sMap = new Map<string, number>([[m3Key(id), 0]])
+  const sQ: M3[] = [id]
+  const parentIdx: number[] = [-1]
+  const parentGen: number[] = [-1]
+  for (let hd = 0; hd < sQ.length; hd++) {
+    const cur = sQ[hd]!
+    for (let gi = 0; gi < 4; gi++) {
+      const nxt = m3PolishSU3(m3Mul(cur, s648GensM3[gi]!))
+      const k = m3Key(nxt)
+      if (!sMap.has(k)) {
+        sMap.set(k, sQ.length)
+        sQ.push(nxt)
+        parentIdx.push(hd)
+        parentGen.push(gi)
       }
     }
   }
-  assert(sQZ9.length === 648, `Expected |Sigma(648)| = 648, got ${sQZ9.length}`)
-  const sQ: M3[] = sQZ9.map(z9Mat3ToM3)
-  const id = m3Id()
+  assert(sQ.length === 648, `Expected |Sigma(648)| = 648, got ${sQ.length}`)
+  const idZ9: Z9Mat3 = [Z9_ONE, Z9_ZERO, Z9_ZERO, Z9_ZERO, Z9_ONE, Z9_ZERO, Z9_ZERO, Z9_ZERO, Z9_ONE]
+  const getS648Z9 = (idx: number): Z9Mat3 => {
+    const path: number[] = []
+    let cur = idx
+    while (cur > 0) {
+      path.push(parentGen[cur]!)
+      cur = parentIdx[cur]!
+    }
+    let M = idZ9
+    for (let k = path.length - 1; k >= 0; k--) M = z9mMul(M, s648GensZ9[path[k]!]!)
+    return M
+  }
 
   // Extract 216 center-reduced representatives Sigma(648)/Z_3
   const wR = -0.5
@@ -1001,7 +1020,7 @@ function buildDenseRingBundle(): DenseRingBundle {
 
   return {
     gS648: sQ,
-    gS648Z9: sQZ9,
+    getS648Z9,
     s648ModZ3,
     w1Cosets,
     w2Cosets,
@@ -2499,7 +2518,7 @@ function runGateG52(ring: DenseRingBundle): Map<number, Config3D> {
     }
   }
   assert(idxH1 > 0 && dF1 > 0.05 && dF1 < 0.15, `Failed to find g_1 with d_F in (0.05, 0.15), got ${dF1}`)
-  const g1Z9 = groupCommZ9(g0Z9, conjZ9(ring.gS648Z9[idxH1]!, g0Z9))
+  const g1Z9 = groupCommZ9(g0Z9, conjZ9(ring.getS648Z9(idxH1), g0Z9))
   const g1 = z9Mat3ToM3(g1Z9)
   dF1 = m3FrobDistToId(g1)
 
@@ -2514,7 +2533,7 @@ function runGateG52(ring: DenseRingBundle): Map<number, Config3D> {
     }
   }
   assert(idxH2 > 0 && dF2 > 0.01 && dF2 < 0.05, `Failed to find g_2 with d_F in (0.01, 0.05), got ${dF2}`)
-  const g2Z9 = groupCommZ9(g1Z9, conjZ9(ring.gS648Z9[idxH2]!, g1Z9))
+  const g2Z9 = groupCommZ9(g1Z9, conjZ9(ring.getS648Z9(idxH2), g1Z9))
   const g2 = z9Mat3ToM3(g2Z9)
   dF2 = m3FrobDistToId(g2)
 
@@ -2537,7 +2556,7 @@ function runGateG52(ring: DenseRingBundle): Map<number, Config3D> {
   const buildSu3Pool = (gen: M3): readonly M3[] => {
     const pool: M3[] = []
     for (let i = 0; i < 648; i += 9) {
-      const m = conjM3(ring.gS648[i]!, gen)
+      const m = m3PolishSU3(conjM3(ring.gS648[i]!, gen))
       pool.push(m, m3Dag(m))
     }
     return pool
@@ -2615,8 +2634,8 @@ function runGateG52(ring: DenseRingBundle): Map<number, Config3D> {
     const u2: Quat[] = Array.from({ length: 24 }, () => Q_ID)
     const u1PhaseK = new Int32Array(24) // exact integer power of eigenphase phi_0 = thetaW7
 
-    const nTherm = 160
-    const nMeas = 160
+    const nTherm = g >= 0.9 ? 240 : 140
+    const nMeas = g >= 0.9 ? 800 : 260
     let acc3Cnt = 0
     let acc2Cnt = 0
     let acc1Cnt = 0
@@ -2753,6 +2772,15 @@ function runGateG52(ring: DenseRingBundle): Map<number, Config3D> {
             if (sw >= nTherm) acc1Cnt++
           }
           if (sw >= nTherm) totSteps++
+        }
+      }
+      if (sw % 40 === 39) {
+        // Remove IEEE-754 mantissa roundoff (< 1e-14) accumulated across 40 products of exact ring matrices
+        for (let i = 0; i < 24; i++) {
+          u3[i] = m3PolishSU3(u3[i]!)
+          const q = u2[i]!
+          const invQ = 1 / Math.hypot(q[0], q[1], q[2], q[3])
+          u2[i] = [q[0] * invQ, q[1] * invQ, q[2] * invQ, q[3] * invQ]
         }
       }
       if (sw >= nTherm) {
@@ -5371,6 +5399,7 @@ function main(): void {
   console.log('=================================================================================')
 
   const ring = buildDenseRingBundle()
+  console.log(`  [Init] Dense cyclotomic ring bundle (Sigma(648), W_1=5832, W_2=36936, Dic_3) built in ${(performance.now() - T0_GLOBAL).toFixed(0)} ms`)
   runGateG51()
   const configs3D = runGateG52(ring)
   runGateG53(configs3D)
