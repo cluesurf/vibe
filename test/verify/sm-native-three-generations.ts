@@ -2323,8 +2323,9 @@ function runN4_2_and_N4_3(sys: D4System): OriginLocalizationResult {
           ui = z[1]
         }
 
-        // Track undirected nearest-neighbor links (sX, hi) <-> (sY, opp(hi))
-        const edgeKey = sX < sY || (sX === sY && hi < 12) ? `${sX}:${sY}:${hi}` : `${sY}:${sX}:${hi ^ 1}`
+        // Track undirected nearest-neighbor links (sX, hi) <-> (sY, hi ^ 3)
+        const oppHi = hi ^ 3
+        const edgeKey = sX < sY || (sX === sY && hi < oppHi) ? `${sX}:${sY}:${hi}` : `${sY}:${sX}:${oppHi}`
         seenUndir.add(edgeKey)
 
         const blk = hopBlocks[hi]!
@@ -2342,7 +2343,7 @@ function runN4_2_and_N4_3(sys: D4System): OriginLocalizationResult {
       }
     }
     // Check exact undirected count = 81 * 24 / 2 = 972
-    return { H0, linksChecked: (N_SITES * 24) / 2, allLinksZ9 }
+    return { H0, linksChecked: seenUndir.size, allLinksZ9 }
   }
 
   // Compact site-permutation + 4x4 spinor representation of unitary symmetry operators on C^{324}

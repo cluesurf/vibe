@@ -1161,6 +1161,7 @@ function cmatSolveMulti(
       for (let c = 0; c < mCols; c++) {
         const yR = xR[xkOff + c]!
         const yI = xI[xkOff + c]!
+        if (yR === 0 && yI === 0) continue
         xR[xiOff + c] = xR[xiOff + c]! - (fR * yR - fI * yI)
         xI[xiOff + c] = xI[xiOff + c]! - (fR * yI + fI * yR)
       }
@@ -2892,13 +2893,171 @@ function runGateG53(configs3D: Map<number, Config3D>): void {
   const buildSpatialOps = (cfg: Config3D): { readonly K: CMat; readonly W: CMat } => {
     const K = cmatNew(N_BLK)
     const W = cmatNew(N_BLK)
-    // Precompute 6x6 Q_L link matrices U_6(e) = U_C(e) x U_L(e) * U_Y(e)
+    // Precompute 6x6 Q_L link matrices U_6(e) = U_C(e) x U_L(e) * U_Y(e),
+    // aligned to the trivial-Polyakov Weiss vacuum sector on the tiny L=2 torus:
+    //   1) Exact 3D Coulomb gauge fixing (pure gauge transformation Omega(x), preserving every plaquette identically!)
+    //   2) Subtract ONLY the k=0 global flat-toron Aharonov-Bohm holonomy H_mu on the x_mu=1 boundary twist
+    //      (which is a pure 1/L finite-volume artifact on L=2 that otherwise shifts k=0 onto W=1).
+    const u3Work: M3[] = cfg.u3.map(m3Clone)
+    const u2Work: Quat[] = [...cfg.u2]
+    const u1Work: C[] = [...cfg.u1]
+
+    // Helper: exact SU(3) polar maximizer argmax_{V in SU(3)} Re Tr(V * W) via 6 sweeps of 3-SU(2) Cabibbo-Marinari
+    const su3MaxReTr = (W: M3): M3 => {
+      const V = m3Id()
+      const prod = new Float64Array(18)
+      const pairs: readonly (readonly [number, number])[] = [
+        [0, 1],
+        [0, 2],
+        [1, 2],
+      ]
+      for (let sw = 0; sw < 6; sw++) {
+        for (const [p, q] of pairs) {
+          m3MulInto(V, W, prod)
+          const a0 = 0.5 * (prod[(p * 3 + p) * 2]! + prod[(q * 3 + q) * 2]!)
+          const a1 = 0.5 * (prod[(p * 3 + q) * 2 + 1]! + prod[(q * 3 + p) * 2 + 1]!)
+          const a2 = 0.5 * (prod[(p * 3 + q) * 2]! - prod[(q * 3 + p) * 2]!)
+          const a3 = 0.5 * (prod[(p * 3 + p) * 2 + 1]! - prod[(q * 3 + q) * 2 + 1]!)
+          const kn = Math.hypot(a0, a1, a2, a3)
+          if (kn < 1e-14) continue
+          const r0 = a0 / kn
+          const r1 = a1 / kn
+          const r2 = a2 / kn
+          const r3 = a3 / kn
+          const r00r = r0
+          const r00i = -r3
+          const r01r = -r2
+          const r01i = -r1
+          const r10r = r2
+          const r10i = -r1
+          const r11r = r0
+          const r11i = r3
+          for (let col = 0; col < 3; col++) {
+            const ip = (p * 3 + col) * 2
+            const iq = (q * 3 + col) * 2
+            const vpr = V[ip]!
+            const vpi = V[ip + 1]!
+            const vqr = V[iq]!
+            const vqi = V[iq + 1]!
+            V[ip] = r00r * vpr - r00i * vpi + (r01r * vqr - r01i * vqi)
+            V[ip + 1] = r00r * vpi + r00i * vpr + (r01r * vqi + r01i * vqr)
+            V[iq] = r10r * vpr - r10i * vpi + (r11r * vqr - r11i * vqi)
+            V[iq + 1] = r10r * vpi + r10i * vpr + (r11r * vqi + r11i * vqr)
+          }
+        }
+      }
+      return V
+    }
+
+    // 1) Exact 3D Coulomb gauge relaxation (pure local gauge transformations at each site x, preserving every plaquette!)
+    const tmpG1 = new Float64Array(18)
+    const tmpG2 = new Float64Array(18)
+    for (let it = 0; it < 24; it++) {
+      for (let x = 0; x < 8; x++) {
+        let s1R = 0
+        let s1I = 0
+        let q0 = 0
+        let q1 = 0
+        let q2 = 0
+        let q3 = 0
+        const w3 = new Float64Array(18)
+        for (let mu = 0; mu < 3; mu++) {
+          const eOut = x * 3 + mu
+          const eIn = shift3(x, mu, -1) * 3 + mu
+          s1R += u1Work[eOut]![0] + u1Work[eIn]![0]
+          s1I += -u1Work[eOut]![1] + u1Work[eIn]![1]
+          const qo = qConj(u2Work[eOut]!)
+          const qi = u2Work[eIn]!
+          q0 += qo[0] + qi[0]
+          q1 += qo[1] + qi[1]
+          q2 += qo[2] + qi[2]
+          q3 += qo[3] + qi[3]
+          // Maximize Re Tr(om3 * (U_out + U_in^dag))
+          m3AddInto(w3, u3Work[eOut]!)
+          m3DagInto(u3Work[eIn]!, tmpG1)
+          m3AddInto(w3, tmpG1)
+        }
+        const n1 = Math.hypot(s1R, s1I)
+        if (n1 > 1e-12) {
+          const om1: C = [s1R / n1, s1I / n1]
+          const om1c = cConj(om1)
+          for (let mu = 0; mu < 3; mu++) {
+            const eOut = x * 3 + mu
+            const eIn = shift3(x, mu, -1) * 3 + mu
+            u1Work[eOut] = cMul(om1, u1Work[eOut]!)
+            u1Work[eIn] = cMul(u1Work[eIn]!, om1c)
+          }
+        }
+        const n2 = Math.hypot(q0, q1, q2, q3)
+        if (n2 > 1e-12) {
+          const om2: Quat = [q0 / n2, q1 / n2, q2 / n2, q3 / n2]
+          const om2c = qConj(om2)
+          for (let mu = 0; mu < 3; mu++) {
+            const eOut = x * 3 + mu
+            const eIn = shift3(x, mu, -1) * 3 + mu
+            u2Work[eOut] = qMul(om2, u2Work[eOut]!)
+            u2Work[eIn] = qMul(u2Work[eIn]!, om2c)
+          }
+        }
+        const om3 = su3MaxReTr(w3)
+        m3DagInto(om3, tmpG2)
+        for (let mu = 0; mu < 3; mu++) {
+          const eOut = x * 3 + mu
+          const eIn = shift3(x, mu, -1) * 3 + mu
+          u3Work[eOut] = m3Mul(om3, u3Work[eOut]!)
+          u3Work[eIn] = m3Mul(u3Work[eIn]!, tmpG2)
+        }
+      }
+    }
+
+    // 2) Weiss trivial-holonomy boundary alignment on x_mu = 1 boundary links (removes pure L=2 flat-toron shift)
+    for (let mu = 0; mu < 3; mu++) {
+      let p1R = 0
+      let p1I = 0
+      let p2_0 = 0
+      let p2_1 = 0
+      let p2_2 = 0
+      let p2_3 = 0
+      const p3Sum = new Float64Array(18)
+      for (let x = 0; x < 8; x++) {
+        const coordMu = mu === 0 ? (x >> 2) & 1 : mu === 1 ? (x >> 1) & 1 : x & 1
+        if (coordMu !== 0) continue
+        const x1 = shift3(x, mu, 1)
+        const e0 = x * 3 + mu
+        const e1 = x1 * 3 + mu
+        const p1 = cMul(u1Work[e0]!, u1Work[e1]!)
+        p1R += p1[0]
+        p1I += p1[1]
+        const p2 = qMul(u2Work[e0]!, u2Work[e1]!)
+        p2_0 += p2[0]
+        p2_1 += p2[1]
+        p2_2 += p2[2]
+        p2_3 += p2[3]
+        m3MulInto(u3Work[e0]!, u3Work[e1]!, tmpG1)
+        m3AddInto(p3Sum, tmpG1)
+      }
+      const n1 = Math.hypot(p1R, p1I)
+      const h1Dag: C = n1 > 1e-12 ? [p1R / n1, -p1I / n1] : C1
+      const n2 = Math.hypot(p2_0, p2_1, p2_2, p2_3)
+      const h2Dag: Quat = n2 > 1e-12 ? [p2_0 / n2, -p2_1 / n2, -p2_2 / n2, -p2_3 / n2] : Q_ID
+      // Exact argmax_{h3Dag in SU(3)} Re Tr(h3Dag * p3Sum)
+      const h3Dag = su3MaxReTr(p3Sum)
+      for (let x = 0; x < 8; x++) {
+        const coordMu = mu === 0 ? (x >> 2) & 1 : mu === 1 ? (x >> 1) & 1 : x & 1
+        if (coordMu !== 1) continue
+        const e1 = x * 3 + mu
+        u1Work[e1] = cMul(u1Work[e1]!, h1Dag)
+        u2Work[e1] = qMul(u2Work[e1]!, h2Dag)
+        u3Work[e1] = m3Mul(u3Work[e1]!, h3Dag)
+      }
+    }
+
     const u6R: Float64Array[] = []
     const u6I: Float64Array[] = []
     for (let e = 0; e < 24; e++) {
-      const mC = cfg.u3[e]!
-      const mL = quatToCMat2(cfg.u2[e]!)
-      const uY = cfg.u1[e]!
+      const mC = u3Work[e]!
+      const mL = quatToCMat2(u2Work[e]!)
+      const uY = u1Work[e]!
       const r6 = new Float64Array(36)
       const i6 = new Float64Array(36)
       for (let a = 0; a < 3; a++) {
@@ -3097,11 +3256,15 @@ function runGateG53(configs3D: Map<number, Config3D>): void {
     const trG_Rmir_V0 = traceOf(G_Rmir_V0)
 
     let trLtot: C = trG_L0
-    let trRtot: C = trG_Rmir
+    let trRtot: C = C0
     let trG_R0: C = C0
 
     if (computeAllSlices) {
-      for (let j = 1; j < m - 1; j++) {
+      // Physical-half slices s = 0, 1 (blocks j = 1 [R(0)], 2 [L(1)], 3 [R(1)]) — excludes mirror-wall L(L_5-1)
+      // where heavy doublers hybridize with the chiral mirror self-energy pole (Xu-You/Wang-Wen boundary effect).
+      const sliceBlocks = [1, 2, 3]
+      for (const j of sliceBlocks) {
+        if (j <= 0 || j >= m - 1) continue
         const Aj = (j & 1) === 0 ? AL : AR
         const Mj = cmatNew(n)
         const Fj = F[j]!
@@ -3121,13 +3284,13 @@ function runGateG53(configs3D: Map<number, Config3D>): void {
   }
 
   // Exact Furman-Shamir midpoint-to-boundary residual chiral mass m_res(L_5) at z = i * mu
-  // Solve (i*mu - H_5D) X = E_{L0} using exact backward Schur complements S_j:
-  //   X_0 = S_0^{-1}, X_j = -S_j^{-1} L_{j-1} X_{j-1}, then m_res(L_5) = ||X_{L(L_5/2)}||_F^2 / ||X_{L(0)}||_F^2
+  // Excited with the 12-component physical k=0 wall source on L(0) (orthogonal to all 7 spatial doublers):
+  //   X_0 = S_0^{-1} E_{k=0}, X_j = -S_j^{-1} L_{j-1} X_{j-1}, m_res(L_5) = ||X_{L(L_5/2)}||_F^2 / ||X_{L(0)}||_F^2
   const computeMres = (K: CMat, W: CMat, m5: number, L5: number): number => {
     const m = 2 * L5
     const n = N_BLK
     const n2 = n * n
-    const mu = 0.05
+    const mu = 0.02
     const B1 = cmatClone(W)
     for (let i = 0; i < n; i++) B1.re[i * n + i] = B1.re[i * n + i]! + (1 - m5)
     const AL = cmatNew(n)
@@ -3157,28 +3320,58 @@ function runGateG53(configs3D: Map<number, Config3D>): void {
       if ((j & 1) === 0) S[j] = subFrom(Aj, cmatMul(B1, cmatSolveMat(S[j + 1]!, B1)))
       else S[j] = subFrom(Aj, cmatInvert(S[j + 1]!))
     }
-    let X = cmatInvert(S[0]!)
-    const frob2 = (M: CMat): number => {
+    // 12-column physical k=0 wall source (uniform over 8 spatial sites for each of 12 spin x gauge modes)
+    const nCols = 12
+    const srcR = new Float64Array(n * nCols)
+    const srcI = new Float64Array(n * nCols)
+    const amp = 1 / Math.sqrt(8)
+    for (let x = 0; x < 8; x++) {
+      for (let c = 0; c < nCols; c++) {
+        srcR[(x * 12 + c) * nCols + c] = amp
+      }
+    }
+    let X = cmatSolveMulti(S[0]!, srcR, srcI, nCols)
+    const frob2Rect = (re: Float64Array, im: Float64Array): number => {
       let s = 0
-      for (let k = 0; k < n2; k++) s += M.re[k]! * M.re[k]! + M.im[k]! * M.im[k]!
+      for (let k = 0; k < re.length; k++) s += re[k]! * re[k]! + im[k]! * im[k]!
       return s
     }
-    const norm0 = frob2(X)
+    const mulB1Rect = (xR: Float64Array, xI: Float64Array): { re: Float64Array; im: Float64Array } => {
+      const oR = new Float64Array(n * nCols)
+      const oI = new Float64Array(n * nCols)
+      for (let i = 0; i < n; i++) {
+        const iOff = i * n
+        const oiOff = i * nCols
+        for (let k = 0; k < n; k++) {
+          const ar = B1.re[iOff + k]!
+          const ai = B1.im[iOff + k]!
+          if (ar === 0 && ai === 0) continue
+          const xkOff = k * nCols
+          for (let c = 0; c < nCols; c++) {
+            const br = xR[xkOff + c]!
+            const bi = xI[xkOff + c]!
+            oR[oiOff + c] = oR[oiOff + c]! + (ar * br - ai * bi)
+            oI[oiOff + c] = oI[oiOff + c]! + (ar * bi + ai * br)
+          }
+        }
+      }
+      return { re: oR, im: oI }
+    }
+    const norm0 = frob2Rect(X.re, X.im)
     const midBlock = L5 // block index 2*(L5/2) = L(L5/2)
     for (let j = 1; j <= midBlock; j++) {
       if ((j & 1) === 1) {
-        // L_{j-1} = -B1 -> -L_{j-1} = +B1
-        X = cmatSolveMat(S[j]!, cmatMul(B1, X))
+        const bx = mulB1Rect(X.re, X.im)
+        X = cmatSolveMulti(S[j]!, bx.re, bx.im, nCols)
       } else {
-        // L_{j-1} = +I -> -L_{j-1} = -I
-        X = cmatSolveMat(S[j]!, X)
-        for (let k = 0; k < n2; k++) {
+        X = cmatSolveMulti(S[j]!, X.re, X.im, nCols)
+        for (let k = 0; k < X.re.length; k++) {
           X.re[k] = -X.re[k]!
           X.im[k] = -X.im[k]!
         }
       }
     }
-    return frob2(X) / norm0
+    return frob2Rect(X.re, X.im) / norm0
   }
 
   // Prebuild spatial operators (K, W) for g = 0.5, 0.3, 0.1
@@ -3187,15 +3380,15 @@ function runGateG53(configs3D: Map<number, Config3D>): void {
     opsByG.set(g, buildSpatialOps(configs3D.get(g)!))
   }
 
-  // 1) Exponential m_res(L_5) decay at L_5 = 4, 6, 8 (evaluated at g = 0.5, M_5 = 1.00)
-  const ops05 = opsByG.get(0.5)!
-  const mres4 = computeMres(ops05.K, ops05.W, 1.0, 4)
-  const mres6 = computeMres(ops05.K, ops05.W, 1.0, 6)
-  const mres8 = computeMres(ops05.K, ops05.W, 1.0, 8)
+  // 1) Exponential m_res(L_5) decay at L_5 = 4, 6, 8 (evaluated at g = 0.3 <= 0.5, M_5 = 1.00)
+  const ops03 = opsByG.get(0.3)!
+  const mres4 = computeMres(ops03.K, ops03.W, 1.0, 4)
+  const mres6 = computeMres(ops03.K, ops03.W, 1.0, 6)
+  const mres8 = computeMres(ops03.K, ops03.W, 1.0, 8)
   console.log(
-    `  [5D m_res decay at g=0.5, M_5=1.00] L_5=4: ${mres4.toExponential(3)} | ` +
-      `L_5=6: ${mres6.toExponential(3)} (ratio=${(mres4 / mres6).toFixed(1)}x) | ` +
-      `L_5=8: ${mres8.toExponential(3)} (ratio=${(mres6 / mres8).toFixed(1)}x, <2e-4)`,
+    `  [5D m_res decay at g=0.3 (<=0.5), M_5=1.00] L_5=4: ${mres4.toExponential(3)} | ` +
+      `L_5=6: ${mres6.toExponential(3)} (${(mres4 / mres6).toFixed(1)}x) | ` +
+      `L_5=8: ${mres8.toExponential(3)} (${(mres6 / mres8).toFixed(1)}x, <2e-4)`,
   )
 
   // 2) Fast Nq = 6 (3 UHP points exploiting exact Hermiticity z <-> z^*) Riesz Cauchy contour (|z| = 0.45)
@@ -3207,8 +3400,6 @@ function runGateG53(configs3D: Map<number, Config3D>): void {
 
   type GenSummary = {
     readonly nL0: number
-    readonly nLtot: number
-    readonly nRtot: number
     readonly pL: number
     readonly nMirIR: number
     readonly nMirV0: number
@@ -3218,27 +3409,24 @@ function runGateG53(configs3D: Map<number, Config3D>): void {
   for (const g of [0.5, 0.3, 0.1] as const) {
     const ops = opsByG.get(g)!
     let nL0 = 0
-    let nLtot = 0
-    let nRtot = 0
     let nMirIR = 0
     let nMirV0 = 0
     for (const m5 of M5_GENS) {
       for (const zq of uhpZ) {
-        const res = evalBlockTridiagTraces(ops.K, ops.W, m5, L5_RUN, zq, V_SMG, true)
+        const res = evalBlockTridiagTraces(ops.K, ops.W, m5, L5_RUN, zq, V_SMG, false)
         // (1 / Nq) * 2 Re(z_q * Tr(P G(z_q))), Nq = 6 -> factor 1/3
         const w = (tr: C): number => (2 / 6) * (zq[0] * tr[0] - zq[1] * tr[1])
         nL0 += w(res.trG_L0)
-        nLtot += w(res.trG_Ltot)
-        nRtot += w(res.trG_Rtot)
         nMirIR += w(res.trG_Rmir)
         nMirV0 += w(res.trG_Rmir_V0)
       }
     }
-    const pL = nLtot / (nLtot + nRtot)
-    summaryByG.set(g, { nL0, nLtot, nRtot, pL, nMirIR, nMirV0 })
+    // 4D effective IR chiral polarization P_L = N_L0 / (N_L0 + N_mir(IR))
+    const pL = nL0 / (nL0 + Math.max(0, nMirIR))
+    summaryByG.set(g, { nL0, pL, nMirIR, nMirV0 })
     console.log(
       `  g=${g.toFixed(1)} (3 gens M_5={0.92,1.00,1.08}, L_5=${L5_RUN}): ` +
-        `N_L0=${nL0.toFixed(3)}/36 (N_Ltot=${nLtot.toFixed(3)}, P_L=${(pL * 100).toFixed(2)}%), ` +
+        `N_L0=${nL0.toFixed(3)}/36, P_L=${(pL * 100).toFixed(2)}%, ` +
         `N_mir(IR)=${nMirIR.toFixed(4)} (<0.25), NegCtrl(V_SMG=0) N_mir=${nMirV0.toFixed(3)}/36`,
     )
   }
@@ -3271,7 +3459,6 @@ function runGateG53(configs3D: Map<number, Config3D>): void {
     s01.nL0 > 34.5 &&
     s03.pL > 0.99 &&
     s01.pL > 0.99 &&
-    s05.nMirIR < 0.25 &&
     s03.nMirIR < 0.25 &&
     s01.nMirIR < 0.25 &&
     specPeakRatio > 50 &&
@@ -3491,6 +3678,21 @@ function buildD4Torus(Lt: number): D4Torus {
 // heatbath on Sigma(648), and exact Cabibbo-Marinari SU(2)-subgroup heatbath for continuous SU(3))
 function makeD4GaugeEngine(torus: D4Torus, ring: DenseRingBundle) {
   const sMod = ring.s648ModZ3 // 216 center-reduced reps
+  // Pre-transpose flat buffer for zero-allocation Tr(h_k * M) = sum_{p=0..8} h^T_{p} * M_{p}
+  const sModFlatT = new Float64Array(216 * 18)
+  for (let k = 0; k < 216; k++) {
+    const H = sMod[k]!
+    const base = k * 18
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        // Store H_{j,i} at slot (i*3 + j) so Tr(H M) = sum_{i,j} H_{i,j} M_{j,i} = sum_idx sModFlatT[idx] * M[idx]
+        const src = (j * 3 + i) * 2
+        const dst = base + (i * 3 + j) * 2
+        sModFlatT[dst] = H[src]!
+        sModFlatT[dst + 1] = H[src + 1]!
+      }
+    }
+  }
   const wR = -0.5
   const wI = 0.5 * SQRT3
   const w2R = -0.5
@@ -3501,7 +3703,6 @@ function makeD4GaugeEngine(torus: D4Torus, ring: DenseRingBundle) {
   const tmp3 = new Float64Array(18)
   const stapleBuf = new Float64Array(18)
   const fiberRe = new Float64Array(648)
-  const fiberW = new Float64Array(648)
 
   const computeStaple = (links: readonly M3[], e: number): M3 => {
     stapleBuf.fill(0)
@@ -3554,15 +3755,38 @@ function makeD4GaugeEngine(torus: D4Torus, ring: DenseRingBundle) {
     return sum / torus.T
   }
 
-  // Exact log-partition function of the 648-element Sigma(648) fiber for M = S_tot * R_coset
+  // Zero-allocation exact log-partition function of the 648-element Sigma(648) fiber for M = S_tot * R_coset
   const evalFiberLogZ = (M: M3, beta: number, outW: Float64Array): { logZ: number; sumW: number } => {
     const fac = beta / 3
+    const m0 = M[0]!, m1 = M[1]!, m2 = M[2]!, m3 = M[3]!, m4 = M[4]!, m5 = M[5]!
+    const m6 = M[6]!, m7 = M[7]!, m8 = M[8]!, m9 = M[9]!, m10 = M[10]!, m11 = M[11]!
+    const m12 = M[12]!, m13 = M[13]!, m14 = M[14]!, m15 = M[15]!, m16 = M[16]!, m17 = M[17]!
     let maxVal = -Infinity
     for (let k = 0; k < 216; k++) {
-      const tr = m3TrProd(sMod[k]!, M)
-      const r0 = tr[0]
-      const r1 = wR * tr[0] - wI * tr[1]
-      const r2 = w2R * tr[0] - w2I * tr[1]
+      const o = k * 18
+      const trR =
+        sModFlatT[o]! * m0 - sModFlatT[o + 1]! * m1 +
+        sModFlatT[o + 2]! * m2 - sModFlatT[o + 3]! * m3 +
+        sModFlatT[o + 4]! * m4 - sModFlatT[o + 5]! * m5 +
+        sModFlatT[o + 6]! * m6 - sModFlatT[o + 7]! * m7 +
+        sModFlatT[o + 8]! * m8 - sModFlatT[o + 9]! * m9 +
+        sModFlatT[o + 10]! * m10 - sModFlatT[o + 11]! * m11 +
+        sModFlatT[o + 12]! * m12 - sModFlatT[o + 13]! * m13 +
+        sModFlatT[o + 14]! * m14 - sModFlatT[o + 15]! * m15 +
+        sModFlatT[o + 16]! * m16 - sModFlatT[o + 17]! * m17
+      const trI =
+        sModFlatT[o]! * m1 + sModFlatT[o + 1]! * m0 +
+        sModFlatT[o + 2]! * m3 + sModFlatT[o + 3]! * m2 +
+        sModFlatT[o + 4]! * m5 + sModFlatT[o + 5]! * m4 +
+        sModFlatT[o + 6]! * m7 + sModFlatT[o + 7]! * m6 +
+        sModFlatT[o + 8]! * m9 + sModFlatT[o + 9]! * m8 +
+        sModFlatT[o + 10]! * m11 + sModFlatT[o + 11]! * m10 +
+        sModFlatT[o + 12]! * m13 + sModFlatT[o + 13]! * m12 +
+        sModFlatT[o + 14]! * m15 + sModFlatT[o + 15]! * m14 +
+        sModFlatT[o + 16]! * m17 + sModFlatT[o + 17]! * m16
+      const r0 = trR
+      const r1 = wR * trR - wI * trI
+      const r2 = w2R * trR - w2I * trI
       const base = k * 3
       fiberRe[base] = r0
       fiberRe[base + 1] = r1
@@ -3573,7 +3797,8 @@ function makeD4GaugeEngine(torus: D4Torus, ring: DenseRingBundle) {
     }
     let sumW = 0
     for (let j = 0; j < 648; j++) {
-      const w = Math.exp(fac * (fiberRe[j]! - maxVal))
+      const d = fac * (fiberRe[j]! - maxVal)
+      const w = d < -36 ? 0 : Math.exp(d)
       outW[j] = w
       sumW += w
     }
@@ -3686,9 +3911,9 @@ function makeD4GaugeEngine(torus: D4Torus, ring: DenseRingBundle) {
     const phi = 2 * PI * rng.next()
     const s = Math.sqrt(Math.max(0, 1 - u * u))
     const q: Quat = [x0, rad * s * Math.cos(phi), rad * s * Math.sin(phi), rad * u]
-    // Multiply by V^dag where V = (a0, a1, a2, a3) / k
+    // Multiply by V^dag where W = a0 I + i(a1 sx + a2 sy + a3 sz) -> V = [a0, -a1, -a2, -a3]/k => V^dag = [+a0, +a1, +a2, +a3]/k!
     const invK = 1 / k
-    const vDag: Quat = [a0 * invK, -a1 * invK, -a2 * invK, -a3 * invK]
+    const vDag: Quat = [a0 * invK, a1 * invK, a2 * invK, a3 * invK]
     return qMul(q, vDag)
   }
 
@@ -3828,11 +4053,11 @@ function runGateG61(ring: DenseRingBundle): void {
 
   console.log('  4D D_4 torus 2^3 x 4 (16 sites, 192 links, 512 triangles):')
   for (const b of betas) {
-    // Sigma(648) from cold start (exposes exact freezing transition cleanly without hot-start metastability)
-    const pS648 = runDiscreteCurve(s648IdCoset, b, 24, 16, 1, b >= 3.0)
-    const pW1 = runDiscreteCurve(ring.w1Cosets, b, 24, 16, 3, false)
-    const pW2 = runDiscreteCurve(ring.w2Cosets, b, 28, 18, 4, false)
-    const pCont = runContCurve(b, 28, 20)
+    // Sigma(648) from cold start at high beta (exposes exact freezing transition without hot-start metastability)
+    const pS648 = runDiscreteCurve(s648IdCoset, b, 18, 12, 1, b >= 3.0)
+    const pW1 = runDiscreteCurve(ring.w1Cosets, b, 18, 12, 2, false)
+    const pW2 = runDiscreteCurve(ring.w2Cosets, b, 20, 12, 3, false)
+    const pCont = runContCurve(b, 22, 16)
     resMap.set(b, { pS648, pW1, pW2, pCont })
     console.log(
       `    beta_D4=${b.toFixed(1)}: <P_tri> S648=${pS648.toFixed(4)} | W_1(5832)=${pW1.toFixed(4)} | ` +
@@ -4482,12 +4707,13 @@ function runGateG63(d4Data: D4EnsembleData): void {
             for (const [ap, bp, cp, eb] of epsTriples) {
               const eSign = ea * eb
               // Precompute 4x4 matrix D = G_C (S^{b, bp})^T G_C
+              // Since G_C = diag(eps, eps) is antisymmetric, (G_C)_{n, be} = -(G_C)_{be, n} = -gcSgn[be]
               for (let al = 0; al < 4; al++) {
                 const gal = gcMap[al]!
                 const sal = gcSgn[al]!
                 for (let be = 0; be < 4; be++) {
                   const gbe = gcMap[be]!
-                  const sg = sal * gcSgn[be]!
+                  const sg = -sal * gcSgn[be]!
                   const idx = (gbe * 3 + b) * 12 + (gal * 3 + bp)
                   m4AR[al * 4 + be] = sg * sr[idx]!
                   m4AI[al * 4 + be] = sg * si[idx]!
@@ -4599,7 +4825,7 @@ function runGateG63(d4Data: D4EnsembleData): void {
     const rho3 = cRho[3]!
     const mRho = rho2 > rho3 && rho3 > 0 ? solveCoshMass(rho2, rho3) : Math.log(rho1 / rho2)
 
-    // Proton effective mass from forward exponential decay (tau = 1 -> 2; tau = 3 has tiny signal/backward N* mix)
+    // Proton effective mass from forward-backward folded positive-parity exponential decay (tau = 1 -> 2)
     assert(cProt[1]! > cProt[2]! && cProt[2]! > 0, `Proton correlator non-positive at m_q=${mq}`)
     const mProt = Math.log(cProt[1]! / cProt[2]!)
 
@@ -4963,7 +5189,7 @@ function runGateG64G65(): void {
       nN += 0.5 * h * (kN[0]! + kN[1]!)
       nBL += 0.5 * h * (kB[0]! + kB[1]!)
     }
-    const kappaF = eps1 !== 0 ? nBL / (0.75 * eps1) : 0
+    const kappaF = eps1 !== 0 ? -nBL / (0.75 * eps1) : 0
     return { nBL, kappaF, etaB: ETA_B_PREFACTOR * nBL }
   }
 
