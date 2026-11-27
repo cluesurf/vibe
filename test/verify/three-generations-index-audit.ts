@@ -1,3 +1,14 @@
+// ============================================================================
+// RETIREMENT NOTICE (G4 RETIRED — HISTORICAL NEGATIVE-CONTROL ARCHIVE):
+//   Part G4 below (the bolted-on range-3 B_3 6-parameter Bloch-Toeplitz existence
+//   hack) is RETIRED and replaced by the zero-hack, strictly 1-hop native D_4
+//   outer-triality orbifold derivation (T^4_{D_4} / <L(q_3)> + unique primitive
+//   Kaehler flux F_prim, Pf = 6, ind = (0, 3, 3), 2T_R = SL(2,3) -> 1 (+) 2'')
+//   certified in `test/verify/sm-native-three-generations.ts` (gates N1.1..N5.1).
+//   This file is preserved untouched and runnable as the historical G1..G3
+//   negative-control archive and G4 retirement reference.
+// ============================================================================
+//
 // STANDARD MODEL CLOSURE TRACK 2 — THREE GENERATIONS INDEX & NO-GO AUDIT (G1..G4)
 //
 // Strictly deterministic (ZERO Math.random), zero external imports, strict TypeScript,
