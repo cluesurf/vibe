@@ -12,30 +12,35 @@ Zero-dependency Lean 4.35.0 formalization of the seven headline obstruction and
 exact algebraic witness theorems for bare `U = S ∘ Φ_odd ∘ D ∘ M_meet ∘ M_pair(ζ_18) ∘ K ∘ D ∘ Φ_odd`
 on the infinite `{3,4,3,4}` hyperbolic honeycomb:
 
-1. **All-Time `ℤ_2^{216}` Line-Parity & Role-Multiset Conservation (`thm_univ_z216_parity_and_role_multiset_all_time`):**
+1. **All-Time Line-Parity & Role-Multiset Conservation (`thm_univ_z216_parity_and_role_multiset_all_time`):**
    Directly on the literal 8-layer infinite-honeycomb Fock unitary `fockBeat χ` (`∀ t : Nat`),
-   certifies all-time conservation of total activity `N_act`, all per-(tone, role) integer counts,
-   and all per-line per-tone per-role `ℤ_2` parities `P_{l, τ, r} : Bool`, together with the
-   odd-parity non-evacuation corollary (`iter (fockBeat χ) t |c₀⟩` has strictly zero amplitude outside
-   its odd-parity sector, and in particular whenever line `l₀` is emptied) and the 9-role parity
-   dimension `12 * 2 * 9 = 216`.
+   where `Vibe/Fock/State.lean` defines `SlotState.occ (s : Sign) (r : Bool)` with **2 roles**
+   (`r : Bool`), certifies all-time conservation of total activity `N_act`, all `2 × 2 = 4`
+   per-(tone, role) integer counts, and all `12 × 2 × 2 = 48` per-line per-tone per-role `ℤ_2`
+   parities `P_{l, τ, r} : Bool` (`ℤ_2^{48}`), together with the odd-parity non-evacuation
+   corollary (`iter (fockBeat χ) t |c₀⟩` has strictly zero amplitude outside its odd-parity sector,
+   and in particular whenever line `l₀` is emptied) and the 9-role parity-space arithmetic
+   `12 * 2 * 9 = 216` (`ℤ_2^{216}`, verified verbatim on all 9 roles in 4D exact `BigInt` in
+   `test/verify/bare-u-periodic-mirrors-and-bounds.ts` Pillar B1c).
 
 2. **Universal `k`-String Dispersion Floor & Rapidity No-Go (`thm_univ_dispersion_floor_and_rapidity_nogo`):**
    - Exact cleared-denominator `k`-string dispersion floor for ALL `k ≥ 1` and ALL rational
      `y = cos^2 P = p / q ∈ [0, 1]`, with equality at `p = 0` and strict inequality for `p > 0`,
      certifying `(v'_k)^2 + (v''_k)^2 ≥ 9 k^4 / (3 k^2 + 1)^3 > 0`.
-   - Exact global `k = 1` speed-gap polynomial identities (`+8 p q` and `-8 p q` sign twins) and
-     nonnegativity across `-q ≤ p ≤ q`.
+   - Exact global `k = 1` speed-gap quartic polynomial identities (`+8 p q` and `-8 p q` sign twins)
+     and nonnegativity across `-q ≤ p ≤ q` (`p / q = sin P`), certifying the sharp speed-gap bound
+     `1 / 2 - |v_1(P)| ≥ (3 / 8) cos^2 P / √(3 + sin^2 P)` across the entire Brillouin zone.
    - Exact Rapidity-Velocity 2-to-1 Law (`v(u_1) = v(u_2) ↔ u_1 = u_2 ∨ 3 u_1 u_2 = 1`),
      speed-cap square identity `(3 a^2 + b^2)^2 - 12 a^2 b^2 = (3 a^2 - b^2)^2 ≥ 0`,
      and exact `W_0` rapidity-additivity contradiction (`uA - uC = -r ∧ uC - uD = r → uA = uD`).
 
 3. **`M_pair(ζ_18)` Diffraction Ceiling, Grover Cap & 9-Role Pigeonhole (`thm_univ_mpair_ceiling_and_role_pigeonhole`):**
    Bridged directly to `Vibe.CompositeTrion.cotSqZeta18` and `thm_ct_mpair_gap_margin`:
-   certifies `837 / 10^6 < P_hop < 838 / 10^6` in cleared integer form, `P_off = 11 * P_hop`,
-   exact `10 / 11` unwanted diffraction, universal Grover cap `(x - r)^2 + y^2 ≤ 4 r^2`
-   (`P_hop ≤ 1 / 36`), coherent `m`-line focusing `m * P_hop < 1 / 100` for `1 ≤ m ≤ 11`,
-   and the constructive 9-role pigeonhole theorem `∀ n ≥ 4, ∀ f : Fin (3 * n) → Fin 9, ∃ i ≠ j, f i = f j`.
+   certifies `837 / 10^6 < P_hop < 838 / 10^6` in cleared integer form, `P_off = 11 * P_hop`
+   with exact `10 / 11` unwanted diffraction (`11 * gapSq = gapSq + 10 * gapSq`), universal Grover
+   cap `(x - r)^2 + y^2 ≤ 4 r^2` (`P_hop ≤ 1 / 36`), coherent `m`-line focusing
+   `m * P_hop < 1 / 100` for `1 ≤ m ≤ 11`, and the constructive 9-role pigeonhole theorem
+   `∀ n ≥ 4, ∀ f : Fin (3 * n) → Fin 9, ∃ i ≠ j, f i = f j`.
 
 4. **Straight-Worldline Crossing Ceiling, Symbolic `6 × 6` Yang-Baxter & Parameter-Dimension Separation
    (`thm_univ_yb_crossing_and_dim_ceiling`):**
@@ -50,8 +55,10 @@ on the infinite `{3,4,3,4}` hyperbolic honeycomb:
    - Directly on `FockUnitary` (and instantiated on `fockBeatUnit χ`): any unitary fixed point
      `U.op ψ_halt = ψ_halt` can never be reached from any `φ ≠ ψ_halt` in any finite time `t`.
    - Exact Eisenstein `ℤ[ω]` `6 × 6` matrix `4 * W_0` on `C(4, 2) = 6`: certifies
-     `(4 W_0)† (4 W_0) = (4 W_0) (4 W_0)† = 16 I_6` and exact leakage clearance
-     `⟨L | (4 W_0) | L⟩ = 0` for `|L⟩ = (-1, -1, -1, 1, 1, 1)`.
+     `(4 W_0)† (4 W_0) = (4 W_0) (4 W_0)† = 16 I_6`, self-certifies `|L⟩ = (-1, -1, -1, 1, 1, 1)`
+     as the unique `(j_{123} = 3/2, j_{0123} = 1)` leakage eigenvector via
+     `4 S_{123}^2 |L⟩ = 15 |L⟩` and `S_{0123}^2 |L⟩ = 2 |L⟩`, and proves exact leakage clearance
+     `⟨L | (4 W_0) | L⟩ = 0`.
 
 6. **Hyperbolic Geodesic 2-Plane Invariance, Unique Intersection & 4-Line `Φ_odd` Junction Cap
    (`thm_univ_geodesic_2plane_and_junction_cap`):**
@@ -67,11 +74,42 @@ on the infinite `{3,4,3,4}` hyperbolic honeycomb:
      `ℤ_2 × ℤ_2`, partitioning `Fin 12` into the three `D_4` triality frames (`4 + 4 + 4`), with
      exact index-2 characters `η : ℤ_2 × ℤ_2 → ℤ_2`.
    - Exact 2-beat Floquet Bloch transfer identities for `S C S C` (`(cos(2 k_1) - 3) / 4`) and
-     bipartite `S L_7^{(-)} S L_7^{(+)}` (`(3 + 2 cos(2 k_2)) / 8`) plus the omnidirectional `5 / 8`
-     band-gap inequality `(3 q + 2 c_2) * 4 - (c_1 - 3 q) * 8 ≥ 5 q * 4` for all `c_1, c_2 ∈ [-q, q]`.
-   - Exact `ℤ[ω]` 1-dock qubit cavity period-12 identities (`(2 U_{cav,2})^6 = 64 I_2`,
-     `(2 U_{cav,2})^{12} = 4096 I_2` for the 2-beat `K`-wall return map `(-ω X) C`, and minimal
-     order-12 `(2 U_{cav,12})^6 = -64 I_2`, `(2 U_{cav,12})^{12} = 4096 I_2` for `Z X C`).
+     bipartite `S L_7^{(-)} S L_7^{(+)}` (`(3 + 2 cos(2 k_2)) / 8`, with `det(2 L_7^{(±)}) = det(2 C) = 4 ω`
+     and zero beat-alternating global phase), plus the omnidirectional `5 / 8` band-gap inequality
+     `(3 q + 2 c_2) * 4 - (c_1 - 3 q) * 8 ≥ 5 q * 4` for all `c_1, c_2 ∈ [-q, q]`.
+   - Exact `ℤ[ω]` 1-dock qubit cavity period-12 compacton identities: derives `2 (D M_meet D) = 2 (det D)^2 M_meet = 2 ω Z C Z`
+     from `halfCoin2`, `coin2`, and `univMeet2`; forms the exact 2-beat return map
+     `univCav2Beat2 = (ω^2 X) (2 D M_meet D) = 2 ω D`; certifies exact characteristic polynomial
+     `(univCav2Beat2 + 2 I)(univCav2Beat2 - 2 ω I) = 0` (background-relative eigenvalues `(-1, +ω)`);
+     and proves exact minimal order 6 in 2-beat steps (`M^3 = 8 X`, `M^6 = 64 I_2`, `M^2 ≠ 4 I_2`,
+     `M^3 ≠ 8 I_2` — minimal period 12 in 1-beat steps!) for BOTH `univCav2Beat2 = 2 ω D` and the
+     verbatim `M = 4` 4D `BigInt` 2-beat map `halfCoin2 = 2 D`.
+
+## Honest Scope Boundary
+
+This file machine-checks the exact finite, algebraic, combinatorial, and Fock-space statements above
+in zero-dependency Lean 4.35.0. The following analytic, multi-role, and 4D-crystal reduction bridges
+lie **outside** this Lean module and remain external results of the companion derivations
+(`note/project/vibe/research/wave5/` and `test/verify/bare-u-periodic-mirrors-and-bounds.ts`):
+
+- **2-role (`ℤ_2^{48}`) vs 9-role (`ℤ_2^{216}`) Fock formalization**: `Vibe/Fock/State.lean`
+  encodes `SlotState.occ (s : Sign) (r : Bool)` with 2 roles, so Theorem 1 proves all-time
+  conservation of the `4` per-(tone, role) counts and `12 × 2 × 2 = 48` line parities (`ℤ_2^{48}`)
+  directly on `fockBeat χ`. Extending the identical per-role parity law to the 9-role Fock space
+  gives `12 × 2 × 9 = 216` (`ℤ_2^{216}`), verified verbatim in exact 4D `BigInt` in
+  `test/verify/bare-u-periodic-mirrors-and-bounds.ts` Pillar B1c.
+- **Cleared-denominator integer-to-real trigonometric & dispersion bridges**: Theorems 2, 3, and
+  7 Part 2 prove exact cleared-denominator integer inequalities for arbitrary rational surrogates
+  (`y = cos^2 P = p / q ∈ [0, 1]`, `sin P = p / q ∈ [-1, 1]`, `cot^2(π/18) = p / q ∈ (32163/1000, 32164/1000)`,
+  and `cos(2 k_j) = c_j / q ∈ [-1, 1]`); lifting those exact rational inequalities to real-valued
+  trigonometric functions, derivatives `v'_k(P), v''_k(P)`, and irrational `cot^2(π/18)` via density/continuity
+  is external (zero Mathlib `Real` imports).
+- **4D crystal & 4-body-reduction bridges**: Extracting the `6 × 6` 4-body Racah block `4 W_0`
+  (Theorem 5), the `2 × 2` 3-full-line `L_7^{(±)}` Floquet Bragg matrices (Theorem 7 Part 2), and
+  the `2 × 2` 1-dock FM-cavity return maps `univCav2Beat2 = 2 ω D` (background-relative) and
+  `halfCoin2 = 2 D` (verbatim `M = 4` crystal) from the full 8-layer 4D `{3,4,3,4}` Fock unitary `U`
+  is verified verbatim in exact `BigInt` `ℤ[ζ_9][1/6]` in
+  `test/verify/bare-u-periodic-mirrors-and-bounds.ts` Pillars B2–B4.
 -/
 
 set_option autoImplicit false
@@ -909,17 +947,21 @@ private theorem univ_lineParity_conserved (l₀ : Fin 12) (τ : Sign) (r : Bool)
     rw [univ_lineCount_streamConfig l₀ τ r c]
   · exact hψ
 
-/-- Headline Theorem 1 (`ℤ_2^{216}` Line-Parity & Role-Multiset All-Time Conservation on `fockBeat χ`):
-    directly on the literal 8-layer infinite-honeycomb Fock unitary `fockBeat χ` (`∀ t : Nat`):
+/-- Headline Theorem 1 (Line-Parity & Role-Multiset All-Time Conservation on `fockBeat χ`):
+    directly on the literal 8-layer infinite-honeycomb Fock unitary `fockBeat χ` (`∀ t : Nat`),
+    where `Vibe/Fock/State.lean` defines `SlotState.occ (s : Sign) (r : Bool)` with **2 roles** (`r : Bool`):
     1. Exact all-time conservation of total activity `univTotalActivity`,
-    2. Exact all-time conservation of all per-(tone, role) integer particle counts
+    2. Exact all-time conservation of all `2 × 2 = 4` per-(tone, role) integer particle counts
        `univTotalToneRoleCount τ r` (`∀ τ : Sign, ∀ r : Bool`),
-    3. Exact all-time conservation of all per-line per-tone per-role `ℤ_2` parities
-       `univLineToneRoleParity l τ r : Bool` (`∀ l : Fin 12, ∀ τ : Sign, ∀ r : Bool`),
+    3. Exact all-time conservation of all `12 × 2 × 2 = 48` per-line per-tone per-role `ℤ_2` parities
+       `univLineToneRoleParity l τ r : Bool` (`∀ l : Fin 12, ∀ τ : Sign, ∀ r : Bool`, i.e. `ℤ_2^{48}`
+       directly on `Vibe.Fock.State`),
     4. Odd-parity non-evacuation corollary: for any configuration `c₀` with odd `(τ, r)` parity on
        line `l₀`, `iter (fockBeat χ) t |c₀⟩` has strictly zero amplitude on EVERY configuration `c`
        outside that odd-parity sector (and in particular whenever `univLineToneRoleCount l₀ τ r c = 0`),
-    5. Exact 9-role parity-space dimension `12 * 2 * 9 = 216`. -/
+    5. Exact 9-role parity-space arithmetic `12 * 2 * 9 = 216` (the identical per-role parity law
+       on 9 roles yields `ℤ_2^{216}`, verified verbatim in 4D exact `BigInt` in
+       `test/verify/bare-u-periodic-mirrors-and-bounds.ts` Pillar B1c). -/
 theorem thm_univ_z216_parity_and_role_multiset_all_time (χ : ChiralInvariant) :
     (∀ (n : Int) (ψ : FockVec NinthLoc6 HoneycombConfig),
       UnivInSector univTotalActivity n ψ →
@@ -1220,8 +1262,10 @@ private theorem univ_k1_speed_gap_minus_id (p q : Int) :
        (`0 ≤ p ≤ q`, `0 < q`), proves the exact cleared-denominator inequality
        `A^3 q^2 (p (A q - p)^2 + (q - p) (A q + 2 p)^2) ≥ (A q - p)^5`, with exact equality
        at `p = 0` and strict inequality `>` for `0 < p` (certifying `(v'_k)^2 + (v''_k)^2 ≥ 9 k^4 / A^3 > 0`).
-    2. Global `k = 1` speed-gap polynomial identities (both `+8 p q` and `-8 p q` sign twins)
-       and nonnegativity across ALL `-q ≤ p ≤ q` (`0 < q`).
+    2. Global `k = 1` speed-gap quartic polynomial identities (both `+8 p q` and `-8 p q` sign twins)
+       and nonnegativity across ALL `-q ≤ p ≤ q` (`0 < q`, `p / q = sin P`), certifying the sharp
+       `k = 1` speed-gap bound `1 / 2 - |v_1(P)| ≥ (3 / 8) cos^2 P / √(3 + sin^2 P)` across the full
+       Brillouin zone.
     3. Exact Rapidity-Velocity 2-to-1 Law (`v(a1/b1) = v(a2/b2)` cleared as
        `a1 * b1 * (3 * a2^2 + b2^2) = a2 * b2 * (3 * a1^2 + b1^2) ↔ a1 * b2 = a2 * b1 ∨ 3 * a1 * a2 = b1 * b2`),
        exact speed-cap identity `(3 a^2 + b^2)^2 - 12 a^2 b^2 = (3 a^2 - b^2)^2 ≥ 0`,
@@ -1351,19 +1395,14 @@ theorem thm_univ_mpair_ceiling_and_role_pigeonhole :
        1000000 * q < 838 * (36 * (p + q))) ∧
      Ninth.scale 11 Ninth.gapSqZeta18 =
        Ninth.add Ninth.gapSqZeta18 (Ninth.scale 10 Ninth.gapSqZeta18) ∧
-     (∀ pHop : Int, 10 * (11 * pHop) = 11 * (10 * pHop)) ∧
      (∀ m p q : Int, 1 ≤ m → m ≤ 11 → 0 < q → 32163 * q < p * 1000 →
        100 * m * q < 36 * (p + q))) ∧
-    ((∀ x y r : Int, x * x + y * y = r * r → (x - r) * (x - r) + y * y ≤ 4 * (r * r)) ∧
-     4 * 36 = 144) ∧
+    (∀ x y r : Int, x * x + y * y = r * r → (x - r) * (x - r) + y * y ≤ 4 * (r * r)) ∧
     (∀ (n : Nat), n ≥ 4 → ∀ f : Fin (3 * n) → Fin 9,
       ∃ i j : Fin (3 * n), i ≠ j ∧ f i = f j) := by
   have hCT := thm_ct_mpair_gap_margin
-  refine ⟨⟨hCT.1.1, hCT.2.2.2.2.2.1.2.1, hCT.2.2.2.2.2.1.2.2.1, ?_, by decide, ?_, ?_⟩,
-          ⟨?_, by decide⟩, ?_⟩
+  refine ⟨⟨hCT.1.1, hCT.2.2.2.2.2.1.2.1, hCT.2.2.2.2.2.1.2.2.1, ?_, by decide, ?_⟩, ?_, ?_⟩
   · intro p q hq hlo hhi
-    omega
-  · intro pHop
     omega
   · intro m p q hm1 hm11 hq hlo
     have hmq : m * q ≤ 11 * q := by
@@ -1733,7 +1772,7 @@ def univMat6EisId : UnivMat6Eis :=
   fun r c => if r = c then Eis.one else Eis.zero
 
 /-- Basis pairs `(0,1), (0,2), (0,3), (1,2), (1,3), (2,3)` of `C(4, 2) = 6` on 4 spins. -/
-private def univSwapIdx6 (p q : Fin 4) : Fin 6 → Fin 6 :=
+def univSwapIdx6 (p q : Fin 4) : Fin 6 → Fin 6 :=
   let pairs : Fin 6 → Fin 4 × Fin 4
     | ⟨0, _⟩ => (⟨0, by decide⟩, ⟨1, by decide⟩)
     | ⟨1, _⟩ => (⟨0, by decide⟩, ⟨2, by decide⟩)
@@ -1803,13 +1842,29 @@ def univLeakVec6 : Fin 6 → Int
   | ⟨2, _⟩ => -1
   | _ => 1
 
+/-- Cleared 3-spin Casimir `4 S_{123}^2 = 3 I + 4 (P_{12} + P_{13} + P_{23})` acting on `Fin 6`. -/
+def univFourS123SqVec (v : Fin 6 → Int) (r : Fin 6) : Int :=
+  3 * v r + 4 * (v (univSwapIdx6 ⟨1, by decide⟩ ⟨2, by decide⟩ r) +
+                 v (univSwapIdx6 ⟨1, by decide⟩ ⟨3, by decide⟩ r) +
+                 v (univSwapIdx6 ⟨2, by decide⟩ ⟨3, by decide⟩ r))
+
+/-- Total 4-spin Casimir `S_{0123}^2 = ∑_{0 ≤ p < q ≤ 3} P_{pq}` acting on `Fin 6`. -/
+def univS0123SqVec (v : Fin 6 → Int) (r : Fin 6) : Int :=
+  v (univSwapIdx6 ⟨0, by decide⟩ ⟨1, by decide⟩ r) +
+  v (univSwapIdx6 ⟨0, by decide⟩ ⟨2, by decide⟩ r) +
+  v (univSwapIdx6 ⟨0, by decide⟩ ⟨3, by decide⟩ r) +
+  v (univSwapIdx6 ⟨1, by decide⟩ ⟨2, by decide⟩ r) +
+  v (univSwapIdx6 ⟨1, by decide⟩ ⟨3, by decide⟩ r) +
+  v (univSwapIdx6 ⟨2, by decide⟩ ⟨3, by decide⟩ r)
+
 /-- Headline Theorem 5 (Linden-Popescu Unitary Halting No-Go & Eisenstein `W_0` Racah Clearance):
     1. Directly on ANY `FockUnitary R α` (and instantiated on `fockBeatUnit χ`): if `U.op ψ_halt = ψ_halt`,
        then `∀ t : Nat, ∀ φ, iter U.op t φ = ψ_halt → φ = ψ_halt` (no unitary fixed point can ever be
        entered dynamically from any distinct initial state).
     2. Exact `6 × 6` Eisenstein `ℤ[ω]` Racah clearance certificate for `4 * W_0` on `Fin 6`:
-       `(4 W_0)† (4 W_0) = 16 I_6`, `(4 W_0) (4 W_0)† = 16 I_6`, and `⟨L | (4 W_0) | L⟩ = 0` identically
-       for `|L⟩ = (-1, -1, -1, 1, 1, 1)`. -/
+       `(4 W_0)† (4 W_0) = 16 I_6`, `(4 W_0) (4 W_0)† = 16 I_6`, exact Casimir self-certification
+       of `|L⟩ = (-1, -1, -1, 1, 1, 1)` as the `(j_{123} = 3/2, j_{0123} = 1)` leakage state
+       (`4 S_{123}^2 |L⟩ = 15 |L⟩` and `S_{0123}^2 |L⟩ = 2 |L⟩`), and `⟨L | (4 W_0) | L⟩ = 0` identically. -/
 theorem thm_univ_unitary_halting_nogo_and_w0_clearance :
     (∀ {R α : Type} [StarCommRing R] (U : FockUnitary R α) (ψ_halt : FockVec R α),
       U.op ψ_halt = ψ_halt →
@@ -1822,6 +1877,8 @@ theorem thm_univ_unitary_halting_nogo_and_w0_clearance :
         if r = c then Eis.ofInt 16 else Eis.zero) ∧
      (∀ r c : Fin 6, univMat6EisMul univW0_4 (univMat6EisDag univW0_4) r c =
         if r = c then Eis.ofInt 16 else Eis.zero) ∧
+     (∀ r : Fin 6, univFourS123SqVec univLeakVec6 r = 15 * univLeakVec6 r) ∧
+     (∀ r : Fin 6, univS0123SqVec univLeakVec6 r = 2 * univLeakVec6 r) ∧
      univSum6Eis (fun r => univSum6Eis (fun c =>
        Eis.scale (univLeakVec6 r * univLeakVec6 c) (univW0_4 r c))) = Eis.zero) := by
   have hLP : ∀ {R α : Type} [StarCommRing R] (U : FockUnitary R α) (ψ_halt : FockVec R α),
@@ -1849,7 +1906,7 @@ theorem thm_univ_unitary_halting_nogo_and_w0_clearance :
     rw [hLeftIter t φ, hDagIter t] at hApp
     exact hApp
   have hW0Eq : univW0_4 = univW0_4_fast := funext (fun r => funext (fun c => univW0_4_eq_fast r c))
-  refine ⟨hLP, fun χ ψ_halt hFix => hLP (fockBeatUnit χ) ψ_halt hFix, ?_, ?_, ?_⟩
+  refine ⟨hLP, fun χ ψ_halt hFix => hLP (fockBeatUnit χ) ψ_halt hFix, ?_, ?_, by decide, by decide, ?_⟩
   · rw [hW0Eq]; decide
   · rw [hW0Eq]; decide
   · rw [hW0Eq]; decide
@@ -2691,18 +2748,29 @@ private theorem univ_mod2_transport_lines :
     exact funext (fun i => funext (fun j => hFastB l i j))
   exact ⟨hA, by rw [hA, hB]⟩
 
-/-- Exact even-dock `2 L_7^{(+)}` and odd-dock `2 L_7^{(-)}` 3-full-line `Φ_odd` catalyst matrices in `Mat_2(ℤ[ω])`. -/
-def univL7Even2 : Mat2Eis := ⟨⟨0, 1⟩, ⟨-1, -2⟩, ⟨-1, 1⟩, ⟨0, 1⟩⟩
-def univL7Odd2 : Mat2Eis := ⟨⟨1, 0⟩, ⟨2, 1⟩, ⟨-1, 1⟩, ⟨1, 0⟩⟩
+/-- Exact even-dock `2 L_7^{(+)} = diag(1, ω) (2 C) diag(1, ω^2)` and odd-dock
+    `2 L_7^{(-)} = diag(1, ω^2) (2 C) diag(1, ω)` 3-full-line `Φ_odd` catalyst matrices in `Mat_2(ℤ[ω])`
+    (zero beat-alternating global phase: `det(2 L_7^{(±)}) = det(2 C) = 4 ω`). -/
+def univL7Even2 : Mat2Eis := ⟨⟨1, 1⟩, ⟨-2, -1⟩, ⟨1, 2⟩, ⟨1, 1⟩⟩
+def univL7Odd2 : Mat2Eis := ⟨⟨1, 1⟩, ⟨1, 2⟩, ⟨-2, -1⟩, ⟨1, 1⟩⟩
 
-/-- Exact 2-beat 1-dock `K`-cavity return map `2 U_{cav,2} = 2 (-ω X) C` (`U_{cav,2}^6 = I_2`, 12 beats!)
-    and minimal order-12 cavity matrix `2 U_{cav,12} = 2 (Z X C)` (`U_{cav,12}^6 = -I_2`, `U_{cav,12}^{12} = I_2`). -/
-def univCav2Beat2 : Mat2Eis :=
-  Mat2Eis.mul ⟨Eis.zero, ⟨0, -1⟩, ⟨0, -1⟩, Eis.zero⟩ coin2
+/-- Exact Pauli `X` and `Z` in `Mat_2(ℤ[ω])`. -/
+def univPauliX : Mat2Eis := ⟨Eis.zero, Eis.one, Eis.one, Eis.zero⟩
+def univPauliZ : Mat2Eis := ⟨Eis.one, Eis.zero, Eis.zero, Eis.ofInt (-1)⟩
 
-def univCav12Step2 : Mat2Eis :=
-  Mat2Eis.mul ⟨Eis.one, Eis.zero, Eis.zero, ⟨-1, 0⟩⟩
-    (Mat2Eis.mul ⟨Eis.zero, Eis.one, Eis.one, Eis.zero⟩ coin2)
+/-- Exact role-meet matrix `2 M_meet = 2 Z C Z = [[1 + ω, -1 + ω], [-1 + ω, 1 + ω]]` in `Mat_2(ℤ[ω])`. -/
+def univMeet2 : Mat2Eis := ⟨⟨1, 1⟩, ⟨-1, 1⟩, ⟨-1, 1⟩, ⟨1, 1⟩⟩
+
+/-- Exact interior FM-dock on-site matrix `2 (D M_meet D) = 2 (det D)^2 M_meet = 2 ω Z C Z`
+    in `Mat_2(ℤ[ω])` (`-1` diagonal, `-1 - 2ω = -i √3` off-diagonal). -/
+def univDMD2 : Mat2Eis := ⟨⟨-1, 0⟩, ⟨-1, -2⟩, ⟨-1, -2⟩, ⟨-1, 0⟩⟩
+
+/-- Exact background-relative wall bounce `ω^2 X` at `(+1, -1)` / `(-1, +1)` hard-wall docks. -/
+def univWallW2X : Mat2Eis := ⟨Eis.zero, Eis.omega2, Eis.omega2, Eis.zero⟩
+
+/-- Exact background-relative 2-beat 1-dock qubit cavity return map
+    `2 U_{cav,2} = (ω^2 X) * (2 D M_meet D) = 2 ω D` (minimal order 6 in 2-beat steps = period 12). -/
+def univCav2Beat2 : Mat2Eis := Mat2Eis.mul univWallW2X univDMD2
 
 /-- Headline Theorem 7 (Exact Mod-2 Coxeter `D_4` Triality Quotient, `5/8` `L_7` Bragg Gap & Period-12 Cavity):
     1. Exact mod-2 Coxeter quotient `Mat5 → GL_5(ℤ[√2] / 2 ℤ[√2])`:
@@ -2713,14 +2781,19 @@ def univCav12Step2 : Mat2Eis :=
        - Exact index-2 characters `η_1, η_2, η_3 : ℤ_2 × ℤ_2 → ℤ_2` (homomorphisms with kernel size `2`, plus `det(k_a) = -1`).
     2. Exact `5 / 8` omnidirectional `L_7` Floquet Bragg band gap:
        - Exact 2-beat Bloch trace & determinant certificates for `S C S C` (`cos(E_free^{(2)}) = (cos(2 k_1) - 3) / 4`)
-         and bipartite `S L_7^{(-)} S L_7^{(+)}` (`cos(E_{L_7}^{(2)}) = (3 + 2 cos(2 k_2)) / 8`, sharing identical `det = ω^2`),
+         and bipartite `S L_7^{(-)} S L_7^{(+)}` (`cos(E_{L_7}^{(2)}) = (3 + 2 cos(2 k_2)) / 8`, sharing identical
+         `det(2 L_7^{(±)}) = det(2 C) = 4 ω` and `det_2 = 16 ω^2`),
        - Universal cleared-denominator band-gap inequality: for ALL `c1 c2 q : Int` with `0 < q`, `-q ≤ c1 ≤ q`, `-q ≤ c2 ≤ q`,
          `(3 * q + 2 * c2) * 4 - (c1 - 3 * q) * 8 ≥ 5 * q * 4` (sharp at `c1 = q, c2 = -q`).
     3. Exact 2-beat / 12-beat period-12 1-dock qubit compacton identities in `Mat_2(ℤ[ω])`:
-       - `2 U_{cav,2} = 2 (-ω X) C` is unitary (`M† M = 4 I_2`), flips at 6 beats (`(2 U_{cav,2})^3 = -8 X`),
-         and closes at 12 beats (`(2 U_{cav,2})^6 = 64 I_2`, `(2 U_{cav,2})^{12} = 4096 I_2`),
-       - `2 U_{cav,12} = 2 (Z X C)` is unitary with minimal order 12 (`(2 U_{cav,12})^6 = -64 I_2`,
-         `(2 U_{cav,12})^{12} = 4096 I_2`). -/
+       - Full-line derivation `det(2 D) = 4 ζ_6`, `2 M_meet = 2 Z C Z`, and
+         `univDMD2 = 2 (det D)^2 M_meet = 2 ω Z C Z`,
+       - `univCav2Beat2 = (ω^2 X)(2 D M_meet D) = 2 ω D` is unitary (`M† M = M M† = 4 I_2`),
+       - Exact characteristic polynomial factorization `(univCav2Beat2 + 2 I)(univCav2Beat2 - 2 ω I) = 0`
+         (certifying exact background-relative eigenvalues `(-1, +ω)` matching `bare-u-periodic-mirrors-and-bounds.ts` B2),
+       - Exact minimal order 6 in 2-beat steps (= minimal period 12 in 1-beat steps) for BOTH
+         `univCav2Beat2 = 2 ω D` AND the literal verbatim `M = 4` 4D `BigInt` 2-beat map `halfCoin2 = 2 D`:
+         `M^3 = 8 X`, `M^6 = 64 I_2`, `M^2 ≠ 4 I_2`, and `M^3 ≠ 8 I_2`. -/
 theorem thm_univ_mod2_triality_and_l7_bragg_gap :
     ((∀ A B : Mat5, univMat5Mod2 (mat5Mul A B) = univMat5Mod2Mul (univMat5Mod2 A) (univMat5Mod2 B)) ∧
      (∀ l : Fin 12,
@@ -2745,6 +2818,8 @@ theorem thm_univ_mod2_triality_and_l7_bragg_gap :
       (∀ a : Fin 24, mat5Det (transport a) = ZSqrt2.ofInt (-1)))) ∧
     ((Mat2Eis.mul (Mat2Eis.dag univL7Even2) univL7Even2 = Mat2Eis.scale 4 Mat2Eis.id ∧
       Mat2Eis.mul (Mat2Eis.dag univL7Odd2) univL7Odd2 = Mat2Eis.scale 4 Mat2Eis.id ∧
+      Mat2Eis.det univL7Even2 = Mat2Eis.det coin2 ∧
+      Mat2Eis.det univL7Odd2 = Mat2Eis.det coin2 ∧
       Eis.mul (Mat2Eis.det coin2) (Mat2Eis.det coin2) = Eis.scale 16 Eis.omega2 ∧
       Eis.mul (Mat2Eis.det univL7Odd2) (Mat2Eis.det univL7Even2) = Eis.scale 16 Eis.omega2 ∧
       Eis.mul coin2.m00 coin2.m00 = Eis.omega ∧
@@ -2757,16 +2832,25 @@ theorem thm_univ_mod2_triality_and_l7_bragg_gap :
      (∀ c1 c2 q : Int, 0 < q → -q ≤ c1 → c1 ≤ q → -q ≤ c2 → c2 ≤ q →
        (3 * q + 2 * c2) * 4 - (c1 - 3 * q) * 8 ≥ 5 * q * 4) ∧
      (∀ q : Int, (3 * q + 2 * (-q)) * 4 - (q - 3 * q) * 8 = 5 * q * 4)) ∧
-    (Mat2Eis.mul (Mat2Eis.dag univCav2Beat2) univCav2Beat2 = Mat2Eis.scale 4 Mat2Eis.id ∧
+    (Mat2Eis.det halfCoin2 = Eis.scale 4 Eis.zeta6 ∧
+     univMeet2 = Mat2Eis.mul univPauliZ (Mat2Eis.mul coin2 univPauliZ) ∧
+     univDMD2 = Mat2Eis.scaleEis (Eis.mul Eis.zeta6 Eis.zeta6) univMeet2 ∧
+     univDMD2 = Mat2Eis.scaleEis Eis.omega (Mat2Eis.mul univPauliZ (Mat2Eis.mul coin2 univPauliZ)) ∧
+     Mat2Eis.mul (Mat2Eis.dag univCav2Beat2) univCav2Beat2 = Mat2Eis.scale 4 Mat2Eis.id ∧
      Mat2Eis.mul univCav2Beat2 (Mat2Eis.dag univCav2Beat2) = Mat2Eis.scale 4 Mat2Eis.id ∧
-     Mat2Eis.pow univCav2Beat2 3 =
-       Mat2Eis.scale (-8) ⟨Eis.zero, Eis.one, Eis.one, Eis.zero⟩ ∧
+     univCav2Beat2 = Mat2Eis.scaleEis Eis.omega halfCoin2 ∧
+     Mat2Eis.mul
+       (Mat2Eis.add univCav2Beat2 (Mat2Eis.scale 2 Mat2Eis.id))
+       (Mat2Eis.sub univCav2Beat2 (Mat2Eis.scaleEis (Eis.scale 2 Eis.omega) Mat2Eis.id)) =
+         Mat2Eis.zero ∧
+     Mat2Eis.pow univCav2Beat2 3 = Mat2Eis.scale 8 univPauliX ∧
      Mat2Eis.pow univCav2Beat2 6 = Mat2Eis.scale 64 Mat2Eis.id ∧
-     Mat2Eis.pow univCav2Beat2 12 = Mat2Eis.scale 4096 Mat2Eis.id ∧
-     Mat2Eis.mul (Mat2Eis.dag univCav12Step2) univCav12Step2 = Mat2Eis.scale 4 Mat2Eis.id ∧
-     Mat2Eis.mul univCav12Step2 (Mat2Eis.dag univCav12Step2) = Mat2Eis.scale 4 Mat2Eis.id ∧
-     Mat2Eis.pow univCav12Step2 6 = Mat2Eis.scale (-64) Mat2Eis.id ∧
-     Mat2Eis.pow univCav12Step2 12 = Mat2Eis.scale 4096 Mat2Eis.id) := by
+     Mat2Eis.pow univCav2Beat2 2 ≠ Mat2Eis.scale 4 Mat2Eis.id ∧
+     Mat2Eis.pow univCav2Beat2 3 ≠ Mat2Eis.scale 8 Mat2Eis.id ∧
+     Mat2Eis.pow halfCoin2 3 = Mat2Eis.scale 8 univPauliX ∧
+     Mat2Eis.pow halfCoin2 6 = Mat2Eis.scale 64 Mat2Eis.id ∧
+     Mat2Eis.pow halfCoin2 2 ≠ Mat2Eis.scale 4 Mat2Eis.id ∧
+     Mat2Eis.pow halfCoin2 3 ≠ Mat2Eis.scale 8 Mat2Eis.id) := by
   have hKleinMul : ∀ a1 b1 a2 b2 : Bool,
       univMat5Mod2Mul (univKleinMat a1 b1) (univKleinMat a2 b2) =
         univKleinMat (xor a1 a2) (xor b1 b2) := by
