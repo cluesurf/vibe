@@ -24,6 +24,7 @@ import Vibe.D4MassGapExt
 import Vibe.SpectralSharpExt
 import Vibe.CompositeTrion
 import Vibe.DynamicalHolography
+import Vibe.UniversalityObstructions
 
 /-!
 # Vibe Theory: Formal Lean 4 Proof Suite
