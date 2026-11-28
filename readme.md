@@ -97,18 +97,23 @@ A/B/C runs above.
 - [`test/universe.ts`](test/universe.ts): standalone, zero-import,
   pure-`BigInt` core Tier A microscopic QCA (Prettier- and
   ESLint-formatted top-down, `< 0.2 s`)
-- [`code/proof/Vibe/`](code/proof/Vibe/): zero-dependency Lean `4.35.0`
-  proof suite (`29` `.lean` files including `Vibe/Fock/{Ring,State,Gates,Beat}.lean`
-  and root `Vibe.lean`, `341` substantive headline / `451` public theorems,
-  `0` `sorry`, `0` `axiom`, `0` `native_decide`, `pnpm check:lean`, fail-closed)
-- [`test/verify/`](test/verify/): `30` deterministic
-  verification scripts (`27` standalone zero-import plus `3` importing
-  `@/code/`) covering the `{3,4,3,4}` spectral collapse (`[11.439047, 11.443713]`),
+- [`code/proof/Vibe/`](code/proof/Vibe/): Lean `4.35.0` proof suite (`34`
+  `.lean` files including `Vibe/Fock/{Ring,State,Gates,Beat}.lean`,
+  `Vibe/StandardModelMathlib.lean` built on Mathlib `v4.35.0`, and root
+  `Vibe.lean`, `383` substantive headline / `493` public theorems, `0`
+  `sorry`, `0` `axiom`, `0` `native_decide`, `pnpm check:lean`,
+  fail-closed)
+- [`test/verify/`](test/verify/): `59` deterministic verification
+  scripts (`56` standalone zero-import plus `3` importing `@/code/`)
+  covering the `{3,4,3,4}` spectral collapse (`[11.439047, 11.443713]`),
   unconditional zero-truncation 4D `D_4` mass gap (`SU(2): 0.277274`,
   `SU(3): 0.546000`), all-radius `{3,4,3,4}` `[[24, 1, 8]]_3` HaPPY
-  holography (`d = 8 -> 40 -> >= 98`), ballistic no-compacton &
-  `Z[omega][1/7]` `k = 3` trion, scattering, universality, 1-hop horizon,
-  finite-range chiral wall, Cayley-4-form SMG, and Nelson-Barr CP audits
+  holography (`d = 8 -> 40 -> >= 98`), ballistic no-compacton and
+  `Z[omega][1/7]` `k = 3` trion, scattering, `28`-gate Turing
+  universality, 1-hop horizon, finite-range chiral wall, Cayley-4-form
+  SMG, Nelson-Barr CP, relational gauge and fermions, native three
+  generations, lattice QCD and leptogenesis, and bare radion / flavor /
+  UV stiffness audits
 - [`code/`](code/): Coxeter `{3,4,3,4}` engine, exact cyclotomic QCA
   rules, operators, and measurement library
 - [`test/experiment/`](test/experiment/): deterministic registered
@@ -142,7 +147,7 @@ pnpm result E-FND-0188
 npx tsx test/verify/combes-thomas-d4-mass-gap.ts
 npx tsx test/verify/horizon-one-hop.ts
 
-# Verify the Lean 4.35.0 proof suite (29 files, 341 headline theorems)
+# Verify the Lean 4.35.0 proof suite (34 files, 383 headline theorems)
 pnpm check:lean
 pnpm check:lean -- --no-build   # structural + BigInt audit without Lean installed
 
