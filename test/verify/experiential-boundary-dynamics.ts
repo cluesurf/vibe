@@ -4,7 +4,7 @@
 //
 // Standalone, strictly deterministic (ZERO external imports, ZERO Math.random() — pure Mulberry32 PRNG),
 // strict TypeScript clean (--strict --noUncheckedIndexedAccess --noUnusedLocals --noUnusedParameters),
-// laptop-safe (< 6 s, < 250 MB RSS), fail-closed (throws on any failed check -> exit code 1),
+// fast (< 6 s, < 250 MB RSS), fail-closed (throws on any failed check -> exit code 1),
 // ending with `export {}`.
 //
 // Five Verification Gates (Research Note 22 — Experiments A through E):
