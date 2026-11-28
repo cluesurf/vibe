@@ -397,13 +397,19 @@ theorem thm_busemann_schur_global_bound (x0 x1 x2 x3 : Int)
   have hTerm : ∀ k : Fin 12, (busemannTerm k x hS).toRat ≤ (hermiteP3Hom (d4LineSq k x) S : ℚ) / (D : ℚ) := by
     intro k
     have hb := d4LineSq_bounds k x
-    exact (QPos.le_iff_toRat _ _).mp (thm_schur_hermite_qpos (d4LineSq k x) S hS hb.1 hb.2)
+    have hle : QPos.le (busemannTerm k x hS) ⟨hermiteP3Hom (d4LineSq k x) S, D, hD⟩ := by
+      simpa only [busemannTerm, QPos.le, D] using thm_schur_hermite_qpos (d4LineSq k x) S hS hb.1 hb.2
+    have hq := (QPos.le_iff_toRat (busemannTerm k x hS) ⟨hermiteP3Hom (d4LineSq k x) S, D, hD⟩).mp hle
+    exact hq
   rw [QPos.le_iff_toRat, busemannF1, QPos.toRat_divPos]
   have hSumRat : (busemannSum12 x hS).toRat = ∑ k : Fin 12, (busemannTerm k x hS).toRat := by
     rw [fin12_sum_expand]
     simp only [busemannSum12, QPos.toRat_add]
   have hSumLe : (busemannSum12 x hS).toRat ≤ (d4HermiteSum x : ℚ) / (D : ℚ) := by
-    rw [hSumRat, d4HermiteSum, sum12Int, Int.cast_sum, Finset.sum_div]
+    rw [hSumRat, d4HermiteSum, sum12Int, Int.cast_sum,
+      show (∑ k : Fin 12, (hermiteP3Hom (d4LineSq k x) S : ℚ)) / (D : ℚ) =
+        ∑ k : Fin 12, (hermiteP3Hom (d4LineSq k x) S : ℚ) / (D : ℚ) by
+        simp only [fin12_sum_expand, add_div]]
     exact Finset.sum_le_sum fun k _ => hTerm k
   have hMaj : (d4HermiteSum x : ℚ) ≤ (1092 : ℚ) * ((S * (S * S) : Int) : ℚ) := by
     exact_mod_cast (thm_schur_majorant_bound_13_over_21 x0 x1 x2 x3).2.1
@@ -447,7 +453,8 @@ theorem thm_col_resistance_code_bridge (N : Nat → Nat) (F : Nat) :
       17 * colResistanceCode18 N F + 18 ≥ 18 ^ (F + 2)) := by
   have hShift : colResistanceCode18 N F + N 0 = colResistance N (F + 2) := by
     unfold colResistanceCode18 colResistance
-    rw [sumNat_eq_sum, sumNat_eq_sum, show F + 2 = (F + 1) + 1 by omega, Finset.sum_range_succ']
+    rw [sumNat_eq_sum, sumNat_eq_sum, show F + 2 = (F + 1) + 1 by omega]
+    exact (Finset.sum_range_succ' N (F + 1)).symm
   refine ⟨hShift, fun h0 => by omega, fun h0 hstep => ?_⟩
   have hExp := thm5_resistance_exp_lower_bound N (by omega) hstep (F + 2)
   omega

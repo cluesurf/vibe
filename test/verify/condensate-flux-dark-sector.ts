@@ -190,14 +190,40 @@ function symTridiagEigs(diagIn: Float64Array, offIn: Float64Array): Float64Array
 
 // Fast exact complex Hermitian eigensolver (Householder tridiagonalization + phase gauge + implicit QL)
 // Eigenvectors returned row-wise: vecRe[eigIdx * n + r] = v_{eigIdx}(r)
+// Reuses module-level scratch workspace for n <= 128 to keep peak RSS minimal.
+const HE_MAX = 128
+const HE_A_RE = new Float64Array(HE_MAX * HE_MAX)
+const HE_A_IM = new Float64Array(HE_MAX * HE_MAX)
+const HE_HH_RE = new Float64Array(HE_MAX * HE_MAX)
+const HE_HH_IM = new Float64Array(HE_MAX * HE_MAX)
+const HE_Z = new Float64Array(HE_MAX * HE_MAX)
+const HE_VEC_RE = new Float64Array(HE_MAX * HE_MAX)
+const HE_VEC_IM = new Float64Array(HE_MAX * HE_MAX)
+const HE_V_RE = new Float64Array(HE_MAX)
+const HE_V_IM = new Float64Array(HE_MAX)
+const HE_BETA = new Float64Array(HE_MAX)
+const HE_W_RE = new Float64Array(HE_MAX)
+const HE_W_IM = new Float64Array(HE_MAX)
+const HE_D = new Float64Array(HE_MAX)
+const HE_E = new Float64Array(HE_MAX)
+const HE_PHI_RE = new Float64Array(HE_MAX)
+const HE_PHI_IM = new Float64Array(HE_MAX)
+const HE_EMPTY = new Float64Array(0)
+
 function hermitianEig(
   n: number,
   hReIn: Float64Array,
   hImIn: Float64Array,
   computeVectors: boolean,
 ): { readonly values: Float64Array; readonly vecRe: Float64Array; readonly vecIm: Float64Array } {
-  const aRe = Float64Array.from(hReIn)
-  const aIm = Float64Array.from(hImIn)
+  const useBuf = n <= HE_MAX
+  const nn = n * n
+  const aRe = useBuf ? HE_A_RE.subarray(0, nn) : new Float64Array(nn)
+  const aIm = useBuf ? HE_A_IM.subarray(0, nn) : new Float64Array(nn)
+  for (let i = 0; i < nn; i++) {
+    aRe[i] = hReIn[i]!
+    aIm[i] = hImIn[i]!
+  }
   for (let i = 0; i < n; i++) {
     aIm[i * n + i] = 0
     for (let j = i + 1; j < n; j++) {
@@ -210,13 +236,13 @@ function hermitianEig(
     }
   }
 
-  const hhVRe = computeVectors ? new Float64Array(n * n) : new Float64Array(0)
-  const hhVIm = computeVectors ? new Float64Array(n * n) : new Float64Array(0)
-  const vRe = new Float64Array(n)
-  const vIm = new Float64Array(n)
-  const hhBeta = new Float64Array(n)
-  const wRe = new Float64Array(n)
-  const wIm = new Float64Array(n)
+  const hhVRe = computeVectors ? (useBuf ? HE_HH_RE.subarray(0, nn) : new Float64Array(nn)) : HE_EMPTY
+  const hhVIm = computeVectors ? (useBuf ? HE_HH_IM.subarray(0, nn) : new Float64Array(nn)) : HE_EMPTY
+  const vRe = useBuf ? HE_V_RE.subarray(0, n) : new Float64Array(n)
+  const vIm = useBuf ? HE_V_IM.subarray(0, n) : new Float64Array(n)
+  const hhBeta = useBuf ? HE_BETA.subarray(0, n) : new Float64Array(n)
+  const wRe = useBuf ? HE_W_RE.subarray(0, n) : new Float64Array(n)
+  const wIm = useBuf ? HE_W_IM.subarray(0, n) : new Float64Array(n)
 
   for (let k = 0; k < n - 2; k++) {
     const m = n - 1 - k
@@ -302,11 +328,12 @@ function hermitianEig(
     }
   }
 
-  const d = new Float64Array(n)
-  const e = new Float64Array(n)
-  const phiRe = new Float64Array(n)
-  const phiIm = new Float64Array(n)
+  const d = useBuf ? HE_D.subarray(0, n) : new Float64Array(n)
+  const e = useBuf ? HE_E.subarray(0, n) : new Float64Array(n)
+  const phiRe = useBuf ? HE_PHI_RE.subarray(0, n) : new Float64Array(n)
+  const phiIm = useBuf ? HE_PHI_IM.subarray(0, n) : new Float64Array(n)
   phiRe[0] = 1
+  phiIm[0] = 0
   for (let i = 0; i < n; i++) d[i] = aRe[i * n + i]!
   for (let i = 1; i < n; i++) {
     const cr = aRe[i * n + (i - 1)]!
@@ -327,8 +354,9 @@ function hermitianEig(
   }
   e[n - 1] = 0
 
-  const Z = computeVectors ? new Float64Array(n * n) : new Float64Array(0)
+  const Z = computeVectors ? (useBuf ? HE_Z.subarray(0, nn) : new Float64Array(nn)) : HE_EMPTY
   if (computeVectors) {
+    Z.fill(0)
     for (let i = 0; i < n; i++) Z[i * n + i] = 1
   }
 
@@ -388,11 +416,11 @@ function hermitianEig(
   for (let i = 0; i < n; i++) values[i] = d[ord[i]!]!
 
   if (!computeVectors) {
-    return { values, vecRe: new Float64Array(0), vecIm: new Float64Array(0) }
+    return { values, vecRe: HE_EMPTY, vecIm: HE_EMPTY }
   }
 
-  const vecRe = new Float64Array(n * n)
-  const vecIm = new Float64Array(n * n)
+  const vecRe = useBuf ? HE_VEC_RE.subarray(0, nn) : new Float64Array(nn)
+  const vecIm = useBuf ? HE_VEC_IM.subarray(0, nn) : new Float64Array(nn)
   for (let eigIdx = 0; eigIdx < n; eigIdx++) {
     const col = ord[eigIdx]!
     const base = eigIdx * n
@@ -1709,13 +1737,20 @@ type SectorBlock = {
   readonly qIm: Float64Array
 }
 
+const D4_H_RE = new Float64Array(DIM_D4 * DIM_D4)
+const D4_H_IM = new Float64Array(DIM_D4 * DIM_D4)
+const D4_T_RE = new Float64Array(120 * DIM_D4)
+const D4_T_IM = new Float64Array(120 * DIM_D4)
+
 function buildD4FluxSystem(nFlux: number): {
   readonly sectors: readonly [SectorBlock, SectorBlock, SectorBlock]
   readonly scalarRe: Float64Array
   readonly scalarIm: Float64Array
 } {
-  const hRe = new Float64Array(DIM_D4 * DIM_D4)
-  const hIm = new Float64Array(DIM_D4 * DIM_D4)
+  const hRe = D4_H_RE
+  const hIm = D4_H_IM
+  hRe.fill(0)
+  hIm.fill(0)
   const scalarRe = new Float64Array(N_SITES * N_SITES)
   const scalarIm = new Float64Array(N_SITES * N_SITES)
 
@@ -1851,9 +1886,20 @@ function buildD4FluxSystem(nFlux: number): {
     inv1[srcSite[s]!] = s
     inv2[src2[s]!] = s
   }
-  const vecsRe: Float64Array[][] = [[], [], []]
-  const vecsIm: Float64Array[][] = [[], [], []]
-  const g5Signs: number[][] = [[], [], []]
+  // Write analytic projector basis vectors directly into flat sector buffers (zero temporary per-vector Float64Arrays!)
+  const qCap = [114, 105, 105] as const
+  const secQRe = [
+    new Float64Array(qCap[0] * DIM_D4),
+    new Float64Array(qCap[1] * DIM_D4),
+    new Float64Array(qCap[2] * DIM_D4),
+  ] as const
+  const secQIm = [
+    new Float64Array(qCap[0] * DIM_D4),
+    new Float64Array(qCap[1] * DIM_D4),
+    new Float64Array(qCap[2] * DIM_D4),
+  ] as const
+  const secG5 = [new Int8Array(qCap[0]), new Int8Array(qCap[1]), new Int8Array(qCap[2])] as const
+  const secCnt = [0, 0, 0]
   const visited = new Uint8Array(N_SITES)
   for (let s0 = 0; s0 < N_SITES; s0++) {
     if (visited[s0]) continue
@@ -1861,24 +1907,26 @@ function buildD4FluxSystem(nFlux: number): {
     if (s1 === s0) {
       visited[s0] = 1
       for (const sp of [2, 3]) {
-        const vr = new Float64Array(DIM_D4)
-        const vi = new Float64Array(DIM_D4)
-        vr[4 * s0 + sp] = 1
-        vecsRe[0]!.push(vr); vecsIm[0]!.push(vi); g5Signs[0]!.push(-1)
+        const idx = secCnt[0]!
+        secQRe[0][idx * DIM_D4 + 4 * s0 + sp] = 1
+        secG5[0][idx] = -1
+        secCnt[0] = idx + 1
       }
       {
-        const vr = new Float64Array(DIM_D4)
-        const vi = new Float64Array(DIM_D4)
-        vr[4 * s0] = uW[0][0]; vi[4 * s0] = uW[0][1]
-        vr[4 * s0 + 1] = uW[1][0]; vi[4 * s0 + 1] = uW[1][1]
-        vecsRe[1]!.push(vr); vecsIm[1]!.push(vi); g5Signs[1]!.push(1)
+        const idx = secCnt[1]!
+        const off = idx * DIM_D4 + 4 * s0
+        secQRe[1][off] = uW[0][0]; secQIm[1][off] = uW[0][1]
+        secQRe[1][off + 1] = uW[1][0]; secQIm[1][off + 1] = uW[1][1]
+        secG5[1][idx] = 1
+        secCnt[1] = idx + 1
       }
       {
-        const vr = new Float64Array(DIM_D4)
-        const vi = new Float64Array(DIM_D4)
-        vr[4 * s0] = uW2[0][0]; vi[4 * s0] = uW2[0][1]
-        vr[4 * s0 + 1] = uW2[1][0]; vi[4 * s0 + 1] = uW2[1][1]
-        vecsRe[2]!.push(vr); vecsIm[2]!.push(vi); g5Signs[2]!.push(1)
+        const idx = secCnt[2]!
+        const off = idx * DIM_D4 + 4 * s0
+        secQRe[2][off] = uW2[0][0]; secQIm[2][off] = uW2[0][1]
+        secQRe[2][off + 1] = uW2[1][0]; secQIm[2][off + 1] = uW2[1][1]
+        secG5[2][idx] = 1
+        secCnt[2] = idx + 1
       }
     } else {
       const s2 = srcSite[s1]!
@@ -1891,21 +1939,25 @@ function buildD4FluxSystem(nFlux: number): {
       for (let q = 0; q < 3; q++) {
         const w1 = cExpI((-2 * PI * q) / 3)
         const w2 = cExpI((-4 * PI * q) / 3)
+        const qRe = secQRe[q]!
+        const qIm = secQIm[q]!
+        const g5Arr = secG5[q]!
         for (let sp = 0; sp < 4; sp++) {
-          const vr = new Float64Array(DIM_D4)
-          const vi = new Float64Array(DIM_D4)
-          vr[4 * s0 + sp] = invS3
+          const idx = secCnt[q]!
+          const base = idx * DIM_D4
+          qRe[base + 4 * s0 + sp] = invS3
           for (let r = 0; r < 4; r++) {
             const r1r = blkRe[o1 + r * 4 + sp]!
             const r1i = blkIm[o1 + r * 4 + sp]!
-            vr[4 * d1 + r] = vr[4 * d1 + r]! + invS3 * (w1[0] * r1r - w1[1] * r1i)
-            vi[4 * d1 + r] = vi[4 * d1 + r]! + invS3 * (w1[0] * r1i + w1[1] * r1r)
+            qRe[base + 4 * d1 + r] = qRe[base + 4 * d1 + r]! + invS3 * (w1[0] * r1r - w1[1] * r1i)
+            qIm[base + 4 * d1 + r] = qIm[base + 4 * d1 + r]! + invS3 * (w1[0] * r1i + w1[1] * r1r)
             const r2r = b2Re[o2 + r * 4 + sp]!
             const r2i = b2Im[o2 + r * 4 + sp]!
-            vr[4 * d2 + r] = vr[4 * d2 + r]! + invS3 * (w2[0] * r2r - w2[1] * r2i)
-            vi[4 * d2 + r] = vi[4 * d2 + r]! + invS3 * (w2[0] * r2i + w2[1] * r2r)
+            qRe[base + 4 * d2 + r] = qRe[base + 4 * d2 + r]! + invS3 * (w2[0] * r2r - w2[1] * r2i)
+            qIm[base + 4 * d2 + r] = qIm[base + 4 * d2 + r]! + invS3 * (w2[0] * r2i + w2[1] * r2r)
           }
-          vecsRe[q]!.push(vr); vecsIm[q]!.push(vi); g5Signs[q]!.push(sp < 2 ? 1 : -1)
+          g5Arr[idx] = sp < 2 ? 1 : -1
+          secCnt[q] = idx + 1
         }
       }
     }
@@ -1913,15 +1965,11 @@ function buildD4FluxSystem(nFlux: number): {
 
   const nzCols = new Int32Array(DIM_D4)
   const sectors = [0, 1, 2].map(q => {
-    const dq = vecsRe[q]!.length
-    const qRe = new Float64Array(dq * DIM_D4)
-    const qIm = new Float64Array(dq * DIM_D4)
-    for (let a = 0; a < dq; a++) {
-      qRe.set(vecsRe[q]![a]!, a * DIM_D4)
-      qIm.set(vecsIm[q]![a]!, a * DIM_D4)
-    }
-    const tRe = new Float64Array(dq * DIM_D4)
-    const tIm = new Float64Array(dq * DIM_D4)
+    const dq = secCnt[q]!
+    const qRe = secQRe[q]!
+    const qIm = secQIm[q]!
+    const tRe = D4_T_RE
+    const tIm = D4_T_IM
     for (let r = 0; r < DIM_D4; r++) {
       const rOff = r * DIM_D4
       let nnz = 0
@@ -1965,7 +2013,15 @@ function buildD4FluxSystem(nFlux: number): {
         outIm[a * dq + b] = si
       }
     }
-    return { dq, re: outRe, im: outIm, g5: Int8Array.from(g5Signs[q]!), qRe, qIm }
+    const keepQ = nFlux === 1 && q === 2
+    return {
+      dq,
+      re: outRe,
+      im: outIm,
+      g5: secG5[q]!,
+      qRe: keepQ ? qRe : HE_EMPTY,
+      qIm: keepQ ? qIm : HE_EMPTY,
+    }
   }) as [SectorBlock, SectorBlock, SectorBlock]
 
   return { sectors, scalarRe, scalarIm }
@@ -2209,6 +2265,12 @@ function runG5(sysFlux2: ReturnType<typeof buildD4FluxSystem>): SavedV2Modes {
   const m0 = 3.0
   const mIR2 = 0.01
 
+  const ovHRe = new Float64Array(114 * 114)
+  const ovSgnRe = new Float64Array(114 * 114)
+  const ovSgnIm = new Float64Array(114 * 114)
+  const ovDdRe = new Float64Array(114 * 114)
+  const ovDdIm = new Float64Array(114 * 114)
+
   function evalOverlapSector(
     sec: SectorBlock,
     extractModes: boolean,
@@ -2218,12 +2280,16 @@ function runG5(sysFlux2: ReturnType<typeof buildD4FluxSystem>): SavedV2Modes {
     readonly modesIm: Float64Array[]
   } {
     const dq = sec.dq
-    const hRe = Float64Array.from(sec.re)
+    const dq2 = dq * dq
+    const hRe = ovHRe.subarray(0, dq2)
+    hRe.set(sec.re)
     for (let i = 0; i < dq; i++) hRe[i * dq + i] = hRe[i * dq + i]! - m0 * sec.g5[i]!
     const eigH = hermitianEig(dq, hRe, sec.im, true)
 
-    const sgnRe = new Float64Array(dq * dq)
-    const sgnIm = new Float64Array(dq * dq)
+    const sgnRe = ovSgnRe.subarray(0, dq2)
+    const sgnIm = ovSgnIm.subarray(0, dq2)
+    sgnRe.fill(0)
+    sgnIm.fill(0)
     for (let k = 0; k < dq; k++) {
       const sg = eigH.values[k]! >= 0 ? 1 : -1
       const base = k * dq
@@ -2239,8 +2305,8 @@ function runG5(sysFlux2: ReturnType<typeof buildD4FluxSystem>): SavedV2Modes {
         }
       }
     }
-    const ddRe = new Float64Array(dq * dq)
-    const ddIm = new Float64Array(dq * dq)
+    const ddRe = ovDdRe.subarray(0, dq2)
+    const ddIm = ovDdIm.subarray(0, dq2)
     for (let i = 0; i < dq; i++) {
       for (let j = 0; j < dq; j++) {
         const fac = 0.25 * (sec.g5[i]! + sec.g5[j]!)

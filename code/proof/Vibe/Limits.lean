@@ -214,8 +214,8 @@ theorem thm16_weighted_gram_positivity {m n : ℕ} (B : Matrix (Fin m) (Fin n) �
   have hEq : dotProduct v ((Bᵀ * Matrix.diagonal w * B).mulVec v) =
       ∑ i : Fin m, w i * (B.mulVec v i) ^ 2 := by
     rw [Matrix.mul_assoc, ← Matrix.mulVec_mulVec, Matrix.dotProduct_mulVec,
-      Matrix.vecMul_transpose, ← Matrix.mulVec_mulVec, Matrix.mulVec_diagonal]
-    simp only [dotProduct, sq]
+      Matrix.vecMul_transpose, ← Matrix.mulVec_mulVec]
+    simp only [dotProduct, Matrix.mulVec_diagonal, sq]
     exact Finset.sum_congr rfl fun i _ => by ring
   rw [hEq]
   exact Finset.sum_nonneg fun i _ => mul_nonneg (hPos i) (sq_nonneg _)

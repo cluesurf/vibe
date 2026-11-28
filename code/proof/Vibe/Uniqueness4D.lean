@@ -70,8 +70,6 @@ theorem isPos_neg_exclusive (x : ZSqrt5) : ¬ (isPos x = true ∧ isNeg x = true
   split_ifs at hp hn
   all_goals
     first
-    | exact Bool.false_ne_true hp
-    | exact Bool.false_ne_true hn
     | (have := of_decide_eq_true hp; omega)
     | (have := of_decide_eq_true hp; have := of_decide_eq_true hn; nlinarith)
 
