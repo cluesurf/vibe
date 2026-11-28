@@ -31,11 +31,12 @@ public import Vibe.StandardModelCore
 public import Vibe.StandardModelMathlib
 public import Vibe.LogicEmergence
 public import Vibe.PlebanskiDarkFlux
+public import Vibe.ChiralUniversality
 
 /-!
 # Vibe Theory: Formal Lean 4 Proof Suite
 
-Root `module` aggregator (0 theorems) publicly re-exporting all 35 Lean `4.35.0` + Mathlib `v4.35.0`
+Root `module` aggregator (0 theorems) publicly re-exporting all 36 Lean `4.35.0` + Mathlib `v4.35.0`
 proof modules (`Vibe/FockBeat.lean` is a thin re-export facade over `Vibe/Fock/{Ring,State,Gates,Beat}.lean`):
 - `Vibe.Tone`: Signed ternary state `{-1, 0, +1}`, 24-slot `DockState`, calm vacuum `v1Dock`, charge conjugation `conjDock`
 - `Vibe.Algebra`: Exact rings `ℤ[ω]`, `ℤ[ζ_9]`, `Mat2Eis`, involutive `StarCommRing`, cyclotomic `ℤ[ζ_9]` gap cubic
@@ -68,6 +69,7 @@ proof modules (`Vibe/FockBeat.lean` is a thin re-export facade over `Vibe/Fock/{
 - `Vibe.StandardModelMathlib`: Canonical Mathlib `v4.35.0` proofs over `ℝ`, `ℂ`, `Matrix`, `Matrix.unitaryGroup`, `Matrix.det`, and `ZMod 6` (odd-dimension `3^k` pure-ternary parity obstruction via `Matrix.det`, continuous `SO(5)` custodial `ρ = 1` over `ℝ`, continuous `SU(3)_W` in `Matrix.unitaryGroup (Fin 3) ℂ` + `ρ^2(π/3) = 4/3` + `ζ_18^18 = 1`, `ZMod 6` SM center quotient & charge quantization, real Steinberg cubic bracket + `4 sin^2(θ/2)` gap identity, exact `D_4` outer triality `M_{D_4}^3 = 1, det(M_{D_4}-1) = 9, det(F_prim) = 36`, exact 24-root `D_4` honeycomb duality & Villain self-dual pair, and exact `2T_R = SL(2, 3)` 7-irrep character table & rank-1 origin density matrix)
 - `Vibe.LogicEmergence`: Exact logic of emergence over `DynSys`, `kerRel`, `Relation.EqvGen`, and rational `FinDist` pushforward functoriality (intra-model congruence vs `E`-invariance, equivalence-relation join, exogenous-measure contradiction & pushforward fix, strict transitivity & finite Ouroboros collapse, constrained emergence asymmetry, and instantiations on `ℤ_2^{48}`, `ZMod 6`, and `D_4 / 3 D_4`)
 - `Vibe.PlebanskiDarkFlux`: Exact untwisted orbifold anomaly uniqueness (`n = ±1`, `N_gen = 3`), `Z_3^{DM} × 2T_R` dark-sector stability, 24-cell Plebanski BF simplicity/closure/192-simplex wedge pairing, continuous real-calculus NEC monotonicity & Hartman-Maldacena causal velocity bound, `Q_8 < 2T_R` Witten `Z_2` flux-parity selection (`n` odd vs even), 3-smooth closure of `W(F_4)^+` zero-veto orbit averaging in `ℤ[ζ_9][1/6]`, and bidirectional `W(F_4)^+` spin-2 linearized diffeomorphism uniqueness (`c = c₁(1, -2, +2, -1, 0)`)
+- `Vibe.ChiralUniversality`: Exact chiral `k = 1` single-line orientation-reversal obstruction under `W(F_4)^+` vs `k* = 4` full-`W(F_4)` hierarchy, `W(F_4)^+` transitivity on all `144` ordered orthogonal pairs with `C_4` stabilizer, determinant-defined order-4 `rotQ`/`rotP`/`qNorth`/`isPerpQ` with global `W(F_4)^+`-equivariance, `5`-symbol (`Sym5`) & `15`-symbol (`Sym15`) homogeneous universal reversible CA bijections (`S_exch` Table-6 ray counter + `3-R` `11`-state launcher), and `O^+(4,1; ℤ[√2])` horosphere `ℤ^2` commutation + global Coxeter partitioned CA bijectivity
 
 Zero `sorry`, zero `axiom`, zero `native_decide`, machine-checked by Lean `4.35.0` with Mathlib `v4.35.0`.
 -/
