@@ -78,6 +78,7 @@ private theorem bl_add_neg (a : NinthLoc6) : NinthLoc6.add a (NinthLoc6.neg a) =
   StarCommRing.add_neg (R := NinthLoc6) a
 
 /-- `x = y` from the decidable zero test of `x - y`. -/
+-- [helper]
 theorem bl_eq_of_isZero {x y : NinthLoc6} (h : NinthLoc6.isZero (NinthLoc6.sub x y)) : x = y := by
   have h0 := bl_zero_of_isZero _ h
   have : NinthLoc6.add (NinthLoc6.sub x y) y = x := by
@@ -114,15 +115,25 @@ instance blCommRing : CommRing NinthLoc6 where
   nsmul := nsmulRec
   zsmul := zsmulRec
 
+-- [helper]
 theorem bl_add (a b : NinthLoc6) : NinthLoc6.add a b = a + b := rfl
+-- [helper]
 theorem bl_mul (a b : NinthLoc6) : NinthLoc6.mul a b = a * b := rfl
+-- [helper]
 theorem bl_neg (a : NinthLoc6) : NinthLoc6.neg a = -a := rfl
+-- [helper]
 theorem bl_sub (a b : NinthLoc6) : NinthLoc6.sub a b = a - b := rfl
+-- [helper]
 theorem bl_zero : NinthLoc6.zero = 0 := rfl
+-- [helper]
 theorem bl_one : NinthLoc6.one = 1 := rfl
+-- [helper]
 theorem bl_sc_add (a b : NinthLoc6) : StarCommRing.add a b = a + b := rfl
+-- [helper]
 theorem bl_sc_mul (a b : NinthLoc6) : StarCommRing.mul a b = a * b := rfl
+-- [helper]
 theorem bl_sc_zero : (StarCommRing.zero : NinthLoc6) = 0 := rfl
+-- [helper]
 theorem bl_sc_one : (StarCommRing.one : NinthLoc6) = 1 := rfl
 
 /-- The trace `Tr_{ℚ(ζ_9)/ℚ}` on `ℤ[ζ_9]` in the basis `1, z, ..., z^5`: `6 c₀ - 3 c₃`. -/
@@ -295,12 +306,14 @@ private theorem bl_sum_trZero (l : List HoneycombConfig) (f : HoneycombConfig �
     · exact hzx
     · exact ih hr hzr c hc
 
+-- [helper]
 theorem bl_ket (c₀ c : HoneycombConfig) :
     ket (R := NinthLoc6) c₀ c = if c = c₀ then 1 else 0 := rfl
 
 /-- **Zero off a support.** If a Fock unitary sends `|c₀⟩` to a vector whose squared norm on a
     duplicate-free list `T` is already `1`, it vanishes off `T` (the trace form of `ℤ[ζ_9][1/6]` is
     positive definite). -/
+-- [helper]
 theorem bl_zero_off (U : FockUnitary NinthLoc6 HoneycombConfig) (c₀ : HoneycombConfig)
     (T : List HoneycombConfig) (hT : T.Nodup) (hnorm : normSqOn T (U.op (ket c₀)) = 1) :
     ∀ c, c ∉ T → U.op (ket c₀) c = 0 := by
@@ -392,6 +405,7 @@ private theorem bl_normSq_eq (ψ : FockVec NinthLoc6 HoneycombConfig) (xs : List
 
 /-- A Fock unitary that matches a duplicate-free list of amplitudes of total squared norm `1` on
     `|c₀⟩` is that superposition, everywhere. -/
+-- [helper]
 theorem bl_op_ket_eq (U : FockUnitary NinthLoc6 HoneycombConfig) (c₀ : HoneycombConfig)
     (xs : List (HoneycombConfig × NinthLoc6)) (hnd : (xs.map Prod.fst).Nodup)
     (hval : ∀ p ∈ xs, U.op (ket c₀) p.1 = p.2) (hn : blNormSum xs = 1) :
@@ -504,6 +518,7 @@ def blEncode : List (Nat × Bool × Bool) → List Nat
   | (s, t, r) :: rest => s :: (if t then 1 else 0) :: (if r then 1 else 0) :: blEncode rest
 
 /-- Every family state reads back from its dock. -/
+-- [helper]
 theorem bl_family_decodes :
     Generated.bareBeatFamily.all (fun raw => blEncode (blDecode (blDock (blVibesOf raw))) == raw) = true := by
   decide +kernel
@@ -572,10 +587,12 @@ private theorem bl_lex_nodup (l : List (List Nat)) (h : blLexChain l = true) : l
       exact h.2
 
 /-- The family is listed in strictly increasing lexicographic order. -/
+-- [helper]
 theorem bl_family_chain : blLexChain Generated.bareBeatFamily = true := by
   decide +kernel
 
 /-- The family states are distinct. -/
+-- [helper]
 theorem bl_family_nodup : Generated.bareBeatFamily.Nodup :=
   bl_lex_nodup _ bl_family_chain
 
@@ -583,6 +600,7 @@ private theorem bl_lookup_cfg (vs : List (Nat × Bool × Bool)) : (blCfg vs).loo
   unfold blCfg; rw [lookup_setDock, ite_eq_left rfl]
 
 /-- Distinct family indices are distinct configurations. -/
+-- [helper]
 theorem bl_cfg_inj (i j : Nat) (hi : i < blN) (hj : j < blN) (h : blCfgF i = blCfgF j) : i = j := by
   have hd : blDock (blFam i) = blDock (blFam j) := by
     rw [← bl_lookup_cfg, ← bl_lookup_cfg]; exact congrArg (fun c => c.lookup mat5Id) h
@@ -611,6 +629,7 @@ def blLayerOk (L : FockVec NinthLoc6 HoneycombConfig → FockVec NinthLoc6 Honey
     decide (NinthLoc6.isZero (NinthLoc6.sub (blNormSum (rows.map fun p => (blCfgF p.1, p.2))) 1))
 
 /-- A passing check makes the Lean layer equal the table row as a vector of the Fock space. -/
+-- [helper]
 theorem bl_layer_of_ok (U : FockUnitary NinthLoc6 HoneycombConfig) (T : List (List Nat)) (i : Nat)
     (h : blLayerOk U.op T i = true) : U.op (ket (blCfgF i)) = blComboI (blRows T i) := by
   simp only [blLayerOk, Bool.and_eq_true, List.all_eq_true, decide_eq_true_eq] at h
@@ -638,6 +657,7 @@ def BLin (f : FockVec NinthLoc6 HoneycombConfig → FockVec NinthLoc6 HoneycombC
   ∀ (a : NinthLoc6) (ψ φ : FockVec NinthLoc6 HoneycombConfig),
     f (fun c => a * ψ c + φ c) = fun c => a * f ψ c + f φ c
 
+-- [helper]
 theorem bl_lin_zero {f : FockVec NinthLoc6 HoneycombConfig → FockVec NinthLoc6 HoneycombConfig}
     (hf : BLin f) : f (fun _ => 0) = fun _ => 0 := by
   have h := hf (-1) (fun _ => 0) (fun _ => 0)
@@ -646,8 +666,10 @@ theorem bl_lin_zero {f : FockVec NinthLoc6 HoneycombConfig → FockVec NinthLoc6
   rw [e] at h
   rw [h]; funext c; ring
 
+-- [helper]
 theorem bl_lin_id : BLin (fun ψ => ψ) := fun _ _ _ => rfl
 
+-- [helper]
 theorem bl_lin_comp {f g : FockVec NinthLoc6 HoneycombConfig → FockVec NinthLoc6 HoneycombConfig}
     (hf : BLin f) (hg : BLin g) : BLin (fun ψ => f (g ψ)) := by
   intro a ψ φ
@@ -702,24 +724,29 @@ private theorem bl_lin_siteMPair (g : Mat5) : BLin (siteMPairUnit g).op := by
   · rw [bl_sum12_lin]; simp only [bl_mul, bl_add]; ring
   · rfl
 
+-- [helper]
 theorem bl_lin_halfCoin : BLin fockHalfCoin :=
   bl_lin_global halfCoinFamily fun g =>
     show BLin (composeLines (lineHalfCoinUnit g) (List.finRange 12)).op from
       bl_lin_composeLines _ (bl_lin_lineHalfCoin g) _
 
+-- [helper]
 theorem bl_lin_meet : BLin fockMeet :=
   bl_lin_global meetFamily fun g =>
     show BLin (composeLines (lineMeetUnit g) (List.finRange 12)).op from
       bl_lin_composeLines _ (bl_lin_lineMeet g) _
 
+-- [helper]
 theorem bl_lin_bounce : BLin fockBounceK :=
   bl_lin_global bounceKFamily fun g =>
     show BLin (composeLines (lineBounceKUnit g) (List.finRange 12)).op from
       bl_lin_composeLines _ (bl_lin_lineBounce g) _
 
+-- [helper]
 theorem bl_lin_mpair : BLin fockMPair :=
   bl_lin_global mpairFamily fun g => show BLin (siteMPairUnit g).op from bl_lin_siteMPair g
 
+-- [helper]
 theorem bl_lin_phi (χ : ChiralInvariant) : BLin (fockPhiOdd χ) :=
   bl_lin_global (phiOddFamily χ) fun g => show BLin (sitePhiOddUnit χ g).op by
     intro a ψ φ; funext c
@@ -727,6 +754,7 @@ theorem bl_lin_phi (χ : ChiralInvariant) : BLin (fockPhiOdd χ) :=
     show NinthLoc6.zeta6Pow _ * (a * ψ c + φ c) = a * (NinthLoc6.zeta6Pow _ * ψ c) + NinthLoc6.zeta6Pow _ * φ c
     ring
 
+-- [helper]
 theorem bl_lin_stream : BLin fockStream := fun _ _ _ => rfl
 
 /-! ## Superpositions through a linear layer -/
@@ -754,6 +782,7 @@ private theorem bl_comboG_scale {α : Type} (cf : α → HoneycombConfig) (a : N
     rw [ih]; ring
 
 /-- A linear layer carries a superposition to the superposition of the images of its kets. -/
+-- [helper]
 theorem bl_lin_comboG {α : Type} {f : FockVec NinthLoc6 HoneycombConfig → FockVec NinthLoc6 HoneycombConfig}
     (hf : BLin f) (cf : α → HoneycombConfig) (G : α → List (α × NinthLoc6)) (xs : List (α × NinthLoc6))
     (hg : ∀ p ∈ xs, f (ket (cf p.1)) = blComboG cf (G p.1)) :
@@ -797,6 +826,7 @@ private theorem bl_toNL_apply {α : Type} (G : α → List (α × NinthRaw6)) (x
     rfl
 
 /-- A linear layer on superpositions of representatives. -/
+-- [helper]
 theorem bl_lin_comboR {α : Type} {f : FockVec NinthLoc6 HoneycombConfig → FockVec NinthLoc6 HoneycombConfig}
     (hf : BLin f) (cf : α → HoneycombConfig) (G : α → List (α × NinthRaw6)) (xs : List (α × NinthRaw6))
     (hg : ∀ p ∈ xs, f (ket (cf p.1)) = blComboR cf (G p.1)) :
@@ -812,6 +842,7 @@ theorem bl_lin_comboR {α : Type} {f : FockVec NinthLoc6 HoneycombConfig → Foc
 def BlClosed (T : List (List Nat)) : Prop := ∀ k < blN, ∀ q ∈ blRowsR T k, q.1 < blN
 
 /-- One layer step on family superpositions. -/
+-- [helper]
 theorem bl_step {f : FockVec NinthLoc6 HoneycombConfig → FockVec NinthLoc6 HoneycombConfig}
     (hf : BLin f) (T : List (List Nat)) (hT : ∀ k < blN, f (ket (blCfgF k)) = blComboR blCfgF (blRowsR T k))
     (hc : BlClosed T) (xs : List (Nat × NinthRaw6)) (hxs : ∀ p ∈ xs, p.1 < blN) :
@@ -823,6 +854,7 @@ theorem bl_step {f : FockVec NinthLoc6 HoneycombConfig → FockVec NinthLoc6 Hon
   obtain ⟨r, hr, rfl⟩ := List.mem_map.mp hpq
   exact hc q.1 (hxs q hq) r hr
 
+-- [helper]
 theorem bl_table_of_ok (U : FockUnitary NinthLoc6 HoneycombConfig) (T : List (List Nat))
     (h : ∀ k < blN, blLayerOk U.op T k = true) :
     (∀ k < blN, U.op (ket (blCfgF k)) = blComboR blCfgF (blRowsR T k)) ∧ BlClosed T := by
@@ -866,6 +898,7 @@ private theorem bl_phi_silent_sites (χ : ChiralInvariant) (c : HoneycombConfig)
 
 /-- For a silent `χ`, `Φ_odd` fixes the ket of any configuration whose docks hold fewer than 4
     excitations. -/
+-- [helper]
 theorem bl_phi_ket (χ : ChiralInvariant) (hχ : BlSilent χ) (c₀ : HoneycombConfig)
     (h0 : ∀ g ∈ c₀.activeDocks, blOcc (c₀.lookup g) < 4) : fockPhiOdd χ (ket c₀) = ket c₀ := by
   funext c
@@ -885,6 +918,7 @@ private theorem bl_cfg_active (vs : List (Nat × Bool × Bool)) (g : Mat5) (hg :
   · rw [ite_eq_right e] at h; exact absurd rfl h
 
 /-- Every family state holds at most 2 excitations at its one dock. -/
+-- [helper]
 theorem bl_family_small :
     Generated.bareBeatFamily.all (fun raw => decide (blOcc (blDock (blVibesOf raw)) < 4)) = true := by
   decide +kernel
@@ -893,6 +927,7 @@ private theorem bl_fam_getD (i : Nat) (hi : i < blN) :
     Generated.bareBeatFamily.getD i [] ∈ Generated.bareBeatFamily := by
   rw [List.getD_eq_getElem _ _ hi]; exact List.getElem_mem hi
 
+-- [helper]
 theorem bl_phi_family (χ : ChiralInvariant) (hχ : BlSilent χ) (k : Nat) (hk : k < blN) :
     fockPhiOdd χ (ket (blCfgF k)) = ket (blCfgF k) := by
   apply bl_phi_ket χ hχ
@@ -941,6 +976,7 @@ def blRAdd (x y : NinthRaw6) : NinthRaw6 :=
   if x.exp ≤ y.exp then ⟨Ninth.add (Ninth.scale (pow6 (y.exp - x.exp)) x.num) y.num, y.exp⟩
   else ⟨Ninth.add x.num (Ninth.scale (pow6 (x.exp - y.exp)) y.num), x.exp⟩
 
+-- [helper]
 theorem bl_toN_add (x y : NinthRaw6) : blToN (blRAdd x y) = blToN x + blToN y := by
   show Quot.mk _ (blRAdd x y) = Quot.mk _ (NinthLoc6.rawAdd x y)
   apply Quot.sound
@@ -990,6 +1026,7 @@ private theorem bl_comboR_off {α : Type} (cf : α → HoneycombConfig) (xs : Li
     ring
 
 /-- Equal coefficients make equal vectors, for a labelling injective on the labels used. -/
+-- [helper]
 theorem bl_comboR_eq_of_same {α : Type} [DecidableEq α] (cf : α → HoneycombConfig) (P : α → Prop)
     (inj : ∀ x y, P x → P y → cf x = cf y → x = y) (xs ys : List (α × NinthRaw6))
     (hx : ∀ p ∈ xs, P p.1) (hy : ∀ p ∈ ys, P p.1) (h : blSameR xs ys = true) :
@@ -1104,229 +1141,339 @@ def blAllOk (k : Nat) : Bool :=
     blLayerOk fockMeet Generated.bareBeatLayer_meet k &&
     blPhiRowOk Generated.bareBeatLayer_phi k && blBeatOk k && blQ0Ok k
 
+-- [helper]
 theorem bl_N_eq : blN = 860 := by decide +kernel
 
 private theorem bl_chunk (f : Nat → Bool) (a n : Nat) (h : (List.range' a n).all f = true) (k : Nat)
     (h1 : a ≤ k) (h2 : k < a + n) : f k = true :=
   List.all_eq_true.mp h k (List.mem_range'_1.mpr ⟨h1, h2⟩)
 
+-- [helper]
 theorem bl_all_ok_00 : (List.range' 0 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_01 : (List.range' 8 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_02 : (List.range' 16 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_03 : (List.range' 24 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_04 : (List.range' 32 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_05 : (List.range' 40 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_06 : (List.range' 48 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_07 : (List.range' 56 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_08 : (List.range' 64 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_09 : (List.range' 72 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_10 : (List.range' 80 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_11 : (List.range' 88 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_12 : (List.range' 96 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_13 : (List.range' 104 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_14 : (List.range' 112 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_15 : (List.range' 120 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_16 : (List.range' 128 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_17 : (List.range' 136 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_18 : (List.range' 144 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_19 : (List.range' 152 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_20 : (List.range' 160 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_21 : (List.range' 168 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_22 : (List.range' 176 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_23 : (List.range' 184 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_24 : (List.range' 192 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_25 : (List.range' 200 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_26 : (List.range' 208 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_27 : (List.range' 216 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_28 : (List.range' 224 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_29 : (List.range' 232 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_30 : (List.range' 240 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_31 : (List.range' 248 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_32 : (List.range' 256 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_33 : (List.range' 264 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_34 : (List.range' 272 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_35 : (List.range' 280 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_36 : (List.range' 288 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_37 : (List.range' 296 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_38 : (List.range' 304 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_39 : (List.range' 312 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_40 : (List.range' 320 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_41 : (List.range' 328 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_42 : (List.range' 336 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_43 : (List.range' 344 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_44 : (List.range' 352 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_45 : (List.range' 360 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_46 : (List.range' 368 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_47 : (List.range' 376 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_48 : (List.range' 384 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_49 : (List.range' 392 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_50 : (List.range' 400 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_51 : (List.range' 408 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_52 : (List.range' 416 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_53 : (List.range' 424 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_54 : (List.range' 432 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_55 : (List.range' 440 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_56 : (List.range' 448 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_57 : (List.range' 456 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_58 : (List.range' 464 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_59 : (List.range' 472 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_60 : (List.range' 480 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_61 : (List.range' 488 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_62 : (List.range' 496 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_63 : (List.range' 504 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_64 : (List.range' 512 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_65 : (List.range' 520 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_66 : (List.range' 528 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_67 : (List.range' 536 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_68 : (List.range' 544 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_69 : (List.range' 552 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_70 : (List.range' 560 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_71 : (List.range' 568 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_72 : (List.range' 576 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_73 : (List.range' 584 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_74 : (List.range' 592 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_75 : (List.range' 600 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_76 : (List.range' 608 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_77 : (List.range' 616 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_78 : (List.range' 624 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_79 : (List.range' 632 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_80 : (List.range' 640 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_81 : (List.range' 648 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_82 : (List.range' 656 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_83 : (List.range' 664 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_84 : (List.range' 672 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_85 : (List.range' 680 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_86 : (List.range' 688 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_87 : (List.range' 696 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_88 : (List.range' 704 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_89 : (List.range' 712 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_90 : (List.range' 720 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_91 : (List.range' 728 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_92 : (List.range' 736 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_93 : (List.range' 744 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_94 : (List.range' 752 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_95 : (List.range' 760 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_96 : (List.range' 768 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_97 : (List.range' 776 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_98 : (List.range' 784 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_99 : (List.range' 792 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_100 : (List.range' 800 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_101 : (List.range' 808 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_102 : (List.range' 816 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_103 : (List.range' 824 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_104 : (List.range' 832 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_105 : (List.range' 840 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_106 : (List.range' 848 8).all blAllOk = true := by decide +kernel
 
+-- [helper]
 theorem bl_all_ok_107 : (List.range' 856 4).all blAllOk = true := by decide +kernel
 
 /-- Every family state passes every check. -/
+-- [helper]
 theorem bl_all_ok (k : Nat) (hk : k < blN) : blAllOk k = true := by
   rw [bl_N_eq] at hk
   have hc : (0 ≤ k ∧ k < 8) ∨
@@ -1547,19 +1694,24 @@ theorem bl_all_ok (k : Nat) (hk : k < blN) : blAllOk k = true := by
   · exact bl_chunk _ 848 8 bl_all_ok_106 k h.1 h.2
   · exact bl_chunk _ 856 4 bl_all_ok_107 k h.1 h.2
 
+-- [helper]
 theorem bl_coin_ok (k : Nat) (hk : k < blN) : blLayerOk fockHalfCoin Generated.bareBeatLayer_coin k = true := by
   have h := bl_all_ok k hk; simp only [blAllOk, Bool.and_eq_true] at h; exact h.1.1.1.1.1.1
 
+-- [helper]
 theorem bl_bounce_ok (k : Nat) (hk : k < blN) :
     blLayerOk fockBounceK Generated.bareBeatLayer_bounce k = true := by
   have h := bl_all_ok k hk; simp only [blAllOk, Bool.and_eq_true] at h; exact h.1.1.1.1.1.2
 
+-- [helper]
 theorem bl_pair_ok (k : Nat) (hk : k < blN) : blLayerOk fockMPair Generated.bareBeatLayer_pair k = true := by
   have h := bl_all_ok k hk; simp only [blAllOk, Bool.and_eq_true] at h; exact h.1.1.1.1.2
 
+-- [helper]
 theorem bl_meet_ok (k : Nat) (hk : k < blN) : blLayerOk fockMeet Generated.bareBeatLayer_meet k = true := by
   have h := bl_all_ok k hk; simp only [blAllOk, Bool.and_eq_true] at h; exact h.1.1.1.2
 
+-- [helper]
 theorem bl_phi_ok (k : Nat) (hk : k < blN) : blPhiRowOk Generated.bareBeatLayer_phi k = true := by
   have h := bl_all_ok k hk; simp only [blAllOk, Bool.and_eq_true] at h; exact h.1.1.2
 
@@ -1568,6 +1720,7 @@ theorem bl_phi_ok (k : Nat) (hk : k < blN) : blPhiRowOk Generated.bareBeatLayer_
 theorem gen_bare_beat_beat_eq (k : Nat) (hk : k < blN) : blBeatOk k = true := by
   have h := bl_all_ok k hk; simp only [blAllOk, Bool.and_eq_true] at h; exact h.1.2
 
+-- [helper]
 theorem bl_q0_ok (k : Nat) (hk : k < blN) : blQ0Ok k = true := by
   have h := bl_all_ok k hk; simp only [blAllOk, Bool.and_eq_true] at h; exact h.2
 
@@ -1592,6 +1745,7 @@ theorem gen_bare_beat_family_eq (χ : ChiralInvariant) (hχ : BlSilent χ) (k : 
 /-! ## The bridge: the whole beat on the family -/
 
 /-- A stream of a superposition streams each configuration. -/
+-- [helper]
 theorem bl_stream_combo (xs : List (HoneycombConfig × NinthLoc6)) :
     fockStream (blCombo xs) = blCombo (xs.map fun p => (streamConfig p.1, p.2)) := by
   funext c
@@ -1612,6 +1766,7 @@ private theorem bl_id_transport : ∀ s : Fin 24, mat5Mul mat5Id (transport s) =
   decide +kernel
 
 /-- The stream puts what slot `s` of the base dock held on slot `s` of the neighbour `transport s`. -/
+-- [helper]
 theorem bl_stream_lands (c : HoneycombConfig) (s : Fin 24) :
     (streamConfig c).lookup (transport s) s = c.lookup mat5Id s := by
   have h := lookup_streamConfigInv (streamConfig c) mat5Id s

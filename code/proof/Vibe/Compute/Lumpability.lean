@@ -94,7 +94,7 @@ theorem thm_lump_iff_no_conflict {X A : Type*} (φ : X → X) (τ : Nat) (F : X 
     simp only [hx, ↓reduceDIte]
     exact h x _ (Eq.symm (Exists.choose_spec (p := fun y => F y = F x) _))
 
-open Classical in
+open scoped Classical in
 /-- A fine window `w` on the blocks of `W`, padded by `pad` outside. -/
 noncomputable def patch {V J : Type*} (blockOf : V → J) (W : Set J) (w pad : Config V) :
     Config V :=

@@ -790,6 +790,17 @@ const REQUIRED_THEOREMS = [
   'thm_q8_witten_z2_flux_parity',
   'thm_zero_veto_3smooth_closure',
   'thm_wf4_spin2_diffeo_uniqueness',
+  // Vibe.Compute.QuantumCoarse (10 headline, L16: q-ladder Q6 on the 2-role Fock beat; A16 the lone split k e_(k_a, a) + f e_(k_opp a, opp a), weights 1/4 and 3/4, the walk to beat 3, no dock map that tells a lone vibe from an empty dock makes U, U^2 or U^3 a coarse function; A17 U fixes the vacuum and mixes a one-dock state in every sector of 1..24 excitations; B8 the four declared tone maps tied to DECLARED_TONE_MAPS by Generated/QuantumCoarse, three see a lone vibe, pairedSign blind and still no function under U)
+  'thm_qc_lone_split',
+  'thm_qc_lone_targets',
+  'thm_qc_lone_walk',
+  'thm_qc_lone_branch',
+  'thm_qc_coarse_nogo',
+  'thm_qc_monomial_only_vacuum',
+  'gen_quantum_coarse_maps_eq',
+  'thm_qc_declared_maps_lone',
+  'thm_qc_declared_maps_nogo',
+  'thm_qc_paired_sign_nogo',
 ] as const
 
 const scriptDir = dirname(fileURLToPath(import.meta.url))

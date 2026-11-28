@@ -61,6 +61,8 @@ import Vibe.Compute.KleeneCertificates
 import Vibe.Compute.MeshNoGo
 import Vibe.Compute.SelectSteer
 import Vibe.Compute.Devices
+import Vibe.Compute.QuantumCoarse
+import Vibe.Compute.GateSetRank
 import Vibe.LogicEmergence
 import Vibe.PlebanskiDarkFlux
 

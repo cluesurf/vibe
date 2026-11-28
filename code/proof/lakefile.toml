@@ -23,3 +23,5 @@ allowNonModules = true
 [[lean_lib]]
 name = "Statements"
 roots = ["Statements"]
+# Plain, because Vibe.lean is plain (it imports the plain Vibe/Compute files) and a `module` cannot import it.
+allowNonModules = true

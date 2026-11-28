@@ -231,7 +231,7 @@ private theorem mergeCode_lt (p m L i : ℕ) (hp : p ≤ 1) (hi : i < L)
   unfold mergeCode
   split_ifs <;> omega
 
-open Classical in
+open scoped Classical in
 /-- The read that answers A exactly when some strictly ordered pair with A ahead writes these
 two values. -/
 noncomputable def existsRead {α β : Type*} (L : ℕ) (cA : ℕ → α) (cB : ℕ → β) (x : α) (y : β) :

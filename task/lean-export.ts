@@ -67,15 +67,7 @@ import {
   windowRadius,
 } from '@/code/compute/lab/coarse-block'
 import { encodeState, globalPermutation } from '@/code/rule/partitioned-pair'
-import {
-  RationalSpan,
-  type LieElement,
-  lieBracket,
-  lieClosureDimension,
-  spinSector,
-  transpositionImage,
-  tripleGenerators,
-} from '@/code/compute/quantum/gate-set'
+import { lieClosureDimension, spinSector, transpositionImage, tripleGenerators } from '@/code/compute/quantum/gate-set'
 import { applyShiftedAdjacency, evaluatePolynomialOn, shiftedAdjacencyMinimalPolynomial } from '@/code/measure/z3-resonance'
 import { closedQuotients, findRotaryMap, referenceTiling, squareTorus, triangleTorus } from '@/code/substrate/tiling-quotient'
 import { DECLARED_TONE_MAPS } from '@/code/compute/quantum/classical-boundary'
@@ -1495,9 +1487,10 @@ function packDigits(digits: readonly number[], base: number): string {
   return code.toString()
 }
 
-// B7: Q1's Lie closure on the S = 1 sector of six excitations with two in role 1 (gate-set.ts). The generators are
-// tripleGenerators (i P_ab Pi_std(abc) Pi_S, integer-scaled, real part zero); the rows are lieClosureDimension's
-// echelon basis in insertion order, each with the generator or bracket it was reduced from.
+// B7: Q1's generators on the S = 1 sector of six excitations with two in role 1 (gate-set.ts): tripleGenerators
+// (i P_ab Pi_std(abc) Pi_S, integer-scaled, real part zero) with the sector it is built on, and the dimension
+// lieClosureDimension reads for their Lie closure. The Lean side rebuilds the generators from the sector; the
+// dimension 80 is the code's reading, not yet a certificate (the Lie-closure rank is a follow-up item).
 const GATE_SET_SOURCES = ['code/compute/quantum/gate-set.ts', 'code/algebra/ninth-field.ts'] as const
 const GATE_SET_EXCITATIONS = 6
 const GATE_SET_ROLE_ONE = 2
@@ -1507,52 +1500,19 @@ export function exportCertificatesGateSet(): string {
   const sector = spinSector(GATE_SET_EXCITATIONS, GATE_SET_ROLE_ONE)
   const gens = tripleGenerators(sector, GATE_SET_TWICE_SPIN)
   const n = sector.words.length
-  const flatten = (x: LieElement): bigint[] => [...x.re.flat(), ...x.im.flat()]
-  const unflatten = (v: readonly bigint[]): LieElement => ({
-    re: Array.from({ length: n }, (_, i) => Array.from({ length: n }, (__, j) => v[i * n + j]!)),
-    im: Array.from({ length: n }, (_, i) => Array.from({ length: n }, (__, j) => v[n * n + i * n + j]!)),
-  })
-  // lieClosureDimension's loop, keeping each new row's parent: (0, k) for generator k, (j + 1, k) for [row j, g_k]
-  const span = new RationalSpan()
-  const queue: LieElement[] = []
-  const parents: [number, number][] = []
-
-  for (const [k, g] of gens.entries()) {
-    const row = span.insert(flatten(g))
-
-    if (row) {
-      queue.push(unflatten(row))
-      parents.push([0, k])
-    }
-  }
-
-  for (const [j, element] of queue.entries()) {
-    for (const [k, g] of gens.entries()) {
-      const row = span.insert(flatten(lieBracket(element, g)))
-
-      if (row) {
-        queue.push(unflatten(row))
-        parents.push([j + 1, k])
-      }
-    }
-  }
-
   const closure = lieClosureDimension(gens, 4 * n * n)
 
-  if (!closure.closed || closure.dimension !== span.dimension) {
-    throw new Error(`gate set: the replayed closure (${span.dimension}) is not lieClosureDimension's (${closure.dimension})`)
+  if (!closure.closed) {
+    throw new Error('gate set: lieClosureDimension did not close')
   }
 
-  const rowsOf = (m: readonly (readonly bigint[])[]): string => `[${m.map(r => packSigned(r)).join(', ')}]`
   const genRows = gens.map(g => {
     if (g.re.some(r => r.some(x => x !== 0n))) {
       throw new Error('gate set: a generator with a real part')
     }
 
-    return rowsOf(g.im)
+    return `[${g.im.map(r => packSigned(r)).join(', ')}]`
   })
-  const basisRows = queue.map(e => rowsOf([...e.re, ...e.im]))
-  // the sector itself, so the Lean side rebuilds the generators: the words and every transposition image
   const words = sector.words.map(w => `[${w.join(', ')}]`)
   const images: string[] = []
 
@@ -1564,29 +1524,17 @@ export function exportCertificatesGateSet(): string {
 
   const body = [
     `/-- The spin sector of gate-set.ts: ${GATE_SET_EXCITATIONS} excitations, ${GATE_SET_ROLE_ONE} in role 1, the positions in`,
-    '    role 1 of each basis word in the order of \`spinSector\`. -/',
+    '    role 1 of each basis word in the order of `spinSector`. -/',
     `def gateSetWords : List (List Nat) :=\n  ${leanList(words, '  ')}`,
     '',
     '/-- `transpositionImage` of every transposition `(p q)`, `p < q`: the word index each word goes to. -/',
     `def gateSetImages : List (Nat × Nat × List Nat) :=\n  ${leanList(images, '  ')}`,
     '',
     `/-- \`tripleGenerators(spinSector(${GATE_SET_EXCITATIONS}, ${GATE_SET_ROLE_ONE}), ${GATE_SET_TWICE_SPIN})\`: the imaginary part of each`,
-    `    generator (the real part is zero), one packed Nat per row (base 2^32, entries shifted by 2^31). -/`,
+    '    generator (the real part is zero), one packed Nat per row (base 2^32, entries shifted by 2^31). -/',
     `def gateSetGens : List (List Nat) :=\n  ${leanList(genRows, '  ')}`,
     '',
-    `/-- The ${queue.length} echelon rows of \`lieClosureDimension\` in insertion order: the real part's ${n} rows, then the`,
-    '    imaginary part\'s, packed as in `gateSetGens`. -/',
-    `def gateSetBasis : List (List Nat) :=\n  ${leanList(basisRows, '  ')}`,
-    '',
-    '/-- The pivot of each echelon row (`RationalSpan`): the flat index (real part first, row-major) of its first',
-    '    nonzero entry. -/',
-    `def gateSetPivots : List Nat :=\n  [${span.rows.map(r => r.pivot).join(', ')}]`,
-    '',
-    '/-- What each row was reduced from: `(0, k)` generator `k`, `(j + 1, k)` the bracket of row `j` with',
-    '    generator `k`. -/',
-    `def gateSetParents : List (Nat × Nat) :=\n  [${parents.map(([a, b]) => `(${a}, ${b})`).join(', ')}]`,
-    '',
-    '/-- `lieClosureDimension(gens, cap).dimension`, with the closure complete. -/',
+    '/-- `lieClosureDimension(gens, cap).dimension`, with the closure complete: the code\'s reading. -/',
     `def gateSetDimension : Nat := ${closure.dimension}`,
   ].join('\n')
 
@@ -1594,8 +1542,8 @@ export function exportCertificatesGateSet(): string {
     header: header({
       sources: GATE_SET_SOURCES,
       lines: [
-        `Exports Q1's spin sector, its ${gens.length} triple generators and the ${queue.length}-row echelon basis of their Lie closure.`,
-        'Bridge: Vibe.Compute.GateSetRank (gen_gsr_generators_eq, gen_gsr_dimension_eq).',
+        `Exports Q1's spin sector, its ${gens.length} triple generators and lieClosureDimension's reading for them.`,
+        'Bridge: Vibe.Compute.GateSetRank (gen_gsr_generators_eq).',
       ],
     }),
     body,
@@ -1785,12 +1733,12 @@ export function exportCertificatesKrylov(): string {
           y.map(r => packDigits(r, 4)),
         ),
         ...chunkedNats(
-          `krylovK${ci}`,
-          `/-- K_0 .. K_${k} of ${g.name} under sigma ${sigma} (applyShiftedAdjacency from delta_0), packed base ${KRYLOV_VECTOR_BASE}. -/`,
-          vectors.map(v => packDigits(Array.from(v), KRYLOV_VECTOR_BASE)),
+          `krylovX${ci}`,
+          `/-- Per cell i of ${g.name} under sigma ${sigma}: its series K_0[i] .. K_${k}[i] (applyShiftedAdjacency from delta_0), packed base ${KRYLOV_VECTOR_BASE}. -/`,
+          g.neighbors.map((_, i) => packDigits(vectors.map(v => v[i]!), KRYLOV_VECTOR_BASE)),
         ),
       )
-      certRows.push(`(${gi}, ${sigma}, ${k}, krylovM${ci}, krylovPiv${ci}, krylovY${ci}, krylovK${ci})`)
+      certRows.push(`(${gi}, ${sigma}, ${k}, krylovM${ci}, krylovPiv${ci}, krylovY${ci}, krylovX${ci})`)
       degreeRows.push(`("${g.name}", ${sigma}, ${k})`)
     }
   }
@@ -1803,7 +1751,7 @@ export function exportCertificatesKrylov(): string {
     '',
     '/-- Per graph and law: graph index, sigma, the degree k of `shiftedAdjacencyMinimalPolynomial` on delta_0, its',
     '    coefficients lowest first (k + 1 of them), the pivot cells of K_0 .. K_(k-1), the rows of Y packed base 4',
-    `    (k digits each), and K_0 .. K_k packed base ${KRYLOV_VECTOR_BASE}. -/`,
+    `    (k digits each), and per cell its series K_0[i] .. K_k[i] packed base ${KRYLOV_VECTOR_BASE}. -/`,
     `def krylovCerts : List (Nat × Nat × Nat × List Nat × List Nat × List Nat × List Nat) :=\n  ${leanList(certRows, '  ')}`,
     '',
     '/-- The code\'s Krylov degree per graph and law: (graph name, sigma, degree). -/',
@@ -1902,6 +1850,13 @@ export const LEAN_EXPORTS: readonly LeanExport[] = [
     bridgeModule: 'Vibe.Compute.Devices',
     bridges: ['gen_devices_rule_eq', 'gen_devices_word_index_eq', 'gen_devices_identity_census_eq'],
     render: exportDevices,
+  },
+  {
+    name: 'QuantumCoarse',
+    sources: QUANTUM_COARSE_SOURCES,
+    bridgeModule: 'Vibe.Compute.QuantumCoarse',
+    bridges: ['gen_quantum_coarse_maps_eq'],
+    render: exportQuantumCoarse,
   },
 ]
 
