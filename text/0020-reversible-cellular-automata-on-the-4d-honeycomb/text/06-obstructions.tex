@@ -1,21 +1,21 @@
 \section{Obstructions}
 \label{sec:obstructions}
 
-Removing specialized markers, catalysts, and fixed-origin controllers raises a sharp structural question paralleling Margenstern's minimal-state boundaries on planar and three-dimensional hyperbolic grids~\cite{margenstern2018halting,margenstern2021outer,margenstern2023weighted,margenstern2024heptagrid}. When a reversible automaton on $\{3,4,3,4\}$ carries only three signed slot tones $\{-1,0,+1\}$ and obeys the full $576$-element chiral symmetry group $W(F_4)^+$ (which acts faithfully on the $12$ lines as a $288$-element group), how far can uninterrupted trackless dynamics compute? We analyze one canonical unitary ternary quantum cellular automaton (QCA)~\cite{schumacher2004,arrighi2019} as a Lean~4-certified case study, isolating seven exact algebraic obstructions that separate trackless autonomous scattering from engineered universal circuits.
+Removing specialized markers, catalysts, and fixed-origin controllers raises a sharp structural question paralleling Margenstern's minimal-state boundaries on planar and three-dimensional hyperbolic grids~\cite{margenstern2018halting,margenstern2021outer,margenstern2023weighted,margenstern2024heptagrid}. When a reversible automaton on $\{3,4,3,4\}$ carries only three signed port tones $\{-1,0,+1\}$ and obeys the full $576$-element chiral symmetry group $W(F_4)^+$ (which acts faithfully on the $12$ lines as a $288$-element group), how far can uninterrupted trackless dynamics compute? We analyze one canonical unitary ternary quantum cellular automaton (QCA)~\cite{schumacher2004,arrighi2019} as a Lean~4-certified case study, isolating seven exact algebraic obstructions that separate trackless autonomous scattering from engineered universal circuits.
 
 \subsection{Minimal Unitary Automaton}
 \label{subsec:minimal-qca}
 
-A quantum cellular automaton lifts a partitioned classical bijection to a local unitary matrix acting on finite-support Fock superpositions of slot configurations while preserving exact $\ell^2$ norm and inner products. Restricting amplitudes to the cyclotomic ring $\mathbb{Z}[\zeta_9][1/6]$ (with $\zeta_9 = e^{2\pi i/9}$, $\omega = \zeta_9^3$, $\zeta_6 = e^{i\pi/3}$, and $\zeta_{18} = e^{i\pi/9}$) keeps every transition exact without floating-point approximation: the cube roots $\omega$ generate the unitary ternary line coin over $1/2$, while $\zeta_{18}$ and denominator $6 = 2 \cdot 3$ provide the smallest cyclotomic ring supporting a $W(F_4)$-equivariant $12 \times 12$ cross-line scattering matrix.
+A quantum cellular automaton lifts a partitioned classical bijection to a local unitary matrix acting on finite-support Fock superpositions of port configurations while preserving exact $\ell^2$ norm and inner products. Restricting amplitudes to the cyclotomic ring $\mathbb{Z}[\zeta_9][1/6]$ (with $\zeta_9 = e^{2\pi i/9}$, $\omega = \zeta_9^3$, $\zeta_6 = e^{i\pi/3}$, and $\zeta_{18} = e^{i\pi/9}$) keeps every transition exact without floating-point approximation: the cube roots $\omega$ generate the unitary ternary line coin over $1/2$, while $\zeta_{18}$ and denominator $6 = 2 \cdot 3$ provide the smallest cyclotomic ring supporting a $W(F_4)$-equivariant $12 \times 12$ cross-line scattering matrix.
 
 \begin{definition}[Minimal Chiral Unitary Automaton $U$]
 \label{def:bare-u}
-Assign each facet slot a ternary tone $\tau \in \{-1, 0, +1\}$ (neutral quiescent $0$ plus two opposite active tones, optionally tagged by a finite conserved internal role label $r$). On each discrete beat, evolve finite-support Fock states by composing seven site-local unitary layers with the exact bijective facet stream $S$ of~\eqref{eq:stream-bijection}:
+Assign each facet port a ternary tone $\tau \in \{-1, 0, +1\}$ (neutral quiescent $0$ plus two opposite active tones, optionally tagged by a finite conserved internal role label $r$). On each discrete step, evolve finite-support Fock states by composing seven site-local unitary layers with the exact bijective facet stream $S$ of~\eqref{eq:stream-bijection}:
 \begin{equation}
 \label{eq:bare-u}
-U = S \circ \Phi_{\mathrm{odd}} \circ H_c \circ M_{\mathrm{meet}} \circ M_{\mathrm{pair}}(\zeta_{18}) \circ K \circ H_c \circ \Phi_{\mathrm{odd}}.
+U = S \circ \Phi_{\mathrm{odd}} \circ H_c \circ M_{\mathrm{meet}} \circ M_{\mathrm{pair}}(\zeta_{18}) \circ K_{\mathrm{flip}} \circ H_c \circ \Phi_{\mathrm{odd}}.
 \end{equation}
-Table~\ref{tab:u-layers} specifies each local factor. Because the three central layers $K$, $M_{\mathrm{pair}}(\zeta_{18})$, and $M_{\mathrm{meet}}$ mutually commute, the seven-layer site-local unitary $L_{\mathrm{bare}}$ is palindromic up to central commutation.
+Table~\ref{tab:u-layers} specifies each local factor. Because the three central layers $K_{\mathrm{flip}}$, $M_{\mathrm{pair}}(\zeta_{18})$, and $M_{\mathrm{meet}}$ mutually commute, the seven-layer site-local unitary $L_{\mathrm{bare}}$ is palindromic up to central commutation.
 \end{definition}
 
 \begin{table}[tb]
@@ -23,25 +23,30 @@ Table~\ref{tab:u-layers} specifies each local factor. Because the three central 
 \caption{Local unitary layers composing the canonical chiral ternary automaton $U$ in~\eqref{eq:bare-u} over $\mathbb{Z}[\zeta_9][1/6]$, all formally certified unitary ($V^{\dagger}V = VV^{\dagger} = I$) in Lean~4~\cite{pollard2026repo}.}
 \label{tab:u-layers}
 \small
-\begin{tabular}{@{}lll@{}}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
 \toprule
 Layer & Support & Exact local action \\
 \midrule
 $H_c$ & Each antipodal line ($2\times 2$) & Deterministic half-coin in $\mathbb{Z}[\omega][1/2]$ ($H_c^2 = C$, no randomness) \\
-$K$ & Opposite-tone line pair & Swaps $(+,-) \leftrightarrow (-,+)$ with $-1$ phase flip \\
+$K_{\mathrm{flip}}$ & Opposite-tone line pair & Swaps $(+,-) \leftrightarrow (-,+)$ with $-1$ phase flip \\
 $M_{\mathrm{pair}}(\zeta_{18})$ & All $12$ lines ($12 \times 12$) & $W(F_4)$-equivariant full-line pair scatter, angle $\pi/9$ \\
-$M_{\mathrm{meet}}$ & Two-body line meeting ($2\times 2$) & Exact $\mathbb{Z}[\omega]$ collinear meeting phase unitary \\
-$\Phi_{\mathrm{odd}}$ & $4$-line chiral clusters & $C$-odd (tone-flip), $P$-odd (inversion) phase in $\mathbb{Z}[\zeta_6]$; $CP,T,CPT$ exact \\
+$M_{\mathrm{meet}}$ & Two-body line meeting ($2\times 2$) & Exact $\mathbb{Z}[\omega][1/2]$ collinear meeting phase unitary \\
+$\Phi_{\mathrm{odd}}$ & $4$-line chiral clusters & $C$-odd (tone-flip), $P$-odd (inversion) phase in $\mathbb{Z}[\zeta_6]$, preserving $CP,T,CPT$ \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
-Every factor in Table~\ref{tab:u-layers} is machine-checked unitary in Lean~4 over exact cyclotomic arithmetic, certifying $(U^{\dagger})^t U^t = U^t (U^{\dagger})^t = I$ for all $t \in \mathbb{N}$ on finite-support Fock states~\cite{pollard2026repo}. Just as Proposition~\ref{prop:global-bijection} secured classical bijectivity constructively, algebraic factorization guarantees global unitarity without entering the undecidable generic-CA regime~\cite{margenstern2008injectivity}.
+Every factor in Table~\ref{tab:u-layers} is machine-checked unitary in Lean~4 over exact cyclotomic arithmetic, certifying exact global unitarity on finite-support Fock states for all $t \in \mathbb{N}$~\cite{pollard2026repo}:
+\begin{equation}
+\label{eq:global-unitarity}
+(U^{\dagger})^t U^t = U^t (U^{\dagger})^t = I.
+\end{equation}
+Just as Proposition~\ref{prop:global-bijection} secured classical bijectivity constructively, algebraic factorization guarantees global unitarity without entering the undecidable generic-CA regime~\cite{margenstern2008injectivity}.
 
 \subsection{Seven Obstructions}
 \label{subsec:seven-obstructions}
 
-While factorization guarantees exact reversibility, combining $W(F_4)^+$ symmetry with~\eqref{eq:bare-u} imposes seven concrete obstructions on uninterrupted trackless evolutions $U^t$ (Table~\ref{tab:obstructions}). Two verification boundaries apply cleanly. Obstructions~1, 2, and 5 are proved directly in Lean~4 on the full infinite-honeycomb Fock unitary and $O^+(4,1;\mathbb{Z}[\sqrt{2}])$ transport algebra~\cite{pollard2026repo}. For Obstructions~3, 4, 6, and 7, Lean~4 proves the exact cleared-denominator algebraic and matrix theorems on the reduced $6\times 6$ and $2\times 2$ operators, while extracting those reduced blocks from eight-layer 4D $U$ (verified in exact 4D big-integer arithmetic) and lifting rational inequalities to real trigonometric derivatives sit outside the finite Lean kernel. Because these proofs govern the specific operator $U$ in Definition~\ref{def:bare-u}, they form a certified case study rather than a blanket impossibility theorem over all $W(F_4)^+$-symmetric automata.
+While factorization guarantees exact reversibility, combining $W(F_4)^+$ symmetry with~\eqref{eq:bare-u} imposes seven concrete obstructions on uninterrupted trackless evolutions $U^t$ (Table~\ref{tab:obstructions}). Two verification boundaries apply cleanly. Obstructions~1, 2, and 5 are proved directly in Lean~4 on the full infinite-honeycomb Fock unitary and $O^+(4,1;\mathbb{Z}[\sqrt{2}])$ transport algebra~\cite{pollard2026repo}. For Obstructions~3, 4, 6, and 7, Lean~4 proves the exact cleared-denominator algebraic and matrix theorems on the reduced $6\times 6$ and $2\times 2$ operators, while extracting those reduced blocks from the full eight-layer evolution $U = S \circ L_{\mathrm{bare}}$ (verified in exact 4D big-integer arithmetic) and lifting rational inequalities to real trigonometric derivatives sit outside the finite Lean kernel. Because these proofs govern the specific operator $U$ in Definition~\ref{def:bare-u}, they form a certified case study rather than a blanket impossibility theorem over all $W(F_4)^+$-symmetric automata.
 
 \begin{table}[tb]
 \centering
@@ -72,7 +77,7 @@ From~\eqref{eq:transport-ids}, any two distinct non-antipodal geodesics $\gamma_
 \label{eq:geodesic-uniq}
 k_{a_1}^{m_1} c_0 = k_{a_2}^{m_2} c_0 \;\Longrightarrow\; m_1 = m_2 = 0
 \end{equation}
-for all integers $m_1, m_2$, and left-translation in $K$ extends $|\gamma_i \cap \gamma_j| \le 1$ to arbitrary pairs of geodesics. Because $\Phi_{\mathrm{odd}}$ acts as the identity (zero chiral phase angle) whenever fewer than four lines participate, any family of $m$ unguided geodesic rails produces at most
+for all integers $m_1, m_2$, and left-translation in the frame group $K$ extends $|\gamma_i \cap \gamma_j| \le 1$ to arbitrary pairs of geodesics. Because $\Phi_{\mathrm{odd}}$ acts as the identity (zero chiral phase angle) whenever fewer than four lines participate, any family of $m$ unguided geodesic rails produces at most
 \begin{equation}
 \label{eq:junction-cap}
 J \le \left\lfloor \frac{m(m-1)}{12} \right\rfloor
@@ -85,15 +90,21 @@ Along any collinear geodesic, a $k$-body bound string ($k \ge 1$) has exact grou
 \label{eq:group-vel}
 v_k(p) = \frac{\sin p}{\sqrt{3 k^2 + \sin^2 p}}
 \end{equation}
-as a function of crystal momentum $p \in [-\pi,\pi]$. Its first and second derivatives satisfy the strict global floor
+as a function of crystal momentum $p \in [-\pi,\pi]$. Its first and second derivatives obey the strict global floor
 \begin{equation}
 \label{eq:disp-floor}
-\bigl(v'_k(p)\bigr)^2 + \bigl(v''_k(p)\bigr)^2 \ge \frac{9 k^4}{(3 k^2 + 1)^3} > 0,
+\bigl(v'_k(p)\bigr)^2 + \bigl(v''_k(p)\bigr)^2 \ge \frac{9 k^4}{(3 k^2 + 1)^3} > 0, \qquad
+\text{values } \Bigl(\frac{9}{64},\, \frac{144}{2{,}197},\, \frac{729}{21{,}952}\Bigr) \text{ for } k = 1, 2, 3.
 \end{equation}
-evaluated exactly as $9/64$, $144/2{,}197$, and $729/21{,}952$ for $k = 1, 2, 3$. Defining the Rayleigh doubling time $T_R$ for a Gaussian wavepacket of initial width $\sigma_0$, generic packets broaden quadratically ($T_R \propto \sigma_0^2$, measured slope $1.995$), while inflection-point Airy packets ($v'_k = 0$ at $p = -\pi/2$) still broaden cubically ($T_R \propto \sigma_0^3$, measured slope $3.023$), preventing free pulses from preserving fixed width across arbitrary circuit distances.
+Consequently, the Rayleigh doubling time $T_R$ of a Gaussian wavepacket of initial width $\sigma_0$ scales quadratically ($T_R \propto \sigma_0^2$) at generic momenta and still scales cubically ($T_R \propto \sigma_0^3$) at inflection-point Airy momenta where $v'_k(-\pi/2) = 0$ (verified numerically in companion scripts~\cite{pollard2026repo}), preventing free pulses from preserving fixed width across arbitrary circuit distances.
 
 \paragraph{4. Yang--Baxter collapse.}
-On the $3! = 6$-dimensional three-body distinct-role permutation sector of a single ballistic line, the rational Yang $R$-matrix $\tilde{R}_{pq}(w) = w I - i P_{pq}$ obeys the exact Yang--Baxter equation (three-body scattering factorizing identically into pairwise collisions) over $\mathbb{Z}[i]$ for all rapidities, verified symbolically in Lean~4 and numerically to $6.64 \times 10^{-16}$. Integrability collapses $n$-packet interaction freedom to $3n - 1 < 4^n - 1$ parameters for all $n \ge 1$. Moreover, on the four-body exchange gate $G_{\mathrm{ex}}$ acting on the six-dimensional spin-conserving subspace, exact $\mathbb{Z}[\omega]$ leakage clearance $\langle \psi_{\mathrm{leak}} | 4 G_{\mathrm{ex}} | \psi_{\mathrm{leak}} \rangle = 0$ forces the pairwise rapidity difference $w_{AD} = u_A - u_D$ to vanish identically, preventing two ballistic packets from ever colliding in a single pass.
+On the $3! = 6$-dimensional three-body distinct-role permutation sector of a single ballistic line, the rational Yang $R$-matrix $\tilde{R}_{pq}(w) = w I - i P_{pq}$ (where $P_{pq}$ is the two-particle swap operator and $w$ is the spectral rapidity parameter) obeys the exact Yang--Baxter equation (three-body scattering factorizing identically into pairwise collisions) over $\mathbb{Z}[i]$ for all rapidities, verified symbolically in Lean~4. Integrability collapses $n$-packet interaction freedom to $3n - 1 < 4^n - 1$ parameters for all $n \ge 1$. Moreover, on the four-body exchange gate $G_{\mathrm{ex}}$ acting on the six-dimensional tone-conserving subspace, exact clearance of any non-computational leakage state $\psi_{\mathrm{leak}}$ (with factor $4$ clearing denominators into $\mathbb{Z}[\omega]$) forces the pairwise rapidity difference $w_{AD} = u_A - u_D$ to vanish identically:
+\begin{equation}
+\label{eq:gex-leak}
+\langle \psi_{\mathrm{leak}} |\, 4 G_{\mathrm{ex}} \,| \psi_{\mathrm{leak}} \rangle = 0 \;\Longrightarrow\; w_{AD} = u_A - u_D = 0.
+\end{equation}
+Equal rapidities prevent two ballistic packets from ever colliding in a single pass.
 
 \paragraph{5. Unitary halting obstruction.}
 Applying the Linden--Popescu obstruction~\cite{linden1998} directly to $U$ in Lean~4 shows that any unitary fixed point $U \psi_{\mathrm{halt}} = \psi_{\mathrm{halt}}$ cannot be reached from any distinct state $\phi \neq \psi_{\mathrm{halt}}$ in finite time $t$, because unitarity preserves inner products identically:
@@ -104,37 +115,38 @@ Applying the Linden--Popescu obstruction~\cite{linden1998} directly to $U$ in Le
 Any reversible universal system must therefore signal completion through a state-flag or oscillating boundary transition rather than an absorbing fixed point.
 
 \paragraph{6. Diffraction ceiling and role pigeonhole.}
-For any single full-line pair entering $M_{\mathrm{pair}}(\zeta_{18})$, the probability $p_{\mathrm{hop}} = \sin^2(\pi/18)/36$ of scattering onto any specific other line obeys
+For any single full-line pair entering $M_{\mathrm{pair}}(\zeta_{18})$, the probability of scattering onto any specific other line obeys
 \begin{equation}
 \label{eq:mpair-cap}
-\frac{837}{10^6} < p_{\mathrm{hop}} < \frac{838}{10^6}, \qquad p_{\mathrm{off}} = 11\,p_{\mathrm{hop}} \approx 0.9214\%.
+p_{\mathrm{hop}} = \frac{\sin^2(\pi/18)}{36}, \qquad \frac{837}{10^6} < p_{\mathrm{hop}} < \frac{838}{10^6}, \qquad p_{\mathrm{off}} = 11\,p_{\mathrm{hop}} \approx 0.9214\%.
 \end{equation}
 Of the $11$ other $D_4$ root lines ($3$ orthogonal and $8$ meeting at $60^\circ$), $10/11$ of every off-line event leaks isotropically onto unintended lines, and coherent $m$-line focusing remains below $1\%$ for all $1 \le m \le 11$. In parallel, encoding $n$ three-role logical qubits inside $9$ conserved role labels hits a constructive pigeonhole collision for every $n \ge 4$.
 
 \paragraph{7. Mod-$2$ triality quotient.}
-Reducing the exact $O^+(4,1;\mathbb{Z}[\sqrt{2}])$ transport matrices modulo $2$ maps the $12$ antipodal line transports onto the Klein four-group $\mathbb{Z}_2 \times \mathbb{Z}_2$, partitioning the $12$ lines into three $4$-line $D_4$ triality frames. Using this quotient, periodic background crystals trap excitations strictly inside $U$ without altering the local rule: a periodic $K$-wall crystal (alternating opposite-tone wall occupations triggering $K$ reflection) creates a single-dock period-$12$ qubit compacton ($U^{12} = +I_2$ with zero exact-arithmetic discrepancies over $12$ beats) and confines waves in an $8$-dock cavity with zero leakage over $200$ beats, while a $3\mathrm{D}$ $\mathbb{H}^3$ Bragg mirror opens an exact $5/8$ omnidirectional band gap suppressing transmission to $1.12 \times 10^{-17}$ across $16$ layers. Yet those mirrors are themselves periodic spatial backgrounds, confirming that localization inside $U$ still requires pre-structured spatial media.
+Reducing the exact $O^+(4,1;\mathbb{Z}[\sqrt{2}])$ transport matrices modulo $2$ maps the $12$ antipodal line transports onto the Klein four-group $\mathbb{Z}_2 \times \mathbb{Z}_2$, partitioning the $12$ lines into three symmetry-equivalent $4$-line $D_4$ triality coordinate frames. Using this quotient, periodic $K_{\mathrm{flip}}$-wall crystals (alternating opposite-tone wall occupations that trigger $K_{\mathrm{flip}}$ reflection) trap excitations strictly inside $U$ without modifying the local rule: a single-cell crystal yields a period-$12$ standing compacton (a strictly compactly supported qubit obeying $U^{12} = +I_2$ with zero exact-arithmetic discrepancies), and an $8$-cell cavity confines waves with zero leakage over $200$ steps~\cite{pollard2026repo}. Likewise, a $3\mathrm{D}$ $\mathbb{H}^3$ periodic Bragg mirror (a layered reflecting crystal blocking wave propagation in all directions across an exact $5/8$ spectral band gap) suppresses transmission below $1.2 \times 10^{-17}$ across $16$ layers. Yet those mirrors are themselves periodic spatial backgrounds, confirming that localization inside $U$ still requires pre-structured spatial media.
 
 \subsection{Symmetry Comparison}
 \label{subsec:symmetry-comparison}
 
-Table~\ref{tab:symmetry-frontier} places our four-dimensional $\{3,4,3,4\}$ architectures directly beside Margenstern's planar and three-dimensional hyperbolic cellular automata. Two critical distinctions become immediately clear when every parameter is listed side by side. First, an outer-totalistic rule on the $12$-faced dodecagrid~\cite{margenstern2021outer} depends only on neighbor-state multiplicities and is therefore invariant under the full symmetric group $S_{12}$ of order $12! = 479{,}001{,}600$, far larger than both $A_5$ ($60$) and $W(F_4)$ ($1{,}152$). Second, a partitioned cellular automaton storing $|\Sigma|$ states on each of $24$ facets has $|\Sigma|^{24}$ composite states per dock ($12^{24} \approx 7.95 \times 10^{25}$ for $U_{\mathrm{rev}}$), which is not directly comparable to a $5$- or $6$-state non-partitioned CA storing one symbol per cell. Across the entire table, every confirmed universal construction relies on explicit spatial structures (tracks, markers, or catalysts), while trackless symmetric universality remains open.
+Table~\ref{tab:symmetry-frontier} places our four-dimensional $\{3,4,3,4\}$ architectures directly beside Margenstern's planar and three-dimensional hyperbolic cellular automata. Two critical distinctions become immediately clear when every parameter is listed side by side. First, an outer-totalistic (OT) rule on the $12$-faced dodecagrid~\cite{margenstern2021outer} depends only on neighbor-state multiplicities and is therefore invariant under the full symmetric group $S_{12}$ of order $12! = 479{,}001{,}600$, far larger than both $A_5$ ($60$) and $W(F_4)$ ($1{,}152$). Second, a partitioned cellular automaton storing $|\Sigma|$ states on each of $24$ facets has $|\Sigma|^{24}$ composite states per cell ($12^{24} \approx 7.95 \times 10^{25}$ for $U_{\mathrm{rev}}$), which is not directly comparable to a $5$- or $6$-state non-partitioned CA storing one symbol per cell. Across the entire table, every confirmed universal construction relies on explicit spatial structures (tracks, markers, or catalysts), while trackless symmetric universality remains open.
 
 \begin{table}[tb]
 \centering
-\caption{Quantitative comparison of hyperbolic cellular automata across dimensions two, three, and four, distinguishing per-cell CA states from per-slot partitioned states ($|\Sigma|^{24}$ per dock).}
+\caption{Quantitative comparison of hyperbolic cellular automata across dimensions two, three, and four, distinguishing per-cell CA states from per-port partitioned states ($|\Sigma|^{24}$ per 24-cell).}
 \label{tab:symmetry-frontier}
-\small
-\begin{tabular}{@{}lllllll@{}}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\textwidth}{@{}llclllX@{}}
 \toprule
-Tiling & Local symmetry & Order & States (slot / cell) & Homog. & Reversible & Computational scope \\
+Tiling & Symmetry & Order & States (port/cell) & Homog. & Reversible & Computational scope \\
 \midrule
-$\{7,3\}$~\cite{margenstern2018two} & None (non-RI) & $1$ & $2$ per cell & Yes & No & Weakly universal \\
+$\{7,3\}$~\cite{margenstern2018two} & None & $1$ & $2$ per cell & Yes & No & Weakly universal \\
 $\{7,3\}$~\cite{margenstern2024heptagrid} & $C_7$ & $7$ & $6$ per cell & Yes & No & Strongly universal \\
 $\{5,3,4\}$~\cite{margenstern2021dodecagrid} & $A_5$ & $60$ & $5$ per cell & Yes & No & Strongly universal \\
 $\{5,3,4\}$~\cite{margenstern2021outer} & $S_{12}$ (OT) & $12!$ & $4$ per cell & Yes & No & Weakly universal \\
 $\{3,4,3,4\}$ $U_{\mathrm{rev}}$ & $W(F_4)$ & $1{,}152$ & $12$ / $12^{24}$ & Yes & Bijective & 1D-decoupled ray counters \\
-$\{3,4,3,4\}$ $U_{\mathrm{sys}}$ & Dock-$0$ hybrid & N/A & $12$ + $17$-ph. FSM & No & Bijective & Fixed Bennett routine \\
+$\{3,4,3,4\}$ $U_{\mathrm{sys}}$ & Origin hybrid & N/A & $12$ + $17$-ph. FSM & No & Trajectory-rev. & Fixed Bennett routine \\
 $\{3,4,3,4\}$ bare $U$ & $W(F_4)^+$ & $576$ & $3$ / $3^{24}$ (QCA) & Yes & Unitary & $7$ Lean~4 obstructions \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}

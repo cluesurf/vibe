@@ -1,0 +1,325 @@
+\section{Universality}
+\label{sec:universality}
+
+Reversible cellular automata on non-amenable hyperbolic tilings avoid post-hoc injectivity undecidability~\cite{margenstern2008injectivity} by factoring every synchronous step into two explicit local bijections~\cite{margolus1984,morita2017book}. On $\{3,4,3,4\}$, we separate three distinct layers cleanly: (i) a homogeneous, $W(F_4)$-isotropic $12$-port-state ($12^{24}$ composite states per cell) partitioned rule $U_{\mathrm{rev}}$ whose $12$ antipodal lines decouple into exact constant-particle ray counters, (ii) a finite-seed reversible counter machine $U_{\mathrm{sys}}$ coupling homogeneous $U_{\mathrm{rev}}$ rays to a bounded $17$-phase reversible controller at the origin cell $c_0$, and (iii) three standalone, non-isotropic oscillating gate catalysts (Fredkin, Morita rotary, and geodesic mirror) verified in multi-step streaming composition, alongside an exact geometric ball-diameter comparison against flat $\mathbb{Z}^4$.
+
+\subsection{Partitioned Factorization}
+\label{subsec:partitioned-factorization}
+
+Rather than updating an entire cell from all $24$ neighbors through an unstructured lookup table, a partitioned cellular automaton first applies a local bijection inside each cell and then streams every port value one hop across its shared facet. Because each half-step inverts locally, global injectivity and global surjectivity hold simultaneously for all time without invoking Moore--Myhill.
+
+To index cells consistently under the frame-aligned transport operators $k_s = F_s Z$ of~\eqref{eq:transport-ids} (recalling that $Z \notin W(\Gamma_{24})$), define the simply transitive \emph{frame group}
+\begin{equation}
+\label{eq:frame-group}
+K = \langle k_0,\dots,k_{23}\rangle \subset O^+(4,1;\mathbb{Z}[\sqrt{2}]).
+\end{equation}
+Because $Z F_a Z = F_{\bar{a}}$ and $W(\Gamma_{24})$ is bipartite by word length $\ell(w)$, every cell $w(c_0)$ has a unique frame representative $g = w Z^{\ell(w) \bmod 2} \in K$ satisfying $g(c_0) = w(c_0)$ and $g k_s \in K$ for every $s \in \mathcal{F}$.
+
+\begin{definition}[Partitioned Reversible Factorization]
+\label{def:rpca}
+Let $\Sigma = \{0, 1, \dots, 11\}$ be the $12$-symbol port alphabet consisting of the neutral quiescent symbol $0$ and $11$ active species carrying unit occupation ($N_{\mathrm{occ}} = 1$ per occupied port), and let $\mathcal{C} = \Sigma^{K \times \mathcal{F}}$ denote the configuration space assigning one symbol to every facet port of every cell. Pair the $24$ ports into $12$ antipodal lines $\ell = (a_\ell, \bar{a}_\ell)$ ($r_{\bar{a}_\ell} = -r_{a_\ell}$). Given a reflection-symmetric local line bijection $L_{\mathrm{line}} : \Sigma^2 \to \Sigma^2$, define the global update
+\begin{equation}
+\label{eq:rpca-factor}
+U_{\mathrm{rev}} = S \circ L_{\mathrm{rev}}, \qquad U_{\mathrm{rev}}^{-1} = L_{\mathrm{rev}}^{-1} \circ S^{-1},
+\end{equation}
+where $L_{\mathrm{rev}}$ applies $L_{\mathrm{line}}$ identically to all $12$ antipodal lines of every cell and the bijective one-hop facet stream $S$ shifts every port forward along its geodesic frame:
+\begin{equation}
+\label{eq:stream-bijection}
+(S x)\bigl(g k_s,\, s\bigr) = x(g, s), \qquad (S^{-1} x)\bigl(g k_{\bar{s}},\, s\bigr) = x(g, s).
+\end{equation}
+\end{definition}
+
+Because $k_s k_{\bar{s}} = I_5$ identically on every cell and port (verified with $0$ defects across $1{,}528$ cell-port pairs along $B_1$ and geodesic rays~\cite{pollard2026repo}), $S$ is an exact global bijection on both $\mathcal{C}$ and finite-support configurations. Moreover, every symmetry $h \in W(F_4)$ permutes the $12$ antipodal lines and either fixes or swaps each line's endpoints, so reflection symmetry
+\begin{equation}
+\label{eq:line-refl}
+L_{\mathrm{line}}(b, a) = \mathrm{swap}\bigl(L_{\mathrm{line}}(a, b)\bigr)
+\end{equation}
+guarantees exact invariance of $U_{\mathrm{rev}}$ under all $1{,}152$ elements of $W(F_4)$.
+
+\begin{proposition}[Global Bijectivity Without Moore--Myhill]
+\label{prop:global-bijection}
+Whenever $L_{\mathrm{line}} : \Sigma^2 \to \Sigma^2$ is bijective and fixes $(0,0)$, the global map $U_{\mathrm{rev}} = S \circ L_{\mathrm{rev}}$ is simultaneously globally injective and globally surjective on both full configurations $\mathcal{C}$ and finite-support configurations, with radius-$1$ local inverse $U_{\mathrm{rev}}^{-1} = L_{\mathrm{rev}}^{-1} \circ S^{-1}$ for every $t \in \mathbb{Z}$.
+\end{proposition}
+
+Proposition~\ref{prop:global-bijection} bypasses Margenstern's injectivity undecidability theorem~\cite{margenstern2008injectivity} algebraically: bijectivity is checked exhaustively on the $144$-element finite set $\Sigma^2$ rather than inferred from global graph dynamics.
+
+\subsection{Isotropic Bijection}
+\label{subsec:isotropic-bijection}
+
+To store an unbounded non-negative integer along any geodesic ray without static tracks or particle loss, four functional roles suffice: a stationary period-$2$ bookmark $M$ marking the counter position, a slow speed-$1/3$ walker $\{W_0, W_1, W_2\}$ that shifts the bookmark gently outward or inward, fast speed-$1$ launch and catch pulses $\{F, G, H, F_r, G_r, H_r\}$ that start and stop the walker with input-independent return spacing, and an elastic echo probe $P$ that reports distance without disturbing the bookmark. Together with the neutral quiescent symbol $0$, these form the $11$ active species
+\begin{equation}
+\label{eq:species-list}
+\Sigma \setminus \{0\} = \{M,\; W_0, W_1, W_2,\; F, G, H,\; F_r, G_r, H_r,\; P\}.
+\end{equation}
+
+\begin{table}[tb]
+\centering
+\caption{Complete $W(F_4)$-isotropic local line bijection $L_{\mathrm{line}}(a, b) \mapsto (a', b')$ across all $144$ states of $\Sigma^2$. Every listed rule is paired with its exact reflection $(b,a) \mapsto (b',a')$. The neutral quiescent pair $(0,0)$, all remaining $1$-particle pairs $(a,0)$ ($a \in \{F,G,H,F_r,G_r,H_r,P\}$), and the remaining $103$ $2$-particle pairs map identically to themselves.}
+\label{tab:lrev-table}
+\small
+\begin{tabular}{@{}llll@{}}
+\toprule
+Sector & Input $(a, b)$ & Output $(a', b')$ & Operational role \\
+\midrule
+1-particle & $(M, 0)$ & $(0, M)$ & Period-2 marker bounce ($0\%$ leak) \\
+1-particle & $(W_0, 0)$ & $(0, W_1)$ & Walker phase $0 \to 1$ (reverse hop) \\
+1-particle & $(W_1, 0)$ & $(0, W_2)$ & Walker phase $1 \to 2$ (forward hop) \\
+1-particle & $(W_2, 0)$ & $(W_0, 0)$ & Walker phase $2 \to 0$ (net $+1 / 3$ steps) \\
+\addlinespace[4pt]
+2-particle & $(F, M) \leftrightarrow (W_0, F_r)$ & Involution & Start outward marker shift (INC) \\
+2-particle & $(G, W_1) \leftrightarrow (M, G_r)$ & Involution & Catch walker $+2$ cells out (INC) \\
+2-particle & $(H, M) \leftrightarrow (W_1, H_r)$ & Involution & Start inward marker shift (DEC) \\
+2-particle & $(G, W_2) \leftrightarrow (M, F_r)$ & Involution & Catch walker $-2$ cells in (DEC) \\
+2-particle & $(P, M) \leftrightarrow (M, P)$ & Involution & Reflect zero-test probe (ZERO\_TEST) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Exhaustive verification across all $144$ ordered pairs of $\Sigma^2$ ($1$ neutral quiescent, $22$ one-particle, and $121$ two-particle states) certifies four exact invariants with zero defects~\cite{pollard2026repo}:
+\begin{enumerate}
+\item \textbf{Exact bijectivity:} every two-particle interaction is an exact involution, with
+\begin{equation}
+\label{eq:line-inv}
+L_{\mathrm{line}}^{-1} \circ L_{\mathrm{line}} = L_{\mathrm{line}} \circ L_{\mathrm{line}}^{-1} = \mathrm{id}_{\Sigma^2}.
+\end{equation}
+\item \textbf{Full $W(F_4)$ isotropy:} reflection symmetry~\eqref{eq:line-refl} holds across all $144$ pairs.
+\item \textbf{Exact occupation conservation:} total occupied-port count $N_{\mathrm{occ}}$ is conserved on every transition.
+\item \textbf{Neutral quiescent stationarity:} $L_{\mathrm{line}}(0,0) = (0,0)$.
+\end{enumerate}
+
+Composing Table~\ref{tab:lrev-table} with the stream $S$ produces exact ray kinematics directly from the local rules. A lone marker $M$ bounces between adjacent cells $(x, \bar{a}) \leftrightarrow (x+1, a)$ at period $2$ with zero leakage over $40$ steps, while a lone walker executes the three-step cycle
+\begin{equation}
+\label{eq:walker-cycle}
+(x, a, W_0) \;\longrightarrow\; (x-1, \bar{a}, W_1) \;\longrightarrow\; (x, a, W_2) \;\longrightarrow\; (x+1, a, W_0),
+\end{equation}
+advancing at exact average speed $v_W = +1/3$ cell per step ($+6$ cells in $18$ steps, zero error) while all control pulses propagate at speed $1$. Because $L_{\mathrm{rev}}$ acts independently on each of the $12$ antipodal lines, pure homogeneous $U_{\mathrm{rev}}$ is line-decoupled: signals on distinct rays never cross without introducing cross-line gate elements or an origin controller.
+
+\subsection{Reversible Gates}
+\label{subsec:reversible-gates}
+
+Under uniform streaming $S$, a stationary logic gate cannot sit frozen inside a single port. Instead, each stationary switch can be encoded as a \emph{period-$2$ oscillating gate catalyst} hopping back and forth across one auxiliary antipodal line on odd steps and returning to the active junction cell on every even step. Adding three catalyst species ($K_F, B, R_{0,1}$, bringing the combined port alphabet to $15$ symbols) defines three standalone, fixed-port (non-$W(F_4)$-isotropic) reversible gate rules verified in live multi-step streaming composition $U_{\mathrm{gate}} = S \circ L_{\mathrm{gate}}$ on $\{3,4,3,4\}$~\cite{pollard2026repo}.
+
+\begin{definition}[Controlled-Swap (Fredkin) Catalyst $K_F$]
+\label{def:cswap}
+A catalyst $K_F$ oscillating on auxiliary line $\ell_{11}$ reads a control pulse $P$ on port $0$ at even steps and swaps two distinct data channels (port $1$ on $\ell_1$ and port $16$ on $\ell_8$) iff the control pulse is present, realizing the conservative $3$-bit Fredkin gate~\cite{fredkin1982}.
+\end{definition}
+
+\begin{definition}[Morita Rotary Catalyst $B$]
+\label{def:morita-re}
+A catalyst $B$ encoding an internal horizontal or vertical bar by oscillating on $\ell_{10}$ ($H$-bar) or $\ell_{11}$ ($V$-bar) interacts with four signal ports along orthogonal rays $\ell_0, \ell_1$ (north, east, south, west) on the single-pulse subspace ($\le 1$ simultaneous incoming port pulse). A pulse entering parallel to the bar passes straight through with the bar unchanged, whereas a pulse striking perpendicular to the bar turns $90^\circ$ clockwise and flips the catalyst onto the orthogonal line ($H \leftrightarrow V$), realizing Morita's reversible rotary element~\cite{morita2001,morita2017book}.
+\end{definition}
+
+\begin{definition}[Geodesic Mirror Catalyst $R_{0,1}$]
+\label{def:mirror-cat}
+A catalyst $R_{0,1}$ oscillating on auxiliary line $\ell_9$ exchanges signal channels between the orthogonal geodesic rays $\ell_0$ and $\ell_1$ on every even step, leaving all other lines untouched.
+\end{definition}
+
+Table~\ref{tab:gates} records the exact verification metrics for all three standalone oscillating catalysts. Two structural constraints bound these standalone gates. First, the Morita rotary rule in Definition~\ref{def:morita-re} is certified bijective on its single-pulse invariant subspace (at most one active input port per even step), not on multi-pulse simultaneous collisions. Second, the pointwise stabilizer of a single line $\ell_{10}$ reverses $2\mathrm{D}$ orientation in the orthogonal $(\ell_0,\ell_1)$ plane under both full $W(F_4)$ and its proper-rotation subgroup $W(F_4)^+$ (for instance via $(x_0, x_1, x_2, x_3) \mapsto (x_0, -x_1, x_3, x_2) \in W(F_4)^+$), so encoding a single unmarked clockwise rotary catalyst inside one unified isotropic rule table is geometrically obstructed unless orientation is carried explicitly by multi-port composite motifs.
+
+\begin{table}[tb]
+\centering
+\caption{Verification metrics for the three standalone, fixed-port period-$2$ oscillating gate catalysts in live multi-step $\{3,4,3,4\}$ streaming composition~\cite{pollard2026repo}.}
+\label{tab:gates}
+\small
+\begin{tabular}{@{}llllcc@{}}
+\toprule
+Catalyst & Aux. line & Scope / truth table & Live streaming test & $N_{\mathrm{occ}}$ def. & Rev. def. \\
+\midrule
+Fredkin $K_F$ & $\ell_{11}$ & $8/8$ Boolean triples & $T = 4$ ($c=1$ then $c=0$) & $0$ & $0$ \\
+Morita $B$ & $\ell_{10}, \ell_{11}$ & $8/8$ distinct ($\le 1$-pulse) & $T = 6$ ($H \to V \to V \to H$) & $0$ & $0$ \\
+Mirror $R_{0,1}$ & $\ell_9$ & $4/4$ orthogonal ports & $T = 4$ (bidirectional swap) & $0$ & $0$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Counter Machine}
+\label{subsec:counter-machine}
+
+Minsky's theorem establishes that a finite-state controller coupled to two or more unbounded non-negative integer counters supporting increment, decrement, and zero-test operations is Turing universal~\cite{minsky1961}, and Bennett's compute--copy--uncompute construction makes any deterministic computation logically reversible~\cite{bennett1973}. Along any geodesic ray evolving strictly under homogeneous $W(F_4)$-isotropic $U_{\mathrm{rev}}$, a single marker $M$ placed at radial distance $n = n_0 + 2c$ encodes an integer $c \ge 0$ and supports all three counter primitives at constant occupied-port count (Table~\ref{tab:primitives} and Figure~\ref{fig:spacetime}).
+
+\begin{table}[tb]
+\centering
+\caption{Constant-particle-count counter primitives under homogeneous $W(F_4)$-isotropic $U_{\mathrm{rev}}$ on $\{3,4,3,4\}$ (verified across $c \in \{0,1,2,3\}$ at baseline offset $n_0 = 8$~\cite{pollard2026repo}).}
+\label{tab:primitives}
+\footnotesize
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+Primitive & Outbound launches & Ray collisions & Return signature & $N_{\mathrm{occ}}$ \\
+\midrule
+INC ($c \to c+1$) & $F$ at $t=0$, $G$ at $t=6$ & $(F,M) \to (W_0,F_r)$, $(G,W_1) \to (M,G_r)$ & $\Delta t_{\mathrm{inc}} = 10$ (all $c$) & $3$ \\
+DEC ($c+1 \to c$) & $H$ at $t=0$, $G$ at $t=10$ & $(H,M) \to (W_1,H_r)$, $(G,W_2) \to (M,F_r)$ & $\Delta t_{\mathrm{dec}} = 6$ (all $c$) & $3$ \\
+ZERO\_TEST & $P$ at $t=0$ & $(P,M) \to (M,P)$ & $t_{\mathrm{ret}} = 16 + 4c$ & $2$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Increment (INC).}
+Launching $F$ at $t=0$ and catch pulse $G$ at $t=6$ shifts the marker outward by two cells. Pulse $F$ strikes $M$ at position $n$ at $t = n$, reflecting $F_r$ back toward the origin while releasing slow walker $W_0$ outward at speed $+1/3$. Eight steps later (at $t = n + 8$), catch pulse $G$ overtakes the walker in phase $W_1$ at position $n + 2$, converting it back to a stationary marker and emitting return pulse $G_r$. Regardless of counter value $c$, $F_r$ and $G_r$ arrive back at the origin cell $c_0$ separated by exact constant interval $\Delta t_{\mathrm{inc}} = 10$ steps.
+
+\paragraph{Decrement (DEC).}
+Launching $H$ at $t=0$ and $G$ at $t=10$ shifts the marker inward from $n+2$ to $n$. Pulse $H$ releases an inward walker $(H, M) \to (W_1, H_r)$ caught at position $n$ by $G$ via $(G, W_2) \to (M, F_r)$, returning the two pulses to the origin cell $c_0$ with exact constant spacing $\Delta t_{\mathrm{dec}} = 6$ steps for every $c \ge 0$.
+
+\paragraph{Zero test (ZERO\_TEST).}
+At remote baseline offset $n_0 = 8$, a probe pulse $P$ launched at $t=0$ reflects elastically off $M$ and returns to cell $c_0$ at step $t_{\mathrm{ret}} = 16 + 4c$ ($16$ iff $c=0$, versus $20, 24, 28$ for $c=1,2,3$), giving a non-destructive remote readout of marker position. Alternatively, when counters start at offset $n_0 = 0$ ($n_j = 2c_j$), the origin cell tests $c_j = 0$ directly in $O(1)$ steps by checking whether $M_j$ occupies the origin port on an even step.
+
+\begin{figure}[tb]
+\centering
+\begin{tikzpicture}[scale=1.0, every node/.style={font=\small}]
+  % Subtle center vertical divider only (pure white background, zero gray fill)
+  \draw[twZincRule, thin] (7.20,-0.52) -- (7.20,4.52);
+
+  % Left panel: INC space-time diagram (x = 0.0 .. 6.95)
+  \node[anchor=west, font=\small\bfseries, text=twZincInk] at (0.05,4.35) {INC choreography ($\Delta t_{\mathrm{ret}} = 10$)};
+
+  % Axes shifted right to x=1.40 so pink brace sits cleanly in x=0.0..1.30
+  \draw[-{Stealth[length=4pt]}, twZincInk, thin] (1.40,0.28) -- (6.75,0.28);
+  \draw[-{Stealth[length=4pt]}, twZincInk, thin] (1.40,0.28) -- (1.40,3.82);
+  \node[anchor=west, font=\scriptsize, text=twZincInk] at (1.52,3.78) {step $t$};
+  \node[font=\scriptsize, text=twZincInk] at (4.10,-0.42) {ray position $x$};
+
+  % Stationary marker M at x = 4.00 up to collision
+  \draw[twZincInk, very thick, dotted] (4.00,0.28) -- (4.00,1.52);
+  \node[below, font=\scriptsize, text=twZincInk] at (4.00,0.20) {$n$};
+  \node[below, font=\scriptsize, text=twEmerald] at (5.30,0.20) {$n{+}2$};
+
+  % Outbound F pulse
+  \draw[-{Stealth[length=4pt]}, twBlue, thick] (1.40,0.28) -- (4.00,1.52);
+  \node[font=\scriptsize, text=twBlue, fill=white, inner sep=1pt] at (2.68,0.75) {$F$};
+
+  % Return Fr pulse
+  \draw[-{Stealth[length=4pt]}, twBlue, thick, dashed] (4.00,1.52) -- (1.40,2.68);
+  \node[font=\scriptsize, text=twBlue, fill=white, inner sep=1pt] at (2.55,2.28) {$F_r$};
+
+  % Slow walker W (speed +1/3)
+  \draw[-{Stealth[length=4pt]}, twViolet, very thick] (4.00,1.52) -- (5.30,2.26);
+  \node[font=\scriptsize\bfseries, text=twViolet, fill=white, inner sep=1pt] at (4.80,1.74) {$W$};
+
+  % Catch pulse G launched at t=6
+  \draw[-{Stealth[length=4pt]}, twEmerald, thick] (1.40,0.92) -- (5.30,2.26);
+  \node[font=\scriptsize, text=twEmerald, fill=white, inner sep=1pt] at (3.25,1.35) {$G$};
+
+  % Return Gr pulse (ends at y=3.32, well below step t at 3.78)
+  \draw[-{Stealth[length=4pt]}, twEmerald, thick, dashed] (5.30,2.26) -- (1.40,3.32);
+  \node[font=\scriptsize, text=twEmerald, fill=white, inner sep=1pt] at (3.40,2.98) {$G_r$};
+
+  % New stationary marker M at n+2
+  \draw[twEmerald, very thick, dotted] (5.30,2.26) -- (5.30,3.62);
+
+  % Collision vertices
+  \fill[twViolet] (4.00,1.52) circle (2.4pt);
+  \fill[twEmerald] (5.30,2.26) circle (2.4pt);
+
+  % Clean left-side brace in pure white margin (zero line crossings)
+  \draw[decorate, decoration={brace, amplitude=3.5pt}, twPink, thick] (1.28,2.68) -- (1.28,3.32);
+  \node[anchor=east, font=\scriptsize\bfseries, text=twPink] at (1.16,3.00) {$\Delta t=10$};
+
+  % Right panel: Morita RE 4-port reversible rotary catalyst (x = 7.55 .. 15.10)
+  \node[anchor=west, font=\small\bfseries, text=twZincInk] at (7.55,4.35) {Morita rotary catalyst ($H \leftrightarrow V$)};
+
+  % H-bar diagram (left sub-box: 7.55 .. 10.95, white interior)
+  \draw[twZincRule, rounded corners=2pt] (7.55,0.75) rectangle (10.95,3.72);
+  \node[font=\scriptsize\bfseries, text=twBlue] at (9.25,3.42) {$H$-bar ($\ell_{10}$)};
+  \draw[twBlue, line width=2.2pt] (8.55,2.30) -- (9.95,2.30);
+  % Straight E->W
+  \draw[-{Stealth[length=4pt]}, twZinc, thick] (10.55,2.60) -- (7.95,2.60);
+  % Perpendicular N->W turn (flips to V)
+  \draw[-{Stealth[length=4pt]}, twPink, thick] (9.25,3.08) -- (9.25,2.30) -- (7.95,2.30);
+  \node[font=\scriptsize, text=twZinc] at (9.25,1.42) {parallel: straight};
+  \node[font=\scriptsize, text=twPink] at (9.25,1.03) {perp: turn $+$ flip};
+
+  % Arrow between H and V
+  \draw[{Stealth[length=4pt]}-{Stealth[length=4pt]}, twViolet, thick] (11.06,2.30) -- (11.54,2.30);
+
+  % V-bar diagram (right sub-box: 11.65 .. 15.05, white interior)
+  \draw[twZincRule, rounded corners=2pt] (11.65,0.75) rectangle (15.05,3.72);
+  \node[font=\scriptsize\bfseries, text=twViolet] at (13.35,3.42) {$V$-bar ($\ell_{11}$)};
+  \draw[twViolet, line width=2.2pt] (13.35,1.80) -- (13.35,2.90);
+  % Straight N->S (stops cleanly above text)
+  \draw[-{Stealth[length=4pt]}, twZinc, thick] (13.02,3.08) -- (13.02,1.76);
+  % Perpendicular E->N turn (flips to H)
+  \draw[-{Stealth[length=4pt]}, twEmerald, thick] (14.60,2.30) -- (13.35,2.30) -- (13.35,3.08);
+  \node[font=\scriptsize, text=twZinc] at (13.35,1.42) {$8/8$ distinct outputs};
+  \node[font=\scriptsize, text=twEmerald] at (13.35,1.03) {$T=6$ exact reversal};
+
+  \node[font=\scriptsize, text=twZinc] at (11.30,0.22) {Catalyst $B$ oscillates on $\ell_{10}$ or $\ell_{11}$ at period $2$};
+\end{tikzpicture}
+\caption{Reversible computational primitives on $\{3,4,3,4\}$. Left: space-time choreography of the constant-particle-count INC primitive under homogeneous $U_{\mathrm{rev}} = S \circ L_{\mathrm{rev}}$, yielding input-independent return separation $\Delta t_{\mathrm{ret}} = 10$. Right: standalone period-$2$ oscillating Morita rotary element ($H$-bar on $\ell_{10}$, $V$-bar on $\ell_{11}$) achieving $8/8$ bijective port routing on the single-pulse subspace.}
+\label{fig:spacetime}
+\end{figure}
+
+To demonstrate complete reversible register arithmetic with zero unbounded hidden memory and zero escaping particles, we place three counter markers $(M_1, M_2, M_3)$ at offset-$0$ positions $(2c_1, 2c_2, 2c_3)$ along three distinct geodesic rays $\ell_0, \ell_1, \ell_2$ (which are pairwise disjoint outside the origin cell $c_0$ by geodesic uniqueness, with $\ell_0 \perp \ell_1$ and $\ell_2$ meeting both at $60^\circ$). Every non-origin cell evolves strictly under homogeneous $U_{\mathrm{rev}}$, while the origin cell $c_0$ hosts a strictly bounded $17$-phase reversible finite-state controller ($\text{launch} \in \{0,\dots,11\}$, $\text{ret} \in \{0,\dots,10\}$) coupled to two reusable parked work tokens on auxiliary lines $\ell_3, \ell_4$. Because those two tokens are launched into rays during each macro and re-parked upon return, total occupation remains fixed at $N_{\mathrm{occ}}(t) = 5$ across every step.
+
+\begin{theorem}[Finite-Seed Reversible Counter Machine]
+\label{thm:counter-machine}
+For the $\{3,4,3,4\}$ honeycomb embedded in $O^+(4,1;\mathbb{Z}[\sqrt{2}])$ with homogeneous $U_{\mathrm{rev}} = S \circ L_{\mathrm{rev}}$ at every non-origin cell and the bounded $17$-phase reversible origin controller at cell $c_0$, the coupled evolution $U_{\mathrm{sys}}$ executes the Bennett compute-and-restore routine
+\begin{equation}
+\label{eq:bennett-map}
+(c_1,\, c_2,\, 0) \;\longmapsto\; (c_1,\, c_2 + 2 c_1,\, 0)
+\end{equation}
+for every $(c_1, c_2) \in \mathbb{N}^2$ at fixed occupied-port count $N_{\mathrm{occ}}(t) = 5$ with zero escaping tokens, zero unbounded controller state, and exact trajectory reversal
+\begin{equation}
+\label{eq:sys-rev}
+U_{\mathrm{sys}}^{-T}\bigl(U_{\mathrm{sys}}^{T}(x_0)\bigr) = x_0
+\end{equation}
+along every reachable run up to its halting phase.
+\end{theorem}
+
+\paragraph{Proof sketch.}
+Loop~$1$ tests $c_1 = 0$ locally at cell $c_0$. While $c_1 > 0$, it executes $\mathrm{DEC}(\ell_0)$, $\mathrm{INC}(\ell_1)$ twice, and $\mathrm{INC}(\ell_2)$ once, preserving the loop invariant $(c_1 - k,\, c_2 + 2k,\, k)$ after $k$ iterations until $(0,\, c_2 + 2c_1,\, c_1)$ is reached. Loop~$2$ then tests $c_3 = 0$ locally and iterates $\mathrm{DEC}(\ell_2)$ and $\mathrm{INC}(\ell_0)$, preserving $(k',\, c_2 + 2c_1,\, c_1 - k')$ until $(c_1,\, c_2 + 2c_1,\, 0)$ enters the terminal halt phase. Because every macro step launches and re-parks the same two work tokens via invertible ray involutions and every phase transition has a unique predecessor along the reachable trajectory, $N_{\mathrm{occ}}(t) = 5$ holds identically and running $U_{\mathrm{sys}}^{-1}$ for $T$ steps recovers $x_0$ bit for bit.
+
+Table~\ref{tab:counter-runs} reports deterministic exact-arithmetic companion verification runs across $c_1 \in \{0, 3, 5\}$ (this theorem is verified by exact-arithmetic companion code rather than Lean~4) alongside two negative controls testing passive-merge and memory-overwrite motifs on $7$-cell and $5$-cell dissipative railway test graphs~\cite{pollard2026repo}. In the companion implementation, stepping past the terminal halt phase raises an explicit stop condition rather than evolving into a post-halt cycle, and compiling the origin-cell finite-state controller into a single spatially homogeneous $W(F_4)$-isotropic rule table remains Open Problem~1.
+
+\begin{table}[tb]
+\centering
+\caption{Exact-arithmetic trajectories of Theorem~\ref{thm:counter-machine} on $\{3,4,3,4\}$ at constant occupation $N_{\mathrm{occ}}(t)=5$, contrasted against dissipative railway negative controls on $7$-cell and $5$-cell test graphs~\cite{pollard2026repo}.}
+\label{tab:counter-runs}
+\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Run / Control & Input $\to$ Output & Steps $T$ & $N_{\mathrm{occ}}(t)$ & Reversal defects \\
+\midrule
+Bennett compute ($c_1=0$) & $(0,2,0) \to (0,2,0)$ & $6$ & $5$ (fixed) & $0$ \\
+Bennett compute ($c_1=3$) & $(3,1,0) \to (3,7,0)$ & $354$ & $5$ (fixed) & $0$ \\
+Bennett compute ($c_1=5$) & $(5,1,0) \to (5,11,0)$ & $746$ & $5$ (fixed) & $0$ \\
+Neg. control: passive merge & $2$ inputs $\to 1$ output & $2$ & N/A & Collision (non-inj.) \\
+Neg. control: overwrite & active $1$ vs $2 \to 1$ & $1$ & N/A & Collision (non-inj.) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Geometric Latency}
+\label{subsec:geometric-latency}
+
+Any hyperbolic tiling provides a logarithmic ball-diameter advantage over polynomial Euclidean grids: Margenstern already implemented linear-depth geodesic message routing on planar $\{7,3\}$ ($\lambda = \varphi^2 \approx 2.618$)~\cite{margenstern2006comm}. On four-dimensional $\{3,4,3,4\}$, Theorem~\ref{thm:cubic-growth} lifts the base of the logarithm to $\lambda_{3434} \approx 18.27871$.
+
+In flat $\mathbb{Z}^4$, the exact count of lattice points within $\ell_1$-radius $R$ is the four-dimensional cross-polytope polynomial
+\begin{equation}
+\label{eq:z4-vol}
+V_{\mathbb{Z}^4}(R) = \frac{2R^4 + 4R^3 + 10R^2 + 8R + 3}{3},
+\end{equation}
+giving $V_{\mathbb{Z}^4}(0) = 1$, $V_{\mathbb{Z}^4}(1) = 9$, and round-trip diameter $2R = \Omega(M_{\mathrm{mem}}^{1/4})$ for storing $M_{\mathrm{mem}}$ memory sites. By contrast, a $\{3,4,3,4\}$ cusp ball of depth $h$ encloses cumulative capacity
+\begin{equation}
+\label{eq:cusp-cap}
+V_h = \sum_{d=0}^{h} N_d = \Theta(\lambda_{3434}^{h}), \qquad T_{\mathrm{hyp}}(M_{\mathrm{mem}}) = 2h = O\bigl(\log_{18.28} M_{\mathrm{mem}}\bigr).
+\end{equation}
+Table~\ref{tab:ram-speedup} compares these exact geometric lower bounds at matched capacity $M_{\mathrm{mem}} = V_h$, reaching an $8.40\times$ round-trip reduction at depth $h = 5$. This is strictly a geometric diameter-versus-capacity bound rather than an implemented tree-RAM circuit (the counter machine of Section~\ref{subsec:counter-machine} uses linear unary rays), and congestion-free reversible tree routing remains open.
+
+\begin{table}[tb]
+\centering
+\caption{Exact geometric round-trip diameter bounds on $\{3,4,3,4\}$ cusp balls ($2h$ steps) versus matched-capacity flat $\mathbb{Z}^4$ $\ell_1$-balls ($2R_{\mathbb{Z}^4}$ steps from~\eqref{eq:z4-vol}).}
+\label{tab:ram-speedup}
+\small
+\begin{tabular}{@{}rrrrr@{}}
+\toprule
+Cusp depth $h$ & Capacity $M_{\mathrm{mem}} = V_h$ & $\{3,4,3,4\}$ bound & Flat $\mathbb{Z}^4$ bound & Ratio \\
+\midrule
+$2$ & $349$ & $4$ & $10$ & $2.50\times$ \\
+$3$ & $6{,}383$ & $6$ & $20$ & $3.33\times$ \\
+$4$ & $116{,}681$ & $8$ & $40$ & $5.00\times$ \\
+$5$ & $2{,}132{,}795$ & $10$ & $84$ & $8.40\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The reversible constructions of this section relied on $12$ to $15$ specialized port symbols plus explicit markers, an origin controller, or fixed-port catalysts. To understand how tightly four-dimensional symmetry constrains computation when all specialized markers and pre-laid tracks are removed, we now study a minimal unitary ternary automaton on the same $\{3,4,3,4\}$ honeycomb.

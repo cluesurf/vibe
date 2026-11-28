@@ -1,22 +1,45 @@
 \section{Open Problems}
 \label{sec:open-problems}
 
-Each construction and formal proof in this paper isolates a clear boundary where current verification stops and open mathematical questions begin. We conclude with five concrete problems on $\{3,4,3,4\}$ spanning reversible cellular automata, Coxeter spectral theory, and formal language complexity.
+Each construction and formal proof in this paper isolates a clear boundary where current verification stops and open mathematical questions begin (Table~\ref{tab:verification-map} maps every theorem and obstruction to its exact verification domain and scope boundary). We conclude with five concrete problems on $\{3,4,3,4\}$ spanning reversible cellular automata, Coxeter spectral theory, and formal language complexity.
 
 \paragraph{1. Homogeneous spatial compilation and chiral orientation.}
-Theorem~\ref{thm:counter-machine} executes homogeneous $U_{\mathrm{rev}} = S \circ L_{\mathrm{rev}}$ on all non-origin docks while placing a bounded $17$-phase reversible controller at dock $0$, and Section~\ref{subsec:reversible-gates} verifies standalone non-isotropic oscillating catalysts $K_F$, $B$, and $R_{0,1}$. Compiling that origin controller into a strictly spatially homogeneous local rule (so every dock executes the exact same transition table, matching Margenstern's strictly homogeneous hyperbolic automata~\cite{margenstern2024heptagrid}) while preserving full $W(F_4)$ isotropy remains open. In particular, because full reflection-including $W(F_4)$ reverses $2\mathrm{D}$ orientation inside orthogonal line planes, realizing an isotropic rotary element requires either restricting to chiral $W(F_4)^+$ or encoding turn handedness dynamically in multi-slot composite patterns.
+Theorem~\ref{thm:counter-machine} executes homogeneous $U_{\mathrm{rev}} = S \circ L_{\mathrm{rev}}$ on all non-origin cells while placing a bounded $17$-phase reversible controller at cell $c_0$, and Section~\ref{subsec:reversible-gates} verifies standalone non-isotropic oscillating catalysts $K_F$, $B$, and $R_{0,1}$. Compiling that origin controller into a strictly spatially homogeneous local rule (so every cell executes the exact same transition table, matching Margenstern's strictly homogeneous hyperbolic automata~\cite{margenstern2024heptagrid}) while preserving full $W(F_4)$ isotropy remains open. In particular, even restricting to the chiral proper-rotation subgroup $W(F_4)^+ \subset SO(4)$ admits proper $4\mathrm{D}$ rotations such as $(x_0, x_1, x_2, x_3) \mapsto (x_0, -x_1, x_3, x_2)$ that fix $\ell_{10}$ pointwise while reversing $2\mathrm{D}$ orientation in the orthogonal $(\ell_0, \ell_1)$ plane. Realizing an isotropic rotary element therefore requires multi-port composite motifs (an oriented $2$-line pair under chiral $W(F_4)^+$, or an oriented $3$-line handed motif under full $W(F_4)$).
 
 \paragraph{2. Minimal bijective state count under $W(F_4)$ isotropy.}
-Our line-decoupled bijection $L_{\mathrm{rev}}$ uses $12$ slot states ($12^{24}$ composite dock states) on a $24$-facet dock, and adding the three standalone catalyst species raises the slot alphabet to $15$. What is the minimum per-slot alphabet size $|\Sigma|$ (or per-dock state count) needed for a spatially homogeneous, $W(F_4)$- or $W(F_4)^+$-isotropic, globally bijective strongly universal cellular automaton on $\{3,4,3,4\}$, and does an explicit halting-decidability barrier analogous to Margenstern's two-state theorem on $\{5,4\}$~\cite{margenstern2018halting} appear at $|\Sigma| = 2$ or $3$?
+Our line-decoupled bijection $L_{\mathrm{rev}}$ uses $12$ port states ($12^{24}$ composite cell states) on a $24$-facet cell, and adding the three standalone catalyst species raises the port alphabet to $15$. What is the minimum per-port alphabet size $|\Sigma|$ (or per-cell state count) needed for a spatially homogeneous, $W(F_4)$- or $W(F_4)^+$-isotropic, globally bijective strongly universal cellular automaton on $\{3,4,3,4\}$, and does an explicit halting-decidability barrier analogous to Margenstern's two-state theorem on $\{5,4\}$~\cite{margenstern2018halting} appear at $|\Sigma| = 2$ or $3$?
 
 \paragraph{3. Trackless emergent universality.}
 Every confirmed universal automaton in Table~\ref{tab:symmetry-frontier} depends on engineered spatial structures (tracks, markers, or catalysts), and Section~\ref{sec:obstructions} proves seven concrete obstructions for one canonical chiral unitary automaton $U$ over $\mathbb{Z}[\zeta_9][1/6]$. Whether any small-alphabet, $W(F_4)^+$-isotropic, globally reversible cellular automaton on $\{3,4,3,4\}$ supports spontaneous self-assembling computational structures from generic finite seeds without pre-built tracks or catalysts remains open.
 
 \paragraph{4. Exact spectral radius and horospherical contour complexity.}
-Theorem~\ref{thm:spectral-bracket} traps the adjacency spectral radius of $\{3,4,3,4\}$ strictly inside $(11.049, 11.9254)$, proving $\lambda_{\mathrm{gap}} > 1/2$. Extending reciprocal-Schur weights and stratum Rayleigh--Ritz test vectors from depth-$1$ right-descent strata to depth-$2$ and depth-$3$ Cartier--Foata suffix automata should narrow the interval below $10^{-2}$ and test whether $\rho(\{3,4,3,4\})$ is algebraic. Separately, Margenstern proved that spherical ball contour words on $\{5,4\}$, $\{7,3\}$, $\{5,3,4\}$, and $\{5,3,3,4\}$ lie in $2$-iterated pushdown languages~\cite{margenstern2009contour}. Determining the exact formal-language class of spherical contours and horospherical cusp slices on paracompact $\{3,4,3,4\}$ remains open.
+Theorem~\ref{thm:spectral-bracket} traps the adjacency spectral radius of $\{3,4,3,4\}$ strictly inside $(11.049, 11.9254)$, proving $\lambda_{\mathrm{gap}} > 1/2$. Extending reciprocal-Schur weights and stratum Rayleigh--Ritz test vectors from depth-$1$ right-descent strata to depth-$2$ and depth-$3$ Cartier--Foata suffix automata should narrow the interval below $10^{-2}$ and test whether $\rho(\{3,4,3,4\})$ is algebraic. Separately, Margenstern proved that spherical ball contour words on $\{5,4\}$, $\{7,3\}$, $\{5,3,4\}$, and $\{5,3,3,4\}$ lie in $2$-iterated pushdown languages (languages accepted by a nested stack of stacks)~\cite{margenstern2009contour}. Determining the exact formal-language class of spherical contours and horospherical cusp slices on paracompact $\{3,4,3,4\}$ remains open.
 
 \paragraph{5. Isotropic injectivity and surjectivity decidability.}
 Because the cusp stabilizer $W_{L_{\mathrm{cusp}}} \subset W(\Gamma_{24})$ generates the intrinsic flat Euclidean cubic grid $\{4,3,4\}$ on every horosphere (exponentially distorted in the bulk hyperbolic metric) and therefore contains a subgroup isomorphic to $\mathbb{Z}^2$, a three-line subgroup-coset lift immediately transfers Kari's planar undecidability of both global injectivity and global surjectivity~\cite{kari1994} to arbitrary $W(\Gamma_{24})$-shift-equivariant cellular automata on $\{3,4,3,4\}$. That stands in sharp contrast to Gromov-hyperbolic $\{7,3\}$, which contains no $\mathbb{Z}^2$ subgroup and where surjectivity decidability remains open~\cite{margenstern2008injectivity}. However, a $\mathbb{Z}^2$-coset lift breaks rotational symmetry completely. Deciding global injectivity and global surjectivity for strictly $W(F_4)$-isotropic (rotation-invariant) cellular automata on $\{3,4,3,4\}$ therefore remains a clean open problem.
+
+\begin{table}[tb]
+\centering
+\caption{Verification map separating Lean~4 machine-checked proofs from exact-arithmetic companion scripts and explicit external mathematical bridges across all results in the paper~\cite{pollard2026repo}.}
+\label{tab:verification-map}
+\footnotesize
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabularx}{\textwidth}{@{}lllX@{}}
+\toprule
+Result & Verification & Exact domain & External scope boundary \\
+\midrule
+Theorem~\ref{thm:uniqueness4d} (4D classification) & Lean~4 & $\mathbb{Z}[\sqrt{5}]$ & Monotone bound $8\cos^2(\pi/m) \ge 6$ ($m \ge 6$) \\
+Theorem~\ref{thm:right-angled}, Prop.~\ref{prop:cusp-wall} (facets) & Lean~4 & $\mathbb{Z}[\sqrt{2}]^5$ & None (finite $24 \times 24$ exact matrix algebra) \\
+Theorems~\ref{thm:foata-matrix}, \ref{thm:cubic-growth} (automaton) & Lean~4 & $217$ cliques, $\mathbb{Z}$ & Poincar\'e polyhedron faithfulness ($r > 2$) \\
+Prop.~\ref{prop:neighbor-lookup} (bitmask reduction) & Proof & $24$-bit masks & Standard Coxeter deletion condition \\
+Theorem~\ref{thm:spectral-bracket} (spectral gap) & Lean~4 & $\mathbb{Q}$, $M_{\mathrm{up}}$ & Density of finite support in $\ell^2(W(\Gamma_{24}))$ \\
+Prop.~\ref{prop:global-bijection}, $L_{\mathrm{rev}}$, gates & Lean~4 + comp. & $\Sigma^2$ ($144$), $15$-sym. & Exact stream in Lean~4, gates on operational subspaces \\
+Theorem~\ref{thm:counter-machine} (counter machine) & Companion & $O^+(4,1;\mathbb{Z}[\sqrt{2}])$ & Exact trajectories, homogeneous rule open \\
+Obstructions 1, 2, 5 (bare $U$) & Lean~4 & $\mathbb{Z}[\zeta_9][1/6],\,\mathbb{Z}[\sqrt{2}]^5$ & $2$-role Fock in Lean~4 ($9$-role comp.), $K$-translation \\
+Obstructions 3, 4, 6, 7 (bare $U$) & Lean~4 + comp. & Reduced blocks & Block extraction from 4D $U$ and real derivatives \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 \paragraph{Acknowledgments.}
 The author thanks Maurice Margenstern for his extensive published corpus on hyperbolic tilings, splitting trees, and cellular automata, which directly inspired the comparative analysis in this work. During preparation of the companion formal proofs and manuscript, Claude Opus~5.5 assisted with earlier exploratory modeling, experimental verification scripts, and initial Lean~4 proofs, and Gemini~4 Neon assisted with Lean~4 proof expansion, constructive analyses, adversarial audits, remediation, and manuscript revision. The author takes full responsibility for all claims, proofs, and any remaining errors.

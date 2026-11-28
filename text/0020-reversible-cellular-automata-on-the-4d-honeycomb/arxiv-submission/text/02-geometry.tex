@@ -1,0 +1,190 @@
+\section{Geometry}
+\label{sec:geometry}
+
+A complete algebraic classification over $\mathbb{Z}[\sqrt{5}]$ isolates $\{3,4,3,4\}$ as the unique finite-covolume four-dimensional regular hyperbolic honeycomb possessing flat cubic horospheres, and its entire hyperboloid geometry embeds exactly into the quadratic integer ring $\mathbb{Z}[\sqrt{2}]^5$ without floating-point rounding.
+
+\subsection{Classification}
+\label{subsec:classification}
+
+Every regular four-dimensional honeycomb is encoded by a Schl\"afli symbol $\{p,q,r,s\}$ ($p,q,r,s \ge 3$), specifying a regular four-polytope cell $\{p,q,r\}$ and a regular three-dimensional vertex figure $\{q,r,s\}$~\cite{coxeter1956,coxeter1973}. The curvature of the cell, vertex figure, and full four-dimensional tiling is decided by the signs of the leading principal minors of the $5 \times 5$ Coxeter cosine matrix. Writing $c_m = 8\cos^2(\pi/m)$ places every entry needed up to $m=6$ inside $\mathbb{Z}[\sqrt{5}]$:
+\begin{equation}
+\label{eq:cos-sq-z5}
+c_3 = 2, \qquad c_4 = 4, \qquad c_5 = 3 + \sqrt{5}, \qquad c_6 = 6,
+\end{equation}
+using the single monotone real-analytic bound $c_m \ge 6$ for all $m \ge 6$ to exclude hyperideal angles. The scaled leading principal minors $D_2, D_3, D_4, D_5$ are defined recursively in $\mathbb{Z}[\sqrt{5}]$ by
+\begin{align}
+D_2(p) &= 8 - c_p, & D_3(p,q) &= D_2(p) - c_q, \label{eq:schlafli-minor23}\\
+D_4(a,b,c) &= 8 D_3(a,b) - c_c D_2(a), & D_5(p,q,r,s) &= 8 D_4(p,q,r) - 8 c_s D_3(p,q). \label{eq:schlafli-minor45}
+\end{align}
+A rank-$4$ symbol $\{a,b,c\}$ is spherical when $D_4 > 0$, Euclidean when $D_4 = 0$, and hyperbolic when $D_4 < 0$. A rank-$5$ honeycomb $\{p,q,r,s\}$ is finite-covolume hyperbolic when $D_5 < 0$ while both $\{p,q,r\}$ and $\{q,r,s\}$ are spherical or Euclidean.
+
+\begin{theorem}[Four-Dimensional Uniqueness]
+\label{thm:uniqueness4d}
+Over all $(p,q,r,s) \in \mathbb{N}^4$ with $p,q,r,s \ge 3$, exact evaluation of~\eqref{eq:schlafli-minor23}--\eqref{eq:schlafli-minor45} in $\mathbb{Z}[\sqrt{5}]$ yields five compact hyperbolic honeycombs,
+\begin{equation}
+\{3,3,3,5\},\quad \{4,3,3,5\},\quad \{5,3,3,3\},\quad \{5,3,3,4\},\quad \{5,3,3,5\},
+\end{equation}
+and two paracompact finite-covolume hyperbolic honeycombs: $\{3,4,3,4\}$ and its dual $\{4,3,4,3\}$. Among all finite-covolume four-dimensional hyperbolic honeycombs, $\{3,4,3,4\}$ is uniquely selected by having a flat three-dimensional Euclidean vertex figure $\{4,3,4\}$. Equivalently, over all $(p,q,r,s) \in \mathbb{N}^4$, $\{3,4,3,4\}$ is the unique symbol combining a flat Euclidean vertex figure with any finite regular four-polytope cell.
+\end{theorem}
+
+The selection collapses in two steps. The unique regular three-dimensional Euclidean honeycomb is the cubic lattice $\{4,3,4\}$, fixing $(q,r,s) = (4,3,4)$. Among the six regular four-polytopes, the unique symbol ending in $(4,3)$ is the self-dual 24-cell $\{3,4,3\}$, forcing $p = 3$. Its dual $\{4,3,4,3\}$ has infinite Euclidean cubic cells meeting at finite octahedral vertex figures. Among the five compact candidates, four have non-right-angled facet dihedral angles ($s \in \{3,5\}$), while the lone compact right-angled candidate $\{5,3,3,4\}$ consists of 120-cells with $120$ dodecahedral facets and spherical 16-cell vertex figures $\{3,3,4\}$. Every finite-covolume symbol satisfies $p,q,r,s \le 5$. Theorem~\ref{thm:uniqueness4d} is formally verified in Lean~4 over exact $\mathbb{Z}[\sqrt{5}]$ arithmetic~\cite{pollard2026repo}, with the single analytic inequality $8\cos^2(\pi/m) \ge 6$ ($m \ge 6$) supplying the upper cutoff.
+
+\subsection{Lorentzian Coordinates}
+\label{subsec:lorentzian}
+
+In the hyperboloid model of $\mathbb{H}^4$ inside $\mathbb{R}^{4,1}$, timelike vectors of fixed negative norm label cell centers, lightlike vectors of zero norm label ideal vertices on the boundary at infinity, and spacelike unit vectors label facet mirror hyperplanes. For $\{3,4,3,4\}$, every reflection and transport matrix has exact entries in the quadratic integer ring $\mathbb{Z}[\sqrt{2}]$, eliminating floating-point drift at arbitrarily large hyperbolic depth. Take the symmetric $5 \times 5$ doubled Gram matrix $2B$ of the Coxeter diagram $[3,4,3,4]$:
+\begin{equation}
+\label{eq:twice-gram}
+2B =
+\begin{pmatrix}
+2 & -1 & 0 & 0 & 0 \\
+-1 & 2 & -\sqrt{2} & 0 & 0 \\
+0 & -\sqrt{2} & 2 & -1 & 0 \\
+0 & 0 & -1 & 2 & -\sqrt{2} \\
+0 & 0 & 0 & -\sqrt{2} & 2
+\end{pmatrix},
+\end{equation}
+which has exact determinant $\det(2B) = -2$ and Lorentzian signature $(4,1)$. Write $2B(u,v) = u^{\top}(2B)v$ on $\mathbb{Z}[\sqrt{2}]^5$. For any vector $n \in \mathbb{Z}[\sqrt{2}]^5$ with $2B(n,n) = 2$, the reflection across $n^{\perp}$ requires no divisions:
+\begin{equation}
+\label{eq:reflection}
+(R_n)_{ij} = \delta_{ij} - n_i\bigl((2B)n\bigr)_j, \qquad R_n^2 = I_5, \qquad R_n^{\top}(2B)R_n = 2B.
+\end{equation}
+The base cell center $c_0$, its distinguished ideal cusp vertex $v$, and its central point inversion $Z$ are given exactly in $\mathbb{Z}[\sqrt{2}]$ by
+\begin{equation}
+\label{eq:center-cusp}
+c_0 = (2, 4, 3\sqrt{2}, 2\sqrt{2}, 1)^{\top}, \qquad v = (0, 1, \sqrt{2}, \sqrt{2}, 1)^{\top}, \qquad Z = 2 c_0 e_4^{\top} - I_5,
+\end{equation}
+where $e_4 = (0,0,0,0,1)^{\top}$ and $Z x = -x + 2 x_4 c_0$. Direct evaluation confirms
+\begin{equation}
+\label{eq:base-identities}
+2B(c_0, c_0) = -2, \quad 2B(v,v) = 0, \quad 2B(c_0, v) = -2, \quad Z c_0 = c_0, \quad Z^2 = I_5, \quad \det(Z) = +1.
+\end{equation}
+Acting on $e_4$ by the finite stabilizer
+\begin{equation}
+\label{eq:wf4-gens}
+W(F_4) = \langle R_{e_0}, R_{e_1}, R_{e_2}, R_{e_3}\rangle
+\end{equation}
+of $c_0$ produces exactly $24$ spacelike facet normals
+\begin{equation}
+\label{eq:facet-normals}
+\mathcal{N}_{24} = \bigl\{n_a : a \in \{0,\dots,23\}\bigr\} \subset \mathbb{Z}[\sqrt{2}]^5, \qquad (n_a)_4 = 1.
+\end{equation}
+These $24$ normals correspond bijectively to the $24$ roots $r_a \in D_4 \subset \mathbb{Z}^4$ of squared Euclidean norm $r_a \cdot r_a = 2$ (all vectors with two entries $\pm 1$ and two zeros).
+
+\begin{theorem}[Right-Angled Facet Geometry]
+\label{thm:right-angled}
+Let $F_a = R_{n_a}$ denote reflection across facet $a \in \{0,\dots,23\}$ of the base cell, and write $a \sim b$ iff $r_a \cdot r_b = 1$. Across all $24 \times 24 = 576$ ordered facet pairs $(a,b)$:
+\begin{equation}
+\label{eq:facet-gram}
+2B(n_a, n_b) = 2(r_a \cdot r_b) - 2.
+\end{equation}
+Consequently, $2B(n_a, n_a) = 2$ ($F_a^2 = I_5$), $2B(n_a, n_b) = 0$ iff $a \sim b$ (exact dihedral angle $\pi/2$, giving $F_a F_b = F_b F_a$ on all $96$ unordered adjacent pairs), and every distinct non-adjacent pair obeys
+\begin{equation}
+\label{eq:nonadj-gram}
+2B(n_a, n_b) \in \{-2, -4, -6\},
+\end{equation}
+corresponding to parallel or ultraparallel facets whose reflection product $F_a F_b$ has infinite order.
+\end{theorem}
+
+Reflecting across one or two facets shifts the base center in closed form:
+\begin{align}
+F_a c_0 &= c_0 + 2 n_a, & 2B(F_a c_0, c_0) &= -6, \label{eq:one-step-center}\\
+F_a F_b c_0 &= c_0 + 2 n_b + \bigl(6 - 4(r_a \cdot r_b)\bigr) n_a, & 2B(F_a F_b c_0, c_0) &= 8(r_a \cdot r_b) - 18. \label{eq:two-step-center}
+\end{align}
+Thus every adjacent cell sits at exact hyperbolic distance
+\begin{equation}
+\label{eq:cell-dist}
+\cosh d_{\mathbb{H}^4}(F_a c_0, c_0) = 3.
+\end{equation}
+Because $(n_a)_4 = 1$, the tangent facet direction $d_a = n_a - c_0$ satisfies $Z d_a = -d_a = d_{\bar{a}}$ where $\bar{a}$ is the antipodal facet ($r_{\bar{a}} = -r_a$), giving $Z n_a = +n_{\bar{a}}$. Pairing each reflection with $Z$ produces $24$ orthochronous, geodesic-direction-preserving transport operators $k_a = F_a Z$ satisfying
+\begin{align}
+k_a &= F_a Z \in O^+(4,1;\mathbb{Z}[\sqrt{2}]), & \det(k_a) &= -1, & k_a k_{\bar{a}} &= I_5, \label{eq:transport-ids}\\
+k_a c_0 &= c_0 + 2 n_a, & k_a n_a &= 2 c_0 + 5 n_a. \label{eq:transport-act}
+\end{align}
+Unlike raw reflection $F_a$ (which reverses a moving particle's port index back across the facet it just crossed), $k_a$ preserves the forward port index along a geodesic ray, turning every one-hop facet crossing into an exact $5 \times 5$ matrix multiplication over $\mathbb{Z}[\sqrt{2}]$ with zero rounding error at any radius.
+
+\subsection{Facet Partitions}
+\label{subsec:facet-partitions}
+
+Viewed from an ideal cusp vertex $v$, the 24 facets of every cell split cleanly into six flat horospheric layer facets and eighteen bulk-descending facets, while the eight facets orthogonal to any single facet form a 3-cube wall hyperplane splitting evenly across that boundary (Figure~\ref{fig:facet-split}).
+
+\begin{figure}[tb]
+\centering
+\begin{tikzpicture}[scale=1.0, every node/.style={font=\small}]
+  % Subtle center divider only (pure white background, zero gray fill)
+  \draw[twZincRule, thin] (7.25,-0.25) -- (7.25,3.80);
+
+  % Left panel: 24-facet cusp partition (x = 0.0 .. 6.9)
+  \node[anchor=west, font=\small\bfseries, text=twZincInk] at (0.0,3.62) {Cusp partition at ideal vertex $v$};
+
+  % Ideal cusp point well below title
+  \fill[twBlue] (1.35,2.96) circle (2.8pt);
+  \node[anchor=west, font=\footnotesize, text=twBlue] at (1.58,2.96) {ideal cusp $v$ ($2B(v,v)=0$)};
+
+  % Horosphere curve and centered label above curve
+  \draw[twBlue, thick, dashed] (0.15,2.14) .. controls (1.9,2.42) and (4.7,2.42) .. (6.45,2.14);
+  \node[font=\scriptsize, text=twBlue] at (3.30,2.54) {horosphere $\{4,3,4\}$};
+
+  % 6 layer facets box (clean border, generous padding, white interior)
+  \draw[twBlue, thick, rounded corners=2pt] (0.15,1.14) rectangle (6.45,1.94);
+  \node[font=\footnotesize\bfseries, text=twBlue] at (3.30,1.69) {$6$ layer facets $L_{\mathrm{cusp}}$ ($F_a v = v$)};
+  \node[font=\scriptsize, text=twZinc] at (3.30,1.36) {octahedral clique $f$-vector $(1,6,12,8)$};
+
+  % Arrow downward into bulk
+  \draw[-{Stealth[length=5pt]}, twViolet, thick] (3.30,1.08) -- (3.30,0.68);
+  \node[anchor=west, font=\scriptsize, text=twViolet] at (3.46,0.88) {$2B(F_a c_0, v) \le -6$};
+
+  % 18 downward facets box
+  \draw[twViolet, thick, rounded corners=2pt] (0.15,-0.16) rectangle (6.45,0.64);
+  \node[font=\footnotesize\bfseries, text=twViolet] at (3.30,0.39) {$18$ downward bulk facets $\mathcal{F} \setminus L_{\mathrm{cusp}}$};
+  \node[font=\scriptsize, text=twZinc] at (3.30,0.06) {downward clique $f$-vector $(1,18,60,52)$};
+
+  % Right panel: 8-facet wall cube Q3 (x = 7.6 .. 15.1)
+  \node[anchor=west, font=\small\bfseries, text=twZincInk] at (7.65,3.62) {3D wall hyperplane $H_0 = n_0^{\perp}$};
+
+  % Central 3-cube Q3 schematic (centered vertically against legend)
+  \coordinate (a1) at (8.05,0.66);
+  \coordinate (a2) at (9.45,0.66);
+  \coordinate (a3) at (9.45,2.06);
+  \coordinate (a4) at (8.05,2.06);
+  \coordinate (b1) at (8.75,1.20);
+  \coordinate (b2) at (10.15,1.20);
+  \coordinate (b3) at (10.15,2.60);
+  \coordinate (b4) at (8.75,2.60);
+
+  \draw[twZinc, thin] (a1)--(a2)--(a3)--(a4)--cycle;
+  \draw[twZinc, thin] (b1)--(b2)--(b3)--(b4)--cycle;
+  \draw[twZinc, thin] (a1)--(b1) (a2)--(b2) (a3)--(b3) (a4)--(b4);
+
+  % Top face: 4 layer wall facets (blue)
+  \foreach \p in {a4,a3,b3,b4} { \fill[twBlue] (\p) circle (3pt); }
+  % Bottom face: 4 downward wall facets (emerald)
+  \foreach \p in {a1,a2,b2,b1} { \fill[twEmerald] (\p) circle (3pt); }
+
+  % Annotations on right of cube
+  \node[anchor=west, font=\footnotesize\bfseries, text=twZincInk] at (10.65,2.68) {Cube $Q_3$ ($8$ facets)};
+  \node[anchor=west, font=\scriptsize, text=twBlue] at (10.65,2.22) {$\bullet$ $4$ layer ($W_{\mathrm{wall}} \cap L_{\mathrm{cusp}}$)};
+  \node[anchor=west, font=\scriptsize, text=twEmerald] at (10.65,1.80) {$\bullet$ $4$ downward ($W_{\mathrm{wall}} \setminus L_{\mathrm{cusp}}$)};
+  \node[anchor=west, font=\scriptsize, text=twZinc] at (10.65,1.28) {$f$-vector $(1,8,12,0)$};
+  \node[anchor=west, font=\scriptsize, text=twZinc] at (10.65,0.88) {zero $3$-cliques};
+  \node[anchor=west, font=\scriptsize, text=twEmerald] at (10.65,0.36) {links $l_h = 4 \cdot 5^{h-1}$ ($h \ge 1$)};
+\end{tikzpicture}
+\caption{Exact decomposition of the $24$ facets of a base cell in $\{3,4,3,4\}$. Left: the six facets fixing the ideal cusp $v$ form an octahedral layer $L_{\mathrm{cusp}}$ generating the flat cubic horosphere $\{4,3,4\}$, while the remaining $18$ facets descend strictly into the bulk. Right: the eight facets orthogonal to a fixed layer facet $0$ form a 3-cube $Q_3$ splitting $4+4$ across the cusp layer and generating exact lateral wall-link counts $l_h = 4 \cdot 5^{h-1}$ for $h \ge 1$.}
+\label{fig:facet-split}
+\end{figure}
+
+\begin{proposition}[Cusp Stabilizer and Wall Cube]
+\label{prop:cusp-wall}
+Let $\mathcal{F} = \{0,\dots,23\}$ denote the facets of the base cell and let $v$ be the ideal cusp vertex in~\eqref{eq:center-cusp}.
+\begin{enumerate}
+\item Exactly six facet reflections fix $v$, characterized by
+\begin{equation}
+\label{eq:cusp-fix}
+F_a v = v \;\Longleftrightarrow\; 2B(n_a, v) = 0,
+\end{equation}
+forming an octahedral subset $L_{\mathrm{cusp}}$ generating the flat Euclidean cubic reflection group of the horosphere $\{4,3,4\}$, whereas every remaining facet $a \in \mathcal{F} \setminus L_{\mathrm{cusp}}$ ($18$ downward facets) moves the cell deeper into the bulk with $2B(F_a c_0, v) \le -6$.
+\item For any facet $a_0 \in L_{\mathrm{cusp}}$, the eight orthogonal facets $W_{\mathrm{wall}} = \{b : b \sim a_0\}$ commute with $F_{a_0}$, induce the 1-skeleton of the 3-cube $Q_3$ with clique $f$-vector $(1,8,12,0)$, and split $4 + 4$ between $W_{\mathrm{wall}} \cap L_{\mathrm{cusp}}$ and $W_{\mathrm{wall}} \setminus L_{\mathrm{cusp}}$.
+\end{enumerate}
+\end{proposition}
+
+Every facet adjacency in $\{3,4,3,4\}$ is strictly orthogonal along a two-dimensional triangular ridge ($96$ commuting pairs), every commuting triple meets along a one-dimensional edge of the 24-cell ($96$ triples), and no four mutually orthogonal facets exist anywhere in the cell. That right-angled orthogonality converts the entire infinite honeycomb into a finitely generated right-angled Coxeter group whose canonical addresses are recognized by a four-orbit finite automaton.

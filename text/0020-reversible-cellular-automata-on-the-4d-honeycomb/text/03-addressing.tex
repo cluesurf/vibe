@@ -1,14 +1,14 @@
 \section{Addressing}
 \label{sec:addressing}
 
-Without an exact, drift-free coordinate system whose neighbor queries run in time linear in word depth, hyperbolic cellular automata cannot be simulated or reasoned about at large radius. On the planar pentagrid $\{5,4\}$ and heptagrid $\{7,3\}$, Margenstern's geometric region-splitting method yields a two-state Fibonacci substitution whose regular spanning-tree language supports linear-time preferred-son neighbor arithmetic~\cite{margenstern2007vol1,margenstern2016coords,margenstern2019fib1}. Yet geometric region splitting degrades rapidly above two dimensions: in the three-dimensional dodecagrid $\{5,3,4\}$, the maximal-representation language of the four-region splitting tree is not context-free and neighbor computation requires cubic time and quadratic space~\cite{margenstern2003skordev,margenstern2007vol1}, and in the four-dimensional 120-cell honeycomb $\{5,3,3,4\}$, the 16-corner splitting numeration is not regular~\cite{margenstern2004fourd,margenstern2007vol1}.
+Without an exact, drift-free coordinate system whose neighbor queries run in time linear in word depth, hyperbolic cellular automata cannot be simulated or reasoned about at large radius. On the planar pentagrid $\{5,4\}$ and heptagrid $\{7,3\}$, Margenstern's geometric region-splitting method yields a two-state Fibonacci substitution whose regular spanning-tree language supports linear-time preferred-son neighbor arithmetic~\cite{margenstern2007vol1,margenstern2016coords,margenstern2019fib1}. Yet geometric region splitting degrades rapidly above two dimensions: in the three-dimensional dodecagrid $\{5,3,4\}$, the maximal-representation language of the four-region splitting tree is neither regular nor context-free and neighbor computation requires cubic time and quadratic space~\cite{margenstern2003skordev,margenstern2007vol1}, and in the four-dimensional 120-cell honeycomb $\{5,3,3,4\}$, the 16-corner splitting numeration remains non-regular~\cite{margenstern2004fourd,margenstern2007vol1}.
 
 Switching from geometric region-splitting numeration to algebraic Cartier--Foata normal forms~\cite{cartier1969} restores strict finite-state regularity for every right-angled hyperbolic honeycomb, including $\{5,4\}$, $\{5,3,4\}$, $\{5,3,3,4\}$, and $\{3,4,3,4\}$. Among the two right-angled regular four-dimensional honeycombs, $\{3,4,3,4\}$ reduces the Coxeter automaton from $120$ generators and $2{,}641$ cliques down to $24$ generators, $217$ cliques, and four $W(F_4)$ symmetry orbits, delivering exact linear-time bitmask neighbor updates and a third-order shell recurrence.
 
 \subsection{Right-Angled Automaton}
 \label{subsec:racg-automaton}
 
-Picture walking outward from the base dock $c_0$ by reflecting across facets: whenever two successive reflections cross orthogonal facets, their order does not matter, so they can be bundled into one commuting slice. Stacking maximal commuting slices as far to the right as possible assigns every dock a unique normal form recognized by a finite automaton.
+Picture walking outward from the base cell $c_0$ by reflecting across facets: whenever two successive reflections cross orthogonal facets, their order does not matter, so they can be bundled into one commuting slice. Stacking maximal commuting slices as far to the right as possible assigns every cell a unique normal form recognized by a finite automaton.
 
 Let $\Gamma_{24}$ be the commutation graph on $\mathcal{F} = \{0,\dots,23\}$ with edge $a \sim b$ iff $r_a \cdot r_b = 1$. Its \emph{clique $f$-vector} $(f_0, f_1, f_2, f_3, f_4)$ counts subsets of pairwise adjacent vertices of each cardinality. Direct enumeration over the $24$ roots of $D_4$ yields Table~\ref{tab:clique-fvectors}: $\Gamma_{24}$ has clique number $3$ (zero $4$-cliques) and $1 + 24 + 96 + 96 = 217$ total cliques.
 
@@ -35,7 +35,7 @@ Because adjacent facets meet at exact angle $\pi/2$ while non-adjacent pairs are
 \label{eq:racg-pres}
 W(\Gamma_{24}) = \bigl\langle s_0, \dots, s_{23} \;\big|\; s_a^2 = 1 \;\forall a,\;\; s_a s_b = s_b s_a \text{ whenever } a \sim b \bigr\rangle.
 \end{equation}
-By Poincar\'e's polyhedron theorem applied to the ideal right-angled 24-cell (with exact $O^+(4,1;\mathbb{Z}[\sqrt{2}])$ matrix distinctness formally verified in Lean~4 through depth $r \le 2$, giving $1, 24, 456$ distinct docks~\cite{pollard2026repo}), $W(\Gamma_{24})$ embeds faithfully into $O^+(4,1;\mathbb{Z}[\sqrt{2}])$ and acts simply transitively on docks. Its Cayley graph is therefore the dual graph of $\{3,4,3,4\}$, which is biautomatic~\cite{brink1993,davis2008racg} (in contrast to the specific Fibonacci-coded planar tessellation groups proved non-automatic by Gasperin and Margenstern~\cite{margenstern2014gasperin}).
+By Poincar\'e's polyhedron theorem (which certifies that a right-angled fundamental polytope generates a faithful reflection tiling) applied to the ideal right-angled 24-cell, with exact $O^+(4,1;\mathbb{Z}[\sqrt{2}])$ matrix distinctness formally verified in Lean~4 through depth $r \le 2$ ($1, 24, 456$ distinct cells~\cite{pollard2026repo}), $W(\Gamma_{24})$ embeds faithfully into $O^+(4,1;\mathbb{Z}[\sqrt{2}])$ and acts simply transitively on cells. Its Cayley graph is therefore the dual graph of $\{3,4,3,4\}$, which is biautomatic~\cite{brink1993,davis2008racg} (in contrast to groups whose Cayley graph is the primal pentagrid $\{5,4\}$ or heptagrid $\{7,3\}$, proved non-automatic by Gasperin and Margenstern~\cite{margenstern2014gasperin}).
 
 Let $\ell(w)$ denote the shortest Coxeter word length of $w \in W(\Gamma_{24})$, and define its right-descent set
 \begin{equation}
@@ -83,7 +83,11 @@ M_{\mathrm{wall}} =
 1 & 6 & 7
 \end{pmatrix},
 \end{equation}
-giving per-clique wall multiplicities $w_0(0)=1$, $w_0(h+1)=0$, $w_2(1)=0$, $w_1(h+1) = w_0(h) + 4 w_1(h) + 3 w_2(h)$, and $w_2(h+2) = w_0(h) + 6 w_1(h) + 7 w_2(h)$ for all $h \ge 0$.
+giving per-clique wall multiplicities with $w_0(0)=1$, $w_0(h+1)=0$, and $w_k(h)=0$ for $h < k$:
+\begin{align}
+w_1(h+1) &= w_0(h) + 4\,w_1(h) + 3\,w_2(h), \label{eq:wall-w1}\\
+w_2(h+2) &= w_0(h) + 6\,w_1(h) + 7\,w_2(h) \qquad (h \ge 0). \label{eq:wall-w2}
+\end{align}
 \end{theorem}
 
 When a word $w$ of length $r$ is multiplied on the right by an outward generator $s_b \notin D_R(w)$, the new right-descent set is
@@ -102,7 +106,7 @@ M_{\mathrm{up}} =
 0 & 9 & 6 & 6
 \end{pmatrix}.
 \end{equation}
-Because every dock in stratum $C_k$ ($k \in \{1,2,3\}$) has exactly $k$ inward parents at depth $r-1$, detailed balance links $M_{\mathrm{up}}$ to the exact stratum counts $N(r,k) = f_k\,a_k(r)$:
+Because every cell in stratum $C_k$ ($k \in \{1,2,3\}$) has exactly $k$ inward parents at depth $r-1$, detailed balance links $M_{\mathrm{up}}$ to the exact stratum counts $N(r,k) = f_k\,a_k(r)$:
 \begin{equation}
 \label{eq:detailed-balance}
 k\,N(r+1, k) = \sum_{j=0}^{3} N(r, j)\,(M_{\mathrm{up}})_{jk}, \qquad
@@ -113,41 +117,46 @@ T = M_{\mathrm{up}}^{(1..3)}\operatorname{diag}\!\Bigl(1,\tfrac{1}{2},\tfrac{1}{
 9 & 3 & 2
 \end{pmatrix}.
 \end{equation}
-Direct computation confirms $\det(\lambda I - T) = \lambda^3 - 21\lambda^2 + 51\lambda - 23$, bridging single-hop graph degrees directly to the global cubic shell recurrence. Figure~\ref{fig:automaton} places this four-orbit single-hop automaton beside Margenstern's two-state Fibonacci splitting automaton for planar $\{7,3\}$ and $\{5,4\}$.
+Direct computation confirms the characteristic polynomial
+\begin{equation}
+\label{eq:t-charpoly}
+\det(\lambda I - T) = \lambda^3 - 21\lambda^2 + 51\lambda - 23,
+\end{equation}
+bridging single-hop graph degrees directly to the global cubic shell recurrence. Figure~\ref{fig:automaton} places this four-orbit single-hop automaton beside Margenstern's two-state Fibonacci splitting automaton for planar $\{7,3\}$ and $\{5,4\}$.
 
 \begin{figure}[tb]
 \centering
 \begin{tikzpicture}[
   state/.style={circle, draw=twZincInk, thick, minimum size=25pt, inner sep=1pt, fill=white, font=\small\bfseries},
   edge/.style={-{Stealth[length=4.5pt]}, thick, draw=twZincInk},
-  lbl/.style={font=\scriptsize, fill=white, inner sep=1.2pt}
+  lbl/.style={font=\scriptsize, fill=white, inner sep=1.4pt}
 ]
   % Subtle vertical hairline divider (pure white background, zero gray fill)
-  \draw[twZincRule, thin] (5.05,-1.70) -- (5.05,2.45);
+  \draw[twZincRule, thin] (5.05,-1.85) -- (5.05,2.50);
 
   % Left panel: 2D {7,3} Fibonacci splitting automaton (x = 0.0 .. 4.75)
-  \node[anchor=west, font=\small\bfseries, text=twZincInk] at (0.0,2.24) {2D $\{7,3\}$ / $\{5,4\}$};
-  \node[anchor=west, font=\scriptsize, text=twZinc] at (0.0,1.84) {$X^2 - 3X + 1 = 0$, $\lambda = \varphi^2$};
+  \node[anchor=west, font=\small\bfseries, text=twZincInk] at (0.0,2.28) {2D $\{7,3\}$ / $\{5,4\}$};
+  \node[anchor=west, font=\scriptsize, text=twZinc] at (0.0,1.88) {$X^2 - 3X + 1 = 0$, $\lambda = \varphi^2$};
 
-  \node[state, draw=twBlue, text=twBlue] (W) at (1.20,0.28) {$W$};
-  \node[state, draw=twViolet, text=twViolet] (B) at (3.40,0.28) {$B$};
+  \node[state, draw=twBlue, text=twBlue] (W) at (1.20,0.32) {$W$};
+  \node[state, draw=twViolet, text=twViolet] (B) at (3.40,0.32) {$B$};
 
   \draw[edge, draw=twBlue] (W) edge[loop left, looseness=6] node[lbl, left=2pt, text=twBlue] {$2$} (W);
   \draw[edge, draw=twViolet] (B) edge[loop right, looseness=6] node[lbl, right=2pt, text=twViolet] {$1$} (B);
   \draw[edge, draw=twBlue] (W) edge[bend left=22] node[lbl, above, text=twBlue] {$1$} (B);
   \draw[edge, draw=twViolet] (B) edge[bend left=22] node[lbl, below, text=twViolet] {$1$} (W);
 
-  \node[font=\scriptsize, text=twZinc] at (2.30,-1.45) {Geometric splitting (2D regular)};
+  \node[font=\scriptsize, text=twZinc] at (2.30,-1.62) {Geometric splitting (2D regular)};
 
   % Right panel: 4D {3,4,3,4} Cartier-Foata 4-orbit automaton (x = 5.45 .. 15.0)
-  \node[anchor=west, font=\small\bfseries, text=twZincInk] at (5.50,2.24) {4D $\{3,4,3,4\}$ Cartier--Foata $W(F_4)$ orbits};
-  \node[anchor=west, font=\scriptsize, text=twZinc] at (5.50,1.84) {$\det(\lambda I - T) = \lambda^3 - 21\lambda^2 + 51\lambda - 23 = 0$, $\lambda \approx 18.279$};
+  \node[anchor=west, font=\small\bfseries, text=twZincInk] at (5.50,2.28) {4D $\{3,4,3,4\}$ Cartier--Foata $W(F_4)$ orbits};
+  \node[anchor=west, font=\scriptsize, text=twZinc] at (5.50,1.88) {$\det(\lambda I - T) = \lambda^3 - 21\lambda^2 + 51\lambda - 23 = 0$, $\lambda \approx 18.279$};
 
   % Evenly spaced nodes (2.45 cm spacing)
-  \node[state, draw=twZinc, text=twZinc] (C0) at (6.20,0.35) {$C_0$};
-  \node[state, draw=twBlue, text=twBlue] (C1) at (8.65,0.35) {$C_1$};
-  \node[state, draw=twViolet, text=twViolet] (C2) at (11.10,0.35) {$C_2$};
-  \node[state, draw=twEmerald, text=twEmerald] (C3) at (13.55,0.35) {$C_3$};
+  \node[state, draw=twZinc, text=twZinc] (C0) at (6.20,0.38) {$C_0$};
+  \node[state, draw=twBlue, text=twBlue] (C1) at (8.65,0.38) {$C_1$};
+  \node[state, draw=twViolet, text=twViolet] (C2) at (11.10,0.38) {$C_2$};
+  \node[state, draw=twEmerald, text=twEmerald] (C3) at (13.55,0.38) {$C_3$};
 
   \draw[edge, draw=twZinc] (C0) -- node[lbl, above, text=twZinc] {$24$} (C1);
   \draw[edge, draw=twBlue] (C1) edge[loop above, looseness=5] node[lbl, above=1pt, text=twBlue] {$15$} (C1);
@@ -158,9 +167,9 @@ Direct computation confirms $\det(\lambda I - T) = \lambda^3 - 21\lambda^2 + 51\
   \draw[edge, draw=twViolet] (C2) edge[bend left=18] node[lbl, below, text=twViolet] {$11$} (C1);
   \draw[edge, draw=twViolet] (C2) edge[bend left=18] node[lbl, above, text=twViolet] {$3$} (C3);
   \draw[edge, draw=twEmerald] (C3) edge[bend left=18] node[lbl, below, text=twEmerald] {$6$} (C2);
-  \draw[edge, draw=twEmerald] (C3) edge[bend left=28] node[lbl, midway, text=twEmerald] {$9$} (C1);
+  \draw[edge, draw=twEmerald] (C3) edge[bend left=30] node[lbl, below=1.5pt, text=twEmerald] {$9$} (C1);
 
-  \node[font=\scriptsize, text=twZinc] at (10.10,-1.45) {Upward degrees $M_{\mathrm{up}}$: $(24,0,0)$, $(15,8,0)$, $(11,8,3)$, $(9,6,6)$};
+  \node[font=\scriptsize, text=twZinc] at (10.10,-1.62) {Upward degrees $M_{\mathrm{up}}$: $(24,0,0)$, $(15,8,0)$, $(11,8,3)$, $(9,6,6)$};
 \end{tikzpicture}
 \caption{Comparison of regular addressing automata. Left: Margenstern's two-state Fibonacci splitting automaton for planar $\{7,3\}$ and $\{5,4\}$~\cite{margenstern2016coords}. Right: the four-orbit Cartier--Foata single-hop automaton for 4D $\{3,4,3,4\}$ under $W(F_4)$, displaying exact upward degree counts $M_{\mathrm{up}}$ out of each right-descent stratum $C_k$ (dividing column $k$ by $k$ yields $T$ in~\eqref{eq:detailed-balance}).}
 \label{fig:automaton}
@@ -169,9 +178,9 @@ Direct computation confirms $\det(\lambda I - T) = \lambda^3 - 21\lambda^2 + 51\
 \subsection{Shell Recurrences}
 \label{subsec:shell-recurrences}
 
-Both spherical balls around a dock and parabolic cusp layers descending from a flat $\{4,3,4\}$ horosphere expand faster than $18$-fold per hop, while lateral wall links across a fixed hyperplane grow strictly more slowly as $4 \cdot 5^{h-1}$. Combining the clique $f$-vectors of Table~\ref{tab:clique-fvectors} with Theorem~\ref{thm:foata-matrix} gives exact closed-form counts at every depth.
+Both spherical balls around a cell and parabolic cusp layers descending from a flat $\{4,3,4\}$ horosphere expand faster than $18$-fold per hop, while lateral wall links across a fixed hyperplane grow strictly more slowly as $4 \cdot 5^{h-1}$. Combining the clique $f$-vectors of Table~\ref{tab:clique-fvectors} with Theorem~\ref{thm:foata-matrix} gives exact closed-form counts at every depth.
 
-For parabolic cusp depth $h$, a dock at distance $h$ below the cusp layer corresponds to a minimal-length right coset representative $w$ of the parabolic stabilizer $W_{L_{\mathrm{cusp}}}$ in $W(\Gamma_{24})$. Inversion $w \mapsto w^{-1}$ maps minimal-length right coset representatives bijectively onto length-$h$ words whose right-descent clique satisfies $D_R(u) \subseteq \mathcal{F} \setminus L_{\mathrm{cusp}}$, yielding
+For parabolic cusp depth $h$, a cell at distance $h$ below the cusp layer corresponds to a minimal-length right coset representative $w$ of the parabolic stabilizer $W_{L_{\mathrm{cusp}}}$ in $W(\Gamma_{24})$. Inversion $w \mapsto w^{-1}$ maps minimal-length right coset representatives bijectively onto length-$h$ words whose right-descent clique satisfies $D_R(u) \subseteq \mathcal{F} \setminus L_{\mathrm{cusp}}$, yielding
 \begin{align}
 |\partial B_r| &= a_0(r) + 24\,a_1(r) + 96\,a_2(r) + 96\,a_3(r), \label{eq:ball-shell}\\
 N_h &= a_0(h) + 18\,a_1(h) + 60\,a_2(h) + 52\,a_3(h), \label{eq:cusp-shell}\\
@@ -209,9 +218,9 @@ has three real roots separated by sign changes at $(0, 1, 3, 18.2787, 18.2788)$ 
 Direct root evaluation gives $\lambda_{3434} \approx 18.27871$, producing an asymptotic surface-to-volume fraction
 \begin{equation}
 \label{eq:surface-vol}
-\lim_{r \to \infty} \frac{|\partial B_r|}{|B_r|} = \frac{\lambda_{3434} - 1}{\lambda_{3434}} \approx 0.945292.
+\lim_{r \to \infty} \frac{|\partial B_r|}{|B_r|} = \frac{\lambda_{3434} - 1}{\lambda_{3434}} \approx 0.945292, \qquad V_h = \sum_{d=0}^{h} N_d.
 \end{equation}
-Table~\ref{tab:shell-counts} lists the opening shells certified unconditionally in Lean~4~\cite{pollard2026repo}.
+Table~\ref{tab:shell-counts} lists the opening spherical shells $|\partial B_d|$, cusp shells $N_d$, cumulative cusp volumes $V_d$, and wall links $l_d$ certified unconditionally in Lean~4~\cite{pollard2026repo}.
 
 \begin{table}[tb]
 \centering
@@ -235,7 +244,7 @@ $5$ & $2{,}800{,}344$ & $2{,}016{,}114$ & $2{,}132{,}795$ & $2{,}500$ \\
 \subsection{Neighbor Arithmetic}
 \label{subsec:neighbor-arithmetic}
 
-Given the canonical address of a dock $w$ and a facet index $a \in \mathcal{F}$, computing the canonical address of its neighbor $w s_a$ requires no geometry checks or floating-point arithmetic. Using a 24-bit integer mask per clique block and the precomputed 24-entry bitmask table $\mathrm{Adj}(a)$, right-greedy Cartier--Foata reduction resolves every neighbor query in linear worst-case time $O(m)$, directly mirroring Margenstern's preferred-son algorithm on $\{7,3\}$~\cite{margenstern2016coords}.
+Given the canonical address of a cell $w$ and a facet index $a \in \mathcal{F}$, computing the canonical address of its neighbor $w s_a$ requires no geometry checks or floating-point arithmetic. Using a 24-bit integer mask per clique block and the precomputed 24-entry bitmask table $\mathrm{Adj}(a)$, right-greedy Cartier--Foata reduction resolves every neighbor query in linear worst-case time $O(m)$, directly mirroring Margenstern's preferred-son algorithm on $\{7,3\}$~\cite{margenstern2016coords}.
 
 \needspace{6\baselineskip}
 \begin{proposition}[Linear-Time Word Reduction]
@@ -258,9 +267,17 @@ C'_{m+1} = \{a\} \cup \bigl(C_m \cap \mathrm{Adj}(a)\bigr), \qquad C'_m = C_m \s
 and execute the right-to-left sweep below starting at $i = m - 1$.
 
 \paragraph{Unified right-to-left sweep ($i = m - 1$ down to $1$).}
-Compute the subset $S_i = \{x \in C_i : C'_{i+1} \subseteq \mathrm{Adj}(x)\}$ of generators commuting with every remaining letter of $C'_{i+1}$. Move $S_i$ right into $C'_{i+1}$ and set $C'_i = C_i \setminus S_i$. If $S_i = \emptyset$, stop. If $C'_i = \emptyset$, drop $C'_i$ and stop.
+Compute the subset of generators commuting with every remaining letter of $C'_{i+1}$,
+\begin{equation}
+\label{eq:foata-sweep}
+S_i = \bigl\{x \in C_i : C'_{i+1} \subseteq \mathrm{Adj}(x)\bigr\},
+\end{equation}
+move $S_i$ right into $C'_{i+1}$, and set $C'_i = C_i \setminus S_i$. If $S_i = \emptyset$, stop. If $C'_i = \emptyset$, drop $C'_i$ and stop.
 
 \paragraph{Proof of correctness.}
 Before step $i$, reducedness of $w$ guarantees $C_i \cap C_{i+1} = \emptyset$ and $C'_{i+1} \subseteq C_{i+1}$, so $C_i \cap C'_{i+1} = \emptyset$. Because $C_i$ is a clique, every pair in $S_i$ commutes, so $C'_{i+1} \cup S_i$ stays a clique. No letter ever slides more than one block right: every $z \in C_{i-1}$ fails to commute with some $u \in C_i = C'_i \sqcup S_i$, so even if $z$ slides into $C'_i$, the element $u \in S_i \subseteq C'_{i+1} \cup S_i$ blocks $z$ from advancing past $C'_i$. In particular, when $C'_i = \emptyset$, all of $C_i = S_i$ now sits inside the block immediately right of $C_{i-1}$, blocking every letter of $C_{i-1}$ so dropping $C'_i$ and halting yields the exact right-greedy normal form in at most $m$ constant-time bitmask operations.
 
-Because $\Gamma_{24}$ has no $4$-cliques, every dock has at most three shortest-path parents toward the origin and at least $21$ outward neighbors. Unlike black-rooted planar Fibonacci trees where direct preferred-son rules break under root-type changes~\cite{margenstern2019fib1}, transitivity of $W(\Gamma_{24})$ keeps Proposition~\ref{prop:neighbor-lookup} uniform across every dock of the mesh. Yet this $94.53\%$ boundary dominance also destroys Euclidean amenability, reshaping both diffusion and global cellular-automaton reversibility.
+\paragraph{Worked example.}
+Take four facets with $D_4$ roots $r_p = (1,1,0,0)$, $r_q = (1,0,1,0)$, $r_a = (0,0,1,1)$, and $r_u = (0,1,-1,0)$, so $p \sim q$, $q \sim a$, $u \sim p$, while $p \not\sim a$ and $u \not\sim q$. Starting from the two-block normal form $w = \{u\}\{p, q\}$, appending $s_a$ enters the extension branch:~\eqref{eq:foata-split} splits the rightmost block into $C'_2 = \{p\}$ and $C'_3 = \{q, a\}$. The single sweep step $i = 1$ checks $C'_2 \subseteq \mathrm{Adj}(u)$, finds $S_1 = \{u\}$, moves $u$ right into $C'_2 = \{u, p\}$, drops the empty block $C'_1$, and halts with the reduced two-block address $w s_a = \{u, p\}\{q, a\}$ in two bitmask operations.
+
+Because $\Gamma_{24}$ has no $4$-cliques, every cell has at most three shortest-path parents toward the origin and at least $21$ outward neighbors. Unlike black-rooted planar Fibonacci trees where direct preferred-son rules break under root-type changes~\cite{margenstern2019fib1}, transitivity of $W(\Gamma_{24})$ keeps Proposition~\ref{prop:neighbor-lookup} uniform across every cell of the honeycomb. Yet this $94.53\%$ boundary dominance also destroys Euclidean amenability, reshaping both diffusion and global cellular-automaton reversibility.

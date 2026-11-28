@@ -1,0 +1,58 @@
+\section{Introduction}
+\label{sec:introduction}
+
+Moving cellular automata from flat Euclidean grids $\mathbb{Z}^d$ to negatively curved hyperbolic tilings $\mathbb{H}^d$ transforms both their algorithmic addressing and their global dynamics. On a flat lattice, Cartesian integer coordinates give constant-time neighbor queries, polynomial ball growth forces surface-to-volume ratios to vanish, and the Moore--Myhill theorem equates global surjectivity with injectivity on finite configurations~\cite{moore1962,myhill1963}. In hyperbolic space, all three properties break down. Cell counts grow exponentially with graph radius, floating-point coordinates fail within a few hops, boundary shells carry a strictly positive fraction of ball volume, and deciding whether an arbitrary local rule induces a globally injective map becomes undecidable~\cite{margenstern2007hedlund,margenstern2008injectivity,bartholdi2010}.
+
+Over two decades of constructive research, Margenstern established the combinatorial foundations for cellular automata across hyperbolic tilings~\cite{margenstern2007vol1,margenstern2008vol2}. In the hyperbolic plane $\mathbb{H}^2$, geometric sector splitting on the pentagrid $\{5,4\}$ and the heptagrid $\{7,3\}$ yields a two-state Fibonacci substitution whose dominant Pisot root $\varphi^2 = (3+\sqrt{5})/2$ (an algebraic integer above $1$ whose other conjugate lies inside the unit circle) produces a regular spanning-tree numeration with linear-time neighbor arithmetic~\cite{margenstern2006substitution,margenstern2016coords,margenstern2019fib1}.
+
+As spatial dimension and symmetry grow, three sharp boundaries emerge. First, Margenstern's geometric region-splitting numeration for maximal integer representations is neither regular nor context-free in the three-dimensional dodecagrid $\{5,3,4\}$ (where neighbor lookup takes cubic time and quadratic space~\cite{margenstern2003skordev}) and remains non-regular in the four-dimensional 120-cell honeycomb $\{5,3,3,4\}$~\cite{margenstern2004fourd,margenstern2007vol1}, while Gasperin and Margenstern proved non-automaticity for groups whose Cayley graph is the primal pentagrid $\{5,4\}$ or heptagrid $\{7,3\}$~\cite{margenstern2014gasperin}. Second, non-amenability decouples injectivity from surjectivity and makes testing arbitrary hyperbolic rules for global injectivity undecidable~\cite{margenstern2008injectivity}. Third, enforcing rotational or permutation invariance compresses local rule tables so tightly that record-setting hyperbolic universal automata rely on engineered spatial tracks~\cite{margenstern2021dodecagrid,margenstern2021outer,margenstern2023weighted,margenstern2024heptagrid}.
+
+Every regular hyperbolic tiling $\{p,\dots,4\}$ with last Schl\"afli entry $4$ has facet dihedral angle $2\pi/4 = \pi/2$, so its facet reflections generate a right-angled Coxeter group (RACG) whose dual cell graph is biautomatic with strictly regular Cartier--Foata commuting-clique normal forms~\cite{cartier1969,brink1993,davis2008racg}. Switching from geometric region-splitting numeration to algebraic Cartier--Foata normal forms restores finite-state regularity in every dimension. Within four-dimensional hyperbolic space $\mathbb{H}^4$, exactly two regular right-angled honeycombs exist: the compact 120-cell honeycomb $\{5,3,3,4\}$ and the paracompact 24-cell honeycomb $\{3,4,3,4\}$~\cite{coxeter1956,coxeter1973}, where \emph{paracompact} means every vertex lies on the ideal boundary at infinity with a flat Euclidean vertex figure.
+
+\begin{table}[tb]
+\centering
+\caption{Hyperbolic tilings across dimensions two, three, and four, separating geometric splitting-tree numeration~\cite{margenstern2003skordev,margenstern2004fourd,margenstern2007vol1,margenstern2016coords} from algebraic right-angled Coxeter (RACG) Cartier--Foata normal forms~\cite{cartier1969,davis2008racg}.}
+\label{tab:tiling-overview}
+\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Property & $\{5,4\},\,\{7,3\}$ ($\mathbb{H}^2$) & $\{5,3,4\}$ ($\mathbb{H}^3$) & $\{5,3,3,4\}$ ($\mathbb{H}^4$) & $\{3,4,3,4\}$ ($\mathbb{H}^4$) \\
+\midrule
+Compactness & Compact & Compact & Compact & Paracompact \\
+Vertex figure & $\{4\},\,\{3\}$ & $\{3,4\}$ & $\{3,3,4\}$ & $\{4,3,4\}$ (flat $\mathbb{E}^3$) \\
+Facets per cell & $5,\,7$ & $12$ & $120$ & $24$ (octahedra) \\
+Splitting numeration & Regular & Non-CF & Non-regular & N/A (RACG native) \\
+Right-angled facets & $\{5,4\}$ yes, $\{7,3\}$ no & Yes ($W(\Gamma_{12})$) & Yes ($W(\Gamma_{120})$) & Yes ($W(\Gamma_{24})$) \\
+RACG clique states & $11$ ($\{5,4\}$) & $63$ & $2{,}641$ & $217$ ($4$ $W(F_4)$ orbits) \\
+Growth root $\lambda$ & $\varphi^2 \approx 2.618$ & $4+\sqrt{15} \approx 7.873$ & $\approx 112.763$ & $\approx 18.279$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:tiling-overview} shows why $\{3,4,3,4\}$ offers an unusually tractable four-dimensional computational substrate compared to compact $\{5,3,3,4\}$. Replacing the 120-cell by the self-dual 24-cell shrinks the right-angled Coxeter automaton from $120$ generators, $2{,}641$ cliques, and clique number $4$ over $\mathbb{Z}[\varphi]$ down to $24$ generators, $217$ cliques, and clique number $3$ over the exact quadratic ring $\mathbb{Z}[\sqrt{2}]$, collapsing under the $1{,}152$-element Weyl symmetry group $W(F_4)$ of the 24-cell to just four symmetry orbits. One $4 \times 4$ upward transition matrix governs spherical ball shells, parabolic cusp shells descending from a flat cubic \emph{horosphere} (a limit sphere tangent to an ideal vertex at infinity), linear-time bitmask neighbor lookup, and a Lean~4-certified spectral gap above one half.
+
+Because $\{3,4,3,4\}$ has an asymptotic boundary-to-volume fraction of $94.53\%$, verifying global injectivity of an arbitrary local rule table after the fact is algorithmically intractable. A partitioned cellular automaton~\cite{margolus1984,morita2017book} resolves this structurally by factoring every discrete step into a local line bijection $L_{\mathrm{rev}}$ followed by a bijective one-hop facet stream $S$. Both factors invert locally, guaranteeing simultaneous global injectivity and surjectivity for all time despite non-amenability. On this substrate, a homogeneous $W(F_4)$-isotropic $12$-port-state bijection ($12^{24}$ composite states per 24-cell) supports exact constant-particle-count ray counters, coupling those homogeneous rays to a bounded $17$-phase reversible origin controller executes exact Bennett compute-and-restore arithmetic (computing an output, copying it, and running backward to uncompute garbage~\cite{bennett1973}), and three standalone oscillating catalyst rules certify streaming Fredkin~\cite{fredkin1982}, Morita rotary~\cite{morita2001}, and mirror gates.
+
+To probe the opposite limit where explicit tracks and specialized species are removed, we also examine a canonical minimal unitary ternary quantum cellular automaton $U$ invariant under the $576$-element chiral rotation group $W(F_4)^+$ over the cyclotomic ring $\mathbb{Z}[\zeta_9][1/6]$ (generated by the primitive ninth root of unity $\zeta_9 = e^{2\pi i/9}$ with denominator $6 = 2 \cdot 3$ required by ternary coins and $12$-line normalization). Seven Lean~4-certified algebraic obstructions explain precisely why uninterrupted trackless scattering of this automaton cannot compute ballistically, echoing and quantifying the track requirement observed across planar and three-dimensional hyperbolic automata~\cite{margenstern2021outer,margenstern2023weighted}.
+
+\begin{table}[tb]
+\centering
+\caption{Standard geometric and partitioned-automaton notation used throughout the paper.}
+\label{tab:notation}
+\small
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+Term / Symbol & Meaning \\
+\midrule
+Honeycomb, bulk, horosphere & Fixed $\{3,4,3,4\}$ tiling, its 4D interior, and a flat $\{4,3,4\}$ cusp layer \\
+Cell, facet, port, line, step & One 24-cell tile, one of its 24 octahedral faces, its partitioned face state, an antipodal facet pair, one discrete tick \\
+$W(\Gamma_{24})$, $K$, $W(F_4)$ & Right-angled Coxeter group, frame transport group, 24-cell symmetry ($|W(F_4)|=1{,}152$) \\
+$\mathcal{F}$, $L_{\mathrm{cusp}}$, $W_{\mathrm{wall}}$ & All $24$ facets, $6$ cusp-layer facets fixing $v$, $8$ orthogonal wall-cube facets \\
+$r$, $h$, $|\partial B_r|$, $N_h$, $V_h$, $l_h$ & Graph radius, cusp depth, ball shell, cusp shell, cumulative cusp volume, wall links \\
+$S$, $L_{\mathrm{rev}}$, $N_{\mathrm{occ}}$, $M_{\mathrm{mem}}$ & Bijective facet stream, local line bijection, occupied-port count, memory capacity \\
+$U$, $H_c$, $K_{\mathrm{flip}}$, $G_{\mathrm{ex}}$ & Minimal chiral unitary automaton, half-coin ($H_c^2 = C$), tone-flip layer, 4-body exchange gate \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Table~\ref{tab:notation} fixes standard terminology across all sections, following Coxeter, Margenstern, and Morita: each 24-cell tile of $\{3,4,3,4\}$ is called a \emph{cell}, each of its $24$ octahedral faces carries one partitioned \emph{port}, each antipodal facet pair forms a \emph{line}, each discrete update is a \emph{step}, and each flat cubic vertex figure at infinity is a \emph{horosphere}. Core algebraic, geometric, combinatorial, spectral, and obstruction theorems are formally verified in Lean~4 using only standard logic axioms (zero unproven gaps, zero custom axioms, zero unchecked evaluation), while reversible counter-machine trajectories and negative controls are verified by deterministic exact-arithmetic companion scripts~\cite{pollard2026repo}. Where infinite-graph density, Poincar\'e's polyhedron faithfulness bridge, or analytic trigonometric lifting sit outside finite Lean kernels, each scope boundary is stated explicitly beside the corresponding theorem. To understand why $\{3,4,3,4\}$ provides this four-orbit algebraic structure in the first place, we begin with its exact four-dimensional classification and quadratic-ring geometry.
