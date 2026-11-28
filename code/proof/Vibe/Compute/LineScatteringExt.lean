@@ -82,10 +82,20 @@ variable {α : Type} [CommRing α]
 /-- `μ⁻¹` on the curve: `(a + ab) / 2 - μ`. -/
 def muBar (h a ab μ : α) : α := h * (a + ab) - μ
 
+/-- grind never divides: halve by hand (traps.md). -/
+-- [helper]
+theorem ring_halve (h z : α) (hh : 2 * h = 1) (hz : 2 * z = 0) : z = 0 := by
+  have e : z = h * (2 * z) := by grind
+  rw [e, hz]
+  grind
+
 -- [helper]
 theorem fact_mu_unit (h a ab μ : α) (hh : 2 * h = 1) (hμ : 2 * μ * μ - (a + ab) * μ + 2 = 0) :
     μ * muBar h a ab μ = 1 := by
-  simp only [muBar]
+  have t : 2 * (μ * muBar h a ab μ - 1) = 0 := by
+    simp only [muBar]
+    grind
+  have := ring_halve h _ hh t
   grind
 
 -- [helper]
@@ -164,6 +174,16 @@ theorem thm_lsx_det_left_nonzero_point (ω i h : α)
   rw [← key]
   grind
 
+/-- Two solutions of `left S = right` differ by a kernel vector of `left`. -/
+-- [helper]
+theorem core_unique (lI lP rI rP sI sP x y i : α)
+    (y1 : lI * -(i * y) + lP * x = (x + i * y) * rI) (y2 : lI * x + lP * -(i * y) = (x + i * y) * rP)
+    (hsI : lI * sI + lP * sP = rI) (hsP : lI * sP + lP * sI = rP) :
+    (lI * lI - lP * lP) * ((x + i * y) * sI + i * y) = 0 ∧
+      (lI * lI - lP * lP) * ((x + i * y) * sP - x) = 0 := by
+  subst hsI hsP
+  constructor <;> grind
+
 /-- **Where `det(left)` is nonzero, `S` is unique**: any `S = sI I + sP P` with `left S = right` satisfies
 `det(left) ((W + i D) S - (W P - i D I)) = 0` on both components. -/
 theorem thm_lsx_s_unique (ω i h a1 ab1 m1 a2 ab2 m2 sI sP : α)
@@ -177,25 +197,8 @@ theorem thm_lsx_s_unique (ω i h a1 ab1 m1 a2 ab2 m2 sI sP : α)
     detLeft ω i h a1 ab1 m1 a2 ab2 m2 * ((w + i * d) * sI + i * d) = 0 ∧
       detLeft ω i h a1 ab1 m1 a2 ab2 m2 * ((w + i * d) * sP - w) = 0 := by
   intro w d
-  have yang := thm_line_s_is_yang ω i h a1 ab1 m1 a2 ab2 m2 hω hi hh ha1 hm1 ha2 hm2
-  simp only at yang
-  have e1 : leftI ω i h a1 ab1 m1 a2 ab2 m2 = leftOf ω h a1 ab1 m1 a2 ab2 m2 (contactKeep ω i h) := rfl
-  have e2 : leftP ω h a1 m1 = vf ω h * vb ω h a1 m1 * contactSwap h := rfl
-  have e3 : rightI ω i h a1 ab1 m1 a2 ab2 m2 = rightOf ω h a1 ab1 m1 a2 ab2 m2 (contactKeep ω i h) := rfl
-  have e4 : rightP ω h a2 m2 = -(vf ω h * vb ω h a2 m2 * contactSwap h) := rfl
-  rw [← e1, ← e2, ← e3, ← e4] at yang
-  have hw : rapW ω i h a1 ab1 m1 a2 ab2 m2 = w := rfl
-  have hdd : rapD ω i a1 ab1 a2 ab2 = d := rfl
-  rw [hw, hdd] at yang
-  obtain ⟨y1, y2⟩ := yang
-  simp only [detLeft]
-  generalize leftI ω i h a1 ab1 m1 a2 ab2 m2 = lI at *
-  generalize leftP ω h a1 m1 = lP at *
-  generalize rightI ω i h a1 ab1 m1 a2 ab2 m2 = rI at *
-  generalize rightP ω h a2 m2 = rP at *
-  generalize w = x at *
-  generalize d = y at *
-  constructor <;> grind
+  have ⟨y1, y2⟩ := thm_line_s_is_yang ω i h a1 ab1 m1 a2 ab2 m2 hω hi hh ha1 hm1 ha2 hm2
+  exact core_unique _ _ _ _ _ _ _ _ _ y1 y2 hsI hsP
 
 /-! ### A12: the rapidity identities -/
 
@@ -228,7 +231,7 @@ theorem thm_lsx_im_product (ω h a ab μ : α) (hω : ω * ω + ω + 1 = 0) (hh 
   grind
 
 -- [helper]
-theorem fact_rapDen_sq (ω i a ab : α) (hi : i * i = -1) :
+theorem fact_rapDen_sq (ω i a ab : α) (hω : ω * ω + ω + 1 = 0) (hi : i * i = -1) :
     rapDen ω i a ab * rapDen ω i a ab = 3 * ((a - ab) * (a - ab)) := by
   simp only [rapDen, sqrt3]
   grind
@@ -238,11 +241,26 @@ theorem thm_lsx_rapidity_square (ω i h a ab μ : α) (hω : ω * ω + ω + 1 = 
     (ha : a * ab = 1) (hμ : 2 * μ * μ - (a + ab) * μ + 2 = 0) :
     3 * (rapNum ω i h a ab μ * rapNum ω i h a ab μ) * imZLam ω h a ab μ
       + rapDen ω i a ab * rapDen ω i a ab * imLam ω h a ab μ = 0 := by
-  rw [fact_rapNum ω i h a ab μ hi hh, fact_rapDen_sq ω i a ab hi]
+  rw [fact_rapNum ω i h a ab μ hi hh, fact_rapDen_sq ω i a ab hω hi]
   have u := fact_mu_unit h a ab μ hh hμ
   have s := fact_mu_sum h a ab μ hh
   simp only [imLam, imZLam, lamInv, lam, zeta6]
   generalize muBar h a ab μ = b at *
+  grind
+
+/-- `λ₁ λ₂ (J(λ₁) J(ζ₆λ₂) - J(λ₂) J(ζ₆λ₁)) = (1 + 2ω)(λ₁² - λ₂²)`, with `y = λ⁻¹`. -/
+-- [helper]
+theorem core_mobius (ω x1 y1 x2 y2 : α) (l1 : x1 * y1 = 1) (l2 : x2 * y2 = 1) :
+    x1 * x2 * ((x1 - y1) * ((1 + ω) * x2 - -ω * y2) - (x2 - y2) * ((1 + ω) * x1 - -ω * y1))
+      = (1 + 2 * ω) * (x1 * x1 - x2 * x2) := by
+  grind
+
+-- [helper]
+theorem core_mobius_combine (n1 n2 d1 d2 J1 J2 K1 K2 x1 x2 w : α)
+    (r1 : 3 * (n1 * n1) * K1 + d1 * d1 * J1 = 0) (r2 : 3 * (n2 * n2) * K2 + d2 * d2 * J2 = 0)
+    (core : x1 * x2 * (J1 * K2 - J2 * K1) = w * (x1 * x1 - x2 * x2)) :
+    3 * K1 * K2 * x1 * x2 * (n1 * n1 * (d2 * d2) - n2 * n2 * (d1 * d1))
+      = -(d1 * d1 * (d2 * d2)) * w * (x1 * x1 - x2 * x2) := by
   grind
 
 /-- **`θ²` is a Möbius function of `λ²`**: `θ₁² = θ₂²` exactly when `λ₁² = λ₂²` (where the factors are units). -/
@@ -262,30 +280,8 @@ theorem thm_lsx_rapidity_square_injective (ω i h a1 ab1 m1 a2 ab2 m2 : α)
   have r2 := thm_lsx_rapidity_square ω i h a2 ab2 m2 hω hi hh ha2 hm2
   have ⟨l1, _⟩ := fact_lam_inverse ω h a1 ab1 m1 hω hh hm1
   have ⟨l2, _⟩ := fact_lam_inverse ω h a2 ab2 m2 hω hh hm2
-  -- λ (J₁ K₂ - J₂ K₁) in terms of λ²
-  have core : lam ω m1 * lam ω m2 *
-      (imLam ω h a1 ab1 m1 * imZLam ω h a2 ab2 m2 - imLam ω h a2 ab2 m2 * imZLam ω h a1 ab1 m1)
-      = (1 + 2 * ω) * (lam ω m1 * lam ω m1 - lam ω m2 * lam ω m2) := by
-    simp only [imLam, imZLam, zeta6] at *
-    generalize lam ω m1 = x1 at *
-    generalize lam ω m2 = x2 at *
-    generalize lamInv ω h a1 ab1 m1 = y1 at *
-    generalize lamInv ω h a2 ab2 m2 = y2 at *
-    grind
-  change 3 * (N1 * N1) * imZLam ω h a1 ab1 m1 + D1 * D1 * imLam ω h a1 ab1 m1 = 0 at r1
-  change 3 * (N2 * N2) * imZLam ω h a2 ab2 m2 + D2 * D2 * imLam ω h a2 ab2 m2 = 0 at r2
-  rw [← core]
-  generalize imZLam ω h a1 ab1 m1 = K1 at *
-  generalize imZLam ω h a2 ab2 m2 = K2 at *
-  generalize imLam ω h a1 ab1 m1 = J1 at *
-  generalize imLam ω h a2 ab2 m2 = J2 at *
-  generalize lam ω m1 = x1 at *
-  generalize lam ω m2 = x2 at *
-  generalize N1 = n1 at *
-  generalize N2 = n2 at *
-  generalize D1 = d1 at *
-  generalize D2 = d2 at *
-  grind
+  have core := core_mobius ω (lam ω m1) (lamInv ω h a1 ab1 m1) (lam ω m2) (lamInv ω h a2 ab2 m2) l1 l2
+  exact core_mobius_combine _ _ _ _ _ _ _ _ _ _ _ r1 r2 core
 
 /-- **The rapidity is never 0 on a moving mode**: `rapNum = 0` forces `(a - ab)² = 0`. -/
 theorem thm_lsx_rapidity_nonzero (ω i h a ab μ : α) (hω : ω * ω + ω + 1 = 0) (hi : i * i = -1) (hh : 2 * h = 1)
@@ -324,7 +320,7 @@ theorem thm_lsx_velocity_rapidity (ω i h a ab μ : α) (hω : ω * ω + ω + 1 
   intro N D
   have b := core_bracket ω h a ab μ hω hh ha hμ
   have hN : N = rapN ω a ab μ := fact_rapNum ω i h a ab μ hi hh
-  have hD2 : D * D = 3 * ((a - ab) * (a - ab)) := fact_rapDen_sq ω i a ab hi
+  have hD2 : D * D = 3 * ((a - ab) * (a - ab)) := fact_rapDen_sq ω i a ab hω hi
   have hD : D = sqrt3 ω i * (a - ab) := rfl
   have s3 : sqrt3 ω i * sqrt3 ω i = 3 := by
     simp only [sqrt3]
@@ -340,6 +336,14 @@ theorem thm_lsx_velocity_rapidity (ω i h a ab μ : α) (hω : ω * ω + ω + 1 
 /-- **make's cleared 2-to-1 law factors** over any commutative ring. -/
 theorem thm_lsx_two_to_one_factor (x1 y1 x2 y2 : α) :
     x1 * y1 * (3 * x2 ^ 2 + y2 ^ 2) - x2 * y2 * (3 * x1 ^ 2 + y1 ^ 2) = (x1 * y2 - x2 * y1) * (y1 * y2 - 3 * x1 * x2) := by
+  grind
+
+-- [helper]
+theorem core_bridge (p1 p2 q1 q2 r n1 n2 d1 d2 : α)
+    (v1 : p1 * (d1 * d1 + 3 * (n1 * n1)) = -(r * n1 * d1 * q1))
+    (v2 : p2 * (d2 * d2 + 3 * (n2 * n2)) = -(r * n2 * d2 * q2)) :
+    (p1 * q2 - p2 * q1) * (3 * n1 ^ 2 + d1 ^ 2) * (3 * n2 ^ 2 + d2 ^ 2)
+      = -(r * q1 * q2) * (n1 * d1 * (3 * n2 ^ 2 + d2 ^ 2) - n2 * d2 * (3 * n1 ^ 2 + d1 ^ 2)) := by
   grind
 
 /-- **The bridge.** For two modes, the cleared velocity difference is `-√3 velDen₁ velDen₂` times make's cleared
@@ -360,22 +364,12 @@ theorem thm_lsx_rapidity_bridge (ω i h a1 ab1 m1 a2 ab2 m2 : α)
       (a1 * b1 * (3 * a2 ^ 2 + b2 ^ 2) = a2 * b2 * (3 * a1 ^ 2 + b1 ^ 2) ↔
         (a1 * b2 = a2 * b1 ∨ 3 * a1 * a2 = b1 * b2))) := by
   intro N1 N2 D1 D2
-  refine ⟨?_, fun a1 b1 a2 b2 => UniversalityObstructions.thm_univ_dispersion_floor_and_rapidity_nogo.2.2.1 a1 b1 a2 b2⟩
+  refine ⟨?_, fun a1 b1 a2 b2 => (thm_univ_dispersion_floor_and_rapidity_nogo.2.2.1 a1 b1 a2 b2)⟩
   have ⟨v1, _⟩ := thm_lsx_velocity_rapidity ω i h a1 ab1 m1 hω hi hh ha1 hm1
   have ⟨v2, _⟩ := thm_lsx_velocity_rapidity ω i h a2 ab2 m2 hω hi hh ha2 hm2
-  simp only at v1 v2
   change velNum a1 ab1 * (D1 * D1 + 3 * (N1 * N1)) = -(sqrt3 ω i * N1 * D1 * velDen h a1 ab1 m1) at v1
   change velNum a2 ab2 * (D2 * D2 + 3 * (N2 * N2)) = -(sqrt3 ω i * N2 * D2 * velDen h a2 ab2 m2) at v2
-  generalize velNum a1 ab1 = p1 at *
-  generalize velNum a2 ab2 = p2 at *
-  generalize velDen h a1 ab1 m1 = q1 at *
-  generalize velDen h a2 ab2 m2 = q2 at *
-  generalize sqrt3 ω i = r at *
-  generalize N1 = n1 at *
-  generalize N2 = n2 at *
-  generalize D1 = d1 at *
-  generalize D2 = d2 at *
-  grind
+  exact core_bridge _ _ _ _ _ _ _ _ _ v1 v2
 
 /-! ### A33: door B -/
 
@@ -416,11 +410,150 @@ theorem thm_lsx_doorb_coincidence (ω i h a ab μ : α) (hω : ω * ω + ω + 1 
       rw [t] at this
       grind
     refine ⟨by rw [hl, m2]; grind, ?_, ?_⟩
-    · rw [fact_rapNum ω i h a ab μ hi hh, fact_rapDen_sq ω i a ab hi]
+    · rw [fact_rapNum ω i h a ab μ hi hh, fact_rapDen_sq ω i a ab hω hi]
       grind
     · simp only [velNum, velDen]
       generalize muBar h a ab μ = b at *
       grind
+
+/-! ### Ring steps for the field statements (grind runs only on clean contexts: in a field it inverts every
+disequality in scope and stalls) -/
+
+-- [helper]
+theorem ring_eq_of_sub (x y : α) (z : x - y = 0) : x = y := by grind
+-- [helper]
+theorem ring_eq_of_sub_rev (x y : α) (z : y - x = 0) : x = y := by grind
+-- [helper]
+theorem ring_eq_neg_of_add (x y : α) (z : x + y = 0) : x = -y := by grind
+-- [helper]
+theorem ring_lin_of_sub (x y s : α) (z : x - s * y = 0) : x = s * y := by grind
+-- [helper]
+theorem ring_one_mul_eq (x y : α) : x = 1 * y ↔ x = y := by
+  constructor <;> intro e <;> grind
+-- [helper]
+theorem ring_neg_one_mul_eq (x y : α) : x = -1 * y ↔ x = -y := by
+  constructor <;> intro e <;> grind
+-- [helper]
+theorem ring_s_one : (1 : α) * 1 = 1 := by grind
+-- [helper]
+theorem ring_s_neg : (-1 : α) * (-1) = 1 := by grind
+-- [helper]
+theorem ring_m_of (m1 m2 : α) (z : m1 - m2 = 0) : m2 = 1 * m1 := by grind
+-- [helper]
+theorem ring_m_of_add (m1 m2 : α) (z : m1 + m2 = 0) : m2 = -1 * m1 := by grind
+-- [helper]
+theorem ring_lam_sq (ω m : α) (hω : ω * ω + ω + 1 = 0) : lam ω m * lam ω m = ω * (m * m) := by
+  simp only [lam, zeta6]
+  grind
+-- [helper]
+theorem ring_w3 (ω : α) (hω : ω * ω + ω + 1 = 0) : (1 + 2 * ω) * (1 + 2 * ω) = -3 := by grind
+-- [helper]
+theorem ring_sqrt3_sq (ω i : α) (hω : ω * ω + ω + 1 = 0) (hi : i * i = -1) : sqrt3 ω i * sqrt3 ω i = 3 := by
+  simp only [sqrt3]
+  grind
+-- [helper]
+theorem ring_three_of_sq (w : α) (hw : w * w = -3) (z : w = 0) : (3 : α) = 0 := by
+  subst z
+  grind
+-- [helper]
+theorem ring_three_of_sq_pos (w : α) (hw : w * w = 3) (z : w = 0) : (3 : α) = 0 := by
+  subst z
+  grind
+-- [helper]
+theorem ring_one_of_omega (ω : α) (hω : ω * ω + ω + 1 = 0) (z : ω = 0) : (1 : α) = 0 := by
+  subst z
+  grind
+-- [helper]
+theorem ring_one_of_two (h : α) (hh : 2 * h = 1) (z : (2 : α) = 0) : (1 : α) = 0 := by
+  rw [z] at hh
+  grind
+
+/-- From `θ₁ = θ₂` and the Möbius identity: `D₁² D₂² (1 + 2ω) ω (μ₁ - μ₂)(μ₁ + μ₂) = 0`. -/
+-- [helper]
+theorem ring_prod_mm (K1 K2 x1 x2 n1 n2 d1 d2 w ω m1 m2 : α)
+    (inj : 3 * K1 * K2 * x1 * x2 * (n1 * n1 * (d2 * d2) - n2 * n2 * (d1 * d1))
+      = -(d1 * d1 * (d2 * d2)) * w * (x1 * x1 - x2 * x2))
+    (t : n1 * d2 = n2 * d1) (hx1 : x1 * x1 = ω * (m1 * m1)) (hx2 : x2 * x2 = ω * (m2 * m2)) :
+    d1 * d2 * (d1 * d2) * w * ω * ((m1 - m2) * (m1 + m2)) = 0 := by
+  grind
+
+/-- `μ` fixes `a + ab` on the curve: `μ₂ = s μ₁` (`s² = 1`) gives `a₂ + ab₂ = s (a₁ + ab₁)`. -/
+-- [helper]
+theorem ring_sum_of_mu (a1 ab1 m1 a2 ab2 m2 b1 s : α)
+    (hm1 : 2 * m1 * m1 - (a1 + ab1) * m1 + 2 = 0) (hm2 : 2 * m2 * m2 - (a2 + ab2) * m2 + 2 = 0)
+    (u1 : m1 * b1 = 1) (hs : s * s = 1) (mE : m2 = s * m1) : a2 + ab2 = s * (a1 + ab1) := by
+  subst mE
+  grind
+
+-- [helper]
+theorem ring_two_roots (a1 ab1 a2 ab2 s : α) (ha1 : a1 * ab1 = 1) (ha2 : a2 * ab2 = 1) (hs : s * s = 1)
+    (sum : a2 + ab2 = s * (a1 + ab1)) : (a2 - s * a1) * (a2 - s * ab1) = 0 := by
+  grind
+
+-- [helper]
+theorem ring_partner_inv (a1 ab1 a2 ab2 s : α) (ha1 : a1 * ab1 = 1) (ha2 : a2 * ab2 = 1) (hs : s * s = 1)
+    (e : a2 = s * ab1) : ab2 = s * a1 := by
+  subst e
+  grind
+
+-- [helper]
+theorem ring_same_inv (a1 ab1 a2 ab2 s : α) (ha1 : a1 * ab1 = 1) (ha2 : a2 * ab2 = 1) (hs : s * s = 1)
+    (e : a2 = s * a1) : ab2 = s * ab1 := by
+  subst e
+  grind
+
+/-- The mode `(s ab₁, s μ₁)` has rapidity `-θ₁`: equal rapidity forces `2 N₁ D₁ = 0`. -/
+-- [helper]
+theorem core_partner_contra (ω i h a1 ab1 m1 a2 ab2 m2 s : α) (hs : s * s = 1)
+    (aE : a2 = s * ab1) (bE : ab2 = s * a1) (mE : m2 = s * m1)
+    (e : rapNum ω i h a1 ab1 m1 * rapDen ω i a2 ab2 = rapNum ω i h a2 ab2 m2 * rapDen ω i a1 ab1) :
+    2 * (rapNum ω i h a1 ab1 m1 * rapDen ω i a1 ab1) = 0 := by
+  subst aE bE mE
+  simp only [rapNum, rapDen, cosP] at e ⊢
+  grind
+
+/-- The mode `(s a₁, s μ₁)` (`s = ±1`) has rapidity `θ₁`. -/
+-- [helper]
+theorem core_partner_eq (ω i h a1 ab1 m1 a2 ab2 m2 s : α)
+    (aE : a2 = s * a1) (bE : ab2 = s * ab1) (mE : m2 = s * m1) :
+    rapNum ω i h a1 ab1 m1 * rapDen ω i a2 ab2 = rapNum ω i h a2 ab2 m2 * rapDen ω i a1 ab1 := by
+  subst aE bE mE
+  simp only [rapNum, rapDen, cosP]
+  grind
+
+-- [helper]
+theorem core_Q (N D q : α) (w : D * D + 3 * (N * N) = 3 * N * q) : 3 * N ^ 2 + D ^ 2 = 3 * N * q := by grind
+
+-- [helper]
+theorem core_vel_fwd (p1 p2 q1 q2 r n1 n2 d1 d2 : α) (e : p1 * q2 = p2 * q1)
+    (br : (p1 * q2 - p2 * q1) * (3 * n1 ^ 2 + d1 ^ 2) * (3 * n2 ^ 2 + d2 ^ 2)
+      = -(r * q1 * q2) * (n1 * d1 * (3 * n2 ^ 2 + d2 ^ 2) - n2 * d2 * (3 * n1 ^ 2 + d1 ^ 2))) :
+    r * q1 * q2 * ((n1 * d2 - n2 * d1) * (d1 * d2 - 3 * n1 * n2)) = 0 := by
+  have fac := thm_lsx_two_to_one_factor n1 d1 n2 d2
+  grind
+
+-- [helper]
+theorem core_vel_bwd (p1 p2 q1 q2 r n1 n2 d1 d2 : α)
+    (hz : (n1 * d2 - n2 * d1) * (d1 * d2 - 3 * n1 * n2) = 0)
+    (br : (p1 * q2 - p2 * q1) * (3 * n1 ^ 2 + d1 ^ 2) * (3 * n2 ^ 2 + d2 ^ 2)
+      = -(r * q1 * q2) * (n1 * d1 * (3 * n2 ^ 2 + d2 ^ 2) - n2 * d2 * (3 * n1 ^ 2 + d1 ^ 2))) :
+    (p1 * q2 - p2 * q1) * (3 * n1 ^ 2 + d1 ^ 2) * (3 * n2 ^ 2 + d2 ^ 2) = 0 := by
+  have fac := thm_lsx_two_to_one_factor n1 d1 n2 d2
+  grind
+
+-- [helper]
+theorem core_or_zero (n1 n2 d1 d2 : α) (h : n1 * d2 = n2 * d1 ∨ 3 * n1 * n2 = d1 * d2) :
+    (n1 * d2 - n2 * d1) * (d1 * d2 - 3 * n1 * n2) = 0 := by
+  rcases h with e | e <;> grind
+
+-- [helper]
+theorem ring_defect_two (A B c F : α) (d : A - B = -c * (F + F)) (e : A = B) : c * (2 * F) = 0 := by
+  grind
+
+-- [helper]
+theorem ring_defect_back (A B c F : α) (d : A - B = -c * (F + F)) (z : c = 0) : A = B := by
+  subst z
+  grind
 
 end Ring
 
@@ -439,14 +572,11 @@ theorem thm_lsx_doorb_orientations (tone : β → Bool) (i x y : α) (f : β × 
       = x * y * (x + y) * (f (r, p, q) + f (r, q, p)) ∧
     (f (q, p, r) = -f (p, q, r) → firstOrder tone i x y f (p, q, r) = secondOrder tone i x y f (p, q, r)) ∧
     (f (r, q, p) = -f (r, p, q) → firstOrder tone i x y f (r, p, q) = secondOrder tone i x y f (r, p, q)) := by
-  have hrp : tone r ≠ tone p := by rw [hpq]; exact fun e => hqr e.symm
-  have hpr : tone p ≠ tone r := by rw [hpq]; exact hqr
   have hrq : tone r ≠ tone q := fun e => hqr e.symm
-  have hqp : tone q = tone p := hpq.symm
   have d1 := thm_line_mixed_tone_defect tone i x y f p q r hpq hqr
   have d2 : firstOrder tone i x y f (r, p, q) - secondOrder tone i x y f (r, p, q)
       = x * y * (x + y) * (f (r, p, q) + f (r, q, p)) := by
-    simp only [firstOrder, secondOrder, braid0, braid1, hpq, hqp, hrp, hrq, hpr, hqr, ite_true, ite_false]
+    simp only [firstOrder, secondOrder, braid0, braid1, hpq, hrq, hqr, ite_true, ite_false]
     grind
   refine ⟨d1, d2, ?_, ?_⟩
   · intro e
@@ -471,6 +601,30 @@ theorem field_mul_eq_zero (x y : α) (e : x * y = 0) : x = 0 ∨ y = 0 := by
       rw [← Semiring.mul_assoc, Field.inv_mul_cancel hx, Semiring.one_mul]
     rw [this, e, Semiring.mul_zero]
 
+-- [helper]
+theorem field_mul_ne_zero (x y : α) (hx : x ≠ 0) (hy : y ≠ 0) : x * y ≠ 0 := fun e =>
+  (field_mul_eq_zero x y e).elim hx hy
+
+-- [helper]
+theorem field_sub_ne_zero (x y : α) (hxy : x ≠ y) : x - y ≠ 0 := fun e => hxy (ring_eq_of_sub x y e)
+
+-- [helper]
+theorem field_one_ne_zero : (1 : α) ≠ 0 := fun e => Field.zero_ne_one e.symm
+
+/-- On a moving mode (`a ≠ ab`) with `3 ≠ 0`: `rapNum ≠ 0` and `rapDen ≠ 0`. -/
+-- [helper]
+theorem field_rap_ne_zero (ω i h a ab μ : α) (hω : ω * ω + ω + 1 = 0) (hi : i * i = -1) (hh : 2 * h = 1)
+    (h3 : (3 : α) ≠ 0) (ha : a * ab = 1) (hμ : 2 * μ * μ - (a + ab) * μ + 2 = 0) (hd : a ≠ ab) :
+    rapNum ω i h a ab μ ≠ 0 ∧ rapDen ω i a ab ≠ 0 := by
+  have sub := field_sub_ne_zero a ab hd
+  constructor
+  · intro e
+    exact field_mul_ne_zero _ _ sub sub (thm_lsx_rapidity_nonzero ω i h a ab μ hω hi hh ha hμ e)
+  · intro e
+    have sq : rapDen ω i a ab * rapDen ω i a ab = 3 * ((a - ab) * (a - ab)) := fact_rapDen_sq ω i a ab hω hi
+    rw [e, Semiring.zero_mul] at sq
+    exact field_mul_ne_zero _ _ h3 (field_mul_ne_zero _ _ sub sub) sq.symm
+
 /-- **Where `det(left) ≠ 0`, `S` is Yang's closed form**: `(W + i D) S = W P - i D I`. -/
 theorem thm_lsx_s_unique_field (ω i h a1 ab1 m1 a2 ab2 m2 sI sP : α)
     (hω : ω * ω + ω + 1 = 0) (hi : i * i = -1) (hh : 2 * h = 1)
@@ -484,15 +638,13 @@ theorem thm_lsx_s_unique_field (ω i h a1 ab1 m1 a2 ab2 m2 sI sP : α)
     (w + i * d) * sI = -(i * d) ∧ (w + i * d) * sP = w := by
   intro w d
   have ⟨u1, u2⟩ := thm_lsx_s_unique ω i h a1 ab1 m1 a2 ab2 m2 sI sP hω hi hh ha1 hm1 ha2 hm2 hsI hsP
-  simp only at u1 u2
-  change detLeft ω i h a1 ab1 m1 a2 ab2 m2 * ((w + i * d) * sI + i * d) = 0 at u1
-  change detLeft ω i h a1 ab1 m1 a2 ab2 m2 * ((w + i * d) * sP - w) = 0 at u2
   have z1 := (field_mul_eq_zero _ _ u1).resolve_left hdet
   have z2 := (field_mul_eq_zero _ _ u2).resolve_left hdet
-  constructor <;> grind
+  exact ⟨ring_eq_neg_of_add _ _ z1, ring_eq_of_sub _ _ z2⟩
 
 /-- **Coincident rapidities are one mode.** Over a field with `3 ≠ 0`, for moving modes (`a ≠ ab`):
-`θ₁ = θ₂` (cleared, `N₁ D₂ = N₂ D₁`) iff `(a₂, μ₂) = (a₁, μ₁)` or `(a₂, μ₂) = -(a₁, μ₁)` (the parity partner). -/
+`θ₁ = θ₂` (cleared, `N₁ D₂ = N₂ D₁`) iff `(a₂, μ₂) = (a₁, μ₁)` or `(a₂, μ₂) = -(a₁, μ₁)` (the parity partner, the
+same wave times `(-1)^(k + t)`). With `λ = ζ₆ μ` this is `(a₂, λ₂) = ±(a₁, λ₁)`. -/
 theorem thm_lsx_equal_rapidity_iff (ω i h a1 ab1 m1 a2 ab2 m2 : α)
     (hω : ω * ω + ω + 1 = 0) (hi : i * i = -1) (hh : 2 * h = 1) (h3 : (3 : α) ≠ 0)
     (ha1 : a1 * ab1 = 1) (hm1 : 2 * m1 * m1 - (a1 + ab1) * m1 + 2 = 0)
@@ -500,117 +652,56 @@ theorem thm_lsx_equal_rapidity_iff (ω i h a1 ab1 m1 a2 ab2 m2 : α)
     (hd1 : a1 ≠ ab1) (hd2 : a2 ≠ ab2) :
     rapNum ω i h a1 ab1 m1 * rapDen ω i a2 ab2 = rapNum ω i h a2 ab2 m2 * rapDen ω i a1 ab1 ↔
       (a2 = a1 ∧ m2 = m1) ∨ (a2 = -a1 ∧ m2 = -m1) := by
-  have nz : ∀ z : α, z * z = 0 → z = 0 := fun z hz => (field_mul_eq_zero z z hz).elim id id
-  have sub_ne : ∀ u v : α, u ≠ v → u - v ≠ 0 := fun u v huv e => huv (by grind)
-  have s3 : sqrt3 ω i * sqrt3 ω i = 3 := by
-    simp only [sqrt3]
-    grind
-  have s3ne : sqrt3 ω i ≠ 0 := fun e => h3 (by rw [← s3, e]; grind)
-  have halve : ∀ z : α, 2 * z = 0 → z = 0 := fun z hz => by
-    have e : z = h * (2 * z) := by grind
-    rw [e, hz]
-    grind
-  rw [fact_rapNum ω i h a1 ab1 m1 hi hh, fact_rapNum ω i h a2 ab2 m2 hi hh]
-  simp only [rapDen]
-  have n1ne : ω * (a1 + ab1) + 2 * m1 ≠ 0 := by
-    intro e
-    have := thm_lsx_rapidity_nonzero ω i h a1 ab1 m1 hω hi hh ha1 hm1
-      (by rw [fact_rapNum ω i h a1 ab1 m1 hi hh]; exact e)
-    exact sub_ne _ _ hd1 (nz _ this)
+  have ⟨n1, d1⟩ := field_rap_ne_zero ω i h a1 ab1 m1 hω hi hh h3 ha1 hm1 hd1
+  have ⟨_, d2⟩ := field_rap_ne_zero ω i h a2 ab2 m2 hω hi hh h3 ha2 hm2 hd2
+  have u1 := fact_mu_unit h a1 ab1 m1 hh hm1
   constructor
   · intro e
-    -- cancel √3: N₁ (a₂ - ab₂) = N₂ (a₁ - ab₁)
-    have e' : (ω * (a1 + ab1) + 2 * m1) * (a2 - ab2) = (ω * (a2 + ab2) + 2 * m2) * (a1 - ab1) := by
-      have : sqrt3 ω i * ((ω * (a1 + ab1) + 2 * m1) * (a2 - ab2) - (ω * (a2 + ab2) + 2 * m2) * (a1 - ab1)) = 0 := by
-        grind
-      have := (field_mul_eq_zero _ _ this).resolve_left s3ne
-      grind
-    -- squares: θ₁² = θ₂², hence λ₁² = λ₂², hence μ₁² = μ₂²
     have inj := thm_lsx_rapidity_square_injective ω i h a1 ab1 m1 a2 ab2 m2 hω hi hh ha1 hm1 ha2 hm2
-    simp only at inj
-    rw [fact_rapNum ω i h a1 ab1 m1 hi hh, fact_rapNum ω i h a2 ab2 m2 hi hh,
-      fact_rapDen_sq ω i a1 ab1 hi, fact_rapDen_sq ω i a2 ab2 hi] at inj
-    have lhs0 : (ω * (a1 + ab1) + 2 * m1) * (ω * (a1 + ab1) + 2 * m1) * (3 * ((a2 - ab2) * (a2 - ab2)))
-        - (ω * (a2 + ab2) + 2 * m2) * (ω * (a2 + ab2) + 2 * m2) * (3 * ((a1 - ab1) * (a1 - ab1))) = 0 := by
-      have t : ((ω * (a1 + ab1) + 2 * m1) * (a2 - ab2)) * ((ω * (a1 + ab1) + 2 * m1) * (a2 - ab2))
-          = ((ω * (a2 + ab2) + 2 * m2) * (a1 - ab1)) * ((ω * (a2 + ab2) + 2 * m2) * (a1 - ab1)) := by rw [e']
-      grind
-    rw [lhs0] at inj
-    have hl1 : lam ω m1 * lam ω m1 = ω * (m1 * m1) := by simp only [lam, zeta6]; grind
-    have hl2 : lam ω m2 * lam ω m2 = ω * (m2 * m2) := by simp only [lam, zeta6]; grind
-    rw [hl1, hl2] at inj
-    have q1 : (a1 - ab1) * (a1 - ab1) ≠ 0 := fun z => sub_ne _ _ hd1 (nz _ z)
-    have q2 : (a2 - ab2) * (a2 - ab2) ≠ 0 := fun z => sub_ne _ _ hd2 (nz _ z)
-    have w3 : (1 + 2 * ω) * (1 + 2 * ω) = -3 := by grind
-    have w3ne : 1 + 2 * ω ≠ 0 := fun z => h3 (by have := w3; rw [z] at this; grind)
-    have wne : ω ≠ 0 := fun z => by rw [z] at hω; grind
-    have prod : (3 * ((a1 - ab1) * (a1 - ab1))) * (3 * ((a2 - ab2) * (a2 - ab2))) * (1 + 2 * ω) * ω *
-        (m1 * m1 - m2 * m2) = 0 := by grind
-    have mm : m1 * m1 - m2 * m2 = 0 := by
-      rcases field_mul_eq_zero _ _ prod with z | z
+    have prod := ring_prod_mm _ _ _ _ _ _ _ _ _ ω m1 m2 inj e (ring_lam_sq ω m1 hω) (ring_lam_sq ω m2 hω)
+    have w3ne : (1 + 2 * ω) ≠ 0 := fun z => h3 (ring_three_of_sq _ (ring_w3 ω hω) z)
+    have wne : ω ≠ 0 := fun z => field_one_ne_zero (ring_one_of_omega ω hω z)
+    have dd := field_mul_ne_zero _ _ (field_mul_ne_zero _ _ d1 d2) (field_mul_ne_zero _ _ d1 d2)
+    rcases field_mul_eq_zero _ _ prod with z | mm
+    · exfalso
+      rcases field_mul_eq_zero _ _ z with z | z
       · rcases field_mul_eq_zero _ _ z with z | z
-        · rcases field_mul_eq_zero _ _ z with z | z
-          · rcases field_mul_eq_zero _ _ z with z | z
-            · rcases field_mul_eq_zero _ _ z with z | z
-              · exact absurd z h3
-              · exact absurd z q1
-            · rcases field_mul_eq_zero _ _ z with z | z
-              · exact absurd z h3
-              · exact absurd z q2
-          · exact absurd z w3ne
-        · exact absurd z wne
-      · exact z
-    have s1 := fact_mu_sum h a1 ab1 m1 hh
-    have s2 := fact_mu_sum h a2 ab2 m2 hh
-    have u1 := fact_mu_unit h a1 ab1 m1 hh hm1
-    have u2 := fact_mu_unit h a2 ab2 m2 hh hm2
-    rcases field_mul_eq_zero (m1 - m2) (m1 + m2) (by grind) with z | z
-    · -- μ₂ = μ₁, so a₂ + ab₂ = a₁ + ab₁ and a₂ ∈ {a₁, ab₁}
-      have mE : m2 = m1 := by grind
-      have sumE : a2 + ab2 = a1 + ab1 := by
-        rw [← s1, ← s2, mE]
-      rcases field_mul_eq_zero (a2 - a1) (a2 - ab1) (by grind) with z2 | z2
-      · exact Or.inl ⟨by grind, mE⟩
+        · exact dd z
+        · exact w3ne z
+      · exact wne z
+    rcases field_mul_eq_zero _ _ mm with z | z
+    · -- μ₂ = μ₁: a₂ is a₁ or ab₁, and ab₁ is the mode of rapidity -θ₁
+      have mE := ring_m_of m1 m2 z
+      have sum := ring_sum_of_mu a1 ab1 m1 a2 ab2 m2 _ 1 hm1 hm2 u1 ring_s_one mE
+      rcases field_mul_eq_zero _ _ (ring_two_roots a1 ab1 a2 ab2 1 ha1 ha2 ring_s_one sum) with z2 | z2
+      · exact Or.inl ⟨(ring_one_mul_eq _ _).mp (ring_lin_of_sub _ _ _ z2), (ring_one_mul_eq _ _).mp mE⟩
       · exfalso
-        have aE : a2 = ab1 := by grind
-        have bE : ab2 = a1 := by grind
-        rw [aE, bE, mE] at e'
-        have : 2 * ((ω * (a1 + ab1) + 2 * m1) * (a1 - ab1)) = 0 := by grind
-        have := halve _ this
-        rcases field_mul_eq_zero _ _ this with z3 | z3
-        · exact n1ne z3
-        · exact sub_ne _ _ hd1 z3
-    · have mE : m2 = -m1 := by grind
-      have sumE : a2 + ab2 = -(a1 + ab1) := by
-        have : 2 * (m2 + muBar h a2 ab2 m2) = -(2 * (m1 + muBar h a1 ab1 m1)) := by
-          simp only [muBar]
-          rw [mE]
-          grind
-        grind
-      rcases field_mul_eq_zero (a2 + a1) (a2 + ab1) (by grind) with z2 | z2
-      · exact Or.inr ⟨by grind, mE⟩
+        have aE := ring_lin_of_sub _ _ _ z2
+        have bE := ring_partner_inv a1 ab1 a2 ab2 1 ha1 ha2 ring_s_one aE
+        have c := core_partner_contra ω i h a1 ab1 m1 a2 ab2 m2 1 ring_s_one aE bE mE e
+        exact field_mul_ne_zero _ _ n1 d1 (ring_halve h _ hh c)
+    · -- μ₂ = -μ₁: a₂ is -a₁ or -ab₁
+      have mE := ring_m_of_add m1 m2 z
+      have sum := ring_sum_of_mu a1 ab1 m1 a2 ab2 m2 _ (-1) hm1 hm2 u1 ring_s_neg mE
+      rcases field_mul_eq_zero _ _ (ring_two_roots a1 ab1 a2 ab2 (-1) ha1 ha2 ring_s_neg sum) with z2 | z2
+      · exact Or.inr ⟨(ring_neg_one_mul_eq _ _).mp (ring_lin_of_sub _ _ _ z2), (ring_neg_one_mul_eq _ _).mp mE⟩
       · exfalso
-        have aE : a2 = -ab1 := by grind
-        have bE : ab2 = -a1 := by grind
-        rw [aE, bE, mE] at e'
-        have : 2 * ((ω * (a1 + ab1) + 2 * m1) * (a1 - ab1)) = 0 := by grind
-        have := halve _ this
-        rcases field_mul_eq_zero _ _ this with z3 | z3
-        · exact n1ne z3
-        · exact sub_ne _ _ hd1 z3
+        have aE := ring_lin_of_sub _ _ _ z2
+        have bE := ring_partner_inv a1 ab1 a2 ab2 (-1) ha1 ha2 ring_s_neg aE
+        have c := core_partner_contra ω i h a1 ab1 m1 a2 ab2 m2 (-1) ring_s_neg aE bE mE e
+        exact field_mul_ne_zero _ _ n1 d1 (ring_halve h _ hh c)
   · rintro (⟨aE, mE⟩ | ⟨aE, mE⟩)
-    · have bE : ab2 = ab1 := by
-        rw [aE] at ha2
-        grind
-      rw [aE, bE, mE]
-    · have bE : ab2 = -ab1 := by
-        rw [aE] at ha2
-        grind
-      rw [aE, bE, mE]
-      grind
+    · have aE' : a2 = 1 * a1 := (ring_one_mul_eq _ _).mpr aE
+      have mE' : m2 = 1 * m1 := (ring_one_mul_eq _ _).mpr mE
+      exact core_partner_eq ω i h a1 ab1 m1 a2 ab2 m2 1 aE'
+        (ring_same_inv a1 ab1 a2 ab2 1 ha1 ha2 ring_s_one aE') mE'
+    · have aE' : a2 = -1 * a1 := (ring_neg_one_mul_eq _ _).mpr aE
+      have mE' : m2 = -1 * m1 := (ring_neg_one_mul_eq _ _).mpr mE
+      exact core_partner_eq ω i h a1 ab1 m1 a2 ab2 m2 (-1) aE'
+        (ring_same_inv a1 ab1 a2 ab2 (-1) ha1 ha2 ring_s_neg aE') mE'
 
 /-- **The 2-to-1 law in our variables.** Over a field with `3 ≠ 0`, two moving modes (`a ≠ ab`, `sin W ≠ 0`) have
-equal velocity iff `θ₁ = θ₂` or `3 θ₁ θ₂ = 1` (cleared: `N₁ D₂ = N₂ D₁ ∨ 3 N₁ N₂ = D₁ D₂`), make's law at `u = θ`. -/
+equal velocity iff `θ₁ = θ₂` or `3 θ₁ θ₂ = 1` (cleared: `N₁ D₂ = N₂ D₁ ∨ 3 N₁ N₂ = D₁ D₂`): make's law at `u = θ`. -/
 theorem thm_lsx_equal_velocity_iff (ω i h a1 ab1 m1 a2 ab2 m2 : α)
     (hω : ω * ω + ω + 1 = 0) (hi : i * i = -1) (hh : 2 * h = 1) (h3 : (3 : α) ≠ 0)
     (ha1 : a1 * ab1 = 1) (hm1 : 2 * m1 * m1 - (a1 + ab1) * m1 + 2 = 0)
@@ -620,76 +711,32 @@ theorem thm_lsx_equal_velocity_iff (ω i h a1 ab1 m1 a2 ab2 m2 : α)
     velNum a1 ab1 * velDen h a2 ab2 m2 = velNum a2 ab2 * velDen h a1 ab1 m1 ↔
       (rapNum ω i h a1 ab1 m1 * rapDen ω i a2 ab2 = rapNum ω i h a2 ab2 m2 * rapDen ω i a1 ab1 ∨
         3 * rapNum ω i h a1 ab1 m1 * rapNum ω i h a2 ab2 m2 = rapDen ω i a1 ab1 * rapDen ω i a2 ab2) := by
-  have nz : ∀ z : α, z * z = 0 → z = 0 := fun z hz => (field_mul_eq_zero z z hz).elim id id
-  have sub_ne : ∀ u v : α, u ≠ v → u - v ≠ 0 := fun u v huv e => huv (by grind)
-  have s3 : sqrt3 ω i * sqrt3 ω i = 3 := by
-    simp only [sqrt3]
-    grind
-  have s3ne : sqrt3 ω i ≠ 0 := fun e => h3 (by rw [← s3, e]; grind)
-  have nne : ∀ a ab μ : α, a * ab = 1 → 2 * μ * μ - (a + ab) * μ + 2 = 0 → a ≠ ab →
-      rapNum ω i h a ab μ ≠ 0 := fun a ab μ ha hm hd e =>
-    sub_ne _ _ hd (nz _ (thm_lsx_rapidity_nonzero ω i h a ab μ hω hi hh ha hm e))
-  have n1 := nne a1 ab1 m1 ha1 hm1 hd1
-  have n2 := nne a2 ab2 m2 ha2 hm2 hd2
+  have ⟨n1, _⟩ := field_rap_ne_zero ω i h a1 ab1 m1 hω hi hh h3 ha1 hm1 hd1
+  have ⟨n2, _⟩ := field_rap_ne_zero ω i h a2 ab2 m2 hω hi hh h3 ha2 hm2 hd2
   have ⟨_, w1⟩ := thm_lsx_velocity_rapidity ω i h a1 ab1 m1 hω hi hh ha1 hm1
   have ⟨_, w2⟩ := thm_lsx_velocity_rapidity ω i h a2 ab2 m2 hω hi hh ha2 hm2
-  simp only at w1 w2
   have ⟨br, _⟩ := thm_lsx_rapidity_bridge ω i h a1 ab1 m1 a2 ab2 m2 hω hi hh ha1 hm1 ha2 hm2
-  simp only at br
-  have fac := thm_lsx_two_to_one_factor (rapNum ω i h a1 ab1 m1) (rapDen ω i a1 ab1)
-    (rapNum ω i h a2 ab2 m2) (rapDen ω i a2 ab2)
-  generalize rapNum ω i h a1 ab1 m1 = N1 at *
-  generalize rapNum ω i h a2 ab2 m2 = N2 at *
-  generalize rapDen ω i a1 ab1 = D1 at *
-  generalize rapDen ω i a2 ab2 = D2 at *
-  generalize velNum a1 ab1 = p1 at *
-  generalize velNum a2 ab2 = p2 at *
-  generalize velDen h a1 ab1 m1 = q1 at *
-  generalize velDen h a2 ab2 m2 = q2 at *
-  generalize sqrt3 ω i = r at *
-  -- Q_j = D_j² + 3 N_j² = 3 N_j q_j ≠ 0
-  have Q1 : 3 * N1 ^ 2 + D1 ^ 2 ≠ 0 := by
-    intro z
-    have : 3 * N1 * q1 = 0 := by grind
-    rcases field_mul_eq_zero _ _ this with z' | z'
-    · rcases field_mul_eq_zero _ _ z' with z'' | z''
-      · exact h3 z''
-      · exact n1 z''
-    · exact hv1 z'
-  have Q2 : 3 * N2 ^ 2 + D2 ^ 2 ≠ 0 := by
-    intro z
-    have : 3 * N2 * q2 = 0 := by grind
-    rcases field_mul_eq_zero _ _ this with z' | z'
-    · rcases field_mul_eq_zero _ _ z' with z'' | z''
-      · exact h3 z''
-      · exact n2 z''
-    · exact hv2 z'
+  have hr : sqrt3 ω i ≠ 0 := fun z => h3 (ring_three_of_sq_pos _ (ring_sqrt3_sq ω i hω hi) z)
+  have Q1 : 3 * rapNum ω i h a1 ab1 m1 ^ 2 + rapDen ω i a1 ab1 ^ 2 ≠ 0 := by
+    rw [core_Q _ _ _ w1]
+    exact field_mul_ne_zero _ _ (field_mul_ne_zero _ _ h3 n1) hv1
+  have Q2 : 3 * rapNum ω i h a2 ab2 m2 ^ 2 + rapDen ω i a2 ab2 ^ 2 ≠ 0 := by
+    rw [core_Q _ _ _ w2]
+    exact field_mul_ne_zero _ _ (field_mul_ne_zero _ _ h3 n2) hv2
   constructor
   · intro e
-    have : -(r * q1 * q2) * ((N1 * D2 - N2 * D1) * (D1 * D2 - 3 * N1 * N2)) = 0 := by
-      rw [← fac, ← br]
-      grind
-    rcases field_mul_eq_zero _ _ this with z | z
-    · exfalso
-      have : r * q1 * q2 = 0 := by grind
-      rcases field_mul_eq_zero _ _ this with z' | z'
-      · rcases field_mul_eq_zero _ _ z' with z'' | z''
-        · exact s3ne z''
-        · exact hv1 z''
-      · exact hv2 z'
-    · rcases field_mul_eq_zero _ _ z with z' | z'
-      · exact Or.inl (by grind)
-      · exact Or.inr (by grind)
+    have z := core_vel_fwd _ _ _ _ _ _ _ _ _ e br
+    rcases field_mul_eq_zero _ _ z with z | z
+    · exact absurd z (field_mul_ne_zero _ _ (field_mul_ne_zero _ _ hr hv1) hv2)
+    · rcases field_mul_eq_zero _ _ z with z | z
+      · exact Or.inl (ring_eq_of_sub _ _ z)
+      · exact Or.inr (ring_eq_of_sub_rev _ _ z)
   · intro hor
-    have hz : (N1 * D2 - N2 * D1) * (D1 * D2 - 3 * N1 * N2) = 0 := by
-      rcases hor with z | z <;> grind
-    have : (p1 * q2 - p2 * q1) * (3 * N1 ^ 2 + D1 ^ 2) * (3 * N2 ^ 2 + D2 ^ 2) = 0 := by
-      rw [br, ← fac, hz]
-      grind
-    rcases field_mul_eq_zero _ _ this with z | z
-    · rcases field_mul_eq_zero _ _ z with z' | z'
-      · grind
-      · exact absurd z' Q1
+    have z := core_vel_bwd _ _ _ _ _ _ _ _ _ (core_or_zero _ _ _ _ hor) br
+    rcases field_mul_eq_zero _ _ z with z | z
+    · rcases field_mul_eq_zero _ _ z with z | z
+      · exact ring_eq_of_sub _ _ z
+      · exact absurd z Q1
     · exact absurd z Q2
 
 /-- **Door B: a symmetric nonzero input is clean iff two rapidities coincide** (`x y (x + y) = 0`). -/
@@ -699,18 +746,14 @@ theorem thm_lsx_doorb_symmetric_diffracts {β : Type} (tone : β → Bool) (i h 
     firstOrder tone i x y f (p, q, r) = secondOrder tone i x y f (p, q, r) ↔ x * y * (x + y) = 0 := by
   have d := thm_line_mixed_tone_defect tone i x y f p q r hpq hqr
   rw [hsym] at d
-  have two : (2 : α) ≠ 0 := fun z => by rw [z] at hh; grind
+  have two : (2 : α) ≠ 0 := fun z => field_one_ne_zero (ring_one_of_two h hh z)
   constructor
   · intro e
-    have : (x * y * (x + y)) * (2 * f (p, q, r)) = 0 := by grind
-    rcases field_mul_eq_zero _ _ this with z | z
+    rcases field_mul_eq_zero _ _ (ring_defect_two _ _ _ _ d e) with z | z
     · exact z
-    · rcases field_mul_eq_zero _ _ z with z' | z'
-      · exact absurd z' two
-      · exact absurd z' hne
+    · exact absurd z (field_mul_ne_zero _ _ two hne)
   · intro z
-    have : firstOrder tone i x y f (p, q, r) - secondOrder tone i x y f (p, q, r) = 0 := by rw [d, z]; grind
-    grind
+    exact ring_defect_back _ _ _ _ d z
 
 end Field
 

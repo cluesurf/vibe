@@ -18,10 +18,23 @@ import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { splitCell } from '@/code/compute/lab/counter'
+import { gateRule, occupancyBlind } from '@/code/compute/lab/gates'
+import { wireSide } from '@/code/compute/lab/ray-search'
+import {
+  sidedUnaryClosure,
+  toneTransport,
+  unsidedUnaryClosure,
+} from '@/code/compute/lab/wire-invariant'
 import {
   PAIR_COUNT,
+  commutesWithNegation,
+  commutesWithSwap,
+  conservesExcitation,
+  fixesVacuum,
   pairIndex,
   pairRuleCensus,
+  pairRuleClasses,
   pairRulesFromFibers,
   pairTones,
   tableKey,
@@ -164,6 +177,103 @@ export function exportPairRuleTable(): string {
   })
 }
 
+// L03 (models-0074): the rule census. Per census rule its name, the four symmetry flags and its class index under
+// {1, P, C, PC} without and with time reversal (pair-rule.ts); its tone transport (wire-invariant.ts); per rule and
+// background its M6 cell kind and type (counter.ts), its wire side (ray-search.ts) and the M5 occupancy-blind flag
+// (gates.ts); and the sided and unsided unary closures of the two two-law wire rules (wire-invariant.ts).
+const RULE_CENSUS_SOURCES = [
+  'code/rule/pair-rule.ts',
+  'code/compute/lab/gates.ts',
+  'code/compute/lab/counter.ts',
+  'code/compute/lab/ray-search.ts',
+  'code/compute/lab/wire-invariant.ts',
+] as const
+
+const TWO_LAW_RULES = ['swap.BCA.swap', 'swap.CAB.swap'] as const
+
+// a unary table key "t(-1),t(0),t(1)" as a Lean triple, and its base-3 code (input -1 least significant)
+const keyTriple = (key: string): number[] => key.split(',').map(Number)
+const keyCode = (key: string): number =>
+  keyTriple(key).reduce((acc, v, i) => acc + (v + 1) * 3 ** i, 0)
+const leanTriples = (keys: Iterable<string>): string =>
+  `[${[...keys]
+    .sort((x, y) => keyCode(x) - keyCode(y))
+    .map(k => `(${keyTriple(k).join(', ')})`)
+    .join(', ')}]`
+
+export function exportRuleCensus(): string {
+  const census = pairRuleCensus().rules
+  const indexOf = (classes: ReturnType<typeof pairRuleClasses>): Map<string, number> =>
+    new Map(
+      classes.flatMap((c, i) => c.members.map(m => [tableKey(m.table), i] as const)),
+    )
+  const plain = indexOf(pairRuleClasses({ rules: census }))
+  const withInverse = indexOf(pairRuleClasses({ rules: census, withInverse: true }))
+  const gates = census.map(r => gateRule(r.name, r.table))
+  const bool = (b: boolean): string => (b ? 'true' : 'false')
+
+  const meta = census.map(r => {
+    const key = tableKey(r.table)
+
+    return `("${r.name}", ${bool(fixesVacuum(r.table))}, ${bool(conservesExcitation(r.table))}, ${bool(commutesWithSwap(r.table))}, ${bool(commutesWithNegation(r.table))}, ${plain.get(key)!}, ${withInverse.get(key)!})`
+  })
+
+  const passengers = gates.map(
+    g => `[${toneTransport(g).map(t => `(${bool(t.forward)}, ${bool(t.backward)})`).join(', ')}]`,
+  )
+
+  const cells = gates.flatMap((g, i) =>
+    [-1, 0, 1].map(b => {
+      const split = splitCell(g, b)
+
+      return `(${i}, ${b}, "${split.kind}", "${split.type ?? 'none'}", "${wireSide(g, b) ?? 'none'}", ${bool(occupancyBlind(g, b))})`
+    }),
+  )
+
+  const closures = TWO_LAW_RULES.map(name => {
+    const i = census.findIndex(r => r.name === name)
+
+    if (i < 0) {
+      throw new Error(`no census rule named ${name}`)
+    }
+
+    const sided = sidedUnaryClosure(gates[i]!)
+
+    return `(${i}, "${name}", ${leanTriples(sided.first)}, ${leanTriples(sided.second)}, ${leanTriples(unsidedUnaryClosure(gates[i]!))})`
+  })
+
+  const body = [
+    '/-- Per rule of `pairRuleCensus()`, in census order (the order of `pairRuleTables`): its name, `fixesVacuum`,',
+    '    `conservesExcitation`, `commutesWithSwap`, `commutesWithNegation`, and its class index under `{1, P, C, PC}`',
+    '    in `pairRuleClasses` without and with time reversal (`withInverse`). -/',
+    `def ruleCensusMeta : List (String × Bool × Bool × Bool × Bool × Nat × Nat) :=\n  ${leanList(meta, '  ')}`,
+    '',
+    '/-- Per census rule, `toneTransport` of wire-invariant.ts for the tones `-1, 0, +1`: (forward, backward). -/',
+    `def ruleCensusPassengers : List (List (Bool × Bool)) :=\n  ${leanList(passengers, '  ')}`,
+    '',
+    '/-- Per census rule index and background `-1, 0, +1`: `splitCell` kind and type of counter.ts, `wireSide` of',
+    '    ray-search.ts, and `occupancyBlind` of gates.ts. -/',
+    `def ruleCensusCells : List (Nat × Int × String × String × String × Bool) :=\n  ${leanList(cells, '  ')}`,
+    '',
+    '/-- For the two two-law wire rules (census index, name): `sidedUnaryClosure` first side, second side, and',
+    '    `unsidedUnaryClosure` of wire-invariant.ts, each table `(t(-1), t(0), t(+1))`, sorted by base-3 code. -/',
+    `def ruleCensusClosures :\n    List (Nat × String × List (Int × Int × Int) × List (Int × Int × Int) × List (Int × Int × Int)) :=\n  ${leanList(closures, '  ')}`,
+  ].join('\n')
+
+  return wrap({
+    header: header({
+      sources: RULE_CENSUS_SOURCES,
+      lines: [
+        `Exports the metadata, tone transport and 72 rule-background cells of the ${census.length} census rules,`,
+        `and the unary closures of ${TWO_LAW_RULES.join(' and ')}.`,
+        'Bridge: Vibe.Compute.RuleCensus (gen_rule_census_meta_eq, gen_rule_census_passengers_eq,',
+        'gen_rule_census_cells_eq, gen_rule_census_closures_eq).',
+      ],
+    }),
+    body,
+  })
+}
+
 export const LEAN_EXPORTS: readonly LeanExport[] = [
   {
     name: 'PairRuleTable',
@@ -171,6 +281,18 @@ export const LEAN_EXPORTS: readonly LeanExport[] = [
     bridgeModule: 'Vibe.Compute.PairRuleLink',
     bridges: ['gen_pair_tones_eq', 'gen_pair_rules_eq'],
     render: exportPairRuleTable,
+  },
+  {
+    name: 'RuleCensus',
+    sources: RULE_CENSUS_SOURCES,
+    bridgeModule: 'Vibe.Compute.RuleCensus',
+    bridges: [
+      'gen_rule_census_meta_eq',
+      'gen_rule_census_passengers_eq',
+      'gen_rule_census_cells_eq',
+      'gen_rule_census_closures_eq',
+    ],
+    render: exportRuleCensus,
   },
 ]
 

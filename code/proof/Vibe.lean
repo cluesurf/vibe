@@ -39,6 +39,11 @@ import Vibe.LineScattering
 import Vibe.WireInvariant
 import Vibe.SimulationContract
 import Vibe.Compute.SecondOrderZ3
+import Vibe.Compute.Selection
+import Vibe.Compute.RuleCensus
+import Vibe.Compute.Boundary
+import Vibe.Compute.LineScatteringExt
+import Vibe.Compute.QuantumWalk
 
 /-!
 # Vibe Theory: Formal Lean 4 Proof Suite
